@@ -1,6 +1,6 @@
 # SOUL DUEL: Lille Barro II, awakening v3: the stance grammar (proposal)
 
-Status: **proposal, revision 3 (2026-10-10, after the user's R1 and R2 below), waiting on 「開始實作」. Nothing is built.** The current kit is `DUEL_LILLE_V2.md` (decisions
+Status: **revision 3 built 2026-10-10 (the user: 「開始實作」; §7 the build notes). The current Lille II (kit `:barro`).** The current kit is `DUEL_LILLE_V2.md` (decisions
 V1–V9l); this file holds the animation inventory the user asked for and the v3 design drawn from the base form's stance.
 
 The request (the user, 2026-10-10), verbatim:
@@ -263,3 +263,62 @@ None blocks the build; every [G] number is a starting value for the playtest. As
    burst owl and its buff, SP1 / SP2 tiers, the armour; the traces, MUJITTAI, the revival, TENSHIN in and the old stance
    moves removed. The armour needs a kit hook in the shared hit path (inert for everyone else).
 2. Art: §4. 3. CPU / ASSIST / learning. 4. Docs, manual, playtest; then his gates (6 pairings, the mirror, the A/B).
+
+## 7. Build notes (2026-10-10, the user: 「開始實作」)
+
+### 7.1 What was built
+
+- `duel/lisp/barro.lisp` rewritten for v3 (the V2 copy is in git history, commit cfe2e0c). Kept: 萬物貫通, the base J / K
+  strings and decision V8's route split (`BR-DEFSTRING`), the base stance `:br-kamae` (its window, its Step 飛廉脚 once a
+  stance), the base SP1 / SP2 in and out of the stance, Breaker, Kikon, JILLIEL's KIN strings and SPs, the owl's strings,
+  MISUJI, Trompete and its reflect / seal, the volley strings `:br-rc0..4`, the backstep, the turn `:br-to-en`.
+  Removed: the traces and aim points, TENSHIN in, KIN J's materialising, the base stance's L / J / K shots of V1–V9l (and
+  the moving snap of V9i / V9l), MUJITTAI and its forms, the owl's revival, the HOSHA / V8 swing / lay moves.
+- **The stance strings** (`BR-DEFSTANCE`, one macro per form: `BR-S-*` base, `BR-E-*` JILLIEL, `BR-OE-*` the owl): L1 L2,
+  J1 J2 → JK1 JK2, K1 K2 → KJ1 KJ2. J / K are kind `:quick` / `:flash` string links (the generic J / K latch and its
+  chain rule: a link goes on after a touch, combos on a hit, no chase); L2 by `BR-S-TICK`'s latch (`:lchain`, from L1's
+  S + A, unchained). Every shot a 萬物貫通 hitscan line (31 m), `:track 720` (he faces him in the startup). The follow-ups'
+  f0 `BR-S-SPEND`; every shot's f0 `BR-S-START` (its gains unpaid). Clips (§3.2's table): base L `:lb-fire` / `:lb-snap`, J
+  `:lb-snap` / `:lb-k-hosha`, K `:lb-k-shot` / `:lb-k-taisha`; JILLIEL L `:br-e-swing` / `:lb-e-q3`, J `:lb-e-q1` /
+  `:lb-e-q2`, K `:lb-e-f1` / `:lb-e-f2`; the owl's `:br-oe-swing` / `:lb-oe-q3`, `:lb-oe-q1` / `-q2`, `:lb-oe-f1` / `-f2`
+  (R one less). Block advantage -12 where the blockstun allows (`BLOCKSTUN` >= 1 f: the short L / J shots -6 .. -11).
+- **The awakened stance** = EN (`:jilliel`, `:shin`): its commands L / J / K the strings' openers; `BARRO-TICK` turns him
+  back into KIN when a string run in EN ends in a free state (`BRS-IN-STRING`); a stun leaves him in EN (he may walk, or
+  start a string again). KIN's L / a J1 / J2 / K link's L: the turn (12 f); J3 → L the backstep (free since v3); K3 → L the
+  turn (the owl: the volley). The base stance: L from neutral or a link at f4 (any pips: V9e's gate is gone, the stance's
+  own strings never reopen it: `BARRO-OK` refuses an L link off a stance shot).
+- **The special resource** `BRS-AMMO`: the base's cap 3, awakened 8 (`BR-AMMO-CAP`, clamped every step: the pips carry
+  in at the awakening). L L's gains in `BARRO-HIT` (a hit or a block, once a move); J J's / J J → K K's flash step and
+  Reiatsu through `PAY-GAUGES` (a burst gains no flash step: the shared rule).
+- **SP1 / SP2 by the count**: SP1's f0 `BR-SP1-FS-GO` (18 / 35 / 70 flash step; **3 shots at every tier**: the spec's
+  5 at tier 2 is not built, the clips have three); SP2 a router (`:br-sp2`, `:br-k-sp2`, `:br-w-sp2`, `:br-o-sp2`: kind
+  `:sig`, 1 f, its f0 `BR-SP2-GO` starts the tier's copy): HIRENKYAKU enter 0 / 10 / 18, NIJUSHI-KO 0 / 20 / 38,
+  Trompete 0 / 30 / 58; tier 2 `:guard-crush` (Trompete's tier 2 not reflectable); the damage never changes.
+- **The burst owl**: `BR-OWL-SWITCH` in `BARRO-TICK` (`*BR-KEEP-OWL*`: debug, the owl kept without one); the owl's kits
+  `:mult` 1.2, `*BR-OWL-WING-EVERY*` 60 f a wing; the volley `BR-RECALL-GO` spends every wing.
+- **The wing armour**: a kit hook `:armor` (shared code: `DEFENDER-STATE`, fighter.lisp, asks it in a move after the
+  move's own armour; `combat.lisp` spends `:armor-hits` only while the move has some): `BR-ARMOR-P` (awakened, kinds
+  `:quick :flash :sig :sp`, phase `:main`, wings >= 4 / the owl 2); `BARRO-STRUCK` pays it on `:armored`. The generic
+  armour's rules hold: damage, no reaction; a Breaker and an unguardable go through (the Kikon rush's strike is its own
+  outcome).
+- **The slow motion**: `BRS-SLOW` armed at each stance entry (the base stance's f0, the turn's f0, the backstep); the first
+  stance hit then 0.1 for 0.2 s; the volley's last line on a hit 0.2 for 0.5 s.
+- **CPU** (`BR-AI-*`): the generic bands and string reflex run the strings (the follow-ups spend when they can); the base
+  stance's pick `BR-AI-STANCE-PLAN` (:stance key: L L under half the cap, J J short of flash step / bars, SP2 at 2 bars,
+  else K K; the Step on his attack); `BR-AI-REFLEX` the base stance from range (:zone), awakened the burst into the owl
+  (`BR-AI-BURST-P`: 5 wings, 70 flash step, inside 6 m); `BR-AI-SP-ENDER` J3 → L the backstep, the owl's K3 → L the
+  volley. Learning: one situation `:shot` (the stance's K K on a free opponent; `BR-LEARN-KAMAE-PLAN`). ASSIST: a J link
+  → its K link → L; in a stance his J → K K.
+- `barro-art.lisp`: the trace / aim-point looks removed; `BR-DRAW` keeps the base stance's aim line (locked through K1 /
+  JK1's startup) and the volley's looks; the HUD row draws 3 pips (SN n) or 8 (WG n); the art stills 82100+k rewritten.
+- Shared files touched: `fighter.lisp` (the `:armor` hook), `combat.lisp` (the `:armor-hits` guard): inert for everyone
+  else.
+
+### 7.2 Host tests and checks
+
+- `tests/duel-rules-test.lisp`: the Lille II block rewritten (7809 checks, ALL PASS; 8787 before: the traces' checks
+  went): the forms (5), no MUJITTAI / revival, the owl switch, the caps and gains, the strings' links / roles / clips /
+  prices, **every link combos on a hit** (the next hit lands inside the last one's stun), the base stance's picks, the
+  routers' tiers (never more damage), the armour's cases, the volley tiers (30 / 70 / 160 / 300 / 480), the CPU plans.
+  Generic blocks skip his stance EN forms where they measure melee strings (`trace-form-p`).
+- duel-control / learn / input / touch / cine: pass. pkgcheck 0. `./build.sh duel` 0 warnings.
