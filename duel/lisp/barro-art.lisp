@@ -1,8 +1,9 @@
 ;;;; barro-art.lisp — LILLE BARRO II's own looks (docs/duel/DUEL_LILLE_V2.md §7, §12, §17, §22; version 3: DUEL_LILLE_V3.md).
 ;;;; His art is Lille's, shared by reference (lille-art.lisp: the bodies, Diagramm, every :lb-* clip, LILLE-DRAW's wings /
 ;;;; halos / legs, LB-LOOK's lines and beams); this file holds only what is his: the clips Lille never had (the volley
-;;;; :br-recall and its strings, the turn, the owl's twins, the stance's swing L1), the draw hook BR-DRAW (Lille's, then the
-;;;; base stance's aim line and the volley's looks) and the special resource's HUD row.
+;;;; :br-recall and its strings, the turn, the owl's twins, the stance's swing L1), the draw hook BR-DRAW (his wing count to
+;;;; Lille's lit wings, Lille's, then the base stance's aim line, the spends' looks and the volley's) and the special
+;;;; resource's HUD row.
 ;;;; Everything here is cosmetic: the sim never reads it. Loaded after lille-art.lisp (its macros and props) and before
 ;;;; barro.lisp (whose state and knobs these functions read at draw time).
 (in-package :duel)
@@ -538,21 +539,165 @@ Reads *BR-AT* (his place and the opponent's, BR-DRAW's) and the move's frame. 0 
                             (declare (type f32vec %p))
                             (setf (aref %at (+ %o 2)) (aref %p 0) (aref %at (+ %o 3)) (aref %p 2))))))))
 
+;;; ---------------------------------------------------------------- the special resource's looks (DUEL_LILLE_V3 §4)
+;;; The lit wings are LILLE-DRAW's (%LB-WINGS reads the count BR-DRAW puts in *LB-FX* [19]); here the spends. BR-DRAW keeps
+;;; last frame's count per side (cosmetic memory, never the sim's hooks) and reads a drop as:
+;;; - a spend (one wing: a stance follow-up shot, BR-S-SPEND; or the owl's full volley, BR-RECALL-GO, every wing at once):
+;;;   a light burst at each spent blade's tip and its three holes flashing out (jade, the owl's gold), *BR-SPEND-LIFE*;
+;;; - the wing armour (two or more at once outside the volley: BARRO-STRUCK's 4, the owl's 2): those blades shatter, a flash
+;;;   along each and shards flung out from him and falling (*BR-SHATTER-LIFE*);
+;;; - in the base form a 狙擊 pip spent: a small jade glint at Diagramm's muzzle (*BR-PIP-LIFE*).
+(defparameter *br-spend-life* 0.25 "A spent wing's light burst at its tip: seconds of the fx clock (held through a hitstop) ...")
+(defparameter *br-shatter-life* 0.35 "... the armour's shatter (the shards' flight; the flash along each blade its first third) ...")
+(defparameter *br-pip-life* 0.18 "... and a spent pip's glint at Diagramm's muzzle.")
+(defparameter *br-shatter-speed* '(2.4 4.2) "The shards' speed, m/s (hashed between the two) ...")
+(defparameter *br-shatter-up* 1.6 "... plus this much up (m/s), falling at *BR-SHATTER-FALL* (m/s^2) ...")
+(defparameter *br-shatter-fall* 7.0 "... (a little under g: they read as light glass, not stone).")
+(defparameter *br-volley-moves* '(:br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4)
+  "The volley's moves: a drop while one runs is its spend-all (each blade's burst, never the shatter).")
+(declaim (type f32vec *br-wl* *br-shards*))
+(defvar *br-wl* (make-f32 (* 2 136))
+  "Per side (136 a side), the spends' memory: [0] the count seen last frame, [1] its pool (1 the base's pips, 2 the wings, 0
+none yet), [2] the fx clock of that draw, [3] the pip glint's start (fx clock); per wing W at 8 + 16 W: [0] its look's
+start (fx clock), [1] its look (0 none, 1 the spend's burst, 2 the armour's shatter), [2] 1 = the owl's gold, [3..5] its
+tip and [6..14] its three holes at the start (the shards fly from there). Cosmetic memory.")
+(defvar *br-shards* (let ((v (make-f32 (* 8 6 4))))
+                      (dotimes (n 48 v)
+                        (flet ((h (a b) (let ((x (* 43758.547 (sin (+ (* n a) b))))) (- x (floor x)))))
+                          (setf (aref v (* 4 n)) (f32 (- (* 2 (h 12.9898 0.7)) 1))   ; the sideways jitter (x his side)
+                                (aref v (+ 1 (* 4 n))) (f32 (h 78.233 2.1))           ; the speed share (0..1)
+                                (aref v (+ 2 (* 4 n))) (f32 (- (h 39.425 4.3) 0.3))   ; the up share
+                                (aref v (+ 3 (* 4 n))) (f32 (+ 0.7 (* 0.6 (h 93.989 5.9))))))))   ; the size
+  "The armour's shards, 6 a wing (wing W's shard J at 4 (6 W + J)): hashed once (a fixed pattern): sideways jitter, speed
+share, up share, size.")
+
+(defmacro %br-tip! (side i p)
+  "P (an f32vec) = SIDE's wing I's tip as last drawn: its third hole (*LB-HOLES*, 0.79 of the blade) carried on along the
+blade past it by 0.72 x the second -> third hole (the tip at 1.0). 0 B."
+  `(let* ((%h *lb-holes*) (%o (* 3 (+ (* 24 ,side) (* 3 ,i)))) (%p ,p))
+     (declare (type f32vec %h %p) (fixnum %o))
+     (dotimes (%q 3)
+       (setf (aref %p %q) (+ (aref %h (+ %o 6 %q)) (* 0.72f0 (- (aref %h (+ %o 6 %q)) (aref %h (+ %o 3 %q)))))))))
+
+(defun-fast %br-spend-note (f side n pool)
+  "BR-DRAW's spend detector, after LILLE-DRAW (so *LB-HOLES* holds this frame's blades): SIDE's special count N in POOL (1
+the base's pips, 2 the wings) against last frame's (*BR-WL*); a drop in the same pool, the last draw at most 0.25 s ago,
+starts the spent wings' looks (the volley's or one: the burst; two or more otherwise: the armour's shatter) or the pip's
+glint. 0 B."
+  (declare (fixnum side n pool))
+  (let* ((wl *br-wl*) (o (* 136 side)) (tm (fx-clock)) (last (f->i (aref wl o))) (dt (- tm (aref wl (+ o 2)))))
+    (declare (type f32vec wl) (fixnum o last) (single-float tm dt))
+    (when (and (= pool (f->i (aref wl (+ o 1)))) (< n last) (<= -0.001f0 dt 0.25f0))
+      (if (= pool 1)
+          (setf (aref wl (+ o 3)) tm)
+          (let* ((mv (and (eq (fighter-state f) :move) (fighter-move f)))
+                 (volley (and mv (member (mv-name mv) *br-volley-moves*)))
+                 (mode (if (and (>= (- last n) 2) (not volley)) 2f0 1f0))
+                 (gold (if (> (lb-fxs side 15) 0.5f0) 1f0 0f0)) (p *lb-p*) (h *lb-holes*))
+            (declare (type f32vec p h) (single-float mode gold))
+            (loop for i of-type fixnum from n below (min 8 last)
+                  do (let ((q (+ o 8 (* 16 i))) (ho (* 3 (+ (* 24 side) (* 3 i)))))
+                       (declare (fixnum q ho))
+                       (%br-tip! side i p)
+                       (setf (aref wl q) tm (aref wl (+ q 1)) mode (aref wl (+ q 2)) gold
+                             (aref wl (+ q 3)) (aref p 0) (aref wl (+ q 4)) (aref p 1) (aref wl (+ q 5)) (aref p 2))
+                       (dotimes (k 9) (setf (aref wl (+ q 6 k)) (aref h (+ ho k)))))))))
+    (setf (aref wl o) (i->f n) (aref wl (+ o 1)) (i->f pool) (aref wl (+ o 2)) tm))
+  nil)
+
+(defun-fast %br-spend-look (e side)
+  "The spent wings' looks (*BR-WL*, noted by %BR-SPEND-NOTE) at the fx clock: the spend's burst at each blade's tip as it
+is drawn now (a star, a white core, its three holes flashing out); the armour's shatter (a flash along the blade over its
+first third, six shards a blade flung out from him from its holes and tip as they were, falling, shrinking); the pip's
+glint at Diagramm's muzzle (the model looked up only while one shows). 0 B but that lookup."
+  (declare (fixnum side))
+  (let* ((wl *br-wl*) (o (* 136 side)) (tm (fx-clock)) (p *lb-p*) (h *lb-holes*) (at *br-at*) (sv *br-shards*)
+         (sl (the single-float *br-spend-life*)) (hl (the single-float *br-shatter-life*)))
+    (declare (type f32vec wl p h at sv) (fixnum o) (single-float tm sl hl))
+    (dotimes (i 8)
+      (let* ((q (+ o 8 (* 16 i))) (mode (f->i (aref wl (+ q 1)))) (age (- tm (aref wl q)))
+             (pal (if (> (aref wl (+ q 2)) 0.5f0) +pal-gold+ +pal-jade+)) (sd (i->f (+ i (* 8 side)))))
+        (declare (fixnum q mode) (single-float age pal sd))
+        (cond ((= mode 0))
+              ((or (< age -0.001f0) (> age (if (= mode 1) sl hl))) (setf (aref wl (+ q 1)) 0f0))
+              ((= mode 1)                                ; the spend: the light bursting off the tip
+               (let* ((u (/ age sl)) (k (- 1f0 (* u u))) (ho (* 3 (+ (* 24 side) (* 3 i)))))
+                 (declare (single-float u k) (fixnum ho))
+                 (%br-tip! side i p)
+                 (fx-star (aref p 0) (aref p 1) (aref p 2) (+ 0.04f0 (* 0.06f0 u)) (+ 0.14f0 (* 0.36f0 (%lb-ss (/ u 0.4f0))))
+                          7 (+ sd (* 2f0 u)) 0f0 0f0 0.1f0 (+ 280f0 sd) pal k :push 0.25f0)
+                 (fx-star (aref p 0) (aref p 1) (aref p 2) 0.03f0 (* 0.2f0 (- 1f0 u)) 5 (* 1.7f0 sd) 0f0 0f0 0.05f0
+                          (+ 290f0 sd) +pal-hit+ k :push 0.3f0)
+                 (dotimes (g 3)                          ; its holes flashing out
+                   (fx-disc (aref h (+ ho (* 3 g))) (aref h (+ ho (* 3 g) 1)) (aref h (+ ho (* 3 g) 2))
+                            (* 0.08f0 (- 1f0 u)) 0.04f0 (+ 300f0 sd (i->f g)) pal (* 0.9f0 k) :push 0.15f0))))
+              (t                                         ; the armour: the blade shatters
+               (let* ((u (/ age hl)) (k (- 1f0 (* u u u))) (ax (aref at (* 8 side))) (az (aref at (+ (* 8 side) 1)))
+                      (sp0 (f32 (first *br-shatter-speed*))) (sp1 (f32 (second *br-shatter-speed*)))
+                      (up (the single-float *br-shatter-up*)) (gv (the single-float *br-shatter-fall*)))
+                 (declare (single-float u k ax az sp0 sp1 up gv))
+                 (when (< u 0.34f0)                      ; the flash along the blade
+                   (let ((kf (- 1f0 (/ u 0.34f0))))
+                     (declare (single-float kf))
+                     (toon-ribbon ((aref wl (+ q 6)) (aref wl (+ q 7)) (aref wl (+ q 8)))
+                                  ((- (aref wl (+ q 3)) (aref wl (+ q 6))) (- (aref wl (+ q 4)) (aref wl (+ q 7)))
+                                   (- (aref wl (+ q 5)) (aref wl (+ q 8))))
+                                  ((* 0.12f0 kf) (* 0.08f0 kf)) :heat (1f0 1f0) :seed (- -300f0 sd) :wob 0.05f0 :pal +pal-hit+
+                                  :k kf :k1 (* 0.8f0 kf) :segs 2)
+                     (fx-star (aref wl (+ q 9)) (aref wl (+ q 10)) (aref wl (+ q 11)) (* 0.08f0 kf) (+ 0.25f0 (* 0.35f0 u)) 9
+                              (* 2.3f0 sd) 0f0 0f0 0.15f0 (+ 310f0 sd) pal kf :push 0.3f0)))
+                 (dotimes (j 6)                          ; the shards: from the holes and the tip, outward from him, falling
+                   (let* ((r (* 4 (+ (* 6 i) j))) (c (* 0.6f0 (i->f j)))   ; (their start: along holes 0 -> 1 -> 2 -> tip)
+                          (seg (min 2 (f->i c))) (fr (- c (i->f seg)))
+                          (a0 (+ q 6 (* 3 seg))) (a1 (if (= seg 2) (+ q 3) (+ q 9 (* 3 seg))))
+                          (x0 (+ (aref wl a0) (* fr (- (aref wl a1) (aref wl a0)))))
+                          (y0 (+ (aref wl (+ a0 1)) (* fr (- (aref wl (+ a1 1)) (aref wl (+ a0 1))))))
+                          (z0 (+ (aref wl (+ a0 2)) (* fr (- (aref wl (+ a1 2)) (aref wl (+ a0 2))))))
+                          (ox (- x0 ax)) (oz (- z0 az)) (ol (f-max 0.05f0 (f-hypot ox oz))) (ux (/ ox ol)) (uz (/ oz ol))
+                          (jt (aref sv r)) (spd (+ sp0 (* (aref sv (+ r 1)) (- sp1 sp0))))
+                          (vx (* spd (- ux (* 0.6f0 jt uz)))) (vz (* spd (+ uz (* 0.6f0 jt ux))))
+                          (vy (+ up (* spd (aref sv (+ r 2)))))
+                          (px (+ x0 (* vx age))) (py (+ y0 (* vy age) (* -0.5f0 gv age age))) (pz (+ z0 (* vz age)))
+                          (dvy (- vy (* gv age))) (dl (f-max 1f-3 (f-hypot vx dvy vz))) (sz (aref sv (+ r 3))))
+                     (declare (fixnum r seg a0 a1)
+                              (single-float c fr x0 y0 z0 ox oz ol ux uz jt spd vx vz vy px py pz dvy dl sz))
+                     (when (> py 0.02f0)
+                       (fx-shard px py pz (/ vx dl) (/ dvy dl) (/ vz dl) (* 0.2f0 sz (- 1f0 (* 0.5f0 u))) (* 0.045f0 sz k)
+                                 0.1f0 (+ 320f0 sd (i->f j)) pal k :push 0.1f0)))))))))
+    (let ((age (- tm (aref wl (+ o 3)))) (pl (the single-float *br-pip-life*)))   ; the base's pip glint at the muzzle
+      (declare (single-float age pl))
+      (when (<= 0f0 age pl)
+        (let ((u (/ age pl)))
+          (declare (single-float u))
+          (joint-point! p (model-joints (model e)) (ji :weapon-r) 0f0 0f0 -1.75f0)
+          (fx-star (aref p 0) (aref p 1) (aref p 2) 0.04f0 (+ 0.12f0 (* 0.2f0 (%lb-ss (/ u 0.3f0)))) 6 (* 2f0 u) 0f0 0f0
+                   0.08f0 330f0 +pal-jade+ (- 1f0 (* u u)) :push 0.2f0)
+          (fx-star (aref p 0) (aref p 1) (aref p 2) 0.02f0 (* 0.1f0 (- 1f0 u)) 4 0.4f0 0f0 0f0 0.05f0 331f0 +pal-hit+
+                   (- 1f0 u) :push 0.25f0)))))
+  nil)
+
 
 
 (defun-fast br-draw (e rdt)
-  "His kit's :draw hook: Lille's (LILLE-DRAW: his forms carry Lille's form names, so the wings, the halos, the legs and the
-cinematics' drives come out the same; his volley strings drive its SP looks through BR-RC-DRIVE), then the base stance's
-aim line (%BR-AIM-LOOK); his place and the opponent's (%BR-PLACE!); the volley's light gathering (%BR-RECALL-LOOK), each
-string beat's lines from the wing tips (%BR-BEAT-LOOK) and 裁き・極's ring, blast and beam (%BR-KIWAMI-LOOK)."
+  "His kit's :draw hook: his special count to Lille's wings (*LB-FX* [19]: awakened, the first N blades lit, the rest
+dimmed), Lille's (LILLE-DRAW: his forms carry Lille's form names, so the wings, the halos, the legs and the cinematics'
+drives come out the same; his volley strings drive its SP looks through BR-RC-DRIVE), then the base stance's aim line
+(%BR-AIM-LOOK); his place and the opponent's (%BR-PLACE!); the spends (%BR-SPEND-NOTE against last frame's count: a
+wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-SPEND-LOOK); the volley's light gathering
+(%BR-RECALL-LOOK), each string beat's lines from the wing tips (%BR-BEAT-LOOK) and 裁き・極's ring, blast and beam
+(%BR-KIWAMI-LOOK)."
   (declare (single-float rdt))
-  (lille-draw e rdt)
   (let* ((f (fighter e)) (side (fighter-side f)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
-         (c (if mv (%br-chain-clock (mv-name mv) (fighter-sf f)) -1)) (o (* 65 side)))
-    (declare (fixnum side c o))
+         (c (if mv (%br-chain-clock (mv-name mv) (fighter-sf f)) -1)) (o (* 65 side))
+         (awake (member (fighter-form f) '(:jilliel-kin :jilliel :shin-kin :shin))) (n (br-ammo-look e)))
+    (declare (fixnum side c o n))
+    (setf (lb-fxs side 19) (if awake (i->f (1+ (min 8 n))) 0f0))
+    (lille-draw e rdt)
     (if (eq (fighter-form f) :base)
         (%br-aim-look e f side)
         (%br-place! e (fighter-opp f) side))
+    (%br-spend-note f side n (if awake 2 1))
+    (%br-spend-look e side)
     (setf (aref *br-fly* o) 0f0)                        ; (no traces to fly back since v3: the gathering only)
     (when (>= c 0)
       (let ((jm (model-joints (model e))))
@@ -584,7 +729,7 @@ stance's L1 / J1 / K1 (6 m out); 18 / 19 JILLIEL's stance L1 / K1 (6 m out)."
       (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
             (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))   ; (no K.O. across a script's scenes)
       (case k
-        ((0 1 2 3 4) (setf (brs-ammo (br b)) (nth k '(0 2 4 6 8))) (start-move b (find-move :br-recall)))
+        ((0 1 2 3 4) (br-set-ammo b (nth k '(0 2 4 6 8))) (start-move b (find-move :br-recall)))
         ((8 10) (start-move b (find-move :br-to-en)))
         ((9 11) (start-move b (find-move :br-backstep)))
         (12 (start-move b (find-move :br-trompete)))
@@ -602,29 +747,38 @@ stance's L1 / J1 / K1 (6 m out); 18 / 19 JILLIEL's stance L1 / K1 (6 m out)."
     (start-cine 'lb-jilliel-cine *p1* *p2*))
   (when *cine* (setf *cine-hold* t (cine-hold *cine*) f)))
 
+(defun br-art-ammo (k)
+  "82380+k: the special resource of the Lille II on the field (P1, else P2) set to K, as a sim spend would (the looks
+read the drop: one wing the burst at its tip, two or more the armour's shatter, a pip the muzzle glint)."
+  (let ((b (if (and *p1* (eq (kit-character (fighter-kit (fighter *p1*))) :barro)) *p1* *p2*)))
+    (when b (br-set-ammo b k))))
+
 (defun barro-art-debug (c)
   "His art stills (barro.lisp registers 82100-82399 ahead of BARRO-DEBUG): 82100+k BR-ART-SCENE k (+ 20 the front view);
 82200+f the sim freezes once his look clock reaches f (the volley chain's: the recall's frame, 7 + its string's; else the
-move's frame; issue it before the scene), 82299 lets go; 82300+k his awakening held at frame 10 k (BR-ART-CINE); 82398 the
-consing probe."
+move's frame; issue it before the scene), 82299 lets go; 82300+k his awakening held at frame 10 k (BR-ART-CINE);
+82380+k his special set to k, 0-8 (BR-ART-AMMO: the spend looks); 82398 the consing probe."
   (let ((n (- c 82100)))
     (cond ((< n 100) (br-art-scene n))
           ((< n 199) (setf *br-art-hold-next* (- n 100)))
           ((= n 199) (setf *br-art-hold* -1 *br-art-hold-next* -1 *hitstop* 0))
           ((< n 219) (br-art-cine (* 10 (- n 200))))
+          ((<= 280 n 288) (br-art-ammo (- n 280)))
           ((= n 298) (br-cons-probe))
           (t (log-msg "duel barro: no debug command ~d" c)))))
 
 (defun br-cons-probe ()
-  "82398: bytes consed by 10 draws of P1 Lille II's :draw hook (BR-DRAW, LILLE-DRAW's lookups included), of his volley look
+  "82398: bytes consed by 10 draws of P1 Lille II's :draw hook (BR-DRAW, LILLE-DRAW's lookups included), of the spends'
+note and looks (%BR-SPEND-NOTE / -LOOK: the pip glint's model lookup aside), of his volley look
 at its clock 4 and of a string beat's lines (when a string runs), and of 裁き・極's look (while it runs), and of his HUD row
 (a \"barro consing\" line)."
   (let* ((e *p1*) (f (fighter e)) (side (fighter-side f)) (jm (model-joints (model e)))
          (mv (and (eq (fighter-state f) :move) (fighter-move f))))
     (macrolet ((per (form) `(let ((c0 (cons-bytes))) (dotimes (i 10) ,form) (- (cons-bytes) c0))))
-      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) recall ~d beat (lines drive beat) ~a kiwami ~d"
+      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d"
                (fighter-form f) (br-hold-clock f)
-               (per (br-draw e 0.016f0)) (per (lille-draw e 0.016f0)) (per (%br-recall-look e jm side 4))
+               (per (br-draw e 0.016f0)) (per (lille-draw e 0.016f0))
+               (per (progn (%br-spend-note f side (br-ammo-look e) 2) (%br-spend-look e side))) (per (%br-recall-look e jm side 4))
                (if (and mv (member (mv-name mv) '(:br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4)))
                    (list (per (%br-beat-look e f jm side mv)) (per (br-rc-drive f mv)) (per (br-rc-beat (mv-name mv) (fighter-sf f))))
                    -1)
