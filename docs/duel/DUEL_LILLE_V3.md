@@ -351,3 +351,25 @@ None blocks the build; every [G] number is a starting value for the playtest. As
 | 82010 | Shift+L | the router → `:br-w-nijushi-2` (no charge): the beam 2 f in, 180 |
 | 82005 | L, Step, J J | the stance Step, its J → the stance's J1 J2 |
 
+
+### 7.4 Gates (native sim, `tools/simgate.py`; no BL, no old-Lille pairing)
+
+20 seeds, all K.O. (median of play time, his wins of 20):
+
+| BY | BK | BR | BI | BS | BB (mirror) |
+|---|---|---|---|---|---|
+| **96.3 s**, 16 | **118.7 s**, 9 | 154.2 s, 15 | 131.0 s, 13 | 155.3 s, 16 | 136.4 s, 11 |
+
+60-seed reruns of the two under 125 s (all K.O.): **BY 98.4 s** (137.9 with the cinematics), his wins 48 / 12;
+**BK 121.0 s** (166.7), 26 / 34. V2 stood at BY 115.9 / BK 112.9 (accepted, decision V5). BY is 17.5 s shorter than V2's
+(not attributed: the whole kit changed at once). **Reported to the user, not tuned** (gate policy).
+
+**Awaken A/B** (`--cmd 39020`: he is P1 and never awakens, P2 by its kit's rule; 60 seeds a stream, seed0 100 / 300 / 500;
+the never-awaken side's wins of 60, pass ≥ 20; all K.O.):
+
+| BK | BB (mirror) |
+|---|---|
+| 21 / 25 / 28 | 41 / 47 / 38 |
+
+Both pass on every stream. BK failed on every stream in V2 (8 / 11 / 14, V6–V7: 11–18): his base stance (K K at 45 a
+hit, J J → K K for flash step) holds Kenpachi without the awakening now.
