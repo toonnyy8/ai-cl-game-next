@@ -294,7 +294,9 @@ None blocks the build; every [G] number is a starting value for the playtest. As
   5 at tier 2 is not built, the clips have three); SP2 a router (`:br-sp2`, `:br-k-sp2`, `:br-w-sp2`, `:br-o-sp2`: kind
   `:sig`, 1 f, its f0 `BR-SP2-GO` starts the tier's copy): HIRENKYAKU enter 0 / 10 / 18, NIJUSHI-KO 0 / 20 / 38,
   Trompete 0 / 30 / 58; tier 2 `:guard-crush` (Trompete's tier 2 not reflectable); the damage never changes.
-- **The burst owl**: `BR-OWL-SWITCH` in `BARRO-TICK` (`*BR-KEEP-OWL*`: debug, the owl kept without one); the owl's kits
+- **The burst owl**: `BR-OWL-SWITCH` in `BARRO-TICK`, applied only out of a move (the first gate run crashed: a burst ending
+  inside the owl's K1 switched him to JILLIEL, whose kit has no owl link for the latched K2) (`*BR-KEEP-OWL*`: debug, the
+  owl kept without one); the owl's kits
   `:mult` 1.2, `*BR-OWL-WING-EVERY*` 60 f a wing; the volley `BR-RECALL-GO` spends every wing.
 - **The wing armour**: a kit hook `:armor` (shared code: `DEFENDER-STATE`, fighter.lisp, asks it in a move after the
   move's own armour; `combat.lisp` spends `:armor-hits` only while the move has some): `BR-ARMOR-P` (awakened, kinds

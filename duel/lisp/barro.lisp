@@ -698,11 +698,14 @@ attack, the wings for it)."
   (br-armor-p (fighter-form f) (mv-kind mv) (fighter-phase f) (brs-ammo (br e))))
 
 (defun barro-tick (e f g)
-  "Per step (his kit's :tick): the burst owl (BR-OWL-SWITCH: a burst in a JILLIEL form turns him into the owl, its end back;
+  "Per step (his kit's :tick): the burst owl (BR-OWL-SWITCH: a burst in a JILLIEL form turns him into the owl, its end back,
+once he is out of a move;
 the owl's wing every *BR-OWL-WING-EVERY* frames); the awakened stance's string end (back to KIN, decision R2); the
 specials' cap; Trompete's reflect check on its f59; the pacing clocks."
   (when (or *br-test-awake* *br-test-diff*) (br-test-tick e f))
-  (let* ((st (br e)) (form (fighter-form f)) (to (and (not *br-keep-owl*) (br-owl-switch form (gauges-burst g)))))
+  (let* ((st (br e)) (form (fighter-form f))
+         (to (and (not *br-keep-owl*) (not (eq (fighter-state f) :move))   ; (never inside a move: its string's links are
+                  (br-owl-switch form (gauges-burst g)))))                     ;  its form's; the gate's crash, 2026-10-10)
     (when to
       (set-form e to)
       (setf (brs-owl-t st) 0 form to)
