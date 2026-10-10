@@ -658,6 +658,17 @@ its first free step: the masher never awakens itself).")
 (defun br (e)
   "E's Lille II state (his BRS component, attached on the first call: a new fighter entity, a new match, gets a fresh one)."
   (or (brs e) (let ((st (make-brs))) (add-component e st) st)))
+(defun br-ammo-look (e)
+  "E's special resource count for his looks (barro-art.lisp BR-DRAW: the lit wings, the spend flash, the armour's shatter),
+read in a DO-ENTITIES pass over the BRS components (a component getter conses 8 B in this build; the pass does not); 0
+before his state exists. Read only (never makes the state)."
+  (do-entities (h (st brs))
+    (when (eql h e) (return-from br-ammo-look (brs-ammo st))))
+  0)
+(defun br-set-ammo (e n)
+  "Debug (barro-art.lisp's art stills, BR-ART-SCENE / BR-ART-AMMO): E's special resource set to N. Here, not there: that
+file compiles before the BRS component, so a SETF of its accessor there is an undefined function at run time."
+  (setf (brs-ammo (br e)) n))
 
 ;;; ================================================================ hooks
 (defun br-tick-brain (e)

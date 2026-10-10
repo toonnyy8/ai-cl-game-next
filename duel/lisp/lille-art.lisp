@@ -1759,7 +1759,8 @@ last pass-through (fx clock), [4] the fold 0..1, [5] sealed seen (1), [6] the se
 [10] the reticle shown (1 tracking, 2 locked), [11] the distance there, [12 13] the reflector's x z, [14] the eye's tick
 whose third-opening line was shown, [15] 1 while he is the owl (his hazards' gold), [16] the wings' spread 0..1 (an SP
 fans them out), [17] its joints' unfurl 0..1 (slower: they furl, then open from the root), [18] the owl's EN spread 0..1
-(decision 36: EN fans the wings out, KIN sweeps them back; decision 38: also EN's legs folded up, 5 / s).")
+(decision 36: EN fans the wings out, KIN sweeps them back; decision 38: also EN's legs folded up, 5 / s); [19] Lille II's
+loaded wings + 1 (BR-DRAW sets it before LILLE-DRAW, which clears it after the wings; 0: none, the old Lille).")
 (dotimes (s 2) (setf (aref *lb-fx* (* 24 s)) -1f0 (aref *lb-fx* (+ (* 24 s) 14)) -1f0))
 (defvar *lb-hud* (make-f32 8) "The HUD pip's arguments: cx cy r, [3] the fx clock.")
 (defvar *lb-alphas* (let ((v (make-array 21))) (dotimes (i 21 v) (setf (svref v i) (f32 (/ i 20.0)))))
@@ -1852,6 +1853,17 @@ path's colour back to the jade / gold.")
 glass (0.35) so the blade's outline, teeth and holes still read.")
 (defparameter *lb-glass-ghost* 0.18 "MUJITTAI's glass alpha (more ghostly than the normal wings) ...")
 (defparameter *lb-rim-ghost* 0.3 "... and its rim's (fainter still: 0.4 -> 0.3 with decision 32, the normal rim being 0.6).")
+;; Lille II's lit wings (DUEL_LILLE_V3 §3.1, §4: 「a lit blade each; the owl's gold wings」, 2026-10-10): in his awakened
+;; forms his special resource is the wings, and the count shows on the eight blades. BR-DRAW (barro-art.lisp) puts the
+;; count + 1 in *LB-FX* [19] of his side before LILLE-DRAW; LILLE-DRAW clears it after the wings. The old Lille never sets it
+;; (0: every blade as it always was). The loaded blades are the first N by row (top pair down, right before left), so a
+;; spent wing goes dark from the lowest pair up: the loaded ones' rims stronger and their three holes glowing (jade / the
+;; owl's gold, a white core), the spent ones dimmed. A blade lit by a volley beat ([65]) keeps the normal look.
+(defparameter *lb-load-rim* 0.85 "Lille II's loaded wing: its rim's alpha (the normal 0.6), the outline and holes reading brighter ...")
+(defparameter *lb-load-hole* 0.05 "... its holes' glow radius (m; a white core 0.4 x; the Kikon card's 0.06), pulsing +-15 % ...")
+(defparameter *lb-spent-glass* 0.12 "... and a spent wing's glass alpha (the normal 0.35) ...")
+(defparameter *lb-spent-rim* 0.25 "... its rim's (the normal 0.6) ...")
+(defparameter *lb-spent-glow* 0.45 "... and both their emissive (the normal *LB-GLASS-GLOW* 1.0): a spent blade reads dark.")
 ;; Jointed (decision 32, 2026-10-06: 「每片翅膀改成中間加 2 節可以彎折的連接觸，讓整體動作與攻擊動畫不會太死板」): each blade is
 ;; three segments chained at two joints (1/3, 2/3); each joint TILTS the next segment's frame (toward the blade's width
 ;; axis: a bend in its plane; toward its normal: a curl out of it). What bends them, all cosmetic (the fx clock, his pose
@@ -2061,11 +2073,12 @@ by WD (its width scale). 0 B."
              (aref %m (+ 8 %q)) (* %d (aref %w (+ %b 6 %q)))))
      (setf (aref %m 3) 0f0 (aref %m 7) 0f0 (aref %m 11) 0f0 (aref %m 12) ,ox (aref %m 13) ,oy (aref %m 14) ,oz (aref %m 15) 1f0)))
 
-(defmacro %lb-wing-draw (kind g ga ra)
+(defmacro %lb-wing-draw (kind g ga ra &optional (em '*lb-glass-glow*))
   "Draw segment G (0 root, 1 middle, 2 tip) of a blade at *LB-M*: its glass at GA, then its rim at RA (both see-through
-with the glow), KIND 0 jade, 1 jade with the holes lit, 2 gold."
-  (flet ((pair (glass rim) `((draw-weapon ,glass *lb-m* :alpha ,ga :emissive *lb-glass-glow*)
-                             (draw-weapon ,rim *lb-m* :alpha ,ra :emissive *lb-glass-glow*))))
+with the glow EM: a boxed float form, *LB-GLASS-GLOW* unless Lille II's spent wing), KIND 0 jade, 1 jade with the holes
+lit, 2 gold."
+  (flet ((pair (glass rim) `((draw-weapon ,glass *lb-m* :alpha ,ga :emissive ,em)
+                             (draw-weapon ,rim *lb-m* :alpha ,ra :emissive ,em))))
     `(case ,kind
        (0 (case ,g (0 ,@(pair :lb-wing-0 :lb-wing-rim-0)) (1 ,@(pair :lb-wing-1 :lb-wing-rim-1)) (t ,@(pair :lb-wing-2 :lb-wing-rim-2))))
        (1 (case ,g (0 ,@(pair :lb-wing-0 :lb-wing-lit-0)) (1 ,@(pair :lb-wing-1 :lb-wing-lit-1)) (t ,@(pair :lb-wing-2 :lb-wing-lit-2))))
@@ -2106,6 +2119,10 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
          (ghost (< a 0.99f0))
          (ga (lb-alpha (if ghost (the single-float *lb-glass-ghost*) (* a (the single-float *lb-glass-alpha*)))))
          (ra (lb-alpha (if ghost (the single-float *lb-rim-ghost*) (* a (the single-float *lb-rim-alpha*)))))
+         (ld (f->i (aref *lb-fx* (+ (* 24 side) 19))))   ; Lille II's loaded wings + 1 (0: none, the old Lille)
+         (rl (lb-alpha (* a (the single-float *lb-load-rim*))))       ; (his loaded blade's rim, ...
+         (gs (lb-alpha (* a (the single-float *lb-spent-glass*))))    ;  his spent blade's glass and rim)
+         (rs (lb-alpha (* a (the single-float *lb-spent-rim*))))
          (pairs (f->i (aref v 15))) (lk (aref v 16)) (from (f->i (aref v 23))) (sp (aref v 28))
          (sb (* (aref v 29) (- 1f0 (aref w 69))))        ; (the owl's beat opens KIN's sheaf: decision 56)
          (rx (aref v 0)) (ry (aref v 1)) (rz (aref v 2))
@@ -2126,7 +2143,7 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
          (gl (the single-float *lb-lag-gain*)) (lm (the single-float *lb-lag-max*))
          (wa (the single-float *lb-wave-amp*)) (wc (the single-float *lb-wave-curl*)) (ws (the single-float *lb-wave-speed*))
          (wl (the single-float *lb-wave-lag*)) (fc (the single-float *lb-fold-curl*)) (fu (the single-float *lb-furl*)))
-    (declare (type f32vec v w mm) (fixnum pairs from mask)
+    (declare (type f32vec v w mm) (fixnum pairs from mask ld)
              (single-float k j rip tm a lk sp sb rx ry rz xx xy xz yx yy yz zx zy zz xl zl fx fy fz sx sy sz yl su vx0 vy0 vz0 vl dvx dvy dvz vb u dt tsc rise c1 c2
                            gl lm wa wc ws wl fc fu))
     (when (> (aref w 47) 0.5f0)                         ; decision 50: where he stands and faces, the clip's root offset and
@@ -2278,14 +2295,18 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
               (setf len (/ len tl))))
           ;; 5. the three segments, each from the last one's end; a wing in [65]'s bits drawn with its holes lit (decision
           ;; 56: SANREN's firing wing, NIJUSHI-KO's and the Kikon's charge) and, while [66] > 0, the muzzle flash at its holes
+          ;; (Lille II, LD > 0: the first LD - 1 blades loaded, the rest spent, a volley beat's lit blade as it is)
           (let* ((qx ox) (qy oy) (qz oz) (l3 (* len 0.33333334f0))
-                 (lw (and (= kind 0) (logbitp i (f->i (aref w 65))))) (kd (if lw 1 kind)) (mf (if lw (aref w 66) 0f0)))
+                 (lw (and (= kind 0) (logbitp i (f->i (aref w 65))))) (kd (if lw 1 kind)) (mf (if lw (aref w 66) 0f0))
+                 (ldw (and (> ld 0) (not lw) (< i (1- ld)))) (spw (and (> ld 0) (not lw) (>= i (1- ld)))))
             (declare (single-float qx qy qz l3 mf) (fixnum kd))
             (dotimes (g 3)
               (let ((b (* 9 g)))
                 (declare (fixnum b))
                 (%lb-seg-m! *lb-m* w b qx qy qz len wd)
-                (%lb-wing-draw kd g ga ra)
+                (cond (spw (%lb-wing-draw kd g gs rs *lb-spent-glow*))
+                      (ldw (%lb-wing-draw kd g ga rl))
+                      (t (%lb-wing-draw kd g ga ra)))
                 (let* ((ly (* len (case g (0 0.2f0) (1 0.16666667f0) (t 0.12333333f0))))   ; the hole on this segment
                        (lx (* wd (case g (0 0.055f0) (1 0.08f0) (t 0.056f0))))            ;  (*LB-WING-HOLES*: 0.2 / 0.5 /
                        (hx (+ qx (* ly (aref w (+ b 3))) (* lx (aref w b))))              ;  0.79 of the blade, its centre
@@ -2301,7 +2322,13 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
                     (fx-star hx hy hz (* 0.06f0 mf (aref v 31)) (* 0.22f0 mf (aref v 31)) 6 (* 0.7f0 sd) 0f0 0f0 0.1f0 sd
                              +pal-jade+ mf :push 0.2f0)
                     (fx-star hx hy hz (* 0.03f0 mf (aref v 31)) (* 0.1f0 mf (aref v 31)) 4 (* 1.3f0 sd) 0f0 0f0 0.05f0
-                             (+ 40f0 sd) +pal-hit+ mf :push 0.25f0)))
+                             (+ 40f0 sd) +pal-hit+ mf :push 0.25f0))
+                  (when ldw                                 ; (Lille II's loaded blade: its holes glowing, pulsing)
+                    (let ((hr (* (the single-float *lb-load-hole*) (aref v 31)
+                                 (+ 1f0 (* 0.15f0 (f-sin (+ (* 3.1f0 tm) (* 0.9f0 (i->f hi)))))))))
+                      (declare (single-float hr))
+                      (fx-disc hx hy hz hr 0.04f0 (+ 260f0 sd) (if (= kind 2) +pal-gold+ +pal-jade+) 0.85f0 :push 0.15f0)
+                      (fx-disc hx hy hz (* 0.4f0 hr) 0.03f0 (+ 360f0 sd) +pal-hit+ 0.9f0 :push 0.18f0))))
                 (setf qx (+ qx (* l3 (aref w (+ b 3)))) qy (+ qy (* l3 (aref w (+ b 4)))) qz (+ qz (* l3 (aref w (+ b 5)))))))))))
     nil))
 
@@ -2886,6 +2913,7 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
                (%lb-load-place! e)
                (%lb-trumpet (f-clamp (/ (- (i->f tsf) 10f0) 50f0) 0f0 1f0))))
            (%lb-seal-look e f m sealed side)))))
+    (setf (lb-fxs side 19) 0f0)                          ; (Lille II's lit wings: BR-DRAW's, this frame only)
     nil))
 
 (defun lille-body-alpha (e)
