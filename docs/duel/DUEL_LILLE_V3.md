@@ -311,6 +311,16 @@ None blocks the build; every [G] number is a starting value for the playtest. As
   → its K link → L; in a stance his J → K K.
 - `barro-art.lisp`: the trace / aim-point looks removed; `BR-DRAW` keeps the base stance's aim line (locked through K1 /
   JK1's startup) and the volley's looks; the HUD row draws 3 pips (SN n) or 8 (WG n); the art stills 82100+k rewritten.
+- SP2's routers start their tier through the kit's strings (`:tier0` .. `:tier2`, `*BR-SP2-TIERS*`): a move the kit does
+  not list can't be started by name (the first build's router stopped there).
+- **The looks (§4, an art agent in its own worktree, merged)**: `lille-art.lisp` `*LB-FX*` slot 19 per side (his loaded
+  wings + 1; the old Lille never sets it, his path unchanged): `%LB-WINGS` lights the first N blades (rim 0.6 → 0.85, the
+  three holes glowing, jade / the owl's gold) and dims the rest (glass 0.12, rim 0.25); `barro-art.lisp` `%BR-SPEND-NOTE`
+  reads last frame's count per side (`*BR-WL*`, draw-side memory): one wing (or the volley's) a burst at that blade's tip,
+  0.25 s; 2+ at once outside the volley the armour's shatter (a flash along each blade, 6 shards a blade), 0.35 s; a base
+  pip a glint at Diagramm's muzzle. Debug 82380+k sets his special to k (stills). The looks gate: 110 of 112 stills
+  byte-identical to the parent (every old-Lille still); the 2 others his (`cvc-bk/w3-0`, `cine-barro/barro-awaken-150`).
+  Draw 80 B / 10 draws (as before), the spend looks 0 B.
 - Shared files touched: `fighter.lisp` (the `:armor` hook), `combat.lisp` (the `:armor-hits` guard): inert for everyone
   else.
 
@@ -321,4 +331,21 @@ None blocks the build; every [G] number is a starting value for the playtest. As
   prices, **every link combos on a hit** (the next hit lands inside the last one's stun), the base stance's picks, the
   routers' tiers (never more damage), the armour's cases, the volley tiers (30 / 70 / 160 / 300 / 480), the CPU plans.
   Generic blocks skip his stance EN forms where they measure melee strings (`trace-form-p`).
-- duel-control / learn / input / touch / cine: pass. pkgcheck 0. `./build.sh duel` 0 warnings.
+- duel-control / learn / input / touch / cine: pass. pkgcheck 0. `./build.sh duel` 0 warnings (7919 rules checks after
+  the SP2 routers' strings).
+
+### 7.3 Browser checks (`node tools/run.mjs dist/duel --fixed-dt 16.666667`, combat log)
+
+| Debug | Input | Result |
+|---|---|---|
+| 82005 (base, 3 pips, 4 m) | L, K K, J | K1 / K2 / KJ1 hit 58 each (45 x 1.3; KJ1 15 + 30 for a pip), 3 → 2 pips; the stance's slow motion on K1 |
+| 82015 (base stance up, 0 pips) | L L | L1 +1, L2 +2: 0 → 3 pips |
+| 82016 (base stance, 3 pips, 20 FS, 0 Rei) | J J K K | J1 J2 JK1 JK2 hit: FS 20 → 100, Reiatsu 0 → 132, 3 → 1 pip |
+| 82010 (EN, 8 wings) | K K J J | K1 K2 KJ1 KJ2 hit, 8 → 6 wings, back in KIN at its end |
+| 82002 (KIN, 0 wings) | L, L L | the turn into EN (11 f), L1 L2: 0 → 3 wings, back in KIN |
+| 82013 (KIN, 8 wings, 100 FS) | Shift+J | WHITE: the owl at once; FS drains 18 / s; at 0 (tick 353) back to JILLIEL KIN |
+| 82014 (the owl, 8 wings, 1.4 m) | K K K, L | K3 → L: the volley tier 4 (six 40s and the 240 beam: a knockdown, the volley's slow motion), 8 → 0 wings |
+| 82017 (KIN, 4 wings) | his K1, P2's J1 | P2's J1 `ARMORED`: 4 → 0 wings, his K1 goes on and hits |
+| 82010 | Shift+L | the router → `:br-w-nijushi-2` (no charge): the beam 2 f in, 180 |
+| 82005 | L, Step, J J | the stance Step, its J → the stance's J1 J2 |
+
