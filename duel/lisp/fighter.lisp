@@ -845,6 +845,8 @@ still :parry); never in a reaction (a bind, a Guard Break, a crush reel: no armo
                              (eq (fighter-phase f) :dash)
                              (and (eq (fighter-phase f) :main) (<= *armor-from* sf) (< sf (mv-s mv)))))
                     :armor)
+                   ((let ((h (kit-hook (kit-of e) :armor))) (and h (funcall h e f mv)))   ; a kit's own armour (Lille II's
+                    :armor)                                                              ;  wings: DUEL_LILLE_V3 R1)
                    ((and (member :stance (mv-flags mv)) (eq (fighter-phase f) :hold))
                     (if (< (fighter-hold f) *stance-in*) :stance-in :stance))
                    ((and (member :parry (mv-flags mv)) (eq (fighter-phase f) :main) (parry-frame-p sf (getf (mv-params mv) :window))) :parry)

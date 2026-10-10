@@ -253,7 +253,8 @@ result (NIL = no effect)."
                  (emit :rush-dash att)
                  (clog "~a KIKON FOLLOW-UP on ~a~:[~; (red)~]" (side-name att) (side-name def) red)))))
           (:armored                                     ; a move's armour (one hit spent)
-           (when (eq def-state :armor) (decf (fighter-armor-left fd)))
+           (when (and (eq def-state :armor) (plusp (fighter-armor-left fd))) (decf (fighter-armor-left fd)))   ; (a kit's
+                                                        ;  :armor hook pays its own price: its :struck)
            (hitstop *hitstop-block*)
            (emit :armored def x y z)
            (deal-damage att def (hit-damage base atk dmods 1 nil)))

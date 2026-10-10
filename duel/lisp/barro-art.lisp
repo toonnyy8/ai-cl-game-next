@@ -1,13 +1,13 @@
-;;;; barro-art.lisp — LILLE BARRO II's own looks (docs/duel/DUEL_LILLE_V2.md §7). His art is Lille's, shared by reference
-;;;; (lille-art.lisp: the bodies, Diagramm, every :lb-* clip, LILLE-DRAW's wings / halos / legs, LB-LOOK's lines and beams);
-;;;; this file holds only what is his: the draw hook BR-DRAW (Lille's, then his stance's aim line), his trace lines' floor
-;;;; look (BR-TRACE-LOOK, his BRH data) and the 狙擊 gauge's HUD row. The clips Lille never had (the recall :br-recall and its
-;;;; strings :br-rc1..3) come in the art batch; until then the moves play Lille's stand-ins (barro.lisp *BR-STAND-INS*).
+;;;; barro-art.lisp — LILLE BARRO II's own looks (docs/duel/DUEL_LILLE_V2.md §7, §12, §17, §22; version 3: DUEL_LILLE_V3.md).
+;;;; His art is Lille's, shared by reference (lille-art.lisp: the bodies, Diagramm, every :lb-* clip, LILLE-DRAW's wings /
+;;;; halos / legs, LB-LOOK's lines and beams); this file holds only what is his: the clips Lille never had (the volley
+;;;; :br-recall and its strings, the turn, the owl's twins, the stance's swing L1), the draw hook BR-DRAW (Lille's, then the
+;;;; base stance's aim line and the volley's looks) and the special resource's HUD row.
 ;;;; Everything here is cosmetic: the sim never reads it. Loaded after lille-art.lisp (its macros and props) and before
 ;;;; barro.lisp (whose state and knobs these functions read at draw time).
 (in-package :duel)
 
-(declaim (special *br-trace-len* *br-trace-r-thick* *br-at*))  ; (barro.lisp's, loaded after this file; *BR-AT* below, §17)
+(declaim (special *br-at* *br-keep-owl*))  ; (*BR-AT* below; *BR-KEEP-OWL* barro.lisp's, loaded after)
 
 ;;; ---------------------------------------------------------------- his clips (DUEL_LILLE_V2 §7, §12: the art batch)
 ;;; The motions Lille never had, timed to barro.lisp's frame data. JILLIEL's on its rig (the front wing pair's tips are the
@@ -250,6 +250,10 @@
   (17 :lb-oe-stance) (:end :lb-oe-stance))
 
 ;;; ---------------------------------------------------------------- the draw hook
+(defparameter *br-aim-stance* '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
+  "The base stance's moves: the aim line tracks while one runs ...")
+(defparameter *br-aim-locked* '(:br-s-k1 :br-s-jk1)
+  "... and turns jade, locked, through the startup of these shots (the K clip :lb-k-shot's 10 f on the line).")
 (defun-fast %br-aim-look (e f side)
   "The stance's aim line (Lille's %LB-AIM-LOOK on his moves): a thin line on the floor from under the muzzle to the wall,
 grey while the stance (:br-kamae / :br-kamae-k / :br-kamae-j / :br-kamae-re) tracks, jade once the shot :br-k-shot locks until it fires; the reticle at
@@ -257,8 +261,8 @@ the opponent's distance, turning while it tracks, closing once locked."
   (declare (fixnum side))
   (setf side 0)                                         ; (unused: the slot memory is Lille's HUD tag's, not his)
   (let* ((mv (fighter-move f)) (nm (and mv (eq (fighter-state f) :move) (mv-name mv)))
-         (stance (or (eq nm :br-kamae) (eq nm :br-kamae-k) (eq nm :br-kamae-j) (eq nm :br-kamae-re)))
-         (locked (and (eq nm :br-k-shot) (eq (fighter-phase f) :main) (< (fighter-sf f) (mv-s mv)))))
+         (stance (and nm (member nm *br-aim-stance*)))
+         (locked (and nm (member nm *br-aim-locked*) (eq (fighter-phase f) :main) (< (fighter-sf f) (mv-s mv)))))
     (when (or stance locked)
       (%lb-load-place! e)
       (let* ((v *lb-v*) (yaw (aref v 27)) (ux (- (f-sin yaw))) (uz (- (f-cos yaw)))
@@ -510,134 +514,17 @@ Reads *BR-AT* (his place and the opponent's, BR-DRAW's) and the move's frame. 0 
 ;; (unused with the swing clips since the revert: no move plays them, so this never draws) the ranged L swing's hit
 ;; (decision V8: a hit sets the aim point): a light stroke flicked from the swing's tip back over
 ;; his shoulder onto the new sigil 0.5 m behind him, while the set's flare (%BR-LIVE-LOOK) stamps it in
-(declaim (type f32vec *br-new*))
-(defvar *br-new* (let ((v (make-f32 8))) (setf (aref v 2) 99f0 (aref v 6) 99f0) v)
-  "Per side (4): the youngest live trace %BR-LIVE-LOOK drew this frame: [0 1] its point, [2] its age (frames; 99 none), [3]
-its yaw. BR-DRAW reads it on the next frame (fighters draw before hazards) and clears it.")
-(defparameter *br-swing-clips* '(:br-e-swing :br-oe-swing) "The ranged L swing's clips (the flick plays while one runs).")
-(defparameter *br-flick-f* 8 "The flick: the stroke runs from the tip to the sigil over the first half, all of it fading by this frame.")
-
-(defun-fast %br-swing-flick (f side)
-  "The flick (*BR-NEW*'s trace younger than *BR-FLICK-F*, his clip a swing): a stroke from the swing's tip (1.7 m ahead of
-him on the new line, chest height) arcing up over him and down onto the sigil, a light head running it, jade (the
-owl's gold). 0 B."
-  (declare (fixnum side))
-  (let* ((v *br-new*) (o (* 4 side)) (age (aref v (+ o 2))) (ff (i->f (the fixnum *br-flick-f*))))
-    (declare (type f32vec v) (fixnum o) (single-float age ff))
-    (when (and (< age ff) (member (kit-move-clip (fighter-kit f) (mv-clip (fighter-move f))) *br-swing-clips*))
-      (let* ((px (aref v o)) (pz (aref v (+ o 1))) (yaw (aref v (+ o 3))) (ux (- (f-sin yaw))) (uz (- (f-cos yaw)))
-             (tx (+ px (* 2.2f0 ux))) (tz (+ pz (* 2.2f0 uz))) (mx (+ px (* 0.9f0 ux))) (mz (+ pz (* 0.9f0 uz)))
-             (k (- 1f0 (/ age ff))) (h (f-min 1f0 (/ (+ age 1f0) (* 0.5f0 ff))))
-             (pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+)) (sd (i->f side)))
-        (declare (single-float px pz yaw ux uz tx tz mx mz k h pal sd))
-        (fx-crescent tx 1.5f0 tz px 0.08f0 pz mx 3.1f0 mz (* 0.14f0 k) :comet 0.04f0 (+ 151f0 sd) pal (* 0.95f0 k) :push 0.2f0)
-        (fx-crescent tx 1.5f0 tz px 0.08f0 pz mx 3.1f0 mz (* 0.05f0 k) :comet 0.02f0 (+ 153f0 sd) +pal-hit+ (* 0.9f0 k) :push 0.25f0)
-        (let* ((q (- 1f0 h)) (hx (+ (* q q tx) (* 2f0 q h mx) (* h h px))) (hy (+ (* q q 1.5f0) (* 2f0 q h 3.1f0) (* h h 0.08f0)))
-               (hz (+ (* q q tz) (* 2f0 q h mz) (* h h pz))))
-          (declare (single-float q hx hy hz))
-          (when (< h 0.999f0)
-            (fx-star hx hy hz 0.04f0 0.22f0 6 (* 3f0 age) 0f0 0f0 0.1f0 (+ 152f0 sd) +pal-hit+ (* 0.95f0 k) :push 0.3f0))))))
-  nil)
-
 (defun br-hold-clock (f)
   "The art stills' clock of F's move (debug 82200+f): the recall chain's (%BR-CHAIN-CLOCK), else the move's frame, else -1."
   (let ((mv (and (eq (fighter-state f) :move) (fighter-move f))))
     (if mv (let ((c (%br-chain-clock (mv-name mv) (fighter-sf f)))) (if (>= c 0) c (fighter-sf f))) -1)))
 
-;;; ---------------------------------------------------------------- his aim points' look (cosmetic, 0 B a frame; §17)
-;;; Decision V7's aim points, drawn in the game's ink (DUEL_LILLE_V2 §17, 2026-10-10): each point a sigil on the floor (a
-;;; ring, eight ticks, a chevron along its line toward him, Lille's eye mark turning inside; jade, the owl's gold), its line
-;;; in value steps that read "pivoting on him": dim from the point to him, the light tone 2.5 m behind to 3.5 m past him,
-;;; then the plain tone thinning past 12 / 20 m to the 31 m end, a light dash running from the point through him and on;
-;;; SP2's thick one wider, its 1.2 m lane edged on both sides and a second ring round its sigil. Set: the sigil stamped in
-;;; (1.5 x, settling), a flash and a ring at the point, the line drawn out to its end in 4 frames. Fired (materialised by a
-;;; J / K): a light head runs along it from the point through him and on in 5 frames, the spent line flashes on the floor,
-;;; the sigil bursts; a miss leaves an ink puff and a dashed gap where the line passed him by. Both players see all of it
-;;; (the counterplay: step off the line). Numbers go through f32vecs and macros (a DEFUN-FAST call boxes floats).
-(declaim (type f32vec *br-at* *br-shot* *br-tv*))
+
+;;; ---------------------------------------------------------------- BR-DRAW
+(declaim (type f32vec *br-at*))
 (defvar *br-at* (make-f32 16)
-  "Per side (8 a side), written by BR-DRAW every frame for his traces' looks (HAZARD-DRAW runs after the fighters): [0 1]
-his x z, [2 3] the opponent's, [4] 1 once written.")
-(defvar *br-shot* (let ((v (make-f32 (* 2 4 12)))) (dotimes (i 8 v) (setf (aref v (+ (* 12 i) 1)) -1f6)))
-  "Per side, 4 fired traces (12 each, the oldest reused): [0] the trace's id, [1] the fx clock when first seen fired, [2 3]
-its point, [4] its yaw, [5] 1 thick, [6] 1 once it connected (hit or block: HAZARD-CONNECTED spent its hit), [7] his
-distance along it then, [8 9] the opponent then, [10] 1 the owl's, [11] the fx clock it was last seen (the hazard lives 3
-frames: gone, an unspent one missed).")
-(defvar *br-tv* (make-f32 16) "The trace looks' scratch numbers ([0..7] %BR-FLOOR's, [8..11] %BR-SIGIL's).")
-(defparameter *br-fire-f* 5 "Fired: the light head runs the whole line in this many frames (from the point through him) ...")
-(defparameter *br-fire-life* 0.6 "... and the fired look (the burst, the spent line, a miss's mark) lasts this many seconds.")
-
-(defun br-sigil-mesh (mb)
-  "The aim point's sigil, unit radius, flat in XZ: a ring, eight short ticks outside it, a chevron past it along +Z (the line,
-toward him)."
-  (lb-ring mb 0.88 1.0 0.03 :n 32)
-  (dotimes (i 8)
-    (let ((a (* i (/ pi 4))))
-      (with-xform (mb (xform :x (* 1.1 (cos a)) :z (* 1.1 (sin a)) :yaw (- a))) (mb-box mb (if (evenp i) 0.18 0.1) 0.03 0.045))))
-  (dolist (s '(-1 1))
-    (with-xform (mb (xform :x (* s 0.12) :z 1.32 :yaw (* s -0.8))) (mb-box mb 0.055 0.03 0.34))))
-(defweapon :br-sigil-jade (:length 1.0) (:solid :ink 0 (mbc mb #xB4DCC4) (br-sigil-mesh mb)))
-(defweapon :br-sigil-gold (:length 1.0) (:solid :ink 0 (mbc mb #xE2CC8E) (br-sigil-mesh mb)))
-(defweapon :br-reticle-gold (:length 1.0) (:solid :ink 0 (mbc mb #xE2CC8E) (lb-reticle-mesh mb)))   ; (Lille's has jade / grey)
-(defweapon :br-line-jade-hi (:length 1.0) (:solid :ink 0 (mbc mb #xB4DCC4) (with-xform (mb (xform :y 0.5)) (mb-box mb 1.0 1.0 1.0))))
-(defweapon :br-line-gold-hi (:length 1.0) (:solid :ink 0 (mbc mb #xEAD9A4) (with-xform (mb (xform :y 0.5)) (mb-box mb 1.0 1.0 1.0))))
-
-(defmacro %br-floor (kind x0 z0 ux uz s0 s1 w)
-  "A flat line on the floor along the unit (UX UZ), from S0 to S1 m past (X0 Z0), W wide: KIND 0 jade, 1 the owl's gold,
-2 / 3 their light tones, 4 grey. Nothing when S1 <= S0 (single-float forms through *BR-TV*: 0 B)."
-  `(let ((%v *br-tv*))
-     (declare (type f32vec %v))
-     (setf (aref %v 0) ,x0 (aref %v 1) ,z0 (aref %v 2) ,ux (aref %v 3) ,uz (aref %v 4) ,s0 (aref %v 5) ,s1 (aref %v 6) ,w)
-     (%br-floor* ,kind)))
-(defun-fast %br-floor* (kind)
-  (declare (fixnum kind))
-  (let* ((m *lb-m*) (v *br-tv*) (ux (aref v 2)) (uz (aref v 3)) (s0 (aref v 4)) (len (- (aref v 5) s0)) (w (aref v 6)))
-    (declare (type f32vec m v) (single-float ux uz s0 len w))
-    (when (and (> len 0.01f0) (> w 0.001f0))
-      (setf (aref m 0) (* w (- uz)) (aref m 1) 0f0 (aref m 2) (* w ux) (aref m 3) 0f0
-            (aref m 4) (* len ux) (aref m 5) 0f0 (aref m 6) (* len uz) (aref m 7) 0f0
-            (aref m 8) 0f0 (aref m 9) 0.006f0 (aref m 10) 0f0 (aref m 11) 0f0
-            (aref m 12) (+ (aref v 0) (* s0 ux)) (aref m 13) 0.022f0 (aref m 14) (+ (aref v 1) (* s0 uz)) (aref m 15) 1f0)
-      (setf (aref *toon-body* 1) 0f0)
-      (case kind (0 (draw-weapon :lb-line-jade m)) (1 (draw-weapon :lb-line-gold m)) (2 (draw-weapon :br-line-jade-hi m))
-            (3 (draw-weapon :br-line-gold-hi m)) (t (draw-weapon :lb-line-grey m))))
-    nil))
-
-(defmacro %br-sigil (gold x z r spin)
-  "The sigil (BR-SIGIL-MESH) flat on the floor at (X Z), radius R, its chevron along the yaw SPIN + pi (jade, GOLD the owl's)."
-  `(let ((%v *br-tv*))
-     (declare (type f32vec %v))
-     (setf (aref %v 8) ,x (aref %v 9) ,z (aref %v 10) ,r (aref %v 11) ,spin)
-     (%br-sigil* ,gold)))
-(defun-fast %br-sigil* (gold)
-  (let* ((m *lb-m*) (v *br-tv*) (r (aref v 10)) (spin (aref v 11)) (c (f-cos spin)) (s (f-sin spin)))
-    (declare (type f32vec m v) (single-float r spin c s))
-    (setf (aref m 0) (* r c) (aref m 1) 0f0 (aref m 2) (* r (- s)) (aref m 3) 0f0
-          (aref m 4) 0f0 (aref m 5) r (aref m 6) 0f0 (aref m 7) 0f0
-          (aref m 8) (* r s) (aref m 9) 0f0 (aref m 10) (* r c) (aref m 11) 0f0
-          (aref m 12) (aref v 8) (aref m 13) 0.034f0 (aref m 14) (aref v 9) (aref m 15) 1f0)
-    (setf (aref *toon-body* 1) 0f0)
-    (if gold (draw-weapon :br-sigil-gold m) (draw-weapon :br-sigil-jade m))
-    nil))
-(defmacro %br-eye (gold x z r spin)
-  "Lille's eye mark (the reticle) flat at (X Z), radius R, turned SPIN: jade, GOLD the owl's (through *LB-V*, %LB-RETICLE's)."
-  `(if ,gold
-       (let ((%v *lb-v*))
-         (declare (type f32vec %v))
-         (setf (aref %v 17) ,x (aref %v 18) ,z (aref %v 19) ,r (aref %v 20) ,spin)
-         (%br-eye-gold*))
-       (%lb-reticle t ,x ,z ,r ,spin)))
-(defun-fast %br-eye-gold* ()
-  (let* ((m *lb-m*) (v *lb-v*) (r (aref v 19)) (spin (aref v 20)) (c (f-cos spin)) (s (f-sin spin)))
-    (declare (type f32vec m v) (single-float r spin c s))
-    (setf (aref m 0) (* r c) (aref m 1) 0f0 (aref m 2) (* r (- s)) (aref m 3) 0f0
-          (aref m 4) 0f0 (aref m 5) r (aref m 6) 0f0 (aref m 7) 0f0
-          (aref m 8) (* r s) (aref m 9) 0f0 (aref m 10) (* r c) (aref m 11) 0f0
-          (aref m 12) (aref v 17) (aref m 13) 0.03f0 (aref m 14) (aref v 18) (aref m 15) 1f0)
-    (setf (aref *toon-body* 1) 0f0)
-    (draw-weapon :br-reticle-gold m)
-    nil))
-
+  "Per side (8 a side), written by BR-DRAW every frame: [0 1] his x z, [2 3] the opponent's, [4] 1 once written (the volley's
+裁き・極 look reads it).")
 (defmacro %br-place! (e opp side)
   "*BR-AT* [8 SIDE ..] = E's and OPP's x z, read in a DO-ENTITIES pass over the transforms (a component getter conses
 8 B in this build; the pass does not)."
@@ -651,216 +538,27 @@ toward him)."
                             (declare (type f32vec %p))
                             (setf (aref %at (+ %o 2)) (aref %p 0) (aref %at (+ %o 3)) (aref %p 2))))))))
 
-(defun-fast %br-live-look (hz d side gold)
-  "A live trace (decision V7): the sigil on its point, its line through him in value steps (§17), the running dash, SP2's
-lane edges, and the set's flare over its first 14 frames (the hazard's age: sim frames, held in a hitstop)."
-  (declare (fixnum side))
-  (let* ((x (hazard-x hz)) (z (hazard-z hz)) (yaw (hazard-yaw hz)) (ux (- (f-sin yaw))) (uz (- (f-cos yaw)))
-         (thick (eq (brh-src d) :sp2)) (at *br-at*) (o (* 8 side))
-         (sl (if (> (aref at (+ o 4)) 0.5f0) (f-max 0f0 (+ (* (- (aref at o) x) ux) (* (- (aref at (+ o 1)) z) uz))) 0.5f0))
-         (end (f-min (the single-float (f32 *br-trace-len*)) (%lb-wall x z ux uz)))
-         (age (hazard-age hz)) (af (i->f age)) (tm (fx-clock)) (sd (i->f (mod (brh-id d) 9)))
-         (r (if thick 0.7f0 0.42f0)) (w (if thick 0.11f0 0.042f0)) (sa (* 1.62f0 r))
-         (grow (f-min end (+ sa (* 7.5f0 (+ af 1f0)))))     ; (the set: the line drawn out to its end in 4 frames)
-         (k0 (if gold 1 0)) (k1 (if gold 3 2)) (pal (if gold +pal-gold+ +pal-jade+))
-         (u8 (f-min 1f0 (/ af 8f0))) (rs (* r (+ 1f0 (* 0.5f0 (- 1f0 u8) (- 1f0 u8))))))
-    (declare (type f32vec at) (fixnum o age k0 k1)
-             (single-float x z yaw ux uz sl end af tm sd r w sa grow pal u8 rs))
-    ;; the sigil, the eye mark turning inside it (SP2's: a second ring at its lane's width)
-    (%br-sigil gold x z rs (+ yaw 3.1415927f0))
-    (%br-eye gold x z (* 0.58f0 rs) (+ (* 0.9f0 tm) (* 0.7f0 sd)))
-    (when thick (%tring x 0f0 z (the single-float (f32 *br-trace-r-thick*)) 0.025f0 pal 0.75f0 (+ 3f0 sd) 32))
-    ;; the line: dim to him, the light tone round him, then thinning to its end
-    (let ((b0 (f-max sa (- sl 2.5f0))) (b1 (+ sl 3.5f0)))
-      (declare (single-float b0 b1))
-      (%br-floor k0 x z ux uz sa (f-min grow b0) (* 0.8f0 w))
-      (%br-floor k1 x z ux uz b0 (f-min grow b1) (* 1.35f0 w))
-      (%br-floor k0 x z ux uz b1 (f-min grow (+ sl 12f0)) w)
-      (%br-floor k0 x z ux uz (+ sl 12f0) (f-min grow (+ sl 20f0)) (* 0.6f0 w))
-      (%br-floor k0 x z ux uz (+ sl 20f0) grow (* 0.35f0 w)))
-    (when thick                                          ; SP2's lane: its 1.2 m edges either side
-      (let ((hw (the single-float (f32 *br-trace-r-thick*))))
-        (declare (single-float hw))
-        (dotimes (i 2)
-          (let* ((sg (if (= i 0) -1f0 1f0)) (ex (+ x (* sg hw (- uz)))) (ez (+ z (* sg hw ux))))
-            (declare (single-float sg ex ez))
-            (%br-floor k0 ex ez ux uz sa (f-min grow (%lb-wall ex ez ux uz)) 0.024f0)))))
-    ;; the dash running from the point through him and on (once a 3.8 s lap; its own phase per trace)
-    (let* ((sp (+ sa (f-mod (+ (* 9f0 tm) (* 3.7f0 sd)) 34f0))) (tl (f-max sa (- sp 1.6f0)))
-           (fade (if (<= sp sl) 1f0 (f-clamp (- 1f0 (/ (- sp sl) (f-max 1f0 (- end sl)))) 0f0 1f0))))
-      (declare (single-float sp tl fade))
-      (when (and (< sp grow) (> fade 0.05f0) (>= af 14f0))
-        (toon-ribbon ((+ x (* tl ux)) 0.07f0 (+ z (* tl uz))) ((* (- sp tl) ux) 0f0 (* (- sp tl) uz))
-                     (0f0 (* (if thick 2.2f0 1f0) 0.05f0)) :heat (0.6f0 1f0) :seed (- -91f0 sd) :wob 0.02f0 :pal pal
-                     :k (* 0.5f0 fade) :k1 (* 0.95f0 fade) :segs 2)))
-    ;; the set: a white flash and a ring at the point, a star, the line's head running out to its end
-    (when (< af 14f0)
-      (fx-envelope (sc kk fl ph) ((/ af 60f0) 1 3 2 8)
-        (let ((u (/ af 14f0)))
-          (declare (single-float u))
-          (when (> fl 0f0) (fx-disc x 0.2f0 z (* 1.4f0 r) 0.04f0 (+ 81f0 sd) +pal-hit+ 0.95f0 :push 0.3f0))
-          (%tring x 0f0 z (* r (+ 1.2f0 (* 2.6f0 u))) 0.05f0 pal kk (+ 82f0 sd) 32)
-          (fx-star x 0.3f0 z (* 0.05f0 sc) (* (if thick 0.9f0 0.6f0) sc) 8 (* 0.4f0 sd) 0f0 0f0 0.1f0 (+ 83f0 sd) +pal-hit+ kk
-                   :push 0.3f0)
-          (when (< grow end)
-            (let ((tl (f-max sa (- grow 3f0))))
-              (declare (single-float tl))
-              (toon-ribbon ((+ x (* tl ux)) 0.08f0 (+ z (* tl uz))) ((* (- grow tl) ux) 0f0 (* (- grow tl) uz))
-                           (0f0 0.07f0) :heat (0.7f0 1f0) :seed (- -84f0 sd) :wob 0.02f0 :pal +pal-hit+ :k 0.6f0 :k1 0.95f0 :segs 2)
-              (fx-star (+ x (* grow ux)) 0.1f0 (+ z (* grow uz)) 0.03f0 0.2f0 6 sd 0f0 0f0 0.1f0 (+ 85f0 sd) pal 0.9f0
-                       :push 0.2f0))))))
-    ;; the youngest, for the swing's flick (BR-DRAW, the next frame)
-    (let ((nw *br-new*) (o4 (* 4 side)))
-      (declare (type f32vec nw) (fixnum o4))
-      (when (< af (aref nw (+ o4 2)))
-        (setf (aref nw o4) x (aref nw (+ o4 1)) z (aref nw (+ o4 2)) af (aref nw (+ o4 3)) yaw)))
-    ;; noted for the recall's look (BR-DRAW)
-    (let* ((s *br-seen*) (o2 (* 65 side)) (n (f->i (aref s o2))))
-      (declare (type f32vec s) (fixnum o2 n))
-      (when (< n 16)
-        (let ((q (+ o2 1 (* 4 n))))
-          (declare (fixnum q))
-          (setf (aref s q) x (aref s (+ q 1)) z (aref s (+ q 2)) yaw (aref s (+ q 3)) (if thick 1f0 0f0)
-                (aref s o2) (i->f (1+ n)))))))
-  nil)
 
-(defun-fast %br-fired-note (hz d side gold)
-  "A materialised trace's 3 frames (its hit window): kept in *BR-SHOT* (its point, line, his place on it and the opponent's
-then; connected once its hit is spent) for BR-DRAW's fired look (%BR-FIRED-LOOK), which outlives the hazard."
-  (declare (fixnum side))
-  (let* ((v *br-shot*) (o (* 48 side)) (id (i->f (brh-id d))) (tm (fx-clock)) (slot -1) (old o) (ot 1f30))
-    (declare (type f32vec v) (fixnum o slot old) (single-float id tm ot))
-    (dotimes (i 4)
-      (let ((q (+ o (* 12 i))))
-        (declare (fixnum q))
-        (if (and (= (aref v q) id) (< (- tm (aref v (+ q 11))) 0.25f0))
-            (setf slot q)
-            (when (< (aref v (+ q 1)) ot) (setf ot (aref v (+ q 1)) old q)))))
-    (when (< slot 0)
-      (let* ((x (hazard-x hz)) (z (hazard-z hz)) (yaw (hazard-yaw hz)) (ux (- (f-sin yaw))) (uz (- (f-cos yaw)))
-             (at *br-at*) (oa (* 8 side)))
-        (declare (single-float x z yaw ux uz) (type f32vec at) (fixnum oa))
-        (setf slot old
-              (aref v slot) id (aref v (+ slot 1)) tm (aref v (+ slot 2)) x (aref v (+ slot 3)) z (aref v (+ slot 4)) yaw
-              (aref v (+ slot 5)) (if (eq (brh-src d) :sp2) 1f0 0f0) (aref v (+ slot 6)) 0f0
-              (aref v (+ slot 7)) (f-max 0f0 (+ (* (- (aref at oa) x) ux) (* (- (aref at (+ oa 1)) z) uz)))
-              (aref v (+ slot 8)) (aref at (+ oa 2)) (aref v (+ slot 9)) (aref at (+ oa 3)) (aref v (+ slot 10)) (if gold 1f0 0f0))))
-    (when (<= (hazard-hits-left hz) 0) (setf (aref v (+ slot 6)) 1f0))
-    (setf (aref v (+ slot 11)) tm))
-  nil)
-
-(defun-fast %br-fired-look (side)
-  "SIDE's fired traces (*BR-SHOT*, the fx clock): a light head running the line from the point through him to its end over
-*BR-FIRE-F* frames (at the shot's height, 1.2 m), the spent line flashing on the floor, the sigil bursting at the point, a
-star where it passed through him; a miss (its hazard gone, its hit unspent): a grey puff and two ink streaks where the line
-passed him by and a dashed ink gap from there to him. Over *BR-FIRE-LIFE* s. 0 B."
-  (declare (fixnum side))
-  (let* ((v *br-shot*) (o (* 48 side)) (tm (fx-clock)) (life (the single-float (f32 *br-fire-life*)))
-         (ff (i->f (the fixnum *br-fire-f*))))
-    (declare (type f32vec v) (fixnum o) (single-float tm life ff))
-    (dotimes (i 4)
-      (let* ((q (+ o (* 12 i))) (age (- tm (aref v (+ q 1)))))
-        (declare (fixnum q) (single-float age))
-        (when (and (> (aref v q) 0.5f0) (>= age 0f0) (< age life))
-          (let* ((x (aref v (+ q 2))) (z (aref v (+ q 3))) (yaw (aref v (+ q 4))) (ux (- (f-sin yaw))) (uz (- (f-cos yaw)))
-                 (thick (> (aref v (+ q 5)) 0.5f0)) (gold (> (aref v (+ q 10)) 0.5f0)) (sl (aref v (+ q 7)))
-                 (pal (if gold +pal-gold+ +pal-jade+)) (end (f-min (the single-float (f32 *br-trace-len*)) (%lb-wall x z ux uz)))
-                 (a (* 60f0 age)) (k (- 1f0 (/ age life))) (r (if thick 0.7f0 0.42f0)) (sd (+ (i->f i) (* 4f0 (i->f side)))))
-            (declare (single-float x z yaw ux uz sl pal end a k r sd))
-            (when (< a (+ ff 2f0))                    ; the head: from the point, through him, on to the end
-              (let* ((hp (f-min 1f0 (/ (+ a 1f0) ff))) (sh (+ 0.6f0 (* hp (- end 0.6f0)))) (st (f-max 0.6f0 (- sh 7f0)))
-                     (fd (if (< a ff) 1f0 (- 1f0 (* 0.5f0 (- a ff))))) (hw (if thick 0.32f0 0.1f0)))
-                (declare (single-float hp sh st fd hw))
-                (toon-ribbon ((+ x (* st ux)) 1.2f0 (+ z (* st uz))) ((* (- sh st) ux) 0f0 (* (- sh st) uz)) ((* 0.2f0 hw) hw)
-                             :heat (0.7f0 1f0) :seed (- -101f0 sd) :wob 0.02f0 :pal pal :k (* 0.6f0 fd) :k1 (* 0.98f0 fd) :segs 3)
-                (toon-ribbon ((+ x (* st ux)) 1.2f0 (+ z (* st uz))) ((* (- sh st) ux) 0f0 (* (- sh st) uz)) (0f0 (* 0.4f0 hw))
-                             :heat (1f0 1f0) :seed (- -102f0 sd) :wob 0f0 :pal +pal-hit+ :k (* 0.5f0 fd) :k1 (* 0.95f0 fd) :segs 2)
-                (when (< a ff)
-                  (fx-star (+ x (* sh ux)) 1.2f0 (+ z (* sh uz)) 0.05f0 (if thick 0.6f0 0.32f0) 6 (* 0.5f0 a) 0f0 0f0 0.1f0
-                           (+ 103f0 sd) +pal-hit+ 0.95f0 :push 0.3f0))
-                (when (and (>= a 1f0) (< a 6f0) (> sl 0.6f0))   ; through him
-                  (fx-star (+ x (* sl ux)) 1.2f0 (+ z (* sl uz)) 0.06f0 (* 0.4f0 (- 1f0 (/ a 6f0))) 8 1.1f0 0f0 0f0 0.1f0
-                           (+ 104f0 sd) pal 0.9f0 :push 0.35f0))))
-            (when (< a 14f0)                          ; the spent line flashes on the floor, the sigil bursts
-              (let ((u (/ a 14f0)))
-                (declare (single-float u))
-                (%br-floor (if gold 3 2) x z ux uz 0.6f0 end (* (if thick 0.42f0 0.16f0) (- 1f0 u)))
-                (%tring x 0f0 z (* r (+ 1f0 (* 3f0 u))) 0.06f0 pal (- 1f0 u) (+ 105f0 sd) 32)
-                (when (< a 4f0)
-                  (fx-star x 0.3f0 z 0.06f0 (* (if thick 1f0 0.7f0) (- 1f0 (* 0.25f0 a))) 8 sd 0f0 0f0 0.12f0 (+ 106f0 sd)
-                           +pal-hit+ 0.95f0 :push 0.3f0))))
-            (when (and (< (aref v (+ q 6)) 0.5f0) (> (- tm (aref v (+ q 11))) 0.03f0))   ; a miss: the line passed him by
-              (let* ((qx (aref v (+ q 8))) (qz (aref v (+ q 9)))
-                     (s (f-clamp (+ (* (- qx x) ux) (* (- qz z) uz)) 0.6f0 end))
-                     (mx (+ x (* s ux))) (mz (+ z (* s uz))) (gx (- qx mx)) (gz (- qz mz)) (gl (f-max 0.01f0 (f-hypot gx gz)))
-                     (km (* k k)))
-                (declare (single-float qx qz s mx mz gx gz gl km))
-                (fx-disc mx 1.2f0 mz (* 0.26f0 (+ 1f0 (* 0.8f0 (- 1f0 k)))) 0.18f0 (+ 107f0 sd) +pal-smoke+ (* 0.7f0 km) :push 0.3f0)
-                (dotimes (j 2)
-                  (let ((sg (if (= j 0) -1f0 1f0)))
-                    (declare (single-float sg))
-                    (fx-shard (+ mx (* 0.35f0 (+ 0.3f0 (- 1f0 k)) ux) (* sg 0.12f0 uz)) (+ 1.2f0 (* sg 0.1f0))
-                              (+ mz (* 0.35f0 (+ 0.3f0 (- 1f0 k)) uz) (* sg -0.12f0 ux)) ux 0f0 uz 0.6f0 0.05f0 0.05f0
-                              (+ 108f0 (i->f j) sd) +pal-ink+ km :push 0.2f0)))
-                (when (> gl 0.5f0)                    ; the gap it missed him by: three ink dashes to him
-                  (dotimes (j 3)
-                    (let* ((f0 (+ 0.12f0 (* 0.3f0 (i->f j)))) (f1 (+ f0 0.16f0)))
-                      (declare (single-float f0 f1))
-                      (toon-ribbon ((+ mx (* f0 gx)) 1.2f0 (+ mz (* f0 gz))) ((* (- f1 f0) gx) 0f0 (* (- f1 f0) gz)) (0.045f0 0.045f0)
-                                   :heat (0.7f0 0.7f0) :seed (- -109f0 sd (i->f j)) :wob 0f0 :pal +pal-ink+ :k (* 0.85f0 km)
-                                   :segs 1))))))))))
-    nil))
-
-(defun-fast br-trace-look (hz rdt)
-  "A trace's look (HAZARD-DRAW; decision V7, §17): live, its sigil and line through him (%BR-LIVE-LOOK; noted in *BR-SEEN*
-for the recall's look); materialised, its 3 frames noted for the fired look (%BR-FIRED-NOTE; BR-DRAW draws it, with
-LB-LOOK's shot / beam / judgement the sim spawns). Gold while he is the owl (LILLE-DRAW's flag, no lookup). 0 B."
-  (declare (single-float rdt))
-  (setf rdt 0f0)                                        ; (unused: HAZARD-DRAW's signature)
-  (let ((d (hazard-data hz)))
-    (when (brh-p d)
-      (let* ((side (if (eql (hazard-owner hz) *p1*) 0 1)) (gold (> (lb-fxs side 15) 0.5f0)))
-        (declare (fixnum side))
-        (if (brh-live d) (%br-live-look hz d side gold) (%br-fired-note hz d side gold)))))
-  nil)
-
-(defun-fast %br-hinge (side)
-  "Where his lines cross (§17): while he has live traces (last frame's count, *BR-SEEN*), a thin ring on the floor under
-him (jade, the owl's gold): the hinge they all turn on. 0 B."
-  (declare (fixnum side))
-  (let ((at *br-at*) (o (* 8 side)))
-    (declare (type f32vec at) (fixnum o))
-    (when (and (> (aref *br-seen* (* 65 side)) 0.5f0) (> (aref at (+ o 4)) 0.5f0))
-      (let ((x (aref at o)) (z (aref at (+ o 1))) (pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+)))
-        (declare (single-float x z pal))
-        (%tring x 0f0 z 0.62f0 0.022f0 pal 0.8f0 (+ 7f0 (i->f side)) 32))))
-  nil)
 
 (defun-fast br-draw (e rdt)
   "His kit's :draw hook: Lille's (LILLE-DRAW: his forms carry Lille's form names, so the wings, the halos, the legs and the
-cinematics' drives come out the same; his recall strings drive its SP looks through BR-RC-DRIVE), then the stance's aim
-line (%BR-AIM-LOOK); awakened, his place and the opponent's for his traces' looks (%BR-PLACE!), the hinge ring under him
-(%BR-HINGE) and his fired traces (%BR-FIRED-LOOK, §17); the recall's traces flying back (%BR-RECALL-LOOK: *BR-SEEN* kept as
-*BR-FLY* while he is not recalling) and each string beat's lines from the wing tips (%BR-BEAT-LOOK); 裁き・極's ring, blast
-and beam (%BR-KIWAMI-LOOK) and the ranged L swing's flick onto its new point (%BR-SWING-FLICK, §22)."
+cinematics' drives come out the same; his volley strings drive its SP looks through BR-RC-DRIVE), then the base stance's
+aim line (%BR-AIM-LOOK); his place and the opponent's (%BR-PLACE!); the volley's light gathering (%BR-RECALL-LOOK), each
+string beat's lines from the wing tips (%BR-BEAT-LOOK) and 裁き・極's ring, blast and beam (%BR-KIWAMI-LOOK)."
   (declare (single-float rdt))
   (lille-draw e rdt)
   (let* ((f (fighter e)) (side (fighter-side f)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
-         (c (if mv (%br-chain-clock (mv-name mv) (fighter-sf f)) -1)) (s *br-seen*) (o (* 65 side)))
-    (declare (fixnum side c o) (type f32vec s))
+         (c (if mv (%br-chain-clock (mv-name mv) (fighter-sf f)) -1)) (o (* 65 side)))
+    (declare (fixnum side c o))
     (if (eq (fighter-form f) :base)
         (%br-aim-look e f side)
-        (progn (%br-place! e (fighter-opp f) side)        ; (his place for his traces' looks, drawn after him: §17)
-               (%br-hinge side)
-               (%br-fired-look side)))
-    (if (< c 0)
-        (let ((d *br-fly*)) (declare (type f32vec d)) (dotimes (i 65) (setf (aref d (+ o i)) (aref s (+ o i)))))   ; (his traces as last seen)
-        (let ((jm (model-joints (model e))))
-          (when (<= c 16) (%br-recall-look e jm side c))
-          (when (not (eq (mv-name mv) :br-recall)) (%br-beat-look e f jm side mv))
-          (when (and (eq (mv-name mv) :br-rc4) (eq (fighter-phase f) :main)) (%br-kiwami-look f jm side))))
-    (when (and mv (not (eq (fighter-form f) :base))) (%br-swing-flick f side))   ; (the ranged L swing's hit: §22)
-    (setf (aref s o) 0f0 (aref *br-new* (+ (* 4 side) 2)) 99f0)
+        (%br-place! e (fighter-opp f) side))
+    (setf (aref *br-fly* o) 0f0)                        ; (no traces to fly back since v3: the gathering only)
+    (when (>= c 0)
+      (let ((jm (model-joints (model e))))
+        (when (<= c 16) (%br-recall-look e jm side c))
+        (when (not (eq (mv-name mv) :br-recall)) (%br-beat-look e f jm side mv))
+        (when (and (eq (mv-name mv) :br-rc4) (eq (fighter-phase f) :main)) (%br-kiwami-look f jm side))))
     (when (and (>= *br-art-hold* 0) (>= (the fixnum (br-hold-clock f)) *br-art-hold*))   ; (debug stills)
       (setf *br-art-hold* -1)
       (hitstop 100000)))
@@ -873,114 +571,28 @@ and beam (%BR-KIWAMI-LOOK) and the ranged L swing's flick onto its new point (%B
 ;;; ---------------------------------------------------------------- the art stills (debug 82100-82399, DUEL_GAMEPLAY)
 (defun br-art-scene (k)
   "82100+k: Lille II (P1; k + 20: P2, facing the behind camera: the front view) 4 m from an idle Kenpachi, Reiatsu and flash
-step full: k 0-3 JILLIEL melee with 0 / 2 / 4 / 6 traces laid from behind him, the recall started (its string by the
-count: 空收 / 二連 / 四連 / 裁き); 4-7 the same as the owl (melee); 8 / 9 JILLIEL's melee -> ranged turn / J3 -> L backstep;
-10 / 11 the owl's; 12 the owl's Trompete (the trumpet forming); 13 82007's reflected Trompete (P1 only: the reflect and
-the broken halo from its f59); 14 JILLIEL melee's SANREN (the wings' kick, Lille's SP look). The aim points' looks (§17):
-15 JILLIEL ranged 6 m out with a thick SP2 point (3 m behind, -35 deg) and an L point (2.5 m, +30 deg), then the L lay
-started (its point set on f4: the set's flare); 16 the owl's (82016's three points, then its lay; P1 only); 17 JILLIEL
-melee 3 m out with one L point 4 m behind, 50 deg off (its line ~2.3 m beside him), J1 started (a whiff: the trace picked
-and missed); 18 the same with a thick SP2 point 12 deg off (its 1.2 m lane on him: J1 whiffs, the line hits); 19 17 as
-the owl (P1 only). Decision V8's art (§22; k + 20 the front view): 40 JILLIEL melee with 10 traces laid from behind him and
-the recall started (its string: barro.lisp's tier for 10); 41 / 42 JILLIEL's / the owl's 裁き・極 :br-rc4 started directly
-(BR-ART-MOVE: a stand-in of the spec's frames while barro.lisp has no such move); 43 / 44 JILLIEL's / the owl's ranged L
-swing 1.5 m out (the kit's L when it plays a swing clip, else a stand-in on :br-e-swing / :br-oe-swing; its f7 sets the
-point: the flick)."
-  (let* ((front (oddp (floor k 20))) (k (if front (- k 20) k)) (owl (or (<= 4 k 7) (<= 10 k 13) (member k '(42 44)))))
-    (when (and (not front) (member k '(16 19)))         ; (the owl's: 82016 sets him up, its revival's clearing off)
-      (barro-test 16)
-      (if (= k 16)
-          (start-move *p1* (find-move :br-oe-lay))
-          (progn (force-form *p1* :shin-kin) (place *p1* *p2* 3.0) (br-clear-traces *p1*)
-                 (multiple-value-bind (x z) (br-art-behind *p1* *p2* 4.0 50.0) (br-art-point *p1* :l x z))
-                 (start-move *p1* (find-move :br-o-j1))))
-      (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1)
-      (return-from br-art-scene nil))
+step full: k 0-4 the owl (kept without a burst) with 0 / 2 / 4 / 6 / 8 wings, the volley started (its string by the
+count: 空收 / 二連 / 四連 / 裁き / 裁き・極); 8 / 9 JILLIEL's turn into the stance / J3 -> L backstep; 10 / 11 the owl's; 12 the
+owl's Trompete (the trumpet forming); 13 82007's reflected Trompete (P1 only); 14 JILLIEL's SANREN; 15 / 16 / 17 the base
+stance's L1 / J1 / K1 (6 m out); 18 / 19 JILLIEL's stance L1 / K1 (6 m out)."
+  (let* ((front (oddp (floor k 20))) (k (if front (- k 20) k)) (owl (or (<= 0 k 4) (<= 10 k 13))))
     (if front (ensure-battle :kenpachi :barro) (ensure-battle :barro :kenpachi))
     (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
-      (force-form b (cond ((member k '(15 43)) :jilliel) ((= k 44) :shin) (owl :shin-kin) (t :jilliel-kin)))
-      (place *p1* *p2* (case k (15 6.0) ((17 18) 3.0) ((43 44) 1.5) (t 4.0)))
+      (setf *br-keep-owl* owl)
+      (force-form b (cond ((<= 15 k 17) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
+      (place *p1* *p2* (if (<= 15 k 19) 6.0 4.0))
       (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
             (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))   ; (no K.O. across a script's scenes)
       (case k
-        ((0 1 2 3 4 5 6 7 40)
-         (let* ((n (if (= k 40) 10 (nth (mod k 4) '(0 2 4 6)))) (p (pos-of b)) (q (pos-of o)) (x0 (aref p 0)) (z0 (aref p 2)) (yaw0 (yaw-of b))
-                (dx (- (aref q 0) x0)) (dz (- (aref q 2) z0)) (l (max 0.01 (sqrt (+ (* dx dx) (* dz dz))))) (ux (/ dx l)) (uz (/ dz l)))
-           (dotimes (i n)                               ; laid from behind him, spread across, each aimed at him
-             (let* ((lat (* (if (> n 6) 0.9 1.7) (- i (* 0.5 (1- n))))) (back (+ 1.2 (* 0.9 (mod i 2))))
-                    (x (+ x0 (* -1 back ux) (* lat (- uz)))) (z (+ z0 (* -1 back uz) (* lat ux))))
-               (v3-set! p (f32 x) 0f0 (f32 z))
-               (setf (transform-yaw (transform b)) (f32 (atan (- (- (aref q 0) x)) (- (- (aref q 2) z)))))
-               (br-lay-trace b :l 0.0)))
-           (v3-set! p (f32 x0) 0f0 (f32 z0)) (setf (transform-yaw (transform b)) yaw0)
-           (let ((s *br-fly*) (o (* 65 (fighter-side (fighter b)))) (i 0))   ; (as a drawn frame would have noted them:
-             (do-entities (h (hz hazard))                                     ;  the recall takes them back on its f0)
-               (when (and (eql (hazard-owner hz) b) (eq (hazard-look hz) 'br-trace-look) (< i 16))
-                 (let ((q (+ o 1 (* 4 i))))
-                   (setf (aref s q) (hazard-x hz) (aref s (+ q 1)) (hazard-z hz) (aref s (+ q 2)) (hazard-yaw hz)
-                         (aref s (+ q 3)) 0f0))
-                 (incf i)))
-             (setf (aref s o) (f32 i)))
-           (start-move b (find-move :br-recall))))
+        ((0 1 2 3 4) (setf (brs-ammo (br b)) (nth k '(0 2 4 6 8))) (start-move b (find-move :br-recall)))
         ((8 10) (start-move b (find-move :br-to-en)))
         ((9 11) (start-move b (find-move :br-backstep)))
         (12 (start-move b (find-move :br-trompete)))
         (13 (barro-test 7))
-        (14 (start-move b (find-move :br-w-sanren)))                          ; (82007: Trompete reflected by P2's guard on f54: sealed at f59)
-        (15 (multiple-value-bind (x z) (br-art-behind b o 3.0 -35.0) (br-art-point b :sp2 x z))
-            (multiple-value-bind (x z) (br-art-behind b o 2.5 30.0) (br-art-point b :l x z))
-            (start-move b (find-move :br-e-lay)))
-        ((17 18) (multiple-value-bind (x z) (br-art-behind b o 4.0 (if (= k 17) 50.0 12.0))
-                   (br-art-point b (if (= k 17) :l :sp2) x z))
-                 (start-move b (find-move :br-w-j1)))
-        ((41 42) (start-move b (br-art-move b :rc4)))
-        ((43 44) (start-move b (br-art-move b :swing))))
+        (14 (start-move b (find-move :br-w-sanren)))
+        (15 (start-move b (find-move :br-s-l1))) (16 (start-move b (find-move :br-s-j1))) (17 (start-move b (find-move :br-s-k1)))
+        (18 (start-move b (find-move :br-e-l1))) (19 (start-move b (find-move :br-e-k1))))
       (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
-
-(defun br-art-move (b what)
-  "Scenes 41-44 (decision V8's art, §22): the move to play B's new clip. WHAT :rc4 → barro.lisp's :br-rc4, else a stand-in
-registered here under that name (the spec's frames: S 6, six beats f6-f36 and the beam f48, R 30; its looks key on the
-name), the owl's kit given :br-o-rc4 in its :clip-map when it lacks it. WHAT :swing → his form's L when it already plays a
-swing clip (*BR-SWING-CLIPS*), else a stand-in :br-art-swing / :br-art-o-swing (his L's copy on the swing clip, startup 7,
-active 3, reach 1.8, arc 110, 16; its f7 lays the point). Debug only: a gate never runs it."
-  (let* ((f (fighter b)) (k (fighter-kit f)) (owl (br-owl-form-p (fighter-form f))))
-    (if (eq what :rc4)
-        (progn
-          (unless (gethash :br-rc4 *moves*)
-            (register-move :br-rc4 (append '(:clip :br-rc4 :callout "SABAKI KIWAMI" :active 44 :recovery 30 :dmg 40
-                                             :hits ((6 8) (12 14) (18 20) (24 26) (30 32) (36 38) (48 50 :dmg 240 :on-hit :knockback :kb 2.5))
-                                             :on-frame ((6 br-rc-shot) (12 br-rc-shot) (18 br-rc-shot) (24 br-rc-shot) (30 br-rc-shot)
-                                                        (36 br-rc-shot) (48 br-beam-shot))
-                                             :params (:lock 0 :len *br-x-len* :width 1.6))
-                                           (mv-spec (find-move :br-rc3)))))
-          (when (and owl (not (getf (kit-clip-map k) :br-rc4)))
-            (setf (kit-clip-map k) (list* :br-rc4 :br-o-rc4 (kit-clip-map k))))
-          (find-move :br-rc4))
-        (let ((l (kit-command-move k :sig)))
-          (if (member (kit-move-clip k (mv-clip l)) *br-swing-clips*)
-              l
-              (let ((nm (if owl :br-art-o-swing :br-art-swing)))
-                (unless (gethash nm *moves*)
-                  (register-move nm (append (list :clip (if owl :br-oe-swing :br-e-swing) :startup 7 :active 3 :recovery (if owl 5 6)
-                                                  :dmg 16 :reach 1.8 :arc 110 :on-hit :flinch :on-frame '((7 br-lay)))
-                                            (mv-spec l))))
-                (find-move nm)))))))
-
-(defun br-art-behind (b o dist deg)
-  "The scenes' place DIST m behind B, DEG degrees off his line to O (+ = toward his right): values x z."
-  (let* ((p (pos-of b)) (q (pos-of o)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2)))
-         (l (max 0.01 (sqrt (+ (* dx dx) (* dz dz))))) (fx (/ dx l)) (fz (/ dz l)) (a (* deg (/ pi 180))) (c (cos a)) (s (sin a)))
-    (values (- (aref p 0) (* dist (- (* c fx) (* s fz)))) (- (aref p 2) (* dist (+ (* c fz) (* s fx)))))))
-
-(defun br-art-point (b src px pz)
-  "A scene's aim point of SRC at (PX PZ), its line through B (BR-LAY-TRACE with him stood 0.5 m past it, facing away)."
-  (let* ((p (pos-of b)) (x0 (aref p 0)) (z0 (aref p 2)) (yaw0 (yaw-of b))
-         (dx (- x0 px)) (dz (- z0 pz)) (l (max 0.01 (sqrt (+ (* dx dx) (* dz dz))))) (ux (/ dx l)) (uz (/ dz l)))
-    (v3-set! p (f32 (+ px (* 0.5 ux))) 0f0 (f32 (+ pz (* 0.5 uz))))
-    (setf (transform-yaw (transform b)) (f32 (atan (- ux) (- uz))))
-    (br-lay-trace b src 0.0)
-    (v3-set! p (f32 x0) 0f0 (f32 z0))
-    (setf (transform-yaw (transform b)) yaw0)))
 
 (defun br-art-cine (f)
   "82300+k: his awakening (Lille's lb-jilliel-cine, his caption) with P1 Lille II 6 m from Kenpachi, held at frame 10 k."
@@ -991,9 +603,10 @@ active 3, reach 1.8, arc 110, 16; its f7 lays the point). Debug only: a gate nev
   (when *cine* (setf *cine-hold* t (cine-hold *cine*) f)))
 
 (defun barro-art-debug (c)
-  "His art stills (barro.lisp registers 82100-82399 ahead of BARRO-DEBUG): 82100+k BR-ART-SCENE k (k 0-19 and 40-44, + 20
-the front view); 82200+f the sim freezes once his look clock reaches f (the recall chain's: the recall's frame, 7 + its string's;
-else the move's frame; issue it before the scene), 82299 lets go; 82300+k his awakening held at frame 10 k (BR-ART-CINE)."
+  "His art stills (barro.lisp registers 82100-82399 ahead of BARRO-DEBUG): 82100+k BR-ART-SCENE k (+ 20 the front view);
+82200+f the sim freezes once his look clock reaches f (the volley chain's: the recall's frame, 7 + its string's; else the
+move's frame; issue it before the scene), 82299 lets go; 82300+k his awakening held at frame 10 k (BR-ART-CINE); 82398 the
+consing probe."
   (let ((n (- c 82100)))
     (cond ((< n 100) (br-art-scene n))
           ((< n 199) (setf *br-art-hold-next* (- n 100)))
@@ -1003,59 +616,42 @@ else the move's frame; issue it before the scene), 82299 lets go; 82300+k his aw
           (t (log-msg "duel barro: no debug command ~d" c)))))
 
 (defun br-cons-probe ()
-  "82398: bytes consed by 10 draws of P1 Lille II's :draw hook (BR-DRAW, LILLE-DRAW's lookups included), of his recall look
-at its clock 4 (the traces flying back, *BR-FLY*) and of a string beat's lines (when a string runs), of his live traces'
-looks (BR-TRACE-LOOK), and of §17's parts: his place (%BR-PLACE!), the hinge, a fired trace's look (a miss, faked in slot
-0), and §22's: 裁き・極's ring / blast / beam (%BR-KIWAMI-LOOK, while it runs) and the swing's flick (%BR-SWING-FLICK, a
-point 2 frames old faked in *BR-NEW*), in the running scene (a \"barro consing\" line)."
+  "82398: bytes consed by 10 draws of P1 Lille II's :draw hook (BR-DRAW, LILLE-DRAW's lookups included), of his volley look
+at its clock 4 and of a string beat's lines (when a string runs), and of 裁き・極's look (while it runs), and of his HUD row
+(a \"barro consing\" line)."
   (let* ((e *p1*) (f (fighter e)) (side (fighter-side f)) (jm (model-joints (model e)))
-         (mv (and (eq (fighter-state f) :move) (fighter-move f))) (hz-n 0))
+         (mv (and (eq (fighter-state f) :move) (fighter-move f))))
     (macrolet ((per (form) `(let ((c0 (cons-bytes))) (dotimes (i 10) ,form) (- (cons-bytes) c0))))
-      (log-msg "barro consing (10 draws, B): form ~a clock ~d traces ~d draw ~d (Lille's ~d) recall ~d beat (lines drive beat) ~a looks ~d (~d hazards) place ~d hinge ~d fired ~d kiwami ~d flick ~d"
-               (fighter-form f) (br-hold-clock f) (round (aref *br-fly* (* 65 side)))
+      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) recall ~d beat (lines drive beat) ~a kiwami ~d"
+               (fighter-form f) (br-hold-clock f)
                (per (br-draw e 0.016f0)) (per (lille-draw e 0.016f0)) (per (%br-recall-look e jm side 4))
                (if (and mv (member (mv-name mv) '(:br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4)))
                    (list (per (%br-beat-look e f jm side mv)) (per (br-rc-drive f mv)) (per (br-rc-beat (mv-name mv) (fighter-sf f))))
                    -1)
-               (let ((c0 (cons-bytes)))
-                 (dotimes (i 10) (do-entities (h (hz hazard))
-                                   (when (and (eql (hazard-owner hz) e) (eq (hazard-look hz) 'br-trace-look))
-                                     (incf hz-n) (br-trace-look hz 0.016f0))))
-                 (- (cons-bytes) c0))
-               (floor hz-n 10)
-               (per (%br-place! e (fighter-opp f) side)) (per (%br-hinge side))
-               (let ((v *br-shot*) (q (* 48 side)) (tm (fx-clock)))   ; (a missed shot 0.1 s old in slot 0, then cleared)
-                 (setf (aref v q) 999f0 (aref v (+ q 1)) (- tm 0.1f0) (aref v (+ q 2)) 0f0 (aref v (+ q 3)) 0f0 (aref v (+ q 4)) 0f0
-                       (aref v (+ q 5)) 0f0 (aref v (+ q 6)) 0f0 (aref v (+ q 7)) 2f0 (aref v (+ q 8)) 1.5f0 (aref v (+ q 9)) -4f0
-                       (aref v (+ q 10)) 0f0 (aref v (+ q 11)) (- tm 0.1f0))
-                 (prog1 (per (%br-fired-look side)) (setf (aref v q) 0f0 (aref v (+ q 1)) -1f6)))
-               (if (and mv (eq (mv-name mv) :br-rc4)) (per (%br-kiwami-look f jm side)) -1)
-               (let ((v *br-new*) (q (* 4 side)))   ; (a point 2 frames old, then cleared; drawn only while a swing runs)
-                 (setf (aref v q) 0f0 (aref v (+ q 1)) 0f0 (aref v (+ q 2)) 2f0 (aref v (+ q 3)) 0f0)
-                 (prog1 (if mv (per (%br-swing-flick f side)) -1) (setf (aref v (+ q 2)) 99f0)))))))
+               (if (and mv (eq (mv-name mv) :br-rc4)) (per (%br-kiwami-look f jm side)) -1)))))
 
-;;; ---------------------------------------------------------------- the HUD: the 狙擊 gauge (DUEL_LILLE_V2 §4)
-(defparameter *br-sn-strings* #("SN 0" "SN 1" "SN 2" "SN 3") "The 狙擊 row's label: SN + the pips.")
-(defparameter *br-tr-strings* (let ((v (make-array 17))) (dotimes (i 17 v) (setf (svref v i) (format nil "TR ~d" i))))
-  "The awakened forms' label: TR + the live traces.")
+;;; ---------------------------------------------------------------- the HUD: the special resource (DUEL_LILLE_V3 §3.1)
+(defparameter *br-sn-strings* #("SN 0" "SN 1" "SN 2" "SN 3") "The base form's label: SN + the 狙擊 pips.")
+(defparameter *br-wg-strings* (let ((v (make-array 9))) (dotimes (i 9 v) (setf (svref v i) (format nil "WG ~d" i))))
+  "The awakened forms' label: WG + the wings.")
 
 (defun br-hud-label (g kit)
-  "The portrait block's label: SN n (the 狙擊 pips) in the base form, TR n (the live traces) awakened."
-  (let* ((e (lb-side-of g)) (st (brs e)))
+  "The portrait block's label: SN n (the 狙擊 pips) in the base form, WG n (the wings) awakened."
+  (let* ((e (lb-side-of g)) (st (brs e)) (n (if st (brs-ammo st) 0)))
     (if (eq (kit-form kit) :base)
-        (svref *br-sn-strings* (if st (max 0 (min 3 (brs-snipe st))) 0))
-        (svref *br-tr-strings* (if st (max 0 (min 16 (brs-live st))) 0)))))
+        (svref *br-sn-strings* (max 0 (min 3 n)))
+        (svref *br-wg-strings* (max 0 (min 8 n))))))
 
 (defun br-hud-meter (e kit x y w h right tm lx ly ls)
-  "His kit-meter row (LX LY LS: the landscape label's place, NIL in the portrait slot): the base form's three 狙擊 pips
-(Lille's reticle glyph: a filled pip the open jade eye, an empty one the shut white), SN n; awakened, TR n (his live traces)."
-  (let* ((st (brs e)) (v *lb-hud*) (n (if st (brs-snipe st) 0)))
+  "His kit-meter row (LX LY LS: the landscape label's place, NIL in the portrait slot): the special resource's pips (Lille's
+reticle glyph: a filled pip the open jade eye, an empty one the shut white): the base form's three 狙擊 pips, awakened the
+eight wings; its label SN n / WG n."
+  (let* ((st (brs e)) (v *lb-hud*) (n (if st (brs-ammo st) 0)) (cap (if (eq (kit-form kit) :base) 3 8)))
     (setf (aref v 3) (f32 tm) (aref v 4) (f32 x) (aref v 5) (f32 y) (aref v 6) (f32 w) (aref v 7) (f32 h))
-    (when (eq (kit-form kit) :base)
-      (let* ((step (/ w 3.0)) (r (min (* 0.36 step) (max 7.0 (* 2.4 h)))))
-        (dotimes (i 3)
-          (setf (aref v 0) (f32 (if right (- (+ x w) (* step (+ i 0.5))) (+ x (* step (+ i 0.5)))))
-                (aref v 1) (f32 (+ y (* 0.5 h))) (aref v 2) (f32 r))
-          (%lb-pip (if (< i n) 1 0)))))
+    (let* ((step (/ w cap)) (r (min (* 0.36 step) (max 5.0 (* 2.4 h)))))
+      (dotimes (i cap)
+        (setf (aref v 0) (f32 (if right (- (+ x w) (* step (+ i 0.5))) (+ x (* step (+ i 0.5)))))
+              (aref v 1) (f32 (+ y (* 0.5 h))) (aref v 2) (f32 r))
+        (%lb-pip (if (< i n) 1 0))))
     (when lx
       (hud-text (br-hud-label (gauges e) kit) lx ly ls *c-lb-jade* :align (if right :right :left)))))
