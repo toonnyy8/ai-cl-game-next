@@ -538,3 +538,14 @@ Checks: `tests/duel-rules-test.lisp` 8399 checks, ALL PASS (the openers melee: n
 combo into the volley; JILLIEL KIN's own K still without one). duel-control / learn / input / touch / cine pass, pkgcheck 0,
 `./build.sh duel` 0 warnings. Browser (`run.mjs --fixed-dt`): the owl KIN K1 hit → Shift+L → the volley at 8 wings (裁き・
 極, 2 bars); JILLIEL EN at 1.35 m: J1 J2 hit, L1 L2 L3 all seven hits (12 / 9 f apart) in reach. Playtest v60.
+
+### 9.1 Gates after R4 (native sim)
+
+10 seeds, all 60 K.O.: BY 134.5, BK 150.6, BR 185.5, BI 182.1, BS 174.2, BB 217.9 s (the mirror may exceed 210); his wins
+of 10: 5, 4, 2, 2, 5, (mirror). BY under 135 → 20 seeds (the verdict): **BY 125.8 s** (his wins 6 / 20), inside 125–210:
+pass, at the window's floor.
+
+Awaken A/B (`--cmd 39020`, 60 seeds, seed0 100 / 300 / 500; the never-awaken side's wins, pass ≥ 20; all K.O.): BK 30 / 38 /
+36 (as §8.6: Kenpachi is the side that awakens there, Lille II never does), **BB 60 / 58 / 58** (§8.6: 54 / 50 / 48;
+medians 194.8–210.8 s). Pass; in the mirror the awakened Lille II now loses nearly every match: the melee openers need him
+inside ~2 m. Reported, not tuned (the user's playtest decides).
