@@ -317,9 +317,9 @@ volume radius, metres; its reach each hit's drawn tip (*BR-W-TIPS*; new 2026-10-
 a string: L1 + L2 1.3 -> 2.3 m in the browser; new 2026-10-11 [G]).")
 (defparameter *br-w-tips*
   '(("BR-E" ("L1" 1.85 1.85) ("L2" 1.85 1.85) ("L3" 1.85 1.85 1.85) ("J1" 2.85 2.85 2.85) ("J2" 2.8 2.8 2.8)
-     ("J3" 2.85 2.85 2.85 2.4) ("K1" 2.0 1.8) ("K2" 1.35 1.35) ("K3" 1.3 1.35 1.2))
+     ("J3" 2.85 2.85 2.4) ("K1" 2.0 1.8) ("K2" 1.35 1.35) ("K3" 1.3 1.35 1.2))
     ("BR-OE" ("L1" 1.7 1.7) ("L2" 1.7 1.7) ("L3" 1.7 1.7 1.7) ("J1" 2.8 2.8 2.8) ("J2" 2.75 2.75 2.75)
-     ("J3" 2.8 2.8 2.8 2.4) ("K1" 1.75 1.55) ("K2" 1.35 1.35) ("K3" 1.35 1.35 1.15)))
+     ("J3" 2.8 2.8 2.4) ("K1" 1.75 1.55) ("K2" 1.35 1.35) ("K3" 1.35 1.35 1.15)))
   "The awakened stances' melee openers (decision R4): each hit's reach, metres (its volume's edge), = the striking wing tip's
 / claw's distance ahead on that hit frame in its clip (barro-art.lisp :br-en-* / :br-oen-*, the host FK test: drawn reach =
 hit reach, +-0.15 m). By the move prefix, then the segment. R5 (the user 2026-10-11: the motion modules, the reach
@@ -329,6 +329,11 @@ blade, K2 / K3's first two the folded wings' close blows, K3's last 零距離砲
 (defparameter *br-s-l-whiff* 8
   "A whiffed stance L segment recovers R + this (decision R5, the user 2026-10-11: 「架式 > L 只要沒打中就進入硬直」, 「就跟一般的
 J / K 普攻一樣」: a J link's *WHIFF-EXTRA-J*; the :sig moves' *WHIFF-EXTRA* 6 before).")
+(defparameter *br-w-segs*
+  '(("J3" (0 3 15) 14) ("K1" (0 14) 18))
+  "The awakened stances' melee openers whose hits are timed apart from *BR-S-SEGS* (decision R6, the user 2026-10-11:
+「大砍刀的動作要更緩慢沉重、扭轉身體、砍刀後拉，每次只用一隻光翼揮砍」): J3's last hit the cleaver 12 f after the whips (every
+3 f before), K1's second chop 14 f after the first (10 before); name, hit offsets, recovery ([G]).")
 (defparameter *br-w-l-slow* 1.5
   "The awakened stance's L segments: startup and hit spacing x this (decision R4, the user 2026-10-11: 「架式 L 的動作太快了」,
 「出手和間隔都放慢」: startup 8 -> 12, L1 / L2 every 8 -> 12 f, L3 every 6 -> 9 f; [G]).")
@@ -339,7 +344,7 @@ J / K 普攻一樣」: a J link's *WHIFF-EXTRA-J*; the :sig moves' *WHIFF-EXTRA*
     ("L3" :sig 8 (0 6 12) 18 *br-s-l-dmg* :flinch :stagger :l (:gain 2))
     ("J1" :quick 8 (0 3 6) 12 *br-s-j-dmg* :flinch :flinch :j nil)
     ("J2" :quick 8 (0 3 6) 12 *br-s-j-dmg* :flinch :flinch :j nil)
-    ("J3" :quick 8 (0 3 6 9) 14 *br-s-j-dmg* :flinch :stagger :j (:end t))
+    ("J3" :quick 8 (0 3 6) 17 *br-s-j-dmg* :flinch :stagger :j (:end t))   ; (R6: 3 hits at most, 4 before; R 14 -> 17 keeps its clip)
     ("K1" :flash 12 (0 10) 18 *br-s-k-dmg* :stagger :stagger :k nil)
     ("K2" :flash 12 (0 10) 18 *br-s-k-dmg* :stagger :stagger :k nil)
     ("K3" :flash 12 (0 8 16) 22 *br-s-k-dmg* :stagger :stagger :k (:end t))
@@ -356,12 +361,15 @@ step, the follow-ups' :spend, a string's last segment :end: his CPU's SP2 call).
   "The stance's moves of PREFIX (*BR-S-SEGS*). CLIPS by segment; ADV the owl's +1 (R one less). MELEE (the awakened forms, R4:
 「所有起手連段一律用近距離攻擊」): the openers (the segments that spend nothing) strike in reach (each hit its own melee volume,
 *BR-W-TIPS*; not :ranged, no line drawn) instead of the 4 m shots. L-SLOW (R4: 「架式 L 的動作太快了」): the L segments' startup and their
-hits' spacing x this (the clip slowed with them, its recovery as written)."
+hits' spacing x this (the clip slowed with them, its recovery as written); MELEE also times *BR-W-SEGS*' segments their own
+way (R6)."
   (let ((l-slow (if (symbolp l-slow) (symbol-value l-slow) l-slow)))
     `(progn
-       ,@(loop for (sn kind st0 offs0 r0 dmg mid last role extra) in *br-s-segs*
+       ,@(loop for (sn kind st0 offs00 r00 dmg mid last role extra) in *br-s-segs*
                collect
-               (let* ((name (intern (format nil "~a-~a" prefix sn) :keyword))
+               (let* ((ov (and melee (cdr (assoc sn *br-w-segs* :test #'string=))))
+                      (offs0 (if ov (first ov) offs00)) (r0 (if ov (second ov) r00))
+                      (name (intern (format nil "~a-~a" prefix sn) :keyword))
                       (clip (getf clips (intern sn :keyword)))
                       (slow (if (eq role :l) l-slow 1))
                       (st (round (* st0 slow))) (offs (mapcar (lambda (o) (round (* o slow))) offs0))

@@ -2875,7 +2875,7 @@ defender's next step. Values: the attacker's and the defender's first actionable
           (check (notany (lambda (sg) (kit-next k (nm sg) :sp2c)) '("L1" "L2" "L3")))
           (dolist (s '("L1" "L2" "L3" "J1" "J2" "J3" "K1" "K2" "K3" "JL1" "JL2" "JL3" "KL1" "KL2" "KL3"))
             (let* ((m (mv s)) (far (member s '("JL1" "JL2" "JL3" "KL1" "KL2" "KL3") :test #'string=))
-                   (n (cdr (assoc s '(("L1" . 2) ("L2" . 2) ("L3" . 3) ("J1" . 3) ("J2" . 3) ("J3" . 4) ("K1" . 2) ("K2" . 2) ("K3" . 3))
+                   (n (cdr (assoc s '(("L1" . 2) ("L2" . 2) ("L3" . 3) ("J1" . 3) ("J2" . 3) ("J3" . 3) ("K1" . 2) ("K2" . 2) ("K3" . 3))
                                   :test #'string=))))
               ;; the openers: several plain hits, 4 m (no 萬物貫通: nothing spent); the follow-ups one 萬物貫通 line, 31 m
               ;; (R4, 「所有起手連段一律用近距離攻擊」: the awakened forms' openers melee strikes, each hit its drawn tip's reach
