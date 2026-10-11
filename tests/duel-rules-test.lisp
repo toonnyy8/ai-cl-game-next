@@ -17,6 +17,7 @@
 
 (defvar *br-tip-print* nil)   ; (t: print the awakened stances' drawn tips, *BR-W-TIPS*)
 (defvar *br-w-stretch* nil)   ; (barro-art.lisp's whips, read with the art files below)
+(defvar *br-squash* nil)      ; (barro-art.lisp's squash and stretch, R8)
 (defvar *fails* 0)
 (defvar *checks* 0)
 (defmacro check (form)
@@ -1724,7 +1725,8 @@ along the left forearm, so the fist leads).")
                                      (*sj-strike-reach* (setf strike (eval (third form))))
                                      (*lb-strike-points* (setf points (eval (third form))))   ; Lille: the plank, the
                                      (*lb-butt* (setf butt (eval (third form))))           ; wing / arm tips
-                                     (*br-w-stretch* (eval form))))                         ; (Lille II's whips, R5)
+                                     (*br-w-stretch* (eval form))                           ; (Lille II's whips, R5)
+                                     (*br-squash* (eval form))))                            ; (his squash, R8)
                      (defbody (push (cons (second form) (third form)) bodies))
                      (defweapon (push (cons (second form) (getf (third form) :length)) weapons)))))))
   (let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
@@ -3109,16 +3111,25 @@ defender's next step. Values: the attacker's and the defender's first actionable
 ;; R5 (the user 2026-10-11, J 「將光翼拉伸如同長鞭一般鞭擊」; the reach 「跟著動作走」): a whip's stretch (*BR-W-STRETCH*, the
 ;; clip's keys (frame right left), linear) is drawn on past the hand, so it is in the tip: JILLIEL's along the front wing's
 ;; root (the chest's local (+-0.07 0.3 0.13), LILLE-DRAW's) -> hand line, the owl's lash along the forearm (elbow -> hand).
-(defun br-stretch-at (clip frame g)
-  "The stretch (m) of clip CLIP's front wing G (0 right, 1 left) at its frame FRAME (*BR-W-STRETCH*; 0 if not listed)."
-  (let ((keys (cdr (assoc clip *br-w-stretch*))) (prev nil))
+(defun br-keys-at (table clip frame g default)
+  "Clip CLIP's keys in TABLE ((clip (frame a b) ...) ...) at its frame FRAME, value G (0: a, 1: b), linear between keys, held
+past the ends; DEFAULT if the clip is not listed."
+  (let ((keys (cdr (assoc clip table))) (prev nil))
     (flet ((val (k) (float (if (= g 0) (second k) (third k)) 1.0)))
-      (cond ((null keys) 0.0)
+      (cond ((null keys) default)
             ((<= frame (first (first keys))) (val (first keys)))
             (t (dolist (k keys (val prev))
                  (when (< frame (first k))
                    (return (+ (val prev) (* (/ (- frame (first prev)) (- (first k) (first prev))) (- (val k) (val prev))))))
                  (setf prev k)))))))
+(defun br-stretch-at (clip frame g)
+  "The stretch (m) of clip CLIP's front wing G (0 right, 1 left) at its frame FRAME (*BR-W-STRETCH*; 0 if not listed)."
+  (br-keys-at *br-w-stretch* clip frame g 0.0))
+;; R8 (DUEL_LILLE_V3 §13): the body's squash and stretch (*BR-SQUASH*, keys (frame up sideways), barro-art.lisp BR-DEFORM)
+;; scales the posed joints about his feet, up and along his right axis, never his facing: the tips with it (the stretch's
+;; root and hand both scaled, then the stretch drawn on), so the reach moves only through the stretch's direction
+(check (and (~= 1.0 (br-keys-at *br-squash* :lb-w-q1 10 0 1.0)) (~= 0.74 (br-keys-at *br-squash* :br-en-k1 16 0 1.0))
+            (~= 1.3 (br-keys-at *br-squash* :br-en-k1 16 1 1.0)) (~= 1.0 (br-keys-at *br-squash* :br-en-k1 40 0 1.0))))
 (check (and (~= 0.0 (br-stretch-at :lb-w-q1 10 0)) (~= 1.2 (br-stretch-at :br-en-j1 8 0)) (~= 1.0 (br-stretch-at :br-en-j1 8 1))
             (~= 1.15 (br-stretch-at :br-en-j1 9 0)) (~= 0.0 (br-stretch-at :br-en-j1 40 0))))
 (let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
@@ -3127,7 +3138,8 @@ defender's next step. Values: the attacker's and the defender's first actionable
            (clip-sample! pose (find-clip clip) time)
            (pose-fk! jm pose 0f0 0f0 0f0 0f0 1f0 0f0 props)
            (joint-point! v jm (joint-index joint) 0f0 0f0 0f0)
-           (let* ((hx (aref v 0)) (hy (aref v 1)) (hz (aref v 2)) (g (if (eq joint :hand-r) 0 1))
+           (let* ((sy (br-keys-at *br-squash* clip (* 60 time) 0 1.0)) (sx (br-keys-at *br-squash* clip (* 60 time) 1 1.0))
+                  (hx (* sx (aref v 0))) (hy (* sy (aref v 1))) (hz (aref v 2)) (g (if (eq joint :hand-r) 0 1))
                   (ex (br-stretch-at clip (* 60 time) g)))
              (if (zerop ex)
                  (values hx (- hz))
@@ -3135,7 +3147,7 @@ defender's next step. Values: the attacker's and the defender's first actionable
                    (if (eq props po)                   ; the owl: along the forearm; JILLIEL: from the wing's root
                        (joint-point! v jm (joint-index (if (= g 0) :lower-arm-r :lower-arm-l)) 0f0 0f0 0f0)
                        (joint-point! v jm (joint-index :chest) (if (= g 0) 0.07f0 -0.07f0) 0.3f0 0.13f0))
-                   (let* ((dx (- hx (aref v 0))) (dy (- hy (aref v 1))) (dz (- hz (aref v 2)))
+                   (let* ((dx (- hx (* sx (aref v 0)))) (dy (- hy (* sy (aref v 1)))) (dz (- hz (aref v 2)))
                           (k (/ ex (sqrt (+ (* dx dx) (* dy dy) (* dz dz))))))
                      (values (+ hx (* k dx)) (- (+ hz (* k dz))))))))))
     (loop for (mpre cpre fpre props) in (list (list "BR-E" "BR-EN" "BR-E" pj) (list "BR-OE" "BR-OEN" "BR-OE" po))

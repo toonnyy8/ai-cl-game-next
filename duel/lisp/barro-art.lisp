@@ -563,6 +563,10 @@
   (:root :f 0.32 :u -0.08 :yaw -8 :pitch 12) (:spine :flex 18) (:chest :twist -14) (:head :flex 6)
   (:arm-l :flex 61.8 :side -20) (:elbow-l :flex 117.4) (:arm-r :flex 40 :side 40) (:elbow-r :flex 100)
   (:thigh-l :flex 28) (:thigh-r :flex -20))
+(defpose :br-en-barge (:base :lb-w-stance)         ; J3's Tackle (R8, §13): lunging in, the left shoulder first, the wings in
+  (:root :f 0.3 :u -0.06 :yaw -20 :pitch 12) (:spine :flex 14) (:chest :twist -30) (:head :flex 6 :twist 16)
+  (:arm-l :flex 30 :side 20) (:elbow-l :flex 100) (:arm-r :flex -30 :side 30) (:elbow-r :flex 30)
+  (:thigh-l :flex 30) (:thigh-r :flex -22))
 (defpose :br-en-cannon-load (:base :lb-w-stance)   ; 零距離砲擊's load: stepped in, both wings drawn back to the chest
   (:root :f 0.26 :u -0.08 :pitch 4) (:spine :flex 8) (:head :flex 4)
   (:arm-r :flex 60 :side 30) (:elbow-r :flex 110) (:arm-l :flex 60 :side 30) (:elbow-l :flex 110)
@@ -617,18 +621,23 @@
   (:s :snap :br-en-crack-l) (:a :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
   (16 :br-en-crack-l (:root :f 0 :pitch 2) (:arm-l :flex 40 :side 40) (:elbow-l :flex 20) (:arm-r :flex 40 :side 50))
   (:end :lb-w-stance))
-(defstrike :br-en-j3 (14 2 14 :base :lb-w-stance)   ; J3 大砍刀: the whips drawn in, wound away, the right wing pulled back and grown, held, chopped down f14
+(defstrike :br-en-j3 (14 2 14 :base :lb-w-stance)   ; J3 True Charged Slash (R8): from the whips a shoulder barge f3-6, wound round, the right wing pulled back and grown, one full-body swing f14, twisting through
   (0 :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
-  (4 :br-en-heave-r (:root :f -0.06)) (10 :br-en-heave-r (:root :f -0.2 :u 0.08) (:chest :twist -52) (:arm-r :flex 222))
-  (11 :br-en-heave-r (:root :f -0.2 :u 0.08) (:chest :twist -54) (:arm-r :flex 226))
-  (:s :snap :br-en-cleave-r) (:a :br-en-cleave-low-r)
-  (24 :br-en-cleave-low-r (:root :f 0.08 :u -0.06 :yaw 8 :pitch 10) (:pelvis :twist 4) (:spine :flex 14) (:chest :twist 12)
+  (3 :br-en-barge (:root :f 0.12)) (6 :br-en-barge) (8 :br-en-heave-r (:root :f 0.04))
+  (11 :br-en-heave-r (:root :f -0.16 :u 0.1) (:pelvis :twist -30) (:chest :twist -60) (:arm-r :flex 226))
+  (:s :snap :br-en-cleave-r)
+  (:a :br-en-cleave-low-r (:root :yaw 44) (:pelvis :twist 30) (:chest :twist 56) (:arm-r :flex 40 :side -50))
+  (19 :br-en-cleave-low-r (:root :yaw 48 :u -0.2) (:pelvis :twist 32) (:chest :twist 60) (:arm-r :flex 36 :side -54))
+  (25 :br-en-cleave-low-r (:root :f 0.08 :u -0.06 :yaw 8 :pitch 10) (:pelvis :twist 4) (:spine :flex 14) (:chest :twist 12)
    (:arm-r :flex 40 :side 20))
   (:end :lb-w-stance))
-(defstrike :br-en-k1 (16 2 18 :base :lb-w-stance)   ; K1 大砍刀: wound away, the right wing pulled back and grown, held long, chopped down f16
+(defstrike :br-en-k1 (16 2 18 :base :lb-w-stance)   ; K1 Charged Slash (R8): the right wing hauled over the shoulder, stretched tall, the squat f14, sprung, slammed into the floor f16, held
   (0) (5 :br-en-heave-r) (11 :br-en-heave-r (:root :f -0.2 :u 0.1) (:chest :twist -54) (:arm-r :flex 224))
-  (13 :br-en-heave-r (:root :f -0.22 :u 0.12) (:chest :twist -56) (:arm-r :flex 228))
-  (:s :snap :br-en-cleave-r) (:a :br-en-cleave-low-r) (22 :br-en-cleave-low-r (:root :u -0.2))
+  (13 :br-en-heave-r (:root :f -0.22 :u 0.14 :pitch -12) (:chest :twist -56) (:arm-r :flex 228))
+  (14 :br-en-heave-r (:root :f -0.18 :u -0.18 :pitch -4) (:spine :flex 10) (:chest :twist -56) (:arm-r :flex 230))
+  (15 :br-en-heave-r (:root :f -0.08 :u 0.12 :pitch -12) (:chest :twist -50) (:arm-r :flex 232))
+  (:s :snap :br-en-cleave-r) (:a :br-en-cleave-low-r (:root :u -0.26) (:arm-r :flex 40 :side -6))
+  (22 :br-en-cleave-low-r (:root :u -0.26) (:arm-r :flex 38 :side -6))
   (30 :br-en-cleave-low-r (:root :f 0.06 :u -0.04 :yaw 4 :pitch 6) (:pelvis :twist 2) (:spine :flex 8) (:chest :twist 6)
    (:arm-r :flex 40 :side 30))
   (:end :lb-w-stance))
@@ -690,6 +699,10 @@
   (:root :f 0.32 :u -0.08 :yaw -8 :pitch 12) (:spine :flex 20) (:chest :twist -14) (:neck :flex 24) (:head :flex 10)
   (:arm-l :flex 67 :side -20) (:elbow-l :flex 104.7) (:hand-l :flex 40) (:arm-r :flex 40 :side 40) (:elbow-r :flex 100)
   (:hand-r :flex 20))
+(defpose :br-oen-barge (:base :lb-oe-stance)       ; J3's Tackle (R8, §13): lunging in, the left shoulder first, the claws in
+  (:root :f 0.3 :u -0.06 :yaw -20 :pitch 12) (:spine :flex 16) (:chest :twist -30) (:neck :flex 20) (:head :flex 8 :twist 16)
+  (:arm-l :flex 30 :side 20) (:elbow-l :flex 110) (:hand-l :flex 20) (:arm-r :flex -30 :side 30) (:elbow-r :flex 30)
+  (:hand-r :flex 10))
 (defpose :br-oen-cannon-load (:base :lb-oe-stance) ; 零距離砲擊's load: stepped in, both claws drawn back to the chest
   (:root :f 0.26 :u -0.06 :pitch 4) (:spine :flex 10) (:neck :flex 14) (:head :flex 6)
   (:arm-r :flex 50 :side 30) (:elbow-r :flex 120) (:hand-r :flex 20) (:arm-l :flex 50 :side 30) (:elbow-l :flex 120)
@@ -739,18 +752,23 @@
   (:s :snap :br-oen-crack-l) (:a :br-oen-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
   (16 :br-oen-crack-l (:root :f 0 :pitch 2) (:arm-l :flex 40 :side 40) (:elbow-l :flex 20) (:arm-r :flex 40 :side 50))
   (:end :lb-oe-stance))
-(defstrike :br-oen-j3 (14 2 13 :base :lb-oe-stance)   ; J3 大砍刀: the whips drawn in, wound away, the right claw pulled back and grown, held, chopped down f14
+(defstrike :br-oen-j3 (14 2 13 :base :lb-oe-stance)   ; J3 True Charged Slash (R8): from the whips a shoulder barge f3-6, wound round, the right claw pulled back and grown, one full-body swing f14, twisting through
   (0 :br-oen-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
-  (4 :br-oen-heave-r (:root :f -0.06)) (10 :br-oen-heave-r (:root :f -0.2 :u 0.08) (:chest :twist -52) (:arm-r :flex 222))
-  (11 :br-oen-heave-r (:root :f -0.2 :u 0.08) (:chest :twist -54) (:arm-r :flex 226))
-  (:s :snap :br-oen-cleave-r) (:a :br-oen-cleave-low-r)
-  (24 :br-oen-cleave-low-r (:root :f 0.08 :u -0.06 :yaw 8 :pitch 10) (:pelvis :twist 4) (:spine :flex 14) (:chest :twist 12)
+  (3 :br-oen-barge (:root :f 0.12)) (6 :br-oen-barge) (8 :br-oen-heave-r (:root :f 0.04))
+  (11 :br-oen-heave-r (:root :f -0.16 :u 0.1) (:pelvis :twist -30) (:chest :twist -60) (:arm-r :flex 226))
+  (:s :snap :br-oen-cleave-r)
+  (:a :br-oen-cleave-low-r (:root :yaw 44) (:pelvis :twist 30) (:chest :twist 56) (:arm-r :flex 40 :side -50))
+  (19 :br-oen-cleave-low-r (:root :yaw 48 :u -0.2) (:pelvis :twist 32) (:chest :twist 60) (:arm-r :flex 36 :side -54))
+  (25 :br-oen-cleave-low-r (:root :f 0.08 :u -0.06 :yaw 8 :pitch 10) (:pelvis :twist 4) (:spine :flex 14) (:chest :twist 12)
    (:arm-r :flex 40 :side 20))
   (:end :lb-oe-stance))
-(defstrike :br-oen-k1 (16 2 17 :base :lb-oe-stance)   ; K1 大砍刀: wound away, the right claw pulled back and grown, held long, chopped down f16
+(defstrike :br-oen-k1 (16 2 17 :base :lb-oe-stance)   ; K1 Charged Slash (R8): the right claw hauled over the shoulder, stretched tall, the squat f14, sprung, slammed into the floor f16, held
   (0) (5 :br-oen-heave-r) (11 :br-oen-heave-r (:root :f -0.2 :u 0.1) (:chest :twist -54) (:arm-r :flex 224))
-  (13 :br-oen-heave-r (:root :f -0.22 :u 0.12) (:chest :twist -56) (:arm-r :flex 228))
-  (:s :snap :br-oen-cleave-r) (:a :br-oen-cleave-low-r) (22 :br-oen-cleave-low-r (:root :u -0.2))
+  (13 :br-oen-heave-r (:root :f -0.22 :u 0.14 :pitch -12) (:chest :twist -56) (:arm-r :flex 228))
+  (14 :br-oen-heave-r (:root :f -0.18 :u -0.18 :pitch -4) (:spine :flex 10) (:chest :twist -56) (:arm-r :flex 230))
+  (15 :br-oen-heave-r (:root :f -0.08 :u 0.12 :pitch -12) (:chest :twist -50) (:arm-r :flex 232))
+  (:s :snap :br-oen-cleave-r) (:a :br-oen-cleave-low-r (:root :u -0.26) (:arm-r :flex 40 :side -6))
+  (22 :br-oen-cleave-low-r (:root :u -0.26) (:arm-r :flex 38 :side -6))
   (30 :br-oen-cleave-low-r (:root :f 0.06 :u -0.04 :yaw 4 :pitch 6) (:pelvis :twist 2) (:spine :flex 8) (:chest :twist 6)
    (:arm-r :flex 40 :side 30))
   (:end :lb-oe-stance))
@@ -768,12 +786,12 @@
 (defparameter *br-w-stretch*
   '((:br-en-j1 (0 0 0) (6 1.1 1.0) (8 1.2 1.0) (10 1.1 1.1) (16 0.5 0.4) (22 0 0))   ; (R7, §12: one whip a press)
     (:br-en-j2 (0 1.1 1.1) (8 1.0 1.2) (10 0.8 1.1) (16 0.4 0.5) (22 0 0))
-    (:br-en-j3 (0 0.8 1.1) (4 0.9 0.3) (10 1.6 0) (11 1.7 0) (14 0.7 0) (16 0.6 0) (24 0.3 0) (30 0 0))
-    (:br-en-k1 (0 0 0) (5 0.8 0) (11 1.5 0) (13 1.6 0) (16 0.5 0) (20 0.4 0) (30 0 0))
+    (:br-en-j3 (0 0.8 1.1) (4 0.5 0.3) (6 0.4 0.1) (8 1.0 0) (11 1.7 0) (14 0.7 0) (15 1.2 0) (19 1.1 0) (24 0.3 0) (30 0 0))
+    (:br-en-k1 (0 0 0) (5 0.8 0) (11 1.5 0) (13 1.6 0) (15 1.7 0) (16 1.0 0) (17 1.4 0) (22 1.3 0) (26 0.5 0) (30 0 0))
     (:br-oen-j1 (0 0 0) (6 1.25 1.15) (8 1.35 1.15) (10 1.25 1.25) (16 0.5 0.4) (21 0 0))
     (:br-oen-j2 (0 1.25 1.25) (8 1.15 1.35) (10 0.9 1.25) (16 0.4 0.5) (21 0 0))
-    (:br-oen-j3 (0 0.9 1.25) (4 1.0 0.3) (10 1.8 0) (11 1.9 0) (14 0.8 0) (16 0.7 0) (24 0.3 0) (29 0 0))
-    (:br-oen-k1 (0 0 0) (5 0.9 0) (11 1.7 0) (13 1.8 0) (16 0.6 0) (20 0.5 0) (30 0 0)))
+    (:br-oen-j3 (0 0.9 1.25) (4 0.55 0.35) (6 0.45 0.1) (8 1.1 0) (11 1.9 0) (14 0.8 0) (15 1.3 0) (19 1.2 0) (24 0.3 0) (29 0 0))
+    (:br-oen-k1 (0 0 0) (5 0.9 0) (11 1.7 0) (13 1.8 0) (15 1.9 0) (16 1.1 0) (17 1.5 0) (22 1.4 0) (26 0.6 0) (30 0 0)))
   "R5 J 長鞭 (DUEL_LILLE_V3 §10): the whips' stretch by clip, keys (frame right left) in the clip's frames: the metres the
 right / left front wing (JILLIEL: its blade on past the hand, along its root -> hand line) or claw's gold lash (the owl: on
 from the claw along the forearm) reaches past the rig's hand, linear between keys; grown over the wind-up, the striking
@@ -789,6 +807,66 @@ the pulled-back blade grows wider as well as longer (x 1.75-1.9 at the held wind
 (dolist (c '(:br-en-l1 :br-en-l2 :br-en-l3 :br-oen-l1 :br-oen-l2 :br-oen-l3   ; the spins: the table wings turn with him;
              :br-en-k3 :br-oen-k3))                                          ;  K3: no lines toward him at the blast (R6)
   (pushnew c *lb-no-conv*))
+
+;; R8 (DUEL_LILLE_V3 §13, the user 2026-10-11: 「大刀的揮舞動作請對魔物獵人進行調查，身體動作大而誇張，可以進行形變來強化動作
+;; 效果」): the great blade's squash and stretch, a look on the posed joints (his kit's :pose hook, BR-DEFORM, right after
+;; the body's FK): up x SY and sideways (his right axis) x SX about his feet; his facing axis is never scaled.
+(defparameter *br-squash*
+  '((:br-en-k1 (0 1 1) (5 1.06 0.96) (11 1.16 0.9) (13 1.18 0.88) (14 0.84 1.12) (15 1.1 0.92) (16 0.74 1.3) (21 0.76 1.28)
+               (25 0.94 1.06) (29 1 1))
+    (:br-oen-k1 (0 1 1) (5 1.06 0.96) (11 1.16 0.9) (13 1.18 0.88) (14 0.84 1.12) (15 1.1 0.92) (16 0.74 1.3) (21 0.76 1.28)
+                (25 0.94 1.06) (29 1 1))
+    (:br-en-j3 (0 1 1) (3 0.97 1.04) (6 0.9 1.1) (9 1.08 0.95) (12 1.16 0.9) (14 0.78 1.25) (17 0.8 1.22) (21 0.95 1.05)
+               (25 1 1))
+    (:br-oen-j3 (0 1 1) (3 0.97 1.04) (6 0.9 1.1) (9 1.08 0.95) (12 1.16 0.9) (14 0.78 1.25) (17 0.8 1.22) (21 0.95 1.05)
+                (25 1 1)))
+  "R8 (§13): the body's squash and stretch by clip, keys (frame up sideways) in the clip's frames, linear between, held past
+the ends: K1 the level-3 Charged Slash (stretched tall while the wing is hauled over the shoulder, the squat tell f14,
+sprung up f15, squashed wide and low on the slam f16, held a beat), J3 the True Charged Slash (the barge's lunge low,
+stretched in the swing's wind-up, squashed on the hit f14). The host FK test scales the tips the same way (the facing axis
+untouched: the reach is the unscaled one's).")
+(declaim (type list *br-squash-v*))
+(defparameter *br-squash-v*
+  (loop for (c . keys) in *br-squash* collect (cons c (coerce (mapcar #'f32 (apply #'append keys)) 'f32vec)))
+  "*BR-SQUASH* as f32vecs (BR-DEFORM reads them without consing).")
+(defun-fast br-deform (e m)
+  "His kit's :pose hook (R8, §13; draw.lisp's DRAW-FIGHTER, right after the FK, E's model M, the FK origin in *POSE-AT*):
+while his clip is in *BR-SQUASH*, every joint matrix of the posed body is scaled about his feet (the origin), up x SY and
+along his right axis x SX (the keys at the clip's frame), so the column, the legs and the front wings / claws (LILLE-DRAW
+draws them from these joints) squash and stretch; his facing axis untouched. Any other clip: nothing (bit-identical).
+Cosmetic. 0 B."
+  (setf e nil)                                          ; (unused: the hook's signature)
+  (let* ((an (model-anim m)) (c (anim-clip an)) (ent (and c (assoc (clip-name c) *br-squash-v*))))
+    (when ent
+      (let* ((kv (cdr ent)) (n (floor (length kv) 3)) (fr (* 60f0 (the single-float (anim-time an)))) (sy 1f0) (sx 1f0))
+        (declare (type f32vec kv) (fixnum n) (single-float fr sy sx))
+        (cond ((<= fr (aref kv 0)) (setf sy (aref kv 1) sx (aref kv 2)))
+              ((>= fr (aref kv (* 3 (1- n)))) (setf sy (aref kv (- (* 3 n) 2)) sx (aref kv (1- (* 3 n)))))
+              (t (dotimes (i (1- n))
+                   (let* ((o (* 3 i)) (a (aref kv o)) (b (aref kv (+ o 3))))
+                     (declare (fixnum o) (single-float a b))
+                     (when (and (<= a fr) (< fr b))
+                       (let ((u (/ (- fr a) (f-max 1f-5 (- b a)))))
+                         (declare (single-float u))
+                         (setf sy (+ (aref kv (+ o 1)) (* u (- (aref kv (+ o 4)) (aref kv (+ o 1)))))
+                               sx (+ (aref kv (+ o 2)) (* u (- (aref kv (+ o 5)) (aref kv (+ o 2))))))))))))
+        (unless (and (= sy 1f0) (= sx 1f0))
+          (let* ((jm (model-joints m)) (p *pose-at*) (yaw (aref p 3))
+                 (ox (aref p 0)) (oy (aref p 1)) (oz (aref p 2)) (rx (f-cos yaw)) (rz (- (f-sin yaw))) (k (- sx 1f0)))
+            (declare (type f32vec jm p) (single-float yaw ox oy oz rx rz k))
+            (dotimes (j +nj+)
+              (let ((o (* 16 j)))
+                (declare (fixnum o))
+                (dotimes (col 4)                           ; the three axes, then the origin (about his feet)
+                  (let* ((q (+ o (* 4 col))) (org (= col 3))
+                         (vx (if org (- (aref jm q) ox) (aref jm q))) (vy (if org (- (aref jm (+ q 1)) oy) (aref jm (+ q 1))))
+                         (vz (if org (- (aref jm (+ q 2)) oz) (aref jm (+ q 2))))
+                         (d (* k (+ (* vx rx) (* vz rz)))))
+                    (declare (fixnum q) (single-float vx vy vz d))
+                    (setf (aref jm q) (+ (if org ox 0f0) vx (* d rx))
+                          (aref jm (+ q 1)) (+ (if org oy 0f0) (* sy vy))
+                          (aref jm (+ q 2)) (+ (if org oz 0f0) vz (* d rz)))))))))))
+    nil))
 
 ;;; ---------------------------------------------------------------- the draw hook
 (defparameter *br-aim-stance* '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
@@ -1080,6 +1158,33 @@ Reads *BR-AT* (his place and the opponent's, BR-DRAW's) and the move's frame. 0 
                             (setf (aref %at (+ %o 2)) (aref %p 0) (aref %at (+ %o 3)) (aref %p 2))))))))
 
 ;;; ---------------------------------------------------------------- R5 K3 零距離砲擊 (DUEL_LILLE_V3 §10; R6 §11: a ball of light)
+(defmacro %br-ball (x y z a life r pal sd)
+  "A ball of light at (X Y Z), its frame A (a fixnum, from the shot) of LIFE (a fixnum), full radius R, palette PAL, seed SD
+(零距離砲擊's blast, R6, §11: 「砲擊不要發射光束，直接在爆炸點炸開光球來表示」; the awakened K route's L L shots, R8, §13): a white
+flash ball on the first two frames, then the ball swelling over its first third, its jade / gold shell in a dark rim round a
+white core that shrinks away, eroding over its last half, dark smoke puffs rising and thinning from frame 6, a new drawing
+every two frames. Single-float forms (a macro: 0 B)."
+  `(let* ((%x ,x) (%y ,y) (%z ,z) (%a ,a) (%life ,life) (%r ,r) (%pal ,pal)
+          (%d (i->f (* 2 (floor %a 2))))                 ; (on twos)
+          (%u (/ %d (i->f %life)))
+          (%es (* %r (+ 0.55f0 (* 0.6f0 (%lb-ss (* 3f0 %u))))))   ; (swells over the first third)
+          (%k (- 1f0 (%lb-ss (/ (- %u 0.45f0) 0.55f0))))          ; (erodes over the last half)
+          (%sd (+ ,sd %d)))
+     (declare (fixnum %a %life) (single-float %x %y %z %r %pal %d %u %es %k %sd))
+     (if (< %a 2)
+         (fx-disc %x %y %z (* 0.5f0 %r) 0.05f0 %sd +pal-hit+ 0.98f0 :push 0.45f0)   ; (the flash: a white ball)
+         (progn                                        ; (the ball of light: no spikes, no line toward him)
+           (fx-disc %x %y %z (* 1.08f0 %es) 0.06f0 (+ %sd 3f0) +pal-ink+ (* 0.6f0 %k) :push 0.2f0)   ; (its dark rim)
+           (fx-disc %x %y %z %es 0.05f0 %sd %pal %k :push 0.3f0)                               ; (the shell)
+           (let ((%cr (* %es (- 0.62f0 (* 0.62f0 (%lb-ss (/ %u 0.6f0)))))))                   ; (the white core)
+             (declare (single-float %cr))
+             (when (> %cr 0.02f0) (fx-disc %x %y %z %cr 0.04f0 (+ %sd 5f0) +pal-hit+ 0.97f0 :push 0.4f0)))
+           (when (>= %a 6)                              ; the smoke: three puffs rising off it
+             (dotimes (%j 3)
+               (let* ((%fj (i->f %j)) (%an (+ (* 2.1f0 %fj) (* 0.3f0 %u))) (%rr (* %r (+ 0.3f0 (* 0.5f0 %u)))))
+                 (declare (single-float %fj %an %rr))
+                 (fx-disc (+ %x (* %rr (f-cos %an))) (+ %y (* %r (+ 0.1f0 (* 0.9f0 %u))) (* 0.2f0 %fj)) (+ %z (* %rr (f-sin %an)))
+                          (* %r (+ 0.22f0 (* 0.3f0 %u))) 0.25f0 (+ %sd 20f0 %fj) +pal-smoke+ (* 0.8f0 %k)))))))))
 (defparameter *br-blast-moves* '(:br-e-k3 :br-oe-k3)
   "The moves whose last hit is 零距離砲擊 (the awakened stance's K3, R5: 「爆炸特效的零距離砲擊」): the blast at its frame.")
 (defparameter *br-blast-life* 18 "零距離砲擊's blast: the frames it lasts from the last hit's first frame ...")
@@ -1107,26 +1212,42 @@ a new drawing every two frames. Reads the move's frame only (cosmetic; the hit's
              (x (+ (aref at o) (* edge (/ dx dl))))
              (y (+ (aref *lb-v* 3) (* sc (the single-float (f32 (if owl (second *br-blast-y*) (first *br-blast-y*)))))))
              (z (+ (aref at (+ o 1)) (* edge (/ dz dl))))
-             (d (i->f (* 2 (floor a 2))))                 ; (on twos)
-             (u (/ d (i->f life))) (r (* sc (the single-float *br-blast-r*)))
-             (es (* r (+ 0.55f0 (* 0.6f0 (%lb-ss (* 3f0 u))))))   ; (swells over the first third)
-             (k (- 1f0 (%lb-ss (/ (- u 0.45f0) 0.55f0))))         ; (erodes over the last half)
-             (sd (+ 410f0 d (* 50f0 (i->f side)))))
-        (declare (single-float pal edge dx dz dl sc x y z d u r es k sd))
-        (if (< a 2)
-            (fx-disc x y z (* 0.5f0 r) 0.05f0 sd +pal-hit+ 0.98f0 :push 0.45f0)   ; (the flash: a white ball)
-            (progn                                        ; (the ball of light: no spikes, no line toward him)
-              (fx-disc x y z (* 1.08f0 es) 0.06f0 (+ sd 3f0) +pal-ink+ (* 0.6f0 k) :push 0.2f0)   ; (its dark rim)
-              (fx-disc x y z es 0.05f0 sd pal k :push 0.3f0)                                ; (the jade / gold shell)
-              (let ((cr (* es (- 0.62f0 (* 0.62f0 (%lb-ss (/ u 0.6f0)))))))                 ; (the white core, shrinking)
-                (declare (single-float cr))
-                (when (> cr 0.02f0) (fx-disc x y z cr 0.04f0 (+ sd 5f0) +pal-hit+ 0.97f0 :push 0.4f0)))
-              (when (>= a 6)                              ; the smoke: three puffs rising off it
-                (dotimes (j 3)
-                  (let* ((fj (i->f j)) (an (+ (* 2.1f0 fj) (* 0.3f0 u))) (rr (* r (+ 0.3f0 (* 0.5f0 u)))))
-                    (declare (single-float fj an rr))
-                    (fx-disc (+ x (* rr (f-cos an))) (+ y (* r (+ 0.1f0 (* 0.9f0 u))) (* 0.2f0 fj)) (+ z (* rr (f-sin an)))
-                             (* r (+ 0.22f0 (* 0.3f0 u))) 0.25f0 (+ sd 20f0 fj) +pal-smoke+ (* 0.8f0 k)))))))))
+             (r (* sc (the single-float *br-blast-r*))))
+        (declare (single-float pal edge dx dz dl sc x y z r))
+        (%br-ball x y z a life r pal (+ 410f0 (* 50f0 (i->f side))))))
+    nil))
+
+;; R8 (DUEL_LILLE_V3 §13, the user 2026-10-11: 「K 砲擊銜接的 L 也用一樣的砲擊特效炸在不同位置上」): the awakened K route's
+;; L L (KL1 KL2 KL3, the 萬物貫通 lines after K3's blast) drawn as K3's balls of light instead of the line (BR-SHOT-FIRE spawns
+;; their look as :ball, which LB-LOOK does not draw); the hit is still the line's
+(defparameter *br-kl-balls*
+  '((:br-e-kl1 0.9 1.9 0.75) (:br-oe-kl1 0.9 2.2 0.75) (:br-e-kl2 -0.9 0.55 0.75) (:br-oe-kl2 -0.9 0.8 0.75)
+    (:br-e-kl3 0 1.25 1.15) (:br-oe-kl3 0 1.55 1.15))
+  "The balls' places (R8, §13) round the line's point at the opponent's distance (on the line along his facing, even when
+he is off it), by move: (move right up radius): KL1 off to his right and high, KL2 the other side and low, KL3 a bigger
+one on him; metres (right of the line, above his floor) and the full radius.")
+(defun-fast %br-kl-balls (f side mv)
+  "The awakened K route's L L shot (a move in *BR-KL-BALLS*) at its frame: from its hit's first frame for *BR-BLAST-LIFE*
+frames a ball of light (%BR-BALL) at its place on the line at the opponent's distance (his place and facing: *POSE-AT*,
+DRAW-FIGHTER's; the opponent's: *BR-AT*), and a smaller one beside it. Reads the move's frame only. 0 B."
+  (declare (fixnum side))
+  (let* ((ent (assoc (mv-name mv) *br-kl-balls*)) (hits (mv-hits mv)) (n (length hits)) (life (the fixnum *br-blast-life*))
+         (at *br-at*) (o (* 8 side)) (pa *pose-at*)
+         (a (if (and ent (> n 0) (> (aref at (+ o 4)) 0.5f0))
+                (- (the fixnum (fighter-sf f)) (the fixnum (hw-from (aref hits 0)))) -1)))
+    (declare (fixnum n life o a) (type f32vec at pa))
+    (when (<= 0 a life)
+      (let* ((pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+)) (sc (aref *lb-v* 31))
+             (yaw (aref pa 3)) (ux (- (f-sin yaw))) (uz (- (f-cos yaw))) (rx (f-cos yaw)) (rz (- (f-sin yaw)))
+             (dist (f-max 1f0 (f-hypot (- (aref at (+ o 2)) (aref at o)) (- (aref at (+ o 3)) (aref at (+ o 1))))))
+             (lr (the single-float (f32 (second ent)))) (up (the single-float (f32 (third ent))))
+             (r (* sc (the single-float (f32 (fourth ent)))))
+             (x (+ (aref at o) (* dist ux) (* lr rx))) (y (+ (aref *lb-v* 3) up)) (z (+ (aref at (+ o 1)) (* dist uz) (* lr rz)))
+             (sd (+ 470f0 (* 50f0 (i->f side)) (* 7f0 lr))))
+        (declare (single-float pal sc yaw ux uz rx rz dist lr up r x y z sd))
+        (%br-ball x y z a life r pal sd)
+        (when (> a 1)                                   ; (a smaller one beside it, a frame later)
+          (%br-ball (- x (* 0.5f0 r rx)) (+ y (* 0.45f0 r)) (- z (* 0.5f0 r rz)) (1- a) life (* 0.45f0 r) pal (+ sd 31f0)))))
     nil))
 
 ;;; ---------------------------------------------------------------- the special resource's looks (DUEL_LILLE_V3 §4)
@@ -1296,6 +1417,8 @@ wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-
         (when (and (eq (mv-name mv) :br-rc4) (eq (fighter-phase f) :main)) (%br-kiwami-look f jm side))))
     (when (and mv (member (mv-name mv) *br-blast-moves*) (eq (fighter-phase f) :main))   ; R5's 零距離砲擊
       (%br-blast-look f side mv))
+    (when (and mv (assoc (mv-name mv) *br-kl-balls*) (eq (fighter-phase f) :main))   ; R8: the K route's L L as balls
+      (%br-kl-balls f side mv))
     (when (and (>= *br-art-hold* 0) (>= (the fixnum (br-hold-clock f)) *br-art-hold*))   ; (debug stills)
       (setf *br-art-hold* -1)
       (hitstop 100000)))
@@ -1390,11 +1513,12 @@ looks); 82398 the consing probe."
   "82398: bytes consed by 10 draws of P1 Lille II's :draw hook (BR-DRAW, LILLE-DRAW's lookups included), of the spends'
 note and looks (%BR-SPEND-NOTE / -LOOK: the pip glint's model lookup aside), of his volley look
 at its clock 4 and of a string beat's lines (when a string runs), and of 裁き・極's look (while it runs), of 零距離砲擊's
-blast (in an awakened K3), and of the whips' stretch and the owl's lashes (R5; a \"barro consing\" line)."
-  (let* ((e *p1*) (f (fighter e)) (side (fighter-side f)) (jm (model-joints (model e)))
+blast (in an awakened K3), of the whips' stretch and the owl's lashes (R5), of the body's squash (BR-DEFORM, R8) and the
+K route's balls (in an awakened KL, R8; a \"barro consing\" line)."
+  (let* ((e *p1*) (f (fighter e)) (side (fighter-side f)) (m (model e)) (jm (model-joints m))
          (mv (and (eq (fighter-state f) :move) (fighter-move f))))
     (macrolet ((per (form) `(let ((c0 (cons-bytes))) (dotimes (i 10) ,form) (- (cons-bytes) c0))))
-      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d blast ~d stretch ~d lashes ~d"
+      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d blast ~d stretch ~d lashes ~d deform ~d kl-balls ~d"
                (fighter-form f) (br-hold-clock f)
                (per (br-draw e 0.016f0)) (per (lille-draw e 0.016f0))
                (per (progn (%br-spend-note f side (br-ammo-look e) 2) (%br-spend-look e side))) (per (%br-recall-look e jm side 4))
@@ -1403,7 +1527,8 @@ blast (in an awakened K3), and of the whips' stretch and the owl's lashes (R5; a
                    -1)
                (if (and mv (eq (mv-name mv) :br-rc4)) (per (%br-kiwami-look f jm side)) -1)
                (if (and mv (member (mv-name mv) *br-blast-moves*)) (per (%br-blast-look f side mv)) -1)
-               (per (%lb-stretch! (model-anim (model e)))) (per (%lb-lashes jm side))))))
+               (per (%lb-stretch! (model-anim m))) (per (%lb-lashes jm side)) (per (br-deform e m))
+               (if (and mv (assoc (mv-name mv) *br-kl-balls*)) (per (%br-kl-balls f side mv)) -1)))))
 
 ;;; ---------------------------------------------------------------- the HUD: the special resource (DUEL_LILLE_V3 §3.1)
 (defparameter *br-sn-strings* #("SN 0" "SN 1" "SN 2" "SN 3") "The base form's label: SN + the 狙擊 pips.")

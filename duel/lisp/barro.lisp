@@ -321,9 +321,9 @@ volume radius, metres; its reach each hit's drawn tip (*BR-W-TIPS*; new 2026-10-
 a string: L1 + L2 1.3 -> 2.3 m in the browser; new 2026-10-11 [G]).")
 (defparameter *br-w-tips*
   '(("BR-E" ("L1" 1.85) ("L2" 1.85) ("L3" 1.85) ("J1" 2.85) ("J2" 2.85)
-     ("J3" 2.65) ("K1" 2.45) ("K2" 1.35) ("K3" 1.2))
+     ("J3" 2.65) ("K1" 2.95) ("K2" 1.35) ("K3" 1.2))
     ("BR-OE" ("L1" 1.7) ("L2" 1.7) ("L3" 1.7) ("J1" 2.8) ("J2" 2.8)
-     ("J3" 2.55) ("K1" 2.35) ("K2" 1.35) ("K3" 1.15)))
+     ("J3" 2.55) ("K1" 2.85) ("K2" 1.35) ("K3" 1.15)))
   "The awakened stances' melee openers (decision R4): each hit's reach, metres (its volume's edge), = the striking wing tip's
 / claw's distance ahead on that hit frame in its clip (barro-art.lisp :br-en-* / :br-oen-*, the host FK test: drawn reach =
 hit reach, +-0.15 m). By the move prefix, then the segment. R5 (the user 2026-10-11: the motion modules, the reach
@@ -331,7 +331,9 @@ hit reach, +-0.15 m). By the move prefix, then the segment. R5 (the user 2026-10
 stretched whip's tip (*BR-W-STRETCH*; 1.35-1.7 before) and J3's last the cleaver it stiffens into, K1 大刀 the joined great
 blade, K2 / K3's first two the folded wings' close blows, K3's last 零距離砲擊 point blank (K 1.5-2.2 before). R6 / R7
 (DUEL_LILLE_V3 §11, §12: one hit a press): one reach a segment; J3 and K1 the one-wing great blade swung grown (J3 2.4, K1
-2.0 / 1.75 before), J2 the left whip (2.8 / 2.75 before).")
+2.0 / 1.75 before), J2 the left whip (2.8 / 2.75 before). R8 (§13): K1's charged slash lands its blade longer (stretch 1.0
+/ 1.1 on the hit frame, 0.5 / 0.6 before: 2.45 / 2.35 -> 2.95 / 2.85); the body's squash (BR-DEFORM) never scales his
+facing axis.")
 (defparameter *br-s-l-whiff* 8
   "A whiffed stance L segment recovers R + this (decision R5, the user 2026-10-11: 「架式 > L 只要沒打中就進入硬直」, 「就跟一般的
 J / K 普攻一樣」: a J link's *WHIFF-EXTRA-J*; the :sig moves' *WHIFF-EXTRA* 6 before).")
@@ -602,10 +604,10 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 
 ;;; ================================================================ forms
 (defparameter *barro-hooks* '(:tick barro-tick :ok barro-ok :hit barro-hit :struck barro-struck :armor barro-armor
-                               :step barro-step :draw br-draw)
+                               :step barro-step :draw br-draw :pose br-deform)
   "His mechanics (kit.lisp KIT-HOOK): the burst owl, the owl's wings, the stance's end (:tick); the stance links (:ok); the
 specials and the recovery shots' gains (:hit); the wing armour's price (:struck) and its test (:armor, fighter.lisp
-DEFENDER-STATE); EN's fast Step (:step, decision R3); his looks (:draw, barro-art.lisp).")
+DEFENDER-STATE); EN's fast Step (:step, decision R3); his looks (:draw, barro-art.lisp) and his body's squash and stretch (:pose, BR-DEFORM: R8, DUEL_LILLE_V3 §13).")
 
 (defparameter *br-kamae-strings*
   (append (loop for s in '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
@@ -1024,8 +1026,11 @@ His CPU makes one call there (BR-S-CPU-CALL)."
 ;;; ---------------------------------------------------------------- shots and their looks
 (defun br-shot-fire (e)
   "A shot's fire frame: the line's look (jade with 萬物貫通), the crack."
-  (let ((mv (fighter-move (fighter e))))
-    (br-spawn-look e :shot (or (move-param e :len) *br-x-len*) 0.05 (and (member :x-axis (mv-flags mv)) t))
+  (let* ((f (fighter e)) (mv (fighter-move f)))
+    ;; (R8, DUEL_LILLE_V3 §13: the awakened K route's L L drawn as balls of light, barro-art.lisp %BR-KL-BALLS; the look
+    ;; hazard is spawned all the same, only its kind differs: the hit and the hazard count are the line's)
+    (br-spawn-look e (if (and (eq (getf (mv-params mv) :stance) :kl) (not (eq (fighter-form f) :base))) :ball :shot)
+                   (or (move-param e :len) *br-x-len*) 0.05 (and (member :x-axis (mv-flags mv)) t))
     (emit :sfx :lb-crack e)))
 (defun br-line-shot (e)
   "SANREN's shots (f12, f22, f32): the line's look."
