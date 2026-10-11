@@ -502,388 +502,373 @@
   (0) (4 :br-o-raise-both) (9 :br-o-raise-both (:root :u 0.38 :pitch -10))
   (:s :snap :br-o-throw-both) (:a :br-o-throw-both (:root :f 0.5 :u -0.1)) (24 :br-o-kick-both (:root :f -0.1))
   (:end :lb-oe-stance))
-;;; ---------------------------------------------------------------- the stance EN's own strings (DUEL_LILLE_V3 §8, R3)
-;;; Decision R3 (the user, 2026-10-11: 「架勢中的 JJ / KK / LL 都改成差異明顯的數段連擊」, 「最後一段 LL 會依據前面 J/K 有不同的
-;;; 動作模組」): the awakened stance's thirteen moves (BR-DEFSTANCE's *BR-S-SEGS*) on clips of their own, each S + A + R long
-;;; with its :s mark on S (played at speed 1.0); on every hit frame (S + the segment's offsets, BR-SHOT-FIRE's line) a wing tip
-;;; (JILLIEL EN, :br-en-*) or a claw (the owl EN, :br-oen-*, R one less) is thrown at his line (>= 1.2 m ahead, within 0.5 m
-;;; of it: the host test). The four strings read apart:
-;;; - L GATHER (L1 / L2 / L3): an even beat of casts (every 8 f, L3 every 6), each wing thrown out then pulled back in to the
-;;;   chest (the light drawn home); L1 overhead casts R / L, L2 sidearm slings L / R, L3 R / L and both, then "loads": both
-;;;   wings drawn into the chest, risen and hunched over the light.
-;;; - J REFILL (J1 / J2 / J3): rapid flicks every 3 f from a low guard held before him, small and quick: J1 level flicks R L R,
-;;;   J2 rising flicks L R L out of a dip, J3 R L R and a crossing scissor flick.
-;;; - K HEAVY (K1 / K2 / K3): both wings or one with the whole body behind it, every 8-10 f: K1 both heaved overhead and hurled
-;;;   down, then scooped up from low; K2 a whirl into a right-wing sling, the left wing hauled round; K3 chopped down R, L
-;;;   with a lunge each, then risen high and both slammed down onto the line (the finisher's landing).
-;;; - the J route's follow-up JL1 / JL2 (light: one long line each): a wing drawn back like a javelin and thrust straight at him
-;;;   (JL1 the right, from a side-on draw; JL2 the left, out of a quick turn).
-;;; - the K route's follow-up KL1 / KL2 (heavy): KL1 both wings joined overhead behind the head and hurled as one spear, a
-;;;   deep lunge; KL2 risen with both wings spread wide, clapped shut before him on the line, blown back.
-;;; The owl's are the same modules on its claws (its poses from the solved :lb-oe-* casts and :br-o-* beats; L2 sidearm rakes,
-;;; K2's slings rakes, J3's last both claws snapped together, KL2's clap a scissor). Every key starts from a named pose, so a
-;;; key's overrides never leak into the next. Tips in m (right, ahead, up) are the host's FK.
+;;; ---------------------------------------------------------------- the stance EN's own strings (DUEL_LILLE_V3 §8, R3; §10, R5)
+;;; Decision R3 (the user, 2026-10-11: 「架勢中的 JJ / KK / LL 都改成差異明顯的數段連擊」): the awakened stance's moves
+;;; (BR-DEFSTANCE's *BR-S-SEGS*) play clips of their own, each S + A + R long with its :s mark on S; the openers are melee
+;;; strikes since R4 (each hit's reach *BR-W-TIPS* = the striking tip's distance ahead on its hit frame, within 0.5 m of his
+;;; line: the host FK test, drawn reach = hit reach +-0.15 m). R5 motion modules (the user, 2026-10-11: 「架式 > LL / JJ / KK
+;;; 將動作模組差異化，例如像陀螺旋朝前方傾斜轉三圈揮舞光翼、爆炸特效的零距離砲擊，將光翼拉伸如同長鞭一般鞭擊、又如同大刀一般
+;;; 遲緩而沈重的揮砍」; the reach 「跟著動作走」; then 「長鞭可以連成大砍刀，砲擊也可以接在近距離毆打後面」: the modules combined
+;;; within a string), the front wings (JILLIEL, the rig's hands at :arms 2.6) or the claws (the owl, :arms 2.2 :legs 1.5)
+;;; doing them:
+;;; - L 陀螺 (L1 / L2 / L3): a spinning top tilted at him, both wings swung out flat: the spin is the pelvis's twist inside the
+;;;   root's forward pitch (the axis stays leaning at him while all above the pelvis turns), a wing crossing his line on each
+;;;   hit (+90 the right, +270 the left); L1 one turn (upright), L2 one more (leaning lower, the sweep dipped), L3 one and a half,
+;;;   spun up and rising (every 6 f); reach the flat wing's tip (~1.8 m). The table wings spin with him (*LB-NO-CONV*).
+;;; - J 長鞭 -> 大砍刀 (J1 / J2 / J3, the snake sword): the wings stretched like whips (*BR-W-STRETCH*: JILLIEL's blades
+;;;   drawn on past the hands, the owl's gold lashes on from its claws), cracked every 3 f in crossing figure-eights: J1 from
+;;;   high outside down across him R L R, J2 from low outside up across him L R L, J3 R L R and then the whips snap rigid,
+;;;   shortened and joined into one cleaver, chopped down (the K great blade's pose); reach the stretched tip (~2.8 m, the
+;;;   cleaver ~2.4 m).
+;;; - K 大刀 -> 近身 -> 零距離砲擊 (K1 / K2 / K3): K1 both wings joined into one great blade (the hands together on his line),
+;;;   the long held overhead wind-up, the chop with the whole body, buried low, hauled back up through him (~1.8-2.0 m); K2
+;;;   stepped in, beaten with the folded wings, the right clubbed down, the left (~1.3 m); K3 a hook with the left folded
+;;;   wing, the right clubbed down, then 零距離砲擊: both tips thrust into him at point blank (~1.2 m), the blast
+;;;   (%BR-BLAST-LOOK) between them, blown back.
+;;; Every key starts from a named pose, so a key's overrides never leak into the next. Tips in m (right, up, ahead) are the
+;;; host's FK; the arm angles at the hit poses were solved to them.
 
 ;; JILLIEL EN's poses (base :lb-w-stance: the front wings' tips are the rig's hands)
-(defpose :br-en-raise-r (:base :lb-w-stance)        ; the right wing raised high (a cast's wind-up)
-  (:root :u 0.07 :pitch -7) (:spine :flex -9) (:chest :twist -18) (:arm-r :flex -9.8 :side 151.5) (:elbow-r :flex 26)
-  (:arm-l :flex -5 :side 84) (:elbow-l :flex 4))
-(defpose :br-en-cast-r (:base :lb-w-stance)         ; thrown down along his line
-  (:root :f 0.12 :u -0.03 :pitch 6) (:spine :flex 14) (:chest :twist 12) (:arm-r :flex 66 :side 72) (:elbow-r :flex 4)
-  (:arm-l :flex -9.7 :side 75.8) (:elbow-l :flex 4))
-(defpose :br-en-draw-r (:base :lb-w-stance)         ; pulled back in to the chest (the light drawn home)
-  (:root :f -0.06 :u 0.06 :pitch -3) (:spine :flex -2) (:chest :twist -6) (:arm-r :flex 40 :side 96) (:elbow-r :flex 84)
-  (:arm-l :flex -5 :side 84) (:elbow-l :flex 4))
-(defpose :br-en-raise-l (:base :lb-w-stance)
-  (:root :u 0.07 :pitch -7) (:spine :flex -9) (:chest :twist 18) (:arm-l :flex -9.8 :side 151.5) (:elbow-l :flex 26)
-  (:arm-r :flex -5 :side 84) (:elbow-r :flex 4))
-(defpose :br-en-cast-l (:base :lb-w-stance)
-  (:root :f 0.12 :u -0.03 :pitch 6) (:spine :flex 14) (:chest :twist -12) (:arm-l :flex 66 :side 72) (:elbow-l :flex 4)
-  (:arm-r :flex -9.7 :side 75.8) (:elbow-r :flex 4))
-(defpose :br-en-draw-l (:base :lb-w-stance)
-  (:root :f -0.06 :u 0.06 :pitch -3) (:spine :flex -2) (:chest :twist 6) (:arm-l :flex 40 :side 96) (:elbow-l :flex 84)
-  (:arm-r :flex -5 :side 84) (:elbow-r :flex 4))
-(defpose :br-en-low-r (:base :lb-w-stance)          ; a sling's wind-up: the right wing swept low behind the hip
-  (:root :f -0.04 :u -0.02 :yaw -14) (:spine :flex 4) (:chest :twist -26) (:arm-r :flex -40 :side 66) (:elbow-r :flex 20)
-  (:arm-l :flex 10 :side 84) (:elbow-l :flex 8))
-(defpose :br-en-sling-r (:base :lb-w-stance)        ; slung flat at him at chest height
-  (:root :f 0.16 :yaw 10) (:spine :flex 8) (:chest :twist 20) (:arm-r :flex 60 :side 92) (:elbow-r :flex 4)
-  (:arm-l :flex -20 :side 80) (:elbow-l :flex 6))
-(defpose :br-en-low-l (:base :lb-w-stance)
-  (:root :f -0.04 :u -0.02 :yaw 14) (:spine :flex 4) (:chest :twist 26) (:arm-l :flex -40 :side 66) (:elbow-l :flex 20)
-  (:arm-r :flex 10 :side 84) (:elbow-r :flex 8))
-(defpose :br-en-sling-l (:base :lb-w-stance)
-  (:root :f 0.16 :yaw -10) (:spine :flex 8) (:chest :twist -20) (:arm-l :flex 60 :side 92) (:elbow-l :flex 4)
-  (:arm-r :flex -20 :side 80) (:elbow-r :flex 6))
-(defpose :br-en-load (:base :lb-w-stance)           ; both wings drawn into the chest, risen and hunched over the light
-  (:root :f -0.04 :u 0.16 :pitch 3) (:spine :flex 12) (:head :flex 12) (:arm-r :flex 48 :side 82) (:elbow-r :flex 96)
-  (:arm-l :flex 48 :side 82) (:elbow-l :flex 96))
-(defpose :br-en-ready (:base :lb-w-stance)          ; J's guard: both tips held low before him
-  (:root :f 0.04 :u -0.04 :pitch 6) (:spine :flex 12) (:head :flex 6) (:arm-r :flex 48 :side 64) (:elbow-r :flex 34)
-  (:arm-l :flex 48 :side 64) (:elbow-l :flex 34))
-(defpose :br-en-flick-r (:base :lb-w-stance)        ; a level flick of the right tip at him
-  (:root :f 0.1 :u -0.04 :pitch 6 :yaw 6) (:spine :flex 14) (:chest :twist 12) (:arm-r :flex 68 :side 82) (:elbow-r :flex 2)
-  (:arm-l :flex 40 :side 64) (:elbow-l :flex 42))
-(defpose :br-en-flick-l (:base :lb-w-stance)
-  (:root :f 0.1 :u -0.04 :pitch 6 :yaw -6) (:spine :flex 14) (:chest :twist -12) (:arm-l :flex 68 :side 82) (:elbow-l :flex 2)
-  (:arm-r :flex 40 :side 64) (:elbow-r :flex 42))
-(defpose :br-en-dip (:base :lb-w-stance)            ; J2's dip: crouched, both tips low and in
-  (:root :f 0 :u -0.1 :pitch 10) (:spine :flex 20) (:head :flex 8) (:arm-r :flex 60 :side 30) (:elbow-r :flex 30)
-  (:arm-l :flex 60 :side 30) (:elbow-l :flex 30))
-(defpose :br-en-rise-r (:base :lb-w-stance)         ; a rising flick: the right tip up at him from below
-  (:root :f 0.08 :u 0.04 :pitch -2 :yaw 6) (:spine :flex 4) (:chest :twist 12) (:arm-r :flex 70 :side 112) (:elbow-r :flex 2)
-  (:arm-l :flex 56 :side 36) (:elbow-l :flex 30))
-(defpose :br-en-rise-l (:base :lb-w-stance)
-  (:root :f 0.08 :u 0.04 :pitch -2 :yaw -6) (:spine :flex 4) (:chest :twist -12) (:arm-l :flex 70 :side 112) (:elbow-l :flex 2)
-  (:arm-r :flex 56 :side 36) (:elbow-r :flex 30))
-(defpose :br-en-cross (:base :lb-w-stance)          ; J3's scissor: both tips crossed through his line
-  (:root :f 0.18 :u -0.04 :pitch 6) (:spine :flex 16) (:arm-r :flex 98 :side 84) (:elbow-r :flex 2)
-  (:arm-l :flex 98 :side 84) (:elbow-l :flex 2))
-(defpose :br-en-heave (:base :lb-w-stance)          ; K's heave: both wings hauled up behind, the column arched, sunk
-  (:root :f -0.2 :u 0.02 :pitch -10) (:spine :flex -16) (:head :flex -6) (:arm-r :flex -44 :side 136) (:elbow-r :flex 36)
-  (:arm-l :flex -44 :side 136) (:elbow-l :flex 36) (:thigh-r :flex -12) (:thigh-l :flex 12))
-(defpose :br-en-hurl (:base :lb-w-stance)           ; both hurled down at him, the whole column after them
-  (:root :f 0.42 :u -0.1 :pitch 10) (:spine :flex 22) (:head :flex 8) (:arm-r :flex 84 :side 66) (:elbow-r :flex 2)
-  (:arm-l :flex 84 :side 66) (:elbow-l :flex 2) (:thigh-r :flex 26) (:thigh-l :flex -20))
-(defpose :br-en-heavy-r (:base :lb-w-stance)        ; a heavy right-wing sling, lunging
-  (:root :f 0.5 :u -0.06 :pitch 6 :yaw 8) (:spine :flex 14) (:chest :twist 16) (:arm-r :flex 62 :side 84) (:elbow-r :flex 2)
-  (:arm-l :flex -30 :side 96) (:elbow-l :flex 10) (:thigh-r :flex 28) (:thigh-l :flex -20))
-(defpose :br-en-haul-l (:base :lb-w-stance)         ; the left wing hauled round behind, coiled to the left
-  (:root :f 0.3 :u 0 :yaw 26) (:spine :flex -4) (:chest :twist 30) (:arm-l :flex -50 :side 110) (:elbow-l :flex 30)
-  (:arm-r :flex 30 :side 90) (:elbow-r :flex 20) (:thigh-l :flex -14) (:thigh-r :flex 16))
-(defpose :br-en-heavy-l (:base :lb-w-stance)
-  (:root :f 0.6 :u -0.06 :pitch 6 :yaw -8) (:spine :flex 14) (:chest :twist -16) (:arm-l :flex 62 :side 84) (:elbow-l :flex 2)
-  (:arm-r :flex -30 :side 96) (:elbow-r :flex 10) (:thigh-l :flex 28) (:thigh-r :flex -20))
-(defpose :br-en-haul-r (:base :lb-w-stance)
-  (:root :f 0.3 :u 0 :yaw -26) (:spine :flex -4) (:chest :twist -30) (:arm-r :flex -50 :side 110) (:elbow-r :flex 30)
-  (:arm-l :flex 30 :side 90) (:elbow-l :flex 20) (:thigh-r :flex -14) (:thigh-l :flex 16))
-(defpose :br-en-tower (:base :lb-w-stance)          ; K3's finisher wind-up: risen high, both wings overhead
-  (:root :f 0.3 :u 0.36 :pitch -11) (:spine :flex -11) (:head :flex -8) (:arm-r :flex 6.5 :side 175.3) (:elbow-r :flex 24)
-  (:arm-l :flex 6.5 :side 175.3) (:elbow-l :flex 24) (:thigh-r :flex 20) (:thigh-l :flex 10))
-(defpose :br-en-slam (:base :lb-w-stance)           ; ... slammed down onto his line, landing
-  (:root :f 0.9 :u -0.14 :pitch 10) (:spine :flex 20) (:head :flex 6) (:arm-r :flex 99.4 :side 200) (:elbow-r :flex 4)
-  (:arm-l :flex 99.4 :side 200) (:elbow-l :flex 4) (:thigh-r :flex 30) (:thigh-l :flex -22))
-(defpose :br-en-bow-r (:base :lb-w-stance)          ; JL1's draw: side-on, the right wing drawn straight back, the left at him
-  (:root :f -0.12 :u 0.04 :yaw -28) (:spine :flex -2) (:chest :twist -24) (:arm-r :flex -70 :side 96) (:elbow-r :flex 6)
-  (:arm-l :flex 40 :side 92) (:elbow-l :flex 6) (:thigh-r :flex -14) (:thigh-l :flex 16))
-(defpose :br-en-spear-r (:base :lb-w-stance)        ; the right wing thrust straight at him, a long lunge
-  (:root :f 0.55 :u -0.06 :yaw 16 :pitch 4) (:spine :flex 10) (:chest :twist 22) (:arm-r :flex 52 :side 92) (:elbow-r :flex 0)
-  (:arm-l :flex -50 :side 100) (:elbow-l :flex 8) (:thigh-r :flex 30) (:thigh-l :flex -22))
-(defpose :br-en-bow-l (:base :lb-w-stance)
-  (:root :f -0.12 :u 0.04 :yaw 28) (:spine :flex -2) (:chest :twist 24) (:arm-l :flex -70 :side 96) (:elbow-l :flex 6)
-  (:arm-r :flex 40 :side 92) (:elbow-r :flex 6) (:thigh-l :flex -14) (:thigh-r :flex 16))
-(defpose :br-en-spear-l (:base :lb-w-stance)
-  (:root :f 0.55 :u -0.06 :yaw -16 :pitch 4) (:spine :flex 10) (:chest :twist -22) (:arm-l :flex 52 :side 92) (:elbow-l :flex 0)
-  (:arm-r :flex -50 :side 100) (:elbow-r :flex 8) (:thigh-l :flex 30) (:thigh-r :flex -22))
-(defpose :br-en-yoke (:base :lb-w-stance)           ; KL1's wind-up: both wings joined overhead behind the head, arched back
-  (:root :f -0.22 :u 0.14 :pitch -12) (:spine :flex -16) (:head :flex -10) (:arm-r :flex -20 :side 168) (:elbow-r :flex 40)
-  (:arm-l :flex -20 :side 168) (:elbow-l :flex 40) (:thigh-r :flex -10) (:thigh-l :flex 14))
-(defpose :br-en-javelin (:base :lb-w-stance)        ; ... hurled as one spear, the tips together on his line, a deep lunge
-  (:root :f 0.62 :u -0.08 :pitch 12) (:spine :flex 24) (:head :flex 6) (:arm-r :flex 92 :side 100) (:elbow-r :flex 2)
-  (:arm-l :flex 92 :side 100) (:elbow-l :flex 2) (:thigh-r :flex 30) (:thigh-l :flex -24))
-(defpose :br-en-spread (:base :lb-w-stance)         ; KL2's wind-up: risen, both wings spread wide and high
-  (:root :f -0.1 :u 0.3 :pitch -6) (:spine :flex -10) (:head :flex -6) (:arm-r :flex -4 :side 126) (:elbow-r :flex 6)
-  (:arm-l :flex -4 :side 126) (:elbow-l :flex 6) (:thigh-r :flex -6) (:thigh-l :flex -6))
-(defpose :br-en-clap (:base :lb-w-stance)           ; ... clapped shut before him, the tips meeting on his line
-  (:root :f 0.3 :u 0.12 :pitch 4) (:spine :flex 12) (:arm-r :flex 94 :side 92) (:elbow-r :flex 2)
-  (:arm-l :flex 94 :side 92) (:elbow-l :flex 2) (:thigh-r :flex 16) (:thigh-l :flex -12))
-(defpose :br-en-tuck (:base :lb-w-stance)           ; JL2's turn: the wings tucked round the column
-  (:root :u 0.06) (:head :flex 8) (:arm-r :flex 0 :side 34 :twist 45) (:elbow-r :flex 104)
-  (:arm-l :flex 0 :side 34 :twist -45) (:elbow-l :flex 104))
-(defpose :br-en-coil-r (:base :lb-w-stance)         ; K2's coil: wound to the right before the whirl
-  (:root :yaw -50) (:spine :flex 6) (:chest :twist -16) (:arm-r :flex -19.5 :side 102.7) (:elbow-r :flex 20)
-  (:arm-l :flex 33.5 :side 109.3) (:elbow-l :flex 20))
-;; JILLIEL EN's thirteen (the moves :br-e-*; S A R from *BR-S-SEGS*)
-(defstrike :br-en-l1 (8 10 14 :base :lb-w-stance)   ; L1 GATHER: overhead casts, R f8 / L f16, each pulled back in
-  (0) (5 :br-en-raise-r) (7 :br-en-raise-r (:root :u 0.09 :pitch -8) (:arm-r :side 156))
-  (:s :snap :br-en-cast-r) (10 :br-en-cast-r (:root :f 0.14) (:arm-r :side 64)) (12 :br-en-draw-r)
-  (14 :br-en-raise-l) (15 :br-en-raise-l (:root :u 0.09 :pitch -8) (:arm-l :side 156))
-  (16 :snap :br-en-cast-l) (:a :br-en-cast-l (:root :f 0.14) (:arm-l :side 64)) (21 :br-en-draw-l)
-  (26 :br-en-load (:root :u 0.1)) (:end :lb-w-stance))
-(defstrike :br-en-l2 (8 10 14 :base :lb-w-stance)   ; L2 GATHER: sidearm slings, L f8 / R f16, each pulled back in
-  (0) (5 :br-en-low-l) (7 :br-en-low-l (:root :yaw 18) (:chest :twist 30))
-  (:s :snap :br-en-sling-l) (10 :br-en-sling-l (:root :yaw -16) (:chest :twist -28)) (12 :br-en-draw-l)
-  (14 :br-en-low-r) (15 :br-en-low-r (:root :yaw -18) (:chest :twist -30))
-  (16 :snap :br-en-sling-r) (:a :br-en-sling-r (:root :yaw 16) (:chest :twist 28)) (21 :br-en-draw-r)
-  (26 :br-en-load (:root :u 0.1)) (:end :lb-w-stance))
-(defstrike :br-en-l3 (8 14 18 :base :lb-w-stance)   ; L3 GATHER: R f8, L f14, both f20, then loaded (drawn in, risen)
-  (0) (5 :br-en-raise-r) (:s :snap :br-en-cast-r) (10 :br-en-draw-r) (12 :br-en-raise-l) (14 :snap :br-en-cast-l)
-  (16 :br-en-draw-l) (18 :br-en-load (:root :u 0.12)) (20 :snap :br-en-hurl (:root :f 0.2 :u -0.04))
-  (:a :br-en-hurl (:root :f 0.22 :u -0.06)) (27 :br-en-load (:root :f -0.06 :u 0.26) (:spine :flex 16) (:head :flex 16))
-  (33 :br-en-load (:root :u 0.2)) (:end :lb-w-stance))
-(defstrike :br-en-j1 (8 8 12 :base :lb-w-stance)   ; J1 REFILL: level flicks from the low guard, R f8 / L f11 / R f14
-  (0) (5 :br-en-ready) (7 :br-en-ready (:arm-r :flex 40) (:elbow-r :flex 44))
-  (:s :snap :br-en-flick-r) (9.5 :br-en-ready) (11 :snap :br-en-flick-l) (12.5 :br-en-ready) (14 :snap :br-en-flick-r)
-  (:a :br-en-flick-r (:arm-r :flex 74 :side 86)) (21 :br-en-ready (:root :f 0)) (:end :lb-w-stance))
-(defstrike :br-en-j2 (8 8 12 :base :lb-w-stance)   ; J2 REFILL: rising flicks out of a dip, L f8 / R f11 / L f14
-  (0) (5 :br-en-dip) (:s :snap :br-en-rise-l) (9.5 :br-en-dip (:root :u -0.06)) (11 :snap :br-en-rise-r)
-  (12.5 :br-en-dip (:root :u -0.06)) (14 :snap :br-en-rise-l) (:a :br-en-rise-l (:root :u 0.08) (:arm-l :side 122))
-  (21 :br-en-ready) (:end :lb-w-stance))
-(defstrike :br-en-j3 (8 11 14 :base :lb-w-stance)   ; J3 REFILL: R f8 / L f11 / R f14, both opened and scissored f17
-  (0) (5 :br-en-ready) (:s :snap :br-en-flick-r) (9.5 :br-en-ready) (11 :snap :br-en-flick-l) (12.5 :br-en-ready)
-  (14 :snap :br-en-flick-r)
-  (15.5 :br-en-ready (:root :u 0.02) (:arm-r :flex 26 :side 78) (:elbow-r :flex 16) (:arm-l :flex 26 :side 78) (:elbow-l :flex 16))
-  (17 :snap :br-en-cross) (:a :br-en-cross (:arm-r :flex 114) (:arm-l :flex 114)) (26 :br-en-ready) (:end :lb-w-stance))
-(defstrike :br-en-k1 (12 12 18 :base :lb-w-stance)   ; K1 HEAVY: both heaved up behind, hurled down f12; scooped up from low f22
-  (0) (7 :br-en-heave)
-  (11 :br-en-heave (:root :f -0.24 :u 0.06 :pitch -12) (:spine :flex -18) (:arm-r :side 142) (:arm-l :side 142))
-  (:s :snap :br-en-hurl) (14 :br-en-hurl (:root :f 0.46 :u -0.12) (:arm-r :flex 92 :side 52) (:arm-l :flex 92 :side 52))
-  (18 :br-low-both (:root :f 0.4 :u -0.12)) (20 :br-low-both (:root :f 0.38 :u -0.14 :pitch 10) (:arm-r :side 14) (:arm-l :side 14))
-  (22 :snap :br-launch-both (:root :f 0.5 :u 0.2)) (:a :br-launch-both (:root :f 0.5 :u 0.3 :pitch -9) (:spine :flex -12))
-  (34 :br-settle-both (:root :f 0.2 :u 0.1)) (:end :lb-w-stance))
-;; K2: the whirl as EN K1's (the two keys 0.0001 f apart differ by exactly 360 degrees of root yaw: never sampled)
-(defstrike :br-en-k2 (12 12 18 :base :lb-w-stance)   ; K2 HEAVY: a whirl into a right-wing sling f12, the left hauled round f22
-  (0) (4 :br-en-coil-r) (5 :br-en-coil-r (:root :yaw -54)) (5.0001 :snap :br-en-coil-r (:root :yaw -414))
-  (9 :snap :br-en-coil-r (:root :f 0.2 :u 0.02 :yaw -200) (:chest :twist 0) (:arm-r :flex -5 :side 86) (:elbow-r :flex 6)
-   (:arm-l :flex -5 :side 86) (:elbow-l :flex 6))
-  (:s :snap :br-en-heavy-r) (14 :br-en-heavy-r (:root :yaw 16) (:chest :twist 26) (:arm-r :flex 80 :side 76))
-  (17 :br-en-haul-l (:root :f 0.4)) (20 :br-en-haul-l (:root :f 0.4 :yaw 32) (:chest :twist 34))
-  (22 :snap :br-en-heavy-l) (:a :br-en-heavy-l (:root :yaw -16) (:chest :twist -26) (:arm-l :flex 80 :side 76))
-  (33 :br-en-heavy-l (:root :f 0.3 :u 0 :yaw -12) (:arm-l :flex 100 :side 100) (:elbow-l :flex 10) (:arm-r :flex -10 :side 90))
+;; L 陀螺: the spin is the pelvis's twist (inside the root's forward tilt: the axis leans at him and stays leaning while
+;; everything above the pelvis turns); +90 puts the right wing on his line, +270 the left
+(defpose :br-en-wind (:base :lb-w-stance)          ; the top wound up: coiled back to the right, the wings drawn in
+  (:root :u 0.02 :pitch 4) (:pelvis :twist -40) (:spine :flex 6) (:chest :twist -22) (:head :flex 6)
+  (:arm-r :flex 36 :side 54) (:elbow-r :flex 58) (:arm-l :flex 48 :side 36) (:elbow-l :flex 64))
+(defpose :br-en-top (:base :lb-w-stance)           ; L1's top: tilted forward, both wings swung out flat
+  (:root :f 0.06 :u 0.08 :pitch 14) (:spine :flex 2) (:head :flex -6)
+  (:arm-r :flex 0 :side 92) (:elbow-r :flex 2) (:arm-l :flex 0 :side 92) (:elbow-l :flex 2))
+(defpose :br-en-top-low (:base :lb-w-stance)       ; L2's: leaning further, sunk, the wings dipped (a lower sweep)
+  (:root :f 0.1 :u -0.02 :pitch 19) (:spine :flex 4) (:head :flex -12)
+  (:arm-r :flex 0 :side 88) (:elbow-r :flex 2) (:arm-l :flex 0 :side 88) (:elbow-l :flex 2))
+(defpose :br-en-top-high (:base :lb-w-stance)      ; L3's: spun up and risen, the tilt less, the wings flat and high
+  (:root :f 0.08 :u 0.3 :pitch 10) (:spine :flex 0) (:head :flex -4)
+  (:arm-r :flex 0 :side 94) (:elbow-r :flex 0) (:arm-l :flex 0 :side 94) (:elbow-l :flex 0))
+;; J 長鞭: the front wings stretched long (*BR-W-STRETCH*), cracked from high: the striking wing thrown down at him, the
+;; other cocked overhead for the next
+(defpose :br-en-cock (:base :lb-w-stance)          ; both whips raised overhead, the wrists high (the lashes' wind-up)
+  (:root :u 0.04 :pitch -4) (:spine :flex -4) (:head :flex -2)
+  (:arm-r :flex 152 :side 26) (:elbow-r :flex 34) (:arm-l :flex 152 :side 26) (:elbow-l :flex 34))
+(defpose :br-en-crack-r (:base :lb-w-stance)       ; the right whip cracked down on his line, the left cocked high
+  (:root :f 0.08 :u -0.02 :pitch 6) (:spine :flex 10) (:chest :twist 8) (:head :flex 4)
+  (:arm-r :flex 103.8 :side 1.3) (:elbow-r :flex 0) (:arm-l :flex 150 :side 30) (:elbow-l :flex 36))
+(defpose :br-en-crack-l (:base :lb-w-stance)
+  (:root :f 0.08 :u -0.02 :pitch 6) (:spine :flex 10) (:chest :twist -8) (:head :flex 4)
+  (:arm-l :flex 103.8 :side 1.3) (:elbow-l :flex 0) (:arm-r :flex 150 :side 30) (:elbow-r :flex 36))
+(defpose :br-en-reel-l (:base :lb-w-stance)        ; J2's wind-up: the left whip swung out wide behind at the hip
+  (:root :yaw 14) (:spine :flex 4) (:chest :twist 34) (:head :flex 2)
+  (:arm-l :flex -10 :side 100) (:elbow-l :flex 10) (:arm-r :flex 30 :side 60) (:elbow-r :flex 40))
+(defpose :br-en-sweep-l (:base :lb-w-stance)       ; ... lashed flat across before him at the waist
+  (:root :f 0.08 :yaw -6) (:spine :flex 8) (:chest :twist -12) (:head :flex 2)
+  (:arm-l :flex 79.1 :side 82.4) (:elbow-l :flex 0) (:arm-r :flex -10 :side 100) (:elbow-r :flex 10))
+(defpose :br-en-sweep-r (:base :lb-w-stance)
+  (:root :f 0.08 :yaw 6) (:spine :flex 8) (:chest :twist 12) (:head :flex 2)
+  (:arm-r :flex 79.1 :side 82.4) (:elbow-r :flex 0) (:arm-l :flex -10 :side 100) (:elbow-l :flex 10))
+;; 大刀 (K1, J3's last): the two front wings joined into one great blade (the hands together on his line), swung with the
+;; whole body, slow and heavy: the long held wind-up, the chop, the blade buried low after it
+;; 近身 (K2, K3's first two): stepped in, beaten with the folded wings (elbows bent, ~1.3 m), each blow from a coil
+(defpose :br-en-sword-up (:base :lb-w-stance)      ; the great blade raised high behind the head, arched back, risen
+  (:root :f -0.12 :u 0.12 :pitch -10) (:spine :flex -12) (:head :flex -8)
+  (:arm-r :flex 196 :side -8) (:elbow-r :flex 12) (:arm-l :flex 196 :side -8) (:elbow-l :flex 12)
+  (:thigh-r :flex -10) (:thigh-l :flex 14))
+(defpose :br-en-sword-hit (:base :lb-w-stance)     ; ... brought down onto his line with the whole column, a step in
+  (:root :f 0.34 :u -0.08 :pitch 12) (:spine :flex 16) (:head :flex 6)
+  (:arm-r :flex 115.1 :side 17.1) (:elbow-r :flex 0) (:arm-l :flex 115.1 :side 17.1) (:elbow-l :flex 0)
+  (:thigh-r :flex 26) (:thigh-l :flex -18))
+(defpose :br-en-sword-low (:base :lb-w-stance)     ; ... and through, buried low before him, bowed over it (the weight)
+  (:root :f 0.4 :u -0.16 :pitch 18) (:spine :flex 26) (:head :flex 10)
+  (:arm-r :flex 34 :side -6) (:elbow-r :flex 0) (:arm-l :flex 34 :side -6) (:elbow-l :flex 0)
+  (:thigh-r :flex 30) (:thigh-l :flex -22))
+(defpose :br-en-sword-rise (:base :lb-w-stance)    ; K1's second: the blade hauled up from low through his line
+  (:root :f 0.36 :u 0.04 :pitch -4) (:spine :flex -2) (:head :flex -4)
+  (:arm-r :flex 81 :side -46.1) (:elbow-r :flex 0) (:arm-l :flex 81 :side -46.1) (:elbow-l :flex 0)
+  (:thigh-r :flex 18) (:thigh-l :flex -14))
+(defpose :br-en-sword-high (:base :lb-w-stance)    ; ... and on up overhead, opened (the follow-through)
+  (:root :f 0.3 :u 0.08 :pitch -8) (:spine :flex -10) (:head :flex -8)
+  (:arm-r :flex 160 :side -8) (:elbow-r :flex 8) (:arm-l :flex 160 :side -8) (:elbow-l :flex 8))
+(defpose :br-en-bash-cock-r (:base :lb-w-stance)   ; K2: the right wing folded and hauled up high, stepping in, coiled
+  (:root :f 0.12 :u 0.06 :yaw -14 :pitch -6) (:spine :flex -6) (:chest :twist -30) (:head :twist 14)
+  (:arm-r :flex 150 :side 50) (:elbow-r :flex 110) (:arm-l :flex 50 :side 40) (:elbow-l :flex 90)
+  (:thigh-r :flex -10) (:thigh-l :flex 16))
+(defpose :br-en-bash-r (:base :lb-w-stance)        ; ... clubbed down on him with the folded wing, the whole column behind it
+  (:root :f 0.3 :u -0.08 :yaw 8 :pitch 12) (:spine :flex 18) (:chest :twist 14) (:head :flex 6)
+  (:arm-r :flex 62.7 :side -20) (:elbow-r :flex 115.6) (:arm-l :flex 40 :side 40) (:elbow-l :flex 100)
+  (:thigh-r :flex 28) (:thigh-l :flex -20))
+(defpose :br-en-bash-cock-l (:base :lb-w-stance)
+  (:root :f 0.3 :u 0.06 :yaw 14 :pitch -6) (:spine :flex -6) (:chest :twist 30) (:head :twist -14)
+  (:arm-l :flex 150 :side 50) (:elbow-l :flex 110) (:arm-r :flex 50 :side 40) (:elbow-r :flex 90)
+  (:thigh-l :flex -10) (:thigh-r :flex 16))
+(defpose :br-en-bash-l (:base :lb-w-stance)
+  (:root :f 0.32 :u -0.08 :yaw -8 :pitch 12) (:spine :flex 18) (:chest :twist -14) (:head :flex 6)
+  (:arm-l :flex 61.8 :side -20) (:elbow-l :flex 117.4) (:arm-r :flex 40 :side 40) (:elbow-r :flex 100)
+  (:thigh-l :flex 28) (:thigh-r :flex -20))
+(defpose :br-en-hook-cock-l (:base :lb-w-stance)   ; K3: the left wing folded and drawn back wide at the side
+  (:root :f 0.1 :yaw 20 :pitch 2) (:spine :flex 4) (:chest :twist 40)
+  (:arm-l :flex 60 :side 90) (:elbow-l :flex 100) (:arm-r :flex 50 :side 30) (:elbow-r :flex 100)
+  (:thigh-l :flex -10) (:thigh-r :flex 14))
+(defpose :br-en-hook-l (:base :lb-w-stance)        ; ... swung flat into him (a hook with the folded wing)
+  (:root :f 0.28 :u -0.04 :yaw -12 :pitch 8) (:spine :flex 10) (:chest :twist -24)
+  (:arm-l :flex 85 :side -69.2) (:elbow-l :flex 113.8) (:arm-r :flex 50 :side 30) (:elbow-r :flex 100)
+  (:thigh-l :flex 24) (:thigh-r :flex -16))
+(defpose :br-en-cannon-load (:base :lb-w-stance)   ; 零距離砲擊's load: stepped in, both wings drawn back to the chest
+  (:root :f 0.26 :u -0.08 :pitch 4) (:spine :flex 8) (:head :flex 4)
+  (:arm-r :flex 60 :side 30) (:elbow-r :flex 110) (:arm-l :flex 60 :side 30) (:elbow-l :flex 110)
+  (:thigh-r :flex 30) (:thigh-l :flex -20))
+(defpose :br-en-cannon (:base :lb-w-stance)        ; ... both tips thrust together into him at point blank: the blast
+  (:root :f 0.3 :u -0.06 :pitch 6) (:spine :flex 10) (:head :flex 4)
+  (:arm-r :flex 51.2 :side 30) (:elbow-r :flex 113.9) (:arm-l :flex 51.2 :side 30) (:elbow-l :flex 113.9)
+  (:thigh-r :flex 32) (:thigh-l :flex -22))
+(defpose :br-en-blown (:base :lb-w-stance)         ; ... blown back by it, the wings flung up and open
+  (:root :f 0.1 :u 0.12 :pitch -12) (:spine :flex -14) (:head :flex -12)
+  (:arm-r :flex 120 :side 50) (:elbow-r :flex 20) (:arm-l :flex 120 :side 50) (:elbow-l :flex 20)
+  (:thigh-r :flex -8) (:thigh-l :flex 10))
+
+;; JILLIEL EN's nine openers (the moves :br-e-l1 .. -k3; S A R from *BR-S-SEGS*, L authored at S 8 and played at 2 / 3)
+;; L: one spin (the pelvis's twist, linear :snap keys at a steady rate) through both hits; L1's S + A pose (twist -54) is L2's
+;; and L3's first key (the link's start); each turn unwound by 360 between two keys 0.0001 f apart (never sampled: the
+;; clip is played at 2 / 3, so its samples fall on thirds of a frame)
+(defstrike :br-en-l1 (8 10 14 :base :lb-w-stance)   ; L1 陀螺: wound up, one turn, the right wing across him f8, the left f16
+  (0) (3 :br-en-wind)
+  (:s :snap :br-en-top (:pelvis :twist 90)) (16 :snap :br-en-top (:pelvis :twist 270))
+  (16.5 :snap :br-en-top (:pelvis :twist 279)) (16.5001 :snap :br-en-top (:pelvis :twist -81))
+  (:a :snap :br-en-top (:pelvis :twist -54)) (22 :br-en-top (:root :pitch 8 :u 0.04) (:pelvis :twist -8))
+  (25 :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 84) (:arm-l :side 84)) (:end :lb-w-stance))
+(defstrike :br-en-l2 (8 10 14 :base :lb-w-stance)   ; L2 陀螺: leaning lower, one more turn, R f8 / L f16
+  (0 :br-en-top (:pelvis :twist -54))
+  (:s :snap :br-en-top-low (:pelvis :twist 90)) (16 :snap :br-en-top-low (:pelvis :twist 270))
+  (16.5 :snap :br-en-top-low (:pelvis :twist 279)) (16.5001 :snap :br-en-top-low (:pelvis :twist -81))
+  (:a :snap :br-en-top (:pelvis :twist -54)) (22 :br-en-top (:root :pitch 8 :u 0.04) (:pelvis :twist -8))
+  (25 :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 84) (:arm-l :side 84)) (:end :lb-w-stance))
+(defstrike :br-en-l3 (8 14 18 :base :lb-w-stance)   ; L3 陀螺: spun up, rising, one and a half turns: R f8, L f14, R f20
+  (0 :br-en-top (:pelvis :twist -54))
+  (:s :snap :br-en-top-high (:root :u 0.16) (:pelvis :twist 90)) (14 :snap :br-en-top-high (:root :u 0.24) (:pelvis :twist 270))
+  (20 :snap :br-en-top-high (:pelvis :twist 450)) (20.5 :snap :br-en-top-high (:pelvis :twist 465))
+  (20.5001 :snap :br-en-top-high (:pelvis :twist 105)) (:a :snap :br-en-top-high (:pelvis :twist 140))
+  (26 :snap :br-en-top-high (:root :u 0.24) (:pelvis :twist 220)) (30 :snap :br-en-top (:root :u 0.14) (:pelvis :twist 290))
+  (35 :br-en-top (:root :pitch 6 :u 0.04) (:pelvis :twist 352) (:arm-r :side 84) (:arm-l :side 84))
+  (37 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
+  (37.0001 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
   (:end :lb-w-stance))
-(defstrike :br-en-k3 (12 18 22 :base :lb-w-stance)   ; K3 HEAVY: chopped down R f12 / L f20, risen, both slammed down f28
-  (0) (7 :br-en-raise-r (:root :f -0.1 :u 0.14 :pitch -9)) (11 :br-en-raise-r (:root :f -0.14 :u 0.18 :pitch -10) (:arm-r :side 160))
-  (:s :snap :br-en-cast-r (:root :f 0.42 :u -0.08 :pitch 10) (:spine :flex 20))
-  (14 :br-en-cast-r (:root :f 0.44 :u -0.1 :pitch 10) (:spine :flex 22) (:arm-r :side 52))
-  (17 :br-en-raise-l (:root :f 0.3 :u 0.14 :pitch -9))
-  (20 :snap :br-en-cast-l (:root :f 0.62 :u -0.08 :pitch 10) (:spine :flex 20))
-  (22 :br-en-cast-l (:root :f 0.64 :u -0.1 :pitch 10) (:spine :flex 22) (:arm-l :side 52))
-  (25 :br-en-tower (:root :f 0.4 :u 0.3)) (27 :br-en-tower (:root :f 0.42 :u 0.4 :pitch -12))
-  (28 :snap :br-en-slam) (:a :br-en-slam (:root :f 0.92 :u -0.2 :pitch 12) (:spine :flex 24))
-  (42 :br-en-slam (:root :f 0.7 :u -0.12 :pitch 8) (:spine :flex 16) (:arm-r :flex 120 :side 190) (:arm-l :flex 120 :side 190))
+(defstrike :br-en-j1 (8 8 12 :base :lb-w-stance)   ; J1 長鞭 (蛇腹): crossing figure-eights, R f8 / L f11 / R f14, each from high outside down across him
+  (0) (4 :br-en-cock) (7 :br-en-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
+  (:s :snap :br-en-crack-r) (9.5 :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
+  (11 :snap :br-en-crack-l) (12.5 :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 162 :side 56))
+  (14 :snap :br-en-crack-r) (:a :br-en-crack-r (:arm-r :flex 56 :side -44) (:arm-l :flex 120 :side 40))
+  (22 :br-en-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
   (:end :lb-w-stance))
-;; JL2: a turn to the right (yaw 0 -> -376 = -16, unwound between two keys 0.0001 f apart after the thrust)
-;; the owl EN's poses (base :lb-oe-stance: upright and afloat, the claws are the hands; upper-body values from the solved
-;; :lb-oe-* casts and :br-o-* beats)
-(defpose :br-oen-raise-r (:base :lb-oe-stance)      ; the right claw raised high (a cast's wind-up)
-  (:root :u 0.07 :pitch -6) (:spine :flex -8) (:chest :twist -18) (:neck :flex -12) (:head :flex -10)
-  (:arm-r :flex 108.8 :side -10.9) (:elbow-r :flex 85) (:hand-r :flex -40) (:arm-l :flex -47.1 :side 21.4)
-  (:elbow-l :flex 109) (:hand-l :flex 0))
-(defpose :br-oen-cast-r (:base :lb-oe-stance)       ; thrown down onto his line
-  (:root :f 0.28 :u -0.04 :pitch 8) (:spine :flex 28) (:chest :twist 10) (:neck :flex 20) (:head :flex 10)
-  (:arm-r :flex 96.1 :side -19.1) (:elbow-r :flex 28) (:hand-r :flex 40) (:arm-l :flex -45.9 :side 26.5)
-  (:elbow-l :flex 122) (:hand-l :flex 0))
-(defpose :br-oen-draw-r (:base :lb-oe-stance)       ; pulled back in to the chest
-  (:root :f -0.04 :u 0.06 :pitch -2) (:spine :flex 4) (:chest :twist -6) (:neck :flex -4) (:head :flex -4)
-  (:arm-r :flex 50 :side 20) (:elbow-r :flex 104) (:hand-r :flex 30) (:arm-l :flex -45.9 :side 26.5)
-  (:elbow-l :flex 122) (:hand-l :flex 0))
-(defpose :br-oen-raise-l (:base :lb-oe-stance)
-  (:root :u 0.07 :pitch -6) (:spine :flex -8) (:chest :twist 18) (:neck :flex -12) (:head :flex -10)
-  (:arm-l :flex 108.8 :side -10.9) (:elbow-l :flex 85) (:hand-l :flex -40) (:arm-r :flex -47.1 :side 21.4)
-  (:elbow-r :flex 109) (:hand-r :flex 0))
-(defpose :br-oen-cast-l (:base :lb-oe-stance)
-  (:root :f 0.28 :u -0.04 :pitch 8) (:spine :flex 28) (:chest :twist -10) (:neck :flex 20) (:head :flex 10)
-  (:arm-l :flex 96.1 :side -19.1) (:elbow-l :flex 28) (:hand-l :flex 40) (:arm-r :flex -45.9 :side 26.5)
-  (:elbow-r :flex 122) (:hand-r :flex 0))
-(defpose :br-oen-draw-l (:base :lb-oe-stance)
-  (:root :f -0.04 :u 0.06 :pitch -2) (:spine :flex 4) (:chest :twist 6) (:neck :flex -4) (:head :flex -4)
-  (:arm-l :flex 50 :side 20) (:elbow-l :flex 104) (:hand-l :flex 30) (:arm-r :flex -45.9 :side 26.5)
-  (:elbow-r :flex 122) (:hand-r :flex 0))
-(defpose :br-oen-coil-r (:base :lb-oe-stance)       ; a rake's wind-up: the right claw swung out wide behind, coiled right
-  (:root :f 0 :u 0.12 :yaw -22 :pitch -5) (:spine :flex -6) (:chest :twist -26) (:neck :flex -12) (:head :flex -10)
-  (:arm-r :flex 4.5 :side 90) (:elbow-r :flex 83.8) (:hand-r :flex -40) (:arm-l :flex -49.1 :side 32.5)
-  (:elbow-l :flex 106.9) (:hand-l :flex 0))
-(defpose :br-oen-rake-r (:base :lb-oe-stance)       ; raked flat across his line, the glide
-  (:root :f 0.6 :u -0.02 :yaw 7 :pitch 14) (:spine :flex 30) (:chest :twist 14) (:neck :flex 26) (:head :flex 12)
-  (:arm-r :flex 61 :side 143) (:elbow-r :flex 4) (:hand-r :flex 45) (:arm-l :flex -34 :side 16) (:elbow-l :flex 130)
-  (:hand-l :flex 0))
-(defpose :br-oen-coil-l (:base :lb-oe-stance)
-  (:root :f 0 :u 0.12 :yaw 22 :pitch -5) (:spine :flex -6) (:chest :twist 26) (:neck :flex -12) (:head :flex -10)
-  (:arm-l :flex 4.5 :side 90) (:elbow-l :flex 83.8) (:hand-l :flex -40) (:arm-r :flex -49.1 :side 32.5)
-  (:elbow-r :flex 106.9) (:hand-r :flex 0))
-(defpose :br-oen-rake-l (:base :lb-oe-stance)
-  (:root :f 0.6 :u -0.02 :yaw -7 :pitch 14) (:spine :flex 30) (:chest :twist -14) (:neck :flex 26) (:head :flex 12)
-  (:arm-l :flex 61 :side 143) (:elbow-l :flex 4) (:hand-l :flex 45) (:arm-r :flex -34 :side 16) (:elbow-r :flex 130)
-  (:hand-r :flex 0))
-(defpose :br-oen-load (:base :lb-oe-stance)         ; both claws drawn in before the chest, risen and hunched over the light
-  (:root :u 0.14) (:spine :flex 22) (:neck :flex 26) (:head :flex 12) (:arm-r :flex 50 :side 20) (:elbow-r :flex 104)
-  (:hand-r :flex 30) (:arm-l :flex 50 :side 20) (:elbow-l :flex 104) (:hand-l :flex 30))
-(defpose :br-oen-ready (:base :lb-oe-stance)        ; J's guard: both claws held up before the chest
-  (:root :f 0.04) (:spine :flex 14) (:neck :flex 14) (:head :flex 4) (:arm-r :flex 58 :side 16) (:elbow-r :flex 72)
-  (:hand-r :flex 10) (:arm-l :flex 58 :side 16) (:elbow-l :flex 72) (:hand-l :flex 10))
-(defpose :br-oen-flick-r (:base :lb-oe-stance)      ; a quick flick of the right claw at him, the left kept up
-  (:root :f 0.14 :u -0.04 :yaw 6 :pitch 4) (:spine :flex 22) (:chest :twist 12) (:neck :flex 26) (:head :flex 10)
-  (:arm-r :flex 93 :side -50.8) (:elbow-r :flex 70.8) (:hand-r :flex 30) (:arm-l :flex 50 :side 16) (:elbow-l :flex 90)
-  (:hand-l :flex 10))
-(defpose :br-oen-flick-l (:base :lb-oe-stance)
-  (:root :f 0.14 :u -0.04 :yaw -6 :pitch 4) (:spine :flex 22) (:chest :twist -12) (:neck :flex 26) (:head :flex 10)
-  (:arm-l :flex 93 :side -50.8) (:elbow-l :flex 70.8) (:hand-l :flex 30) (:arm-r :flex 50 :side 16) (:elbow-r :flex 90)
-  (:hand-r :flex 10))
-(defpose :br-oen-dip (:base :lb-oe-stance)          ; J2's dip: crouched, both claws low before him
-  (:root :f 0.06 :u -0.12 :pitch 12) (:spine :flex 34) (:neck :flex 36) (:head :flex 16)
-  (:arm-r :flex 90.2 :side -4.3) (:elbow-r :flex 37.4) (:hand-r :flex 50) (:arm-l :flex 88.6 :side -4.1)
-  (:elbow-l :flex 45) (:hand-l :flex 50))
-(defpose :br-oen-rise-r (:base :lb-oe-stance)       ; a rising flick: the right claw thrown up at him from below
-  (:root :f 0.2 :u 0.06 :yaw 6 :pitch -2) (:spine :flex 8) (:chest :twist 12) (:neck :flex 0) (:head :flex -8)
-  (:arm-r :flex 112 :side -8) (:elbow-r :flex 20) (:hand-r :flex -10) (:arm-l :flex 60 :side 10) (:elbow-l :flex 90)
+(defstrike :br-en-j2 (8 8 12 :base :lb-w-stance)   ; J2 長鞭 (蛇腹): the figure-eights rising, L f8 / R f11 / L f14, each from low outside up across him
+  (0) (5 :br-en-reel-l) (7 :br-en-reel-l (:arm-l :flex 10 :side 70) (:chest :twist 40))
+  (:s :snap :br-en-sweep-l) (9.5 :br-en-sweep-l (:arm-l :flex 140 :side -30) (:arm-r :flex 10 :side 70))
+  (11 :snap :br-en-sweep-r) (12.5 :br-en-sweep-r (:arm-r :flex 140 :side -30) (:arm-l :flex 10 :side 70))
+  (14 :snap :br-en-sweep-l) (:a :br-en-sweep-l (:chest :twist -30) (:arm-l :flex 150 :side -30))
+  (22 :br-en-sweep-l (:root :f 0 :yaw 0) (:chest :twist 0) (:arm-l :flex 60 :side 50) (:arm-r :flex 10 :side 80))
+  (:end :lb-w-stance))
+(defstrike :br-en-j3 (8 11 14 :base :lb-w-stance)   ; J3 長鞭 -> 大砍刀: R f8 / L f11 / R f14 lashes, then the whips snapped rigid, joined into one cleaver, chopped down f17
+  (0) (4 :br-en-cock) (7 :br-en-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
+  (:s :snap :br-en-crack-r) (9.5 :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
+  (11 :snap :br-en-crack-l) (12.5 :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 162 :side 56))
+  (14 :snap :br-en-crack-r) (15.5 :br-en-sword-up (:root :f 0.04 :u 0.1))
+  (17 :snap :br-en-sword-hit (:root :f 0.18)) (:a :br-en-sword-low (:root :f 0.22 :u -0.14))
+  (30 :br-en-sword-hit (:root :f 0.06 :u 0 :pitch 2) (:spine :flex 4) (:arm-r :flex 50 :side 20) (:arm-l :flex 50 :side 20))
+  (:end :lb-w-stance))
+(defstrike :br-en-k1 (12 12 18 :base :lb-w-stance)   ; K1 大刀: raised and held, chopped down f12, buried; hauled up f22
+  (0) (5 :br-en-sword-up) (10 :br-en-sword-up (:root :u 0.16 :pitch -12) (:arm-r :flex 204) (:arm-l :flex 204))
+  (:s :snap :br-en-sword-hit) (15 :br-en-sword-low) (19 :br-en-sword-low (:root :u -0.18) (:arm-r :flex 28) (:arm-l :flex 28))
+  (22 :snap :br-en-sword-rise) (:a :br-en-sword-high) (30 :br-en-sword-high (:root :f 0.2 :u 0.06))
+  (36 :br-en-sword-hit (:root :f 0.1 :u 0 :pitch 2) (:spine :flex 4) (:arm-r :flex 50 :side 20) (:arm-l :flex 50 :side 20))
+  (:end :lb-w-stance))
+(defstrike :br-en-k2 (12 12 18 :base :lb-w-stance)   ; K2 近身: stepped in, beaten with the folded wings: the right clubbed down f12, the left f22
+  (0) (5 :br-en-bash-cock-r) (10 :br-en-bash-cock-r (:root :u 0.1) (:chest :twist -38))
+  (:s :snap :br-en-bash-r) (14 :br-en-bash-r (:root :f 0.32 :u -0.12) (:arm-r :flex 40))
+  (17 :br-en-bash-cock-l) (20 :br-en-bash-cock-l (:root :u 0.1) (:chest :twist 38))
+  (22 :snap :br-en-bash-l) (:a :br-en-bash-l (:root :f 0.36 :u -0.12) (:arm-l :flex 40))
+  (33 :br-en-bash-l (:root :f 0.16 :u 0 :pitch 2) (:spine :flex 4) (:chest :twist 0) (:arm-l :flex 40 :side 40) (:elbow-l :flex 60))
+  (:end :lb-w-stance))
+(defstrike :br-en-k3 (12 18 22 :base :lb-w-stance)   ; K3 近身 -> 零距離砲擊: a hook f12, clubbed down f20, both tips thrust into him point blank f28: the blast
+  (0) (6 :br-en-hook-cock-l) (10 :br-en-hook-cock-l (:chest :twist 46))
+  (:s :snap :br-en-hook-l) (14 :br-en-hook-l (:root :yaw -18) (:chest :twist -36))
+  (16 :br-en-bash-cock-r (:root :f 0.24)) (20 :snap :br-en-bash-r) (22 :br-en-bash-r (:root :u -0.12) (:arm-r :flex 40))
+  (25 :br-en-cannon-load) (28 :snap :br-en-cannon) (:a :br-en-cannon (:root :f 0.26))
+  (34 :br-en-blown) (42 :br-en-blown (:root :f 0 :u 0.06 :pitch -4)) (:end :lb-w-stance))
+;; the owl EN's poses (base :lb-oe-stance: upright and afloat, the claws are the hands)
+(defpose :br-oen-wind (:base :lb-oe-stance)        ; the top wound up: coiled back to the right, the claws drawn in
+  (:root :u 0.04 :pitch 4) (:pelvis :twist -40) (:spine :flex 8) (:chest :twist -22) (:neck :flex 6) (:head :flex 4)
+  (:arm-r :flex 40 :side 50) (:elbow-r :flex 80) (:hand-r :flex 20) (:arm-l :flex 50 :side 34) (:elbow-l :flex 86)
   (:hand-l :flex 20))
-(defpose :br-oen-rise-l (:base :lb-oe-stance)
-  (:root :f 0.2 :u 0.06 :yaw -6 :pitch -2) (:spine :flex 8) (:chest :twist -12) (:neck :flex 0) (:head :flex -8)
-  (:arm-l :flex 112 :side -8) (:elbow-l :flex 20) (:hand-l :flex -10) (:arm-r :flex 60 :side 10) (:elbow-r :flex 90)
+(defpose :br-oen-top (:base :lb-oe-stance)         ; L1's top: tilted forward, both claws swung out flat, the talons open
+  (:root :f 0.14 :u 0.08 :pitch 14) (:spine :flex 2) (:neck :flex -4) (:head :flex -8)
+  (:arm-r :flex 0 :side 92) (:elbow-r :flex 2) (:hand-r :flex -20) (:arm-l :flex 0 :side 92) (:elbow-l :flex 2)
+  (:hand-l :flex -20))
+(defpose :br-oen-top-low (:base :lb-oe-stance)     ; L2's: leaning further, sunk, the claws dipped
+  (:root :f 0.18 :u -0.02 :pitch 19) (:spine :flex 4) (:neck :flex -10) (:head :flex -12)
+  (:arm-r :flex 0 :side 88) (:elbow-r :flex 2) (:hand-r :flex -20) (:arm-l :flex 0 :side 88) (:elbow-l :flex 2)
+  (:hand-l :flex -20))
+(defpose :br-oen-top-high (:base :lb-oe-stance)    ; L3's: spun up and risen, the claws flat and high
+  (:root :f 0.16 :u 0.3 :pitch 10) (:spine :flex 0) (:neck :flex -2) (:head :flex -6)
+  (:arm-r :flex 0 :side 94) (:elbow-r :flex 0) (:hand-r :flex -20) (:arm-l :flex 0 :side 94) (:elbow-l :flex 0)
+  (:hand-l :flex -20))
+(defpose :br-oen-cock (:base :lb-oe-stance)        ; both claws raised overhead with their gold lashes (J's wind-up)
+  (:root :u 0.06 :pitch -4) (:spine :flex -4) (:neck :flex -12) (:head :flex -10)
+  (:arm-r :flex 150 :side 26) (:elbow-r :flex 30) (:hand-r :flex -30) (:arm-l :flex 150 :side 26) (:elbow-l :flex 30)
+  (:hand-l :flex -30))
+(defpose :br-oen-crack-r (:base :lb-oe-stance)     ; the right claw's lash cracked down on his line, the left cocked high
+  (:root :f 0.1 :u -0.02 :pitch 6) (:spine :flex 12) (:chest :twist 8) (:neck :flex 16) (:head :flex 8)
+  (:arm-r :flex 105.3 :side 9.8) (:elbow-r :flex 0) (:hand-r :flex 30) (:arm-l :flex 148 :side 30) (:elbow-l :flex 34)
+  (:hand-l :flex -30))
+(defpose :br-oen-crack-l (:base :lb-oe-stance)
+  (:root :f 0.1 :u -0.02 :pitch 6) (:spine :flex 12) (:chest :twist -8) (:neck :flex 16) (:head :flex 8)
+  (:arm-l :flex 105.3 :side 9.8) (:elbow-l :flex 0) (:hand-l :flex 30) (:arm-r :flex 148 :side 30) (:elbow-r :flex 34)
+  (:hand-r :flex -30))
+(defpose :br-oen-reel-l (:base :lb-oe-stance)      ; J2's wind-up: the left claw swung out wide behind, its lash trailing
+  (:root :yaw 14 :u 0.04) (:spine :flex 6) (:chest :twist 34) (:neck :flex 4)
+  (:arm-l :flex -10 :side 100) (:elbow-l :flex 10) (:hand-l :flex -20) (:arm-r :flex 40 :side 50) (:elbow-r :flex 60))
+(defpose :br-oen-sweep-l (:base :lb-oe-stance)     ; ... lashed flat across before him
+  (:root :f 0.1 :yaw -6) (:spine :flex 10) (:chest :twist -12) (:neck :flex 12) (:head :flex 6)
+  (:arm-l :flex 80.3 :side 70.1) (:elbow-l :flex 0) (:hand-l :flex 20) (:arm-r :flex -10 :side 100) (:elbow-r :flex 10)
+  (:hand-r :flex -20))
+(defpose :br-oen-sweep-r (:base :lb-oe-stance)
+  (:root :f 0.1 :yaw 6) (:spine :flex 10) (:chest :twist 12) (:neck :flex 12) (:head :flex 6)
+  (:arm-r :flex 80.3 :side 70.1) (:elbow-r :flex 0) (:hand-r :flex 20) (:arm-l :flex -10 :side 100) (:elbow-l :flex 10)
+  (:hand-l :flex -20))
+(defpose :br-oen-sword-up (:base :lb-oe-stance)    ; K: both claws locked together high behind the head, arched back
+  (:root :f -0.1 :u 0.16 :pitch -10) (:spine :flex -12) (:neck :flex -20) (:head :flex -16)
+  (:arm-r :flex 196 :side -8) (:elbow-r :flex 12) (:hand-r :flex -30) (:arm-l :flex 196 :side -8) (:elbow-l :flex 12)
+  (:hand-l :flex -30))
+(defpose :br-oen-sword-hit (:base :lb-oe-stance)   ; ... brought down onto his line with the whole column
+  (:root :f 0.34 :u -0.08 :pitch 12) (:spine :flex 18) (:neck :flex 24) (:head :flex 12)
+  (:arm-r :flex 113.3 :side 21.6) (:elbow-r :flex 0) (:hand-r :flex 30) (:arm-l :flex 113.3 :side 21.6) (:elbow-l :flex 0)
+  (:hand-l :flex 30))
+(defpose :br-oen-sword-low (:base :lb-oe-stance)   ; ... and through, buried low before him, bowed over it
+  (:root :f 0.4 :u -0.16 :pitch 18) (:spine :flex 28) (:neck :flex 34) (:head :flex 16)
+  (:arm-r :flex 40 :side -6) (:elbow-r :flex 0) (:hand-r :flex 40) (:arm-l :flex 40 :side -6) (:elbow-l :flex 0)
+  (:hand-l :flex 40))
+(defpose :br-oen-sword-rise (:base :lb-oe-stance)  ; K1's second: hauled up from low through his line
+  (:root :f 0.36 :u 0.04 :pitch -4) (:spine :flex -2) (:neck :flex 0) (:head :flex -8)
+  (:arm-r :flex 77.4 :side -37.9) (:elbow-r :flex 0) (:hand-r :flex -10) (:arm-l :flex 77.4 :side -37.9) (:elbow-l :flex 0)
+  (:hand-l :flex -10))
+(defpose :br-oen-sword-high (:base :lb-oe-stance)  ; ... and on up overhead
+  (:root :f 0.3 :u 0.1 :pitch -8) (:spine :flex -10) (:neck :flex -16) (:head :flex -12)
+  (:arm-r :flex 160 :side -8) (:elbow-r :flex 8) (:hand-r :flex -30) (:arm-l :flex 160 :side -8) (:elbow-l :flex 8)
+  (:hand-l :flex -30))
+(defpose :br-oen-bash-cock-r (:base :lb-oe-stance)  ; K2: the right claw drawn up high, folded, stepping in, coiled
+  (:root :f 0.12 :u 0.08 :yaw -14 :pitch -6) (:spine :flex -6) (:chest :twist -30) (:neck :flex -10) (:head :twist 14)
+  (:arm-r :flex 150 :side 50) (:elbow-r :flex 110) (:hand-r :flex -30) (:arm-l :flex 50 :side 40) (:elbow-l :flex 90)
+  (:hand-l :flex 20))
+(defpose :br-oen-bash-r (:base :lb-oe-stance)      ; ... the claw clubbed down on him, the whole column behind it
+  (:root :f 0.3 :u -0.08 :yaw 8 :pitch 12) (:spine :flex 20) (:chest :twist 14) (:neck :flex 24) (:head :flex 10)
+  (:arm-r :flex 68.3 :side -20) (:elbow-r :flex 102.4) (:hand-r :flex 40) (:arm-l :flex 40 :side 40) (:elbow-l :flex 100)
+  (:hand-l :flex 20))
+(defpose :br-oen-bash-cock-l (:base :lb-oe-stance)
+  (:root :f 0.3 :u 0.08 :yaw 14 :pitch -6) (:spine :flex -6) (:chest :twist 30) (:neck :flex -10) (:head :twist -14)
+  (:arm-l :flex 150 :side 50) (:elbow-l :flex 110) (:hand-l :flex -30) (:arm-r :flex 50 :side 40) (:elbow-r :flex 90)
   (:hand-r :flex 20))
-(defpose :br-oen-spread (:base :lb-oe-stance)       ; both claws spread high and wide, arched back
-  (:root :f -0.1 :u 0.1 :pitch -7) (:spine :flex 4) (:neck :flex -14) (:head :flex -22)
-  (:arm-r :flex 119.6 :side -74.8) (:elbow-r :flex 86.6) (:hand-r :flex -40) (:arm-l :flex 119.6 :side -74.8)
-  (:elbow-l :flex 86.6) (:hand-l :flex -40))
-(defpose :br-oen-scissor (:base :lb-oe-stance)      ; both claws crossed through his line
-  (:root :f 0.22 :u -0.05 :pitch 5) (:spine :flex 30) (:neck :flex 50) (:head :flex 26)
-  (:arm-r :flex 39.8 :side -141.6) (:elbow-r :flex 50.7) (:hand-r :flex 30) (:arm-l :flex 29.4 :side -141.9)
-  (:elbow-l :flex 58.5) (:hand-l :flex 30))
-(defpose :br-oen-heave (:base :lb-oe-stance)        ; both claws raised overhead, the neck back (K's heave)
-  (:root :f -0.06 :u 0.22 :pitch -8) (:spine :flex -10) (:neck :flex -14) (:head :flex -14)
-  (:arm-r :flex 103.1 :side -22.4) (:elbow-r :flex 84.7) (:hand-r :flex -40) (:arm-l :flex 103.1 :side -22.4)
-  (:elbow-l :flex 84.7) (:hand-l :flex -40))
-(defpose :br-oen-hurl (:base :lb-oe-stance)         ; both claws thrown down at him, the whole column after them
-  (:root :f 0.6 :u 0 :pitch 16) (:spine :flex 34) (:neck :flex 36) (:head :flex 16)
-  (:arm-r :flex 106.6 :side 1.3) (:elbow-r :flex 27.5) (:hand-r :flex 40) (:arm-l :flex 106.2 :side 1.2)
-  (:elbow-l :flex 33.2) (:hand-l :flex 40))
-(defpose :br-oen-low (:base :lb-oe-stance)          ; both claws swept low before him (the scoop's wind-up)
-  (:root :f 0.4 :u -0.14 :pitch 12) (:spine :flex 38) (:neck :flex 40) (:head :flex 18)
-  (:arm-r :flex 90.2 :side -4.3) (:elbow-r :flex 37.4) (:hand-r :flex 50) (:arm-l :flex 88.6 :side -4.1)
-  (:elbow-l :flex 45) (:hand-l :flex 50))
-(defpose :br-oen-scoop (:base :lb-oe-stance)        ; ... both claws thrown up at him
-  (:root :f 0.5 :u 0.16 :pitch -6) (:spine :flex 4) (:neck :flex -6) (:head :flex -14)
-  (:arm-r :flex 112 :side -8) (:elbow-r :flex 20) (:hand-r :flex -10) (:arm-l :flex 112 :side -8)
-  (:elbow-l :flex 20) (:hand-l :flex -10))
-(defpose :br-oen-tower (:base :lb-oe-stance)        ; K3's finisher wind-up: risen high, both claws overhead
-  (:root :f 0.3 :u 0.42 :pitch -10) (:spine :flex -12) (:neck :flex -20) (:head :flex -16)
-  (:arm-r :flex 103.1 :side -22.4) (:elbow-r :flex 84.7) (:hand-r :flex -40) (:arm-l :flex 103.1 :side -22.4)
-  (:elbow-l :flex 84.7) (:hand-l :flex -40))
-(defpose :br-oen-slam (:base :lb-oe-stance)         ; ... both claws slammed down onto his line, landing
-  (:root :f 0.88 :u -0.15 :pitch 16) (:spine :flex 38) (:neck :flex 40) (:head :flex 18)
-  (:arm-r :flex 90.2 :side -4.3) (:elbow-r :flex 37.4) (:hand-r :flex 50) (:arm-l :flex 88.6 :side -4.1)
-  (:elbow-l :flex 45) (:hand-l :flex 50))
-(defpose :br-oen-cock-r (:base :lb-oe-stance)       ; JL1's draw: side-on, the right claw cocked high behind the head
-  (:root :f -0.14 :u 0.04 :yaw -22 :pitch -4) (:spine :flex 8) (:chest :twist -26) (:neck :flex 2) (:head :flex -14)
-  (:arm-r :flex 118.3 :side -17.9) (:elbow-r :flex 79.2) (:hand-r :flex -40) (:arm-l :flex 17.3 :side 60.3)
-  (:elbow-l :flex 89.3) (:hand-l :flex 10))
-(defpose :br-oen-stab-r (:base :lb-oe-stance)       ; ... stabbed straight at him, the neck after it, a long lunge
-  (:root :f 0.7 :u -0.02 :yaw 10 :pitch 10) (:spine :flex 26) (:chest :twist 14) (:neck :flex 34) (:head :flex 14)
-  (:arm-r :flex 106.6 :side 1.3) (:elbow-r :flex 20) (:hand-r :flex 40) (:arm-l :flex -40 :side 18) (:elbow-l :flex 130)
-  (:hand-l :flex 0))
-(defpose :br-oen-cock-l (:base :lb-oe-stance)
-  (:root :f -0.14 :u 0.04 :yaw 22 :pitch -4) (:spine :flex 8) (:chest :twist 26) (:neck :flex 2) (:head :flex -14)
-  (:arm-l :flex 118.3 :side -17.9) (:elbow-l :flex 79.2) (:hand-l :flex -40) (:arm-r :flex 17.3 :side 60.3)
-  (:elbow-r :flex 89.3) (:hand-r :flex 10))
-(defpose :br-oen-stab-l (:base :lb-oe-stance)
-  (:root :f 0.7 :u -0.02 :yaw -10 :pitch 10) (:spine :flex 26) (:chest :twist -14) (:neck :flex 34) (:head :flex 14)
-  (:arm-l :flex 106.6 :side 1.3) (:elbow-l :flex 20) (:hand-l :flex 40) (:arm-r :flex -40 :side 18) (:elbow-r :flex 130)
-  (:hand-r :flex 0))
-(defpose :br-oen-tuck (:base :lb-oe-stance)         ; JL2's turn: the claws crossed low before the column
-  (:root :u 0.04) (:head :flex 6) (:arm-r :flex 34 :side 18 :twist 45) (:elbow-r :flex 118)
-  (:arm-l :flex 34 :side 18 :twist -45) (:elbow-l :flex 118))
-(defpose :br-oen-yoke (:base :lb-oe-stance)         ; KL1's wind-up: both claws joined high behind the head, arched back
-  (:root :f -0.2 :u 0.2 :pitch -12) (:spine :flex -12) (:neck :flex -20) (:head :flex -18)
-  (:arm-r :flex 150 :side -24) (:elbow-r :flex 70) (:hand-r :flex -40) (:arm-l :flex 150 :side -24)
-  (:elbow-l :flex 70) (:hand-l :flex -40))
-(defpose :br-oen-javelin (:base :lb-oe-stance)      ; ... hurled as one, both claws together on his line, a deep lunge
-  (:root :f 0.75 :u -0.06 :pitch 18) (:spine :flex 36) (:neck :flex 40) (:head :flex 18)
-  (:arm-r :flex 104 :side 8) (:elbow-r :flex 22) (:hand-r :flex 40) (:arm-l :flex 104 :side 8)
-  (:elbow-l :flex 22) (:hand-l :flex 40))
-(defpose :br-oen-kick (:base :lb-oe-stance)         ; blown back, the claws up
-  (:root :f -0.2 :u 0.1 :pitch -6) (:spine :flex 10) (:neck :flex 10) (:head :flex -10)
-  (:arm-r :flex 98.4 :side -28.2) (:elbow-r :flex 99.9) (:hand-r :flex -30) (:arm-l :flex 98.4 :side -28.2)
-  (:elbow-l :flex 99.9) (:hand-l :flex -30))
-(defpose :br-oen-flick-both (:base :lb-oe-stance)   ; J3's last: both claws snapped at him together
-  (:root :f 0.18 :u -0.04 :pitch 5) (:spine :flex 24) (:neck :flex 30) (:head :flex 12) (:arm-r :flex 96 :side 0)
-  (:elbow-r :flex 50) (:hand-r :flex 30) (:arm-l :flex 96 :side 0) (:elbow-l :flex 50) (:hand-l :flex 30))
-;; the owl EN's thirteen (the moves :br-oe-*; its recovery one frame shorter: R - 1, *BR-OWL-ADV*)
-(defstrike :br-oen-l1 (8 10 13 :base :lb-oe-stance)   ; L1 GATHER: overhead casts, R f8 / L f16, each pulled back in
-  (0) (5 :br-oen-raise-r) (7 :br-oen-raise-r (:root :u 0.09 :pitch -7) (:arm-r :flex 112))
-  (:s :snap :br-oen-cast-r) (10 :br-oen-cast-r (:root :f 0.3 :u -0.05) (:arm-r :flex 82 :side -50)) (12 :br-oen-draw-r)
-  (14 :br-oen-raise-l) (15 :br-oen-raise-l (:root :u 0.09 :pitch -7) (:arm-l :flex 112))
-  (16 :snap :br-oen-cast-l) (:a :br-oen-cast-l (:root :f 0.3 :u -0.05) (:arm-l :flex 82 :side -50)) (21 :br-oen-draw-l)
-  (26 :br-oen-load (:root :u 0.1)) (:end :lb-oe-stance))
-(defstrike :br-oen-l2 (8 10 13 :base :lb-oe-stance)   ; L2 GATHER: sidearm rakes, L f8 / R f16, each pulled back in
-  (0) (5 :br-oen-coil-l (:root :u 0.08)) (7 :br-oen-coil-l (:root :u 0.08 :yaw 26) (:chest :twist 30))
-  (:s :snap :br-oen-rake-l (:root :f 0.3))
-  (10 :br-oen-rake-l (:root :f 0.3 :yaw -14) (:chest :twist -22) (:arm-l :flex 69 :side 163)) (12 :br-oen-draw-l)
-  (14 :br-oen-coil-r (:root :u 0.08)) (15 :br-oen-coil-r (:root :u 0.08 :yaw -26) (:chest :twist -30))
-  (16 :snap :br-oen-rake-r (:root :f 0.3))
-  (:a :br-oen-rake-r (:root :f 0.3 :yaw 14) (:chest :twist 22) (:arm-r :flex 69 :side 163)) (21 :br-oen-draw-r)
-  (26 :br-oen-load (:root :u 0.1)) (:end :lb-oe-stance))
-(defstrike :br-oen-l3 (8 14 17 :base :lb-oe-stance)   ; L3 GATHER: R f8, L f14, both f20, then loaded (drawn in, risen)
-  (0) (5 :br-oen-raise-r) (:s :snap :br-oen-cast-r) (10 :br-oen-draw-r) (12 :br-oen-raise-l) (14 :snap :br-oen-cast-l)
-  (16 :br-oen-draw-l) (18 :br-oen-load (:root :u 0.12)) (20 :snap :br-oen-hurl (:root :f 0.3 :u -0.02))
-  (:a :br-oen-hurl (:root :f 0.32 :u -0.04)) (27 :br-oen-load (:root :f -0.04 :u 0.26) (:spine :flex 28) (:neck :flex 32))
-  (32 :br-oen-load (:root :u 0.2)) (:end :lb-oe-stance))
-(defstrike :br-oen-j1 (8 8 11 :base :lb-oe-stance)   ; J1 REFILL: claw flicks from the raised guard, R f8 / L f11 / R f14
-  (0) (5 :br-oen-ready) (7 :br-oen-ready (:arm-r :flex 50) (:elbow-r :flex 90))
-  (:s :snap :br-oen-flick-r) (9.5 :br-oen-ready) (11 :snap :br-oen-flick-l) (12.5 :br-oen-ready) (14 :snap :br-oen-flick-r)
-  (:a :br-oen-flick-r (:arm-r :side -58) (:hand-r :flex 45)) (21 :br-oen-ready (:root :f 0)) (:end :lb-oe-stance))
-(defstrike :br-oen-j2 (8 8 11 :base :lb-oe-stance)   ; J2 REFILL: rising claw flicks out of a dip, L f8 / R f11 / L f14
-  (0) (5 :br-oen-dip) (:s :snap :br-oen-rise-l) (9.5 :br-oen-dip (:root :u -0.08)) (11 :snap :br-oen-rise-r)
-  (12.5 :br-oen-dip (:root :u -0.08)) (14 :snap :br-oen-rise-l) (:a :br-oen-rise-l (:root :u 0.1) (:arm-l :flex 118))
-  (21 :br-oen-ready) (:end :lb-oe-stance))
-(defstrike :br-oen-j3 (8 11 13 :base :lb-oe-stance)   ; J3 REFILL: R f8 / L f11 / R f14, both claws drawn in and snapped f17
-  (0) (5 :br-oen-ready) (:s :snap :br-oen-flick-r) (9.5 :br-oen-ready) (11 :snap :br-oen-flick-l) (12.5 :br-oen-ready)
-  (14 :snap :br-oen-flick-r) (15.5 :br-oen-load (:root :u 0.04)) (17 :snap :br-oen-flick-both)
-  (:a :br-oen-flick-both (:root :f 0.22 :u -0.06) (:arm-r :side -20) (:arm-l :side -20)) (25 :br-oen-ready)
+(defpose :br-oen-bash-l (:base :lb-oe-stance)
+  (:root :f 0.32 :u -0.08 :yaw -8 :pitch 12) (:spine :flex 20) (:chest :twist -14) (:neck :flex 24) (:head :flex 10)
+  (:arm-l :flex 67 :side -20) (:elbow-l :flex 104.7) (:hand-l :flex 40) (:arm-r :flex 40 :side 40) (:elbow-r :flex 100)
+  (:hand-r :flex 20))
+(defpose :br-oen-hook-cock-l (:base :lb-oe-stance)  ; K3: the left claw folded and drawn back wide at the side
+  (:root :f 0.1 :u 0.04 :yaw 20 :pitch 2) (:spine :flex 4) (:chest :twist 40) (:neck :flex 6)
+  (:arm-l :flex 60 :side 90) (:elbow-l :flex 100) (:hand-l :flex -20) (:arm-r :flex 50 :side 30) (:elbow-r :flex 100)
+  (:hand-r :flex 20))
+(defpose :br-oen-hook-l (:base :lb-oe-stance)      ; ... raked flat into him (a hook)
+  (:root :f 0.28 :u -0.04 :yaw -12 :pitch 8) (:spine :flex 12) (:chest :twist -24) (:neck :flex 14) (:head :flex 6)
+  (:arm-l :flex 85 :side -75.2) (:elbow-l :flex 94.3) (:hand-l :flex 30) (:arm-r :flex 50 :side 30) (:elbow-r :flex 100)
+  (:hand-r :flex 20))
+(defpose :br-oen-cannon-load (:base :lb-oe-stance) ; 零距離砲擊's load: stepped in, both claws drawn back to the chest
+  (:root :f 0.26 :u -0.06 :pitch 4) (:spine :flex 10) (:neck :flex 14) (:head :flex 6)
+  (:arm-r :flex 50 :side 30) (:elbow-r :flex 120) (:hand-r :flex 20) (:arm-l :flex 50 :side 30) (:elbow-l :flex 120)
+  (:hand-l :flex 20))
+(defpose :br-oen-cannon (:base :lb-oe-stance)      ; ... both claws thrust together into him at point blank: the gold blast
+  (:root :f 0.3 :u -0.04 :pitch 6) (:spine :flex 12) (:neck :flex 18) (:head :flex 8)
+  (:arm-r :flex 49.9 :side 30) (:elbow-r :flex 105.1) (:hand-r :flex 30) (:arm-l :flex 49.9 :side 30) (:elbow-l :flex 105.1)
+  (:hand-l :flex 30))
+(defpose :br-oen-blown (:base :lb-oe-stance)       ; ... blown back by it, the claws flung up and open
+  (:root :f 0.1 :u 0.14 :pitch -12) (:spine :flex -14) (:neck :flex -20) (:head :flex -16)
+  (:arm-r :flex 120 :side 50) (:elbow-r :flex 20) (:hand-r :flex -30) (:arm-l :flex 120 :side 50) (:elbow-l :flex 20)
+  (:hand-l :flex -30))
+;; the owl EN's nine openers (the moves :br-oe-l1 .. -k3; its recovery one frame shorter: R - 1, *BR-OWL-ADV*)
+(defstrike :br-oen-l1 (8 10 13 :base :lb-oe-stance)   ; L1 陀螺: wound up, one turn, the right claw across him f8, the left f16
+  (0) (3 :br-oen-wind)
+  (:s :snap :br-oen-top (:pelvis :twist 90)) (16 :snap :br-oen-top (:pelvis :twist 270))
+  (16.5 :snap :br-oen-top (:pelvis :twist 279)) (16.5001 :snap :br-oen-top (:pelvis :twist -81))
+  (:a :snap :br-oen-top (:pelvis :twist -54)) (22 :br-oen-top (:root :pitch 8 :u 0.04) (:pelvis :twist -8))
+  (25 :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 84) (:arm-l :side 84)) (:end :lb-oe-stance))
+(defstrike :br-oen-l2 (8 10 13 :base :lb-oe-stance)   ; L2 陀螺: leaning lower, one more turn, R f8 / L f16
+  (0 :br-oen-top (:pelvis :twist -54))
+  (:s :snap :br-oen-top-low (:pelvis :twist 90)) (16 :snap :br-oen-top-low (:pelvis :twist 270))
+  (16.5 :snap :br-oen-top-low (:pelvis :twist 279)) (16.5001 :snap :br-oen-top-low (:pelvis :twist -81))
+  (:a :snap :br-oen-top (:pelvis :twist -54)) (22 :br-oen-top (:root :pitch 8 :u 0.04) (:pelvis :twist -8))
+  (25 :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 84) (:arm-l :side 84)) (:end :lb-oe-stance))
+(defstrike :br-oen-l3 (8 14 17 :base :lb-oe-stance)   ; L3 陀螺: spun up, rising, one and a half turns: R f8, L f14, R f20
+  (0 :br-oen-top (:pelvis :twist -54))
+  (:s :snap :br-oen-top-high (:root :u 0.16) (:pelvis :twist 90)) (14 :snap :br-oen-top-high (:root :u 0.24) (:pelvis :twist 270))
+  (20 :snap :br-oen-top-high (:pelvis :twist 450)) (20.5 :snap :br-oen-top-high (:pelvis :twist 465))
+  (20.5001 :snap :br-oen-top-high (:pelvis :twist 105)) (:a :snap :br-oen-top-high (:pelvis :twist 140))
+  (26 :snap :br-oen-top-high (:root :u 0.24) (:pelvis :twist 220)) (30 :snap :br-oen-top (:root :u 0.14) (:pelvis :twist 290))
+  (35 :br-oen-top (:root :pitch 6 :u 0.04) (:pelvis :twist 352) (:arm-r :side 84) (:arm-l :side 84))
+  (37 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
+  (37.0001 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
   (:end :lb-oe-stance))
-(defstrike :br-oen-k1 (12 12 17 :base :lb-oe-stance)   ; K1 HEAVY: both claws heaved overhead, hurled down f12; scooped up f22
-  (0) (7 :br-oen-heave) (11 :br-oen-heave (:root :f -0.1 :u 0.28 :pitch -10) (:neck :flex -20))
-  (:s :snap :br-oen-hurl) (14 :br-oen-hurl (:root :f 0.64 :u -0.06))
-  (18 :br-oen-low) (20 :br-oen-low (:root :f 0.42 :u -0.16 :pitch 14))
-  (22 :snap :br-oen-scoop) (:a :br-oen-scoop (:root :f 0.52 :u 0.22))
-  (33 :br-oen-load (:root :f 0.2 :u 0.1)) (:end :lb-oe-stance))
-(defstrike :br-oen-k2 (12 12 17 :base :lb-oe-stance)   ; K2 HEAVY: a whirl into a right-claw rake f12, the left raked back f22
-  (0) (4 :br-oen-coil-r (:root :yaw -50)) (5 :br-oen-coil-r (:root :yaw -54)) (5.0001 :snap :br-oen-coil-r (:root :yaw -414))
-  (9 :snap :br-oen-load (:root :f 0.2 :yaw -200))
-  (:s :snap :br-oen-rake-r) (14 :br-oen-rake-r (:root :f 0.64 :yaw 14) (:chest :twist 22) (:arm-r :flex 69 :side 163))
-  (17 :br-oen-coil-l (:root :f 0.4)) (20 :br-oen-coil-l (:root :f 0.4 :yaw 30) (:chest :twist 32))
-  (22 :snap :br-oen-rake-l (:root :f 0.7))
-  (:a :br-oen-rake-l (:root :f 0.72 :yaw -14) (:chest :twist -22) (:arm-l :flex 69 :side 163))
-  (33 :br-oen-draw-l (:root :f 0.3)) (:end :lb-oe-stance))
-(defstrike :br-oen-k3 (12 18 21 :base :lb-oe-stance)   ; K3 HEAVY: chopped down R f12 / L f20, risen, both slammed down f28
-  (0) (7 :br-oen-raise-r (:root :f -0.1 :u 0.14)) (11 :br-oen-raise-r (:root :f -0.14 :u 0.18 :pitch -8) (:arm-r :flex 114))
-  (:s :snap :br-oen-cast-r (:root :f 0.5 :u -0.06 :pitch 12) (:spine :flex 32))
-  (14 :br-oen-cast-r (:root :f 0.52 :u -0.08 :pitch 12) (:spine :flex 34) (:arm-r :flex 82 :side -50))
-  (17 :br-oen-raise-l (:root :f 0.3 :u 0.14))
-  (20 :snap :br-oen-cast-l (:root :f 0.66 :u -0.06 :pitch 12) (:spine :flex 32))
-  (22 :br-oen-cast-l (:root :f 0.68 :u -0.08 :pitch 12) (:spine :flex 34) (:arm-l :flex 82 :side -50))
-  (25 :br-oen-tower (:root :f 0.4 :u 0.34)) (27 :br-oen-tower (:root :f 0.44 :u 0.46 :pitch -12))
-  (28 :snap :br-oen-slam) (:a :br-oen-slam (:root :f 0.9 :u -0.2 :pitch 18))
-  (42 :br-oen-slam (:root :f 0.6 :u -0.1 :pitch 10) (:spine :flex 24)) (:end :lb-oe-stance))
+(defstrike :br-oen-j1 (8 8 11 :base :lb-oe-stance)   ; J1 長鞭 (蛇腹): crossing figure-eights, R f8 / L f11 / R f14, each from high outside down across him
+  (0) (4 :br-oen-cock) (7 :br-oen-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
+  (:s :snap :br-oen-crack-r) (9.5 :br-oen-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
+  (11 :snap :br-oen-crack-l) (12.5 :br-oen-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 162 :side 56))
+  (14 :snap :br-oen-crack-r) (:a :br-oen-crack-r (:arm-r :flex 56 :side -44) (:arm-l :flex 120 :side 40))
+  (22 :br-oen-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
+  (:end :lb-oe-stance))
+(defstrike :br-oen-j2 (8 8 11 :base :lb-oe-stance)   ; J2 長鞭 (蛇腹): the figure-eights rising, L f8 / R f11 / L f14, each from low outside up across him
+  (0) (5 :br-oen-reel-l) (7 :br-oen-reel-l (:arm-l :flex 10 :side 70) (:chest :twist 40))
+  (:s :snap :br-oen-sweep-l) (9.5 :br-oen-sweep-l (:arm-l :flex 140 :side -30) (:arm-r :flex 10 :side 70))
+  (11 :snap :br-oen-sweep-r) (12.5 :br-oen-sweep-r (:arm-r :flex 140 :side -30) (:arm-l :flex 10 :side 70))
+  (14 :snap :br-oen-sweep-l) (:a :br-oen-sweep-l (:chest :twist -30) (:arm-l :flex 150 :side -30))
+  (22 :br-oen-sweep-l (:root :f 0 :yaw 0) (:chest :twist 0) (:arm-l :flex 60 :side 50) (:arm-r :flex 10 :side 80))
+  (:end :lb-oe-stance))
+(defstrike :br-oen-j3 (8 11 13 :base :lb-oe-stance)   ; J3 長鞭 -> 大砍刀: R f8 / L f11 / R f14 lashes, then the lashes snapped rigid, the claws locked into one cleaver, chopped down f17
+  (0) (4 :br-oen-cock) (7 :br-oen-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
+  (:s :snap :br-oen-crack-r) (9.5 :br-oen-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
+  (11 :snap :br-oen-crack-l) (12.5 :br-oen-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 162 :side 56))
+  (14 :snap :br-oen-crack-r) (15.5 :br-oen-sword-up (:root :f 0.04 :u 0.1))
+  (17 :snap :br-oen-sword-hit (:root :f 0.18)) (:a :br-oen-sword-low (:root :f 0.22 :u -0.14))
+  (30 :br-oen-sword-hit (:root :f 0.06 :u 0 :pitch 2) (:spine :flex 4) (:arm-r :flex 50 :side 20) (:arm-l :flex 50 :side 20))
+  (:end :lb-oe-stance))
+(defstrike :br-oen-k1 (12 12 17 :base :lb-oe-stance)   ; K1 大刀: the claws locked overhead, held, chopped down f12, buried; hauled up f22
+  (0) (5 :br-oen-sword-up) (10 :br-oen-sword-up (:root :u 0.16 :pitch -12) (:arm-r :flex 204) (:arm-l :flex 204))
+  (:s :snap :br-oen-sword-hit) (15 :br-oen-sword-low) (19 :br-oen-sword-low (:root :u -0.18) (:arm-r :flex 28) (:arm-l :flex 28))
+  (22 :snap :br-oen-sword-rise) (:a :br-oen-sword-high) (30 :br-oen-sword-high (:root :f 0.2 :u 0.06))
+  (36 :br-oen-sword-hit (:root :f 0.1 :u 0 :pitch 2) (:spine :flex 4) (:arm-r :flex 50 :side 20) (:arm-l :flex 50 :side 20))
+  (:end :lb-oe-stance))
+(defstrike :br-oen-k2 (12 12 17 :base :lb-oe-stance)   ; K2 近身: stepped in, beaten with the folded claws: the right clubbed down f12, the left f22
+  (0) (5 :br-oen-bash-cock-r) (10 :br-oen-bash-cock-r (:root :u 0.1) (:chest :twist -38))
+  (:s :snap :br-oen-bash-r) (14 :br-oen-bash-r (:root :f 0.32 :u -0.12) (:arm-r :flex 40))
+  (17 :br-oen-bash-cock-l) (20 :br-oen-bash-cock-l (:root :u 0.1) (:chest :twist 38))
+  (22 :snap :br-oen-bash-l) (:a :br-oen-bash-l (:root :f 0.36 :u -0.12) (:arm-l :flex 40))
+  (33 :br-oen-bash-l (:root :f 0.16 :u 0 :pitch 2) (:spine :flex 4) (:chest :twist 0) (:arm-l :flex 40 :side 40) (:elbow-l :flex 60))
+  (:end :lb-oe-stance))
+(defstrike :br-oen-k3 (12 18 21 :base :lb-oe-stance)   ; K3 近身 -> 零距離砲擊: a hook f12, clubbed down f20, both claws thrust into him point blank f28: the blast
+  (0) (6 :br-oen-hook-cock-l) (10 :br-oen-hook-cock-l (:chest :twist 46))
+  (:s :snap :br-oen-hook-l) (14 :br-oen-hook-l (:root :yaw -18) (:chest :twist -36))
+  (16 :br-oen-bash-cock-r (:root :f 0.24)) (20 :snap :br-oen-bash-r) (22 :br-oen-bash-r (:root :u -0.12) (:arm-r :flex 40))
+  (25 :br-oen-cannon-load) (28 :snap :br-oen-cannon) (:a :br-oen-cannon (:root :f 0.26))
+  (34 :br-oen-blown) (42 :br-oen-blown (:root :f 0 :u 0.06 :pitch -4)) (:end :lb-oe-stance))
+;; the stretch (R5 J 長鞭) and the spins (R5 L 陀螺) to Lille's wing looks (lille-art.lisp: %LB-STRETCH!, %LB-WINGS, %LB-LASHES,
+;; %LB-DRIVE!; Lille's own clips are in neither)
+(defparameter *br-w-stretch*
+  '((:br-en-j1 (0 0 0) (6 1.1 1.0) (8 1.2 1.0) (11 1.0 1.2) (14 1.2 1.0) (16 1.2 1.0) (22 0.6 0.5) (28 0 0))
+    (:br-en-j2 (0 0 0) (6 1.0 1.1) (8 1.0 1.2) (11 1.2 1.0) (14 1.0 1.2) (16 1.0 1.2) (22 0.5 0.6) (28 0 0))
+    (:br-en-j3 (0 0 0) (6 1.1 1.0) (8 1.2 1.0) (11 1.0 1.2) (14 1.2 1.0) (15.5 0.85 0.85) (17 0.6 0.6) (22 0.6 0.6) (28 0.2 0.2)
+               (33 0 0))
+    (:br-oen-j1 (0 0 0) (6 1.25 1.15) (8 1.35 1.15) (11 1.15 1.35) (14 1.35 1.15) (16 1.35 1.15) (22 0.6 0.5) (27 0 0))
+    (:br-oen-j2 (0 0 0) (6 1.15 1.25) (8 1.15 1.35) (11 1.35 1.15) (14 1.15 1.35) (16 1.15 1.35) (22 0.5 0.6) (27 0 0))
+    (:br-oen-j3 (0 0 0) (6 1.25 1.15) (8 1.35 1.15) (11 1.15 1.35) (14 1.35 1.15) (15.5 1.0 1.0) (17 0.8 0.8) (22 0.8 0.8)
+                (27 0.2 0.2) (32 0 0)))
+  "R5 J 長鞭 (DUEL_LILLE_V3 §10): the whips' stretch by clip, keys (frame right left) in the clip's frames: the metres the
+right / left front wing (JILLIEL: its blade on past the hand, along its root -> hand line) or claw's gold lash (the owl: on
+from the claw along the forearm) reaches past the rig's hand, linear between keys; grown over the wind-up, the striking
+whip the longer, drawn back in over the recovery. The host FK test adds it to the hand: the stretched tip is the strike point
+(*BR-W-TIPS*).")
+(setf *lb-stretch* (loop for (c . keys) in *br-w-stretch* collect (cons c (coerce (mapcar #'f32 (apply #'append keys)) 'f32vec))))
+(dolist (c '(:br-en-l1 :br-en-l2 :br-en-l3 :br-oen-l1 :br-oen-l2 :br-oen-l3))   ; the spins: the table wings turn with him
+  (pushnew c *lb-no-conv*))
+
 ;;; ---------------------------------------------------------------- the draw hook
 (defparameter *br-aim-stance* '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
   "The base stance's moves: the aim line tracks while one runs ...")
@@ -1173,6 +1158,56 @@ Reads *BR-AT* (his place and the opponent's, BR-DRAW's) and the move's frame. 0 
                             (declare (type f32vec %p))
                             (setf (aref %at (+ %o 2)) (aref %p 0) (aref %at (+ %o 3)) (aref %p 2))))))))
 
+;;; ---------------------------------------------------------------- R5 K 大刀's 零距離砲擊 (DUEL_LILLE_V3 §10)
+(defparameter *br-blast-moves* '(:br-e-k3 :br-oe-k3)
+  "The moves whose last hit is 零距離砲擊 (the awakened stance's K3, R5: 「爆炸特效的零距離砲擊」): the blast at its frame.")
+(defparameter *br-blast-life* 18 "零距離砲擊's blast: the frames it lasts from the last hit's first frame ...")
+(defparameter *br-blast-r* 0.8 "... its star's reach at full size (m), x the draw scale.")
+(defparameter *br-blast-y* '(1.3 1.65)
+  "零距離砲擊's blast: its height above his floor (m; JILLIEL, the owl): where the two tips meet on the hit frame (the clips'
+:br-en-cannon / :br-oen-cannon, host FK).")
+(defun-fast %br-blast-look (f side mv)
+  "零距離砲擊 (MV one of *BR-BLAST-MOVES*): from its last hit's frame for *BR-BLAST-LIFE* frames, a point-blank blast at the
+hit's reach (its volume's edge, where the two drawn tips meet on the hit frame: the host FK test) on the line to the
+opponent (*BR-AT*), *BR-BLAST-Y* up, held there while he is blown back: a white flash on the first two frames, then a jade
+(the owl: gold) star swelling over an ink one, its white core for the first frames, dark smoke puffs rising and thinning,
+a new drawing every two frames. Reads the move's frame only (cosmetic; the hit's spark and sound are the combat's). 0 B."
+  (declare (fixnum side))
+  (let* ((hits (mv-hits mv)) (n (length hits)) (life (the fixnum *br-blast-life*)) (at *br-at*) (o (* 8 side))
+         (a (if (and (> n 0) (> (aref at (+ o 4)) 0.5f0))
+                (- (the fixnum (fighter-sf f)) (the fixnum (hw-from (aref hits (1- n))))) -1)))
+    (declare (fixnum n life o a) (type f32vec at))
+    (when (<= 0 a life)
+      (let* ((owl (> (lb-fxs side 15) 0.5f0)) (pal (if owl +pal-gold+ +pal-jade+))
+             (vol (first (hw-vols (aref hits (1- n))))) (edge (+ (aref (the f32vec vol) 2) (aref (the f32vec vol) 4)))
+             (dx (- (aref at (+ o 2)) (aref at o))) (dz (- (aref at (+ o 3)) (aref at (+ o 1))))
+             (dl (f-max 0.01f0 (f-hypot dx dz))) (sc (aref *lb-v* 31))
+             (x (+ (aref at o) (* edge (/ dx dl))))
+             (y (+ (aref *lb-v* 3) (* sc (the single-float (f32 (if owl (second *br-blast-y*) (first *br-blast-y*)))))))
+             (z (+ (aref at (+ o 1)) (* edge (/ dz dl))))
+             (d (i->f (* 2 (floor a 2))))                 ; (on twos)
+             (u (/ d (i->f life))) (r (* sc (the single-float *br-blast-r*)))
+             (es (* r (+ 0.55f0 (* 0.6f0 (%lb-ss (* 3f0 u))))))   ; (swells over the first third)
+             (k (- 1f0 (%lb-ss (/ (- u 0.45f0) 0.55f0))))         ; (erodes over the last half)
+             (sd (+ 410f0 d (* 50f0 (i->f side)))))
+        (declare (single-float pal edge dx dz dl sc x y z d u r es k sd))
+        (if (< a 2)
+            (fx-star x y z (* 0.55f0 r) (* 0.8f0 r) 12 (* 0.37f0 sd) 0f0 0f0 0.1f0 sd +pal-hit+ 0.98f0 :push 0.45f0)
+            (progn
+              (fx-star x y z (* 0.4f0 es) (* 1.15f0 es) 14 (* 0.53f0 sd) 0f0 0f0 0.14f0 (+ sd 3f0) +pal-ink+ (* 0.9f0 k)
+                       :push 0.2f0)
+              (fx-star x y z (* 0.35f0 es) es 14 (* 0.71f0 sd) 0f0 0f0 0.12f0 sd pal k :push 0.3f0)
+              (when (< a 8)
+                (fx-star x y z (* 0.12f0 es) (* 0.4f0 es) 9 (* 1.3f0 sd) 0f0 0f0 0.08f0 (+ sd 5f0) +pal-hit+ 0.95f0
+                         :push 0.4f0))
+              (when (>= a 6)                              ; the smoke: three puffs rising off it
+                (dotimes (j 3)
+                  (let* ((fj (i->f j)) (an (+ (* 2.1f0 fj) (* 0.3f0 u))) (rr (* r (+ 0.3f0 (* 0.5f0 u)))))
+                    (declare (single-float fj an rr))
+                    (fx-disc (+ x (* rr (f-cos an))) (+ y (* r (+ 0.1f0 (* 0.9f0 u))) (* 0.2f0 fj)) (+ z (* rr (f-sin an)))
+                             (* r (+ 0.22f0 (* 0.3f0 u))) 0.25f0 (+ sd 20f0 fj) +pal-smoke+ (* 0.8f0 k)))))))))
+    nil))
+
 ;;; ---------------------------------------------------------------- the special resource's looks (DUEL_LILLE_V3 §4)
 ;;; The lit wings are LILLE-DRAW's (%LB-WINGS reads the count BR-DRAW puts in *LB-FX* [19]); here the spends. BR-DRAW keeps
 ;;; last frame's count per side (cosmetic memory, never the sim's hooks) and reads a drop as:
@@ -1338,6 +1373,8 @@ wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-
         (when (<= c 16) (%br-recall-look e jm side c))
         (when (not (eq (mv-name mv) :br-recall)) (%br-beat-look e f jm side mv))
         (when (and (eq (mv-name mv) :br-rc4) (eq (fighter-phase f) :main)) (%br-kiwami-look f jm side))))
+    (when (and mv (member (mv-name mv) *br-blast-moves*) (eq (fighter-phase f) :main))   ; R5's 零距離砲擊
+      (%br-blast-look f side mv))
     (when (and (>= *br-art-hold* 0) (>= (the fixnum (br-hold-clock f)) *br-art-hold*))   ; (debug stills)
       (setf *br-art-hold* -1)
       (hitstop 100000)))
@@ -1431,19 +1468,21 @@ looks); 82398 the consing probe."
 (defun br-cons-probe ()
   "82398: bytes consed by 10 draws of P1 Lille II's :draw hook (BR-DRAW, LILLE-DRAW's lookups included), of the spends'
 note and looks (%BR-SPEND-NOTE / -LOOK: the pip glint's model lookup aside), of his volley look
-at its clock 4 and of a string beat's lines (when a string runs), and of 裁き・極's look (while it runs), and of his HUD row
-(a \"barro consing\" line)."
+at its clock 4 and of a string beat's lines (when a string runs), and of 裁き・極's look (while it runs), of 零距離砲擊's
+blast (in an awakened K3), and of the whips' stretch and the owl's lashes (R5; a \"barro consing\" line)."
   (let* ((e *p1*) (f (fighter e)) (side (fighter-side f)) (jm (model-joints (model e)))
          (mv (and (eq (fighter-state f) :move) (fighter-move f))))
     (macrolet ((per (form) `(let ((c0 (cons-bytes))) (dotimes (i 10) ,form) (- (cons-bytes) c0))))
-      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d"
+      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d blast ~d stretch ~d lashes ~d"
                (fighter-form f) (br-hold-clock f)
                (per (br-draw e 0.016f0)) (per (lille-draw e 0.016f0))
                (per (progn (%br-spend-note f side (br-ammo-look e) 2) (%br-spend-look e side))) (per (%br-recall-look e jm side 4))
                (if (and mv (member (mv-name mv) '(:br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4)))
                    (list (per (%br-beat-look e f jm side mv)) (per (br-rc-drive f mv)) (per (br-rc-beat (mv-name mv) (fighter-sf f))))
                    -1)
-               (if (and mv (eq (mv-name mv) :br-rc4)) (per (%br-kiwami-look f jm side)) -1)))))
+               (if (and mv (eq (mv-name mv) :br-rc4)) (per (%br-kiwami-look f jm side)) -1)
+               (if (and mv (member (mv-name mv) *br-blast-moves*)) (per (%br-blast-look f side mv)) -1)
+               (per (%lb-stretch! (model-anim (model e)))) (per (%lb-lashes jm side))))))
 
 ;;; ---------------------------------------------------------------- the HUD: the special resource (DUEL_LILLE_V3 §3.1)
 (defparameter *br-sn-strings* #("SN 0" "SN 1" "SN 2" "SN 3") "The base form's label: SN + the 狙擊 pips.")

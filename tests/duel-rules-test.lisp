@@ -16,6 +16,7 @@
 (in-package :duel)
 
 (defvar *br-tip-print* nil)   ; (t: print the awakened stances' drawn tips, *BR-W-TIPS*)
+(defvar *br-w-stretch* nil)   ; (barro-art.lisp's whips, read with the art files below)
 (defvar *fails* 0)
 (defvar *checks* 0)
 (defmacro check (form)
@@ -1722,7 +1723,8 @@ along the left forearm, so the fist leads).")
                      (defparameter (case (second form)
                                      (*sj-strike-reach* (setf strike (eval (third form))))
                                      (*lb-strike-points* (setf points (eval (third form))))   ; Lille: the plank, the
-                                     (*lb-butt* (setf butt (eval (third form))))))           ; wing / arm tips
+                                     (*lb-butt* (setf butt (eval (third form))))           ; wing / arm tips
+                                     (*br-w-stretch* (eval form))))                         ; (Lille II's whips, R5)
                      (defbody (push (cons (second form) (third form)) bodies))
                      (defweapon (push (cons (second form) (getf (third form) :length)) weapons)))))))
   (let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
@@ -3104,13 +3106,38 @@ defender's next step. Values: the attacker's and the defender's first actionable
 ;; 連段一律用近距離攻擊」): the openers are melee strikes: on every hit frame a wing tip (JILLIEL: the rig's hands) / a claw (the
 ;; owl) reaches its hit's volume edge (*BR-W-TIPS*, +-0.15 m: drawn reach = hit reach) within 0.5 m of his line; the
 ;; follow-ups' lines: a tip thrown at his line (>= 1.2 m ahead, within 0.5 m of it). The floats' kit :lift aside.
+;; R5 (the user 2026-10-11, J 「將光翼拉伸如同長鞭一般鞭擊」; the reach 「跟著動作走」): a whip's stretch (*BR-W-STRETCH*, the
+;; clip's keys (frame right left), linear) is drawn on past the hand, so it is in the tip: JILLIEL's along the front wing's
+;; root (the chest's local (+-0.07 0.3 0.13), LILLE-DRAW's) -> hand line, the owl's lash along the forearm (elbow -> hand).
+(defun br-stretch-at (clip frame g)
+  "The stretch (m) of clip CLIP's front wing G (0 right, 1 left) at its frame FRAME (*BR-W-STRETCH*; 0 if not listed)."
+  (let ((keys (cdr (assoc clip *br-w-stretch*))) (prev nil))
+    (flet ((val (k) (float (if (= g 0) (second k) (third k)) 1.0)))
+      (cond ((null keys) 0.0)
+            ((<= frame (first (first keys))) (val (first keys)))
+            (t (dolist (k keys (val prev))
+                 (when (< frame (first k))
+                   (return (+ (val prev) (* (/ (- frame (first prev)) (- (first k) (first prev))) (- (val k) (val prev))))))
+                 (setf prev k)))))))
+(check (and (~= 0.0 (br-stretch-at :lb-w-q1 10 0)) (~= 1.2 (br-stretch-at :br-en-j1 8 0)) (~= 1.0 (br-stretch-at :br-en-j1 8 1))
+            (~= 1.1 (br-stretch-at :br-en-j1 9.5 0)) (~= 0.0 (br-stretch-at :br-en-j1 40 0))))
 (let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
       (pj (make-rig-proportions :arms 2.6)) (po (make-rig-proportions :arms 2.2 :legs 1.5)) (seen nil))
   (flet ((tip (clip time joint props)
            (clip-sample! pose (find-clip clip) time)
            (pose-fk! jm pose 0f0 0f0 0f0 0f0 1f0 0f0 props)
            (joint-point! v jm (joint-index joint) 0f0 0f0 0f0)
-           (values (aref v 0) (- (aref v 2)))))
+           (let* ((hx (aref v 0)) (hy (aref v 1)) (hz (aref v 2)) (g (if (eq joint :hand-r) 0 1))
+                  (ex (br-stretch-at clip (* 60 time) g)))
+             (if (zerop ex)
+                 (values hx (- hz))
+                 (progn
+                   (if (eq props po)                   ; the owl: along the forearm; JILLIEL: from the wing's root
+                       (joint-point! v jm (joint-index (if (= g 0) :lower-arm-r :lower-arm-l)) 0f0 0f0 0f0)
+                       (joint-point! v jm (joint-index :chest) (if (= g 0) 0.07f0 -0.07f0) 0.3f0 0.13f0))
+                   (let* ((dx (- hx (aref v 0))) (dy (- hy (aref v 1))) (dz (- hz (aref v 2)))
+                          (k (/ ex (sqrt (+ (* dx dx) (* dy dy) (* dz dz))))))
+                     (values (+ hx (* k dx)) (- (+ hz (* k dz))))))))))
     (loop for (mpre cpre fpre props) in (list (list "BR-E" "BR-EN" "BR-E" pj) (list "BR-OE" "BR-OEN" "BR-OE" po))
           do (loop for (sn nil nil nil nil nil nil nil nil extra) in *br-s-segs*
                    do (let* ((mv (find-move (intern (format nil "~a-~a" mpre sn) :keyword)))
@@ -3131,7 +3158,19 @@ defender's next step. Values: the attacker's and the defender's first actionable
                                        (when (and (<= (abs x) 0.5) (or (null best) (> ahead best))) (setf best ahead))))
                                    (when *br-tip-print* (format t "  tip ~a f~d: ~,2f~%" clip fr best))
                                    (check (or (and best (if far (>= best 1.2) (<= (abs (- best edge)) 0.15)))
-                                              (format t "~a f~d: the tip ~a m ahead (~a)~%" clip fr best (if far ">= 1.2" edge))))))))))
+                                              (format t "~a f~d: the tip ~a m ahead (~a)~%" clip fr best (if far ">= 1.2" edge)))))))))
+    ;; R5 零距離砲擊 (the K3 openers' last hit, 「爆炸特效的零距離砲擊」): both tips thrust together on his line, their midpoint
+    ;; at the hit's reach (barro-art.lisp %BR-BLAST-LOOK draws the blast there), point blank (<= 1.3 m)
+    (dolist (mn '(:br-e-k3 :br-oe-k3))
+      (let* ((mv (find-move mn)) (w (aref (mv-hits mv) (1- (length (mv-hits mv))))) (vol (first (hw-vols w)))
+             (edge (+ (aref vol 2) (aref vol 4))) (props (if (eq mn :br-oe-k3) po pj))
+             (tm (/ (* (hw-from w) (mv-clip-speed mv)) 60.0)))
+        (multiple-value-bind (xr ar) (tip (mv-clip mv) tm :hand-r props)
+          (multiple-value-bind (xl al) (tip (mv-clip mv) tm :hand-l props)
+            (check (or (and (< (abs (- xr xl)) 0.4) (<= (abs (* 0.5 (+ xr xl))) 0.1)
+                            (<= (abs (- (* 0.5 (+ ar al)) edge)) 0.15) (<= edge 1.3))
+                       (format t "~a: the blast at (~,2f ~,2f), its hands ~,2f apart, the reach ~,2f~%" mn (* 0.5 (+ xr xl))
+                               (* 0.5 (+ ar al)) (abs (- xr xl)) edge))))))))
   (check (= 30 (length (remove-duplicates seen)))))
 
 ;; The gate's match length leaves the cinematics out (the user, 2026-10-08: 「毀魂技演出不計入對戰時長」, every cinematic):

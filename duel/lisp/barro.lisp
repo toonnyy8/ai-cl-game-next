@@ -316,13 +316,16 @@ volume radius, metres; its reach each hit's drawn tip (*BR-W-TIPS*; new 2026-10-
   "The awakened stances' melee openers (R4): each hit's push, metres (the shots' 0.3 pushed him out of a 1.4-2.2 m reach within
 a string: L1 + L2 1.3 -> 2.3 m in the browser; new 2026-10-11 [G]).")
 (defparameter *br-w-tips*
-  '(("BR-E" ("L1" 1.6 1.6) ("L2" 1.8 1.8) ("L3" 1.6 1.6 1.65) ("J1" 1.65 1.65 1.65) ("J2" 1.65 1.65 1.65)
-     ("J3" 1.65 1.65 1.65 1.7) ("K1" 1.85 1.8) ("K2" 2.1 2.2) ("K3" 1.85 2.05 2.2))
-    ("BR-OE" ("L1" 1.7 1.7) ("L2" 1.8 1.8) ("L3" 1.7 1.7 1.75) ("J1" 1.35 1.35 1.35) ("J2" 1.4 1.4 1.4)
-     ("J3" 1.35 1.35 1.35 1.5) ("K1" 2.05 1.5) ("K2" 2.1 2.2) ("K3" 1.9 2.05 2.15)))
+  '(("BR-E" ("L1" 1.85 1.85) ("L2" 1.85 1.85) ("L3" 1.85 1.85 1.85) ("J1" 2.85 2.85 2.85) ("J2" 2.8 2.8 2.8)
+     ("J3" 2.85 2.85 2.85 2.4) ("K1" 2.0 1.8) ("K2" 1.35 1.35) ("K3" 1.3 1.35 1.2))
+    ("BR-OE" ("L1" 1.7 1.7) ("L2" 1.7 1.7) ("L3" 1.7 1.7 1.7) ("J1" 2.8 2.8 2.8) ("J2" 2.75 2.75 2.75)
+     ("J3" 2.8 2.8 2.8 2.4) ("K1" 1.75 1.55) ("K2" 1.35 1.35) ("K3" 1.35 1.35 1.15)))
   "The awakened stances' melee openers (decision R4): each hit's reach, metres (its volume's edge), = the striking wing tip's
 / claw's distance ahead on that hit frame in its clip (barro-art.lisp :br-en-* / :br-oen-*, the host FK test: drawn reach =
-hit reach, +-0.15 m). By the move prefix, then the segment.")
+hit reach, +-0.15 m). By the move prefix, then the segment. R5 (the user 2026-10-11: the motion modules, the reach
+「跟著動作走」; 「長鞭可以連成大砍刀，砲擊也可以接在近距離毆打後面」): L 陀螺 the flat wing / claw (1.6-1.8 before), J 長鞭 the
+stretched whip's tip (*BR-W-STRETCH*; 1.35-1.7 before) and J3's last the cleaver it stiffens into, K1 大刀 the joined great
+blade, K2 / K3's first two the folded wings' close blows, K3's last 零距離砲擊 point blank (K 1.5-2.2 before).")
 (defparameter *br-s-l-whiff* 8
   "A whiffed stance L segment recovers R + this (decision R5, the user 2026-10-11: 「架式 > L 只要沒打中就進入硬直」, 「就跟一般的
 J / K 普攻一樣」: a J link's *WHIFF-EXTRA-J*; the :sig moves' *WHIFF-EXTRA* 6 before).")
