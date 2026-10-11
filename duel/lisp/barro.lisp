@@ -482,11 +482,12 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :cine lb-jilliel-kikon-cine :startup 20 :active 3 :recovery 30 :whiff 30 :dmg 70 :adv-block -14 :track 0
   :vol (:cap 0.5 12.0 1.2 1.2) :on-hit :knockback :kb 2.0 :cooldown 90 :on-frame ((20 br-lane-shot))
   :params (:aura 8 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
-;; EN, the stance (decision R2): the casts. L the V8 swing (spare since V8b) and the old EN J3, J the old EN J1 / J2, K the
-;; old EN K1 / K2 (their own frames)
-(br-defstance "BR-E" (:l1 (:br-e-swing 7) :l2 (:lb-e-q3 5) :l3 (:br-e-swing 7) :j1 (:lb-e-q1 4) :j2 (:lb-e-q2 4)
-                      :j3 (:lb-e-q1 4) :k1 (:lb-e-f1 9) :k2 (:lb-e-f2 10) :k3 (:lb-e-f3 11)
-                      :jl1 (:lb-e-q2 4) :jl2 (:lb-e-q3 5) :kl1 (:lb-e-f2 10) :kl2 (:lb-e-f3 11)))
+;; EN, the stance (decision R3: 「架勢中的 JJ / KK / LL 都改成差異明顯的數段連擊」): the strings' own clips (barro-art.lisp
+;; :br-en-*, each S + A + R at speed 1.0): L the gathering casts, J the rapid flicks, K the heavy throws, JL / KL the two
+;; routes' long lines (「最後一段 LL 會依據前面 J/K 有不同的動作模組」)
+(br-defstance "BR-E" (:l1 (:br-en-l1 8) :l2 (:br-en-l2 8) :l3 (:br-en-l3 8) :j1 (:br-en-j1 8) :j2 (:br-en-j2 8)
+                      :j3 (:br-en-j3 8) :k1 (:br-en-k1 12) :k2 (:br-en-k2 12) :k3 (:br-en-k3 12)
+                      :jl1 (:br-en-jl1 8) :jl2 (:br-en-jl2 8) :kl1 (:br-en-kl1 10) :kl2 (:br-en-kl2 10)))
 
 ;;; ================================================================ the owl: the burst's form (decision R1)
 (br-defstring :jn :br-o-j1 :kind :quick :clip :lb-o-q1 :startup 8 :active 3 :recovery 11 :dmg 26 :adv-block -1
@@ -516,10 +517,10 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :cine lb-trompete-cine :startup 20 :active 3 :recovery 30 :whiff 30 :dmg 80 :adv-block -14 :track 0
   :vol (:cap 0.5 12.0 1.4 1.4) :on-hit :knockback :kb 2.0 :cooldown 90 :on-frame ((20 br-lane-shot))
   :params (:aura 10 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
-;; the owl's stance EN: its casts (R one less: *BR-OWL-ADV*)
-(br-defstance "BR-OE" (:l1 (:br-oe-swing 7) :l2 (:lb-oe-q3 5) :l3 (:br-oe-swing 7) :j1 (:lb-oe-q1 4) :j2 (:lb-oe-q2 4)
-                       :j3 (:lb-oe-q1 4) :k1 (:lb-oe-f1 9) :k2 (:lb-oe-f2 10) :k3 (:lb-oe-f3 11)
-                       :jl1 (:lb-oe-q2 4) :jl2 (:lb-oe-q3 5) :kl1 (:lb-oe-f2 10) :kl2 (:lb-oe-f3 11))
+;; the owl's stance EN: the same strings on its claws (barro-art.lisp :br-oen-*; R one less: *BR-OWL-ADV*)
+(br-defstance "BR-OE" (:l1 (:br-oen-l1 8) :l2 (:br-oen-l2 8) :l3 (:br-oen-l3 8) :j1 (:br-oen-j1 8) :j2 (:br-oen-j2 8)
+                       :j3 (:br-oen-j3 8) :k1 (:br-oen-k1 12) :k2 (:br-oen-k2 12) :k3 (:br-oen-k3 12)
+                       :jl1 (:br-oen-jl1 8) :jl2 (:br-oen-jl2 8) :kl1 (:br-oen-kl1 10) :kl2 (:br-oen-kl2 10))
               1)
 
 ;;; His own moves' clips (barro-art.lisp): the owl's twins through its kits' :clip-map

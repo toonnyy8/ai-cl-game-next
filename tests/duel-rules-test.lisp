@@ -826,7 +826,10 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :lb-oe-stance :lb-o-fold :lb-oe-fold :lb-oe-sabaki :lb-o-tenshin :lb-o-tenshin-in   ; the owl on Jilliel's system (decision 36, §23.14)
     :lb-oe-q1 :lb-oe-q2 :lb-oe-q3 :lb-oe-f1 :lb-oe-f2 :lb-oe-f3   ; its EN casts (decision 56, §23.37)
     :lb-snap                                      ; Lille's unused hip shot: Lille II's snap shot (DUEL_LILLE_V2 §4)
-    :br-e-swing :br-oe-swing                      ; Lille II v3's stance L1 (V8's swing clips, DUEL_LILLE_V3 R2)
+    :br-en-l1 :br-en-l2 :br-en-l3 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3 :br-en-jl1 :br-en-jl2
+    :br-en-kl1 :br-en-kl2                         ; Lille II's awakened stance EN, JILLIEL's (DUEL_LILLE_V3 §8, R3) ...
+    :br-oen-l1 :br-oen-l2 :br-oen-l3 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3 :br-oen-jl1
+    :br-oen-jl2 :br-oen-kl1 :br-oen-kl2           ; ... and the owl's (V8's swings :br-e-swing / :br-oe-swing spare again)
     :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en   ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
     :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en   ; ... and the owl's (the backstep gone, v3 R3)
     :ke-k-q1 :ke-k-q2 :ke-k-f1 :ke-k-f2 :ke-k-spin :ke-k-meteor   ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2)
@@ -3023,6 +3026,39 @@ defender's next step. Values: the attacker's and the defender's first actionable
           (check (or (and (= (frames clip) (reduce #'+ sar)) (= (round (* 60 (clip-mark clip :s))) (first sar)))
                      (format t "~a: ~d f, ~a~%" clip (frames clip) sar)))
           (check (or (<= (abs (- art edge)) 0.15) (format t "~a: the reach ~,2f m, the swing's tip ~,2f m~%" clip edge art))))))))
+
+;;; ---------------------------------------------------------------- Lille II's awakened stance EN, its own clips (DUEL_LILLE_V3 §8)
+;; Decision R3 (the user, 2026-10-11: 「架勢中的 JJ / KK / LL 都改成差異明顯的數段連擊」, 「最後一段 LL 會依據前面 J/K 有不同的動作
+;; 模組」): the thirteen stance moves of JILLIEL EN (:br-e-*) and of the owl EN (:br-oe-*, R one less) each play a clip of their
+;; own (:br-en-* / :br-oen-*: 26 distinct) at speed 1.0, lasting the move (S + A + R) with its :s mark on S; on every hit frame
+;; (each BR-SHOT-FIRE, the line's look) a wing tip (JILLIEL: the rig's hands) / a claw (the owl) is thrown at his line: >= 1.2 m
+;; ahead and within 0.5 m of it (art evaluated above; the floats' kit :lift aside)
+(let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
+      (pj (make-rig-proportions :arms 2.6)) (po (make-rig-proportions :arms 2.2 :legs 1.5)) (seen nil))
+  (flet ((tip (clip frame joint props)
+           (clip-sample! pose (find-clip clip) (/ frame 60.0))
+           (pose-fk! jm pose 0f0 0f0 0f0 0f0 1f0 0f0 props)
+           (joint-point! v jm (joint-index joint) 0f0 0f0 0f0)
+           (values (aref v 0) (- (aref v 2)))))
+    (loop for (mpre cpre props) in (list (list "BR-E" "BR-EN" pj) (list "BR-OE" "BR-OEN" po))
+          do (loop for (sn nil st offs) in *br-s-segs*
+                   do (let* ((mv (find-move (intern (format nil "~a-~a" mpre sn) :keyword)))
+                             (clip (intern (format nil "~a-~a" cpre sn) :keyword))
+                             (fires (loop for (fr fn) in (mv-on-frame mv) when (eq fn 'br-shot-fire) collect fr)))
+                        (push clip seen)
+                        (check (or (and (eq clip (mv-clip mv)) (~= 1.0 (mv-clip-speed mv)))
+                                   (format t "~a: clip ~a at ~,2f~%" (mv-name mv) (mv-clip mv) (mv-clip-speed mv))))
+                        (check (or (and (= (round (* 60 (clip-dur (find-clip clip)))) (+ (mv-s mv) (mv-a mv) (mv-r mv)))
+                                        (= (round (* 60 (clip-mark clip :s))) (mv-s mv) st))
+                                   (format t "~a: ~,1f f, its move ~d f~%" clip (* 60 (clip-dur (find-clip clip)))
+                                           (+ (mv-s mv) (mv-a mv) (mv-r mv)))))
+                        (check (equal fires (mapcar (lambda (o) (+ st o)) offs)))
+                        (dolist (fr fires)
+                          (check (or (loop for j in '(:hand-r :hand-l)
+                                           thereis (multiple-value-bind (x ahead) (tip clip fr j props)
+                                                     (and (>= ahead 1.2) (<= (abs x) 0.5))))
+                                     (format t "~a f~d: no tip at his line~%" clip fr))))))))
+  (check (= 26 (length (remove-duplicates seen)))))
 
 ;; The gate's match length leaves the cinematics out (the user, 2026-10-08: 「毀魂技演出不計入對戰時長」, every cinematic):
 ;; PLAY-TICKS (flow's MATCH-PLAY-TICKS) are the frames the timer ran (it stops while a cinematic plays: MAIN's step)
