@@ -682,3 +682,15 @@ The survey: `docs/research/lille2-motion-styles/notes.md` (addendum). The choice
   instead of a line, each segment at a different spot round the line's point at his distance (KL1 off to one side and
   high, KL2 the other side low, KL3 big on him); the line's hit unchanged.
 
+**As built** (a subagent's batch r6-art 05cab77, merged): the squash and stretch is a new kit hook `:pose` (draw.lisp
+DRAW-FIGHTER, right after the body's FK; `*pose-at*` the FK origin; a kit without it draws as before) → `barro-art.lisp
+br-deform`: for the clips in `*br-squash*` every joint matrix scaled about his feet, up x SY, along his right x SX (his facing
+never). K1: the wing over the shoulder stretched tall (1.18 / 0.88), the squat tell f14, f16 the slam squashed (0.74 / 1.3),
+held to f21, back by f29, the blade smeared long and wide. J3: a left-shoulder barge (`:br-en-barge`) lunging in low, the wind
+round stretched tall, one swing at f14 squashed (0.78 / 1.25), the body twisting through. **K1's reach 2.45 → 2.95 (the owl
+2.35 → 2.85)**: the hit frame's wing stretch 0.5 → 1.0 so the charged slash lands a long blade (K1 now reaches as far as the J
+whips). The K route's L L (awakened): `br-shot-fire` spawns kind `:ball` (no line drawn), `%br-kl-balls` places each on his
+facing line at the opponent's distance (KL1 0.9 m right and high, KL2 0.9 m left and low, KL3 a big one on him, each with a
+smaller one a frame later); `%br-ball` shared with K3's blast. Host tests 8323, ALL PASS (the tip with the squash); 82398:
+deform / balls 0 B. Playtest v64.
+
