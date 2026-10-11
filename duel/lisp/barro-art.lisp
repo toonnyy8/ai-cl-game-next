@@ -22,10 +22,9 @@
 ;;;   f14 L, f22 R, f32 the launch: both wings swept up from low), :br-rc3 裁き five (f6 R, f12 L, f18 R, f24 L, f36 the
 ;;;   finisher: risen into NIJUSHI-KO's ring over f26-35, the beam on f36 blowing him back). Each beat: cocked (2-3 f),
 ;;;   snapped at him on its frame, kicked back.
-;;; - :br-to-en (12 f, ranged at f11): folded, rising with the wings thrown open, EN's float. The backstep keeps Lille's
-;;;   :lb-w-tenshin (14 f) in JILLIEL; the owl's :br-o-to-en steps the root down by the owl's lift (*BR-OWL-LIFT* 0.35) on
-;;;   the frame the form turns ranged (f11), as :lb-o-tenshin does on Lille's f6; its :br-o-backstep turns ranged at f0
-;;;   (decision V6), so its keys are written in EN's lift throughout (§17).
+;;; - :br-to-en (12 f, ranged at f11): folded, rising with the wings thrown open, EN's float. The owl's :br-o-to-en steps
+;;;   the root down by the owl's lift (*BR-OWL-LIFT* 0.35) on the frame the form turns ranged (f11), as :lb-o-tenshin does
+;;;   on Lille's f6 (§17). (The backstep :br-o-backstep went with J3 -> L, decision R3, 2026-10-11.)
 (defpose :br-open-pose (:base :lb-w-stance)          ; flung open: R 105/35, L -105/35, the column arched back, rising
   (:root :f -0.06 :u 0.18 :pitch -8) (:spine :flex -12) (:head :flex -10) (:arm-r :flex -14 :side 128) (:elbow-r :flex 8)
   (:arm-l :flex -14 :side 128) (:elbow-l :flex 8) (:thigh-r :flex -8) (:thigh-l :flex -8))
@@ -240,21 +239,11 @@
   (11 (:root :u 0.4 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
   (11.5 :snap (:root :u 0.05 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
   (:end :lb-oe-stance))
-;; the backstep into EN: the form (and its lift, *BR-OWL-LIFT* 0.35) turns at f0 since decision V6, so every key is written
-;; in EN's lift (drawn = u + 0.35): f0 the fold on the floor (u -0.38 = drawn -0.03, the J3 it leaves stands on the floor),
-;; the leap up and back (drawn 0.3 at f6, 0.4 at f13), EN's float by f17 (drawn 0.35). No step anywhere (§17; it stepped
-;; 0.35 m down on f13 when the form turned there, and popped 0.35 m up on f0 once it turned at f0).
-(defstrike :br-o-backstep (14 0 8 :base :lb-o-stance)
-  (0 :lb-o-fold-pose (:root :u -0.38))
-  (6 (:root :u -0.05 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
-  (13 (:root :u 0.05 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
-  (17 :lb-oe-stance) (:end :lb-oe-stance))
-
 ;;; ---------------------------------------------------------------- the draw hook
 (defparameter *br-aim-stance* '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
   "The base stance's moves: the aim line tracks while one runs ...")
-(defparameter *br-aim-locked* '(:br-s-k1 :br-s-jk1)
-  "... and turns jade, locked, through the startup of these shots (the K clip :lb-k-shot's 10 f on the line).")
+(defparameter *br-aim-locked* '(:br-s-kl1 :br-s-jl1)
+  "... and turns jade, locked, through the startup of these shots (the stance's spending 萬物貫通 lines, decision R3).")
 (defun-fast %br-aim-look (e f side)
   "The stance's aim line (Lille's %LB-AIM-LOOK on his moves): a thin line on the floor from under the muzzle to the wall,
 grey while the stance (:br-kamae / :br-kamae-k / :br-kamae-j / :br-kamae-re) tracks, jade once the shot :br-k-shot locks until it fires; the reticle at
@@ -709,31 +698,28 @@ wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-
       (hitstop 100000)))
   nil)
 
-(defun br-draw-sealed-p (e)
-  "LILLE-DRAW's owl look for him (his own state, no LBS): Trompete reflected, SP2 sealed (the broken halo, the reflect)."
-  (let ((st (brs e))) (and st (brs-sealed st) t)))
-
 ;;; ---------------------------------------------------------------- the art stills (debug 82100-82399, DUEL_GAMEPLAY)
 (defun br-art-scene (k)
   "82100+k: Lille II (P1; k + 20: P2, facing the behind camera: the front view) 4 m from an idle Kenpachi, Reiatsu and flash
 step full: k 0-4 the owl (kept without a burst) with 0 / 2 / 4 / 6 / 8 wings, the volley started (its string by the
-count: 空收 / 二連 / 四連 / 裁き / 裁き・極); 8 / 9 JILLIEL's turn into the stance / J3 -> L backstep; 10 / 11 the owl's; 12 the
-owl's Trompete (the trumpet forming); 13 82007's reflected Trompete (P1 only); 14 JILLIEL's SANREN; 15 / 16 / 17 the base
-stance's L1 / J1 / K1 (6 m out); 18 / 19 JILLIEL's stance L1 / K1 (6 m out)."
+count: 空收 / 二連 / 四連 / 裁き / 裁き・極); 8 / 9 JILLIEL's turn into the stance / its stance's K K -> L L line (KL1); 10 / 11
+the owl's; 12 the owl's SP2 on its own (the volley's wind-up); 13 the base stance's SP2 HIRENKYAKU; 14 JILLIEL's SANREN;
+15 / 16 / 17 the base stance's L1 / J1 / K1 (3 m out); 18 / 19 JILLIEL's stance L1 / K1 (3 m out)."
   (let* ((front (oddp (floor k 20))) (k (if front (- k 20) k)) (owl (or (<= 0 k 4) (<= 10 k 13))))
     (if front (ensure-battle :kenpachi :barro) (ensure-battle :barro :kenpachi))
     (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
       (setf *br-keep-owl* owl)
       (force-form b (cond ((<= 15 k 17) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
-      (place *p1* *p2* (if (<= 15 k 19) 6.0 4.0))
+      (place *p1* *p2* (if (<= 15 k 19) 3.0 4.0))
       (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
             (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))   ; (no K.O. across a script's scenes)
       (case k
         ((0 1 2 3 4) (br-set-ammo b (nth k '(0 2 4 6 8))) (start-move b (find-move :br-recall)))
         ((8 10) (start-move b (find-move :br-to-en)))
-        ((9 11) (start-move b (find-move :br-backstep)))
-        (12 (start-move b (find-move :br-trompete)))
-        (13 (barro-test 7))
+        (9 (start-move b (find-move :br-e-kl1)))
+        (11 (start-move b (find-move :br-oe-kl1)))
+        (12 (start-move b (find-move :br-recall-s)))
+        (13 (force-form b :base) (start-move b (find-move :br-k-hiren)))
         (14 (start-move b (find-move :br-w-sanren)))
         (15 (start-move b (find-move :br-s-l1))) (16 (start-move b (find-move :br-s-j1))) (17 (start-move b (find-move :br-s-k1)))
         (18 (start-move b (find-move :br-e-l1))) (19 (start-move b (find-move :br-e-k1))))

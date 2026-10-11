@@ -373,3 +373,67 @@ the never-awaken side's wins of 60, pass ≥ 20; all K.O.):
 
 Both pass on every stream. BK failed on every stream in V2 (8 / 11 / 14, V6–V7: 11–18): his base stance (K K at 45 a
 hit, J J → K K for flash step) holds Kenpachi without the awakening now.
+
+## 8. Revision 4: decision R3 (2026-10-11, after the playtest of v57)
+
+The user (verbatim):
+
+> - 進入架式後靠 step 快速移動一次
+> - 沒有消耗資源的話就不能有遠距離攻擊
+> - 覺醒後所有的 JJ 都太快了請回到標準速度
+> - 架勢中的 JJ / KK / LL 都改成差異明顯的數段連擊
+> - 架勢中的 JJ / KK 由銜接 KK / JJ 改成統一銜接 LL，風格延續
+> - JJ 與 KK 接入 L 不再有特殊動作，只是普通的接入架式
+> - 現在的資源回收量太高了，請下降至少 50%
+> - 高資源換取高傷害的定位設計給 SP2 佔有，並讓其單發破綻大、必須接在 KK 後執行才能有效利用。
+
+Answers (AskUserQuestion): the L L after J J / K K: 「兩者都花資源」 (J J → L L spends for more refill, K K → L L for
+damage); SP2: 「花光全部，每單位加傷害」; the owl's full volley: 「併入梟頭的 SP2」; the cut: 「特殊資源＋閃步／靈壓都降」.
+
+Mid-build (the user): 「SP2 接在 JJ 後面也可以」, then 「不是 JJ 不是 J2，是 J 連段的意思」, 「然後剛剛說的 JJ KK LL 都不表示只要二連擊，
+只是簡化多段攻擊的描述方式」, 「架式 > JJ/KK > LL 中，最後一段 LL 會依據前面 J/K 有不同的動作模組」. Answers: SP2's cancel
+「任一段打中都能接」; the strings 「各 3 段」.
+
+### 8.1 What changed (every number [G])
+
+| Rule | Before (rev. 3) | Now (R3) |
+|---|---|---|
+| The stance's strings L / J / K | two segments, one 萬物貫通 line each, 31 m | **three segments of several plain shots each, 4 m** (`*BR-S-NEAR*`), no 萬物貫通, each string its own rhythm: L 2 / 2 / 3 hits (8 each, an even beat), J 3 / 3 / 4 (5 each, every 3 f), K 2 / 2 / 3 (14 each, heavy, every 8–10 f; 98 a string); standard J speed (startup 8) |
+| The follow-ups | K K → J J (spend: 15 → 45), J J → K K (spend: more refill) | **J string → L L and K string → L L** (from J3 / K3, L presses), each route its own clips (「最後一段 LL 會依據前面 J/K 有不同的動作模組」: new clips, §8.3), one 萬物貫通 line a segment (31 m), **one special spent a line; none: no follow-up** (the press does nothing). K → L L 45 a line; J → L L 15 a line + J's refill + 10 flash step / 15 Reiatsu |
+| L's gain | +1 / +2 (a string +3) | **+0 / +0 / +1** (a string +1) |
+| J's refill | 10 flash step / 15 Reiatsu a segment, 20 / 30 a string | **3 / 5 a segment, 9 / 15 a string** (the follow-up + 10 / 15 a line) |
+| SP1's flash step by the count | 18 / 35 / 70 | **9 / 18 / 35** |
+| The owl's wing regen | a wing a second | **a wing every 2 s** (`*BR-OWL-WING-EVERY*` 120) |
+| SP2 | the charge shortened by the count (tiers), fixed damage | **spends every special**: HIRENKYAKU 40 + 40 a pip (160 at 3), NIJUSHI-KO 60 + 25 a wing (260 at 8), the owl's **full volley** (Trompete gone: 30 / 70 / 160 / 300 / 480 by the wings). On its own: the full charge (HIRENKYAKU 20 f, NIJUSHI-KO 40 f, the volley 30 f), recovery + 20 f, −30 on block. **Off any segment of the stance's J / K strings or their follow-ups that hit** (Shift+L during it): the charge-less copy, a combo (`:sp2c`). Nothing else cancels into SP2 (`BARRO-OK`: the generic SP cancel off a link that hit is refused for him) |
+| L from a J / K link | J3 → L the backstep, the owl's K3 → L the volley, else the turn | **the plain entry everywhere** (base: the stance at f4; awakened: the turn) |
+| The stance's Step | the base's 3.5 m / 12 f, once a stance; EN the plain Step | **5 m / 10 f**, once a stance, 10 flash step; **EN's first Step after the turn the same** (`BARRO-STEP`, the kit's `:step` hook) |
+| The awakened J strings (KIN, the owl) | V8's J route (startup − 2, recovery − 2) | **the standard speed** (route `:JN`: V8's damage and block advantage kept) |
+
+Kept: the forms, the burst owl and its buffs (x1.2, the armour at 2 wings), the 4-wing armour, SP1's tiers, the wings'
+carry-over, the slow motion on the first stance hit.
+
+Gone: Trompete (its reflect and seal), the backstep, the KIN L router, the SP2 routers and tiers, the stance's K K → J J /
+J J → K K, the CPU's standalone stance SP2.
+
+### 8.2 CPU
+
+The base form closes in (the stance from inside 4 m, `:zone :in`); the EN forms' bands are short range (pressure 1.5–3.5 m).
+At the end of a stance move's hits one roll (`BR-S-CPU-CALL`, the kit's `:stance`): a string's last segment (J3 / K3 /
+JL2 / KL2, `:end`) that hit with 2 bars and `:sp2-at` specials (base 2, JILLIEL 4, the owl 3) → SP2 (`:sp2` 0.8 / 0.9 x the
+difficulty); else the follow-up with a special (`:follow` 0.6 / 0.7). SP2 no longer appears in the distance bands.
+
+### 8.3 Clips
+
+The sim's stance moves name clips by segment (`BR-DEFSTANCE`'s plist); the first build reuses the old clips (the third
+segments the spare `:lb-e-f3` / `:lb-oe-f3`) until the art pass draws the follow-ups' own modules (§8.5).
+
+### 8.4 Checks
+
+- `tests/duel-rules-test.lisp`: 8037 checks, ALL PASS. The Lille II block: the thirteen stance moves a form (hits, reach,
+  萬物貫通 only on the follow-ups, roles, the spend hook), every hit inside a move and every link combos on a hit (every
+  J / K segment → the charge-less SP2 too), SP2's spend hook / −30 / recovery, the gains cut, the routes gone, the J speed,
+  the J and K routes' follow-ups on different clips. The volley's clips hold their last pose through the + 20 f.
+- duel-control / learn / input / touch / cine: pass. pkgcheck 0. `./build.sh duel` 0 warnings.
+- Browser (the first build, before the three segments): EN's first Step 5 m for 10 flash step, the second the plain 2.5 m;
+  K K → L with no pip: no follow-up; KIN J J → L the plain turn. It also found the generic SP cancel letting SP2 follow
+  any link that hit; `BARRO-OK` refuses it now.

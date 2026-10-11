@@ -944,22 +944,25 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 
 <section class="char" id="ch-lille2">
 <details>
-<summary><h3>利傑·巴羅 II <small>LILLE BARRO II（LILLE II）</small></h3><span class="tagline">重製的利傑（第三版）：所有型態都用同一個架勢——L 進架勢，LL 收資源、KK 重擊、JJ 回復；覺醒中爆氣化為梟頭，用全彈一口氣打出去</span></summary>
+<summary><h3>利傑·巴羅 II <small>LILLE BARRO II（LILLE II）</small></h3><span class="tagline">重製的利傑（第三版）：所有型態都用同一個架勢——L 進架勢，L 連段收資源、K 連段重擊、J 連段回復，再接 LL 花資源；SP2 花光資源一口氣打出去</span></summary>
 <p>「LILLE II」是從舊版利傑重新做起的第 7 名角色，舊版照樣可以選。核心是<b>萬物貫通</b>：帶有這個特性的直線攻擊射程是整個場地（31 公尺），被防禦時<b>扣 40 防禦量表</b>（一般的防禦大約只扣 30，所以連續被防三次就破防），並且有 <b>30% 的傷害會穿過防禦</b>（穿過的部分不會把人打死）。</p>
-<p class="note"><b>第三版的玩法（2026-10-10）：</b>每一種型態都分成「攻擊態」和「架勢」。攻擊態就是平常的 J／K 連段；按 <kbd>L</kbd> 進架勢，架勢裡第一個按的鍵決定要打哪一套連段，<b>打完自動回到攻擊態</b>。架勢的每一槍都是萬物貫通的直線。<br>
+<p class="note"><b>第三版的玩法（2026-10-10，2026-10-11 修訂）：</b>每一種型態都分成「攻擊態」和「架勢」。攻擊態就是平常的 J／K 連段；按 <kbd>L</kbd> 進架勢（連段中按 L 也一樣，就是普通的進架勢），架勢裡第一個按的鍵決定要打哪一套連段，<b>打完自動回到攻擊態</b>。<br>
+<b>不花資源就打不遠：</b>架勢的 L／J／K 連段是 4 公尺內的連射；只有花掉特殊資源的接續 LL、SP2 才是萬物貫通、射程全場的直線。<br>
 <b>特殊資源：</b>基本型態是「狙擊」量表（最多 3 格），覺醒後是「翼」（最多 8 片，裝一發亮一片）；覺醒時狙擊格直接變成翼。</p>
 
 <h4>架勢的三套連段（每種型態都一樣）</h4>
 <table class="moves">
 <thead><tr><th>架勢中</th><th>內容</th><th>效果</th><th>要點</th></tr></thead>
 <tbody>
-<tr><td><kbd>L</kbd> <kbd>L</kbd></td><td>回收</td><td>兩槍，各 10。打中或被防，第一槍 <b>+1</b>、第二槍 <b>+2</b> 特殊資源（兩槍都碰到共 +3）。</td><td>揮空不加。第一槍中途按 L 就接第二槍。</td></tr>
-<tr><td><kbd>K</kbd> <kbd>K</kbd></td><td>高攻</td><td>兩槍重擊，各 45。</td><td>只有傷害，不回任何資源。</td></tr>
-<tr><td>KK 之後 <kbd>J</kbd> <kbd>J</kbd></td><td>接續：加傷</td><td>兩槍，<b>每槍花 1 個特殊資源</b>，傷害 15 → 45；不夠就打普通的 15。</td><td>用和架勢 J 一樣的動作。</td></tr>
-<tr><td><kbd>J</kbd> <kbd>J</kbd></td><td>回復</td><td>兩槍，各 15。每槍打中回 <b>10 閃步、15 靈壓</b>（被防減半）。</td><td>用來補爆氣要的閃步和 SP 要的靈壓。</td></tr>
-<tr><td>JJ 之後 <kbd>K</kbd> <kbd>K</kbd></td><td>接續：加回復</td><td>兩槍，各 20，<b>每槍花 1 個特殊資源</b>，打中時回復變成 <b>30 閃步、45 靈壓</b>；不夠就只回 10／15。</td><td>用和架勢 K 一樣的動作。</td></tr>
+<tr><td><kbd>L</kbd> <kbd>L</kbd> <kbd>L</kbd></td><td>回收</td><td>三段：2 發、2 發、3 發，節奏平均，每發 8，射程 4 公尺。第三段碰到對手（打中或被防）<b>+1</b> 特殊資源。</td><td>揮空不加。前一段中途按 L 就接下一段。</td></tr>
+<tr><td><kbd>K</kbd> <kbd>K</kbd> <kbd>K</kbd></td><td>高攻</td><td>三段重擊：2 發、2 發、3 發，每發 14，射程 4 公尺。</td><td>只有傷害，不回任何資源。</td></tr>
+<tr><td>K 連段之後 <kbd>L</kbd> <kbd>L</kbd></td><td>接續：加傷</td><td>兩道萬物貫通直線（全場），各 45，<b>每道花 1 個特殊資源</b>。</td><td>K 路線專屬的動作。沒有資源就接不出來。</td></tr>
+<tr><td><kbd>J</kbd> <kbd>J</kbd> <kbd>J</kbd></td><td>回復</td><td>三段快速連射：3 發、3 發、4 發，每發 5，射程 4 公尺。每段碰到對手回 <b>3 閃步、5 靈壓</b>（被防減半），一整套 9／15。</td><td>用來補爆氣要的閃步和 SP 要的靈壓。</td></tr>
+<tr><td>J 連段之後 <kbd>L</kbd> <kbd>L</kbd></td><td>接續：加回復</td><td>兩道萬物貫通直線，各 15，<b>每道花 1 個特殊資源</b>，打中時回 <b>13 閃步、20 靈壓</b>。</td><td>J 路線專屬的動作。沒有資源就接不出來。</td></tr>
+<tr><td>J／K 連段任一段打中時 <kbd>Shift</kbd>+<kbd>L</kbd></td><td>SP2</td><td>直接打出不用蓄力的 SP2，花光特殊資源（見下）。</td><td>L 回收連段不能接。</td></tr>
 </tbody></table>
-<p class="note">連段照一般規則：要碰到對手（打中或被防）才會接下一段；打中時每一段都會連上。傷害都再乘上型態倍率（基本型態 ×1.3、Jilliel ×1.0、梟頭 ×1.2）。每次進架勢後<b>第一槍打中</b>會讓全場慢動作 0.2 秒。</p>
+<p class="note">連段照一般規則：要碰到對手（打中或被防）才會接下一段；打中時每一發、每一段都會連上。傷害都再乘上型態倍率（基本型態 ×1.3、Jilliel ×1.0、梟頭 ×1.2）。每次進架勢後<b>第一發打中</b>會讓全場慢動作 0.2 秒。<br>
+<b>架勢中的 Step：</b>進架勢後第一次 Step 是快速閃身（5 公尺，花 10 閃步），每次進架勢一次。</p>
 
 <h4>基本型態 <small>LILLE</small></h4>
 <table class="moves">
@@ -967,10 +970,10 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 <tbody>
 <tr><td><kbd>J</kbd></td><td>床尾打 <i>SHOBI-UCHI</i> → 返し <i>KAESHI</i> → 銃口突 <i>JUKO-TSUKI</i></td><td>用槍托往上揮、反手揮回，第三段用槍口突刺。傷害 22／19／24，出手 6／5／7 幀。</td><td>快攻，被防幾乎不吃虧。</td></tr>
 <tr><td><kbd>K</kbd></td><td>銃身薙 <i>JUSHIN-NAGI</i> → 振り下ろし <i>FURIOROSHI</i> → 零距離 <i>REI-KYORI</i></td><td>槍身橫掃、往下劈，第三段把槍口壓在對手身上開槍。傷害 58／58／84。</td><td>重擊，被防破綻大。</td></tr>
-<tr><td><kbd>L</kbd></td><td>狙撃構え <i>SOGEKI-GAMAE</i>（架勢）</td><td>放平槍身、地上畫出瞄準線，追著對手轉。第 6 幀架好，維持約半秒（按住 L 最長 1.5 秒）。J／K 連段中按 L 也會在第 4 幀進架勢。</td><td>架勢裡的 L／J／K 見上面三套連段。L：開槍、腰射；J：腰射、跳射；K：鎖定一槍、後滑一槍。</td></tr>
-<tr><td>架勢中 Step（<kbd>Space</kbd>）</td><td>飛廉脚 <i>HIRENKYAKU</i></td><td>往搖桿方向閃身 3.5 公尺（不推搖桿就往後），開頭有無敵，回到架勢時對準對手。花 10 閃步，每次架勢一次。</td><td>閃身第 3 幀起按 J 直接開始 JJ。</td></tr>
-<tr><td>架勢中 <kbd>Shift</kbd>+<kbd>K</kbd>／<kbd>Shift</kbd>+<kbd>L</kbd></td><td>SP1 三連／SP2 飛廉脚（萬物貫通）</td><td>三連：三條直線各 30。飛廉脚：後滑 6 公尺再一槍 50。</td><td>效果依狙擊格數變化（見下）。</td></tr>
-<tr><td><kbd>Shift</kbd>+<kbd>K</kbd>／<kbd>Shift</kbd>+<kbd>L</kbd>（不在架勢中）</td><td>SP1 三連／SP2 飛廉脚</td><td>射程 20 公尺，沒有萬物貫通；三連各 30，飛廉脚 40。</td><td>效果依狙擊格數變化。</td></tr>
+<tr><td><kbd>L</kbd></td><td>狙撃構え <i>SOGEKI-GAMAE</i>（架勢）</td><td>放平槍身追著對手轉。第 6 幀架好，維持約半秒（按住 L 最長 1.5 秒）。J／K 連段中按 L 也會在第 4 幀進架勢。</td><td>架勢裡的 L／J／K 見上面三套連段。</td></tr>
+<tr><td>架勢中 Step（<kbd>Space</kbd>）</td><td>飛廉脚 <i>HIRENKYAKU</i></td><td>往搖桿方向快速閃身 5 公尺（不推搖桿就往後），開頭有無敵，回到架勢時對準對手。花 10 閃步，每次架勢一次。</td><td>閃身第 3 幀起按 J 直接開始 J 連段。</td></tr>
+<tr><td>架勢中 <kbd>Shift</kbd>+<kbd>K</kbd>／<kbd>Shift</kbd>+<kbd>L</kbd></td><td>SP1 三連／SP2 飛廉脚（萬物貫通）</td><td>三連：三條直線各 30。飛廉脚：後滑 6 公尺再一槍，<b>花光所有狙擊格</b>，40 + 每格 40。</td><td>SP2 單放蓄力長、收招破綻大；架勢 J／K 連段打中後按 Shift+L 才是不用蓄力、連得上的版本（見下）。</td></tr>
+<tr><td><kbd>Shift</kbd>+<kbd>K</kbd>／<kbd>Shift</kbd>+<kbd>L</kbd>（不在架勢中）</td><td>SP1 三連／SP2 飛廉脚</td><td>射程 20 公尺，沒有萬物貫通；三連各 30，飛廉脚 40 + 每格 40（花光狙擊格）。</td><td>SP1 依狙擊格數回閃步。</td></tr>
 <tr><td><kbd>U</kbd>／<kbd>I</kbd>／<kbd>O</kbd></td><td>防禦、Breaker 床尾打、Kikon 万物貫通</td><td>普通的防禦；衝過去用槍托砸；原地瞄準後射出 12 公尺的直線。</td><td>Kikon 奪走魂魄 2 顆。</td></tr>
 </tbody></table>
 
@@ -979,37 +982,33 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 <table class="moves">
 <thead><tr><th>按鍵</th><th>招式</th><th>效果</th><th>要點</th></tr></thead>
 <tbody>
-<tr><td><kbd>J</kbd>／<kbd>K</kbd></td><td>翼刃 <i>YOKUJIN</i>／双翼 <i>SOYOKU</i> 1 → 2 → 3</td><td>近戰的翼斬。J 傷害 20／20／26（快攻），K 60／60／86（重擊）。</td><td>單純的攻擊，不收也不花翼。</td></tr>
-<tr><td><kbd>L</kbd></td><td>遠 <i>EN</i>（進架勢）</td><td>12 幀的轉身，換成遠程 EN。J1／J2／K 連段之後按 L 也一樣。</td><td>EN 中按 L／J／K 就是三套連段。</td></tr>
-<tr><td>J3 → <kbd>L</kbd></td><td>後撤 <i>KOTAI</i></td><td>往後衝刺 5 公尺（前 9 幀無敵），從第一幀起就是 EN。</td><td>不花任何資源。拉開距離後接架勢連段。</td></tr>
+<tr><td><kbd>J</kbd>／<kbd>K</kbd></td><td>翼刃 <i>YOKUJIN</i>／双翼 <i>SOYOKU</i> 1 → 2 → 3</td><td>近戰的翼斬。J 傷害 20／20／26（一般速度，出手 8／7／9 幀），K 60／60／86（重擊）。</td><td>單純的攻擊，不收也不花翼。</td></tr>
+<tr><td><kbd>L</kbd></td><td>遠 <i>EN</i>（進架勢）</td><td>12 幀的轉身，換成 EN。任何 J／K 連段之後按 L 都一樣。</td><td>EN 中按 L／J／K 就是三套連段；轉身後第一次 Step 是 5 公尺的快速閃身。</td></tr>
 <tr><td><kbd>Shift</kbd>+<kbd>K</kbd></td><td>SP1 三連 <i>SANREN</i></td><td>三條 20 公尺的直線，各 30。</td><td>依翼數回閃步（見下）。</td></tr>
-<tr><td><kbd>Shift</kbd>+<kbd>L</kbd></td><td>SP2 二十四孔 <i>NIJUSHI-KO</i></td><td>八翼張成一圈蓄力，射出到牆邊的粗光束（180）。</td><td>翼越多蓄力越短（見下）。靈壓 2 格。</td></tr>
+<tr><td><kbd>Shift</kbd>+<kbd>L</kbd></td><td>SP2 二十四孔 <i>NIJUSHI-KO</i></td><td>八翼張成一圈蓄力，射出到牆邊的粗光束，<b>花光所有的翼</b>：60 + 每片 25（8 片 260）。</td><td>單放蓄力 40 幀、破綻大；架勢 J／K 連段打中後按 Shift+L 就不用蓄力。靈壓 2 格。</td></tr>
 <tr><td><kbd>U</kbd>／<kbd>I</kbd>／<kbd>O</kbd></td><td>防禦、Breaker、Kikon 神の裁き</td><td>普通的防禦；翼往前衝撞；八翼張成一圈光線齊射。</td><td>Kikon 奪走魂魄 3 顆。</td></tr>
 </tbody></table>
 
 <h4>爆氣：梟頭 <small>SHIN</small></h4>
-<p>覺醒中<b>爆氣</b>（任何顏色，<kbd>Shift</kbd>+<kbd>J</kbd>，照一般規則要 70 閃步，爆氣中閃步一直往下扣）就會變成梟頭：S 形長脖子、小小的貓頭鷹臉，背後八片金色的翼。爆氣結束就變回 Jilliel。<b>梟頭的加成（不分爆氣顏色）：</b>造成傷害 ×1.2、每秒自動 +1 翼、受擊不斷只花 2 翼。</p>
+<p>覺醒中<b>爆氣</b>（任何顏色，<kbd>Shift</kbd>+<kbd>J</kbd>，照一般規則要 70 閃步，爆氣中閃步一直往下扣）就會變成梟頭：S 形長脖子、小小的貓頭鷹臉，背後八片金色的翼。爆氣結束就變回 Jilliel。<b>梟頭的加成（不分爆氣顏色）：</b>造成傷害 ×1.2、每 2 秒自動 +1 翼、受擊不斷只花 2 翼。</p>
 <table class="moves">
 <thead><tr><th>按鍵</th><th>招式</th><th>效果</th><th>要點</th></tr></thead>
 <tbody>
 <tr><td>近 <kbd>J</kbd>／<kbd>K</kbd></td><td>鉤爪 <i>KAGIZUME</i>、掠爪・回爪・俯衝</td><td>爪擊連段。J 22／22／27，K 65／65／94（再乘 1.2）。</td><td></td></tr>
-<tr><td>近 K3 → <kbd>L</kbd></td><td>全彈 <i>KAISHU</i></td><td><b>花光所有的翼</b>，依數量打出衍生連段，每一槍都是萬物貫通：0 片「空收」30，1～2 片「二連」70，3～4 片「四連」160，5～7 片「裁き」300，8 片「裁き・極」480（最後一道光束擊倒並慢動作）。</td><td><b>唯一一個花光資源打高傷害的招式，只有梟頭能用。</b>衍生連段中按 <kbd>Shift</kbd>+<kbd>L</kbd>，收招就接不用蓄力的神の喇叭。</td></tr>
-<tr><td>近 <kbd>L</kbd>／J3 → <kbd>L</kbd></td><td>遠 EN／後撤</td><td>同 Jilliel：進梟頭的架勢（直立浮起、金翼大張）。</td><td>架勢的三套連段用爪擲、掠爪的動作。</td></tr>
+<tr><td>近 <kbd>L</kbd></td><td>遠 EN</td><td>同 Jilliel：進梟頭的架勢（直立浮起、金翼大張）；連段中按 L 也一樣。</td><td>架勢的三套連段用爪擲、掠爪的動作。</td></tr>
 <tr><td><kbd>Shift</kbd>+<kbd>K</kbd></td><td>SP1 裁きの光明 <i>SABAKI NO KOMYO</i></td><td>舉手劈下，地面爆出三條扇形光線，射程 18 公尺，最多打中一條（70）。</td><td>依翼數回閃步。</td></tr>
-<tr><td><kbd>Shift</kbd>+<kbd>L</kbd></td><td>SP2 神の喇叭 <i>TROMPETE</i></td><td>喇叭在頭上成形，蓄力後射出寬 2.4 公尺、貫穿全場的光束（240）。</td><td>翼越多蓄力越短；對手抓準時機能反射（見下）。</td></tr>
+<tr><td><kbd>Shift</kbd>+<kbd>L</kbd></td><td>SP2 全彈 <i>KAISHU</i></td><td><b>花光所有的翼</b>，依數量打出衍生連段，每一槍都是萬物貫通：0 片「空收」30，1～2 片「二連」70，3～4 片「四連」160，5～7 片「裁き」300，8 片「裁き・極」480（最後一道光束擊倒並慢動作）。</td><td>單放要蓄力 30 幀、收招破綻大；<b>架勢 J／K 連段打中後按 Shift+L</b> 就馬上打出。</td></tr>
 <tr><td><kbd>O</kbd></td><td>Kikon 神の喇叭</td><td>喇叭的光束抹去地平線。</td><td>Kikon 奪走魂魄 4 顆。</td></tr>
 </tbody></table>
-<p class="note"><b>反射喇叭：</b>對手在光束射出的時機做出完美 Hoho（第 48～59 幀）或完美防禦（第 50～58 幀），光束會射回去：利傑自己吃一半傷害並硬直 1 秒，頭上的光環碎裂，<b>這場剩下的時間梟頭都不能再用 SP2</b>。完全不蓄力的喇叭（8 片翼）不能被反射。</p>
-
-<h4>SP1／SP2 看特殊資源數量（只看，不會花掉）</h4>
+<h4>SP1 看特殊資源數量（只看，不會花掉）；SP2 花光</h4>
 <table class="moves">
-<thead><tr><th>翼（基本型態的狙擊格）</th><th>SP1（1 格靈壓）</th><th>SP2</th></tr></thead>
+<thead><tr><th>翼（基本型態的狙擊格）</th><th>SP1（1 格靈壓）</th></tr></thead>
 <tbody>
-<tr><td>0～3（0～1）</td><td>出招時回 18 閃步</td><td>正常蓄力</td></tr>
-<tr><td>4～7（2）</td><td>回 35 閃步</td><td>蓄力減半</td></tr>
-<tr><td>8（3）</td><td>回 70 閃步（剛好夠爆氣）</td><td>不用蓄力，被防禦就破防</td></tr>
+<tr><td>0～3（0～1）</td><td>出招時回 9 閃步</td></tr>
+<tr><td>4～7（2）</td><td>回 18 閃步</td></tr>
+<tr><td>8（3）</td><td>回 35 閃步</td></tr>
 </tbody></table>
-<p class="note">SP2 的傷害不會因為資源變多而提高，只是更快、更難躲。</p>
+<p class="note"><b>SP2 是唯一用資源換高傷害的招式：</b>放出時花光所有的特殊資源，每一單位都加傷害（飛廉脚每格 +40、二十四孔每片 +25、梟頭的全彈看翼數分段）。單獨放要完整蓄力、收招多 20 幀、被防 -30；<b>架勢的 J／K 連段（或它們之後的 LL）任一段打中時按 Shift+L</b>，就會直接打出不用蓄力的版本，連得上。其他招式之後不能接 SP2。</p>
 
 <h4>受擊不斷（花 4 翼）</h4>
 <p>覺醒後自己出招中（從出手前到收招）被打到，會自動花 <b>4 片翼</b>（梟頭 2 片）讓招式繼續，傷害照吃。不夠就照常被打斷。Breaker 和不能防禦的攻擊照樣打得斷。</p>
@@ -1019,11 +1018,12 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 
 <h4>技巧</h4>
 <ul class="tips">
-<li><b>資源怎麼轉：</b>LL 收特殊資源；KK→JJ 把資源變成傷害；JJ→KK 把資源變成閃步和靈壓。覺醒後存滿翼和 70 閃步再爆氣，變梟頭後貼近用 K3 → L 全彈一口氣打出去，再接喇叭。</li>
-<li><b>SP1 是閃步的來源：</b>8 片翼時 SP1 直接回 70 閃步，等於花 1 格靈壓換一次爆氣。</li>
-<li><b>架勢的槍是萬物貫通：</b>對手縮在防禦裡就用 KK→JJ，四槍被防就扣 160 防禦量表。</li>
-<li><b>架勢中不能防禦</b>，被貼身時先用 J／K 連段把對手打開，再接 L 進架勢。覺醒後 J3 → L 後撤是最安全的進架勢方式。</li>
-<li><b>對上他的對手：</b>架勢連段要碰到你才會接下去，Step 閃掉第一槍就斷了；他爆氣變梟頭時盡量拉開距離，別讓他貼近打全彈。</li>
+<li><b>資源怎麼轉：</b>L 連段收特殊資源；K 連段→LL 把資源變成傷害；J 連段→LL 把資源變成閃步和靈壓；存夠了就在 J／K 連段打中時接 SP2 一口氣花光。覺醒後存翼和 70 閃步再爆氣，變梟頭後貼近用架勢連段接 SP2 全彈。</li>
+<li><b>架勢要貼近：</b>不花資源的連射只到 4 公尺，遠距離只有花資源的 LL 接續、SP1、SP2。</li>
+<li><b>SP1 是閃步的來源：</b>8 片翼時 SP1 回 35 閃步。</li>
+<li><b>花資源的直線是萬物貫通：</b>對手縮在防禦裡就用 K 連段→LL，兩道被防就扣 80 防禦量表。</li>
+<li><b>架勢中不能防禦</b>，被貼身時先用 J／K 連段把對手打開，再接 L 進架勢；進架勢後的快速 Step 可以調整距離。</li>
+<li><b>對上他的對手：</b>架勢連段要碰到你才會接下去，Step 閃掉第一發就斷了；他單放的 SP2 要蓄力，看到就閃，被防住他有很大的破綻。</li>
 </ul>
 </details>
 </section>

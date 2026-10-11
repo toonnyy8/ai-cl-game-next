@@ -2887,7 +2887,7 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
         (:shin                                           ; the owl (decision 36: Jilliel's four forms, the owl's look)
          (let* ((grow (if cr (f-clamp (/ (- (i->f cr) 66f0) 30f0) 0.05f0 1f0) 1f0))
                 (stance (lb-mujittai-p form)) (st (lbs e))
-                (sealed (if st (lbs-sealed st) (br-draw-sealed-p e))))   ; (Lille II's seal: his own state, barro-art.lisp)
+                (sealed (and st (lbs-sealed st))))   ; (Lille II has no seal since his v3 R3: Trompete gone)
            (declare (single-float grow))
            (%lb-stance-fx! e side stance tm rdt)          ; MUJITTAI: the wings curl round the column, ghostly
            ;; EN vs KIN (decision 38): EN fans its eight wings out wide and forward (a standing spread, [18]), KIN sweeps
