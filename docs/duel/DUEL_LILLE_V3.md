@@ -571,8 +571,13 @@ Host tests 8409, ALL PASS.
 
 ### 10.2 The awakened stance's motion modules (in progress)
 
-From the user's four concepts, combined (the lead's design, [G]): L 陀螺 (a forward-tilted spinning top, three turns over the
-string, the light wings swung flat), J 長鞭 (the light wings stretched into whips, rapid lashes), K 大刀 (slow, heavy great-sword
-chops; K3's last hit a point-blank cannon blast with an explosion), the owl EN the same on its claws / gold wings. Each hit's
-reach follows the drawn tip (`*BR-W-TIPS*`).
+The user, after the first design (verbatim): 「長鞭可以連成大砍刀，砲擊也可以接在近距離毆打後面，請調查一般格鬥遊戲/動漫風格對戰遊戲
+常會有強烈風格的戰鬥動作，並選擇適合的搭配來建置動作模組」. The survey: `docs/research/lille2-motion-styles/notes.md` (the snake
+sword whip ↔ blade, rush → blast, the spinning tornado, restraint → finisher, the heavy overhead, the simultaneous flurry).
+The choice ([G], frame data and hit counts unchanged; each hit's reach the drawn tip, `*BR-W-TIPS*`):
 
+| String | Archetype | The motion (JILLIEL EN's light wings; the owl EN the same on its claws / long arms / gold wings) |
+|---|---|---|
+| J (rapid) | the snake sword (Ivy, SoulCalibur) | J1 / J2 the wings stretched into whips, crossing figure-eight lashes (~2.6–3.0 m); **J3's last hit: the whips snap rigid into one giant cleaver** (both wings joined), a heavy downward chop (~2.4 m) — 「長鞭連成大砍刀」 |
+| K (heavy) | the great sword, then rush → blast (DBFZ / Sparking! ZERO rush into a finisher) | K1 great-sword chops (a held overhead wind-up, a rising cut); K2 stepping in, a close beating (~1.2–1.4 m); **K3 two close blows, then the point-blank cannon blast with an explosion** (~1.0–1.3 m) — 「砲擊也可以接在近距離毆打後面」 |
+| L (even beat) | the spinning top (Tatsumaki Senpukyaku) | tilted forward, the wings swung flat, three turns over the string (L1, L2 one each, L3 one and a half), a hit as a wing sweeps the front (~1.8 m) |
