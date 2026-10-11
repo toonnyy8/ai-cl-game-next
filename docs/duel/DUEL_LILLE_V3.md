@@ -792,3 +792,31 @@ BR 142.5, BI 134.4 s, pass. 60 seeds: **BY 113.2 s, BK 109.1 s**, still below 12
 lengthen them; §12.1's open exception, waiting on the user's playtest (「先試玩再決定」), no knob retuned. Mirror awaken A/B (BB,
 39020, 60 seeds, seed0 100 / 300 / 500, the never-awaken side's wins, pass ≥ 20): **55 / 60 / 56**, pass.
 
+## 16. Decision R11 (2026-10-11): the playtest of v66 — the dash's gains, its cuts as hits, the whips, the legs
+
+The user (verbatim, on v66):
+
+> 1. 衝刺 L 有錯誤，他現在無法回收任何特殊資源。
+> 2. 我希望衝刺 L 依據蓄力階段給出多段的斬擊特效與 combo 計數。
+> 3. 我想要為架式切換時增加把腳放出來與收起來的過度動畫。
+> 4. 現在的架式 J > L 看起來依舊是射擊？
+
+**1, the bug.** A move with `:hold` starts in its `:hold` phase, and `START-MOVE` runs a move's entry-frame hooks only
+when it enters in its main phase; `ENTER-MAIN` then starts the main phase at frame 0 and `MAIN-PHASE-STEP` increments
+before it runs the frame's hooks, so a held move's `(0 hook)` never runs. The dash's `BR-S-START` (its gains unpaid) never
+ran: `brs-gained` stayed T from the stance move before it and `BARRO-HIT` paid nothing. Fixed in his own file: `BR-W-DASH`
+(the dash's S) calls `BR-S-START` first. Browser: the levels' hits give +1 / +2 / +3. (The generic rule is unchanged: no
+other held move of the roster has an entry-frame hook.)
+
+**2, the cuts as hits.** The dash's touch is hit 1; the cuts after it are the sim's (`BR-W-CUTS`, `:br-cut` hazards on
+him where he stands, `BR-HZ` their 1.0 m column): the level's `*br-w-l-cuts*` (2 / 4 / 6) cuts in all, the first (the
+touch's own, drawn only) one frame after the dash's end, then one every `*br-w-cut-step*` 3 f (+ each hit's
+`*br-w-cut-hs*` 2 f hitstop), each later one a hit of `*br-w-cut-dmg*` 8 (the dash's own damage 16 → 8; a stagger in
+place, no push; a combo hit: the HUD counts them). Totals 2 / 4 / 6 × 8 = 16 / 32 / 48 before the form's × and the combo
+scaling (`*combo-full-hits*` 3, then −10 % a hit): from a fresh combo 16 / 31 / 43 (R10: one hit 16 / 32 / 48,
+`*br-w-l-bonus*` removed). A blocked dash gives the specials but no cuts. Each cut is drawn by `BR-CUT-LOOK` (barro-art.lisp,
+the hazard's look) from its hit for `*br-w-cut-life*` 14 f: a crossing pair of lenses (「交叉斬痕」) 2.2 / 2.5 / 2.8 m by
+the level; the R10 cosmetic cut timer (`*br-cuts*`, `%br-cuts-look`, `*br-dash-cuts*` 5 / 9 / 13) is gone. Host tests
+8257 ALL PASS; browser: level 1 / 2 / 3 → 2 / 4 / 6 hits (the HUD's 2 HITs 16, 3 HITs 24, 4 HITs 31 …), both forms; the
+cut look 0 B a frame.
+

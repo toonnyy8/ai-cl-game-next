@@ -1346,17 +1346,9 @@ it hit, the cuts after (%BR-DASH-LOOK, %BR-CUTS-LOOK).")
 (defparameter *br-dash-streak* '(1.0 1.5 2.1)
   "The streaks' length x this by the charge level 1 / 2 / 3 (R10, DUEL_LILLE_V3 §15: 「隨著續力階段增加衝刺距離」; level 3 a white
 core streak in them as well).")
-(defparameter *br-dash-cuts* '(5 9 13)
-  "The slashes that appear on him once the dash passed him, by the charge level 1 / 2 / 3 (R9: 7; R10, §15: 「隨著續力階段增加
-衝刺距離與交叉斬痕」) ...")
-(defparameter *br-dash-cut-from* 1.0 "... the first this many frames after the dash's end, ...")
-(defparameter *br-dash-cut-step* '(1.5 1.2 1.0) "... the next ones this many frames apart (by level) ...")
-(defparameter *br-dash-cut-life* 12.0 "... each drawn in over 2 frames, held, gone after this many ...")
-(defparameter *br-dash-cut-len* '(2.2 2.5 2.8) "... this long (m, by level), crossing round his middle.")
-(declaim (type f32vec *br-cuts*))
-(defvar *br-cuts* (let ((v (make-f32 10))) (setf (aref v 3) -100f0 (aref v 8) -100f0) v)
-  "Per side (5 a side): the cuts' place x z, the dash's facing, the fx clock they started at, the charge level (cosmetic
-memory).")
+(defparameter *br-dash-cut-len* '(2.2 2.5 2.8)
+  "The cuts on him after the dash (R9; R11, DUEL_LILLE_V3 §16: each a hit of the sim's, barro.lisp BR-W-CUTS' :br-cut
+hazards, drawn by BR-CUT-LOOK): this long (m, by the charge level), crossing round his middle.")
 (defmacro %br-l-level (held)
   "The awakened L dash's charge level 1-3 for HELD frames (barro.lisp's BR-W-L-LEVEL on *BR-W-L-LEVELS*, inline: 0 B)."
   `(let ((%h ,held) (%l *br-w-l-levels*))
@@ -1365,15 +1357,14 @@ memory).")
 (defun-fast %br-dash-look (f side mv)
   "The awakened L dash (a move in *BR-DASH-MOVES*) at its frame: through the dash (S .. S + *BR-DASH-FRAMES* + 1) five
 speed streaks trailing behind him (his drawn place: *POSE-AT*), longer by the charge level (*BR-DASH-STREAK*, R10; level 3
-a white core streak too); at the dash's end, if it hit, the cuts start (*BR-CUTS*: the place of the one he passed,
-*BR-AT*, and the level). Reads the move's frame, its contact and the frames L was held (FIGHTER-CHARGE: the level, as
-BR-W-DASH's) only (cosmetic). 0 B."
+a white core streak too); the cuts after it are the sim's hazards (R11: BR-CUT-LOOK). Reads the move's frame and the frames L was
+held (FIGHTER-CHARGE: the level, as BR-W-DASH's) only (cosmetic). 0 B."
   (declare (fixnum side))
-  (let* ((sf (fighter-sf f)) (s (mv-s mv)) (dashf (the fixnum *br-dash-frames*)) (pa *pose-at*) (at *br-at*) (o (* 8 side))
-         (cu *br-cuts*) (c (* 5 side)) (tm (fx-clock)) (pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+))
+  (let* ((sf (fighter-sf f)) (s (mv-s mv)) (dashf (the fixnum *br-dash-frames*)) (pa *pose-at*)
+         (pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+))
          (lv (%br-l-level (fighter-charge f))) (sk (the single-float (nth (1- lv) *br-dash-streak*)))
          (yaw (aref pa 3)) (ux (- (f-sin yaw))) (uz (- (f-cos yaw))) (rx (f-cos yaw)) (rz (- (f-sin yaw))))
-    (declare (fixnum sf s dashf o c lv) (type f32vec pa at cu) (single-float tm pal sk yaw ux uz rx rz))
+    (declare (fixnum sf s dashf lv) (type f32vec pa) (single-float pal sk yaw ux uz rx rz))
     (when (and (<= s sf) (< sf (+ s dashf 2)))           ; the streaks behind him
       (let ((x (aref pa 0)) (y (aref pa 1)) (z (aref pa 2)))
         (declare (single-float x y z))
@@ -1385,47 +1376,38 @@ BR-W-DASH's) only (cosmetic). 0 B."
             (%streak x0 h z0 (- x0 (* ln ux)) h (- z0 (* ln uz)) (* 0.05f0 (+ 0.6f0 (* 0.4f0 sk))) pal 0.9f0 (+ 520f0 fi))
             (when (and (= lv 3) (= i 2))               ; (level 3: a white core in the middle one)
               (%streak x0 h z0 (- x0 (* 0.8f0 ln ux)) h (- z0 (* 0.8f0 ln uz)) 0.025f0 +pal-hit+ 0.95f0 526f0))))))
-    (when (and (eq (fighter-contact f) :hit) (> (aref at (+ o 4)) 0.5f0) (<= (+ s dashf) sf (+ s dashf 2))
-               (> (- tm (aref cu (+ c 3))) 0.3f0))     ; (once a dash: the cuts start)
-      (setf (aref cu c) (aref at (+ o 2)) (aref cu (+ c 1)) (aref at (+ o 3)) (aref cu (+ c 2)) yaw (aref cu (+ c 3)) tm
-            (aref cu (+ c 4)) (i->f lv)))
     nil))
-(defun-fast %br-cuts-look (side)
-  "SIDE's cuts after an awakened L dash that hit (*BR-CUTS*, started by %BR-DASH-LOOK): by its charge level (R10, §15)
-*BR-DASH-CUTS* slashes *BR-DASH-CUT-LEN* long appearing one by one on the one he passed, *BR-DASH-CUT-STEP* frames apart,
-crossing at golden-angle steps in the plane square to the dash, each a jade (the owl: gold) lens with a white core drawn
-in from one end over 2 frames, held, fading, a spark where it opens: 阿修羅 一霧銀's after-the-fact cuts. On the fx clock
-(they outlive the move). 0 B."
-  (declare (fixnum side))
-  (let* ((cu *br-cuts*) (c (* 5 side)) (af (* 60f0 (- (fx-clock) (aref cu (+ c 3)))))
-         (lv (max 1 (min 3 (f->i (aref cu (+ c 4))))))
-         (from (the single-float *br-dash-cut-from*)) (step (the single-float (nth (1- lv) *br-dash-cut-step*)))
-         (life (the single-float *br-dash-cut-life*)) (n (the fixnum (nth (1- lv) *br-dash-cuts*))))
-    (declare (type f32vec cu) (fixnum c lv n) (single-float af from step life))
-    (when (<= 0f0 af (+ from (* step (i->f n)) life))
-      (let* ((pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+)) (yaw (aref cu (+ c 2)))
-             (ux (- (f-sin yaw))) (uz (- (f-cos yaw))) (rx (f-cos yaw)) (rz (- (f-sin yaw)))
-             (half (* 0.5f0 (the single-float (nth (1- lv) *br-dash-cut-len*))))
-             (cx (aref cu c)) (cz (aref cu (+ c 1))) (cy (+ (aref *lb-v* 3) 1.05f0)))
-        (declare (single-float pal yaw ux uz rx rz half cx cy cz))
-        (dotimes (i n)
-          (let* ((fi (i->f i)) (a (- af from (* step fi))))
-            (declare (single-float fi a))
-            (when (<= 0f0 a life)
-              (let* ((th (+ 0.4f0 (* 2.39996f0 fi)))   ; (the golden angle: the cuts spread round)
-                     (dx (* 0.18f0 (- (hash01 fi 3.1f0) 0.5f0))) (dy (* 0.3f0 (- (hash01 fi 5.7f0) 0.5f0)))
-                     (ca (* half (f-cos th))) (sa (* half (f-sin th)))
-                     (x0 (+ cx (* dx rx) (- (* ca rx)))) (y0 (+ cy dy (- sa))) (z0 (+ cz (* dx rz) (- (* ca rz))))
-                     (g (f-min 1f0 (/ (+ a 1f0) 2f0)))   ; (drawn in from one end over 2 frames)
-                     (x1 (+ x0 (* g 2f0 ca rx))) (y1 (+ y0 (* g 2f0 sa))) (z1 (+ z0 (* g 2f0 ca rz)))
-                     (bx (+ (* 0.5f0 (+ x0 x1)) (* 0.12f0 ux))) (by (* 0.5f0 (+ y0 y1))) (bz (+ (* 0.5f0 (+ z0 z1)) (* 0.12f0 uz)))
-                     (k (- 1f0 (%lb-ss (/ (- a (* 0.5f0 life)) (* 0.5f0 life))))) (sd (+ 540f0 (* 9f0 fi))))
-                (declare (single-float th dx dy ca sa x0 y0 z0 g x1 y1 z1 bx by bz k sd))
-                (fx-crescent x0 y0 z0 x1 y1 z1 bx by bz 0.09f0 :lens 0.04f0 sd pal k :push 0.3f0)
-                (fx-crescent x0 y0 z0 x1 y1 z1 bx by bz 0.035f0 :lens 0.02f0 (+ sd 1f0) +pal-hit+ (* 0.95f0 k) :push 0.35f0)
-                (when (< a 2f0)                            ; (the cut's spark where it opens)
-                  (fx-star x1 y1 z1 0.05f0 0.22f0 6 sd 0f0 0f0 0.08f0 (+ sd 2f0) +pal-hit+ 0.95f0 :push 0.4f0))))))))
-    nil))
+(defun-fast br-cut-look (hz rdt)
+  "One cut of the awakened L dash on the one he passed (R11, DUEL_LILLE_V3 §16: 「我希望衝刺 L 依據蓄力階段給出多段的斬擊特效
+與 combo 計數」): a :br-cut hazard of barro.lisp's BR-W-CUTS (its data: the cut's index I and the charge level), drawn from
+its hit (the hazard's delay over) for its life: a crossing pair of jade (the owl: gold) lenses with white cores, *BR-DASH-CUT-LEN*
+long by the level, at golden-angle turns cut to cut in the plane square to the dash, each drawn in from one end over 2
+frames, held, fading, a spark where it opens: 阿修羅 一霧銀's after-the-fact cuts, one a hit (the combo counts them). 0 B."
+  (declare (single-float rdt))
+  (when (and (<= (hazard-delay hz) 0) (>= rdt 0f0))
+    (let* ((d (hazard-data hz)) (fi (i->f (the fixnum (first d)))) (lv (max 1 (min 3 (the fixnum (second d)))))
+           (side (fighter-side (fighter (hazard-owner hz))))
+           (pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+))
+           (a (i->f (the fixnum (hazard-age hz)))) (life (i->f (the fixnum (hazard-life hz))))
+           (yaw (hazard-yaw hz)) (ux (- (f-sin yaw))) (uz (- (f-cos yaw))) (rx (f-cos yaw)) (rz (- (f-sin yaw)))
+           (half (* 0.5f0 (the single-float (nth (1- lv) *br-dash-cut-len*))))
+           (cx (hazard-x hz)) (cz (hazard-z hz)) (cy (+ (aref *lb-v* 3) 1.05f0))
+           (k (- 1f0 (%lb-ss (/ (- a (* 0.5f0 life)) (* 0.5f0 life))))) (g (f-min 1f0 (/ (+ a 1f0) 2f0))))
+      (declare (fixnum lv side) (single-float fi pal a life yaw ux uz rx rz half cx cy cz k g))
+      (dotimes (j 2)                                    ; (the crossing pair: 「交叉斬痕」)
+        (let* ((fj (i->f j)) (th (+ 0.4f0 (* 2.39996f0 fi) (* 1.7f0 fj)))   ; (the golden angle: the cuts spread round)
+               (dx (* 0.18f0 (- (hash01 fi 3.1f0) 0.5f0))) (dy (* 0.3f0 (- (hash01 (+ fi fj) 5.7f0) 0.5f0)))
+               (ca (* half (f-cos th))) (sa (* half (f-sin th)))
+               (x0 (+ cx (* dx rx) (- (* ca rx)))) (y0 (+ cy dy (- sa))) (z0 (+ cz (* dx rz) (- (* ca rz))))
+               (x1 (+ x0 (* g 2f0 ca rx))) (y1 (+ y0 (* g 2f0 sa))) (z1 (+ z0 (* g 2f0 ca rz)))
+               (bx (+ (* 0.5f0 (+ x0 x1)) (* 0.12f0 ux))) (by (* 0.5f0 (+ y0 y1))) (bz (+ (* 0.5f0 (+ z0 z1)) (* 0.12f0 uz)))
+               (sd (+ 540f0 (* 9f0 fi) (* 4f0 fj))))
+          (declare (single-float fj th dx dy ca sa x0 y0 z0 x1 y1 z1 bx by bz sd))
+          (fx-crescent x0 y0 z0 x1 y1 z1 bx by bz 0.09f0 :lens 0.04f0 sd pal k :push 0.3f0)
+          (fx-crescent x0 y0 z0 x1 y1 z1 bx by bz 0.035f0 :lens 0.02f0 (+ sd 1f0) +pal-hit+ (* 0.95f0 k) :push 0.35f0)
+          (when (< a 2f0)                                ; (the cut's spark where it opens)
+            (fx-star x1 y1 z1 0.05f0 0.22f0 6 sd 0f0 0f0 0.08f0 (+ sd 2f0) +pal-hit+ 0.95f0 :push 0.4f0))))))
+  nil)
 
 ;; R10 (DUEL_LILLE_V3 §15, the user 2026-10-11: 「L 衝刺改成只能衝一次不能連接，但可以三階段續力，隨著續力階段增加衝刺距離與
 ;; 交叉斬痕（增加傷害）並提昇特殊資源回收量」): while L is held (the move's :hold phase) the charge pose (:br-en-lc), coiled lower
@@ -1715,7 +1697,6 @@ JILLIEL's lash after it (%BR-WHIP-LASH), the L charge's tells (%BR-CHARGE-LOOK).
     (when (and mv (member (mv-name mv) *br-dash-moves*))   ; R9: the L dash, the cuts after (R10: its charge first)
       (%br-charge-look f side mv)
       (when (eq (fighter-phase f) :main) (%br-dash-look f side mv)))
-    (%br-cuts-look side)
     (when (and (>= *br-art-hold* 0) (>= (the fixnum (br-hold-clock f)) *br-art-hold*))   ; (debug stills)
       (setf *br-art-hold* -1)
       (hitstop 100000)))
@@ -1829,7 +1810,9 @@ K route's balls (in an awakened KL, R8), the whips' reach and the L charge's tel
                (if (and mv (eq (mv-name mv) :br-rc4)) (per (%br-kiwami-look f jm side)) -1)
                (per (%lb-stretch! (model-anim m))) (per (%lb-lashes jm side)) (per (br-deform e m))
                (if (and mv (assoc (mv-name mv) *br-kl-balls*)) (per (%br-kl-balls f side mv)) -1)
-               (if (and mv (member (mv-name mv) *br-dash-moves*)) (per (%br-dash-look f side mv)) -1) (per (%br-cuts-look side))
+               (if (and mv (member (mv-name mv) *br-dash-moves*)) (per (%br-dash-look f side mv)) -1)
+               (let ((h0 nil)) (do-entities (h (hz hazard)) (when (eq (hazard-kind hz) :br-cut) (setf h0 hz)))   ; (R11)
+                 (if h0 (per (br-cut-look h0 0.016f0)) -1))
                (per (progn (%br-whip-reach f side mv) (%br-whip-lash side)))
                (if (and mv (member (mv-name mv) *br-dash-moves*)) (per (%br-charge-look f side mv)) -1)))))
 

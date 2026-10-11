@@ -2902,7 +2902,7 @@ defender's next step. Values: the attacker's and the defender's first actionable
                                          ("KL1" . :kl) ("KL2" . :kl) ("KL3" . :kl))
                                      :test #'string=))))
               (check (eq (second (assoc 0 (mv-on-frame m))) (if far 'br-s-spend 'br-s-start)))))
-          (check (and (= (mv-dmg (mv "L1")) *br-s-l-dmg*) (= (mv-dmg (mv "K2")) *br-s-k-dmg*) (= (mv-dmg (mv "J1")) *br-s-j-dmg*)
+          (check (and (= (mv-dmg (mv "L1")) (if (string= pre "BR-S") *br-s-l-dmg* *br-w-cut-dmg*)) (= (mv-dmg (mv "K2")) *br-s-k-dmg*) (= (mv-dmg (mv "J1")) *br-s-j-dmg*)
                       (= (mv-dmg (mv "KL1")) *br-s-kl-dmg*) (= (mv-dmg (mv "JL2")) *br-s-jl-dmg*)))
           (if (string= pre "BR-S")
               (check (equal (mapcar (lambda (sg) (getf (mv-params (mv sg)) :gain)) '("L1" "L2" "L3")) '(0 1 2)))
@@ -2970,7 +2970,10 @@ defender's next step. Values: the attacker's and the defender's first actionable
   ;; R10 (「L 衝刺改成只能衝一次不能連接，但可以三階段續力…」): the awakened L held 0-60 f, levels at 20 / 40 f; by level the dash's
   ;; longest, its damage on the move's 16 and its specials
   (check (and (= 1 (br-w-l-level 0)) (= 1 (br-w-l-level 19)) (= 2 (br-w-l-level 20)) (= 3 (br-w-l-level 40)) (= 3 (br-w-l-level 60))))
-  (check (and (equal *br-w-l-dash-max* '(6.0 8.0 10.0)) (equal *br-w-l-bonus* '(0 16 32)) (equal *br-w-l-gain* '(1 2 3))
+  (check (and (equal *br-w-l-dash-max* '(6.0 8.0 10.0)) (equal *br-w-l-cuts* '(2 4 6)) (= *br-w-cut-dmg* 8) (= *br-w-cut-step* 3)
+              (equal (mapcar (lambda (n) (* n *br-w-cut-dmg*)) *br-w-l-cuts*) '(16 32 48))   ; (R11: the R10 totals, as hits)
+              (= *br-w-cut-dmg* (mv-dmg (find-move :br-e-l1))) (= *br-w-cut-dmg* (mv-dmg (find-move :br-oe-l1)))
+              (fboundp 'br-w-cuts) (equal *br-w-l-gain* '(1 2 3))
               (null (kit-next (kit :barro :jilliel) :br-e-l1 :lchain)) (null (kit-next (kit :barro :shin) :br-oe-l1 :lchain))))
   ;; 「架式連段結束後要像 J/K 結尾一樣將對手推離初始起手勢的攻擊範圍」 (the user 2026-10-11): every stance string's last
   ;; segment is :end (BR-S-END-PUSH: out of its first segment's reach), the awakened L dash excepted (its own pass-through)

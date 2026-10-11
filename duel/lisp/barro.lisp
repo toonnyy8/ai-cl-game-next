@@ -356,7 +356,14 @@ charged slash (startup 12 -> 16), K3 the turn and the overhead split (12 -> 18) 
 (defparameter *br-w-l-levels* '(20 40) "... held this many frames: level 2, level 3 (else 1) ...")
 ;; (R10: above BARRO-HIT, which reads the gain)
 (defparameter *br-w-l-dash-max* '(6.0 8.0 10.0) "The L dash's longest by its level 1 / 2 / 3, metres ([G]) ...")
-(defparameter *br-w-l-bonus* '(0 16 32) "... its damage on top of the move's 16 (16 / 32 / 48 before the form's x) ...")
+(defparameter *br-w-l-cuts* '(2 4 6)
+  "... its hits by the level (R11, DUEL_LILLE_V3 §16, the user 2026-10-11: 「我希望衝刺 L 依據蓄力階段給出多段的斬擊特效與 combo
+計數」): the dash's touch, then the cuts that appear on him once it passed him (BR-W-CUTS), *BR-W-CUT-DMG* each: 16 / 32 / 48
+before the form's x and the combo scaling (R10: one hit 16 + 0 / 16 / 32) ...")
+(defparameter *br-w-cut-dmg* 8 "... each hit's damage ...")
+(defparameter *br-w-cut-step* 3 "... the cuts this many frames apart (+ each hit's hitstop, *BR-W-CUT-HS*), the first one frame after the dash's end ...")
+(defparameter *br-w-cut-hs* 2 "... each cut's hitstop (frames; a Quick hit's 4: the cuts come fast) ...")
+(defparameter *br-w-cut-life* 14 "... each cut's look this many frames from its hit ...")
 (defparameter *br-w-l-gain* '(1 2 3) "... the specials (wings) its hit or block gives (the string's +1 before) ([G]).")
 (defparameter *br-w-l-slow* 1.5
   "The awakened stance's L segments: startup and hit spacing x this (decision R4, the user 2026-10-11: 「架式 L 的動作太快了」,
@@ -411,7 +418,7 @@ way (R6)."
                     :startup ,st :active ,a :recovery ,r
                     ,@(when (eq role :l) `(:whiff ,(+ r *br-s-l-whiff*)))   ; (R5: a whiffed L recovers as a J link)
                     ,@(when dash '(:hold (0 *br-w-l-hold*)))   ; (R10: held to charge, 3 levels)
-                    :dmg ,dmg :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track 720.0   ; (>= 1 f of blockstun)
+                    :dmg ,(if dash '*br-w-cut-dmg* dmg) :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track 720.0   ; (>= 1 f of blockstun)
                     :vol ,(cond (dash `(:cap 0.0 ,*br-w-dash-reach* 1.2 ,*br-w-dash-r*))
                                 (cut `(:cap 0.4 ,(- (reduce #'max (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
                                                                                 :test #'string=)))
@@ -767,6 +774,7 @@ awakened form inherits these).")
   (owl-t 0 :type fixnum)                  ; frames in the owl (its wing a second)
   (recall-n 0 :type fixnum)               ; the volley's count (its f0) for its string (its f7)
   (sp2-next nil)                          ; a stance J / K segment: SP2 latched for the cancel (decision R3)
+  (cut nil)                               ; the awakened L dash's cuts started (BR-W-CUTS; R11)
   (l-lv 0 :type fixnum)                   ; the awakened L dash's charge level 1-3 (its S: BR-W-DASH; decision R10)
   (armored 0 :type fixnum)                ; hits his wing armour took (the pacing log)
   (ai-t -999 :type fixnum)                ; his CPU's last stance / burst window (one roll a window)
@@ -872,10 +880,15 @@ last beam slow the match; the pacing log."
                          (if (member c '(:hit :block)) (nth (1- (max 1 (brs-l-lv st))) *br-w-l-gain*) 0)
                          (br-l-gain c (getf (mv-params mv) :gain 0))))
                   (form (fighter-form (fighter att))))
-              (when (plusp k) (setf (brs-ammo st) (br-ammo-add (brs-ammo st) k form)) (pace att :ammo-gain k))))
+              (when (plusp k)
+                (setf (brs-ammo st) (br-ammo-add (brs-ammo st) k form)) (pace att :ammo-gain k)
+                (clog "~a specials +~d -> ~d" (side-name att) k (brs-ammo st)))))
         ((:j :jl) (multiple-value-bind (fs sp) (br-recover-gain c role (brs-spent st))
                     (pay-gauges att sp fs)
                     (pace att (if (and (eq role :jl) (brs-spent st)) :recover-big :recover))))))
+    (when (and role (eq c :hit) (getf (mv-params mv) :dash) (not (brs-cut st)))   ; (R11: the dash's cuts, once a dash)
+      (setf (brs-cut st) t)
+      (br-w-cuts att def mv))
     (when (and role (eq c :hit) (getf (mv-params mv) :end) (not (getf (mv-params mv) :dash)))
       (br-s-end-push att def mv))
     (when (and role (eq c :hit) (brs-slow st))
@@ -1057,17 +1070,33 @@ His CPU makes one call there (BR-S-CPU-CALL)."
   (destructuring-bind (a b) *br-w-l-levels* (cond ((>= held b) 3) ((>= held a) 2) (t 1))))
 
 (defun br-w-dash (e)
-  "The awakened L's S (decision R9; R10: charged): its level by the frames L was held (BR-W-L-LEVEL); facing him, a dash
-*BR-W-DASH-PAST* m past him (clamped *BR-W-DASH-MIN* .. the level's *BR-W-L-DASH-MAX*) over *BR-W-DASH-F* frames, the
-level's damage bonus (*BR-W-L-BONUS*); the move is :through (no body push: he passes through)."
+  "The awakened L's S (decision R9; R10: charged): its gains unpaid (BR-S-START: a held move's f0 hooks never run, START-MOVE
+runs them only for a move entered in its main phase -- the R10 dash gave no specials, R11, DUEL_LILLE_V3 §16), its level by
+the frames L was held (BR-W-L-LEVEL); facing him, a dash *BR-W-DASH-PAST* m past him (clamped *BR-W-DASH-MIN* .. the
+level's *BR-W-L-DASH-MAX*) over *BR-W-DASH-F* frames; the move is :through (no body push: he passes through). Its hit
+starts the level's cuts (BARRO-HIT, BR-W-CUTS)."
   (let* ((f (fighter e)) (st (br e)) (lv (br-w-l-level (fighter-charge f)))
          (d (max *br-w-dash-min* (min (nth (1- lv) *br-w-l-dash-max*) (+ (fighter-dist f) *br-w-dash-past*)))))
-    (setf (brs-l-lv st) lv (fighter-dmg-bonus f) (nth (1- lv) *br-w-l-bonus*))   ; (R10: by the charge)
+    (br-s-start e)
+    (setf (brs-l-lv st) lv (brs-cut st) nil)
     (pace e (svref #(:w-dash-1 :w-dash-2 :w-dash-3) (1- lv)))
     (turn-to-opp e f 360.0)
     (let ((yaw (yaw-of e))) (set-slide e d *br-w-dash-f* (fwd-x yaw) (fwd-z yaw)))
     (pace e :w-dash)
     (emit :sfx :whoosh-heavy e)))
+
+(defun br-w-cuts (e o mv)
+  "The awakened L dash MV just hit O (R11, DUEL_LILLE_V3 §16: 「我希望衝刺 L 依據蓄力階段給出多段的斬擊特效與 combo 計數」): the
+level's *BR-W-L-CUTS* cuts on him where he stands, the first one frame after the dash's end, *BR-W-CUT-STEP* frames apart
+(:br-cut hazards: the first the touch's own, drawn only; each next one a hit of *BR-W-CUT-DMG*, a stagger in place, a combo
+hit), each drawn by barro-art.lisp's BR-CUT-LOOK for *BR-W-CUT-LIFE* frames from its hit."
+  (let* ((f (fighter e)) (lv (max 1 (brs-l-lv (br e)))) (n (nth (1- lv) *br-w-l-cuts*))
+         (rem (max 0 (- (+ (mv-s mv) (mv-a mv)) (fighter-sf f)))) (q (pos-of o)) (yaw (yaw-of e)))
+    (dotimes (i n)
+      (spawn-hazard :br-cut e :x (aref q 0) :z (aref q 2) :yaw yaw :size 1.0 :delay (+ rem 1 (* i *br-w-cut-step*))
+                              :life *br-w-cut-life* :hook 'br-hz :look 'br-cut-look :data (list i lv)
+                              :hw (and (plusp i) (make-hitwin :dmg *br-w-cut-dmg* :react :stagger :kb 0.0 :hs *br-w-cut-hs*))))
+    (pace e :w-cuts n)))
 
 (defun br-stance-arm (e)
   "The awakened stance's entry: its first hit armed (the slow motion), its fast Step unspent (BARRO-STEP, decision R3)."
@@ -1168,6 +1197,8 @@ the owl)."
   (declare (ignore h))
   (case ev
     (:touches
+     (when (eq (hazard-kind hz) :br-cut)                 ; (R11: a cut of the L dash, on him: his body's column)
+       (return-from br-hz (cyl-cyl-hit-p (hazard-x hz) 0f0 (hazard-z hz) (hazard-size hz) 2.4f0 a b c dd ee)))
      (when (eq (hazard-kind hz) :br-misuji)
        (multiple-value-bind (from to) (br-misuji-span (hazard-age hz))
          (and (> to from)
