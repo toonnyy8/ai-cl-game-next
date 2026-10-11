@@ -323,6 +323,9 @@ a string: L1 + L2 1.3 -> 2.3 m in the browser; new 2026-10-11 [G]).")
   "The awakened stances' melee openers (decision R4): each hit's reach, metres (its volume's edge), = the striking wing tip's
 / claw's distance ahead on that hit frame in its clip (barro-art.lisp :br-en-* / :br-oen-*, the host FK test: drawn reach =
 hit reach, +-0.15 m). By the move prefix, then the segment.")
+(defparameter *br-s-l-whiff* 8
+  "A whiffed stance L segment recovers R + this (decision R5, the user 2026-10-11: 「架式 > L 只要沒打中就進入硬直」, 「就跟一般的
+J / K 普攻一樣」: a J link's *WHIFF-EXTRA-J*; the :sig moves' *WHIFF-EXTRA* 6 before).")
 (defparameter *br-w-l-slow* 1.5
   "The awakened stance's L segments: startup and hit spacing x this (decision R4, the user 2026-10-11: 「架式 L 的動作太快了」,
 「出手和間隔都放慢」: startup 8 -> 12, L1 / L2 every 8 -> 12 f, L3 every 6 -> 9 f; [G]).")
@@ -365,6 +368,7 @@ hits' spacing x this (the clip slowed with them, its recovery as written)."
                       (n (length offs)))
                  `(defmove ,name :kind ,kind :clip ,(first clip) :clip-s ,(second clip)
                     :startup ,st :active ,a :recovery ,r
+                    ,@(when (eq role :l) `(:whiff ,(+ r *br-s-l-whiff*)))   ; (R5: a whiffed L recovers as a J link)
                     :dmg ,dmg :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track 720.0   ; (>= 1 f of blockstun)
                     :vol ,(cond (cut `(:cap 0.4 ,(- (reduce #'max (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
                                                                                 :test #'string=)))
@@ -946,7 +950,9 @@ or :NO."
 (defun br-s-tick (e)
   "A stance move (no chase: its J / K links are :quick / :flash). Its L links (:lchain: L1 -> L2 -> L3, J3 -> JL1 -> JL2 ->
 JL3, K3 -> KL1 -> KL2 -> KL3, decision R3) start unchained: a human's L pressed during it is latched and starts the next from the end
-of its hits (a spending follow-up only with a special to spend: BR-FOLLOW-OK-P; none, the string ends). Any J / K / JL /
+of its hits, the move having touched him (a hit or a block; a whiff ends the string, as a J / K string's links: decision R5, the
+user 2026-10-11: 「架式 > L 只要沒打中就進入硬直」「就跟一般的 J / K 普攻一樣」), a spending follow-up only with a special to
+spend (BR-FOLLOW-OK-P; none, the string ends). Any J / K / JL /
 KL segment: a human's SP2 (Shift+L) is latched and, the move having hit, cancels into the form's charge-less SP2 there
 (:sp2c; 「必須接在 KK 後執行」, 「SP2 接在 J 連段後面也可以」).
 His CPU makes one call there (BR-S-CPU-CALL)."
@@ -968,9 +974,10 @@ His CPU makes one call there (BR-S-CPU-CALL)."
                    (when (try-command e f :sp2 nil nil sp2) (pace e :k-sp2)))
                   ((and (brs-l-next st) next)
                    (setf (brs-l-next st) nil (brs-sp2-next st) nil)
-                   (if (or (not (getf (mv-params next) :spend)) (br-follow-ok-p (brs-ammo st)))
-                       (progn (start-move e next) (pace e :l-chain))
-                       (pace e :follow-empty))))))))))
+                   (cond ((null (fighter-contact f)) (pace e :l-whiff))   ; (R5: a whiff ends it, as a J / K string)
+                         ((or (not (getf (mv-params next) :spend)) (br-follow-ok-p (brs-ammo st)))
+                          (start-move e next) (pace e :l-chain))
+                         (t (pace e :follow-empty)))))))))))
 
 (defun br-stance-arm (e)
   "The awakened stance's entry: its first hit armed (the slow motion), its fast Step unspent (BARRO-STEP, decision R3)."

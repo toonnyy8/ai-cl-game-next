@@ -2947,6 +2947,13 @@ defender's next step. Values: the attacker's and the defender's first actionable
         (check (eql (mv-enter a) (first (find 'br-s-start (mv-on-frame a) :key #'second))))   ; (its entry frame resets the latch)
         (check (or (< gap (or (hw-stun w) (hitstun (hw-react w)))) (format t "~a -> the volley: ~d f~%" nm gap))))))
   (check (getf (mv-params (find-move :br-o-k3)) :end))
+  ;; R5 (「架式 > L 只要沒打中就進入硬直」「就跟一般的 J / K 普攻一樣」): a whiffed stance L recovers as a J link (R + *WHIFF-EXTRA-J*;
+  ;; BR-S-TICK starts the next L / L L link only after a contact)
+  (dolist (pre '("BR-S" "BR-E" "BR-OE"))
+    (dolist (sg '("L1" "L2" "L3"))
+      (let ((m (find-move (intern (format nil "~a-~a" pre sg) :keyword))))
+        (check (= (mv-whiff m) (+ (mv-r m) *br-s-l-whiff*))))))
+  (check (= *br-s-l-whiff* *whiff-extra-j*))
   (check (null (kit-next (kit :barro :jilliel-kin) :br-w-k1 :sp2c))))   ; (JILLIEL's own K: no SP2 cancel, as before)
   ;; the base stance: L picks the strings; the Step and its J
   (dolist (s '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re))
