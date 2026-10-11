@@ -15,6 +15,7 @@
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 
+(defvar *br-tip-print* nil)   ; (t: print the awakened stances' drawn tips, *BR-W-TIPS*)
 (defvar *fails* 0)
 (defvar *checks* 0)
 (defmacro check (form)
@@ -825,11 +826,12 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :lb-kamae :lb-k-shot :lb-k-hosha :lb-k-taisha :lb-k-dash :lb-w-tenshin :lb-w-tenshin-in   ; his rework (DUEL_LILLE §22, §23)
     :lb-oe-stance :lb-o-fold :lb-oe-fold :lb-oe-sabaki :lb-o-tenshin :lb-o-tenshin-in   ; the owl on Jilliel's system (decision 36, §23.14)
     :lb-oe-q1 :lb-oe-q2 :lb-oe-q3 :lb-oe-f1 :lb-oe-f2 :lb-oe-f3   ; its EN casts (decision 56, §23.37)
-    :br-e-swing :br-oe-swing                      ; Lille II v3's stance L1 (V8's swing clips, DUEL_LILLE_V3 R2)
     :br-sk-l1 :br-sk-l2 :br-sk-l3 :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3   ; the base stance's strings
     :br-sk-jl1 :br-sk-jl2 :br-sk-jl3 :br-sk-kl1 :br-sk-kl2 :br-sk-kl3   ; and its follow-ups (DUEL_LILLE_V3 §8.3, §8.5; :lb-snap unused again)
+    :br-en-l1 :br-en-l2 :br-en-l3 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3   ; the awakened stance EN's openers,
+    :br-oen-l1 :br-oen-l2 :br-oen-l3 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3   ; JILLIEL's and the owl's (§8)
     :br-e-jf1 :br-e-jf2 :br-e-jf3 :br-e-kf1 :br-e-kf2 :br-e-kf3 :br-oe-jf1 :br-oe-jf2 :br-oe-jf3 :br-oe-kf1 :br-oe-kf2 :br-oe-kf3
-                                                  ; the awakened stances' L L follow-ups, by route (DUEL_LILLE_V3 §8.5)
+                                                  ; their L L follow-ups, by route (§8.5; V8's swings :br-e-swing / :br-oe-swing spare again)
     :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en   ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
     :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en   ; ... and the owl's (the backstep gone, v3 R3)
     :ke-k-q1 :ke-k-q2 :ke-k-f1 :ke-k-f2 :ke-k-spin :ke-k-meteor   ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2)
@@ -2875,10 +2877,16 @@ defender's next step. Values: the attacker's and the defender's first actionable
                    (n (cdr (assoc s '(("L1" . 2) ("L2" . 2) ("L3" . 3) ("J1" . 3) ("J2" . 3) ("J3" . 4) ("K1" . 2) ("K2" . 2) ("K3" . 3))
                                   :test #'string=))))
               ;; the openers: several plain hits, 4 m (no 萬物貫通: nothing spent); the follow-ups one 萬物貫通 line, 31 m
+              ;; (R4, 「所有起手連段一律用近距離攻擊」: the awakened forms' openers melee strikes, each hit its drawn tip's reach
+              ;; *BR-W-TIPS*, not :ranged, no line drawn; the base's 4 m shots)
               (check (and (= (length (mv-hits m)) (or n 1)) (eq (mv-tick m) 'br-s-tick)
-                          (every (lambda (w) (~= (if far *br-x-len* *br-s-near*) (aref (first (hw-vols w)) 2))) (mv-hits m))
-                          (eq (and far t) (and (every #'br-x-hit-p (mv-hits m)) t))
-                          (= (length (mv-hits m)) (count 'br-shot-fire (mv-on-frame m) :key #'second))))
+                          (if (or far (string= pre "BR-S"))
+                              (and (every (lambda (w) (~= (if far *br-x-len* *br-s-near*) (aref (first (hw-vols w)) 2))) (mv-hits m))
+                                   (= (length (mv-hits m)) (count 'br-shot-fire (mv-on-frame m) :key #'second)))
+                              (and (null (member :ranged (mv-flags m))) (zerop (count 'br-shot-fire (mv-on-frame m) :key #'second))
+                                   (equal (loop for w across (mv-hits m) collect (+ (aref (first (hw-vols w)) 2) (aref (first (hw-vols w)) 4)))
+                                          (mapcar (lambda (x) (float x 1.0)) (cdr (assoc s (cdr (assoc pre *br-w-tips* :test #'string=)) :test #'string=))))))
+                          (eq (and far t) (and (every #'br-x-hit-p (mv-hits m)) t))))
               (check (eq (getf (mv-params m) :stance)
                          (cdr (assoc s '(("L1" . :l) ("L2" . :l) ("L3" . :l) ("J1" . :j) ("J2" . :j) ("J3" . :j) ("K1" . :k) ("K2" . :k)
                                          ("K3" . :k) ("JL1" . :jl) ("JL2" . :jl) ("JL3" . :jl)
@@ -2921,6 +2929,26 @@ defender's next step. Values: the attacker's and the defender's first actionable
                    (gap (+ (- (+ (mv-s a) (mv-a a)) (hw-from w)) first-hit))
                    (stun (or (hw-stun w) (hitstun (hw-react w)))))
               (check (or (< gap stun) (format t "~a ~a -> SP2: ~d f, the stun ~d~%" pre from gap stun)))))))))
+;; R4 (the user, 2026-10-11): 「架式 L 的動作太快了」: the awakened stances' L x *BR-W-L-SLOW* (startup 8 -> 12, every 8 -> 12 f,
+;; L3 every 6 -> 9 f), the base's as it was; 「爆氣後的 K 沒辦法連 SP2」: the owl's own K links -> the charge-less volley on a hit
+;; (:sp2c through BR-S-TICK), combo
+(let ((b (kit :barro :base)) (om (kit :barro :shin-kin)) (or* (kit :barro :shin)))
+  (declare (ignorable b))
+  (check (and (~= *br-w-l-slow* 1.5) (= 12 (mv-s (find-move :br-e-l1))) (= 12 (mv-s (find-move :br-oe-l3))) (= 8 (mv-s (find-move :br-s-l1)))))
+  (check (equal (loop for w across (mv-hits (find-move :br-e-l3)) collect (hw-from w)) '(12 21 30)))
+  (check (equal (loop for w across (mv-hits (find-move :br-s-l3)) collect (hw-from w)) '(8 14 20)))
+  (check (and (~= (hw-kb (svref (mv-hits (find-move :br-e-j1)) 0)) *br-w-kb*) (~= (hw-kb (svref (mv-hits (find-move :br-oe-k3)) 2)) *br-w-kb*)
+              (~= (hw-kb (svref (mv-hits (find-move :br-s-j1)) 0)) 0.3)))   ; (the melee openers barely push: in reach all string)
+  (dolist (k (list om or*))
+    (dolist (nm '(:br-o-k1 :br-o-k2 :br-o-k2s :br-o-k3))
+      (let* ((a (find-move nm)) (w (svref (mv-hits a) (1- (length (mv-hits a)))))
+             (gap (+ (- (+ (mv-s a) (mv-a a)) (hw-from w)) *br-recall-f* -1 (mv-first-hit (find-move :br-rc0)))))
+        (check (eq (kit-next k nm :sp2c) (find-move :br-recall)))
+        (check (eq 'br-s-tick (mv-tick a)))
+        (check (eql (mv-enter a) (first (find 'br-s-start (mv-on-frame a) :key #'second))))   ; (its entry frame resets the latch)
+        (check (or (< gap (or (hw-stun w) (hitstun (hw-react w)))) (format t "~a -> the volley: ~d f~%" nm gap))))))
+  (check (getf (mv-params (find-move :br-o-k3)) :end))
+  (check (null (kit-next (kit :barro :jilliel-kin) :br-w-k1 :sp2c))))   ; (JILLIEL's own K: no SP2 cancel, as before)
   ;; the base stance: L picks the strings; the Step and its J
   (dolist (s '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re))
     (check (equal (mapcar (lambda (c) (mv-name (kit-next b s c))) '(:kamae-l :kamae-j :kamae-k :kamae-sp1 :kamae-sp2 :kamae-step))
@@ -3061,6 +3089,44 @@ defender's next step. Values: the attacker's and the defender's first actionable
           (check (or (and (= (frames clip) (reduce #'+ sar)) (= (round (* 60 (clip-mark clip :s))) (first sar)))
                      (format t "~a: ~d f, ~a~%" clip (frames clip) sar)))
           (check (or (<= (abs (- art edge)) 0.15) (format t "~a: the reach ~,2f m, the swing's tip ~,2f m~%" clip edge art))))))))
+
+;;; ---------------------------------------------------------------- Lille II's awakened stance EN, its own clips (DUEL_LILLE_V3 §8)
+;; Decision R3 (the user, 2026-10-11: 「架勢中的 JJ / KK / LL 都改成差異明顯的數段連擊」, 「最後一段 LL 會依據前面 J/K 有不同的動作
+;; 模組」): the stance moves of JILLIEL EN (:br-e-*) and of the owl EN (:br-oe-*, R one less) each play a clip of their own: the
+;; openers :br-en-* / :br-oen-* (18), the follow-ups :br-e-jf* / -kf* and :br-oe-jf* / -kf* (12, §8.5), lasting the move as
+;; authored (S + A + R, its :s mark on S; L slowed with its move, R4 「架式 L 的動作太快了」: played at 2 / 3). R4 (「所有起手
+;; 連段一律用近距離攻擊」): the openers are melee strikes: on every hit frame a wing tip (JILLIEL: the rig's hands) / a claw (the
+;; owl) reaches its hit's volume edge (*BR-W-TIPS*, +-0.15 m: drawn reach = hit reach) within 0.5 m of his line; the
+;; follow-ups' lines: a tip thrown at his line (>= 1.2 m ahead, within 0.5 m of it). The floats' kit :lift aside.
+(let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
+      (pj (make-rig-proportions :arms 2.6)) (po (make-rig-proportions :arms 2.2 :legs 1.5)) (seen nil))
+  (flet ((tip (clip time joint props)
+           (clip-sample! pose (find-clip clip) time)
+           (pose-fk! jm pose 0f0 0f0 0f0 0f0 1f0 0f0 props)
+           (joint-point! v jm (joint-index joint) 0f0 0f0 0f0)
+           (values (aref v 0) (- (aref v 2)))))
+    (loop for (mpre cpre fpre props) in (list (list "BR-E" "BR-EN" "BR-E" pj) (list "BR-OE" "BR-OEN" "BR-OE" po))
+          do (loop for (sn nil nil nil nil nil nil nil nil extra) in *br-s-segs*
+                   do (let* ((mv (find-move (intern (format nil "~a-~a" mpre sn) :keyword)))
+                             (far (getf extra :spend))
+                             (clip (intern (if far (format nil "~a-~aF~a" fpre (char sn 0) (char sn 2)) (format nil "~a-~a" cpre sn))
+                                           :keyword))
+                             (sp (mv-clip-speed mv)))
+                        (push clip seen)
+                        (check (or (and (eq clip (mv-clip mv)) (~= sp (if (char= (char sn 0) #\L) (/ 1 *br-w-l-slow*) 1.0)))
+                                   (format t "~a: clip ~a at ~,2f~%" (mv-name mv) (mv-clip mv) sp)))
+                        (check (or (= (round (* 60 (clip-mark clip :s))) (round (* sp (mv-s mv))))
+                                   (format t "~a: :s ~,1f f, its move ~d f~%" clip (* 60 (clip-mark clip :s)) (mv-s mv))))
+                        (check (or (null (member :ranged (mv-flags mv))) far))   ; (the openers: melee, no line)
+                        (loop for w across (mv-hits mv)
+                              do (let* ((fr (hw-from w)) (best nil) (vol (first (hw-vols w))) (edge (+ (aref vol 2) (aref vol 4))))
+                                   (dolist (j '(:hand-r :hand-l))
+                                     (multiple-value-bind (x ahead) (tip clip (/ (* fr sp) 60.0) j props)
+                                       (when (and (<= (abs x) 0.5) (or (null best) (> ahead best))) (setf best ahead))))
+                                   (when *br-tip-print* (format t "  tip ~a f~d: ~,2f~%" clip fr best))
+                                   (check (or (and best (if far (>= best 1.2) (<= (abs (- best edge)) 0.15)))
+                                              (format t "~a f~d: the tip ~a m ahead (~a)~%" clip fr best (if far ">= 1.2" edge))))))))))
+  (check (= 30 (length (remove-duplicates seen)))))
 
 ;; The gate's match length leaves the cinematics out (the user, 2026-10-08: 「毀魂技演出不計入對戰時長」, every cinematic):
 ;; PLAY-TICKS (flow's MATCH-PLAY-TICKS) are the frames the timer ran (it stops while a cinematic plays: MAIN's step)

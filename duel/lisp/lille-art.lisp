@@ -1895,8 +1895,10 @@ cocks the joints back and down.")
 ;; table wings converge in turn: KIN's round his hit point ahead (a ring at his reach), EN's on the line ahead on the floor (a K's
 ;; on its fan of three). All of it a look: the move's frame read for the timing only, never sim state.
 (defparameter *lb-jilliel-strikes* '(:lb-w-q1 :lb-w-q2 :lb-w-q3 :lb-w-f1 :lb-w-f2 :lb-w-f3 :lb-e-q1 :lb-e-q2 :lb-e-q3
-                                     :lb-e-f1 :lb-e-f2 :lb-e-f3)
-  "Jilliel's strike clips (decision 50): KIN's six, EN's six casts. Their moves drive the convergence and the trails.")
+                                     :lb-e-f1 :lb-e-f2 :lb-e-f3
+                                     :br-en-l1 :br-en-l2 :br-en-l3 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3)
+  "Jilliel's strike clips (decision 50): KIN's six, EN's six casts; Lille II's awakened stance openers (barro-art.lisp, his
+melee wing strikes since DUEL_LILLE_V3 R4: the ring at his reach, as KIN's). Their moves drive the convergence and the trails.")
 (defparameter *lb-conv-from* -2.0 "The convergence: the first table wing launches this many frames from the strike's S ...")
 (defparameter *lb-conv-step-j* 0.8 "... the next ones in turn this many frames apart (a J; striking side first, top pair down) ...")
 (defparameter *lb-conv-step-k* 1.0 "... (a K) ...")
@@ -1918,9 +1920,10 @@ cocks the joints back and down.")
 ;; every one is free), and the striking claws leave three thin gold streaks (%LB-CLAW-TRAILS). All of it a look: the move's
 ;; frame read for the timing only, never sim state.
 (defparameter *lb-owl-strikes* '(:lb-o-q1 :lb-o-q2 :lb-o-q3 :lb-o-f1 :lb-o-f2 :lb-o-f3 :lb-oe-q1 :lb-oe-q2 :lb-oe-q3
-                                 :lb-oe-f1 :lb-oe-f2 :lb-oe-f3)
-  "The owl's claw strikes (decision 56): KIN's six, EN's six casts. Their moves drive the beat, the convergence and the
-claw trails.")
+                                 :lb-oe-f1 :lb-oe-f2 :lb-oe-f3
+                                 :br-oen-l1 :br-oen-l2 :br-oen-l3 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3)
+  "The owl's claw strikes (decision 56): KIN's six, EN's six casts; Lille II's owl EN stance openers (his melee claw strikes,
+DUEL_LILLE_V3 R4). Their moves drive the beat, the convergence and the claw trails.")
 (defparameter *lb-owl-conv-from* -1.0
   "The owl's convergence: its first wing launches this many frames from the strike's S (Jilliel's -2: the beat's down-stroke
 reads first) ...")

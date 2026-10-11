@@ -486,7 +486,7 @@ the sim does not move him):
 | K → L L 重砲 (planted, heavy) | `:br-sk-kl1` the knee raised, stamped into the shot; `:br-sk-kl2` down on one knee, rocked back, kept down; `:br-sk-kl3` the big shot from the knee throws him back (§8.3) | `:br-e-kf1` both wings swept up from low; `:br-e-kf2` slammed down from high; `:br-e-kf3` NIJUSHI-KO's ring held, the recoil | `:br-oe-kf1` the launch from low; `-kf2` spread then thrown; `-kf3` raised overhead, the big throw |
 
 The base's aim line locks (jade) through every follow-up segment's startup (`*BR-AIM-LOCKED*`). Art stills: debug
-82320–82337 (82340–82357 the front views), `DUEL_GAMEPLAY.md`.
+82140–82151 (the base's segments on their own) and 82320+m (the awakened stances' moves, §9), `DUEL_GAMEPLAY.md`.
 
 Checks: `tests/duel-rules-test.lisp` 8134 checks, ALL PASS (8194 merged with the base form's art pass, §8.3) (the six follow-up segments a form: three a route, 萬物貫通,
 the spend hook, the links JL1 → JL2 → JL3 / KL1 → KL2 → KL3 combo, every one → SP2 combos, `:end` only on JL3 / KL3, six
@@ -504,3 +504,37 @@ verdict): **BY 129.5 s** (his wins 10 / 20), **BK 130.1 s** (5 / 20), all K.O., 
 Awaken A/B (`--cmd 39020`, 60 seeds a stream, seed0 100 / 300 / 500; the never-awaken side's wins, pass ≥ 20; all K.O.):
 BK **30 / 38 / 36**, BB **54 / 50 / 48** (mirror medians 200.5–204.2 s). Both pass; the mirror's never-awaken side wins
 more than at rev. 3 (41 / 47 / 38): his awakening loses the mirror. Reported, not tuned.
+
+## 9. Revision 4b: decision R4 (2026-10-11, the awakening first)
+
+The user (verbatim):
+
+> 先從覺醒開始改
+> 1. 爆氣後的 K 沒辦法連 SP2
+> 2. 所有起手連段一律用近距離攻擊
+> 3. 架式 L 的動作太快了
+
+Answers (AskUserQuestion, each the recommended): 2. 「覺醒架勢 L/J/K 改近戰」 (the awakened stance's openers, JILLIEL EN
+and the owl EN; the base stance's stay 4 m shots; the spending L L follow-ups stay 萬物貫通 lines); 3. 「出手和間隔都放慢」;
+1. 「梟頭近戰 K 連段」 (the owl KIN's own K string; the stance's K string already cancels).
+
+| Rule | Before | Now (R4, every number [G]) |
+|---|---|---|
+| The awakened stance's openers L / J / K (`BR-E-*`, `BR-OE-*`) | 4 m plain shots (`:ranged`, a line drawn) | **melee strikes**: each hit its own volume, its reach the striking wing tip's / claw's distance on that frame (`*BR-W-TIPS*`, FK-measured: JILLIEL L 1.6–1.8, J 1.65–1.7, K 1.8–2.2 m; the owl L 1.7–1.8, J 1.35–1.5, K 1.5–2.2 m; radius `*BR-W-NEAR-R*` 0.4), not `:ranged`, no line; a hit pushes 0.05 m (`*BR-W-KB*`; the shots' 0.3 pushed him out of reach within a string: 1.3 → 2.3 m after L1 + L2 in the browser) |
+| The awakened stance's L (L1 L2 L3) | startup 8, every 8 f (L3 every 6) | **x 1.5** (`*BR-W-L-SLOW*`): startup 12, every 12 f (L3 9); the clips at 2 / 3 speed; recovery as before. The base's L as it was |
+| The owl KIN's K string (`:br-o-k1` / `-k2` / `-k2s` / `-k3`) | no SP2 cancel (`BARRO-OK` refuses the generic one) | **→ the charge-less SP2 (the full volley `:br-recall`) on a hit**: `:sp2c` links, Shift+L latched by `BR-S-TICK` (each K's entry frame resets the latch, `BR-S-START`), fired from the end of its hits; the CPU's call at K3 (`:end`) |
+| CPU (JILLIEL EN / the owl EN) | pressure 1.5–3.5 m, the openers inside 4 m | pressure 1.2–2.0 m / 1.0–1.8 m, the openers inside 2.0 / 1.9 m |
+
+Merged with it: the awakened stance's own clips (a subagent's batch on R3, 26 clips; its 8 two-segment follow-up clips
+dropped for §8.5's three-segment ones): `:br-en-*` (JILLIEL EN: L the gathering casts, J the rapid flicks, K the heavy
+throws) and `:br-oen-*` (the owl EN's claws), now the melee openers' clips, in Jilliel's / the owl's strike lists
+(`lille-art.lisp` `*LB-JILLIEL-STRIKES*` / `*LB-OWL-STRIKES*`: the tip smear, the wings converging on the ring at his reach;
+old Lille never plays these clips). `:br-e-swing` / `:br-oe-swing` (§1 "stance L 1 (revived)") are spare again. Three §8.5
+follow-up clips moved so a tip is on his line on the shot frame (JILLIEL / the owl JF3 the hop back after the shot, JILLIEL
+KF3 both wings at him before the recoil).
+
+Checks: `tests/duel-rules-test.lisp` 8399 checks, ALL PASS (the openers melee: no `:ranged`, no line, each hit's edge =
+`*BR-W-TIPS*` = the drawn tip ± 0.15 m, the push; L x 1.5 in the awakened forms only; the owl K's `:sp2c`, latch reset and
+combo into the volley; JILLIEL KIN's own K still without one). duel-control / learn / input / touch / cine pass, pkgcheck 0,
+`./build.sh duel` 0 warnings. Browser (`run.mjs --fixed-dt`): the owl KIN K1 hit → Shift+L → the volley at 8 wings (裁き・
+極, 2 bars); JILLIEL EN at 1.35 m: J1 J2 hit, L1 L2 L3 all seven hits (12 / 9 f apart) in reach. Playtest v60.

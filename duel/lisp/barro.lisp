@@ -309,6 +309,23 @@ the stance's SPs, its Step."
 ;; cancels into the form's charge-less SP2 (:sp2c; 「SP2 接在 J 連段後面也可以」, 「任一段打中都能接」). CLIPS: a plist of
 ;; (clip authored-startup) by segment (:l1 .. :kl3; the clip plays at authored / S speed); ADV the owl's +1 (R one less).
 (eval-when (:compile-toplevel :load-toplevel :execute)   ; (BR-DEFSTANCE reads it while it expands)
+(defparameter *br-w-near-r* 0.4
+  "The awakened stances' openers (decision R4, the user 2026-10-11: 「所有起手連段一律用近距離攻擊」): a wing / claw strike's
+volume radius, metres; its reach each hit's drawn tip (*BR-W-TIPS*; new 2026-10-11 [G]).")
+(defparameter *br-w-kb* 0.05
+  "The awakened stances' melee openers (R4): each hit's push, metres (the shots' 0.3 pushed him out of a 1.4-2.2 m reach within
+a string: L1 + L2 1.3 -> 2.3 m in the browser; new 2026-10-11 [G]).")
+(defparameter *br-w-tips*
+  '(("BR-E" ("L1" 1.6 1.6) ("L2" 1.8 1.8) ("L3" 1.6 1.6 1.65) ("J1" 1.65 1.65 1.65) ("J2" 1.65 1.65 1.65)
+     ("J3" 1.65 1.65 1.65 1.7) ("K1" 1.85 1.8) ("K2" 2.1 2.2) ("K3" 1.85 2.05 2.2))
+    ("BR-OE" ("L1" 1.7 1.7) ("L2" 1.8 1.8) ("L3" 1.7 1.7 1.75) ("J1" 1.35 1.35 1.35) ("J2" 1.4 1.4 1.4)
+     ("J3" 1.35 1.35 1.35 1.5) ("K1" 2.05 1.5) ("K2" 2.1 2.2) ("K3" 1.9 2.05 2.15)))
+  "The awakened stances' melee openers (decision R4): each hit's reach, metres (its volume's edge), = the striking wing tip's
+/ claw's distance ahead on that hit frame in its clip (barro-art.lisp :br-en-* / :br-oen-*, the host FK test: drawn reach =
+hit reach, +-0.15 m). By the move prefix, then the segment.")
+(defparameter *br-w-l-slow* 1.5
+  "The awakened stance's L segments: startup and hit spacing x this (decision R4, the user 2026-10-11: 「架式 L 的動作太快了」,
+「出手和間隔都放慢」: startup 8 -> 12, L1 / L2 every 8 -> 12 f, L3 every 6 -> 9 f; [G]).")
 (defparameter *br-s-segs*
   ;; name kind startup hit-offsets recovery damage react-between react-last role extra
   '(("L1" :sig 8 (0 8) 14 *br-s-l-dmg* :flinch :flinch :l (:gain 0))
@@ -329,24 +346,46 @@ the stance's SPs, its Step."
   "The stance's moves (BR-DEFSTANCE, decision R3 [G]): name, kind, startup, the hits' frames after it (a 2-frame window
 each), recovery, damage a hit, the reaction of the hits before the last and of the last, role, extra params (L's :gain
 step, the follow-ups' :spend, a string's last segment :end: his CPU's SP2 call)."))
-(defmacro br-defstance (prefix clips &optional (adv 0))
-  `(progn
-     ,@(loop for (sn kind st offs r0 dmg mid last role extra) in *br-s-segs*
-             collect
-             (let* ((name (intern (format nil "~a-~a" prefix sn) :keyword))
-                    (clip (getf clips (intern sn :keyword)))
-                    (far (getf extra :spend))
-                    (r (max 4 (- r0 adv))) (a (+ 2 (car (last offs))))
-                    (n (length offs)))
-               `(defmove ,name :kind ,kind :clip ,(first clip) :clip-s ,(second clip) :startup ,st :active ,a :recovery ,r
-                  :dmg ,dmg :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track 720.0   ; (>= 1 f of blockstun)
-                  :vol (:cap 0.6 ,(if far '*br-x-len* '*br-s-near*) 1.2 0.25) :on-hit ,last :kb 0.3
-                  ,@(if far '(:chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable)) '(:flags (:ranged)))
-                  :hits ,(loop for o in offs for i from 1
-                               collect `(,(+ st o) ,(+ st o 2) :on-hit ,(if (= i n) last mid)))
-                  :tick br-s-tick
-                  :on-frame ((0 ,(if far 'br-s-spend 'br-s-start)) ,@(loop for o in offs collect `(,(+ st o) br-shot-fire)))
-                  :params (:stance ,role :len ,(if far '*br-x-len* '*br-s-near*) ,@extra))))))
+(defmacro br-defstance (prefix clips &key (adv 0) melee (l-slow 1))
+  "The stance's moves of PREFIX (*BR-S-SEGS*). CLIPS by segment; ADV the owl's +1 (R one less). MELEE (the awakened forms, R4:
+「所有起手連段一律用近距離攻擊」): the openers (the segments that spend nothing) strike in reach (each hit its own melee volume,
+*BR-W-TIPS*; not :ranged, no line drawn) instead of the 4 m shots. L-SLOW (R4: 「架式 L 的動作太快了」): the L segments' startup and their
+hits' spacing x this (the clip slowed with them, its recovery as written)."
+  (let ((l-slow (if (symbolp l-slow) (symbol-value l-slow) l-slow)))
+    `(progn
+       ,@(loop for (sn kind st0 offs0 r0 dmg mid last role extra) in *br-s-segs*
+               collect
+               (let* ((name (intern (format nil "~a-~a" prefix sn) :keyword))
+                      (clip (getf clips (intern sn :keyword)))
+                      (slow (if (eq role :l) l-slow 1))
+                      (st (round (* st0 slow))) (offs (mapcar (lambda (o) (round (* o slow))) offs0))
+                      (far (getf extra :spend))
+                      (cut (and melee (not far)))
+                      (r (max 4 (- r0 adv))) (a (+ 2 (car (last offs))))
+                      (n (length offs)))
+                 `(defmove ,name :kind ,kind :clip ,(first clip) :clip-s ,(second clip)
+                    :startup ,st :active ,a :recovery ,r
+                    :dmg ,dmg :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track 720.0   ; (>= 1 f of blockstun)
+                    :vol ,(cond (cut `(:cap 0.4 ,(- (reduce #'max (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
+                                                                                :test #'string=)))
+                                                    *br-w-near-r*)
+                                              1.2 ,*br-w-near-r*))
+                                (far '(:cap 0.6 *br-x-len* 1.2 0.25))
+                                (t '(:cap 0.6 *br-s-near* 1.2 0.25)))
+                    :on-hit ,last :kb ,(if cut *br-w-kb* 0.3)
+                    ,@(cond (far '(:chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable)))
+                            (cut nil)
+                            (t '(:flags (:ranged))))
+                    :hits ,(loop for o in offs for i from 1
+                                 for tip in (if cut (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
+                                                                :test #'string=))
+                                                (make-list n))
+                                 collect `(,(+ st o) ,(+ st o 2) :on-hit ,(if (= i n) last mid)
+                                           ,@(when cut `(:vol (:cap 0.4 ,(- tip *br-w-near-r*) 1.2 ,*br-w-near-r*)))))
+                    :tick br-s-tick
+                    :on-frame ((0 ,(if far 'br-s-spend 'br-s-start))
+                               ,@(unless cut (loop for o in offs collect `(,(+ st o) br-shot-fire))))
+                    :params (:stance ,role :len ,(cond (far '*br-x-len*) (cut 2.0) (t '*br-s-near*)) ,@extra)))))))
 (defun br-stance-strings (prefix sp2)
   "The kit strings of PREFIX's stance (BR-DEFSTANCE): J1 -> J2 -> J3, K1 -> K2 -> K3 by the J / K latch; L1 -> L2 -> L3, J3 ->
 JL1 -> JL2 -> JL3, K3 -> KL1 -> KL2 -> KL3 by BR-S-TICK's latch (command :lchain); every J / K / JL / KL segment that hit -> the form's
@@ -487,13 +526,15 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :cine lb-jilliel-kikon-cine :startup 20 :active 3 :recovery 30 :whiff 30 :dmg 70 :adv-block -14 :track 0
   :vol (:cap 0.5 12.0 1.2 1.2) :on-hit :knockback :kb 2.0 :cooldown 90 :on-frame ((20 br-lane-shot))
   :params (:aura 8 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
-;; EN, the stance (decision R2): the casts. L the V8 swing (spare since V8b) and the old EN J3, J the old EN J1 / J2, K the
-;; old EN K1 / K2 (their own frames); the follow-ups their own (barro-art.lisp: J 疾射 weaving single-wing thrusts, K 重砲
-;; both wings planted)
-(br-defstance "BR-E" (:l1 (:br-e-swing 7) :l2 (:lb-e-q3 5) :l3 (:br-e-swing 7) :j1 (:lb-e-q1 4) :j2 (:lb-e-q2 4)
-                      :j3 (:lb-e-q1 4) :k1 (:lb-e-f1 9) :k2 (:lb-e-f2 10) :k3 (:lb-e-f3 11)
+;; EN, the stance (decision R3: 「架勢中的 JJ / KK / LL 都改成差異明顯的數段連擊」): the strings' own clips (barro-art.lisp
+;; :br-en-*: L the gathering casts, J the rapid flicks, K the heavy throws; the follow-ups :br-e-jf* 疾射 / :br-e-kf* 重砲,
+;; 「最後一段 LL 會依據前面 J/K 有不同的動作模組」); the openers wing strikes in reach (R4, the user 2026-10-11: 「所有起手連段一律用
+;; 近距離攻擊」), L slower (「架式 L 的動作太快了」: *BR-W-L-SLOW*)
+(br-defstance "BR-E" (:l1 (:br-en-l1 8) :l2 (:br-en-l2 8) :l3 (:br-en-l3 8) :j1 (:br-en-j1 8) :j2 (:br-en-j2 8)
+                      :j3 (:br-en-j3 8) :k1 (:br-en-k1 12) :k2 (:br-en-k2 12) :k3 (:br-en-k3 12)
                       :jl1 (:br-e-jf1 8) :jl2 (:br-e-jf2 8) :jl3 (:br-e-jf3 8) :kl1 (:br-e-kf1 10) :kl2 (:br-e-kf2 10)
-                      :kl3 (:br-e-kf3 10)))
+                      :kl3 (:br-e-kf3 10))
+              :melee t :l-slow *br-w-l-slow*)
 
 ;;; ================================================================ the owl: the burst's form (decision R1)
 (br-defstring :jn :br-o-j1 :kind :quick :clip :lb-o-q1 :startup 8 :active 3 :recovery 11 :dmg 26 :adv-block -1
@@ -503,11 +544,11 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (br-defstring :jn :br-o-j3 :kind :quick :clip :lb-o-q3 :startup 9 :active 3 :recovery 17 :dmg 32 :adv-block -3
   :reach 1.7 :arc 120 :on-hit :stagger :flags (:ender))
 (br-defstring :k :br-o-k1 :kind :flash :clip :lb-o-f1 :startup 17 :active 4 :recovery 20 :dmg 54 :adv-block -2
-  :reach 2.3 :arc 150 :on-hit :stagger)
+  :reach 2.3 :arc 150 :on-hit :stagger :tick br-s-tick :on-frame ((0 br-s-start)))
 (br-defstring :k :br-o-k2 :kind :flash :clip :lb-o-f2 :enter 6 :startup 20 :active 4 :recovery 23 :dmg 54 :adv-block -2
-  :reach 2.3 :arc 110 :on-hit :stagger)
+  :reach 2.3 :arc 110 :on-hit :stagger :tick br-s-tick :on-frame ((7 br-s-start)))   ; (its V8 :enter, 6 + 1)
 (br-defstring :k :br-o-k3 :kind :flash :clip :lb-o-f3 :enter 7 :startup 21 :active 5 :recovery 33 :dmg 78 :adv-block -19
-  :reach 2.3 :arc 90 :on-hit :crumple :flags (:ender))
+  :reach 2.3 :arc 90 :on-hit :crumple :flags (:ender) :tick br-s-tick :on-frame ((8 br-s-start)) :params (:end t))   ; (7 + 1)
 (defmove-copy :br-o-j2s :br-o-j2)
 (defmove-copy :br-o-k2s :br-o-k2)
 ;; SP1 裁きの光明 (the old MISUJI: three ground lines at -20 / 0 / +20 deg, one hit group, 70 each, 18 m; flash step back by
@@ -523,12 +564,13 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :cine lb-trompete-cine :startup 20 :active 3 :recovery 30 :whiff 30 :dmg 80 :adv-block -14 :track 0
   :vol (:cap 0.5 12.0 1.4 1.4) :on-hit :knockback :kb 2.0 :cooldown 90 :on-frame ((20 br-lane-shot))
   :params (:aura 10 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
-;; the owl's stance EN: its casts (R one less: *BR-OWL-ADV*); the follow-ups the claws' own (barro-art.lisp)
-(br-defstance "BR-OE" (:l1 (:br-oe-swing 7) :l2 (:lb-oe-q3 5) :l3 (:br-oe-swing 7) :j1 (:lb-oe-q1 4) :j2 (:lb-oe-q2 4)
-                       :j3 (:lb-oe-q1 4) :k1 (:lb-oe-f1 9) :k2 (:lb-oe-f2 10) :k3 (:lb-oe-f3 11)
+;; the owl's stance EN: the same strings on its claws (barro-art.lisp :br-oen-*, the follow-ups :br-oe-jf* / -kf*; R one
+;; less: *BR-OWL-ADV*); the openers claw strikes in reach, L slower (R4)
+(br-defstance "BR-OE" (:l1 (:br-oen-l1 8) :l2 (:br-oen-l2 8) :l3 (:br-oen-l3 8) :j1 (:br-oen-j1 8) :j2 (:br-oen-j2 8)
+                       :j3 (:br-oen-j3 8) :k1 (:br-oen-k1 12) :k2 (:br-oen-k2 12) :k3 (:br-oen-k3 12)
                        :jl1 (:br-oe-jf1 8) :jl2 (:br-oe-jf2 8) :jl3 (:br-oe-jf3 8) :kl1 (:br-oe-kf1 10) :kl2 (:br-oe-kf2 10)
                        :kl3 (:br-oe-kf3 10))
-              1)
+              :adv 1 :melee t :l-slow *br-w-l-slow*)
 
 ;;; His own moves' clips (barro-art.lisp): the owl's twins through its kits' :clip-map
 (defparameter *br-owl-clip-map* '(:br-recall :br-o-recall :br-rc0 :br-o-rc0 :br-rc1 :br-o-rc1 :br-rc2 :br-o-rc2
@@ -553,7 +595,10 @@ stance and its J (the stance's J J); the stance's three strings (BR-DEFSTANCE)."
 (defparameter *br-melee-strings*
   (append '((:br-recall :rc0 :br-rc0) (:br-recall :rc1 :br-rc1) (:br-recall :rc2 :br-rc2) (:br-recall :rc3 :br-rc3)
             (:br-recall :rc4 :br-rc4))
-          (br-stance-strings "BR-E" :br-w-nijushi-c) (br-stance-strings "BR-OE" :br-recall))
+          (br-stance-strings "BR-E" :br-w-nijushi-c) (br-stance-strings "BR-OE" :br-recall)
+          ;; the owl's own K string -> its charge-less SP2, the full volley (R4, the user 2026-10-11: 「爆氣後的 K 沒辦法連
+          ;; SP2」; BR-S-TICK latches Shift+L, the move having hit)
+          '((:br-o-k1 :sp2c :br-recall) (:br-o-k2 :sp2c :br-recall) (:br-o-k2s :sp2c :br-recall) (:br-o-k3 :sp2c :br-recall)))
   "The awakened forms' non-button strings: the volley's (the owl's SP2), the stances' strings and their K K / J J -> SP2 (every
 awakened form inherits these).")
 
@@ -602,10 +647,10 @@ awakened form inherits these).")
 (defkit :barro :jilliel :inherit :jilliel-kin
   :form-name "JILLIEL" :walk *br-walk-en* :run *br-run-en* :body :lille-jilliel
   :commands (:q :br-e-j1 :f :br-e-k1 :sig :br-e-l1)
-  :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)            ; (R3: the openers reach 4 m)
-       :ranges (:approach (3.5 8.0) :pressure (1.5 3.5) :zone (3.5 8.0) :defend (5.0 9.0))
-       :moves ((0.0 4.0 :sig 2 :f 3 :q 3 :step 1)
-               (4.0 99.0 :sp1 1 :step 1 nil 3))
+  :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)            ; (R4: the openers wing strikes, 1.6-2.2 m)
+       :ranges (:approach (2.2 8.0) :pressure (1.2 2.0) :zone (3.5 8.0) :defend (5.0 9.0))
+       :moves ((0.0 2.0 :sig 2 :f 3 :q 3 :step 1)
+               (2.0 99.0 :sp1 1 :step 2 nil 3))
        :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 8.5
        :burst (:p 0.5 :wings 5 :in 6.0) :reflex br-ai-reflex
        :stance (:follow 0.6 :sp2-at 4 :sp2 0.8)))
@@ -630,9 +675,9 @@ awakened form inherits these).")
   :lift *br-owl-lift* :form-name "SHIN" :walk *br-walk-en* :run *br-run-en* :stance :lb-oe-stance
   :commands (:q :br-oe-j1 :f :br-oe-k1 :sig :br-oe-l1)
   :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (3.5 8.0) :pressure (1.5 3.5) :zone (3.5 8.0) :defend (5.0 9.0))
-       :moves ((0.0 4.0 :sig 1 :f 4 :q 2 :step 1)
-               (4.0 99.0 :sp1 1 :step 1 nil 3))
+       :ranges (:approach (2.0 8.0) :pressure (1.0 1.8) :zone (3.5 8.0) :defend (5.0 9.0))   ; (R4: claw strikes, 1.35-2.2 m)
+       :moves ((0.0 1.9 :sig 1 :f 4 :q 2 :step 1)
+               (1.9 99.0 :sp1 1 :step 2 nil 3))
        :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 9.0 :reflex br-ai-reflex
        :stance (:follow 0.7 :sp2-at 3 :sp2 0.9)))
 
@@ -756,7 +801,7 @@ specials' cap; the pacing clocks."
              (setf (brs-in-string st) nil)
              (when (br-ranged-form-p form) (set-form e (br-melee-of form)) (pace e :stance-out)))
             ((not mv) (setf (brs-in-string st) nil)))
-      (unless (and mv (br-stance-move-p mv)) (setf (brs-sp2-next st) nil (brs-l-next st) nil))
+      (unless (and mv (eq (mv-tick mv) 'br-s-tick)) (setf (brs-sp2-next st) nil (brs-l-next st) nil))   ; (+ the owl's K, R4)
       (when (and (br-awake-form-p form) (minusp (brs-awake-t st)))
         (setf (brs-awake-t st) *match-tick*) (pace e :awaken-tick *match-tick*)))))
 
