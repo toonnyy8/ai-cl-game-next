@@ -349,6 +349,10 @@ charged slash (startup 12 -> 16), K3 the turn and the overhead split (12 -> 18) 
 (defparameter *br-w-dash-max* 6.0 "... at most this long (m: farther, it stops short) ...")
 (defparameter *br-w-dash-reach* 0.9 "... its hit volume: from him to this far ahead ...")
 (defparameter *br-w-dash-r* 0.7 "... this wide (m: his body, the folded wings; the drawn reach is the dash) ([G]).")
+(defparameter *br-w-l-hold* 60
+  "The awakened L dash (decision R10, the user 2026-10-11: 「L 衝刺改成只能衝一次不能連接，但可以三階段續力，隨著續力階段增加衝
+刺距離與交叉斬痕（增加傷害）並提昇特殊資源回收量」): L held at most this many frames before the dash ([G]) ...")
+(defparameter *br-w-l-levels* '(20 40) "... held this many frames: level 2, level 3 (else 1) ...")
 (defparameter *br-w-l-slow* 1.5
   "The awakened stance's L segments: startup and hit spacing x this (decision R4, the user 2026-10-11: 「架式 L 的動作太快了」,
 「出手和間隔都放慢」: startup 8 -> 12, L1 / L2 every 8 -> 12 f, L3 every 6 -> 9 f; [G]).")
@@ -383,6 +387,7 @@ way (R6)."
   (let ((l-slow (if (symbolp l-slow) (symbol-value l-slow) l-slow)))
     `(progn
        ,@(loop for (sn kind st00 offs00 r00 dmg mid last role extra) in *br-s-segs*
+               unless (and melee (member sn '("L2" "L3") :test #'string=))   ; (R10: the awakened L one charged dash)
                collect
                (let* ((ov (and melee (cdr (assoc sn *br-w-segs* :test #'string=))))
                       (st0 (if ov (first ov) st00)) (offs0 offs00) (r0 (if ov (second ov) r00))
@@ -399,6 +404,7 @@ way (R6)."
                  `(defmove ,name :kind ,kind :clip ,(first clip) :clip-s ,(second clip)
                     :startup ,st :active ,a :recovery ,r
                     ,@(when (eq role :l) `(:whiff ,(+ r *br-s-l-whiff*)))   ; (R5: a whiffed L recovers as a J link)
+                    ,@(when dash '(:hold (0 *br-w-l-hold*)))   ; (R10: held to charge, 3 levels)
                     :dmg ,dmg :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track 720.0   ; (>= 1 f of blockstun)
                     :vol ,(cond (dash `(:cap 0.0 ,*br-w-dash-reach* 1.2 ,*br-w-dash-r*))
                                 (cut `(:cap 0.4 ,(- (reduce #'max (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
@@ -422,14 +428,14 @@ way (R6)."
                     :on-frame ((0 ,(if far 'br-s-spend 'br-s-start))
                                ,@(when dash `((,st br-w-dash)))
                                ,@(unless cut (loop for o in offs collect `(,(+ st o) br-shot-fire))))
-                    :params (:stance ,role :len ,(cond (far '*br-x-len*) (cut 2.0) (t '*br-s-near*)) ,@extra)))))))
-(defun br-stance-strings (prefix sp2)
+                    :params (:stance ,role :len ,(cond (far '*br-x-len*) (cut 2.0) (t '*br-s-near*)) ,@(when dash '(:dash t)) ,@extra)))))))
+(defun br-stance-strings (prefix sp2 &optional melee)
   "The kit strings of PREFIX's stance (BR-DEFSTANCE): J1 -> J2 -> J3, K1 -> K2 -> K3 by the J / K latch; L1 -> L2 -> L3, J3 ->
 JL1 -> JL2 -> JL3, K3 -> KL1 -> KL2 -> KL3 by BR-S-TICK's latch (command :lchain); every J / K / JL / KL segment that hit -> the form's
 charge-less SP2 SP2 (:sp2c, decision R3)."
   (flet ((nm (s) (intern (format nil "~a-~a" prefix s) :keyword)))
     `((,(nm "J1") :q ,(nm "J2")) (,(nm "J2") :q ,(nm "J3")) (,(nm "K1") :f ,(nm "K2")) (,(nm "K2") :f ,(nm "K3"))
-      (,(nm "L1") :lchain ,(nm "L2")) (,(nm "L2") :lchain ,(nm "L3"))
+      ,@(unless melee `((,(nm "L1") :lchain ,(nm "L2")) (,(nm "L2") :lchain ,(nm "L3"))))   ; (R10: the awakened L one dash)
       (,(nm "J3") :lchain ,(nm "JL1")) (,(nm "JL1") :lchain ,(nm "JL2")) (,(nm "JL2") :lchain ,(nm "JL3"))
       (,(nm "K3") :lchain ,(nm "KL1")) (,(nm "KL1") :lchain ,(nm "KL2")) (,(nm "KL2") :lchain ,(nm "KL3"))
       ,@(loop for sg in '("J1" "J2" "J3" "JL1" "JL2" "JL3" "K1" "K2" "K3" "KL1" "KL2" "KL3") collect `(,(nm sg) :sp2c ,sp2)))))
@@ -632,7 +638,7 @@ stance and its J (the stance's J J); the stance's three strings (BR-DEFSTANCE)."
 (defparameter *br-melee-strings*
   (append '((:br-recall :rc0 :br-rc0) (:br-recall :rc1 :br-rc1) (:br-recall :rc2 :br-rc2) (:br-recall :rc3 :br-rc3)
             (:br-recall :rc4 :br-rc4))
-          (br-stance-strings "BR-E" :br-w-nijushi-c) (br-stance-strings "BR-OE" :br-recall)
+          (br-stance-strings "BR-E" :br-w-nijushi-c t) (br-stance-strings "BR-OE" :br-recall t)
           ;; the owl's own K string -> its charge-less SP2, the full volley (R4, the user 2026-10-11: 「爆氣後的 K 沒辦法連
           ;; SP2」; BR-S-TICK latches Shift+L, the move having hit)
           '((:br-o-k1 :sp2c :br-recall) (:br-o-k2 :sp2c :br-recall) (:br-o-k2s :sp2c :br-recall) (:br-o-k3 :sp2c :br-recall)))
@@ -755,6 +761,7 @@ awakened form inherits these).")
   (owl-t 0 :type fixnum)                  ; frames in the owl (its wing a second)
   (recall-n 0 :type fixnum)               ; the volley's count (its f0) for its string (its f7)
   (sp2-next nil)                          ; a stance J / K segment: SP2 latched for the cancel (decision R3)
+  (l-lv 0 :type fixnum)                   ; the awakened L dash's charge level 1-3 (its S: BR-W-DASH; decision R10)
   (armored 0 :type fixnum)                ; hits his wing armour took (the pacing log)
   (ai-t -999 :type fixnum)                ; his CPU's last stance / burst window (one roll a window)
   (awake-t -1 :type fixnum) (owl-at -1 :type fixnum))   ; ticks of the awakening and the first burst owl (the pacing log)
@@ -855,7 +862,10 @@ last beam slow the match; the pacing log."
     (when (and role (member c '(:hit :block)) (not (brs-gained st)))
       (setf (brs-gained st) t)
       (case role
-        (:l (let ((k (br-l-gain c (getf (mv-params mv) :gain 0))) (form (fighter-form (fighter att))))
+        (:l (let ((k (if (getf (mv-params mv) :dash)   ; (R10: the awakened L dash, by its charge level)
+                         (if (member c '(:hit :block)) (nth (1- (max 1 (brs-l-lv st))) *br-w-l-gain*) 0)
+                         (br-l-gain c (getf (mv-params mv) :gain 0))))
+                  (form (fighter-form (fighter att))))
               (when (plusp k) (setf (brs-ammo st) (br-ammo-add (brs-ammo st) k form)) (pace att :ammo-gain k))))
         ((:j :jl) (multiple-value-bind (fs sp) (br-recover-gain c role (brs-spent st))
                     (pay-gauges att sp fs)
@@ -1016,11 +1026,21 @@ His CPU makes one call there (BR-S-CPU-CALL)."
                           (start-move e next) (pace e :l-chain))
                          (t (pace e :follow-empty)))))))))))
 
+(defparameter *br-w-l-dash-max* '(6.0 8.0 10.0) "The L dash's longest by its level 1 / 2 / 3, metres ([G]) ...")
+(defparameter *br-w-l-bonus* '(0 16 32) "... its damage on top of the move's 16 (16 / 32 / 48 before the form's x) ...")
+(defparameter *br-w-l-gain* '(1 2 3) "... the specials (wings) its hit or block gives (the string's +1 before) ([G]).")
+(defun br-w-l-level (held)
+  "The awakened L dash's charge level for HELD frames (*BR-W-L-LEVELS*): 1, 2 or 3."
+  (destructuring-bind (a b) *br-w-l-levels* (cond ((>= held b) 3) ((>= held a) 2) (t 1))))
+
 (defun br-w-dash (e)
-  "The awakened L's S (decision R9): facing him, a dash *BR-W-DASH-PAST* m past him (clamped *BR-W-DASH-MIN* ..
-*BR-W-DASH-MAX*) over *BR-W-DASH-F* frames; the move is :through (no body push: he passes through)."
-  (let* ((f (fighter e))
-         (d (max *br-w-dash-min* (min *br-w-dash-max* (+ (fighter-dist f) *br-w-dash-past*)))))
+  "The awakened L's S (decision R9; R10: charged): its level by the frames L was held (BR-W-L-LEVEL); facing him, a dash
+*BR-W-DASH-PAST* m past him (clamped *BR-W-DASH-MIN* .. the level's *BR-W-L-DASH-MAX*) over *BR-W-DASH-F* frames, the
+level's damage bonus (*BR-W-L-BONUS*); the move is :through (no body push: he passes through)."
+  (let* ((f (fighter e)) (st (br e)) (lv (br-w-l-level (fighter-charge f)))
+         (d (max *br-w-dash-min* (min (nth (1- lv) *br-w-l-dash-max*) (+ (fighter-dist f) *br-w-dash-past*)))))
+    (setf (brs-l-lv st) lv (fighter-dmg-bonus f) (nth (1- lv) *br-w-l-bonus*))   ; (R10: by the charge)
+    (pace e (svref #(:w-dash-1 :w-dash-2 :w-dash-3) (1- lv)))
     (turn-to-opp e f 360.0)
     (let ((yaw (yaw-of e))) (set-slide e d *br-w-dash-f* (fwd-x yaw) (fwd-z yaw)))
     (pace e :w-dash)

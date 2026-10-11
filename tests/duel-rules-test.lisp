@@ -830,8 +830,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :lb-oe-q1 :lb-oe-q2 :lb-oe-q3 :lb-oe-f1 :lb-oe-f2 :lb-oe-f3   ; its EN casts (decision 56, §23.37)
     :br-sk-l1 :br-sk-l2 :br-sk-l3 :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3   ; the base stance's strings
     :br-sk-jl1 :br-sk-jl2 :br-sk-jl3 :br-sk-kl1 :br-sk-kl2 :br-sk-kl3   ; and its follow-ups (DUEL_LILLE_V3 §8.3, §8.5; :lb-snap unused again)
-    :br-en-l1 :br-en-l2 :br-en-l3 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3   ; the awakened stance EN's openers,
-    :br-oen-l1 :br-oen-l2 :br-oen-l3 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3   ; JILLIEL's and the owl's (§8)
+    :br-en-l1 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3   ; the awakened stance EN's openers,
+    :br-oen-l1 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3   ; JILLIEL's and the owl's (§8)
     :br-e-jf1 :br-e-jf2 :br-e-jf3 :br-e-kf1 :br-e-kf2 :br-e-kf3 :br-oe-jf1 :br-oe-jf2 :br-oe-jf3 :br-oe-kf1 :br-oe-kf2 :br-oe-kf3
                                                   ; their L L follow-ups, by route (§8.5; V8's swings :br-e-swing / :br-oe-swing spare again)
     :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en   ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
@@ -2863,19 +2863,21 @@ defender's next step. Values: the attacker's and the defender's first actionable
   (dolist (row '(("BR-S" :base :br-k-hiren-c) ("BR-E" :jilliel :br-w-nijushi-c) ("BR-OE" :shin :br-recall)))
     (destructuring-bind (pre form sp2) row
       (flet ((mv (s) (find-move (intern (format nil "~a-~a" pre s) :keyword)))
-             (nm (s) (intern (format nil "~a-~a" pre s) :keyword)))
+             (nm (s) (intern (format nil "~a-~a" pre s) :keyword))
+             (ls () (if (string= pre "BR-S") '("L1" "L2" "L3") '("L1"))))   ; (R10: the awakened L one charged dash)
         (let ((k (kit :barro form)))
-          (dolist (pair '(("J1" :q "J2") ("J2" :q "J3") ("K1" :f "K2") ("K2" :f "K3") ("L1" :lchain "L2") ("L2" :lchain "L3")
+          (dolist (pair (append (if (string= pre "BR-S") '(("L1" :lchain "L2") ("L2" :lchain "L3")))
+                                '(("J1" :q "J2") ("J2" :q "J3") ("K1" :f "K2") ("K2" :f "K3")
                           ("J3" :lchain "JL1") ("JL1" :lchain "JL2") ("JL2" :lchain "JL3") ("K3" :lchain "KL1") ("KL1" :lchain "KL2")
-                          ("KL2" :lchain "KL3")))
+                          ("KL2" :lchain "KL3"))))
             (destructuring-bind (from c to) pair (check (eq (kit-next k (nm from) c) (mv to)))))
           (check (and (null (kit-next k (nm "K1") :q)) (null (kit-next k (nm "J1") :f)) (null (kit-next k (nm "J3") :q))
-                      (null (kit-next k (nm "K3") :f)) (null (kit-next k (nm "L3") :lchain)) (null (kit-next k (nm "JL3") :lchain))
+                      (null (kit-next k (nm "K3") :f)) (null (kit-next k (nm (car (last (ls)))) :lchain)) (null (kit-next k (nm "JL3") :lchain))
                       (null (kit-next k (nm "KL3") :lchain)) (null (kit-next k (nm "J2") :lchain)) (null (kit-next k (nm "K2") :lchain))))
           ;; every J / K segment and their follow-ups that hit -> the form's charge-less SP2 (「任一段打中都能接」); not L
           (check (every (lambda (sg) (eq (kit-next k (nm sg) :sp2c) (find-move sp2))) '("J1" "J2" "J3" "JL1" "JL2" "JL3" "K1" "K2" "K3" "KL1" "KL2" "KL3")))
-          (check (notany (lambda (sg) (kit-next k (nm sg) :sp2c)) '("L1" "L2" "L3")))
-          (dolist (s '("L1" "L2" "L3" "J1" "J2" "J3" "K1" "K2" "K3" "JL1" "JL2" "JL3" "KL1" "KL2" "KL3"))
+          (check (notany (lambda (sg) (kit-next k (nm sg) :sp2c)) (ls)))
+          (dolist (s (append (ls) '("J1" "J2" "J3" "K1" "K2" "K3" "JL1" "JL2" "JL3" "KL1" "KL2" "KL3")))
             (let* ((m (mv s)) (far (member s '("JL1" "JL2" "JL3" "KL1" "KL2" "KL3") :test #'string=))
                    (n (cdr (assoc s '(("L1" . 1) ("L2" . 1) ("L3" . 1) ("J1" . 1) ("J2" . 1) ("J3" . 1) ("K1" . 1) ("K2" . 1) ("K3" . 1))
                                   :test #'string=))))
@@ -2901,7 +2903,10 @@ defender's next step. Values: the attacker's and the defender's first actionable
               (check (eq (second (assoc 0 (mv-on-frame m))) (if far 'br-s-spend 'br-s-start)))))
           (check (and (= (mv-dmg (mv "L1")) *br-s-l-dmg*) (= (mv-dmg (mv "K2")) *br-s-k-dmg*) (= (mv-dmg (mv "J1")) *br-s-j-dmg*)
                       (= (mv-dmg (mv "KL1")) *br-s-kl-dmg*) (= (mv-dmg (mv "JL2")) *br-s-jl-dmg*)))
-          (check (equal (mapcar (lambda (sg) (getf (mv-params (mv sg)) :gain)) '("L1" "L2" "L3")) '(0 1 2)))
+          (if (string= pre "BR-S")
+              (check (equal (mapcar (lambda (sg) (getf (mv-params (mv sg)) :gain)) '("L1" "L2" "L3")) '(0 1 2)))
+              (check (and (getf (mv-params (mv "L1")) :dash) (equal (mv-hold (mv "L1")) (list 0 *br-w-l-hold*))
+                          (null (gethash (nm "L2") *moves*)))))   ; (R10: held 3 levels; no L2 / L3)
           (check (every (lambda (sg) (getf (mv-params (mv sg)) :end)) '("J3" "K3" "JL3" "KL3")))
           (check (notany (lambda (sg) (getf (mv-params (mv sg)) :end)) '("JL1" "JL2" "KL1" "KL2")))   ; (3 segments, 「每段花 1，共 3」)
           (check (and (eq :quick (mv-kind (mv "J1"))) (eq :flash (mv-kind (mv "K1"))) (eq :sig (mv-kind (mv "KL1")))
@@ -2910,20 +2915,20 @@ defender's next step. Values: the attacker's and the defender's first actionable
           ;; (§8.5: every follow-up segment its own clip, none an opener's, each at its move's own frames: :clip-s = startup)
           (let ((fl '("JL1" "JL2" "JL3" "KL1" "KL2" "KL3")))
             (check (= 6 (length (remove-duplicates (mapcar (lambda (sg) (mv-clip (mv sg))) fl)))))
-            (check (notany (lambda (sg) (member (mv-clip (mv sg)) (mapcar (lambda (o) (mv-clip (mv o))) '("L1" "L2" "L3" "J1" "J2" "J3" "K1" "K2" "K3"))))
+            (check (notany (lambda (sg) (member (mv-clip (mv sg)) (mapcar (lambda (o) (mv-clip (mv o))) (append (ls) '("J1" "J2" "J3" "K1" "K2" "K3")))))
                            fl))
             (check (every (lambda (sg) (= 1.0 (mv-clip-speed (mv sg)))) fl)))
           ;; every hit combos: within a move each hit before the last one's stun ends; a link's first hit before the stun of
           ;; the last hit of the move it follows (the link starts from its S + A)
-          (dolist (s '("L1" "L2" "L3" "J1" "J2" "J3" "K1" "K2" "K3"))
+          (dolist (s (append (ls) '("J1" "J2" "J3" "K1" "K2" "K3")))
             (let ((hs (mv-hits (mv s))))
               (loop for a from 0 below (1- (length hs))
                     do (let ((w (svref hs a)) (x (svref hs (1+ a))))
                          (check (or (< (- (hw-from x) (hw-from w)) (or (hw-stun w) (hitstun (hw-react w))))
                                     (format t "~a ~a: hit ~d -> ~d~%" pre s a (1+ a))))))))
-          (dolist (pair '(("J1" "J2") ("J2" "J3") ("J3" "JL1") ("JL1" "JL2") ("JL2" "JL3") ("K1" "K2") ("K2" "K3") ("K3" "KL1")
-                          ("KL1" "KL2") ("KL2" "KL3")
-                          ("L1" "L2") ("L2" "L3")))
+          (dolist (pair (append (if (string= pre "BR-S") '(("L1" "L2") ("L2" "L3")))
+                                '(("J1" "J2") ("J2" "J3") ("J3" "JL1") ("JL1" "JL2") ("JL2" "JL3") ("K1" "K2") ("K2" "K3") ("K3" "KL1")
+                                  ("KL1" "KL2") ("KL2" "KL3"))))
             (let* ((a (mv (first pair))) (n (mv (second pair))) (w (svref (mv-hits a) (1- (length (mv-hits a)))))
                    (gap (+ (- (+ (mv-s a) (mv-a a)) (hw-from w)) (- (mv-first-hit n) (mv-enter n))))
                    (stun (or (hw-stun w) (hitstun (hw-react w)))))
@@ -2940,8 +2945,8 @@ defender's next step. Values: the attacker's and the defender's first actionable
 ;; (:sp2c through BR-S-TICK), combo
 (let ((b (kit :barro :base)) (om (kit :barro :shin-kin)) (or* (kit :barro :shin)))
   (declare (ignorable b))
-  (check (and (~= *br-w-l-slow* 1.5) (= 12 (mv-s (find-move :br-e-l1))) (= 12 (mv-s (find-move :br-oe-l3))) (= 8 (mv-s (find-move :br-s-l1)))))
-  (check (equal (loop for w across (mv-hits (find-move :br-e-l3)) collect (hw-from w)) '(12)))   ; (R7: one hit a press)
+  (check (and (~= *br-w-l-slow* 1.5) (= 12 (mv-s (find-move :br-e-l1))) (= 12 (mv-s (find-move :br-oe-l1))) (= 8 (mv-s (find-move :br-s-l1)))))
+  (check (equal (loop for w across (mv-hits (find-move :br-e-l1)) collect (hw-from w)) '(12)))   ; (R7: one hit a press)
   (check (equal (loop for w across (mv-hits (find-move :br-s-l3)) collect (hw-from w)) '(8)))
   (check (and (~= (hw-kb (svref (mv-hits (find-move :br-e-j1)) 0)) *br-w-kb*) (~= (hw-kb (svref (mv-hits (find-move :br-oe-k3)) 0)) *br-w-kb*)
               (~= (hw-kb (svref (mv-hits (find-move :br-s-j1)) 0)) 0.3)))   ; (the melee openers barely push: in reach all string)
@@ -2957,10 +2962,15 @@ defender's next step. Values: the attacker's and the defender's first actionable
   ;; R5 (「架式 > L 只要沒打中就進入硬直」「就跟一般的 J / K 普攻一樣」): a whiffed stance L recovers as a J link (R + *WHIFF-EXTRA-J*;
   ;; BR-S-TICK starts the next L / L L link only after a contact)
   (dolist (pre '("BR-S" "BR-E" "BR-OE"))
-    (dolist (sg '("L1" "L2" "L3"))
+    (dolist (sg (if (string= pre "BR-S") '("L1" "L2" "L3") '("L1")))
       (let ((m (find-move (intern (format nil "~a-~a" pre sg) :keyword))))
         (check (= (mv-whiff m) (+ (mv-r m) *br-s-l-whiff*))))))
   (check (= *br-s-l-whiff* *whiff-extra-j*))
+  ;; R10 (「L 衝刺改成只能衝一次不能連接，但可以三階段續力…」): the awakened L held 0-60 f, levels at 20 / 40 f; by level the dash's
+  ;; longest, its damage on the move's 16 and its specials
+  (check (and (= 1 (br-w-l-level 0)) (= 1 (br-w-l-level 19)) (= 2 (br-w-l-level 20)) (= 3 (br-w-l-level 40)) (= 3 (br-w-l-level 60))))
+  (check (and (equal *br-w-l-dash-max* '(6.0 8.0 10.0)) (equal *br-w-l-bonus* '(0 16 32)) (equal *br-w-l-gain* '(1 2 3))
+              (null (kit-next (kit :barro :jilliel) :br-e-l1 :lchain)) (null (kit-next (kit :barro :shin) :br-oe-l1 :lchain))))
   (check (null (kit-next (kit :barro :jilliel-kin) :br-w-k1 :sp2c))))   ; (JILLIEL's own K: no SP2 cancel, as before)
   ;; the base stance: L picks the strings; the Step and its J
   (dolist (s '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re))
@@ -3178,13 +3188,13 @@ past the ends; DEFAULT if the clip is not listed."
     ;; R9 (DUEL_LILLE_V3 §14, 「拿掉砲擊」): K3 is the turn and the overhead split, no blast; the L dash clips (no striking
     ;; tip: the dash is the reach) are the moves' own, at 8 / 12 of their speed
     (dolist (pre '("BR-E" "BR-OE"))
-      (dolist (sn '("L1" "L2" "L3"))
+      (dolist (sn '("L1"))   ; (R10: one charged dash)
         (let ((mv (find-move (intern (format nil "~a-~a" pre sn) :keyword))))
           (push (mv-clip mv) seen)
           (check (or (and (eq (mv-clip mv) (intern (format nil "~a-~a" (if (string= pre "BR-E") "BR-EN" "BR-OEN") sn) :keyword))
                           (~= (mv-clip-speed mv) (/ 1 *br-w-l-slow*)) (= (round (* 60 (clip-mark (mv-clip mv) :s))) 8))
                      (format t "~a: clip ~a at ~,2f~%" (mv-name mv) (mv-clip mv) (mv-clip-speed mv))))))))
-  (check (= 30 (length (remove-duplicates seen)))))
+  (check (= 26 (length (remove-duplicates seen)))))
 
 ;; The gate's match length leaves the cinematics out (the user, 2026-10-08: 「毀魂技演出不計入對戰時長」, every cinematic):
 ;; PLAY-TICKS (flow's MATCH-PLAY-TICKS) are the frames the timer ran (it stops while a cinematic plays: MAIN's step)
