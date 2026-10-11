@@ -665,3 +665,20 @@ ALL PASS; build 0 warnings; browser: K K K, J J J, L L L (JILLIEL EN) and J J J 
 **outside 125–210, reported to the user, not retuned** (gate policy). Cause: a segment's damage kept in one hit at S (A 2),
 so a string lands its damage in fewer frames. Awaken A/B (39020, 60 seeds, seed0 100 / 300 / 500, the never-awaken side's
 wins): BK 51 / 44 / 43, BB 55 / 57 / 54: pass.
+
+## 13. Decision R8 (2026-10-11): the Monster Hunter great sword, the K route's blasts
+
+The user (verbatim):
+
+> - 大刀的揮舞動作請對魔物獵人進行調查，身體動作大而誇張，可以進行形變來強化動作效果
+> - K 砲擊銜接的 L 也用一樣的砲擊特效炸在不同位置上
+
+The survey: `docs/research/lille2-motion-styles/notes.md` (addendum). The choice [G] (looks only; frame data unchanged):
+- **K1 = the level-3 Charged Slash**: the wing hauled over the shoulder, the body stretched tall on the wind-up, a squat as
+  the tell, then the overhead slam into the floor: the body squashed wide, the blade smeared long, held a beat.
+- **J3's cleaver = the True Charged Slash**: from the whips, a shoulder-barge lean in, then one full-body swing round with the
+  body twisting through, stretched then squashed.
+- **The K route's L L (KL1 KL2 KL3, the awakened forms after K3's blast)**: the 萬物貫通 line drawn as K3's light-ball blast
+  instead of a line, each segment at a different spot round the line's point at his distance (KL1 off to one side and
+  high, KL2 the other side low, KL3 big on him); the line's hit unchanged.
+

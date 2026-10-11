@@ -46,3 +46,31 @@ Sources: [TV Tropes: Finishing Move](https://tvtropes.org/pmwiki/pmwiki.php/Main
 [Sol Badguy guide (Upcomer)](https://upcomer.com/guilty-gear-strive-sol-badguy-character-guide/),
 [DMC3 weapons (StrategyWiki)](https://strategywiki.org/wiki/Devil_May_Cry_3:_Dante's_Awakening/Weapons_and_Upgrades),
 [BLEACH Rebirth of Souls system trailer](https://www.bandainamcoent.com/news/bleach-rebirth-of-souls-system-trailer).
+
+## Addendum (2026-10-11): Monster Hunter's great sword, and deformation
+
+The user (verbatim): 「大刀的揮舞動作請對魔物獵人進行調查，身體動作大而誇張，可以進行形變來強化動作效果」.
+
+- **Charged Slash (levels 1–3)**: the blade hauled over the shoulder, the hunter rooted while it charges (he can't move);
+  at level 3 a quick squat is the tell; released, a vertical overhead slash. Every swing is a commitment.
+- **True Charged Slash**: a long wind-up, two damage instances in one full-body swing; the **Tackle** (a shoulder barge
+  with hyper armour) keeps the combo going into it.
+- **Wide Slash** (a horizontal arc) and **Rising Slash** fill the gaps.
+- **Hitstop**: a brief pause on impact makes the charged hits feel heavier; most noticeable on the True Charged Slash.
+- Animation principles for weight: squash and stretch on the impact frame (the body compressing, held a beat), a long
+  anticipation (here kept readable, not sluggish: the wind-up is the move's startup, the tell is the squat), follow-through
+  (the blade buried, the trail persisting).
+
+The choice (DUEL_LILLE_V3 §13): K1 = the level-3 Charged Slash (the wing over the shoulder, the body stretched tall on the
+wind-up, the squat tell, the overhead slam into the floor with the body squashed wide and the blade smeared long); J3's
+cleaver = the True Charged Slash (a shoulder-barge lean in, then one full-body swing round, the body twisting through,
+stretched and squashed). Deformation is a look (the sim never reads art).
+
+Sources: [Hitstop in Monster Hunter Wilds](https://deltiasgaming.com/?p=113987),
+[Great Sword (MHW wiki)](https://monsterhunterworld.wiki.fextralife.com/Great%20Sword),
+[MH Rise Great Sword guide (Prima)](https://primagames.com/tips/monster-hunter-rise-greatsword-guide),
+[MH Wilds Great Sword guide (Icy Veins)](https://www.icy-veins.com/monster-hunter-wilds/great-sword-guide),
+[How to master the Great Sword](https://deltiasgaming.com/?p=77782),
+[MHW Great Sword guide (Kiranico)](https://mhworld.kiranico.com/guide/great-sword),
+[The 12 Principles of Animation, reframed for games](https://anim.works/?p=23056),
+[Animation principles for game development](https://playbooks.com/skills/dylantarre/animation-principles/game-development).
