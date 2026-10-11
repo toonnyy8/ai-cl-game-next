@@ -863,7 +863,7 @@ specials' cap; the pacing clocks."
   "After a hit he dealt (his kit's :hit): a stance shot's gains, once a move (decision R2): L the specials (BR-L-GAIN, a hit
 or a block), J J / its L L follow-up flash step and Reiatsu (BR-RECOVER-GAIN), the first contact of the move's hits; the stance's first hit and the volley's
 last beam slow the match; the pacing log."
-  (declare (ignore def ranged))
+  (declare (ignore ranged))
   (let ((st (br att)) (c (contact-of res)) (role (and mv (not hazard) (getf (mv-params mv) :stance))))
     (when (and role (member c '(:hit :block)) (not (brs-gained st)))
       (setf (brs-gained st) t)

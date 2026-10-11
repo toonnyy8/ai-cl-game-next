@@ -755,7 +755,21 @@ The user (verbatim, on v65):
 | L | L1 → L2 → L3 dashes | **one dash, held to charge** (`:hold (0 60)`): level 1 / 2 / 3 at < 20 / 20 / 40 f (`*br-w-l-levels*`); by level the dash's longest 6 / 8 / 10 m (`*br-w-l-dash-max*`), damage 16 / 32 / 48 (`*br-w-l-bonus*` +0 / 16 / 32), the specials 1 / 2 / 3 (`*br-w-l-gain*`), more crossing cuts; no L link |
 
 The base stance's L string is unchanged. Host tests 8233, ALL PASS (the levels, the knobs, no L link in the awakened
-forms); the art in progress (a subagent's batch).
+forms).
+
+As built (the art, barro-art.lisp / lille-art.lisp): the JL moves spawn their look hazard as `:whip` (not drawn; the hit and
+the hazard count the line's); `%BR-WHIP-REACH` (draw time only, `*lb-wf*` slots 80–88, the vector 80 → 92) carries the striking
+front wing (the owl: its claw's gold lash) toward his facing line at the opponent's distance (≤ 31 m), 1.1 m up, out over
+2 f before S, held 3 f, back over 5 f, JILLIEL's jade lash ribbon `%BR-WHIP-LASH`, a crack star on him at S; Lille's look
+bit-identical (the slots zeroed). K3 (`:br-en-roll-r`, `-split-top`, `-split`, `-split-low`, the owl's too): from K2's
+low-right chop a linear full turn right on the root's yaw f2–f13 with the pelvis rolled −10 to −24° (no root roll channel),
+the wing rising to straight overhead f13–f16, the split f17–f18 (S 18), its tip 2.95 / 2.83 m. L: the move's `:clip` the
+charge pose `:br-en-lc` / `:br-oen-lc` (held to 60 f), the dash `:clip-2` on release; by level the body coiled lower and
+wider, the wings swept tighter, 4 / 8 / 12 motes, the core lit from level 2 (white at 3), a flash and star burst at 20 / 40 f
+held, the streaks ×1 / 1.5 / 2.1, the cuts 5 / 9 / 13 (2.2 / 2.5 / 2.8 m); the old L2 / L3 clips deleted. Debug 82320+m:
+m = 1 / 21 / 41 the stance scene with nothing started (a script holds KeyL). 0 B a frame on every new path. Host tests 8257
+(with §15.1), pkgcheck 0, build 0 warnings. Browser (v66): L tapped / held 30 / 50 f hit 16 / 32 / 48 (both forms); J J J
+→ L L L all hit (J3's end push 1.0 m); K K K all hit (K3's end push 2.1 m, the owl's 2.0). Playtest v66.
 
 ### 15.1 The stance strings' end push (2026-10-11)
 
