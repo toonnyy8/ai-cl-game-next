@@ -426,27 +426,15 @@
 ;;; Decision R3 (the user, 2026-10-11): 「架式 > JJ/KK > LL 中，最後一段 LL 會依據前面 J/K 有不同的動作模組」, three segments
 ;;; (「每段花 1，共 3」), each one 萬物貫通 line fired on S (barro.lisp's BR-DEFSTANCE; the clips at their moves' own frames,
 ;;; :clip-s = startup). The L style carried on (「風格延續」: one line a beat, as the L string), the route's own body:
-;;; - the J route 疾射 (S 8, A 2, R 14 / 14 / 16): light, on the move, one wing / claw a beat from a slide, both from a
-;;;   hop back;
-;;; - the K route 重砲 (S 10, A 2, R 16 / 16 / 20): planted and heavy, both at once every beat.
+;;; - the J route (S 8, A 2, R 14 / 14 / 16): since R9 (DUEL_LILLE_V3 §14) the awakened forms' are the whips (:br-e-jf* /
+;;;   :br-oe-jf*, after the openers below);
+;;; - the K route 重砲 (S 10, A 2, R 16 / 16 / 20): planted and heavy, both at once every beat (drawn as balls of light
+;;;   since R8).
 ;;; JILLIEL EN fires from the front wings, the owl EN from its claws (the base form's follow-ups are above, solved on
 ;;; Diagramm's muzzle: JL1 the whip, JL2 the spin, JL3 the hop back; KL1 the stamp, KL2 the kneel, KL3 the finisher from
 ;;; the knee). The root's side / back offsets are the clip's only: the sim does not move him.
-;; JILLIEL EN: 疾射 a single front wing thrust at him from a slide (the right from his right, the left from his left), then
-;; both from a hop back; 重砲 both wings at once every beat, planted: swept up from low, slammed down from high, the
-;; NIJUSHI-KO ring held and its recoil
-(defstrike :br-e-jf1 (8 2 14 :base :lb-w-stance)
-  (0) (3 :br-cock-r (:root :r -0.2)) (6 :br-cock-r (:root :r -0.36 :u 0.14))
-  (:s :snap :br-fire-r (:root :r -0.4)) (:a :br-kick-r (:root :r -0.4)) (18 :br-settle-both (:root :f -0.1 :r -0.22 :u 0.04))
-  (:end :lb-w-stance))
-(defstrike :br-e-jf2 (8 2 14 :base :lb-w-stance)
-  (0 :lb-w-stance (:root :r -0.2)) (3 :br-cock-l (:root :r 0.14)) (6 :br-cock-l (:root :r 0.36 :u 0.14))
-  (:s :snap :br-fire-l (:root :r 0.4)) (:a :br-kick-l (:root :r 0.4)) (18 :br-settle-both (:root :f -0.1 :r 0.22 :u 0.04))
-  (:end :lb-w-stance))
-(defstrike :br-e-jf3 (8 2 16 :base :lb-w-stance)
-  (0 :lb-w-stance (:root :r 0.2)) (3 :br-cock-both (:root :u 0.06)) (6 :br-cock-both (:root :f -0.3 :u 0.3))
-  (:s :snap :br-fire-both (:root :f -0.08 :u 0.34)) (:a :br-kick-both (:root :f -0.4 :u 0.3))
-  (18 :br-settle-both (:root :f -0.42 :u 0.1)) (:end :lb-w-stance))
+;; JILLIEL EN: 重砲 both wings at once every beat, planted: swept up from low, slammed down from high, the NIJUSHI-KO ring
+;; held and its recoil
 (defstrike :br-e-kf1 (10 2 16 :base :lb-w-stance)
   (0) (5 :br-low-both) (9 :br-low-both (:root :f -0.08 :u -0.08))
   (:s :snap :br-fire-both (:root :f 0.1 :u -0.02)) (:a :br-kick-both) (20 :br-settle-both) (:end :lb-w-stance))
@@ -459,18 +447,6 @@
   (:s :snap :br-fire-both (:root :f 0.0 :u 0.3)) (:a :br-blown-pose (:root :f -0.56 :u 0.38))
   (24 :br-settle-both (:root :u 0.14)) (:end :lb-w-stance))
 ;; the owl EN: the same two bodies on its claws (the volley's solved keys)
-(defstrike :br-oe-jf1 (8 2 14 :base :lb-oe-stance)
-  (0) (3 :br-o-cock-r (:root :r -0.2)) (6 :br-o-cock-r (:root :r -0.34))
-  (:s :snap :br-o-fire-r (:root :r -0.38 :f 0.1)) (:a :br-o-kick-r (:root :r -0.38 :f 0.06))
-  (18 :lb-oe-stance (:root :r -0.18)) (:end :lb-oe-stance))
-(defstrike :br-oe-jf2 (8 2 14 :base :lb-oe-stance)
-  (0 :lb-oe-stance (:root :r -0.18)) (3 :br-o-cock-l (:root :r 0.14)) (6 :br-o-cock-l (:root :r 0.34))
-  (:s :snap :br-o-fire-l (:root :r 0.38 :f 0.1)) (:a :br-o-kick-l (:root :r 0.38 :f 0.06))
-  (18 :lb-oe-stance (:root :r 0.18)) (:end :lb-oe-stance))
-(defstrike :br-oe-jf3 (8 2 16 :base :lb-oe-stance)
-  (0 :lb-oe-stance (:root :r 0.18)) (3 :br-o-cock-both (:root :u 0.1)) (6 :br-o-cock-both (:root :f -0.3 :u 0.3))
-  (:s :snap :br-o-fire-both (:root :f -0.06 :u 0.3)) (:a :br-o-kick-both (:root :f -0.4 :u 0.26))
-  (18 :br-o-kick-both (:root :f -0.3 :u 0.1)) (:end :lb-oe-stance))
 (defstrike :br-oe-kf1 (10 2 16 :base :lb-oe-stance)
   (0) (5 :br-o-low-both) (9 :br-o-low-both (:root :u -0.16))
   (:s :snap :br-o-launch-both) (:a :br-o-launch-both (:root :f 0.2 :u 0.2)) (20 :br-o-kick-both) (:end :lb-oe-stance))
@@ -508,12 +484,16 @@
 ;;; R6 (§11) made the great blade one wing a chop, grown on the pull (J3's last, K1), and the blast a ball of light; R7
 ;;; (§12, the user 2026-10-11: 「我希望段數跟操作時的點擊次數一致」) one strike a press: L1 / L2 / L3 one top turn each (the
 ;;; spin carried across the links), J1 / J2 one whip each, J3 the cleaver (S 14), K1 the great blade (S 16), K2 one
-;;; folded-wing blow, K3 the cannon.
+;;; folded-wing blow, K3 the cannon. R9 (§14, the user 2026-10-11: 「架式 J 的蓄力斬合併到架式 K 連打中」, 「原本架式 L 的轉圈
+;;; 改到架式 J，而原本架式 J > L 的動作模組改成原本架式 J 的鞭打」, 「架式 L 的動作模組改成八翼往後收、身體前傾高速衝向對手」,
+;;; 「拿掉砲擊」): J1 / J2 / J3 the top turns, the J route's L L the whips, K1 the charged slash (R to L), K2 the backhand (his
+;;; left to his lower right), K3 the turn round and the overhead split (the blast gone), L1 / L2 / L3 the dash through him
+;;; (the sim slides him) and the cuts on him after (%BR-CUTS-LOOK); the swings' in-betweens through their arcs.
 ;;; Every key starts from a named pose, so a key's overrides never leak into the next. Tips in m (right, up, ahead) are the
 ;;; host's FK; the arm angles at the hit poses were solved to them.
 
 ;; JILLIEL EN's poses (base :lb-w-stance: the front wings' tips are the rig's hands)
-;; L 陀螺: the spin is the pelvis's twist (inside the root's forward tilt: the axis leans at him and stays leaning while
+;; 陀螺 (J since R9, L before): the spin is the pelvis's twist (inside the root's forward tilt: the axis leans at him and stays leaning while
 ;; everything above the pelvis turns); +90 puts the right wing on his line, +270 the left
 (defpose :br-en-wind (:base :lb-w-stance)          ; the top wound up: coiled back to the right, the wings drawn in
   (:root :u 0.02 :pitch 4) (:pelvis :twist -40) (:spine :flex 6) (:chest :twist -22) (:head :flex 6)
@@ -527,7 +507,7 @@
 (defpose :br-en-top-high (:base :lb-w-stance)      ; L3's: spun up and risen, the tilt less, the wings flat and high
   (:root :f 0.08 :u 0.3 :pitch 10) (:spine :flex 0) (:head :flex -4)
   (:arm-r :flex 0 :side 94) (:elbow-r :flex 0) (:arm-l :flex 0 :side 94) (:elbow-l :flex 0))
-;; J 長鞭: the front wings stretched long (*BR-W-STRETCH*), cracked from high: the striking wing thrown down at him, the
+;; 長鞭 (the J route's L L since R9, J before): the front wings stretched long (*BR-W-STRETCH*), cracked from high: the striking wing thrown down at him, the
 ;; other cocked overhead for the next
 (defpose :br-en-cock (:base :lb-w-stance)          ; both whips raised overhead, the wrists high (the lashes' wind-up)
   (:root :u 0.04 :pitch -4) (:spine :flex -4) (:head :flex -2)
@@ -538,11 +518,11 @@
 (defpose :br-en-crack-l (:base :lb-w-stance)
   (:root :f 0.08 :u -0.02 :pitch 6) (:spine :flex 10) (:chest :twist -8) (:head :flex 4)
   (:arm-l :flex 103.8 :side 1.3) (:elbow-l :flex 0) (:arm-r :flex 150 :side 30) (:elbow-r :flex 36))
-;; 大砍刀 (K1's chop, J3's; R6, DUEL_LILLE_V3 §11: 「大砍刀的動作要更緩慢沉重、扭轉身體、砍刀後拉，每次只用一隻光翼
+;; 大砍刀 (K1 K2 K3 since R9: the charged slash, the backhand, the turn and the split; R6, DUEL_LILLE_V3 §11: 「大砍刀的動作要更緩慢沉重、扭轉身體、砍刀後拉，每次只用一隻光翼
 ;; 揮砍，揮砍前光翼隨身體的距離伸長放大」): ONE wing a chop, the body wound away from him, the wing pulled back behind the
 ;; head and grown (*BR-W-STRETCH*, *LB-STRETCH-GROW*: longer and wider with the pull), held, then swung down through his
 ;; line with the body unwinding after it; the other wing held back
-;; 近身 (K2): stepped in, one blow with the folded left wing (elbow bent, ~1.3 m), from a coil
+;; R9 (§14): K2's backhand from his left down to his lower right; L's dash (crouched, the wings swept back, leaning low)
 (defpose :br-en-heave-r (:base :lb-w-stance)       ; the right wing pulled back behind the head, the body wound away from him
   (:root :f -0.16 :u 0.06 :yaw -24 :pitch -8) (:pelvis :twist -16) (:spine :flex -10) (:chest :twist -46) (:head :twist 30)
   (:arm-r :flex 215 :side 24) (:elbow-r :flex 10) (:arm-l :flex -30 :side 36) (:elbow-l :flex 20)
@@ -555,38 +535,47 @@
   (:root :f 0.24 :u -0.16 :yaw 20 :pitch 20) (:pelvis :twist 14) (:spine :flex 28) (:chest :twist 34) (:head :flex 10)
   (:arm-r :flex 30 :side -30) (:elbow-r :flex 0) (:arm-l :flex -30 :side 36) (:elbow-l :flex 20)
   (:thigh-r :flex 30) (:thigh-l :flex -22))
-(defpose :br-en-bash-cock-l (:base :lb-w-stance)
-  (:root :f 0.3 :u 0.06 :yaw 14 :pitch -6) (:spine :flex -6) (:chest :twist 30) (:head :twist -14)
-  (:arm-l :flex 150 :side 50) (:elbow-l :flex 110) (:arm-r :flex 50 :side 40) (:elbow-r :flex 90)
-  (:thigh-l :flex -10) (:thigh-r :flex 16))
-(defpose :br-en-bash-l (:base :lb-w-stance)
-  (:root :f 0.32 :u -0.08 :yaw -8 :pitch 12) (:spine :flex 18) (:chest :twist -14) (:head :flex 6)
-  (:arm-l :flex 61.8 :side -20) (:elbow-l :flex 117.4) (:arm-r :flex 40 :side 40) (:elbow-r :flex 100)
-  (:thigh-l :flex 28) (:thigh-r :flex -20))
-(defpose :br-en-barge (:base :lb-w-stance)         ; J3's Tackle (R8, §13): lunging in, the left shoulder first, the wings in
-  (:root :f 0.3 :u -0.06 :yaw -20 :pitch 12) (:spine :flex 14) (:chest :twist -30) (:head :flex 6 :twist 16)
-  (:arm-l :flex 30 :side 20) (:elbow-l :flex 100) (:arm-r :flex -30 :side 30) (:elbow-r :flex 30)
-  (:thigh-l :flex 30) (:thigh-r :flex -22))
-(defpose :br-en-cannon-load (:base :lb-w-stance)   ; 零距離砲擊's load: stepped in, both wings drawn back to the chest
-  (:root :f 0.26 :u -0.08 :pitch 4) (:spine :flex 8) (:head :flex 4)
-  (:arm-r :flex 60 :side 30) (:elbow-r :flex 110) (:arm-l :flex 60 :side 30) (:elbow-l :flex 110)
-  (:thigh-r :flex 30) (:thigh-l :flex -20))
-(defpose :br-en-cannon (:base :lb-w-stance)        ; ... both tips thrust together into him at point blank: the blast
-  (:root :f 0.3 :u -0.06 :pitch 6) (:spine :flex 10) (:head :flex 4)
-  (:arm-r :flex 51.2 :side 30) (:elbow-r :flex 113.9) (:arm-l :flex 51.2 :side 30) (:elbow-l :flex 113.9)
-  (:thigh-r :flex 32) (:thigh-l :flex -22))
-(defpose :br-en-blown (:base :lb-w-stance)         ; ... blown back by it, the wings flung up and open
-  (:root :f 0.1 :u 0.12 :pitch -12) (:spine :flex -14) (:head :flex -12)
-  (:arm-r :flex 120 :side 50) (:elbow-r :flex 20) (:arm-l :flex 120 :side 50) (:elbow-l :flex 20)
-  (:thigh-r :flex -8) (:thigh-l :flex 10))
-
+(defpose :br-en-back-up-r (:base :lb-w-stance)     ; K2 (R9): the blade carried up over the left shoulder, wound left
+  (:root :f 0.1 :u 0.06 :yaw 16 :pitch -4) (:pelvis :twist 14) (:spine :flex -6) (:chest :twist 36) (:head :twist -20)
+  (:arm-r :flex 133.8 :side 34.2) (:elbow-r :flex 10) (:arm-l :flex -30 :side 36) (:elbow-l :flex 20)
+  (:thigh-l :flex -10) (:thigh-r :flex 14))
+(defpose :br-en-backhand-r (:base :lb-w-stance)    ; ... swung down from his left to his right through his line
+  (:root :f 0.2 :u -0.06 :yaw -6 :pitch 12) (:pelvis :twist -8) (:spine :flex 18) (:chest :twist -14) (:head :flex 6)
+  (:arm-r :flex 133.2 :side 57.5) (:elbow-r :flex 0) (:arm-l :flex -30 :side 36) (:elbow-l :flex 20)
+  (:thigh-r :flex 26) (:thigh-l :flex -18))
+(defpose :br-en-backhand-low-r (:base :lb-w-stance)   ; ... and on down to his lower right, the body following
+  (:root :f 0.26 :u -0.14 :yaw -16 :pitch 18) (:pelvis :twist -16) (:spine :flex 26) (:chest :twist -34) (:head :flex 10)
+  (:arm-r :flex 35 :side 55) (:elbow-r :flex 0) (:arm-l :flex -30 :side 36) (:elbow-l :flex 20)
+  (:thigh-r :flex 30) (:thigh-l :flex -22))
+(defpose :br-en-dash-load (:base :lb-w-stance)     ; L (R9): crouched to spring, the wings folding back
+  (:root :u -0.1 :pitch 18) (:spine :flex 14) (:head :flex -10)
+  (:arm-r :flex -40 :side 34) (:elbow-r :flex 40) (:arm-l :flex -40 :side 34) (:elbow-l :flex 40))
+(defpose :br-en-dash (:base :lb-w-stance)          ; ... the dash: leaning far forward, low, the wings swept straight back
+  (:root :u -0.16 :pitch 40) (:spine :flex 16) (:head :flex -30)
+  (:arm-r :flex -72 :side 16) (:elbow-r :flex 6) (:arm-l :flex -72 :side 16) (:elbow-l :flex 6))
+(defpose :br-en-dash-stop (:base :lb-w-stance)     ; ... braking past him, rising, the wings opening again
+  (:root :f -0.1 :u 0.02 :pitch -10) (:spine :flex -6) (:head :flex 4)
+  (:arm-r :flex -20 :side 60) (:elbow-r :flex 20) (:arm-l :flex -20 :side 60) (:elbow-l :flex 20))
 ;; JILLIEL EN's nine openers (the moves :br-e-l1 .. -k3; R7, DUEL_LILLE_V3 §12: one strike a press, S A R from *BR-S-SEGS* /
 ;; *BR-W-SEGS*; L authored at S 8 and played at 2 / 3). L: the spin (the pelvis's twist, linear :snap keys) carried across the
 ;; links: each segment's first key is the pose its predecessor holds at its S + A (clip f9.33 at 2 / 3: twist 138 =
 ;; -222 + 360), one turn to the right wing on his line at S (+90), then wound down to 360, unwound to 0 between two keys
 ;; 0.0001 f apart (never sampled: the samples fall on thirds of a frame). J1 / J2 one whip each (R, L), J3 / K1 the one-wing
 ;; great blade (R6), K2 one folded-wing blow, K3 零距離砲擊. Each later segment starts from its predecessor's S + A pose.
-(defstrike :br-en-l1 (8 2 14 :base :lb-w-stance)   ; L1 陀螺: wound up, one turn, the right wing across him f8
+(defstrike :br-en-l1 (8 7 9 :base :lb-w-stance)   ; L1 疾走 (R9): crouched, the wings folding back, leaning low; the dash through him from f8 (the sim slides him), braking past him
+  (0) (4 :br-en-dash-load) (7 :br-en-dash-load (:root :u -0.14 :pitch 24))
+  (:s :snap :br-en-dash) (13 :br-en-dash (:root :pitch 36)) (16 :br-en-dash-stop) (20 :br-en-dash-stop (:root :f 0 :u 0))
+  (:end :lb-w-stance))
+(defstrike :br-en-l2 (8 7 9 :base :lb-w-stance)   ; L2 疾走: lower, rolling as he passes, braking turned to his right
+  (0 :br-en-dash-stop) (4 :br-en-dash-load (:root :u -0.16)) (7 :br-en-dash-load (:root :u -0.2 :pitch 28))
+  (:s :snap :br-en-dash (:root :u -0.22 :pitch 46) (:pelvis :twist -20))
+  (13 :br-en-dash (:root :u -0.2 :yaw -30 :pitch 40) (:pelvis :twist -40))
+  (16 :br-en-dash-stop (:root :yaw -30)) (20 :br-en-dash-stop (:root :f 0 :u 0 :yaw -10)) (:end :lb-w-stance))
+(defstrike :br-en-l3 (8 7 12 :base :lb-w-stance)   ; L3 疾走: the longest lean, braking with a half turn back at him
+  (0 :br-en-dash-stop) (4 :br-en-dash-load (:root :u -0.12)) (7 :br-en-dash-load (:root :u -0.16 :pitch 26))
+  (:s :snap :br-en-dash (:root :u -0.12 :pitch 34)) (13 :br-en-dash (:root :pitch 30))
+  (16 :br-en-dash-stop (:root :yaw 40)) (22 :br-en-dash-stop (:root :yaw 20 :u 0.04)) (:end :lb-w-stance))
+(defstrike :br-en-j1 (8 2 12 :base :lb-w-stance)   ; J1 陀螺 (R9: the old L's spin): wound up, one turn, the right wing across him f8
   (0) (3 :br-en-wind)
   (:s :snap :br-en-top (:pelvis :twist 90)) (:a :snap :br-en-top (:pelvis :twist 162))
   (13 :snap :br-en-top (:root :pitch 10) (:pelvis :twist 250)) (16 :snap :br-en-top (:root :pitch 6 :u 0.04) (:pelvis :twist 320))
@@ -594,62 +583,75 @@
   (21 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
   (21.0001 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
   (:end :lb-w-stance))
-(defstrike :br-en-l2 (8 2 14 :base :lb-w-stance)   ; L2 陀螺: leaning lower, one more turn, the right wing across him f8
-  (0 :br-en-top (:pelvis :twist -222))
+(defstrike :br-en-j2 (8 2 12 :base :lb-w-stance)   ; J2 陀螺: leaning lower, one more turn (from J1's S + A twist 162 = -198), the right wing across him f8
+  (0 :br-en-top (:pelvis :twist -198))
   (:s :snap :br-en-top-low (:pelvis :twist 90)) (:a :snap :br-en-top-low (:pelvis :twist 162))
   (13 :snap :br-en-top-low (:pelvis :twist 250)) (16 :snap :br-en-top (:root :pitch 6 :u 0.04) (:pelvis :twist 320))
   (19 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 352) (:arm-r :side 84) (:arm-l :side 84))
   (21 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
   (21.0001 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
   (:end :lb-w-stance))
-(defstrike :br-en-l3 (8 2 18 :base :lb-w-stance)   ; L3 陀螺: spun up and rising, the right wing across him f8, wound down
-  (0 :br-en-top-low (:pelvis :twist -222))
+(defstrike :br-en-j3 (8 2 14 :base :lb-w-stance)   ; J3 陀螺: spun up and rising, the right wing across him f8, wound down
+  (0 :br-en-top-low (:pelvis :twist -198))
   (:s :snap :br-en-top-high (:root :u 0.16) (:pelvis :twist 90)) (:a :snap :br-en-top-high (:root :u 0.2) (:pelvis :twist 162))
   (14 :snap :br-en-top-high (:root :u 0.24) (:pelvis :twist 270)) (18 :snap :br-en-top (:root :u 0.14) (:pelvis :twist 330))
-  (22 :snap :br-en-top (:root :pitch 6 :u 0.04) (:pelvis :twist 355) (:arm-r :side 84) (:arm-l :side 84))
-  (24 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
-  (24.0001 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
+  (20 :snap :br-en-top (:root :pitch 6 :u 0.04) (:pelvis :twist 355) (:arm-r :side 84) (:arm-l :side 84))
+  (21 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
+  (21.0001 :snap :br-en-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
   (:end :lb-w-stance))
-(defstrike :br-en-j1 (8 2 12 :base :lb-w-stance)   ; J1 長鞭: the right whip cracked from high outside down across him f8
-  (0) (4 :br-en-cock) (7 :br-en-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
-  (:s :snap :br-en-crack-r) (:a :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
-  (16 :br-en-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
-  (:end :lb-w-stance))
-(defstrike :br-en-j2 (8 2 12 :base :lb-w-stance)   ; J2 長鞭: the left whip cracked the same way across him f8 (the figure-eight)
-  (0 :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
-  (4 :br-en-crack-r (:root :pitch -2) (:arm-r :flex 120 :side 40) (:arm-l :flex 166 :side 56))
-  (:s :snap :br-en-crack-l) (:a :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
-  (16 :br-en-crack-l (:root :f 0 :pitch 2) (:arm-l :flex 40 :side 40) (:elbow-l :flex 20) (:arm-r :flex 40 :side 50))
-  (:end :lb-w-stance))
-(defstrike :br-en-j3 (14 2 14 :base :lb-w-stance)   ; J3 True Charged Slash (R8): from the whips a shoulder barge f3-6, wound round, the right wing pulled back and grown, one full-body swing f14, twisting through
-  (0 :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
-  (3 :br-en-barge (:root :f 0.12)) (6 :br-en-barge) (8 :br-en-heave-r (:root :f 0.04))
-  (11 :br-en-heave-r (:root :f -0.16 :u 0.1) (:pelvis :twist -30) (:chest :twist -60) (:arm-r :flex 226))
+(defstrike :br-en-k1 (16 2 18 :base :lb-w-stance)   ; K1 Charged Slash (R8; R9 the in-betweens): hauled over the shoulder, stretched tall, the squat f10, sprung f11, the swing through the arc f12-f15, slammed R to L f16, held
+  (0) (4 :br-en-heave-r) (8 :br-en-heave-r (:root :f -0.2 :u 0.12 :pitch -10) (:chest :twist -54) (:arm-r :flex 226))
+  (10 :br-en-heave-r (:root :f -0.18 :u -0.18 :pitch -4) (:spine :flex 10) (:chest :twist -56) (:arm-r :flex 230))
+  (11 :br-en-heave-r (:root :f -0.12 :u 0.12 :pitch -12) (:chest :twist -52) (:arm-r :flex 232))
+  (12 :snap :br-en-heave-r (:root :f -0.08 :u 0.12 :pitch -10) (:pelvis :twist -12) (:chest :twist -44) (:arm-r :flex 228 :side 20))
+  (13 :snap :br-en-heave-r (:root :f -0.02 :u 0.08 :pitch -4) (:pelvis :twist -6) (:spine :flex -2) (:chest :twist -28)
+   (:arm-r :flex 214 :side 10))
+  (14 :snap :br-en-cleave-r (:root :f 0.04 :u 0.02 :yaw 2 :pitch 2) (:pelvis :twist 0) (:spine :flex 6) (:chest :twist -8)
+   (:arm-r :flex 192 :side -14))
+  (15 :snap :br-en-cleave-r (:root :f 0.1 :u -0.04 :yaw 8 :pitch 8) (:pelvis :twist 6) (:spine :flex 13) (:chest :twist 10)
+   (:arm-r :flex 168 :side -34))
   (:s :snap :br-en-cleave-r)
-  (:a :br-en-cleave-low-r (:root :yaw 44) (:pelvis :twist 30) (:chest :twist 56) (:arm-r :flex 40 :side -50))
-  (19 :br-en-cleave-low-r (:root :yaw 48 :u -0.2) (:pelvis :twist 32) (:chest :twist 60) (:arm-r :flex 36 :side -54))
-  (25 :br-en-cleave-low-r (:root :f 0.08 :u -0.06 :yaw 8 :pitch 10) (:pelvis :twist 4) (:spine :flex 14) (:chest :twist 12)
-   (:arm-r :flex 40 :side 20))
-  (:end :lb-w-stance))
-(defstrike :br-en-k1 (16 2 18 :base :lb-w-stance)   ; K1 Charged Slash (R8): the right wing hauled over the shoulder, stretched tall, the squat f14, sprung, slammed into the floor f16, held
-  (0) (5 :br-en-heave-r) (11 :br-en-heave-r (:root :f -0.2 :u 0.1) (:chest :twist -54) (:arm-r :flex 224))
-  (13 :br-en-heave-r (:root :f -0.22 :u 0.14 :pitch -12) (:chest :twist -56) (:arm-r :flex 228))
-  (14 :br-en-heave-r (:root :f -0.18 :u -0.18 :pitch -4) (:spine :flex 10) (:chest :twist -56) (:arm-r :flex 230))
-  (15 :br-en-heave-r (:root :f -0.08 :u 0.12 :pitch -12) (:chest :twist -50) (:arm-r :flex 232))
-  (:s :snap :br-en-cleave-r) (:a :br-en-cleave-low-r (:root :u -0.26) (:arm-r :flex 40 :side -6))
-  (22 :br-en-cleave-low-r (:root :u -0.26) (:arm-r :flex 38 :side -6))
+  (17 :snap :br-en-cleave-low-r (:root :u -0.16) (:arm-r :flex 96 :side -30))
+  (:a :br-en-cleave-low-r (:root :u -0.26) (:arm-r :flex 40 :side -6)) (22 :br-en-cleave-low-r (:root :u -0.26) (:arm-r :flex 38 :side -6))
   (30 :br-en-cleave-low-r (:root :f 0.06 :u -0.04 :yaw 4 :pitch 6) (:pelvis :twist 2) (:spine :flex 8) (:chest :twist 6)
    (:arm-r :flex 40 :side 30))
   (:end :lb-w-stance))
-(defstrike :br-en-k2 (12 2 18 :base :lb-w-stance)   ; K2 近身: stepped in, the left wing folded, clubbed down on him f12
-  (0 :br-en-cleave-low-r) (5 :br-en-bash-cock-l) (10 :br-en-bash-cock-l (:root :u 0.1) (:chest :twist 38))
-  (:s :snap :br-en-bash-l) (:a :br-en-bash-l (:root :f 0.36 :u -0.12) (:arm-l :flex 40))
-  (24 :br-en-bash-l (:root :f 0.16 :u 0 :pitch 2) (:spine :flex 4) (:chest :twist 0) (:arm-l :flex 40 :side 40) (:elbow-l :flex 60))
+(defstrike :br-en-k2 (12 2 18 :base :lb-w-stance)   ; K2 左往右下揮擊 (R9): carried on from K1, the blade hauled up over his left shoulder, swung down across him from his left to his lower right f12
+  (0 :br-en-cleave-low-r (:root :u -0.26) (:arm-r :flex 40 :side -6))
+  (4 :br-en-back-up-r (:root :u -0.02)) (7 :br-en-back-up-r (:root :u 0.08 :pitch -6) (:chest :twist 42) (:arm-r :flex 138))
+  (9 :snap :br-en-back-up-r (:root :f 0.14 :u 0.04 :yaw 10 :pitch 0) (:pelvis :twist 8) (:chest :twist 26) (:arm-r :flex 136 :side 40))
+  (10 :snap :br-en-backhand-r (:root :f 0.16 :u 0 :yaw 4 :pitch 4) (:pelvis :twist 2) (:spine :flex 8) (:chest :twist 10)
+   (:arm-r :flex 135 :side 46))
+  (11 :snap :br-en-backhand-r (:root :f 0.18 :u -0.03 :yaw -1 :pitch 8) (:pelvis :twist -3) (:spine :flex 13) (:chest :twist -2)
+   (:arm-r :flex 134 :side 52))
+  (:s :snap :br-en-backhand-r)
+  (13 :snap :br-en-backhand-low-r (:root :u -0.08) (:arm-r :flex 90 :side 56))
+  (:a :br-en-backhand-low-r) (19 :br-en-backhand-low-r (:root :u -0.18))
+  (26 :br-en-backhand-low-r (:root :f 0.08 :u -0.04 :yaw -4 :pitch 6) (:pelvis :twist -2) (:spine :flex 8) (:chest :twist -8)
+   (:arm-r :flex 40 :side 40))
   (:end :lb-w-stance))
-(defstrike :br-en-k3 (12 2 22 :base :lb-w-stance)   ; K3 零距離砲擊: both wings drawn in, both tips thrust into him point blank f12: the ball of light
-  (0 :br-en-bash-l (:root :f 0.36 :u -0.12) (:arm-l :flex 40)) (6 :br-en-cannon-load) (10 :br-en-cannon-load (:root :u -0.1))
-  (:s :snap :br-en-cannon) (:a :br-en-cannon (:root :f 0.26)) (18 :br-en-blown)
-  (26 :br-en-blown (:root :f 0 :u 0.06 :pitch -4)) (:end :lb-w-stance))
+(defstrike :br-en-k3 (18 2 22 :base :lb-w-stance)   ; K3 (R9): the downward pull carries him round one full turn (f1-f12), the blade rising over him, held at the top, then the overhead split down onto him f18
+  (0 :br-en-backhand-low-r)
+  (3 :snap :br-en-backhand-low-r (:pelvis :twist -76) (:arm-r :flex 60 :side 70))
+  (6 :snap :br-en-heave-r (:root :u 0.04) (:pelvis :twist -176) (:chest :twist -30) (:arm-r :flex 140 :side 60))
+  (9 :snap :br-en-heave-r (:root :u 0.1) (:pelvis :twist -280) (:chest :twist -40) (:arm-r :flex 200 :side 30))
+  (11 :snap :br-en-heave-r (:root :u 0.14 :pitch -10) (:pelvis :twist -340) (:chest :twist -50) (:arm-r :flex 224))
+  (12 :snap :br-en-heave-r (:root :u 0.16 :pitch -12) (:pelvis :twist -356) (:chest :twist -54) (:arm-r :flex 230))
+  (12.0001 :snap :br-en-heave-r (:root :u 0.16 :pitch -12) (:pelvis :twist 4) (:chest :twist -54) (:arm-r :flex 230))
+  (13 :br-en-heave-r (:root :f -0.04 :u 0.2 :pitch -12) (:pelvis :twist 0) (:chest :twist -54) (:arm-r :flex 232))
+  (14 :snap :br-en-heave-r (:root :f -0.04 :u 0.16 :pitch -10) (:pelvis :twist -10) (:chest :twist -44) (:arm-r :flex 228 :side 20))
+  (15 :snap :br-en-heave-r (:root :f 0 :u 0.1 :pitch -4) (:pelvis :twist -5) (:spine :flex -2) (:chest :twist -28)
+   (:arm-r :flex 214 :side 10))
+  (16 :snap :br-en-cleave-r (:root :f 0.05 :u 0.03 :yaw 2 :pitch 2) (:pelvis :twist 0) (:spine :flex 6) (:chest :twist -8)
+   (:arm-r :flex 192 :side -14))
+  (17 :snap :br-en-cleave-r (:root :f 0.1 :u -0.03 :yaw 8 :pitch 8) (:pelvis :twist 6) (:spine :flex 13) (:chest :twist 10)
+   (:arm-r :flex 168 :side -34))
+  (:s :snap :br-en-cleave-r)
+  (19 :snap :br-en-cleave-low-r (:root :u -0.16) (:arm-r :flex 96 :side -30))
+  (:a :br-en-cleave-low-r (:root :u -0.28) (:arm-r :flex 40 :side -6)) (27 :br-en-cleave-low-r (:root :u -0.28) (:arm-r :flex 38 :side -6))
+  (36 :br-en-cleave-low-r (:root :f 0.06 :u -0.04 :yaw 4 :pitch 6) (:pelvis :twist 2) (:spine :flex 8) (:chest :twist 6)
+   (:arm-r :flex 40 :side 30))
+  (:end :lb-w-stance))
 ;; the owl EN's poses (base :lb-oe-stance: upright and afloat, the claws are the hands)
 (defpose :br-oen-wind (:base :lb-oe-stance)        ; the top wound up: coiled back to the right, the claws drawn in
   (:root :u 0.04 :pitch 4) (:pelvis :twist -40) (:spine :flex 8) (:chest :twist -22) (:neck :flex 6) (:head :flex 4)
@@ -691,140 +693,214 @@
   (:root :f 0.24 :u -0.16 :yaw 20 :pitch 20) (:pelvis :twist 14) (:spine :flex 30) (:chest :twist 34) (:neck :flex 34)
   (:head :flex 14) (:arm-r :flex 30 :side -30) (:elbow-r :flex 0) (:hand-r :flex 40) (:arm-l :flex -30 :side 36)
   (:elbow-l :flex 20) (:hand-l :flex 10))
-(defpose :br-oen-bash-cock-l (:base :lb-oe-stance)
-  (:root :f 0.3 :u 0.08 :yaw 14 :pitch -6) (:spine :flex -6) (:chest :twist 30) (:neck :flex -10) (:head :twist -14)
-  (:arm-l :flex 150 :side 50) (:elbow-l :flex 110) (:hand-l :flex -30) (:arm-r :flex 50 :side 40) (:elbow-r :flex 90)
-  (:hand-r :flex 20))
-(defpose :br-oen-bash-l (:base :lb-oe-stance)
-  (:root :f 0.32 :u -0.08 :yaw -8 :pitch 12) (:spine :flex 20) (:chest :twist -14) (:neck :flex 24) (:head :flex 10)
-  (:arm-l :flex 67 :side -20) (:elbow-l :flex 104.7) (:hand-l :flex 40) (:arm-r :flex 40 :side 40) (:elbow-r :flex 100)
-  (:hand-r :flex 20))
-(defpose :br-oen-barge (:base :lb-oe-stance)       ; J3's Tackle (R8, §13): lunging in, the left shoulder first, the claws in
-  (:root :f 0.3 :u -0.06 :yaw -20 :pitch 12) (:spine :flex 16) (:chest :twist -30) (:neck :flex 20) (:head :flex 8 :twist 16)
-  (:arm-l :flex 30 :side 20) (:elbow-l :flex 110) (:hand-l :flex 20) (:arm-r :flex -30 :side 30) (:elbow-r :flex 30)
-  (:hand-r :flex 10))
-(defpose :br-oen-cannon-load (:base :lb-oe-stance) ; 零距離砲擊's load: stepped in, both claws drawn back to the chest
-  (:root :f 0.26 :u -0.06 :pitch 4) (:spine :flex 10) (:neck :flex 14) (:head :flex 6)
-  (:arm-r :flex 50 :side 30) (:elbow-r :flex 120) (:hand-r :flex 20) (:arm-l :flex 50 :side 30) (:elbow-l :flex 120)
-  (:hand-l :flex 20))
-(defpose :br-oen-cannon (:base :lb-oe-stance)      ; ... both claws thrust together into him at point blank: the gold blast
-  (:root :f 0.3 :u -0.04 :pitch 6) (:spine :flex 12) (:neck :flex 18) (:head :flex 8)
-  (:arm-r :flex 49.9 :side 30) (:elbow-r :flex 105.1) (:hand-r :flex 30) (:arm-l :flex 49.9 :side 30) (:elbow-l :flex 105.1)
-  (:hand-l :flex 30))
-(defpose :br-oen-blown (:base :lb-oe-stance)       ; ... blown back by it, the claws flung up and open
-  (:root :f 0.1 :u 0.14 :pitch -12) (:spine :flex -14) (:neck :flex -20) (:head :flex -16)
-  (:arm-r :flex 120 :side 50) (:elbow-r :flex 20) (:hand-r :flex -30) (:arm-l :flex 120 :side 50) (:elbow-l :flex 20)
+(defpose :br-oen-back-up-r (:base :lb-oe-stance)
+  (:root :f 0.1 :u 0.08 :yaw 16 :pitch -4) (:pelvis :twist 14) (:spine :flex -6) (:chest :twist 36) (:neck :flex -8)
+  (:head :twist -20) (:arm-r :flex 135.8 :side 34) (:elbow-r :flex 10) (:hand-r :flex -30) (:arm-l :flex -30 :side 36)
+  (:elbow-l :flex 20) (:hand-l :flex 10))
+(defpose :br-oen-backhand-r (:base :lb-oe-stance)
+  (:root :f 0.2 :u -0.06 :yaw -6 :pitch 12) (:pelvis :twist -8) (:spine :flex 20) (:chest :twist -14) (:neck :flex 22)
+  (:head :flex 10) (:arm-r :flex 133 :side 61.1) (:elbow-r :flex 0) (:hand-r :flex 30) (:arm-l :flex -30 :side 36)
+  (:elbow-l :flex 20) (:hand-l :flex 10))
+(defpose :br-oen-backhand-low-r (:base :lb-oe-stance)
+  (:root :f 0.26 :u -0.14 :yaw -16 :pitch 18) (:pelvis :twist -16) (:spine :flex 28) (:chest :twist -34) (:neck :flex 30)
+  (:head :flex 12) (:arm-r :flex 35 :side 55) (:elbow-r :flex 0) (:hand-r :flex 40) (:arm-l :flex -30 :side 36)
+  (:elbow-l :flex 20) (:hand-l :flex 10))
+(defpose :br-oen-dash-load (:base :lb-oe-stance)
+  (:root :u -0.1 :pitch 18) (:spine :flex 16) (:neck :flex 10) (:head :flex -10)
+  (:arm-r :flex -40 :side 34) (:elbow-r :flex 40) (:hand-r :flex -20) (:arm-l :flex -40 :side 34) (:elbow-l :flex 40)
+  (:hand-l :flex -20))
+(defpose :br-oen-dash (:base :lb-oe-stance)
+  (:root :u -0.16 :pitch 40) (:spine :flex 16) (:neck :flex -10) (:head :flex -24)
+  (:arm-r :flex -72 :side 16) (:elbow-r :flex 6) (:hand-r :flex -30) (:arm-l :flex -72 :side 16) (:elbow-l :flex 6)
   (:hand-l :flex -30))
+(defpose :br-oen-dash-stop (:base :lb-oe-stance)
+  (:root :f -0.1 :u 0.04 :pitch -10) (:spine :flex -6) (:neck :flex -6) (:head :flex 4)
+  (:arm-r :flex -20 :side 60) (:elbow-r :flex 20) (:hand-r :flex -10) (:arm-l :flex -20 :side 60) (:elbow-l :flex 20)
+  (:hand-l :flex -10))
 ;; the owl EN's nine openers (the moves :br-oe-l1 .. -k3; its recovery one frame shorter: R - 1, *BR-OWL-ADV*): JILLIEL's,
 ;; on its claws (R7, §12: one strike a press)
-(defstrike :br-oen-l1 (8 2 13 :base :lb-oe-stance)   ; L1 陀螺: wound up, one turn, the right claw across him f8
+(defstrike :br-oen-l1 (8 7 8 :base :lb-oe-stance)   ; L1 疾走 (R9): crouched, the arms folding back, leaning low; the dash through him from f8 (the sim slides him), braking past him
+  (0) (4 :br-oen-dash-load) (7 :br-oen-dash-load (:root :u -0.14 :pitch 24))
+  (:s :snap :br-oen-dash) (13 :br-oen-dash (:root :pitch 36)) (16 :br-oen-dash-stop) (20 :br-oen-dash-stop (:root :f 0 :u 0))
+  (:end :lb-oe-stance))
+(defstrike :br-oen-l2 (8 7 8 :base :lb-oe-stance)   ; L2 疾走: lower, rolling as he passes, braking turned to his right
+  (0 :br-oen-dash-stop) (4 :br-oen-dash-load (:root :u -0.16)) (7 :br-oen-dash-load (:root :u -0.2 :pitch 28))
+  (:s :snap :br-oen-dash (:root :u -0.22 :pitch 46) (:pelvis :twist -20))
+  (13 :br-oen-dash (:root :u -0.2 :yaw -30 :pitch 40) (:pelvis :twist -40))
+  (16 :br-oen-dash-stop (:root :yaw -30)) (20 :br-oen-dash-stop (:root :f 0 :u 0 :yaw -10)) (:end :lb-oe-stance))
+(defstrike :br-oen-l3 (8 7 11 :base :lb-oe-stance)   ; L3 疾走: the longest lean, braking with a half turn back at him
+  (0 :br-oen-dash-stop) (4 :br-oen-dash-load (:root :u -0.12)) (7 :br-oen-dash-load (:root :u -0.16 :pitch 26))
+  (:s :snap :br-oen-dash (:root :u -0.12 :pitch 34)) (13 :br-oen-dash (:root :pitch 30))
+  (16 :br-oen-dash-stop (:root :yaw 40)) (22 :br-oen-dash-stop (:root :yaw 20 :u 0.04)) (:end :lb-oe-stance))
+(defstrike :br-oen-j1 (8 2 11 :base :lb-oe-stance)   ; J1 陀螺 (R9: the old L's spin): wound up, one turn, the right claw across him f8
   (0) (3 :br-oen-wind)
   (:s :snap :br-oen-top (:pelvis :twist 90)) (:a :snap :br-oen-top (:pelvis :twist 162))
   (13 :snap :br-oen-top (:root :pitch 10) (:pelvis :twist 250)) (16 :snap :br-oen-top (:root :pitch 6 :u 0.04) (:pelvis :twist 320))
-  (19 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 352) (:arm-r :side 84) (:arm-l :side 84))
-  (21 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
-  (21.0001 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
+  (18.5 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 352) (:arm-r :side 84) (:arm-l :side 84))
+  (20 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
+  (20.0001 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
   (:end :lb-oe-stance))
-(defstrike :br-oen-l2 (8 2 13 :base :lb-oe-stance)   ; L2 陀螺: leaning lower, one more turn, the right claw across him f8
-  (0 :br-oen-top (:pelvis :twist -222))
+(defstrike :br-oen-j2 (8 2 11 :base :lb-oe-stance)   ; J2 陀螺: leaning lower, one more turn (from J1's S + A twist 162 = -198), the right claw across him f8
+  (0 :br-oen-top (:pelvis :twist -198))
   (:s :snap :br-oen-top-low (:pelvis :twist 90)) (:a :snap :br-oen-top-low (:pelvis :twist 162))
   (13 :snap :br-oen-top-low (:pelvis :twist 250)) (16 :snap :br-oen-top (:root :pitch 6 :u 0.04) (:pelvis :twist 320))
-  (19 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 352) (:arm-r :side 84) (:arm-l :side 84))
+  (18.5 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 352) (:arm-r :side 84) (:arm-l :side 84))
+  (20 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
+  (20.0001 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
+  (:end :lb-oe-stance))
+(defstrike :br-oen-j3 (8 2 13 :base :lb-oe-stance)   ; J3 陀螺: spun up and rising, the right claw across him f8, wound down
+  (0 :br-oen-top-low (:pelvis :twist -198))
+  (:s :snap :br-oen-top-high (:root :u 0.16) (:pelvis :twist 90)) (:a :snap :br-oen-top-high (:root :u 0.2) (:pelvis :twist 162))
+  (14 :snap :br-oen-top-high (:root :u 0.24) (:pelvis :twist 270)) (18 :snap :br-oen-top (:root :u 0.14) (:pelvis :twist 330))
+  (20 :snap :br-oen-top (:root :pitch 6 :u 0.04) (:pelvis :twist 355) (:arm-r :side 84) (:arm-l :side 84))
   (21 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
   (21.0001 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
   (:end :lb-oe-stance))
-(defstrike :br-oen-l3 (8 2 17 :base :lb-oe-stance)   ; L3 陀螺: spun up and rising, the right claw across him f8, wound down
-  (0 :br-oen-top-low (:pelvis :twist -222))
-  (:s :snap :br-oen-top-high (:root :u 0.16) (:pelvis :twist 90)) (:a :snap :br-oen-top-high (:root :u 0.2) (:pelvis :twist 162))
-  (14 :snap :br-oen-top-high (:root :u 0.24) (:pelvis :twist 270)) (18 :snap :br-oen-top (:root :u 0.14) (:pelvis :twist 330))
-  (22 :snap :br-oen-top (:root :pitch 6 :u 0.04) (:pelvis :twist 355) (:arm-r :side 84) (:arm-l :side 84))
-  (24 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 360) (:arm-r :side 82) (:arm-l :side 82))
-  (24.0001 :snap :br-oen-top (:root :pitch 4 :u 0.02) (:pelvis :twist 0) (:arm-r :side 82) (:arm-l :side 82))
+(defstrike :br-oen-k1 (16 2 17 :base :lb-oe-stance)   ; K1 Charged Slash (R8; R9 the in-betweens): hauled over the shoulder, stretched tall, the squat f10, sprung f11, the swing through the arc f12-f15, slammed R to L f16, held
+  (0) (4 :br-oen-heave-r) (8 :br-oen-heave-r (:root :f -0.2 :u 0.12 :pitch -10) (:chest :twist -54) (:arm-r :flex 226))
+  (10 :br-oen-heave-r (:root :f -0.18 :u -0.18 :pitch -4) (:spine :flex 10) (:chest :twist -56) (:arm-r :flex 230))
+  (11 :br-oen-heave-r (:root :f -0.12 :u 0.12 :pitch -12) (:chest :twist -52) (:arm-r :flex 232))
+  (12 :snap :br-oen-heave-r (:root :f -0.08 :u 0.12 :pitch -10) (:pelvis :twist -12) (:chest :twist -44) (:arm-r :flex 228 :side 20))
+  (13 :snap :br-oen-heave-r (:root :f -0.02 :u 0.08 :pitch -4) (:pelvis :twist -6) (:spine :flex -2) (:chest :twist -28)
+   (:arm-r :flex 214 :side 10))
+  (14 :snap :br-oen-cleave-r (:root :f 0.04 :u 0.02 :yaw 2 :pitch 2) (:pelvis :twist 0) (:spine :flex 6) (:chest :twist -8)
+   (:arm-r :flex 192 :side -14))
+  (15 :snap :br-oen-cleave-r (:root :f 0.1 :u -0.04 :yaw 8 :pitch 8) (:pelvis :twist 6) (:spine :flex 13) (:chest :twist 10)
+   (:arm-r :flex 168 :side -34))
+  (:s :snap :br-oen-cleave-r)
+  (17 :snap :br-oen-cleave-low-r (:root :u -0.16) (:arm-r :flex 96 :side -30))
+  (:a :br-oen-cleave-low-r (:root :u -0.26) (:arm-r :flex 40 :side -6)) (22 :br-oen-cleave-low-r (:root :u -0.26) (:arm-r :flex 38 :side -6))
+  (30 :br-oen-cleave-low-r (:root :f 0.06 :u -0.04 :yaw 4 :pitch 6) (:pelvis :twist 2) (:spine :flex 8) (:chest :twist 6)
+   (:arm-r :flex 40 :side 30))
   (:end :lb-oe-stance))
-(defstrike :br-oen-j1 (8 2 11 :base :lb-oe-stance)   ; J1 長鞭: the right claw.s gold lash cracked from high outside down across him f8
-  (0) (4 :br-oen-cock) (7 :br-oen-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
+(defstrike :br-oen-k2 (12 2 17 :base :lb-oe-stance)   ; K2 左往右下揮擊 (R9): carried on from K1, the blade hauled up over his left shoulder, swung down across him from his left to his lower right f12
+  (0 :br-oen-cleave-low-r (:root :u -0.26) (:arm-r :flex 40 :side -6))
+  (4 :br-oen-back-up-r (:root :u -0.02)) (7 :br-oen-back-up-r (:root :u 0.08 :pitch -6) (:chest :twist 42) (:arm-r :flex 138))
+  (9 :snap :br-oen-back-up-r (:root :f 0.14 :u 0.04 :yaw 10 :pitch 0) (:pelvis :twist 8) (:chest :twist 26) (:arm-r :flex 136 :side 40))
+  (10 :snap :br-oen-backhand-r (:root :f 0.16 :u 0 :yaw 4 :pitch 4) (:pelvis :twist 2) (:spine :flex 8) (:chest :twist 10)
+   (:arm-r :flex 135 :side 46))
+  (11 :snap :br-oen-backhand-r (:root :f 0.18 :u -0.03 :yaw -1 :pitch 8) (:pelvis :twist -3) (:spine :flex 13) (:chest :twist -2)
+   (:arm-r :flex 134 :side 52))
+  (:s :snap :br-oen-backhand-r)
+  (13 :snap :br-oen-backhand-low-r (:root :u -0.08) (:arm-r :flex 90 :side 56))
+  (:a :br-oen-backhand-low-r) (19 :br-oen-backhand-low-r (:root :u -0.18))
+  (26 :br-oen-backhand-low-r (:root :f 0.08 :u -0.04 :yaw -4 :pitch 6) (:pelvis :twist -2) (:spine :flex 8) (:chest :twist -8)
+   (:arm-r :flex 40 :side 40))
+  (:end :lb-oe-stance))
+(defstrike :br-oen-k3 (18 2 21 :base :lb-oe-stance)   ; K3 (R9): the downward pull carries him round one full turn (f1-f12), the blade rising over him, held at the top, then the overhead split down onto him f18
+  (0 :br-oen-backhand-low-r)
+  (3 :snap :br-oen-backhand-low-r (:pelvis :twist -76) (:arm-r :flex 60 :side 70))
+  (6 :snap :br-oen-heave-r (:root :u 0.04) (:pelvis :twist -176) (:chest :twist -30) (:arm-r :flex 140 :side 60))
+  (9 :snap :br-oen-heave-r (:root :u 0.1) (:pelvis :twist -280) (:chest :twist -40) (:arm-r :flex 200 :side 30))
+  (11 :snap :br-oen-heave-r (:root :u 0.14 :pitch -10) (:pelvis :twist -340) (:chest :twist -50) (:arm-r :flex 224))
+  (12 :snap :br-oen-heave-r (:root :u 0.16 :pitch -12) (:pelvis :twist -356) (:chest :twist -54) (:arm-r :flex 230))
+  (12.0001 :snap :br-oen-heave-r (:root :u 0.16 :pitch -12) (:pelvis :twist 4) (:chest :twist -54) (:arm-r :flex 230))
+  (13 :br-oen-heave-r (:root :f -0.04 :u 0.2 :pitch -12) (:pelvis :twist 0) (:chest :twist -54) (:arm-r :flex 232))
+  (14 :snap :br-oen-heave-r (:root :f -0.04 :u 0.16 :pitch -10) (:pelvis :twist -10) (:chest :twist -44) (:arm-r :flex 228 :side 20))
+  (15 :snap :br-oen-heave-r (:root :f 0 :u 0.1 :pitch -4) (:pelvis :twist -5) (:spine :flex -2) (:chest :twist -28)
+   (:arm-r :flex 214 :side 10))
+  (16 :snap :br-oen-cleave-r (:root :f 0.05 :u 0.03 :yaw 2 :pitch 2) (:pelvis :twist 0) (:spine :flex 6) (:chest :twist -8)
+   (:arm-r :flex 192 :side -14))
+  (17 :snap :br-oen-cleave-r (:root :f 0.1 :u -0.03 :yaw 8 :pitch 8) (:pelvis :twist 6) (:spine :flex 13) (:chest :twist 10)
+   (:arm-r :flex 168 :side -34))
+  (:s :snap :br-oen-cleave-r)
+  (19 :snap :br-oen-cleave-low-r (:root :u -0.16) (:arm-r :flex 96 :side -30))
+  (:a :br-oen-cleave-low-r (:root :u -0.28) (:arm-r :flex 40 :side -6)) (27 :br-oen-cleave-low-r (:root :u -0.28) (:arm-r :flex 38 :side -6))
+  (36 :br-oen-cleave-low-r (:root :f 0.06 :u -0.04 :yaw 4 :pitch 6) (:pelvis :twist 2) (:spine :flex 8) (:chest :twist 6)
+   (:arm-r :flex 40 :side 30))
+  (:end :lb-oe-stance))
+;; the J route's L L (R9, DUEL_LILLE_V3 §14: 「原本架式 J > L 的動作模組改成原本架式 J 的鞭打」): the whips, JILLIEL's
+;; wings and the owl's gold lashes (the follow-up's hit is its 萬物貫通 line; the tip on his line, the host test)
+(defstrike :br-e-jf1 (8 2 14 :base :lb-w-stance)   ; JL1 長鞭 (R9: the old J1 whip): out of the spin, the right whip cracked from high outside down across him f8
+  (0 :br-en-top-high (:root :u 0.2) (:pelvis :twist -198)) (2 :snap :br-en-top (:pelvis :twist -60))
+  (4 :br-en-cock) (7 :br-en-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
+  (:s :snap :br-en-crack-r) (:a :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
+  (16 :br-en-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
+  (:end :lb-w-stance))
+(defstrike :br-e-jf2 (8 2 14 :base :lb-w-stance)   ; JL2 長鞭 (the old J2 whip): the left whip cracked the same way across him f8 (the figure-eight)
+  (0 :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
+  (4 :br-en-crack-r (:root :pitch -2) (:arm-r :flex 120 :side 40) (:arm-l :flex 166 :side 56))
+  (:s :snap :br-en-crack-l) (:a :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
+  (16 :br-en-crack-l (:root :f 0 :pitch 2) (:arm-l :flex 40 :side 40) (:elbow-l :flex 20) (:arm-r :flex 40 :side 50))
+  (:end :lb-w-stance))
+(defstrike :br-e-jf3 (8 2 16 :base :lb-w-stance)   ; JL3 長鞭: the right whip once more, the longest, f8
+  (0 :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
+  (4 :br-en-crack-l (:root :pitch -4) (:arm-l :flex 120 :side 40) (:arm-r :flex 166 :side 56))
+  (:s :snap :br-en-crack-r) (:a :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 120 :side 40))
+  (18 :br-en-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
+  (:end :lb-w-stance))
+(defstrike :br-oe-jf1 (8 2 13 :base :lb-oe-stance)   ; JL1 長鞭 (R9: the old J1 whip): out of the spin, the right claw.s gold lash cracked from high outside down across him f8
+  (0 :br-oen-top-high (:root :u 0.2) (:pelvis :twist -198)) (2 :snap :br-oen-top (:pelvis :twist -60))
+  (4 :br-oen-cock) (7 :br-oen-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
   (:s :snap :br-oen-crack-r) (:a :br-oen-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
   (16 :br-oen-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
   (:end :lb-oe-stance))
-(defstrike :br-oen-j2 (8 2 11 :base :lb-oe-stance)   ; J2 長鞭: the left claw.s lash cracked the same way across him f8 (the figure-eight)
+(defstrike :br-oe-jf2 (8 2 13 :base :lb-oe-stance)   ; JL2 長鞭 (the old J2 whip): the left claw.s lash cracked the same way across him f8 (the figure-eight)
   (0 :br-oen-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
   (4 :br-oen-crack-r (:root :pitch -2) (:arm-r :flex 120 :side 40) (:arm-l :flex 166 :side 56))
   (:s :snap :br-oen-crack-l) (:a :br-oen-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
   (16 :br-oen-crack-l (:root :f 0 :pitch 2) (:arm-l :flex 40 :side 40) (:elbow-l :flex 20) (:arm-r :flex 40 :side 50))
   (:end :lb-oe-stance))
-(defstrike :br-oen-j3 (14 2 13 :base :lb-oe-stance)   ; J3 True Charged Slash (R8): from the whips a shoulder barge f3-6, wound round, the right claw pulled back and grown, one full-body swing f14, twisting through
+(defstrike :br-oe-jf3 (8 2 15 :base :lb-oe-stance)   ; JL3 長鞭: the right claw.s gold lash once more, the longest, f8
   (0 :br-oen-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
-  (3 :br-oen-barge (:root :f 0.12)) (6 :br-oen-barge) (8 :br-oen-heave-r (:root :f 0.04))
-  (11 :br-oen-heave-r (:root :f -0.16 :u 0.1) (:pelvis :twist -30) (:chest :twist -60) (:arm-r :flex 226))
-  (:s :snap :br-oen-cleave-r)
-  (:a :br-oen-cleave-low-r (:root :yaw 44) (:pelvis :twist 30) (:chest :twist 56) (:arm-r :flex 40 :side -50))
-  (19 :br-oen-cleave-low-r (:root :yaw 48 :u -0.2) (:pelvis :twist 32) (:chest :twist 60) (:arm-r :flex 36 :side -54))
-  (25 :br-oen-cleave-low-r (:root :f 0.08 :u -0.06 :yaw 8 :pitch 10) (:pelvis :twist 4) (:spine :flex 14) (:chest :twist 12)
-   (:arm-r :flex 40 :side 20))
+  (4 :br-oen-crack-l (:root :pitch -4) (:arm-l :flex 120 :side 40) (:arm-r :flex 166 :side 56))
+  (:s :snap :br-oen-crack-r) (:a :br-oen-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 120 :side 40))
+  (18 :br-oen-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
   (:end :lb-oe-stance))
-(defstrike :br-oen-k1 (16 2 17 :base :lb-oe-stance)   ; K1 Charged Slash (R8): the right claw hauled over the shoulder, stretched tall, the squat f14, sprung, slammed into the floor f16, held
-  (0) (5 :br-oen-heave-r) (11 :br-oen-heave-r (:root :f -0.2 :u 0.1) (:chest :twist -54) (:arm-r :flex 224))
-  (13 :br-oen-heave-r (:root :f -0.22 :u 0.14 :pitch -12) (:chest :twist -56) (:arm-r :flex 228))
-  (14 :br-oen-heave-r (:root :f -0.18 :u -0.18 :pitch -4) (:spine :flex 10) (:chest :twist -56) (:arm-r :flex 230))
-  (15 :br-oen-heave-r (:root :f -0.08 :u 0.12 :pitch -12) (:chest :twist -50) (:arm-r :flex 232))
-  (:s :snap :br-oen-cleave-r) (:a :br-oen-cleave-low-r (:root :u -0.26) (:arm-r :flex 40 :side -6))
-  (22 :br-oen-cleave-low-r (:root :u -0.26) (:arm-r :flex 38 :side -6))
-  (30 :br-oen-cleave-low-r (:root :f 0.06 :u -0.04 :yaw 4 :pitch 6) (:pelvis :twist 2) (:spine :flex 8) (:chest :twist 6)
-   (:arm-r :flex 40 :side 30))
-  (:end :lb-oe-stance))
-(defstrike :br-oen-k2 (12 2 17 :base :lb-oe-stance)   ; K2 近身: stepped in, the left claw folded, clubbed down on him f12
-  (0 :br-oen-cleave-low-r) (5 :br-oen-bash-cock-l) (10 :br-oen-bash-cock-l (:root :u 0.1) (:chest :twist 38))
-  (:s :snap :br-oen-bash-l) (:a :br-oen-bash-l (:root :f 0.36 :u -0.12) (:arm-l :flex 40))
-  (24 :br-oen-bash-l (:root :f 0.16 :u 0 :pitch 2) (:spine :flex 4) (:chest :twist 0) (:arm-l :flex 40 :side 40) (:elbow-l :flex 60))
-  (:end :lb-oe-stance))
-(defstrike :br-oen-k3 (12 2 21 :base :lb-oe-stance)   ; K3 零距離砲擊: both claws drawn in, both thrust into him point blank f12: the ball of light
-  (0 :br-oen-bash-l (:root :f 0.36 :u -0.12) (:arm-l :flex 40)) (6 :br-oen-cannon-load) (10 :br-oen-cannon-load (:root :u -0.1))
-  (:s :snap :br-oen-cannon) (:a :br-oen-cannon (:root :f 0.26)) (18 :br-oen-blown)
-  (26 :br-oen-blown (:root :f 0 :u 0.06 :pitch -4)) (:end :lb-oe-stance))
 ;; the stretch (R5 J 長鞭) and the spins (R5 L 陀螺) to Lille's wing looks (lille-art.lisp: %LB-STRETCH!, %LB-WINGS, %LB-LASHES,
 ;; %LB-DRIVE!; Lille's own clips are in neither)
 (defparameter *br-w-stretch*
-  '((:br-en-j1 (0 0 0) (6 1.1 1.0) (8 1.2 1.0) (10 1.1 1.1) (16 0.5 0.4) (22 0 0))   ; (R7, §12: one whip a press)
-    (:br-en-j2 (0 1.1 1.1) (8 1.0 1.2) (10 0.8 1.1) (16 0.4 0.5) (22 0 0))
-    (:br-en-j3 (0 0.8 1.1) (4 0.5 0.3) (6 0.4 0.1) (8 1.0 0) (11 1.7 0) (14 0.7 0) (15 1.2 0) (19 1.1 0) (24 0.3 0) (30 0 0))
-    (:br-en-k1 (0 0 0) (5 0.8 0) (11 1.5 0) (13 1.6 0) (15 1.7 0) (16 1.0 0) (17 1.4 0) (22 1.3 0) (26 0.5 0) (30 0 0))
-    (:br-oen-j1 (0 0 0) (6 1.25 1.15) (8 1.35 1.15) (10 1.25 1.25) (16 0.5 0.4) (21 0 0))
-    (:br-oen-j2 (0 1.25 1.25) (8 1.15 1.35) (10 0.9 1.25) (16 0.4 0.5) (21 0 0))
-    (:br-oen-j3 (0 0.9 1.25) (4 0.55 0.35) (6 0.45 0.1) (8 1.1 0) (11 1.9 0) (14 0.8 0) (15 1.3 0) (19 1.2 0) (24 0.3 0) (29 0 0))
-    (:br-oen-k1 (0 0 0) (5 0.9 0) (11 1.7 0) (13 1.8 0) (15 1.9 0) (16 1.1 0) (17 1.5 0) (22 1.4 0) (26 0.6 0) (30 0 0)))
+  '((:br-e-jf1 (0 0 0) (6 1.1 1.0) (8 1.2 1.0) (10 1.1 1.1) (16 0.5 0.4) (24 0 0))   ; (R9, §14: the whips are the J route's L L)
+    (:br-e-jf2 (0 1.1 1.1) (8 1.0 1.2) (10 0.8 1.1) (16 0.4 0.5) (24 0 0))
+    (:br-e-jf3 (0 0.8 1.1) (4 1.0 0.9) (8 1.3 1.0) (10 1.2 1.0) (18 0.5 0.4) (26 0 0))
+    (:br-en-k1 (0 0 0) (4 0.8 0) (8 1.5 0) (10 1.6 0) (11 1.7 0) (13 1.6 0) (15 1.3 0) (16 1.0 0) (17 1.3 0) (22 1.3 0)
+               (26 0.5 0) (30 0 0))
+    (:br-en-k2 (0 1.2 0) (4 1.3 0) (7 1.6 0) (9 1.5 0) (11 1.2 0) (12 1.0 0) (13 1.3 0) (19 1.2 0) (24 0.5 0) (30 0 0))
+    (:br-en-k3 (0 1.0 0) (3 1.1 0) (6 1.2 0) (9 1.5 0) (12 1.8 0) (15 1.6 0) (17 1.3 0) (18 1.0 0) (19 1.4 0) (27 1.3 0)
+               (32 0.4 0) (40 0 0))
+    (:br-oe-jf1 (0 0 0) (6 1.25 1.15) (8 1.35 1.15) (10 1.25 1.25) (16 0.5 0.4) (23 0 0))
+    (:br-oe-jf2 (0 1.25 1.25) (8 1.15 1.35) (10 0.9 1.25) (16 0.4 0.5) (23 0 0))
+    (:br-oe-jf3 (0 0.9 1.25) (4 1.1 1.0) (8 1.45 1.15) (10 1.35 1.15) (18 0.5 0.4) (25 0 0))
+    (:br-oen-k1 (0 0 0) (4 0.9 0) (8 1.7 0) (10 1.8 0) (11 1.9 0) (13 1.8 0) (15 1.4 0) (16 1.1 0) (17 1.5 0) (22 1.4 0)
+                (26 0.6 0) (30 0 0))
+    (:br-oen-k2 (0 1.3 0) (4 1.4 0) (7 1.8 0) (9 1.7 0) (11 1.3 0) (12 1.1 0) (13 1.5 0) (19 1.3 0) (24 0.6 0) (30 0 0))
+    (:br-oen-k3 (0 1.1 0) (3 1.2 0) (6 1.3 0) (9 1.7 0) (12 1.9 0) (15 1.8 0) (17 1.4 0) (18 1.1 0) (19 1.5 0) (27 1.4 0)
+                (32 0.5 0) (40 0 0)))
   "R5 J 長鞭 (DUEL_LILLE_V3 §10): the whips' stretch by clip, keys (frame right left) in the clip's frames: the metres the
 right / left front wing (JILLIEL: its blade on past the hand, along its root -> hand line) or claw's gold lash (the owl: on
 from the claw along the forearm) reaches past the rig's hand, linear between keys; grown over the wind-up, the striking
 whip the longer, drawn back in over the recovery. R6 大砍刀 (§11): J3's last and K1's two chops swing ONE wing, its stretch
 growing with the pull behind him (1.5-1.8 m held), the swing landing with less (0.5-0.8). The host FK test adds it to the
 hand: the stretched tip is the strike point (*BR-W-TIPS*).")
-(defparameter *br-w-grow* '((:br-en-j3 . 0.5) (:br-oen-j3 . 0.5) (:br-en-k1 . 0.5) (:br-oen-k1 . 0.5))
+(defparameter *br-w-grow* '((:br-en-k1 . 0.5) (:br-oen-k1 . 0.5) (:br-en-k2 . 0.5) (:br-oen-k2 . 0.5) (:br-en-k3 . 0.5)
+                              (:br-oen-k3 . 0.5))
   "R6 大砍刀 (DUEL_LILLE_V3 §11: 「揮砍前光翼隨身體的距離伸長放大」): the chopping wing's width gain per metre of stretch, so
 the pulled-back blade grows wider as well as longer (x 1.75-1.9 at the held wind-up); the whips stay thin.")
 (setf *lb-stretch* (loop for (c . keys) in *br-w-stretch* collect (cons c (coerce (mapcar #'f32 (apply #'append keys)) 'f32vec)))
       *lb-stretch-grow* (loop for (c . g) in *br-w-grow* collect (cons c (f32 g)))
-      *lb-trail-cut* '((:br-en-k3 . 0) (:br-oen-k3 . 0)))   ; (R6, R7: 零距離砲擊's thrust leaves no streak toward him)
-(dolist (c '(:br-en-l1 :br-en-l2 :br-en-l3 :br-oen-l1 :br-oen-l2 :br-oen-l3   ; the spins: the table wings turn with him;
-             :br-en-k3 :br-oen-k3))                                          ;  K3: no lines toward him at the blast (R6)
+      *lb-trail-cut* nil)                                      ; (R9: K3's blast gone, no cut)
+(dolist (c '(:br-en-j1 :br-en-j2 :br-en-j3 :br-oen-j1 :br-oen-j2 :br-oen-j3   ; the spins (J since R9): the table wings turn
+             :br-en-l1 :br-en-l2 :br-en-l3 :br-oen-l1 :br-oen-l2 :br-oen-l3)) ;  with him; L the dash (R9): folded back
   (pushnew c *lb-no-conv*))
+(dolist (c '(:br-en-l1 :br-en-l2 :br-en-l3 :br-oen-l1 :br-oen-l2 :br-oen-l3))   ; R9 (§14): 「八翼往後收」
+  (pushnew c *lb-sweep-clips*))
 
 ;; R8 (DUEL_LILLE_V3 §13, the user 2026-10-11: 「大刀的揮舞動作請對魔物獵人進行調查，身體動作大而誇張，可以進行形變來強化動作
 ;; 效果」): the great blade's squash and stretch, a look on the posed joints (his kit's :pose hook, BR-DEFORM, right after
 ;; the body's FK): up x SY and sideways (his right axis) x SX about his feet; his facing axis is never scaled.
 (defparameter *br-squash*
-  '((:br-en-k1 (0 1 1) (5 1.06 0.96) (11 1.16 0.9) (13 1.18 0.88) (14 0.84 1.12) (15 1.1 0.92) (16 0.74 1.3) (21 0.76 1.28)
-               (25 0.94 1.06) (29 1 1))
-    (:br-oen-k1 (0 1 1) (5 1.06 0.96) (11 1.16 0.9) (13 1.18 0.88) (14 0.84 1.12) (15 1.1 0.92) (16 0.74 1.3) (21 0.76 1.28)
-                (25 0.94 1.06) (29 1 1))
-    (:br-en-j3 (0 1 1) (3 0.97 1.04) (6 0.9 1.1) (9 1.08 0.95) (12 1.16 0.9) (14 0.78 1.25) (17 0.8 1.22) (21 0.95 1.05)
-               (25 1 1))
-    (:br-oen-j3 (0 1 1) (3 0.97 1.04) (6 0.9 1.1) (9 1.08 0.95) (12 1.16 0.9) (14 0.78 1.25) (17 0.8 1.22) (21 0.95 1.05)
-                (25 1 1)))
+  '((:br-en-k1 (0 1 1) (4 1.08 0.95) (8 1.18 0.88) (10 0.84 1.12) (11 1.14 0.9) (13 1.06 0.95) (15 0.95 1.04) (16 0.74 1.3) (21 0.76 1.28) (25 0.94 1.06) (29 1 1))   ; (R9, §14: K is the whole great-sword string)
+    (:br-oen-k1 (0 1 1) (4 1.08 0.95) (8 1.18 0.88) (10 0.84 1.12) (11 1.14 0.9) (13 1.06 0.95) (15 0.95 1.04) (16 0.74 1.3) (21 0.76 1.28) (25 0.94 1.06) (29 1 1))
+    (:br-en-k2 (0 0.95 1.05) (4 1.04 0.97) (7 1.14 0.9) (9 1.08 0.94) (11 0.96 1.04) (12 0.78 1.25) (17 0.8 1.22) (22 0.96 1.04) (26 1 1))
+    (:br-oen-k2 (0 0.95 1.05) (4 1.04 0.97) (7 1.14 0.9) (9 1.08 0.94) (11 0.96 1.04) (12 0.78 1.25) (17 0.8 1.22) (22 0.96 1.04) (26 1 1))
+    (:br-en-k3 (0 1 1) (3 0.96 1.04) (6 1.02 0.98) (9 1.1 0.92) (12 1.18 0.88) (13 1.2 0.87) (15 1.06 0.95) (17 0.96 1.04) (18 0.72 1.32) (24 0.75 1.3) (30 0.94 1.06) (34 1 1))
+    (:br-oen-k3 (0 1 1) (3 0.96 1.04) (6 1.02 0.98) (9 1.1 0.92) (12 1.18 0.88) (13 1.2 0.87) (15 1.06 0.95) (17 0.96 1.04) (18 0.72 1.32) (24 0.75 1.3) (30 0.94 1.06) (34 1 1)))
   "R8 (§13): the body's squash and stretch by clip, keys (frame up sideways) in the clip's frames, linear between, held past
-the ends: K1 the level-3 Charged Slash (stretched tall while the wing is hauled over the shoulder, the squat tell f14,
-sprung up f15, squashed wide and low on the slam f16, held a beat), J3 the True Charged Slash (the barge's lunge low,
-stretched in the swing's wind-up, squashed on the hit f14). The host FK test scales the tips the same way (the facing axis
-untouched: the reach is the unscaled one's).")
+the ends: K1 the level-3 Charged Slash (stretched tall while the wing is hauled over the shoulder, the squat tell f10
+since R9's in-betweens, sprung up f11, the swing through the arc, squashed wide and low on the slam f16, held a beat); R9
+(§14: 「架式 J 的蓄力斬合併到架式 K 連打中」) K2 the backhand (wound up tall, squashed on the hit f12), K3 the turn (stretched
+tall as the blade rises over him, the overhead split squashed f18). The host FK test scales the tips the same way (the
+facing axis untouched: the reach is the unscaled one's).")
 (declaim (type list *br-squash-v*))
 (defparameter *br-squash-v*
   (loop for (c . keys) in *br-squash* collect (cons c (coerce (mapcar #'f32 (apply #'append keys)) 'f32vec)))
@@ -1185,37 +1261,10 @@ every two frames. Single-float forms (a macro: 0 B)."
                  (declare (single-float %fj %an %rr))
                  (fx-disc (+ %x (* %rr (f-cos %an))) (+ %y (* %r (+ 0.1f0 (* 0.9f0 %u))) (* 0.2f0 %fj)) (+ %z (* %rr (f-sin %an)))
                           (* %r (+ 0.22f0 (* 0.3f0 %u))) 0.25f0 (+ %sd 20f0 %fj) +pal-smoke+ (* 0.8f0 %k)))))))))
-(defparameter *br-blast-moves* '(:br-e-k3 :br-oe-k3)
-  "The moves whose last hit is 零距離砲擊 (the awakened stance's K3, R5: 「爆炸特效的零距離砲擊」): the blast at its frame.")
-(defparameter *br-blast-life* 18 "零距離砲擊's blast: the frames it lasts from the last hit's first frame ...")
-(defparameter *br-blast-r* 0.8 "... its ball's radius at full size (m), x the draw scale.")
-(defparameter *br-blast-y* '(1.3 1.65)
-  "零距離砲擊's blast: its height above his floor (m; JILLIEL, the owl): where the two tips meet on the hit frame (the clips'
-:br-en-cannon / :br-oen-cannon, host FK).")
-(defun-fast %br-blast-look (f side mv)
-  "零距離砲擊 (MV one of *BR-BLAST-MOVES*): from its last hit's frame for *BR-BLAST-LIFE* frames, a point-blank blast at the
-hit's reach (its volume's edge, where the two drawn tips meet on the hit frame: the host FK test) on the line to the
-opponent (*BR-AT*), *BR-BLAST-Y* up, held there while he is blown back (R6, §11: 「砲擊不要發射光束，直接在爆炸點炸開光球來表示」:
-no beam, no spikes): a white flash ball on the first two frames, then a ball of light swelling, its jade (the owl: gold) shell
-in a dark rim round a white core that shrinks away, eroding over its last half, dark smoke puffs rising and thinning,
-a new drawing every two frames. Reads the move's frame only (cosmetic; the hit's spark and sound are the combat's). 0 B."
-  (declare (fixnum side))
-  (let* ((hits (mv-hits mv)) (n (length hits)) (life (the fixnum *br-blast-life*)) (at *br-at*) (o (* 8 side))
-         (a (if (and (> n 0) (> (aref at (+ o 4)) 0.5f0))
-                (- (the fixnum (fighter-sf f)) (the fixnum (hw-from (aref hits (1- n))))) -1)))
-    (declare (fixnum n life o a) (type f32vec at))
-    (when (<= 0 a life)
-      (let* ((owl (> (lb-fxs side 15) 0.5f0)) (pal (if owl +pal-gold+ +pal-jade+))
-             (vol (first (hw-vols (aref hits (1- n))))) (edge (+ (aref (the f32vec vol) 2) (aref (the f32vec vol) 4)))
-             (dx (- (aref at (+ o 2)) (aref at o))) (dz (- (aref at (+ o 3)) (aref at (+ o 1))))
-             (dl (f-max 0.01f0 (f-hypot dx dz))) (sc (aref *lb-v* 31))
-             (x (+ (aref at o) (* edge (/ dx dl))))
-             (y (+ (aref *lb-v* 3) (* sc (the single-float (f32 (if owl (second *br-blast-y*) (first *br-blast-y*)))))))
-             (z (+ (aref at (+ o 1)) (* edge (/ dz dl))))
-             (r (* sc (the single-float *br-blast-r*))))
-        (declare (single-float pal edge dx dz dl sc x y z r))
-        (%br-ball x y z a life r pal (+ 410f0 (* 50f0 (i->f side))))))
-    nil))
+(defparameter *br-blast-life* 18
+  "A ball of light (%BR-BALL: the awakened K route's L L, R8; K3's 零距離砲擊 until R9 took the blast out, §14): the frames it
+lasts from the shot ...")
+(defparameter *br-blast-r* 0.8 "... its radius at full size (m), x the draw scale.")
 
 ;; R8 (DUEL_LILLE_V3 §13, the user 2026-10-11: 「K 砲擊銜接的 L 也用一樣的砲擊特效炸在不同位置上」): the awakened K route's
 ;; L L (KL1 KL2 KL3, the 萬物貫通 lines after K3's blast) drawn as K3's balls of light instead of the line (BR-SHOT-FIRE spawns
@@ -1248,6 +1297,78 @@ DRAW-FIGHTER's; the opponent's: *BR-AT*), and a smaller one beside it. Reads the
         (%br-ball x y z a life r pal sd)
         (when (> a 1)                                   ; (a smaller one beside it, a frame later)
           (%br-ball (- x (* 0.5f0 r rx)) (+ y (* 0.45f0 r)) (- z (* 0.5f0 r rz)) (1- a) life (* 0.45f0 r) pal (+ sd 31f0)))))
+    nil))
+
+;; R9 (DUEL_LILLE_V3 §14, the user 2026-10-11: 「架式 L 的動作模組改成八翼往後收、身體前傾高速衝向對手，如果有碰到對手就穿過對
+;; 方並造成連續斬擊（類似阿修羅壹霧銀先穿過對手、然後在讓對方受傷的表現）」): the awakened L's dash (the sim slides him through
+;; him, barro.lisp BR-W-DASH) streaks, and once he is past, the cuts appear on the one he passed (Zoro's 阿修羅 一霧銀); the
+;; cuts outlive the move (the next L press starts at its S + A), so their place and start are kept per side (*BR-CUTS*)
+(defparameter *br-dash-moves* '(:br-e-l1 :br-e-l2 :br-e-l3 :br-oe-l1 :br-oe-l2 :br-oe-l3)
+  "The awakened L dashes (R9): the streaks and, when it hit, the cuts after (%BR-DASH-LOOK, %BR-CUTS-LOOK).")
+(defparameter *br-dash-frames* 8 "The dash's frames from S (= barro.lisp's *BR-W-DASH-F*): the streaks, then the cuts.")
+(defparameter *br-dash-cuts* 7 "The slashes that appear on him once the dash passed him (R9) ...")
+(defparameter *br-dash-cut-from* 1.0 "... the first this many frames after the dash's end, ...")
+(defparameter *br-dash-cut-step* 1.5 "... the next ones this many frames apart ...")
+(defparameter *br-dash-cut-life* 12.0 "... each drawn in over 2 frames, held, gone after this many ...")
+(defparameter *br-dash-cut-len* 2.2 "... this long (m), crossing round his middle.")
+(declaim (type f32vec *br-cuts*))
+(defvar *br-cuts* (let ((v (make-f32 8))) (setf (aref v 3) -100f0 (aref v 7) -100f0) v)
+  "Per side (4 a side): the cuts' place x z, the dash's facing, the fx clock they started at (cosmetic memory).")
+(defun-fast %br-dash-look (f side mv)
+  "The awakened L dash (a move in *BR-DASH-MOVES*) at its frame: through the dash (S .. S + *BR-DASH-FRAMES* + 1) five
+speed streaks trailing behind him (his drawn place: *POSE-AT*); at the dash's end, if it hit, the cuts start (*BR-CUTS*:
+the place of the one he passed, *BR-AT*). Reads the move's frame and its contact only (cosmetic). 0 B."
+  (declare (fixnum side))
+  (let* ((sf (fighter-sf f)) (s (mv-s mv)) (dashf (the fixnum *br-dash-frames*)) (pa *pose-at*) (at *br-at*) (o (* 8 side))
+         (cu *br-cuts*) (c (* 4 side)) (tm (fx-clock)) (pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+))
+         (yaw (aref pa 3)) (ux (- (f-sin yaw))) (uz (- (f-cos yaw))) (rx (f-cos yaw)) (rz (- (f-sin yaw))))
+    (declare (fixnum sf s dashf o c) (type f32vec pa at cu) (single-float tm pal yaw ux uz rx rz))
+    (when (and (<= s sf) (< sf (+ s dashf 2)))           ; the streaks behind him
+      (let ((x (aref pa 0)) (y (aref pa 1)) (z (aref pa 2)))
+        (declare (single-float x y z))
+        (dotimes (i 5)
+          (let* ((fi (i->f i)) (lat (* 0.32f0 (- fi 2f0))) (h (+ y 0.55f0 (* 0.28f0 (f-abs (- fi 2f0)))))
+                 (ln (+ 1.6f0 (* 0.5f0 (hash01 fi 7.3f0))))
+                 (x0 (+ x (* lat rx) (* -0.4f0 ux))) (z0 (+ z (* lat rz) (* -0.4f0 uz))))
+            (declare (single-float fi lat h ln x0 z0))
+            (%streak x0 h z0 (- x0 (* ln ux)) h (- z0 (* ln uz)) 0.05f0 pal 0.9f0 (+ 520f0 fi))))))
+    (when (and (eq (fighter-contact f) :hit) (> (aref at (+ o 4)) 0.5f0) (<= (+ s dashf) sf (+ s dashf 2))
+               (> (- tm (aref cu (+ c 3))) 0.3f0))     ; (once a dash: the cuts start)
+      (setf (aref cu c) (aref at (+ o 2)) (aref cu (+ c 1)) (aref at (+ o 3)) (aref cu (+ c 2)) yaw (aref cu (+ c 3)) tm))
+    nil))
+(defun-fast %br-cuts-look (side)
+  "SIDE's cuts after an awakened L dash that hit (*BR-CUTS*, started by %BR-DASH-LOOK): *BR-DASH-CUTS* slashes appearing one
+by one on the one he passed, crossing at golden-angle steps in the plane square to the dash, each a jade (the owl: gold)
+lens with a white core drawn in from one end over 2 frames, held, fading, a spark where it opens: 阿修羅 一霧銀's
+after-the-fact cuts. On the fx clock (they outlive the move). 0 B."
+  (declare (fixnum side))
+  (let* ((cu *br-cuts*) (c (* 4 side)) (af (* 60f0 (- (fx-clock) (aref cu (+ c 3)))))
+         (from (the single-float *br-dash-cut-from*)) (step (the single-float *br-dash-cut-step*))
+         (life (the single-float *br-dash-cut-life*)) (n (the fixnum *br-dash-cuts*)))
+    (declare (type f32vec cu) (fixnum c n) (single-float af from step life))
+    (when (<= 0f0 af (+ from (* step (i->f n)) life))
+      (let* ((pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+)) (yaw (aref cu (+ c 2)))
+             (ux (- (f-sin yaw))) (uz (- (f-cos yaw))) (rx (f-cos yaw)) (rz (- (f-sin yaw)))
+             (half (* 0.5f0 (the single-float *br-dash-cut-len*)))
+             (cx (aref cu c)) (cz (aref cu (+ c 1))) (cy (+ (aref *lb-v* 3) 1.05f0)))
+        (declare (single-float pal yaw ux uz rx rz half cx cy cz))
+        (dotimes (i n)
+          (let* ((fi (i->f i)) (a (- af from (* step fi))))
+            (declare (single-float fi a))
+            (when (<= 0f0 a life)
+              (let* ((th (+ 0.4f0 (* 2.39996f0 fi)))   ; (the golden angle: the cuts spread round)
+                     (dx (* 0.18f0 (- (hash01 fi 3.1f0) 0.5f0))) (dy (* 0.3f0 (- (hash01 fi 5.7f0) 0.5f0)))
+                     (ca (* half (f-cos th))) (sa (* half (f-sin th)))
+                     (x0 (+ cx (* dx rx) (- (* ca rx)))) (y0 (+ cy dy (- sa))) (z0 (+ cz (* dx rz) (- (* ca rz))))
+                     (g (f-min 1f0 (/ (+ a 1f0) 2f0)))   ; (drawn in from one end over 2 frames)
+                     (x1 (+ x0 (* g 2f0 ca rx))) (y1 (+ y0 (* g 2f0 sa))) (z1 (+ z0 (* g 2f0 ca rz)))
+                     (bx (+ (* 0.5f0 (+ x0 x1)) (* 0.12f0 ux))) (by (* 0.5f0 (+ y0 y1))) (bz (+ (* 0.5f0 (+ z0 z1)) (* 0.12f0 uz)))
+                     (k (- 1f0 (%lb-ss (/ (- a (* 0.5f0 life)) (* 0.5f0 life))))) (sd (+ 540f0 (* 9f0 fi))))
+                (declare (single-float th dx dy ca sa x0 y0 z0 g x1 y1 z1 bx by bz k sd))
+                (fx-crescent x0 y0 z0 x1 y1 z1 bx by bz 0.09f0 :lens 0.04f0 sd pal k :push 0.3f0)
+                (fx-crescent x0 y0 z0 x1 y1 z1 bx by bz 0.035f0 :lens 0.02f0 (+ sd 1f0) +pal-hit+ (* 0.95f0 k) :push 0.35f0)
+                (when (< a 2f0)                            ; (the cut's spark where it opens)
+                  (fx-star x1 y1 z1 0.05f0 0.22f0 6 sd 0f0 0f0 0.08f0 (+ sd 2f0) +pal-hit+ 0.95f0 :push 0.4f0))))))))
     nil))
 
 ;;; ---------------------------------------------------------------- the special resource's looks (DUEL_LILLE_V3 §4)
@@ -1415,10 +1536,11 @@ wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-
         (when (<= c 16) (%br-recall-look e jm side c))
         (when (not (eq (mv-name mv) :br-recall)) (%br-beat-look e f jm side mv))
         (when (and (eq (mv-name mv) :br-rc4) (eq (fighter-phase f) :main)) (%br-kiwami-look f jm side))))
-    (when (and mv (member (mv-name mv) *br-blast-moves*) (eq (fighter-phase f) :main))   ; R5's 零距離砲擊
-      (%br-blast-look f side mv))
     (when (and mv (assoc (mv-name mv) *br-kl-balls*) (eq (fighter-phase f) :main))   ; R8: the K route's L L as balls
       (%br-kl-balls f side mv))
+    (when (and mv (member (mv-name mv) *br-dash-moves*) (eq (fighter-phase f) :main))   ; R9: the L dash, the cuts after
+      (%br-dash-look f side mv))
+    (%br-cuts-look side)
     (when (and (>= *br-art-hold* 0) (>= (the fixnum (br-hold-clock f)) *br-art-hold*))   ; (debug stills)
       (setf *br-art-hold* -1)
       (hitstop 100000)))
@@ -1518,7 +1640,7 @@ K route's balls (in an awakened KL, R8; a \"barro consing\" line)."
   (let* ((e *p1*) (f (fighter e)) (side (fighter-side f)) (m (model e)) (jm (model-joints m))
          (mv (and (eq (fighter-state f) :move) (fighter-move f))))
     (macrolet ((per (form) `(let ((c0 (cons-bytes))) (dotimes (i 10) ,form) (- (cons-bytes) c0))))
-      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d blast ~d stretch ~d lashes ~d deform ~d kl-balls ~d"
+      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d stretch ~d lashes ~d deform ~d kl-balls ~d dash ~d cuts ~d"
                (fighter-form f) (br-hold-clock f)
                (per (br-draw e 0.016f0)) (per (lille-draw e 0.016f0))
                (per (progn (%br-spend-note f side (br-ammo-look e) 2) (%br-spend-look e side))) (per (%br-recall-look e jm side 4))
@@ -1526,9 +1648,9 @@ K route's balls (in an awakened KL, R8; a \"barro consing\" line)."
                    (list (per (%br-beat-look e f jm side mv)) (per (br-rc-drive f mv)) (per (br-rc-beat (mv-name mv) (fighter-sf f))))
                    -1)
                (if (and mv (eq (mv-name mv) :br-rc4)) (per (%br-kiwami-look f jm side)) -1)
-               (if (and mv (member (mv-name mv) *br-blast-moves*)) (per (%br-blast-look f side mv)) -1)
                (per (%lb-stretch! (model-anim m))) (per (%lb-lashes jm side)) (per (br-deform e m))
-               (if (and mv (assoc (mv-name mv) *br-kl-balls*)) (per (%br-kl-balls f side mv)) -1)))))
+               (if (and mv (assoc (mv-name mv) *br-kl-balls*)) (per (%br-kl-balls f side mv)) -1)
+               (if (and mv (member (mv-name mv) *br-dash-moves*)) (per (%br-dash-look f side mv)) -1) (per (%br-cuts-look side))))))
 
 ;;; ---------------------------------------------------------------- the HUD: the special resource (DUEL_LILLE_V3 §3.1)
 (defparameter *br-sn-strings* #("SN 0" "SN 1" "SN 2" "SN 3") "The base form's label: SN + the 狙擊 pips.")
