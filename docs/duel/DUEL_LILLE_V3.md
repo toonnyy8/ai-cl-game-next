@@ -698,3 +698,26 @@ deform / balls 0 B. Playtest v64.
 Gates after R8 (native sim, 10 seeds, all 60 K.O.): BY 118.6, BK 105.3, BR 138.1, BI 151.5, BS 151.4, BB 161.0 s — R7's
 but BS (152.1) and BI's wins (5 / 10, 6 before): K1's longer reach barely moves the sim. BY / BK stay §12.1's open exception
 (the user: 「先試玩再決定」). Mirror awaken A/B: 55 / 57 / 54 (as R7): pass.
+
+## 14. Decision R9 (2026-10-11): the modules reshuffled, the L dash through him
+
+The user (verbatim):
+
+> * 架式 J 的蓄力斬合併到架式 K 連打中：除了原本的右往左砍外再添加『左往右下揮擊』與『順著往下砍的力道讓身體轉一圈後從上下劈』
+> * 原本架式 L 的轉圈改到架式 J，而原本架式 J > L 的動作模組改成原本架式 J 的鞭打
+> * 架式 L 的動作模組改成八翼往後收、身體前傾高速衝向對手，如果有碰到對手就穿過對方並造成連續斬擊（類似阿修羅壹霧銀先穿過對手、然後在讓對方受傷的表現）
+> * 續力斬疑似是中間的關鍵幀太少，導致揮擊一下就結束表現不出力道，請補充其中的關鍵幀讓動畫更順暢
+
+Answers (AskUserQuestion): K3's blast 「拿掉砲擊」; the L 「一按一下，連斬是特效」; 「只改覺醒」 (JILLIEL EN / the owl EN).
+
+| String (awakened) | Before (R7–R8) | Now (R9) |
+|---|---|---|
+| L | the spinning top, S 12 | **a dash through him**: the eight wings folded back, leaning low; at S (12) `BR-W-DASH` turns him at him and slides him his distance + 1.6 m (2–6 m) over 8 f; the move `:through` (a new generic flag: SEPARATE-FIGHTERS skips the body push while it runs); one hit S..S+10 (a 0.9 m cap, r 0.7), stagger; 16 / 16 / 24; after the pass the cuts burst on him (a look, 一霧銀-style) |
+| J | whip lashes, J3 the cleaver (S 14) | **the spinning top** (the old L's turns), S 8, one turn a press |
+| J → L L (JL1–JL3) | 疾射 lines | **the old J whip lashes** (the 31 m line's look unchanged) |
+| K | K1 the charged slash, K2 a close blow, K3 the blast | **the great sword, three cuts**: K1 the charged slash right → left (S 16), K2 left → right downward (S 12), K3 the momentum carries him round one turn, then the overhead split (S 18); **no blast** |
+| The charged slash | a snap | more in-between keys: the wind-up, the arc, the follow-through, the impact hold |
+
+The K route's L L keeps R8's light balls. CPU bands (JILLIEL EN / the owl EN): J inside 1.8 / 1.7, K 1.8–2.8, L (the dash) 2.8–5.5 m.
+Host tests: the L's dash checked (`:through`, the hook at S, A = 2 + 8); the clips in progress (a subagent's batch).
+
