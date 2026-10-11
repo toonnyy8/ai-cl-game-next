@@ -731,3 +731,11 @@ passed just after the dash (on the effects clock, `*br-cuts*`: they outlive the 
 (`run.mjs --fixed-dt`): JILLIEL EN from 3 m L L L three hits, each dash through him (d 3.0 → 1.28 → 0.37 → 1.55); K K K
 three; J J J three then L L L the whips three (3 specials spent). Playtest v65.
 
+
+### 14.1 Gates after R9 (native sim)
+
+G2 (`tests/style-gates.py cvc`: YY, YK, KK identical to the references): pass — the generic `:through` changes no one else.
+10 seeds, all 60 K.O.: BY 114.9, BK 113.5, BR 161.0, BI 116.9, BS 145.1, BB 184.3 s. 20 seeds: BY 114.5, BK 112.2, BI
+116.9. 60 seeds: **BI 138.7 s** (his wins 26 / 60) pass; **BY 110.5 s** (31 / 60) and **BK 109.1 s** (17 / 60) outside
+125–210: §12.1's open exception, waiting on the user's playtest (「先試玩再決定」). Mirror awaken A/B (BB, 39020, 60 seeds,
+seed0 100 / 300 / 500): 54 / 58 / 60: pass.
