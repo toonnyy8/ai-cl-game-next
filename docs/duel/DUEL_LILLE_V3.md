@@ -937,3 +937,24 @@ Asked after v71's playtest whether BY / BK below 125 s are an exception or a ret
 118.4 s and BK 114.4 s (60 seeds, §18.2) are an accepted exception (AGENTS.md). His CPU in the rooted EN (it walks / waits
 there) is deferred: 「晚點」.
 
+## 19. Decision R15 (2026-10-11): the base form remade in the awakened forms' system and motion style
+
+The user (verbatim): 「晚點，我想先請你用覺醒狀態的系統邏輯與動作模組的設計風格重製常態模式。」 Asked (AskUserQuestion), the
+answers: the stance L 「蓄力狙擊」 (one segment charged in three levels: the longer, the farther / harder / more specials,
+level 3 the 萬物貫通 line across the field); the stance J 「槍鬥術」 (gun-kata: turns, spins, shots behind the back at point
+blank, one shot a press); the stance K 「槍身重揮」 (the long rifle swung as a heavy club, the body thrown into it: the
+awakened great sword's three-blow rhythm with squash and stretch); the openers 「改成近距離」 (as the awakened forms': only
+the spending L L follow-ups and SP2 reach across the field).
+
+| Rule (base form) | Before | Now (R15) |
+|---|---|---|
+| L from neutral | the stance (`:br-kamae`), 30 f stand, 90 f while L is held | a tap: the stance (30 f stand); **held**: L still held `*br-to-dash-held*` 10 f from the press while the stance is up → the stance's L in its charge at once, the frames held counted (as KIN's L, R13) |
+| stance L | L1 → L2 → L3 (4 m shots, gains 0 / 0 / 1) | **one charged snipe** (`:hold (0 60)`, levels at 20 / 40 f held): level 1 a 4 m shot, 2 a 12 m shot, 3 the 31 m 萬物貫通 line (through guard: chip, the guard drain, uncatchable); damage 16 / 32 / 48, specials +1 / +2 / +3 (the base's cap 3); no L link |
+| stance J | 4 m shots | **gun-kata**, melee (its reach the drawn muzzle on the hit frame, ~1.9 m) |
+| stance K | 4 m shots | **the rifle swung heavy**, melee (~2.5–2.6 m; K1 S 16, K3 S 18 as the great sword) |
+| J → L L, K → L L | 31 m lines spending a pip each | unchanged (the 疾射 / 重砲 shots) |
+| the stance's Step, stand, end push | HIRENKYAKU once, 30 f (90 held), §17's push | the same (the held extension gone: L held is the charge) |
+
+Damage (R14's order kept): stance K 46 / 46 / 66 > the attack state's K 38 / 38 / 56; the stance J 15 a press. The CPU's
+stance pick: J / K only inside their reach (else L).
+
