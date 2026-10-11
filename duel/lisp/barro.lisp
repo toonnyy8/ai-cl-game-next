@@ -654,10 +654,12 @@ awakened form inherits these).")
 (defkit :barro :jilliel :inherit :jilliel-kin
   :form-name "JILLIEL" :walk *br-walk-en* :run *br-run-en* :body :lille-jilliel
   :commands (:q :br-e-j1 :f :br-e-k1 :sig :br-e-l1)
-  :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)            ; (R4: the openers wing strikes, 1.6-2.2 m)
-       :ranges (:approach (2.2 8.0) :pressure (1.2 2.0) :zone (3.5 8.0) :defend (5.0 9.0))
-       :moves ((0.0 2.0 :sig 2 :f 3 :q 3 :step 1)
-               (2.0 99.0 :sp1 1 :step 2 nil 3))
+  :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)            ; (R5: the whips 2.8, the top 1.85, the K beating 1.2-2.0 m)
+       :ranges (:approach (2.6 8.0) :pressure (1.0 2.6) :zone (3.5 8.0) :defend (5.0 9.0))
+       :moves ((0.0 1.4 :f 4 :sig 2 :q 2 :step 1)
+               (1.4 1.9 :sig 3 :q 3 :f 1)
+               (1.9 2.8 :q 4 :step 1)
+               (2.8 99.0 :sp1 1 :step 2 nil 3))
        :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 8.5
        :burst (:p 0.5 :wings 5 :in 6.0) :reflex br-ai-reflex
        :stance (:follow 0.6 :sp2-at 4 :sp2 0.8)))
@@ -682,9 +684,11 @@ awakened form inherits these).")
   :lift *br-owl-lift* :form-name "SHIN" :walk *br-walk-en* :run *br-run-en* :stance :lb-oe-stance
   :commands (:q :br-oe-j1 :f :br-oe-k1 :sig :br-oe-l1)
   :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (2.0 8.0) :pressure (1.0 1.8) :zone (3.5 8.0) :defend (5.0 9.0))   ; (R4: claw strikes, 1.35-2.2 m)
-       :moves ((0.0 1.9 :sig 1 :f 4 :q 2 :step 1)
-               (1.9 99.0 :sp1 1 :step 2 nil 3))
+       :ranges (:approach (2.6 8.0) :pressure (1.0 2.6) :zone (3.5 8.0) :defend (5.0 9.0))   ; (R5: arm whips 2.75, spin 1.7, K 1.15-1.75 m)
+       :moves ((0.0 1.4 :f 4 :sig 1 :q 2 :step 1)
+               (1.4 1.75 :sig 2 :q 3 :f 1)
+               (1.75 2.75 :q 4 :step 1)
+               (2.75 99.0 :sp1 1 :step 2 nil 3))
        :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 9.0 :reflex br-ai-reflex
        :stance (:follow 0.7 :sp2-at 3 :sp2 0.9)))
 

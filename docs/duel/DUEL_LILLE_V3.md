@@ -569,7 +569,7 @@ reach 「跟著動作走」 (drawn reach = hit reach).
 
 Host tests 8409, ALL PASS.
 
-### 10.2 The awakened stance's motion modules (in progress)
+### 10.2 The awakened stance's motion modules (built 2026-10-11, a subagent's batch r5-art, merged)
 
 The user, after the first design (verbatim): 「長鞭可以連成大砍刀，砲擊也可以接在近距離毆打後面，請調查一般格鬥遊戲/動漫風格對戰遊戲
 常會有強烈風格的戰鬥動作，並選擇適合的搭配來建置動作模組」. The survey: `docs/research/lille2-motion-styles/notes.md` (the snake
@@ -581,3 +581,27 @@ The choice ([G], frame data and hit counts unchanged; each hit's reach the drawn
 | J (rapid) | the snake sword (Ivy, SoulCalibur) | J1 / J2 the wings stretched into whips, crossing figure-eight lashes (~2.6–3.0 m); **J3's last hit: the whips snap rigid into one giant cleaver** (both wings joined), a heavy downward chop (~2.4 m) — 「長鞭連成大砍刀」 |
 | K (heavy) | the great sword, then rush → blast (DBFZ / Sparking! ZERO rush into a finisher) | K1 great-sword chops (a held overhead wind-up, a rising cut); K2 stepping in, a close beating (~1.2–1.4 m); **K3 two close blows, then the point-blank cannon blast with an explosion** (~1.0–1.3 m) — 「砲擊也可以接在近距離毆打後面」 |
 | L (even beat) | the spinning top (Tatsumaki Senpukyaku) | tilted forward, the wings swung flat, three turns over the string (L1, L2 one each, L3 one and a half), a hit as a wing sweeps the front (~1.8 m) |
+
+**As built** (clip names, frame data and hit counts unchanged):
+- L 陀螺: the pelvis twist inside a forward root pitch (the axis leaning at him), the wings / claws swung out flat, a hit as one
+  sweeps his line; L1 one turn, L2 one more (lower), L3 one and a half (rising); each segment starts from the last one's S + A
+  twist, so the spin carries across links; the table wings spin with him (`*lb-no-conv*`: no convergence).
+- J 長鞭 → 大砍刀: J1 crossing figure-eights from high outside (R L R), J2 rising from low (L R L), J3 R L R then the whips shorten,
+  go rigid and join into one cleaver for the downward chop (its last hit).
+- K 大刀 → 近身 → 零距離砲擊: K1 the held overhead wind-up, the whole-body chop, a rising cut; K2 stepping in, the folded wings
+  clubbed down R then L; K3 a folded-wing hook, a club, then both tips thrust into him with the blast.
+- The stretch (a look): `barro-art.lisp *br-w-stretch*` keys (frame right left) metres past the hand, by clip, loaded into
+  `lille-art.lisp *lb-stretch*`; `%lb-stretch!` / `%lb-wings` (JILLIEL's front blades continued along root → hand) and the
+  owl's `%lb-lashes` (a gold comet from the claw along the forearm). Zero for every other clip: old Lille's draw unchanged.
+- The blast (a look): `%br-blast-look` for `:br-e-k3` / `:br-oe-k3`, 18 f from the last hit: a white flash, a jade (the owl:
+  gold) star over an ink star, a white core, rising smoke, fixed on his line at the hit's reach. 0 B a frame (82398).
+- The reach (`*BR-W-TIPS*`, the drawn tips incl. the stretch): JILLIEL L 1.85, J 2.8–2.85 (the cleaver 2.4), K1 2.0 / 1.8, K2
+  1.35, K3 1.3 / 1.35 / 1.2; the owl L 1.7, J 2.75–2.8 (2.4), K1 1.75 / 1.55, K2 1.35, K3 1.35 / 1.35 / 1.15. The K links chase in
+  their startup (the string's follow-up chase), so K1 at 1.95 m still reaches K2 / K3 (browser).
+- CPU bands (JILLIEL EN / the owl EN): K inside 1.4 m, L inside 1.9 / 1.75, J inside 2.8 / 2.75; pressure 1.0–2.6 m.
+
+Checks: host tests 8412, ALL PASS (the tip with the stretch; K3's blast hit both hands together at the reach ≤ 1.3 m);
+duel-control / learn / input / touch / cine pass, pkgcheck 0, build 0 warnings. Browser (`run.mjs --fixed-dt`): JILLIEL EN K1 at
+1.95 m → K3, all seven hits (the blast the last); J1 at 2.55 m → J3, all ten (the cleaver the last); L at 3 m whiffs L1 and
+stops. Playtest v62.
+
