@@ -958,3 +958,11 @@ the spending L L follow-ups and SP2 reach across the field).
 Damage (R14's order kept): stance K 46 / 46 / 66 > the attack state's K 38 / 38 / 56; the stance J 15 a press. The CPU's
 stance pick: J / K only inside their reach (else L).
 
+### 19.1 Gates after R15's sim (native sim, f86fb24; the art doesn't move it)
+
+10 seeds, 60 matches, all K.O.: BY 111.7, BK 109.2, BR 146.0, BI 160.7, BS 142.2, BB 208.4 s (BR, BI, BS pass; the mirror
+within its allowance). 60 seeds: BY 116.5 s, BK 115.6 s, within §18.3's accepted exception's band (118.4 / 114.4). Mirror
+awaken A/B (39020): 52 / 48 / 48, pass. **His CPU's wins collapsed** (BY 7, BK 3 of 60; BR, BI, BS 0 of 10): it still
+enters the base stance inside 4 m (`:zone :in`) for strings that now reach 1.9–2.6 m (R15's CPU change only turns an
+out-of-reach J / K into L), and it never charges the snipe; the CPU's stance logic is the user's deferred item (「晚點」).
+
