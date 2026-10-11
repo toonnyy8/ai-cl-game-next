@@ -820,6 +820,29 @@ the level; the R10 cosmetic cut timer (`*br-cuts*`, `%br-cuts-look`, `*br-dash-c
 8257 ALL PASS; browser: level 1 / 2 / 3 → 2 / 4 / 6 hits (the HUD's 2 HITs 16, 3 HITs 24, 4 HITs 31 …), both forms; the
 cut look 0 B a frame.
 
+**3, the legs (art only).** JILLIEL KIN and EN are two bodies swapped on the turn's frame 11 (`:br-to-en`) and on the
+stance-out; the owl's tuck began after the turn and its 0.35 m EN lift dropped at once. Now (`%br-legs-pose` from the `:pose`
+hook `BR-DEFORM`, per-side memory `*br-legs*` on the fx clock, `*lb-wf*` [89] fold + 1 / [90] pull to `LILLE-DRAW` and
+`%lb-legs`; 0 B): into the stance over the turn's frames 0–10 the shanks fold, then the thighs and the ㄇ legs shrink into
+the hips while the hips stretch down into the column (EN's column grows its last quarter over 5 f); back to KIN the
+reverse over 9 f; the owl folds over the turn and unfolds over 9 f, its lift let down with it. The base form's stance is a
+move in one body: nothing popped there. Old Lille never sets the slots (his look unchanged).
+
+**4, the whips (art; the sfx keyword in `BR-SHOT-FIRE`).** v66's stills showed the R10 "whip" as a thin straight jade line
+from his chest for 3 frames: a beam. Now the lash continues from the striking front wing (its glass thinned, `*lb-wf*` [81
+82] = the whip's root; the owl: its claw, `%lb-lashes` skipping its comet): 16 tapered ribbon segments (jade / gold, a white
+core, blade segments on the root two-thirds: a snake sword) whose points take the swing angle from lag × s^1.4 frames
+earlier (the base leads, the tip trails and snaps), the tip on his line at the opponent's distance (≤ 31 m, chest height)
+on S, the crack burst on him 5 f from S, then slack (droop, a wave) and drawn back in over the recovery; the tip's and the
+middle's arc smeared. JL1 a flat swing from his right, JL2 a backhand from high left to low right, JL3 an overhead crack
+(the longest, squash and stretch); the clips `:br-e-jf1..3` / `:br-oe-jf1..3` rebuilt with big twist and lean (FK-solved:
+the tip on his line at S, the host tip test); only the striking wing stretches (0.4–0.45 m at S). The sound: a new
+`:br-whip-crack` (snap, slap, the swish back) for the awakened J route's L L; the base form's keep the gunshot (`:lb-crack`).
+Debug: 82389 (the next 82320+m scene in front view), 82390–82393 the leg scenes; m 55–57 reachable again (the range had
+stopped at 274). Host tests all pass (8257, 89, 131, 33, 64, 18), pkgcheck 0, build 0 warnings, the whip and the legs 0 B a
+frame; browser: J J J → L L L all hit, both forms' dashes and cuts as before. Playtest v68 (v67: items 1–2 only). The sim
+is unchanged by 3–4 (the sound is a presentation event): §16.1's gates stand.
+
 ### 16.1 Gates after R11's sim (native sim, 9b9158e)
 
 10 seeds, 60 matches, all K.O.: BY 117.7, BK 109.0, BR 129.1, BI 144.1, BS 166.9, BB 185.3 s (BI, BS, BB pass at once).
