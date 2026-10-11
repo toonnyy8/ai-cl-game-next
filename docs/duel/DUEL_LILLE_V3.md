@@ -613,3 +613,24 @@ BY / BK under 135 → 20 seeds (the verdict): **BY 130.1 s** (8 / 20), **BK 129.
 pass. Awaken A/B (BB, 39020, 60 seeds, seed0 100 / 300 / 500; the never-awaken side's wins, pass ≥ 20): **56 / 53 / 53** (R4:
 60 / 58 / 58), all K.O.: pass; the awakened mirror side still loses most (reported at R4, not tuned). (BK's A/B is Kenpachi's
 awakening, unchanged by his art: not re-run.)
+
+## 11. Decision R6 (2026-10-11): 3 hits a move, the one-wing cleaver, the orb blast
+
+The user (verbatim):
+
+> - 動作段數最多三段
+> - 大砍刀的動作要更緩慢沉重、扭轉身體、砍刀後拉，每次只用一隻光翼揮砍，揮砍前光翼隨身體的距離伸長放大
+> - 砲擊不要發射光束，直接在爆炸點炸開光球來表示
+
+Reading [G]: 「段數」 = a move's hits (only J3 had 4); 「大砍刀」 = J3's cleaver and K1's great-sword chops.
+
+| Rule | Before | Now |
+|---|---|---|
+| J3 (every form) | 4 hits (0 3 6 9), R 14 | **3 hits** (0 3 6); the base's R 14 → 17 (its clip's length kept) |
+| The awakened J3 (`*BR-W-SEGS*`) | the cleaver 3 f after the whips | **(0 3 15)**, R 14: two whips, then the cleaver 12 f later |
+| The awakened K1 | chops 10 f apart | **14 f apart** (0 14), R 18 |
+| The cleaver / great-sword motion | both wings joined | the body twisted, the blade pulled back, **one wing a chop** (the other back), the wing lengthening and growing with the pull before the swing; the owl one claw / long arm |
+| K3's blast | a flash, a star and the tips thrust along his line | **no beam**: a ball of light bursting at the blast point (a white core, a jade / gold shell, fading) |
+
+Host tests: 3 hits at most; the art in progress (a subagent's batch r6-art).
+
