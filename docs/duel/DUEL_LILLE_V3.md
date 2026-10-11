@@ -605,3 +605,11 @@ duel-control / learn / input / touch / cine pass, pkgcheck 0, build 0 warnings. 
 1.95 m → K3, all seven hits (the blast the last); J1 at 2.55 m → J3, all ten (the cleaver the last); L at 3 m whiffs L1 and
 stops. Playtest v62.
 
+
+### 10.3 Gates after R5 (native sim)
+
+10 seeds, all 60 K.O.: BY 123.7, BK 130.4, BR 196.7, BI 156.4, BS 168.3, BB 192.6 s (his wins of 10: 2, 2, 4, 2, 3, mirror).
+BY / BK under 135 → 20 seeds (the verdict): **BY 130.1 s** (8 / 20), **BK 129.0 s** (3 / 20), all K.O., inside 125–210:
+pass. Awaken A/B (BB, 39020, 60 seeds, seed0 100 / 300 / 500; the never-awaken side's wins, pass ≥ 20): **56 / 53 / 53** (R4:
+60 / 58 / 58), all K.O.: pass; the awakened mirror side still loses most (reported at R4, not tuned). (BK's A/B is Kenpachi's
+awakening, unchanged by his art: not re-run.)
