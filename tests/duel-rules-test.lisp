@@ -3153,8 +3153,8 @@ past the ends; DEFAULT if the clip is not listed."
 ;; root and hand both scaled, then the stretch drawn on), so the reach moves only through the stretch's direction
 (check (and (~= 1.0 (br-keys-at *br-squash* :lb-w-q1 10 0 1.0)) (~= 0.74 (br-keys-at *br-squash* :br-en-k1 16 0 1.0))
             (~= 1.3 (br-keys-at *br-squash* :br-en-k1 16 1 1.0)) (~= 1.0 (br-keys-at *br-squash* :br-en-k1 40 0 1.0))))
-(check (and (~= 0.0 (br-stretch-at :lb-w-q1 10 0)) (~= 1.2 (br-stretch-at :br-e-jf1 8 0)) (~= 1.0 (br-stretch-at :br-e-jf1 8 1))
-            (~= 1.15 (br-stretch-at :br-e-jf1 9 0)) (~= 0.0 (br-stretch-at :br-e-jf1 40 0)) (~= 0.0 (br-stretch-at :br-en-j1 8 0))))
+(check (and (~= 0.0 (br-stretch-at :lb-w-q1 10 0)) (~= 0.4 (br-stretch-at :br-e-jf1 8 0)) (~= 0.1 (br-stretch-at :br-e-jf1 8 1))
+            (~= 0.35 (br-stretch-at :br-e-jf1 9 0)) (~= 0.0 (br-stretch-at :br-e-jf1 40 0)) (~= 0.0 (br-stretch-at :br-en-j1 8 0))))
 (let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
       (pj (make-rig-proportions :arms 2.6)) (po (make-rig-proportions :arms 2.2 :legs 1.5)) (seen nil))
   (flet ((tip (clip time joint props)

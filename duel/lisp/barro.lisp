@@ -1095,10 +1095,12 @@ level's damage bonus (*BR-W-L-BONUS*); the move is :through (no body push: he pa
     ;; (R8, DUEL_LILLE_V3 §13: the awakened K route's L L drawn as balls of light, barro-art.lisp %BR-KL-BALLS; the look
     ;; hazard is spawned all the same, only its kind differs: the hit and the hazard count are the line's)
     ;; (R10, §15: 「J 陀螺完之後還是射擊不是長鞭呀」: the awakened J route's L L drawn as the whip reaching him, barro-art.lisp
-    ;; %BR-WHIP-REACH; its look :whip, which LB-LOOK does not draw either)
+    ;; %BR-WHIP-LASH since R11, §16; its look :whip, which LB-LOOK does not draw either)
     (br-spawn-look e (if (eq (fighter-form f) :base) :shot (case (getf (mv-params mv) :stance) (:kl :ball) (:jl :whip) (t :shot)))
                    (or (move-param e :len) *br-x-len*) 0.05 (and (member :x-axis (mv-flags mv)) t))
-    (emit :sfx :lb-crack e)))
+    ;; (R11, §16: 「現在的架式 J > L 看起來依舊是射擊？」: the awakened J route's L L sound a whip's crack, barro-art.lisp's
+    ;; :br-whip-crack; the base form's stay the gunshot)
+    (emit :sfx (if (and (not (eq (fighter-form f) :base)) (eq (getf (mv-params mv) :stance) :jl)) :br-whip-crack :lb-crack) e)))
 (defun br-line-shot (e)
   "SANREN's shots (f12, f22, f32): the line's look."
   (br-spawn-look e :shot (move-param e :len) 0.04 (and (member :uncatchable (mv-flags (fighter-move (fighter e)))) t))

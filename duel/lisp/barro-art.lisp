@@ -513,17 +513,6 @@
 (defpose :br-en-top-high (:base :lb-w-stance)      ; L3's: spun up and risen, the tilt less, the wings flat and high
   (:root :f 0.08 :u 0.3 :pitch 10) (:spine :flex 0) (:head :flex -4)
   (:arm-r :flex 0 :side 94) (:elbow-r :flex 0) (:arm-l :flex 0 :side 94) (:elbow-l :flex 0))
-;; 長鞭 (the J route's L L since R9, J before): the front wings stretched long (*BR-W-STRETCH*), cracked from high: the striking wing thrown down at him, the
-;; other cocked overhead for the next
-(defpose :br-en-cock (:base :lb-w-stance)          ; both whips raised overhead, the wrists high (the lashes' wind-up)
-  (:root :u 0.04 :pitch -4) (:spine :flex -4) (:head :flex -2)
-  (:arm-r :flex 152 :side 26) (:elbow-r :flex 34) (:arm-l :flex 152 :side 26) (:elbow-l :flex 34))
-(defpose :br-en-crack-r (:base :lb-w-stance)       ; the right whip cracked down on his line, the left cocked high
-  (:root :f 0.08 :u -0.02 :pitch 6) (:spine :flex 10) (:chest :twist 8) (:head :flex 4)
-  (:arm-r :flex 103.8 :side 1.3) (:elbow-r :flex 0) (:arm-l :flex 150 :side 30) (:elbow-l :flex 36))
-(defpose :br-en-crack-l (:base :lb-w-stance)
-  (:root :f 0.08 :u -0.02 :pitch 6) (:spine :flex 10) (:chest :twist -8) (:head :flex 4)
-  (:arm-l :flex 103.8 :side 1.3) (:elbow-l :flex 0) (:arm-r :flex 150 :side 30) (:elbow-r :flex 36))
 ;; 大砍刀 (K1 K2 K3 since R9: the charged slash, the backhand, the turn and the split; R6, DUEL_LILLE_V3 §11: 「大砍刀的動作要更緩慢沉重、扭轉身體、砍刀後拉，每次只用一隻光翼
 ;; 揮砍，揮砍前光翼隨身體的距離伸長放大」): ONE wing a chop, the body wound away from him, the wing pulled back behind the
 ;; head and grown (*BR-W-STRETCH*, *LB-STRETCH-GROW*: longer and wider with the pull), held, then swung down through his
@@ -677,18 +666,6 @@
   (:root :f 0.16 :u 0.3 :pitch 10) (:spine :flex 0) (:neck :flex -2) (:head :flex -6)
   (:arm-r :flex 0 :side 94) (:elbow-r :flex 0) (:hand-r :flex -20) (:arm-l :flex 0 :side 94) (:elbow-l :flex 0)
   (:hand-l :flex -20))
-(defpose :br-oen-cock (:base :lb-oe-stance)        ; both claws raised overhead with their gold lashes (J's wind-up)
-  (:root :u 0.06 :pitch -4) (:spine :flex -4) (:neck :flex -12) (:head :flex -10)
-  (:arm-r :flex 150 :side 26) (:elbow-r :flex 30) (:hand-r :flex -30) (:arm-l :flex 150 :side 26) (:elbow-l :flex 30)
-  (:hand-l :flex -30))
-(defpose :br-oen-crack-r (:base :lb-oe-stance)     ; the right claw's lash cracked down on his line, the left cocked high
-  (:root :f 0.1 :u -0.02 :pitch 6) (:spine :flex 12) (:chest :twist 8) (:neck :flex 16) (:head :flex 8)
-  (:arm-r :flex 105.3 :side 9.8) (:elbow-r :flex 0) (:hand-r :flex 30) (:arm-l :flex 148 :side 30) (:elbow-l :flex 34)
-  (:hand-l :flex -30))
-(defpose :br-oen-crack-l (:base :lb-oe-stance)
-  (:root :f 0.1 :u -0.02 :pitch 6) (:spine :flex 12) (:chest :twist -8) (:neck :flex 16) (:head :flex 8)
-  (:arm-l :flex 105.3 :side 9.8) (:elbow-l :flex 0) (:hand-l :flex 30) (:arm-r :flex 148 :side 30) (:elbow-r :flex 34)
-  (:hand-r :flex -30))
 (defpose :br-oen-heave-r (:base :lb-oe-stance)     ; the owl: the right claw pulled back behind the head, wound away
   (:root :f -0.16 :u 0.08 :yaw -24 :pitch -8) (:pelvis :twist -16) (:spine :flex -10) (:chest :twist -46) (:neck :flex -10)
   (:head :twist 30) (:arm-r :flex 215 :side 24) (:elbow-r :flex 10) (:hand-r :flex -30) (:arm-l :flex -30 :side 36)
@@ -825,57 +802,164 @@
   (36 :br-oen-split-low (:root :f 0.06 :u -0.04 :pitch 6) (:spine :flex 8) (:arm-r :flex 40 :side 30))
   (:end :lb-oe-stance))
 ;; the J route's L L (R9, DUEL_LILLE_V3 §14: 「原本架式 J > L 的動作模組改成原本架式 J 的鞭打」): the whips, JILLIEL's
-;; wings and the owl's gold lashes (the follow-up's hit is its 萬物貫通 line; the tip on his line, the host test)
-(defstrike :br-e-jf1 (8 2 14 :base :lb-w-stance)   ; JL1 長鞭 (R9: the old J1 whip): out of the spin, the right whip cracked from high outside down across him f8
+;; wings and the owl's claws (the follow-up's hit is its 萬物貫通 line; the tip on his line, the host test). R11 (§16: 「現在的
+;; 架式 J > L 看起來依舊是射擊？」): three lashes, the body thrown into each (twisted, leaning in) in time with the lash's
+;; swing (*BR-LASHES*): JL1 the right wing wound out behind him to the right, swung flat round through him and on across to
+;; his left; JL2 the left wing raised high behind the left shoulder, the backhand down across him to his lower right; JL3
+;; risen tall and arched back with the right wing overhead, the whole body slammed forward and down, the lash cracked
+;; straight down on him and on into the floor (the heaviest: stretched tall, then squashed, *BR-SQUASH*).
+(defpose :br-en-lash-wind-r (:base :lb-w-stance)    ; JL1 wound up: twisted right, leaning back, the right wing drawn out back to the right
+  (:root :f -0.1 :u 0.06 :yaw -26 :pitch -6) (:pelvis :twist -18) (:spine :flex -8) (:chest :twist -44) (:head :twist 34)
+  (:arm-r :flex 36 :side 101) (:elbow-r :flex 18) (:arm-l :flex 46 :side 30) (:elbow-l :flex 40)
+  (:thigh-r :flex -14) (:thigh-l :flex 16))
+(defpose :br-en-lash-sweep-r (:base :lb-w-stance)   ; ... the swing coming round: unwinding, the wing out flat to the right
+  (:root :f 0.02 :u 0.02 :yaw -12 :pitch 2) (:pelvis :twist -8) (:spine :flex 4) (:chest :twist -20) (:head :twist 16)
+  (:arm-r :flex 56 :side 94) (:elbow-r :flex 6) (:arm-l :flex 30 :side 30) (:elbow-l :flex 40)
+  (:thigh-r :flex 6) (:thigh-l :flex -4))
+(defpose :br-en-lash-crack-r (:base :lb-w-stance)   ; JL1's crack (S): leaning into it, unwound to square, the wing at him
+  (:root :f 0.16 :u -0.04 :yaw 4 :pitch 10) (:pelvis :twist 4) (:spine :flex 14) (:chest :twist 8) (:head :twist -6)
+  (:arm-r :flex 114 :side -24) (:elbow-r :flex 0) (:arm-l :flex 10 :side 40) (:elbow-l :flex 30)
+  (:thigh-r :flex 24) (:thigh-l :flex -16))
+(defpose :br-en-lash-thru-r (:base :lb-w-stance)    ; ... followed through across to his left, wound the other way
+  (:root :f 0.22 :u -0.08 :yaw 24 :pitch 12) (:pelvis :twist 16) (:spine :flex 16) (:chest :twist 40) (:head :twist -20)
+  (:arm-r :flex 102 :side -6) (:elbow-r :flex 4) (:arm-l :flex -10 :side 46) (:elbow-l :flex 24)
+  (:thigh-r :flex 26) (:thigh-l :flex -18))
+(defpose :br-en-lash-wind-l (:base :lb-w-stance)    ; JL2 wound up: twisted left, leaning back, the left wing raised high behind the left shoulder
+  (:root :f -0.08 :u 0.1 :yaw 24 :pitch -8) (:pelvis :twist 16) (:spine :flex -10) (:chest :twist 46) (:head :twist -30)
+  (:arm-l :flex 150 :side -20) (:elbow-l :flex 16) (:arm-r :flex 30 :side 40) (:elbow-r :flex 40)
+  (:thigh-l :flex -14) (:thigh-r :flex 16))
+(defpose :br-en-lash-sweep-l (:base :lb-w-stance)   ; ... coming down from high on the left
+  (:root :f 0.04 :u 0.04 :yaw 10 :pitch 4) (:pelvis :twist 6) (:spine :flex 6) (:chest :twist 20) (:head :twist -10)
+  (:arm-l :flex 126 :side -4) (:elbow-l :flex 6) (:arm-r :flex 20 :side 40) (:elbow-r :flex 40)
+  (:thigh-l :flex 6) (:thigh-r :flex -4))
+(defpose :br-en-lash-crack-l (:base :lb-w-stance)   ; JL2's crack (S): the backhand, leaning down into it
+  (:root :f 0.16 :u -0.06 :yaw -4 :pitch 12) (:pelvis :twist -4) (:spine :flex 16) (:chest :twist -8) (:head :twist 6)
+  (:arm-l :flex 116 :side -22) (:elbow-l :flex 0) (:arm-r :flex 10 :side 40) (:elbow-r :flex 30)
+  (:thigh-l :flex 24) (:thigh-r :flex -16))
+(defpose :br-en-lash-thru-l (:base :lb-w-stance)    ; ... followed through down to his lower right
+  (:root :f 0.24 :u -0.14 :yaw -24 :pitch 18) (:pelvis :twist -16) (:spine :flex 24) (:chest :twist -40) (:head :twist 16)
+  (:arm-l :flex 96 :side -48) (:elbow-l :flex 4) (:arm-r :flex -10 :side 46) (:elbow-r :flex 24)
+  (:thigh-l :flex 28) (:thigh-r :flex -20))
+(defpose :br-en-lash-rear (:base :lb-w-stance)      ; JL3 wound up: risen tall, arched back, the right wing overhead and back
+  (:root :f -0.12 :u 0.16 :pitch -14) (:spine :flex -16) (:chest :twist -10) (:head :flex -10)
+  (:arm-r :flex 184 :side -2) (:elbow-r :flex 14) (:arm-l :flex 120 :side 60) (:elbow-l :flex 30)
+  (:thigh-r :flex -10) (:thigh-l :flex 6))
+(defpose :br-en-lash-over (:base :lb-w-stance)      ; ... brought over the top
+  (:root :f 0.02 :u 0.1 :pitch -2) (:spine :flex 0) (:chest :twist 0) (:head :flex 0)
+  (:arm-r :flex 155 :side 4) (:elbow-r :flex 4) (:arm-l :flex 60 :side 50) (:elbow-l :flex 30))
+(defpose :br-en-lash-slam (:base :lb-w-stance)      ; JL3's crack (S): the whole body slammed forward and down
+  (:root :f 0.22 :u -0.14 :pitch 18) (:spine :flex 24) (:chest :twist 6) (:head :flex 10)
+  (:arm-r :flex 128 :side 4) (:elbow-r :flex 0) (:arm-l :flex -20 :side 44) (:elbow-l :flex 24)
+  (:thigh-r :flex 30) (:thigh-l :flex -20))
+(defpose :br-en-lash-floor (:base :lb-w-stance)     ; ... followed through into the floor, bowed over it
+  (:root :f 0.28 :u -0.22 :pitch 26) (:spine :flex 32) (:head :flex 14)
+  (:arm-r :flex 112 :side 0) (:elbow-r :flex 0) (:arm-l :flex -30 :side 40) (:elbow-l :flex 20)
+  (:thigh-r :flex 32) (:thigh-l :flex -22))
+(defpose :br-en-lash-rest-r (:base :lb-w-stance)    ; the recovery's settle (each lash's end: the next one's start)
+  (:root :f 0.04 :pitch 3) (:spine :flex 4) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50)
+  (:elbow-l :flex 20))
+(defstrike :br-e-jf1 (8 2 14 :base :lb-w-stance)   ; JL1 長鞭 (R11): out of the spin, wound right f4-5, swung flat round through him, the crack f8, through to his left
   (0 :br-en-top-high (:root :u 0.2) (:pelvis :twist -198)) (2 :snap :br-en-top (:pelvis :twist -60))
-  (4 :br-en-cock) (7 :br-en-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
-  (:s :snap :br-en-crack-r) (:a :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
-  (16 :br-en-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
-  (:end :lb-w-stance))
-(defstrike :br-e-jf2 (8 2 14 :base :lb-w-stance)   ; JL2 長鞭 (the old J2 whip): the left whip cracked the same way across him f8 (the figure-eight)
-  (0 :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
-  (4 :br-en-crack-r (:root :pitch -2) (:arm-r :flex 120 :side 40) (:arm-l :flex 166 :side 56))
-  (:s :snap :br-en-crack-l) (:a :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
-  (16 :br-en-crack-l (:root :f 0 :pitch 2) (:arm-l :flex 40 :side 40) (:elbow-l :flex 20) (:arm-r :flex 40 :side 50))
-  (:end :lb-w-stance))
-(defstrike :br-e-jf3 (8 2 16 :base :lb-w-stance)   ; JL3 長鞭: the right whip once more, the longest, f8
-  (0 :br-en-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
-  (4 :br-en-crack-l (:root :pitch -4) (:arm-l :flex 120 :side 40) (:arm-r :flex 166 :side 56))
-  (:s :snap :br-en-crack-r) (:a :br-en-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 120 :side 40))
-  (18 :br-en-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
-  (:end :lb-w-stance))
-(defstrike :br-oe-jf1 (8 2 13 :base :lb-oe-stance)   ; JL1 長鞭 (R9: the old J1 whip): out of the spin, the right claw.s gold lash cracked from high outside down across him f8
+  (4 :br-en-lash-wind-r) (5.5 :br-en-lash-wind-r (:chest :twist -50) (:arm-r :flex 30 :side 106)) (7 :br-en-lash-sweep-r)
+  (:s :snap :br-en-lash-crack-r) (:a :br-en-lash-thru-r)
+  (14 :br-en-lash-thru-r (:root :f 0.18 :u -0.06 :yaw 20 :pitch 9) (:arm-r :flex 86 :side -18))
+  (19 :br-en-lash-rest-r) (:end :lb-w-stance))
+(defstrike :br-e-jf2 (8 2 14 :base :lb-w-stance)   ; JL2 長鞭 (R11): the left wing raised high behind f4-5, the backhand down through him f8, on to his lower right
+  (0 :br-en-lash-rest-r)
+  (4 :br-en-lash-wind-l) (5.5 :br-en-lash-wind-l (:chest :twist 52) (:arm-l :flex 156 :side -24)) (7 :br-en-lash-sweep-l)
+  (:s :snap :br-en-lash-crack-l) (:a :br-en-lash-thru-l)
+  (14 :br-en-lash-thru-l (:root :f 0.2 :u -0.1 :yaw -20 :pitch 14) (:arm-l :flex 80 :side -40))
+  (19 :br-en-lash-rest-r) (:end :lb-w-stance))
+(defstrike :br-e-jf3 (8 2 16 :base :lb-w-stance)   ; JL3 長鞭 (R11): risen and arched back f3.5-5, the wing over the top f6.5, the whole body slammed down with the crack f8, into the floor
+  (0 :br-en-lash-rest-r)
+  (3.5 :br-en-lash-rear) (5 :br-en-lash-rear (:root :f -0.14 :u 0.2 :pitch -16) (:arm-r :flex 192 :side -2)) (6.5 :br-en-lash-over)
+  (:s :snap :br-en-lash-slam) (:a :br-en-lash-floor)
+  (16 :br-en-lash-floor (:root :f 0.28 :u -0.2 :pitch 24))
+  (21 :br-en-lash-rest-r (:root :f 0.08 :u -0.06 :pitch 8)) (:end :lb-w-stance))
+;; the owl's (its claws are the hands: the same bodies, the neck carried with them)
+(defpose :br-oen-lash-wind-r (:base :lb-oe-stance)
+  (:root :f -0.1 :u 0.08 :yaw -26 :pitch -6) (:pelvis :twist -18) (:spine :flex -8) (:chest :twist -44) (:neck :flex -8)
+  (:head :twist 34) (:arm-r :flex 36 :side 91) (:elbow-r :flex 18) (:hand-r :flex -30) (:arm-l :flex 46 :side 30)
+  (:elbow-l :flex 40) (:hand-l :flex 10) (:thigh-r :flex -14) (:thigh-l :flex 16))
+(defpose :br-oen-lash-sweep-r (:base :lb-oe-stance)
+  (:root :f 0.04 :u 0.04 :yaw -12 :pitch 2) (:pelvis :twist -8) (:spine :flex 4) (:chest :twist -20) (:neck :flex 4)
+  (:head :twist 16) (:arm-r :flex 52 :side 82) (:elbow-r :flex 6) (:hand-r :flex -10) (:arm-l :flex 30 :side 30)
+  (:elbow-l :flex 40) (:hand-l :flex 10) (:thigh-r :flex 6) (:thigh-l :flex -4))
+(defpose :br-oen-lash-crack-r (:base :lb-oe-stance)
+  (:root :f 0.18 :u -0.04 :yaw 4 :pitch 10) (:pelvis :twist 4) (:spine :flex 14) (:chest :twist 8) (:neck :flex 18)
+  (:head :twist -6) (:arm-r :flex 110 :side -36) (:elbow-r :flex 0) (:hand-r :flex 30) (:arm-l :flex 10 :side 40)
+  (:elbow-l :flex 30) (:hand-l :flex 10) (:thigh-r :flex 24) (:thigh-l :flex -16))
+(defpose :br-oen-lash-thru-r (:base :lb-oe-stance)
+  (:root :f 0.24 :u -0.08 :yaw 24 :pitch 12) (:pelvis :twist 16) (:spine :flex 16) (:chest :twist 40) (:neck :flex 20)
+  (:head :twist -20) (:arm-r :flex 96 :side -34) (:elbow-r :flex 4) (:hand-r :flex 30) (:arm-l :flex -10 :side 46)
+  (:elbow-l :flex 24) (:hand-l :flex 10) (:thigh-r :flex 26) (:thigh-l :flex -18))
+(defpose :br-oen-lash-wind-l (:base :lb-oe-stance)
+  (:root :f -0.08 :u 0.12 :yaw 24 :pitch -8) (:pelvis :twist 16) (:spine :flex -10) (:chest :twist 46) (:neck :flex -10)
+  (:head :twist -30) (:arm-l :flex 150 :side -20) (:elbow-l :flex 16) (:hand-l :flex -30) (:arm-r :flex 30 :side 40)
+  (:elbow-r :flex 40) (:hand-r :flex 10) (:thigh-l :flex -14) (:thigh-r :flex 16))
+(defpose :br-oen-lash-sweep-l (:base :lb-oe-stance)
+  (:root :f 0.06 :u 0.06 :yaw 10 :pitch 4) (:pelvis :twist 6) (:spine :flex 6) (:chest :twist 20) (:neck :flex 4)
+  (:head :twist -10) (:arm-l :flex 116 :side -6) (:elbow-l :flex 6) (:hand-l :flex -10) (:arm-r :flex 20 :side 40)
+  (:elbow-r :flex 40) (:hand-r :flex 10) (:thigh-l :flex 6) (:thigh-r :flex -4))
+(defpose :br-oen-lash-crack-l (:base :lb-oe-stance)
+  (:root :f 0.18 :u -0.06 :yaw -4 :pitch 12) (:pelvis :twist -4) (:spine :flex 16) (:chest :twist -8) (:neck :flex 18)
+  (:head :twist 6) (:arm-l :flex 112 :side -32) (:elbow-l :flex 0) (:hand-l :flex 30) (:arm-r :flex 10 :side 40)
+  (:elbow-r :flex 30) (:hand-r :flex 10) (:thigh-l :flex 24) (:thigh-r :flex -16))
+(defpose :br-oen-lash-thru-l (:base :lb-oe-stance)
+  (:root :f 0.26 :u -0.14 :yaw -24 :pitch 18) (:pelvis :twist -16) (:spine :flex 24) (:chest :twist -40) (:neck :flex 24)
+  (:head :twist 16) (:arm-l :flex 104 :side -60) (:elbow-l :flex 4) (:hand-l :flex 30) (:arm-r :flex -10 :side 46)
+  (:elbow-r :flex 24) (:hand-r :flex 10) (:thigh-l :flex 28) (:thigh-r :flex -20))
+(defpose :br-oen-lash-rear (:base :lb-oe-stance)
+  (:root :f -0.12 :u 0.18 :pitch -14) (:spine :flex -16) (:chest :twist -10) (:neck :flex -16) (:head :flex -10)
+  (:arm-r :flex 182 :side -6) (:elbow-r :flex 14) (:hand-r :flex -30) (:arm-l :flex 120 :side 60) (:elbow-l :flex 30)
+  (:hand-l :flex -10) (:thigh-r :flex -10) (:thigh-l :flex 6))
+(defpose :br-oen-lash-over (:base :lb-oe-stance)
+  (:root :f 0.04 :u 0.12 :pitch -2) (:spine :flex 0) (:chest :twist 0) (:neck :flex 0) (:head :flex 0)
+  (:arm-r :flex 149 :side 0) (:elbow-r :flex 4) (:hand-r :flex -10) (:arm-l :flex 60 :side 50) (:elbow-l :flex 30)
+  (:hand-l :flex 10))
+(defpose :br-oen-lash-slam (:base :lb-oe-stance)
+  (:root :f 0.24 :u -0.14 :pitch 18) (:spine :flex 24) (:chest :twist 6) (:neck :flex 24) (:head :flex 10)
+  (:arm-r :flex 122 :side 0) (:elbow-r :flex 0) (:hand-r :flex 30) (:arm-l :flex -20 :side 44) (:elbow-l :flex 24)
+  (:hand-l :flex 10) (:thigh-r :flex 30) (:thigh-l :flex -20))
+(defpose :br-oen-lash-floor (:base :lb-oe-stance)
+  (:root :f 0.3 :u -0.22 :pitch 26) (:spine :flex 32) (:neck :flex 30) (:head :flex 14)
+  (:arm-r :flex 112 :side -10) (:elbow-r :flex 0) (:hand-r :flex 40) (:arm-l :flex -30 :side 40) (:elbow-l :flex 20)
+  (:hand-l :flex 10) (:thigh-r :flex 32) (:thigh-l :flex -22))
+(defpose :br-oen-lash-rest-r (:base :lb-oe-stance)
+  (:root :f 0.06 :pitch 3) (:spine :flex 4) (:neck :flex 4) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:hand-r :flex 10)
+  (:arm-l :flex 40 :side 50) (:elbow-l :flex 20) (:hand-l :flex 10))
+(defstrike :br-oe-jf1 (8 2 13 :base :lb-oe-stance)   ; JL1 長鞭 (R11): the right claw's lash wound out right f4-5, swung flat round through him f8, through to his left
   (0 :br-oen-top-high (:root :u 0.2) (:pelvis :twist -198)) (2 :snap :br-oen-top (:pelvis :twist -60))
-  (4 :br-oen-cock) (7 :br-oen-cock (:root :pitch -6) (:arm-r :flex 160 :side 56))
-  (:s :snap :br-oen-crack-r) (:a :br-oen-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
-  (16 :br-oen-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
-  (:end :lb-oe-stance))
-(defstrike :br-oe-jf2 (8 2 13 :base :lb-oe-stance)   ; JL2 長鞭 (the old J2 whip): the left claw.s lash cracked the same way across him f8 (the figure-eight)
-  (0 :br-oen-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 162 :side 56))
-  (4 :br-oen-crack-r (:root :pitch -2) (:arm-r :flex 120 :side 40) (:arm-l :flex 166 :side 56))
-  (:s :snap :br-oen-crack-l) (:a :br-oen-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
-  (16 :br-oen-crack-l (:root :f 0 :pitch 2) (:arm-l :flex 40 :side 40) (:elbow-l :flex 20) (:arm-r :flex 40 :side 50))
-  (:end :lb-oe-stance))
-(defstrike :br-oe-jf3 (8 2 15 :base :lb-oe-stance)   ; JL3 長鞭: the right claw.s gold lash once more, the longest, f8
-  (0 :br-oen-crack-l (:arm-l :flex 64 :side -36) (:arm-r :flex 120 :side 40))
-  (4 :br-oen-crack-l (:root :pitch -4) (:arm-l :flex 120 :side 40) (:arm-r :flex 166 :side 56))
-  (:s :snap :br-oen-crack-r) (:a :br-oen-crack-r (:arm-r :flex 64 :side -36) (:arm-l :flex 120 :side 40))
-  (18 :br-oen-crack-r (:root :f 0 :pitch 2) (:arm-r :flex 40 :side 40) (:elbow-r :flex 20) (:arm-l :flex 40 :side 50))
-  (:end :lb-oe-stance))
+  (4 :br-oen-lash-wind-r) (5.5 :br-oen-lash-wind-r (:chest :twist -50) (:arm-r :flex 30 :side 96)) (7 :br-oen-lash-sweep-r)
+  (:s :snap :br-oen-lash-crack-r) (:a :br-oen-lash-thru-r)
+  (14 :br-oen-lash-thru-r (:root :f 0.2 :u -0.06 :yaw 20 :pitch 9) (:arm-r :flex 82 :side -30))
+  (19 :br-oen-lash-rest-r) (:end :lb-oe-stance))
+(defstrike :br-oe-jf2 (8 2 13 :base :lb-oe-stance)   ; JL2 長鞭 (R11): the left claw raised high behind, the backhand down through him f8, on to his lower right
+  (0 :br-oen-lash-rest-r)
+  (4 :br-oen-lash-wind-l) (5.5 :br-oen-lash-wind-l (:chest :twist 52) (:arm-l :flex 156 :side -24)) (7 :br-oen-lash-sweep-l)
+  (:s :snap :br-oen-lash-crack-l) (:a :br-oen-lash-thru-l)
+  (14 :br-oen-lash-thru-l (:root :f 0.22 :u -0.1 :yaw -20 :pitch 14) (:arm-l :flex 88 :side -50))
+  (19 :br-oen-lash-rest-r) (:end :lb-oe-stance))
+(defstrike :br-oe-jf3 (8 2 15 :base :lb-oe-stance)   ; JL3 長鞭 (R11): risen and arched back, over the top, slammed down with the crack f8, into the floor
+  (0 :br-oen-lash-rest-r)
+  (3.5 :br-oen-lash-rear) (5 :br-oen-lash-rear (:root :f -0.14 :u 0.22 :pitch -16) (:arm-r :flex 190 :side -6)) (6.5 :br-oen-lash-over)
+  (:s :snap :br-oen-lash-slam) (:a :br-oen-lash-floor)
+  (16 :br-oen-lash-floor (:root :f 0.3 :u -0.2 :pitch 24))
+  (21 :br-oen-lash-rest-r (:root :f 0.1 :u -0.06 :pitch 8)) (:end :lb-oe-stance))
 ;; the stretch (R5 J 長鞭) and the spins (R5 L 陀螺) to Lille's wing looks (lille-art.lisp: %LB-STRETCH!, %LB-WINGS, %LB-LASHES,
 ;; %LB-DRIVE!; Lille's own clips are in neither)
 (defparameter *br-w-stretch*
-  '((:br-e-jf1 (0 0 0) (6 1.1 1.0) (8 1.2 1.0) (10 1.1 1.1) (16 0.5 0.4) (24 0 0))   ; (R9, §14: the whips are the J route's L L)
-    (:br-e-jf2 (0 1.1 1.1) (8 1.0 1.2) (10 0.8 1.1) (16 0.4 0.5) (24 0 0))
-    (:br-e-jf3 (0 0.8 1.1) (4 1.0 0.9) (8 1.3 1.0) (10 1.2 1.0) (18 0.5 0.4) (26 0 0))
+  '((:br-e-jf1 (0 0 0) (4 0.3 0.1) (8 0.4 0.1) (10 0.3 0.1) (16 0.15 0) (24 0 0))   ; (R9, §14: the whips are the J route's L L;
+    (:br-e-jf2 (0 0.15 0) (4 0.1 0.3) (8 0.1 0.4) (10 0.1 0.3) (16 0 0.15) (24 0 0))   ;  R11, §16: the striking wing only,
+    (:br-e-jf3 (0 0 0.15) (4 0.35 0.1) (8 0.45 0.1) (10 0.35 0.1) (18 0.15 0) (26 0 0))   ;  short: the lash on from its tip)
     (:br-en-k1 (0 0 0) (4 0.8 0) (8 1.5 0) (10 1.6 0) (11 1.7 0) (13 1.6 0) (15 1.3 0) (16 1.0 0) (17 1.3 0) (22 1.3 0)
                (26 0.5 0) (30 0 0))
     (:br-en-k2 (0 1.2 0) (4 1.3 0) (7 1.6 0) (9 1.5 0) (11 1.2 0) (12 1.0 0) (13 1.3 0) (19 1.2 0) (24 0.5 0) (30 0 0))
     (:br-en-k3 (0 1.0 0) (2 1.1 0) (5 1.3 0) (8 1.5 0) (11 1.7 0) (13 1.8 0) (16 1.8 0) (17 1.5 0) (18 1.15 0) (19 1.4 0)
                (27 1.3 0) (32 0.4 0) (40 0 0))   ; (R10, §15: held long overhead through the turn's end, the split)
-    (:br-oe-jf1 (0 0 0) (6 1.25 1.15) (8 1.35 1.15) (10 1.25 1.25) (16 0.5 0.4) (23 0 0))
-    (:br-oe-jf2 (0 1.25 1.25) (8 1.15 1.35) (10 0.9 1.25) (16 0.4 0.5) (23 0 0))
-    (:br-oe-jf3 (0 0.9 1.25) (4 1.1 1.0) (8 1.45 1.15) (10 1.35 1.15) (18 0.5 0.4) (25 0 0))
+    (:br-oe-jf1 (0 0 0) (4 0.3 0) (8 0.4 0) (10 0.3 0) (16 0.15 0) (23 0 0))
+    (:br-oe-jf2 (0 0.15 0) (4 0 0.3) (8 0 0.4) (10 0 0.3) (16 0 0.15) (23 0 0))
+    (:br-oe-jf3 (0 0 0.15) (4 0.35 0) (8 0.45 0) (10 0.35 0) (18 0.15 0) (25 0 0))
     (:br-oen-k1 (0 0 0) (4 0.9 0) (8 1.7 0) (10 1.8 0) (11 1.9 0) (13 1.8 0) (15 1.4 0) (16 1.1 0) (17 1.5 0) (22 1.4 0)
                 (26 0.6 0) (30 0 0))
     (:br-oen-k2 (0 1.3 0) (4 1.4 0) (7 1.8 0) (9 1.7 0) (11 1.3 0) (12 1.1 0) (13 1.5 0) (19 1.3 0) (24 0.6 0) (30 0 0))
@@ -909,13 +993,16 @@ the pulled-back blade grows wider as well as longer (x 1.75-1.9 at the held wind
     (:br-en-k2 (0 0.95 1.05) (4 1.04 0.97) (7 1.14 0.9) (9 1.08 0.94) (11 0.96 1.04) (12 0.78 1.25) (17 0.8 1.22) (22 0.96 1.04) (26 1 1))
     (:br-oen-k2 (0 0.95 1.05) (4 1.04 0.97) (7 1.14 0.9) (9 1.08 0.94) (11 0.96 1.04) (12 0.78 1.25) (17 0.8 1.22) (22 0.96 1.04) (26 1 1))
     (:br-en-k3 (0 1 1) (2 0.96 1.04) (5 0.94 1.06) (8 0.96 1.04) (11 1.08 0.94) (13 1.18 0.88) (15 1.22 0.86) (16 1.16 0.9) (17 0.98 1.02) (18 0.72 1.32) (24 0.75 1.3) (30 0.94 1.06) (34 1 1))
-    (:br-oen-k3 (0 1 1) (2 0.96 1.04) (5 0.94 1.06) (8 0.96 1.04) (11 1.08 0.94) (13 1.18 0.88) (15 1.22 0.86) (16 1.16 0.9) (17 0.98 1.02) (18 0.72 1.32) (24 0.75 1.3) (30 0.94 1.06) (34 1 1)))
+    (:br-oen-k3 (0 1 1) (2 0.96 1.04) (5 0.94 1.06) (8 0.96 1.04) (11 1.08 0.94) (13 1.18 0.88) (15 1.22 0.86) (16 1.16 0.9) (17 0.98 1.02) (18 0.72 1.32) (24 0.75 1.3) (30 0.94 1.06) (34 1 1))
+    (:br-e-jf3 (0 1 1) (3.5 1.1 0.93) (5 1.14 0.9) (6.5 1.04 0.97) (8 0.8 1.2) (11 0.82 1.18) (17 0.96 1.04) (22 1 1))   ; (R11, §16: JL3,
+    (:br-oe-jf3 (0 1 1) (3.5 1.1 0.93) (5 1.14 0.9) (6.5 1.04 0.97) (8 0.8 1.2) (11 0.82 1.18) (17 0.96 1.04) (22 1 1)))   ;  the heaviest lash)
   "R8 (§13): the body's squash and stretch by clip, keys (frame up sideways) in the clip's frames, linear between, held past
 the ends: K1 the level-3 Charged Slash (stretched tall while the wing is hauled over the shoulder, the squat tell f10
 since R9's in-betweens, sprung up f11, the swing through the arc, squashed wide and low on the slam f16, held a beat); R9
 (§14: 「架式 J 的蓄力斬合併到架式 K 連打中」) K2 the backhand (wound up tall, squashed on the hit f12), K3 the turn (stretched
 tall as the blade rises over him; R10 §15: a little wide through the tilted turn, tallest held at the top f13-f15, the
-split squashed f18). The host FK test scales the tips the same way (the
+split squashed f18); R11 (§16) JL3's overhead lash (risen tall over the wind-up, squashed on the crack f8). The host FK test
+scales the tips the same way (the
 facing axis untouched: the reach is the unscaled one's).")
 (declaim (type list *br-squash-v*))
 (defparameter *br-squash-v*
@@ -938,15 +1025,83 @@ after the release the level's (FIGHTER-CHARGE), and with EASE let go over the da
                  (* (+ (if (>= %c %a) 0.5f0 0f0) (if (>= %c %b) 0.5f0 0f0))
                     ,(if ease '(- 1f0 (%lb-ss (/ (i->f (the fixnum (fighter-sf %f))) 6f0))) 1f0)))))
          0f0)))
+;; R11 (DUEL_LILLE_V3 §16, the user 2026-10-11 on v66: 「我想要為架式切換時增加把腳放出來與收起來的過度動畫。」): the stance
+;; switch's legs. JILLIEL KIN stands on the ㄇ legs (:lille-jilliel-kin), JILLIEL EN floats as the long column (:lille-jilliel,
+;; no legs); the owl keeps its body and folds its legs up in EN (its own tuck, decision 38, began only after the turn). The
+;; bodies swapped and the legs popped on the turn's last frame (into the stance) and on the string's end (back to KIN). Now
+;; the legs are put away over the turn (:br-to-en f0-f10: the shanks fold up under the strut, then the ㄇ and the thighs
+;; shrink up into the hips while the hip mass draws down into a column), EN's column grows its last stretch over its first
+;; frames, and back in KIN they come out over *BR-LEGS-OUT* frames (the hip mass drawn up short, the thighs and the ㄇ
+;; growing out of it, the shanks unfolding to the floor); the owl's fold the same way, its EN lift let down with them. A
+;; look: the form, the move's frame and the fx clock (a per-side memory, *BR-LEGS*), never the sim.
+(defparameter *br-legs-in* 10 "The turn's frames over which the legs are put away (the form turns EN on its f11) ...")
+(defparameter *br-legs-out* 9 "... the frames over which they come out once the stance's string ends (back to KIN) ...")
+(defparameter *br-legs-hips* 0.85 "... the hip mass drawn down this much longer (x its height) while they are in ...")
+(defparameter *br-legs-grow* 5 "... and EN's column grown from 0.75 of its length over this many frames after the turn.")
+(declaim (type f32vec *br-legs*) (type simple-vector *br-model*))
+(defvar *br-legs*
+  (let ((v (make-f32 20))) (dotimes (s 2 v) (setf (aref v (* 10 s)) -1f0 (aref v (+ 2 (* 10 s))) -100f0 (aref v (+ 4 (* 10 s))) -100f0)))
+  "Per side (10 each, the looks' memory): [0] last frame's mode (-1 none, 0 KIN, 1 the turn into the stance, 2 EN), [1] the
+legs' put-away share 0..1 then, [2] the fx clock when they were let out (KIN again), [3] the share then, [4] the fx clock
+EN began, [5] the lift to let down from then (m), [6] last frame's drawn lift; this frame's [7] fold and [8] pull for
+LILLE-DRAW (*LB-WF* [89 90]).")
+(defvar *br-model* (make-array 2 :initial-element nil)
+  "Each side's model as his :pose hook last saw it (BR-DEFORM): the draw hook reads its clip with no entity lookup.")
+(defun-fast %br-legs-pose (f side m)
+  "R11 (§16): the stance switch's legs for F (SIDE) on model M's posed joints (his :pose hook, after the squash): the mode
+(the turn :br-to-en in KIN, EN, KIN), the put-away share U (the turn: f0-*BR-LEGS-IN* by the move's frame; EN 1; KIN: the
+share it was let out at, down to 0 over *BR-LEGS-OUT* frames of the fx clock), JILLIEL's fold (U 0-0.55) and pull (U
+0.3-1), the owl's fold U: on JILLIEL KIN's body the thighs scaled by 1 - pull about the hips and the hip mass drawn down x 1
++ *BR-LEGS-HIPS* pull; on EN's body the column grown back from 0.75 over *BR-LEGS-GROW* frames; a lift let down (the owl's
+EN 0.35 m) raised off him over the let-out. Its fold and pull for LILLE-DRAW in *BR-LEGS* [7 8]. 0 B."
+  (declare (fixnum side))
+  (let* ((v *br-legs*) (o (* 10 side)) (form (fighter-form f)) (tm (fx-clock))
+         (mv (and (eq (fighter-state f) :move) (fighter-move f)))
+         (kin (member form '(:jilliel-kin :shin-kin))) (owl (member form '(:shin-kin :shin)))
+         (mode (cond ((and kin mv (eq (mv-name mv) :br-to-en) (eq (fighter-phase f) :main)) 1)
+                     ((member form '(:jilliel :shin)) 2) (kin 0) (t -1)))
+         (prev (f->i (aref v o))) (lift (the single-float (f32 (body-lift (fighter-kit f) (model-body m)))))
+         (bn (body-name (model-body m))) (jm (model-joints m)) (u 0f0) (fold 0f0) (pull 0f0) (out 0f0))
+    (declare (type f32vec v jm) (fixnum o mode prev) (single-float tm lift u fold pull out))
+    (when (and (= mode 0) (>= prev 1))                  ; (let out: KIN again after the turn or EN)
+      (setf (aref v (+ o 2)) tm (aref v (+ o 3)) (aref v (+ o 1)) (aref v (+ o 5)) (f-max 0f0 (- (aref v (+ o 6)) lift))))
+    (when (and (= mode 2) (/= prev 2)) (setf (aref v (+ o 4)) tm))
+    (when (= mode -1) (setf (aref v (+ o 3)) 0f0 (aref v (+ o 5)) 0f0))
+    (setf out (- 1f0 (%lb-ss (/ (- tm (aref v (+ o 2))) (/ (i->f (the fixnum *br-legs-out*)) 60f0))))
+          u (case mode
+              (1 (%lb-ss (/ (i->f (the fixnum (fighter-sf f))) (i->f (the fixnum *br-legs-in*)))))
+              (2 1f0) (0 (* out (aref v (+ o 3)))) (t 0f0))
+          fold (if owl u (%lb-ss (/ u 0.55f0)))
+          pull (if owl 0f0 (%lb-ss (/ (- u 0.3f0) 0.7f0))))
+    (when (and (> pull 0f0) (eq bn :lille-jilliel-kin))   ; the thighs up into the hips, the hip mass drawn down
+      (let ((q (f-max 0.04f0 (- 1f0 pull))) (pv (* 16 (ji :pelvis))) (hk (+ 1f0 (* pull (the single-float *br-legs-hips*)))))
+        (declare (single-float q hk) (fixnum pv))
+        (dotimes (k 2)
+          (let ((t0 (* 16 (if (= k 0) (ji :thigh-r) (ji :thigh-l)))))
+            (declare (fixnum t0))
+            (dotimes (c 11) (unless (= (mod c 4) 3) (setf (aref jm (+ t0 c)) (* q (aref jm (+ t0 c))))))))
+        (dotimes (c 3) (setf (aref jm (+ pv 4 c)) (* hk (aref jm (+ pv 4 c)))))))
+    (when (and (= mode 2) (eq bn :lille-jilliel))       ; EN's column grows its last stretch
+      (let ((g (+ 0.75f0 (* 0.25f0 (%lb-ss (/ (- tm (aref v (+ o 4))) (/ (i->f (the fixnum *br-legs-grow*)) 60f0))))))
+            (pv (* 16 (ji :pelvis))))
+        (declare (single-float g) (fixnum pv))
+        (when (< g 1f0) (dotimes (c 3) (setf (aref jm (+ pv 4 c)) (* g (aref jm (+ pv 4 c))))))))
+    (when (and (= mode 0) (> (aref v (+ o 5)) 0f0) (> out 0f0))   ; the owl EN's lift let down with the legs
+      (let ((dy (* out (aref v (+ o 5)))))
+        (declare (single-float dy))
+        (dotimes (j +nj+) (setf (aref jm (+ (* 16 j) 13)) (+ dy (aref jm (+ (* 16 j) 13)))))))
+    (setf (aref v o) (i->f mode) (aref v (+ o 1)) u (aref v (+ o 6)) lift (aref v (+ o 7)) fold (aref v (+ o 8)) pull)
+    nil))
 (defun-fast br-deform (e m)
   "His kit's :pose hook (R8, §13; draw.lisp's DRAW-FIGHTER, right after the FK, E's model M, the FK origin in *POSE-AT*):
 while his clip is in *BR-SQUASH*, every joint matrix of the posed body is scaled about his feet (the origin), up x SY and
 along his right axis x SX (the keys at the clip's frame), so the column, the legs and the front wings / claws (LILLE-DRAW
 draws them from these joints) squash and stretch; his facing axis untouched. R10 (§15): the awakened L's charge coils him
 lower and wider by its level (%BR-CHARGE-DEPTH: up x 1 - 0.1 d, sideways x 1 + 0.06 d), let go over the dash's load. Any
-other clip and move: nothing (bit-identical). Cosmetic. 0 B."
+other clip and move: nothing (bit-identical). R11 (§16): then the stance switch's legs (%BR-LEGS-POSE), and his model kept
+for the draw hook (*BR-MODEL*). Cosmetic. 0 B."
   (let* ((an (model-anim m)) (c (anim-clip an)) (ent (and c (assoc (clip-name c) *br-squash-v*)))
-         (dc (%br-charge-depth (fighter e) t)) (sy 1f0) (sx 1f0))
+         (f (fighter e)) (dc (%br-charge-depth f t)) (sy 1f0) (sx 1f0))
     (declare (single-float dc sy sx))
     (when ent
       (let* ((kv (cdr ent)) (n (floor (length kv) 3)) (fr (* 60f0 (the single-float (anim-time an)))))
@@ -978,6 +1133,8 @@ other clip and move: nothing (bit-identical). Cosmetic. 0 B."
                 (setf (aref jm q) (+ (if org ox 0f0) vx (* d rx))
                       (aref jm (+ q 1)) (+ (if org oy 0f0) (* sy vy))
                       (aref jm (+ q 2)) (+ (if org oz 0f0) vz (* d rz)))))))))
+    (setf (svref *br-model* (fighter-side f)) m)       ; (R11, §16: the draw hook's clip reads)
+    (%br-legs-pose f (fighter-side f) m)                ; (R11, §16: the stance switch's legs)
     nil))
 
 ;;; ---------------------------------------------------------------- the draw hook
@@ -1471,75 +1628,308 @@ glow fade over the dash's load (8 frames). His drawn place: *POSE-AT*. Cosmetic.
                      :push 0.45f0)))))
     nil))
 
-;; R10 (DUEL_LILLE_V3 §15, the user 2026-10-11: 「我測試過，J 陀螺完之後還是射擊不是長鞭呀？」): the J route's L L are whips that
-;; reach him: no 萬物貫通 line drawn (BR-SHOT-FIRE's look :whip), the striking front wing (the owl: its claw's gold lash)
-;; lashing out along his line to the opponent's distance (at most the line's 31 m) on the hit frames and snapping back.
-;; Draw-time only (*LB-WF* [81..85] for LILLE-DRAW): the clip's own stretch (*BR-W-STRETCH*) is what the host tip test reads.
-(defparameter *br-whips* '((:br-e-jl1 . 0) (:br-e-jl2 . 1) (:br-e-jl3 . 0) (:br-oe-jl1 . 0) (:br-oe-jl2 . 1) (:br-oe-jl3 . 0))
-  "R10 (§15): the J route's L L whips by move: the front wing (the claw's lash) that lashes out to him, 0 right 1 left ...")
-(defparameter *br-whip-out* 2 "... flying out over this many frames before S ...")
-(defparameter *br-whip-on* 3 "... on him this many frames from S (the hit's 2 and one) ...")
-(defparameter *br-whip-back* 5.0 "... snapping back in over this many frames ...")
-(defparameter *br-whip-max* 31.0 "... reaching at most this far (m: the line's 31 m, barro.lisp *BR-X-LEN*) ...")
-(defparameter *br-whip-up* 1.1 "... to this height over his floor (m: the opponent's chest).")
-(defparameter *br-whip-w* 0.07 "... JILLIEL's lash drawn along the reaching blade this wide (m; %BR-WHIP-LASH) ...")
-(defparameter *br-whip-curl* 0.18 "... bowing by this share of its length off the hit frames (the lash's curve).")
-(defun-fast %br-whip-lash (side)
-  "After LILLE-DRAW (R10, §15): JILLIEL's whip as a lash, read off LILLE-DRAW's reaching front wing (*LB-WF* [81 82] its
-reach, [86..88] its root, [74..79] its tip): a jade comet curve (the owl: gold) from the root to the tip, a white core in
-it, bowing up and back by *BR-WHIP-CURL* of its length while it flies out and snaps back, straight on him (the reach 1).
-The owl's claws draw their own (%LB-LASHES). Cosmetic. 0 B."
-  (declare (fixnum side))
-  (let ((w *lb-wf*))
-    (declare (type f32vec w))
-    (dotimes (g 2)
-      (let ((q (aref w (+ 81 g))))
-        (declare (single-float q))
-        (when (> q 0f0)
-          (let* ((to (+ 74 (* 3 g))) (tx (aref w to)) (ty (aref w (+ to 1))) (tz (aref w (+ to 2)))
-                 (rx (aref w 86)) (ry (aref w 87)) (rz (aref w 88))
-                 (ln (f-hypot (- tx rx) (- ty ry) (- tz rz))) (bow (* (the single-float *br-whip-curl*) ln (- 1f0 (* q q))))
-                 (bx (* 0.5f0 (+ tx rx))) (by (+ (* 0.5f0 (+ ty ry)) bow)) (bz (* 0.5f0 (+ tz rz)))
-                 (lw (* (aref *lb-v* 31) (the single-float *br-whip-w*)))
-                 (pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+)) (sd (+ 650f0 (* 3f0 (i->f (+ g (* 2 side)))))))
-            (declare (fixnum to) (single-float tx ty tz rx ry rz ln bow bx by bz lw pal sd))
-            (fx-crescent tx ty tz rx ry rz bx by bz lw :comet 0.04f0 sd pal 0.95f0 :push 0.25f0)
-            (fx-crescent tx ty tz rx ry rz bx by bz (* 0.4f0 lw) :comet 0.02f0 (+ sd 1f0) +pal-hit+ 0.92f0 :push 0.3f0))))))
+;; R11 (DUEL_LILLE_V3 §16, the user 2026-10-11 on v66: 「現在的架式 J > L 看起來依舊是射擊？」): the J route's L L rebuilt as
+;; whips. R10's lash was a straight line from his chest to the opponent for 3 frames (it read as a beam, a shot). Now the
+;; striking front wing (the owl: its claw) runs on into a long tapered lash, a thick-to-thin chain of ribbon segments with
+;; small blade segments along its root two thirds (the wing's glass carried on, a snake sword), that is wound up behind him and
+;; swung through a big arc with overlapping action (each point of it follows the swing's angle a little later than the one
+;; before it: the base leads, the wave runs down it, the tip trails and snaps), cracks on him on the hit frame S (the tip
+;; pulled onto the point of his line at the opponent's distance, a burst there), then falls slack and is drawn back in.
+;; Three different lashes: JL1 a flat swing from his right, JL2 a backhand from high on his left down across him, JL3 an
+;; overhead crack straight down (the longest, the heaviest). Draw-time only, read off the clip's frame (the hit is still the
+;; 31 m line, barro.lisp BR-SHOT-FIRE; the clips' own stretch *BR-W-STRETCH* is what the host tip test reads).
+(defparameter *br-whip-max* 31.0 "R10 (§15): the whip reaches at most this far (m: the line's 31 m, barro.lisp *BR-X-LEN*) ...")
+(defparameter *br-whip-up* 1.1 "... its crack this high over his floor (m: the opponent's chest).")
+(defun %br-lash-keys (keys)
+  "KEYS ((frame value) ...) as an f32vec (frame value ...)."
+  (coerce (mapcar #'f32 (apply #'append keys)) 'f32vec))
+(defparameter *br-lash-n* 16 "The lash's segments (*BR-LASH-P* holds its N + 1 points).")
+(defparameter *br-lashes*
+  '((:br-e-jf1 :g 0 :plane (1.0 0.25) :lag 1.6 :swing 3.2 :w 0.1 :crack 1.0
+     :theta ((0 35) (2.5 120) (4 150) (5 140) (5.6 100) (6.4 0) (7.2 -35) (8 -50) (9.5 -72) (12 -80) (16 -40) (20 20) (24 35))
+     :wind ((0 0.08) (2 0.45) (4 0.85) (5.5 1) (11 1) (17 0.45) (24 0))
+     :reach ((0 0) (6.5 0) (8 1) (10.5 1) (16 0))
+     :sag ((0 0.4) (3 0.12) (5 0) (10.5 0) (13 0.55) (19 0.95) (24 1))
+     :wave ((0 0.15) (4 0.05) (5.5 0) (10.5 0) (13 0.45) (19 0.3) (24 0.1)))
+    (:br-e-jf2 :g 1 :plane (-0.75 0.66) :lag 1.6 :swing 3.2 :w 0.1 :crack 1.0
+     :theta ((0 -20) (2.5 80) (4 140) (5 140) (5.6 100) (6.4 0) (7.2 -35) (8 -50) (9.5 -70) (12 -75) (16 -40) (20 0) (24 15))
+     :wind ((0 0.08) (2 0.45) (4 0.85) (5.5 1) (11 1) (17 0.45) (24 0))
+     :reach ((0 0) (6.5 0) (8 1) (10.5 1) (16 0))
+     :sag ((0 0.4) (3 0.12) (5 0) (10.5 0) (13 0.55) (19 0.95) (24 1))
+     :wave ((0 0.15) (4 0.05) (5.5 0) (10.5 0) (13 0.45) (19 0.3) (24 0.1)))
+    (:br-e-jf3 :g 0 :plane (0.5 0.87) :lag 2.0 :swing 3.8 :w 0.12 :crack 1.4
+     :theta ((0 -10) (2.5 90) (3.8 150) (4.6 160) (5.3 110) (6 0) (6.8 -30) (8 -42) (10 -50) (13 -48) (18 -25) (22 -5) (26 0))
+     :wind ((0 0.1) (2.5 0.6) (4.5 1) (12 1) (19 0.4) (26 0))
+     :reach ((0 0) (6.5 0) (8 1) (11 1) (18 0))
+     :sag ((0 0.3) (3 0.1) (4.5 0) (11 0) (14 0.7) (20 1) (26 1))
+     :wave ((0 0.1) (4 0) (11 0) (14 0.5) (21 0.3) (26 0.1))))
+  "R11 (DUEL_LILLE_V3 §16): the J route's L L whips by clip (the owl's :br-oe-jf* the same keys on its claws): :g the
+striking wing (0 right, 1 left); :plane the swing's side axis (his right, up) squared to the line to the target (the
+angle 0 points at the crack's point, + toward this axis); :lag the frames the tip's angle trails the base's (s^1.4 along it:
+the overlapping action); :swing its length while wound up and swinging (m; at the crack it is pulled onto the point, as
+long as the distance); :w its half-width at the root (m, to 0.1 of it at the tip); :crack the burst's size. The keys,
+by the clip's frame (S 8): :theta the base's swing angle (degrees, a C1 spline through them), :wind its share of the swing
+length, :reach the share of the rest of the distance (the lash shot out to him on the crack), :sag its droop (slack),
+:wave a wave running down it, out of the swing's plane (slack).")
+(declaim (type list *br-lash-v*))
+(defparameter *br-lash-v*
+  (loop for (c . p) in *br-lashes*
+        for v = (vector (let ((h (make-f32 10)))
+                          (setf (aref h 0) (f32 (getf p :g)) (aref h 1) (f32 (first (getf p :plane)))
+                                (aref h 2) (f32 (second (getf p :plane))) (aref h 3) (f32 (getf p :lag))
+                                (aref h 4) (f32 (getf p :swing)) (aref h 5) 8f0 (aref h 6) (f32 (getf p :w))
+                                (aref h 8) (f32 (getf p :crack)))
+                          h)
+                        (%br-lash-keys (getf p :theta)) (%br-lash-keys (getf p :wind)) (%br-lash-keys (getf p :reach))
+                        (%br-lash-keys (getf p :sag)) (%br-lash-keys (getf p :wave)))
+        collect (cons c v)
+        collect (cons (intern (concatenate 'string "BR-OE-" (subseq (symbol-name c) 5)) :keyword)   ; (the owl's twin)
+                      (let ((v2 (copy-seq v)) (h (copy-seq (svref v 0))))
+                        (setf (aref h 7) 1f0 (aref h 6) (* 1.1f0 (aref h 6)) (svref v2 0) h)
+                        v2)))
+  "*BR-LASHES* as (clip . #(header theta wind reach sag wave)), the header an f32vec [0] g, [1 2] the plane, [3] the lag,
+[4] the swing length, [5] S, [6] the root half-width, [7] 1 = the owl (from the claw), [8] the crack's size; the owl's
+twins (:br-oe-jf*) with its lash 1.1 x wider at the claw. Read without consing.")
+(declaim (type f32vec *br-lv* *br-lash-p*))
+(defvar *br-lv* (make-f32 48)
+  "The whip's scratch (draw time): [0] the clip's frame; [1..3] the root H (the wing's drawn tip / the claw), [4..6] the
+wing's direction there (unit), [7..9] A (unit, H -> the crack's point), [10..12] B (the swing's side axis, unit, square to
+A), [13..15] A x B, [16..18] the crack's point T, [19] the stub length (the owl: its stretch), [20] the floor, [21] |T - H|;
+[29] the chain's time, [30..35] the tip and the mid point a frame back, [36..41] half a frame back; [42] a key query's
+time, [43] its value.")
+(defvar *br-lash-p* (make-f32 (* 3 17)) "The lash's points (x y z each), root first.")
+(defmacro %br-pow (x y) `(ffi:c-inline (,x ,y) (:float :float) :float "powf(fmaxf(#0,0.0f),#1)" :one-liner t))
+(defun-fast %br-key! (kv herm)
+  "*BR-LV* [43] = the keys KV (frame value ...) at the frame *BR-LV* [42], held past the ends: HERM 1 a C1 spline (the
+tangents the neighbours' slope), else linear. 0 B."
+  (declare (type f32vec kv) (fixnum herm))
+  (let* ((lv *br-lv*) (tq (aref lv 42)) (n (floor (length kv) 2)) (r (aref kv 1)))
+    (declare (type f32vec lv) (single-float tq r) (fixnum n))
+    (cond ((<= tq (aref kv 0)) (setf r (aref kv 1)))
+          ((>= tq (aref kv (* 2 (1- n)))) (setf r (aref kv (1- (* 2 n)))))
+          (t (dotimes (i (1- n))
+               (let ((t0 (aref kv (* 2 i))) (t1 (aref kv (+ 2 (* 2 i)))))
+                 (declare (single-float t0 t1))
+                 (when (and (<= t0 tq) (< tq t1))
+                   (let* ((v0 (aref kv (1+ (* 2 i)))) (v1 (aref kv (+ 3 (* 2 i)))) (dt (f-max 1f-4 (- t1 t0)))
+                          (u (/ (- tq t0) dt)))
+                     (declare (single-float v0 v1 dt u))
+                     (if (= herm 1)
+                         (let* ((m0 (if (> i 0)
+                                        (/ (- v1 (aref kv (- (* 2 i) 1))) (f-max 1f-4 (- t1 (aref kv (- (* 2 i) 2)))))
+                                        (/ (- v1 v0) dt)))
+                                (m1 (if (< (+ i 2) n)
+                                        (/ (- (aref kv (+ 5 (* 2 i))) v0) (f-max 1f-4 (- (aref kv (+ 4 (* 2 i))) t0)))
+                                        (/ (- v1 v0) dt)))
+                                (u2 (* u u)) (u3 (* u2 u)))
+                           (declare (single-float m0 m1 u2 u3))
+                           (setf r (+ (* (+ (* 2f0 u3) (* -3f0 u2) 1f0) v0) (* (+ u3 (* -2f0 u2) u) dt m0)
+                                      (* (+ (* -2f0 u3) (* 3f0 u2)) v1) (* (- u3 u2) dt m1))))
+                         (setf r (+ v0 (* u (- v1 v0)))))))))))
+    (setf (aref lv 43) r))
   nil)
+(defun-fast %br-lash-chain! (ent)
+  "The lash of the *BR-LASH-V* entry ENT at the chain's time *BR-LV* [29] into *BR-LASH-P* (*BR-LV* [1..21] set): its
+length (the stub, the wound-up swing length by :wind, at most 1.15 x the distance to the crack's point but 1.8 m, the
+rest of the way to him by :reach); each point s along it at the
+swing angle the base had lag x s^1.4 frames before (the overlapping action), plus the slack's droop and wave; its first
+fifth bent from the wing's own direction; kept off the floor; then, round the crack (S - 2.5 .. S + 4), turned and scaled
+about its root so its tip lands on the crack's point T. 0 B."
+  (declare (type simple-vector ent))
+  (let* ((lv *br-lv*) (p *br-lash-p*) (hd (svref ent 0)) (n (the fixnum *br-lash-n*)) (tc (aref lv 29))
+         (lag (aref hd 3)) (sw (f-min (aref hd 4) (f-max 1.8f0 (* 1.15f0 (aref *br-lv* 21))))) (s0 (aref hd 5)) (wind 0f0) (reach 0f0) (sag 0f0) (wave 0f0) (ln 0f0)
+         (hx (aref lv 1)) (hy (aref lv 2)) (hz (aref lv 3)) (qx (aref lv 4)) (qy (aref lv 5)) (qz (aref lv 6))
+         (ax (aref lv 7)) (ay (aref lv 8)) (az (aref lv 9)) (bx (aref lv 10)) (by (aref lv 11)) (bz (aref lv 12))
+         (nx (aref lv 13)) (ny (aref lv 14)) (nz (aref lv 15)) (fl (+ (aref lv 20) 0.03f0)) (dd (aref lv 21)))
+    (declare (type f32vec lv p hd) (fixnum n)
+             (single-float tc lag sw s0 wind reach sag wave ln hx hy hz qx qy qz ax ay az bx by bz nx ny nz fl dd))
+    (setf (aref lv 42) tc)
+    (%br-key! (svref ent 2) 0) (setf wind (aref lv 43))
+    (%br-key! (svref ent 3) 0) (setf reach (aref lv 43))
+    (%br-key! (svref ent 4) 0) (setf sag (aref lv 43))
+    (%br-key! (svref ent 5) 0) (setf wave (aref lv 43))
+    (setf ln (+ (aref lv 19) (* wind sw) (* reach (f-max 0f0 (- dd sw)))))
+    (setf (aref p 0) hx (aref p 1) hy (aref p 2) hz)
+    (let ((step (/ ln (i->f n))) (px hx) (py hy) (pz hz))
+      (declare (single-float step px py pz))
+      (loop for i fixnum from 1 to n do
+        (let* ((s (/ (i->f i) (i->f n))) (lg (* lag (%br-pow s 1.4f0))))
+          (declare (single-float s lg))
+          (setf (aref lv 42) (- tc lg))
+          (%br-key! (svref ent 1) 1)
+          (let* ((th (* 0.017453292f0 (aref lv 43))) (c (f-cos th)) (sn (f-sin th))
+                 (wv (* wave s (f-sin (* 6.2831855f0 (- (* 1.3f0 s) (* 0.16666667f0 tc))))))
+                 (sg (* sag (%br-pow s 1.2f0)))
+                 (dx (+ (* c ax) (* sn bx) (* wv nx))) (dy (- (+ (* c ay) (* sn by) (* wv ny)) sg))
+                 (dz (+ (* c az) (* sn bz) (* wv nz)))
+                 (k (%lb-ss (/ s 0.2f0))) (k1 (- 1f0 k))
+                 (ex (+ (* k1 qx) (* k dx))) (ey (+ (* k1 qy) (* k dy))) (ez (+ (* k1 qz) (* k dz)))
+                 (el (f-max 1f-5 (f-hypot ex ey ez))) (o (* 3 i)))
+            (declare (single-float th c sn wv sg dx dy dz k k1 ex ey ez el) (fixnum o))
+            (setf px (+ px (* step (/ ex el))) py (f-max fl (+ py (* step (/ ey el)))) pz (+ pz (* step (/ ez el)))
+                  (aref p o) px (aref p (+ o 1)) py (aref p (+ o 2)) pz)))))
+    ;; the crack: the tip pulled onto T (turned about the root and scaled), all of it at the hit frames, eased either side
+    (let ((wt (* (%lb-ss (/ (- tc (- s0 2.5f0)) 2f0)) (- 1f0 (%lb-ss (/ (- tc (+ s0 1.5f0)) 2.5f0))))))
+      (declare (single-float wt))
+      (when (> wt 0f0)
+        (let* ((o (* 3 n)) (ux (- (aref p o) hx)) (uy (- (aref p (+ o 1)) hy)) (uz (- (aref p (+ o 2)) hz))
+               (vx (- (aref lv 16) hx)) (vy (- (aref lv 17) hy)) (vz (- (aref lv 18) hz))
+               (ul (f-max 1f-4 (f-hypot ux uy uz))) (vl (f-max 1f-4 (f-hypot vx vy vz)))
+               (kx (- (* uy vz) (* uz vy))) (ky (- (* uz vx) (* ux vz))) (kz (- (* ux vy) (* uy vx)))
+               (kl (f-hypot kx ky kz)) (phi (* wt (f-atan2 kl (+ (* ux vx) (* uy vy) (* uz vz)))))
+               (sc (+ 1f0 (* wt (- (/ vl ul) 1f0)))) (c (f-cos phi)) (sn (f-sin phi)))
+          (declare (fixnum o) (single-float ux uy uz vx vy vz ul vl kx ky kz kl phi sc c sn))
+          (if (> kl 1f-5) (setf kx (/ kx kl) ky (/ ky kl) kz (/ kz kl)) (setf kx 0f0 ky 1f0 kz 0f0))
+          (loop for i fixnum from 1 to n do
+            (let* ((q (* 3 i)) (rx (- (aref p q) hx)) (ry (- (aref p (+ q 1)) hy)) (rz (- (aref p (+ q 2)) hz))
+                   (kd (* (+ (* kx rx) (* ky ry) (* kz rz)) (- 1f0 c))))
+              (declare (fixnum q) (single-float rx ry rz kd))
+              (setf (aref p q) (+ hx (* sc (+ (* rx c) (* sn (- (* ky rz) (* kz ry))) (* kx kd))))
+                    (aref p (+ q 1)) (+ hy (* sc (+ (* ry c) (* sn (- (* kz rx) (* kx rz))) (* ky kd))))
+                    (aref p (+ q 2)) (+ hz (* sc (+ (* rz c) (* sn (- (* kx ry) (* ky rx))) (* kz kd))))))))))
+    nil))
+(defun-fast %br-whip-lash (side)
+  "After LILLE-DRAW (R11, DUEL_LILLE_V3 §16): while a J route L L whip clip (*BR-LASH-V*) plays, its lash from the striking
+wing's drawn tip (JILLIEL: *LB-WF* [74..79], LILLE-DRAW's; the owl: the claw, its stretch the lash's stub, %LB-LASHES
+skipping it: [81 82]) at the clip's frame (%BR-LASH-CHAIN!): the ribbon segments, jade (the owl's gold) with a white core,
+thick to thin, small blade segments along its root two thirds; its tip's and middle's arc smeared over the swing (the chain a
+frame and half a frame back); the crack's burst on the point of his line at the opponent's distance (*BR-AT*: the line's
+31 m at most, the opponent's chest height) from S over 5 frames, bigger with the distance; nothing else plays. 0 B."
+  (declare (fixnum side))
+  (let* ((m (svref *br-model* side)) (an (and m (model-anim m))) (c (and an (anim-clip an)))
+         (ent (and c (assoc (clip-name c) *br-lash-v*))))
+    (when ent
+      (let* ((jm (model-joints m)) (ev (cdr ent)) (hd (svref ev 0)) (lv *br-lv*) (p *br-lash-p*) (w *lb-wf*) (pa *pose-at*) (at *br-at*) (o (* 8 side))
+             (n (the fixnum *br-lash-n*)) (tf (* 60f0 (the single-float (anim-time an)))) (s0 (aref hd 5))
+             (g (f->i (aref hd 0))) (owl (> (aref hd 7) 0.5f0)) (sc (aref *lb-v* 31))
+             (yaw (aref pa 3)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (rx (f-cos yaw)) (rz (- (f-sin yaw)))
+             (dist (if (> (aref at (+ o 4)) 0.5f0)
+                       (f-min (the single-float *br-whip-max*)
+                              (f-max 1f0 (f-hypot (- (aref at (+ o 2)) (aref at o)) (- (aref at (+ o 3)) (aref at (+ o 1))))))
+                       3f0))
+             (fl (- (aref pa 1) (aref *br-legs* (+ (* 10 side) 6))))   ; (his floor: the drawn lift off, *BR-LEGS* [6])
+             (tx (+ (aref pa 0) (* dist fx))) (ty (+ fl (the single-float *br-whip-up*))) (tz (+ (aref pa 2) (* dist fz)))
+             (pal (if owl +pal-gold+ +pal-jade+)) (wb (* sc (aref hd 6))) (sd (+ 800f0 (* 40f0 (i->f side)) (* 20f0 (i->f g))))
+             (zz (* (aref hd 8) (+ 1f0 (* 0.035f0 (f-min dist 20f0))))))
+        (declare (type simple-vector ev) (type f32vec jm hd lv p w pa at) (fixnum o n g)
+                 (single-float tf s0 sc yaw fx fz rx rz dist fl tx ty tz pal wb sd zz))
+        ;; the root H and the wing's direction there
+        (if owl
+            (let* ((h (* 16 (if (= g 0) (ji :hand-r) (ji :hand-l)))) (b (* 16 (if (= g 0) (ji :lower-arm-r) (ji :lower-arm-l))))
+                   (hx (aref jm (+ h 12))) (hy (aref jm (+ h 13))) (hz (aref jm (+ h 14)))
+                   (dx (- hx (aref jm (+ b 12)))) (dy (- hy (aref jm (+ b 13)))) (dz (- hz (aref jm (+ b 14))))
+                   (dl (f-max 1f-4 (f-hypot dx dy dz))))
+              (declare (fixnum h b) (single-float hx hy hz dx dy dz dl))
+              (setf (aref lv 1) hx (aref lv 2) hy (aref lv 3) hz (aref lv 4) (/ dx dl) (aref lv 5) (/ dy dl) (aref lv 6) (/ dz dl)
+                    (aref lv 19) (+ 0.15f0 (* sc (aref w (+ 72 g))))))
+            (let* ((q *lb-p*) (to (if (= g 0) 74 77)))
+              (declare (type f32vec q) (fixnum to))
+              (if (= g 0) (joint-point! q jm (ji :chest) 0.07f0 0.3f0 0.13f0) (joint-point! q jm (ji :chest) -0.07f0 0.3f0 0.13f0))
+              (let* ((hx (aref w to)) (hy (aref w (+ to 1))) (hz (aref w (+ to 2)))
+                     (dx (- hx (aref q 0))) (dy (- hy (aref q 1))) (dz (- hz (aref q 2))) (dl (f-max 1f-4 (f-hypot dx dy dz))))
+                (declare (single-float hx hy hz dx dy dz dl))
+                (setf (aref lv 1) hx (aref lv 2) hy (aref lv 3) hz (aref lv 4) (/ dx dl) (aref lv 5) (/ dy dl) (aref lv 6) (/ dz dl)
+                      (aref lv 19) 0.15f0))))
+        ;; the swing's frame: A at the crack's point, B its side axis (his right / up by :plane) squared to A, N = A x B
+        (let* ((ax (- tx (aref lv 1))) (ay (- ty (aref lv 2))) (az (- tz (aref lv 3))) (al (f-max 1f-4 (f-hypot ax ay az)))
+               (ax (/ ax al)) (ay (/ ay al)) (az (/ az al))
+               (b0x (* (aref hd 1) rx)) (b0y (aref hd 2)) (b0z (* (aref hd 1) rz))
+               (bd (+ (* b0x ax) (* b0y ay) (* b0z az)))
+               (bx (- b0x (* bd ax))) (by (- b0y (* bd ay))) (bz (- b0z (* bd az))) (bl (f-max 1f-4 (f-hypot bx by bz)))
+               (bx (/ bx bl)) (by (/ by bl)) (bz (/ bz bl)))
+          (declare (single-float ax ay az al b0x b0y b0z bd bx by bz bl))
+          (setf (aref lv 7) ax (aref lv 8) ay (aref lv 9) az (aref lv 10) bx (aref lv 11) by (aref lv 12) bz
+                (aref lv 13) (- (* ay bz) (* az by)) (aref lv 14) (- (* az bx) (* ax bz)) (aref lv 15) (- (* ax by) (* ay bx))
+                (aref lv 16) tx (aref lv 17) ty (aref lv 18) tz (aref lv 20) fl (aref lv 21) al (aref lv 0) tf))
+        ;; the swing's smear: the tip and the middle a frame and half a frame back
+        (let ((sm (* (%lb-ss (/ (- tf (- s0 3.5f0)) 1.5f0)) (- 1f0 (%lb-ss (/ (- tf (+ s0 1f0)) 1.5f0))))) (mi (* 3 (floor (* 5 n) 8))))
+          (declare (single-float sm) (fixnum mi))
+          (when (> sm 0.02f0)
+            (setf (aref lv 29) (- tf 1f0)) (%br-lash-chain! ev)
+            (setf (aref lv 30) (aref p (* 3 n)) (aref lv 31) (aref p (1+ (* 3 n))) (aref lv 32) (aref p (+ 2 (* 3 n)))
+                  (aref lv 33) (aref p mi) (aref lv 34) (aref p (1+ mi)) (aref lv 35) (aref p (+ 2 mi)))
+            (setf (aref lv 29) (- tf 0.5f0)) (%br-lash-chain! ev)
+            (setf (aref lv 36) (aref p (* 3 n)) (aref lv 37) (aref p (1+ (* 3 n))) (aref lv 38) (aref p (+ 2 (* 3 n)))
+                  (aref lv 39) (aref p mi) (aref lv 40) (aref p (1+ mi)) (aref lv 41) (aref p (+ 2 mi))))
+          (setf (aref lv 29) tf) (%br-lash-chain! ev)
+          (when (> sm 0.02f0)
+            (dotimes (j 2)
+              (let* ((q0 (if (= j 0) 30 33)) (qm (if (= j 0) 36 39)) (pe (if (= j 0) (* 3 n) mi))
+                     (x0 (aref lv q0)) (y0 (aref lv (+ q0 1))) (z0 (aref lv (+ q0 2)))
+                     (x1 (aref p pe)) (y1 (aref p (+ pe 1))) (z1 (aref p (+ pe 2)))
+                     (cx (- (* 2f0 (aref lv qm)) (* 0.5f0 (+ x0 x1)))) (cy (- (* 2f0 (aref lv (+ qm 1))) (* 0.5f0 (+ y0 y1))))
+                     (cz (- (* 2f0 (aref lv (+ qm 2))) (* 0.5f0 (+ z0 z1))))
+                     (sw (* sc zz (if (= j 0) 0.16f0 0.1f0))))
+                (declare (fixnum q0 qm pe) (single-float x0 y0 z0 x1 y1 z1 cx cy cz sw))
+                (when (> (f-hypot (- x1 x0) (- y1 y0) (- z1 z0)) 0.3f0)
+                  (fx-crescent x0 y0 z0 x1 y1 z1 cx cy cz sw :comet 0.05f0 (+ sd 30f0 (i->f j)) pal (* 0.8f0 sm) :push 0.2f0)
+                  (fx-crescent x0 y0 z0 x1 y1 z1 cx cy cz (* 0.35f0 sw) :comet 0.03f0 (+ sd 32f0 (i->f j)) +pal-hit+
+                               (* 0.7f0 sm) :push 0.25f0))))))
+        ;; the lash: thick to thin, a white core over its first four fifths, blade segments along its root two thirds
+        (dotimes (i n)
+          (let* ((a (* 3 i)) (b (+ a 3)) (s (/ (i->f i) (i->f n))) (s1 (/ (i->f (1+ i)) (i->f n)))
+                 (w0 (* wb (+ 0.1f0 (* 0.9f0 (- 1f0 s))))) (w1 (* wb (+ 0.1f0 (* 0.9f0 (- 1f0 s1)))))
+                 (x0 (aref p a)) (y0 (aref p (+ a 1))) (z0 (aref p (+ a 2)))
+                 (dx (- (aref p b) x0)) (dy (- (aref p (+ b 1)) y0)) (dz (- (aref p (+ b 2)) z0)) (si (i->f i)))
+            (declare (fixnum a b) (single-float s s1 w0 w1 x0 y0 z0 dx dy dz si))
+            (toon-ribbon (x0 y0 z0) (dx dy dz) (w0 w1) :heat (1f0 0.9f0) :seed (- -1f0 sd si) :wob 0.03f0 :pal pal :k 0.95f0
+                         :segs 1)
+            (when (< s 0.8f0)
+              (toon-ribbon (x0 y0 z0) (dx dy dz) ((* 0.4f0 w0) (* 0.4f0 w1)) :heat (1f0 1f0) :seed (- -100f0 sd si) :wob 0f0
+                           :pal +pal-hit+ :k 0.85f0 :segs 1))
+            (when (and (oddp i) (< s 0.7f0))
+              (let ((dl (f-max 1f-4 (f-hypot dx dy dz))))
+                (declare (single-float dl))
+                (fx-shard (+ x0 (* 0.5f0 dx)) (+ y0 (* 0.5f0 dy)) (+ z0 (* 0.5f0 dz)) (/ dx dl) (/ dy dl) (/ dz dl)
+                          (f-min (* 0.7f0 sc) (* 2.4f0 dl)) (* 2.2f0 w0) 0.04f0 (+ sd 200f0 si) pal 0.92f0 :push 0.1f0)))))
+        ;; the crack on him: a white flash and a star over a jade (gold) one, sparks flung out, from S over 5 frames
+        (let ((a (- tf s0)))
+          (declare (single-float a))
+          (when (and (>= a -0.2f0) (< a 5f0))
+            (when (< a 2f0)
+              (let ((k (- 1f0 (* 0.45f0 a))))
+                (declare (single-float k))
+                (fx-star tx ty tz (* 0.06f0 zz) (* zz (+ 0.55f0 (* 0.25f0 a))) 10 (* 0.7f0 a) 0f0 0f0 0.08f0 (+ sd 60f0) pal k
+                         :push 0.4f0)
+                (fx-star tx ty tz (* 0.04f0 zz) (* zz (+ 0.3f0 (* 0.15f0 a))) 7 (* -0.5f0 a) 0f0 0f0 0.06f0 (+ sd 61f0) +pal-hit+
+                         (* 0.98f0 k) :push 0.45f0)
+                (when (< a 0.6f0) (fx-disc tx ty tz (* 0.1f0 zz (- 1.2f0 a)) 0.05f0 (+ sd 62f0) +pal-hit+ 0.95f0 :push 0.5f0))))
+            (dotimes (j 7)
+              (let* ((hj (i->f j)) (u (* 6.2831855f0 (+ (* 0.1428f0 hj) (* 0.08f0 (hash01 hj 7.1f0)))))
+                     (v (- (* 1.6f0 (hash01 hj 3.3f0)) 0.6f0)) (cu (f-cos u)) (su (f-sin u))
+                     (ex (+ (* cu rx) (* 0.4f0 su fx))) (ey (+ su v)) (ez (+ (* cu rz) (* 0.4f0 su fz)))
+                     (el (f-max 1f-4 (f-hypot ex ey ez))) (r (* zz (+ 0.18f0 (* 0.32f0 (f-max 0f0 a))))) (k (- 1f0 (* 0.2f0 a))))
+                (declare (single-float hj u v cu su ex ey ez el r k))
+                (fx-shard (+ tx (* r (/ ex el))) (+ ty (* r (/ ey el))) (+ tz (* r (/ ez el))) (/ ex el) (/ ey el) (/ ez el)
+                          (* 0.26f0 zz) (* 0.03f0 zz) 0.02f0 (+ sd 70f0 hj) (if (evenp j) +pal-hit+ pal) k :push 0.35f0))))))))
+  nil)
+(defsound :br-whip-crack (:peak 0.95)               ; R11 (§16): the awakened J route L L's crack (BR-SHOT-FIRE): a whip's
+  (let ((b (au-buf 0.6)))                            ;  supersonic snap, a slap, then the slack lash swishing back
+    (au-mix! b (au-fnoise 0.012 :hp 4000 :decay 0.003) 0.0 1.0)
+    (au-mix! b (au-fnoise 0.03 :bp 2200 :q 1.5 :decay 0.008) 0.002 0.7)
+    (au-ping! b 0.0 3300 0.025 0.4 :attack 0.0005)
+    (au-thump! b 0.0 220 90 0.01 0.04 0.35)
+    (au-mix! b (au-whoosh 0.22 5200 1400 :q 1.6 :peak 0.08) 0.04 0.45)
+    (au-reverb! b 0.18 :size 0.9)
+    b))
 (defun-fast %br-whip-reach (f side mv)
   "Before LILLE-DRAW (R10, §15): *LB-WF* [80] the wings' sweep tightness while the awakened L charges (1 + 0.25 x
-%BR-CHARGE-DEPTH: the eight wings folding tighter by the level), and for a J route L L whip (*BR-WHIPS*) its wing's reach
-0..1 ([81 82]: out over *BR-WHIP-OUT* frames to S, held *BR-WHIP-ON*, back over *BR-WHIP-BACK*) toward the point on his
-line at the opponent's distance (*BR-AT*, at most *BR-WHIP-MAX*) at *BR-WHIP-UP* ([83..85]); its crack there on S and the
-frame after (a white star in a jade / gold one). Zeroed otherwise (Lille never sets them). Reads the move's frame only.
-0 B."
+%BR-CHARGE-DEPTH: the eight wings folding tighter by the level); R11 (§16): [81 82] 1 for the striking claw of a J route L
+L whip clip (*BR-LASH-V*): the whip's root (%BR-WHIP-LASH draws its lash on from it; %LB-WINGS thins JILLIEL's blade,
+%LB-LASHES skips the owl's comet). Zeroed otherwise (Lille never sets
+them). 0 B."
   (declare (fixnum side))
   (let ((w *lb-wf*))
     (declare (type f32vec w))
     (setf (aref w 80) 0f0 (aref w 81) 0f0 (aref w 82) 0f0)
     (when mv
       (when (member (mv-name mv) *br-dash-moves*)
-        (setf (aref w 80) (+ 1f0 (* 0.25f0 (%br-charge-depth f nil)))))
-      (let ((ent (assoc (mv-name mv) *br-whips*)) (at *br-at*) (o (* 8 side)))
-        (declare (type f32vec at) (fixnum o))
-        (when (and ent (eq (fighter-phase f) :main) (> (aref at (+ o 4)) 0.5f0))
-          (let* ((d (- (the fixnum (fighter-sf f)) (the fixnum (mv-s mv)))) (out (the fixnum *br-whip-out*))
-                 (on (the fixnum *br-whip-on*)) (back (the single-float *br-whip-back*))
-                 (q (cond ((< d (- out)) 0f0) ((< d 0) (%lb-ss (/ (i->f (+ d out 1)) (i->f (1+ out)))))
-                          ((< d on) 1f0) (t (- 1f0 (%lb-ss (/ (i->f (- d on -1)) back)))))))
-            (declare (fixnum d out on) (single-float back q))
-            (when (> q 0f0)
-              (let* ((pa *pose-at*) (yaw (aref pa 3)) (ux (- (f-sin yaw))) (uz (- (f-cos yaw)))
-                     (dist (f-min (the single-float *br-whip-max*)
-                                  (f-max 1f0 (f-hypot (- (aref at (+ o 2)) (aref at o)) (- (aref at (+ o 3)) (aref at (+ o 1)))))))
-                     (tx (+ (aref pa 0) (* dist ux))) (ty (+ (aref pa 1) (the single-float *br-whip-up*))) (tz (+ (aref pa 2) (* dist uz))))
-                (declare (type f32vec pa) (single-float yaw ux uz dist tx ty tz))
-                (setf (aref w (+ 81 (the fixnum (cdr ent)))) q (aref w 83) tx (aref w 84) ty (aref w 85) tz)
-                (when (<= 0 d 1)                        ; the crack on him
-                  (let ((pal (if (> (lb-fxs side 15) 0.5f0) +pal-gold+ +pal-jade+)) (g (if (= d 0) 1f0 0.6f0)))
-                    (declare (single-float pal g))
-                    (fx-star tx ty tz 0.05f0 (* g 0.5f0) 8 (i->f d) 0f0 0f0 0.08f0 640f0 pal 0.95f0 :push 0.4f0)
-                    (fx-star tx ty tz 0.03f0 (* g 0.3f0) 6 0.4f0 0f0 0f0 0.06f0 641f0 +pal-hit+ 0.98f0 :push 0.45f0)))))))))
+        (setf (aref w 80) (+ 1f0 (* 0.25f0 (%br-charge-depth f nil))))))
+    (let* ((m (svref *br-model* side)) (c (and m (anim-clip (model-anim m)))) (ent (and c (assoc (clip-name c) *br-lash-v*))))
+      (when ent
+        (let ((hd (svref (the simple-vector (cdr ent)) 0)))
+          (declare (type f32vec hd))
+          (setf (aref w (+ 81 (f->i (aref hd 0)))) 1f0))))
     nil))
 
 ;;; ---------------------------------------------------------------- the special resource's looks (DUEL_LILLE_V3 §4)
@@ -1688,8 +2078,9 @@ drives come out the same; his volley strings drive its SP looks through BR-RC-DR
 (%BR-AIM-LOOK); his place and the opponent's (%BR-PLACE!); the spends (%BR-SPEND-NOTE against last frame's count: a
 wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-SPEND-LOOK); the volley's light gathering
 (%BR-RECALL-LOOK), each string beat's lines from the wing tips (%BR-BEAT-LOOK) and 裁き・極's ring, blast and beam
-(%BR-KIWAMI-LOOK); R10 (§15): the whips' reach and the charge's wing sweep handed to LILLE-DRAW (%BR-WHIP-REACH),
-JILLIEL's lash after it (%BR-WHIP-LASH), the L charge's tells (%BR-CHARGE-LOOK)."
+(%BR-KIWAMI-LOOK); R10 (§15): the charge's wing sweep handed to LILLE-DRAW (%BR-WHIP-REACH), the L charge's tells
+(%BR-CHARGE-LOOK); R11 (§16): the whips' claws flagged for LILLE-DRAW (%BR-WHIP-REACH), the lash after it (%BR-WHIP-LASH),
+the stance switch's legs' fold and pull handed to it (*BR-LEGS*, set by his :pose hook)."
   (declare (single-float rdt))
   (let* ((f (fighter e)) (side (fighter-side f)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
          (c (if mv (%br-chain-clock (mv-name mv) (fighter-sf f)) -1)) (o (* 65 side))
@@ -1697,10 +2088,12 @@ JILLIEL's lash after it (%BR-WHIP-LASH), the L charge's tells (%BR-CHARGE-LOOK).
     (declare (fixnum side c o n))
     (setf (lb-fxs side 19) (if awake (i->f (1+ (min 8 n))) 0f0))
     (unless (eq (fighter-form f) :base) (%br-place! e (fighter-opp f) side))   ; (before LILLE-DRAW: R10's whips read it)
-    (%br-whip-reach f side mv)                          ; (R10, §15: *LB-WF* [80..85] for LILLE-DRAW, zeroed after it)
+    (%br-whip-reach f side mv)                          ; (R10, §15: *LB-WF* [80..82] for LILLE-DRAW, zeroed after it)
+    (let ((lg *br-legs*) (o (* 10 side)))               ; (R11, §16: the stance switch's legs, [89 90])
+      (setf (aref *lb-wf* 89) (if (>= (aref lg o) 0f0) (+ 1f0 (aref lg (+ o 7))) 0f0) (aref *lb-wf* 90) (aref lg (+ o 8))))
     (lille-draw e rdt)
-    (unless (member (fighter-form f) '(:shin-kin :shin)) (%br-whip-lash side))   ; (the owl's claws: %LB-LASHES)
-    (let ((w *lb-wf*)) (setf (aref w 80) 0f0 (aref w 81) 0f0 (aref w 82) 0f0))
+    (%br-whip-lash side)                                ; (R11, §16: the J route's L L whips, both forms)
+    (let ((w *lb-wf*)) (setf (aref w 80) 0f0 (aref w 81) 0f0 (aref w 82) 0f0 (aref w 89) 0f0 (aref w 90) 0f0))
     (when (eq (fighter-form f) :base) (%br-aim-look e f side))
     (%br-spend-note f side n (if awake 2 1))
     (%br-spend-look e side)
@@ -1754,18 +2147,21 @@ stances' moves: BR-ART-STANCE."
                                                   :br-s-jl3 :br-s-kl1 :br-s-kl2 :br-s-kl3))))))
       (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
 
+(defvar *br-art-front* nil "Debug 82389 (R11): the next BR-ART-STANCE scene puts him as P2 (the front view), the owl's too.")
 (defun br-art-stance (m)
   "82320+m: Lille II (P1) 3 m from an idle Kenpachi, 8 wings, Reiatsu and flash step full, his awakened stance's move
 started on its own: m 0-14 JILLIEL EN's (L1 L2 L3 J1 J2 J3 K1 K2 K3 JL1 JL2 JL3 KL1 KL2 KL3, *BR-S-SEGS*' order: the
 openers' clips :br-en-*, the follow-ups' :br-e-jf* / -kf*), 20-34 the owl EN's (kept without a burst: :br-oen-*, :br-oe-jf* /
 -kf*); 40-54 JILLIEL's again as P2, facing the behind camera (the front view). Since R10 (one charged L, no L2 / L3) m 1
 (21, 41) sets the same scene with no move started, for a script to hold L (the charge) itself; m 15-17 (35-37, 55-57)
-JL1-JL3 6 m out (the whips' reach)."
-  (let* ((front (>= m 40)) (m (if front (- m 40) m)) (owl (and (not front) (>= m 20)))
+JL1-JL3 6 m out (the whips' reach). R11 (DUEL_LILLE_V3 §16): 82389 first puts the next scene in the front view, any m (the
+owl's too)."
+  (let* ((front (or (>= m 40) *br-art-front*)) (m (if (>= m 40) (- m 40) m)) (owl (>= m 20))
          (far (<= 15 (if owl (- m 20) m) 17)) (m (if far (- m 6) m))   ; (R10: the whips at 6 m)
          (sn (nth (if owl (- m 20) m) '("L1" "L2" "L3" "J1" "J2" "J3" "K1" "K2" "K3" "JL1" "JL2" "JL3" "KL1" "KL2" "KL3")))
          (idle (= (if owl (- m 20) m) 1))              ; (R10: L held by the script)
          (mv (and sn (gethash (intern (format nil "~a-~a" (if owl "BR-OE" "BR-E") sn) :keyword) *moves*))))
+    (setf *br-art-front* nil)
     (if (and (null mv) (not idle))
         (log-msg "duel barro: no stance still ~d" m)
         (progn
@@ -1779,6 +2175,22 @@ JL1-JL3 6 m out (the whips' reach)."
             (br-set-ammo b 8)
             (when mv (start-move b mv))
             (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))))
+
+(defun br-art-legs (k)
+  "82390+k (R11, DUEL_LILLE_V3 §16): the stance switch's legs, Lille II (P1) 3 m from an idle Kenpachi, 8 wings: k 0 / 1
+JILLIEL KIN / the owl KIN with the turn into the stance (:br-to-en) started (the legs put away); 2 / 3 JILLIEL EN / the owl
+EN with the stance's J1 started (its string ends, back to KIN: the legs let out)."
+  (let ((owl (oddp k)) (out (>= k 2)))
+    (ensure-battle :barro :kenpachi)
+    (let* ((b *p1*) (g (gauges b)))
+      (setf *br-keep-owl* owl)
+      (force-form b (if out (if owl :shin :jilliel) (if owl :shin-kin :jilliel-kin)))
+      (place *p1* *p2* 3.0)
+      (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
+            (gauges-reishi (gauges *p2*)) (gauges-reishi-max (gauges *p2*)))
+      (br-set-ammo b 8)
+      (start-move b (find-move (if out (if owl :br-oe-j1 :br-e-j1) :br-to-en)))
+      (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
 
 (defun br-art-cine (f)
   "82300+k: his awakening (Lille's lb-jilliel-cine, his caption) with P1 Lille II 6 m from Kenpachi, held at frame 10 k."
@@ -1799,14 +2211,17 @@ read the drop: one wing the burst at its tip, two or more the armour's shatter, 
 82200+f the sim freezes once his look clock reaches f (the volley chain's: the recall's frame, 7 + its string's; else the
 move's frame; issue it before the scene), 82299 lets go; 82300+k his awakening held at frame 10 k (BR-ART-CINE);
 82320+m his awakened stance's move m on its own (BR-ART-STANCE); 82380+k his special set to k, 0-8 (BR-ART-AMMO: the spend
-looks); 82398 the consing probe."
+looks); 82389 the next stance scene in the front view; 82390+k the stance switch's legs (BR-ART-LEGS, R11); 82398 the
+consing probe."
   (let ((n (- c 82100)))
     (cond ((< n 100) (br-art-scene n))
           ((< n 199) (setf *br-art-hold-next* (- n 100)))
           ((= n 199) (setf *br-art-hold* -1 *br-art-hold-next* -1 *hitstop* 0))
           ((< n 219) (br-art-cine (* 10 (- n 200))))
-          ((<= 220 n 274) (br-art-stance (- n 220)))
+          ((<= 220 n 277) (br-art-stance (- n 220)))   ; (R11: to m 57, the front view's JL1-JL3 6 m out)
+          ((= n 289) (setf *br-art-front* t))
           ((<= 280 n 288) (br-art-ammo (- n 280)))
+          ((<= 290 n 293) (br-art-legs (- n 290)))
           ((= n 298) (br-cons-probe))
           (t (log-msg "duel barro: no debug command ~d" c)))))
 
@@ -1815,11 +2230,12 @@ looks); 82398 the consing probe."
 note and looks (%BR-SPEND-NOTE / -LOOK: the pip glint's model lookup aside), of his volley look
 at its clock 4 and of a string beat's lines (when a string runs), and of 裁き・極's look (while it runs), of 零距離砲擊's
 blast (in an awakened K3), of the whips' stretch and the owl's lashes (R5), of the body's squash (BR-DEFORM, R8) and the
-K route's balls (in an awakened KL, R8), the whips' reach and the L charge's tells (R10; a \"barro consing\" line)."
+K route's balls (in an awakened KL, R8), the whips' reach and the L charge's tells (R10), the whip's lash and the stance
+switch's legs (R11; a \"barro consing\" line)."
   (let* ((e *p1*) (f (fighter e)) (side (fighter-side f)) (m (model e)) (jm (model-joints m))
          (mv (and (eq (fighter-state f) :move) (fighter-move f))))
     (macrolet ((per (form) `(let ((c0 (cons-bytes))) (dotimes (i 10) ,form) (- (cons-bytes) c0))))
-      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d stretch ~d lashes ~d deform ~d kl-balls ~d dash ~d cuts ~d whip ~d charge ~d"
+      (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d stretch ~d lashes ~d deform ~d kl-balls ~d dash ~d cuts ~d whip ~d charge ~d legs ~d"
                (fighter-form f) (br-hold-clock f)
                (per (br-draw e 0.016f0)) (per (lille-draw e 0.016f0))
                (per (progn (%br-spend-note f side (br-ammo-look e) 2) (%br-spend-look e side))) (per (%br-recall-look e jm side 4))
@@ -1831,7 +2247,8 @@ K route's balls (in an awakened KL, R8), the whips' reach and the L charge's tel
                (if (and mv (assoc (mv-name mv) *br-kl-balls*)) (per (%br-kl-balls f side mv)) -1)
                (if (and mv (member (mv-name mv) *br-dash-moves*)) (per (%br-dash-look f side mv)) -1) (per (%br-cuts-look side))
                (per (progn (%br-whip-reach f side mv) (%br-whip-lash side)))
-               (if (and mv (member (mv-name mv) *br-dash-moves*)) (per (%br-charge-look f side mv)) -1)))))
+               (if (and mv (member (mv-name mv) *br-dash-moves*)) (per (%br-charge-look f side mv)) -1)
+               (per (%br-legs-pose f side m))))))
 
 ;;; ---------------------------------------------------------------- the HUD: the special resource (DUEL_LILLE_V3 §3.1)
 (defparameter *br-sn-strings* #("SN 0" "SN 1" "SN 2" "SN 3") "The base form's label: SN + the 狙擊 pips.")
