@@ -1973,7 +1973,8 @@ SP / Kikon looks (decision 56, %LB-SP-DRIVE!): [61] the ring 0..1, [62] its cup,
 wings drawn with their holes lit (bits by row), [66] their muzzle flash 0..1, [67] the holes glowing (the first N, the
 Kikon cinematic's card); for the owl's claws (decision 56, %LB-OWL-BEAT!) [68] the wing beat's elevation (degrees), [69] its
 opening of KIN's swept sheaf 0..1, [70] 1 = an owl strike (all eight wings converge, four pairs); per draw (%LB-STRETCH!,
-Lille II's whips) [72 73] the right / left front wing's stretch (m past the hand, *LB-STRETCH*), and %LB-WINGS' [74..76]
+Lille II's whips) [71] the stretched wing's width gain (*LB-STRETCH-GROW*), [72 73] the right / left front wing's stretch
+(m past the hand, *LB-STRETCH*), and %LB-WINGS' [74..76]
 [77..79] the right / left front wing's drawn tip (the hand, or past it by the stretch).")
 (defvar *lb-stretch* nil
   "Another kit's stretched wings (Lille II's whips, barro-art.lisp *BR-W-STRETCH*, DUEL_LILLE_V3 §10; Lille's own clips are
@@ -1984,11 +1985,20 @@ stretched tip is the strike point.")
 (defvar *lb-no-conv* nil
   "Strike clips (in *LB-JILLIEL-STRIKES* / *LB-OWL-STRIKES*) whose table wings do not converge on the hit (Lille II's spinning
 L, barro-art.lisp: the wings spin with him); their trails and the owl's beat as the rest.")
+(defvar *lb-trail-cut* nil
+  "Clip -> a move frame: the tip / claw trails of these strike clips stop recording from that frame of the move (Lille II's
+零距離砲擊, DUEL_LILLE_V3 §11: 「砲擊不要發射光束」, so the thrust leaves no streak toward him).")
+(defvar *lb-stretch-grow* nil
+  "Clip -> a width gain (a single-float, per metre of stretch): the stretched front wing (or the owl's lash) of these clips
+also grows wider with its stretch (Lille II's heavy blade, DUEL_LILLE_V3 §11: 「揮砍前光翼隨身體的距離伸長放大」); the whips
+of the other stretched clips stay thin.")
 (defun-fast %lb-stretch! (an)
   "*LB-WF* [72 73]: the front wings' stretch (*LB-STRETCH*) at anim AN's clip and time (its frame: 60 x the clip's seconds);
-0 for a clip not in the table. Cosmetic. 0 B."
-  (let* ((w *lb-wf*) (c (anim-clip an)) (e (and c (assoc (clip-name c) *lb-stretch*))) (r 0f0) (l 0f0))
+0 for a clip not in the table; [71] its width gain (*LB-STRETCH-GROW*, 0 when not listed). Cosmetic. 0 B."
+  (let* ((w *lb-wf*) (c (anim-clip an)) (e (and c (assoc (clip-name c) *lb-stretch*)))
+         (gw (and c (assoc (clip-name c) *lb-stretch-grow*))) (r 0f0) (l 0f0))
     (declare (type f32vec w) (single-float r l))
+    (setf (aref w 71) (if gw (the single-float (cdr gw)) 0f0))
     (when e
       (let* ((kv (cdr e)) (n (floor (length kv) 3)) (fr (* 60f0 (the single-float (anim-time an)))))
         (declare (type f32vec kv) (fixnum n) (single-float fr))
@@ -2210,7 +2220,7 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
                      (to (if (> s 0f0) 74 77)))                            ;  *LB-STRETCH*; 0 for Lille)
                 (declare (fixnum h to) (single-float hx hy hz dx dy dz dl ux uy uz ddx ddy ddz ex))
                 (%lb-basis! w 0 ux uy uz (- (* ddy uz) (* ddz uy)) (- (* ddz ux) (* ddx uz)) (- (* ddx uy) (* ddy ux)))
-                (setf len (+ dl ex) wd (* lk (aref tbl (+ r 2))) px (+ hx (* ex ux)) py (+ hy (* ex uy)) pz (+ hz (* ex uz))
+                (setf len (+ dl ex) wd (* lk (aref tbl (+ r 2)) (+ 1f0 (* (aref w 71) ex))) px (+ hx (* ex ux)) py (+ hy (* ex uy)) pz (+ hz (* ex uz))
                       (aref w to) px (aref w (+ to 1)) py (aref w (+ to 2)) pz))
               ;; (the sweep SB, the owl's KIN, decision 38: the fan closed up into a narrow sheaf lowered along his back,
               ;; the blades trailing back and down close to his midline (a folded bird's), shorter, their faces turned to
@@ -2417,8 +2427,10 @@ eight wings converging, and its wing beat (%LB-OWL-BEAT!). Reads the move's fram
                            ((:lb-w-q2 :lb-w-f2 :lb-e-q2 :lb-e-f2 :lb-o-q2 :lb-o-f2 :lb-oe-q2 :lb-oe-f2) 2) (t 3)))
          (when (if ,owl (member (mv-clip %mv) *lb-owl-strikes*) (member (mv-clip %mv) *lb-jilliel-strikes*))   ; decisions 50, 56
            (setf %cv (if (member (mv-clip %mv) *lb-no-conv*) 0f0 1f0)   ; (Lille II's spins: no convergence)
-                 %tr (if (<= (+ %s (if ,owl (the fixnum *lb-owl-trail-from*) (the fixnum *lb-trail-from*))) %sf
-                             (+ %s %a (the fixnum *lb-trail-to*) -1))
+                 %tr (if (and (<= (+ %s (if ,owl (the fixnum *lb-owl-trail-from*) (the fixnum *lb-trail-from*))) %sf
+                                  (+ %s %a (the fixnum *lb-trail-to*) -1))
+                              (let ((%cut (assoc (mv-clip %mv) *lb-trail-cut*)))   ; (Lille II's cannon: no streak at him)
+                                (or (null %cut) (< %sf (the fixnum (cdr %cut))))))
                          1f0 0f0)
                  (aref %w 46) (i->f (- %sf %s))
                  (aref %w 48) (if (member (mv-clip %mv) '(:lb-e-q1 :lb-e-q2 :lb-e-q3 :lb-e-f1 :lb-e-f2 :lb-e-f3 :lb-oe-q1 :lb-oe-q2
@@ -2646,7 +2658,7 @@ drooping by *LB-LASH-SAG* of its length off them. Its tip is the strike point (t
                  (tx (+ hx (* k dx))) (ty (+ hy (* k dy))) (tz (+ hz (* k dz)))
                  (sag (if (> (aref w 41) 0.5f0) 0f0 (* 2f0 ex (the single-float *lb-lash-sag*))))
                  (bx (* 0.5f0 (+ hx tx))) (by (- (* 0.5f0 (+ hy ty)) sag)) (bz (* 0.5f0 (+ hz tz)))
-                 (lw (* sc (the single-float *lb-lash-w*))) (sd (+ 150f0 (* 5f0 (i->f (+ g (* 2 side)))))))
+                 (lw (* sc (the single-float *lb-lash-w*) (+ 1f0 (* (aref w 71) ex)))) (sd (+ 150f0 (* 5f0 (i->f (+ g (* 2 side)))))))
             (declare (fixnum h b) (single-float hx hy hz dx dy dz k tx ty tz sag bx by bz lw sd))
             (fx-crescent tx ty tz hx hy hz bx by bz lw :comet 0.04f0 sd +pal-gold+ 0.95f0 :push 0.2f0)
             (fx-crescent tx ty tz hx hy hz bx by bz (* 0.4f0 lw) :comet 0.02f0 (+ sd 1f0) +pal-hit+ 0.9f0 :push 0.25f0))))))
