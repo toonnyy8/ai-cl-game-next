@@ -320,16 +320,18 @@ volume radius, metres; its reach each hit's drawn tip (*BR-W-TIPS*; new 2026-10-
   "The awakened stances' melee openers (R4): each hit's push, metres (the shots' 0.3 pushed him out of a 1.4-2.2 m reach within
 a string: L1 + L2 1.3 -> 2.3 m in the browser; new 2026-10-11 [G]).")
 (defparameter *br-w-tips*
-  '(("BR-E" ("L1" 1.85) ("L2" 1.85) ("L3" 1.85) ("J1" 2.85) ("J2" 2.8)
-     ("J3" 2.4) ("K1" 2.0) ("K2" 1.35) ("K3" 1.2))
-    ("BR-OE" ("L1" 1.7) ("L2" 1.7) ("L3" 1.7) ("J1" 2.8) ("J2" 2.75)
-     ("J3" 2.4) ("K1" 1.75) ("K2" 1.35) ("K3" 1.15)))
+  '(("BR-E" ("L1" 1.85) ("L2" 1.85) ("L3" 1.85) ("J1" 2.85) ("J2" 2.85)
+     ("J3" 2.65) ("K1" 2.45) ("K2" 1.35) ("K3" 1.2))
+    ("BR-OE" ("L1" 1.7) ("L2" 1.7) ("L3" 1.7) ("J1" 2.8) ("J2" 2.8)
+     ("J3" 2.55) ("K1" 2.35) ("K2" 1.35) ("K3" 1.15)))
   "The awakened stances' melee openers (decision R4): each hit's reach, metres (its volume's edge), = the striking wing tip's
 / claw's distance ahead on that hit frame in its clip (barro-art.lisp :br-en-* / :br-oen-*, the host FK test: drawn reach =
 hit reach, +-0.15 m). By the move prefix, then the segment. R5 (the user 2026-10-11: the motion modules, the reach
 「跟著動作走」; 「長鞭可以連成大砍刀，砲擊也可以接在近距離毆打後面」): L 陀螺 the flat wing / claw (1.6-1.8 before), J 長鞭 the
 stretched whip's tip (*BR-W-STRETCH*; 1.35-1.7 before) and J3's last the cleaver it stiffens into, K1 大刀 the joined great
-blade, K2 / K3's first two the folded wings' close blows, K3's last 零距離砲擊 point blank (K 1.5-2.2 before).")
+blade, K2 / K3's first two the folded wings' close blows, K3's last 零距離砲擊 point blank (K 1.5-2.2 before). R6 / R7
+(DUEL_LILLE_V3 §11, §12: one hit a press): one reach a segment; J3 and K1 the one-wing great blade swung grown (J3 2.4, K1
+2.0 / 1.75 before), J2 the left whip (2.8 / 2.75 before).")
 (defparameter *br-s-l-whiff* 8
   "A whiffed stance L segment recovers R + this (decision R5, the user 2026-10-11: 「架式 > L 只要沒打中就進入硬直」, 「就跟一般的
 J / K 普攻一樣」: a J link's *WHIFF-EXTRA-J*; the :sig moves' *WHIFF-EXTRA* 6 before).")
@@ -552,7 +554,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 ;; 「最後一段 LL 會依據前面 J/K 有不同的動作模組」); the openers wing strikes in reach (R4, the user 2026-10-11: 「所有起手連段一律用
 ;; 近距離攻擊」), L slower (「架式 L 的動作太快了」: *BR-W-L-SLOW*)
 (br-defstance "BR-E" (:l1 (:br-en-l1 8) :l2 (:br-en-l2 8) :l3 (:br-en-l3 8) :j1 (:br-en-j1 8) :j2 (:br-en-j2 8)
-                      :j3 (:br-en-j3 8) :k1 (:br-en-k1 12) :k2 (:br-en-k2 12) :k3 (:br-en-k3 12)
+                      :j3 (:br-en-j3 14) :k1 (:br-en-k1 16) :k2 (:br-en-k2 12) :k3 (:br-en-k3 12)
                       :jl1 (:br-e-jf1 8) :jl2 (:br-e-jf2 8) :jl3 (:br-e-jf3 8) :kl1 (:br-e-kf1 10) :kl2 (:br-e-kf2 10)
                       :kl3 (:br-e-kf3 10))
               :melee t :l-slow *br-w-l-slow*)
@@ -588,7 +590,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 ;; the owl's stance EN: the same strings on its claws (barro-art.lisp :br-oen-*, the follow-ups :br-oe-jf* / -kf*; R one
 ;; less: *BR-OWL-ADV*); the openers claw strikes in reach, L slower (R4)
 (br-defstance "BR-OE" (:l1 (:br-oen-l1 8) :l2 (:br-oen-l2 8) :l3 (:br-oen-l3 8) :j1 (:br-oen-j1 8) :j2 (:br-oen-j2 8)
-                       :j3 (:br-oen-j3 8) :k1 (:br-oen-k1 12) :k2 (:br-oen-k2 12) :k3 (:br-oen-k3 12)
+                       :j3 (:br-oen-j3 14) :k1 (:br-oen-k1 16) :k2 (:br-oen-k2 12) :k3 (:br-oen-k3 12)
                        :jl1 (:br-oe-jf1 8) :jl2 (:br-oe-jf2 8) :jl3 (:br-oe-jf3 8) :kl1 (:br-oe-kf1 10) :kl2 (:br-oe-kf2 10)
                        :kl3 (:br-oe-kf3 10))
               :adv 1 :melee t :l-slow *br-w-l-slow*)
