@@ -694,3 +694,7 @@ facing line at the opponent's distance (KL1 0.9 m right and high, KL2 0.9 m left
 smaller one a frame later); `%br-ball` shared with K3's blast. Host tests 8323, ALL PASS (the tip with the squash); 82398:
 deform / balls 0 B. Playtest v64.
 
+
+Gates after R8 (native sim, 10 seeds, all 60 K.O.): BY 118.6, BK 105.3, BR 138.1, BI 151.5, BS 151.4, BB 161.0 s — R7's
+but BS (152.1) and BI's wins (5 / 10, 6 before): K1's longer reach barely moves the sim. BY / BK stay §12.1's open exception
+(the user: 「先試玩再決定」). Mirror awaken A/B: 55 / 57 / 54 (as R7): pass.
