@@ -825,8 +825,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :lb-kamae :lb-k-shot :lb-k-hosha :lb-k-taisha :lb-k-dash :lb-w-tenshin :lb-w-tenshin-in   ; his rework (DUEL_LILLE §22, §23)
     :lb-oe-stance :lb-o-fold :lb-oe-fold :lb-oe-sabaki :lb-o-tenshin :lb-o-tenshin-in   ; the owl on Jilliel's system (decision 36, §23.14)
     :lb-oe-q1 :lb-oe-q2 :lb-oe-q3 :lb-oe-f1 :lb-oe-f2 :lb-oe-f3   ; its EN casts (decision 56, §23.37)
-    :lb-snap                                      ; Lille's unused hip shot: Lille II's snap shot (DUEL_LILLE_V2 §4)
     :br-e-swing :br-oe-swing                      ; Lille II v3's stance L1 (V8's swing clips, DUEL_LILLE_V3 R2)
+    :br-sk-l1 :br-sk-l2 :br-sk-l3 :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3   ; the base stance's strings
+    :br-sk-jl1 :br-sk-jl2 :br-sk-kl1 :br-sk-kl2   ; and its follow-ups (DUEL_LILLE_V3 §8.3; :lb-snap unused again)
     :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en   ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
     :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en   ; ... and the owl's (the backstep gone, v3 R3)
     :ke-k-q1 :ke-k-q2 :ke-k-f1 :ke-k-f2 :ke-k-spin :ke-k-meteor   ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2)
@@ -1848,6 +1849,33 @@ along the left forearm, so the fist leads).")
                            (check (or (and (>= ahead 1.2) (<= (abs x) 0.4)) (format t "~a f~d ~a: ~,2f ahead ~,2f aside~%" move fr j ahead x))))
                          (multiple-value-bind (x ahead) (tip oclip fr j po)
                            (check (or (and (>= ahead 1.2) (<= (abs x) 0.5)) (format t "~a f~d ~a: ~,2f ahead ~,2f aside~%" oclip fr j ahead x))))))))))))
+
+;; Lille II's base stance strings (DUEL_LILLE_V3 §8.3, R3: 「架勢中的 JJ / KK / LL 都改成差異明顯的數段連擊」, 「最後一段 LL 會依據前面
+;; J/K 有不同的動作模組」): each of the thirteen segments plays its own clip :br-sk-<segment> at speed 1, lasting its move (S + A +
+;; R, its :s mark on S); on every hit frame Diagramm's muzzle (1.75 m down the barrel, the :lille rig) is on his line (>= 1.6 m
+;; ahead, within 0.15 m of it, 0.8-1.6 m up, the barrel within 8 deg of level and of straight at him), and the recoil follows
+;; (the barrel >= 4 deg higher on one of the 2 frames after)
+(let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (m (make-f32 3)) (g (make-f32 3)))
+  (flet ((barrel (clip frame)
+           (clip-sample! pose (find-clip clip) (/ frame 60.0))
+           (pose-fk! jm pose 0f0 0f0 0f0 0f0 1f0 0f0 nil)
+           (joint-point! m jm (ji :weapon-r) 0f0 0f0 -1.75f0)
+           (joint-point! g jm (ji :weapon-r) 0f0 0f0 0f0)
+           (let ((dx (- (aref m 0) (aref g 0))) (dy (- (aref m 1) (aref g 1))) (df (- (aref g 2) (aref m 2))))
+             (values (aref m 0) (aref m 1) (- (aref m 2)) (* (/ 180 pi) (atan dx df))
+                     (* (/ 180 pi) (atan dy (sqrt (+ (* dx dx) (* df df)))))))))
+    (dolist (sg '("L1" "L2" "L3" "J1" "J2" "J3" "K1" "K2" "K3" "JL1" "JL2" "KL1" "KL2"))
+      (let* ((mv (find-move (intern (format nil "BR-S-~a" sg) :keyword))) (clip (intern (format nil "BR-SK-~a" sg) :keyword)))
+        (check (and (eq (mv-clip mv) clip) (~= 1.0 (mv-clip-speed mv))))
+        (check (or (and (= (round (* 60 (clip-dur (find-clip clip)))) (+ (mv-s mv) (mv-a mv) (mv-r mv)))
+                        (= (round (* 60 (clip-mark clip :s))) (mv-s mv)))
+                   (format t "~a: ~,1f f, its move ~d f~%" clip (* 60 (clip-dur (find-clip clip))) (+ (mv-s mv) (mv-a mv) (mv-r mv)))))
+        (loop for w across (mv-hits mv)
+              do (let ((fr (hw-from w)))
+                   (multiple-value-bind (x y ahead az el) (barrel clip fr)
+                     (check (or (and (>= ahead 1.6) (<= (abs x) 0.15) (<= 0.8 y 1.6) (<= (abs az) 8) (<= (abs el) 8)
+                                     (>= (max (nth-value 4 (barrel clip (+ fr 1))) (nth-value 4 (barrel clip (+ fr 2)))) (+ el 4)))
+                                (format t "~a f~d: the muzzle ~,2f aside ~,2f up ~,2f ahead, az ~,1f el ~,1f~%" clip fr x y ahead az el))))))))))
 
 ;; J is short, K long (the user, 2026-09-29, docs/duel/DUEL_STRINGS.md §13): in every form every K link reaches at least 0.5 m further
 ;; than any J link at the same position of the string; 片腕's short K against the J floor (2026-10-06) excepted

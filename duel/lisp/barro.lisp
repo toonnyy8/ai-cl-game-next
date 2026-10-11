@@ -380,11 +380,12 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (defmove-copy :br-kamae-re :br-kamae :enter *br-kamae-up* :on-frame nil)
 (defmove :br-k-dash :kind :sig :clip :lb-k-dash :startup *br-kamae-dash-f* :active 0 :recovery 0 :tick br-k-dash-tick
   :on-frame ((0 br-kamae-dash) (*br-kamae-back* br-kamae-back)))
-;; the stance's strings (decision R2), Diagramm's shots: L the shoulder shot and the hip snap, J the snap and HOSHA's leap
-;; (Lille's spare :lb-k-hosha), K the locked shot and TAISHA's back-slide
-(br-defstance "BR-S" (:l1 (:lb-fire 6) :l2 (:lb-snap 6) :l3 (:lb-fire 6) :j1 (:lb-snap 6) :j2 (:lb-k-hosha 6)
-                      :j3 (:lb-snap 6) :k1 (:lb-k-shot 10) :k2 (:lb-k-taisha 16) :k3 (:lb-k-shot 10)
-                      :jl1 (:lb-k-hosha 6) :jl2 (:lb-snap 6) :kl1 (:lb-k-taisha 16) :kl2 (:lb-k-shot 10)))
+;; the stance's strings (decision R3), Diagramm's shots, each segment its own clip at its frames (barro-art.lisp, the base
+;; stance's strings): L shouldered (GATHER), J one-handed from the hip (REFILL), K braced at the waist (HEAVY); the J route's
+;; L L one-handed (a whip, a hop), the K route's two-handed (a stamp, a kneel)
+(br-defstance "BR-S" (:l1 (:br-sk-l1 8) :l2 (:br-sk-l2 8) :l3 (:br-sk-l3 8) :j1 (:br-sk-j1 8) :j2 (:br-sk-j2 8)
+                      :j3 (:br-sk-j3 8) :k1 (:br-sk-k1 12) :k2 (:br-sk-k2 12) :k3 (:br-sk-k3 12)
+                      :jl1 (:br-sk-jl1 8) :jl2 (:br-sk-jl2 8) :kl1 (:br-sk-kl1 10) :kl2 (:br-sk-kl2 10)))
 ;; the stance's SPs: SANREN's three 萬物貫通 lines, HIRENKYAKU's slide and shot; outside the stance the plain ones (20 m, no
 ;; 萬物貫通). SP1 gives flash step back by the pips (BR-SP1-FS-GO); SP2 spends every pip, + *BR-SP2-UNIT* each (BR-SP2-SPEND,
 ;; decision R3), its recovery + *BR-SP2-SLOW-R* (22 -> 42) and -30 on block (「單發破綻大」); off a stance K K that hit

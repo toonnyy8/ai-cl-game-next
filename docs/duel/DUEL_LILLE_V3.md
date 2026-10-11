@@ -427,6 +427,26 @@ difficulty); else the follow-up with a special (`:follow` 0.6 / 0.7). SP2 no lon
 The sim's stance moves name clips by segment (`BR-DEFSTANCE`'s plist); the first build reuses the old clips (the third
 segments the spare `:lb-e-f3` / `:lb-oe-f3`) until the art pass draws the follow-ups' own modules (§8.5).
 
+**The base form's art pass (2026-10-11).** The base stance's thirteen segments play their own clips `:br-sk-<segment>`
+(`barro-art.lisp`, "the base stance's strings"; `:br-sk-l1` … `:br-sk-kl2`), each at its move's frames (S + A + R, the
+`:s` mark on S, speed 1; `:clip-s` = S in the BR-S instance). Frame data unchanged (sim untouched). Every hit frame puts
+Diagramm's muzzle on his line (FK over the rig: ≥ 1.6 m ahead, ≤ 0.15 m aside, 0.8–1.6 m up, the barrel within 8° of level
+and of straight; the hit poses were solved to az −2…−7°, el 0°, the muzzle ≤ 0.1 m aside at ~2.1 m), the recoil right
+after (the barrel ≥ 4° higher within 2 f). The openers start from `:lb-kamae-pose`; each later segment from the pose its
+predecessor holds at S + A (the link's start); every end blends to `:lb-stance`.
+
+| String | Look |
+|---|---|
+| L 集 (L1 L2 L3) | shouldered, upright, two hands, an even deliberate beat (kick +2 f, back on the line +6 f): L1 squared up, L2 turned side-on (the rifleman's profile), L3 a step in and three, then Diagramm swung up before him, muzzle high (the pip loaded) |
+| J 補 (J1 J2 J3) | one hand from the hip, the free arm out for balance, a small kick every shot (+1 f) back on the line at +3 f: J1 stepped in, J2 hopped to his left and low, J3 swaying (two shots right shoulder forward, two left), then Diagramm flipped up onto his shoulder |
+| K 重 (K1 K2 K3) | two hands at the waist, wide and low; each shot rocks him back with the barrel thrown up 24–26°, he leans back in: K1 left foot forward, K2 the right, K3 three with the last blowing him back 0.36 m, Diagramm flung up 40° (the finisher) |
+| J → L L (JL1 JL2) | J's one-handed lightness: JL1 wound half round and whipped back at arm's length, skipped back by the kick; JL2 crouched, a hop back, fired from the air at arm's length, landed |
+| K → L L (KL1 KL2) | K's two-handed weight: KL1 the knee raised, stamped down into the shot, slid back by it; KL2 dropped to the right knee, braced, rocked back on it (the barrel 36° up), risen |
+
+Host-tested (`tests/duel-rules-test.lisp`, after "Lille II's own clips": the clip names and speed, the durations and `:s`
+marks, the muzzle on every hit frame, the recoil; 8091 checks, ALL PASS). pkgcheck 0, `./build.sh duel` 0 warnings. Stills: 82100+15 / 16 / 17 and the new 82100+40…49 (L2 L3 J2 J3 K2 K3
+JL1 JL2 KL1 KL2, started on their own 3 m out; + 20 the front view) with 82200+f. `:lb-snap` is unused again.
+
 ### 8.4 Checks
 
 - `tests/duel-rules-test.lisp`: 8037 checks, ALL PASS. The Lille II block: the thirteen stance moves a form (hits, reach,

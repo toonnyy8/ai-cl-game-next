@@ -239,6 +239,198 @@
   (11 (:root :u 0.4 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
   (11.5 :snap (:root :u 0.05 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
   (:end :lb-oe-stance))
+;;; ---------------------------------------------------------------- the base stance's strings (DUEL_LILLE_V3 §8.3, R3)
+;;; The stance's three strings and the two routes' follow-ups (barro.lisp *BR-S-SEGS*, BR-DEFSTANCE), each segment its own
+;;; clip at its move's frames (S A R, the hits at S + the offsets; played at speed 1), 「架勢中的 JJ / KK / LL 都改成差異明顯的
+;;; 數段連擊」, 「最後一段 LL 會依據前面 J/K 有不同的動作模組」. On every hit frame Diagramm's muzzle is on his line (the keys'
+;;; comments: the muzzle and the grip in metres, x his right / y up / f ahead, the barrel's azimuth (+ = his right) and
+;;; elevation, solved by FK over the rig: the muzzle within 0.1 m of the line at ~2.1 m, level), the recoil right after
+;;; (BR-SHOT-FIRE draws the shot from his facing). The openers (L1 / J1 / K1) start from the stance's :lb-kamae-pose; every
+;;; later segment from the pose its predecessor holds at its S + A (the link's start). Their ends blend to :lb-stance.
+;;; - L 集 GATHER (L1 L2 L3, hits +0 +8 / +0 +8 / +0 +6 +12): shouldered, upright, two hands, an even deliberate beat. L1
+;;;   squared up, L2 turned side-on (the rifleman's profile), L3 a step in and three, then Diagramm swung up before him,
+;;;   muzzle high (the pip loaded).
+;;; - J 補 REFILL (J1 J2 J3, +0 +3 +6 / +0 +3 +6 / +0 +3 +6 +9): one hand, from the hip, the free arm out for balance, a
+;;;   rattle of small kicks every 3 f. J1 stepped in, J2 hopped to his left and low, J3 swaying (two from the right shoulder
+;;;   forward, two from the left), then Diagramm flipped up onto the shoulder.
+;;; - K 重 HEAVY (K1 K2 K3, +0 +10 / +0 +10 / +0 +8 +16): two hands at the waist, wide and low, a big braced recoil that
+;;;   rocks him back and re-plants him. K1 left foot forward, K2 switched to the right, K3 three, the last blowing him back
+;;;   with Diagramm flung high (the finisher).
+;;; - J route's L L (JL1 JL2, one 萬物貫通 line each): J's one-handed lightness. JL1 wound half round and whipped back at
+;;;   arm's length, a skip back on the kick; JL2 a hop back, fired from the air at arm's length, landed.
+;;; - K route's L L (KL1 KL2): K's two-handed weight. KL1 the knee raised and stamped down into the shot, slid back by it;
+;;;   KL2 dropped to the right knee, braced, rocked back on it by the shot.
+(defpose :br-pl-aim (:base :lb-aim-pose)   ; L: squared up, shouldered: muzzle (-0.01 1.39 2.10) az -3.1 el -0.1, grip (0.09 1.40 0.35), hand-l (-0.03 1.30 0.59)
+  (:root :u -0.05) (:pelvis :twist 8) (:chest :twist -24) (:head :flex 6 :twist 16)
+  (:arm-r :flex 56.5 :side -39.4 :twist 63.8) (:elbow-r :flex 82.1) (:hand-r :flex -147.3 :twist -12.1) (:arm-l :flex 68.9 :side -31.0) (:elbow-l :flex 32.0))
+(defpose :br-pl-kick (:base :lb-aim-pose)   ; its recoil: muzzle (0.01 1.79 1.93) az -3.2 el 11.9, grip (0.11 1.43 0.22), hand-l (-0.02 1.36 0.50)
+  (:root :f -0.07 :u -0.04) (:pelvis :twist 8) (:chest :twist -24 :flex -6) (:head :flex 2 :twist 16)
+  (:arm-r :flex 55.1 :side -28.8 :twist 56.8) (:elbow-r :flex 97.2) (:hand-r :flex -151.2 :twist -13.3) (:arm-l :flex 67.0 :side -37.7) (:elbow-l :flex 33.4))
+(defpose :br-pl-prof (:base :lb-aim-pose)   ; L2: side-on, shouldered: muzzle (-0.02 1.37 2.13) az -1.9 el 0.1, grip (0.04 1.37 0.38), hand-l (0.12 1.37 0.64)
+  (:root :f 0.04 :u -0.09) (:pelvis :twist -14) (:chest :twist -24) (:head :flex 8 :twist 34) (:thigh-l :flex 28 :side 6) (:knee-l :flex 26) (:thigh-r :flex -18 :side 12) (:knee-r :flex 12)
+  (:arm-r :flex 40.7 :side -68.5 :twist 94.4) (:elbow-r :flex 61.0) (:hand-r :flex -136.1 :twist -12.8) (:arm-l :flex 80.3 :side -35.4) (:elbow-l :flex 37.9))
+(defpose :br-pl-prof-kick (:base :lb-aim-pose)   ; its recoil: muzzle (0.00 1.79 1.95) az -1.9 el 12.0, grip (0.06 1.42 0.24), hand-l (0.12 1.46 0.54)
+  (:root :f -0.03 :u -0.08) (:pelvis :twist -14) (:chest :twist -24 :flex -6) (:head :flex 4 :twist 34) (:thigh-l :flex 24 :side 6) (:knee-l :flex 22) (:thigh-r :flex -16 :side 12) (:knee-r :flex 12)
+  (:arm-r :flex 42.7 :side -61.6 :twist 89.2) (:elbow-r :flex 78.6) (:hand-r :flex -142.5 :twist -12.8) (:arm-l :flex 80.6 :side -27.6) (:elbow-l :flex 39.1))
+(defpose :br-pl-load (:base :lb-aim-pose)   ; L3: loaded, Diagramm swung up: muzzle (0.16 2.84 0.80) az -0.0 el 72.0, grip (0.16 1.18 0.26), hand-l (0.16 1.51 0.37)
+  (:root :u -0.02) (:pelvis :twist 10) (:chest :twist -10 :flex -4) (:head :flex -10 :twist 6)
+  (:arm-r :flex 9.8 :side 39.6 :twist 40.5) (:elbow-r :flex 116.1) (:hand-r :flex -22.9 :twist -48.6) (:arm-l :flex 118.0 :side 75.0) (:elbow-l :flex 39.9))
+(defpose :br-pj-hip (:base :lb-stance)   ; J1: one hand at the hip, stepped in: muzzle (0.09 0.98 2.18) az -7.0 el 0.0, grip (0.30 0.98 0.44), hand-l (-0.58 0.99 -0.12)
+  (:root :f 0.08 :u -0.06) (:pelvis :twist 14) (:spine :flex 8) (:chest :twist -2) (:thigh-r :flex 18 :side 6) (:knee-r :flex 24) (:thigh-l :flex -12 :side 6) (:knee-l :flex 16) (:arm-l :flex -24 :side 46) (:elbow-l :flex 34) (:hand-l :flex -10)
+  (:arm-r :flex 3.6 :side 16.9 :twist -9.1) (:elbow-r :flex 82.1) (:hand-r :flex -79.5 :twist 1.9))
+(defpose :br-pj-kick (:base :lb-stance)   ; its kick: muzzle (0.10 1.27 2.08) az -7.0 el 8.0, grip (0.31 1.03 0.36), hand-l (-0.59 1.08 -0.24)
+  (:root :f 0.04 :u -0.02) (:pelvis :twist 14) (:spine :flex 4) (:chest :twist -2) (:thigh-r :flex 16 :side 6) (:knee-r :flex 18) (:thigh-l :flex -10 :side 6) (:knee-l :flex 12) (:arm-l :flex -30 :side 52) (:elbow-l :flex 30) (:hand-l :flex -10)
+  (:arm-r :flex -4.8 :side 17.4 :twist -7.6) (:elbow-r :flex 87.6) (:hand-r :flex -72.9 :twist -1.0))
+(defpose :br-pj-hop (:base :lb-stance)   ; J2: hopped to his left, low: muzzle (0.03 0.92 2.21) az -3.0 el 0.0, grip (0.12 0.92 0.46), hand-l (-0.87 1.11 0.24)
+  (:root :r -0.14 :f 0.04 :u -0.13 :yaw -8) (:pelvis :twist 6) (:spine :flex 14) (:chest :twist 4) (:thigh-l :flex 12 :side 22) (:knee-l :flex 34) (:thigh-r :flex -6 :side 6) (:knee-r :flex 12) (:arm-l :flex 6 :side 74) (:elbow-l :flex 22) (:hand-l :flex -10)
+  (:arm-r :flex 21.4 :side 17.8 :twist 8.6) (:elbow-r :flex 80.9) (:hand-r :flex -88.8 :twist -11.6))
+(defpose :br-pj-hop-kick (:base :lb-stance)   ; its kick: muzzle (0.04 1.21 2.11) az -3.0 el 8.0, grip (0.13 0.97 0.38), hand-l (-0.91 1.23 0.12)
+  (:root :r -0.14 :f 0.0 :u -0.08 :yaw -8) (:pelvis :twist 6) (:spine :flex 10) (:chest :twist 4) (:thigh-l :flex 10 :side 22) (:knee-l :flex 28) (:thigh-r :flex -6 :side 6) (:knee-r :flex 10) (:arm-l :flex 0 :side 80) (:elbow-l :flex 18) (:hand-l :flex -10)
+  (:arm-r :flex 13.2 :side 20.1 :twist 10.2) (:elbow-r :flex 83.8) (:hand-r :flex -79.6 :twist -15.2))
+(defpose :br-pj-sway-r (:base :lb-stance)   ; J3: swayed, right shoulder forward: muzzle (0.10 1.00 2.21) az -4.0 el 0.0, grip (0.22 1.00 0.46), hand-l (-0.38 1.01 -0.28)
+  (:root :r 0.08 :f 0.06 :u -0.07 :yaw 14) (:pelvis :twist 10) (:spine :flex 8 :side -4) (:chest :twist 0) (:thigh-r :flex 20 :side 8) (:knee-r :flex 26) (:thigh-l :flex -12 :side 8) (:knee-l :flex 16) (:arm-l :flex -34 :side 40) (:elbow-l :flex 40) (:hand-l :flex -10)
+  (:arm-r :flex 2.6 :side 20.3 :twist 6.0) (:elbow-r :flex 98.3) (:hand-r :flex -99.3 :twist -27.9))
+(defpose :br-pj-sway-l (:base :lb-stance)   ; J3: swayed back, left shoulder forward: muzzle (0.07 0.96 2.21) az -3.0 el -0.0, grip (0.16 0.96 0.46), hand-l (-0.73 1.03 0.35)
+  (:root :r -0.06 :f 0.06 :u -0.09 :yaw -14) (:pelvis :twist 10) (:spine :flex 10 :side 4) (:chest :twist 0) (:thigh-l :flex 22 :side 8) (:knee-l :flex 28) (:thigh-r :flex -10 :side 8) (:knee-r :flex 14) (:arm-l :flex 10 :side 66) (:elbow-l :flex 24) (:hand-l :flex -10)
+  (:arm-r :flex 26.6 :side 7.8 :twist 21.5) (:elbow-r :flex 67.9) (:hand-r :flex -83.7 :twist -15.3))
+(defpose :br-pj-shoulder (:base :lb-stance)   ; J3: flipped up onto the shoulder: muzzle (0.10 2.95 0.99) az -10.0 el 62.0, grip (0.24 1.40 0.18), hand-l (-0.37 1.05 0.28)
+  (:root :u -0.02) (:pelvis :twist 10) (:spine :flex -2) (:chest :twist -6) (:head :flex -4 :twist -6) (:arm-l :flex 10 :side 20) (:elbow-l :flex 60) (:hand-l :flex -20)
+  (:arm-r :flex 31.8 :side 16.0 :twist -11.2) (:elbow-r :flex 153.2) (:hand-r :flex -125.9 :twist -1.0))
+(defpose :br-pj-sway-r-k (:base :lb-stance)   ; J3 R kick: muzzle (0.11 1.29 2.11) az -4.0 el 8.0, grip (0.23 1.05 0.38), hand-l (-0.37 1.10 -0.39)
+  (:root :r 0.08 :f 0.02 :u -0.03 :yaw 14) (:pelvis :twist 10) (:spine :flex 4 :side -4) (:chest :twist 0) (:thigh-r :flex 18 :side 8) (:knee-r :flex 20) (:thigh-l :flex -10 :side 8) (:knee-l :flex 12) (:arm-l :flex -40 :side 46) (:elbow-l :flex 36) (:hand-l :flex -10)
+  (:arm-r :flex -2.6 :side 26.0 :twist 17.0) (:elbow-r :flex 103.3) (:hand-r :flex -95.6 :twist -40.1))
+(defpose :br-pj-sway-l-k (:base :lb-stance)   ; J3 L kick: muzzle (0.08 1.25 2.11) az -3.0 el 8.0, grip (0.17 1.01 0.38), hand-l (-0.78 1.13 0.25)
+  (:root :r -0.06 :f 0.02 :u -0.05 :yaw -14) (:pelvis :twist 10) (:spine :flex 6 :side 4) (:chest :twist 0) (:thigh-l :flex 20 :side 8) (:knee-l :flex 22) (:thigh-r :flex -8 :side 8) (:knee-r :flex 10) (:arm-l :flex 6 :side 72) (:elbow-l :flex 20) (:hand-l :flex -10)
+  (:arm-r :flex 18.2 :side 12.3 :twist 21.1) (:elbow-r :flex 74.9) (:hand-r :flex -77.8 :twist -17.9))
+(defpose :br-pk-brace (:base :lb-kamae-pose)   ; K1: braced at the waist, left foot forward: muzzle (0.02 1.01 2.05) az -3.0 el -0.1, grip (0.12 1.01 0.30), hand-l (0.07 0.89 0.62)
+  (:root :f 0.06 :u -0.27 :pitch 6) (:pelvis :twist 6) (:spine :flex 10) (:chest :twist -20) (:head :flex 4 :twist 16) (:thigh-l :flex 46 :side 22) (:knee-l :flex 60) (:thigh-r :flex -26 :side 24) (:knee-r :flex 40)
+  (:arm-r :flex 30.3 :side 0.2 :twist 49.7) (:elbow-r :flex 132.4) (:hand-r :flex -147.9 :twist -32.0) (:arm-l :flex 51.1 :side -56.6) (:elbow-l :flex 34.8))
+(defpose :br-pk-kick (:base :lb-kamae-pose)   ; its recoil, rocked back: muzzle (0.04 1.85 1.69) az -3.1 el 24.0, grip (0.13 1.14 0.09), hand-l (0.03 1.18 0.27)
+  (:root :f -0.16 :u -0.2 :pitch -8) (:pelvis :twist 6) (:spine :flex -6) (:chest :twist -14) (:head :flex -4 :twist 14) (:thigh-l :flex 36 :side 22) (:knee-l :flex 44) (:thigh-r :flex -16 :side 24) (:knee-r :flex 30)
+  (:arm-r :flex 33.4 :side 2.5 :twist 35.9) (:elbow-r :flex 98.6) (:hand-r :flex -122.9 :twist -22.6) (:arm-l :flex 51.2 :side -49.3) (:elbow-l :flex 29.6))
+(defpose :br-pk-brace2 (:base :lb-kamae-pose)   ; K2: the right foot forward, lower: muzzle (0.02 1.01 2.06) az -5.1 el 1.9, grip (0.18 0.95 0.32), hand-l (0.11 0.86 0.61)
+  (:root :f 0.1 :u -0.26 :pitch 10) (:pelvis :twist 20) (:spine :flex 14) (:chest :twist -26) (:head :flex 2 :twist 6) (:thigh-r :flex 36 :side 18) (:knee-r :flex 56) (:thigh-l :flex -20 :side 18) (:knee-l :flex 30)
+  (:arm-r :flex 6.2 :side 31.5 :twist 40.3) (:elbow-r :flex 145.1) (:hand-r :flex -117.1 :twist -42.3) (:arm-l :flex 38.5 :side -67.5) (:elbow-l :flex 32.1))
+(defpose :br-pk-kick2 (:base :lb-kamae-pose)   ; its recoil: muzzle (0.05 1.85 1.68) az -5.1 el 26.0, grip (0.19 1.08 0.11), hand-l (0.07 1.13 0.29)
+  (:root :f -0.12 :u -0.18 :pitch -6) (:pelvis :twist 20) (:spine :flex 0) (:chest :twist -20) (:head :flex -4 :twist 6) (:thigh-r :flex 28 :side 18) (:knee-r :flex 40) (:thigh-l :flex -12 :side 18) (:knee-l :flex 20)
+  (:arm-r :flex 12.3 :side 22.8 :twist 24.8) (:elbow-r :flex 120.5) (:hand-r :flex -111.4 :twist -27.9) (:arm-l :flex 40.5 :side -62.3) (:elbow-l :flex 28.7))
+(defpose :br-pk-blown (:base :lb-kamae-pose)   ; K3's finisher: blown back, Diagramm flung high: muzzle (0.07 2.42 1.33) az -3.2 el 40.2, grip (0.15 1.29 -0.01), hand-l (0.00 1.37 -0.02)
+  (:root :f -0.36 :u -0.1 :pitch -14) (:pelvis :twist 6) (:spine :flex -14) (:chest :twist -12) (:head :flex -8 :twist 10) (:thigh-l :flex 34 :side 14) (:knee-l :flex 20) (:thigh-r :flex -8 :side 16) (:knee-r :flex 30)
+  (:arm-r :flex 53.4 :side -11.2 :twist 41.7) (:elbow-r :flex 36.4) (:hand-r :flex -81.7 :twist -19.6) (:arm-l :flex 53.7 :side -44.8) (:elbow-l :flex 25.7))
+(defpose :br-pjl-wind (:base :lb-stance)   ; JL1: wound half round, Diagramm tucked: muzzle (1.66 1.07 -0.16) az 101.8 el 0.6, grip (-0.05 1.05 0.20), hand-l (-0.42 1.07 -0.33)
+  (:root :f -0.02 :u -0.1 :yaw 70) (:pelvis :twist 10) (:spine :flex 10) (:chest :twist 10) (:thigh-r :flex 10 :side 8) (:knee-r :flex 22) (:thigh-l :flex -4 :side 8) (:knee-l :flex 20) (:arm-l :flex 30 :side 30) (:elbow-l :flex 70) (:hand-l :flex -10)
+  (:arm-r :flex 14.6 :side -74.4 :twist -83.1) (:elbow-r :flex 127.4) (:hand-r :flex 19.7 :twist -88.8))
+(defpose :br-pjl-whip (:base :lb-stance)   ; JL1: whipped back at arm's length: muzzle (0.04 1.16 2.33) az -2.0 el 0.0, grip (0.10 1.16 0.58), hand-l (-0.65 1.29 -0.04)
+  (:root :f 0.1 :u -0.08 :yaw -16) (:pelvis :twist 4) (:spine :flex 8 :side -6) (:chest :twist 0) (:thigh-r :flex 30 :side 10) (:knee-r :flex 30) (:thigh-l :flex -18 :side 10) (:knee-l :flex 12) (:arm-l :flex -40 :side 70) (:elbow-l :flex 16) (:hand-l :flex -10)
+  (:arm-r :flex 56.5 :side -42.6 :twist 76.0) (:elbow-r :flex 38.4) (:hand-r :flex -105.6 :twist -22.9))
+(defpose :br-pjl-skip (:base :lb-stance)   ; its kick: skipped back: muzzle (0.09 1.74 2.08) az -2.0 el 16.1, grip (0.15 1.25 0.40), hand-l (-0.75 1.40 -0.25)
+  (:root :f -0.12 :u 0.06 :yaw -10) (:pelvis :twist 4) (:spine :flex -2 :side -4) (:chest :twist 0) (:thigh-r :flex 34 :side 10) (:knee-r :flex 50) (:thigh-l :flex -6 :side 10) (:knee-l :flex 30) (:arm-l :flex -30 :side 76) (:elbow-l :flex 20) (:hand-l :flex -10)
+  (:arm-r :flex 65.8 :side -34.7 :twist 63.4) (:elbow-r :flex -0.1) (:hand-r :flex -61.5 :twist -18.8))
+(defpose :br-pjl-hop (:base :lb-stance)   ; JL2: in the air, hopping back, arm's length: muzzle (0.08 1.30 2.12) az -3.1 el -5.6, grip (0.18 1.47 0.38), hand-l (-0.77 1.61 -0.25)
+  (:root :f -0.16 :u 0.3 :pitch -4) (:pelvis :twist 10) (:spine :flex 4) (:chest :twist -4) (:thigh-r :flex 46 :side 8) (:knee-r :flex 80) (:thigh-l :flex 20 :side 8) (:knee-l :flex 60) (:arm-l :flex -10 :side 80) (:elbow-l :flex 20) (:hand-l :flex -10)
+  (:arm-r :flex 68.8 :side 0.2 :twist 16.4) (:elbow-r :flex -0.1) (:hand-r :flex -75.8 :twist -7.0))
+(defpose :br-pjl-hop-kick (:base :lb-stance)   ; its kick: muzzle (0.10 1.98 1.95) az -3.1 el 14.3, grip (0.19 1.55 0.26), hand-l (-0.75 1.66 -0.52)
+  (:root :f -0.24 :u 0.32 :pitch -8) (:pelvis :twist 10) (:spine :flex -4) (:chest :twist -4) (:thigh-r :flex 40 :side 8) (:knee-r :flex 70) (:thigh-l :flex 16 :side 8) (:knee-l :flex 50) (:arm-l :flex -20 :side 86) (:elbow-l :flex 16) (:hand-l :flex -10)
+  (:arm-r :flex 63.6 :side 2.7 :twist 17.3) (:elbow-r :flex -0.1) (:hand-r :flex -63.2 :twist -11.1))
+(defpose :br-pkl-load (:base :lb-kamae-pose)   ; KL1: the knee raised, Diagramm drawn back: muzzle (0.08 1.33 1.87) az -3.1 el 6.1, grip (0.17 1.14 0.14), hand-l (0.09 1.15 0.39)
+  (:root :f -0.04 :u -0.02 :pitch -2) (:pelvis :twist 10) (:spine :flex 2) (:chest :twist -22) (:head :flex 4 :twist 18) (:thigh-l :flex 72 :side 10) (:knee-l :flex 84) (:thigh-r :flex -4 :side 8) (:knee-r :flex 10)
+  (:arm-r :flex 6.3 :side 19.0 :twist 41.9) (:elbow-r :flex 114.9) (:hand-r :flex -109.8 :twist -29.7) (:arm-l :flex 39.3 :side -41.4) (:elbow-l :flex 29.6))
+(defpose :br-pkl-shot (:base :lb-kamae-pose)   ; KL1: stamped down, deep and wide: muzzle (0.03 0.95 2.09) az -3.0 el -0.1, grip (0.12 0.95 0.34), hand-l (0.10 0.82 0.68)
+  (:root :f 0.12 :u -0.3 :pitch 8) (:pelvis :twist 4) (:spine :flex 12) (:chest :twist -22) (:head :flex 4 :twist 18) (:thigh-l :flex 48 :side 18) (:knee-l :flex 62) (:thigh-r :flex -28 :side 20) (:knee-r :flex 34)
+  (:arm-r :flex 27.4 :side 5.6 :twist 56.0) (:elbow-r :flex 134.9) (:hand-r :flex -140.4 :twist -38.3) (:arm-l :flex 51.2 :side -53.6) (:elbow-l :flex 36.3))
+(defpose :br-pkl-kick (:base :lb-kamae-pose)   ; its recoil, slid back: muzzle (0.05 2.05 1.54) az -3.1 el 32.1, grip (0.13 1.12 0.06), hand-l (0.02 1.20 0.18)
+  (:root :f -0.24 :u -0.22 :pitch -10) (:pelvis :twist 4) (:spine :flex -8) (:chest :twist -16) (:head :flex -6 :twist 16) (:thigh-l :flex 40 :side 18) (:knee-l :flex 40) (:thigh-r :flex -14 :side 20) (:knee-r :flex 28)
+  (:arm-r :flex 41.1 :side -5.0 :twist 42.7) (:elbow-r :flex 73.0) (:hand-r :flex -102.0 :twist -22.3) (:arm-l :flex 55.5 :side -41.4) (:elbow-l :flex 28.8))
+(defpose :br-pkl-kneel (:base :lb-kamae-pose)   ; KL2: down on the right knee, braced: muzzle (0.02 0.91 2.09) az -3.1 el -0.1, grip (0.11 0.91 0.34), hand-l (0.04 0.81 0.62)
+  (:root :f 0.04 :u -0.38 :pitch 6) (:pelvis :twist 8) (:spine :flex 8) (:chest :twist -22) (:head :flex 6 :twist 16) (:thigh-l :flex 82 :side 10) (:knee-l :flex 84) (:thigh-r :flex -4 :side 10) (:knee-r :flex 100)
+  (:arm-r :flex 36.8 :side -5.4 :twist 45.3) (:elbow-r :flex 119.8) (:hand-r :flex -144.8 :twist -23.9) (:arm-l :flex 55.6 :side -54.1) (:elbow-l :flex 33.5))
+(defpose :br-pkl-rock (:base :lb-kamae-pose)   ; its recoil, rocked back on the knee: muzzle (0.05 2.14 1.46) az -3.1 el 36.0, grip (0.13 1.11 0.04), hand-l (0.01 1.16 0.15)
+  (:root :f -0.18 :u -0.34 :pitch -16) (:pelvis :twist 8) (:spine :flex -12) (:chest :twist -14) (:head :flex -8 :twist 12) (:thigh-l :flex 70 :side 10) (:knee-l :flex 64) (:thigh-r :flex -14 :side 10) (:knee-r :flex 96)
+  (:arm-r :flex 46.4 :side -4.1 :twist 35.2) (:elbow-r :flex 78.9) (:hand-r :flex -119.4 :twist -18.0) (:arm-l :flex 54.4 :side -51.9) (:elbow-l :flex 28.2))
+;; L: GATHER, shouldered (keys: the hit poses' muzzle / az / el in the poses' comments)
+(defstrike :br-sk-l1 (8 10 14 :base :lb-kamae-pose)   ; squared up: f8, f16
+  (0) (5 :br-pl-aim (:root :u -0.03) (:head :flex 2))
+  (:s :br-pl-aim) (10 :snap :br-pl-kick) (14 :br-pl-aim)
+  (16 :br-pl-aim) (18 :snap :br-pl-kick)
+  (24 :br-pl-aim (:root :f -0.03 :u -0.04))
+  (:end :lb-stance))
+(defstrike :br-sk-l2 (8 10 14 :base :lb-kamae-pose)   ; turned side-on: f8, f16
+  (0 :br-pl-kick) (5 :br-pl-prof (:root :u -0.07))
+  (:s :br-pl-prof) (10 :snap :br-pl-prof-kick) (14 :br-pl-prof)
+  (16 :br-pl-prof) (18 :snap :br-pl-prof-kick)
+  (24 :br-pl-prof (:root :f 0))
+  (:end :lb-stance))
+(defstrike :br-sk-l3 (8 14 18 :base :lb-kamae-pose)   ; a step in, three (f8, f14, f20), Diagramm swung up: loaded
+  (0 :br-pl-prof-kick) (5 :br-pl-aim (:root :f 0.12 :u -0.07))
+  (:s :br-pl-aim (:root :f 0.12)) (10 :snap :br-pl-kick (:root :f 0.06))
+  (14 :br-pl-aim (:root :f 0.12)) (16 :snap :br-pl-kick (:root :f 0.06))
+  (20 :br-pl-aim (:root :f 0.12)) (22 :snap :br-pl-kick (:root :f 0.05))
+  (28 :br-pl-load (:root :f 0.06)) (33 :br-pl-load (:root :f 0.04) (:head :flex -12))
+  (:end :lb-stance))
+;; J: REFILL, one hand from the hip, a kick every shot, back on the line 2 f later
+(defstrike :br-sk-j1 (8 8 12 :base :lb-kamae-pose)    ; stepped in: f8, f11, f14
+  (0) (4 :br-pj-hip (:root :u -0.1))
+  (:s :br-pj-hip) (9 :snap :br-pj-kick) (11 :snap :br-pj-hip) (12 :snap :br-pj-kick) (14 :snap :br-pj-hip)
+  (15 :snap :br-pj-kick)
+  (20 :br-pj-hip (:root :f 0.04 :u -0.04))
+  (:end :lb-stance))
+(defstrike :br-sk-j2 (8 8 12 :base :lb-kamae-pose)    ; hopped to his left, low: f8, f11, f14
+  (0 :br-pj-kick) (3 :br-pj-hop (:root :r -0.08 :u 0.04)) (6 :br-pj-hop (:root :u -0.17))
+  (:s :br-pj-hop) (9 :snap :br-pj-hop-kick) (11 :snap :br-pj-hop) (12 :snap :br-pj-hop-kick) (14 :snap :br-pj-hop)
+  (15 :snap :br-pj-hop-kick)
+  (20 :br-pj-hop (:root :r -0.08 :u -0.08))
+  (:end :lb-stance))
+(defstrike :br-sk-j3 (8 11 14 :base :lb-kamae-pose)   ; swaying: f8, f11 right shoulder forward, f14, f17 left; flipped up
+  (0 :br-pj-hop-kick) (5 :br-pj-sway-r (:root :u -0.04))
+  (:s :br-pj-sway-r) (9 :snap :br-pj-sway-r-k) (11 :snap :br-pj-sway-r) (12 :snap :br-pj-sway-r-k)
+  (14 :snap :br-pj-sway-l) (15 :snap :br-pj-sway-l-k) (17 :snap :br-pj-sway-l) (18 :snap :br-pj-sway-l-k)
+  (24 :br-pj-shoulder) (28 :br-pj-shoulder (:head :flex -8))
+  (:end :lb-stance))
+;; K: HEAVY, two hands at the waist, braced; each shot rocks him back, he leans back in for the next
+(defstrike :br-sk-k1 (12 12 18 :base :lb-kamae-pose)  ; left foot forward: f12, f22
+  (0) (5 :br-pk-brace (:root :f 0 :u -0.2)) (10 :br-pk-brace (:root :u -0.29))
+  (:s :br-pk-brace) (14 :snap :br-pk-kick) (19 :br-pk-brace (:root :f 0.1 :u -0.29))
+  (22 :br-pk-brace) (24 :snap :br-pk-kick)
+  (32 :br-pk-brace (:root :f -0.06 :u -0.2))
+  (:end :lb-stance))
+(defstrike :br-sk-k2 (12 12 18 :base :lb-kamae-pose)  ; switched to the right foot, lower: f12, f22
+  (0 :br-pk-kick) (6 :br-pk-brace2 (:root :f 0 :u -0.18)) (10 :br-pk-brace2 (:root :u -0.28))
+  (:s :br-pk-brace2) (14 :snap :br-pk-kick2) (19 :br-pk-brace2 (:root :f 0.14 :u -0.28))
+  (22 :br-pk-brace2) (24 :snap :br-pk-kick2)
+  (32 :br-pk-brace2 (:root :f -0.04 :u -0.18))
+  (:end :lb-stance))
+(defstrike :br-sk-k3 (12 18 22 :base :lb-kamae-pose)  ; three (f12, f20, f28), the last blowing him back, Diagramm flung high
+  (0 :br-pk-kick2) (6 :br-pk-brace (:root :u -0.2)) (10 :br-pk-brace (:root :u -0.29))
+  (:s :br-pk-brace) (14 :snap :br-pk-kick) (18 :br-pk-brace (:root :f 0.1))
+  (20 :br-pk-brace) (22 :snap :br-pk-kick) (26 :br-pk-brace (:root :f 0.12 :u -0.33))
+  (28 :br-pk-brace (:root :f 0.08 :u -0.31)) (31 :snap :br-pk-blown)
+  (38 :br-pk-blown (:root :f -0.4 :u -0.14)) (44 :br-pk-brace (:root :f -0.2 :u -0.18))
+  (:end :lb-stance))
+;; the J route's L L: one hand, light (one line each)
+(defstrike :br-sk-jl1 (8 2 14 :base :lb-kamae-pose)   ; wound half round, whipped back at arm's length (f8), skipped back
+  (0 :br-pj-sway-l-k) (4 :br-pjl-wind)
+  (:s :snap :br-pjl-whip) (10 :snap :br-pjl-skip)
+  (15 :br-pjl-skip (:root :f -0.1 :u -0.06) (:knee-r :flex 30) (:thigh-r :flex 20))
+  (19 :br-pj-hip (:root :f -0.06))
+  (:end :lb-stance))
+(defstrike :br-sk-jl2 (8 2 16 :base :lb-kamae-pose)   ; crouched, a hop back, fired from the air (f8), landed
+  (0 :br-pjl-skip) (3 :br-pj-hip (:root :f -0.04 :u -0.2) (:thighs :flex 34) (:knees :flex 52))
+  (:s :snap :br-pjl-hop) (10 :snap :br-pjl-hop-kick)
+  (15 :br-pj-hip (:root :f -0.24 :u -0.18) (:thighs :flex 32) (:knees :flex 48))
+  (20 :br-pj-hip (:root :f -0.12 :u -0.06))
+  (:end :lb-stance))
+;; the K route's L L: two hands, heavy (one line each)
+(defstrike :br-sk-kl1 (10 2 16 :base :lb-kamae-pose)  ; the knee raised, stamped down into the shot (f10), slid back
+  (0 :br-pk-kick) (5 :br-pkl-load) (8 :br-pkl-shot (:root :f 0.08 :u -0.24))
+  (:s :br-pkl-shot) (12 :snap :br-pkl-kick)
+  (20 :br-pkl-kick (:root :f -0.3 :u -0.18))
+  (:end :lb-stance))
+(defstrike :br-sk-kl2 (10 2 20 :base :lb-kamae-pose)  ; down on the right knee (f10), rocked back on it, risen
+  (0 :br-pkl-kick) (6 :br-pkl-kneel (:root :u -0.32))
+  (:s :br-pkl-kneel) (12 :snap :br-pkl-rock)
+  (20 :br-pkl-rock (:root :f -0.22))
+  (25 :br-pk-brace (:root :f -0.12 :u -0.2))
+  (:end :lb-stance))
 ;;; ---------------------------------------------------------------- the draw hook
 (defparameter *br-aim-stance* '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
   "The base stance's moves: the aim line tracks while one runs ...")
@@ -704,13 +896,14 @@ wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-
 step full: k 0-4 the owl (kept without a burst) with 0 / 2 / 4 / 6 / 8 wings, the volley started (its string by the
 count: 空收 / 二連 / 四連 / 裁き / 裁き・極); 8 / 9 JILLIEL's turn into the stance / its stance's K K -> L L line (KL1); 10 / 11
 the owl's; 12 the owl's SP2 on its own (the volley's wind-up); 13 the base stance's SP2 HIRENKYAKU; 14 JILLIEL's SANREN;
-15 / 16 / 17 the base stance's L1 / J1 / K1 (3 m out); 18 / 19 JILLIEL's stance L1 / K1 (3 m out)."
+15 / 16 / 17 the base stance's L1 / J1 / K1 (3 m out); 18 / 19 JILLIEL's stance L1 / K1 (3 m out); 40-49 the base stance's
+L2 L3 J2 J3 K2 K3 JL1 JL2 KL1 KL2 (3 m out, started on their own; + 20 the front view)."
   (let* ((front (oddp (floor k 20))) (k (if front (- k 20) k)) (owl (or (<= 0 k 4) (<= 10 k 13))))
     (if front (ensure-battle :kenpachi :barro) (ensure-battle :barro :kenpachi))
     (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
       (setf *br-keep-owl* owl)
-      (force-form b (cond ((<= 15 k 17) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
-      (place *p1* *p2* (if (<= 15 k 19) 3.0 4.0))
+      (force-form b (cond ((or (<= 15 k 17) (<= 40 k 49)) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
+      (place *p1* *p2* (if (or (<= 15 k 19) (<= 40 k 49)) 3.0 4.0))
       (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
             (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))   ; (no K.O. across a script's scenes)
       (case k
@@ -722,7 +915,10 @@ the owl's; 12 the owl's SP2 on its own (the volley's wind-up); 13 the base stanc
         (13 (force-form b :base) (start-move b (find-move :br-k-hiren)))
         (14 (start-move b (find-move :br-w-sanren)))
         (15 (start-move b (find-move :br-s-l1))) (16 (start-move b (find-move :br-s-j1))) (17 (start-move b (find-move :br-s-k1)))
-        (18 (start-move b (find-move :br-e-l1))) (19 (start-move b (find-move :br-e-k1))))
+        (18 (start-move b (find-move :br-e-l1))) (19 (start-move b (find-move :br-e-k1)))
+        ((40 41 42 43 44 45 46 47 48 49)
+         (start-move b (find-move (nth (- k 40) '(:br-s-l2 :br-s-l3 :br-s-j2 :br-s-j3 :br-s-k2 :br-s-k3 :br-s-jl1 :br-s-jl2
+                                                  :br-s-kl1 :br-s-kl2))))))
       (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
 
 (defun br-art-cine (f)
