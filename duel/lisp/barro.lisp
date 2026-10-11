@@ -79,11 +79,13 @@ R1: 「消耗四片翼」). The base's pips carry in at the awakening (3 pips ->
 (defparameter *br-s-l-gain* '(0 0 1)
   "... the special each of its three segments gives on a hit or a block (L3 +1: a full string +1; it was +1 / +2 = +3,
 R3 「下降至少 50%」, 2026-10-11 [G]).")
-(defparameter *br-s-k-dmg* 28 "Stance K 高攻: K1 / K2's one hit (R7: 2 x 14 -> 28; R3, 45 a shot before) ...")
-(defparameter *br-s-k3-dmg* 42 "... K3's (R7: 3 x 14 -> 42; a string 98 as before) ...")
-(defparameter *br-s-kl-dmg* 45
+(defparameter *br-s-k-dmg* 36
+  "Stance K 高攻: K1 / K2's one hit (R7: 2 x 14 -> 28; R3, 45 a shot before; 28 -> 36, R13, the user 2026-10-11: 「降低普通 K
+的傷害，並提高架式 K > L 的重斬與砲擊傷害」) ...")
+(defparameter *br-s-k3-dmg* 54 "... K3's (R7: 3 x 14 -> 42; a string 98 as before; 42 -> 54, R13: a string 126) ...")
+(defparameter *br-s-kl-dmg* 56
   "... its L L follow-up (R3: K K -> L L, 「兩者都花資源」): each line's damage, one special spent a line (a 萬物貫通 line, 31 m;
-none left: no follow-up). The K K -> J J follow-up's 15 + 30 before (new 2026-10-11 [G]).")
+none left: no follow-up). The K K -> J J follow-up's 15 + 30 before (new 2026-10-11 [G]; 45 -> 56, R13: three 168).")
 (defparameter *br-s-j-dmg* 15 "Stance J 回復: each segment's one hit (R7: 3 x 5 -> 15, J3's too; R3, 15 a shot before) ...")
 (defparameter *br-s-j-fs* 3.0
   "... each segment's hit gives this much flash step (a string 9; it was 10 a segment, 20 a string: R3 「下降至少 50%」) ...")
@@ -146,7 +148,9 @@ keep the damage and the block advantage but not the speed (route :JN, decision R
 回到標準速度」).")
 (defparameter *br-k-slow* 2 "Decision V8, the K route: a K's startup and recovery each this many frames longer ...")
 (defparameter *br-k-link-slow* 1 "... but a K link's effective startup only this many longer, 14 -> 15 ...")
-(defparameter *br-k-mult* 1.20 "... its damage x this, rounded ...")
+(defparameter *br-k-mult* 1.00
+  "... its damage x this, rounded (1.20 -> 1.00, R13, the user 2026-10-11: 「降低普通 K 的傷害」: every form's attack-state K
+string, the base's, KIN's and the owl's) ...")
 (defparameter *br-k-adv* -4 "... and its block advantage this many frames lower (decision V8).")
 
 ;; JILLIEL
@@ -844,6 +848,7 @@ the stance, KIN's plain Step (R12: 「只能像常態架槍一樣通過一次 st
           (multiple-value-bind (dx dz) (world-dir e f to sd)
             (set-slide e *br-kamae-dash* *br-kamae-dash-f* dx dz))))
       (pace e :en-dash)
+      (let ((p (pos-of e))) (emit :hoho-out e (aref p 0) (aref p 2)))   ; (R13: the base stance Step's flash-step vanish)
       (emit :sfx :whoosh-light e))))
 
 (defun barro-armor (e f mv)
@@ -1206,11 +1211,22 @@ hit), each drawn by barro-art.lisp's BR-CUT-LOOK for *BR-W-CUT-LIFE* frames from
                          :hook 'br-hz :data (make-lbh :kind kind :len (f32 len) :width (f32 width) :lock lock) :look 'lb-look))
 
 ;;; ---------------------------------------------------------------- the awakened stance, the routes, the volley
+(defparameter *br-to-dash-held* 10
+  "L into the stance (:br-to-en) still held this many frames on the turn's f11 (R13, the user 2026-10-11: 「我希望非架式時短按 L
+就切入架式、長按 L 就直接進入衝刺斬的續力」): no stand in the stance, the L dash's charge at once, its frames held so far
+counted (BR-GO-RANGED; [G]).")
 (defun br-go-ranged (e)
-  "The turn's last frame: the stance EN (its standing clock from 0, R12)."
-  (let* ((form (fighter-form (fighter e))) (to (br-ranged-of form)))
+  "The turn's last frame: the stance EN (its standing clock from 0, R12); L still held *BR-TO-DASH-HELD* frames or more (a
+long press, R13): the stance's L, the dash, in its charge at once, the frames held so far its charge's (FIGHTER-HOLD, at
+most its *BR-W-L-HOLD*)."
+  (let* ((f (fighter e)) (form (fighter-form f)) (to (br-ranged-of form)) (vp (pilot-vpad (pilot e))))
     (setf (brs-en-t (br e)) 0)
-    (unless (eq to form) (set-form e to) (pace e :to-ranged))))
+    (unless (eq to form) (set-form e to) (pace e :to-ranged))
+    (let ((held (vpad-held vp :sig)) (dash (kit-command-move (fighter-kit f) :sig)))
+      (when (and (>= held *br-to-dash-held*) dash (mv-hold dash) (br-ranged-form-p (fighter-form f)))
+        (start-move e dash :sig)
+        (setf (fighter-hold f) (min held (1- *br-w-l-hold*)))
+        (pace e :to-dash)))))
 (defun br-halt-tick (e) "The turn, the volley: no string chase." (halt! e))
 (defun br-recall-go (e)
   "The owl's SP2, f0: every wing spent and counted (the full volley, decision R3: 「併入梟頭的 SP2」, the one spend-all of

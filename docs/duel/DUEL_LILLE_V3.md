@@ -891,3 +891,26 @@ knob retuned. Mirror awaken A/B (BB, 39020, 60 seeds, seed0 100 / 300 / 500): **
 the 10-seed rows (BR 2, BI 2, BS 1 of 10; BY 22 / BK 13 of 60): the rooted 30 f EN its CPU doesn't plan for (its bands still
 walk and run there); no gate counts wins, reported to the user.
 
+## 18. Decision R13 (2026-10-11): the stance Step's vanish, L held into the dash, K's damage moved into the stance
+
+The user (verbatim):
+
+> 1. 我希望（覺醒）架式 step 時有跟（常態）架槍 step 一樣的閃身特效。
+> 2. 我希望非架式時短按 L 就切入架式、長按 L 就直接進入衝刺斬的續力。
+> 還有降低普通 K 的傷害，並提高架式 K > L 的重斬與砲擊傷害。
+
+**1 (a presentation event).** The stance EN's fast Step (`BARRO-STEP`) emits `:hoho-out` at his feet, as the base stance's
+飛廉脚 (`BR-KAMAE-DASH`): the flash-step vanish (`VFX-HOHO`, the afterimage, its sound). No iframes added (the generic Step's).
+
+**2.** In KIN (JILLIEL's or the owl's), L starts the turn into the stance (`:br-to-en`, 12 f, EN at f11) as before; on its
+f11 `BR-GO-RANGED` reads L: still held `*br-to-dash-held*` 10 frames or more (`VPAD-HELD`) → the stance's L, the dash, starts
+in its charge at once (`START-MOVE` with the button, `FIGHTER-HOLD` = the frames held so far, at most 59: the levels count
+from the press), else the stance as before. Browser: a tap → EN; held 30 f → the dash at level 2 (+2 specials, 4 hits); held
+50 f → level 3 (6 hits).
+
+**3, the damage.** 「普通 K」 = every form's attack-state K string (the base's, KIN's, the owl's): `*br-k-mult*` 1.20 → 1.00
+(base 58 / 58 / 84 → 48 / 48 / 70, KIN 60 / 60 / 86 → 50 / 50 / 72, the owl 65 / 65 / 94 → 54 / 54 / 78, before the form's ×).
+「架式 K > L 的重斬與砲擊」 = the stance's K string (the great sword awakened) and its L L follow-up (the blasts / lines):
+`*br-s-k-dmg*` 28 → 36, `*br-s-k3-dmg*` 42 → 54 (a string 98 → 126), `*br-s-kl-dmg*` 45 → 56 (three 135 → 168). Host tests
+8257 ALL PASS, pkgcheck 0, build 0 warnings. Playtest v70.
+

@@ -1615,7 +1615,7 @@ no shared file. The art agent's `:br-rc4` / `:br-o-rc4` clips and the L swing's 
 | `*br-j-speed*` / `*br-j-min-s*` / `*br-j-min-r*` | 2 / 4 / 6 | a J's startup and recovery − 2, floors 4 / 6 (none reached) |
 | `*br-j-mult*` / `*br-j-adv*` | 0.85 / + 2 | damage × 0.85 rounded; block advantage + 2 |
 | `*br-k-slow*` / `*br-k-link-slow*` | 2 / 1 | a K's startup and recovery + 2; a K link's effective startup only + 1 (14 → 15) [G] |
-| `*br-k-mult*` / `*br-k-adv*` | 1.20 / − 4 | damage × 1.2 rounded; block advantage − 4 |
+| `*br-k-mult*` / `*br-k-adv*` | 1.20 / − 4 (1.00 since DUEL_LILLE_V3 §18, 2026-10-11) | damage × 1.2 rounded; block advantage − 4 |
 | `*br-snipe-close*` / `*br-snipe-close-n*` | 3.0 / 2 | the stance's L: a hit within 3 m fills 2 pips, farther 1 (cap 3) |
 | `*br-swing-dmg*` | 16 | the ranged L swing (S 7, A 3, R 12, 1.8 m, arc 110, flinch; the owl's R 11) — **reverted (V8b)**: removed |
 | `*br-lay-l*` | 3.0 | now the swing's price, paid only on its hit — **reverted (V8b)**: the lay's price again, refused short |
