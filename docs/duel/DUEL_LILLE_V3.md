@@ -739,3 +739,21 @@ G2 (`tests/style-gates.py cvc`: YY, YK, KK identical to the references): pass �
 116.9. 60 seeds: **BI 138.7 s** (his wins 26 / 60) pass; **BY 110.5 s** (31 / 60) and **BK 109.1 s** (17 / 60) outside
 125–210: §12.1's open exception, waiting on the user's playtest (「先試玩再決定」). Mirror awaken A/B (BB, 39020, 60 seeds,
 seed0 100 / 300 / 500): 54 / 58 / 60: pass.
+
+## 15. Decision R10 (2026-10-11): the playtest of v65 — the whips, K3's turn, the charged L
+
+The user (verbatim, on v65):
+
+> 我測試過，J 陀螺完之後還是射擊不是長鞭呀？
+> 我沒感覺到 K3 有側身旋轉後下匹？K1 右翼往左揮後 K2 會將已停在左側的右翼上臺後往右下批砍，K3 會順著劈砍的力道讓身體像右側傾斜並旋轉、帶著旋轉的力量將右翼太到正上方後全力下劈。
+> L 衝刺改成只能衝一次不能連接，但可以三階段續力，隨著續力階段增加衝刺距離與交叉斬痕（增加傷害）並提昇特殊資源回收量。
+
+| Rule (awakened) | Before (R9) | Now (R10) |
+|---|---|---|
+| J → L L (JL1–JL3) | the whip clips, but the 萬物貫通 line drawn (it read as a shot) | **no line**: the whip itself lashes out along his line to the opponent's distance (a look; the hit still the 31 m line) |
+| K3 | the pelvis turned (hardly visible) | **the body tilted to its right and turned a full round** (root roll + yaw) by K2's momentum, the right wing carried straight overhead, the full-power split |
+| L | L1 → L2 → L3 dashes | **one dash, held to charge** (`:hold (0 60)`): level 1 / 2 / 3 at < 20 / 20 / 40 f (`*br-w-l-levels*`); by level the dash's longest 6 / 8 / 10 m (`*br-w-l-dash-max*`), damage 16 / 32 / 48 (`*br-w-l-bonus*` +0 / 16 / 32), the specials 1 / 2 / 3 (`*br-w-l-gain*`), more crossing cuts; no L link |
+
+The base stance's L string is unchanged. Host tests 8233, ALL PASS (the levels, the knobs, no L link in the awakened
+forms); the art in progress (a subagent's batch).
+
