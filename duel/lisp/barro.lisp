@@ -320,10 +320,8 @@ volume radius, metres; its reach each hit's drawn tip (*BR-W-TIPS*; new 2026-10-
   "The awakened stances' melee openers (R4): each hit's push, metres (the shots' 0.3 pushed him out of a 1.4-2.2 m reach within
 a string: L1 + L2 1.3 -> 2.3 m in the browser; new 2026-10-11 [G]).")
 (defparameter *br-w-tips*
-  '(("BR-E" ("L1" 1.85) ("L2" 1.85) ("L3" 1.85) ("J1" 2.85) ("J2" 2.85)
-     ("J3" 2.65) ("K1" 2.95) ("K2" 1.35) ("K3" 1.2))
-    ("BR-OE" ("L1" 1.7) ("L2" 1.7) ("L3" 1.7) ("J1" 2.8) ("J2" 2.8)
-     ("J3" 2.55) ("K1" 2.85) ("K2" 1.35) ("K3" 1.15)))
+  '(("BR-E" ("J1" 1.85) ("J2" 1.85) ("J3" 1.85) ("K1" 2.95) ("K2" 2.6) ("K3" 2.6))
+    ("BR-OE" ("J1" 1.7) ("J2" 1.7) ("J3" 1.7) ("K1" 2.85) ("K2" 2.5) ("K3" 2.5)))
   "The awakened stances' melee openers (decision R4): each hit's reach, metres (its volume's edge), = the striking wing tip's
 / claw's distance ahead on that hit frame in its clip (barro-art.lisp :br-en-* / :br-oen-*, the host FK test: drawn reach =
 hit reach, +-0.15 m). By the move prefix, then the segment. R5 (the user 2026-10-11: the motion modules, the reach
@@ -338,10 +336,18 @@ facing axis.")
   "A whiffed stance L segment recovers R + this (decision R5, the user 2026-10-11: 「架式 > L 只要沒打中就進入硬直」, 「就跟一般的
 J / K 普攻一樣」: a J link's *WHIFF-EXTRA-J*; the :sig moves' *WHIFF-EXTRA* 6 before).")
 (defparameter *br-w-segs*
-  '(("J3" 14 14) ("K1" 16 18))
+  '(("K1" 16 18) ("K3" 18 22))
   "The awakened stances' melee openers timed apart from *BR-S-SEGS*: name, startup, recovery (decision R6, the user
-2026-10-11: 「大砍刀的動作要更緩慢沉重、扭轉身體、砍刀後拉，每次只用一隻光翼揮砍」; one hit a press since R7): J3 the cleaver
-(startup 8 -> 14), K1 the great-sword chop (12 -> 16) ([G]).")
+2026-10-11: 「大砍刀的動作要更緩慢沉重」; one hit a press since R7; R9: the great sword is K's whole string, J3 back to 8): K1 the
+charged slash (startup 12 -> 16), K3 the turn and the overhead split (12 -> 18) ([G]).")
+(defparameter *br-w-dash-f* 8
+  "The awakened stance's L (decision R9, the user 2026-10-11: 「八翼往後收、身體前傾高速衝向對手，如果有碰到對手就穿過對方並造
+成連續斬擊」): the dash's frames from S (its hit window the same frames + 2) ...")
+(defparameter *br-w-dash-past* 1.6 "... it ends this far past him (m) ...")
+(defparameter *br-w-dash-min* 2.0 "... at least this long (m) ...")
+(defparameter *br-w-dash-max* 6.0 "... at most this long (m: farther, it stops short) ...")
+(defparameter *br-w-dash-reach* 0.9 "... its hit volume: from him to this far ahead ...")
+(defparameter *br-w-dash-r* 0.7 "... this wide (m: his body, the folded wings; the drawn reach is the dash) ([G]).")
 (defparameter *br-w-l-slow* 1.5
   "The awakened stance's L segments: startup and hit spacing x this (decision R4, the user 2026-10-11: 「架式 L 的動作太快了」,
 「出手和間隔都放慢」: startup 8 -> 12, L1 / L2 every 8 -> 12 f, L3 every 6 -> 9 f; [G]).")
@@ -385,13 +391,16 @@ way (R6)."
                       (st (round (* st0 slow))) (offs (mapcar (lambda (o) (round (* o slow))) offs0))
                       (far (getf extra :spend))
                       (cut (and melee (not far)))
-                      (r (max 4 (- r0 adv))) (a (+ 2 (car (last offs))))
+                      (dash (and cut (eq role :l)))   ; (R9: the awakened L a dash through him)
+                      (r (max 4 (- r0 adv))) (a (if dash (+ 2 *br-w-dash-f*) (+ 2 (car (last offs)))))
+                      (mid (if dash :stagger mid)) (last (if dash :stagger last))   ; (the dash's hit lands late: a stagger links)
                       (n (length offs)))
                  `(defmove ,name :kind ,kind :clip ,(first clip) :clip-s ,(second clip)
                     :startup ,st :active ,a :recovery ,r
                     ,@(when (eq role :l) `(:whiff ,(+ r *br-s-l-whiff*)))   ; (R5: a whiffed L recovers as a J link)
                     :dmg ,dmg :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track 720.0   ; (>= 1 f of blockstun)
-                    :vol ,(cond (cut `(:cap 0.4 ,(- (reduce #'max (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
+                    :vol ,(cond (dash `(:cap 0.0 ,*br-w-dash-reach* 1.2 ,*br-w-dash-r*))
+                                (cut `(:cap 0.4 ,(- (reduce #'max (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
                                                                                 :test #'string=)))
                                                     *br-w-near-r*)
                                               1.2 ,*br-w-near-r*))
@@ -399,16 +408,18 @@ way (R6)."
                                 (t '(:cap 0.6 *br-s-near* 1.2 0.25)))
                     :on-hit ,last :kb ,(if cut *br-w-kb* 0.3)
                     ,@(cond (far '(:chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable)))
+                            (dash '(:flags (:through)))
                             (cut nil)
                             (t '(:flags (:ranged))))
                     :hits ,(loop for o in offs for i from 1
-                                 for tip in (if cut (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
+                                 for tip in (if (and cut (not dash)) (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
                                                                 :test #'string=))
                                                 (make-list n))
-                                 collect `(,(+ st o) ,(+ st o 2) :on-hit ,(if (= i n) last mid)
-                                           ,@(when cut `(:vol (:cap 0.4 ,(- tip *br-w-near-r*) 1.2 ,*br-w-near-r*)))))
+                                 collect `(,(+ st o) ,(+ st o (if dash (+ 2 *br-w-dash-f*) 2)) :on-hit ,(if (= i n) last mid)
+                                           ,@(when (and cut (not dash)) `(:vol (:cap 0.4 ,(- tip *br-w-near-r*) 1.2 ,*br-w-near-r*)))))
                     :tick br-s-tick
                     :on-frame ((0 ,(if far 'br-s-spend 'br-s-start))
+                               ,@(when dash `((,st br-w-dash)))
                                ,@(unless cut (loop for o in offs collect `(,(+ st o) br-shot-fire))))
                     :params (:stance ,role :len ,(cond (far '*br-x-len*) (cut 2.0) (t '*br-s-near*)) ,@extra)))))))
 (defun br-stance-strings (prefix sp2)
@@ -672,12 +683,12 @@ awakened form inherits these).")
 (defkit :barro :jilliel :inherit :jilliel-kin
   :form-name "JILLIEL" :walk *br-walk-en* :run *br-run-en* :body :lille-jilliel
   :commands (:q :br-e-j1 :f :br-e-k1 :sig :br-e-l1)
-  :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)            ; (R5: the whips 2.8, the top 1.85, the K beating 1.2-2.0 m)
-       :ranges (:approach (2.6 8.0) :pressure (1.0 2.6) :zone (3.5 8.0) :defend (5.0 9.0))
-       :moves ((0.0 1.4 :f 4 :sig 2 :q 2 :step 1)
-               (1.4 1.9 :sig 3 :q 3 :f 1)
-               (1.9 2.8 :q 4 :step 1)
-               (2.8 99.0 :sp1 1 :step 2 nil 3))
+  :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)            ; (R9: J the top 1.85, K the great sword 2.6-2.95, L the dash)
+       :ranges (:approach (2.8 8.0) :pressure (1.0 2.8) :zone (3.5 8.0) :defend (5.0 9.0))
+       :moves ((0.0 1.8 :q 4 :f 2 :step 1)
+               (1.8 2.8 :f 4 :q 1)
+               (2.8 5.5 :sig 3 :step 1)
+               (5.5 99.0 :sp1 1 :step 2 nil 3))
        :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 8.5
        :burst (:p 0.5 :wings 5 :in 6.0) :reflex br-ai-reflex
        :stance (:follow 0.6 :sp2-at 4 :sp2 0.8)))
@@ -702,11 +713,11 @@ awakened form inherits these).")
   :lift *br-owl-lift* :form-name "SHIN" :walk *br-walk-en* :run *br-run-en* :stance :lb-oe-stance
   :commands (:q :br-oe-j1 :f :br-oe-k1 :sig :br-oe-l1)
   :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (2.6 8.0) :pressure (1.0 2.6) :zone (3.5 8.0) :defend (5.0 9.0))   ; (R5: arm whips 2.75, spin 1.7, K 1.15-1.75 m)
-       :moves ((0.0 1.4 :f 4 :sig 1 :q 2 :step 1)
-               (1.4 1.75 :sig 2 :q 3 :f 1)
-               (1.75 2.75 :q 4 :step 1)
-               (2.75 99.0 :sp1 1 :step 2 nil 3))
+       :ranges (:approach (2.7 8.0) :pressure (1.0 2.7) :zone (3.5 8.0) :defend (5.0 9.0))   ; (R9: J the claw top 1.7, K 2.5-2.85, L the dash)
+       :moves ((0.0 1.7 :q 4 :f 2 :step 1)
+               (1.7 2.7 :f 4 :q 1)
+               (2.7 5.5 :sig 3 :step 1)
+               (5.5 99.0 :sp1 1 :step 2 nil 3))
        :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 9.0 :reflex br-ai-reflex
        :stance (:follow 0.7 :sp2-at 3 :sp2 0.9)))
 
@@ -1003,6 +1014,16 @@ His CPU makes one call there (BR-S-CPU-CALL)."
                          ((or (not (getf (mv-params next) :spend)) (br-follow-ok-p (brs-ammo st)))
                           (start-move e next) (pace e :l-chain))
                          (t (pace e :follow-empty)))))))))))
+
+(defun br-w-dash (e)
+  "The awakened L's S (decision R9): facing him, a dash *BR-W-DASH-PAST* m past him (clamped *BR-W-DASH-MIN* ..
+*BR-W-DASH-MAX*) over *BR-W-DASH-F* frames; the move is :through (no body push: he passes through)."
+  (let* ((f (fighter e))
+         (d (max *br-w-dash-min* (min *br-w-dash-max* (+ (fighter-dist f) *br-w-dash-past*)))))
+    (turn-to-opp e f 360.0)
+    (let ((yaw (yaw-of e))) (set-slide e d *br-w-dash-f* (fwd-x yaw) (fwd-z yaw)))
+    (pace e :w-dash)
+    (emit :sfx :whoosh-heavy e)))
 
 (defun br-stance-arm (e)
   "The awakened stance's entry: its first hit armed (the slow motion), its fast Step unspent (BARRO-STEP, decision R3)."

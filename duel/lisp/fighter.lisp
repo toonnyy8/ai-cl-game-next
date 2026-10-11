@@ -882,9 +882,14 @@ still :parry); never in a reaction (a bind, a Guard Break, a crush reel: no armo
       (when (> d r) (setf (aref p 0) (* x (/ r d)) (aref p 2) (* z (/ r d)))))
     nil))
 
+(defun through-move-p (e)
+  "Is fighter E in a move flagged :through (a dash that passes through the opponent: no body push while it runs)?"
+  (let ((f (fighter e))) (and (eq (fighter-state f) :move) (fighter-move f) (member :through (mv-flags (fighter-move f))) t)))
+
 (defun separate-fighters (a b)
-  "Two grounded, visible fighters never overlap: push both apart equally (symmetric)."
-  (unless (or (member (state-of a) '(:hoho :cine)) (member (state-of b) '(:hoho :cine)))
+  "Two grounded, visible fighters never overlap: push both apart equally (symmetric); not while either is in a Hoho, a
+cinematic or a :through move."
+  (unless (or (member (state-of a) '(:hoho :cine)) (member (state-of b) '(:hoho :cine)) (through-move-p a) (through-move-p b))
     (let* ((p (pos-of a)) (q (pos-of b)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2)))
            (d (hypot dx dz))
            (min-d (+ (body-hurt-r (model-body (model a))) (body-hurt-r (model-body (model b))))))
