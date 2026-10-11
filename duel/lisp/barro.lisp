@@ -37,7 +37,20 @@ the user (as metres).")
 (defparameter *br-aim-track* 60.0 "Degrees / s he turns in the base stance (copied 2026-10-09).")
 (defparameter *br-kamae-up* 6 "The base stance's frame where it is up: its strings start from here (copied 2026-10-09).")
 (defparameter *br-kamae-tap* 30 "Frames the base stance holds past its f6 on a tap of L (copied 2026-10-09) ...")
-(defparameter *br-kamae-max* 90 "... and at most while L is held; then R 14 (copied 2026-10-09).")
+(defparameter *br-kamae-max* 90
+  "... and at most while L is held; then R 14 (copied 2026-10-09; R15, DUEL_LILLE_V3 §19: L held is the stance L's charge,
+BR-KAMAE-TICK, so the stance stands *BR-KAMAE-TAP* whatever L does).")
+(defparameter *br-to-dash-held* 10
+  "L held this many frames from its press into a stance -- KIN's turn (:br-to-en, read on its f11: R13, the user 2026-10-11:
+「我希望非架式時短按 L 就切入架式、長按 L 就直接進入衝刺斬的續力」) or the base stance once it is up (R15, §19) -- starts
+the stance's L in its charge at once, the frames held so far counted (BR-GO-RANGED, BR-KAMAE-TICK; [G]).")
+(defparameter *br-snipe-len-2* 12.0
+  "The base stance's L, the charged snipe (R15, DUEL_LILLE_V3 §19: 「蓄力狙擊」): its shot's length at the charge level 2
+(*BR-W-L-LEVELS*), metres; level 1 *BR-S-NEAR*'s 4, level 3 *BR-X-LEN*'s 31, the 萬物貫通 line (through guard,
+uncatchable) ...")
+(defparameter *br-snipe-dmg-1* 16 "... its damage at level 1 ...")
+(defparameter *br-snipe-dmg-2* 32 "... at level 2 ...")
+(defparameter *br-snipe-dmg-3* 48 "... at level 3 (the specials by the level: *BR-W-L-GAIN*) ([G]).")
 (defparameter *br-sanren-dmg* 30 "SP1 outside the stance: each of three lines, 20 m, no 萬物貫通 (new 2026-10-09 [G]).")
 (defparameter *br-hiren-dmg* 40 "SP2 outside the stance: the shot after the slide, 20 m, no 萬物貫通 (new 2026-10-09 [G]).")
 (defparameter *br-plain-len* 20.0 "SP1 / SP2 outside the stance: their lines' length, metres (new 2026-10-09 [G]).")
@@ -335,7 +348,8 @@ volume radius, metres; its reach each hit's drawn tip (*BR-W-TIPS*; new 2026-10-
   "The awakened stances' melee openers (R4): each hit's push, metres (the shots' 0.3 pushed him out of a 1.4-2.2 m reach within
 a string: L1 + L2 1.3 -> 2.3 m in the browser; new 2026-10-11 [G]).")
 (defparameter *br-w-tips*
-  '(("BR-E" ("J1" 1.85) ("J2" 1.85) ("J3" 1.85) ("K1" 2.95) ("K2" 2.75) ("K3" 2.95))
+  '(("BR-S" ("J1" 1.9) ("J2" 1.9) ("J3" 1.9) ("K1" 2.6) ("K2" 2.5) ("K3" 2.6))   ; (R15: the gun-kata's muzzle, the rifle swung)
+    ("BR-E" ("J1" 1.85) ("J2" 1.85) ("J3" 1.85) ("K1" 2.95) ("K2" 2.75) ("K3" 2.95))
     ("BR-OE" ("J1" 1.7) ("J2" 1.7) ("J3" 1.7) ("K1" 2.85) ("K2" 2.6) ("K3" 2.85)))
   "The awakened stances' melee openers (decision R4): each hit's reach, metres (its volume's edge), = the striking wing tip's
 / claw's distance ahead on that hit frame in its clip (barro-art.lisp :br-en-* / :br-oen-*, the host FK test: drawn reach =
@@ -404,16 +418,17 @@ before the form's x and the combo scaling (R10: one hit 16 + 0 / 16 / 32) ...")
   "The stance's moves (BR-DEFSTANCE, decision R3 [G]): name, kind, startup, the hits' frames after it (a 2-frame window
 each), recovery, damage a hit, the reaction of the hits before the last and of the last, role, extra params (L's :gain
 step, the follow-ups' :spend, a string's last segment :end: his CPU's SP2 call)."))
-(defmacro br-defstance (prefix clips &key (adv 0) melee (l-slow 1))
+(defmacro br-defstance (prefix clips &key (adv 0) melee snipe (l-slow 1))
   "The stance's moves of PREFIX (*BR-S-SEGS*). CLIPS by segment; ADV the owl's +1 (R one less). MELEE (the awakened forms, R4:
 「所有起手連段一律用近距離攻擊」): the openers (the segments that spend nothing) strike in reach (each hit its own melee volume,
 *BR-W-TIPS*; not :ranged, no line drawn) instead of the 4 m shots. L-SLOW (R4: 「架式 L 的動作太快了」): the L segments' startup and their
 hits' spacing x this (the clip slowed with them, its recovery as written); MELEE also times *BR-W-SEGS*' segments their own
-way (R6)."
+way (R6). SNIPE (the base form, R15, DUEL_LILLE_V3 §19): its L the charged snipe (held, BR-S-SNIPE-RELEASE; its level 2 / 3
+copies -L1-2 / -L1-3 after the form) instead of the dash, its J / K MELEE as the awakened forms'."
   (let ((l-slow (if (symbolp l-slow) (symbol-value l-slow) l-slow)))
     `(progn
        ,@(loop for (sn kind st00 offs00 r00 dmg mid last role extra) in *br-s-segs*
-               unless (and melee (member sn '("L2" "L3") :test #'string=))   ; (R10: the awakened L one charged dash)
+               unless (and (or melee snipe) (member sn '("L2" "L3") :test #'string=))   ; (R10: one charged L; R15 the base's)
                collect
                (let* ((ov (and melee (cdr (assoc sn *br-w-segs* :test #'string=))))
                       (st0 (if ov (first ov) st00)) (offs0 offs00) (r0 (if ov (second ov) r00))
@@ -422,7 +437,8 @@ way (R6)."
                       (slow (if (eq role :l) l-slow 1))
                       (st (round (* st0 slow))) (offs (mapcar (lambda (o) (round (* o slow))) offs0))
                       (far (getf extra :spend))
-                      (cut (and melee (not far)))
+                      (sniper (and snipe (eq role :l)))   ; (R15: the base's L the charged snipe, a shot)
+                      (cut (and melee (not far) (not sniper)))
                       (dash (and cut (eq role :l)))   ; (R9: the awakened L a dash through him)
                       (r (max 4 (- r0 adv))) (a (if dash (+ 2 *br-w-dash-f*) (+ 2 (car (last offs)))))
                       (mid (if dash :stagger mid)) (last (if dash :stagger last))   ; (the dash's hit lands late: a stagger links)
@@ -431,8 +447,9 @@ way (R6)."
                     ,@(when (third clip) `(:clip-2 ,(first clip)))   ; (R10, DUEL_LILLE_V3 §15: the charge pose while held, the dash)
                     :startup ,st :active ,a :recovery ,r
                     ,@(when (eq role :l) `(:whiff ,(+ r *br-s-l-whiff*)))   ; (R5: a whiffed L recovers as a J link)
-                    ,@(when dash '(:hold (0 *br-w-l-hold*)))   ; (R10: held to charge, 3 levels)
-                    :dmg ,(if dash '*br-w-cut-dmg* dmg) :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track 720.0   ; (>= 1 f of blockstun)
+                    ,@(when (or dash sniper) '(:hold (0 *br-w-l-hold*)))   ; (R10: held to charge, 3 levels)
+                    ,@(when sniper '(:release br-s-snipe-release))   ; (R15: its level, the level 2 / 3 copies)
+                    :dmg ,(cond (dash '*br-w-cut-dmg*) (sniper '*br-snipe-dmg-1*) (t dmg)) :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track 720.0   ; (>= 1 f of blockstun)
                     :vol ,(cond (dash `(:cap 0.0 ,*br-w-dash-reach* 1.2 ,*br-w-dash-r*))
                                 (cut `(:cap 0.4 ,(- (reduce #'max (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
                                                                                 :test #'string=)))
@@ -455,7 +472,8 @@ way (R6)."
                     :on-frame ((0 ,(if far 'br-s-spend 'br-s-start))
                                ,@(when dash `((,st br-w-dash)))
                                ,@(unless cut (loop for o in offs collect `(,(+ st o) br-shot-fire))))
-                    :params (:stance ,role :len ,(cond (far '*br-x-len*) (cut 2.0) (t '*br-s-near*)) ,@(when dash '(:dash t)) ,@extra)))))))
+                    :params (:stance ,role :len ,(cond (far '*br-x-len*) (cut 2.0) (t '*br-s-near*)) ,@(when dash '(:dash t))
+                             ,@(when sniper '(:charged t)) ,@extra)))))))
 (defun br-stance-strings (prefix sp2 &optional melee)
   "The kit strings of PREFIX's stance (BR-DEFSTANCE): J1 -> J2 -> J3, K1 -> K2 -> K3 by the J / K latch; L1 -> L2 -> L3, J3 ->
 JL1 -> JL2 -> JL3, K3 -> KL1 -> KL2 -> KL3 by BR-S-TICK's latch (command :lchain); every J / K / JL / KL segment that hit -> the form's
@@ -495,10 +513,17 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 ;; the stance's strings (decision R3), Diagramm's shots, each segment its own clip at its frames (barro-art.lisp, the base
 ;; stance's strings): L shouldered (GATHER), J one-handed from the hip (REFILL), K braced at the waist (HEAVY); the J route's
 ;; L L 疾射 one-handed (a whip, a spin, a hop), the K route's 重砲 two-handed (a stamp, a kneel, the finisher from the knee)
-(br-defstance "BR-S" (:l1 (:br-sk-l1 8) :l2 (:br-sk-l2 8) :l3 (:br-sk-l3 8) :j1 (:br-sk-j1 8) :j2 (:br-sk-j2 8)
-                      :j3 (:br-sk-j3 8) :k1 (:br-sk-k1 12) :k2 (:br-sk-k2 12) :k3 (:br-sk-k3 12)
+(br-defstance "BR-S" (:l1 (:br-sk-l1 8 :br-sk-lc) :j1 (:br-sk-j1 8) :j2 (:br-sk-j2 8)
+                      :j3 (:br-sk-j3 8) :k1 (:br-sk-k1 16) :k2 (:br-sk-k2 12) :k3 (:br-sk-k3 18)
                       :jl1 (:br-sk-jl1 8) :jl2 (:br-sk-jl2 8) :jl3 (:br-sk-jl3 8) :kl1 (:br-sk-kl1 10) :kl2 (:br-sk-kl2 10)
-                      :kl3 (:br-sk-kl3 10)))
+                      :kl3 (:br-sk-kl3 10))
+  :melee t :snipe t)   ; (R15, DUEL_LILLE_V3 §19: 「用覺醒狀態的系統邏輯與動作模組的設計風格重製常態模式」)
+;; the base stance's L, charged (R15): its level 2 / 3 shots, started by BR-S-SNIPE-RELEASE on the release (no hold)
+(defmove-copy :br-s-l1-2 :br-s-l1 :hold nil :release nil :clip :br-sk-l1 :clip-2 nil :dmg *br-snipe-dmg-2*
+  :vol (:cap 0.6 *br-snipe-len-2* 1.2 0.25) :params (:stance :l :charged t :len *br-snipe-len-2*))
+(defmove-copy :br-s-l1-3 :br-s-l1 :hold nil :release nil :clip :br-sk-l1 :clip-2 nil :dmg *br-snipe-dmg-3*
+  :vol (:cap 0.6 *br-x-len* 1.2 0.25) :chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable)
+  :params (:stance :l :charged t :len *br-x-len*))
 ;; the stance's SPs: SANREN's three 萬物貫通 lines, HIRENKYAKU's slide and shot; outside the stance the plain ones (20 m, no
 ;; 萬物貫通). SP1 gives flash step back by the pips (BR-SP1-FS-GO); SP2 spends every pip, + *BR-SP2-UNIT* each (BR-SP2-SPEND,
 ;; decision R3), its recovery + *BR-SP2-SLOW-R* (22 -> 42) and -30 on block (「單發破綻大」); off a stance K K that hit
@@ -659,7 +684,7 @@ DEFENDER-STATE); EN's fast Step (:step, decision R3); his looks (:draw, barro-ar
                 append (loop for c in '(:kamae-l :kamae-j :kamae-k :kamae-sp1 :kamae-sp2 :kamae-step)
                              collect (list s c (br-kamae-pick c))))
           '((:br-k-dash :kamae-back :br-kamae-re) (:br-k-dash :kamae-j :br-s-j1))
-          (br-stance-strings "BR-S" :br-k-hiren-c))
+          (br-stance-strings "BR-S" :br-k-hiren-c t))   ; (R15: one charged L, no L link)
   "The base stance's picks: non-button strings (KIT-NEXT) its :tick starts (BR-KAMAE-TICK); the Step, its way back into the
 stance and its J (the stance's J J); the stance's three strings (BR-DEFSTANCE).")
 (defparameter *br-melee-strings*
@@ -903,7 +928,7 @@ last beam slow the match; the pacing log."
     (when (and role (member c '(:hit :block)) (not (brs-gained st)))
       (setf (brs-gained st) t)
       (case role
-        (:l (let ((k (if (getf (mv-params mv) :dash)   ; (R10: the awakened L dash, by its charge level)
+        (:l (let ((k (if (or (getf (mv-params mv) :dash) (getf (mv-params mv) :charged))   ; (R10 / R15: by its charge level)
                          (if (member c '(:hit :block)) (nth (1- (max 1 (brs-l-lv st))) *br-w-l-gain*) 0)
                          (br-l-gain c (getf (mv-params mv) :gain 0))))
                   (form (fighter-form (fighter att))))
@@ -1008,7 +1033,9 @@ it started."
       ((:kamae-sp1 :kamae-sp2)
        (when (try-command e f (if (eq cmd :kamae-sp1) :sp1 :sp2) nil nil (kit-next kit (mv-name mv) cmd))
          (pace e cmd) t))
-      (t (start-move e (kit-next kit (mv-name mv) cmd)) (pace e cmd) t))))
+      (t (let ((m (kit-next kit (mv-name mv) cmd)))
+           (start-move e m (and (mv-hold m) :sig))   ; (R15: the snipe held by L)
+           (pace e cmd) t)))))
 
 (defun br-kamae-tick (e)
   "One step of the base stance: it turns at *BR-AIM-TRACK*; from f6 the first L / J / K / SP1 / SP2 / Step picks (his
@@ -1017,6 +1044,11 @@ CPU's: BR-AI-KAMAE); past the hold (30 f, 90 while L is held) the stance recover
     (when (and (eq (fighter-state f) :move) mv (member (mv-name mv) '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)))
       (let* ((st (br e)) (sf (fighter-sf f)) (vp (pilot-vpad (pilot e))) (b (br-tick-brain e)))
         (turn-to-opp e f (track-step *br-aim-track*))
+        (when (and (>= sf *br-kamae-up*) (>= (vpad-held vp :sig) *br-to-dash-held*))   ; (R15: L held, the snipe's charge)
+          (start-move e (find-move :br-s-l1) :sig)
+          (setf (fighter-hold f) (min (vpad-held vp :sig) (1- *br-w-l-hold*)))
+          (pace e :to-snipe)
+          (return-from br-kamae-tick nil))
         (when (>= sf *br-kamae-up*)
           (let ((cmd (if b (br-ai-kamae e f st b) (br-kamae-pressed vp))))
             (when cmd
@@ -1026,7 +1058,7 @@ CPU's: BR-AI-KAMAE); past the hold (30 f, 90 while L is held) the stance recover
                 (if (br-kamae-go e f st mv cmd)
                     (progn (unless b (vpad-consume! vp button)) (return-from br-kamae-tick nil))
                     (if b (setf (brs-k-plan st) :kamae-l) (vpad-consume! vp button)))))))
-        (when (br-kamae-hold-over-p sf (vpad-down vp :sig))
+        (when (br-kamae-hold-over-p sf nil)   ; (R15: L held is the snipe's charge, no longer a longer stand)
           (setf (fighter-sf f) (+ *br-kamae-up* *br-kamae-max*)))))))
 
 (defun br-kamae-dash (e)
@@ -1141,6 +1173,18 @@ starts the level's cuts (BARRO-HIT, BR-W-CUTS)."
     (pace e :w-dash)
     (emit :sfx :whoosh-heavy e)))
 
+(defun br-s-snipe-release (e)
+  "The base stance's L, the charged snipe (R15, DUEL_LILLE_V3 §19: 「蓄力狙擊」), released: its gains unpaid (BR-S-START: a held
+move's f0 hooks never run), its level by the frames held (BR-W-L-LEVEL); level 2 / 3 the longer shots (:br-s-l1-2 /
+:br-s-l1-3, started in its place; level 1 the move goes on)."
+  (let* ((f (fighter e)) (st (br e)) (lv (br-w-l-level (fighter-charge f))))
+    (br-s-start e)
+    (setf (brs-l-lv st) lv)
+    (pace e (svref #(:snipe-1 :snipe-2 :snipe-3) (1- lv)))
+    (when (> lv 1)
+      (start-move e (find-move (if (= lv 2) :br-s-l1-2 :br-s-l1-3)))
+      (turn-to-opp e f 10.0))))
+
 (defun br-w-cuts (e o mv)
   "The awakened L dash MV just hit O (R11, DUEL_LILLE_V3 §16: 「我希望衝刺 L 依據蓄力階段給出多段的斬擊特效與 combo 計數」): the
 level's *BR-W-L-CUTS* cuts on him where he stands, the first one frame after the dash's end, *BR-W-CUT-STEP* frames apart
@@ -1227,10 +1271,6 @@ hit), each drawn by barro-art.lisp's BR-CUT-LOOK for *BR-W-CUT-LIFE* frames from
                          :hook 'br-hz :data (make-lbh :kind kind :len (f32 len) :width (f32 width) :lock lock) :look 'lb-look))
 
 ;;; ---------------------------------------------------------------- the awakened stance, the routes, the volley
-(defparameter *br-to-dash-held* 10
-  "L into the stance (:br-to-en) still held this many frames on the turn's f11 (R13, the user 2026-10-11: 「我希望非架式時短按 L
-就切入架式、長按 L 就直接進入衝刺斬的續力」): no stand in the stance, the L dash's charge at once, its frames held so far
-counted (BR-GO-RANGED; [G]).")
 (defun br-go-ranged (e)
   "The turn's last frame: the stance EN (its standing clock from 0, R12); L still held *BR-TO-DASH-HELD* frames or more (a
 long press, R13): the stance's L, the dash, in its charge at once, the frames held so far its charge's (FIGHTER-HOLD, at
@@ -1334,6 +1374,10 @@ may change it, BR-LEARN-KAMAE); a Step plan clears itself so the window after it
             (br-learn-kamae e b (br-ai-stance-plan (sim-rnd01) (brs-ammo st) (br-ammo-cap (fighter-form f)) (gauges-fs g)
                                                    (reiatsu-bars e) k threat)))
       (when (and (eq (brs-k-plan st) :kamae-step) (not (br-kamae-step-ok-p (brs-dashed st) (gauges-fs g))))
+        (setf (brs-k-plan st) :kamae-l))
+      (when (and (member (brs-k-plan st) '(:kamae-j :kamae-k))   ; (R15: the stance J / K in melee: out of reach, the snipe)
+                 (> (fighter-dist f) (+ (br-move-reach (find-move (if (eq (brs-k-plan st) :kamae-j) :br-s-j1 :br-s-k1)))
+                                        (body-hurt-r (model-body (model (opp-of e)))))))
         (setf (brs-k-plan st) :kamae-l))
       (pace e (intern (format nil "AI-~a" (brs-k-plan st)) :keyword))
       (why b :kamae (brs-k-plan st))))

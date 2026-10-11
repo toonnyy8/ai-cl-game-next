@@ -351,15 +351,9 @@
   (0) (5 :br-pl-aim (:root :u -0.03) (:head :flex 2))
   (:s :br-pl-aim) (:a :snap :br-pl-kick) (16 :br-pl-aim (:root :f -0.03 :u -0.04))
   (:end :lb-stance))
-(defstrike :br-sk-l2 (8 2 14 :base :lb-kamae-pose)   ; turned side-on: one shot f8
-  (0 :br-pl-kick) (5 :br-pl-prof (:root :u -0.07))
-  (:s :br-pl-prof) (:a :snap :br-pl-prof-kick) (16 :br-pl-prof (:root :f 0))
-  (:end :lb-stance))
-(defstrike :br-sk-l3 (8 2 18 :base :lb-kamae-pose)   ; a step in, one shot f8, Diagramm swung up: loaded
-  (0 :br-pl-prof-kick) (5 :br-pl-aim (:root :f 0.12 :u -0.07))
-  (:s :br-pl-aim (:root :f 0.12)) (:a :snap :br-pl-kick (:root :f 0.06))
-  (16 :br-pl-load (:root :f 0.06)) (22 :br-pl-load (:root :f 0.04) (:head :flex -12))
-  (:end :lb-stance))
+;; the base stance's L charge (R15, DUEL_LILLE_V3 §19: 「蓄力狙擊」; a placeholder, the art batch's): the aim held while L is
+(defstrike :br-sk-lc (8 2 30 :base :lb-kamae-pose)
+  (0) (6 :br-pl-aim (:root :u -0.03) (:head :flex 2)) (40 :br-pl-aim (:root :u -0.05)))
 ;; J: REFILL, one hand from the hip, a kick on the shot, back on the line 2 f later
 (defstrike :br-sk-j1 (8 2 12 :base :lb-kamae-pose)    ; stepped in: one shot f8
   (0) (4 :br-pj-hip (:root :u -0.1))
@@ -2126,7 +2120,7 @@ stances' moves: BR-ART-STANCE."
         (18 (start-move b (find-move :br-e-l1))) (19 (start-move b (find-move :br-e-k1)))
         ((40 41 42 43 44 45 46 47 48 49 50 51)
          (br-set-ammo b 3)
-         (start-move b (find-move (nth (- k 40) '(:br-s-l2 :br-s-l3 :br-s-j2 :br-s-j3 :br-s-k2 :br-s-k3 :br-s-jl1 :br-s-jl2
+         (start-move b (find-move (nth (- k 40) '(:br-s-l1-2 :br-s-l1-3 :br-s-j2 :br-s-j3 :br-s-k2 :br-s-k3 :br-s-jl1 :br-s-jl2
                                                   :br-s-jl3 :br-s-kl1 :br-s-kl2 :br-s-kl3))))))
       (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
 
