@@ -850,3 +850,36 @@ is unchanged by 3–4 (the sound is a presentation event): §16.1's gates stand.
 exception, waiting on the user's playtest (「先試玩再決定」), no knob retuned. Mirror awaken A/B (BB, 39020, 60 seeds, seed0
 100 / 300 / 500): **55 / 58 / 54**, pass.
 
+## 17. Decision R12 (2026-10-11): the playtest of v68 — the end push, the stance's one Step and short stand, the blasts' colour, the KIN J -> K links
+
+The user (verbatim, on v68):
+
+> 1. 架式 J/K 完的推離距離不夠遠，導致架式 J1/K1 還是能打中對手
+> 2. 我希望架式時只能像常態架槍一樣通過一次 step 高速移動，然後過一小段時間就會自動解除架式。
+> 3. 我希望架式 K > L 的砲擊每下都是代表色（玉綠或是黃金色）
+> 4. 覺醒的普通攻擊 J1 > K2 與 J2 > K3 現在 hits 計數會斷開，代表 combo 沒接起來
+
+**1.** §15.1 pushed past `MV-REACH`, which for a `:cap` volume is its segment's end without its radius: the awakened J1
+(cap end 1.45 m, radius 0.4) was still 0.35 m in reach (browser: J J J → L → J1 hit again). Now `BR-MOVE-REACH` (the
+farthest edge of the hit windows' volumes: a capsule's end + radius, an arc's radius, a sphere's distance + radius) +
+the victim's body + `*br-s-end-margin*` 0.3 m (the generic `*ender-push*` 0.05 before). Browser: J3's push 1.0 → 1.7 m, K3's
+2.1 → 2.8 m; the re-entered stance's J1 whiffs.
+
+**2.** The stance EN (JILLIEL's and the owl's) is rooted like the base stance: `*br-walk-en*` 3.0 → 0.0 (the kits' walk:
+FIGHTER's neutral step stands at 0), no run (`BARRO-TICK` ends a run in EN at once), its one fast Step the only move (R3's
+5 m, 10 flash step); a Step after it leaves the stance (`BARRO-STEP`: back to KIN, the plain Step; pace `stance-out-step`),
+and `*br-en-hold*` 30 f standing in it (idle or guarding, outside a string; from the turn's f11, a fresh window after its
+fast Step; the base stance's `*br-kamae-tap*`) ends it (back to KIN, pace `stance-timeout`). Browser: Step, Step → the fast
+Step then KIN's plain one; EN left alone → KIN 30 f after its entry.
+
+**3.** `%br-ball` (the K route's L L blasts, art only): the first two frames' flash a jade / gold ball with a small white
+heart (white before), the white core 0.62 → 0.28 of the shell: the blasts read in the form's colour.
+
+**4.** The KIN / owl KIN J1 → K2(s) and J2 → K3 links broke the combo by a frame: the V8 K link's effective startup 15
+(`*br-k-link-slow*`) against the :JN J's flinch 18 + its hitstop (browser: J1 hit f38, the victim out at f60, K2s hit f60).
+The awakened forms' K strings take a new route `:kn` (`BR-V8-SPEC`): `:k` but a link's `:enter` + `*br-k-slow*` (effective
+startup 14, the roster's standard); their K → K links 1 f faster too; on block a J → K link leaves 9 f (10 before). The owl's
+K2 / K3 `BR-S-START` hooks move with their enter (7 / 8 → 8 / 9). Browser: J1 → K2s hits f59 (2 HITs), J J K 3 HITs.
+
+Host tests 8257 ALL PASS, pkgcheck 0, build 0 warnings. Playtest v69.
+

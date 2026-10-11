@@ -239,7 +239,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
       (destructuring-bind (m n seq) l
         (let ((kk (eq (car (last seq)) :f)) (w (svref (mv-hits m) 0)))
           ;; every K at link 2 / 3 enters at S_eff 14; J links 2 / 3 -2 / -4, K links -3 / -20; enders stagger / crumple
-          (when (and kk (> n 1)) (check (= (if v8 15 14) (- (mv-s m) (mv-enter m)))))   ; (V8: *BR-K-LINK-SLOW* 1)
+          (when (and kk (> n 1)) (check (= (if (and v8 (eq (second cf) :base)) 15 14) (- (mv-s m) (mv-enter m)))))   ; (V8: *BR-K-LINK-SLOW* 1; R12: the awakened :KN 14)
           (when (> n 1)
             (check (= (mv-adv-block m) (+ a (if v8
                                                 (cond ((and (= n 2) kk) -7) ((= n 2) 0) (kk -24) (t -2))
@@ -258,7 +258,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
               (when nx
                 (check (< (hit-gap m nx) 0))
                 (let ((g (blocked-gap m nx)))
-                  (cond ((eq c :f) (check (>= g (if v8 10 11))))   ; (V8: the owl's J +1 over ±0: J -> K 10 f, base 12)
+                  (cond ((eq c :f) (check (>= g (if v8 (if (eq (second cf) :base) 10 9) 11))))   ; (V8: the owl's J +1 over ±0: J -> K 10 f, base 12; R12: the awakened K links S_eff 14, 9 f)
                         (v8 (check (>= g 0)))   ; (V8: his J links block-safe up to ±0: no gap to Step into, by design)
                         (t (check (and (>= g (first *step-iframes*)) (<= g (mv-s j1)))))))))))))
     ;; the switched link 2 (J2s, K2s) is a copy: the same data as J2 / K2 but its name

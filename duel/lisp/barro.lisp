@@ -150,7 +150,13 @@ keep the damage and the block advantage but not the speed (route :JN, decision R
 (defparameter *br-k-adv* -4 "... and its block advantage this many frames lower (decision V8).")
 
 ;; JILLIEL
-(defparameter *br-walk-en* 3.0 "Walk m/s, the awakened stance EN (afloat; the old *WALK-JILLIEL*, copied 2026-10-09).")
+(defparameter *br-walk-en* 0.0
+  "Walk m/s, the awakened stance EN (afloat; the old *WALK-JILLIEL* 3.0, copied 2026-10-09; 3.0 -> 0.0, R12, the user
+2026-10-11: 「我希望架式時只能像常態架槍一樣通過一次 step 高速移動，然後過一小段時間就會自動解除架式」: rooted as the base
+stance, its one fast Step its only move, no run (BARRO-TICK), *BR-EN-HOLD* then back to KIN).")
+(defparameter *br-en-hold* 30
+  "The awakened stance EN (R12): this many frames standing in it (idle or guarding: from its entry, a fresh window after its
+fast Step) and it ends, back to KIN (the base stance's *BR-KAMAE-TAP*; [G]).")
 (defparameter *br-run-en* 8.0 "Run m/s, EN (the old *RUN-JILLIEL*, copied 2026-10-09).")
 (defparameter *br-walk-kin* 3.8 "Walk m/s, KIN (the old *WALK-KIN*, copied 2026-10-09).")
 (defparameter *br-run-kin* 8.5 "Run m/s, KIN (the old *RUN-KIN*, copied 2026-10-09).")
@@ -286,7 +292,10 @@ the stance's SPs, its Step."
   "Decision V8 (the user 2026-10-10, the two routes): a J / K string move's SPEC (written with its old numbers) for ROUTE :J
 (startup and recovery - *BR-J-SPEED*, floors *BR-J-MIN-S* / *BR-J-MIN-R*, damage x *BR-J-MULT*, block advantage +
 *BR-J-ADV*), :JN (the awakened forms', decision R3: :J at the standard speed) or :K (startup and recovery + *BR-K-SLOW*, damage x *BR-K-MULT*, block advantage + *BR-K-ADV*; a K link's
-:enter + (*BR-K-SLOW* - *BR-K-LINK-SLOW*)); its hit-frame hooks follow the new startup; :clip-s the old startup. A new plist."
+:enter + (*BR-K-SLOW* - *BR-K-LINK-SLOW*)) or :KN (the awakened forms' K, R12: :K, its link's :enter + *BR-K-SLOW*: the
+standard link, so J1 -> K2 / J2 -> K3 off the :JN J combo, the user 2026-10-11: 「覺醒的普通攻擊 J1 > K2 與 J2 > K3 現在 hits
+計數會斷開」; a K link's effective startup 15 -> 14, the K -> K links too; K1 as :K); its hit-frame hooks follow the new startup; :clip-s the old startup. A
+new plist."
   (let* ((j (member route '(:j :jn))) (std (eq route :jn)) (s0 (getf spec :startup)) (r0 (getf spec :recovery))
          (s1 (cond (std s0) (j (max *br-j-min-s* (- s0 *br-j-speed*))) (t (+ s0 *br-k-slow*))))
          (r1 (cond (std r0) (j (max *br-j-min-r* (- r0 *br-j-speed*))) (t (+ r0 *br-k-slow*))))
@@ -295,7 +304,7 @@ the stance's SPs, its Step."
                     :adv-block (+ (getf spec :adv-block) (if j *br-j-adv* *br-k-adv*))
                     :on-frame (br-v8-shift (getf spec :on-frame) s0 (- s1 s0))
                     :enter (let ((n (or (getf spec :enter) 0)))
-                             (if (and (not j) (plusp n)) (+ n (- *br-k-slow* *br-k-link-slow*)) n))
+                             (if (and (not j) (plusp n)) (+ n (- *br-k-slow* (if (eq route :kn) 0 *br-k-link-slow*))) n))
                     :clip-s (or (getf spec :clip-s) s0))))
     (append new (loop for (k v) on spec by #'cddr unless (member k '(:startup :recovery :dmg :adv-block :on-frame :clip-s :enter))
                       append (list k v)))))
@@ -520,11 +529,11 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :reach 1.6 :arc 110 :on-hit :flinch)
 (br-defstring :jn :br-w-j3 :kind :quick :clip :lb-w-q3 :startup 9 :active 3 :recovery 18 :dmg 30 :adv-block -4
   :reach 1.7 :arc 120 :on-hit :stagger :flags (:ender))
-(br-defstring :k :br-w-k1 :kind :flash :clip :lb-w-f1 :startup 17 :active 4 :recovery 21 :dmg 50 :adv-block -3
+(br-defstring :kn :br-w-k1 :kind :flash :clip :lb-w-f1 :startup 17 :active 4 :recovery 21 :dmg 50 :adv-block -3
   :reach 2.2 :arc 150 :on-hit :stagger)
-(br-defstring :k :br-w-k2 :kind :flash :clip :lb-w-f2 :enter 6 :startup 20 :active 4 :recovery 24 :dmg 50 :adv-block -3
+(br-defstring :kn :br-w-k2 :kind :flash :clip :lb-w-f2 :enter 6 :startup 20 :active 4 :recovery 24 :dmg 50 :adv-block -3
   :reach 2.2 :arc 110 :on-hit :stagger)
-(br-defstring :k :br-w-k3 :kind :flash :clip :lb-w-f3 :enter 7 :startup 21 :active 5 :recovery 34 :dmg 72 :adv-block -20
+(br-defstring :kn :br-w-k3 :kind :flash :clip :lb-w-f3 :enter 7 :startup 21 :active 5 :recovery 34 :dmg 72 :adv-block -20
   :reach 2.3 :arc 90 :on-hit :crumple :flags (:ender))
 (defmove-copy :br-w-j2s :br-w-j2)
 (defmove-copy :br-w-k2s :br-w-k2)
@@ -599,12 +608,12 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :reach 1.7 :arc 110 :on-hit :flinch)
 (br-defstring :jn :br-o-j3 :kind :quick :clip :lb-o-q3 :startup 9 :active 3 :recovery 17 :dmg 32 :adv-block -3
   :reach 1.7 :arc 120 :on-hit :stagger :flags (:ender))
-(br-defstring :k :br-o-k1 :kind :flash :clip :lb-o-f1 :startup 17 :active 4 :recovery 20 :dmg 54 :adv-block -2
+(br-defstring :kn :br-o-k1 :kind :flash :clip :lb-o-f1 :startup 17 :active 4 :recovery 20 :dmg 54 :adv-block -2
   :reach 2.3 :arc 150 :on-hit :stagger :tick br-s-tick :on-frame ((0 br-s-start)))
-(br-defstring :k :br-o-k2 :kind :flash :clip :lb-o-f2 :enter 6 :startup 20 :active 4 :recovery 23 :dmg 54 :adv-block -2
-  :reach 2.3 :arc 110 :on-hit :stagger :tick br-s-tick :on-frame ((7 br-s-start)))   ; (its V8 :enter, 6 + 1)
-(br-defstring :k :br-o-k3 :kind :flash :clip :lb-o-f3 :enter 7 :startup 21 :active 5 :recovery 33 :dmg 78 :adv-block -19
-  :reach 2.3 :arc 90 :on-hit :crumple :flags (:ender) :tick br-s-tick :on-frame ((8 br-s-start)) :params (:end t))   ; (7 + 1)
+(br-defstring :kn :br-o-k2 :kind :flash :clip :lb-o-f2 :enter 6 :startup 20 :active 4 :recovery 23 :dmg 54 :adv-block -2
+  :reach 2.3 :arc 110 :on-hit :stagger :tick br-s-tick :on-frame ((8 br-s-start)))   ; (its :enter, 6 + 2: :KN, R12)
+(br-defstring :kn :br-o-k3 :kind :flash :clip :lb-o-f3 :enter 7 :startup 21 :active 5 :recovery 33 :dmg 78 :adv-block -19
+  :reach 2.3 :arc 90 :on-hit :crumple :flags (:ender) :tick br-s-tick :on-frame ((9 br-s-start)) :params (:end t))   ; (7 + 2)
 (defmove-copy :br-o-j2s :br-o-j2)
 (defmove-copy :br-o-k2s :br-o-k2)
 ;; SP1 裁きの光明 (the old MISUJI: three ground lines at -20 / 0 / +20 deg, one hit group, 70 each, 18 m; flash step back by
@@ -775,6 +784,7 @@ awakened form inherits these).")
   (recall-n 0 :type fixnum)               ; the volley's count (its f0) for its string (its f7)
   (sp2-next nil)                          ; a stance J / K segment: SP2 latched for the cancel (decision R3)
   (cut nil)                               ; the awakened L dash's cuts started (BR-W-CUTS; R11)
+  (en-t 0 :type fixnum)                   ; frames standing in the stance EN (BARRO-TICK, *BR-EN-HOLD*; R12)
   (l-lv 0 :type fixnum)                   ; the awakened L dash's charge level 1-3 (its S: BR-W-DASH; decision R10)
   (armored 0 :type fixnum)                ; hits his wing armour took (the pacing log)
   (ai-t -999 :type fixnum)                ; his CPU's last stance / burst window (one roll a window)
@@ -820,11 +830,15 @@ SP2 (COMBO, its :sp2c; decision R3: 「必須接在 KK 後執行才能有效利�
 (defun barro-step (e)
   "His kit's :step (fighter.lisp START-STEP, the Step's take-off): in the awakened stance EN the first Step after its entry is
 the stance's fast Step (decision R3: 「進入架式後靠 step 快速移動一次」): *BR-KAMAE-DASH* m over *BR-KAMAE-DASH-F* for
-*BR-KAMAE-DASH-FS* flash step (short of it: the plain Step)."
-  (let* ((f (fighter e)) (st (br e)) (g (gauges e)))
-    (when (and (br-ranged-form-p (fighter-form f)) (br-kamae-step-ok-p (brs-dashed st) (gauges-fs g)))
+*BR-KAMAE-DASH-FS* flash step (short of it: the plain Step), its standing clock fresh (*BR-EN-HOLD*); a Step after it leaves
+the stance, KIN's plain Step (R12: 「只能像常態架槍一樣通過一次 step 高速移動」)."
+  (let* ((f (fighter e)) (st (br e)) (g (gauges e)) (form (fighter-form f)))
+    (when (and (br-ranged-form-p form) (brs-dashed st))   ; (R12: one Step a stance; the next leaves it, KIN's plain Step)
+      (set-form e (br-melee-of form)) (pace e :stance-out-step)
+      (return-from barro-step nil))
+    (when (and (br-ranged-form-p form) (br-kamae-step-ok-p (brs-dashed st) (gauges-fs g)))
       (spend-fs g *br-kamae-dash-fs*)
-      (setf (brs-dashed st) t)
+      (setf (brs-dashed st) t (brs-en-t st) 0)
       (multiple-value-bind (to sd) (stick-relative e f)
         (multiple-value-bind (to sd) (step-direction to sd)
           (multiple-value-bind (dx dz) (world-dir e f to sd)
@@ -857,6 +871,13 @@ specials' cap; the pacing clocks."
         (setf (brs-owl-t st) 0 (brs-ammo st) (br-ammo-add (brs-ammo st) 1 form))
         (pace e :owl-wing)))
     (setf (brs-ammo st) (br-ammo-add (brs-ammo st) 0 form))
+    (when (br-ranged-form-p form)                       ; (R12: the stance EN rooted, one Step, a short stand)
+      (case (fighter-state f)
+        (:run (to-idle e 4))                            ; (no run off its Step)
+        ((:idle :guard)
+         (when (and (not (brs-in-string st)) (>= (incf (brs-en-t st)) *br-en-hold*))
+           (setf (brs-en-t st) 0 form (br-melee-of form))
+           (set-form e form) (pace e :stance-timeout)))))
     (let ((mv (and (eq (fighter-state f) :move) (fighter-move f))))
       (cond ((and mv (br-stance-move-p mv) (br-ranged-form-p form)) (setf (brs-in-string st) t))
             ((and (brs-in-string st) (member (fighter-state f) '(:idle :run :guard)))
@@ -900,16 +921,30 @@ last beam slow the match; the pacing log."
     (when (and hw (br-x-hit-p hw))
       (pace att (if (eq c :hit) :x-hit :x-guarded)))))
 
+(defparameter *br-s-end-margin* 0.3
+  "A stance string's end push (BR-S-END-PUSH): past the first segment's whole reach (BR-MOVE-REACH) + the victim's body by
+this many metres (R12, the user 2026-10-11: 「架式 J/K 完的推離距離不夠遠，導致架式 J1/K1 還是能打中對手」: the generic
+*ENDER-PUSH* 0.05 on MV-REACH, a capsule's end without its radius, left J1 0.35 m in reach; [G]).")
+(defun br-move-reach (mv)
+  "MV's whole reach (m): the farthest edge of its hit windows' volumes (a capsule's end + its radius, an arc's radius, a
+sphere's distance + its radius); MV-REACH without volumes."
+  (let ((best 0.0))
+    (loop for w across (mv-hits mv)
+          do (loop for v in (hw-vols w)
+                   do (setf best (max best (case (round (aref v 0))
+                                             (0 (aref v 1)) (1 (+ (aref v 2) (aref v 4))) (2 (+ (aref v 1) (aref v 3)))
+                                             (t 0.0))))))
+    (if (plusp best) best (mv-reach mv))))
 (defun br-s-end-push (e o mv)
   "A stance string's last segment MV (:end: L3, J3, K3, JL3, KL3) just hit O: O is pushed out of the reach of the string's
-first segment (L1 after L3, J1 after J3 / JL3, K1 after K3 / KL3, the same prefix) as a J / K string's ender (ENDER-PUSH,
-*ENDER-PUSH*; the user 2026-10-11: 「架式連段結束後要像 J/K 結尾一樣將對手推離初始起手勢的攻擊範圍避免無限壓制」). The
+first segment (L1 after L3, J1 after J3 / JL3, K1 after K3 / KL3, the same prefix) as a J / K string's ender (ENDER-PUSH's
+rule on its whole reach, BR-MOVE-REACH, + *BR-S-END-MARGIN*, R12; the user 2026-10-11: 「架式連段結束後要像 J/K 結尾一樣將對手推離初始起手勢的攻擊範圍避免無限壓制」). The
 awakened L (one dash, R10) leaves him behind it, 1.6 m past: no push. What starts off it chases him (BR-S-TICK's SP2)."
   (let* ((name (symbol-name (mv-name mv))) (pre (subseq name 0 (position #\- name :from-end t)))
          (first (case (getf (mv-params mv) :stance) (:l "L1") ((:j :jl) "J1") (t "K1")))
          (opener (gethash (intern (format nil "~a-~a" pre first) :keyword) *moves*))
          (push (and opener (not (getf (mv-params opener) :dash))
-                    (- (+ (mv-reach opener) (mv-slide opener) (body-hurt-r (model-body (model o))) *ender-push*)
+                    (- (+ (br-move-reach opener) (mv-slide opener) (body-hurt-r (model-body (model o))) *br-s-end-margin*)
                        (fighter-dist (fighter e))))))
     (when (and push (plusp push) (eq (fighter-state (fighter o)) :stun))
       (multiple-value-bind (mb ma) (push-apart e o push *ender-push-frames*)
@@ -1172,8 +1207,9 @@ hit), each drawn by barro-art.lisp's BR-CUT-LOOK for *BR-W-CUT-LIFE* frames from
 
 ;;; ---------------------------------------------------------------- the awakened stance, the routes, the volley
 (defun br-go-ranged (e)
-  "The turn's last frame: the stance EN."
+  "The turn's last frame: the stance EN (its standing clock from 0, R12)."
   (let* ((form (fighter-form (fighter e))) (to (br-ranged-of form)))
+    (setf (brs-en-t (br e)) 0)
     (unless (eq to form) (set-form e to) (pace e :to-ranged))))
 (defun br-halt-tick (e) "The turn, the volley: no string chase." (halt! e))
 (defun br-recall-go (e)

@@ -1429,9 +1429,10 @@ Reads *BR-AT* (his place and the opponent's, BR-DRAW's) and the move's frame. 0 
 ;;; ---------------------------------------------------------------- R5 K3 零距離砲擊 (DUEL_LILLE_V3 §10; R6 §11: a ball of light)
 (defmacro %br-ball (x y z a life r pal sd)
   "A ball of light at (X Y Z), its frame A (a fixnum, from the shot) of LIFE (a fixnum), full radius R, palette PAL, seed SD
-(零距離砲擊's blast, R6, §11: 「砲擊不要發射光束，直接在爆炸點炸開光球來表示」; the awakened K route's L L shots, R8, §13): a white
-flash ball on the first two frames, then the ball swelling over its first third, its jade / gold shell in a dark rim round a
-white core that shrinks away, eroding over its last half, dark smoke puffs rising and thinning from frame 6, a new drawing
+(零距離砲擊's blast, R6, §11: 「砲擊不要發射光束，直接在爆炸點炸開光球來表示」; the awakened K route's L L shots, R8, §13): a jade /
+gold flash ball with a small white heart on the first two frames (R12, the user 2026-10-11: 「我希望架式 K > L 的砲擊每下都是
+代表色（玉綠或是黃金色）」: the flash white and the core 0.62 of the shell before), then the ball swelling over its first
+third, its jade / gold shell in a dark rim round a small white heart (0.28 of it) that shrinks away, eroding over its last half, dark smoke puffs rising and thinning from frame 6, a new drawing
 every two frames. Single-float forms (a macro: 0 B)."
   `(let* ((%x ,x) (%y ,y) (%z ,z) (%a ,a) (%life ,life) (%r ,r) (%pal ,pal)
           (%d (i->f (* 2 (floor %a 2))))                 ; (on twos)
@@ -1441,11 +1442,12 @@ every two frames. Single-float forms (a macro: 0 B)."
           (%sd (+ ,sd %d)))
      (declare (fixnum %a %life) (single-float %x %y %z %r %pal %d %u %es %k %sd))
      (if (< %a 2)
-         (fx-disc %x %y %z (* 0.5f0 %r) 0.05f0 %sd +pal-hit+ 0.98f0 :push 0.45f0)   ; (the flash: a white ball)
+         (progn (fx-disc %x %y %z (* 0.55f0 %r) 0.05f0 %sd %pal 0.98f0 :push 0.45f0)   ; (the flash: a jade / gold ball,
+                (fx-disc %x %y %z (* 0.18f0 %r) 0.04f0 (+ %sd 1f0) +pal-hit+ 0.95f0 :push 0.5f0))   ;  a white heart, R12)
          (progn                                        ; (the ball of light: no spikes, no line toward him)
            (fx-disc %x %y %z (* 1.08f0 %es) 0.06f0 (+ %sd 3f0) +pal-ink+ (* 0.6f0 %k) :push 0.2f0)   ; (its dark rim)
            (fx-disc %x %y %z %es 0.05f0 %sd %pal %k :push 0.3f0)                               ; (the shell)
-           (let ((%cr (* %es (- 0.62f0 (* 0.62f0 (%lb-ss (/ %u 0.6f0)))))))                   ; (the white core)
+           (let ((%cr (* %es (- 0.28f0 (* 0.28f0 (%lb-ss (/ %u 0.45f0)))))))                  ; (the white heart: small, R12)
              (declare (single-float %cr))
              (when (> %cr 0.02f0) (fx-disc %x %y %z %cr 0.04f0 (+ %sd 5f0) +pal-hit+ 0.97f0 :push 0.4f0)))
            (when (>= %a 6)                              ; the smoke: three puffs rising off it
