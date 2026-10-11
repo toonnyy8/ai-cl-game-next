@@ -757,3 +757,16 @@ The user (verbatim, on v65):
 The base stance's L string is unchanged. Host tests 8233, ALL PASS (the levels, the knobs, no L link in the awakened
 forms); the art in progress (a subagent's batch).
 
+### 15.1 The stance strings' end push (2026-10-11)
+
+The user (verbatim): 「另一點要注意，架式連段結束後要像 J/K 結尾一樣將對手推離初始起手勢的攻擊範圍避免無限壓制。」
+
+Every stance string's last segment that hits (`:end`: base L3 — newly `:end`, harmless to the CPU's SP2 call since L has no
+`:sp2c` —, J3, K3, JL3, KL3, every form) pushes the victim out of the reach of that string's **first segment** (the same
+prefix: L1 after L3, J1 after J3 / JL3, K1 after K3 / KL3): `BR-S-END-PUSH` (barro.lisp), the generic `ENDER-PUSH`'s rule
+(the opener's reach + lunge + the victim's body + `*ENDER-PUSH*` 0.05 m − the distance, over `*ENDER-PUSH-FRAMES*` 8 f,
+`PUSH-APART`: the arena's edge pushes the attacker back instead). Base stance: out of 4 m (the shots); awakened: out of J1's
+1.85 / 1.7 m, K1's 2.95 / 2.85 m. The awakened L dash (R10, one segment) is excepted: it already ends 1.6 m past him with
+him behind (pushing him out of a 6–10 m dash would be a blow-away). A charge-less SP2 cancelled off an `:end` segment chases
+him (`FIGHTER-END-CHASE`, as off a generic ender). Host tests 8257, ALL PASS; the native sim logs 13–19 end pushes a match
+(BK, 2 seeds).

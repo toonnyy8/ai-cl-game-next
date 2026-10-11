@@ -2971,6 +2971,15 @@ defender's next step. Values: the attacker's and the defender's first actionable
   (check (and (= 1 (br-w-l-level 0)) (= 1 (br-w-l-level 19)) (= 2 (br-w-l-level 20)) (= 3 (br-w-l-level 40)) (= 3 (br-w-l-level 60))))
   (check (and (equal *br-w-l-dash-max* '(6.0 8.0 10.0)) (equal *br-w-l-bonus* '(0 16 32)) (equal *br-w-l-gain* '(1 2 3))
               (null (kit-next (kit :barro :jilliel) :br-e-l1 :lchain)) (null (kit-next (kit :barro :shin) :br-oe-l1 :lchain))))
+  ;; 「架式連段結束後要像 J/K 結尾一樣將對手推離初始起手勢的攻擊範圍」 (the user 2026-10-11): every stance string's last
+  ;; segment is :end (BR-S-END-PUSH: out of its first segment's reach), the awakened L dash excepted (its own pass-through)
+  (check (fboundp 'br-s-end-push))
+  (dolist (pre '("BR-S" "BR-E" "BR-OE"))
+    (dolist (sg (append (if (string= pre "BR-S") '("L3") nil) '("J3" "K3" "JL3" "KL3")))
+      (check (getf (mv-params (find-move (intern (format nil "~a-~a" pre sg) :keyword))) :end)))
+    (dolist (sg '("L1" "J1" "K1"))
+      (check (plusp (mv-reach (find-move (intern (format nil "~a-~a" pre sg) :keyword)))))))
+  (check (null (getf (mv-params (find-move :br-s-l2)) :end)))
   (check (null (kit-next (kit :barro :jilliel-kin) :br-w-k1 :sp2c))))   ; (JILLIEL's own K: no SP2 cancel, as before)
   ;; the base stance: L picks the strings; the Step and its J
   (dolist (s '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re))

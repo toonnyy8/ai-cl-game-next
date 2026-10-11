@@ -362,7 +362,7 @@ charged slash (startup 12 -> 16), K3 the turn and the overhead split (12 -> 18) 
   ;; segment, a press; the openers had 2-4 hits a segment before)
   '(("L1" :sig 8 (0) 14 *br-s-l-dmg* :flinch :flinch :l (:gain 0))
     ("L2" :sig 8 (0) 14 *br-s-l-dmg* :flinch :flinch :l (:gain 1))
-    ("L3" :sig 8 (0) 18 *br-s-l3-dmg* :stagger :stagger :l (:gain 2))
+    ("L3" :sig 8 (0) 18 *br-s-l3-dmg* :stagger :stagger :l (:gain 2 :end t))
     ("J1" :quick 8 (0) 12 *br-s-j-dmg* :flinch :flinch :j nil)
     ("J2" :quick 8 (0) 12 *br-s-j-dmg* :flinch :flinch :j nil)
     ("J3" :quick 8 (0) 14 *br-s-j-dmg* :stagger :stagger :j (:end t))
@@ -870,6 +870,8 @@ last beam slow the match; the pacing log."
         ((:j :jl) (multiple-value-bind (fs sp) (br-recover-gain c role (brs-spent st))
                     (pay-gauges att sp fs)
                     (pace att (if (and (eq role :jl) (brs-spent st)) :recover-big :recover))))))
+    (when (and role (eq c :hit) (getf (mv-params mv) :end) (not (getf (mv-params mv) :dash)))
+      (br-s-end-push att def mv))
     (when (and role (eq c :hit) (brs-slow st))
       (setf (brs-slow st) nil)
       (slowmo *br-fresh-scale* *br-fresh-secs*) (pace att :slow-fresh) (clog "~a stance slow motion" (side-name att)))
@@ -878,6 +880,22 @@ last beam slow the match; the pacing log."
       (slowmo *br-volley-scale* *br-volley-secs*) (pace att :slow-volley) (clog "~a volley slow motion" (side-name att)))
     (when (and hw (br-x-hit-p hw))
       (pace att (if (eq c :hit) :x-hit :x-guarded)))))
+
+(defun br-s-end-push (e o mv)
+  "A stance string's last segment MV (:end: L3, J3, K3, JL3, KL3) just hit O: O is pushed out of the reach of the string's
+first segment (L1 after L3, J1 after J3 / JL3, K1 after K3 / KL3, the same prefix) as a J / K string's ender (ENDER-PUSH,
+*ENDER-PUSH*; the user 2026-10-11: 「架式連段結束後要像 J/K 結尾一樣將對手推離初始起手勢的攻擊範圍避免無限壓制」). The
+awakened L (one dash, R10) leaves him behind it, 1.6 m past: no push. What starts off it chases him (BR-S-TICK's SP2)."
+  (let* ((name (symbol-name (mv-name mv))) (pre (subseq name 0 (position #\- name :from-end t)))
+         (first (case (getf (mv-params mv) :stance) (:l "L1") ((:j :jl) "J1") (t "K1")))
+         (opener (gethash (intern (format nil "~a-~a" pre first) :keyword) *moves*))
+         (push (and opener (not (getf (mv-params opener) :dash))
+                    (- (+ (mv-reach opener) (mv-slide opener) (body-hurt-r (model-body (model o))) *ender-push*)
+                       (fighter-dist (fighter e))))))
+    (when (and push (plusp push) (eq (fighter-state (fighter o)) :stun))
+      (multiple-value-bind (mb ma) (push-apart e o push *ender-push-frames*)
+        (pace e :end-push)
+        (clog "~a stance end push ~a ~,1f m (attacker ~,1f)" (side-name e) (mv-name mv) mb ma)))))
 
 (defun barro-struck (def att res hw mv hazard ranged)
   "After a hit he took (his kit's :struck): the wing armour held (RESOLVE-CONTACT :armored: his moves carry no :armor-hits,
@@ -1018,7 +1036,9 @@ His CPU makes one call there (BR-S-CPU-CALL)."
             (cond ((and (brs-sp2-next st) sp2 (eq (fighter-contact f) :hit))
                    (setf (brs-sp2-next st) nil (brs-l-next st) nil)
                    (turn-to-opp e f 10.0)
-                   (when (try-command e f :sp2 nil nil sp2) (pace e :k-sp2)))
+                   (when (try-command e f :sp2 nil nil sp2)
+                     (when (getf (mv-params mv) :end) (setf (fighter-end-chase f) t))   ; (BR-S-END-PUSH: it chases him)
+                     (pace e :k-sp2)))
                   ((and (brs-l-next st) next)
                    (setf (brs-l-next st) nil (brs-sp2-next st) nil)
                    (cond ((null (fighter-contact f)) (pace e :l-whiff))   ; (R5: a whiff ends it, as a J / K string)
