@@ -79,13 +79,14 @@ R1: 「消耗四片翼」). The base's pips carry in at the awakening (3 pips ->
 (defparameter *br-s-l-gain* '(0 0 1)
   "... the special each of its three segments gives on a hit or a block (L3 +1: a full string +1; it was +1 / +2 = +3,
 R3 「下降至少 50%」, 2026-10-11 [G]).")
-(defparameter *br-s-k-dmg* 36
+(defparameter *br-s-k-dmg* 46
   "Stance K 高攻: K1 / K2's one hit (R7: 2 x 14 -> 28; R3, 45 a shot before; 28 -> 36, R13, the user 2026-10-11: 「降低普通 K
-的傷害，並提高架式 K > L 的重斬與砲擊傷害」) ...")
-(defparameter *br-s-k3-dmg* 54 "... K3's (R7: 3 x 14 -> 42; a string 98 as before; 42 -> 54, R13: a string 126) ...")
-(defparameter *br-s-kl-dmg* 56
+的傷害，並提高架式 K > L 的重斬與砲擊傷害」; 36 -> 46, R14: 「我希望 K 之後的 LL 傷害大於架式 K 又大於普通 K」, each segment
+above the attack state's K at its place, every form: BR-K-ORDER-P) ...")
+(defparameter *br-s-k3-dmg* 66 "... K3's (R7: 3 x 14 -> 42; a string 98 as before; 42 -> 54, R13: a string 126; 54 -> 66, R14: 158) ...")
+(defparameter *br-s-kl-dmg* 70
   "... its L L follow-up (R3: K K -> L L, 「兩者都花資源」): each line's damage, one special spent a line (a 萬物貫通 line, 31 m;
-none left: no follow-up). The K K -> J J follow-up's 15 + 30 before (new 2026-10-11 [G]; 45 -> 56, R13: three 168).")
+none left: no follow-up). The K K -> J J follow-up's 15 + 30 before (new 2026-10-11 [G]; 45 -> 56, R13: three 168; 56 -> 70, R14: above the stance K3, three 210).")
 (defparameter *br-s-j-dmg* 15 "Stance J 回復: each segment's one hit (R7: 3 x 5 -> 15, J3's too; R3, 15 a shot before) ...")
 (defparameter *br-s-j-fs* 3.0
   "... each segment's hit gives this much flash step (a string 9; it was 10 a segment, 20 a string: R3 「下降至少 50%」) ...")
@@ -148,9 +149,9 @@ keep the damage and the block advantage but not the speed (route :JN, decision R
 回到標準速度」).")
 (defparameter *br-k-slow* 2 "Decision V8, the K route: a K's startup and recovery each this many frames longer ...")
 (defparameter *br-k-link-slow* 1 "... but a K link's effective startup only this many longer, 14 -> 15 ...")
-(defparameter *br-k-mult* 1.00
+(defparameter *br-k-mult* 0.80
   "... its damage x this, rounded (1.20 -> 1.00, R13, the user 2026-10-11: 「降低普通 K 的傷害」: every form's attack-state K
-string, the base's, KIN's and the owl's) ...")
+string, the base's, KIN's and the owl's; 1.00 -> 0.80, R14: below the stance K, BR-K-ORDER-P) ...")
 (defparameter *br-k-adv* -4 "... and its block advantage this many frames lower (decision V8).")
 
 ;; JILLIEL
@@ -930,6 +931,21 @@ last beam slow the match; the pacing log."
   "A stance string's end push (BR-S-END-PUSH): past the first segment's whole reach (BR-MOVE-REACH) + the victim's body by
 this many metres (R12, the user 2026-10-11: 「架式 J/K 完的推離距離不夠遠，導致架式 J1/K1 還是能打中對手」: the generic
 *ENDER-PUSH* 0.05 on MV-REACH, a capsule's end without its radius, left J1 0.35 m in reach; [G]).")
+(defun br-k-order-p ()
+  "R14 (the user 2026-10-11: 「我希望 K 之後的 LL 傷害大於架式 K 又大於普通 K」): in every form, each attack-state K string link's
+damage below the stance K segment at its place (K1 K2 K3), and every stance K segment below a K route L L line (the same
+form's multiplier on both: compared as written)?"
+  (and (every (lambda (pre)
+                (every (lambda (n)
+                         (let ((s (mv-dmg (find-move (intern (format nil "~a-K~d" pre n) :keyword)))))
+                           (< s (mv-dmg (find-move (intern (format nil "~a-KL~d" pre n) :keyword))))))
+                       '(1 2 3)))
+              '("BR-S" "BR-E" "BR-OE"))
+       (every (lambda (row)
+                (destructuring-bind (pre . ks) row
+                  (loop for k in ks for n from 1
+                        always (< (mv-dmg (find-move k)) (mv-dmg (find-move (intern (format nil "~a-K~d" pre n) :keyword)))))))
+              '(("BR-S" :br-k1 :br-k2 :br-k3) ("BR-E" :br-w-k1 :br-w-k2 :br-w-k3) ("BR-OE" :br-o-k1 :br-o-k2 :br-o-k3)))))
 (defun br-move-reach (mv)
   "MV's whole reach (m): the farthest edge of its hit windows' volumes (a capsule's end + its radius, an arc's radius, a
 sphere's distance + its radius); MV-REACH without volumes."

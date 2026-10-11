@@ -912,5 +912,15 @@ from the press), else the stance as before. Browser: a tap → EN; held 30 f →
 (base 58 / 58 / 84 → 48 / 48 / 70, KIN 60 / 60 / 86 → 50 / 50 / 72, the owl 65 / 65 / 94 → 54 / 54 / 78, before the form's ×).
 「架式 K > L 的重斬與砲擊」 = the stance's K string (the great sword awakened) and its L L follow-up (the blasts / lines):
 `*br-s-k-dmg*` 28 → 36, `*br-s-k3-dmg*` 42 → 54 (a string 98 → 126), `*br-s-kl-dmg*` 45 → 56 (three 135 → 168). Host tests
-8257 ALL PASS, pkgcheck 0, build 0 warnings. Playtest v70.
+8257 ALL PASS, pkgcheck 0, build 0 warnings. Playtest v70 (the damage revised at once by R14, §18.1).
+
+### 18.1 R14 (2026-10-11): the K damage order
+
+The user (verbatim): 「我希望 K 之後的 LL 傷害大於架式 K 又大於普通 K」.
+
+Per hit, as written (one form's multiplier on all three): K route L L line > stance K segment > the attack state's K
+link at the same place, in every form. `*br-k-mult*` 1.00 → 0.80 (base 38 / 38 / 56, KIN 40 / 40 / 58, the owl 43 / 43 /
+62), `*br-s-k-dmg*` 36 → 46, `*br-s-k3-dmg*` 54 → 66 (a string 158), `*br-s-kl-dmg*` 56 → 70 (three 210). A host check
+holds the order (`BR-K-ORDER-P`: each attack-state K link < the stance K at its place < each K route L L line, every form).
+Host tests 8258 ALL PASS. Playtest v71 (v70: R13's 1.00 / 36 / 54 / 56, never gated).
 
