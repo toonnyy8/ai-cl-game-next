@@ -820,3 +820,10 @@ the level; the R10 cosmetic cut timer (`*br-cuts*`, `%br-cuts-look`, `*br-dash-c
 8257 ALL PASS; browser: level 1 / 2 / 3 → 2 / 4 / 6 hits (the HUD's 2 HITs 16, 3 HITs 24, 4 HITs 31 …), both forms; the
 cut look 0 B a frame.
 
+### 16.1 Gates after R11's sim (native sim, 9b9158e)
+
+10 seeds, 60 matches, all K.O.: BY 117.7, BK 109.0, BR 129.1, BI 144.1, BS 166.9, BB 185.3 s (BI, BS, BB pass at once).
+20 seeds: BR 139.0 s, pass. 60 seeds: **BY 116.1 s, BK 109.1 s**, still below 125 (§15.2: 113.2 / 109.1): the open
+exception, waiting on the user's playtest (「先試玩再決定」), no knob retuned. Mirror awaken A/B (BB, 39020, 60 seeds, seed0
+100 / 300 / 500): **55 / 58 / 54**, pass.
+
