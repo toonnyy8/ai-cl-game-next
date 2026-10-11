@@ -1896,7 +1896,7 @@ cocks the joints back and down.")
 ;; on its fan of three). All of it a look: the move's frame read for the timing only, never sim state.
 (defparameter *lb-jilliel-strikes* '(:lb-w-q1 :lb-w-q2 :lb-w-q3 :lb-w-f1 :lb-w-f2 :lb-w-f3 :lb-e-q1 :lb-e-q2 :lb-e-q3
                                      :lb-e-f1 :lb-e-f2 :lb-e-f3
-                                     :br-en-l1 :br-en-l2 :br-en-l3 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3)
+                                     :br-en-lc :br-en-l1 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3)
   "Jilliel's strike clips (decision 50): KIN's six, EN's six casts; Lille II's awakened stance openers (barro-art.lisp, his
 melee wing strikes since DUEL_LILLE_V3 R4: the ring at his reach, as KIN's). Their moves drive the convergence and the trails.")
 (defparameter *lb-conv-from* -2.0 "The convergence: the first table wing launches this many frames from the strike's S ...")
@@ -1921,7 +1921,7 @@ melee wing strikes since DUEL_LILLE_V3 R4: the ring at his reach, as KIN's). The
 ;; frame read for the timing only, never sim state.
 (defparameter *lb-owl-strikes* '(:lb-o-q1 :lb-o-q2 :lb-o-q3 :lb-o-f1 :lb-o-f2 :lb-o-f3 :lb-oe-q1 :lb-oe-q2 :lb-oe-q3
                                  :lb-oe-f1 :lb-oe-f2 :lb-oe-f3
-                                 :br-oen-l1 :br-oen-l2 :br-oen-l3 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3)
+                                 :br-oen-lc :br-oen-l1 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3)
   "The owl's claw strikes (decision 56): KIN's six, EN's six casts; Lille II's owl EN stance openers (his melee claw strikes,
 DUEL_LILLE_V3 R4). Their moves drive the beat, the convergence and the claw trails.")
 (defparameter *lb-owl-conv-from* -1.0
@@ -1959,7 +1959,7 @@ reads first) ...")
   "The owl's eight gold wing blades, two fans of four (+34 / +11 / -11 / -34 degrees a side, long: the refs' wide spread);
 its claws are its hands.")
 (declaim (type f32vec *lb-wings-jl* *lb-wings-owl* *lb-wf* *lb-wm*))
-(defvar *lb-wf* (make-f32 80)
+(defvar *lb-wf* (make-f32 92)
   "The jointed wings' scratch: [0..26] the three segments' unit frames (9 each: X Y Z), [30 31] a tilt's numbers (toward X,
 toward Z), [32..35] the chain's turn (axis, angle); per call (LILLE-DRAW's %LB-DRIVE!): [39] the strike's virtual speed
 (m/s along his facing), [40] the striking front wings (bit 0 right, bit 1 left), [41] 1 on the active frames (straight),
@@ -1975,7 +1975,11 @@ Kikon cinematic's card); for the owl's claws (decision 56, %LB-OWL-BEAT!) [68] t
 opening of KIN's swept sheaf 0..1, [70] 1 = an owl strike (all eight wings converge, four pairs); per draw (%LB-STRETCH!,
 Lille II's whips) [71] the stretched wing's width gain (*LB-STRETCH-GROW*), [72 73] the right / left front wing's stretch
 (m past the hand, *LB-STRETCH*), and %LB-WINGS' [74..76]
-[77..79] the right / left front wing's drawn tip (the hand, or past it by the stretch).")
+[77..79] the right / left front wing's drawn tip (the hand, or past it by the stretch); set by another kit's draw hook
+before LILLE-DRAW (Lille II's, DUEL_LILLE_V3 §15 R10; 0 = off, and Lille never sets them): [80] the sweep's tightness (*LB-V*
+[29] at least this while a *LB-SWEEP-CLIPS* clip plays), [81 82] the right / left front wing's (claw's lash's) reach 0..1
+toward the point [83..85] (the whip lashing out to him: its tip moved that share of the way to the point, the blade or the
+lash straight from its root to it, the blade thinned to 1 - 0.7 x its share; [86..88] its root, for the kit's own lash).")
 (defvar *lb-stretch* nil
   "Another kit's stretched wings (Lille II's whips, barro-art.lisp *BR-W-STRETCH*, DUEL_LILLE_V3 §10; Lille's own clips are
 never in it): clip name -> an f32vec of keys (frame right left), the metres a front wing reaches past the rig's hand at that
@@ -2223,8 +2227,14 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
                      (to (if (> s 0f0) 74 77)))                            ;  *LB-STRETCH*; 0 for Lille)
                 (declare (fixnum h to) (single-float hx hy hz dx dy dz dl ux uy uz ddx ddy ddz ex))
                 (%lb-basis! w 0 ux uy uz (- (* ddy uz) (* ddz uy)) (- (* ddz ux) (* ddx uz)) (- (* ddx uy) (* ddy ux)))
-                (setf len (+ dl ex) wd (* lk (aref tbl (+ r 2)) (+ 1f0 (* (aref w 71) ex))) px (+ hx (* ex ux)) py (+ hy (* ex uy)) pz (+ hz (* ex uz))
-                      (aref w to) px (aref w (+ to 1)) py (aref w (+ to 2)) pz))
+                (setf len (+ dl ex) wd (* lk (aref tbl (+ r 2)) (+ 1f0 (* (aref w 71) ex))) px (+ hx (* ex ux)) py (+ hy (* ex uy)) pz (+ hz (* ex uz)))
+                (let ((q (aref w (if (> s 0f0) 81 82))))   ; (Lille II's whip lashing out to him, R10 §15: the tip moved
+                  (declare (single-float q))               ;  share Q of the way to [83..85], straight from the root)
+                  (when (> q 0f0)
+                    (setf px (+ px (* q (- (aref w 83) px))) py (+ py (* q (- (aref w 84) py))) pz (+ pz (* q (- (aref w 85) pz)))
+                          len (f-max 0.05f0 (f-hypot (- px ox) (- py oy) (- pz oz))) wd (* wd (- 1f0 (* 0.7f0 q)))
+                          (aref w 86) ox (aref w 87) oy (aref w 88) oz)))
+                (setf (aref w to) px (aref w (+ to 1)) py (aref w (+ to 2)) pz))
               ;; (the sweep SB, the owl's KIN, decision 38: the fan closed up into a narrow sheaf lowered along his back,
               ;; the blades trailing back and down close to his midline (a folded bird's), shorter, their faces turned to
               ;; the side: a narrow sheaf from behind, the long swept blades from the side)
@@ -2658,11 +2668,14 @@ drooping by *LB-LASH-SAG* of its length off them. Its tip is the strike point (t
                  (hx (aref jm (+ h 12))) (hy (aref jm (+ h 13))) (hz (aref jm (+ h 14)))
                  (dx (- hx (aref jm (+ b 12)))) (dy (- hy (aref jm (+ b 13)))) (dz (- hz (aref jm (+ b 14))))
                  (k (/ ex (f-max 1f-4 (f-hypot dx dy dz))))
-                 (tx (+ hx (* k dx))) (ty (+ hy (* k dy))) (tz (+ hz (* k dz)))
-                 (sag (if (> (aref w 41) 0.5f0) 0f0 (* 2f0 ex (the single-float *lb-lash-sag*))))
+                 (q (aref w (+ 81 g)))                    ; (Lille II's whip lashing out to him, R10 §15: [81 82] [83..85])
+                 (tx (+ hx (* k dx) (* q (- (aref w 83) (+ hx (* k dx))))))
+                 (ty (+ hy (* k dy) (* q (- (aref w 84) (+ hy (* k dy))))))
+                 (tz (+ hz (* k dz) (* q (- (aref w 85) (+ hz (* k dz))))))
+                 (sag (if (or (> (aref w 41) 0.5f0) (> q 0f0)) 0f0 (* 2f0 ex (the single-float *lb-lash-sag*))))
                  (bx (* 0.5f0 (+ hx tx))) (by (- (* 0.5f0 (+ hy ty)) sag)) (bz (* 0.5f0 (+ hz tz)))
                  (lw (* sc (the single-float *lb-lash-w*) (+ 1f0 (* (aref w 71) ex)))) (sd (+ 150f0 (* 5f0 (i->f (+ g (* 2 side)))))))
-            (declare (fixnum h b) (single-float hx hy hz dx dy dz k tx ty tz sag bx by bz lw sd))
+            (declare (fixnum h b) (single-float hx hy hz dx dy dz k q tx ty tz sag bx by bz lw sd))
             (fx-crescent tx ty tz hx hy hz bx by bz lw :comet 0.04f0 sd +pal-gold+ 0.95f0 :push 0.2f0)
             (fx-crescent tx ty tz hx hy hz bx by bz (* 0.4f0 lw) :comet 0.02f0 (+ sd 1f0) +pal-hit+ 0.9f0 :push 0.25f0))))))
   nil)
@@ -2922,8 +2935,8 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
       (setf (lb-fxs side 18) (if en (f-min 1f0 (+ (lb-fxs side 18) (* 5f0 rdt))) (f-max 0f0 (- (lb-fxs side 18) (* 5f0 rdt))))
             (aref v 8) (if (%lb-owl-p form) (lb-fxs side 18) 0f0)
             (aref v 29) (if (%lb-owl-p form) (- 1f0 (lb-fxs side 18)) 0f0))
-      (when (and mv (member (mv-clip mv) *lb-sweep-clips*))   ; (Lille II's dash, R9: the eight wings swept back)
-        (setf (aref v 29) 1f0)))
+      (when (and mv (member (mv-clip mv) *lb-sweep-clips*))   ; (Lille II's dash, R9: the eight wings swept back; R10, §15:
+        (setf (aref v 29) (f-max 1f0 (aref *lb-wf* 80)))))   ;  tighter by the L charge's level, his draw hook's [80])
     (%lb-drive! f mv rdt (%lb-owl-p form))               ; the joints' strike drive (cosmetic: the move's frame)
     (%lb-stretch! (model-anim m))                        ; (Lille II's whips: the front wings' / lashes' stretch)
     (%lb-sp-drive! f mv (%lb-owl-p form) ck)             ; the SPs', the Kikon's and its cinematic's (decision 56)
