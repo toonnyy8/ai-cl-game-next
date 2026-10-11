@@ -622,7 +622,7 @@ The user (verbatim):
 > - 大砍刀的動作要更緩慢沉重、扭轉身體、砍刀後拉，每次只用一隻光翼揮砍，揮砍前光翼隨身體的距離伸長放大
 > - 砲擊不要發射光束，直接在爆炸點炸開光球來表示
 
-Reading [G]: 「段數」 = a move's hits (only J3 had 4); 「大砍刀」 = J3's cleaver and K1's great-sword chops.
+Reading [G]: 「段數」 = a move's hits (only J3 had 4); 「大砍刀」 = J3's cleaver and K1's great-sword chops. **The first line is superseded by R7 (§12): the user meant one hit a press.**
 
 | Rule | Before | Now |
 |---|---|---|
@@ -633,4 +633,20 @@ Reading [G]: 「段數」 = a move's hits (only J3 had 4); 「大砍刀」 = J3'
 | K3's blast | a flash, a star and the tips thrust along his line | **no beam**: a ball of light bursting at the blast point (a white core, a jade / gold shell, fading) |
 
 Host tests: 3 hits at most; the art in progress (a subagent's batch r6-art).
+
+## 12. Decision R7 (2026-10-11): one hit a press
+
+The user (verbatim): 「抱歉不該說最多三下，我希望段數跟操作時的點擊次數一致，這樣玩家才能輕鬆確認到底打到哪一段」. Answers
+(AskUserQuestion): 「每段總傷害不變」, 「所有型態」.
+
+| Rule | Before (R3–R6) | Now |
+|---|---|---|
+| A stance opener segment (L1–K3), every form | 2–4 hits | **one hit, at S** (A 2) |
+| Damage a segment (before the form's multiplier) | L 8 x 2 / 2 / 3, J 5 x 3 / 3 / 3, K 14 x 2 / 2 / 3 | **L 16 / 16 / 24, J 15 / 15 / 15, K 28 / 28 / 42** (`*br-s-l-dmg*`, `*br-s-l3-dmg*`, `*br-s-j-dmg*`, `*br-s-k-dmg*`, `*br-s-k3-dmg*`) |
+| Reactions | the last hit's | L1 / L2 / J1 / J2 flinch, L3 / J3 / K stagger |
+| Frame data | | base L1 / L2 S 8 R 14, L3 S 8 R 18, J1 / J2 S 8 R 12, J3 S 8 R 14, K1 / K2 S 12 R 18, K3 S 12 R 22; awakened L x 1.5 (S 12), J3 S 14, K1 S 16 (`*BR-W-SEGS*`) |
+| The awakened modules | several strikes a segment | one a press: L one top's turn each, J1 / J2 a whip lash each, J3 the one-wing cleaver, K1 the one-wing great-sword chop, K2 a close blow, K3 the light-ball blast |
+
+Gains as before (a segment's). The follow-ups (one line each) unchanged. Clips: the base's nine and the awakened eighteen
+re-timed (a subagent's batch, in progress).
 
