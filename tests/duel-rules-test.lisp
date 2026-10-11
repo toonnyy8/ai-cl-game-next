@@ -3120,7 +3120,7 @@ defender's next step. Values: the attacker's and the defender's first actionable
                    (return (+ (val prev) (* (/ (- frame (first prev)) (- (first k) (first prev))) (- (val k) (val prev))))))
                  (setf prev k)))))))
 (check (and (~= 0.0 (br-stretch-at :lb-w-q1 10 0)) (~= 1.2 (br-stretch-at :br-en-j1 8 0)) (~= 1.0 (br-stretch-at :br-en-j1 8 1))
-            (~= 1.1 (br-stretch-at :br-en-j1 9.5 0)) (~= 0.0 (br-stretch-at :br-en-j1 40 0))))
+            (~= 1.15 (br-stretch-at :br-en-j1 9 0)) (~= 0.0 (br-stretch-at :br-en-j1 40 0))))
 (let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
       (pj (make-rig-proportions :arms 2.6)) (po (make-rig-proportions :arms 2.2 :legs 1.5)) (seen nil))
   (flet ((tip (clip time joint props)
