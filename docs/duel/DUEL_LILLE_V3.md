@@ -662,7 +662,7 @@ ALL PASS; build 0 warnings; browser: K K K, J J J, L L L (JILLIEL EN) and J J J 
 
 10 seeds, all 60 K.O.: BY 118.6, BK 105.3, BR 138.1, BI 151.5, BS 152.1, BB 161.0 s (his wins of 10: 6, 1, 2, 6, 7, mirror).
 20 seeds: BY 118.4 (12 / 20), BK 109.6 (4 / 20). 60 seeds: **BY 113.0 s** (26 / 60), **BK 106.1 s** (11 / 60), all K.O.:
-**outside 125–210, reported to the user, not retuned** (gate policy). Cause: a segment's damage kept in one hit at S (A 2),
+**outside 125–210, reported to the user, not retuned** (gate policy). The user: 「先試玩再決定」 (2026-10-11): they wait on the playtest. Cause: a segment's damage kept in one hit at S (A 2),
 so a string lands its damage in fewer frames. Awaken A/B (39020, 60 seeds, seed0 100 / 300 / 500, the never-awaken side's
 wins): BK 51 / 44 / 43, BB 55 / 57 / 54: pass.
 
