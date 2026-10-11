@@ -549,3 +549,30 @@ Awaken A/B (`--cmd 39020`, 60 seeds, seed0 100 / 300 / 500; the never-awaken sid
 36 (as §8.6: Kenpachi is the side that awakens there, Lille II never does), **BB 60 / 58 / 58** (§8.6: 54 / 50 / 48;
 medians 194.8–210.8 s). Pass; in the mirror the awakened Lille II now loses nearly every match: the melee openers need him
 inside ~2 m. Reported, not tuned (the user's playtest decides).
+
+## 10. Decision R5 (2026-10-11): a whiffed L stops, the awakened stance's motion modules
+
+The user (verbatim):
+
+> - LILLE II 的架式 > L 只要沒打中就就進入硬直
+> - 架式 > LL / JJ / KK 將動作模組差異化，例如像陀螺旋朝前方傾斜轉三圈揮舞光翼、爆炸特效的零距離砲擊，將光翼拉伸如同長鞭一般鞭擊、又如同大刀一般遲緩而沈重的揮砍
+
+Answers (AskUserQuestion): the whiff 「就跟一般的 J / K 普攻一樣」; the four motions 「我只是提概念，請以此延伸自由組合」; the
+reach 「跟著動作走」 (drawn reach = hit reach).
+
+### 10.1 A whiffed L (built, 8c2f372)
+
+| Rule | Before | Now |
+|---|---|---|
+| A stance L link (L1 → L2 → L3; J3 / K3 → L L) | started from the end of its hits whatever it touched | **only after the move touched him** (a hit or a block), as a J / K string's link; a whiff ends the string (pacing `l-whiff`) |
+| A whiffed L segment's recovery | R + `*whiff-extra*` 6 (a `:sig` move) | **R + 8** (`*br-s-l-whiff*` = a J link's `*whiff-extra-j*`), every form |
+
+Host tests 8409, ALL PASS.
+
+### 10.2 The awakened stance's motion modules (in progress)
+
+From the user's four concepts, combined (the lead's design, [G]): L 陀螺 (a forward-tilted spinning top, three turns over the
+string, the light wings swung flat), J 長鞭 (the light wings stretched into whips, rapid lashes), K 大刀 (slow, heavy great-sword
+chops; K3's last hit a point-blank cannon blast with an explosion), the owl EN the same on its claws / gold wings. Each hit's
+reach follows the drawn tip (`*BR-W-TIPS*`).
+
