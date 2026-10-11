@@ -883,3 +883,11 @@ K2 / K3 `BR-S-START` hooks move with their enter (7 / 8 → 8 / 9). Browser: J1 
 
 Host tests 8257 ALL PASS, pkgcheck 0, build 0 warnings. Playtest v69.
 
+### 17.1 Gates after R12 (native sim, 739decb)
+
+10 seeds, 60 matches, all K.O.: BY 108.8, BK 123.2, BR 150.6, BI 138.4, BS 144.8, BB 180.8 s (BR, BI, BS, BB pass). 60 seeds:
+**BY 114.9 s, BK 117.0 s**, still below 125 (§16.1: 116.1 / 109.1): the open exception, waiting on the user's playtest, no
+knob retuned. Mirror awaken A/B (BB, 39020, 60 seeds, seed0 100 / 300 / 500): **58 / 58 / 56**, pass. His CPU's wins fell in
+the 10-seed rows (BR 2, BI 2, BS 1 of 10; BY 22 / BK 13 of 60): the rooted 30 f EN its CPU doesn't plan for (its bands still
+walk and run there); no gate counts wins, reported to the user.
+
