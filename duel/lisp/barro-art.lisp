@@ -413,7 +413,13 @@
   (15 :br-pjl-skip (:root :f -0.1 :u -0.06) (:knee-r :flex 30) (:thigh-r :flex 20))
   (19 :br-pj-hip (:root :f -0.06))
   (:end :lb-stance))
-(defstrike :br-sk-jl2 (8 2 16 :base :lb-kamae-pose)   ; crouched, a hop back, fired from the air (f8), landed
+(defstrike :br-sk-jl2 (8 2 14 :base :lb-kamae-pose)   ; spun round on the spot, Diagramm tucked, out of the spin low at
+  (0 :br-pjl-skip) (3 :br-pjl-wind (:root :yaw -70))  ;  arm's length (f8, J2's solved hop pose), the kick
+  (6 :br-pjl-wind (:root :yaw -160 :u -0.06))
+  (:s :snap :br-pj-hop) (10 :snap :br-pj-hop-kick)
+  (16 :br-pj-hop-kick (:root :f -0.12))
+  (:end :lb-stance))
+(defstrike :br-sk-jl3 (8 2 16 :base :lb-kamae-pose)   ; crouched, a hop back, fired from the air (f8), landed
   (0 :br-pjl-skip) (3 :br-pj-hip (:root :f -0.04 :u -0.2) (:thighs :flex 34) (:knees :flex 52))
   (:s :snap :br-pjl-hop) (10 :snap :br-pjl-hop-kick)
   (15 :br-pj-hip (:root :f -0.24 :u -0.18) (:thighs :flex 32) (:knees :flex 48))
@@ -425,16 +431,81 @@
   (:s :br-pkl-shot) (12 :snap :br-pkl-kick)
   (20 :br-pkl-kick (:root :f -0.3 :u -0.18))
   (:end :lb-stance))
-(defstrike :br-sk-kl2 (10 2 20 :base :lb-kamae-pose)  ; down on the right knee (f10), rocked back on it, risen
+(defstrike :br-sk-kl2 (10 2 16 :base :lb-kamae-pose)  ; down on the right knee (f10), rocked back on it, kept down
   (0 :br-pkl-kick) (6 :br-pkl-kneel (:root :u -0.32))
   (:s :br-pkl-kneel) (12 :snap :br-pkl-rock)
-  (20 :br-pkl-rock (:root :f -0.22))
-  (25 :br-pk-brace (:root :f -0.12 :u -0.2))
+  (20 :br-pkl-rock (:root :f -0.18))
   (:end :lb-stance))
+(defstrike :br-sk-kl3 (10 2 20 :base :lb-kamae-pose)  ; from the knee, the long held aim, the big shot (f10) throws him
+  (0 :br-pkl-rock) (6 :br-pkl-kneel (:head :flex 10))   ;  up and back, Diagramm flung high (K3's finisher pose), risen
+  (:s :br-pkl-kneel) (12 :snap :br-pk-blown (:root :f -0.36 :u -0.1))
+  (22 :br-pk-blown (:root :f -0.46))
+  (27 :br-pk-brace (:root :f -0.22 :u -0.2))
+  (:end :lb-stance))
+;;; ---------------------------------------------------------------- the stance's L L follow-ups (DUEL_LILLE_V3 §8.5)
+;;; Decision R3 (the user, 2026-10-11): 「架式 > JJ/KK > LL 中，最後一段 LL 會依據前面 J/K 有不同的動作模組」, three segments
+;;; (「每段花 1，共 3」), each one 萬物貫通 line fired on S (barro.lisp's BR-DEFSTANCE; the clips at their moves' own frames,
+;;; :clip-s = startup). The L style carried on (「風格延續」: one line a beat, as the L string), the route's own body:
+;;; - the J route 疾射 (S 8, A 2, R 14 / 14 / 16): light, on the move, one wing / claw a beat from a slide, both from a
+;;;   hop back;
+;;; - the K route 重砲 (S 10, A 2, R 16 / 16 / 20): planted and heavy, both at once every beat.
+;;; JILLIEL EN fires from the front wings, the owl EN from its claws (the base form's follow-ups are above, solved on
+;;; Diagramm's muzzle: JL1 the whip, JL2 the spin, JL3 the hop back; KL1 the stamp, KL2 the kneel, KL3 the finisher from
+;;; the knee). The root's side / back offsets are the clip's only: the sim does not move him.
+;; JILLIEL EN: 疾射 a single front wing thrust at him from a slide (the right from his right, the left from his left), then
+;; both from a hop back; 重砲 both wings at once every beat, planted: swept up from low, slammed down from high, the
+;; NIJUSHI-KO ring held and its recoil
+(defstrike :br-e-jf1 (8 2 14 :base :lb-w-stance)
+  (0) (3 :br-cock-r (:root :r -0.2)) (6 :br-cock-r (:root :r -0.36 :u 0.14))
+  (:s :snap :br-fire-r (:root :r -0.4)) (:a :br-kick-r (:root :r -0.4)) (18 :br-settle-both (:root :f -0.1 :r -0.22 :u 0.04))
+  (:end :lb-w-stance))
+(defstrike :br-e-jf2 (8 2 14 :base :lb-w-stance)
+  (0 :lb-w-stance (:root :r -0.2)) (3 :br-cock-l (:root :r 0.14)) (6 :br-cock-l (:root :r 0.36 :u 0.14))
+  (:s :snap :br-fire-l (:root :r 0.4)) (:a :br-kick-l (:root :r 0.4)) (18 :br-settle-both (:root :f -0.1 :r 0.22 :u 0.04))
+  (:end :lb-w-stance))
+(defstrike :br-e-jf3 (8 2 16 :base :lb-w-stance)
+  (0 :lb-w-stance (:root :r 0.2)) (3 :br-cock-both (:root :u 0.06)) (6 :br-cock-both (:root :f -0.3 :u 0.3))
+  (:s :snap :br-fire-both (:root :f -0.4 :u 0.34)) (:a :br-kick-both (:root :f -0.5 :u 0.3))
+  (18 :br-settle-both (:root :f -0.42 :u 0.1)) (:end :lb-w-stance))
+(defstrike :br-e-kf1 (10 2 16 :base :lb-w-stance)
+  (0) (5 :br-low-both) (9 :br-low-both (:root :f -0.08 :u -0.08))
+  (:s :snap :br-fire-both (:root :f 0.1 :u -0.02)) (:a :br-kick-both) (20 :br-settle-both) (:end :lb-w-stance))
+(defstrike :br-e-kf2 (10 2 16 :base :lb-w-stance)
+  (0) (5 :br-cock-both) (9 :br-cock-both (:root :u 0.22 :pitch -8))
+  (:s :snap :br-fire-both (:root :f 0.16 :u -0.04 :pitch 8) (:spine :flex 20)) (:a :br-kick-both (:root :f -0.36))
+  (20 :br-settle-both) (:end :lb-w-stance))
+(defstrike :br-e-kf3 (10 2 20 :base :lb-w-stance)
+  (0) (4 :br-ring-pose (:root :u 0.2)) (9 :br-ring-pose (:root :f -0.1 :u 0.34 :pitch -4) (:spine :flex -10))
+  (:s :snap :br-blown-pose (:root :f -0.3)) (:a :br-blown-pose (:root :f -0.56 :u 0.38))
+  (24 :br-settle-both (:root :u 0.14)) (:end :lb-w-stance))
+;; the owl EN: the same two bodies on its claws (the volley's solved keys)
+(defstrike :br-oe-jf1 (8 2 14 :base :lb-oe-stance)
+  (0) (3 :br-o-cock-r (:root :r -0.2)) (6 :br-o-cock-r (:root :r -0.34))
+  (:s :snap :br-o-fire-r (:root :r -0.38 :f 0.1)) (:a :br-o-kick-r (:root :r -0.38 :f 0.06))
+  (18 :lb-oe-stance (:root :r -0.18)) (:end :lb-oe-stance))
+(defstrike :br-oe-jf2 (8 2 14 :base :lb-oe-stance)
+  (0 :lb-oe-stance (:root :r -0.18)) (3 :br-o-cock-l (:root :r 0.14)) (6 :br-o-cock-l (:root :r 0.34))
+  (:s :snap :br-o-fire-l (:root :r 0.38 :f 0.1)) (:a :br-o-kick-l (:root :r 0.38 :f 0.06))
+  (18 :lb-oe-stance (:root :r 0.18)) (:end :lb-oe-stance))
+(defstrike :br-oe-jf3 (8 2 16 :base :lb-oe-stance)
+  (0 :lb-oe-stance (:root :r 0.18)) (3 :br-o-cock-both (:root :u 0.1)) (6 :br-o-cock-both (:root :f -0.3 :u 0.3))
+  (:s :snap :br-o-fire-both (:root :f -0.36 :u 0.3)) (:a :br-o-kick-both (:root :f -0.46 :u 0.26))
+  (18 :br-o-kick-both (:root :f -0.3 :u 0.1)) (:end :lb-oe-stance))
+(defstrike :br-oe-kf1 (10 2 16 :base :lb-oe-stance)
+  (0) (5 :br-o-low-both) (9 :br-o-low-both (:root :u -0.16))
+  (:s :snap :br-o-launch-both) (:a :br-o-launch-both (:root :f 0.2 :u 0.2)) (20 :br-o-kick-both) (:end :lb-oe-stance))
+(defstrike :br-oe-kf2 (10 2 16 :base :lb-oe-stance)
+  (0) (5 :br-o-open-pose) (9 :br-o-open-pose (:root :u 0.16 :pitch -9))
+  (:s :snap :br-o-throw-both (:root :f 0.3)) (:a :br-o-throw-both (:root :f 0.2 :u 0.04)) (20 :br-o-kick-both)
+  (:end :lb-oe-stance))
+(defstrike :br-oe-kf3 (10 2 20 :base :lb-oe-stance)
+  (0) (4 :br-o-raise-both) (9 :br-o-raise-both (:root :u 0.38 :pitch -10))
+  (:s :snap :br-o-throw-both) (:a :br-o-throw-both (:root :f 0.5 :u -0.1)) (24 :br-o-kick-both (:root :f -0.1))
+  (:end :lb-oe-stance))
 ;;; ---------------------------------------------------------------- the draw hook
 (defparameter *br-aim-stance* '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
   "The base stance's moves: the aim line tracks while one runs ...")
-(defparameter *br-aim-locked* '(:br-s-kl1 :br-s-jl1)
+(defparameter *br-aim-locked* '(:br-s-jl1 :br-s-jl2 :br-s-jl3 :br-s-kl1 :br-s-kl2 :br-s-kl3)
   "... and turns jade, locked, through the startup of these shots (the stance's spending 萬物貫通 lines, decision R3).")
 (defun-fast %br-aim-look (e f side)
   "The stance's aim line (Lille's %LB-AIM-LOOK on his moves): a thin line on the floor from under the muzzle to the wall,
@@ -896,14 +967,15 @@ wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-
 step full: k 0-4 the owl (kept without a burst) with 0 / 2 / 4 / 6 / 8 wings, the volley started (its string by the
 count: 空收 / 二連 / 四連 / 裁き / 裁き・極); 8 / 9 JILLIEL's turn into the stance / its stance's K K -> L L line (KL1); 10 / 11
 the owl's; 12 the owl's SP2 on its own (the volley's wind-up); 13 the base stance's SP2 HIRENKYAKU; 14 JILLIEL's SANREN;
-15 / 16 / 17 the base stance's L1 / J1 / K1 (3 m out); 18 / 19 JILLIEL's stance L1 / K1 (3 m out); 40-49 the base stance's
-L2 L3 J2 J3 K2 K3 JL1 JL2 KL1 KL2 (3 m out, started on their own; + 20 the front view)."
+15 / 16 / 17 the base stance's L1 / J1 / K1 (3 m out); 18 / 19 JILLIEL's stance L1 / K1 (3 m out); 40-51 the base stance's
+L2 L3 J2 J3 K2 K3 JL1 JL2 JL3 KL1 KL2 KL3 (3 m out, started on their own, 3 pips; + 20 the front view). The L L follow-ups
+in every form: BR-ART-FOLLOW."
   (let* ((front (oddp (floor k 20))) (k (if front (- k 20) k)) (owl (or (<= 0 k 4) (<= 10 k 13))))
     (if front (ensure-battle :kenpachi :barro) (ensure-battle :barro :kenpachi))
     (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
       (setf *br-keep-owl* owl)
-      (force-form b (cond ((or (<= 15 k 17) (<= 40 k 49)) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
-      (place *p1* *p2* (if (or (<= 15 k 19) (<= 40 k 49)) 3.0 4.0))
+      (force-form b (cond ((or (<= 15 k 17) (<= 40 k 51)) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
+      (place *p1* *p2* (if (or (<= 15 k 19) (<= 40 k 51)) 3.0 4.0))
       (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
             (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))   ; (no K.O. across a script's scenes)
       (case k
@@ -916,9 +988,29 @@ L2 L3 J2 J3 K2 K3 JL1 JL2 KL1 KL2 (3 m out, started on their own; + 20 the front
         (14 (start-move b (find-move :br-w-sanren)))
         (15 (start-move b (find-move :br-s-l1))) (16 (start-move b (find-move :br-s-j1))) (17 (start-move b (find-move :br-s-k1)))
         (18 (start-move b (find-move :br-e-l1))) (19 (start-move b (find-move :br-e-k1)))
-        ((40 41 42 43 44 45 46 47 48 49)
+        ((40 41 42 43 44 45 46 47 48 49 50 51)
+         (br-set-ammo b 3)
          (start-move b (find-move (nth (- k 40) '(:br-s-l2 :br-s-l3 :br-s-j2 :br-s-j3 :br-s-k2 :br-s-k3 :br-s-jl1 :br-s-jl2
-                                                  :br-s-kl1 :br-s-kl2))))))
+                                                  :br-s-jl3 :br-s-kl1 :br-s-kl2 :br-s-kl3))))))
+      (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
+
+(defun br-art-follow (j front)
+  "82320+j (FRONT, 82340+j: P2, the front view): the stance's L L follow-up clips (DUEL_LILLE_V3 §8.5) 3 m from an idle
+Kenpachi, the specials full: j = 6 form + segment, form 0 the base / 1 JILLIEL EN / 2 the owl EN, segment 0-2 JL1-JL3, 3-5
+KL1-KL3."
+  (multiple-value-bind (fm sg) (floor j 6)
+    (if front (ensure-battle :kenpachi :barro) (ensure-battle :barro :kenpachi))
+    (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
+      (setf *br-keep-owl* (= fm 2))
+      (force-form b (svref #(:base :jilliel :shin) fm))
+      (place *p1* *p2* 3.0)
+      (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*) (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))
+      (br-set-ammo b (if (zerop fm) 3 8))
+      (start-move b (find-move (svref (svref #(#(:br-s-jl1 :br-s-jl2 :br-s-jl3 :br-s-kl1 :br-s-kl2 :br-s-kl3)
+                                               #(:br-e-jl1 :br-e-jl2 :br-e-jl3 :br-e-kl1 :br-e-kl2 :br-e-kl3)
+                                               #(:br-oe-jl1 :br-oe-jl2 :br-oe-jl3 :br-oe-kl1 :br-oe-kl2 :br-oe-kl3))
+                                             fm)
+                                      sg)))
       (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
 
 (defun br-art-cine (f)
@@ -939,12 +1031,15 @@ read the drop: one wing the burst at its tip, two or more the armour's shatter, 
   "His art stills (barro.lisp registers 82100-82399 ahead of BARRO-DEBUG): 82100+k BR-ART-SCENE k (+ 20 the front view);
 82200+f the sim freezes once his look clock reaches f (the volley chain's: the recall's frame, 7 + its string's; else the
 move's frame; issue it before the scene), 82299 lets go; 82300+k his awakening held at frame 10 k (BR-ART-CINE);
+82320+j / 82340+j the L L follow-ups' clips, behind / front (BR-ART-FOLLOW);
 82380+k his special set to k, 0-8 (BR-ART-AMMO: the spend looks); 82398 the consing probe."
   (let ((n (- c 82100)))
     (cond ((< n 100) (br-art-scene n))
           ((< n 199) (setf *br-art-hold-next* (- n 100)))
           ((= n 199) (setf *br-art-hold* -1 *br-art-hold-next* -1 *hitstop* 0))
           ((< n 219) (br-art-cine (* 10 (- n 200))))
+          ((<= 220 n 237) (br-art-follow (- n 220) nil))
+          ((<= 240 n 257) (br-art-follow (- n 240) t))
           ((<= 280 n 288) (br-art-ammo (- n 280)))
           ((= n 298) (br-cons-probe))
           (t (log-msg "duel barro: no debug command ~d" c)))))

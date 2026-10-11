@@ -399,7 +399,7 @@ Mid-build (the user): 「SP2 接在 JJ 後面也可以」, then 「不是 JJ 不
 | Rule | Before (rev. 3) | Now (R3) |
 |---|---|---|
 | The stance's strings L / J / K | two segments, one 萬物貫通 line each, 31 m | **three segments of several plain shots each, 4 m** (`*BR-S-NEAR*`), no 萬物貫通, each string its own rhythm: L 2 / 2 / 3 hits (8 each, an even beat), J 3 / 3 / 4 (5 each, every 3 f), K 2 / 2 / 3 (14 each, heavy, every 8–10 f; 98 a string); standard J speed (startup 8) |
-| The follow-ups | K K → J J (spend: 15 → 45), J J → K K (spend: more refill) | **J string → L L and K string → L L** (from J3 / K3, L presses), each route its own clips (「最後一段 LL 會依據前面 J/K 有不同的動作模組」: new clips, §8.3), one 萬物貫通 line a segment (31 m), **one special spent a line; none: no follow-up** (the press does nothing). K → L L 45 a line; J → L L 15 a line + J's refill + 10 flash step / 15 Reiatsu |
+| The follow-ups | K K → J J (spend: 15 → 45), J J → K K (spend: more refill) | **J string → L L and K string → L L** (from J3 / K3, L presses), each route its own clips (「最後一段 LL 會依據前面 J/K 有不同的動作模組」: new clips, §8.5), **three segments** (JL1–JL3, KL1–KL3; §8.5: 「每段花 1，共 3」), one 萬物貫通 line a segment (31 m), **one special spent a line; none: no follow-up** (the press does nothing; the string stops at the segment it cannot pay for). K → L L 45 a line; J → L L 15 a line + J's refill + 10 flash step / 15 Reiatsu |
 | L's gain | +1 / +2 (a string +3) | **+0 / +0 / +1** (a string +1) |
 | J's refill | 10 flash step / 15 Reiatsu a segment, 20 / 30 a string | **3 / 5 a segment, 9 / 15 a string** (the follow-up + 10 / 15 a line) |
 | SP1's flash step by the count | 18 / 35 / 70 | **9 / 18 / 35** |
@@ -419,16 +419,17 @@ J J → K K, the CPU's standalone stance SP2.
 
 The base form closes in (the stance from inside 4 m, `:zone :in`); the EN forms' bands are short range (pressure 1.5–3.5 m).
 At the end of a stance move's hits one roll (`BR-S-CPU-CALL`, the kit's `:stance`): a string's last segment (J3 / K3 /
-JL2 / KL2, `:end`) that hit with 2 bars and `:sp2-at` specials (base 2, JILLIEL 4, the owl 3) → SP2 (`:sp2` 0.8 / 0.9 x the
+JL3 / KL3, `:end`) that hit with 2 bars and `:sp2-at` specials (base 2, JILLIEL 4, the owl 3) → SP2 (`:sp2` 0.8 / 0.9 x the
 difficulty); else the follow-up with a special (`:follow` 0.6 / 0.7). SP2 no longer appears in the distance bands.
 
 ### 8.3 Clips
 
-The sim's stance moves name clips by segment (`BR-DEFSTANCE`'s plist); the first build reuses the old clips (the third
-segments the spare `:lb-e-f3` / `:lb-oe-f3`) until the art pass draws the follow-ups' own modules (§8.5).
+The sim's stance moves name clips by segment (`BR-DEFSTANCE`'s plist); the awakened forms' openers reuse the old clips (the
+third segments the spare `:lb-e-f3` / `:lb-oe-f3`); the base form's are its own (below); the follow-ups in every form have
+their own (§8.5).
 
-**The base form's art pass (2026-10-11).** The base stance's thirteen segments play their own clips `:br-sk-<segment>`
-(`barro-art.lisp`, "the base stance's strings"; `:br-sk-l1` … `:br-sk-kl2`), each at its move's frames (S + A + R, the
+**The base form's art pass (2026-10-11).** The base stance's segments (fifteen since §8.5) play their own clips
+`:br-sk-<segment>` (`barro-art.lisp`, "the base stance's strings"; `:br-sk-l1` … `:br-sk-kl3`), each at its move's frames (S + A + R, the
 `:s` mark on S, speed 1; `:clip-s` = S in the BR-S instance). Frame data unchanged (sim untouched). Every hit frame puts
 Diagramm's muzzle on his line (FK over the rig: ≥ 1.6 m ahead, ≤ 0.15 m aside, 0.8–1.6 m up, the barrel within 8° of level
 and of straight; the hit poses were solved to az −2…−7°, el 0°, the muzzle ≤ 0.1 m aside at ~2.1 m), the recoil right
@@ -440,12 +441,14 @@ predecessor holds at S + A (the link's start); every end blends to `:lb-stance`.
 | L 集 (L1 L2 L3) | shouldered, upright, two hands, an even deliberate beat (kick +2 f, back on the line +6 f): L1 squared up, L2 turned side-on (the rifleman's profile), L3 a step in and three, then Diagramm swung up before him, muzzle high (the pip loaded) |
 | J 補 (J1 J2 J3) | one hand from the hip, the free arm out for balance, a small kick every shot (+1 f) back on the line at +3 f: J1 stepped in, J2 hopped to his left and low, J3 swaying (two shots right shoulder forward, two left), then Diagramm flipped up onto his shoulder |
 | K 重 (K1 K2 K3) | two hands at the waist, wide and low; each shot rocks him back with the barrel thrown up 24–26°, he leans back in: K1 left foot forward, K2 the right, K3 three with the last blowing him back 0.36 m, Diagramm flung up 40° (the finisher) |
-| J → L L (JL1 JL2) | J's one-handed lightness: JL1 wound half round and whipped back at arm's length, skipped back by the kick; JL2 crouched, a hop back, fired from the air at arm's length, landed |
-| K → L L (KL1 KL2) | K's two-handed weight: KL1 the knee raised, stamped down into the shot, slid back by it; KL2 dropped to the right knee, braced, rocked back on it (the barrel 36° up), risen |
+| J → L L (JL1 JL2 JL3, §8.5) | J's one-handed lightness: JL1 wound half round and whipped back at arm's length, skipped back by the kick; JL2 spun round on the spot, out of the spin low at arm's length (J2's solved hop pose); JL3 crouched, a hop back, fired from the air at arm's length, landed |
+| K → L L (KL1 KL2 KL3, §8.5) | K's two-handed weight: KL1 the knee raised, stamped down into the shot, slid back by it; KL2 dropped to the right knee, braced, rocked back on it (the barrel 36° up), kept down; KL3 the long held aim from the knee, the big shot throws him up and back, Diagramm flung up 40° (K3's finisher pose), risen |
 
 Host-tested (`tests/duel-rules-test.lisp`, after "Lille II's own clips": the clip names and speed, the durations and `:s`
-marks, the muzzle on every hit frame, the recoil; 8091 checks, ALL PASS). pkgcheck 0, `./build.sh duel` 0 warnings. Stills: 82100+15 / 16 / 17 and the new 82100+40…49 (L2 L3 J2 J3 K2 K3
-JL1 JL2 KL1 KL2, started on their own 3 m out; + 20 the front view) with 82200+f. `:lb-snap` is unused again.
+marks, the muzzle on every hit frame, the recoil; 8091 checks then, 8194 with §8.5). pkgcheck 0, `./build.sh duel` 0
+warnings. Stills: 82100+15 / 16 / 17 and 82100+40…51 (L2 L3 J2 J3 K2 K3 JL1 JL2 JL3 KL1 KL2 KL3, started on their own 3 m
+out; + 20 the front view) with 82200+f. `:lb-snap` is unused again. (A subagent's batch, merged with §8.5: its two-segment
+follow-ups became JL1 / JL3 and KL1 / KL2, JL2 and KL3 composed from its solved poses.)
 
 ### 8.4 Checks
 
@@ -457,3 +460,47 @@ JL1 JL2 KL1 KL2, started on their own 3 m out; + 20 the front view) with 82200+f
 - Browser (the first build, before the three segments): EN's first Step 5 m for 10 flash step, the second the plain 2.5 m;
   K K → L with no pip: no follow-up; KIN J J → L the plain turn. It also found the generic SP cancel letting SP2 follow
   any link that hit; `BARRO-OK` refuses it now.
+
+### 8.5 The follow-ups: three segments, each route its own clips (2026-10-11)
+
+The user, after the rev. 4 build (verbatim, re-stated):
+
+> - 然後剛剛說的 JJ KK LL 都不表示只要二連擊，只是簡化多段攻擊的描述方式
+> - 架式 > JJ/KK > LL 中，最後一段 LL 會依據前面 J/K 有不同的動作模組
+
+Asked (AskUserQuestion) how the follow-up's three segments spend: **「每段花 1，共 3」** (the recommended; not "1 to enter,
+the rest free", not "two near segments and one long line").
+
+| Rule | Before (§8.1) | Now |
+|---|---|---|
+| The follow-ups | JL1 JL2 / KL1 KL2, two lines | **JL1 JL2 JL3 / KL1 KL2 KL3**, three lines (`*BR-S-SEGS*`): JL 8 / 2 / 14, 14, 16 (the last a knockback); KL 10 / 2 / 16, 16, 20 (stagger, stagger, knockback); one special each, the string stops at the one it cannot pay for (the base's 3 pips: a full follow-up spends all) |
+| SP2 off them | any segment that hit | the same, JL3 / KL3 included; the CPU's SP2 call on JL3 / KL3 (`:end`) |
+| Clips | the openers' old clips | **18 new clips** (`barro-art.lisp`, at their moves' own frames, `:clip-s` = startup) |
+
+The clips (each one line fired on S; the L style carried on: a line a beat; the root's side / back offsets are the clip's,
+the sim does not move him):
+
+| Route | Base (Diagramm) | JILLIEL EN (the front wings) | The owl EN (the claws) |
+|---|---|---|---|
+| J → L L 疾射 (light, on the move) | `:br-sk-jl1` the whip at arm's length, skipped back; `:br-sk-jl2` spun round, out of it low; `:br-sk-jl3` the hop back, the shot in the air (§8.3) | `:br-e-jf1` / `-jf2` a single wing thrust from a slide (right / left); `:br-e-jf3` both from a hop back | `:br-oe-jf1` / `-jf2` / `-jf3` the same on the claws (the volley's solved keys) |
+| K → L L 重砲 (planted, heavy) | `:br-sk-kl1` the knee raised, stamped into the shot; `:br-sk-kl2` down on one knee, rocked back, kept down; `:br-sk-kl3` the big shot from the knee throws him back (§8.3) | `:br-e-kf1` both wings swept up from low; `:br-e-kf2` slammed down from high; `:br-e-kf3` NIJUSHI-KO's ring held, the recoil | `:br-oe-kf1` the launch from low; `-kf2` spread then thrown; `-kf3` raised overhead, the big throw |
+
+The base's aim line locks (jade) through every follow-up segment's startup (`*BR-AIM-LOCKED*`). Art stills: debug
+82320–82337 (82340–82357 the front views), `DUEL_GAMEPLAY.md`.
+
+Checks: `tests/duel-rules-test.lisp` 8134 checks, ALL PASS (8194 merged with the base form's art pass, §8.3) (the six follow-up segments a form: three a route, 萬物貫通,
+the spend hook, the links JL1 → JL2 → JL3 / KL1 → KL2 → KL3 combo, every one → SP2 combos, `:end` only on JL3 / KL3, six
+distinct clips none an opener's, played at speed 1); duel-control / learn / input / touch / cine pass; pkgcheck 0.
+
+Rev. 4 before this change (10 seeds, `--pairs 21,22,23,24,25,27`): all 60 K.O.; BY 135.8, BK 131.6, BR 160.0, BI 132.3,
+BS 156.0, BB 197.3 s.
+
+### 8.6 Gates after §8.5 (native sim; the follow-ups' 3 segments; the art does not touch the sim)
+
+10 seeds, all 60 K.O.: BY 132.2, BK 121.9, BR 180.1, BI 176.0, BS 162.1, BB 200.6 s. BY and BK under 135 → 20 seeds (the
+verdict): **BY 129.5 s** (his wins 10 / 20), **BK 130.1 s** (5 / 20), all K.O., inside 125–210: pass. Rev. 3's BY 96.3 / BK
+118.7 (§7.4) are back in the window.
+
+Awaken A/B (`--cmd 39020`, 60 seeds a stream, seed0 100 / 300 / 500; the never-awaken side's wins, pass ≥ 20; all K.O.):
+BK **30 / 38 / 36**, BB **54 / 50 / 48** (mirror medians 200.5–204.2 s). Both pass; the mirror's never-awaken side wins
+more than at rev. 3 (41 / 47 / 38): his awakening loses the mirror. Reported, not tuned.
