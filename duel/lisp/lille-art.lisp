@@ -1959,7 +1959,7 @@ reads first) ...")
   "The owl's eight gold wing blades, two fans of four (+34 / +11 / -11 / -34 degrees a side, long: the refs' wide spread);
 its claws are its hands.")
 (declaim (type f32vec *lb-wings-jl* *lb-wings-owl* *lb-wf* *lb-wm*))
-(defvar *lb-wf* (make-f32 72)
+(defvar *lb-wf* (make-f32 80)
   "The jointed wings' scratch: [0..26] the three segments' unit frames (9 each: X Y Z), [30 31] a tilt's numbers (toward X,
 toward Z), [32..35] the chain's turn (axis, angle); per call (LILLE-DRAW's %LB-DRIVE!): [39] the strike's virtual speed
 (m/s along his facing), [40] the striking front wings (bit 0 right, bit 1 left), [41] 1 on the active frames (straight),
@@ -1972,7 +1972,38 @@ the tip trails record (*LB-TRAIL-FROM* .. A + *LB-TRAIL-TO*), [54] the move's re
 SP / Kikon looks (decision 56, %LB-SP-DRIVE!): [61] the ring 0..1, [62] its cup, [63] its shake, [64] the close, [65] the
 wings drawn with their holes lit (bits by row), [66] their muzzle flash 0..1, [67] the holes glowing (the first N, the
 Kikon cinematic's card); for the owl's claws (decision 56, %LB-OWL-BEAT!) [68] the wing beat's elevation (degrees), [69] its
-opening of KIN's swept sheaf 0..1, [70] 1 = an owl strike (all eight wings converge, four pairs).")
+opening of KIN's swept sheaf 0..1, [70] 1 = an owl strike (all eight wings converge, four pairs); per draw (%LB-STRETCH!,
+Lille II's whips) [72 73] the right / left front wing's stretch (m past the hand, *LB-STRETCH*), and %LB-WINGS' [74..76]
+[77..79] the right / left front wing's drawn tip (the hand, or past it by the stretch).")
+(defvar *lb-stretch* nil
+  "Another kit's stretched wings (Lille II's whips, barro-art.lisp *BR-W-STRETCH*, DUEL_LILLE_V3 §10; Lille's own clips are
+never in it): clip name -> an f32vec of keys (frame right left), the metres a front wing reaches past the rig's hand at that
+frame of the clip (Jilliel: the blade drawn on past the hand along its root -> hand line; the owl: a gold lash drawn on from
+the claw along the forearm), linear between the keys, held past the ends. The host FK test reads the same table: the
+stretched tip is the strike point.")
+(defvar *lb-no-conv* nil
+  "Strike clips (in *LB-JILLIEL-STRIKES* / *LB-OWL-STRIKES*) whose table wings do not converge on the hit (Lille II's spinning
+L, barro-art.lisp: the wings spin with him); their trails and the owl's beat as the rest.")
+(defun-fast %lb-stretch! (an)
+  "*LB-WF* [72 73]: the front wings' stretch (*LB-STRETCH*) at anim AN's clip and time (its frame: 60 x the clip's seconds);
+0 for a clip not in the table. Cosmetic. 0 B."
+  (let* ((w *lb-wf*) (c (anim-clip an)) (e (and c (assoc (clip-name c) *lb-stretch*))) (r 0f0) (l 0f0))
+    (declare (type f32vec w) (single-float r l))
+    (when e
+      (let* ((kv (cdr e)) (n (floor (length kv) 3)) (fr (* 60f0 (the single-float (anim-time an)))))
+        (declare (type f32vec kv) (fixnum n) (single-float fr))
+        (cond ((<= fr (aref kv 0)) (setf r (aref kv 1) l (aref kv 2)))
+              ((>= fr (aref kv (* 3 (1- n)))) (setf r (aref kv (- (* 3 n) 2)) l (aref kv (1- (* 3 n)))))
+              (t (dotimes (i (1- n))
+                   (let* ((o (* 3 i)) (a (aref kv o)) (b (aref kv (+ o 3))))
+                     (declare (fixnum o) (single-float a b))
+                     (when (and (<= a fr) (< fr b))
+                       (let ((u (/ (- fr a) (f-max 1f-5 (- b a)))))
+                         (declare (single-float u))
+                         (setf r (+ (aref kv (+ o 1)) (* u (- (aref kv (+ o 4)) (aref kv (+ o 1)))))
+                               l (+ (aref kv (+ o 2)) (* u (- (aref kv (+ o 5)) (aref kv (+ o 2))))))))))))))
+    (setf (aref w 72) r (aref w 73) l)
+    nil))
 (declaim (type f32vec *lb-holes* *lb-judge-pierce*))
 ;; Decision 56's Kikon cinematic (LB-JILLIEL-KIKON-CINE; the storyboard, DUEL_LILLE §23.37): 48 jade lines out of the 24
 ;; holes (each twice), the first three spaced, then faster and faster; each pierces the opponent and leaves a white hole in
@@ -2174,10 +2205,13 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
                      (dx (- hx ox)) (dy (- hy oy)) (dz (- hz oz))
                      (dl (f-max 0.05f0 (f-hypot dx dy dz)))
                      (ux (/ dx dl)) (uy (/ dy dl)) (uz (/ dz dl))
-                     (ddx (- (* 0.5f0 s xx) yx)) (ddy (- (* 0.5f0 s xy) yy)) (ddz (- (* 0.5f0 s xz) yz)))
-                (declare (fixnum h) (single-float hx hy hz dx dy dz dl ux uy uz ddx ddy ddz))
+                     (ddx (- (* 0.5f0 s xx) yx)) (ddy (- (* 0.5f0 s xy) yy)) (ddz (- (* 0.5f0 s xz) yz))
+                     (ex (* (aref v 31) (aref w (if (> s 0f0) 72 73))))   ; (Lille II's whips: on past the hand,
+                     (to (if (> s 0f0) 74 77)))                            ;  *LB-STRETCH*; 0 for Lille)
+                (declare (fixnum h to) (single-float hx hy hz dx dy dz dl ux uy uz ddx ddy ddz ex))
                 (%lb-basis! w 0 ux uy uz (- (* ddy uz) (* ddz uy)) (- (* ddz ux) (* ddx uz)) (- (* ddx uy) (* ddy ux)))
-                (setf len dl wd (* lk (aref tbl (+ r 2))) px hx py hy pz hz))
+                (setf len (+ dl ex) wd (* lk (aref tbl (+ r 2))) px (+ hx (* ex ux)) py (+ hy (* ex uy)) pz (+ hz (* ex uz))
+                      (aref w to) px (aref w (+ to 1)) py (aref w (+ to 2)) pz))
               ;; (the sweep SB, the owl's KIN, decision 38: the fan closed up into a narrow sheaf lowered along his back,
               ;; the blades trailing back and down close to his midline (a folded bird's), shorter, their faces turned to
               ;; the side: a narrow sheaf from behind, the long swept blades from the side)
@@ -2382,7 +2416,7 @@ eight wings converging, and its wing beat (%LB-OWL-BEAT!). Reads the move's fram
          (setf %mask (case (mv-clip %mv) ((:lb-w-q1 :lb-w-f1 :lb-e-q1 :lb-e-f1 :lb-o-q1 :lb-o-f1 :lb-oe-q1 :lb-oe-f1) 1)
                            ((:lb-w-q2 :lb-w-f2 :lb-e-q2 :lb-e-f2 :lb-o-q2 :lb-o-f2 :lb-oe-q2 :lb-oe-f2) 2) (t 3)))
          (when (if ,owl (member (mv-clip %mv) *lb-owl-strikes*) (member (mv-clip %mv) *lb-jilliel-strikes*))   ; decisions 50, 56
-           (setf %cv 1f0
+           (setf %cv (if (member (mv-clip %mv) *lb-no-conv*) 0f0 1f0)   ; (Lille II's spins: no convergence)
                  %tr (if (<= (+ %s (if ,owl (the fixnum *lb-owl-trail-from*) (the fixnum *lb-trail-from*))) %sf
                              (+ %s %a (the fixnum *lb-trail-to*) -1))
                          1f0 0f0)
@@ -2520,13 +2554,16 @@ strike's window is open ([52]) and the tip moved (a hitstop holds the arc), else
     (dotimes (g 2)
       (let* ((tr (svref *lb-trails* (+ (* 2 side) g))) (n (f->i (trail-count tr)))
              (h (if (= g 0) (* 16 (ji :hand-r)) (* 16 (ji :hand-l)))) (b (if (= g 0) (* 16 (ji :lower-arm-r)) (* 16 (ji :lower-arm-l))))
-             (hx (aref jm (+ h 12))) (hy (aref jm (+ h 13))) (hz (aref jm (+ h 14))))
-        (declare (type f32vec tr) (fixnum n h b) (single-float hx hy hz))
+             (st (> (aref w (+ 72 g)) 0f0)) (to (+ 74 (* 3 g)))   ; (Lille II's whips: the hand -> the stretched tip)
+             (hx (if st (aref w to) (aref jm (+ h 12)))) (hy (if st (aref w (+ to 1)) (aref jm (+ h 13))))
+             (hz (if st (aref w (+ to 2)) (aref jm (+ h 14))))
+             (bx (aref jm (+ (if st h b) 12))) (by (aref jm (+ (if st h b) 13))) (bz (aref jm (+ (if st h b) 14))))
+        (declare (type f32vec tr) (fixnum n h b to) (single-float hx hy hz bx by bz))
         (if (and (> (aref w 52) 0.5f0) (/= 0 (logand (f->i (aref w 40)) (if (= g 0) 1 2))))
             (let* ((o (* 6 (max 0 (1- n)))) (qx (- hx (aref tr (+ o 3)))) (qy (- hy (aref tr (+ o 4)))) (qz (- hz (aref tr (+ o 5)))))
               (declare (fixnum o) (single-float qx qy qz))
               (when (or (= n 0) (> (+ (* qx qx) (* qy qy) (* qz qz)) 1f-4))
-                (%trail-push tr (aref jm (+ b 12)) (aref jm (+ b 13)) (aref jm (+ b 14)) hx hy hz)))
+                (%trail-push tr bx by bz hx hy hz)))
             (when (> n 0) (%trail-drop tr n)))
         (%lb-smear tr (svref *lb-smears* (+ (* 2 side) g))))))
   nil)
@@ -2583,6 +2620,36 @@ K3 both) records its talons' span while the strike's window is open ([52]) and i
                 (%trail-push tr (- px ux) (- py uy) (- pz uz) (+ px ux) (+ py uy) (+ pz uz))))
             (when (> n 0) (%trail-drop tr n)))
         (%lb-claw-smears tr side g))))
+  nil)
+
+;; Lille II's whips on the owl (DUEL_LILLE_V3 §10, the user 2026-10-11: 「將光翼拉伸如同長鞭一般鞭擊」): its claws are the
+;; rig's hands, so a stretched claw (*LB-STRETCH*) draws a gold lash on from it along the forearm; Jilliel's front wings
+;; are drawn longer instead (%LB-WINGS).
+(defparameter *lb-lash-w* 0.07 "The owl's gold lash: its half-width (m; a comet thickest near the claw, to a point) ...")
+(defparameter *lb-lash-sag* 0.2 "... its droop off the active frames, a share of its length (straight on them).")
+(defun-fast %lb-lashes (jm side)
+  "The owl's gold lashes (Lille II's J whips): each claw with a stretch (*LB-WF* [72 73], %LB-STRETCH!) draws a gold
+comet curve that many metres on from the claw along the forearm, a white core in it; straight on the active frames ([41]),
+drooping by *LB-LASH-SAG* of its length off them. Its tip is the strike point (the host FK test). 0 B."
+  (declare (type f32vec jm) (fixnum side))
+  (let ((w *lb-wf*) (sc (aref *lb-v* 31)))
+    (declare (type f32vec w) (single-float sc))
+    (dotimes (g 2)
+      (let ((ex (* sc (aref w (+ 72 g)))))
+        (declare (single-float ex))
+        (when (> ex 0.02f0)
+          (let* ((h (if (= g 0) (* 16 (ji :hand-r)) (* 16 (ji :hand-l))))
+                 (b (if (= g 0) (* 16 (ji :lower-arm-r)) (* 16 (ji :lower-arm-l))))
+                 (hx (aref jm (+ h 12))) (hy (aref jm (+ h 13))) (hz (aref jm (+ h 14)))
+                 (dx (- hx (aref jm (+ b 12)))) (dy (- hy (aref jm (+ b 13)))) (dz (- hz (aref jm (+ b 14))))
+                 (k (/ ex (f-max 1f-4 (f-hypot dx dy dz))))
+                 (tx (+ hx (* k dx))) (ty (+ hy (* k dy))) (tz (+ hz (* k dz)))
+                 (sag (if (> (aref w 41) 0.5f0) 0f0 (* 2f0 ex (the single-float *lb-lash-sag*))))
+                 (bx (* 0.5f0 (+ hx tx))) (by (- (* 0.5f0 (+ hy ty)) sag)) (bz (* 0.5f0 (+ hz tz)))
+                 (lw (* sc (the single-float *lb-lash-w*))) (sd (+ 150f0 (* 5f0 (i->f (+ g (* 2 side)))))))
+            (declare (fixnum h b) (single-float hx hy hz dx dy dz k tx ty tz sag bx by bz lw sd))
+            (fx-crescent tx ty tz hx hy hz bx by bz lw :comet 0.04f0 sd +pal-gold+ 0.95f0 :push 0.2f0)
+            (fx-crescent tx ty tz hx hy hz bx by bz (* 0.4f0 lw) :comet 0.02f0 (+ sd 1f0) +pal-hit+ 0.9f0 :push 0.25f0))))))
   nil)
 
 (defmacro %lb-halo (jm o kind lift r)
@@ -2841,6 +2908,7 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
             (aref v 8) (if (%lb-owl-p form) (lb-fxs side 18) 0f0)
             (aref v 29) (if (%lb-owl-p form) (- 1f0 (lb-fxs side 18)) 0f0)))
     (%lb-drive! f mv rdt (%lb-owl-p form))               ; the joints' strike drive (cosmetic: the move's frame)
+    (%lb-stretch! (model-anim m))                        ; (Lille II's whips: the front wings' / lashes' stretch)
     (%lb-sp-drive! f mv (%lb-owl-p form) ck)             ; the SPs', the Kikon's and its cinematic's (decision 56)
     (let ((pz (anim-pose (model-anim m))) (w *lb-wf*))   ; (the clip's root turn and offset: decision 50's targets)
       (declare (type f32vec pz w))
@@ -2903,6 +2971,7 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
                    (aref v 16) (* (aref v 31) (+ 0.3f0 (* 0.7f0 grow)))
                    (aref v 28) (f-max (aref v 28) (* (the single-float *lb-owl-en-spread*) (lb-fxs side 18)))))
            (%lb-wings jm (* 16 (ji :chest)) *lb-wings-owl* 8 2 side)
+           (%lb-lashes jm side)                          ; (Lille II's whips: the claws' gold lashes)
            (unless cr (%lb-claw-trails jm side))         ; the claw trails (decision 56)
            (%lb-halo jm (* 16 (ji :head)) (if sealed 2 1) 0.76f0 (* 0.13f0 grow))
            (let ((tsf (cond (ct (if (< 8 (the fixnum ct) 120) (- (the fixnum ct) 8) -1))
