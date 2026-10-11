@@ -1235,6 +1235,7 @@ both files register with (her ranges were hard-coded, and her knobs moved 80000+
 | kit `:hooks` | `:parried (def att)` | a catch by the form's parry | Ichigo |
 | kit `:hooks` | `:armor (e f mv)` | `defender-state` (fighter.lisp) while E is in move MV: true reports `:armor` (the move's armour rules: damage, no reaction; a Breaker and an unguardable go through; the kit's `:struck` pays its own price on `:armored`); `combat.lisp` spends `:armor-hits` only while the move has some | Lille Barro II (v3: the 4-wing armour, DUEL_LILLE_V3 R1) |
 | kit `:hooks` | `:draw (e rdt)` | looks on the posed body (`draw-fighter`) | Senjumaru |
+| kit `:hooks` | `:pose (e)` | right after the body's FK, before it is drawn (`draw-fighter`): a deformation of the posed joint matrices (a look; the sim never reads it) | Lille Barro II (R8 squash and stretch, DUEL_LILLE_V3 §13) |
 | kit `:hooks` | `:hud-guard (e x y w h right s tm)` | over the guard bar, both HUDs | Ichigo |
 | kit `:hooks` | `:kikon-worth (e)` | the Konpaku its Kikon would take now, when that follows the fighter's state (`kikon-worth`, combat.lisp: a running rush's fixed worth first, else this hook, else `:kikon-konpaku`): the red Konpaku hint, the rush still reads its worth at O (the user 2026-09-29); a Soul Break takes it + 1 (`settle-konpaku`, the user 2026-09-30) | Ichigo (KESSA: 千影 by live clones, 2/2/3/4) |
 | kit `:hooks` | `:deck (e x y d)` | the one-hand thumb ring | Ichigo, Senjumaru |

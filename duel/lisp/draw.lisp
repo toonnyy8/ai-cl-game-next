@@ -189,6 +189,10 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
     (let ((pose (if (> (model-hold m) 0) (anim-pose (model-anim m)) (anim-eval (model-anim m)))))
       (pose-fk! (model-joints m) (if (> (model-beat m) 0f0) (beat-pose! pose (model-beat m)) pose)
                 x y z yaw (if (= sc 1f0) (body-scale b) (* sc (body-scale b))) (body-hunch b) (body-props b)))
+    (let ((h (kit-hook kit :pose)))                       ; a character's own deformation of the posed joints (a look):
+      (when h                                             ;  the FK origin in *POSE-AT*
+        (let ((at *pose-at*)) (setf (aref at 0) (f32 x) (aref at 1) (f32 y) (aref at 2) (f32 z) (aref at 3) (f32 yaw)))
+        (funcall h e m)))
     (let ((c (anim-clip (model-anim m))))                  ; a two-handed clip: the left fist on the handle
       (grip-step m (and weapon c (member (clip-name c) *grip-clips*)) (f32 rdt)))
     (countdown! (model-hold m) rdt)

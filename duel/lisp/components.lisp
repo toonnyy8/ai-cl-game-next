@@ -245,3 +245,7 @@ out twice: keep it to a call or two."
 (defvar *hand* :right "HAND setting: :RIGHT (default) or :LEFT (the deck mirrored). Saved by the page.")
 (defvar *coarse* nil "The page reports a touch-first device ((pointer: coarse)).")
 (defvar *back-press* nil "The browser's back (the history trap of duel/web/pwa.js) fired this frame.")
+(declaim (type f32vec *pose-at*))
+(defvar *pose-at* (make-f32 4)
+  "DRAW-FIGHTER's FK origin for a kit's :pose hook (draw.lisp): x y z (the feet, the drawn lift included) and the facing yaw
+of the fighter being posed (so the hook reads no component: 0 B).")
