@@ -674,10 +674,11 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 
 ;;; ================================================================ forms
 (defparameter *barro-hooks* '(:tick barro-tick :ok barro-ok :hit barro-hit :struck barro-struck :armor barro-armor
-                               :step barro-step :draw br-draw :pose br-deform)
+                               :step barro-step :draw br-draw :pose br-deform :charge br-charge)
   "His mechanics (kit.lisp KIT-HOOK): the burst owl, the owl's wings, the stance's end (:tick); the stance links (:ok); the
 specials and the recovery shots' gains (:hit); the wing armour's price (:struck) and its test (:armor, fighter.lisp
-DEFENDER-STATE); EN's fast Step (:step, decision R3); his looks (:draw, barro-art.lisp) and his body's squash and stretch (:pose, BR-DEFORM: R8, DUEL_LILLE_V3 §13).")
+DEFENDER-STATE); EN's fast Step (:step, decision R3); his looks (:draw, barro-art.lisp) and his body's squash and stretch (:pose, BR-DEFORM: R8, DUEL_LILLE_V3 §13);
+the base stance's snipe charge at the muzzle (:charge, BR-CHARGE, a look in place of the generic fire charge: R15, §19).")
 
 (defparameter *br-kamae-strings*
   (append (loop for s in '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)

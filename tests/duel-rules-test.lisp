@@ -3222,6 +3222,52 @@ past the ends; DEFAULT if the clip is not listed."
                      (format t "~a: clips ~a / ~a at ~,2f~%" (mv-name mv) (mv-clip mv) (mv-clip-2 mv) (mv-clip-speed mv))))))))
   (check (= 26 (length (remove-duplicates seen)))))
 
+;; R15 (DUEL_LILLE_V3 §19, the user 2026-10-11: 「用覺醒狀態的系統邏輯與動作模組的設計風格重製常態模式」: 「槍鬥術」, 「槍身重揮」,
+;; the openers 「改成近距離」): the base stance's J / K are melee strikes as the awakened openers are. Each plays its own clip
+;; :br-sk-<segment> at speed 1, lasting its move (S + A + R, its :s mark on S), one hit at S, no line; on the hit frame
+;; Diagramm's struck end -- the muzzle, 1.75 m down the barrel from :weapon-r (the gun-kata's point-blank shot, the rifle
+;; swung's leading end) on the :lille rig, the squash and stretch scaling it as BR-DEFORM does (*BR-SQUASH*: up and his
+;; right, never his facing) -- is at the hit's reach (*BR-W-TIPS* "BR-S" = the volume's edge, +-0.15 m: drawn reach = hit
+;; reach), within 0.3 m of his line, 0.6-1.7 m up. J is short, K long (K >= J + 0.5 m). The L, the charged snipe: its charge
+;; pose :br-sk-lc (the move's :clip) lasts the longest hold at speed 1, its shot :br-sk-l1 (the :clip-2; the level 2 / 3
+;; copies' :clip, started on the release) starts from the pose the charge settles in (f9) and holds on its line.
+(let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (p2 (make-f32 +pose-n+)) (v (make-f32 3))
+      (tips (cdr (assoc "BR-S" *br-w-tips* :test #'string=))))
+  (dolist (sn '("J1" "J2" "J3" "K1" "K2" "K3"))
+    (let* ((mv (find-move (intern (format nil "BR-S-~a" sn) :keyword))) (clip (intern (format nil "BR-SK-~a" sn) :keyword))
+           (tip (float (second (assoc sn tips :test #'string=)) 1.0)))
+      (check (or (and (eq (mv-clip mv) clip) (null (mv-clip-2 mv)) (~= 1.0 (mv-clip-speed mv))
+                      (= (round (* 60 (clip-dur (find-clip clip)))) (+ (mv-s mv) (mv-a mv) (mv-r mv)))
+                      (= (round (* 60 (clip-mark clip :s))) (mv-s mv)))
+                 (format t "~a: clip ~a at ~,2f, ~,1f f (:s ~,1f), its move ~d + ~d + ~d~%" (mv-name mv) (mv-clip mv) (mv-clip-speed mv)
+                         (* 60 (clip-dur (find-clip clip))) (* 60 (clip-mark clip :s)) (mv-s mv) (mv-a mv) (mv-r mv))))
+      (check (and (= 1 (length (mv-hits mv))) (= (mv-s mv) (hw-from (svref (mv-hits mv) 0)))
+                  (null (member :ranged (mv-flags mv))) (zerop (count 'br-shot-fire (mv-on-frame mv) :key #'second))))
+      (loop for w across (mv-hits mv)
+            do (let* ((fr (hw-from w)) (vol (first (hw-vols w))) (edge (+ (aref vol 2) (aref vol 4))))
+                 (clip-sample! pose (find-clip clip) (/ fr 60.0))
+                 (pose-fk! jm pose 0f0 0f0 0f0 0f0 1f0 0f0 nil)
+                 (joint-point! v jm (ji :weapon-r) 0f0 0f0 -1.75f0)
+                 (let* ((sy (br-keys-at *br-squash* clip fr 0 1.0)) (sx (br-keys-at *br-squash* clip fr 1 1.0))
+                        (x (* sx (aref v 0))) (y (* sy (aref v 1))) (ahead (- (aref v 2))))
+                   (when *br-tip-print* (format t "  tip ~a f~d: ~,2f ahead ~,2f aside ~,2f up~%" clip fr ahead x y))
+                   (check (~= edge tip 0.01))
+                   (check (or (and (<= (abs (- ahead tip)) 0.15) (<= (abs x) 0.3) (<= 0.6 y 1.7))
+                              (format t "~a f~d: the muzzle ~,2f ahead (the reach ~,2f), ~,2f aside, ~,2f up~%" clip fr ahead tip x y))))))))
+  (loop for n from 1 to 3
+        do (check (>= (- (second (assoc (format nil "K~d" n) tips :test #'string=))
+                         (second (assoc (format nil "J~d" n) tips :test #'string=)))
+                      0.5)))
+  (let ((l (find-move :br-s-l1)))
+    (check (and (eq (mv-clip l) :br-sk-lc) (eq (mv-clip-2 l) :br-sk-l1) (~= 1.0 (mv-clip-speed l))
+                (>= (+ 0.01 (* 60 (clip-dur (find-clip :br-sk-lc)))) (* *br-w-l-hold* (mv-clip-speed l)))))
+    (dolist (c '(:br-s-l1-2 :br-s-l1-3))
+      (check (and (eq (mv-clip (find-move c)) :br-sk-l1) (null (mv-clip-2 (find-move c))) (~= 1.0 (mv-clip-speed (find-move c)))
+                  (= (mv-s (find-move c)) (mv-s l)))))
+    (clip-sample! pose (find-clip :br-sk-lc) (/ 9 60.0))
+    (clip-sample! p2 (find-clip :br-sk-l1) 0.0)
+    (check (every (lambda (a b) (< (abs (- a b)) 1e-4)) pose p2))))
+
 ;; The gate's match length leaves the cinematics out (the user, 2026-10-08: 「毀魂技演出不計入對戰時長」, every cinematic):
 ;; PLAY-TICKS (flow's MATCH-PLAY-TICKS) are the frames the timer ran (it stops while a cinematic plays: MAIN's step)
 (check (= 600 (play-ticks 300 (- 18000 600))))

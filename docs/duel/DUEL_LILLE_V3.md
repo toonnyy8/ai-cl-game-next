@@ -958,3 +958,30 @@ the spending L L follow-ups and SP2 reach across the field).
 Damage (R14's order kept): stance K 46 / 46 / 66 > the attack state's K 38 / 38 / 56; the stance J 15 a press. The CPU's
 stance pick: J / K only inside their reach (else L).
 
+### 19.1 The art (a subagent's batch r15-art; presentation only, the sim untouched)
+
+Clips (`barro-art.lisp`, "R15"), each at its move's frames (S + A + R, the `:s` mark on S, speed 1); the hit poses solved
+by FK over the rig with Diagramm's plank kept upright (the keys' comments: the muzzle, the grip, the barrel's az / el):
+
+| String | The motion (the awakened style: anticipation, a big body action, squash and stretch `*br-squash*`) |
+|---|---|
+| L 蓄力狙擊 | `:br-sk-lc` the charge (60 f at speed 1): shouldered by f5, braced low by f9 (`:br-pl-brace`), breathing on the aim, a little lower every beat; coiled lower / wider by the level (`BR-DEFORM`, `%br-charge-depth`, as the awakened dash's). `:br-sk-l1` the shot (the `:clip-2`; the level 2 / 3 copies' `:clip`) starts from the braced pose (the release snaps to it), the kick +12°; the body thrown back by the level 0.06 / 0.16 / 0.42 m (`*br-snipe-kick*`, drawn only) |
+| J 槍鬥術 | one hand, a point-blank shot a press, the muzzle 1.9 m out (`*br-w-tips*`): J1 coiled left, one full spin right with the rifle flung out at arm's length, out of it into a deep lunge, the hip shot; J2 a half turn on, his back to him, the left leg kicked up, fired behind his back; J3 whipped back round to his left, crouched wide, his left side to him, fired under the raised left arm, then Diagramm flipped onto the shoulder as he turns back |
+| K 槍身重揮 | the rifle swung as a club (two hands at the grip, a bat's), the muzzle end striking 2.6 / 2.5 / 2.6 m out: K1 cocked on the right shoulder, laid far back and stretched tall, the squat tell f12, the sweep right → left f13–16 (the hit's arms with the body turned: the muzzle on an arc), squashed 0.78 / 1.26 on the hit, wrapped round to his left; K2 hauled over the left shoulder (stretched), the backhand down across him to his lower right, squashed; K3 one full turn right f2–13 with the rifle out and rising, straight overhead (tallest 1.22), arched back a beat, the smash f18 and on into the floor f19 (flattest 0.7 / 1.34) |
+
+Looks (cosmetic, 0 B a frame): the snipe's charge (`BR-CHARGE`, his kit's new `:charge` hook in place of the generic fire
+charge at the muzzle): on the opponent at chest height the reticle's four brackets closing in over each level (ink at 1,
+jade from 2, turned 45° a level, a ring of ticks from 2, a white lock heart at the top), the aim light muzzle → him (level 1
+a faint grey line, 2 jade, 3 jade on to the wall with a white core), light gathering into the muzzle and its glow from 2,
+the scope's glint at his eye by the level, the level-up flash at 20 / 40 f (a white ball, a jade star, a ring of shards
+off the reticle). The shot (`%BR-SNIPE-LOOK`, on top of `LB-LOOK`'s 4 / 12 / 31 m line from `BR-SHOT-FIRE`'s hazard): level
+1 a point-blank burst (flash, jade star, sparks, smoke), 2 a bigger flash and a jade tracer running the 12 m in 3 frames, 3
+the 萬物貫通 blast (a big flash, a jade band to the wall thinning away, rings of shards at 1.5 / 5 / 10 m). The gun-kata
+(`%BR-KATA-LOOK`): a point-blank blast at the muzzle (white flash, ink and jade stars, sparks along the barrel, smoke) and
+the gun's crack (`:lb-crack`, once a shot); the swings: an ink impact star where the struck end met him (kept there while the
+rifle swings on), K3's floor ring, dust and chips. Diagramm's swing smear is the generic blade trail's. Debug 82100+15 starts the snipe with its button (a held move: without one its
+hold read a NIL button and stopped the page); 82100+40 / 41
+now the level 2 / 3 shots (as if held 30 / 50 f), 82100+52–56 the charge held 15 / 22 / 32 / 43 / 56 f, frozen (+20 the
+front view; 82299 the release). Checks: 82398 `snipe-charge` / `snipe` / `kata` 0 B; the native sim rows identical before / after (`--pairs 21 --seeds 3`). Host tests (8232): the base J / K's clips and drawn tips (the muzzle at `*br-w-tips*` ±0.15 m with the
+squash, ≤ 0.3 m aside), the charge clip's length, the shot clip starting from the charge's settled pose.
+
