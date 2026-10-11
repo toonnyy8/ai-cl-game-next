@@ -1976,10 +1976,12 @@ opening of KIN's swept sheaf 0..1, [70] 1 = an owl strike (all eight wings conve
 Lille II's whips) [71] the stretched wing's width gain (*LB-STRETCH-GROW*), [72 73] the right / left front wing's stretch
 (m past the hand, *LB-STRETCH*), and %LB-WINGS' [74..76]
 [77..79] the right / left front wing's drawn tip (the hand, or past it by the stretch); set by another kit's draw hook
-before LILLE-DRAW (Lille II's, DUEL_LILLE_V3 §15 R10; 0 = off, and Lille never sets them): [80] the sweep's tightness (*LB-V*
-[29] at least this while a *LB-SWEEP-CLIPS* clip plays), [81 82] the right / left front wing's (claw's lash's) reach 0..1
-toward the point [83..85] (the whip lashing out to him: its tip moved that share of the way to the point, the blade or the
-lash straight from its root to it, the blade thinned to 1 - 0.7 x its share; [86..88] its root, for the kit's own lash).")
+before LILLE-DRAW (Lille II's, DUEL_LILLE_V3 §15 R10, §16 R11; 0 = off, and Lille never sets them): [80] the sweep's
+tightness (*LB-V* [29] at least this while a *LB-SWEEP-CLIPS* clip plays), [81 82] 1 = the right / left front wing / claw is
+a whip's root (R11: Lille II's whip, drawn after LILLE-DRAW on from it: %LB-WINGS thins that blade to 0.45, %LB-LASHES skips
+that claw's gold comet), [89] the ㄇ
+legs' fold + 1 (R11, the stance switch: the shanks tucked under the strut, 0..1, in place of the owl EN's own tuck *LB-V*
+[8]) and [90] their pull 0..1 (the whole ㄇ shrunk into the hips: %LB-LEGS draws the strut and the shanks 1 - [90] long).")
 (defvar *lb-stretch* nil
   "Another kit's stretched wings (Lille II's whips, barro-art.lisp *BR-W-STRETCH*, DUEL_LILLE_V3 §10; Lille's own clips are
 never in it): clip name -> an f32vec of keys (frame right left), the metres a front wing reaches past the rig's hand at that
@@ -2228,13 +2230,8 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
                 (declare (fixnum h to) (single-float hx hy hz dx dy dz dl ux uy uz ddx ddy ddz ex))
                 (%lb-basis! w 0 ux uy uz (- (* ddy uz) (* ddz uy)) (- (* ddz ux) (* ddx uz)) (- (* ddx uy) (* ddy ux)))
                 (setf len (+ dl ex) wd (* lk (aref tbl (+ r 2)) (+ 1f0 (* (aref w 71) ex))) px (+ hx (* ex ux)) py (+ hy (* ex uy)) pz (+ hz (* ex uz)))
-                (let ((q (aref w (if (> s 0f0) 81 82))))   ; (Lille II's whip lashing out to him, R10 §15: the tip moved
-                  (declare (single-float q))               ;  share Q of the way to [83..85], straight from the root)
-                  (when (> q 0f0)
-                    (setf px (+ px (* q (- (aref w 83) px))) py (+ py (* q (- (aref w 84) py))) pz (+ pz (* q (- (aref w 85) pz)))
-                          len (f-max 0.05f0 (f-hypot (- px ox) (- py oy) (- pz oz))) wd (* wd (- 1f0 (* 0.7f0 q)))
-                          (aref w 86) ox (aref w 87) oy (aref w 88) oz)))
-                (setf (aref w to) px (aref w (+ to 1)) py (aref w (+ to 2)) pz))
+                (when (> (aref w (if (> s 0f0) 81 82)) 0.5f0) (setf wd (* 0.45f0 wd)))   ; (Lille II's whip, R11: the blade
+                (setf (aref w to) px (aref w (+ to 1)) py (aref w (+ to 2)) pz))          ;  thinned, the lash on from its tip)
               ;; (the sweep SB, the owl's KIN, decision 38: the fan closed up into a narrow sheaf lowered along his back,
               ;; the blades trailing back and down close to his midline (a folded bird's), shorter, their faces turned to
               ;; the side: a narrow sheaf from behind, the long swept blades from the side)
@@ -2662,20 +2659,17 @@ drooping by *LB-LASH-SAG* of its length off them. Its tip is the strike point (t
     (dotimes (g 2)
       (let ((ex (* sc (aref w (+ 72 g)))))
         (declare (single-float ex))
-        (when (> ex 0.02f0)
+        (when (and (> ex 0.02f0) (< (aref w (+ 81 g)) 0.5f0))   ; (R11: [81 82] 1 = Lille II draws this claw's whip itself)
           (let* ((h (if (= g 0) (* 16 (ji :hand-r)) (* 16 (ji :hand-l))))
                  (b (if (= g 0) (* 16 (ji :lower-arm-r)) (* 16 (ji :lower-arm-l))))
                  (hx (aref jm (+ h 12))) (hy (aref jm (+ h 13))) (hz (aref jm (+ h 14)))
                  (dx (- hx (aref jm (+ b 12)))) (dy (- hy (aref jm (+ b 13)))) (dz (- hz (aref jm (+ b 14))))
                  (k (/ ex (f-max 1f-4 (f-hypot dx dy dz))))
-                 (q (aref w (+ 81 g)))                    ; (Lille II's whip lashing out to him, R10 §15: [81 82] [83..85])
-                 (tx (+ hx (* k dx) (* q (- (aref w 83) (+ hx (* k dx))))))
-                 (ty (+ hy (* k dy) (* q (- (aref w 84) (+ hy (* k dy))))))
-                 (tz (+ hz (* k dz) (* q (- (aref w 85) (+ hz (* k dz))))))
-                 (sag (if (or (> (aref w 41) 0.5f0) (> q 0f0)) 0f0 (* 2f0 ex (the single-float *lb-lash-sag*))))
+                 (tx (+ hx (* k dx))) (ty (+ hy (* k dy))) (tz (+ hz (* k dz)))
+                 (sag (if (> (aref w 41) 0.5f0) 0f0 (* 2f0 ex (the single-float *lb-lash-sag*))))
                  (bx (* 0.5f0 (+ hx tx))) (by (- (* 0.5f0 (+ hy ty)) sag)) (bz (* 0.5f0 (+ hz tz)))
                  (lw (* sc (the single-float *lb-lash-w*) (+ 1f0 (* (aref w 71) ex)))) (sd (+ 150f0 (* 5f0 (i->f (+ g (* 2 side)))))))
-            (declare (fixnum h b) (single-float hx hy hz dx dy dz k q tx ty tz sag bx by bz lw sd))
+            (declare (fixnum h b) (single-float hx hy hz dx dy dz k tx ty tz sag bx by bz lw sd))
             (fx-crescent tx ty tz hx hy hz bx by bz lw :comet 0.04f0 sd +pal-gold+ 0.95f0 :push 0.2f0)
             (fx-crescent tx ty tz hx hy hz bx by bz (* 0.4f0 lw) :comet 0.02f0 (+ sd 1f0) +pal-hit+ 0.9f0 :push 0.25f0))))))
   nil)
@@ -2720,15 +2714,18 @@ axis, the front one back and the rear one forward, so both fold under the strut 
 (defun-fast %lb-legs (jm white fl)
   "Both ㄇ legs (decision 26) from the thighs of JM: WHITE 1 the owl's, else KIN's cream; FL 1 the hit flash. The floor's
 height in *LB-V* [3], the alpha in [4] (MUJITTAI's body alpha), the tuck 0..1 in [8] (the owl's EN folds them up, decision
-38: the front shank turned back, the rear one forward, both *LB-TUCK-LEN* long)."
+38: the front shank turned back, the rear one forward, both *LB-TUCK-LEN* long); *LB-WF* [90] the pull 0..1 (Lille II's
+stance switch, DUEL_LILLE_V3 §16 R11: the strut and the shanks shrunk by 1 - pull, thinner with it, gone at 0.97; his
+:pose hook shrinks the thighs the same way)."
   (declare (type f32vec jm) (fixnum white fl))
   (let* ((al (lb-alpha (aref *lb-v* 4))) (fla (svref *lb-alphas* (if (= fl 1) 9 0)))   ; (boxed: 0 B)
          (tk (aref *lb-v* 8)) (tt (* tk (the single-float *lb-tuck-turn*))) (ct (f-cos tt)) (st (f-sin tt))
-         (sc (aref *lb-v* 31)) (tl (* sc (the single-float *lb-tuck-len*)))   ; (x his drawn scale: a giant's legs)
+         (pq (- 1f0 (f-clamp (aref *lb-wf* 90) 0f0 1f0)))                    ; (1 but in Lille II's switch)
+         (sc (* pq (aref *lb-v* 31))) (tl (* sc (the single-float *lb-tuck-len*)))   ; (x his drawn scale: a giant's legs)
          (fyc (- (* -0.1f0 st) ct)) (fbc (- st (* 0.1f0 ct)))          ; the front shank's up / back shares, turned back
          (ryc (- (* -0.12f0 st) ct)) (rbc (+ (- st) (* 0.12f0 ct))))   ; the rear's, turned forward
-    (declare (single-float tk tt ct st sc tl fyc fbc ryc rbc))
-    (dotimes (side 2)
+    (declare (single-float tk tt ct st pq sc tl fyc fbc ryc rbc))
+    (dotimes (side (if (> pq 0.03f0) 2 0))
       (let* ((o (if (= side 0) (* 16 (ji :thigh-r)) (* 16 (ji :thigh-l)))) (s (if (= side 0) 1f0 -1f0))
              (ox (* s (aref jm o))) (oy (* s (aref jm (+ o 1)))) (oz (* s (aref jm (+ o 2))))            ; out
              (yx (aref jm (+ o 4))) (yy (aref jm (+ o 5))) (yz (aref jm (+ o 6)))                      ; up the thigh
@@ -2744,13 +2741,13 @@ height in *LB-V* [3], the alpha in [4] (MUJITTAI's body alpha), the tuck 0..1 in
              (rz (+ (* ryc yz) (* rbc bz) (* 0.07f0 oz))))
         (declare (fixnum o) (single-float s ox oy oz yx yy yz bx by bz fk ls px py pz fx fy fz sx sy sz rx ry rz))
         (%lb-unit! fx fy fz) (%lb-unit! sx sy sz) (%lb-unit! rx ry rz)
-        (let ((lf (+ (* (- 1f0 tk) (%lb-shank-len py fy)) (* tk tl))) (cx (+ px (* ls sx))) (cy (+ py (* ls sy))) (cz (+ pz (* ls sz))))
+        (let ((lf (+ (* pq (- 1f0 tk) (%lb-shank-len py fy)) (* tk tl))) (cx (+ px (* ls sx))) (cy (+ py (* ls sy))) (cz (+ pz (* ls sz))))
           (declare (single-float lf cx cy cz))
           (%lb-frame! *lb-m* px py pz fx fy fz ox oy oz lf sc)
           (if (= white 1) (draw-weapon :lb-shank-white *lb-m* :alpha al :flash fla) (draw-weapon :lb-shank-cream *lb-m* :alpha al :flash fla))
           (%lb-frame! *lb-m* px py pz sx sy sz ox oy oz ls)
           (if (= white 1) (draw-weapon :lb-strut-white *lb-m* :alpha al :flash fla) (draw-weapon :lb-strut-cream *lb-m* :alpha al :flash fla))
-          (let ((lr (+ (* (- 1f0 tk) (%lb-shank-len cy ry)) (* tk tl))))
+          (let ((lr (+ (* pq (- 1f0 tk) (%lb-shank-len cy ry)) (* tk tl))))
             (declare (single-float lr))
             (%lb-frame! *lb-m* cx cy cz rx ry rz ox oy oz lr sc)
             (if (= white 1) (draw-weapon :lb-shank-white *lb-m* :alpha al :flash fla)
@@ -2933,7 +2930,8 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
     ;; tuck) and its wings fanned wide and forward ([28] the spread); KIN's legs down and its wings swept back ([29])
     (let ((en (and (%lb-owl-p form) (member form '(:shin :shin-mujittai)))))
       (setf (lb-fxs side 18) (if en (f-min 1f0 (+ (lb-fxs side 18) (* 5f0 rdt))) (f-max 0f0 (- (lb-fxs side 18) (* 5f0 rdt))))
-            (aref v 8) (if (%lb-owl-p form) (lb-fxs side 18) 0f0)
+            (aref v 8) (cond ((> (aref *lb-wf* 89) 0f0) (- (aref *lb-wf* 89) 1f0))   ; (Lille II's stance switch, R11:
+                             ((%lb-owl-p form) (lb-fxs side 18)) (t 0f0))           ;  his draw hook's fold + 1)
             (aref v 29) (if (%lb-owl-p form) (- 1f0 (lb-fxs side 18)) 0f0))
       (when (and mv (member (mv-clip mv) *lb-sweep-clips*))   ; (Lille II's dash, R9: the eight wings swept back; R10, §15:
         (setf (aref v 29) (f-max 1f0 (aref *lb-wf* 80)))))   ;  tighter by the L charge's level, his draw hook's [80])
