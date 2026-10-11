@@ -3130,7 +3130,11 @@ The user (verbatim): 「幫我把 LILLE（第一版）的軌跡的閃步回收�
 / `trace-guarded` and the owl's `owl-trace-hit` / `-guarded` stay). EN's J / K lines still cost `*lb-trace-fs*` 3 each (a K fan
 9) and are refused under it (decision 35); KIN, TENSHIN in and the plain attack reward are the ways back to flash step.
 Lille II (`barro.lisp`) has no trace refund and is untouched. Host tests: the refund's checks now assert it is gone (8399
-checks, ALL PASS). Gates: below.
+checks, ALL PASS). Gates (native sim): 10 seeds, all 60 K.O.: LY 141.9, LK 129.1, LR 149.3, LI 151.3, LS 157.6, LL 182.4 s
+(his wins of 10: 4, 2, 1, 1, 5, mirror); LK under 135 → 20 seeds: **LK 126.3 s** (4 / 20), all K.O., pass. Awaken A/B (39020,
+Lille P1 never awakens, so the refund never shows there; wins of 60, streams 100 / 300 / 500): LY 13 / 18 / 18, LK 5 / 4 / 1,
+LR 9 / 10 / 8, LI 8 / 6 / 13, LS 20 / 12 / 17 (3 of the 900 timed out: LR 2, LS 1): the accepted exception of §24.12, as
+before.
 
 ## 24. The adaptive, in-character CPU (dream-rsi; the user, 2026-10-06)
 
