@@ -924,3 +924,10 @@ link at the same place, in every form. `*br-k-mult*` 1.00 → 0.80 (base 38 / 38
 holds the order (`BR-K-ORDER-P`: each attack-state K link < the stance K at its place < each K route L L line, every form).
 Host tests 8258 ALL PASS. Playtest v71 (v70: R13's 1.00 / 36 / 54 / 56, never gated).
 
+### 18.2 Gates after R13 + R14 (native sim, 021f275)
+
+10 seeds, 60 matches, all K.O.: BY 118.4, BK 118.0, BR 151.0, BI 165.5, BS 145.4, BB 201.7 s (BR, BI, BS pass; the mirror
+within its allowance). 60 seeds: **BY 118.4 s, BK 114.4 s**, still below 125 (§17.1: 114.9 / 117.0): the open exception,
+waiting on the user's playtest, no knob retuned. Mirror awaken A/B (BB, 39020, 60 seeds, seed0 100 / 300 / 500): **60 / 58 /
+58**, pass. His CPU's wins stay low (BY 16, BK 9 of 60; BR, BI 1 of 10): its plans don't use the rooted 30 f EN.
+
