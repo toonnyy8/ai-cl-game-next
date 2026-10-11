@@ -647,6 +647,13 @@ The user (verbatim): 「抱歉不該說最多三下，我希望段數跟操作�
 | Frame data | | base L1 / L2 S 8 R 14, L3 S 8 R 18, J1 / J2 S 8 R 12, J3 S 8 R 14, K1 / K2 S 12 R 18, K3 S 12 R 22; awakened L x 1.5 (S 12), J3 S 14, K1 S 16 (`*BR-W-SEGS*`) |
 | The awakened modules | several strikes a segment | one a press: L one top's turn each, J1 / J2 a whip lash each, J3 the one-wing cleaver, K1 the one-wing great-sword chop, K2 a close blow, K3 the light-ball blast |
 
-Gains as before (a segment's). The follow-ups (one line each) unchanged. Clips: the base's nine and the awakened eighteen
-re-timed (a subagent's batch, in progress).
+Gains as before (a segment's). The follow-ups (one line each) unchanged. Clips (a subagent's batch r6-art, merged): the
+base's nine one shot at S each (the solved muzzle poses kept, the recoil 1–3 f after); the awakened eighteen one module a
+press: L1 / L2 / L3 one top's turn each (upright, lower, rising; the spin carried across the links), J1 / J2 one whip each
+(R, L), J3 the one-wing cleaver (the whips drawn in, the twist, the right wing pulled back behind the head and grown 1.6–1.9 m
+past the hand, held, the slow chop), K1 the same great blade held longer, K2 a folded-wing blow, K3 both tips thrust in and the
+light ball (R6: a white flash ball, a jade / gold shell round a shrinking white core, smoke; no trail, no convergence: no
+beam). `*BR-W-TIPS*`: JILLIEL L 1.85, J1 / J2 2.85, J3 2.65, K1 2.45, K2 1.35, K3 1.2; the owl L 1.7, J 2.8, J3 2.55, K1 2.35,
+K2 1.35, K3 1.15 (the awakened K1 reaches 0.4 m less than J1: J is the long whip here, K the heavy blade). Host tests 8322,
+ALL PASS; build 0 warnings; browser: K K K, J J J, L L L (JILLIEL EN) and J J J (base) three hits each. Playtest v63.
 
