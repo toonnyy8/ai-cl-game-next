@@ -160,16 +160,8 @@ the user 2026-10-07: 「對手經過軌道的瞬間會有時緩」, 「全場慢
 traces count as one region: a K fan, lines laid side by side or a gap he crosses in under this many frames slow it once;
 decision 44, the user 2026-10-07: plan A, 「用 A，N 先用 10 f」. Decision 43's 「可重複觸發」 had each trace fire on its own
 edge, no re-arm; the lead's 30 steps before that).")
-(defparameter *lb-trace-refund-block* 2.0
-  "... and a guarded one this much (the user, 2026-10-06: 「擋下回收 2」; it was nothing).")
-(defparameter *lb-trace-refund* 4.0
-  "A materialised trace that hits a fighter gives him this much flash step back (a K fan's hit group hits once: once;
-a guarded one nothing; kept at the max, none during a burst: PAY-GAUGES) (decision 34, 2026-10-06, the user: 「每打中一條
-軌跡會額外回收 2 點閃步量表」; 2 -> 4 the same day: 「我希望能將軌跡命中回收量上調到 4」).")
-(defparameter *shin-trace-refund* 5.0
-  "The owl's materialised trace that hits gives this much flash step back (decision 36, 2026-10-06, 「更高的軌跡命中回收比例」,
-「小」: Jilliel's *LB-TRACE-REFUND* 4 + 1) ...")
-(defparameter *shin-trace-refund-block* 2.0 "... and a guarded one this much (decision 36: Jilliel's 2, kept).")
+;; (The materialised traces' flash-step refund, decisions 34 / 36: Jilliel 4 a hit / 2 guarded, the owl 5 / 2, is gone: the
+;; user, 2026-10-11: 「幫我把 LILLE（第一版）的軌跡的閃步回收移除」. EN's J / K lines still cost *LB-TRACE-FS*.)
 (defparameter *lb-dash-iframes* 9
   "Both flash-step dashes (HIRENKYAKU in the stance, TENSHIN) are invulnerable on their frames 0-8 (rework R, 2026-10-06;
 TSUKIWATARI's).")
@@ -310,14 +302,6 @@ alike (decisions 9, 36: 「保留反射與封印」)?"
 (defun lb-en-dry-p (fs)
   "Is EN's J / K refused at FS flash step: under *LB-TRACE-FS* (decision 35: no line to pay, no swing)?"
   (< fs *lb-trace-fs*))
-(defun lb-trace-refund (contact &optional owl)
-  "The flash step a materialised trace's CONTACT gives him back: *LB-TRACE-REFUND* on a hit, *LB-TRACE-REFUND-BLOCK* when
-guarded (decision 34; a K fan is one hit group, so it is asked once); the OWL's *SHIN-TRACE-REFUND* /
-*SHIN-TRACE-REFUND-BLOCK* (decision 36)."
-  (case contact
-    (:hit (if owl *shin-trace-refund* *lb-trace-refund*))
-    (:block (if owl *shin-trace-refund-block* *lb-trace-refund-block*))
-    (t 0.0)))
 (defun lb-trace-pick (fans laid)
   "The yaw offsets (FANS, LB-TRACE-FANS order) of the LAID lines when not all are paid: the middle one first, then the
 fan's sides in order; laid in FANS' order."
@@ -657,7 +641,7 @@ revive's condition is the Jilliel kits' :bankai-ok, LILLE-BANKAI-OK.)")
 ;; :shin-kin, L TENSHIN between them, U MUJITTAI in both (「也是無實體」), the owl's body (lift 0) in all four, EN's J / K
 ;; laying traces that materialise as 裁きの光明's gold ground blasts, SP1 裁きの光明 (EN lays its lines, KIN bursts them), SP2
 ;; 神の喇叭 (EN a thick trace after its wind-up, KIN the blast: reflect and seal kept, 「保留反射與封印」). x1.1 dealt, x1.1
-;; taken, refunds 5 / 2, +1 on every attack; Kikon 4; no revival from here (no :bankai-form)
+;; taken (its trace refunds 5 / 2 gone, 2026-10-11), +1 on every attack; Kikon 4; no revival from here (no :bankai-form)
 (defkit :lille :shin :inherit :jilliel
   :lift *lb-owl-lift* :form-name "SHIN" :mult *shin-mult* :taken *shin-taken* :kikon-konpaku 4
   :guard-to :shin-mujittai :bankai-form nil :bankai-ok nil
@@ -1379,12 +1363,8 @@ by band, damage by band, Trompete); the combat log's signature tags (LB-SIG-LOG)
         (pace att (if (eq (contact-of res) :hit) :trompete-hit :trompete-guarded))))
     (when (and hazard (lbh-p (hazard-data hazard)) (eq (lbh-kind (hazard-data hazard)) :trace))   ; a materialised trace
       (when (eq (contact-of res) :hit) (setf (lbs-trace-hit-t (lb att)) *match-tick*))
-      (let* ((owl (lb-owl-form-p (fighter-form (fighter att)))) (fs (lb-trace-refund (contact-of res) owl)))
-        (when (plusp fs)                                    ; its flash step back (decision 34; a fan's group: once;
-          (pay-gauges (or (siphon-of att) att) 0.0 fs)      ; the owl's 5 / 2, decision 36)
-          (pace att :trace-refund)
-          (when owl (pace att :owl-trace-refund fs)))
-        (when owl (pace att (if (eq (contact-of res) :hit) :owl-trace-hit :owl-trace-guarded))))
+      (when (lb-owl-form-p (fighter-form (fighter att)))   ; (no flash step back since 2026-10-11, the user: 「軌跡的閃步回收移除」)
+        (pace att (if (eq (contact-of res) :hit) :owl-trace-hit :owl-trace-guarded)))
       (pace att (if (eq (contact-of res) :hit) :trace-hit :trace-guarded)))
     (when (and mv (member (mv-name mv) '(:lb-k-shot :lb-k-j :lb-k-k)))   ; the stance's branches
       (pace att (intern (format nil "~a-~a" (mv-name mv) (if (eq (contact-of res) :hit) "HIT" "BLK")) :keyword)))

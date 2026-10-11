@@ -3117,6 +3117,21 @@ at 10 seeds byte-identical to `main` before the face rework (cc16382). Stills: d
 both forms.
 ---
 
+### 23.39 The traces' flash-step refund removed (the user, 2026-10-11)
+
+The user (verbatim): 「幫我把 LILLE（第一版）的軌跡的閃步回收移除」.
+
+| Knob | Before | Now |
+|---|---|---|
+| `*lb-trace-refund*` / `*lb-trace-refund-block*` (Jilliel: a materialised trace that hits / is guarded) | 4 / 2 flash step (decision 34: 2 a hit, raised to 4 the same day; 2 guarded) | **gone** (no refund) |
+| `*shin-trace-refund*` / `*shin-trace-refund-block*` (the owl, decision 36) | 5 / 2 | **gone** |
+
+`lb-trace-refund` and LILLE-HIT's payback are removed (the pacing keys `trace-refund` / `owl-trace-refund` with them; `trace-hit`
+/ `trace-guarded` and the owl's `owl-trace-hit` / `-guarded` stay). EN's J / K lines still cost `*lb-trace-fs*` 3 each (a K fan
+9) and are refused under it (decision 35); KIN, TENSHIN in and the plain attack reward are the ways back to flash step.
+Lille II (`barro.lisp`) has no trace refund and is untouched. Host tests: the refund's checks now assert it is gone (8399
+checks, ALL PASS). Gates: below.
+
 ## 24. The adaptive, in-character CPU (dream-rsi; the user, 2026-10-06)
 
 The user: 「然後幫我依據 @docs/guides/DREAM_RSI.zh-TW.md 的 AI 開發經驗設計並強化更具有角色風格的利捷巴羅自適應 AI，記得要能與玩家輔助 AI

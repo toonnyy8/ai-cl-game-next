@@ -2326,9 +2326,10 @@ defender's next step. Values: the attacker's and the defender's first actionable
               (equal (lb-trace-pick (lb-trace-fans :k) 2) (list (- *lb-trace-fan*) 0.0))
               (equal (lb-trace-pick (lb-trace-fans :k) 1) '(0.0)) (null (lb-trace-pick (lb-trace-fans :k) 0))
               (equal (lb-trace-pick (lb-trace-fans :j) 1) '(0.0)) (null (lb-trace-pick (lb-trace-fans :j) 0))
-              (lb-en-dry-p 2.9) (not (lb-en-dry-p 3.0)) (not (fboundp 'lb-nick-hitwin)) (~= 4.0 *lb-trace-refund*) (~= 4.0 (lb-trace-refund :hit)) (~= 2.0 (lb-trace-refund :block)) (~= 2.0 *lb-trace-refund-block*)
-              (zerop (lb-trace-refund nil))))
-  ;; a K fan is one hit group (LB-EN-LAY's MAKE-HIT-GROUP 1 when the fan has more than one line): its refund once
+              (lb-en-dry-p 2.9) (not (lb-en-dry-p 3.0)) (not (fboundp 'lb-nick-hitwin))
+              ;; (no refund since 2026-10-11, the user: 「幫我把 LILLE（第一版）的軌跡的閃步回收移除」)
+              (not (fboundp 'lb-trace-refund)) (not (boundp '*lb-trace-refund*)) (not (boundp '*lb-trace-refund-block*))))
+  ;; a K fan is one hit group (LB-EN-LAY's MAKE-HIT-GROUP 1 when the fan has more than one line): it hits once
   (check (and (rest (lb-trace-fans :k)) (null (rest (lb-trace-fans :j))) (null (rest (lb-trace-fans :sp1))))))
 
 ;; decision 41 (the user 2026-10-07): no laying shot; a trace materialising turns toward him by at most 10 degrees; his
@@ -2749,10 +2750,8 @@ defender's next step. Values: the attacker's and the defender's first actionable
               (every (lambda (f) (eq (lb-stance-form-p f) (lb-stance-form-p (lb-hoho-target f))))
                      '(:jilliel :jilliel-mujittai :shin :shin-mujittai))))
   ;; the traces: EN's J / K lines cost 3 each, refused under 3 (decision 35, EN in both pairs); materialised x1.1; the owl's
-  ;; refund 5 on a hit, 2 guarded (Jilliel's 4 / 2)
-  (check (and (~= 5.0 *shin-trace-refund*) (~= 2.0 *shin-trace-refund-block*) (~= 5.0 (lb-trace-refund :hit t))
-              (~= 2.0 (lb-trace-refund :block t)) (zerop (lb-trace-refund nil t)) (~= 4.0 (lb-trace-refund :hit))
-              (~= 2.0 (lb-trace-refund :block nil)) (lb-en-dry-p 2.9) (not (lb-en-dry-p 3.0))
+  ;; refund (5 / 2) gone with Jilliel's (2026-10-11)
+  (check (and (not (boundp '*shin-trace-refund*)) (not (boundp '*shin-trace-refund-block*)) (lb-en-dry-p 2.9) (not (lb-en-dry-p 3.0))
               (= 33 (hw-dmg (lb-trace-hitwin :j (kit-mult o)))) (= 198 (hw-dmg (lb-trace-hitwin :sp2 (kit-mult o))))
               (= 26 (hw-dmg (lb-trace-hitwin :k (kit-mult o))))))
   ;; KIN's strings link on hit (the trace stun covers TENSHIN in + KIN J1 for the owl too) and the keys a CPU facing the owl
