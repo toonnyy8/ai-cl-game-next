@@ -311,7 +311,8 @@ the stance's SPs, its Step."
 ;; barro-art.lisp's J route 疾射 / K route 重砲), one 萬物貫通 line a segment (31 m), each spending one special
 ;; (「兩者都花資源」; none: no follow-up, BR-FOLLOW-OK-P). Every segment of the J and K strings and their follow-ups that hit
 ;; cancels into the form's charge-less SP2 (:sp2c; 「SP2 接在 J 連段後面也可以」, 「任一段打中都能接」). CLIPS: a plist of
-;; (clip authored-startup) by segment (:l1 .. :kl3; the clip plays at authored / S speed); ADV the owl's +1 (R one less).
+;; (clip authored-startup [charge-clip]) by segment (:l1 .. :kl3; the clip plays at authored / S speed; a charge clip, R10:
+;; the move's :clip while L is held, the clip its :clip-2); ADV the owl's +1 (R one less).
 (eval-when (:compile-toplevel :load-toplevel :execute)   ; (BR-DEFSTANCE reads it while it expands)
 (defparameter *br-w-near-r* 0.4
   "The awakened stances' openers (decision R4, the user 2026-10-11: 「所有起手連段一律用近距離攻擊」): a wing / claw strike's
@@ -353,6 +354,10 @@ charged slash (startup 12 -> 16), K3 the turn and the overhead split (12 -> 18) 
   "The awakened L dash (decision R10, the user 2026-10-11: 「L 衝刺改成只能衝一次不能連接，但可以三階段續力，隨著續力階段增加衝
 刺距離與交叉斬痕（增加傷害）並提昇特殊資源回收量」): L held at most this many frames before the dash ([G]) ...")
 (defparameter *br-w-l-levels* '(20 40) "... held this many frames: level 2, level 3 (else 1) ...")
+;; (R10: above BARRO-HIT, which reads the gain)
+(defparameter *br-w-l-dash-max* '(6.0 8.0 10.0) "The L dash's longest by its level 1 / 2 / 3, metres ([G]) ...")
+(defparameter *br-w-l-bonus* '(0 16 32) "... its damage on top of the move's 16 (16 / 32 / 48 before the form's x) ...")
+(defparameter *br-w-l-gain* '(1 2 3) "... the specials (wings) its hit or block gives (the string's +1 before) ([G]).")
 (defparameter *br-w-l-slow* 1.5
   "The awakened stance's L segments: startup and hit spacing x this (decision R4, the user 2026-10-11: 「架式 L 的動作太快了」,
 「出手和間隔都放慢」: startup 8 -> 12, L1 / L2 every 8 -> 12 f, L3 every 6 -> 9 f; [G]).")
@@ -401,7 +406,8 @@ way (R6)."
                       (r (max 4 (- r0 adv))) (a (if dash (+ 2 *br-w-dash-f*) (+ 2 (car (last offs)))))
                       (mid (if dash :stagger mid)) (last (if dash :stagger last))   ; (the dash's hit lands late: a stagger links)
                       (n (length offs)))
-                 `(defmove ,name :kind ,kind :clip ,(first clip) :clip-s ,(second clip)
+                 `(defmove ,name :kind ,kind :clip ,(or (third clip) (first clip)) :clip-s ,(second clip)
+                    ,@(when (third clip) `(:clip-2 ,(first clip)))   ; (R10, DUEL_LILLE_V3 §15: the charge pose while held, the dash)
                     :startup ,st :active ,a :recovery ,r
                     ,@(when (eq role :l) `(:whiff ,(+ r *br-s-l-whiff*)))   ; (R5: a whiffed L recovers as a J link)
                     ,@(when dash '(:hold (0 *br-w-l-hold*)))   ; (R10: held to charge, 3 levels)
@@ -573,7 +579,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 ;; :br-en-*: L the gathering casts, J the rapid flicks, K the heavy throws; the follow-ups :br-e-jf* 疾射 / :br-e-kf* 重砲,
 ;; 「最後一段 LL 會依據前面 J/K 有不同的動作模組」); the openers wing strikes in reach (R4, the user 2026-10-11: 「所有起手連段一律用
 ;; 近距離攻擊」), L slower (「架式 L 的動作太快了」: *BR-W-L-SLOW*)
-(br-defstance "BR-E" (:l1 (:br-en-l1 8) :l2 (:br-en-l2 8) :l3 (:br-en-l3 8) :j1 (:br-en-j1 8) :j2 (:br-en-j2 8)
+(br-defstance "BR-E" (:l1 (:br-en-l1 8 :br-en-lc) :j1 (:br-en-j1 8) :j2 (:br-en-j2 8)
                       :j3 (:br-en-j3 8) :k1 (:br-en-k1 16) :k2 (:br-en-k2 12) :k3 (:br-en-k3 18)
                       :jl1 (:br-e-jf1 8) :jl2 (:br-e-jf2 8) :jl3 (:br-e-jf3 8) :kl1 (:br-e-kf1 10) :kl2 (:br-e-kf2 10)
                       :kl3 (:br-e-kf3 10))
@@ -609,7 +615,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :params (:aura 10 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
 ;; the owl's stance EN: the same strings on its claws (barro-art.lisp :br-oen-*, the follow-ups :br-oe-jf* / -kf*; R one
 ;; less: *BR-OWL-ADV*); the openers claw strikes in reach, L slower (R4)
-(br-defstance "BR-OE" (:l1 (:br-oen-l1 8) :l2 (:br-oen-l2 8) :l3 (:br-oen-l3 8) :j1 (:br-oen-j1 8) :j2 (:br-oen-j2 8)
+(br-defstance "BR-OE" (:l1 (:br-oen-l1 8 :br-oen-lc) :j1 (:br-oen-j1 8) :j2 (:br-oen-j2 8)
                        :j3 (:br-oen-j3 8) :k1 (:br-oen-k1 16) :k2 (:br-oen-k2 12) :k3 (:br-oen-k3 18)
                        :jl1 (:br-oe-jf1 8) :jl2 (:br-oe-jf2 8) :jl3 (:br-oe-jf3 8) :kl1 (:br-oe-kf1 10) :kl2 (:br-oe-kf2 10)
                        :kl3 (:br-oe-kf3 10))
@@ -1026,9 +1032,6 @@ His CPU makes one call there (BR-S-CPU-CALL)."
                           (start-move e next) (pace e :l-chain))
                          (t (pace e :follow-empty)))))))))))
 
-(defparameter *br-w-l-dash-max* '(6.0 8.0 10.0) "The L dash's longest by its level 1 / 2 / 3, metres ([G]) ...")
-(defparameter *br-w-l-bonus* '(0 16 32) "... its damage on top of the move's 16 (16 / 32 / 48 before the form's x) ...")
-(defparameter *br-w-l-gain* '(1 2 3) "... the specials (wings) its hit or block gives (the string's +1 before) ([G]).")
 (defun br-w-l-level (held)
   "The awakened L dash's charge level for HELD frames (*BR-W-L-LEVELS*): 1, 2 or 3."
   (destructuring-bind (a b) *br-w-l-levels* (cond ((>= held b) 3) ((>= held a) 2) (t 1))))
@@ -1071,7 +1074,9 @@ level's damage bonus (*BR-W-L-BONUS*); the move is :through (no body push: he pa
   (let* ((f (fighter e)) (mv (fighter-move f)))
     ;; (R8, DUEL_LILLE_V3 §13: the awakened K route's L L drawn as balls of light, barro-art.lisp %BR-KL-BALLS; the look
     ;; hazard is spawned all the same, only its kind differs: the hit and the hazard count are the line's)
-    (br-spawn-look e (if (and (eq (getf (mv-params mv) :stance) :kl) (not (eq (fighter-form f) :base))) :ball :shot)
+    ;; (R10, §15: 「J 陀螺完之後還是射擊不是長鞭呀」: the awakened J route's L L drawn as the whip reaching him, barro-art.lisp
+    ;; %BR-WHIP-REACH; its look :whip, which LB-LOOK does not draw either)
+    (br-spawn-look e (if (eq (fighter-form f) :base) :shot (case (getf (mv-params mv) :stance) (:kl :ball) (:jl :whip) (t :shot)))
                    (or (move-param e :len) *br-x-len*) 0.05 (and (member :x-axis (mv-flags mv)) t))
     (emit :sfx :lb-crack e)))
 (defun br-line-shot (e)

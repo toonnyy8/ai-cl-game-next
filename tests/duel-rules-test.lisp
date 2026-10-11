@@ -831,6 +831,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :br-sk-l1 :br-sk-l2 :br-sk-l3 :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3   ; the base stance's strings
     :br-sk-jl1 :br-sk-jl2 :br-sk-jl3 :br-sk-kl1 :br-sk-kl2 :br-sk-kl3   ; and its follow-ups (DUEL_LILLE_V3 §8.3, §8.5; :lb-snap unused again)
     :br-en-l1 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3   ; the awakened stance EN's openers,
+    :br-en-lc :br-oen-lc                          ; (R10, DUEL_LILLE_V3 §15: the L charge's pose while held)
     :br-oen-l1 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3   ; JILLIEL's and the owl's (§8)
     :br-e-jf1 :br-e-jf2 :br-e-jf3 :br-e-kf1 :br-e-kf2 :br-e-kf3 :br-oe-jf1 :br-oe-jf2 :br-oe-jf3 :br-oe-kf1 :br-oe-kf2 :br-oe-kf3
                                                   ; their L L follow-ups, by route (§8.5; V8's swings :br-e-swing / :br-oe-swing spare again)
@@ -3186,14 +3187,18 @@ past the ends; DEFAULT if the clip is not listed."
                                    (check (or (and best (if far (>= best 1.2) (<= (abs (- best edge)) 0.15)))
                                               (format t "~a f~d: the tip ~a m ahead (~a)~%" clip fr best (if far ">= 1.2" edge)))))))))
     ;; R9 (DUEL_LILLE_V3 §14, 「拿掉砲擊」): K3 is the turn and the overhead split, no blast; the L dash clips (no striking
-    ;; tip: the dash is the reach) are the moves' own, at 8 / 12 of their speed
+    ;; tip: the dash is the reach) are the moves' own, at 8 / 12 of their speed; R10 (§15, 「可以三階段續力」): the dash the
+    ;; move's :clip-2 (played from the release), its :clip the charge pose held up to *BR-W-L-HOLD* (= clip f40 at 8 / 12)
     (dolist (pre '("BR-E" "BR-OE"))
       (dolist (sn '("L1"))   ; (R10: one charged dash)
-        (let ((mv (find-move (intern (format nil "~a-~a" pre sn) :keyword))))
-          (push (mv-clip mv) seen)
-          (check (or (and (eq (mv-clip mv) (intern (format nil "~a-~a" (if (string= pre "BR-E") "BR-EN" "BR-OEN") sn) :keyword))
-                          (~= (mv-clip-speed mv) (/ 1 *br-w-l-slow*)) (= (round (* 60 (clip-mark (mv-clip mv) :s))) 8))
-                     (format t "~a: clip ~a at ~,2f~%" (mv-name mv) (mv-clip mv) (mv-clip-speed mv))))))))
+        (let ((mv (find-move (intern (format nil "~a-~a" pre sn) :keyword)))
+              (cp (if (string= pre "BR-E") "BR-EN" "BR-OEN")))
+          (push (mv-clip-2 mv) seen)
+          (check (or (and (eq (mv-clip-2 mv) (intern (format nil "~a-~a" cp sn) :keyword))
+                          (eq (mv-clip mv) (intern (format nil "~a-LC" cp) :keyword))
+                          (~= (mv-clip-speed mv) (/ 1 *br-w-l-slow*)) (= (round (* 60 (clip-mark (mv-clip-2 mv) :s))) 8)
+                          (>= (+ 0.01 (* 60 (clip-dur (find-clip (mv-clip mv))))) (* *br-w-l-hold* (mv-clip-speed mv))))
+                     (format t "~a: clips ~a / ~a at ~,2f~%" (mv-name mv) (mv-clip mv) (mv-clip-2 mv) (mv-clip-speed mv))))))))
   (check (= 26 (length (remove-duplicates seen)))))
 
 ;; The gate's match length leaves the cinematics out (the user, 2026-10-08: 「毀魂技演出不計入對戰時長」, every cinematic):
