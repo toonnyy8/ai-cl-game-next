@@ -719,5 +719,15 @@ Answers (AskUserQuestion): K3's blast 「拿掉砲擊」; the L 「一按一下�
 | The charged slash | a snap | more in-between keys: the wind-up, the arc, the follow-through, the impact hold |
 
 The K route's L L keeps R8's light balls. CPU bands (JILLIEL EN / the owl EN): J inside 1.8 / 1.7, K 1.8–2.8, L (the dash) 2.8–5.5 m.
-Host tests: the L's dash checked (`:through`, the hook at S, A = 2 + 8); the clips in progress (a subagent's batch).
+**As built** (a subagent's batch r6-art 05a659e, merged): J1 / J2 / J3 the top's turns at S 8 (the spin carried across the
+links); JL1 / JL2 / JL3 (`:br-e-jf*` / `:br-oe-jf*`) the whips (R, L, R the longest; the line's tip 2.8–2.97 m); K1 the
+charged slash with four snap keys through the arc (f12–15, the arm 228 → 214 → 192 → 168, accelerating) and the slam f16,
+buried and held f18–22; K2 hauled up over the left shoulder, swung through, ending low right; K3 the pelvis turned a full
+round (to −356 by f12) while the blade rises, held at the top, the arc f14–17, the split f18; the squash and stretch on all
+three. L1 / L2 / L3 the dash (a crouch, the wings folded back into a narrow sheaf `*lb-sweep-clips*`, leaning low, braking
+past; L2 rolled, L3 a half turn back), `%br-dash-look` five speed streaks, `%br-cuts-look` seven crossing cuts on the one he
+passed just after the dash (on the effects clock, `*br-cuts*`: they outlive the move). `*BR-W-TIPS*`: JILLIEL J 1.85, K1
+2.95, K2 2.75, K3 2.95; the owl J 1.7, K1 2.85, K2 2.6, K3 2.85. Host tests 8303, ALL PASS; 82398: dash / cuts 0 B. Browser
+(`run.mjs --fixed-dt`): JILLIEL EN from 3 m L L L three hits, each dash through him (d 3.0 → 1.28 → 0.37 → 1.55); K K K
+three; J J J three then L L L the whips three (3 specials spent). Playtest v65.
 
