@@ -931,3 +931,9 @@ within its allowance). 60 seeds: **BY 118.4 s, BK 114.4 s**, still below 125 (§
 waiting on the user's playtest, no knob retuned. Mirror awaken A/B (BB, 39020, 60 seeds, seed0 100 / 300 / 500): **60 / 58 /
 58**, pass. His CPU's wins stay low (BY 16, BK 9 of 60; BR, BI 1 of 10): its plans don't use the rooted 30 f EN.
 
+### 18.3 The exception (2026-10-11)
+
+Asked after v71's playtest whether BY / BK below 125 s are an exception or a retune, the user: 「列為例外」. Lille II's BY
+118.4 s and BK 114.4 s (60 seeds, §18.2) are an accepted exception (AGENTS.md). His CPU in the rooted EN (it walks / waits
+there) is deferred: 「晚點」.
+
