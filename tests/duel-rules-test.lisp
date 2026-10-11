@@ -3133,8 +3133,8 @@ past the ends; DEFAULT if the clip is not listed."
 ;; root and hand both scaled, then the stretch drawn on), so the reach moves only through the stretch's direction
 (check (and (~= 1.0 (br-keys-at *br-squash* :lb-w-q1 10 0 1.0)) (~= 0.74 (br-keys-at *br-squash* :br-en-k1 16 0 1.0))
             (~= 1.3 (br-keys-at *br-squash* :br-en-k1 16 1 1.0)) (~= 1.0 (br-keys-at *br-squash* :br-en-k1 40 0 1.0))))
-(check (and (~= 0.0 (br-stretch-at :lb-w-q1 10 0)) (~= 1.2 (br-stretch-at :br-en-j1 8 0)) (~= 1.0 (br-stretch-at :br-en-j1 8 1))
-            (~= 1.15 (br-stretch-at :br-en-j1 9 0)) (~= 0.0 (br-stretch-at :br-en-j1 40 0))))
+(check (and (~= 0.0 (br-stretch-at :lb-w-q1 10 0)) (~= 1.2 (br-stretch-at :br-e-jf1 8 0)) (~= 1.0 (br-stretch-at :br-e-jf1 8 1))
+            (~= 1.15 (br-stretch-at :br-e-jf1 9 0)) (~= 0.0 (br-stretch-at :br-e-jf1 40 0)) (~= 0.0 (br-stretch-at :br-en-j1 8 0))))
 (let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
       (pj (make-rig-proportions :arms 2.6)) (po (make-rig-proportions :arms 2.2 :legs 1.5)) (seen nil))
   (flet ((tip (clip time joint props)
@@ -3175,18 +3175,15 @@ past the ends; DEFAULT if the clip is not listed."
                                    (when *br-tip-print* (format t "  tip ~a f~d: ~,2f~%" clip fr best))
                                    (check (or (and best (if far (>= best 1.2) (<= (abs (- best edge)) 0.15)))
                                               (format t "~a f~d: the tip ~a m ahead (~a)~%" clip fr best (if far ">= 1.2" edge)))))))))
-    ;; R5 零距離砲擊 (the K3 openers' last hit, 「爆炸特效的零距離砲擊」): both tips thrust together on his line, their midpoint
-    ;; at the hit's reach (barro-art.lisp %BR-BLAST-LOOK draws the blast there), point blank (<= 1.3 m)
-    (dolist (mn '(:br-e-k3 :br-oe-k3))
-      (let* ((mv (find-move mn)) (w (aref (mv-hits mv) (1- (length (mv-hits mv))))) (vol (first (hw-vols w)))
-             (edge (+ (aref vol 2) (aref vol 4))) (props (if (eq mn :br-oe-k3) po pj))
-             (tm (/ (* (hw-from w) (mv-clip-speed mv)) 60.0)))
-        (multiple-value-bind (xr ar) (tip (mv-clip mv) tm :hand-r props)
-          (multiple-value-bind (xl al) (tip (mv-clip mv) tm :hand-l props)
-            (check (or (and (< (abs (- xr xl)) 0.4) (<= (abs (* 0.5 (+ xr xl))) 0.1)
-                            (<= (abs (- (* 0.5 (+ ar al)) edge)) 0.15) (<= edge 1.3))
-                       (format t "~a: the blast at (~,2f ~,2f), its hands ~,2f apart, the reach ~,2f~%" mn (* 0.5 (+ xr xl))
-                               (* 0.5 (+ ar al)) (abs (- xr xl)) edge))))))))
+    ;; R9 (DUEL_LILLE_V3 §14, 「拿掉砲擊」): K3 is the turn and the overhead split, no blast; the L dash clips (no striking
+    ;; tip: the dash is the reach) are the moves' own, at 8 / 12 of their speed
+    (dolist (pre '("BR-E" "BR-OE"))
+      (dolist (sn '("L1" "L2" "L3"))
+        (let ((mv (find-move (intern (format nil "~a-~a" pre sn) :keyword))))
+          (push (mv-clip mv) seen)
+          (check (or (and (eq (mv-clip mv) (intern (format nil "~a-~a" (if (string= pre "BR-E") "BR-EN" "BR-OEN") sn) :keyword))
+                          (~= (mv-clip-speed mv) (/ 1 *br-w-l-slow*)) (= (round (* 60 (clip-mark (mv-clip mv) :s))) 8))
+                     (format t "~a: clip ~a at ~,2f~%" (mv-name mv) (mv-clip mv) (mv-clip-speed mv))))))))
   (check (= 30 (length (remove-duplicates seen)))))
 
 ;; The gate's match length leaves the cinematics out (the user, 2026-10-08: 「毀魂技演出不計入對戰時長」, every cinematic):

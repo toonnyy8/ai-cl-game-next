@@ -1985,6 +1985,9 @@ stretched tip is the strike point.")
 (defvar *lb-no-conv* nil
   "Strike clips (in *LB-JILLIEL-STRIKES* / *LB-OWL-STRIKES*) whose table wings do not converge on the hit (Lille II's spinning
 L, barro-art.lisp: the wings spin with him); their trails and the owl's beat as the rest.")
+(defvar *lb-sweep-clips* nil
+  "Clips during which the table wings are swept back into a narrow sheaf along his back (the owl KIN's sweep, *LB-V* [29]
+= 1), in either form: Lille II's awakened L dash (DUEL_LILLE_V3 §14, R9: 「八翼往後收、身體前傾高速衝向對手」).")
 (defvar *lb-trail-cut* nil
   "Clip -> a move frame: the tip / claw trails of these strike clips stop recording from that frame of the move (Lille II's
 零距離砲擊, DUEL_LILLE_V3 §11: 「砲擊不要發射光束」, so the thrust leaves no streak toward him).")
@@ -2918,7 +2921,9 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
     (let ((en (and (%lb-owl-p form) (member form '(:shin :shin-mujittai)))))
       (setf (lb-fxs side 18) (if en (f-min 1f0 (+ (lb-fxs side 18) (* 5f0 rdt))) (f-max 0f0 (- (lb-fxs side 18) (* 5f0 rdt))))
             (aref v 8) (if (%lb-owl-p form) (lb-fxs side 18) 0f0)
-            (aref v 29) (if (%lb-owl-p form) (- 1f0 (lb-fxs side 18)) 0f0)))
+            (aref v 29) (if (%lb-owl-p form) (- 1f0 (lb-fxs side 18)) 0f0))
+      (when (and mv (member (mv-clip mv) *lb-sweep-clips*))   ; (Lille II's dash, R9: the eight wings swept back)
+        (setf (aref v 29) 1f0)))
     (%lb-drive! f mv rdt (%lb-owl-p form))               ; the joints' strike drive (cosmetic: the move's frame)
     (%lb-stretch! (model-anim m))                        ; (Lille II's whips: the front wings' / lashes' stretch)
     (%lb-sp-drive! f mv (%lb-owl-p form) ck)             ; the SPs', the Kikon's and its cinematic's (decision 56)
