@@ -302,11 +302,12 @@ the stance's SPs, its Step."
 ;; the stance's three strings in one form (decision R2, revised by R3, the user 2026-10-11): the openers L (L1 L2 L3), J
 ;; (J1 J2 J3), K (K1 K2 K3) are three segments of several quick plain shots each, 4 m (*BR-S-NEAR*: nothing spent, no long
 ;; reach), each string its own rhythm (「差異明顯的數段連擊」; 「JJ KK LL 都不表示只要二連擊，只是簡化多段攻擊的描述方式」): L even
-;; taps, J rapid bursts, K heavy pairs; the J and K strings go on into L (JL1 JL2, KL1 KL2: 「統一銜接 LL，風格延續」; 「最後一段 LL
-;; 會依據前面 J/K 有不同的動作模組」: their own clips), one 萬物貫通 line a segment (31 m), each spending one special
+;; taps, J rapid bursts, K heavy pairs; the J and K strings go on into L (JL1 JL2 JL3, KL1 KL2 KL3: 「統一銜接 LL，風格延續」;
+;; three segments too, 「每段花 1，共 3」, the user 2026-10-11; 「最後一段 LL 會依據前面 J/K 有不同的動作模組」: their own clips,
+;; barro-art.lisp's J route 疾射 / K route 重砲), one 萬物貫通 line a segment (31 m), each spending one special
 ;; (「兩者都花資源」; none: no follow-up, BR-FOLLOW-OK-P). Every segment of the J and K strings and their follow-ups that hit
 ;; cancels into the form's charge-less SP2 (:sp2c; 「SP2 接在 J 連段後面也可以」, 「任一段打中都能接」). CLIPS: a plist of
-;; (clip authored-startup) by segment (:l1 .. :kl2; the clip plays at authored / S speed); ADV the owl's +1 (R one less).
+;; (clip authored-startup) by segment (:l1 .. :kl3; the clip plays at authored / S speed); ADV the owl's +1 (R one less).
 (eval-when (:compile-toplevel :load-toplevel :execute)   ; (BR-DEFSTANCE reads it while it expands)
 (defparameter *br-s-segs*
   ;; name kind startup hit-offsets recovery damage react-between react-last role extra
@@ -320,9 +321,11 @@ the stance's SPs, its Step."
     ("K2" :flash 12 (0 10) 18 *br-s-k-dmg* :stagger :stagger :k nil)
     ("K3" :flash 12 (0 8 16) 22 *br-s-k-dmg* :stagger :stagger :k (:end t))
     ("JL1" :sig 8 (0) 14 *br-s-jl-dmg* :flinch :flinch :jl (:spend t))
-    ("JL2" :sig 8 (0) 16 *br-s-jl-dmg* :knockback :knockback :jl (:spend t :end t))
+    ("JL2" :sig 8 (0) 14 *br-s-jl-dmg* :flinch :flinch :jl (:spend t))
+    ("JL3" :sig 8 (0) 16 *br-s-jl-dmg* :knockback :knockback :jl (:spend t :end t))
     ("KL1" :sig 10 (0) 16 *br-s-kl-dmg* :stagger :stagger :kl (:spend t))
-    ("KL2" :sig 10 (0) 20 *br-s-kl-dmg* :knockback :knockback :kl (:spend t :end t)))
+    ("KL2" :sig 10 (0) 16 *br-s-kl-dmg* :stagger :stagger :kl (:spend t))
+    ("KL3" :sig 10 (0) 20 *br-s-kl-dmg* :knockback :knockback :kl (:spend t :end t)))
   "The stance's moves (BR-DEFSTANCE, decision R3 [G]): name, kind, startup, the hits' frames after it (a 2-frame window
 each), recovery, damage a hit, the reaction of the hits before the last and of the last, role, extra params (L's :gain
 step, the follow-ups' :spend, a string's last segment :end: his CPU's SP2 call)."))
@@ -346,14 +349,14 @@ step, the follow-ups' :spend, a string's last segment :end: his CPU's SP2 call).
                   :params (:stance ,role :len ,(if far '*br-x-len* '*br-s-near*) ,@extra))))))
 (defun br-stance-strings (prefix sp2)
   "The kit strings of PREFIX's stance (BR-DEFSTANCE): J1 -> J2 -> J3, K1 -> K2 -> K3 by the J / K latch; L1 -> L2 -> L3, J3 ->
-JL1 -> JL2, K3 -> KL1 -> KL2 by BR-S-TICK's latch (command :lchain); every J / K / JL / KL segment that hit -> the form's
+JL1 -> JL2 -> JL3, K3 -> KL1 -> KL2 -> KL3 by BR-S-TICK's latch (command :lchain); every J / K / JL / KL segment that hit -> the form's
 charge-less SP2 SP2 (:sp2c, decision R3)."
   (flet ((nm (s) (intern (format nil "~a-~a" prefix s) :keyword)))
     `((,(nm "J1") :q ,(nm "J2")) (,(nm "J2") :q ,(nm "J3")) (,(nm "K1") :f ,(nm "K2")) (,(nm "K2") :f ,(nm "K3"))
       (,(nm "L1") :lchain ,(nm "L2")) (,(nm "L2") :lchain ,(nm "L3"))
-      (,(nm "J3") :lchain ,(nm "JL1")) (,(nm "JL1") :lchain ,(nm "JL2"))
-      (,(nm "K3") :lchain ,(nm "KL1")) (,(nm "KL1") :lchain ,(nm "KL2"))
-      ,@(loop for sg in '("J1" "J2" "J3" "JL1" "JL2" "K1" "K2" "K3" "KL1" "KL2") collect `(,(nm sg) :sp2c ,sp2)))))
+      (,(nm "J3") :lchain ,(nm "JL1")) (,(nm "JL1") :lchain ,(nm "JL2")) (,(nm "JL2") :lchain ,(nm "JL3"))
+      (,(nm "K3") :lchain ,(nm "KL1")) (,(nm "KL1") :lchain ,(nm "KL2")) (,(nm "KL2") :lchain ,(nm "KL3"))
+      ,@(loop for sg in '("J1" "J2" "J3" "JL1" "JL2" "JL3" "K1" "K2" "K3" "KL1" "KL2" "KL3") collect `(,(nm sg) :sp2c ,sp2)))))
 
 ;;; ================================================================ the base form
 ;; the J / K strings: the old Lille's frames and clips, decision V8 on top
@@ -381,10 +384,12 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (defmove :br-k-dash :kind :sig :clip :lb-k-dash :startup *br-kamae-dash-f* :active 0 :recovery 0 :tick br-k-dash-tick
   :on-frame ((0 br-kamae-dash) (*br-kamae-back* br-kamae-back)))
 ;; the stance's strings (decision R2), Diagramm's shots: L the shoulder shot and the hip snap, J the snap and HOSHA's leap
-;; (Lille's spare :lb-k-hosha), K the locked shot and TAISHA's back-slide
+;; (Lille's spare :lb-k-hosha), K the locked shot and TAISHA's back-slide; the follow-ups their own (barro-art.lisp: the J
+;; route's 疾射 hip shots on the move, the K route's 重砲 braced and kneeling shots)
 (br-defstance "BR-S" (:l1 (:lb-fire 6) :l2 (:lb-snap 6) :l3 (:lb-fire 6) :j1 (:lb-snap 6) :j2 (:lb-k-hosha 6)
                       :j3 (:lb-snap 6) :k1 (:lb-k-shot 10) :k2 (:lb-k-taisha 16) :k3 (:lb-k-shot 10)
-                      :jl1 (:lb-k-hosha 6) :jl2 (:lb-snap 6) :kl1 (:lb-k-taisha 16) :kl2 (:lb-k-shot 10)))
+                      :jl1 (:br-jf1 8) :jl2 (:br-jf2 8) :jl3 (:br-jf3 8) :kl1 (:br-kf1 10) :kl2 (:br-kf2 10)
+                      :kl3 (:br-kf3 10)))
 ;; the stance's SPs: SANREN's three 萬物貫通 lines, HIRENKYAKU's slide and shot; outside the stance the plain ones (20 m, no
 ;; 萬物貫通). SP1 gives flash step back by the pips (BR-SP1-FS-GO); SP2 spends every pip, + *BR-SP2-UNIT* each (BR-SP2-SPEND,
 ;; decision R3), its recovery + *BR-SP2-SLOW-R* (22 -> 42) and -30 on block (「單發破綻大」); off a stance K K that hit
@@ -483,10 +488,12 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :vol (:cap 0.5 12.0 1.2 1.2) :on-hit :knockback :kb 2.0 :cooldown 90 :on-frame ((20 br-lane-shot))
   :params (:aura 8 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
 ;; EN, the stance (decision R2): the casts. L the V8 swing (spare since V8b) and the old EN J3, J the old EN J1 / J2, K the
-;; old EN K1 / K2 (their own frames)
+;; old EN K1 / K2 (their own frames); the follow-ups their own (barro-art.lisp: J 疾射 weaving single-wing thrusts, K 重砲
+;; both wings planted)
 (br-defstance "BR-E" (:l1 (:br-e-swing 7) :l2 (:lb-e-q3 5) :l3 (:br-e-swing 7) :j1 (:lb-e-q1 4) :j2 (:lb-e-q2 4)
                       :j3 (:lb-e-q1 4) :k1 (:lb-e-f1 9) :k2 (:lb-e-f2 10) :k3 (:lb-e-f3 11)
-                      :jl1 (:lb-e-q2 4) :jl2 (:lb-e-q3 5) :kl1 (:lb-e-f2 10) :kl2 (:lb-e-f3 11)))
+                      :jl1 (:br-e-jf1 8) :jl2 (:br-e-jf2 8) :jl3 (:br-e-jf3 8) :kl1 (:br-e-kf1 10) :kl2 (:br-e-kf2 10)
+                      :kl3 (:br-e-kf3 10)))
 
 ;;; ================================================================ the owl: the burst's form (decision R1)
 (br-defstring :jn :br-o-j1 :kind :quick :clip :lb-o-q1 :startup 8 :active 3 :recovery 11 :dmg 26 :adv-block -1
@@ -516,10 +523,11 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :cine lb-trompete-cine :startup 20 :active 3 :recovery 30 :whiff 30 :dmg 80 :adv-block -14 :track 0
   :vol (:cap 0.5 12.0 1.4 1.4) :on-hit :knockback :kb 2.0 :cooldown 90 :on-frame ((20 br-lane-shot))
   :params (:aura 10 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
-;; the owl's stance EN: its casts (R one less: *BR-OWL-ADV*)
+;; the owl's stance EN: its casts (R one less: *BR-OWL-ADV*); the follow-ups the claws' own (barro-art.lisp)
 (br-defstance "BR-OE" (:l1 (:br-oe-swing 7) :l2 (:lb-oe-q3 5) :l3 (:br-oe-swing 7) :j1 (:lb-oe-q1 4) :j2 (:lb-oe-q2 4)
                        :j3 (:lb-oe-q1 4) :k1 (:lb-oe-f1 9) :k2 (:lb-oe-f2 10) :k3 (:lb-oe-f3 11)
-                       :jl1 (:lb-oe-q2 4) :jl2 (:lb-oe-q3 5) :kl1 (:lb-oe-f2 10) :kl2 (:lb-oe-f3 11))
+                       :jl1 (:br-oe-jf1 8) :jl2 (:br-oe-jf2 8) :jl3 (:br-oe-jf3 8) :kl1 (:br-oe-kf1 10) :kl2 (:br-oe-kf2 10)
+                       :kl3 (:br-oe-kf3 10))
               1)
 
 ;;; His own moves' clips (barro-art.lisp): the owl's twins through its kits' :clip-map
@@ -891,8 +899,8 @@ or :NO."
           (t (pace e :ai-follow-no) :no))))
 
 (defun br-s-tick (e)
-  "A stance move (no chase: its J / K links are :quick / :flash). Its L links (:lchain: L1 -> L2 -> L3, J3 -> JL1 -> JL2,
-K3 -> KL1 -> KL2, decision R3) start unchained: a human's L pressed during it is latched and starts the next from the end
+  "A stance move (no chase: its J / K links are :quick / :flash). Its L links (:lchain: L1 -> L2 -> L3, J3 -> JL1 -> JL2 ->
+JL3, K3 -> KL1 -> KL2 -> KL3, decision R3) start unchained: a human's L pressed during it is latched and starts the next from the end
 of its hits (a spending follow-up only with a special to spend: BR-FOLLOW-OK-P; none, the string ends). Any J / K / JL /
 KL segment: a human's SP2 (Shift+L) is latched and, the move having hit, cancels into the form's charge-less SP2 there
 (:sp2c; 「必須接在 KK 後執行」, 「SP2 接在 J 連段後面也可以」).

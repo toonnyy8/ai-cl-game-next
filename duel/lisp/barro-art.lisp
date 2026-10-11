@@ -239,10 +239,118 @@
   (11 (:root :u 0.4 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
   (11.5 :snap (:root :u 0.05 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
   (:end :lb-oe-stance))
+;;; ---------------------------------------------------------------- the stance's L L follow-ups (DUEL_LILLE_V3 §8.5)
+;;; Decision R3 (the user, 2026-10-11): 「架式 > JJ/KK > LL 中，最後一段 LL 會依據前面 J/K 有不同的動作模組」, three segments
+;;; (「每段花 1，共 3」), each one 萬物貫通 line fired on S (barro.lisp's BR-DEFSTANCE; the clips at their moves' own frames,
+;;; :clip-s = startup). The L style carried on (「風格延續」: one line a beat, as the L string), the route's own body:
+;;; - the J route 疾射 (S 8, A 2, R 14 / 14 / 16): light, on the move: a slide to his right, a slide to his left (the shot
+;;;   at the end of each), a hop back with the last shot in the air;
+;;; - the K route 重砲 (S 10, A 2, R 16 / 16 / 20): planted and heavy: a wide brace, down on one knee, the long held aim
+;;;   from the knee and the big shot that blows him back.
+;;; The base form fires Diagramm (its muzzle: the lines' origin), JILLIEL EN the front wings, the owl EN its claws. The
+;;; root's side / back offsets are the clip's only: the sim does not move him.
+(defpose :br-jf-slide (:base :lb-kamae-pose)          ; low and sliding, the rifle at the hip (Lille's snap shot's arm)
+  (:root :u -0.16 :pitch 4) (:spine :flex 10) (:chest :twist -12) (:arm-r :flex 30 :side 14) (:elbow-r :flex 60)
+  (:hand-r :flex -90) (:thigh-r :flex -6 :side 22) (:thigh-l :flex 26 :side 4) (:knee-l :flex 40) (:knee-r :flex 30))
+(defpose :br-kf-brace (:base :lb-aim-pose)            ; braced wide and low, shouldered on the line
+  (:root :u -0.2 :pitch 6) (:spine :flex 8) (:thigh-r :flex -24 :side 16) (:thigh-l :flex 40 :side 10) (:knee-l :flex 52)
+  (:knee-r :flex 20))
+(defpose :br-kf-kneel (:base :lb-aim-pose)            ; down on the right knee (the shin flat behind), shouldered
+  (:root :u -0.42 :pitch 4) (:spine :flex 6) (:thigh-r :flex -20 :side 8) (:knee-r :flex 70) (:thigh-l :flex 78 :side 8)
+  (:knee-l :flex 78))
+(defstrike :br-jf1 (8 2 14 :base :lb-kamae-pose)      ; 疾射 1: slid to his right, the hip shot
+  (0) (4 :br-jf-slide (:root :r -0.18 :yaw 14)) (7 :br-jf-slide (:root :r -0.32 :yaw 18))
+  (:s :snap :br-jf-slide (:root :r -0.36 :f -0.04 :yaw 10) (:arm-r :flex 36 :side 18))
+  (:a :br-jf-slide (:root :r -0.38 :f -0.1 :yaw 10) (:arm-r :flex 50 :side 20) (:hand-r :flex -110))
+  (18 :br-jf-slide (:root :r -0.22 :u -0.1))
+  (:end :lb-stance))
+(defstrike :br-jf2 (8 2 14 :base :lb-kamae-pose)      ; 疾射 2: back across to his left, the rifle swung to the far hip
+  (0 :br-jf-slide (:root :r -0.2)) (4 :br-jf-slide (:root :r 0.14 :yaw -10) (:chest :twist 6))
+  (7 :br-jf-slide (:root :r 0.3 :yaw -16) (:chest :twist 10))
+  (:s :snap :br-jf-slide (:root :r 0.36 :f -0.04 :yaw -10) (:chest :twist 14) (:arm-r :flex 40 :side 4))
+  (:a :br-jf-slide (:root :r 0.38 :f -0.1 :yaw -10) (:chest :twist 14) (:arm-r :flex 54 :side 6) (:hand-r :flex -110))
+  (18 :br-jf-slide (:root :r 0.22 :u -0.1))
+  (:end :lb-stance))
+(defstrike :br-jf3 (8 2 16 :base :lb-kamae-pose)      ; 疾射 3: the crouch, a hop back, the shot in the air, the landing
+  (0 :br-jf-slide (:root :r 0.2)) (4 (:root :u -0.24 :pitch 8) (:knees :flex 48) (:thighs :flex 34))
+  (:s :snap :lb-k-hosha-air (:root :f -0.3 :u 0.5) (:arm-r :flex 64))
+  (:a :lb-k-hosha-air (:root :f -0.42 :u 0.48) (:arm-r :flex 74) (:chest :flex -6))
+  (16 :lb-k-hosha-air (:root :f -0.5 :u 0.26))
+  (19 (:root :f -0.5 :u -0.2 :pitch 6) (:knees :flex 44) (:thighs :flex 30))
+  (24 (:root :f -0.3 :u -0.1))
+  (:end :lb-stance))
+(defstrike :br-kf1 (10 2 16 :base :lb-kamae-pose)     ; 重砲 1: planted wide, shouldered, a heavy recoil
+  (0) (4 :br-kf-brace (:root :u -0.16)) (9 :br-kf-brace)
+  (:s :snap :br-kf-brace (:root :f -0.12) (:head :flex 2))
+  (:a :br-kf-brace (:root :f -0.26 :u -0.14) (:arm-r :flex 82 :side 34) (:chest :flex -10))
+  (20 :br-kf-brace (:root :f -0.18))
+  (:end :lb-stance))
+(defstrike :br-kf2 (10 2 16 :base :lb-kamae-pose)     ; 重砲 2: dropped on one knee, the shot from it
+  (0 :br-kf-brace) (5 :br-kf-kneel (:root :u -0.36)) (9 :br-kf-kneel)
+  (:s :snap :br-kf-kneel (:root :f -0.08) (:head :flex 2))
+  (:a :br-kf-kneel (:root :f -0.2) (:arm-r :flex 80 :side 34) (:chest :flex -8))
+  (22 :br-kf-kneel (:root :f -0.12))
+  (:end :lb-stance))
+(defstrike :br-kf3 (10 2 20 :base :lb-kamae-pose)     ; 重砲 3: the long held aim from the knee, the big shot blows him back
+  (0 :br-kf-kneel) (8 :br-kf-kneel (:head :flex 10) (:chest :flex 2))
+  (:s :snap :br-kf-kneel (:root :f -0.14) (:head :flex 2))
+  (:a :br-kf-brace (:root :f -0.5 :u -0.12 :pitch -6) (:spine :flex -8) (:arm-r :flex 92 :side 36) (:chest :flex -14))
+  (24 :br-kf-brace (:root :f -0.4 :u -0.16))
+  (:end :lb-stance))
+;; JILLIEL EN: 疾射 a single front wing thrust at him from a slide (the right from his right, the left from his left), then
+;; both from a hop back; 重砲 both wings at once every beat, planted: swept up from low, slammed down from high, the
+;; NIJUSHI-KO ring held and its recoil
+(defstrike :br-e-jf1 (8 2 14 :base :lb-w-stance)
+  (0) (3 :br-cock-r (:root :r -0.2)) (6 :br-cock-r (:root :r -0.36 :u 0.14))
+  (:s :snap :br-fire-r (:root :r -0.4)) (:a :br-kick-r (:root :r -0.4)) (18 :br-settle-both (:root :f -0.1 :r -0.22 :u 0.04))
+  (:end :lb-w-stance))
+(defstrike :br-e-jf2 (8 2 14 :base :lb-w-stance)
+  (0 :lb-w-stance (:root :r -0.2)) (3 :br-cock-l (:root :r 0.14)) (6 :br-cock-l (:root :r 0.36 :u 0.14))
+  (:s :snap :br-fire-l (:root :r 0.4)) (:a :br-kick-l (:root :r 0.4)) (18 :br-settle-both (:root :f -0.1 :r 0.22 :u 0.04))
+  (:end :lb-w-stance))
+(defstrike :br-e-jf3 (8 2 16 :base :lb-w-stance)
+  (0 :lb-w-stance (:root :r 0.2)) (3 :br-cock-both (:root :u 0.06)) (6 :br-cock-both (:root :f -0.3 :u 0.3))
+  (:s :snap :br-fire-both (:root :f -0.4 :u 0.34)) (:a :br-kick-both (:root :f -0.5 :u 0.3))
+  (18 :br-settle-both (:root :f -0.42 :u 0.1)) (:end :lb-w-stance))
+(defstrike :br-e-kf1 (10 2 16 :base :lb-w-stance)
+  (0) (5 :br-low-both) (9 :br-low-both (:root :f -0.08 :u -0.08))
+  (:s :snap :br-fire-both (:root :f 0.1 :u -0.02)) (:a :br-kick-both) (20 :br-settle-both) (:end :lb-w-stance))
+(defstrike :br-e-kf2 (10 2 16 :base :lb-w-stance)
+  (0) (5 :br-cock-both) (9 :br-cock-both (:root :u 0.22 :pitch -8))
+  (:s :snap :br-fire-both (:root :f 0.16 :u -0.04 :pitch 8) (:spine :flex 20)) (:a :br-kick-both (:root :f -0.36))
+  (20 :br-settle-both) (:end :lb-w-stance))
+(defstrike :br-e-kf3 (10 2 20 :base :lb-w-stance)
+  (0) (4 :br-ring-pose (:root :u 0.2)) (9 :br-ring-pose (:root :f -0.1 :u 0.34 :pitch -4) (:spine :flex -10))
+  (:s :snap :br-blown-pose (:root :f -0.3)) (:a :br-blown-pose (:root :f -0.56 :u 0.38))
+  (24 :br-settle-both (:root :u 0.14)) (:end :lb-w-stance))
+;; the owl EN: the same two bodies on its claws (the volley's solved keys)
+(defstrike :br-oe-jf1 (8 2 14 :base :lb-oe-stance)
+  (0) (3 :br-o-cock-r (:root :r -0.2)) (6 :br-o-cock-r (:root :r -0.34))
+  (:s :snap :br-o-fire-r (:root :r -0.38 :f 0.1)) (:a :br-o-kick-r (:root :r -0.38 :f 0.06))
+  (18 :lb-oe-stance (:root :r -0.18)) (:end :lb-oe-stance))
+(defstrike :br-oe-jf2 (8 2 14 :base :lb-oe-stance)
+  (0 :lb-oe-stance (:root :r -0.18)) (3 :br-o-cock-l (:root :r 0.14)) (6 :br-o-cock-l (:root :r 0.34))
+  (:s :snap :br-o-fire-l (:root :r 0.38 :f 0.1)) (:a :br-o-kick-l (:root :r 0.38 :f 0.06))
+  (18 :lb-oe-stance (:root :r 0.18)) (:end :lb-oe-stance))
+(defstrike :br-oe-jf3 (8 2 16 :base :lb-oe-stance)
+  (0 :lb-oe-stance (:root :r 0.18)) (3 :br-o-cock-both (:root :u 0.1)) (6 :br-o-cock-both (:root :f -0.3 :u 0.3))
+  (:s :snap :br-o-fire-both (:root :f -0.36 :u 0.3)) (:a :br-o-kick-both (:root :f -0.46 :u 0.26))
+  (18 :br-o-kick-both (:root :f -0.3 :u 0.1)) (:end :lb-oe-stance))
+(defstrike :br-oe-kf1 (10 2 16 :base :lb-oe-stance)
+  (0) (5 :br-o-low-both) (9 :br-o-low-both (:root :u -0.16))
+  (:s :snap :br-o-launch-both) (:a :br-o-launch-both (:root :f 0.2 :u 0.2)) (20 :br-o-kick-both) (:end :lb-oe-stance))
+(defstrike :br-oe-kf2 (10 2 16 :base :lb-oe-stance)
+  (0) (5 :br-o-open-pose) (9 :br-o-open-pose (:root :u 0.16 :pitch -9))
+  (:s :snap :br-o-throw-both (:root :f 0.3)) (:a :br-o-throw-both (:root :f 0.2 :u 0.04)) (20 :br-o-kick-both)
+  (:end :lb-oe-stance))
+(defstrike :br-oe-kf3 (10 2 20 :base :lb-oe-stance)
+  (0) (4 :br-o-raise-both) (9 :br-o-raise-both (:root :u 0.38 :pitch -10))
+  (:s :snap :br-o-throw-both) (:a :br-o-throw-both (:root :f 0.5 :u -0.1)) (24 :br-o-kick-both (:root :f -0.1))
+  (:end :lb-oe-stance))
 ;;; ---------------------------------------------------------------- the draw hook
 (defparameter *br-aim-stance* '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
   "The base stance's moves: the aim line tracks while one runs ...")
-(defparameter *br-aim-locked* '(:br-s-kl1 :br-s-jl1)
+(defparameter *br-aim-locked* '(:br-s-jl1 :br-s-jl2 :br-s-jl3 :br-s-kl1 :br-s-kl2 :br-s-kl3)
   "... and turns jade, locked, through the startup of these shots (the stance's spending 萬物貫通 lines, decision R3).")
 (defun-fast %br-aim-look (e f side)
   "The stance's aim line (Lille's %LB-AIM-LOOK on his moves): a thin line on the floor from under the muzzle to the wall,
@@ -704,13 +812,17 @@ wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-
 step full: k 0-4 the owl (kept without a burst) with 0 / 2 / 4 / 6 / 8 wings, the volley started (its string by the
 count: 空收 / 二連 / 四連 / 裁き / 裁き・極); 8 / 9 JILLIEL's turn into the stance / its stance's K K -> L L line (KL1); 10 / 11
 the owl's; 12 the owl's SP2 on its own (the volley's wind-up); 13 the base stance's SP2 HIRENKYAKU; 14 JILLIEL's SANREN;
-15 / 16 / 17 the base stance's L1 / J1 / K1 (3 m out); 18 / 19 JILLIEL's stance L1 / K1 (3 m out)."
+15 / 16 / 17 the base stance's L1 / J1 / K1 (3 m out); 18 / 19 JILLIEL's stance L1 / K1 (3 m out); 40-57 the L L
+follow-ups' clips (§8.5, 3 m out, the specials full): 40 + 6 form + segment, form 0 the base / 1 JILLIEL EN / 2 the owl EN,
+segment 0-2 JL1-JL3, 3-5 KL1-KL3 (60-77 the front views)."
   (let* ((front (oddp (floor k 20))) (k (if front (- k 20) k)) (owl (or (<= 0 k 4) (<= 10 k 13))))
     (if front (ensure-battle :kenpachi :barro) (ensure-battle :barro :kenpachi))
     (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
       (setf *br-keep-owl* owl)
-      (force-form b (cond ((<= 15 k 17) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
-      (place *p1* *p2* (if (<= 15 k 19) 3.0 4.0))
+      (when (<= 40 k 57) (setf owl (= 2 (floor (- k 40) 6)) *br-keep-owl* owl))
+      (force-form b (cond ((<= 15 k 17) :base) ((<= 18 k 19) :jilliel) ((<= 40 k 57) (svref #(:base :jilliel :shin) (floor (- k 40) 6)))
+                          (owl :shin-kin) (t :jilliel-kin)))
+      (place *p1* *p2* (if (<= 15 k 57) 3.0 4.0))
       (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
             (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))   ; (no K.O. across a script's scenes)
       (case k
@@ -722,7 +834,13 @@ the owl's; 12 the owl's SP2 on its own (the volley's wind-up); 13 the base stanc
         (13 (force-form b :base) (start-move b (find-move :br-k-hiren)))
         (14 (start-move b (find-move :br-w-sanren)))
         (15 (start-move b (find-move :br-s-l1))) (16 (start-move b (find-move :br-s-j1))) (17 (start-move b (find-move :br-s-k1)))
-        (18 (start-move b (find-move :br-e-l1))) (19 (start-move b (find-move :br-e-k1))))
+        (18 (start-move b (find-move :br-e-l1))) (19 (start-move b (find-move :br-e-k1)))
+        (t (when (<= 40 k 57)
+             (multiple-value-bind (fm sg) (floor (- k 40) 6)
+               (br-set-ammo b (if (zerop fm) 3 8))
+               (start-move b (find-move (intern (format nil "~a-~a" (svref #("BR-S" "BR-E" "BR-OE") fm)
+                                                        (svref #("JL1" "JL2" "JL3" "KL1" "KL2" "KL3") sg))
+                                                :keyword)))))))
       (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
 
 (defun br-art-cine (f)
