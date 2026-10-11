@@ -784,3 +784,11 @@ prefix: L1 after L3, J1 after J3 / JL3, K1 after K3 / KL3): `BR-S-END-PUSH` (bar
 him behind (pushing him out of a 6–10 m dash would be a blow-away). A charge-less SP2 cancelled off an `:end` segment chases
 him (`FIGHTER-END-CHASE`, as off a generic ender). Host tests 8257, ALL PASS; the native sim logs 13–19 end pushes a match
 (BK, 2 seeds).
+
+### 15.2 Gates after R10 and the end push (native sim, bb46c92)
+
+10 seeds, 60 matches, all K.O.: BY 107.5, BK 109.0, BR 132.2, BI 134.3, BS 158.9, BB 191.9 s (BS, BB pass at once). 20 seeds:
+BR 142.5, BI 134.4 s, pass. 60 seeds: **BY 113.2 s, BK 109.1 s**, still below 125 (R9: 110.5 / 109.1): the end push didn't
+lengthen them; §12.1's open exception, waiting on the user's playtest (「先試玩再決定」), no knob retuned. Mirror awaken A/B (BB,
+39020, 60 seeds, seed0 100 / 300 / 500, the never-awaken side's wins, pass ≥ 20): **55 / 60 / 56**, pass.
+
