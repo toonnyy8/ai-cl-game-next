@@ -828,7 +828,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :lb-kamae :lb-k-shot :lb-k-hosha :lb-k-taisha :lb-k-dash :lb-w-tenshin :lb-w-tenshin-in   ; his rework (DUEL_LILLE §22, §23)
     :lb-oe-stance :lb-o-fold :lb-oe-fold :lb-oe-sabaki :lb-o-tenshin :lb-o-tenshin-in   ; the owl on Jilliel's system (decision 36, §23.14)
     :lb-oe-q1 :lb-oe-q2 :lb-oe-q3 :lb-oe-f1 :lb-oe-f2 :lb-oe-f3   ; its EN casts (decision 56, §23.37)
-    :br-sk-l1 :br-sk-lc :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3   ; the base stance's strings
+    :br-sk-l1 :br-sk-l1s :br-sk-lc :br-jab :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3   ; the base stance's strings
     :br-sk-jl1 :br-sk-jl2 :br-sk-jl3 :br-sk-kl1 :br-sk-kl2 :br-sk-kl3   ; and its follow-ups (DUEL_LILLE_V3 §8.3, §8.5; :lb-snap unused again)
     :br-en-l1 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3   ; the awakened stance EN's openers,
     :br-en-lc :br-oen-lc                          ; (R10, DUEL_LILLE_V3 §15: the L charge's pose while held)
@@ -2954,9 +2954,9 @@ defender's next step. Values: the attacker's and the defender's first actionable
 ;; (:sp2c through BR-S-TICK), combo
 (let ((b (kit :barro :base)) (om (kit :barro :shin-kin)) (or* (kit :barro :shin)))
   (declare (ignorable b))
-  (check (and (~= *br-w-l-slow* 1.5) (= 12 (mv-s (find-move :br-e-l1))) (= 12 (mv-s (find-move :br-oe-l1))) (= 8 (mv-s (find-move :br-s-l1)))))
+  (check (and (~= *br-w-l-slow* 1.5) (= 12 (mv-s (find-move :br-e-l1))) (= 12 (mv-s (find-move :br-oe-l1))) (= *br-snipe-s1* (mv-s (find-move :br-s-l1))) (= 8 (mv-s (find-move :br-s-l1-2))) (= 8 (mv-s (find-move :br-s-l1-3)))))   ; (R16)
   (check (equal (loop for w across (mv-hits (find-move :br-e-l1)) collect (hw-from w)) '(12)))   ; (R7: one hit a press)
-  (check (equal (loop for w across (mv-hits (find-move :br-s-l1)) collect (hw-from w)) '(8)))
+  (check (equal (loop for w across (mv-hits (find-move :br-s-l1)) collect (hw-from w)) (list *br-snipe-s1*)))   ; (R16: level 1's wind-up)
   (check (and (~= (hw-kb (svref (mv-hits (find-move :br-e-j1)) 0)) *br-w-kb*) (~= (hw-kb (svref (mv-hits (find-move :br-oe-k3)) 0)) *br-w-kb*)
               (~= (hw-kb (svref (mv-hits (find-move :br-s-j1)) 0)) *br-w-kb*)))   ; (the melee openers barely push: in reach all string; R15 the base's too)
   (dolist (k (list om or*))

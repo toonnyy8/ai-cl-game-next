@@ -370,6 +370,13 @@ J / K 普攻一樣」: a J link's *WHIFF-EXTRA-J*; the :sig moves' *WHIFF-EXTRA*
   "The awakened stances' melee openers timed apart from *BR-S-SEGS*: name, startup, recovery (decision R6, the user
 2026-10-11: 「大砍刀的動作要更緩慢沉重」; one hit a press since R7; R9: the great sword is K's whole string, J3 back to 8): K1 the
 charged slash (startup 12 -> 16), K3 the turn and the overhead split (12 -> 18) ([G]).")
+(defparameter *br-s-kata-segs*
+  '(("J1" 10 14) ("J2" 10 14) ("J3" 10 16))
+  "The base stance's J, the gun-kata, timed apart from *BR-S-SEGS*: name, startup, recovery (R16, the user 2026-10-12: 「架勢 J 的
+槍鬥術跟普通攻擊的 J3 幫我插入更多關鍵幀並放慢一些速度」: startup 8 -> 10, recovery 12 / 12 / 14 -> 14 / 14 / 16; [G]).")
+(defparameter *br-snipe-s1* 16
+  "The base stance's L at the charge level 1 (R16, the user 2026-10-12: 「增加第 1 階 L 射擊的前搖」): its startup after the
+release, 8 -> 16 (levels 2 / 3, the copies :br-s-l1-2 / -3, keep 8: their wind-up was the charge; [G]).")
 (defparameter *br-w-dash-f* 8
   "The awakened stance's L (decision R9, the user 2026-10-11: 「八翼往後收、身體前傾高速衝向對手，如果有碰到對手就穿過對方並造
 成連續斬擊」): the dash's frames from S (its hit window the same frames + 2) ...")
@@ -430,12 +437,14 @@ copies -L1-2 / -L1-3 after the form) instead of the dash, its J / K MELEE as the
        ,@(loop for (sn kind st00 offs00 r00 dmg mid last role extra) in *br-s-segs*
                unless (and (or melee snipe) (member sn '("L2" "L3") :test #'string=))   ; (R10: one charged L; R15 the base's)
                collect
-               (let* ((ov (and melee (cdr (assoc sn *br-w-segs* :test #'string=))))
+               (let* ((ov (or (and (string= prefix "BR-S") (cdr (assoc sn *br-s-kata-segs* :test #'string=)))   ; (R16)
+                              (and melee (cdr (assoc sn *br-w-segs* :test #'string=)))))
                       (st0 (if ov (first ov) st00)) (offs0 offs00) (r0 (if ov (second ov) r00))
                       (name (intern (format nil "~a-~a" prefix sn) :keyword))
                       (clip (getf clips (intern sn :keyword)))
                       (slow (if (eq role :l) l-slow 1))
-                      (st (round (* st0 slow))) (offs (mapcar (lambda (o) (round (* o slow))) offs0))
+                      (st (if (and snipe (eq role :l)) *br-snipe-s1* (round (* st0 slow))))   ; (R16: level 1's wind-up)
+                      (offs (mapcar (lambda (o) (round (* o slow))) offs0))
                       (far (getf extra :spend))
                       (sniper (and snipe (eq role :l)))   ; (R15: the base's L the charged snipe, a shot)
                       (cut (and melee (not far) (not sniper)))
@@ -491,7 +500,9 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :reach 1.45 :arc 100 :on-hit :flinch)
 (br-defstring :j :br-j2 :kind :quick :clip :lb-q2 :startup 7 :active 3 :recovery 13 :dmg 22 :adv-block -2
   :reach 1.45 :arc 110 :on-hit :flinch)
-(br-defstring :j :br-j3 :kind :quick :clip :lb-jab :startup 9 :active 3 :recovery 18 :dmg 28 :adv-block -4
+;; (R16, the user 2026-10-12: 「普通攻擊的 J3 幫我插入更多關鍵幀並放慢一些速度」: its own clip :br-jab, startup 7 -> 10, recovery
+;; 16 -> 18 after V8; Lille's :lb-jab is the old Lille's)
+(br-defstring :j :br-j3 :kind :quick :clip :br-jab :clip-s 10 :startup 12 :active 3 :recovery 20 :dmg 28 :adv-block -4
   :reach 1.6 :arc 70 :on-hit :stagger :flags (:ender))
 (br-defstring :k :br-k1 :kind :flash :clip :lb-f1 :startup 17 :active 4 :recovery 21 :dmg 48 :adv-block -3
   :reach 2.05 :arc 150 :on-hit :stagger)
@@ -513,15 +524,18 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 ;; the stance's strings (decision R3), Diagramm's shots, each segment its own clip at its frames (barro-art.lisp, the base
 ;; stance's strings): L shouldered (GATHER), J one-handed from the hip (REFILL), K braced at the waist (HEAVY); the J route's
 ;; L L 疾射 one-handed (a whip, a spin, a hop), the K route's 重砲 two-handed (a stamp, a kneel, the finisher from the knee)
-(br-defstance "BR-S" (:l1 (:br-sk-l1 8 :br-sk-lc) :j1 (:br-sk-j1 8) :j2 (:br-sk-j2 8)
-                      :j3 (:br-sk-j3 8) :k1 (:br-sk-k1 16) :k2 (:br-sk-k2 12) :k3 (:br-sk-k3 18)
+(br-defstance "BR-S" (:l1 (:br-sk-l1s 16 :br-sk-lc) :j1 (:br-sk-j1 10) :j2 (:br-sk-j2 10)
+                      :j3 (:br-sk-j3 10) :k1 (:br-sk-k1 16) :k2 (:br-sk-k2 12) :k3 (:br-sk-k3 18)
                       :jl1 (:br-sk-jl1 8) :jl2 (:br-sk-jl2 8) :jl3 (:br-sk-jl3 8) :kl1 (:br-sk-kl1 10) :kl2 (:br-sk-kl2 10)
                       :kl3 (:br-sk-kl3 10))
   :melee t :snipe t)   ; (R15, DUEL_LILLE_V3 §19: 「用覺醒狀態的系統邏輯與動作模組的設計風格重製常態模式」)
 ;; the base stance's L, charged (R15): its level 2 / 3 shots, started by BR-S-SNIPE-RELEASE on the release (no hold)
+;; (R16: their startup 8, level 1's *BR-SNIPE-S1* not theirs: its hit and its shot at 8)
 (defmove-copy :br-s-l1-2 :br-s-l1 :hold nil :release nil :clip :br-sk-l1 :clip-2 nil :dmg *br-snipe-dmg-2*
+  :startup 8 :clip-s 8 :hits ((8 10 :on-hit :flinch)) :on-frame ((0 br-s-start) (8 br-shot-fire))
   :vol (:cap 0.6 *br-snipe-len-2* 1.2 0.25) :params (:stance :l :charged t :len *br-snipe-len-2*))
 (defmove-copy :br-s-l1-3 :br-s-l1 :hold nil :release nil :clip :br-sk-l1 :clip-2 nil :dmg *br-snipe-dmg-3*
+  :startup 8 :clip-s 8 :hits ((8 10 :on-hit :flinch)) :on-frame ((0 br-s-start) (8 br-shot-fire))
   :vol (:cap 0.6 *br-x-len* 1.2 0.25) :chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable)
   :params (:stance :l :charged t :len *br-x-len*))
 ;; the stance's SPs: SANREN's three 萬物貫通 lines, HIRENKYAKU's slide and shot; outside the stance the plain ones (20 m, no

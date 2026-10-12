@@ -390,6 +390,14 @@
   (:root :u -0.14) (:head :flex 10 :twist 16) (:thigh-r :flex -16 :side 12) (:knee-r :flex 30) (:thigh-l :flex 34 :side 10) (:knee-l :flex 44))
 (defpose :br-pl-brace-kick (:base :br-pl-kick)   ; its recoil: muzzle (0.01 1.69 1.90) az -3.2 el 12.0, grip (0.11 1.33 0.19)
   (:root :f -0.1 :u -0.14) (:head :flex 10 :twist 16) (:thigh-r :flex -16 :side 12) (:knee-r :flex 30) (:thigh-l :flex 34 :side 10) (:knee-l :flex 44))
+;; the base form's J3 銃口突 (R16, DUEL_LILLE_V3 §20; a placeholder, the art batch's): Lille's :lb-jab at S 10
+(defstrike :br-jab (10 3 18 :base :lb-stance)
+  (0)
+  (6 (:root :f -0.06) (:arm-r :flex 0) (:elbow-r :flex 40) (:hand-r :flex -40))
+  (:s :snap :lb-jab-hit)
+  (:a :lb-jab-hit)
+  (23 (:arm-r :flex 16) (:elbow-r :flex 60) (:hand-r :flex -70))
+  (:end :lb-stance))
 ;; L 蓄力狙擊 (R15): the charge, held (the move's :clip, at speed 1 up to *BR-W-L-HOLD* 60 f): shouldered by f5, settled and
 ;; braced by f9, then breathing on the aim, a little lower every beat (the level's coil on top: BR-DEFORM) ...
 (defstrike :br-sk-lc (8 2 50 :base :lb-kamae-pose)
@@ -401,6 +409,10 @@
 (defstrike :br-sk-l1 (8 2 14 :base :lb-kamae-pose)
   (0 :br-pl-brace) (5 :br-pl-brace (:head :flex 11)) (:s :br-pl-brace) (:a :snap :br-pl-brace-kick)
   (16 :br-pl-brace (:root :f -0.04 :u -0.12)) (:end :lb-stance))
+;; ... level 1's shot (R16, DUEL_LILLE_V3 §20: 「增加第 1 階 L 射擊的前搖」; a placeholder, the art batch's): the wind-up to f16
+(defstrike :br-sk-l1s (16 2 14 :base :lb-kamae-pose)
+  (0 :br-pl-brace) (12 :br-pl-brace (:head :flex 11)) (:s :br-pl-brace) (:a :snap :br-pl-brace-kick)
+  (24 :br-pl-brace (:root :f -0.04 :u -0.12)) (:end :lb-stance))
 ;; J 槍鬥術 (R15): the gun-kata, one hand
 (defstrike :br-sk-j1 (8 2 12 :base :lb-kamae-pose)   ; J1: coiled left, one spin right with the rifle flung out, the hip shot f8 in a lunge
   (0)
