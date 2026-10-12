@@ -1006,3 +1006,15 @@ The user (verbatim, on v72): 「架勢 J 的槍鬥術跟普通攻擊的 J3 幫�
 The clips re-authored with more keys at the new timing (an art batch). The links still combo: J1 → J2 → J3 13 f hit to hit
 under the flinch's 18; J2 → J3 (the attack state) 13 f.
 
+## 21. Decision R17 (2026-10-12): KIN J / K → L → the stance opener without the turn
+
+The user (verbatim): 「覺醒改動：如果是從普攻 J/K 按 L 切入架勢並直接接入架勢 J1/K1/L 發動攻擊的話，就取消切架勢的前後搖，使連段
+能銜接起來。」
+
+L after a KIN J / K link (JILLIEL's and the owl's) starts `:br-to-en-l` (the turn's copy, kits' `:l-after-k` / `:l-after-j`)
+whose tick `BR-TO-EN-LINK-TICK` reads a human's J / K / L pressed in it (buffered): the stance EN at once (its stand from 0)
+and its J1 / K1 / L started then, the turn's frames so far counted as the opener's startup (K1's 16 cut first to
+`*br-link-k-s*` 14, the roster's K link; at least 1 f left; the skipped frames' hooks run); L the dash in its charge (held).
+From neutral the turn is as before (12 f); his CPU keeps the turn (no cancel: the gates unchanged by it). Browser: KIN J1 →
+L → the stance J1 → J2, J1 → L → K1, J1 → L → L.
+

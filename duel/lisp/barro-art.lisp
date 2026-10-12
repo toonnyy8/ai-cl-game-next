@@ -1146,7 +1146,7 @@ EN 0.35 m) raised off him over the let-out. Its fold and pull for LILLE-DRAW in 
   (let* ((v *br-legs*) (o (* 10 side)) (form (fighter-form f)) (tm (fx-clock))
          (mv (and (eq (fighter-state f) :move) (fighter-move f)))
          (kin (member form '(:jilliel-kin :shin-kin))) (owl (member form '(:shin-kin :shin)))
-         (mode (cond ((and kin mv (eq (mv-name mv) :br-to-en) (eq (fighter-phase f) :main)) 1)
+         (mode (cond ((and kin mv (member (mv-name mv) '(:br-to-en :br-to-en-l)) (eq (fighter-phase f) :main)) 1)
                      ((member form '(:jilliel :shin)) 2) (kin 0) (t -1)))
          (prev (f->i (aref v o))) (lift (the single-float (f32 (body-lift (fighter-kit f) (model-body m)))))
          (bn (body-name (model-body m))) (jm (model-joints m)) (u 0f0) (fold 0f0) (pull 0f0) (out 0f0))

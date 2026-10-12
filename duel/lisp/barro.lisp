@@ -598,6 +598,9 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 ;; 普通的接入架式」: J3 -> L's backstep and the owl's K3 -> L volley gone)
 (defmove :br-to-en :kind :sig :clip :br-to-en :callout "EN" :startup *br-to-en-f* :active 0 :recovery 0 :tick br-halt-tick
   :on-frame ((0 br-stance-arm) (11 br-go-ranged)))
+;; ... off a KIN J / K link (L after J / K, R17, DUEL_LILLE_V3 §21: 「如果是從普攻 J/K 按 L 切入架勢並直接接入架勢 J1/K1/L 發
+;; 動攻擊的話，就取消切架勢的前後搖，使連段能銜接起來」): a J / K / L pressed in it skips the turn (BR-TO-EN-LINK-TICK)
+(defmove-copy :br-to-en-l :br-to-en :tick br-to-en-link-tick)
 (defmove :br-recall :kind :sig :clip :br-recall :callout "KAISHU" :startup *br-recall-f* :active 0 :recovery 0
   :tick br-halt-tick :on-frame ((0 br-recall-go) (7 br-recall-fire)))
 ;; the full volley's strings: every line 萬物貫通 from him at the opponent (BR-RC-TICK keeps him on him); the owl's SP2
@@ -742,7 +745,7 @@ awakened form inherits these).")
              :kikon :br-w-kikon)
   :grid (:br-w-j1 :br-w-j2 :br-w-j3 :br-w-k1 :br-w-k2 :br-w-k3 :br-w-j2s :br-w-k2s)
   :strings *br-melee-strings*
-  :l-after-k :br-to-en :l-after-j :br-to-en
+  :l-after-k :br-to-en-l :l-after-j :br-to-en-l   ; (R17: a stance opener pressed in it skips the turn)
   :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (2.4 6.0) :pressure (1.4 2.4) :zone (3.0 6.0) :defend (3.0 6.0))
        :moves ((0.0 2.4 :q 4 :f 4 :breaker 1 :sig 1)
@@ -1299,6 +1302,36 @@ most its *BR-W-L-HOLD*)."
         (setf (fighter-hold f) (min held (1- *br-w-l-hold*)))
         (pace e :to-dash)))))
 (defun br-halt-tick (e) "The turn, the volley: no string chase." (halt! e))
+(defparameter *br-link-k-s* 14
+  "R17 (DUEL_LILLE_V3 §21): the stance K1 started off the link's turn enters this far from its hit (its startup 16 cut to the
+roster's K link 14: a KIN J1 / J2 that hit combos into it); the stance J1 (S 8) and L (its charge, held) as they are ([G]).")
+(defun br-to-en-link-tick (e)
+  "The turn into the stance off a KIN J / K link (:br-to-en-l, R17: 「取消切架勢的前後搖，使連段能銜接起來」): halted as the turn;
+a human's J / K / L pressed in it (buffered) skips it: the stance EN at once (its stand from 0) and its J1 / K1 / L started now,
+the turn's frames so far counted as the opener's startup (K1's cut to *BR-LINK-K-S* first; at least 1 f left; its skipped
+frames' hooks run), L in its charge (held). His CPU: the turn as before."
+  (halt! e)
+  (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))))
+    (when (and (null (br-tick-brain e)) (eq (fighter-state f) :move) (eq (fighter-phase f) :main))
+      (let ((cmd (cond ((vpad-command-pressed-p vp :quick nil) :q) ((vpad-command-pressed-p vp :flash nil) :f)
+                       ((vpad-command-pressed-p vp :sig nil) :sig))))
+        (when cmd
+          (vpad-consume! vp (case cmd (:q :quick) (:f :flash) (t :sig)))
+          (let ((form (br-ranged-of (fighter-form f))) (spent (fighter-sf f)))   ; (the turn's frames gone: the opener's)
+            (unless (eq form (fighter-form f)) (set-form e form) (pace e :to-ranged))
+            (setf (brs-en-t (br e)) 0)
+            (pace e :link-cut)
+            (let ((mv (kit-command-move (fighter-kit f) cmd)))
+              (start-move e mv (and (mv-hold mv) :sig))
+              (turn-to-opp e f 10.0)
+              (when (and (member cmd '(:q :f)) (eq (fighter-phase f) :main))
+                (let ((cut (min (1- (mv-s mv)) (+ spent (if (eq cmd :f) (max 0 (- (mv-s mv) *br-link-k-s*)) 0)))))
+                  (loop for fr from 1 to cut while (eq (fighter-move f) mv)
+                        do (loop for (hf hook) in (mv-on-frame mv) when (= hf fr) do (funcall hook e)))
+                  (when (eq (fighter-move f) mv)
+                    (setf (fighter-sf f) cut)
+                    (play-clip e (kit-move-clip (fighter-kit f) (mv-clip mv)) :blend 0 :speed (mv-clip-speed mv)
+                               :time (/ (* cut (mv-clip-speed mv)) 60.0))))))))))))
 (defun br-recall-go (e)
   "The owl's SP2, f0: every wing spent and counted (the full volley, decision R3: 「併入梟頭的 SP2」, the one spend-all of
 the owl)."

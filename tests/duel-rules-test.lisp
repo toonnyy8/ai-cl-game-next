@@ -3007,7 +3007,8 @@ defender's next step. Values: the attacker's and the defender's first actionable
   (check (equal (list (mv-name (kit-command-move or* :q)) (mv-name (kit-command-move or* :f)) (mv-name (kit-command-move or* :sig)))
                 '(:br-oe-j1 :br-oe-k1 :br-oe-l1)))
   (check (and (eq :br-to-en (mv-name (kit-command-move m :sig))) (eq :br-to-en (mv-name (kit-command-move om :sig)))
-              (eq (kit-l-after-k m) :br-to-en) (eq (kit-l-after-j m) :br-to-en) (eq (kit-l-after-k om) :br-to-en)))
+              (eq (kit-l-after-k m) :br-to-en-l) (eq (kit-l-after-j m) :br-to-en-l) (eq (kit-l-after-k om) :br-to-en-l)
+              (eq 'br-to-en-link-tick (mv-tick (find-move :br-to-en-l)))))
   (check (and (null (gethash :br-backstep *moves*)) (null (gethash :br-trompete *moves*)) (null (gethash :br-l-link *moves*))))
   (check (eq 'barro-step (getf (kit-hooks b) :step)))
   ;; the awakened J strings at the standard speed (R3, route :JN): J1 S 8 like the old Lille's; the base keeps V8's 6
