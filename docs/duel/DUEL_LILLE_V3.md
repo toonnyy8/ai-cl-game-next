@@ -1178,3 +1178,32 @@ The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功�
   `policy/history/`). One world: the margin is small.
 - 8 cells again (W 2, `plan --beta 0.6`); every cell reports a STYLE paragraph (how it plays, in a player's words), relayed
   to the user cell by cell.
+
+## 24. Decision R19 (2026-10-12): the base K string bolder; the awakened guard behind the eight wings
+
+The user (verbatim): 「動作更改 1. 將常態的普攻 K 動作模組改的更加明顯大膽 2. 把覺醒時的防禦姿勢改成用八翼擋住前面進行防禦」. Presentation
+only: no frame data, volume, reach or damage changed (G2 identical; his native sim rows BY / BK / BB byte-identical).
+
+### 24.1 The base K1 / K2 / K3 (barro-art.lisp, after `:br-jab`)
+
+- `:br-k1` / `:br-k2` (and `:br-k2s`) / `:br-k3` play their own clips `:br-f1` / `:br-f2` / `:br-f3` (`:clip-s` 19 / 22 / 23 =
+  their startups: speed 1) instead of the old Lille's `:lb-f1..3` (kept for him). Every pose solved against the rig, feet
+  planted:
+  - **K1 銃身薙ぎ** (one hand): the weight drops, the rifle swung across to his left, a full wind-up (the body turned ~130°
+    away, Diagramm behind his left hip, looking over his right shoulder), held sinking into a squat tell (f10–14), the spin
+    back one key a frame, the right foot stepping through; S19 the hit at waist height, the free arm flung out, the sweep
+    on 20° a frame through f23; carried round behind his right side, held, back to the stance.
+  - **K2 振り下ろし** (two hands, `*grip-clips*`): from K1's end pose (the link snaps in); hauled up on his right, overhead
+    with the barrel down his back, the back arched and the left knee drawn high (f15–19), snapped straight up, S22 the hit
+    at his middle in a wide stamped lunge, jackknifing forward into the floor (f28–33), let up.
+  - **K3 零距離**: from K2's end pose; drawn back to the right hip, the left hand on the barrel, coiled and sinking (f15–18),
+    driven forward, S23 the muzzle pressed in at chest height in a long lunge, f24 the kick (the barrel up 33°, the free hand
+    flung off, the head thrown back), blown back upright with Diagramm high, let down.
+- `*br-squash*` entries for the three (the sideways stretch ≤ 1.05 through K1's sweep: the drawn reach stays honest).
+- Drawn reach (the host FK test, ±0.15 m): K1 2.07 m on S (2.07 / 2.10 / 2.13 through A; reach 2.05), K2 2.06 (2.09 / 2.09 /
+  2.06; 2.05), K3 2.18 (2.15; then the kick throws the barrel up).
+- Known: in K3's deepest crouch (~f13) the rifle's rear plank dips into the floor.
+- Debug scenes 82105 / 82106 / 82107 (K1 / K2 / K3 2.3 m out; 82125–82127 front views). Tests: each plays its clip at speed 1
+  over S + A + R, its `:s` mark on S, each link's entry pose = the previous link's pose at S + A, the muzzle on S within
+  ±0.15 m of the reach edge, never more than 0.15 m past it on a hit frame; the old Lille's `:lb-k*` still play `:lb-f*`
+  (duel-rules-test 8373 checks).

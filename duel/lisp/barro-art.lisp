@@ -419,6 +419,147 @@
    (:arm-l :flex 40 :side 14) (:elbow-l :flex 76))   ; (the recoil rocks him back)
   (21 :lb-stance (:root :f -0.03 :u -0.06) (:arm-r :flex 16) (:elbow-r :flex 60) (:hand-r :flex -70))   ; (the rifle let down)
   (26 :lb-stance (:root :u -0.04)) (:end :lb-stance))
+;; ---------------------------------------------------------------- the base form's attack-state K string, bold (K1-K3)
+;; The user 2026-10-12: 「將常態的普攻 K 動作模組改的更加明顯大膽」: :br-k1 / :br-k2 / :br-k3 (and the copy :br-k2s) play
+;; their own clips (the old Lille's :lb-f1 / -f2 / -f3 stay his), the same three ideas exaggerated in the stance clips'
+;; style (bigger wind-ups held a beat, the body thrown round, the weight shifted onto a stepped foot, a held impact, a long
+;; follow-through, the squash and stretch *BR-SQUASH*). Each at its move's own frames (S A R after decision V8, played at
+;; speed 1: :clip-s = S); K2 / K3 are links, entered on their frame 7 / 8 (:enter) from the pose the link before holds at
+;; its S + A (the chain opens there on a hit), so their first keys repeat it. On every hit frame Diagramm's muzzle (1.75 m
+;; down the barrel) is at the move's reach, his arc's edge (the host FK test, +-0.15 m: drawn reach = hit reach); the
+;; keys' comments give it as (x his right, y up, f ahead) and the barrel's azimuth (+ = his right) / elevation.
+;; - K1 銃身薙ぎ JUSHIN-NAGI, one hand: the weight dropped and the rifle carried across to his left (f3), wound far round
+;;   (f7: the body turned 130 deg away from him, Diagramm laid back behind his left hip, the head over the right shoulder,
+;;   the free arm tucked), a moving hold sinking into the squat tell (f10-14), then the spin back: a key a frame (~30 deg)
+;;   through f15-18, the hit S 19 at his waist (the free arm flung out wide, the right foot stepped through into a lunge),
+;;   swept on 20 deg a frame through the active frames to his right (az +74 at f23), carried round behind his right side
+;;   (f27), held there sinking (f31), turned back to the front.
+;; - K2 振り下ろし FURIOROSHI, two hands (*GRIP-CLIPS*): from K1's sweep end (f7) hauled up on his right (f11), overhead
+;;   and back (f15: the barrel down his back, the column arched, the left knee drawn up high, stretched tall), a moving
+;;   hold arching further (f19), the chop snapped down (f20 straight up, f21 forward), the hit S 22 at his middle, the arms
+;;   still high, the left foot stamped down into a wide lunge, squashed flat, on down through the active frames with the
+;;   body jackknifing over it, into the floor (f28), held there (f28-33), let up.
+;; - K3 零距離 REI-KYORI: from K2's chop (f8) drawn back to the right hip, the left hand forward on the barrel, the whole
+;;   body coiled back and down onto the right leg (f11-15, held sinking to f18), driven forward (f20, f22) into a long lunge,
+;;   the muzzle pressed into his chest at S 23 and fired, the kick the next frame (+31 deg, the free hand flung off, the
+;;   head thrown back), blown back upright with Diagramm high (f27), held (f27-34), let down.
+(defpose :br-f1-load (:base :lb-stance)   ; K1 the weight dropped, Diagramm carried across to his left: muzzle (-1.77 0.98 1.08) az -62.7 el 0.9
+  (:root :yaw 30 :u -0.08) (:chest :twist 10) (:neck :twist -16) (:head :twist -14) (:arm-l :flex 50 :side 0)
+  (:elbow-l :flex 96) (:thigh-r :flex 14 :side 6) (:knee-r :flex 38) (:thigh-l :flex 18 :side 6) (:knee-l :flex 39)
+  (:arm-r :flex 15.3 :side -14.3 :twist 10.5) (:elbow-r :flex 62.8) (:hand-r :flex -77.7 :twist 0.89))
+(defpose :br-f1-coil (:base :lb-stance)   ; K1 wound round, laid back behind his left hip: muzzle (-0.22 1.03 -1.90) az 179.4 el 4.2
+  (:root :yaw 95 :f -0.06 :u -0.14 :pitch -4) (:pelvis :twist 10) (:spine :flex 2 :side -8) (:chest :twist 35)
+  (:neck :twist -45) (:head :twist -40 :flex 6) (:arm-l :flex 60 :side -10) (:elbow-l :flex 110) (:hand-l :flex -20)
+  (:thigh-r :flex -6 :side 16) (:knee-r :flex 34) (:thigh-l :flex 33 :side 14) (:knee-l :flex 47)
+  (:arm-r :flex 17.1 :side 8.2 :twist 37.8) (:elbow-r :flex 66.5) (:hand-r :flex -77.6 :twist 3.3))
+(defpose :br-f1-hit (:base :lb-stance)   ; K1 the sweep at his waist (reach 2.05): muzzle (-0.20 0.94 2.06) az -14.0 el -0.2
+  (:root :yaw 12 :f 0.18 :u -0.22 :pitch 10) (:pelvis :twist -6) (:spine :flex 10) (:chest :twist 4) (:neck :twist -10)
+  (:head :twist -10 :flex 2) (:arm-l :flex 20 :side 75) (:elbow-l :flex 15) (:hand-l :flex -10)
+  (:thigh-r :flex 50 :side 12) (:knee-r :flex 74) (:thigh-l :flex -26 :side 16) (:knee-l :flex 1)
+  (:arm-r :flex -42.7 :side 14.2 :twist -2.2) (:elbow-r :flex 140.8) (:hand-r :flex -77.9 :twist 0.23))
+(defpose :br-f1-thru (:base :lb-stance)   ; K1 carried round behind his right side: muzzle (1.91 1.21 -1.19) az 115.6 el 10.0
+  (:root :yaw -95 :f 0.2 :u -0.12 :pitch 8) (:pelvis :twist -10) (:spine :flex 8 :side 6) (:chest :twist -20)
+  (:neck :twist 40) (:head :twist 40 :flex 2) (:arm-l :flex 70 :side 40) (:elbow-l :flex 20) (:hand-l :flex -10)
+  (:thigh-r :flex 40 :side 12) (:knee-r :flex 40) (:thigh-l :flex -11 :side 16) (:knee-l :flex 8)
+  (:arm-r :flex 16.4 :side 8.2 :twist 1.87) (:elbow-r :flex 65.4) (:hand-r :flex -57.1 :twist 0.47))
+(defstrike :br-f1 (19 4 23 :base :lb-stance)
+  (0) (3 :br-f1-load) (7 :br-f1-coil)
+  (10 :br-f1-coil (:root :yaw 100 :u -0.17) (:chest :twist 39))   ; (a touch further, sinking)
+  (13 :br-f1-coil (:root :yaw 104 :u -0.22 :pitch -2) (:chest :twist 42) (:knee-l :flex 68) (:knee-r :flex 30))   ; (the squat tell)
+  (14 :br-f1-coil (:root :yaw 104 :u -0.22 :pitch -2) (:chest :twist 42) (:knee-l :flex 68) (:knee-r :flex 30))
+  (15 :snap :br-f1-hit (:root :yaw 120 :f 0.0 :u -0.17)) (16 :snap :br-f1-hit (:root :yaw 86 :f 0.06 :u -0.19))   ; (the spin back,
+  (17 :snap :br-f1-hit (:root :yaw 56 :f 0.11 :u -0.21)) (18 :snap :br-f1-hit (:root :yaw 32 :f 0.15))           ;  stepping through)
+  (:s :snap :br-f1-hit)
+  (20 :snap :br-f1-hit (:root :yaw -8)) (21 :snap :br-f1-hit (:root :yaw -28)) (22 :snap :br-f1-hit (:root :yaw -48))   ; (swept on,
+  (:a :snap :br-f1-hit (:root :yaw -68))                                                                                ;  az +74)
+  (27 :br-f1-thru) (31 :br-f1-thru (:root :yaw -100 :u -0.15))   ; (carried round, held sinking)
+  (37 :lb-stance (:root :yaw -40 :u -0.1) (:arm-r :flex 20) (:elbow-r :flex 70) (:hand-r :flex -80))
+  (42 :lb-stance (:root :yaw -6 :u -0.05)) (:end :lb-stance))
+(defpose :br-f2-lift (:base :lb-stance)   ; K2 hauled up on his right: muzzle (1.60 2.95 0.77) az 70.1 el 50.0
+  (:root :yaw -35 :f 0.16 :u -0.04 :pitch 2) (:pelvis :twist -8) (:spine :flex 2 :side 6) (:chest :twist -16)
+  (:neck :twist 20) (:head :twist 20) (:thigh-r :flex 14 :side 12) (:knee-r :flex 16) (:thigh-l :flex -2 :side 14)
+  (:knee-l :flex 0) (:arm-l :flex 110 :side 20) (:elbow-l :flex 40) (:arm-r :flex 110.4 :side 29 :twist -0.91)
+  (:elbow-r :flex 29.4) (:hand-r :flex -96.2 :twist -34))
+(defpose :br-f2-top (:base :lb-stance)   ; K2 overhead, the barrel down his back, the left knee drawn up: muzzle (0.06 3.20 -1.23) az -179.8 el 44.9
+  (:root :f -0.08 :u 0.04 :pitch -10) (:pelvis :twist 0) (:spine :flex -12) (:chest :flex -6 :twist 0)
+  (:neck :flex -6 :twist 0) (:head :flex -8 :twist 0) (:thigh-l :flex 75 :side 6) (:knee-l :flex 85)
+  (:thigh-r :flex -4 :side 8) (:knee-r :flex 6) (:arm-l :flex 150 :side 20) (:elbow-l :flex 40)
+  (:arm-r :flex 127.7 :side 23.4 :twist -6) (:elbow-r :flex 6.3) (:hand-r :flex -24.8 :twist -16.4))
+(defpose :br-f2-top2 (:base :lb-stance)   ; K2 arched further, held: muzzle (0.08 2.90 -1.50) az -178.4 el 32.8
+  (:root :f -0.1 :u 0.05 :pitch -14) (:pelvis :twist 0) (:spine :flex -16) (:chest :flex -8 :twist 0)
+  (:neck :flex -8 :twist 0) (:head :flex -10 :twist 0) (:thigh-l :flex 78 :side 6) (:knee-l :flex 88)
+  (:thigh-r :flex -7 :side 8) (:knee-r :flex 6) (:arm-l :flex 150 :side 20) (:elbow-l :flex 40)
+  (:arm-r :flex 112.2 :side 22 :twist -5.1) (:elbow-r :flex 8.8) (:hand-r :flex -10.5 :twist -14.2))
+(defpose :br-f2-up (:base :lb-stance)   ; K2 the chop, straight up: muzzle (0.13 3.70 0.45) az 0.0 el 80.4
+  (:root :f 0 :u 0.02 :pitch -2) (:pelvis :twist 0) (:spine :flex -4) (:chest :twist 0) (:neck :twist 0) (:head :twist 0)
+  (:thigh-l :flex 45 :side 6) (:knee-l :flex 55) (:thigh-r :flex -6 :side 8) (:knee-r :flex 0) (:arm-l :flex 150 :side 20)
+  (:elbow-l :flex 40) (:arm-r :flex 156.5 :side 10.4 :twist -2.4) (:elbow-r :flex 5.4) (:hand-r :flex -87.3 :twist -9.7))
+(defpose :br-f2-down (:base :lb-stance)   ; K2 the chop, coming down: muzzle (0.03 2.97 1.75) az -0.3 el 42.0
+  (:root :f 0.14 :u -0.08 :pitch 8) (:pelvis :twist 0) (:spine :flex 10) (:chest :twist 0) (:neck :twist 0)
+  (:head :twist 0) (:thigh-l :flex 52 :side 8) (:knee-l :flex 58) (:thigh-r :flex -6 :side 10) (:knee-r :flex 7)
+  (:arm-l :flex 120 :side 0) (:elbow-l :flex 30) (:arm-r :flex 175.1 :side 19.7 :twist -0.24) (:elbow-r :flex 13.2)
+  (:hand-r :flex -129.7 :twist -16.8))
+(defpose :br-f2-hit (:base :lb-stance)   ; K2 the hit, the arms high, stamped into a wide lunge (reach 2.05): muzzle (0.00 1.09 2.06) az -1.4 el -17.4
+  (:root :f 0.05 :u -0.2 :pitch 4) (:pelvis :twist 0) (:spine :flex 6) (:chest :twist 0) (:neck :flex -4 :twist 0)
+  (:head :flex 0 :twist 0) (:thigh-l :flex 54 :side 10) (:knee-l :flex 61) (:thigh-r :flex -27 :side 12) (:knee-r :flex 8)
+  (:arm-l :flex 130 :side -10) (:elbow-l :flex 20) (:arm-r :flex 150.4 :side 21.6 :twist 0.05) (:elbow-r :flex 18.3)
+  (:hand-r :flex -175.1 :twist 4))
+(defpose :br-f2-a (:base :lb-stance)   ; K2 on down, jackknifed over it (the active frames' end): muzzle (-0.01 0.16 2.02) az -0.4 el -45.3
+  (:root :f 0.2 :u -0.24 :pitch 14) (:pelvis :twist 0) (:spine :flex 20) (:chest :twist 0) (:neck :flex -10 :twist 0)
+  (:head :flex -4 :twist 0) (:thigh-l :flex 60 :side 10) (:knee-l :flex 79) (:thigh-r :flex -19 :side 12)
+  (:knee-r :flex 12) (:arm-l :flex 90 :side -10) (:elbow-l :flex 20) (:arm-r :flex 154.1 :side 26.6 :twist -1.66)
+  (:elbow-r :flex 21.6) (:hand-r :flex -185.8 :twist 3.6))
+(defpose :br-f2-floor (:base :lb-stance)   ; K2 into the floor: muzzle (0.01 0.03 1.96) az 0.0 el -50.1
+  (:root :f 0.24 :u -0.28 :pitch 18) (:pelvis :twist 0) (:spine :flex 26) (:chest :twist 0) (:neck :flex -12 :twist 0)
+  (:head :flex -2 :twist 0) (:thigh-l :flex 62 :side 10) (:knee-l :flex 88) (:thigh-r :flex -19 :side 12)
+  (:knee-r :flex 12) (:arm-l :flex 80 :side -10) (:elbow-l :flex 20) (:arm-r :flex 168.1 :side 25 :twist -0.51)
+  (:elbow-r :flex 24.6) (:hand-r :flex -198.2 :twist 2))
+(defstrike :br-f2 (22 4 26 :base :lb-stance)
+  (0 :br-f1-hit (:root :yaw -68)) (7 :br-f1-hit (:root :yaw -68))   ; (K1's S + A: the link's first frame)
+  (11 :br-f2-lift) (15 :br-f2-top) (19 :br-f2-top2)   ; (hauled up, overhead, arched further: held)
+  (20 :snap :br-f2-up) (21 :snap :br-f2-down) (:s :snap :br-f2-hit) (:a :snap :br-f2-a)
+  (28 :snap :br-f2-floor) (33 :br-f2-floor (:root :u -0.24) (:spine :flex 26))   ; (into the floor, held)
+  (40 :lb-stance (:root :f 0.1 :u -0.12 :pitch 8) (:spine :flex 12) (:thigh-l :flex 30 :side 8) (:knee-l :flex 36))
+  (46 :lb-stance (:root :u -0.05)) (:end :lb-stance))
+(defpose :br-f3-draw (:base :lb-stance)   ; K3 drawn back to the right hip, sitting back: muzzle (0.24 1.03 1.53) az -4.4 el 5.9
+  (:root :yaw -20 :f -0.22 :u -0.26 :pitch -6) (:pelvis :twist -6) (:spine :flex -2) (:chest :twist -25) (:neck :twist 25)
+  (:head :twist 22 :flex 6) (:thigh-r :flex 50 :side 10) (:knee-r :flex 79) (:thigh-l :flex 45 :side 12) (:knee-l :flex 22)
+  (:arm-r :flex 16.2 :side 10.1 :twist 0.54) (:elbow-r :flex 73) (:hand-r :flex -77 :twist 53.9)
+  (:arm-l :flex 59.3 :side -20.2 :twist 0.04) (:elbow-l :flex 3.1))
+(defpose :br-f3-coil (:base :lb-stance)   ; K3 coiled back and down on the right leg: muzzle (0.21 1.00 1.39) az -4.0 el 6.8
+  (:root :yaw -24 :f -0.28 :u -0.32 :pitch -6) (:pelvis :twist -6) (:spine :flex -4) (:chest :twist -32) (:neck :twist 30)
+  (:head :twist 26 :flex 6) (:thigh-r :flex 55 :side 10) (:knee-r :flex 92) (:thigh-l :flex 49 :side 12) (:knee-l :flex 17)
+  (:arm-r :flex 15.5 :side 10.4 :twist -0.24) (:elbow-r :flex 74.3) (:hand-r :flex -71.7 :twist 64.7)
+  (:arm-l :flex 56.9 :side -14.9 :twist 0.02) (:elbow-l :flex 3.2))
+(defpose :br-f3-drive (:base :lb-stance)   ; K3 driven forward: muzzle (0.26 0.92 2.05) az -2.0 el 2.2
+  (:root :yaw -8 :f 0.05 :u -0.18 :pitch 4) (:pelvis :twist -2) (:spine :flex 6) (:chest :twist -12) (:neck :twist 10)
+  (:head :twist 10 :flex 6) (:thigh-r :flex 8 :side 10) (:knee-r :flex 52) (:thigh-l :flex 51 :side 12) (:knee-l :flex 44)
+  (:arm-r :flex 15.6 :side 12.1 :twist 20.4) (:elbow-r :flex 79.2) (:hand-r :flex -77.1 :twist 0.11)
+  (:arm-l :flex 68.8 :side -43.3 :twist -0.01) (:elbow-l :flex 2.7))
+(defpose :br-f3-hit (:base :lb-stance)   ; K3 pressed in and fired, the long lunge (reach 2.15): muzzle (0.03 1.15 2.18) az -0.0 el 5.5
+  (:root :yaw 0 :f 0.22 :u -0.16 :pitch 12) (:pelvis :twist 4) (:spine :flex 8) (:chest :twist -6) (:neck :flex -6 :twist 6)
+  (:head :flex 10 :twist 6) (:thigh-l :flex 53 :side 10) (:knee-l :flex 55) (:thigh-r :flex -18 :side 12) (:knee-r :flex 1)
+  (:arm-r :flex -21.6 :side -24.5 :twist 19.5) (:elbow-r :flex 120.5) (:hand-r :flex -77.2 :twist -2.3)
+  (:arm-l :flex 70.7 :side -95.3 :twist -0.03) (:elbow-l :flex 3.4))
+(defpose :br-f3-kick (:base :lb-stance)   ; K3 the kick: muzzle (0.06 1.94 2.07) az -0.1 el 30.1
+  (:root :yaw 0 :f 0.24 :u -0.14 :pitch 0) (:pelvis :twist 4) (:spine :flex 0) (:chest :flex -10 :twist -6)
+  (:neck :flex -16 :twist 6) (:head :flex -10 :twist 6) (:thigh-l :flex 39 :side 10) (:knee-l :flex 48)
+  (:thigh-r :flex -27 :side 12) (:knee-r :flex 1) (:arm-l :flex 100 :side 50) (:elbow-l :flex 30)
+  (:arm-r :flex 4.5 :side -22 :twist 11.5) (:elbow-r :flex 93) (:hand-r :flex -79.7 :twist -1.64))
+(defpose :br-f3-blown (:base :lb-stance)   ; K3 blown back upright, Diagramm high: muzzle (0.04 2.42 1.38) az 0.0 el 52.2
+  (:root :yaw 0 :f 0.04 :u -0.12 :pitch -8) (:pelvis :twist 4) (:spine :flex -10) (:chest :flex -12 :twist -6)
+  (:neck :flex -14 :twist 6) (:head :flex -10 :twist 6) (:thigh-l :flex 28 :side 10) (:knee-l :flex 32)
+  (:thigh-r :flex -18 :side 12) (:knee-r :flex 23) (:arm-l :flex 120 :side 60) (:elbow-l :flex 20)
+  (:arm-r :flex -5 :side -24.6 :twist -1.25) (:elbow-r :flex 72.9) (:hand-r :flex -48.4 :twist 12.7))
+(defstrike :br-f3 (23 5 36 :base :lb-stance)
+  (0 :br-f2-a) (8 :br-f2-a)   ; (K2's S + A: the link's first frame)
+  (11 :br-f3-draw) (15 :br-f3-coil) (18 :br-f3-coil (:root :f -0.27 :u -0.27))   ; (drawn back, coiled, held sinking)
+  (20 :snap :br-f3-drive) (22 :snap :br-f3-hit (:root :f 0.16 :u -0.17 :pitch 10)) (:s :snap :br-f3-hit)
+  (24 :snap :br-f3-kick) (27 :br-f3-blown) (:a :br-f3-blown (:root :f 0.02))   ; (the kick, blown back)
+  (34 :br-f3-blown (:root :f 0.0 :u -0.13) (:spine :flex -8))   ; (held)
+  (42 :lb-stance (:root :u -0.1) (:arm-r :flex 30) (:elbow-r :flex 70) (:hand-r :flex -90))
+  (52 :lb-stance (:root :u -0.05)) (:end :lb-stance))
+(pushnew :br-f2 *grip-clips*)   ; (K2 two-handed: the left fist on the handle, GRIP-LEFT!)
 ;; L 蓄力狙擊 (R15): the charge, held (the move's :clip, at speed 1 up to *BR-W-L-HOLD* 60 f): shouldered by f5, settled and
 ;; braced by f9, then breathing on the aim, a little lower every beat (the level's coil on top: BR-DEFORM) ...
 (defstrike :br-sk-lc (8 2 50 :base :lb-kamae-pose)
@@ -1168,7 +1309,17 @@ the pulled-back blade grows wider as well as longer (x 1.75-1.9 at the held wind
     (:br-sk-k2 (0 0.95 1.05) (4 1.06 0.96) (8 1.16 0.9) (10 1.06 0.96) (11 0.98 1.02) (12 0.8 1.24) (17 0.82 1.2) (23 0.96 1.04)
                (28 1 1))
     (:br-sk-k3 (0 1 1) (2 0.96 1.04) (8 0.98 1.02) (11 1.1 0.94) (13 1.2 0.87) (16 1.22 0.86) (17 1.02 0.99) (18 0.86 1.16)
-               (19 0.7 1.34) (25 0.74 1.3) (31 0.94 1.06) (36 1 1)))
+               (19 0.7 1.34) (25 0.74 1.3) (31 0.94 1.06) (36 1 1))
+    ;; (the base form's attack-state K string, bold (the user 2026-10-12): K1 squashed into the coil and the squat tell,
+    ;;  sprung tall out of it, low on the sweep (only a little wide: the muzzle swept far to his side); K2 stretched tallest
+    ;;  overhead, squashed flat on the chop and into the floor; K3 compressed in the coil, stretched on the drive, the kick
+    ;;  thrown up tall; each link's first frames the squash its predecessor holds there)
+    (:br-f1 (0 1 1) (3 0.97 1.02) (7 0.92 1.06) (10 0.9 1.07) (13 0.84 1.1) (14 0.84 1.1) (15 1.08 0.97) (17 1.04 0.99)
+            (19 0.86 1.05) (23 0.88 1.04) (27 0.92 1.03) (31 0.94 1.02) (37 1 1))
+    (:br-f2 (0 0.88 1.04) (7 0.88 1.04) (11 1.06 0.96) (15 1.16 0.9) (19 1.2 0.88) (20 1.12 0.92) (21 1.02 0.98) (22 0.78 1.24)
+            (26 0.76 1.26) (28 0.74 1.28) (33 0.78 1.22) (40 0.95 1.04) (46 1 1))
+    (:br-f3 (0 0.76 1.26) (8 0.76 1.26) (11 0.9 1.08) (15 0.84 1.12) (18 0.82 1.14) (20 1.04 0.97) (22 1.1 0.94) (23 0.9 1.08)
+            (24 1.12 0.92) (27 1.08 0.94) (28 1.06 0.95) (34 1.04 0.97) (42 0.98 1.01) (52 1 1)))
   "R8 (§13): the body's squash and stretch by clip, keys (frame up sideways) in the clip's frames, linear between, held past
 the ends: K1 the level-3 Charged Slash (stretched tall while the wing is hauled over the shoulder, the squat tell f10
 since R9's in-betweens, sprung up f11, the swing through the arc, squashed wide and low on the slam f16, held a beat); R9
@@ -2624,13 +2775,15 @@ the owl's; 12 the owl's SP2 on its own (the volley's wind-up); 13 the base stanc
 L1-2 L1-3 (R15, DUEL_LILLE_V3 §19: the snipe's level 2 / 3 shots) J2 J3 K2 K3 JL1 JL2 JL3 KL1 KL2 KL3 (3 m out, started on
 their own, 3 pips; + 20 the front view); 52-56 (R15) the base stance's L, the snipe, in its charge held 15 / 22 / 32 / 43 /
 56 frames (level 1, level 2's flash, level 2, level 3's flash, level 3), the sim frozen there at once (82299 lets go: the
-release, its shot); 57 (R16, DUEL_LILLE_V3 §20) the base form's attack-state J3 銃口突 (:br-j3, its clip :br-jab) 2.2 m out. The awakened stances' moves: BR-ART-STANCE."
+release, its shot); 57 (R16, DUEL_LILLE_V3 §20) the base form's attack-state J3 銃口突 (:br-j3, its clip :br-jab) 2.2 m out;
+5 / 6 / 7 the base form's attack-state K1 / K2 / K3 (:br-k1 / :br-k2 / :br-k3, each started on its own, K2 / K3 from their
+link frame :enter) 2.3 m out. The awakened stances' moves: BR-ART-STANCE."
   (let* ((front (oddp (floor k 20))) (k (if front (- k 20) k)) (owl (or (<= 0 k 4) (<= 10 k 13))))
     (if front (ensure-battle :kenpachi :barro) (ensure-battle :barro :kenpachi))
     (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
       (setf *br-keep-owl* owl)
-      (force-form b (cond ((or (<= 15 k 17) (<= 40 k 57)) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
-      (place *p1* *p2* (cond ((= k 57) 2.2) ((or (<= 15 k 19) (<= 40 k 56)) 3.0) (t 4.0)))
+      (force-form b (cond ((or (<= 5 k 7) (<= 15 k 17) (<= 40 k 57)) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
+      (place *p1* *p2* (cond ((= k 57) 2.2) ((<= 5 k 7) 2.3) ((or (<= 15 k 19) (<= 40 k 56)) 3.0) (t 4.0)))
       (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
             (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))   ; (no K.O. across a script's scenes)
       (case k
@@ -2654,7 +2807,9 @@ release, its shot); 57 (R16, DUEL_LILLE_V3 §20) the base form's attack-state J3
            (start-move b (find-move :br-s-l1) :sig)
            (setf (fighter-hold (fighter b)) h (anim-time an) (/ h 60f0))
            (hitstop 100000)))
-        (57 (start-move b (find-move :br-j3))))   ; (R16, §20: the base form's attack-state J3 銃口突, its own clip :br-jab)
+        (57 (start-move b (find-move :br-j3)))   ; (R16, §20: the base form's attack-state J3 銃口突, its own clip :br-jab)
+        ((5 6 7) (start-move b (find-move (nth (- k 5) '(:br-k1 :br-k2 :br-k3))))))   ; (the base form's attack-state K string,
+                                                       ;  each on its own: K2 / K3 from their link frame, :enter)
       (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
 
 (defvar *br-art-front* nil "Debug 82389 (R11): the next BR-ART-STANCE scene puts him as P2 (the front view), the owl's too.")

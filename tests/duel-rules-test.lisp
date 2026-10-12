@@ -828,6 +828,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :lb-kamae :lb-k-shot :lb-k-hosha :lb-k-taisha :lb-k-dash :lb-w-tenshin :lb-w-tenshin-in   ; his rework (DUEL_LILLE §22, §23)
     :lb-oe-stance :lb-o-fold :lb-oe-fold :lb-oe-sabaki :lb-o-tenshin :lb-o-tenshin-in   ; the owl on Jilliel's system (decision 36, §23.14)
     :lb-oe-q1 :lb-oe-q2 :lb-oe-q3 :lb-oe-f1 :lb-oe-f2 :lb-oe-f3   ; its EN casts (decision 56, §23.37)
+    :br-f1 :br-f2 :br-f3                          ; the base form's attack-state K string (the user 2026-10-12: bold)
     :br-sk-l1 :br-sk-l1s :br-sk-lc :br-jab :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3   ; the base stance's strings
     :br-sk-jl1 :br-sk-jl2 :br-sk-jl3 :br-sk-kl1 :br-sk-kl2 :br-sk-kl3   ; and its follow-ups (DUEL_LILLE_V3 §8.3, §8.5; :lb-snap unused again)
     :br-en-l1 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3   ; the awakened stance EN's openers,
@@ -3406,6 +3407,39 @@ past the ends; DEFAULT if the clip is not listed."
                     (= (round (* 60 (clip-mark :br-jab :s))) (mv-s m)))
                (format t ":br-j3: clip ~a at ~,2f, ~d + ~d + ~d~%" (mv-clip m) (mv-clip-speed m) (mv-s m) (mv-a m) (mv-r m))))
     (check (eq (mv-clip (find-move :lb-j3)) :lb-jab))))
+
+;; The user 2026-10-12: 「將常態的普攻 K 動作模組改的更加明顯大膽」: the base form's attack-state K string :br-k1 / :br-k2 /
+;; :br-k3 (and the copy :br-k2s) play their own clips :br-f1 / -f2 / -f3 (Lille's :lb-f* are the old Lille's) at speed 1:
+;; each clip lasting its move (S + A + R), its :s on S; a link's clip starts (its :enter) on the pose the link before holds
+;; at its S + A (the chain opens there on a hit). On S Diagramm's muzzle (1.75 m down the barrel from :weapon-r, the
+;; squash and stretch scaling it as BR-DEFORM does) is at the volume's edge (an arc: radial, +-0.15 m: drawn reach = hit
+;; reach), within 0.3 m of his line, 0.6-1.7 m up; on every hit frame it never passes the edge by more than 0.15 m.
+(let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (p2 (make-f32 +pose-n+)) (v (make-f32 3)))
+  (loop for (name clip prev) in '((:br-k1 :br-f1 nil) (:br-k2 :br-f2 :br-k1) (:br-k2s :br-f2 nil) (:br-k3 :br-f3 :br-k2))
+        do (let* ((m (find-move name)) (w (svref (mv-hits m) 0)) (vol (first (hw-vols w))) (edge (aref vol 1)))
+             (check (or (and (eq (mv-clip m) clip) (null (mv-clip-2 m)) (~= 1.0 (mv-clip-speed m)) (< (aref vol 0) 0.5)
+                             (= (round (* 60 (clip-dur (find-clip clip)))) (+ (mv-s m) (mv-a m) (mv-r m)))
+                             (= (round (* 60 (clip-mark clip :s))) (mv-s m) (hw-from w)))
+                        (format t "~a: clip ~a at ~,2f, ~,1f f (:s ~,1f), its move ~d + ~d + ~d~%" name (mv-clip m) (mv-clip-speed m)
+                                (* 60 (clip-dur (find-clip clip))) (* 60 (clip-mark clip :s)) (mv-s m) (mv-a m) (mv-r m))))
+             (when prev                                 ; (the link's first frame: the pose its predecessor holds at S + A)
+               (let ((pm (find-move prev)))
+                 (clip-sample! pose (find-clip (mv-clip pm)) (/ (+ (mv-s pm) (mv-a pm)) 60.0))
+                 (clip-sample! p2 (find-clip clip) (/ (mv-enter m) 60.0))
+                 (check (or (every (lambda (a b) (< (abs (- a b)) 1e-4)) pose p2)
+                            (format t "~a: its clip at :enter ~d is not ~a's at ~d~%" name (mv-enter m) prev (+ (mv-s pm) (mv-a pm)))))))
+             (loop for fr from (hw-from w) below (hw-to w)
+                   do (clip-sample! pose (find-clip clip) (/ fr 60.0))
+                      (pose-fk! jm pose 0f0 0f0 0f0 0f0 1f0 0f0 nil)
+                      (joint-point! v jm (ji :weapon-r) 0f0 0f0 -1.75f0)
+                      (let* ((sy (br-keys-at *br-squash* clip fr 0 1.0)) (sx (br-keys-at *br-squash* clip fr 1 1.0))
+                             (x (* sx (aref v 0))) (y (* sy (aref v 1))) (r (sqrt (+ (* x x) (expt (aref v 2) 2)))))
+                        (when *br-tip-print* (format t "  tip ~a f~d: ~,2f out ~,2f aside ~,2f up~%" clip fr r x y))
+                        (check (or (if (= fr (hw-from w))
+                                       (and (<= (abs (- r edge)) 0.15) (<= (abs x) 0.3) (<= 0.6 y 1.7))
+                                       (<= r (+ edge 0.15)))
+                                   (format t "~a f~d: the muzzle ~,2f out (the reach ~,2f), ~,2f aside, ~,2f up~%" clip fr r edge x y)))))))
+  (check (equal (mapcar (lambda (n) (mv-clip (find-move n))) '(:lb-k1 :lb-k2 :lb-k3)) '(:lb-f1 :lb-f2 :lb-f3))))
 
 ;; The gate's match length leaves the cinematics out (the user, 2026-10-08: 「毀魂技演出不計入對戰時長」, every cinematic):
 ;; PLAY-TICKS (flow's MATCH-PLAY-TICKS) are the frames the timer ran (it stops while a cinematic plays: MAIN's step)
