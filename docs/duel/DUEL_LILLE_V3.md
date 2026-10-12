@@ -1018,3 +1018,10 @@ and its J1 / K1 / L started then, the turn's frames so far counted as the opener
 From neutral the turn is as before (12 f); his CPU keeps the turn (no cancel: the gates unchanged by it). Browser: KIN J1 →
 L → the stance J1 → J2, J1 → L → K1, J1 → L → L.
 
+### 21.1 Gates after R16 + R17 (native sim; R17's cancel is a human's only, the CPU's play unchanged by it)
+
+10 seeds, all K.O.: BY 132.6, BK 122.2, BR 136.9, BI 138.4, BS 119.3, BB 210.2 s (BR, BI pass; the mirror within its
+allowance). 20 seeds: BY 134.7 s pass, BK 114.0, BS 119.3. 60 seeds: **BS 125.8 s pass**, **BK 111.6 s** (the accepted
+exception's band §18.3: 114.4 before). Mirror awaken A/B (39020): 24 / 28 / 30, pass (52 / 48 / 48 after R15). His CPU's wins
+keep falling (BK 1, BS 2 of 60): the deferred CPU work.
+
