@@ -33,6 +33,7 @@ MUSL_MATH = ('sinf cosf tanf __sindf __cosdf __tandf __rem_pio2f __rem_pio2_larg
              'exp exp_data pow pow_data log log_data __math_oflowf __math_uflowf __math_xflowf __math_invalidf '
              '__math_divzerof __math_oflow __math_uflow __math_xflow __math_invalid __math_divzero')
 ROSTER = ['YAMAMOTO', 'KENPACHI', 'RUKIA', 'ICHIGO', 'SENJUMARU', 'LILLE', 'BARRO']   # kit.lisp *ROSTER*, in order (the tools' one roster list)
+RETIRED = {'LILLE'}   # kit.lisp *RETIRED*: kept for the indices, out of the game and of the default gate (the user 2026-10-12)
 # debug.lisp ROSTER-PAIRS: the first five characters' fifteen in their historical order (YK has P1 Yamamoto; SS before SI),
 # then per later character i its pairings (i, j) with every earlier j, then its mirror (i, i)
 PAIRS = [f'{ROSTER[a]} {ROSTER[b]}' for a, b in ((0, 0), (0, 1), (1, 1), (2, 0), (2, 1), (2, 2), (3, 0), (3, 1), (3, 2), (3, 3),
@@ -145,7 +146,8 @@ def main():
     if a.cvc:
         build()
         cvc()
-    pairs = list(range(len(PAIRS))) if a.pairs == 'all' else [int(p) for p in a.pairs.split(',')]
+    pairs = ([k for k, p in enumerate(PAIRS) if not set(p.split()) & RETIRED] if a.pairs == 'all'   # (the retired out, 2026-10-12)
+             else [int(p) for p in a.pairs.split(',')])
     a.chunk = a.chunk or a.seeds
     assert 0 <= a.seed0 <= 999 and 1 <= a.chunk <= 99 and all(0 <= k < len(PAIRS) for k in pairs)
     build()

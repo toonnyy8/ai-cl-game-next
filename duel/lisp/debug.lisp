@@ -748,8 +748,8 @@ move-beat choices of DRAW-FIGHTER."
   (band-acc-reset) (cup-acc-reset) (pacing-reset)
   (setf *pacing-log* t)                                 ; (the pacing lines: PACE, BAND- / CUP-ACC-STEP)
   (sim-rnd-seed seed)
-  (setf *picks* (or pair (list (nth (floor (* (length *roster*) (sim-rnd01))) *roster*)
-                               (nth (floor (* (length *roster*) (sim-rnd01))) *roster*))))
+  (setf *picks* (or pair (let ((r (playable-roster)))   ; (the retired out: 2026-10-12)
+                           (list (nth (floor (* (length r) (sim-rnd01))) r) (nth (floor (* (length r) (sim-rnd01))) r)))))
   (start-match))
 
 (defvar *gate* nil "Seed gate: (seed pair) matches still to run.")
@@ -782,7 +782,8 @@ SR SS SI; a new character's: its pairings with every earlier character and its m
   "The seed gate of P: 0-2 pairing p, 3 every pairing, 4 Rukia's three (= 102), 5 RY and RK, 10+k pairing k alone,
 100+i roster character i's pairings (CHAR-PAIRS: 104 Senjumaru's five). A pairing that doesn't exist: a log line, no gate."
   (setf *pairs* (roster-pairs))
-  (let ((pairs (cond ((= p 3) *pairs*) ((= p 4) (char-pairs 2)) ((= p 5) (subseq *pairs* 3 5))
+  (let ((pairs (cond ((= p 3) (remove-if (lambda (pr) (or (member (first pr) *retired*) (member (second pr) *retired*)))
+                                         *pairs*))   ; (every pairing: the retired's out, 2026-10-12) ((= p 4) (char-pairs 2)) ((= p 5) (subseq *pairs* 3 5))
                      ((>= p 100) (and (< (- p 100) (length *roster*)) (char-pairs (- p 100))))
                      (t (let ((k (if (< p 10) p (- p 10))))   ; (10+k: pairing k alone)
                           (and (< k (length *pairs*)) (list (nth k *pairs*))))))))

@@ -2991,6 +2991,7 @@ defender's next step. Values: the attacker's and the defender's first actionable
               (null (kit-next (kit :barro :jilliel) :br-e-l1 :lchain)) (null (kit-next (kit :barro :shin) :br-oe-l1 :lchain))))
   ;; 「架式連段結束後要像 J/K 結尾一樣將對手推離初始起手勢的攻擊範圍」 (the user 2026-10-11): every stance string's last
   ;; segment is :end (BR-S-END-PUSH: out of its first segment's reach), the awakened L dash excepted (its own pass-through)
+  (check (and (member :lille *roster*) (equal (playable-roster) (remove :lille *roster*)) (member :barro (playable-roster))))   ; (the old Lille retired, 2026-10-12)
   (check (br-k-order-p))   ; (R14: 「K 之後的 LL 傷害大於架式 K 又大於普通 K」)
   (check (fboundp 'br-s-end-push))
   (dolist (pre '("BR-S" "BR-E" "BR-OE"))

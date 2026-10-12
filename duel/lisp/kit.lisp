@@ -274,7 +274,13 @@ new button."
   (spec nil))
 
 (defvar *kits* (make-hash-table :test 'eq) "Character -> alist (form . KIT) (no consing to look one up).")
-(defvar *roster* nil "Every character with a :base kit, in the order the kit files define them (select screen).")
+(defvar *roster* nil "Every character with a :base kit, in the order the kit files define them (its index: the saved data's,
+the gates' pairings; the select screen plays PLAYABLE-ROSTER).")
+(defparameter *retired* '(:lille)
+  "Characters kept in *ROSTER* (their index, their code: Lille II's draws on the old Lille's) but out of the game: not on the
+select screen, never a random or Endless opponent, no seed gate by default (the user 2026-10-12: 「幫我將舊版的 lille 從遊戲中
+移除」, DEVLOG §208).")
+(defun playable-roster () "*ROSTER* without the *RETIRED* characters." (remove-if (lambda (c) (member c *retired*)) *roster*))
 (defun find-kit (character form)
   (or (cdr (assoc form (gethash character *kits*))) (error "unknown kit ~s ~s" character form)))
 

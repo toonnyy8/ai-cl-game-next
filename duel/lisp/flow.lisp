@@ -271,7 +271,7 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
       (case *select-phase*
         ((0 1)
          (when (or (menu-left-p) (menu-right-p) (member (tap-third) '(-1 1)))   ; a tap: left / right third
-           (setf (nth side *picks*) (cycle (nth side *picks*) *roster* (if (or (menu-left-p) (eql (tap-third) -1)) -1 1)))
+           (setf (nth side *picks*) (cycle (nth side *picks*) (playable-roster) (if (or (menu-left-p) (eql (tap-third) -1)) -1 1)))
            (play-sfx :select) (respawn))
          (when (or (confirm-p) (eql (tap-third) 0))           ; ... or the middle: confirm
            (play-sfx :confirm)

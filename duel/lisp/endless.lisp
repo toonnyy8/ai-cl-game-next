@@ -40,7 +40,7 @@
 (defun endless-new-seed ()
   "A fresh run seed from the clock and its stage-1 opponent on the plaza (GO-SELECT's hook)."
   (setf *endless-seed* (1+ (mod (floor (now-ms)) 100000))
-        (second *picks*) (endless-opponent *endless-seed* 1 *roster*)))
+        (second *picks*) (endless-opponent *endless-seed* 1 (playable-roster))))
 
 (defun endless-start (&key debug (stage 1))
   "A run of P1 (FIRST *PICKS*) from STAGE (1 from the menu) at the START DIFFICULTY (*DIFFICULTY*), P1 fresh."
@@ -53,7 +53,7 @@
 (defun endless-next-stage ()
   "The next stage: its opponent from the bag, its seed, then START-MATCH (which calls ENDLESS-APPLY!)."
   (let ((n (incf *endless-stage*)))
-    (setf (second *picks*) (endless-opponent *endless-seed* n *roster*)
+    (setf (second *picks*) (endless-opponent *endless-seed* n (playable-roster))
           *match-seed* (endless-stage-seed *endless-seed* n))
     (push (second *picks*) *endless-foes*)
     (start-match)))
@@ -148,7 +148,7 @@ else ends the run (its RESULTS)."
 (defun endless-clear-lines ()
   "STAGE CLEAR's rows and strings (made once per clear): the stage, its time and the run's, the carry, the next stage."
   (let* ((snap *endless-snap*) (n *endless-stage*) (next (1+ n)) (r (endless-ramp next))
-         (opp (endless-opponent *endless-seed* next *roster*)) (k (getf snap :konpaku)))
+         (opp (endless-opponent *endless-seed* next (playable-roster))) (k (getf snap :konpaku)))
     (setf *endless-rows* (if (getf snap :awakened) '(:stay :revert :quit) '(:stay :quit))
           *endless-lines*
           (vector (format nil "STAGE ~d CLEAR" n)
@@ -283,7 +283,7 @@ seeds 1-20; 992+p the autopilot once (P1's pick, seed 1)."
         ((<= 990 k 993)
          (setf *endless-auto* (if (evenp k) :stay :revert) *endless-runs* nil *turbo* t *skip-cines* t
                *endless-queue* (if (< k 992)
-                                   (loop for c in *roster* append (loop for seed from 1 to 20 collect (list c seed)))
+                                   (loop for c in (playable-roster) append (loop for seed from 1 to 20 collect (list c seed)))
                                    (list (list (first *picks*) 1))))
          (endless-auto-next))
         (t (let ((c (nth (floor k 100) *roster*)) (n (mod k 100)))

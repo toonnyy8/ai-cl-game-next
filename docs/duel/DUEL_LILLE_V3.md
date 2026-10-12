@@ -1034,3 +1034,7 @@ allowance). 20 seeds: BY 134.7 s pass, BK 114.0, BS 119.3. 60 seeds: **BS 125.8 
 exception's band §18.3: 114.4 before). Mirror awaken A/B (39020): 24 / 28 / 30, pass (52 / 48 / 48 after R15). His CPU's wins
 keep falling (BK 1, BS 2 of 60): the deferred CPU work.
 
+### 21.2 The exception (2026-10-12)
+
+The user: 「列為例外」 — Lille II's BK 111.6 s (60 seeds, §21.1) joins §18.3's accepted exception.
+
