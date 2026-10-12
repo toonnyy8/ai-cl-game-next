@@ -729,15 +729,18 @@ awakened form inherits these).")
   :l-after-k :br-kamae-k                        ; L after K1 / K2 / K3: the stance at f4 (the old rule)
   :l-after-j :br-kamae-j                        ; L after J1 / J2 / J3: the same (decision V9c)
   :awaken-form :jilliel-kin :kikon-konpaku 2 :hooks *barro-hooks*
-  :ai (:intents (:approach 3 :pressure 3 :zone 1 :defend 2)            ; (R3: the stance's openers reach 4 m, he closes in)
-       :ranges (:approach (2.2 8.0) :pressure (1.3 3.5) :zone (3.5 8.0) :defend (5.0 9.0))
-       :moves ((0.0 2.2 :q 4 :f 2 :breaker 1 :step 2 :sig 2)
-               (2.2 4.0 :step 1 :sp1 1 :sig 4 nil 1)
-               (4.0 99.0 :sp1 1 nil 3))
-       :guard 0.5 :hoho 0.3 :dash 0.6 :dash-back 0.3 :block-string 0.3 :o-ender 0.3 :l-after-k 0.6 :l-after-j 0.3 :kikon-range 7.7
-       :awaken (:min-taken 150) :reflex br-ai-reflex
-       :zone (:p 0.5 :in 4.0)                                      ; (the stance inside its reach, one roll a window)
-       :stance (:gather 0.6 :recover-fs 40.0 :recover-bars 1 :step 0.4 :follow 0.6 :sp2-at 2 :sp2 0.8)))
+  :ai (:intents (:approach 2 :pressure 2 :zone 3 :defend 1)            ; (dream-rsi b1a0: the routes, DUEL_LILLE_V3 §22)
+       :ranges (:approach (1.6 6.0) :pressure (1.2 2.6) :zone (6.0 12.0) :defend (4.0 8.0))
+       :moves ((0.0 1.7 :q 4 :f 1 :breaker 1 :sig 2)                ; (J pokes confirm into the stance; L the stance's pick)
+               (1.7 2.9 :f 1 :sig 3 :step 1)                        ; (the stance K, the rifle, reaches 2.6 m)
+               (2.9 5.0 :step 2 :sig 1 nil 2)
+               (5.0 99.0 :sig 2 nil 2))                             ; (the stance's snipe, charged by the distance)
+       :guard 0.5 :hoho 0.3 :dash 0.6 :dash-back 0.3 :block-string 0.3 :o-ender 0.3 :l-after-k 1.0 :l-after-j 1.0 :kikon-range 0.0
+       :string-k 0.8   ; (only when L cannot start: dream-rsi b1a2 sends every link that hit into the stance, L 1.0 above:
+                       ;  a J the gun-kata (all signature), no plain K2s / K3 bridge; NORMAL 0.54 -> 0.45)
+       :awaken (:min-taken 150) :reflex br-ai-reflex :sig-hold br-ai-sig-hold
+       :far-snipe (:p 0.7 :in 4.5)   ; (the stance from afar for the charged snipe or, the pips full, HIRENKYAKU; a window; b1a2 0.5 -> 0.7)
+       :stance (:recover-fs 40.0 :recover-bars 1 :j-share 0.3 :step 0.4 :far 7.0 :charge 0.7 :punish 0.6 :follow 0.7 :sp2-at 0 :sp2 0.7)))
 
 ;; JILLIEL KIN (the awakening enters it): the wing strings, SP1 by the wings, SP2 NIJUSHI-KO every wing spent, L into the
 ;; stance (from a link too: the plain turn, decision R3), U a guard (decision R1), a burst the owl (BARRO-TICK)
@@ -750,15 +753,17 @@ awakened form inherits these).")
   :grid (:br-w-j1 :br-w-j2 :br-w-j3 :br-w-k1 :br-w-k2 :br-w-k3 :br-w-j2s :br-w-k2s)
   :strings *br-melee-strings*
   :l-after-k :br-to-en-l :l-after-j :br-to-en-l   ; (R17: a stance opener pressed in it skips the turn)
-  :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (2.4 6.0) :pressure (1.4 2.4) :zone (3.0 6.0) :defend (3.0 6.0))
-       :moves ((0.0 2.4 :q 4 :f 4 :breaker 1 :sig 1)
-               (2.4 4.0 :sig 3 :step 1 :sp1 1 nil 1)
-               (4.0 99.0 :step 1 nil 3))
-       :guard 0.4 :hoho 0.3 :dash 0.8 :block-string 0.3 :o-ender 0.3 :kikon-range 8.5
-       :string-k 0.6 :l-after-k 0.4 :l-after-j 0.3
-       :burst (:p 0.5 :wings 5 :in 6.0) :reflex br-ai-reflex
-       :stance (:follow 0.6 :sp2-at 4 :sp2 0.8)))
+  :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)           ; (dream-rsi b1a0: J / K confirm into EN, the dash from afar)
+       :ranges (:approach (2.0 6.0) :pressure (1.2 2.4) :zone (3.0 6.0) :defend (3.0 6.0))
+       :moves ((0.0 2.4 :q 4 :f 3 :breaker 1 :sig 1)
+               (2.4 3.4 :sig 2 :step 1 :f 1)
+               (3.4 10.0 :sig 3 :step 1 nil 1)                      ; (L held: the turn, the dash's charge at once)
+               (10.0 99.0 :step 1 nil 3))
+       :guard 0.4 :hoho 0.3 :dash 0.8 :block-string 0.3 :o-ender 0.3 :kikon-range 0.0
+       :string-k 0.6 :l-after-k 1.0 :l-after-j 1.0   ; (every link that hit -> the R17 link: no plain K2s bridge; b1a2)
+       :burst (:p 0.6 :wings 2 :in 8.0) :reflex br-ai-reflex :sig-hold br-ai-sig-hold   ; (the owl early: its x1.2, its volley)
+       :far-dash (:p (:easy 0.05 :normal 0.15 :hard 1.0) :in 3.4)   ; (by difficulty: HARD at once, dream-rsi b1a1)
+       :stance (:j-share 0.25 :charge 0.7 :punish 0.6 :follow 0.7 :sp2-at 0 :sp2 0.7 :keep 4 :sp2-all 8)))
 
 ;; JILLIEL EN, the stance (afloat): L / J / K start the stance's strings, each ending back in KIN (BARRO-TICK)
 (defkit :barro :jilliel :inherit :jilliel-kin
@@ -770,9 +775,9 @@ awakened form inherits these).")
                (1.8 2.8 :f 4 :q 1)
                (2.8 5.5 :sig 3 :step 1)
                (5.5 99.0 :sp1 1 :step 2 nil 3))
-       :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 8.5
-       :burst (:p 0.5 :wings 5 :in 6.0) :reflex br-ai-reflex
-       :stance (:follow 0.6 :sp2-at 4 :sp2 0.8)))
+       :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 0.0
+       :burst (:p 0.5 :wings 5 :in 6.0) :reflex br-ai-reflex :sig-hold br-ai-sig-hold   ; (EN: BR-AI-EN's plan a window)
+       :stance (:j-share 0.25 :charge 0.7 :punish 0.6 :follow 0.7 :sp2-at 0 :sp2 0.7 :keep 4 :sp2-all 8)))
 
 ;; the owl (a burst in either JILLIEL form, decision R1; back when it ends): the claws, SP1 裁きの光明, SP2 the full volley
 ;; (every wing, decision R3; Trompete gone); x1.2 dealt (its buff), a wing every 2 s, the armour 2 wings; Kikon 4
@@ -784,11 +789,13 @@ awakened form inherits these).")
   :ai (:intents (:approach 4 :pressure 4 :zone 0 :defend 0)
        :ranges (:approach (2.6 8.0) :pressure (1.4 2.6) :zone (3.0 6.0) :defend (3.0 6.0))
        :moves ((0.0 2.6 :q 3 :f 5 :breaker 1 :sig 1)
-               (2.6 4.0 :sig 3 :step 1 :sp1 1 nil 1)
-               (4.0 99.0 :step 1 nil 3))
-       :guard 0.3 :hoho 0.3 :dash 0.9 :block-string 0.3 :o-ender 0.2 :kikon-range 9.0
-       :string-k 0.8 :l-after-k 0.5 :l-after-j 0.2 :reflex br-ai-reflex
-       :stance (:follow 0.7 :sp2-at 3 :sp2 0.9)))
+               (2.6 3.4 :sig 2 :step 1 :f 1)
+               (3.4 10.0 :sig 3 :step 1 nil 1)                      ; (L held: the turn, the dash's charge at once)
+               (10.0 99.0 :step 1 nil 3))
+       :guard 0.3 :hoho 0.3 :dash 0.9 :block-string 0.3 :o-ender 0.2 :kikon-range 0.0
+       :string-k 0.8 :l-after-k 1.0 :l-after-j 1.0 :reflex br-ai-reflex :sig-hold br-ai-sig-hold
+       :far-dash (:p (:easy 0.05 :normal 0.15 :hard 1.0) :in 3.4)   ; (by difficulty: HARD at once, dream-rsi b1a1)
+       :stance (:j-share 0.25 :charge 0.7 :punish 0.6 :follow 0.7 :sp2-at 3 :sp2 0.9 :keep 2 :sp2-all 5 :volley-at 8)))
 
 (defkit :barro :shin :inherit :shin-kin
   :lift *br-owl-lift* :form-name "SHIN" :walk *br-walk-en* :run *br-run-en* :stance :lb-oe-stance
@@ -799,8 +806,8 @@ awakened form inherits these).")
                (1.7 2.7 :f 4 :q 1)
                (2.7 5.5 :sig 3 :step 1)
                (5.5 99.0 :sp1 1 :step 2 nil 3))
-       :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 9.0 :reflex br-ai-reflex
-       :stance (:follow 0.7 :sp2-at 3 :sp2 0.9)))
+       :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.2 :kikon-range 0.0 :reflex br-ai-reflex :sig-hold br-ai-sig-hold
+       :stance (:j-share 0.25 :charge 0.7 :punish 0.6 :follow 0.7 :sp2-at 3 :sp2 0.9 :keep 2 :sp2-all 5 :volley-at 8)))
 
 (defparameter *br-forms* '(:base :jilliel-kin :jilliel :shin-kin :shin) "Every form of his (the HUD meter, the host tests).")
 
@@ -841,6 +848,13 @@ awakened form inherits these).")
   (l-lv 0 :type fixnum)                   ; the awakened L dash's charge level 1-3 (its S: BR-W-DASH; decision R10)
   (armored 0 :type fixnum)                ; hits his wing armour took (the pacing log)
   (ai-t -999 :type fixnum)                ; his CPU's last stance / burst window (one roll a window)
+  (ai-step-key -999 :type fixnum)         ; his CPU: the opponent's Step it rolled for (its start tick; dream-rsi b1a1)
+  (ai-step-go nil)                        ; ... that roll's answer: interrupt it (T) or not
+  (ai-form nil)                           ; his CPU: the form of its last free step (the stance's exit; dream-rsi b1a1)
+  (ai-kite -999 :type fixnum)             ; his CPU's last kite window (BR-AI-KITE; dream-rsi b1a1)
+  (ai-restep nil)                         ; his learner read a Step / backing off to his charge: its Step re-aims (BR-LEARN-CHARGE)
+  (ai-let-go nil)                         ; his CPU: this charge may be let go (one roll a charge, BR-AI-CHARGE-TICK) ...
+  (ai-charge-key -999 :type fixnum)       ; ... the charge it rolled for (its start tick)
   (awake-t -1 :type fixnum) (owl-at -1 :type fixnum))   ; ticks of the awakening and the first burst owl (the pacing log)
 (defvar *br-test-awake* nil
   "Debug 82041 (82040 off): the ASSIST gate's masher as him (P1, habit :dumb) plays every match from JILLIEL KIN (forced at
@@ -1123,13 +1137,17 @@ ignored, the charge goes on), the charge's move and frames kept (BRS-SNIPE-HOLD,
 resumes the charge, the aim snapped onto him. T when it stepped."
   (when (vpad-command-pressed-p vp :step nil)
     (vpad-consume! vp :step)
-    (when (br-kamae-step-ok-p (brs-dashed st) (gauges-fs (gauges e)))
-      (spend-fs (gauges e) *br-kamae-dash-fs*)
-      (let ((held (cons mv (fighter-hold f))))
-        (start-move e (if (eq (fighter-form f) :base) (kit-next (fighter-kit f) :br-kamae :kamae-step) (find-move :br-w-charge-step)))
-        (setf (brs-dashed st) t (brs-en-t st) 0 (brs-snipe-hold st) held))
-      (pace e :snipe-step)
-      t)))
+    (br-charge-step-go e f st mv)))
+(defun br-charge-step-go (e f st mv)
+  "The charge's Step (BR-SNIPE-STEP's, his CPU's on a learner's read: BR-AI-RESTEP): under BR-KAMAE-STEP-OK-P, the stance's
+fast Step started, MV's charge kept for BR-KAMAE-BACK. T when it stepped."
+  (when (br-kamae-step-ok-p (brs-dashed st) (gauges-fs (gauges e)))
+    (spend-fs (gauges e) *br-kamae-dash-fs*)
+    (let ((held (cons mv (fighter-hold f))))
+      (start-move e (if (eq (fighter-form f) :base) (kit-next (fighter-kit f) :br-kamae :kamae-step) (find-move :br-w-charge-step)))
+      (setf (brs-dashed st) t (brs-en-t st) 0 (brs-snipe-hold st) held))
+    (pace e :snipe-step)
+    t))
 
 (defun br-k-dash-tick (e)
   "The stance Step: from its *BR-DASH-SNAP-F* a J (a human's press, buffered) cancels it into the stance's J J, facing him."
@@ -1159,19 +1177,34 @@ call not yet made."
       (pace e (if spent :spend :spend-none)))))
 
 (defun br-s-cpu-call (e f st mv sp2 next)
-  "His CPU's call at the end of stance move MV's hits (one roll, the kit's :stance): SP2 off a J / K string's last segment
-or its follow-up's (:end) that hit (SP2: its charge-less SP2; the bars for it and :sp2-at specials, :sp2 of the time),
-else the :lchain follow-up NEXT (L1 -> L2 -> L3 always; a spending one with a special, :follow of the time). :SP2, :GO
-or :NO."
+  "His CPU's call at the end of stance move MV's hits (one roll, the kit's :stance; dream-rsi b1a0): the spending L L
+follow-up NEXT while a special is left to pay it (:follow of the time: the specials' sink, 「資源循環」); at a string's last
+segment (:end) that hit with no follow-up to pay (none, or the follow-up's own last line) the charge-less SP2 with the bars
+for it (:sp2 of the time: every special left, its damage + a unit each); a free link (L1 -> L2) always. :SP2, :GO or :NO."
   (let* ((k (ai-table e :stance)) (b (br-tick-brain e)) (r (sim-rnd01)) (n (brs-ammo st))
-         (d (if b (brain-difficulty b) :normal)))
-    (cond ((and sp2 (getf (mv-params mv) :end) (eq (fighter-contact f) :hit) (>= (reiatsu-bars e) 2) (>= n (getf k :sp2-at 3))
-                (< r (br-ai-chance (getf k :sp2 0.0) d)))
-           :sp2)
-          ((null next) :no)
-          ((not (getf (mv-params next) :spend)) :go)
-          ((and (br-follow-ok-p n) (< r (br-ai-chance (getf k :follow 0.0) d))) :go)
+         (d (if b (brain-difficulty b) :normal))
+         (refill (or (< (gauges-fs (gauges e)) (getf k :recover-fs 40.0)) (< (reiatsu-bars e) 2)
+                     (>= n (br-ammo-cap (fighter-form f)))))
+         (call (br-ai-call r n (reiatsu-bars e) (and sp2 (getf (mv-params mv) :end) (eq (fighter-contact f) :hit))
+                           (and next (getf (mv-params next) :spend)
+                                (or refill (not (eq (getf (mv-params next) :stance) :jl))))   ; (the J route's L L: its refill)
+                           (br-owl-form-p (fighter-form f)) k d)))
+    (cond (call call)
+          ((and next (not (getf (mv-params next) :spend))) :go)
           (t (pace e :ai-follow-no) :no))))
+
+(defun br-ai-call (r n bars end pay owl k difficulty)
+  "His CPU's stance call from one roll R (pure; dream-rsi b1a1 on b1a0's call, the reserve as cell b3a0 measured it): N
+specials, BARS of Reiatsu, END (a string's last segment that hit: SP2 may follow), PAY (a spending L L line follows and
+may be paid), OWL, K the kit's :stance. The wings are his armour first (BR-ARMOR-P's price, :keep): no line below :keep,
+SP2 (it spends every one) only short of :keep or at :sp2-all; the owl's full volley at once at :volley-at. :SP2, :GO or
+NIL (no call)."
+  (let* ((keep (getf k :keep 0))
+         (sp2 (and end (>= bars 2) (>= n (getf k :sp2-at 0)) (< r (br-ai-chance (getf k :sp2 0.0) difficulty))))
+         (cash (or (zerop keep) (< n keep) (>= n (getf k :sp2-all 99)))))
+    (cond ((and sp2 owl (>= n (getf k :volley-at 99))) :sp2)
+          ((and pay (br-follow-ok-p n) (> n keep) (< r (br-ai-chance (getf k :follow 0.0) difficulty))) :go)
+          ((and sp2 cash) :sp2))))
 
 (defun br-s-tick (e)
   "A stance move (no chase: its J / K links are :quick / :flash). Its L links (:lchain: L1 -> L2 -> L3, J3 -> JL1 -> JL2 ->
@@ -1181,8 +1214,14 @@ user 2026-10-11: 「架式 > L 只要沒打中就進入硬直」「就跟一般�
 spend (BR-FOLLOW-OK-P; none, the string ends). Any J / K / JL /
 KL segment: a human's SP2 (Shift+L) is latched and, the move having hit, cancels into the form's charge-less SP2 there
 (:sp2c; 「必須接在 KK 後執行」, 「SP2 接在 J 連段後面也可以」).
-His CPU makes one call there (BR-S-CPU-CALL)."
+His CPU makes one call there (BR-S-CPU-CALL); holding a charge (the :hold phase) it lets go as BR-AI-CHARGE-TICK says."
   (let* ((f (fighter e)) (mv (fighter-move f)) (st (br e)))
+    (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :hold))   ; (his CPU's charge only: dream-rsi b1a1)
+      (let ((b (br-tick-brain e)))
+        (when b
+          (br-ai-charge-tick e f b mv)
+          (when (and (brs-ai-restep st) (eq (fighter-move f) mv) (eq (fighter-phase f) :hold))
+            (br-ai-restep e f st b mv)))))
     (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :hold) (member (mv-name mv) '(:br-s-l1 :br-e-l1 :br-oe-l1))
                (zerop (fighter-lock f)) (null (br-tick-brain e)))   ; (R18: the charged L's charge, a human's Step)
       (br-snipe-step e f st (pilot-vpad (pilot e)) mv))
@@ -1347,20 +1386,27 @@ roster's K link 14: a KIN J1 / J2 that hit combos into it); the stance J1 (S 8) 
   "The turn into the stance off a KIN J / K link (:br-to-en-l, R17: 「取消切架勢的前後搖，使連段能銜接起來」): halted as the turn;
 a human's J / K / L pressed in it (buffered) skips it: the stance EN at once (its stand from 0) and its J1 / K1 / L started now,
 the turn's frames so far counted as the opener's startup (K1's cut to *BR-LINK-K-S* first; at least 1 f left; its skipped
-frames' hooks run), L in its charge (held). His CPU: the turn as before."
+frames' hooks run), L in its charge (held). His CPU makes the same link by its own call (BR-AI-LINK-CMD, dream-rsi b1a0: its
+L held by its brain for the dash's level)."
   (halt! e)
-  (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))))
-    (when (and (null (br-tick-brain e)) (eq (fighter-state f) :move) (eq (fighter-phase f) :main))
-      (let ((cmd (cond ((vpad-command-pressed-p vp :quick nil) :q) ((vpad-command-pressed-p vp :flash nil) :f)
-                       ((vpad-command-pressed-p vp :sig nil) :sig))))
+  (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))) (b (br-tick-brain e)))
+    (when (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main))
+      (let ((cmd (if b
+                     (br-ai-link-cmd e f b)
+                     (cond ((vpad-command-pressed-p vp :quick nil) :q) ((vpad-command-pressed-p vp :flash nil) :f)
+                           ((vpad-command-pressed-p vp :sig nil) :sig)))))
         (when cmd
-          (vpad-consume! vp (case cmd (:q :quick) (:f :flash) (t :sig)))
+          (unless b (vpad-consume! vp (case cmd (:q :quick) (:f :flash) (t :sig))))
           (let ((form (br-ranged-of (fighter-form f))) (spent (fighter-sf f)))   ; (the turn's frames gone: the opener's)
             (unless (eq form (fighter-form f)) (set-form e form) (pace e :to-ranged))
             (setf (brs-en-t (br e)) 0)
             (pace e :link-cut)
             (let ((mv (kit-command-move (fighter-kit f) cmd)))
               (start-move e mv (and (mv-hold mv) :sig))
+              (when (and b (mv-hold mv))                                          ; (his CPU: L held for the level)
+                (let ((lv (br-ai-dash-level (br-ai-seen-d e (br-ai-seen b)))))
+                  (ai-press b :sig (nth (1- (br-learn-charge e b (if (and lv (br-ai-charge-p e b)) lv 1))) *br-ai-hold*)
+                            :act :hold)))
               (turn-to-opp e f 10.0)
               (when (and (member cmd '(:q :f)) (eq (fighter-phase f) :main))
                 (let ((cut (min (1- (mv-s mv)) (+ spent (if (eq cmd :f) (max 0 (- (mv-s mv) *br-link-k-s*)) 0)))))
@@ -1418,86 +1464,430 @@ the owl)."
                                                   :flags '(:ranged :x-axis :uncatchable))))
     (pace e :misuji)
     (emit :sfx :ground-crack e)))
-;;; ================================================================ AI (DUEL_LILLE_V3 §6.3)
-;;; His CPU: his kits' :ai keys (every chance x *BR-AI-DIFF* by difficulty: EASY <= NORMAL <= HARD), the generic bands and
-;;; string reflex (the stances' J1 -> J2 / K1 -> K2 go on by the J / K latch like any string) and these, each one roll per
-;;; window (*BR-AI-EVERY* f) or event:
-;;;   base     the stance inside :zone's :in m (L), then its pick (BR-AI-STANCE-PLAN: L L below :gather of the cap, J J when
-;;;            the flash step is under :recover-fs or the bars short, else K K; the Step off his attack); L after a K / J
-;;;            link (:l-after-k / -j) -> the stance at f4
-;;;   KIN      the generic strings, L after a link (the turn); the burst into the owl with :burst's wings and flash step
-;;;            inside :in m
-;;;   EN       the generic bands press L / K / J: the stance's strings (each ends in KIN)
-;;;   stance   at the end of a move's hits one call (BR-S-CPU-CALL, the kit's :stance): K K that hit -> SP2 (:sp2-at
-;;;            specials, the bars, :sp2), else the L L follow-up (:follow, a special to spend)
-(defparameter *br-ai-diff* '(:easy 0.5 :normal 1.0 :hard 1.5)
+;;; ================================================================ AI (DUEL_LILLE_V3 §6.3; the route CPU, dream-rsi b1a0, §22)
+;;; His CPU: his kits' :ai keys (every chance x *BR-AI-DIFF* by difficulty: EASY <= NORMAL <= HARD, one roll per event or
+;;; window, never per step), the generic bands and string reflex, and these. The policy is a set of ROUTES, each picked once
+;;; at its event from his own state and the perceived opponent; the stance is never a place to wait:
+;;;   confirm  an attack-state J / K link that hit -> L (:l-after-j / -k) -> the stance's string at once: the base stance J
+;;;            (the gun-kata, S 10) off a J link, its K (the rifle, S 16) off a K link (BR-AI-STANCE-PLAN :combo); awakened
+;;;            the turn skipped (R17's link, his CPU's own call in BR-TO-EN-LINK-TICK: BR-AI-LINK-CMD) into EN K1 / J1
+;;;   string   the stance's J / K strings go on by the generic latch; at the link points one call (BR-S-CPU-CALL): the
+;;;            spending L L follow-up while a special is left, SP2 at a string's end when no follow-up can be paid
+;;;   charge   the specials come from the charged L: the base snipe held to level 2 / 3 by the distance (the stance's L,
+;;;            BR-AI-KAMAE presses and holds L), the awakened dash held to level 2 / 3 (BR-AI-SIG-HOLD, the kit's :sig-hold:
+;;;            KIN's L held is the dash's charge at the turn's end, R13); the far window (BR-AI-REFLEX) opens them
+;;;   EN       the rooted stance: one plan per standing window (BR-AI-EN-PLAN: K / J in reach, else the charged dash, else
+;;;            the fast Step in), never a wait
+;;;   base     the stance's pick by the distance (BR-AI-STANCE-PLAN): J / K in their reach, else the snipe; his attack coming
+;;;            the stance Step 飛廉脚 (iframes) and a fresh pick from 5 m out
+;;;   cash     (dream-rsi b1a2) every link that hit goes into the stance (:l-after-j / -k 1.0 in the attack states: no plain
+;;;            K2s / K3 bridge, the base's J the gun-kata); the base stance at the pips' cap cashes them from range
+;;;            (BR-AI-CASH-PLAN: HIRENKYAKU's slide back and 萬物貫通 line instead of a snipe whose gain is lost); :charge /
+;;;            :follow / :sp2 0.6 -> 0.7 (HARD x1.5: every charge, line and cash-out; NORMAL x0.3 0.18 -> 0.21)
+(defparameter *br-ai-diff* '(:easy 0.2 :normal 0.3 :hard 1.5)
   "His CPU's chances (his kits' :ai :p values) x this by difficulty, at most 1 (the old Lille's *LB-AI-DIFF*).")
-(defparameter *br-ai-every* 30 "Frames between two of his window rolls (the base stance from range, the burst; new 2026-10-09).")
+(defparameter *br-ai-every* 30 "Frames between two of his window rolls (the far snipe / dash, the burst; new 2026-10-09).")
+(defparameter *br-ai-hold* '(1 24 44)
+  "Frames his CPU holds L for a charged L of level 1 / 2 / 3 (the levels at 20 / 40 f held, *BR-W-L-LEVELS*; dream-rsi b1a0).")
+(defparameter *br-ai-dash-reach* '(4.5 10.2)
+  "The awakened dash at level 2 / 3: his CPU charges level 2 inside the first (m), level 3 inside the second (the dash's
+longest 10 m + its 0.9 m volume - the 0.5 m it must still pass); farther, the fast Step first (dream-rsi b1a0; b1a1: level 2
+only inside 4.5 m, 6.4 before: level 3's six cuts and three wings from mid range, the let-go covering the longer hold).")
+(defparameter *br-ai-dash-min* 3.0 "Closer than this (m) his awakened L is a tap (the stance's strings reach; dream-rsi b1a0).")
+(defparameter *br-ai-facing* 1.0
+  "Radians: him reeling farther round than this from his facing (the dash leaves him 1.6 m behind Lille), his CPU turns before
+a follow-up (dream-rsi b1a1: the generic follow-up J1 whiffed 253 of 258 times after the dash in b1a0's logs).")
+(defparameter *br-ai-turn-p* '(:easy 0.2 :normal 0.3 :hard 1.0)
+  "... this share of his actions by difficulty (one roll per action of his: the react roll), else the generic follow-up at once.")
+(defparameter *br-ai-kikon-p* '(:easy 0.05 :normal 0.15 :hard 1.0)
+  "His Kikon only on an opening (BR-AI-KIKON, dream-rsi b1a1, cell b2a0's rule): him red, perceived reeling / recovering with
+the rush's aura + startup + 2 f left past the perception delay, within 11 m; this share of his actions by difficulty. Every
+form's :kikon-range 0: the generic neutral / reeling rush never fires (b1a0: 253 Kikons, 54 hits, 45 openings on him).")
+(defparameter *br-ai-unguard-p* '(:easy 0.0 :normal 0.1 :hard 1.0)
+  "His answer to a long guard up close (the generic Breaker's moment), this share of his guards by difficulty: back off to his
+L's range (BR-AI-UNGUARD; dream-rsi b1a1: b1a0's guard-break Breakers hit 31 of 160 and opened 66 combos on him).")
+(defparameter *br-ai-unguard-to* 5.5 "... to this many metres (the snipe's / the dash's range).")
 
 ;; pure: host-tested
 (defun br-ai-chance (p difficulty) "A chance P of his kit's :ai at DIFFICULTY: x *BR-AI-DIFF*, at most 1." (min 1.0 (* p (getf *br-ai-diff* difficulty 1.0))))
-(defun br-ai-stance-plan (r ammo cap fs bars k &optional threat)
-  "His CPU's base stance pick from one roll R (K: the kit's :stance): his attack coming (THREAT) the Step (:step of the time);
-the specials (AMMO of CAP) under :gather of the cap: L L; the flash step FS under :recover-fs or the Reiatsu BARS under
-:recover-bars: J J; else K K (its SP2: BR-S-CPU-CALL; the stance's own SP2 on its own is the slow one, decision R3)."
-  (cond ((and threat (< r (getf k :step 0.0))) :kamae-step)
-        ((< ammo (* (getf k :gather 0.5) cap)) :kamae-l)
-        ((or (< fs (getf k :recover-fs 40.0)) (< bars (getf k :recover-bars 1))) :kamae-j)
-        (t :kamae-k)))
+(defun br-ai-snipe-level (d k)
+  "The base snipe's level his CPU charges at the distance D (K: the kit's :stance): 3 from :far m (the 31 m line through
+guard), else 2 (the 12 m shot)."
+  (if (>= d (getf k :far 7.0)) 3 2))
+(defun br-ai-dash-level (d)
+  "The awakened dash's level his CPU charges at the distance D (*BR-AI-DASH-REACH*): 2, 3, or NIL (closer than
+*BR-AI-DASH-MIN*: the strings; farther than level 3 reaches: the fast Step)."
+  (cond ((< d *br-ai-dash-min*) nil)
+        ((<= d (first *br-ai-dash-reach*)) 2)
+        ((<= d (second *br-ai-dash-reach*)) 3)))
+(defun br-ai-stance-plan (r d jr kr fs bars k &key threat combo from-k)
+  "His CPU's base stance pick from one roll R at the distance D (JR / KR: the stance J1's / K1's reach on him; K: the kit's
+:stance): his attack coming (THREAT, not in a COMBO) the Step (:step of the time); a COMBO (the stance opened off a link
+that hit): the K string in its reach off a K link (FROM-K) or out of J's reach, else J (they combo: J S 10 off J's flinch,
+K S 16 off K's stagger); in J's reach J when the flash step FS is under :recover-fs or the Reiatsu BARS under :recover-bars
+or :j-share of the time, else K (the damage); in K's reach K; farther the snipe, :KAMAE-L (its level: BR-AI-SNIPE-LEVEL)."
+  (cond ((and threat (not combo) (< r (getf k :step 0.0))) :kamae-step)
+        ((and combo (<= d kr) (or from-k (> d jr))) :kamae-k)
+        ((and combo (<= d jr)) :kamae-j)
+        ((<= d jr) (if (or (< fs (getf k :recover-fs 40.0)) (< bars (getf k :recover-bars 1)) (< r (getf k :j-share 0.3)))
+                       :kamae-j :kamae-k))
+        ((<= d kr) :kamae-k)
+        (t :kamae-l)))
+(defun br-ai-en-plan (r d jr kr k dashed)
+  "His CPU's plan for one standing window of the awakened stance EN (one roll R; D the distance, JR / KR the stance J1's /
+K1's reach on him; K the kit's :stance; DASHED its fast Step spent): K in its reach (in J's reach :j-share of the time J,
+the top's refill), the charged dash where it reaches (BR-AI-DASH-LEVEL), else the fast Step in (NIL: spent, the window runs out back to KIN). :Q, :F, :SIG, :STEP or NIL."
+  (cond ((<= d jr) (if (< r (getf k :j-share 0.25)) :q :f))
+        ((<= d kr) :f)
+        ((br-ai-dash-level d) :sig)
+        ((not dashed) :step)))
 (defun br-ai-burst-p (r ammo fs d k difficulty)
   "Does his awakened CPU burst into the owl (K: the kit's :burst) from one roll R: AMMO >= :wings, FS >= the burst's
 *FS-BURST*, him inside :in m, :p x the DIFFICULTY?"
   (and k (>= ammo (getf k :wings 5)) (>= fs *fs-burst*) (< d (getf k :in 6.0))
        (< r (br-ai-chance (getf k :p 0.0) difficulty))))
 
-(defun br-ai-kamae (e f st b)
-  "His CPU's pick in the base stance (BR-KAMAE-TICK, from f6): once a stance (one roll, BR-AI-STANCE-PLAN; a learner's read
-may change it, BR-LEARN-KAMAE); a Step plan clears itself so the window after it picks again."
-  (unless (brs-k-plan st)
-    (let* ((k (ai-table e :stance)) (g (gauges e)) (s (br-ai-seen b))
-           (threat (and s (eq (snap-state s) :move) (< (fighter-dist f) 4.0))))
-      (setf (brs-k-plan st)
-            (br-learn-kamae e b (br-ai-stance-plan (sim-rnd01) (brs-ammo st) (br-ammo-cap (fighter-form f)) (gauges-fs g)
-                                                   (reiatsu-bars e) k threat)))
-      (when (and (eq (brs-k-plan st) :kamae-step) (not (br-kamae-step-ok-p (brs-dashed st) (gauges-fs g))))
-        (setf (brs-k-plan st) :kamae-l))
-      (when (and (member (brs-k-plan st) '(:kamae-j :kamae-k))   ; (R15: the stance J / K in melee: out of reach, the snipe)
-                 (> (fighter-dist f) (+ (br-move-reach (find-move (if (eq (brs-k-plan st) :kamae-j) :br-s-j1 :br-s-k1)))
-                                        (body-hurt-r (model-body (model (opp-of e)))))))
-        (setf (brs-k-plan st) :kamae-l))
-      (pace e (intern (format nil "AI-~a" (brs-k-plan st)) :keyword))
-      (why b :kamae (brs-k-plan st))))
-  (let ((plan (brs-k-plan st)))
-    (when (eq plan :kamae-step) (setf (brs-k-plan st) nil))
-    plan))
-
 (defun br-ai-seen (b)
   "The SNAP brain B perceives this step (BRAIN-PERCEIVE's ring at the delay; NIL before it holds one): for his ticks, which
 run inside moves where the reflexes don't (the old LB-AI-SEEN)."
   (let* ((ring (brain-ring b)) (n (length ring)))
     (and (plusp n) (svref ring (mod (- (brain-head b) 1 (brain-delay b)) n)))))
+(defun br-ai-seen-d (e s)
+  "The distance from E to the opponent as perceived (SNAP S; NIL: the real one)."
+  (if s
+      (let ((p (pos-of e))) (sqrt (+ (expt (- (snap-x s) (aref p 0)) 2) (expt (- (snap-z s) (aref p 2)) 2))))
+      (fighter-dist (fighter e))))
+(defun br-ai-reach (e name)
+  "Move NAME's whole reach on E's opponent (BR-MOVE-REACH + his body)."
+  (+ (br-move-reach (find-move name)) (body-hurt-r (model-body (model (opp-of e))))))
+(defun br-ai-threat-p (e s d)
+  "Is his perceived move S coming at E (live, in reach + 1 m: SNAP-NEAR-P)?"
+  (and s (eq (snap-state s) :move) (member (snap-kind s) '(:quick :flash :sig :sp :breaker :kikon))
+       (snap-live-p s) (snap-near-p s e d 1.0)))
+(defun br-ai-charge-p (e b)
+  "One roll per press: does his CPU charge this L (the kit's :stance :charge x the difficulty)?"
+  (< (sim-rnd01) (br-ai-chance (getf (ai-table e :stance) :charge 0.6) (brain-difficulty b))))
+
+(defparameter *br-ai-cash-p* '(:easy 0.1 :normal 0.3 :hard 1.0)
+  "His base stance's cash-out (dream-rsi b1a2): the pips full (*BR-AMMO-MAX*: a snipe's gain would be lost) and SP2's bars
+there, a snipe plan (him out of the melee strings' reach) becomes the stance's SP2 HIRENKYAKU (the 6 m slide back and its
+萬物貫通 line, every pip spent: 50 + 40 a pip), this share of those stances by difficulty (one roll a stance). b1a1's logs: 218
+level-2 snipes in 40 HARD matches ended at 3 pips, most of them at the cap already (their +2 lost).")
+
+(defun br-ai-cash-plan (plan n cap ok r p)
+  "Pure: the base stance's PLAN with N pips (CAP the most), OK (SP2 may start: its bars, him not down), one roll R against P:
+:KAMAE-SP2 for a snipe plan (:KAMAE-L) at the cap, else PLAN."
+  (if (and (eq plan :kamae-l) (>= n cap) ok (< r p)) :kamae-sp2 plan))
+
+(defun br-ai-kamae (e f st b)
+  "His CPU's pick in the base stance (BR-KAMAE-TICK, from f6): once a stance (one roll, BR-AI-STANCE-PLAN; a learner's read
+may change it, BR-LEARN-KAMAE); the snipe's L pressed and held for its level (*BR-AI-HOLD*, BR-AI-SNIPE-LEVEL; :charge of
+the time, else a tap); a Step plan clears itself so the window after it (5 m out) picks again."
+  (unless (brs-k-plan st)
+    (let* ((k (ai-table e :stance)) (g (gauges e)) (s (br-ai-seen b)) (d (br-ai-seen-d e s))
+           (left (if (and s (snap-punishable-p s) (< (snap-left s) 99)) (snap-left-seen s b) 0))   ; (his frames left)
+           (combo (or (member (mv-name (fighter-move f)) '(:br-kamae-j :br-kamae-k))
+                      (>= left (+ (mv-s (find-move :br-s-j1)) 2))))
+           (plan (br-ai-stance-plan (sim-rnd01) d (br-ai-reach e :br-s-j1) (br-ai-reach e :br-s-k1) (gauges-fs g)
+                                    (reiatsu-bars e) k :threat (br-ai-threat-p e s d) :combo combo
+                                    :from-k (or (eq (mv-name (fighter-move f)) :br-kamae-k)
+                                                (>= left (+ (mv-s (find-move :br-s-k1)) 2))))))
+      (setf plan (br-learn-kamae e b plan))
+      (setf plan (br-ai-cash-plan plan (brs-ammo st) (br-ammo-cap :base)   ; (the pips full: cash them from range)
+                                  (and s (not (member (snap-state s) '(:down :wakeup)))
+                                       (kit-command-ok-p e :sp2 (fighter-kit f) nil
+                                                         (kit-next (fighter-kit f) (mv-name (fighter-move f)) :kamae-sp2)))
+                                  (sim-rnd01) (getf *br-ai-cash-p* (brain-difficulty b) 0.0)))
+      (when (and (eq plan :kamae-step) (not (br-kamae-step-ok-p (brs-dashed st) (gauges-fs g))))
+        (setf plan :kamae-l))
+      (setf (brs-k-plan st) plan)
+      (when (eq plan :kamae-l)                            ; (the snipe: L held from its start, BR-KAMAE-GO's hold phase)
+        (ai-press b :sig (nth (1- (br-learn-charge e b (if (br-ai-charge-p e b) (br-ai-snipe-level d k) 1))) *br-ai-hold*)
+                  :act :hold))
+      (pace e (intern (format nil "AI-~a" plan) :keyword))
+      (why b :kamae plan)))
+  (let ((plan (brs-k-plan st)))
+    (when (eq plan :kamae-step) (setf (brs-k-plan st) nil))
+    plan))
+
+(defun br-ai-sig-hold (kit d &optional e)
+  "His kits' :sig-hold (ai.lisp AI-COMMAND, the ASSIST's too: the brain through AI-BRAIN): frames L is held. The base form's
+L and a link's L are taps (the stance's own pick holds the snipe: BR-AI-KAMAE); awakened from neutral (KIN: the turn, then
+the dash's charge at once; EN: the dash) the dash charged by the distance (BR-AI-DASH-LEVEL, *BR-AI-HOLD*; :charge of the
+time), else a tap (the stance's strings in reach, the fast Step from afar)."
+  (declare (ignore kit))
+  (let* ((f (and e (fighter e))) (b (and e (ai-brain e))) (lv (br-ai-dash-level d)))
+    (if (and f b lv (not (eq (fighter-form f) :base)) (not (eq (fighter-state f) :move)) (br-ai-charge-p e b))
+        (nth (1- (br-learn-charge e b lv)) *br-ai-hold*)
+        1)))
+
+(defun br-ai-link-cmd (e f b)
+  "His CPU's own R17 link (BR-TO-EN-LINK-TICK, the turn off a KIN J / K link that hit: his CPU pressed L there only on a hit):
+the stance's opener now, the turn skipped: K1 in its reach (cut to *BR-LINK-K-S*: it combos), J1 in J's, else the dash
+(:SIG, charged by the distance). One call a turn (its first frame)."
+  (when (<= (fighter-sf f) 1)
+    (let* ((form (br-ranged-of (fighter-form f))) (pre (if (br-owl-form-p form) "BR-OE" "BR-E"))
+           (d (br-ai-seen-d e (br-ai-seen b))))
+      (cond ((<= d (br-ai-reach e (intern (format nil "~a-K1" pre) :keyword))) :f)
+            ((<= d (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword))) :q)
+            ((br-ai-dash-level d) :sig)))))
+
+(defparameter *br-ai-breaker-v* 0.16 "A Breaker dash's metres per frame (9-10 m/s: *BREAKER-SPEED-MIN* / -MAX), his CPU's timing.")
+(defparameter *br-ai-anti-breaker* '(:easy 0.1 :normal 0.3 :hard 1.0)
+  "His CPU answers a Breaker by the reach model (BR-AI-ANTI-BREAKER), this share of the Breakers by difficulty (one roll
+each: its react roll; NORMAL low: his NORMAL must stay a fair game, DUEL_LILLE_V3 §22's band); his J1's 1.45 m met the generic J1 too late (the strike landed 4-5 f into it: 75 of 106 Breaker hits on
+the base form, dream-rsi b1a0).")
+(defun br-ai-anti-breaker (e b s d)
+  "His Breaker in its aura / dash within 6 m (one roll per Breaker, BRAIN-REACT-ROLL): where it is when our K1 / J1 would be
+active (its dash at *BR-AI-BREAKER-V* from where we saw it a perception delay ago) and when its strike lands (the trigger
+range, then its startup): K1 when it gets there in K1's reach before the strike, else J1, else a Hoho close to the strike;
+meanwhile :WAIT (the generic J1 would come late). The attack-state forms only."
+  (when (and (eq (snap-kind s) :breaker) (member (snap-phase s) '(:aura :dash)) (< d 6.0)
+             (< (brain-react-roll b) (getf *br-ai-anti-breaker* (brain-difficulty b) 0.0)))
+    (let* ((kit (kit-of e)) (v *br-ai-breaker-v*) (dl (brain-delay b)) (trig *breaker-trigger*)
+           (dash (if (eq (snap-phase s) :dash) dl (- dl *breaker-aura*)))
+           (wait (max 0 (- dash)))
+           (de (- d (* v (max 0 dash))))
+           (strike (+ wait (/ (max 0.0 (- de trig)) v) *breaker-startup*)))
+      (flet ((fits (cmd)
+               (let ((mv (kit-command-move kit cmd)))
+                 (and mv (kit-command-ok-p e cmd) (< (+ (mv-s mv) 1) strike)
+                      (<= (max trig (- de (* v (max 0 (- (mv-s mv) wait))))) (+ (mv-reach mv) 0.3))))))
+        (cond ((fits :f) (why b :anti-breaker :f))
+              ((fits :q) (why b :anti-breaker :q))
+              ((and (<= strike 13) (hoho-ready-p e)) (why b :anti-breaker :hoho))
+              ((> strike 13) :wait))))))
+
+(defun br-ai-stance-punish (e b s d f form)
+  "Free, him recovering or reeling as perceived with time for the stance's opener (the base stance up in 6 f + its J1, the
+awakened turn 12 f + EN's J1; :punish of the time on his react roll, one per action of his) and in its reach: L, the stance
+(its pick then sees the frames left: J, K when they fit, BR-AI-KAMAE; EN's plan, BR-AI-EN) instead of a plain J1: the punish
+a signature string (dream-rsi b1a0)."
+  (let ((k (ai-table e :stance)))
+    (when (and (member (fighter-state f) '(:idle :run :guard)) (zerop (fighter-lock f)) (getf k :punish)
+               (snap-punishable-p s) (< (snap-left s) 99) (not (br-ranged-form-p form)))
+      (let* ((base (eq form :base)) (pre (cond (base "BR-S") ((br-owl-form-p (br-ranged-of form)) "BR-OE") (t "BR-E")))
+             (jr (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword)))
+             (lead (+ (if base *br-kamae-up* *br-to-en-f*) (mv-s (find-move (intern (format nil "~a-J1" pre) :keyword))) 2)))
+        (when (and (>= (snap-left-seen s b) lead) (<= d jr) (kit-command-ok-p e :sig)
+                   (< (brain-react-roll b) (br-ai-chance (getf k :punish) (brain-difficulty b))))
+          (pace e :ai-stance-punish) (why b :stance-punish :sig))))))
+
+(defun br-ai-en (e b s d f st)
+  "The awakened stance EN, free: one plan per standing window (its epoch: the tick its standing clock started, BRS-EN-T),
+BR-AI-EN-PLAN, pressed at once (the window lasts *BR-EN-HOLD* f); his attack coming: NIL (the generic guard)."
+  (let ((epoch (- *match-tick* (brs-en-t st))))
+    (unless (or (= epoch (brs-ai-t st)) (br-ai-threat-p e s d) (member (snap-state s) '(:down :wakeup :hoho)))
+      (setf (brs-ai-t st) epoch)
+      (let* ((pre (if (br-owl-form-p (fighter-form f)) "BR-OE" "BR-E"))
+             (plan (br-ai-en-plan (sim-rnd01) d (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword))
+                                  (br-ai-reach e (intern (format nil "~a-K1" pre) :keyword)) (ai-table e :stance)
+                                  (brs-dashed st))))
+        (pace e (intern (format nil "AI-EN-~a" plan) :keyword))
+        (case plan
+          ((nil) nil)
+          (:step (ai-press b :step 2 :act :dash) (setf (brain-dash b) 1f0 (brain-dash-to b) 0f0)
+                 (why b :en-step :pressed))
+          (t (why b :en plan)))))))
+
+(defparameter *br-ai-step-in-p* '(:easy 0.03 :normal 0.08 :hard 1.0)
+  "His answer to the opponent's Step in (BR-AI-STEP-IN, dream-rsi b1a1): this share of his Steps by difficulty (one roll a
+Step), his J1 timed to land past the Step's iframes, before its J cancel's hit (b1a0 / v1 logs: the opponents' STEP-IN ->
+STEP-J was the most common opener on his idle attack-state forms).")
+(defparameter *br-ai-step-in-v* 0.08 "... the Step perceived closing on him faster than this (m / f; a Step's hop is 0.21) ...")
+(defparameter *br-ai-step-in-late* 18 "... and our J1's hit landing by his Step's frame this (his J cancel f12 + a J1's startup).")
+
+(defun br-ai-closing (b s d e)
+  "His perceived speed toward E (m / f, > 0 coming): the SNAP S and the one before it in brain B's ring."
+  (let* ((ring (brain-ring b)) (n (length ring))
+         (s1 (and (plusp n) (svref ring (mod (- (brain-head b) 2 (brain-delay b)) n)))) (p (pos-of e)))
+    (if (or (null s1) (null s) (< d 0.01))
+        0.0
+        (+ (* (- (snap-x s) (snap-x s1)) (/ (- (aref p 0) (snap-x s)) d))
+           (* (- (snap-z s) (snap-z s1)) (/ (- (aref p 2) (snap-z s)) d))))))
+
+(defun br-ai-step-in-plan (sf delay js closing d reach)
+  "Pure: his Step perceived at its frame SF (a perception DELAY ago), closing at CLOSING m / f, D metres off; our J1's startup
+JS and its REACH on him. Our J1 pressed now hits at his Step's frame SF + DELAY + JS: :GO when that is past the iframes
+(*STEP-IFRAMES*) and by *BR-AI-STEP-IN-LATE* with him then in reach (his hop: CLOSING a frame up to its f12); :WAIT while
+it would land in his iframes; else NIL."
+  (let ((k (+ sf delay js)))
+    (cond ((< closing *br-ai-step-in-v*) nil)
+          ((> k *br-ai-step-in-late*) nil)
+          ((<= (- d (* closing (max 0 (- (min k *step-j-cancel*) (min sf *step-j-cancel*))))) reach)
+           (if (<= k (second *step-iframes*)) :wait :go)))))
+
+(defun br-ai-step-in (e b s d f st)
+  "His opponent's Step in (perceived): one roll a Step (*BR-AI-STEP-IN-P*); his J1 (the form's :q) timed by
+BR-AI-STEP-IN-PLAN: it meets him as he lands, before his Step's J (the R17 link / the stance from that J's hit). :Q, :WAIT
+or NIL. The attack-state forms, free."
+  (when (and (eq (snap-state s) :step) (member (fighter-state f) '(:idle :run :guard)) (kit-command-ok-p e :q))
+    (let ((key (- *match-tick* (brain-delay b) (snap-sf s))))
+      (unless (= key (brs-ai-step-key st))
+        (setf (brs-ai-step-key st) key
+              (brs-ai-step-go st) (< (sim-rnd01) (getf *br-ai-step-in-p* (brain-difficulty b) 0.0))))
+      (when (brs-ai-step-go st)
+        (let* ((q (kit-command-move (kit-of e) :q))
+               (plan (br-ai-step-in-plan (snap-sf s) (brain-delay b) (mv-s q) (br-ai-closing b s d e) d
+                                         (+ (br-move-reach q) (body-hurt-r (model-body (model (opp-of e))))))))
+          (case plan
+            (:go (setf (brs-ai-step-go st) nil) (pace e :ai-step-in) (why b :step-in :q))
+            (:wait (why b :step-in-wait :wait))))))))
+
+(defparameter *br-ai-exit-p* '(:easy 0.05 :normal 0.15 :hard 1.0)
+  "His exit from the awakened stance (BR-AI-EXIT, dream-rsi b1a1): the first free step back in KIN after EN (a string's end
+pushed him out to ~2.8 m: the opponents' J1 found him standing there, b1a0 / v2 logs), this share of the exits by
+difficulty (one roll an exit): back into the stance while the wing armour covers the turn, else a dash back.")
+
+(defun br-ai-exit-plan (d wings cost dash)
+  "Pure: his exit at D metres with WINGS (COST: the armour's price), DASH the charged dash's level there (BR-AI-DASH-LEVEL):
+:SIG (L held: the armoured turn into the charged dash) when the armour holds and the dash reaches; else :BACK (a dash back to *BR-AI-UNGUARD-TO*, the dash's range) when he is nearer; else NIL. (Measured: the
+re-entry into EN's K1 / J1 from 2.8 m was punished, v3.)"
+  (cond ((and (>= wings cost) dash) :sig)
+        ((< d *br-ai-unguard-to*) :back)))
+
+(defun br-ai-exit (e b s d f st)
+  "The first free step in KIN after the stance EN (BRS-AI-FORM): one roll (*BR-AI-EXIT-P*), BR-AI-EXIT-PLAN; not while his
+attack is on him (the guard), nor on a downed opponent. :SIG, :PRESSED or NIL."
+  (when (and (not (member (snap-state s) '(:down :wakeup))) (not (br-ai-threat-p e s d))
+             (< (sim-rnd01) (getf *br-ai-exit-p* (brain-difficulty b) 0.0)))
+    (let ((plan (br-ai-exit-plan d (brs-ammo st) (br-armor-cost (fighter-form f)) (br-ai-dash-level d))))
+      (pace e (if plan (intern (format nil "AI-EXIT-~a" plan) :keyword) :ai-exit-none))
+      (case plan
+        (:sig (why b :exit :sig))
+        (:back (ai-dash b -1.0 *br-ai-unguard-to*) (why b :exit-back :pressed))))))
+
+(defparameter *br-ai-kite-p* '(:easy 0.01 :normal 0.03 :hard 0.8)
+  "His kite (BR-AI-KITE, dream-rsi b1a1 after cell b2a0's ward): free in an attack-state form inside the opponent's
+first-strike envelope (BR-AI-ENVELOPE), him free, one roll a *BR-AI-KITE-EVERY* window: a dash back to the envelope +
+*BR-AI-KITE-OUT* (v4 logs: Kenpachi's FIRST-STRIKE J1 opened him 37 times on an idle KIN in 12 matches, ~350 a combo).")
+(defparameter *br-ai-kite-every* 24 "Frames between two of his kite rolls.")
+(defparameter *br-ai-kite-out* 2.0 "... out to his envelope + this many metres (the dash's range: the far-dash window picks it).")
+
+(defun br-ai-envelope (e b s d)
+  "His first-strike envelope (m): his form's J1 reach + its lunge (at most 0.8 m) + 0.5 m + his perceived closing speed x
+15 f (his J1 and his reaction; cell b2a0's model)."
+  (let ((q (kit-command-move (kit-of (opp-of e)) :q)))
+    (+ (if q (+ (mv-reach q) (min 0.8 (mv-slide q))) 1.6) 0.5 (* 15 (max 0.0 (br-ai-closing b s d e))))))
+
+(defun br-ai-kite (e b s d f st)
+  "Free in an attack-state form, him free (idle, walking, running, guarding) inside his envelope: one roll a window
+(*BR-AI-KITE-P*), a dash back out of it to the dash's / the snipe's range. :PRESSED or NIL."
+  (when (and (member (fighter-state f) '(:idle :run)) (zerop (brain-press-left b))
+             (member (snap-state s) '(:idle :run :guard))
+             (>= (- *match-tick* (brs-ai-kite st)) *br-ai-kite-every*)
+             (<= d (br-ai-envelope e b s d)))
+    (setf (brs-ai-kite st) *match-tick*)
+    (when (< (sim-rnd01) (getf *br-ai-kite-p* (brain-difficulty b) 0.0))
+      (ai-dash b -1.0 (+ (br-ai-envelope e b s d) *br-ai-kite-out*))
+      (pace e :ai-kite)
+      (why b :kite :pressed))))
+
+(defparameter *br-ai-let-go* '(12 20)
+  "His CPU holding a charge (BR-AI-CHARGE-TICK, dream-rsi b1a1): his attack (or his run in) perceived on him lets L go at
+once, but a base snipe held this many frames or more short of level 2 (*BR-W-L-LEVELS*' first) holds on into level 2 (its
+S 8 lands no later than level 1's S 16 from there, and harder: cell b2a0's finding); the dash lets go at any level (v5
+logs: 41 + 49 openings in the charges' hold, 90 of ~800 snipes Perfect-Hoho'd or hit while held).")
+
+(defparameter *br-ai-let-go-p* '(:easy 0.1 :normal 0.3 :hard 1.0)
+  "... this share of his charges by difficulty (one roll a charge: its start tick, *MATCH-TICK* - FIGHTER-HOLD).")
+
+(defun br-ai-let-go-p (held snipe threat)
+  "Pure: let a charge HELD frames go now, his THREAT perceived? SNIPE: the base snipe (held into level 2 from
+*BR-AI-LET-GO*'s first to its second)."
+  (and threat (or (not snipe) (not (<= (first *br-ai-let-go*) held (1- (second *br-ai-let-go*)))))))
+
+(defun br-ai-charge-tick (e f b mv)
+  "His CPU's charge (the snipe, the dash; their hold phase, BR-S-TICK): L let go (the brain's press ended: the shot / the
+dash at the level reached) when BR-AI-LET-GO-P says, his attack perceived in reach + 1 m (BR-AI-THREAT-P) or him running /
+stepping in within 3 m; *BR-AI-LET-GO-P* of his charges (one roll a charge)."
+  (let* ((s (br-ai-seen b)) (d (br-ai-seen-d e s)) (st (br e)))
+    (let ((key (- *match-tick* (fighter-hold f))))
+      (unless (= key (brs-ai-charge-key st))
+        (setf (brs-ai-charge-key st) key
+              (brs-ai-let-go st) (< (sim-rnd01) (getf *br-ai-let-go-p* (brain-difficulty b) 0.0)))))
+    (when (and s (brs-ai-let-go st) (eq (brain-press b) :sig) (plusp (brain-press-left b))
+               (br-ai-let-go-p (fighter-hold f) (getf (mv-params mv) :charged)
+                               (or (br-ai-threat-p e s d)
+                                   (and (member (snap-state s) '(:run :step)) (< d 3.0) (> (br-ai-closing b s d e) 0.05)))))
+      (setf (brain-press-left b) 0)
+      (pace e :ai-let-go))))
+
+(defun br-ai-turn-wait (e b s)
+  "He reels (stun / air) farther round than *BR-AI-FACING* from Lille's facing (after the dash through him): :WAIT (the
+fighter turns to him) instead of the generic follow-up that whiffs, *BR-AI-TURN-P* of his actions (the react roll)."
+  (when (and (member (snap-state s) '(:stun :air))
+             (> (abs (angle-wrap (- (face-yaw-to e (snap-x s) (snap-z s)) (yaw-of e)))) *br-ai-facing*)
+             (< (brain-react-roll b) (getf *br-ai-turn-p* (brain-difficulty b) 1.0)))
+    (pace e :ai-turn)
+    (why b :turn :wait)))
+
+(defun br-ai-kikon (e b s d)
+  "His Kikon on an opening only: him red, perceived reeling / recovering with the rush's aura + startup + 2 frames left, within
+11 m, not when the hits would finish him; *BR-AI-KIKON-P* of his actions (the react roll). :KIKON or NIL."
+  (let ((mv (kit-command-move (kit-of e) :kikon)))
+    (when (and mv (kikon-ready-p e) (snap-punishable-p s) (< (snap-left s) 99) (<= d 11.0)
+               (>= (snap-left-seen s b) (+ (or (rush-param mv :aura) 0) (mv-s mv) 2))
+               (kit-command-ok-p e :kikon) (not (ai-sb-finish-p e))
+               (< (brain-react-roll b) (getf *br-ai-kikon-p* (brain-difficulty b) 0.0)))
+      (pace e :ai-kikon)
+      (why b :kikon-punish :kikon))))
+
+(defun br-ai-unguard (e b s d f)
+  "A long guard of his up close (the generic Breaker's moment: guarding *AI-GUARD-BREAK-HOLD* f within
+*AI-GUARD-BREAK-RANGE*): once per guard (its generic Breaker roll taken, BRAIN-BREAK-KEY), *BR-AI-UNGUARD-P* by difficulty,
+a dash back to *BR-AI-UNGUARD-TO* (his L's range: the charge, not a Breaker he Hohos). :PRESSED or NIL."
+  (when (and (eq (snap-state s) :guard) (>= (snap-guard-t s) *ai-guard-break-hold*) (< d *ai-guard-break-range*)
+             (/= (brain-break-key b) (snap-start s)) (member (fighter-state f) '(:idle :run :guard))
+             (< (brain-react-roll b) (getf *br-ai-unguard-p* (brain-difficulty b) 0.0)))
+    (setf (brain-break-key b) (snap-start s))
+    (ai-dash b -1.0 *br-ai-unguard-to*)
+    (pace e :ai-unguard)
+    (why b :unguard :pressed)))
 
 (defun br-ai-reflex (e b s d)
-  "Every form's :reflex (ai.lisp AI-REFLEX, free states): the base stance inside its reach (:zone :in, decision R3: the
-openers reach 4 m); awakened, the burst into the owl (BR-AI-BURST-P). One roll a window (*BR-AI-EVERY* f). A command or
-NIL."
-  (declare (ignore s))
-  (let* ((f (fighter e)) (st (br e)) (form (fighter-form f)) (g (gauges e)))
-    (when (and (member (fighter-state f) '(:idle :run :guard)) (zerop (fighter-lock f))
-               (>= (- *match-tick* (brs-ai-t st)) *br-ai-every*))
-      (setf (brs-ai-t st) *match-tick*)
-      (cond ((eq form :base)
-             (let ((k (ai-table e :zone)))
-               (when (and k (< d (getf k :in 4.0)) (< (sim-rnd01) (br-ai-chance (getf k :p 0.0) (brain-difficulty b))))
-                 (pace e :ai-zone) (why b :zone :sig))))
-            ((br-jilliel-form-p form)
-             (when (br-ai-burst-p (sim-rnd01) (brs-ammo st) (gauges-fs g) d (ai-table e :burst) (brain-difficulty b))
-               (when (burst-ok-p e) (pace e :ai-burst) (why b :owl :burst))))))))
+  "Every form's :reflex (ai.lisp AI-REFLEX, free states; NIL when there is nothing to do): the awakened stance EN's plan per
+window (BR-AI-EN); else one roll a window (*BR-AI-EVERY* f) with the opponent not attacking: the base form the far snipe
+(the stance from :far-snipe :in m, its pick the charged L), awakened the burst into the owl (BR-AI-BURST-P) or the
+charged dash from afar (:far-dash, the dash's reach; its :p a table by difficulty)."
+  (let* ((f (fighter e)) (st (br e)) (form (fighter-form f)) (g (gauges e)) (dif (brain-difficulty b))
+         (was (brs-ai-form st)))
+    (setf (brs-ai-form st) form)
+    (cond ((br-ranged-form-p form)
+           (and (member (fighter-state f) '(:idle :run :guard)) (zerop (fighter-lock f))
+                (or (br-ai-kikon e b s d) (br-ai-en e b s d f st))))
+          ((br-ai-turn-wait e b s))
+          ((and (br-ranged-form-p was) (br-melee-form-p form) (member (fighter-state f) '(:idle :run :guard))
+                (zerop (fighter-lock f)) (br-ai-exit e b s d f st)))
+          ((br-ai-anti-breaker e b s d))
+          ((br-ai-step-in e b s d f st))
+          ((br-ai-kikon e b s d))
+          ((br-ai-unguard e b s d f))
+          ((br-ai-kite e b s d f st))
+          ((br-ai-stance-punish e b s d f form))
+          ((and (member (fighter-state f) '(:idle :run :guard)) (zerop (fighter-lock f))
+                (>= (- *match-tick* (brs-ai-t st)) *br-ai-every*) (not (br-ai-threat-p e s d)))
+           (setf (brs-ai-t st) *match-tick*)
+           (cond ((eq form :base)
+                  (let ((k (ai-table e :far-snipe)))
+                    (when (and k (>= d (getf k :in 5.0)) (< (sim-rnd01) (br-ai-chance (getf k :p 0.0) dif)))
+                      (pace e :ai-far-snipe) (why b :far-snipe :sig))))
+                 ((and (br-jilliel-form-p form)
+                       (br-ai-burst-p (sim-rnd01) (brs-ammo st) (gauges-fs g) d (ai-table e :burst) dif) (burst-ok-p e))
+                  (pace e :ai-burst) (why b :owl :burst))
+                 (t (let ((k (ai-table e :far-dash)))
+                      (when (and k (br-ai-dash-level d) (>= d (getf k :in 3.4)) (< (sim-rnd01) (getf (getf k :p) dif 0.0)))
+                        (pace e :ai-far-dash) (why b :far-dash :sig)))))))))
 
-;;; ================================================================ AI: the learning CPU's situation (DUEL_LILLE_V3 §6.3)
+;;; ================================================================ AI: the learning CPU's situations (DUEL_LILLE_V3 §6.3, §22.3)
 ;;; Only a learner runs this (a CPU facing a human). :shot = his base stance's K K on a free opponent: the human's answer
 ;;; (:guard :hoho :step :attack :back :take). Read at the stance's pick (one roll): a guard -> K K stays (its 萬物貫通 drain);
 ;;; a Step / backing off -> J J (quicker); a Hoho / an attack -> the stance Step, else L L.
+;;; :charge (the integration of the dream-rsi CPU, §22.3: 「學玩家習慣」) = his charged L (the base snipe, the awakened dash)
+;;; entering its charge on a free opponent: the human's answer, a walk off the line (> *LEARN-BACK* m sideways) a Step too.
+;;; Read when his CPU picks the charge's level (one roll a charge): a guard -> level 3 (the 31 m line through guard, the dash's
+;;; six cuts); a Hoho / an attack -> a tap (nothing held for him to answer); a Step / backing off -> the charge as planned, and
+;;; its Step (R18) re-aims once he is seen stepping (BR-AI-RESTEP).
 (defparameter *br-learn-diff* '(:easy 0.5 :normal 1.0 :hard 1.5) "His learner's read chance x this by difficulty.")
 (defparameter *br-learn-episode* 24 "Frames the :shot situation waits for his answer, + the perception delay.")
 
@@ -1517,6 +1907,35 @@ stance Step (STEP-OK) else L L; else PLAN."
     ((:hoho :attack) (if step-ok :kamae-step :kamae-l))
     (t plan)))
 
+(defun br-learn-charge-plan (read lv)
+  "Pure: the charge's level instead of LV for his predicted answer READ to the charged L, and whether its Step re-aims:
+values level, restep."
+  (case read
+    (:guard (values 3 nil))
+    ((:hoho :attack) (values 1 nil))
+    ((:step :back) (values lv (> lv 1)))
+    (t (values lv nil))))
+(defun br-learn-charge (e b lv)
+  "His CPU's charge level LV (1 a tap) as a learner's read of :charge leaves it (one roll a charge, only for a charge: LV > 1);
+BRS-AI-RESTEP set for it. The level."
+  (let ((l (br-learn-l b)) (st (br e)))
+    (setf (brs-ai-restep st) nil)
+    (if (and l (> lv 1))
+        (let ((r (learn-kit-read l :charge (float (getf *br-learn-diff* (brain-difficulty b) 1.0) 1.0))))
+          (multiple-value-bind (lv2 restep) (br-learn-charge-plan r lv)
+            (setf (brs-ai-restep st) restep)
+            (when r (learn-count-read e l r) (pace e (intern (format nil "READ-CHARGE-~a" r) :keyword))
+                  (clog "~a read charge ~a -> level ~d~@[ restep~]" (side-name e) r lv2 restep))
+            lv2))
+        lv)))
+(defun br-ai-restep (e f st b mv)
+  "His charge on a learner's read of a Step (BRS-AI-RESTEP): him seen stepping -> the charge's Step (BR-CHARGE-STEP-GO,
+re-aimed at its end); once a charge."
+  (let ((s (br-ai-seen b)))
+    (when (and s (eq (snap-state s) :step))
+      (setf (brs-ai-restep st) nil)
+      (when (br-charge-step-go e f st mv) (pace e :ai-restep)))))
+
 (defstruct (brl (:conc-name brl-))
   "His learner's own state within a match (LRN-KDATA)."
   (own-mv nil) (ox 0f0 :type single-float) (oz 0f0 :type single-float) (ux 0f0 :type single-float) (uz 0f0 :type single-float)
@@ -1525,23 +1944,31 @@ stance Step (STEP-OK) else L L; else PLAN."
 (defun br-learn-l (b) "Brain B's learner when it reads his situations (LRN-KIT), else NIL." (let ((l (and b (brain-learn b)))) (and l (lrn-kit l) l)))
 
 (defun br-learn-step (e b s d l)
-  "His learner's step (LEARN-DEF-KIT's :step): the :shot onset (his stance's K1 starting on a free opponent), its answer
-(BR-LEARN-ANSWER; at its end :TAKE, or :GUARD held through)."
+  "His learner's step (LEARN-DEF-KIT's :step): the :shot onset (his stance's K1 starting on a free opponent), the :charge
+onset (his charged L entering its charge on a free opponent), their answer (BR-LEARN-ANSWER; :charge's walk off the line a
+Step; at its end :TAKE, or :GUARD held through)."
   (declare (ignore b d))
   (let* ((k (br-learn-state l)) (f (fighter e)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
-         (hs (snap-state s)) (hprev (lrn-hstate l)) (new (/= (snap-start s) (lrn-hstart l))))
-    (when (and mv (not (eq mv (brl-own-mv k))) (member (mv-name mv) '(:br-s-k1 :br-e-k1 :br-oe-k1)) (< (lrn-ksit l) 0)
-               (member hs '(:idle :run :guard)))
+         (hs (snap-state s)) (hprev (lrn-hstate l)) (new (/= (snap-start s) (lrn-hstart l)))
+         (sit (and mv (not (eq mv (brl-own-mv k))) (< (lrn-ksit l) 0) (member hs '(:idle :run :guard))
+                   (cond ((member (mv-name mv) '(:br-s-k1 :br-e-k1 :br-oe-k1)) :shot)
+                         ((and (member (mv-name mv) '(:br-s-l1 :br-e-l1 :br-oe-l1)) (eq (fighter-phase f) :hold)
+                               (not (and (brl-own-mv k) (member (mv-name (brl-own-mv k)) '(:br-k-dash :br-w-charge-step)))))
+                          :charge)))))   ; (a charge resumed after its Step: the same episode's, not a new one)
+    (when sit
       (let* ((dx (- (snap-x s) (aref (pos-of e) 0))) (dz (- (snap-z s) (aref (pos-of e) 2))) (m (max 1e-3 (hypot dx dz))))
         (setf (brl-ox k) (snap-x s) (brl-oz k) (snap-z s) (brl-ux k) (f32 (/ dx m)) (brl-uz k) (f32 (/ dz m))
               (brl-len k) (+ *br-learn-episode* (brain-delay (brain e)))))
-      (learn-kit-open l :shot))
+      (learn-kit-open l sit))
     (setf (brl-own-mv k) mv)
     (when (>= (lrn-ksit l) 0)
-      (let ((end (>= (incf (lrn-kep-t l)) (brl-len k)))
-            (away (+ (* (- (snap-x s) (brl-ox k)) (brl-ux k)) (* (- (snap-z s) (brl-oz k)) (brl-uz k)))))
+      (let* ((end (>= (incf (lrn-kep-t l)) (brl-len k)))
+             (ox (- (snap-x s) (brl-ox k))) (oz (- (snap-z s) (brl-oz k)))
+             (away (+ (* ox (brl-ux k)) (* oz (brl-uz k))))
+             (side (abs (- (* ox (brl-uz k)) (* oz (brl-ux k))))))   ; (metres off his line)
         (cond ((member hs '(:stun :air :down :wakeup)) (learn-kit-close l :take))
-              (t (let ((ans (br-learn-answer hprev hs new away)))
+              (t (let ((ans (or (br-learn-answer hprev hs new away)
+                                (and (learn-kit-open-p l :charge) (> side *learn-back*) :step))))
                    (cond (ans (learn-kit-close l ans))
                          (end (learn-kit-close l (if (member hs '(:guard :guard-hit)) :guard :take)))))))))))
 
@@ -1556,7 +1983,7 @@ stance Step (STEP-OK) else L L; else PLAN."
           p)
         plan)))
 
-(learn-def-kit :barro :situations #(:shot) :actions #(:guard :hoho :step :attack :back :take) :step 'br-learn-step)
+(learn-def-kit :barro :situations #(:shot :charge) :actions #(:guard :hoho :step :attack :back :take) :step 'br-learn-step)
 
 ;;; ================================================================ ASSIST AUTO COMBO's routes (DUEL_LILLE_V3 §6.3)
 ;;; "You press J, the CPU chooses": the routes press his buttons as a human's, the AUTO tag.
@@ -1564,6 +1991,10 @@ stance Step (STEP-OK) else L L; else PLAN."
 ;;;                 the base's at f4, the awakened turn)
 ;;;   stance        his J while the stance is up (the base stance's window, the awakened stance free): K (K K, whose J J
 ;;;                 the generic latch takes on his next J)
+;;;   R17's turn    his J in KIN's turn into the stance off a link (:br-to-en-l): K (the stance K1 at once, it combos)
+;;;   the strings   his J in a stance string's segment once its hits are over, the segment having touched him: L (its L L
+;;;                 follow-up, a spending one only with a special to pay it), else at a string's last segment that hit
+;;;                 with 2 bars Shift+L (the charge-less SP2, every special) (§22.3: the new rules' 「資源循環」)
 (defstruct (bras (:conc-name bras-))
   (b nil) (mv nil) (sf -1 :type fixnum) (j nil) (done nil))
 (defvar *br-as* (vector (make-bras) (make-bras)) "Per side: the ASSIST routes' state (BR-ASSIST-COMBO).")
@@ -1585,7 +2016,20 @@ stance Step (STEP-OK) else L L; else PLAN."
 (the generic AUTO COMBO)."
   (declare (ignore s d))
   (let* ((a (br-as-track f b vp)) (mv (bras-mv a)) (kit (fighter-kit f)) (form (fighter-form f)))
-    (cond ((and mv (member (mv-name mv) '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)))
+    (cond ((and mv (eq (mv-name mv) :br-to-en-l))
+           (cond ((bras-done a) (vpad-consume! vp :quick) :none)
+                 ((bras-j a) (setf (bras-done a) t) (vpad-consume! vp :quick) (pace e :as-link-k) :f)))
+          ((and mv (br-stance-move-p mv) (eq (fighter-phase f) :main))
+           (let* ((name (mv-name mv)) (next (kit-next kit name :lchain)) (sp2 (kit-next kit name :sp2c))
+                  (end (and sp2 (getf (mv-params mv) :end))))
+             (cond ((not (or next end)) nil)
+                   ((bras-done a) (vpad-consume! vp :quick) :none)
+                   ((not (and (bras-j a) (fighter-contact f) (>= (fighter-sf f) (+ (mv-s mv) (mv-a mv))))) nil)
+                   ((and next (or (not (getf (mv-params next) :spend)) (br-follow-ok-p (brs-ammo (br e)))))
+                    (setf (bras-done a) t) (vpad-consume! vp :quick) (pace e :as-follow) :sig)
+                   ((and end (eq (fighter-contact f) :hit) (>= (reiatsu-bars e) 2))
+                    (setf (bras-done a) t) (vpad-consume! vp :quick) (pace e :as-sp2) :sp2))))
+          ((and mv (member (mv-name mv) '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)))
            (cond ((bras-done a) (vpad-consume! vp :quick) :none)
                  ((and (>= (1+ (fighter-sf f)) *br-kamae-up*) (bras-j a))
                   (setf (bras-done a) t) (vpad-consume! vp :quick) (pace e :as-stance-k) :f)))
