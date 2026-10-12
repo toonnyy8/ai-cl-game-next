@@ -1117,3 +1117,5 @@ The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功�
   (R16–R17: BK 111.6 s, BS 125.8 s): still out, reported to the user, nothing retuned (the gate policy). His CPU's level-1
   snipe no longer snaps onto a side-stepping opponent: his CPU wins 0–1 of 60 (BS 1); his CPU is the dream-rsi search's
   (§22; its cells run at the freeze, before R18, and are re-measured at the integration).
+- The user on these three (2026-10-12, verbatim): 「等學習型 AI 整合後再看。」 Open until the search's CPU is integrated on R18's
+  rules and gated again; not an exception yet.
