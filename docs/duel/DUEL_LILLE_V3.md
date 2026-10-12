@@ -1108,3 +1108,12 @@ The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功�
 - Tests: duel-rules-test (the charged L's five moves `:track` 0 and `:step-branch`, the stance J / K 720; the
   `:step-branch` list; `:br-w-charge-step` = `:br-k-dash`'s frames, no tick; the Step's f9 BR-KAMAE-BACK). Browser run
   (82001 the base 14 m out, 82003 EN 3 m out: L held, Step with A, L let go).
+
+### 23.1 Gates (R18 with the follow-up)
+
+- G2 (`simgate.py --cvc`): YY / YK / KK identical (the HOLD-PHASE-STEP guard moves nothing).
+- Seed gate, Lille II's six pairings, 20 seeds, every match a K.O.: BY 132.0 s, BR 145.9 s, BB 207.1 s pass; BK 103.7 s,
+  BI 119.9 s, BS 110.0 s out (the snipe-only first pass the same medians). 60 seeds: **BK 112.2 s, BI 118.1 s, BS 117.3 s**
+  (R16–R17: BK 111.6 s, BS 125.8 s): still out, reported to the user, nothing retuned (the gate policy). His CPU's level-1
+  snipe no longer snaps onto a side-stepping opponent: his CPU wins 0–1 of 60 (BS 1); his CPU is the dream-rsi search's
+  (§22; its cells run at the freeze, before R18, and are re-measured at the integration).
