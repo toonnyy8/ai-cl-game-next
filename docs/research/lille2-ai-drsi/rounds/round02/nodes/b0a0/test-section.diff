@@ -1,0 +1,51 @@
+--- frozen BARRO-CPU-TESTS
++++ cell BARRO-CPU-TESTS
+@@ -41,9 +41,10 @@
+     (check (not (br-ai-burst-p 0.2 5 70.0 7.0 k :normal)))
+     (check (not (br-ai-burst-p 0.6 5 70.0 4.0 k :normal)))
+     (check (br-ai-burst-p 0.6 5 70.0 4.0 k :hard)))
+-  (check (equal *br-ai-diff* '(:easy 0.2 :normal 0.3 :hard 1.5)))   ; (NORMAL x0.3: a fair NORMAL, DUEL_LILLE_V3 §22's band; b1a1)
++  (check (equal *br-ai-diff* '(:easy 0.2 :normal 0.4 :hard 1.5)))   ; (NORMAL x0.4: a fair NORMAL, DUEL_LILLE_V3 §22's band; b1a1 0.3,
++                                                                   ;  round 2 b0a0 0.4 on R18: NORMAL 0.385 -> 0.43)
+   (check (let ((c (mapcar (lambda (d) (br-ai-chance 0.6 d)) '(:easy :normal :hard))))
+-           (and (< (abs (- (first c) 0.12)) 1e-6) (< (abs (- (second c) 0.18)) 1e-6) (< (abs (- (third c) 0.9)) 1e-6))))
++           (and (< (abs (- (first c) 0.12)) 1e-6) (< (abs (- (second c) 0.24)) 1e-6) (< (abs (- (third c) 0.9)) 1e-6))))
+   (check (= 1.0 (br-ai-chance 0.9 :hard)))   ; (at most 1)
+   (check (equal *br-ai-anti-breaker* '(:easy 0.1 :normal 0.3 :hard 1.0)))
+   (dolist (f *br-forms*) (check (getf (getf (kit-ai (kit :barro f)) :stance) :punish)))
+@@ -104,7 +105,7 @@
+   ;; base stance's cash-out at the pips' cap
+   (dolist (f '(:base :jilliel-kin :shin-kin))
+     (check (= 1.0 (getf (kit-ai (kit :barro f)) :l-after-j) (getf (kit-ai (kit :barro f)) :l-after-k))))
+-  (dolist (f *br-forms*)   ; (every charge, line and cash-out at HARD: 0.7 x1.5; NORMAL 0.21)
++  (dolist (f *br-forms*)   ; (every charge, line and cash-out at HARD: 0.7 x1.5; NORMAL 0.28)
+     (let ((k (getf (kit-ai (kit :barro f)) :stance)))
+       (check (and (= 0.7 (getf k :charge)) (= 0.7 (getf k :follow)) (= 1.0 (br-ai-chance (getf k :charge) :hard))))))
+   (check (equal (mapcar (lambda (f) (getf (getf (kit-ai (kit :barro f)) :stance) :sp2)) *br-forms*) '(0.7 0.7 0.7 0.9 0.9)))
+@@ -115,3 +116,26 @@
+                       (br-ai-cash-plan :kamae-l 3 3 nil 0.5 1.0) (br-ai-cash-plan :kamae-l 3 3 t 0.5 0.3)
+                       (br-ai-cash-plan :kamae-k 3 3 t 0.5 1.0))
+                 '(:kamae-sp2 :kamae-l :kamae-l :kamae-l :kamae-k)))
++  ;; (dream-rsi round 2, b0a0) the marksman's line: the charged L aimed (R18: it no longer turns onto him), the charge's
++  ;; Step its re-aim (his Hoho behind the charge at once; off the line at the planned release), else held for the line
++  (check (equal *br-ai-aim-p* '(:easy 0.2 :normal 0.6 :hard 1.0)))
++  (check (<= (getf *br-ai-aim-p* :easy) (getf *br-ai-aim-p* :normal) (getf *br-ai-aim-p* :hard)))
++  (check (and (= *br-ai-aim-tol* 0.0) (= *br-ai-aim-ahead* 30)))
++  (let ((fx (fwd-x 0.3)) (fz (fwd-z 0.3)))
++    (check (< (abs (- (br-ai-aim-gap 1.0 2.0 0.3 0.6 12.0 0.25 (+ 1.0 (* 5 fx)) (+ 2.0 (* 5 fz))) -0.25)) 1e-4))   ; (on it)
++    (check (< (abs (- (br-ai-aim-gap 1.0 2.0 0.3 0.6 12.0 0.25 (+ 1.0 (* 5 fx) fz) (+ 2.0 (* 5 fz) (- fx))) 0.75)) 1e-4))   ; (1 m aside)
++    (check (< (abs (- (br-ai-aim-gap 0.0 0.0 0.3 0.6 12.0 0.25 (* 14 fx) (* 14 fz)) 1.75)) 1e-4)))   ; (past its end)
++  (check (equal (list (br-ai-aim-plan t nil 1 5 60 t nil nil nil)      ; (his Hoho: the Step at once)
++                      (br-ai-aim-plan t nil 1 5 60 nil t nil nil)      ; (no Step left: nothing)
++                      (br-ai-aim-plan nil t 2 24 60 t t t nil)         ; (off the line at the release: the Step)
++                      (br-ai-aim-plan nil t 2 24 60 t nil t nil)       ; (the Step's 5 m out of reach: hold for the line)
++                      (br-ai-aim-plan nil t 2 24 60 nil t t nil)       ; (no Step: hold)
++                      (br-ai-aim-plan nil nil 2 24 60 t t t nil)       ; (on the line: the planned release)
++                      (br-ai-aim-plan nil t 2 58 60 nil t t nil)       ; (at the cap: it goes)
++                      (br-ai-aim-plan nil nil 2 30 60 nil t nil t)     ; (back from the Step, aimed: at once)
++                      (br-ai-aim-plan nil nil 1 10 60 nil t nil t)     ; (aimed at level 1: charged on to level 2)
++                      (br-ai-aim-plan nil t 1 1 60 t t t nil))         ; (a tap is never aimed)
++                '(:step nil :step :hold :hold nil nil :fire nil nil)))
++  ;; (b0a0) the charge his style at every difficulty: the chance an L is charged at least this floor
++  (check (equal *br-ai-charge-floor* '(:easy 0.3 :normal 0.6 :hard 1.0)))
++  (check (<= (getf *br-ai-charge-floor* :easy) (getf *br-ai-charge-floor* :normal) (getf *br-ai-charge-floor* :hard)))
