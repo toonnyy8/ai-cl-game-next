@@ -2130,7 +2130,8 @@ defender's next step. Values: the attacker's and the defender's first actionable
   ;; other move does (control.lisp UP-FLICK-HOHO-P keeps their up-flick a Step)
   (check (equal (sort (loop for m being the hash-values of *moves* when (member :step-branch (mv-flags m)) collect (mv-name m))
                       #'string<)
-                '(:br-kamae :br-kamae-j :br-kamae-k :br-kamae-re :ic-tsuki :ic-tsuki-k2 :ic-tsuki-re :lb-kamae :lb-kamae-k :lb-kamae-re)))   ; (+ Lille II's stance, its Step: DUEL_LILLE_V2 decision V6)
+                '(:br-e-l1 :br-kamae :br-kamae-j :br-kamae-k :br-kamae-re :br-oe-l1 :br-s-l1 :br-s-l1-2 :br-s-l1-3
+                  :ic-tsuki :ic-tsuki-k2 :ic-tsuki-re :lb-kamae :lb-kamae-k :lb-kamae-re)))   ; (+ Lille II's stance, its Step: DUEL_LILLE_V2 decision V6; R18 his charged L's charge, DUEL_LILLE_V3 §23)
   ;; every branch combos off a K link's hit: its A + 2 (the stance's f4 -> f6) + the branch's first hit (the shot's S) < the
   ;; K link's hitstun
   (dolist (kl '(:lb-k1 :lb-k2 :lb-k3))
@@ -3010,11 +3011,15 @@ defender's next step. Values: the attacker's and the defender's first actionable
   ;; R18 (the user, 2026-10-12, DUEL_LILLE_V3 §23): 「射擊的一瞬間會強制面對對手變成必中狀態。我不希望這樣」: the snipe's three
   ;; moves track nothing (the stance's J / K as before); 「續力狙擊時能透過 step 閃身保持續力並重新瞄準對手」: its Step (BR-SNIPE-STEP)
   ;; is the stance's, back in the charge (BR-KAMAE-BACK)
-  (check (and (every (lambda (n) (zerop (mv-track (find-move n)))) '(:br-s-l1 :br-s-l1-2 :br-s-l1-3))
+  ;; 「覺醒後的衝刺 L 也套用一樣的規則」: the awakened dash too; every charge takes Step (:step-branch: a one-hand flick a Step)
+  (check (and (every (lambda (n) (zerop (mv-track (find-move n)))) '(:br-s-l1 :br-s-l1-2 :br-s-l1-3 :br-e-l1 :br-oe-l1))
+              (every (lambda (n) (member :step-branch (mv-flags (find-move n)))) '(:br-s-l1 :br-s-l1-2 :br-s-l1-3 :br-e-l1 :br-oe-l1))
               (~= (mv-track (find-move :br-s-j1)) 720.0) (~= (mv-track (find-move :br-s-k1)) 720.0)
-              (~= (mv-track (find-move :br-e-l1)) 720.0)
-              (eq 'br-s-tick (mv-tick (find-move :br-s-l1))) (fboundp 'br-snipe-step)
-              (equal (assoc 9 (mv-on-frame (find-move :br-k-dash))) '(9 br-kamae-back))))
+              (~= (mv-track (find-move :br-e-j1)) 720.0) (not (member :step-branch (mv-flags (find-move :br-s-j1))))
+              (eq 'br-s-tick (mv-tick (find-move :br-s-l1))) (eq 'br-s-tick (mv-tick (find-move :br-e-l1))) (fboundp 'br-snipe-step)
+              (equal (assoc 9 (mv-on-frame (find-move :br-k-dash))) '(9 br-kamae-back))
+              (equal (mv-on-frame (find-move :br-w-charge-step)) (mv-on-frame (find-move :br-k-dash)))
+              (null (mv-tick (find-move :br-w-charge-step))) (= (mv-total (find-move :br-w-charge-step)) (mv-total (find-move :br-k-dash)))))
   (check (and (eq (kit-l-after-k b) :br-kamae-k) (eq (kit-l-after-j b) :br-kamae-j)))
   ;; the awakened stance EN: L / J / K the strings; KIN's L from neutral or a link the plain turn (R3); EN's fast Step
   (check (equal (list (mv-name (kit-command-move r :q)) (mv-name (kit-command-move r :f)) (mv-name (kit-command-move r :sig)))

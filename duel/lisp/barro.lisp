@@ -458,7 +458,7 @@ copies -L1-2 / -L1-3 after the form) instead of the dash, its J / K MELEE as the
                     ,@(when (eq role :l) `(:whiff ,(+ r *br-s-l-whiff*)))   ; (R5: a whiffed L recovers as a J link)
                     ,@(when (or dash sniper) '(:hold (0 *br-w-l-hold*)))   ; (R10: held to charge, 3 levels)
                     ,@(when sniper '(:release br-s-snipe-release))   ; (R15: its level, the level 2 / 3 copies)
-                    :dmg ,(cond (dash '*br-w-cut-dmg*) (sniper '*br-snipe-dmg-1*) (t dmg)) :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track ,(if sniper 0.0 720.0)   ; (>= 1 f of blockstun; R18: the snipe aims where he faced)
+                    :dmg ,(cond (dash '*br-w-cut-dmg*) (sniper '*br-snipe-dmg-1*) (t dmg)) :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track ,(if (or sniper dash) 0.0 720.0)   ; (>= 1 f of blockstun; R18: the charged L aims where he faced)
                     :vol ,(cond (dash `(:cap 0.0 ,*br-w-dash-reach* 1.2 ,*br-w-dash-r*))
                                 (cut `(:cap 0.4 ,(- (reduce #'max (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
                                                                                 :test #'string=)))
@@ -468,8 +468,9 @@ copies -L1-2 / -L1-3 after the form) instead of the dash, its J / K MELEE as the
                                 (t '(:cap 0.6 *br-s-near* 1.2 0.25)))
                     :on-hit ,last :kb ,(if cut *br-w-kb* 0.3)
                     ,@(cond (far '(:chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable)))
-                            (dash '(:flags (:through)))
+                            (dash '(:flags (:through :step-branch)))   ; (R18: its charge takes Step, BR-SNIPE-STEP)
                             (cut nil)
+                            (sniper '(:flags (:ranged :step-branch)))
                             (t '(:flags (:ranged))))
                     :hits ,(loop for o in offs for i from 1
                                  for tip in (if (and cut (not dash)) (cdr (assoc sn (cdr (assoc prefix *br-w-tips* :test #'string=))
@@ -521,6 +522,9 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (defmove-copy :br-kamae-re :br-kamae :enter *br-kamae-up* :on-frame nil)
 (defmove :br-k-dash :kind :sig :clip :lb-k-dash :startup *br-kamae-dash-f* :active 0 :recovery 0 :tick br-k-dash-tick
   :on-frame ((0 br-kamae-dash) (*br-kamae-back* br-kamae-back)))
+;; (R18, DUEL_LILLE_V3 §23) the awakened stance's fast Step out of its L dash's charge: the base Step's frames and flash step,
+;; the stance's step clip, no J cancel; back in the charge at its f9 (BR-KAMAE-BACK)
+(defmove-copy :br-w-charge-step :br-k-dash :clip :sh-step-b :tick nil)
 ;; the stance's strings (decision R3), Diagramm's shots, each segment its own clip at its frames (barro-art.lisp, the base
 ;; stance's strings): L shouldered (GATHER), J one-handed from the hip (REFILL), K braced at the waist (HEAVY); the J route's
 ;; L L 疾射 one-handed (a whip, a spin, a hop), the K route's 重砲 two-handed (a stamp, a kneel, the finisher from the knee)
@@ -536,7 +540,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :vol (:cap 0.6 *br-snipe-len-2* 1.2 0.25) :params (:stance :l :charged t :len *br-snipe-len-2*))
 (defmove-copy :br-s-l1-3 :br-s-l1 :hold nil :release nil :clip :br-sk-l1 :clip-2 nil :dmg *br-snipe-dmg-3*
   :startup 8 :clip-s 8 :hits ((8 10 :on-hit :flinch)) :on-frame ((0 br-s-start) (8 br-shot-fire))
-  :vol (:cap 0.6 *br-x-len* 1.2 0.25) :chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable)
+  :vol (:cap 0.6 *br-x-len* 1.2 0.25) :chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable :step-branch)
   :params (:stance :l :charged t :len *br-x-len*))
 ;; the stance's SPs: SANREN's three 萬物貫通 lines, HIRENKYAKU's slide and shot; outside the stance the plain ones (20 m, no
 ;; 萬物貫通). SP1 gives flash step back by the pips (BR-SP1-FS-GO); SP2 spends every pip, + *BR-SP2-UNIT* each (BR-SP2-SPEND,
@@ -833,7 +837,7 @@ awakened form inherits these).")
   (sp2-next nil)                          ; a stance J / K segment: SP2 latched for the cancel (decision R3)
   (cut nil)                               ; the awakened L dash's cuts started (BR-W-CUTS; R11)
   (en-t 0 :type fixnum)                   ; frames standing in the stance EN (BARRO-TICK, *BR-EN-HOLD*; R12)
-  (snipe-hold nil)                        ; the snipe's charge (frames held) kept through its Step (BR-SNIPE-STEP; R18)
+  (snipe-hold nil)                        ; the charged L's (move . frames held) kept through its Step (BR-SNIPE-STEP; R18)
   (l-lv 0 :type fixnum)                   ; the awakened L dash's charge level 1-3 (its S: BR-W-DASH; decision R10)
   (armored 0 :type fixnum)                ; hits his wing armour took (the pacing log)
   (ai-t -999 :type fixnum)                ; his CPU's last stance / burst window (one roll a window)
@@ -1103,25 +1107,27 @@ out of the snipe's charge (BR-SNIPE-STEP, R18): back in that charge instead, its
 Step: it fires at once, re-aimed)."
   (let* ((f (fighter e)) (st (br e)) (held (brs-snipe-hold st)))
     (setf (brs-snipe-hold st) nil)
-    (if held
-        (progn (start-move e (find-move :br-s-l1) :sig)
-               (setf (fighter-hold f) held)
-               (pace e :snipe-back))
-        (start-move e (kit-next (kit-of e) :br-k-dash :kamae-back)))
+    (cond (held (start-move e (car held) :sig)   ; (the charge's move, its frames held)
+                (setf (fighter-hold f) (cdr held))
+                (pace e :snipe-back))
+          ((eq (mv-name (fighter-move f)) :br-w-charge-step) (to-idle e 4))   ; (never: its Step always keeps a charge)
+          (t (start-move e (kit-next (kit-of e) :br-k-dash :kamae-back))))
     (turn-to-opp e f 10.0)))
 
-(defun br-snipe-step (e f st vp)
-  "The snipe's charge (:br-s-l1 held, R18, DUEL_LILLE_V3 §23: 「我希望在架槍續力狙擊時能透過 step 閃身保持續力並重新瞄準對手」):
-a human's Step (buffered) there is the stance's Step 飛廉脚 (:br-k-dash: its flash step, iframes; once a stance and its flash
-steps, BR-KAMAE-STEP-OK-P; refused: the press ignored), the charge's frames kept (BRS-SNIPE-HOLD, not counted in the Step);
-BR-KAMAE-BACK resumes the charge, the aim snapped onto him. T when it stepped."
+(defun br-snipe-step (e f st vp mv)
+  "The charged L's charge (MV held: the base snipe :br-s-l1, R18, DUEL_LILLE_V3 §23: 「我希望在架槍續力狙擊時能透過 step 閃身保持續力
+並重新瞄準對手」; the awakened dash :br-e-l1 / :br-oe-l1, 「覺醒後的衝刺 L 也套用一樣的規則」): a human's Step (buffered; a
+one-hand flick, the moves :step-branch) there is the stance's fast Step (the base's 飛廉脚 :br-k-dash, the awakened stance's
+:br-w-charge-step: the flash step's vanish, iframes; once a stance and its flash steps, BR-KAMAE-STEP-OK-P; refused: the press
+ignored, the charge goes on), the charge's move and frames kept (BRS-SNIPE-HOLD, the Step's frames not counted); BR-KAMAE-BACK
+resumes the charge, the aim snapped onto him. T when it stepped."
   (when (vpad-command-pressed-p vp :step nil)
     (vpad-consume! vp :step)
     (when (br-kamae-step-ok-p (brs-dashed st) (gauges-fs (gauges e)))
       (spend-fs (gauges e) *br-kamae-dash-fs*)
-      (let ((held (fighter-hold f)))
-        (start-move e (kit-next (fighter-kit f) :br-kamae :kamae-step))
-        (setf (brs-dashed st) t (brs-snipe-hold st) held))
+      (let ((held (cons mv (fighter-hold f))))
+        (start-move e (if (eq (fighter-form f) :base) (kit-next (fighter-kit f) :br-kamae :kamae-step) (find-move :br-w-charge-step)))
+        (setf (brs-dashed st) t (brs-en-t st) 0 (brs-snipe-hold st) held))
       (pace e :snipe-step)
       t)))
 
@@ -1177,9 +1183,9 @@ KL segment: a human's SP2 (Shift+L) is latched and, the move having hit, cancels
 (:sp2c; 「必須接在 KK 後執行」, 「SP2 接在 J 連段後面也可以」).
 His CPU makes one call there (BR-S-CPU-CALL)."
   (let* ((f (fighter e)) (mv (fighter-move f)) (st (br e)))
-    (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :hold) (eq (mv-name mv) :br-s-l1) (zerop (fighter-lock f))
-               (null (br-tick-brain e)))   ; (R18: the snipe's charge, a human's Step)
-      (br-snipe-step e f st (pilot-vpad (pilot e))))
+    (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :hold) (member (mv-name mv) '(:br-s-l1 :br-e-l1 :br-oe-l1))
+               (zerop (fighter-lock f)) (null (br-tick-brain e)))   ; (R18: the charged L's charge, a human's Step)
+      (br-snipe-step e f st (pilot-vpad (pilot e)) mv))
     (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :main) (zerop (fighter-lock f)))
       (let* ((kit (fighter-kit f)) (next (kit-next kit (mv-name mv) :lchain)) (sp2 (kit-next kit (mv-name mv) :sp2c))
              (b (br-tick-brain e)) (vp (pilot-vpad (pilot e))))
@@ -1218,8 +1224,7 @@ starts the level's cuts (BARRO-HIT, BR-W-CUTS)."
          (d (max *br-w-dash-min* (min (nth (1- lv) *br-w-l-dash-max*) (+ (fighter-dist f) *br-w-dash-past*)))))
     (br-s-start e)
     (setf (brs-l-lv st) lv (brs-cut st) nil)
-    (pace e (svref #(:w-dash-1 :w-dash-2 :w-dash-3) (1- lv)))
-    (turn-to-opp e f 360.0)
+    (pace e (svref #(:w-dash-1 :w-dash-2 :w-dash-3) (1- lv)))   ; (R18: no turn onto him, the dash goes where he faces)
     (let ((yaw (yaw-of e))) (set-slide e d *br-w-dash-f* (fwd-x yaw) (fwd-z yaw)))
     (pace e :w-dash)
     (emit :sfx :whoosh-heavy e)))

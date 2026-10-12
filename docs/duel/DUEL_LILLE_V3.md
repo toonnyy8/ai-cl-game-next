@@ -1069,7 +1069,7 @@ The user (verbatim): 「參考過去使用 /anthropic-skills:dream-rsi 的經驗
    charged snipe / dash and the stance), ASSIST AUTO COMBO's routes on the new rules, then the full gate.
 
 
-## 23. Decision R18 (2026-10-12): the base snipe aims where he faces; its Step keeps the charge and re-aims
+## 23. Decision R18 (2026-10-12): the charged L (the base snipe, the awakened dash) aims where he faces; a Step in its charge keeps it and re-aims
 
 The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功能 * 當架槍 L 進行狙擊時，射擊的一瞬間會強制面對對手變成必中狀態。我不希望這
 樣，還麻煩萊醬你修改了。 * 我希望在架槍續力狙擊時能透過 step 閃身保持續力並重新瞄準對手。」
@@ -1081,7 +1081,7 @@ The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功�
   turns him. The shot goes where he faces: the stance (`:br-kamae*`) still turns at *BR-AIM-TRACK* (60°/s) before the
   charge starts, the charge itself does not turn, so a side-stepping opponent can leave the line. The stance's J / K (the
   gun-kata, the swings) keep their 720°/s, the awakened forms are unchanged.
-- **The Step in the charge** (BR-SNIPE-STEP, from BR-S-TICK in the `:hold` phase of `:br-s-l1`, a human's press,
+- **The Step in the charge** (BR-SNIPE-STEP, from BR-S-TICK in the `:hold` phase of the charged L, a human's press,
   buffered): the stance's own Step 飛廉脚 (`:br-k-dash`: 5 m in the stick direction, neutral back, the flash step's vanish
   `:hoho-out`, iframes f0–7), under the stance Step's rule (once a stance, 10 flash step: BR-KAMAE-STEP-OK-P; refused, the
   press is ignored and the charge goes on). The charge's frames are kept (BRS-SNIPE-HOLD; the Step's 9 frames are not
@@ -1089,6 +1089,22 @@ The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功�
   (as the stance's Step always did). L still held: the charge goes on; let go during the Step: it fires at once, at the
   level held, re-aimed. A J in the Step (BR-K-DASH-TICK's J cancel) drops the charge. His CPU does not charge the snipe
   (its L is a level-1 tap), so the Step in the charge is a human's only.
+- **The awakened L dash too** (the user, verbatim, on the reply above: 「覺醒後的衝刺 L 也套用一樣的規則」「記得確保手機模式也能做到
+  一樣的操作」): `:br-e-l1` / `:br-oe-l1` have `:track 0.0` and BR-W-DASH no longer turns him onto the opponent (it was
+  `turn-to-opp … 360.0` at the dash's S): the dash goes where he faces (its length still by the distance to him). A Step in
+  its charge is the awakened stance's fast Step, as a move of its own (`:br-w-charge-step`, a copy of `:br-k-dash`: its
+  frames, BR-KAMAE-DASH's 5 m slide, iframes and flash-step vanish, the stance's step clip, no J cancel), under EN's fast
+  Step rule (the first Step of the stance, 10 flash step; spent: the press is ignored, the stance kept and the charge going
+  on), its standing clock fresh; back in the charge at its f9, re-aimed, as the base's. BRS-SNIPE-HOLD keeps
+  `(move . frames)`.
+- **Touch** (the one-hand deck): L is a chip held by one finger, a Step a flick on the pad by another (the recogniser is
+  multi-touch). An up-flick during a move reads as a Hoho unless the move has `:step-branch` (control.lisp
+  UP-FLICK-HOHO-P), so the five charged L moves (`:br-s-l1`, `-2`, `-3`, `:br-e-l1`, `:br-oe-l1`) carry it: any flick in
+  the charge is the Step. (The flag only steers the one-hand reading; the sim never reads it.)
+- **A fix in fighter.lisp**: HOLD-PHASE-STEP went on with its own release test after the move's `:tick` had started another
+  move (the Step: the new move's button NIL, `unknown vpad action NIL`, found by the browser run); it now tests the release
+  only while the same move is still in its hold. No other move's tick starts a move there (G2 identical).
 - Pacing log: `snipe-step`, `snipe-back`.
-- Tests: duel-rules-test (the snipe's moves `:track` 0, the stance J / K and the awakened L 720, BR-SNIPE-STEP and the Step's
-  f9 BR-KAMAE-BACK).
+- Tests: duel-rules-test (the charged L's five moves `:track` 0 and `:step-branch`, the stance J / K 720; the
+  `:step-branch` list; `:br-w-charge-step` = `:br-k-dash`'s frames, no tick; the Step's f9 BR-KAMAE-BACK). Browser run
+  (82001 the base 14 m out, 82003 EN 3 m out: L held, Step with A, L let go).

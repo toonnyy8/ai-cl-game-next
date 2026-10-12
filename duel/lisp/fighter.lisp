@@ -474,8 +474,9 @@ ward is up after *GUARD-RAISE* frames (FIGHTER-GUARD-T counts them, and keeps co
   (incf (fighter-hold f))
   (when (mv-tick mv) (funcall (mv-tick mv) e))
   (destructuring-bind (lo hi) (mv-hold mv)
-    (when (or (>= (fighter-hold f) hi)
-              (and (>= (fighter-hold f) lo) (not (vpad-down vp (fighter-button f)))))
+    (when (and (eq (fighter-move f) mv) (eq (fighter-phase f) :hold)   ; (its tick may have started another move: Lille II's
+               (or (>= (fighter-hold f) hi)                              ;  Step out of the snipe's charge, R18)
+                   (and (>= (fighter-hold f) lo) (not (vpad-down vp (fighter-button f))))))
       (setf (fighter-charge f) (fighter-hold f))
       (when (mv-release mv) (funcall (mv-release mv) e))
       (when (eq (fighter-move f) mv) (enter-main e f mv)))))
