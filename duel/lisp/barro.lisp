@@ -956,6 +956,11 @@ last beam slow the match; the pacing log."
         ((:j :jl) (multiple-value-bind (fs sp) (br-recover-gain c role (brs-spent st))
                     (pay-gauges att sp fs)
                     (pace att (if (and (eq role :jl) (brs-spent st)) :recover-big :recover))))))
+    (when (and *combat-log* (eq c :hit)                           ; (the combat log only: tools/aieval.py's signature tag,
+               (or (and role (getf (mv-params mv) :dash) (>= (brs-l-lv st) 2))   ;  the awakened L dash and its cuts charged
+                                                                                   ;  to level 2 / 3;
+                   (and hazard (eq (hazard-kind hazard) :br-cut) (>= (the fixnum (second (hazard-data hazard))) 2))))   ; DUEL_LILLE_V3 §22)
+      (clog "~a br-sig charged" (side-name att)))
     (when (and role (eq c :hit) (getf (mv-params mv) :dash) (not (brs-cut st)))   ; (R11: the dash's cuts, once a dash)
       (setf (brs-cut st) t)
       (br-w-cuts att def mv))

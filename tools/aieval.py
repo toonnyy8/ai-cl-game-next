@@ -28,7 +28,12 @@ The parts (seeds 1..N, fixed; the mirror is never played: C vs C is 0.5 by symme
             {"<seeds>": share}) -> the score is 0 (DREAM_RSI §5.5: NORMAL must stay near the shipped CPU); no reference
             for the seed count -> 0 too
 score = w_str strength + w_mash masher + w_sig signature: 0.6 / 0.2 / 0.2 (the user's choice 2026-10-02: win rate +
-character colour); Lille 0.4 / 0.2 / 0.4 (the user 2026-10-06: 「風格偏重 0.4/0.2/0.4」)
+character colour); Lille 0.4 / 0.2 / 0.4 (the user 2026-10-06: 「風格偏重 0.4/0.2/0.4」); Lille II (--char 6, DUEL_LILLE_V3 §22, the
+user 2026-10-12) 0.4 / 0.2 / 0.4 too, his signature the whitelist SIG_BARRO (the stance strings' J / K, the spending L L
+follow-ups, SP2 spending every special, the charged L at level 2 / 3: the base snipe's copies by name, the awakened dash and
+its cuts by the sim's "Px br-sig charged" tag), and instead of the drift a NORMAL band: his NORMAL win share (both seats)
+in NORMAL_BAND [0.30, 0.60], the score x a factor falling to 0 at NORMAL_FALL (0.15) outside it. The retired (simgate
+RETIRED: the old Lille since 2026-10-12) are neither opponents nor mashers
 
 --pace-seeds / --drift-seeds (default --seeds) run the NORMAL parts at another seed count (the cheaper split, §24.2).
 --write-drift-ref stores this run's drift share as the reference for its drift seed count (the frozen baseline only).
@@ -38,7 +43,7 @@ when a source changed.
 """
 import argparse, concurrent.futures as cf, json, os, re, statistics, subprocess, sys
 sys.dont_write_bytecode = True
-from simgate import ROOT, ECL, FAS, MUSLM, ROSTER, build
+from simgate import ROOT, ECL, FAS, MUSLM, ROSTER, RETIRED, build
 
 NAMES = ROSTER                                    # (simgate.ROSTER: the roster in order)
 LILLE = NAMES.index('LILLE')
@@ -46,7 +51,8 @@ BARRO = NAMES.index('BARRO')                      # Lille Barro II (DUEL_LILLE_V
                                                   # are -J1 / -W-K2 ...), Lille's K.O. rule (his cinematics are Lille's)
 PACE_MAX = 220.0   # a 20-seed median's ceiling here (the gate's 210 s at 60 seeds: 20-seed medians run ~10 s noisy)
 PACE_CAP = {LILLE: {'RUKIA': 240.0, 'ICHIGO': 240.0}}   # accepted exceptions (the user 2026-10-06: LR / LI, DUEL_LILLE §23.22; LR again 2026-10-07, §23.25)
-WEIGHTS = {LILLE: (0.4, 0.2, 0.4)}                # strength, masher, signature; everyone else DEFAULT_W
+WEIGHTS = {LILLE: (0.4, 0.2, 0.4), BARRO: (0.4, 0.2, 0.4)}   # strength, masher, signature; everyone else DEFAULT_W (Lille II:
+                                                  # the user 2026-10-12, 「風格偏重 0.4/0.2/0.4」, DUEL_LILLE_V3 §22)
 DEFAULT_W = (0.6, 0.2, 0.2)
 LINK = re.compile(r'-[JK]\d')                    # a J / K string link's move name (YA-J1, KE-R-K2S, RU-A-K3-50 ...)
 # Lille's signature whitelist by name (DUEL_LILLE §24.2): the materialised traces (Jilliel's and the owl's: hazard LB-TRACE),
@@ -58,6 +64,16 @@ SIG_LILLE = {'LB-TRACE', 'LB-K-J', 'LB-K-K', 'LB-SANREN', 'LB-HIREN', 'LB-NIJUSH
 SIG_TAGS = {'charged', 'hosha-link', 'trace-combo'}   # the sim's lb-sig tags (lille.lisp LB-SIG-LOG)
 NOTHING_LILLE = {'LB-NICK'}                       # the laying shot (1 damage): counted on neither side
 BREAKERS = {'LB-BREAKER', 'LB-W-BREAKER', 'LB-O-BREAKER'}
+# Lille II's signature whitelist (the user 2026-10-12: 「蓄力招」「資源循環」「架勢連段」, DUEL_LILLE_V3 §22): the stance strings'
+# J / K segments (every form: BR-S- / BR-E- / BR-OE-J1..K3, the gun-kata, the rifle swung, the top, the great sword: the
+# KIN J / K -> L -> stance links reach these), the spending follow-ups (-JL1..-KL3) and SP2 spending every special
+# (HIRENKYAKU, NIJUSHI-KO, the owl's volley KAISHU BR-RC0..4 / BR-O-RC0..4), the charged L at level 2 / 3 (the base's snipe
+# copies BR-S-L1-2 / -3 by name; the awakened dash and its cuts by the sim's "Px br-sig charged" tag, barro.lisp BARRO-HIT);
+# never his attack-state J / K, the level-1 L, the Breaker, SP1 or the Kikons
+SIG_BARRO = re.compile(r'^BR-(?:(?:S|E|OE)-(?:[JK]\d|JL\d|KL\d|L1-[23])|K-HIREN(?:-C)?|W-NIJUSHI(?:-C)?|(?:O-)?RC\d)$')
+NORMAL_BAND = {BARRO: (0.30, 0.60)}               # Lille II: his NORMAL win share (both seats) in this band (DREAM_RSI §5.5;
+NORMAL_FALL = 0.15                                # the baseline's broken weak by R12-R17: 0.07), else the score x a factor falling
+                                                  # linearly to 0 at NORMAL_FALL outside it (partial credit: the search's signal)
 DRIFT_TOL = 0.05
 DRIFT_REF = os.path.join(ROOT, 'docs/research/lille-ai-drsi/baseline/drift-ref.json')
 
@@ -86,7 +102,7 @@ def matches(job):
         if m:
             hits[int(m.group(1)) - 1].append([m.group(2), int(m.group(4)), None])
             continue
-        m = re.search(r'\] P([12]) lb-sig (\S+)', line)
+        m = re.search(r'\] P([12]) (?:lb|br)-sig (\S+)', line)   # (Lille's LB-SIG-LOG, Lille II's BARRO-HIT)
         if m:
             side = hits[int(m.group(1)) - 1]
             if side:
@@ -117,6 +133,17 @@ def lille_class(name, tag):
     return True, False, 'other:' + name.lower()
 
 
+def barro_class(name, tag):
+    """One of Lille II's hits -> (counted, signature, category of the breakdown)."""
+    if tag == 'charged':
+        return True, True, 'charged'
+    if SIG_BARRO.match(name):
+        return True, True, re.sub(r'\d$', '', name.lower())
+    if LINK.search(name):
+        return True, False, 'plain-jk'
+    return True, False, 'other:' + name.lower()
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--char', type=int, required=True)
@@ -127,13 +154,15 @@ def main():
     ap.add_argument('-j', type=int, default=8)
     a = ap.parse_args()
     build()                                       # (a no-op unless a source is newer than the build)
-    c, n, others = a.char, a.seeds, [o for o in range(len(NAMES)) if o != a.char]
+    play = [o for o in range(len(NAMES)) if NAMES[o] not in RETIRED]   # (the retired out, 2026-10-12)
+    c, n, others = a.char, a.seeds, [o for o in play if o != a.char]
     pn, dn = a.pace_seeds or n, a.drift_seeds or n
     lille = c == LILLE
+    barro = c == BARRO
     jobs = ([('str', (c, o, 0, n, 2)) for o in others] + [('str', (o, c, 0, n, 2)) for o in others] +
-            [('mash', (m, c, 6, max(4, n * 4 // 5), 2)) for m in range(len(NAMES))] +
+            [('mash', (m, c, 6, max(4, n * 4 // 5), 2)) for m in play] +
             [('pace', (c, o, 0, pn, 1)) for o in others])
-    if lille:                                     # (the drift's P1 half is the pacing runs when the seed counts agree)
+    if lille or barro:                            # (the drift's P1 half is the pacing runs when the seed counts agree)
         jobs += [('drift', (o, c, 0, dn, 1)) for o in others]
         if dn != pn:
             jobs += [('drift', (c, o, 0, dn, 1)) for o in others]
@@ -152,7 +181,7 @@ def main():
             nm, kos = len(res), sum(1 for (_, s, _), k in zip(res, ko) if (k if c in (LILLE, BARRO) else s < 299.5))
             side = 1 if kind == 'mash' else (0 if c1 == c else 1)   # C's seat (the masher is always P1, C's mirror too)
             opp = NAMES[c2 if side == 0 else c1]
-            if lille and (kind == 'drift' or (kind == 'pace' and pn == dn)):
+            if (lille or barro) and (kind == 'drift' or (kind == 'pace' and pn == dn)):
                 w = drift.setdefault(opp, [0, 0])
                 w[0] += sum(1 for win, _, _ in res if win == ('P1' if side == 0 else 'P2'))
                 w[1] += len(res)
@@ -173,8 +202,8 @@ def main():
                 won[kind][0] += (w == ('P1' if side == 0 else 'P2'))
                 if kind == 'str':
                     for name, dmg, tag in hits[side]:
-                        if lille:
-                            counted, mine, k = lille_class(name, tag)
+                        if lille or barro:
+                            counted, mine, k = (lille_class if lille else barro_class)(name, tag)
                             cat[k] = cat.get(k, 0) + dmg
                             if counted:
                                 sig[1] += dmg
@@ -203,12 +232,27 @@ def main():
         ok = ok and drift_ok
         out['drift'] = {'share': round(share, 4), 'ref': ref, 'tol': DRIFT_TOL, 'ok': drift_ok, 'seeds': dn,
                         'by_opp': {k: f'{v[0]}/{v[1]}' for k, v in sorted(drift.items())}}
+    normal_k = 1.0
+    if barro:                                     # (Lille II: a NORMAL band, not a drift from his broken baseline)
+        dw, dm = sum(v[0] for v in drift.values()), sum(v[1] for v in drift.values())
+        share = dw / dm if dm else 0.0
+        lo, hi = NORMAL_BAND[BARRO]
+        band_ok = dm > 0 and lo <= share <= hi
+        off = 1.0 if dm == 0 else max(lo - share, share - hi, 0.0)
+        normal_k = max(0.0, 1.0 - off / NORMAL_FALL)
+        out['normal'] = {'share': round(share, 4), 'band': [lo, hi], 'ok': band_ok, 'factor': round(normal_k, 4), 'seeds': dn,
+                         'by_opp': {k: f'{v[0]}/{v[1]}' for k, v in sorted(drift.items())}}
+    if lille or barro:
         tot = sum(v for k, v in cat.items() if k != 'nick') or 1
         out['sig_by'] = {k: round(v / tot, 3) for k, v in sorted(cat.items(), key=lambda kv: -kv[1]) if k != 'nick'}
         out['weights'] = [ws, wm, wg]
         if pn != n:
             out['pace_seeds'] = pn
-    out['score'] = round(ws * part['str'] + wm * part['mash'] + wg * part['signature'], 4) if ok else 0.0
+    raw = ws * part['str'] + wm * part['mash'] + wg * part['signature']
+    if barro:
+        out['raw'] = round(raw, 4)
+        raw *= normal_k
+    out['score'] = round(raw, 4) if ok else 0.0
     print(json.dumps(out))
 
 

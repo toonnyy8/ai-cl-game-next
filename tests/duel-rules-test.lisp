@@ -3062,6 +3062,10 @@ defender's next step. Values: the attacker's and the defender's first actionable
              (check (= (mv-r mv) (+ *br-sp2-slow-r* (nth tr '(24 24 24 26 30)))))
              (check (eq (kit-next om :br-recall (svref #(:rc0 :rc1 :rc2 :rc3 :rc4) tr)) mv))))
   (check (equal *br-owl-clip-map* (kit-clip-map om)))
+;;; >>> BEGIN BARRO-CPU-TESTS: the checks of Lille II's own CPU's shipped values and pure BR-AI-* / BR-LEARN-* functions.
+;;; A dream-rsi cell (docs/research/lille2-ai-drsi, DUEL_LILLE_V3 §22) may deliver this file and its rescore splices ONLY
+;;; the lines between these two markers into the frozen test: they must still pin the cell's own shipped values; everything
+;;; outside them (shared behaviour, rules, hooks, the other characters) stays frozen.
   ;; his CPU: the base stance's pick, the burst
   (let ((k '(:gather 0.5 :recover-fs 40.0 :recover-bars 1 :step 0.4)))
     (check (eq :kamae-step (br-ai-stance-plan 0.1 3 3 100.0 3 k t)))
@@ -3085,6 +3089,7 @@ defender's next step. Values: the attacker's and the defender's first actionable
                 '(:kamae-j :kamae-step :kamae-l :kamae-k :kamae-k)))
   (let ((sp (learn-kit-spec :barro)))
     (check (and (equalp (getf sp :situations) #(:shot)) (eq (getf sp :step) 'br-learn-step))))
+;;; <<< END BARRO-CPU-TESTS
   ;; his state starts empty
   (let ((st (make-brs))) (check (and (zerop (brs-ammo st)) (null (brs-sp2-next st)) (null (brs-in-string st))))))
 

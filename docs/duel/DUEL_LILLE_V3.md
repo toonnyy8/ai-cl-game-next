@@ -1038,3 +1038,33 @@ keep falling (BK 1, BS 2 of 60): the deferred CPU work.
 
 The user: 「列為例外」 — Lille II's BK 111.6 s (60 seeds, §21.1) joins §18.3's accepted exception.
 
+## 22. Lille II's stylized learning CPU (dream-rsi; the user, 2026-10-12)
+
+The user (verbatim): 「參考過去使用 /anthropic-skills:dream-rsi 的經驗為新版 lille 開發風格化學習型 AI。」 Asked (DREAM_RSI
+§7's pre-run questions), the user chose: 「風格偏重 0.4/0.2/0.4」; the signature whitelist 「蓄力招」「資源循環」「架勢連段」;
+「先跑 1 輪 8 格」; 「學玩家習慣＋AUTO COMBO」.
+
+### 22.1 The plan (DREAM_RSI's checklist, the old Lille's run DUEL_LILLE §24 as the model)
+
+1. **The frozen evaluator** `tools/aieval.py --char 6` (one commit; the workspace `docs/research/lille2-ai-drsi/`):
+   - **score = (0.4 strength + 0.2 masher + 0.4 signature) × the NORMAL factor**; 0 when NORMAL pacing fails (every
+     match a K.O., median ≤ 220 s);
+   - **signature = a whitelist** (`SIG_BARRO`): the stance strings' J / K segments in every form (BR-S- / BR-E- /
+     BR-OE-J1..K3; the KIN J / K → L → stance links reach these), the spending L L follow-ups, SP2 spending every special
+     (HIRENKYAKU, NIJUSHI-KO, the owl's volley), the charged L at level 2 / 3 (the base snipe's copies by name; the
+     awakened dash and its cuts by the sim's `Px br-sig charged` tag, BARRO-HIT, the combat log only); never the attack
+     state's J / K, the level-1 L, the Breaker, SP1 or a Kikon;
+   - **the NORMAL factor instead of a drift gate**: the baseline is broken (R12–R17's rules: HARD 0 / 100, NORMAL 0.07),
+     so NORMAL is held to a fair band, his NORMAL win share (both seats) in [0.30, 0.60] → ×1, falling linearly to 0 at
+     0.15 outside (partial credit keeps the search's signal);
+   - the retired old Lille is neither an opponent nor a masher (five opponents, both seats);
+   - fixed seeds; cells compare at 40 seeds, the final pick at 80.
+2. **Opponents fixed** at the freeze commit; every cell's worktree starts there.
+3. **Cells** change only `duel/lisp/barro.lisp`'s CPU parts (the `:ai` plists, BR-AI-*, BR-S-CPU-CALL, the CPU branches of
+   the sim ticks) and the host test's `BARRO-CPU-TESTS` section; every chance per event and difficulty-scaled; AI-AWAKEN-P,
+   the learner's read clock, the ASSIST's borrowed brain kept working.
+4. **dream-rsi**: W = 2, round 1 = 4 branches × 2 refines (8 cells), λ 0.25, `plan --beta 0.6`; the lead re-scores every
+   cell with the frozen evaluator before `record`; after round 1 the user decides whether to go on.
+5. **Integration** (after the search): the learning CPU's Lille II situations (beyond `:shot`: the human's answer to the
+   charged snipe / dash and the stance), ASSIST AUTO COMBO's routes on the new rules, then the full gate.
+
