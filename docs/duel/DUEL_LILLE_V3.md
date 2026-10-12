@@ -1117,5 +1117,7 @@ The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功�
   (R16–R17: BK 111.6 s, BS 125.8 s): still out, reported to the user, nothing retuned (the gate policy). His CPU's level-1
   snipe no longer snaps onto a side-stepping opponent: his CPU wins 0–1 of 60 (BS 1); his CPU is the dream-rsi search's
   (§22; its cells run at the freeze, before R18, and are re-measured at the integration).
+- Mirror awaken A/B (`--pairs 27 --cmd 39020`, 60 seeds a stream): the never-awaken side 12 / 4 / 11 of 60 (R16–R17: 24 / 28 /
+  30): fails (≥ 20). His never-awakened CPU leaned on the base snipe's snap onto the opponent.
 - The user on these three (2026-10-12, verbatim): 「等學習型 AI 整合後再看。」 Open until the search's CPU is integrated on R18's
-  rules and gated again; not an exception yet.
+  rules and gated again; not an exception yet (the A/B rows with them, measured after the user's reply).
