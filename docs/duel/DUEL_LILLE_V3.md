@@ -1068,3 +1068,27 @@ The user (verbatim): 「參考過去使用 /anthropic-skills:dream-rsi 的經驗
 5. **Integration** (after the search): the learning CPU's Lille II situations (beyond `:shot`: the human's answer to the
    charged snipe / dash and the stance), ASSIST AUTO COMBO's routes on the new rules, then the full gate.
 
+
+## 23. Decision R18 (2026-10-12): the base snipe aims where he faces; its Step keeps the charge and re-aims
+
+The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功能 * 當架槍 L 進行狙擊時，射擊的一瞬間會強制面對對手變成必中狀態。我不希望這
+樣，還麻煩萊醬你修改了。 * 我希望在架槍續力狙擊時能透過 step 閃身保持續力並重新瞄準對手。」
+
+- **The cause**: every stance move had `:track 720.0` (12° a frame through its startup), and BR-S-SNIPE-RELEASE turned him
+  onto the opponent at once (`turn-to-opp … 10.0`) before the level 2 / 3 shots: whatever he faced while charging, the shot
+  snapped onto him.
+- **Now**: the snipe's three moves (`:br-s-l1`, `:br-s-l1-2`, `:br-s-l1-3`) have `:track 0.0` and the release no longer
+  turns him. The shot goes where he faces: the stance (`:br-kamae*`) still turns at *BR-AIM-TRACK* (60°/s) before the
+  charge starts, the charge itself does not turn, so a side-stepping opponent can leave the line. The stance's J / K (the
+  gun-kata, the swings) keep their 720°/s, the awakened forms are unchanged.
+- **The Step in the charge** (BR-SNIPE-STEP, from BR-S-TICK in the `:hold` phase of `:br-s-l1`, a human's press,
+  buffered): the stance's own Step 飛廉脚 (`:br-k-dash`: 5 m in the stick direction, neutral back, the flash step's vanish
+  `:hoho-out`, iframes f0–7), under the stance Step's rule (once a stance, 10 flash step: BR-KAMAE-STEP-OK-P; refused, the
+  press is ignored and the charge goes on). The charge's frames are kept (BRS-SNIPE-HOLD; the Step's 9 frames are not
+  counted); at the Step's f9 BR-KAMAE-BACK starts `:br-s-l1` again in its charge at those frames and snaps the aim onto him
+  (as the stance's Step always did). L still held: the charge goes on; let go during the Step: it fires at once, at the
+  level held, re-aimed. A J in the Step (BR-K-DASH-TICK's J cancel) drops the charge. His CPU does not charge the snipe
+  (its L is a level-1 tap), so the Step in the charge is a human's only.
+- Pacing log: `snipe-step`, `snipe-back`.
+- Tests: duel-rules-test (the snipe's moves `:track` 0, the stance J / K and the awakened L 720, BR-SNIPE-STEP and the Step's
+  f9 BR-KAMAE-BACK).

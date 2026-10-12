@@ -3007,6 +3007,14 @@ defender's next step. Values: the attacker's and the defender's first actionable
                   '(:br-s-l1 :br-s-j1 :br-s-k1 :br-k-sanren :br-k-hiren :br-k-dash))))
   (check (eq (kit-next b :br-k-dash :kamae-j) (find-move :br-s-j1)))
   (check (and (~= *br-kamae-dash* 5.0) (= *br-kamae-dash-f* 10) (= *br-kamae-back* 9)))   ; (R3: the fast Step)
+  ;; R18 (the user, 2026-10-12, DUEL_LILLE_V3 §23): 「射擊的一瞬間會強制面對對手變成必中狀態。我不希望這樣」: the snipe's three
+  ;; moves track nothing (the stance's J / K as before); 「續力狙擊時能透過 step 閃身保持續力並重新瞄準對手」: its Step (BR-SNIPE-STEP)
+  ;; is the stance's, back in the charge (BR-KAMAE-BACK)
+  (check (and (every (lambda (n) (zerop (mv-track (find-move n)))) '(:br-s-l1 :br-s-l1-2 :br-s-l1-3))
+              (~= (mv-track (find-move :br-s-j1)) 720.0) (~= (mv-track (find-move :br-s-k1)) 720.0)
+              (~= (mv-track (find-move :br-e-l1)) 720.0)
+              (eq 'br-s-tick (mv-tick (find-move :br-s-l1))) (fboundp 'br-snipe-step)
+              (equal (assoc 9 (mv-on-frame (find-move :br-k-dash))) '(9 br-kamae-back))))
   (check (and (eq (kit-l-after-k b) :br-kamae-k) (eq (kit-l-after-j b) :br-kamae-j)))
   ;; the awakened stance EN: L / J / K the strings; KIN's L from neutral or a link the plain turn (R3); EN's fast Step
   (check (equal (list (mv-name (kit-command-move r :q)) (mv-name (kit-command-move r :f)) (mv-name (kit-command-move r :sig)))
