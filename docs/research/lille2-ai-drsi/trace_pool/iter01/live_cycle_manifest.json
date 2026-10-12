@@ -1,0 +1,13 @@
+{
+  "baseline_score": 0.0,
+  "best": 0.9716,
+  "best_attempt_depth": 2,
+  "best_cell": "b1a2",
+  "beta": 0.6,
+  "branch_count": 4,
+  "policy_file": "policy/current.py",
+  "probes": 8,
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "SOUL DUEL Lille II CPU AI (duel/lisp/barro.lisp CPU parts), scored by tools/aieval.py --char 6 --seeds 40 at the freeze commit 36e93c7 (opponents: the five other CPUs as they read there; DUEL_LILLE_V3 \u00a722)"
+}

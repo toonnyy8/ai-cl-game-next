@@ -1,0 +1,278 @@
+{
+  "policy": "docs/research/lille2-ai-drsi/policy/current.py",
+  "n_worlds": 1,
+  "beta_grid": [
+    0.0,
+    0.2,
+    0.4,
+    0.6,
+    0.8,
+    1.0
+  ],
+  "sweep": [
+    {
+      "beta": 0.0,
+      "ok": true,
+      "errors": [],
+      "probes": 6,
+      "probe_fraction": 0.75,
+      "attainment": 0.9807533964594483,
+      "auc": 0.9329070605187321,
+      "parallel_penalty": 0.5,
+      "replay_score": 0.9529
+    },
+    {
+      "beta": 0.2,
+      "ok": true,
+      "errors": [],
+      "probes": 6,
+      "probe_fraction": 0.75,
+      "attainment": 0.9807533964594483,
+      "auc": 0.9329070605187321,
+      "parallel_penalty": 0.5,
+      "replay_score": 0.9529
+    },
+    {
+      "beta": 0.4,
+      "ok": true,
+      "errors": [],
+      "probes": 6,
+      "probe_fraction": 0.75,
+      "attainment": 0.9807533964594483,
+      "auc": 0.9329070605187321,
+      "parallel_penalty": 0.5,
+      "replay_score": 0.9529
+    },
+    {
+      "beta": 0.6,
+      "ok": true,
+      "errors": [],
+      "probes": 8,
+      "probe_fraction": 1.0,
+      "attainment": 1.0,
+      "auc": 0.9355701934952656,
+      "parallel_penalty": 0.5,
+      "replay_score": 0.9716
+    },
+    {
+      "beta": 0.8,
+      "ok": true,
+      "errors": [],
+      "probes": 8,
+      "probe_fraction": 1.0,
+      "attainment": 1.0,
+      "auc": 0.9355701934952656,
+      "parallel_penalty": 0.5,
+      "replay_score": 0.9716
+    },
+    {
+      "beta": 1.0,
+      "ok": true,
+      "errors": [],
+      "probes": 8,
+      "probe_fraction": 1.0,
+      "attainment": 1.0,
+      "auc": 0.9355701934952656,
+      "parallel_penalty": 0.5,
+      "replay_score": 0.9716
+    }
+  ],
+  "pareto": {
+    "auc": 0.9342386270069988,
+    "frontier_auc": 0.24518834911486206,
+    "parallel_penalty": 0.5,
+    "reward": 0.8092386270069988,
+    "lambda": 0.25
+  },
+  "mean_replay_score": 0.96225,
+  "non_degenerate": true,
+  "failures": [],
+  "episodes": [
+    {
+      "ok": true,
+      "auc": 0.9329070605187321,
+      "probes": 6,
+      "rounds": 3,
+      "effective_sequential_rounds": 3.0,
+      "best": 0.9529,
+      "baseline": 0.0,
+      "world_best": 0.9716,
+      "world_cells": 8,
+      "attainment": 0.9807533964594483,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ]
+      ],
+      "beta": 0.0,
+      "world": "SOUL DUEL Lille II CPU AI (duel/lisp/barro.lisp CPU parts), scored by tools/aieval.py --char 6 --seeds 40 at the freeze commit 36e93c7 (opponents: the five other CPUs as they read there; DUEL_LILLE_V3 \u00a722):r1",
+      "replay_score": 0.9529
+    },
+    {
+      "ok": true,
+      "auc": 0.9329070605187321,
+      "probes": 6,
+      "rounds": 3,
+      "effective_sequential_rounds": 3.0,
+      "best": 0.9529,
+      "baseline": 0.0,
+      "world_best": 0.9716,
+      "world_cells": 8,
+      "attainment": 0.9807533964594483,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ]
+      ],
+      "beta": 0.2,
+      "world": "SOUL DUEL Lille II CPU AI (duel/lisp/barro.lisp CPU parts), scored by tools/aieval.py --char 6 --seeds 40 at the freeze commit 36e93c7 (opponents: the five other CPUs as they read there; DUEL_LILLE_V3 \u00a722):r1",
+      "replay_score": 0.9529
+    },
+    {
+      "ok": true,
+      "auc": 0.9329070605187321,
+      "probes": 6,
+      "rounds": 3,
+      "effective_sequential_rounds": 3.0,
+      "best": 0.9529,
+      "baseline": 0.0,
+      "world_best": 0.9716,
+      "world_cells": 8,
+      "attainment": 0.9807533964594483,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ]
+      ],
+      "beta": 0.4,
+      "world": "SOUL DUEL Lille II CPU AI (duel/lisp/barro.lisp CPU parts), scored by tools/aieval.py --char 6 --seeds 40 at the freeze commit 36e93c7 (opponents: the five other CPUs as they read there; DUEL_LILLE_V3 \u00a722):r1",
+      "replay_score": 0.9529
+    },
+    {
+      "ok": true,
+      "auc": 0.9355701934952656,
+      "probes": 8,
+      "rounds": 4,
+      "effective_sequential_rounds": 4.0,
+      "best": 0.9716,
+      "baseline": 0.0,
+      "world_best": 0.9716,
+      "world_cells": 8,
+      "attainment": 1.0,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ],
+        [
+          "b0a2",
+          "b1a2"
+        ]
+      ],
+      "beta": 0.6,
+      "world": "SOUL DUEL Lille II CPU AI (duel/lisp/barro.lisp CPU parts), scored by tools/aieval.py --char 6 --seeds 40 at the freeze commit 36e93c7 (opponents: the five other CPUs as they read there; DUEL_LILLE_V3 \u00a722):r1",
+      "replay_score": 0.9716
+    },
+    {
+      "ok": true,
+      "auc": 0.9355701934952656,
+      "probes": 8,
+      "rounds": 4,
+      "effective_sequential_rounds": 4.0,
+      "best": 0.9716,
+      "baseline": 0.0,
+      "world_best": 0.9716,
+      "world_cells": 8,
+      "attainment": 1.0,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ],
+        [
+          "b0a2",
+          "b1a2"
+        ]
+      ],
+      "beta": 0.8,
+      "world": "SOUL DUEL Lille II CPU AI (duel/lisp/barro.lisp CPU parts), scored by tools/aieval.py --char 6 --seeds 40 at the freeze commit 36e93c7 (opponents: the five other CPUs as they read there; DUEL_LILLE_V3 \u00a722):r1",
+      "replay_score": 0.9716
+    },
+    {
+      "ok": true,
+      "auc": 0.9355701934952656,
+      "probes": 8,
+      "rounds": 4,
+      "effective_sequential_rounds": 4.0,
+      "best": 0.9716,
+      "baseline": 0.0,
+      "world_best": 0.9716,
+      "world_cells": 8,
+      "attainment": 1.0,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ],
+        [
+          "b0a2",
+          "b1a2"
+        ]
+      ],
+      "beta": 1.0,
+      "world": "SOUL DUEL Lille II CPU AI (duel/lisp/barro.lisp CPU parts), scored by tools/aieval.py --char 6 --seeds 40 at the freeze commit 36e93c7 (opponents: the five other CPUs as they read there; DUEL_LILLE_V3 \u00a722):r1",
+      "replay_score": 0.9716
+    }
+  ]
+}

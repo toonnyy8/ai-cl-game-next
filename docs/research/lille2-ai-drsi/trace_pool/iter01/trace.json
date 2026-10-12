@@ -1,0 +1,111 @@
+{
+  "baseline_score": 0.0,
+  "beta": 0.6,
+  "branch_count": 4,
+  "cells": {
+    "b0a0": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.652 mash 0.953 sig 0.879 raw 0.8032 normal 0.5025 (x1.0) pacing ok",
+      "score": 0.8032,
+      "seq": 2,
+      "tags": [],
+      "valid": true
+    },
+    "b0a1": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.963 mash 1.0 sig 0.918 raw 0.952 normal 0.525 (x1.0) pacing ok",
+      "score": 0.952,
+      "seq": 5,
+      "tags": [],
+      "valid": true
+    },
+    "b0a2": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.978 mash 1.0 sig 0.91 raw 0.9549 normal 0.4975 (x1.0) pacing ok",
+      "score": 0.9549,
+      "seq": 8,
+      "tags": [],
+      "valid": true
+    },
+    "b1a0": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.517 mash 0.802 sig 0.828 raw 0.6985 normal 0.5125 (x1.0) pacing ok",
+      "score": 0.6985,
+      "seq": 1,
+      "tags": [],
+      "valid": true
+    },
+    "b1a1": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 1.0 mash 1.0 sig 0.882 raw 0.9529 normal 0.5425 (x1.0) pacing ok",
+      "score": 0.9529,
+      "seq": 6,
+      "tags": [],
+      "valid": true
+    },
+    "b1a2": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 1.0 mash 1.0 sig 0.929 raw 0.9716 normal 0.465 (x1.0) pacing ok",
+      "score": 0.9716,
+      "seq": 7,
+      "tags": [],
+      "valid": true
+    },
+    "b2a0": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.882 mash 1.0 sig 0.905 raw 0.915 normal 0.53 (x1.0) pacing ok",
+      "score": 0.915,
+      "seq": 4,
+      "tags": [],
+      "valid": true
+    },
+    "b3a0": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.943 mash 1.0 sig 0.856 raw 0.9192 normal 0.52 (x1.0) pacing ok",
+      "score": 0.9192,
+      "seq": 3,
+      "tags": [],
+      "valid": true
+    }
+  },
+  "directions": {},
+  "higher_is_better": true,
+  "max_parallelism": 2,
+  "notes": "",
+  "policy_file": "policy/current.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "SOUL DUEL Lille II CPU AI (duel/lisp/barro.lisp CPU parts), scored by tools/aieval.py --char 6 --seeds 40 at the freeze commit 36e93c7 (opponents: the five other CPUs as they read there; DUEL_LILLE_V3 \u00a722)"
+}
