@@ -1167,7 +1167,7 @@ The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功�
 - Measured on R18 (40 seeds): **0.9102** (strength 0.853, masher 1.0, signature 0.923, NORMAL 0.36; at the freeze 0.9716).
 - Gates (all K.O.): 20 seeds BY 131.7, BK 121.8, BR 163.3, BI 155.3, BS 172.2, BB 213.2 s; BK at 60 seeds 122.3 s (his
   wins 9/60); BI and BS back in the window (R18's open 118.1 / 117.3 s). The mirror awaken A/B: the never-awaken side 4 /
-  1 / 0 of 60 (R18: 12 / 4 / 11). G2 identical. Host tests 8349 ALL PASS. The ASSIST gate: below when measured.
+  1 / 0 of 60 (R18: 12 / 4 / 11). G2 identical. Host tests 8349 ALL PASS. The ASSIST gate (the masher as P1 with the settings vs NORMAL, 720 matches each, report only): k0 72%, k1 85%, k2 100%, k3 (AUTO COMBO) 68%, k6 83%, k10 85%, k11 99%.
 
 ### 22.4 Round 2 (the user, 2026-10-12: 「等你整合完之後就開始幫我跑第二輪，然後每一格出來後都要跟我說他的風格特徵是什麼」)
 
