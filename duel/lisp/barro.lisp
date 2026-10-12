@@ -694,6 +694,16 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (defparameter *br-owl-clip-map* '(:br-recall :br-o-recall :br-rc0 :br-o-rc0 :br-rc1 :br-o-rc1 :br-rc2 :br-o-rc2
                                   :br-rc3 :br-o-rc3 :br-rc4 :br-o-rc4 :br-to-en :br-o-to-en)
   "The owl kits' :clip-map: the shared moves (the volley, its strings, the turn) on the claws' own clips.")
+;;; The wing wall (DUEL_LILLE_V3 "The wing wall", the user 2026-10-12: 「把覺醒時的防禦姿勢改成用八翼擋住前面進行防禦」): his
+;;; awakened forms guard behind the eight wings brought round in front of him (barro-art.lisp's guard clips, LILLE-DRAW's
+;;; wall); the generic guard clips mapped through the kits' :look-clips (FIGHTER.LISP PLAY-CLIP). A look only: the guard's
+;;; states, timers and volumes are the generic ones. The base form keeps the generic guard.
+(defparameter *br-wall-clips* '(:sh-guard :br-w-guard :sh-guard-hit :br-w-guard-hit)
+  "JILLIEL's (KIN and EN) :look-clips: the guard and the blocked hit behind the wing wall.")
+(defparameter *br-owl-wall-clips* '(:sh-guard :br-o-guard :sh-guard-hit :br-o-guard-hit)
+  "The owl KIN's :look-clips: pitched on its legs, the claws crossed behind the wall.")
+(defparameter *br-oe-wall-clips* '(:sh-guard :br-oe-guard :sh-guard-hit :br-oe-guard-hit)
+  "The owl EN's :look-clips: upright and afloat, the claws crossed behind the wall.")
 
 ;;; ================================================================ forms
 (defparameter *barro-hooks* '(:tick barro-tick :ok barro-ok :hit barro-hit :struck barro-struck :armor barro-armor
@@ -750,6 +760,7 @@ awakened form inherits these).")
   :lift *br-jilliel-lift* :awakening t :form-name "JILLIEL KIN" :walk *br-walk-kin* :run *br-run-kin*
   :mult *br-jilliel-mult* :taken *br-jilliel-taken* :kikon-konpaku 3 :endless-form :jilliel-kin
   :body :lille-jilliel-kin :weapon nil :stance :lb-w-stance :cine lb-jilliel-cine :swing-sfx :whoosh-heavy
+  :look-clips *br-wall-clips*                   ; (the wing wall: his guard behind the eight wings; EN inherits it)
   :commands (:q :br-w-j1 :f :br-w-k1 :sig :br-to-en :sp1 :br-w-sanren :sp2 :br-w-nijushi :breaker :br-w-breaker
              :kikon :br-w-kikon)
   :grid (:br-w-j1 :br-w-j2 :br-w-j3 :br-w-k1 :br-w-k2 :br-w-k3 :br-w-j2s :br-w-k2s)
@@ -785,7 +796,7 @@ awakened form inherits these).")
 ;; (every wing, decision R3; Trompete gone); x1.2 dealt (its buff), a wing every 2 s, the armour 2 wings; Kikon 4
 (defkit :barro :shin-kin :inherit :jilliel-kin
   :lift 0.0 :form-name "SHIN KIN" :mult *br-owl-mult* :taken *br-owl-taken* :kikon-konpaku 4
-  :body :lille-shin :stance :lb-o-stance :cine nil :clip-map *br-owl-clip-map*
+  :body :lille-shin :stance :lb-o-stance :cine nil :clip-map *br-owl-clip-map* :look-clips *br-owl-wall-clips*
   :commands (:q :br-o-j1 :f :br-o-k1 :sig :br-to-en :sp1 :br-misuji :sp2 :br-recall-s :breaker :br-o-breaker :kikon :br-o-kikon)
   :grid (:br-o-j1 :br-o-j2 :br-o-j3 :br-o-k1 :br-o-k2 :br-o-k3 :br-o-j2s :br-o-k2s)
   :ai (:intents (:approach 4 :pressure 4 :zone 0 :defend 0)
@@ -801,6 +812,7 @@ awakened form inherits these).")
 
 (defkit :barro :shin :inherit :shin-kin
   :lift *br-owl-lift* :form-name "SHIN" :walk *br-walk-en* :run *br-run-en* :stance :lb-oe-stance
+  :look-clips *br-oe-wall-clips*
   :commands (:q :br-oe-j1 :f :br-oe-k1 :sig :br-oe-l1)
   :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (2.7 8.0) :pressure (1.0 2.7) :zone (3.5 8.0) :defend (5.0 9.0))   ; (R9: J the claw top 1.7, K 2.5-2.85, L the dash)

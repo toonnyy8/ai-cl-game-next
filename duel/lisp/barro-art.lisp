@@ -1477,6 +1477,85 @@ back by its level (*BR-SNIPE-KICK*). Cosmetic. 0 B."
     (%br-legs-pose f (fighter-side f) m)                ; (R11, §16: the stance switch's legs)
     nil))
 
+;;; ---------------------------------------------------------------- the wing wall (his awakened guard)
+;;; The user, 2026-10-12: 「把覺醒時的防禦姿勢改成用八翼擋住前面進行防禦」 (DUEL_LILLE_V3 "The wing wall"). In JILLIEL (KIN and
+;;; EN) and the owl (KIN and EN) his guard is the eight wings brought round in front of him into a closed, overlapping screen,
+;;; the column lowered and leaning in behind it; a blocked hit knocks the wall and the column back a little and they settle.
+;;; The kits' :look-clips (barro.lisp *BR-WALL-CLIPS* ..) play these for the generic :sh-guard / :sh-guard-hit; the wall
+;;; itself is LILLE-DRAW's (*LB-WF* [91], *LB-WALL-JL* / *-OWL*: every blade pinned at its place before him, curled round
+;;; the column), its share eased in as the guard goes up (*BR-WALL-IN*) and out as it drops (*BR-WALL-OUT*) by BR-DRAW
+;;; (%BR-WALL-SHARE). JILLIEL's hands are the front pair's tips (low before him, past his midline); the owl's claws crossed
+;;; before its chest, behind the wall (solved to points in the chest's frame: JILLIEL's hands at (-0.3, -0.45, 0.75) across /
+;;; up / forward, the owl's claws at (-0.12, -0.05, 0.45), its EN's at (-0.12, -0.1, 0.4)). A look: no state, timer or volume
+;;; reads a clip.
+(defpose :br-w-wall-pose (:base :lb-w-stance)          ; JILLIEL: lowered, leaning in, the front pair's tips low before him
+  (:root :u -0.1) (:spine :flex 8) (:chest :flex 4) (:head :flex 10)
+  (:arm-r :flex 28.5 :side 5.3 :twist 55) (:elbow-r :flex 85.8) (:arm-l :flex 28.5 :side 5.3 :twist 55) (:elbow-l :flex 85.8))
+(defclip :br-w-guard (2.4 :loop t :base :br-w-wall-pose)   ; held: a slow breath behind the wall
+  (0) (1.2 (:root :u -0.125) (:head :flex 13)) (2.4))
+(defclip :br-w-guard-hit (0.3 :base :br-w-wall-pose)   ; blocked: the wall and the column knocked back, settled
+  (0) (0.05 :snap (:root :f -0.12 :u -0.13) (:spine :flex 6) (:chest :flex 0) (:head :flex 12)   ; (the hands 0.15 m back)
+              (:arm-r :flex 33.3 :side 15.8 :twist 66) (:elbow-r :flex 99.3) (:arm-l :flex 33.3 :side 15.8 :twist 66) (:elbow-l :flex 99.3))
+  (0.3 :br-w-wall-pose))
+(defpose :br-o-wall-pose (:base :lb-o-stance)          ; the owl KIN: crouched lower on its legs, pitched in, the claws crossed
+  (:root :u -0.1) (:spine :flex 28) (:neck :flex 20) (:head :flex 4)
+  (:arm-r :flex 10.8 :side -11 :twist 37) (:elbow-r :flex 123.8) (:arm-l :flex 10.8 :side -11 :twist 37) (:elbow-l :flex 123.8))
+(defclip :br-o-guard (2.4 :loop t :base :br-o-wall-pose)
+  (0) (1.2 (:root :u -0.125) (:head :flex 8)) (2.4))
+(defclip :br-o-guard-hit (0.3 :base :br-o-wall-pose)
+  (0) (0.05 :snap (:root :f -0.12 :u -0.04) (:spine :flex 20) (:neck :flex 12) (:head :flex -4)
+              (:arm-r :flex 4 :side -9 :twist 37) (:elbow-r :flex 132) (:arm-l :flex 4 :side -9 :twist 37) (:elbow-l :flex 132))
+  (0.3 :br-o-wall-pose))
+(defpose :br-oe-wall-pose (:base :lb-oe-stance)        ; the owl EN: upright, afloat, a little lowered, the claws crossed
+  (:root :u -0.04) (:spine :flex 8) (:head :flex 6)
+  (:arm-r :flex 0.8 :side -13 :twist 35) (:elbow-r :flex 125.5) (:arm-l :flex 0.8 :side -13 :twist 35) (:elbow-l :flex 125.5))
+(defclip :br-oe-guard (2.4 :loop t :base :br-oe-wall-pose)
+  (0) (1.2 (:root :u -0.065) (:head :flex 9)) (2.4))
+(defclip :br-oe-guard-hit (0.3 :base :br-oe-wall-pose)
+  (0) (0.05 :snap (:root :f -0.12 :u -0.02) (:spine :flex 0) (:head :flex -2)
+              (:arm-r :flex -4 :side -11 :twist 35) (:elbow-r :flex 134) (:arm-l :flex -4 :side -11 :twist 35) (:elbow-l :flex 134))
+  (0.3 :br-oe-wall-pose))
+(defparameter *br-wall-in* 9.0
+  "The wing wall's share rises this much a second as his guard goes up (0 -> 1 in ~0.11 s, smoothstepped: the raise) ...")
+(defparameter *br-wall-out* 7.0 "... and falls this much a second once it drops (~0.14 s: the release).")
+(declaim (type f32vec *br-wall*))
+(defvar *br-wall* (make-f32 2) "Per side, the wing wall's share 0..1 as last drawn (the looks' memory, never the sim).")
+(defun-fast %br-wall-share (f side awake rdt)
+  "The wing wall for F (SIDE) this frame: its share eased toward 1 while he guards (:guard / :guard-hit) in an AWAKE form,
+else toward 0 (*BR-WALL-IN* / *BR-WALL-OUT* a second of RDT); smoothstepped into *LB-WF* [91] for LILLE-DRAW. 0 B."
+  (declare (fixnum side) (single-float rdt))
+  (let* ((v *br-wall*) (on (and awake (member (fighter-state f) '(:guard :guard-hit))))
+         (u (if on
+                (f-min 1f0 (+ (aref v side) (* (the single-float *br-wall-in*) rdt)))
+                (f-max 0f0 (- (aref v side) (* (the single-float *br-wall-out*) rdt))))))
+    (declare (type f32vec v) (single-float u))
+    (setf (aref v side) u (aref *lb-wf* 91) (%lb-ss u))
+    nil))
+(defun br-art-wall (k)
+  "82394+k (the wing wall): Lille II 2 m from an idle Kenpachi, 8 wings, holding his guard (his brain's press: P1's brain
+made when he has none): k 0 JILLIEL KIN, 1 the owl KIN (kept without a burst), 2 JILLIEL EN, 3 the owl EN; P1 (the behind
+camera: his back), or P2 (the front view) after 82389. 82399: the opponent's J1 started now (the block: the wall's knock)."
+  (let ((front *br-art-front*) (owl (oddp k)) (en (>= k 2)))
+    (setf *br-art-front* nil)
+    (ensure-battle (if front :kenpachi :barro) (if front :barro :kenpachi) :cpu t)
+    (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
+      (dolist (e (list *p1* *p2*))                      ; (no CPU plays: his brain only holds the guard)
+        (when (brain e) (setf (brain-off (brain e)) t (brain-press-left (brain e)) 0)))
+      (setf *br-keep-owl* owl)
+      (force-form b (if en (if owl :shin :jilliel) (if owl :shin-kin :jilliel-kin)))
+      (place *p1* *p2* 2.0)
+      (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
+            (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))
+      (br-set-ammo b 8)
+      (if (brain b)
+          (let ((br (brain b))) (setf (brain-press br) :guard (brain-press-mod br) nil (brain-press-left br) 100000 (brain-act br) :hold))
+          (log-msg "duel barro: wall scene: no brain for P~d (hold U)" (if front 2 1))))))
+(defun br-art-wall-hit ()
+  "82399: the opponent of the Lille II on the field starts his J1 now (the wing wall takes it: the block's knock)."
+  (let* ((b (if (and *p1* (eq (kit-character (fighter-kit (fighter *p1*))) :barro)) *p1* *p2*)) (o (if (eq b *p1*) *p2* *p1*))
+         (mv (kit-command-move (fighter-kit (fighter o)) :q)))
+    (when mv (start-move o mv))))
+
 ;;; ---------------------------------------------------------------- the draw hook
 (defparameter *br-aim-stance* '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
   "The base stance's moves: the aim line tracks while one runs ...")
@@ -2740,9 +2819,10 @@ snipe shot and its gun-kata / swings (%BR-SNIPE-LOOK, %BR-KATA-LOOK; the snipe's
     (%br-whip-reach f side mv)                          ; (R10, §15: *LB-WF* [80..82] for LILLE-DRAW, zeroed after it)
     (let ((lg *br-legs*) (o (* 10 side)))               ; (R11, §16: the stance switch's legs, [89 90])
       (setf (aref *lb-wf* 89) (if (>= (aref lg o) 0f0) (+ 1f0 (aref lg (+ o 7))) 0f0) (aref *lb-wf* 90) (aref lg (+ o 8))))
+    (%br-wall-share f side awake rdt)                   ; (the wing wall: his awakened guard, [91])
     (lille-draw e rdt)
     (%br-whip-lash side)                                ; (R11, §16: the J route's L L whips, both forms)
-    (let ((w *lb-wf*)) (setf (aref w 80) 0f0 (aref w 81) 0f0 (aref w 82) 0f0 (aref w 89) 0f0 (aref w 90) 0f0))
+    (let ((w *lb-wf*)) (setf (aref w 80) 0f0 (aref w 81) 0f0 (aref w 82) 0f0 (aref w 89) 0f0 (aref w 90) 0f0 (aref w 91) 0f0))
     (when (eq (fighter-form f) :base) (%br-aim-look e f side))
     (%br-spend-note f side n (if awake 2 1))
     (%br-spend-look e side)
@@ -2876,8 +2956,8 @@ read the drop: one wing the burst at its tip, two or more the armour's shatter, 
 82200+f the sim freezes once his look clock reaches f (the volley chain's: the recall's frame, 7 + its string's; else the
 move's frame; issue it before the scene), 82299 lets go; 82300+k his awakening held at frame 10 k (BR-ART-CINE);
 82320+m his awakened stance's move m on its own (BR-ART-STANCE); 82380+k his special set to k, 0-8 (BR-ART-AMMO: the spend
-looks); 82389 the next stance scene in the front view; 82390+k the stance switch's legs (BR-ART-LEGS, R11); 82398 the
-consing probe."
+looks); 82389 the next stance (or wing wall) scene in the front view; 82390+k the stance switch's legs (BR-ART-LEGS, R11);
+82394+k his awakened guard, the wing wall (BR-ART-WALL), 82399 the opponent's J1 against it; 82398 the consing probe."
   (let ((n (- c 82100)))
     (cond ((< n 100) (br-art-scene n))
           ((< n 199) (setf *br-art-hold-next* (- n 100)))
@@ -2887,6 +2967,8 @@ consing probe."
           ((= n 289) (setf *br-art-front* t))
           ((<= 280 n 288) (br-art-ammo (- n 280)))
           ((<= 290 n 293) (br-art-legs (- n 290)))
+          ((<= 294 n 297) (br-art-wall (- n 294)))     ; (the wing wall: his awakened guard)
+          ((= n 299) (br-art-wall-hit))
           ((= n 298) (br-cons-probe))
           (t (log-msg "duel barro: no debug command ~d" c)))))
 

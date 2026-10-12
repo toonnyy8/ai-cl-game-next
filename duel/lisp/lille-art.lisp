@@ -1959,6 +1959,29 @@ reads first) ...")
   "The owl's eight gold wing blades, two fans of four (+34 / +11 / -11 / -34 degrees a side, long: the refs' wide spread);
 its claws are its hands.")
 (declaim (type f32vec *lb-wings-jl* *lb-wings-owl* *lb-wf* *lb-wm*))
+;; Lille II's wing wall (DUEL_LILLE_V3 "The wing wall", the user 2026-10-12: 「把覺醒時的防禦姿勢改成用八翼擋住前面進行防禦」):
+;; while he guards in an awakened form his draw hook (BR-DRAW) sets *LB-WF* [91] (0..1, eased in and out) and %LB-WINGS
+;; brings the eight blades round in front of him: each blade's chain pinned at its place in the wall (a front wing at the
+;; rig's hand, where his guard clip puts it), its face square to his side and its two joints curled toward the column so
+;; it bows round his side and crosses his midline in front (the right wings' tips past his left, overlapping the left's).
+;; Per wing, a row of 4 (in his chest's frame, the root's side +): across (x the wing's side: - = past his midline), up,
+;; forward (m; a front wing's ignored: the hand), the curl at each joint (radians). The old Lille never sets [91].
+(defparameter *lb-wall-jl*
+  (coerce (mapcar #'f32 '(-0.3  0.35 0.7  1.1    -0.3  0.35 0.7  1.1
+                          -0.3 -0.05 0.75 1.1    -0.3 -0.05 0.75 1.1
+                           0.0  0.0  0.0  1.0     0.0  0.0  0.0  1.0
+                          -0.3 -0.85 0.7  0.8    -0.3 -0.85 0.7  0.8))
+          'f32vec)
+  "JILLIEL's wing wall: the top pair high before his head, the next before his chest, the front pair at the hands (his
+guard clips, barro-art.lisp :br-w-guard / :br-w-guard-hit, put them low before him), the lowest before his hips.")
+(defparameter *lb-wall-owl*
+  (coerce (mapcar #'f32 '(-0.3  0.45 0.75 1.1    -0.3  0.45 0.75 1.1
+                          -0.3  0.1  0.8  1.2    -0.3  0.1  0.8  1.2
+                          -0.3 -0.3  0.9  1.1    -0.3 -0.3  0.9  1.1
+                          -0.3 -0.7  1.0  0.9    -0.3 -0.7  1.0  0.9))
+          'f32vec)
+  "The owl's wing wall: its eight gold blades in four rows before it (its claws crossed behind them: :br-o-guard).")
+(declaim (type f32vec *lb-wall-jl* *lb-wall-owl*))
 (defvar *lb-wf* (make-f32 92)
   "The jointed wings' scratch: [0..26] the three segments' unit frames (9 each: X Y Z), [30 31] a tilt's numbers (toward X,
 toward Z), [32..35] the chain's turn (axis, angle); per call (LILLE-DRAW's %LB-DRIVE!): [39] the strike's virtual speed
@@ -1981,7 +2004,8 @@ tightness (*LB-V* [29] at least this while a *LB-SWEEP-CLIPS* clip plays), [81 8
 a whip's root (R11: Lille II's whip, drawn after LILLE-DRAW on from it: %LB-WINGS thins that blade to 0.45, %LB-LASHES skips
 that claw's gold comet), [89] the ㄇ
 legs' fold + 1 (R11, the stance switch: the shanks tucked under the strut, 0..1, in place of the owl EN's own tuck *LB-V*
-[8]) and [90] their pull 0..1 (the whole ㄇ shrunk into the hips: %LB-LEGS draws the strut and the shanks 1 - [90] long).")
+[8]) and [90] their pull 0..1 (the whole ㄇ shrunk into the hips: %LB-LEGS draws the strut and the shanks 1 - [90] long);
+[91] the wing wall 0..1 (his guard: *LB-WALL-JL* / *-OWL*).")
 (defvar *lb-stretch* nil
   "Another kit's stretched wings (Lille II's whips, barro-art.lisp *BR-W-STRETCH*, DUEL_LILLE_V3 §10; Lille's own clips are
 never in it): clip name -> an f32vec of keys (frame right left), the metres a front wing reaches past the rig's hand at that
@@ -2178,6 +2202,7 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
          (rs (lb-alpha (* a (the single-float *lb-spent-rim*))))
          (pairs (f->i (aref v 15))) (lk (aref v 16)) (from (f->i (aref v 23))) (sp (aref v 28))
          (sb (* (aref v 29) (- 1f0 (aref w 69))))        ; (the owl's beat opens KIN's sheaf: decision 56)
+         (wal (aref w 91)) (wt (if (eq tbl *lb-wings-owl*) *lb-wall-owl* *lb-wall-jl*))   ; (Lille II's wing wall)
          (rx (aref v 0)) (ry (aref v 1)) (rz (aref v 2))
          (xx (aref jm o)) (xy (aref jm (+ o 1))) (xz (aref jm (+ o 2)))
          (yx (aref jm (+ o 4))) (yy (aref jm (+ o 5))) (yz (aref jm (+ o 6)))
@@ -2196,8 +2221,8 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
          (gl (the single-float *lb-lag-gain*)) (lm (the single-float *lb-lag-max*))
          (wa (the single-float *lb-wave-amp*)) (wc (the single-float *lb-wave-curl*)) (ws (the single-float *lb-wave-speed*))
          (wl (the single-float *lb-wave-lag*)) (fc (the single-float *lb-fold-curl*)) (fu (the single-float *lb-furl*)))
-    (declare (type f32vec v w mm) (fixnum pairs from mask ld)
-             (single-float k j rip tm a lk sp sb rx ry rz xx xy xz yx yy yz zx zy zz xl zl fx fy fz sx sy sz yl su vx0 vy0 vz0 vl dvx dvy dvz vb u dt tsc rise c1 c2
+    (declare (type f32vec v w mm wt) (fixnum pairs from mask ld)
+             (single-float wal k j rip tm a lk sp sb rx ry rz xx xy xz yx yy yz zx zy zz xl zl fx fy fz sx sy sz yl su vx0 vy0 vz0 vl dvx dvy dvz vb u dt tsc rise c1 c2
                            gl lm wa wc ws wl fc fu))
     (when (> (aref w 47) 0.5f0)                         ; decision 50: where he stands and faces, the clip's root offset and
       (let* ((pfx (- (aref jm 8))) (pfz (- (aref jm 10)))   ; turn taken out (its spins): [55 56] x z, [57 58] the facing
@@ -2214,8 +2239,8 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
                (oy (+ (* xy lx) (* yy ry) (* zy rz) (aref jm (+ o 13))))
                (oz (+ (* xz lx) (* yz ry) (* zz rz) (aref jm (+ o 14))))
                (front (> (aref tbl (+ r 7)) 0.5f0)) (mo (* 9 (+ i (* 8 side))))
-               (len 0f0) (wd 0f0) (px 0f0) (py 0f0) (pz 0f0))
-          (declare (fixnum r mo) (single-float s lx ox oy oz len wd px py pz))
+               (len 0f0) (wd 0f0) (px 0f0) (py 0f0) (pz 0f0) (wth 0f0) (pwx 0f0) (pwy 0f0) (pwz 0f0))
+          (declare (fixnum r mo) (single-float s lx ox oy oz len wd px py pz wth pwx pwy pwz))
           ;; 1. the straight blade's frame (segment 0's) and its drive point
           (if front
               ;; a front wing, root to hand; its torn edge down and out: the normal D x U, D = the joint's -Y + 0.5 s X
@@ -2299,6 +2324,29 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
                   (let ((lq (cond ((> (aref w 61) 0f0) (* ln (+ 1f0 (* 0.08f0 (aref w 61))))) ((> c 0f0) l2) (t ln))))
                     (declare (single-float lq))
                     (setf len lq wd ln px (+ ox (* lq (aref w 3))) py (+ oy (* lq (aref w 4))) pz (+ oz (* lq (aref w 5))))))))
+          ;; 1b. Lille II's wing wall ([91] > 0, his guard): the blade turned toward its place in the wall (*LB-WALL-JL* /
+          ;; *-OWL*, in the chest's frame; a front wing's is the rig's hand), its face square to his side (so the joints' curl,
+          ;; 3., bows it round his side), the spring's drive point that place; 4. pins its chain there
+          (when (> wal 0f0)
+            (let ((wq (* 4 i)) (wa1 (- 1f0 wal)) (ms (- s)))
+              (declare (fixnum wq) (single-float wa1 ms))
+              (setf wth (aref wt (+ wq 3)))
+              (if front
+                  (setf pwx px pwy py pwz pz)
+                  (let ((cr (* s (aref wt wq))) (cu (aref wt (+ wq 1))) (cf (aref wt (+ wq 2))))
+                    (declare (single-float cr cu cf))
+                    (setf pwx (- (+ (aref jm (+ o 12)) (* cr xx) (* cu yx)) (* cf zx))
+                          pwy (- (+ (aref jm (+ o 13)) (* cr xy) (* cu yy)) (* cf zy))
+                          pwz (- (+ (aref jm (+ o 14)) (* cr xz) (* cu yz)) (* cf zz)))))
+              (let* ((cx (- pwx ox)) (cy (- pwy oy)) (cz (- pwz oz)) (cl (f-max 1f-4 (f-hypot cx cy cz)))
+                     (ux (+ (* wa1 (aref w 3)) (* wal (/ cx cl)))) (uy (+ (* wa1 (aref w 4)) (* wal (/ cy cl))))
+                     (uz (+ (* wa1 (aref w 5)) (* wal (/ cz cl)))) (ul (f-max 1f-5 (f-hypot ux uy uz)))
+                     (nx (+ (* wa1 (aref w 6)) (* wal ms sx))) (ny (+ (* wa1 (aref w 7)) (* wal ms sy)))
+                     (nz (+ (* wa1 (aref w 8)) (* wal ms sz))))
+                (declare (single-float cx cy cz cl ux uy uz ul nx ny nz))
+                (%lb-basis! w 0 (/ ux ul) (/ uy ul) (/ uz ul) nx ny nz)
+                (unless front
+                  (setf px (+ (* wa1 px) (* wal pwx)) py (+ (* wa1 py) (* wal pwy)) pz (+ (* wa1 pz) (* wal pwz)))))))
           ;; 2. the lag spring: its target from the drive point's speed and the strike's virtual speed (a free wing's tip
           ;; trails: bend against the motion; a pinned front wing bends with it, so its middle bows behind)
           (when (> dt 0f0)
@@ -2326,30 +2374,36 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
                  (b1x (+ bx (* kc sx) (* u1 fx))) (b1y (+ by (* kc sy) (* u1 fy))) (b1z (+ bz (* kc sz) (* u1 fz)))
                  (b2x (+ (* 1.4f0 bx) (* 1.2f0 kc sx) (* u2 fx))) (b2y (+ (* 1.4f0 by) (* 1.2f0 kc sy) (* u2 fy)))
                  (b2z (+ (* 1.4f0 bz) (* 1.2f0 kc sz) (* u2 fz)))
-                 (wv (* (if act (if front 0f0 0.3f0) 1f0) (if front 0.6f0 1f0) (- 1f0 (* 0.6f0 k))))
+                 (wv (* (if act (if front 0f0 0.3f0) 1f0) (if front 0.6f0 1f0) (- 1f0 (* 0.6f0 k)) (- 1f0 (* 0.8f0 wal))))
                  (ph (+ (* ws tm) (aref tbl (+ r 9)) (if front (* 1.7f0 s) 0f0))))
             (declare (single-float bx by bz ff kc u1 u2 b1x b1y b1z b2x b2y b2z wv ph))
             (setf (aref w 30) (+ (* b1x (aref w 0)) (* b1y (aref w 1)) (* b1z (aref w 2)) (* wv wa (f-sin ph)))
-                  (aref w 31) (+ (* b1x (aref w 6)) (* b1y (aref w 7)) (* b1z (aref w 8)) (* wv wc (f-sin (+ ph 0.8f0)))))
+                  (aref w 31) (+ (* b1x (aref w 6)) (* b1y (aref w 7)) (* b1z (aref w 8)) (* wv wc (f-sin (+ ph 0.8f0)))
+                                 (* wal wth)))   ; (the wing wall's curl round the column)
             (%lb-tilt! 0 9)
             (setf (aref w 30) (+ (* b2x (aref w 9)) (* b2y (aref w 10)) (* b2z (aref w 11)) (* wv wa (f-sin (- ph wl))))
-                  (aref w 31) (+ (* b2x (aref w 15)) (* b2y (aref w 16)) (* b2z (aref w 17)) (* wv wc (f-sin (- (+ ph 0.8f0) wl)))))
+                  (aref w 31) (+ (* b2x (aref w 15)) (* b2y (aref w 16)) (* b2z (aref w 17)) (* wv wc (f-sin (- (+ ph 0.8f0) wl)))
+                                 (* wal wth)))
             (%lb-tilt! 9 18))
-          ;; 4. a front wing: turn the chain about its root so its end is on the hand, and stretch it to reach it
-          (when front
-            (let* ((tx (* 0.33333334f0 (+ (aref w 3) (aref w 12) (aref w 21))))
+          ;; 4. a front wing: turn the chain about its root so its end is on the hand, and stretch it to reach it (in the
+          ;; wing wall every wing: on its place, by its share PIN)
+          (when (or front (> wal 0f0))
+            (let* ((pin (if front 1f0 wal))
+                   (dl (if front len (f-max 1f-4 (f-hypot (- pwx ox) (- pwy oy) (- pwz oz)))))
+                   (qx (if front px pwx)) (qy (if front py pwy)) (qz (if front pz pwz))
+                   (tx (* 0.33333334f0 (+ (aref w 3) (aref w 12) (aref w 21))))
                    (ty (* 0.33333334f0 (+ (aref w 4) (aref w 13) (aref w 22))))
                    (tz (* 0.33333334f0 (+ (aref w 5) (aref w 14) (aref w 23))))
                    (tl (f-max 1f-4 (f-hypot tx ty tz)))
                    (ex (/ tx tl)) (ey (/ ty tl)) (ez (/ tz tl))
-                   (hx (/ (- px ox) len)) (hy (/ (- py oy) len)) (hz (/ (- pz oz) len))
+                   (hx (/ (- qx ox) dl)) (hy (/ (- qy oy) dl)) (hz (/ (- qz oz) dl))
                    (kx (- (* ey hz) (* ez hy))) (ky (- (* ez hx) (* ex hz))) (kz (- (* ex hy) (* ey hx)))
                    (kl (f-hypot kx ky kz)) (cs (+ (* ex hx) (* ey hy) (* ez hz))))
-              (declare (single-float tx ty tz tl ex ey ez hx hy hz kx ky kz kl cs))
+              (declare (single-float pin dl qx qy qz tx ty tz tl ex ey ez hx hy hz kx ky kz kl cs))
               (when (> kl 1f-6)
-                (setf (aref w 32) (/ kx kl) (aref w 33) (/ ky kl) (aref w 34) (/ kz kl) (aref w 35) (f-atan2 kl cs))
+                (setf (aref w 32) (/ kx kl) (aref w 33) (/ ky kl) (aref w 34) (/ kz kl) (aref w 35) (* pin (f-atan2 kl cs)))
                 (%lb-turn-chain!))
-              (setf len (/ len tl))))
+              (setf len (if front (/ len tl) (+ (* (- 1f0 pin) len) (* pin (/ dl tl)))))))
           ;; 5. the three segments, each from the last one's end; a wing in [65]'s bits drawn with its holes lit (decision
           ;; 56: SANREN's firing wing, NIJUSHI-KO's and the Kikon's charge) and, while [66] > 0, the muzzle flash at its holes
           ;; (Lille II, LD > 0: the first LD - 1 blades loaded, the rest spent, a volley beat's lit blade as it is)

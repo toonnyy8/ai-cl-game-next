@@ -1207,3 +1207,34 @@ only: no frame data, volume, reach or damage changed (G2 identical; his native s
   over S + A + R, its `:s` mark on S, each link's entry pose = the previous link's pose at S + A, the muzzle on S within
   ±0.15 m of the reach edge, never more than 0.15 m past it on a hit frame; the old Lille's `:lb-k*` still play `:lb-f*`
   (duel-rules-test 8373 checks).
+
+### 24.2 The wing wall: his awakened guard
+
+
+- **Before**: every form guarded with the generic guard clip (`:sh-guard` / `:sh-guard-hit`, fighter.lisp), which on the
+  column reads as nothing (the arms are hidden, the wings stayed fanned behind him).
+- **Now** (JILLIEL KIN and EN, the owl KIN and EN; the base form keeps the generic guard): U brings the eight wings round in
+  front of him into a closed, overlapping screen, the column lowered and leaning in behind it. Each blade's jointed chain is
+  pinned at its place in the wall before him (JILLIEL's front pair at the rig's hands, where his guard clip puts them) with its
+  two joints curled toward the column, so it bows round his side and its tip crosses his midline (the right wings past his
+  left, overlapping the left ones). The wall rises over ~0.11 s as the guard goes up and lets go over ~0.14 s when it drops;
+  a blocked hit (`:guard-hit`) knocks the wall and the column back 0.12 m and they settle back over 0.3 s (the wings lag on
+  their springs). The lit / spent blades (his special count) show on the wall as on the fan.
+- **How (a look only)**: a new generic kit key `:look-clips` (kit.lisp; FIGHTER.LISP PLAY-CLIP plays a form's own clip for a
+  shared one the generic code starts; every other kit has none, so nothing else changes): `*br-wall-clips*` (JILLIEL KIN, EN
+  inherits it) `:sh-guard` → `:br-w-guard`, `:sh-guard-hit` → `:br-w-guard-hit`; `*br-owl-wall-clips*` (the owl KIN)
+  `:br-o-guard` / `-hit`; `*br-oe-wall-clips*` (the owl EN) `:br-oe-guard` / `-hit` (barro-art.lisp "the wing wall"). The wall
+  itself is LILLE-DRAW's (lille-art.lisp %LB-WINGS): BR-DRAW eases a per-side share (`*br-wall-in*` 9/s, `*br-wall-out*` 7/s,
+  smoothstepped) into `*LB-WF*` [91] while his state is `:guard` / `:guard-hit` in an awakened form; the rows
+  `*lb-wall-jl*` / `*lb-wall-owl*` give each wing its place in his chest's frame (across −0.3 m past his midline; JILLIEL up +0.35 / −0.05 /
+  the hands / −0.85 m, forward 0.7–0.75 m, curl 1.1 / 1.1 / 1.0 / 0.8 rad a joint; the owl +0.45 / +0.1 / −0.3 / −0.7 m,
+  forward 0.75–1.0 m, curl 1.1 / 1.2 / 1.1 / 0.9), from the head down to the hips. The old Lille never sets [91] (his wings bit-identical).
+  No state, timer, volume or the CPU reads any of it.
+- **The poses** (solved to points in the chest's frame): JILLIEL's hands (the front pair's tips) at (∓0.3, −0.45, 0.75)
+  across / up / forward, the root −0.1, spine +8, chest +4 (the blocked hit: the hands 0.15 m back, the root 0.12 m back); the owl KIN crouched (root −0.1, spine 28) with its claws
+  crossed before its chest at (∓0.12, −0.05, 0.45) behind the wall; the owl EN upright, claws at (∓0.12, −0.1, 0.4).
+- **Stills**: debug 82394+k (k 0 JILLIEL KIN, 1 the owl KIN, 2 JILLIEL EN, 3 the owl EN; 82389 first for the front view),
+  82399 the opponent's J1 against it (DUEL_GAMEPLAY "Debug commands").
+- **Tests**: duel-rules-test (the four forms' `:look-clips`, the base form's and every other kit's none; the six clips exist,
+  the guard loops, the blocked hit settles into the wall pose; the hands / claws at the wall's points; the rows past his
+  midline, in front, curled). G2 (`simgate.py --cvc`) identical: the sim is untouched.

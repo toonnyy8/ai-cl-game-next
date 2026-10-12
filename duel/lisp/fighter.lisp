@@ -100,10 +100,10 @@ one forearm crack per spent pip: :crack-1 .. :crack-4)."
              (let ((f (fighter e))) (if f (kit-stance (fighter-kit f)) :stance)))))
 
 (defun play-clip (e clip &key (blend 4) (speed 1.0) (time 0.0) (restart t))
-  "Start CLIP on E's model (BLEND frames of crossfade; see ANIM-PLAY); a body variant may play its own version of it
-(BODY-CLIPS)."
-  (let ((b (model-body (model e))))
-    (anim-play (model-anim (model e)) (clip-or-fallback e (or (and b (getf (body-clips b) clip)) clip))
+  "Start CLIP on E's model (BLEND frames of crossfade; see ANIM-PLAY); his form may play its own version of it (its kit's
+:look-clips: Lille II's awakened guard), else a body variant (BODY-CLIPS). A look: the sim never reads a clip."
+  (let* ((b (model-body (model e))) (f (fighter e)) (lc (and f (kit-look-clips (fighter-kit f)))))
+    (anim-play (model-anim (model e)) (clip-or-fallback e (or (and lc (getf lc clip)) (and b (getf (body-clips b) clip)) clip))
                :blend blend :speed speed :time time :restart restart)))
 
 ;;; ---------------------------------------------------------------- geometry

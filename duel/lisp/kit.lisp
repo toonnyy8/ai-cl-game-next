@@ -268,6 +268,8 @@ new button."
                                         ; "Character code layout")
   (endless-form nil)                    ; ENDLESS: the form a stay-awakened carry starts the next stage in (endless-rules.lisp)
   (clip-map nil)                        ; plist clip -> clip: the form plays its moves' clips as these (a look: KIT-MOVE-CLIP)
+  (look-clips nil)                      ; plist shared clip -> clip: the form plays these generic clips (its guard) as its own
+                                        ; (a look: FIGHTER.LISP PLAY-CLIP, as a body variant's :clips; Lille II's wing wall)
   (commands nil)                ; plist command -> move name
   (strings nil)                 ; ((from-move command to-move) ...)
   (moves (make-hash-table :test 'eq))   ; move name -> this form's MOVE
@@ -364,9 +366,11 @@ the move (its name, frames and volumes) is the same in every form that has it (d
 plays the base form's SANREN, :lb-sanren, on his wings)."
   (if clip (or (getf (kit-clip-map kit) clip) clip) clip))
 (defun kit-clips (kit)
-  "Every clip name the form uses (moves, stance, intro/win, entry cinematic, the run), its moves' through its :clip-map."
+  "Every clip name the form uses (moves, stance, intro/win, entry cinematic, the run, its :look-clips' own), its moves'
+through its :clip-map."
   (remove-duplicates
    (remove nil (append (list (kit-stance kit) (kit-intro kit) (kit-win kit)) (kit-enter-clips kit) (kit-run-clips kit) (list (kit-drink-clip kit))
+                       (loop for (nil c) on (kit-look-clips kit) by #'cddr collect c)
                        (loop for mv being the hash-values of (kit-moves kit)
                              collect (kit-move-clip kit (mv-clip mv)) collect (kit-move-clip kit (mv-clip-2 mv)))))))
 
@@ -483,6 +487,9 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      look of a held move)
   :clip-map (clip clip ...)          a look: the form plays a move's clip (or clip 2) as the mapped one (KIT-MOVE-CLIP:
                                      Jilliel KIN's SANREN on his wings; the move, shared with the base form, is unchanged)
+  :look-clips (clip clip ...)        a look: the form plays a shared clip the generic code starts (the guard's :sh-guard /
+                                     :sh-guard-hit) as the mapped one (FIGHTER.LISP PLAY-CLIP; Lille II's awakened wing wall,
+                                     DUEL_LILLE_V3: the wing wall); no state, timer or volume reads a clip
   :endless-form FORM                 ENDLESS: staying awakened starts the next stage in FORM, its meter at FORM's :start
                                      (docs/duel/DUEL_ENDLESS.md §4)
   :u-tag STRING                      the HUD's tag for U   :meter (... :draw fn :label fn :bankai-prompt (:key :right
