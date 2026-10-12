@@ -993,3 +993,16 @@ now the level 2 / 3 shots (as if held 30 / 50 f), 82100+52–56 the charge held 
 front view; 82299 the release). Checks: 82398 `snipe-charge` / `snipe` / `kata` 0 B; the native sim rows identical before / after (`--pairs 21 --seeds 3`). Host tests (8232): the base J / K's clips and drawn tips (the muzzle at `*br-w-tips*` ±0.15 m with the
 squash, ≤ 0.3 m aside), the charge clip's length, the shot clip starting from the charge's settled pose.
 
+## 20. Decision R16 (2026-10-12): the gun-kata and the base J3 slower with more keys, the level-1 snipe's wind-up
+
+The user (verbatim, on v72): 「架勢 J 的槍鬥術跟普通攻擊的 J3 幫我插入更多關鍵幀並放慢一些速度」「增加第 1 階 L 射擊的前搖」.
+
+| Move | Before (R15) | Now (R16) |
+|---|---|---|
+| base stance J1–J3 (gun-kata) | S 8, R 12 / 12 / 14 | **S 10, R 14 / 14 / 16** (`*br-s-kata-segs*`, the base's own; the awakened J unchanged) |
+| base attack-state J3 (銃口突) | S 7, R 16 (V8 of 9 / 18), old Lille's clip `:lb-jab` | **S 10, R 18** (V8 of 12 / 20), its own clip `:br-jab` (Lille's `:lb-jab` untouched) |
+| base stance L, level 1 | S 8 after the release | **S 16** (`*br-snipe-s1*`; its own clip `:br-sk-l1s` with the wind-up); levels 2 / 3 keep S 8 (`:br-s-l1-2` / `-3`: their wind-up was the charge) |
+
+The clips re-authored with more keys at the new timing (an art batch). The links still combo: J1 → J2 → J3 13 f hit to hit
+under the flinch's 18; J2 → J3 (the attack state) 13 f.
+
