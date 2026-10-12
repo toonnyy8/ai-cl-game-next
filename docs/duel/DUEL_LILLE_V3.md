@@ -1121,3 +1121,30 @@ The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功�
   30): fails (≥ 20). His never-awakened CPU leaned on the base snipe's snap onto the opponent.
 - The user on these three (2026-10-12, verbatim): 「等學習型 AI 整合後再看。」 Open until the search's CPU is integrated on R18's
   rules and gated again; not an exception yet (the A/B rows with them, measured after the user's reply).
+
+### 22.2 Round 1 (8 cells, at the freeze 36e93c7; every score the lead's rescore with the frozen evaluator, 40 seeds)
+
+| Cell | Parent | Mechanism (proposal.md) | Score | Strength | Masher | Signature | NORMAL share |
+|---|---|---|---|---|---|---|---|
+| baseline | — | the shipped CPU | 0 (raw 0.170) | 0.003 | 0.302 | 0.272 | 0.05 |
+| b0a0 | — | the L press length as the decision (`:sig-hold`), the CPU's own R17 link, the turn before the follow-up after the dash | 0.8032 | 0.652 | 0.953 | 0.879 | 0.5025 |
+| b1a0 | — | the route CPU: hit confirms into the stance, punishes, the anti-Breaker reach model, the owl at 2 wings | 0.6985 | 0.517 | 0.802 | 0.828 | 0.5125 |
+| b2a0 | (b0a0's file) | the opponent's reach envelope: the kite, the Kikon only on openings, the long-guard answer | 0.915 | 0.882 | 1.0 | 0.905 | 0.53 |
+| b3a0 | — | the clock (frames before he can hit) for every commitment; the wings kept as armour | 0.9192 | 0.943 | 1.0 | 0.856 | 0.52 |
+| b0a1 | b0a0 | + b2a0's pieces + b3a0's reserve + the wake-up shot | 0.952 | 0.963 | 1.0 | 0.918 | 0.525 |
+| b1a1 | b1a0 | + the round's fixes + the step-in interrupt, the stance exit, the charge let-go | 0.9529 | 1.0 | 1.0 | 0.882 | 0.5425 |
+| b0a2 | b0a1 | + the burst kept for the owl, b1a1's step-in, NORMAL 0.25 | 0.9549 | 0.978 | 1.0 | 0.91 | 0.4975 |
+| **b1a2** | b1a1 | + every J / K link that hits into the stance (`:l-after-*` 1.0), the base stance's full-pip cash-out (SP2 HIRENKYAKU from range), the stance chances 0.7 | **0.9716** | 1.0 | 1.0 | 0.929 | 0.465 |
+
+- b2a0 opened its "new direction" from b0a0's file, not the baseline (recorded as is). The policy briefed two more cells
+  (b2a1, b3a1) after the eighth; not dispatched (the user's budget). `close-round` froze the round into
+  `trace_pool/iter01`; the baseline policy's replay: reward 0.8092 (auc 0.9342, parallel penalty 0.5).
+- **The 80-seed check** (`final80/`): **b1a2 0.9708** (strength 0.999, masher 1.0, signature 0.928, NORMAL 0.466:
+  Y 113/160, K 27/160, R 78/160, I 65/160, S 90/160; pacing medians 117.5–158.7 s) and b0a2 0.954 (NORMAL 0.50; medians
+  153.4–199.4 s). The pick: **b1a2**.
+- Every cell's own awaken A/B (pairings 21–25, `--cmd 39020`) stays far under 20, as the baseline's: his never-awakened
+  base form loses nearly everything (b1a2: Y 10–13, the rest 1–4 of 60).
+- The cells' shared-code recommendations (not done): STRING-REFLEX scaling the generic `:l-after-*` by difficulty; a
+  generic Step-in reflex; kit keys for the guard-break and the neutral Kikon instead of a kit writing `brain-break-key`.
+- Every cell ran at the freeze, before R18 (§23: the charged L no longer snaps onto the opponent); the pick is measured
+  again on R18's rules at the integration (§22.1 step 5).
