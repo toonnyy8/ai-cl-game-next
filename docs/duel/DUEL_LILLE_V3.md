@@ -1003,7 +1003,16 @@ The user (verbatim, on v72): 「架勢 J 的槍鬥術跟普通攻擊的 J3 幫�
 | base attack-state J3 (銃口突) | S 7, R 16 (V8 of 9 / 18), old Lille's clip `:lb-jab` | **S 10, R 18** (V8 of 12 / 20), its own clip `:br-jab` (Lille's `:lb-jab` untouched) |
 | base stance L, level 1 | S 8 after the release | **S 16** (`*br-snipe-s1*`; its own clip `:br-sk-l1s` with the wind-up); levels 2 / 3 keep S 8 (`:br-s-l1-2` / `-3`: their wind-up was the charge) |
 
-The clips re-authored with more keys at the new timing (an art batch). The links still combo: J1 → J2 → J3 13 f hit to hit
+As built (art batch r16-art): the gun-kata clips `:br-sk-j1..3` at S 10 with a key about every 90° of each spin and
+turn, moving holds in the wind-ups, the hips leading, the rifle and the free arm trailing (J3's rifle path fixed by a solved
+key at f3), the hit poses and their muzzle reach unchanged (1.90 / 1.90 / 1.91 m); `:br-jab` (S 10, A 3, R 18) with a
+draw-back held f6–8, the drive f9, the jab up at his face f10, the recoil, its own squash (the muzzle 1.63–1.66 m out, 45°
+up: the move's 1.6 m reach); `:br-sk-l1s` (S 16): from the charge's settled pose, back into the stock, cheek on it, the
+breath in and out, the hold, the squeeze f15, the crack f16, the kick f17, the rifle on his line throughout; the snipe's look
+draws its tell from the release to the crack (the aim light by level, the scope glint, a flare and a white tick over the
+last 3 f). Debug 82100+57 / +77 the base J3. Host tests 8246 ALL PASS (the §5 list counts the snipe copies' clip), the sim
+byte-identical to the sim commit, 0 B a frame. Browser: the stance J J J at S 10 all hit, L tapped hits at the release + 16.
+Playtest v73. The links still combo: J1 → J2 → J3 13 f hit to hit
 under the flinch's 18; J2 → J3 (the attack state) 13 f.
 
 ## 21. Decision R17 (2026-10-12): KIN J / K → L → the stance opener without the turn
