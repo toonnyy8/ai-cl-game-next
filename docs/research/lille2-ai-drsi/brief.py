@@ -19,6 +19,21 @@ rel_node = f'{REL}/rounds/round{rnd:02d}/nodes/{cell}'
 parent = work.get('parent_dir')
 parent = os.path.abspath(parent) if parent else '(none: this cell opens a new direction from BASELINE_DIR)'
 direction = work.get('direction') or ''
+BASE = 'baseline' if rnd < 2 else f'baseline-r{rnd:02d}'          # (round 2: the integrated round-1 pick on R18, §22.4)
+NOTE = ("- The baseline is BROKEN by the recent rule changes (HARD strength 0.000: he loses every match; NORMAL 0.07): e.g. the"
+ + chr(10) + "  CPU enters the base stance at 4 m for strings that now reach 1.9–2.6 m, walks and waits in the rooted 30 f EN, never"
+ + chr(10) + "  charges L. Diagnose with the combat log (tools/simgate/run-log.lisp, as aieval runs it) before designing.") if rnd < 2 else (
+ "- ROUND 2 (DUEL_LILLE_V3 §22.4): the baseline is round 1's pick b1a2 (0.9716 at the old freeze) INTEGRATED onto the rules"
+ + chr(10) + "  as they are now, and re-measured here: see BASELINE_DIR/proposal.md and score.json. What changed since round 1's freeze"
+ + chr(10) + "  (§23, R18): the charged L (the base snipe AND the awakened dash) no longer turns onto him at all (the moves' :track 0, no"
+ + chr(10) + "  snap at the release): the shot / dash goes where he faces when the charge starts (the base stance turns at 60 deg/s"
+ + chr(10) + "  before it); a Step during the charge is the stance's fast Step (once a stance, 10 flash step) keeping the charge and"
+ + chr(10) + "  re-aiming at its end (BR-CHARGE-STEP-GO; his CPU uses it on a learner's read: BR-AI-RESTEP). Round 1's scores were"
+ + chr(10) + "  measured BEFORE R18: compare with them only as mechanisms, never as numbers (b1a2 fell 0.9716 -> 0.9102, strength"
+ + chr(10) + "  1.0 -> 0.853, NORMAL 0.465 -> 0.36, mostly the snipe that used to snap onto a side-stepping opponent). The integration"
+ + chr(10) + "  also added the learner's :charge situation (BR-LEARN-CHARGE: keep it working) and AUTO COMBO's routes."
+ + chr(10) + "  Known open problems after the integration: Kenpachi (NORMAL 12/80; the BK pacing median ~122 s), his never-awakened"
+ + chr(10) + "  base form (the awaken A/B's never-awaken side wins 0-4 of 60). Diagnose with the combat log before designing.")
 
 print(f"""You are one discovery cell of a Dream-RSI search (arXiv:2609.14858) redesigning the CPU AI of LILLE BARRO II
 (SOUL DUEL's rebuilt Lille, kit :barro, roster index 6). Reply to the coordinator in English; the user is not reading your
@@ -30,7 +45,7 @@ You must read every historical proposal before proposing or implementing a new s
 - Cell {cell}, round {rnd}. Target file (EVAL_PROGRAM): duel/lisp/barro.lisp — its CPU parts only (below).
 - PARENT_DIR = {parent}
 - HISTORY_DIR = {WS}/rounds   (every earlier cell of every round: proposal.md, score.json, score.rescored.json, barro.lisp)
-- BASELINE_DIR = {WS}/baseline  (the frozen barro.lisp, proposal.md: the shipped CPU, score.json: its parts at 40 seeds)
+- BASELINE_DIR = {WS}/{BASE}  (the frozen barro.lisp, proposal.md: the shipped CPU, score.json: its parts at 40 seeds)
 - NODE_DIR (yours) = {rel_node}  — a path RELATIVE TO YOUR OWN WORKTREE ROOT (see Deliverables)
 - EVAL_COMMAND (in your worktree root): {EVAL}
 - Direction hint: {direction or '(none)'}
@@ -76,9 +91,7 @@ combination of pieces that worked, or a targeted fix of a located bug. Never a r
   press the form's commands — in EN :sig is the dash, :q / :f the stance strings), the generic keys, AI-AWAKEN-P,
   BRAIN-REACT-ROLL / BRAIN-GUARD-ROLL (one per opponent action), AI-BRAIN.
 - tools/aieval.py (its docstring) and DUEL_LILLE_V3 §22: what is measured.
-- The baseline is BROKEN by the recent rule changes (HARD strength 0.000: he loses every match; NORMAL 0.07): e.g. the
-  CPU enters the base stance at 4 m for strings that now reach 1.9–2.6 m, walks and waits in the rooted 30 f EN, never
-  charges L. Diagnose with the combat log (tools/simgate/run-log.lisp, as aieval runs it) before designing.
+{NOTE}
 
 # The score (tools/aieval.py --char 6; frozen)
 raw = 0.4 strength + 0.2 masher + 0.4 signature; score = raw x the NORMAL factor; 0 when pacing fails:
@@ -157,6 +170,9 @@ commit, push, merge or open PRs. Never run pkill / kill / killall / pkill -f / p
 bounded waits only (wait on a PID or with a timeout).
 
 # Report back
+A short "STYLE" paragraph first (the user reads it): how this CPU plays, in a player's words: its range and spacing per
+form, its favourite routes / strings, how it uses the charge and the specials, how aggressive or patient it is, what a human
+will notice when fighting it, and what makes it different from the earlier cells. Then:
 The exact JSON line of the final evaluation (do not round or improve it), the path of your worktree, and on failure the
 failure class (compile_other, correctness, runtime, resource) with the error text.
 """)

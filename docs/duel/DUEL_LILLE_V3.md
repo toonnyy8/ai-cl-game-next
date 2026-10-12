@@ -1148,3 +1148,33 @@ The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功�
   generic Step-in reflex; kit keys for the guard-break and the neutral Kikon instead of a kit writing `brain-break-key`.
 - Every cell ran at the freeze, before R18 (§23: the charged L no longer snaps onto the opponent); the pick is measured
   again on R18's rules at the integration (§22.1 step 5).
+
+### 22.3 The integration of b1a2 (the user, 2026-10-12: 「直接整合 b1a2」)
+
+- b1a2's `barro.lisp` 3-way-merged onto the current rules (base: the freeze 36e93c7's; ours: R18): one overlap, BR-S-TICK's
+  hold phase, now runs his CPU's charge branch (BR-AI-CHARGE-TICK) and then the human's charge Step (R18); its
+  BARRO-CPU-TESTS section spliced into the test.
+- **The learner's `:charge` situation** (the user's 「學玩家習慣」, §22): his charged L (the base snipe, the awakened dash)
+  entering its charge on a free opponent opens it (not a charge resumed after its Step); the human's answer by
+  BR-LEARN-ANSWER plus a walk off the line (> *LEARN-BACK* 1.2 m sideways: :step). Read once a charge when his CPU picks the
+  level (BR-AI-KAMAE, BR-AI-SIG-HOLD, the R17 link): a guard -> level 3; a Hoho / an attack -> a tap; a Step / backing off
+  -> the level kept and BRS-AI-RESTEP: him seen stepping during the charge, the charge's Step (BR-CHARGE-STEP-GO, R18's)
+  re-aims (BR-AI-RESTEP). `:shot` keeps its index (saved learning data stays valid).
+- **AUTO COMBO's routes on the new rules** (BR-ASSIST-COMBO): his J in KIN's turn into the stance (`:br-to-en-l`) -> K
+  (the stance K1 at once, R17); his J in a stance string's segment once its hits are over, the segment having touched him
+  -> L (its L L follow-up, a spending one only with a special) else, at a string's last segment that hit with 2 bars, the
+  charge-less SP2. The manual's AUTO COMBO line and a "the CPU's him" tip rewritten.
+- Measured on R18 (40 seeds): **0.9102** (strength 0.853, masher 1.0, signature 0.923, NORMAL 0.36; at the freeze 0.9716).
+- Gates (all K.O.): 20 seeds BY 131.7, BK 121.8, BR 163.3, BI 155.3, BS 172.2, BB 213.2 s; BK at 60 seeds 122.3 s (his
+  wins 9/60); BI and BS back in the window (R18's open 118.1 / 117.3 s). The mirror awaken A/B: the never-awaken side 4 /
+  1 / 0 of 60 (R18: 12 / 4 / 11). G2 identical. Host tests 8349 ALL PASS. The ASSIST gate: below when measured.
+
+### 22.4 Round 2 (the user, 2026-10-12: 「等你整合完之後就開始幫我跑第二輪，然後每一格出來後都要跟我說他的風格特徵是什麼」)
+
+- A new freeze on the integrated rules (the commit adding `baseline-r02/`): the baseline is the integrated b1a2 (0.9102);
+  round 1's numbers are pre-R18 (the brief says so: mechanisms, not numbers). `config.json` baseline 0.0 -> 0.9102.
+- Dreaming between the rounds (replay over round 1's tree, one world): the floor v0 reward 0.8092, the adaptive template
+  v1 0.8063, v2 (the template, one fresh root fewer per batch once a branch pays off) 0.8110 -> promoted (`policy/current.py`,
+  `policy/history/`). One world: the margin is small.
+- 8 cells again (W 2, `plan --beta 0.6`); every cell reports a STYLE paragraph (how it plays, in a player's words), relayed
+  to the user cell by cell.
