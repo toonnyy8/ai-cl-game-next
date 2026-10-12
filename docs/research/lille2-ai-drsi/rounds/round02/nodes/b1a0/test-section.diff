@@ -1,0 +1,32 @@
+--- frozen BARRO-CPU-TESTS
++++ cell BARRO-CPU-TESTS
+@@ -108,10 +108,28 @@
+     (let ((k (getf (kit-ai (kit :barro f)) :stance)))
+       (check (and (= 0.7 (getf k :charge)) (= 0.7 (getf k :follow)) (= 1.0 (br-ai-chance (getf k :charge) :hard))))))
+   (check (equal (mapcar (lambda (f) (getf (getf (kit-ai (kit :barro f)) :stance) :sp2)) *br-forms*) '(0.7 0.7 0.7 0.9 0.9)))
+-  (check (equal (getf (kit-ai (kit :barro :base)) :far-snipe) '(:p 0.7 :in 4.5)))
++  (check (equal (getf (kit-ai (kit :barro :base)) :far-snipe) '(:p 0.7 :in 6.0)))   ; (round 2 b1a0: out of the CPUs' envelope)
+   (check (equal *br-ai-cash-p* '(:easy 0.1 :normal 0.3 :hard 1.0)))
+   (check (<= (getf *br-ai-cash-p* :easy) (getf *br-ai-cash-p* :normal) (getf *br-ai-cash-p* :hard)))
+   (check (equal (list (br-ai-cash-plan :kamae-l 3 3 t 0.5 1.0) (br-ai-cash-plan :kamae-l 2 3 t 0.5 1.0)
+                       (br-ai-cash-plan :kamae-l 3 3 nil 0.5 1.0) (br-ai-cash-plan :kamae-l 3 3 t 0.5 0.3)
+                       (br-ai-cash-plan :kamae-k 3 3 t 0.5 1.0))
+                 '(:kamae-sp2 :kamae-l :kamae-l :kamae-l :kamae-k)))
++  ;; (dream-rsi round 2 b1a0) the line: a charge held as a threat, released when the predicted line meets him (his perceived
++  ;; offset + his lateral speed x the frames to the hit), at the highest level that still lands; the snipe never inside the
++  ;; CPUs' threat envelope (its charge's reach + *AI-THREAT-MARGIN*); a charge starts only facing him
++  (check (eq :lost (br-ai-line-call 2 2 0.0 0.0 -1.0 17 0.5 0.6 12.3 0 0.0)))     ; (him behind its start: a Hoho, a cross-up)
++  (check (eq :hold (br-ai-line-call 1 2 0.0 0.0 8.0 17 0.5 0.6 12.3 5 31.0)))     ; (level 1: never on the line)
++  (check (eq :fire (br-ai-line-call 2 2 0.1 0.0 8.0 17 0.5 0.6 12.3 20 31.0)))    ; (the target reached, on the line)
++  (check (eq :hold (br-ai-line-call 2 2 1.0 0.0 8.0 17 0.5 0.6 12.3 20 31.0)))    ; (off it: he may walk back onto it)
++  (check (eq :fire (br-ai-line-call 2 2 1.0 -0.05 8.0 17 0.5 0.6 12.3 20 31.0)))  ; (walking onto it: 1.0 - 0.85 at the hit)
++  (check (eq :hold (br-ai-line-call 2 2 0.1 0.0 14.0 17 0.5 0.6 12.3 20 31.0)))   ; (past level 2's 12 m)
++  (check (eq :hold (br-ai-line-call 2 3 0.0 0.0 8.0 17 0.5 0.6 12.3 20 31.0)))    ; (level 3 will land too: wait for it)
++  (check (eq :fire (br-ai-line-call 2 3 0.0 0.02 8.0 17 0.5 0.6 12.3 20 31.0)))   ; (level 3 would find him off it: now)
++  (check (eq :fire (br-ai-line-call 3 3 0.0 0.0 20.0 17 0.5 0.6 31.3 0 31.0)))
++  (check (equal (list (br-ai-envelope-p 6.0 0.0 8) (br-ai-envelope-p 6.0 0.1 8) (br-ai-envelope-p 5.0 -0.1 8))
++                '(nil t t)))   ; (*BR-S-NEAR* 4 + *AI-THREAT-MARGIN* 1.5, his closing over the perception delay)
++  (check (= *br-ai-snipe-min* (getf (getf (kit-ai (kit :barro :base)) :far-snipe) :in) 6.0))
++  (check (equal *br-ai-line-p* '(:easy 0.2 :normal 0.5 :hard 1.0)))
++  (check (<= (getf *br-ai-line-p* :easy) (getf *br-ai-line-p* :normal) (getf *br-ai-line-p* :hard)))
++  (check (and (= *br-ai-line-margin* 0.1) (= *br-ai-line-k* 6) (= *br-ai-face-max* 0.35)))
