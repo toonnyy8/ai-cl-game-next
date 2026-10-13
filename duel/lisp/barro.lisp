@@ -1629,17 +1629,24 @@ level that reaches him: BR-AI-FLOOR-LEVEL); else FLOOR."
   "The awakened dash's lowest reaching level at D m (*BR-AI-DASH-FLOOR*)."
   (br-ai-floor-level d (first *br-ai-dash-floor*) (second *br-ai-dash-floor*)))
 
+(defparameter *br-route-fs* 30.0
+  "BR-ROUTE-J-P: the flash step under which the stance route is J's refill (the user, 2026-10-13: 「現在輔助模式變成只有閃步跟
+SP 量表全滿才會使用架式 K 高傷害攻擊」: the K route is the default; 40 / the kit's :recover-fs and a spare special asked
+before, the same day).")
+(defparameter *br-route-bars* 1 "... and the Reiatsu bars under which (0 bars: J) ...")
+(defparameter *br-route-spend* 3 "... unless this many specials are spare above the reserve (a full L L to pay: K, the spend).")
 (defun br-route-j-p (fs bars spare k)
-  "The stance route by his resources (the user, 2026-10-13: 「輔助模式跟電腦 AI 似乎不懂如何依據目前資源的多寡選擇不同的架式」; pure):
-the J route (its J hits and its L L refill flash step and Reiatsu) when the flash step FS is under the kit's :stance
-:recover-fs or the Reiatsu BARS under :recover-bars, or no special is SPARE above the wing reserve (:keep: the K route's
-L L lines, one special a line, could not be paid); else the K route (the damage, the specials spent)."
-  (or (< fs (getf k :recover-fs 40.0)) (< bars (getf k :recover-bars 1)) (< spare 1)))
+  "The stance route by his resources (the user, 2026-10-13: 「依據目前資源的多寡選擇不同的架式」; pure; K the kit's :stance,
+unused now): the K route (the damage; its L L lines spend the specials) by default and always with *BR-ROUTE-SPEND*
+specials SPARE above the wing reserve; the J route (its hits and L L refill flash step and Reiatsu) only when the flash
+step FS is under *BR-ROUTE-FS* or the Reiatsu BARS under *BR-ROUTE-BARS*."
+  (declare (ignore k))
+  (and (< spare *br-route-spend*) (or (< fs *br-route-fs*) (< bars *br-route-bars*))))
 (defun br-spare (e)
   "E's specials above his form's wing reserve (the kit's :stance :keep; the base form none): what the K route may spend."
   (- (brs-ammo (br e)) (getf (ai-table e :stance) :keep 0)))
 
-(defun br-ai-stance-plan (r d jr kr fs bars k &key threat combo from-k (spare 99))
+(defun br-ai-stance-plan (r d jr kr fs bars k &key threat combo from-k (spare 0))
   "His CPU's base stance pick from one roll R at the distance D (JR / KR: the stance J1's / K1's reach on him; K: the kit's
 :stance): his attack coming (THREAT, not in a COMBO) the Step (:step of the time); a COMBO (the stance opened off a link
 that hit): the K string in its reach off a K link (FROM-K) or out of J's reach, else J (they combo: J S 10 off J's flinch,

@@ -3284,12 +3284,13 @@ defender's next step. Values: the attacker's and the defender's first actionable
                 '(:kamae-sp2 :kamae-l :kamae-l :kamae-sp2 :kamae-k :kamae-l)))
   (let ((st (make-brs)))   ; (a fresh match: nothing read, no cash-out pending)
     (check (and (= -1 (brs-ai-cash-t st)) (zerop (brs-ai-cash-read st)) (null (brs-ai-stepped st)))))
-;; (the user 2026-10-13: 「依據目前資源的多寡選擇不同的架式」) the route by his resources: J when the flash step / Reiatsu is low or no
-;; special is spare above the reserve, else K; the base stance pick and EN's plan follow it
+;; (the user 2026-10-13: 「依據目前資源的多寡選擇不同的架式」, then 「只有閃步跟 SP 量表全滿才會使用架式 K」) the route by his resources: K by
+;; default and with 3 spare; J only on a low flash step (< 30) or 0 Reiatsu bars; the base stance pick and EN's plan follow it
 (let ((k '(:recover-fs 40.0 :recover-bars 1 :j-share 0.0 :keep 4)))
-  (check (and (br-route-j-p 30.0 3 5 k) (br-route-j-p 100.0 0 5 k) (br-route-j-p 100.0 3 0 k) (not (br-route-j-p 100.0 3 1 k))))
-  (check (and (eq :kamae-j (br-ai-stance-plan 0.9 1.5 2.3 3.0 100.0 3 k :spare 0))
-              (eq :kamae-k (br-ai-stance-plan 0.9 1.5 2.3 3.0 100.0 3 k :spare 2))
+  (check (and (br-route-j-p 20.0 3 0 k) (br-route-j-p 100.0 0 2 k) (not (br-route-j-p 20.0 0 3 k))   ; (3 spare: K, spend)
+              (not (br-route-j-p 100.0 3 0 k)) (not (br-route-j-p 30.0 1 0 k))))   ; (the default K, no special needed)
+  (check (and (eq :kamae-j (br-ai-stance-plan 0.9 1.5 2.3 3.0 20.0 3 k :spare 0))
+              (eq :kamae-k (br-ai-stance-plan 0.9 1.5 2.3 3.0 100.0 3 k :spare 0))
               (eq :q (br-ai-en-plan 0.9 1.5 2.0 3.0 k t t)) (eq :f (br-ai-en-plan 0.9 1.5 2.0 3.0 k t nil)))))
 ;;; <<< END BARRO-CPU-TESTS
   ;; his state starts empty
