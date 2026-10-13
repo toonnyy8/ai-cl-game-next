@@ -1,0 +1,48 @@
+--- frozen BARRO-CPU-TESTS
++++ cell BARRO-CPU-TESTS
+@@ -102,13 +102,41 @@
+   (check (equal (getf (getf (kit-ai (kit :barro :jilliel-kin)) :far-dash) :p) '(:easy 0.05 :normal 0.15 :hard 1.0)))
+   ;; (dream-rsi b1a2) every attack-state link that hit -> L -> the stance (the base's J the gun-kata, no K2s bridge), the
+   ;; base stance's cash-out at the pips' cap
+-  (dolist (f '(:base :jilliel-kin :shin-kin))
++  (dolist (f '(:jilliel-kin :shin-kin))
+     (check (= 1.0 (getf (kit-ai (kit :barro f)) :l-after-j) (getf (kit-ai (kit :barro f)) :l-after-k))))
+-  (dolist (f *br-forms*)   ; (every charge, line and cash-out at HARD: 0.7 x1.5; NORMAL 0.21)
++  (dolist (f (rest *br-forms*))   ; (every awakened charge, line and cash-out at HARD: 0.7 x1.5; NORMAL 0.21)
+     (let ((k (getf (kit-ai (kit :barro f)) :stance)))
+       (check (and (= 0.7 (getf k :charge)) (= 0.7 (getf k :follow)) (= 1.0 (br-ai-chance (getf k :charge) :hard))))))
+-  (check (equal (mapcar (lambda (f) (getf (getf (kit-ai (kit :barro f)) :stance) :sp2)) *br-forms*) '(0.7 0.7 0.7 0.9 0.9)))
+-  (check (equal (getf (kit-ai (kit :barro :base)) :far-snipe) '(:p 0.7 :in 4.5)))
++  (check (equal (mapcar (lambda (f) (getf (getf (kit-ai (kit :barro f)) :stance) :sp2)) (rest *br-forms*)) '(0.7 0.7 0.9 0.9)))
++  ;; (dream-rsi b2a0) the never-awakened base form's own plan: every J link that hit -> its K link (K2s) -> L -> the rifle
++  ;; (the stance K string, whose L L lines spend the pips), never the gun-kata off a confirm; the base's chances as its own
++  ;; tables (EASY <= NORMAL <= HARD, HARD 1.0 as before); a failed charge roll the snipe's floor (never a 4 m tap from afar);
++  ;; no stance K1 into a free man in J's reach (:j-share 1.0); no long neutral guard; the ladder (range by the pips)
++  (let ((ai (kit-ai (kit :barro :base))))
++    (check (and (= 1.0 (getf ai :l-after-k)) (= 0.0 (getf ai :l-after-j)) (= 1.0 (getf ai :string-k))))
++    (check (= 0.1 (getf ai :neutral-guard)))
++    (check (equal (getf ai :far-snipe) '(:p (:easy 0.2 :normal 0.5 :hard 1.0) :in 4.5)))
++    (let ((k (getf ai :stance)))
++      (check (= 1.0 (getf k :j-share)))
++      (check (equal (list (getf k :charge) (getf k :follow) (getf k :sp2))
++                    '((:easy 0.2 :normal 0.5 :hard 1.0) (:easy 0.3 :normal 0.8 :hard 1.0) (:easy 0.3 :normal 0.6 :hard 1.0))))
++      (dolist (p (list (getf k :charge) (getf k :follow) (getf k :sp2) (getf (getf ai :far-snipe) :p) *br-ai-ladder-p*))
++        (check (<= (getf p :easy) (getf p :normal) (getf p :hard))))
++      (check (equal (mapcar (lambda (d) (br-ai-p k :follow d)) '(:easy :normal :hard)) '(0.3 0.8 1.0)))))
++  (check (< (abs (- (br-ai-p '(:follow 0.7) :follow :normal) 0.21)) 1e-6))   ; (a plain chance: x *BR-AI-DIFF*)
++  (check (equal (list (br-ai-snipe-floor 3.0 4.4) (br-ai-snipe-floor 4.4 4.4) (br-ai-snipe-floor 4.5 4.4) (br-ai-snipe-floor 15.0 4.4))
++                '(1 1 2 2)))
++  (check (equal (list (br-ai-ladder-intent 0 3) (br-ai-ladder-intent 2 3) (br-ai-ladder-intent 3 3)) '(:zone :zone :pressure)))
++  (check (equal *br-ai-ladder-p* '(:easy 0.3 :normal 0.6 :hard 1.0)))
++  ;; (b2a0) the far snipe in sight only: facing him, his drift across the line small by the time the shot lands
++  (check (and (= 0.6 *br-ai-sight-gap*) (= 38 *br-ai-sight-f*)))
++  (check (br-ai-sight-p 8.0 0.0 0.0 46))         ; (square, still)
++  (check (br-ai-sight-p 8.0 0.04 0.005 46))      ; (0.32 + 0.23 m: in)
++  (check (not (br-ai-sight-p 8.0 0.3 0.0 46)))   ; (2.4 m off his facing)
++  (check (not (br-ai-sight-p 8.0 0.0 0.03 46)))  ; (strafing: 1.4 m by the shot)
++  (check (not (br-ai-sight-p 8.0 0.0 -0.03 46))) ; (either way)
++  (check (equal *br-ai-hoho-step-p* '(:easy 0.1 :normal 0.4 :hard 1.0)))
++  (check (<= (getf *br-ai-hoho-step-p* :easy) (getf *br-ai-hoho-step-p* :normal) (getf *br-ai-hoho-step-p* :hard)))
+   (check (equal *br-ai-cash-p* '(:easy 0.1 :normal 0.3 :hard 1.0)))
+   (check (<= (getf *br-ai-cash-p* :easy) (getf *br-ai-cash-p* :normal) (getf *br-ai-cash-p* :hard)))
+   (check (equal (list (br-ai-cash-plan :kamae-l 3 3 t 0.5 1.0) (br-ai-cash-plan :kamae-l 2 3 t 0.5 1.0)
