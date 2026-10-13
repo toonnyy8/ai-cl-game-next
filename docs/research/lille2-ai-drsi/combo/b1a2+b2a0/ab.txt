@@ -1,0 +1,30 @@
+Combo b1a2+b2a0 (delivered barro.lisp): awaken A/B, NORMAL, the never-awaken Lille II as P1 (cmd 39020), 60 seeds a row.
+"P1" = the never-awaken side's wins of 60; pass >= 20. All matches K.O.
+
+Streams 100 and 500 were measured on v1 and 300 on v1 and v2 (the delivered file). v1 -> v2 changes only two NORMAL
+tables that his awakened forms read (KIN / SHIN :far-dash :p, *BR-AI-EXIT-P*). In these rows his side never awakens, so
+they are the same match for match. Checked: seed0 300 on v2 gives exactly v1's rows. The mirror (27) is affected because
+its P2 is an awakening Lille II, so it was measured on v2 on all three streams.
+
+python3 tools/simgate.py --pairs 21,22,23,24,25 --seed0 S --seeds 60 --cmd 39020 -j 2 --summary
+
+        P1 wins of 60: Y  K  R  I  S        medians (s, no cinematics) Y K R I S
+seed0 100            42 22 34 32 32         114.0 124.2 157.7 148.1 150.1
+seed0 300            38 19 28 31 34         115.4 113.8 153.1 145.0 156.9
+seed0 500            38 23 25 29 37         114.4 118.8 154.8 151.9 153.5
+-> 14 of 15 rows pass; BK at seed0 300: 19 (one short)
+
+Compared (the cells' own proposal.md):
+           b1a2 (Y K R I S)     b2a0 (Y K R I S)      combo (Y K R I S)
+100        10  0  2  1  4       39 16 33 33 35        42 22 34 32 32
+300        15  1  0  0  1       50 28 30 37 41        38 19 28 31 34
+500        13  0  1  2  1       40 26 31 35 36        38 23 25 29 37
+passes     0 / 15               14 / 15 (BK@100 16)   14 / 15 (BK@300 19)
+
+Mirror A/B (pairing 27; never-awaken Lille II = P1, the awakening one P2), v2:
+python3 tools/simgate.py --pairs 27 --seed0 S --seeds 60 --cmd 39020 -j 2 --summary
+seed0 100  P1 28 P2 32   median 157.8 s
+seed0 300  P1 23 P2 37   median 163.5 s
+seed0 500  P1 32 P2 28   median 151.1 s
+-> 3 of 3 pass (freeze 2eaf8b9 measured 4 / 1 / 0, DEVLOG §211)
+(v1, before the NORMAL tables reverted: seed0 100 P1 18 P2 42)
