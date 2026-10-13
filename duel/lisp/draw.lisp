@@ -173,6 +173,28 @@ once, on the draw that first sees the frame (MODEL-LAST-SF)."
 form before, e.g. an awakening's first beats, stands on the ground)."
   (let ((h (kit-lift kit))) (if (and (/= h 0) (kit-body kit) (eq b (find-body (kit-body kit)))) h 0.0)))
 
+(defun-fast fire-sheet (f mv px pz tip dt power)
+  "Ryujin Jakka's fire outruns the blade (docs/duel/DUEL_YAMA_TYBW.md §3.3): through each arc hit window of a :fire blade's
+Flash or Signature (from 3 f before it), a flame from the drawn TIP out along its bearing from his feet (PX PZ) to the
+volume's edge, its far end slanted to 0.15-1.4 m up; grown over those 3 f (the edge reached on the hit frame), dying 4 f
+after the window. Cosmetic (VFX-BLADE-FIRE's drawing, inline); 0 B."
+  (declare (single-float px pz dt power) (type f32vec tip))
+  (let ((sf (fighter-sf f)))
+    (declare (fixnum sf))
+    (loop for hw across (the simple-vector (mv-hits mv))
+          do (let ((from (hw-from hw)) (to (hw-to hw)) (v (first (hw-vols hw))))
+               (declare (fixnum from to))
+               (when (and v (< (aref (the f32vec v) 0) 0.5f0) (<= (- from 3) sf) (< sf (+ to 4)))
+                 (let* ((grow (f-min 1f0 (/ (i->f (- sf (- from 3))) 3f0)))
+                        (fade (if (< sf to) 1f0 (/ (i->f (- (+ to 4) sf)) 4f0)))
+                        (tx (aref tip 0)) (ty (aref tip 1)) (tz (aref tip 2)) (dx (- tx px)) (dz (- tz pz))
+                        (k (* grow (- (/ (aref (the f32vec v) 1) (f-max 0.05f0 (f-hypot dx dz))) 1f0)))
+                        (ey (+ ty (* grow (- (f-max 0.15f0 (f-min ty 1.4f0)) ty)))))
+                   (declare (single-float grow fade tx ty tz dx dz k ey))
+                   (when (> k 0f0)
+                     (%blade-fire tx ty tz (+ tx (* k dx)) ey (+ tz (* k dz)) dt (* 1.5f0 power fade))))))))
+  nil)
+
 (defun draw-fighter (e rdt)
   "Pose and queue fighter E: body, weapon (or the planted one), blade look, aura, trail. RDT = this
 frame's effect seconds (0 while paused). A Kikon rush module's look (its :look): :flash-step shows only
@@ -232,7 +254,9 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
       (let ((look (kit-blade kit)))
         (case (first look)
           (:fire (vfx-blade-fire (aref *base* 0) (aref *base* 1) (aref *base* 2) (aref *tip* 0) (aref *tip* 1) (aref *tip* 2)
-                                 rdt :power (second look)))
+                                 rdt :power (second look))
+                 (when (and mv (eq (fighter-phase f) :main) (member (mv-kind mv) '(:flash :sig)))   ; the fire sheet
+                   (fire-sheet f mv (f32 x) (f32 z) *tip* (f32 rdt) (f32 (second look)))))
           (:embers (vfx-blade-embers (aref *base* 0) (aref *base* 1) (aref *base* 2) (aref *tip* 0) (aref *tip* 1) (aref *tip* 2) rdt))))
       (when (and mv (eq (fighter-phase f) :hold) (not (member :stance (mv-flags mv))))
         (let ((ch (kit-hook kit :charge)))                 ; a form's own charge look replaces the fire one

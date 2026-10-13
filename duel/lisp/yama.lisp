@@ -26,7 +26,7 @@
   :reach 2.6 :arc 150 :on-hit :stagger :meter *inferno-flash*)      ; HOMURA-NAGI: the waist-high sweep
 (defmove :ya-k2 :kind :flash :clip :ya-f2 :enter 8 :startup 22 :active 4 :recovery 24 :dmg 64 :adv-block -3
   :reach 2.3 :arc 90 :on-hit :stagger :meter *inferno-flash*)       ; SHOEN: the rising flame column
-(defmove :ya-k3 :kind :flash :clip :ya-q3 :clip-s 12 :enter 8 :startup 22 :active 5 :recovery 34 :dmg 88 :adv-block -20
+(defmove :ya-k3 :kind :flash :clip :ya-f3 :enter 8 :startup 22 :active 5 :recovery 34 :dmg 88 :adv-block -20
   :reach 2.4 :arc 120 :on-hit :crumple :meter *inferno-flash* :flags (:ender))   ; ENBAKU: the dome at his feet
 (defmove-copy :ya-j2s :ya-j2)
 (defmove-copy :ya-k2s :ya-k2)
