@@ -1338,3 +1338,33 @@ The user (verbatim): 「幫我為電腦 AI 與輔助攻擊增加這招」 (the O
   ender in every form).
 - G2 identical. ASSIST (report only; with AUTO GUARD ALWAYS guarding, DUEL_ASSIST): k0 72%, k1 84%, k2 99%, k3 69%, k6 82%,
   k10 86%, k11 99% (§22.5: 72 / 85 / 100 / 71 / 82 / 87 / 99).
+
+## 26. The old Lille removed; Lille II is Lille (2026-10-13)
+
+The user (verbatim): 「幫我移除舊版的 lille，並將新版 lille II 改名成 lille」.
+
+- **The name**: his kit's `:name` "LILLE II" -> "LILLE" (the select screen, the HUD, the intro's brush name リジェ・バロ /
+  LILLE); the manual's chapter 利傑·巴羅 (LILLE BARRO, LILLE), its "remade Lille" lines gone, the AUTO COMBO line, the
+  learning order (one 利傑). The code keeps his names (kit `:barro`, `barro*.lisp`, the `br-` prefix, simgate's BARRO,
+  debug 82000-82999): a rename there would touch every gate quote and saved index for nothing a player sees.
+- **Removed**: `lille.lisp` (3419 lines: the old Lille's nine kits, moves, rules, CPU, learning situations, AUTO COMBO
+  routes, HUD hooks, pacing log, debug 79000-79599) and his host-test section (~1475 checks: 8451 -> 6976), the
+  learning gate's habits 7-9 against him (`*habits*`), his browser script (`duel-lille.json`), the looks gate's stills of
+  him (the awakening at 79100+k, 79197 / 79198); in `lille-art.lisp` (3484 -> 3310 lines, the moved cinematics included) his HUD (the eye row, halo,
+  distance tag, guard outline, one-hand ring), the aim line, the seal / reflect look, his body-alpha and charge hooks, the
+  revival cinematic's clips and VFX, the HOSHA / TAISHA / TENSHIN / owl SABAKI clips and four unused weapons; `aieval.py`'s
+  old-Lille scoring (his whitelist, drift reference, pacing caps).
+- **Kept / moved**: Lille's art stays in `lille-art.lisp` (the rig, the bodies, the wings, the clips his kits play,
+  LILLE-DRAW, LB-LOOK); the four cinematics his kits name (the awakening `lb-jilliel-cine`, the base Kikon `lb-kikon-cine`,
+  the Jilliel Kikon `lb-jilliel-kikon-cine`, the owl Kikon `lb-trompete-cine`) moved there from `lille.lisp` (the
+  awakening's caption only 万物貫通 now); the hazard look struct LBH moved to `barro.lisp`; the misuji look's four knobs
+  (`*LB-SABAKI-FROM*` 1.0 / `-SPEED*` 40.0 / `-LIFE*` 24 / `-WIDTH*` 0.6) to `lille-art.lisp`, unchanged.
+- **Roster index 5 reserved**: `barro.lisp` appends `:lille` to `*ROSTER*` before his kits (`*RETIRED*`: never played), so
+  Lille stays index 6: the saved learning tables and records are kept by index and the gates' pairings are numbered by
+  it (simgate `--pairs 21..27`, `--cmd 39020`, aieval `--char 6` unchanged).
+- The looks gate re-pinned its CPU-vs-CPU seeds over the six playable fighters (1 YS, 72 RI, 33 KS, 44 BK; the old table
+  drew from seven: its three "fighters" checks had failed since 2026-10-12) and shoots six select screens.
+- Gates: host tests 6976 ALL PASS (and the other host suites), pkgcheck clean, build, smoke; his six pairings at 20 seeds
+  identical to §25.2 (BY 121.0, BK 118.5, BR 162.1, BI 157.9, BS 157.0, BB 202.8 s; the same wins): the sim did not move;
+  G2 identical; the looks gate: pending.
+
