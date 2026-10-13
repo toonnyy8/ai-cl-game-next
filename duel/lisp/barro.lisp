@@ -1245,17 +1245,32 @@ end push (FIGHTER-END-CHASE: its dash, SKIP-AURA), in the attack state's form (t
 T when the rush started."
   (let ((vp (pilot-vpad (pilot e))))
     (when (and (vpad-command-pressed-p vp :kikon :any)
-               (cancel-open-p (fighter-sf f) (fighter-land-sf f) (mv-total mv) (eq (fighter-contact f) :hit)))
-      (let* ((form (fighter-form f)) (melee (br-melee-of form)))
-        (unless (eq melee form) (set-form e melee))
-        (cond ((try-command e f :kikon :kikon t)
-               (vpad-consume! vp :kikon)
-               (setf (fighter-end-chase f) t)
-               (skip-aura e f)
-               (pace e :o-ender)
-               t)
-              (t (unless (eq melee form) (set-form e form))
-                 nil))))))
+               (cancel-open-p (fighter-sf f) (fighter-land-sf f) (mv-total mv) (eq (fighter-contact f) :hit))
+               (br-s-o-go e f))
+      (vpad-consume! vp :kikon)
+      t)))
+(defun br-s-o-go (e f)
+  "The O ender's start (BR-S-O-ENDER's, his CPU's BR-AI-O-ENDER's): the attack state's form, the Kikon rush (TRY-COMMAND,
+ENDER), off the end push. T when it started (refused: the form as it was)."
+  (let* ((form (fighter-form f)) (melee (br-melee-of form)))
+    (unless (eq melee form) (set-form e melee))
+    (cond ((try-command e f :kikon :kikon t)
+           (setf (fighter-end-chase f) t)
+           (skip-aura e f)
+           (pace e :o-ender)
+           t)
+          (t (unless (eq melee form) (set-form e form))
+             nil))))
+(defun br-ai-o-ender (e f b mv)
+  "His CPU's O ender (the user, 2026-10-13: 「幫我為電腦 AI 與輔助攻擊增加這招」): a stance string's last segment MV that hit,
+on its land frame (one look a hit), the opponent red (KIKON-READY-P: the rush is the Kikon) and not to be finished with
+hits (AI-SB-FINISH-P) -- the generic CPU's O ender rule on a red opponent (ai.lisp AI-REFLEX): BR-S-O-GO, the Kikon
+button held through the rush (AI-COMMAND :kikon). T when it started."
+  (when (and (getf (mv-params mv) :end) (eq (fighter-contact f) :hit) (= (fighter-sf f) (fighter-land-sf f))
+             (kikon-ready-p e) (not (ai-sb-finish-p e)) (br-s-o-go e f))
+    (ai-command b (fighter-kit f) :kikon (fighter-dist f) e)
+    (why b :o-ender :kikon)
+    t))
 
 (defun br-s-tick (e)
   "A stance move (no chase: its J / K links are :quick / :flash). Its L links (:lchain: L1 -> L2 -> L3, J3 -> JL1 -> JL2 ->
@@ -1276,8 +1291,8 @@ His CPU makes one call there (BR-S-CPU-CALL); holding a charge (the :hold phase)
     (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :hold) (member (mv-name mv) '(:br-s-l1 :br-e-l1 :br-oe-l1))
                (zerop (fighter-lock f)) (null (br-tick-brain e)))   ; (R18: the charged L's charge, a human's Step)
       (br-snipe-step e f st (pilot-vpad (pilot e)) mv))
-    (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :main) (zerop (fighter-lock f))
-               (getf (mv-params mv) :end) (null (br-tick-brain e)) (br-s-o-ender e f mv))   ; (R20: the O ender)
+    (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :main) (zerop (fighter-lock f)) (getf (mv-params mv) :end)
+               (let ((b (br-tick-brain e))) (if b (br-ai-o-ender e f b mv) (br-s-o-ender e f mv))))   ; (R20: the O ender)
       (return-from br-s-tick nil))
     (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :main) (zerop (fighter-lock f)))
       (let* ((kit (fighter-kit f)) (next (kit-next kit (mv-name mv) :lchain)) (sp2 (kit-next kit (mv-name mv) :sp2c))
@@ -1613,7 +1628,17 @@ level that reaches him: BR-AI-FLOOR-LEVEL); else FLOOR."
   "The awakened dash's lowest reaching level at D m (*BR-AI-DASH-FLOOR*)."
   (br-ai-floor-level d (first *br-ai-dash-floor*) (second *br-ai-dash-floor*)))
 
-(defun br-ai-stance-plan (r d jr kr fs bars k &key threat combo from-k)
+(defun br-route-j-p (fs bars spare k)
+  "The stance route by his resources (the user, 2026-10-13: 「輔助模式跟電腦 AI 似乎不懂如何依據目前資源的多寡選擇不同的架式」; pure):
+the J route (its J hits and its L L refill flash step and Reiatsu) when the flash step FS is under the kit's :stance
+:recover-fs or the Reiatsu BARS under :recover-bars, or no special is SPARE above the wing reserve (:keep: the K route's
+L L lines, one special a line, could not be paid); else the K route (the damage, the specials spent)."
+  (or (< fs (getf k :recover-fs 40.0)) (< bars (getf k :recover-bars 1)) (< spare 1)))
+(defun br-spare (e)
+  "E's specials above his form's wing reserve (the kit's :stance :keep; the base form none): what the K route may spend."
+  (- (brs-ammo (br e)) (getf (ai-table e :stance) :keep 0)))
+
+(defun br-ai-stance-plan (r d jr kr fs bars k &key threat combo from-k (spare 99))
   "His CPU's base stance pick from one roll R at the distance D (JR / KR: the stance J1's / K1's reach on him; K: the kit's
 :stance): his attack coming (THREAT, not in a COMBO) the Step (:step of the time); a COMBO (the stance opened off a link
 that hit): the K string in its reach off a K link (FROM-K) or out of J's reach, else J (they combo: J S 10 off J's flinch,
@@ -1622,15 +1647,15 @@ or :j-share of the time, else K (the damage); in K's reach K; farther the snipe,
   (cond ((and threat (not combo) (< r (getf k :step 0.0))) :kamae-step)
         ((and combo (<= d kr) (or from-k (> d jr))) :kamae-k)
         ((and combo (<= d jr)) :kamae-j)
-        ((<= d jr) (if (or (< fs (getf k :recover-fs 40.0)) (< bars (getf k :recover-bars 1)) (< r (getf k :j-share 0.3)))
+        ((<= d jr) (if (or (br-route-j-p fs bars spare k) (< r (getf k :j-share 0.3)))   ; (SPARE: the resource rule)
                        :kamae-j :kamae-k))
         ((<= d kr) :kamae-k)
         (t :kamae-l)))
-(defun br-ai-en-plan (r d jr kr k dashed)
+(defun br-ai-en-plan (r d jr kr k dashed &optional j-route)
   "His CPU's plan for one standing window of the awakened stance EN (one roll R; D the distance, JR / KR the stance J1's /
 K1's reach on him; K the kit's :stance; DASHED its fast Step spent): K in its reach (in J's reach :j-share of the time J,
 the top's refill), the charged dash where it reaches (BR-AI-DASH-LEVEL), else the fast Step in (NIL: spent, the window runs out back to KIN). :Q, :F, :SIG, :STEP or NIL."
-  (cond ((<= d jr) (if (< r (getf k :j-share 0.25)) :q :f))
+  (cond ((<= d jr) (if (or j-route (< r (getf k :j-share 0.25))) :q :f))   ; (J-ROUTE: BR-ROUTE-J-P, his resources)
         ((<= d kr) :f)
         ((br-ai-dash-level d) :sig)
         ((not dashed) :step)))
@@ -1682,7 +1707,7 @@ the time, else a tap); a Step plan clears itself so the window after it (5 m out
            (combo (or (member (mv-name (fighter-move f)) '(:br-kamae-j :br-kamae-k))
                       (>= left (+ (mv-s (find-move :br-s-j1)) 2))))
            (plan (br-ai-stance-plan (sim-rnd01) d (br-ai-reach e :br-s-j1) (br-ai-reach e :br-s-k1) (gauges-fs g)
-                                    (reiatsu-bars e) k :threat (br-ai-threat-p e s d) :combo combo
+                                    (reiatsu-bars e) k :threat (br-ai-threat-p e s d) :combo combo :spare (br-spare e)
                                     :from-k (or (eq (mv-name (fighter-move f)) :br-kamae-k)
                                                 (>= left (+ (mv-s (find-move :br-s-k1)) 2))))))
       (setf plan (br-learn-kamae e b plan))
@@ -1726,7 +1751,10 @@ the stance's opener now, the turn skipped: K1 in its reach (cut to *BR-LINK-K-S*
   (when (<= (fighter-sf f) 1)
     (let* ((form (br-ranged-of (fighter-form f))) (pre (if (br-owl-form-p form) "BR-OE" "BR-E"))
            (d (br-ai-seen-d e (br-ai-seen b))))
-      (cond ((<= d (br-ai-reach e (intern (format nil "~a-K1" pre) :keyword))) :f)
+      (cond ((and (<= d (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword)))   ; (the resource rule: the J route)
+                  (br-route-j-p (gauges-fs (gauges e)) (reiatsu-bars e) (br-spare e) (ai-table e :stance)))
+             :q)
+            ((<= d (br-ai-reach e (intern (format nil "~a-K1" pre) :keyword))) :f)
             ((<= d (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword))) :q)
             ((br-ai-dash-level d) :sig)))))
 
@@ -1782,7 +1810,8 @@ BR-AI-EN-PLAN, pressed at once (the window lasts *BR-EN-HOLD* f); his attack com
       (let* ((pre (if (br-owl-form-p (fighter-form f)) "BR-OE" "BR-E"))
              (plan (br-ai-en-plan (sim-rnd01) d (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword))
                                   (br-ai-reach e (intern (format nil "~a-K1" pre) :keyword)) (ai-table e :stance)
-                                  (brs-dashed st))))
+                                  (brs-dashed st)
+                                  (br-route-j-p (gauges-fs (gauges e)) (reiatsu-bars e) (br-spare e) (ai-table e :stance)))))
         (pace e (intern (format nil "AI-EN-~a" plan) :keyword))
         (case plan
           ((nil) nil)
@@ -2306,7 +2335,8 @@ Step; at its end :TAKE, or :GUARD held through)."
 ;;;   attack state  his J in a J / K link that hit, on its land frame: a J link -> its K link; a K link -> L (the stance:
 ;;;                 the base's at f4, the awakened turn)
 ;;;   stance        his J while the stance is up (the base stance's window, the awakened stance free): K (K K, whose J J
-;;;                 the generic latch takes on his next J)
+;;;                 the generic latch takes on his next J); his J kept (the J route) when his resources ask for the
+;;;                 refill (BR-ROUTE-J-P: low flash step / Reiatsu, no special spare above the reserve; the user 2026-10-13)
 ;;;   R17's turn    his J in KIN's turn into the stance off a link (:br-to-en-l): K (the stance K1 at once, it combos)
 ;;;   the strings   his J in a stance string's segment once its hits are over, the segment having touched him: L (its L L
 ;;;                 follow-up, a spending one only with a special to pay it), else at a string's last segment that hit
@@ -2331,27 +2361,33 @@ Step; at its end :TAKE, or :GUARD held through)."
   "His kits' :assist-combo (assist.lisp AUTO-ROUTE): the routes above. A command, :NONE (the route holds the step) or NIL
 (the generic AUTO COMBO)."
   (declare (ignore s d))
-  (let* ((a (br-as-track f b vp)) (mv (bras-mv a)) (kit (fighter-kit f)) (form (fighter-form f)))
+  (let* ((a (br-as-track f b vp)) (mv (bras-mv a)) (kit (fighter-kit f)) (form (fighter-form f))
+         (j-route (br-route-j-p (gauges-fs (gauges e)) (reiatsu-bars e) (br-spare e) (ai-table e :stance))))   ; (his resources)
     (cond ((and mv (eq (mv-name mv) :br-to-en-l))
            (cond ((bras-done a) (vpad-consume! vp :quick) :none)
+                 ((and (bras-j a) j-route) (setf (bras-done a) t) (pace e :as-link-j) nil)   ; (his J: the stance J1)
                  ((bras-j a) (setf (bras-done a) t) (vpad-consume! vp :quick) (pace e :as-link-k) :f)))
           ((and mv (br-stance-move-p mv) (eq (fighter-phase f) :main))
            (let* ((name (mv-name mv)) (next (kit-next kit name :lchain)) (sp2 (kit-next kit name :sp2c))
                   (end (and sp2 (getf (mv-params mv) :end))))
              (cond ((not (or next end)) nil)
                    ((bras-done a) (vpad-consume! vp :quick) :none)
+                   ((and end (bras-j a) (eq (fighter-contact f) :hit) (kikon-ready-p e) (not (ai-sb-finish-p e)))   ; (R20: the
+                    (setf (bras-done a) t) (vpad-consume! vp :quick) (pace e :as-o-ender) :kikon)                  ;  O ender, red)
                    ((not (and (bras-j a) (fighter-contact f) (>= (fighter-sf f) (+ (mv-s mv) (mv-a mv))))) nil)
                    ((and next (or (not (getf (mv-params next) :spend)) (br-follow-ok-p (brs-ammo (br e)))))
                     (setf (bras-done a) t) (vpad-consume! vp :quick) (pace e :as-follow) :sig)
                    ((and end (eq (fighter-contact f) :hit) (>= (reiatsu-bars e) 2))
                     (setf (bras-done a) t) (vpad-consume! vp :quick) (pace e :as-sp2) :sp2))))
           ((and mv (member (mv-name mv) '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)))
-           (cond ((bras-done a) (vpad-consume! vp :quick) :none)
+           (cond ((bras-done a) (unless j-route (vpad-consume! vp :quick)) (if j-route nil :none))
+                 ((and (>= (1+ (fighter-sf f)) *br-kamae-up*) (bras-j a) j-route)   ; (his J: the stance J1, the refill)
+                  (setf (bras-done a) t) (pace e :as-stance-j) nil)
                  ((and (>= (1+ (fighter-sf f)) *br-kamae-up*) (bras-j a))
                   (setf (bras-done a) t) (vpad-consume! vp :quick) (pace e :as-stance-k) :f)))
           ((and (null mv) (br-ranged-form-p form) (member (fighter-state f) '(:idle :run :guard))
                 (vpad-command-pressed-p vp :quick nil))
-           (pace e :as-stance-k) :f)
+           (if j-route (progn (pace e :as-stance-j) nil) (progn (pace e :as-stance-k) :f)))
           ((and mv (member (mv-kind mv) '(:quick :flash)) (not (br-stance-move-p mv)))
            (let ((name (mv-name mv)) (l (kit-l-link kit (mv-name mv))))
              (cond ((bras-done a) (vpad-consume! vp :quick) (when (eq (fighter-queued f) :q) (setf (fighter-queued f) nil)) :none)
