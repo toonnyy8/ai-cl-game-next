@@ -1366,5 +1366,7 @@ The user (verbatim): 「幫我移除舊版的 lille，並將新版 lille II 改�
   drew from seven: its three "fighters" checks had failed since 2026-10-12) and shoots six select screens.
 - Gates: host tests 6976 ALL PASS (and the other host suites), pkgcheck clean, build, smoke; his six pairings at 20 seeds
   identical to §25.2 (BY 121.0, BK 118.5, BR 162.1, BI 157.9, BS 157.0, BB 202.8 s; the same wins): the sim did not move;
-  G2 identical; the looks gate: pending.
+  G2 identical; the looks gate (BASE = the build before, 104 stills): 96
+  byte-identical, 8 differ only in his name's text (the select screen's sixth slot; in the BK match the HUD's name plate
+  and a centred line naming him: "LILLE II" -> "LILLE"); the sim lines and the four matches' fighters all PASS.
 

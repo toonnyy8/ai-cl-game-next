@@ -16,7 +16,7 @@ dists are built with ./build.sh (a BASE dist is a copy of dist/NAME built before
                                                     exception, no WebGPU validation error, every pipeline built)
   python3 tests/style-gates.py looks BASE NEW [--jobs N] [--size WxH] [--only TEXT] [--once] [--keep-base]
                                                     the look identity gate (for refactors that must not change a
-                                                    pixel): 109 fixed stills of SOUL DUEL under run.mjs --fixed-dt
+                                                    pixel): 104 fixed stills of SOUL DUEL under run.mjs --fixed-dt
                                                     (menus, select of all six fighters, four CPU-vs-CPU matches at
                                                     several times, Kikon / awakening / form-change cinematics, HUD
                                                     in every form, VFX, ENDLESS, the portrait touch layout, results)

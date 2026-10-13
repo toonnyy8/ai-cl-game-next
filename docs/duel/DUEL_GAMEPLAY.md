@@ -423,15 +423,15 @@ the 125–210 window); otherwise it is rerun with the full 20 (31120, or no knob
 gates and the awaken A/B streams run on the host-native sim gate** (`tools/simgate.py`, below; built 2026-09-29, DEVLOG
 §38); the browser keeps G2 (`style-gates.py cvc`, the bit-exact references), smoke, duelstill and the touch scripts.
 
-**The looks gate (`style-gates.py looks BASE NEW`, for refactors that must not change a pixel).** 109 fixed stills of
+**The looks gate (`style-gates.py looks BASE NEW`, for refactors that must not change a pixel).** 104 fixed stills of
 SOUL DUEL from `run.mjs --fixed-dt` at 640x360 (390x844 for the portrait ones), 15 scripts generated in Python (nothing
 committed): title, MODE / SETTINGS / CONTROLS, the select screen with all six fighters; four CPU-vs-CPU matches (debug
-2000+seed: Yamamoto-Senjumaru, Ichigo-Rukia, Kenpachi-Lille, Senjumaru-Ichigo; the intro, the first frame, then turbo
+2000+seed: Yamamoto-Senjumaru, Rukia-Ichigo, Kenpachi-Senjumaru, Lille-Kenpachi (re-pinned 2026-10-13); the intro, the first frame, then turbo
 jumps of 240 / 960 / 1920 / 3600 ticks each followed by live frames, plus the pause menu); the Kikon and awakening /
 form-change cinematics at their key frames (Yamamoto's Kikon and Bankai, Kenpachi's Kikon, Nozarashi and Bankai, K.O. and
 RESULTS, Rukia's Kikon / awakening / 白霞罸, Ichigo's, Senjumaru's and Lille's awakenings); the HUD in every form (2430+k,
 landscape and portrait), sword smears, the Bankai's cracks and impact stamps, Rukia's ice, Senjumaru's bolts of cloth /
-stitches / umbrella / drapes, Lille's wings and claws; ENDLESS; the portrait touch layout with its RESULTS. They are
+stitches / umbrella / drapes; ENDLESS; the portrait touch layout with its RESULTS. They are
 rendered from BASE twice (the noise floor) and NEW once, three at a time by default; per still the max abs channel diff
 and the number of differing pixels, a diff image under `build/style/looks/diff/` for any that differ, and the `duel hash`
 / `RESULTS` lines of every scenario; PASS only when NEW is within the BASE-vs-BASE noise floor (0 px: all 109 were byte
