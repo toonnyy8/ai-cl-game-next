@@ -79,4 +79,5 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [ai-v2-drsi/](research/ai-v2-drsi/) | AI v2 的 dream-rsi 工作區：五個角色的 baseline、兩輪 cell（brief、proposal、lisp、分數）、policy 與 trace，加上 coordinator 腳本（`brief.py`、`step.sh`、`rescore.sh`） |
 | [lille-retrospective/digest.md](research/lille-retrospective/digest.md) | 利傑巴羅的設計回顧摘要：56 個決定的時間線、10 條重工鏈與各自該先問的問題、做對的流程／設計／技術模式、建模與系統筆記、數字（英文，2026-10-08） |
 | [kenpachi-rework/](research/kenpachi-rework/) | 劍八重做的研究：`canon-looks.md` 各型態的原作外觀與建模清單，`motion-refs.md` 各場戰鬥的打法、遊戲參考與三個型態的招式動作清單（英文，附來源與可信度，2026-10-08） |
+| [yamamoto-rework/](research/yamamoto-rework/) | 山本總隊長（千年血戰篇）重做的研究：`canon-looks.md` 各狀態的原作外觀與建模清單，`motion-refs.md` 各場戰鬥的打法、RoS 等遊戲參考、原型表與各型態的招式動作清單（英文，附來源與 A～D 等級，2026-10-13） |
 | [lille-ai-drsi/](research/lille-ai-drsi/) | 利傑巴羅自適應 AI 的 dream-rsi 工作區（DUEL_LILLE §24）：凍結的 baseline（lille.lisp、proposal、40／80 場分數、NORMAL 漂移參考值）、drsi 設定與 policy，加上 coordinator 腳本（`brief.py`、`step.sh`、`rescore.sh`）；見其 README |
