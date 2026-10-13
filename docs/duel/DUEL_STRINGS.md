@@ -140,17 +140,18 @@ Identity: an old man's economy, one arm, fire does the work.
 | K2 | 昇焔 SHŌEN | `:ya-f2` | 22/4/24 (8 → 14) | 80 | stagger | −3 | 36 | **2.3 m** 90° (was 2.6) | he sinks and rises with the cut, a flame column blooms; 4 f hold at the top; +20 Inferno |
 | K3 | 焔爆 ENBAKU | `:ya-q3` | 22/5/34 (8 → 14) | 110 | crumple | −20 | 46 | **2.4 m** 120° (was 2.8) | the blade stabbed down at his feet, the flame bursts out in a dome, beard and sleeve blown back; 4 f hold; +20 Inferno |
 
-### 3.2 Yamamoto: Bankai East (`:bankai-east`; West's J / K drop to these). New clips: **1**
-Identity: thin ember lines, the sun's path. ×1.0 + pierce, taken ×1.5 (rework).
+### 3.2 Yamamoto: Bankai East (`:bankai-east`; West's J / K drop to these). New clips: **1** (all six its own since DUEL_YAMA_TYBW §3.2, 2026-10-13)
+Identity: thin ember lines, the sun's path. ×1.0 + pierce, taken ×1.5 (rework). Since DUEL_YAMA_TYBW §3.3 (2026-10-13) every
+line ends at the drawn tip (the blade itself); the K links step in (`:slide`).
 
 | Link | Name | Clip | S/A/R | Dmg | React | Blk | Whiff | Volume | Pose |
 |---|---|---|---|---|---|---|---|---|---|
-| J1 | 日差 HIZASHI | `:ya-q1` | 8/3/12 | 34 | flinch | −2 | 20 | line **1.24** (was 3.1) | a flat edge line, no fire; a white-hot scratch hangs 1 drawing |
-| J2 | 残照 ZANSHŌ | `:ya-q2` | 7/3/13 | 38 | flinch | −2 | 21 | line **1.24** (was 3.1) | the return stroke; the two afterglows cross into an X (his scar) for 6 f |
-| J3 | 穿光 SENKŌ | `:ya-e-thrust` | 8/3/18 | 42 | stagger | −4 | 26 | line **1.44** (was 3.6) | a short straight thrust, no lunge (KYOKKŌ is the lunge) |
-| K1 | 陽炎 KAGERŌ | `:ya-f1` | 16/4/20 | 70 | stagger | −3 | 32 | line **3.4** (was 3.8) | a wide sweep; the air behind it shimmers (a heat-haze band on twos) |
-| K2 | 日昇 NISSHŌ | `:ya-f2` | 19/4/24 (5 → 14) | 75 | stagger | −3 | 36 | line **3.4** h 1.3 (was 3.8) | a rising cut; the edge traces a half-disc, a rising sun, for 3 drawings |
-| K3 | 落日 RAKUJITSU | **new** `:ya-e-drop` | 21/5/34 (7 → 14) | 105 | crumple | −20 | 46 | vertical line 0.3 → **3.2** (was 3.6) | the blade straight up, one-armed, held 3 f, falling in a vertical arc (the setting sun); ember sparks on the plaza |
+| J1 | 日差 HIZASHI | `:ya-e-q1` | 8/3/12 | 34 | flinch | −2 | 20 | line **1.24** (was 3.1) | a deep lunge, a level cut at face height R→L; a white-hot scratch hangs 1 drawing |
+| J2 | 残照 ZANSHŌ | `:ya-e-q2` | 7/3/13 | 38 | flinch | −2 | 21 | line **1.24** (was 3.1) | from the lunge a rising backhand, standing; the two afterglows cross into an X (his scar) for 6 f |
+| J3 | 穿光 SENKŌ | `:ya-e-q3` | 8/3/18 | 42 | stagger | −4 | 26 | line **1.44** (was 3.6) | an underhand rising thrust off a dropped knee (KYOKKŌ is the lunge) |
+| K1 | 陽炎 KAGERŌ | `:ya-e-f1` | 16/4/20 | 70 | stagger | −3 | 32 | line **1.55** + step 1.6 (was 3.4, 3.8) | a one-armed diagonal from over the right shoulder; the air behind it shimmers (a heat-haze band on twos) |
+| K2 | 日昇 NISSHŌ | `:ya-e-f2` | 19/4/24 (5 → 14) | 75 | stagger | −3 | 36 | line **1.56** h 1.3 + step 1.6 (was 3.4, 3.8) | the sunrise: from the ground behind up through vertical; the edge traces a half-disc for 3 drawings |
+| K3 | 落日 RAKUJITSU | **new** `:ya-e-drop` | 21/5/34 (7 → 14) | 105 | crumple | −20 | 46 | vertical line 0.3 → **1.67** + step 1.4 (was 3.2, 3.6) | the blade straight up, one-armed, held, dropped with a step (the setting sun); ember sparks on the plaza |
 
 ### 3.3 Kenpachi: base (`:base`). New clips: **1**
 Identity: no school, a street fighter with a sword who kicks.

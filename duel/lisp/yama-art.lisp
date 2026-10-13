@@ -448,120 +448,282 @@
   (1.4 (:arm-r :flex 178) (:head :flex -32))
   (1.7 (:arm-r :flex 60 :side 10) (:elbow-r :flex 20) (:hand-r :twist 5 :flex -80) (:spine :flex 12) (:head :flex -12))
   (2.2 :ya-stance))
-;; East Shift+K, KYOKUJITSUJIN: the charred blade raised overhead, brought straight down (S18); its tip bites the
-;; ground ahead at f20 (the heat sheet runs from there)
-(defpose :ya-kyoku-hit (:base :ya-stance)
-  (:root :u 0.04) (:arm-r :flex 178 :side 5) (:elbow-r :flex 15) (:hand-r :twist 0 :flex -40) (:spine :flex -12)
-  (:chest :twist 0) (:head :flex -25)
-  (:root :u -0.18 :f 0.3) (:spine :flex 36) (:arm-r :flex 45 :side 5) (:elbow-r :flex 0) (:hand-r :twist 0 :flex -40)
-  (:knees :flex 45) (:thigh-l :flex 50) (:head :flex -28))
-(defpose :ya-kyoku-bite (:base :ya-kyoku-hit)
-  (:root :u -0.3 :f 0.35) (:spine :flex 52) (:arm-r :flex 14 :side 5) (:hand-r :twist 0 :flex -30) (:knees :flex 60)
-  (:thigh-l :flex 60) (:head :flex -30))
-(defstrike :ya-kyoku (18 5 26 :base :ya-stance)
+;; The Bankai's own clips (docs/duel/DUEL_YAMA_TYBW.md §3.2's right column; motion bars docs/research/yamamoto-rework/
+;; motion-refs.md §5.3-§5.5): East / West / South / North each at its own move's frames, never a Shikai clip. One arm
+;; (the right); planes and hands, none shared: E1 J1 horizontal R->L forehand, E2 J2 rising L->R backhand, E3 J3 rising
+;; thrust (point), E4 K1 diagonal down R->L forehand, E5 K2 vertical up (forehand), E6 K3 vertical down, E7 L the level
+;; lunge thrust (point), E8 SP1 diagonal down L->R backhand, B1 SP2 point-down plant, B2 O rising R->L pass (forehand,
+;; the body travelling), W1 L no swing, W2 SP1 no swing, W3 the counter horizontal L->R backhand at the chest. Turns are
+;; root yaw (+ = to his left) with a pelvis roll; every hit pose is on S, and where the move's volume is a line ahead (a
+;; :cap) the blade crosses his centre line there. The tips at S are the volumes' edges (yama.lisp).
+(defpose :ya-e-stance ()                               ; East / West idle: the Bankai straightens him; the blade hangs low,
+  (:root :u -0.02) (:pelvis :twist 6) (:spine :flex -4) (:chest :twist -4 :flex -4) (:neck :flex -4) (:head :flex -4)
+  (:arm-r :flex 16 :side 14) (:elbow-r :flex 18) (:hand-r :twist 0 :flex -80)                 ; point down-forward
+  (:arm-l :flex 2 :side 8) (:elbow-l :flex 0)
+  (:thigh-r :flex -4 :side 8) (:thigh-l :flex 10 :side 6) (:knee-r :flex 8) (:knee-l :flex 12))
+(defclip :ya-e-stance (2.4 :loop t :base :ya-e-stance)
+  (0) (1.2 (:chest :flex -7) (:root :u -0.03) (:hand-r :flex -77)))
+
+;; E1 J1 HIZASHI: a deep fencer's lunge (the right foot far forward, the rear leg straight), a level cut at face height
+;; right to left; at S the blade crosses his centre line 1.5 m ahead (tip ahead 1.52)
+(defpose :ya-e-q1-hit (:base :ya-e-stance)
+  (:root :yaw 14 :f 0.1 :u -0.24) (:pelvis :twist 0 :side -6) (:spine :flex 14) (:chest :twist -6 :flex 0)
+  (:neck :flex 0) (:head :flex 6 :twist -10) (:arm-l :flex -30 :side 30)
+  (:thigh-r :flex 70 :side 4) (:knee-r :flex 76) (:thigh-l :flex -40 :side 6) (:knee-l :flex 6)
+  (:arm-r :flex 130 :side -30) (:elbow-r :flex 60) (:hand-r :twist 150 :flex 10))
+(defstrike :ya-e-q1 (8 3 12 :base :ya-e-stance)
   (0)
-  (8 (:root :u 0.04) (:arm-r :flex 176 :side 5) (:elbow-r :flex 15) (:hand-r :twist 0 :flex -40) (:spine :flex -12)
-     (:chest :twist 0) (:head :flex -25) (:thigh-l :flex 26))
-  (15 (:root :u 0.06) (:arm-r :flex 181) (:elbow-r :flex 19) (:spine :flex -15) (:head :flex -28))
+  (4 (:root :yaw -14 :f -0.04 :u -0.1) (:pelvis :side 4) (:spine :flex 2) (:chest :twist -28) (:head :twist 18)   ; drawn
+     (:arm-r :flex 120 :side 60) (:elbow-r :flex 70) (:hand-r :twist 205 :flex -105)            ; back right, level
+     (:thigh-r :flex 30) (:knee-r :flex 45) (:thigh-l :flex 0) (:knee-l :flex 18))
+  (6 (:root :yaw -18) (:chest :twist -32) (:arm-r :side 64))                                    ; held: the front knee up
+  (7 (:root :yaw 0 :f 0.04 :u -0.18) (:pelvis :side 0) (:spine :flex 8) (:chest :twist -18) (:head :twist 4)   ; level,
+     (:arm-r :flex 126 :side 20) (:elbow-r :flex 66) (:hand-r :twist 230 :flex -20)            ; out to his right
+     (:thigh-r :flex 55) (:knee-r :flex 60) (:thigh-l :flex -20) (:knee-l :flex 10))
+  (:s :snap :ya-e-q1-hit)
+  (9 (:root :yaw 22 :f 0.12) (:chest :twist 10) (:head :twist -18) (:arm-l :flex -34 :side 34)  ; on through, left
+     (:arm-r :flex 120 :side -50) (:elbow-r :flex 40) (:hand-r :twist 145 :flex -10))
+  (:a (:root :yaw 21) (:chest :twist 8))
+  (16 (:root :yaw 8 :f 0.05 :u -0.12) (:pelvis :side -2) (:spine :flex 6) (:chest :twist 0) (:head :twist -4)
+      (:arm-r :flex 60 :side 10) (:elbow-r :flex 30) (:hand-r :twist 60 :flex -60) (:arm-l :flex -10 :side 14)
+      (:thigh-r :flex 34) (:knee-r :flex 38) (:thigh-l :flex -16) (:knee-l :flex 10))
+  (:end :ya-e-stance))
+
+;; E2 J2 ZANSHO: from the lunge, a rising backhand low left -> high right; he stands as it rises (the rear foot drawn up)
+(defpose :ya-e-q2-hit (:base :ya-e-stance)
+  (:root :yaw -6 :f 0.12 :u -0.06) (:pelvis :side 4) (:spine :flex 4) (:chest :twist -10) (:head :twist 6)
+  (:arm-r :flex 86 :side 0) (:elbow-r :flex 14) (:hand-r :twist 20 :flex -60) (:arm-l :flex 10 :side 30)
+  (:thigh-r :flex 30 :side 4) (:knee-r :flex 32) (:thigh-l :flex 6 :side 6) (:knee-l :flex 24))
+(defstrike :ya-e-q2 (7 3 13 :base :ya-e-stance)
+  (0 (:root :yaw 20 :f 0.08 :u -0.2) (:pelvis :side -5) (:spine :flex 12) (:chest :twist 30)    ; still in the lunge,
+     (:arm-r :flex 40 :side -30) (:elbow-r :flex 30) (:hand-r :twist 10 :flex -110)             ; the blade low at
+     (:thigh-r :flex 60 :side 4) (:knee-r :flex 64) (:thigh-l :flex -34 :side 6) (:knee-l :flex 8) ; his left
+     (:arm-l :flex -20 :side 20))
+  (4 (:chest :twist 38) (:root :yaw 24 :u -0.22) (:arm-r :side -36))                             ; loaded
+  (:s :snap :ya-e-q2-hit)
+  (9 (:root :yaw -14 :u -0.02) (:spine :flex 0) (:chest :twist -34) (:arm-r :flex 140 :side 60) (:elbow-r :flex 10)
+     (:hand-r :twist -125 :flex 45) (:thigh-r :flex 22) (:knee-r :flex 24) (:thigh-l :flex 8) (:knee-l :flex 20)
+     (:arm-l :flex 10 :side 40))                                                                ; high right
+  (:a (:root :yaw -13) (:arm-r :flex 138))
+  (16 (:root :yaw -4 :f 0.05 :u -0.04) (:chest :twist -12) (:arm-r :flex 70 :side 30) (:elbow-r :flex 30)
+      (:hand-r :twist -40 :flex -50) (:arm-l :flex 4 :side 16) (:thigh-r :flex 10) (:knee-r :flex 14))
+  (:end :ya-e-stance))
+
+;; E3 J3 SENKO (the ender): an underhand rising thrust from a dropped knee, the point travelling up ~27 deg into the body
+(defpose :ya-e-q3-hit (:base :ya-e-stance)
+  (:root :yaw 16 :f 0.24 :u -0.36) (:pelvis :side -4) (:spine :flex 20) (:chest :twist 6) (:head :flex -6)
+  (:arm-r :flex 74 :side 6) (:elbow-r :flex 6) (:hand-r :twist -30 :flex -20) (:arm-l :flex -40 :side 30)
+  (:thigh-r :flex 80 :side 4) (:knee-r :flex 92) (:thigh-l :flex -6 :side 6) (:knee-l :flex 84))
+(defstrike :ya-e-q3 (8 3 18 :base :ya-e-stance)
+  (0)
+  (4 (:root :yaw 10 :u -0.3) (:pelvis :side 4) (:spine :flex 16) (:chest :twist -20)            ; sunk, the blade drawn
+     (:arm-r :flex -10 :side 20) (:elbow-r :flex 100) (:hand-r :twist -15 :flex -45)            ; back low at the hip,
+     (:thigh-r :flex 72 :side 4) (:knee-r :flex 96) (:thigh-l :flex -10 :side 6) (:knee-l :flex 90) ; point up-forward;
+     (:arm-l :flex 30 :side 20))                                                                ; the knee dropped
+  (6 (:root :u -0.34) (:chest :twist -24) (:arm-r :flex -14))
+  (:s :snap :ya-e-q3-hit)
+  (10 (:root :f 0.27 :u -0.34) (:arm-r :flex 80) (:hand-r :flex -16) (:chest :twist 8))
+  (:a (:root :f 0.26) (:arm-r :flex 78))
+  (21 (:root :yaw 8 :f 0.12 :u -0.16) (:spine :flex 10) (:chest :twist 0) (:arm-r :flex 40 :side 12) (:elbow-r :flex 30)
+      (:hand-r :twist -10 :flex -60) (:arm-l :flex -10 :side 14)
+      (:thigh-r :flex 40) (:knee-r :flex 46) (:thigh-l :flex -2) (:knee-l :flex 36))
+  (:end :ya-e-stance))
+
+;; E4 K1 KAGERO: one-armed, a diagonal from over the right shoulder down to his low left; the body turns and steps behind
+;; it (the move's slide); at S the blade crosses his centre line going down
+(defpose :ya-e-f1-hit (:base :ya-e-stance)
+  (:root :yaw 10 :f 0.35 :u -0.2) (:pelvis :side -6) (:spine :flex 22) (:chest :twist -18) (:head :flex 4)
+  (:arm-r :flex 110 :side 30) (:elbow-r :flex 10) (:hand-r :twist 165 :flex 65) (:arm-l :flex -30 :side 30)
+  (:thigh-r :flex 66 :side 4) (:knee-r :flex 70) (:thigh-l :flex -36 :side 6) (:knee-l :flex 6))
+(defstrike :ya-e-f1 (16 4 20 :base :ya-e-stance)
+  (0)
+  (3 (:root :yaw -8) (:chest :twist -12) (:arm-r :flex 90 :side 50) (:elbow-r :flex 40) (:hand-r :twist -120 :flex -40))  ; up
+  (6 (:root :yaw -20 :u -0.04) (:pelvis :side 6) (:spine :flex -6) (:chest :twist -25) (:head :twist 14)   ; over the
+     (:arm-r :flex 160 :side 40) (:elbow-r :flex 70) (:hand-r :twist -65 :flex -40)             ; right shoulder,
+     (:arm-l :flex 40 :side 10) (:thigh-r :flex 10) (:knee-r :flex 20) (:thigh-l :flex 6) (:knee-l :flex 16)) ; point back up
+  (11 (:root :yaw -24 :u -0.02) (:arm-r :flex 168) (:spine :flex -8) (:pelvis :side 8))         ; the tell, held
+  (14 (:root :yaw -22 :u -0.06) (:arm-r :flex 166) (:thigh-r :flex 30) (:knee-r :flex 40))       ; the front knee up
+  (:s :snap :ya-e-f1-hit)
+  (18 (:root :yaw 30 :f 0.38 :u -0.24) (:pelvis :side -8) (:spine :flex 32) (:chest :twist 30)  ; down to the low left
+      (:arm-r :flex 60 :side -30) (:hand-r :twist -10 :flex -80) (:arm-l :flex -40 :side 34)
+      (:thigh-r :flex 70) (:knee-r :flex 76) (:thigh-l :flex -38))
+  (:a (:root :yaw 29) (:spine :flex 31))
+  (31 (:root :yaw 10 :f 0.16 :u -0.12) (:pelvis :side -2) (:spine :flex 10) (:chest :twist 6) (:head :twist 0)
+      (:arm-r :flex 40 :side 0) (:elbow-r :flex 26) (:hand-r :twist 0 :flex -70) (:arm-l :flex -10 :side 14)
+      (:thigh-r :flex 36) (:knee-r :flex 40) (:thigh-l :flex -16) (:knee-l :flex 10))
+  (:end :ya-e-stance))
+
+;; E5 K2 NISSHO, the sunrise: the blade from the ground behind him swung up through vertical in front, the body rising
+;; with it onto the toes (a step in: the move's slide); at S the blade is level ahead at the chest, rising
+(defpose :ya-e-f2-hit (:base :ya-e-stance)
+  (:root :yaw 5 :f 0.3 :u -0.08) (:spine :flex 6) (:chest :twist 0) (:head :flex -6)
+  (:arm-r :flex 95 :side 6) (:elbow-r :flex 4) (:hand-r :twist -15 :flex -75) (:arm-l :flex -20 :side 30)
+  (:thigh-r :flex 46) (:knee-r :flex 44) (:thigh-l :flex -24) (:knee-l :flex 14))
+(defstrike :ya-e-f2 (19 4 24 :base :ya-e-stance)
+  (0)
+  (8 (:root :yaw -20 :u -0.3) (:pelvis :side 6) (:spine :flex 30) (:chest :twist -20) (:head :flex -14)   ; crouched,
+     (:arm-r :flex -30 :side 20) (:elbow-r :flex 10) (:hand-r :twist -5 :flex -75)              ; the tip on the plaza
+     (:thigh-r :flex 50) (:knee-r :flex 80) (:thigh-l :flex 60) (:knee-l :flex 84) (:arm-l :flex 40 :side 20)) ; behind
+  (15 (:root :yaw -24 :u -0.33) (:spine :flex 33) (:arm-r :flex -34))                           ; held: the tell
+  (:s :snap :ya-e-f2-hit)
+  (21 (:root :yaw 5 :f 0.32 :u 0.0) (:spine :flex -12) (:head :flex -16) (:arm-r :flex 175) (:hand-r :twist -5 :flex -95)
+      (:thigh-r :flex 30) (:knee-r :flex 20) (:thigh-l :flex -24) (:knee-l :flex 6) (:arm-l :flex -20 :side 40))  ; vertical
+  (:a (:root :u 0.0) (:arm-r :flex 172))
+  (35 (:root :yaw 2 :f 0.14 :u -0.04) (:spine :flex 0) (:head :flex -6) (:arm-r :flex 90 :side 14) (:elbow-r :flex 30)
+      (:hand-r :twist -10 :flex -80) (:arm-l :flex -4 :side 16) (:thigh-r :flex 16) (:knee-r :flex 16) (:thigh-l :flex -8))
+  (:end :ya-e-stance))
+
+;; E6 K3 RAKUJITSU (the ender), the setting sun: the blade straight up in the one hand, held (the tell), then dropped in a
+;; vertical arc with a step (the move's slide); level ahead at S, its tip on the plaza two frames later (main.lisp
+;; MOVE-BEATS: the embers and the scorch there)
+(defpose :ya-e-drop-hit (:base :ya-e-stance)
+  (:root :f 0.3 :u -0.15) (:spine :flex 22) (:head :flex 0)
+  (:arm-r :flex 122 :side -4) (:elbow-r :flex 0) (:hand-r :twist 0 :flex -100)
+  (:thigh-r :flex 60) (:knee-r :flex 66) (:thigh-l :flex -30) (:knee-l :flex 10) (:arm-l :flex -20 :side 24))
+(defstrike :ya-e-drop (21 5 34 :base :ya-e-stance)
+  (0)
+  (8 (:root :u 0.0) (:spine :flex -10) (:head :flex -12) (:arm-r :flex 175 :side 4) (:elbow-r :flex 6)    ; straight up
+     (:hand-r :twist -5 :flex -95) (:thigh-l :flex 20) (:knee-l :flex 20) (:arm-l :flex 10 :side 16))
+  (17 (:root :u 0.01) (:arm-r :flex 180) (:spine :flex -13) (:head :flex -14))                  ; held: the tell
+  (19 (:root :u -0.02 :f 0.06) (:thigh-r :flex 30) (:knee-r :flex 30))                          ; the front foot lifts
+  (:s :snap :ya-e-drop-hit)
+  (23 (:root :f 0.34 :u -0.24) (:spine :flex 40) (:arm-r :flex 80) (:hand-r :flex -65)          ; the plaza
+      (:thigh-r :flex 70) (:knee-r :flex 80) (:knee-l :flex 14))
+  (:a (:root :u -0.23) (:spine :flex 39))
+  (44 (:spine :flex 34) (:root :u -0.2 :f 0.32))                                                ; zanshin
+  (52 (:spine :flex 12) (:root :u -0.08 :f 0.14) (:arm-r :flex 40 :side 12) (:elbow-r :flex 24) (:hand-r :flex -75)
+      (:thigh-r :flex 26) (:knee-r :flex 30) (:thigh-l :flex -10) (:knee-l :flex 10))
+  (:end :ya-e-stance))
+
+;; E7 L KYOKKO: the longest lunge in the game (the move's 1.6 m slide), the body near horizontal, the point level at the
+;; chest, the free sleeve flung back; the edge line flares on f1 (yama.lisp YAMA-KYOKKO-FLARE)
+(defpose :ya-e-kyokko-hit (:base :ya-e-stance)
+  (:root :f 0.6 :u -0.34) (:spine :flex 46) (:chest :twist 0) (:head :flex -40)
+  (:arm-r :flex 160 :side 4) (:elbow-r :flex 0) (:hand-r :twist -10 :flex -105)
+  (:arm-l :flex -70 :side 20) (:thigh-r :flex 80) (:knee-r :flex 80) (:thigh-l :flex -50) (:knee-l :flex 0))
+(defstrike :ya-e-kyokko (15 3 26 :base :ya-e-stance)
+  (0)
+  (6 (:root :yaw -20 :u -0.12) (:pelvis :side 5) (:spine :flex 8) (:chest :twist -10) (:head :twist 16)   ; chambered:
+     (:arm-r :flex 0 :side 60) (:elbow-r :flex 120) (:hand-r :twist -10 :flex -95)              ; the hilt at his right
+     (:arm-l :flex 50 :side 10) (:thighs :flex 30) (:knees :flex 40))                           ; side, the point at him
+  (12 (:root :yaw -24 :u -0.16) (:arm-r :side 64) (:elbow-r :flex 126) (:knees :flex 46))
+  (:s :snap :ya-e-kyokko-hit)
+  (17 (:root :f 0.62) (:spine :flex 48))
+  (:a (:root :f 0.61))
+  (30 (:root :f 0.4 :u -0.24) (:spine :flex 30) (:head :flex -24) (:arm-r :flex 90) (:hand-r :flex -90)
+      (:arm-l :flex -30 :side 16) (:thigh-r :flex 60) (:knee-r :flex 64) (:thigh-l :flex -30) (:knee-l :flex 8))
+  (:end :ya-e-stance))
+
+;; E8 SP1 KYOKUJITSUJIN: the blade raised high over the left shoulder, angled, then one backhand diagonal down to his low
+;; right (S18: it crosses his centre line), ending with only the tip touching the plaza ahead (f20: the heat sheet runs
+;; from there)
+(defpose :ya-kyoku-hit (:base :ya-e-stance)
+  (:root :yaw 6 :f 0.25 :u -0.15) (:pelvis :side 4) (:chest :twist 10) (:spine :flex 24)
+  (:arm-r :flex 104 :side -24) (:elbow-r :flex 10) (:hand-r :twist -10 :flex -100)
+  (:thigh-r :flex 60) (:knee-r :flex 66) (:thigh-l :flex -30) (:knee-l :flex 10) (:arm-l :flex -20 :side 24))
+(defpose :ya-kyoku-bite (:base :ya-kyoku-hit)
+  (:root :yaw -6 :f 0.3 :u -0.25) (:pelvis :side 6) (:chest :twist -6) (:spine :flex 34)
+  (:arm-r :flex 86 :side -6) (:elbow-r :flex 4) (:hand-r :twist -10 :flex -90)
+  (:thigh-r :flex 70) (:knee-r :flex 80) (:knee-l :flex 16))
+(defstrike :ya-kyoku (18 5 26 :base :ya-e-stance)
+  (0)
+  (8 (:root :yaw 20) (:pelvis :side -5) (:chest :twist 35) (:spine :flex -6) (:head :twist -12)   ; over the left
+     (:arm-r :flex 140 :side 20) (:elbow-r :flex 60) (:hand-r :twist 35 :flex -110)             ; shoulder, angled
+     (:thigh-l :flex 22) (:knee-l :flex 22))
+  (15 (:root :yaw 24 :u 0.01) (:chest :twist 38) (:arm-r :flex 145) (:spine :flex -8))         ; held
   (:s :snap :ya-kyoku-hit)
   (20 :snap :ya-kyoku-bite)
-  (22 (:root :u -0.32) (:spine :flex 55) (:arm-r :flex 11) (:knees :flex 63))
-  (32 (:root :u -0.3 :f 0.35) (:spine :flex 50) (:arm-r :flex 16 :side 5) (:knees :flex 60))
-  (40 (:root :u -0.16 :f 0.18) (:spine :flex 30) (:arm-r :flex 28 :side 12) (:elbow-r :flex 20) (:hand-r :flex -35)
-      (:knees :flex 38) (:thigh-l :flex 36) (:head :flex -22))
-  (:end :ya-stance))
-;; South (MINAMI): the blade driven into the ground at f20 (the hands claw out under the opponent)
-(defpose :ya-kaka-hit (:base :ya-stance)
-  (:arm-r :flex 150 :side 5) (:elbow-r :flex 60) (:hand-r :twist 150 :flex 5) (:spine :flex -10) (:root :u 0.05)
-  (:head :flex -25)
-  (:root :u -0.45) (:knee-r :flex 120) (:thigh-r :flex -30) (:thigh-l :flex 90) (:knee-l :flex 95) (:spine :flex 40)
-  (:arm-r :flex 60) (:elbow-r :flex 40) (:hand-r :twist 150 :flex 5) (:head :flex -25))
-(defstrike :ya-kaka (20 1 34 :base :ya-stance)
+  (22 (:root :u -0.27) (:spine :flex 36))
+  (32 (:root :u -0.25) (:spine :flex 34))
+  (40 (:root :yaw -2 :f 0.14 :u -0.12) (:spine :flex 14) (:chest :twist 0) (:arm-r :flex 40 :side 12) (:elbow-r :flex 24)
+      (:hand-r :twist 0 :flex -70) (:thigh-r :flex 30) (:knee-r :flex 34) (:thigh-l :flex -12) (:knee-l :flex 10))
+  (:end :ya-e-stance))
+
+;; B1 SP2 MINAMI (South): the blade lifted upright before his face, point down, the hilt at the chin (the incantation, the
+;; tell), then driven straight down into the plaza (S20) in a half kneel; the skeleton hands claw out under the opponent
+(defpose :ya-kaka-hit (:base :ya-e-stance)
+  (:root :u -0.36) (:spine :flex 22) (:chest :twist 14) (:head :flex 6)
+  (:arm-r :flex 112 :side -24) (:elbow-r :flex 16) (:hand-r :twist -150 :flex 0)
+  (:thigh-r :flex -6) (:knee-r :flex 100) (:thigh-l :flex 84) (:knee-l :flex 88) (:arm-l :flex 10 :side 20))
+(defstrike :ya-kaka (20 1 34 :base :ya-e-stance)
   (0)
-  (9 (:arm-r :flex 148 :side 5) (:elbow-r :flex 60) (:hand-r :twist 150 :flex 5) (:spine :flex -10) (:root :u 0.05)
-     (:head :flex -25))
-  (16 (:arm-r :flex 158) (:elbow-r :flex 55) (:spine :flex -13) (:root :u 0.07) (:head :flex -29))
+  (9 (:root :u 0.02) (:spine :flex -6) (:chest :twist 20) (:head :flex 4)                         ; upright before the
+     (:arm-r :flex 70 :side -40) (:elbow-r :flex 110) (:hand-r :twist -140 :flex -80))          ; face, point down
+  (16 (:root :u 0.04) (:arm-r :flex 74) (:spine :flex -8) (:head :flex 2))                      ; held: the words
   (:s :snap :ya-kaka-hit)
-  (:a (:root :u -0.48) (:spine :flex 43) (:head :flex -22))
-  (26 (:root :u -0.45) (:spine :flex 40) (:head :flex -25))
-  (45 (:root :u -0.43) (:spine :flex 36))
-  (:end :ya-stance))
-;; ---------------------------------------------------------------- the stances (design v3 §A, v2 §D clips)
-(defpose :ya-e-thrust-hit (:base :ya-stance)
-  (:arm-r :flex 50) (:elbow-r :flex 120) (:hand-r :twist 155 :flex 25) (:chest :twist -35) (:root :u -0.08) (:knees :flex 35)
-  (:arm-r :flex 90) (:elbow-r :flex 0) (:hand-r :twist -35 :flex -85) (:chest :twist 20) (:root :f 0.22 :u -0.12)
-  (:thigh-l :flex 50) (:knee-l :flex 35) (:thigh-r :flex -25))
-(defstrike :ya-e-thrust (11 3 27 :base :ya-stance)     ; East J J J: the rising-sun thrust, one-handed, a 3.6 m line
+  (:a (:root :u -0.37) (:spine :flex 23))
+  (30 (:root :u -0.36) (:spine :flex 22))
+  (45 (:root :u -0.33) (:spine :flex 20))
+  (:end :ya-e-stance))
+
+;; B2 O KITA: TENCHI in play (after the :sh-run flash step): the flame gathered on the blade trailing low behind him, one
+;; huge passing cut rising from his low right across to his high left with the body travelling through it (the cine's
+;; :ya-tenchi is the slow horizontal version)
+(defpose :ya-e-tenchi-hit (:base :ya-e-stance)
+  (:root :yaw 8 :f 0.62 :u -0.28) (:pelvis :side -6) (:spine :flex 20) (:chest :twist 4) (:head :flex -4)
+  (:arm-r :flex 110 :side 10) (:elbow-r :flex 0) (:hand-r :twist -15 :flex -60)
+  (:arm-l :flex -60 :side 30) (:thigh-r :flex 76) (:knee-r :flex 80) (:thigh-l :flex -44) (:knee-l :flex 4))
+(defstrike :ya-e-tenchi (6 2 26 :base :ya-e-stance)
+  (0 (:root :yaw -15 :u -0.15) (:spine :flex 30) (:head :flex -16) (:arm-r :flex -40 :side 30) (:elbow-r :flex 10)
+     (:hand-r :twist 5 :flex -75) (:arm-l :flex 40) (:thigh-r :flex 40) (:knee-r :flex 50) (:thigh-l :flex -20) (:knee-l :flex 30))
+  (3 (:root :yaw -20 :u -0.2) (:arm-r :flex -46) (:spine :flex 34))                              ; trailing low behind
+  (5 (:root :yaw -8 :f 0.3 :u -0.24) (:spine :flex 26) (:arm-r :flex 40 :side 30) (:elbow-r :flex 4)  ; low right
+     (:hand-r :twist -50 :flex -80) (:thigh-r :flex 60) (:knee-r :flex 66) (:thigh-l :flex -30) (:knee-l :flex 10))
+  (:s :snap :ya-e-tenchi-hit)
+  (8 (:root :yaw 35 :f 0.62 :u -0.26) (:spine :flex 10) (:chest :twist 40) (:arm-r :flex 150 :side -40)   ; high left
+     (:hand-r :twist 40 :flex -90) (:arm-l :flex -60 :side 34))
+  (20 (:root :yaw 30 :f 0.6 :u -0.27) (:chest :twist 34) (:arm-r :flex 144))                    ; held
+  (:end :ya-e-stance))
+
+;; W1 L SHONETSU JIGOKU: no swing. The arms open (the blade out low to his right, the empty sleeve flaring left), head
+;; back, chest out, the feet sunk apart: the garb flares up over the startup (the tell), the pillars erupt at S
+(defpose :ya-shonetsu-hit (:base :ya-e-stance)
+  (:root :u -0.08) (:spine :flex -18) (:neck :flex -12) (:head :flex -16)
+  (:arm-r :flex 20 :side 74) (:elbow-r :flex 10) (:hand-r :twist 10 :flex -110)
+  (:arm-l :flex 14 :side 88) (:thighs :side 14) (:knees :flex 20))
+(defstrike :ya-shonetsu (16 0 24 :base :ya-e-stance)
   (0)
-  (5 (:arm-r :flex 50) (:elbow-r :flex 120) (:hand-r :twist 155 :flex 25) (:chest :twist -35) (:root :u -0.08) (:knees :flex 35))
-  (9 (:arm-r :flex 46) (:elbow-r :flex 128) (:chest :twist -42) (:root :u -0.1) (:knees :flex 39) (:spine :flex 12))
-  (:s :snap :ya-e-thrust-hit)
-  (12 (:root :f 0.26) (:chest :twist 25) (:arm-r :flex 92) (:spine :flex 11))
-  (:a (:root :f 0.24) (:chest :twist 21) (:arm-r :flex 90) (:spine :flex 9))
-  (26 (:chest :twist 18) (:root :f 0.2 :u -0.1))
-  (:end :ya-stance))
-;; East K3 RAKUJITSU (docs/duel/DUEL_STRINGS.md §3.2): the setting sun: the blade straight up in the one hand, held, then it
-;; falls in a vertical arc to the plaza in front of him (ember sparks there: main.lisp MOVE-BEATS)
-(defpose :ya-e-drop-hit (:base :ya-stance)
-  (:root :u -0.2 :f 0.34) (:spine :flex 36) (:chest :twist 4) (:head :flex -26)
-  (:arm-r :flex 70 :side 4) (:elbow-r :flex 0) (:hand-r :twist -15 :flex -35)
-  (:thigh-l :flex 50 :side 6) (:knee-l :flex 52) (:thigh-r :flex -18 :side 8) (:knee-r :flex 30))
-(defstrike :ya-e-drop (21 5 34 :base :ya-stance)       ; East K3 RAKUJITSU: the blade up, held, the vertical drop
-  (0)
-  (8 (:root :u 0.05) (:arm-r :flex 182 :side 4) (:elbow-r :flex 6) (:hand-r :twist -5 :flex -75) (:spine :flex -14)
-     (:chest :twist 2) (:head :flex -34) (:thigh-l :flex 24) (:knee-l :flex 20))
-  (17 (:root :u 0.07) (:arm-r :flex 186) (:spine :flex -17) (:head :flex -36))               ; held 3 f at the top
-  (:s :snap :ya-e-drop-hit)
-  (23 (:spine :flex 42) (:root :u -0.24 :f 0.37) (:arm-r :flex 64) (:hand-r :flex -42))
-  (:a (:spine :flex 40) (:root :u -0.22 :f 0.36) (:arm-r :flex 66) (:hand-r :flex -39))
-  (44 (:spine :flex 34) (:root :u -0.2 :f 0.34))                                               ; zanshin
-  (52 (:spine :flex 14) (:root :u -0.08 :f 0.14) (:arm-r :flex 34 :side 16) (:elbow-r :flex 26) (:hand-r :flex -40)
-      (:thigh-l :flex 26) (:knee-l :flex 30) (:head :flex -20))
-  (:end :ya-stance))
-(defpose :ya-shonetsu-hit (:base :ya-stance)
-  (:arm-r :flex 120 :side 5) (:elbow-r :flex 50) (:hand-r :twist 150 :flex 10) (:spine :flex -6) (:root :u 0.03)
-  (:head :flex -25)
-  (:root :u -0.3) (:knees :flex 60) (:spine :flex 30) (:arm-r :flex 35 :side 0) (:elbow-r :flex 20)
-  (:hand-r :twist 150 :flex 5) (:arm-l :side 70 :flex 20) (:head :flex -10))
-(defstrike :ya-shonetsu (14 4 20 :base :ya-stance)     ; L in West, SHONETSU JIGOKU: the tip planted, the garb erupts
-  (0)
-  (7 (:arm-r :flex 120 :side 5) (:elbow-r :flex 50) (:hand-r :twist 150 :flex 10) (:spine :flex -6) (:root :u 0.03)
-     (:head :flex -25) (:arm-l :side 20))
-  (11 (:arm-r :flex 128) (:elbow-r :flex 55) (:spine :flex -9) (:root :u 0.05) (:head :flex -28) (:arm-l :side 26))
+  (6 (:root :u -0.1) (:spine :flex 6) (:head :flex 4) (:arm-r :flex 10 :side 24) (:hand-r :flex -70) (:arm-l :side 20)
+     (:knees :flex 26))   ; in
+  (12 (:root :u -0.12) (:spine :flex 10) (:head :flex 8) (:arm-r :side 30) (:arm-l :side 26) (:knees :flex 30))         ; drawn
   (:s :snap :ya-shonetsu-hit)
-  (15 (:root :u -0.33) (:knees :flex 64) (:spine :flex 33) (:arm-l :side 88 :flex 24))
-  (:a (:root :u -0.3) (:knees :flex 60) (:spine :flex 30) (:arm-l :side 80 :flex 20))
-  (28 (:root :u -0.15) (:knees :flex 38) (:spine :flex 18) (:arm-r :flex 30 :side 12) (:elbow-r :flex 30)
-      (:hand-r :twist 60 :flex -15) (:arm-l :side 30 :flex 10) (:head :flex -14))
-  (:end :ya-stance))
-(defpose :ya-w-parry-hit (:base :ya-stance)
-  (:root :u -0.12) (:knees :flex 40) (:chest :twist 10) (:arm-r :flex 75 :side -20) (:elbow-r :flex 80)
-  (:hand-r :twist 90 :flex -10) (:arm-l :side 45) (:spine :flex 12) (:head :flex -10))
-(defstrike :ya-w-parry (2 24 20 :base :ya-stance)      ; West Shift+K, GOKUI GAESHI: the blade upright before him, the garb up
+  (22 (:root :u -0.09) (:arm-r :side 76) (:arm-l :side 90))
+  (32 (:root :u -0.05) (:spine :flex -6) (:head :flex -6) (:arm-r :flex 18 :side 30) (:arm-l :flex 4 :side 30)
+      (:thighs :side 10) (:knees :flex 14))
+  (:end :ya-e-stance))
+
+;; W2 SP1 GOKUI GAESHI: he stands still, chin up, the blade low: what hits him is erased on his body (no blade parry)
+(defpose :ya-w-parry-hit (:base :ya-e-stance)
+  (:spine :flex -8) (:chest :flex -6) (:neck :flex -8) (:head :flex -12)
+  (:arm-r :flex 8 :side 16) (:elbow-r :flex 10) (:hand-r :twist 10 :flex -68))
+(defstrike :ya-w-parry (2 24 20 :base :ya-e-stance)
   (0)
   (:s :snap :ya-w-parry-hit)
-  (6 (:root :u -0.15) (:knees :flex 45) (:arm-l :side 54) (:spine :flex 14))
-  (10 (:root :u -0.12) (:knees :flex 40) (:arm-l :side 47) (:spine :flex 12))
-  (:a (:root :u -0.13) (:arm-r :flex 77 :side -20) (:arm-l :side 45))
-  (32 (:root :u -0.08) (:knees :flex 30) (:arm-r :flex 50 :side 0) (:elbow-r :flex 55) (:hand-r :twist 45 :flex -20)
-      (:arm-l :side 25) (:spine :flex 10))
-  (:end :ya-stance))
-(defpose :ya-w-counter-hit (:base :ya-stance)
-  (:root :u -0.12) (:arm-r :flex 75 :side -20) (:elbow-r :flex 80) (:hand-r :twist 90 :flex -10)
-  (:root :u -0.2 :f 0.2) (:chest :twist -20) (:arm-r :flex 60 :side 0) (:elbow-r :flex 30) (:hand-r :twist 150 :flex 15)
-  (:root :u 0.05 :f 0.5) (:arm-r :flex 170 :side 10) (:elbow-r :flex 5) (:hand-r :twist -155 :flex 15) (:spine :flex -18)
-  (:chest :twist 15) (:head :flex -30))
-(defstrike :ya-w-counter (6 3 24 :base :ya-stance)     ; the parry's counter: the pommel in, then a one-handed rising cut
-  (0 (:root :u -0.12) (:arm-r :flex 75 :side -20) (:elbow-r :flex 80) (:hand-r :twist 90 :flex -10))
-  (3 (:root :u -0.2 :f 0.2) (:chest :twist -20) (:arm-r :flex 60 :side 0) (:elbow-r :flex 30) (:hand-r :twist 150 :flex 15))
-  (4 (:root :u -0.22) (:chest :twist -24) (:arm-r :flex 56) (:knees :flex 40))
-  (:s :snap :ya-w-counter-hit (:thigh-l :flex 34) (:thigh-r :flex -18))
-  (7 (:arm-r :flex 180) (:spine :flex -21) (:root :u 0.08 :f 0.53) (:chest :twist 18))
-  (:a (:arm-r :flex 176) (:spine :flex -19) (:root :u 0.06 :f 0.51) (:chest :twist 16))
-  (21 (:root :u -0.04 :f 0.22) (:arm-r :flex 100 :side 12) (:elbow-r :flex 22) (:hand-r :twist -70 :flex -10)
-      (:spine :flex 0) (:chest :twist 6) (:head :flex -20) (:thigh-l :flex 26) (:thigh-r :flex -10))
-  (:end :ya-stance))
-(defclip :ya-tenchi (1.3 :base :ya-stance)             ; North: Tenchi Kaijin, one slash
+  (14 (:chest :flex -7) (:root :u 0.01))
+  (:a (:chest :flex -6) (:root :u 0.0))
+  (36 (:spine :flex -6) (:neck :flex -6) (:head :flex -8))
+  (:end :ya-e-stance))
+
+;; W3 the counter: out of the stillness a short backhand left -> right at the chest with one step (the move's slide),
+;; crossing ahead at S, then rooted again
+(defpose :ya-w-counter-hit (:base :ya-w-parry-hit)
+  (:root :yaw -4 :f 0.35 :u -0.12) (:pelvis :side 4) (:chest :twist 4 :flex 0) (:spine :flex 12) (:neck :flex 0)
+  (:head :flex -4) (:arm-r :flex 95 :side 10) (:elbow-r :flex 4) (:hand-r :twist 0 :flex -75) (:arm-l :flex 10 :side 40)
+  (:thigh-r :flex 50) (:knee-r :flex 56) (:thigh-l :flex -26) (:knee-l :flex 10))
+(defstrike :ya-w-counter (6 3 24 :base :ya-e-stance)
+  (0 :ya-w-parry-hit)
+  (3 (:root :yaw 10 :u -0.08) (:pelvis :side -4) (:chest :twist 35) (:arm-r :flex 50 :side -40) (:elbow-r :flex 60)  ; across
+     (:hand-r :twist 145 :flex -30) (:arm-l :flex 20 :side 20) (:thigh-r :flex 20) (:knee-r :flex 26))   ; to his left hip
+  (4 (:root :yaw 12) (:chest :twist 38))
+  (:s :snap :ya-w-counter-hit)
+  (8 (:root :yaw -25 :f 0.38) (:chest :twist -30) (:spine :flex 10) (:arm-r :flex 95 :side 70) (:hand-r :twist -25 :flex -115)
+     (:arm-l :flex 10 :side 46))                                                                ; out to his right
+  (:a (:root :yaw -24) (:chest :twist -28))
+  (21 (:root :yaw -8 :f 0.14 :u -0.06) (:pelvis :side 0) (:chest :twist -8) (:spine :flex 2) (:arm-r :flex 40 :side 30)
+      (:elbow-r :flex 20) (:hand-r :twist -10 :flex -75) (:arm-l :flex 4 :side 16)
+      (:thigh-r :flex 18) (:knee-r :flex 22) (:thigh-l :flex -6) (:knee-l :flex 10))
+  (:end :ya-e-stance))
+(defclip :ya-tenchi (1.3 :base :ya-stance)             ; North: Tenchi Kaijin, one slash (the cinematic's; in play :ya-e-tenchi)
   (0)
   (0.25 (:root :u -0.2) (:chest :twist -70) (:arm-r :side 90 :flex 10) (:elbow-r :flex 10) (:hand-r :twist 0 :flex -90)
         (:knees :flex 45) (:spine :flex 20))

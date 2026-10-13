@@ -71,25 +71,27 @@
 ;;; from the Shikai one (-1 f, reach x1.15). In West every command but SP1 / L goes back to East first (:drop-to / :keep):
 ;;; West's J / K switch him to East and start East's string.
 ;;; ---------------------------------------------------------------- East, Kyokujitsujin: fast thin lines, the pierce
-;; the East strings (docs/duel/DUEL_STRINGS.md §3.2): thin ember lines, the sun's path
-(defmove :ya-e-j1 :kind :quick :clip :ya-q1 :clip-s 9 :startup 8 :active 3 :recovery 12 :dmg 34 :adv-block -2
-  :vol (:cap 0.2 1.24 1.1 0.25) :on-hit :flinch)                     ; HIZASHI: a flat edge line 1.24 m
-(defmove :ya-e-j2 :kind :quick :clip :ya-q2 :clip-s 8 :startup 7 :active 3 :recovery 13 :dmg 38 :adv-block -2
-  :vol (:cap 0.2 1.24 1.1 0.25) :on-hit :flinch)                     ; ZANSHO: the return stroke
-(defmove :ya-e-j3 :kind :quick :clip :ya-e-thrust :clip-s 11 :startup 8 :active 3 :recovery 18 :dmg 42 :adv-block -4
-  :vol (:cap 0.2 1.44 1.1 0.3) :on-hit :stagger :flags (:ender))     ; SENKO: a short thrust, no lunge
-(defmove :ya-e-k1 :kind :flash :clip :ya-f1 :clip-s 18 :startup 16 :active 4 :recovery 20 :dmg 70 :adv-block -3
-  :vol (:cap 0.2 3.4 1.1 0.3) :on-hit :stagger)                     ; KAGERO: the wide sweep
-(defmove :ya-e-k2 :kind :flash :clip :ya-f2 :clip-s 22 :enter 5 :startup 19 :active 4 :recovery 24 :dmg 60 :adv-block -3
-  :vol (:cap 0.2 3.4 1.3 0.35) :on-hit :stagger)                    ; NISSHO: the rising cut
+;; the East strings (docs/duel/DUEL_STRINGS.md §3.2): the charred blade itself, its own clips (yama-art.lisp). Canon's
+;; Kyokujitsujin "neither burns nor erupts": since docs/duel/DUEL_YAMA_TYBW.md §3.3 (2026-10-13) every line ends where the
+;; drawn tip is at S (edge = b + r, the FK test's measure); K1-K3 step in (:slide) for the reach the old 3.4 m lines had
+(defmove :ya-e-j1 :kind :quick :clip :ya-e-q1 :startup 8 :active 3 :recovery 12 :dmg 34 :adv-block -2
+  :vol (:cap 0.2 1.24 1.1 0.25) :on-hit :flinch)                     ; HIZASHI: the lunge's level cut, tip 1.52 at S
+(defmove :ya-e-j2 :kind :quick :clip :ya-e-q2 :startup 7 :active 3 :recovery 13 :dmg 38 :adv-block -2
+  :vol (:cap 0.2 1.24 1.1 0.25) :on-hit :flinch)                     ; ZANSHO: the rising backhand, tip 1.59
+(defmove :ya-e-j3 :kind :quick :clip :ya-e-q3 :startup 8 :active 3 :recovery 18 :dmg 42 :adv-block -4
+  :vol (:cap 0.2 1.44 1.1 0.3) :on-hit :stagger :flags (:ender))     ; SENKO: the rising thrust off a knee, tip 1.71
+(defmove :ya-e-k1 :kind :flash :clip :ya-e-f1 :startup 16 :active 4 :recovery 20 :dmg 70 :adv-block -3
+  :slide 1.6 :vol (:cap 0.2 1.55 1.1 0.3) :on-hit :stagger)          ; KAGERO: the diagonal, tip 1.85 (was a 3.4 m line)
+(defmove :ya-e-k2 :kind :flash :clip :ya-e-f2 :enter 5 :startup 19 :active 4 :recovery 24 :dmg 60 :adv-block -3
+  :slide 1.6 :vol (:cap 0.2 1.56 1.3 0.35) :on-hit :stagger)         ; NISSHO: the sunrise, tip 1.91 (was 3.4)
 (defmove :ya-e-k3 :kind :flash :clip :ya-e-drop :enter 7 :startup 21 :active 5 :recovery 34 :dmg 84 :adv-block -20
-  :vol (:cap 0.3 3.2 1.2 0.3) :on-hit :crumple :flags (:ender))      ; RAKUJITSU: the vertical drop, the setting sun
+  :slide 1.4 :vol (:cap 0.3 1.67 1.2 0.3) :on-hit :crumple :flags (:ender))   ; RAKUJITSU: the setting sun, tip 1.97 (was 3.2)
 (defmove-copy :ya-e-j2s :ya-e-j2)
 (defmove-copy :ya-e-k2s :ya-e-k2)
 ;; L in East: KYOKKO (旭光), the first ray of the rising sun: a one-handed lunge (1.6 m over the startup) whose point
 ;; runs a 4.6 m line; double pierce (:pierce-mult 2: 0.2 .. 0.9), so at a full gauge 162 on hit and 77 through a
 ;; guard (chip: never kills). Ends a landed Q / F string (:cancel); cooldown 100
-(defmove :ya-e-kyokko :kind :sig :clip :ya-e-thrust :clip-s 11 :callout "KYOKKO" :startup 15 :active 3 :recovery 26
+(defmove :ya-e-kyokko :kind :sig :clip :ya-e-kyokko :callout "KYOKKO" :startup 15 :active 3 :recovery 26
   :dmg 85 :adv-block -12 :slide 1.6 :vol (:cap 0.2 4.6 1.1 0.3) :on-hit :knockback :kb 2.0
   :cooldown 100 :flags (:cancel) :on-frame ((1 yama-kyokko-flare) (15 yama-kyokko)) :params (:pierce-mult 2.0))
 ;; Shift+K in East: KYOKUJITSUJIN, the downward cut. The blade (f18-19, close) breaks guard; at f20 its tip
@@ -104,7 +106,7 @@
 ;; L in West: SHONETSU JIGOKU (焦熱地獄), the garb erupts: the blade planted, the garb flares for 16 f (the tell), then a
 ;; ring of fire pillars where he stands (Ennetsu's :pillars, radius 2 m): 45 x at most 2, blockable, 360 deg. He
 ;; stays West (his ward up throughout). Cooldown 150
-(defmove :ya-w-shonetsu :kind :sig :clip :ya-shonetsu :clip-s 14 :callout "SHONETSU JIGOKU" :startup 16 :active 0
+(defmove :ya-w-shonetsu :kind :sig :clip :ya-shonetsu :callout "SHONETSU JIGOKU" :startup 16 :active 0
   :recovery 24 :cooldown 150 :on-frame ((0 yama-shonetsu-tell) (16 yama-shonetsu))
   :params (:size 2.0 :life 48 :hits 2 :dmg 45 :kb 2.0 :guard 12))
 ;; Shift+K in West: GOKUI GAESHI, a parry (f2-25, *PARRY-WINDOW*: Ichigo's KUSARI-TATE window, the user 2026-10-01); a melee hit in it staggers the attacker
@@ -112,8 +114,10 @@
 ;; 46 f parried or not; he stays West through it and the counter (both SP1)
 (defmove :ya-w-parry :kind :sp :clip :ya-w-parry :callout "GOKUI GAESHI" :startup 2 :active 24 :recovery 20 :flags (:parry)
   :on-frame ((2 yama-parry-up)))
+;; the counter: one step in (:slide) and a short backhand at the chest; the arc ends at the drawn tip (2.6 until
+;; DUEL_YAMA_TYBW §3.3)
 (defmove :ya-w-counter :kind :sig :clip :ya-w-counter :startup 6 :active 3 :recovery 24 :dmg 150 :adv-block -12
-  :vol (:arc 2.6 120 0.0 2.0) :on-hit :knockback :kb 3.0)
+  :slide 0.6 :vol (:arc 1.96 120 0.0 2.0) :on-hit :knockback :kb 3.0)
 
 ;;; ---------------------------------------------------------------- both: South (Shift+L) and North (O)
 ;; MINAMI, the bind: at f20 the blade is driven in and the point under the opponent (<= 10 m) is marked; a
@@ -126,9 +130,9 @@
   :on-frame ((20 yama-south))
   :params (:range 10.0 :radius 1.2 :height 0.6 :delay 16 :dmg 40 :stun *bind-stun* :hands 4))
 ;; O in Bankai, KITA: TENCHI: 10 f of aim, then a flash step, 36 m/s for at most 14 f, the direction
-;; locked at take-off (a sidestep in the aim beats it), then one diagonal cut (Q1's, played faster):
+;; locked at take-off (a sidestep in the aim beats it), then one huge passing cut (its own clip :ya-e-tenchi):
 ;; 10 m, <= 30 f from the press. Tenchi Kaijin. Cooldown 90.
-(defmove :ya-tenchi :kind :kikon :clip :sh-run :clip-2 :ya-q1 :clip-s 9 :callout "TENCHI KAIJIN" :cine yama-tenchi-cine
+(defmove :ya-tenchi :kind :kikon :clip :sh-run :clip-2 :ya-e-tenchi :callout "TENCHI KAIJIN" :cine yama-tenchi-cine
   :startup 6 :active 2 :recovery 26 :dmg 70 :adv-block -14 :reach 2.4 :arc 110 :on-hit :knockback :kb 2.5 :cooldown 90
   :on-frame ((5 yama-tenchi-slash))
   :params (:aura 10 :aim 120.0 :speed 36.0 :dash-max 14 :dash-track 0.0 :look :flash-step :sfx :hoho-out))
@@ -174,7 +178,7 @@
   :endless-form :bankai-east                    ; ENDLESS: West (inheriting it) stays as East
   :blade (:embers 1.4) :grade :spot :passives (:projectile-cut :pierce) :meter nil   ; the body as it is (the charcoal
   ;; heat wisps), the charred blade with its ember-red edge line
-  :weapon :zanka :aura :heat :enter-clips (:ya-bankai) :enter-hook yama-bankai-enter :swing-sfx :whoosh-heavy
+  :weapon :zanka :stance :ya-e-stance :aura :heat :enter-clips (:ya-bankai) :enter-hook yama-bankai-enter :swing-sfx :whoosh-heavy
   :cine yama-bankai-cine
   :commands (:q :ya-e-j1 :f :ya-e-k1 :sig :ya-e-kyokko :sp1 :ya-kyoku :sp2 :ya-kaka :kikon :ya-tenchi)
   :grid (:ya-e-j1 :ya-e-j2 :ya-e-j3 :ya-e-k1 :ya-e-k2 :ya-e-k3 :ya-e-j2s :ya-e-k2s)
