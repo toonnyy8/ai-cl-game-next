@@ -43,7 +43,10 @@ Then ask what the table cannot show (AskUserQuestion, recommended first):
 5. **One spend-all super** (SP2), cancellable only off string hits, punishable when used alone.
 6. **Encode once**: a segment table (name kind startup hit-offsets recovery dmg reactions role extra), a macro that
    expands it per form with that form's clip plist and FK reach, a function that returns the kit's strings. A new form
-   = one macro call + a defkit; a new route = rows with a new role + a latch + clips.
+   = one macro call + a defkit; a new route = rows with a new role + a latch + clips. A new character copies the
+   pattern into its own file under its own prefix (`br-defstance` is Lille's); lift a macro into `kit.lisp` only when a
+   second character really shares it, proving the other pairings byte-identical. The character's knobs live in its own
+   file as `defparameter`s with docstrings (old → new, date, who decided); `tuning.lisp` holds the shared ones.
 7. **Pin in host tests**: every link combos on a hit *including hitstop*, every segment → SP2 combos, `:end` only on last
    segments, the routes on distinct clips, drawn tip = reach ±0.15 m, any user-ruled order (damage KL > stance K >
    attack K), the route / price cases.

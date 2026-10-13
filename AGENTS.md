@@ -119,7 +119,8 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   4 Senjumaru (`senjumaru*`), 5 **reserved** (the old Lille's slot: retired 2026-10-12, his code removed 2026-10-13; `:lille` stays in `*roster*` for the saved data's and the gates' indices: `*retired*` / `playable-roster` in kit.lisp, simgate's `RETIRED`), 6 Lille (`barro*`, kit `:barro`, called "Lille II" before 2026-10-13; his art and cinematics also in `lille-art.lisp`; version 3: DUEL_LILLE_V3, the V2 record DUEL_LILLE_V2, the old Lille's design DUEL_LILLE). Each character = data + hooks: `defkit` forms with `:ai` plists, `defmove`s, its own CPU
   functions (`:reflex`, `:opp-reflex`, `:sp-ender`, `:sig-hold`, `:assist-guard`), cinematics; art in `<char>-art.lisp`
   (`defstrike` clips, bodies).
-- **Plain CL, host-tested**: `tuning.lisp` (every knob, `defparameter` + docstring with old → new, date, who decided),
+- **Plain CL, host-tested**: `tuning.lisp` (every shared knob, `defparameter` + docstring with old → new, date, who decided; a character's own knobs
+  sit in its file under the same rule),
   `rules.lisp`, `control.lisp`, `learn.lisp`, `kit.lisp` (`parse-move`, reach floors). **Systems**: `fighter`, `combat`,
   `hazards`, `ai`, `ai-learn`, `assist`, `camera`, `feedback`, `flow`, `hud`, `onehand`, `endless`, `debug` (debug commands, gate
   scenarios), `draw`, `main`; shared look: `body`, `brush`, `vfx`, `stage`, `cinema`, `glyphs`, `sounds`. Compile order:

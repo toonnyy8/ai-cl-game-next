@@ -79,6 +79,10 @@ Wording
   `:look-clips`, `:intangible`, `:armor`, `:pose`, `:through`, `:hold` + `:release`, `:step-branch`, `:assist-combo`,
   CINE-SCALE / -SLOW / -PLACE); prove them off with the other
   pairings byte-identical.
+- A new roster index: the `:base` defkit's load order appends it to `*roster*` (the index of saved learning tables,
+  endless records and gate pairings: never reorder, a removed character's slot stays reserved); add the name to
+  `tools/simgate.py` `ROSTER` (aieval reads it), claim a debug range in DUEL_GAMEPLAY "Debug commands", add the forms
+  to the host tests' per-form lists, and re-pin `tests/style-gates.py`'s looks seeds (the CPU-vs-CPU picks move).
 - Each form gets its own clips at its own frames. Never play a sibling form's clip sped up with `:clip-s` in place of
   the form's own (retiming a form's own clip with `:clip-s` is normal).
 - Every new mechanic gets a CPU rule (EASY ≤ NORMAL ≤ HARD), an opponent reflex key, an ASSIST route, a learning
