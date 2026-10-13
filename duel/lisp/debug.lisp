@@ -9,7 +9,7 @@
 ;;;;   2300-2399, 2410-2430, 2450+k   scenarios and probes (2300+k specials, 2315+k frame probes, 2370+k / 2380+k stance
 ;;;;               tests, 2386+k Bankai tests, 2410+k Rukia, 2450+k Senjumaru); 2400 god; 2500+k human P1 vs an idle CPU
 ;;;;   20000-29000, 32000-73000   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc)
-;;;;   74000-75599 Ichigo, 79000-79999 Lille, 80000-80999 ENDLESS, 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
+;;;;   74000-75599 Ichigo, 82000-82999 Lille, 80000-80999 ENDLESS, 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
 (in-package :duel)
@@ -809,7 +809,7 @@ SR SS SI; a new character's: its pairings with every earlier character and its m
     (log-msg "duel evo seed ~d P1 ~,1f P2 ~,1f secs ~,1f" *match-seed*   ; the first EVOLUTION per side (-1: none)
              (/ (gauges-evo-t (gauges *p1*)) 60.0) (/ (gauges-evo-t (gauges *p2*)) 60.0) (/ (match-play-ticks) 60.0))
     (band-acc-line) (cup-acc-line)
-    (senju-acc-line) (ichigo-acc-line) (lille-acc-line) (barro-acc-line)
+    (senju-acc-line) (ichigo-acc-line) (barro-acc-line)
     (when *learn-gate* (learn-gate-line))
     (setf *gate-busy* nil))
   (unless *gate-busy*
@@ -830,12 +830,11 @@ SR SS SI; a new character's: its pairings with every earlier character and its m
 (defparameter *dumb-guard-p* 0.5 "... and guards this share of the moves he sees coming.")
 
 (defvar *dumb-p2* nil "Debug 81040+i: P2 of the learning gate is a button-masher too (ASSIST's anti-mash check).")
-(defparameter *habits* #(nil :wake-j :block-guard :grab :hoho :burst :dumb :trace-right :tenshin-hoho :hosha-guard)
+(defparameter *habits* #(nil :wake-j :block-guard :grab :hoho :burst :dumb)
   "The scripted players (debug 200000+): 0 a plain CPU, 1 J on every wake-up, 2 guard after every block, 3 grab-happy
 (the Breaker at every close neutral decision), 4 Hoho-happy (Hoho at neutral decisions and into every committed move),
-5 burst-happy (BLUE at every chance: AI-BURST-ROLL's chance 1), 6 the button-masher (DUMB-STEP: ASSIST's gate); against
-Lille (DUEL_LILLE §24.9, his learning situations): 7 steps off every new trace to its right (LB-HABIT-TRACE), 8 Hohos his
-TENSHIN in's wind-up (LB-HABIT-TENSHIN), 9 guards his HOSHA (LB-HABIT-HOSHA).")
+5 burst-happy (BLUE at every chance: AI-BURST-ROLL's chance 1), 6 the button-masher (DUMB-STEP: ASSIST's gate). (7-9, the
+habits against the old Lille, went with him: 2026-10-13.)")
 
 (defun start-learn-gate (h c1 c2 on)
   "200000 + 1000 H + 100 C1 + 10 C2 + ON: seeds *GATE-SEED0* + 1 .. + *GATE-SEEDS* back to back, P1 (roster C1) a CPU with
@@ -885,10 +884,7 @@ match."
         (:block-guard (when (eq was :guard-hit) (ai-press b :guard 40 :act :hold) (setf (brain-why b) :habit)))
         (:hoho (when (and hoho-ok (eq (snap-state s) :move) (member (snap-kind s) '(:quick :flash :sig :sp :breaker))
                           (< (snap-sf s) (snap-active-end s)) (< d (+ (snap-reach s) *ai-threat-margin*)))
-                 (ai-press b :step 1 :modded t :act :hoho) (setf (brain-why b) :habit)))
-        (:trace-right (lb-habit-trace e b))                  ; (against Lille: lille.lisp, DUEL_LILLE §24.9)
-        (:tenshin-hoho (lb-habit-tenshin e b s))
-        (:hosha-guard (lb-habit-hosha e b s))))))
+                 (ai-press b :step 1 :modded t :act :hoho) (setf (brain-why b) :habit)))))))
 
 (defun dumb-step (e b s d)
   "The button-masher (habit :dumb, ASSIST's gate, docs/duel/DUEL_ASSIST.md): nothing of the CPU's play, only what a new player

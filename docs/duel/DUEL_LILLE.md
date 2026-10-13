@@ -1,5 +1,9 @@
 # SOUL DUEL: Lille Barro (リジェ・バロ, zh-TW 利傑巴羅), 万物貫通 THE X-AXIS and 神の裁き JILLIEL
 
+> **Removed 2026-10-13** (the user: 「幫我移除舊版的 lille，並將新版 lille II 改名成 lille」): this Lille (`lille.lisp`, kit
+> `:lille`, roster index 5) is gone from the code; his slot stays reserved (the index). This file is the record of his
+> design. The Lille in the game is the rebuilt one (kit `:barro`, DUEL_LILLE_V2 / DUEL_LILLE_V3; DUEL_LILLE_V3 §26).
+
 Status: **full design pass written 2026-10-06 and revised after an adversarial review the same day (22 findings; the
 lock, the eye's rest rule, MUJITTAI as a ward); the user's review answered 2026-10-06 (decisions 12–15)** (§2–§16). **Build started 2026-10-06** (the user:
 「就麻煩萊醬開始下一步啦」), in batches:

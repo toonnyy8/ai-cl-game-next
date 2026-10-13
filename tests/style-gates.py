@@ -17,7 +17,7 @@ dists are built with ./build.sh (a BASE dist is a copy of dist/NAME built before
   python3 tests/style-gates.py looks BASE NEW [--jobs N] [--size WxH] [--only TEXT] [--once] [--keep-base]
                                                     the look identity gate (for refactors that must not change a
                                                     pixel): 109 fixed stills of SOUL DUEL under run.mjs --fixed-dt
-                                                    (menus, select of all seven fighters, four CPU-vs-CPU matches at
+                                                    (menus, select of all six fighters, four CPU-vs-CPU matches at
                                                     several times, Kikon / awakening / form-change cinematics, HUD
                                                     in every form, VFX, ENDLESS, the portrait touch layout, results)
                                                     from BASE twice (noise floor) and NEW once; per still the max abs
@@ -173,24 +173,23 @@ def smoke(dists):
 
 # ---------------------------------------------------------------- looks: the look identity gate (for refactors)
 LOOKS_START = 4.0          # virtual s of the first event: the title stands from ~2 s on (raven's G1 uses 4.0 too)
-# 2000+seed is a CPU-vs-CPU match whose two fighters are drawn from the seed (xorshift32 over the seven-fighter roster
-# Y K R I S L B): seed 1 = Yamamoto-Senjumaru, 56 Rukia-Ichigo, 32 Kenpachi-Lille, 39 Lille II-Kenpachi (every fighter in a
-# match; the "duel match" log line is checked against this table). Re-pinned 2026-10-10 when Lille II (B) joined the roster
-# (DUEL_LILLE_V2 §14); before: ((1 YS) (5 IR) (0 KL) (18 SI)) over six fighters
-LOOKS_SEEDS = ((1, "YS"), (56, "RI"), (32, "KL"), (39, "BK"))
+# 2000+seed is a CPU-vs-CPU match whose two fighters are drawn from the seed (xorshift32 over the playable roster
+# Y K R I S B): seed 1 = Yamamoto-Senjumaru, 72 Rukia-Ichigo, 33 Kenpachi-Senjumaru, 44 Lille-Kenpachi (every fighter in a
+# match; the "duel match" log line is checked against this table). Re-pinned 2026-10-13 over the six playable fighters (the
+# old Lille removed, Lille B the one Lille); before: ((1 YS) (56 RI) (32 KL) (39 BK)) over seven (2026-10-10, DUEL_LILLE_V2 §14)
+LOOKS_SEEDS = ((1, "YS"), (72, "RI"), (33, "KS"), (44, "BK"))
 LOOKS_WINDOWS = ((2, (0.1,)), (8, (0.1, 0.4)), (16, (0.1,)), (30, (0.1,)))   # (turbo frames of 120 steps, the live shots after)
 # the cinematics at their key frames: (still name, debug command base, frames); 10000 + 1000 k + f is debug.lisp's, the
-# others a character's own range (75300 + k: Ichigo's awakening at frame 2k; 79100 + k: Lille's at frame 10k)
+# others a character's own range (75300 + k: Ichigo's awakening at frame 2k; 82300 + k: Lille's at frame 10k)
 LOOKS_CINES = {
     "cine-yama": [("yama-kikon", 12000, (20, 112)), ("yama-bankai", 10000, (30, 74, 128)), ("ko", 18000, (12, 60))],
     "cine-ken": [("ken-kikon", 14000, (20, 80)), ("ken-nozarashi", 11000, (26, 96)), ("ken-bankai", 35000, (30, 80, 120))],
     "cine-rukia": [("rukia-kikon", 40000, (60, 112)), ("rukia-awaken", 42000, (20, 60, 110)), ("rukia-hakka", 41000, (60, 120))],
     "cine-ichigo": [("ichigo-awaken", 75300, (10, 30, 55))],
     "cine-senju": [("senju-awaken", 78000, (30, 90, 150))],
-    "cine-lille": [("lille-awaken", 79100, (3, 9, 15))],
     "cine-barro": [("barro-awaken", 82300, (3, 9, 15))],
 }
-LOOKS_FRAMES = {75300: 2, 79100: 10, 82300: 10}      # cinematic frames per unit of the command's last digits
+LOOKS_FRAMES = {75300: 2, 82300: 10}      # cinematic frames per unit of the command's last digits
 
 
 def looks_scenarios():
@@ -202,7 +201,7 @@ def looks_scenarios():
     def tap(s, t, x, y): s.extend([{"at": round(t, 3), "touch": "start", "x": x, "y": y}, {"at": round(t + 0.05, 3), "touch": "end", "x": x, "y": y}])
     def done(s): return max(e["at"] for e in s) + 0.3
 
-    # menus: title, MODE, SETTINGS, CONTROLS, then the select screen with each of the seven fighters (P1's cycle)
+    # menus: title, MODE, SETTINGS, CONTROLS, then the select screen with each of the six fighters (P1's cycle)
     s, t = [], LOOKS_START
     shot(s, t, "title"); key(s, t + 0.3, "Enter"); shot(s, t + 0.9, "mode")
     t += 1.2
@@ -211,7 +210,7 @@ def looks_scenarios():
     key(s, t + 2.1, "ArrowDown"); key(s, t + 2.4, "Enter"); shot(s, t + 3.0, "controls"); key(s, t + 3.2, "Escape")
     key(s, t + 3.6, "ArrowUp"); key(s, t + 3.8, "ArrowUp"); key(s, t + 4.0, "Enter")          # CPU VS CPU
     t += 4.5
-    for i in range(7):
+    for i in range(6):
         shot(s, t, f"select-{i}"); key(s, t + 0.1, "ArrowRight"); t += 0.6
     sc["menus"] = (s, done(s), ())
 
@@ -243,15 +242,14 @@ def looks_scenarios():
         sc[name] = (s, done(s), ())
 
     # looks that are not on screen at a chosen tick: the HUD in every form (2430+k), sword smears, the Bankai's cracks and
-    # impact stamps (2312, 2366), Rukia's ice, Senjumaru's bolts of cloth, stitches, umbrella and drapes (2450+k), Lille's
-    # wings and claws (79197 / 79198, each 79198 the next of her four forms): (command, seconds to the still, still name)
+    # impact stamps (2312, 2366), Rukia's ice, Senjumaru's bolts of cloth, stitches, umbrella and drapes (2450+k)
+    # (the old Lille's wings and claws, 79197 / 79198, went with him, 2026-10-13): (command, seconds to the still, still name)
     for name, lst in (("fx-a", [(2430, 0.6, "hud-0"), (2433, 0.6, "hud-3"), (2434, 0.6, "hud-4"), (2437, 0.6, "hud-7"),
                                 (2309, 0.4, "smear-a"), (None, 0.55, "smear-b"), (2312, 0.8, "bankai-crack"), (2366, 0.8, "destruction"),
                                 (2302, 0.9, "fire-wave"), (2306, 0.67, "guard-break")]),
                       ("fx-b", [(2412, 1.0, "rukia-m50"), (2413, 0.3, "rukia-freeze-touch"), (2418, 1.0, "rukia-zero"),
                                 (2470, 0.8, "senju-hank1"), (2473, 0.8, "senju-hank4"), (2476, 0.8, "senju-stitches"),
-                                (2477, 0.7, "senju-umbrella"), (2481, 0.8, "senju-drapes"),
-                                (79198, 0.8, "lille-jilliel"), (79198, 0.8, "lille-kin"), (79198, 0.8, "lille-owl"), (79197, 0.8, "lille-kin-p1")])):
+                                (2477, 0.7, "senju-umbrella"), (2481, 0.8, "senju-drapes")])):
         s, t = [], LOOKS_START
         for c, d, still in lst:
             if c is None: shot(s, t0 + d, still); continue                 # a second still of the same command

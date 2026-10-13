@@ -279,9 +279,10 @@ new button."
 (defvar *roster* nil "Every character with a :base kit, in the order the kit files define them (its index: the saved data's,
 the gates' pairings; the select screen plays PLAYABLE-ROSTER).")
 (defparameter *retired* '(:lille)
-  "Characters kept in *ROSTER* (their index, their code: Lille II's draws on the old Lille's) but out of the game: not on the
-select screen, never a random or Endless opponent, no seed gate by default (the user 2026-10-12: 「幫我將舊版的 lille 從遊戲中
-移除」, DEVLOG §208).")
+  "Roster slots kept for their index (the saved learning tables and records, the gates' pairing numbers) with no character:
+never on the select screen, a random or Endless opponent, or a default seed gate. :lille, index 5: the old Lille, out of the
+game since 2026-10-12 (「幫我將舊版的 lille 從遊戲中移除」, DEVLOG §208), his code removed 2026-10-13 (「幫我移除舊版的 lille」:
+barro.lisp reserves the slot; Lille, kit :barro, is 6).")
 (defun playable-roster () "*ROSTER* without the *RETIRED* characters." (remove-if (lambda (c) (member c *retired*)) *roster*))
 (defun find-kit (character form)
   (or (cdr (assoc form (gethash character *kits*))) (error "unknown kit ~s ~s" character form)))
@@ -362,8 +363,8 @@ Cornered with LOST Konpaku."
   (list :mult (kit-taken kit)))
 (defun kit-move-clip (kit clip)
   "The clip a fighter in KIT plays for a move's CLIP: the form's :clip-map entry, else CLIP (NIL stays NIL). A look only:
-the move (its name, frames and volumes) is the same in every form that has it (decision 56, DUEL_LILLE §23.37: Jilliel KIN
-plays the base form's SANREN, :lb-sanren, on his wings)."
+the move (its name, frames and volumes) is the same in every form that has it (Lille's awakened forms play
+the base form's clips on his wings, barro.lisp's :clip-map)."
   (if clip (or (getf (kit-clip-map kit) clip) clip) clip))
 (defun kit-clips (kit)
   "Every clip name the form uses (moves, stance, intro/win, entry cinematic, the run, its :look-clips' own), its moves'

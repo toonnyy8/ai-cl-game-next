@@ -731,8 +731,12 @@ stance and its J (the stance's J J); the stance's three strings (BR-DEFSTANCE)."
   "The awakened forms' non-button strings: the volley's (the owl's SP2), the stances' strings and their K K / J J -> SP2 (every
 awakened form inherits these).")
 
+;; Roster index 5 stays the removed old Lille's (2026-10-13: 「幫我移除舊版的 lille」): the saved learning tables and records
+;; are kept by index and the gates' pairings are numbered by it, so his is reserved (*RETIRED*: never played) and this is 6.
+(unless (member :lille *roster*) (setf *roster* (append *roster* (list :lille))))
+
 (defkit :barro :base
-  :name "LILLE II" :body :lille :weapon :diagramm :stance :lb-stance :calm t
+  :name "LILLE" :body :lille :weapon :diagramm :stance :lb-stance :calm t
   :intro :lb-intro :win :lb-win :intro-callout "THE X-AXIS"
   :walk *br-walk* :run *br-run* :reishi *reishi-max* :swing-sfx :whoosh-light :mult *br-mult* :taken *br-taken*
   :commands (:q :br-j1 :f :br-k1 :sig :br-kamae :sp1 :br-sanren :sp2 :br-hiren :breaker :br-breaker :kikon :br-kikon)
@@ -835,7 +839,7 @@ awakened form inherits these).")
 
 ;; his names in the brush tables (brush.lisp): the intro's column and the technique columns (not on the host)
 (when (boundp '*brush-names*)
-  (setf *brush-names* (append (remove :barro *brush-names* :key #'first) '((:barro "リジェ・バロ" "LILLE II")))
+  (setf *brush-names* (append (remove :barro *brush-names* :key #'first) '((:barro "リジェ・バロ" "LILLE")))
         *brush-callouts*
         (append (remove-if (lambda (c) (eql 0 (search "BR-" (symbol-name (first c))))) *brush-callouts*)
                 '((:br-k-sanren "三連" "SANREN" nil) (:br-k-hiren "飛廉脚" "HIRENKYAKU" nil) (:br-k-hiren-c "飛廉脚" "HIRENKYAKU" nil)
@@ -849,6 +853,12 @@ awakened form inherits these).")
                   (:br-k-dash "飛廉脚" "HIRENKYAKU" nil)))))
 
 ;;; ================================================================ his state (the sim's): a component on his fighter entity
+;;; hazard data: his looks' hazards (BR-FX's lines, the misuji) carry one of these, drawn by LB-LOOK (lille-art.lisp)
+(defstruct (lbh (:conc-name lbh-))
+  (kind nil)                              ; :beam :lane :judge :shot :sabaki (the look)
+  (len 0f0 :type single-float) (width 0f0 :type single-float)
+  (lock nil))                             ; a look's colour / width: T jade (a locked shot), :thick, NIL ink
+
 (defcomponent brs
   "Lille II's state: on his fighter entity, made on its first use, so a new match's fighter starts fresh."
   (ammo 0 :type fixnum)                   ; the special resource: the base's 狙擊 pips 0-3, awakened the wings 0-8

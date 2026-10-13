@@ -2,7 +2,7 @@
 ;;;; What an entity is follows from its components:
 ;;;;
 ;;;;   a fighter        transform motion model blade fighter gauges pilot   (+ brain when the CPU plays it;
-;;;;                    + ics / sjs / lbs: Ichigo's / Senjumaru's / Lille's state, defined in their files)
+;;;;                    + ics / sjs / brs: Ichigo's / Senjumaru's / Lille's state, defined in their files)
 ;;;;   a hazard         hazard                     (fire wave, Shiranui, pillars, line cuts, Kaka)
 ;;;;   a South hand     hazard transform model     (a hazard with a body: a look of Bankai South)
 ;;;;

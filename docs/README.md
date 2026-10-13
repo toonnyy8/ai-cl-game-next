@@ -47,8 +47,8 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_RUKIA.md](duel/DUEL_RUKIA.md) | 朽木露琪亞（血戰篇）：袖白雪與絶対零度的設計與實作（英文） |
 | [DUEL_ICHIGO.md](duel/DUEL_ICHIGO.md) | 黑崎一護（血戰篇）：二刀斬月與血鎖の一護，含試玩後的 v2 重新設計（英文） |
 | [DUEL_SENJUMARU.md](duel/DUEL_SENJUMARU.md) | 修多羅千手丸：刺絡與卍解娑闥迦羅骸刺絡辻的設計與實作（英文） |
-| [DUEL_LILLE.md](duel/DUEL_LILLE.md) | 利傑巴羅（2026-10-06 起，討論中）：純遠距狙擊、萬物貫通穿防、覺醒 Jilliel 的無實體架式，使用者的決定與待決問題（英文） |
-| [DUEL_LILLE_V2.md](duel/DUEL_LILLE_V2.md) | 利傑巴羅・重製（2026-10-09 起，roster 7 號，舊版保留；2026-10-10 起改為第三版，見 DUEL_LILLE_V3）：萬物貫通、常態狙擊架式＋狙擊量表、覺醒近戰／遠程兩模式＋軌跡實體化與回收衍生連段、保留貓頭鷹復活（英文） |
+| [DUEL_LILLE.md](duel/DUEL_LILLE.md) | 舊版利傑巴羅的設計紀錄（2026-10-06 起；2026-10-12 移出遊戲、2026-10-13 程式移除，roster 5 號保留為空位）：純遠距狙擊、萬物貫通穿防、覺醒 Jilliel 的無實體架式（英文） |
+| [DUEL_LILLE_V2.md](duel/DUEL_LILLE_V2.md) | 利傑巴羅・重製（2026-10-09 起，roster 7 號；原名 Lille II，2026-10-13 起就叫利傑；2026-10-10 起改為第三版，見 DUEL_LILLE_V3）：萬物貫通、常態狙擊架式＋狙擊量表、覺醒近戰／遠程兩模式＋軌跡實體化與回收衍生連段、保留貓頭鷹復活（英文） |
 | [DUEL_LILLE_V3.md](duel/DUEL_LILLE_V3.md) | 利傑巴羅・重製的第三版（2026-10-10 起，已實作）：Lille 全部動畫模組總覽；L 進架勢、LL 收資源／KK→JJ 加傷／JJ→KK 加回復，三種型態共用；翼、爆氣梟頭、唯一的全彈、看資源數的 SP、花 4 翼受擊不斷（英文） |
 | [DUEL_AI_V2.md](duel/DUEL_AI_V2.md) | 每個角色的 AI v2（2026-10-02，已實作）：dream-rsi 搜尋、選用的變體、各角色行動方針、NORMAL 校正、與學習型 AI 和 ASSIST 的整合、gate 結果（英文） |
 | [DUEL_LEARNING.md](duel/DUEL_LEARNING.md) | 學習型 CPU：從對戰中學玩家習慣的讀心與反制、學習 gate（英文） |

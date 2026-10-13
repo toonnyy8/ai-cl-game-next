@@ -624,16 +624,6 @@ tell) fills the hole with light."
                 do (mbc mb c) (with-xform (mb (xform :y y :roll r)) (lb-plate mb '((0 -0.02) (0.4 0.06) (0.44 0.12) (0 0.02)) 0.014))))
   (:solid :ink 0 (mbc mb #xF2E6C0) (with-xform (mb (xform :y 0.958)) (mb-cylinder mb 0.15 0.012 :segments 16))))
 ;; the reflect's mirror: a flat white hexagon on its edge (Hakkyoken's look, a generic reflector)
-(defweapon :lb-mirror (:length 1.0)
-  (:solid (mbc mb #xF4F6FA) (lb-plate mb (loop for i below 6 collect (let ((a (* i (/ pi 3)))) (list (cos a) (sin a)))) 0.04)
-          (mbc mb #xB4BAC8) (lb-plate mb (loop for i below 6 collect (let ((a (* i (/ pi 3)))) (list (* 0.7 (cos a)) (* 0.7 (sin a))))) 0.06)))
-(defweapon :lb-beam-jade (:length 1.0)
-  (:solid :ink 0 (mbc mb #x9CC4AC) (with-xform (mb (xform :y 0.5)) (mb-cylinder mb 1.0 1.0 :segments 12))))
-(defweapon :lb-beam-gold (:length 1.0)
-  (:solid :ink 0 (mbc mb #xE2CC8C) (with-xform (mb (xform :y 0.5)) (mb-cylinder mb 1.0 1.0 :segments 12))))
-(defweapon :lb-blast (:length 1.0)                     ; a SABAKI blast: a gold flame-cone, a pale core
-  (:solid :ink 0 (mbc mb #xB89A5A) (mb-cone mb 0.5 1.0 :segments 5)
-          (mbc mb #xF2E6C0) (with-xform (mb (xform :y 0.05)) (mb-cone mb 0.25 0.7 :segments 5))))
 
 ;;; ---------------------------------------------------------------- the strike points (the host FK test)
 (defparameter *lb-strike-points*
@@ -1647,103 +1637,28 @@ grip; a joint = that joint (the wing blades and the owl's arms end at the rig's 
    (:arm-r :flex 27.5 :side 19) (:elbow-r :flex 68.8) (:hand-r :flex 30) (:arm-l :flex 26 :side 20.6)
    (:elbow-l :flex 75.1) (:hand-l :flex 30))
   (:end :lb-oe-stance))
-(defstrike :lb-oe-sabaki (6 14 11 :base :lb-oe-stance)
-  (0) (4 (:arm-r :flex 170 :side 6) (:elbow-r :flex 4) (:head :flex -10))
-  (:s :snap (:arm-r :flex 60 :side 4) (:spine :flex 16) (:root :f 0.06))
-  (10 (:arm-r :flex 40 :side 10) (:arm-l :flex 170 :side 6) (:elbow-l :flex 4) (:head :flex -10))
-  (12 :snap (:arm-r :flex 40 :side 10) (:arm-l :flex 60 :side 4) (:spine :flex 16) (:root :f 0.06))
-  (16 (:arm-r :flex 172 :side 8) (:arm-l :flex 172 :side 8) (:elbow-r :flex 4) (:elbow-l :flex 4) (:head :flex -12))
-  (18 :snap (:arm-r :flex 62 :side 6) (:arm-l :flex 62 :side 6) (:spine :flex 22) (:root :f 0.12))
-  (:a (:arm-r :flex 44) (:arm-l :flex 44) (:spine :flex 14))
-  (:end :lb-oe-stance))
-;; KIN -> EN (the form, lift 0 -> *LB-OWL-LIFT* 0.35, at f6: LB-SWITCH-FORM): the fold, the leap up and back (the root
-;; rising 0.4 m to f6, then the same height in EN's lift: u 0.4 -> 0.05 across f6-6.5, a step the draw never sees: it draws
-;; f6 before the form and f7 after), the legs folding up and the wings fanning out (LILLE-DRAW's ramps), EN's stance. (The
-;; 0.35 steps here and in TENSHIN in are *LB-OWL-LIFT*: change them with it.)
-(defstrike :lb-o-tenshin (14 0 8 :base :lb-o-stance)
-  (0 :lb-o-fold-pose) (6 (:root :u 0.4 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
-  (6.5 :snap (:root :u 0.05 :pitch -6) (:spine :flex 6) (:arm-r :flex -40 :side 40) (:arm-l :flex -40 :side 40))
-  (14 :lb-oe-stance) (:end :lb-oe-stance))
-;; EN -> KIN (the form at f22, lift *LB-OWL-LIFT* 0.35 -> 0): the arms raised (the wind-up), the fold, the dash diving down
-;; to the floor (u -0.25 in EN's lift at f22 = 0.1 in KIN's at f22.5), the legs unfolding and the wings sweeping back, KIN
-(defstrike :lb-o-tenshin-in (30 0 8 :base :lb-oe-stance)
-  (0) (14 (:root :u 0.06 :pitch -6) (:head :flex -10) (:arm-r :flex -24 :side 64) (:arm-l :flex -24 :side 64))
-  (16 :snap :lb-oe-fold-pose)
-  (22 (:root :u -0.25 :pitch 12) (:spine :flex 26) (:arm-r :flex -40 :side 30) (:arm-l :flex -40 :side 30))
-  (22.5 :snap (:root :u 0.1 :pitch 12) (:spine :flex 26) (:arm-r :flex -40 :side 30) (:arm-l :flex -40 :side 30))
-  (30 :lb-o-stance) (:end :lb-o-stance))
-
-;;; ---------------------------------------------------------------- the cinematics' clips (§10)
-(defclip :lb-rise (1.0 :base :lb-w-fold-pose)          ; the revival: the headless column rising into the air
-  (0 (:root :u 0.5)) (1.0 (:root :u 1.5) (:arm-r :side 50) (:arm-l :side 50)))
-(defpose :lb-o-point (:base :lb-oe-stance)             ; the owl (EN, the revival's form), one long arm raised high, the
-  (:arm-r :flex 172 :side 8) (:elbow-r :flex 4) (:head :flex -6) (:spine :flex -4))   ; finger up (ch. 652)
-(defclip :lb-o-reveal (2.0 :base :lb-oe-stance)
-  (0) (0.6 :lb-o-point) (2.0 :lb-o-point))
-
 ;;; ---- rework R (decisions 17, 18): base stance + TENSHIN clips
 ;;; (Functional clips of the rules batch, DUEL_LILLE §22.1 / §22.2; the art batch owns everything above.) The shooting
-;;; stance 狙撃構え: Diagramm levelled at the hip, knees bent, the right eye along the barrel; its L fires from there.
-;;; HOSHA leaps and fires three bullets, TAISHA slides back and fires one (round 2: line hits from the muzzle, no melee
-;;; volume); the HIRENKYAKU dash crouches low; TENSHIN (Jilliel) folds into the flash step and opens in the new mode.
+;;; stance 狙撃構え: Diagramm levelled at the hip, knees bent, the right eye along the barrel; its L fires from there;
+;;; the HIRENKYAKU dash crouches low (barro.lisp's :br-kamae / :br-k-dash play them; the old Lille's HOSHA, TAISHA and
+;;; TENSHIN clips went with him, 2026-10-13).
 (defpose :lb-kamae-pose (:base :lb-aim-pose)          ; low, the rifle levelled from the hip-shoulder, aimed
   (:root :u -0.12) (:pelvis :twist 24) (:chest :twist -16) (:spine :flex 6) (:head :flex 8 :twist 20)
   (:thigh-r :flex -14 :side 10) (:thigh-l :flex 30 :side 8) (:knee-l :flex 34) (:knee-r :flex 22))
 (defclip :lb-kamae (0.8 :loop t :base :lb-kamae-pose) (0) (0.4 (:root :u -0.13) (:chest :flex 1)))
-(defstrike :lb-k-shot (10 2 26 :base :lb-kamae-pose)  ; the stance's L: still on the line 10 f, the crack, the recoil
-  (0) (:s :snap (:root :f -0.05) (:head :flex 2))
-  (:a (:root :f -0.12) (:arm-r :flex 70 :side 32) (:chest :flex -6))
-  (24 (:root :f -0.05) (:arm-r :flex 50) (:elbow-r :flex 90) (:hand-r :flex -140))
-  (:end :lb-stance))
-;; J 跳射 HOSHA (round 2, §23.1): the crouch, the leap (the sim carries him 3 m over f0-14; the clip only lifts him: the hurt
-;; cylinder stays on the floor), Diagramm levelled from the hip in the air, a recoil on each bullet (f6, f10, f14), the
-;; landing at f16, then back in the stance. The bullets are line hits from the muzzle (no melee volume: no FK reach test)
-(defpose :lb-k-hosha-air (:base :lb-kamae-pose)
-  (:root :u 0.55 :pitch -4) (:spine :flex 2) (:thigh-r :flex 46 :side 10) (:knee-r :flex 84) (:thigh-l :flex 18 :side 8)
-  (:knee-l :flex 62))
-(defstrike :lb-k-hosha (6 10 16 :base :lb-kamae-pose)
-  (0) (2 (:root :u -0.2 :pitch 6) (:knees :flex 44) (:thighs :flex 30))
-  (:s :snap :lb-k-hosha-air (:root :u 0.62) (:arm-r :flex 66))
-  (8 :lb-k-hosha-air (:root :u 0.66))
-  (10 :snap :lb-k-hosha-air (:root :u 0.6) (:arm-r :flex 68))
-  (12 :lb-k-hosha-air (:root :u 0.48))
-  (14 :snap :lb-k-hosha-air (:root :u 0.3) (:arm-r :flex 68))
-  (:a (:root :u -0.16 :pitch 4) (:knees :flex 40) (:thighs :flex 26))
-  (26 (:root :u -0.1) (:knees :flex 20))
-  (:end :lb-stance))
-;; K 退射 TAISHA (round 2, §23.1): the back-slide crouched low (the sim slides him 3 m over f0-12), the rifle shouldered on
-;; the line from f12, the crack at f16, the recoil, back in the stance
-(defpose :lb-k-taisha-slide (:base :lb-kamae-pose)
-  (:root :u -0.26 :pitch -8) (:spine :flex 10) (:knees :flex 46) (:thighs :flex 36))
-(defstrike :lb-k-taisha (16 2 24 :base :lb-kamae-pose)
-  (0) (3 :lb-k-taisha-slide) (11 :lb-k-taisha-slide (:root :u -0.2))
-  (14 :lb-aim-pose (:root :u -0.14))
-  (:s :snap :lb-aim-pose (:root :f -0.06 :u -0.14) (:head :flex 2))
-  (:a :lb-aim-pose (:root :f -0.14 :u -0.12) (:arm-r :flex 72 :side 32) (:chest :flex -6))
-  (32 (:root :f -0.05) (:arm-r :flex 50) (:elbow-r :flex 90) (:hand-r :flex -140))
-  (:end :lb-stance))
 ;; Step 飛廉脚 HIRENKYAKU: the flash-step dash, crouched low, the rifle kept on the line
 (defstrike :lb-k-dash (12 0 0 :base :lb-kamae-pose)
   (0 (:root :u -0.3 :pitch 10) (:knees :flex 50) (:thighs :flex 40))
   (6 (:root :u -0.26 :pitch 6) (:knees :flex 40))
   (12 :lb-kamae-pose))
-;; L 転身 TENSHIN (Jilliel, both modes): the wings fold, the flash step, the wings open in the new mode
-(defstrike :lb-w-tenshin (14 0 8 :base :lb-w-stance)
-  (0 :lb-w-fold-pose) (6 (:root :u 0.12) (:arm-r :flex 30 :side 30) (:arm-l :flex 30 :side 30))
-  (14 :lb-w-stance) (:end :lb-w-stance))
-;; TENSHIN in (EN -> KIN, round 2, decision 30; decision 34: 8 -> 16 f): the wind-up first, 16 f (2 f as a cancel: the
-;; same clip entered at its f14), the front wings drawn back and the column rising, then the fold and the flash step as
-;; above (its frames + 16)
-(defstrike :lb-w-tenshin-in (30 0 8 :base :lb-w-stance)
-  (0) (14 (:root :u 0.2 :pitch -6) (:arm-r :flex -20 :side 50) (:arm-l :flex -20 :side 50))
-  (16 :snap :lb-w-fold-pose) (22 (:root :u 0.12) (:arm-r :flex 30 :side 30) (:arm-l :flex 30 :side 30))
-  (30 :lb-w-stance) (:end :lb-w-stance))
 
 ;;; ================================================================ drawing (cosmetic; 0 B a frame: f32vecs, macros, DEFUN-FAST)
 ;;; A DEFUN-FAST call boxes its float arguments (engine/lisp/package.lisp), so these helpers take their numbers in the
 ;;; scratch vectors below, the frames are filled by macros, and a draw's alpha is one of the boxed *LB-ALPHAS*.
-(declaim (special *lb-sabaki-from* *lb-sabaki-speed* *lb-sabaki-life* *lb-sabaki-width*   ; (lille.lisp's knobs,
-                   *lb-x-near* *lb-x-far* *lb-x-min* *lb-x-max*))                                ;  loaded after this file)
+(defparameter *lb-sabaki-from* 1.0 "LB-LOOK's :sabaki line (the misuji) starts this many metres ahead (design 2026-10-06) ...")
+(defparameter *lb-sabaki-speed* 40.0 "... erupting outward at this many m/s (design 2026-10-06) ...")
+(defparameter *lb-sabaki-life* 24 "... each point burning this many frames (0.4 s; design 2026-10-06) ...")
+(defparameter *lb-sabaki-width* 0.6 "... this many metres wide (design 2026-10-06).")
 (declaim (type f32vec *lb-m* *lb-p* *lb-v* *lb-fx* *lb-hud*))
 (defvar *lb-m* (m4) "A prop's world matrix.")
 (defvar *lb-leg-tint* nil "The ㄇ legs' tint this draw: the body's (MODEL-TINT: the mirror match's P2), set by LILLE-DRAW.")
@@ -2825,18 +2740,15 @@ stance switch, DUEL_LILLE_V3 §16 R11: the strut and the shanks shrunk by 1 - pu
      (declare (type f32vec %p %v))
      (setf (aref %v 24) (aref %p 0) (aref %v 25) (aref %p 1) (aref %v 26) (aref %p 2) (aref %v 27) (transform-yaw %tr))))
 
-(defun-fast %lb-eye-look (e m st side)
-  "The base form's eye (§4.1 Look): when it opens (his eye's tick changes) a ghosted afterimage where the hit lands; for
-0.7 s the left eye open over the shut lid (the face swap), the mark flaring jade for the first 0.35 s."
+(defun-fast %lb-eye-look (e m side)
+  "The awakening cinematic's eye (LB-JILLIEL-CINE from its f30): the left eye open over the shut lid (the face swap), the
+mark flaring jade to its f60. (The old Lille's eye, opened in play, went with him: 2026-10-13.)"
   (declare (fixnum side))
-  (let* ((tk (if st (i->f (lbs-eye-t st)) -1f0)) (now (fx-clock)) (jm (model-joints m)))
-    (declare (single-float tk now) (type f32vec jm))
-    (when (and (>= tk 0f0) (/= tk (lb-fxs side 0)))
-      (setf (lb-fxs side 0) tk (lb-fxs side 1) now)
-      (start-ghost e))
+  (let* ((now (fx-clock)) (jm (model-joints m)))
+    (declare (single-float now) (type f32vec jm))
     (let ((age (- now (lb-fxs side 1))) (cf (lb-cine-frame e 'lb-jilliel-cine)))
       (declare (single-float age))
-      (when (or (and (>= (lb-fxs side 0) 0f0) (< age 0.7f0)) (and cf (>= (the fixnum cf) 30)))
+      (when (and cf (>= (the fixnum cf) 30))
         (let ((o (* 16 (ji :head))))
           (declare (fixnum o))
           (%lb-joint-frame! *lb-m* jm o 0f0 0f0 0f0 1f0)
@@ -2857,35 +2769,6 @@ stance switch, DUEL_LILLE_V3 §16 R11: the strut and the shanks shrunk by 1 - pu
               (fx-star x y z 0.012f0 0.026f0 8 0.4f0 0f0 0f0 0.1f0 7f0 +pal-jade+ k :push 0.1f0))))))
     nil))
 
-(defun-fast %lb-aim-look (e f side)
-  "The aim line (§9, §22.1; both players see it): a thin line on the floor from under the muzzle to the wall, grey while
-the shooting stance (:lb-kamae and its entries, every move named LB-KAMAE*) tracks (wider once charged, from its f30: up at
-f6 + 24), jade (and wider) once the shot :lb-k-shot locks (its frame 0) until it fires; the reticle (the eye mark) on it at
-the opponent's distance, turning while it tracks, snapped to the lane's width at the lock (0.65 m: a Step clears it) and
-closing until the shot. The reticle's point is kept for the HUD's distance tag (*LB-FX*). (The volley went with the
-rework: L in Jilliel is the mode switch.)"
-  (declare (fixnum side))
-  (setf (lb-fxs side 10) 0f0)
-  (let* ((mv (fighter-move f)) (nm (and mv (eq (fighter-state f) :move) (mv-name mv)))
-         (stance (and nm (search "LB-KAMAE" (symbol-name nm)) t))
-         (locked (and (eq nm :lb-k-shot) (eq (fighter-phase f) :main) (< (fighter-sf f) (mv-s mv)))))
-    (when (or stance locked)
-      (%lb-load-place! e)
-      (let* ((v *lb-v*) (yaw (aref v 27)) (ux (- (f-sin yaw))) (uz (- (f-cos yaw)))
-             (x0 (+ (aref v 24) (* 0.5f0 ux))) (z0 (+ (aref v 26) (* 0.5f0 uz)))
-             (wall (%lb-wall x0 z0 ux uz)) (dist (the single-float (fighter-dist f)))
-             (dq (f-clamp (- dist 0.5f0) 1f0 (f-max 1f0 wall)))
-             (rx (+ x0 (* dq ux))) (rz (+ z0 (* dq uz)))
-             (r (if locked (- 0.65f0 (* 0.018f0 (i->f (fighter-sf f)))) 1.1f0))
-             (tm (fx-clock)))
-        (declare (type f32vec v) (single-float yaw ux uz x0 z0 wall dist dq rx rz r tm))
-        (%lb-floor-line (if locked 1 0) x0 z0 ux uz wall
-                        (cond (locked 0.06f0) ((>= (the fixnum (fighter-sf f)) 30) 0.05f0) (t 0.035f0)))
-        (%lb-reticle locked rx rz r (if locked 0.785398f0 (* 1.4f0 tm)))
-        (setf (lb-fxs side 7) rx (lb-fxs side 8) 0.05f0 (lb-fxs side 9) rz (lb-fxs side 10) (if locked 2f0 1f0)
-              (lb-fxs side 11) dist)))
-    nil))
-
 (defmacro %lb-trumpet (k)
   "神の喇叭 forming over the owl (Trompete's tell, f10-60): the long gold horn from behind his head down to its bell before
 him (the beam leaves the bell), its plume rising; K 0..1 how far it has formed (*LB-V* [17]; his place in [24..27])."
@@ -2901,39 +2784,6 @@ him (the beam leaves the bell), its plume rising; K 0..1 how far it has formed (
     (draw-weapon :lb-trumpet *lb-m*)          ; (whole: a see-through toon draw reads dark; it forms by growing)
     (when (> k 0.3f0)                                    ; the light gathering in the bell
       (fx-star bx by bz (* 0.2f0 k) (* 0.5f0 k) 10 (* 3f0 (fx-clock)) 0f0 0f0 0.15f0 11f0 +pal-gold+ (* 0.9f0 k) :push 0.3f0))
-    nil))
-
-(defun-fast %lb-seal-look (e f m sealed side)
-  "The reflect (§6.3): when Trompete is sealed, a mirror flash at the reflector, the beam turned back onto him (gold), and
-his halo cracking (gold shards); the broken halo stays (LILLE-DRAW draws it). Lookups only while it plays."
-  (declare (fixnum side))
-  (let ((now (fx-clock)))
-    (declare (single-float now))
-    (if sealed
-        (when (< (lb-fxs side 5) 0.5f0)
-          (let ((q (pos-of (fighter-opp f))))
-            (declare (type f32vec q))
-            (setf (lb-fxs side 5) 1f0 (lb-fxs side 6) now (lb-fxs side 12) (aref q 0) (lb-fxs side 13) (aref q 2))))
-        (setf (lb-fxs side 5) 0f0))
-    (let ((age (- now (lb-fxs side 6))))
-      (declare (single-float age))
-      (when (and (> (lb-fxs side 5) 0.5f0) (< age 0.6f0))
-        (%lb-load-place! e)
-        (let* ((v *lb-v*) (qx (lb-fxs side 12)) (qz (lb-fxs side 13)) (k (- 1f0 (/ age 0.6f0)))
-               (dx (- (aref v 24) qx)) (dz (- (aref v 26) qz)) (dl (f-max 0.01f0 (f-hypot dx dz))))
-          (declare (type f32vec v) (single-float qx qz k dx dz dl))
-          (%lb-frame! *lb-m* (+ qx (* 0.7f0 (/ dx dl))) 1.2f0 (+ qz (* 0.7f0 (/ dz dl))) 0f0 1f0 0f0 (/ dx dl) 0f0 (/ dz dl)
-                      (* 0.8f0 (+ 0.6f0 (* 0.4f0 k))))
-          (draw-weapon :lb-mirror *lb-m* :alpha (lb-alpha (* 1.4f0 k)))
-          (fx-star (+ qx (* 0.75f0 (/ dx dl))) 1.2f0 (+ qz (* 0.75f0 (/ dz dl))) 0.5f0 1.1f0 6 0.5f0 0f0 0f0 0.05f0 21f0 +pal-hit+ k :push 0.4f0)
-          (toon-ribbon (qx 1.3f0 qz) (dx 0f0 dz) ((* 0.9f0 k) (* 0.6f0 k)) :heat (1f0 0.6f0) :seed -21f0 :wob 0.05f0 :pal +pal-gold+ :k k :segs 2)
-          (when (< age 0.05f0)
-            (joint-point! *lb-p* (model-joints m) (ji :head) 0f0 0.74f0 -0.2f0)
-            (dotimes (i 10)
-              (let* ((a (* 0.6283f0 (i->f i))) (sp (+ 1.5f0 (* 0.3f0 (i->f (mod i 3))))))
-                (declare (single-float a sp))
-                (%t-shard (aref *lb-p* 0) (aref *lb-p* 1) (aref *lb-p* 2) (* sp (f-cos a)) 2.5f0 (* sp (f-sin a))
-                          0.8f0 0.12f0 7f0 +pal-gold+)))))))
     nil))
 
 (defparameter *lb-owl-en-spread* 0.9
@@ -3008,7 +2858,7 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
           (%lb-legs jm (if (eq bn :lille-shin) 1 0) fl)
           nil))
       (case look
-        (:base (%lb-eye-look e m (lbs e) side) (%lb-aim-look e f side))
+        (:base (%lb-eye-look e m side))
         ((:jilliel :revive)
          (let ((stance (lb-mujittai-p form)))
            (%lb-stance-fx! e side stance tm rdt)        ; (a hit passed through, the fold)
@@ -3041,8 +2891,7 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
                    (%lb-halo jm (* 16 (ji :head)) 0 (+ 0.52f0 (* 0.02f0 (f-sin (* 2f0 tm)))) 0.48f0))))))
         (:shin                                           ; the owl (decision 36: Jilliel's four forms, the owl's look)
          (let* ((grow (if cr (f-clamp (/ (- (i->f cr) 66f0) 30f0) 0.05f0 1f0) 1f0))
-                (stance (lb-mujittai-p form)) (st (lbs e))
-                (sealed (and st (lbs-sealed st))))   ; (Lille II has no seal since his v3 R3: Trompete gone)
+                (stance (lb-mujittai-p form)))
            (declare (single-float grow))
            (%lb-stance-fx! e side stance tm rdt)          ; MUJITTAI: the wings curl round the column, ghostly
            ;; EN vs KIN (decision 38): EN fans its eight wings out wide and forward (a standing spread, [18]), KIN sweeps
@@ -3057,7 +2906,7 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
            (%lb-wings jm (* 16 (ji :chest)) *lb-wings-owl* 8 2 side)
            (%lb-lashes jm side)                          ; (Lille II's whips: the claws' gold lashes)
            (unless cr (%lb-claw-trails jm side))         ; the claw trails (decision 56)
-           (%lb-halo jm (* 16 (ji :head)) (if sealed 2 1) 0.76f0 (* 0.13f0 grow))
+           (%lb-halo jm (* 16 (ji :head)) 1 0.76f0 (* 0.13f0 grow))
            (let ((tsf (cond (ct (if (< 8 (the fixnum ct) 120) (- (the fixnum ct) 8) -1))
                             ((and mv (member (mv-name mv) '(:lb-trompete :br-trompete)) (eq (fighter-phase f) :main))   ; (+ Lille
                              (fighter-sf f))                                                                       ;  II's)
@@ -3067,29 +2916,9 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
              (declare (fixnum tsf))
              (when (<= 10 tsf 89)
                (%lb-load-place! e)
-               (%lb-trumpet (f-clamp (/ (- (i->f tsf) 10f0) 50f0) 0f0 1f0))))
-           (%lb-seal-look e f m sealed side)))))
+               (%lb-trumpet (f-clamp (/ (- (i->f tsf) 10f0) 50f0) 0f0 1f0))))))))
     (setf (lb-fxs side 19) 0f0)                          ; (Lille II's lit wings: BR-DRAW's, this frame only)
     nil))
-
-(defun lille-body-alpha (e)
-  "His kit's :body-alpha hook: MUJITTAI's column is half see-through (§5.2 Look); a constant (no boxing)."
-  (if (lb-mujittai-p (fighter-form (fighter e))) 0.72 1f0))
-
-(defun-fast lille-charge (e rdt)
-  "His kit's :charge hook (instead of the fire charge at the weapon tip while a move is held): a small jade glint at the
-muzzle cross once the line is locked, nothing while it tracks (the line is the tell)."
-  (declare (single-float rdt))
-  (setf rdt 0f0)                                        ; (unused: the hook's signature)
-  (let* ((f (fighter e)) (mv (fighter-move f)))
-    (when (and mv (eq (fighter-form f) :base)                ; (the rework's shot locks on its frame 0)
-               (or (eq (mv-name mv) :lb-k-shot)
-                   (>= (the fixnum (fighter-hold f)) (the fixnum (or (getf (mv-params mv) :lock) 34)))))
-      (let ((m (model e)))
-        (joint-point! *lb-p* (model-joints m) (ji :weapon-r) 0f0 0f0 -1.75f0)
-        (fx-star (aref *lb-p* 0) (aref *lb-p* 1) (aref *lb-p* 2) 0.04f0 0.12f0 4 0.785f0 0f0 0f0 0.05f0 5f0 +pal-jade+ 0.85f0
-                 :push 0.15f0))))
-  nil)
 
 ;;; ---------------------------------------------------------------- his hazards' look (kind :lb-fx, :lb-sabaki)
 (defmacro %lb-judge-speed () "The owl's materialised trace (裁きの光明, decision 36): its gold blasts erupt along the line at
@@ -3169,16 +2998,8 @@ thin gold sheet under them). Fading over the hazard's life. 0 B."
                      (%tongue bx 0f0 bz 0f0 h 0f0 (* 0.32f0 w) +pal-gold+ 0.95f0 (+ r (* 7f0 sd)) (* 3f0 r) 0.1f0)))))))))))
   nil)
 
-;;; ================================================================ the HUD (DUEL_LILLE §9; hud.lisp's kit-meter / :hud-guard / :deck hooks)
+;;; ================================================================ the HUD's pieces (barro-art.lisp's meter draws them)
 (defparameter *c-lb-jade* (list 0.61 0.77 0.67 1.0) "The HUD's jade (the eye, MUJITTAI's outline; an ink tone).")
-(defparameter *c-lb-gold* (list 0.72 0.6 0.35 1.0) "The HUD's owl gold (#B89A5A).")
-(defparameter *c-lb-revive* (list 0.85 0.72 0.4 1.0) "The 「P  REVIVE」 prompt's gold (pulsing: ALPHA! sets its alpha).")
-(defparameter *lb-me-strings* #("ME 0" "ME 1" "ME 2" "ME 3") "The eye row's label: ME + the pips left.")
-(defparameter *lb-dmg-strings* (let ((v (make-array 400))) (dotimes (i 400 v) (setf (svref v i) (format nil "~d" i))))
-  "The distance tag's numbers (made once).")
-(defparameter *lb-me-kanji* "眼")
-(defparameter *c-lb-dull* (list 0.6 0.55 0.45 0.9) "The sealed halo's label.")
-(defparameter *c-lb-grey* (list 0.78 0.8 0.84 1.0) "The distance tag while the line tracks.")
 
 (defun-fast %lb-pip (state)
   "One eye pip (the reticle glyph: four arcs, four ticks pointing in) centred at *LB-HUD* [0 1], radius [2]: STATE 0
@@ -3207,149 +3028,7 @@ unspent (the shut eye ― in a white ring), 1 spent (the open eye in jade, a jad
         (%hrect (- cx (* 0.42f0 r)) (- cy (* 0.06f0 r)) (* 0.84f0 r) (* 0.12f0 r) cr cg cb ca))   ; the shut eye ―
     nil))
 
-(defun-fast %lb-halo-icon (cracked)
-  "The owl's halo (the kit-meter row): a small gold ring with six spikes at *LB-HUD* [0 1], radius [2]; CRACKED (Trompete
-sealed): a piece out, an arc dropped, dull."
-  (let* ((v *lb-hud*) (cx (aref v 0)) (cy (aref v 1)) (r (aref v 2)) (ri (* 0.72f0 r))
-         (cr (if cracked 0.5f0 0.72f0)) (cg (if cracked 0.44f0 0.6f0)) (cb (if cracked 0.3f0 0.35f0)))
-    (declare (type f32vec v) (single-float cx cy r ri cr cg cb))
-    (dotimes (i 12)
-      (unless (and cracked (<= 4 i 5))
-        (let* ((drop (if (and cracked (<= 6 i 8)) (* 0.25f0 r) 0f0))
-               (a0 (* 0.5235988f0 (i->f i))) (a1 (+ a0 0.5235988f0)) (c0 (f-cos a0)) (s0 (* 0.55f0 (f-sin a0)))
-               (c1 (f-cos a1)) (s1 (* 0.55f0 (f-sin a1))))
-          (declare (single-float drop a0 a1 c0 s0 c1 s1))
-          (%hq (+ cx (* r c0)) (+ cy drop (* r s0)) (+ cx (* r c1)) (+ cy drop (* r s1)) (+ cx (* ri c1)) (+ cy drop (* ri s1))
-               (+ cx (* ri c0)) (+ cy drop (* ri s0)) cr cg cb 1f0))))
-    (dotimes (i 6)                                       ; the spikes, up
-      (unless (and cracked (= i 2))
-        (let* ((a (+ 0.2617994f0 (* 1.0471976f0 (i->f i)))) (x (+ cx (* r (f-cos a)))) (y (+ cy (* 0.55f0 r (f-sin a)))))
-          (declare (single-float a x y))
-          (%hq (- x (* 0.12f0 r)) y (+ x (* 0.12f0 r)) y x (- y (* 0.6f0 r)) x (- y (* 0.6f0 r)) cr cg cb 1f0))))
-    (when cracked                                        ; the crack, a dark zigzag across the gap
-      (%hq (+ cx (* 0.1f0 r)) (- cy r) (+ cx (* 0.2f0 r)) (- cy r) (- cx (* 0.1f0 r)) (+ cy r) (- cx (* 0.2f0 r)) (+ cy r)
-           0.08f0 0.08f0 0.1f0 1f0))
-    nil))
-
 (defun lb-side-of (g) "The fighter whose gauges are G." (if (and *p1* (eq (gauges *p1*) g)) *p1* *p2*))
-
-(defun lille-hud-label (g kit)
-  "The portrait block's label (§9): ME n (the eye pips left), MUJITTAI, HALO / SEALED."
-  (let ((e (lb-side-of g)))
-    (case (kit-form kit)
-      (:base (svref *lb-me-strings* (max 0 (min 3 (lbs-eyes (lb e))))))
-      ((:shin :shin-mujittai :shin-kin :shin-kin-mujittai) (if (lbs-sealed (lb e)) "SEALED" "HALO"))
-      (t "MUJITTAI"))))
-
-(defun-fast %lb-eye-row (n right)
-  "The three eye pips across the slot *LB-HUD* [4..7] (x y w h): N unspent (from the panel's outside), the last one
-pulsing; RIGHT mirrors them."
-  (declare (fixnum n))
-  (let* ((v *lb-hud*) (x (aref v 4)) (y (aref v 5)) (w (aref v 6)) (h (aref v 7)) (step (/ w 3f0))
-         (r (f-min (* 0.36f0 step) (f-max 7f0 (* 2.4f0 h)))))
-    (declare (type f32vec v) (single-float x y w h step r))
-    (dotimes (i 3)
-      (setf (aref v 0) (if right (- (+ x w) (* step (+ (i->f i) 0.5f0))) (+ x (* step (+ (i->f i) 0.5f0))))
-            (aref v 1) (+ y (* 0.5f0 h)) (aref v 2) r)
-      (%lb-pip (cond ((>= i n) 1) ((= i (1- n)) (if (= n 1) 2 0)) (t 0))))
-    nil))
-
-(defun lille-hud-meter (e kit x y w h right tm lx ly ls)
-  "His kit-meter row (LX LY LS: the landscape label's place, NIL in the portrait slot; §9): the base form's three eye pips
-(the reticle glyph; a spent one shows the open eye in jade, the last one left pulsing) and the brush 眼 + ME n; nothing in
-Jilliel (U's tag says MUJITTAI); the owl's halo, whole or cracked (Trompete sealed), and HALO / SEALED. Also the third
-opening's line as a brush column at his side, and a human's distance tag on the aim line."
-  (let* ((st (lb e)) (form (kit-form kit)) (v *lb-hud*) (side (fighter-side (fighter e))))
-    (setf (aref v 3) (f32 tm) (aref v 4) (f32 x) (aref v 5) (f32 y) (aref v 6) (f32 w) (aref v 7) (f32 h))   ; (stored unboxed: no arithmetic here)
-    (case form
-      (:base
-       (let ((n (lbs-eyes st)))
-         (%lb-eye-row n right)
-         (when lx                                       ; the label: the brush 眼 and ME n
-           (let ((em (* 8 ls)))
-             (brush-text *lb-me-kanji* (if right (- lx (* 0.5 em)) (+ lx (* 0.5 em))) (+ ly (* 3.5 ls)) em *c-lb-jade*)
-             (hud-text (svref *lb-me-strings* (max 0 (min 3 n))) (if right (- lx em (* 2 ls)) (+ lx em (* 2 ls))) ly ls
-                       *c-lb-jade* :align (if right :right :left))))
-         (when (and (zerop n) (/= (lbs-eye-t st) (round (lb-fxs side 14)))   ; the third opening: 三度も眼を開かされるとは
-                    (fighter-callout (fighter e)) (eq (svref *callout-seen* side) (fighter-callout (fighter e))))
-           (setf (lb-fxs side 14) (f32 (lbs-eye-t st))
-                 (svref *side-caps* side) (make-bcap "三度も眼を開かされるとは" :reading "SANDO MO ME WO HIRAKASARERU TO WA"
-                                                     :layout :callout :side side :secs 2.4)))))
-      ((:shin :shin-mujittai :shin-kin :shin-kin-mujittai)
-       (%lb-halo-slot right (lbs-sealed st))
-       (when lx
-         (hud-text (if (lbs-sealed st) "SEALED" "HALO") lx ly ls (if (lbs-sealed st) *c-lb-dull* *c-lb-gold*)
-                   :align (if right :right :left)))))
-    (lb-hud-tag e side)))
-
-(defun-fast %lb-halo-slot (right cracked)
-  "The owl's halo icon at the outer end of the slot *LB-HUD* [4..7]."
-  (let* ((v *lb-hud*) (x (aref v 4)) (y (aref v 5)) (w (aref v 6)) (h (aref v 7)) (r (f-max 9f0 (* 2.6f0 h))))
-    (declare (type f32vec v) (single-float x y w h r))
-    (setf (aref v 0) (if right (- (+ x w) (* 1.3f0 r)) (+ x (* 1.3f0 r))) (aref v 1) (+ y (* 0.5f0 h) (* 0.2f0 r)) (aref v 2) r)
-    (%lb-halo-icon cracked)
-    nil))
-
-(defun-fast %lb-tag-dmg (side charged mult)
-  "The distance tag's number: the stance's shot at the reticle's distance *LB-FX* [11] (SIDE), CHARGED the curve
-(40-120, LB-X-DAMAGE's) else the quick shot's *LB-X-MIN*, x MULT (his kit's damage x). In float math (0 B a frame)."
-  (declare (fixnum side))
-  (let* ((d (lb-fxs side 11)) (near (the single-float (f32 *lb-x-near*))) (far (the single-float (f32 *lb-x-far*)))
-         (lo (the single-float (f32 *lb-x-min*))) (hi (the single-float (f32 *lb-x-max*)))
-         (m (the single-float (f32 mult)))
-         (k (if charged (f-max 0f0 (f-min 1f0 (/ (- d near) (- far near)))) 0f0)))
-    (declare (single-float d near far lo hi m k))
-    (the fixnum (truncate (+ 0.5f0 (* m (+ lo (* k (- hi lo)))))))))
-
-(defun lb-hud-tag (e side)
-  "The distance tag (§9, base form, a human Lille only): the damage the stance's shot would deal now (quick 40, charged 40-120; x his damage x) next
-to the reticle on the aim line (LILLE-DRAW keeps its point), grey while it tracks, jade once locked."
-  (when (and (> (lb-fxs side 10) 0.5) (not (brain e)) (eq (fighter-form (fighter e)) :base))
-    (let ((v *lb-p*))
-      (when (world-to-screen v (lb-fxs side 7) (lb-fxs side 8) (lb-fxs side 9))
-        (let* ((st (lb e))
-               (charged (if (> (lb-fxs side 10) 1.5) (lbs-k-charged st) (lb-kamae-charged-p (lbs-charge st))))
-               (dmg (%lb-tag-dmg side charged (kit-mult (kit-of e))))
-               (s (max 2 (round (ui-scale)))))
-          (hud-text (svref *lb-dmg-strings* (max 0 (min 399 dmg))) (+ (aref v 0) (* 26 s)) (- (aref v 1) (* 30 s)) (* 2 s)
-                    (if (> (lb-fxs side 10) 1.5) *c-lb-jade* *c-lb-grey*)))))))
-
-(defun-fast %lb-guard-outline (s tm)
-  "MUJITTAI's jade outline round the guard bar *LB-HUD* [4..7] (two strokes, breathing)."
-  (declare (fixnum s) (single-float tm))
-  (let* ((v *lb-hud*) (x (aref v 4)) (y (aref v 5)) (bw (aref v 6)) (h (aref v 7)) (o (i->f (max 1 s)))
-         (a (+ 0.7f0 (* 0.3f0 (f-sin (* 4f0 tm))))))
-    (declare (type f32vec v) (single-float x y bw h o a))
-    (%houtline (- x o) (- y o) (+ bw o o) (+ h o o) 0.61f0 0.77f0 0.67f0 a)
-    (%houtline (- x o o) (- y o o) (+ bw (* 4f0 o)) (+ h (* 4f0 o)) 0.43f0 0.6f0 0.5f0 (* 0.6f0 a))
-    nil))
-
-(defun lille-hud-guard (e x y bw h right s tm)
-  "His :hud-guard hook (over the guard bar): in MUJITTAI (EN or KIN) the bar outlined jade (the stance: GUARD HOLD, never refilling)."
-  (declare (ignore right))
-  (when (lb-mujittai-p (fighter-form (fighter e)))
-    (let ((v *lb-hud*)) (setf (aref v 4) (f32 x) (aref v 5) (f32 y) (aref v 6) (f32 bw) (aref v 7) (f32 h)))
-    (%lb-guard-outline (round s) (f32 tm))))
-
-(defun-fast %lb-ring (n)
-  "The thumb ring's three eye ticks round *LB-HUD* [4 5] (ox oy), [6] d: N unspent (white, a shut eye), the rest jade."
-  (declare (fixnum n))
-  (let* ((v *lb-hud*) (ox (aref v 4)) (oy (aref v 5)) (d (aref v 6)) (r (* d 56f0)))
-    (declare (type f32vec v) (single-float ox oy d r))
-    (dotimes (i 3)
-      (let* ((a (+ -1.5707964f0 (* 0.45f0 (i->f (1- i))))) (x (+ ox (* r (f-cos a)))) (y (+ oy (* r (f-sin a)))) (lit (< i n)))
-        (declare (single-float a x y))
-        (%hrect (- x (* 3f0 d)) (- y (* 1.2f0 d)) (* 6f0 d) (* 2.4f0 d)
-                (if lit 0.93f0 0.43f0) (if lit 0.93f0 0.6f0) (if lit 0.9f0 0.5f0) 1f0)
-        (unless lit (%hrect (- x (* 1.2f0 d)) (- y (* 1.2f0 d)) (* 2.4f0 d) (* 2.4f0 d) 0.06f0 0.06f0 0.08f0 1f0))))
-    nil))
-
-(defun lille-ring (e ox oy d)
-  "The one-hand thumb ring (his :deck hook; DUEL_MOBILE_DESIGN §15.1): in the base form three eye ticks over it, white while
-unspent, jade once opened."
-  (when (eq (fighter-form (fighter e)) :base)
-    (let ((v *lb-hud*)) (setf (aref v 4) (f32 ox) (aref v 5) (f32 oy) (aref v 6) (f32 d)))
-    (%lb-ring (lbs-eyes (lb e)))))
 
 ;;; ================================================================ his sounds (synthesized at startup; sounds.lisp's toolkit)
 (defsound :lb-crack (:peak 0.95)                      ; the X-axis shot: a dry crack through everything, a low thump, a tail
@@ -3466,19 +3145,166 @@ position reads."
                    :k (* 0.95f0 k) :k1 (* 0.9f0 k) :segs 4)
       (fx-star x 1.7f0 z (* 0.4f0 k) (* 1.1f0 k) 12 (* 2f0 (fx-clock)) 0f0 0f0 0.12f0 63f0 +pal-gold+ k :push 0.6f0))))
 
-(defun vfx-lb-light (x y z r k)
-  "A ball of gold light (the revival's head growing, the trumpet's charge): a gold disc and its rays."
-  (with-floats (x y z r k)
-    (fx-disc x y z r 0.08f0 71f0 +pal-gold+ k)
-    (fx-star x y z (* 0.6f0 r) (* 1.9f0 r) 10 (* 1.5f0 (fx-clock)) 0f0 0f0 0.12f0 72f0 +pal-hit+ (* 0.9f0 k) :push 0.3f0)))
-
 ;;; his extra brush glyphs (the cinematics' captions, §10): glyphs-extra.lisp
 
+;;; ================================================================ the cinematics (moved from the old Lille's lille.lisp, 2026-10-13)
+;;; His four (barro.lisp's kits and moves name them: the awakening, the base Kikon, the Jilliel Kikon, the owl Kikon);
+;;; the old Lille's revival went with him.
+;;; The cinematics (60 Hz, review-3 pacing: fewer, longer shots; unskippable; every shot SHOT-ON its subject). He wears
+;;; white: the black card, the back-rim in his form's colour (jade, the owl's gold). Each script's looks are driven from
+;;; its frame by LILLE-DRAW (lille-art.lisp: the wings unfolding, the jade turning gold, the trumpet forming), so a
+;;; skipped or aborted script leaves nothing behind (CINE-END's REFRESH-LOOK restores his body).
+(defcine lb-jilliel-cine (a v :len 186 :hold 90)
+  "The awakening 神の裁き JILLIEL (§10.1, ch. 646): close on the face, the left eye shut under the mark, silence; the eye
+opens, the mark flares jade, a 1 f negative; the black card, jade back-rim: 万物貫通 / THE X-AXIS, then the brush 神の裁き / JILLIEL as he becomes the column; the cocoon: eight wings unfold one pair per 8 f, the
+halo draws itself; from below, the winged column hovering, the opponent small."
+  (at 0 (setf (model-body (model a)) (find-body :lille) (model-weapon (model a)) :diagramm)   ; the base face first
+      (cine-clip a :lb-stance :blend 0) (cine-clip v (kit-stance (kit-of v)) :blend 6)   ; (no held pose: the
+      (hold-pose v 12) (freeze 12) (impact-frame :negative 2) (silence 30)                  ; gameplay one is Jilliel's)
+      (shot-on a 14 0.95 1.74 :look 1.72) (lens 36))
+  (during (0 30) (shot-on a 14 (- 0.95 (* 0.12 u)) 1.74 :look 1.72))
+  (at 30 (impact-frame :negative 1) (play-sfx :lb-lock) (play-sfx :hoho-out))
+  (during (30 60) (shot-on a 14 (- 0.83 (* 0.13 u)) 1.74 :look 1.73))
+  (at 60 (card :black a) (back-rim 60 0.61 0.77 0.67) (shot-on a 20 4.4 0.9 :look 1.3 :off 0.9) (lens 42)
+      (caption "万物貫通" :reading "THE X-AXIS" :sub "BANBUTSU KANTSU" :side 0)   ; (his rule's name: no eye, DUEL_LILLE_V2 §12)
+      (play-sfx :awaken-rise :pitch 0.8))
+  (at 92 (setf (model-body (model a)) (find-body :lille-jilliel) (model-weapon (model a)) nil)
+      (cine-clip a :lb-w-fold :blend 4) (impact-frame :negative 1) (play-sfx :awaken-boom)
+      (caption "神の裁き" :reading "JILLIEL" :sub "VOLLSTANDIG" :side 0))
+  (at 120 (card nil) (caption-exit) (shot-on a 32 3.6 1.4 :look 1.9) (lens 55) (cine-clip a :lb-w-stance :blend 12)
+      (play-sfx :hoho-out))
+  (at 128 (play-sfx :hoho-out)) (at 136 (play-sfx :hoho-out))
+  (during (120 160) (shot-on a 32 (+ 3.6 (* 0.8 u)) 1.4 :look 1.9))
+  (at 160 (shot-on a 165 6.5 0.25 :look 2.2) (lens 62)))
 
-;;; (the consing probe's parts, debug 79195: what a draw path's single reads cost in DEFUN-FAST code)
-(defun-fast %lbt-fighter (e) (fighter e) nil)
-(defun-fast %lbt-pos (e) (pos-of e) nil)
-(defun-fast %lbt-yaw (e) (let ((y (yaw-of e))) (declare (single-float y)) (setf y 0f0)) nil)
-(defun-fast %lbt-lb (e) (lb e) nil)
-(defun-fast %lbt-alpha (e) (let ((a (model-alpha (model e)))) (declare (single-float a)) (setf a 0f0)) nil)
-(defun-fast %lbt-eyet (e) (let ((x (i->f (lbs-eye-t (lb e))))) (declare (single-float x)) (setf x 0f0)) nil)
+(defcine lb-kikon-cine (a v :len 168 :hold 90)
+  "The base Kikon 万物貫通 (§10.2, ch. 601-602): beat 0, the aim held; over his shoulder down the barrel, the reticle (the
+eye mark) closing round him, silence; the shot: the jade line through everything; on him: his silhouette on the white
+card, a cross-shaped hole of light through it, held; the Konpaku shatter; the last card 万物貫通 / THE X-AXIS."
+  (at 0 (face-each-other a v) (cine-clip a :lb-aim :blend 2) (cine-clip v :sh-bound :blend 4)
+      (hold-both a v 10) (impact-frame :negative 2) (play-sfx :lb-lock))
+  (at 10 (if (portrait-p)                       ; over his shoulder, the barrel (portrait: from straight behind and above,
+             (shot-on a 162 5.4 2.6 :look 1.2 :ahead 2.5)  ; his back low in the tall frame, the line rising to the reticle)
+             (shot-on a 152 2.7 1.9 :look 1.4 :ahead 2.2))
+      (lens 40) (silence 50))
+  (during (10 60) (vfx-lb-reticle-view v (- 1.0 (/ (- cf 10) 50.0))))
+  (at 60 (cine-clip a :lb-fire :blend 1) (impact-frame :negative 2) (play-sfx :lb-crack) (shake 0.25 0.3))
+  (during (60 76) (vfx-lb-shot-line a (- 1.0 (/ (- cf 60) 16.0))))
+  (at 66 (shot-on v 20 3.2 1.25 :look 1.2) (lens 50) (cine-clip v :sh-kikon-victim :blend 3) (card :white v) (silhouette-black v))
+  (during (66 120) (vfx-lb-cross-hole v (min 0.95 (/ (- cf 64) 6.0))))
+  (at 72 (hold-both a v 44) (silence 44))
+  (at 118 (impact-frame :negative 2) (cine-shatter v 2)
+      (play-sfx :konpaku-shatter) (shake 0.2 0.3))
+  (at 122 (unsilhouette) (card nil) (impact-frame :manga 10))
+  (at 130 (card :black a) (back-rim 38 0.61 0.77 0.67) (shot-on a 20 4.2 0.9 :look 1.25 :off 0.9) (lens 42)
+      (cine-clip a :lb-stance :blend 8)
+      (caption "万物貫通" :reading "THE X-AXIS" :sub "BANBUTSU KANTSU  KIKON" :side 0)))
+
+(defparameter *lb-judge-gap* 6.0
+  "The Jilliel Kikon cinematic stages him this far from the opponent (CINE-PLACE; his place given back at its end): its
+shots are framed for it (the user, 2026-10-08: 「我發現是隨著進入毀魂技時兩個的距離而影響視角ㄟ」).")
+(defparameter *lb-judge-head* 1.65 "LB-SHOT-BEHIND: the opponent's head, metres over his feet ...")
+(defparameter *lb-judge-keep* 0.35
+  "... kept at most this share of the frame's half-height below its centre (the letterbox's bar starts at 0.82), on a
+landscape screen (a portrait one widens the lens and backs off: %PORTRAIT-DOLLY, its framing kept as the user liked it).")
+
+(defun lb-shot-behind (v a back side h look)
+  "A shot from behind V toward A (decision 56's acceleration beat): the camera BACK m behind V on the A -> V line, SIDE m to
+its right (+), H high, aimed at A's body LOOK m up; A is the subject (kept in the frame), V a silhouette in a low corner."
+  (let* ((p (pos-of a)) (q (pos-of v)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2)))
+         (d (max 0.01 (hypot dx dz))) (ux (/ dx d)) (uz (/ dz d)))
+    (setf *cine-close* nil *cine-subject* a)
+    ;; V's head kept above the letterbox (its bar covers the frame's bottom 9 %): the aim tilted down, if need be, until
+    ;; his head sits *LB-JUDGE-KEEP* of the half-height below the centre (the user, 2026-10-08: on a desktop he went off
+    ;; the bottom)
+    (let* ((ex (+ (aref q 0) (* back ux) (* side (- uz)))) (ez (+ (aref q 2) (* back uz) (* side ux)))
+           (dl (max 0.5 (sqrt (+ (expt (- (aref p 0) ex) 2) (expt (- (aref p 2) ez) 2)))))
+           (dv (max 0.5 (sqrt (+ (expt (- (aref q 0) ex) 2) (expt (- (aref q 2) ez) 2)))))
+           (ev (atan (- (+ (aref q 1) *lb-judge-head*) h) dv))
+           (ea0 (atan (- look h) dl))
+           (ea (if (> (window-height) (window-width)) ea0
+                   (min ea0 (+ ev (atan (* *lb-judge-keep* (tan (* 0.5 *lens-fov*)))))))))
+      (cine-cam ex h ez (aref p 0) (+ h (* dl (tan ea))) (aref p 2)))))
+(defparameter *lb-judge-giant* 3.0
+  "The Jilliel Kikon cinematic draws Lille this many times his size in beats 4-6 (f192-277 since Amendment 2; decision
+56's amendment, the user 2026-10-08: 「Lille 放大約 3 倍」「第 4 到 6 段」): a look, CINE-SCALE.")
+(defun lb-shot-pierce (a v n ang dist)
+  "Close on pierce N's point in V (*LB-JUDGE-PIERCE*, the Kikon cinematic's slowed hits, Amendment 2): the camera DIST m
+from it at ANG degrees round V's facing (0 = on the side of A, whom he faces), a little above, looking at it."
+  (let* ((p (pos-of a)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
+         (d (max 0.01 (hypot dx dz))) (fx (/ dx d)) (fz (/ dz d)) (rx (- fz)) (rz fx)
+         (pp *lb-judge-pierce*) (u (aref pp (* 3 n))) (y (+ (aref q 1) (aref pp (1+ (* 3 n)))))
+         (tx (+ (aref q 0) (* u rx))) (tz (+ (aref q 2) (* u rz)))
+         (c (cos (deg ang))) (sn (sin (deg ang))) (ex (- (* c fx) (* sn rx))) (ez (- (* c fz) (* sn rz))))
+    (setf *cine-close* t *cine-subject* nil)
+    (cine-cam (+ tx (* dist ex)) (+ y 0.15) (+ tz (* dist ez)) tx y tz)))
+
+(defcine lb-jilliel-kikon-cine (a v :len 305 :hold 215)
+  "The Jilliel Kikon 神の裁き (§10.4; decision 56's storyboard and its amendments, DUEL_LILLE §23.37): 1 open (0-40), low
+and close in a slow orbit: the wings gathered round him and shaking, snapped open into a ring on f24 (a negative, a
+shake), held; 2 the black card (40-90), 神の裁き, from behind him the opponent framed through the ring, the 24 holes
+lighting one by one; 3 the first shots (90-192) on the stage: each fired from diagonally behind him or before him (a
+recoil, a crack) and on its hit the slow motion (CINE-SLOW: the clips and effects at 1/5 for 40 f, 1/3 for 25 f, 1/2 for
+15 f; the lines and holes on the same effect time, *LB-JUDGE-TIME*), the camera close on the pierce, orbiting;
+4 the acceleration (192-242): the white card, the opponent a black silhouette, the lines faster and faster (48 pierces in
+all, VFX-LB-JUDGE), each a white hole in him, the camera low behind him looking up at Lille drawn x3 (*LB-JUDGE-GIANT*,
+beats 4-6), pushing in; 5 the riddled silhouette held in silence before the giant (242-262); 6 the verdict (262-277): low
+beside the opponent, the giant's wings close down and on that frame (268) he shatters (合翼即碎), a manga frame; 7 the card
+gone, Lille x1 again, a wide shot, the wings settling (277-305). His wings' gathering, ring, lit holes and close are
+LILLE-DRAW's, from the frame (%LB-SP-DRIVE!)."
+  ;; 1 open: gathered and shaking, the snap on f24, held
+  (at 0 (cine-place a v *lb-judge-gap*) (cine-clip a :lb-w-judge-open :blend 0) (cine-clip v :sh-bound :blend 4)
+      (play-sfx :awaken-rise) (shot-on a 20 3.6 0.45 :look 2.0) (lens 56))
+  (during (0 40) (shot-on a (+ 20 (* 30 u)) (- 3.6 (* 0.3 u)) 0.45 :look 2.0))   ; (the slow orbit)
+  (at 24 (impact-frame :negative 2) (shake 0.2 0.25) (play-sfx :lb-lock))
+  ;; 2 the card (DIST from the aim, AHEAD on)
+  (at 40 (card :black) (back-rim 50 0.61 0.77 0.67) (shot-on a 173 9.6 2.4 :look 1.8 :ahead 6.0) (lens 40)
+      (caption "神の裁き" :reading "KAMI NO SABAKI" :sub "KIKON" :side 0) (silence 48))
+  (during (40 90) (shot-on a 173 (- 9.6 (* 0.6 u)) 2.4 :look 1.8 :ahead 6.0))
+  (at 78 (caption-exit))                                ; (its 0.3 s slice done before the slowed hits)
+  ;; 3 the first shots: each fired in view, its hit slowed with the camera on the pierce
+  (at 90 (card nil) (shot-on a 148 6.8 1.7 :look 1.9 :ahead 2.4) (lens 46))
+  (at 96 (cine-clip a :lb-w-judge-shot :blend 0) (play-sfx :lb-crack) (shake 0.2 0.25))
+  (at 99 (cine-slow 0.2) (cine-clip v :sh-kikon-victim :blend 2) (lb-shot-pierce a v 0 40 1.5) (lens 40))
+  (during (99 139) (lb-shot-pierce a v 0 (+ 40 (* 30 u)) (- 1.5 (* 0.3 u))))
+  (at 139 (cine-slow 1) (shot-on a -142 7.4 1.4 :look 1.9 :ahead 2.6) (lens 44))
+  (at 143 (cine-clip a :lb-w-judge-shot :blend 0) (play-sfx :lb-crack) (shake 0.2 0.25))
+  (at 146 (cine-slow 0.33333334) (cine-clip v :sh-kikon-victim :blend 2) (lb-shot-pierce a v 1 55 1.6) (lens 40))
+  (during (146 171) (lb-shot-pierce a v 1 (+ 55 (* 25 u)) (- 1.6 (* 0.2 u))))
+  (at 171 (cine-slow 1) (shot-on a 35 6.0 0.6 :look 2.0) (lens 50))
+  (at 174 (cine-clip a :lb-w-judge-shot :blend 0) (play-sfx :lb-crack) (shake 0.2 0.25))
+  (at 177 (cine-slow 0.5) (cine-clip v :sh-kikon-victim :blend 2) (lb-shot-pierce a v 2 120 1.3) (lens 40))
+  (during (177 192) (lb-shot-pierce a v 2 (+ 120 (* 20 u)) (- 1.3 (* 0.15 u))))
+  ;; 4 the acceleration: the white card, his silhouette; Lille drawn x3 (to f277: CINE-SCALE), from low behind the
+  ;; opponent looking up past him at the giant (his head and shoulders in a lower corner), pushing in
+  (at 192 (cine-slow 1) (card :white) (silhouette-black v) (impact-frame :negative 1) (cine-clip a :lb-w-judge-volley :blend 2)
+      (cine-scale a *lb-judge-giant*) (lens 46) (lb-shot-behind v a 5.0 1.8 0.5 6.2))
+  (during (192 242) (lb-shot-behind v a (- 5.0 (* 0.8 u)) (- 1.8 (* 0.2 u)) 0.5 (+ 6.2 (* 0.4 u))))
+  (when (and step-p (<= 192 cf 241))                    ; a crack for the first shots, then every other one
+    (let ((n (position cf *lb-judge-shots*))) (when (and n (or (< n 14) (evenp n))) (play-sfx :lb-crack :pitch (+ 1.0 (* 0.01 (- cf 192)))))))
+  (during (90 268) (vfx-lb-judge a v cf))
+  ;; 5 the still
+  (at 242 (shot-on v 150 3.6 0.5 :look 2.3) (lens 50) (hold-both a v 20) (silence 20))   ; (his back, the giant beyond)
+  ;; 6 the verdict: the wings close down; on that frame he shatters
+  (at 262 (lens 46) (lb-shot-behind v a 4.6 -1.7 0.5 6.0) (cine-clip a :lb-w-judge-close :blend 0))   ; (the giant's wings
+  (at 268 (impact-frame :manga 10) (cine-shatter v 3)   ;  close
+      (play-sfx :konpaku-shatter) (shake 0.3 0.4))                                                                     ;  over him)
+  ;; 7 the end: the card goes with the giant (he never stands on the stage x3)
+  (at 277 (unsilhouette) (card nil) (cine-scale a 1) (shot-on a 110 8.5 1.5 :look 1.8) (lens 50)
+      (cine-clip a :lb-w-stance :blend 14)))
+
+(defcine lb-trompete-cine (a v :len 186 :hold 90)
+  "The owl Kikon 神の喇叭 (§10.4): beat 0, the fist at the beak, the note; the trumpet forming over him; the sound card,
+神の喇叭 / TROMPETE, silence; the beam erases the horizon; the Konpaku shatter; and then there is silence."
+  (at 0 (face-each-other a v) (cine-clip a :lb-o-trompete :blend 2) (cine-clip v :sh-bound :blend 4)
+      (hold-both a v 10) (impact-frame :negative 2) (play-sfx :lb-trumpet))
+  (at 10 (shot-on a 30 3.6 2.6 :look 2.4) (lens 50))
+  (at 60 (card :black a) (back-rim 50 0.72 0.6 0.35) (shot-on a 62 6.0 1.6 :look 2.2 :off 0.9) (lens 42)
+      (caption "神の喇叭" :reading "TROMPETE" :sub "KAMI NO RAPPA  KIKON" :side 0) (silence 50))
+  (at 110 (card nil) (caption-exit) (shot-on a 118 9.0 3.0 :look 2.0 :ahead 8.0) (lens 60) (impact-frame :negative 2)
+      (play-sfx :explode) (shake 0.4 0.5) (ui-flash 1.0 0.95 0.8 0.8 2.5))
+  (during (110 150) (vfx-lb-horizon a (min 0.98 (- 1.6 (/ (- cf 110) 25.0)))))
+  (at 116 (cine-shatter v 4) (play-sfx :konpaku-shatter)
+      (impact-frame :manga 10))
+  (at 140 (silence 46) (shot-on a 30 8.5 1.0 :look 1.8) (lens 50) (cine-clip a (kit-stance (kit-of a)) :blend 10))
+  (during (140 186) (setf *grade-desat* (min 0.5 (* 0.02 (- cf 140))))))
