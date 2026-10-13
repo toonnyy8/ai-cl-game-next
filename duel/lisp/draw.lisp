@@ -160,7 +160,8 @@ once, on the draw that first sees the frame (MODEL-LAST-SF)."
                         (vfx-nadegiri x z (fwd-x yaw) (fwd-z yaw))))
         (:ya-shiranui (when (and (eq (fighter-phase f) :hold) (= (fighter-hold f) 2)) (focus-lines 14 x (+ y 1.2) z)))
         (:ya-e-k3 (when (and (eq (fighter-phase f) :main) (< prev (mv-s mv)) (<= (mv-s mv) now))   ; RAKUJITSU: the plaza
-                    (let ((ex (+ x (* 2.2 (fwd-x yaw)))) (ez (+ z (* 2.2 (fwd-z yaw)))))           ; takes the setting sun
+                    (let ((ex (+ x (* 1.6 (fwd-x yaw)))) (ez (+ z (* 1.6 (fwd-z yaw)))))           ; takes the setting sun
+                                                                                    ; (where its tip lands, f23)
                       (vfx-ember ex 0.1 ez :dx (fwd-x yaw) :dz (fwd-z yaw) :scale 1.4)
                       (stage-mark :scorch ex ez 0.7))))
         (:ke-charge (when (and (eq (fighter-phase f) :main) (<= (mv-s mv) now) (< now (+ (mv-s mv) (mv-a mv)))

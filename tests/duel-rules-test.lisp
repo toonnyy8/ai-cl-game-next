@@ -774,7 +774,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (~= 0.0 (getf (mv-params (find-move :ke-kikon-n)) :dash-track)) (~= 150.0 (getf (mv-params (find-move :ke-kikon)) :dash-track))))
 (check (~= 160 (/ (* 2 (aref (first (hw-vols (svref (mv-hits (find-move :ke-kikon-n)) 0))) 2)) (deg 1))))   ; the widest strike
 (check (and (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-kikon-n)) (/ 8.0 11.0)) (~= (mv-clip-speed (mv :kenpachi :base :ke-kikon)) (/ 8.0 9.0))
-            (~= (mv-clip-speed (mv :yamamoto :bankai-east :ya-tenchi)) 1.5)))    ; clips reach their hit pose on frame S
+            (~= (mv-clip-speed (mv :yamamoto :bankai-east :ya-tenchi)) 1.0)))    ; clips reach their hit pose on frame S
+                                                                                 ; (TENCHI's own clip since DUEL_YAMA_TYBW §3.2)
 ;; cooldowns: every command slot of the fighter's CD vector
 (check (= 7 (length *kit-commands*)))
 (check (and (null (kit-meter (kit :yamamoto :bankai-east))) (kit-meter (kit :yamamoto :hellfire))))  ; no Hellfire in Bankai
@@ -800,7 +801,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
   '(:ya-stance :ya-q1 :ya-q2 :ya-q3 :ya-f1 :ya-f2 :ya-sig :ya-shiranui :ya-shiranui-throw :ya-taimatsu
     :ya-nadegiri :ya-breaker :ya-ikkotsu :ya-intro :ya-win :ya-hellfire :ya-bankai :ya-kyoku
     :ya-kaka :sh-run :ya-enjo :ke-n-leap ; the O modules (TENCHI runs in :sh-run, CHARGE in :ke-charge)
-    :ya-e-thrust :ya-shonetsu :ya-w-parry :ya-w-counter   ; the Bankai stances
+    :ya-shonetsu :ya-w-parry :ya-w-counter   ; the Bankai stances
+    :ya-e-stance :ya-e-q1 :ya-e-q2 :ya-e-q3 :ya-e-f1 :ya-e-f2 :ya-e-kyokko :ya-e-tenchi   ; East's own (DUEL_YAMA_TYBW §3.2)
     :ya-sleeve :ya-e-drop :ke-kick :ke-r-kote :ke-r-tsuki   ; the strings' new clips (DUEL_STRINGS §3)
     :ke-stance :ke-q1 :ke-q2 :ke-q3 :ke-f1 :ke-f2 :ke-stance-hold :ke-stance-cut :ke-buttagiru :ke-charge
     :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
@@ -897,7 +899,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
   (dolist (name '(:ya-kaka :ya-tenchi))
     (let ((a (kit-move east name)) (b (kit-move west name)))
       (check (and (eq a b) (= (mv-s a) (mv-s (find-move name))) (equal (mv-on-frame a) (mv-on-frame b))))))
-  (check (~= (mv-clip-speed (kit-move east :ya-e-j2)) (/ 8.0 7.0)))            ; Shikai's clip at East's -1 f plays faster
+  (check (~= (mv-clip-speed (kit-move east :ya-e-j2)) 1.0))                   ; East's own clip at its own frames (DUEL_YAMA_TYBW §3.2)
   ;; KYOKKO cancels a landed J2 in time; a blocked J1 -> J2 leaves a gap >= Step's first iframe and < 7
   (let* ((k east) (q1 (kit-command-move k :q)) (q2 (kit-next k (mv-name q1) :q)))
     (check (< (- (mv-s (kit-command-move k :sig)) (hitstun (hw-react (svref (mv-hits q2) 0)))) 0))
@@ -1710,8 +1712,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                            (:ke-a-q1 . :hand-l) (:ke-a-q2 . :hand-l) (:ke-a-f1 . :hand-l) (:ke-a-f2 . :hand-l) (:ke-a-spin . :foot-r))
   "Clip -> the joint that strikes when it isn't the held weapon's tip (Ichigo's Shikai J: the short blade held reversed
 along the left forearm, so the fist leads).")
-(defparameter *reach-one-sided* '((:yamamoto :bankai-east) (:yamamoto :bankai-west) (:kenpachi :nozarashi)
-                                  (:kenpachi :bankai) (:rukia :zero)))
+(defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai) (:rukia :zero)))   ; (Yamamoto's East / West: their
+                                                                 ; own clips, both ways since DUEL_YAMA_TYBW §3.3)
 (let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0))
   (dolist (art '("yama" "ken" "rukia" "ichigo" "senjumaru" "lille" "barro"))
     (with-open-file (in (merge-pathnames (format nil "../duel/lisp/~a-art.lisp" art) *load-truename*))
@@ -1846,12 +1848,13 @@ along the left forearm, so the fist leads).")
                                 (format t "~a f~d: the muzzle ~,2f aside ~,2f up ~,2f ahead, az ~,1f el ~,1f~%" clip fr x y ahead az el))))))))))
 
 ;; J is short, K long (the user, 2026-09-29, docs/duel/DUEL_STRINGS.md §13): in every form every K link reaches at least 0.5 m further
-;; than any J link at the same position of the string; 片腕's short K against the J floor (2026-10-06) excepted
+;; than any J link at the same position of the string (its reach + its lunge, :slide: Yamamoto's East K step in since
+;; DUEL_YAMA_TYBW §3.3); 片腕's short K against the J floor (2026-10-06) excepted
 (dolist (cf (remove-if (lambda (cf) (or (equal cf '(:kenpachi :kataude)) (and (eq (first cf) :barro) (trace-form-p cf)))) *forms*))
   (let ((lm (link-moves (apply #'kit cf))))   ; (Lille II's stance EN: hitscan lines, DUEL_LILLE_V3 R2)
     (loop for n from 1 to 3
-          do (let ((j (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :quick)) maximize (mv-reach m)))
-                   (kk (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :flash)) minimize (mv-reach m))))
+          do (let ((j (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :quick)) maximize (+ (mv-reach m) (mv-slide m))))
+                   (kk (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :flash)) minimize (+ (mv-reach m) (mv-slide m)))))
                (check (or (>= (- kk j) 0.5) (format t "~a link ~d: J ~,2f K ~,2f~%" cf n j kk)))))))
 
 ;;; ---------------------------------------------------------------- the guard lock (the user 2026-09-30, DUEL_DESIGN.md "Guard lock")
