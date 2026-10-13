@@ -1263,10 +1263,11 @@ ENDER), off the end push. T when it started (refused: the form as it was)."
              nil))))
 (defun br-ai-o-ender (e f b mv)
   "His CPU's O ender (the user, 2026-10-13: 「幫我為電腦 AI 與輔助攻擊增加這招」): a stance string's last segment MV that hit,
-on its land frame (one look a hit), the opponent red (KIKON-READY-P: the rush is the Kikon) and not to be finished with
+on the step after its land frame (one look a hit), the opponent red (KIKON-READY-P: the rush is the Kikon) and not to be finished with
 hits (AI-SB-FINISH-P) -- the generic CPU's O ender rule on a red opponent (ai.lisp AI-REFLEX): BR-S-O-GO, the Kikon
 button held through the rush (AI-COMMAND :kikon). T when it started."
-  (when (and (getf (mv-params mv) :end) (eq (fighter-contact f) :hit) (= (fighter-sf f) (fighter-land-sf f))
+  (when (and (getf (mv-params mv) :end) (eq (fighter-contact f) :hit) (= (fighter-sf f) (1+ (fighter-land-sf f)))   ; (the tick
+             ;  runs after MAIN-PHASE-STEP's count: the first look at the hit)
              (kikon-ready-p e) (not (ai-sb-finish-p e)) (br-s-o-go e f))
     (ai-command b (fighter-kit f) :kikon (fighter-dist f) e)
     (why b :o-ender :kikon)
