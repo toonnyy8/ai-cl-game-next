@@ -83,11 +83,7 @@ The user's verbatim lines that set the shape: 「架式 > JJ/KK > LL 中，最�
 - A push measured to the capsule's end without its radius (R12).
 - Hidden aim: `:track 720` + a turn at release made the charged snipe unmissable (R18).
 
-## 7. The motion bar for modules (G)
-- The user gives concept words (陀螺, 零距離砲擊, 長鞭, 大刀); answer with a researched archetype table
-  (`docs/research/lille2-motion-styles/notes.md`: snake sword, rush → blast, tornado, heavy overhead), one archetype a
-  string, combinations as finales (「長鞭可以連成大砍刀」).
-- 2–3 rounds per string were normal: the whip read as a shot until the sim's line stopped being drawn over it (R9 → R11);
-  a pelvis-only turn was invisible (root yaw + roll, R10); "too few keys" → a key per 90° of a spin (R16).
-- Body swaps need transitions (the legs folded away into the stance, R11). Check stills against the user's words.
-- Brief art batches from the segment table of the build they merge into (r5-art lost 8 clips to a sim change, §8.3).
+## 7. The motion bar for modules
+Deciding the style, researching it and mapping archetypes onto the segments: `skills/duel-motion-style/` (its reference
+holds this case: the archetype table, 2–3 rounds a string, the whip / turn / key-density failures). One rule that belongs
+here: brief art batches from the segment table of the build they merge into (r5-art lost 8 clips to a sim change, §8.3).

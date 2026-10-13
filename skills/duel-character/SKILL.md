@@ -46,7 +46,7 @@ Model and look
   whether the modes read apart at a glance. **Body swaps need transitions** (legs folded away into a stance), and a
   generic clip (guard, hit) may read as nothing on a non-human body: give the form its own (`:look-clips`).
 - **The motion bar**: does every strike get its own silhouette and whole-body motion? Name a reference clip set and use
-  that bar for every form.
+  that bar for every form. REQUIRED: `duel-motion-style` (decide the style, research it, plan the slots).
 
 Presentation
 - **A text storyboard first**: a beat table with frames, camera (angle / distance / height / lens) and action.

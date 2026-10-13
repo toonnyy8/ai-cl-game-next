@@ -2948,3 +2948,18 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
   - 結果：基準版把「JJ」當成按兩下、沒問段數、也沒有依路線的動作，用逐招手寫的 defmove，測試沒有命中停頓與零資源迴圈；讀了 skill 的版本先送段落表，問了空資源行為、路線動作與點按／長按，用段落表加巨集實作，測試與 bug 清單都涵蓋到，CPU 規則依實戰資源分布設定。
   - 測試中發現的缺口已補上：新角色編號要登記的地方（`*roster*`、simgate `ROSTER`、除錯區段、測試的型態清單、畫面測試的種子）；段落巨集先在角色自己的檔案裡複製，第二個角色真的共用時才搬進 `kit.lisp`；角色自己的數值放在自己的檔案（AGENTS 的 `tuning.lisp` 說明同步修正）。
 - 文件同步：CHARACTER_DESIGN 新增 §4.1 招式文法與提問單項目，探針與定格指令改成現行的；PLAYBOOK、README、docs/README、AGENTS 的 skill 數量改為八個並列出新 skill。
+
+## 218. 新增動作風格 skill：決定風格、收集資料、規劃成動作模組（2026-10-13）
+
+使用者：「還有開發新角色時要如何決定其動作風格、收集該風格的相關資料並將其規劃成角色動作模組，這個過程與經驗也一併做成 skill」
+
+- 新增 `skills/duel-motion-style/`，經驗來自劍八重做（DUEL_KEN_REWORK §2–§8、`docs/research/kenpachi-rework/`）與新版利傑的動作模組（DUEL_LILLE_V3 §10、§13–§16、§19–§20、§24.1、`docs/research/lille2-motion-styles/`）：
+  - 先問：照原作或自創、判定距離要不要跟著動作走、一次一個型態、用哪一套參考當標準。
+  - 收集資料：來源、A～D 分級、原型表與每型態的動作標準表、筆記與圖片的存放位置。
+  - 規劃：現有動作清單、對應規則（不共用揮砍平面與手、一條連段一種原型、組合放最後一段、先看判定）、表格核准後才開工。
+  - 畫與檢查：關鍵幀密度、整個身體轉、拉伸不沿面向方向、先量武器尖端、側面與正面 8 幀連續圖。
+  - 常見失敗清單。
+  - reference 收錄兩個案例的完整紀錄、筆記格式、數字、每個模組花了幾輪。
+- `duel-move-modules` reference §7 改成指向新 skill；`duel-character`、`duel-character-rework` 加上指引。
+- 驗證：同一個新角色情境（「動作風格要懶散、像在跳舞，但出招很毒辣」），先讓沒讀 skill 的 agent 回答（基準），再讓讀了 skill 的 agent 回答並比較。
+- 文件同步：CHARACTER_DESIGN 新增 §4.2；PLAYBOOK、README、docs/README、AGENTS 改為九個 skill。

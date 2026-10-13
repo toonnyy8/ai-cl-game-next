@@ -66,6 +66,7 @@ Source repo: `/media/8tsp/projects/ai-cl-game-test`. Evidence: `docs/duel/DUEL_L
 - A squashed (ellipsoid) head needs its features squashed with it: `:squash` scales the placement too.
 
 ## 8. Strike clips by measurement (Kenpachi's base round, DUEL_KEN_REWORK §5) (G)
+(The whole style → research → plan → measure process: `skills/duel-motion-style/`.)
 - Research first: canon looks per form and a motion bar per form (6–15 archetypes, no two sharing an arc plane and a
   hand set), then map them onto the move slots and get a yes.
 - Measure before rendering: a host script that loads the art files and prints the weapon tip (or a striker joint) per

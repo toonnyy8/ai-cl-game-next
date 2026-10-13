@@ -53,7 +53,7 @@ duel/          SOUL DUEL (package DUEL): lisp/, web/ (head.html pwa.js sw.js man
 examples/      hello/ (template), engine-demo/
 tools/         build + test + gate tools (table below)
 tests/         host Lisp tests, browser-script generators (tests/scripts/), style shot/check scripts, shots/, style-cvc-ref.txt
-skills/        eight Claude skills, symlinked into ~/.claude/skills (below)
+skills/        nine Claude skills, symlinked into ~/.claude/skills (below)
 docs/          README.md (index), DEVLOG.zh-TW.md, guides/ engine/ raven-edge/ duel/ style/ babylon/ research/
 vendor/        prebuilt wasm ECL, SDL3 with the WebGPU backend (+ patch), emdawnwebgpu — never edit by hand
 babylon/       the discontinued TS port
@@ -165,6 +165,7 @@ Skills (in `skills/`, symlinked into `~/.claude/skills/`; each `SKILL.md` is sho
 | `duel-character-rework` | changing an EXISTING fighter after a playtest: diagnose, options, presentation-only vs sim change, regressions, merges, framing; retiring / removing / renaming one |
 | `duel-move-modules` | designing or restructuring a move set: attack state vs stance, segmented strings (one hit a press), route follow-ups, enders, resource roles, one grammar across forms (from the new Lille) |
 | `duel-character-cpu` | one fighter's CPU / ASSIST / learner taking a new move or rule, or a style search (dream-rsi) for its CPU |
+| `duel-motion-style` | deciding a fighter's or form's motion style, researching references (canon, other games' movesets), planning it into per-move clips, measuring before drawing (from Kenpachi's rework and the new Lille) |
 
 | Tool | Purpose |
 |---|---|

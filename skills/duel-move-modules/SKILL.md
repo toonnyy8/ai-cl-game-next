@@ -10,7 +10,8 @@ From the new Lille (kit `:barro`; `docs/duel/DUEL_LILLE_V3.md` §3, §8, §12, �
 `*BR-S-SEGS*`, `BR-DEFSTANCE`, `BR-STANCE-STRINGS`). Core principle: **one grammar, written once as data (a segment
 table), played by every form with its own clips; each button has one role, each resource one sink.** Evidence and the
 encoding in detail: `reference.md`. New fighter flow: `duel-character`; changing one: `duel-character-rework`; its CPU:
-`duel-character-cpu`.
+`duel-character-cpu`; the clips' style and research:
+`duel-motion-style`.
 
 ## ⚠ Restate the user's notation before building
 The user's notation is shorthand. Every misreading here cost a rebuild (「JJ KK LL 都不表示只要二連擊」, 「不是 J2，是 J 連段的意思」,

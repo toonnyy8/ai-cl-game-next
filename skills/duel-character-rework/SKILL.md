@@ -13,7 +13,8 @@ intent first, offer composable options, then make the smallest change. If it is 
 byte-identical; if it touches the sim, gate it against a parent baseline.** Evidence: `reference.md`; the zh-TW guide
 `docs/guides/CHARACTER_DESIGN.zh-TW.md`. A new character uses `duel-character`; a change to the move set's grammar
 (strings, stance, routes, resources) `duel-move-modules`; teaching the CPU / ASSIST a changed move `duel-character-cpu`;
-retiring, removing or renaming a character: `reference.md` §9.
+retiring, removing or renaming a character: `reference.md` §9; a strike that 「不太明顯」 or a form's whole motion style:
+`duel-motion-style`.
 
 ## The loop
 1. **Quote the feedback verbatim**; if the user said 「先跟我討論」, change nothing until it is agreed.
