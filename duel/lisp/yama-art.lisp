@@ -4,39 +4,80 @@
 ;;;; so each reaches its hit pose at frame S and is back in :ya-stance at S+A+R. Pose to pose (style §2.6,
 ;;;; *key-ease* 1): a wind-up held a few frames, a :snap into the named hit pose :ya-*-hit at :s (the blade
 ;;;; where the move's hit volume is), a small overshoot held through :a, a half-way recovery, the stance.
-;;;; Look: 1.68 m, hunched, bald + X scar, long white brows, waist-length beard tied with a purple
-;;;; cord, black shihakusho + white captain's haori (一 on the back), no left forearm (empty sleeve).
+;;;; Look: 1.68 m, hunched, bald + X scar, long white brows, waist-length beard bound by a purple cord lattice,
+;;;; black shihakusho + the white captain's haori draped as a cape (一 in a rhombus on the back), no left forearm (empty
+;;;; sleeve); Hellfire bared to the waist, the Bankai in the burnt TYBW robe (the body section).
 (in-package :duel)
 
 ;;; ---------------------------------------------------------------- body
 ;; Proportions (user review 1: realistic, not chibi): a narrow head (the girth factors), a lean chest,
 ;; arms to mid-thigh (:props :arms, the arm shapes as long), bigger hands, a slighter hunch.
+;; The TYBW look (docs/duel/DUEL_YAMA_TYBW.md §3.1; canon: docs/research/yamamoto-rework/canon-looks.md §1-§4): the
+;; captain's haori DRAPED over both shoulders as a cape (tag :haori: the shoulder pads, the upper back and lapels on the
+;; chest, its empty sleeves hanging at the sides, the lower cape on the pelvis down to the shins, lined in deep purple
+;; #441F58, 一 in a rhombus on the back, slits at the hem's sides), the black kosode under it (tag :kosode: the torso and
+;; both sleeves); a beard bound by a lattice of cord crossings, brows hanging to the jaw, the X scar on the right of the
+;; crown. Three costumes of one rig (BODY-VARIANT, the hurt cylinder shared): this one (Shikai), :YAMAMOTO-BARE (Hellfire:
+;; the kit hides :haori and :kosode) and :YAMAMOTO-TYBW (the Bankai: the kit hides :haori). The lower cape swings on the
+;; pelvis matrix (yama.lisp YAMA-POSE, a look: the sim never reads a joint).
 (defbody :yamamoto (:scale 0.95 :width 1.05 :hunch 14 :hurt-r 0.36 :hurt-h 1.65
                     :props (:arms 1.12)
                     :girth ((:chest 0.86 1.0 0.92) (:spine 0.86 1.0 0.92) (:pelvis 0.9 1.0 0.95)
                             (:upper-arm-r 0.9 1.12 0.9) (:upper-arm-l 0.9 1.12 0.9) (:lower-arm-r 0.9 1.12 0.9)
                             (:hand-r 1.2 1.3 1.2))
                     ;; v4 notan palette (docs/style/STYLE_STORM_DESIGN.md §2.5): a solid black robe, a V4 white
-                    ;; haori whose shadow turns cold grey-blue, muted skin (the only warm non-spot colour)
+                    ;; haori whose shadow turns cold grey-blue, muted skin (the only warm non-spot colour); the haori's
+                    ;; lining sampled from the official RoS art (canon-looks §1)
                     :palette ((:skin #xD8B4A0) (:black #x16161E) (:white #xF0F0EC) (:beard #xECECEA)
                               (:cord #x4A3A6A) (:scar #x7A4A3C) (:obi #xC8CCD6) (:tabi #xE8E8E4)
-                              (:sole #x262833) (:mouth #x3A1E1A) (:lid #x1E1818) (:fold #xD8DCE4))
+                              (:sole #x262833) (:mouth #x3A1E1A) (:lid #x1E1818) (:fold #xD8DCE4) (:lining #x441F58))
                     :rim (#xFFB070 0.22))
+  ;; the hips and the obi; the lower cape (sizes before the pelvis girth 0.9 / 0.95): its back flaring behind, the two
+  ;; sides, the open front (a white edge with the purple lining turned out inside it), every panel lined; two slits and a
+  ;; dot cut in each side near the hem (black)
   (:pelvis (:box 0.34 0.18 0.24 :c :black)
            (:box 0.35 0.07 0.25 :at (0 0.06 0) :c :obi)
-           (:box 0.42 0.74 0.025 :at (0 -0.3 -0.14) :rot (0 -5 0) :c :white)          ; haori back
-           (:box 0.025 0.74 0.28 :at (0.215 -0.3 0) :rot (0 0 4) :c :white)            ; sides
-           (:box 0.025 0.74 0.28 :at (-0.215 -0.3 0) :rot (0 0 -4) :c :white)
-           (:box 0.12 0.74 0.025 :at (0.16 -0.3 0.135) :rot (0 5 0) :c :white)         ; open front
-           (:box 0.12 0.74 0.025 :at (-0.16 -0.3 0.135) :rot (0 5 0) :c :white))
-  ;; the haori over the torso: one rounded white shell, the black robe at its open front
-  (:spine (:bevel 0.46 0.25 0.28 0.04 :at (0 0.11 -0.005) :c :white)
-          (:box 0.12 0.25 0.02 :at (0 0.11 0.15) :c :black))
-  (:chest (:bevel 0.5 0.3 0.29 0.05 :at (0 0.11 -0.005) :c :white)
-          (:box 0.13 0.3 0.02 :at (0 0.11 0.15) :c :black)
-          (:box 0.025 0.2 0.01 :at (0.035 0.15 0.162) :rot (0 0 -22) :c :obi)         ; under-collar V
-          (:box 0.025 0.2 0.01 :at (-0.035 0.15 0.162) :rot (0 0 22) :c :obi)
-          (:box 0.2 0.035 0.01 :at (0 0.17 -0.157) :c :black))                         ; 一 on the back
+           (:box 0.7 1.02 0.03 :at (0 -0.35 -0.26) :rot (0 -9 0) :c :white :tag :haori)                 ; back
+           (:box 0.66 0.98 0.012 :at (0 -0.35 -0.24) :rot (0 -9 0) :c :lining :tag :haori)
+           (:box 0.03 0.98 0.4 :at (0.35 -0.37 -0.03) :rot (0 0 6) :c :white :tag :haori)               ; sides
+           (:box 0.03 0.98 0.4 :at (-0.35 -0.37 -0.03) :rot (0 0 -6) :c :white :tag :haori)
+           (:box 0.012 0.94 0.38 :at (0.33 -0.37 -0.03) :rot (0 0 6) :c :lining :tag :haori)
+           (:box 0.012 0.94 0.38 :at (-0.33 -0.37 -0.03) :rot (0 0 -6) :c :lining :tag :haori)
+           (:box 0.1 0.98 0.03 :at (0.33 -0.37 0.18) :rot (0 0 6) :c :white :tag :haori)                ; open front
+           (:box 0.1 0.98 0.03 :at (-0.33 -0.37 0.18) :rot (0 0 -6) :c :white :tag :haori)
+           (:box 0.08 0.94 0.02 :at (0.255 -0.37 0.17) :rot (0 0 6) :c :lining :tag :haori)
+           (:box 0.08 0.94 0.02 :at (-0.255 -0.37 0.17) :rot (0 0 -6) :c :lining :tag :haori)
+           (:box 0.014 0.17 0.026 :at (0.405 -0.7 0.09) :rot (0 0 6) :c :black :tag :haori)            ; slits, dot
+           (:box 0.014 0.09 0.022 :at (0.41 -0.76 0.0) :rot (0 0 6) :c :black :tag :haori)
+           (:box 0.014 0.032 0.032 :at (0.39 -0.55 0.11) :rot (0 0 6) :c :black :tag :haori)
+           (:box 0.014 0.17 0.026 :at (-0.405 -0.7 0.09) :rot (0 0 -6) :c :black :tag :haori)
+           (:box 0.014 0.09 0.022 :at (-0.41 -0.76 0.0) :rot (0 0 -6) :c :black :tag :haori)
+           (:box 0.014 0.032 0.032 :at (-0.39 -0.55 0.11) :rot (0 0 -6) :c :black :tag :haori))
+  ;; the kosode's waist; the kosode over the chest (the white under-collar V)
+  (:spine (:bevel 0.46 0.25 0.28 0.04 :at (0 0.11 -0.005) :c :black :tag :kosode))
+  (:chest (:bevel 0.5 0.3 0.29 0.05 :at (0 0.11 -0.005) :c :black :tag :kosode)
+          (:box 0.025 0.2 0.01 :at (0.035 0.15 0.162) :rot (0 0 -22) :c :obi :tag :kosode)          ; under-collar V
+          (:box 0.025 0.2 0.01 :at (-0.035 0.15 0.162) :rot (0 0 22) :c :obi :tag :kosode)
+          ;; the haori on the shoulders (sizes before the chest girth 0.86 / 0.92): the pads sloping off them, the upper
+          ;; back down past the waist, the lapels at the open front (their lining turned out), the empty sleeves hanging
+          ;; wide at his sides (white, the purple opening at the front)
+          (:bevel 0.32 0.08 0.38 0.03 :at (0.21 0.205 -0.01) :rot (0 0 -14) :c :white :tag :haori)
+          (:bevel 0.32 0.08 0.38 0.03 :at (-0.21 0.205 -0.01) :rot (0 0 14) :c :white :tag :haori)
+          (:box 0.72 0.56 0.03 :at (0 -0.06 -0.185) :c :white :tag :haori)
+          (:box 0.13 0.54 0.03 :at (0.27 -0.05 0.175) :c :white :tag :haori)
+          (:box 0.13 0.54 0.03 :at (-0.27 -0.05 0.175) :c :white :tag :haori)
+          (:box 0.04 0.54 0.035 :at (0.19 -0.05 0.178) :c :lining :tag :haori)
+          (:box 0.04 0.54 0.035 :at (-0.19 -0.05 0.178) :c :lining :tag :haori)
+          (:bevel 0.14 0.62 0.42 0.03 :at (0.4 -0.13 0.07) :rot (0 20 7) :c :white :tag :haori)       ; (pitched against
+          (:bevel 0.14 0.62 0.42 0.03 :at (-0.4 -0.13 0.07) :rot (0 20 -7) :c :white :tag :haori)     ;  his hunch: they hang)
+          (:box 0.1 0.56 0.02 :at (0.405 -0.075 0.279) :rot (0 20 7) :c :lining :tag :haori)
+          (:box 0.1 0.56 0.02 :at (-0.405 -0.075 0.279) :rot (0 20 -7) :c :lining :tag :haori)
+          ;; 一 in a rhombus between the shoulder blades (ink on the white back)
+          (:box 0.125 0.016 0.006 :at (0.046 0.13 -0.205) :rot (0 0 -45) :c :black :tag :haori)
+          (:box 0.125 0.016 0.006 :at (-0.046 0.13 -0.205) :rot (0 0 45) :c :black :tag :haori)
+          (:box 0.125 0.016 0.006 :at (0.046 0.04 -0.205) :rot (0 0 45) :c :black :tag :haori)
+          (:box 0.125 0.016 0.006 :at (-0.046 0.04 -0.205) :rot (0 0 -45) :c :black :tag :haori)
+          (:box 0.085 0.018 0.006 :at (0 0.085 -0.205) :c :black :tag :haori))
   (:neck (:cyl 0.065 0.1 :at (0 0.04 0) :c :skin))
   ;; head in metres (not girth-scaled; x and z sizes x the body :width 1.05): a bald skull sphere, a
   ;; flat-fronted face (front at z 0.08) with the flat face shapes (tag :face-neutral), the long beard
@@ -44,8 +85,8 @@
          (:bevel 0.108 0.13 0.076 0.018 :at (0 0.1 0.042) :c :skin)                         ; face
          (:box 0.021 0.055 0.032 :at (0.078 0.115 -0.005) :c :skin) (:box 0.021 0.055 0.032 :at (-0.078 0.115 -0.005) :c :skin)
          (:wedge 0.028 0.05 0.029 :at (0 0.1 0.095) :rot (180 0 0) :c :skin)               ; nose
-         (:box 0.036 0.008 0.008 :at (0 0.19 0.066) :rot (0 -24 38) :c :scar)              ; X scar
-         (:box 0.036 0.008 0.008 :at (0 0.19 0.066) :rot (0 -24 -38) :c :scar)
+         (:box 0.06 0.009 0.01 :at (0.034 0.2 0.05) :rot (-28 -32 36) :c :scar)            ; the X scar, crown right
+         (:box 0.06 0.009 0.01 :at (0.034 0.2 0.05) :rot (-28 -32 -36) :c :scar)
          ;; eyes: narrow old man's slits, drooping at the outer ends, under the long brows
          (:box 0.03 0.006 0.004 :at (0.03 0.128 0.082) :rot (0 0 -8) :c :lid :tag :face-neutral)
          (:box 0.03 0.006 0.004 :at (-0.03 0.128 0.082) :rot (0 0 8) :c :lid :tag :face-neutral)
@@ -85,8 +126,8 @@
          (:box 0.06 0.003 0.003 :at (0 0.047 0.1215) :c :lid :tag :face-hurt)
          (:box 0.0025 0.017 0.003 :at (0.012 0.047 0.1215) :c :lid :tag :face-hurt)
          (:box 0.0025 0.017 0.003 :at (-0.012 0.047 0.1215) :c :lid :tag :face-hurt)
-         (:box 0.022 0.1 0.024 :at (0.068 0.1 0.084) :rot (0 0 12) :c :beard)              ; ... hanging past the eyes
-         (:box 0.022 0.1 0.024 :at (-0.068 0.1 0.084) :rot (0 0 -12) :c :beard)
+         (:box 0.024 0.19 0.024 :at (0.086 0.055 0.07) :rot (0 0 7) :c :beard)             ; ... hanging down to the jaw
+         (:box 0.024 0.19 0.024 :at (-0.086 0.055 0.07) :rot (0 0 -7) :c :beard)
          (:bevel 0.152 0.11 0.105 0.016 :at (0 0.04 0.0467) :c :beard)                     ; jaw + moustache
          (:box 0.038 0.12 0.024 :at (0.048 0.02 0.102) :rot (0 0 -10) :c :beard)
          (:box 0.038 0.12 0.024 :at (-0.048 0.02 0.102) :rot (0 0 10) :c :beard)
@@ -97,17 +138,21 @@
          (:box 0.004 0.05 0.006 :at (0.022 0.072 0.104) :rot (0 0 -55) :c :lid)            ; the moustache's parting
          (:box 0.004 0.05 0.006 :at (-0.022 0.072 0.104) :rot (0 0 55) :c :lid)
          (:box 0.107 0.22 0.057 :at (0 -0.3 0.153) :rot (0 8 0) :c :beard)
-         (:box 0.118 0.04 0.069 :at (0 -0.33 0.153) :rot (0 8 0) :c :cord)
-         (:cone 0.051 0.18 :at (0 -0.49 0.17) :rot (0 172 0) :seg 5 :c :beard))
-  (:shoulder-r (:bevel 0.13 0.06 0.2 0.02 :at (0.02 -0.02 0) :rot (0 0 -24) :c :white))
-  (:shoulder-l (:bevel 0.13 0.06 0.2 0.02 :at (-0.02 -0.02 0) :rot (0 0 24) :c :white))
-  (:upper-arm-r (:box 0.14 0.31 0.15 :at (0 -0.15 0) :c :white))
-  (:upper-arm-l (:box 0.13 0.31 0.14 :at (0 -0.15 0) :c :white)
-                (:box 0.11 0.3 0.07 :at (0 -0.42 0.02) :rot (0 8 0) :c :white))      ; empty sleeve
-  (:lower-arm-r (:box 0.16 0.21 0.18 :at (0 -0.1 0) :c :white)
-                (:box 0.04 0.2 0.2 :at (0 -0.16 -0.06) :rot (0 -10 0) :c :white)              ; hanging sleeve
-                (:box 0.13 0.04 0.15 :at (0 -0.21 0) :c :black)
-                (:box 0.13 0.005 0.004 :at (0 -0.196 0.081) :c :fold)
+         (:cone 0.051 0.18 :at (0 -0.49 0.17) :rot (0 172 0) :seg 5 :c :beard)
+         ;; the binding: two purple cords crossing down the beard's front, five X crossings (a lattice of diamonds)
+         (:box 0.17 0.008 0.008 :at (0 0.0 0.142) :rot (0 8 33) :c :cord) (:box 0.17 0.008 0.008 :at (0 0.0 0.142) :rot (0 8 -33) :c :cord)
+         (:box 0.17 0.008 0.008 :at (0 -0.09 0.155) :rot (0 8 33) :c :cord) (:box 0.17 0.008 0.008 :at (0 -0.09 0.155) :rot (0 8 -33) :c :cord)
+         (:box 0.17 0.008 0.008 :at (0 -0.18 0.167) :rot (0 8 33) :c :cord) (:box 0.17 0.008 0.008 :at (0 -0.18 0.167) :rot (0 8 -33) :c :cord)
+         (:box 0.135 0.008 0.008 :at (0 -0.265 0.186) :rot (0 8 37) :c :cord) (:box 0.135 0.008 0.008 :at (0 -0.265 0.186) :rot (0 8 -37) :c :cord)
+         (:box 0.135 0.008 0.008 :at (0 -0.345 0.197) :rot (0 8 37) :c :cord) (:box 0.135 0.008 0.008 :at (0 -0.345 0.197) :rot (0 8 -37) :c :cord))
+  ;; the kosode's shoulders and sleeves (black); the right sleeve hangs wide under the forearm, the left one is empty
+  (:shoulder-r (:bevel 0.13 0.06 0.2 0.02 :at (0.02 -0.02 0) :rot (0 0 -24) :c :black :tag :kosode))
+  (:shoulder-l (:bevel 0.13 0.06 0.2 0.02 :at (-0.02 -0.02 0) :rot (0 0 24) :c :black :tag :kosode))
+  (:upper-arm-r (:box 0.14 0.31 0.15 :at (0 -0.15 0) :c :black :tag :kosode))
+  (:upper-arm-l (:box 0.13 0.31 0.14 :at (0 -0.15 0) :c :black :tag :kosode)
+                (:box 0.11 0.3 0.07 :at (0 -0.42 0.02) :rot (0 8 0) :c :black :tag :kosode))      ; empty sleeve
+  (:lower-arm-r (:box 0.16 0.21 0.18 :at (0 -0.1 0) :c :black :tag :kosode)
+                (:box 0.04 0.2 0.2 :at (0 -0.16 -0.06) :rot (0 -10 0) :c :black :tag :kosode)    ; hanging sleeve
                 (:box 0.07 0.08 0.07 :at (0 -0.23 0) :c :skin))
   (:hand-r (:bevel 0.075 0.09 0.075 0.02 :at (0 -0.045 0) :c :skin))
   (:thigh-r (:cyl 0.096 0.46 :top 0.09 :seg 10 :at (0 -0.22 0) :c :black)
@@ -121,6 +166,157 @@
           (:box 0.08 0.12 0.09 :at (0 -0.37 0) :c :tabi))
   (:foot-r (:bevel 0.09 0.06 0.22 0.02 :at (0 -0.02 0.06) :c :tabi) (:box 0.1 0.02 0.24 :at (0 -0.055 0.06) :c :sole))
   (:foot-l (:bevel 0.09 0.06 0.22 0.02 :at (0 -0.02 0.06) :c :tabi) (:box 0.1 0.02 0.24 :at (0 -0.055 0.06) :c :sole)))
+
+;; Hellfire (GOKUEN, canon's "serious" state, ch. 155 / 394; the kit hides :haori and :kosode): bared to the waist, the
+;; kosode top folded down over the obi, its two black sleeves hanging behind the hips (on the pelvis: they swing with the
+;; lower cape's lag, YAMA-POSE); a lean, wiry torso (no broader than the robed one) with ink lines for the collarbones,
+;; pectorals and the belly; the left arm ends above the elbow; 16 thin scars across chest, belly and arms, 12 of them
+;; glowing red-orange (the anime's flare, #FF5A3C; emissive parts, one mesh each: kept to 12), 4 healed (ink-brown).
+(defparameter *ya-bare-parts*
+  (flet ((scar (x y z len a) `(:glow 2.4 (:box ,len 0.007 0.006 :at (,x ,y ,z) :rot (0 0 ,a) :c :scar-glow)))   ; 12 glow
+         (old (x y z len a) `(:box ,len 0.007 0.006 :at (,x ,y ,z) :rot (0 0 ,a) :c :scar)))                    ; 4 healed
+    `((:pelvis (:bevel 0.42 0.1 0.31 0.04 :at (0 0.14 -0.01) :c :black)                            ; the top, folded down
+               (:box 0.4 0.03 0.3 :at (0 0.19 -0.01) :c :black)
+               (:box 0.17 0.46 0.06 :at (0.15 -0.15 -0.2) :rot (0 -12 10) :c :black)                 ; its sleeves, behind
+               (:box 0.17 0.46 0.06 :at (-0.15 -0.15 -0.2) :rot (0 -12 -10) :c :black)
+               (:box 0.15 0.02 0.05 :at (0.19 -0.38 -0.25) :rot (0 -12 10) :c :obi)                  ; their white cuffs
+               (:box 0.15 0.02 0.05 :at (-0.19 -0.38 -0.25) :rot (0 -12 -10) :c :obi))
+      (:spine (:bevel 0.42 0.25 0.25 0.05 :at (0 0.11 -0.005) :c :skin)
+              (:box 0.006 0.2 0.006 :at (0 0.12 0.132) :c :lid)                                      ; the belly's lines
+              (:box 0.13 0.006 0.006 :at (0 0.07 0.132) :c :lid) (:box 0.14 0.006 0.006 :at (0 0.13 0.132) :c :lid)
+              (:box 0.15 0.006 0.006 :at (0 0.19 0.13) :c :lid)
+              ,(scar 0.08 0.15 0.135 0.14 30) ,(scar -0.06 0.09 0.135 0.16 -20) ,(old 0.03 0.04 0.135 0.12 -60)
+              ,(old 0.17 0.11 0.06 0.1 75))
+      (:chest (:bevel 0.48 0.3 0.27 0.06 :at (0 0.11 -0.005) :c :skin)
+              (:box 0.16 0.006 0.006 :at (0.1 0.07 0.148) :rot (0 0 10) :c :lid)                    ; pectorals
+              (:box 0.16 0.006 0.006 :at (-0.1 0.07 0.148) :rot (0 0 -10) :c :lid)
+              (:box 0.13 0.006 0.006 :at (0.1 0.235 0.125) :rot (0 0 -10) :c :lid)                  ; collarbones
+              (:box 0.13 0.006 0.006 :at (-0.1 0.235 0.125) :rot (0 0 10) :c :lid)
+              ,(scar 0.1 0.17 0.15 0.2 -35) ,(scar -0.12 0.13 0.15 0.18 40) ,(scar 0.04 0.1 0.152 0.22 -15)
+              ,(scar -0.03 0.21 0.145 0.12 70) ,(scar 0.15 0.04 0.13 0.12 25) ,(scar -0.15 0.03 0.13 0.13 -50)
+              ,(scar 0.08 0.12 -0.145 0.22 30) ,(old -0.08 0.05 -0.145 0.2 -25))                     ; (two on the back)
+      (:shoulder-r (:bevel 0.12 0.07 0.14 0.03 :at (0.02 -0.02 0) :rot (0 0 -24) :c :skin))
+      (:shoulder-l (:bevel 0.12 0.07 0.14 0.03 :at (-0.02 -0.02 0) :rot (0 0 24) :c :skin))
+      (:upper-arm-r (:box 0.105 0.31 0.115 :at (0 -0.15 0) :c :skin) ,(scar 0.0 -0.1 0.06 0.1 35) ,(scar 0.0 -0.2 0.06 0.09 -40))
+      (:upper-arm-l (:box 0.1 0.2 0.11 :at (0 -0.1 0) :c :skin) (:sphere 0.055 :at (0 -0.2 0) :seg 8 :c :skin)   ; the stump
+                    ,(old 0.0 -0.08 0.058 0.09 -30))
+      (:lower-arm-r (:box 0.095 0.24 0.1 :at (0 -0.12 0) :c :skin) (:box 0.006 0.17 0.006 :at (0.02 -0.12 0.052) :c :scar)
+                    ,(scar 0.0 -0.06 0.053 0.08 50)))))
+(body-variant :yamamoto-bare :yamamoto :palette '((:scar-glow #xFF5A3C)) :parts *ya-bare-parts*)
+
+;; The Bankai (TYBW battle dress, canon-looks §3; the kit hides :haori): the black robe only, its edges burnt to tatters:
+;; 6 triangles at the right sleeve's end, 5 at the empty left sleeve's, 6 round each hakama hem.
+(defparameter *ya-tybw-parts*
+  (flet ((tat (x y z r h) `(:cone ,r ,h :at (,x ,y ,z) :rot (0 180 0) :seg 3 :c :black)))
+    `((:lower-arm-r ,(tat 0.05 -0.2 0.06 0.036 0.12) ,(tat -0.05 -0.2 0.05 0.034 0.15) ,(tat 0.03 -0.23 -0.04 0.036 0.13)
+                    ,(tat -0.02 -0.25 -0.1 0.034 0.16) ,(tat 0.02 -0.25 -0.15 0.036 0.12) ,(tat 0.06 -0.2 -0.02 0.03 0.1))
+      (:upper-arm-l ,(tat 0.04 -0.565 0.04 0.034 0.13) ,(tat -0.03 -0.565 0.03 0.034 0.16) ,(tat 0.0 -0.565 0.0 0.03 0.11)
+                    ,(tat 0.04 -0.56 -0.01 0.03 0.14) ,(tat -0.04 -0.56 -0.005 0.034 0.1))
+      ,@(loop for leg in '(:shin-r :shin-l)
+              collect (cons leg (loop for k below 6 for a = (* k (/ pi 3)) for h in '(0.11 0.15 0.1 0.14 0.12 0.16)
+                                      collect (tat (float (* 0.12 (cos a)) 1f0) -0.3 (float (* 0.12 (sin a)) 1f0) 0.05 h)))))))
+(body-variant :yamamoto-tybw :yamamoto :parts *ya-tybw-parts*)
+
+;;; ---------------------------------------------------------------- looks on the posed body (yama.lisp :hooks :pose / :draw)
+;;; The lower haori (Shikai) and the folded kosode's sleeves (Hellfire) hang on the pelvis joint (yama-art.lisp): YAMA-POSE
+;;; swings that joint's matrix about the obi by a lag spring per side (cosmetic secondary motion, DUEL_YAMA_TYBW §3.1): the
+;;; hem trails his travel (forward and sideways) and his turns, overshoots once when he stops, and breathes a little while
+;;; he stands. YAMA-DRAW steps the spring on the effect seconds (0 while paused) from the obi's world point and the pelvis
+;;; heading YAMA-POSE recorded this frame, and draws Bankai East's smoke thread. A look: nothing here is read by the sim,
+;;; no random number, 0 B a frame (debug 2328's `vfx consing` line).
+(defparameter *ya-hem-k* 60.0 "The hem spring's stiffness (1/s^2, ~1.2 Hz). New 2026-10-13 (DUEL_YAMA_TYBW §3.1, the lead's look).")
+(defparameter *ya-hem-c* 4.6 "Its damping (1/s): ~0.3 of critical, so the hem overshoots once when he stops.")
+(defparameter *ya-hem-drag* 0.03 "The hem's trail per m/s of the obi's travel (rad): a run (~8 m/s) ~14 deg.")
+(defparameter *ya-hem-turn* 0.05 "Its yaw lag per rad/s of the pelvis's turn (rad).")
+(defparameter *ya-hem-max* 0.42 "The swing's cap (rad, ~24 deg) back / forward and sideways; the yaw lag's is 0.3.")
+(declaim (type f32vec *ya-hem* *ya-hem-m* *ya-tip*))
+(defvar *ya-hem* (make-f32 32)
+  "The hem spring per side (16 floats each): [0..2] the obi's world point at the last step, [3] the pelvis heading then,
+[4 5] the back swing (rad) and its rate, [6 7] the side swing and rate, [8 9] the yaw lag and rate, [10] 1 once primed,
+[11..13] the obi's point this frame, [14] the heading this frame (YAMA-POSE).")
+(defvar *ya-hem-m* (make-f32 16) "YAMA-POSE's scratch matrix: the swing about the obi.")
+(defvar *ya-tip* (make-f32 3) "YAMA-DRAW's blade tip.")
+
+(defun-fast %ya-hem-pose (jm st o on)
+  "Record the obi's world point and the pelvis heading in ST (the side's offset O); when ON is 1, swing the pelvis matrix
+(JM 0..15) about the obi (its local (0 0.06 0)) by ST's angles plus a slow breath."
+  (declare (type f32vec jm st) (fixnum o on))
+  (setf (aref st (+ o 11)) (+ (* 0.06f0 (aref jm 4)) (aref jm 12))
+        (aref st (+ o 12)) (+ (* 0.06f0 (aref jm 5)) (aref jm 13))
+        (aref st (+ o 13)) (+ (* 0.06f0 (aref jm 6)) (aref jm 14))
+        (aref st (+ o 14)) (f-atan2 (aref jm 8) (aref jm 10)))
+  (when (= on 1)
+    (let* ((c (fx-clock)) (r *ya-hem-m*) (yl (aref st (+ o 8)))
+           (back (+ (aref st (+ o 4)) (* 0.02f0 (f-sin (* 1.3f0 c)))))
+           (side (+ (aref st (+ o 6)) (* 0.012f0 (f-sin (* 0.9f0 c))))))
+      (declare (single-float c yl back side) (type f32vec r))
+      ;; Ry(yaw lag) Rx(-back: the hem's foot goes behind him, +z) Rz(side: its foot to his right), about the obi
+      (%euler! r 0 0f0 0f0 0f0 yl (- back) side 1f0)
+      (setf (aref r 12) (* -0.06f0 (aref r 4)) (aref r 13) (- 0.06f0 (* 0.06f0 (aref r 5))) (aref r 14) (* -0.06f0 (aref r 6)))
+      (m4-mul! jm jm r)))
+  nil)
+
+(defmacro %ya-spring (st i tgt dt)
+  "Step the angle ST[I] (its rate ST[I+1]) toward TGT over DT s (semi-implicit Euler), capped at *YA-HEM-MAX*."
+  `(let* ((%a (aref ,st ,i)) (%r (+ (aref ,st (+ ,i 1))
+                                   (* ,dt (- (* (the single-float (f32 *ya-hem-k*)) (- ,tgt %a))
+                                             (* (the single-float (f32 *ya-hem-c*)) (aref ,st (+ ,i 1))))))))
+     (declare (single-float %a %r))
+     (setf (aref ,st (+ ,i 1)) %r
+           (aref ,st ,i) (f-clamp (+ %a (* ,dt %r)) (- (the single-float (f32 *ya-hem-max*))) (the single-float (f32 *ya-hem-max*))))))
+
+(defun-fast %ya-hem-step (st o dt)
+  "Step side O's hem spring in ST by DT effect seconds (substeps of <= 1/60 s): targets from the obi's travel (the hem
+trails it) and the pelvis's turn (it lags); a jump over 1.5 m (a reset, a cinematic's placing) re-primes it."
+  (declare (type f32vec st) (fixnum o) (single-float dt))
+  (when (> dt 0f0)
+    (let* ((x (aref st (+ o 11))) (y (aref st (+ o 12))) (z (aref st (+ o 13))) (h (aref st (+ o 14)))
+           (dx (- x (aref st o))) (dy (- y (aref st (+ o 1)))) (dz (- z (aref st (+ o 2))))
+           (dh (- h (aref st (+ o 3)))))
+      (declare (single-float x y z h dx dy dz dh))
+      (when (> dh 3.1415927f0) (decf dh 6.2831855f0))
+      (when (< dh -3.1415927f0) (incf dh 6.2831855f0))
+      (if (or (< (aref st (+ o 10)) 0.5f0) (> (f-hypot dx dy dz) 1.5f0))
+          (progn (setf (aref st (+ o 10)) 1f0)
+                 (loop for i fixnum from (+ o 4) below (+ o 10) do (setf (aref st i) 0f0)))
+          (let* ((bx (f-sin h)) (bz (f-cos h))           ; the pelvis's back (its local +z) on the ground
+                 (vf (/ (- (+ (* dx bx) (* dz bz))) dt)) (vr (/ (- (* dx bz) (* dz bx)) dt)) (w (/ dh dt))
+                 (drag (the single-float (f32 *ya-hem-drag*))) (mx (the single-float (f32 *ya-hem-max*)))
+                 (tb (f-clamp (* drag vf) (- mx) mx)) (ts (f-clamp (* (- drag) vr) (- mx) mx))
+                 (ty (f-clamp (* (- (the single-float (f32 *ya-hem-turn*))) w) -0.3f0 0.3f0))
+                 (n (max 1 (min 4 (f->i (+ 0.999f0 (* 60f0 dt)))))) (sdt (/ dt (i->f n))))
+            (declare (single-float bx bz vf vr w drag mx tb ts ty sdt) (fixnum n))
+            (dotimes (k n)
+              (%ya-spring st (+ o 4) tb sdt) (%ya-spring st (+ o 6) ts sdt) (%ya-spring st (+ o 8) ty sdt))))
+      (setf (aref st o) x (aref st (+ o 1)) y (aref st (+ o 2)) z (aref st (+ o 3)) h)))
+  nil)
+
+(defun-fast %ya-smoke (x y z)
+  "Bankai East's blade (canon: a thin white thread of smoke rises straight up from the charred tip in every Bankai
+still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, its lean and sway wobbling slowly."
+  (declare (single-float x y z))
+  (let* ((c (fx-clock)) (d3 (drawing-no 8f0)) (sd (- -11f0 (i->f (mod (f->i d3) 3))))
+         (lean (* 0.09f0 (f-sin (* 0.7f0 c)))) (lz (* 0.05f0 (f-sin (+ 1.1f0 (* 0.53f0 c))))))
+    (declare (single-float c d3 sd lean lz))
+    (toon-ribbon (x y z) (lean 1.1f0 lz) (0.011f0 0.03f0) :heat (0.9f0 0.25f0) :seed sd :wob 0.12f0 :pal +pal-smoke+
+                 :k 0.85f0 :ph (* 2.2f0 c) :sway 0.07f0 :segs 7))
+  nil)
+
+(defun yama-pose (e m)
+  "KIT-HOOK :pose: the hem's swing on the posed joints (%YA-HEM-POSE; none in the Bankai's robe)."
+  (let ((f (fighter e)))
+    (%ya-hem-pose (model-joints m) *ya-hem* (* 16 (fighter-side f))
+                  (if (member (kit-form (fighter-kit f)) '(:bankai-east :bankai-west)) 0 1))))
+
+(defun yama-draw (e rdt)
+  "KIT-HOOK :draw: step the hem spring; Bankai East's smoke thread from the drawn blade's tip."
+  (let* ((f (fighter e)) (m (model e)) (mv (and (eq (fighter-state f) :move) (fighter-move f))))
+    (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
+    (when (and (eq (kit-form (fighter-kit f)) :bankai-east) (model-weapon m) (> (model-alpha m) 0.5)
+               (not (and mv (mv-planted mv) (eq (fighter-phase f) :main))))
+      (let ((tp *ya-tip*))
+        (body-weapon-tip (model-body m) (model-weapon m) (model-joints m) tp)
+        (%ya-smoke (aref tp 0) (aref tp 1) (aref tp 2))))))
 
 ;;; ---------------------------------------------------------------- weapons
 (defweapon :ya-cane (:length 0.86 :base 0.1)          ; the shikomizue: Ryujin Jakka sheathed in a cane

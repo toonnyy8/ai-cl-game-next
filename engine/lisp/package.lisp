@@ -97,7 +97,7 @@
    ;; particle kinds, screen punctuation
    #:fx-clock #:fx-clock-advance #:sage #:toon-a #:fx-envelope #:fx-disc #:fx-star #:fx-shard #:fx-crescent #:fx-wall
    #:+pal-fire+ #:+pal-ember+ #:+pal-reiatsu+ #:+pal-ink+ #:+pal-steel+ #:+pal-hit+ #:+pal-smoke+ #:+pal-dust+
-   #:+pal-ash+ #:+pal-soul+ #:+pal-blood+ #:+pal-black-smoke+ #:+pal-blue+ #:+pal-jade+ #:+pal-gold+ #:+p-t-blob+ #:+p-t-shard+
+   #:+pal-ash+ #:+pal-soul+ #:+pal-blood+ #:+pal-black-smoke+ #:+pal-blue+ #:+pal-jade+ #:+pal-gold+ #:+pal-flame+ #:+p-t-blob+ #:+p-t-shard+
    #:ui-focus-lines #:ui-speed-lines #:ui-ink-splash
    ;; fx.lisp, the toon kit (0 B macros over the toon batch): hash, particles, rings, sectors, ribbons, lights, the
    ;; camera's axes (WITH-CAM binds the six names its caller gives), drawings

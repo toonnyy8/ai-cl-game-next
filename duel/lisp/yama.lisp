@@ -139,6 +139,7 @@
   :intro :ya-intro :win :ya-win :intro-callout "BANSHO ISSAI KAIJIN TO NASE" :intro-weapon (:ya-cane 81)
   :walk *walk-yamamoto* :run *run-yamamoto* :reishi *reishi-max* :blade (:fire 1.0) :swing-sfx :fire-whoosh
   :stun-tolerance 18.0                          ; the hidden stun (DUEL_DESIGN.md): the old man stands a long beating
+  :hooks (:pose yama-pose :draw yama-draw)      ; looks only: the swinging hem, East's smoke thread (yama-art.lisp YAMA-POSE)
   :commands (:q :ya-j1 :f :ya-k1 :sig :ya-sig :sp1 :ya-shiranui :sp2 :ya-taimatsu
              :breaker :ya-breaker :kikon :ya-kikon)
   :grid (:ya-j1 :ya-j2 :ya-j3 :ya-k1 :ya-k2 :ya-k3 :ya-j2s :ya-k2s)
@@ -158,6 +159,7 @@
 
 (defkit :yamamoto :hellfire :inherit :base
   :callout "GOKUEN" :mult *hellfire-mult* :duration *hellfire-seconds* :burn *hellfire-burn* :blade (:fire 1.3)
+  :body :yamamoto-bare :hide (:haori :kosode)   ; bared to the waist, the scars glowing (yama-art.lisp)
   :enter-clips (:ya-hellfire) :enter-hook yama-ennetsu :aura :hellfire
   :commands (:sp2 :ya-nadegiri)
   :ai (:intents (:approach 1 :pressure 4 :zone 0 :defend 0)
@@ -175,6 +177,7 @@
   :blade (:embers 1.4) :grade :spot :passives (:projectile-cut :pierce) :meter nil   ; the body as it is (the charcoal
   ;; heat wisps), the charred blade with its ember-red edge line
   :weapon :zanka :aura :heat :enter-clips (:ya-bankai) :enter-hook yama-bankai-enter :swing-sfx :whoosh-heavy
+  :body :yamamoto-tybw :hide (:haori)            ; the TYBW battle dress: no haori, the robe burnt to tatters (yama-art.lisp)
   :cine yama-bankai-cine
   :commands (:q :ya-e-j1 :f :ya-e-k1 :sig :ya-e-kyokko :sp1 :ya-kyoku :sp2 :ya-kaka :kikon :ya-tenchi)
   :grid (:ya-e-j1 :ya-e-j2 :ya-e-j3 :ya-e-k1 :ya-e-k2 :ya-e-k3 :ya-e-j2s :ya-e-k2s)
@@ -193,7 +196,8 @@
 
 (defkit :yamamoto :bankai-west :inherit :bankai-east
   :taken 1.0 :guard-to nil :drop-to :bankai-east :keep (:sig :sp1) :passives (:ward :scorch)
-  :blade (:charcoal) :aura :garb                ; wrapped in red flames (the garb); the blade pure charcoal, no ember line
+  :blade (:charcoal) :aura :garb                ; wrapped in orange flames, winged at the shoulders (the garb, vfx.lisp); the
+                                                ; blade pure charcoal, no ember line
   :enter-hook yama-ward-up :exit-hook yama-ward-down
   :commands (:sig :ya-w-shonetsu :sp1 :ya-w-parry)
   :strings ((:ya-w-parry :land :ya-w-counter))

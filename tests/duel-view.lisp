@@ -7,7 +7,7 @@
 ;;;; Keys: 1-5 scenes, LEFT/RIGHT turn, SPACE spin, N/P next/previous clip strip, G stage on/off.
 ;;;; Debug commands (Module._debug_cmd):
 ;;;;   2000+k  scene k: 0 base forms, 1 awakened forms, 2 cane + skeletons, 3 mirror match, 4 duel on the stage,
-;;;;           6 Kenpachi's Bankai alone, 7 his KATAUDE alone (DUEL_KEN_REWORK §8),
+;;;;           6 Kenpachi's Bankai alone, 7 his KATAUDE alone (DUEL_KEN_REWORK §8), 8 Yamamoto's Hellfire (bared, DUEL_YAMA_TYBW),
 ;;;;           5 the expressions: actors 0-2 Yamamoto neutral / shout / hurt, 3-5 Kenpachi (6200+i: each face)
 ;;;;   6000+i / 6100+i / 6200+i  camera on actor i: full body / head and chest / face (0.7 m, eye level);
 ;;;;   6210+i  the face from 35 degrees to its left
@@ -66,7 +66,7 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
   (let ((awake-ya '(:ya-kyoku :ya-kaka :ya-tenchi :ya-bankai))
         (awake-ke '(:ke-meteor :ke-kikon-n :ke-nome :ke-n-stance :ke-n-leap :ke-r-stance :ke-drink :ke-r-q1 :ke-r-q3 :ke-r-f1
                    :ke-r-f2 :ke-n-f1)))
-    (cond ((member name awake-ya) '((:yamamoto :zanka nil)))
+    (cond ((member name awake-ya) '((:yamamoto-tybw :zanka (:haori))))   ; (the Bankai's robe, DUEL_YAMA_TYBW §3.1)
           ((eq name :ya-intro) '((:yamamoto :ya-cane nil)))
           ((eq name :ya-ikkotsu) '((:yamamoto nil nil)))
           ((prefix-p name "YA-") '((:yamamoto :ryujin-jakka nil)))
@@ -90,7 +90,7 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
            (list (make-actor :yamamoto :ryujin-jakka :ya-stance :x -1.1 :yaw pi)
                  (make-actor :kenpachi :ken-katana :ke-stance :x 1.1 :yaw pi)))
           (1 (setf *v-label* "AWAKENED: BANKAI ZANKA NO TACHI / NOZARASHI")
-           (list (make-actor :yamamoto :zanka :ya-stance :x -1.1 :yaw pi)
+           (list (make-actor :yamamoto-tybw :zanka :ya-stance :x -1.1 :yaw pi :hide '(:haori))
                  (make-actor :kenpachi :nozarashi (if (find-clip :ke-n-stance nil) :ke-n-stance :ke-stance) :x 1.1 :yaw pi)))
           (2 (setf *v-label* "CANE / SKELETONS")
            (list (make-actor :yamamoto :ya-cane (if (find-clip :ya-intro nil) :ya-intro :ya-stance) :x -1.2 :yaw pi :frame 0)
@@ -112,6 +112,9 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           (6 (setf *v-label* "KENPACHI BANKAI (THE ONI)")
            (list (make-actor :kenpachi-oni :ke-broken :ke-b-stance :x 0.0 :yaw pi
                              :hide '(:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4))))
+          (8 (setf *v-label* "YAMAMOTO HELLFIRE (BARED TO THE WAIST)")
+           (list (make-actor :yamamoto-bare :ryujin-jakka :ya-stance :x -1.1 :yaw pi :hide '(:haori :kosode))
+                 (make-actor :kenpachi :ken-katana :ke-stance :x 1.1 :yaw pi)))
           (7 (setf *v-label* "KENPACHI KATAUDE (BARE-HANDED)")
            (list (make-actor :kenpachi-oni nil (if (find-clip :ke-a-stance nil) :ke-a-stance :ke-b-stance) :x 0.0 :yaw pi
                              :hide '(:haori :crack-1 :crack-2 :crack-3 :crack-4))))

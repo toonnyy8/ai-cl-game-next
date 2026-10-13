@@ -502,6 +502,9 @@ by 10 draws of each Bankai stance look (0 B each; the crossfade only while it ru
                  (cons-per "oni" (vfx-aura 0f0 0f0 0f0 2f0 :oni 1f0 0.016f0))                 ; Kenpachi's Bankai pillar
                  (cons-per "oni smoulder" (vfx-aura 0f0 0f0 0f0 2f0 :oni 1f0 0.016f0 :k 0.15f0))
                  (cons-per "rift" (vfx-rift 1f0 0f0 4.4f0 0f0 nil))
+                 (cons-per "ya hem pose" (%ya-hem-pose (model-joints (model *p1*)) *ya-hem* 0 1))   ; Yamamoto's looks
+                 (cons-per "ya hem step" (%ya-hem-step *ya-hem* 0 0.016f0))                         ; (DUEL_YAMA_TYBW §3.1)
+                 (cons-per "ya smoke" (%ya-smoke 0f0 1f0 0f0))
                  (cons-per "heat(old)" (vfx-aura 0f0 0f0 0f0 1.8f0 :heat 1f0 0.016f0))
                  (cons-per "blade(old)" (vfx-blade-embers 0f0 1f0 0f0 0f0 1.8f0 -0.5f0 0.016f0))
                  (cons-per "kyoku" (vfx-line-cut 0f0 0f0 0f0 -9f0 0.2f0 0.67f0 :kyoku :dt 0.016f0))

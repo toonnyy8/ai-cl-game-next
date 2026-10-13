@@ -473,7 +473,7 @@ fighters stand within ~3 m, where two auras (or one over the other fighter) summ
 (defun-fast vfx-aura (x y z height kind age dt &key rgb (k 1.0))
   "Body aura at the feet (x y z) of a fighter HEIGHT m tall, every kind a drawn toon look (Phase 5 redrew the last soft
 ones). KIND: :hellfire (a bonfire of FIRE tongues + a ring at the feet), :heat (Bankai East: 4 charcoal wisps),
-:garb (Bankai West wrapped in fire; K > 1 flares it taller and wider), :evolution
+:garb (Bankai West wrapped in orange flame, winged at the shoulders; K > 1 flares it taller and wider), :evolution
 (mono STEEL tongues; RGB is ignored), :reiatsu / :nozarashi / :nomihose (Kenpachi's yellow brush-flame aura, base /
 awakened / cup 3's pillar: %REIATSU-AURA), :bound (ash at the held feet), :kikon (the BLOOD rush aura), :breaker /
 :breaker-fire / :breaker-ember (the owner's colour over an INK backing; K 0.5..2 grows it over the strike's startup).
@@ -503,19 +503,43 @@ K is the presence (0..1). :heat also fades by *AURA-CAP* and when the camera is 
                       (rnd-range -0.2f0 0.2f0) (rnd-range 1.2f0 2.2f0) (rnd-range -0.2f0 0.2f0) (rnd-range 0.3f0 0.5f0)
                       (rnd-range 0.05f0 0.1f0) -1f0 0.3f0 +pal-fire+))
            (%light x (+ y 0.6f0) z 1f0 0.4f0 0.1f0 4.5f0 (* 0.8f0 kc) 8)))
-        (:garb                                           ; Bankai West, Zanjitsu Gokui: wrapped in red flames (the
-                                                         ; 15-million-degree garb): 9 FIRE brush-flame tongues round the
-                                                         ; body (behind and at the sides: the silhouette stays readable),
-                                                         ; 5 EMBER inner ones, flame scraps rising, a warm light
-         (let* ((kc (f-clamp k 0f0 1f0)) (fl (f-max 1f0 k)) (fr (+ 1f0 (* 0.3f0 (- fl 1f0)))))   ; K > 1: a flare, taller
-           (declare (single-float kc fl fr))                                                    ; and wider
-           (%brush-aura x y z (* 1.1f0 h fl) kc +pal-fire+ 9 (* 0.44f0 fr) (* 0.2f0 fr) 0)
-           (%brush-aura x y z (* 0.72f0 h fl) kc +pal-ember+ 5 (* 0.3f0 fr) (* 0.13f0 fr) 0)
+        (:garb                                           ; Bankai West, Zanjitsu Gokui (canon manga colour, DUEL_YAMA_TYBW §3.1,
+                                                         ; canon-looks §4.3; red until 2026-10-13): orange FLAME tongues from the
+                                                         ; feet up round the body (behind and at the sides: the silhouette stays
+                                                         ; readable), flaring at the shoulders into two wings (a fan of 3 tongues
+                                                         ; each, to the camera's left and right so the shape reads from any camera:
+                                                         ; out ~30 deg from the shoulders, the tips ~0.5 m over his head and
+                                                         ; ~0.6 m out to each side), a molten ring
+                                                         ; at his feet, flame scraps rising, a warm light; K > 1 flares it all
+         (let* ((kc (f-clamp k 0f0 1f0)) (fl (f-max 1f0 k)) (fr (+ 1f0 (* 0.3f0 (- fl 1f0))))   ; taller and wider
+                (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5))) (pk (toon-a +pal-flame+ (* 0.95f0 kc))))
+           (declare (single-float kc fl fr dr sd pk))
+           (%brush-aura x y z (* 0.8f0 h fl) kc +pal-flame+ 9 (* 0.34f0 fr) (* 0.16f0 fr) 0)
+           (%brush-aura x y z (* 0.62f0 h fl) kc +pal-flame+ 6 (* 0.25f0 fr) (* 0.12f0 fr) 0)
+           (with-cam (rx ry rz ux uy uz)
+             (let* ((rl (f-max 1f-3 (f-hypot rx rz))) (hx (/ rx rl)) (hz (/ rz rl)))
+               (declare (single-float rl hx hz))
+               (dotimes (sg 2)
+                 (dotimes (j 3)                          ; (base out, base up, tip out, tip up, half-width) x h / m
+                   (let* ((sgn (if (= sg 0) 1f0 -1f0)) (jf (i->f j))
+                          (b-out (case j (0 0.12f0) (1 0.1f0) (t 0.16f0))) (b-up (case j (0 0.7f0) (1 0.62f0) (t 0.66f0)))
+                          (t-out (case j (0 0.55f0) (1 0.36f0) (t 0.66f0))) (t-up (case j (0 1.2f0) (1 1.27f0) (t 1.0f0)))
+                          (w (* fr (case j (0 0.17f0) (1 0.12f0) (t 0.13f0))))
+                          (vary (+ 0.92f0 (* 0.16f0 (hash01 (+ jf (* 3f0 (i->f sg)) dr) 4.7f0))))
+                          (bx (+ x (* sgn b-out fr hx))) (by (+ y (* b-up h))) (bz (+ z (* sgn b-out fr hz)))
+                          (ax (* sgn (- t-out b-out) fr fl hx)) (ay (* (- t-up b-up) h fl vary)) (az (* sgn (- t-out b-out) fr fl hz))
+                          (wsd (- -40f0 jf (* 3f0 (i->f sg)) (* 7f0 sd))))
+                     (declare (single-float sgn jf b-out b-up t-out t-up w vary bx by bz ax ay az wsd))
+                     (%away-from-eye (bx by bz) 0.22f0
+                       (toon-ribbon (bx by bz) (ax ay az) (w 0f0) :seed wsd :wob 0.3f0 :k pk :ph (+ dr jf) :sway 0.07f0
+                                    :segs 6)))))))
+           (%tring x y z (* 0.48f0 fr) 0.07f0 +pal-flame+ (* 0.95f0 kc) sd 24)   ; the plaza melting under him
+           (%tring x y z (* 0.34f0 fr) 0.03f0 +pal-flame+ (* 0.8f0 kc) (+ sd 2f0) 24)
            (dotimes (i (n-of (* 14f0 kc) dt))
              (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.2f0 0.9f0))) (+ z (rnd-range -0.4f0 0.4f0))
                       (rnd-range -0.2f0 0.2f0) (rnd-range 1.2f0 2.2f0) (rnd-range -0.2f0 0.2f0) (rnd-range 0.3f0 0.5f0)
-                      (rnd-range 0.06f0 0.11f0) -1f0 0.3f0 +pal-fire+))
-           (%light x (+ y 1.0f0) z 1f0 0.45f0 0.12f0 5f0 (* 1.2f0 kc fl) 8)))
+                      (rnd-range 0.06f0 0.11f0) -1f0 0.3f0 +pal-flame+))
+           (%light x (+ y 1.0f0) z 1f0 0.58f0 0.28f0 5f0 (* 1.2f0 kc fl) 8)))
         (:heat                                           ; Bankai East: the heat as 4 slow charcoal ink-wash wisps (threes)
          (let* ((e (camera-eye *camera*)) (ex (- (aref e 0) x)) (ez (- (aref e 2) z)) (el (f-max 0.01f0 (f-hypot ex ez)))
                 (d3 (drawing-no 8f0)))
