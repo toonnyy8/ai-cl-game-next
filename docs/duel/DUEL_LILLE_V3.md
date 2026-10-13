@@ -1098,6 +1098,13 @@ user as it came in (§22.4).
 - The user picked the combined candidate (「合併版」 over b1a2: 0.005 less score for the never-awakened base form and the
   A/B). Integrated by a 3-way merge onto R19 (base: the freeze's barro.lisp; clean), its test section spliced (8448
   checks). The manual's "the CPU's him" tip rewritten (the rifleman before the awakening).
+- **Gates after the integration** (all K.O.): 20 seeds BY 122.6, BK 114.9, BR 155.5, BI 151.4, BS 149.9, BB 174.5 s (his
+  wins 13 / 5 / 15 / 9 / 13 of 20); 60 seeds **BY 122.3 s (40/60), BK 119.0 s (18/60)**. The awaken A/B (the never-awaken
+  side, of 60; pass >= 20): Y K R I S + the mirror 42 22 34 32 32 28 / 38 **19** 28 31 34 23 / 38 23 25 29 37 32 (17 of 18
+  rows; the integration's freeze: 0–4 and the mirror 4 / 1 / 0). G2 identical. ASSIST (report only): k0 72%, k1 85%, k2
+  100%, k3 71%, k6 82%, k10 87%, k11 99%.
+- The user on BY 122.3 s, BK 119.0 s and the A/B's BK row at seed0 300 (19 of 60) (2026-10-13): 「全部列為例外」 (AGENTS.md;
+  the open BK 122.3 s / mirror A/B of §22.3 and R18's BK / BI / BS / mirror rows, §23.1, are closed by this).
 
 ## 23. Decision R18 (2026-10-12): the charged L (the base snipe, the awakened dash) aims where he faces; a Step in its charge keeps it and re-aims
 
