@@ -15,7 +15,12 @@ the move grammar the clips fill: `duel-move-modules`.
 
 ## ⚠ Ask first (AskUserQuestion, recommended first, record the rejected)
 - **Canon or invented?** Canon: research the fights first (the user asked 「開始工作前記得先收集與調查各種型態的資料」).
-  Invented from concept words: how free (「我只是提概念，請以此延伸自由組合」)?
+  Invented from concept words: how free (「我只是提概念，請以此延伸自由組合」)? Canon thin on choreography: canon manner
+  (stance, habits, graded A–B) plus invented strikes (graded D, labelled as proposals).
+- **「幫我決定」**: propose 2–3 whole candidates (each an archetype mix with one line of body per string) and let the user
+  pick or combine; don't ask them to design.
+- **Concept words that pull apart** (懶散 yet 毒辣, slow yet heavy): give each word a phase of the move (slack wind-up and
+  recovery, the snap at S) and restate each as a body before the research.
 - **Does reach follow the drawn motion (「跟著動作走」)?** Then the drawn tip sets the hit volume: a sim change, gated.
   Otherwise the art is sized to the existing reach (presentation only, byte-identical).
 - **Order**: one form at a time, its look before its strikes (「逐型態：模型＋動作一起做」).
@@ -45,7 +50,8 @@ the move grammar the clips fill: `duel-move-modules`.
 - Squash and stretch through a `:pose` hook, about the feet, **never along the facing axis** (reach stays honest).
 - **Measure before rendering**: a host script printing the weapon tip per frame for every form that plays the clip
   (Lille: `*br-tip-print*` in the rules test); FK ±0.15 m; solve hit poses (`tools/pose-solve.py`), don't guess wrists.
-- Review 8-frame strips from the side and the front (a 4-frame strip hides the anticipation), before/after sheets from
+- Review 8-frame strips from the side and the front (a 4-frame strip hides the anticipation; `tests/duel-view.lisp`:
+  1000000 + 1000 i + k, i the clip's index by name, for any clip; in-match scenes need the character's own debug range), before/after sheets from
   two cameras; say "checked by numbers, needs your eyes"; then the playtest Artifact.
 
 ## Red flags
