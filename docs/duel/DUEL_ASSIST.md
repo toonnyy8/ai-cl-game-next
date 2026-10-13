@@ -269,4 +269,5 @@ The user (verbatim): 「我希望 auto guard always 功能可以防禦而不是�
   hazards and every other move guardable), the Hoho only for the rest. A kit's own `:assist-guard` Hoho (Rukia's, Ichigo's
   timed Hoho) at a guardable threat becomes the guard too. HOLD U is unchanged (the player holds the guard; the assist adds
   the parry / Hoho). The manual's AUTO GUARD line says so.
-- The ASSIST gate after it: below (§ the gate table of DEVLOG §214).
+- The ASSIST gate after it (with Lille II's O ender and stance route, DUEL_LILLE_V3 §25.2; 720 matches a setting): k0 72%,
+  k1 (HOLD U) 84%, k2 (ALWAYS) 99%, k3 69%, k6 82%, k10 86%, k11 99% (before: 72 / 85 / 100 / 71 / 82 / 87 / 99).

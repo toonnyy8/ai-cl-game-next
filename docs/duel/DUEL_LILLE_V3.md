@@ -1299,4 +1299,40 @@ The user (verbatim): 「* lille 覺醒後 p2 的腳部與身體顏色不同 … 
 - **The legs in the mirror**: the ㄇ legs (`%lb-legs`) were drawn with DRAW-WEAPON, untinted, while P2's body in the mirror
   match takes *MIRROR-TINT*: DRAW-WEAPON has an optional `:tint` (the untinted parts; NIL for every other caller), the legs
   pass the model's tint (*LB-LEG-TINT*, set by LILLE-DRAW).
-- Tests: duel-rules-test (BR-S-O-ENDER; the `:end` segments carry no `:ender`). Gates: below.
+- Tests: duel-rules-test (BR-S-O-ENDER; the `:end` segments carry no `:ender`). Gates: §25.2.
+
+### 25.1 His CPU and AUTO COMBO take it; the stance route by his resources (2026-10-13)
+
+The user (verbatim): 「幫我為電腦 AI 與輔助攻擊增加這招」 (the O ender), then 「然後輔助模式跟電腦 AI 似乎不懂如何依據目前資源的多寡選擇
+不同的架式？」, then on the first rule 「現在輔助模式變成只有閃步跟 SP 量表全滿才會使用架式 K 高傷害攻擊，我希望能修改」.
+
+- **The CPU's O ender** (BR-AI-O-ENDER, from BR-S-TICK when the tick has a brain): the generic O ender's rule (ai.lisp
+  AI-REFLEX, red always): a `:end` segment that hit, the opponent red (KIKON-READY-P), not to be finished with hits
+  (AI-SB-FINISH-P): BR-S-O-GO and the Kikon button held through the rush. It looks on the step after the land frame (the
+  tick runs after MAIN-PHASE-STEP's count; at the land frame itself it never fired): 51 O enders in 20 sim matches.
+- **AUTO COMBO's O ender** (BR-ASSIST-COMBO, the stance-move branch): J pressed on a `:end` segment that hit, the opponent
+  red: `:kikon` (the manual's AUTO COMBO line).
+- **The stance route** (BR-ROUTE-J-P, one rule for the base stance pick BR-AI-STANCE-PLAN, EN's plan BR-AI-EN-PLAN, the
+  R17 link BR-AI-LINK-CMD and AUTO COMBO's J at a stance turn): SPARE = his specials above the kit's `:keep` reserve
+  (BR-SPARE: base pips, the wings above the armour's 4 / the owl's 2).
+  - v1 (b585511): J unless the specials were spare and the flash step / Reiatsu full enough. The base form sits at 0 pips
+    most of the time and the awakened form rarely holds more than the 4 kept wings, so the K route (the damage) nearly
+    never came: the user's 「只有閃步跟 SP 量表全滿才會使用架式 K」. The v1 gate: the mirror 15 of 20 K.O. (median 248.0 s).
+  - **v2 (b4b0408)**: K by default (the K string spends nothing; only its L L does). J only when he runs short: flash step
+    under `*BR-ROUTE-FS*` 30 or Reiatsu under `*BR-ROUTE-BARS*` 1 bar, and fewer than `*BR-ROUTE-SPEND*` 3 specials spare
+    (with a full L L to pay, K spends them). BR-AI-STANCE-PLAN's `:spare` defaults to 0.
+- Tests (duel-rules-test, BARRO-CPU-TESTS): BR-ROUTE-J-P's five cases, the stance plan and EN's plan by the route. Host
+  tests 8451 ALL PASS. The manual's AUTO COMBO line and "the CPU's him" tip say the v2 rule.
+
+### 25.2 Gates (b4b0408, v2)
+
+- 20 seeds: BY 121.0, BK 118.5, BR 162.1, BI 157.9, BS 157.0 s (all K.O.), the mirror 202.8 s (19 of 20 K.O.); his wins
+  13 / 6 / 10 / 6 / 11 of 20. 60 seeds: **BY 121.0 s (41/60), BK 120.6 s (13/60)**: outside, reported (the accepted
+  §22.5 numbers were 122.3 / 119.0 s).
+- Awaken A/B (the never-awaken side, of 60; pass >= 20), Y K R I S + the mirror: 30 26 **19 15** 24 **19** / 32 23 22 24 21
+  20 / 29 23 **16** 20 28 22: 14 of 18 rows (§22.5: 17 of 18). The never-awaken rows are the same under v1 and v2 (the
+  route does not reach his never-awakened plan); the baseline on 0023be4 (before the CPU's O ender) gives §22.5's numbers
+  (R 34 / 25, I 32 / 29, the mirror 28 / 32 at seed0 100 / 500): **the drop comes from the CPU's O ender** in his
+  never-awakened base form.
+- G2 identical. ASSIST (report only; with AUTO GUARD ALWAYS guarding, DUEL_ASSIST): k0 72%, k1 84%, k2 99%, k3 69%, k6 82%,
+  k10 86%, k11 99% (§22.5: 72 / 85 / 100 / 71 / 82 / 87 / 99).
