@@ -180,3 +180,25 @@ shorter than the J ones; with the step, K still reaches further). DUEL_STRINGS �
 
 Known: MINAMI's "turn and walk away" recovery isn't drawn; KYOKUJITSUJIN's blade volume (2.8 edge, tip 1.86) and TENCHI's
 arc (2.4, tip 2.25) were left.
+
+## 7. Gates (merged build, 2026-10-13)
+
+- Host tests: duel-rules-test 6976, duel-control-test 89, cine-test 18, learn-test 131, ALL PASS; pkgcheck clean;
+  `./build.sh duel` (the 4 style warnings in Lille's files, as before); the browser smoke run without errors.
+- **20 seeds** (all 120 K.O.; baseline §5 → now, median / Yamamoto's wins): YY 89.2 → 89.2 s (P1 7 / P2 13 → 11 / 9),
+  YK 86.3 → 85.0 (6 → 6), RY 109.1 → 101.7 (9 → 11), IY 106.9 → 110.7 (16 → 13), SY 102.5 → 102.0 (10 → 11), BY 121.0 →
+  123.5 (7 → 8): every row within the seed noise of the baseline.
+- **G2**: yy and yk changed (both awaken into East), kk identical. `tests/style-cvc-ref.txt` regenerated: yy now P1 9-0
+  118.7 s (was 5-0 134.1), yk P2 0-6 102.9 s (was 0-6 103.7); the browser run (`style-gates.py cvc`) PASS on all three;
+  the quotes in DUEL_GAMEPLAY and TUTORIAL updated.
+- **Awaken A/B** (Yamamoto never awakens; seed0 100 / 300 / 500, of 60; pass ≥ 20): YY 7 / 8 / 6, YK 1 / 0 / 3, RY 0 / 0 /
+  0, IY 2 / 0 / 0, SY 0 / 0 / 0, BY 0 / 0 / 0. **Not this change's**: the never-awakened side plays only the Shikai, whose
+  sim this change leaves byte-identical, and the awakening opponents' moves are untouched; the parent 4f0657d gives YY 7 /
+  6 / 3 and RY (seed0 100) 0. His Shikai alone loses to any awakening opponent: an open item for the user (reported, not
+  tuned).
+- **Looks** (`style-gates.py looks`, BASE = the build before the change): 102 of 104 stills differ. The stills with
+  Yamamoto change as intended; in the others (Kenpachi, Rukia, Ichigo, Senjumaru, Lille, the menus) the differences are
+  the random-driven looks only (speed lines, ash specks, the brush captions' jitter, the camera shake): every scenario
+  starts on screens that show Yamamoto, whose new idle and fire looks draw the cosmetic random stream differently, and
+  the stream carries on. Checked by side-by-side stills (Senjumaru's hank, Ichigo's awakening, Kenpachi vs Senjumaru):
+  the fighters themselves are pixel-for-pixel the same; the new palette slot 15 shows nowhere else.
