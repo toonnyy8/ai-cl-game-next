@@ -6,14 +6,15 @@ description: Use when designing and building a NEW fighter for a 3D arena fighte
 # Designing a new fighter
 
 ## Overview
-Distilled from LILLE BARRO in `toonnyy8/ai-cl-game-test` (local `/media/8tsp/projects/ai-cl-game-test`), the user's
-most satisfying character: 56 decisions in 3 days, 41 of them after playtests. Core principle: **settle intent and
+Distilled from the two Lilles in `toonnyy8/ai-cl-game-test` (local `/media/8tsp/projects/ai-cl-game-test`): the old
+LILLE BARRO (56 decisions in 3 days, 41 after playtests; removed 2026-10-13) and his rebuild, today's Lille (kit `:barro`:
+DUEL_LILLE_V2 V1–V9l, DUEL_LILLE_V3 R1–R20, 4 days, playtest v39 → v81). Core principle: **settle intent and
 units before building; let the user tune feel numbers in play; keep every art round presentation-only and prove it
 byte-identical.** The churn concentrated in feel numbers (a dash distance changed 8 times, a slow motion 6 times) and
 silhouettes; intent, once asked, rarely moved. Evidence: `reference.md`; the zh-TW guide
-`docs/guides/CHARACTER_DESIGN.zh-TW.md`; the full record `docs/duel/DUEL_LILLE.md`, digest
-`docs/research/lille-retrospective/digest.md`. For changing an existing character use `duel-character-rework`;
-the general loop is `game-dev-workflow`.
+`docs/guides/CHARACTER_DESIGN.zh-TW.md`; the records `docs/duel/DUEL_LILLE.md` (old), `DUEL_LILLE_V2.md` / `_V3.md`
+(new), digest `docs/research/lille-retrospective/digest.md`. Related: the move set's grammar `duel-move-modules`, the CPU
+`duel-character-cpu`, changing an existing character `duel-character-rework`, the general loop `game-dev-workflow`.
 
 ## ⚠ Confirm before building (AskUserQuestion, 2–4 options, recommended first, record the rejected ones)
 Concept
@@ -25,8 +26,12 @@ Concept
   quick to build, leaves the rest of the roster alone, and is already balanced by precedent.
 
 Mechanics
+- **The move set as a segment table** (button, segments = presses, hits a segment, range, gain, spend, ending) before
+  any code: the user's 「JJ / KK > LL」 is shorthand. REQUIRED: `duel-move-modules`.
 - **Every movement move**: where it stops relative to the opponent, fixed time or fixed speed, distances in Step
-  lengths, and whether the follow-up link travels. **List every hidden movement** (Breaker chase, lunge, string chase).
+  lengths, and whether the follow-up link travels. **List every hidden movement** (Breaker chase, lunge, string chase)
+  **and hidden aim** (`:track`, a turn at release: it made a charged shot unmissable).
+- **Tap or hold** for each button, and its one-hand touch mapping (「記得確保手機模式也能做到一樣的操作」).
 - **Pacing price and every cancel route** checked adversarially (an empty swing bought a free 2 f cancel).
 - **Delayed damage**: when should it reliably land, and what should the opponent do about it?
 - **Feel effects** (slow motion, snaps): what are they for, and what triggers them (per line, per region, fresh vs
@@ -38,7 +43,8 @@ Model and look
 - **Which part hits, are the arms visible**: show a hit-frame still from the default behind camera. Don't parent a
   visible weapon to the arm chain; keep the rig's strike point invisible and draw the weapon to it.
 - **Large translucent or foreground parts must not hide the fight**; check the leg topology with a side still; decide
-  whether the modes read apart at a glance.
+  whether the modes read apart at a glance. **Body swaps need transitions** (legs folded away into a stance), and a
+  generic clip (guard, hit) may read as nothing on a non-human body: give the form its own (`:look-clips`).
 - **The motion bar**: does every strike get its own silhouette and whole-body motion? Name a reference clip set and use
   that bar for every form.
 
@@ -55,23 +61,29 @@ Wording
    environment in parallel.
 2. Full design doc plus an adversarial review (it caught the aim-lock blocker).
 3. Batch 1: a playable version (rules, CPU reflexes, functional art at the right reach). Measure range time and wins.
-4. Playtest Artifact loop: one private URL, updated each round. Explain causes, offer 3–4 lettered, composable
-   directions, and label your proposed numbers as proposals.
+4. Playtest Artifact loop: one private URL, updated each round; **playtest first, gates after** (publish once the fast
+   checks pass, gate while the user plays). Explain causes, offer 3–4 lettered, composable directions, and label your
+   proposed numbers as proposals. If rules start stacking (~20 special cases in 2 days), stop patching: write the
+   animation inventory and a proposal from the part that works (`duel-move-modules` reference §3).
 5. Art batches, presentation only: `simgate --seeds 10 --summary` and `--cvc` byte-identical, the FK reach test
    ±0.15 m (a cast check for moves with no hit window), 0 B/frame from the debug probe, before/after contact sheets from
    two cameras.
-6. CPU (dream-rsi), ASSIST routes, learning situations, **only after the rules freeze**: Lille's search was re-frozen 3
+6. CPU (dream-rsi), ASSIST routes, learning situations, **only after the rules freeze** (REQUIRED: `duel-character-cpu`): the old Lille's search was re-frozen 3
    times because the rules kept changing.
 7. Cinematics last, from the agreed storyboard.
 
 ## Implementation rules
-- Two files per character (`<char>.lisp`, `<char>-art.lisp`). Shared files only get generic hooks that default off
-  (`:lift`, `:clip-map`, `:intangible`, `:assist-combo`, CINE-SCALE / -SLOW / -PLACE); prove them off with the other
+- Two files per character (`<char>.lisp`, `<char>-art.lisp`); a rebuild may share a predecessor's art file by reference
+  (copy the sim under a new prefix, prove the old pairings identical; a copy silently loses look hooks such as
+  `:body-alpha`: diff the hook list). Shared files only get generic hooks that default off (`:lift`, `:clip-map`,
+  `:look-clips`, `:intangible`, `:armor`, `:pose`, `:through`, `:hold` + `:release`, `:step-branch`, `:assist-combo`,
+  CINE-SCALE / -SLOW / -PLACE); prove them off with the other
   pairings byte-identical.
-- Each form gets its own clips at its own frames. Never reuse a sibling form's clip sped up with `:clip-s`.
+- Each form gets its own clips at its own frames. Never play a sibling form's clip sped up with `:clip-s` in place of
+  the form's own (retiming a form's own clip with `:clip-s` is normal).
 - Every new mechanic gets a CPU rule (EASY ≤ NORMAL ≤ HARD), an opponent reflex key, an ASSIST route, a learning
   situation and use counters.
-- Pin combo arithmetic in host tests (stun ≥ dash + link startup on every path).
+- Pin combo arithmetic in host tests (stun + hitstop ≥ dash + link startup on every path; every segment → its ender).
 - When a gate fails, report it; don't retune other knobs. The user's play decides (exceptions quoted in AGENTS.md).
 
 ## Red flags
@@ -80,3 +92,4 @@ Wording
 - Two batches claim the same shared slot (`*LB-WF*` [64]–[66]) → check scratch-vector indices at merge.
 - Shots framed only at the stills' distance or only on one aspect ratio.
 - A dream-rsi search started while rules still move.
+- Art drawn for a rule the user hasn't played (a same-day withdrawal discarded a drawn swing).

@@ -2,7 +2,7 @@
 
 這份手冊把 RAVEN EDGE 和 SOUL DUEL 兩款遊戲一路做下來的經驗整理成可以重複使用的做法，給「之後想用同一套方法做別的遊戲」的時候參考。它不是規格書：規格在各自的設計文件裡，理由和過程在 [DEVLOG.zh-TW.md](../DEVLOG.zh-TW.md)。這裡只留下換一款遊戲也成立的東西，並註明出處，想看細節可以順著連結回去。
 
-同一份經驗也做成了六個給 Claude 用的 skill，放在 repo 的 [`skills/`](../../skills/)，並連結到 `~/.claude/skills/`，任何專案都能觸發：
+同一份經驗也做成了八個給 Claude 用的 skill，放在 repo 的 [`skills/`](../../skills/)，並連結到 `~/.claude/skills/`，任何專案都能觸發：
 
 | Skill | 什麼時候用 | 對應本手冊 |
 |---|---|---|
@@ -11,7 +11,9 @@
 | `procedural-ink-style` | 做模型、動作、特效、HUD、演出、音效，或畫面與判定對不上 | 第 4 章 |
 | `game-dev-workflow` | 接到任何功能需求時的整體流程 | 第 5 章 |
 | `duel-character` | 從零設計一個新角色：開工前要先確認的設計意圖、開發順序、建模／動作／系統／CPU／過場的做法 | [CHARACTER_DESIGN.zh-TW.md](CHARACTER_DESIGN.zh-TW.md) |
-| `duel-character-rework` | 修改已上線的角色：先診斷、給選項、判斷只改外觀或動到模擬、回歸 bug、合併與構圖 | [CHARACTER_DESIGN.zh-TW.md](CHARACTER_DESIGN.zh-TW.md) |
+| `duel-character-rework` | 修改已上線的角色：先診斷、給選項、判斷只改外觀或動到模擬、回歸 bug、合併與構圖；角色退場、移除、改名 | [CHARACTER_DESIGN.zh-TW.md](CHARACTER_DESIGN.zh-TW.md) |
+| `duel-move-modules` | 設計或重整招式組：架勢、分段連段、依路線的接續、資源的得失、各型態共用同一套文法 | [CHARACTER_DESIGN.zh-TW.md](CHARACTER_DESIGN.zh-TW.md) §4.1 |
+| `duel-character-cpu` | 教某個角色的 CPU／輔助／學習型 AI 用新招或新規則，或用 dream-rsi 搜尋風格化 AI | [DREAM_RSI.zh-TW.md](DREAM_RSI.zh-TW.md)、DUEL_LILLE_V3 §22、§25.1 |
 
 每個 skill 資料夾裡的 `reference.md` 是英文的詳細筆記，每一條都標了出處（檔案路徑、文件章節、DEVLOG 節次），也標了「可以通用」還是「只屬於這個專案」。
 

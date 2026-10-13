@@ -1,5 +1,9 @@
 # Designing a new fighter: evidence from LILLE BARRO (2026-10-06 → 10-08)
 
+The old Lille (§1–§7 below; his code was removed 2026-10-13, his record `DUEL_LILLE.md` stays). The rebuild's lessons (today's
+Lille, kit `:barro`) are in `skills/duel-move-modules/reference.md` (the move grammar, its encoding, bug classes) and
+`skills/duel-character-cpu/SKILL.md` (his CPU); the rebuild's process notes are §8.
+
 Source repo: `/media/8tsp/projects/ai-cl-game-test`. Evidence: `docs/duel/DUEL_LILLE.md` (§n), `docs/DEVLOG.zh-TW.md`
 (DL§n, §84–§135), `docs/research/lille-retrospective/digest.md` (the full 56-decision timeline, rework chains and
 numbers). "G" = generalizable, "P" = project-specific. The zh-TW guide for the user: `docs/guides/CHARACTER_DESIGN.zh-TW.md`.
@@ -66,12 +70,26 @@ numbers). "G" = generalizable, "P" = project-specific. The zh-TW guide for the u
   only, so the old pairings stayed identical (§2 G1).
 - Every new mechanic: a CPU rule per difficulty, an opponent key, an ASSIST route (`:assist-combo`), a learning
   situation (`learn-def-kit`), counters.
-- The dream-rsi CPU: freeze the evaluator; new behaviour HARD-only so NORMAL stays bit-identical; freeze the rules first
-  (3 re-freezes cost every cell a 3-way merge).
+- The dream-rsi CPU: freeze the evaluator; new behaviour HARD-only so NORMAL stays bit-identical (only while the
+  baseline's NORMAL is sane: the new Lille's was broken, so it got a NORMAL band instead, `duel-character-cpu`); freeze
+  the rules first (3 re-freezes cost every cell a 3-way merge).
 - Interaction bugs to expect: touch flicks vs stances (`:step-branch`), string chase during a dash (K → L, 0.88 m vs
   10 m), a stale dash end read by the ASSIST a step early (§23.36). Test by hand and with the ASSIST in the browser.
 
 ## 7. Cinematic tools (P)
 - CINE-PLACE (actors at a set gap, given back at CINE-END however it ends), CINE-SCALE (an actor drawn ×N),
-  CINE-SLOW (clips and effect time scaled; script frames run on), the white card + silhouette, debug `79200 + f` to hold
-  a frame. Landscape has a 9 % letterbox; portrait widens the lens (%PORTRAIT-DOLLY).
+  CINE-SLOW (clips and effect time scaled; script frames run on), the white card + silhouette, a debug command to hold
+  a frame at look-clock f (the old Lille's 79200 + f is gone; today's Lille: 82200 + f, 82299 lets go). Landscape has a 9 % letterbox; portrait widens the lens (%PORTRAIT-DOLLY).
+
+## 8. The rebuild: today's Lille (kit `:barro`, 2026-10-09 → 10-13) (P → G)
+- **Copy and diverge** (V1): the sim copied under a new prefix (`br-`), the art shared by reference, the old pairings
+  byte-identical as the proof. The copy silently lost look hooks (`:body-alpha`, `:hud-guard`, DEVLOG §182); at the old
+  one's removal his shared cinematics had to move to kept files (V3 §26).
+- 26 V-decisions in 2 days, then a third redesign of the awakening (V3) from an animation inventory, R1–R20 in 4 days;
+  playtest Artifact v39 → v81, playtest first, gates after (DEVLOG §165); stale background gates killed when a fix lands
+  (§172).
+- Same-day withdrawals: HOSHA before the build (V9b), V8's L swing after its art was drawn (V8b).
+- Exceptions: BY / BK medians under 125 s at almost every revision, accepted four times (V3 §18.3, §21.2, §22.5, §25.2):
+  ask once whether a standing band is wanted rather than re-asking each round.
+- Human-only cancels (R17's transition skip, R18's charge Step) don't move the sim gates when the CPU doesn't use them: a
+  cheap way to ship feel without re-gating (still pin them in host tests).

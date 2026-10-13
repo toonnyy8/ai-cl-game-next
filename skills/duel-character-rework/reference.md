@@ -53,12 +53,12 @@ Source repo: `/media/8tsp/projects/ai-cl-game-test`. Evidence: `docs/duel/DUEL_L
 - Time: CINE-SLOW for hits (actors and effects), with the script's frames running on; the effect-time tables must use
   the same clock.
 - Scale: CINE-SCALE multiplies the rig; scale every metre-authored size in the draw hook by hand.
-- Stills: debug `79200 + f`, contact sheets per beat, both aspects.
+- Stills: a frame hold (the old Lille's 79200 + f, gone; today's Lille 82200 + f), contact sheets per beat, both aspects.
 - Gate time excludes cinematics since 2026-10-08 (DEVLOG §134); the 125–210 s window predates that.
 
 ## 7. Model edits by stills (decision 57, the face) (G)
 - The user iterated the head in ten short requests, stills only (「做完後先不要跑對局測試，直接拍影像給我看」): build, debug
-  79198 + 79199 (front, side), a cropped sheet; WIP commits on the dev branch; the gates and docs once the look settled.
+  the old Lille's 79198 + 79199 (front, side; gone, today's Lille: 82100 + k / its front view k + 20), a cropped sheet; WIP commits on the dev branch; the gates and docs once the look settled.
 - For a position or size, shoot a candidate sheet (0 / −2 / −4 / −6 cm side by side, front and side): the user picked
   a value between two (−3 cm) in one reply.
 - Restate shape words against the profile: 「頂部往下降」 meant keep the foot, lower the top. A part placed inside another
@@ -75,3 +75,19 @@ Source repo: `/media/8tsp/projects/ai-cl-game-test`. Evidence: `docs/duel/DUEL_L
 - One clip is often played by several forms (KATATE, the Bankai and KATAUDE borrow the base clips at other reaches and
   blades): read the reach report for every form that plays it, not only the one being reworked.
 - The default 4-frame strip (0, S, S+A, end) hides the anticipation; review 8 frames from the side and from the front.
+
+## 9. Retire, remove, rename a character (the old Lille, DEVLOG §208 / §216, DUEL_LILLE_V3 §26) (G)
+- **Retire** (out of play, code kept): `*retired*` / `playable-roster` (kit.lisp), simgate's `RETIRED`; the select screen,
+  CPU-vs-CPU picks, ASSIST / aieval opponents skip him.
+- **Remove** (code gone): keep his **roster index reserved** (append the keyword to `*roster*` before the next defkit):
+  saved learning tables, endless records and gate pairings are keyed by index. Keep the survivor's internal names (kit,
+  prefix, debug range); rename only player-facing text (`:name`, brush names, the manual).
+- **Move what the survivor still uses** first: shared cinematics, structs, knobs (here 4 cines, the hazard look struct,
+  the misuji knobs). `pkgcheck` finds undefined functions, not data symbols (cine names in plists): grep them.
+- Sweep every list that names him: MANIFEST, host-test load lists and per-form lists, browser scripts
+  (`tests/scripts/`), `tools/aieval.py`, `tests/style-gates.py` (looks seeds / frames), debug habits, docs (AGENTS roster
+  line, debug ranges freed in DUEL_GAMEPLAY, the docs map).
+- **Prove it sim-neutral**: his old opponents' pairings identical at 20 seeds, G2 identical, the looks gate on a fresh BASE
+  (a `--keep-base` render from an earlier session is stale): 96 / 104 identical + 8 only the name's text. A roster change
+  moves the looks gate's CPU-vs-CPU draws: re-pin its seeds in the same pass (they had failed silently for a day).
+- Host checks drop with his sections (8451 → 6976); record the new count where it is quoted.
