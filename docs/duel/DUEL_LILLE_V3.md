@@ -1334,5 +1334,7 @@ The user (verbatim): 「幫我為電腦 AI 與輔助攻擊增加這招」 (the O
   route does not reach his never-awakened plan); the baseline on 0023be4 (before the CPU's O ender) gives §22.5's numbers
   (R 34 / 25, I 32 / 29, the mirror 28 / 32 at seed0 100 / 500): **the drop comes from the CPU's O ender** in his
   never-awakened base form.
+- The user on BY 121.0 s, BK 120.6 s and the four A/B rows (2026-10-13): 「全部列為例外」 (AGENTS.md; the CPU keeps the O
+  ender in every form).
 - G2 identical. ASSIST (report only; with AUTO GUARD ALWAYS guarding, DUEL_ASSIST): k0 72%, k1 84%, k2 99%, k3 69%, k6 82%,
   k10 86%, k11 99% (§22.5: 72 / 85 / 100 / 71 / 82 / 87 / 99).
