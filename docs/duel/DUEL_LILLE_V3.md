@@ -1238,3 +1238,12 @@ only: no frame data, volume, reach or damage changed (G2 identical; his native s
 - **Tests**: duel-rules-test (the four forms' `:look-clips`, the base form's and every other kit's none; the six clips exist,
   the guard loops, the blocked hit settles into the wall pose; the hands / claws at the wall's points; the rows past his
   midline, in front, curled). G2 (`simgate.py --cvc`) identical: the sim is untouched.
+
+### 24.3 Gates (R19)
+
+- G2 (`simgate.py --cvc`): YY / YK / KK identical. Host tests 8392 ALL PASS; pkgcheck clean.
+- The looks gate (`tests/style-gates.py looks`, BASE = the build before R19): every still byte-identical (noise floor 0):
+  the shared `:look-clips` path in PLAY-CLIP moves no pixel of anyone else. Its three "fighters" checks fail on both
+  builds alike (cvc-ri draws RUKIA vs RUKIA, cvc-kl YAMAMOTO vs SENJUMARU where it wants KENPACHI vs LILLE, cvc-bk BARRO vs
+  YAMAMOTO): the scenarios' random CPU-CPU picks moved when the old Lille left the roster (PLAYABLE-ROSTER, DEVLOG §208),
+  not R19; the scenarios' expected pairings / seeds need updating (open).
