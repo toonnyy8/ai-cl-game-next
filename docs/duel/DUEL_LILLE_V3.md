@@ -1069,6 +1069,36 @@ The user (verbatim): 「參考過去使用 /anthropic-skills:dream-rsi 的經驗
    charged snipe / dash and the stance), ASSIST AUTO COMBO's routes on the new rules, then the full gate.
 
 
+### 22.5 Round 2's results and the pick (the user, 2026-10-13: 合併版)
+
+Every score the lead's rescore at the freeze 2eaf8b9 (40 seeds; baseline-r02 0.9102). Each cell's STYLE was relayed to the
+user as it came in (§22.4).
+
+| Cell | Parent | Style / mechanism | Score | Strength | Signature | NORMAL |
+|---|---|---|---|---|---|---|
+| b0a0 | — | the marksman: aims the charge (BR-AI-AIM-*), the charge Step re-aims on his Hoho / when off the line | 0.9696 | 0.993 | 0.932 | 0.4325 |
+| b1a0 | — | the line-reader: holds the charge, fires when he is on the line (BR-AI-LINE-CALL), the facing gate | 0.9607 | 0.983 | 0.919 | 0.3875 |
+| b0a1 | b0a0 | + the facing gate, the base burst kept for the owl | 0.9724 | 0.998 | 0.933 | 0.4175 |
+| b1a1 | b1a0 | + backs off to 6.5 m, every shot reaches (the reach floor), NORMAL recalibrated | 0.9645 | 0.985 | 0.926 | 0.445 |
+| b0a2 | b0a1 | + no follow-up after his own push, the reach floor, less standing guard | 0.97 | 0.995 | 0.93 | 0.49 |
+| **b1a2** | b1a1 | + fires at once after the Step's re-aim, snipes from 4.5 m, the HIRENKYAKU "wary" read | **0.9733** | 0.998 | 0.936 | 0.5125 |
+| b3a0 | — | the scout's book: per-match habits of the opponent, the charge trap, a reputation by character | 0.9685 | 0.99 | 0.931 | 0.4475 |
+| b2a0 | — | the rifleman's ladder: the never-awakened base form's own plan (every confirm into the rifle, zone short of 3 pips, pressure at 3) | 0.9319 | 0.917 | 0.912 | 0.4625 |
+
+- The policy briefed a 9th cell (b3a1) after the eighth: not dispatched (the budget). `close-round`: 2 worlds, the promoted
+  v2's replay reward 0.8310.
+- b2a0 alone passed the awaken A/B (the never-awaken side 14 of 15 rows >= 20 of 60; every other cell at most 1). A
+  combined candidate (not a search cell, `combo/b1a2+b2a0/`): b1a2's file + b2a0's base-form pieces (overlaps resolved:
+  b1a2's reach floor kept, b2a0's sight behind b1a2's facing gate, the Hoho Step only for charges the line doesn't read;
+  two awakened NORMAL tables back to the freeze's values for the NORMAL band).
+- **80 seeds**: b1a2 0.9697 (NORMAL 0.504, Kenpachi 37/160), b0a1 0.97 (NORMAL 0.394, Kenpachi 20/160), **the combined
+  0.965** (strength 0.985, masher 1.0, signature 0.928, NORMAL 0.531: Y 110, K 58, R 89, I 77, S 91 of 160; NORMAL
+  pacing medians Y 118.7, K 119.1, R 150.2, I 154.4, S 152.2 s). Its awaken A/B (the cell's own run): Y K R I S 42 22 34 32
+  32 / 38 19 28 31 34 / 38 23 25 29 37 (14 of 15 rows), the mirror 28 / 23 / 32.
+- The user picked the combined candidate (「合併版」 over b1a2: 0.005 less score for the never-awakened base form and the
+  A/B). Integrated by a 3-way merge onto R19 (base: the freeze's barro.lisp; clean), its test section spliced (8448
+  checks). The manual's "the CPU's him" tip rewritten (the rifleman before the awakening).
+
 ## 23. Decision R18 (2026-10-12): the charged L (the base snipe, the awakened dash) aims where he faces; a Step in its charge keeps it and re-aims
 
 The user (verbatim): 「我發現一個覺醒前的問題與想要新增的功能 * 當架槍 L 進行狙擊時，射擊的一瞬間會強制面對對手變成必中狀態。我不希望這
