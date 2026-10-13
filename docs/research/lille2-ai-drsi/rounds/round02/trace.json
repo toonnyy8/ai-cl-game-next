@@ -50,6 +50,18 @@
       "seq": 4,
       "tags": [],
       "valid": true
+    },
+    "b1a2": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.998 mash 1.0 sig 0.936 raw 0.9733 normal 0.5125 (x1.0) pacing ok",
+      "score": 0.9733,
+      "seq": 5,
+      "tags": [],
+      "valid": true
     }
   },
   "directions": {},
