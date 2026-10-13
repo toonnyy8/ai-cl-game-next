@@ -1,6 +1,7 @@
 # SOUL DUEL: Yamamoto, TYBW look and motion modules (2026-10-13)
 
-Status: **in progress** (the plan, §3–§5, is the lead's [G]; the user delegated the calls, see §1).
+Status: **built 2026-10-13** (three batches merged; §6 as built, §7 gates). The plan, §3–§5, is the lead's [G]; the user
+delegated the calls, see §1.
 Skills: `duel-motion-style` (decide, research, plan, measure, draw), `duel-character-rework` (presentation vs sim, the
 proofs). Research: `docs/research/yamamoto-rework/canon-looks.md` (every visual state, graded A–D, a model checklist per
 state, the conflicts table) and `motion-refs.md` (fight by fight, the RoS / Brave Souls kits, the archetype table, the
@@ -96,3 +97,86 @@ baseline below.
 YY 89.2 s (P1 7 / P2 13), YK 86.3 (Yamamoto 6 / 20), RY 109.1 (Yamamoto 9), IY 106.9 (Yamamoto 16), SY 102.5
 (Yamamoto 10), BY 121.0 (Yamamoto 7); all 120 K.O. The 125–210 s window predates the cinematic-free clock (DEVLOG §134):
 Yamamoto's pairings sat under it before this change, so this change is judged against this baseline.
+
+## 6. As built (batches yama-look 318cf84, yama-bankai c96d778, yama-shikai c208c7b; merged)
+
+### 6.1 Look (presentation only; the sim byte-identical: `simgate --pairs 0,1,3 --seeds 10` and `--cvc` equal to 4f0657d)
+
+- `yama-art.lisp`: the base body's haori is a cape (tag `:haori`: shoulder pads, the upper back panel with 一 in a
+  rhombus, white lapels with the purple lining turned out, empty sleeves hanging wide and pitched +20° against his hunch;
+  on the pelvis the lower cape lined `#441F58`, palette key `:lining`, two slits and a dot near each side of the hem); the
+  black kosode under it (tag `:kosode`). Beard: two crossing cords, 5 crossings. Brows hang to the jaw. The X scar on the
+  right of the crown.
+- Hellfire: body variant `:yamamoto-bare` (`*ya-bare-parts*`): a lean torso with ink lines, the kosode folded over the obi
+  with its sleeves hanging behind the hips, the left arm a stump above the elbow, 16 scars (12 glowing `#FF5A3C`, 4
+  healed). Kit: `:body :yamamoto-bare :hide (:haori :kosode)`.
+- Bankai: body variant `:yamamoto-tybw` (`*ya-tybw-parts*`): the robe only, burnt tatters (6 at the right sleeve, 5 at the
+  empty left one, 6 round each hakama hem). East's kit: `:body :yamamoto-tybw :hide (:haori)`; West inherits it.
+- Looks on the posed body (cosmetic, no sim reads, no random numbers): `YAMA-POSE` (`:pose`) swings the pelvis joint about
+  the obi by `%YA-HEM-STEP`'s damped spring per side (stepped on effect seconds; it trails his travel and turns, overshoots
+  once when he stops, breathes a little at idle; knobs `*ya-hem-k/c/drag/turn/max*` 60 / 4.6 / 0.03 / 0.05 / 0.42 rad);
+  `%YA-SMOKE` draws East's smoke thread (7 segments, 1.1 m up from the tip; not while the blade is planted).
+- West's `:garb` aura (vfx.lisp) redrawn orange: 9 + 6 tongues from the feet, two shoulder wings of 3 tongues (span about
+  1.3 m: at the spec's 2× shoulder width they vanished inside the body tongues), a molten double ring, orange scraps and
+  light. A new toon palette slot 15 FLAME (`+pal-flame+`, engine fx.lisp; the WGSL palette 60 → 64 entries, the clamp 14 →
+  15): nothing else uses it.
+- Consing (debug 2328, 10 draws): `ya hem pose` 0 B, `ya hem step` 0 B, `ya smoke` 0 B; `garb` 160 B as the old red garb.
+- Known: the lower cape is rigid on the pelvis (a deep crouch can push the hem into the floor); the smoke rises straight
+  up mid-swing; the empty left sleeve swings only with the upper arm.
+
+### 6.2 Shikai clips (presentation only; the sim byte-identical as §6.1)
+
+Every strike starts and ends on the new idle `:ya-stance` (the slouch, the point resting on the plaza 0.8 m ahead). S1
+`:ya-q1`, S2 `:ya-q2`, S3 `:ya-sleeve` (root yaw +22 → −18, pelvis roll ±6), S4 `:ya-f1` (turns away right, steps in,
+sweeps through the front on S), S5 `:ya-f2` (the point dragged along the plaza, rising through the front at S), S6 **new
+`:ya-f3`** at K3's own frames 22/5/34 (a full turn right, a key every 90°, one vertical drop; `:ya-q3` deleted), S7
+`:ya-sig` (three beats of its own at f16 / f28 / f40), S8 SHIRANUI (the throw retimed 6/2/20 → 2/1/20 to land with the
+fireball), S9 `:ya-taimatsu` (the tell at f3, one full spin f6–f16), S10 `:ya-ikkotsu` (a step in, the fist at shoulder
+height, the body behind it), S11 `:ya-enjo` (the point held level down the lane, a flick on S), H1 `:ya-nadegiri` (a one-
+to-two-frame draw-cut crossing ahead at S, then the back turned, the blade lowered), S12 `:ya-hellfire` (point-down,
+dragged round in one circle step).
+
+**The fire sheet** (draw.lisp `fire-sheet`, from the `:fire` blade branch: base and Hellfire only): in each arc hit window
+of a Flash or Signature move (3 f before to 4 f after) a flame runs from the drawn tip along its bearing to the volume's
+edge, reaching it on the hit frame (its far end 0.15–1.4 m high; K3's along the floor). Consing (debug 2390): 0 B
+(`vfx-blade-fire`'s body became the inline macro `%blade-fire`; 640 B before).
+
+| Shikai move | Edge | Tip at S before → after |
+|---|---|---|
+| J1 / J2 / J3 | 1.40 | 1.27 / 1.36 / 1.32 → 1.39 / 1.35 / 1.35 |
+| K1 / K2 / K3 | 2.60 / 2.30 / 2.40 | 1.66 / 0.83 (overhead) / 0.84 → 1.99 / 1.26 (ahead) / 1.57 (floor), the fire sheet to the edge |
+| L cuts 1 / 2 | 2.60 | 1.63 / 1.64 → 1.19 / 1.50, the fire sheet to the edge |
+| IKKOTSU (the fist) | 1.35 | 0.77 → 1.21 |
+| NADEGIRI | line ahead | the tip 1.50 m to his right → 0.11 m aside, crossing ahead |
+
+Plane and hand: no two Shikai strikes share both (J1 ↘ fore, J2 ↗ back, J3 L→R sleeve, K1 horizontal R→L fore, K2
+vertical up, K3 vertical down after the turn, L overhead semicircle / ↘ back / point-down, SP1 level thrust, SP2 rising fan
+out of a spin, NADEGIRI L→R back at the neck, I the fist, O the held point).
+
+Known: the Hellfire idle is the same slouch (an upright one needs a clip-map); one in-between frame at the L's f31 flips
+the tip up-left; the neck crack idle variation is not built.
+
+### 6.3 Bankai clips and volumes (the sim change)
+
+East's own clips at its own frames, none of the Shikai's and no `:clip-s` speed-up: `:ya-e-stance` (the East / West idle,
+kit `:stance`), `:ya-e-q1` / `-q2` / `-q3`, `:ya-e-f1` / `-f2`, `:ya-e-kyokko` (L; `:ya-e-thrust` deleted), `:ya-e-tenchi`
+(TENCHI's in-play strike, the dash kept; `:ya-tenchi` stays the cinematic's), rebuilt `:ya-e-drop`, `:ya-kyoku`, `:ya-kaka`,
+`:ya-shonetsu` (16/0/24, its `:clip-s` gone), `:ya-w-parry`, `:ya-w-counter`. Plane and hand: no two share both (TENCHI made
+a forehand: motion-refs' backhand clashed with ZANSHO). RAKUJITSU's embers moved to where the tip lands (2.2 → 1.6 m).
+
+| Move | Volume before (+ slide) | After (+ slide) | Edge before → after | Effective reach (edge + slide) | Tip at S before → after |
+|---|---|---|---|---|---|
+| J1 HIZASHI | cap 0.2 → 1.24, r 0.25 | unchanged | 1.49 | 1.49 | 1.15 → 1.52 |
+| K1 KAGERO | cap 0.2 → 3.4, r 0.3 | cap 0.2 → 1.55, **slide 1.6** | 3.70 → 1.85 | 3.70 → 3.45 | 0.72 → 1.83 |
+| K2 NISSHO | cap 0.2 → 3.4, h 1.3, r 0.35 | cap 0.2 → 1.56, **slide 1.6** | 3.75 → 1.91 | 3.75 → 3.51 | 0.71 → 1.91 |
+| K3 RAKUJITSU | cap 0.3 → 3.2, r 0.3 | cap 0.3 → 1.67, **slide 1.4** | 3.50 → 1.97 | 3.50 → 3.37 | 1.69 → 1.97 |
+| West counter | arc 2.6, 120° | arc 1.96, **slide 0.6** | 2.60 → 1.96 | 2.60 → 2.56 | 1.38 → 1.96 |
+
+Heights, frame data, damage and reactions unchanged. The K slides are on "hammer" bars (not lunges): the clips draw a step,
+and the effective reach stays within 0.25 m of the old one (the strict reading, no slides, would cut the K reach to about
+1.9 m). Tests: East and West leave `*reach-one-sided*` (they pass the two-sided FK test); the "J short, K long" test
+(DUEL_STRINGS §13, the user's rule) now compares reach + `:slide` on both sides (with reach alone the K caps are now
+shorter than the J ones; with the step, K still reaches further). DUEL_STRINGS §3.2's East rows updated.
+
+Known: MINAMI's "turn and walk away" recovery isn't drawn; KYOKUJITSUJIN's blade volume (2.8 edge, tip 1.86) and TENCHI's
+arc (2.4, tip 2.25) were left.

@@ -363,21 +363,25 @@ frame S).
 
 Look: 1.68 m, hunched, bald with an X scar, three expressions (neutral slit eyes, shout: the eyes wide open, the
 mouth open in the beard, hurt: eyes squeezed shut, a grimace; in play a shout or a hurt face just put on also shows a
-brief ink accent over the head, since the face is ~12 px tall at gameplay distance: restyle Phase 6), long white brows, waist-length beard tied with a
-purple cord, black shihakusho under a white captain's haori, no left forearm (empty sleeve),
-one-handed. Katana wreathed in fire; in the intro he leans on his cane and draws on "FIGHT"
+brief ink accent over the head, since the face is ~12 px tall at gameplay distance: restyle Phase 6), long white brows
+hanging to the jaw, the X scar on the right of the crown, a waist-length beard bound by a lattice of crossing purple
+cords, black shihakusho under a white captain's haori **draped over the shoulders as a cape** (its empty sleeves hanging,
+lined purple, 一 in a rhombus on the back, a lagging hem), no left forearm (empty sleeve), one-handed. Hellfire bares him
+to the waist (a lean, scarred torso, the scars glowing); the Bankai wears the TYBW battle dress (no haori, the robe burnt
+to tatters). Since 2026-10-13 every form plays its own clips (motion bars, look and the Bankai volumes:
+[DUEL_YAMA_TYBW.md](DUEL_YAMA_TYBW.md)). Katana wreathed in fire; in the intro he leans on his cane and draws on "FIGHT"
 ("BANSHO ISSAI KAIJIN TO NASE"). Identity: slow, zones with fire, burns himself for power.
 
 Shikai (form `:base`):
 
 | Input | Move | S / A / R | Dmg | Block | Notes |
 |---|---|---|---|---|---|
-| J (link 1) | J1 火閃 HISEN `:ya-j1` (clip `:ya-q1`) | 9/3/12 | 38 | −2 | reach 2.4 m, arc 100°, flinch |
+| J (link 1) | J1 火閃 HISEN `:ya-j1` (clip `:ya-q1`: a wrist snap ↘) | 9/3/12 | 38 | −2 | reach 1.4 m, arc 100°, flinch |
 | J (link 2) | J2 返し火 KAESHIBI `:ya-j2`; after K1 the copy `:ya-j2s` (clip `:ya-q2`) | 8/3/13 | 38 | −2 | flinch |
-| J (link 3) | J3 袖火 SODEBI `:ya-j3` (clip `:ya-sleeve`) | 9/3/18 | 45 | −4 | 2.2 m, 140°, stagger; the empty left sleeve whipped across, burning (an ender: the O ender off its hit) |
-| K (link 1) | K1 焔薙 HOMURA-NAGI `:ya-k1` (clip `:ya-f1`) | 18/4/20 | 75 | −3 | reach 3.0, arc 150°, stagger, +20 Inferno |
-| K (link 2) | K2 昇焔 SHŌEN `:ya-k2`; after J1 `:ya-k2s` (clip `:ya-f2`) | 22/4/24, enters at f8 | 64 | −3 | 2.6 m, 90°, stagger, +20 Inferno |
-| K (link 3) | K3 焔爆 ENBAKU `:ya-k3` (clip `:ya-q3`) | 22/5/34, enters at f8 | 88 | −20 | 2.8 m, 120°, crumple, +20 Inferno; an ender |
+| J (link 3) | J3 袖火 SODEBI `:ya-j3` (clip `:ya-sleeve`) | 9/3/18 | 45 | −4 | 1.4 m, 140°, stagger; the empty left sleeve whipped across, burning (an ender: the O ender off its hit) |
+| K (link 1) | K1 焔薙 HOMURA-NAGI `:ya-k1` (clip `:ya-f1`) | 18/4/20 | 75 | −3 | reach 2.6, arc 150°, stagger, +20 Inferno; the fire sheet carries the cut past the blade to the edge |
+| K (link 2) | K2 昇焔 SHŌEN `:ya-k2`; after J1 `:ya-k2s` (clip `:ya-f2`) | 22/4/24, enters at f8 | 64 | −3 | 2.3 m, 90°, stagger, +20 Inferno |
+| K (link 3) | K3 焔爆 ENBAKU `:ya-k3` (clip `:ya-f3`: a full turn into one vertical drop) | 22/5/34, enters at f8 | 88 | −20 | 2.4 m, 120°, crumple, +20 Inferno; an ender |
 | L | Signature `:ya-sig` "RYUJIN JAKKA" | cuts f16, f28; R26, total 67 f | 30 + 30 | −6 | wave leaves the blade at f40: 3.5 m wide, 14 m/s, 12 m, 110, knockback, 12 % chip; +15 Inferno per hit |
 | Shift+K | SP1 Shiranui `:ya-shiranui` | hold 12–60 f, then throw 2/1/20 | 90 → 170 | chip 12 % | homing fireball (60°/s), 10 → 16 m/s, 20 m range; a full charge fills Inferno |
 | Shift+L | SP2 Taimatsu `:ya-taimatsu` | 16/8/24 | 120 | −14 | fire cone 4 m, 90°, knockback 3.5 m |
@@ -407,7 +411,7 @@ BURNOUT, the garb guard and its ranged armour, the L switch and West's own J / K
 
 | Rule | East, Kyokujitsujin (旭日刃, the edge) | West, Zanjitsu Gokui (殘日獄衣, the ward) |
 |---|---|---|
-| Look | the body as it is (4 charcoal heat wisps), the charred blade with an ember-red edge line | wrapped in red flames (the 15-million-degree garb: FIRE brush-flame tongues round the body), the blade pure charcoal; the garb flares on each warded hit |
+| Look | the TYBW battle dress (4 charcoal heat wisps), the charred blade with an ember-red edge line and a thin smoke thread from the tip | wrapped in **orange** flame tongues that wing out from the shoulders, a molten ring at the feet (the 15-million-degree garb; was red until 2026-10-13), the blade pure charcoal; the garb flares on each warded hit |
 | Damage | dealt ×1.0 **+ the pierce**, **taken ×1.5** (`*bankai-taken*`) | ×1.0 / ×1.0 |
 | U | **switches to West** (kit `:guard-to`) from idle / walk / run (not a cancel of a move's startup or recovery, not in hit- or blockstun, not guardless); the ward is up 2 f later (`*guard-raise*`, counted by `fighter-guard-t`) | nothing more: the ward is always up; holding U doesn't root him |
 | Leaving | — | **any command but L / SP1** (J, K, Shift+L, I, O) switches to East **on the move's frame 0** and starts East's move (kit `:drop-to :bankai-east :keep (:sig :sp1)`, `kit-drop`); a refused command doesn't switch. A GUARD CRUSH or a Guard Break (a Breaker, KYOKUJITSUJIN's blade in the mirror, the cash-out within 6 m) also drops him to East (`ward-drop`, the garb gutters out) |
@@ -422,12 +426,12 @@ East moves:
 
 | Input | Move | S / A / R | Dmg | Block | Notes |
 |---|---|---|---|---|---|
-| J (link 1) | 日差 HIZASHI `:ya-e-j1` (clip `:ya-q1`) | 8/3/12 | 34 | −2 | a line 0.2 → 3.1 m, flinch |
-| J (link 2) | 残照 ZANSHŌ `:ya-e-j2` / `:ya-e-j2s` (clip `:ya-q2`) | 7/3/13 | 38 | −2 | a line 3.1 m, flinch |
-| J (link 3) | 穿光 SENKŌ `:ya-e-j3` (clip `:ya-e-thrust`) | 8/3/18 | 42 | −4 | a short thrust, a line to 3.6 m, stagger (+5 on hit: a Step fits before E-J1) |
-| K (link 1) | 陽炎 KAGERŌ `:ya-e-k1` (clip `:ya-f1`) | 16/4/20 | 70 | −3 | a line to 3.8 m, stagger |
-| K (link 2) | 日昇 NISSHŌ `:ya-e-k2` / `:ya-e-k2s` (clip `:ya-f2`) | 19/4/24, enters at f5 | 60 | −3 | a line 3.8 m, h 1.3, stagger |
-| K (link 3) | 落日 RAKUJITSU `:ya-e-k3` (clip `:ya-e-drop`) | 21/5/34, enters at f7 | 84 | −20 | the blade straight up, held, dropped: a vertical line 0.3 → 3.6 m, crumple; embers and a scorch on the plaza |
+| J (link 1) | 日差 HIZASHI `:ya-e-j1` (clip `:ya-e-q1`: a deep lunge, a level cut) | 8/3/12 | 34 | −2 | a line 0.2 → 1.24 m (edge 1.49), flinch |
+| J (link 2) | 残照 ZANSHŌ `:ya-e-j2` / `:ya-e-j2s` (clip `:ya-e-q2`: a rising backhand) | 7/3/13 | 38 | −2 | a line 1.24 m, flinch |
+| J (link 3) | 穿光 SENKŌ `:ya-e-j3` (clip `:ya-e-q3`: an underhand rising thrust) | 8/3/18 | 42 | −4 | a short thrust, a line to 1.44 m, stagger (+5 on hit: a Step fits before E-J1) |
+| K (link 1) | 陽炎 KAGERŌ `:ya-e-k1` (clip `:ya-e-f1`: a diagonal from over the shoulder) | 16/4/20 | 70 | −3 | **a step 1.6 m**, a line to 1.55 m (edge 1.85; before 2026-10-13 no step and 3.4 m), stagger |
+| K (link 2) | 日昇 NISSHŌ `:ya-e-k2` / `:ya-e-k2s` (clip `:ya-e-f2`: the sunrise) | 19/4/24, enters at f5 | 60 | −3 | **a step 1.6 m**, a line 1.56 m, h 1.3 (was 3.4 m), stagger |
+| K (link 3) | 落日 RAKUJITSU `:ya-e-k3` (clip `:ya-e-drop`) | 21/5/34, enters at f7 | 84 | −20 | the blade straight up, held, dropped: **a step 1.4 m**, a vertical line 0.3 → 1.67 m (was 3.2 m), crumple; embers and a scorch on the plaza |
 | L | **旭光 KYOKKŌ** `:ya-e-kyokko` | 15/3/26 | 85 | −12 | a one-handed lunge (1.6 m over the startup), its point a line 0.2 → 4.6 m (hits ~6.2 m out), knockback 2 m, guard 22; **pierce ×2** (`:pierce-mult`: k 0.2–0.9): at a full gauge **162** on hit and **77 of 85 through a guard**; cancels any landed J / K link (`:cancel`); cooldown 100 f. The look: the ember edge flares white on f1, a white-cored ember ray along the line and a small ink sun at its tip on f15; on a block a white spark leaves the defender's back |
 | Shift+K | **KYOKUJITSUJIN**, the downward cut `:ya-kyoku` | 18/5/26 | 90 + 130 | −16 | the blade (f18–19, 0.3 → 2.4 m) **breaks guard** (a ward too); at f20 its tip bites the ground and a flat heat sheet runs out: a **25° / 9 m cone**, 130, knockback 4 m, **blockable, never a break** (guard 22), ranged (no parry catches it); both carry the pierce |
 | Shift+L | **MINAMI** (South), the bind `:ya-kaka` | 20/1/34 | 40 | — | 2 bars, no cooldown (the user's decision 2026-09-28: like every SP2 the bars are its limiter); below |
@@ -439,7 +443,7 @@ West moves (the rest of the buttons are East's, after the drop):
 | Input | Move | S / A / R | Dmg | Block | Notes |
 |---|---|---|---|---|---|
 | L | **焦熱地獄 SHŌNETSU JIGOKU** `:ya-w-shonetsu` | 16/–/24 (40 f) | 45 × ≤ 2 | guard 12 | the blade planted, the garb flares hard for 16 f (the tell), then a ring of 7 fire pillars erupts **where he stands** (Ennetsu's `:pillars` hazard, radius 2 m, 0.8 s, two hits 16 f apart, stagger, fire chip 12 %), 360°; he **stays West** with the ward up throughout: West's only way to strike back in the middle of a string; cooldown 150 f (the L slot: KYOKKŌ's cooldown counts for it too) |
-| Shift+K | **GOKUI GAESHI**, the parry `:ya-w-parry` | 2/24/20 (46 f, parried or not; was 4/12/30) | — | — | 1 bar; a melee hit on f2–25 (`*parry-window*`, KUSARI-TATE's window since 2026-10-01; was f4–15) is **parried**: he takes nothing, the attacker staggers 32 f (his move and rush armour end) and is scorched 15, **his guard gauge is refilled to full** (the rework), and he counters at once: `:ya-w-counter` 6/3/24, **150**, knockback 3 m (guaranteed); he stays West through both (SP1). A Breaker breaks it; hazards and the bind aren't parried; a parried hit is a block for the attacker; a whiffed parry's recovery stays warded (the user's decision) |
+| Shift+K | **GOKUI GAESHI**, the parry `:ya-w-parry` | 2/24/20 (46 f, parried or not; was 4/12/30) | — | — | 1 bar; a melee hit on f2–25 (`*parry-window*`, KUSARI-TATE's window since 2026-10-01; was f4–15) is **parried**: he takes nothing, the attacker staggers 32 f (his move and rush armour end) and is scorched 15, **his guard gauge is refilled to full** (the rework), and he counters at once: `:ya-w-counter` 6/3/24, **150**, a short backhand with a 0.6 m step, arc 1.96 m (was 2.6 m, no step, until 2026-10-13), knockback 3 m (guaranteed); he stays West through both (SP1). A Breaker breaks it; hazards and the bind aren't parried; a parried hit is a block for the attacker; a whiffed parry's recovery stays warded (the user's decision) |
 
 The switch's look: U raises the garb (a charcoal double ring out to 2.6 m, ash shards, the heat-flare sound; the aura
 crossfades), a drop to East puffs embers; a broken ward gutters out (smoke, an ash ring).
