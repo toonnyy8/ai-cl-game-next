@@ -1284,3 +1284,19 @@ only: no frame data, volume, reach or damage changed (G2 identical; his native s
   builds alike (cvc-ri draws RUKIA vs RUKIA, cvc-kl YAMAMOTO vs SENJUMARU where it wants KENPACHI vs LILLE, cvc-bk BARRO vs
   YAMAMOTO): the scenarios' random CPU-CPU picks moved when the old Lille left the roster (PLAYABLE-ROSTER, DEVLOG §208),
   not R19; the scenarios' expected pairings / seeds need updating (open).
+
+## 25. Decision R20 (2026-10-13): the O ender off his stance strings; the legs in the mirror's tint
+
+The user (verbatim): 「* lille 覺醒後 p2 的腳部與身體顏色不同 … * lille 的 O 目前沒辦法接在架式攻擊結束後，我希望能追加這個功能」.
+
+- **The O ender** (BR-S-O-ENDER, from BR-S-TICK, a human's press): a stance string's last segment (`:end`: J3, K3, JL3, KL3
+  in every form) that hit, O in its cancel window (CANCEL-OPEN-P, as a J / K string's link 3): the form's Kikon rush under
+  its own checks (TRY-COMMAND with ENDER: the string's pip), off the end push (FIGHTER-END-CHASE: its dash, SKIP-AURA); the
+  awakened stance (EN) has no Kikon, so he goes back to KIN / the owl KIN first (refused: the form stays). Not the generic
+  `:ender` flag: that one's ender push (combat.lisp) and chase (START-MOVE) would come on top of BR-S-END-PUSH (§17).
+  Browser run (82000: L, K K K, O): K1 / K2 / K3 hit, the end push 1.1 m, BR-KIKON at once, its hit 70. His CPU does not
+  use it (the generic O ender reads `:ender`); the manual's stance table has the row.
+- **The legs in the mirror**: the ㄇ legs (`%lb-legs`) were drawn with DRAW-WEAPON, untinted, while P2's body in the mirror
+  match takes *MIRROR-TINT*: DRAW-WEAPON has an optional `:tint` (the untinted parts; NIL for every other caller), the legs
+  pass the model's tint (*LB-LEG-TINT*, set by LILLE-DRAW).
+- Tests: duel-rules-test (BR-S-O-ENDER; the `:end` segments carry no `:ender`). Gates: below.

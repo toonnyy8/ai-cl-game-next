@@ -256,3 +256,17 @@ are Lille's rows with AUTO COMBO off.
 The masher never awakens, so only the HOSHA route and the base enders come up here. At HARD with k11 (120 matches) the
 routes fired: HOSHA → K1 924, the stance's HOSHA 715, the wake-up shot 276, the enders' L 808 and SP 923.
 DUEL_LILLE §24.10 has every count, and the EN / KIN routes shown firing in the native sim.
+
+## AUTO GUARD ALWAYS guards (the user, 2026-10-13)
+
+The user (verbatim): 「我希望 auto guard always 功能可以防禦而不是以 hoho 為主。目前許多用防禦擋下就好的招式 auto guard always 都會直接用 hoho 閃開。」
+
+- **Before**: on a hit about to land (PERFECT-NOW-P) AUTO GUARD answered with the form's parry, else a Hoho; nobody holds U
+  in ALWAYS, so a plain guard never happened there.
+- **Now** (assist.lisp AUTO-GUARD, its ALWAYS argument from the setting): the parry first, then **a held guard** (`:guard`,
+  10-30 f, renewed at the next threat) whenever a guard stops it (AUTO-GUARDABLE-P: not his Breaker or Kikon rush, not a
+  grab, no window flagged `:breaker` / `:guard-crush` / `:unguardable`, and his guard gauge not empty / guardless: CAN-GUARD-P;
+  hazards and every other move guardable), the Hoho only for the rest. A kit's own `:assist-guard` Hoho (Rukia's, Ichigo's
+  timed Hoho) at a guardable threat becomes the guard too. HOLD U is unchanged (the player holds the guard; the assist adds
+  the parry / Hoho). The manual's AUTO GUARD line says so.
+- The ASSIST gate after it: below (§ the gate table of DEVLOG §214).
