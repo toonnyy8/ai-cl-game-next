@@ -737,7 +737,11 @@ move-beat choices of DRAW-FIGHTER."
                    (cons-per "stamps" (stamps-draw 0f0))
                    (cons-per "face" (face-of e f m mv))
                    (cons-per "beat-pose" (beat-pose! (anim-pose (model-anim m)) 0.5f0))
-                   (cons-per "move-beats" (move-beats e f m mv 0f0 0f0 0f0 0f0))))
+                   (cons-per "move-beats" (move-beats e f m mv 0f0 0f0 0f0 0f0))
+                   (let ((sf (fighter-sf f)) (tip (make-f32 3)))   ; Ryujin Jakka's fire sheet (K1's hit frame, f18)
+                     (setf (fighter-sf f) 18 (aref tip 0) 0.3f0 (aref tip 1) 1f0 (aref tip 2) -1.2f0)
+                     (prog1 (cons-per "fire-sheet" (fire-sheet f (find-move :ya-k1) 0f0 0f0 tip 0.016f0 1f0))
+                       (setf (fighter-sf f) sf)))))
     (setf (model-beat m) 0f0)))
 
 (defvar *gate-difficulty* :normal "Debug 81020+i: the gates' CPU difficulty (0 EASY 1 NORMAL 2 HARD; ASSIST's gate).")

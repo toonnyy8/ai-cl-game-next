@@ -70,30 +70,37 @@ average is exact at any frame rate. 0 once the pool is near the budget."
 ;;; scraps (toon particles) flying off. Shapes are re-drawn on the fx clock's drawings (DRAWING: twos, 12 a second),
 ;;; so they hold still between drawings like the universal effects; positions the game depends on never step
 ;;; (DRAWING-NO, engine fx.lisp).
+(defmacro %blade-fire (x0 y0 z0 x1 y1 z1 dt power)
+  "VFX-BLADE-FIRE's drawing, inline: the fire from (X0 Y0 Z0) to (X1 Y1 Z1), all single-float forms (a defun-fast caller passes
+its computed floats unboxed: DRAW-FIGHTER's fire sheet)."
+  `(let ((x0 ,x0) (y0 ,y0) (z0 ,z0) (x1 ,x1) (y1 ,y1) (z1 ,z1) (dt ,dt) (power ,power))
+     (declare (single-float x0 y0 z0 x1 y1 z1 dt power))
+     (let* ((bx (- x1 x0)) (by (- y1 y0)) (bz (- z1 z0)) (p power) (dr (drawing-no))
+            (pk (toon-a +pal-fire+ 0.95f0)) (sd (- -3f0 (i->f (mod (f->i dr) 5)))))
+       (declare (single-float bx by bz p dr pk sd))
+       (toon-ribbon (x0 y0 z0) (bx by bz) ((* 0.075f0 p) (* 0.045f0 p)) :heat (1f0 0.3f0) :seed sd :wob 0.2f0 :k pk :ph dr :sway 0.01f0 :segs 4)
+       (dotimes (k 3)
+         (let* ((kf (i->f k)) (u (+ 0.25f0 (* 0.27f0 kf)))
+                (h (* p (+ 0.26f0 (* 0.26f0 (hash01 (+ kf dr) 3.1f0)))))
+                (lx (* 0.14f0 (- (hash01 (+ kf dr) 5.3f0) 0.5f0))) (lz (* 0.14f0 (- (hash01 (+ kf dr) 7.9f0) 0.5f0)))
+                (tx (+ x0 (* u bx))) (ty (+ y0 (* u by))) (tz (+ z0 (* u bz))) (tsd (- sd (* 7f0 (+ kf 1f0)))))
+           (declare (single-float kf u h lx lz tx ty tz tsd))
+           (%away-from-eye (tx ty tz) 0.04f0
+             (toon-ribbon (tx ty tz) (lx h lz) ((* 0.09f0 p) 0f0) :seed tsd :wob 0.25f0 :k pk :ph (+ dr kf) :sway 0.03f0 :segs 5))))
+       (fx-ribbon x0 y0 z0 bx by bz 0.01f0 0.006f0 1f0 0.75f0 0.4f0 0.3f0 1f0 0.65f0 0.3f0 0.2f0 0f0 0f0 :segs 1)   ; T光
+       (dotimes (i (n-of (* 10f0 p) dt))                 ; scraps: flame bits peeling off the swing
+         (let* ((u (rnd-range 0.2f0 1f0)))
+           (declare (single-float u))
+           (%t-blob (+ x0 (* u bx)) (+ y0 (* u by) 0.05f0) (+ z0 (* u bz)) (rnd-range -0.4f0 0.4f0) (rnd-range 0.8f0 1.6f0)
+                    (rnd-range -0.4f0 0.4f0) (rnd-range 0.3f0 0.5f0) (* p (rnd-range 0.035f0 0.06f0)) -2f0 0.3f0 +pal-fire+))))))
+
 (defun-fast vfx-blade-fire (x0 y0 z0 x1 y1 z1 dt &key (power 1.0))
   "Ryujin Jakka (§4.1 blade fire): the blade (base x0 y0 z0 → tip x1 y1 z1) sheathed in drawn FIRE (heat 1 at the
 base .. 0.3 at the tip), three tongues licking upward from behind the sheath whose heights and lean are re-drawn
 every drawing (twos), a thin additive core line (T光) and flame scraps peeling off (the sheath's red shade
 lower edge is the backing: black smoke puffs off a blade read as bubbles). POWER 1.3 in Hellfire. The swing is the fighter's comet smear (VFX-SMEAR)."
   (with-floats (x0 y0 z0 x1 y1 z1 dt power)
-    (let* ((bx (- x1 x0)) (by (- y1 y0)) (bz (- z1 z0)) (p power) (dr (drawing-no))
-           (pk (toon-a +pal-fire+ 0.95f0)) (sd (- -3f0 (i->f (mod (f->i dr) 5)))))
-      (declare (single-float bx by bz p dr pk sd))
-      (toon-ribbon (x0 y0 z0) (bx by bz) ((* 0.075f0 p) (* 0.045f0 p)) :heat (1f0 0.3f0) :seed sd :wob 0.2f0 :k pk :ph dr :sway 0.01f0 :segs 4)
-      (dotimes (k 3)
-        (let* ((kf (i->f k)) (u (+ 0.25f0 (* 0.27f0 kf)))
-               (h (* p (+ 0.26f0 (* 0.26f0 (hash01 (+ kf dr) 3.1f0)))))
-               (lx (* 0.14f0 (- (hash01 (+ kf dr) 5.3f0) 0.5f0))) (lz (* 0.14f0 (- (hash01 (+ kf dr) 7.9f0) 0.5f0)))
-               (tx (+ x0 (* u bx))) (ty (+ y0 (* u by))) (tz (+ z0 (* u bz))) (tsd (- sd (* 7f0 (+ kf 1f0)))))
-          (declare (single-float kf u h lx lz tx ty tz tsd))
-          (%away-from-eye (tx ty tz) 0.04f0
-            (toon-ribbon (tx ty tz) (lx h lz) ((* 0.09f0 p) 0f0) :seed tsd :wob 0.25f0 :k pk :ph (+ dr kf) :sway 0.03f0 :segs 5))))
-      (fx-ribbon x0 y0 z0 bx by bz 0.01f0 0.006f0 1f0 0.75f0 0.4f0 0.3f0 1f0 0.65f0 0.3f0 0.2f0 0f0 0f0 :segs 1)   ; T光
-      (dotimes (i (n-of (* 10f0 p) dt))                 ; scraps: flame bits peeling off the swing
-        (let* ((u (rnd-range 0.2f0 1f0)))
-          (declare (single-float u))
-          (%t-blob (+ x0 (* u bx)) (+ y0 (* u by) 0.05f0) (+ z0 (* u bz)) (rnd-range -0.4f0 0.4f0) (rnd-range 0.8f0 1.6f0)
-                   (rnd-range -0.4f0 0.4f0) (rnd-range 0.3f0 0.5f0) (* p (rnd-range 0.035f0 0.06f0)) -2f0 0.3f0 +pal-fire+))))))
+    (%blade-fire x0 y0 z0 x1 y1 z1 dt power)))
 
 (defun-fast vfx-blade-embers (x0 y0 z0 x1 y1 z1 dt)
   "Zanka no Tachi (§4.1 Bankai): every flame is gone. One thin EMBER line along the charred blade (drawn just in
