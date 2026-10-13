@@ -1746,6 +1746,7 @@ grip; a joint = that joint (the wing blades and the owl's arms end at the rig's 
                    *lb-x-near* *lb-x-far* *lb-x-min* *lb-x-max*))                                ;  loaded after this file)
 (declaim (type f32vec *lb-m* *lb-p* *lb-v* *lb-fx* *lb-hud*))
 (defvar *lb-m* (m4) "A prop's world matrix.")
+(defvar *lb-leg-tint* nil "The ㄇ legs' tint this draw: the body's (MODEL-TINT: the mirror match's P2), set by LILLE-DRAW.")
 (defvar *lb-p* (make-f32 3))
 (defvar *lb-v* (make-f32 32)
   "The draw helpers' arguments: [0..2] the wings' root (the joint's frame); [11] the fold 0..1, [12] the ripple (degrees),
@@ -2798,14 +2799,14 @@ stance switch, DUEL_LILLE_V3 §16 R11: the strut and the shanks shrunk by 1 - pu
         (let ((lf (+ (* pq (- 1f0 tk) (%lb-shank-len py fy)) (* tk tl))) (cx (+ px (* ls sx))) (cy (+ py (* ls sy))) (cz (+ pz (* ls sz))))
           (declare (single-float lf cx cy cz))
           (%lb-frame! *lb-m* px py pz fx fy fz ox oy oz lf sc)
-          (if (= white 1) (draw-weapon :lb-shank-white *lb-m* :alpha al :flash fla) (draw-weapon :lb-shank-cream *lb-m* :alpha al :flash fla))
+          (if (= white 1) (draw-weapon :lb-shank-white *lb-m* :alpha al :flash fla :tint *lb-leg-tint*) (draw-weapon :lb-shank-cream *lb-m* :alpha al :flash fla :tint *lb-leg-tint*))
           (%lb-frame! *lb-m* px py pz sx sy sz ox oy oz ls)
-          (if (= white 1) (draw-weapon :lb-strut-white *lb-m* :alpha al :flash fla) (draw-weapon :lb-strut-cream *lb-m* :alpha al :flash fla))
+          (if (= white 1) (draw-weapon :lb-strut-white *lb-m* :alpha al :flash fla :tint *lb-leg-tint*) (draw-weapon :lb-strut-cream *lb-m* :alpha al :flash fla :tint *lb-leg-tint*))
           (let ((lr (+ (* pq (- 1f0 tk) (%lb-shank-len cy ry)) (* tk tl))))
             (declare (single-float lr))
             (%lb-frame! *lb-m* cx cy cz rx ry rz ox oy oz lr sc)
-            (if (= white 1) (draw-weapon :lb-shank-white *lb-m* :alpha al :flash fla)
-                (draw-weapon :lb-shank-cream *lb-m* :alpha al :flash fla)))))))
+            (if (= white 1) (draw-weapon :lb-shank-white *lb-m* :alpha al :flash fla :tint *lb-leg-tint*)
+                (draw-weapon :lb-shank-cream *lb-m* :alpha al :flash fla :tint *lb-leg-tint*)))))))
   nil)
 
 ;;; ---------------------------------------------------------------- the looks keyed on his state
@@ -3003,6 +3004,7 @@ and the owl; one more while he aims or a gold look plays; one more in MUJITTAI).
       (let ((bn (body-name (model-body m))) (fl (if (> (model-flash m) 0f0) 1 0)))
         (when (or (eq bn :lille-jilliel-kin) (eq bn :lille-shin))   ; the ㄇ legs (decision 26)
           (setf (aref v 4) (if (lb-mujittai-p form) 0.72f0 1f0))
+          (setf *lb-leg-tint* (model-tint m))   ; (the mirror match's P2 tint, as his body: the user 2026-10-13)
           (%lb-legs jm (if (eq bn :lille-shin) 1 0) fl)
           nil))
       (case look

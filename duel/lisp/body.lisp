@@ -201,13 +201,14 @@ collector runs between them: the hull build allocates a few MB of scratch)."
 (defvar *toon-ink* (fv 3 0.012 0.2 1.8) "... and of a weapon's ink hull (DRAW-PARTS' lanes for the body's).")
 (defvar *weapon-m* (xform :pitch (deg 90) :roll pi) "weapon frame → :weapon-r joint frame")
 
-(defun draw-weapon (key m &key (alpha 1f0) (flash 0f0) (emissive 0f0) rim)
+(defun draw-weapon (key m &key (alpha 1f0) (flash 0f0) (emissive 0f0) rim tint)
   "Draw weapon KEY with world matrix M (the weapon frame: grip origin, blade +Y), toon-shaded with the
-feet height of the last DRAW-BODY (0 for a planted weapon)."
+feet height of the last DRAW-BODY (0 for a planted weapon). TINT (optional): the body's tint (a prop drawn as part of the
+body, e.g. Lille II's legs in the mirror match's P2 *MIRROR-TINT*) on its untinted parts; NIL as before."
   (dolist (part (weapon-meshes (find-weapon key)))
     (if (svref part 1)
         (draw-mesh (svref part 0) m :tint (svref part 1) :emissive (+ (svref part 2) emissive) :alpha alpha :toon *toon-body*)
-        (draw-mesh (svref part 0) m :flash flash :alpha alpha :emissive emissive :rim rim :toon *toon-body*)))
+        (draw-mesh (svref part 0) m :flash flash :alpha alpha :emissive emissive :rim rim :tint tint :toon *toon-body*)))
   (when (>= alpha 1f0)
     (dolist (part (weapon-meshes (find-weapon key)))
       (when (svref part 3) (draw-mesh (svref part 3) m :toon *toon-ink*)))))

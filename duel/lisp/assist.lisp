@@ -82,11 +82,25 @@ rush, the loom's Hoho through a Breaker ...; never a neutral decision or an offe
       (ai-event-rolls b s)                                  ; (its rolls, one per action of his, as AI-REFLEX rolls them)
       (let ((c (funcall h e b s d))) (and (not (eq c :wait)) c)))))
 
-(defun auto-guard (e f)
-  "AUTO GUARD: a hit about to land (PERFECT-NOW-P): the parry against his melee move, else a Hoho when allowed; or NIL."
+(defun auto-guardable-p (e)
+  "Would a guard stop what is about to hit E? Not his Breaker or Kikon rush, a grab, a window flagged :breaker /
+:guard-crush / :unguardable, nor with E's guard gauge empty or guardless (CAN-GUARD-P). His hazards (lines, projectiles)
+and every other move: yes."
+  (let* ((fo (fighter (opp-of e))) (mv (and (eq (fighter-state fo) :move) (fighter-move fo))) (g (gauges e)))
+    (and (can-guard-p (gauges-gg g) (gauges-guardless g))
+         (or (null mv)
+             (and (not (member (mv-kind mv) '(:breaker :kikon)))
+                  (not (intersection '(:grab :breaker :guard-crush :unguardable) (mv-flags mv)))
+                  (notany (lambda (w) (intersection '(:breaker :guard-crush :unguardable) (hw-flags w))) (mv-hits mv)))))))
+
+(defun auto-guard (e f &optional always)
+  "AUTO GUARD: a hit about to land (PERFECT-NOW-P): the parry against his melee move; ALWAYS (the ALWAYS setting, the user
+2026-10-13: 「我希望 auto guard always 功能可以防禦而不是以 hoho 為主」) a held guard when a guard stops it
+(AUTO-GUARDABLE-P); else a Hoho when allowed; or NIL."
   (when (perfect-now-p e)
     (let ((kit (fighter-kit f)) (fo (fighter (opp-of e))))
       (or (and (eq (fighter-state fo) :move) (eq (fighter-phase fo) :main) (parry-command e kit))
+          (and always (auto-guardable-p e) :guard)
           (and (not (kit-rooted kit)) (hoho-ready-p e) :hoho)))))
 
 (defun auto-combo (e f b side vp)
@@ -170,7 +184,9 @@ BREAK may press one."
                  (when (eq (brain-press b) :guard) (vpad-consume! vp :quick) (setf (fighter-queued f) nil)))
           (let* ((route nil)                                ; (the form's own route: AUTO-ROUTE, NIL for every kit
                  (cmd (or (and free (plusp (first cfg)) (or (= 2 (first cfg)) (vpad-down vp :guard))   ; but Lille's)
-                               (or (auto-guard-kit e b s d) (auto-guard e f)
+                               (or (let ((c (auto-guard-kit e b s d)))   ; (ALWAYS: a kit's Hoho at what a guard stops is the guard, 2026-10-13)
+                                       (if (and (eq c :hoho) (= 2 (first cfg)) (auto-guardable-p e)) :guard c))
+                                     (auto-guard e f (= 2 (first cfg)))
                                    (and (j-beats-open-p e b) (why b :j-back :q))))   ; guard -> J out of his blocked string
                           (and (second cfg) (setf route (auto-route e f b s d vp)) (not (eq route :none)) route)
                           (and (second cfg) (not route) (eq st :move) (auto-combo e f b side vp))

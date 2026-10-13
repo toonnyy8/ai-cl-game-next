@@ -1236,6 +1236,27 @@ NIL (no call)."
           ((and pay (br-follow-ok-p n) (> n keep) (< r (br-ai-p k :follow difficulty))) :go)
           ((and sp2 cash) :sp2))))
 
+(defun br-s-o-ender (e f mv)
+  "A stance string's last segment MV (:end: J3, K3, JL3, KL3) that hit: a human's O (buffered) in its cancel window
+(CANCEL-OPEN-P, as a J / K string's link 3) is the O ender (R20, DUEL_LILLE_V3 §25: 「lille 的 O 目前沒辦法接在架式攻擊結束後，
+我希望能追加這個功能」): the form's Kikon rush started under its own checks (TRY-COMMAND, ENDER: the string's pip), off the
+end push (FIGHTER-END-CHASE: its dash, SKIP-AURA), in the attack state's form (the awakened stance has no Kikon: back to KIN
+/ the owl KIN first; refused, the form stays). Not :ender (that flag's generic push and chase would double BR-S-END-PUSH).
+T when the rush started."
+  (let ((vp (pilot-vpad (pilot e))))
+    (when (and (vpad-command-pressed-p vp :kikon :any)
+               (cancel-open-p (fighter-sf f) (fighter-land-sf f) (mv-total mv) (eq (fighter-contact f) :hit)))
+      (let* ((form (fighter-form f)) (melee (br-melee-of form)))
+        (unless (eq melee form) (set-form e melee))
+        (cond ((try-command e f :kikon :kikon t)
+               (vpad-consume! vp :kikon)
+               (setf (fighter-end-chase f) t)
+               (skip-aura e f)
+               (pace e :o-ender)
+               t)
+              (t (unless (eq melee form) (set-form e form))
+                 nil))))))
+
 (defun br-s-tick (e)
   "A stance move (no chase: its J / K links are :quick / :flash). Its L links (:lchain: L1 -> L2 -> L3, J3 -> JL1 -> JL2 ->
 JL3, K3 -> KL1 -> KL2 -> KL3, decision R3) start unchained: a human's L pressed during it is latched and starts the next from the end
@@ -1255,6 +1276,9 @@ His CPU makes one call there (BR-S-CPU-CALL); holding a charge (the :hold phase)
     (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :hold) (member (mv-name mv) '(:br-s-l1 :br-e-l1 :br-oe-l1))
                (zerop (fighter-lock f)) (null (br-tick-brain e)))   ; (R18: the charged L's charge, a human's Step)
       (br-snipe-step e f st (pilot-vpad (pilot e)) mv))
+    (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :main) (zerop (fighter-lock f))
+               (getf (mv-params mv) :end) (null (br-tick-brain e)) (br-s-o-ender e f mv))   ; (R20: the O ender)
+      (return-from br-s-tick nil))
     (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :main) (zerop (fighter-lock f)))
       (let* ((kit (fighter-kit f)) (next (kit-next kit (mv-name mv) :lchain)) (sp2 (kit-next kit (mv-name mv) :sp2c))
              (b (br-tick-brain e)) (vp (pilot-vpad (pilot e))))
