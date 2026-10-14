@@ -1419,3 +1419,15 @@ The user (verbatim): 「我還發現 J1 > K2 跟 J2 > K3 中間的 hits 會中�
   steps 14 / 17 / 20: J1 > K2 base 17 / 18 / 21, KIN 16 / 16 / 18; J2 > K3 base 17 / 20 / 23, KIN 16 / 16 / 18). Hit only: startup, recovery and the block numbers (the on-block gaps, J beats K) are
   unchanged; J1 / J2 that hit leave him 6 frames more advantage.
 - A sim change. Gates: §28.1.
+
+### 28.1 Gates (2026-10-14)
+
+- 20 seeds, all K.O. (his wins of 20; the parent 0875ab3 in brackets, §27.1): BY 119.3 (12) [118.7], BK 124.4 (10)
+  [108.1], BR 152.8 (11) [150.4], BI 147.4 (6) [157.1], BS 161.0 (16) [150.1], the mirror 184.4 s [175.1]. 60 seeds: **BY
+  118.4 s (40/60), BK 117.7 s (23/60)**, all K.O. ([113.8, 116.2]): under 125, reported.
+- Awaken A/B (`--cmd 39020`, the never-awaken Lille's wins of 60, pass >= 20; all K.O.), Y K R I S + the mirror: seed0
+  100: 25 22 **18** 22 **19** **9**; 300: 32 23 **16** 25 24 **12**; 500: 35 **19** 24 **16** 22 **8**: 10 of 18 rows
+  (§27.1: 12). The mirror's three fall most (15 / 18 / 15 -> 9 / 12 / 8): the awakened side's J > K combos now hold.
+  Reported, the user's call.
+- Host tests 6976 ALL PASS, pkgcheck clean, build. G2 untouched (no Lille in the three cvc matches; the change is in
+  `barro.lisp` only).
