@@ -7,7 +7,7 @@
 ;;;; Keys: 1-5 scenes, LEFT/RIGHT turn, SPACE spin, N/P next/previous clip strip, G stage on/off.
 ;;;; Debug commands (Module._debug_cmd):
 ;;;;   2000+k  scene k: 0 base forms, 1 awakened forms, 2 cane + skeletons, 3 mirror match, 4 duel on the stage,
-;;;;           6 Kenpachi's Bankai alone, 7 his KATAUDE alone (DUEL_KEN_REWORK §8), 8 Yamamoto's Hellfire (bared, DUEL_YAMA_TYBW),
+;;;;           9 Ichigo's Shikai / KESSA (DUEL_ICHIGO_TYBW), 6 Kenpachi's Bankai alone, 7 his KATAUDE alone (DUEL_KEN_REWORK §8), 8 Yamamoto's Hellfire (bared, DUEL_YAMA_TYBW),
 ;;;;           5 the expressions: actors 0-2 Yamamoto neutral / shout / hurt, 3-5 Kenpachi (6200+i: each face)
 ;;;;   6000+i / 6100+i / 6200+i  camera on actor i: full body / head and chest / face (0.7 m, eye level);
 ;;;;   6210+i  the face from 35 degrees to its left
@@ -77,6 +77,9 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           ((prefix-p name "KE-B-") '((:kenpachi-oni :ke-broken (:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4))))
           ((prefix-p name "KE-A-") '((:kenpachi-oni nil (:haori :crack-1 :crack-2 :crack-3 :crack-4))))   ; KATAUDE: bare-handed
           ((prefix-p name "KE-") '((:kenpachi :ken-katana nil)))
+          ((or (prefix-p name "IC-K-") (member name '(:ic-c-light :ic-c-heavy)))
+           '((:ichigo :tensa (:shikai :mark))))                          ; KESSA (DUEL_ICHIGO_TYBW)
+          ((prefix-p name "IC-") '((:ichigo :zangetsu-long (:kessa :mark))))   ; the dual Shikai
           ((prefix-p name "SK-") '((:skeleton nil nil)))
           (t '((:yamamoto :ryujin-jakka nil) (:kenpachi :ken-katana nil))))))
 
@@ -116,6 +119,9 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           (8 (setf *v-label* "YAMAMOTO HELLFIRE (BARED TO THE WAIST)")
            (list (make-actor :yamamoto-bare :ryujin-jakka :ya-stance :x -1.1 :yaw pi :hide '(:haori :kosode))
                  (make-actor :kenpachi :ken-katana :ke-stance :x 1.1 :yaw pi)))
+          (9 (setf *v-label* "ICHIGO: SHIKAI / KESSA")
+           (list (make-actor :ichigo :zangetsu-long :ic-stance :x -1.1 :yaw pi :hide '(:kessa :mark))
+                 (make-actor :ichigo :tensa :ic-k-stance :x 1.1 :yaw pi :hide '(:shikai :mark))))
           (7 (setf *v-label* "KENPACHI KATAUDE (BARE-HANDED)")
            (list (make-actor :kenpachi-oni nil (if (find-clip :ke-a-stance nil) :ke-a-stance :ke-b-stance) :x 0.0 :yaw pi
                              :hide '(:haori :crack-1 :crack-2 :crack-3 :crack-4))))
