@@ -41,3 +41,98 @@ pitch-black 漆黒の月牙天衝, the grey-black phantom clones with a white ri
   edge-on from the behind camera.
 - **Impact**: no tell or hold beyond the sim's hitstop, no ground reaction on the drops, the cleaver never rests or carries
   its weight (it is waved like a stick).
+- **Look vs canon** (canon-looks §1–§2, the RoS key art `ros_tybw_img_ill`): the short blade is held **reversed** along the
+  forearm, 0.5 m, a plain slab (canon: a **forward grip** in the left hand, a straight slab ~0.7 m (manga) to ~1.0 m (anime,
+  RoS) whose handle is a closed loop cut in the blade's frame); the long blade is a constant-width slab with a 0.32 m hole
+  (canon: a khyber-knife profile widening to a swept, curved point, a slender slit along the spine, a stepped spur, a
+  0.28 m wrapped grip); the TYBW outfit's pieces are missing (the white X across the chest, the white left pauldron with
+  three red-scale panels, the red-scaled plate at the right hip, the white waist cloak with black slash marks hanging to
+  the knees, black wristbands). Canon cuts are **one-handed** (two hands only on the true Bankai): K3's two-handed drop
+  has no source. Jūjishō crosses the blades low in front and cuts short-then-long (the clip draws them crossed behind him).
+  Kept as the user's decisions (not canon): the flat horn swept sideways in both forms, KESSA's look from the figures.
+
+## 3. Decisions [G] (the lead's, for the user to review in play)
+
+### 3.1 The look (presentation only)
+
+| Part | Now | After |
+|---|---|---|
+| Short blade (Shikai, left) | 0.5 m, reversed along the forearm | **forward grip**, a straight black slab **0.85 m** with a white edge, its handle a closed loop round the fist with a white wrap (canon's trench-knife frame); between manga and anime length |
+| Long blade (Shikai, right) | constant 0.24 m slab, a 0.32 m hole | the same 1.55 m length (the reach stays): a khyber profile, 0.18 m at the root widening to ~0.26 m, the edge sweeping up into a curved point; a slender slit along the spine from the root to mid-blade; a stepped spur on the spine side at the root; the 0.28 m wrapped grip with its loose cloth end |
+| Outfit (Shikai only, `:tag :shikai`) | the plain shihakushō | the white X across the chest (two 0.07 m bands), the white left pauldron with three dark-red scale panels (#6E1A1C), the red-scaled plate at the right hip, black wristbands, **the white waist cloak**: two long panels from the sash to the knees, torn ends, black slash marks, **swinging** (a damped spring on his travel and turns, as Yamamoto's hem: a cosmetic `:pose` / `:draw` hook, no random numbers) |
+| KESSA | the user's figures | unchanged; only the idle's blade off the floor (§3.2) |
+
+### 3.2 The motion bars (style-refs §4–§6, canon-motion; no two strikes of a form share an arc plane and a hand set)
+
+Archetypes. **Shikai**: Musashi's "the long cuts, the short controls" (the short blade aims and parries while the cleaver
+winds up), J a fast short-blade dance, K a momentum maul (the cleaver's weight carries past the target, Berserk / Monster
+Hunter), the switched links and the stance's finishers the cross; the cleaver rests on the right shoulder between strikes
+(Cloud, Siegfried; canon cocks it there for the Getsuga). **KESSA**: the maul one-handed for J and two-handed for K, a
+charge-ladder K3 wrapped in chains, the counter a grab-and-cut (canon ch. 618 / 676); one slab without a point: no
+thrusts, no cross.
+
+| Slot | Shikai (cleaver R, short blade L) | KESSA (the slab R, chains L) |
+|---|---|---|
+| idle | the cleaver on the right shoulder, the short blade aimed at his face at chest height (T8, T10) | the slab hanging point-down across the legs, its end just off the plaza (ep. 45 still) |
+| J1 | short blade, horizontal L→R, a step in | one hand, a chop ↘ |
+| J2 | short blade, a rising backhand ↖ | one hand, a rising backhand ↗ |
+| J3 | both: a full turn (a key every 90°), the cleaver swung off the shoulder high, the short blade low | one hand: a spin, the slab level |
+| K1 | cleaver: a waist-high sweep R→L off the shoulder, a deep step, the free hand flung back, overshoot past the target (canon Ep396) | two hands: a full-body bat swing L→R |
+| K2 | cleaver: the point dragged along the plaza behind, a rising diagonal ↗ with the arm fully out (ch. 614); the hit pose ahead at ~30° up (not overhead), a held top | two hands: dragged, a rising diagonal ↗ |
+| K3 | cleaver one-handed: an anticipation coil, a hop forward, the overhead **vertical drop into the plaza** (ch. 660, Ep409), the short blade flung back for balance; a landing crouch (**a real step: §3.3**) | two hands: the slab held level overhead (the Berserk wind-up), chains wind round it, the vertical drop (**a real step: §3.3**) |
+| J2s KAESHI-KIBA | the cleaver still out from K1, the short blade **thrust** under it (an X silhouette) | — |
+| K2s KŌGA | both: a rising X that opens upward | — |
+| L | the stance 月待: side-on, the short blade aimed level at his face (RoS 朔望 「前方に刀を向けて構え」), the cleaver cocked high behind the right shoulder | the parry 鎖盾: the slab vertical before him (kept), the end off the floor |
+| L branches | RANGETSU: the lunge, four cuts **alternating the blades** (short ↘, cleaver backhand ↗, short ←, both blades level for the stagger); TSUKI-OTOSHI: a leap, both blades slammed down parallel; GETSUGA: from the shoulder cock a one-armed **diagonal ↙ fling** (the classic Getsuga swing, the shout) | 残月返し: the left hand grabs his wrist, a one-hand vertical drop (ch. 618 / 676) |
+| SP1 | JŪJISHŌ: the blades crossed low in front, arms flung wide; the short blade sweeps level (the first crescent, f12), the cleaver comes overhead and down (f20) | KUSARI-BIKI: the chain cast from the left fist, then a lean back, both feet braced, reeling (T15) |
+| SP2 | SŌGA: the flying lunge (the body near level, the cleaver high behind, the short blade low ahead: Ep394), a descending X, the arms ending flung open (T11) | 残像: the slab swept flat before his face (kept, off the floor) |
+| I (Breaker) | MINEUCHI: the cleaver's flat shoved forward like a shield, the left forearm braced on its spine (Monster Hunter's guard tackle, T7) | the same |
+| O strike | JŪJI: the blades crossed before him, scissored open outward | KAGE-UCHI: a leaping one-hand diagonal ↙ |
+| clones | — | the heavy plays KESSA K1's clip (link 3: K3's), the light keeps `:ic-k-cut` / `:ic-k-wrap` (KESSA's own clips retimed, never the Shikai's) |
+
+Plane and hand: Shikai J1 horizontal L, J2 diagonal-up L, J2s thrust L, J3 spin both, K1 horizontal R, K2 diagonal-up R,
+K3 vertical-down R, KŌGA rising X both, RANGETSU alternating, TSUKI-OTOSHI vertical-down both, GETSUGA diagonal-down R,
+JŪJISHŌ level L then vertical R, SŌGA descending X both, MINEUCHI a shove both, JŪJI a horizontal scissor both. KESSA J1
+diagonal-down one hand, J2 diagonal-up one hand, J3 spin one hand, K1 horizontal two hands, K2 diagonal-up two hands, K3
+vertical-down two hands, 残月返し vertical-down one hand after the grab, KAGE-UCHI diagonal-down ↙ one hand.
+
+### 3.3 Impact (演出魄力; style-refs §5, the tricks T1–T15)
+
+In the clips: an anticipation coil inside every K's startup (T1), the hit pose held to the end of the active frames (T2),
+overshoot and a settle key in the recovery (T4), a body spin feeding the cut with a key every 90° (T9), the short blade
+aimed while the cleaver winds up (T10), SŌGA's open-armed finish (T11), the blade dragging the body in the lunges (T13);
+turns with root yaw and a pelvis roll; the hit pose on S. Looks (cosmetic, his `:draw` hook, no sim reads by the sim):
+
+- **月牙の残光, the crescent edge** (T3): on the hit frames of his Flash, Signature and SP strikes (and each RANGETSU cut) an
+  ink crescent sweeps from the drawn tip along the cut to the hit volume's edge (mono like the in-play Getsuga: ink with
+  a white rim; KESSA's with a BLOOD hairline). Canon: his swings shed reiatsu, and the short blade fires a small Getsuga
+  (ch. 583, RoS). It closes the drawn-reach gaps no clip can (RANGETSU's short-blade cuts on a 2.4 m arc).
+- **Ground contact** (T5, T6): K3, TSUKI-OTOSHI, KESSA K3 and 残月返し crack the plaza where the blade lands (the shared
+  `stage-mark :crack` and `stage-debris`) with a short camera shake.
+
+### 3.4 Moves and hit volumes (the sim)
+
+- **K3 RAKUGA and KESSA K3 TENSA-OTOSHI step in**: the canon drop is a hop forward, so the drawn body travels about 1 m.
+  Drawing that without moving the fighter makes him snap back 1 m after the hit; so each gets a real `:slide 1.0` and its
+  capsule shortens by the same 1.0 m (Shikai cap 0.3 → 3.0 becomes 0.3 → 2.0; KESSA 0.3 → 3.2 becomes 0.3 → 2.2): the
+  effective reach (edge + slide) stays 3.35 / 3.55 m, the blade lands where the volume ends. Frame data, damage and
+  reactions unchanged.
+- Everything else is presentation: the clips reach their volumes (the FK ±0.15 m), the crescent edge covers RANGETSU.
+
+## 4. Build (batches, each in its own worktree; the lead merges, re-runs every check and gates)
+
+1. **ic-look**: the blades and the outfit (§3.1), the cloak's spring, the `:draw` hook's crescent edge and ground contact
+   (§3.3, keyed by move name).
+2. **ic-shikai**: the Shikai clips (§3.2 left column), K3's step (§3.4).
+3. **ic-kessa**: KESSA's own clips (§3.2 right column), the clones' and the counter's and KAGE-UCHI's clips, KESSA K3's
+   step.
+
+Checks: host tests (the FK test, with the short blade's tip for the J's), pkgcheck, `./build.sh duel`, 8-frame side and
+front strips per clip (`tests/duel-view.lisp` scene 9), the tip report, 0 B/frame for the new draw paths; batch 1
+byte-identical sim (`simgate --seeds 10` + `--cvc`); batches 2–3 gated against the baseline below.
+
+## 5. Baseline (3e078ef, 20 seeds, match time without cinematics)
+
+IY 110.7 s (Ichigo 7 / 20), IK 106.0 (11), IR 121.3 (8), II 140.6 (P1 10 / P2 10), SI 139.5 (Ichigo 16), BI 157.9
+(Ichigo 14); all 120 K.O. Ichigo's awaken A/B (never awakening, of 60; seed0 100 / 300 / 500): IY 14 / 19 / 26, IK 12 /
+10 / 8, IR 9 / 12 / 17, II 21 / 20 / 17, SI 27 / 23 / 21, BI 11 / 19 / 11 (an open item since 2026-09-29, AGENTS).
