@@ -567,7 +567,7 @@ At 0.4 for everyone the gate (below) broke the window only where these two meet:
 | Rukia −50 °C | 2.64 / 2.42 / 2.86 | **1.58 / 1.45 / 1.72** | 2.42 / 3.08 / 2.97 | **2.2 / 2.75 / 2.64** |
 | Rukia −273 °C | 3.24 / 2.97 / 3.51 | **1.94 / 1.78 / 2.11** | 4.3 / 3.78 / 3.65 | **3.78 / 3.38 / 3.24** |
 | Ichigo Shikai | 2.2 / 2.2 / 2.4 | **1.1 / 1.1 / 1.44** | 3.0 / 3.0 / 3.4 | **2.7 / 2.7 / 3.0** |
-| Ichigo KESSA | 2.6 / 2.6 / 2.8 | **1.56 / 1.56 / 1.68** | 3.2 / 3.2 / 3.6 | **2.9 / 2.9 / 3.2** |
+| Ichigo KESSA | 2.6 / 2.6 / 2.8 | **1.56 / 1.56 / 1.68** | 3.2 / 3.2 / 3.6 | **2.9 / 2.9 / 3.2** (K3 since DUEL_ICHIGO_TYBW §3.4: **2.2** + a step 1.0) |
 | Senjumaru Shikai | 2.4 / 2.4 / 2.4 | **1.44 / 1.44 / 1.44** | 3.2 / 2.8 / 2.8 | **2.9 / 2.5 / 2.5** |
 | Senjumaru 辻 (K1 TANMONO, K3 MAKITORI) | as the Shikai | as the Shikai | 4.2 / 2.8 / 2.8 | **3.8 / 2.5 / 2.5** |
 
@@ -600,7 +600,8 @@ their forms until now) and KESSA's clones' answers (`:ic-c-*`, the clones keep t
   §6.2: the short blade is held forward and its tip strikes, 1.42 / 1.40 / 1.47 m for J1 / J2 / J2s (KAESHI-KIBA a thrust
   under the cleaver); SŌSEN-GIRI 1.53; K2s keeps `:ic-cross`, SŌGA has `:ic-soga`, the O `:ic-juji-x`.) KESSA's J links: the elbow bent and the lunge gone (ITA-NAGI
   `:ic-k-jab` 2.25 → 1.62, KAESHI-ITA 2.50 → 1.62, ITA-SEN `:ic-k-wrap-j` 2.56 → 1.74, for 1.56 / 1.56 / 1.68); the clones
-  keep the long `:ic-k-cut` / `:ic-k-wrap`.
+  keep the long `:ic-k-cut` / `:ic-k-wrap`. (Since DUEL_ICHIGO_TYBW §6.3, 2026-10-14, every KESSA clip is redrawn at its
+  move's own frames: J1 1.62, J2 1.63, J3 1.69; the clones' 2.36 / 2.76.)
 - **The shared clips** (a J clip another move also plays): HISEN's `:ya-q1` (TENCHI's strike), MAI-SODE's `:ru-spin`
   (ENBU's strike) and SENJU's `:sj-spin` (her O's strike) are closer now; those strikes' volumes are the O's, so they
   under-reach on screen (the flash step and the O's effects carry them). SENKŌ's pull shortens KYOKKŌ's pose by 0.28 m.

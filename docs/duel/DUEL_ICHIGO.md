@@ -1054,12 +1054,12 @@ dash. Its bands: `:sig 3` at 2.6–5 m, `:sig 2` at 5–9 m; L after a K link 0.
 
 | Link | Name | Clip | S / A / R | Dmg | React | Block | Reach | Guard |
 |---|---|---|---|---|---|---|---|---|
-| J1 | 板薙 ITA-NAGI | `:ic-k-cut` | 8 / 3 / 12 | 30 | flinch | −2 | **1.56 m** 110° (was 2.6; `:ic-k-jab`) | 8 |
+| J1 | 板薙 ITA-NAGI | `:ic-k-jab` | 8 / 3 / 12 | 30 | flinch | −2 | **1.56 m** 110° (was 2.6) | 8 |
 | J2 | 返板 KAESHI-ITA | `:ic-k-back` | 8 / 3 / 13 | 30 | flinch | −2 | **1.56 m** 110° (was 2.6) | 8 |
-| J3 | 板旋 ITA-SEN | `:ic-k-wrap` | 9 / 3 / 18 | 40 | stagger | −4 | **1.68 m** 200° (was 2.8; `:ic-k-wrap-j`) | 8 |
-| K1 | 大板 ŌITA | `:ic-f1` | 18 / 4 / 20 | 66 | stagger | −3 | **2.9 m** 150° (was 3.2) | 14 |
-| K2 | 昇板 SHŌ-ITA | `:ic-f2` | 20 / 4 / 24 (enter 6) | 58 | stagger | −3 | **2.9 m** 90° (was 3.2) | 14 |
-| K3 | 天鎖落 TENSA-OTOSHI | `:ic-drop` | 21 / 5 / 34 (enter 7) | 80 | crumple | −20 | line 0.3 → **3.2** (was 3.6) | 20 |
+| J3 | 板旋 ITA-SEN | `:ic-k-wrap-j` | 9 / 3 / 18 | 40 | stagger | −4 | **1.68 m** 200° (was 2.8) | 8 |
+| K1 | 大板 ŌITA | `:ic-k-f1` | 18 / 4 / 20 | 66 | stagger | −3 | **2.9 m** 150° (was 3.2) | 14 |
+| K2 | 昇板 SHŌ-ITA | `:ic-k-f2` | 20 / 4 / 24 (enter 6) | 58 | stagger | −3 | **2.9 m** 90° (was 3.2) | 14 |
+| K3 | 天鎖落 TENSA-OTOSHI | `:ic-k-f3` | 21 / 5 / 34 (enter 7) | 80 | crumple | −20 | line 0.3 → **2.2** + a step 1.0 (was 3.2, 3.6; DUEL_ICHIGO_TYBW §3.4) | 20 |
 
 Routes on hit before the multiplier: JJJ 100, KKK 204. U is a **normal guard** again (the chain gauge, its HUD skin, the
 `:u` / `:hud-guard` hooks and the one-hand U chip are gone).
@@ -1070,7 +1070,7 @@ Routes on hit before the multiplier: JJJ 100, KKK 204. U is a **normal guard** a
   (`*clone-max*`): a 4th replaces the oldest. Each lives 300 f (`*clone-life*`). A clone is KESSA's body at alpha 0.45, a
   BLOOD rim and a BLOOD ring at its feet; it can't be hit.
 - **They answer J / K, reversed** (the user's choice: **every** live clone answers every press): J → a heavy 影断
-  KAGE-DACHI (`:ic-f1`, S16, 50, stagger, 3.0 m; link 3 `:ic-drop` S18, 60, crumple, a 3.4 m line), K → a light 影薙
+  KAGE-DACHI (`:ic-k-f1`, S16, 50, stagger, 3.0 m; link 3 `:ic-k-f3` S18, 60, crumple, a 3.4 m line; KESSA's own clips since DUEL_ICHIGO_TYBW §6.3), K → a light 影薙
   KAGE-NAGI (`:ic-k-cut`, S8, 26, flinch, 2.4 m; link 3 `:ic-k-wrap` S9, 32, stagger, 2.8 m), **6 f after the press**
   (`*clone-lag*`), **in place**, turned to face him (see "Clones swing in place" below: the 3 m chase and the 6 m
   answer range are gone). A J press's heavy lands at f22, inside Ichigo's J1 flinch; a K press's light at f14,
