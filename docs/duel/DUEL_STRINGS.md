@@ -387,7 +387,9 @@ The user, after trying §15:
   - In its startup, such a move chases at up to `*ender-chase-max*` (40 m/s): L, SP2, the restarted J1.
   - The O ender always takes its dash, even inside the trigger range (`SKIP-AURA`). The dash runs at least
     `*ender-o-dash*` (24 f) at `*ender-o-speed*` (16 m/s) or faster, and goes on while the victim still slides
-    (`RUSH-DASH-MAX`, `RUSH-DASH-SPEED`).
+    (`RUSH-DASH-MAX`, `RUSH-DASH-SPEED`). A module whose strike reaches him from where it stands sets its own floor
+    `:ender-dash` (Lille's three 12 m lane-shot Kikons: 0, 2026-10-14, DUEL_LILLE_V3 §27: the 8-frame dash and the 20-frame
+    wind-up came after a stagger's 26).
   - The bug the user found: the follow-ups start as the hitstop ends, the same step the 8-frame push starts. TENCHI
     took its strike at 0.72 m and swung at a man sliding 3.1 m away.
 - **The CPU.** ORANGE's restart (`AI-CHAIN-FOLLOW-P`) accepts J1 reach + 2.0 m, because the restart chases.

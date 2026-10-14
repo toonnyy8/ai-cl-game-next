@@ -569,7 +569,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (defmove :br-kikon :kind :kikon :clip :lb-aim :clip-2 :lb-fire :clip-s 4 :callout "BANBUTSU KANTSU" :cine lb-kikon-cine
   :startup 20 :active 3 :recovery 30 :whiff 30 :dmg 70 :adv-block -14 :track 0 :vol (:cap 0.5 12.0 1.2 1.2)
   :on-hit :knockback :kb 2.0 :cooldown 90 :on-frame ((20 br-lane-shot))
-  :params (:aura 8 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
+  :params (:aura 8 :aim 120.0 :speed 0.0 :dash-max 0 :ender-dash 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
 
 ;;; ================================================================ JILLIEL
 ;; KIN, the attack state: the wing blades (plain strings: no resource in or out, decision R1 「避免同質化」)
@@ -643,7 +643,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (defmove :br-w-kikon :kind :kikon :clip :lb-w-kikon :clip-2 :lb-w-kikon-fire :callout "KAMI NO SABAKI"
   :cine lb-jilliel-kikon-cine :startup 20 :active 3 :recovery 30 :whiff 30 :dmg 70 :adv-block -14 :track 0
   :vol (:cap 0.5 12.0 1.2 1.2) :on-hit :knockback :kb 2.0 :cooldown 90 :on-frame ((20 br-lane-shot))
-  :params (:aura 8 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
+  :params (:aura 8 :aim 120.0 :speed 0.0 :dash-max 0 :ender-dash 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
 ;; EN, the stance (decision R3: 「架勢中的 JJ / KK / LL 都改成差異明顯的數段連擊」): the strings' own clips (barro-art.lisp
 ;; :br-en-*: L the gathering casts, J the rapid flicks, K the heavy throws; the follow-ups :br-e-jf* 疾射 / :br-e-kf* 重砲,
 ;; 「最後一段 LL 會依據前面 J/K 有不同的動作模組」); the openers wing strikes in reach (R4, the user 2026-10-11: 「所有起手連段一律用
@@ -681,7 +681,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (defmove :br-o-kikon :kind :kikon :clip :lb-o-trompete :clip-2 :lb-o-chop :clip-s 4 :callout "TROMPETE"
   :cine lb-trompete-cine :startup 20 :active 3 :recovery 30 :whiff 30 :dmg 80 :adv-block -14 :track 0
   :vol (:cap 0.5 12.0 1.4 1.4) :on-hit :knockback :kb 2.0 :cooldown 90 :on-frame ((20 br-lane-shot))
-  :params (:aura 10 :aim 120.0 :speed 0.0 :dash-max 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
+  :params (:aura 10 :aim 120.0 :speed 0.0 :dash-max 0 :ender-dash 0 :dash-track 0.0 :look :lane :follow-speed 14.0 :len 12.0))
 ;; the owl's stance EN: the same strings on its claws (barro-art.lisp :br-oen-*, the follow-ups :br-oe-jf* / -kf*; R one
 ;; less: *BR-OWL-ADV*); the openers claw strikes in reach, L slower (R4)
 (br-defstance "BR-OE" (:l1 (:br-oen-l1 8 :br-oen-lc) :j1 (:br-oen-j1 8) :j2 (:br-oen-j2 8)

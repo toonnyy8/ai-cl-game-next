@@ -1370,3 +1370,22 @@ The user (verbatim): 「幫我移除舊版的 lille，並將新版 lille II 改�
   byte-identical, 8 differ only in his name's text (the select screen's sixth slot; in the BK match the HUD's name plate
   and a centred line naming him: "LILLE II" -> "LILLE"); the sim lines and the four matches' fighters all PASS.
 
+
+## 27. Fix R21 (2026-10-14): his O ender lands inside the stun
+
+The user (verbatim): 「lille 覺醒後使用架式攻擊完接 O 時無法在對手恢復硬直前擊中，導致 O 根本串不進連擊中」.
+
+- **Measured** (the native sim, P1's presses injected step by step, 1.5 m from Kenpachi; the scenes 82003 EN, 82009 the
+  owl EN, 82012 the base form): the end segment hits, the hitstop, then the O ender's rush **dashes 8 frames** and its
+  strike **winds up 20**: 28 frames against J3 / K3's stagger of 26. The victim stood up 2-4 frames before the shot (EN
+  J3 → O: up at step 69, the shot at 72; EN K3 → O: 103 / 107; the owl the same; the base form's plain J3 → O 68 / 71).
+  Only the base form's K3 (crumple 40) made it. R20's browser check saw "HIT 70" but not that he was already up.
+- **The cause**: an O ender off a pushing J3 / K3 dashes at least `*ENDER-O-DASH*` 24 frames, on while he slides
+  (`RUSH-DASH-MAX`, DUEL_STRINGS §16, for the dashing modules: TENCHI swung at a man 3.1 m away). His three Kikons
+  (BANBUTSU KANTSU, KAMI NO SABAKI, TROMPETE) have no dash (`:dash-max 0`): a 12 m lane shot that reaches him from where
+  Lille stands, so the dash only cost time.
+- **The fix**: a rush module may set its own floor `:ender-dash` (`RUSH-DASH-MAX`; none: `*ENDER-O-DASH*` as before, so
+  every other module is untouched); his three Kikons set 0. The O ender now strikes on the step after it starts: the shot
+  21 frames after the hit, 5 frames inside the stagger (the same in all three forms, J3 and K3 alike; JL3 / KL3's
+  knockback 30 more). It also fixes the base form's attack-state J3 → O (the generic O ender, the same Kikon move).
+- A sim change: his CPU takes the O ender (§25.1), so his pairings move. Gates: §27.1.

@@ -601,8 +601,11 @@ at the hit). E doesn't move, unless the arena's edge holds O (PUSH-APART). What 
 
 (defun rush-dash-max (f mv)
   "The rush MV's dash frames: its module's :dash-max, at least *ENDER-O-DASH* for an O ender off a J3 / K3 that pushed
-him away (FIGHTER-END-CHASE; the user 2026-10-02: K3 -> O whiffed), so it reaches him."
-  (if (fighter-end-chase f) (max *ender-o-dash* (rush-param mv :dash-max)) (rush-param mv :dash-max)))
+him away (FIGHTER-END-CHASE; the user 2026-10-02: K3 -> O whiffed), so it reaches him; a module whose strike reaches him
+from where it stands sets its own floor :ender-dash (Lille's 12 m lane shots: 0, DUEL_LILLE_V3 §27)."
+  (if (fighter-end-chase f)
+      (max (or (rush-param mv :ender-dash) *ender-o-dash*) (rush-param mv :dash-max))
+      (rush-param mv :dash-max)))
 (defun rush-dash-speed (f mv)
   "The rush MV's dash speed: its module's :speed, at least *ENDER-O-SPEED* off a pushing ender (RUSH-DASH-MAX)."
   (if (fighter-end-chase f) (max *ender-o-speed* (rush-param mv :speed)) (rush-param mv :speed)))
