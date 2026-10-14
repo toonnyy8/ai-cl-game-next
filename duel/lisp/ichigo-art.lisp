@@ -26,7 +26,7 @@
                             (:mouth #x7A3A3C) (:fold #x3A3A46) (:tabi #xE8E8E4) (:sole #x262833) (:brow #x6A3A1C)
                             (:horn #xE8E4D8) (:mark #xF0EEE8) (:chain #x24242C) (:blood #xD0101C) (:blade #x121216)
                             (:edge #xC8CCD4) (:wrap #x2A2A30) (:clench #x141016) (:hair-k #x1A1418) (:coil #x6E1418)
-                            (:mask #x0E0C10))
+                            (:mask #x0E0C10) (:cloak #xF0EEE8) (:scale #x6E1A1C) (:scale-d #x461013) (:wrap-w #xD8D6CC))
                   :rim (#xFFD8B8 0.14))
   (:pelvis (:box 0.36 0.18 0.25 :c :black)
            (:box 0.37 0.04 0.26 :at (0 0.075 0) :c :black)                                       ; the black sash
@@ -35,7 +35,39 @@
            ;; KESSA: the white under-kimono torn out under the black at the waist
            (:wedge 0.07 0.07 0.012 :at (0.1 0.035 0.13) :rot (0 180 0) :c :white :tag :kessa)
            (:wedge 0.05 0.09 0.012 :at (-0.02 0.03 0.132) :rot (0 180 8) :c :white :tag :kessa)
-           (:wedge 0.06 0.06 0.012 :at (-0.12 0.04 0.12) :rot (0 180 -6) :c :white :tag :kessa))
+           (:wedge 0.06 0.06 0.012 :at (-0.12 0.04 0.12) :rot (0 180 -6) :c :white :tag :kessa)
+           ;; the Shikai's TYBW dress (DUEL_ICHIGO_TYBW §3.1): the white cloak's tied band over the sash, its knot and two
+           ;; ends at the front; the red-scaled plate at the right hip (outside the cloak)
+           (:box 0.385 0.05 0.275 :at (0 0.07 0) :c :cloak :tag :shikai)
+           (:sphere 0.036 :at (0.01 0.065 0.15) :seg 8 :c :cloak :tag :shikai)
+           (:box 0.05 0.2 0.012 :at (0.03 -0.05 0.155) :rot (0 0 -9) :c :cloak :tag :shikai)
+           (:box 0.045 0.15 0.012 :at (-0.02 -0.03 0.15) :rot (0 0 12) :c :cloak :tag :shikai)
+           (:bevel 0.025 0.21 0.13 0.008 :at (0.262 -0.06 0.03) :rot (0 0 9) :c :white :tag :shikai)
+           (:box 0.006 0.075 0.1 :at (0.272 -0.015 0.03) :rot (0 0 9) :c :scale :tag :shikai)
+           (:box 0.006 0.075 0.1 :at (0.285 -0.1 0.03) :rot (0 0 9) :c :scale :tag :shikai)
+           (:box 0.007 0.006 0.1 :at (0.273 -0.01 0.03) :rot (0 0 9) :c :scale-d :tag :shikai)
+           (:box 0.007 0.006 0.1 :at (0.286 -0.095 0.03) :rot (0 0 9) :c :scale-d :tag :shikai))
+  ;; the Shikai's white waist cloak (canon-looks §2: tied round the waist, open at the front, hanging to the knees on both
+  ;; sides and behind, the hem torn, black slash marks): 12 thin facets round the sash from 46 deg off the front (+x his
+  ;; right), flared 9 deg, their lengths ragged, a torn tooth under each, 6 slashes. It hangs on the pelvis, which ICHIGO-CLOAK-POSE
+  ;; swings about the obi (the cloak's spring: the hakama goes along, like cloth)
+  #.(flet ((f (v) (float (/ (round (* v 1000)) 1000) 1f0)))
+      (cons :pelvis
+            (loop for a in '(46 72 98 124 150 174 -46 -72 -98 -124 -150 -174)
+                  for bot in '(-0.44 -0.53 -0.49 -0.56 -0.5 -0.54 -0.48 -0.55 -0.47 -0.53 -0.49 -0.52)
+                  for tooth in '(0.07 0.1 0.08 0.11 0.09 0.08 0.09 0.08 0.11 0.07 0.1 0.09)
+                  for slash in '(nil 35 nil -30 nil 25 nil -35 nil 30 nil nil)
+                  for r = (* a (/ pi 180)) for len = (- 0.06 bot) for yc = (/ (+ 0.06 bot) 2)
+                  for rx = (+ 0.205 (* 0.16 (/ len 2))) for rz = (+ 0.16 (* 0.16 (/ len 2)))
+                  for x = (* rx (sin r)) for z = (* rz (cos r))
+                  for n = (atan (/ (sin r) rx) (/ (cos r) rz)) for nd = (* n (/ 180 pi))
+                  for bx = (+ x (* 0.045 (sin n))) for bz = (+ z (* 0.045 (cos n)))   ; the hem's (flared) point
+                  append `((:box 0.125 ,(f len) 0.012 :at (,(f x) ,(f yc) ,(f z)) :rot (,(f (- nd)) 9 0) :c :cloak :tag :shikai)
+                           (:wedge 0.012 ,(f tooth) 0.07 :at (,(f bx) ,(f (- bot (/ tooth 2) -0.01)) ,(f bz))
+                                   :rot (,(f (- 90 nd)) 0 180) :c :cloak :tag :shikai)
+                           ,@(when slash
+                               `((:box 0.026 0.17 0.004 :at (,(f (+ x (* 0.012 (sin n)))) ,(f (+ yc -0.06)) ,(f (+ z (* 0.012 (cos n)))))
+                                       :rot (,(f (- nd)) 9 ,slash) :c :black :tag :shikai)))))))
   (:spine (:bevel 0.36 0.25 0.24 0.04 :at (0 0.11 0) :c :black)
           ;; KESSA: the robe open to the navel: the abdomen, the black lines down it
           (:box 0.08 0.2 0.004 :at (0 0.12 0.121) :c :skin :tag :kessa)
@@ -50,6 +82,14 @@
           (:box 0.018 0.18 0.01 :at (-0.034 0.185 0.14) :rot (0 0 24) :c :white :tag :shikai)
           (:box 0.05 0.12 0.012 :at (0 0.19 0.138) :c :skin :tag :shikai)                         ; the chest in the V
           (:box 0.005 0.17 0.004 :at (0.08 0.07 0.142) :rot (0 0 -10) :c :fold)
+          ;; the Shikai's white X: two flat 0.07 m bands from each shoulder to the other hip, crossing on the sternum
+          ;; (front and back, and over the shoulders)
+          (:box 0.07 0.5 0.012 :at (0 0.105 0.146) :rot (0 0 50) :c :white :tag :shikai)
+          (:box 0.07 0.5 0.012 :at (0 0.105 0.146) :rot (0 0 -50) :c :white :tag :shikai)
+          (:box 0.07 0.5 0.012 :at (0 0.105 -0.146) :rot (0 0 50) :c :white :tag :shikai)
+          (:box 0.07 0.5 0.012 :at (0 0.105 -0.146) :rot (0 0 -50) :c :white :tag :shikai)
+          (:box 0.075 0.012 0.3 :at (0.175 0.265 0) :rot (0 0 -12) :c :white :tag :shikai)
+          (:box 0.075 0.012 0.3 :at (-0.175 0.265 0) :rot (0 0 12) :c :white :tag :shikai)
           ;; KESSA: the V open to the navel, the white edges wide; the dark red disc on the sternum, the lines from it
           (:box 0.02 0.3 0.01 :at (0.06 0.11 0.14) :rot (0 0 -8) :c :white :tag :kessa)
           (:box 0.02 0.3 0.01 :at (-0.06 0.11 0.14) :rot (0 0 8) :c :white :tag :kessa)
@@ -143,9 +183,20 @@
          (:box 0.004 0.04 0.003 :at (-0.036 0.1 0.064) :rot (0 0 -12) :c :mark :tag :mark)
          (:box 0.004 0.03 0.003 :at (-0.046 0.13 0.058) :rot (0 0 20) :c :mark :tag :mark))
   (:shoulder-r (:bevel 0.12 0.06 0.18 0.02 :at (0.02 -0.02 0) :rot (0 0 -20) :c :black))
-  (:shoulder-l (:bevel 0.12 0.06 0.18 0.02 :at (-0.02 -0.02 0) :rot (0 0 20) :c :black))
+  (:shoulder-l (:bevel 0.12 0.06 0.18 0.02 :at (-0.02 -0.02 0) :rot (0 0 20) :c :black)
+              ;; the Shikai's white pauldron: a shell over the shoulder, its first red-scale panel (the other two on the arm)
+              (:bevel 0.17 0.035 0.23 0.012 :at (-0.035 0.025 0) :rot (0 0 22) :c :white :tag :shikai)
+              (:box 0.1 0.006 0.13 :at (-0.042 0.045 0) :rot (0 0 22) :c :scale :tag :shikai)
+              (:box 0.1 0.007 0.006 :at (-0.042 0.047 0.02) :rot (0 0 22) :c :scale-d :tag :shikai)
+              (:box 0.1 0.007 0.006 :at (-0.042 0.047 -0.025) :rot (0 0 22) :c :scale-d :tag :shikai))
   (:upper-arm-r (:box 0.13 0.3 0.14 :at (0 -0.15 0) :c :black))
-  (:upper-arm-l (:box 0.13 0.3 0.14 :at (0 -0.15 0) :c :black))
+  (:upper-arm-l (:box 0.13 0.3 0.14 :at (0 -0.15 0) :c :black)
+                ;; the pauldron's lower plate down the outside of the arm, two more red-scale panels
+                (:bevel 0.022 0.17 0.16 0.006 :at (-0.075 -0.075 0) :c :white :tag :shikai)
+                (:box 0.006 0.06 0.12 :at (-0.088 -0.04 0) :c :scale :tag :shikai)
+                (:box 0.006 0.06 0.12 :at (-0.088 -0.11 0) :c :scale :tag :shikai)
+                (:box 0.007 0.006 0.12 :at (-0.089 -0.035 0) :c :scale-d :tag :shikai)
+                (:box 0.007 0.006 0.12 :at (-0.089 -0.105 0) :c :scale-d :tag :shikai))
   ;; the forearm: the sleeve's flared cuff just past the elbow, its white lining, then bare skin; KESSA's cuff torn
   ;; (three teeth, a gap in the lining) and the blood coils at the wrist
   (:lower-arm-r (:box 0.2 0.07 0.21 :at (0 -0.03 0) :rot (0 0 -8) :c :black)
@@ -156,6 +207,7 @@
                 (:wedge 0.05 0.06 0.012 :at (0.02 -0.09 -0.1) :rot (180 180 0) :c :black :tag :kessa)
                 (:box 0.07 0.17 0.07 :at (0 -0.15 0) :c :skin)
                 (:box 0.055 0.08 0.055 :at (0 -0.23 0) :c :skin)
+                (:box 0.072 0.04 0.072 :at (0 -0.205 0) :c :black :tag :shikai)                       ; the black wristband
                 (:sphere 0.022 :at (0.03 -0.21 0.02) :c :coil :tag :kessa) (:sphere 0.022 :at (-0.03 -0.21 0.02) :c :coil :tag :kessa)
                 (:sphere 0.022 :at (0.03 -0.22 -0.025) :c :coil :tag :kessa) (:sphere 0.022 :at (-0.03 -0.2 -0.025) :c :coil :tag :kessa)
                 (:sphere 0.018 :at (0.0 -0.24 0.035) :c :coil :tag :kessa)
@@ -168,19 +220,29 @@
                 (:wedge 0.05 0.06 0.012 :at (-0.02 -0.09 -0.1) :rot (180 180 0) :c :black :tag :kessa)
                 (:box 0.07 0.17 0.07 :at (0 -0.15 0) :c :skin)
                 (:box 0.055 0.08 0.055 :at (0 -0.23 0) :c :skin)
+                (:box 0.072 0.04 0.072 :at (0 -0.205 0) :c :black :tag :shikai)
                 (:sphere 0.022 :at (-0.03 -0.21 0.02) :c :coil :tag :kessa) (:sphere 0.022 :at (0.03 -0.21 0.02) :c :coil :tag :kessa)
                 (:sphere 0.022 :at (-0.03 -0.22 -0.025) :c :coil :tag :kessa) (:sphere 0.022 :at (0.03 -0.2 -0.025) :c :coil :tag :kessa)
                 (:sphere 0.018 :at (0.0 -0.24 0.035) :c :coil :tag :kessa)
                 (:glow 1.5 (:box 0.01 0.008 0.012 :at (-0.03 -0.215 0.042) :c :blood) :kessa))
   (:hand-r (:bevel 0.06 0.08 0.06 0.016 :at (0 -0.04 0) :c :skin))
   (:hand-l (:bevel 0.06 0.08 0.06 0.016 :at (0 -0.04 0) :c :skin))
-  ;; the Shikai's short blade in the left fist: hiltless, stone-knife shaped, ink black with a white edge, held REVERSED
-  ;; along the forearm (the :weapon-l joint's +Y, back toward the elbow)
-  (:weapon-l (:box 0.03 0.1 0.03 :at (0 0.0 0.0) :c :wrap :tag :shikai)
-             (:box 0.1 0.5 0.03 :at (0 0.3 0.05) :c :blade :tag :shikai)                        ; the flat, both ways:
-             (:box 0.03 0.5 0.1 :at (0 0.3 0.05) :c :blade :tag :shikai)                        ; it reads from any side
-             (:box 0.02 0.5 0.02 :at (0 0.31 0.105) :c :edge :tag :shikai)
-             (:box 0.02 0.5 0.02 :at (0.055 0.31 0.05) :c :edge :tag :shikai))
+  ;; the Shikai's short blade in the left fist, a FORWARD grip (DUEL_ICHIGO_TYBW §3.1, the batches' contract): a straight
+  ;; black slab 0.13 wide along the :weapon-l joint's -Y from y -0.05 to the point at y -0.90, z 0; the spine (a thick
+  ;; ridge, so it never vanishes edge-on) in line with the fist at z 0, the slab out to the edge at the joint's +Z (the
+  ;; :at fwd -0.13 side, a white line), its end clipped from the edge up to the point on the spine; the handle a closed
+  ;; loop of the blade's frame round the fist, the bar through the fist wrapped white (canon's trench-knife frame, RoS)
+  (:weapon-l (:box 0.034 0.75 0.13 :at (0 -0.425 -0.065) :c :blade :tag :shikai)                ; the slab, y -0.05 .. -0.8
+             (:wedge 0.034 0.1 0.13 :at (0 -0.85 -0.065) :rot (0 0 180) :c :blade :tag :shikai)  ; the clipped end
+             (:box 0.06 0.83 0.024 :at (0 -0.465 0) :c :blade :tag :shikai)                     ; the spine ridge
+             (:box 0.04 0.75 0.014 :at (0 -0.425 -0.128) :c :edge :tag :shikai)                 ; the white edge
+             (:box 0.04 0.164 0.014 :at (0 -0.85 -0.07) :rot (0 52.4 0) :c :edge :tag :shikai)  ; ... up the clip
+             (:box 0.036 0.19 0.028 :at (0 0.03 0.05) :c :blade :tag :shikai)                   ; the loop round the fist
+             (:box 0.036 0.19 0.028 :at (0 0.03 -0.1) :c :blade :tag :shikai)
+             (:box 0.036 0.03 0.178 :at (0 0.125 -0.025) :c :blade :tag :shikai)
+             (:box 0.03 0.17 0.03 :at (0 0.035 0) :c :wrap-w :tag :shikai)                      ; the wrapped bar
+             (:box 0.034 0.012 0.034 :at (0 0.1 0) :rot (0 0 30) :c :wrap :tag :shikai)
+             (:box 0.034 0.012 0.034 :at (0 -0.03 0) :rot (0 0 -30) :c :wrap :tag :shikai))
   (:thigh-r (:cyl 0.11 0.44 :top 0.1 :seg 10 :at (0 -0.21 0) :c :black))
   (:thigh-l (:cyl 0.11 0.44 :top 0.1 :seg 10 :at (0 -0.21 0) :c :black))
   ;; the shins: the Shikai's tabi; KESSA barefoot, the hakama's hem torn, the blood coils at the ankle
@@ -208,20 +270,36 @@
            (:bevel 0.08 0.045 0.2 0.02 :at (0 -0.035 0.05) :c :skin :tag :kessa)))
 
 ;;; ---------------------------------------------------------------- weapons
-;; Zangetsu, the long blade: a cleaver ~1.4 m, ink black with a steel-white edge, the hole between the hilt and the blade
-;; (the true Zangetsu's), a short cloth-wrapped hilt
+;; Zangetsu, the long blade (DUEL_ICHIGO_TYBW §3.1; canon-looks §1, RoS): ink black, 1.55 m from the fist to the point (the
+;; reach unchanged), a khyber profile: the spine straight (z -0.06), the blade 0.18 m wide at the root widening to 0.26 m
+;; at y 1.25, then the edge sweeping up into a curved point on the spine; a slender slit along the spine from the root to
+;; mid-blade (y 0.08-0.72), a stepped spur on the spine side at the root, a thin white edge; the 0.28 m off-white wrapped
+;; grip with its loose cloth end. SLAB builds a flat profile (stations (y z-spine z-edge), TH thick) span by span.
 (defweapon :zangetsu-long (:length 1.55 :base 0.4)
-  (:solid (mbc mb #x121216)
-          (with-xform (mb (xform :y 0.94 :z 0.06)) (mb-bevel-box mb 0.03 1.12 0.24 0.006))       ; the slab, y 0.38-1.5
-          (with-xform (mb (xform :y 1.53 :z 0.02 :pitch 0.5)) (mb-box mb 0.03 0.1 0.16))          ; the slanted tip
-          (with-xform (mb (xform :y 0.22 :z -0.035)) (mb-box mb 0.03 0.32 0.05))                  ; beside the hole: the spine
-          (with-xform (mb (xform :y 0.22 :z 0.155)) (mb-box mb 0.03 0.32 0.05))                   ; ... and the edge side
-          (with-xform (mb (xform :y 0.07 :z 0.06)) (mb-box mb 0.03 0.04 0.24))                    ; the root under the hole
-          (mbc mb #x2A2E36)                                                                     ; a dark fuller
-          (with-xform (mb (xform :y 0.95 :z -0.02)) (mb-box mb 0.034 1.0 0.02))
-          (mbc mb #xC8CCD4)                                                                     ; the white edge
-          (with-xform (mb (xform :y 0.8 :z 0.185)) (mb-box mb 0.034 1.44 0.016))
-          (mbc mb #xD8D6CC)                                                                     ; the short wrapped hilt
+  (:solid (flet ((slab (st th)
+                   (let ((h (* 0.5 th)) (n (length st)))
+                     (loop for (a b) on st while b for i from 1
+                           do (destructuring-bind ((y0 p0 q0) (y1 p1 q1)) (list a b)
+                                (flet ((v (x y z) (v3 (float x 1f0) (float y 1f0) (float z 1f0))))
+                                  (let ((a0 (v (- h) y0 p0)) (a1 (v (- h) y0 q0)) (a2 (v (- h) y1 q1)) (a3 (v (- h) y1 p1))
+                                        (b0 (v h y0 p0)) (b1 (v h y0 q0)) (b2 (v h y1 q1)) (b3 (v h y1 p1))
+                                        (c (list 0 (* 0.5 (+ y0 y1)) (* 0.25 (+ p0 q0 p1 q1)))))
+                                    (mb-poly-out mb (list a0 a1 a2 a3) :center c) (mb-poly-out mb (list b0 b1 b2 b3) :center c)
+                                    (mb-poly-out mb (list a0 a3 b3 b0) :center c) (mb-poly-out mb (list a1 a2 b2 b1) :center c)
+                                    (when (= i 1) (mb-poly-out mb (list a0 a1 b1 b0) :center c))
+                                    (when (= i (1- n)) (mb-poly-out mb (list a3 a2 b2 b3) :center c)))))))))
+            (mbc mb #x121216)
+            (slab '((0.0 -0.06 0.12) (0.08 -0.06 0.124)) 0.03)                                 ; the root
+            (slab '((0.08 -0.06 -0.035) (0.72 -0.06 -0.035)) 0.03)                             ; the spine beside the slit
+            (slab '((0.08 -0.005 0.124) (0.4 -0.005 0.14) (0.72 -0.005 0.158)) 0.03)           ; ... and the blade
+            (slab '((0.72 -0.06 0.158) (1.0 -0.06 0.18) (1.25 -0.06 0.2) (1.36 -0.06 0.19) (1.44 -0.06 0.15)
+                    (1.5 -0.06 0.08) (1.535 -0.06 0.0) (1.55 -0.06 -0.052)) 0.03)              ; widening, the swept point
+            (with-xform (mb (xform :y 0.05 :z -0.08)) (mb-box mb 0.03 0.1 0.04))                ; the stepped spur
+            (with-xform (mb (xform :y 0.025 :z -0.11)) (mb-box mb 0.03 0.05 0.02))
+            (mbc mb #xC8CCD4)                                                                   ; the white edge
+            (slab '((0.0 0.104 0.122) (0.4 0.124 0.142) (0.72 0.142 0.16) (1.0 0.164 0.182) (1.25 0.184 0.202)
+                    (1.36 0.174 0.192) (1.44 0.134 0.152) (1.5 0.064 0.082) (1.535 -0.016 0.002)) 0.034))
+          (mbc mb #xD8D6CC)                                                                     ; the wrapped grip
           (with-xform (mb (xform :y -0.14)) (mb-box mb 0.045 0.28 0.045))
           (mbc mb #x2A2A30)
           (loop for i below 4 do (with-xform (mb (xform :y (- -0.03 (* i 0.07)) :roll 0.785)) (mb-box mb 0.032 0.032 0.052)))
@@ -814,6 +892,178 @@ a trace in his own Kikon rush)."
             (when (< (rnd01) (* 3f0 dt kk))
               (%t-blob (aref v 0) (aref v 1) (aref v 2) (rnd-range -0.2f0 0.2f0) (rnd-range 0.3f0 0.7f0) (rnd-range -0.2f0 0.2f0)
                        (rnd-range 0.3f0 0.5f0) (rnd-range 0.02f0 0.035f0) -0.1f0 0.05f0 +pal-blood+))))))))
+
+;;; ---------------------------------------------------------------- the cloak and the impact looks (his :pose / :draw hooks)
+;;; DUEL_ICHIGO_TYBW §3.1 / §3.3, cosmetic: the sim never reads a joint or a look; no random number but the shared
+;;; debris's; 0 B a frame (debug 74906). ICHIGO-CLOAK-POSE swings the Shikai's pelvis (the white cloak hangs on it) by Yamamoto's
+;;; hem spring (yama-art.lisp %YA-HEM-POSE / %YA-HEM-STEP and their knobs *YA-HEM-*: the cloak trails his travel and turns,
+;;; overshoots once when he stops, breathes while he stands). ICHIGO-DRAW steps it and draws, per move named in
+;;; *IC-EDGE-MOVES*, 月牙の残光 the crescent edge: through each hit window (from 2 f before it to 4 f after), an ink
+;;; crescent from the drawn blade's tip out to the hit volume's edge (reached on the hit frame), bulging along the tip's
+;;; travel (the cut), a white rim (KESSA: a BLOOD hairline); and, on the hit frame of *IC-GROUND-MOVES*, the plaza's crack
+;;; and rubble where the tip meets it (or at the volume's far end) and a short shake, once a move.
+(defparameter *ic-edge-moves*
+  '((:ic-k1) (:ic-k2) (:ic-k3) (:ic-k2s) (:ic-tsuki-j 0 2) (:ic-tsuki-k) (:ic-soga) (:ic-kikon) (:ic-breaker)
+    (:ic-k-k1) (:ic-k-k2) (:ic-k-k3) (:ic-k-gaeshi) (:ic-k-kikon) (:ic-c-heavy) (:ic-c-heavy3))
+  "The crescent edge's moves: (move hit-index ...), the listed windows (0-based) cut by the short blade (its point, the
+:weapon-l joint's (0 -0.90 0)), every other by the held blade's tip. New 2026-10-14 (DUEL_ICHIGO_TYBW §3.3, the lead's).
+(The clones' :ic-c-* are drawn by ICHIGO-CLONE-LOOK: listed for a hook that sees them, none does yet.)")
+(defparameter *ic-ground-moves* '(:ic-k3 :ic-tsuki-k :ic-k-k3 :ic-k-gaeshi)
+  "The moves whose first hit frame cracks the plaza (STAGE-MARK :crack, STAGE-DEBRIS, SHAKE). New 2026-10-14 (§3.3).")
+(defparameter *ic-edge-w* 0.12 "The crescent's half-width per m of its span (0.08-0.2 m).")
+(defparameter *ic-edge-bulge* 0.28 "Its bulge along the cut per m of span.")
+
+(declaim (type f32vec *ic-look* *ic-tip* *ic-tip-l* *ic-far*))
+(defvar *ic-look* (make-f32 64)
+  "Per side (32 floats): [0..15] the cloak spring (%YA-HEM-POSE / -STEP's layout), [16..18] the held blade's tip at the last
+draw, [19..21] the short blade's, [22..24] the held tip's cut direction (unit), [25..27] the short's, [28] the move frame
+of the last draw (-1: none).")
+(defvar *ic-tip* (make-f32 3) "ICHIGO-DRAW's held blade's tip.")
+(defvar *ic-tip-l* (make-f32 3) "... and the short blade's point.")
+(defvar *ic-far* (make-f32 5) "The hit volume's far point (%IC-FAR), [3] the crescent's growth, [4] its presence.")
+
+(defun ichigo-cloak-pose (e m)
+  "KIT-HOOK :pose (the Shikai): the cloak's swing on the posed pelvis."
+  (%ya-hem-pose (model-joints m) *ic-look* (* 32 (fighter-side (fighter e))) 1))
+
+(defun-fast %ic-frame (st i sf)
+  "ST[I] = the move frame SF; the frame it held before (a fixnum)."
+  (declare (type f32vec st) (fixnum i sf))
+  (prog1 (f->i (aref st i)) (setf (aref st i) (i->f sf))))
+
+(defun-fast %ic-held-tip (jm tip len)
+  "TIP = the held weapon's tip: the :weapon-r joint's point (0 0 -LEN), JOINT-POINT!'s sum inline (BODY-WEAPON-TIP's
+call boxes the float)."
+  (declare (type f32vec jm tip) (single-float len))
+  (let ((o (* 16 (ji :weapon-r))))
+    (declare (fixnum o))
+    (dotimes (i 3) (setf (aref tip i) (- (aref jm (+ o 12 i)) (* len (aref jm (+ o 8 i)))))))
+  nil)
+
+(defun-fast %ic-track (st o d tip)
+  "Track a blade's tip: ST[O..O+2] its last point; ST[D..D+2] the unit direction it last moved in (kept while it stands,
+or across a jump over 1.5 m)."
+  (declare (type f32vec st tip) (fixnum o d))
+  (let* ((x (aref tip 0)) (y (aref tip 1)) (z (aref tip 2))
+         (dx (- x (aref st o))) (dy (- y (aref st (+ o 1)))) (dz (- z (aref st (+ o 2)))) (l (f-hypot dx dy dz)))
+    (declare (single-float x y z dx dy dz l))
+    (when (and (> l 0.01f0) (< l 1.5f0))
+      (setf (aref st d) (/ dx l) (aref st (+ d 1)) (/ dy l) (aref st (+ d 2)) (/ dz l)))
+    (setf (aref st o) x (aref st (+ o 1)) y (aref st (+ o 2)) z))
+  nil)
+
+(defun-fast %ic-far (v p yaw tip out)
+  "OUT = the far point of hit volume V for a fighter at P (his feet) facing YAW: an arc's rim on the bearing of TIP, a
+capsule's end, a sphere's far side; its height the tip's, clamped to 0.1-1.5 m (a sphere's: its centre). NIL for none.
+(No float crosses a call here or below: a boxed argument is a cons.)"
+  (declare (type f32vec v p tip out) (single-float yaw))
+  (let ((ty (f-clamp (aref tip 1) 0.1f0 1.5f0)) (k (aref v 0))
+        (px (aref p 0)) (pz (aref p 2)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))))
+    (declare (single-float ty k px pz fx fz))
+    (cond ((< k 0.5f0)
+           (let* ((bx (- (aref tip 0) px)) (bz (- (aref tip 2) pz)) (l (f-hypot bx bz)) (r (aref v 1)))
+             (declare (single-float bx bz l r))
+             (if (< l 0.05f0) (setf bx fx bz fz) (setf bx (/ bx l) bz (/ bz l)))
+             (setf (aref out 0) (+ px (* r bx)) (aref out 1) ty (aref out 2) (+ pz (* r bz)))
+             t))
+          ((< k 1.5f0)
+           (let* ((yo (aref v 5)) (c (f-cos yo)) (sn (f-sin yo))
+                  (ux (+ (* fx c) (* fz sn))) (uz (- (* fz c) (* fx sn))) (b (aref v 2)))
+             (declare (single-float yo c sn ux uz b))
+             (setf (aref out 0) (+ px (* b ux)) (aref out 1) ty (aref out 2) (+ pz (* b uz)))
+             t))
+          ((< k 2.5f0)
+           (let ((d (+ (aref v 1) (aref v 3))))
+             (declare (single-float d))
+             (setf (aref out 0) (+ px (* d fx)) (aref out 1) (aref v 2) (aref out 2) (+ pz (* d fz)))
+             t))
+          (t nil))))
+
+(defun-fast %ic-edge (st d tip far blood)
+  "The crescent edge from TIP toward FAR (FAR[3] the fraction of the way, FAR[4] its presence), bulging along the cut
+direction ST[D..D+2]: an ink lens, a white rim on its leading side (BLOOD 1: a BLOOD hairline)."
+  (declare (type f32vec st tip far) (fixnum d blood))
+  (let* ((g (aref far 3)) (k (aref far 4)) (x0 (aref tip 0)) (y0 (aref tip 1)) (z0 (aref tip 2))
+         (x1 (+ x0 (* g (- (aref far 0) x0)))) (y1 (+ y0 (* g (- (aref far 1) y0)))) (z1 (+ z0 (* g (- (aref far 2) z0))))
+         (cx (- x1 x0)) (cy (- y1 y0)) (cz (- z1 z0)) (span (f-hypot cx cy cz)))
+    (declare (single-float g k x0 y0 z0 x1 y1 z1 cx cy cz span))
+    (when (> span 0.15f0)
+      (let* ((ux (/ cx span)) (uy (/ cy span)) (uz (/ cz span))
+             (dx (aref st d)) (dy (aref st (+ d 1))) (dz (aref st (+ d 2))) (du (+ (* dx ux) (* dy uy) (* dz uz)))
+             (px (- dx (* du ux))) (py (- dy (* du uy))) (pz (- dz (* du uz)))   ; the cut, across the chord
+             (b (* (the single-float (f32 *ic-edge-bulge*)) span))
+             (w (f-clamp (* (the single-float (f32 *ic-edge-w*)) span) 0.08f0 0.2f0))
+             (mx (* 0.5f0 (+ x0 x1))) (my (* 0.5f0 (+ y0 y1))) (mz (* 0.5f0 (+ z0 z1)))
+             (dr (drawing-no)))
+        (declare (single-float ux uy uz dx dy dz du px py pz b w mx my mz dr))
+        (fx-crescent x0 y0 z0 x1 y1 z1 (+ mx (* b px)) (f-max 0.05f0 (+ my (* b py))) (+ mz (* b pz)) w :lens 0.05f0
+                     (+ 330f0 dr) +pal-ink+ k :push 0.1f0)
+        (let ((a (* 0.6f0 w)))                                                       ; the rim, a little ahead
+          (declare (single-float a))
+          (fx-crescent (+ x0 (* a px)) (+ y0 (* a py)) (+ z0 (* a pz)) (+ x1 (* a px)) (+ y1 (* a py)) (+ z1 (* a pz))
+                       (+ mx (* (+ b a) px)) (f-max 0.05f0 (+ my (* (+ b a) py))) (+ mz (* (+ b a) pz))
+                       (if (= blood 1) (* 0.12f0 w) (* 0.25f0 w)) :lens 0.03f0 (+ 340f0 dr)
+                       (if (= blood 1) +pal-blood+ +pal-hit+) k :push 0.16f0)))))
+  nil)
+
+(defun-fast %ic-hit-look (st d v p yaw tip sf from to blood ground)
+  "One hit window's looks at move frame SF (window FROM-TO, volume V; the fighter's feet P, facing YAW): the crescent edge
+from TIP (its cut direction ST[D..]) grown over the 3 f to FROM, fading over the 4 f after TO; GROUND 1: the plaza's
+crack, rubble and a shake where TIP meets it (under 0.4 m), else at the volume's far point."
+  (declare (type f32vec st v p tip) (fixnum d sf from to blood ground))   ; (YAW passed on as it came)
+  (let ((far *ic-far*))
+    (when (%ic-far v p yaw tip far)
+      (setf (aref far 3) (f-min 1f0 (/ (i->f (- sf (- from 3))) 3f0))
+            (aref far 4) (* 0.9f0 (if (< sf to) 1f0 (/ (i->f (- (+ to 4) sf)) 4f0))))
+      (%ic-edge st d tip far blood)
+      (when (= ground 1)
+        (let* ((low (< (aref tip 1) 0.4f0)) (gx (if low (aref tip 0) (aref far 0))) (gz (if low (aref tip 2) (aref far 2))))
+          (declare (single-float gx gz))
+          (stage-mark :crack gx gz 0.9f0) (stage-debris gx gz 4) (shake 0.06f0 0.15f0)))))
+  nil)
+
+(defun ichigo-draw (e rdt)
+  "KIT-HOOK :draw (both forms): step the Shikai's cloak spring; the crescent edge and the ground contact (§3.3)."
+  (let* ((f (fighter e)) (m (model e)) (o (* 32 (fighter-side f))) (st *ic-look*)
+         (kessa (eq (kit-form (fighter-kit f)) :kessa))
+         (mv (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (fighter-move f)))
+         (sf (if mv (fighter-sf f) -1)) (prev (%ic-frame st (+ o 28) sf))
+         (edge (and mv (assoc (mv-name mv) *ic-edge-moves*))))
+    (declare (fixnum o sf prev))
+    (unless kessa (%ya-hem-step st o (if (typep rdt 'single-float) rdt (f32 rdt))))   ; (F32 inline re-boxes)
+    (when (and edge (model-weapon m) (> (model-alpha m) 0.5))
+      (let ((jm (model-joints m)) (tip *ic-tip*) (tip-l *ic-tip-l*) (hits (mv-hits mv)))
+        (declare (simple-vector hits))
+        (when (rest edge)                                                       ; the short blade's point
+          (joint-point! tip-l jm (ji :weapon-l) 0f0 -0.9f0 0f0)
+          (%ic-track st (+ o 19) (+ o 25) tip-l))
+        (%ic-held-tip jm tip (weapon-len (find-weapon (model-weapon m))))
+        (%ic-track st (+ o 16) (+ o 22) tip)
+        (dotimes (i (length hits))
+          (let* ((hw (svref hits i)) (from (hw-from hw)) (to (hw-to hw)) (v (first (hw-vols hw))) (short (member i (rest edge))))
+            (declare (fixnum from to))
+            (when (and v (<= (- from 2) sf) (< sf (+ to 4)))
+              (%ic-hit-look st (if short (+ o 25) (+ o 22)) v (pos-of e) (yaw-of e) (if short tip-l tip) sf from to
+                            (if kessa 1 0)
+                            (if (and (= i 0) (< prev from) (<= from sf) (member (mv-name mv) *ic-ground-moves*)) 1 0)))))))))
+
+(defun ichigo-look-cons-check ()
+  "Debug 74906 (P1 Ichigo, e.g. after 74000): bytes consed by 10 calls each of ICHIGO-CLOAK-POSE and ICHIGO-DRAW standing, and
+of ICHIGO-DRAW frozen in K1's and RANGETSU's first hit frame (the cloak step, the tips, the crescent edge; the short blade's
+point in RANGETSU). Each must be 0."
+  (let* ((e *p1*) (f (fighter e)) (m (model e))
+         (st (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)))
+    (flet ((bytes (thunk) (let ((c0 (cons-bytes))) (dotimes (i 10) (funcall thunk)) (- (cons-bytes) c0)))
+           (at (name) (let ((x (find-move name)))
+                        (setf (fighter-state f) :move (fighter-move f) x (fighter-phase f) :main
+                              (fighter-sf f) (hw-from (svref (mv-hits x) 0))))))
+      (let* ((pose (bytes (lambda () (ichigo-cloak-pose e m))))
+             (idle (bytes (lambda () (ichigo-draw e 0.016))))
+             (k1 (progn (at :ic-k1) (bytes (lambda () (ichigo-draw e 0.016)))))
+             (rg (progn (at :ic-tsuki-j) (bytes (lambda () (ichigo-draw e 0.016))))))
+        (setf (fighter-state f) st (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf)
+        (log-msg "duel ichigo look consing (10 calls, B): pose ~d, draw ~d, draw K1 hit ~d, draw RANGETSU hit ~d"
+                 pose idle k1 rg)))))
 
 ;;; ---------------------------------------------------------------- sounds (docs/duel/DUEL_ICHIGO.md §10)
 (defsound :chain-rattle (:peak 0.7)                    ; link clatter: the parry, the wall, a chain shot
