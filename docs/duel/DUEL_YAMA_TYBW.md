@@ -202,3 +202,8 @@ arc (2.4, tip 2.25) were left.
   starts on screens that show Yamamoto, whose new idle and fire looks draw the cosmetic random stream differently, and
   the stream carries on. Checked by side-by-side stills (Senjumaru's hank, Ichigo's awakening, Kenpachi vs Senjumaru):
   the fighters themselves are pixel-for-pixel the same; the new palette slot 15 shows nowhere else.
+
+### 7.1 The user's call on the awaken A/B (2026-10-14)
+
+The user (verbatim): 「山本跟一護的覺醒 A/B 也全部列為例外」. §7's awaken A/B rows (the never-awaken Yamamoto 0-8 of 60 in
+all six pairings, the same before the rework) are accepted as exceptions (AGENTS.md; DEVLOG §224).

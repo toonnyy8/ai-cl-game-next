@@ -327,3 +327,9 @@ needs the user's eyes.
 - **Looks**: not run (the change is meant to move his pixels; the random-driven particles of other scenes shift as with
   Yamamoto, §7 of DUEL_YAMA_TYBW).
 
+
+### 7.1 The user's call on the awaken A/B (2026-10-14)
+
+The user (verbatim): 「山本跟一護的覺醒 A/B 也全部列為例外」. §7's awaken A/B rows (the never-awaken Ichigo IY 13-27, IK 7-12,
+IR 9-16, II 13-22, BI 11-18 of 60; SI passes; failing since his damage cut of 2026-09-29) are accepted as exceptions
+(AGENTS.md; DEVLOG §224). His damage stays the user's call: don't retune it.
