@@ -79,7 +79,7 @@ thrusts, no cross.
 | J3 | both: a full turn (a key every 90°), the cleaver swung off the shoulder high, the short blade low | one hand: a spin, the slab level |
 | K1 | cleaver: a waist-high sweep R→L off the shoulder, a deep step, the free hand flung back, overshoot past the target (canon Ep396) | two hands: a full-body bat swing L→R |
 | K2 | cleaver: the point dragged along the plaza behind, a rising diagonal ↗ with the arm fully out (ch. 614); the hit pose ahead at ~30° up (not overhead), a held top | two hands: dragged, a rising diagonal ↗ |
-| K3 | cleaver one-handed: an anticipation coil, a hop forward, the overhead **vertical drop into the plaza** (ch. 660, Ep409), the short blade flung back for balance; a landing crouch (**a real step: §3.3**) | two hands: the slab held level overhead (the Berserk wind-up), chains wind round it, the vertical drop (**a real step: §3.3**) |
+| K3 | cleaver one-handed: an anticipation coil, a hop forward, the overhead **vertical drop into the plaza** (ch. 660, Ep409), the short blade flung back for balance; a landing crouch (**a real step: §3.4**) | two hands: the slab held level overhead (the Berserk wind-up), chains wind round it, the vertical drop (**a real step: §3.4**) |
 | J2s KAESHI-KIBA | the cleaver still out from K1, the short blade **thrust** under it (an X silhouette) | — |
 | K2s KŌGA | both: a rising X that opens upward | — |
 | L | the stance 月待: side-on, the short blade aimed level at his face (RoS 朔望 「前方に刀を向けて構え」), the cleaver cocked high behind the right shoulder | the parry 鎖盾: the slab vertical before him (kept), the end off the floor |
@@ -101,7 +101,7 @@ vertical-down two hands, 残月返し vertical-down one hand after the grab, KAG
 In the clips: an anticipation coil inside every K's startup (T1), the hit pose held to the end of the active frames (T2),
 overshoot and a settle key in the recovery (T4), a body spin feeding the cut with a key every 90° (T9), the short blade
 aimed while the cleaver winds up (T10), SŌGA's open-armed finish (T11), the blade dragging the body in the lunges (T13);
-turns with root yaw and a pelvis roll; the hit pose on S. Looks (cosmetic, his `:draw` hook, no sim reads by the sim):
+turns with root yaw and a pelvis roll; the hit pose on S. Looks (cosmetic, his `:draw` hook; the sim never reads them):
 
 - **月牙の残光, the crescent edge** (T3): on the hit frames of his Flash, Signature and SP strikes (and each RANGETSU cut) an
   ink crescent sweeps from the drawn tip along the cut to the hit volume's edge (mono like the in-play Getsuga: ink with
