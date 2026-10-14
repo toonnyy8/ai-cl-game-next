@@ -70,7 +70,8 @@ and light, K = slow and heavy, the third link is the finish**. The budget every 
 | On-hit combo | A(prev) + S_eff(next) ≤ hitstun(prev) − 1 | | | after a J link (A 3, flinch 18) S_eff ≤ 14, the binding case; after a K link (A 4, stagger 26) ≤ 21 |
 | On-block gap | gap = S_eff(next) + block adv(prev) (DUEL_DESIGN §4's measured rule) | | | a **K link after anything leaves ≥ 11 f**: every J (≤ 10 f) fits, so J beats K mid-string. A J link leaves 3–7 f: Step / Hoho fit, J doesn't |
 
-Link 2 and 3 K moves share S_eff 14, so one move combos after either button. The enders stagger or crumple instead of
+Link 2 and 3 K moves share S_eff 14, so one move combos after either button. (Lille's J1 / J2 hit with hitstun 24, not
+18, since 2026-10-14: his J -> K links had 0-2 frames of slack, DUEL_LILLE_V3 §28.) The enders stagger or crumple instead of
 knocking back or launching, so the O ender can connect. The O strike does the knockback.
 
 ### 2.2 The string gate and the follow-up chase (revised 2026-09-28, §11)

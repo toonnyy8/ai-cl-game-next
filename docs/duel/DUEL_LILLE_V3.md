@@ -1402,3 +1402,20 @@ The user (verbatim): 「lille 覺醒後使用架式攻擊完接 O 時無法在�
   (§25.2: 14 of 18; BR / BI at 100 now pass, the mirror's three, BK 300 and BI 500 now fail): the awakened side's O
   ender lands now. Reported, the user's call.
 - G2 identical (the native cvc: yy, yk, kk PASS). Host tests 6976 ALL PASS, pkgcheck clean, build.
+
+## 28. Fix R22 (2026-10-14): J1 > K2 and J2 > K3 combo
+
+The user (verbatim): 「我還發現 J1 > K2 跟 J2 > K3 中間的 hits 會中斷無法串連起 combo（無論有沒有覺醒都是）」.
+
+- **Measured** (the native sim, presses injected, 1.5 m from Kenpachi; 82000 the base form, 82002 KIN, 82013 KIN with 8
+  wings): with K pressed as early as it can be (latched during J1's hitstop), the K link hits with **0-2 frames** of J1 /
+  J2's flinch 18 left: the base 17 / 18 (its K links' S_eff 15, *BR-K-LINK-SLOW*), KIN 16 / 18 (S_eff 14). A K pressed
+  a few frames later (a player reacting to the hit) comes out later and lands after he stood up: the hit counter broke.
+  DUEL_STRINGS §2.1's on-hit rule (A + S_eff <= hitstun - 1) is met, but with no slack; after a K link (stagger 26) the
+  same K has 8.
+- **The fix** (`*BR-J-LINK-STUN*` 24, his J1 / J2 in every form and the switched J2s: the hit's own `:stun`, through
+  BR-V8-SPEC): their hitstun 18 -> 24. The K link after them now lands with 6-7 frames left at the earliest press and
+  still combos when pressed 6 frames later (measured, the stun frame the K link hit on, of 24, with K pressed at
+  steps 14 / 17 / 20: J1 > K2 base 17 / 18 / 21, KIN 16 / 16 / 18; J2 > K3 base 17 / 20 / 23, KIN 16 / 16 / 18). Hit only: startup, recovery and the block numbers (the on-block gaps, J beats K) are
+  unchanged; J1 / J2 that hit leave him 6 frames more advantage.
+- A sim change. Gates: §28.1.

@@ -166,6 +166,11 @@ keep the damage and the block advantage but not the speed (route :JN, decision R
   "... its damage x this, rounded (1.20 -> 1.00, R13, the user 2026-10-11: 「降低普通 K 的傷害」: every form's attack-state K
 string, the base's, KIN's and the owl's; 1.00 -> 0.80, R14: below the stance K, BR-K-ORDER-P) ...")
 (defparameter *br-k-adv* -4 "... and its block advantage this many frames lower (decision V8).")
+(defparameter *br-j-link-stun* 24
+  "His attack-state J1 / J2 (every form): the hitstun of their hit, frames (the generic flinch 18 -> 24, R22, DUEL_LILLE_V3
+§28, the user 2026-10-14: 「J1 > K2 跟 J2 > K3 中間的 hits 會中斷無法串連起 combo（無論有沒有覺醒都是）」): a K link after
+them hit with 0-2 frames of the flinch left even at the earliest press (A 3 + S_eff 14-15 against 18), so any later press
+broke the combo; now 6-7 frames, as a K link after a K (stagger 26). Hit only: the block numbers are unchanged.")
 
 ;; JILLIEL
 (defparameter *br-walk-en* 0.0
@@ -315,6 +320,7 @@ standard link, so J1 -> K2 / J2 -> K3 off the :JN J combo, the user 2026-10-11: 
 計數會斷開」; a K link's effective startup 15 -> 14, the K -> K links too; K1 as :K); its hit-frame hooks follow the new startup; :clip-s the old startup. A
 new plist."
   (let* ((j (member route '(:j :jn))) (std (eq route :jn)) (s0 (getf spec :startup)) (r0 (getf spec :recovery))
+         (stun (getf spec :stun))
          (s1 (cond (std s0) (j (max *br-j-min-s* (- s0 *br-j-speed*))) (t (+ s0 *br-k-slow*))))
          (r1 (cond (std r0) (j (max *br-j-min-r* (- r0 *br-j-speed*))) (t (+ r0 *br-k-slow*))))
          (new (list :startup s1 :recovery r1
@@ -324,7 +330,9 @@ new plist."
                     :enter (let ((n (or (getf spec :enter) 0)))
                              (if (and (not j) (plusp n)) (+ n (- *br-k-slow* (if (eq route :kn) 0 *br-k-link-slow*))) n))
                     :clip-s (or (getf spec :clip-s) s0))))
-    (append new (loop for (k v) on spec by #'cddr unless (member k '(:startup :recovery :dmg :adv-block :on-frame :clip-s :enter))
+    (when stun   ; (R22: the hit's own hitstun, its one window S .. S + A)
+      (setf new (append new (list :hits (list (list s1 (+ s1 (getf spec :active)) :stun (if (symbolp stun) (symbol-value stun) stun)))))))
+    (append new (loop for (k v) on spec by #'cddr unless (member k '(:startup :recovery :dmg :adv-block :on-frame :clip-s :enter :stun))
                       append (list k v)))))
 (defmacro br-defstring (route name &rest spec)
   "DEFMOVE for one of his attack-state J (ROUTE :J) / K (:K) string links: SPEC with the old numbers, BR-V8-SPEC applies V8."
@@ -498,9 +506,9 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 ;;; ================================================================ the base form
 ;; the J / K strings: the old Lille's frames and clips, decision V8 on top
 (br-defstring :j :br-j1 :kind :quick :clip :lb-q1 :startup 8 :active 3 :recovery 12 :dmg 26 :adv-block -2
-  :reach 1.45 :arc 100 :on-hit :flinch)
+  :reach 1.45 :arc 100 :on-hit :flinch :stun *br-j-link-stun*)
 (br-defstring :j :br-j2 :kind :quick :clip :lb-q2 :startup 7 :active 3 :recovery 13 :dmg 22 :adv-block -2
-  :reach 1.45 :arc 110 :on-hit :flinch)
+  :reach 1.45 :arc 110 :on-hit :flinch :stun *br-j-link-stun*)
 ;; (R16, the user 2026-10-12: 「普通攻擊的 J3 幫我插入更多關鍵幀並放慢一些速度」: its own clip :br-jab, startup 7 -> 10, recovery
 ;; 16 -> 18 after V8; Lille's :lb-jab is the old Lille's)
 (br-defstring :j :br-j3 :kind :quick :clip :br-jab :clip-s 10 :startup 12 :active 3 :recovery 20 :dmg 28 :adv-block -4
@@ -574,9 +582,9 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 ;;; ================================================================ JILLIEL
 ;; KIN, the attack state: the wing blades (plain strings: no resource in or out, decision R1 「避免同質化」)
 (br-defstring :jn :br-w-j1 :kind :quick :clip :lb-w-q1 :startup 8 :active 3 :recovery 12 :dmg 24 :adv-block -2
-  :reach 1.6 :arc 110 :on-hit :flinch)
+  :reach 1.6 :arc 110 :on-hit :flinch :stun *br-j-link-stun*)
 (br-defstring :jn :br-w-j2 :kind :quick :clip :lb-w-q2 :startup 7 :active 3 :recovery 13 :dmg 24 :adv-block -2
-  :reach 1.6 :arc 110 :on-hit :flinch)
+  :reach 1.6 :arc 110 :on-hit :flinch :stun *br-j-link-stun*)
 (br-defstring :jn :br-w-j3 :kind :quick :clip :lb-w-q3 :startup 9 :active 3 :recovery 18 :dmg 30 :adv-block -4
   :reach 1.7 :arc 120 :on-hit :stagger :flags (:ender))
 (br-defstring :kn :br-w-k1 :kind :flash :clip :lb-w-f1 :startup 17 :active 4 :recovery 21 :dmg 50 :adv-block -3
@@ -656,9 +664,9 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 
 ;;; ================================================================ the owl: the burst's form (decision R1)
 (br-defstring :jn :br-o-j1 :kind :quick :clip :lb-o-q1 :startup 8 :active 3 :recovery 11 :dmg 26 :adv-block -1
-  :reach 1.7 :arc 110 :on-hit :flinch)
+  :reach 1.7 :arc 110 :on-hit :flinch :stun *br-j-link-stun*)
 (br-defstring :jn :br-o-j2 :kind :quick :clip :lb-o-q2 :startup 7 :active 3 :recovery 12 :dmg 26 :adv-block -1
-  :reach 1.7 :arc 110 :on-hit :flinch)
+  :reach 1.7 :arc 110 :on-hit :flinch :stun *br-j-link-stun*)
 (br-defstring :jn :br-o-j3 :kind :quick :clip :lb-o-q3 :startup 9 :active 3 :recovery 17 :dmg 32 :adv-block -3
   :reach 1.7 :arc 120 :on-hit :stagger :flags (:ender))
 (br-defstring :kn :br-o-k1 :kind :flash :clip :lb-o-f1 :startup 17 :active 4 :recovery 20 :dmg 54 :adv-block -2
