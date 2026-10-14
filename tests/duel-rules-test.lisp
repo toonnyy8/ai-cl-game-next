@@ -803,7 +803,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ya-kaka :sh-run :ya-enjo :ke-n-leap ; the O modules (TENCHI runs in :sh-run, CHARGE in :ke-charge)
     :ya-shonetsu :ya-w-parry :ya-w-counter   ; the Bankai stances
     :ya-e-stance :ya-e-q1 :ya-e-q2 :ya-e-q3 :ya-e-f1 :ya-e-f2 :ya-e-kyokko :ya-e-tenchi   ; East's own (DUEL_YAMA_TYBW §3.2)
-    :ya-sleeve :ya-e-drop :ke-kick :ke-r-kote :ke-r-tsuki   ; the strings' new clips (DUEL_STRINGS §3)
+    :ya-tsuka :ya-e-drop :ke-kick :ke-r-kote :ke-r-tsuki   ; the strings' new clips (DUEL_STRINGS §3)
     :ke-stance :ke-q1 :ke-q2 :ke-q3 :ke-f1 :ke-f2 :ke-stance-hold :ke-stance-cut :ke-buttagiru :ke-charge
     :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
     :ke-n-stance
@@ -1707,12 +1707,12 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (defmacro engine::f-cos (a) `(cos ,a))
 (defmacro engine::f-wrap (a) `(let ((x ,a)) (- x (* 6.2831853f0 (floor (+ x 3.14159265f0) 6.2831853f0)))))
 (load (merge-pathnames "../engine/lisp/anim.lisp" *load-truename*))
-(defparameter *strikers* '((:ya-sleeve . :hand-l) (:ke-kick . :foot-r) (:ke-b-hook . :hand-l) (:ic-q1 :weapon-l -0.90)
+(defparameter *strikers* '((:ya-tsuka :weapon-r 0.14) (:ke-kick . :foot-r) (:ke-b-hook . :hand-l) (:ic-q1 :weapon-l -0.90)
                            (:ic-q2 :weapon-l -0.90) (:ic-cross-j :weapon-l -0.90) (:ru-palm . :hand-l)
                            (:ya-ikkotsu . :hand-r) (:ke-shoulder . :shoulder-l) (:ru-hainawa . :hand-l) (:sj-saidan . :hand-r)
                            (:ke-a-q1 . :hand-l) (:ke-a-q2 . :hand-l) (:ke-a-f1 . :hand-l) (:ke-a-f2 . :hand-l) (:ke-a-spin . :foot-r))
   "Clip -> what strikes when it isn't the held weapon's tip: a joint (clip . joint), or a point down a joint's -Y
-(clip joint y): Ichigo's Shikai J, the short blade held forward in the left fist, its tip at :weapon-l y -0.90
+(clip joint y): Yamamoto's J3 TSUKABI, the pommel at :weapon-r y +0.14 (DUEL_YAMA_TYBW §8); Ichigo's Shikai J, the short blade held forward in the left fist, its tip at :weapon-l y -0.90
 (DUEL_ICHIGO_TYBW §3.1).")
 (defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai) (:rukia :zero)))   ; (Yamamoto's East / West: their
                                                                  ; own clips, both ways since DUEL_YAMA_TYBW §3.3)

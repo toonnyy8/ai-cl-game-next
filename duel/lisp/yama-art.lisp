@@ -425,25 +425,31 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
   (17 (:chest :twist -14) (:spine :flex 11) (:root :u -0.04) (:arm-r :flex 50 :side -5 :twist -10) (:elbow-r :flex 25)
       (:hand-r :twist 8 :flex -55) (:head :flex -18))
   (:end :ya-stance))
-;; S3 J3 SODEBI (DUEL_STRINGS §3.1): the blade kept low behind him, the empty left sleeve (burning: DRAW-FIGHTER) whipped
-;; across the face left to right, the hips turning into it: root yaw +22 -> -16, the pelvis rolled with it
-(defpose :ya-sleeve-hit (:base :ya-stance)
-  (:root :f 0.54 :u -0.06 :yaw -14) (:pelvis :twist -18 :side -6) (:chest :twist -40) (:spine :flex 14 :side -6)
-  (:head :flex -18 :twist 12)
-  (:arm-l :flex 105 :side -35) (:elbow-l :flex 10)
-  (:arm-r :flex -12 :side 34) (:elbow-r :flex 30) (:hand-r :twist 20 :flex -30)
+;; S3 J3 TSUKABI 柄火 (the user, 2026-10-14: 「右手刀柄回擊」, DUEL_YAMA_TYBW §8): no left forearm in TYBW, so the right hand
+;; drives the hilt: the grip drawn back past the right shoulder, the blade laid back along the forearm (the point behind and
+;; low), then the hips and chest turn in and the pommel is punched up into the face (S, the burning pommel: DRAW-FIGHTER),
+;; the empty left sleeve thrown back
+(defpose :ya-tsuka-wind (:base :ya-stance)
+  (:root :yaw -12 :u -0.08) (:pelvis :twist -10 :side 4) (:chest :twist -28) (:spine :flex 12 :side 4)
+  (:head :flex -14 :twist 14)
+  (:arm-r :flex -20 :side 25) (:elbow-r :flex 95) (:hand-r :flex -150)
+  (:arm-l :flex 35 :side 15) (:elbow-l :flex 5)
+  (:thigh-r :flex 18) (:knee-r :flex 24) (:thigh-l :flex 6) (:knee-l :flex 14))
+(defpose :ya-tsuka-hit (:base :ya-stance)
+  (:root :f 0.55 :u -0.06 :yaw 4) (:pelvis :twist 10 :side -4) (:chest :twist 20) (:spine :flex 10)
+  (:head :flex -18 :twist -6)
+  (:arm-r :flex 100 :side -5) (:elbow-r :flex 20) (:hand-r :flex -150)
+  (:arm-l :flex -25 :side 30) (:elbow-l :flex 10)
   (:thigh-l :flex 38 :side 6) (:knee-l :flex 36) (:thigh-r :flex -22 :side 8) (:knee-r :flex 16))
-(defstrike :ya-sleeve (9 3 18 :base :ya-stance)
+(defstrike :ya-tsuka (9 3 18 :base :ya-stance)
   (0)
-  (4 (:root :yaw 22 :u -0.07) (:pelvis :twist 16 :side 6) (:chest :twist 30) (:spine :flex 6 :side 8)
-     (:arm-l :side 75 :flex -18) (:elbow-l :flex 5)
-     (:arm-r :flex 4 :side 30) (:elbow-r :flex 36) (:hand-r :twist 20 :flex -32) (:head :flex -20 :twist -10))
-  (7 (:root :yaw 25) (:chest :twist 34) (:arm-l :side 82 :flex -22) (:spine :side 10))       ; wound up, held
-  (:s :snap :ya-sleeve-hit)
-  (10 (:root :yaw -18) (:chest :twist -46) (:arm-l :flex 112 :side -45) (:root :f 0.56))
-  (:a (:root :yaw -16) (:chest :twist -44) (:arm-l :flex 109 :side -41) (:root :f 0.55))
-  (21 (:root :yaw -6) (:pelvis :side -2) (:chest :twist -16) (:arm-l :flex 40 :side 5) (:elbow-l :flex 5)
-      (:spine :flex 10 :side 0) (:root :f 0.34 :u -0.05) (:arm-r :flex 16 :side 24) (:thigh-l :flex 24) (:knee-l :flex 26))
+  (4 :ya-tsuka-wind)
+  (7 :ya-tsuka-wind (:root :yaw -16 :u -0.1) (:chest :twist -34) (:elbow-r :flex 105))   ; wound up, held
+  (:s :snap :ya-tsuka-hit)
+  (:a :ya-tsuka-hit (:root :f 0.54) (:arm-r :flex 104))
+  (21 (:root :yaw 2 :f 0.3 :u -0.05) (:pelvis :twist 4) (:chest :twist 8) (:spine :flex 10)
+      (:arm-r :flex 40 :side 10) (:elbow-r :flex 50) (:hand-r :flex -108)
+      (:arm-l :flex -5 :side 18) (:thigh-l :flex 22) (:knee-l :flex 24))
   (:end :ya-stance))
 ;; S4 K1 HOMURA-NAGI, the flame wave: the whole body turns away right (root yaw -42), steps in on the left foot and sweeps the
 ;; blade at the waist right to left through the front (S), the turn carried on to +45 (the fire sheet to the volume's edge)

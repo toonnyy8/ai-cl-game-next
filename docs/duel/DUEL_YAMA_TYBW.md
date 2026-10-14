@@ -207,3 +207,24 @@ arc (2.4, tip 2.25) were left.
 
 The user (verbatim): 「山本跟一護的覺醒 A/B 也全部列為例外」. §7's awaken A/B rows (the never-awaken Yamamoto 0-8 of 60 in
 all six pairings, the same before the rework) are accepted as exceptions (AGENTS.md; DEVLOG §224).
+
+## 8. J3 TSUKABI: the pommel, not the stump (2026-10-14)
+
+The user (verbatim): 「山本的 J3 是拿斷掉的左臂打人嗎？？」, then, offered a right-hand pommel strike, a reverse-edge
+upward cut, or the sleeve as fire only: 「右手刀柄回擊，改成這個好了」.
+
+- **Was** 袖火 SODEBI (`:ya-sleeve`, DUEL_STRINGS §3.1): the left upper arm (the stump) whipped the empty, burning sleeve
+  across the face; the striker the left hand's joint (1.35 m against the J volume's 1.40 m edge).
+- **Now** 柄火 TSUKABI (`:ya-tsuka`, the same 9 / 3 / 18 keys): the grip drawn back past the right shoulder with the blade
+  laid back along the forearm (the point behind, up), wound up and held, then the hips and chest turn in (chest twist
+  -34 -> +20) and the right fist punches the pommel up into the face, the empty left sleeve thrown back; the recovery
+  lowers the blade back to the cane stance. Measured by FK: the pommel (`:weapon-r` y +0.14) 1.34-1.36 m ahead at the
+  hit frames 9-12 (the edge 1.40: -0.04 to -0.06); the blade's point above the plaza on every frame (lowest 0.11 m, in
+  the recovery). The fire look (DRAW-FIGHTER) moved from the left forearm to the right fist and pommel.
+- **Presentation only**: the move, its volume (1.4 m, 140°), frames, damage and reaction unchanged. Sim byte-identical:
+  `simgate --pairs 0,1,3 --seeds 10` equal to the parent 94b0f1d line for line, `--cvc` PASS. Host tests 6976 ALL PASS
+  (`*STRIKERS*`: `(:ya-tsuka :weapon-r 0.14)`), pkgcheck clean, build.
+- Not checked by eye here: this container's headless Chrome loses its WebGPU device, so no strips or stills; the
+  playtest Artifact carries it.
+- Renamed: the manual's J row and the Shikai tip, DUEL_DESIGN's J3 row; DUEL_STRINGS §3.1 keeps the old row with a note.
+  The browser script's shot keeps its name `string-sodebi`.

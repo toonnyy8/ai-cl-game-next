@@ -378,7 +378,7 @@ Shikai (form `:base`):
 |---|---|---|---|---|---|
 | J (link 1) | J1 火閃 HISEN `:ya-j1` (clip `:ya-q1`: a wrist snap ↘) | 9/3/12 | 38 | −2 | reach 1.4 m, arc 100°, flinch |
 | J (link 2) | J2 返し火 KAESHIBI `:ya-j2`; after K1 the copy `:ya-j2s` (clip `:ya-q2`) | 8/3/13 | 38 | −2 | flinch |
-| J (link 3) | J3 袖火 SODEBI `:ya-j3` (clip `:ya-sleeve`) | 9/3/18 | 45 | −4 | 1.4 m, 140°, stagger; the empty left sleeve whipped across, burning (an ender: the O ender off its hit) |
+| J (link 3) | J3 柄火 TSUKABI `:ya-j3` (clip `:ya-tsuka`; 袖火 SODEBI, the empty sleeve, until 2026-10-14) | 9/3/18 | 45 | −4 | 1.4 m, 140°, stagger; the right hand punches the burning pommel up into the face, the blade laid back along the forearm (an ender: the O ender off its hit) |
 | K (link 1) | K1 焔薙 HOMURA-NAGI `:ya-k1` (clip `:ya-f1`) | 18/4/20 | 75 | −3 | reach 2.6, arc 150°, stagger, +20 Inferno; the fire sheet carries the cut past the blade to the edge |
 | K (link 2) | K2 昇焔 SHŌEN `:ya-k2`; after J1 `:ya-k2s` (clip `:ya-f2`) | 22/4/24, enters at f8 | 64 | −3 | 2.3 m, 90°, stagger, +20 Inferno |
 | K (link 3) | K3 焔爆 ENBAKU `:ya-k3` (clip `:ya-f3`: a full turn into one vertical drop) | 22/5/34, enters at f8 | 88 | −20 | 2.4 m, 120°, crumple, +20 Inferno; an ender |

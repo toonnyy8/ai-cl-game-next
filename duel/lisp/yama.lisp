@@ -20,8 +20,8 @@
   :reach 0.96 :arc 100 :on-hit :flinch)                              ; HISEN: the flat cut from the draw
 (defmove :ya-j2 :kind :quick :clip :ya-q2 :startup 8 :active 3 :recovery 13 :dmg 38 :adv-block -2
   :reach 0.96 :arc 100 :on-hit :flinch)                              ; KAESHIBI: the backhand along the same line
-(defmove :ya-j3 :kind :quick :clip :ya-sleeve :startup 9 :active 3 :recovery 18 :dmg 45 :adv-block -4
-  :reach 0.88 :arc 140 :on-hit :stagger :flags (:ender))             ; SODEBI: the burning empty sleeve
+(defmove :ya-j3 :kind :quick :clip :ya-tsuka :startup 9 :active 3 :recovery 18 :dmg 45 :adv-block -4
+  :reach 0.88 :arc 140 :on-hit :stagger :flags (:ender))             ; TSUKABI: the burning pommel punched up (2026-10-14)
 (defmove :ya-k1 :kind :flash :clip :ya-f1 :startup 18 :active 4 :recovery 20 :dmg 75 :adv-block -3
   :reach 2.6 :arc 150 :on-hit :stagger :meter *inferno-flash*)      ; HOMURA-NAGI: the waist-high sweep
 (defmove :ya-k2 :kind :flash :clip :ya-f2 :enter 8 :startup 22 :active 4 :recovery 24 :dmg 64 :adv-block -3

@@ -241,10 +241,10 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
                                               :shadow (= sc 1f0))
         (unless (= sc 1f0) (draw-shadow x y z (* 1.2 sc (body-hurt-r b))))))   ; (the giant's shadow)
     (let ((h (kit-hook kit :draw))) (when h (funcall h e rdt)))   ; a character's own looks on the posed body (KIT-HOOK)
-    (when (and mv (eq (mv-clip mv) :ya-sleeve) (eq (fighter-phase f) :main)   ; SODEBI: the empty left sleeve burns
+    (when (and mv (eq (mv-clip mv) :ya-tsuka) (eq (fighter-phase f) :main)   ; TSUKABI: the fist and pommel burn
                (< (- (mv-s mv) 4) (fighter-sf f) (+ (mv-s mv) (mv-a mv) 10)))
-      (joint-point! *base* (model-joints m) (ji :lower-arm-l) 0f0 0f0 0f0)
-      (joint-point! *tip* (model-joints m) (ji :lower-arm-l) 0f0 -0.42f0 0f0)
+      (joint-point! *base* (model-joints m) (ji :lower-arm-r) 0f0 -0.1f0 0f0)
+      (joint-point! *tip* (model-joints m) (ji :weapon-r) 0f0 0.16f0 0f0)
       (vfx-blade-fire (aref *base* 0) (aref *base* 1) (aref *base* 2) (aref *tip* 0) (aref *tip* 1) (aref *tip* 2) rdt :power 1.4))
     (when (and planted (model-weapon m))
       (draw-planted-weapon (model-weapon m) (+ x (* 0.7 (fwd-x yaw))) (+ z (* 0.7 (fwd-z yaw))) yaw))

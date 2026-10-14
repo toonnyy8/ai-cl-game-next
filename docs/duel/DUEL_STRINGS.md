@@ -136,7 +136,7 @@ Identity: an old man's economy, one arm, fire does the work.
 |---|---|---|---|---|---|---|---|---|---|
 | J1 | 火閃 HISEN | `:ya-q1` | 9/3/12 | 38 | flinch | −2 | 20 | **0.96 m** 100° (was 2.4) | from the draw, a flat right-to-left cut, the haori trailing, the flame tongue hangs 2 drawings |
 | J2 | 返し火 KAESHIBI | `:ya-q2` | 8/3/13 | 38 | flinch | −2 | 21 | **0.96 m** 100° (was 2.4) | the wrist turns over, a backhand along the same line; the flame reverses into a ring |
-| J3 | 袖火 SODEBI | **new** `:ya-sleeve` | 9/3/18 | 45 | stagger | −4 | 26 | **0.88 m** 140° (was 2.2) | he whips the **empty left sleeve**, which catches fire, across the face: a one-armed silhouette, the sleeve a FIRE ribbon |
+| J3 | 袖火 SODEBI (柄火 TSUKABI `:ya-tsuka` since 2026-10-14, DUEL_YAMA_TYBW §8) | **new** `:ya-sleeve` | 9/3/18 | 45 | stagger | −4 | 26 | **0.88 m** 140° (was 2.2) | he whips the **empty left sleeve**, which catches fire, across the face: a one-armed silhouette, the sleeve a FIRE ribbon |
 | K1 | 焔薙 HOMURA-NAGI | `:ya-f1` | 18/4/20 | 75 | stagger | −3 | 32 | **2.6 m** 150° (was 3.0) | a long anticipation, the blade drawn back past his hip, then a waist-high sweep that fans fire; +20 Inferno |
 | K2 | 昇焔 SHŌEN | `:ya-f2` | 22/4/24 (8 → 14) | 80 | stagger | −3 | 36 | **2.3 m** 90° (was 2.6) | he sinks and rises with the cut, a flame column blooms; 4 f hold at the top; +20 Inferno |
 | K3 | 焔爆 ENBAKU | `:ya-q3` | 22/5/34 (8 → 14) | 110 | crumple | −20 | 46 | **2.4 m** 120° (was 2.8) | the blade stabbed down at his feet, the flame bursts out in a dome, beard and sleeve blown back; 4 f hold; +20 Inferno |

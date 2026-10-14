@@ -241,7 +241,7 @@ write("nome", ev)
 # 1 Bankai East, 2 Kenpachi, 3 RYOTE). Expected log lines: P1 move YA-J1 YA-J2 YA-J3, then YA-KIKON (O-ENDER) -> P2 HIT
 # (no aura: the strike at once); YA-E-K1 YA-E-K2 YA-E-K3; KE-J1 KE-K2S KE-K3 + KE-KIKON; KE-R-J1 KE-R-J2 KE-R-J3;
 # KE-R-K1 KE-R-K2 KE-R-J3; and J K J: KE-J1 KE-K2S, the third press eaten (the string ends: no KE-J3).
-# Shots: string-o-ender (Shikai's ENJO off J3), string-sodebi (J3, the sleeve lit), string-rakujitsu, string-kick,
+# Shots: string-o-ender (Shikai's ENJO off J3), string-sodebi (J3 TSUKABI since 2026-10-14, the pommel lit; the shot keeps its old name), string-rakujitsu, string-kick,
 # string-tsuki.
 t = T0
 ev = []
