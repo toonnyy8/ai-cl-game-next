@@ -41,11 +41,13 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_GAMEPLAY.md](duel/DUEL_GAMEPLAY.md) | SOUL DUEL 的建置與操作、時間模型、除錯指令、log、測試腳本、決定性檢查、節奏測試結果、效能、主機測試 |
 | [DUEL_STRINGS.md](duel/DUEL_STRINGS.md) | J／K 連段、O 收尾與「攻勢」KŌSEI（2026-09-27，已實作）：最多三段、J／K 只能切換一次、接觸閘門、揮空硬直、幀數預算、O 收尾只接在打中的第 3 段之後、進攻獎勵的公式、AI 調整、使用者的決定、實作偏離之處與節奏測試結果（英文） |
 | [DUEL_YAMA_REWORK.md](duel/DUEL_YAMA_REWORK.md) | 山本卍解重製（2026-09-27，已實作）：U 從『東・旭日刃』切到『西・殘日獄衣』、東的穿透、西的全方位霸體防禦、新 L 技旭光／焦熱地獄、使用者的決定與實作偏離之處（英文） |
+| [DUEL_YAMA_TYBW.md](duel/DUEL_YAMA_TYBW.md) | 山本千年血戰篇造型與動作模組重做（2026-10-13）：披風羽織、獄炎、卍解的燒破死霸裝、各型態動作、卍解東西的判定跟著刀走、gate（英文） |
 | [DUEL_NOZARASHI_V2.md](duel/DUEL_NOZARASHI_V2.md) | 劍八野晒形態的重新設計 v2「呑め」三杯梯（已實作），含西式「按住 U＝鎧甲」與移除 `:ignore-armor`；三杯之後的卍解見 DUEL_KEN_BANKAI.md |
 | [DUEL_KEN_BANKAI.md](duel/DUEL_KEN_BANKAI.md) | 劍八卍解（第二次覺醒）與片腕（2026-09-28，已實作）：三杯紅血按 P、魂魄變 1 且 HP 回滿、「腕」4 格與爆裂、卍解招式表（咬、盾ごと、殴り飛ばし、真っ二つ）、片腕、過場、HUD、AI 的進入規則、使用者的決定、實作偏離之處、節奏測試與「必開／不開」A/B（英文）。同時記錄 Soul Break 的新規則（播攻擊方的毀魂技動畫、上限 5） |
 | [DUEL_KEN_REWORK.md](duel/DUEL_KEN_REWORK.md) | 劍八動作與造型重做（2026-10-08，討論中）：現況診斷、研究摘要、待決問題（英文） |
 | [DUEL_RUKIA.md](duel/DUEL_RUKIA.md) | 朽木露琪亞（血戰篇）：袖白雪與絶対零度的設計與實作（英文） |
 | [DUEL_ICHIGO.md](duel/DUEL_ICHIGO.md) | 黑崎一護（血戰篇）：二刀斬月與血鎖の一護，含試玩後的 v2 重新設計（英文） |
+| [DUEL_ICHIGO_TYBW.md](duel/DUEL_ICHIGO_TYBW.md) | 一護千年血戰篇造型與動作模組重做（2026-10-14）：診斷、正手短刀與 TYBW 服裝、各型態動作標準、月牙殘光與地面龜裂、K3 真的往前踏步、gate（英文） |
 | [DUEL_SENJUMARU.md](duel/DUEL_SENJUMARU.md) | 修多羅千手丸：刺絡與卍解娑闥迦羅骸刺絡辻的設計與實作（英文） |
 | [DUEL_LILLE.md](duel/DUEL_LILLE.md) | 舊版利傑巴羅的設計紀錄（2026-10-06 起；2026-10-12 移出遊戲、2026-10-13 程式移除，roster 5 號保留為空位）：純遠距狙擊、萬物貫通穿防、覺醒 Jilliel 的無實體架式（英文） |
 | [DUEL_LILLE_V2.md](duel/DUEL_LILLE_V2.md) | 利傑巴羅・重製（2026-10-09 起，roster 7 號；原名 Lille II，2026-10-13 起就叫利傑；2026-10-10 起改為第三版，見 DUEL_LILLE_V3）：萬物貫通、常態狙擊架式＋狙擊量表、覺醒近戰／遠程兩模式＋軌跡實體化與回收衍生連段、保留貓頭鷹復活（英文） |
@@ -80,4 +82,5 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [lille-retrospective/digest.md](research/lille-retrospective/digest.md) | 利傑巴羅的設計回顧摘要：56 個決定的時間線、10 條重工鏈與各自該先問的問題、做對的流程／設計／技術模式、建模與系統筆記、數字（英文，2026-10-08） |
 | [kenpachi-rework/](research/kenpachi-rework/) | 劍八重做的研究：`canon-looks.md` 各型態的原作外觀與建模清單，`motion-refs.md` 各場戰鬥的打法、遊戲參考與三個型態的招式動作清單（英文，附來源與可信度，2026-10-08） |
 | [yamamoto-rework/](research/yamamoto-rework/) | 山本總隊長（千年血戰篇）重做的研究：`canon-looks.md` 各狀態的原作外觀與建模清單，`motion-refs.md` 各場戰鬥的打法、RoS 等遊戲參考、原型表與各型態的招式動作清單（英文，附來源與 A～D 等級，2026-10-13） |
+| [ichigo-rework/](research/ichigo-rework/) | 黑崎一護（千年血戰篇）重做的研究：`canon-looks.md` 原作外觀（短刀正手握、TYBW 服裝），`canon-motion.md` 各場戰鬥的打法，`style-refs.md` 其他遊戲與動漫的大劍／雙刀風格、原型表、演出技巧與動作清單（英文，附來源與 A～D 等級，2026-10-14） |
 | [lille-ai-drsi/](research/lille-ai-drsi/) | 利傑巴羅自適應 AI 的 dream-rsi 工作區（DUEL_LILLE §24）：凍結的 baseline（lille.lisp、proposal、40／80 場分數、NORMAL 漂移參考值）、drsi 設定與 policy，加上 coordinator 腳本（`brief.py`、`step.sh`、`rescore.sh`）；見其 README |

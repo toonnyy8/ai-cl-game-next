@@ -1,6 +1,7 @@
 # SOUL DUEL: Ichigo, TYBW look and motion modules (2026-10-14)
 
-Status: **plan** (§1–§5). The plan is the lead's [G]; the user delegated the calls, see §1.
+Status: **built 2026-10-14** (three batches merged; §6 as built, §7 gates). The plan, §3–§5, is the lead's [G]; the user
+delegated the calls, see §1.
 Skills: `duel-motion-style` (decide, research, plan, measure, draw), `duel-character-rework` (presentation vs sim, the
 proofs), `duel-move-modules` (one grammar a form). Research: `docs/research/ichigo-rework/canon-looks.md` (every visual
 state, graded A–D), `canon-motion.md` (fight by fight) and `style-refs.md` (other games' and anime's dual-blade and
@@ -306,3 +307,23 @@ Known: KESSA K2's hit pose reads close to a level thrust from the side camera (t
 A); the clones' heavy3 is drawn 1.2 m short; the left fist rides the handle by GRIP-LEFT! through each K's recovery and
 lets go only after the clip (0.1 s); KUSARI-BIKI's slab is held level at his hip during the cast. Checked by numbers,
 needs the user's eyes.
+
+## 7. Gates (merged build 2d583ac, 2026-10-14)
+
+- Host tests: duel-rules-test 6976 (the FK test with the short blade's tip for the J's), duel-control-test 89, cine-test
+  18, learn-test 131, ALL PASS; pkgcheck clean; `./build.sh duel` (the 4 style warnings in Lille's files, as before);
+  the browser smoke run without errors. Tip report on the merge: every Shikai and KESSA strike's drawn tip within ±0.15 m
+  of its edge or short by design (MINEUCHI −0.34, RANGETSU's short-blade cuts covered by the crescent edge); J2s's cleaver,
+  held out from K1, is drawn 0.4 m past the J's 1.40 m edge (the hit is the short blade's thrust). Floor: no clip puts a
+  blade under the plaza (KESSA's spins 1 frame at −0.05 m).
+- **20 seeds** (all 120 K.O.; baseline §5 → now, median / Ichigo's wins): IY 110.7 → 110.7 s (7 → 6), IK 106.0 → 106.0
+  (11 → 11), IR 121.3 → 114.2 (8 → 8), II 140.6 → 141.2 (P1 10 / P2 10 → 12 / 8), SI 139.5 → 140.6 (16 → 16), BI 157.9 →
+  143.6 (14 → 14): every row within the seed noise of the baseline. IY / IK / IR sit under 125 s as they did before.
+- **G2**: identical (`simgate --cvc` PASS on yy / yk / kk; Ichigo plays none of them).
+- **Awaken A/B** (Ichigo never awakens; seed0 100 / 300 / 500, of 60; baseline in brackets): IY 13 / 17 / 27 (14 / 19 /
+  26), IK 12 / 10 / 7 (12 / 10 / 8), IR 9 / 13 / 16 (9 / 12 / 17), II 14 / 22 / 13 (21 / 20 / 17), SI 26 / 22 / 21 (27 /
+  23 / 21), BI 12 / 18 / 11 (11 / 19 / 11). The same rows fail as before (an open item since the user cut his damage,
+  2026-09-29, AGENTS): not this change's.
+- **Looks**: not run (the change is meant to move his pixels; the random-driven particles of other scenes shift as with
+  Yamamoto, §7 of DUEL_YAMA_TYBW).
+
