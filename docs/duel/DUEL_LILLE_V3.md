@@ -1389,3 +1389,16 @@ The user (verbatim): 「lille 覺醒後使用架式攻擊完接 O 時無法在�
   21 frames after the hit, 5 frames inside the stagger (the same in all three forms, J3 and K3 alike; JL3 / KL3's
   knockback 30 more). It also fixes the base form's attack-state J3 → O (the generic O ender, the same Kikon move).
 - A sim change: his CPU takes the O ender (§25.1), so his pairings move. Gates: §27.1.
+
+### 27.1 Gates (2026-10-14)
+
+- The baseline on the parent 9a88d1b, 20 seeds (his wins of 20): BY 123.5 (12), BK 118.5 (6), BR 162.1 (10), BI 143.6
+  (6), BS 157.0 (11), the mirror 202.8 s (19 of 20 K.O.).
+- After the fix, 20 seeds, all K.O.: BY 118.7 (12), BK 108.1 (5), BR 150.4 (15), BI 157.1 (8), BS 150.1 (13), the mirror
+  175.1 s (20 of 20 K.O.): the O ender now lands, for his CPU too (§25.1), so his matches end sooner. 60 seeds: **BY
+  113.8 s (35/60), BK 116.2 s (23/60)**, all K.O.: under 125, outside the accepted 121.0 / 120.6 s (§25.2): reported.
+- Awaken A/B (`--cmd 39020`, P1 the never-awaken Lille, his wins of 60; pass >= 20; all K.O.), Y K R I S + the mirror:
+  seed0 100: 25 25 20 21 27 **15**; 300: 35 **16** 22 22 22 **18**; 500: 27 21 **14** **18** 23 **15**: 12 of 18 rows
+  (§25.2: 14 of 18; BR / BI at 100 now pass, the mirror's three, BK 300 and BI 500 now fail): the awakened side's O
+  ender lands now. Reported, the user's call.
+- G2 identical (the native cvc: yy, yk, kk PASS). Host tests 6976 ALL PASS, pkgcheck clean, build.
