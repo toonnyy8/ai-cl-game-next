@@ -1431,3 +1431,8 @@ The user (verbatim): 「我還發現 J1 > K2 跟 J2 > K3 中間的 hits 會中�
   Reported, the user's call.
 - Host tests 6976 ALL PASS, pkgcheck clean, build. G2 untouched (no Lille in the three cvc matches; the change is in
   `barro.lisp` only).
+
+### 28.2 The user's call (2026-10-14)
+
+The user on §27.1 and §28.1 (BY 118.4 s, BK 117.7 s at 60 seeds; the awaken A/B's eight failing rows): 「全部列為例外，推到
+gh page」. Recorded in AGENTS.md's accepted exceptions; deployed to GitHub Pages.
