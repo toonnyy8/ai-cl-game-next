@@ -596,7 +596,9 @@ their forms until now) and KESSA's clones' answers (`:ic-c-*`, the clones keep t
 - **Ichigo**: the Shikai's J1 / J2 are the short blade held reversed along the forearm, so the fist is the strike: one
   step further in (the root 0.26 → 0.5 m; J2's arm brought forward) for 1.10 / 1.00 m at 1.1. SŌSEN-GIRI holds the cleaver
   up in the turn (the tip 2.53 → 1.48 for 1.44). KAESHI-KIBA (J2s) has its own clip, `:ic-cross-j`: the X closed in at his
-  chest (2.56 → 1.10); K2s, SŌGA and the O keep `:ic-cross`. KESSA's J links: the elbow bent and the lunge gone (ITA-NAGI
+  chest (2.56 → 1.10); K2s, SŌGA and the O keep `:ic-cross`. (Since the TYBW rework, 2026-10-14, DUEL_ICHIGO_TYBW §3.2 /
+  §6.2: the short blade is held forward and its tip strikes, 1.42 / 1.40 / 1.47 m for J1 / J2 / J2s (KAESHI-KIBA a thrust
+  under the cleaver); SŌSEN-GIRI 1.53; K2s keeps `:ic-cross`, SŌGA has `:ic-soga`, the O `:ic-juji-x`.) KESSA's J links: the elbow bent and the lunge gone (ITA-NAGI
   `:ic-k-jab` 2.25 → 1.62, KAESHI-ITA 2.50 → 1.62, ITA-SEN `:ic-k-wrap-j` 2.56 → 1.74, for 1.56 / 1.56 / 1.68); the clones
   keep the long `:ic-k-cut` / `:ic-k-wrap`.
 - **The shared clips** (a J clip another move also plays): HISEN's `:ya-q1` (TENCHI's strike), MAI-SODE's `:ru-spin`

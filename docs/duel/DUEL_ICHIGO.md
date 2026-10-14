@@ -188,7 +188,7 @@ So the routes that switch at link 2 (JK…, KJ…) are the ones that grind the g
 | J3 | 双旋 SŌSEN-GIRI `:ic-j3` (ender) [G] | **new** `:ic-spin` | 8/3/18 | 40 | stagger | −4 | 26 | **1.44 m** 200° (was 2.4) | 8 | a full turn with both blades out, long high and short low |
 | K1 | 大牙 ŌKIBA `:ic-k1` [G] | **new** `:ic-f1` | 16/4/20 | 68 | stagger | −3 | 32 | **2.7 m** 150° (was 3.0) | 16 | the long cleaver drawn back past the hip, a waist-high sweep |
 | K2 | 昇牙 SHŌGA `:ic-k2` [G] | **new** `:ic-f2` | 20/4/24 (6 → 14) | 60 | stagger | −3 | 36 | **2.7 m** 90° (was 3.0) | 16 | from the floor up, the cleaver's hole whistling; 4 f hold at the top |
-| K3 | 落牙 RAKUGA `:ic-k3` (ender) [G] | **new** `:ic-drop` | 21/5/34 (7 → 14) | 84 | crumple | −20 | 46 | line 0.3 → **3.0** (was 3.4), h 1.2 | 22 | both hands on the long blade, held 3 f, dropped |
+| K3 | 落牙 RAKUGA `:ic-k3` (ender) [G] | **new** `:ic-drop` | 21/5/34 (7 → 14) | 84 | crumple | −20 | 46 | line 0.3 → **3.0** (was 3.4), h 1.2; **0.3 → 2.0 + a 1.0 m step** since 2026-10-14 (DUEL_ICHIGO_TYBW §3.4) | 22 | both hands on the long blade, held 3 f, dropped (one hand and a hop since the TYBW rework) |
 | J2s | 返牙 KAESHI-KIBA `:ic-j2s` | `:ic-cross` (clip-s 7) | as J2 | 32 | flinch | −2 | 21 | **1.1 m** 100° (was 2.2; its own close clip `:ic-cross-j`) | **12** | the short blade under the long one's return |
 | K2s | 交牙 KŌGA `:ic-k2s` | `:ic-cross` | as K2 | 60 | stagger | −3 | 36 | 2.8 m 110° | **24** | both blades cross in an X from high to low |
 

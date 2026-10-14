@@ -818,7 +818,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ru-palm-50 :ru-spin-50 :ru-flower-50 :ru-stab-2h   ; her -50 key edits (zero's pinned J1 / K1 are body-variant clips)
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
     :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
-    :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi
+    :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)
     :sj-stance :sj-q1 :sj-q2 :sj-spin :sj-f1 :sj-f2 :sj-drop :sj-yank :sj-summon :sj-kasa :sj-breaker :sj-saidan :sj-intro
     :sj-win :sj-loom-stance :sj-weave :sj-unravel :sj-tanmono :sj-makitori :sj-snip   ; Senjumaru (:sj-awaken is the cine's)
     :lb-stance :lb-intro :lb-win :lb-q1 :lb-q2 :lb-aim :lb-fire :lb-sanren :lb-hiren :lb-breaker :lb-butt   ; Lille's shared
@@ -1706,12 +1706,13 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (defmacro engine::f-cos (a) `(cos ,a))
 (defmacro engine::f-wrap (a) `(let ((x ,a)) (- x (* 6.2831853f0 (floor (+ x 3.14159265f0) 6.2831853f0)))))
 (load (merge-pathnames "../engine/lisp/anim.lisp" *load-truename*))
-(defparameter *strikers* '((:ya-sleeve . :hand-l) (:ke-kick . :foot-r) (:ke-b-hook . :hand-l) (:ic-q1 . :hand-l)
-                           (:ic-q2 . :hand-l) (:ru-palm . :hand-l)
+(defparameter *strikers* '((:ya-sleeve . :hand-l) (:ke-kick . :foot-r) (:ke-b-hook . :hand-l) (:ic-q1 :weapon-l -0.90)
+                           (:ic-q2 :weapon-l -0.90) (:ic-cross-j :weapon-l -0.90) (:ru-palm . :hand-l)
                            (:ya-ikkotsu . :hand-r) (:ke-shoulder . :shoulder-l) (:ru-hainawa . :hand-l) (:sj-saidan . :hand-r)
                            (:ke-a-q1 . :hand-l) (:ke-a-q2 . :hand-l) (:ke-a-f1 . :hand-l) (:ke-a-f2 . :hand-l) (:ke-a-spin . :foot-r))
-  "Clip -> the joint that strikes when it isn't the held weapon's tip (Ichigo's Shikai J: the short blade held reversed
-along the left forearm, so the fist leads).")
+  "Clip -> what strikes when it isn't the held weapon's tip: a joint (clip . joint), or a point down a joint's -Y
+(clip joint y): Ichigo's Shikai J, the short blade held forward in the left fist, its tip at :weapon-l y -0.90
+(DUEL_ICHIGO_TYBW §3.1).")
 (defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai) (:rukia :zero)))   ; (Yamamoto's East / West: their
                                                                  ; own clips, both ways since DUEL_YAMA_TYBW §3.3)
 (let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0))
@@ -1750,14 +1751,16 @@ along the left forearm, so the fist leads).")
                  (clip (kit-move-clip k (if (eq (second lm) :breaker) (mv-clip-2 mv) (mv-clip mv))))   ; (the Breaker's strike:
                                                                                          ; its clip 2; the form's :clip-map)
                  (point (second (assoc clip points)))                ; Lille's: :weapon (the plank) or a joint
-                 (striker (or (cdr (assoc clip *strikers*)) (and point (not (eq point :weapon)) point)))
+                 (se (cdr (assoc clip *strikers*)))                 ; (joint or (joint y))
+                 (striker (or (if (consp se) (first se) se) (and point (not (eq point :weapon)) point)))
+                 (sy (if (consp se) (second se) 0.0))
                  (art (or (third (assoc clip strike))
                           (loop for sf from (hw-from hw) below (hw-to hw)
                                 maximize (progn
                                            (clip-sample! pose (find-clip clip) (/ (* sf (mv-clip-speed mv)) 60.0))
                                            (pose-fk! jm pose 0f0 0f0 0f0 0f0 (f32 (getf b :scale)) (f32 (deg (getf b :hunch 0))) props)
                                            (if striker                            ; (yaw 0 faces -Z)
-                                               (joint-point! v jm (joint-index striker) 0f0 0f0 0f0)
+                                               (joint-point! v jm (joint-index striker) 0f0 (f32 sy) 0f0)
                                                (joint-point! v jm (ji :weapon-r) 0f0 0f0 (f32 (if (eq point :weapon) butt (- wlen)))))
                                            (if cap (- (aref v 2)) (sqrt (+ (expt (aref v 0) 2) (expt (aref v 2) 2))))))))
                  (d (- art edge)))

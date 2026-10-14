@@ -252,14 +252,19 @@
 ;;; ---------------------------------------------------------------- poses (his rig notes)
 ;;; The right hand holds the long blade (the K links, L, the cross's right half), the left the short one (the J links);
 ;;; a horizontal cut is an arm held out (side ~88) swept by its flex (0 = to its own side, 90 = ahead, 130 = across);
-;;; the blade runs on from the arm (hand flex ~ -86). KESSA's one blade is in the right hand; the left throws the chains.
-(defpose :ic-stance ()                                 ; Shikai: the cleaver low and back, the short blade out ahead
-  (:root :u -0.07) (:pelvis :twist 24) (:spine :flex 10) (:chest :twist -6) (:neck :twist -12) (:head :flex -4 :twist -10)
-  (:arm-r :flex 30 :side 26) (:elbow-r :flex 40) (:hand-r :twist 0 :flex -40)
-  (:arm-l :flex 50 :side 24) (:elbow-l :flex 70) (:hand-l :flex -20)
-  (:thigh-r :flex -12 :side 10) (:thigh-l :flex 28 :side 8) (:knee-r :flex 24) (:knee-l :flex 32))
-(defclip :ic-stance (1.6 :loop t :base :ic-stance)
-  (0) (0.8 (:root :u -0.085) (:chest :flex 3) (:elbow-l :flex 60)))
+;;; the cleaver runs on from the arm at hand flex ~ -86. The Shikai's short blade is held FORWARD (DUEL_ICHIGO_TYBW §3.1):
+;;; it runs down the :weapon-l joint's -Y, so at hand flex 0 it carries on the forearm's line (its tip at y -0.90; the FK
+;;; test's striker for the J's), hand flex + turns it toward the arm's sweep, twist spins its edge. Between strikes the
+;;; cleaver rests on the right shoulder and the short blade aims at him (Musashi's "the long cuts, the short controls",
+;;; §3.2); every hit pose was solved by numbers on the rig's FK (the tip at the volume's edge), not from strips.
+;;; KESSA's one blade is in the right hand; the left throws the chains.
+(defpose :ic-stance ()                                 ; Shikai: the cleaver on the right shoulder, the short blade aimed
+  (:root :u -0.057) (:pelvis :twist -18) (:spine :flex 8) (:chest :twist -6) (:neck :twist 16) (:head :flex -4 :twist 6)  ; at
+  (:arm-r :flex 37 :side 15 :twist 3) (:elbow-r :flex 144) (:hand-r :flex -22 :twist -29)                       ; his face
+  (:arm-l :flex 17 :side 31 :twist -22) (:elbow-l :flex 80) (:hand-l :flex 10 :twist 0)                         ; at chest
+  (:thigh-l :flex 30 :side 8) (:knee-l :flex 30) (:thigh-r :flex -14 :side 10) (:knee-r :flex 26))              ; height
+(defclip :ic-stance (1.6 :loop t :base :ic-stance)     ; breathing: the chest and the cleaver's rest rise and settle
+  (0) (0.8 (:root :u -0.072) (:chest :flex 3) (:elbow-r :flex 140) (:elbow-l :flex 84) (:hand-l :flex 6)))
 
 (defpose :ic-k-stance ()                               ; KESSA: upright and still, Tensa low at his side, the left hand open
   (:root :u -0.03) (:pelvis :twist 14) (:spine :flex 4) (:chest :twist -4) (:neck :twist -8) (:head :flex 4 :twist -6)
@@ -269,220 +274,367 @@
 (defclip :ic-k-stance (2.4 :loop t :base :ic-k-stance)
   (0) (1.2 (:root :u -0.04) (:head :flex 6) (:elbow-l :flex 28)))
 
-;;; ---------------------------------------------------------------- the Shikai grid (§3.2)
-(defpose :ic-q1-hit (:base :ic-stance)                 ; J1 KOKIBA: the short blade flicked across, stepping in
-  (:root :f 0.78 :u -0.13 :yaw -4) (:pelvis :twist 18) (:spine :flex 10) (:chest :twist -14) (:neck :twist 6) (:head :twist 4)
-  (:arm-l :side 88 :flex 104) (:elbow-l :flex 6) (:hand-l :flex -86)
-  (:arm-r :flex -30 :side 30) (:elbow-r :flex 16) (:hand-r :flex -40)
-  (:thigh-l :flex 46 :side 4) (:knee-l :flex 46) (:thigh-r :flex -24) (:knee-r :flex 22))
+;;; ---------------------------------------------------------------- the Shikai grid (DUEL_ICHIGO_TYBW §3.2)
+;;; Plane and hand: J1 horizontal L, J2 rising L, J2s a thrust L, J3 a spin both, K1 horizontal R, K2 rising on his right
+;;; R, K3 vertical down R; every K coils inside its startup (T1), carries past the target and settles (T4); the short blade
+;;; aims while the cleaver winds up (T10)
+;; J1 KOKIBA: the short blade swept level from his left to his right at chest height, a step in (the move's slide); at S
+;; it points ahead, the tip on the volume's edge (1.40 m)
+(defpose :ic-q1-hit (:base :ic-stance)
+  (:root :f 0.12 :u -0.126 :yaw -6) (:pelvis :twist -10) (:spine :flex 10) (:chest :twist -12) (:neck :twist 14) (:head :twist 4)
+  (:arm-l :flex -15 :side 69 :twist -14) (:elbow-l :flex 100) (:hand-l :flex 9 :twist 0)
+  (:thigh-l :flex 46 :side 4) (:knee-l :flex 46) (:thigh-r :flex -24 :side 8) (:knee-r :flex 22))
 (defstrike :ic-q1 (7 3 12 :base :ic-stance)
   (0)
-  (3 (:root :u -0.08 :yaw 10) (:chest :twist 30) (:neck :twist -10) (:arm-l :side 88 :flex -6) (:elbow-l :flex 18)
-     (:hand-l :flex -84) (:arm-r :flex -20 :side 26))
+  (3 (:root :u -0.1 :yaw 10) (:chest :twist 12) (:neck :twist 2) (:arm-l :flex -40 :side 75 :twist -14) (:elbow-l :flex 60)   ; drawn
+     (:hand-l :flex -30) (:knees :flex 36))                                                                             ; to his left
   (:s :snap :ic-q1-hit)
-  (8 (:chest :twist -18) (:arm-l :flex 110) (:root :f 0.78))
-  (:a (:chest :twist -17) (:arm-l :flex 108) (:root :f 0.78))
-  (16 (:chest :twist -10) (:arm-l :side 50 :flex 70) (:elbow-l :flex 30) (:hand-l :flex -70) (:root :f 0.26 :u -0.1))
+  (9 (:root :yaw -14) (:chest :twist -24) (:arm-l :flex 20 :side 70) (:elbow-l :flex 108) (:hand-l :flex 30))   ; on, to his right
+  (:a (:root :yaw -15) (:chest :twist -25))
+  (16 (:root :f 0.05 :u -0.09 :yaw -4) (:chest :twist -8) (:arm-l :flex 14 :side 40 :twist -18) (:elbow-l :flex 90) (:hand-l :flex 10)
+      (:thigh-l :flex 36) (:knee-l :flex 36))
   (:end :ic-stance))
 
-(defpose :ic-q2-hit (:base :ic-stance)                 ; J2 KAESHI: the wrist turned, the short blade back across
-  (:root :f 0.88 :u -0.11 :yaw 6) (:pelvis :twist 26) (:spine :flex 8) (:chest :twist 16) (:neck :twist -8)
-  (:arm-l :side 40 :flex 90) (:elbow-l :flex 6 :twist -160) (:hand-l :flex -86)
-  (:arm-r :flex -24 :side 34) (:elbow-r :flex 20) (:hand-r :flex -40)
-  (:thigh-l :flex 38) (:knee-l :flex 40) (:thigh-r :flex -20) (:knee-r :flex 22))
+;; J2 KAESHI: the wrist turned, a rising backhand from his low right up to his high left
+(defpose :ic-q2-hit (:base :ic-stance)
+  (:root :f 0.12 :u -0.095 :yaw 6) (:pelvis :twist 10) (:spine :flex 8) (:chest :twist 10) (:neck :twist -2) (:head :twist -6)
+  (:arm-l :flex 33 :side -38 :twist 36) (:elbow-l :flex 49) (:hand-l :flex 29 :twist 0)
+  (:thigh-l :flex 40 :side 4) (:knee-l :flex 40) (:thigh-r :flex -22 :side 8) (:knee-r :flex 22))
 (defstrike :ic-q2 (7 3 13 :base :ic-stance)
   (0)
-  (3 (:root :u -0.09 :yaw -8) (:chest :twist -26) (:arm-l :side 88 :flex 126) (:elbow-l :flex 20 :twist -160) (:hand-l :flex -80))
+  (3 (:root :u -0.12 :yaw -8) (:chest :twist -16) (:neck :twist 24) (:arm-l :flex 20 :side -50 :twist 30) (:elbow-l :flex 30)   ; low,
+     (:hand-l :flex -40) (:knees :flex 38))                                                                                   ; right
   (:s :snap :ic-q2-hit)
-  (8 (:chest :twist 18) (:root :f 0.88))
-  (:a (:chest :twist 17) (:root :f 0.88))
-  (17 (:chest :twist 6) (:arm-l :side 40 :flex 44) (:elbow-l :flex 30 :twist -40) (:hand-l :flex -64) (:root :f 0.27 :u -0.08))
+  (9 (:root :yaw 12 :u -0.07) (:chest :twist 18) (:arm-l :flex 90 :side -20) (:elbow-l :flex 30) (:hand-l :flex 40))   ; up, left
+  (:a (:root :yaw 13) (:chest :twist 19))
+  (17 (:root :f 0.05 :u -0.08 :yaw 4) (:chest :twist 0) (:arm-l :flex 40 :side 10 :twist 0) (:elbow-l :flex 70) (:hand-l :flex 14))
   (:end :ic-stance))
 
-(defstrike :ic-spin (8 3 18 :base :ic-stance)          ; J3 SOSEN-GIRI: a full turn, the cleaver high and the short blade low
+;; J3 SOSEN-GIRI: a full turn to his right with a key every 90 degrees, a pelvis roll into it; the cleaver swung off his
+;; shoulder high (its tip on the 1.44 m edge at S), the short blade low
+(defpose :ic-spin-hit (:base :ic-stance)
+  (:root :yaw -360 :f 0.05 :u -0.026) (:pelvis :twist 10) (:spine :flex 4) (:chest :twist -6) (:neck :twist 6)
+  (:arm-l :flex 14 :side 11 :twist -40) (:elbow-l :flex 49) (:hand-l :flex 0 :twist 0)
+  (:arm-r :flex 84 :side -41 :twist 20) (:elbow-r :flex 84) (:hand-r :flex -110 :twist 4)
+  (:thigh-l :flex 20 :side 8) (:knee-l :flex 24) (:thigh-r :flex 10 :side 14) (:knee-r :flex 30))
+(defstrike :ic-spin (8 3 18 :base :ic-stance)
   (0)
-  (4 (:root :u -0.12 :yaw 18) (:knees :flex 40) (:chest :twist 30) (:arm-l :side 88 :flex -10) (:elbow-l :flex 6)
-     (:arm-r :side 70 :flex -20) (:elbow-r :flex 10) (:hand-r :flex -80))
-  (6 (:root :u -0.14 :yaw 28) (:chest :twist 36))
-  (:s :snap (:root :yaw -360 :u -0.04 :f 0.03) (:pelvis :twist 16) (:chest :twist -8) (:neck :twist 8)
-      (:arm-l :side 70 :flex 40) (:elbow-l :flex 4) (:hand-l :flex -88) (:arm-r :side 40 :flex 100) (:elbow-r :flex 20)
-      (:hand-r :flex -40) (:thigh-l :flex 20) (:knee-l :flex 24) (:thigh-r :flex 10 :side 14) (:knee-r :flex 30))
-  (:a (:root :yaw -382 :u -0.05 :f 0.05) (:chest :twist -12))
-  (22 (:root :yaw -372 :u -0.08 :f 0.04) (:arm-l :side 40 :flex 40) (:elbow-l :flex 30) (:arm-r :side 40 :flex 10) (:elbow-r :flex 20))
+  (2 (:root :u -0.12 :yaw 20) (:chest :twist 24) (:knees :flex 40) (:arm-l :flex 30 :side 50) (:elbow-l :flex 40))   ; wound
+  (4 (:root :u -0.1 :yaw -80) (:pelvis :side 8) (:chest :twist 10) (:arm-r :flex 120 :side 30 :twist 0) (:elbow-r :flex 50)
+     (:hand-r :flex -80 :twist 0) (:arm-l :flex 20 :side 40) (:elbow-l :flex 40) (:hand-l :flex 0))   ; off the shoulder
+  (5 (:root :u -0.07 :yaw -170) (:pelvis :side 10) (:chest :twist 0))
+  (6 (:root :u -0.05 :yaw -260) (:pelvis :side 8) (:chest :twist -4) (:arm-r :flex 100 :side -10) (:elbow-r :flex 70))
+  (7 (:root :yaw -330) (:pelvis :side 4))
+  (:s :snap :ic-spin-hit)
+  (10 (:root :yaw -382 :u -0.05 :f 0.07) (:chest :twist -12) (:arm-r :side -42))
+  (:a (:root :yaw -384) (:chest :twist -13))
+  (20 (:root :yaw -370 :u -0.08 :f 0.04) (:chest :twist -6) (:arm-r :flex 60 :side 0 :twist 0) (:elbow-r :flex 110) (:hand-r :flex -50)
+      (:arm-l :flex 20 :side 30) (:elbow-l :flex 60))
   (:end :ic-stance (:root :yaw -360)))
 
-(defpose :ic-f1-hit (:base :ic-stance)                 ; K1 OKIBA: the cleaver's waist-high sweep, a deep step
-  (:root :f 0.44 :u -0.2 :yaw 6) (:pelvis :twist 8) (:spine :flex 14) (:chest :twist 20) (:neck :twist -18) (:head :twist -14)
-  (:arm-r :side 88 :flex 118) (:elbow-r :flex 4) (:hand-r :twist 0 :flex -86)
-  (:arm-l :flex -20 :side 50) (:elbow-l :flex 30) (:hand-l :flex -60)
+;; K1 OKIBA (canon Ep396): the cleaver off the shoulder and wound back to his right while the short blade aims (T10), the
+;; coil held (T1), a waist-high sweep right to left with a deep step, the free hand flung back, carried past him (T4)
+(defpose :ic-f1-hit (:base :ic-stance)
+  (:root :f 0.52 :u -0.174 :yaw 8) (:pelvis :twist 8) (:spine :flex 14) (:chest :twist 20) (:neck :twist -18) (:head :twist -14)
+  (:arm-r :flex 72 :side 24 :twist -26) (:elbow-r :flex 0) (:hand-r :flex -57 :twist 0)
+  (:arm-l :flex -36 :side 71 :twist 41) (:elbow-l :flex 24) (:hand-l :flex -35 :twist 0)
   (:thigh-r :flex 62 :side 4) (:knee-r :flex 62) (:thigh-l :flex -32 :side 8) (:knee-l :flex 10))
 (defstrike :ic-f1 (16 4 20 :base :ic-stance)
   (0)
-  (7 (:root :u -0.12 :yaw -14) (:chest :twist -34) (:neck :twist 14) (:arm-r :side 80 :flex -34) (:elbow-r :flex 20)
-     (:hand-r :twist 0 :flex -80) (:arm-l :flex 50 :side 20) (:elbow-l :flex 50) (:knees :flex 36))
-  (13 (:root :u -0.14 :yaw -18) (:chest :twist -40) (:arm-r :flex -40))
+  (5 (:root :u -0.1 :yaw -14) (:chest :twist -30) (:neck :twist 40) (:arm-r :flex -20 :side 80 :twist 0) (:elbow-r :flex 30)
+     (:hand-r :flex -80 :twist 0))                                                       ; off the shoulder, back to his right
+  (11 (:root :u -0.11 :yaw -20) (:chest :twist -36) (:neck :twist 44) (:arm-r :flex -34) (:knees :flex 40))   ; the coil
+  (14 (:root :u -0.115 :yaw -22) (:arm-r :flex -38))                                                          ; held
   (:s :snap :ic-f1-hit)
-  (18 (:arm-r :flex 126) (:chest :twist 26))
-  (:a (:arm-r :flex 128) (:chest :twist 27))
-  (32 (:root :f 0.24 :u -0.14) (:chest :twist 10) (:arm-r :side 50 :flex 60) (:elbow-r :flex 20) (:hand-r :flex -60)
-      (:thigh-r :flex 40) (:knee-r :flex 40))
+  (18 (:root :yaw 16 :f 0.54) (:chest :twist 34) (:arm-r :flex 80 :side -10) (:hand-r :flex -40))   ; carried on, left
+  (:a (:root :yaw 17) (:chest :twist 35))
+  (30 (:root :f 0.25 :u -0.12 :yaw 6) (:chest :twist 10) (:neck :twist 0) (:arm-r :flex 50 :side 20 :twist -10) (:elbow-r :flex 30)
+      (:hand-r :flex -50) (:arm-l :flex 0 :side 40 :twist 0) (:elbow-l :flex 60) (:hand-l :flex 0)
+      (:thigh-r :flex 40) (:knee-r :flex 40))                                              ; the settle
+  (35 (:root :f 0.1 :u -0.08 :yaw 2) (:arm-r :flex 40 :side 15 :twist 0) (:elbow-r :flex 120) (:hand-r :flex -30))   ; to the shoulder
   (:end :ic-stance))
 
-(defpose :ic-f2-hit (:base :ic-stance)                 ; K2 SHOGA: up from the floor, the cleaver swept high
-  (:root :u 0.02 :f 0.2) (:pelvis :twist 16) (:spine :flex -12) (:chest :twist 10) (:neck :twist -10) (:head :flex -20)
-  (:arm-r :flex 150 :side 18) (:elbow-r :flex 6) (:hand-r :twist 0 :flex -80)
-  (:arm-l :flex 10 :side 60) (:elbow-l :flex 20)
-  (:thigh-r :flex 26) (:knee-r :flex 18) (:thigh-l :flex -10) (:knee-l :flex 6))
+;; K2 SHOGA (ch. 614): the cleaver's point dragged along the plaza behind him (its first 6 frames are skipped in a link,
+;; :enter 6), a crouched coil, the rising cut on his right with the arm fully out: the hit ahead ~30 degrees up, a held
+;; top, back over onto the shoulder
+(defpose :ic-f2-drag (:base :ic-stance)
+  (:root :f 0.05 :u -0.086) (:pelvis :twist 10) (:spine :flex 30) (:chest :twist -6) (:neck :twist 0) (:head :flex -16)
+  (:arm-r :flex -61 :side 37 :twist 24) (:elbow-r :flex 50) (:hand-r :flex -86 :twist 17)
+  (:thigh-r :flex 20 :side 10) (:knee-r :flex 50) (:thigh-l :flex 36 :side 8) (:knee-l :flex 50))
+(defpose :ic-f2-hit (:base :ic-stance)
+  (:root :f 0.6 :u -0.109) (:pelvis :twist 14) (:spine :flex -4) (:chest :twist 10) (:neck :twist -10) (:head :flex -14)
+  (:arm-r :flex 103 :side -50 :twist 42) (:elbow-r :flex 15) (:hand-r :flex -85 :twist -15)
+  (:arm-l :flex -79 :side 100 :twist 33) (:elbow-l :flex 76) (:hand-l :flex 40 :twist 0)
+  (:thigh-r :flex 50 :side 4) (:knee-r :flex 44) (:thigh-l :flex -24 :side 8) (:knee-l :flex 10))
 (defstrike :ic-f2 (20 4 24 :base :ic-stance)
   (0)
-  (10 (:root :u -0.2) (:spine :flex 36) (:chest :twist -16) (:neck :twist 10) (:head :flex 10) (:arm-r :flex 16 :side 10)
-      (:elbow-r :flex 10) (:hand-r :twist 0 :flex -40) (:arm-l :flex 40 :side 30) (:knees :flex 56) (:thighs :flex 34))
-  (17 (:root :u -0.22) (:spine :flex 38) (:arm-r :flex 10))
+  (4 (:root :u -0.07) (:spine :flex 14) (:arm-r :flex 60 :side 50 :twist 0) (:elbow-r :flex 60) (:hand-r :flex -30 :twist 0))
+  (6 (:root :u -0.08) (:spine :flex 22) (:arm-r :flex -20 :side 60) (:elbow-r :flex 20) (:hand-r :flex -86))   ; swung down
+  (8 :ic-f2-drag)                                                                        ; the point on the plaza, behind
+  (13 :ic-f2-drag (:root :f 0.2 :u -0.09))                            ; dragged
+  (17 :ic-f2-drag (:root :f 0.3 :u -0.13) (:spine :flex 36) (:knees :flex 56))                   ; the coil
+  (18 (:root :f 0.4) (:spine :flex 26) (:arm-r :flex -10 :side 65 :twist 0) (:elbow-r :flex 10) (:hand-r :flex -86 :twist 0))   ; swung out
+  (19 (:root :f 0.5 :u -0.12) (:spine :flex 14) (:arm-r :flex 40 :side 55))                                  ; and up, on his right
   (:s :snap :ic-f2-hit)
-  (22 (:arm-r :flex 158) (:root :u 0.03))
-  (:a (:arm-r :flex 156) (:root :u 0.03))
-  (38 (:root :u -0.06 :f 0.1) (:spine :flex 4) (:arm-r :flex 90 :side 20) (:elbow-r :flex 20) (:hand-r :flex -60) (:knees :flex 22))
+  (22 (:root :u -0.06) (:arm-r :flex 130) (:hand-r :flex -80))                            ; up, the held top
+  (:a (:root :u -0.06) (:arm-r :flex 132))
+  (34 (:root :f 0.3 :u -0.1) (:spine :flex 4) (:arm-r :flex 120 :side 0 :twist 0) (:elbow-r :flex 70) (:hand-r :flex -40 :twist 0)
+      (:arm-l :flex 0 :side 40 :twist 0) (:elbow-l :flex 60) (:hand-l :flex 10))
+  (40 (:root :f 0.1 :u -0.07) (:arm-r :flex 50 :side 15) (:elbow-r :flex 135) (:hand-r :flex -25))   ; onto the shoulder
   (:end :ic-stance))
 
-(defpose :ic-drop-hit (:base :ic-stance)               ; K3 RAKUGA: both hands on the long blade, dropped through him
-  (:root :u -0.22 :f 0.38) (:pelvis :twist 10) (:spine :flex 32) (:chest :twist 0) (:neck :twist -6) (:head :flex -20)
-  (:arm-r :flex 96 :side 0) (:elbow-r :flex 6) (:hand-r :twist 0 :flex -72)
-  (:arm-l :flex 94 :side -12) (:elbow-l :flex 16) (:hand-l :flex -30)
-  (:thigh-r :flex 60 :side 6) (:knee-r :flex 62) (:thigh-l :flex -24 :side 8) (:knee-l :flex 24))
+;; K3 RAKUGA (ch. 660, Ep409): one hand. The cleaver raised (frames 0-7 are skipped in play, :enter 7), a crouched coil
+;; (T1), a hop, the vertical drop into the plaza at the volume's end (2.35 m), the short blade flung back, a landing
+;; crouch. The fighter really slides 1.0 m over frames 8-20 (:slide 1.6, MAIN-PHASE-STEP's even speed): the clip's root
+;; :f is the hop MINUS that slide (back while he coils, ahead as he flies), so the drawn body travels ~1.3 m with no
+;; snap back; it ends on the idle at root 0
+(defpose :ic-drop-hit (:base :ic-stance)
+  (:root :f 0.3 :u -0.238) (:pelvis :twist 6) (:spine :flex 39) (:chest :twist 4) (:neck :twist -4) (:head :flex -24)
+  (:arm-r :flex 74 :side -20 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -57 :twist 0)
+  (:arm-l :flex -53 :side 46 :twist 5) (:elbow-l :flex 23) (:hand-l :flex -26 :twist 0)
+  (:thigh-r :flex 70 :side 6) (:knee-r :flex 72) (:thigh-l :flex -20 :side 8) (:knee-l :flex 40))
 (defstrike :ic-drop (21 5 34 :base :ic-stance)
   (0)
-  (8 (:root :u 0.03) (:pelvis :twist 14) (:arm-r :flex 176 :side 6) (:elbow-r :flex 12) (:hand-r :twist 0 :flex -40)
-     (:arm-l :flex 168 :side -14) (:elbow-l :flex 24) (:spine :flex -12) (:head :flex -30) (:thigh-r :flex 14) (:knee-r :flex 12))
-  (17 (:root :u 0.04) (:arm-r :flex 180) (:arm-l :flex 172) (:spine :flex -15))
+  (4 (:arm-r :flex 120 :side 20 :twist 0) (:elbow-r :flex 100) (:hand-r :flex -30 :twist 0))
+  (7 (:root :u -0.04) (:spine :flex 0) (:arm-r :flex 165 :side 10) (:elbow-r :flex 40) (:hand-r :flex -40))   ; overhead
+  (11 (:root :f -0.18 :u -0.15) (:spine :flex 14) (:arm-r :flex 175) (:elbow-r :flex 60) (:knees :flex 50) (:thighs :flex 20))  ; coil
+  (15 (:root :f 0.09 :u 0.22) (:spine :flex -6) (:head :flex -16) (:arm-r :flex 185) (:elbow-r :flex 70) (:hand-r :flex -30)
+      (:arm-l :flex -40 :side 50 :twist 0) (:elbow-l :flex 30) (:hand-l :flex -20)
+      (:thigh-r :flex 60) (:knee-r :flex 90) (:thigh-l :flex 30) (:knee-l :flex 80))                     ; the hop's top
+  (19 (:root :f 0.32 :u -0.12) (:spine :flex 20) (:arm-r :flex 140) (:elbow-r :flex 10) (:hand-r :flex -60)
+      (:thigh-r :flex 64) (:knee-r :flex 66) (:thigh-l :flex -10) (:knee-l :flex 36))                     ; over the top
   (:s :snap :ic-drop-hit)
-  (23 (:spine :flex 40) (:root :u -0.26 :f 0.4) (:arm-r :flex 50) (:arm-l :flex 48))
-  (:a (:spine :flex 38) (:root :u -0.25 :f 0.4) (:arm-r :flex 52) (:arm-l :flex 50))
-  (44 (:spine :flex 30) (:root :u -0.22 :f 0.36))
-  (52 (:spine :flex 12) (:root :u -0.1 :f 0.14) (:arm-r :flex 20 :side 20) (:elbow-r :flex 20) (:hand-r :flex -50)
-      (:arm-l :flex 40 :side 20) (:elbow-l :flex 50) (:thigh-r :flex 34) (:knee-r :flex 32))
+  (23 :ic-drop-hit (:root :u -0.25) (:spine :flex 41))
+  (:a :ic-drop-hit (:root :u -0.245) (:spine :flex 40))
+  (40 (:root :f 0.2 :u -0.15) (:spine :flex 22) (:head :flex -10) (:arm-r :flex 60) (:elbow-r :flex 20) (:hand-r :flex -40)
+      (:arm-l :flex -10 :side 40) (:elbow-l :flex 50))                                    ; the settle
+  (50 (:root :f 0.06 :u -0.08) (:spine :flex 10) (:arm-r :flex 40 :side 15 :twist 0) (:elbow-r :flex 130) (:hand-r :flex -25))
   (:end :ic-stance))
-(pushnew :ic-drop *grip-clips*)
 
-(defpose :ic-cross-hit (:base :ic-stance)              ; the CROSS (J2s / K2s, SOGA, the JUJI strike): both blades in an X
-  (:root :f 0.36 :u -0.16) (:pelvis :twist 4) (:spine :flex 20) (:chest :twist 0) (:neck :twist 0) (:head :flex -10)
-  (:arm-r :side 30 :flex 80) (:elbow-r :flex 4) (:hand-r :twist -40 :flex -80)
-  (:arm-l :side 30 :flex 80) (:elbow-l :flex 4) (:hand-l :twist -40 :flex -80)
-  (:thigh-r :flex 56) (:knee-r :flex 58) (:thigh-l :flex -26) (:knee-l :flex 16))
-(defstrike :ic-cross (7 3 24 :base :ic-stance)
+;; K2s KOGA (after J1; its own clip, played at x0.7 from :enter 6, the hit pose on clip frame 14): both blades crossed low
+;; before him, a crouched coil, a rising X that opens upward (the cleaver's tip toward the 2.70 m edge), the arms flung up
+(defpose :ic-cross-hit (:base :ic-stance)
+  (:root :f 0.6 :u -0.142) (:pelvis :twist 0) (:spine :flex 4) (:chest :twist 0) (:neck :twist 0) (:head :flex -12)
+  (:arm-r :flex 116 :side 31 :twist 38) (:elbow-r :flex 0) (:hand-r :flex -82 :twist 1)
+  (:arm-l :flex 51 :side 66 :twist -15) (:elbow-l :flex 87) (:hand-l :flex -1 :twist 0)
+  (:thigh-r :flex 52 :side 4) (:knee-r :flex 54) (:thigh-l :flex -26 :side 8) (:knee-l :flex 14))
+(defstrike :ic-cross (14 3 17 :base :ic-stance)
   (0)
-  (3 (:root :u -0.04 :f 0.1) (:spine :flex -8) (:arm-r :side 70 :flex 160) (:elbow-r :flex 20) (:hand-r :flex -60)
-     (:arm-l :side 70 :flex 160) (:elbow-l :flex 20) (:hand-l :flex -60) (:head :flex -16))
+  (4 (:root :f 0.1 :u -0.07) (:spine :flex 20) (:chest :twist 0) (:arm-r :flex 35 :side -34 :twist -10) (:elbow-r :flex 24)   ; crossed
+     (:hand-r :flex -110 :twist 38) (:arm-l :flex 41 :side -10 :twist 22) (:elbow-l :flex 35) (:hand-l :flex 4) (:knees :flex 44))  ; low
+  (10 (:root :f 0.2 :u -0.12) (:spine :flex 26) (:knees :flex 54) (:arm-r :flex 40) (:arm-l :flex 46))   ; the coil
   (:s :snap :ic-cross-hit)
-  (:a (:root :f 0.38) (:arm-r :flex 76) (:arm-l :flex 76))
-  (26 (:root :f 0.2 :u -0.1) (:arm-r :side 40 :flex 30) (:elbow-r :flex 20) (:arm-l :side 40 :flex 40) (:elbow-l :flex 40))
+  (16 (:root :u -0.08) (:spine :flex -6) (:arm-r :flex 160 :side 50) (:arm-l :flex 160 :side 60) (:elbow-l :flex 30))   ; opened
+  (:a (:root :u -0.08) (:arm-r :flex 162) (:arm-l :flex 162))                                                     ; upward
+  (25 (:root :f 0.3 :u -0.1) (:spine :flex 4) (:arm-r :flex 110 :side 20 :twist 0) (:elbow-r :flex 70) (:hand-r :flex -40)
+      (:arm-l :flex 40 :side 30 :twist 0) (:elbow-l :flex 70) (:hand-l :flex 10))
+  (29 (:root :f 0.1 :u -0.07) (:arm-r :flex 50 :side 15) (:elbow-r :flex 135) (:hand-r :flex -25))
   (:end :ic-stance))
 
-;; J2s KAESHI-KIBA alone (the J cut, docs/duel/DUEL_STRINGS.md §13): the X closed in at his chest, under the cleaver's return
-(defpose :ic-cross-j-hit (:base :ic-cross-hit)
-  (:root :f 0.3 :u -0.12) (:spine :flex 14)
-  (:arm-r :side 15 :flex 80) (:elbow-r :flex 80) (:hand-r :twist -40 :flex -60)
-  (:arm-l :side 30 :flex 80) (:elbow-l :flex 60) (:hand-l :twist -40 :flex -80))
-(defstrike :ic-cross-j (7 3 24 :base :ic-stance)
-  (0)
-  (3 (:root :u -0.04 :f 0.02) (:spine :flex -8) (:arm-r :side 70 :flex 160) (:elbow-r :flex 20) (:hand-r :flex -60)
-     (:arm-l :side 70 :flex 160) (:elbow-l :flex 20) (:hand-l :flex -60) (:head :flex -16))
+;; J2s KAESHI-KIBA (after K1; docs/duel/DUEL_STRINGS.md §13's close J): the cleaver still held out across from K1's
+;; sweep, the short blade thrust under it (an X from behind), its tip on the 1.40 m edge
+(defpose :ic-cross-j-hit (:base :ic-stance)
+  (:root :f 0.15 :u -0.126) (:pelvis :twist -6) (:spine :flex 14) (:chest :twist -4) (:neck :twist 6)
+  (:arm-l :flex 19 :side 21 :twist 5) (:elbow-l :flex 70) (:hand-l :flex 24 :twist 0)
+  (:arm-r :flex 60 :side 61 :twist 6) (:elbow-r :flex 72) (:hand-r :flex -60 :twist 10)
+  (:thigh-l :flex 46 :side 4) (:knee-l :flex 48) (:thigh-r :flex -24 :side 8) (:knee-r :flex 24))
+(defstrike :ic-cross-j (7 3 13 :base :ic-stance)
+  (0 :ic-cross-j-hit (:root :f 0.1 :u -0.1) (:arm-l :flex -20 :side 30 :twist 0) (:elbow-l :flex 110) (:hand-l :flex 0))   ; chambered
+  (4 (:root :f 0.05 :u -0.15) (:chest :twist 8) (:arm-l :flex -30) (:elbow-l :flex 120) (:knees :flex 44))
   (:s :snap :ic-cross-j-hit)
-  (:a (:root :f 0.32))
-  (26 (:root :f 0.16 :u -0.1) (:arm-r :side 40 :flex 30) (:elbow-r :flex 20) (:arm-l :side 40 :flex 40) (:elbow-l :flex 40))
+  (:a (:root :f 0.17) (:arm-l :flex 21))
+  (14 (:root :f 0.1 :u -0.1) (:arm-l :flex 10 :side 30) (:elbow-l :flex 80) (:arm-r :flex 50 :side 30) (:elbow-r :flex 110)
+      (:hand-r :flex -40))
   (:end :ic-stance))
 
 ;;; ---------------------------------------------------------------- the stance 月待 TSUKIMACHI (v2 §2)
-(defpose :ic-tsuki (:base :ic-stance)                  ; side-on: the short blade thrust at him point-first, the cleaver
-  (:root :u -0.12) (:pelvis :twist -40) (:spine :flex 8) (:chest :twist -24) (:neck :twist 40) (:head :flex -4 :twist 22)   ; high
-  (:arm-l :side 86 :flex 36) (:elbow-l :flex 4) (:hand-l :flex -86)                                             ; back
-  (:arm-r :flex 166 :side 34) (:elbow-r :flex 50) (:hand-r :twist 0 :flex -36)
-  (:thigh-l :flex 34 :side 10) (:knee-l :flex 18) (:thigh-r :flex -22 :side 14) (:knee-r :flex 46))
+(defpose :ic-tsuki (:base :ic-stance)                  ; side-on (RoS 朔望): the short blade aimed level at his face, the
+  (:root :u -0.094) (:pelvis :twist -40) (:spine :flex 8) (:chest :twist -24) (:neck :twist 40) (:head :flex -4 :twist 22)  ; cleaver
+  (:arm-l :flex -16 :side 80 :twist -29) (:elbow-l :flex 83) (:hand-l :flex -29 :twist 0)                     ; cocked high
+  (:arm-r :flex 129 :side 20 :twist -34) (:elbow-r :flex 71) (:hand-r :flex -56 :twist -36)                    ; behind the
+  (:thigh-l :flex 34 :side 10) (:knee-l :flex 18) (:thigh-r :flex -22 :side 14) (:knee-r :flex 46))           ; shoulder
 (defclip :ic-tsuki (1.2 :loop t :base :ic-tsuki)
-  (0) (0.6 (:root :u -0.135) (:elbow-l :flex 8) (:elbow-r :flex 100)))
+  (0) (0.6 (:root :u -0.105) (:chest :flex 2) (:elbow-r :flex 76)))
 
-(defpose :ic-rangetsu-a (:base :ic-tsuki)              ; RANGETSU: the short blade high across ...
-  (:root :f 0.4 :u -0.16) (:pelvis :twist -6) (:chest :twist -16) (:neck :twist 10) (:head :twist 6)
-  (:arm-l :side 88 :flex 112) (:elbow-l :flex 6) (:hand-l :flex -86)
+;; RANGETSU: the lunge (the move's slide), four cuts alternating the blades on the hit frames 8 / 11 / 14 / 17: the short
+;; blade down to his right, the cleaver's rising backhand (on the 2.40 m edge), the short blade level to his left, both
+;; blades level together for the stagger (the cleaver on the edge); the short blade's cuts stay short (the crescent edge)
+(defpose :ic-rangetsu-a (:base :ic-tsuki)              ; 1: the short blade down to his right, the cleaver swung low across
+  (:root :f 0.4 :u -0.166) (:pelvis :twist -6) (:chest :twist -16) (:neck :twist 10) (:head :twist 6)
+  (:arm-l :flex 3 :side -60 :twist 0) (:elbow-l :flex 109) (:hand-l :flex -19 :twist 0)
+  (:arm-r :flex 22 :side 67 :twist -19) (:elbow-r :flex 121) (:hand-r :flex -33 :twist 46)
   (:thigh-l :flex 52) (:knee-l :flex 50) (:thigh-r :flex -30) (:knee-r :flex 20))
-(defpose :ic-rangetsu-b (:base :ic-rangetsu-a)         ; ... and low back
-  (:chest :twist 20) (:neck :twist -10) (:arm-l :side 70 :flex 26) (:elbow-l :flex 10 :twist -150) (:root :f 0.42 :u -0.2))
+(defpose :ic-rangetsu-b (:base :ic-rangetsu-a)         ; 2: the cleaver's backhand up to his right
+  (:root :f 0.42) (:pelvis :twist -20) (:chest :twist -20) (:neck :twist 20)
+  (:arm-r :flex 21 :side -60 :twist 39) (:elbow-r :flex 47) (:hand-r :flex -67 :twist -5)
+  (:arm-l :flex -30 :side 40 :twist 0) (:elbow-l :flex 90) (:hand-l :flex 0))
+(defpose :ic-rangetsu-c (:base :ic-rangetsu-a)         ; 3: the short blade level to his left, the cleaver high
+  (:root :f 0.44) (:pelvis :twist 0) (:chest :twist 10) (:neck :twist 0)
+  (:arm-l :flex -7 :side -60 :twist 13) (:elbow-l :flex 102) (:hand-l :flex 4 :twist 0)
+  (:arm-r :flex 150 :side 60 :twist 0) (:elbow-r :flex 40) (:hand-r :flex -60 :twist 0))
+(defpose :ic-rangetsu-d (:base :ic-rangetsu-a)         ; 4: both blades level together, right to left
+  (:root :f 0.46) (:pelvis :twist 10) (:chest :twist 20) (:neck :twist -10)
+  (:arm-l :flex 15 :side -45 :twist -7) (:elbow-l :flex 86) (:hand-l :flex 12 :twist 0)
+  (:arm-r :flex 13 :side 94 :twist 10) (:elbow-r :flex 91) (:hand-r :flex -106 :twist -19))
 (defstrike :ic-rangetsu (8 12 18 :base :ic-tsuki)
   (0)
-  (5 (:root :f 0.2 :u -0.18) (:pelvis :twist 40) (:chest :twist 24) (:arm-l :flex 70 :side 30) (:elbow-l :flex 60))
+  (5 (:root :f 0.2 :u -0.15) (:pelvis :twist -50) (:chest :twist -30) (:arm-l :flex -30 :side 70) (:elbow-l :flex 110))   ; coiled
   (:s :snap :ic-rangetsu-a)
   (11 :snap :ic-rangetsu-b)
-  (14 :snap :ic-rangetsu-a (:arm-l :flex 132))
-  (17 :snap :ic-rangetsu-b (:arm-l :side 80 :flex 10) (:chest :twist 34))
-  (:a :ic-rangetsu-b (:arm-l :side 80 :flex 8))
-  (30 (:root :f 0.2 :u -0.1) (:arm-l :flex 50 :side 24) (:elbow-l :flex 60) (:chest :twist 0))
+  (13 :ic-rangetsu-b (:arm-l :flex 60 :side -60 :twist 0) (:elbow-l :flex 40) (:hand-l :flex 40)   ; the short blade cocked right,
+      (:arm-r :flex 120 :side 40 :twist 0) (:elbow-r :flex 40))                                    ; the cleaver going high
+  (14 :snap :ic-rangetsu-c)
+  (16 :ic-rangetsu-c (:arm-r :flex 40 :side 90) (:elbow-r :flex 60) (:hand-r :flex -90) (:chest :twist -10)   ; both cocked
+      (:arm-l :flex 50 :side -60) (:elbow-l :flex 60))                                                       ; right
+  (17 :snap :ic-rangetsu-d)
+  (:a :ic-rangetsu-d (:root :yaw 12) (:chest :twist 34) (:arm-r :side 70) (:arm-l :side -30))   ; carried on, left
+  (28 (:root :f 0.2 :u -0.1 :yaw 4) (:pelvis :twist -20) (:chest :twist 0) (:arm-r :flex 60 :side 20 :twist 0) (:elbow-r :flex 100)
+      (:hand-r :flex -40 :twist 0) (:arm-l :flex 10 :side 30) (:elbow-l :flex 80) (:hand-l :flex 10))
   (:end :ic-stance))
 
-(defpose :ic-otoshi-up (:base :ic-stance)              ; TSUKI-OTOSHI: leapt, both blades raised overhead ...
-  (:root :u 0.06 :f 0.3) (:pelvis :twist 8) (:spine :flex -14) (:chest :twist 0) (:neck :twist 0) (:head :flex -24)
-  (:arm-r :flex 172 :side 14) (:elbow-r :flex 20) (:hand-r :flex -30)
-  (:arm-l :flex 168 :side 14) (:elbow-l :flex 20) (:hand-l :flex -86)
-  (:thigh-r :flex 60) (:knee-r :flex 90) (:thigh-l :flex 30) (:knee-l :flex 80))
+;; TSUKI-OTOSHI: the pounce (the move's slide): a coil, a leap with both blades raised overhead, slammed down parallel
+;; into the plaza ahead (the cleaver on the 2.60 m edge); both hands, vertical (K3 is the cleaver alone)
+(defpose :ic-otoshi-up (:base :ic-tsuki)               ; leapt, both blades raised overhead ...
+  (:root :u 0.25 :f 0.3) (:pelvis :twist 8) (:spine :flex -14) (:chest :twist 0) (:neck :twist 0) (:head :flex -24 :twist 0)
+  (:arm-r :flex 175 :side 15 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -40 :twist 0)
+  (:arm-l :flex 172 :side 15 :twist 0) (:elbow-l :flex 30) (:hand-l :flex 50 :twist 0)
+  (:thigh-r :flex 60) (:knee-r :flex 90) (:thigh-l :flex 40) (:knee-l :flex 80))
 (defpose :ic-otoshi-hit (:base :ic-stance)             ; ... slammed down together
-  (:root :u -0.3 :f 0.5) (:pelvis :twist 6) (:spine :flex 42) (:chest :twist 0) (:neck :twist 0) (:head :flex -24)
-  (:arm-r :flex 70 :side 10) (:elbow-r :flex 6) (:hand-r :flex -70)
-  (:arm-l :flex 68 :side 10) (:elbow-l :flex 6) (:hand-l :flex -86)
+  (:root :f 0.5 :u -0.238) (:pelvis :twist 6) (:spine :flex 40) (:chest :twist 0) (:neck :twist 0) (:head :flex -24)
+  (:arm-r :flex 70 :side 12 :twist 0) (:elbow-r :flex 27) (:hand-r :flex -81 :twist -9)
+  (:arm-l :flex 65 :side -5 :twist 10) (:elbow-l :flex 12) (:hand-l :flex 16 :twist 0)
   (:thigh-r :flex 70) (:knee-r :flex 70) (:thigh-l :flex -20) (:knee-l :flex 40))
 (defstrike :ic-tsuki-otoshi (18 4 30 :base :ic-tsuki)
   (0)
-  (5 (:root :u -0.22 :f 0.1) (:knees :flex 60) (:thighs :flex 40) (:arm-r :flex 120) (:arm-l :flex 110))
+  (5 (:root :u -0.19 :f 0.1) (:knees :flex 60) (:thighs :flex 40) (:arm-r :flex 110) (:elbow-r :flex 50) (:arm-l :flex 60))  ; coil
   (10 :ic-otoshi-up)
-  (15 :ic-otoshi-up (:root :u 0.04 :f 0.42))
+  (15 :ic-otoshi-up (:root :u 0.16 :f 0.42) (:arm-r :flex 180) (:arm-l :flex 178))
   (:s :snap :ic-otoshi-hit)
-  (:a :ic-otoshi-hit (:root :u -0.32))
-  (40 (:root :u -0.2 :f 0.34) (:spine :flex 30))
+  (:a :ic-otoshi-hit (:root :u -0.25))
+  (34 (:root :f 0.3 :u -0.17) (:spine :flex 24) (:arm-r :flex 60) (:elbow-r :flex 40) (:hand-r :flex -50) (:arm-l :flex 40)
+      (:elbow-l :flex 40))
+  (44 (:root :f 0.1 :u -0.08) (:spine :flex 10) (:arm-r :flex 40 :side 15 :twist 0) (:elbow-r :flex 130) (:hand-r :flex -25))
   (:end :ic-stance))
 
-;;; ---------------------------------------------------------------- the rest of the Shikai (§3.3)
-(defpose :ic-getsuga-hit (:base :ic-stance)            ; L GETSUGA TENSHO: the cleaver swung up and out, one-handed
-  (:root :f 0.3 :u -0.16 :yaw 8) (:pelvis :twist 4) (:spine :flex 4) (:chest :twist 24) (:neck :twist -20) (:head :flex -8 :twist -16)
-  (:arm-r :side 70 :flex 140) (:elbow-r :flex 4) (:hand-r :twist 0 :flex -86)
-  (:arm-l :flex -30 :side 44) (:elbow-l :flex 30) (:hand-l :flex -50)
-  (:thigh-r :flex 50) (:knee-r :flex 52) (:thigh-l :flex -30) (:knee-l :flex 10))
+;;; ---------------------------------------------------------------- the rest of the Shikai (§3.2)
+;; L GETSUGA TENSHO: from the shoulder the cleaver cocked high behind his right shoulder (the short blade aiming), the
+;; tell held, a one-armed diagonal fling down to his left (the classic swing; the crescent leaves at S)
+(defpose :ic-getsuga-hit (:base :ic-stance)
+  (:root :f 0.3 :u -0.156 :yaw 8) (:pelvis :twist 4) (:spine :flex 4) (:chest :twist 24) (:neck :twist -20) (:head :flex -8 :twist -16)
+  (:arm-r :flex -14 :side 120 :twist -8) (:elbow-r :flex 6) (:hand-r :flex -48 :twist -3)
+  (:arm-l :flex 72 :side -57 :twist -50) (:elbow-l :flex 101) (:hand-l :flex 17 :twist 0)
+  (:thigh-r :flex 50 :side 10) (:knee-r :flex 52) (:thigh-l :flex -30 :side 8) (:knee-l :flex 10))
 (defstrike :ic-getsuga (14 0 24 :base :ic-stance)
   (0)
-  (8 (:root :u -0.16 :yaw -16) (:spine :flex 20) (:chest :twist -36) (:neck :twist 14) (:arm-r :side 60 :flex -40) (:elbow-r :flex 10)
-     (:hand-r :twist 0 :flex -70) (:arm-l :flex 50 :side 20) (:elbow-l :flex 60) (:knees :flex 44))
-  (12 (:root :u -0.17 :yaw -18) (:arm-r :flex -46) (:chest :twist -40))
+  (6 (:root :u -0.09 :yaw -16) (:spine :flex 14) (:chest :twist -30) (:neck :twist 40)
+     (:arm-r :flex 129 :side 20 :twist -34) (:elbow-r :flex 71) (:hand-r :flex -56 :twist -36) (:knees :flex 40))   ; cocked
+  (11 (:root :u -0.1 :yaw -18) (:chest :twist -36) (:arm-r :flex 140))                                          ; the tell
   (:s :snap :ic-getsuga-hit)
-  (20 (:arm-r :flex 150) (:chest :twist 28))
-  (30 (:root :f 0.2 :u -0.12) (:arm-r :side 50 :flex 90) (:elbow-r :flex 20) (:hand-r :flex -60) (:chest :twist 10))
+  (18 (:root :yaw 14) (:chest :twist 34) (:arm-r :flex 60 :side 30 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -60))   ; down,
+  (28 (:root :f 0.2 :u -0.12 :yaw 4) (:chest :twist 10) (:arm-r :flex 50 :side 20) (:elbow-r :flex 60) (:hand-r :flex -40)   ; left
+      (:arm-l :flex 10 :side 30 :twist 0) (:elbow-l :flex 70) (:hand-l :flex 10))
+  (33 (:root :f 0.08 :u -0.08) (:arm-r :flex 40 :side 15) (:elbow-r :flex 130) (:hand-r :flex -25))
   (:end :ic-stance))
 
-(defpose :ic-juji-pose (:base :ic-stance)              ; SP1 JUJISHO: both blades drawn back, crossed behind him
-  (:root :u -0.18 :f -0.05) (:pelvis :twist 10) (:spine :flex 22) (:chest :twist 0) (:head :flex 4)
-  (:arm-r :side 60 :flex -50) (:elbow-r :flex 20) (:hand-r :flex -60)
-  (:arm-l :side 60 :flex -50) (:elbow-l :flex 20) (:hand-l :flex -60)
-  (:knees :flex 50) (:thigh-r :flex 36) (:thigh-l :flex 10))
+;; SP1 JUJISHO (ch. 583, Ep387 / Ep394): the blades crossed low before him, the arms flung wide; the short blade sweeps
+;; level (the first crescent, f12) while the cleaver goes up overhead; the cleaver comes down at f20
+(defpose :ic-juji-level (:base :ic-stance)
+  (:root :f 0.15 :u -0.101) (:pelvis :twist -4) (:spine :flex 14) (:chest :twist -10) (:head :flex 0)
+  (:arm-l :flex 20 :side 90 :twist -14) (:elbow-l :flex 45) (:hand-l :flex 30 :twist 0)
+  (:arm-r :flex 177 :side -10 :twist 1) (:elbow-r :flex 36) (:hand-r :flex -51 :twist -19)
+  (:thigh-l :flex 40) (:knee-l :flex 44) (:thigh-r :flex -20) (:knee-r :flex 30))
+(defpose :ic-juji-down (:base :ic-stance)
+  (:root :f 0.3 :u -0.133) (:pelvis :twist 4) (:spine :flex 22) (:chest :twist 6) (:head :flex -10)
+  (:arm-l :flex -17 :side 51 :twist -41) (:elbow-l :flex 110) (:hand-l :flex -34 :twist 0)
+  (:arm-r :flex 42 :side -22 :twist -1) (:elbow-r :flex 60) (:hand-r :flex -82 :twist 1)
+  (:thigh-r :flex 50) (:knee-r :flex 52) (:thigh-l :flex -26) (:knee-l :flex 12))
 (defstrike :ic-juji (20 0 26 :base :ic-stance)
   (0)
-  (6 :ic-juji-pose)
-  (10 :ic-juji-pose (:root :u -0.2))
-  (12 :snap (:root :u -0.16 :f 0.1) (:chest :twist 24) (:arm-r :side 70 :flex 140) (:elbow-r :flex 4) (:hand-r :flex -86)
-      (:arm-l :side 60 :flex -50) (:spine :flex 10) (:knees :flex 44))
-  (17 (:chest :twist 26) (:arm-r :flex 146))
-  (:s :snap (:root :u -0.16 :f 0.3) (:chest :twist -20) (:arm-l :side 70 :flex 140) (:elbow-l :flex 4) (:hand-l :flex -86)
-      (:arm-r :side 70 :flex 120) (:thigh-r :flex 50) (:knee-r :flex 52) (:thigh-l :flex -26) (:knee-l :flex 12))
-  (34 (:root :f 0.2 :u -0.1) (:chest :twist 0) (:arm-l :side 50 :flex 70) (:arm-r :side 50 :flex 70))
+  (5 (:root :u -0.1) (:spine :flex 22) (:chest :twist 0) (:arm-r :flex 38 :side -34 :twist -10) (:elbow-r :flex 24)   ; crossed
+     (:hand-r :flex -110 :twist 38) (:arm-l :flex 44 :side -10 :twist 22) (:elbow-l :flex 35) (:hand-l :flex 4) (:knees :flex 40))   ; low
+  (7 (:arm-r :flex 30 :side 55 :twist 0) (:elbow-r :flex 10) (:hand-r :flex 0 :twist 0) (:arm-l :flex 60 :side 50 :twist 0) (:elbow-l :flex 10)
+     (:hand-l :flex 0 :twist 0))
+  (9 (:root :u -0.14) (:spine :flex 10) (:arm-r :flex 20 :side 90) (:elbow-r :flex 0) (:hand-r :flex -80)       ; flung wide
+     (:arm-l :flex -10 :side 90) (:elbow-l :flex 10) (:hand-l :flex -20))
+  (12 :snap :ic-juji-level)
+  (16 :ic-juji-level (:arm-r :flex 185) (:elbow-r :flex 50) (:arm-l :flex 0))                    ; held overhead
+  (18 :ic-juji-level (:root :u -0.12) (:arm-r :flex 188) (:arm-l :flex -10))
+  (:s :snap :ic-juji-down)
+  (26 :ic-juji-down (:arm-r :flex 30) (:hand-r :flex -70))
+  (36 (:root :f 0.15 :u -0.1) (:spine :flex 10) (:arm-r :flex 40 :side 10) (:elbow-r :flex 70) (:hand-r :flex -40)
+      (:arm-l :flex 10 :side 40 :twist 0) (:elbow-l :flex 70) (:hand-l :flex 10))
+  (:end :ic-stance))
+
+;; SP2 SOGA (Ep394): the flash-step lunge (the move's 5 m slide) flown near level, the cleaver high behind, the short
+;; blade low ahead (T13); both blades raised and brought down in a descending X (the cleaver on the 2.60 m edge), the
+;; arms ending flung open (T11)
+(defpose :ic-soga-fly (:base :ic-stance)
+  (:root :f 0.3 :u 0.12 :pitch 50) (:pelvis :twist 0) (:spine :flex 6) (:chest :twist 0) (:neck :twist 0) (:head :flex -40 :twist 0)
+  (:arm-r :flex 200 :side -60 :twist -29) (:elbow-r :flex 89) (:hand-r :flex -94 :twist 10)
+  (:arm-l :flex 124 :side 8 :twist -2) (:elbow-l :flex 1) (:hand-l :flex 9 :twist 0)
+  (:thigh-r :flex -20 :side 6) (:knee-r :flex 40) (:thigh-l :flex -40 :side 6) (:knee-l :flex 20))
+(defpose :ic-soga-hit (:base :ic-stance)
+  (:root :f 0.45 :pitch 8 :u -0.192) (:pelvis :twist 0) (:spine :flex 22) (:chest :twist 0) (:neck :twist 0) (:head :flex -16 :twist 0)
+  (:arm-r :flex 104 :side 27 :twist -33) (:elbow-r :flex 25) (:hand-r :flex -110 :twist 24)
+  (:arm-l :flex 15 :side -8 :twist 35) (:elbow-l :flex 113) (:hand-l :flex -21 :twist 0)
+  (:thigh-r :flex 64 :side 4) (:knee-r :flex 66) (:thigh-l :flex -30 :side 8) (:knee-l :flex 20))
+(defstrike :ic-soga (18 4 26 :base :ic-stance)
+  (0)
+  (3 (:root :u -0.14) (:spine :flex 20) (:knees :flex 50) (:thighs :flex 20))           ; the launch
+  (6 :ic-soga-fly)
+  (13 :ic-soga-fly (:root :f 0.35 :pitch 46))
+  (16 :ic-soga-fly (:root :f 0.4 :u -0.02 :pitch 20) (:arm-r :flex 175) (:arm-l :flex 160 :side 40) (:elbow-l :flex 20)   ; both
+      (:thigh-r :flex 40) (:knee-r :flex 50) (:thigh-l :flex -10) (:knee-l :flex 30))                                 ; raised
+  (:s :snap :ic-soga-hit)
+  (20 :ic-soga-hit (:arm-r :flex 95 :side 10) (:arm-l :flex 10 :side -20))                   ; through, crossing
+  (21 (:arm-r :flex 70 :side 50 :twist 0) (:hand-r :flex -70 :twist 0) (:arm-l :flex 60 :side 50 :twist 0) (:elbow-l :flex 30))
+  (:a (:root :u -0.16 :pitch 0) (:spine :flex 10) (:arm-r :flex 30 :side 90 :twist 0) (:elbow-r :flex 0) (:hand-r :flex -80 :twist 0)
+      (:arm-l :flex 30 :side 90 :twist 0) (:elbow-l :flex 0) (:hand-l :flex 0))          ; flung open
+  (34 (:root :f 0.3 :u -0.14) (:arm-r :flex 30 :side 80) (:arm-l :flex 30 :side 80))
+  (42 (:root :f 0.1 :u -0.08) (:spine :flex 8) (:arm-r :flex 40 :side 15) (:elbow-r :flex 130) (:hand-r :flex -25)
+      (:arm-l :flex 17 :side 31) (:elbow-l :flex 80) (:hand-l :flex 10))
+  (:end :ic-stance))
+
+;; O, the JUJI rush's strike (after the flash step, :sh-run): the blades crossed before him, pulled in, scissored open
+;; outward level (the cleaver on the 2.60 m edge)
+(defpose :ic-juji-x-hit (:base :ic-stance)
+  (:root :f 0.3 :u -0.13) (:pelvis :twist 0) (:spine :flex 12) (:chest :twist 0) (:neck :twist 0) (:head :flex -6 :twist 0)
+  (:arm-r :flex 113 :side -53 :twist -3) (:elbow-r :flex 1) (:hand-r :flex -89 :twist -4)
+  (:arm-l :flex 83 :side -60 :twist -6) (:elbow-l :flex 66) (:hand-l :flex -25 :twist 0)
+  (:thigh-r :flex 50 :side 6) (:knee-r :flex 52) (:thigh-l :flex -24 :side 10) (:knee-l :flex 14))
+(defstrike :ic-juji-x (7 3 24 :base :ic-stance)
+  (0 :ic-juji-x-hit (:root :f 0.1 :u -0.14) (:arm-r :flex 90 :side -30 :twist 0) (:elbow-r :flex 80) (:hand-r :flex -40)   ; crossed
+     (:arm-l :flex 90 :side -30 :twist 0) (:elbow-l :flex 80) (:hand-l :flex 30))
+  (4 (:root :u -0.18) (:spine :flex 18) (:elbow-r :flex 100) (:elbow-l :flex 100))     ; pulled in
+  (:s :snap :ic-juji-x-hit)
+  (9 (:arm-r :flex 60 :side 80) (:elbow-r :flex 0) (:hand-r :flex -86) (:arm-l :flex 50 :side 80) (:elbow-l :flex 10) (:hand-l :flex 0))
+  (:a (:arm-r :flex 58) (:arm-l :flex 48))
+  (22 (:root :f 0.15 :u -0.1) (:spine :flex 8) (:arm-r :flex 50 :side 30) (:elbow-r :flex 90) (:hand-r :flex -40)
+      (:arm-l :flex 20 :side 40) (:elbow-l :flex 70) (:hand-l :flex 10))
   (:end :ic-stance))
 
 (defclip :ic-breaker (0.4 :loop t :base :ic-stance)    ; the Breaker's dash: low, both blades trailing
-  (0 (:root :u -0.12) (:pelvis :twist 8) (:spine :flex 36) (:chest :twist 0) (:head :flex -28)
-     (:arm-r :flex -46 :side 30) (:elbow-r :flex 16) (:hand-r :flex -90) (:arm-l :flex -46 :side 30) (:elbow-l :flex 16) (:hand-l :flex -90)
+  (0 (:root :u -0.12) (:pelvis :twist 8) (:spine :flex 36) (:chest :twist 0) (:neck :twist 0) (:head :flex -28 :twist 0)
+     (:arm-r :flex -46 :side 30 :twist 0) (:elbow-r :flex 16) (:hand-r :flex -90 :twist 0)
+     (:arm-l :flex -46 :side 30 :twist 0) (:elbow-l :flex 16) (:hand-l :flex 20 :twist 0)
      (:thigh-r :flex 45) (:knee-r :flex 20) (:thigh-l :flex -30) (:knee-l :flex 45))
   (0.2 (:root :u -0.08) (:thigh-l :flex 45) (:knee-l :flex 20) (:thigh-r :flex -30) (:knee-r :flex 45)))
 
-(defstrike :ic-mine (8 4 18 :base :ic-stance)          ; I MINEUCHI: the cleaver's flat slammed sideways
-  (0 (:root :u -0.12) (:chest :twist -36) (:arm-r :side 80 :flex -30) (:elbow-r :flex 20) (:hand-r :twist 90 :flex -80))
-  (5 (:chest :twist -40) (:arm-r :flex -36))
-  (:s :snap (:root :f 0.34 :u -0.14) (:chest :twist 24) (:arm-r :side 88 :flex 100) (:elbow-r :flex 4) (:hand-r :twist 90 :flex -86)
-      (:arm-l :flex -20 :side 50) (:thigh-r :flex 50) (:knee-r :flex 50) (:thigh-l :flex -24))
-  (:a (:root :f 0.36) (:arm-r :flex 104))
-  (24 (:root :f 0.16 :u -0.1) (:arm-r :side 50 :flex 60) (:chest :twist 8))
+;; I MINEUCHI (Monster Hunter's guard tackle, T7): the cleaver brought down before him on its flat, the left forearm braced
+;; on its spine, pulled in, shoved forward like a shield (the Breaker's grab is close: short of its 1.35 m edge)
+(defpose :ic-mine-hit (:base :ic-stance)
+  (:root :f 0.35 :u -0.126) (:pelvis :twist 0) (:spine :flex 10) (:chest :twist 0) (:neck :twist 0) (:head :flex -6 :twist 0)
+  (:arm-r :flex 72 :side 27 :twist 71) (:elbow-r :flex 31) (:hand-r :flex -110 :twist -114)
+  (:arm-l :flex 104 :side 18 :twist -2) (:elbow-l :flex 54) (:hand-l :flex 70 :twist 0)
+  (:thigh-r :flex 50 :side 10) (:knee-r :flex 50) (:thigh-l :flex -24 :side 8) (:knee-l :flex 14))
+(defstrike :ic-mine (8 4 18 :base :ic-stance)
+  (0)
+  (4 :ic-mine-hit (:root :f 0.0 :u -0.12) (:chest :twist -10) (:arm-r :flex 50) (:elbow-r :flex 70) (:arm-l :flex 90) (:elbow-l :flex 80)
+     (:thigh-r :flex 30) (:knee-r :flex 44) (:thigh-l :flex 0) (:knee-l :flex 30))     ; pulled in, on its flat
+  (:s :snap :ic-mine-hit)
+  (:a :ic-mine-hit (:root :f 0.38))
+  (20 (:root :f 0.15 :u -0.1) (:arm-r :flex 50 :side 20 :twist 0) (:elbow-r :flex 90) (:hand-r :flex -40 :twist 0)
+      (:arm-l :flex 30 :side 30) (:elbow-l :flex 70))
   (:end :ic-stance))
 
 (defclip :ic-intro (2.0 :base :ic-stance)              ; both blades brought out from behind, crossed, then down
@@ -514,10 +666,10 @@
        (:thigh-r :flex -18 :side 10) (:knee-r :flex 30) (:thigh-l :flex 30 :side 8) (:knee-l :flex 28)))
 
 (defclip :ic-awaken (2.8 :base :ic-stance)             ; the awakening: head down, the blades lowered, the short blade brought
-  (0 (:root :u -0.02) (:spine :flex 16) (:head :flex 30) (:arm-r :flex 10 :side 14) (:elbow-r :flex 10) (:hand-r :flex -80)   ; into
+  (0 (:root :u -0.02) (:spine :flex 16) (:head :flex 30) (:arm-r :flex 45 :side 14) (:elbow-r :flex 10) (:hand-r :flex -80)   ; into
      (:arm-l :flex 10 :side 14) (:elbow-l :flex 10) (:hand-l :flex -80) (:knees :flex 8))                                      ; the
   (0.9 (:head :flex 26) (:arm-r :flex 60 :side 0) (:elbow-r :flex 40) (:hand-r :twist -90 :flex -20)                            ; long
-       (:arm-l :flex 60 :side -10) (:elbow-l :flex 50) (:hand-l :twist 90 :flex -20))                                           ; one's
+       (:arm-l :flex 60 :side -10) (:elbow-l :flex 50) (:hand-l :twist 90 :flex -60))                                           ; one's
   (1.1 :snap (:arm-l :flex 62 :side -18) (:elbow-l :flex 60))                                                                  ; hole
   (1.8 (:spine :flex -6) (:chest :flex -10) (:head :flex -20) (:arm-r :flex 20 :side 20) (:elbow-r :flex 10) (:hand-r :twist 0 :flex -80)
        (:arm-l :flex 20 :side 60) (:elbow-l :flex 10) (:hand-l :flex 0))
@@ -972,7 +1124,7 @@ swallowed in gold flame, then the blade a red slash in a pink-violet glow; the s
 pink sky and the Cero Getsuga: a violet ring round a dark blood-red disc, four gold spikes in a diamond; the impact;
 the plaza back, violet ash drifting."
   (at 0 (face-each-other a v 2.6) (shot-on a 60 3.6 1.1 :look 1.1) (lens 50)
-      (cine-clip a :ic-cross :blend 2 :time 0.18) (cine-clip v :sh-kikon-victim :blend 4)
+      (cine-clip a :ic-juji-x :blend 2 :time 0.15) (cine-clip v :sh-kikon-victim :blend 4)
       (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-heavy :pitch 1.1))
   (at 12 (card :white a) (shot-on a 30 3.2 0.7 :look 1.1 :off -0.8) (lens 44 -8) (silence 58)
       (caption "月牙天衝" :kanji2 "王虚の閃光" :reading "GETSUGA TENSHO" :sub "GRAN REY CERO  KIKON" :side 1 :ink t :hanko t))
