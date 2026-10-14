@@ -136,3 +136,64 @@ byte-identical sim (`simgate --seeds 10` + `--cvc`); batches 2–3 gated against
 IY 110.7 s (Ichigo 7 / 20), IK 106.0 (11), IR 121.3 (8), II 140.6 (P1 10 / P2 10), SI 139.5 (Ichigo 16), BI 157.9
 (Ichigo 14); all 120 K.O. Ichigo's awaken A/B (never awakening, of 60; seed0 100 / 300 / 500): IY 14 / 19 / 26, IK 12 /
 10 / 8, IR 9 / 12 / 17, II 21 / 20 / 17, SI 27 / 23 / 21, BI 11 / 19 / 11 (an open item since 2026-09-29, AGENTS).
+
+### 6.3 As built: KESSA clips (batch ic-kessa)
+
+Every KESSA clip is now its own, at its move's own frames, starting and ending on `:ic-k-stance`; KESSA plays none of the
+Shikai's clips (K1 / K2 / K3, 残月返し, KAGE-UCHI and the clones' heavy were `:ic-f1` / `:ic-f2` / `:ic-drop` with
+`:clip-s`). Hit poses were solved from the drawn tip (an FK solver over the art: the tip's position and the slab's
+direction per key, each key seeded from its neighbour so the in-betweens travel the arc), then checked on 8-frame side and
+front strips (`tests/duel-view.lisp` scene 9).
+
+- **Idle** `:ic-k-stance`: the slab hangs forward across his legs, its end 0.07 m off the plaza (was 0.37 m under it).
+- **J1** `:ic-k-jab` (8/3/12): cocked over the left shoulder (f3), up and over (f6), a one-hand chop ↘ down across him
+  to his right, the slab steep at S, a step in. **J2** `:ic-k-back` (8/3/13): dragged low across to his left, the flat
+  turned, a one-hand rising backhand ↗, carried high right. **J3** `:ic-k-wrap-j` (9/3/18, its `:clip-s 10` gone): wound
+  right, a full turn left with a key every 90° (root yaw −22 / 68 / 158 / 250 / 360, a pelvis roll), the slab level and
+  close, whipped across the front on S. The clones' light links keep the long versions of the same shapes,
+  `:ic-k-cut` (the chop with a lunge) and `:ic-k-wrap` (the turn at arm's length, now 9/3/18 like its move).
+- **K1** `:ic-k-f1` (18/4/20, new): both hands (`*grip-clips*`), gathered, coiled behind the left shoulder (f12, held
+  deeper to f15: the tell), released, a full-body bat swing L → R through the front on S with a deep right-foot step,
+  carried past him to the right (f27), settled. **K2** `:ic-k-f2` (20/4/24, enters f6, new): both hands, the end trailing
+  behind him low to his left (f6–f12), rising, a diagonal ↗ through the front on S, held high (f30). **K3** `:ic-k-f3`
+  (21/5/34, enters f7, new): both hands, the slab lifted level overhead (f11, the Berserk wind-up), held while stepping
+  (f15), turned up behind his head (f18), over the top (f20), level ahead on S at the line's end, down to just off the
+  plaza (f26, 0.03 m), held to f34. The ic-look batch's chains / cracks go on these poses.
+- **残月返し** `:ic-k-gaeshi` (6/3/22, new): the left hand grabs ahead at wrist height (f2), the slab straight up (f4),
+  the one-hand vertical drop on S, the grab hauled to his hip. **KAGE-UCHI** `:ic-k-uchi` (7/3/24, new; the Kikon's
+  clip 2): a leap (the feet 0.5 m up), cocked over the right shoulder, a one-hand diagonal ↙ as he comes down, a landing
+  crouch, the slab low left. **KUSARI-BIKI** `:ic-k-yank` (16/3/24, its own frames, the `:clip-s 6` gone): the left fist
+  cocked back (f5–f11, held), thrown at him (f14), the arm straight on S, then a lean back with both feet braced, the fist
+  reeling to the hip (f24–f31). **残像** `:ic-k-zanzo`: the same sweep, now level (it went 0.49 m under the plaza); the
+  parry `:ic-k-parry`: unchanged but for the idle.
+- The clones: `:ic-c-heavy` plays `:ic-k-f1` (`:clip-s 18` for its S16), `:ic-c-heavy3` plays `:ic-k-f3` (`:clip-s 21`
+  for its S18). KESSA's cinematics play his clips too: 千影's beat 0 holds KAGE-UCHI's hit, its clones charge on
+  `:ic-k-f1` / `:ic-k-f3` / `:ic-k-cut`, the Soul Break holds K3's level overhead (f13) and drops from f17.
+
+**K3's step (the sim change, §3.4)**: `:ic-k-k3` `:vol (:cap 0.3 3.2 1.2 0.35)` → `(:cap 0.3 2.2 1.2 0.35)` and
+`:slide 1.0`. Since the move enters at f7, the slide moves him over f8–f20: 13 × 1.0 / 21 = 0.62 m (less if he reaches
+`*lunge-stop*`); the clip draws the stride (the right foot lifted 0.18 m at f18, planted on S) and a 0.25 m lunge into the
+hit, not the travel, so nothing moves twice. The drawn body travels about 0.9 m and the slab lands at the line's end
+(2.55 m) on S. Frame data, damage, reactions unchanged. The clones' heavy3 keeps its volume (3.75 m) and stands in place:
+it plays the same clip, so its drawn tip is 1.2 m short of its line (it was 1.04 m short on `:ic-drop`).
+
+| Move | Edge | Tip at S, before → after |
+|---|---|---|
+| J1 / J2 / J3 | 1.56 / 1.56 / 1.68 | 1.62 / 1.62 / 1.74 → 1.62 / 1.63 / 1.69 |
+| K1 / K2 | 2.90 / 2.90 | 2.40 / 0.57 (overhead) → 2.92 / 2.81 |
+| K3 | line 3.55 → **2.55** | 2.71 → 2.55 |
+| 残月返し / KAGE-UCHI | 3.00 / 2.80 | 2.72 / 2.72 → 2.93 / 2.75 |
+| clones heavy / heavy3 | 3.00 / 3.75 | 2.40 / 2.71 → 2.92 / 2.55 |
+| clones light / light3 | 2.40 / 2.80 | 2.25 / 2.57 → 2.36 / 2.76 |
+
+The floor: 0 frames under the plaza in every KESSA clip (was: the idle all 145 frames, `:ic-k-zanzo` 26, `:ic-k-wrap` 13).
+Checks: the host tests ALL PASS (rules 6976, control 89, cine 18, learn 131; the FK test's J two-sided ±0.15 m), pkgcheck
+clean, `./build.sh duel` (only Lille's 4 style warnings), the smoke run clean. `simgate --pairs 6,7,8,9,14,24 --seeds 10`
+(the baseline at dbcffd6 → now, median s, Ichigo's wins): IY 117.0 → 117.0 (3 → 4), IK 106.5 → 106.5 (6 → 6), IR 122.3 →
+121.3 (5 → 6), II 130.8 → 130.8 (P1 4 / P2 6 → 5 / 5), SI 146.0 → 155.0 (8 → 8), BI 157.9 → 145.5 (9 → 8); all 60 K.O.
+(IY and IK sit under 125 s as before the change.)
+
+Known: KESSA K2's hit pose reads close to a level thrust from the side camera (the rise shows from the front and over
+A); the clones' heavy3 is drawn 1.2 m short; the left fist rides the handle by GRIP-LEFT! through each K's recovery and
+lets go only after the clip (0.1 s); KUSARI-BIKI's slab is held level at his hip during the cast. Checked by numbers,
+needs the user's eyes.

@@ -261,9 +261,10 @@
 (defclip :ic-stance (1.6 :loop t :base :ic-stance)
   (0) (0.8 (:root :u -0.085) (:chest :flex 3) (:elbow-l :flex 60)))
 
-(defpose :ic-k-stance ()                               ; KESSA: upright and still, Tensa low at his side, the left hand open
-  (:root :u -0.03) (:pelvis :twist 14) (:spine :flex 4) (:chest :twist -4) (:neck :twist -8) (:head :flex 4 :twist -6)
-  (:arm-r :flex 12 :side 16) (:elbow-r :flex 12) (:hand-r :twist 0 :flex -70)
+(defpose :ic-k-stance ()                               ; KESSA: upright and still, Tensa hanging point-down across his
+  (:root :u -0.03) (:pelvis :twist 14) (:spine :flex 4) (:chest :twist -4) (:neck :twist -8) (:head :flex 4 :twist -6)   ; legs,
+  (:arm-r :flex -19 :side 25 :twist 23) (:elbow-r :flex 48) (:hand-r :twist 0 :flex -46)   ; its end just off the plaza (ep. 45
+                                                                                         ; still; the tip 0.07 m up, 1.3 ahead)
   (:arm-l :flex 8 :side 20) (:elbow-l :flex 24) (:hand-l :flex -10)
   (:thigh-r :flex 8 :side 6) (:thigh-l :flex -4 :side 8) (:knee-r :flex 10) (:knee-l :flex 8))
 (defclip :ic-k-stance (2.4 :loop t :base :ic-k-stance)
@@ -523,103 +524,309 @@
        (:arm-l :flex 20 :side 60) (:elbow-l :flex 10) (:hand-l :flex 0))
   (2.8 (:spine :flex -8) (:head :flex -22) (:arm-l :side 64)))
 
-;;; ---------------------------------------------------------------- KESSA's own motions (§4.4, §4.5)
-;; J1 板薙 ITA-NAGI: the slab swept up and across from the low stance, one-handed, a short step in (also the clones' light)
-(defpose :ic-k-cut-hit (:base :ic-k-stance)
-  (:root :f 0.28 :u -0.12 :yaw -6) (:pelvis :twist 10) (:spine :flex 10) (:chest :twist 24) (:neck :twist -18) (:head :flex -6 :twist -12)
-  (:arm-r :side 84 :flex 116) (:elbow-r :flex 6) (:hand-r :twist 0 :flex -84)
-  (:arm-l :flex -24 :side 36) (:elbow-l :flex 26) (:hand-l :flex -30)
-  (:thigh-r :flex 44 :side 4) (:knee-r :flex 46) (:thigh-l :flex -26) (:knee-l :flex 14))
-(defstrike :ic-k-cut (8 3 12 :base :ic-k-stance)
-  (0)
-  (4 (:root :u -0.1 :yaw 8) (:chest :twist -28) (:neck :twist 12) (:arm-r :side 70 :flex -26) (:elbow-r :flex 12)
-     (:hand-r :twist 0 :flex -70) (:arm-l :flex 30 :side 20) (:knees :flex 26))
-  (:s :snap :ic-k-cut-hit)
-  (:a (:arm-r :flex 124) (:chest :twist 28) (:root :f 0.3))
-  (18 (:root :f 0.12 :u -0.06) (:chest :twist 8) (:arm-r :side 44 :flex 50) (:elbow-r :flex 18) (:hand-r :flex -64))
-  (:end :ic-k-stance))
-
-;; KESSA's J1 alone (the J cut, docs/duel/DUEL_STRINGS.md §13): ITA-NAGI swept up from close, the slab ending raised across in
-;; front of him (the clones keep the long sweep above)
-(defpose :ic-k-jab-hit (:base :ic-k-cut-hit)
-  (:root :f 0.02) (:arm-r :side 50 :flex 40) (:elbow-r :flex 60) (:hand-r :twist 0 :flex -40))
+;;; ---------------------------------------------------------------- KESSA's own motions (DUEL_ICHIGO_TYBW §3.2, right column)
+;;; One slab, no point: cuts only. J one-handed, K two-handed (the left fist on the handle: *GRIP-CLIPS*), each strike its
+;;; own plane and hand set (J1 diagonal-down, J2 diagonal-up, J3 a level spin, K1 horizontal, K2 diagonal-up two-handed,
+;;; K3 vertical-down two-handed, 残月返し vertical-down one-handed after the grab, KAGE-UCHI diagonal-down ↙). Each clip at
+;;; its move's own frames, starting and ending on :ic-k-stance; a K's anticipation coil inside its startup (after its
+;;; :enter), overshoot and settle in the recovery. Hit poses solved from the drawn tip (the tip report, ±0.15 m of the
+;;; volume's edge: J 1.56 / 1.68, K 2.90, K3's line ends 2.55 since its step, the counter 3.00, KAGE-UCHI 2.80); the long
+;;; versions :ic-k-cut / :ic-k-wrap are the clones' light links (2.4 / 2.8 m)
+;; J1 板薙 ITA-NAGI: cocked over the left shoulder, a one-hand chop ↘ down across him to his right, the slab steep at the
+;; hit, a step in
+(defpose :ic-k-jab-hit (:base :ic-k-stance)
+  (:root :f -0.05 :u -0.12 :yaw -8) (:pelvis :twist 4) (:spine :flex 14) (:chest :twist -10) (:neck :twist 10) (:head :flex -6)
+  (:arm-r :flex 137 :side 45 :twist -90) (:elbow-r :flex 14) (:hand-r :twist -90 :flex -153)
+  (:arm-l :flex -16 :side 36) (:elbow-l :flex 34) (:hand-l :flex -20)
+  (:thigh-r :flex 34 :side 4) (:knee-r :flex 38) (:thigh-l :flex -20) (:knee-l :flex 18))
 (defstrike :ic-k-jab (8 3 12 :base :ic-k-stance)
   (0)
-  (4 (:root :u -0.1 :yaw 8) (:chest :twist -28) (:neck :twist 12) (:arm-r :side 70 :flex -26) (:elbow-r :flex 12)
-     (:hand-r :twist 0 :flex -70) (:arm-l :flex 30 :side 20) (:knees :flex 26))
+  (3 (:root :u -0.1 :yaw 14) (:pelvis :twist 24) (:spine :flex 2) (:chest :twist 30) (:neck :twist -18) (:knees :flex 22)
+     (:arm-r :flex 158 :side 58 :twist -84) (:elbow-r :flex 30) (:hand-r :twist 7 :flex -126)            ; over the left shoulder
+     (:arm-l :flex 24 :side 30) (:elbow-l :flex 40))
+  (6 (:root :u -0.11) (:arm-r :flex 166 :side 10 :twist -81) (:elbow-r :flex 10) (:hand-r :twist -20 :flex -79))   ; up, left
   (:s :snap :ic-k-jab-hit)
-  (:a (:chest :twist 28) (:root :f 0.04))
-  (18 (:root :f 0.02 :u -0.06) (:chest :twist 8) (:arm-r :side 44 :flex 50) (:elbow-r :flex 18) (:hand-r :flex -64))
+  (:a (:chest :twist -18) (:arm-r :flex 125 :side 57) (:elbow-r :flex 7) (:hand-r :twist -81))                ; down-right
+  (14 (:root :u -0.14) (:chest :twist -24) (:arm-r :flex 21 :side 9 :twist -22) (:elbow-r :flex 86) (:hand-r :twist -36 :flex -139))
+  (18 (:root :f -0.03 :u -0.07 :yaw -3) (:spine :flex 6) (:chest :twist -8) (:thigh-r :flex 14) (:knee-r :flex 18)    ; settle
+      (:arm-r :flex 0 :side 28 :twist 10) (:elbow-r :flex 50) (:hand-r :twist 0 :flex -55))
+  (:end :ic-k-stance))
+;; the clones' light 影薙 KAGE-NAGI: the same chop at arm's length, a lunge (2.4 m)
+(defpose :ic-k-cut-hit (:base :ic-k-jab-hit)
+  (:root :f 0.3 :u -0.14) (:spine :flex 16) (:arm-r :flex 114 :side 10 :twist -34) (:elbow-r :flex 10) (:hand-r :twist -39 :flex -126)
+  (:thigh-r :flex 44) (:knee-r :flex 46) (:thigh-l :flex -26) (:knee-l :flex 14))
+(defstrike :ic-k-cut (8 3 12 :base :ic-k-stance)
+  (0)
+  (3 (:root :u -0.1 :yaw 14) (:pelvis :twist 24) (:spine :flex 2) (:chest :twist 30) (:neck :twist -18) (:knees :flex 22)
+     (:arm-r :flex 158 :side 58 :twist -84) (:elbow-r :flex 30) (:hand-r :twist 7 :flex -126) (:arm-l :flex 24 :side 30) (:elbow-l :flex 40))
+  (6 (:root :u -0.11 :f 0.1) (:arm-r :flex 166 :side 10 :twist -81) (:elbow-r :flex 10) (:hand-r :twist -20 :flex -79))
+  (:s :snap :ic-k-cut-hit)
+  (:a (:chest :twist -18) (:arm-r :flex 63 :side 23 :twist -6) (:elbow-r :flex 37) (:hand-r :twist -20 :flex -136))
+  (14 (:root :f 0.24 :u -0.15) (:chest :twist -24) (:arm-r :flex 21 :side 9 :twist -22) (:elbow-r :flex 86) (:hand-r :twist -36 :flex -139))
+  (18 (:root :f 0.08 :u -0.08 :yaw -3) (:spine :flex 6) (:chest :twist -8) (:thigh-r :flex 14) (:knee-r :flex 18)
+      (:arm-r :flex 0 :side 28 :twist 10) (:elbow-r :flex 50) (:hand-r :twist 0 :flex -55))
   (:end :ic-k-stance))
 
-;; J2 返板 KAESHI-ITA: the backhand, the flat turned, the slab's weight carrying the wrist round (shorter since the J cut,
-;; docs/duel/DUEL_STRINGS.md §13: the elbow bent, the slab ends across in front of him)
+;; J2 返板 KAESHI-ITA: the slab dragged low across to his left, the flat turned, a one-hand rising backhand ↗, the slab's
+;; weight carrying it high to his right
 (defpose :ic-k-back-hit (:base :ic-k-stance)
-  (:root :f 0.02 :u -0.1 :yaw 8) (:pelvis :twist 26) (:spine :flex 8) (:chest :twist -22) (:neck :twist 14)
-  (:arm-r :side 50 :flex 20) (:elbow-r :flex 100 :twist -150) (:hand-r :flex -120)
+  (:root :f 0.0 :u -0.1 :yaw 8) (:pelvis :twist 22) (:spine :flex 6) (:chest :twist -18) (:neck :twist 14)
+  (:arm-r :flex 22 :side -9 :twist -1) (:elbow-r :flex 46) (:hand-r :twist -18 :flex -9)
   (:arm-l :flex 20 :side 40) (:elbow-l :flex 30) (:hand-l :flex -20)
-  (:thigh-r :flex 38) (:knee-r :flex 40) (:thigh-l :flex -22) (:knee-l :flex 18))
+  (:thigh-r :flex 30) (:knee-r :flex 34) (:thigh-l :flex -18) (:knee-l :flex 16))
 (defstrike :ic-k-back (8 3 13 :base :ic-k-stance)
   (0)
-  (4 (:root :u -0.08 :yaw -10) (:chest :twist 30) (:arm-r :side 86 :flex 130) (:elbow-r :flex 16 :twist -150) (:hand-r :flex -78))
+  (3 (:root :u -0.12 :yaw -10) (:pelvis :twist 28) (:spine :flex 14) (:chest :twist 34) (:neck :twist -20) (:knees :flex 26)
+     (:arm-r :flex 32 :side -9 :twist 67) (:elbow-r :flex 46) (:hand-r :twist 40 :flex -89))           ; low across, to his left
+  (6 (:arm-r :flex 29 :side 6 :twist 44) (:elbow-r :flex 43) (:hand-r :twist 18 :flex -77))           ; the flat turned, rising
   (:s :snap :ic-k-back-hit)
-  (:a (:chest :twist -24) (:root :f 0.04))
-  (19 (:chest :twist -6) (:arm-r :side 40 :flex 30) (:elbow-r :flex 26 :twist -40) (:hand-r :flex -66) (:root :f 0.02 :u -0.06))
+  (:a (:root :u -0.06) (:chest :twist -26) (:arm-r :flex 22 :side 46 :twist -26) (:elbow-r :flex 97) (:hand-r :twist -45 :flex -85))
+  (15 (:root :u -0.04) (:spine :flex 0) (:chest :twist -30) (:arm-r :flex 26 :side 85 :twist -66) (:elbow-r :flex 93)   ; high right
+      (:hand-r :twist -36 :flex -116))
+  (19 (:root :u -0.07) (:spine :flex 4) (:chest :twist -10) (:thigh-r :flex 14) (:knee-r :flex 18)                     ; settle
+      (:arm-r :flex 0 :side 30 :twist 10) (:elbow-r :flex 52) (:hand-r :twist 0 :flex -55))
   (:end :ic-k-stance))
 
-(defstrike :ic-k-wrap (10 3 18 :base :ic-k-stance)     ; J3 KUSARI-MAKI: a turn, the blade out, the chain wrapping round him
+;; J3 板旋 ITA-SEN: wound right, a full turn to his left (a key every 90°, root yaw + the pelvis), the slab level and held
+;; close, whipped across the front on S (the long version, the clones' light 3, at arm's length with a lunge)
+(defpose :ic-k-wrap-j-hit (:base :ic-k-stance)
+  (:root :yaw 360 :f -0.08 :u -0.06) (:pelvis :twist 10) (:chest :twist 12) (:neck :twist -6)
+  (:arm-r :flex -3 :side 52 :twist -5) (:elbow-r :flex 82) (:hand-r :twist 15 :flex -57)
+  (:arm-l :side 70 :flex 20) (:elbow-l :flex 10)
+  (:thigh-r :flex 10 :side 14) (:knee-r :flex 30) (:thigh-l :flex 20) (:knee-l :flex 24))
+(defpose :ic-k-wrap-hit (:base :ic-k-wrap-j-hit)
+  (:root :f 0.55) (:spine :flex 10) (:arm-r :flex 83 :side -39 :twist -7) (:elbow-r :flex 1) (:hand-r :twist 12 :flex -83)
+  (:thigh-r :flex 30) (:knee-r :flex 36) (:thigh-l :flex -14) (:knee-l :flex 24))
+(defstrike :ic-k-wrap-j (9 3 18 :base :ic-k-stance)
   (0)
-  (5 (:root :u -0.08 :yaw -20) (:chest :twist -30) (:arm-r :side 80 :flex -10) (:elbow-r :flex 6) (:hand-r :flex -86)
-     (:arm-l :side 60 :flex 60) (:knees :flex 24))
-  (:s :snap (:root :yaw 360 :u -0.04 :f 0.2) (:chest :twist 10) (:arm-r :side 90 :flex 40) (:elbow-r :flex 0) (:hand-r :flex -88)
-      (:arm-l :side 80 :flex 20) (:elbow-l :flex 10))
-  (:a (:root :yaw 380 :f 0.22))
-  (24 (:root :yaw 370 :u -0.05) (:arm-r :side 40 :flex 20) (:elbow-r :flex 16) (:arm-l :side 30 :flex 10))
+  (2 (:root :yaw -22 :u -0.09) (:pelvis :twist 0) (:chest :twist -28) (:neck :twist 16) (:knees :flex 26)    ; wound right
+     (:arm-r :flex -10 :side 76 :twist 0) (:elbow-r :flex 12) (:hand-r :twist 0 :flex -86) (:arm-l :side 50 :flex 40) (:elbow-l :flex 30))
+  (4 (:root :yaw 68 :u -0.1) (:pelvis :twist 6 :side 4) (:chest :twist -30))                              ; 90
+  (6 (:root :yaw 158 :u -0.09) (:pelvis :side 6) (:chest :twist -24))                                    ; 180: his back
+  (8 (:root :yaw 250 :u -0.08) (:pelvis :side 4) (:chest :twist -14) (:arm-r :flex 0 :side 80))           ; 270
+  (:s :snap :ic-k-wrap-j-hit)
+  (:a (:root :yaw 384) (:chest :twist 20) (:arm-r :flex 8) (:elbow-r :flex 90))
+  (18 (:root :yaw 392 :u -0.08) (:chest :twist 26) (:arm-r :flex 20 :side 60) (:elbow-r :flex 96) (:hand-r :flex -60))
+  (24 (:root :yaw 372 :u -0.05) (:chest :twist 6) (:arm-r :flex -10 :side 30 :twist 10) (:elbow-r :flex 50) (:hand-r :twist 0 :flex -50))
+  (:end :ic-k-stance (:root :yaw 360)))
+(defstrike :ic-k-wrap (9 3 18 :base :ic-k-stance)
+  (0)
+  (2 (:root :yaw -22 :u -0.09) (:pelvis :twist 0) (:chest :twist -28) (:neck :twist 16) (:knees :flex 26)
+     (:arm-r :flex -10 :side 76 :twist 0) (:elbow-r :flex 12) (:hand-r :twist 0 :flex -86) (:arm-l :side 50 :flex 40) (:elbow-l :flex 30))
+  (4 (:root :yaw 68 :u -0.1 :f 0.1) (:pelvis :twist 6 :side 4) (:chest :twist -30))
+  (6 (:root :yaw 158 :u -0.09 :f 0.25) (:pelvis :side 6) (:chest :twist -24))
+  (8 (:root :yaw 250 :u -0.08 :f 0.4) (:pelvis :side 4) (:chest :twist -14) (:arm-r :flex 0 :side 85))
+  (:s :snap :ic-k-wrap-hit)
+  (:a (:root :yaw 384) (:chest :twist 20) (:arm-r :flex 100 :side -30))
+  (18 (:root :yaw 392 :u -0.08 :f 0.4) (:chest :twist 26) (:arm-r :flex 110 :side 0) (:elbow-r :flex 30) (:hand-r :flex -70))
+  (24 (:root :yaw 372 :u -0.05 :f 0.15) (:chest :twist 6) (:arm-r :flex -10 :side 30 :twist 10) (:elbow-r :flex 50) (:hand-r :twist 0 :flex -50))
   (:end :ic-k-stance (:root :yaw 360)))
 
-;; KESSA's J3 alone (§13): the turn with the elbow bent, the slab close in front, the chain wrapping round him (the
-;; clones keep the arm's-length wrap above)
-(defstrike :ic-k-wrap-j (10 3 18 :base :ic-k-stance)
+;; K1 大板 OITA: both hands, a full-body bat swing L -> R: the slab coiled behind the left shoulder (held: the tell), a
+;; deep step with the right foot, the slab level through the front on S, carried past him to the right, settled low
+(defpose :ic-k-f1-hit (:base :ic-k-stance)
+  (:root :f 0.62 :u -0.2 :yaw -4) (:pelvis :twist 4) (:spine :flex 22) (:chest :twist 14) (:neck :twist -10)
+  (:arm-r :flex 116 :side 58 :twist -82) (:elbow-r :flex 6) (:hand-r :twist -11 :flex -88)
+  (:arm-l :flex 78 :side 45 :twist 23) (:elbow-l :flex 92) (:hand-l :flex -29)
+  (:thigh-r :flex 58 :side 4) (:knee-r :flex 60) (:thigh-l :flex -30 :side 8) (:knee-l :flex 10))
+(defstrike :ic-k-f1 (18 4 20 :base :ic-k-stance)
   (0)
-  (5 (:root :u -0.08 :yaw -20) (:chest :twist -30) (:arm-r :side 80 :flex -10) (:elbow-r :flex 6) (:hand-r :flex -86)
-     (:arm-l :side 60 :flex 60) (:knees :flex 24))
-  (:s :snap (:root :yaw 360 :u -0.04 :f 0.02) (:chest :twist 10) (:arm-r :side 20 :flex 20) (:elbow-r :flex 60) (:hand-r :flex -40)
-      (:arm-l :side 80 :flex 20) (:elbow-l :flex 10))
-  (:a (:root :yaw 380 :f 0.04))
-  (24 (:root :yaw 370 :u -0.05) (:arm-r :side 40 :flex 20) (:elbow-r :flex 16) (:arm-l :side 30 :flex 10))
-  (:end :ic-k-stance (:root :yaw 360)))
+  (6 (:root :u -0.1 :yaw 10) (:pelvis :twist 20) (:chest :twist 24) (:spine :flex 6) (:knees :flex 24)          ; gathered
+     (:arm-r :flex 28 :side 23 :twist 13) (:elbow-r :flex 129) (:hand-r :twist 24 :flex -93)
+     (:arm-l :flex 145 :side 91 :twist 47) (:elbow-l :flex 37) (:hand-l :flex -37))
+  (12 (:root :u -0.16 :yaw 24 :f -0.05) (:pelvis :twist 30) (:spine :flex 4) (:chest :twist 42) (:neck :twist -30)      ; coiled
+      (:head :twist -20) (:thigh-r :flex 30 :side 6) (:knee-r :flex 56) (:thigh-l :flex -8) (:knee-l :flex 38)
+      (:arm-r :flex 101 :side 52 :twist -8) (:elbow-r :flex 90) (:hand-r :twist 31 :flex -125)
+      (:arm-l :flex 125 :side 39 :twist 47) (:elbow-l :flex 77) (:hand-l :flex -97))
+  (15 (:root :u -0.19 :yaw 28) (:chest :twist 46) (:knee-r :flex 60)                                               ; deeper
+      (:arm-r :flex 111 :side 60 :twist -32) (:elbow-r :flex 68) (:hand-r :twist 39 :flex -129)
+      (:arm-l :flex 126 :side 43 :twist 33) (:elbow-l :flex 63))
+  (16 (:root :u -0.18 :yaw 14 :f 0.2) (:pelvis :twist 18) (:chest :twist 34) (:spine :flex 12) (:neck :twist -16) (:head :twist -8)
+      (:thigh-r :flex 40 :side 4) (:knee-r :flex 44) (:thigh-l :flex -20) (:knee-l :flex 20)                       ; released
+      (:arm-r :flex 83 :side 10 :twist -70) (:elbow-r :flex 20) (:hand-r :twist 23 :flex -122)
+      (:arm-l :flex 137 :side 90 :twist 35) (:elbow-l :flex 22) (:hand-l :flex -29))
+  (:s :snap :ic-k-f1-hit)
+  (:a (:root :yaw -12) (:chest :twist -10) (:arm-r :flex 91 :side 65 :twist -81) (:elbow-r :flex 11) (:hand-r :twist -18 :flex -78)
+      (:arm-l :flex 108 :side 82) (:elbow-l :flex 48))
+  (27 (:root :f 0.4 :u -0.18 :yaw -22) (:pelvis :twist -6) (:chest :twist -36) (:spine :flex 16) (:thigh-r :flex 50)        ; carried
+      (:knee-r :flex 54) (:thigh-l :flex -26) (:knee-l :flex 14)                                                            ; past him
+      (:arm-r :flex 56 :side 11 :twist -79) (:elbow-r :flex 33) (:hand-r :twist -2 :flex -71)
+      (:arm-l :flex 138 :side 115) (:elbow-l :flex 17))
+  (33 (:root :f 0.2 :u -0.12 :yaw -10) (:pelvis :twist 6) (:chest :twist -18) (:spine :flex 10) (:thigh-r :flex 30)        ; settle
+      (:knee-r :flex 32) (:thigh-l :flex -14) (:knee-l :flex 16)
+      (:arm-r :flex 24 :side 16 :twist -59) (:elbow-r :flex 42) (:hand-r :twist 12 :flex -90)
+      (:arm-l :flex 160 :side 116) (:elbow-l :flex 17))
+  (:end :ic-k-stance))
+
+;; K2 昇板 SHO-ITA: both hands, the slab's end dragged along the plaza behind him to his left (the move enters at f6),
+;; then a rising diagonal ↗ with the arms out, held high at the top
+(defpose :ic-k-f2-hit (:base :ic-k-stance)
+  (:root :f 0.55 :u -0.16) (:pelvis :twist 10) (:spine :flex 10) (:chest :twist -10) (:neck :twist 8) (:head :flex -14)
+  (:arm-r :flex 100 :side -40 :twist -16) (:elbow-r :flex 7) (:hand-r :twist 3 :flex -81)
+  (:arm-l :flex 127 :side 86 :twist 6) (:elbow-l :flex 21) (:hand-l :flex -20)
+  (:thigh-r :flex 44) (:knee-r :flex 40) (:thigh-l :flex -24) (:knee-l :flex 10))
+(defstrike :ic-k-f2 (20 4 24 :base :ic-k-stance)
+  (0)
+  (3 (:root :u -0.1 :yaw 10) (:knees :flex 22) (:arm-r :flex 10 :side 14 :twist 23) (:elbow-r :flex 80) (:hand-r :flex -70))
+  (6 (:root :u -0.2 :yaw 22) (:pelvis :twist 30) (:spine :flex 22) (:chest :twist 36) (:neck :twist -24) (:knees :flex 70)    ; the
+     (:thigh-r :flex 34) (:thigh-l :flex 26)                                                                               ; end
+     (:arm-r :flex 26 :side -9 :twist 23) (:elbow-r :flex 64) (:hand-r :twist 34 :flex -119)                                ; behind
+     (:arm-l :flex 129 :side 116 :twist 7) (:elbow-l :flex 46) (:hand-l :flex -21))
+  (12 (:root :u -0.22 :yaw 18) (:pelvis :twist 28) (:chest :twist 30) (:neck :twist -20)                                   ; dragged
+      (:arm-r :flex 50 :side -4 :twist 0) (:elbow-r :flex 29) (:hand-r :twist 42 :flex -106)
+      (:arm-l :flex 142 :side 114 :twist 6) (:elbow-l :flex 14) (:hand-l :flex -20))
+  (17 (:root :u -0.24 :yaw 10 :f 0.15) (:pelvis :twist 22) (:chest :twist 18) (:spine :flex 28) (:thigh-r :flex 36) (:thigh-l :flex 28)
+      (:knees :flex 76)
+      (:arm-r :flex 57 :side -14 :twist -11) (:elbow-r :flex 29) (:hand-r :twist 28 :flex -84)                             ; rising
+      (:arm-l :flex 138 :side 119))
+  (:s :snap :ic-k-f2-hit)
+  (:a (:root :u -0.1) (:spine :flex 2) (:chest :twist -18)
+      (:arm-r :flex 110 :side -14 :twist 7) (:elbow-r :flex 65) (:hand-r :twist -10 :flex -119)
+      (:arm-l :flex 128 :side 64 :twist 2) (:elbow-l :flex 51))
+  (30 (:root :f 0.45 :u -0.08) (:spine :flex -6) (:chest :twist -20) (:head :flex -20)                                     ; held high
+      (:arm-r :flex 170 :side -9 :twist 4) (:elbow-r :flex 10) (:hand-r :twist -2 :flex -107)
+      (:arm-l :flex 171 :side 51) (:elbow-l :flex 11))
+  (38 (:root :f 0.2 :u -0.1) (:spine :flex 6) (:chest :twist -8) (:head :flex -6) (:thigh-r :flex 24) (:knee-r :flex 24)     ; settle
+      (:thigh-l :flex -12) (:knee-l :flex 12)
+      (:arm-r :flex 60 :side 20 :twist 0) (:elbow-r :flex 40) (:hand-r :twist 0 :flex -70)
+      (:arm-l :flex 120 :side 100) (:elbow-l :flex 30))
+  (:end :ic-k-stance))
+
+;; K3 天鎖落 TENSA-OTOSHI: both hands, the slab lifted level overhead (the Berserk wind-up; the move enters at f7), held
+;; through a step with the right foot (the move's real :slide 1.0: the clip draws the stride, not the travel), turned
+;; up behind his head, then the vertical drop: level ahead at S (the line's end), down to just off the plaza, held
+(defpose :ic-k-f3-hit (:base :ic-k-stance)
+  (:root :f 0.25 :u -0.24) (:pelvis :twist 8) (:spine :flex 34) (:chest :twist 0) (:neck :twist -4) (:head :flex -20)
+  (:arm-r :flex 137 :side 19 :twist 22) (:elbow-r :flex 20) (:hand-r :twist -8 :flex -140)
+  (:arm-l :flex 111 :side 43 :twist -5) (:elbow-l :flex 90) (:hand-l :flex -25)
+  (:thigh-r :flex 58 :side 6) (:knee-r :flex 62) (:thigh-l :flex -26 :side 8) (:knee-l :flex 26))
+(defstrike :ic-k-f3 (21 5 34 :base :ic-k-stance)
+  (0)
+  (7 (:root :u -0.06) (:pelvis :twist 10) (:spine :flex 0) (:chest :twist 6) (:head :flex -10)                          ; lifted
+     (:arm-r :flex 89 :side -7 :twist 22) (:elbow-r :flex 98) (:hand-r :twist 64 :flex -137)
+     (:arm-l :flex 152 :side 69 :twist -14) (:elbow-l :flex 10) (:hand-l :flex -25))
+  (11 (:root :u 0.02) (:spine :flex -8) (:chest :twist 0) (:head :flex -24) (:thigh-r :flex 8)                           ; level
+      (:arm-r :flex 169 :side 11 :twist 30) (:elbow-r :flex 8) (:hand-r :twist 64 :flex -34)                            ; overhead
+      (:arm-l :flex 168 :side 40 :twist -14) (:elbow-l :flex 14))
+  (15 (:root :u -0.04) (:spine :flex -10) (:knees :flex 20) (:thigh-r :flex 30 :side 6) (:knee-r :flex 46) (:thigh-l :flex -10)   ; held,
+      (:arm-r :flex 167 :side 12 :twist 29) (:elbow-r :flex 7) (:hand-r :twist 62 :flex -26)                                 ; sinking,
+      (:arm-l :flex 165 :side 40) (:elbow-l :flex 16))                                                                       ; stepping
+  (18 (:root :u -0.02 :f 0.05) (:spine :flex -14) (:head :flex -28) (:thigh-r :flex 46) (:knee-r :flex 50) (:thigh-l :flex -18)
+      (:knee-l :flex 14) (:arm-r :flex 168 :side 15 :twist 12) (:elbow-r :flex 20) (:hand-r :twist -13 :flex -64)     ; up behind
+      (:arm-l :flex 136 :side 41) (:elbow-l :flex 58))                                                                ; his head
+  (20 (:root :u -0.08 :f 0.12) (:spine :flex 4) (:head :flex -20) (:thigh-r :flex 50) (:knee-r :flex 52) (:thigh-l :flex -20)
+      (:knee-l :flex 16) (:arm-r :flex 178 :side 10 :twist 12) (:elbow-r :flex 4) (:hand-r :twist -8 :flex -131)        ; over
+      (:arm-l :flex 153 :side 43 :twist -7) (:elbow-l :flex 68))
+  (:s :snap :ic-k-f3-hit)
+  (23 (:root :u -0.27) (:spine :flex 40) (:arm-r :flex 99 :side 27 :twist 20) (:elbow-r :flex 46) (:hand-r :twist -15 :flex -141)
+      (:arm-l :flex 87 :side 71 :twist -5) (:elbow-l :flex 96) (:hand-l :flex -26))
+  (:a (:root :u -0.28) (:spine :flex 42) (:arm-r :flex 73 :side 62 :twist -19) (:elbow-r :flex 87) (:hand-r :twist -9 :flex -158)
+      (:arm-l :flex 101 :side 72 :twist 6))                                                                               ; landed
+  (34 (:root :u -0.27) (:spine :flex 41))                                                                                 ; held
+  (44 (:root :f 0.12 :u -0.14) (:spine :flex 18) (:chest :twist -4) (:thigh-r :flex 34) (:knee-r :flex 36) (:thigh-l :flex -12)
+      (:knee-l :flex 16) (:arm-r :flex 13 :side 51 :twist 30) (:elbow-r :flex 111) (:hand-r :twist -19 :flex -140)
+      (:arm-l :flex 133 :side 93 :twist 23) (:elbow-l :flex 77))
+  (52 (:root :f 0.04 :u -0.07) (:spine :flex 8) (:thigh-r :flex 16) (:knee-r :flex 18)                                  ; settle
+      (:arm-r :flex -5 :side 30 :twist 25) (:elbow-r :flex 60) (:hand-r :twist 0 :flex -60)
+      (:arm-l :flex 120 :side 100) (:elbow-l :flex 40))
+  (:end :ic-k-stance))
+(pushnew :ic-k-f1 *grip-clips*)                       ; (the K's: the left fist on the handle, GRIP-LEFT!)
+(pushnew :ic-k-f2 *grip-clips*)
+(pushnew :ic-k-f3 *grip-clips*)
 
 (defpose :ic-k-parry-up (:base :ic-k-stance)         ; L KUSARI-TATE: the slab raised vertical before him, the flat out, the
   (:root :u -0.1) (:pelvis :twist 6) (:spine :flex 6) (:chest :twist 4) (:head :flex 4)            ; left palm on the flat
-  (:arm-r :flex 46 :side -16) (:elbow-r :flex 88) (:hand-r :twist 0 :flex 70)
+  (:arm-r :flex 46 :side -16 :twist 0) (:elbow-r :flex 88) (:hand-r :twist 0 :flex 70)
   (:arm-l :flex 58 :side -8) (:elbow-l :flex 84) (:hand-l :flex 10)
   (:thigh-r :flex 22 :side 8) (:knee-r :flex 30) (:thigh-l :flex 6 :side 8) (:knee-l :flex 28))
 (defstrike :ic-k-parry (2 24 18 :base :ic-k-stance)
-  (0 (:root :u -0.05) (:arm-r :flex 30 :side 16) (:elbow-r :flex 40))
+  (0 (:root :u -0.05) (:arm-r :flex 30 :side 16 :twist 0) (:elbow-r :flex 40))
   (:s :snap :ic-k-parry-up)
   (14 :ic-k-parry-up (:root :u -0.11))
   (:a :ic-k-parry-up (:root :u -0.1) (:arm-r :flex 60))
   (:end :ic-k-stance))
 
-(defpose :ic-k-yank-hit (:base :ic-k-stance)           ; HIKI-GUSARI / KUSARI-BIKI: the left fist hauled back, the blade out
-  (:root :f -0.1 :u -0.16) (:pelvis :twist 30) (:spine :flex 16) (:chest :twist -30) (:neck :twist 20) (:head :flex -6 :twist 16)
-  (:arm-l :flex -40 :side 30) (:elbow-l :flex 80) (:hand-l :flex -20)
-  (:arm-r :flex 80 :side 10) (:elbow-r :flex 10) (:hand-r :flex -86)
-  (:thigh-r :flex 40) (:knee-r :flex 44) (:thigh-l :flex -20) (:knee-l :flex 30))
-(defstrike :ic-k-yank (6 3 20 :base :ic-k-stance)
-  (0 (:arm-l :flex 90 :side 10) (:elbow-l :flex 4) (:hand-l :flex -10) (:chest :twist 20))
+;; 残月返し ZANGETSU-GAESHI (the parry's counter): the left hand grabs his wrist ahead (the pull to 1.6 m is the move's),
+;; the slab flung up over the right shoulder, the one-hand vertical drop as the grab hauls him in
+(defpose :ic-k-gaeshi-hit (:base :ic-k-stance)
+  (:root :f 0.5 :u -0.18) (:pelvis :twist 10) (:spine :flex 32) (:chest :twist 6) (:neck :twist -6) (:head :flex -16)
+  (:arm-r :flex 132 :side -22 :twist -49) (:elbow-r :flex 0) (:hand-r :twist -12 :flex -93)
+  (:arm-l :flex -67 :side 24 :twist 7) (:elbow-l :flex 97) (:hand-l :flex -10)
+  (:thigh-r :flex 54 :side 6) (:knee-r :flex 58) (:thigh-l :flex -26 :side 8) (:knee-l :flex 20))
+(defstrike :ic-k-gaeshi (6 3 22 :base :ic-k-stance)
+  (0)
+  (2 (:root :u -0.06 :f 0.1) (:pelvis :twist 18) (:spine :flex 8) (:chest :twist -16)                                   ; the grab
+     (:arm-r :flex 190 :side -2 :twist -33) (:elbow-r :flex 52) (:hand-r :twist 21 :flex -115)
+     (:arm-l :flex 63 :side -40 :twist 14) (:elbow-l :flex 23) (:hand-l :flex -11))
+  (4 (:root :u -0.04 :f 0.15) (:chest :twist -8) (:spine :flex 0) (:head :flex -10)                                     ; hauled,
+     (:arm-r :flex 189 :side -7 :twist -65) (:elbow-r :flex 0) (:hand-r :twist -9 :flex -102)                           ; the slab up
+     (:arm-l :flex 3 :side -4 :twist 9) (:elbow-l :flex 82))
+  (:s :snap :ic-k-gaeshi-hit)
+  (:a (:root :u -0.2) (:spine :flex 36) (:arm-r :flex 100 :side -4 :twist -59) (:elbow-r :flex 27) (:hand-r :twist -11 :flex -104)
+      (:arm-l :flex -57 :side 23 :twist 9) (:elbow-l :flex 79))
+  (14 (:root :f 0.45 :u -0.22) (:spine :flex 36) (:chest :twist 2) (:head :flex -12) (:knee-r :flex 60) (:knee-l :flex 24)
+      (:hand-r :flex -96) (:arm-l :flex -48 :side 24) (:elbow-l :flex 56))
+  (22 (:root :f 0.15 :u -0.1) (:spine :flex 12) (:chest :twist -4) (:thigh-r :flex 26) (:knee-r :flex 28) (:thigh-l :flex -10)
+      (:knee-l :flex 14) (:arm-r :flex 0 :side 28 :twist 10) (:elbow-r :flex 55) (:hand-r :twist 0 :flex -55)
+      (:arm-l :flex -10 :side 30) (:elbow-l :flex 50))
+  (:end :ic-k-stance))
+
+;; KUSARI-BIKI: the chain cast from the left fist (the arm thrown at him on S, the chain reaching out), then a lean
+;; back, both feet braced, the fist reeling him in to the hip; the slab held low at his right hip
+(defpose :ic-k-yank-hit (:base :ic-k-stance)
+  (:root :f 0.12 :u -0.1 :yaw 8) (:pelvis :twist 0) (:spine :flex 14) (:chest :twist -26) (:neck :twist 20) (:head :flex -4 :twist 14)
+  (:arm-l :flex 92 :side 8) (:elbow-l :flex 2) (:hand-l :flex -6)
+  (:arm-r :flex -10 :side 32 :twist 23) (:elbow-r :flex 74) (:hand-r :flex -36)
+  (:thigh-l :flex 36 :side 4) (:knee-l :flex 34) (:thigh-r :flex -18) (:knee-r :flex 18))
+(defstrike :ic-k-yank (16 3 24 :base :ic-k-stance)
+  (0)
+  (5 (:root :u -0.06 :yaw -12) (:pelvis :twist 24) (:chest :twist 32) (:neck :twist -24) (:head :twist -16)          ; cocked back
+     (:arm-l :flex -40 :side 46) (:elbow-l :flex 96) (:hand-l :flex -10) (:knees :flex 16))
+  (11 (:root :u -0.08 :yaw -14) (:chest :twist 36) (:arm-l :flex -46) (:elbow-l :flex 104))                            ; held
+  (14 (:root :u -0.1 :yaw 4 :f 0.08) (:pelvis :twist 6) (:spine :flex 10) (:chest :twist -14) (:neck :twist 14)           ; thrown
+      (:arm-l :flex 70 :side 14) (:elbow-l :flex 24) (:thigh-l :flex 30) (:knee-l :flex 30) (:thigh-r :flex -14) (:knee-r :flex 16)
+      (:arm-r :flex -10 :side 32 :twist 23) (:elbow-r :flex 74) (:hand-r :flex -36))
   (:s :snap :ic-k-yank-hit)
-  (:a (:root :f -0.12))
-  (22 (:root :f -0.04 :u -0.08) (:arm-l :flex 10 :side 20) (:elbow-l :flex 40) (:chest :twist -8))
+  (:a (:arm-l :flex 90))
+  (24 (:root :f -0.12 :u -0.17 :yaw 4) (:pelvis :twist 12) (:spine :flex -14) (:chest :twist 22) (:neck :twist -8) (:head :flex 6)   ; lean
+      (:arm-l :flex 14 :side 30) (:elbow-l :flex 104) (:hand-l :flex -20)                                                              ; back,
+      (:thigh-l :flex 38 :side 14) (:knee-l :flex 22) (:thigh-r :flex -20 :side 14) (:knee-r :flex 14)                                  ; braced
+      (:arm-r :flex 6 :side 34 :twist 23) (:elbow-r :flex 62) (:hand-r :flex -46))
+  (31 (:root :f -0.14 :u -0.18) (:spine :flex -16) (:chest :twist 28) (:arm-l :flex -12 :side 32) (:elbow-l :flex 112))      ; reeling
+  (37 (:root :f -0.05 :u -0.08) (:spine :flex 0) (:chest :twist 6) (:arm-l :flex 4 :side 24) (:elbow-l :flex 40)
+      (:thigh-l :flex 10) (:knee-l :flex 12) (:thigh-r :flex -6) (:knee-r :flex 14))
   (:end :ic-k-stance))
 
 (defstrike :ic-k-zanzo (12 0 16 :base :ic-k-stance)    ; SP2 残像: the slab swept flat before his face, then down to his side
   (0)
-  (5 (:root :u -0.06) (:chest :twist -30) (:arm-r :side 70 :flex 150) (:elbow-r :flex 30) (:hand-r :twist 90 :flex -70)
-     (:head :flex -6))
-  (:s :snap (:root :u -0.12) (:chest :twist 30) (:arm-r :side 80 :flex 40) (:elbow-r :flex 6) (:hand-r :twist 90 :flex -84)
-      (:arm-l :flex 10 :side 30) (:knees :flex 26))
-  (20 (:chest :twist 20) (:arm-r :side 30 :flex 10) (:elbow-r :flex 10) (:hand-r :twist 0 :flex -70))
+  (5 (:root :u -0.06) (:chest :twist -30) (:head :flex -6)                                     ; level before his face
+     (:arm-r :flex 84 :side 70 :twist 6) (:elbow-r :flex 97) (:hand-r :twist 12 :flex -75))
+  (:s :snap (:root :u -0.12) (:chest :twist 30) (:arm-l :flex 10 :side 30) (:knees :flex 26)     ; swept out to his right
+      (:arm-r :flex 10 :side 85 :twist 0) (:elbow-r :flex 10) (:hand-r :twist 0 :flex -90))
+  (20 (:chest :twist 20) (:arm-r :flex 0 :side 30 :twist 10) (:elbow-r :flex 50) (:hand-r :twist 0 :flex -55))   ; down
+  (:end :ic-k-stance))
+
+;; KAGE-UCHI 影討 (O's strike, after the flash step): a leap, the slab cocked high over the right shoulder, a one-hand
+;; diagonal ↙ through him on S as he comes down, landing in a crouch with the slab low to his left
+(defpose :ic-k-uchi-hit (:base :ic-k-stance)
+  (:root :f 0.5 :u 0.08) (:pelvis :twist 12) (:spine :flex 20) (:chest :twist 14) (:neck :twist -10) (:head :flex -10)
+  (:arm-r :flex 111 :side 5 :twist 42) (:elbow-r :flex 0) (:hand-r :twist 7 :flex -107)
+  (:arm-l :flex -20 :side 40) (:elbow-l :flex 40)
+  (:thigh-r :flex 40 :side 6) (:knee-r :flex 50) (:thigh-l :flex 10) (:knee-l :flex 40))
+(defstrike :ic-k-uchi (7 3 24 :base :ic-k-stance)
+  (0)
+  (2 (:root :u 0.18 :f 0.1) (:pelvis :twist 16) (:spine :flex -6) (:chest :twist -20) (:thigh-r :flex 50) (:knee-r :flex 80)   ; leapt,
+     (:thigh-l :flex 30) (:knee-l :flex 70) (:arm-r :flex 154 :side -39 :twist 27) (:elbow-r :flex 92) (:hand-r :twist -7 :flex -127)  ; cocked
+     (:arm-l :flex 30 :side 50) (:elbow-l :flex 30))
+  (5 (:root :u 0.26 :f 0.3) (:spine :flex 0) (:chest :twist -10) (:arm-r :flex 180 :side -17 :twist 10) (:elbow-r :flex 45)   ; the top
+     (:hand-r :twist 0 :flex -143))
+  (:s :snap :ic-k-uchi-hit)
+  (:a (:root :u -0.18) (:spine :flex 28) (:chest :twist 22) (:thigh-r :flex 50) (:knee-r :flex 60) (:thigh-l :flex -10)          ; landed
+      (:knee-l :flex 30) (:arm-r :flex 88 :side 88 :twist 42) (:elbow-r :flex 70) (:hand-r :twist -1 :flex -150))
+  (16 (:root :f 0.45 :u -0.24) (:pelvis :twist 14) (:spine :flex 30) (:chest :twist 30) (:knee-r :flex 64) (:knee-l :flex 34)
+      (:arm-r :flex 127 :side 114 :twist 22) (:elbow-r :flex 52) (:hand-r :twist 3 :flex -150))                                  ; low left
+  (24 (:root :f 0.2 :u -0.1) (:spine :flex 10) (:chest :twist 8) (:thigh-r :flex 24) (:knee-r :flex 26) (:thigh-l :flex 0) (:knee-l :flex 14)
+      (:arm-r :flex 0 :side 28 :twist 10) (:elbow-r :flex 55) (:hand-r :twist 0 :flex -55) (:arm-l :flex 0 :side 24) (:elbow-l :flex 30))
   (:end :ic-k-stance))
 
 ;;; ---------------------------------------------------------------- looks (cosmetic: RND01, the fx clock)
@@ -1097,13 +1304,13 @@ victim alone, Ichigo gone in a flash step; clones on a 9 m ring charge through h
 three, then twelve at once; one white frame; behind Ichigo, low, facing away, the victim collapsed beyond: the brush
 千影, the hanko, the impact, the Konpaku; wide, the ink settling."
   (at 0 (face-each-other a v 2.6) (shot-on a 60 3.8 1.1 :look 1.1) (lens 50)
-      (cine-clip a :ic-drop :blend 2 :time 0.33) (cine-clip v :sh-kikon-victim :blend 4)
+      (cine-clip a :ic-k-uchi :blend 2 :time (/ 7.0 60.0)) (cine-clip v :sh-kikon-victim :blend 4)   ; (KAGE-UCHI's hit)
       (hold-both a v 12) (impact-frame :negative 2) (play-sfx :clone :pitch 0.8))
   (at 12 (card :black v) (shot-on v 30 5.0 1.2 :look 1.2) (lens 50) (play-sfx :hoho-out) (silence 14))
   (at 30 (lens 40))
   (during (30 110) (let* ((q (pos-of v)) (ang (+ 0.5 (* 6.2832 u))))   ; orbiting him, one turn
                      (cine-cam (+ (aref q 0) (* 5.0 (cos ang))) 1.6 (+ (aref q 2) (* 5.0 (sin ang))) (aref q 0) 1.1 (aref q 2))))
-  (during (30 116) (let ((q (pos-of v)) (clips '(:ic-f1 :ic-drop :ic-k-cut)))
+  (during (30 116) (let ((q (pos-of v)) (clips '(:ic-k-f1 :ic-k-f3 :ic-k-cut)))
                      (destructuring-bind (waves per) *cine-clone-waves*
                        (dotimes (w waves)
                          (dotimes (i per)
@@ -1131,7 +1338,7 @@ points; the victim: the impact, the Konpaku; back inside the C as it burns away 
   (at 0 (face-each-other a v 6.0) (shot-on a 60 4.0 1.1 :look 1.1) (lens 50)
       (cine-clip a :ic-k-cut :blend 2 :time 0.15) (cine-clip v :sh-kikon-victim :blend 4)
       (hold-both a v 12) (impact-frame :negative 2) (silence 12))
-  (at 12 (shot-on a 20 3.6 0.6 :look 2.2) (lens 60) (cine-clip a :ic-drop :blend 6 :time (/ 17.0 60.0) :speed 0.0)
+  (at 12 (shot-on a 20 3.6 0.6 :look 2.2) (lens 60) (cine-clip a :ic-k-f3 :blend 6 :time (/ 13.0 60.0) :speed 0.0)
       (play-sfx :awaken-rise :pitch 0.5))
   (during (12 48) (let ((m (model a)) (w *ic-w*) (b *ic-v*))   ; the black glow gathering on the slab
                     (body-weapon-tip (model-body m) :tensa (model-joints m) w)
@@ -1145,7 +1352,7 @@ points; the victim: the impact, the Konpaku; back inside the C as it burns away 
                                   0.35f0 0.05f0 0f0 +pal-ink+)))))
   (at 48 (card :black a) (back-rim 52 0.82 0.06 0.11) (shot-on a 20 4.2 0.9 :look 1.1 :off 0.9) (lens 42)
       (caption "月牙天衝" :kanji2 "漆黒" :reading "GETSUGA TENSHO" :sub "KESSA NO ICHIGO  SOUL BREAK" :side 0 :hanko t))
-  (at 100 (card nil) (caption-exit) (lens 40) (cine-clip a :ic-drop :blend 0 :time 0.28)
+  (at 100 (card nil) (caption-exit) (lens 40) (cine-clip a :ic-k-f3 :blend 0 :time (/ 17.0 60.0))
       (play-sfx :getsuga :pitch 0.6) (play-sfx :explode :pitch 0.5) (shake 0.35 0.5))
   (during (100 112) (multiple-value-bind (px pz ux uz d) (ic-line-from a v)   ; wide, side-on: the cut, its trail round
                       (cine-cam (+ px (* 0.5 d ux) (* 14.0 (- uz))) 2.6 (+ pz (* 0.5 d uz) (* 14.0 ux)) (+ px (* 0.5 d ux)) 2.4 (+ pz (* 0.5 d uz)))

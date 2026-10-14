@@ -114,25 +114,29 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 
 ;;; ================================================================ 血鎖の一護 KESSA NO ICHIGO (the awakening)
 ;;; one white slab, no point and no guard: cuts only (the clones carry the range now); the J one-handed, the K two-handed
-;;; (since the J cut, §13: J 0.6x with the slab's cuts pulled in, :ic-k-jab / :ic-k-wrap-j; the clones keep the long clips)
+;;; (since the J cut, §13: J 0.6x with the slab's cuts pulled in, :ic-k-jab / :ic-k-wrap-j; the clones keep the long clips);
+;;; every clip KESSA's own at its move's frames (DUEL_ICHIGO_TYBW §3.2, §6.3)
 (defmove :ic-k-j1 :kind :quick :clip :ic-k-jab :startup 8 :active 3 :recovery 12 :dmg 30 :adv-block -2 :guard 8
-  :reach 1.56 :arc 110 :on-hit :flinch)                                  ; 板薙 ITA-NAGI: swept up and across
+  :reach 1.56 :arc 110 :on-hit :flinch)                                  ; 板薙 ITA-NAGI: a one-hand chop ↘
 (defmove :ic-k-j2 :kind :quick :clip :ic-k-back :startup 8 :active 3 :recovery 13 :dmg 30 :adv-block -2 :guard 8
-  :reach 1.56 :arc 110 :on-hit :flinch)                                  ; 返板 KAESHI-ITA: the backhand
-(defmove :ic-k-j3 :kind :quick :clip :ic-k-wrap-j :clip-s 10 :startup 9 :active 3 :recovery 18 :dmg 40 :adv-block -4 :guard 8
+  :reach 1.56 :arc 110 :on-hit :flinch)                                  ; 返板 KAESHI-ITA: a one-hand rising backhand ↗
+(defmove :ic-k-j3 :kind :quick :clip :ic-k-wrap-j :startup 9 :active 3 :recovery 18 :dmg 40 :adv-block -4 :guard 8
   :reach 1.68 :arc 200 :on-hit :stagger :flags (:ender))                 ; 板旋 ITA-SEN: a full turn, the slab held close
-(defmove :ic-k-k1 :kind :flash :clip :ic-f1 :clip-s 16 :startup 18 :active 4 :recovery 20 :dmg 66 :adv-block -3 :guard 14
-  :reach 2.9 :arc 150 :on-hit :stagger)                                  ; 大板 OITA: the waist-high sweep
-(defmove :ic-k-k2 :kind :flash :clip :ic-f2 :clip-s 20 :enter 6 :startup 20 :active 4 :recovery 24 :dmg 58 :adv-block -3
-  :guard 14 :reach 2.9 :arc 90 :on-hit :stagger)                         ; 昇板 SHO-ITA: the rising cut
-(defmove :ic-k-k3 :kind :flash :clip :ic-drop :clip-s 21 :enter 7 :startup 21 :active 5 :recovery 34 :dmg 80 :adv-block -20
-  :guard 20 :vol (:cap 0.3 3.2 1.2 0.35) :on-hit :crumple :flags (:ender))   ; 天鎖落 TENSA-OTOSHI: dropped with both hands
+(defmove :ic-k-k1 :kind :flash :clip :ic-k-f1 :startup 18 :active 4 :recovery 20 :dmg 66 :adv-block -3 :guard 14
+  :reach 2.9 :arc 150 :on-hit :stagger)                                  ; 大板 OITA: a two-hand bat swing L -> R
+(defmove :ic-k-k2 :kind :flash :clip :ic-k-f2 :enter 6 :startup 20 :active 4 :recovery 24 :dmg 58 :adv-block -3
+  :guard 14 :reach 2.9 :arc 90 :on-hit :stagger)                         ; 昇板 SHO-ITA: dragged, a two-hand rising cut
+(defmove :ic-k-k3 :kind :flash :clip :ic-k-f3 :enter 7 :startup 21 :active 5 :recovery 34 :dmg 80 :adv-block -20
+  :guard 20 :vol (:cap 0.3 2.2 1.2 0.35) :slide 1.0 :on-hit :crumple :flags (:ender))   ; 天鎖落 TENSA-OTOSHI
+;; (TENSA-OTOSHI: held level overhead, a step in, dropped with both hands. DUEL_ICHIGO_TYBW §3.4: the drawn step is a real
+;; :slide 1.0 and the line ends 1.0 m nearer, 3.2 -> 2.2, so the reach plus the slide stays 3.55 m and the blade lands
+;; where the line ends)
 (defmove-copy :ic-k-j2s :ic-k-j2)                                         ; one blade: no cross links
 (defmove-copy :ic-k-k2s :ic-k-k2)
 ;; the clones' answers (not a kit's: ICHIGO-CLONE-STEP plays them): J a heavy, K a light (the user's reversal)
-(defmove :ic-c-heavy :kind :flash :clip :ic-f1 :clip-s 16 :startup 16 :active 4 :recovery 20 :dmg 50 :guard 12
+(defmove :ic-c-heavy :kind :flash :clip :ic-k-f1 :clip-s 18 :startup 16 :active 4 :recovery 20 :dmg 50 :guard 12
   :reach 3.0 :arc 150 :on-hit :stagger)                                  ; 影断 KAGE-DACHI
-(defmove :ic-c-heavy3 :kind :flash :clip :ic-drop :clip-s 21 :startup 18 :active 5 :recovery 30 :dmg 60 :guard 14
+(defmove :ic-c-heavy3 :kind :flash :clip :ic-k-f3 :clip-s 21 :startup 18 :active 5 :recovery 30 :dmg 60 :guard 14
   :vol (:cap 0.3 3.4 1.2 0.35) :on-hit :crumple)
 (defmove :ic-c-light :kind :quick :clip :ic-k-cut :startup 8 :active 3 :recovery 12 :dmg 26 :guard 6
   :reach 2.4 :arc 110 :on-hit :flinch)                                   ; 影薙 KAGE-NAGI
@@ -144,22 +148,23 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;; blocked with no blockstun (:parry-block); a whiff is R 18
 (defmove :ic-k-parry :kind :sig :clip :ic-k-parry :startup 2 :active 24 :recovery 18 :flags (:parry)
   :params (:window (2 25)) :on-frame ((0 ichigo-parry-open)))
-;; 残月返し ZANGETSU-GAESHI: the catch's counter: a pull to 1.6 m, a top-down cut, a crumple (+15: J1 combos)
-(defmove :ic-k-gaeshi :kind :sig :clip :ic-drop :clip-s 21 :callout "KUSARI-TATE" :startup 6 :active 3 :recovery 22 :dmg 80
+;; 残月返し ZANGETSU-GAESHI: the catch's counter: a pull to 1.6 m (the left hand's grab), a one-hand top-down cut, a crumple
+;; (+15: J1 combos)
+(defmove :ic-k-gaeshi :kind :sig :clip :ic-k-gaeshi :callout "KUSARI-TATE" :startup 6 :active 3 :recovery 22 :dmg 80
   :adv-block -12 :guard 14 :reach 3.0 :arc 100 :on-hit :crumple :on-frame ((0 ichigo-gaeshi-pull)) :params (:pull 1.6))
 ;; Shift+K, KUSARI-BIKI: a chain shot along a thin line to 7 m (the blade within 3.8 m, the chain beyond: :ranged), a hit
 ;; pulls him to 1.6 m and binds him 40 f (+13: a J string combos)
-(defmove :ic-k-hiki :kind :sp :clip :ic-k-yank :clip-s 6 :callout "KUSARI-BIKI" :startup 16 :active 3 :recovery 24 :dmg 40
+(defmove :ic-k-hiki :kind :sp :clip :ic-k-yank :callout "KUSARI-BIKI" :startup 16 :active 3 :recovery 24 :dmg 40
   :adv-block -14 :vol (:cap 0.5 7.0 1.1 0.3) :flags (:ranged) :on-hit :bind :hits ((16 19 :stun 40))
   :on-land ichigo-pull :params (:melee-range 3.8 :pull 1.6))
 ;; Shift+L, 残像 ZANZO (v2 §5.6): the slab swept before his face, a ghost peels off him; for *ZANZO-LIFE* every attack of
 ;; his is echoed *ZANZO-LAG* f later at *ZANZO-MULT* (2 bars; refused while it runs)
 (defmove :ic-k-zanzo :kind :sp :clip :ic-k-zanzo :callout "ZANZO" :startup 12 :active 0 :recovery 16
   :on-frame ((12 ichigo-zanzo-on)))
-;; O, 影討 KAGE-UCHI (v2 §5.5): the flash-step rush (8.6 m) and a vertical cut; every live clone at the press charges and
-;; bursts on the strike's frame: its damage is the strike's (+30 per clone, the move's bonus); its Kikon 千影 is worth
+;; O, 影討 KAGE-UCHI (v2 §5.5): the flash-step rush (8.6 m) and a leaping one-hand cut ↙; every live clone at the press
+;; charges and bursts on the strike's frame: its damage is the strike's (+30 per clone, the move's bonus); its Kikon 千影 is worth
 ;; 2 / 2 / 3 / 4 Konpaku by those clones. Cooldown 90
-(defmove :ic-k-kikon :kind :kikon :clip :sh-run :clip-2 :ic-drop :clip-s 21 :callout "KAGE-UCHI" :cine ic-kessa-kikon-cine
+(defmove :ic-k-kikon :kind :kikon :clip :sh-run :clip-2 :ic-k-uchi :callout "KAGE-UCHI" :cine ic-kessa-kikon-cine
   :startup 7 :active 3 :recovery 24 :dmg 70 :adv-block -14 :guard 20 :reach 2.8 :arc 120 :on-hit :knockback :kb 2.5
   :cooldown 90 :params (:aura 6 :aim 120.0 :speed 30.0 :dash-max 14 :dash-track 0.0 :look :flash-step :sfx :hoho-out))
 
