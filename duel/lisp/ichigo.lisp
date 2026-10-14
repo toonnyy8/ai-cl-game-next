@@ -180,10 +180,10 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
                          (,s :tsuki-step :ic-tsuki-dash)))
           '((:ic-tsuki-dash :tsuki-back :ic-tsuki-re)))
   "The stance's follow-ups: non-button strings (KIT-NEXT) the :tick hook starts (TSUKI-STEP).")
-(defparameter *ichigo-hooks* '(:tick ichigo-tick :hit ichigo-hit :struck ichigo-struck))
+(defparameter *ichigo-hooks* '(:tick ichigo-tick :hit ichigo-hit :struck ichigo-struck :pose ichigo-cloak-pose :draw ichigo-draw))
 (defparameter *kessa-hooks* '(:tick ichigo-tick :step ichigo-step-clone :ok ichigo-ok :parried ichigo-catch :hit ichigo-hit
                               :struck ichigo-struck :deck ichigo-deck :soul-break-cine ic-kessa-getsuga-cine
-                              :kikon-worth ichigo-kikon-worth))
+                              :kikon-worth ichigo-kikon-worth :draw ichigo-draw))
 
 (defkit :ichigo :base
   :name "ICHIGO" :body :ichigo :weapon :zangetsu-long :stance :ic-stance :hide (:kessa :mark)
@@ -1058,7 +1058,8 @@ it already runs it continues to F."
 (defun ichigo-debug (c)
   "74000+k ICHIGO-TEST k, 74080+k the 60-seed gate of pairing k (ICHIGO-AB-GATE); 74100+k .. 74400+k the forms' damage dealt / taken x (0.5 + k / 100) (Shikai dealt, taken,
 KESSA dealt, taken); 74500+k the parry window's length = k (from f2); 74600+k *KESSA-PARRY-CATCH* = k; 74700+k
-*CLONE-LIFE* = 10k; 74800+k *CLONE-BURST-DMG* = k; 74900+k (k 0-3) P1's clones = k, 74905 log P2's combo; 74910+k
+*CLONE-LIFE* = 10k; 74800+k *CLONE-BURST-DMG* = k; 74900+k (k 0-3) P1's clones = k, 74905 log P2's combo, 74906 the
+looks' consing probe (ICHIGO-LOOK-CONS-CHECK); 74910+k
 *CLONE-SCALE* = k / 20 (k < 40); 74950+k *AI-IC-PARRY-P* = k / 50 (k < 40); 74990+k a pose still (*ICHIGO-POSES*), 74989
 its camera turned 90 deg; 75000 + 150 i + k stills of cinematic i (0 the Shikai
 Kikon, 1 千影, 2 the awakening, 3 the KESSA Getsuga Soul Break) held at frame 2k."
@@ -1079,6 +1080,7 @@ Kikon, 1 千影, 2 the awakening, 3 the KESSA Getsuga Soul Break) held at frame 
       (8 (setf *clone-burst-dmg* k))
       (9 (cond ((< k 4) (ichigo-set-clones *p1* k))
                ((= k 89) (setf *ic-pose-ang* (mod (+ *ic-pose-ang* 90.0) 360.0)))
+               ((= k 6) (ichigo-look-cons-check))
                ((= k 5) (let ((f (fighter *p2*)))
                           (log-msg "duel ichigo combo P2 hits ~d dmg ~d reishi ~d" (fighter-combo-hits f) (fighter-combo-dmg f)
                                    (gauges-reishi (gauges *p2*)))))

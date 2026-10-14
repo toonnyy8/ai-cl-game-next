@@ -139,6 +139,46 @@ IY 110.7 s (Ichigo 7 / 20), IK 106.0 (11), IR 121.3 (8), II 140.6 (P1 10 / P2 10
 
 ## 6. As built
 
+### 6.1 As built: look (batch ic-look, 2026-10-14; presentation only)
+
+- **Short blade** (`:weapon-l` parts, `:tag :shikai`, the batches' contract): a forward grip, a straight black slab 0.13 m
+  wide from y −0.05 to the point at (0 −0.90 0); the spine (a 0.06 m ridge, so it reads edge-on without the old crossed
+  boxes) in line with the fist at z 0, the slab out to the white edge on the joint's +Z; the end clipped from the edge up
+  to the point; the handle a closed black loop round the fist (bars at z −0.05 / +0.10, a top bar at y 0.125) with a
+  white-wrapped bar through it.
+- **Long blade** `:zangetsu-long` (`:length 1.55`, `:base 0.4` unchanged): a khyber profile built span by span (SLAB):
+  the spine straight, 0.18 m at the root → 0.26 m at y 1.25, the edge sweeping up into a curved point on the spine; a
+  0.03 m slit along the spine y 0.08–0.72 (the 0.32 m hole gone); a stepped spur on the spine side at the root; a thin
+  white edge; the 0.28 m off-white wrapped grip and its loose cloth end kept.
+- **TYBW outfit** (all `:tag :shikai`, so KESSA hides it; KESSA's look and the horn untouched): the white X (two 0.07 m
+  bands front and back, straps over the shoulders); the white left pauldron (a shell on `:shoulder-l`, a plate down the
+  outside of `:upper-arm-l`; three red-scale panels `:scale` #6E1A1C with `:scale-d` #461013 lines); the red-scaled
+  plate at the right hip; black wristbands; the white waist cloak (`:cloak` #F0EEE8): the tied band over the sash, a
+  knot and two ends at the front, 12 thin facets round the hips from 46° off the front to the back (open front), flared
+  9°, ragged lengths to the knee (−0.44 … −0.56 m under the pelvis), a torn tooth under each, 6 black slash marks. New
+  palette keys: `:cloak :scale :scale-d :wrap-w`.
+- **The cloak swings** (`:pose ichigo-cloak-pose`, Shikai only): the pelvis matrix (the cloak, the sash, the hip plate
+  and the hakama skirt hang on it) swings about the obi by Yamamoto's hem spring, reused as is (`%ya-hem-pose` /
+  `%ya-hem-step`, its knobs `*ya-hem-k*` 60 /s² (~1.2 Hz), `*ya-hem-c*` 4.6 /s (~0.3 of critical: one overshoot on a
+  stop), `*ya-hem-drag*` 0.03 rad per m/s of travel, `*ya-hem-turn*` 0.05 rad per rad/s of turn, `*ya-hem-max*`
+  0.42 rad; a slow breath while standing). The legs are their own joints, so a side still keeps the stride readable; the
+  hakama skirt trailing with the cloak reads as cloth. A separate tune would need its own knobs: none added.
+- **Impact looks** (`:draw ichigo-draw`, both forms; `*ic-edge-moves*` / `*ic-ground-moves*` keyed by move name, so a
+  clip change needs no code change): 月牙の残光, an ink lens from the drawn tip (the short blade's point for RANGETSU's
+  hits 1 and 3, else the held blade's) to the hit volume's edge (an arc's rim on the tip's bearing, a capsule's end, a
+  sphere's far side; height the tip's, 0.1–1.5 m), grown over the 2 f before the window to reach the edge on its first
+  frame, held through it, fading over the 4 f after; bulging along the tip's travel (`*ic-edge-bulge*` 0.28 of the
+  span), half-width `*ic-edge-w*` 0.12 of the span (0.08–0.2 m); a white rim (KESSA: a BLOOD hairline). Moves: K1 K2 K3
+  K2s RANGETSU TSUKI-OTOSHI SŌGA the Kikon's strike MINEUCHI; KESSA K1 K2 K3 残月返し KAGE-UCHI (the clones' `:ic-c-*`
+  are listed but drawn by ICHIGO-CLONE-LOOK, which has no hook: none). Ground contact on the first hit frame of K3,
+  TSUKI-OTOSHI, KESSA K3, 残月返し: `stage-mark :crack` r 0.9 + `stage-debris` 4 + `shake 0.06 0.15` where the tip meets
+  the plaza (under 0.4 m) or at the volume's far point, once a move (the move frame kept per side).
+- **Consing**: debug 74906 (`ichigo-look-cons-check`, after 74000): 10 calls each, pose 0 B, draw (standing) 0 B, draw in
+  K1's hit frame 0 B, in RANGETSU's 0 B. (Two traps found: a float passed to a function is boxed, e.g. JOINT-POINT!'s
+  `(- len)` in BODY-WEAPON-TIP, and the inline F32 re-boxes; both kept out of the per-frame path.)
+- **Proofs**: the sim is byte-identical (`simgate --pairs 6,9 --seeds 10` and `--cvc` equal to the base commit's); host
+  tests ALL PASS, pkgcheck clean, no new build warning.
+
 ### 6.2 As built: Shikai clips (batch ic-shikai, 2026-10-14)
 
 Every Shikai clip rebuilt to §3.2's left column with §3.3's in-clip tricks; each strike's (S A R) equals its move
