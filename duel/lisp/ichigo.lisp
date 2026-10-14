@@ -58,22 +58,26 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;;; ================================================================ 二刀の斬月 (base)
 ;;; J is the short blade (fast, short), K the long cleaver (slow, long, heavy on the gauge); a switched link 2 is the
 ;;; CROSS: both blades at once, the same frames, a heavier guard value (KAESHI-KIBA 12, KOGA 24). The reach since the J cut
-;;; (docs/duel/DUEL_STRINGS.md §13): J1 / J2 0.5x (the short blade, a step in; KAESHI-KIBA's X closed at his chest: :ic-cross-j),
-;;; J3 0.6x (the cleaver held up in the turn), K -10 %
+;;; (docs/duel/DUEL_STRINGS.md §13): J1 / J2 0.5x (the short blade, a step in; KAESHI-KIBA's thrust under the cleaver: :ic-cross-j),
+;;; J3 0.6x (the cleaver held up in the turn), K -10 %. The clips: docs/duel/DUEL_ICHIGO_TYBW.md §3.2 (the short blade held
+;;; forward, the cleaver resting on his shoulder between strikes)
 (defmove :ic-j1 :kind :quick :clip :ic-q1 :startup 7 :active 3 :recovery 12 :dmg 32 :adv-block -2 :guard 8
-  :reach 1.1 :arc 100 :on-hit :flinch :slide 0.6)                        ; KOKIBA: the short blade flicked, reversed
+  :reach 1.1 :arc 100 :on-hit :flinch :slide 0.6)                        ; KOKIBA: the short blade swept L to R
 (defmove :ic-j2 :kind :quick :clip :ic-q2 :startup 7 :active 3 :recovery 13 :dmg 32 :adv-block -2 :guard 8
-  :reach 1.1 :arc 100 :on-hit :flinch)                                   ; KAESHI: the wrist turns, back across
+  :reach 1.1 :arc 100 :on-hit :flinch)                                   ; KAESHI: a rising backhand
 (defmove :ic-j3 :kind :quick :clip :ic-spin :startup 8 :active 3 :recovery 18 :dmg 40 :adv-block -4 :guard 8
   :reach 1.44 :arc 200 :on-hit :stagger :flags (:ender))                 ; SOSEN-GIRI: a full turn, both blades out
 (defmove :ic-k1 :kind :flash :clip :ic-f1 :startup 16 :active 4 :recovery 20 :dmg 68 :adv-block -3 :guard 16
   :reach 2.7 :arc 150 :on-hit :stagger)                                  ; OKIBA: the cleaver's waist-high sweep
 (defmove :ic-k2 :kind :flash :clip :ic-f2 :enter 6 :startup 20 :active 4 :recovery 24 :dmg 60 :adv-block -3 :guard 16
   :reach 2.7 :arc 90 :on-hit :stagger)                                   ; SHOGA: up from the floor
+;; RAKUGA: one hand, a hop in and the cleaver dropped into the plaza (DUEL_ICHIGO_TYBW §3.4): a real step, its capsule 1 m
+;; shorter (0.3 -> 3.0 was the line before). The step is 1.0 m: :slide 1.6 over the 13 frames left after :enter 7
+;; (MAIN-PHASE-STEP slides S-1-enter frames at slide / S each), so the reach (edge + step) stays 3.35 m
 (defmove :ic-k3 :kind :flash :clip :ic-drop :enter 7 :startup 21 :active 5 :recovery 34 :dmg 84 :adv-block -20 :guard 22
-  :vol (:cap 0.3 3.0 1.2 0.35) :on-hit :crumple :flags (:ender))         ; RAKUGA: both hands, held, dropped
-(defmove-copy :ic-j2s :ic-j2 :clip :ic-cross-j :clip-s 7 :guard 12)        ; KAESHI-KIBA: after K1, under the cleaver's return
-(defmove-copy :ic-k2s :ic-k2 :clip :ic-cross :clip-s 14 :guard 24)       ; KOGA: after J1, both blades in an X
+  :vol (:cap 0.3 2.0 1.2 0.35) :slide 1.6 :on-hit :crumple :flags (:ender))
+(defmove-copy :ic-j2s :ic-j2 :clip :ic-cross-j :clip-s 7 :guard 12)        ; KAESHI-KIBA: after K1, a thrust under the cleaver
+(defmove-copy :ic-k2s :ic-k2 :clip :ic-cross :clip-s 14 :guard 24)       ; KOGA: after J1, a rising X opening upward
 ;; GETSUGA TENSHO (the stance's L branch): at f14 a crescent leaves the long blade: a :wave 2.4 m wide (a side Step always
 ;; clears it), 16 m/s over 10 m; blocked, the hazard's 14 f blockstun
 (defmove :ic-getsuga :kind :sig :clip :ic-getsuga :callout "GETSUGA TENSHO" :startup 14 :active 0 :recovery 34
@@ -102,13 +106,14 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove :ic-juji :kind :sp :clip :ic-juji :callout "GETSUGA JUJISHO" :startup 20 :active 0 :recovery 26 :reach 12.0
   :on-frame ((12 ichigo-juji-first) (20 ichigo-juji))
   :params (:width 3.6 :speed 14.0 :range 12.0 :dmg 150 :react :knockdown :kb 2.0 :guard 22 :look ichigo-juji-look))
-;; Shift+L, SOGA: a flash-step lunge (5 m over the startup), then the X of both blades: guard 30, -14 on block
-(defmove :ic-soga :kind :sp :clip :ic-cross :clip-s 7 :callout "SOGA" :startup 18 :active 4 :recovery 26 :dmg 130 :adv-block -14
+;; Shift+L, SOGA: a flash-step lunge (5 m over the startup), then the X of both blades: guard 30, -14 on block (its own
+;; clip: the flying lunge, a descending X, the arms flung open)
+(defmove :ic-soga :kind :sp :clip :ic-soga :callout "SOGA" :startup 18 :active 4 :recovery 26 :dmg 130 :adv-block -14
   :guard 30 :slide 5.0 :reach 2.6 :arc 140 :on-hit :knockback :kb 2.5 :on-frame ((0 ichigo-soga-vanish)))
 (defmove :ic-breaker :kind :breaker :clip :ic-breaker :clip-2 :ic-mine :callout "MINEUCHI")
 ;; O, the Kikon rush module JUJI: 6 f of aura, a flash step at 30 m/s for <= 14 f (locked), the X strike: 8.6 m. Its
 ;; Kikon is the Getsuga Tensho infused with a Gran Rey Cero. Cooldown 90
-(defmove :ic-kikon :kind :kikon :clip :sh-run :clip-2 :ic-cross :clip-s 7 :callout "GETSUGA TENSHO" :cine ic-kikon-cine
+(defmove :ic-kikon :kind :kikon :clip :sh-run :clip-2 :ic-juji-x :callout "GETSUGA TENSHO" :cine ic-kikon-cine
   :startup 7 :active 3 :recovery 24 :dmg 70 :adv-block -14 :reach 2.6 :arc 140 :on-hit :knockback :kb 2.5 :cooldown 90
   :params (:aura 6 :aim 120.0 :speed 30.0 :dash-max 14 :dash-track 0.0 :look :flash-step :sfx :hoho-out))
 

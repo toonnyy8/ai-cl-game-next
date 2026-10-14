@@ -136,3 +136,72 @@ byte-identical sim (`simgate --seeds 10` + `--cvc`); batches 2–3 gated against
 IY 110.7 s (Ichigo 7 / 20), IK 106.0 (11), IR 121.3 (8), II 140.6 (P1 10 / P2 10), SI 139.5 (Ichigo 16), BI 157.9
 (Ichigo 14); all 120 K.O. Ichigo's awaken A/B (never awakening, of 60; seed0 100 / 300 / 500): IY 14 / 19 / 26, IK 12 /
 10 / 8, IR 9 / 12 / 17, II 21 / 20 / 17, SI 27 / 23 / 21, BI 11 / 19 / 11 (an open item since 2026-09-29, AGENTS).
+
+## 6. As built
+
+### 6.2 As built: Shikai clips (batch ic-shikai, 2026-10-14)
+
+Every Shikai clip rebuilt to §3.2's left column with §3.3's in-clip tricks; each strike's (S A R) equals its move
+(KŌGA's `:ic-cross` is authored at its `:clip-s 14`, played ×0.7); the hit poses were solved on the rig's FK (a coordinate
+search over the arm channels with a pull toward a natural wrist), then checked in 8-frame side and front strips.
+
+- **Idle** `:ic-stance`: the cleaver on the right shoulder (the grip at the shoulder's front, the blade back and up at
+  ~35°, its edge up), the short blade held **forward** and aimed at his face from chest height (the tip 1.43 m up, 1.39 m
+  ahead), the left side leading; a breathing loop. Every Shikai strike starts and ends there; the J links never take the
+  cleaver off the shoulder.
+- **The short blade's convention** (the contract): it runs down `:weapon-l`'s −Y, so at hand flex 0 it carries on the
+  forearm's line; its tip is `(joint-point :weapon-l 0 −0.90 0)`. The FK test's `*strikers*` takes a `(clip joint y)`
+  entry for it: `:ic-q1`, `:ic-q2`, `:ic-cross-j` (J2s is a short-blade thrust now).
+- **New clips**: `:ic-soga` (SŌGA: launch, flown near level with the body pitched 50°, the cleaver high behind and the
+  short blade low ahead, both raised, the descending X at S, the arms flung open on the last active frame; 18/4/26) and
+  `:ic-juji-x` (the JŪJI rush's strike: the blades crossed before him, pulled in, scissored open level; 7/3/24).
+  `:clip-s` dropped from SŌGA and the O. The Shikai Kikon cinematic's beat 0 holds `:ic-juji-x` (it held `:ic-cross`).
+- **Impact tricks in the clips**: a coil inside every K's startup (K1 wound back to his right with the short blade
+  aiming, held 3 f; K2 a crouch over the dragged point; K3 a crouch and a hop), carry-through past the hit and a settle
+  key in every K's recovery, J3 keyed every 90° of its turn (f4 / 5 / 6 / 7 / 8) with a pelvis roll, the hit pose held
+  through the active frames.
+
+**K3's step (§3.4)**: `:ic-k3` `:vol (:cap 0.3 3.0 1.2 0.35)` → `(:cap 0.3 2.0 1.2 0.35)` and **`:slide 1.6`** (not 1.0:
+K3 starts at `:enter 7` and MAIN-PHASE-STEP slides `slide / S` per frame on frames 8–20 only, so 1.0 would travel 0.62 m;
+1.6 travels 0.99 m, keeping §3.4's edge + step = 3.35 m). The clip's root `:f` is the drawn hop minus that slide: −0.18 at
+the coil (f11), +0.09 at the hop's top (f15, root up 0.22), +0.32 on landing (f19), +0.30 at S, 0 at the end, so the body
+travels ~1.3 m in the world without a snap back (when he is already inside `*lunge-stop*` and doesn't slide, the coil
+reads as a rock back). The blade lands at 2.34 m ahead, 0.09 m up.
+
+Drawn tip at the hit window vs the volume's edge (before: 3e078ef; J's then the fist, the blade reversed; after: the
+short blade's tip for J1 / J2 / J2s, the cleaver's tip otherwise):
+
+| Move (clip) | edge | before | after |
+|---|---|---|---|
+| J1 KOKIBA (`:ic-q1`) | 1.40 | 1.21 (fist) | 1.42 (short tip) |
+| J2 KAESHI (`:ic-q2`) | 1.40 | 1.20 (fist) | 1.40 |
+| J2s KAESHI-KIBA (`:ic-cross-j`) | 1.40 | 1.32 (cleaver) | 1.47 (short tip; the cleaver held out at 1.80) |
+| J3 SŌSEN-GIRI (`:ic-spin`) | 1.44 | 1.48 | 1.53 |
+| K1 ŌKIBA (`:ic-f1`) | 2.70 | 2.33 | 2.68 |
+| K2 SHŌGA (`:ic-f2`) | 2.70 | 0.55 | 2.58 |
+| K2s KŌGA (`:ic-cross` ×0.7) | 2.70 | 2.51 (its hit pose was at move f10) | 2.56 |
+| K3 RAKUGA (`:ic-drop`) | 3.35 → 2.35 | 2.65 | 2.34 |
+| O JŪJI strike | 2.60 | 2.56 (`:ic-cross`) | 2.55 (`:ic-juji-x`) |
+| SP2 SŌGA | 2.60 | 2.55 (`:ic-cross` ×0.39) | 2.61 (`:ic-soga`) |
+| RANGETSU hits 1–4 | 2.40 | 1.17 / 1.11 / 1.17 / 1.17 | 1.63 (short) / 2.29 (cleaver) / 1.64 (short) / 2.44 (cleaver) |
+| TSUKI-OTOSHI | 2.60 | 2.27 | 2.55 |
+| MINEUCHI (Breaker) | 1.35 | 0.66 | 1.01 (the flat shoved, point up: short by design) |
+
+Under the plaza (cleaver tip / short-blade tip, frames): before `:ic-q1` 15, `:ic-q2` 12, `:ic-drop` 28, `:ic-mine` 27,
+`:ic-tsuki-otoshi` 18, `:ic-f2` 11, `:ic-juji` 2, `:ic-awaken` 18; after **0 in every Shikai clip** (K3's blade stops at
+0.01 m at f23, TSUKI-OTOSHI's at 0.04). The ankles: crouch keys raised to keep the lower ankle ≥ −0.03 m.
+`:ic-cero-raise` unchanged; `:ic-awaken` (minimal: the right arm 45° forward at its first key, the left wrist at 0.9 s
+turned for the forward blade); `:ic-win`, `:ic-intro`, `:ic-breaker` checked (the Breaker's short blade trails up).
+`:ic-drop` left `*grip-clips*` (one-handed now).
+
+Known issues: KESSA's K1 / K2 / K3, the clones' heavies, 残月返し, KAGE-UCHI and KESSA's two cinematics still play
+`:ic-f1` / `:ic-f2` / `:ic-drop` (the ic-kessa batch repoints them; until then they show the Shikai motions with Tensa,
+and the cinematics' `:ic-drop` frames 17–20 are the hop's top and the swing over); the short blade's look is ic-look's
+(the strips used a stand-in box); several solved wrists are unusual numbers (e.g. SŌGA's flight arm flex 200 / side −60,
+MINEUCHI's hand twist −114): checked by numbers and in strips, needs the user's eyes.
+
+Checks: host tests ALL PASS (duel-rules 6976, control 89, cine 18, learn 131), pkgcheck 0 / 0 / 0, `./build.sh duel` (no new
+warnings), smoke exit 0. Sim (K3's step and capsule are the only sim change): `simgate --pairs 6,7,8,9,14,24 --seeds 10`
+all 60 K.O.; medians IY 121.2 s (Ichigo 3 / 10), IK 106.5 (6), IR 122.3 (5), II 130.8 (P1 4 / P2 6), SI 146.0 (Ichigo 8),
+BI 157.9 (Ichigo 9); against §5's 20-seed baseline 110.7 / 106.0 / 121.3 / 140.6 / 139.5 / 157.9 (IY, IK, IR were under
+125 s before the change). The 20-seed verdict and the awaken A/B are the lead's, after the merge.
