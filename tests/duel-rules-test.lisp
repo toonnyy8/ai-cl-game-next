@@ -1996,6 +1996,13 @@ defender's next step. Values: the attacker's and the defender's first actionable
   (check (eq :jilliel-kin (kit-awaken-form b)))
   (check (and (eq (kit-body r) :lille-jilliel) (eq (kit-body m) :lille-jilliel-kin) (eq (kit-body om) :lille-shin) (eq (kit-body or*) :lille-shin)))
   (check (and (~= (kit-mult om) 1.2) (~= (kit-mult or*) 1.2) (= 4 (kit-kikon-konpaku om)) (= 3 (kit-kikon-konpaku m))))
+  ;; §29 (2026-10-15): the owl's stance K x1.3, KL x1.5 in place of its x1.2 (a move's :form-mult); JILLIEL's untouched;
+  ;; 裁きの光明 100
+  (flet ((dmg (k n) (let ((mv (kit-move k n))) (hit-damage (mv-dmg mv) (kit-atk-mods k 0 1.0 (getf (mv-params mv) :form-mult)) nil 1 nil))))
+    (check (and (= 60 (dmg or* :br-oe-k1)) (= 86 (dmg or* :br-oe-k3)) (= 105 (dmg or* :br-oe-kl1)) (= 105 (dmg or* :br-oe-kl3))
+                (= 18 (dmg or* :br-oe-j1)) (= 46 (dmg r :br-e-k1)) (= 70 (dmg r :br-e-kl1))
+                (null (getf (mv-params (kit-move r :br-e-k1)) :form-mult))))
+    (check (= 100 (getf (mv-params (kit-move om :br-misuji)) :dmg))))
   ;; 萬物貫通 (V1)
   (check (and (= *br-x-guard* 40) (~= *br-x-chip* 0.30) (~= *br-x-len* 31.0)))
   ;; the forms' predicates and the burst owl's switch (R1: 「爆氣時會進入梟頭模式」; the base's burst stays plain)

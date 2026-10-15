@@ -180,7 +180,8 @@ result (NIL = no effect)."
          (atk (if flat
                   '(:mult 1.0)
                   (kit-atk-mods (kit-of att) (- *konpaku-max* (gauges-konpaku (gauges att)))
-                                (* (if (eq res :blocked) 1.0 (+ 1.0 k)) (if (and own (fighter-assisted fa)) *assist-mult* 1.0)))))   ; ASSIST
+                                (* (if (eq res :blocked) 1.0 (+ 1.0 k)) (if (and own (fighter-assisted fa)) *assist-mult* 1.0))   ; ASSIST
+                                (and mv (getf (mv-params mv) :form-mult)))))   ; (a move's own form x: the owl's stance K / KL)
          (dmods (if (or optic flat) '(:mult 1.0) (kit-def-mods (kit-of def))))   ; (a ranged hit through Rukia's ward: x1.0 taken)
          (x (or x (aref p 0))) (z (or z (aref p 2))) (y (+ (aref p 1) 1.1))
          (base (+ (hw-dmg hw) bonus))

@@ -1436,3 +1436,33 @@ The user (verbatim): 「我還發現 J1 > K2 跟 J2 > K3 中間的 hits 會中�
 
 The user on §27.1 and §28.1 (BY 118.4 s, BK 117.7 s at 60 seeds; the awaken A/B's eight failing rows): 「全部列為例外，推到
 gh page」. Recorded in AGENTS.md's accepted exceptions; deployed to GitHub Pages.
+
+## 29. Decision R23 (2026-10-15): the owl's stance K x1.3, its KL x1.5, 裁きの光明 100
+
+The user, after the JILLIEL / owl comparison (verbatim): 「幫我把梟頭的架勢 K 倍率提昇成基礎的 1.3，KL 提昇成基礎的 1.5，裁きの光明傷害提高到 100」.
+
+Reading: "基礎" is the move's own damage before the form's x (the owl's x1.2 everywhere else); the owl's stance K1-K3 deal
+it x1.3 and its K K -> L L follow-up KL1-KL3 x1.5, in place of the x1.2 (not on top of it). 裁きの光明's line 70 -> 100
+before the owl's x1.2 (120 dealt).
+
+- **Knobs** (`barro.lisp`): `*BR-OWL-S-K-MULT*` 1.3 and `*BR-OWL-S-KL-MULT*` 1.5 (new; the owl stance's K / KL had
+  `*BR-OWL-MULT*` 1.2), carried as the moves' `:params :form-mult` (BR-DEFSTANCE's new `:k-mult` / `:kl-mult`, the
+  BR-OE stance only); 裁きの光明 `:dmg` 70 -> 100. JILLIEL's stance (x1.0), the owl's J / KIN strings, SPs and
+  everything else keep their x.
+- **The mechanism** (shared, `kit.lisp` / `combat.lisp`): a move's `:params :form-mult` replaces the form's `:mult` for
+  its own hits (KIT-ATK-MODS' new optional FORM-MULT). No other move carries it: every other character's damage is
+  unchanged (G2 below).
+- **Numbers dealt** (before combo scaling; JILLIEL in brackets): stance K1 / K2 / K3 60 / 60 / 86 (was 55 / 55 / 79)
+  [46 / 46 / 66]; KL1-KL3 105 each (was 84) [70]; 裁きの光明 120 (was 84) [SANREN 3 x 30]. Measured in the native sim
+  (82014 the owl EN with 8 wings, 82008 JILLIEL EN, K K K L L L at 2 m on Kenpachi): the owl 60 / 60 / 86 / 94 / 84 / 74
+  (the KLs after the combo scaling), JILLIEL 46 / 46 / 66 / 63 / 56 / 49.
+- **Tests**: `duel-rules-test` (the owl's K1 / K3 / KL1 / KL3 = 60 / 86 / 105 / 105, its stance J 18, JILLIEL's 46 / 70
+  and no `:form-mult`, 裁きの光明 100). Manual: the stance's form x line, the owl's buffs, 裁きの光明's row.
+
+### 29.1 Gates (2026-10-15)
+
+- 20 seeds, all K.O. (his wins of 20; §28.1's in brackets): BY 118.6 (10) [119.3], BK 122.5 (11) [124.4], BR 147.4 (12)
+  [152.8], BI 138.4 (5) [147.4], BS 154.5 (13) [161.0], the mirror 187.4 s [184.4]. BY / BK under 125 as before (the
+  accepted exceptions, §28.2); their 60-seed rerun and the awaken A/B follow.
+- G2 (`simgate.py --cvc`): all three PASS, line for line (the shared `:form-mult` changes no other character). Host tests
+  ALL PASS, pkgcheck clean, build.

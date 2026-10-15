@@ -216,7 +216,8 @@ new button."
             default: one window [S, S+A) when the move has damage and a volume
   :on-frame ((frame hook) ...), :tick hook (every frame), :release hook (button released during
             :hold), :on-land hook (first hit connects), :cine hook (Kikon cinematic)
-  :params   free plist for the hooks (projectile speed, flurry hits ...)
+  :params   free plist for the hooks (projectile speed, flurry hits ...); :form-mult x replaces the form's damage x
+            (kit :mult) for this move's own hits (KIT-ATK-MODS)
   :enter    start at this move frame (skips that much of the wind-up and of the clip): a string
             link that must combo after a J and a K link alike (every K2 / K3: S_eff 14); a derived form adds its startup-add to it
   :blend    crossfade frames into the clip (default 0, attacks snap); :planted  weapon planted
@@ -354,10 +355,10 @@ else the generic SOUL-BREAK-CINE."
 attacks but SP1 / L go back to East), or NIL."
   (and (kit-drop-to kit) (not (member cmd (kit-keep kit))) (kit-drop-to kit)))
 
-(defun kit-atk-mods (kit lost &optional (pierce 1.0))
-  "The attacker plist for HIT-DAMAGE: the form's multiplier (x PIERCE: 1 + Bankai East's pierce k on a hit) and
-Cornered with LOST Konpaku."
-  (list :mult (* (kit-mult kit) pierce) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
+(defun kit-atk-mods (kit lost &optional (pierce 1.0) form-mult)
+  "The attacker plist for HIT-DAMAGE: the form's multiplier (FORM-MULT in its place when given: a move's :params
+:form-mult; x PIERCE: 1 + Bankai East's pierce k on a hit) and Cornered with LOST Konpaku."
+  (list :mult (* (or form-mult (kit-mult kit)) pierce) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
 (defun kit-def-mods (kit)
   "The defender plist for HIT-DAMAGE: the damage the form takes (:taken)."
   (list :mult (kit-taken kit)))

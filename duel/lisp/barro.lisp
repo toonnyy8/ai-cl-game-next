@@ -140,6 +140,10 @@ cancelled off a stance K K that hit (K2 / its follow-up's last line) the charge-
 ;; the burst owl (decision R1: 「取消掉再覺醒，改成爆氣時會進入梟頭模式與獲得對應的 buff」; R2: 「buff 不分顏色」)
 (defparameter *br-owl-mult* 1.2 "Damage dealt x, the burst owl (its buff; the old revival's 1.1 -> 1.2, new 2026-10-10 [G]).")
 (defparameter *br-owl-taken* 1.1 "Damage taken x, the owl (JILLIEL's; copied 2026-10-09).")
+(defparameter *br-owl-s-k-mult* 1.3
+  "The owl's stance K1-K3: damage x this in place of the owl's *BR-OWL-MULT* (1.2 -> 1.3, the user 2026-10-15: 「幫我把梟頭的架勢 K
+倍率提昇成基礎的 1.3，KL 提昇成基礎的 1.5」, DUEL_LILLE_V3 §29; the move's :form-mult) ...")
+(defparameter *br-owl-s-kl-mult* 1.5 "... and its KL1-KL3's (1.2 -> 1.5, same §).")
 (defparameter *br-owl-wing-every* 120
   "The burst owl gains a wing every this many frames (its buff; 60 -> 120 by decision R3 「下降至少 50%」, 2026-10-11 [G]).")
 (defparameter *br-owl-adv* 1
@@ -433,8 +437,9 @@ before the form's x and the combo scaling (R10: one hit 16 + 0 / 16 / 32) ...")
   "The stance's moves (BR-DEFSTANCE, decision R3 [G]): name, kind, startup, the hits' frames after it (a 2-frame window
 each), recovery, damage a hit, the reaction of the hits before the last and of the last, role, extra params (L's :gain
 step, the follow-ups' :spend, a string's last segment :end: his CPU's SP2 call)."))
-(defmacro br-defstance (prefix clips &key (adv 0) melee snipe (l-slow 1))
-  "The stance's moves of PREFIX (*BR-S-SEGS*). CLIPS by segment; ADV the owl's +1 (R one less). MELEE (the awakened forms, R4:
+(defmacro br-defstance (prefix clips &key (adv 0) melee snipe (l-slow 1) k-mult kl-mult)
+  "The stance's moves of PREFIX (*BR-S-SEGS*). CLIPS by segment; ADV the owl's +1 (R one less); K-MULT / KL-MULT the K / KL
+segments' :form-mult (the owl's, §29). MELEE (the awakened forms, R4:
 「所有起手連段一律用近距離攻擊」): the openers (the segments that spend nothing) strike in reach (each hit its own melee volume,
 *BR-W-TIPS*; not :ranged, no line drawn) instead of the 4 m shots. L-SLOW (R4: 「架式 L 的動作太快了」): the L segments' startup and their
 hits' spacing x this (the clip slowed with them, its recovery as written); MELEE also times *BR-W-SEGS*' segments their own
@@ -491,7 +496,9 @@ copies -L1-2 / -L1-3 after the form) instead of the dash, its J / K MELEE as the
                                ,@(when dash `((,st br-w-dash)))
                                ,@(unless cut (loop for o in offs collect `(,(+ st o) br-shot-fire))))
                     :params (:stance ,role :len ,(cond (far '*br-x-len*) (cut 2.0) (t '*br-s-near*)) ,@(when dash '(:dash t))
-                             ,@(when sniper '(:charged t)) ,@extra)))))))
+                             ,@(when sniper '(:charged t))
+                             ,@(let ((fm (case role (:k k-mult) (:kl kl-mult)))) (when fm `(:form-mult ,fm)))
+                             ,@extra)))))))
 (defun br-stance-strings (prefix sp2 &optional melee)
   "The kit strings of PREFIX's stance (BR-DEFSTANCE): J1 -> J2 -> J3, K1 -> K2 -> K3 by the J / K latch; L1 -> L2 -> L3, J3 ->
 JL1 -> JL2 -> JL3, K3 -> KL1 -> KL2 -> KL3 by BR-S-TICK's latch (command :lchain); every J / K / JL / KL segment that hit -> the form's
@@ -677,10 +684,10 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
   :reach 2.3 :arc 90 :on-hit :crumple :flags (:ender) :tick br-s-tick :on-frame ((9 br-s-start)) :params (:end t))   ; (7 + 2)
 (defmove-copy :br-o-j2s :br-o-j2)
 (defmove-copy :br-o-k2s :br-o-k2)
-;; SP1 裁きの光明 (the old MISUJI: three ground lines at -20 / 0 / +20 deg, one hit group, 70 each, 18 m; flash step back by
-;; the wings)
+;; SP1 裁きの光明 (the old MISUJI: three ground lines at -20 / 0 / +20 deg, one hit group, 100 each (70 -> 100, the user
+;; 2026-10-15: 「裁きの光明傷害提高到 100」, DUEL_LILLE_V3 §29), 18 m; flash step back by the wings)
 (defmove :br-misuji :kind :sp :clip :lb-o-chop :clip-s 16 :callout "SABAKI NO KOMYO" :startup 18 :active 0 :recovery 25
-  :reach 18.0 :track 90 :on-frame ((0 br-sp1-fs-go) (18 br-misuji)) :params (:dmg 70 :guard 18 :fan (-20.0 0.0 20.0)))
+  :reach 18.0 :track 90 :on-frame ((0 br-sp1-fs-go) (18 br-misuji)) :params (:dmg 100 :guard 18 :fan (-20.0 0.0 20.0)))
 ;; SP2 the full volley (decision R3: 「併入梟頭的 SP2」; Trompete gone): every wing spent, the tiers by the count; on its
 ;; own a *BR-RECALL-CHARGE* wind-up (NIJUSHI-KO's glow its tell), off a stance K K that hit the quick :br-recall
 (defmove-copy :br-recall-s :br-recall :callout "KAISHU" :startup *br-recall-charge*
@@ -696,7 +703,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
                        :j3 (:br-oen-j3 8) :k1 (:br-oen-k1 16) :k2 (:br-oen-k2 12) :k3 (:br-oen-k3 18)
                        :jl1 (:br-oe-jf1 8) :jl2 (:br-oe-jf2 8) :jl3 (:br-oe-jf3 8) :kl1 (:br-oe-kf1 10) :kl2 (:br-oe-kf2 10)
                        :kl3 (:br-oe-kf3 10))
-              :adv 1 :melee t :l-slow *br-w-l-slow*)
+              :adv 1 :melee t :l-slow *br-w-l-slow* :k-mult *br-owl-s-k-mult* :kl-mult *br-owl-s-kl-mult*)
 
 ;;; His own moves' clips (barro-art.lisp): the owl's twins through its kits' :clip-map
 (defparameter *br-owl-clip-map* '(:br-recall :br-o-recall :br-rc0 :br-o-rc0 :br-rc1 :br-o-rc1 :br-rc2 :br-o-rc2
