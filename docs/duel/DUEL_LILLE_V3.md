@@ -1491,3 +1491,13 @@ The user (verbatim): 「梟頭的基礎倍率全改成 1.5，梟頭架勢 K1 / K
   scaling); 82004 J J J: 33 / 33 / 40.
 - **Tests**: `duel-rules-test` (the owl's x1.5; its stance K1 / K3 / KL 80 / 116 / 140, the stance J 22, KIN J1 33, Kikon
   120). Manual: the stance's form x line and the owl's buffs.
+
+### 30.1 Gates (2026-10-15)
+
+- 20 seeds, all K.O. (his wins of 20; §29.1's in brackets): BY 115.7 (14) [118.6], BK 118.9 (12) [122.5], BR 152.9 (13)
+  [147.4], BI 146.8 (10) [138.4], BS 152.0 (17) [154.5], the mirror 169.3 s [187.4]. 60 seeds: **BY 108.9 s (46/60), BK
+  115.6 s (31/60)**, all K.O. ([114.8, 114.2]): under 125, reported. His wins rose (BY 38 -> 46 of 60, BS 13 -> 17 of 20).
+- Awaken A/B (`--cmd 39020`, the never-awaken Lille's wins of 60, pass >= 20; all K.O.), Y K R I S + the mirror: seed0
+  100: 25 22 **18** 22 **19** **6**; 300: 32 23 **16** 25 24 **6**; 500: 35 **19** 24 **16** 22 **8**: the same eight rows,
+  the five non-mirror rows identical to §29.1; the mirror 11 / 8 / 9 -> 6 / 6 / 8. Reported, the user's call.
+- G2 (`simgate.py --cvc`): all three PASS. Host tests ALL PASS, pkgcheck clean, build.
