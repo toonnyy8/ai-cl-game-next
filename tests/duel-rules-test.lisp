@@ -1995,12 +1995,12 @@ defender's next step. Values: the attacker's and the defender's first actionable
                 *br-forms*))
   (check (eq :jilliel-kin (kit-awaken-form b)))
   (check (and (eq (kit-body r) :lille-jilliel) (eq (kit-body m) :lille-jilliel-kin) (eq (kit-body om) :lille-shin) (eq (kit-body or*) :lille-shin)))
-  (check (and (~= (kit-mult om) 1.2) (~= (kit-mult or*) 1.2) (= 4 (kit-kikon-konpaku om)) (= 3 (kit-kikon-konpaku m))))
-  ;; §29 (2026-10-15): the owl's stance K x1.3, KL x1.5 in place of its x1.2 (a move's :form-mult); JILLIEL's untouched;
-  ;; 裁きの光明 100
+  (check (and (~= (kit-mult om) 1.5) (~= (kit-mult or*) 1.5) (= 4 (kit-kikon-konpaku om)) (= 3 (kit-kikon-konpaku m))))
+  ;; §29 (2026-10-15): the owl's stance K / KL x their own (a move's :form-mult) in place of the owl's x; JILLIEL's untouched;
+  ;; 裁きの光明 100. §30: the owl x1.5, its stance K x1.75 (46 -> 80.5, 66 -> 115.5: HIT-DAMAGE's ROUND to even), KL x2
   (flet ((dmg (k n) (let ((mv (kit-move k n))) (hit-damage (mv-dmg mv) (kit-atk-mods k 0 1.0 (getf (mv-params mv) :form-mult)) nil 1 nil))))
-    (check (and (= 60 (dmg or* :br-oe-k1)) (= 86 (dmg or* :br-oe-k3)) (= 105 (dmg or* :br-oe-kl1)) (= 105 (dmg or* :br-oe-kl3))
-                (= 18 (dmg or* :br-oe-j1)) (= 46 (dmg r :br-e-k1)) (= 70 (dmg r :br-e-kl1))
+    (check (and (= 80 (dmg or* :br-oe-k1)) (= 116 (dmg or* :br-oe-k3)) (= 140 (dmg or* :br-oe-kl1)) (= 140 (dmg or* :br-oe-kl3))
+                (= 22 (dmg or* :br-oe-j1)) (= 33 (dmg om :br-o-j1)) (= 120 (dmg om :br-o-kikon)) (= 46 (dmg r :br-e-k1)) (= 70 (dmg r :br-e-kl1))
                 (null (getf (mv-params (kit-move r :br-e-k1)) :form-mult))))
     (check (= 100 (getf (mv-params (kit-move om :br-misuji)) :dmg))))
   ;; 萬物貫通 (V1)

@@ -1476,3 +1476,18 @@ before the owl's x1.2 (120 dealt).
 
 The user on §29.1 (BY 114.8 s, BK 114.2 s at 60 seeds; the awaken A/B's eight failing rows): 「全部列為例外，推到 gh page」.
 Recorded in AGENTS.md's accepted exceptions; deployed to GitHub Pages.
+
+## 30. Decision R24 (2026-10-15): the owl x1.5, its stance K x1.75, its KL x2
+
+The user (verbatim): 「梟頭的基礎倍率全改成 1.5，梟頭架勢 K1 / K2 / K3 改為 ×1.75，梟頭 KL1～KL3 改為 ×2」.
+
+- **Knobs** (`barro.lisp`): `*BR-OWL-MULT*` 1.2 -> 1.5 (the owl's every hit, KIN and EN: its J / K strings, the stance's
+  L / J / JL, SP1, SP2 the volley, Breaker, Kikon); `*BR-OWL-S-K-MULT*` 1.3 -> 1.75 and `*BR-OWL-S-KL-MULT*` 1.5 -> 2.0
+  (§29's `:form-mult`, in place of the 1.5). Damage taken stays x1.1; JILLIEL stays x1.0.
+- **Numbers dealt** (before combo scaling; HIT-DAMAGE rounds half to even): KIN J1 / J2 / J3 33 / 33 / 40 (was 26 / 26 /
+  32), K1 / K2 / K3 64 / 64 / 93 (was 52 / 52 / 74); the stance J 22 a hit (18), K1 / K2 / K3 80 / 80 / 116 (60 / 60 / 86),
+  KL 140 each (105); 裁きの光明 150 (120); Kikon 120 (96); Breaker 225 (180); the full volley at 8 wings 720 (576).
+  Measured (the native sim, 82014 K K K L L L at 2 m on Kenpachi): 80 / 80 / 116 / 126 / 112 / 98 (the KLs after the combo
+  scaling); 82004 J J J: 33 / 33 / 40.
+- **Tests**: `duel-rules-test` (the owl's x1.5; its stance K1 / K3 / KL 80 / 116 / 140, the stance J 22, KIN J1 33, Kikon
+  120). Manual: the stance's form x line and the owl's buffs.

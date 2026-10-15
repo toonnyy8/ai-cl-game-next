@@ -138,12 +138,14 @@ cancelled off a stance K K that hit (K2 / its follow-up's last line) the charge-
 (defparameter *br-owl-armor-wings* 2 "... the burst owl's (its buff, new 2026-10-10 [G]).")
 
 ;; the burst owl (decision R1: 「取消掉再覺醒，改成爆氣時會進入梟頭模式與獲得對應的 buff」; R2: 「buff 不分顏色」)
-(defparameter *br-owl-mult* 1.2 "Damage dealt x, the burst owl (its buff; the old revival's 1.1 -> 1.2, new 2026-10-10 [G]).")
+(defparameter *br-owl-mult* 1.5
+  "Damage dealt x, the burst owl (its buff; the old revival's 1.1 -> 1.2, new 2026-10-10 [G]; 1.2 -> 1.5, the user
+2026-10-15: 「梟頭的基礎倍率全改成 1.5，梟頭架勢 K1 / K2 / K3 改為 ×1.75，梟頭 KL1～KL3 改為 ×2」, DUEL_LILLE_V3 §30).")
 (defparameter *br-owl-taken* 1.1 "Damage taken x, the owl (JILLIEL's; copied 2026-10-09).")
-(defparameter *br-owl-s-k-mult* 1.3
+(defparameter *br-owl-s-k-mult* 1.75
   "The owl's stance K1-K3: damage x this in place of the owl's *BR-OWL-MULT* (1.2 -> 1.3, the user 2026-10-15: 「幫我把梟頭的架勢 K
-倍率提昇成基礎的 1.3，KL 提昇成基礎的 1.5」, DUEL_LILLE_V3 §29; the move's :form-mult) ...")
-(defparameter *br-owl-s-kl-mult* 1.5 "... and its KL1-KL3's (1.2 -> 1.5, same §).")
+倍率提昇成基礎的 1.3，KL 提昇成基礎的 1.5」, DUEL_LILLE_V3 §29; the move's :form-mult; 1.3 -> 1.75, §30) ...")
+(defparameter *br-owl-s-kl-mult* 2.0 "... and its KL1-KL3's (1.2 -> 1.5, same §; 1.5 -> 2.0, §30).")
 (defparameter *br-owl-wing-every* 120
   "The burst owl gains a wing every this many frames (its buff; 60 -> 120 by decision R3 「下降至少 50%」, 2026-10-11 [G]).")
 (defparameter *br-owl-adv* 1
@@ -801,7 +803,7 @@ awakened form inherits these).")
                (10.0 99.0 :step 1 nil 3))
        :guard 0.4 :hoho 0.3 :dash 0.8 :block-string 0.3 :o-ender 0.3 :kikon-range 0.0
        :string-k 0.6 :l-after-k 1.0 :l-after-j 1.0   ; (every link that hit -> the R17 link: no plain K2s bridge; b1a2)
-       :burst (:p 0.6 :wings 2 :in 8.0) :reflex br-ai-reflex :sig-hold br-ai-sig-hold   ; (the owl early: its x1.2, its volley)
+       :burst (:p 0.6 :wings 2 :in 8.0) :reflex br-ai-reflex :sig-hold br-ai-sig-hold   ; (the owl early: its x1.5, its volley)
        :far-dash (:p (:easy 0.05 :normal 0.15 :hard 1.0) :in 3.4)   ; (HARD at once, b1a1; round 2 b1a1 0.35, combo b1a2+b2a0 0.15 back: NORMAL band)
        :stance (:j-share 0.25 :charge 0.7 :punish 0.6 :follow 0.7 :sp2-at 0 :sp2 0.7 :keep 4 :sp2-all 8)))
 
@@ -820,7 +822,7 @@ awakened form inherits these).")
        :stance (:j-share 0.25 :charge 0.7 :punish 0.6 :follow 0.7 :sp2-at 0 :sp2 0.7 :keep 4 :sp2-all 8)))
 
 ;; the owl (a burst in either JILLIEL form, decision R1; back when it ends): the claws, SP1 裁きの光明, SP2 the full volley
-;; (every wing, decision R3; Trompete gone); x1.2 dealt (its buff), a wing every 2 s, the armour 2 wings; Kikon 4
+;; (every wing, decision R3; Trompete gone); x1.5 dealt (its buff; the stance K x1.75, KL x2, §30), a wing every 2 s, the armour 2 wings; Kikon 4
 (defkit :barro :shin-kin :inherit :jilliel-kin
   :lift 0.0 :form-name "SHIN KIN" :mult *br-owl-mult* :taken *br-owl-taken* :kikon-konpaku 4
   :body :lille-shin :stance :lb-o-stance :cine nil :clip-map *br-owl-clip-map* :look-clips *br-owl-wall-clips*
