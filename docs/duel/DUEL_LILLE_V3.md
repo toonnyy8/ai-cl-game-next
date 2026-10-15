@@ -1501,3 +1501,8 @@ The user (verbatim): 「梟頭的基礎倍率全改成 1.5，梟頭架勢 K1 / K
   100: 25 22 **18** 22 **19** **6**; 300: 32 23 **16** 25 24 **6**; 500: 35 **19** 24 **16** 22 **8**: the same eight rows,
   the five non-mirror rows identical to §29.1; the mirror 11 / 8 / 9 -> 6 / 6 / 8. Reported, the user's call.
 - G2 (`simgate.py --cvc`): all three PASS. Host tests ALL PASS, pkgcheck clean, build.
+
+### 30.2 The user's call (2026-10-15)
+
+The user on §30.1 (BY 108.9 s, BK 115.6 s at 60 seeds; the awaken A/B's eight failing rows): 「全部列為例外，推到 gh page」.
+Recorded in AGENTS.md's accepted exceptions; deployed to GitHub Pages.
