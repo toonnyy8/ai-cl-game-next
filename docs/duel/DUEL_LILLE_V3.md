@@ -1463,6 +1463,11 @@ before the owl's x1.2 (120 dealt).
 
 - 20 seeds, all K.O. (his wins of 20; §28.1's in brackets): BY 118.6 (10) [119.3], BK 122.5 (11) [124.4], BR 147.4 (12)
   [152.8], BI 138.4 (5) [147.4], BS 154.5 (13) [161.0], the mirror 187.4 s [184.4]. BY / BK under 125 as before (the
-  accepted exceptions, §28.2); their 60-seed rerun and the awaken A/B follow.
+  accepted exceptions, §28.2). 60 seeds: **BY 114.8 s (38/60), BK 114.2 s (28/60)**, all K.O. (§28.1: 118.4, 117.7):
+  under 125, reported.
+- Awaken A/B (`--cmd 39020`, the never-awaken Lille's wins of 60, pass >= 20; all K.O.), Y K R I S + the mirror: seed0
+  100: 25 22 **18** 22 **19** **11**; 300: 32 23 **16** 25 24 **8**; 500: 35 **19** 24 **16** 22 **9**: the same eight
+  rows as §28.1, the five non-mirror rows identical (the never-awaken Lille never becomes the owl there); only the mirror
+  moves (9 / 12 / 8 -> 11 / 8 / 9). Reported, the user's call.
 - G2 (`simgate.py --cvc`): all three PASS, line for line (the shared `:form-mult` changes no other character). Host tests
   ALL PASS, pkgcheck clean, build.
