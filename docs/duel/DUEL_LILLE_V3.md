@@ -1471,3 +1471,8 @@ before the owl's x1.2 (120 dealt).
   moves (9 / 12 / 8 -> 11 / 8 / 9). Reported, the user's call.
 - G2 (`simgate.py --cvc`): all three PASS, line for line (the shared `:form-mult` changes no other character). Host tests
   ALL PASS, pkgcheck clean, build.
+
+### 29.2 The user's call (2026-10-15)
+
+The user on §29.1 (BY 114.8 s, BK 114.2 s at 60 seeds; the awaken A/B's eight failing rows): 「全部列為例外，推到 gh page」.
+Recorded in AGENTS.md's accepted exceptions; deployed to GitHub Pages.
