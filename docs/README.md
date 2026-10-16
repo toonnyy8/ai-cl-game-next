@@ -85,3 +85,4 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [yamamoto-rework/](research/yamamoto-rework/) | 山本總隊長（千年血戰篇）重做的研究：`canon-looks.md` 各狀態的原作外觀與建模清單，`motion-refs.md` 各場戰鬥的打法、RoS 等遊戲參考、原型表與各型態的招式動作清單（英文，附來源與 A～D 等級，2026-10-13） |
 | [ichigo-rework/](research/ichigo-rework/) | 黑崎一護（千年血戰篇）重做的研究：`canon-looks.md` 原作外觀（短刀正手握、TYBW 服裝），`canon-motion.md` 各場戰鬥的打法，`style-refs.md` 其他遊戲與動漫的大劍／雙刀風格、原型表、演出技巧與動作清單（英文，附來源與 A～D 等級，2026-10-14） |
 | [lille-ai-drsi/](research/lille-ai-drsi/) | 利傑巴羅自適應 AI 的 dream-rsi 工作區（DUEL_LILLE §24）：凍結的 baseline（lille.lisp、proposal、40／80 場分數、NORMAL 漂移參考值）、drsi 設定與 policy，加上 coordinator 腳本（`brief.py`、`step.sh`、`rescore.sh`）；見其 README |
+| [hisagi/notes.md](research/hisagi/notes.md) | 檜佐木修兵的原作研究：始解風死的形狀與用法、小說裡的卍解風死絞縄、外觀、RoS 與 Brave Souls 的招式（英文，附來源與 A～D 等級，2026-10-16） |
