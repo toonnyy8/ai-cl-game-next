@@ -42,7 +42,7 @@ The user's pick: **A** — inside the orb the damage either fighter takes does n
 fighter's own **Reiatsu** (the SP gauge, 0–300). A fighter whose Reiatsu is empty takes damage normally again and can be
 K.O.'d. Leaving the chain's length pulls the opponent back. He can drop it any time; it ends when his own Reiatsu runs dry.
 
-Proposals, not yet confirmed (the lead's numbers, to restate with the user before building):
+The lead's numbers, **confirmed** (the user, 2026-10-16: 「數字照你的提案」):
 - The exchange: 1 Reiatsu per 2 damage (so a full 300 bar absorbs 600, under half of the 1300 Reishi).
 - Reiatsu does not regenerate inside the orb (+3/s and the per-damage gains paused), or the exchange never ends.
 - A Kikon or a Soul Break cannot take Konpaku from a fighter who still has Reiatsu (the canon "can't kill"); with 0 it can.
@@ -52,7 +52,25 @@ Proposals, not yet confirmed (the lead's numbers, to restate with the user befor
 - Risks: the clock (two fighters who can't be hurt), an opponent who saves Reiatsu for the orb, the CPU / learner
   needing to read the exchange.
 
-## 5. Open
+## 5. The Shikai's move set, first draft (the user, 2026-10-16: 「J K 照一般規則，1 秒自動收回」)
 
-- The proposals in §4 restated as numbers with the user; then the move set as a segment table (`duel-move-modules`), the movement units, tap / hold and
+- **J / K follow the general string rules** (DUEL_DESIGN §4, DUEL_STRINGS): up to three links, one button switch, routes
+  JJJ JJK JKK KKK KKJ KJJ; one move per (link, button), `J1 K1 J2 K2 J3 K3` plus the switched copies.
+- **A thrown sickle comes back by itself after 1 s (60 f)** if K has not pulled it back first.
+- The draft table (the lead's, shown to the user; the full design doc details and checks it):
+
+| Button | Move | Segments | Reach | Content (canon) |
+|---|---|---|---|---|
+| J | short-chain spin cuts | J1–J3 | ~2.2 m | the chain held short, both sickles whirled round the body (H1) |
+| K | the throw | K1 throw, K2 pull back | ~6 m | K1 throws one sickle (out of hand); K again pulls it back, hitting from behind (ch. 325); no second throw until it is back (H2) |
+| L | 風車 the windmill | hold | around him | the chain whirled overhead like a fan, stopping projectiles (canon fan whirl; RoS's projectile-proof slide) |
+| I | 首掛け KUBIKAKE | grab | mid-close | the chain round the neck, pull, slam (the one named technique, ch. 337 / 384) |
+| SP1 | 破道の十一・綴雷電 | one | chain length | lightning sent down the chain (ch. 337) |
+| SP2 | the whole-body bind | one | mid | the chain binds the whole body, then a slam (vs Ayon, ch. 336) |
+| O | throw-and-pull | — | — | the sickle hooks the opponent, pulls him in, the cut |
+
+## 6. Open
+
+- The full design doc (frames, damage, the out-of-hand state inside the string grammar, the Bankai form's own strings,
+  the CPU / ASSIST / learning hooks, the look) and its adversarial review; then the move set as a segment table (`duel-move-modules`), the movement units, tap / hold and
   the touch mapping, the motion style (`duel-motion-style`).
