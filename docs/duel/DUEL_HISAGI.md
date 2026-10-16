@@ -70,116 +70,129 @@ The lead's numbers, **confirmed** (the user, 2026-10-16: 「數字照你的提�
 | SP2 | the whole-body bind | one | mid | the chain binds the whole body, then a slam (vs Ayon, ch. 336) |
 | O | throw-and-pull | — | — | the sickle hooks the opponent, pulls him in, the cut |
 
-## 6. Role and roster fit (the lead's proposal, 2026-10-16)
+## 6. Role and roster fit (the lead's proposal, 2026-10-16; revised after the review, §14)
 
-Every number from here to §12 is **the lead's proposal** unless a line says "decided" (§2, §4, §5). Code prefix `hs-`,
-files `duel/lisp/hisagi.lisp` + `hisagi-art.lisp`, kit `:hisagi`, forms `:base` (Shikai) and `:bankai`.
+Every number from here to §12 is **the lead's proposal** unless a line says "decided" (§2, §4, §5). Where an answer in
+§13 is pending, the body assumes its recommended option (marked "Qn A"). Code prefix `hs-`, files `duel/lisp/hisagi.lisp`
++ `hisagi-art.lisp`, kit `:hisagi`, forms `:base` (Shikai) and `:bankai`. (There is no §3: the concept talk's numbering
+is kept so the DEVLOG's references hold.)
 
-**Identity (H1, H2).** An all-rounder whose best band is **2–6 m**: a short-chain spin (J, 1.6 m, 360° at J3) for close
-range, the throw (K1, 6 m) and the pull for mid range, the windmill (L) against projectiles. His price is the **out-of-hand
-window** (§7): after a throw he has no second throw, no windmill and lighter J for up to 68 f. RoS's grades (Range 4,
-Power 3, Defense 2, notes §5.1) fit: long reach, middling damage, ×1.0 taken.
+**Identity (H1, H2).** An all-rounder whose best band is **2–6 m**: short one-chain cuts (J, 1.4 m, Q5 A) up close, the
+throw (K1, 6 m) and the pull for mid range, the windmill (L) against projectiles. His price is the **out window** (§7):
+after a throw that missed, or a string that left the sickle out, he has only one-handed J and a no-hit retrieve, no
+throw, no windmill, no SP2. RoS's grades (Range 4, Power 3, Defense 2, notes §5.1) fit: long reach, middling damage.
 
-**Bands** (centre to centre): close < 2 m (his J reaches 1.6 + the victim's body ≈ 2.0), mid 2–4 m (K3 2.8, MAKI 3.2, SP2
-4.5), far 4–6.5 m (NAGE, SP1, HIKI's line), out > 6.5 m (nothing but the O lane, 7 m, and walking in).
+**Bands** (centre to centre): close < 1.8 m (his J 1.4 + the victim's body), mid 1.8–4 m (KARI-OTOSHI 2.8, MAKI 3.2,
+SP2 4.5), far 4–6.5 m (NAGE, SP1), out > 6.5 m (only the O lane, 7 m, and walking in).
 
 | Opponent | At 2 m | At 4 m | At 6 m + | His plan / the risk |
 |---|---|---|---|---|
-| Yamamoto (S 9 J1, K 2.4–2.6 m; L wave 12 m, Shiranui 20 m; Bankai East / West) | his J (S 8) beats Yamamoto's J1 (S 9); KARI-OTOSHI 2.8 > Yamamoto's K 2.6 | NAGE outranges every Yamamoto K; Taimatsu's cone (4 m) is the threat | the wave and Shiranui outrange him: the windmill (L) blocks both, then he walks in | hold 4–6 m. Risk: West's 360° ward eats the throws (a ranged window is blocked by a ward) |
-| Kenpachi (walk 4.4, run 10, K 2.8–4.0 m, the stance absorbs, CHARGE armour) | the J spin trades with ARAGIRI (S 7 vs 8): he loses a little (H1: "a little weaker up close") | NAGE out-pokes Kenpachi's K1 (3.0); RYOTE / NOMIHOSE K (3.9–4.0) contest it | Kenpachi closes 6 m in 0.6 s of run: one throw per approach | the worst matchup on paper: Kenpachi gets inside. A throw into the stance is absorbed (and stored) |
-| Rukia (mid-range zoner 5–8 m, the ring, frost) | his J (1.6 m) ≥ her J (1.44 m); she is light (stun tolerance 13) | even: her K 2.5–2.8 vs his 2.8–3.2 | her ring (8 m) and HAKUREN outrange NAGE: the windmill blocks the wave, not the ring (a ground hazard: blocked too, §8.3) | contest 5–6 m. Note: zero's optical ward lets `:ranged` hits through at ×1.0, so his far throw goes through it |
-| Ichigo (rushdown, the stance, KESSA's parry and clones) | the stance's RANGETSU (2.4 m lunge) beats a J spin started late | NAGE beats the stance at 4 m; KUSARI-BIKI (7 m) pulls him in | GETSUGA / JŪJISHŌ waves: windmill | KESSA's parry catches only the blade part (≤ 2.0 m): a far throw can't be parried. Clones answer his presses at close range |
-| Senjumaru (close tailor 1.0–1.9 m, stitches; Bankai zones) | her J (1.44 m, 28 × 1.6) sews; even | his band: NAGE / HIKI line | the soldier walks the line; the windmill doesn't stop a walker | KASA (SP2) **catches ranged hits**: a throw into KASA feeds her tendrils. 星's Reiatsu drain vs the orb: §9.3 |
-| Lille (sniper 6–12 m, the stance at 1.7–2.9 m, 31 m lines) | his J beats the stance's entry | NAGE vs the stance's rifle K (2.6 m): his | Lille's lines are `:ranged` windows: the windmill must block them (§8.3) | walk in under the windmill. Canon intro: Lille shot him (ch. 635) |
-| Hisagi (mirror) | even | even | throws cross: the first one out loses the windmill | one orb at a time (§9.3) |
+| Yamamoto (J1 S 9, K 2.4–2.6 m; wave 12 m, Shiranui 20 m; Bankai East / West) | his J (S 8) beats Yamamoto's J1 (S 9); KARI-OTOSHI 2.8 > Yamamoto's K 2.6 | NAGE outranges every Yamamoto K; Taimatsu's cone (4 m) is the threat | the wave and Shiranui outrange him: the windmill blocks both (each drains its guard value), then he walks in | hold 4–6 m. West's 360° ward blocks the throws |
+| Kenpachi (walk 4.4, run 10, K 2.8–4.0 m, the stance absorbs, CHARGE armour) | ARAGIRI (S 7, 1.4 m) beats his J (S 8): H1's "a little weaker up close" | NAGE out-pokes Kenpachi's K1 (3.0); RYOTE / NOMIHOSE K (3.9–4.0) contest it | Kenpachi closes 6 m in 0.6 s of run: one throw per approach | the worst matchup on paper. A throw into the stance is absorbed (and stored); Buttagiru's crack (`:ranged`) is blocked by the windmill |
+| Rukia (mid-range zoner 5–8 m, the ring, frost) | even (her J 1.44 m, his 1.4) | even: her K 2.5–2.8 vs his 2.8–3.2 | her ring (8 m) and HAKUREN outrange NAGE; the windmill blocks both (a guardable pillar is blocked like any hazard); her freeze-touch bind is unguardable and goes through | contest 5–6 m. Zero's optical ward lets `:ranged` hits through at ×1.0, so his far throw goes through it |
+| Ichigo (rushdown, the stance, KESSA's parry and clones) | RANGETSU (a 2.4 m lunge) beats a J started late | NAGE beats the stance at 4 m; KUSARI-BIKI (7 m) pulls him in (the windmill blocks its far part) | GETSUGA / JŪJISHŌ waves: windmill | KESSA's parry catches only the throw's blade part (≤ 2.0 m) |
+| Senjumaru (close tailor 1.0–1.9 m, stitches; Bankai zones) | her J (1.44 m, 28 × 1.6) sews; even | his band | the soldier's thrust (a hazard) is blocked by the windmill; WARUI KUSE's spikes are unguardable and go through | KASA (SP2) **catches ranged hits**: a far throw into KASA feeds her tendrils. 星 vs the orb: §9.3 |
+| Lille (sniper 6–12 m, the stance at 1.7–2.9 m, 31 m lines) | his J beats the stance's entry | NAGE vs the stance's rifle K (2.6 m) | the windmill blocks his lines as a guard would (Q3 A); walk in under it | canon intro: Lille shot him (ch. 635) |
+| Hisagi (mirror) | even | even | throws cross: the one who misses is out of hand | one orb at a time (§9.3) |
 
 **The 10-seed time-at-range probe** (batch 1, before any tuning; `duel-character`'s rule): seeds 1–10 × his 7 live
-pairings (HY HK HR HI HS HB HH; HL is retired), NORMAL, cinematics left out of the clock. A `duel hisagi` line per side
-after each gate row: the share of match time in < 2 / 2–4 / 4–6.5 / > 6.5 m, the share with the sickle out, throws,
-throw hits, pulls (pressed / auto), orb seconds. **Target (the lead's):** ≥ 45 % of his time at 2–6.5 m in every pairing;
-under 2 m ≤ 40 % (≤ 55 % against Kenpachi); sickle out ≤ 30 %. Missing it changes the AI ranges first, then asks the user
-(the old Lille's "pure sniper" spent 83–93 % under 6 m: two rule rebuilds).
+pairings (HY HK HR HI HS HB HH; HL is retired), NORMAL, cinematics out of the clock. A `duel hisagi` line per side after
+each gate row: time share in < 1.8 / 1.8–4 / 4–6.5 / > 6.5 m, the share out of hand, and the counters of §10. **Target
+(the lead's):** ≥ 45 % of his time at 1.8–6.5 m in every pairing; under 1.8 m ≤ 40 % (≤ 55 % against Kenpachi); out of
+hand ≤ 30 %. A miss changes the AI ranges first, then goes to the user (the old Lille's "pure sniper" spent 83–93 % under
+6 m: two rule rebuilds).
 
 ## 7. The out-of-hand sickle inside the string grammar (H2 + the decided 60 f auto-retrieve)
 
 ### 7.1 The state machine
 
-| State | Entered by | Lasts | What it means |
+| State | Entered by | Ends | What he can do |
 |---|---|---|---|
-| **IN** | the match start, a reset, the sickle arriving | — | both sickles in hand: every move available |
-| **OUT** | a throw's release frame (S of NAGE or MAKI), whatever the throw's result | until a pull's S, or 60 f after the release (decided) | one sickle lies at its **anchor**: on a hit / block the victim's position at the hit (hooked in him or his guard); on a whiff the line's end (6 m ahead at the release yaw). The chain is drawn hand → anchor. No throw (H2), no windmill, no SP2; J at ×0.8; SP1 faster (§8.3) |
-| **RETURNING** | a pull's S (HIKI-1, HIKI, HODOKI, SP1) or the auto-retrieve at OUT + 60 f | a pull: its active frames (4–5 f); the auto: 8 f | the sickle flies back along the chain. A pull's flight **is its hit window**; the auto-return **has none** |
+| **IN** | the match start, any reset, the sickle arriving | a throw's S | everything: the IN string graph (§7.2) |
+| **OUT** | the S frame of a throw (NAGE, MAKI), whatever its result | the S frame of a pull (HIKI, HODOKI, MODOSHI, SP1), or the auto-retrieve | the OUT graph: one-handed J, K = the no-hit retrieve; no throw (H2), no L, no SP2 (Q4 A) |
+| **RETURNING** | the auto-retrieve | 8 f later | as OUT; a K pressed now is held (below) |
 
-- **The auto-retrieve does not hit** (the lead's pick): a whiffed throw must not become a free delayed hit 1 s later
-  (`duel-character`: "delayed damage: when should it land?"). The K pull is the only returning hit, so its timing is his
-  skill (H2's 「回收時機就是他的技術」).
-- **The chain's length**: if a Step / Hoho / knockback takes his hand > 6.5 m from the anchor, the auto-retrieve fires at
-  once.
-- **K pressed during the 8 f auto-return**: refused with the cue, buffered 10 f as any press, so it fires as NAGE on
-  arrival.
-- The anchor is a sim point (written at the release frame, never moved by art); the chain and sickle are drawn from it.
-  Knobs: `*hs-out-frames*` 60 (decided), `*hs-return-frames*` 8, `*hs-chain-max*` 6.5, `*hs-out-j-mult*` 0.8.
+- **The 60 f timer (decided) counts only frames in which he is in no attack move** (J / K / L / SP / I / O); walking,
+  guarding, a Step, a Hoho, hitstun and blockstun count. So the sickle's state changes only at the S frame of a throw or a
+  pull, at the auto-retrieve outside his moves, at a reset or at a form change, never inside a move (the review's #5), and
+  every route's state follows from its start state.
+- **The auto-retrieve has no hit window** (8 f flight). Only a string's pull hits (Q4 A).
+- **K during RETURNING**: his `:tick` keeps the press (it is not a refusal: `refused-cue` would consume it) and presses K
+  again on the arrival frame, so it fires NAGE. J during RETURNING plays the one-handed J; L / SP2 are refused (the cue,
+  the press eaten); SP1 throws its own line and the returning sickle simply arrives.
+- **The chain's length**: out of his moves, a hand > 6.5 m from the anchor starts the auto-retrieve at once; inside a
+  move the chain is drawn stretched.
 
-### 7.2 One rule for K: **throw if in hand, pull if out**
+**The anchor** (one fixed world point per fighter; never follows anyone, never moved by art):
 
-The K button's move at each link is picked from the sickle's state **at the link's frame 0** (the latch fires the link;
-the state is read then, so a K latched during NAGE becomes the pull):
-
-| K slot | Sickle IN | Sickle OUT |
+| Case | The anchor is written | At |
 |---|---|---|
-| K1 (neutral K) | 投 **NAGE**, the throw (→ OUT) | 引 **HIKI-1**, the pull from neutral (→ IN) |
-| K2 / K2s | 巻 **MAKI**, the wrap-throw: the chain flung round his body (→ OUT) | 引 **HIKI**, the pull: the sickle rips back through him from behind (→ IN) |
-| K3 (ender) | 刈落 **KARI-OTOSHI**, both sickles whirled overhead and dropped | 解 **HODOKI**, the pull-through ender (→ IN) |
+| A throw (NAGE / MAKI) touches (hit, block, armour, absorb, a KASA catch) | on the first contact frame | the victim's centre on that frame |
+| A throw is caught by a parry (KESSA within 2.0 m) | on the catch | the parrier's centre |
+| A throw whiffs | on its last active frame | the line's own end along his facing at S: NAGE 6.0 m, MAKI 3.2 m |
+| Every case | — | clamped into the arena circle (r 15 − 0.3 m) |
 
-J never changes the sickle; J while OUT is the same J (one sickle) at ×0.8 damage.
+Drawn: the sickle "hooked" (the chain to the victim's body) only while the victim is within 0.5 m of the anchor, else
+lying on the ground, the chain from his hand to it. Host-tested per case.
 
-| Route (start IN) | Links | Sickle | Reads as |
+**Where the state lives** (the review's #23): per fighter, in his file's two-slot vectors indexed by `fighter-side` (a
+global would break the mirror): the sickle state, the anchor x z, the out timer, the return timer, the held K, the orb
+flag (on Hisagi), each side's orb cover (§9.2), the noose timer. Match start and PRACTICE's reset: IN, no orb. A Kikon /
+Soul Break reset: IN; the orb kept. ENDLESS's stage start: IN, no orb. All of it goes into the periodic state-hash line.
+
+Knobs: `*hs-out-frames*` 60 (decided), `*hs-return-frames*` 8, `*hs-chain-max*` 6.5.
+
+### 7.2 Two static string graphs (the review's #6: no per-link pick hook)
+
+With the timer frozen inside moves, the state at every link is fixed by the route, so the kit writes two graphs:
+
+**IN graph** (the general rules' six routes; K throws if the sickle is in hand, pulls if a link of this string threw it):
+
+| Route | Links (the kit's `:strings` rows) | Sickle | Reads as |
 |---|---|---|---|
-| JJJ | SEN, KAESHI-SEN, RIN | IN throughout | the short-chain spin (H1) |
-| JJK | SEN, KAESHI-SEN, KARI-OTOSHI | IN | spin into the overhead drop |
-| JKK | SEN, MAKI, HODOKI | IN → OUT → IN | spin, wrap him, unwind him (the hit from behind) |
-| KKK | NAGE, HIKI, KARI-OTOSHI | IN → OUT → IN | the canon Findorr sequence: throw, pull from behind, finish (ch. 325) |
-| KKJ | NAGE, HIKI, RIN | IN → OUT → IN | throw, pull, spin |
-| KJJ | NAGE, KAESHI-SEN(s), RIN | IN → OUT (auto-return during J3) | throw, then one-handed cuts |
+| JJJ | SEN → KAESHI-SEN → RIN | IN | the one-chain cuts |
+| JJK | SEN → KAESHI-SEN → KARI-OTOSHI | IN | cuts into the overhead drop |
+| JKK | SEN → MAKI → HODOKI | IN → OUT → IN | cut, wrap him, unwind him (the hit from behind; Q8 A) |
+| KKK | NAGE → HIKI → KARI-OTOSHI | IN → OUT → IN | the canon Findorr sequence: throw, pull from behind, finish (ch. 325) |
+| KKJ | NAGE → HIKI → RIN | IN → OUT → IN | throw, pull, cut |
+| KJJ | NAGE → KAESHI-SEN-1H (as J2s) → RIN-1H | IN → OUT (stays out: the timer is frozen during the string) | throw, then one-handed cuts |
 
-| Route (start OUT, after a whiffed throw) | Links | Sickle |
-|---|---|---|
-| KKK | HIKI-1, MAKI, HODOKI | OUT → IN → OUT → IN |
-| KJJ | HIKI-1, J2s, RIN | → IN |
-| JKK / JJK / JJJ | one-handed J1 (J2), then the K by state (HIKI as K2s, HODOKI as K3) | the J links at ×0.8 |
+So K3 is a per-route move: KARI-OTOSHI after KAESHI-SEN or HIKI, HODOKI after MAKI (explicit `:strings` rows instead of
+`:grid`'s one K3). The `:f` command move stays NAGE.
 
-A string stopped after a throw (JK, K) leaves the sickle OUT: it returns by the 60 f rule.
+**OUT graph** (neutral while OUT or RETURNING; Q4 A): J1 J2 J3 one-handed (`SEN-1H`, `KAESHI-SEN-1H`, `RIN-1H`: copies
+with ×0.8 damage written in and the empty-hand look flag; JJJ only, a K press during it is eaten); **K = 戻 MODOSHI, the
+retrieve**: S 6 / A 0 / R 6, no hit window, the sickle IN at f6, not a string link. One kit `:command` hook consulted by
+`kit-command-move` picks the OUT graph's `:q` / `:f` while the sickle is out (default off: the review's #6); MODOSHI is
+never the `:f` command move of the IN graph, so the generic opener close-in never sees it.
 
-### 7.3 The JKK problem (K2s after J1, nothing thrown)
-
-The draft's K = "K1 throw, K2 pull back" has nothing to pull after a J1. Options:
+### 7.3 The JKK problem (K2s after J1, nothing thrown): Q8
 
 | | K2s after J1 | K3 after it | For | Against |
 |---|---|---|---|---|
-| **A (recommended)** | MAKI: the chain flung round his body (canon: Ayon tied up ch. 336, Mask's leg ch. 559), the sickle OUT, anchored at him | HODOKI: the pull-through ender | one rule (K throws if in hand, pulls if out) covers every route and every start state; every K string carries the out-of-hand risk; JKK ends on the canon hit from behind | K3 has two moves by state (the grammar's "one move per (link, button)" becomes "per (link, button, sickle)"); a pick hook (§12.4) |
-| B | a chain lash with the sickle kept in hand (3.2 m, no OUT) | KARI-OTOSHI as in JJK | no state at link 2; one K3 | the K button means "throw" in one route and "lash" in another; JKK has no out-of-hand price; the OUT start state still needs A's pick for K1 |
-
-Rejected outright: refusing K after J1 (the general rules give all six routes, §5).
+| **A (the body)** | MAKI: the chain flung round his body (canon: Ayon tied up ch. 336, Mask's leg ch. 559), the sickle OUT, anchored at him | HODOKI: the pull-through ender | every K string throws and pulls (one idea: "K = the chain"); JKK ends on the canon hit from behind | K3 differs by route |
+| B | a chain lash, nothing thrown (3.2 m) | KARI-OTOSHI | no out state in JKK | the K button means "throw" in one route, "lash" in another; JKK carries no out-of-hand risk |
 
 ### 7.4 Every hidden movement and hidden aim
 
 | # | What | Movement | Readable by |
 |---|---|---|---|
-| M1 | J1's lunge | `:slide` 0.3 m (Ichigo's J1 0.6, Rukia 0.32) | the step in the clip |
-| M2 | The opener's close-in (generic, DUEL_STRINGS §15: the attacker slides to 0.7 m on a J1 / K1 hit) | **kept for J1; off for NAGE and HIKI-1** (at 6 m it would be a 5.3 m dash in 6 f, 53 m/s). Instead **every K that hits as an opener or a pull drags the victim to 1.6 m over 10 f** (KUSARI-BIKI's pull, `ichigo-pull-to`'s rule copied into his file) | the chain drawn taut, the victim's slide |
-| M3 | HIKI / HODOKI's drag | the same 1.6 m drag, on hit only | as M2 |
-| M4 | J3 / K3 / HODOKI ender push | J3: out of J1's reach (1.6 + 0.3 + body + 0.05 ≈ 2.35 m). K3 / HODOKI: **open question Q2** (the generic rule measures K1 = NAGE: 6.0 + 0.4 + 0.05 ≈ 6.45 m) | the push slide (generic) |
-| M5 | The O ender / Kikon follow-up dash | generic; drawn as **a zip along the hooked chain** (look only) | the chain |
-| M6 | Breaker dash | generic (12–45 f at 10 m/s, strike at 1.6 m) | the pink aura |
-| M7 | Bankai leash | the opponent never farther than 6 m from him (§9.2) | the noose chain |
-| A1 | NAGE's turn in startup | `:track` **30 °/s** (Flash is 60): 9° over 18 f = 0.95 m at 6 m, so a side Step (2.5 m) always clears the line | the arm's wind-up |
-| A2 | HIKI-1 / HIKI / HODOKI / SP1-from-OUT | **no aim**: the line runs from the anchor to his hand at S (he aims it by where he stands; the anchor is drawn) | the chain on the ground |
-| A3 | SP1 / Bankai K1 lines | `:track` 30 °/s | the wind-up |
-| A4 | O lane (KARI / KŌSHU) | aims 120 °/s during the 6 f aura, then locked (ENJO's rule) | the aura |
-| A5 | Bankai SP2 KŌJŌ | **no range check inside the leash** (the noose already links them): a 20 f tell, guardable from every side, Step / Hoho iframes dodge it (§9.4) | the raised blade |
+| M1 | J1's lunge | `:slide` 0.3 m (Ichigo's J1 0.6, Rukia's 0.6) | the step in the clip |
+| M2 | The opener close-in (generic, DUEL_STRINGS §15: the attacker to 0.7 m over 6 f on a J1 / K1 hit) | kept for J1. **Off for NAGE and TSUISA** (move flag `:no-close`): at 6 m it would be a 5.3 m dash in 6 f. Instead a NAGE / TSUISA hit **drags the victim to 1.6 m over 10 f** (`ichigo-pull-to`'s rule, copied into his file), keeping the close-in's purpose (the links reach) with the chain's logic | the chain taut, the victim's slide |
+| M3 | HIKI's drag | the same 1.6 m drag, on hit only | as M2 |
+| M4 | Ender push (J3 / K3 / HODOKI; Bankai J3 / K3) | J3: out of J1's reach (1.4 + 0.3 + body + 0.05 ≈ 2.15 m). K enders: out of the K1's blade part, `:push-reach` 2.0 per kit → ≈ 2.45 m (Q6 A) | the push slide |
+| M5 | The O ender / Kikon follow-up dash | generic: the rusher dashes in; drawn as a zip along the hooked chain (look only) | the chain |
+| M6 | Breaker dash | generic | the pink aura |
+| M7 | The Bankai leash | **whoever's own motion would stretch the chain past 6 m stops at 6 m** (§9.2 O5): no tow | the noose chain |
+| A1 | NAGE's turn in startup | `:track` **30 °/s** (Flash is 60): 9° over 18 f = 0.95 m at 6 m; a side Step (2.5 m) clears it | the wind-up |
+| A2 | HIKI / HODOKI | no aim: the window is the segment anchor → hand at that frame (shared hook `:seg-fn`, §12.4) | the chain on the ground |
+| A3 | SP1 / TSUISA lines | `:track` 30 °/s | the wind-up |
+| A4 | The chained K links' generic turn (fighter.lisp: `*chase-track*` 360 °/s in a chained link's startup) | MAKI (3.2 m line), KARI-OTOSHI, NAGISA, SHIBORI (3.4 m line): generic, listed, unchanged | — |
+| A5 | O lanes (KARI / KŌSHU) | 120 °/s during the 6 f aura, then locked (ENJO's rule) | the aura |
+| A6 | Bankai SP2 KŌJŌ | no aim within 2.5–6 m (the noose links them); S 24 tell, the normal 200° guard arc (§9.4) | the raised blade |
 
-No `:track 720` and no turn at release anywhere. The pull's "from behind" is presentation: the guard arc is read from
-Hisagi's position as for every hit, so a front guard blocks a pull (no hidden unblockable).
+No `:track 720` and no turn at release. The pulls' "from behind" is presentation: the guard arc is read from Hisagi's
+position as for every hit, so a front guard blocks a pull.
 
 ## 8. The Shikai 風死 (form `:base`) as a segment table
 
@@ -187,133 +200,148 @@ Hisagi's position as for every hit, so a front guard blocks a pull (no hidden un
 
 | Stat | Value | Matched |
 |---|---|---|
-| Dealt / taken | **×1.15 / ×1.0** (the first pacing knob, `*hs-mult*`, `*hs-taken*`) | between Ichigo 1.0 / 0.8 and Lille 1.3 / 1.0; Senjumaru's 1.6 was the gate's |
+| Dealt / taken | **×1.15 / ×1.0** (the first pacing knob, `*hs-mult*`, `*hs-taken*`) | between Ichigo 1.0 / 0.8 and Lille 1.3 / 1.0 |
 | Walk / run | **3.8 / 9.0 m/s** | Rukia 3.8 / 9.0 |
-| Stun tolerance | 16 | Ichigo (the middle) |
 | Hurt cylinder | r 0.36, h 1.8 (181 cm, lean) | Ichigo r 0.38 / 1.80 m |
 | Kikon worth | 2 (Soul Break 3) | every Shikai |
 
-### 8.2 J / K segments (DUEL_STRINGS §2.1 budget; K2 / K3 written at their effective 80 %, as DUEL_DESIGN §5 lists them)
+### 8.2 J / K segments (DUEL_STRINGS §2.1 budget; K2 / K3 at their effective 80 %, as DUEL_DESIGN §5 lists them)
 
 | Move | Kind | S / A / R | Dmg | Guard | Block | Reach (volume) | Reaction | Push / drag | Sickle | Role | Matched |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| J1 旋 SEN | quick | 8 / 3 / 12 | 30 | 8 | −2 | 1.6 m, arc 160° | flinch | lunge 0.3; close-in (generic) | — | the opener, J beats I | Ichigo J1 7/3/12, 32; Yamamoto 9 |
-| J2 返旋 KAESHI-SEN (+ J2s) | quick | 8 / 3 / 13 | 30 | 8 | −2 | 1.6 m, 160° (the reverse figure-eight) | flinch | — | — | link | Ichigo J2 |
-| J3 輪 RIN | quick, ender | 9 / 3 / 18 | 38 | 12 | −4 | 1.6 m, **360°** (both sickles round him on the short chain: H1's spin) | stagger | ender push ≈ 2.35 m | — | the close finish; O ender | Ichigo J3 8/3/18, 40 (arc 200); Kenpachi K3's 360° |
-| K1 投 NAGE | flash | 18 / 4 / 22 | 62 | 14 | −3 | **6.0 m** line (`:cap 0.3 6.0 1.1 0.3`, `:ranged` beyond 2.0, `:melee-range` 2.0), `:track` 30 | stagger | drags to 1.6 m on hit; no close-in | IN → OUT at S | the mid-range poke | KUSARI-BIKI's 7 m line (S 16); Yamamoto K1 18/4/20, 75 |
-| K1′ 引 HIKI-1 (K while OUT) | flash | 16 / 4 / 20 | 56 | 14 | −3 | the chain line anchor → hand (≤ 6.5 m, r 0.35), `:ranged` beyond 2.0 | stagger | drags to 1.6 m on hit | OUT → IN at S | the retrieve as an attack | K1 budget S 16–20 (Kenpachi 16) |
-| K2 / K2s 巻 MAKI (IN) | flash | 20 / 4 / 24, `:enter` 6 → S_eff 14 | 52 | 14 | −3 | 3.2 m line (`:cap 0.3 3.2 1.1 0.35`) | stagger | — | IN → OUT at S (anchor = him) | wrap, sets the HODOKI ender | Ichigo K2 20/4/24 enter 6, 60 |
-| K2 / K2s 引 HIKI (OUT) | flash | 20 / 4 / 24, enter 6 → 14 | 56 | 14 | −3 | the chain line anchor → hand | stagger | drags to 1.6 m on hit | OUT → IN at S | the pull from behind (ch. 325) | Kenpachi K2 60 |
-| K3 刈落 KARI-OTOSHI (IN) | flash, ender | 22 / 5 / 34, enter 8 → 14 | 80 | 18 | −20 | 2.8 m, arc 120° | crumple | ender push (Q2) | — | the heavy finish | Kenpachi K3 20/5/34, 80; Yamamoto 88 |
-| K3 解 HODOKI (OUT) | flash, ender | 22 / 5 / 34, enter 8 → 14 | 78 | 18 | −20 | the chain line anchor → hand | crumple | ender push (Q2) | OUT → IN at S | the pull-through finish | as KARI-OTOSHI −2 (no guaranteed line) |
+| J1 旋 SEN | quick | 8 / 3 / 12 | 30 | 8 | −2 | 1.4 m, arc 110° | flinch | lunge 0.3; close-in (generic) | — | the opener, J beats I | Ichigo J1 7/3/12, 32; Yamamoto 9 |
+| J2 返旋 KAESHI-SEN (+ J2s) | quick | 8 / 3 / 13 | 30 | 8 | −2 | 1.4 m, 110° | flinch | — | — | link | Ichigo J2 |
+| J3 輪 RIN | quick, ender | 9 / 3 / 18 | 38 | 12 | −4 | 1.4 m, 200° (drawn as the full spin) | stagger | ender push ≈ 2.15 m | — | the close finish; O ender | Ichigo J3 8/3/18, 40, arc 200 |
+| SEN-1H / KAESHI-SEN-1H / RIN-1H | as above | as above | 24 / 24 / 30 | as above | as above | as above | as above | as above | OUT | KJJ's J, the OUT graph | ×0.8 written in |
+| K1 投 NAGE | flash | 18 / 4 / 22 | 62 | 14 | −3 | **6.0 m** line (`:cap 0.3 6.0 1.1 0.3`, `:ranged` beyond 2.0, `:melee-range` 2.0), `:track` 30, `:no-close` | stagger | drags to 1.6 m on hit | IN → OUT at S | the mid-range poke | KUSARI-BIKI's 7 m line (S 16); Yamamoto K1 18/4/20, 75 |
+| K2 引 HIKI (after NAGE) | flash | 20 / 4 / 24, `:enter` 6 → S_eff 14 | 56 | 14 | −3 | the segment anchor → hand, r 0.35 (`:seg-fn`), `:ranged` beyond 2.0 | stagger | drags to 1.6 m on hit | OUT → IN at S | the pull from behind (ch. 325) | Ichigo K2 20/4/24 enter 6, 60 |
+| K2s 巻 MAKI (after J1) | flash | 20 / 4 / 24, enter 6 → 14 | 52 | 14 | −3 | 3.2 m line (`:cap 0.3 3.2 1.1 0.35`) | stagger | — | IN → OUT at S | wrap, sets HODOKI | Kenpachi K2 60 |
+| K3 刈落 KARI-OTOSHI (after KAESHI-SEN / HIKI) | flash, ender | 22 / 5 / 34, enter 8 → 14 | 80 | 18 | −20 | 2.8 m, arc 120° | crumple | ender push (Q6) | — | the heavy finish | Kenpachi K3 20/5/34, 80; Yamamoto 88 |
+| K3 解 HODOKI (after MAKI) | flash, ender | 22 / 5 / 34, enter 8 → 14 | 78 | 18 | −20 | the segment anchor → hand | crumple | ender push (Q6) | OUT → IN at S | the pull-through finish | KARI-OTOSHI −2 |
+| K (OUT) 戻 MODOSHI | — | 6 / 0 / 6 | — | — | — | none | — | — | OUT → IN at f6 | the retrieve | — |
 
 - **Routes on hit** (×1.15, before combo scaling past hit 3): JJJ 98 → 113; JJK 140 → 161; JKK 160 → 184; KKK 198 → 228;
-  KKJ 156 → 179; KJJ 130 → 150 (one-handed J at ×0.8: 134). Kenpachi base: 112 / 150 / 175 / 210 / 172 / 147;
-  Ichigo Shikai 104 / 148 / 176 / 212 / 168 / 140. His K routes run ~8 % over Kenpachi's, paid for by the out window.
-- **Combo arithmetic** (host-tested, hitstop included): J1 (A 3, flinch 18) → MAKI S_eff 14: 17 ≤ 17, the roster's binding
-  case. NAGE (A 4, stagger 26) → HIKI 14 ✓ / → J2s 8 ✓, the 10 f drag ends at f28, before J2s's hit at f30. RIN / both K3 →
-  the O lane (S 20 < stagger 26 / crumple 40). S(K1) − S(J1) = 10 ≥ 7; HIKI-1 8 ≥ 7. Every K ≥ J + 0.5 m (NAGE 6.0, MAKI 3.2,
-  KARI-OTOSHI 2.8 ≥ 2.1); the pulls' dynamic lines are exempt (as the chase markers are) and get a cast check instead of FK.
-- **KŌSEI**: only within 2.0 m (the blade part); a far throw or pull pays none (the price of range, as every `:ranged` hit).
+  KKJ 156 → 179; KJJ (one-handed) 116 → 134. Kenpachi base: 112 / 150 / 175 / 210 / 172 / 147; Ichigo Shikai 104 / 148 /
+  176 / 212 / 168 / 140. His K routes run ~8 % over Kenpachi's; the out window and the windmill's cooldown pay for it.
+- **Combo arithmetic** (host-tested, hitstop included): J1 (A 3, flinch 18) → MAKI S_eff 14: 17 ≤ 17, the roster's
+  binding case. NAGE (A 4, stagger 26) → HIKI 14 ✓ / → KAESHI-SEN-1H 8 ✓: the 10 f drag ends at f28, before its hit at f30.
+  RIN / both K3 → the O lane (S 20 < stagger 26 / crumple 40). S(K1) − S(J1) = 10 ≥ 7. K ≥ J + 0.5 m (NAGE 6.0, MAKI 3.2,
+  KARI-OTOSHI 2.8 ≥ 1.9); the segment windows are exempt (as the chase markers are) and get a cast check instead of FK.
+- **KŌSEI**: only within 2.0 m (the blade part); a far throw or pull pays none.
 
 ### 8.3 The other buttons
 
 | Button (tap / hold) | Move | Frames | Dmg | Block | Volume | Rules | Matched |
 |---|---|---|---|---|---|---|---|
-| L hold | 風車 **KAZAGURUMA**, the windmill | up at f6; held 20–60 f; release R 14 | fan 12 every 15 f | — | r 2.2 m, 360° (the fan's hit) | **refused while OUT**. Up: every hazard and every `:ranged` window (waves, fireballs, rings, Lille's lines, KUSARI-BIKI's far part) is **blocked from every side**, no blockstun, ×0.5 of its guard value drained; a melee hit lands normally. Rooted. Free (no Reiatsu) | Kenpachi's stance hold ≤ 60 f; West's ward (360°, no blockstun) limited to ranged hits; RoS's projectile-proof slide |
-| Shift+K, SP1 | 破道の十一 綴雷電 **TSUZURI RAIDEN** | IN: 20 / 3 / 24 (throws a line); OUT: **10** / 3 / 24 (down the chain already out) | 110 | −14 | IN: 6.5 m line, `:track` 30; OUT: anchor → hand | 1 bar. On hit a 40 f paralysis (`:bind`, as KUSARI-BIKI); ends with the sickle IN. An SP: cancels a J / K link on hit | KUSARI-BIKI S 16, 40 dmg, bind 40; Shiranui 90+ |
-| Shift+L, SP2 | 縛 **SHIBARI**, the whole-body bind (vs Ayon, ch. 336) | 16 / 3 / 26; the slam at hit + 30 f | 60 + 90 (slam, knockdown) | −14 | 4.5 m line | 1 bar; **refused while OUT**; the combo ender (knockdown) | Kenpachi Buttagiru 180; Ichigo SŌGA 130 |
-| I hold | Breaker, drawn as 首掛け **KUBIKAKE** | the universal Breaker (§4: trigger 1.6, reach 1.35, 150, Guard Break) | 150 | GB | 1.35 m | look only: the chain round the neck at the strike, the yank and the slam (ch. 337 / 384); allowed while OUT | every Breaker |
-| O hold | Kikon module 刈 **KARI** | aura 6 (aim 120 °/s), **no dash**, strike 20 / 2 / 30 locked, `:ender-dash` 0 | 70 | −14 | lane `:cap 0.5 → 7.0 h 1.2 r 1.0` | the sickle hooks him along the lane; the follow-up's dash is drawn as the zip along the chain (`:follow-speed` 14); cooldown 90; Kikon 2. As the O ender it reaches from where he stands (pushes ≤ 6.45 m) | ENJO / HAKKA / UKIMON NO HATA (lanes 7.5–9 m, S 20) |
-| Step / Hoho | generic | Step 2.5 m, J-cancel from f12; Hoho 30 FS | — | — | — | while OUT the anchor stays; > 6.5 m from it the sickle returns at once | — |
+| L hold | 風車 **KAZAGURUMA**, the windmill | up at f6; held 20–60 f; release R 14; **cooldown 90 f from the press** | **one push hit** a hold: 20, no hitstun (`:kb` 1.5 m), KŌSEI once | — | r 2.0 m, 360° (the push) | refused while OUT. Up: hazards and `:ranged` windows are **guarded from every side** (shared flag `:ranged-ward`): blocked with their full guard value drained and the usual chip, no blockstun; **unguardables go through**; a melee hit lands normally; **at 0 guard gauge: GUARD CRUSH and the windmill drops**. Rooted. Free (no Reiatsu) | West's ward (360°, no blockstun) limited to ranged hits; Kenpachi's stance hold ≤ 60 f; L cooldowns exist (`:cooldown`) |
+| Shift+K, SP1 | 破道の十一 綴雷電 **TSUZURI RAIDEN** | 20 / 3 / 24 in every state (Q4 A) | 110 | −14 | 6.5 m line, `:track` 30 | 1 bar; throws its own line (any state) and brings the sickle IN; on hit a 40 f paralysis (`:bind`, as KUSARI-BIKI); cancels a J / K link on hit | KUSARI-BIKI S 16, bind 40 |
+| Shift+L, SP2 | 縛 **SHIBARI**, the whole-body bind (vs Ayon, ch. 336) | one move, two windows: the bind f16–19 (`:bind`, stun 46), the slam f46–49 (90, knockdown) on the same line; R 26 after the slam | 60 + 90 | −14 (the bind) | 4.5 m line | 1 bar; refused while OUT; if Hisagi is hit before f46 the move ends (no slam; the bind runs out); a BLUE needs the combo's 2nd hit as always; a reset or a cinematic ends it | Kenpachi Buttagiru 180; Ichigo SŌGA 130 |
+| I hold | Breaker, drawn as 首掛け **KUBIKAKE** | the universal Breaker (§4) | 150 | GB | 1.35 m | look only: the chain round the neck at the strike, the yank, the slam (ch. 337 / 384); allowed while OUT | every Breaker (防 > J > I > 防) |
+| O hold | Kikon module 刈 **KARI** | aura 6 (aim 120 °/s), **no dash**, strike 20 / 2 / 30 locked, `:ender-dash` 0 | 70 | −14 | lane `:cap 0.5 → 7.0 h 1.2 r 1.0` | the sickle hooks him along the lane; the follow-up's generic dash is drawn as a zip along the chain (`:follow-speed` 14); cooldown 90; Kikon 2; allowed while OUT | ENJO / HAKKA / UKIMON NO HATA (lanes 7.5–9 m, S 20) |
+| Step / Hoho | generic | Step 2.5 m, J-cancel from f12; Hoho 30 FS | — | — | — | while OUT the anchor stays; > 6.5 m from it (out of a move) the sickle returns | — |
 | P | awaken → the Bankai (§9) | generic | | | | | |
 
-**Touch / one hand**: the same chips; the K chip's icon shows throw / pull by the sickle state; L is held (the windmill),
-everything else tapped as for the roster.
+**Touch / one hand**: K is the pad's high-zone tap and SP1 chip 3, as for everyone (there is no K chip); the sickle's
+state shows as a small HUD icon by his Reiatsu bars (in hand / out / returning). L is held. While the orb is up the
+AWAKEN chip (held 300 ms) stays shown, labelled DROP.
 
 ## 9. The Bankai 風死絞縄 FUSHI NO KŌJŌ (form `:bankai`)
 
 ### 9.1 Entry and exit
 
 - **Entry (decided)**: the generic awakening: the gauge full, P, from any state an awakening allows; it breaks the
-  opponent's attack (`repel!`), heals **20 % of max Reishi** (260, DUEL_DESIGN "Awakening heal"), starts the awakening's
-  WHITE-like regen (333 f), plays the cinematic (§11.5), then **the orb hangs**. One orb a match (decided).
-- **The lead's addition: P is refused below one Reiatsu bar (100)** (an orb at 0 would end on its first frame; Q8).
-- **Exit**: P again (from idle / walk / guard / run: a voluntary drop), or his Reiatsu reaching 0 by any path (decided).
-  **Then he is back in the Shikai** (Q4; canon: he deactivates it), the awakening spent. Running dry also costs a
-  **30 f exhausted reel** (canon: both collapse); a voluntary drop doesn't (so dropping early is a real choice).
+  opponent's attack (`repel!`), heals **20 % of max Reishi** (260), starts the awakening's WHITE-like regen (333 f), plays
+  the cinematic (§11.5), then **the orb hangs**. One orb a match (decided).
+- **P is refused while the cover (§9.2) would be under one bar** (Q1 A): the cue, the press eaten. Its cost, said
+  plainly: while either Reiatsu bar is under 100 he also loses the awakening as a combo breaker. A kit `:awaken-ok` hook
+  (default off) carries the rule for the player and the CPU alike.
+- **Exit**: P again (a 24 f drop move, the blade lowered; from idle / walk / guard / run, not from blockstun; no
+  iframes), or his cover running out by any path (decided: "ends when his Reiatsu runs dry"). **Then he is back in the
+  Shikai** (Q7 A; canon: he deactivates it), the awakening spent, the sickle IN. The form switch waits for his first free
+  frame; the orb's rules stop at once.
+- **Running dry (Q7 A): both reel 30 f** (canon: both collapse), so neither gets a free combo; a voluntary drop reels
+  nobody.
 
-### 9.2 The orb's rules (decided §4, restated exactly)
+### 9.2 The orb's rules (decided §4, restated; Q1 A's cover added)
 
-| # | Rule | Implementation note |
+| # | Rule | Implementation |
 |---|---|---|
-| O1 | Inside the orb **damage either fighter takes does not lower Reishi; it is paid from that fighter's own Reiatsu at 1 Reiatsu per 2 damage** | one point: `deal-damage` (every hit, chip, hazard, DRINK's half goes through it), via a generic hook (§12.4). A hit larger than the Reiatsu left: the Reiatsu pays what it can, **the rest lowers Reishi** (100 damage at 30 Reiatsu: 60 absorbed, 40 to Reishi) |
-| O2 | **Reiatsu is frozen** inside: +3 /s and the per-damage gains paused | the lead extends it to **every Reiatsu gain**: KŌSEI's Reiatsu, BLUE's bar, WHITE's +15 /s, the awakening regen's Reiatsu, the Kikon / Soul Break refund, Kenpachi's reset bonus. One rule: **inside the orb Reiatsu only goes down** (the exchange and SP costs). Flash-step and the awakening gauge gain as usual (from the nominal damage) |
-| O3 | A fighter with **0 Reiatsu takes damage normally** and can be K.O.'d | |
-| O4 | **A Kikon or a Soul Break cannot take Konpaku from a fighter who still has Reiatsu** | a Soul Break can't arise (Reishi doesn't fall while Reiatsu remains; a split hit (O1) empties the Reiatsu first). A Kikon: **Q5** (the lead: it empties his Reiatsu instead, no Konpaku, no cinematic, no reset) |
-| O5 | **Chain 6 m**: leaving it pulls the opponent back | his `:tick` hook: each step, if the distance > 6.0 m the opponent is moved back onto the 6 m circle round Hisagi (a hard clamp: walking away does nothing, a Step stops at 6 m, and if Hisagi walks away he tows him). A reset's 8 m placement is taken to 6 m over 10 f |
-| O6 | **The noose**: his link-3 and SP hits stagger both | **Q6**; the lead: a shared 20 f freeze at the hit (both in the noose pose, both chains snap taut): the frame advantage unchanged, the clock + 0.33 s a hit |
-| O7 | He can drop it any time; it ends when his Reiatsu runs dry | §9.1 |
+| O0 | **The cover** (Q1 A): at the orb's start each fighter's cover = the smaller of the two Reiatsu bars then (canon: "the pair's combined Reiatsu"). It is a counter beside the bar: every exchanged point and every SP cost inside the orb lowers both the bar and the cover; the cover never exceeds the bar | per side (§7.1); with GAUGES INFINITE (PRACTICE) the bar refills but the cover still runs down, so the orb ends there too |
+| O1 | Inside the orb **damage either fighter takes does not lower Reishi; it is paid from his own Reiatsu at 1 Reiatsu per 2 damage** (decided), while his cover lasts | `orb-exchange` (pure): covered = min(d, floor(2 × cover)); Reiatsu and cover −= covered / 2 (halves are exact in f32); the spill d − covered lowers Reishi. Host-tested on odd d. Every wound from the other fighter: `deal-damage` (hits, chip, hazards, DRINK's half) **plus West's scorch and Senjumaru's 眼 mirror**, which lower Reishi directly today and are routed through the exchange |
+| O2 | **Reiatsu is frozen** inside (decided: +3 /s and the per-damage gains paused) | the lead's reading of "frozen": **every** Reiatsu gain stops for both while the orb is up (Reiatsu only goes down: the exchange and SP costs). Every gain path goes through one `reiatsu-gain!` with the check: the gauge regen, `pay-gauges` (hit gains, KŌSEI, Lille's stance J gains), BLUE's bar, `white-regen!` (WHITE and the awakening regen), the Kikon / Soul Break refund in `settle-souls`, `reset-round`'s `:reset-reiatsu`, 星's `gauge-move` into Senjumaru's bar. Host test: each path, one by one, inside an orb. Flash-step and the awakening gauge gain as usual |
+| O3 | A fighter whose **cover is 0 takes damage normally** and can be K.O.'d (decided, "Reiatsu empty" read as "cover empty" under Q1 A) | |
+| O4 | **A Kikon or a Soul Break cannot take Konpaku from a covered fighter** (decided) | a Soul Break can't arise (Reishi doesn't fall while covered; a split hit empties the cover first). A Kikon (Q2 A): `*kikons*` is filtered at the start of `settle-souls`: a covered victim's entry is removed, so no burst-end, no refund, no cinematic, no reset; instead his cover and its Reiatsu go to 0 and the follow-up lands as a plain 70 with a knockdown (real damage: his cover is 0 by then). On Hisagi this ends the orb (and the 30 f reel is both fighters', §9.1) |
+| O5 | **Chain 6 m**: leaving it pulls back (decided) | his `:tick`: whoever's own motion (walk, run, Step, a Hoho's destination, a knockback or push) would take the pair past 6.0 m **stops at 6.0 m**; Hisagi can't drag anyone (no tow); a rooted fighter is never moved. A reset inside the orb places them 6 m apart (not 8) |
+| O6 | **The noose**: his link-3 and SP hits stagger both (decided) | the lead's reading: **20 f of extra global hitstop** on those hits (both frozen in the noose pose, both chains snap taut): the frame advantage unchanged, the clock +0.33 s a hit. Presses during it are read and applied after it (host test: a BLUE pressed in the freeze) |
+| O7 | He can drop it any time; it ends when his cover runs out (decided) | §9.1 |
 
-### 9.3 Interactions to settle (the lead's answers)
+### 9.3 Interactions (the lead's answers)
 
 | Case | Answer |
 |---|---|
-| Chip (fire 12 %, the pierce, NOMIHOSE's blade) | through `deal-damage`, so paid in Reiatsu (chip still never kills) |
-| Soul Break at 0 Reishi with Reiatsu left | can't happen (O1 / O4); with 0 Reiatsu as usual |
-| Hazards (waves, fire walls, pillars, clones, spikes, `:flat` traces) | the opponent's: exchanged like any damage. **Self-costs are not wounds**: Hellfire's burn, Ennetsu's 30, Kenpachi's arm self-damage, Rukia's CRACK 60 stay on Reishi as today |
-| Burst Reverse cost | flash-step (70), untouched. BLUE's Reiatsu bar: frozen (O2) |
-| Kikon rush outcomes | the rush, the guard / dodge / Burst escapes as §2; a strike that hits is 70 damage (exchanged); the follow-up's Kikon on a fighter with Reiatsu: Q5 |
+| Chip (fire 12 %, the pierce, NOMIHOSE's blade) | through `deal-damage`, so exchanged (chip still never kills) |
+| Soul Break at 0 Reishi with cover left | can't happen (O1 / O4); uncovered, as usual |
+| Hazards (waves, fire walls, pillars, clones, spikes, `:flat` traces) | the opponent's: exchanged. **Self-costs are not wounds**: Hellfire's burn, Ennetsu's 30, Kenpachi's arm self-damage, Rukia's CRACK 60 stay on Reishi as today |
+| Burst Reverse cost | flash-step, untouched. BLUE's Reiatsu bar: frozen (O2) |
+| Kikon rush | as §2 up to the follow-up's Kikon; a covered victim: O4 |
 | KŌSEI | flash-step part pays, Reiatsu part frozen |
-| Time-up | unchanged (Konpaku, then Reishi %). Risk: an orb protects a Reishi lead to the bell; watch the time-outs at the gate before adding a Reiatsu tiebreak |
-| Reishi when the orb ends | stays where it is: the healed wounds stay healed (canon heals for real, the reason option B was rejected) |
-| The opponent's awakening inside the orb | allowed: its 20 % heal and Kenpachi's refill (Reishi) apply, its regen's Reiatsu is frozen; it doesn't end the orb |
-| The mirror | one orb on the field: the second Hisagi's P is refused while an orb is up (the cue), allowed after |
-| Senjumaru's 星 (drains Reiatsu 30 /s in its dome) | **the orb stops it** (canon: the orb stagnates the Reishi's flow; and O2's "only the exchange and SPs lower Reiatsu"); its flash-step drain stays |
-| SPs inside the orb | allowed for both, paid from the same Reiatsu that protects them (his SP2 costs 2 bars = 400 damage of cover) |
-| A reset inside the orb (a Kikon / Soul Break on a 0-Reiatsu fighter) | the orb survives; the leash takes the 8 m placement to 6 m |
+| "Red" (Reishi < 30 %) | frozen in practice: a covered fighter's Reishi doesn't fall, so a fighter who wasn't red at the orb's start can't become red and his Kikon follow-up stays guardable (rules unchanged; a clock risk, §12.2) |
+| Time-up | unchanged (Konpaku, then Reishi %). Risk: an orb guards a Reishi lead to the bell; counted at the gate before any tiebreak change |
+| Reishi when the orb ends | stays where it is: the healed wounds stay healed (canon heals for real, the reason option B of H3b was rejected) |
+| The opponent's awakening inside the orb | allowed: its 20 % heal and Kenpachi's refill (Reishi) apply; its regen's Reiatsu is frozen; it doesn't end the orb |
+| The mirror | one orb on the field: the second Hisagi's P is refused while an orb is up, allowed after |
+| Senjumaru's 星 (drains Reiatsu 30 /s into her bar) | the orb stops it (O2: her gain is frozen, and the drain is a flow the orb stagnates); its flash-step drain stays. A change in `senjumaru.lisp` (§12.4) |
+| SPs inside the orb | allowed for both, paid from the same Reiatsu that covers them |
+| A reset inside the orb (a Kikon / Soul Break on an uncovered fighter) | the orb survives; placed 6 m apart |
 | ENDLESS | the orb never carries into the next stage (`:endless-form :base`) |
-| His own Kikon on a 0-Reiatsu opponent | a normal Kikon (3 Konpaku in the Bankai) |
+| The generic CPU's Reishi reads (the Soul Break finish, burst-wanted, the Hoho spare) | read a covered fighter's Reishi as untouchable: one `orb-covered-p` predicate (§10) |
 
-**The clock (the lead's estimate).** The orb absorbs at most 600 (his 300 Reiatsu) + 2 × the opponent's Reiatsu (≤ 600).
-The roster deals ~30 damage /s a side (≈ 4500 a match over 150 s), so an orb adds about **10–25 s** to a match in which it
-is raised; inside the 125–210 s window but it will push the slow pairings (HR, HS, HH) up. The leash also shortens chases
-(nobody can run 12 m away), which may give some back.
+**The clock (the lead's estimate, revised after the review's #8).** The orb absorbs at most 2 × the cover on each side
+(≤ 600 + 600 when both bars are full; under Q1 A usually less). At ~30 damage /s a side that is 10–20 s of hitting; on
+top come the frozen red and the absorbed Kikons (the main Konpaku path), the noose freezes (+0.33 s each), the
+post-orb Reiatsu drought (both near 0, 33 s a bar: fewer SPs) and the awakening's ~650 Reishi of heal landing while
+Reishi can't fall. So **+15–40 s** where an orb is raised: the slow pairings (HR, HS, HH) may leave the window. Counted
+per match (§10) and reported; the prepared order of fixes if it does is in Q2.
 
-### 9.4 The Bankai's strings (the canon art: single black crescent blades in hand, the chains from the orb)
+### 9.4 The Bankai's strings (canon: single black crescent blades in hand, the chains from the orb)
 
-No out-of-hand state in the Bankai: the scythes stay in his hands (canon: "the scythes come back to his hands"); the K
-chains are the orb's, dropping on the line he points at.
+No out state in the Bankai (canon: the scythes come back to his hands); the K chains are the orb's.
 
 | Move | Kind | S / A / R | Dmg | Guard | Block | Reach | Reaction | Notes |
 |---|---|---|---|---|---|---|---|---|
-| J1 弦 GEN | quick | 8 / 3 / 12 | 34 | 8 | −2 | 1.6 m, 120° | flinch | the crescent's cut, lunge 0.3 |
-| J2 返弦 KAESHI-GEN (+ J2s) | quick | 8 / 3 / 13 | 34 | 8 | −2 | 1.6 m, 120° | flinch | |
-| J3 双弦 SŌGEN | quick, ender | 9 / 3 / 18 | 42 | 12 | −4 | 1.6 m, 200° | stagger | both crescents crossed; **noose** |
-| K1 墜鎖 TSUISA | flash | 18 / 4 / 22 | 64 | 14 | −3 | 6.0 m line from the orb (`:ranged` beyond 2.0), `:track` 30 | stagger | a chain spears down along the line; no drag (the leash keeps him ≤ 6 m) |
+| J1 弦 GEN | quick | 8 / 3 / 12 | 34 | 8 | −2 | 1.4 m, 110° | flinch | the crescent's cut, lunge 0.3 |
+| J2 返弦 KAESHI-GEN (+ J2s) | quick | 8 / 3 / 13 | 34 | 8 | −2 | 1.4 m, 110° | flinch | |
+| J3 双弦 SŌGEN | quick, ender | 9 / 3 / 18 | 42 | 12 | −4 | 1.4 m, 200° | stagger | both crescents crossed; **noose** |
+| K1 墜鎖 TSUISA | flash | 18 / 4 / 22 | 64 | 14 | −3 | 6.0 m line from the orb (`:ranged` beyond 2.0), `:track` 30, `:no-close` | stagger | a chain spears down the line; **drags the victim to 1.6 m on hit** (the chain yanks him in), so the links reach |
 | K2 / K2s 薙鎖 NAGISA | flash | 20 / 4 / 24, enter 6 → 14 | 56 | 14 | −3 | arc 3.6 m, 160° (`:ranged` beyond 2.0) | stagger | a chain sweeps the ground |
-| K3 絞 SHIBORI | flash, ender | 22 / 5 / 34, enter 8 → 14 | 82 | 18 | −20 | 3.4 m line | crumple | the chains wrap and cinch, lift, drop; **noose** |
+| K3 絞 SHIBORI | flash, ender | 22 / 5 / 34, enter 8 → 14 | 82 | 18 | −20 | 3.4 m line | crumple | the chains wrap and cinch, lift, drop; push by `:push-reach` 2.0 (Q6 A: ≈ 2.45 m, inside the leash); **noose** |
 | L 風車 | sig | as the Shikai's | | | | | | the orb's chains whirl round him |
 | SP1 綴雷電 | sp | 16 / 3 / 24 | 110 | 22 | −14 | 6.0 m line, `:track` 30 | bind 40 | lightning down a chain from the orb; 1 bar; **noose** |
-| SP2 絞縄 KŌJŌ | sp | 20 / 3 / 30 | 140 | 30 | −16 | **anywhere inside the leash** (A5) | crumple | the blade raised (the 20 f tell), the noose cinches both necks; guardable from every side, Step / Hoho dodge it; 2 bars (awakened) = 400 damage of his own cover; **noose** |
-| I | Breaker | the Shikai's, −1 f | 150 | | | 1.35 m | | |
+| SP2 絞縄 KŌJŌ | sp | **24** / 3 / 30 | 140 | 30 | −16 | **2.5–6 m from him, no aim** (the noose taut; refused nearer) | crumple | a deliberate range-free punisher: it catches any recovery ≥ 20 f inside 2.5–6 m; answered by a guard (the normal 200° arc), a Step / Hoho's iframes, or staying within 2.5 m; 2 bars (awakened) = 400 damage of his own cover; **noose** |
+| I | Breaker | the universal Breaker (no per-kit frames) | 150 | | | 1.35 m | | |
 | O | Kikon module 絞首 **KŌSHU** | as KARI (lane 7 m, S 20, no dash) | 70 | | −14 | lane | | chains rain from the orb (Brave Souls' special); Kikon **3** |
-| P | drop the orb | from free states | | | | | | back to the Shikai (Q4) |
+| P | drop the orb | 24 f | | | | | | back to the Shikai (Q7 A) |
 
 Dealt / taken **×1.0 / ×1.0** (the orb is the power); walk 3.4 / run 8.5 (the noose holds him); Kikon 3, Soul Break 4.
-Routes on hit: JJJ 110, KKK 202, JKK 172.
+Routes on hit: JJJ 110, KKK 202, JKK 172. Push for K3 / O ender: inside the 6 m leash.
 
 ## 10. CPU, ASSIST, learning, the opponents' reflexes (design level; `duel-character-cpu`: after the rules freeze)
 
-| Mechanic | His CPU (`:ai`, EASY ≤ NORMAL ≤ HARD, one roll per event) | ASSIST | Learner (appended situations) | Opponents (`:opp-reflex`, read off his kit) | Counter in `duel hisagi` |
+Every chance is rolled **once per event** (named in the table), EASY ≤ NORMAL ≤ HARD; every row has a counter in the
+`duel hisagi` gate line.
+
+| Mechanic | His CPU | ASSIST | Learner (appended situations) | Opponents (`:opp-reflex`) | Counter |
 |---|---|---|---|---|---|
-| NAGE at 3.5–6.2 m | `:moves` weight at 3.5–6.2 m; never a second throw (the kit refuses it anyway) | AUTO COMBO: K K K after a throw hit | — | a side Step on NAGE's startup tell from ≥ 4 m (the threat test must read a 6 m line: reuse the `:x-axis` point-to-line reader by flagging NAGE / HIKI / SP1 lines) | throws, throw hits |
-| The pull timing (OUT) | `hisagi-ai-reflex`: when the opponent's feet are within 0.6 m of the anchor → hand line, roll the pull (p 0.3 / 0.6 / 0.9); else let it come back | AUTO COMBO presses K when the line crosses him | — | — | pulls (pressed / auto), pull hits |
-| The out window (his weakness) | stays at 2.5–5 m while OUT (no walk-in) | — | "his sickle is out" (the human's punish window) | step in / Breaker while OUT, p by difficulty | OUT frames |
-| The windmill | `:react (:projectile :sig)`, `:sig-hold` until the hazard passes | AUTO GUARD holds L against an incoming hazard / ranged window when IN | — | — | windmill holds, blocks |
-| SP1 / SP2 | `:sp-ender`: SP1 off a NAGE hit or from OUT; SP2 off a K string hit (IN) | AUTO COMBO's SP route | — | — | |
-| Awakening | `:awaken`: only with ≥ 150 Reiatsu (**log the distribution first**: the threshold must come from data) | — | — | — | orb seconds, end cause (dry / drop / Kikon) |
-| Inside the orb | keeps fighting; never drops (v1); SPs only while the opponent's Reiatsu > his | — | "inside the orb, own Reiatsu > 0 / = 0" | spend no SP while the orb is up unless it completes a Kikon or ends the orb; go for the Kikon (Q5) | Reiatsu exchanged per side, noose freezes, leash pulls |
+| NAGE at 3.5–6.2 m | `:moves` weight at 3.5–6.2 m; the kit refuses a throw while OUT | AUTO COMBO: K K K after a throw's contact | — | a side Step on NAGE's startup, rolled once per NAGE start, through a **ranged-threat reader** (new, default off: `snap-flags :ranged` + the window's reach; not the `:x-axis` reader, whose flag would also make KESSA's AI skip parries that work within 2.0 m) | throws, throw contacts |
+| The string's pull | K2 after a NAGE contact, rolled once at the contact (`:string-k`-style p) | the same rule | — | the pull's segment is visible to `snap-near-p` / `x-line-gap` through `:seg-fn` | pulls, pull hits |
+| The out window | rolled once per OUT start (keyed by the anchor's write tick): MODOSHI at once (p) or stay at 2.5–5 m until the auto-return | AUTO COMBO presses MODOSHI out of a string | "his sickle is out" (the human's punish window) | step in / Breaker while he is OUT, rolled once per OUT start | OUT frames, MODOSHI, auto-returns |
+| The windmill | `:react` on the ranged-threat reader (waves, fireballs, rings, lines, KUSARI-BIKI, cracks), rolled once per threat; `:sig-hold` until it passes | AUTO GUARD holds L against an incoming ranged threat when IN and off cooldown | none: a guard-like reaction the learner's guard class already covers | none: it only blocks what they fire | holds, blocks, crushes |
+| SP1 / SP2 | `:sp-ender`: SP1 off a NAGE hit, SP2 off a K string hit (IN) | AUTO COMBO's SP route | — | — | |
+| Awakening | `:awaken-ok` kit hook: cover ≥ 100 (Q1 A) and his Reiatsu ≥ X, **X from the logged distribution** of both bars at EVOLUTION (log first). The A/B's "always" mode presses only when `:awaken-ok` allows | — | — | — | orb starts, end cause (dry / drop / Kikon) |
+| Inside the orb | keeps fighting; never drops (v1); SPs only while the opponent's cover > his | — | "inside the orb, own cover > 0 / = 0" | `orb-covered-p` makes the generic Soul Break finish, burst-wanted and Hoho-spare reads treat a covered fighter's Reishi as untouchable; spend no SP while covered unless it completes a Kikon or empties the cover | orb seconds, Kikons absorbed, time from the orb's end to the next Konpaku, Reiatsu exchanged per side |
+| The leash | none: it only stops motion | none | none: the learner's distance classes see its effect | none | stops at 6 m |
+| The noose | none: it lands on his own hits | none | none | none | noose freezes |
+| Learner bookkeeping | — | — | `gauges-dealt` counts only the Reishi part inside the orb (an `absorbed` counter beside it); WHITE's reward reads the Reishi change only | — | |
 
 ## 11. Look and motion
 
@@ -335,7 +363,7 @@ Routes on hit: JJJ 110, KKK 202, JKK 172.
 
 | # | Archetype | Body in one line | Grade | Slots |
 |---|---|---|---|---|
-| 1 | Kusarigama (chain-sickle) | short figure-eight spins close to the body, the weighted throw from the hip, the retrieve hand over hand | A (canon "kusarigama-like", ch. 325) / C for the martial form (not yet researched) | J1–J3, NAGE, HIKI |
+| 1 | Kusarigama (chain-sickle) | short figure-eight cuts close to the body, the weighted throw from the hip, the retrieve hand over hand | A (canon "kusarigama-like", ch. 325) / C for the martial form (not yet researched) | J1–J3, NAGE, HIKI, MODOSHI |
 | 2 | Rope dart / meteor hammer (繩鏢) | the chain wrapped round the elbow, knee or neck to redirect a throw, the body turning inside the chain | D (to research) | MAKI, HODOKI, KAZAGURUMA |
 | 3 | God of War's Blades of Chaos (the named bar) | chained blades whirled overhead, thrown and yanked, every strike a whole-body silhouette | C (well known, to research) | KARI-OTOSHI, SHIBARI, the Kikon |
 | 4 | Canon manner | the overhead whirl before a throw; the low drop-and-pull (ch. 325); the blade across the face ("are you scared?", Ep219); the low sliding slash (Ep219, anime); the half-step back (ch. 384) | A | the stance, the intro, the win, the zanshin |
@@ -346,17 +374,17 @@ The bar: Blades of Chaos for every form; one archetype a string; no two strikes 
 
 | Form | Clips |
 |---|---|
-| Shikai (≈ 24) | stance; J1 J2 J2s J3; NAGE; HIKI-1; MAKI, MAKI-s; HIKI, HIKI-s; KARI-OTOSHI; HODOKI; KAZAGURUMA in / loop / out; SP1 (IN throw, OUT down the chain); SP2 bind + slam; the Breaker strike (KUBIKAKE) + slam; the O strike; intro (the blade across the face, 「刈れ、風死」: RoS's toss-and-transform); win (the half-step back); the one-sickle J look is a flag on the same clips (the empty hand), not new clips |
-| Bankai (≈ 18) | stance (wrapped, the blade raised for every K: the K clips are arm signals, the chains drawn from the orb); J1 J2 J2s J3; K1 K2 K2s K3; L; SP1; SP2 (the blade raised, the choke); O; the drop (P); the dry-out reel (30 f) |
+| Shikai (≈ 23) | stance; J1 J2 J2s J3 (the one-handed copies are the same clips with the empty-hand flag); NAGE; HIKI; MAKI; KARI-OTOSHI; HODOKI; MODOSHI; KAZAGURUMA in / loop / push / out; SP1; SP2 bind + slam; the Breaker strike (KUBIKAKE) + slam; the O strike; intro (the blade across the face, 「刈れ、風死」: RoS's toss-and-transform); win (the half-step back) |
+| Bankai (≈ 18) | stance (wrapped; the blade raised for every K: the K clips are arm signals, the chains drawn from the orb); J1 J2 J2s J3; K1 K2 K2s K3; L; SP1; SP2 (the blade raised, the choke); O; the drop (24 f); the dry-out reel (30 f, both fighters: a shared reel clip on the opponent) |
 | Shared | run set, hits, guard, down (the shared `:sh-*`) |
 
 ### 11.4 The orb's look
 
 A jet-black ball of tangled chain loops (ink polylines, r ≈ 0.9 m) hanging 4.2 m above the pair's midpoint, swaying; two
-chains sag from it to both necks (catenaries, drawn taut at a leash pull or a noose freeze); **inverted shadow**: a pale
+chains sag from it to both necks (catenaries, drawn taut at the 6 m stop or a noose freeze); **inverted shadow**: a pale
 disc under it (canon: its shadows "like beams of light"); a green spark runs up the payer's chain on every exchanged hit;
-the world's grade a little greyer (stagnant Reishi). It must not hide the fight: check the behind camera at 2 / 6 m and
-both aspect ratios.
+each side's cover drawn as a chain overlay on his Reiatsu bars; the world's grade a little greyer (stagnant Reishi). It
+must not hide the fight: check the behind camera at 2 / 6 m and both aspect ratios.
 
 ### 11.5 Storyboards (text first; CINE-PLACE the actors; landscape letterbox 9 %, portrait %PORTRAIT-DOLLY)
 
@@ -385,19 +413,20 @@ both aspect ratios.
 
 **Bankai Kikon 絞首 KŌSHU (Kikon 3 / Soul Break 4, ~180 f)**, beats only: the orb sinks; chains rain on the victim (Brave
 Souls' "countless chains from a sphere"); bound standing; he raises a blade; the noose tightens on **both** necks (both
-choke: the shared pain); the victim drops; Hisagi stays up, shaking. To be tabled after Q4–Q6.
+choke: the shared pain); the victim drops; Hisagi stays up, shaking. Tabled after the answers to Q1, Q2 and Q7.
 
 ## 12. Gate plan, risks, plumbing
 
 ### 12.1 Gates (SOUL DUEL table in AGENTS.md)
 
-1. Host: `duel-rules-test` (his forms in the per-form lists; the budget; the K pick table §7.2 for both states; the orb's
-   exchange as a pure function `orb-exchange reiatsu dmg → reiatsu-left absorbed spill`; the leash clamp; every combo of
-   §8.2 with hitstop; the J / K reach rules; FK ±0.15 m for fixed volumes, a cast check for the chain lines), the other
-   host tests, pkgcheck, the build, a smoke run.
-2. Playtest Artifact first, then: `simgate --summary` on HY HK HR HI HS HB HH (10 seeds first pass, 20 the verdict, 60 on
-   an edge; window 125–210 s, mirror may exceed); the 22 existing pairings must stay byte-identical (every shared hook
-   defaults off).
+1. Host: `duel-rules-test` (his forms in the per-form lists; the budget; both string graphs (§7.2); the anchor cases
+   (§7.1); `orb-exchange` on odd damage; the cover; every Reiatsu gain path frozen one by one (O2); the `*kikons*` filter;
+   the 6 m stop for each motion kind and a rooted victim; a BLUE inside a noose freeze; every combo of §8.2 with hitstop;
+   the J / K reach rules; FK ±0.15 m for fixed volumes, a cast check for the segment windows, `:seg-fn` against
+   `vol-hit-p` on a known case), the other host tests, pkgcheck, the build, a smoke run.
+2. Playtest Artifact first, then: `simgate --summary` on HY HK HR HI HS HB HH (10 seeds first, 20 the verdict, 60 on an
+   edge; window 125–210 s, a mirror may exceed); **the 22 existing pairings byte-identical** (every shared hook defaults
+   off; the `senjumaru.lisp` change only acts inside an orb).
 3. Awaken A/B (`--cmd 39020` / `39002` with him on each side, streams 100 / 300 / 500, ≥ 20 of 60).
 4. `assistgate.py`, `aieval.py --char 7` (after his CPU), G2 `--cvc` unchanged (no YY / YK / KK change), `style-gates looks`
    seeds re-pinned (the roster grows: CPU-vs-CPU draws move).
@@ -406,13 +435,12 @@ choke: the shared pain); the victim drops; Hisagi stays up, shaking. To be table
 
 | Risk | Why | Watch |
 |---|---|---|
-| The orb's clock | +10–25 s where raised (§9.3) | HR / HS / HH medians; time-outs while an orb is up |
-| The 6 m K1 | the longest non-SP poke in the game | his win share vs Rukia / Lille (zoners) and Kenpachi (rushers); the time-at-range probe |
-| Q2's 6.45 m push | every K-ended string resets to mid range (H1's rejected option) | a playtest |
-| The exchange's reach into every Reiatsu path | seven gain paths (O2) + SP costs + 星 | host test each path; a debug probe printing both Reiatsu bars inside an orb |
-| A Kikon that empties Reiatsu (Q5) | may make the orb too short against Kikon-heavy CPUs | orb seconds and end causes in `duel hisagi` |
+| The orb's clock | +15–40 s where raised (§9.3): frozen red, absorbed Kikons, the drought after | HR / HS / HH medians; orb seconds; time from the orb's end to the next Konpaku; time-outs while an orb is up |
+| The awaken A/B | the orb + the ~650 heal: a never-awakening Hisagi may lose too often to his own awakening (Q1 A narrows it) | the A/B rows on 3 streams |
+| The 6 m K1 | the longest non-SP poke in the game | his win share vs Rukia / Lille and Kenpachi; the time-at-range probe |
+| The windmill | a projectile answer at most once per 90 f (the cooldown from the press) | holds and blocks per match; the zoners' pairings (HR, HB) |
+| The exchange's reach into every Reiatsu path | eight gain paths + two direct burns (O1, O2) | the host tests; a debug probe printing both bars and covers inside an orb |
 | The CPU and the learner reading the exchange | `duel-character-cpu`: rules first | the counters; no search before the rules freeze |
-| A form switch mid-move | the orb ending (dry) inside a move switches the form | switch only out of a move (`duel-move-modules` red flag): the end waits for his free state, the orb's rules stop at once |
 
 ### 12.3 Debug range claim (proposal; DUEL_GAMEPLAY untouched until the build)
 
@@ -426,31 +454,84 @@ counter dumps. His pairings: k 28–35 (`gate_cmd`: 2163–2170; HL, k 33, retir
 - `duel/MANIFEST`: `hisagi.lisp`, `hisagi-art.lisp` after `barro*` (the `:base` defkit's load order appends him to
   `*roster*` as index 7; never reorder).
 - `tools/simgate.py` `ROSTER` += `'HISAGI'` (aieval / assistgate read it); `char-pairs` / `roster-pairs` give his 8.
-- Shared hooks, each default off, the other pairings proved byte-identical: (1) the K pick by state (a kit hook `:pick`
-  `(e cmd link) → move`, consulted at a link's frame 0; or two forms IN / OUT, rejected: a form switch inside a string);
-  (2) a move flag `:no-close` (the opener's close-in off: NAGE, HIKI-1); (3) a kit `:push-reach` if Q2 picks B; (4) the
-  exchange hook in `deal-damage`, the Konpaku guard in `settle-konpaku`, the Reiatsu freeze at every gain path (one
-  predicate, like `siphon-of`); (5) a move flag `:ranged-ward` (the windmill); (6) a kit hook `:p` (P in an awakened form:
-  the drop). The leash, the noose freeze, the drags and the anchor live in his own `:tick` / `:hit` hooks.
-- Host tests' per-form lists; `tests/scripts/duel.py` (a `duel-hisagi.json`); the select screen and the HUD (the K chip's
-  icon, the orb's chain over both Reiatsu bars); the learning tables (a new index's table); ENDLESS's roster;
+- **Shared hooks, each default off, the 22 pairings proved byte-identical:**
+  1. a move flag `:no-close` (the opener close-in off: NAGE, TSUISA);
+  2. a window `:seg-fn` (a kit function → the world segment's two ends and radius this frame), tested as a capsule by
+     the hit collector and read by `x-line-gap` / `snap-near-p` (HIKI, HODOKI);
+  3. a kit `:push-reach` (the K ender's push measured from it; Q6 A);
+  4. a kit `:command` hook consulted by `kit-command-move` (the OUT graph's `:q` / `:f`);
+  5. the orb: one `reiatsu-gain!` for every Reiatsu gain, the exchange in `deal-damage` and in the scorch / mirror burns,
+     the `*kikons*` filter at the start of `settle-souls`, the absorbed counter beside `gauges-dealt`, `orb-covered-p` for
+     the generic CPU's Reishi reads;
+  6. a move flag `:ranged-ward` (the windmill: hazards and `:ranged` windows guarded from every side; unguardables
+     through; the crush drops the move);
+  7. a kit `:p` hook (P in an awakened form, from a run too: the drop) and a kit `:awaken-ok` hook (the entry rule, the
+     CPU's and the A/B's too);
+  8. the CPU's ranged-threat reader.
+- His own hooks: the anchor, the timers, the held K, the drags, the 6 m stop, the noose freeze, the cover (`:tick`,
+  `:hit`, `:struck`).
+- A character-file change: `senjumaru.lisp`'s 星 `gauge-move` goes through `reiatsu-gain!` (O2).
+- Host tests' per-form lists; `tests/scripts/duel.py` (a `duel-hisagi.json`); the select screen and the HUD (the sickle
+  icon, the covers over both Reiatsu bars, the DROP chip); the learning tables (a new index's table); ENDLESS's roster;
   `duel/web/manual.html` and the tutorial (zh-TW); `docs/README.md`; AGENTS.md's roster line.
 
-## 13. Open questions for the user (only those that change the design; recommended first)
+## 13. Open questions for the user (only those that change the design; recommended first; ordered by impact)
 
-| # | Question | Options | The lead's pick |
+| # | Question | Options | Recommended |
 |---|---|---|---|
-| Q1 | JKK: what is K2s after J1 (nothing thrown)? (§7.3) | **A** MAKI wraps him (the sickle goes out), HODOKI unwinds him: "K throws if in hand, pulls if out" everywhere / B a chain lash, nothing thrown | A |
-| Q2 | How far does a K ender push? | A the general rule literally: out of NAGE's 6 m (≈ 6.45 m: every K string resets to mid range) / **B** out of NAGE's blade part (`:melee-range` 2.0 + the body + 0.05 ≈ 2.45 m; Kenpachi's K3 pushes 2.3–3.1 m) | B (A replays H1's rejected "fling him back to mid range"; K3 is +1–2 on hit, so a restarted 18 f throw is no true combo) |
-| Q3 | A throw (or pull) that hits as an opener | **A** drags the victim to 1.6 m (the generic close-in, done by the chain) / B no drag: the sickle stays hooked, the links are pulls only, KJJ works only up close | A |
-| Q4 | After the orb ends | **A** back to the Shikai (canon: he deactivates it; the K chains come from the orb) / B stays in the Bankai form without the orb (needs a second K set) | A |
-| Q5 | A Kikon on a fighter who still has Reiatsu inside the orb | **A** it empties his Reiatsu (no Konpaku, no cinematic; on Hisagi it ends the orb) / B it costs one bar (100) / C nothing but its 70 hit | A (the opponent's answer to the orb; keeps the clock) |
-| Q6 | The noose's "stagger both" | **A** a shared 20 f freeze at the hit (both in the noose pose; advantage unchanged) / B a real 16 f stagger on him after his move (his enders become −14 on hit) | A |
-| Q7 | J reach | **A** 1.6 m (the general rules: J light-short-fast, inside the roster's 1.4–1.6 m band) / B the draft's 2.2 m (§5: the lead's draft, longer than every J) | A |
-| Q8 | P with less than one Reiatsu bar | **A** refused (an orb at 0 ends on its first frame) / B allowed (the orb ends at once, the heal kept) | A |
+| Q1 | **Should the orb protect both fighters equally?** Today he can open it right after you spent your Reiatsu: he gets up to 600 damage of protection and you get none | **A** both are protected by the same amount: the smaller of the two Reiatsu bars when the orb opens (canon: "the pair's Reiatsu"); he can't open it with less than one bar of that (and so loses the awakening as a combo breaker while either bar is under one bar) / B as decided: each is protected by his own bar (expect a third awaken A/B exception, after Yamamoto's and Ichigo's) / C as decided, but your Reiatsu keeps refilling slowly (+3 /s) inside | A |
+| Q2 | **A finishing blow (Kikon) on someone the orb still protects** | **A** it takes no Konpaku but empties his protection at once (on Hisagi the orb ends); if matches still run long, the lead reports and proposes, in this order: the Kikon also takes 1 Konpaku, then half the protection (1 Reiatsu per 1 damage) / B it empties the protection **and** takes 1 Konpaku from the start / C it only does its normal 70 damage | A |
+| Q3 | **What may the windmill (L) stop?** (It has a 90 f cooldown, one pushing hit, and drops at an empty guard gauge either way) | **A** every projectile and long-range hit, from every side, exactly as a guard would (Lille's lines included; unguardable things still go through) / B only fireballs and waves (Lille's lines, Rukia's ring and chain pulls still hit him) / C everything, Lille's unblockable-by-parry lines treated better than a guard does | A |
+| Q4 | **After a missed throw**, is the sickle's absence a real weakness? | **A** yes: until it's back he has only one-handed J and a retrieve that doesn't hit (no windmill, no SP2, no new throw); his pull only hits inside a string after a throw that touched / B the pull still hits from wherever the sickle lies (a trap), but slower (S 20), without the drag, and not as a string start | A |
+| Q5 | **Close range (H1: "a little weaker up close")** | **A** his J like the roster's: 1.4 m, a 110° swing, J3 a 200° spin / B the draft's 1.6 m with 160° swings and a 360° J3 (longer and wider than every base-form J: up close he would not be weaker) | A |
+| Q6 | **How far does a K finisher (K3) push?** | **A** just out of his throw's blade part (≈ 2.45 m, like Kenpachi's K3 at 2.3–3.1 m) / B literally out of the throw's 6 m reach (≈ 6.45 m: every K string ends with you back at mid range, close to H1's rejected "fling him back out"; in the Bankai the 6 m chain would cut it short anyway) | A |
+| Q7 | **When the orb ends** | **A** he is back in the Shikai; if it ran dry, both fighters reel 30 f (canon: both collapse); dropping it by hand reels nobody / B back in the Shikai, nobody reels / C he stays in the Bankai form without the orb (needs a second K set: the K chains come from the orb) | A |
+| Q8 | **J then K then K** (nothing has been thrown yet) | **A** the second K wraps the chain round you (the sickle goes out), the third unwinds it and hits from behind / B the second K is a chain lash with the sickle kept in hand, the third the overhead drop | A |
 
-## 14. Open
+**For the record (no choice needed unless the user objects):** O2's "frozen" covers every Reiatsu gain (BLUE's bar,
+WHITE, the refunds, Kenpachi's reset bonus, KŌSEI), not only the decided "+3 /s and the per-damage gains"; the noose's
+"stagger both" is 20 f of shared hitstop; the throw's hit drags the victim to 1.6 m (the generic close-in would dash him
+5.3 m in 6 f); §5's I "KUBIKAKE grab" is the universal Breaker with KUBIKAKE's look (防 > J > I > 防 needs every I alike),
+and §5's O "pulls him in" is the generic follow-up dash drawn as a zip along the chain.
 
-- The user's answers to §13; then the adversarial review of §6–§12 (`duel-character`'s build order 2).
+## 14. Adversarial review (2026-10-16)
+
+The review (scratchpad `hisagi-review.md`, checked against the code): 2 blockers, 12 majors, 15 minors.
+
+| # | Sev. | Finding | Resolution |
+|---|---|---|---|
+| 1 | Blocker | the windmill locks (fan every 15 f > flinch gap), is free, stops unguardables | fixed §8.3: one push hit with no hitstun, cooldown 90 f, unguardables through, 0 gauge = crush + drop, full guard values; the matchup rows made consistent (§6); what it may stop → Q3 |
+| 2 | Blocker | no mechanism for the anchor → hand window; as a hazard it breaks strings | fixed: shared hook 2 `:seg-fn` (a move window, so contact / O / SP cancels / drags work), read by the CPU's line readers (§7.4 A2, §8.2, §12.4) |
+| 3 | Major | out of hand buffs K and SP1 (HIKI-1 faster and longer, SP1 S 10) | Q4 (A in the body: the neutral pull removed, MODOSHI retrieves without a hit, SP1 S 20 in every state) |
+| 4 | Major | the anchor undefined / contradictory | fixed §7.1: one fixed point at first contact (parry, whiff, arena clamp cases), drawn hooked only within 0.5 m |
+| 5 | Major | the 60 f timer races moves; "refused but buffered" impossible | fixed §7.1: the timer counts only outside attack moves; K during the return held by his `:tick`; J / L / SP during the return defined |
+| 6 | Major | a `:pick` hook touches ~50 shared readers | fixed §7.2: two static graphs + one `:command` hook at neutral; the `:pick` hook dropped |
+| 7 | Major | a Konpaku guard in `settle-konpaku` heals to full and resets | fixed §9.2 O4: `*kikons*` filtered at the start of `settle-souls`; Q2 decides the effect |
+| 8 | Major | the clock estimate too low (frozen red, Kikons, drought, heal) | fixed §9.3 (+15–40 s) and the counters (§10); the fallback order in Q2 |
+| 9 | Major | the orb an asymmetric shield; awaken A/B threat | Q1 (A in the body: equal cover, the cover counter O0) |
+| 10 | Major | wounds bypassing `deal-damage`; gain paths outside `pay-gauges` | fixed §9.2 O1 / O2: scorch and mirror exchanged, one `reiatsu-gain!` with every path listed, `senjumaru.lisp` listed (§12.4); the freeze's extension recorded under §13 |
+| 11 | Major | CPU rolls per step; `:react` blind to lines; `:awaken` keys; `:x-axis` side effect; Reishi reads; learner | fixed §10: rolls per named event, a ranged-threat reader, `:awaken-ok`, no `:x-axis` on NAGE, `orb-covered-p`, the absorbed counter |
+| 12 | Major | TSUISA: dead links at 6 m; SHIBORI's push vs the leash | fixed §9.4: TSUISA `:no-close` + the 1.6 m drag; `:push-reach` per kit (Q6) |
+| 13 | Major | J 1.6 m / 160° / 360° contradicts H1 | Q5 (A in the body: 1.4 m, 110°, J3 200°) |
+| 14 | Major | the leash tows (hidden movement of the opponent) | fixed §9.2 O5: whoever's own motion would pass 6 m stops; no tow; rooted fighters never moved; resets at 6 m |
+| 15 | Minor | KŌJŌ range-free with an omni-guard flag | fixed §9.4: S 24, only at 2.5–6 m, the normal guard arc, written as a deliberate punisher with its answers |
+| 16 | Minor | SHIBARI's slam unspecified | fixed §8.3: one move, two windows, bind 46 f, ends if he is hit |
+| 17 | Minor | no K chip; the DROP chip; P from a run | fixed §8.3 (the HUD icon; the AWAKEN chip labelled DROP) and §12.4 hook 7 (`:p`, run included) |
+| 18 | Minor | the chained links' 360 °/s turn not listed | fixed §7.4 A4 |
+| 19 | Minor | route-table errors (OUT JKK, KJJ's return) | fixed by the graphs (§7.2) and the frozen timer |
+| 20 | Minor | Rukia's lunge 0.6; stun tolerance inert; no §3 | fixed §7.4 M1; stun tolerance removed (§6, §8.1); §3's absence noted at §6 |
+| 21 | Minor | the dry reel his alone | Q7 (A in the body: both reel) |
+| 22 | Minor | exchange rounding | fixed §9.2 O1: `orb-exchange` with floor on the covered amount, halves exact, host-tested |
+| 23 | Minor | where the state lives; resets; hash; PRACTICE | fixed §7.1 (per side vectors, resets, the hash line) and O0 (the cover runs down under GAUGES INFINITE) |
+| 24 | Minor | leash / noose / windmill coverage | fixed §10 (rows with "none: why") |
+| 25 | Minor | Q8's hidden combo-breaker cost | folded into Q1 A's wording |
+| 26 | Minor | Bankai Breaker −1 f has no knob | fixed: dropped (the universal Breaker) |
+| 27 | Minor | the noose freeze as global hitstop | fixed §9.2 O6: global hitstop chosen, a BLUE pressed in it applied after (host test) |
+| 28 | Minor | I / O differ from §5's draft | recorded under §13 "For the record" (I must be the universal Breaker; O's dash is generic) |
+| 29 | Minor | P drop frames | fixed §9.1: a 24 f move, free states only, no iframes |
+
+## 15. Open
+
+- The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
 - The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet
-  stills; the movement units in Step lengths are in §7.4 / §8.
+  stills.
