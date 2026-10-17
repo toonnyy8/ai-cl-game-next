@@ -143,33 +143,39 @@
 ;; Each of the two weapons (the right hand's held one, the left hand's drawn by HISAGI-DRAW with the same mesh), to canon
 ;; (motion-refs §4.1, `324` / `325Hisagis_Shikai_Kazeshini`): a thin black rod 0.97 m long, held overhand near its butt
 ;; (the stance grip: the rear fifth), its forked butt (where the chain fixes) 0.22 m behind the fist, its point 0.75 m
-;; ahead (the length the FK test reads: unchanged); two long crescent blades crossing it 0.5 m up, one on each face of the
-;; rod (one inverted: the pinwheel), together one big crescent (tip to tip 0.92 m) bulging ahead, both tips swept back,
-;; the edge white-silver on the outer curve and the spine black. No Reiatsu on the weapon at rest (canon: it glows only in
-;; the release and the effects)
-(defparameter *hs-crescent* '((0.5 0.0) (0.4 0.46) (0.12 -0.42))
-  "Kazeshini's crescent in the weapon frame ((y z): along the rod, toward the edge side): the crossing on the rod and the
-two blades' tips; the blades follow the circle through the three, widening ahead of it.")
+;; ahead (the length the FK test reads: unchanged); two long crescent blades leaving it 0.5 m up on opposite sides, one on
+;; each face of the rod, hooked in OPPOSITE directions (the user, 2026-10-17: 「鐮刀兩側的新月彎鉤應該要是相反方向，一個朝內一個
+;; 朝外」): the edge-side one curls back toward him, the other forward, away from him (an S / pinwheel through the rod, point
+;; symmetric about the crossing; tip to tip 0.92 m), each with its white-silver edge on its outer curve and a black spine.
+;; No Reiatsu on the weapon at rest (canon: it glows only in the release and the effects)
+(defparameter *hs-crescent* '((0.5 0.0) (0.4835 0.2415) (0.32 0.42))
+  "Kazeshini's inward blade in the weapon frame ((y z): along the rod, toward the edge side): the root at the crossing on
+the rod, a point on its curve, its tip (curled back toward the butt); the outward blade is it turned 180 degrees about the
+crossing (its tip at y 0.68: ahead, still behind the rod's point at 0.75).")
 
-(defun hs-mb-crescent (mb tip x0 x1 band)
-  "One Kazeshini blade from the crossing to TIP (1 or 2: *HS-CRESCENT*'s tips), between the planes x = X0 and X1: the arc
-of the circle through the crossing and both tips, 0.075 m wide at the root, pointed at the tip, widening outward; BAND
-NIL its black spine (the inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
-  (destructuring-bind ((cy cz) (ay az) (by bz)) *hs-crescent*
-    (let* ((d (* 2 (+ (* cy (- az bz)) (* ay (- bz cz)) (* by (- cz az)))))   ; the circle through the three
-           (oy (/ (+ (* (+ (* cy cy) (* cz cz)) (- az bz)) (* (+ (* ay ay) (* az az)) (- bz cz)) (* (+ (* by by) (* bz bz)) (- cz az))) d))
-           (oz (/ (+ (* (+ (* cy cy) (* cz cz)) (- by ay)) (* (+ (* ay ay) (* az az)) (- cy by)) (* (+ (* by by) (* bz bz)) (- ay cy))) d))
-           (r (sqrt (+ (expt (- cy oy) 2) (expt (- cz oz) 2))))
-           (a0 (atan (- cz oz) (- cy oy)))
-           (ty (if (= tip 1) ay by)) (tz (if (= tip 1) az bz))
-           (a1 (atan (- tz oz) (- ty oy)))
-           (da (let ((x (- a1 a0))) (- x (* 2 pi (round x (* 2 pi))))))
-           (n 12))
-      (flet ((pt (i f) (let* ((u (/ i n)) (a (+ a0 (* u da))) (w (max 0.003 (* 0.075 (expt (- 1 u) 0.7)))) (rr (+ r (* f w))))
-                         (list (+ oy (* rr (cos a))) (+ oz (* rr (sin a)))))))
-        (dotimes (i n)
-          (let ((f0 (if band 0.6 0.0)) (f1 (if band 1.0 0.6)))
-            (ke-mb-prism mb (list (pt i f0) (pt (1+ i) f0) (pt (1+ i) f1) (pt i f1)) x0 x1)))))))
+(defun hs-mb-crescent (mb blade x0 x1 band)
+  "One Kazeshini blade, BLADE 1 the inward one (*HS-CRESCENT*), 2 the outward one (1 turned 180 degrees about the
+crossing), between the planes x = X0 and X1: the arc of the circle through its root, mid point and tip, 0.075 m wide at
+the root, pointed at the tip, widening away from the circle's centre (its outer curve); BAND NIL its black spine (the
+inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
+  (let* ((pts (if (= blade 1)
+                  *hs-crescent*
+                  (destructuring-bind (cy cz) (first *hs-crescent*)
+                    (loop for (y z) in *hs-crescent* collect (list (- (* 2 cy) y) (- (* 2 cz) z)))))))
+    (destructuring-bind ((cy cz) (ay az) (by bz)) pts
+      (let* ((d (* 2 (+ (* cy (- az bz)) (* ay (- bz cz)) (* by (- cz az)))))   ; the circle through the three
+             (oy (/ (+ (* (+ (* cy cy) (* cz cz)) (- az bz)) (* (+ (* ay ay) (* az az)) (- bz cz)) (* (+ (* by by) (* bz bz)) (- cz az))) d))
+             (oz (/ (+ (* (+ (* cy cy) (* cz cz)) (- by ay)) (* (+ (* ay ay) (* az az)) (- cy by)) (* (+ (* by by) (* bz bz)) (- ay cy))) d))
+             (r (sqrt (+ (expt (- cy oy) 2) (expt (- cz oz) 2))))
+             (a0 (atan (- cz oz) (- cy oy)))
+             (a1 (atan (- bz oz) (- by oy)))
+             (da (let ((x (- a1 a0))) (- x (* 2 pi (round x (* 2 pi))))))
+             (n 12))
+        (flet ((pt (i f) (let* ((u (/ i n)) (a (+ a0 (* u da))) (w (max 0.003 (* 0.075 (expt (- 1 u) 0.7)))) (rr (+ r (* f w))))
+                           (list (+ oy (* rr (cos a))) (+ oz (* rr (sin a)))))))
+          (dotimes (i n)
+            (let ((f0 (if band 0.6 0.0)) (f1 (if band 1.0 0.6)))
+              (ke-mb-prism mb (list (pt i f0) (pt (1+ i) f0) (pt (1+ i) f1) (pt i f1)) x0 x1))))))))
 
 (defweapon :kazeshini (:length 0.75 :base 0.2)
   (:solid (mbc mb #x121216)                                                                ; the rod, its point, the fork
@@ -652,10 +658,13 @@ stamp, silence; on him, the sickle's cut; the shatter: a negative, a manga page;
   '((0 4.6 1.0 0.92 35 0.0 :hs-stance) (90 4.6 1.0 0.92 35 0.0 :hs-stance) (180 4.6 1.0 0.92 35 0.0 :hs-stance)
     (35 4.6 1.0 0.92 35 0.0 :hs-stance) (0 0.85 1.66 1.64 35 0.0 :hs-stance) (0 2.0 1.3 1.3 40 1.0 :hs-look-weapon))
   "83980+k: (angle around his facing, distance, eye height, look height, lens, aim off to the shot's left, clip).")
+(defparameter *hs-look-weapon-tall* '(0 5.5 1.3 1.2 30 2.2 :hs-look-weapon)
+  "83985 on a tall screen: SHOT-ON halves the aim there (a quarter up close), so farther and aimed further left.")
 (defvar *hs-look-k* 0 "The model sheet's shot (83980+k).")
 (defcine hs-look-cine (a v :len 240 :hold 60)
   "The model sheet's held shot *HS-LOOK-K* (*HS-LOOK-SHOTS*) of A alone on a white card, 4 s; then the match again."
-  (at 0 (destructuring-bind (ang dist h look fov off clip) (nth *hs-look-k* *hs-look-shots*)
+  (at 0 (destructuring-bind (ang dist h look fov off clip)
+            (if (and (= *hs-look-k* 5) (portrait-p)) *hs-look-weapon-tall* (nth *hs-look-k* *hs-look-shots*))
           (card :white a) (cine-clip a clip :blend 0) (shot-on a ang dist h :look look :off off) (lens fov))))
 (defun hisagi-look-scene (k)
   "83980+k: P1 Hisagi 8 m from an idle Kenpachi, the model sheet's shot K (HS-LOOK-CINE)."
