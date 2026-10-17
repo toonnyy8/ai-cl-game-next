@@ -891,7 +891,7 @@ the user's 「可以」.
 
 ## 18. Open
 
-- Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); next: the Bankai's two modes in B2b.
+- Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
 
 - The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
 - The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet
@@ -947,3 +947,114 @@ His 7 pairings at 10 seeds (NORMAL, P1 Hisagi): all 70 matches K.O.; medians HY 
 HB 40 / HH 44 %; 1.8–6.5 m 55 / 42 / 49 / 43 / 52 / 53 / 50 %; out of hand 7–10 %. Misses: < 1.8 m vs HR, HI, HS, HH; 1.8–6.5 m
 vs HK, HI. Per §6 the first lever is his AI ranges, then the user; not tuned in this batch (the plain CPU).
 
+## 20. As built (batch B2b, 2026-10-17): the Bankai's rules, bookkeeping and CPU
+
+`duel/lisp/hisagi.lisp` (the Bankai block after the Shikai's kit: moves, the two mode kits, the bind's bookkeeping, P,
+the CPU, the debug scenes) and three data lines in `hisagi-art.lisp`. The Shikai's `:awaken-form :bankai`; B2a's seam
+(the awakening gauge held 1 short, §19 D4) is gone. Every §17.1–§17.3 number is as the tables (pinned in
+`tests/duel-rules-test.lisp`, section "Hisagi's Bankai"); the bind runs only through B1b's hooks (§17.4 "As built"),
+nothing re-added. Knobs: the `*hs-r-*`, `*hs-b-*`, `*hs-kubi-*`, `*hs-bind-reel*`, `*hs-pull-*`, `*hs-saharai-*`,
+`*hs-ai-…*` defparameters in hisagi.lisp (value, date, who).
+
+**The look is not part of this batch** (the lead, relaying the user, 2026-10-17: the Bankai's art and every clip are
+redone after a motion-style pass with the user). Built only what the sim and the FK reach test need: B2a's body and
+sickles as they are; the Bankai moves play B2a's clips (J of the bind mode SEN / KAESHI-SEN / RIN at the same frames; the K
+links the pulls' HIKI / HODOKI, which fall short of the K volumes as the FK test allows a K; SAHARAI the windmill's,
+KUBIKAKE NAGE's, UNWIND MODOSHI's, …), except the ranged J: three minimal clips `:hs-r-q1` / `:hs-r-q2` / `:hs-r-spin` at
+their own frames (12 / 11 / 13), with `*hs-strike-reach*` 4.0 / 4.0 / 4.4 and `*hs-flights*` entries, so HISAGI-DRAW throws
+B2a's left sickle out to the arc's edge on the hit frames (the J's ±0.15 m; a host check ties the two tables). No orb,
+crescent blades, noose, awakening cinematic or new art scene. The HUD's grey band, grey souls and pool tally are B1b's,
+fed by `:bind-snapshot` / `:bind-pool` (seen in the debug stills below).
+
+**What is built.**
+- Forms `:bankai` (ranged, prefix `hs-r-`) and `:bankai-bind` (prefix `hs-b-`), both `:awakening t` (Kikon 3), standalone
+  kits (not `:inherit`: a child's `:strings` add the parent's). One hook list for both (`*hs-bk-hooks*`: the bind's seven
+  hooks, `:p`, `:p-label`, `:tick` HS-BK-TICK, `:ok`, `:command`, `:hit`, `:reset`, `:hash`, the draw). The mode follows the
+  bind: HS-BK-TICK does the SET-FORM only when he is not in a move (after KUBIKAKE's cut recovery on entry; after UNWIND on
+  either end; in a reaction at once).
+- **KUBIKAKE** (P, `:hs-r-kubikake`): HS-P-PRESS starts it from idle / walk / guard / a run with his own 200, not cooling,
+  no bind on the field (HS-KUBI-OK-P); otherwise the `:refused` cue and the press eaten. Cooldown 180 from the press,
+  cleared by a hit. Its on-land: the yank to 2.0 m (12 f), the recovery cut to 14 from the hit (+16 on the 30 f reel:
+  bind J1 S 8 and SP1 S 14 combo, K1 S 18 not; pinned), the 200 checked again; the bind is due that step and starts in
+  HS-BK-TICK (after SETTLE-SOULS). A step that settled a Kikon / Soul Break started a cinematic, so the tick comes later
+  and the stale hit binds nothing; both throws in one step (the mirror): neither binds.
+- **The bookkeeping** (B0–B16) on the binder's `hss` component: the snapshot (both Reishi / Konpaku), the pool (both
+  bars), the drain (`:bind-damage`, rules BIND-DRAIN, 1 per 2 nominal), SPs of either side from the pool (`:bind-pool`),
+  real heals raise the snapshot (`:bind-heal`), the drained end at `:bind-step :hits` (HS-BIND-DRAINED!: both bars 0, the
+  grey counts cleared, Soul Breaks queued opponent first), the release at `:bind-step :release` (HS-BIND-RELEASED!: the
+  snapshot back, BIND-RELEASE-SPLIT 300 to the opponent first), the end effects (HS-BIND-END-EFFECTS!: hazards cleared,
+  his 30 f reel, Hisagi's UNWIND 20 f), time-up (`:bind-resolve`: drained, the Soul Breaks' Konpaku counted, no
+  cinematic). The frozen gains, grey HP / souls, Kenpachi's Bankai refusal and the learner's `dealt-real` are B1b's.
+- **The release** KAIBAKU: P bound, from idle / guard / blockstun / a run at once, in hitstun / air under the Burst rule
+  (Q9 A, HS-REL-FREE-P; not free: the press stays buffered); during his own move the press is consumed and held
+  (`rel-held`) and fires on the move's last frame (HS-REL-DUE-P).
+- Ranged L SAHARAI's push (hit 6.5 m / block 4.5 m, PUSH-APART), TSUISA's 3.5 m drag, KUSARI-AME's lane aimed 6 f then
+  locked (its move `:tick` HS-R-AME-AIM restores the yaw), the SP2 copies off a J / K hit through `:command`; bind L
+  HIKIYOSE moves the opponent 0.3 m a step toward him (motion only, added to his own) to 2.0 m, then R 8; refused within 2.5 m.
+- **CPU.** Ranged: :moves at 0–2 / 2–4.2 / 4.2–7.8 / 7.8+ m, no SP from the table; HS-R-AI-REFLEX: L SAHARAI once per
+  entry within 2.5 m (EASY 0.3 / NORMAL 0.6 / HARD 0.85), KUBIKAKE once per entry into 4–7 m with his 200 (0.2 / 0.45 /
+  0.7); SP1 off a link 3 only above 300 (keeps the 200). Bind: a melee table; HS-B-AI-REFLEX: the release once per change
+  event (a Konpaku changed, every 100 of the pool) when his grey loss (Konpaku × 1300 + Reishi) exceeds the opponent's by
+  300 (0.3 / 0.6 / 0.9), else he lets it drain; L once per entry beyond 4 m; SP off a link 3 only when not behind (0.1 /
+  0.35 / 0.7); the generic SP cancel off (`:sp-cancel-bars` 7). The opponents: HS-AI-OPP's side Step also on TSUISA, the
+  ranged SP1 and KUBIKAKE (`opp-step-kubi`). Counters: the `duel hisagi` line (DUEL_GAMEPLAY "Debug commands", 83000).
+- `:hash`: the bind's flag, the pool (×10), the snapshot, the release flags, KUBIKAKE's cooldown.
+- Debug scenes 83010–83015 (DUEL_GAMEPLAY), knobs 83300+k / 83400+k, the `duel probe hisagi-bind` line.
+
+**Deviations (the lead's, for review):**
+
+| # | Doc | Built | Why |
+|---|---|---|---|
+| E1 | §11, §17.3 "what the user sees": the orb, the noose, crescent blades; a placeholder awakening cinematic | none: B2a's look; no `:cine` on `:bankai` (the awakening goes straight to neutral) | the user's art hold (above) |
+| E2 | §17.3 KŌSHU "strike within 1.6 m" | its reach 2.0 m | the generic Kikon rule (host test): a module's reach > *KIKON-TRIGGER* 1.6 + 0.3 |
+| E3 | B7 "Konpaku ≤ 0 with no event: K.O. (its own cinematic)" | such a fighter is queued a Soul Break with the others, so SETTLE-SOULS K.O.s him (the Soul Break's cinematic, then the finish) | one path, no second cinematic in the step |
+| E4 | B9 "Hisagi's move ends into UNWIND" | not while he is airborne / down / waking (his fall stands, as the opponent's); the switch to ranged then waits until he is free | no move started mid-air |
+| E5 | B16 "ENDLESS's stage start (`:endless-form :base`)" | `:bankai-bind`'s `:endless-form :bankai` (a stage starts in the ranged mode, no bind: a fresh fighter) | read as "no bind carried"; `:base` would undo his awakening |
+| E6 | §17.3 L 引寄: "a Step's hop adds to the drag" | the drag moves his position directly each step, so any motion of his adds; a Hoho or a cinematic stops it | motion only, no slide slot shared |
+| E7 | §17.5 #16 "while bound and behind, the opponents' CPU spends no SP unless it completes a combo"; the learner's "bound, ahead / behind" situations; ASSIST routes | not built | §15 "Later" (as B2a's D6) |
+| E8 | the generic CPU's Kenpachi Bankai reflex in ai.lisp read `kit-bankai-ok` itself, so a bound Kenpachi lost his one roll to a refused press | ai.lisp's reflex also asks `(not (bind-of e))` | inert without a binder (the 21 pairings identical) |
+| E9 | tests: the shared `hit-gap` helper read only the reaction's hitstun | it reads a window's `:stun` first (as `on-hit-adv` already did): the ranged J's hitstun 24 | the other forms' checks unchanged (ALL PASS) |
+| E10 | — | the Bankai kits carry a draw-less kit meter (`hisagi-art.lisp`) | the HUD inherited the Shikai's sickle row onto the awakened forms' L COOLDOWN row (overlapping text); no sim reads it (his 7 pairings identical with and without it) |
+
+**Host tests** (duel-rules-test 9699 checks, ALL PASS; the others unchanged, ALL PASS): both modes in the generic string
+walk (`*forms*` + `(:hisagi :bankai)` / `(:hisagi :bankai-bind)`; the ranged mode's budget rows J1 S 11–13, K1 S 21–24,
+the K links' S_eff 18), the FK reach walk, the §5 clip list; his section "Hisagi's Bankai": the tables, the six routes'
+damage per mode (74 110 132 162 126 104 / 104 144 168 200 160 136), every link with its hitstop on both sides, SP1 / the
+SP2 copies off J1 / K1, TSUISA's drag before J2s, link 3 → KŌSA, the 7.95 m push inside the lane / SP1, the 200 at the press
+(199.9 refused, blockstun / stun / a move / cooling / a bind refused) and at contact (199: a plain hit), the +16 on the reel
+(J1 / SP1 combo, K1 not), the side-Step cast check (2.5 m aside at 4 / 5.5 / 7 m clear of the 12° tracked line), the bind on
+stand-ins through B1b's readers (the pool 430 = 250 + 180, the drain 7 → 426.5, a 2000 hit floors the Reishi with no Soul
+Break, every gain frozen, either side's SP from the pool and refused under the cost, a heal raising the snapshot, a grey
+Kikon with the bind going on, Kenpachi's Bankai refused, the release refused in a combo's 1st hit and taken from its 2nd,
+held through his own move to its last frame, the release's restore and 426.5 → 300 / 126.5, the mode switched only out of a
+move both ways, the drained end's order (the opponent's Soul Break first) and cleared grey counts, a Kikon victim with no
+Soul Break on top, a grey 0 Konpaku K.O.'d, the release winning a same-step drain, the split at 0 / 150 / 300 / 450 / 600,
+time-up as drained (the Soul Break's Konpaku decides it), one bind on the field, the stale hit, the mirror's double throw),
+HIKIYOSE's drag (8 m → 2.0 m in 20 steps, then R 8; refused within 2.5 m), the SP2 copy by `:command`, the drawn reaches.
+
+**Gates (B2b).** pkgcheck clean; `./build.sh duel` with the 4 known Lille warnings; the 21 non-Hisagi pairings'
+`simgate --seeds 10 --summary` lines and `--cvc` **byte-identical** to the parent b43a2aa (`cmp`; the doc's "22" counts
+the same 21 rows); a smoke run (`run.mjs`, scenes 83010–83015) exit 0, no exception. His 7 pairings at 10 seeds (NORMAL, P1
+Hisagi), every match but one K.O.:
+
+| Pairing | Median s (B2a) | P1 Hisagi wins | Binds / match | Ends drained / released / time-up | Bound s / match | Pool start → end / bind | Release split opp / self (sum) | Ranged time < 2 m / 3.5–9 m |
+|---|---|---|---|---|---|---|---|---|
+| HY | 144.3 (122.1) | 3 | 1.3 | 9 / 4 / 0 | 14.0 | 517 → 83 | 834 / 250 | 25 / 50 % |
+| HK | 126.8 (108.3) | 6 | 1.7 | 11 / 6 / 0 | 17.9 | 514 → 77 | 1159 / 142 | 27 / 47 % |
+| HR | 170.0 (142.4) | 7 | 2.0 | 15 / 5 / 0 | 28.1 | 472 → 69 | 1235 / 149 | 24 / 50 % |
+| HI | 185.6 (167.5) | 7 | 1.8 | 11 / 7 / 0 | 25.8 | 524 → 75 | 1247 / 96 | 27 / 49 % |
+| HS | 157.6 (136.3) | 6 | 2.3 | 17 / 6 / 0 | 27.0 | 447 → 44 | 947 / 71 | 19 / 59 % |
+| HB | 202.3 (140.2) | 1 | 2.2 | 12 / 10 / 0 | 32.8 | 557 → 128 | 2322 / 495 | 23 / 54 % |
+| HH | 236.4 (195.6), K.O. 9 / 10 (one time-out at 300 s) | 1 (P2 9) | 2.0 | 11 / 9 / 0 | 35.8 | 495 → 83 | 1599 / 54 | 13 / 66 % |
+
+Grey dealt / taken per match (Hisagi): HY 445 / 574, HK 494 / 690, HR 722 / 590, HI 675 / 706, HS 658 / 613, HB 809 / 906,
+HH 462 / 850. KUBIKAKE per 10 matches: thrown 54–92, hit 13–23 (never a plain hit), blocked 15–37, whiffed 17–37, the
+opponents' side Step on it 6–17. The medians moved +5–62 s (the §17.3 estimate was +5–25 s; HB +62, HH +41 are the watch); the
+time-at-range targets (§17.5 #12: ranged ≥ 45 % at 3.5–9 m, ≤ 40 % under 2 m) hold in all seven. Not tuned (the brief).
+
+**Awaken A/B, a first look** (`--seed0 100 --seeds 20`, one stream). `--cmd 39020` (the gate's definition: Hisagi, P1, never
+awakens): the never side wins HY 2, HK 2, HR 4, HI 0, HS 2, HB 0, HH 2 of 20 (the bar is a third: all seven fail; B2a's
+Shikai alone already won 0–2 of 10 against the awakening roster). `--cmd 39002` (the opponent never awakens, Hisagi does: the
+Bankai's side of §17.5 #18): Hisagi wins 20, 18, 16, 16, 10, 15, 18 of 20, so the never-awakened opponent wins 0–10 of 20:
+the Bankai with the bind looks strong, the Shikai weak. Per §17.5 #18 the first knob would be the release cost; reported,
+not tuned (the user's call).
