@@ -1135,6 +1135,67 @@ over-the-shoulder throw** (the heave is SP2's). The J strings use the short grip
 Reach follows the motion (§21): drawn to the current volumes; each strike's tip measured (FK ±0.15 m, cast checks for the
 segment windows); any strike that would leave its volume is reported to the user with numbers before a volume changes.
 
+### 21.4 Shikai clips as built (batch B3a, 2026-10-17)
+
+The §21.3 plan drawn as the Shikai's own clips, all in `duel/lisp/hisagi-art.lisp` (prefix `:hs-s-`), to the **current**
+hit volumes (the user: reach follows the motion, but this plan is drawn to the volumes as they are): **no sim change**. The
+base kit plays them through its `:clip-map` (`*hs-shikai-clips*`, hisagi.lisp), its walk through `:look-clips`
+(`*hs-shikai-looks*`), its run set through `:run-clips`; `:stance` / `:intro` / `:win` name them; KAESHI-SEN-1H and RIN-1H
+name their own clips in their `defmove-copy` (`:clip`, a look). The Bankai's two forms keep B2a's clips untouched (their
+art waits for their motion-style pass); B2a's MAKI clip, played by no form any more, is gone.
+
+**Machinery (a look, 0 B a frame).** A kit `:pose` hook HS-POSE (on every form, inert outside the Shikai's clips): the J
+strings' **short grip** (`*hs-grip*`: the right rod slid 0.25 m back through the fist, so he holds it just behind the
+blades' crossing, eased in at 4 m/s; the point 0.50 m ahead of the fist, the butt 0.47 behind) and the right sickle **let
+out on its chain** (`*hs-letout*`: the `:weapon-r` joint moved where it flies). HISAGI-DRAW draws the left sickle's let-out,
+the chain through the holding fists (the right rod's butt → the left fist → an out sickle: the thrower's hand), the thrown
+sickle as a flat spinning disc (its far edge within +0.12 m of the volume's), MAKI's curl, the pull's tail (the sim hand →
+the left fist), SHIBARI's wrap, KUBIKAKE's slack through the victim's neck, the windmill's circle, and nothing for the
+left while the sealed sword is in hand (the intro's `:intro-weapon` `:hs-sealed`, a plain 0.72 m katana, to f70). A let-out
+sickle's point is placed at the strike's volume edge on its hit frames by construction (R m from his feet along the fist's
+bearing or a set bearing), so its clip is in `*hs-strike-reach*` and the FK test reads that reach; the FK test subtracts the
+grip for `*hs-grip*` clips (`tests/duel-rules-test.lisp`). Debug: 83910–83964 the strips (DUEL_GAMEPLAY), 83901 the
+consing probe (both hooks, 15 states).
+
+| Slot | Clip | S/A/R | Measured strike (hit frames) vs volume | Notes / deviations |
+|---|---|---|---|---|
+| stance | `:hs-s-stance` (loop 2 s) | — | — | weight back, right rod low-forward (point 0.28 m up by the right shin), left rod down at the hip, the chain loop |
+| walk / strafe | `:hs-s-walk-f/-b`, `:hs-s-strafe-r/-l` | — | — | the shared legs under his stance's arms (the shared ones had the generic stance's arms) |
+| run set | `:hs-s-run`, `-skate-b`, `-slide-r/-l` (DEFRUN) | — | — | both rods held back low and level behind the hips |
+| J1 旋 SEN (and SEN-1H) | `:hs-s-sen` | 8/3/12 | rod point **1.34 m** (S; 1.32 / 1.25 on A) vs arc 1.4 / 110° (−0.06); the leading hook 1.40 | short grip 0.25; wound right (the tell f4), the skid in, flat R→L at chest height, the left rod back at the hip |
+| J2 返旋 KAESHI-SEN | `:hs-s-kaeshi` | 8/3/13 | the left sickle let out to **1.40 m** on f8–11 (by construction) vs 1.4 | out f3–18 on the left arm's rising line (low left → over the right shoulder); the right rod drawn back, short grip |
+| J3 輪 RIN | `:hs-s-rin` | 9/3/18 | both sickles let out to **1.40 m** f6–12 vs 1.4 / 200° | a full turn to his left (root yaw −30 → 60 → 150 → 245 → 330 at S → 400), a key ~90°; at S the right one sweeps his front, the left one behind; ends square |
+| KAESHI-SEN-1H | `:hs-s-kaeshi-1h` | 8/3/13 | rod point **1.32 m** (S; 1.26 on A) vs 1.4 (−0.08) | short grip; "reversed" drawn as the forearm rolled half a turn (the other hook leading), not a back-pointing reverse grip (that would reach ~0.4 m: the FK test caught it); a rising ↖ from the right hip over the left shoulder |
+| RIN-1H | `:hs-s-rin-1h` | 9/3/18 | rod point **1.38 m** (S) vs 1.4 | the stance grip at a slightly bent arm; a 200° pivot (yaw −70 → 0 at S → 100), then unwound over R |
+| K1 投 NAGE | `:hs-s-nage` | 18/4/22 | the flight's point at **6.3 m** (by construction) vs the 6.0 line + 0.3 | the vertical wheel at his left side (f0–12, keys 90° apart; 180° written as −180 at f6 so no blend spins the arm round), cocked low-back, the hip cast: left fist 0.87 m ahead, 1.12 m up at S; the disc spins flat |
+| K2 引 HIKI | `:hs-s-hiki` | 20/4/24 (link f6) | segment window: the chain drawn on HS-CHAIN-SEG; the guiding right fist at 0.45 ahead / 1.16 up / 0.20 right vs the sim hand (0.45, 1.10, 0) | the drop and lean back, the left hand hauling down past the hip; the chain's tail on to the left fist |
+| K2s 巻 MAKI | `:hs-s-maki` | 20/4/24 (link f6) | the flight's point at **3.55 m** vs the 3.2 line + 0.35 | the forearm wind (f11), wound left, the sideways release; the flight bowed 1.1 m out to his left midway (the curl) and on the line at S |
+| K3 刈落 KARI-OTOSHI | `:hs-s-kari` | 22/5/34 (link f8) | both sickles let out to **2.8 m at ±60°** (0.3 m up) f22–30 vs arc 2.8 / 120° (its two edges) | crouch (tell f12), the hop (f16–19, arms overhead), both swung over his head (a 1.8 m arc) and down; landed bent over them, held to f40 |
+| K3 解 HODOKI | `:hs-s-hodoki` | 22/5/34 (link f8) | segment window: the chain on HS-CHAIN-SEG, its tail from the sim hand to the left fist | the turn inside the chain (yaw −70 / −120 / −160, his back to the foe at S), both hands heaving it over the right shoulder, round to face him over R |
+| 戻 MODOSHI | `:hs-s-modoshi` | 6/0/6 | no hit | left pull, right pull, the catch at f6 with a twirl |
+| L 風車 KAZAGURUMA in / push / loop / out | `:hs-s-kaza` (one clip, its phases) | 6/60/14 | the push's point on **r 2.0 m** at 0.95 m up f6–9 vs 360° r 2.0 | let out low (f0–6), the push, lifted into the fan (1.6 m round, 2.3 m up, a turn in 12 f, the wrist's circle keyed every 3 f), the right rod across his face; out: lowered and caught (the release jumps the clip to f66 as before) |
+| SP1 綴雷電 | `:hs-s-raiden` | 20/3/24 | the flight's point at **6.8 m** vs 6.5 + 0.3 | the overhand cast from above the left shoulder (cocked f15), the left fist high (1.36 m) on the taut chain, the right hand's fingers on it |
+| SP2 縛 SHIBARI | `:hs-s-shibari` | 16/34/26 | the flight's point at **4.85 m** vs 4.5 + 0.35; on contact drawn wrapped at the victim | the lasso (f4–13), the cast (S), taut, the turn and the over-the-shoulder heave (f32–44), the slam f46 bent double; round again over R |
+| Breaker dash | `:hs-s-breaker` (loop 0.4 s) | — | — | low, both rods back |
+| 首掛 KUBIKAKE | `:hs-s-kubikake` | 8/4/18 | rod point **≤ 0.75 m** on f8–11 vs the Breaker's 1.35 (short is allowed; the grab is the chain round the neck) | the user's front garrote: the rods held up (butts forward) and brought down round his neck (the slack drawn through it within 1.8 m), the push-down, the pin (down on the right knee, the left hand at his throat, the right sickle raised point down) |
+| O 刈 aura | `:hs-s-kari-aim` (loop 0.5 s) | — | — | the overhead whirl, passing across his face |
+| O strike / follow-up | `:hs-s-kari-o` | 20/2/30 | the flight's point at **8.0 m** vs the 7.0 lane + 1.0 | the whirl let down, a sidearm flat release (the disc); the follow-up's dash drawn hooked in him (the chain taut), its strike as a close cut (the sickle stays in hand) |
+| intro | `:hs-s-intro` (2 s) | — | — | the sealed sword up across his face, held (「刈れ」), tossed at f66–70, both sickles let out above him (f70–84) and caught (f96–98) |
+| win | `:hs-s-win` (2 s) | — | — | the half-step back, looking at the blade in his hand |
+
+No slot was held back: every strike is inside its volume ±0.15 m (the J's FK 1.32–1.38 for 1.4; every let-out and flight at
+its edge by construction). Held for later (not in the plan's scope): dust on KARI-OTOSHI's landing and SHIBARI's slam (the
+shared hit effects play); the Kikon cinematic still plays B2a's `:hs-kari-o` (§11.5's storyboard is its own batch).
+
+**Proof.** `simgate --seeds 10 --summary` (all 57 lines, every pairing with his) and `--cvc` byte-identical to the parent
+(`cmp`); `duel-rules-test` ALL PASS (the FK reach test with the grip correction and the new clips); pkgcheck clean;
+`./build.sh duel` with the 4 known Lille warnings; debug 83901 0 B in all 10 states (the first build's 8–16 B a call came
+from float reads and `f32` in HISAGI-DRAW's plain code: moved into `%hs-geo!`).
+
+**For the user's eyes** (checked by numbers, the strips and match stills): the short grip's look; J3's two sickles let out
+(the plan's "both"); KAESHI-SEN-1H's "reversed" as a rolled forearm; HODOKI and SHIBARI turning his back (canon heave);
+the windmill's sickle starting behind him; KUBIKAKE's garrote read without the victim in the strips.
+
 ## 18. Open
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.

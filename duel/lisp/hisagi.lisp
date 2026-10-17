@@ -101,8 +101,9 @@ loss exceeds the opponent's by *HS-AI-RELEASE-MARGIN* (Konpaku x 1300 + Reishi, 
 (defmove :hs-j3 :kind :quick :clip :hs-spin :startup 9 :active 3 :recovery 18 :dmg 38 :adv-block -4 :guard 12
   :reach 1.4 :arc 200 :on-hit :stagger :flags (:ender))                   ; 輪 RIN, the full spin
 (defmove-copy :hs-j1-1h :hs-j1 :dmg 24 :params (:one-hand t))             ; SEN-1H (the OUT graph's J1)
-(defmove-copy :hs-j2-1h :hs-j2 :dmg 24 :params (:one-hand t))             ; KAESHI-SEN-1H (the IN graph's J2s, the OUT J2)
-(defmove-copy :hs-j3-1h :hs-j3 :dmg 30 :params (:one-hand t))             ; RIN-1H
+(defmove-copy :hs-j2-1h :hs-j2 :dmg 24 :params (:one-hand t) :clip :hs-s-kaeshi-1h)   ; KAESHI-SEN-1H (the IN graph's J2s,
+                                                                          ;  the OUT J2: the reversed backhand, §21.4)
+(defmove-copy :hs-j3-1h :hs-j3 :dmg 30 :params (:one-hand t) :clip :hs-s-rin-1h)         ; RIN-1H (the arm-length pivot)
 ;; K: the chain. NAGE throws one sickle along a 6 m line (the blade within 2.0 m, the chain beyond: :ranged), turning
 ;; 30 deg/s in its startup (§7.4 A1), no generic close-in (:no-close): a hit drags him to 1.6 m (HS-DRAG). The sickle is
 ;; OUT from its S frame, whatever its result (HS-THROW-OUT); the anchor at the first contact (HS-HIT) or its line's end
@@ -156,13 +157,26 @@ loss exceeds the opponent's by *HS-AI-RELEASE-MARGIN* (Konpaku x 1300 + Reishi, 
 (defparameter *hs-throws* '(:hs-k1 :hs-k2s) "The moves that throw the sickle (OUT at S; their :params :throw = the line's length).")
 (defparameter *hs-pulls* '(:hs-k2 :hs-k3h) "The pulls (the chain from the anchor: HS-CHAIN-SEG).")
 (defparameter *hs-hooks* '(:tick hs-tick :ok hs-ok :command hs-command :hit hs-hit :struck hs-struck :reset hs-reset
-                           :hash hs-hash :draw hisagi-draw :deck hs-deck))
+                           :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck))
+(defparameter *hs-shikai-clips* '(:hs-q1 :hs-s-sen :hs-q2 :hs-s-kaeshi :hs-spin :hs-s-rin :hs-nage :hs-s-nage
+                                   :hs-hiki :hs-s-hiki :hs-maki :hs-s-maki :hs-kari :hs-s-kari :hs-hodoki :hs-s-hodoki
+                                   :hs-modoshi :hs-s-modoshi :hs-kaza :hs-s-kaza :hs-raiden :hs-s-raiden
+                                   :hs-shibari :hs-s-shibari :hs-breaker :hs-s-breaker :hs-kubikake :hs-s-kubikake
+                                   :hs-kari-aim :hs-s-kari-aim :hs-kari-o :hs-s-kari-o)
+  "The Shikai's :clip-map (a look: the clips are hisagi-art.lisp's, the slot plan DUEL_HISAGI §21.3; the one-handed
+KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
+(defparameter *hs-shikai-looks* '(:sh-walk-f :hs-s-walk-f :sh-walk-b :hs-s-walk-b :sh-strafe-r :hs-s-strafe-r
+                                  :sh-strafe-l :hs-s-strafe-l)
+  "The Shikai's :look-clips: the shared walk's legs with his own stance's arms (the chain loop dragging).")
 (defparameter *hs-forms* '(:base :bankai :bankai-bind)
   "His forms: the Shikai, the Bankai's ranged mode and its bind mode (§17: a mode is a form, switched only out of a move).")
 
 (defkit :hisagi :base
-  :name "HISAGI" :body :hisagi :weapon :kazeshini :stance :hs-stance
-  :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI"
+  :name "HISAGI" :body :hisagi :weapon :kazeshini :stance :hs-s-stance
+  :intro :hs-s-intro :win :hs-s-win :intro-callout "KARE, KAZESHINI" :intro-weapon (:hs-sealed 70)
+  ;; the Shikai's own clips (hisagi-art.lisp, DUEL_HISAGI §21.3-§21.4; a look: the Bankai's forms keep B2a's until their
+  ;; motion-style pass): its moves' through :clip-map, the walk through :look-clips, the run set under his arms
+  :clip-map *hs-shikai-clips* :look-clips *hs-shikai-looks* :run-clips (:hs-s-run :hs-s-skate-b :hs-s-slide-r :hs-s-slide-l)
   :walk *hs-walk* :run *hs-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *hs-mult* :taken *hs-taken*
   :push-reach *hs-push-reach*
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)

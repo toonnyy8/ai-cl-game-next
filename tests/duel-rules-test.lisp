@@ -846,8 +846,12 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ke-x-stance :ke-x-q1 :ke-x-kote :ke-x-q3 :ke-x-f1 :ke-x-tsuki :ke-x-f2 :ke-x-meteor :ke-x-drink
     :ke-b-q1 :ke-b-q2 :ke-b-f1 :ke-b-f2 :ke-b-f3 :ke-b-split :ke-b-cut   ; the Bankai's own (§8)
     :ke-a-stance :ke-a-q1 :ke-a-q2 :ke-a-f1 :ke-a-f2 :ke-a-spin :ke-a-haymaker :ke-a-stomp :ke-a-flurry   ; KATAUDE's (§8)
-    :hs-stance :hs-intro :hs-win :hs-q1 :hs-q2 :hs-spin :hs-nage :hs-hiki :hs-maki :hs-kari :hs-hodoki :hs-modoshi   ; Hisagi's
-    :hs-kaza :hs-raiden :hs-shibari :hs-breaker :hs-kubikake :hs-kari-aim :hs-kari-o   ;  Shikai (DUEL_HISAGI §11.3, B2a)
+    :hs-stance :hs-intro :hs-win :hs-q1 :hs-q2 :hs-spin :hs-nage :hs-hiki :hs-kari :hs-hodoki :hs-modoshi   ; Hisagi's
+    :hs-kaza :hs-raiden :hs-shibari :hs-breaker :hs-kubikake :hs-kari-aim :hs-kari-o   ;  B2a clips (the Bankai's forms)
+    :hs-s-stance :hs-s-intro :hs-s-win :hs-s-walk-f :hs-s-walk-b :hs-s-strafe-r :hs-s-strafe-l   ; the Shikai's own
+    :hs-s-run :hs-s-skate-b :hs-s-slide-r :hs-s-slide-l :hs-s-sen :hs-s-kaeshi :hs-s-rin :hs-s-kaeshi-1h :hs-s-rin-1h   ; (§21.4)
+    :hs-s-nage :hs-s-hiki :hs-s-maki :hs-s-kari :hs-s-hodoki :hs-s-modoshi :hs-s-kaza :hs-s-raiden :hs-s-shibari
+    :hs-s-breaker :hs-s-kubikake :hs-s-kari-aim :hs-s-kari-o
     :hs-r-q1 :hs-r-q2 :hs-r-spin))   ; (his Bankai's ranged J, B2b: every other Bankai move plays a B2a clip until its look pass)
 ;; (Jilliel's SPs and Kikon, decision 56, DUEL_LILLE §23.37: :lb-w-sanren is KIN's SANREN through his :clip-map, :lb-e-sanren
 ;; EN's own, :lb-w-kikon / :lb-w-kikon-fire the Kikon in play; :lb-w-aim and :lb-w-fire are gone)
@@ -858,7 +862,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                         ;;  copies, BR-S-SNIPE-RELEASE; R16, DUEL_LILLE_V3 §20: only they play :br-sk-l1)
                                         ;;  Hisagi's MODOSHI, started by his :command hook while the sickle is out)
                                         (remove nil (loop for m in '(:br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-r-kubikake :hs-b-unwind :hs-r-sp2c :hs-b-sp2c)
-                                                          collect (mv-clip (find-move m)) collect (mv-clip-2 (find-move m))))))))
+                                                          collect (mv-clip (find-move m)) collect (mv-clip-2 (find-move m))
+                                                          collect (kit-move-clip (kit :hisagi :base) (mv-clip (find-move m)))))))))   ; (his Shikai's MODOSHI)
   (let ((extra (set-difference used *clips-5*)) (unused (set-difference *clips-5* used)))
     (when (or extra unused) (format t "  clips not in §5: ~s, §5 clips unused: ~s~%" extra unused))
     (check (and (null extra) (null unused)))))
@@ -1725,7 +1730,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (DUEL_ICHIGO_TYBW §3.1).")
 (defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai) (:rukia :zero)))   ; (Yamamoto's East / West: their
                                                                  ; own clips, both ways since DUEL_YAMA_TYBW §3.3)
-(let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0))
+(let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0) (grips nil))
   (dolist (art '("yama" "ken" "rukia" "ichigo" "senjumaru" "lille" "barro" "hisagi"))
     (with-open-file (in (merge-pathnames (format nil "../duel/lisp/~a-art.lisp" art) *load-truename*))
       (let ((*package* (find-package :duel)))
@@ -1737,6 +1742,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                      (defparameter (case (second form)
                                      ((*sj-strike-reach* *hs-strike-reach*)   ; (Hisagi's thrown sickle: its drawn reach)
                                       (setf strike (append strike (eval (third form)))))
+                                     (*hs-grip* (setf grips (eval (third form))))            ; (Hisagi's J short grip)
                                      (*lb-strike-points* (setf points (eval (third form))))   ; Lille: the plank, the
                                      (*lb-butt* (setf butt (eval (third form))))           ; wing / arm tips
                                      (*br-w-stretch* (eval form))                           ; (Lille II's whips, R5)
@@ -1767,6 +1773,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                  (se (cdr (assoc clip *strikers*)))                 ; (joint or (joint y))
                  (striker (or (if (consp se) (first se) se) (and point (not (eq point :weapon)) point)))
                  (sy (if (consp se) (second se) 0.0))
+                 (grip (or (second (assoc clip grips)) 0.0))   ; (Hisagi's J: the rod slid back through his fist, §21.4)
                  (art (or (third (assoc clip strike))
                           (loop for sf from (hw-from hw) below (hw-to hw)
                                 maximize (progn
@@ -1774,7 +1781,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                            (pose-fk! jm pose 0f0 0f0 0f0 0f0 (f32 (getf b :scale)) (f32 (deg (getf b :hunch 0))) props)
                                            (if striker                            ; (yaw 0 faces -Z)
                                                (joint-point! v jm (joint-index striker) 0f0 (f32 sy) 0f0)
-                                               (joint-point! v jm (ji :weapon-r) 0f0 0f0 (f32 (if (eq point :weapon) butt (- wlen)))))
+                                               (joint-point! v jm (ji :weapon-r) 0f0 0f0 (f32 (if (eq point :weapon) butt (- grip wlen)))))
                                            (if cap (- (aref v 2)) (sqrt (+ (expt (aref v 0) 2) (expt (aref v 2) 2))))))))
                  (d (- art edge)))
             (when (eq (mv-kind mv) :quick)
@@ -2717,6 +2724,8 @@ past the ends; DEFAULT if the clip is not listed."
                (check (and (every (lambda (a b) (< (abs (- a b)) 1e-4)) pose base)
                            (every (lambda (a b) (< (abs (- a b)) 1e-4)) p2 base))))))
   (check (every (lambda (cf) (or (and (eq (first cf) :barro) (not (eq (second cf) :base)))
+                                 (and (equal cf '(:hisagi :base))   ; (Hisagi's Shikai: the walk's legs under his own arms,
+                                      (equal (kit-look-clips (apply #'kit cf)) *hs-shikai-looks*))   ;  §21.4)
                                  (null (kit-look-clips (apply #'kit cf)))))
                 *forms*))
   (flet ((at (j) (joint-point! v jm (joint-index j) 0f0 0f0 0f0) (list (aref v 0) (aref v 1) (aref v 2)))
