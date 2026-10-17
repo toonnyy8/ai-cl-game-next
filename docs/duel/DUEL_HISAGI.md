@@ -1204,6 +1204,65 @@ and the right arm, the twisted chain rope rising from the neck to the orb, the b
 jet-black orb of chains overhead (size a proposal: canon gives none), the noose between the two fighters in a bind),
 then the slot plan (`motion-refs.md` §3.2–§3.3) for the user's 「可以」, then the clips. Presentation only.
 
+### 21.6 Bankai look as built (2026-10-17)
+
+Presentation only, both modes (`:bankai`, `:bankai-bind`): no clip, move, knob, hurt volume or rule changed; the Bankai's
+moves still play B2a's clips (their slot plan comes after the user has seen these stills). All in
+`duel/lisp/hisagi-art.lisp` ("the Bankai 風死絞縄's look") plus the two kits' `:body` in `hisagi.lisp`.
+
+The user's decisions during the batch (relayed by the lead, 2026-10-17):
+- 「不是 卍解的刀造型跟始解一樣」: the Bankai's blades are the Shikai's Kazeshini, the S-pair (one hook in, one out), not
+  the single long crescent of the Brave Souls / CFYOW art. The kits keep `:weapon :kazeshini`; nothing redrawn.
+- 「鎖鏈球可以高到超出鏡頭，自身周遭有許多從鎖鏈球垂下來的鎖鏈，其中有數條鎖鏈捆成束後捆在自己（與對手）的脖子上」: the orb may
+  leave the frame; many chains hang from it round him; several gather into a bundle tied round his neck (and, in a bind,
+  the opponent's). This replaced the single twisted rope of the first pass.
+- 「攻擊可以從周遭垂下來的鎖鏈或自己頸部的鎖鏈發動」: the Bankai's attacks will launch from the hanging chains or his neck
+  bundle (for the slot plan): the hanging chains end close round him at waist-to-floor height, and the neck bundle has a
+  slack tail.
+
+Grades as in §21.2 (A canon still / text, B official game, D the lead's own reading or a guess for the user to check).
+
+| Item | As built | Grade |
+|---|---|---|
+| Body | `:hisagi-bankai`, a `body-variant` of `:hisagi` (the same rig, scale and hurt cylinder r 0.36 / h 1.8: the sim can't tell them apart) adding his chain coiled round the **neck** (3 turns, 33 links, r 0.062 m, over the choker) and the **right upper arm** (3.5 turns, 40 links) and **forearm** (4 turns, 40 links, to the wrist); links alternately flat and edge-on, every fourth a steel glint (#5A5A66 on #1A1A20) | B (`BBSHisagi_s_Bankai`) + A (via C) "wrapped in his own chain"; the turns and link size D |
+| Blades | the Shikai's Kazeshini in both hands, as §21.2 (S-pair crescents, rod 0.97 m, `:length` 0.75) | the user's call (above) |
+| Green Reiatsu | none added at rest (the Shikai's rule: green only in the effects, e.g. TSUZURI RAIDEN's bolt) | A |
+| The orb | `:hs-orb`, a mesh: a jet-black core (#09090C, r 0.8) wound with 11 loops of chain (28 links each, r 0.84–0.92, planes the golden angle apart: a tangle), drawn ×1.7 (**~1.6 m round, ~3.2 m across**: larger than him, as Brave Souls draws it), turning 0.25 rad/s, swaying ±0.1 m | A (via C) "a jet-black orb made of chains" + B (Brave Souls: larger than him); the size D |
+| Its place | centre **8.0 m up**, 1.5 m to his right; the ranged mode: 0.5 m behind him; a bind: over the pair's midpoint (§11.4); eased at 2.5 /s on a mode change, placed at once on a jump > 8 m. From the behind camera at 2 m and 6 m it is out of frame in both aspects (the user's 「可以高到超出鏡頭」): only its chains come down into the picture; the model sheet's wide shot (83991) frames it whole | D (the lead's proposal; canon gives no size or height) |
+| The curtain | 8 chains hanging from the orb's underside round him (`*hs-curtain*`), moving with him: four at his left (bearings 70–150°), four at his right (210–290°), **none ahead** (the opponent) **and none behind** (the behind camera's line of sight); every free end **1.45–1.7 m from his feet at 0.3–0.95 m up** (waist to floor: a later clip can snap one out level at 1.1 m); a slow sway | the user's 「自身周遭有許多從鎖鏈球垂下來的鎖鏈」; the count and layout D |
+| The neck bundle | four chains twisted together (3 turns, tight 0.05 m at the bottom, fanning to 0.45 m under the orb) from the orb down to a knot 0.24 m above and 0.2 m behind his neck (clear of the head), then each of the four to one side of his neck (over the body's neck coil); a **slack tail** (sag 0.15 m) from the back of his neck to his lower right back | the user's 「數條鎖鏈捆成束後捆在自己…的脖子上」 + A picture (CFYOW: a thick twisted rope from the neck); the tail D (for the attacks from the neck) |
+| The noose (bind) | the same four-chain bundle from the orb to a knot behind the opponent's head and tied round his neck, plus two rings of links round it (20 links, r 0.085 m) | the user's 「（與對手）的脖子上」; §17 |
+| Inverted shadow | a pale additive patch on the ground under the orb (r 1.9 m, soft-edged: it reads as a pale ring) | A (via C) "shadows as if they were beams of light"; the look D |
+| Not done | the green spark up the payer's chain on a hit, the greyer world grade, each side's cover overlay (§11.4), the awakening cinematic (§11.5): later batches | — |
+
+Machinery: HISAGI-DRAW calls `%hs-orb-draw` on the Bankai's forms only (`%hs-bundle`, `%hs-tie`, the orb's place in
+`*hs-orb-v*` per side); every float through f32vecs, the chains through VFX-HS-CHAIN (a long hanging chain is drawn in two
+pieces: its 48-link cap spans ~5.8 m). Knobs: `*hs-orb-scale*`, `*hs-orb-h*`, `*hs-orb-side*`, `*hs-orb-back*`,
+`*hs-curtain*` (hisagi-art.lisp, a look). Debug: 83986–83994 (DUEL_GAMEPLAY "Debug commands"); 83901 also measures the
+Bankai and the bind.
+
+**Stills** (`tools/run.mjs --fixed-dt 16.666667`, 1280×720 and 720×1280): 83986–83991 (front, his left side, back,
+three-quarters, Kazeshini held out, the wide shot of the orb), 83992 / 83993 (the ranged mode in the match, behind camera,
+2 / 6 m), 83994 (a bind at 2 m); contact sheets per aspect.
+
+**Proof.** `simgate --seeds 10 --summary` (all 56 lines, his 7 pairings included: every awakened match draws the new body)
+and `--cvc` (yy / yk / kk PASS) byte-identical to the parent aa731c1 (`cmp`, the `[simgate] building` banner aside);
+duel-rules-test 9699 checks ALL PASS (the FK reach test unchanged: the same rig, weapon and `:length`); pkgcheck clean;
+`./build.sh duel` with only the 4 known Lille warnings; debug 83901 0 B in every state, the Bankai and the bind included
+(the first call after a scene grows the fx vertex buffer once, 131 KB at its SHIBARI row, because the probe piles 120 looks
+into one frame: 0 on the repeat; the match's cons/frame ~10 KB as the parent's). Cost to watch: the curtain and the
+bundles are ~1000 ink shards a frame (two bundles in a bind); SwiftShader stills render visibly slower (a phone check
+belongs to the playtest).
+
+**Known from the stills:** in the portrait match at 2 m a curtain chain (his right curtain, seen from behind) crosses the
+opponent's body; landscape keeps the fight clear. The hanging chains read as dotted ink links (VFX-HS-CHAIN's look, as the
+Shikai's chain).
+
+**For the user (D items):** the orb's size (~3.2 m across) and height (8 m: never in the match frame; only its chains
+are); the curtain's count (8) and its gaps ahead and behind (so it never stands between the camera and the fight); where
+the hanging chains end (1.45–1.7 m out, 0.3–0.95 m up); the bundle of four chains and its knot behind the head; the slack
+tail; the light patch reading as a ring; the coil's link size on the arm.
+
 ## 18. Open
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.

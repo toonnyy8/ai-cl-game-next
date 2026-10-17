@@ -288,7 +288,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   "The Bankai's hooks (both modes): the bind's state lives on the binder's HSS, so both modes answer B1b's bind hooks.")
 
 (defkit :hisagi :bankai
-  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi :weapon :kazeshini :stance :hs-stance
+  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-stance
   :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI"
   :walk *hs-r-walk* :run *hs-r-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *hs-r-mult* :taken *hs-r-taken*
   :push-reach *hs-r-push-reach*
@@ -308,7 +308,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
        :kikon-range 9.0 :reflex hs-r-ai-reflex :opp-reflex hs-ai-opp :sp-ender hs-r-ai-ender))
 
 (defkit :hisagi :bankai-bind
-  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi :weapon :kazeshini :stance :hs-stance
+  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-stance
   :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI" :endless-form :bankai
   :walk *hs-b-walk* :run *hs-b-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult 1.0 :taken 1.0
   :commands (:q :hs-b-j1 :f :hs-b-k1 :sig :hs-b-l :sp1 :hs-b-sp1 :sp2 :hs-b-sp2 :breaker :hs-breaker :kikon :hs-b-kikon)

@@ -1188,12 +1188,184 @@ the flags (a fixnum): 1 the right let-out is out, 2 the opponent 0.5-5.5 m ahead
             (if (< (aref *hs-fr* 0) 24f0) 8 0))))
 (defun-fast %hs-left-out-p () "The left let-out is out (*HS-LO* [8] > 0): 1 / 0. 0 B." (if (> (aref *hs-lo* 8) 0f0) 1 0))
 
+;;; ---------------------------------------------------------------- the Bankai 風死絞縄's look (DUEL_HISAGI §21.6)
+;; Presentation only (motion-refs §4.3; `BBSHisagi_s_Bankai`, `Hisagi_s_Bankai_CFYOW`): both modes wear the Shikai's body
+;; with his own chain coiled round the neck and the right upper arm and forearm (:HISAGI-BANKAI, a BODY-VARIANT: the same
+;; rig and hurt cylinder), keep the Shikai's Kazeshini in both hands (the user, 2026-10-17: 「不是 卍解的刀造型跟始解一樣」),
+;; and HISAGI-DRAW adds (%HS-ORB-DRAW) the jet-black orb of chains high overhead (out of the match camera's frame), a
+;; curtain of chains hanging from it at his left and right down to waist-to-floor height, a bundle of four chains twisted
+;; together from it down to his neck (and its slack tail), a pale light patch under it (canon's inverted shadow) and, in a
+;; bind, the same bundle tied round the opponent's neck (the noose). The orb sits off to his right (the bundles lean off
+;; the line between the two fighters from the behind camera): over his right shoulder in the ranged mode, over the pair's
+;; midpoint in the bind. (The user, 2026-10-17: 「鎖鏈球可以高到超出鏡頭，自身周遭有許多從鎖鏈球垂下來的鎖鏈，其中有數條鎖鏈捆成束後捆在
+;; 自己（與對手）的脖子上」.)
+(defun hs-coil-parts (r y0 y1 turns n)
+  "N chain links on a helix of radius R round the joint's up axis from Y0 to Y1 (TURNS turns), alternately flat on the
+coil and edge-on, every fourth a steel glint: shape specs for BODY-VARIANT."
+  (loop for i below n
+        for u = (/ (+ i 0.5) n) for a = (* 2 pi turns u) for flat = (evenp i)
+        collect (list :box 0.034 (if flat 0.02 0.007) (if flat 0.007 0.018)
+                      :at (list (* r (sin a)) (+ y0 (* u (- y1 y0))) (* r (cos a)))
+                      :rot (list (- (* (/ 180 pi) a)) 0 0) :c (if (zerop (mod i 4)) :link :chain))))
+
+(body-variant :hisagi-bankai :hisagi
+  :palette '((:chain #x1A1A20) (:link #x5A5A66))
+  :parts (list (cons :neck (hs-coil-parts 0.062 0.0 0.125 3 33))
+               (cons :upper-arm-r (hs-coil-parts 0.066 -0.04 -0.27 3.5 40))
+               (cons :lower-arm-r (hs-coil-parts 0.057 -0.02 -0.235 4 40))))
+
+(defun hs-mb-orb (mb)
+  "The orb (motion-refs §4.3: \"a jet-black orb made of chains\"): a black core 0.8 m round wound with eleven loops of
+chain 0.84-0.92 m round in planes tilted the golden angle apart (a tangle), 28 links a loop, alternately flat and
+edge-on, every third a steel glint."
+  (mbc mb #x09090C)
+  (mb-sphere mb 0.8 :segments 16 :rings 12)
+  (dotimes (k 11)
+    (let ((r (+ 0.84 (* 0.008 (mod (* k 7) 11)))))
+      (with-xform (mb (xform :yaw (* k 2.39996) :pitch (acos (- 1 (/ (* 2 (+ k 0.5)) 11)))))
+        (dotimes (i 28)
+          (mbc mb (if (zerop (mod i 3)) #x3C3C46 #x16161C))
+          (with-xform (mb (xform :yaw (* 2 pi (/ i 28))))
+            (with-xform (mb (xform :z r))
+              (mb-box mb 0.1 (if (evenp i) 0.05 0.018) (if (evenp i) 0.018 0.045)))))))))
+
+(defweapon :hs-orb (:length 0.9)
+  (:solid (hs-mb-orb mb)))
+
+(declaim (type f32vec *hs-orb-v* *hs-om* *hs-oc* *hs-b0* *hs-b1*))
+(defvar *hs-orb-v* (make-f32 8)
+  "Each side's orb centre as last drawn ([0-2] P1's, [3-5] P2's) and [6-7] whether it has one (1: eased from there).")
+(defvar *hs-om* (m4) "The orb's world matrix.")
+(defvar *hs-oc* (make-f32 3) "The orb's centre this frame.")
+(defvar *hs-b0* (make-f32 3) "A bundle segment's near end (%HS-BUNDLE).")
+(defvar *hs-b1* (make-f32 3) "A bundle segment's far end (%HS-BUNDLE).")
+(defparameter *hs-orb-scale* 1.7
+  "The orb's drawn size: its mesh (a 0.8 m core, chain loops to ~0.95 m) x 1.7, so ~1.6 m round (Brave Souls draws it
+larger than him; DUEL_HISAGI §21.6: the lead's proposal, 2026-10-17; canon gives no size).")
+(defparameter *hs-orb-h* 8.0
+  "The orb's centre height (m), both modes: overhead and out of the 2 m / 6 m behind camera's frame (the user, 2026-10-17:
+「鎖鏈球可以高到超出鏡頭」); its chains come down into the frame.")
+(defparameter *hs-orb-side* 1.5 "How far to his right the orb hangs (m), both modes: the neck bundles lean off the line
+between the fighters from the behind camera.")
+(defparameter *hs-orb-back* 0.5 "How far behind him the orb hangs in the ranged mode (m); a bind puts it over the midpoint.")
+(defparameter *hs-curtain*
+  '((70.0 1.5 0.95) (100.0 1.7 0.45) (125.0 1.45 0.75) (150.0 1.65 0.3) (210.0 1.6 0.6) (235.0 1.45 0.9) (260.0 1.7 0.35)
+    (290.0 1.5 0.8))
+  "The chains hanging from the orb round him (the user, 2026-10-17: 「自身周遭有許多從鎖鏈球垂下來的鎖鏈」; 「攻擊可以從周遭垂下來的鎖鏈
+或自己頸部的鎖鏈發動」): (bearing in degrees from his facing, counter-clockwise from above; distance from his feet, m; the
+free end's height, m). Two curtains, at his left and his right: none ahead (the opponent) and none behind (the behind
+camera's line), every end 1.45-1.7 m from him at 0.3-0.95 m up (waist to floor: a clip can snap one out level).")
+(declaim (type f32vec *hs-curtain-v*))
+(defvar *hs-curtain-v* (coerce (mapcar #'f32 (apply #'append *hs-curtain*)) 'f32vec) "*HS-CURTAIN* flat, as floats.")
+
+(defun-fast %hs-bundle (top bot n tw r0 r1)
+  "N chains twisted round each other from TOP down to BOT (f32vecs): a helix of TW turns, its radius R0 at the bottom
+(tight round a neck) to R1 at the top (fanning out under the orb, growing as u^3), 14 straight pieces a chain, each drawn
+by VFX-HS-CHAIN (R0 R1 TW: f32vec-free single floats, literals at the call). 0 B."
+  (declare (type f32vec top bot) (fixnum n) (single-float tw r0 r1))
+  (let* ((p *hs-b0*) (q *hs-b1*)
+         (dx (- (aref top 0) (aref bot 0))) (dy (- (aref top 1) (aref bot 1))) (dz (- (aref top 2) (aref bot 2)))
+         (l (f-max 0.1f0 (f-hypot dx dy dz))) (ux (/ dx l)) (uy (/ dy l)) (uz (/ dz l))
+         (hl (f-hypot ux uz)) (ax (if (> hl 0.01f0) (/ uz hl) 1f0)) (az (if (> hl 0.01f0) (/ (- ux) hl) 0f0))
+         (bx (* uy az)) (by (- (* uz ax) (* ux az))) (bz (- (* uy ax))))      ; (A horizontal, B = U x A)
+    (declare (type f32vec p q) (single-float dx dy dz l ux uy uz hl ax az bx by bz))
+    (dotimes (c n)
+      (dotimes (i 15)
+        (let* ((u (/ (i->f i) 14f0)) (ph (+ (* 6.2831855f0 tw u) (/ (* 6.2831855f0 (i->f c)) (i->f n))))
+               (r (+ r0 (* (- r1 r0) u u u))) (cp (* r (f-cos ph))) (sp (* r (f-sin ph))))
+          (declare (single-float u ph r cp sp))
+          (setf (aref q 0) (+ (aref bot 0) (* u dx) (* cp ax) (* sp bx))
+                (aref q 1) (+ (aref bot 1) (* u dy) (* sp by))
+                (aref q 2) (+ (aref bot 2) (* u dz) (* cp az) (* sp bz)))
+          (when (> i 0) (vfx-hs-chain p q 0f0 0.9f0))
+          (replace p q)))))
+  nil)
+
+(defun-fast %hs-tie (top jm)
+  "A neck bundle (§21.6): four chains twisted together (%HS-BUNDLE) from TOP (an f32vec: the orb's bottom) down to a knot
+0.24 m above and 0.2 m behind the neck joint of the joints JM (clear of the head), then each of the four from the knot to
+one side of the neck (the noose's tie). Uses *HS-W* and *HS-Q*. 0 B."
+  (declare (type f32vec top jm))
+  (let ((w *hs-w*) (q *hs-q*))
+    (declare (type f32vec w q))
+    (joint-point! w jm (ji :neck) 0f0 0.24f0 0.2f0)
+    (%hs-bundle top w 4 3.0f0 0.05f0 0.45f0)
+    (joint-point! q jm (ji :neck) 0.075f0 0.07f0 0f0) (vfx-hs-chain w q 0.03f0 0.9f0)
+    (joint-point! q jm (ji :neck) -0.075f0 0.07f0 0f0) (vfx-hs-chain w q 0.03f0 0.9f0)
+    (joint-point! q jm (ji :neck) 0f0 0.07f0 0.075f0) (vfx-hs-chain w q 0.02f0 0.9f0)
+    (joint-point! q jm (ji :neck) 0f0 0.07f0 -0.075f0) (vfx-hs-chain w q 0.03f0 0.9f0)))
+
+(defun-fast %hs-orb-draw (jm pos fa opos ojm side bound tint)
+  "The Bankai's orb (DUEL_HISAGI §21.6), drawn by HISAGI-DRAW in both modes: its centre *HS-ORB-H* up and *HS-ORB-SIDE* to
+his right, *HS-ORB-BACK* behind him (BOUND 1, a bind: over the pair's midpoint), eased there at 2.5 /s (placed at once on
+a still or a jump > 8 m; SIDE 0 / 1 his slot in *HS-ORB-V*), swaying, turning slowly, *HS-ORB-SCALE* x its mesh; the pale
+light patch under it (the inverted shadow); the curtain of chains hanging from it round him (*HS-CURTAIN*, moving with
+him); the bundle of four chains twisted together from it down to the back of his neck (JM his joints, POS his feet, FA[0]
+his facing) and its slack tail down his back; in a bind the same bundle to the opponent's neck (OPOS, OJM), tied twice
+round it. TINT: his body's (the mirror's P2). 0 B."
+  (declare (type f32vec jm pos fa opos ojm) (fixnum side bound))
+  (let* ((ov *hs-orb-v*) (c *hs-oc*) (m *hs-om*) (v *hs-v*) (w *hs-w*) (q *hs-q*)
+         (tm (fx-clock)) (yaw (aref fa 0)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (rx (f-cos yaw)) (rz (- (f-sin yaw)))
+         (sd (the single-float *hs-orb-side*)) (bk (the single-float *hs-orb-back*)) (sc (the single-float *hs-orb-scale*))
+         (tx (if (= bound 1) (+ (* 0.5f0 (+ (aref pos 0) (aref opos 0))) (* sd rx)) (+ (aref pos 0) (* sd rx) (- (* bk fx)))))
+         (tz (if (= bound 1) (+ (* 0.5f0 (+ (aref pos 2) (aref opos 2))) (* sd rz)) (+ (aref pos 2) (* sd rz) (- (* bk fz)))))
+         (tx (+ tx (* 0.1f0 (f-sin (+ (* 0.6f0 tm) (* 2f0 (i->f side)))))))
+         (ty (+ (the single-float *hs-orb-h*) (* 0.08f0 (f-sin (* 0.9f0 tm)))))
+         (o (* 3 side)) (dt (aref *hs-grip-v* 2))
+         (ex (- tx (aref ov o))) (ey (- ty (aref ov (+ o 1)))) (ez (- tz (aref ov (+ o 2))))
+         (k (if (or (<= dt 0f0) (< (aref ov (+ 6 side)) 0.5f0) (> (+ (* ex ex) (* ey ey) (* ez ez)) 64f0)) 1f0
+                (f-min 1f0 (* 2.5f0 dt))))
+         (s (* 0.25f0 tm)) (cs (* sc (f-cos s))) (ss (* sc (f-sin s))) (bot 0f0))
+    (declare (type f32vec ov c m v w q) (fixnum o)
+             (single-float tm yaw fx fz rx rz sd bk sc tx tz ty dt ex ey ez k s cs ss bot))
+    (setf (aref ov o) (+ (aref ov o) (* k ex)) (aref ov (+ o 1)) (+ (aref ov (+ o 1)) (* k ey))
+          (aref ov (+ o 2)) (+ (aref ov (+ o 2)) (* k ez)) (aref ov (+ 6 side)) 1f0
+          (aref c 0) (aref ov o) (aref c 1) (aref ov (+ o 1)) (aref c 2) (aref ov (+ o 2))
+          bot (- (aref c 1) (* 0.75f0 sc)))
+    (setf (aref m 0) cs (aref m 1) 0f0 (aref m 2) (- ss) (aref m 3) 0f0
+          (aref m 4) 0f0 (aref m 5) sc (aref m 6) 0f0 (aref m 7) 0f0
+          (aref m 8) ss (aref m 9) 0f0 (aref m 10) cs (aref m 11) 0f0
+          (aref m 12) (aref c 0) (aref m 13) (aref c 1) (aref m 14) (aref c 2) (aref m 15) 1f0)
+    (draw-weapon :hs-orb m :tint tint)
+    ;; the inverted shadow: a pale patch on the ground under it
+    (%sector-verts :add 20 (aref c 0) 0f0 (aref c 2) 0f0 (* 1.1f0 sc) 0f0 3.1415927f0 0.2f0 0.21f0 0.2f0 0.5f0)
+    (let ((cv *hs-curtain-v*))                                          ; the curtain round him
+      (declare (type f32vec cv))
+      (dotimes (j (floor (length cv) 3))
+        (let* ((b (aref cv (* 3 j))) (y (aref cv (+ 2 (* 3 j))))
+               (a (+ yaw (* 0.017453292f0 b))) (r (aref cv (+ 1 (* 3 j))))
+               (gx (+ (aref pos 0) (* r (- (f-sin a))))) (gz (+ (aref pos 2) (* r (- (f-cos a)))))
+               (sw (* 0.05f0 (f-sin (+ (* 1.1f0 tm) b)))))
+          (declare (single-float b y a r gx gz sw))
+          (setf (aref w 0) (+ gx sw) (aref w 1) y (aref w 2) gz
+                (aref v 0) (+ (aref c 0) (* 0.6f0 (- gx (aref c 0)))) (aref v 1) bot
+                (aref v 2) (+ (aref c 2) (* 0.6f0 (- gz (aref c 2)))))
+          (dotimes (i 3) (setf (aref q i) (* 0.5f0 (+ (aref v i) (aref w i)))))   ; (two pieces: VFX-HS-CHAIN's 48 links
+          (vfx-hs-chain v q 0f0 0.9f0) (vfx-hs-chain q w 0f0 0.9f0))))          ;  span ~5.8 m)
+    ;; his neck bundle: four chains twisted from the orb down behind his head, tied round his neck; its slack tail
+    (setf (aref v 0) (aref c 0) (aref v 1) bot (aref v 2) (aref c 2))
+    (%hs-tie v jm)
+    (joint-point! w jm (ji :neck) 0f0 0.07f0 0.06f0)
+    (joint-point! v jm (ji :spine) 0.12f0 -0.05f0 0.2f0)
+    (vfx-hs-chain w v 0.15f0 0.9f0)
+    (when (= bound 1)                                                  ; the noose: the same bundle round his neck
+      (setf (aref v 0) (aref c 0) (aref v 1) bot (aref v 2) (aref c 2))
+      (%hs-tie v ojm)
+      (joint-point! w ojm (ji :neck) 0f0 0.07f0 0f0)
+      (dotimes (i 20)
+        (let* ((a (* 0.62831855f0 (i->f i))) (ca (f-cos a)) (sa (f-sin a)) (y (if (< i 10) -0.015f0 0.02f0)))
+          (declare (single-float a ca sa y))
+          (fx-shard (+ (aref w 0) (* 0.085f0 ca)) (+ (aref w 1) y) (+ (aref w 2) (* 0.085f0 sa)) (- sa) 0f0 ca
+                    0.075f0 (if (evenp i) 0.026f0 0.012f0) 0.02f0 (+ (i->f i) 990f0) +pal-ink+ 0.95f0)))))
+  nil)
+
 (defun hisagi-draw (e rdt)
   "His :draw hook (on the posed body): the left sickle (in his fist, flying, out at the anchor, returning, let out on its
 chain), the chain, the windmill, the lightning. A look: every point is the sim's (the anchor, *HS-FLIGHTS*' reach,
 HS-CHAIN-SEG's ends) or the clip's let-out (*HS-LETOUT*, at the strike's volume edge on its hit frames). The Shikai's looks
-(DUEL_HISAGI §21.4) only in his base form; the Bankai's forms as B2a drew them. Nothing while the sealed sword is in hand
-(the intro)."
+(DUEL_HISAGI §21.4) only in his base form; the Bankai's forms as B2a drew them (their clips wait for their pass) with the
+Shikai's Kazeshini (the user: the same blades), plus the orb, its rope and a bind's noose (%HS-ORB-DRAW, §21.6). Nothing while the sealed sword is in
+hand (the intro)."
   (let* ((f (fighter e)) (m (model e)) (st (hs e)) (mv (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (fighter-move f)))
          (name (and mv (mv-name mv))) (sf (fighter-sf f)) (o (opp-of e)) (fa *hs-a*) (bolt 0)
          (shikai (eq (fighter-form f) :base)) (lo 0) (geo 0) (an (model-anim m)) (c (anim-clip an)) (cn (and c (clip-name c))))
@@ -1237,12 +1409,16 @@ HS-CHAIN-SEG's ends) or the clip's let-out (*HS-LETOUT*, at the strike's volume 
                 (t (when (and shikai (eq cn :hs-s-kubikake) (logtest geo 8) (logtest geo 4))
                      (setf lo (logior lo 8)))                          ; (KUBIKAKE: the slack round his neck)
                    (values 0 0 0 1)))
-        (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo)))))
+        (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
+      (unless shikai                                                   ; the Bankai: the orb, the rope, the noose (§21.6)
+        (%hs-orb-draw (model-joints m) (pos-of e) fa (pos-of o) (model-joints (model o)) (if (eq e *p1*) 0 1)
+                      (if (hss-bound st) 1 0) (model-tint m))))))
 
 (defun hisagi-look-cons-check ()
   "Debug 83901 (P1 Hisagi): bytes consed by 10 calls of his :pose hook and HISAGI-DRAW in the stance, out at the anchor, in
 NAGE's hit frame, in HIKI's, in the windmill, and (the Shikai's clips, §21.4) J1's short grip, J3's two let out, KARI-OTOSHI's,
-SHIBARI's wrap and KUBIKAKE's garrote: each must be 0."
+SHIBARI's wrap and KUBIKAKE's garrote, and the Bankai's look (§21.6: the orb, the rope) in the stance and
+with the noose of a bind: each must be 0."
   (let* ((e *p1*) (f (fighter e)) (st (hs e)) (m (model e)) (an (model-anim m)) (c0 (anim-clip an)) (t0 (anim-time an))
          (state (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)) (s0 (hss-state st))
          (ct (fighter-contact f)) (p (pos-of e)))
@@ -1260,11 +1436,17 @@ SHIBARI's wrap and KUBIKAKE's garrote: each must be 0."
              (rin (progn (at :hs-j3 10 :hs-s-rin) (bytes)))
              (kari (progn (at :hs-k3 24 :hs-s-kari) (bytes)))
              (shibari (progn (at :hs-shibari 30 :hs-s-shibari) (setf (fighter-contact f) :hit) (bytes)))
-             (kubi (progn (setf (fighter-contact f) ct) (at :hs-breaker 9 :hs-s-kubikake) (bytes))))
+             (kubi (progn (setf (fighter-contact f) ct) (at :hs-breaker 9 :hs-s-kubikake) (bytes)))
+             (fm (fighter-form f)) (b0 (hss-bound st))
+             (bankai (progn (setf (fighter-state f) :idle (fighter-move f) nil (fighter-form f) :bankai
+                                  (anim-clip an) (find-clip :hs-stance))
+                            (bytes)))
+             (bind (progn (setf (hss-bound st) t) (bytes))))
         (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (hss-state st) s0
-              (fighter-contact f) ct (anim-clip an) c0 (anim-time an) t0)
+              (fighter-contact f) ct (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm
+              (hss-bound st) b0)
         (log-msg "duel hisagi look consing (10 calls, B): stance ~d, out ~d, NAGE ~d, HIKI ~d, windmill ~d, J1 grip ~d, J3 ~d, ~
-KARI-OTOSHI ~d, SHIBARI ~d, KUBIKAKE ~d" idle out nage hiki kaza grip rin kari shibari kubi)))))
+KARI-OTOSHI ~d, SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d" idle out nage hiki kaza grip rin kari shibari kubi bankai bind)))))
 (pushnew '(83901 83901 hisagi-art-debug) *char-debug* :test #'equal)
 (defun hisagi-art-debug (c) (declare (ignore c)) (hisagi-look-cons-check))
 
@@ -1403,3 +1585,34 @@ stamp, silence; on him, the sickle's cut; the shatter: a negative, a manga page;
   (start-cine 'hs-look-cine *p1* *p2*))
 (pushnew '(83980 83985 hisagi-look-debug) *char-debug* :test #'equal)
 (defun hisagi-look-debug (c) (hisagi-look-scene (- c 83980)))
+
+;;; ---------------------------------------------------------------- the Bankai's model sheet (debug 83986-83994: stills, a look)
+;; 83986+k, k 0-5: him awakened (the ranged mode) alone on a white card, 8 m from an idle Kenpachi, held 4 s in a cinematic
+;; shot (*HS-BK-LOOK-SHOTS*): the front, his left side, the back, three-quarters from his left front, Kazeshini held out
+;; to his right, and a wide shot up at the orb, its curtain and his neck bundle; 83992 / 83993 the match (the behind camera) in the
+;; ranged mode 2 / 6 m from Kenpachi; 83994 a bind 2 m from him (no damage dealt: the noose, the orb over the pair).
+(defparameter *hs-bk-look-shots*
+  '((0 4.6 1.0 0.92 35 0.0 :hs-stance) (90 4.6 1.0 0.92 35 0.0 :hs-stance) (180 4.6 1.0 0.92 35 0.0 :hs-stance)
+    (35 4.6 1.0 0.92 35 0.0 :hs-stance) (0 2.0 1.3 1.3 40 1.0 :hs-look-weapon) (-30 19.0 2.0 4.6 50 -1.5 :hs-stance))
+  "83986+k: (angle around his facing, distance, eye height, look height, lens, aim off to the shot's left, clip).")
+(defvar *hs-bk-look-k* 0 "The Bankai sheet's shot (83986+k).")
+(defcine hs-bk-look-cine (a v :len 240 :hold 60)
+  "The Bankai sheet's held shot *HS-BK-LOOK-K* (*HS-BK-LOOK-SHOTS*) of A alone on a white card, 4 s; then the match again."
+  (at 0 (destructuring-bind (ang dist h look fov off clip)
+            (if (and (= *hs-bk-look-k* 4) (portrait-p)) *hs-look-weapon-tall* (nth *hs-bk-look-k* *hs-bk-look-shots*))
+          (card :white a) (cine-clip a clip :blend 0) (shot-on a ang dist h :look look :off off) (lens fov))))
+(defun hisagi-bankai-look (c)
+  "83986+k: the Bankai's model sheet shot k (0-5, HS-BK-LOOK-CINE), 6 / 7 the ranged mode 2 / 6 m from Kenpachi in the
+match, 8 a bind 2 m from him; P1 Hisagi awakened (HS-AWAKEN-NOW!), P2's CPU off."
+  (let ((k (- c 83986)))
+    (setf *cine-hold* nil)
+    (abort-cine)
+    (ensure-battle :hisagi :kenpachi)
+    (when (brain *p2*) (setf (brain-off (brain *p2*)) t))
+    (place *p1* *p2* (case k (6 2.0) (7 6.0) (8 2.0) (t 8.0)))
+    (hs-reset *p1*)
+    (full-gauges! *p1*) (full-gauges! *p2*)
+    (hs-awaken-now! *p1*)
+    (cond ((< k 6) (setf *hs-bk-look-k* k) (start-cine 'hs-bk-look-cine *p1* *p2*))
+          ((= k 8) (hs-bind-start! *p1*) (set-form *p1* :bankai-bind)))))
+(pushnew '(83986 83994 hisagi-bankai-look) *char-debug* :test #'equal)
