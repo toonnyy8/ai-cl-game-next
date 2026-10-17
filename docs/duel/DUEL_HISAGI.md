@@ -460,12 +460,13 @@ counter dumps. His pairings: k 28–35 (`gate_cmd`: 2163–2170; HL, k 33, retir
      the hit collector and read by `x-line-gap` / `snap-near-p` (HIKI, HODOKI);
   3. a kit `:push-reach` (the K ender's push measured from it; Q6 B: 6.0, ≈ 6.45 m);
   4. a kit `:command` hook consulted by `kit-command-move` (the OUT graph's `:q` / `:f`);
-  5. the orb: one `reiatsu-gain!` for every Reiatsu gain, the exchange in `deal-damage` and in the scorch / mirror burns,
+  5. (**superseded by §17.4 5a–5j**, the bind) the orb: one `reiatsu-gain!` for every Reiatsu gain, the exchange in `deal-damage` and in the scorch / mirror burns,
      the `*kikons*` filter at the start of `settle-souls`, the absorbed counter beside `gauges-dealt`, `orb-covered-p` for
      the generic CPU's Reishi reads;
   6. a move flag `:ranged-ward` (the windmill: hazards and `:ranged` windows guarded from every side; unguardables
      through; the crush drops the move);
-  7. a kit `:p` hook (P in an awakened form, from a run too: the drop) and a kit `:awaken-ok` hook (the entry rule, the
+  7. (**superseded by §17.4 7a–7b**: `:p` kept for the throw / release, `:awaken-ok` dropped) a kit `:p` hook (P in an
+     awakened form, from a run too: the drop) and a kit `:awaken-ok` hook (the entry rule, the
      CPU's and the A/B's too);
   8. the CPU's ranged-threat reader.
 
@@ -483,8 +484,8 @@ counter dumps. His pairings: k 28–35 (`gate_cmd`: 2163–2170; HL, k 33, retir
   | 4 | kit hook `:command` in `:hooks`, `(e cmd)` → a MOVE or NIL | kit.lisp `kit-command-move (kit command &optional e)` | absent: the `:commands` entry | consulted only when a fighter is passed: `try-command` (the start), `ender-push`, `string-opener-p`. The CPU's reach reads, costs (`kit-command-cost`), the `:ok` refusal check and the HUD still read the static `:commands` (the OUT graph's J has the IN J's reach; MODOSHI costs nothing). **Correction**: the hook returns a MOVE, not a name, because a move named only by the hook is not in the form's `kit-moves` (they are gathered from `:commands`, `:strings` and the L links); Hisagi's file looks his OUT moves up itself (`find-move`) |
   | 6 | move flag `:ranged-ward` | rules.lisp `ranged-ward-p` (pure), combat.lisp `apply-hit` | absent | while the defender is in such a move (any phase, its hold too) and can guard (`can-guard-p`: gauge > 0, not guardless), a ranged hit (`ranged-hit-p`: hazards, `:ranged` windows beyond their `:melee-range`) resolves as against a held guard with a ward: 360°, no blockstun, the hit's full guard value (no `*ward-mult*`: that is West's `:ward` passive only) and its usual chip; unguardables pass (`resolve-contact`); a drain to 0 is the generic GUARD CRUSH (`set-reaction :guard-break`), which ends the move. The ward's 6 f pushback slide applies (as West's) |
   | 8 | `ranged-threat-in (e b s d lo hi)` | ai.lisp (+ kit.lisp `ranged-window-lead`) | unused: no caller | T when a ranged hit reaches E within LO..HI frames as perceived: an opponent hazard with hits left (moving: delay + distance / speed; standing: its delay while it touches E), or his perceived move's next `:ranged` window (lead less the perception delay) with E in reach by `snap-near-p` (lines, segments, the reach) beyond its `:melee-range`. Covers Lille's lines and traces, waves, fireballs, walls, pillars |
-  | 5 | (the orb support) | — | — | **held: the Bankai is being redesigned** (the lead, 2026-10-17) |
-  | 7 | (`:p`, `:awaken-ok`) | — | — | **held: the Bankai is being redesigned** |
+  | 5 | (the bind support) | — | — | **held; re-specified for the bind in §17.4 (5a–5j)**, to build after the §17.6 answers |
+  | 7 | (`:p`) | — | — | **held; re-specified in §17.4 (7a–7b)**; `:awaken-ok` dropped |
 - His own hooks: the anchor, the timers, the held K, the drags, the 6 m stop, the noose freeze, the cover (`:tick`,
   `:hit`, `:struck`).
 - A character-file change: `senjumaru.lisp`'s 星 `gauge-move` goes through `reiatsu-gain!` (O2).
@@ -604,9 +605,233 @@ single Bankai string set. Shared hook 5 and 7 (held in B1) are redesigned from t
 - The readings marked above and the 1-per-2 drain were restated to the user; no objection (2026-10-17), so they stand
   until the playtest.
 
-Next: the two move sets (ranged, bind) as segment tables (`duel-move-modules`).
+§17.1–§17.6 below give the two move sets as segment tables (`duel-move-modules`), the entry, the bookkeeping, the
+shared hooks, a self-check and the questions left.
+
+**Conventions for §17.1–§17.6.** Every number is **the lead's proposal** (2026-10-17) unless it quotes the user (the
+table above). Where a question in §17.6 is open, the body assumes its recommended option (marked "Q9 A" etc.). Forms:
+`:bankai` = the ranged mode (prefix `hs-r-`), `:bankai-bind` = the bind mode (prefix `hs-b-`); a mode is a kit form, so
+the switch between them is a `set-form` and happens **only out of a move** (`duel-character-rework`'s form-switch
+regression). The Shikai (§7–§8) and §13's Q3–Q6, Q8 are unchanged. The Bankai has **no out-of-hand state** (canon: the
+scythes come back to his hands, notes §2.3) and **no windmill** (L is the push / the pull now). Damage before the form's
+multiplier; reach centre to centre where the doc says "from him", else from his feet along his facing. Roster numbers
+quoted from the code (2026-10-17): `yama.lisp`, `rukia.lisp`, `ken.lisp`, `ichigo.lisp`, `barro.lisp`.
+
+### 17.1 The ranged mode (`:bankai`, the default after the awakening)
+
+The user: 「由鎖鏈球設計與揮打鎖鏈為攻擊主體，此時前搖大、攻擊距離長， L 會將人推開」. J = chains swung from his hands
+(mid reach), K / SP / O = chains from the orb (long reach). Everything beyond 2.0 m is `:ranged` (`:melee-range` 2.0, as
+the Shikai's throw): West's ward and KASA treat it as ranged, KŌSEI pays only within 2.0 m.
+
+**Stats**
+
+| Stat | Value | Matched |
+|---|---|---|
+| Dealt / taken | ×1.0 / ×1.0 (`*hs-r-mult*`, `*hs-r-taken*`: the first pacing knobs) | the Shikai's 1.15 lowered: the reach is the power; Lille's base 1.3 / 1.0 with paid lines |
+| Walk / run | 3.4 / 8.5 m/s | Lille's base (`*br-walk*`, `*br-run*`), the roster's ranged fighter |
+| Hurt cylinder | as the Shikai (r 0.36, h 1.8) | — |
+| Kikon worth | 3 (Soul Break 4) | every awakened form |
+
+**Segments** (the general string rules: three links, one switch, routes JJJ JJK JKK KKK KKJ KJJ, the latch, the string
+gate, `:enter` on K2 / K3; one move per (link, button) + the J2s / K2s copies)
+
+| Move | Kind | S / A / R | Dmg | Guard | Block | Reach (volume) | Reaction | Push / drag | Role | Matched |
+|---|---|---|---|---|---|---|---|---|---|---|
+| J1 鎖鞭 SABEN | quick | **12** / 3 / 12 | 22 | 8 | −2 | **4.0 m** arc 100° (the swung chain), `:no-close` | flinch, **hitstun 24** | — | the mid poke; S 12 loses to every J1 (7–10) | Lille's J1 / J2 hitstun 24 (DUEL_LILLE_V3 §28); Rukia K1's 2.8 m is the roster's longest K1 today |
+| J2 返鞭 KAESHI-BEN (+ J2s) | quick | 11 / 3 / 13 | 22 | 8 | −2 | 4.0 m arc 100° (the other way) | flinch 24 | — | link | — |
+| J3 旋鎖 SENSA | quick, ender | 13 / 3 / 18 | 30 | 12 | −4 | 4.4 m arc 180° | stagger | ender push out of J1's reach: 4.0 + body + 0.05 ≈ **4.45 m** | the mid finish; O ender | Lille's J3 S 12 (`br-j3`) |
+| K1 墜鎖 TSUISA | flash | **22** / 4 / 22 | 52 | 14 | −3 | **7.5 m** line from the orb, `:cap 0.3 7.5 1.1 0.35`, `:track` 30 °/s, `:no-close` | stagger | **drags to 3.5 m on hit** over 10 f (inside J's 4.0 m, so KJJ reaches; the Shikai NAGE's rule with 3.5 for 1.6) | the long poke | KUSARI-BIKI 7 m S 16 (an SP); NADEGIRI 8 m S 20 (an SP); the Shikai NAGE 6 m S 18 |
+| K2 / K2s 薙鎖 NAGISA | flash | 24 / 4 / 24, `:enter` 6 → **S_eff 18** | 44 | 14 | −3 | 6.0 m arc 140° (a chain sweeps the ground) | stagger | — | link | — |
+| K3 落鎖 RAKUSA | flash, ender | 24 / 5 / 34, `:enter` 6 → S_eff 18 | 66 | 18 | −20 | 7.5 m line, r 0.5 (a bundle of chains dropped from the orb) | crumple | ender push out of K1's reach: kit `:push-reach` 7.5 (§12.4 hook 3) → ≈ **7.95 m** (Q6 B's rule, the K1 of this form) | the heavy finish; O ender | Kenpachi K3 R 34 −20 |
+| L 鎖払 SAHARAI | sig | **14** / 4 / 22 | 30 | 14 | −4 | r **3.0 m, 360°** (the chains whirled round him) | knockback | **hit: pushed to 6.5 m** from him (18 f slide); **block: pushed to 4.5 m** (the block slide, the blockstun sized to −4) | the escape at close range; **cooldown 120 f** from the press | West's SHONETSU (S 16, 360°, cooldown 150); the Shikai windmill's push |
+| Shift+K SP1 綴雷電 TSUZURI RAIDEN | sp | 20 / 3 / 24 | 110 | 22 | −14 | 9.0 m line, `:track` 30 | `:bind` 40 (paralysis) | — | 1 bar; cancels a J / K link on hit (generic) | KUSARI-BIKI's bind 40; the Shikai SP1 6.5 m |
+| Shift+L SP2 鎖雨 KUSARI-AME | sp | **30** / 14 / 30 alone; off a J / K string hit `:enter` 10 → S_eff 20 (the charge-less copy) | 70 + 90 | 22 each | −18 | a lane 10 m × 2 m from him (`:cap 1.0 10.0 1.2 1.0`): aims 120 °/s for 6 f, then locked | two windows (f30–33 70 flinch, f40–43 90 knockdown) | — | 2 bars (awakened); the long-range spend-all; alone a 30 f tell, −18 | Brave Souls' "chains rain from a sphere"; Lille's `:br-k-hiren-c` copy; Kyokujitsujin's 9 m cone |
+| I | Breaker | the universal Breaker (§4) | 150 | | | 1.35 m | | | look: the chain round his arm slammed down | every Breaker |
+| O 降鎖 KŌSA | kikon module | aura 6 (aim 120 °/s), **no dash**, strike 20 / 2 / 30 locked, `:ender-dash` 0 | 70 | | −14 | lane `:cap 0.5 9.0 1.2 1.0` | | | chains rain along a lane; cooldown 90; Kikon 3 | ENJO 9 m S 20; HAKKA 7.5 m |
+| P 首掛 **KUBIKAKE** | the binding throw | §17.2 | | | | 7.0 m | | | the entry to the bind | — |
+| Step / Hoho | generic | Step 2.5 m (J-cancel from f12: a back Step → J1 is his retreating poke); Hoho 30 FS (behind him: into his weak range) | | | | | | | | |
+
+- **Budget exception (stated, host-pinned):** the ranged mode's J1 S 12 and K1 S 22 sit outside DUEL_STRINGS §2.1's
+  J1 7–10 / K1 16–20 band (「前搖大」); the host test gets a per-form band for `:bankai` (J1 11–13, K1 21–24) and still
+  pins S(K1) − S(J1) = 10 ≥ 7, every on-hit link, K ≥ J + 0.5 m (7.5 / 6.0 / 7.5 ≥ 4.5) and the −2 / −3 / −4 / −20.
+- **Combo arithmetic (hitstop included, host-pinned):** J1 (A 3, hitstun 24) → J2 S 11: 14 ≤ 23; → K2s S_eff 18: 21 ≤ 23.
+  K1 (A 4, stagger 26) → K2 18: 22 ≤ 25; → J2s 11: 15 ≤ 25, the 10 f drag ends before it. K2 → K3 18: 22; → J3 13: 17.
+  J3 / K3 → O lane S 20: 3 + 20 = 23 ≤ 25 / 5 + 20 = 25 ≤ 39 (lane 9 m + r 1.0 covers the 7.95 m push). SP1 off K: 24 ≤ 25, off J: 23;
+  SP2's copy S_eff 20 the same. Block gaps: a K link after anything 18 − 3 = 15 ≥ 11.
+- **Routes on hit** (×1.0): JJJ 74, JJK 110, JKK 132, KKK 162, KKJ 126, KJJ 104. Lille's attack state for comparison:
+  JJJ 76, KKK 166 (×1.3: 99 / 216). Under the Shikai's (JJJ 113, KKK 228 after ×1.15): the reach and the bind pay for it.
+- **Ranged without a price?** Lille's rule 「沒有消耗資源的話就不能有遠距離攻擊」 was his; the user asked this mode for long
+  unpaid reach (「攻擊距離長」). The price here: the startup (every attack ≥ S 11), the awakening spent, KŌSEI unpaid
+  beyond 2.0 m (so his Reiatsu, needed for the bind, builds only from +3 /s and the hit gains: ~30 s a bar), and 2 m.
+
+**At 2 m in this mode** (weak by design; the user's 「前搖大」). His fastest hit is J2's S 11; every opponent's J1
+(S 7–10) beats a J1 / L started together, and a Breaker beats his guard. What he does:
+1. **Guard, then L 鎖払 in a gap**: S 14 fits the gaps a K link (≥ 11 f, mostly ≥ 14) or an ender leaves; on hit he is at
+   6.5 m (his K1 band), on block at 4.5 m at −4 (no J1 reaches from there). Whiffed or stuffed: 120 f without it.
+2. **Step back + J1**: a back Step (2.5 m, iframes f3–f9) J-cancelled at f12 puts J1's 4.0 m arc on whoever follows.
+3. **Run** (8.5 m/s): faster only than Yamamoto (8.0); Rukia (9.0) and Kenpachi (10) catch him.
+4. **The throw at 2 m** works (the line starts at his feet) but S 24 is the slowest thing he owns: a read, not an escape.
+The risk, said plainly: a rushdown (Kenpachi, Ichigo) who blocks one L has 120 f of him without it; the CPU target in
+§17.5 #12 watches it.
+
+### 17.2 The binding throw 首掛 KUBIKAKE (the entry)
+
+The user: 「鎖鏈命中才進入」, 「至少要有兩格 reiatus 才能開啟捆綁」. Canon: 首掛け is his one named technique, the chain round
+the neck (ch. 337 / 384); in the Bankai it becomes the noose (notes §2.4).
+
+| Piece | Rule |
+|---|---|
+| Button | **P** in the ranged mode (the awakening button, free once he is awakened: Kenpachi's second P is the precedent); from idle / walk / guard / **run** (§17.4 hook 7); not from blockstun, never as a cancel (no J / K / SP route into it: it must be a read). Touch: the AWAKEN chip (held 300 ms) stays shown, labelled BIND |
+| Frames | **S 24 / A 4 / R 30**; a whiff R + 12 = 42 (the K-link whiff rule); no armour; `:track` 30 °/s in the startup only (the S-frame tell: the blade raised, the chain whirled overhead, canon's release gesture) |
+| Volume | a **7.0 m** line from his hand, `:cap 0.3 7.0 1.1 0.35`, `:ranged` beyond 2.0, `:no-close`; damage **40**, guard 14 |
+| Guardable / Step-able | yes: a front guard (200°) blocks it, West's ward, KASA and a parry within 2.0 m catch it as any ranged window; a side Step started by the startup's f16 clears it (30 °/s × 24 f = 12°, 1.5 m at 7 m; host-check against the 2.5 m Step); Step / Hoho iframes dodge it |
+| On hit (counter-hit too) | the bind starts (§17.3). The victim is **yanked to 2.0 m over 12 f** (the noose; motion on the hit, readable as the chain snapping taut) into a **30 f reel**; Hisagi's recovery is cut to **14** on hit, so he is **+16** (hitstop aside): a bind-mode J1 (S 8) or SP1 (S 14) combos, a K1 (S 18) does not. The 40 is real (it lands before the snapshot) |
+| On block / armour / absorb / parry | **no bind** (a hit is required). Block −20 at up to 7 m: only ranged answers punish it (Lille's lines, a wave already out); up close a J1 punishes it |
+| On whiff | 42 f of recovery: a run-in (8–10 m/s covers 7 m in 42–53 f) plus a J1, or any ranged K, punishes it |
+| 200 own Reiatsu | checked **at the press** (fewer than 200: refused, the cue `refused-cue`, the press eaten) and **again at contact** (Senjumaru's 星 can drain him during the startup: below 200 then, it lands as a plain hit: 40, the yank, the reel, no bind). The throw itself costs nothing (the user: a requirement, not a cost) |
+| Refused also | while a bind is up (the mirror), while it cools, at a refused state: the same cue |
+| Cooldown | 180 f from the press after a whiff or a block; after a bind, re-armed **300 f after a drained end, 600 f after a release** (`*hs-rearm-drained*`, `*hs-rearm-released*`: §17.5 #3, #4) |
+| Hit mid-throw | interrupted like any move in startup (no armour); the cooldown already runs. A trade on its hit frame: both hits land; the bind starts at the end of that step if the throw hit and the step settled no Kikon or Soul Break (one did: no bind, the reset follows). Both throws hitting in one step (the mirror): no bind for either |
+| When it starts | at the end of the hit step, after `settle-souls`: the snapshot is taken then, so that step's damage on both sides is real |
+
+### 17.3 The bind mode (`:bankai-bind`) and its bookkeeping
+
+**The melee set** (the user: 「攻擊模組切換成近戰，此時的 L 會將對手拉近」; the general rules and the §2.1 budget as written)
+
+| Move | Kind | S / A / R | Dmg | Guard | Block | Reach (volume) | Reaction | Push / drag | Role | Matched |
+|---|---|---|---|---|---|---|---|---|---|---|
+| J1 弦 GEN | quick | 8 / 3 / 12 | 32 | 8 | −2 | 1.5 m, arc 110° | flinch | lunge 0.3; the opener close-in (generic) | the opener | Ichigo J1 7/3/12, 32 |
+| J2 返弦 KAESHI-GEN (+ J2s) | quick | 8 / 3 / 13 | 32 | 8 | −2 | 1.5 m, 110° | flinch | — | link | |
+| J3 双弦 SŌGEN | quick, ender | 9 / 3 / 18 | 40 | 12 | −4 | 1.5 m, 200° (both crescents crossed) | stagger | push ≈ 2.25 m (J1 1.5 + 0.3 lunge + body + 0.05) | O ender | Ichigo J3 40 |
+| K1 引斬 HIKIGIRI | flash | 18 / 4 / 20 | 64 | 14 | −3 | 2.6 m line | stagger | the opener close-in (generic) | the heavy opener | Yamamoto K1 18/4/20 |
+| K2 / K2s 巻斬 MAKIGIRI | flash | 20 / 4 / 24, `:enter` 6 → 14 | 56 | 14 | −3 | 2.8 m arc 140° | stagger | — | link | Ichigo K2 60 |
+| K3 絞 SHIBORI | flash, ender | 22 / 5 / 34, `:enter` 8 → 14 | 80 | 18 | −20 | 3.0 m (the chains wrap and cinch) | crumple | push out of K1's reach (no `:push-reach`): ≈ 3.05 m | O ender | Kenpachi K3 80 |
+| L 引寄 HIKIYOSE | sig | **16** / then the drag / R 8 | — | — | — | no hit window: the noose | — | the opponent **dragged to 2.0 m** at 18 m/s (`*chase-max*`'s speed: from the 8 m reset in 20 f); refused within 2.5 m; **cooldown 90 f** | the approach (「可以用 L 拉近距離」) | Ichigo's pull-to rule; the string chase's "motion only" |
+| Shift+K SP1 綴雷電 | sp | 14 / 3 / 24 | 110 | 22 | −14 | 4.0 m line | `:bind` 40 | — | 1 bar **from the pool**; cancels a J / K link on hit (3 + 14 = 17 ≤ 17) | KUSARI-BIKI |
+| Shift+L SP2 絞縄 KŌJŌ | sp | 20 / 4 / 30 alone; off a J / K hit `:enter` 6 → S_eff 14 | 160 | 30 | −16 | 3.0 m arc 160° | crumple | — | 2 bars **from the pool**; the blade raised, the noose drawn on **both** necks (look only, canon's shared pain) | Ichigo SŌGA 130; Kenpachi Buttagiru 180 |
+| I | Breaker | universal | 150 | | | 1.35 m | | | | |
+| O 絞首 KŌSHU | kikon module | aura 6, a dash ≤ 30 f at 14 m/s, strike 8 / 3 / 24 within 1.6 m | 70 | | −14 | 1.6 m | | | cooldown 90; Kikon 3 | TENCHI |
+| P 解縛 KAIBAKU | the release | below | | | | | | | | |
+
+Walk / run 3.8 / 9.0 (Rukia's), ×1.0 / ×1.0 (the damage is grey anyway; a higher × only drains the pool faster),
+Kikon 3 / Soul Break 4. Routes on hit: JJJ 104, JJK 144, JKK 168, KKK 200, KKJ 160, KJJ 136 (Kenpachi base 112 / 150 /
+175 / 210 / 172 / 147). The binding case: J1 (A 3, flinch 18) → K2s 14: 17 ≤ 17, as in every form.
+
+**L 引寄 is motion only** (like the string chase): the dragged opponent keeps every input but movement. He can guard, start
+an attack (a J1 pressed into the drag reaches Hisagi first: the counterplay), Step (its hop adds to the drag) or Hoho
+(it lands him behind Hisagi, inside 2.5 m: the drag ends). It is never a hit, so it is not guardable and needs no
+guard arc; the tell is S 16 (the blade raised, the chain snapping taut). Hisagi's R 8 runs past the arrival while the
+opponent was free all along, so it is an approach into his range (and a read on what the opponent does on the way
+in), never a combo.
+
+**The release 解縛 KAIBAKU** (the user: 「主動解除那就會恢復到原本的血量值」, any time). P in the bind mode:
+- From idle / walk / guard / blockstun / a run: at once. **During his own attack move: the press is held** (his `:tick`
+  keeps it, as the Shikai's held K, §7.1) **and fires on the move's last frame**, so it never cancels a whiffed or blocked
+  recovery (§17.5 #6). **In hitstun / airborne: under the Burst rule** (after the combo's 2nd hit, inputs not locked:
+  `awaken-state-p`'s rule; Q9 A).
+- The end is applied **after both fighters stepped, before that step's hits** (where a Burst is applied, DUEL_DESIGN §4),
+  so a release pressed on the step the pool would run out wins the race, and that step's hits land on the restored
+  values.
+- Then Hisagi plays **UNWIND, 20 f** (the chains fall slack; no hit, no iframes), replacing whatever he was in (hitstun
+  included); the switch to the ranged mode is on UNWIND's last frame. The opponent reels 30 f (below): **Hisagi +10**,
+  under every ranged-mode startup (≥ 11), so no release gives a true combo.
+
+**The bookkeeping** (the user's rules: 灰血, the shared pool, 「耗盡…灰血轉成真實傷害」, 「主動解除…恢復到原本的血量值」,
+「剩餘的 reiatsu 會優先留給對手，剩餘才給自己」, 「Kikon 也變成灰魂保護」, 「不會，只會減少」, 「捆綁結束時讓對手硬直 30f」)
+
+| # | Rule | Detail |
+|---|---|---|
+| B0 | **Entry snapshot** | at the bind's start (§17.2), per fighter: Reishi R0 and Konpaku K0. The pool **P = his Reiatsu + the opponent's** (200–600); both Reiatsu bars now show the pool |
+| B1 | **Grey damage** | the live Reishi and Konpaku keep changing as usual; the HUD draws the part lost since the snapshot grey. Two exceptions: **Reishi at 0 queues no Soul Break** (it floors at 0, as `deal-damage` already does) and **Konpaku at 0 is no K.O.** (it floors at 0). Nobody is K.O.'d inside |
+| B2 | **Grey Kikon** (Q10 A) | a Kikon connects as usual: its cinematic, the victim's Konpaku −n (grey), **his Reishi refilled** (the Kikon paid for that grey Reishi, as outside), the reset (8 m apart, 48 f, guard gauges full); **the bind goes on** (no distance limit). A Kikon on a grey 0 Konpaku takes nothing more. The Kikon refund's Reiatsu bar is frozen (B4); its flash-step bar is paid |
+| B3 | **The drain** | the pool loses **1 per 2 damage** of either fighter (every `deal-damage`: hits, chip, hazards, DRINK's half; the **nominal** damage, so hitting a 0-Reishi fighter still drains), **every SP cost of either fighter** (1 bar 100, 2 bars 200), and **5 every 60 f** of bind time (Q12 A; canon: Hikone feels the Reiatsu falling from the Bankai's start, notes §2.4). Self-costs (`burn`: Kenpachi's arm, Ennetsu, CRACK) are not wounds: no drain, grey like any Reishi loss. Halves and the per-60 f step are exact in f32 |
+| B4 | **Frozen gains** | every Reiatsu gain of both fighters stops while bound (+3 /s, hit gains, KŌSEI, BLUE's bar, WHITE's and the awakening regen's Reiatsu, the Kikon refund, `reset-round`'s `:reset-reiatsu`, Lille's stance gains, 星's flow). Flash-step, the guard gauge and Fighting Spirit run as usual (not undone by a release) |
+| B5 | **SP spends** | either fighter may spend SP from the pool; a spend is refused when the pool is under its cost. Two spends in one step that the pool can't both cover: both fire, the pool floors at 0, the drained end follows (symmetric: no side goes first) |
+| B6 | **Real heals** | a heal inside the bind (an awakening's 20 %, its regen and WHITE's Reishi regen) raises the live Reishi **and that fighter's snapshot** (each capped at max): a heal is real, so a release keeps it |
+| B7 | **Drained end** (pool ≤ 0) | checked at the end of the step's hit resolution, **before** `settle-souls`, so the bind is off while that step settles: the grey becomes real by keeping the live values; each fighter at Reishi 0 who isn't this step's Kikon victim is queued a **Soul Break** (attacker = the other; worth = the other's current form's + 1, ≤ 5; the opponent's queued first, then Hisagi's, for the cinematic order); then `settle-souls` as always (one cinematic, a lethal pair is the trade rule, both out is a draw). A fighter whose Konpaku is already ≤ 0 with no event this step: **K.O.** (`match-over`, its own cinematic). If nobody was settled: the end effects (B9). Both Reiatsu bars: 0 |
+| B8 | **Released end** | both fighters' Reishi and Konpaku = the snapshot (B6's heals included); grey Kikons undone. The pool left L goes **to the opponent first, up to his 300** (min(300, L)), the rest to Hisagi (min(300, L − that)); then the end effects (B9) |
+| B9 | **End effects** (either end) | hazards of both cleared (a projectile in flight would land on undefined values); the opponent's move ends and he **reels 30 f** (max with a reaction he is already in; airborne / down: his fall and wake-up stand, ≥ 30 f); Hisagi's move ends into UNWIND 20 f (no reel for him); the ranged mode on UNWIND's last frame; the throw re-arms per §17.2; `:bind-ended` emitted (HUD, learner, counters) |
+| B10 | **Time-up during a bind** (Q11 A) | resolved **as drained** first (B7 without cinematics or the reset: the Soul Breaks' Konpaku counted), then the usual tiebreak (Konpaku, then Reishi %). So a bind never protects a lead to the bell |
+| B11 | **The opponent's awakening** | allowed (`repel!` breaks Hisagi's attack; there is no leash, so the 5 m slide stands); its heal and regen per B6, its Reiatsu frozen (B4). **Kenpachi's Bankai (P in cup 3) is refused while bound**: it rewrites his Konpaku to 1 and refills Reishi, which a release would then undo half of. Lille's and the others' awakenings change forms only |
+| B12 | **Bursts** | allowed as usual: BLUE escapes a combo (flash-step, not frozen); WHITE's Reishi regen per B6, its Reiatsu frozen; ORANGE as usual. Every reset still ends every burst |
+| B13 | **The opponent's own Kikon** | allowed; grey (B2). A red opponent (live Reishi < 30 %) makes Hisagi's follow-ups unguardable as usual, and the reverse |
+| B14 | **The opponent can't break it** | (the user: 「不能」) no button of his ends it; it ends only by the drain, Hisagi's release, time-up or a match / PRACTICE reset |
+| B15 | **The mirror** | one bind on the field: the other Hisagi's KUBIKAKE is refused while one is up; if he is the bound one he fights in his own form and mode (only the binder switches to melee); both throws hitting in one step: no bind |
+| B16 | **Resets** | match start, PRACTICE's reset (silently: no conversion, no distribution, no reel), ENDLESS's stage start (`:endless-form :base`): no bind, the throw armed. The bind's state is per side (the two-slot vectors of §7.1), in the state-hash line |
+
+**What the user sees**: the Reishi bar's grey band from the snapshot; grey souls for grey Konpaku; both Reiatsu bars
+showing the pool (a "×n bars" tally while it holds more than 3); the orb's look (§11.4) with the noose on both necks;
+the touch chip labelled FREE.
+
+**The clock (the lead's estimate).** A bind lasts until ~2 × P damage-equivalents are spent: P ≈ 300–450 typically (his
+≥ 200 + the opponent's 100–250), the melee rate of two fighters ~50–70 damage /s together, each SP = 200–400 of damage
+in pool terms, the drip 5 / s on top: **~8–15 s a bind**. A drained bind costs the clock nothing (its damage counts, and
+it forces close range); a **released** bind erases its 8–15 s of fighting and gives the opponent his Reiatsu back; the
+drained end's drought (both bars at 0, ~33 s a bar) slows the next SPs (+3–8 s). With 1–3 binds a match (the 200
+requirement at ~30 s a bar, the re-arm) and the CPU releasing about half of them: **+5–25 s** in his pairings, less than
+the orb's +15–40 s. HR / HS / HH (the slow pairings) are the watch. Counted per match (§17.5 #15).
+
+### 17.4 Shared hooks 5 and 7, re-specified (replacing §12.4's orb versions)
+
+Both default off: with no kit setting them every reader returns what the old code did, and the 22 existing pairings
+stay byte-identical (`simgate --seeds 10 --summary`, `--cvc`, `cmp` against the parent), as B1 proved for hooks 1–4,
+6, 8. The bind's own state, timers and rules live in `hisagi.lisp`; the shared files only ask.
+
+| # | Name (proposal) | Where | Default | What it does when set |
+|---|---|---|---|---|
+| 5a | kit hook `:bind` → `bind-of (e)` | combat.lisp (beside `siphon-of`, which asks the opponent's kit the same way) | no hook: NIL | T-like (the binder entity) while E is in a bind, on either side. Every other 5x reads only this |
+| 5b | `deal-damage` | combat.lisp | unchanged | while bound: no Soul Break queued at 0 (B1); the damage reported to the binder's `:bind-damage` hook (att def dmg), the nominal dmg (B3) |
+| 5c | `settle-konpaku` | combat.lisp | unchanged | while bound: Konpaku floors at 0 and returns no K.O. (B1, B2); the refill and the cinematic as usual |
+| 5d | `reiatsu-gain!` | combat.lisp + every gain path (`pay-gauges`' Reiatsu part, `white-regen!`, the Kikon refund in `settle-souls`, `reset-round`'s `:reset-reiatsu`, `barro.lisp`'s stance gains, `senjumaru.lisp`'s 星 `gauge-move`) | adds as before | while bound: adds nothing (B4). Host test: each path, one by one, inside a dummy bind |
+| 5e | the pool: `reiatsu-of (e)` / `reiatsu-spend! (e n)` | combat.lisp; readers `kit-command-ok-p`, `try-command`'s spend, hud.lisp, ai.lisp's SP reads | the fighter's own gauge | while bound: read from / spent from the binder's pool (the `:bind-pool` hook). B5's double spend falls out of it |
+| 5f | `heal! (e n)` | combat.lisp (`awaken!`, `white-regen!`'s Reishi part) | the plain add | also raises that fighter's snapshot through the binder's `:bind-heal` hook (B6) |
+| 5g | the drained check + the release slot | combat.lisp: a binder `:bind-step` hook called at the end of the hit resolution before `settle-souls` (B7) and where Bursts are applied (B8's release) | absent: nothing called | the hook may queue Soul Breaks into `*soul-breaks*`, call `match-over`, and apply the end effects (B9) |
+| 5h | `bankai-ok-p` | fighter.lisp / combat.lisp | unchanged | refused while `bind-of` (B11) |
+| 5i | `time-up` | flow.lisp | unchanged | calls the binder's `:bind-resolve` first (B10) |
+| 5j | HUD / learner | hud.lisp (the grey band, grey souls, the pool tally, from `:bind-snapshot`); ai-learn.lisp (`gauges-dealt` beside an `absorbed`-like grey counter; the `:bind-ended` frame is not read as a heal or a hit) | nothing drawn / read | — |
+| 7a | kit hook `:p` | fighter.lisp `try-command`'s `:awaken` case (after the awakening and Kenpachi's Bankai, both of which an awakened Hisagi can't take); `*run-commands*` gets `:awaken` only for a kit with `:p`; `awaken-state-p`'s rule passed in for the hitstun case | absent: P does nothing once awakened (today) | the kit's function decides and starts its move (KUBIKAKE / KAIBAKU) or refuses with the cue; also the CPU's path |
+| 7b | the touch chip | onehand.lisp / hud.lisp | the AWAKEN chip hidden once awakened | shown for a kit with `:p`, its label from the hook (BIND / FREE) |
+
+**Dropped from the old hook 7**: `:awaken-ok` (the Bankai's entry is the plain awakening again; the 200 requirement
+sits inside `:p`). **Dropped from the old hook 5**: `orb-exchange`, the cover, `orb-covered-p`, the scorch / mirror
+routing (no Reishi is exchanged any more: wounds stay wounds, only grey), the `*kikons*` filter (B2: a Kikon plays).
+
+### 17.5 Adversarial self-check (the lead, 2026-10-17)
+
+| # | Failure scenario | Fix applied |
+|---|---|---|
+| 1 | **Throw → release at once → +reel → throw**: a free loop on the 30 f reel | the release's UNWIND (20 f) leaves +10, under every ranged startup (≥ 11): no true combo; the throw re-arms only 600 f after a release; it needs a hit at up to 7 m with S 24 each time |
+| 2 | **The throw as a combo ender** (K string → P) makes the bind a guaranteed confirm | no cancel into KUBIKAKE (neutral and run only); its S 24 is too slow to link anyway (after a K link 4 + 24 > 25) |
+| 3 | **Release as a free reset** (bind, lose the exchange, undo, repeat) | the price: the pool goes to the opponent first (up to his 300), so Hisagi usually leaves with little; re-binding needs 200 of his own (~30 s a bar in ranged mode, KŌSEI unpaid beyond 2 m) and 600 f; counted per match (#15) |
+| 4 | **Drained → re-bind at once** | re-arm 300 f, and both bars are 0 after a drain: 200 Reiatsu is ~60 s away |
+| 5 | **Release breaking any combo instantly** (a free BLUE that also heals) | in hitstun only under the Burst rule (after the 2nd hit; Q9 A), and it ends in UNWIND, so the opponent's reel gives +10, not a punish combo |
+| 6 | **Release cancelling his own whiffed / blocked recovery** (a free cancel, `duel-character-rework`'s list) | during his own move the press is held and fires on its last frame |
+| 7 | **Form (mode) switch inside a move** leaving a latched link | the switch only on a free frame: after KUBIKAKE's cut recovery (14) on entry, on UNWIND's last frame on either end; UNWIND clears the latch (`fighter-queued`) at its f0 |
+| 8 | **A stalled bind** (the opponent turtles; nobody hits; the pool never drains) | the canon drip 5 every 60 f (a 600 pool ≤ 120 s alone); his L pull, the Breaker and SP2 (which spends the pool) against a guard; time-up resolves as drained (B10), so turtling to the bell gains nothing |
+| 9 | **0-resource loop on the pool** (an SP that refunds, a gain that refills it) | every Reiatsu gain frozen through one `reiatsu-gain!` (5d), host-tested path by path; the pool only falls |
+| 10 | **Pool math edges**: odd damage, the drip in f32, two SPs in one step, a hit larger than the pool, the release split | halves and the integer 5-per-60 f step are exact; B5 (both fire, floor 0, drained end); a hit that overshoots counts whole (it's all converted anyway); the split is min(300, L) then min(300, L − that), host-tested at L = 0, 150, 300, 450, 600 |
+| 11 | **Release and drain on one step** (who wins) | the release is applied before the step's hits (the Burst slot), the drained check after them: the release wins, deterministically |
+| 12 | **Weak at 2 m becomes helpless** vs Kenpachi / Ichigo in ranged mode | L 鎖払 (S 14, 360°, pushes on hit and on block), the back Step → J1, KUBIKAKE as a read; the time-at-range probe target: in the ranged mode ≥ 45 % of his time at 3.5–9 m, ≤ 40 % under 2 m (≤ 55 % vs Kenpachi); a miss changes the AI ranges first, then goes to the user |
+| 13 | **Hidden movement / aim** | listed and readable: J1 / K1 / KUBIKAKE `:no-close` (no 3–6 m opener dash); TSUISA's 3.5 m drag and KUBIKAKE's 2.0 m yank only on hit (the chain taut); L 鎖払's push; L 引寄's drag (S 16 tell, motion only, never a hit); the ender pushes (4.45 / 7.95 / 2.25 / 3.05 m); KŌSHU's dash (generic, its look); `:track` 30 °/s only in startups (TSUISA, SP1, KUBIKAKE); SP2's lane aims 6 f then locks; no `:track 720`, no turn at release, no cast-at-the-opponent point anywhere |
+| 14 | **Grey edge cases**: a fighter at grey 0 Reishi and 0 Konpaku fights on; Kenpachi's Cornered reads grey Konpaku | both by design: the drain converts, the release restores; Cornered (+5 % a lost Konpaku) follows the live value, so it rises inside and falls back on a release (stated, host-noted) |
+| 15 | **The clock** (released binds erase fighting) | the estimate +5–25 s (§17.3); counters per match: binds, seconds bound, drained / released / time-up ends, grey Kikons, SPs spent from the pool, pool at the end; HR / HS / HH medians read first |
+| 16 | **CPU blind spots**: his CPU never releases or never drains; the opponents' CPU spends SP while losing a bind (hastening its own drained loss) or ignores the throw | his CPU: KUBIKAKE at 4–7 m when his Reiatsu ≥ 200, rolled once per approach; inside, it **releases** when its grey loss exceeds the opponent's by a margin (Konpaku × 1300 + Reishi), rolled once per change event (a grey Kikon, every 100 of pool drained), and **spends SP** when ahead; the opponents' `:opp-reflex`: a side Step on KUBIKAKE's startup through `ranged-threat-in` (hook 8; it sees a `:ranged` window), rolled once per throw start; while bound and behind, no SP unless it completes a combo; every chance EASY ≤ NORMAL ≤ HARD; the learner gets "bound, ahead / behind" situations; every rule a counter |
+| 17 | **Determinism / per-match reset**: the snapshot, the pool, the timers and the re-arm outliving a match, a PRACTICE reset or an ENDLESS stage; the mirror's two binders | per side vectors reset at B16's points and hashed; one bind on the field (B15); the release / drain slots at fixed points of the step |
+| 18 | **The awaken A/B**: an awakened Hisagi gets a bind that never loses for him (he releases when behind) | the A/B rows (`--cmd 39020` with him on each side, three streams) are the measure; a miss goes to the user with the release cost as the first knob (e.g. the pool fully to the opponent), not other knobs |
+
+### 17.6 Questions for the user (the lead, 2026-10-17; recommended first)
+
+| # | Question | Options |
+|---|---|---|
+| Q9 | **Can he release the bind while he is being comboed?** | **A** yes, but only from the 2nd hit of a combo on, like a Burst; he then needs 20 frames to recover, so he escapes the combo but gets no free counter-combo / B no: while he is being hit the release waits until he is free / C yes, from the very first hit |
+| Q10 | **A finishing blow (Kikon) inside the bind** | **A** it plays as usual (the cinematic, the souls turn grey, the round resets apart) and the bind goes on / B no cinematic and no reset: the souls just turn grey and the fight continues (faster, but a Kikon reads less) / C a Kikon ends the bind at once as if the shared Reiatsu ran out (the Kikon's souls become real right away) |
+| Q11 | **The timer runs out during a bind** | **A** it counts as if the shared Reiatsu ran out: the grey damage and souls become real, then the usual winner check (nobody can hide in a bind until the bell) / B it counts as a release: both go back to their entry values / C the grey values as they are now decide |
+| Q12 | **Does the shared Reiatsu also fall slowly on its own?** (canon: the opponent feels it falling from the start) | **A** yes, 5 a second, so a bind where nobody attacks still ends (≤ 2 minutes for a full 600) / B no: only hits and SPs drain it (a bind can last as long as both avoid hitting) / C yes, faster: 10 a second (≤ 1 minute) |
+| Q13 | **How often can he bind?** | **A** as often as he can pay: the throw is ready 10 s after a release and 5 s after a bind that ran out, and he needs his own 2 bars each time / B once a match (like the orb before) / C no wait at all, only the 2 bars |
 
 ## 18. Open
+
+- The user's answers to §17.6 (Q9–Q13), then hooks 5 / 7 (§17.4) as batch B1b and the Bankai's two modes in B2.
 
 - The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
 - The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet
