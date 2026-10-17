@@ -1120,6 +1120,21 @@ warnings; debug 83901 0 B in every case (the stance's slack chain included).
 **For the user (D items above):** the 69's colour (blue vs the manga's black), the sash knot on his right, the stripe's
 blue, the crescents' 3D layout, the chain hanging to the shins.
 
+### 21.3 The Shikai's slot plan (approved: the user, 2026-10-17: 「可以」)
+
+The plan shown to the user is `docs/research/hisagi/motion-refs.md` §3.1 (stance / walk / run; J1 旋, J2 返旋, J3 輪 and the
+one-handed SEN-1H / KAESHI-SEN-1H (reverse-grip backhand ↖) / RIN-1H (arm-length 200° pivot); K1 投 (vertical wheel tell,
+hip cast, flat spinning disc), K2 引 (drop and pull), K3 刈落 (Blades of Chaos overhead split drop, ±60°), 戻 (hand over
+hand); MAKI (elbow-wrapped curling throw), HODOKI (turn inside the chain, over-the-shoulder heave); L 風車 (overhead fan,
+the push widening to 2.0 m at the waist); SP1 綴雷電 (overhand cast ↘, lightning down the taut chain); SP2 全身縛 (lasso,
+then the canon over-the-shoulder heave and slam: §21's pick); O (the whirl past his face, a flat disc along the lane, the
+zip along the chain, the finish from behind); intro (the sealed blade across the face, 「刈れ」, tossed up and split); win
+(looking at his blade)), with one change from the research: **the Breaker is a front garrote, a push-down and the pin, no
+over-the-shoulder throw** (the heave is SP2's). The J strings use the short grip near the blades (J reach 1.4 m).
+
+Reach follows the motion (§21): drawn to the current volumes; each strike's tip measured (FK ±0.15 m, cast checks for the
+segment windows); any strike that would leave its volume is reported to the user with numbers before a volume changes.
+
 ## 18. Open
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
