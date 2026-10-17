@@ -1,8 +1,9 @@
 ;;;; hisagi-art.lisp — HISAGI SHUHEI as art data, the functional batch B2a (docs/duel/DUEL_HISAGI.md §11; the motion style,
 ;;;; §11.2, is a later batch): his body (TYBW: the sleeveless shihakusho, the white sash, a choker and two armbands, the
 ;;;; lieutenant's badge on the left arm, short messy black hair, three scars down over the right eye, the 69 and the blue
-;;;; stripe on the left cheek), Kazeshini (a spiked rod with two scythe blades, one inverted, on a short hand chain: the
-;;;; right hand's is the held weapon, the left hand's the thrown one, drawn by HISAGI-DRAW), one clip per move at the move's
+;;;; stripe on the left cheek; redone to canon, DUEL_HISAGI §21 "Look as built"), Kazeshini (a 0.97 m black rod with a
+;;;; crescent of two blades, one inverted, the chain from butt to butt: the right hand's is the held weapon, the left
+;;;; hand's the thrown one, drawn by HISAGI-DRAW), the model-sheet scenes (83980-83985), one clip per move at the move's
 ;;;; frames, the chain and the sickle's flight (drawn to the sim's points: the thrown sickle's tip at the hit volume's end,
 ;;;; *HS-STRIKE-REACH*; the pulls' chain along HS-CHAIN-SEG's segment), the windmill, the lightning, the HUD's sickle icon,
 ;;;; his glyphs' name and a placeholder Kikon cinematic (the storyboard's, §11.5, is a later batch).
@@ -10,28 +11,46 @@
 (declaim (special *p1* *p2*))
 
 ;;; ---------------------------------------------------------------- body
-;; 1.81 m (scale 1.0), lean (width 0.94); the hurt cylinder r 0.36 / h 1.8 (§8.1). One black mass (the sleeveless top, the
-;; hakama), the white under-collar and sash; bare arms with black bands above the elbows; the face's marks are flat
-;; shapes on the skin (the scars a dark line each, the 69 two ink glyph strokes, the stripe a muted blue bar)
+;; The Shikai look to canon (DUEL_HISAGI §21 "Look as built"; motion-refs §4.2, notes §3): 1.81 m (scale 1.0), lean (width
+;; 0.94), the hurt cylinder r 0.36 / h 1.8 (§8.1). TYBW: the messy black fringe over the brows and down to the ears; three
+;; parallel scars from the brow down over the right eye (+x); the blue stripe across the bridge of the nose to the left
+;; cheek's edge, the 69 under its end; a black choker with white studs; studded black bands on both upper arms, the 九
+;; badge tied with white cloth above the left one; the sleeveless black top (a white trim round the arm holes, the deep V
+;; of the white under-collar); the white sash, its knot and hanging ends at his right front (as every image draws it),
+;; the empty blue-black scabbard of the sealed sword kept in it at the left hip; wide black hakama with pleats; white tabi
+;; on straw waraji
 (defbody :hisagi (:scale 1.0 :width 0.94 :hunch 0 :hurt-r 0.36 :hurt-h 1.8
                   :girth ((:head 1.16 1.16 1.16))
                   :palette ((:skin #xD6B49A) (:black #x16161E) (:hair #x141418) (:white #xECECE8) (:eye #xF2F0EC)
                             (:pupil #x3A3A40) (:lid #x141016) (:mouth #x7A3A3C) (:scar #x6A3A36) (:mark #x101014)
-                            (:stripe #x34507E) (:band #x0E0E12) (:sash #xE8E6DE) (:badge #xE0DED6) (:tabi #xE8E8E4)
-                            (:sole #x262833) (:fold #x3A3A46) (:brow #x1A1418))
+                            (:stripe #x3F6EA8) (:band #x0E0E12) (:sash #xE8E6DE) (:badge #xC2B48C) (:tabi #xE8E8E4)
+                            (:sole #xA8916A) (:fold #x3A3A46) (:brow #x1A1418) (:scab #x1E2A48) (:stud #xE4E4DE))
                   :rim (#xFFD8B8 0.14))
   (:pelvis (:box 0.35 0.18 0.24 :c :black)
-           (:box 0.36 0.05 0.25 :at (0 0.075 0) :c :sash)                                        ; the white sash
+           (:box 0.36 0.07 0.25 :at (0 0.07 0) :c :sash)                                         ; the white sash
+           (:box 0.05 0.05 0.03 :at (0.075 0.07 0.13) :c :sash)                                  ; its knot (his right front)
+           (:box 0.032 0.16 0.012 :at (0.066 -0.04 0.172) :rot (0 0 6) :c :sash)                 ; the hanging ends
+           (:box 0.028 0.13 0.012 :at (0.098 -0.03 0.168) :rot (0 0 -14) :c :sash)
            (:cyl 0.22 0.48 :top 0.165 :seg 8 :at (0 -0.22 0) :c :black)                          ; the hakama
-           (:box 0.004 0.34 0.004 :at (0.06 -0.26 0.19) :rot (0 0 -4) :c :fold))
+           (:box 0.004 0.34 0.004 :at (0.06 -0.26 0.19) :rot (0 0 -4) :c :fold)                  ; its pleats
+           (:box 0.004 0.32 0.004 :at (-0.07 -0.27 0.19) :rot (0 0 5) :c :fold)
+           (:box 0.004 0.3 0.004 :at (0.0 -0.28 -0.2) :c :fold)
+           ;; the empty scabbard thrust through the sash at the left hip: the mouth ahead, the end down, back and out
+           (:box 0.04 0.72 0.028 :at (-0.215 -0.225 0.05) :rot (0 -12 -14) :c :scab)
+           (:box 0.046 0.03 0.034 :at (-0.13 0.11 0.122) :rot (0 -12 -14) :c :band))
   (:spine (:bevel 0.34 0.25 0.23 0.04 :at (0 0.11 0) :c :black))
   (:chest (:bevel 0.42 0.3 0.26 0.05 :at (0 0.11 0) :c :black)
-          (:box 0.016 0.18 0.01 :at (0.032 0.185 0.135) :rot (0 0 -24) :c :white)                ; the white under-collar V
-          (:box 0.016 0.18 0.01 :at (-0.032 0.185 0.135) :rot (0 0 24) :c :white)
-          (:box 0.05 0.12 0.012 :at (0 0.19 0.133) :c :skin)
+          (:box 0.018 0.2 0.01 :at (0.034 0.175 0.135) :rot (0 0 -24) :c :white)                ; the white under-collar V
+          (:box 0.018 0.2 0.01 :at (-0.034 0.175 0.135) :rot (0 0 24) :c :white)
+          (:box 0.05 0.15 0.012 :at (0 0.18 0.133) :c :skin)                                    ; (deep: the chest shows)
           (:box 0.005 0.17 0.004 :at (0.08 0.07 0.137) :rot (0 0 -10) :c :fold))
   (:neck (:cyl 0.04 0.17 :at (0 0.06 0) :c :skin)
-         (:cyl 0.046 0.03 :seg 10 :at (0 0.07 0) :c :band))                                       ; the choker
+         (:cyl 0.047 0.03 :seg 10 :at (0 0.07 0) :c :band)                                       ; the choker, its studs
+         (:box 0.008 0.016 0.004 :at (0 0.07 0.048) :c :stud)
+         (:box 0.008 0.016 0.004 :at (0.031 0.07 0.037) :rot (40 0 0) :c :stud)
+         (:box 0.008 0.016 0.004 :at (-0.031 0.07 0.037) :rot (-40 0 0) :c :stud)
+         (:box 0.008 0.016 0.004 :at (0.047 0.07 0.008) :rot (80 0 0) :c :stud)
+         (:box 0.008 0.016 0.004 :at (-0.047 0.07 0.008) :rot (-80 0 0) :c :stud))
   (:head (:sphere 0.066 :stretch 0.02 :at (0 0.14 -0.012) :seg 12 :c :skin)
          (:bevel 0.104 0.074 0.078 0.02 :at (0 0.126 0.022) :c :skin)
          (:bevel 0.05 0.074 0.066 0.014 :at (0.022 0.078 0.022) :rot (0 0 -20) :c :skin)
@@ -42,33 +61,71 @@
          (:box 0.03 0.006 0.004 :at (0.027 0.131 0.0618) :rot (0 0 -6) :c :brow)
          (:box 0.03 0.006 0.004 :at (-0.027 0.131 0.0618) :rot (0 0 6) :c :brow)
          (:box 0.022 0.004 0.003 :at (0 0.083 0.064) :c :mouth)
-         ;; the three scars down over his right eye (+x), from the brow to the cheek
-         (:box 0.003 0.07 0.003 :at (0.018 0.115 0.0645) :rot (0 0 -6) :c :scar)
-         (:box 0.003 0.075 0.003 :at (0.027 0.113 0.0645) :rot (0 0 -6) :c :scar)
-         (:box 0.003 0.07 0.003 :at (0.036 0.111 0.064) :rot (0 0 -6) :c :scar)
-         ;; the 69 on the left cheek, under the blue stripe across the cheek and the bridge of the nose
-         (:box 0.006 0.016 0.003 :at (-0.042 0.092 0.061) :c :mark) (:box 0.008 0.006 0.003 :at (-0.039 0.087 0.061) :c :mark)
-         (:box 0.006 0.016 0.003 :at (-0.03 0.094 0.061) :c :mark) (:box 0.008 0.006 0.003 :at (-0.033 0.099 0.061) :c :mark)
-         (:box 0.066 0.007 0.003 :at (-0.022 0.106 0.0625) :c :stripe)
-         ;; the hair: short and messy, black, the fringe down to the brows, tufts over the ears
-         (:sphere 0.072 :stretch 0.01 :at (0 0.158 -0.016) :seg 10 :c :hair)
+         ;; the three scars, parallel, from the brow straight down over his right eye (+x) to the cheek
+         (:box 0.003 0.075 0.003 :at (0.017 0.124 0.0645) :rot (0 0 -4) :c :scar)
+         (:box 0.003 0.078 0.003 :at (0.027 0.123 0.0645) :rot (0 0 -4) :c :scar)
+         (:box 0.003 0.075 0.003 :at (0.037 0.122 0.0645) :rot (0 0 -4) :c :scar)
+         ;; the blue stripe from his right eye's inner corner across the bridge of the nose to the left cheek's edge (and
+         ;; round it), the 69 under its end (blue, as the TYBW anime and RoS draw it)
+         (:box 0.066 0.013 0.003 :at (-0.02 0.1085 0.0628) :c :stripe)
+         (:box 0.003 0.013 0.03 :at (-0.0535 0.1085 0.044) :c :stripe)
+         (:box 0.0025 0.012 0.002 :at (-0.025 0.097 0.0625) :c :stripe)                          ; 6
+         (:box 0.008 0.0025 0.002 :at (-0.029 0.0915 0.0625) :c :stripe)
+         (:box 0.0025 0.006 0.002 :at (-0.033 0.094 0.0625) :c :stripe)
+         (:box 0.008 0.0025 0.002 :at (-0.029 0.097 0.0625) :c :stripe)
+         (:box 0.006 0.0025 0.002 :at (-0.028 0.1025 0.0625) :c :stripe)
+         (:box 0.0025 0.012 0.002 :at (-0.045 0.097 0.0625) :c :stripe)                          ; 9
+         (:box 0.008 0.0025 0.002 :at (-0.041 0.1025 0.0625) :c :stripe)
+         (:box 0.0025 0.006 0.002 :at (-0.037 0.1 0.0625) :c :stripe)
+         (:box 0.008 0.0025 0.002 :at (-0.041 0.097 0.0625) :c :stripe)
+         (:box 0.006 0.0025 0.002 :at (-0.042 0.0915 0.0625) :c :stripe)
+         ;; the hair (TYBW: grown out): the cap, spikes up and back, a ragged fringe over the brows (one strand down the
+         ;; bridge of the nose), locks over the ears to the ear lobes, the nape
+         (:sphere 0.074 :stretch 0.012 :at (0 0.158 -0.018) :seg 10 :c :hair)
          (:cone 0.03 0.09 :at (0.05 0.17 -0.04) :rot (0 30 -70) :seg 4 :c :hair)
          (:cone 0.03 0.09 :at (-0.05 0.17 -0.04) :rot (0 30 70) :seg 4 :c :hair)
-         (:cone 0.03 0.09 :at (0 0.19 -0.06) :rot (0 80 0) :seg 4 :c :hair)
-         (:cone 0.026 0.08 :at (0.035 0.135 -0.07) :rot (0 100 -30) :seg 4 :c :hair)
-         (:cone 0.026 0.08 :at (-0.035 0.135 -0.07) :rot (0 100 30) :seg 4 :c :hair)
-         (:cone 0.022 0.07 :at (0.03 0.168 0.05) :rot (0 196 12) :seg 4 :c :hair)                 ; the fringe
-         (:cone 0.022 0.075 :at (-0.016 0.17 0.054) :rot (0 196 -8) :seg 4 :c :hair)
-         (:cone 0.02 0.06 :at (0.006 0.162 0.058) :rot (0 190 2) :seg 4 :c :hair)
-         (:cone 0.024 0.06 :at (0.07 0.12 0.0) :rot (0 0 -160) :seg 4 :c :hair)                   ; over the ears
-         (:cone 0.024 0.06 :at (-0.07 0.12 0.0) :rot (0 0 160) :seg 4 :c :hair))
-  (:shoulder-r (:bevel 0.1 0.05 0.16 0.02 :at (0.02 -0.01 0) :rot (0 0 -20) :c :black))            ; (sleeveless: the top's edge)
-  (:shoulder-l (:bevel 0.1 0.05 0.16 0.02 :at (-0.02 -0.01 0) :rot (0 0 20) :c :black))
+         (:cone 0.03 0.1 :at (0 0.2 -0.05) :rot (0 70 0) :seg 4 :c :hair)
+         (:cone 0.026 0.07 :at (0.032 0.195 -0.03) :rot (0 40 -40) :seg 4 :c :hair)
+         (:cone 0.026 0.07 :at (-0.03 0.198 -0.035) :rot (0 45 35) :seg 4 :c :hair)
+         (:cone 0.026 0.08 :at (0.035 0.135 -0.07) :rot (0 110 -30) :seg 4 :c :hair)
+         (:cone 0.026 0.08 :at (-0.035 0.135 -0.07) :rot (0 110 30) :seg 4 :c :hair)
+         (:cone 0.024 0.08 :at (-0.042 0.165 0.06) :rot (0 192 -14) :seg 4 :c :hair)             ; the fringe
+         (:cone 0.024 0.085 :at (-0.018 0.163 0.062) :rot (0 194 -6) :seg 4 :c :hair)
+         (:cone 0.02 0.1 :at (0.004 0.158 0.064) :rot (0 190 2) :seg 4 :c :hair)
+         (:cone 0.024 0.085 :at (0.024 0.164 0.062) :rot (0 194 8) :seg 4 :c :hair)
+         (:cone 0.024 0.09 :at (0.046 0.158 0.058) :rot (0 190 16) :seg 4 :c :hair)
+         (:cone 0.026 0.085 :at (0.071 0.128 0.0) :rot (0 180 -8) :seg 4 :c :hair)               ; over the ears
+         (:cone 0.026 0.085 :at (-0.071 0.128 0.0) :rot (0 180 8) :seg 4 :c :hair)
+         (:cone 0.022 0.07 :at (0.066 0.12 0.03) :rot (0 186 -4) :seg 4 :c :hair)
+         (:cone 0.022 0.07 :at (-0.066 0.12 0.03) :rot (0 186 4) :seg 4 :c :hair)
+         (:cone 0.03 0.1 :at (0.03 0.11 -0.072) :rot (0 160 -6) :seg 4 :c :hair)                 ; the nape
+         (:cone 0.03 0.1 :at (-0.03 0.11 -0.072) :rot (0 160 6) :seg 4 :c :hair))
+  (:shoulder-r (:bevel 0.1 0.05 0.16 0.02 :at (0.02 -0.01 0) :rot (0 0 -20) :c :black)            ; (sleeveless: the top's edge)
+               (:box 0.014 0.06 0.168 :at (0.072 -0.035 0) :rot (0 0 -20) :c :white))             ; the arm hole's trim
+  (:shoulder-l (:bevel 0.1 0.05 0.16 0.02 :at (-0.02 -0.01 0) :rot (0 0 20) :c :black)
+               (:box 0.014 0.06 0.168 :at (-0.072 -0.035 0) :rot (0 0 20) :c :white))
   (:upper-arm-r (:box 0.085 0.3 0.09 :at (0 -0.15 0) :c :skin)
-                (:box 0.095 0.04 0.1 :at (0 -0.2 0) :c :band))                                    ; the armband
+                (:box 0.095 0.035 0.1 :at (0 -0.17 0) :c :band)                                   ; the studded band
+                (:box 0.004 0.012 0.012 :at (0.049 -0.17 0) :c :stud)
+                (:box 0.004 0.012 0.012 :at (0.049 -0.17 0.03) :c :stud)
+                (:box 0.004 0.012 0.012 :at (0.049 -0.17 -0.03) :c :stud)
+                (:box 0.012 0.012 0.004 :at (0.02 -0.17 0.051) :c :stud)
+                (:box 0.012 0.012 0.004 :at (0.02 -0.17 -0.051) :c :stud))
   (:upper-arm-l (:box 0.085 0.3 0.09 :at (0 -0.15 0) :c :skin)
-                (:box 0.095 0.04 0.1 :at (0 -0.2 0) :c :band)
-                (:box 0.006 0.07 0.05 :at (-0.047 -0.09 0) :c :badge))                            ; the lieutenant's badge
+                (:box 0.095 0.035 0.1 :at (0 -0.2 0) :c :band)
+                (:box 0.004 0.012 0.012 :at (-0.049 -0.2 0) :c :stud)
+                (:box 0.004 0.012 0.012 :at (-0.049 -0.2 0.03) :c :stud)
+                (:box 0.004 0.012 0.012 :at (-0.049 -0.2 -0.03) :c :stud)
+                (:box 0.012 0.012 0.004 :at (-0.02 -0.2 0.051) :c :stud)
+                (:box 0.012 0.012 0.004 :at (-0.02 -0.2 -0.051) :c :stud)
+                ;; the lieutenant's badge, a shield with 九 tied on with white cloth (TYBW anime, RoS)
+                (:box 0.093 0.05 0.098 :at (0 -0.09 0) :c :white)
+                (:box 0.006 0.06 0.056 :at (-0.05 -0.085 0) :c :badge)
+                (:box 0.006 0.028 0.028 :at (-0.05 -0.115 0) :rot (0 45 0) :c :badge)
+                (:box 0.002 0.003 0.028 :at (-0.0535 -0.07 0) :c :mark)                           ; 九
+                (:box 0.002 0.03 0.004 :at (-0.0535 -0.085 0.007) :rot (0 -20 0) :c :mark)
+                (:box 0.002 0.026 0.004 :at (-0.0535 -0.083 -0.006) :c :mark)
+                (:box 0.002 0.003 0.012 :at (-0.0535 -0.096 -0.012) :c :mark))
   (:lower-arm-r (:box 0.075 0.25 0.075 :at (0 -0.125 0) :c :skin))
   (:lower-arm-l (:box 0.075 0.25 0.075 :at (0 -0.125 0) :c :skin))
   (:hand-r (:bevel 0.06 0.08 0.06 0.016 :at (0 -0.04 0) :c :skin))
@@ -77,31 +134,64 @@
   (:thigh-l (:cyl 0.11 0.44 :top 0.1 :seg 10 :at (0 -0.21 0) :c :black))
   (:shin-r (:cyl 0.12 0.3 :top 0.105 :seg 10 :at (0 -0.1 0) :c :black) (:box 0.075 0.12 0.085 :at (0 -0.37 0) :c :tabi))
   (:shin-l (:cyl 0.12 0.3 :top 0.105 :seg 10 :at (0 -0.1 0) :c :black) (:box 0.075 0.12 0.085 :at (0 -0.37 0) :c :tabi))
-  (:foot-r (:bevel 0.085 0.055 0.21 0.02 :at (0 -0.02 0.05) :c :tabi) (:box 0.095 0.02 0.23 :at (0 -0.05 0.05) :c :sole))
-  (:foot-l (:bevel 0.085 0.055 0.21 0.02 :at (0 -0.02 0.05) :c :tabi) (:box 0.095 0.02 0.23 :at (0 -0.05 0.05) :c :sole)))
+  (:foot-r (:bevel 0.085 0.055 0.21 0.02 :at (0 -0.02 0.05) :c :tabi) (:box 0.095 0.02 0.23 :at (0 -0.05 0.05) :c :sole)
+           (:box 0.012 0.008 0.11 :at (0 0.008 0.09) :c :sole))
+  (:foot-l (:bevel 0.085 0.055 0.21 0.02 :at (0 -0.02 0.05) :c :tabi) (:box 0.095 0.02 0.23 :at (0 -0.05 0.05) :c :sole)
+           (:box 0.012 0.008 0.11 :at (0 0.008 0.09) :c :sole)))
 
 ;;; ---------------------------------------------------------------- Kazeshini
-;; One sickle (the right hand's held weapon; the left hand's drawn by HISAGI-DRAW with the same mesh): 0.75 m from the fist
-;; to the far blade's point: two links of the short hand chain (y 0-0.18), the spiked rod (y 0.18-0.62), the scythe blade
-;; at its top curving toward the edge side (+Z) up to the point (y 0.75), the inverted one lower curving back (-Z)
+;; Each of the two weapons (the right hand's held one, the left hand's drawn by HISAGI-DRAW with the same mesh), to canon
+;; (motion-refs §4.1, `324` / `325Hisagis_Shikai_Kazeshini`): a thin black rod 0.97 m long, held overhand near its butt
+;; (the stance grip: the rear fifth), its forked butt (where the chain fixes) 0.22 m behind the fist, its point 0.75 m
+;; ahead (the length the FK test reads: unchanged); two long crescent blades leaving it 0.5 m up on opposite sides, one on
+;; each face of the rod, hooked in OPPOSITE directions (the user, 2026-10-17: 「鐮刀兩側的新月彎鉤應該要是相反方向，一個朝內一個
+;; 朝外」): the edge-side one curls back toward him, the other forward, away from him (an S / pinwheel through the rod, point
+;; symmetric about the crossing; tip to tip 0.92 m), each with its white-silver edge on its outer curve and a black spine.
+;; No Reiatsu on the weapon at rest (canon: it glows only in the release and the effects)
+(defparameter *hs-crescent* '((0.5 0.0) (0.4835 0.2415) (0.32 0.42))
+  "Kazeshini's inward blade in the weapon frame ((y z): along the rod, toward the edge side): the root at the crossing on
+the rod, a point on its curve, its tip (curled back toward the butt); the outward blade is it turned 180 degrees about the
+crossing (its tip at y 0.68: ahead, still behind the rod's point at 0.75).")
+
+(defun hs-mb-crescent (mb blade x0 x1 band)
+  "One Kazeshini blade, BLADE 1 the inward one (*HS-CRESCENT*), 2 the outward one (1 turned 180 degrees about the
+crossing), between the planes x = X0 and X1: the arc of the circle through its root, mid point and tip, 0.075 m wide at
+the root, pointed at the tip, widening away from the circle's centre (its outer curve); BAND NIL its black spine (the
+inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
+  (let* ((pts (if (= blade 1)
+                  *hs-crescent*
+                  (destructuring-bind (cy cz) (first *hs-crescent*)
+                    (loop for (y z) in *hs-crescent* collect (list (- (* 2 cy) y) (- (* 2 cz) z)))))))
+    (destructuring-bind ((cy cz) (ay az) (by bz)) pts
+      (let* ((d (* 2 (+ (* cy (- az bz)) (* ay (- bz cz)) (* by (- cz az)))))   ; the circle through the three
+             (oy (/ (+ (* (+ (* cy cy) (* cz cz)) (- az bz)) (* (+ (* ay ay) (* az az)) (- bz cz)) (* (+ (* by by) (* bz bz)) (- cz az))) d))
+             (oz (/ (+ (* (+ (* cy cy) (* cz cz)) (- by ay)) (* (+ (* ay ay) (* az az)) (- cy by)) (* (+ (* by by) (* bz bz)) (- ay cy))) d))
+             (r (sqrt (+ (expt (- cy oy) 2) (expt (- cz oz) 2))))
+             (a0 (atan (- cz oz) (- cy oy)))
+             (a1 (atan (- bz oz) (- by oy)))
+             (da (let ((x (- a1 a0))) (- x (* 2 pi (round x (* 2 pi))))))
+             (n 12))
+        (flet ((pt (i f) (let* ((u (/ i n)) (a (+ a0 (* u da))) (w (max 0.003 (* 0.075 (expt (- 1 u) 0.7)))) (rr (+ r (* f w))))
+                           (list (+ oy (* rr (cos a))) (+ oz (* rr (sin a)))))))
+          (dotimes (i n)
+            (let ((f0 (if band 0.6 0.0)) (f1 (if band 1.0 0.6)))
+              (ke-mb-prism mb (list (pt i f0) (pt (1+ i) f0) (pt (1+ i) f1) (pt i f1)) x0 x1))))))))
+
 (defweapon :kazeshini (:length 0.75 :base 0.2)
-  (:solid (mbc mb #x2A2A30)                                                                ; the chain links
-          (with-xform (mb (xform :y 0.045)) (mb-box mb 0.012 0.07 0.035))
-          (with-xform (mb (xform :y 0.12 :yaw 1.57)) (mb-box mb 0.012 0.07 0.035))
-          (mbc mb #x121216)                                                                ; the rod and its spikes
-          (with-xform (mb (xform :y 0.4)) (mb-box mb 0.03 0.44 0.03))
-          (loop for y in '(0.26 0.36 0.46 0.56)
-                do (with-xform (mb (xform :y y :x 0.022 :roll -0.6)) (mb-box mb 0.012 0.04 0.012))
-                   (with-xform (mb (xform :y y :x -0.022 :roll 0.6)) (mb-box mb 0.012 0.04 0.012)))
-          (mbc mb #x18181C)                                                                ; the top blade (+Z), to the point
-          (with-xform (mb (xform :y 0.62 :z 0.05 :pitch 0.5)) (mb-box mb 0.01 0.05 0.11))
-          (with-xform (mb (xform :y 0.69 :z 0.09 :pitch 1.1)) (mb-box mb 0.01 0.04 0.1))
-          (with-xform (mb (xform :y 0.735 :z 0.06 :pitch 1.9)) (mb-box mb 0.01 0.035 0.06))
-          (with-xform (mb (xform :y 0.3 :z -0.05 :pitch -2.6)) (mb-box mb 0.01 0.05 0.11))    ; the inverted blade (-Z)
-          (with-xform (mb (xform :y 0.24 :z -0.09 :pitch -2.0)) (mb-box mb 0.01 0.04 0.09))
-          (mbc mb #xC8CCD4)                                                                ; the white edges
-          (with-xform (mb (xform :y 0.64 :z 0.1 :pitch 0.5)) (mb-box mb 0.012 0.012 0.1))
-          (with-xform (mb (xform :y 0.28 :z -0.1 :pitch -2.6)) (mb-box mb 0.012 0.012 0.1))))
+  (:solid (mbc mb #x121216)                                                                ; the rod, its point, the fork
+          (mb-tube mb 0 -0.16 0 0 0.64 0 0.012 :sides 6)
+          (with-xform (mb (xform :y 0.695)) (mb-cone mb 0.012 0.11 :segments 6))
+          (mb-tube mb 0 -0.16 0 0.022 -0.215 0 0.008 :sides 4)
+          (mb-tube mb 0 -0.16 0 -0.022 -0.215 0 0.008 :sides 4)
+          (mb-tube mb -0.024 -0.222 0 0.024 -0.222 0 0.006 :sides 4)
+          (mbc mb #x2A2A30)                                                                ; the chain's first link
+          (with-xform (mb (xform :y -0.25 :yaw 1.57)) (mb-box mb 0.01 0.05 0.03))
+          (mbc mb #x18181C)                                                                ; the blades' spines
+          (hs-mb-crescent mb 1 0.0 0.008 nil)
+          (hs-mb-crescent mb 2 -0.008 0.0 nil))
+  (:solid (mbc mb #xD4D8E0)                                                                ; their white-silver edges
+          (hs-mb-crescent mb 1 0.001 0.007 t)
+          (hs-mb-crescent mb 2 -0.007 -0.001 t)))
 
 (defparameter *hs-strike-reach* '((:hs-nage :sickle 6.3) (:hs-maki :sickle 3.55) (:hs-kari :sickle 2.8)
                                   (:hs-r-q1 :sickle 4.0) (:hs-r-q2 :sickle 4.0) (:hs-r-spin :sickle 4.4))   ; (B2b: the Bankai's ranged J)
@@ -375,17 +465,23 @@ whether it stays out (a throw: then at the anchor).")
 (defvar *hs-m2* (m4) "A joint's matrix (scratch).")
 
 (defun-fast vfx-hs-chain (a b sag k)
-  "Kazeshini's chain from point A to point B (f32vecs), sagging SAG m at its middle: ink links turned alternately, a steel
-glint every other one, presence K (SAG and K: literals)."
+  "Kazeshini's chain from point A to point B (f32vecs), sagging SAG m at its middle (a parabola; SAG < 0: -SAG m of slack
+beyond the straight span, the sag that length gives, its lowest link kept 3 cm off the floor): ink links along the curve
+turned alternately, a steel glint every other one, presence K (SAG and K: literals)."
   (declare (type f32vec a b) (single-float sag k))
   (let* ((x0 (aref a 0)) (y0 (aref a 1)) (z0 (aref a 2)) (dx (- (aref b 0) x0)) (dy (- (aref b 1) y0)) (dz (- (aref b 2) z0))
-         (l (f-max 0.01f0 (f-hypot dx dy dz))) (ux (/ dx l)) (uy (/ dy l)) (uz (/ dz l))
-         (n (min 48 (max 2 (f->i (/ l 0.12f0))))) (dr (drawing-no)))
-    (declare (single-float x0 y0 z0 dx dy dz l ux uy uz dr) (fixnum n))
+         (l (f-max 0.01f0 (f-hypot dx dy dz)))
+         (sag (if (< sag 0f0)                                          ; (arc ~ span + 8 s^2 / 3 span)
+                  (f-min (f-sqrt (* 0.375f0 l (- sag))) (f-max 0f0 (- (* 0.5f0 (+ y0 (aref b 1))) 0.03f0)))
+                  sag))
+         (n (min 48 (max 2 (f->i (/ (+ l (/ (* 2.67f0 sag sag) l)) 0.12f0))))) (dr (drawing-no)))
+    (declare (single-float x0 y0 z0 dx dy dz l sag dr) (fixnum n))
     (dotimes (i n)
       (let* ((u (/ (+ 0.5f0 (i->f i)) (i->f n))) (s (* 4f0 sag u (- 1f0 u)))
-             (px (+ x0 (* u dx))) (py (- (+ y0 (* u dy)) s)) (pz (+ z0 (* u dz))))
-        (declare (single-float u s px py pz))
+             (px (+ x0 (* u dx))) (py (- (+ y0 (* u dy)) s)) (pz (+ z0 (* u dz)))
+             (ty (- dy (* 4f0 sag (- 1f0 (* 2f0 u))))) (tl (f-max 0.001f0 (f-hypot dx ty dz)))
+             (ux (/ dx tl)) (uy (/ ty tl)) (uz (/ dz tl)))
+        (declare (single-float u s px py pz ty tl ux uy uz))
         (fx-shard px py pz ux uy uz 0.13f0 (if (evenp i) 0.04f0 0.018f0) 0.03f0 (+ (i->f i) 700f0 dr) +pal-ink+ k)
         (when (evenp i) (fx-shard px py pz ux uy uz 0.06f0 0.01f0 0.03f0 (+ (i->f i) 760f0) +pal-steel+ k :push 0.14f0)))))
   nil)
@@ -438,14 +534,14 @@ his 6.5 m line."
   (declare (type f32vec jm pos fa anchor vpos) (fixnum a b n d lightning))
   (let ((v *hs-v*) (w *hs-w*) (q *hs-q*) (m *hs-m*) (m2 *hs-m2*))
     (declare (type f32vec v w q m m2))
-    (joint-point! w jm (ji :weapon-r) 0f0 0f0 0f0)                    ; the right fist: the chain's end there
+    (joint-point! w jm (ji :weapon-r) 0f0 0f0 0.22f0)                 ; the right rod's forked butt: the chain fixes there
     (if (and (= a 0) (= b 0))
         (let ((j (* 16 (ji :weapon-l))))
           (replace m2 jm :start2 j :end2 (+ j 16))
           (m4-mul! m m2 *weapon-m*)
           (draw-weapon :kazeshini m :tint tint)
-          (joint-point! v jm (ji :weapon-l) 0f0 0f0 0f0)
-          (vfx-hs-chain w v 0.25f0 0.9f0))
+          (joint-point! v jm (ji :weapon-l) 0f0 0f0 0.22f0)            ; butt to butt, 1.2 m of slack (§11.1)
+          (vfx-hs-chain w v -1.2f0 0.9f0))
         (let ((u (f-clamp (/ (i->f n) (i->f (max 1 d))) 0f0 1f0)))
           (declare (single-float u))
           (%hs-point v a jm pos fa anchor vpos)
@@ -453,6 +549,7 @@ his 6.5 m line."
           (dotimes (i 3) (setf (aref v i) (+ (aref v i) (* u (- (aref q i) (aref v i))))))
           (%hs-place! m v fa (if (= a b) 0 1))
           (draw-weapon :kazeshini m :tint tint)
+          (dotimes (i 3) (setf (aref v i) (- (aref v i) (* 0.22f0 (aref m (+ 4 i))))))   ; (its butt: the rod is M's +Y)
           (if (= a b) (vfx-hs-chain w v 0.12f0 0.9f0) (vfx-hs-chain w v 0.04f0 0.9f0))
           (when (= b 4)                                               ; the pull: the chain taut along the sim's segment
             (setf (aref v 0) (aref anchor 0) (aref v 1) (the single-float *hs-anchor-up*) (aref v 2) (aref anchor 1))
@@ -560,3 +657,31 @@ stamp, silence; on him, the sickle's cut; the shatter: a negative, a manga page;
   (at 70 (impact-frame :negative 2) (cine-shatter v 2) (play-sfx :konpaku-shatter) (shake 0.2 0.3))
   (at 72 (impact-frame :manga 10))
   (at 96 (shot-pair a v 1 7.0 2.2) (lens 50) (caption-exit)))
+
+;;; ---------------------------------------------------------------- the model sheet (debug 83980-83985: stills, a look)
+;; Him alone on a white card (CARD, as Kenpachi's black robe) in the stance, the camera a cinematic shot: the front, his
+;; left side (the badge), the back, three-quarters from his left front, the face, and Kazeshini held out to his right
+;; (the weapon close-up). The match frames are 83000 / 83001 (the behind camera, 2 / 6 m from Kenpachi).
+(defpose :hs-look-weapon (:base :hs-stance)            ; the right rod held out flat to his right, the left one hanging
+  (:arm-r :flex 0 :side 86 :twist 90) (:elbow-r :flex 4) (:hand-r :flex -90 :twist 0))
+(defclip :hs-look-weapon (1.0 :loop t :base :hs-look-weapon) (0))
+(defparameter *hs-look-shots*
+  '((0 4.6 1.0 0.92 35 0.0 :hs-stance) (90 4.6 1.0 0.92 35 0.0 :hs-stance) (180 4.6 1.0 0.92 35 0.0 :hs-stance)
+    (35 4.6 1.0 0.92 35 0.0 :hs-stance) (0 0.85 1.66 1.64 35 0.0 :hs-stance) (0 2.0 1.3 1.3 40 1.0 :hs-look-weapon))
+  "83980+k: (angle around his facing, distance, eye height, look height, lens, aim off to the shot's left, clip).")
+(defparameter *hs-look-weapon-tall* '(0 5.5 1.3 1.2 30 2.2 :hs-look-weapon)
+  "83985 on a tall screen: SHOT-ON halves the aim there (a quarter up close), so farther and aimed further left.")
+(defvar *hs-look-k* 0 "The model sheet's shot (83980+k).")
+(defcine hs-look-cine (a v :len 240 :hold 60)
+  "The model sheet's held shot *HS-LOOK-K* (*HS-LOOK-SHOTS*) of A alone on a white card, 4 s; then the match again."
+  (at 0 (destructuring-bind (ang dist h look fov off clip)
+            (if (and (= *hs-look-k* 5) (portrait-p)) *hs-look-weapon-tall* (nth *hs-look-k* *hs-look-shots*))
+          (card :white a) (cine-clip a clip :blend 0) (shot-on a ang dist h :look look :off off) (lens fov))))
+(defun hisagi-look-scene (k)
+  "83980+k: P1 Hisagi 8 m from an idle Kenpachi, the model sheet's shot K (HS-LOOK-CINE)."
+  (setf *cine-hold* nil *hs-look-k* (min k (1- (length *hs-look-shots*))))
+  (ensure-battle :hisagi :kenpachi)
+  (place *p1* *p2* 8.0)
+  (start-cine 'hs-look-cine *p1* *p2*))
+(pushnew '(83980 83985 hisagi-look-debug) *char-debug* :test #'equal)
+(defun hisagi-look-debug (c) (hisagi-look-scene (- c 83980)))

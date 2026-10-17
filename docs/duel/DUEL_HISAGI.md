@@ -1074,6 +1074,49 @@ the user's 「可以」.
   (69 in blue, the sash knot, the chain's slack, the badge without its flower, the stripe colour, the arm-band heights)
   drew no objection.
 
+### 21.2 Look as built (the Shikai, 2026-10-17)
+
+Presentation only, all in `duel/lisp/hisagi-art.lisp` (the body, Kazeshini, the chain's look, debug scenes): no clip,
+move, knob or hurt volume changed. Grades as in the research (A canon still / text, B official game, D the lead's own
+reading or a guess for the user to check).
+
+| Item | As built | Grade |
+|---|---|---|
+| Build | scale 1.0 (1.81 m), width 0.94, the shared rig; hurt r 0.36 / h 1.8 kept | A (notes §3) |
+| Hair | TYBW: a ragged fringe of five strands over the brows (one down the bridge of the nose), locks over the ears to the lobes, spikes up and back, the nape | A (`Ep370…`, `520.5…`); the strand layout D |
+| Scars | three parallel lines from the brow straight down over the right eye to the cheek | A |
+| Stripe | blue (#3F6EA8) from the right eye's inner corner across the bridge of the nose to the left cheek's edge, wrapping round it | A (`520.5…`, `ros_hisagi_trailer_thumb`); the hue D |
+| 69 | on the left cheek under the stripe's end, **blue** (as the TYBW anime and RoS; the manga inks it black), readable from the front | A placement; the colour D |
+| Choker | black band with five white studs | A |
+| Arm bands | black, five white studs each, mid upper arm (right) / above the elbow (left, under the badge) | A (ch. 324); the height D |
+| Badge | a khaki shield with 九 in three ink strokes, tied with white cloth on the left upper arm | A (anime sheet, RoS); the 9th-squad flower omitted (D: too small to read) |
+| Top | sleeveless black, a white trim at the arm holes, a deeper V of the white under-collar | A |
+| Sash | white, its knot and two hanging ends at **his right front** (the brief said "front-left": every image, `325…`, `Hisagi_Anime_Fullbody`, `ros_hisagi_ill`, Ep219, draws it on the viewer's left) | A |
+| Scabbard | the sealed sword's empty blue-black scabbard (#1E2A48) in the sash at the left hip, 0.72 m, the end down, back and out | A (`325Hisagis_Shikai_Kazeshini`); the angle D |
+| Hakama, feet | wide black hakama (three pleat lines), white tabi on straw waraji (a sole and a thong) | A |
+| Kazeshini rod | black, 0.97 m: the forked butt (where the chain fixes) 0.22 m behind the fist, the point 0.75 m ahead (the defweapon `:length` the FK test reads: unchanged, so every J tip is as before) | A shape; the length D (measured on `324` / `325`) |
+| Grip | the stance grip only: overhand near the butt (the rear fifth). The J strings' grip near the blades (§20, the user's 「握在靠刀的那端」) comes with the slot plan's clips | A (stance) |
+| Blades | two crescents leaving the rod 0.5 m ahead of the fist on opposite sides, one on each face of it, **hooked in opposite directions** (v2, the user below): the edge-side one curls back toward him, the other forward (its tip at 0.68 m, behind the rod's point at 0.75), an S / pinwheel point-symmetric about the crossing, tip to tip 0.92 m; each 0.075 m wide at the root, pointed, the outer 40 % of its curve white-silver (#D4D8E0), the inner black | A (`324`, `325`, Ep219, the wiki's "one inverted"; the user's v2 call); the exact 3D layout D |
+| Chain | butt to butt with 1.2 m of slack at rest (a parabola, its lowest link 3 cm off the floor: it loops to the shins), links along the curve; thrown: from the right butt to the flying sickle's butt | A (stills: it loops low); "1.2 m of slack" read as length beyond the span (D) |
+| Green Reiatsu | none on the weapon or body at rest (canon shows it only as the release's outline glow and in the effects: TSUZURI RAIDEN's jade bolt kept) | A |
+| B2a's "large yellow blade" | not found in his own draw: B2a's Kazeshini was a 0.75 m dark spiked stick with two small dark blades (replaced); the yellow in his match frames is Kenpachi's aura and the shared hit spark, unchanged | — |
+
+**v2 (the user, 2026-10-17, on the stills):** 「鐮刀兩側的新月彎鉤應該要是相反方向，一個朝內一個朝外」: v1 drew one crescent with both tips swept back; v2 turns the second blade 180° about the crossing, so one hook curls in (toward him) and one out (away from him). Only the blade geometry (`*hs-crescent*`, HS-MB-CRESCENT) changed: the rod, the grip, `:length` 0.75 and every reach as before. The portrait weapon close-up got its own shot (`*hs-look-weapon-tall*`, the whole weapon in frame). Re-proved: `simgate --seeds 10 --summary` byte-identical to the parent, the `--cvc` PASS lines identical, duel-rules-test ALL PASS, pkgcheck clean, the build with the 4 known Lille warnings, debug 83901 0 B. Stills: the v2 weapon close-up, front, 3/4 and side in both aspects (contact sheet `hs-look-sheet-v2.png`).
+
+**Stills** (`tools/run.mjs --fixed-dt 16.666667`, 1280×720 and 720×1280): debug 83980–83985 (DUEL_GAMEPLAY "Debug commands":
+him alone on a white card in a 4 s cinematic shot: front, his left side, back, three-quarters, face, Kazeshini held out)
+and 83000 / 83001 (the match, the behind camera, 2 / 6 m from Kenpachi); before / after pairs against B2a. Known: the
+portrait weapon close-up frames his chest (the shot's aim is halved on a tall screen) and cuts the weapon off (fixed in v2); the
+landscape one is the reference.
+
+**Proofs.** `simgate --seeds 10 --summary` byte-identical to the parent (`cmp`, all 57 lines) and `--cvc`'s three PASS
+lines identical (yy / yk / kk; the after run alone printed the native rebuild's banner line); duel-rules-test ALL PASS
+(the FK reach test unchanged: the same `:length`); pkgcheck clean; `./build.sh duel` with only the 4 known Lille
+warnings; debug 83901 0 B in every case (the stance's slack chain included).
+
+**For the user (D items above):** the 69's colour (blue vs the manga's black), the sash knot on his right, the stripe's
+blue, the crescents' 3D layout, the chain hanging to the shins.
+
 ## 18. Open
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
