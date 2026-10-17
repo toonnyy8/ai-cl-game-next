@@ -1020,6 +1020,19 @@ Bankai's side of §17.5 #18): Hisagi wins 20, 18, 16, 16, 10, 15, 18 of 20, so t
 the Bankai with the bind looks strong, the Shikai weak. Per §17.5 #18 the first knob would be the release cost; reported,
 not tuned (the user's call).
 
+### 20.9 Gates on main a55c913 (the lead, 2026-10-17; playtest Artifact v89 published first)
+
+- His 7 pairings, 20 seeds (Hisagi P1): HY 144.3 s (10–10), HK 130.8 (9–11), HR 170.0 (10–10), HI 170.7 (10–9, 1 draw),
+  HS 157.6 (11–9), HB 202.3 (2–18), HH 226.2 (6–14) — every cross median inside 125–210; HH (a mirror) has **2 time-outs**
+  of 20 (KOs 18), the rest all K.O.
+- G2 cvc: yy / yk / kk PASS (unchanged).
+- **Awaken A/B, 60 seeds, three streams** (wins of the never-awakening side; pass ≥ 20):
+  - `--cmd 39020` (Hisagi never awakens): seed0 100: Y 8, K 5, R 7, I 1, S 7, B 2, H 6; 300: 10, 3, 7, 2, 10, 2, 1;
+    500: 11, 4, 3, 10, 7, 4, 4 — **all 21 rows fail**.
+  - `--cmd 39002` (the opponent never awakens, vs an awakening Hisagi): seed0 100: Y 0, K 4, R 22, I 11, S 22, B 11, H 5;
+    300: 0, 4, 22, 16, 24, 16, 2; 500: 0, 5, 23, 11, 17, 13, 6 — R / S pass on most streams, the rest fail.
+- Reading: his Bankai decides the match; his never-awakened Shikai loses ~85–95 %. Not retuned: reported to the user.
+
 ## 21. Look and motion style: the skill pass that was skipped (the user, 2026-10-17)
 
 > 「在開始建模前有先使用 skill 調查造型並設計動作模組嗎」
