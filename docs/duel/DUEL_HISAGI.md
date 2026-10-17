@@ -1064,6 +1064,16 @@ Decisions on the research (AskUserQuestion, 2026-10-17):
 Next: the Shikai model-sheet stills (front / side / back, the weapon close-up, presentation only), then the slot plan for
 the user's 「可以」.
 
+### 21.1 Model-sheet review (the user, 2026-10-17)
+
+> 「鐮刀兩側的新月彎鉤應該要是相反方向，一個朝內一個朝外」
+
+- The look batch's first stills (branch `worktree-agent-a3187ff2a108e4b0a`, not merged) drew one crescent across the rod
+  with both tips swept back. The user: the two hooks curve in **opposite directions**, one inward (toward the holder),
+  one outward (away from him), an S / pinwheel through the rod. Being redrawn on the same branch; the rest of the sheet
+  (69 in blue, the sash knot, the chain's slack, the badge without its flower, the stripe colour, the arm-band heights)
+  drew no objection.
+
 ## 18. Open
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
