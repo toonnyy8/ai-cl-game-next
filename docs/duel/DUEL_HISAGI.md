@@ -599,8 +599,12 @@ single Bankai string set. Shared hook 5 and 7 (held in B1) are redesigned from t
 | Ending: released | he drops it himself (any time) → both fighters' Reishi and Konpaku return to their values at entry; the pool left is given **to the opponent first** (lead's reading: up to his 300 bar), the rest to Hisagi |
 | Escape | the opponent cannot break the bind |
 
-To confirm with the user: the readings marked above; whether a drained end still staggers both 30 f (Q7 A's rule); the
-two move sets (ranged, bind) as segment tables (`duel-move-modules`).
+- **When the bind ends, the opponent reels 30 f** (the user, 2026-10-17: 「捆綁結束時讓對手硬直 30f」; Hisagi does not reel;
+  read as both endings, drained or released). This replaces Q7 A's "both reel 30 f on a dry end".
+- The readings marked above and the 1-per-2 drain were restated to the user; no objection (2026-10-17), so they stand
+  until the playtest.
+
+Next: the two move sets (ranged, bind) as segment tables (`duel-move-modules`).
 
 ## 18. Open
 
