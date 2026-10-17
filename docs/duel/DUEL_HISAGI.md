@@ -1206,7 +1206,12 @@ then the slot plan (`motion-refs.md` §3.2–§3.3) for the user's 「可以」,
 
 - Blade shape (the user, 2026-10-17: 「不是 卍解的刀造型跟始解一樣」): the Bankai's blades are the Shikai's Kazeshini
   blades, the S-pair crescents (§21.1: one hook in, one out), on both hands; not the single crescent of the CFYOW
-  illustration and Brave Souls that the brief had guessed. The open look question left is the orb's size and height.
+  illustration and Brave Souls that the brief had guessed.
+- The orb and its chains (the user, 2026-10-17: 「鎖鏈球可以高到超出鏡頭，自身周遭有許多從鎖鏈球垂下來的鎖鏈，其中有數條鎖鏈捆成束後捆在自己（與對手）的脖子上」):
+  the orb may sit high enough to leave the match camera's frame (it is not shrunk to fit); many chains hang down from it
+  all around him; several of them gather into a bundle tied round his neck (replacing the single twisted rope), and in
+  a bind a bundle the same way round the opponent's neck (the noose). The hanging chains stay thin and sparse enough
+  not to hide the fight from the behind camera. Cosmetic only.
 
 ## 18. Open
 
