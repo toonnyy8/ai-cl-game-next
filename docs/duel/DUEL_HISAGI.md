@@ -484,8 +484,8 @@ counter dumps. His pairings: k 28–35 (`gate_cmd`: 2163–2170; HL, k 33, retir
   | 4 | kit hook `:command` in `:hooks`, `(e cmd)` → a MOVE or NIL | kit.lisp `kit-command-move (kit command &optional e)` | absent: the `:commands` entry | consulted only when a fighter is passed: `try-command` (the start), `ender-push`, `string-opener-p`. The CPU's reach reads, costs (`kit-command-cost`), the `:ok` refusal check and the HUD still read the static `:commands` (the OUT graph's J has the IN J's reach; MODOSHI costs nothing). **Correction**: the hook returns a MOVE, not a name, because a move named only by the hook is not in the form's `kit-moves` (they are gathered from `:commands`, `:strings` and the L links); Hisagi's file looks his OUT moves up itself (`find-move`) |
   | 6 | move flag `:ranged-ward` | rules.lisp `ranged-ward-p` (pure), combat.lisp `apply-hit` | absent | while the defender is in such a move (any phase, its hold too) and can guard (`can-guard-p`: gauge > 0, not guardless), a ranged hit (`ranged-hit-p`: hazards, `:ranged` windows beyond their `:melee-range`) resolves as against a held guard with a ward: 360°, no blockstun, the hit's full guard value (no `*ward-mult*`: that is West's `:ward` passive only) and its usual chip; unguardables pass (`resolve-contact`); a drain to 0 is the generic GUARD CRUSH (`set-reaction :guard-break`), which ends the move. The ward's 6 f pushback slide applies (as West's) |
   | 8 | `ranged-threat-in (e b s d lo hi)` | ai.lisp (+ kit.lisp `ranged-window-lead`) | unused: no caller | T when a ranged hit reaches E within LO..HI frames as perceived: an opponent hazard with hits left (moving: delay + distance / speed; standing: its delay while it touches E), or his perceived move's next `:ranged` window (lead less the perception delay) with E in reach by `snap-near-p` (lines, segments, the reach) beyond its `:melee-range`. Covers Lille's lines and traces, waves, fireballs, walls, pillars |
-  | 5 | (the bind support) | — | — | **held; re-specified for the bind in §17.4 (5a–5j)**, to build after the §17.6 answers |
-  | 7 | (`:p`) | — | — | **held; re-specified in §17.4 (7a–7b)**; `:awaken-ok` dropped |
+  | 5 | (the bind support) | — | — | re-specified for the bind in §17.4 (5a–5j); **built in batch B1b**, §17.4 "As built" |
+  | 7 | (`:p`) | — | — | re-specified in §17.4 (7a–7b), `:awaken-ok` dropped; **built in batch B1b**, §17.4 "As built" |
 - His own hooks: the anchor, the timers, the held K, the drags, the 6 m stop, the noose freeze, the cover (`:tick`,
   `:hit`, `:struck`).
 - A character-file change: `senjumaru.lisp`'s 星 `gauge-move` goes through `reiatsu-gain!` (O2).
@@ -796,6 +796,35 @@ stay byte-identical (`simgate --seeds 10 --summary`, `--cvc`, `cmp` against the 
 sits inside `:p`). **Dropped from the old hook 5**: `orb-exchange`, the cover, `orb-covered-p`, the scorch / mirror
 routing (no Reishi is exchanged any more: wounds stay wounds, only grey), the `*kikons*` filter (B2: a Kikon plays).
 
+**As built (batch B1b, 2026-10-17; hooks 5a–5j, 7a–7b).** Each defaults off: no kit holds any of the hooks below, and
+with none `simgate --seeds 10 --summary` (22 pairings) and `simgate --cvc` are byte-identical to the parent commit
+(`cmp`, the simgate fas rebuilt from the new sources). `duel-rules-test` (8989 checks) now also loads `components`,
+`combat`, `fighter` and `flow` over stand-in entities and pins both the defaults (no registered kit has a bind hook or
+`:p`; every changed reader on Yamamoto vs Kenpachi does what the old code did: the gain's clamp, the spend, the plain
+heal, the Soul Break queued at 0, the K.O., an awakened P doing nothing, the step / resolve slots calling nothing) and
+each hook's one job with a dummy binder kit (`:t-bind`, a non-`:base` form, no roster slot) whose hooks keep the bind's
+state in the test, as Hisagi's file will. All the bind's hooks live in the **binder's** kit (`:hooks`), binder first in
+every call.
+
+| # | Name as built | Where | Default | Notes / pinning test |
+|---|---|---|---|---|
+| 5a | kit hook `:bind (x)` → `bind-of (e)` | combat.lisp, beside `siphon-of` | NIL | the binder when E's or his opponent's form has `:bind` and it is true for that fighter (so either side reads the same binder). `bind-hook (b point)`, a binder's hook or NIL, is what every other reader calls. Test: either side → the binder; none → NIL |
+| 5b | `deal-damage` + hook `:bind-damage (b att def dmg)` | combat.lisp | unchanged | bound: Reishi floors at 0, no Soul Break queued (returns NIL, so `apply-hit` sets the reaction as for any hit), the **nominal** dmg to `:bind-damage` (the drain) and to ATT's new `gauges-grey` count. The queueing moved into `queue-soul-break! (att def)` (once per victim, in order: B7's drained end calls it). Pure rule `bind-drain (pool dmg &optional (rate 0.5))` in rules.lisp (floors at 0). Test: 7 damage drains 400 → 396.5 exactly, 2000 past 0 queues nothing |
+| 5c | `settle-konpaku` | combat.lisp | unchanged | bound: returns no K.O. (Konpaku already floors at 0 in `kikon-result`); the refill, `:settled`, the event as usual, so a grey Kikon plays (Q10 A). Test: Konpaku 2 − 3 → 0, no K.O., Reishi full; after the drained end the same call K.O.s |
+| 5d | `reiatsu-gain! (e n)` | combat.lisp; callers `pay-gauges` (hits, KŌSEI, the siphon's, Lille's stance gains), BLUE's bar in `burst!`, `white-regen!` (now `(e g n)`: WHITE and the awakening's regen), the Kikon refund in `settle-souls`, `reset-round`'s `:reset-reiatsu`, `gauge-system`'s +3 /s | adds as before (`(f32 (gauge-add r n *reiatsu-max*))`) | bound: adds nothing. **Correction**: Senjumaru's 星 is a transfer (`gauge-move`, his Reiatsu into hers), not a gain: senjumaru.lisp skips its Reiatsu part while `bind-of` (its flash-step part runs). Test: `reiatsu-gain!`, `pay-gauges` (flash-step still paid), `gain-gauges`, `kosei!`, `white-regen!` each frozen in the dummy bind; the paths the host can't call (the refund, BLUE, the regen, the reset) are pinned by a source check: combat.lisp writes `gauges-reiatsu` only inside `reiatsu-gain!` and `reiatsu-spend!` |
+| 5e | `reiatsu-of (e)` / `reiatsu-spend! (e bars)` + hook `:bind-pool (b &optional n)` | combat.lisp; readers `kit-command-ok-p`, `reiatsu-bars` (so ai.lisp's and Lille's SP reads), `try-command`'s spend, hud.lisp's two Reiatsu rows, Senjumaru's SP1 hank shade | the own gauge / `spend-bars` | bound: the pool, `(funcall :bind-pool b n)` spends N Reiatsu (bars × 100) and returns the pool. Test: a 150-Reiatsu Yamamoto bound in a 396.5 pool may SP1 and pays it from the pool (296.5), refused at 50 |
+| 5f | `heal! (e n)` + hook `:bind-heal (b e n)` | combat.lisp; `awaken!`'s 20 %, `white-regen!`'s Reishi | the plain capped add | the hook raises E's snapshot (B6). Test: +100 live and snapshot |
+| 5g | `bind-step! (e phase)` + hook `:bind-step (b phase)` | combat.lisp; `hit-system` (its hit collection and application moved into `hit-apply`) calls `:hits` after the hits, before `settle-souls`; fighter.lisp `fighter-system` calls `:release` right after the step's bursts are applied (not during a cinematic) | nothing called | Test (the dummy's B7 / B8): drained with both at 0 → `(reverse *soul-breaks*)` = the opponent's first, then the binder's; released → both snapshots back, pool 450 → 300 to the opponent, 150 to the binder. Pure rule `bind-release-split (left &optional (cap 300))` pinned at L = 0 / 150 / 300 / 450 / 600 |
+| 5h | `bankai-ok-p` | combat.lisp | unchanged | NIL while `bind-of` (also `bankai-ready-p`, the HUD's and the CPU's reads). Test |
+| 5i | `bind-resolve! (e)` + hook `:bind-resolve (b)` | combat.lisp; flow.lisp `time-up` calls it first | nothing called | Test: A ahead 3–2 on grey values with grey 0 Reishi → after `time-up` the Soul Break's Konpaku counted, P2 wins |
+| 5j | hook `:bind-snapshot (b e)` → `bind-snapshot-of`, `bind-grey-frac`, `bind-grey-souls`; `dealt-real (e)` | combat.lisp; hud.lisp `%hud-reishi` (new last arg GREY: a grey band from the live fill to the snapshot), `%hud-pips` (new last arg GREY: grey flames up to the snapshot's Konpaku, after any shattering), `pool-tally` ("x3".."x6" beside the Reiatsu label / over the portrait cells while the pool is over 300); ai-learn.lisp | 0 / NIL: nothing drawn | the learner reads `dealt-real` (dealt − `gauges-grey`) everywhere it read `gauges-dealt`; the binder's end clears `gauges-grey` when the grey turns real (drained) and leaves it on a release; a burst window that a bind spans (bound at its open or its close) reads no heal. Test: the grey count and `dealt-real`; the snapshot readers (the draw itself is not host-run) |
+| 7a | kit hook `:p (e free)` | fighter.lisp `try-command`'s `:awaken` case, after the awakening and Kenpachi's Bankai; `*run-commands-p*` (`*run-commands*` + `:awaken`) is the run's list for a form with `:p` | absent: P as before | FREE is `awaken-state-p`'s (idle / guard / blockstun, or a combo past its 2nd hit, inputs not locked: Q9 A's rule); the hook reads the state for the run case itself; T = the press taken (it emits its own refusal cue). The CPU presses `:awaken` as before. Test: called with free true when idle, false in a combo's 1st hit; a kit without `:p` gets nothing |
+| 7b | kit hook `:p-label (e)` | onehand.lisp `hud-deck` | the chip only at EVOLUTION / a Bankai ready | a form with `:p` always shows chip 5, labelled by `:p-label` (BIND / FREE), else its usual label (draw only, not host-run) |
+
+- Kit docs: kit.lisp's `defkit` docstring lists `:p`, `:p-label` and the bind hooks.
+- Not built (Hisagi's own, B2): the bind's state, the throw, UNWIND, the reel, the end effects (B9), the hash line, the
+  CPU and the learner situations.
+
 ### 17.5 Adversarial self-check (the lead, 2026-10-17)
 
 | # | Failure scenario | Fix applied |
@@ -831,7 +860,7 @@ routing (no Reishi is exchanged any more: wounds stay wounds, only grey), the `*
 
 ## 18. Open
 
-- Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Next: hooks 5 / 7 (§17.4) as batch B1b and the Bankai's two modes in B2.
+- Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); next: the Bankai's two modes in B2.
 
 - The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
 - The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet

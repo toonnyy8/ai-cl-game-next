@@ -84,7 +84,7 @@ character's own situations when it names some (LEARN-DEF-KIT; the ASSIST's learn
 event's counter at its onset, and run the clocks: the counter's wait, the bandit's window, a read's outcome, the form;
 then its character's own situations (the kit's :step, LEARN-DEF-KIT), before the human's last-step state moves on."
   (let* ((l (brain-learn b)) (tab (lrn-tab l)) (own (state-of e)) (hs (snap-state s)) (hprev (lrn-hstate l))
-         (p (pos-of e)) (dealt (gauges-dealt (gauges e))) (taken (gauges-dealt (gauges (opp-of e))))
+         (p (pos-of e)) (dealt (dealt-real e)) (taken (dealt-real (opp-of e)))
          (dx (- (snap-x s) (lrn-hx l))) (dz (- (snap-z s) (lrn-hz l))))
     (when (and (> d 0.01) (< (+ (* dx dx) (* dz dz)) 0.25))   ; his way away from us (a Hoho's jump is no walk)
       (incf (lrn-away l) (f32 (/ (+ (* dx (- (snap-x s) (aref p 0))) (* dz (- (snap-z s) (aref p 2)))) d))))
@@ -168,8 +168,8 @@ us; an SP's Hoho without flash-step is a guard): T when pressed; the read is cou
   (incf (lrn-reads l))
   (let ((st (or (assoc cmd (lrn-stats l)) (car (push (list cmd 0 0) (lrn-stats l))))))
     (incf (second st)) (setf (lrn-last l) cmd))
-  (setf (lrn-read-t l) *learn-read-t* (lrn-r-dealt l) (gauges-dealt (gauges e))
-        (lrn-r-taken l) (gauges-dealt (gauges (opp-of e)))))
+  (setf (lrn-read-t l) *learn-read-t* (lrn-r-dealt l) (dealt-real e)
+        (lrn-r-taken l) (dealt-real (opp-of e))))
 
 (defun learn-neutral-due-p (e b s)
   "A learning CPU's neutral read is due this step: its own clock (LRN-READ-CLOCK, run by LEARN-STEP) is out, both are free
@@ -226,7 +226,7 @@ out gets *LEARN-HOHO-W* first when it may go. Returns the plist."
 (defun learn-window (e l d weights cmd)
   "The bandit's window for arm CMD, picked from WEIGHTS (its probability for the importance weight): the one still open
 is settled first."
-  (let ((arm (position cmd *learn-arms*)) (dealt (gauges-dealt (gauges e))) (taken (gauges-dealt (gauges (opp-of e))))
+  (let ((arm (position cmd *learn-arms*)) (dealt (dealt-real e)) (taken (dealt-real (opp-of e)))
         (sum (loop for (nil w) on weights by #'cddr sum w)))
     (when (and arm (plusp sum) (member :bandit *learn-use*))
       (when (>= (lrn-arm l) 0) (learn-settle l dealt taken))
@@ -245,13 +245,15 @@ open (the rolls come in bursts: a WHITE one each neutral decision)."
   (let ((c (position color *learn-burst-colors*)) (g (gauges e)))
     (when (and c (< (lrn-bw l) 0) (member :bandit *learn-use*))
       (setf (lrn-bw l) c (lrn-bw-used l) used (lrn-bw-prob l) (f32 (if used prob (- 1 prob))) (lrn-bw-t l) *learn-window*
-            (lrn-bw-dealt l) (gauges-dealt g) (lrn-bw-taken l) (gauges-dealt (gauges (opp-of e)))
-            (lrn-bw-reishi l) (gauges-reishi g) (lrn-bw-konpaku l) (gauges-konpaku g)))))
+            (lrn-bw-dealt l) (dealt-real e) (lrn-bw-taken l) (dealt-real (opp-of e))
+            (lrn-bw-reishi l) (gauges-reishi g) (lrn-bw-konpaku l) (if (bind-of e) -1 (gauges-konpaku g))))))   ; (a bind's
+                                                        ; release restores Reishi: no heal read across one)
 
 (defun learn-burst-settle (e l dealt taken)
-  "Close the burst window: the damage balance, plus the Reishi healed (WHITE) when no soul was lost in it."
+  "Close the burst window: the damage balance, plus the Reishi healed (WHITE) when no soul was lost in it and no bind
+spans it (a release's restore is no heal: BIND-OF at both ends)."
   (let* ((g (gauges e)) (tk (- taken (lrn-bw-taken l)))
-         (healed (if (= (gauges-konpaku g) (lrn-bw-konpaku l)) (max 0 (+ (- (gauges-reishi g) (lrn-bw-reishi l)) tk)) 0)))
+         (healed (if (and (= (gauges-konpaku g) (lrn-bw-konpaku l)) (not (bind-of e))) (max 0 (+ (- (gauges-reishi g) (lrn-bw-reishi l)) tk)) 0)))
     (learn-burst-reward! (lrn-tab l) (lrn-bw l) (lrn-bw-used l) (lrn-bw-prob l) (learn-reward (- dealt (lrn-bw-dealt l)) tk healed))
     (setf (lrn-bw l) -1)))
 

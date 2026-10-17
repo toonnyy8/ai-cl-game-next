@@ -165,6 +165,9 @@ both fighters' Konpaku and Reishi at their practice rows (PRACTICE-SET!)."
     (start-cine 'ko-cine we le :after #'go-results)))
 
 (defun time-up ()
+  "The bell: a bind still up resolves as drained first (BIND-RESOLVE!, DUEL_HISAGI §17.3 B10), then the winner (Konpaku,
+then Reishi %)."
+  (bind-resolve! *p1*)
   (let* ((g1 (gauges *p1*)) (g2 (gauges *p2*))
          (w (time-up-winner (gauges-konpaku g1) (gauges-reishi g1) (gauges-reishi-max g1)
                             (gauges-konpaku g2) (gauges-reishi g2) (gauges-reishi-max g2))))

@@ -222,11 +222,13 @@ low zone = J, high zone = K, an up-flick = a forward Step, the dash)?"
 
 (defun hud-deck (s)
   "The thumb deck: the flow pad's outline and its tap split (F above, Q below), the chips (lit while held; AWAKEN only
-at EVOLUTION or a Bankai ready), the ink ring under the thumb, and the recognised gesture's glyph at the thumb for 0.3 s
-(the misread teacher)."
+at EVOLUTION or a Bankai ready, or always for a form with a :p hook, labelled by its :p-label (e): Hisagi's BIND / FREE),
+the ink ring under the thumb, and the recognised gesture's glyph at the thumb for 0.3 s (the misread teacher)."
   (let* ((tr *touch*) (d (touch-dpx tr)) (dk *deck*)
          (u (u-chip-p))                                  ; a :u form: the chip is U
-         (evo (and *p1* (or u (gauges-evolution (gauges *p1*)) (bankai-ready-p *p1*)))))   ; AWAKEN: EVOLUTION, or the Bankai
+         (pk (and *p1* (kit-hook (kit-of *p1*) :p)))      ; a :p form: the chip is its P, labelled by :p-label
+         (pl (and pk (let ((h (kit-hook (kit-of *p1*) :p-label))) (and h (funcall h *p1*)))))
+         (evo (and *p1* (or u pk (gauges-evolution (gauges *p1*)) (bankai-ready-p *p1*)))))   ; AWAKEN: EVOLUTION, or the Bankai
                                                                                           ; ready (cup 3, red, free)
     (%houtline (aref dk 0) (aref dk 1) (- (aref dk 2) (aref dk 0)) (- (aref dk 3) (aref dk 1)) 1f0 1f0 1f0 0.12f0)
     (let* ((y (touch-split-y tr)) (left (eq *hand* :left))                  ; the tap zones' line, named at the far edge
@@ -242,7 +244,7 @@ at EVOLUTION or a Bankai ready), the ink ring under the thumb, and the recognise
           (when (= i 1)                                  ; a refused L (cooling, cold, its kit's refusal): the chip flashes
             (let ((fl (f32 (- 1.0 (* 4.0 (- (fx-clock) (aref *refused-t* 0)))))))
               (when (> fl 0.0) (%disc cx cy r 1.0 1.0 1.0 (* 0.7f0 fl)) (%ring cx cy (* 1.15 r) (* 3f0 d) 1.0 1.0 1.0 fl))))
-          (hud-text (if (and u (= i 5)) "U" (svref *chip-labels* i)) cx (- cy (* 3.5 s)) s *c-chip* :align :center :shadow nil))))
+          (hud-text (cond ((and u (= i 5)) "U") ((and pl (= i 5)) pl) (t (svref *chip-labels* i))) cx (- cy (* 3.5 s)) s *c-chip* :align :center :shadow nil))))
     (when (touch-active-p tr)                              ; the floating stick: an ink ring at its origin
       (%ring (touch-ox tr) (touch-oy tr) (* d 48f0) (* 2f0 d) 1.0 1.0 1.0 (if (touch-resting-p tr) 0.35 0.6))
       (let ((h (and *p1* (kit-hook (kit-of *p1*) :deck)))) (when h (funcall h *p1* (touch-ox tr) (touch-oy tr) d)))   ; a form's own ring

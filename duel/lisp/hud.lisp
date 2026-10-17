@@ -126,14 +126,16 @@ greps \"over the P\")."
     (multiple-value-bind (x y z) (actor-point v 1.6) (vfx-konpaku-shatter x y z lost))
     (play-sfx :konpaku-shatter)))
 
-(defun-fast %hud-reishi (x y bw bh frac trail right red tm)
+(defun-fast %hud-reishi (x y bw bh frac trail right red tm grey)
   "The Reishi bar: dark back, white damage TRAIL, the fill (amber, lit from the top; red and
-pulsing when RED), a thin outline (red and pulsing when RED)."
-  (declare (single-float x y bw bh frac trail tm))
+pulsing when RED), a thin outline (red and pulsing when RED). GREY (a fraction above FRAC, else 0): a bind's grey band,
+what he lost since it started (BIND-SNAPSHOT-OF; DUEL_HISAGI §17.3)."
+  (declare (single-float x y bw bh frac trail tm grey))
   (let* ((p (%pulse tm 3.0)))
     (declare (single-float p))
     (%hrect x y bw bh 0.05f0 0.04f0 0.07f0 0.75f0)
     (%hbar x y bw bh trail right 0.95f0 0.9f0 0.85f0 0.9f0)
+    (when (> grey frac) (%hbar x y bw bh grey right 0.56f0 0.56f0 0.6f0 0.95f0 0.4f0 0.4f0 0.44f0 0.95f0))
     (if red
         (%hbar x y bw bh frac right 1f0 0.35f0 0.35f0 (+ 0.65f0 (* 0.35f0 p)) 0.8f0 0.05f0 0.1f0 (+ 0.65f0 (* 0.35f0 p)))
         (%hbar x y bw bh frac right 1f0 0.78f0 0.36f0 1f0 0.88f0 0.45f0 0.12f0 1f0))
@@ -309,11 +311,12 @@ colour 0 at the tip, colour 1 at the base, plus a pale core."
           (+ fx (* 0.4f0 fr)) (+ fy (* 0.3f0 fr)) (- fx (* 0.4f0 fr)) (+ fy (* 0.3f0 fr))
           1f0 1f0 1f0 (* 0.2f0 ,a1) 1f0 1f0 1f0 (* 0.75f0 ,a1))))                           ; core
 
-(defun-fast %hud-pips (x py bw r side n right red tm pitch stake)
+(defun-fast %hud-pips (x py bw r side n right red tm pitch stake grey)
   "The Konpaku: N intact soul flames, blue but the last STAKE of them in blood red (what the opponent's Kikon would take
 now: KONPAKU-AT-STAKE; they pulse while RED, i.e. while that Kikon is live), shattering ones (0.6 s of shards after
-PIPS-SHATTER), and dim embers for the lost ones; PITCH radii apart (the landscape panel: 3.2)."
-  (declare (single-float x py bw r tm pitch) (fixnum side n stake))
+PIPS-SHATTER), grey ones up to GREY (a bind's grey souls: the Konpaku at its start, else 0), and dim embers for the
+lost ones; PITCH radii apart (the landscape panel: 3.2)."
+  (declare (single-float x py bw r tm pitch) (fixnum side n stake grey))
   (let* ((pt *pip-t*) (p (%pulse tm 2.0)))
     (declare (type f32vec pt) (single-float p))
     (dotimes (i *konpaku-max*)
@@ -335,6 +338,7 @@ PIPS-SHATTER), and dim embers for the lost ones; PITCH radii apart (the landscap
                    (declare (single-float a sx sy sr))
                    (%hq sx (- sy (* 1.6f0 sr)) (+ sx sr) sy sx (+ sy sr) (- sx sr) sy
                         0.8f0 0.95f0 1f0 (- 1f0 u)))))
+              ((< i grey) (%soul-flame cx py r lean 0.7f0 0.7f0 0.74f0 0.45f0 0.42f0 0.42f0 0.46f0 0.9f0))   ; grey (a bind)
               (t (%soul-flame cx py (* 0.5f0 r) 0f0 0.3f0 0.3f0 0.35f0 0.3f0 0.3f0 0.3f0 0.35f0 0.6f0)))))))
 
 (defun at-stake (e)
@@ -357,6 +361,12 @@ the running rush's, a kit's :kikon-worth hook, else its :kikon-konpaku), capped 
             (%hbar bx y sw sh fill right 0.6f0 0.92f0 1f0 1f0 0.25f0 0.65f0 1f0 1f0)
             (%hbar bx y sw sh fill right 0.2f0 0.45f0 0.7f0 1f0))))))
 
+
+(defparameter *pool-tally* #("x3" "x4" "x5" "x6") "The tally of a bind's shared pool, by its full bars.")
+(defun pool-tally (ra)
+  "The tally of RA Reiatsu's full bars while it holds more than three bars' worth (a bind's shared pool: REIATSU-OF),
+else NIL."
+  (and (> ra *reiatsu-max*) (svref *pool-tally* (max 0 (min 3 (- (floor ra *reiatsu-bar*) 3))))))
 
 (defun hud-refused (e cmd)
   "E pressed CMD while it was cooling or short of cold (the :refused event): L's bar flashes."
@@ -515,7 +525,7 @@ an awakening, else the awakening gauge."
               :align align)
     ;; Reishi + trail
     (trail-step! side frac 0.35)
-    (%hud-reishi (f32 x) (f32 y) (f32 bw) (f32 bh) (f32 frac) (aref *trail-v* side) right red tm)
+    (%hud-reishi (f32 x) (f32 y) (f32 bw) (f32 bh) (f32 frac) (aref *trail-v* side) right red tm (bind-grey-frac e))
     ;; the guard gauge, right under it
     (let* ((gf (/ (gauges-gg g) *gg-max*)) (ti (+ 2 side)))
       (trail-step! ti gf 0.5)
@@ -528,12 +538,14 @@ an awakening, else the awakening gauge."
                right (if right (- edge (* 0.12 w)) (+ edge (* 0.12 w))) (+ y bh (* 26 s)) s)
     ;; Konpaku soul flames
     (%hud-pips (f32 x) (f32 (+ y bh (* 16 s))) (f32 bw) (f32 (max (* 4.5 s) (* 0.013 h))) side (gauges-konpaku g) right red tm 3.2f0
-               (at-stake e))
+               (at-stake e) (bind-grey-souls e))
     ;; Reiatsu: 3 bars + label
     (let* ((sy (+ y bh (* 25 s))) (sw (* 0.075 w)) (sh (max (* 3 s) (* 0.011 h))) (gap (* 3 s)) (row (* 11 s))
            (lx (if right (- edge (* 3 (+ sw gap)) (* 3 s)) (+ edge (* 3 (+ sw gap)) (* 3 s)))))
-      (%hud-reiatsu (f32 edge) (f32 sy) (f32 sw) (f32 sh) (f32 gap) (gauges-reiatsu g) right)
+      (%hud-reiatsu (f32 edge) (f32 sy) (f32 sw) (f32 sh) (f32 gap) (f32 (reiatsu-of e)) right)
       (hud-text "REIATSU" lx (- (+ sy (* 0.5 sh)) (* 3.5 s)) ls '(0.45 0.8 1 0.9) :align align)
+      (let ((tl (pool-tally (reiatsu-of e))) (tw (+ (text-width "REIATSU" ls) (* 4 s))))   ; a bind's pool past 3 bars
+        (when tl (hud-text tl (if right (- lx tw) (+ lx tw)) (- (+ sy (* 0.5 sh)) (* 3.5 s)) ls '(0.45 0.8 1 0.9) :align align)))
       ;; flash-step (Hoho, Burst), Awakening (drains during a timed awakening), the kit meter (Inferno; drains in its form)
       (let* ((fy (+ sy row)) (ay (+ fy row)) (aw (+ (* 3 sw) (* 6 s))) (ah (max (* 3 s) (* 0.009 h))) (ty (- (* 0.5 ah) (* 3.5 s)))
              (ax (if right (- edge aw) x)) (lx (if right (- edge aw (* 6 s)) (+ edge aw (* 6 s))))
@@ -674,11 +686,11 @@ an awakening, else the awakening gauge."
                     (cond ((gauges-evolution g) (alpha! *c-evo* (hud-pulse 3.0))) ((eq lab (svref kh 2)) *u-tag*)
                           (t '(1 0.62 0.3 0.95)))))
         (%hud-pips (f32 x0) (f32 (+ y (* 7 ns) (* 1.5 s) (* -0.85 r))) (f32 fw) (f32 r) side (gauges-konpaku g) nil red tm
-                   (f32 pitch) (at-stake e))
+                   (f32 pitch) (at-stake e) (bind-grey-souls e))
         (hud-kosei side (gauges-gg g) (- rx s) (+ y (* 3.5 ns)) nil (+ m (* 0.1 bw)) (+ yb (* 0.5 bar)) s 7)))
     ;; Reishi + trail, the guard gauge
     (trail-step! side frac 0.35)
-    (%hud-reishi (f32 m) (f32 ry) (f32 bw) (f32 bh) (f32 frac) (aref *trail-v* side) nil red tm)
+    (%hud-reishi (f32 m) (f32 ry) (f32 bw) (f32 bh) (f32 frac) (aref *trail-v* side) nil red tm (bind-grey-frac e))
     (let* ((gf (/ (gauges-gg g) *gg-max*)) (ti (+ 2 side)))
       (trail-step! ti gf 0.5)
       (%hud-guard (f32 m) (f32 gy) (f32 bw) (f32 (* 2 s)) (f32 gf) (aref *trail-v* ti) nil (gauges-guardless g)
@@ -692,7 +704,8 @@ an awakening, else the awakening gauge."
            (n (if kitp 4 3)) (gw (/ (- a (* (1- n) gap)) n)) (sw (/ (- gw (* 2 s)) 3))
            (hot (or (gauges-evolution g) (kit-awakening kit)))
            (afill (awaken-fill g kit)))
-      (%hud-reiatsu (f32 x0) (f32 yb) (f32 sw) (f32 bar) (f32 s) (gauges-reiatsu g) nil)
+      (%hud-reiatsu (f32 x0) (f32 yb) (f32 sw) (f32 bar) (f32 s) (f32 (reiatsu-of e)) nil)
+      (let ((tl (pool-tally (reiatsu-of e)))) (when tl (hud-text tl (+ x0 s) (- yb s) s '(0.45 0.8 1 0.9))))   ; a bind's pool
       (%hud-flash (f32 (+ x0 gw gap)) (f32 yb) (f32 gw) (f32 bar) (f32 (/ (gauges-fs g) *fs-max*)) nil (burst-ok-p e) (gauges-burst g) tm)
       (%hud-thin (f32 (+ x0 (* 2 (+ gw gap)))) (f32 yb) (f32 gw) (f32 bar) (f32 afill) nil 1f0 (if hot 0.85f0 0.75f0) 0.3f0
                  (if hot 0.6f0 1f0) (if hot 4f0 0f0) tm)

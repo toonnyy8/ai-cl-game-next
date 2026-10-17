@@ -25,7 +25,7 @@
   (let ((f (fighter e)) (g (gauges e))) (hoho-allowed-p nil (gauges-fs g) (fighter-hoho-lock f) (gauges-burst g))))
 (defun reishi-frac (g) "Gauges G's Reishi as a fraction of its maximum." (/ (gauges-reishi g) (float (gauges-reishi-max g))))
 (defun gauges-red-p (g) "Is gauges G's Reishi in the red (rules RED-P)?" (red-p (gauges-reishi g) (gauges-reishi-max g)))
-(defun reiatsu-bars (e) "E's full Reiatsu bars." (floor (gauges-reiatsu (gauges e)) *reiatsu-bar*))
+(defun reiatsu-bars (e) "E's full Reiatsu bars (REIATSU-OF: a bind's shared pool)." (floor (reiatsu-of e) *reiatsu-bar*))
 (defun halt! (e) "Stop E's motion (velocity zeroed)." (fill (motion-vel (motion e)) 0f0))
 (defun world-dir (e f to st)
   "The world XZ direction (two values) of stick TO / ST relative to E's opponent (fighter F's OX OZ): TOWARD-STRAFE-DIR."
@@ -316,9 +316,9 @@ is never perfect)."
   "Can E start COMMAND's move (of KIT, default his form's) now: Reiatsu bars, not cooling down (its :cooldown), a pip of
 the arm meter left when the command spends one (Kenpachi's Bankai: KIT-PIP-CMD-P; one more while the string he is in
 owes its pip, unless it is that string's O ENDER), and L's cold (Rukia: only L is refused by cold; COMBO, a chained
-follow-up, overdraws while any cold is left: rules COLD-OK-P)?"
+follow-up, overdraws while any cold is left: rules COLD-OK-P)? (The bars: REIATSU-OF, a bind's shared pool.)"
   (let ((i (position command *kit-commands*)) (g (gauges e)))
-    (and (>= (gauges-reiatsu g) (* (kit-command-cost kit command) *reiatsu-bar*))
+    (and (>= (reiatsu-of e) (* (kit-command-cost kit command) *reiatsu-bar*))
          (or (null i) (zerop (aref (fighter-cd (fighter e)) i)))
          (or (not (kit-pip-cmd-p kit command)) (>= (gauges-meter g) (if (and (gauges-arm-owed g) (not ender)) 2f0 1f0)))
          (or (not (eq command :sig)) (cold-ok-p (gauges-meter g) (cold-cost kit :sig) combo))
@@ -329,7 +329,8 @@ follow-up, overdraws while any cold is left: rules COLD-OK-P)?"
 it now. A command the form drops (KIT-DROP) switches the form first, on the move's frame 0, and starts that
 form's move; a refused one doesn't switch. ENDER: the O ender of a string (its pip is the string's). WITH: the move
 to start instead of the command's own (L after a K link, KIT-L-LINK), under the command's checks and costs. T when
-something started."
+something started. P (:awaken): the awakening, Kenpachi's Bankai, else the form's :p hook (e free), which decides,
+starts its own move or refuses with the cue (T when it took the press; Hisagi's bind throw and release)."
   (let ((g (gauges e)) (kit (fighter-kit f)))
     (case cmd
       (:step (unless (kit-rooted kit) (cold-spend! e kit :step) (start-step e f) t))   ; a rooted form (Rukia's zero) refuses
@@ -338,7 +339,8 @@ something started."
       (:awaken (let ((free (awaken-state-p e f)))
                  (cond ((awaken-allowed-p free (gauges-awaken g) (gauges-awakened g)) (awaken! e) t)
                        ((and (kit-bankai-form kit) (bankai-allowed-p free (gauges-konpaku g)) (bankai-ok-p e))
-                        (bankai! e) t))))
+                        (bankai! e) t)
+                       ((let ((h (kit-hook kit :p))) (and h (funcall h e free) t))))))
       (:burst (let ((m (burst-ok-p e))) (when m (setf (fighter-burst f) m) t)))   ; applied after both stepped
       (t (let* ((to (kit-drop kit cmd))
                 (kit (if to (find-kit (fighter-character f) to) kit))
@@ -346,7 +348,7 @@ something started."
            (when (and mv (kit-command-ok-p e cmd kit ender with))   ; (WITH: a chained L, inside a combo)
              (when to (set-form e to))
              (let ((cost (kit-command-cost kit cmd)))
-               (when (plusp cost) (setf (gauges-reiatsu g) (f32 (spend-bars (gauges-reiatsu g) cost)))))
+               (when (plusp cost) (reiatsu-spend! e cost)))
              (when (plusp (mv-cooldown mv))
                (setf (aref (fighter-cd f) (position cmd *kit-commands*)) (mv-cooldown mv)))
              (when (eq cmd :kikon) (setf (fighter-kikon-n f) (kit-kikon-konpaku kit)))   ; its worth, fixed now
@@ -371,6 +373,9 @@ Kikon is decided when its strike connects: combat.lisp APPLY-HIT).")
 
 (defparameter *run-commands* '(:kikon :hoho :burst :step :breaker :sp2 :sp1 :sig :f :q)
   "Commands a run cancels into at once (neutral's, without Awaken); Step again = a new hop.")
+
+(defparameter *run-commands-p* (cons :awaken *run-commands*)
+  "A run's commands for a form with a :p hook: P too (Hisagi's bind throw from a run, DUEL_HISAGI §17.2).")
 
 (defun command! (e f vp allowed)
   "The highest-priority buffered command among ALLOWED that can start now; consumes its press. A
@@ -749,7 +754,7 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
            (let ((s (if (run-stop-p (fighter-dist f) (run-closing e f) speed) 0.0 (brake-speed speed sf))))
              (turn-to-opp e f (deg *face-rate*))
              (if (or (<= s 0) (>= sf *run-brake*)) (to-idle e) (run-velocity e s (fighter-run-yaw f)))))
-          ((and free (or (command! e f vp *run-commands*) (u-press! e f vp)))
+          ((and free (or (command! e f vp (if (kit-hook (fighter-kit f) :p) *run-commands-p* *run-commands*)) (u-press! e f vp)))
            (when (eq (fighter-state f) :move)
              (set-slide e (run-carry (fighter-dist f)) *run-carry-frames* vx vz)
              (clog "~a run -> ~a, carry ~,1f m" (side-name e) (mv-name (fighter-move f)) (run-carry (fighter-dist f)))))
@@ -951,6 +956,7 @@ step: a symmetric sim), step each, then keep them apart."
         (when m
           (setf (fighter-burst f) nil)
           (unless *cine* (burst! e m)))))
+    (unless *cine* (bind-step! a :release))   ; the bind's release applies here too (DUEL_HISAGI §17.3), before the hits
     ;; the guard lock, judged once both stepped (and any burst applied), read by the blockstun on the next step
     (do-entities (e (f fighter)) (setf (fighter-glock f) (guard-lock-of f)))
     (when (and a b) (separate-fighters a b))))

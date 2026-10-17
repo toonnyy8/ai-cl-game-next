@@ -435,6 +435,16 @@ what was really taken, not AMOUNT."
   (let ((took (max 0.0 (min from amount))))
     (values (- from took) (gauge-add to took max))))
 
+(defun bind-drain (pool dmg &optional (rate 0.5))
+  "A bind's shared Reiatsu POOL after DMG damage (the nominal) drained it, RATE a point (DUEL_HISAGI §17.3 B3: 1 per 2;
+exact halves in f32), never below 0."
+  (max 0.0 (- pool (* rate dmg))))
+
+(defun bind-release-split (left &optional (cap *reiatsu-max*))
+  "A released bind's pool LEFT given back (DUEL_HISAGI §17.3 B8): values the opponent's share, first and at most CAP, and
+the binder's, the rest at most CAP."
+  (let ((o (min cap (max 0.0 left)))) (values o (min cap (max 0.0 (- left o))))))
+
 (defun spend-bars (reiatsu bars)
   "Spend BARS of Reiatsu. Values: reiatsu-after ok (NIL = not enough, nothing spent)."
   (let ((cost (* bars *reiatsu-bar*)))

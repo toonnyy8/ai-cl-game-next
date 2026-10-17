@@ -771,8 +771,9 @@ really takes, each of hers kept at its max; the user, 2026-09-29: SENJU-SIPHON t
                  (destroy-entity h) (return-from senju-zone-step t)))
         (6 (when inside                                     ; the star drains him into her
              (let ((g (gauges o)) (mine (gauges e)))
-               (multiple-value-bind (his hers) (gauge-move (gauges-reiatsu g) (/ (hank-fx 6 :reiatsu (sjh-passes d)) 60.0) (gauges-reiatsu mine) *reiatsu-max*)
-                 (setf (gauges-reiatsu g) (f32 his) (gauges-reiatsu mine) (f32 hers)))
+               (unless (bind-of e)                          ; (a bind freezes every Reiatsu gain, its flow too: DUEL_HISAGI B4)
+                 (multiple-value-bind (his hers) (gauge-move (gauges-reiatsu g) (/ (hank-fx 6 :reiatsu (sjh-passes d)) 60.0) (gauges-reiatsu mine) *reiatsu-max*)
+                   (setf (gauges-reiatsu g) (f32 his) (gauges-reiatsu mine) (f32 hers))))
                (multiple-value-bind (his hers) (gauge-move (gauges-fs g) (/ (hank-fx 6 :fs (sjh-passes d)) 60.0) (gauges-fs mine) *fs-max*)
                  (setf (gauges-fs g) (f32 his) (gauges-fs mine) (f32 hers)))
                (pace e :drain-frames)))))))
@@ -1103,7 +1104,7 @@ the bar for it) and the brush 機 + the next hank's short name."
          (refused (max 0.0 (- 1.0 (* 4.0 (- tm (aref *refused-t* side)))))))
     (flet ((slot-x (i) (let ((o (+ (* i (+ pw gap)) (* (floor i 2) pgap)))) (f32 (if right (- (+ x w) o pw) (+ x o))))))
     (when next                                          ; SP1's two hanks: a designed pair, or a cross pair
-      (let* ((s (hank-slot next)) (a (if (>= (floor (gauges-reiatsu g) *reiatsu-bar*) (kit-command-cost kit :sp1)) 1.0 0.35))
+      (let* ((s (hank-slot next)) (a (if (>= (reiatsu-bars e) (kit-command-cost kit :sp1)) 1.0 0.35))
              (top (f32 (- y0 (* 0.25 hh) 3))) (fh (f32 (+ (* 1.25 hh) 5))))
         (if (tachi-aligned-p next)
             (let ((x0 (min (slot-x s) (slot-x (1+ s)))))

@@ -25,11 +25,80 @@ refill, SETTLE-KONPAKU's Fighting Spirit); his Reiatsu and flash-step gains go t
   (let* ((o (opp-of e)) (h (and (entity-alive-p o) (kit-hook (kit-of o) :siphon))))
     (and h (funcall h o e) o)))
 
-(defun pay-gauges (e r fs)
-  "E gains R Reiatsu and FS flash-step (each kept at its max; no flash-step during a burst: BURST-FS-GAIN)."
+;;; The bind (docs/duel/DUEL_HISAGI.md §17.3-§17.4, shared hook 5): one fighter's kit binds both (Hisagi's bind mode).
+;;; Every reader below asks BIND-OF; with no kit holding a :bind hook each returns what the code did before. The bind's
+;;; own state, pool, snapshot and ends live in the binder's file, behind his kit hooks (binder first in every call):
+;;;   :bind (x)              true while X binds (BIND-OF)
+;;;   :bind-damage (b a d n) A dealt D N (nominal) inside the bind (DEAL-DAMAGE): the pool's drain
+;;;   :bind-pool (b &optional n)  the shared Reiatsu (REIATSU-OF), after spending N of it (REIATSU-SPEND!)
+;;;   :bind-heal (b e n)     E was healed N for real (HEAL!): his snapshot follows
+;;;   :bind-step (b phase)   :release after both fighters stepped (FIGHTER-SYSTEM, where a Burst is applied), :hits after
+;;;                          the step's hits before SETTLE-SOULS (HIT-SYSTEM: the drained check; it may queue Soul Breaks)
+;;;   :bind-resolve (b)      time-up: the bind resolved as drained before the winner is read (flow.lisp TIME-UP)
+;;;   :bind-snapshot (b e)   E's Reishi and Konpaku at the bind's start (the HUD's grey band and grey souls)
+(defun bind-of (e)
+  "The binder while E is in a bind (E himself or his opponent: the kit hook :bind (x) of X's form is true while X binds),
+else NIL."
+  (flet ((binds (x) (let ((h (and (entity-alive-p x) (kit-hook (kit-of x) :bind)))) (and h (funcall h x) x))))
+    (or (binds e) (binds (opp-of e)))))
+
+(defun bind-hook (b point) "Binder B's kit hook POINT, or NIL (no binder, or no such hook)." (and b (kit-hook (kit-of b) point)))
+
+(defun bind-step! (e phase)
+  "One of the bind's two fixed points of the step (PHASE :release / :hits: the binder's :bind-step); nothing unbound."
+  (let* ((b (and e (bind-of e))) (h (bind-hook b :bind-step))) (when h (funcall h b phase))))
+
+(defun bind-resolve! (e)
+  "Time-up while E is in a bind: the binder's :bind-resolve (the bind ends as drained first, DUEL_HISAGI §17.3 B10)."
+  (let* ((b (and e (entity-alive-p e) (bind-of e))) (h (bind-hook b :bind-resolve))) (when h (funcall h b))))
+
+(defun bind-snapshot-of (e)
+  "E's Reishi and Konpaku when the bind he is in started (the binder's :bind-snapshot), else NIL NIL."
+  (let* ((b (bind-of e)) (h (bind-hook b :bind-snapshot))) (if h (funcall h b e) (values nil nil))))
+
+(defun bind-grey-frac (e)
+  "The grey band's end on E's Reishi bar (hud.lisp: his Reishi at a bind's start, a fraction of max), else 0."
+  (let ((r0 (bind-snapshot-of e)))
+    (if r0 (f32 (/ r0 (float (gauges-reishi-max (gauges e))))) 0f0)))
+
+(defun bind-grey-souls (e)
+  "E's grey souls drawn up to (hud.lisp: his Konpaku at a bind's start), else 0 (none)."
+  (multiple-value-bind (r0 k0) (bind-snapshot-of e) (declare (ignore r0)) (or k0 0)))
+
+(defun reiatsu-of (e)
+  "The Reiatsu E has to spend: his gauge, or in a bind the shared pool (the binder's :bind-pool)."
+  (let* ((b (bind-of e)) (h (bind-hook b :bind-pool))) (if h (funcall h b) (gauges-reiatsu (gauges e)))))
+
+(defun reiatsu-spend! (e bars)
+  "E spends BARS of Reiatsu (an SP's cost): from his gauge, or in a bind from the shared pool."
+  (let* ((b (bind-of e)) (h (bind-hook b :bind-pool)) (g (gauges e)))
+    (if h
+        (funcall h b (* bars *reiatsu-bar*))
+        (setf (gauges-reiatsu g) (f32 (spend-bars (gauges-reiatsu g) bars))))))
+
+(defun reiatsu-gain! (e n)
+  "E's Reiatsu + N (kept in 0 .. *REIATSU-MAX*): every gain goes through here (hits, KOSEI, the regen, BLUE's bar, WHITE's,
+the Kikon refund, the reset's, a kit's own). In a bind every gain is frozen (DUEL_HISAGI §17.3 B4)."
+  (unless (bind-of e)
+    (let ((g (gauges e))) (setf (gauges-reiatsu g) (f32 (gauge-add (gauges-reiatsu g) n *reiatsu-max*))))))
+
+(defun heal! (e n)
+  "E's Reishi + N, at most his max (an awakening's heal, WHITE's and the awakening's regen). In a bind the heal is real:
+his snapshot follows (the binder's :bind-heal), so a release keeps it (B6)."
   (let ((g (gauges e)))
-    (setf (gauges-reiatsu g) (f32 (gauge-add (gauges-reiatsu g) r *reiatsu-max*))
-          (gauges-fs g) (f32 (gauge-add (gauges-fs g) (burst-fs-gain fs (gauges-burst g)) *fs-max*)))))
+    (setf (gauges-reishi g) (min (gauges-reishi-max g) (+ (gauges-reishi g) n)))
+    (let* ((b (bind-of e)) (h (bind-hook b :bind-heal))) (when h (funcall h b e n)))))
+
+(defun dealt-real (e)
+  "The damage E dealt this match that counts (the learner's): GAUGES-DEALT without the grey part a bind holds
+(GAUGES-GREY: dealt inside a bind; the binder's end clears it when the grey turns real, a release leaves it out)."
+  (let ((g (gauges e))) (- (gauges-dealt g) (gauges-grey g))))
+
+(defun pay-gauges (e r fs)
+  "E gains R Reiatsu (REIATSU-GAIN!) and FS flash-step (each kept at its max; no flash-step during a burst: BURST-FS-GAIN)."
+  (let ((g (gauges e)))
+    (reiatsu-gain! e r)
+    (setf (gauges-fs g) (f32 (gauge-add (gauges-fs g) (burst-fs-gain fs (gauges-burst g)) *fs-max*)))))
 
 (defun gain-gauges (e dealt taken)
   "Reiatsu, flash-step and Fighting Spirit for dealing DEALT / taking TAKEN damage (HIT-GAINS; siphoned: SIPHON-OF)."
@@ -42,19 +111,28 @@ refill, SETTLE-KONPAKU's Fighting Spirit); his Reiatsu and flash-step gains go t
 
 (defun deal-damage (att def dmg)
   "DEF loses DMG Reishi (ATT dealt it; a CPU attacker's anti-stall heat resets). Reishi at 0 is an automatic Soul
-Break, settled at the end of the step (*SOUL-BREAKS*): returns T then."
-  (let ((ga (gauges att)) (gd (gauges def)) (b (brain att)))
+Break, settled at the end of the step (*SOUL-BREAKS*): returns T then. In a bind (BIND-OF) the loss is grey: Reishi
+floors at 0 with no Soul Break, the nominal DMG goes to the binder's :bind-damage (the pool's drain) and to ATT's grey
+count (DEALT-REAL)."
+  (let* ((ga (gauges att)) (gd (gauges def)) (b (brain att)) (bd (bind-of def)) (h (bind-hook bd :bind-damage)))
     (setf (gauges-reishi gd) (max 0 (- (gauges-reishi gd) dmg)))
     (incf (gauges-dealt ga) dmg)
+    (when bd (incf (gauges-grey ga) dmg))
+    (when h (funcall h bd att def dmg))
     (when b (setf (brain-heat b) 0f0))
     (incf (fighter-combo-dmg (fighter def)) dmg)
     (gain-gauges att dmg 0)
     (gain-gauges def 0 dmg)
     (nome-gain! att dmg 0 0)
     (nome-gain! def 0 dmg 0)
-    (when (soul-break-p (gauges-reishi gd))
-      (unless (rassoc def *soul-breaks*) (push (cons att def) *soul-breaks*))
+    (when (and (not bd) (soul-break-p (gauges-reishi gd)))
+      (queue-soul-break! att def)
       t)))
+
+(defun queue-soul-break! (att def)
+  "DEF's soul breaks (by ATT), settled with the step's others (SETTLE-SOULS: in the order queued, the first's attacker
+picks the cinematic); once per victim. (A bind's drained end queues its own: DUEL_HISAGI §17.3 B7.)"
+  (unless (rassoc def *soul-breaks*) (push (cons att def) *soul-breaks*)))
 
 (defun nome-gain! (e dealt taken drunk)
   "NOME (a form with :meter-gain: Nozarashi's cups) for DEALT / TAKEN / DRUNK points; a gain restarts RYOTE's
@@ -402,13 +480,19 @@ Hoho's counter strike on its frame (it always connects)."
 
 (defun hit-system ()
   "Clash first; then collect every melee and hazard hit of this step; then apply them all; then
-settle the souls they broke."
+settle the souls they broke (the bind's drained check first: BIND-STEP! :hits)."
   (let ((a nil) (b nil))
     (do-entities (e (f fighter)) (if a (setf b e) (setf a e)))
     (when (and a b)
       (let ((pa (breaker-phase a)) (pb (breaker-phase b)))
         (when (and pa pb (breaker-clash-p pa pb (fighter-dist (fighter a))))
-          (clash! a b)))))
+          (clash! a b))))
+    (hit-apply)
+    (bind-step! a :hits))
+  (settle-souls))
+
+(defun hit-apply ()
+  "Every hit of this step (HIT-SYSTEM): Nozarashi's cuts, then the melee and hazard hits collected, then applied together."
   (do-entities (e (f fighter)) (cut-hazards e f))
   (do-entities (e (f fighter)) (collect-melee e f))
   (collect-hazard-hits)
@@ -422,8 +506,7 @@ settle the souls they broke."
         (when res
           (cond (hz (hazard-connected hz))
                 ((and mv (eq mv (fighter-move fa)))   ; (an on-land hook may have started the next move)
-                 (setf (fighter-hits fa) (logior (fighter-hits fa) (ash 1 (pending-i h))))))))))
-  (settle-souls))
+                 (setf (fighter-hits fa) (logior (fighter-hits fa) (ash 1 (pending-i h)))))))))))
 
 ;;; ---------------------------------------------------------------- perfect Hoho
 (defun perfect-now-p (e)
@@ -488,7 +571,7 @@ move's recovery, the next move started within *CHAIN-WINDOW* f has its startup c
     (setf (gauges-burst g) mode (gauges-burst-t g) 0 (gauges-fs-idle g) 0)
     (case mode
       (:blue (repel! e)                                   ; + one Reiatsu bar, as RoS does (the user 2026-09-30)
-       (setf (gauges-reiatsu g) (f32 (gauge-add (gauges-reiatsu g) *reiatsu-bar* *reiatsu-max*))))
+       (reiatsu-gain! e *reiatsu-bar*))
       (:orange (to-idle e 0) (setf (fighter-chain f) *chain-window*)))
     (hitstop *burst-hitstop*)
     (emit :burst e o mode)
@@ -502,10 +585,11 @@ move's recovery, the next move started within *CHAIN-WINDOW* f has its startup c
       (setf (gauges-burst g) nil (gauges-burst-t g) 0 (gauges-fs-idle g) 0 (fighter-chain (fighter e)) 0)
       (emit :burst-end e))))
 
-(defun white-regen! (g n)
-  "WHITE's regen on its frame N (1-based): Reishi, Reiatsu and (not yet awakened) the awakening gauge."
-  (setf (gauges-reishi g) (min (gauges-reishi-max g) (+ (gauges-reishi g) (burst-heal n *white-reishi*)))
-        (gauges-reiatsu g) (f32 (gauge-add (gauges-reiatsu g) (/ *white-reiatsu* 60.0) *reiatsu-max*)))
+(defun white-regen! (e g n)
+  "WHITE's regen on E's frame N (1-based): Reishi (HEAL!), Reiatsu (REIATSU-GAIN!) and (not yet awakened) the awakening
+gauge G."
+  (heal! e (burst-heal n *white-reishi*))
+  (reiatsu-gain! e (/ *white-reiatsu* 60.0))
   (unless (gauges-awakened g)
     (setf (gauges-awaken g) (f32 (gauge-add (gauges-awaken g) (/ *white-awaken* 60.0) *awaken-max*)))))
 
@@ -513,7 +597,7 @@ move's recovery, the next move started within *CHAIN-WINDOW* f has its startup c
   "A running burst, one frame: the flash-step drains (BURST-DRAIN), WHITE's regen (WHITE-REGEN!); at 0 it ends."
   (let ((n (incf (gauges-burst-t g))))
     (setf (gauges-fs g) (f32 (burst-drain (gauges-fs g))))
-    (when (eq (gauges-burst g) :white) (white-regen! g n))
+    (when (eq (gauges-burst g) :white) (white-regen! e g n))
     (when (<= (gauges-fs g) 0.0) (burst-end! e))))
 
 (defun awake-regen-frames ()
@@ -548,7 +632,7 @@ form's :cine if it has one (both fighters idle after it). The guard gauge is lef
     (set-form e (kit-awaken-form (kit-of e)))
     (let ((st (getf (kit-meter (kit-of e)) :start)))    ; NOME starts at 10
       (when st (setf (gauges-meter g) (f32 st) (gauges-meter-idle g) 0)))
-    (setf (gauges-reishi g) (min (gauges-reishi-max g) (+ (gauges-reishi g) (round (* *awaken-heal* (gauges-reishi-max g))))))
+    (heal! e (round (* *awaken-heal* (gauges-reishi-max g))))
     (emit :awaken e)
     (if (kit-cine (kit-of e))
         (start-cine (kit-cine (kit-of e)) e o :after (lambda () (to-idle e 0) (to-idle o 0)))
@@ -626,8 +710,9 @@ last pip went, the pending burst fires when BURST-DUE-P says."
 ;;; ---------------------------------------------------------------- Kikon, Soul Break, reset
 (defun bankai-ok-p (e)
   "The form's own condition on its :bankai-form (its kit's :bankai-ok, a function of E: e.g. a beheading and a free state;
-the CPU's Bankai reflex reads the same), T without one (Kenpachi's cup 3)."
-  (let ((h (kit-bankai-ok (kit-of e)))) (or (null h) (and (funcall h e) t))))
+the CPU's Bankai reflex reads the same), T without one (Kenpachi's cup 3). Never in a bind (BIND-OF: it rewrites his
+Konpaku and Reishi, which a release would half undo; DUEL_HISAGI §17.3 B11)."
+  (let ((h (kit-bankai-ok (kit-of e)))) (and (not (bind-of e)) (or (null h) (and (funcall h e) t)))))
 
 (defun bankai-ready-p (e)
   "May E enter his form's :bankai-form now (P: rules BANKAI-ALLOWED-P, free with <= *BANKAI-KONPAKU* Konpaku, and the
@@ -655,8 +740,8 @@ worth that follows the fighter's state), else the kit's :kikon-konpaku. (The red
 FIGHTER-KIKON-N), or on a Soul Break ATT's KIKON-WORTH now + 1 (at most *SOUL-BREAK-MAX-EVENT*: KESSA's follows his
 clones, 3 clones 4 + 1 = 5, the user 2026-09-30); his Reishi refills.
 Then DEF's kit's :settled hook (def lost left): what his form does with the souls he has left (a beheading).
-Returns T when DEF is out of Konpaku."
-  (let ((gd (gauges def)))
+Returns T when DEF is out of Konpaku; never in a bind (BIND-OF: grey souls, the Konpaku floors at 0, no K.O.)."
+  (let ((gd (gauges def)) (bound (bind-of def)))
     (multiple-value-bind (left lost ko) (kikon-result (gauges-konpaku gd)
                                                       (if soul-break (kikon-worth att) (fighter-kikon-n (fighter att)))
                                                       soul-break)
@@ -668,7 +753,7 @@ Returns T when DEF is out of Konpaku."
       (emit :konpaku def lost)
       (clog "~a ~a on ~a: -~d konpaku, ~d left (~a)" (side-name att) (if soul-break "SOUL BREAK" "KIKON") (side-name def) lost left
             (fighter-form (fighter att)))
-      ko)))
+      (and ko (not bound)))))
 
 (defun settle-souls ()
   "The souls broken during this step's HIT-SYSTEM, settled together so no side goes first: every
@@ -684,8 +769,8 @@ and frozen through the cinematic their looks would hang in its shots."
       (do-entities (e (f fighter)) (burst-end! e))   ; the reset ends every burst, before the Kikon's refund
       (dolist (att (remove-duplicates (append (mapcar #'first kk) (mapcar #'car sb))))   ; a Kikon that connected, or
         (let ((g (gauges att)))                         ; a Soul Break (the user 2026-09-30): a flash-step bar and a Reiatsu bar back
-          (multiple-value-bind (fs r) (kikon-refund (gauges-fs g) (gauges-reiatsu g))
-            (setf (gauges-fs g) (f32 fs) (gauges-reiatsu g) (f32 r)))))
+          (setf (gauges-fs g) (f32 (kikon-refund (gauges-fs g) (gauges-reiatsu g))))   ; (its Reiatsu: REIATSU-GAIN!)
+          (reiatsu-gain! att *kikon-reiatsu-refund*)))
       (let ((kos (append (loop for (att def nil) in kk when (settle-konpaku att def nil) collect def)
                          (loop for (att . def) in sb when (settle-konpaku att def t) collect def)))
             (a (if kk (first (first kk)) (car (first sb))))
@@ -712,8 +797,8 @@ everyone, the hidden stun cleared, the forms kept, flash-step and Reiatsu kept, 
   (clear-hazards)
   (dolist (e (list a v))
     (let ((f (fighter e)) (g (gauges e)) (mo (motion e)))
-      (setf (motion-grounded mo) t (motion-kb-left mo) 0 (fighter-lock f) *reset-neutral* (fighter-combo-dmg f) 0
-            (gauges-reiatsu g) (f32 (gauge-add (gauges-reiatsu g) (kit-reset-reiatsu (kit-of e)) *reiatsu-max*)))
+      (setf (motion-grounded mo) t (motion-kb-left mo) 0 (fighter-lock f) *reset-neutral* (fighter-combo-dmg f) 0)
+      (reiatsu-gain! e (kit-reset-reiatsu (kit-of e)))
       (setf (gauges-gg g) (f32 *gg-max*) (gauges-gg-idle g) 0 (gauges-guardless g) nil (gauges-stun g) 0f0)
       (let ((rf (kit-reset-form (kit-of e))))          ; Rukia: absolute zero never carries over the reset (-18, C 0)
         (when rf (set-form e rf) (setf (gauges-meter g) 0f0 (gauges-meter-idle g) 0)))
@@ -768,14 +853,14 @@ delay counter (frozen): West never refills."
   (do-entities (e (f fighter) (g gauges))
     (let* ((kit (fighter-kit f))
            (guarding (and (or (member (fighter-state f) '(:guard :guard-hit)) (passive-p e :ward)) (not (gauges-guardless g)))))
-      (setf (gauges-reiatsu g) (f32 (gauge-add (gauges-reiatsu g) (reiatsu-gain 0 0 1) *reiatsu-max*)))
+      (reiatsu-gain! e (reiatsu-gain 0 0 1))
       (if (gauges-burst g)
           (burst-step e g)                               ; a burst: the gauge drains, no regen
           (setf (gauges-fs g) (f32 (fs-regen (gauges-fs g) (gauges-fs-idle g)))
                 (gauges-fs-idle g) (min 9999 (1+ (gauges-fs-idle g)))))
       (when (plusp (gauges-awake-regen g))                ; the awakening's regen (overlaps a burst)
         (decf (gauges-awake-regen g))
-        (white-regen! g (incf (gauges-awake-t g))))
+        (white-regen! e g (incf (gauges-awake-t g))))
       (setf (gauges-gg g) (f32 (gg-regen (gauges-gg g) (gauges-gg-idle g) (gauges-guardless g) guarding
                                          (eq (gauges-burst g) :blue) (kit-gg-regen kit))))
       (setf (gauges-gg-idle g) (gg-idle-next (gauges-gg-idle g) guarding))

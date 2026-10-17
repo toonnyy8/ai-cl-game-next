@@ -542,7 +542,11 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      one-hand thumb ring), :settled (e lost left: a Kikon / Soul Break settled
                                      on it, SETTLE-KONPAKU), :body-alpha (e: the body's draw alpha, a constant
                                      float: a see-through form), :charge (e rdt: drawn instead of the fire charge
-                                     look of a held move)
+                                     look of a held move), :p (e free: P once neither the awakening nor a Bankai
+                                     takes it, from a run too; T = the press taken), :p-label (e: the AWAKEN chip's
+                                     label, the chip then always shown), the bind's :bind :bind-damage :bind-pool
+                                     :bind-heal :bind-step :bind-resolve :bind-snapshot (combat.lisp BIND-OF; Hisagi,
+                                     DUEL_HISAGI §17.4)
   :clip-map (clip clip ...)          a look: the form plays a move's clip (or clip 2) as the mapped one (KIT-MOVE-CLIP:
                                      Jilliel KIN's SANREN on his wings; the move, shared with the base form, is unchanged)
   :look-clips (clip clip ...)        a look: the form plays a shared clip the generic code starts (the guard's :sh-guard /
