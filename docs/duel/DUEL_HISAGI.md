@@ -535,7 +535,24 @@ The review (scratchpad `hisagi-review.md`, checked against the code): 2 blockers
 | 28 | Minor | I / O differ from §5's draft | recorded under §13 "For the record" (I must be the universal Breaker; O's dash is generic) |
 | 29 | Minor | P drop frames | fixed §9.1: a 24 f move, free states only, no iframes |
 
-## 15. Open
+## 15. Build plan (the user, 2026-10-17: 「好，開始前記得善用 repo 中的 skill 與經開發經驗的文檔」)
+
+Skills read for the plan: `duel-character` (build order, implementation rules), `duel-move-modules` (segment table,
+host-test pins), `duel-character-cpu` (rules before CPU; prove each rule fires with a counter), `sim-balance-gates`
+(identity proof, scope), `procedural-ink-style` (drawn reach = hit reach, functional art), `duel-character-rework`
+(the regression list: hidden movement, stale reads, form switch inside a move, `:hold` f0 hooks), `game-dev-workflow`
+(multi-agent rules); guides `CHARACTER_DESIGN.zh-TW.md`, `PLAYBOOK.zh-TW.md`.
+
+| Batch | Scope | Acceptance |
+|---|---|---|
+| B1 shared hooks | the eight hooks of §12.4, each default off; nothing of Hisagi's yet | host tests ALL PASS; pkgcheck clean; `simgate --seeds 10 --summary` and `--cvc` byte-identical to the parent; the build |
+| B2 Hisagi playable | `hisagi.lisp` (both forms, the sickle states, the orb, the plain CPU reflexes and counters), `hisagi-art.lisp` (a functional body, sickles and chain drawn to the rig, clips at the right reach, the orb's look), roster index 7 plumbing, debug range 83000–83999 claimed in DUEL_GAMEPLAY, host tests (§12.1 item 1, the Q6 B push: the O ender's and SP2's chase after 6.45 m) | host tests ALL PASS; pkgcheck; the 22 existing pairings still byte-identical; his 7 pairings all K.O.; the build; a smoke run; the playtest Artifact |
+| Gates | §12.1 items 2–4 while the user plays | reported to the user |
+| Later | the motion style (§11.2, asked and researched first), real clips, ASSIST / learner, the CPU style search, cinematics | — |
+
+Each batch runs in its own worktree with a fresh agent; the lead re-runs the tests and gates, merges, pushes.
+
+## 16. Open
 
 - The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
 - The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet

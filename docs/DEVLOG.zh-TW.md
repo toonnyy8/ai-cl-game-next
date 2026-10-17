@@ -3119,3 +3119,10 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
   - Q7 球結束回始解；耗盡時雙方硬直 30 f，自己收回不硬直。
   - Q8 J→K→K：第二下纏住、第三下解開從背後打。
 - 實作時要特別確認：6.45 m 推開後 O ender 和 SP2 的追擊，以及每串 K 都把對手推回中距離對比賽時間的影響。細節：DUEL_HISAGI §13～§14。
+
+## 234. 檜佐木開始實作：分批計畫（2026-10-17）
+
+使用者：「好，開始前記得善用 repo 中的 skill 與經開發經驗的文檔」
+
+- 讀過的 skill：duel-character、duel-move-modules、duel-character-cpu、sim-balance-gates、procedural-ink-style、duel-character-rework、game-dev-workflow；手冊 CHARACTER_DESIGN、PLAYBOOK。
+- 分批：B1 先做 8 個共用機制（全部預設關閉，證明現有 22 組對戰逐位元相同）；B2 做可玩的檜佐木（兩個型態、鐮刀狀態、鎖鏈球、基本 CPU、能對上攻擊距離的簡單外觀、roster 第 7 號、除錯指令 83000～83999、host 測試），接著發試玩 Artifact，再跑 gate。正式動作風格要先問過、查資料才畫。細節：DUEL_HISAGI §15。
