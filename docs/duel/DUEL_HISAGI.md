@@ -1212,6 +1212,11 @@ then the slot plan (`motion-refs.md` §3.2–§3.3) for the user's 「可以」,
   all around him; several of them gather into a bundle tied round his neck (replacing the single twisted rope), and in
   a bind a bundle the same way round the opponent's neck (the noose). The hanging chains stay thin and sparse enough
   not to hide the fight from the behind camera. Cosmetic only.
+- Where attacks launch (the user, 2026-10-17: 「攻擊可以從周遭垂下來的鎖鏈或自己頸部的鎖鏈發動」): the Bankai's attacks may
+  start from the chains hanging round him or from his own neck bundle, not only from chains on his hands or from the
+  orb. The draft slot plan (`motion-refs.md` §3.2–§3.3) is revised for it before it goes to the user; hit volumes are
+  unchanged (a hanging chain ends near the floor beside him, so it arrives on the 1.1 m caps more naturally than a chain
+  from the orb).
 
 ## 18. Open
 
