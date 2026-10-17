@@ -858,6 +858,28 @@ every call.
 | Q12 (picked **B**) | **Does the shared Reiatsu also fall slowly on its own?** (canon: the opponent feels it falling from the start) | **A** yes, 5 a second, so a bind where nobody attacks still ends (≤ 2 minutes for a full 600) / B no: only hits and SPs drain it (a bind can last as long as both avoid hitting) / C yes, faster: 10 a second (≤ 1 minute) |
 | Q13 (picked **C**) | **How often can he bind?** | **A** as often as he can pay: the throw is ready 10 s after a release and 5 s after a bind that ran out, and he needs his own 2 bars each time / B once a match (like the orb before) / C no wait at all, only the 2 bars |
 
+## 20. Look and motion style: the skill pass that was skipped (the user, 2026-10-17)
+
+> 「在開始建模前有先使用 skill 調查造型並設計動作模組嗎」
+
+The lead's answer: only half. Done: the canon look research (notes §3, 21 reference images), the text model sheet
+(§11.1), the move-set design (`duel-move-modules`). Skipped: the whole `duel-motion-style` pass (§11.2 stayed a draft
+marked "to be confirmed with the user and researched before any clip") and model-sheet stills for the user. B2a's body
+and clips are placeholders at the right reach (Kazeshini drawn as a large yellow blade: not canon).
+
+Decisions (AskUserQuestion, 2026-10-17):
+- 「B 先停卸解的外觀部分」: B2b builds the Bankai's rules, bookkeeping, CPU and tests only; no Bankai art until this pass.
+- Source: **「A 原作神態＋自創招式」** (canon manner, invented strikes graded D and labelled as proposals).
+- The bar (all four picked): **God of War's Blades of Chaos, real kusarigama-jutsu, the rope dart / meteor hammer,
+  Rebirth of Souls' Hisagi**.
+- Order: **one form at a time, the look before its strikes** (Shikai: model-sheet stills → slot plan → clips; then the
+  Bankai the same way).
+- **「距離跟著動作走」**: the drawn motion sets the hit volumes, so the redraw is a sim change (gated against a parent
+  baseline), not presentation only.
+
+Next: research (`docs/research/hisagi/motion-refs.md`, graded A–D), then the Shikai model-sheet stills and the slot plan
+for the user's 「可以」.
+
 ## 18. Open
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); next: the Bankai's two modes in B2b.
