@@ -1196,6 +1196,14 @@ from float reads and `f32` in HISAGI-DRAW's plain code: moved into `%hs-geo!`).
 (the plan's "both"); KAESHI-SEN-1H's "reversed" as a rolled forearm; HODOKI and SHIBARI turning his back (canon heave);
 the windmill's sickle starting behind him; KUBIKAKE's garrote read without the victim in the strips.
 
+### 21.5 The Bankai's look pass starts (the user, 2026-10-17: 「先開始卍解吧」)
+
+The Shikai's look and clips are in (§21.2–§21.4); the awaken A/B question (§20.9) waits on the user's playtest. The
+Bankai follows the same order (§21: the look before its strikes): model-sheet stills (the chain coiled round the neck
+and the right arm, the twisted chain rope rising from the neck to the orb, the black crescent blades on dark rods, the
+jet-black orb of chains overhead (size a proposal: canon gives none), the noose between the two fighters in a bind),
+then the slot plan (`motion-refs.md` §3.2–§3.3) for the user's 「可以」, then the clips. Presentation only.
+
 ## 18. Open
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
