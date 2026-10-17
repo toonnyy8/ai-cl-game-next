@@ -858,45 +858,6 @@ every call.
 | Q12 (picked **B**) | **Does the shared Reiatsu also fall slowly on its own?** (canon: the opponent feels it falling from the start) | **A** yes, 5 a second, so a bind where nobody attacks still ends (≤ 2 minutes for a full 600) / B no: only hits and SPs drain it (a bind can last as long as both avoid hitting) / C yes, faster: 10 a second (≤ 1 minute) |
 | Q13 (picked **C**) | **How often can he bind?** | **A** as often as he can pay: the throw is ready 10 s after a release and 5 s after a bind that ran out, and he needs his own 2 bars each time / B once a match (like the orb before) / C no wait at all, only the 2 bars |
 
-## 20. Look and motion style: the skill pass that was skipped (the user, 2026-10-17)
-
-> 「在開始建模前有先使用 skill 調查造型並設計動作模組嗎」
-
-The lead's answer: only half. Done: the canon look research (notes §3, 21 reference images), the text model sheet
-(§11.1), the move-set design (`duel-move-modules`). Skipped: the whole `duel-motion-style` pass (§11.2 stayed a draft
-marked "to be confirmed with the user and researched before any clip") and model-sheet stills for the user. B2a's body
-and clips are placeholders at the right reach (Kazeshini drawn as a large yellow blade: not canon).
-
-Decisions (AskUserQuestion, 2026-10-17):
-- 「B 先停卸解的外觀部分」: B2b builds the Bankai's rules, bookkeeping, CPU and tests only; no Bankai art until this pass.
-- Source: **「A 原作神態＋自創招式」** (canon manner, invented strikes graded D and labelled as proposals).
-- The bar (all four picked): **God of War's Blades of Chaos, real kusarigama-jutsu, the rope dart / meteor hammer,
-  Rebirth of Souls' Hisagi**.
-- Order: **one form at a time, the look before its strikes** (Shikai: model-sheet stills → slot plan → clips; then the
-  Bankai the same way).
-- **「距離跟著動作走」**: the drawn motion sets the hit volumes, so the redraw is a sim change (gated against a parent
-  baseline), not presentation only.
-
-Research done: `docs/research/hisagi/motion-refs.md` (graded A–D; the Shikai slot proposals §3.1, the Bankai's §3.2–§3.3;
-the model-sheet facts §4). It corrects §11.1: the Kazeshini rod is ~0.9–1.0 m (D, measured on ch. 324–325), not ~0.5 m.
-
-Decisions on the research (AskUserQuestion, 2026-10-17):
-- **The rod at canon length, gripped near the blades** (「A 照原作柄長，握在靠刀的那端」): a short reverse grip in the J
-  strings, so J stays at 1.4 m (Q5 A) while the rod is drawn ~0.9–1.0 m.
-- **The neck-noose over-the-shoulder heave and slam (canon Kubikake, Ep225) goes to SP2 全身縛** (「B 給 SP2 全身縛」, not
-  the lead's recommendation); the Breaker becomes a front garrote and a push-down.
-
-Next: the Shikai model-sheet stills (front / side / back, the weapon close-up, presentation only), then the slot plan for
-the user's 「可以」.
-
-## 18. Open
-
-- Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
-
-- The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
-- The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet
-  stills.
-
 ## 19. As built (batch B2a, 2026-10-17): the Shikai playable
 
 `duel/lisp/hisagi.lisp` (sim, knobs, CPU, debug) and `duel/lisp/hisagi-art.lisp` (body, Kazeshini, clips, looks, HUD icon,
@@ -1058,3 +1019,42 @@ Shikai alone already won 0–2 of 10 against the awakening roster). `--cmd 39002
 Bankai's side of §17.5 #18): Hisagi wins 20, 18, 16, 16, 10, 15, 18 of 20, so the never-awakened opponent wins 0–10 of 20:
 the Bankai with the bind looks strong, the Shikai weak. Per §17.5 #18 the first knob would be the release cost; reported,
 not tuned (the user's call).
+
+## 21. Look and motion style: the skill pass that was skipped (the user, 2026-10-17)
+
+> 「在開始建模前有先使用 skill 調查造型並設計動作模組嗎」
+
+The lead's answer: only half. Done: the canon look research (notes §3, 21 reference images), the text model sheet
+(§11.1), the move-set design (`duel-move-modules`). Skipped: the whole `duel-motion-style` pass (§11.2 stayed a draft
+marked "to be confirmed with the user and researched before any clip") and model-sheet stills for the user. B2a's body
+and clips are placeholders at the right reach (Kazeshini drawn as a large yellow blade: not canon).
+
+Decisions (AskUserQuestion, 2026-10-17):
+- 「B 先停卸解的外觀部分」: B2b builds the Bankai's rules, bookkeeping, CPU and tests only; no Bankai art until this pass.
+- Source: **「A 原作神態＋自創招式」** (canon manner, invented strikes graded D and labelled as proposals).
+- The bar (all four picked): **God of War's Blades of Chaos, real kusarigama-jutsu, the rope dart / meteor hammer,
+  Rebirth of Souls' Hisagi**.
+- Order: **one form at a time, the look before its strikes** (Shikai: model-sheet stills → slot plan → clips; then the
+  Bankai the same way).
+- **「距離跟著動作走」**: the drawn motion sets the hit volumes, so the redraw is a sim change (gated against a parent
+  baseline), not presentation only.
+
+Research done: `docs/research/hisagi/motion-refs.md` (graded A–D; the Shikai slot proposals §3.1, the Bankai's §3.2–§3.3;
+the model-sheet facts §4). It corrects §11.1: the Kazeshini rod is ~0.9–1.0 m (D, measured on ch. 324–325), not ~0.5 m.
+
+Decisions on the research (AskUserQuestion, 2026-10-17):
+- **The rod at canon length, gripped near the blades** (「A 照原作柄長，握在靠刀的那端」): a short reverse grip in the J
+  strings, so J stays at 1.4 m (Q5 A) while the rod is drawn ~0.9–1.0 m.
+- **The neck-noose over-the-shoulder heave and slam (canon Kubikake, Ep225) goes to SP2 全身縛** (「B 給 SP2 全身縛」, not
+  the lead's recommendation); the Breaker becomes a front garrote and a push-down.
+
+Next: the Shikai model-sheet stills (front / side / back, the weapon close-up, presentation only), then the slot plan for
+the user's 「可以」.
+
+## 18. Open
+
+- Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
+
+- The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
+- The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet
+  stills.
