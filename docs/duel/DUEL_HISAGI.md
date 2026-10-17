@@ -877,8 +877,17 @@ Decisions (AskUserQuestion, 2026-10-17):
 - **「距離跟著動作走」**: the drawn motion sets the hit volumes, so the redraw is a sim change (gated against a parent
   baseline), not presentation only.
 
-Next: research (`docs/research/hisagi/motion-refs.md`, graded A–D), then the Shikai model-sheet stills and the slot plan
-for the user's 「可以」.
+Research done: `docs/research/hisagi/motion-refs.md` (graded A–D; the Shikai slot proposals §3.1, the Bankai's §3.2–§3.3;
+the model-sheet facts §4). It corrects §11.1: the Kazeshini rod is ~0.9–1.0 m (D, measured on ch. 324–325), not ~0.5 m.
+
+Decisions on the research (AskUserQuestion, 2026-10-17):
+- **The rod at canon length, gripped near the blades** (「A 照原作柄長，握在靠刀的那端」): a short reverse grip in the J
+  strings, so J stays at 1.4 m (Q5 A) while the rod is drawn ~0.9–1.0 m.
+- **The neck-noose over-the-shoulder heave and slam (canon Kubikake, Ep225) goes to SP2 全身縛** (「B 給 SP2 全身縛」, not
+  the lead's recommendation); the Breaker becomes a front garrote and a push-down.
+
+Next: the Shikai model-sheet stills (front / side / back, the weapon close-up, presentation only), then the slot plan for
+the user's 「可以」.
 
 ## 18. Open
 
