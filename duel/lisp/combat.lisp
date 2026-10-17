@@ -788,7 +788,8 @@ and frozen through the cinematic their looks would hang in its shots."
 (defun reset-round (a v)
   "After a Kikon / Soul Break (§1): both placed *RESET-DISTANCE* apart facing, *RESET-NEUTRAL* frames
 of neutral, P1 on the left of the view again, hazards cleared, the guard gauges full (and guardless cleared) for
-everyone, the hidden stun cleared, the forms kept, flash-step and Reiatsu kept, the kit's :reset-reiatsu (Kenpachi)."
+everyone, the hidden stun cleared, the forms kept, flash-step and Reiatsu kept, the kit's :reset-reiatsu (Kenpachi), the
+kit's :reset hook (e) (Hisagi's sickle)."
   (let ((p (pos-of a)) (q (pos-of v)))
     (multiple-value-bind (ax az bx bz) (reset-placement (aref p 0) (aref p 2) (aref q 0) (aref q 2))
       (v3-set! p (f32 ax) 0f0 (f32 az)) (v3-set! q (f32 bx) 0f0 (f32 bz))))
@@ -805,6 +806,7 @@ everyone, the hidden stun cleared, the forms kept, flash-step and Reiatsu kept, 
       (fill (motion-vel mo) 0f0)
       (vpad-clear! (pilot-vpad (pilot e)))
       (let ((b (brain e))) (when b (setf (brain-press-left b) 0)))   ; a CPU lets go of what it held (a rush's O)
+      (let ((h (kit-hook (kit-of e) :reset))) (when h (funcall h e)))   ; the form's own reset (Hisagi's sickle back in hand)
       (to-idle e 0)))
   (emit :reset))
 

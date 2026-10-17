@@ -91,7 +91,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 | ASSIST | `python3 tools/assistgate.py` | report the masher's win % per setting |
 | CPU score | `python3 tools/aieval.py --char C` (roster index 0–4) | AI work only (DUEL_AI_V2) |
 | G2 references | `python3 tests/style-gates.py cvc dist/duel` (or `simgate.py --cvc`) | identical to `tests/style-cvc-ref.txt`; on an intended change regenerate it (header note + "Before:") and update every quote of those lines |
-| Looks (refactors) | `python3 tests/style-gates.py looks BASE_DIST dist/duel --jobs 4 [--keep-base]` (BASE = a copy of `dist/duel` built before the change) | 104 stills byte-identical to BASE (noise floor 0; 112 before the old Lille's removal, 2026-10-13); for changes that must not move a pixel |
+| Looks (refactors) | `python3 tests/style-gates.py looks BASE_DIST dist/duel --jobs 4 [--keep-base]` (BASE = a copy of `dist/duel` built before the change) | 105 stills byte-identical to BASE (noise floor 0; 104 before Hisagi joined, 2026-10-17; 112 before the old Lille's removal, 2026-10-13); for changes that must not move a pixel |
 | Shipping build | `./build.sh duel` last | |
 
 - Engine and RAVEN EDGE tests (run what a change touches): `tests/ecs-test.lisp`, `tests/test-math.lisp` (header has its load line), `tests/input-test.lisp`,
@@ -118,7 +118,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 ## SOUL DUEL architecture in one screen
 
 - **Roster**: index 0 Yamamoto (`yama*.lisp`), 1 Kenpachi (`ken*`), 2 Rukia (`rukia*`), 3 Ichigo (`ichigo*`),
-  4 Senjumaru (`senjumaru*`), 5 **reserved** (the old Lille's slot: retired 2026-10-12, his code removed 2026-10-13; `:lille` stays in `*roster*` for the saved data's and the gates' indices: `*retired*` / `playable-roster` in kit.lisp, simgate's `RETIRED`), 6 Lille (`barro*`, kit `:barro`, called "Lille II" before 2026-10-13; his art and cinematics also in `lille-art.lisp`; version 3: DUEL_LILLE_V3, the V2 record DUEL_LILLE_V2, the old Lille's design DUEL_LILLE). Each character = data + hooks: `defkit` forms with `:ai` plists, `defmove`s, its own CPU
+  4 Senjumaru (`senjumaru*`), 5 **reserved** (the old Lille's slot: retired 2026-10-12, his code removed 2026-10-13; `:lille` stays in `*roster*` for the saved data's and the gates' indices: `*retired*` / `playable-roster` in kit.lisp, simgate's `RETIRED`), 6 Lille (`barro*`, kit `:barro`, called "Lille II" before 2026-10-13; his art and cinematics also in `lille-art.lisp`; version 3: DUEL_LILLE_V3, the V2 record DUEL_LILLE_V2, the old Lille's design DUEL_LILLE), 7 **Hisagi** (`hisagi*`, kit `:hisagi`; the Shikai built in batch B2a, the Bankai in B2b: DUEL_HISAGI; debug 83000–83999). Each character = data + hooks: `defkit` forms with `:ai` plists, `defmove`s, its own CPU
   functions (`:reflex`, `:opp-reflex`, `:sp-ender`, `:sig-hold`, `:assist-guard`), cinematics; art in `<char>-art.lisp`
   (`defstrike` clips, bodies).
 - **Plain CL, host-tested**: `tuning.lisp` (every shared knob, `defparameter` + docstring with old → new, date, who decided; a character's own knobs

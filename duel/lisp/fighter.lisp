@@ -329,7 +329,8 @@ follow-up, overdraws while any cold is left: rules COLD-OK-P)? (The bars: REIATS
 it now. A command the form drops (KIT-DROP) switches the form first, on the move's frame 0, and starts that
 form's move; a refused one doesn't switch. ENDER: the O ender of a string (its pip is the string's). WITH: the move
 to start instead of the command's own (L after a K link, KIT-L-LINK), under the command's checks and costs. T when
-something started. P (:awaken): the awakening, Kenpachi's Bankai, else the form's :p hook (e free), which decides,
+something started (a :command hook's non-move answer, :HOLD: nothing starts and, unrefused, the press stays buffered:
+Hisagi's K while his sickle returns). P (:awaken): the awakening, Kenpachi's Bankai, else the form's :p hook (e free), which decides,
 starts its own move or refuses with the cue (T when it took the press; Hisagi's bind throw and release)."
   (let ((g (gauges e)) (kit (fighter-kit f)))
     (case cmd
@@ -345,7 +346,8 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
       (t (let* ((to (kit-drop kit cmd))
                 (kit (if to (find-kit (fighter-character f) to) kit))
                 (mv (if (and with (not to)) with (kit-command-move kit cmd e))))   ; (E: the kit's :command hook)
-           (when (and mv (kit-command-ok-p e cmd kit ender with))   ; (WITH: a chained L, inside a combo)
+           (when (and (move-p mv) (kit-command-ok-p e cmd kit ender with))   ; (WITH: a chained L, inside a combo; a
+                                                                             ;  :command hook's :hold: nothing, the press stays)
              (when to (set-form e to))
              (let ((cost (kit-command-cost kit cmd)))
                (when (plusp cost) (reiatsu-spend! e cost)))

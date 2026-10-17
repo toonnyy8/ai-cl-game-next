@@ -9,7 +9,7 @@
 ;;;;   2300-2399, 2410-2430, 2450+k   scenarios and probes (2300+k specials, 2315+k frame probes, 2370+k / 2380+k stance
 ;;;;               tests, 2386+k Bankai tests, 2410+k Rukia, 2450+k Senjumaru); 2400 god; 2500+k human P1 vs an idle CPU
 ;;;;   20000-29000, 32000-73000   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc)
-;;;;   74000-75599 Ichigo, 82000-82999 Lille, 80000-80999 ENDLESS, 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
+;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
 (in-package :duel)
@@ -33,7 +33,7 @@ g guard gauge, ! = guardless, m the kit meter: Inferno / NOME), n the Konpaku th
     (format s "duel hash t=~d" *match-tick*)
     (dolist (e (list *p1* *p2*))
       (let ((p (pos-of e)) (g (gauges e)) (f (fighter e)))
-        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d a~d f~d g~d~:[~;!~] w~d m~d~@[ u~d~]~:[~;*~] n~d~@[ fr~d~]~@[ h~d~]" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
+        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d a~d f~d g~d~:[~;!~] w~d m~d~@[ u~d~]~:[~;*~] n~d~@[ fr~d~]~@[ h~d~]~@[ ~a~]" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
                 (round (* 100 (aref p 2))) (round (* 100 (yaw-of e))) (fighter-state f) (fighter-form f)
                 (gauges-reishi g) (gauges-konpaku g) (round (gauges-reiatsu g)) (round (gauges-fs g)) (round (gauges-gg g))
                 (gauges-guardless g) (round (gauges-awaken g))
@@ -41,7 +41,8 @@ g guard gauge, ! = guardless, m the kit meter: Inferno / NOME), n the Konpaku th
                                               (gauges-meter-idle g))                            ; crack clock / Rukia's warm clock,
                 (gauges-arm-pending g)                                                          ; * = its burst pending
                 (fighter-kikon-n f) (and (plusp (fighter-frost f)) (fighter-frost f))           ; fr = frost left (Rukia's ice)
-                (and (brain e) (floor (brain-heat (brain e)))))))
+                (and (brain e) (floor (brain-heat (brain e))))
+                (let ((h (kit-hook (fighter-kit f) :hash))) (and h (funcall h e))))))   ; a kit's own state (Hisagi's sickle)
     (format s " | cd ~{~d~^.~} ~{~d~^.~} | haz ~d" (coerce (fighter-cd (fighter *p1*)) 'list) (coerce (fighter-cd (fighter *p2*)) 'list)
             (let ((n 0)) (do-entities (h hazard) (incf n)) n))))
 
@@ -816,7 +817,7 @@ SR SS SI; a new character's: its pairings with every earlier character and its m
     (log-msg "duel evo seed ~d P1 ~,1f P2 ~,1f secs ~,1f" *match-seed*   ; the first EVOLUTION per side (-1: none)
              (/ (gauges-evo-t (gauges *p1*)) 60.0) (/ (gauges-evo-t (gauges *p2*)) 60.0) (/ (match-play-ticks) 60.0))
     (band-acc-line) (cup-acc-line)
-    (senju-acc-line) (ichigo-acc-line) (barro-acc-line)
+    (senju-acc-line) (ichigo-acc-line) (barro-acc-line) (hisagi-acc-line)
     (when *learn-gate* (learn-gate-line))
     (setf *gate-busy* nil))
   (unless *gate-busy*

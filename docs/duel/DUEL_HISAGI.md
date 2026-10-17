@@ -1,7 +1,7 @@
 # Hisagi Shūhei (檜佐木修兵) — design (in progress)
 
-The next SOUL DUEL fighter after Lille (the user, 2026-10-16). Status: design drafted (§6–§13, the lead's proposals),
-waiting on the user's answers (§13) and an adversarial review; no code. Process: skill `duel-character` (intent
+The next SOUL DUEL fighter after Lille (the user, 2026-10-16). Status (2026-10-17): the Shikai playable as roster index 7
+(batch B2a, §19 "As built"); the Bankai (§17) is batch B2b. Process: skill `duel-character` (intent
 questions → canon research → design doc + adversarial review → batch 1 playable → playtest loop).
 Canon research: `docs/research/hisagi/notes.md` (graded A–D).
 
@@ -860,8 +860,59 @@ every call.
 
 ## 18. Open
 
-- Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); next: the Bankai's two modes in B2.
+- Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); next: the Bankai's two modes in B2b.
 
 - The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
 - The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet
   stills.
+
+## 19. As built (batch B2a, 2026-10-17): the Shikai playable
+
+`duel/lisp/hisagi.lisp` (sim, knobs, CPU, debug) and `duel/lisp/hisagi-art.lisp` (body, Kazeshini, clips, looks, HUD icon,
+a placeholder Kikon cinematic), loaded after Lille's (`duel/MANIFEST`: `hisagi.lisp` first, the art reads his knobs); roster
+index 7 (`*roster*` by load order; `tools/simgate.py` ROSTER `HISAGI`: his pairings k 28–35, HL k 33 retired). Every §8.2 /
+§8.3 number is as the table (pinned in `tests/duel-rules-test.lisp`, section "Hisagi's Shikai"); the shared hooks are B1's
+(`:no-close` on NAGE, `:seg-fn` HS-CHAIN-SEG on HIKI / HODOKI, `:push-reach` 6.0, `:command` HS-COMMAND, `:ranged-ward` on
+the windmill, `ranged-threat-in` in his CPU). Knobs: `*hs-*` defparameters in hisagi.lisp, each with value, date, who.
+
+**What is built.** The IN / OUT / RETURNING sickle (HS-TICK, HS-THROW-OUT at the throws' S, HS-SICKLE-IN at the pulls' /
+MODOSHI's / SP1's S): the 60 f auto-retrieve counted only out of his moves, the 6.5 m chain-length return, the 8 f return;
+the anchor at the throw's first contact of any kind (HS-HIT) or its line's end (6.0 / 3.2 m) on its last active frame,
+clamped to r 14.7; the IN graph as `:strings` (K3 by route), the OUT graph by `:command` (SEN-1H, MODOSHI); L / SP2 refused
+out (HS-OK, the cue); NAGE / HIKI drag to 1.6 m over 10 f; the windmill held 20–60 f; SP1 / SP2 / KUBIKAKE / KARI. The
+`duel hisagi` gate line (throws, throw-hit / -touch / -whiff, maki, drag, pull / pull-hit, modoshi, raiden-in, auto- /
+far-return, out-frames, windmill / -block / -crush, at-close / -mid / -far / -out, ai-windmill / -modoshi / -sp1 / -sp2,
+opp-side-step); debug 83000–83999 (DUEL_GAMEPLAY "Debug commands"); the state in `duel hash` lines (`s<I|O|R> ax az o r`).
+
+**Deviations from the doc (the lead's, for review):**
+
+| # | Doc | Built | Why |
+|---|---|---|---|
+| D1 | §7.1: per-side two-slot vectors | a component `hss` on his fighter entity (as Ichigo's / Lille's): fresh each match and on PRACTICE's reset; a Kikon / Soul Break reset puts the sickle IN through a new kit hook `:reset` (combat.lisp RESET-ROUND); the state into the hash line through a new kit hook `:hash` (debug.lisp STATE-HASH-LINE) | per-entity state cannot leak between matches; both hooks default off (22 pairings identical) |
+| D2 | §7.1: K during RETURNING kept by the tick and pressed again on arrival | the `:command` hook answers `:hold`; TRY-COMMAND starts nothing for a non-move (`(move-p mv)`, one token, default off) and the press stays in the vpad's 10-step buffer, so it fires NAGE on the 8 f arrival | the same rule with no tick press; no refusal cue |
+| D3 | §8.3: the windmill "up at f6", "no hitstun" | the `:ranged-ward` flag wards for the whole move (f0 on, B1's hook is per move); the push window f6–8 with an 8 f stun (to carry its 1.5 m slide: 0 f would teleport him) | B1's hook; no lock: he is free 8 f into a ≥ 26 f hold |
+| D4 | §9: P awakens to the Bankai | B2b seam: his awakening gauge is held 1 point short of EVOLUTION (HS-TICK), so P does nothing; no `:awaken-form` | the brief ("may be refused") |
+| D5 | §10: SP1 off a NAGE hit | his `:sp-ender` runs only at link 3 (ai.lisp STRING-REFLEX): SP2 after RIN with the sickle in, SP1 after a K ender (EASY 0.1 / NORMAL 0.3 / HARD 0.8); after NAGE the pull 0.7 (`:string-k`), else the one-handed J | the generic reflex order |
+| D6 | §10: ASSIST, learner situations, AUTO GUARD's windmill | not built | §15 "Later" |
+| D7 | §11 | functional art: the K throws' drawn reach is the thrown left sickle's point at the hit volume's edge (`*hs-strike-reach*`: NAGE 6.3, MAKI 3.55, KARI-OTOSHI 2.8, read by the FK test), the pulls' chain drawn along HS-CHAIN-SEG's segment; the J tips 1.41–1.52 m (1.4 ± 0.15), KUBIKAKE 1.38; the Kikon cinematic a 120 f placeholder (刈 / 風死 stamp); glyphs 檜 佐 風 刈 baked into glyphs-extra.lisp | the motion style (§11.2) and the storyboard (§11.5) are later batches |
+| D8 | — | MODOSHI is only reached through the hook (not in `kit-moves`); the CPU's reach reads see the IN graph (as B1 noted) | — |
+
+**Host tests** (duel-rules-test, his section + the generic per-form checks with `(:hisagi :base)`): the table, the six
+routes and the OUT string, the route damage (98 / 140 / 160 / 198 / 156 / 116), every §8.2 link combos with its hitstop on
+both sides, the drag ends (f28) before KAESHI-SEN-1H's hit (f30), every link 3 → the O lane, the state machine pure and on
+stand-in fighters (100 frames in a move: the timer at 0; 60 out: RETURNING; 8 more: IN; 7 m from the anchor: at once; the
+reset), the anchor cases (contact, first contact only, whiff 6.0 / MAKI 3.2, the clamp), the `:seg-fn` cast check (the chain
+through a victim dragged to 1.6 m after a 6 m hit, clear of a 2.5 m side Step, equal to a `:cap` volume at six points), the
+windmill's data and hold rule, the refusals, `:hold`, and the push.
+
+**The Q6 B push, measured** (§13 asked to check the chase): a K ender pushes 6.43 m (r 0.38; 6.39–6.50 by body). The O lane
+reaches 8.4 m from where he stands (no dash needed); SP1's line 7.2 m; SP2's 4.5 m line chases 2.33 m in its 16 f startup (to
+4.10 m, under *ENDER-CHASE-MAX*) and reaches. Nothing changed.
+
+**Gates (B2a).** The 22 existing pairings' `simgate --seeds 10 --summary` lines and `--cvc` byte-identical to the parent.
+His 7 pairings at 10 seeds (NORMAL, P1 Hisagi): all 70 matches K.O.; medians HY 122.1, HK 108.3, HR 142.4, HI 167.5, HS
+136.3, HB 140.2, HH 195.6 s; his wins as P1 2 / 1 / 1 / 2 / 0 / 1 of 10 (HH 5–5). The time-at-range probe (§6 targets:
+1.8–6.5 m ≥ 45 %, < 1.8 m ≤ 40 % / ≤ 55 % vs Kenpachi, out of hand ≤ 30 %): < 1.8 m HY 39 / HK 52 / HR 46 / HI 52 / HS 42 /
+HB 40 / HH 44 %; 1.8–6.5 m 55 / 42 / 49 / 43 / 52 / 53 / 50 %; out of hand 7–10 %. Misses: < 1.8 m vs HR, HI, HS, HH; 1.8–6.5 m
+vs HK, HI. Per §6 the first lever is his AI ranges, then the user; not tuned in this batch (the plain CPU).
+

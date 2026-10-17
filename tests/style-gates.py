@@ -16,7 +16,7 @@ dists are built with ./build.sh (a BASE dist is a copy of dist/NAME built before
                                                     exception, no WebGPU validation error, every pipeline built)
   python3 tests/style-gates.py looks BASE NEW [--jobs N] [--size WxH] [--only TEXT] [--once] [--keep-base]
                                                     the look identity gate (for refactors that must not change a
-                                                    pixel): 104 fixed stills of SOUL DUEL under run.mjs --fixed-dt
+                                                    pixel): 105 fixed stills of SOUL DUEL under run.mjs --fixed-dt
                                                     (menus, select of all six fighters, four CPU-vs-CPU matches at
                                                     several times, Kikon / awakening / form-change cinematics, HUD
                                                     in every form, VFX, ENDLESS, the portrait touch layout, results)
@@ -174,10 +174,11 @@ def smoke(dists):
 # ---------------------------------------------------------------- looks: the look identity gate (for refactors)
 LOOKS_START = 4.0          # virtual s of the first event: the title stands from ~2 s on (raven's G1 uses 4.0 too)
 # 2000+seed is a CPU-vs-CPU match whose two fighters are drawn from the seed (xorshift32 over the playable roster
-# Y K R I S B): seed 1 = Yamamoto-Senjumaru, 72 Rukia-Ichigo, 33 Kenpachi-Senjumaru, 44 Lille-Kenpachi (every fighter in a
-# match; the "duel match" log line is checked against this table). Re-pinned 2026-10-13 over the six playable fighters (the
-# old Lille removed, Lille B the one Lille); before: ((1 YS) (56 RI) (32 KL) (39 BK)) over seven (2026-10-10, DUEL_LILLE_V2 §14)
-LOOKS_SEEDS = ((1, "YS"), (72, "RI"), (33, "KS"), (44, "BK"))
+# Y K R I S B H): seed 1 = Yamamoto-Senjumaru, 3 Hisagi-Yamamoto, 7 Ichigo-Rukia, 25 Lille-Kenpachi (every fighter in a
+# match; the "duel match" log line is checked against this table). Re-pinned 2026-10-17 over the seven playable fighters
+# (Hisagi added, DUEL_HISAGI B2a); before: ((1 YS) (72 RI) (33 KS) (44 BK)) over six (2026-10-13; the old Lille removed),
+# and ((1 YS) (56 RI) (32 KL) (39 BK)) over seven (2026-10-10, DUEL_LILLE_V2 §14)
+LOOKS_SEEDS = ((1, "YS"), (3, "HY"), (7, "IR"), (25, "BK"))
 LOOKS_WINDOWS = ((2, (0.1,)), (8, (0.1, 0.4)), (16, (0.1,)), (30, (0.1,)))   # (turbo frames of 120 steps, the live shots after)
 # the cinematics at their key frames: (still name, debug command base, frames); 10000 + 1000 k + f is debug.lisp's, the
 # others a character's own range (75300 + k: Ichigo's awakening at frame 2k; 82300 + k: Lille's at frame 10k)
@@ -201,7 +202,7 @@ def looks_scenarios():
     def tap(s, t, x, y): s.extend([{"at": round(t, 3), "touch": "start", "x": x, "y": y}, {"at": round(t + 0.05, 3), "touch": "end", "x": x, "y": y}])
     def done(s): return max(e["at"] for e in s) + 0.3
 
-    # menus: title, MODE, SETTINGS, CONTROLS, then the select screen with each of the six fighters (P1's cycle)
+    # menus: title, MODE, SETTINGS, CONTROLS, then the select screen with each of the seven fighters (P1's cycle)
     s, t = [], LOOKS_START
     shot(s, t, "title"); key(s, t + 0.3, "Enter"); shot(s, t + 0.9, "mode")
     t += 1.2
@@ -210,7 +211,7 @@ def looks_scenarios():
     key(s, t + 2.1, "ArrowDown"); key(s, t + 2.4, "Enter"); shot(s, t + 3.0, "controls"); key(s, t + 3.2, "Escape")
     key(s, t + 3.6, "ArrowUp"); key(s, t + 3.8, "ArrowUp"); key(s, t + 4.0, "Enter")          # CPU VS CPU
     t += 4.5
-    for i in range(6):
+    for i in range(7):
         shot(s, t, f"select-{i}"); key(s, t + 0.1, "ArrowRight"); t += 0.6
     sc["menus"] = (s, done(s), ())
 

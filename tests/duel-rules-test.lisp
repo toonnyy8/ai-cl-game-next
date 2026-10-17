@@ -11,7 +11,7 @@
 ;; plain structs here (no entities: the tests make them with MAKE-...)
 (defmacro duel::defcine (&rest r) (declare (ignore r)) nil)
 (defmacro engine:defcomponent (name &rest slots) `(defstruct (,name (:copier nil) (:predicate nil)) ,@slots))
-(dolist (f '("tuning" "rules" "learn" "kit" "yama" "ken" "rukia" "ichigo" "endless-rules" "senjumaru" "barro"))
+(dolist (f '("tuning" "rules" "learn" "kit" "yama" "ken" "rukia" "ichigo" "endless-rules" "senjumaru" "barro" "hisagi"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 
@@ -33,7 +33,8 @@
                         (:rukia :base) (:rukia :m18) (:rukia :m50) (:rukia :zero) (:ichigo :base) (:ichigo :kessa)
                         (:senjumaru :base) (:senjumaru :tsuji1) (:senjumaru :tsuji2) (:senjumaru :tsuji3) (:senjumaru :tsuji4)
                         (:senjumaru :tsuji5) (:senjumaru :tsuji6)
-                        (:barro :base) (:barro :jilliel-kin) (:barro :jilliel) (:barro :shin-kin) (:barro :shin)))   ; (Lille II
+                        (:barro :base) (:barro :jilliel-kin) (:barro :jilliel) (:barro :shin-kin) (:barro :shin)
+                        (:hisagi :base)))   ; (Hisagi's Shikai, B2a: DUEL_HISAGI §8; Lille II
                                                                 ;  v3: MUJITTAI gone, DUEL_LILLE_V3 R1)
 (defun owl-adv (cf)
   "The frame advantage CF's J / K add to DUEL_STRINGS's budget: the owl's *SHIN-ADV* (decision 36: each recovery 1 f
@@ -262,7 +263,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     ;; the switched link 2 (J2s, K2s) is a copy: the same data as J2 / K2 but its name
     (let ((j2 (kit-next k (mv-name j1) :q)) (j2s (kit-next k (mv-name k1) :q))
           (k2 (kit-next k (mv-name k1) :f)) (k2s (kit-next k (mv-name j1) :f)))
-      (unless cup3
+      (unless (or cup3 (eq (first cf) :hisagi))   ; (Hisagi: K2s MAKI is its own move, J2s the one-handed x0.8: DUEL_HISAGI §7.2)
         ;; (Ichigo's Shikai: the copies are the CROSS, both blades: they may differ only in :guard and the clip)
         (flet ((core (m) (if (equal cf '(:ichigo :base))
                              (loop for (key v) on (mv-spec m) by #'cddr unless (member key '(:guard :clip :clip-s)) append (list key v))
@@ -727,7 +728,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
        (let ((ok (and (member (mv-kind m) *kinds*)
                       (>= (mv-s m) 0) (>= (mv-a m) 0) (>= (mv-r m) 0) (>= (mv-whiff m) (mv-r m))
                       (every (lambda (w) (and (<= (mv-s m) (hw-from w)) (< (hw-from w) (hw-to w))
-                                              (<= (hw-to w) (+ (mv-s m) (mv-a m))) (hw-vols w)))
+                                              (<= (hw-to w) (+ (mv-s m) (mv-a m))) (or (hw-vols w) (hw-seg w))))
                              (mv-hits m))
                       (or (eq (mv-kind m) :kikon) (zerop (mv-dmg m)) (plusp (length (mv-hits m))))
                       (every (lambda (e) (and (< (first e) (mv-total m)) (symbolp (second e)))) (mv-on-frame m))
@@ -840,7 +841,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ke-k-q1 :ke-k-q2 :ke-k-f1 :ke-k-f2 :ke-k-spin :ke-k-meteor   ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2)
     :ke-x-stance :ke-x-q1 :ke-x-kote :ke-x-q3 :ke-x-f1 :ke-x-tsuki :ke-x-f2 :ke-x-meteor :ke-x-drink
     :ke-b-q1 :ke-b-q2 :ke-b-f1 :ke-b-f2 :ke-b-f3 :ke-b-split :ke-b-cut   ; the Bankai's own (§8)
-    :ke-a-stance :ke-a-q1 :ke-a-q2 :ke-a-f1 :ke-a-f2 :ke-a-spin :ke-a-haymaker :ke-a-stomp :ke-a-flurry))   ; KATAUDE's (§8)
+    :ke-a-stance :ke-a-q1 :ke-a-q2 :ke-a-f1 :ke-a-f2 :ke-a-spin :ke-a-haymaker :ke-a-stomp :ke-a-flurry   ; KATAUDE's (§8)
+    :hs-stance :hs-intro :hs-win :hs-q1 :hs-q2 :hs-spin :hs-nage :hs-hiki :hs-maki :hs-kari :hs-hodoki :hs-modoshi   ; Hisagi's
+    :hs-kaza :hs-raiden :hs-shibari :hs-breaker :hs-kubikake :hs-kari-aim :hs-kari-o))   ;  Shikai (DUEL_HISAGI §11.3, B2a)
 ;; (Jilliel's SPs and Kikon, decision 56, DUEL_LILLE §23.37: :lb-w-sanren is KIN's SANREN through his :clip-map, :lb-e-sanren
 ;; EN's own, :lb-w-kikon / :lb-w-kikon-fire the Kikon in play; :lb-w-aim and :lb-w-fire are gone)
 ;; (the Kikon cinematics' own clips, :ya-kikon :ya-tenchi :ke-kikon :ke-kikon-n, are played by their
@@ -848,7 +851,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (let ((used (remove-duplicates (append (loop for cf in *forms* append (kit-clips (apply #'kit cf)))
                                         ;; (moves started outside every kit's tables: Lille II's base snipe's level 2 / 3
                                         ;;  copies, BR-S-SNIPE-RELEASE; R16, DUEL_LILLE_V3 §20: only they play :br-sk-l1)
-                                        (remove nil (loop for m in '(:br-s-l1-2 :br-s-l1-3)
+                                        ;;  Hisagi's MODOSHI, started by his :command hook while the sickle is out)
+                                        (remove nil (loop for m in '(:br-s-l1-2 :br-s-l1-3 :hs-modoshi)
                                                           collect (mv-clip (find-move m)) collect (mv-clip-2 (find-move m))))))))
   (let ((extra (set-difference used *clips-5*)) (unused (set-difference *clips-5* used)))
     (when (or extra unused) (format t "  clips not in §5: ~s, §5 clips unused: ~s~%" extra unused))
@@ -858,8 +862,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
               '(:ryujin-jakka :ryujin-jakka :zanka :zanka :ken-katana :nozarashi :nozarashi :nozarashi :ke-broken nil
                 :sode-no-shirayuki :sode-no-shirayuki :ru-rime :ru-ice :zangetsu-long :tensa
                 :shigarami :shigarami :shigarami :shigarami :shigarami :shigarami :shigarami
-                :diagramm nil nil nil nil)))     ; (+ Lille II's five forms, DUEL_LILLE_V3: MUJITTAI gone)
-(check (equal *roster* '(:yamamoto :kenpachi :rukia :ichigo :senjumaru :lille :barro)))   ; index 5 reserved (the old Lille, removed 2026-10-13), 6 Lille
+                :diagramm nil nil nil nil :kazeshini)))     ; (+ Lille II's five forms, DUEL_LILLE_V3: MUJITTAI gone; Hisagi)
+(check (equal *roster* '(:yamamoto :kenpachi :rukia :ichigo :senjumaru :lille :barro :hisagi)))   ; index 5 reserved (the old Lille, removed 2026-10-13), 6 Lille, 7 Hisagi
 (check (equal (kit-intro-weapon (kit :yamamoto :base)) '(:ya-cane 81)))              ; cane until 1.35 s
 (check (and (eq (kit-cine (kit :yamamoto :bankai-east)) 'yama-bankai-cine) (eq (kit-cine (kit :kenpachi :nozarashi)) 'ken-nozarashi-cine)
             (null (kit-cine (kit :yamamoto :hellfire)))))
@@ -1717,7 +1721,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai) (:rukia :zero)))   ; (Yamamoto's East / West: their
                                                                  ; own clips, both ways since DUEL_YAMA_TYBW §3.3)
 (let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0))
-  (dolist (art '("yama" "ken" "rukia" "ichigo" "senjumaru" "lille" "barro"))
+  (dolist (art '("yama" "ken" "rukia" "ichigo" "senjumaru" "lille" "barro" "hisagi"))
     (with-open-file (in (merge-pathnames (format nil "../duel/lisp/~a-art.lisp" art) *load-truename*))
       (let ((*package* (find-package :duel)))
         (loop for form = (read in nil in) until (eq form in)
@@ -1726,7 +1730,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                      ((defpose defclip defstrike) (eval form))
                      (defun (when (eq (second form) 'sj-okobo-props) (eval form)))
                      (defparameter (case (second form)
-                                     (*sj-strike-reach* (setf strike (eval (third form))))
+                                     ((*sj-strike-reach* *hs-strike-reach*)   ; (Hisagi's thrown sickle: its drawn reach)
+                                      (setf strike (append strike (eval (third form)))))
                                      (*lb-strike-points* (setf points (eval (third form))))   ; Lille: the plank, the
                                      (*lb-butt* (setf butt (eval (third form))))           ; wing / arm tips
                                      (*br-w-stretch* (eval form))                           ; (Lille II's whips, R5)
@@ -1744,7 +1749,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
              (b (or b (cdr (assoc (first cf) bodies))))                  ; (a body variant: the rig of its character)
              (props (if (eq (first cf) :senjumaru) (sj-okobo-props) (and (getf b :props) (apply #'make-rig-proportions (getf b :props)))))
              (wlen (cdr (assoc (kit-weapon k) weapons))))
-        (dolist (lm (append (remove-if (lambda (l) (zerop (length (mv-hits (first l))))) (link-moves k))   ; (EN's traces)
+        (dolist (lm (append (remove-if (lambda (l) (or (zerop (length (mv-hits (first l))))   ; (EN's traces; Hisagi's
+                                                       (hw-seg (svref (mv-hits (first l)) 0))))   ;  pulls: a :seg-fn
+                                       (link-moves k))                                           ;  window, its cast check)
                             (let ((br (kit-command-move k :breaker))) (and br (list (list br :breaker))))))
                                                                ; (the stance's HOSHA / TAISHA: line hits from the muzzle, §23.1)
           (let* ((mv (first lm)) (hw (svref (mv-hits mv) 0)) (vol (first (hw-vols hw))) (cap (> (aref vol 0) 0.5))
@@ -2740,11 +2747,14 @@ past the ends; DEFAULT if the clip is not listed."
 (check (= 600 (play-ticks 300 (- 18000 600))))
 (check (= 18000 (play-ticks 300 -3)))
 
-;; Hisagi's shared hooks (docs/duel/DUEL_HISAGI.md §12.4, batch B1): each defaults off. Inert: no kit / move sets one, and
-;; the generic readers they changed return what the old code did for every kit form and move.
-(let ((kits (loop for alist being the hash-values of *kits* append (mapcar #'cdr alist))))
+;; Hisagi's shared hooks (docs/duel/DUEL_HISAGI.md §12.4, batch B1): each defaults off. Inert: no kit / move but Hisagi's
+;; (B2a, his own section below) sets one, and the generic readers they changed return what the old code did for every
+;; other kit form and move.
+(defun hs-own-move-p (name) (let ((n (symbol-name name))) (and (> (length n) 3) (string= "HS-" n :end2 3))))
+(let ((kits (remove :hisagi (loop for alist being the hash-values of *kits* append (mapcar #'cdr alist)) :key #'kit-character))
+      (moves (loop for name being the hash-keys of *moves* using (hash-value m) unless (hs-own-move-p name) collect m)))
   (check (every (lambda (k) (and (null (kit-push-reach k)) (null (kit-hook k :command)))) kits))
-  (check (loop for m being the hash-values of *moves*
+  (check (loop for m in moves
                never (or (intersection '(:no-close :ranged-ward) (mv-flags m)) (some #'hw-seg (mv-hits m)))))
   (dolist (k kits)
     (dolist (c *kit-commands*)                                    ; :command: the same move with and without a fighter
@@ -2756,7 +2766,7 @@ past the ends; DEFAULT if the clip is not listed."
              (let ((o (kit-command-move k (if (eq (mv-kind m) :quick) :q :f))))   ; :push-reach: the opener's reach
                (when o (check (= (ender-push-reach k m o) (mv-reach o)))))))
   ;; :seg-fn: WINDOW-TOUCHES-P = the old volume loop for every window of every move, at points around the attacker
-  (check (loop for m being the hash-values of *moves*
+  (check (loop for m in moves
                always (loop for w across (mv-hits m)
                             always (loop for (tx tz) in '((0.0 -1.0) (0.5 -2.0) (-1.5 -0.5) (0.0 -4.0) (3.0 -6.0) (0.0 1.0))
                                          always (eq (and (window-touches-p w :e 0f0 0f0 0f0 0f0 -1f0 tx 0f0 tz 0.38 1.8) t)
@@ -2976,6 +2986,189 @@ past the ends; DEFAULT if the clip is not listed."
 (check (equal (loop for l in '(0.0 150.0 300.0 450.0 600.0) collect (multiple-value-list (bind-release-split l)))
               '((0.0 0.0) (150.0 0.0) (300.0 0.0) (300.0 150.0) (300.0 300.0))))
 (check (and (= (bind-drain 300.0 7) 296.5) (= (bind-drain 3.0 7) 0.0)))
+
+;;; ================================================================ Hisagi's Shikai (docs/duel/DUEL_HISAGI.md §7-§8, batch B2a)
+;; stand-ins: a position / facing per stand-in fighter and his state component (the engine's ECS is not on the host);
+;; his file loaded again now that combat / fighter / components are (its SETFs of their slots expand against them)
+(load (merge-pathnames "../duel/lisp/hisagi.lisp" *load-truename*))
+(defvar *t-pos* (make-hash-table :test 'eq)) (defvar *t-yaw* (make-hash-table :test 'eq)) (defvar *t-hss* (make-hash-table :test 'eq))
+(defun pos-of (e) (or (gethash e *t-pos*) (setf (gethash e *t-pos*) (make-f32 3))))
+(defun yaw-of (e) (gethash e *t-yaw* 0f0))
+(defun hss (e) (gethash e *t-hss*))
+(defun add-component (e c) (setf (gethash e *t-hss*) c))
+(defun t-at (e x z &optional (yaw 0f0)) (let ((p (pos-of e))) (setf (aref p 0) (f32 x) (aref p 1) 0f0 (aref p 2) (f32 z) (gethash e *t-yaw*) (f32 yaw))) e)
+(let* ((k (kit :hisagi :base)) (mv* (lambda (n) (kit-move k n))))
+  (flet ((m (n) (funcall mv* n)))
+    ;; the roster slot, the stats (§8.1), the hooks he sets (each a shared hook B1 built: :no-close, :seg-fn, :push-reach,
+    ;; :command, :ranged-ward; and this batch's :reset / :hash and :command's :hold)
+    (check (and (= 7 (position :hisagi *roster*)) (member :hisagi (playable-roster))))
+    (check (and (~= (kit-mult k) 1.15) (~= (kit-taken k) 1.0) (~= (kit-walk k) 3.8) (~= (kit-run k) 9.0)
+                (~= (kit-push-reach k) 6.0) (= 2 (kit-kikon-konpaku k)) (null (kit-awaken-form k))))   ; (B2b: the Bankai)
+    (check (and (member :no-close (mv-flags (m :hs-k1))) (member :ranged (mv-flags (m :hs-k1)))
+                (~= 2.0 (getf (mv-params (m :hs-k1)) :melee-range)) (~= 30.0 (mv-track (m :hs-k1)))
+                (eq 'hs-chain-seg (hw-seg (svref (mv-hits (m :hs-k2)) 0))) (eq 'hs-chain-seg (hw-seg (svref (mv-hits (m :hs-k3h)) 0)))
+                (null (hw-vols (svref (mv-hits (m :hs-k2)) 0))) (~= 6.0 (mv-reach (m :hs-k2))) (~= 3.2 (mv-reach (m :hs-k3h)))))
+    ;; the §8.2 table, as written: S A R dmg guard block reach
+    (dolist (row '((:hs-j1 8 3 12 30 8 -2 1.4) (:hs-j2 8 3 13 30 8 -2 1.4) (:hs-j3 9 3 18 38 12 -4 1.4)
+                   (:hs-j1-1h 8 3 12 24 8 -2 1.4) (:hs-j2-1h 8 3 13 24 8 -2 1.4) (:hs-j3-1h 9 3 18 30 12 -4 1.4)
+                   (:hs-k1 18 4 22 62 14 -3 6.0) (:hs-k2 20 4 24 56 14 -3 6.0) (:hs-k2s 20 4 24 52 14 -3 3.2)
+                   (:hs-k3 22 5 34 80 18 -20 2.8) (:hs-k3h 22 5 34 78 18 -20 3.2)))
+      (destructuring-bind (name s a r dmg g adv reach) row
+        (let ((x (find-move name)))
+          (check (or (and (= s (mv-s x)) (= a (mv-a x)) (= r (mv-r x)) (= dmg (mv-dmg x)) (= g (hw-guard (svref (mv-hits x) 0)))
+                          (= adv (mv-adv-block x)) (~= reach (mv-reach x)))
+                     (format t "  Hisagi table mismatch ~s~%" name))))))
+    (check (and (= 14 (- (mv-s (m :hs-k2)) (mv-enter (m :hs-k2)))) (= 14 (- (mv-s (m :hs-k2s)) (mv-enter (m :hs-k2s))))
+                (= 14 (- (mv-s (m :hs-k3)) (mv-enter (m :hs-k3)))) (= 14 (- (mv-s (m :hs-k3h)) (mv-enter (m :hs-k3h))))
+                (~= 0.3 (mv-slide (m :hs-j1))) (~= 110 (/ (* 2 (aref (first (hw-vols (svref (mv-hits (m :hs-j1)) 0))) 2)) (deg 1)))
+                (~= 200 (/ (* 2 (aref (first (hw-vols (svref (mv-hits (m :hs-j3)) 0))) 2)) (deg 1)))))   ; (Q5 A)
+    ;; the IN graph (§7.2): the six routes with K3 by route, the one-handed KJJ; the OUT graph's J string; K after SEN-1H eaten
+    (check (equal (route k :q '((:q) (:q))) '(:hs-j1 :hs-j2 :hs-j3)))
+    (check (equal (route k :q '((:q) (:f))) '(:hs-j1 :hs-j2 :hs-k3)))
+    (check (equal (route k :q '((:f) (:f))) '(:hs-j1 :hs-k2s :hs-k3h)))
+    (check (equal (route k :f '((:f) (:f))) '(:hs-k1 :hs-k2 :hs-k3)))
+    (check (equal (route k :f '((:f) (:q))) '(:hs-k1 :hs-k2 :hs-j3)))
+    (check (equal (route k :f '((:q) (:q))) '(:hs-k1 :hs-j2-1h :hs-j3-1h)))
+    (check (and (eq (kit-next k :hs-j1-1h :q) (m :hs-j2-1h)) (null (kit-next k :hs-j1-1h :f)) (null (kit-next k :hs-j2-1h :f))
+                (eq (string-latch k :hs-j1-1h :f nil) nil) (member :ender (mv-flags (m :hs-j3-1h)))))
+    ;; the routes on hit (§8.2, before the x1.15; no combo scaling within three hits)
+    (flet ((dmg (&rest names) (loop for n in names for i from 1 sum (hit-damage (mv-dmg (m n)) nil nil i nil))))
+      (check (equal (list (dmg :hs-j1 :hs-j2 :hs-j3) (dmg :hs-j1 :hs-j2 :hs-k3) (dmg :hs-j1 :hs-k2s :hs-k3h) (dmg :hs-k1 :hs-k2 :hs-k3)
+                          (dmg :hs-k1 :hs-k2 :hs-j3) (dmg :hs-k1 :hs-j2-1h :hs-j3-1h))
+                    '(98 140 160 198 156 116))))
+    ;; the combo arithmetic on every §8.2 link: the victim's stun (from its hit frame) outlasts the link's hit (the next
+    ;; link's chain opens at S + A on a hit and plays S_eff to its hit); the global hitstop freezes both sides alike, so the
+    ;; margins hold with it (each link's own hitstop added to both sides below); NAGE's / HIKI's drag (10 f from the hit) ends
+    ;; before the one-handed J2's hit; every link 3 -> the O lane (no dash: S 20) inside its stagger / crumple
+    (loop for (a b) in '((:hs-j1 :hs-j2) (:hs-j1 :hs-k2s) (:hs-j2 :hs-j3) (:hs-j2 :hs-k3) (:hs-k2s :hs-k3h) (:hs-k1 :hs-k2)
+                         (:hs-k1 :hs-j2-1h) (:hs-k2 :hs-k3) (:hs-k2 :hs-j3) (:hs-j2-1h :hs-j3-1h) (:hs-j1-1h :hs-j2-1h))
+          do (let* ((ma (m a)) (mb (m b)) (w (svref (mv-hits ma) 0)) (hs (hw-hs w))
+                    (free (+ (hw-from w) hs 1 (or (hw-stun w) (hitstun (hw-react w)))))
+                    (hit (+ (mv-s ma) (mv-a ma) hs (- (mv-s mb) (mv-enter mb)))))
+               (check (or (and (< hit free) (< (hit-gap ma mb) 0)) (format t "  Hisagi link ~a -> ~a: hit ~d, free ~d~%" a b hit free)))))
+    (check (< (+ (mv-s (m :hs-k1)) *hs-drag-frames*) (+ (mv-s (m :hs-k1)) (mv-a (m :hs-k1)) (- (mv-s (m :hs-j2-1h)) (mv-enter (m :hs-j2-1h))))))
+    (let ((o (m :hs-kikon)))
+      (check (and (zerop (getf (mv-params o) :dash-max)) (zerop (getf (mv-params o) :ender-dash)) (= 20 (mv-s o)) (= 90 (mv-cooldown o))))
+      (dolist (n '(:hs-j3 :hs-j3-1h :hs-k3 :hs-k3h))
+        (let ((x (m n))) (check (< (+ (- (mv-total x) (hw-from (svref (mv-hits x) 0)) (mv-r x)) (mv-s o))
+                                   (hitstun (hw-react (svref (mv-hits x) 0))))))))
+    ;; the sickle's state machine, pure (§7.1): OUT counts only out of his moves (frozen in a move, far or not), RETURNING at
+    ;; 60 f or at once when his hand is past 6.5 m of the anchor out of a move; the OUT graph's commands; L / SP2 refused out
+    (check (equal (multiple-value-list (hs-out-next :out 10 t t)) '(:out 10)))          ; in a move: frozen, even far
+    (check (equal (multiple-value-list (hs-out-next :out 10 nil nil)) '(:out 11)))
+    (check (equal (multiple-value-list (hs-out-next :out 59 nil nil)) '(:ret 60)))
+    (check (equal (multiple-value-list (hs-out-next :out 3 nil t)) '(:ret 4)))           ; far, out of a move: at once
+    (check (equal (multiple-value-list (hs-out-next :in 3 nil t)) '(:in 3)))
+    (check (= 60 (loop for n from 0 for o = 0 then o2 for o2 = (nth-value 1 (hs-out-next :out o (evenp n) nil))
+                       until (eq :ret (hs-out-next :out o (evenp n) nil)) finally (return o2))))   ; (half the frames in moves)
+    (check (and (null (hs-command-for :in :q)) (null (hs-command-for :in :f)) (eq :hs-j1-1h (hs-command-for :out :q))
+                (eq :hs-modoshi (hs-command-for :out :f)) (eq :hold (hs-command-for :ret :f)) (eq :hs-j1-1h (hs-command-for :ret :q))
+                (null (hs-command-for :out :sp1)) (null (hs-command-for :out :breaker))))
+    (check (and (hs-refused-p :out :sig) (hs-refused-p :ret :sp2) (not (hs-refused-p :in :sig)) (not (hs-refused-p :out :sp1))
+                (not (hs-refused-p :out :breaker)) (not (hs-refused-p :out :kikon)) (not (hs-refused-p :out :q))))
+    (check (and (zerop (length (mv-hits (find-move :hs-modoshi)))) (= 12 (mv-total (find-move :hs-modoshi)))
+                (member '(6 hs-sickle-in) (mv-on-frame (find-move :hs-modoshi)) :test #'equal)
+                (member '(18 hs-throw-out) (mv-on-frame (m :hs-k1)) :test #'equal) (member '(20 hs-throw-out) (mv-on-frame (m :hs-k2s)) :test #'equal)
+                (member '(20 hs-sickle-in) (mv-on-frame (m :hs-k2)) :test #'equal) (member '(22 hs-sickle-in) (mv-on-frame (m :hs-k3h)) :test #'equal)
+                (member '(20 hs-sickle-in) (mv-on-frame (m :hs-raiden)) :test #'equal)))
+    ;; ... on stand-in fighters: the 60 f timer frozen in moves, the far return, the return's arrival, the reset
+    (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))
+      (let ((fa (fighter a)) (ga (gauges a)) (st (hs a)))
+        (t-at a 0 0) (t-at b 0 -3)
+        (setf (hss-state st) :out (hss-out-t st) 0)
+        (hs-anchor! a 0.0 -3.0)
+        (setf (fighter-state fa) :move (fighter-move fa) (m :hs-j1-1h) (fighter-phase fa) :main (fighter-sf fa) 1)
+        (dotimes (i 100) (hs-tick a fa ga))
+        (check (and (eq :out (hss-state st)) (= 0 (hss-out-t st))))                        ; 100 frames in a move: frozen
+        (setf (fighter-state fa) :idle (fighter-move fa) nil)
+        (dotimes (i 59) (hs-tick a fa ga))
+        (check (and (eq :out (hss-state st)) (= 59 (hss-out-t st))))
+        (hs-tick a fa ga)
+        (check (and (eq :ret (hss-state st)) (= *hs-return-frames* (hss-ret-t st))))
+        (dotimes (i 7) (hs-tick a fa ga))
+        (check (eq :ret (hss-state st)))
+        (hs-tick a fa ga)
+        (check (eq :in (hss-state st)))                                                    ; arrived after 8 f
+        (setf (hss-state st) :out (hss-out-t st) 0) (t-at a 0 4)                            ; 7 m from the anchor: at once
+        (hs-tick a fa ga)
+        (check (eq :ret (hss-state st)))
+        (setf (hss-state st) :out) (hs-reset a)
+        (check (eq :in (hss-state st)))
+        (setf (gauges-awaken ga) 99.5f0) (hs-tick a fa ga)                                 ; ;; B2b: never EVOLUTION yet
+        (check (< (gauges-awaken ga) *awaken-max*))
+        ;; the anchor (§7.1): a throw's first contact of any kind writes the victim's centre; a whiff its line's end along
+        ;; his facing on its last active frame (NAGE 6.0, MAKI 3.2), clamped into the arena
+        (t-at a 0 0) (t-at b 1.0 -4.0)
+        (setf (fighter-state fa) :move (fighter-move fa) (m :hs-k1) (fighter-phase fa) :main (fighter-sf fa) 18)
+        (hs-throw-out a)
+        (check (and (eq :out (hss-state st)) (not (hss-anchored st))))
+        (dolist (res '(:blocked)) (hs-hit a b res (svref (mv-hits (m :hs-k1)) 0) (m :hs-k1) nil t))
+        (check (and (hss-anchored st) (~= 1.0 (aref (hss-anchor st) 0)) (~= -4.0 (aref (hss-anchor st) 1))))
+        (t-at b 2.0 -5.0) (hs-hit a b :hit (svref (mv-hits (m :hs-k1)) 0) (m :hs-k1) nil t)   ; (the first contact only)
+        (check (~= 1.0 (aref (hss-anchor st) 0)))
+        (hs-throw-out a) (setf (fighter-sf fa) 21)                                          ; a whiff: its last active frame
+        (hs-tick a fa ga)
+        (check (and (hss-anchored st) (~= 0.0 (aref (hss-anchor st) 0)) (~= -6.0 (aref (hss-anchor st) 1))))
+        (t-at a 0 -12.0) (hs-throw-out a) (hs-tick a fa ga)                                 ; clamped to r 14.7
+        (check (~= (- *arena-radius* 0.3) (hypot (aref (hss-anchor st) 0) (aref (hss-anchor st) 1))))
+        (t-at a 0 0 (deg 90)) (setf (fighter-move fa) (m :hs-k2s) (fighter-sf fa) 23) (hs-throw-out a) (hs-tick a fa ga)
+        (check (and (~= -3.2 (aref (hss-anchor st) 0)) (~= 0.0 (aref (hss-anchor st) 1))))  ; MAKI 3.2 m (yaw 90: -X)
+        (multiple-value-bind (x z) (hs-anchor-point 0.0 0.0 0f0 6.0) (check (and (~= x 0.0) (~= z -6.0))))
+        ;; the pulls' :seg-fn: the chain from the anchor to his hand; a cast check of HIKI's window: after NAGE hit at 6 m
+        ;; (the anchor at his centre) and the drag to 1.6 m the chain runs through him; a side Step's 2.5 m clears it; it
+        ;; agrees with the same capsule as a :cap volume (VOL-HIT-P)
+        (t-at a 0 0) (hs-anchor! a 0.0 -6.0)
+        (multiple-value-bind (ax ay az bx by bz r) (hs-chain-seg a)
+          (check (and (~= ax 0.0) (~= az -6.0) (~= ay *hs-anchor-up*) (~= bz (- *hs-hand-ahead*)) (~= by *hs-hand-up*) (~= r 0.35)))
+          (check (capsule-cyl-hit-p ax ay az bx by bz r 0f0 0f0 -1.6f0 0.45f0 2.0f0))
+          (check (not (capsule-cyl-hit-p ax ay az bx by bz r 2.5f0 0f0 -1.6f0 0.36f0 1.8f0)))
+          (let ((v (make-vol :cap (list *hs-hand-ahead* 6.0 1.05 0.35))))
+            (check (loop for (tx tz) in '((0.0 -1.6) (0.6 -3.0) (0.9 -4.0) (2.5 -1.6) (0.0 -7.0) (0.0 -6.6))
+                         always (eq (and (capsule-cyl-hit-p ax ay az bx by bz r (f32 tx) 0f0 (f32 tz) 0.36f0 1.8f0) t)
+                                    (and (vol-hit-p v 0f0 0f0 0f0 0f0 -1f0 (f32 tx) 0f0 (f32 tz) 0.36f0 1.8f0 0f0) t))))))
+        (check (window-touches-p (svref (mv-hits (m :hs-k2)) 0) a 0f0 0f0 0f0 0f0 -1f0 0f0 0f0 -1.6f0 0.38f0 1.8f0))
+        ;; the windmill (§8.3, Q3 A): a :ranged-ward move, up from f6, one push hit as it comes up (20, 1.5 m, 8 f), cooldown
+        ;; 90 from the press, held 20-60 f (HS-KAZA-RELEASE-P), refused while the sickle is out; a ranged hit on it is warded
+        ;; while the guard gauge can guard, an unguardable / an empty gauge land
+        (let ((x (m :hs-kaza)) (w (svref (mv-hits (m :hs-kaza)) 0)))
+          (check (and (member :ranged-ward (mv-flags x)) (= 90 (mv-cooldown x)) (= 6 (mv-s x)) (= 60 (mv-a x)) (= 14 (mv-r x))
+                      (= 1 (length (mv-hits x))) (= 6 (hw-from w)) (= 9 (hw-to w)) (= 20 (hw-dmg w)) (~= 1.5 (hw-kb w)) (= 8 (hw-stun w))
+                      (~= 2.0 (mv-reach x)) (~= 360 (/ (* 2 (aref (first (hw-vols w)) 2)) (deg 1))) (null (mv-cost x)))))
+        (check (and (not (hs-kaza-release-p 25 6 66 nil)) (hs-kaza-release-p 26 6 66 nil) (not (hs-kaza-release-p 40 6 66 t))
+                    (not (hs-kaza-release-p 66 6 66 nil))))
+        (check (and (ranged-ward-p t t :neutral t) (not (ranged-ward-p t t :neutral nil))
+                    (eq :hit (resolve-contact :guard :unguardable t :ward t :hazard t :in-front nil))
+                    (eq :blocked (resolve-contact :guard :hazard t :ward t :in-front nil))))
+        (setf (hss-state st) :out)
+        (check (and (not (hs-ok a :sig nil)) (not (hs-ok a :sp2 nil)) (hs-ok a :sp1 nil) (hs-ok a :breaker nil) (hs-ok a :kikon nil)))
+        (setf (hss-state st) :in)
+        (check (and (hs-ok a :sig nil) (hs-ok a :sp2 nil)))
+        ;; :command: the OUT graph with a fighter, the IN one without; K while returning: :HOLD (TRY-COMMAND starts nothing)
+        (setf (hss-state st) :out)
+        (check (and (eq (kit-command-move k :q a) (m :hs-j1-1h)) (eq (kit-command-move k :f a) (find-move :hs-modoshi))
+                    (eq (kit-command-move k :q) (m :hs-j1)) (eq (kit-command-move k :f) (m :hs-k1))
+                    (eq (kit-command-move k :sig a) (m :hs-kaza))))
+        (setf (hss-state st) :ret)
+        (check (eq :hold (kit-command-move k :f a)))
+        (setf (fighter-state fa) :idle (fighter-move fa) nil)
+        (check (null (try-command a fa :f :flash)))
+        (check (eq :idle (fighter-state fa)))
+        (setf (hss-state st) :in)))
+    ;; the K enders' push (Q6 B): from 6.0 m, out of the throw's full reach: 6.0 + the victim's radius + 0.05 (6.43 by a 0.38
+    ;; body, 6.50 by Kenpachi's 0.45); a J ender's from J1's (1.4 + 0.3 + r + 0.05). After it: the O lane reaches him from
+    ;; where Hisagi stands (no dash; 7.0 + its radius 1.0 + r); SP1 (6.5 + 0.3 + r) too; SP2's 4.5 m line chases him in its
+    ;; 16 f startup (STRING-CHASE-SPEED off an ender, <= *ENDER-CHASE-MAX*), measured below
+    (check (and (~= 6.0 (ender-push-reach k (m :hs-k3) (m :hs-k1))) (~= 6.0 (ender-push-reach k (m :hs-k3h) (m :hs-k1)))
+                (~= 1.4 (ender-push-reach k (m :hs-j3) (m :hs-j1)))))
+    (dolist (r '(0.34 0.36 0.38 0.45))
+      (let* ((push (+ 6.0 (mv-slide (m :hs-k1)) r *ender-push*)) (o (m :hs-kikon)) (ov (first (hw-vols (svref (mv-hits o) 0))))
+             (sp1 (m :hs-raiden)) (sp2 (m :hs-shibari)) (d push))
+        (check (and (<= 6.39 push 6.5) (<= push (+ (aref ov 2) (aref ov 4) r))
+                    (<= push (+ (mv-reach sp1) 0.3 r))))
+        (loop for left from (mv-s sp2) downto 1 do (decf d (/ (string-chase-speed d (mv-reach sp2) left *ender-chase-max*) 60.0)))
+        (check (<= d (+ (mv-reach sp2) 0.35 r)))
+        (when (= r 0.38) (format t "  Hisagi: K ender push ~,2f m (r ~,2f); SP2 chases ~,2f m in its ~d f to ~,2f m; the O lane reaches ~,2f m~%"
+                                 push r (- push d) (mv-s sp2) d (+ (aref ov 2) (aref ov 4) r)))))))
 
 (format t "duel-rules-test: ~d checks, ~a~%" *checks*
         (if (zerop *fails*) "ALL PASS" (format nil "~d FAILED" *fails*)))
