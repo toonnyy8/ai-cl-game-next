@@ -159,8 +159,12 @@ result (NIL = no effect)."
          (ranged (ranged-hit-p hazard flags (and mv (getf (mv-params mv) :melee-range)) d2))
          (optic (optic-p (passive-p def :ward) (passive-p def :optic) ranged))   ; Rukia's absolute zero: ranged hits pass
          (def-state (if (and optic (eq def-state :guard)) :neutral def-state))
+         (rward (and ranged (eq (fighter-state fd) :move) (member :ranged-ward (mv-flags (fighter-move fd)))   ; a :ranged-ward
+                     (ranged-ward-p t ranged def-state (can-guard-p (gauges-gg (gauges def)) (gauges-guardless (gauges def))))))
+         (def-state (if rward :guard def-state))        ;  move (Hisagi's windmill): this hit is guarded from every side
          (ward (and (or (passive-p def :ward)           ; Bankai West's ward; a :parry-block parry blocks what it can't catch
-                        (and (eq def-state :parry) (passive-p def :parry-block)))
+                        (and (eq def-state :parry) (passive-p def :parry-block))
+                        rward)
                     (not optic)))
          (k (if (passive-p att :pierce)                 ; Bankai East's pierce
                 (pierce-rate (gauges-gg (gauges att)) (or (and mv (getf (mv-params mv) :pierce-mult)) 1.0))
@@ -243,8 +247,7 @@ result (NIL = no effect)."
                             (when (and own (not hazard) (member :ender (mv-flags mv)) (member (mv-kind mv) '(:quick :flash)))
                               (ender-push att def mv))                       ; J3 / K3: out of J1 / K1's reach at once
                             (when (and own (not hazard) (not (fighter-chained fa))   ; a string's opener (J1 / K1) hit:
-                                       (member (mv-kind mv) '(:quick :flash))         ; the attacker dashes in to
-                                       (eq mv (kit-command-move (kit-of att) (if (eq (mv-kind mv) :quick) :q :f))))
+                                       (string-opener-p (kit-of att) mv att))         ; the attacker dashes in to (not :no-close)
                               (let ((pull (- (sqrt d2) *string-pull-to*)))         ; point-blank, so the string's links
                                 (when (> pull 0.01)                                ; reach him (the user 2026-10-02:
                                   (set-slide att pull *string-pull-frames* (- (aref p 0) sx) (- (aref p 2) sz))))))))   ; no chase)
@@ -362,9 +365,8 @@ Hoho's counter strike on its frame (it always connects)."
                (fx (f32 (fwd-x yaw))) (fz (f32 (fwd-z yaw))) (ob (model-body (model o))))
           (loop for w across (mv-hits mv) for i from 0
                 when (and (<= (hw-from w) sf) (< sf (hw-to w)) (not (logbitp i (fighter-hits f)))
-                          (loop for v in (hw-vols w)
-                                thereis (vol-hit-p v (aref p 0) (aref p 1) (aref p 2) fx fz (aref q 0) (aref q 1) (aref q 2)
-                                                   (body-hurt-r ob) (body-hurt-h ob) 0f0)))
+                          (window-touches-p w e (aref p 0) (aref p 1) (aref p 2) fx fz (aref q 0) (aref q 1) (aref q 2)
+                                            (body-hurt-r ob) (body-hurt-h ob)))   ; (its volumes, or its :seg-fn capsule)
                   do (push (make-pending :att e :def o :hw w :i i :sx (aref p 0) :sz (aref p 2)
                                          :state (defender-state o) :mv mv
                                          :red (gauges-red-p go)
@@ -432,9 +434,13 @@ his Breaker / Kikon rush dash is within 0.5 m of its trigger range."
          (b (model-body (model e))) (yaw (yaw-of o)))
     (or (and (eq (fighter-state fo) :move) (eq (fighter-phase fo) :main)
              (loop for w across (mv-hits mv)
-                   thereis (perfect-hoho-p (fighter-sf fo) (hw-from w) (hw-to w) (hw-vols w)
-                                           (aref q 0) (aref q 1) (aref q 2) (f32 (fwd-x yaw)) (f32 (fwd-z yaw))
-                                           (aref p 0) (aref p 1) (aref p 2) (body-hurt-r b) (body-hurt-h b))))
+                   thereis (if (hw-seg w)                       ; a :seg-fn window: its capsule now, the cylinder grown
+                               (and (threat-window-p (fighter-sf fo) (hw-from w) (hw-to w))
+                                    (window-touches-p w o 0f0 0f0 0f0 0f0 0f0 (aref p 0) (aref p 1) (aref p 2)
+                                                      (+ (body-hurt-r b) *perfect-inflate*) (+ (body-hurt-h b) *perfect-inflate*)))
+                               (perfect-hoho-p (fighter-sf fo) (hw-from w) (hw-to w) (hw-vols w)
+                                               (aref q 0) (aref q 1) (aref q 2) (f32 (fwd-x yaw)) (f32 (fwd-z yaw))
+                                               (aref p 0) (aref p 1) (aref p 2) (body-hurt-r b) (body-hurt-h b)))))
         (and (eq (fighter-state fo) :move) (eq (fighter-phase fo) :dash)      ; a Breaker / Kikon rush about to strike
              (<= (fighter-dist fo) (+ (if (eq (mv-kind mv) :kikon) *kikon-trigger* *breaker-trigger*) 0.5)))
         (hazard-threat-p o e))))

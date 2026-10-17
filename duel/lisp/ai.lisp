@@ -124,10 +124,42 @@ answers it at its timing (AI-OPP-REFLECT): the kits' timed Hohos and the generic
     (<= (x-line-gap (snap-move s) (snap-x s) (snap-z s) (snap-yaw s) (aref p 0) (aref p 2))
         (+ (body-hurt-r (model-body (model e))) *ai-line-margin*))))
 
+(defun snap-seg-gap (s e)
+  "How far E's feet are from his perceived move's :seg-fn capsules (kit.lisp SEG-GAP: their segment as his kit gives it now,
+radius off), or NIL: no window of it has one (every move but those: the reach test, unchanged)."
+  (let ((mv (snap-move s)) (p (pos-of e)))
+    (and mv (seg-gap mv (opp-of e) (aref p 0) (aref p 2)))))
+
 (defun snap-near-p (s e d margin)
   "Is E, at the perceived distance D, in reach of his perceived move S: D < its reach + MARGIN (an :x-axis line: E on the
-line, X-ON-LINE-P, MARGIN aside)?"
-  (if (snap-x-axis-p s) (x-on-line-p s e) (< d (+ (snap-reach s) margin))))
+line, X-ON-LINE-P, MARGIN aside; a :seg-fn window: E's feet within its capsule + E's hurt radius + MARGIN, SNAP-SEG-GAP)?"
+  (if (snap-x-axis-p s)
+      (x-on-line-p s e)
+      (let ((g (snap-seg-gap s e)))
+        (if g (< g (+ (body-hurt-r (model-body (model e))) margin)) (< d (+ (snap-reach s) margin))))))
+
+(defun ranged-threat-in (e b s d lo hi)
+  "The CPU's ranged-threat reader (docs/duel/DUEL_HISAGI.md §12.4 hook 8; unused until a kit's reflex asks it): does a
+ranged hit reach E within LO..HI frames, as brain B perceives it? One of his hazards with hits left (moving: its distance
+over its speed, after its delay; standing: its delay, touching E), or his perceived move S's next :ranged window
+(KIT.LISP RANGED-WINDOW-LEAD, less the perception delay) with E in its reach (SNAP-NEAR-P: a line, a :seg-fn capsule, the
+reach) beyond its :melee-range (nearer it is the blade). Lille's lines, waves, fireballs, walls and traces alike."
+  (or (let ((o (opp-of e)) (q (pos-of e)) (bd (model-body (model e))) (hit nil))
+        (do-entities (h (hz hazard))
+          (when (and (not hit) (eql (hazard-owner hz) o) (hazard-hw hz) (> (hazard-hits-left hz) 0))
+            (let ((fr (if (> (hazard-speed hz) 0.1)
+                          (+ (max 0 (hazard-delay hz))
+                             (/ (* 60 (max 0.0 (- (hypot (- (aref q 0) (hazard-x hz)) (- (aref q 2) (hazard-z hz))) 1.0)))
+                                (hazard-speed hz)))
+                          (and (hazard-touches-p hz (aref q 0) (aref q 1) (aref q 2) (body-hurt-r bd) (body-hurt-h bd))
+                               (max 0 (hazard-delay hz))))))
+              (when (and fr (<= lo fr hi)) (setf hit t)))))
+        hit)
+      (let ((mv (snap-move s)))
+        (and mv (eq (snap-state s) :move) (eq (snap-phase s) :main)
+             (let ((lead (ranged-window-lead mv (snap-sf s)))) (and lead (<= lo (- lead (brain-delay b)) hi)))
+             (let ((r (getf (mv-params mv) :melee-range))) (or (null r) (> d r)))
+             (snap-near-p s e d *ai-threat-margin*)))))
 
 (defun ai-opp-aim (e b s d)
   "A CPU facing an aim (his kit's :opp-aim (:step :hoho :rush), read off his kit: other pairings never come here): his

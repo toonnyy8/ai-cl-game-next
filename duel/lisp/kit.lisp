@@ -35,6 +35,7 @@
   (stun nil)                    ; hitstun override in frames (NIL = the reaction's, *REACTION-FRAMES*)
   (guard nil)                   ; guard gauge a block drains (GUARD-VALUE; NIL = a hazard's *GG-HAZARD*)
   (frost 0 :type fixnum)        ; frames of frost a real hit sets (FROST-NEXT; Rukia's ice)
+  (seg nil)                     ; :seg-fn: a kit function (e) -> the world capsule this frame, in place of VOLS (WINDOW-TOUCHES-P)
   (flags nil))                  ; :breaker :guard-crush :unguardable :ranged :ice
 
 (defstruct (move (:conc-name mv-))
@@ -94,6 +95,42 @@ radians: a fan); no :cap volume: its reach along the facing, radius 0."
                           (when (or (null best) (< g best)) (setf best g)))))
     (or best (line-dist ax az yaw 0.0 (mv-reach mv) tx tz))))
 
+;;; ---------------------------------------------------------------- :seg-fn windows (docs/duel/DUEL_HISAGI.md §12.4, hook 2)
+;;; A hit window with :seg-fn names a kit function of the attacker entity giving this frame's world capsule: its two ends
+;;; and its radius, (values ax ay az bx by bz r) (a chain from a fixed anchor to his hand). The hit collector tests it in
+;;; place of the window's volumes (WINDOW-TOUCHES-P), so a hit through it is the attacker's own move contact (strings, the O
+;;; ender, SP cancels, on-land hooks, the ender push); the CPU's line readers measure from it (SEG-GAP, ai.lisp SNAP-NEAR-P).
+;;; Every window without it: its volumes, as before.
+(defun window-touches-p (w att ax ay az fx fz tx ty tz tr th)
+  "Does hit window W of ATT (at AX AY AZ facing FX 0 FZ) touch the hurt cylinder at (TX TY TZ), radius TR, height TH? Its
+:seg-fn's capsule this frame, else any of its volumes (VOL-HIT-P)."
+  (if (hw-seg w)
+      (multiple-value-bind (sx sy sz bx by bz r) (funcall (hw-seg w) att)
+        (capsule-cyl-hit-p sx sy sz bx by bz r tx ty tz tr th))
+      (loop for v in (hw-vols w) thereis (vol-hit-p v ax ay az fx fz tx ty tz tr th 0f0))))
+
+(defun seg-gap (mv att tx tz)
+  "How far (TX TZ) is from move MV's :seg-fn capsules (ATT's, this frame) on the ground, their radius taken off; NIL when
+no window of MV has a :seg-fn."
+  (let ((best nil))
+    (loop for w across (mv-hits mv)
+          when (hw-seg w)
+            do (multiple-value-bind (ax ay az bx by bz r) (funcall (hw-seg w) att)
+                 (declare (ignore ay by))
+                 (let* ((dx (- bx ax)) (dz (- bz az))
+                        (u (max 0.0 (min 1.0 (/ (+ (* (- tx ax) dx) (* (- tz az) dz)) (max 1e-8 (+ (* dx dx) (* dz dz)))))))
+                        (g (- (hypot (- tx (+ ax (* u dx))) (- tz (+ az (* u dz)))) r)))
+                   (when (or (null best) (< g best)) (setf best g)))))
+    best))
+
+(defun ranged-window-lead (mv sf)
+  "Frames from move frame SF until move MV's next :ranged hit window opens (0: one is open now), or NIL: none still to come.
+The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
+  (loop for w across (mv-hits mv)
+        when (and (member :ranged (hw-flags w)) (< sf (hw-to w)))
+          minimize (max 0 (- (hw-from w) sf)) into lead and count t into n
+        finally (return (and (plusp n) lead))))
+
 (defvar *moves* (make-hash-table :test 'eq) "Move name -> MOVE, as written in the kit files.")
 (defun find-move (name) (or (gethash name *moves*) (error "unknown move ~s" name)))
 
@@ -136,7 +173,7 @@ radians: a fan); no :cap volume: its reach along the facing, radius 0."
            (flags (if breaker (adjoin :breaker flags) flags))
            (guard (guard-value kind adv-block guard)))
       (flet ((window (from to &key (dmg dmg) (on-hit react) (kb kb) ((:vol hit-vol)) ((:reach hit-reach)) ((:vols hit-vols) vols)
-                                   (chip chip) (meter meter) (flags flags) (hs hs) stun (guard guard) (frost frost))
+                                   (chip chip) (meter meter) (flags flags) (hs hs) stun (guard guard) (frost frost) ((:seg-fn seg)))
                ;; a window's own :reach / :vol (scaled like the move's), else the move's volume; :vols (a window's, else
                ;; the move's): several volumes in one window, which still hits once (a fan of lines)
                (let ((v (cond (hit-reach (list* :arc (* reach-mult hit-reach) arc height))
@@ -144,11 +181,11 @@ radians: a fan); no :cap volume: its reach along the facing, radius 0."
                               (hit-vols nil)
                               (t vol))))
                  (make-hitwin :from (+ from startup-add) :to (+ to startup-add) :dmg dmg :react on-hit
-                              :kb kb :hs hs :chip chip :meter meter :flags flags :stun stun :guard guard :frost frost
-                              :vols (if v
-                                        (list (make-vol (first v) (rest v)))
-                                        (loop for spec in hit-vols
-                                              collect (let ((sv (scale-vol-spec spec reach-mult))) (make-vol (first sv) (rest sv)))))))))
+                              :kb kb :hs hs :chip chip :meter meter :flags flags :stun stun :guard guard :frost frost :seg seg
+                              :vols (cond (seg nil)   ; (a :seg-fn window: its capsule is the kit function's, no fixed volume)
+                                          (v (list (make-vol (first v) (rest v))))
+                                          (t (loop for spec in hit-vols
+                                                   collect (let ((sv (scale-vol-spec spec reach-mult))) (make-vol (first sv) (rest sv))))))))))
         (make-move
          :name name :kind kind :clip clip :clip-2 clip-2 :callout callout
          :s s :a a :r r :whiff (or whiff (if breaker *breaker-whiff* (+ r (case kind (:quick *whiff-extra-j*) (:flash *whiff-extra-k*) (t *whiff-extra*)))))
@@ -222,11 +259,16 @@ new button."
             link that must combo after a J and a K link alike (every K2 / K3: S_eff 14); a derived form adds its startup-add to it
   :blend    crossfade frames into the clip (default 0, attacks snap); :planted  weapon planted
             in the ground during the strike (drawn with DRAW-PLANTED-WEAPON)
-  hits: :stun  hitstun override (frames)
+  hits: :stun  hitstun override (frames); :seg-fn SYMBOL  a kit function (e) -> (values ax ay az bx by bz r), this frame's
+            world capsule, tested in place of the window's volumes (WINDOW-TOUCHES-P; the CPU: SEG-GAP); the window is
+            the move's own, so its contact counts as the move's (strings, O ender, SP cancels, :on-land, ender push)
   flags also: :rend (armour and a stance don't stop it: RESOLVE-CONTACT) :grab (a grab: the CPU never guards it)
             :uncatchable (a :shield move's :catch doesn't take it: blocked as by a guard) :x-axis (a line through guard,
             docs/duel/DUEL_LILLE.md §8: the CPU's perception reads it) :step-branch (a stance whose :tick takes Step as a
-            follow-up: the one-hand up-flick stays a Step in it, never a Hoho: control.lisp UP-FLICK-HOHO-P)"
+            follow-up: the one-hand up-flick stays a Step in it, never a Hoho: control.lisp UP-FLICK-HOHO-P)
+            :no-close (a J1 / K1 whose hit takes no generic close-in: STRING-OPENER-P; Hisagi's 6 m throw)
+            :ranged-ward (while the move runs, hazards and :ranged windows are guarded from every side: rules
+            RANGED-WARD-STATE; unguardables pass; a GUARD CRUSH drops the move)"
   `(register-move ,name ',spec))
 
 ;;; ================================================================ kits
@@ -269,6 +311,7 @@ new button."
                                         ; "Character code layout")
   (endless-form nil)                    ; ENDLESS: the form a stay-awakened carry starts the next stage in (endless-rules.lisp)
   (clip-map nil)                        ; plist clip -> clip: the form plays its moves' clips as these (a look: KIT-MOVE-CLIP)
+  (push-reach nil)                      ; NIL, or the reach a K ender's push is measured from in place of K1's (ENDER-PUSH-REACH)
   (look-clips nil)                      ; plist shared clip -> clip: the form plays these generic clips (its guard) as its own
                                         ; (a look: FIGHTER.LISP PLAY-CLIP, as a body variant's :clips; Lille II's wing wall)
   (commands nil)                ; plist command -> move name
@@ -290,9 +333,12 @@ barro.lisp reserves the slot; Lille, kit :barro, is 6).")
 
 (defun kit-move (kit name)
   (or (gethash name (kit-moves kit)) (error "kit ~s ~s has no move ~s" (kit-character kit) (kit-form kit) name)))
-(defun kit-command-move (kit command)
-  "The move COMMAND starts from neutral, or NIL."
-  (let ((name (getf (kit-commands kit) command))) (and name (kit-move kit name))))
+(defun kit-command-move (kit command &optional e)
+  "The move COMMAND starts from neutral, or NIL. Given fighter E, the kit's :command hook (e command) picks first: a MOVE,
+or NIL for the form's :commands entry (a kit with two neutral graphs: DUEL_HISAGI §7.2, the sickle out of hand). Callers
+without E (the CPU's reach reads, the HUD) see the :commands entry."
+  (or (and e (let ((h (kit-hook kit :command))) (and h (funcall h e command))))
+      (let ((name (getf (kit-commands kit) command))) (and name (kit-move kit name)))))
 (defun kit-next (kit move-name command)
   "The string follow-up of MOVE-NAME for COMMAND (J1 -q-> J2, J2 -f-> K3 ...), a MOVE or NIL."
   (loop for (from cmd to) in (kit-strings kit)
@@ -335,6 +381,15 @@ else QUEUED: the press is eaten (after a switch the original button is ignored a
           (:sp1 *cost-sp*)
           (:sp2 (if (kit-awakening kit) *cost-sp-awakened* *cost-sp*))
           (t 0)))))
+(defun string-opener-p (kit mv &optional e)
+  "Is MV a J / K string's opener in KIT (J1 / K1: the :q / :f command's move, E's :command hook consulted) that takes the
+generic close-in on a hit (combat.lisp: the attacker dashes to *STRING-PULL-TO*)? Not with the move flag :no-close."
+  (and (member (mv-kind mv) '(:quick :flash)) (not (member :no-close (mv-flags mv)))
+       (eq mv (kit-command-move kit (if (eq (mv-kind mv) :quick) :q :f) e))))
+(defun ender-push-reach (kit mv opener)
+  "The reach a string ender MV's push is measured from (fighter.lisp ENDER-PUSH): a K ender's the kit's :push-reach when
+it has one, else OPENER's (J1's after J3, K1's after K3)."
+  (or (and (not (eq (mv-kind mv) :quick)) (kit-push-reach kit)) (mv-reach opener)))
 (defun kit-hook (kit point)
   "The character file's function for hook POINT in KIT (its :hooks plist), or NIL: the generic code calls it where the
 point is (docs/duel/DUEL_DESIGN.md \"Character code layout\")."
@@ -480,6 +535,7 @@ child's keys win, :commands merge per command, :strings add. Keys:
   :hooks (point fn ...)              the character's own mechanics (KIT-HOOK; DUEL_DESIGN.md, Character code
                                      layout): :u (e: U pressed; the form never guards), :step (e: a Step's frame 0), :hoho (e: a Hoho reappears),
                                      :ok (e cmd combo: may the command start; NIL refuses it with the :refused cue),
+                                     :command (e cmd: the MOVE a neutral command starts, NIL = the :commands entry; KIT-COMMAND-MOVE),
                                      :tick (e f g: every sim step), :hit / :struck (e other res hw mv hazard ranged: after
                                      a hit it dealt / took), :parried (e att: a catch by its parry), :draw (e rdt: looks
                                      on the posed body), :hud-guard (drawn over its guard bar), :deck (e x y d: the
@@ -492,6 +548,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
   :look-clips (clip clip ...)        a look: the form plays a shared clip the generic code starts (the guard's :sh-guard /
                                      :sh-guard-hit) as the mapped one (FIGHTER.LISP PLAY-CLIP; Lille II's awakened wing wall,
                                      DUEL_LILLE_V3: the wing wall); no state, timer or volume reads a clip
+  :push-reach M                      a K ender's (K3's) push is measured from M m instead of K1's reach (ENDER-PUSH-REACH;
+                                     Hisagi's 6 m throw: 6.0, DUEL_HISAGI Q6 B), default NIL
   :endless-form FORM                 ENDLESS: staying awakened starts the next stage in FORM, its meter at FORM's :start
                                      (docs/duel/DUEL_ENDLESS.md §4)
   :u-tag STRING                      the HUD's tag for U   :meter (... :draw fn :label fn :bankai-prompt (:key :right

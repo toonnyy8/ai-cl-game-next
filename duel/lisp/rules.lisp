@@ -663,6 +663,13 @@ MELEE-RANGE covers the defender (D2: his squared distance from the attacker): th
 One window decides it per hit, so a hit never lands twice."
   (and (or hazard (and (member :ranged flags) (not (and melee-range (<= d2 (* melee-range melee-range)))))) t))
 
+(defun ranged-ward-p (warding ranged def-state can-guard)
+  "Is a hit guarded from every side by the defender's :ranged-ward move (WARDING: he is in one; docs/duel/DUEL_HISAGI.md
+§8.3, the windmill)? A RANGED hit (RANGED-HIT-P), he not invulnerable (DEF-STATE), his guard gauge able to guard
+(CAN-GUARD). Then the hit resolves as against a held guard with a ward (360 deg, no blockstun): an unguardable one still
+passes (RESOLVE-CONTACT), a crush drops the move."
+  (and warding ranged can-guard (not (eq def-state :invuln)) t))
+
 (defun drink-split (dmg)
   "DRINK: a drunk hit worth DMG. Values: the half he takes (rounded up: real damage) and the half the
 cleaver drinks."

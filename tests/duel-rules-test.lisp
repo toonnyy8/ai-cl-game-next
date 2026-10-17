@@ -2740,6 +2740,80 @@ past the ends; DEFAULT if the clip is not listed."
 (check (= 600 (play-ticks 300 (- 18000 600))))
 (check (= 18000 (play-ticks 300 -3)))
 
+;; Hisagi's shared hooks (docs/duel/DUEL_HISAGI.md §12.4, batch B1): each defaults off. Inert: no kit / move sets one, and
+;; the generic readers they changed return what the old code did for every kit form and move.
+(let ((kits (loop for alist being the hash-values of *kits* append (mapcar #'cdr alist))))
+  (check (every (lambda (k) (and (null (kit-push-reach k)) (null (kit-hook k :command)))) kits))
+  (check (loop for m being the hash-values of *moves*
+               never (or (intersection '(:no-close :ranged-ward) (mv-flags m)) (some #'hw-seg (mv-hits m)))))
+  (dolist (k kits)
+    (dolist (c *kit-commands*)                                    ; :command: the same move with and without a fighter
+      (check (eq (kit-command-move k c) (kit-command-move k c :e))))
+    (loop for m being the hash-values of (kit-moves k)            ; :no-close: STRING-OPENER-P = the old close-in test
+          do (check (eq (and (string-opener-p k m :e) t)
+                        (and (member (mv-kind m) '(:quick :flash))
+                             (eq m (kit-command-move k (if (eq (mv-kind m) :quick) :q :f))) t)))
+             (let ((o (kit-command-move k (if (eq (mv-kind m) :quick) :q :f))))   ; :push-reach: the opener's reach
+               (when o (check (= (ender-push-reach k m o) (mv-reach o)))))))
+  ;; :seg-fn: WINDOW-TOUCHES-P = the old volume loop for every window of every move, at points around the attacker
+  (check (loop for m being the hash-values of *moves*
+               always (loop for w across (mv-hits m)
+                            always (loop for (tx tz) in '((0.0 -1.0) (0.5 -2.0) (-1.5 -0.5) (0.0 -4.0) (3.0 -6.0) (0.0 1.0))
+                                         always (eq (and (window-touches-p w :e 0f0 0f0 0f0 0f0 -1f0 tx 0f0 tz 0.38 1.8) t)
+                                                    (and (loop for v in (hw-vols w)
+                                                               thereis (vol-hit-p v 0f0 0f0 0f0 0f0 -1f0 tx 0f0 tz 0.38 1.8 0f0))
+                                                         t)))))))
+;; ... and each, set by a dummy kit in this test, does its one thing
+(defun t-seg (e) (declare (ignore e)) (values 0f0 1f0 0f0 0f0 1f0 -6f0 0.35))   ; a chain from him to 6 m ahead, 1 m up
+(defun t-command (e cmd) (and (eq e :out) (eq cmd :q) (find-move :t-alt-j1)))     ; out of hand: the other J1
+(register-move :t-j1 '(:kind :quick :startup 8 :active 3 :recovery 12 :dmg 30 :reach 1.4))
+(register-move :t-alt-j1 '(:kind :quick :startup 8 :active 3 :recovery 12 :dmg 24 :reach 1.4))
+(register-move :t-k1 '(:kind :flash :startup 18 :active 4 :recovery 22 :dmg 62 :vol (:cap 0.3 6.0 1.1 0.3) :flags (:no-close)))
+(register-move :t-k1-close '(:kind :flash :startup 18 :active 4 :recovery 22 :dmg 62 :vol (:cap 0.3 6.0 1.1 0.3)))
+(register-move :t-k3 '(:kind :flash :startup 22 :active 5 :recovery 34 :dmg 80 :reach 2.8 :flags (:ender)))
+(register-move :t-j3 '(:kind :quick :startup 9 :active 3 :recovery 18 :dmg 38 :reach 1.4 :flags (:ender)))
+(register-move :t-pull '(:kind :flash :startup 20 :active 4 :recovery 24 :dmg 56 :reach 2.0 :hits ((20 24 :seg-fn t-seg))))
+(register-move :t-ward '(:kind :sig :startup 6 :active 20 :recovery 14 :flags (:ranged-ward)))
+(register-move :t-shots '(:kind :sp :startup 10 :active 2 :recovery 20 :dmg 40 :reach 6.0
+                         :hits ((10 12 :flags (:ranged)) (20 22 :flags (:ranged)))))
+(let ((k (register-kit :t-dummy :t-form '(:commands (:q :t-j1 :f :t-k1 :sig :t-ward) :strings ((:t-j1 :q :t-j3) (:t-k1 :f :t-k3))
+                                           :push-reach 6.0 :hooks (:command t-command))))
+      (k0 (register-kit :t-dummy :t-plain '(:commands (:q :t-j1 :f :t-k1-close)))))
+  (check (not (member :t-dummy *roster*)))                         ; (not a :base form: no roster slot)
+  ;; :command: the hook picks with a fighter, the :commands entry without one or when the hook says NIL
+  (check (eq (kit-command-move k :q :out) (find-move :t-alt-j1)))
+  (check (eq (kit-command-move k :q :in) (find-move :t-j1)))
+  (check (eq (kit-command-move k :q) (find-move :t-j1)))
+  (check (eq (kit-command-move k :f :out) (find-move :t-k1)))
+  ;; :no-close: K1 takes no close-in, J1 does; the same K1 without the flag does
+  (check (string-opener-p k (find-move :t-j1)))
+  (check (not (string-opener-p k (find-move :t-k1))))
+  (check (string-opener-p k0 (find-move :t-k1-close)))
+  (check (string-opener-p k (find-move :t-alt-j1) :out))            ; (the hook's J1 is the opener out of hand)
+  (check (not (string-opener-p k (find-move :t-alt-j1) :in)))
+  ;; :push-reach: a K ender's push from 6.0 m, a J ender's from J1's reach; without the key the opener's own
+  (check (= 6.0 (ender-push-reach k (find-move :t-k3) (find-move :t-j1))))
+  (check (= 1.4 (ender-push-reach k (find-move :t-j3) (find-move :t-j1))))
+  (check (= 1.4 (ender-push-reach k0 (find-move :t-k3) (find-move :t-j1)))))
+;; :seg-fn: the window's capsule, not its volume; the CPU's gap to it
+(let ((w (svref (mv-hits (find-move :t-pull)) 0)))
+  (check (and (eq (hw-seg w) 't-seg) (null (hw-vols w))))
+  (check (window-touches-p w :e 0f0 0f0 0f0 0f0 -1f0 0.2 0f0 -4.0 0.36 1.8))     ; 4 m out, on the chain (the 2 m reach: no)
+  (check (not (window-touches-p w :e 0f0 0f0 0f0 0f0 -1f0 2.0 0f0 -3.0 0.36 1.8)))
+  (check (~= (seg-gap (find-move :t-pull) :e 2.0 -3.0) 1.65))
+  (check (null (seg-gap (find-move :t-j1) :e 2.0 -3.0))))
+;; :ranged-ward: a ranged hit on a warding defender who can guard resolves as a 360 deg ward guard; an unguardable passes
+(check (ranged-ward-p t t :neutral t))
+(check (not (ranged-ward-p nil t :neutral t)))                     ; (no such move: off)
+(check (not (ranged-ward-p t nil :neutral t)))                     ; (melee: lands)
+(check (not (ranged-ward-p t t :neutral nil)))                     ; (guard gauge empty / guardless: lands)
+(check (not (ranged-ward-p t t :invuln t)))
+(check (eq (resolve-contact :guard :in-front nil :hazard t :ward t) :blocked))
+(check (eq (resolve-contact :guard :in-front nil :hazard t :ward t :unguardable t) :hit))
+;; the ranged-threat reader's frame lead: the next :ranged window of a move, none for a move without one
+(check (equal (mapcar (lambda (sf) (ranged-window-lead (find-move :t-shots) sf)) '(0 11 15 22)) '(10 0 5 nil)))
+(check (null (ranged-window-lead (find-move :t-j1) 0)))
+
 (format t "duel-rules-test: ~d checks, ~a~%" *checks*
         (if (zerop *fails*) "ALL PASS" (format nil "~d FAILED" *fails*)))
 (ext:quit (if (zerop *fails*) 0 1))

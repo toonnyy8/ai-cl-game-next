@@ -342,7 +342,7 @@ something started."
       (:burst (let ((m (burst-ok-p e))) (when m (setf (fighter-burst f) m) t)))   ; applied after both stepped
       (t (let* ((to (kit-drop kit cmd))
                 (kit (if to (find-kit (fighter-character f) to) kit))
-                (mv (if (and with (not to)) with (kit-command-move kit cmd))))
+                (mv (if (and with (not to)) with (kit-command-move kit cmd e))))   ; (E: the kit's :command hook)
            (when (and mv (kit-command-ok-p e cmd kit ender with))   ; (WITH: a chained L, inside a combo)
              (when to (set-form e to))
              (let ((cost (kit-command-cost kit cmd)))
@@ -581,11 +581,12 @@ user 2026-10-02: a victim against the wall can't be moved, so the attacker is). 
 
 (defun ender-push (e o mv)
   "E's J / K string ender MV (J3 / K3) just hit O: O is pushed out of the reach of E's J1 (after J3) or K1 (after K3) --
-its reach + its own lunge + O's body + *ENDER-PUSH* (the user 2026-10-02: a restarted string must not reach him; pushed
+its reach (a K ender: the kit's :push-reach in its place when set, ENDER-PUSH-REACH) + its own lunge + O's body + *ENDER-PUSH* (the user 2026-10-02: a restarted string must not reach him; pushed
 at the hit). E doesn't move, unless the arena's edge holds O (PUSH-APART). What E starts off the ender chases him
 (START-MOVE: FIGHTER-END-CHASE)."
-  (let* ((f (fighter e)) (opener (kit-command-move (fighter-kit f) (if (eq (mv-kind mv) :quick) :q :f)))
-         (push (and opener (- (+ (mv-reach opener) (mv-slide opener) (body-hurt-r (model-body (model o))) *ender-push*)
+  (let* ((f (fighter e)) (opener (kit-command-move (fighter-kit f) (if (eq (mv-kind mv) :quick) :q :f) e))
+         (push (and opener (- (+ (ender-push-reach (fighter-kit f) mv opener) (mv-slide opener) (body-hurt-r (model-body (model o)))
+                                 *ender-push*)
                               (fighter-dist f)))))
     (when (and push (plusp push))
       (multiple-value-bind (mb ma) (push-apart e o push *ender-push-frames*)
