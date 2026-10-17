@@ -1076,6 +1076,9 @@ the user's 「可以」.
 
 ### 21.2 Look as built (the Shikai, 2026-10-17)
 
+Approved by the user (2026-10-17: 「這版沒問題」) on the v2 sheet (the opposite hooks); merged as presentation only
+(his 7 pairings at 20 seeds byte-identical, cvc 3 PASS, host tests 9699 ALL PASS).
+
 Presentation only, all in `duel/lisp/hisagi-art.lisp` (the body, Kazeshini, the chain's look, debug scenes): no clip,
 move, knob or hurt volume changed. Grades as in the research (A canon still / text, B official game, D the lead's own
 reading or a guess for the user to check).
