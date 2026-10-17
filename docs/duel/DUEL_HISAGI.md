@@ -1204,6 +1204,10 @@ and the right arm, the twisted chain rope rising from the neck to the orb, the b
 jet-black orb of chains overhead (size a proposal: canon gives none), the noose between the two fighters in a bind),
 then the slot plan (`motion-refs.md` §3.2–§3.3) for the user's 「可以」, then the clips. Presentation only.
 
+- Blade shape (the user, 2026-10-17: 「不是 卍解的刀造型跟始解一樣」): the Bankai's blades are the Shikai's Kazeshini
+  blades, the S-pair crescents (§21.1: one hook in, one out), on both hands; not the single crescent of the CFYOW
+  illustration and Brave Souls that the brief had guessed. The open look question left is the orb's size and height.
+
 ## 18. Open
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
