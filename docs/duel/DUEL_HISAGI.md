@@ -569,7 +569,40 @@ host-test pins), `duel-character-cpu` (rules before CPU; prove each rule fires w
 
 Each batch runs in its own worktree with a fresh agent; the lead re-runs the tests and gates, merges, pushes.
 
-## 16. Open
+## 17. The Bankai redesigned: two modes, the bind (the user, 2026-10-17)
+
+> 「在開始前我想修改卍解的設定，能請萊醬你在跟我討論一下嗎？」
+>
+> 「1. 卍解捆綁時大家會受到灰血保護，且雙方的 reiatus 會處在共用的狀態，受攻擊時也會同時扣除 reiatus，如果 reiatus
+> 耗盡會推出滾綁模式 此時雙方的灰血就會轉成真實傷害，但如果是主動解除那就會恢復到原本的血量值。
+> 2. 捆綁改成一個模式，進入捆綁模式時才會觸發上述的狀態，且攻擊模組切換成近戰，此時的 L 會將對手拉近。
+> 3. 非捆綁時設計成遠攻模式，由鎖鏈球設計與揮打鎖鏈為攻擊主體，此時前搖大、攻擊距離長， L 會將人推開。」
+
+Follow-up answers (AskUserQuestion, 2026-10-17): entry 「A 鎖鏈命中才進入」; the pool 「A 雙方相加成一條」; the release
+cost 「至少自身要有兩格 reislatus 才能用」, clarified as 「至少要有兩格 reiatus 才能開啟捆綁，結束時剩餘的 reiatus 會優先留給對手，剩餘才給自己」;
+the Kikon 「Kikon 也變成灰魂保護」; SP 「A 可以，從共用量扣」; escape 「不能，然後不限制距離，但可以用 L 拉近距離」; regen
+「A 不會，只會減少」.
+
+**This supersedes** §4's orb rules (damage paid from each fighter's own Reiatsu, the "can't be K.O.'d while covered"), the
+6 m leash and its stop, Q1 (the symmetric cover), Q2 (a Kikon empties the cover), Q7's "back to the Shikai", and §9's
+single Bankai string set. Shared hook 5 and 7 (held in B1) are redesigned from this section.
+
+| Piece | Rule (the user's; **lead's reading** where marked) |
+|---|---|
+| Form | the Bankai is permanent once awakened (as every awakening); it has two **modes**: **ranged** (default) and **bind** |
+| Ranged mode | the attacks come from the chain orb and swung chains: long startup, long reach; **L pushes the opponent away** |
+| Bind mode | a melee move set; **L pulls the opponent in**; no distance limit (the 6 m leash is gone) |
+| Entry | a binding chain throw that must **hit** (guardable, Step-able); he needs **at least 2 bars (200) of Reiatsu** (lead's reading: his own, at the throw) |
+| The shared pool | at entry both Reiatsu bars add into one shared pool (up to 600); every hit on either fighter drains it (**lead's proposal: 1 per 2 damage**, as before); both may spend SP from it; it never regenerates (every gain frozen) |
+| Grey protection | inside the bind, damage taken by either fighter becomes **grey** (shown on the Reishi bar, not real): nobody is K.O.'d; a Kikon's Konpaku loss is grey too (grey souls) |
+| Ending: drained | the pool reaches 0 → the bind ends, both fighters' grey damage and grey Konpaku become real (a Soul Break or a K.O. can follow); back to the ranged mode |
+| Ending: released | he drops it himself (any time) → both fighters' Reishi and Konpaku return to their values at entry; the pool left is given **to the opponent first** (lead's reading: up to his 300 bar), the rest to Hisagi |
+| Escape | the opponent cannot break the bind |
+
+To confirm with the user: the readings marked above; whether a drained end still staggers both 30 f (Q7 A's rule); the
+two move sets (ranged, bind) as segment tables (`duel-move-modules`).
+
+## 18. Open
 
 - The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
 - The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet
