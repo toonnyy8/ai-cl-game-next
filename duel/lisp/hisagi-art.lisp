@@ -103,12 +103,14 @@
           (with-xform (mb (xform :y 0.64 :z 0.1 :pitch 0.5)) (mb-box mb 0.012 0.012 0.1))
           (with-xform (mb (xform :y 0.28 :z -0.1 :pitch -2.6)) (mb-box mb 0.012 0.012 0.1))))
 
-(defparameter *hs-strike-reach* '((:hs-nage :sickle 6.3) (:hs-maki :sickle 3.55) (:hs-kari :sickle 2.8))
+(defparameter *hs-strike-reach* '((:hs-nage :sickle 6.3) (:hs-maki :sickle 3.55) (:hs-kari :sickle 2.8)
+                                  (:hs-r-q1 :sickle 4.0) (:hs-r-q2 :sickle 4.0) (:hs-r-spin :sickle 4.4))   ; (B2b: the Bankai's ranged J)
   "Clip -> what strikes, and its drawn reach (m, the hit volume's far edge: line end + radius, or the arc's): the left
 sickle thrown on its chain, drawn by HISAGI-DRAW with its point there on the hit frames (*HS-FLIGHTS*); the host FK test
 reads these (as Senjumaru's *SJ-STRIKE-REACH*).")
 (defparameter *hs-flights* '((:hs-k1 6.3 t) (:hs-k2s 3.55 t) (:hs-k3 2.8 nil) (:hs-shibari 4.85 nil) (:hs-raiden 6.8 nil)
-                             (:hs-kikon 8.0 nil))
+                             (:hs-kikon 8.0 nil)
+                             (:hs-r-j1 4.0 nil) (:hs-r-j2 4.0 nil) (:hs-r-j2s 4.0 nil) (:hs-r-j3 4.4 nil))   ; (B2b)
   "Move -> how far the left sickle's point flies out on its hit frames (m: the volume's far edge, as *HS-STRIKE-REACH*) and
 whether it stays out (a throw: then at the anchor).")
 
@@ -185,6 +187,12 @@ whether it stays out (a throw: then at the anchor).")
   (:a (:root :f 0.22) (:arm-l :flex 84))
   (34 (:root :f 0.1 :u -0.06) (:spine :flex 8) (:chest :twist -8) (:arm-l :flex 50 :side 20) (:elbow-l :flex 30))
   (:end :hs-stance))
+
+;; The Bankai's ranged J (B2b, functional only: the Bankai's look waits for its motion-style pass, DUEL_HISAGI §20): the
+;; left sickle thrown out on its chain to the arc's edge on the hit frames (*HS-FLIGHTS*), at the moves' own frames
+(defstrike :hs-r-q1 (12 3 12 :base :hs-stance) (0) (:s :snap :hs-nage-hit) (:a (:arm-l :flex 84)) (:end :hs-stance))
+(defstrike :hs-r-q2 (11 3 13 :base :hs-stance) (0) (:s :snap :hs-nage-hit) (:a (:arm-l :flex 84)) (:end :hs-stance))
+(defstrike :hs-r-spin (13 3 18 :base :hs-stance) (0) (:s :snap :hs-spin-hit) (:a (:root :yaw -390)) (:end :hs-stance (:root :yaw -360)))
 
 ;; K2 引 HIKI: dropped low, the chain hauled back past his hip with the left hand: the sickle comes in from behind him
 (defpose :hs-hiki-hit (:base :hs-stance)
@@ -528,6 +536,9 @@ label KAZESHINI IN / OUT."
       (hud-text (case s (:in "KAZESHINI IN") (:ret "KAZESHINI ...") (t "KAZESHINI OUT")) lx ly ls '(0.93 0.93 0.9 1.0)
                 :align (if right :right :left)))))
 (setf (kit-meter (find-kit :hisagi :base)) (list :name "KAZESHINI" :max 1 :draw 'hs-hud-meter :label 'hs-hud-label))
+;; (B2b: the Bankai's two modes show no sickle row: a meter of their own with no :draw, so the HUD neither inherits the
+;; Shikai's, which overlapped the awakened forms' L COOLDOWN row, nor draws one; no sim reads it: no :start / :full-form)
+(dolist (f '(:bankai :bankai-bind)) (setf (kit-meter (find-kit :hisagi f)) (list :name "FUSHI NO KOJO" :max 1)))
 (defun hs-deck (e cx cy d)
   "His :deck hook (one hand): a dot above the thumb, lit while the sickle is in hand."
   (let ((r (* d 52.0)))

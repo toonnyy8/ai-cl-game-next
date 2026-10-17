@@ -548,6 +548,7 @@ D = the perceived distance."
       ((let ((bk (ai-table e :bankai)))
          (and bk (kit-bankai-form kit) (bankai-allowed-p (awaken-state-p e f) (gauges-konpaku g))
               (let ((ok (kit-bankai-ok kit))) (or (null ok) (funcall ok e)))   ; (the kit's own rule, if any: :bankai-ok)
+              (not (bind-of e))                                                ; (never in a bind: BANKAI-OK-P refuses it)
               (ai-bankai-p e b bk)))
        (why b :bankai :awaken))
       ;; NOMIHOSE's cash-out (the kit's :cashout): Shift+K only as a punish (he has >= :punish frames of recovery
