@@ -2351,8 +2351,11 @@ The spec (added to batch S1, a sim change).
 
 **Shikai J string:** close-range attacks that link into each other (every J link combos on a hit).
 
-**The Bankai's ranged L:** the hit and the block both push the victim to 3.0 m (were 6.5 / 4.5 m). That is inside
-J1's 2.0–4.5 m and K1's 2.0–4.0 m.
+**The Bankai's ranged L:** the hit and the block both push the victim to 3.5 m (were 6.5 / 4.5 m).
+- First set at 3.0 m. Then the user, 2026-10-18: 「卍解遠程 L 推到 3.5 公尺，J1 範圍設 3.0–5 m 和 K1 設 2.0–4.0 m」.
+- J1 旋鞭 becomes an annulus 3.0–5.0 m, 100° (its own dead zone 3.0 m; the tip ×1.3 at 4.0–5.0 m). K1 綁束 stays
+  2.0–4.0 m.
+- At 3.5 m both J1 and K1 connect.
 
 **The bind's L KOJO:**
 - f0–20 a readable windup (the noose hauled up and taut: the tell).
