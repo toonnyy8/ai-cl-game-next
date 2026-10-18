@@ -978,6 +978,28 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
                   (aref jm (+ o 8 i)) (- (aref w (+ 4 i))) (aref jm (+ o 12 i)) (aref w (+ 12 i))))))))
   nil)
 
+(declaim (fixnum *hs-chain-black*))
+(defvar *hs-chain-black* 0
+  "1 while the Bankai's chains are drawn (%HS-ORB-DRAW): VFX-HS-CHAIN's links are solid black kites in the alpha batch
+(%HS-BLACK-KITE: no toon INK palette's white edge or core, no steel glint). The user, 2026-10-18: 「我希望鎖鏈是黑色的」.")
+(defmacro %hs-black-kite (x y z ux uy uz len w)
+  "A solid black camera-facing kite centred at (X Y Z) along the unit (UX UY UZ), LEN long (0.6 ahead), half-width W,
+pushed 0.1 m toward the eye (FX-SHARD's shape without its palette): the alpha batch at uv 0 is opaque, unshaded. 0 B."
+  `(let* ((%e (camera-eye *camera*)) (%x ,x) (%y ,y) (%z ,z) (%ux ,ux) (%uy ,uy) (%uz ,uz)
+          (%dx (- (aref %e 0) %x)) (%dy (- (aref %e 1) %y)) (%dz (- (aref %e 2) %z))
+          (%d (f-max 1f-3 (f-hypot %dx %dy %dz))) (%p (f-min 0.1f0 (* 0.5f0 %d))) (%sc (/ (- %d %p) %d))
+          (%x (+ %x (* %p (/ %dx %d)))) (%y (+ %y (* %p (/ %dy %d)))) (%z (+ %z (* %p (/ %dz %d))))
+          (%sx (- (* %uy %dz) (* %uz %dy))) (%sy (- (* %uz %dx) (* %ux %dz))) (%sz (- (* %ux %dy) (* %uy %dx)))
+          (%w (/ (* ,w %sc) (f-max 1f-5 (f-hypot %sx %sy %sz)))) (%f (* 0.6f0 ,len %sc)) (%b (* 0.4f0 ,len %sc)))
+     (declare (type f32vec %e) (single-float %x %y %z %ux %uy %uz %dx %dy %dz %d %p %sc %sx %sy %sz %w %f %b))
+     (with-fx-verts (%v %o :alpha 6)
+       (vtx (+ %x (* %f %ux)) (+ %y (* %f %uy)) (+ %z (* %f %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+       (vtx (+ %x (* %w %sx)) (+ %y (* %w %sy)) (+ %z (* %w %sz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+       (vtx (- %x (* %b %ux)) (- %y (* %b %uy)) (- %z (* %b %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+       (vtx (+ %x (* %f %ux)) (+ %y (* %f %uy)) (+ %z (* %f %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+       (vtx (- %x (* %b %ux)) (- %y (* %b %uy)) (- %z (* %b %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+       (vtx (- %x (* %w %sx)) (- %y (* %w %sy)) (- %z (* %w %sz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0))))
+
 (defun-fast vfx-hs-chain (a b sag k)
   "Kazeshini's chain from point A to point B (f32vecs), sagging SAG m at its middle (a parabola; SAG < 0: -SAG m of slack
 beyond the straight span, the sag that length gives, its lowest link kept 3 cm off the floor): ink links along the curve
@@ -996,8 +1018,11 @@ turned alternately, a steel glint every other one, presence K (SAG and K: litera
              (ty (- dy (* 4f0 sag (- 1f0 (* 2f0 u))))) (tl (f-max 0.001f0 (f-hypot dx ty dz)))
              (ux (/ dx tl)) (uy (/ ty tl)) (uz (/ dz tl)))
         (declare (single-float u s px py pz ty tl ux uy uz))
-        (fx-shard px py pz ux uy uz 0.13f0 (if (evenp i) 0.04f0 0.018f0) 0.03f0 (+ (i->f i) 700f0 dr) +pal-ink+ k)
-        (when (evenp i) (fx-shard px py pz ux uy uz 0.06f0 0.01f0 0.03f0 (+ (i->f i) 760f0) +pal-steel+ k :push 0.14f0)))))
+        (if (= *hs-chain-black* 1)
+            (%hs-black-kite px py pz ux uy uz 0.13f0 (if (evenp i) 0.028f0 0.013f0))   ; (x0.7: solid black reads heavier)
+            (progn
+              (fx-shard px py pz ux uy uz 0.13f0 (if (evenp i) 0.04f0 0.018f0) 0.03f0 (+ (i->f i) 700f0 dr) +pal-ink+ k)
+              (when (evenp i) (fx-shard px py pz ux uy uz 0.06f0 0.01f0 0.03f0 (+ (i->f i) 760f0) +pal-steel+ k :push 0.14f0)))))))
   nil)
 
 (defun-fast %hs-coil (c)
@@ -1327,6 +1352,7 @@ round it. TINT: his body's (the mirror's P2). 0 B."
           (aref m 8) ss (aref m 9) 0f0 (aref m 10) cs (aref m 11) 0f0
           (aref m 12) (aref c 0) (aref m 13) (aref c 1) (aref m 14) (aref c 2) (aref m 15) 1f0)
     (draw-weapon :hs-orb m :tint tint)
+    (setf *hs-chain-black* 1)
     ;; the inverted shadow: a pale patch on the ground under it
     (%sector-verts :add 20 (aref c 0) 0f0 (aref c 2) 0f0 (* 1.1f0 sc) 0f0 3.1415927f0 0.2f0 0.21f0 0.2f0 0.5f0)
     (let ((cv *hs-curtain-v*))                                          ; the curtain round him
@@ -1355,8 +1381,9 @@ round it. TINT: his body's (the mirror's P2). 0 B."
       (dotimes (i 20)
         (let* ((a (* 0.62831855f0 (i->f i))) (ca (f-cos a)) (sa (f-sin a)) (y (if (< i 10) -0.015f0 0.02f0)))
           (declare (single-float a ca sa y))
-          (fx-shard (+ (aref w 0) (* 0.085f0 ca)) (+ (aref w 1) y) (+ (aref w 2) (* 0.085f0 sa)) (- sa) 0f0 ca
-                    0.075f0 (if (evenp i) 0.026f0 0.012f0) 0.02f0 (+ (i->f i) 990f0) +pal-ink+ 0.95f0)))))
+          (%hs-black-kite (+ (aref w 0) (* 0.085f0 ca)) (+ (aref w 1) y) (+ (aref w 2) (* 0.085f0 sa)) (- sa) 0f0 ca
+                          0.075f0 (if (evenp i) 0.026f0 0.012f0))))))
+  (setf *hs-chain-black* 0)
   nil)
 
 (defun hisagi-draw (e rdt)
@@ -1409,6 +1436,7 @@ hand (the intro)."
                 (t (when (and shikai (eq cn :hs-s-kubikake) (logtest geo 8) (logtest geo 4))
                      (setf lo (logior lo 8)))                          ; (KUBIKAKE: the slack round his neck)
                    (values 0 0 0 1)))
+        (setf *hs-chain-black* (if shikai 0 1))                        ; (the Bankai's chains black: the user, 2026-10-18)
         (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
       (unless shikai                                                   ; the Bankai: the orb, the rope, the noose (§21.6)
         (%hs-orb-draw (model-joints m) (pos-of e) fa (pos-of o) (model-joints (model o)) (if (eq e *p1*) 0 1)

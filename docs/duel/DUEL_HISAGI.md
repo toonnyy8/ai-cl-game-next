@@ -1263,6 +1263,15 @@ are); the curtain's count (8) and its gaps ahead and behind (so it never stands 
 the hanging chains end (1.45–1.7 m out, 0.3–0.95 m up); the bundle of four chains and its knot behind the head; the slack
 tail; the light patch reading as a ring; the coil's link size on the arm.
 
+**The user's verdict (2026-10-18): 「可以 但我希望鎖鏈是黑色的」.** Every D item above stands as built. The chains turn
+solid black: the toon INK palette always draws a white value-opposite edge and a white core (STYLE_STORM_DESIGN, user
+review 2) plus VFX-HS-CHAIN's steel glint, so the Bankai's chains (the curtain, both bundles, the noose ring, his hand
+chains in both Bankai forms) draw each link as a solid black kite in the alpha batch instead (`%HS-BLACK-KITE`: uv 0 is
+opaque and unshaded, near-black, no edge; `*HS-CHAIN-BLACK*` set by HISAGI-DRAW outside the Shikai and by
+%HS-ORB-DRAW). Their half-widths are x0.7 the ink links' (0.028 / 0.013 m), because solid black reads heavier. The arm
+coils and the orb were already black meshes. The Shikai's chain keeps the ink look. The engine's palettes are untouched,
+because a 17th palette would collide with the fan flag at 16. Proof: the same identity checks, debug 83901 0 B.
+
 ## 18. Open
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
