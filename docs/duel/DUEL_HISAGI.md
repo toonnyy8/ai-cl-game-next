@@ -2246,6 +2246,47 @@ The spec (batch S1, a sim change, the Shikai `:base` only):
   (This replaces the lead's first default, "only the J-hit bridge charges".)
 - His CPU learns the bridge (J hit → L → K at range).
 
+### 23.2 The Shikai's K string pure ranged, J string close; the Bankai's two L (the user, 2026-10-18)
+
+The user's request, verbatim:
+
+> 始解
+> - K 串改成純遠距離，近距離打不中，K1 是鎖鏈拉動鐮刀橫向遠程揮擊，K2 是鐮刀快速旋轉變成像圓鋸一樣豎直向前切割後被鎖鍊上拉，K3 將飛上天空的鐮刀用力下扯墜擊。K2, K3 的攻擊距離會按照對手的位置決定，所以一定打的中（重點是 K1, J1 有沒有打中）。
+> - J 串依據上面的邏輯改成能互相串接的近距離攻擊。
+>
+> 卍解（遠距）
+> - L 將對手推開的距離必須讓 J1, K1 能打中
+>
+> 卍解（近距）
+> - L 將對手拉近時，增加拉近對手前的動作識別度與前搖時間，並減少攻擊效果的前搖。核心邏輯是對手在遠處時就知道要被拉近該準備防禦，而不是被拉近後才進行應對。
+
+The user's answers:
+- 「系統的設計邏輯本來就是 J1, K1 打中才能接後續攻擊」: K2 / K3 follow only a hit.
+- 「2.0 m（推薦）」: the Shikai K dead zone.
+- 「命中推到 3.0 m，被擋也推到 3.0 m（推薦）」
+- 「前 20 幀預備，拉到後 4 幀就打（推薦）」
+
+The spec (added to batch S1, a sim change).
+
+**Shikai K string** (pure ranged, a 2.0 m dead zone on every K):
+- **K1** is a horizontal long-range sweep: the chain swings the sickle sideways at range.
+- **K2** follows only a hit. The sickle spins into a vertical circular saw cutting forward, then the chain hauls it up.
+- **K3** follows only a hit. The sickle, flung up into the sky, is yanked down in a plunging strike.
+- K2 and K3 are placed at the opponent's position (their reach is set from where he is), so after a hit they always
+  connect (blockable).
+- The L charge (§23) scales K1's reach; K2 / K3 follow the opponent anyway.
+
+**Shikai J string:** close-range attacks that link into each other (every J link combos on a hit).
+
+**The Bankai's ranged L:** the hit and the block both push the victim to 3.0 m (were 6.5 / 4.5 m). That is inside
+J1's 2.0–4.5 m and K1's 2.0–4.0 m.
+
+**The bind's L KOJO:**
+- f0–20 a readable windup (the noose hauled up and taut: the tell).
+- From f20 the pull.
+- The strike about 4 f after the victim arrives.
+- The total stays about 30 f.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
