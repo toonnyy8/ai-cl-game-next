@@ -1676,6 +1676,58 @@ Everything else (L, SP1, SP2, O, P, the tip x1.3, the walk 2.8, the bind mode) a
 **Approved (the user, 2026-10-18: 「可以，然後覺醒跟毀魂技的動畫的記得要做」).** The table above is built as batch B4c (sim,
 CPU, tests). The awakening and the Kikon (毀魂技) cinematics are built in parallel as batch B5 (presentation only).
 
+**The binding throw moves to SP2 (the user, 2026-10-18).**
+
+The user's request: 「把卍解捆綁給到 SP2，但發動不會消耗 SP」. Their answers:
+- 「鎖雨移到捆綁的 SP1」
+- 「可以，命中確認後接（推薦）」
+
+What changes:
+- The ranged mode's SP2 is 首掛 KUBIKAKE. It keeps its own move data and rules and still needs his own 200 Reiatsu,
+  but the press spends no SP bars. It cancels off J / K string hits like any SP2 (hit-confirm).
+- The ranged P no longer throws, so it does nothing; the bind's P stays the release.
+- 鎖雨 KUSARI-AME becomes the bind mode's SP1, replacing the bind's 綴雷電, paid from the shared pool. The ranged
+  SP1 stays 綴雷電.
+
+These are added to batch B4c.
+
+**The bind's L and SP2 (the user, 2026-10-18).**
+
+The user's request: 「絞縄改成給捆綁的 L，捆綁的 SP2 換成解除並附加傷害（有專屬動畫、可被防禦）」. Their answers:
+- 「絞縄本身帶拉近」
+- 「不冷卻，降低傷害並增加大前搖，通過降低優勢來控制出招動機」
+- 「先還原再打，傷害 120（推薦）」
+
+What changes (the lead's numbers for the user's direction):
+- **The bind's L becomes 絞縄 KOJO.** It first pulls the victim to 2.0 m along the noose, then strikes (3.0 m, arc
+  160). No cooldown and no SP. Damage 160 → 70, startup 20 → 30 (a big windup), recovery 30 → 36, adv-block
+  -16 → -24. 引寄 HIKIYOSE is gone as a move: its pull lives in L.
+- **The bind's SP2 becomes 解縛擊, the release plus a strike.**
+  - The voluntary release as before: the entry snapshot restored, the remaining pool to the opponent first, the
+    opponent's 30 f reel.
+  - Then a strike for 120 real damage. It is blockable: a block still releases, with no damage.
+  - No SP spent. It gets its own animation.
+- **The bind's P** stays the plain release, with no damage.
+
+These are added to batch B4c.
+
+**B4c gate (the lead, 2026-10-18; main 651fcb5, 20 seeds, his 7 pairings).**
+- Every match ended in a K.O.; every cross-pairing median is inside 125–210 s, so the pacing gate passes:
+
+  | Pairing | Median | His P1 wins of 20 |
+  |---|---|---|
+  | HY | 126.5 s | 7 |
+  | HK | 131.5 s | **0** |
+  | HR | 168.4 s | 3 |
+  | HI | 179.4 s | 3 |
+  | HS | 165.4 s | 6 |
+  | HB | 177.9 s | **1** |
+  | HH (mirror) | 227.7 s | 7 / 13 |
+
+- He still loses most matches: 0–7 P1 wins of 20.
+- Reported to the user with B4c's three open points: K1's close hit has no reaching follow-up, the bind's rain keeps
+  the dead zone, gathered K2 launches instead of knocking down. Nothing is retuned.
+
 ### 22.5 The cinematics, storyboards revised for the current design (the lead, 2026-10-18)
 
 §11.5's storyboards predate four decisions:
@@ -1716,6 +1768,209 @@ at a beat after seeing the stills.
 3. The orb sinks and chains rain onto the victim, bound standing.
 4. He raises a blade; the noose tightens on **both** necks, both choke (the shared pain).
 5. The victim drops; Hisagi stays up, shaking; the stamp.
+
+### 22.6 B4c as built (2026-10-18): the routes, gathered vs spread (a sim change)
+
+§22.4's approved table, built in `duel/lisp/hisagi.lisp` (the moves, the strings, the CPU), with one shared change in
+`ai.lisp` (below) and the smallest art edits in `hisagi-art.lisp` (the marks' look removed; the cinematics untouched).
+B4a's placed marks are gone (「拿掉落點」): the `:hs-mark` hazard, its knobs, HS-MARK-*, RAKUSA's bundle and lock, the
+CPU's mark links and the opponents' side Step out of a mark, the marks' look, debug 83016 / 83017's mark scenes, and
+the marks and RAKUSA's spot in his state-hash text. B4a's generic hooks stay: `:min-reach` (every route link but K1),
+`:dmg-mult` (the tip), `:move-reflex` (now his route picks).
+
+**The strings.** The ranged kit's `:grid` becomes `:strings` (`*hs-r-strings*`, STRING-GRID's shape: JJJ JJK JKK KKK KKJ
+KJJ, one switch), so the third link is route-dependent too. Each route link is its own move:
+
+| Route | Link | Move | S / A / R (`:enter`) | Dmg | Guard / block | Volume (dead zone 2.0 unless marked) | Reaction | On land |
+|---|---|---|---|---|---|---|---|---|
+| — | J1 旋鞭 | `:hs-r-j1` | 14 / 3 / 12 | 22 | 8 / −2 | annulus 2.0–4.5 m, 100° | flinch, hitstun 24 | push to ≥ 3.5 m |
+| — | K1 綁束 HŌSOKU | `:hs-r-k1` | 16 / 4 / 22 | 40 | 14 / −3 | **360°, r 3.0, no dead zone**, `:no-close` | stagger | — |
+| spread | J2 | `:hs-r-j2` | 10 / 3 / 13 | 19 | 8 / −2 | annulus 2.0–4.5 m, 100° | flinch, hitstun 24 | push to ≥ 3.5 m |
+| spread | K2s | `:hs-r-k2s` | 21 / 4 / 24 (6: S_eff 15) | 37 | 14 / −3 | fan 2.0–6.0 m, 60° | stagger | — |
+| spread | J3 (ender) | `:hs-r-j3` | 10 / 3 / 18 | 26 | 12 / −4 | annulus 2.0–5.0 m, 360° | stagger | ender push to 5.5 m |
+| spread | K3 (ender) | `:hs-r-k3` | 21 / 5 / 34 (6: S_eff 15) | 56 | 18 / −20 | fan 2.0–6.0 m, 160° | crumple | the kit's K ender push (~7.95 m) |
+| gathered | K2 束打 | `:hs-r-k2` | 27 / 10 / 24 (6: S_eff 21) | 25 + 32 | 14 / −3 | hit 1 f27–30 `:cap 2.0 3.5 0.5 0.5`; hit 2 f33–36 `:cap 3.5 8.0 0.4 0.5` | stagger, then **launch** | hit 1: push to ≥ 3.5 m over 4 f |
+| gathered | J2s 束鞭 | `:hs-r-j2s` | 16 / 3 / 13 | 29 | 8 / −2 | line `:cap 2.0 5.0 1.0 0.5` | flinch, hitstun 24 | — |
+| gathered | K3G 束旋 (ender) | `:hs-r-k3g` | 27 / 5 / 34 (6: S_eff 21) | 86 | 18 / −20 | annulus 2.0–6.0 m, 360° | crumple | the kit's K ender push |
+| gathered | J3G 束薙 (ender) | `:hs-r-j3g` | 16 / 3 / 18 | 39 | 12 / −4 | annulus 2.0–5.0 m, 180° | stagger | ender push to 5.5 m |
+
+Everything else as B4a: L, SP1, SP2 (+ its charge-less copy off any J / K hit), O, P, the tip ×1.3, the walk 2.8, the
+bind mode. Every link is `:ranged` beyond 2.0 m (`:melee-range 2.0`); one press a link (gathered K2's two hits are one
+link, the user's U → L).
+
+**Knobs** (`hisagi.lisp`, each with its docstring)
+
+| Knob | Old → new | What |
+|---|---|---|
+| `*hs-r-spread-s*` / `*hs-r-spread-mult*` | — → −3 f / ×0.85 | spread links 2–3 vs their base (the user: 「散 −3 幀×0.85」) |
+| `*hs-r-gather-s*` / `*hs-r-gather-mult*` | — → +3 f / ×1.3 | gathered links 2–3 vs their base (「聚 +3 幀×1.3」) |
+| `*hs-r-uchi-frames*` | — → 4 f (B4c's pick) | gathered K2's slam pushes the victim onto its line (to `*hs-r-j-push*` 3.5 m) |
+| `*hs-ai-route-dmg-p*` | — → 0.3 / 0.55 / 0.8 | his CPU's damage pick (the K link) per link-1 / -2 hit (EASY / NORMAL / HARD) |
+| `*hs-r-push-reach*` | 7.5 (unchanged) | the K ender push still measured from 7.5 m (~7.95 m), docstring updated: K1 reaches 3.0 now |
+| `*hs-mark-delay*`, `*hs-mark-r*`, `*hs-mark-h*`, `*hs-mark-min*`, `*hs-mark-max*`, `*hs-mark-live*`, `*hs-mark-active*`, `*hs-mark-life*`, `*hs-rakusa-r*`, `*hs-rakusa-lock*`, `*hs-ai-k-link-p*`, `*hs-ai-mark-near*`, `*hs-ai-opp-mark-p*` | B4a's → deleted | the marks (「拿掉落點」) |
+
+**The choices where the spec was silent (B4c's).**
+- **Silent frame data** filled from the base move: K1 綁束 A 4 / R 22 / guard 14 / −3 (§17.1's K1); every route link's
+  A / R / guard / block from its base (B4a's J2 / J3, §17.1's K2 / K3); K2s / K3 / K2 / K3G keep `:enter` 6 (the generic
+  K-link rule), so S_eff 15 spread, 21 gathered; J2 / J2s keep the hitstun 24 of B4a's J. Ratios applied to S and the
+  damage only (rounded: 18.7 → 19, 25.5 → 26, 37.4 → 37, 56.1 → 56, 57.2 → 57, 28.6 → 29, 85.8 → 86, 39).
+- **K2's "stagger, then knockdown" is built as stagger, then a launch.** A `:knockdown` reaction makes the victim
+  invulnerable until he is up (FIGHTER.LISP DEFENDER-STATE: `:air` with phase `:knockdown`), so K3G / J3G could never
+  combo after it (the generic rule: every link combos on hit). A launch knocks him off his feet the same way (airborne
+  41 f, then down 30 f and wakeup 30 f if nothing follows) but K3G (25 f after the launch, his feet 1.2 m up) and J3G
+  (20 f, 1.3 m) still catch him, inside their 0.2–2.0 m arcs. **For the user to confirm** (the alternative: a true
+  knockdown, which makes KKK / KKJ two-hit-then-reset strings).
+- **K2's two hits**: hit 1 is the bundle's slam (2.0–3.5 m), hit 2 the tail's line (3.5–8.0 m), both r 0.5 (B2b's
+  bundle line). A victim at 2.0–2.6 m would sit in the gap between them, so a hit-1 hit pushes him to ≥ 3.5 m over 4 f
+  (`hs-r-uchi-push`, `*hs-r-j-push*`'s 3.5) before hit 2 opens (f33); a victim beyond 4.4 m takes only hit 2. The bundle
+  "left lying ahead" is the art's (no sim state).
+- **Volumes**: "fan" = an arc from his feet (60° / 160°); "line" = a capsule along his facing at the bundle's r 0.5
+  (J2s at chest height 1.0, K2's ground hits at 0.5 / 0.4); "annulus" = an arc with the 2.0 m dead zone.
+- **Gathered J2s has no push** (the table gives "flinch" only; B4a's J2s pushed). J3G pushes to 5.5 m as J3 (the table).
+- **K1 綁束 is `:ranged` beyond 2.0 m** (`:melee-range 2.0`: the mode's rule, §17.1; L SAHARAI, unchanged since B2b, is
+  not), takes the tip ×1.3 beyond 2.0 m (the outer 1.0 m of r 3.0; L and the Breaker stay excepted), `:no-close` (the
+  generic opener close-in would dash him into the foe), the default flash tracking (a 360° spin needs none).
+- **The K ender push** stays at the kit's `:push-reach` 7.5 (~7.95 m) for both K3s: inside the O lane (9 m) and SP1's
+  line; J3 / J3G push to 5.5 m.
+- **Clips (a look)**: spread J2 / J3 play B4a's own clips (`:hs-k-kaeshi`, `:hs-k-sensa`, at their new S 10 by
+  `:clip-s`); the others name their own clips, played through the Bankai's `:clip-map` as stand-ins
+  (`*hs-r-clip-stand-ins*`): K1 `:hs-k-hosoku` → SAHARAI's ring, spread K2s `:hs-k-s-k2` → NAGISA, spread K3 `:hs-k-s-k3`
+  → RAKUSA, gathered K2 `:hs-k-g-k2` → TSUISA, J2s `:hs-k-g-j2` → SABEN, K3G `:hs-k-g-k3` → SAHARAI, J3G `:hs-k-g-j3` →
+  SENSA. The host's drawn-reach checks skip the stand-ins; B4b deletes each entry it draws.
+
+**The CPU** (`duel-character-cpu`: one roll per event, EASY ≤ NORMAL ≤ HARD).
+- The opener is the route: his ranged `:moves` bands 0–2 m K1 3 / L 3 / Step 3 / Breaker 1, 2–3 m **K1 5** / J1 2 /
+  Step 1 (gathered first: the damage), 3–4.5 m J1 5 / Step 1 (spread), 4.5–8 m SP1 1 / wait 4 (nothing else of his
+  reaches there), then as before; ranges approach 2.5–4.0, pressure 2.0–3.0, zone 3.0–4.5, defend 4.0–6.0.
+- `:move-reflex` HS-R-AI-MOVE, one roll on each link-1 / link-2 hit's land step: the damage pick (the K link: spread K2s /
+  K3, gathered K2 / K3G) `*hs-ai-route-dmg-p*` of the time when the victim stands inside its reach (HS-R-REACHES-P: past
+  the dead zone, inside the far edge + 0.36), else the speed pick (the J link) inside its reach; neither: the string ends
+  there (`:wait`, kept to the move's end, no whiff). A learner baiting its Burst read keeps the generic reflex.
+- **Shared change** (`ai.lisp` AI-REFLEX): the `:move-reflex` clause moved ahead of the generic "our own hit → STRING-REFLEX"
+  clause, so a kit's own reflex picks its links first. Only his ranged kit has the key (host-pinned), so every other kit
+  takes the same branches and the same RNG draws (the identity proof below).
+- Removed: his mark links (`ai-kj` / `ai-kk` / `ai-k3`) and the opponents' side Step out of a mark (`opp-step-mark`); the
+  anti-throw side Step (NAGE / SP1 / KUBIKAKE) stays.
+
+**The buttons moved (the user, 2026-10-18, added to B4c).**
+
+> 「把卍解捆綁給到 SP2，但發動不會消耗 SP」, 「可以，命中確認後接（推薦）」, 「鎖雨移到捆綁的 SP1」
+>
+> 「絞縄改成給捆綁的 L，捆綁的 SP2 換成解除並附加傷害（有專屬動畫、可被防禦）」; 「絞縄本身帶拉近」, 「不冷卻，降低傷害並增加大前搖，通過降低優勢來控制
+> 出招動機」, 「先還原再打，傷害 120（推薦）」
+
+| Mode | Button | Was | Now |
+|---|---|---|---|
+| ranged | SP2 (Shift+L) | 鎖雨 KUSARI-AME | **首掛 KUBIKAKE**, the binding throw: its data, rules and `:on-land` as §17.2, **`:cost 0`** (no bar spent); his own 200 checked at the press (HS-BK-OK: refused with the cue under 200, while it cools, with a bind up) and at contact; the 180 f cooldown set at its first frame (HS-KUBI-START); from neutral (the generic SP2 states) or **cancelled off any J / K hit** through its copy `:hs-r-kubikake-c` (`:enter` 6, S_eff 18: the hit-confirm combos off every link, J1 39 < 43, K1 46 < 51 with the hitstop; SP2's copy pattern) |
+| ranged | P | KUBIKAKE | **nothing** (the ranged kit has no `:p` / `:p-label` hook, so the touch deck hides the AWAKEN chip there) |
+| bind | SP1 (Shift+K) | 綴雷電 TSUZURI RAIDEN | **鎖雨 KUSARI-AME**, the same move (its data kept, the dead zone too); the SP1 cost (1 bar, from the shared pool); off a J / K hit its charge-less copy `:hs-r-sp2c` (S_eff 20: it combos off the bind's K links, not off its J's flinch 18) |
+| bind | L | 引寄 HIKIYOSE (the pull, no hit) | **絞縄 KOJO**: at f6 the noose drags the victim to 2.0 m at 18 m/s (HS-PULL-STEP, motion only, until it arrives or S), then the reap 3.0 m arc 160°, crumple; **no cooldown, no cost**; S 20 → **30**, R 30 → **36**, damage 160 → **70**, block −16 → **−24**, on hit **0** (crumple 40 against S + A + R − S = 40: neutral) |
+| bind | SP2 (Shift+L) | 絞縄 KOJO (2 bars) | **解縛擊 KAIBAKU-GEKI** (`:hs-b-sp2`): no bars; at its S (f18) the release is due as P's (HS-KAIBAKU-GO): at the step's release slot the snapshot comes back and the pool goes to the opponent first, then the step's hits take its strike, **120 real** (no grey, no drain, no ×1.2 / tip); the opponent's 30 f reel after the hits (HS-BK-TICK: the longer of it and his reaction, as every end); no UNWIND (his move is the strike). Blocked or whiffed: the release still happens, no damage (a block takes the generic SP chip and blockstun, then the reel) |
+| bind | P | 解縛 the release | unchanged (the plain release, UNWIND) |
+
+- HIKIYOSE is gone as a move of its own (its pull lives in L); its clip `:hs-kb-hikiyose` is KAIBAKU-GEKI's stand-in
+  (`:hs-kb-kaibaku` in `*hs-r-clip-stand-ins*`) until the art batch draws the strike. The old bind SP1 RAIDEN
+  (`:hs-b-sp1`) stays defined for its clip strip only (no kit plays it); the old KOJO SP2 and its copy are deleted.
+- **KAIBAKU-GEKI's frame data (B4c's pick, the coordinator's example):** S 18 / A 4 / R 28, 120, guard 22, block −14
+  (blockstun from it, then the 30 f reel takes over), reach 3.0 m arc 140°, knockback 2.0 m; on hit the knockback's 30
+  f and the reel's 30 f agree; on a whiff the reel 30 f from f18 against his recovery to f50: about −2.
+- **Knobs:** `*hs-kojo-s*` 30, `*hs-kojo-r*` 36, `*hs-kojo-dmg*` 70, `*hs-kojo-block*` −24 (the lead's numbers for the
+  user's direction), `*hs-kojo-pull-at*` 6 (B4c's pick: from 8 m he arrives by f26), `*hs-kaibaku-dmg*` 120 (the
+  user's); `*hs-pull-min*` (HIKIYOSE's 2.5 m refusal) deleted; `*hs-ai-pull-p*` → `*hs-ai-kojo-p*` 0.1 / 0.2 / 0.3 (L KOJO
+  once per entry into 2.5–4 m, sparingly); `*hs-ai-plain-release-p*` 0.1 / 0.15 / 0.2 (new); `*hs-ai-throw-p*` (0.2 /
+  0.45 / 0.7) now per confirmed J / K hit.
+- **The CPU:** ranged: no neutral throw any more; on every confirmed J / K hit with his 200 and the victim inside the
+  throw's line (HS-R-REACHES-P), one roll `*hs-ai-throw-p*`: the SP2 cancel into KUBIKAKE (`ai-throw`), before the route
+  pick (links 1–2: HS-R-AI-MOVE; link 3: HS-R-AI-ENDER, else SP1 above 300 as before). Bind: once per change event while
+  behind on grey (`*hs-ai-release-p*`), SP2 KAIBAKU-GEKI with the foe within 3.36 m (`ai-kaibaku`), else the plain P
+  `*hs-ai-plain-release-p*` of the time (`ai-release`); L KOJO at 2.5–4 m (`ai-kojo`); its SP off a link 3 only SP1 (the
+  rain's copy) while ahead (`ai-bsp1`).
+- **Tests (added to the block):** ranged SP2 = KUBIKAKE, `:cost 0`, the press spends nothing, refused under 200 / cooling,
+  its cancel copy off a J hit (the move itself off a blocked one), ranged P inert (no `:p` hook), the copy's data; bind SP1
+  = the rain at 1 bar, its copy off a K hit; bind L's drag (8 → 2.0 m in 20 steps, by f26, the move's frames untouched,
+  none at S), its numbers, 0 on hit, no cooldown, no cost, refused nowhere; KAIBAKU-GEKI's data, the release at its S
+  (the snapshot back, no UNWIND, his move kept), then 120 real outside the bind, the reel once after the hits, nothing
+  unbound (and refused); P still the plain release (UNWIND, no reel flag); the bind pool pays the rain but not SP2.
+
+**Debug.** 83016 the ranged mode 2.5 m from an idle Kenpachi (the gathered route: K K K / K K J / K J J), 83017 3.5 m
+from him (the spread route: J J J / J J K / J K K), 83011 KUBIKAKE started (SP2's move now), 83018 unchanged. New pacing
+keys: `uchi-push`, `ai-dmg` / `ai-fast` / `ai-end`, `kaibaku`, `ai-kaibaku`, `ai-kojo`; gone: `mark`, `mark-lead`,
+`mark-replaced`, `k3-slams`, `ai-kj` / `ai-kk` / `ai-k3`, `opp-step-mark`, `kubi-refused` (a refusal is the :ok hook's
+cue now), `ai-pull`, `ai-bsp2`; `pull` / `pull-arrive` are KOJO's drag.
+
+**Tests** (`tests/duel-rules-test.lisp`, 9765 checks ALL PASS; 9697 before). The generic string walk now takes his ranged K1 as a normal K1 (S 16
+inside the 16–20 band; only S(K1) − S(J1) ≥ 7 excepted, §17.1) and his route K links at S_eff 15 / 21; his J links' block
+gaps ≥ the Step's iframes (the gathered J's 14–15 f pinned in his block); gathered K2's combos pinned in his block from its
+last hit (the launch's 41 f); the "K reaches ≥ J + 0.5 m" rule excepts his link 1 only (K1 3.0 vs J1 4.5: the user's table;
+links 2–3 hold, 6.0 vs 5.0). His block pins: the ten moves' S / A / R / dmg / guard / block / reach; the ratios against
+the base numbers (S −3 / +3, ×0.85 / ×1.3, K2 25 + 32 = 57, `:enter` 6 on the K links); the strings' links = the spread
+and gathered lists; all six routes by opener (and JKJ eaten); the enders; the route damage on hit (combo scaling from hit 4)
+JJJ 67, JJK 97, JKK 115, KKK 174, KKJ 132, KJJ 108 (B4a: 74 110 132 162 126 104); the dead zone on every ranged move but
+K1, L and the Breaker, and on no other move of the game; the volumes (K1 all round to 3.36 m from 0, K2s 60°, K3 160°,
+K2's slam 2.0–4.36 m and its line 2.64–8.86 m, J2s to 5.86, K3G 360° to 6.36, J3G 180° to 5.36); K2's push (only off
+its first window, done by f31–34, before / inside hit 2's f33–36); the launch's air time and height at K3G / J3G's hit;
+every link combos with its hitstop; the SP2 copy and SP1 off J1 / K1; the O ender off all four enders; the J pushes
+(J2s none, J3G 5.5); the marks' functions gone and no ranged K with an `:on-frame`; HS-R-REACHES-P; the drawn reach of
+B4a's clips (the letout frames now compared in the clip's own frames, `:clip-s`). duel-control-test 89, learn-test 131
+ALL PASS; `tools/pkgcheck.sh duel` clean; `./build.sh duel` with only the 4 known Lille style warnings.
+
+**Gates on the worktree (parent b42e2f9; `simgate --seeds 10 --summary`, the whole batch: the routes and the buttons
+moved).** The 42 summary lines of the 21 pairings without him are byte-identical to the parent's (`cmp`; the parent built
+from an archive of b42e2f9, `[simgate] building` lines filtered), also after the `ai.lisp` clause move; `--cvc` yy / yk /
+kk PASS, identical to `tests/style-cvc-ref.txt`. His 7 pairings at 10 seeds (parent = B4a → B4c):
+
+| Pairing | K.O.s | Median (s) | Wins (H as P1) |
+|---|---|---|---|
+| HY | 10 → 10 | 130.9 → **121.6** | 4 → 3 of 10 |
+| HK | 10 → 10 | 124.6 → 138.1 | 1 → **0** |
+| HR | 10 → 10 | 176.4 → 191.4 | 1 → 2 |
+| HI | 10 → 10 | 171.1 → 170.6 | 2 → 1 |
+| HS | 10 → 10 | 192.1 → 180.7 | 1 → 3 |
+| HB | 10 → 10 | 152.2 → 179.6 | 1 → 1 |
+| HH (mirror) | 9 → 10 | 228.6 → 232.6 | 4 → 2 |
+
+The quick pass (all K.O., 135–200 s) does not clear HY (121.6 s; a mirror may exceed 210): the lead's 20-seed gate
+decides. No knob was retuned for the window. (The routes alone, before the buttons moved: HY 141.3, HK 145.8, HR 174.8,
+HI 180.3, HS 165.0, HB 173.5, HH 272.0 s with 2 time-outs; his P1 wins 2 / 3 / 1 / 1 / 3 / 0 / 5.) A 3-seed HK pacing
+sample: `ai-throw` 6 (the SP2 cancel), `kubi-hit` 2, `binds` 2, `ai-kaibaku` 1, `end-released` 2, `end-drained` 1,
+`ai-kojo` 3, `ai-dmg` 4, `ai-fast` 1, `ai-saharai` 20, `r-near` 3487 frames (he still spends long inside 2 m).
+
+**Browser smoke** (`run.mjs --fixed-dt 16.666667`, 54 s, keyboard script, no JS / WebGPU error, exit 0): 83016 K K K
+(the victim launched by K2, 193 off him, pushed to 8.0 m), K J J (120); 83017 J J J (80), J K K (122), J then Shift+L
+(KUBIKAKE's cancel copy: the bind, the pool 600); in it Shift+K (the rain: 70 + 90 grey); 83012 L (KOJO: dragged 3.0 →
+2.0 m, 70 grey), Shift+L (KAIBAKU-GEKI: both snapshots back, then 120 real, the pool's 350 split 300 / 50, the ranged
+mode); 83018 a CPU zone game for 15 s (the CPU bound Rukia). Debug 83901: every Bankai look 0 B but SHIBARI 131096 and
+SP2 262168, the first-call fx-buffer growth §21.8 noted (the marks' line gone).
+
+**Known issues** (for the playtest and B4b).
+- **A K1 hit inside 2.0 m has no follow-up that reaches**: every gathered link keeps the dead zone (the table), and K1 has
+  no push, so K1 at point blank is a lone 40 stagger (the CPU ends the string there: `ai-end`). A lever for the user: a
+  K1 hit pushing the victim to ≥ 2.0 m (as J1 / J2's push), or K2's slam without the dead zone.
+- K2's second hit is a launch, not a knockdown (above): the user's call.
+- The gathered J links on block leave 14–15 f (every J1 of the roster beats them; the spread J leave 8 f): the price of
+  「聚 +3 幀」.
+- The generic CPU branches (a punish, the pressure reset) still read J1's reach without the dead zone (B4a's issue).
+- The look is a stand-in for seven of the ten route links (above), and for KAIBAKU-GEKI (HIKIYOSE's gesture).
+- **The rain in the bind keeps its 2.0 m dead zone** ("its data kept"): inside the bind (fought at 0.8–1.2 m) it misses
+  point blank; it hits from 2.0 m (after an L push-out, a K link's spacing). For the user: a bind copy without the dead
+  zone, if wanted.
+- The rain's charge-less copy combos off the bind's K links but not off its J's flinch 18 (S_eff 20); RAIDEN (S 14) did.
+- After a KUBIKAKE hit (+16) only the bind J1 (S 8) combos now (the bind's SP1 is the rain, S 30).
+- HIKIYOSE's long-range pull (beyond 4 m) is now KOJO's, inside a 30 f startup: from 8 m he arrives by f26.
+
+**What the art batch B4b must draw, per route.**
+- K1 綁束: the hanging chains spun round him (360°, r 3.0 on f16–19) and bound into one bundle (it stays a bundle for
+  the gathered links).
+- Spread: J2 the other side's curtain (B4a's clip, now S 10), K2s several thin chains whipping the ground in a 60° fan
+  to 6.0 m (S 21), J3 the full turn to 5.0 m (S 10), K3 every hanging chain lashed forward in a 160° fan to 6.0 m (S 21).
+- Gathered: K2 the U → L: the bundle arcs over and slams 2.0–3.5 m ahead (f27), then its tail lashes on along the ground
+  to 8.0 m (f33) and lies flat ahead; J2s a quick straight lash of the bundle to 5.0 m (S 16); K3G the lying bundle
+  hauled into a 360° spin to 6.0 m (S 27); J3G a flat sweep of the bundle, 180° to 5.0 m (S 16).
+- The bind: L KOJO's drag on the noose (f6 to the strike at f30) then the reap (KOJO's clip at S 30 for now); SP2
+  KAIBAKU-GEKI's own release-and-strike (`:hs-kb-kaibaku`: the noose thrown off at f18, then the blow, 3.0 m 140°); the
+  ranged SP2 is KUBIKAKE's clip (unchanged).
+- The drawn reach on the hit frames within 0.15 m of each volume's far edge (the host checks read `*hs-strike-reach*`,
+  `*hs-letout*`, `*hs-bk-chains*`); then delete the move's entry from `*hs-r-clip-stand-ins*`.
 
 ### 22.7 B5 cinematics as built (2026-10-18)
 
