@@ -1204,6 +1204,20 @@ and the right arm, the twisted chain rope rising from the neck to the orb, the b
 jet-black orb of chains overhead (size a proposal: canon gives none), the noose between the two fighters in a bind),
 then the slot plan (`motion-refs.md` §3.2–§3.3) for the user's 「可以」, then the clips. Presentation only.
 
+- Blade shape (the user, 2026-10-17: 「不是 卍解的刀造型跟始解一樣」): the Bankai's blades are the Shikai's Kazeshini
+  blades, the S-pair crescents (§21.1: one hook in, one out), on both hands; not the single crescent of the CFYOW
+  illustration and Brave Souls that the brief had guessed.
+- The orb and its chains (the user, 2026-10-17: 「鎖鏈球可以高到超出鏡頭，自身周遭有許多從鎖鏈球垂下來的鎖鏈，其中有數條鎖鏈捆成束後捆在自己（與對手）的脖子上」):
+  the orb may sit high enough to leave the match camera's frame (it is not shrunk to fit); many chains hang down from it
+  all around him; several of them gather into a bundle tied round his neck (replacing the single twisted rope), and in
+  a bind a bundle the same way round the opponent's neck (the noose). The hanging chains stay thin and sparse enough
+  not to hide the fight from the behind camera. Cosmetic only.
+- Where attacks launch (the user, 2026-10-17: 「攻擊可以從周遭垂下來的鎖鏈或自己頸部的鎖鏈發動」): the Bankai's attacks may
+  start from the chains hanging round him or from his own neck bundle, not only from chains on his hands or from the
+  orb. The draft slot plan (`motion-refs.md` §3.2–§3.3) is revised for it before it goes to the user; hit volumes are
+  unchanged (a hanging chain ends near the floor beside him, so it arrives on the 1.1 m caps more naturally than a chain
+  from the orb).
+
 ### 21.6 Bankai look as built (2026-10-17)
 
 Presentation only, both modes (`:bankai`, `:bankai-bind`): no clip, move, knob, hurt volume or rule changed; the Bankai's
@@ -1273,6 +1287,8 @@ coils and the orb were already black meshes. The Shikai's chain keeps the ink lo
 because a 17th palette would collide with the fan flag at 16. Proof: the same identity checks, debug 83901 0 B.
 
 ## 18. Open
+
+- The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); next its slot plan (`motion-refs.md` §3.2–§3.3, re-sourced per §21.5) for the user's 「可以」. Still open: the awaken A/B (§20.9), waiting on the user's playtest.
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
 

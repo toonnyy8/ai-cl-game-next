@@ -418,11 +418,22 @@ in the pin without the throw); J3 and the windmill's push are both flat spins (d
 ### 3.2 Bankai 風死絞縄: the ranged mode (`:bankai`, §17.1)
 
 **Look in motion** (A picture + B): wrapped in his own chain (neck, right arm), a **single black crescent** in each
-hand, the orb above, the thick twisted chain rope from his neck to it. **Idle** (A, the CFYOW illustration): standing
+hand (superseded: the Shikai's S-pair, see the revision below), the orb above, the thick twisted chain rope from his neck to it. **Idle** (A, the CFYOW illustration): standing
 straight and still, **arms hanging, the crescents point-down, chains pooling at his feet**; the stillness is the
 Bakudō-type Bankai. **Walk**: unhurried, the orb drifting with him. **Run**: the arms back, the chains streaming.
 Hand sets: **R / L** a crescent on its hand chain (the "swung chains"), **O** a chain from the orb (no hand; he gives an
 arm signal: canon "raises one of the blades"), **B** both, **N** the neck rope.
+
+**Revision (the user, 2026-10-17: 「攻擊可以從周遭垂下來的鎖鏈或自己頸部的鎖鏈發動」, with the look: blades = the Shikai's
+S-pair, many chains hanging from an orb above the frame, a bundle of them tied round each noosed neck).** Two new
+sources: **H** a chain hanging beside him (it ends near the floor within ~1–2 m of him) snaps out, and **N** is now the
+neck bundle (several chains, not one rope). Proposed re-sourcing, to put to the user with the slot plan:
+J1 / J2 R / L unchanged (the crescents on hand chains); J3 B + **H** (the nearest hanging chains swept round with the
+spin); K1 **H** (a hanging chain in front lances level at 1.1 m: it starts on the cap, no dive from the orb needed);
+K2 / K2s **H** (the hanging chains on his left swept low across the floor); K3 O (the bundle drops from the orb) stays;
+L **H** (the curtain of hanging chains flung outward in a ring, with the body wrap); SP1 N unchanged; SP2 O stays;
+O 降鎖 **N** (the neck bundle itself whips down the lane); KUBIKAKE **H** (a hanging chain whirled, then cast). Bind mode:
+K1 / K3 / L / SP1 keep Nh (the noose bundle), K2 **H** instead of Cw. Every volume as before.
 
 | Slot | `:arc` / `:vol` (§17.1) | Archetype | Body in one line | Plane / hands | Grade |
 |---|---|---|---|---|---|
