@@ -1870,7 +1870,8 @@ link, the user's U → L).
 | bind | P | 解縛 the release | unchanged (the plain release, UNWIND) |
 
 - HIKIYOSE is gone as a move of its own (its pull lives in L); its clip `:hs-kb-hikiyose` is KAIBAKU-GEKI's stand-in
-  (`:hs-kb-kaibaku` in `*hs-r-clip-stand-ins*`) until the art batch draws the strike. The old bind SP1 RAIDEN
+  (`:hs-kb-kaibaku` in `*hs-r-clip-stand-ins*`) until the art batch draws the strike. (Drawn by batch A3, §24.3: the
+  entry and HIKIYOSE's clip deleted.) The old bind SP1 RAIDEN
   (`:hs-b-sp1`) stays defined for its clip strip only (no kit plays it); the old KOJO SP2 and its copy are deleted.
 - **KAIBAKU-GEKI's frame data (B4c's pick, the coordinator's example):** S 18 / A 4 / R 28, 120, guard 22, block −14
   (blockstun from it, then the 30 f reel takes over), reach 3.0 m arc 140°, knockback 2.0 m; on hit the knockback's 30
@@ -1951,7 +1952,8 @@ SP2 262168, the first-call fx-buffer growth §21.8 noted (the marks' line gone).
 - The gathered J links on block leave 14–15 f (every J1 of the roster beats them; the spread J leave 8 f): the price of
   「聚 +3 幀」.
 - The generic CPU branches (a punish, the pressure reset) still read J1's reach without the dead zone (B4a's issue).
-- The look is a stand-in for seven of the ten route links (above), and for KAIBAKU-GEKI (HIKIYOSE's gesture).
+- The look is a stand-in for seven of the ten route links (above), and for KAIBAKU-GEKI (HIKIYOSE's gesture). (All
+  drawn: batches A2 / A3, §24.2–§24.3.)
 - **The rain in the bind keeps its 2.0 m dead zone** ("its data kept"): inside the bind (fought at 0.8–1.2 m) it misses
   point blank; it hits from 2.0 m (after an L push-out, a K link's spacing). For the user: a bind copy without the dead
   zone, if wanted.
@@ -1972,7 +1974,8 @@ SP2 262168, the first-call fx-buffer growth §21.8 noted (the marks' line gone).
   ranged SP2 is KUBIKAKE's clip (unchanged).
 - The drawn reach on the hit frames within 0.15 m of each volume's far edge (the host checks read `*hs-strike-reach*`,
   `*hs-letout*`, `*hs-bk-chains*`); then delete the move's entry from `*hs-r-clip-stand-ins*`.
-- (The seven ranged route links and the look: drawn by batch A2, §24.2; the bind's L / SP2: batch A3.)
+- (The seven ranged route links and the look: drawn by batch A2, §24.2; the bind's L / SP2 and the ranged L's recovery:
+  batch A3, §24.3.)
 
 ### 22.7 B5 cinematics as built (2026-10-18)
 
@@ -2743,10 +2746,82 @@ edge.
 - The bind leash runs to the hidden opponent's unposed neck on the card stills (as the noose does, §21.8).
 - B3b's J1 / J2 / J3 crescents still start in the fist.
 
+### 24.3 Batch A3 as built (2026-10-18)
+
+> 「可以，照這個順序開始畫」 (the user, 2026-10-18, approving §24's order; this is its batch A3). KOJO's tell is §23.2's:
+> 「增加拉近對手前的動作識別度與前搖時間，並減少攻擊效果的前搖。核心邏輯是對手在遠處時就知道要被拉近該準備防禦」.
+
+The bind's L and SP2 and the ranged L's recovery are drawn as their own clips in `duel/lisp/hisagi-art.lisp`. In
+`hisagi.lisp` only presentation keys change:
+- L KOJO and the ranged L SAHARAI lose `:clip-s` (20 and 14): every clip plays at speed 1;
+- `*hs-r-clip-stand-ins*` is empty (the bind SP2's entry deleted). It stays defined: the host checks read it, and
+  `*hs-bk-clips*` appends it.
+
+**Presentation only.** No frame data, volume, damage, reaction, flag or knob changed. HIKIYOSE's clip
+(`:hs-kb-hikiyose`) is deleted: KAIBAKU-GEKI's stand-in was its only use. Its two haul poses stay, in KOJO.
+
+**Machinery (a look, 0 B a frame).**
+- **The held chain** (`*hs-kb-grips*`, `%hs-grip-chain`): A2's stance list becomes `(clip F1 FT)` rows. His left fist
+  holds a chain to the opponent's noose until clip frame F1. It sags 0.5 m, eased out until FT, then hangs taut and
+  trembles (2–4 cm, fast) while FT > 0. The bind's stance and walk keep A2's taut chain (F1 9999, FT 0). KOJO holds it
+  to S 30, taut from f9; KAIBAKU-GEKI to its S 18, taut from f5.
+- **The throw-off** (`%hs-orb-draw` code 3, KAIBAKU-GEKI from its S, read from the move frame). The noose ring is flung
+  off the opponent's neck, out to Hisagi's right and up. It opens to 0.49 m as the noose bundle reels it into the orb
+  over 12 f.
+- **SAHARAI's ring is a lash now** (`*hs-lashes*`, mask 255, 0.2 f apart). Its eight `*hs-bk-chains*` rows are deleted,
+  so the curtain's chains lag, taper and trail as A2's do. The carousel's jerk is re-timed to (3 10 24 1.0).
+
+| Move | Clip (S/A/R) | Frame keys (the windup held near its peak, the hit pose snapped on S) | Drawn on the hit frames vs the volume |
+|---|---|---|---|
+| L 絞縄 KOJO | `:hs-kb-kojo` (30/4/36, was 20/4/30 at `:clip-s` 20) | f0 from the bind's stance; f4 both hands up the noose chain; **f9–19 the heave: hauled up over his head, arched far back on the back leg, the chain from his left fist to the opponent's noose pulled taut and trembling (the tell, held)**; f21 the yank down to his chest (the drag from f20); f24 hand over hand; f27–29 the right crescent raised high, cocked, the left hauling at the hip; S the wide downward reap, the crescent let out from overhead to 3 m (f27–30 out, back by f46); impact held to f46; the bind's stance by f70 | the let-out **3.00 ×4** vs the arc's 3.0 |
+| SP2 解縛擊 KAIBAKU-GEKI | `:hs-kb-kaibaku` (18/4/28, was HIKIYOSE's 16/40/8) | f0 from the bind's stance; f5 the noose chain gripped and hauled; **f11–16 coiled hard to his right, the left fist high on the taut chain, the right crescent cocked far back low behind his hip, sunk (held)**; S the release: the left arm flung up and out, the noose thrown off and reeled into the orb, the right crescent let out in a flat sweep right to left (bearing −120° at f15, −50° at S, +50° by f22); f20–22 unwound; held to f32; the ranged stance by f50 | the let-out **3.00 ×4** vs the arc's 3.0; bearings −50 / −25 / 0 / +25°, inside ±70° |
+| L 鎖払 SAHARAI | `:hs-k-saharai` (10/4/32, was 14/4/22 at `:clip-s` 14) | f4 the wrap, the arms crossed tight over his chest; **f4–9 the curtain drawn in tight round his body, curled (held, deeper at f9)**; S the burst, arms flung wide, arched, all eight lashed out in a ring to 3 m; f12–18 the impact hold as they fall to the floor; **the recovery has motion**: f26–32 both fists hauled in to his chest, leaning back, the chains dragged in along the floor (f26 2.4 m, f34 1.6 m lifting) and back into the curtain by f44; f38 settling into the stance | the lash ends **3.00 ×4** vs the arc's 3.0 |
+
+**Debug.** The 83500+k slots are reused: 20 is now KAIBAKU-GEKI's own clip (HIKIYOSE's until A3), and 22 KOJO and
+6 SAHARAI are redrawn. 83901 adds SAHARAI's recovery, KOJO's heave and reap, and KAIBAKU-GEKI's haul and throw-off
+(DUEL_GAMEPLAY "Debug commands").
+
+**Verification.**
+- `simgate --seeds 10 --summary` (56 lines) and `--cvc` (yy / yk / kk PASS) are byte-identical to the parent 5a32e47
+  (`cmp`, with the `[simgate] building` lines filtered).
+- duel-rules-test: 9869 checks ALL PASS.
+  - The tie check adds SP2 KAIBAKU-GEKI, so KOJO, KAIBAKU-GEKI and SAHARAI are each drawn to their volume's far edge
+    within 0.15 m on every hit frame (the let-outs, SAHARAI's lash keys).
+  - New checks:
+    - the stand-in list is empty;
+    - the three moves play their own clips at speed 1, each clip's `:s` mark on S and its length S + A + R;
+    - KAIBAKU-GEKI's sweep stays inside its 140° arc on every hit frame;
+    - KOJO's chain holds to S and is taut before the drag (FT < `*hs-kojo-pull-at*`);
+    - §5's clip list has `:hs-kb-kaibaku` in place of `:hs-kb-hikiyose`;
+    - SAHARAI's clip speed is 1.0 (was 1.4).
+- duel-control-test 89, learn-test 131 and cine-test 18 ALL PASS. `tools/pkgcheck.sh duel` is clean (three 0 lines).
+- `./build.sh duel` shows only the 4 known Lille style warnings.
+- 83902: KOJO 3.00 ×4, KAIBAKU-GEKI 3.00 ×4, SAHARAI 3.00 ×4, against edges of 3.00.
+- 83901: 0 B in every state on the repeat call. On the first call the buffers grow once, as before: the windmill
+  131 KB, the Bankai 262 KB, SOKUTEI 524 KB.
+- Browser smoke (`run.mjs --fixed-dt 16.666667`) ran with no JS / WebGPU error:
+  - 83012: L KOJO dragged Kenpachi from 3.0 to 2.0 m and hit him for 70, then Shift+L KAIBAKU-GEKI released the bind
+    and hit;
+  - 83010, 83016: the ranged L pushed him to 3.5 m for 30;
+  - 83018: the CPU zone game for 14 s.
+- Strips 83500+6 / 20 / 22 from all three views; SAHARAI's wrap was lowered to 1.3–1.5 m after the first look, since the
+  chains hauled up to 2.7–3.0 m left the frame.
+
+**Known issues** (checked by numbers, needs your eyes):
+- The throw-off is small at the card stills' scale (the ring and the reeled bundle are at the hidden opponent's neck).
+  In the match it shows over the opponent for 12 f. His own neck tie stays: it is the Bankai's look in both modes, so
+  only the opponent's noose is thrown off.
+- KOJO's held chain runs to the opponent's noose point wherever he is. Against a far opponent the heave reads mostly by
+  the body from the behind camera.
+- KOJO's reap goes along the fist's bearing (az NIL, as B3b's): ahead of him in the side and front strips, but its bearing
+  is not host-checked (its distance is).
+- SAHARAI's wrap hides the curtain's top under the orb (above the frame, §21.6).
+
 ## 18. Open
 
-- The art pass (§24): batches A1 (the Shikai; built, §24.1) and A2 (the Bankai ranged mode and the look; built, §24.2),
-  presentation only, waiting on the playtest; A3 (the bind) next.
+- The art pass (§24): batches A1 (the Shikai; built, §24.1), A2 (the Bankai ranged mode and the look; built, §24.2) and
+  A3 (the bind's L / SP2 and the ranged L's recovery; built, §24.3), presentation only, waiting on the playtest; no
+  stand-in clip left.
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
 - The two modes made distinct (§22): B4a built (§22.2: the sim, the CPU, a placeholder look); open: the playtest, his 7 pairings at 20 seeds and his awaken A/B, the art pass B4b.

@@ -425,14 +425,14 @@ spread (J2 / K2s, J3 / K3), K1-opened gathered (K2 / J2s, K3G / J3G).")
 (defparameter *hs-r-spread-links* '(:hs-r-j2 :hs-r-k2s :hs-r-j3 :hs-r-k3) "The spread route's links 2-3 (J1-opened).")
 (defparameter *hs-r-gather-links* '(:hs-r-k2 :hs-r-j2s :hs-r-k3g :hs-r-j3g) "The gathered route's links 2-3 (K1-opened).")
 (defparameter *hs-r-clip-stand-ins*
-  '(:hs-kb-kaibaku :hs-kb-hikiyose)
+  '()
   "Clip names -> the clip each plays until the art pass draws it (a look, through the Bankai's :clip-map; the art pass
-deletes each entry it draws): the bind SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture, its old L). (The seven ranged route links'
-were drawn by batch A2, DUEL_HISAGI §24.2.) The host's drawn-reach checks skip these moves.")
+deletes each entry it draws). Empty: the seven ranged route links' were drawn by batch A2 (DUEL_HISAGI §24.2), the bind
+SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The host's drawn-reach checks skip these moves.")
 ;; L 鎖払 SAHARAI: the chains whirled round him (360 deg r 3.0); a hit or a block pushes him to 3.5 m (S1, §23.3; HS-R-PUSH,
 ;; HS-BK-HIT). B4d (§22.8): his only close-in tool, no cooldown (120 -> 0), S *HS-SAHARAI-S* / R *HS-SAHARAI-R* / block
-;; *HS-SAHARAI-ADV*; its clip authored at S 14 (:clip-s 14: the strike still lands on S)
-(defmove :hs-r-l :kind :sig :clip :hs-k-saharai :clip-s 14 :startup *hs-saharai-s* :active 4 :recovery *hs-saharai-r* :dmg 30
+;; *HS-SAHARAI-ADV*; its clip redrawn at S 10 / R 32 by batch A3 (DUEL_HISAGI §24.3: speed 1, the recovery drawn)
+(defmove :hs-r-l :kind :sig :clip :hs-k-saharai :startup *hs-saharai-s* :active 4 :recovery *hs-saharai-r* :dmg 30
   :adv-block *hs-saharai-adv* :guard 14 :vol (:arc 3.0 360 0.2 2.0) :on-hit :knockback :on-land hs-r-push)
 (defmove :hs-r-sp1 :kind :sp :clip :hs-k-raiden :callout "TSUZURI RAIDEN" :startup 20 :active 3 :recovery 24 :dmg 110
   :adv-block -14 :guard 22 :vol (:cap 0.3 9.0 1.1 0.3) :track 30.0 :flags (:ranged) :on-hit :bind :hits ((20 23 :stun 40))
@@ -480,8 +480,8 @@ were drawn by batch A2, DUEL_HISAGI §24.2.) The host's drawn-reach checks skip 
   :reach 3.0 :arc 120 :on-hit :crumple :flags (:ender))                                                        ; 絞 SHIBORI
 ;; L 絞縄 KOJO (B4c: the old SP2, 引寄 HIKIYOSE's pull in it): at *HS-KOJO-PULL-AT* the noose drags him toward Hisagi to
 ;; 2.0 m at 18 m/s (HS-PULL-STEP: motion only, until S), then the reap 3.0 m arc 160; no cooldown, no cost; on hit 0, on
-;; block -24
-(defmove :hs-b-l :kind :sig :clip :hs-kb-kojo :clip-s 20 :callout "KOJO" :startup *hs-kojo-s* :active 4 :recovery *hs-kojo-r*
+;; block -24; its clip drawn at S 30 by batch A3 (DUEL_HISAGI §24.3: the 20 f heave, the drag, the reap; speed 1)
+(defmove :hs-b-l :kind :sig :clip :hs-kb-kojo :callout "KOJO" :startup *hs-kojo-s* :active 4 :recovery *hs-kojo-r*
   :dmg *hs-kojo-dmg* :adv-block *hs-kojo-block* :guard 30 :reach 3.0 :arc 160 :on-hit :crumple :track 30.0
   :on-frame ((*hs-kojo-pull-at* hs-pull-go)))                                                                 ; 絞縄 KOJO
 ;; (the bind's SP1 TSUZURI RAIDEN until B4c: KUSARI-AME took its slot, 「鎖雨移到捆綁的 SP1」; kept for its clip strip, 83524)
@@ -489,8 +489,8 @@ were drawn by batch A2, DUEL_HISAGI §24.2.) The host's drawn-reach checks skip 
   :adv-block -14 :guard 22 :vol (:cap 0.3 4.0 1.1 0.3) :on-hit :bind :hits ((14 17 :stun 40)))
 ;; SP2 解縛擊 KAIBAKU-GEKI (B4c): no bars; at S the release (HS-KAIBAKU-GO: the release as P's, applied at the step's release
 ;; slot, his move kept: no UNWIND; the opponent's reel after the step's hits, HS-BK-TICK), then its strike, real damage;
-;; blockable (blocked or whiffed: the release, no damage). Frame data the lead's pick (§22.6); its own clip name, a stand-in
-;; until the art batch
+;; blockable (blocked or whiffed: the release, no damage). Frame data the lead's pick (§22.6); its own clip, drawn by batch
+;; A3 (DUEL_HISAGI §24.3: the noose thrown off at S, the blow)
 (defmove :hs-b-sp2 :kind :sp :clip :hs-kb-kaibaku :callout "KAIBAKU" :startup 18 :active 4 :recovery 28 :dmg *hs-kaibaku-dmg*
   :adv-block -14 :guard 22 :reach 3.0 :arc 140 :on-hit :knockback :kb 2.0 :cost 0 :on-frame ((18 hs-kaibaku-go)))     ; 解縛擊
 (defmove :hs-b-kikon :kind :kikon :clip :hs-kb-koshu-run :clip-2 :hs-kb-koshu :callout "KOSHU" :cine hs-koshu-cine

@@ -865,7 +865,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :hs-k-stance :hs-k-walk-f :hs-k-walk-b :hs-k-strafe-r :hs-k-strafe-l :hs-k-run :hs-k-skate-b :hs-k-slide-r   ; the Bankai's
     :hs-k-slide-l :hs-k-saben :hs-k-kaeshi :hs-k-sensa :hs-k-saharai                                         ;  own (§21.8):
     :hs-k-raiden :hs-k-ame :hs-k-kosa-aim :hs-k-kosa :hs-k-breaker :hs-k-hammer :hs-k-kubikake   ;  the ranged mode,
-    :hs-kb-gen :hs-kb-kaeshi :hs-kb-sogen :hs-kb-hikigiri :hs-kb-makigiri :hs-kb-shibori :hs-kb-hikiyose   ;  the bind
+    :hs-kb-gen :hs-kb-kaeshi :hs-kb-sogen :hs-kb-hikigiri :hs-kb-makigiri :hs-kb-shibori :hs-kb-kaibaku    ;  the bind
     :hs-kb-raiden :hs-kb-kojo :hs-kb-koshu-run :hs-kb-koshu :hs-kb-unwind
     :hs-k-hosoku :hs-k-s-k2 :hs-k-s-k3 :hs-k-g-k2 :hs-k-g-j2 :hs-k-g-k3 :hs-k-g-j3   ; the ranged route links' (A2, §24.2)
     :hs-kb-stance :hs-kb-walk-f :hs-kb-walk-b :hs-kb-strafe-r :hs-kb-strafe-l))     ; the bind's stance and walk (A2)
@@ -3425,7 +3425,7 @@ past the ends; DEFAULT if the clip is not listed."
     (loop for form = (read in nil in) until (eq form in)
           when (and (consp form) (eq (first form) 'defparameter)
                     (member (second form) '(*hs-strike-reach* *hs-flights* *hs-letout* *hs-bk-chains* *hs-lashes*
-                                            *hs-foe-paths*)))
+                                            *hs-foe-paths* *hs-kb-grips*)))
             do (eval form))))
 (defun hs-bind-end-effects! (b) (push b *t-ends*))                                     ; (B9: clips, reels, hazards)
 (let* ((kr (kit :hisagi :bankai)) (kb (kit :hisagi :bankai-bind)))
@@ -3477,7 +3477,7 @@ past the ends; DEFAULT if the clip is not listed."
                 (= 20 (- (mv-s (m :hs-r-sp2c)) (mv-enter (m :hs-r-sp2c))))
                 (= 42 (mv-whiff (m :hs-r-kubikake))) (zerop (mv-cooldown (m :hs-r-l))) (zerop (mv-cooldown (m :hs-b-l)))
                 (= 10 *hs-saharai-s*) (= 32 *hs-saharai-r*) (= -16 *hs-saharai-adv*)   ; (B4d, §22.8: L 14 / 22 / -4, cd 120 ->)
-                (~= (mv-clip-speed (m :hs-r-l)) 1.4) (~= 3.5 *hs-saharai-hit*) (~= 3.5 *hs-saharai-block*)   ; (S1, §23.3: both 3.5)
+                (~= (mv-clip-speed (m :hs-r-l)) 1.0) (~= 3.5 *hs-saharai-hit*) (~= 3.5 *hs-saharai-block*)   ; (S1, §23.3: both 3.5)
                    ; (its clip's S 14 on S 10)
                 (= 90 (mv-cooldown (m :hs-r-kikon))) (= 90 (mv-cooldown (m :hs-b-kikon)))
                 (zerop (length (mv-hits (m :hs-b-unwind)))) (= 20 (mv-total (m :hs-b-unwind)))
@@ -3952,7 +3952,7 @@ past the ends; DEFAULT if the clip is not listed."
                              (setf best (max (or best d) d))))))))))))
       (let ((bk-moves '(:hs-r-j1 :hs-r-j2 :hs-r-j3 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake
                         :hs-r-k1 :hs-r-k2s :hs-r-k3 :hs-r-k2 :hs-r-j2s :hs-r-k3g :hs-r-j3g      ; (A2: the route links)
-                        :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l
+                        :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l :hs-b-sp2   ; (A3, §24.3: SP2's own)
                         :hs-k1 :hs-j2k :hs-j3k)))   ; (A1, §24.1: the Shikai's K1 sweep and leap J, their let-outs too)
         (dolist (n bk-moves)
           (let* ((mv (m n)) (clip (mv-clip mv)) (sr (third (assoc clip *hs-strike-reach*))))
@@ -3971,6 +3971,26 @@ past the ends; DEFAULT if the clip is not listed."
                        (check (or (and art (<= (abs (- art edge)) 0.15) (or (null sr) (> wi 0) (~= sr art)))
                                   (format t "~a ~a (window ~d): the volume ends ~,2f m, the drawn end ~a, the table ~a~%"
                                           n clip wi edge art sr)))))))))
+    ;; A3 (DUEL_HISAGI §24.3, the user, 2026-10-18: 「可以，照這個順序開始畫」): the stand-ins all drawn (the list empty); L
+    ;; SAHARAI, L KOJO and SP2 KAIBAKU-GEKI on their own clips at speed 1, each clip's :s mark on its move's S and its length
+    ;; S + A + R; KAIBAKU-GEKI's sweep inside its 140 deg arc on every hit frame; KOJO's held chain taut before the drag
+    (check (null *hs-r-clip-stand-ins*))
+    (dolist (n '(:hs-r-l :hs-b-l :hs-b-sp2))
+      (let* ((mv (m n)) (cl (mv-clip mv)))
+        (check (or (and (~= (mv-clip-speed mv) 1.0) (= (mv-s mv) (round (* 60 (clip-mark cl :s))))
+                        (= (+ (mv-s mv) (mv-a mv) (mv-r mv)) (round (* 60 (clip-dur (find-clip cl))))))
+                   (format t "  Hisagi A3 ~a (~a): speed ~,2f, not on its S / length~%" n cl (mv-clip-speed mv))))))
+    (let ((row (find-if (lambda (r) (and (eq (first r) :hs-kb-kaibaku) (eq (second r) :r))) *hs-letout*))
+          (hw (svref (mv-hits (m :hs-b-sp2)) 0)))
+      (destructuring-bind (c sd f0 f1 f2 f3 r h az bulge) row
+        (declare (ignore c sd f0 f3 r h bulge))
+        (check (or (loop for f from (hw-from hw) below (hw-to hw)
+                         always (and (<= f1 f) (< f f2)
+                                     (<= (abs (+ (second az) (* (/ (- f f1) (- f2 f1)) (- (third az) (second az)))))
+                                         (* (aref (first (hw-vols hw)) 2) (/ 180 pi)))))   ; (the half angle)
+                   (format t "  Hisagi A3 KAIBAKU-GEKI: its sweep leaves the arc~%")))))
+    (check (let ((g (cdr (assoc :hs-kb-kojo (symbol-value '*hs-kb-grips*)))))
+             (and g (= (first g) (mv-s (m :hs-b-l))) (< (second g) *hs-kojo-pull-at*))))
     ;; A1 (DUEL_HISAGI §24.1, the user, 2026-10-18: 「可以，照這個順序開始畫」): the Shikai's K string drawn. K1 NAGI: its
     ;; let-out out over every hit frame at r x the charge, on the charged copy's arc edge within 0.15 m at x1.0 and x1.6,
     ;; its sweep's bearing inside the arc (+- *HS-K1-ARC* / 2) on each; K2 NOKO, K2J, K3 TSUI (placed on the victim,
