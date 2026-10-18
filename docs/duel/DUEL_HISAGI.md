@@ -1648,6 +1648,31 @@ Reading (the lead):
 The segment table and the open points (K1's own hit, the fate of B4a's placed marks, the speed / damage ratios) go to
 the user before anything is built (`duel-move-modules`: restate the notation first).
 
+The user's answers (2026-10-18):
+- K1's binding spin hits: 「身旁旋轉會打到」.
+- B4a's placed marks are removed: 「拿掉落點」.
+- The ratios: 「散 −3 幀×0.85／聚 +3 幀×1.3」.
+
+**The proposed segment table (the lead, for the user's 「可以」).**
+- Openers keep their own numbers; the route's ratio applies to segments 2 and 3.
+- The 2.0 m dead zone stays on every ranged move except K1 and L.
+- Bases: B4a's J (S 14 / 13 / 13, 22 / 22 / 30) and the K timings before the marks (K2 S 24 dmg 44, K3 S 24 dmg 66).
+
+| Route | Segment | Chains | Motion | Volume | S | Dmg | Reaction |
+|---|---|---|---|---|---|---|---|
+| — | J1 旋鞭 (opener) | spread | as B4a | annulus 2.0–4.5 m, 100° | 14 | 22 | flinch, push to 3.5 m |
+| — | K1 綁束 (opener) | gathering | the hanging chains spin round him and bind into one bundle | 360°, r 3.0 (no dead zone) | 16 | 40 | stagger |
+| spread (J1 →) | J2 | thin chains | the other side's curtain sweeps | annulus 2.0–4.5 m, 100° | 10 | 19 | flinch, push to 3.5 m |
+| spread | K2s | thin chains | several chains whip the ground in a fan | fan 2.0–6.0 m, 60° | 21 | 37 | stagger |
+| spread | J3 (ender) | thin chains | a full turn, every chain lashing | annulus 2.0–5.0 m, 360° | 10 | 26 | stagger, push to 5.5 m |
+| spread | K3 (ender) | thin chains | every hanging chain lashes forward at once | fan 2.0–6.0 m, 160° | 21 | 56 | crumple |
+| gathered (K1 →) | K2 | the bundle | U → L: the bundle arcs over and slams the ground ahead, then its tail lashes on along a straight ground line; the bundle ends lying flat ahead | hit 1: cap 2.0–3.5 m; hit 2: line 3.5–8.0 m | 27 | 57 (25 + 32) | stagger, then knockdown |
+| gathered | J2s | the bundle | a quick straight lash of the bundle | line 2.0–5.0 m | 16 | 29 | flinch |
+| gathered | K3 (ender) | the bundle | the bundle (flat on the ground after K2) hauled into a 360° spin | annulus 2.0–6.0 m, 360° | 27 | 86 | crumple |
+| gathered | J3 (ender) | the bundle | a flat bundle sweep | annulus 2.0–5.0 m, 180° | 16 | 39 | stagger, push to 5.5 m |
+
+Everything else (L, SP1, SP2, O, P, the tip x1.3, the walk 2.8, the bind mode) as B4a.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
