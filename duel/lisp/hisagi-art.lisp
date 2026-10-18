@@ -201,9 +201,9 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
   (:solid (mb-blade mb :width 0.028 :guard-color '(0.16 0.16 0.18) :handle-color '(0.07 0.07 0.08) :wrap-color '(0.16 0.16 0.2) :blade nil))
   (:solid :ink 0 (mb-blade mb :length 0.66 :width 0.028 :curve 0.012 :blade-color '(0.6 0.62 0.66) :edge-color '(0.86 0.88 0.9) :hilt nil)))
 
-(defparameter *hs-strike-reach* '((:hs-s-nage :sickle 6.3) (:hs-s-maki :sickle 3.55) (:hs-s-kari :sickle 2.8)   ; (the Shikai's
+(defparameter *hs-strike-reach* '((:hs-s-nage :sickle 6.0) (:hs-s-maki :sickle 3.55) (:hs-s-kari :sickle 2.8)   ; (the Shikai's
                                   (:hs-s-kaeshi :sickle 1.4) (:hs-s-rin :sickle 1.4)                          ;  clips, §21.4)
-                                  (:hs-k-saben :sickle 4.5) (:hs-k-kaeshi :sickle 4.5) (:hs-k-sensa :sickle 5.0)  ; (the Bankai's,
+                                  (:hs-k-saben :sickle 5.0) (:hs-k-kaeshi :sickle 4.5) (:hs-k-sensa :sickle 5.0)  ; (the Bankai's,
                                                                                 ;  §21.8; B4a: the annuli's 4.5 / 5.0, the K placed, §22.2: the
                                   (:hs-kb-kaeshi :sickle 1.5) (:hs-kb-hikigiri :sickle 2.95)                    ;  ranged mode,
                                   (:hs-kb-makigiri :chain 2.8) (:hs-kb-shibori :chain 2.95))                    ;  the bind's)
@@ -212,10 +212,11 @@ sickle thrown on its chain, drawn by HISAGI-DRAW with its point there on the hit
 on its chain to there (*HS-LETOUT*: J2, J3, KARI-OTOSHI's two at the fan's edges; the Bankai's hand chains), or the Bankai's
 chain strike's free end (*HS-BK-CHAINS*: from a hanging chain, the neck bundle or the orb); the host FK test reads these
 (as Senjumaru's *SJ-STRIKE-REACH*), and a host check ties them to those tables.")
-(defparameter *hs-flights* '((:hs-k1 6.3 t) (:hs-k2s 3.55 t) (:hs-shibari 4.85 nil) (:hs-raiden 6.8 nil)
+(defparameter *hs-flights* '((:hs-k1 6.0 nil) (:hs-k2s 3.55 t) (:hs-shibari 4.85 nil) (:hs-raiden 6.8 nil)
                              (:hs-kikon 8.0 nil))
   "Move -> how far the left sickle's point flies out on its hit frames (m: the volume's far edge, as *HS-STRIKE-REACH*) and
-whether it stays out (a throw: then at the anchor). (KARI-OTOSHI's two sickles: *HS-LETOUT*, the Shikai's clip, §21.4.)")
+whether it stays out (a throw: then at the anchor). (KARI-OTOSHI's two sickles: *HS-LETOUT*, the Shikai's clip, §21.4.)
+S1 (DUEL_HISAGI §23.3): K1 NAGI's sweep reaches its arc's 6.0 and comes back (no throw); NAGE's clip stands in for it.")
 
 ;;; ---------------------------------------------------------------- poses (his rig notes)
 ;;; The right hand's sickle is the J's: a horizontal cut is the arm held out (side ~88) swept by its flex (0 = to his
@@ -275,7 +276,7 @@ this far back through his fist (m), so he holds it just behind the blades' cross
     (:hs-s-kari :l 10 22 30 46 2.8 0.3 60 1.8)
     (:hs-s-intro :r 70 82 82 96 0.3 2.9 0 0)        ; the intro: tossed up, split, caught
     (:hs-s-intro :l 70 84 84 98 0.5 2.6 25 0)
-    (:hs-k-saben :r 9 12 16 24 4.5 1.2 nil 0)       ; the Bankai (§21.8): J1 鎖鞭, the right crescent cracked out (B4a: 4.5)
+    (:hs-k-saben :r 9 12 16 24 5.0 1.2 nil 0)       ; the Bankai (§21.8): J1 鎖鞭, the right crescent cracked out (S1: 5.0)
     (:hs-k-kaeshi :l 8 11 15 23 4.5 1.2 nil 0)      ; J2 返鞭, the left lashed back (4.5)
     (:hs-k-sensa :r 10 13 17 26 5.0 1.0 nil 0)      ; J3 旋鎖, both at full chain round the half turn (5.0)
     (:hs-k-sensa :l 10 13 17 26 5.0 1.0 nil 0)

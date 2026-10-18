@@ -272,7 +272,9 @@ new button."
             follow-up: the one-hand up-flick stays a Step in it, never a Hoho: control.lisp UP-FLICK-HOHO-P)
             :no-close (a J1 / K1 whose hit takes no generic close-in: STRING-OPENER-P; Hisagi's 6 m throw)
             :ranged-ward (while the move runs, hazards and :ranged windows are guarded from every side: rules
-            RANGED-WARD-STATE; unguardables pass; a GUARD CRUSH drops the move)"
+            RANGED-WARD-STATE; unguardables pass; a GUARD CRUSH drops the move)
+            :hit-only (a string link that follows only the previous link's own hit, never its block: fighter.lisp
+            MOVE-COMMANDS, CHAIN-MORE-P; Hisagi's Shikai K2 / K3, DUEL_HISAGI §23.3)"
   `(register-move ,name ',spec))
 
 ;;; ================================================================ kits

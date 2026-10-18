@@ -2246,6 +2246,79 @@ The spec (batch S1, a sim change, the Shikai `:base` only):
   (This replaces the lead's first default, "only the J-hit bridge charges".)
 - His CPU learns the bridge (J hit → L → K at range).
 
+### 23.1 S1 as built (2026-10-18): the windmill bridge, the charge (a sim change)
+
+`duel/lisp/hisagi.lisp` (the moves, knobs, the charge, the CPU, debug 83007 / 83008), `hisagi-art.lisp` (the charge cue,
+the scaled strikes), one shared rule for §23.3 (`:hit-only`, fighter.lisp); host tests in `tests/duel-rules-test.lisp`
+("Hisagi's S1"). The K string the bridge feeds is §23.3's (K1 薙 NAGI, K2 鋸 NOKO, K3 墜 TSUI), built in the same batch.
+
+**What is built.**
+- **The bridge.** The base kit's `:l-after-j :hs-kaza-j`: L pressed during a J1 / J2 / J3 link is latched and starts the
+  windmill when that link's chain opens (the generic L link, DUEL_STRINGS §12). The game's link rule lets a latched L
+  start after a blocked link too (in the link's last *CHAIN-LEAD* frames), so it is not hit-only: built as the rule is
+  (the user's words say 「命中後」; making it hit-only is one flag, `:hit-only`, on the copy, and one line in the L-link
+  path). Off the one-handed J2 / J3 (dormant since §23.3) L is refused by HS-OK as before (the sickle out). L is not a
+  segment: `:hs-kaza-j` has no J / K follow-up of its own; K from it starts a fresh K string at K1.
+- **The windmill copy `:hs-kaza-j`** is the windmill with its push a **stagger (26 f)** in place of the neutral one's 8 f
+  flinch, so J → L combos (hitstop on both sides: J1's hit at f8, the push 3 + 6 frames later, inside the 18 f flinch) and
+  **K pressed by the windmill's f14 combos into K1** (K at f9-f14: a charge of at most 9 frames, x1.09; from f15 K1 is a
+  frame trap at range). The charge trades the combo for reach: a long charge is a reach tool, not a combo. The neutral
+  windmill's K1 never combos (its 8 f).
+- **The charge** (HS-CHARGE-NEXT): +1 per frame L is held from the up frame f6 to the last held frame, at most 60
+  (x1.6); letting L go stops it for this windmill (held again: no more). **K from frame 9** (the push window's end) to the
+  move's last frame (hold or recovery) starts K1 through TRY-COMMAND; HS-TICK swaps in K1's copy at the charge. A released
+  windmill without K plays on as before: up at least 20 frames, then R 14.
+- **The neutral windmill charges too** (the user, 2026-10-18: 「中立的風車可以蓄力接 K」): the same tick, the same rule; its
+  cooldown 90 → 0 (「拿掉冷卻」).
+- **What the charge scales.** K1 NAGI's arc (its r x (1 + n / 100), the 2.0 m dead zone kept; 61 copies parsed at load,
+  `*HS-K1-SCALED*`, the same name, so the strings, hooks and CPU see K1). K2 / K3 follow the victim (§23.3), so they need
+  no scale (§23.2: 「K2, K3 的攻擊距離會按照對手的位置決定」). The charge lives while he is in a windmill or in the K string it
+  started (HS-KSTR-KEEP-P) and resets on any other move, a hit taken, neutral, a reset; a K1 from neutral never scales.
+- **The ender push** stays measured from the uncharged 6.0 m (`:push-reach`): a restarted K string is uncharged (a charged
+  one needs a windmill first: 6 + 3 + 18 frames after K3's 39 f of recovery, against its 40 f crumple), and pushing from
+  9.6 m would put him out of the O lane (8.4 m) and SP1's line.
+- **Presentation.** The windmill's disc grows with the charge (its circling radius x the charge: 1.6 → 2.56 m at x1.6);
+  K1's flight drawn at the arc's edge at the charge (HS-SCALED-TIP: 6.0 x the charge; the arc has no radius); 0 B (debug
+  83901 adds the windmill, NAGE and KARI-OTOSHI at x1.4: all 0).
+- **The state hash** adds `k<charge><K|-><L|-><throw charge>`.
+
+**Choices where the spec was silent:** K from f9 (after the push lands) to the windmill's end; the bridge's stagger (K1
+combos after a short charge); block links allowed (the game's rule); the ender push unscaled; only K1 scales (§23.2).
+
+**His CPU.** `:l-after-j` 0.3 (one roll per J-link hit: the bridge). At every L press but a ward against a ranged threat,
+one roll *HS-AI-KAZA-K-P* (EASY 0.4 / NORMAL 0.7 / HARD 0.9): yes holds L its full 60 f and presses K once K1 at the charge
+so far reaches him (the real distance within its line + 0.3 m, past the 2.0 m dead zone): off the bridge at once (the
+combo), from range after the charge it needs; out of reach at x1.6, no K. The neutral windmill at 6.2-9 m (`:sig 1` in
+that band): with no cooldown its weight is the only rate (one decision each time, never a per-step roll). The ward
+against a ranged threat (HS-AI-REFLEX) holds 36 f and never Ks.
+
+| Knob (hisagi.lisp) | Old → new | Who / when |
+|---|---|---|
+| `*hs-kaza-cooldown*` (both windmills) | 90 → 0 | the user, 2026-10-18: 「拿掉冷卻」 |
+| `*hs-charge-step*` / `*hs-charge-max*` | none → +1 % a frame, 60 frames (x1.6) | the user: 「連續：每幀 +1%，上限 ×1.6」 |
+| `*hs-kaza-k-from*` | none → f9 | S1's pick |
+| the bridge `:hs-kaza-j`'s push | (the neutral's 8 f flinch) → stagger 26 f | S1's pick (K1 combos after a short charge) |
+| `*hs-ai-l-after-j*` | none → 0.3 | S1's pick |
+| `*hs-ai-kaza-k-p*` | none → 0.4 / 0.7 / 0.9 | S1's pick |
+| `*hs-ai-kaza-margin*` | none → 0.3 m | S1's pick |
+
+**Host tests** (duel-rules-test, "Hisagi's S1"; ALL PASS): the bridge off J1 / J2 / J3 (and the one-handed J2 / J3,
+refused there), none off a K link, L not a segment, KKK after it; both windmills' cooldown 0, frames, tick, f0 reset; J1 /
+J2 / J3 → L combos with hitstop; L → K1 combos for K at f9-f14, not at f15, never off the neutral windmill; the charge +1 a
+frame from f6, 60 at most (x1.6), stopped by a let-go; K1's copies at every charge (frames, damage, flags, links, dead
+zone the same, the arc x the charge, the drawn tip on its edge), K2 / K3 themselves at any charge; on stand-ins the charge
+kept in a windmill and in its K string (K1's copy swapped in), reset by a J link, a neutral K1, a hit taken, neutral; the
+hash fields; the ender push from 6.0; `:hit-only` (§23.3). duel-control-test, learn-test, cine-test ALL PASS; pkgcheck
+clean; the build's only warnings the 4 known Lille ones.
+
+**Debug** (DUEL_GAMEPLAY): 83007 2 m from Kenpachi, J1 started with L latched (the bridge: hold L, K); 83008 8 m from
+him, the windmill started (hold L, K: the charged K1 at range). The probe line shows `charge n` (` K` in its string). The
+gate line counts `bridge`, `kaza-k`, `charge` (frames, summed), `ai-kaza-k`.
+
+**Browser** (one Chrome, `--fixed-dt`): a Shikai mirror (83005) ran with no error; 83901 every look 0 B (a first call's
+KUBIKAKE / KOSA 128 / 256 KB are one-time warm-ups: the second call reads 0 everywhere); 83007: J1, the bridge's push
+(20), K1 at x1.01 hit; 83008: the windmill charged 59 frames, K1 at x1.59 hit Kenpachi at 8.0 m.
+
 ### 23.2 The Shikai's K string pure ranged, J string close; the Bankai's two L (the user, 2026-10-18)
 
 The user's request, verbatim:
@@ -2286,6 +2359,70 @@ J1's 2.0–4.5 m and K1's 2.0–4.0 m.
 - From f20 the pull.
 - The strike about 4 f after the victim arrives.
 - The total stays about 30 f.
+
+Then (the user, 2026-10-18): 「卍解遠程 L 推到 3.5 公尺，J1 範圍設 3.0–5 m 和 K1 設 2.0–4.0 m」 (in place of the 3.0 m above).
+
+### 23.3 §23.2 as built (batch S1, 2026-10-18; a sim change)
+
+**The Shikai K string** (hisagi.lisp; the move ids kept, `:hs-k1` / `-k2` / `-k3`; §8.2's K rows superseded):
+
+| Move | S / A / R | Dmg | Volume | Reaction | Rules |
+|---|---|---|---|---|---|
+| K1 薙 NAGI (the sideways sweep) | 18 / 4 / 22 | 62 | arc r 6.0 (x the charge, §23.1), **90°** (`*hs-k1-arc*`, S1's pick), h 0.2-2.0, **dead zone 2.0 m** (`*hs-k-dead*`, :min-reach) | stagger | `:ranged :no-close`, :track 30; no throw, no drag |
+| K2 鋸 NOKO (the saw, hauled up) | 20 / 4 / 24, enter 6 | 56 | **the chain from his hand to the victim's centre** (`:seg-fn` HS-FOE-SEG, r 0.35) | stagger (S1's pick: hauled up without a launch, so K3 combos as every K link) | `:hit-only`; after K1 and after J1 (the cross link) |
+| K3 墜 TSUI (the plunge, ender) | 22 / 5 / 34, enter 8 | 80 | the same, on the victim | crumple | `:hit-only`, `:ender`; after K2 and after J2; its push from 6.0 (`:push-reach`) |
+
+- **Placed on the victim**: K2 / K3 strike along a chain to wherever he is that frame, so after a hit they connect (the
+  victim in hitstun; blockable as any hit). They have no dead zone: it binds K1, the only K aimed at range (J1 → K2 sits
+  inside 2.0 m by design: the cross link). The look draws their chain to the anchor, which HS-TICK keeps on him while they
+  run.
+- **Off a hit only** (「系統的設計邏輯本來就是 J1, K1 打中才能接後續攻擊」): the game's link rule also lets a link follow a
+  block, so a new move flag `:hit-only` (fighter.lisp LINK-CONTACT-OK-P, read by MOVE-COMMANDS and by CHAIN-MORE-P, so the
+  guard lock doesn't hold a blocker for a link that can't come) restricts K2 / K3. No other move has it (host-checked; every
+  other pairing byte-identical).
+- **Routes** JJJ (98), JJK (J1 J2 TSUI, 140), JKK (J1 NOKO TSUI, 166), KKK (198); **no J after a K** (KKJ, KJJ gone: the
+  victim stays at range and nothing drags him in). The J links are as before; each combos on a hit with hitstop
+  (host-tested), and J1 → NOKO / J2 → TSUI too.
+- **The sickle never leaves his hand now**: no K throws it, so its OUT / RETURNING states, the OUT graph (SEN-1H /
+  KAESHI-SEN-1H / RIN-1H, MODOSHI), MAKI and HODOKI are unreachable. Their code, clips and tests stay, dormant, for a
+  cleanup batch (or the return of a throw); the L / SP2 refusal while out never fires.
+- **Stand-in clips**: K1 plays NAGE's (its flight drawn to the arc's 6.0, back after the hit), K2 HIKI's, K3 HODOKI's (the
+  chain to him); KARI-OTOSHI's clip is no move's now. The art pass draws the sweep, the saw and the plunge.
+- His CPU: the close band no longer picks K (`:f` out of 0-2.0 m; 2.0-3.5 m keeps it); `:string-k` 0.7 picks NOKO after a
+  J1 hit as it picked MAKI.
+
+**The Bankai**: L SAHARAI's hit and block push to **3.5 m** (`*hs-saharai-hit*` 6.5 → 3.5, `*hs-saharai-block*` 4.5 →
+3.5); J1 旋鞭 an annulus **3.0-5.0 m**, 100° (`*hs-r-j1-dead*` 3.0 in place of `*hs-r-dead*`, reach 4.5 → 5.0; its tip x1.3
+on 4.0-5.0; its push to ≥ 3.5 m kept; the other links unchanged; its clip's let-out and drawn reach 5.0); K1 綁束 stays
+2.0-4.0 m. His CPU's bands: 2.0-3.0 K (no J), 3.0-4.0 K / J, 4.0-5.0 J, SP1 from 5.0. The J ender push now measures from
+J1's 5.0 (~5.43 m), then J3's own push to 5.5 m, still past J1.
+
+**The bind's L KOJO**: `*hs-kojo-pull-at*` 6 → 20 (f0-19 the tell; 「前 20 幀預備，拉到後 4 幀就打（推薦）」), S 30 kept;
+`*hs-pull-speed*` 18 → 60 m/s so the drag still lands him from 8 m by f26, 4 f before the strike (host-tested); nearer
+victims arrive sooner and wait longer (from 4 m: f22, 8 f). The tell is the clip's windup stretched over f0-29 (its
+`:clip-s 20` on S 30); the art pass draws the noose hauled up and taut.
+
+**Gates** (native; the lead re-runs them):
+- Identity: `simgate --seeds 10 --summary`'s 42 non-Hisagi lines byte-identical to the parent 1451186's (a `git
+  archive` baseline, `[simgate] building` lines filtered); `--cvc` PASS (yy / yk / kk identical).
+- His 7 pairings at 20 seeds (NORMAL, P1 Hisagi; before = the parent 1451186):
+
+| Pairing | KOs | Median s (before) | P1 wins (before) |
+|---|---|---|---|
+| HY | 20 | 137.4 (128.8) | 3 (7) |
+| HK | 20 | 125.3 (135.9) | 1 (0) |
+| HR | 20 | 141.4 (160.6) | 1 (1) |
+| HI | 20 | 177.5 (156.5) | 3 (2) |
+| HS | 20 | 165.6 (158.6) | 0 (8) |
+| HB | 20 | 165.8 (158.4) | 1 (3) |
+| HH | 18 (19) | 233.8 (247.1) | 8-12 (8-12) |
+
+Every cross median inside 125-210 s (HK at the edge, 125.3); the mirror has 2 time-outs (1 before; a mirror may exceed
+210). Usage (P1, 140 matches): 162 bridges, 107 K strings out of a windmill, 18.5 charge frames each on average.
+
+**Known issues.** His P1 wins fell (9 of 120 cross matches, 21 before; HS 8 → 0): the Shikai lost its drag, its KJJ / KKJ
+routes and K1's close range, and SAHARAI no longer buys 6.5 m; nothing retuned (the spec). The dormant OUT machinery
+(above). The stand-in clips. KOJO's nearer victims wait up to ~8 f. The mirror's time-outs. The awaken A/B not run.
 
 ## 18. Open
 
