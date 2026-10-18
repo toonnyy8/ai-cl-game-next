@@ -2111,6 +2111,32 @@ byte-identical (below). The awakening moves no one.
   | HB | 167.9 s | 0 |
   | HH (mirror) | 234.1 s | 10 / 9, 1 draw |
 
+### 22.8 K1 far only, the ranged L without cooldown, the rain close in (the user, 2026-10-18)
+
+The user's request, verbatim:
+
+> - 讓 K1 只能打中遠方的敵人，近身的敵人要靠 L 快速擊退（去掉遠程時 L 的冷卻，一樣調整前後搖來控制出招的主動性）
+> - 鎖雨改成近距離也打得中
+> - 聚合 K2 的第二下改成「浮空」
+
+What changes (the lead's numbers for the user's direction; batch B4d, a sim change):
+- **K1 綁束** gets the 2.0 m dead zone back and reaches farther: an annulus 2.0–4.0 m, 360° (was r 3.0 with no dead
+  zone). The rest of its data is unchanged.
+- **The ranged L 鎖払 SAHARAI** loses its cooldown (120 → 0). It starts faster and recovers slower, so it is a quick
+  repel with real commitment:
+
+  | Knob | Old | New |
+  |---|---|---|
+  | Startup | 14 | 10 |
+  | Recovery | 22 | 32 |
+  | Block advantage | −4 | −16 |
+
+  Its hit (push to 6.5 m), block push (4.5 m) and volume (360°, r 3.0) are unchanged. It is his only close-in tool.
+- **The bind's SP1 鎖雨 KUSARI-AME** loses the 2.0 m dead zone: it hits at any range (its 10 m × 2 m lane from his
+  feet).
+- **Gathered K2's second hit** stays a launch (B4c's choice, now the user's).
+- The CPU follows: K1 at 2.0–4.0 m; L whenever the foe is inside 2 m.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
