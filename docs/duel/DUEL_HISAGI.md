@@ -2870,9 +2870,14 @@ P1 wins 9 of 120 cross matches (S2: 11): still weak, nothing retuned.
 nothing; KUBIKAKE ready right after its start (no cooldown), its whiff 60; the release's end effects (set as KAIBAKU-GEKI's
 S sets them).
 
+**Gates** (the lead): host duel-rules 9870, control 89, learn 131, cine 18 ALL PASS; pkgcheck clean; the 42 non-Hisagi lines
+and `--cvc` byte-identical. His 7 pairings at 20 seeds (before = §24.4): HY 128.5 s (136.3), HK 130.9 (130.9), HR 134.3
+(158.8), HI 167.6 (161.9), HS 161.1 (161.1), HB 136.5 (139.4), HH 235.6 (235.6, a mirror); every match a K.O., every cross
+median inside 125–210 s. His P1 wins 10 of 120 (9).
+
 ## 18. Open
 
-- §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built; gates below when they finish.
+- §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
 
 - §24.4 (one leap a combo, K1 3.0 m, the bridge push 2.5): built and gated (every median in the window); his P1 wins 9 of 120.
 
