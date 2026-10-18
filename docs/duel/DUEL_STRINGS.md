@@ -702,7 +702,7 @@ in the game and the shared machine was loaded (seeds 1–60 took ~40 min); its l
 33. At Rukia's J 0.4 the first A/B failed: RY 11 / 17 / 16, RK 22 / 21 / 11 (hence her 0.6). Yamamoto and Kenpachi have
 no A/B procedure of their own.
 
-**Exception (2026-10-18)**: Hisagi's Bankai ranged mode (`(:hisagi :bankai)`) inverts the rule on the user's request (「J 的範圍改 3~6」「K 的範圍改 1~4」): every J 3.0–6.0 m, every K 1.0–4.0 m; the host's J-short / K-long walk skips that form (DUEL_HISAGI §25.3; its K1 vs J1 since §22.4).
+**Exception (2026-10-18)**: Hisagi's Bankai ranged mode (`(:hisagi :bankai)`) inverts the rule on the user's request (「J 的範圍改 3~6」「K 的範圍改 1~4」): every J 3.0–6.0 m, every K 1.0–4.0 m (2.0–5.0 m since DUEL_HISAGI §25.5); the host's J-short / K-long walk skips that form (DUEL_HISAGI §25.3; its K1 vs J1 since §22.4). A move's `:params :r-cancel (:q :f)` (MOVE-COMMANDS) lets J / K cancel its recovery into J1 / K1: only Hisagi's ranged L SAHARAI (§25.5).
 
 ## 14. The grab needs to be closer: 防 > J > I > 防 (the user, 2026-09-29)
 

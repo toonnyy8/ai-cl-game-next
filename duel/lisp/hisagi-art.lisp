@@ -208,9 +208,9 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
                                                                                 ;  §21.8; B4a: the annuli's 4.5 / 5.0, the K placed, §22.2: the
                                   (:hs-kb-kaeshi :sickle 1.5) (:hs-kb-hikigiri :sickle 2.95)                    ;  ranged mode,
                                   (:hs-kb-makigiri :chain 2.8) (:hs-kb-shibori :chain 2.95)                     ;  the bind's)
-                                  (:hs-k-hosoku :chain 4.0) (:hs-k-s-k2 :chain 4.0) (:hs-k-s-k3 :chain 4.0)    ; (A2, §24.2: the
-                                  (:hs-k-g-k2 :chain 4.0) (:hs-k-g-j2 :chain 6.0) (:hs-k-g-k3 :chain 4.0)     ;  ranged route
-                                  (:hs-k-g-j3 :chain 6.0)                                                     ;  links, *HS-LASHES*; §25.3: J 6, K 4)
+                                  (:hs-k-hosoku :chain 5.0) (:hs-k-s-k2 :chain 5.0) (:hs-k-s-k3 :chain 5.0)    ; (A2, §24.2: the
+                                  (:hs-k-g-k2 :chain 5.0) (:hs-k-g-j2 :chain 6.0) (:hs-k-g-k3 :chain 5.0)     ;  ranged route
+                                  (:hs-k-g-j3 :chain 6.0)                                                     ;  links, *HS-LASHES*; §25.3 / §25.5: J 6, K 5)
                                   (:hs-k-saharai :chain 3.0) (:hs-kb-kojo :sickle 3.0) (:hs-kb-kaibaku :sickle 3.0))   ; (A3, §24.3)
   "Clip -> what strikes, and its drawn reach (m, the hit volume's far edge: line end + radius, or the arc's): the left
 sickle thrown on its chain, drawn by HISAGI-DRAW with its point there on the hit frames (*HS-FLIGHTS*), a sickle let out
@@ -1102,10 +1102,10 @@ down point first onto him (S 22), held in him, hauled back.")
 ;;; (the moves' :clip-s = their S). He signals, the orb's chains strike (*HS-LASHES*: lagging, tapered lashes from the orb
 ;;; with a trail, the spread links' thin hanging chains, the gathered links' one bundle of all eight); the windups are big
 ;;; and held (the user, 2026-10-18: 「動作要配合誇張而明顯的前搖」), the gathered ones longer and heavier.
-;; K1 綁束 HOSOKU (16/4/22, the annulus 1.0-4.0 m, 360 deg, §25.3; the gathered opener): the stir: the right arm up over his head
+;; K1 綁束 HOSOKU (16/4/22, the annulus 2.0-5.0 m, 360 deg, §25.5; the gathered opener): the stir: the right arm up over his head
 ;; circling (a key every 3 f: the orb winding, the curtain drawn in and up round him), coiled to his right on the back foot
 ;; (held f6-14); the fling on S: unwound to his left with the spin, the arms flung wide, every hanging chain whirled out to
-;; 4.0 m round him (a key each 90 deg, f16-19); the haul: his fists brought in, the chains wound in and bound into one
+;; 5.0 m round him (a key each 90 deg, f16-19); the haul: his fists brought in, the chains wound in and bound into one
 ;; bundle at his right front (f21-26), the right fist low on it
 (defpose :hs-k-hosoku-up (:base :hs-k-stance)
   (:root :u -0.16 :f -0.06 :yaw -36) (:pelvis :twist -10) (:spine :flex 8) (:chest :twist -34) (:neck :twist 24) (:head :flex -12)
@@ -1136,7 +1136,7 @@ down point first onto him (S 22), held in him, hauled back.")
   (34 :hs-k-hosoku-bind)
   (:end :hs-k-stance))
 
-;; spread K2 散鞭 (21/4/24, link f6; a 60 deg fan to 4.0 m, §25.3): the whip-crack: the right arm swung up and far back over his
+;; spread K2 散鞭 (21/4/24, link f6; a 60 deg fan to 5.0 m, §25.5): the whip-crack: the right arm swung up and far back over his
 ;; shoulder, arched back, coiled to his right, the left hand pointing (held f10-18), four hanging chains hauled up high
 ;; behind him; cracked down on S: the arm flung down ahead, pitched over the front knee, the four whipping the ground in a
 ;; fan at 6 m and lying there (to f30)
@@ -1160,7 +1160,7 @@ down point first onto him (S 22), held in him, hauled back.")
   (30 :hs-k-sk2-hit (:root :u -0.28) (:spine :flex 38) (:arm-r :flex 58))
   (:end :hs-k-stance))
 
-;; spread K3 散撃 (21/5/34, link f6; a 160 deg fan to 4.0 m, §25.3; ender): the curtain drawn back: both arms flung back and wide,
+;; spread K3 散撃 (21/5/34, link f6; a 160 deg fan to 5.0 m, §25.5; ender): the curtain drawn back: both arms flung back and wide,
 ;; the chest thrown out, arched, every hanging chain hauled back high behind him (held f9-19); the fling on S: both arms
 ;; swept forward and out together, a lunge onto the front foot, all eight lashed forward in a fan (a third of a frame
 ;; apart), settling to the floor
@@ -1182,7 +1182,7 @@ down point first onto him (S 22), held in him, hauled back.")
   (36 :hs-k-sk3-hit (:root :u -0.26) (:spine :flex 30) (:arms :flex 76 :side 58))
   (:end :hs-k-stance))
 
-;; gathered K2 束打 SOKUDA (27/10/24, link f6; hit 1 f27 and hit 2 f33 on 1.0-4.0 m, §25.3): the heave: both fists up
+;; gathered K2 束打 SOKUDA (27/10/24, link f6; hit 1 f27 and hit 2 f33 on 2.0-5.0 m, §25.5): the heave: both fists up
 ;; over his right shoulder, sunk on the back leg, arched and coiled, the bundle hauled up high behind him (held f16-24);
 ;; the U on S: both arms brought down over his head, bent double, the bundle arcing over and slammed onto the ground ahead
 ;; (held to f30); the L at f33: a shove forward off the front foot, its tail lashed on along the ground to 8 m, left lying
@@ -1212,7 +1212,7 @@ down point first onto him (S 22), held in him, hauled back.")
   (48 :hs-k-gk2-shove (:root :f 0.3 :u -0.28) (:spine :flex 28))
   (:end :hs-k-stance))
 
-;; gathered K3 束旋 SOKUSEN (27/5/34, link f6; the annulus 1.0-4.0 m, 360 deg, §25.3; ender): the haul: leaning back, the bundle
+;; gathered K3 束旋 SOKUSEN (27/5/34, link f6; the annulus 2.0-5.0 m, 360 deg, §25.5; ender): the haul: leaning back, the bundle
 ;; dragged in off the floor hand over hand (f10 / f15), then swung round to his right and wound up, crouched (held f20-26);
 ;; the spin on S: the whole body turned with it, arms flung out, the bundle whirled round him at 6 m (a key each 90 deg,
 ;; f27-31), let fly through and settled
@@ -1622,24 +1622,24 @@ for the links).")
 (defparameter *hs-bolts* '((:hs-s-raiden 6.5) (:hs-k-raiden 9.3) (:hs-kb-raiden 4.3))
   "Clip -> TSUZURI RAIDEN's bolt along his line (m: from 0.5 to about this, the volume's far edge; the Shikai's 6.5).")
 (defparameter *hs-lashes*
-  '((:hs-k-hosoku 255 0 1.0 2 30                    ; K1 綁束: all eight hauled in and up, whirled out to 4.0 m round him
+  '((:hs-k-hosoku 255 0 1.0 2 30                    ; K1 綁束: all eight hauled in and up, whirled out to 5.0 m round him (§25.5)
      (6 0.8 2.4 0 45 0) (13 0.6 2.8 40 45 0.2) (15 0.9 2.2 70 45 0)          ;  (the orb winding), the spin a key each 90 deg
-     (16 4.0 1.0 100 45 0.6) (17 4.0 1.0 190 45 0.4) (18 4.0 1.0 280 45 0.3) (19 4.0 1.0 370 45 0.2)
-     (21 3.0 1.1 430 45 0.2) (25 1.6 1.0 470 45 0))                             ;  wound in: the bundle (*HS-BUNDLED*)
+     (16 5.0 1.0 100 45 0.6) (17 5.0 1.0 190 45 0.4) (18 5.0 1.0 280 45 0.3) (19 5.0 1.0 370 45 0.2)
+     (21 3.6 1.1 430 45 0.2) (25 1.6 1.0 470 45 0))                             ;  wound in: the bundle (*HS-BUNDLED*)
     (:hs-k-s-k2 102 0.34 0.8 7 42                   ; spread K2: hanging chains 1 2 5 6 hauled up behind him, over the top,
      (10 1.5 2.8 140 27 0) (17 1.7 3.6 145 27 0.3) (19 0.6 4.6 150 27 0)        ;  whipped onto the ground in a 60 deg fan
-     (20 2.2 3.4 30 -20 1.0) (21 4.0 0.05 30 -20 0.8) (24 4.0 0.05 30 -20 -0.6) (30 3.8 0.05 30 -20 -0.8))
+     (20 2.6 3.4 30 -20 1.0) (21 5.0 0.05 30 -20 0.8) (24 5.0 0.05 30 -20 -0.6) (30 4.8 0.05 30 -20 -0.8))
     (:hs-k-s-k3 255 0.45 0.85 7 50                  ; spread K3: all eight drawn back high behind him, lashed forward in a
      (9 1.7 2.6 110 20 0) (18 2.0 3.0 112 20 0.3) (20 2.2 2.8 114 20 0)       ;  160 deg fan (a third of a frame apart)
-     (21 4.0 0.9 80 -22.857 0.6) (25 4.0 0.8 80 -22.857 0.2) (34 3.6 0.25 80 -22.857 -0.6))
-    (:hs-k-g-k2 256 0 1.0 6 58                      ; gathered K2: the bundle heaved up behind him, over: the U onto 4.0 m,
+     (21 5.0 0.9 80 -22.857 0.6) (25 5.0 0.8 80 -22.857 0.2) (34 4.6 0.25 80 -22.857 -0.6))
+    (:hs-k-g-k2 256 0 1.0 6 58                      ; gathered K2: the bundle heaved up behind him, over: the U onto 5.0 m,
      (9 1.2 2.2 -60 0 0) (16 1.4 4.4 -150 0 0.4) (24 1.6 4.8 -158 0 0.5)       ;  then its tail lashed flat along the ground at
-     (26 0.6 5.4 -20 0 0) (27 4.0 0.25 0 0 2.4) (30 4.0 0.2 0 0 1.4)           ;  4.0 m (the L; §25.3: K 1-4 m), left lying
-     (31 3.6 0.12 0 0 -0.4) (33 4.0 0.1 0 0 -1.6) (36 4.0 0.1 0 0 -1.8) (46 3.9 0.05 0 0 -2.0))   ;  flat ahead
+     (26 0.6 5.4 -20 0 0) (27 5.0 0.25 0 0 2.4) (30 5.0 0.2 0 0 1.4)           ;  5.0 m (the L; §25.5: K 2-5 m), left lying
+     (31 4.6 0.12 0 0 -0.4) (33 5.0 0.1 0 0 -1.6) (36 5.0 0.1 0 0 -1.8) (46 4.9 0.05 0 0 -2.0))   ;  flat ahead
     (:hs-k-g-k3 256 0 1.0 5 58                      ; gathered K3: the lying bundle hauled in and round to his right, whirled
-     (6 3.9 0.05 0 0 -2.0) (14 4.0 0.15 -10 0 -1.2) (20 4.0 0.4 -60 0 -0.4)    ;  round him at 4.0 m (a key each 90 deg)
-     (25 4.0 0.6 -100 0 0) (26 4.0 0.7 -110 0 0) (27 4.0 0.8 -20 0 0.3) (28 4.0 0.8 70 0 0.3) (29 4.0 0.8 160 0 0.3)
-     (30 4.0 0.8 250 0 0.3) (31 4.0 0.8 340 0 0.3) (34 3.8 0.6 380 0 0) (42 3.4 0.3 400 0 -0.4))
+     (6 4.9 0.05 0 0 -2.0) (14 5.0 0.15 -10 0 -1.2) (20 5.0 0.4 -60 0 -0.4)    ;  round him at 5.0 m (a key each 90 deg)
+     (25 5.0 0.6 -100 0 0) (26 5.0 0.7 -110 0 0) (27 5.0 0.8 -20 0 0.3) (28 5.0 0.8 70 0 0.3) (29 5.0 0.8 160 0 0.3)
+     (30 5.0 0.8 250 0 0.3) (31 5.0 0.8 340 0 0.3) (34 4.8 0.6 380 0 0) (42 4.4 0.3 400 0 -0.4))
     (:hs-k-g-j2 256 0 1.0 1 30                      ; gathered J2: the bundle cocked back by his right hip, lashed straight
      (5 1.0 1.2 -120 0 0) (13 1.5 1.5 -140 0 0.2) (15 1.2 1.6 -100 0 0)        ;  down the line at the chest, a wave along it
      (16 6.0 1.0 0 0 0.6) (17 6.0 1.0 0 0 -0.4) (18 6.0 1.0 0 0 0.25) (20 5.8 0.9 0 0 -0.15))

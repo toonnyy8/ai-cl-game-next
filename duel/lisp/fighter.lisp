@@ -653,7 +653,10 @@ action started."
                                              nil)
                                             ((eq (mv-kind mv) :breaker)   ; the Breaker opens a string: J1 / K1 off its
                                              (and (cancel-open-p sf (fighter-land-sf f) (mv-total mv) (eq landed :hit))   ; hit
-                                                  (try-command e f cmd button)))))   ; or Guard Break (the user 2026-10-02)
+                                                  (try-command e f cmd button)))   ; or Guard Break (the user 2026-10-02)
+                                            ((member cmd (getf (mv-params mv) :r-cancel))   ; its recovery cancelled into
+                                             (and (>= sf (+ (mv-s mv) (mv-a mv)))           ;  J1 / K1 (Hisagi's ranged L,
+                                                  (try-command e f cmd button)))))   ;  DUEL_HISAGI §25.5; none else)
                              (:sig (let ((l (kit-l-link kit name)))   ; L after a J / K link: latched like a link
                                      (if l
                                          (progn (if (kit-command-ok-p e :sig (fighter-kit f) nil l)

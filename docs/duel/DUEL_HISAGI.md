@@ -2972,6 +2972,43 @@ His P1 wins 13 of 120 (10).
   pacing ok (NORMAL medians 126.2-165.6 s).
 - The freeze is the commit adding this baseline (`step.sh` / `rescore.sh` find it).
 
+### 25.5 The ranged L's recovery cancelled by J / K; the K 2–5 m; the tip's SP gain (the user, 2026-10-18; a sim change)
+
+> 「然後 L 後可以接 J / K」; asked which L and how: 「卍解遠距的 L 鎖払」, 「理解成 J / K 能取消卍解遠距 L 的後搖」,
+> 「卍解的遠距 J / K 能取消 L 的後搖」. Then 「然後卍解遠距 K 改成 2~5 m」 and 「然後卍解遠距的鎖鏈尾端除了傷害加成以外也增加 SP
+> 恢復量的加成」.
+
+The re-opened round 1 (§25.4: b0a0, b1a0, minutes in) was stopped again; the search re-freezes on these rules (§25.6).
+
+**As built**:
+- **L SAHARAI's recovery cancel** (`duel/lisp/hisagi.lisp` `:hs-r-l` `:params (:r-cancel (:q :f))`; the shared reader in
+  `duel/lisp/fighter.lisp` MOVE-COMMANDS, the J / K branch, after the Breaker's: a move whose `:params :r-cancel` names the
+  command starts it through TRY-COMMAND from its first recovery frame, S + A): J / K start J1 / K1 out of L's recovery,
+  whether L hit, was blocked or whiffed (the literal reading; L's 32 f recovery stays the price of not cancelling). No other
+  move has the key (host-pinned), so every other fighter's play is unchanged.
+- **The K 2.0–5.0 m** (`*hs-r-k-dead*` 1.0 → **2.0**, `*hs-r-k-reach*` 4.0 → **5.0**; K2's two caps 2.0–4.5 r 0.5; the tip
+  4–5 m): the J (3–6) and the K overlap on 3–5 m, the 3.5 m placement inside both. The CPU's SAHARAI band `*hs-ai-close*`
+  1.0 → 2.0, its bands 0–2 L, 2–3 K1, 3–5 K1 / J1, 5–6 J1. The art's K (K1's spin, the spread K2s / K3, the gathered K2 / K3G)
+  drawn to 5.0 m.
+- **The tip's SP gain** (`*hs-r-tip-sp-mult*` **1.3**, the lead's number, the damage's): HS-DMG-MULT marks a tip hit (the
+  ranged mode, x1.3) with his Reiatsu before the hit's gains (HSS-TIP-R); his :hit hook (HS-BK-HIT) pays the gain since the
+  mark x0.3 more (with the tip's damage x1.3: x1.69 a non-tip hit's Reiatsu); a non-tip hit clears the mark. A `duel hisagi`
+  counter `tip-sp`.
+
+**Host tests**: duel-rules 9874 (+4: the r-cancel key on SAHARAI only; the tip's mark, its pay x1.3, a non-tip hit's none),
+the volumes, dead zones, table reaches, tips and the CPU's reach reads re-pinned to K 2–5; control 89, learn 131, cine 18 ALL
+PASS; pkgcheck clean.
+
+**Smoke** (browser, `--fixed-dt`): the six routes land three hits each at K 2–5 (KKK K1 K2 K2 K3G, KKJ, KJJ from 2.5 m; JJJ,
+JJK, JKK from 3.5 m; J1 J2 K3 from 6.0 m); L then J at once: L J1 J2 J3; L K1 K2; L K1 J2s; a whiffed L at 6 m then J1. A dump
+of the moves (centre to centre): K1 / K2s / K3 / K2 (both windows) / K3G min 2.0, far edge 5.0; J1 / J2 / J3 / J2s / J3G 3.0,
+6.0 (a hit lands to the far edge + the victim's hurt radius ~0.36 m, as everywhere).
+
+**Gates** (the lead; the playtest Artifact v107 first): the 42 non-Hisagi lines of `--seeds 10 --summary` (fighter.lisp is
+shared: the new key is read only off a move that has it) and `--cvc` byte-identical. His 7 pairings at 20 seeds (before =
+§25.3): HY 127.3 s (128.3), HK 132.9 (131.9), HR 152.8 (152.4), HI 160.3 (151.3), HS 165.8 (172.1), HB 169.5 (157.0), HH 217.0
+(206.6, a mirror); every match a K.O., every cross median inside 125–210 s. His P1 wins 11 of 120 (13).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
