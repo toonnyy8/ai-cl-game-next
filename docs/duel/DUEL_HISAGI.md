@@ -2184,6 +2184,26 @@ What changes (the lead's numbers for the user's direction; batch B4d, a sim chan
   pose for its extra frames; the generic CPU branches (a punish, the pressure reset) may still press K1 inside 2 m (B4a's
   issue for J1, now K1's too); the two time-outs above.
 
+### 22.9 The bind's K ender push past K1's capsule (the user, 2026-10-18: 「修 A」)
+
+The user's playtest question: 「卍解捆綁的近身 K 串打完後沒有把對手推出 K1 的攻擊範圍，這是刻意的設計嗎？」. It was not
+intentional.
+
+The cause:
+- The generic ender push (fighter.lisp ENDER-PUSH) measures from the opener's reach. For the bind's K1 HIKIGIRI that
+  is its capsule's length, 2.6 m.
+- The push lands the victim at 2.6 + his body 0.35 + 0.05 ≈ 3.0 m.
+- But the capsule is 0.35 m thick, so K1 touches a victim out to ≈ 3.3 m. A restarted K1 still reached him.
+
+The options offered:
+- A: fix him only, through the bind kit's `:push-reach`.
+- B: fix the formula for everyone. Every other fighter's K1 is a capsule too, with the same formula; all 15 pairings
+  would move.
+
+The user took A: the bind kit's `:push-reach` is `*hs-b-push-reach*` 2.95 (2.6 + the capsule's 0.35), so the push
+reaches ≈ 3.35 m. A host check pins it. B is not done; whether the others really reconnect after their K3 (most of
+their K3 reactions keep the victim down) is unmeasured.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.

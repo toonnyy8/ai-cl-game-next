@@ -3240,7 +3240,7 @@ past the ends; DEFAULT if the clip is not listed."
     ;; the forms: both awakened (Kikon 3), the stats; the base form awakens into the ranged mode; the hooks B1b asks
     (check (and (kit-awakening kr) (kit-awakening kb) (= 3 (kit-kikon-konpaku kr)) (= 3 (kit-kikon-konpaku kb))
                 (~= (kit-mult kr) 1.0) (~= (kit-taken kr) 1.0) (~= (kit-walk kr) 2.8) (~= (kit-run kr) 8.5)
-                (~= (kit-walk kb) 3.8) (~= (kit-run kb) 9.0) (~= (kit-push-reach kr) 7.5) (null (kit-push-reach kb))
+                (~= (kit-walk kb) 3.8) (~= (kit-run kb) 9.0) (~= (kit-push-reach kr) 7.5) (~= *hs-b-push-reach* (kit-push-reach kb))   ; (§22.9: from 2.95, past K1 HIKIGIRI's capsule)
                 (eq :bankai (kit-endless-form kb))))
     (check (every (lambda (k) (every (lambda (h) (kit-hook k h)) '(:bind :bind-damage :bind-pool :bind-heal :bind-step
                                                                    :bind-resolve :bind-snapshot)))
@@ -3349,6 +3349,10 @@ past the ends; DEFAULT if the clip is not listed."
     ;; the K ender push from 7.5 m (Q6 B's rule): ~7.95 m, inside the O lane (9 m + its r 1.0) and SP1's 9 m line; J3's
     ;; from J1's 4.0 m (~4.45 m), inside SP2's 10 m lane
     (check (and (~= 7.5 (ender-push-reach kr (m :hs-r-k3) (m :hs-r-k1))) (~= 4.5 (ender-push-reach kr (m :hs-r-j3) (m :hs-r-j1)))))
+    ;; the bind's K ender push from 2.95 m (§22.9): past K1 HIKIGIRI's capsule (2.6 m + its r 0.35 + the victim's 0.35),
+    ;; so a restarted K1 cannot touch him; its J ender's from J1's 1.5 m as before
+    (check (and (~= 2.95 (ender-push-reach kb (m :hs-b-k3) (m :hs-b-k1))) (~= 1.5 (ender-push-reach kb (m :hs-b-j3) (m :hs-b-j1)))
+                (> (+ 2.95 0.35 *ender-push*) (+ 2.6 0.35 0.35))))
     (dolist (r '(0.34 0.38 0.45))
       (let ((push (+ 7.5 r *ender-push*)) (ov (first (hw-vols (svref (mv-hits (m :hs-r-kikon)) 0)))))
         (check (and (<= 7.85 push 8.05) (<= push (+ (aref ov 2) (aref ov 4) r)) (<= push (+ 9.0 0.3 r))))))

@@ -64,6 +64,11 @@ user: 「可以」 to DUEL_HISAGI §22.1: he stands his ground, the chains move)
 (defparameter *hs-r-push-reach* 7.5
   "The ranged mode's K ender push is measured from this (kit :push-reach, §17.1: K1 TSUISA's old 7.5 m line; kept for B4c's
 K3 / K3G, ~7.95 m: inside the O's 9 m lane and SP1's 9 m line, though K1 綁束 reaches 3.0 now, §22.6; 4.0 since B4d, §22.8).")
+(defparameter *hs-b-push-reach* 2.95
+  "The bind mode's K ender push is measured from this (kit :push-reach): K1 HIKIGIRI's capsule is 2.6 m long but 0.35 m
+thick, so the generic push from its 2.6 m (to ~3.0 m) left the victim inside a restarted K1 (it touches him out to ~3.3
+m); from 2.6 + the capsule's 0.35 the push reaches ~3.35 m (none -> 2.95, 2026-10-18, the user: 「修 A」, DUEL_HISAGI
+§22.9).")
 (defparameter *hs-saharai-hit* 6.5 "L SAHARAI's hit pushes him to this many metres from Hisagi (18 f, §17.1) ...")
 (defparameter *hs-saharai-block* 4.5 "... its block to this many (the block slide).")
 (defparameter *hs-saharai-frames* 18 "SAHARAI's push, frames (the block's: 12).")
@@ -459,7 +464,7 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
   :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-k-stance
   :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI"
   :clip-map *hs-bk-clips* :look-clips *hs-bk-looks* :run-clips (:hs-k-run :hs-k-skate-b :hs-k-slide-r :hs-k-slide-l)
-  :endless-form :bankai
+  :endless-form :bankai :push-reach *hs-b-push-reach*
   :walk *hs-b-walk* :run *hs-b-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult 1.0 :taken 1.0
   :commands (:q :hs-b-j1 :f :hs-b-k1 :sig :hs-b-l :sp1 :hs-r-sp2 :sp2 :hs-b-sp2 :breaker :hs-breaker :kikon :hs-b-kikon)
   :grid (:hs-b-j1 :hs-b-j2 :hs-b-j3 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-j2s :hs-b-k2s)
