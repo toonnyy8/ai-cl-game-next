@@ -2444,6 +2444,119 @@ The spec (batch S2, a sim change, the Shikai only):
   - It is a lunge, so it is bounded by the K string's ranges (K1's 6 m × the charge, at most 9.6 m).
   - The leap's speed and frames are the lead's pick, so that the J lands as a link off the K's hitstun.
 
+### 23.5 S2 as built (2026-10-18; a sim change, the Shikai `:base` only)
+
+`duel/lisp/hisagi.lisp` (the copies, the leap, the grid, the CPU, debug 83009 / 83019), `fighter.lisp` / `kit.lisp`
+(S1's `:hit-only` removed); host tests in `tests/duel-rules-test.lisp` (the string budget, "Hisagi's Shikai", "Hisagi's
+S1" → S2's block).
+
+**1. Links after a block** (「被防禦後也能繼續接連段」).
+- K2 NOKO / K3 TSUI drop `:hit-only`: they follow a K1 / K2 / J1 / J2 hit **or block** at the game's link rule (on a
+  block in the link's last *CHAIN-LEAD* frames), still placed on the victim (HS-FOE-SEG: on a block, blocked).
+- No move used the flag after that, so it is gone: LINK-CONTACT-OK-P and its two calls (MOVE-COMMANDS, CHAIN-MORE-P)
+  are back to the pre-S1 code, and kit.lisp's doc line too. The 42 non-Hisagi gate lines are byte-identical (below).
+- The guard lock now holds a blocker of K1 / K2 for the next link as it does for every link (CHAIN-MORE-P).
+
+**2. KJJ and KKJ restored, with a leap** (「始解 KJJ, KKJ 時 J 會跳近對手進行攻擊」).
+- **The grid** (the game's six routes, one J / K switch at most):
+
+| Route | Links | Damage (before x1.15) |
+|---|---|---|
+| JJJ | J1 SEN → J2 KAESHI-SEN → J3 RIN | 98 |
+| JJK | J1 → J2 → K3 TSUI | 140 |
+| JKK | J1 → **K2J** NOKO → K3 TSUI | 166 |
+| KKK | K1 NAGI → K2 NOKO → K3 TSUI | 198 |
+| KJJ | K1 → **J2K** (the leap) → J3 RIN | 130 |
+| KKJ | K1 → K2 → **J3K** (the leap) | 156 |
+
+  KJK and JKJ do not exist (a second switch: the grid's general rule). `:hs-k2j` is J1's own copy of K2 (the same
+  data), so K1's K2 can go on with J without J1 → K2 doing so (JKJ). J2K's J3 is the plain J3 (he is close by then).
+  The bridge (J → L) also follows J2K / J3K (they are J links). The OUT graph's one-handed J string is unchanged (dormant).
+- **The leap copies** `:hs-j2k` / `:hs-j3k`: J2 / J3 with **S 14** (`*hs-leap-s*`, J2's 8 / J3's 9 → 14), **-6 on block**
+  (`*hs-leap-block*`), the same damage, reach 1.4, reactions (flinch / stagger), recovery and J3's `:ender`, and the tick
+  HS-LEAP-TICK. No other move leaps (host-checked): the leap is only in these two links.
+- **The leap** (HS-LEAP-SPEED, each startup frame): STRING-CHASE-SPEED toward the victim's current position (re-aimed
+  every frame), to J's chase goal 1.0 m centre to centre (reach 1.4 - 0.4, inside the J's reach) exactly as the hit window
+  opens at f14; at most 60 × `*hs-leap-max*` / 13 m/s (44.3 m/s), so the whole leap covers at most **9.6 m** (K1's 6.0 ×
+  the charge's 1.6). From 2-10.6 m it ends at 1.0 m (host-tested frame by frame); from farther it stops short; inside 1.0 m
+  it doesn't move. It replaces the move step's velocity (a J link has no chase of its own).
+- **On a hit it combos, hitstop included**: K1's chain opens at its f22 (S + A), J2K hits 14 f later: 18 f after K1's hit,
+  inside its 26 f stagger (free at 18 + 8 hitstop + 1 + 26 against the hit at 22 + 8 + 14); K2 → J3K the same (its hit at
+  f20, the chain at f24); J2K → J3 as J2 → J3. All in the host's combo loop with the hitstop on both sides.
+- **On a block it is punishable**: the leap's 14 f startup after the blocked K's chain opens (the defender's gap ≥ 13 f: a
+  Step, Hoho or his own ranged K fits; a J1 doesn't reach at range), then J2K / J3K at -6 (the defender -9 with the J's
+  +3, *QUICK-BLOCK-ADV*): his J1 (S 8) punishes; J2K → J3 on block leaves a gap his J1 interrupts.
+- **Placeholder clips** (stand-ins, marked in the code): from f1 the run (`:hs-s-run`) as the leap pose; from the frame
+  the J clip's authored windup is left (`:clip-s` 8 / 9: f6 / f5) the J's own clip at speed 1, so it reaches its hit pose
+  on f14 (the FK reach test samples the clip at `:clip-s` / S: the J's hit pose too). The art pass draws a real leap.
+
+**3. Choices where the spec was silent:** S 14 for both copies (the leap's frames: long enough to read, short enough to
+combo); interpolation, not a fixed speed (the J always lands at J range as its window opens, whatever the distance); the
+9.6 m cap applied as a speed cap; -6 on block; KJK / JKJ left out by the general rule (K2J the copy that makes it so);
+the leap re-aims at the victim every frame (he may drift in his stagger).
+
+**4. His CPU** (`:move-reflex hs-ai-move`, before the generic string reflex): on a K1 / K2 hit, on its land step, one roll
+when HS-AI-LEAP-WANTED-P (the victim beyond the K dead zone 2.0 m, and his intent :approach / :pressure: the J route ends at
+J range, where his J string, the bridge and SP2 SHIBARI follow): `*hs-ai-leap-p*` EASY 0.3 / NORMAL 0.5 / HARD 0.7 → J
+(KJJ / KKJ), else K (the K string, at range). At :zone / :defend, in the dead zone: K, no roll. A learner baiting its Burst
+read: the generic reflex. (Before S2 a K1 hit always went on with K: there was no J.) After a blocked K1 / K2 the generic
+guard pressure may pick J2K (-6 > the ender floor) as any J link.
+
+| Knob (hisagi.lisp) | Old → new | Who / when |
+|---|---|---|
+| K2 / K3 `:hit-only` (and the shared flag) | on → gone | the user, 2026-10-18: 「被防禦後也能繼續接連段」 |
+| the Shikai grid | JJJ JJK JKK KKK → + KJJ KKJ (J2K, J3K; K2J) | the user, 2026-10-18: 「始解 KJJ, KKJ 時 J 會跳近對手進行攻擊」 |
+| `*hs-leap-s*` | none → 14 (J2 8 / J3 9) | S2's pick |
+| `*hs-leap-max*` | none → 9.6 m | the spec's bound (K1's 6.0 × 1.6) |
+| `*hs-leap-block*` | none → -6 (J2 -2 / J3 -4) | S2's pick |
+| `*hs-ai-leap-p*` | none → 0.3 / 0.5 / 0.7 | S2's pick |
+
+**Host tests** (ALL PASS: duel-rules-test, duel-control-test, learn-test, cine-test): the string budget's six routes for
+every form again (the Shikai's leap copies' -6 and block gaps its exceptions); the routes (JJJ JJK JKK KKK KJJ KKJ, no JKJ /
+KJK) and their damage 98 / 140 / 166 / 198 / 130 / 156; every link combos with hitstop (S2's K1 → J2K, K2 → J3K, J2K → J3,
+J1 → K2J, K2J → K3 too); J3K → the O lane inside its stagger; the copies' data (S 14, :clip-s 8 / 9, -6, punishable by
+his J1, the tick only on them, the bridge off them); the leap from 2.0 / 3.0 / 4.5 / 6.0 / 8.0 / 9.6 / 10.6 m ends at
+1.0 m within 9.6 m moved, none from 0.9 m, 9.6 m and short from 12 m, nothing from the hit frame; no move has
+`:hit-only`, LINK-CONTACT-OK-P unbound, K1's chain opens on a block in its last 3 frames; the CPU's pure pick and its
+no-roll steps on stand-ins (zone / defend / dead zone → K; another step, a block, K2J, J1, K3 → nothing); the Shikai's
+:move-reflex. pkgcheck clean; the build's warnings the 4 known Lille ones; 83901 0 B everywhere.
+
+**Debug** (DUEL_GAMEPLAY): 83009 5 m from Kenpachi, K1 started with J latched (KJ: J2K leaps in; J again: KJJ); 83019 the
+same with K latched (KK; J during K2: KKJ). The gate line counts `leap` and `ai-leap`.
+
+**Gates** (native; the lead re-runs them):
+- Identity: `simgate --seeds 10 --summary`'s 42 non-Hisagi lines byte-identical to the parent 4f0b207's (an archive
+  baseline of that commit, `[simgate] building` lines filtered); `--cvc` PASS, its output identical to the parent's (yy /
+  yk / kk). So removing `:hit-only` from fighter.lisp / kit.lisp moved nothing for anyone else.
+- His 7 pairings at 20 seeds (NORMAL, P1 Hisagi; in brackets S1's table, §23.3):
+
+| Pairing | KOs | Median s (S1) | P1 wins (S1) |
+|---|---|---|---|
+| HY | 20 | 127.9 (137.4) | 4 (3) |
+| HK | 20 | 123.7 (125.3); **60 seeds: 125.3** | 0 (1); 0 of 60 |
+| HR | 20 | 151.3 (141.4) | 2 (1) |
+| HI | 20 | 157.4 (177.5) | 3 (3) |
+| HS | 20 | 161.1 (165.6) | 2 (0) |
+| HB | 20 | 169.1 (165.8) | 0 (1) |
+| HH | 20 (18) | 225.1 (233.8) | 12-8 (8-12) |
+
+HK's 20-seed median fell under 125 s (123.7), so it was rerun at 60 seeds (the edge rule): **125.3 s**, inside the window
+(at its edge). Every other cross median inside 125-210 s; the mirror all K.O. (2 time-outs before; a mirror may exceed 210).
+His P1 wins 11 of 120 cross matches (S1: 9). Usage (HK, 60 matches, P1): 19 leaps (J2K / J3K started), 1 of them his
+CPU's hit pick (`ai-leap`), the rest the generic guard pressure after a blocked K1 / K2; 75 bridges, 46 K strings out of
+a windmill.
+
+**Browser** (one Chrome, `--fixed-dt`): 83009: K1 hit Kenpachi at 5 m (f18), J2K started at f30 (the chain at S + A plus
+K1's 8 f hitstop), leapt and hit at f44 from 1.0 m, J (pressed in it) → J3 hit at f60 (the ender push): KJJ; 83019: K1 hit
+(f197), K2 hit (f223), J3K leapt and hit (f249): KKJ. No error. 83901 after the match: 0 B everywhere on the repeat calls
+(the first call in a battle reads KUBIKAKE 128 KB / KOSA 256 KB: the one-time warm-up §23.1 noted).
+
+**Known issues.** His CPU almost never picks the leap off a hit (1 in 60 HK matches): his K1 hits mostly land while his
+intent is :zone (the K1 band), where the rule keeps K; the leaps the gate sees are the generic block pressure's. Not retuned
+(the spec); dropping the intent condition (roll on every K1 / K2 hit past 2.0 m) is the one-line lever. HK sits at the
+window's edge (125.3 s at 60 seeds). His P1 wins stay low (11 of 120). The leap's clips are stand-ins (the run, then the J
+clip). The S1 issues stand (the dormant OUT machinery, the stand-in K clips, KOJO's wait). The awaken A/B not run.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.

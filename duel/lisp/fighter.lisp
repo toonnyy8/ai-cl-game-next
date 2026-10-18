@@ -666,8 +666,7 @@ action started."
                              (t (cancel-into e f kit mv sf landed cmd button)))
                            (progn (vpad-consume! vp button) t)))
         (let ((q (fighter-queued f)))                   ; the latched link, once the chain opens
-          (when (and q (chain-open-p sf (mv-s mv) (mv-a mv) (mv-r mv) (if (eq q :sig) landed (or landed (fighter-chained f))))
-                     (or (eq q :sig) (link-contact-ok-p (kit-next kit name q) landed)))   ; (a :hit-only link: off a hit only)
+          (when (and q (chain-open-p sf (mv-s mv) (mv-a mv) (mv-r mv) (if (eq q :sig) landed (or landed (fighter-chained f)))))
             (if (eq q :sig)                             ; L after a K link: its own checks and costs, a follow-up
                 (progn (setf (fighter-queued f) nil)
                        (when (try-command e f :sig nil nil (kit-l-link kit name))
@@ -681,11 +680,6 @@ action started."
                        (start-move e next (if (eq q :q) :quick :flash))
                        (setf (fighter-chained f) t)
                        t)))))))))
-
-(defun link-contact-ok-p (next landed)
-  "May string link NEXT follow a link whose own contact was LANDED (:hit, :block, NIL)? A :hit-only link (Hisagi's Shikai
-K2 / K3, DUEL_HISAGI §23.3) only off a hit; every other link as CHAIN-OPEN-P decides."
-  (or (eq landed :hit) (not (member :hit-only (mv-flags next)))))
 
 (defun cancel-into (e f kit mv sf landed cmd button)
   "An on-hit cancel out of J / K link MV: SPs, Hoho, a :cancel Signature (L)."
@@ -707,8 +701,7 @@ chain); only BLUE and the awakening break it."
   "Can E's move MV still go on into a follow-up (the guard lock's MORE): a next J / K link, an L link L may start, the
 on-hit cancels (its hit landed: SP, Hoho, a :cancel L, the O ender), or ORANGE (BURST-OK-P, a blocked L / O included)?"
   (let ((kit (fighter-kit f)) (name (mv-name mv)))
-    (or (loop for c in '(:q :f)                       ; (a :hit-only link never follows a block: no more off it)
-              thereis (let ((n (kit-next kit name c))) (and n (link-contact-ok-p n (fighter-contact f)))))
+    (or (string-link-p kit name)
         (let ((l (kit-l-link kit name))) (and l (kit-command-ok-p e :sig kit nil l)))
         (and (eq (fighter-contact f) :hit) (member (mv-kind mv) '(:quick :flash)))
         (eq (burst-ok-p e) :orange))))

@@ -55,6 +55,16 @@
 (defparameter *hs-kaza-k-from* 9
   "K starts the K string from this windmill frame on (its push window's end, f6-8: the push lands first) to its last
 (hold or recovery; S1's pick, 2026-10-18, §23.1).")
+;; S2 (§23.4-§23.5; the user, 2026-10-18: 「始解 KJJ, KKJ 時 J 會跳近對手進行攻擊」): a J link after a K leaps in
+(defparameter *hs-leap-s* 14
+  "The J links after a K (J2K after K1, J3K after K2): their startup, the leap in (J2's 8 / J3's 9 -> 14; S2's pick: the hit
+lands 14 f after the K's chain opens, 18 f after its hit, inside its 26 f stagger) ...")
+(defparameter *hs-leap-max* 9.6
+  "... the leap covers at most this many m (its speed cap, 60 x this / (S - 1) m/s: K1's 6.0 x the charge's 1.6; S2's pick,
+the spec's bound) toward the victim's position each frame, to J's chase goal (1.0 m) as the hit window opens ...")
+(defparameter *hs-leap-block* -6
+  "... and their block advantage (J2's -2 / J3's -4 -> -6, -9 for the defender with the J's +3: his J1 punishes a blocked
+leap; S2's pick, the spec: 「punishable sensibly on block」).")
 ;; the CPU (DUEL_HISAGI §10; every chance EASY <= NORMAL <= HARD, rolled once per event)
 (defparameter *hs-ai-string-k* 0.7 "His CPU's pull (K) after a NAGE contact, else the one-handed J (the kit's :string-k, §10).")
 (defparameter *hs-ai-modoshi-p* '(:easy 0.3 :normal 0.5 :hard 0.7)
@@ -69,6 +79,9 @@ windmill.")
   "His CPU, once per L press (but against a ranged threat): K out of the windmill once the charged K1 reaches him (L held
 on meanwhile), else the plain windmill (S1 §23.1, 2026-10-18).")
 (defparameter *hs-ai-kaza-margin* 0.3 "... K once the real distance is within K1's charged line + this (m; its tip + radii ~0.66).")
+(defparameter *hs-ai-leap-p* '(:easy 0.3 :normal 0.5 :hard 0.7)
+  "His CPU, once per K1 / K2 hit beyond the K dead zone while his intent wants him close (:approach / :pressure): the J
+link (the leap: KJJ / KKJ, the string ends at J range), else the K link (HS-AI-MOVE; S2, §23.5, 2026-10-18).")
 (defparameter *hs-ai-sp-ender-p* '(:easy 0.1 :normal 0.3 :hard 0.8)
   "His CPU's SP off a link-3 hit (:sp-ender): SP2 after RIN (IN, 4.5 m line), SP1 after a K ender (6.5 m line).")
 (defparameter *hs-ai-opp-step-p* '(:easy 0.1 :normal 0.25 :hard 0.5)
@@ -214,23 +227,29 @@ gathered K2 / K3) when the victim stands inside its reach, else the speed pick (
 ;; 「系統的設計邏輯本來就是 J1, K1 打中才能接後續攻擊」, 「2.0 m（推薦）」): the chain, pure range. K1 薙 NAGI swings the sickle
 ;; sideways on its chain: an arc *HS-K1-ARC* wide out to 6.0 m with a *HS-K-DEAD* dead zone (:min-reach), turning 30 deg/s
 ;; in its startup, no generic close-in; the windmill's charge scales its reach (HS-SCALED). K2 鋸 NOKO (the spinning saw,
-;; hauled up: a stagger) and K3 墜 TSUI (flung up, yanked down: the ender) follow only a hit (:hit-only, fighter.lisp) and
-;; strike along the chain from his hand to the victim wherever he is (:seg-fn HS-FOE-SEG: they always connect, blockable;
-;; no dead zone: J1 -> K2 at J range). No move leaves the sickle out any more: the OUT / RETURNING states, the OUT graph
+;; hauled up: a stagger) and K3 墜 TSUI (flung up, yanked down: the ender) follow a hit or a block (S2, §23.5: 「被防禦後也
+;; 能繼續接連段」; S1's :hit-only gone) and strike along the chain from his hand to the victim wherever he is (:seg-fn
+;; HS-FOE-SEG: they always connect, blockable; no dead zone: J1 -> K2 at J range). No move leaves the sickle out any more: the OUT / RETURNING states, the OUT graph
 ;; (SEN-1H, MODOSHI), MAKI and HODOKI below are dormant (§23.3). The clips are stand-ins (NAGE's, HIKI's, HODOKI's: the
 ;; art pass draws the sweep, the saw, the plunge); the chain of K2 / K3 is drawn to the anchor, kept on him (HS-TICK)
 (defmove :hs-k1 :kind :flash :clip :hs-nage :startup 18 :active 4 :recovery 22 :dmg 62 :adv-block -3 :guard 14
   :reach 6.0 :arc *hs-k1-arc* :height (0.2 2.0) :min-reach *hs-k-dead* :track 30.0 :on-hit :stagger
   :flags (:ranged :no-close) :params (:melee-range 2.0))                  ; 薙 NAGI
 (defmove :hs-k2 :kind :flash :clip :hs-hiki :enter 6 :startup 20 :active 4 :recovery 24 :dmg 56 :adv-block -3 :guard 14
-  :reach 6.0 :on-hit :stagger :flags (:ranged :hit-only) :hits ((20 24 :seg-fn hs-foe-seg)) :params (:melee-range 2.0))   ; 鋸 NOKO
+  :reach 6.0 :on-hit :stagger :flags (:ranged) :hits ((20 24 :seg-fn hs-foe-seg)) :params (:melee-range 2.0))   ; 鋸 NOKO
 ;; MAKI (K2s after J1, Q8 A): the chain flung round his body (a 3.2 m line), the sickle OUT, anchored on him
 (defmove :hs-k2s :kind :flash :clip :hs-maki :enter 6 :startup 20 :active 4 :recovery 24 :dmg 52 :adv-block -3 :guard 14
   :vol (:cap 0.3 3.2 1.1 0.35) :on-hit :stagger :on-frame ((20 hs-throw-out)) :params (:throw 3.2))   ; 巻 MAKI
 ;; K3 墜 TSUI after NOKO or KAESHI-SEN (above); its push ~6.45 m (the kit's :push-reach, Q6 B: out of a restarted K1's 6.0)
 (defmove :hs-k3 :kind :flash :clip :hs-hodoki :enter 8 :startup 22 :active 5 :recovery 34 :dmg 80 :adv-block -20 :guard 18
-  :reach 6.0 :on-hit :crumple :flags (:ender :ranged :hit-only) :hits ((22 27 :seg-fn hs-foe-seg))
+  :reach 6.0 :on-hit :crumple :flags (:ender :ranged) :hits ((22 27 :seg-fn hs-foe-seg))
   :params (:melee-range 2.0))                                             ; 墜 TSUI
+;; S2 (§23.5): the cross link J1 -> K2 its own copy (K2J: no J after it, the grid's one switch: no JKJ), so K1 -> K2 can go
+;; on with J (KKJ); and the J links after a K (KJJ's J2K, KKJ's J3K: the leap, HS-LEAP-TICK; their clips stand-ins: the
+;; run as the leap pose, then the J's own clip on its windup's last frames)
+(defmove-copy :hs-k2j :hs-k2)
+(defmove-copy :hs-j2k :hs-j2 :startup *hs-leap-s* :clip-s 8 :adv-block *hs-leap-block* :tick hs-leap-tick)
+(defmove-copy :hs-j3k :hs-j3 :startup *hs-leap-s* :clip-s 9 :adv-block *hs-leap-block* :tick hs-leap-tick)
 ;; (dormant since S1, §23.3: HODOKI, MAKI's K3, the OUT graph's MODOSHI)
 (defmove :hs-k3h :kind :flash :clip :hs-hodoki :enter 8 :startup 22 :active 5 :recovery 34 :dmg 78 :adv-block -20 :guard 18
   :reach 3.2 :on-hit :crumple :flags (:ender) :on-frame ((22 hs-sickle-in))
@@ -270,10 +289,10 @@ gathered K2 / K3) when the victim stands inside its reach, else the speed pick (
 
 (defparameter *hs-throws* '(:hs-k2s) "The moves that throw the sickle (OUT at S; their :params :throw = the line's length;
 since S1 only the dormant MAKI, §23.3).")
-(defparameter *hs-pulls* '(:hs-k2 :hs-k3 :hs-k3h)
+(defparameter *hs-pulls* '(:hs-k2 :hs-k2j :hs-k3 :hs-k3h)
   "The chain strikes drawn from the anchor (HODOKI's HS-CHAIN-SEG, dormant; S1's K2 / K3 along HS-FOE-SEG, the anchor kept
 on the victim for the look: HS-TICK).")
-(defparameter *hs-at-foe* '(:hs-k2 :hs-k3) "S1: the K links placed on the victim (HS-FOE-SEG).")
+(defparameter *hs-at-foe* '(:hs-k2 :hs-k2j :hs-k3) "S1: the K links placed on the victim (HS-FOE-SEG; S2: K2J).")
 ;; S1 (§23.1): the K string a windmill feeds plays its moves at the charge's reach: each a copy parsed at x (1 + n / 100)
 ;; (PARSE-MOVE's :reach-mult: NAGE's line and its anchor :throw, HIKI's :reach (its chain is the anchor's), KARI-OTOSHI's
 ;; arc), the same name, so the strings, the hooks and the CPU see the move they know; HS-TICK swaps it in
@@ -317,11 +336,13 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :walk *hs-walk* :run *hs-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *hs-mult* :taken *hs-taken*
   :push-reach *hs-push-reach*
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)
-  ;; S1 (§23.3): JJJ JJK JKK KKK: the J string close (every link combos), the K string the chain at range; K2 NOKO / K3
-  ;; TSUI follow the victim (after J1 / J2 too: the cross links); no J after a K (the victim stays at range: KKJ, KJJ gone,
-  ;; with MAKI / HODOKI); then the OUT graph's J string (dormant: no move leaves the sickle out since S1)
-  :strings ((:hs-j1 :q :hs-j2) (:hs-j1 :f :hs-k2) (:hs-k1 :f :hs-k2)
-            (:hs-j2 :q :hs-j3) (:hs-j2 :f :hs-k3) (:hs-k2 :f :hs-k3)
+  ;; S2 (§23.5): the grid's six routes JJJ JJK JKK KKK KJJ KKJ (one switch at most): the J string close (every link
+  ;; combos), the K string the chain at range; K2 NOKO / K3 TSUI follow the victim (after J1 / J2 too: the cross links, K2J
+  ;; J1's own copy); a J after a K leaps in (J2K, J3K; then J2K's J3 the plain one); then the OUT graph's J string (dormant:
+  ;; no move leaves the sickle out since S1)
+  :strings ((:hs-j1 :q :hs-j2) (:hs-j1 :f :hs-k2j) (:hs-k1 :f :hs-k2) (:hs-k1 :q :hs-j2k)
+            (:hs-j2 :q :hs-j3) (:hs-j2 :f :hs-k3) (:hs-k2 :f :hs-k3) (:hs-k2 :q :hs-j3k)
+            (:hs-j2k :q :hs-j3) (:hs-k2j :f :hs-k3)
             (:hs-j1-1h :q :hs-j2-1h) (:hs-j2-1h :q :hs-j3-1h))
   :awaken-form :bankai                          ; the Bankai's ranged mode (§17.1; batch B2b)
   :l-after-j :hs-kaza-j                         ; L off a J1 / J2 / J3 link: the windmill bridge (S1, §23.1)
@@ -337,7 +358,8 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
                (9.0 99.0 :kikon 1 nil 2))
        :guard 0.4 :hoho 0.3 :dash 0.6 :dash-back 0.3 :block-string 0.6 :sp-cancel-bars 1 :string-k *hs-ai-string-k*
        :l-after-j *hs-ai-l-after-j*
-       :kikon-range 7.0 :reflex hs-ai-reflex :opp-reflex hs-ai-opp :sp-ender hs-ai-ender :sig-hold hs-ai-sig-hold))
+       :kikon-range 7.0 :reflex hs-ai-reflex :opp-reflex hs-ai-opp :sp-ender hs-ai-ender :sig-hold hs-ai-sig-hold
+       :move-reflex hs-ai-move))                ; (S2: KJJ / KKJ, the leap, §23.5)
 
 ;;; ================================================================ the Bankai 風死絞縄 (§17; batch B2b)
 ;;; Two modes, each a kit form: :bankai the ranged mode (the default after the awakening; prefix hs-r-), :bankai-bind the
@@ -581,6 +603,11 @@ frame S to its last held frame (TOP), at most *HS-CHARGE-MAX*."
   "Does the charge live on (S1, §23.1) with his move NAME (NIL: none): in a windmill, or in the K string one started (KSTR)
 -- K1 / K2 / K3; any other move, a hit taken, neutral: no (reset)."
   (or (and (member name *hs-kazas*) t) (and kstr (member name *hs-k-string*) t)))
+(defun hs-leap-speed (d reach s sf)
+  "S2 (§23.5): a J-after-K link's leap speed (m/s toward the victim) at its move frame SF of startup S, the victim D m away:
+STRING-CHASE-SPEED to J's REACH (its goal 1.0 m) as the hit window opens, at most 60 x *HS-LEAP-MAX* / (S - 1) (so the
+whole leap covers at most *HS-LEAP-MAX* m); 0 from the hit window on."
+  (if (< sf s) (string-chase-speed d reach (- s sf) (/ (* 60.0 *hs-leap-max*) (max 1 (1- s)))) 0.0))
 (defun hs-band (d)
   "The time-at-range probe's band of distance D (§6): :at-close < 1.8, :at-mid < 4, :at-far <= 6.5, else :at-out."
   (cond ((< d 1.8) :at-close) ((< d 4.0) :at-mid) ((<= d 6.5) :at-far) (t :at-out)))
@@ -687,6 +714,19 @@ Values ax ay az bx by bz r."
   "The windmill's frame 0 (both copies; not a :hold move, so it runs): no charge yet, no K string (S1)."
   (let ((st (hs e))) (setf (hss-charge st) 0 (hss-kstr st) nil (hss-kz-let st) nil))
   (when (eq (mv-name (fighter-move (fighter e))) :hs-kaza-j) (pace e :bridge)))
+(defun hs-leap-tick (e)
+  "J2K / J3K's :tick (S2, §23.5): in the startup the leap toward the victim's position (HS-LEAP-SPEED; the move step's own
+velocity replaced, a J link has no chase); a look: the run as the leap pose from f1, the J's own clip (stand-ins) from
+the frame its authored windup (:clip-s) is left, so it reaches its hit pose on the hit frame."
+  (let* ((f (fighter e)) (mv (fighter-move f)) (sf (fighter-sf f)) (s (mv-s mv))
+         (sp (hs-leap-speed (fighter-dist f) (mv-reach mv) s sf)))
+    (when (= sf 1) (pace e :leap) (play-clip e :hs-s-run :blend 2))
+    (when (= sf (- s (round (* s (mv-clip-speed mv)))))
+      (play-clip e (kit-move-clip (fighter-kit f) (mv-clip mv)) :blend 2))
+    (when (> sp 0)
+      (let* ((p (pos-of e)) (dx (- (fighter-ox f) (aref p 0))) (dz (- (fighter-oz f) (aref p 2))) (l (max 1e-4 (hypot dx dz)))
+             (v (motion-vel (motion e))))
+        (setf (aref v 0) (f32 (* sp (/ dx l))) (aref v 2) (f32 (* sp (/ dz l))))))))
 (defun hs-tick-brain (e)
   "The brain his windmill decides on: his own CPU's; NIL for a human (no brain, one switched off, the ASSIST gate's masher)."
   (let ((b (brain e))) (and b (not (brain-off b)) (not (eq (brain-habit b) :dumb)) b)))
@@ -827,6 +867,21 @@ the 2.15 m push), else SP1 TSUZURI RAIDEN (6.5 m: after a K ender's 6.45 m push)
     (when (and b (>= (reiatsu-bars e) 1) (< (sim-rnd01) (hs-p b *hs-ai-sp-ender-p*)))
       (let ((c (if (and (eq (mv-kind (fighter-move f)) :quick) (kit-command-ok-p e :sp2)) :sp2 :sp1)))
         (when (kit-command-ok-p e c) (pace e (if (eq c :sp2) :ai-sp2 :ai-sp1)) c)))))
+(defun hs-ai-leap-wanted-p (d intent)
+  "Does his CPU roll for the leap (S2, §23.5) off a K1 / K2 hit with the victim D m away and his brain's INTENT? Beyond
+the K dead zone (the K reaches him, the J needs the leap), wanting him close (:approach / :pressure)."
+  (and (> d *hs-k-dead*) (member intent '(:approach :pressure)) t))
+(defun hs-ai-move (e b f mv)
+  "His Shikai's :move-reflex (ai.lisp AI-REFLEX, before the generic string reflex; S2, §23.5): on a K1 / K2 hit, on its
+land step, one roll: beyond the K dead zone with his intent wanting him close (:approach / :pressure), the J link
+*HS-AI-LEAP-P* of the time (the leap: KJJ / KKJ, the string ends at J range), else the K link (K2 / K3: it stays at range).
+A learner baiting its Burst read: the generic reflex (NIL)."
+  (when (and (eq (fighter-contact f) :hit) (= (fighter-sf f) (fighter-land-sf f)) (null (fighter-queued f))
+             (member (mv-name mv) '(:hs-k1 :hs-k2)) (kit-next (fighter-kit f) (mv-name mv) :q)
+             (not (and (brain-learn b) (eq (lrn-cmd (brain-learn b)) :bait))))
+    (if (and (hs-ai-leap-wanted-p (fighter-dist f) (brain-intent b)) (< (sim-rnd01) (hs-p b *hs-ai-leap-p*)))
+        (progn (pace e :ai-leap) (why b :leap :q))
+        (why b :string :f))))
 (defun hs-ai-opp (e b s d)
   "His kit's :opp-reflex (a CPU facing him): his perceived NAGE / SP1 in its startup, one roll per start (*HS-AI-OPP-STEP-P*);
 a yes side-Steps once the line will reach E within 0-14 f (RANGED-THREAT-IN: beyond the blade's 2.0 m). (B4a's side Step
@@ -1257,7 +1312,8 @@ Kenpachi; 1 6 m from him; 2 4 m from him, the sickle out (anchored 3 m ahead, th
 wave started, the windmill started (blocked from every side); 4 5 m from Kenpachi, NAGE started (the throw); 5 the mirror,
 both CPUs, 6 m apart; 6 2 m from Kenpachi, J1 started (the JKK: K K for MAKI, HODOKI); S1 (§23.1): 7 2 m from him, J1
 started with L latched (the bridge: hold L to charge, K for the K string); 8 8 m from him, the windmill started (hold L,
-K: the charged K1 at range). The Bankai (B2b; P1 awakened,
+K: the charged K1 at range); S2 (§23.5): 9 5 m from him, K1 started with J latched (KJ: J2K leaps in; J again: KJJ); 19
+5 m from him, K1 started with K latched (KK; J during K2: KKJ's J3K leaps in). The Bankai (B2b; P1 awakened,
 HS-AWAKEN-NOW!): 10 the ranged mode 6 m from Kenpachi; 11 5 m from him, KUBIKAKE started (SP2 since B4c: the bind on a hit); 12 a bind
 3 m from him with grey values (he dealt 300, took 200: the pool 600 -> 350); 13 as 12, the release pressed (applied this
 step: the snapshot back, the pool's 350 split 300 / 50, the reel, UNWIND); 14 as 12, the pool at 1 and a 10 hit (the
@@ -1284,6 +1340,7 @@ fresh CPU battle); any other k the probe line only."
       (6 (setup :kenpachi 2.0) (force-cmd *p1* :q))
       (7 (setup :kenpachi 2.0) (force-cmd *p1* :q) (setf (fighter-queued (fighter *p1*)) :sig))
       (8 (setup :kenpachi 8.0) (force-cmd *p1* :sig))
+      ((9 19) (setup :kenpachi 5.0) (force-cmd *p1* :f) (setf (fighter-queued (fighter *p1*)) (if (= k 9) :q :f)))
       (10 (setup :kenpachi 6.0) (hs-awaken-now! *p1*))
       (11 (setup :kenpachi 5.0) (hs-awaken-now! *p1*) (start-move *p1* (find-move :hs-r-kubikake)))
       ((12 13 14) (setup :kenpachi 3.0) (hs-awaken-now! *p1*) (hs-bind-start! *p1*) (set-form *p1* :bankai-bind)
