@@ -1606,6 +1606,26 @@ slamming from above (r 1.2), K2 aimed ahead of him; K3: every mark's bundle at o
 spot shown from S − 8); the two stances (ranged: crescents hanging at his sides; bind: gripped, low, the noose taut); the
 drawn reach on the hit frames within 0.15 m of the annuli's 4.5 / 5.0 m (and the host check of `*hs-strike-reach*`).
 
+### 22.3 B4a gates (the lead, 2026-10-18)
+
+His 7 pairings at 20 seeds against the parent 5ea33ab (main 1640589, `simgate --pairs 28,29,30,31,32,34,35 --seeds 20`):
+
+| Pairing | Median, parent → B4a | Hisagi's P1 wins of 20, parent → B4a |
+|---|---|---|
+| HY | 144.3 (10 seeds) → 129.4 s | ? → 4 |
+| HK | 130.8 → **116.0 s** | 9 → **1** |
+| HR | 170.0 → 147.5 s | 10 → **1** |
+| HI | 170.7 → 171.1 s | 10 → 5 |
+| HS | 157.6 → 187.6 s | 11 → 3 |
+| HB | 202.3 → 169.6 s | 2 → **1** |
+| HH (mirror) | 226.2 → 228.6 s (2 time-outs) | 6 → 8 |
+
+- Every match ends in a K.O. except the mirror's 2 time-outs, as on the parent.
+- HK's edge rerun at 60 seeds: median **124.6 s**, 0.4 s under the 125 s floor. Hisagi wins 3 of 60 as P1.
+- Reported to the user. Nothing is retuned: whether and how to strengthen him is their call after the playtest (v93).
+- Candidate levers offered: the 2.0 m dead zone, L's cooldown, the mark's 36 f delay, the 2.8 m/s walk.
+- The awaken A/B waits until that call.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
