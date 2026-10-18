@@ -1711,6 +1711,23 @@ What changes (the lead's numbers for the user's direction):
 
 These are added to batch B4c.
 
+**B4c gate (the lead, 2026-10-18; main 651fcb5, 20 seeds, his 7 pairings).**
+- Every match ended in a K.O.; every cross-pairing median is inside 125–210 s, so the pacing gate passes:
+
+  | Pairing | Median | His P1 wins of 20 |
+  |---|---|---|
+  | HY | 126.5 s | 7 |
+  | HK | 131.5 s | **0** |
+  | HR | 168.4 s | 3 |
+  | HI | 179.4 s | 3 |
+  | HS | 165.4 s | 6 |
+  | HB | 177.9 s | **1** |
+  | HH (mirror) | 227.7 s | 7 / 13 |
+
+- He still loses most matches: 0–7 P1 wins of 20.
+- Reported to the user with B4c's three open points: K1's close hit has no reaching follow-up, the bind's rain keeps
+  the dead zone, gathered K2 launches instead of knocking down. Nothing is retuned.
+
 ### 22.5 The cinematics, storyboards revised for the current design (the lead, 2026-10-18)
 
 §11.5's storyboards predate four decisions:
