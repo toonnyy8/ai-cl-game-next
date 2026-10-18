@@ -2923,6 +2923,45 @@ signature themes 「始解鎖鐮連段」「卍解遠距路線」「捆綁」 pl
   RESULTS line for both banded fighters (Lille II's numbers unchanged).
 - The freeze is the commit adding `docs/research/hisagi-ai-drsi/baseline/score.json` (`step.sh` / `rescore.sh` find it).
 
+### 25.3 The Bankai's ranged reach: J 3–6 m, K 1–4 m (the user, 2026-10-18; a sim change, the search paused)
+
+> 「先等等，我想改卍解的遠距範圍」 / 「J 的範圍改 3~6」 / 「K 的範圍改 1~4」; asked how the J / K cross links (J1→K2s,
+> K1→J2s, J2→K3, K2→J3G) should connect on the 3–4 m overlap: 「命中把對手定位到 3.5 m (Recommended)」
+
+Round 1's two cells (b0a0, b1a0, still reading the code) were stopped and the round reopened on the new rules (§25.4).
+
+**As built** (`duel/lisp/hisagi.lisp`; every ranged-mode J and K, the SPs / Kikon / KUBIKAKE keep `*hs-r-dead*` 2.0):
+
+| Knob | Old → new |
+|---|---|
+| `*hs-r-j-dead*` (was `*hs-r-j1-dead*`, J1's only) | J1 3.0, J2 / J3 / J2s / J3G 2.0 → **3.0** (every J) |
+| `*hs-r-j-reach*` | J1 / J3 / J3G 5.0, J2 4.5, J2s's line 5.0 + r 0.5 → **6.0** (J2s: the line 3.0–5.5, r 0.5) |
+| `*hs-r-k-dead*` | 2.0 → **1.0** (every K) |
+| `*hs-r-k-reach*` | K1 4.0, K2s / K3 / K3G 6.0, K2's slam 2.0–3.5 / tail 3.5–8.0 (+ r 0.5) → **4.0** (K2's two caps both 1.0–3.5, r 0.5) |
+| `*hs-r-j-push*` 3.5 | a push to *at least* 3.5 (J1 / J2, K2's slam) → a **placement at 3.5** (pushed out or dragged in on the chain, HS-PLACE-TO), and **K1 too** |
+| `*hs-r-j3-push*` | J3 / J3G's ender 5.5 → **6.6** (out of a restarted J1's 6.0 + a body 0.45 + 0.05: the rule it had) |
+| `*hs-r-k2-launch-kb*` | — → **0.5** (K2's tail launch slides 0.3 m, not the generic 1.0: K3G at 4.0 m reached it at 4.5 m in the smoke) |
+| `*hs-ai-close*`, the ranged `:moves` | the CPU's SAHARAI band 2.0 → 1.0; the bands 0–1 (L), 1–3 (K1), 3–4 (K1 / J1), 4–6 (J1), 6–8 (SP1) |
+
+The tip (x1.3, the outer 1.0 m) follows: J 5–6 m, K 3–4 m. The art's drawn reach follows each hit volume (`*hs-strike-reach*`,
+the let-out crescents J1 / J2 / J3 6.0, J3's swept chain 5.9, the lashes: spread K2s / K3 and gathered K2 / K3G to 4.0, gathered
+J2s / J3G to 6.0).
+
+**The shared J-short / K-long rule** (DUEL_STRINGS §13) gets this form as an exception (the user's inversion; the host walk
+skipped `(:hisagi :bankai)`, its K1 vs J1 already since §22.4).
+
+**Host tests**: duel-rules 9869 (−2: that walk's link 2 / 3 rows for the form), control 89, learn 131, cine 18 ALL PASS;
+pkgcheck clean; the build with the 4 known Lille warnings. The volumes, dead zones, the placement, the ender push, the tip and
+the CPU's reach reads re-pinned; the drawn reach of every changed clip within 0.15 m.
+
+**Smoke** (browser, `--fixed-dt`, debug 83016 / 83017 / 83010): all six routes land three hits — KKK (K1 K2 K2 K3G), KKJ, KJJ
+from 2.5 m, JJJ, JJK, JKK from 3.5 m — and J1 → J2 → K3 from 6.0 m (J1 drags him in to 3.5 m, the K3 reaches).
+
+**Gates** (the lead; the playtest Artifact v106 first): the 42 non-Hisagi lines of `--seeds 10 --summary` and `--cvc`
+byte-identical. His 7 pairings at 20 seeds (before = §24.5): HY 128.3 s (128.5), HK 131.9 (130.9), HR 152.4 (134.3), HI 151.3
+(167.6), HS 172.1 (161.1), HB 157.0 (136.5), HH 206.6 (235.6, a mirror); every match a K.O., every cross median inside 125–210 s.
+His P1 wins 13 of 120 (10).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.

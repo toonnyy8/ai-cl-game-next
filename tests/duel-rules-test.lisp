@@ -1897,8 +1897,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     (loop for n from 1 to 3
           do (let ((j (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :quick)) maximize (+ (mv-reach m) (mv-slide m))))
                    (kk (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :flash)) minimize (+ (mv-reach m) (mv-slide m)))))
-               (unless (and (equal cf '(:hisagi :bankai)) (= n 1))   ; (his K1 綁束 r 4.0 (B4d) vs J1's 4.5 annulus: the user's
-                                                                     ;  §22.4 table, 2026-10-18 「可以」; links 2-3 hold)
+               (unless (equal cf '(:hisagi :bankai))   ; (his ranged J 3-6 m, K 1-4 m: the user, 2026-10-18, 「J 的範圍改 3~6」
+                                                       ;  「K 的範圍改 1~4」, DUEL_HISAGI §25.3; K1 vs J1 since §22.4)
                  (check (or (>= (- kk j) 0.5) (format t "~a link ~d: J ~,2f K ~,2f~%" cf n j kk))))))))
 
 ;;; ---------------------------------------------------------------- the guard lock (the user 2026-09-30, DUEL_DESIGN.md "Guard lock")
@@ -3422,11 +3422,11 @@ past the ends; DEFAULT if the clip is not listed."
                                                                    ; ranged P inert, KUBIKAKE on SP2; §24.5: the bind's too, no FREE)
     (check (notany (lambda (h) (kit-hook (kit :hisagi :base) h)) '(:bind :p :p-label)))
     ;; the tables: S A R dmg guard block reach (§17.1 / §17.3)
-    (dolist (row '((:hs-r-j1 14 3 12 22 8 -2 5.0) (:hs-r-k1 16 4 22 40 14 -3 4.0)   ; (B4c, §22.4: the openers, then
-                   (:hs-r-j2 10 3 13 19 8 -2 4.5) (:hs-r-k2s 21 4 24 37 14 -3 6.0)          ;  the spread links,
-                   (:hs-r-j3 10 3 18 26 12 -4 5.0) (:hs-r-k3 21 5 34 56 18 -20 6.0)
-                   (:hs-r-k2 27 10 24 25 14 -3 8.0) (:hs-r-j2s 16 3 13 29 8 -2 5.0)         ;  the gathered ones)
-                   (:hs-r-k3g 27 5 34 86 18 -20 6.0) (:hs-r-j3g 16 3 18 39 12 -4 5.0)
+    (dolist (row '((:hs-r-j1 14 3 12 22 8 -2 6.0) (:hs-r-k1 16 4 22 40 14 -3 4.0)   ; (B4c, §22.4: the openers, then
+                   (:hs-r-j2 10 3 13 19 8 -2 6.0) (:hs-r-k2s 21 4 24 37 14 -3 4.0)          ;  the spread links,
+                   (:hs-r-j3 10 3 18 26 12 -4 6.0) (:hs-r-k3 21 5 34 56 18 -20 4.0)         ;  the gathered ones;
+                   (:hs-r-k2 27 10 24 25 14 -3 4.0) (:hs-r-j2s 16 3 13 29 8 -2 5.5)         ;  §25.3: J 3-6 m, K 1-4 m,
+                   (:hs-r-k3g 27 5 34 86 18 -20 4.0) (:hs-r-j3g 16 3 18 39 12 -4 6.0)       ;  J2s's line 5.5 + r 0.5)
                    (:hs-r-l 10 4 32 30 14 -16 3.0) (:hs-r-sp1 20 3 24 110 22 -14 9.0) (:hs-r-sp2 30 14 30 70 22 -18 10.0)   ; (B4d: L
                    (:hs-r-kubikake 24 4 30 40 14 -20 7.0)
                    (:hs-b-j1 8 3 12 32 8 -2 1.5) (:hs-b-j2 8 3 13 32 8 -2 1.5) (:hs-b-j3 9 3 18 40 12 -4 1.5)
@@ -3521,8 +3521,8 @@ past the ends; DEFAULT if the clip is not listed."
       (dolist (n '(:hs-r-j3 :hs-r-k3 :hs-r-j3g :hs-r-k3g))
         (let ((x (m n))) (check (< (+ (mv-a x) (mv-s o)) (hitstun (hw-react (svref (mv-hits x) 0))))))))
     ;; the K ender push from 7.5 m (Q6 B's rule): ~7.95 m, inside the O lane (9 m + its r 1.0) and SP1's 9 m line; J3's
-    ;; from J1's 4.0 m (~4.45 m), inside SP2's 10 m lane
-    (check (and (~= 7.5 (ender-push-reach kr (m :hs-r-k3) (m :hs-r-k1))) (~= 5.0 (ender-push-reach kr (m :hs-r-j3) (m :hs-r-j1)))   ; (S1: J1 to 5.0)
+    ;; from J1's 6.0 m (§25.3; then his own 6.5, below), inside SP2's 10 m lane
+    (check (and (~= 7.5 (ender-push-reach kr (m :hs-r-k3) (m :hs-r-k1))) (~= 6.0 (ender-push-reach kr (m :hs-r-j3) (m :hs-r-j1)))
                 ))
     ;; the bind's K ender push from 2.95 m (§22.9): past K1 HIKIGIRI's capsule (2.6 m + its r 0.35 + the victim's 0.35),
     ;; so a restarted K1 cannot touch him; its J ender's from J1's 1.5 m as before
@@ -3757,13 +3757,19 @@ past the ends; DEFAULT if the clip is not listed."
         (setf (fighter-state fh) :idle (fighter-move fh) nil)
         (hs-bind-off! h :end-released)))
     ;; ---- B4a (DUEL_HISAGI §22.1-§22.2, the user 2026-10-18): the two modes made distinct
-    ;; the dead zone: every window of every ranged-mode attack but L and the universal Breaker misses inside 2.0 m
+    ;; the dead zone: every window of every ranged-mode attack but L and the universal Breaker misses inside 2.0 m (§25.3: its J
+    ;; inside 3.0, its K inside 1.0)
     ;; (:min-reach; K1 綁束 again since B4d, 「讓 K1 只能打中遠方的敵人」); the bind's SP1 KUSARI-AME (and its copy) none since
     ;; B4d (「鎖雨改成近距離也打得中」); no other move of the game has one (every other character's hits as before)
     (let ((dz '(:hs-r-j1 :hs-r-j2 :hs-r-j2s :hs-r-j3 :hs-r-j3g :hs-r-k1 :hs-r-k2 :hs-r-k2s :hs-r-k3 :hs-r-k3g
                 :hs-r-sp1 :hs-r-kikon :hs-r-kubikake :hs-r-kubikake-c)))
       (dolist (n dz)
-        (check (or (and (plusp (length (mv-hits (m n)))) (every (lambda (w) (~= (if (eq n :hs-r-j1) 3.0 2.0) (hw-min w))) (mv-hits (m n))))   ; (S1: J1 3.0)
+        (check (or (and (plusp (length (mv-hits (m n))))   ; (§25.3: the J 3.0, the K 1.0, the rest 2.0)
+                        (every (lambda (w) (~= (cond ((member n '(:hs-r-j1 :hs-r-j2 :hs-r-j2s :hs-r-j3 :hs-r-j3g)) 3.0)
+                                                     ((member n '(:hs-r-k1 :hs-r-k2 :hs-r-k2s :hs-r-k3 :hs-r-k3g)) 1.0)
+                                                     (t 2.0))
+                                               (hw-min w)))
+                               (mv-hits (m n))))
                    (format t "  Hisagi B4a: ~a has no dead zone~%" n))))
       (check (loop for mv being the hash-values of *moves*
                    always (or (member (mv-name mv) dz) (eq (mv-name mv) :hs-k1)   ; (S1: the Shikai's K1 NAGI's 2.0 m, §23.3)
@@ -3775,27 +3781,29 @@ past the ends; DEFAULT if the clip is not listed."
                                               (eq 'hs-dmg-mult (kit-hook k :dmg-mult))
                                               (null (kit-hook k :dmg-mult)))
                                           (or (eq c :hisagi) (null (getf (kit-ai k) :move-reflex)))))))
-    ;; the annulus (J1 / J2 2.0-4.5 m 100 deg ahead, J3 2.0-5.0 m all round): a hurt cylinder r 0.36 at D m (ahead, or
-    ;; behind); the window's dead zone first, then its volume (facing -Z)
+    ;; the annulus (§25.3: J1 / J2 3.0-6.0 m 100 deg ahead, J3 3.0-6.0 m all round): a hurt cylinder r 0.36 at D m (ahead,
+    ;; or behind); the window's dead zone first, then its volume (facing -Z)
     (flet ((reach-p (n d &optional behind)
              (let ((w (svref (mv-hits (m n)) 0)))
                (and (>= d (hw-min w))
                     (vol-hit-p (first (hw-vols w)) 0f0 0f0 0f0 0f0 -1f0 0f0 0f0 (f32 (if behind d (- d))) 0.36f0 1.8f0 0f0)))))
-      (check (and (not (reach-p :hs-r-j1 2.9)) (reach-p :hs-r-j1 3.0) (reach-p :hs-r-j1 5.35) (not (reach-p :hs-r-j1 5.4))   ; (S1: 3.0-5.0)
-                  (not (reach-p :hs-r-j1 4.0 t)) (reach-p :hs-r-j2 3.5) (not (reach-p :hs-r-j2 1.0))
-                  (reach-p :hs-r-j3 3.0 t) (reach-p :hs-r-j3 5.3) (not (reach-p :hs-r-j3 5.4)) (not (reach-p :hs-r-j3 1.99 t))
+      (check (and (not (reach-p :hs-r-j1 2.9)) (reach-p :hs-r-j1 3.0) (reach-p :hs-r-j1 6.35) (not (reach-p :hs-r-j1 6.4))
+                  (not (reach-p :hs-r-j1 4.0 t)) (reach-p :hs-r-j2 3.5) (not (reach-p :hs-r-j2 2.9)) (reach-p :hs-r-j2 6.35)
+                  (reach-p :hs-r-j3 3.0 t) (reach-p :hs-r-j3 6.3) (not (reach-p :hs-r-j3 6.4)) (not (reach-p :hs-r-j3 2.99 t))
                   (~= (aref (first (hw-vols (svref (mv-hits (m :hs-r-j1)) 0))) 2) (deg 50.0)))))
     (check (and (= 14 (mv-s (m :hs-r-j1))) (= 10 (mv-s (m :hs-r-j2))) (~= (mv-clip-speed (m :hs-r-j1)) (/ 12.0 14.0))
                 (~= (mv-clip-speed (m :hs-r-j2)) (/ 11.0 10.0)) (~= (mv-clip-speed (m :hs-r-j3)) (/ 13.0 10.0))))
-    ;; the J pushes: J1 / J2 onto the tip (>= 3.5 m, the next J link's annulus reaches him there, inside its tip), J3's
-    ;; ender to 5.5 m (past the generic 4.5 + body + 0.05), inside the O lane (9 m) and SP1's 9 m line
+    ;; the placements (§25.3, 「命中把對手定位到 3.5 m」): J1 / J2, K1 and gathered K2's slam put him at 3.5 m, where the J
+    ;; (3-6 m) and the K (1-4 m) both reach (every cross link combos); J3's ender to 6.6 m (past the generic 6.0 + body +
+    ;; 0.05, out of a restarted J1), inside the O lane (9 m) and SP1's 9 m line
     (check (and (eq 'hs-r-j-push (mv-on-land (m :hs-r-j1))) (eq 'hs-r-j-push (mv-on-land (m :hs-r-j2)))
                 (null (mv-on-land (m :hs-r-j2s))) (eq 'hs-r-j3-push (mv-on-land (m :hs-r-j3)))   ; (B4c: gathered J2s no push,
                 (eq 'hs-r-j3-push (mv-on-land (m :hs-r-j3g))) (eq 'hs-r-uchi-push (mv-on-land (m :hs-r-k2)))   ;  §22.4)
-                (null (mv-on-land (m :hs-r-k1))) (null (mv-on-land (m :hs-r-k2s))) (null (mv-on-land (m :hs-r-k3)))
+                (eq 'hs-r-j-push (mv-on-land (m :hs-r-k1))) (null (mv-on-land (m :hs-r-k2s))) (null (mv-on-land (m :hs-r-k3)))
                 (null (mv-on-land (m :hs-r-k3g)))
-                (~= 3.5 *hs-r-j-push*) (<= (- 4.5 *hs-r-tip*) *hs-r-j-push* 4.5) (~= 5.5 *hs-r-j3-push*)
-                (> *hs-r-j3-push* (+ 4.5 0.45 *ender-push*)) (< (+ *hs-r-j3-push* 0.45) 9.0)))
+                (~= 3.5 *hs-r-j-push*) (<= *hs-r-j-dead* *hs-r-j-push* *hs-r-k-reach*) (~= 6.6 *hs-r-j3-push*)
+                (~= 3.0 *hs-r-j-dead*) (~= 6.0 *hs-r-j-reach*) (~= 1.0 *hs-r-k-dead*) (~= 4.0 *hs-r-k-reach*)
+                (> *hs-r-j3-push* (+ *hs-r-j-reach* 0.45 *ender-push*)) (< (+ *hs-r-j3-push* 0.45) 9.0)))
     ;; the tip x1.3 (the outer 1.0 m: an arc by his distance, a line along it) and the bind's x1.2 within 1.2 m
     (check (and (~= 1.3 (hs-dist-mult :bankai nil 4.5 3.5 0.0)) (~= 1.0 (hs-dist-mult :bankai nil 4.5 3.49 0.0))
                 (~= 1.3 (hs-dist-mult :bankai nil 4.5 4.8 0.0)) (~= 1.3 (hs-dist-mult :bankai t 9.0 3.0 8.0))
@@ -3807,8 +3815,8 @@ past the ends; DEFAULT if the clip is not listed."
         (t-at h 0 0) (t-at o 0 -4)                                      ; (he faces -Z: O 4 m ahead)
         (setf (fighter-form fh) :bankai)
         (flet ((x (n d2 &optional (i 0)) (hs-dmg-mult h o (svref (mv-hits (m n)) i) (m n) nil d2)))
-          (check (and (~= 1.3 (x :hs-r-j1 16.0)) (~= 1.3 (x :hs-r-j3 16.0)) (~= 1.0 (x :hs-r-j3 15.9))
-                      (~= 1.0 (x :hs-r-l 4.0)) (~= 1.0 (x :hs-r-k3 16.0)) (~= 1.0 (x :hs-breaker 1.0))
+          (check (and (~= 1.3 (x :hs-r-j1 25.0)) (~= 1.3 (x :hs-r-j3 25.0)) (~= 1.0 (x :hs-r-j3 24.9)) (~= 1.0 (x :hs-r-j1 16.0))
+                      (~= 1.0 (x :hs-r-l 4.0)) (~= 1.3 (x :hs-r-k3 16.0)) (~= 1.0 (x :hs-r-k3 8.9)) (~= 1.0 (x :hs-breaker 1.0))
                       (~= 1.0 (hs-dmg-mult h o (make-hitwin) nil t 16.0))      ; (a mark: a hazard, no move)
                       (~= 1.0 (x :hs-r-sp1 16.0))))                      ; (SP1's 9 m line: 4 m along it, no tip)
           (t-at o 0 -8.5)
@@ -3829,30 +3837,33 @@ past the ends; DEFAULT if the clip is not listed."
                     (every (lambda (n) (and (null (mv-on-frame (m n))) (plusp (length (mv-hits (m n))))
                                             (notany #'hw-seg (mv-hits (m n)))))
                            (append '(:hs-r-j1 :hs-r-k1) *hs-r-spread-links* *hs-r-gather-links*))))
-        ;; the volumes (he at the origin facing -Z, a hurt cylinder r 0.36 at D m ahead / behind / aside): K1 all round
-        ;; 2.0-4.36 m (B4d: the dead zone back, r 4.0); the bind's rain from his feet (B4d: no dead zone); spread K2s a 60 deg fan 2.0-6.0, K3 160 deg; gathered K2's two hits (the slam's cap
-        ;; 2.0-3.5 m, its tail's line 3.5-8.0 m, r 0.5), J2s a line 2.0-5.0, K3G all round 2.0-6.0, J3G 180 deg 2.0-5.0
+        ;; the volumes (he at the origin facing -Z, a hurt cylinder r 0.36 at D m ahead / behind / aside; §25.3: the K 1.0-4.0,
+        ;; the J 3.0-6.0): K1 all round 1.0-4.36 m; the bind's rain from his feet (B4d: no dead zone); spread K2s a 60 deg fan,
+        ;; K3 160 deg; gathered K2's two hits (the slam's cap 1.0-3.5 m, its tail's, r 0.5), J2s a line 3.0-5.5 r 0.5, K3G
+        ;; all round, J3G 180 deg
         (flet ((in-p (n d &key (i 0) (side 0.0) behind)
                  (let ((w (svref (mv-hits (m n)) i)))
                    (and (>= (sqrt (+ (* d d) (* side side))) (or (hw-min w) 0.0))
                         (vol-hit-p (first (hw-vols w)) 0f0 0f0 0f0 0f0 -1f0 (f32 side) 0f0 (f32 (if behind d (- d))) 0.36f0 1.8f0 0f0)))))
-          (check (and (not (in-p :hs-r-k1 0.5)) (not (in-p :hs-r-k1 1.9 :behind t)) (in-p :hs-r-k1 2.0) (in-p :hs-r-k1 3.0 :behind t)
+          (check (and (not (in-p :hs-r-k1 0.5)) (not (in-p :hs-r-k1 0.9 :behind t)) (in-p :hs-r-k1 1.0) (in-p :hs-r-k1 3.0 :behind t)
                       (in-p :hs-r-k1 4.3) (not (in-p :hs-r-k1 4.4)) (in-p :hs-r-k1 0.0 :side 3.5)
-                      (~= 2.0 (hw-min (svref (mv-hits (m :hs-r-k1)) 0)))
+                      (~= 1.0 (hw-min (svref (mv-hits (m :hs-r-k1)) 0)))
                       (in-p :hs-r-sp2 0.3) (in-p :hs-r-sp2 0.8 :i 1) (in-p :hs-r-sp2c 1.0) (in-p :hs-r-sp2 10.3 :i 1)
                       (notany #'hw-min (mv-hits (m :hs-r-sp2))) (notany #'hw-min (mv-hits (m :hs-r-sp2c)))
                       (eq :stagger (hw-react (svref (mv-hits (m :hs-r-k1)) 0)))
-                      (in-p :hs-r-k2s 2.0) (in-p :hs-r-k2s 6.3) (not (in-p :hs-r-k2s 6.4)) (not (in-p :hs-r-k2s 1.9))
-                      (not (in-p :hs-r-k2s 4.0 :side 3.0)) (in-p :hs-r-k3 4.0 :side 3.0) (not (in-p :hs-r-k3 4.0 :behind t))
-                      (in-p :hs-r-k2 2.0) (in-p :hs-r-k2 3.5) (not (in-p :hs-r-k2 4.4)) (not (in-p :hs-r-k2 1.9))
-                      (not (in-p :hs-r-k2 2.5 :i 1)) (in-p :hs-r-k2 3.0 :i 1) (in-p :hs-r-k2 8.8 :i 1) (not (in-p :hs-r-k2 8.9 :i 1))
-                      (not (in-p :hs-r-k2 5.0 :i 1 :side 1.0))
+                      (in-p :hs-r-k2s 1.0) (in-p :hs-r-k2s 4.3) (not (in-p :hs-r-k2s 4.4)) (not (in-p :hs-r-k2s 0.9))
+                      (not (in-p :hs-r-k2s 2.0 :side 2.0)) (in-p :hs-r-k3 2.0 :side 2.0) (not (in-p :hs-r-k3 2.0 :behind t))
+                      (in-p :hs-r-k2 1.0) (in-p :hs-r-k2 3.5) (in-p :hs-r-k2 4.3) (not (in-p :hs-r-k2 4.4)) (not (in-p :hs-r-k2 0.9))
+                      (in-p :hs-r-k2 1.0 :i 1) (in-p :hs-r-k2 3.5 :i 1) (in-p :hs-r-k2 4.3 :i 1) (not (in-p :hs-r-k2 4.4 :i 1))
+                      (not (in-p :hs-r-k2 3.0 :i 1 :side 1.0))
                       (equal '(27 33) (map 'list #'hw-from (mv-hits (m :hs-r-k2)))) (equal '(31 37) (map 'list #'hw-to (mv-hits (m :hs-r-k2))))
                       (equal '(:stagger :launch) (map 'list #'hw-react (mv-hits (m :hs-r-k2))))
                       (= 37 (+ (mv-s (m :hs-r-k2)) (mv-a (m :hs-r-k2))))
-                      (in-p :hs-r-j2s 2.0) (in-p :hs-r-j2s 5.8) (not (in-p :hs-r-j2s 5.9)) (not (in-p :hs-r-j2s 4.0 :side 1.0))
-                      (in-p :hs-r-k3g 4.0 :behind t) (in-p :hs-r-k3g 6.3) (not (in-p :hs-r-k3g 6.4)) (not (in-p :hs-r-k3g 1.9 :behind t))
-                      (in-p :hs-r-j3g 0.5 :side 4.0) (not (in-p :hs-r-j3g 3.0 :behind t)) (in-p :hs-r-j3g 5.3) (not (in-p :hs-r-j3g 5.4)))))
+                      (in-p :hs-r-j2s 3.0) (in-p :hs-r-j2s 6.3) (not (in-p :hs-r-j2s 6.4)) (not (in-p :hs-r-j2s 2.9))
+                      (not (in-p :hs-r-j2s 4.0 :side 1.0))
+                      (in-p :hs-r-k3g 3.0 :behind t) (in-p :hs-r-k3g 4.3) (not (in-p :hs-r-k3g 4.4)) (not (in-p :hs-r-k3g 0.9 :behind t))
+                      (in-p :hs-r-j3g 0.5 :side 4.0) (not (in-p :hs-r-j3g 3.0 :behind t)) (in-p :hs-r-j3g 6.3) (not (in-p :hs-r-j3g 6.4))
+                      (not (in-p :hs-r-j3g 2.9)))))
         ;; ... K2's slam pushes him onto the tail's line (>= 3.5 m, 4 f) only when its first window hit (a hit by the second
         ;; first: nothing), so the second window's line (from 2.64 m: 3.5 - 0.5 - 0.36) reaches him; it opens after the push
         (setf (fighter-form fh) :bankai *t-moved* nil)
@@ -4028,17 +4039,17 @@ past the ends; DEFAULT if the clip is not listed."
                       (null (cpu :hs-k2j :approach 5.0)) (null (cpu :hs-j1 :approach 5.0)) (null (cpu :hs-k3 :approach 5.0))))
           (setf (fighter-state fa) :idle (fighter-move fa) nil))))
     ;; ... his CPU's reach read (HS-R-AI-MOVE's picks): past the dead zone, inside the far edge + 0.36
-    (check (and (hs-r-reaches-p (m :hs-r-k2) 7.5) (not (hs-r-reaches-p (m :hs-r-k2) 1.9)) (hs-r-reaches-p (m :hs-r-j2s) 5.3)
-                (not (hs-r-reaches-p (m :hs-r-j2s) 5.9)) (not (hs-r-reaches-p (m :hs-r-k1) 1.9)) (hs-r-reaches-p (m :hs-r-k1) 4.3)
-                (not (hs-r-reaches-p (m :hs-r-j3) 1.5))
+    (check (and (hs-r-reaches-p (m :hs-r-k2) 4.2) (not (hs-r-reaches-p (m :hs-r-k2) 0.9)) (hs-r-reaches-p (m :hs-r-j2s) 6.3)
+                (not (hs-r-reaches-p (m :hs-r-j2s) 6.4)) (not (hs-r-reaches-p (m :hs-r-k1) 0.9)) (hs-r-reaches-p (m :hs-r-k1) 4.3)
+                (not (hs-r-reaches-p (m :hs-r-j3) 2.9)) (hs-r-reaches-p (m :hs-r-j3) 6.3)
                 (eq 'hs-r-ai-move (getf (kit-ai kr) :move-reflex))))
-    ;; ... his CPU's openers (B4d, §22.8): K1 only in bands inside its annulus 2.0-4.0 m; inside 2.0 m L SAHARAI (no
-    ;; cooldown now: his :reflex rolls once per entry into the band, never per step)
+    ;; ... his CPU's openers (B4d, §22.8; §25.3: K 1.0-4.0 m): K1 only in bands inside its annulus; inside 1.0 m L SAHARAI
+    ;; (no cooldown now: his :reflex rolls once per entry into the band, never per step)
     (let ((bands (getf (kit-ai kr) :moves)))
-      (check (and (every (lambda (bd) (or (null (getf (cddr bd) :f)) (and (>= (first bd) 2.0) (<= (second bd) 4.0)))) bands)
+      (check (and (every (lambda (bd) (or (null (getf (cddr bd) :f)) (and (>= (first bd) 1.0) (<= (second bd) 4.0)))) bands)
                   (some (lambda (bd) (and (getf (cddr bd) :f) (= 4.0 (second bd)))) bands)
                   (let ((b0 (find 0.0 bands :key #'first))) (and (null (getf (cddr b0) :f)) (plusp (getf (cddr b0) :sig))))
-                  (~= 2.0 *hs-ai-close*) (eq 'hs-r-ai-reflex (getf (kit-ai kr) :reflex)))))))
+                  (~= 1.0 *hs-ai-close*) (eq 'hs-r-ai-reflex (getf (kit-ai kr) :reflex)))))))
 ;;; <<< END HISAGI-CPU-TESTS
 
 (format t "duel-rules-test: ~d checks, ~a~%" *checks*
