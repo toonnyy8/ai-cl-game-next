@@ -2427,6 +2427,23 @@ Every cross median inside 125-210 s (HK at the edge, 125.3); the mirror has 2 ti
 routes and K1's close range, and SAHARAI no longer buys 6.5 m; nothing retuned (the spec). The dormant OUT machinery
 (above). The stand-in clips. KOJO's nearer victims wait up to ~8 f. The mirror's time-outs. The awaken A/B not run.
 
+### 23.4 Links after a block; the Shikai's KJJ / KKJ leap in (the user, 2026-10-18)
+
+The user's answers after S1, verbatim:
+1. 「被防禦後也能繼續接連段」
+2. 「始解 KJJ, KKJ 時 J 會跳近對手進行攻擊」
+
+The spec (batch S2, a sim change, the Shikai only):
+- **Links after a block too.**
+  - K2 / K3 lose S1's `:hit-only`: they follow a K1 / J hit or block, still placed on the victim (on a block, blocked).
+  - The bridge (J → L) already follows a block.
+  - The shared `:hit-only` flag stays, unused, unless nothing else needs it (a cleanup may drop it).
+- **KJJ and KKJ restored, with a leap.**
+  - A J link after a K (K1 → J2, and the J3 of K1 → J2 → J3 / K1 → K2 → J3) leaps in toward the victim during its
+    startup, closing to J's reach (1.4 m), then strikes.
+  - It is a lunge, so it is bounded by the K string's ranges (K1's 6 m × the charge, at most 9.6 m).
+  - The leap's speed and frames are the lead's pick, so that the J lands as a link off the K's hitstun.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
