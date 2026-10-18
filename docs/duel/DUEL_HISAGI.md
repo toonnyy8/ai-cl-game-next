@@ -2241,8 +2241,9 @@ The spec (batch S1, a sim change, the Shikai `:base` only):
   following K string's reach, capped at ×1.6. Releasing L or pressing K ends the charge. The scale applies to K1, K2
   and K3 of that string (their volumes' reach: K1's throw, K2's chain, K3's arc) and resets when the string ends or
   breaks.
-- **The neutral L** keeps the windmill (its ranged ward), its cooldown 90 → 0. Whether a neutral windmill also feeds a K
-  string was not asked; the lead's default is no (only the J-hit bridge charges), to be confirmed in the playtest.
+- **The neutral L** keeps the windmill (its ranged ward), its cooldown 90 → 0. It also charges into K (the user,
+  2026-10-18: 「中立的風車可以蓄力接 K」): held, then K starts a full K string with the scaled reach, as off the bridge.
+  (This replaces the lead's first default, "only the J-hit bridge charges".)
 - His CPU learns the bridge (J hit → L → K at range).
 
 ## 18. Open
