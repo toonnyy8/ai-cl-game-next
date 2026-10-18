@@ -846,13 +846,16 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ke-x-stance :ke-x-q1 :ke-x-kote :ke-x-q3 :ke-x-f1 :ke-x-tsuki :ke-x-f2 :ke-x-meteor :ke-x-drink
     :ke-b-q1 :ke-b-q2 :ke-b-f1 :ke-b-f2 :ke-b-f3 :ke-b-split :ke-b-cut   ; the Bankai's own (§8)
     :ke-a-stance :ke-a-q1 :ke-a-q2 :ke-a-f1 :ke-a-f2 :ke-a-spin :ke-a-haymaker :ke-a-stomp :ke-a-flurry   ; KATAUDE's (§8)
-    :hs-stance :hs-intro :hs-win :hs-q1 :hs-q2 :hs-spin :hs-nage :hs-hiki :hs-kari :hs-hodoki :hs-modoshi   ; Hisagi's
-    :hs-kaza :hs-raiden :hs-shibari :hs-breaker :hs-kubikake :hs-kari-aim :hs-kari-o   ;  B2a clips (the Bankai's forms)
+    :hs-intro :hs-win                                                  ; Hisagi's B2a intro / win (the Bankai's forms)
     :hs-s-stance :hs-s-intro :hs-s-win :hs-s-walk-f :hs-s-walk-b :hs-s-strafe-r :hs-s-strafe-l   ; the Shikai's own
     :hs-s-run :hs-s-skate-b :hs-s-slide-r :hs-s-slide-l :hs-s-sen :hs-s-kaeshi :hs-s-rin :hs-s-kaeshi-1h :hs-s-rin-1h   ; (§21.4)
     :hs-s-nage :hs-s-hiki :hs-s-maki :hs-s-kari :hs-s-hodoki :hs-s-modoshi :hs-s-kaza :hs-s-raiden :hs-s-shibari
     :hs-s-breaker :hs-s-kubikake :hs-s-kari-aim :hs-s-kari-o
-    :hs-r-q1 :hs-r-q2 :hs-r-spin))   ; (his Bankai's ranged J, B2b: every other Bankai move plays a B2a clip until its look pass)
+    :hs-k-stance :hs-k-walk-f :hs-k-walk-b :hs-k-strafe-r :hs-k-strafe-l :hs-k-run :hs-k-skate-b :hs-k-slide-r   ; the Bankai's
+    :hs-k-slide-l :hs-k-saben :hs-k-kaeshi :hs-k-sensa :hs-k-tsuisa :hs-k-nagisa :hs-k-rakusa :hs-k-saharai   ;  own (§21.8):
+    :hs-k-raiden :hs-k-ame :hs-k-kosa-aim :hs-k-kosa :hs-k-breaker :hs-k-hammer :hs-k-kubikake   ;  the ranged mode,
+    :hs-kb-gen :hs-kb-kaeshi :hs-kb-sogen :hs-kb-hikigiri :hs-kb-makigiri :hs-kb-shibori :hs-kb-hikiyose   ;  the bind
+    :hs-kb-raiden :hs-kb-kojo :hs-kb-koshu-run :hs-kb-koshu :hs-kb-unwind))
 ;; (Jilliel's SPs and Kikon, decision 56, DUEL_LILLE §23.37: :lb-w-sanren is KIN's SANREN through his :clip-map, :lb-e-sanren
 ;; EN's own, :lb-w-kikon / :lb-w-kikon-fire the Kikon in play; :lb-w-aim and :lb-w-fire are gone)
 ;; (the Kikon cinematics' own clips, :ya-kikon :ya-tenchi :ke-kikon :ke-kikon-n, are played by their
@@ -862,8 +865,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                         ;;  copies, BR-S-SNIPE-RELEASE; R16, DUEL_LILLE_V3 §20: only they play :br-sk-l1)
                                         ;;  Hisagi's MODOSHI, started by his :command hook while the sickle is out)
                                         (remove nil (loop for m in '(:br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-r-kubikake :hs-b-unwind :hs-r-sp2c :hs-b-sp2c)
-                                                          collect (mv-clip (find-move m)) collect (mv-clip-2 (find-move m))
-                                                          collect (kit-move-clip (kit :hisagi :base) (mv-clip (find-move m)))))))))   ; (his Shikai's MODOSHI)
+                                                          collect (mv-clip-2 (find-move m))   ; (his Shikai's MODOSHI mapped)
+                                                          collect (kit-move-clip (kit :hisagi :base) (mv-clip (find-move m)))))))))
   (let ((extra (set-difference used *clips-5*)) (unused (set-difference *clips-5* used)))
     (when (or extra unused) (format t "  clips not in §5: ~s, §5 clips unused: ~s~%" extra unused))
     (check (and (null extra) (null unused)))))
@@ -2725,7 +2728,9 @@ past the ends; DEFAULT if the clip is not listed."
                            (every (lambda (a b) (< (abs (- a b)) 1e-4)) p2 base))))))
   (check (every (lambda (cf) (or (and (eq (first cf) :barro) (not (eq (second cf) :base)))
                                  (and (equal cf '(:hisagi :base))   ; (Hisagi's Shikai: the walk's legs under his own arms,
-                                      (equal (kit-look-clips (apply #'kit cf)) *hs-shikai-looks*))   ;  §21.4)
+                                      (equal (kit-look-clips (apply #'kit cf)) *hs-shikai-looks*))   ;  §21.4; his Bankai's, §21.8)
+                                 (and (member cf '((:hisagi :bankai) (:hisagi :bankai-bind)) :test #'equal)
+                                      (equal (kit-look-clips (apply #'kit cf)) *hs-bk-looks*))
                                  (null (kit-look-clips (apply #'kit cf)))))
                 *forms*))
   (flet ((at (j) (joint-point! v jm (joint-index j) 0f0 0f0 0f0) (list (aref v 0) (aref v 1) (aref v 2)))
@@ -3204,7 +3209,8 @@ past the ends; DEFAULT if the clip is not listed."
 (with-open-file (in (merge-pathnames "../duel/lisp/hisagi-art.lisp" *load-truename*))   ; (the drawn reaches, the art's data)
   (let ((*package* (find-package :duel)))
     (loop for form = (read in nil in) until (eq form in)
-          when (and (consp form) (eq (first form) 'defparameter) (member (second form) '(*hs-strike-reach* *hs-flights*)))
+          when (and (consp form) (eq (first form) 'defparameter)
+                    (member (second form) '(*hs-strike-reach* *hs-flights* *hs-letout* *hs-bk-chains*)))
             do (eval form))))
 (defun hs-bind-end-effects! (b) (push b *t-ends*))                                     ; (B9: clips, reels, hazards)
 (let* ((kr (kit :hisagi :bankai)) (kb (kit :hisagi :bankai-bind)))
@@ -3454,10 +3460,22 @@ past the ends; DEFAULT if the clip is not listed."
         (setf (fighter-state fh) :idle (fighter-move fh) nil)
         (check (eq (kit-command-move kb :sp2 h) (m :hs-b-sp2)))
         (hs-bind-off! h :end-released)))
-    ;; the drawn reach: every clip of *HS-STRIKE-REACH* is drawn by HISAGI-DRAW's flight of its moves to that reach (the
-    ;; ranged J: the arc's edge, read by the FK test above)
-    (dolist (n '(:hs-r-j1 :hs-r-j2 :hs-r-j2s :hs-r-j3))
-      (check (~= (second (assoc n *hs-flights*)) (third (assoc (mv-clip (m n)) *hs-strike-reach*)))))))
+    ;; the drawn reach (the Bankai's clips, DUEL_HISAGI §21.8): each of its clips in *HS-STRIKE-REACH* (the FK test above
+    ;; reads that reach) is drawn to it by its let-out crescents (*HS-LETOUT*) or chain strikes (*HS-BK-CHAINS*): their
+    ;; farthest end out on the move's hit frames; every one of them reaches its hit volume's far edge within 0.15 m (the
+    ;; arc's r, the line's end + its r; a chain dropped on a line within its r), and nothing lands past it
+    (let ((bk-moves '(:hs-r-j1 :hs-r-j2 :hs-r-j3 :hs-r-k1 :hs-r-k2 :hs-r-k3 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake
+                      :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-sp2)))
+      (dolist (n bk-moves)
+        (let* ((mv (m n)) (clip (mv-clip mv)) (hw (svref (mv-hits mv) 0)) (vol (first (hw-vols hw)))
+               (cap (> (aref vol 0) 0.5)) (edge (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1)))
+               (ends (append (loop for (c nil nil f1 f2 nil r) in *hs-letout*
+                                   when (and (eq c clip) (<= f1 (hw-from hw)) (>= f2 (1- (hw-to hw)))) collect r)
+                             (loop for (c nil nil f1 nil f3 nil r) in *hs-bk-chains*
+                                   when (and (eq c clip) (<= f1 (1- (hw-to hw))) (> f3 (hw-from hw))) collect r)))
+               (art (and ends (reduce #'max ends))) (sr (third (assoc clip *hs-strike-reach*))))
+          (check (or (and art (<= (abs (- art edge)) 0.15) (or (null sr) (~= sr art)))
+                     (format t "~a ~a: the volume ends ~,2f m, the drawn end ~a, the table ~a~%" n clip edge art sr))))))))
 
 (format t "duel-rules-test: ~d checks, ~a~%" *checks*
         (if (zerop *fails*) "ALL PASS" (format nil "~d FAILED" *fails*)))

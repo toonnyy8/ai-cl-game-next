@@ -1305,9 +1305,101 @@ Then a sharp release on the strike's first active frame (few in-betweens, oversh
 (the ink style's anticipation → snap → hold, `procedural-ink-style`). No frame data moves. If a move's startup is too
 short to carry a readable windup, report it with its numbers instead of changing it.
 
+### 21.8 Bankai clips as built (batch B3b, 2026-10-18)
+
+> 「可以，記得動作要配合誇張而明顯的前搖，來呈現出充滿張力的打擊感」 (the user, 2026-10-18, approving §21.7's plan)
+
+The §21.7 plan (motion-refs §3.2 with its revision, §3.3) drawn as every Bankai move's own clip, both modes, all in
+`duel/lisp/hisagi-art.lisp` ("the Bankai's clips"; prefix `:hs-k-` the ranged mode, `:hs-kb-` the bind), to the **current**
+hit volumes: **presentation only**, no frame data, volume, knob or rule changed. The moves name their clips (`:clip` /
+`:clip-2` in hisagi.lisp); the shared Breaker through the two kits' `:clip-map` (`*hs-bk-clips*`), the walk through
+`:look-clips` (`*hs-bk-looks*`), the run set through `:run-clips`, the idle through `:stance`; both modes share the idle,
+walk and run. B2a's placeholder clips the Bankai played are deleted (`:hs-q1` … `:hs-kari-aim`, `:hs-r-q1/q2/spin`, their
+`*hs-flights*` / `*hs-strike-reach*` entries); `:hs-kari-o` stays for the Kikon cinematic (§11.5's storyboard is its own
+batch), `:hs-stance` / `:hs-intro` / `:hs-win` for the scenes and the forms' intro / win.
+
+**The windup rule** (the user's line above, §21.7): each clip reaches a big pose early in the startup and **holds it near
+its peak** (a second key a few degrees further, so it never freezes dead): the arm drawn far back, the body coiled away
+from the line, the crescent raised high, the source chain hauled up taut or into his fist. Then the hit pose is
+**snapped** in on S (`:snap`: linear, from the held key 2–3 frames before; the chain itself jumps on S with no
+in-between), an overshoot through the active frames and a held follow-through key before the recovery's return to the idle.
+
+**Machinery (a look, 0 B a frame).**
+- The crescents on their hand chains: `*hs-letout*` (§21.4's), now read in every form (HS-POSE joins the Bankai's hooks;
+  HISAGI-DRAW's left let-out is no longer Shikai-only).
+- **Chain strikes** `*hs-bk-chains*` (clip, source, f0 f1 f2 f3 f4, r, h, az0 → az1, lift, flags), drawn by
+  `%hs-bk-strike` inside `%hs-orb-draw` in black (§21.6). Source 0–7 is a hanging chain of `*hs-curtain*` (that curtain
+  chain is then not drawn at rest), 8 the neck bundle's tail, 9 a chain dropped out of the orb. Windup (f0 → S): the free
+  end hauled up and drawn in, taut, or into his right / left fist (flags 4 / 8), or whirled overhead (flag 2), held near
+  the peak with a tremble. S: the free end on the strike point (R m from his feet at H m up, az off his facing, swept to
+  az1 by f2); a hanging chain hangs to its rest end and then runs level out to it; the neck bundle goes over his right
+  shoulder. Held to f3, home by f4; flag 1 hooks it in the victim's neck on a hit (TSUISA's drag, KUBIKAKE's yank).
+- `*hs-bolts*`: TSUZURI RAIDEN's bolt runs from 0.5 m to each form's volume edge (the Shikai's 6.5 unchanged).
+- KŌSHU's garrote: the Shikai KUBIKAKE's slack through the victim's neck, from S, within 2.1 m (a new `%hs-geo!` flag 16).
+- UNWIND: the noose's ring slides down off the opponent and widens over the 20 f (`%hs-orb-draw`'s bound code 2).
+
+| Move | Clip | S/A/R | Source / what strikes | Windup (held) | Measured tip on the hit frames vs the volume edge (debug 83902) |
+|---|---|---|---|---|---|
+| idle (CFYOW) | `:hs-k-stance` (loop 3 s) | — | — | standing straight and still, arms hanging, the crescents point-down | — |
+| walk / run | `:hs-k-walk-f/-b`, `-strafe-r/-l`; `:hs-k-run`, `-skate-b`, `-slide-r/-l` | — | — | unhurried (1.1 s cycle), arms hanging; the run with the arms back | — |
+| J1 鎖鞭 | `:hs-k-saben` | 12/3/12 | right crescent on its chain, lashed R→L | coiled right on the back foot, right arm drawn far back (f5–10) | 4.00 4.00 4.00 vs arc 4.0 |
+| J2 返鞭 (+J2s) | `:hs-k-kaeshi` | 11/3/13 | left crescent lashed back L→R | the mirror, coiled left (f5–9) | 4.00 ×3 vs 4.0 |
+| J3 旋鎖 | `:hs-k-sensa` | 13/3/18 | both crescents at full chain, a half-turn cyclone; hanging chain 6 swept round at 3.9 m | coiled deep right, crouched, both arms wound back (f5–10) | 4.40 ×3 vs 4.4 |
+| K1 墜鎖 | `:hs-k-tsuisa` | 22/4/22 | hanging chain 7 (right front) lanced level at 1.1 m, hooked on a hit | right crescent raised high, arched back, left hand pointing; the chain hauled up into the raised fist (f7–19) | 7.85 ×4 vs line 7.85 |
+| K2 薙鎖 (+K2s) | `:hs-k-nagisa` | 24/4/24 (link 6) | hanging chain 1 reaping the floor (0.35 m) L→R, +70° → −70° | coiled left, crouched, left arm flung back low, the chain hauled into the left fist (f13–21) | 6.00 ×4 vs arc 6.0 |
+| K3 落鎖 | `:hs-k-rakusa` | 24/5/34 (link 6) | four chains dropped out of the orb onto the line (1.8 / 3.9 / 5.9 / 7.9 m) | both crescents high overhead, arched, on his toes (f13–22) | 7.90 ×5 vs line 8.0 (−0.10) |
+| L 鎖払 | `:hs-k-saharai` | 14/4/22 | all eight hanging chains flung out to 3 m in a ring (+40° spin) | the wrap: arms crossed over the chest, curled, the curtain drawn in and up (f6–12) | 3.00 ×4 vs r 3.0 |
+| SP1 綴雷電 | `:hs-k-raiden` | 20/3/24 | the neck bundle lanced down the line + the bolt to 9.3 m | right crescent raised high, two fingers at the neck, the bundle hauled into the raised fist (f7–17) | 9.30 ×3 vs line 9.3 |
+| SP2 鎖雨 | `:hs-k-ame` | 30/14/30 | two rains of five chains out of the orb along the lane (f30, f40) | both arms raised to the orb, arched far back, face up (f8–27); a second beat f38 | 10.89 on every hit frame vs lane 11.0 (−0.11) |
+| O 降鎖 | `:hs-k-kosa-aim` (loop), `:hs-k-kosa` | 20/2/30 | the neck bundle whipped down the lane | coiled back, the left hand heaving the bundle up over his head (f7–17) | 10.00 ×2 vs lane 10.0 |
+| Breaker | `:hs-k-breaker` (loop), `:hs-k-hammer` (`:clip-map`) | 8/4/18 | the chained right forearm as a hammer-fist (the held rod) | forearm cocked high behind the head (f4–6) | 0.78 0.85 0.88 0.89 vs 1.35 (short: allowed, as every Breaker) |
+| P 首掛 | `:hs-k-kubikake` | 24/4/30 | hanging chain 0 whirled overhead, cast along the line, hooked on a hit | left arm up whirling (the wrist keyed every 3 f), coiled, cocked f21 | 7.35 ×4 vs line 7.35 |
+| bind J1 弦 | `:hs-kb-gen` | 8/3/12 | the held right rod, flat R→L at the neck line | coiled right, right arm far back (f4–6) | 1.55 1.42 1.35 vs arc 1.5 (FK test) |
+| bind J2 返弦 | `:hs-kb-kaeshi` | 8/3/13 | left crescent on a short chain, rising ↗ | wound left, crouched, the crescent at the knee (f4–6) | 1.50 ×3 vs 1.5 |
+| bind J3 双弦 | `:hs-kb-sogen` | 9/3/18 | the held rods crossed, then scissored out | both crossed high in front, hunched (f4–7) | 1.56 1.54 1.53 vs arc 1.5 (FK test) |
+| bind K1 引斬 | `:hs-kb-hikigiri` | 18/4/20 | right crescent hooked out along the line on its chain; the left yanks the noose | right crescent drawn back over the shoulder, left hand up the noose (f6–15) | 2.95 ×4 vs line 2.95 |
+| bind K2 巻斬 | `:hs-kb-makigiri` | 20/4/24 (link 6) | hanging chain 2 flung across L→R at the chest (0.95 m) | coiled left, left arm flung up and back, the chain hauled into the left fist (f12–18) | 2.80 ×4 vs arc 2.8 |
+| bind K3 絞 | `:hs-kb-shibori` | 22/5/34 (link 8) | two chains dropped out of the orb at ±22°, cinching | the canon gesture: right crescent straight up, left hand high on the noose (f14–20) | 2.95 ×5 vs arc 3.0 (−0.05) |
+| bind L 引寄 | `:hs-kb-hikiyose` | 16/40/8 | no hit (the noose drag) | both hands high up the noose, leaning in (f7–14); the heave, then hand over hand every 6 f | — |
+| bind SP1 | `:hs-kb-raiden` | 14/3/24 | left crescent down the line on its chain + the bolt to 4.3 m | right fist raised, left crescent drawn back low, coiled (f5–12) | 4.30 ×3 vs line 4.3 |
+| bind SP2 絞縄 | `:hs-kb-kojo` | 20/4/30 | right crescent let out in the wide downward reap | the blade raised (f5), the choke: hunched, his left hand at his own throat (f11), drawn further back (f18) | 3.00 ×4 vs arc 3.0 |
+| bind O 絞首 | `:hs-kb-koshu-run` (loop), `:hs-kb-koshu` | 8/3/24 | the garrote: the chain between his fists through the victim's neck (drawn within 2.1 m) | both fists high, the chain taut over his head (f4–6) | the garrote at the victim's neck by construction (the held rod 0.57–0.62 m: not the striker) |
+| P 解縛 → UNWIND | `:hs-kb-unwind` | 20/0/0 | no hit | the chains go slack; the noose's ring slides down off him; the crescents lowered | — |
+
+Every hand-chain and chain-strike tip sits on its volume's edge by construction and is measured through the real draw
+path (debug 83902: the body posed by the form's clip, HS-POSE and HISAGI-DRAW run on each hit frame). The J / K links' FK
+test (`tests/duel-rules-test.lisp`) reads `*hs-strike-reach*` for those clips, and a new host check ties that table to
+`*hs-letout*` / `*hs-bk-chains*` (the farthest end out over each move's hit window within 0.15 m of the volume's edge).
+The bind's J1 / J3 are the held rod (FK, +0.05 / +0.06).
+
+**Startups too short for a long held windup** (frame data unchanged, as the brief says): the bind's J1 / J2 (S 8: the
+peak at f4, held to f6, 2 frames of snap), its J3 (S 9: f4 → f7), the Breaker's strike (S 8: f4 → f6, after the dash) and
+KŌSHU's strike (S 8: f4 → f6, after the zip). They read as a hard cock and snap, not a held windup. The longer ones (J 11–13,
+K 18–24, SP 14–30, O 20, P 24) hold 5–19 frames.
+
+**Proof.** `simgate --seeds 10 --summary` (56 lines) and `--cvc` (yy / yk / kk PASS) byte-identical to the parent ea1985d
+(`cmp`, the `[simgate] building` banner filtered); duel-rules-test 9711 checks ALL PASS; pkgcheck clean; `./build.sh duel`
+with only the 4 known Lille style warnings; debug 83901 0 B in every state on the repeat call, the Bankai's twelve new ones
+included (the first call after the scene grows the fx vertex buffer once, 131 KB at SHIBARI and 262 KB at SP2's rain, as
+§21.6 noted).
+
+**Stills** (`tools/run.mjs --fixed-dt 16.666667`; debug 83500+k picks a Bankai strip slot of `*hs-bk-strips*`, then
+83940+3i+v as the Shikai's): every slot at 2S/3, S−2 (the held peak), S and mid-recovery from his right side, and S−2 and S
+from the front (1280×720); six slots in portrait (720×1280); eight in the match camera.
+
+**Known issues / for the user's eyes** (checked by numbers, needs your eyes):
+- Lines along his facing (K1, SP1, O, KUBIKAKE) are foreshortened from the behind camera: the chain reads as a short line
+  reaching the opponent; the side view shows the whole lance.
+- TSUZURI RAIDEN's bolt shows from S−3 (the Shikai's timing, kept), so the snap is the chain and the arm, not the bolt.
+- The bind's J1 / J2 / J3, the Breaker and KŌSHU (above) have short windups.
+- In the card stills of the bind, the noose runs to the hidden opponent's unposed joints (the floor); in the match it is
+  round his neck (§21.6).
+- The Kikon cinematics still play B2a's `:hs-kari-o` (§11.5's storyboard is its own batch); the opponent's reel is the
+  shared clip.
+
 ## 18. Open
 
-- The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), clips in progress (batch B3b). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
+- The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
 

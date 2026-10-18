@@ -203,93 +203,101 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 ;;; ================================================================ the Bankai 風死絞縄 (§17; batch B2b)
 ;;; Two modes, each a kit form: :bankai the ranged mode (the default after the awakening; prefix hs-r-), :bankai-bind the
 ;;; bind mode (prefix hs-b-). The switch between them is a SET-FORM made by HS-BK-TICK only out of a move (after
-;;; KUBIKAKE's cut recovery on entry, on UNWIND's last frame on either end). The look is B2a's body and sickles as they are
-;;; (the lead's / the user's decision 2026-10-17: the Bankai's art and clips wait for a motion-style pass): moves play
-;;; B2a's clips (the K links the pulls', which fall short of the K volumes as the host FK test allows a K), except the
-;;; ranged J (their own frames, the thrown sickle drawn to the arc's edge: *HS-FLIGHTS*, the J's +-0.15 m).
+;;; KUBIKAKE's cut recovery on entry, on UNWIND's last frame on either end). The look (§21.6) and every move's own clip
+;;; (§21.8, batch B3b: the approved slot plan, exaggerated windups inside the startups; hisagi-art.lisp :hs-k- / :hs-kb-)
+;;; are presentation only: the drawn strike (a crescent on its hand chain, a hanging chain, the neck bundle, the orb's
+;;; chains) at each volume's edge on its hit frames.
 ;;;
 ;;; The ranged mode (§17.1, the user: 「由鎖鏈球設計與揮打鎖鏈為攻擊主體，此時前搖大、攻擊距離長， L 會將人推開」). Beyond
 ;;; 2.0 m every hit is :ranged (the chain, not the blade). J = chains swung from his hands, K / SP / O = from the orb.
-(defmove :hs-r-j1 :kind :quick :clip :hs-r-q1 :startup 12 :active 3 :recovery 12 :dmg 22 :adv-block -2 :guard 8
+(defmove :hs-r-j1 :kind :quick :clip :hs-k-saben :startup 12 :active 3 :recovery 12 :dmg 22 :adv-block -2 :guard 8
   :reach 4.0 :arc 100 :on-hit :flinch :hits ((12 15 :stun 24)) :flags (:ranged :no-close) :params (:melee-range 2.0))   ; 鎖鞭 SABEN
-(defmove :hs-r-j2 :kind :quick :clip :hs-r-q2 :startup 11 :active 3 :recovery 13 :dmg 22 :adv-block -2 :guard 8
+(defmove :hs-r-j2 :kind :quick :clip :hs-k-kaeshi :startup 11 :active 3 :recovery 13 :dmg 22 :adv-block -2 :guard 8
   :reach 4.0 :arc 100 :on-hit :flinch :hits ((11 14 :stun 24)) :flags (:ranged) :params (:melee-range 2.0))   ; 返鞭 KAESHI-BEN
 (defmove-copy :hs-r-j2s :hs-r-j2)
-(defmove :hs-r-j3 :kind :quick :clip :hs-r-spin :startup 13 :active 3 :recovery 18 :dmg 30 :adv-block -4 :guard 12
+(defmove :hs-r-j3 :kind :quick :clip :hs-k-sensa :startup 13 :active 3 :recovery 18 :dmg 30 :adv-block -4 :guard 12
   :reach 4.4 :arc 180 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0))                     ; 旋鎖 SENSA
 ;; K1 TSUISA: a 7.5 m line from the orb, turning 30 deg/s in its startup, no close-in; a hit drags him to 3.5 m (HS-R-DRAG)
-(defmove :hs-r-k1 :kind :flash :clip :hs-hiki :startup 22 :active 4 :recovery 22 :dmg 52 :adv-block -3 :guard 14
+(defmove :hs-r-k1 :kind :flash :clip :hs-k-tsuisa :startup 22 :active 4 :recovery 22 :dmg 52 :adv-block -3 :guard 14
   :vol (:cap 0.3 7.5 1.1 0.35) :track 30.0 :on-hit :stagger :flags (:ranged :no-close) :params (:melee-range 2.0)
   :on-land hs-r-drag)                                                                                          ; 墜鎖 TSUISA
-(defmove :hs-r-k2 :kind :flash :clip :hs-hiki :enter 6 :startup 24 :active 4 :recovery 24 :dmg 44 :adv-block -3 :guard 14
+(defmove :hs-r-k2 :kind :flash :clip :hs-k-nagisa :enter 6 :startup 24 :active 4 :recovery 24 :dmg 44 :adv-block -3 :guard 14
   :reach 6.0 :arc 140 :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0))                            ; 薙鎖 NAGISA
 (defmove-copy :hs-r-k2s :hs-r-k2)
-(defmove :hs-r-k3 :kind :flash :clip :hs-hodoki :enter 6 :startup 24 :active 5 :recovery 34 :dmg 66 :adv-block -20 :guard 18
+(defmove :hs-r-k3 :kind :flash :clip :hs-k-rakusa :enter 6 :startup 24 :active 5 :recovery 34 :dmg 66 :adv-block -20 :guard 18
   :vol (:cap 0.3 7.5 1.1 0.5) :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0))              ; 落鎖 RAKUSA
 ;; L 鎖払 SAHARAI: the chains whirled round him (360 deg r 3.0); a hit pushes him to 6.5 m, a block to 4.5 m (HS-R-PUSH,
 ;; HS-BK-HIT); cooldown 120 from the press
-(defmove :hs-r-l :kind :sig :clip :hs-kaza :startup 14 :active 4 :recovery 22 :dmg 30 :adv-block -4 :guard 14
+(defmove :hs-r-l :kind :sig :clip :hs-k-saharai :startup 14 :active 4 :recovery 22 :dmg 30 :adv-block -4 :guard 14
   :vol (:arc 3.0 360 0.2 2.0) :on-hit :knockback :cooldown 120 :on-land hs-r-push)
-(defmove :hs-r-sp1 :kind :sp :clip :hs-raiden :callout "TSUZURI RAIDEN" :startup 20 :active 3 :recovery 24 :dmg 110
+(defmove :hs-r-sp1 :kind :sp :clip :hs-k-raiden :callout "TSUZURI RAIDEN" :startup 20 :active 3 :recovery 24 :dmg 110
   :adv-block -14 :guard 22 :vol (:cap 0.3 9.0 1.1 0.3) :track 30.0 :flags (:ranged) :on-hit :bind :hits ((20 23 :stun 40))
   :params (:melee-range 2.0))                                                                                  ; 綴雷電
 ;; SP2 鎖雨 KUSARI-AME: a 10 m x 2 m lane, aimed 120 deg/s for its first 6 f then locked (HS-R-AME-AIM); two windows;
 ;; off a J / K string hit the charge-less copy (:enter 10, S_eff 20: HS-BK-COMMAND)
-(defmove :hs-r-sp2 :kind :sp :clip :hs-shibari :callout "KUSARI-AME" :startup 30 :active 14 :recovery 30 :dmg 70
+(defmove :hs-r-sp2 :kind :sp :clip :hs-k-ame :callout "KUSARI-AME" :startup 30 :active 14 :recovery 30 :dmg 70
   :adv-block -18 :guard 22 :vol (:cap 1.0 10.0 1.2 1.0) :track 120.0 :flags (:ranged) :params (:melee-range 2.0)
   :tick hs-r-ame-aim :hits ((30 34 :on-hit :flinch) (40 44 :dmg 90 :on-hit :knockdown)))
 (defmove-copy :hs-r-sp2c :hs-r-sp2 :enter 10)
 ;; O 降鎖 KOSA: chains rain along a 9 m lane, no dash (it reaches the 7.95 m K ender push from where he stands)
-(defmove :hs-r-kikon :kind :kikon :clip :hs-kari-aim :clip-2 :hs-kari-o :callout "KOSA" :cine hs-kikon-cine
+(defmove :hs-r-kikon :kind :kikon :clip :hs-k-kosa-aim :clip-2 :hs-k-kosa :callout "KOSA" :cine hs-kikon-cine
   :startup 20 :active 2 :recovery 30 :whiff 30 :dmg 70 :adv-block -14 :track 0 :vol (:cap 0.5 9.0 1.2 1.0)
   :on-hit :knockback :kb 2.0 :cooldown 90
   :params (:aura 6 :aim 120.0 :speed 0.0 :dash-max 0 :ender-dash 0 :dash-track 0.0 :look :lane :follow-speed 14.0))
 ;; P 首掛 KUBIKAKE, the binding throw (§17.2): a 7 m line from his hand; his own 200 checked at the press (HS-P-PRESS) and
 ;; at contact (HS-KUBI-LAND); a hit yanks him to 2.0 m into a 30 f reel, the recovery cut to 14, and the bind starts at the
 ;; end of the step (HS-BK-TICK); a block / whiff is punishable (-20 / R 42)
-(defmove :hs-r-kubikake :kind :flash :clip :hs-nage :callout "KUBIKAKE" :startup 24 :active 4 :recovery 30 :whiff 42 :dmg 40
-  :adv-block -20 :guard 14 :vol (:cap 0.3 7.0 1.1 0.35) :track 30.0 :on-hit :stagger :hits ((24 28 :stun 30))
+(defmove :hs-r-kubikake :kind :flash :clip :hs-k-kubikake :callout "KUBIKAKE" :startup 24 :active 4 :recovery 30 :whiff 42
+  :dmg 40 :adv-block -20 :guard 14 :vol (:cap 0.3 7.0 1.1 0.35) :track 30.0 :on-hit :stagger :hits ((24 28 :stun 30))
   :flags (:ranged :no-close) :params (:melee-range 2.0) :on-land hs-kubi-land)
 
 ;;; The bind mode (§17.3, the user: 「攻擊模組切換成近戰，此時的 L 會將對手拉近」): the melee set at the §2.1 budget
-(defmove :hs-b-j1 :kind :quick :clip :hs-q1 :startup 8 :active 3 :recovery 12 :dmg 32 :adv-block -2 :guard 8
+(defmove :hs-b-j1 :kind :quick :clip :hs-kb-gen :startup 8 :active 3 :recovery 12 :dmg 32 :adv-block -2 :guard 8
   :reach 1.5 :arc 110 :on-hit :flinch :slide 0.3)                                                              ; 弦 GEN
-(defmove :hs-b-j2 :kind :quick :clip :hs-q2 :startup 8 :active 3 :recovery 13 :dmg 32 :adv-block -2 :guard 8
+(defmove :hs-b-j2 :kind :quick :clip :hs-kb-kaeshi :startup 8 :active 3 :recovery 13 :dmg 32 :adv-block -2 :guard 8
   :reach 1.5 :arc 110 :on-hit :flinch)                                                                         ; 返弦
 (defmove-copy :hs-b-j2s :hs-b-j2)
-(defmove :hs-b-j3 :kind :quick :clip :hs-spin :startup 9 :active 3 :recovery 18 :dmg 40 :adv-block -4 :guard 12
+(defmove :hs-b-j3 :kind :quick :clip :hs-kb-sogen :startup 9 :active 3 :recovery 18 :dmg 40 :adv-block -4 :guard 12
   :reach 1.5 :arc 200 :on-hit :stagger :flags (:ender))                                                        ; 双弦 SOGEN
-(defmove :hs-b-k1 :kind :flash :clip :hs-hiki :startup 18 :active 4 :recovery 20 :dmg 64 :adv-block -3 :guard 14
+(defmove :hs-b-k1 :kind :flash :clip :hs-kb-hikigiri :startup 18 :active 4 :recovery 20 :dmg 64 :adv-block -3 :guard 14
   :vol (:cap 0.3 2.6 1.1 0.35) :on-hit :stagger)                                                               ; 引斬 HIKIGIRI
-(defmove :hs-b-k2 :kind :flash :clip :hs-hiki :enter 6 :startup 20 :active 4 :recovery 24 :dmg 56 :adv-block -3 :guard 14
+(defmove :hs-b-k2 :kind :flash :clip :hs-kb-makigiri :enter 6 :startup 20 :active 4 :recovery 24 :dmg 56 :adv-block -3 :guard 14
   :reach 2.8 :arc 140 :on-hit :stagger)                                                                        ; 巻斬 MAKIGIRI
 (defmove-copy :hs-b-k2s :hs-b-k2)
-(defmove :hs-b-k3 :kind :flash :clip :hs-hodoki :enter 8 :startup 22 :active 5 :recovery 34 :dmg 80 :adv-block -20 :guard 18
+(defmove :hs-b-k3 :kind :flash :clip :hs-kb-shibori :enter 8 :startup 22 :active 5 :recovery 34 :dmg 80 :adv-block -20 :guard 18
   :reach 3.0 :arc 120 :on-hit :crumple :flags (:ender))                                                        ; 絞 SHIBORI
 ;; L 引寄 HIKIYOSE: no hit window; at f16 the noose drags him to 2.0 m at 18 m/s (HS-PULL-STEP: motion only, he keeps every
 ;; other input), then R 8; refused within 2.5 m (HS-BK-OK); cooldown 90
-(defmove :hs-b-l :kind :sig :clip :hs-hiki :startup 16 :active 40 :recovery 8 :cooldown 90 :track 30.0
+(defmove :hs-b-l :kind :sig :clip :hs-kb-hikiyose :startup 16 :active 40 :recovery 8 :cooldown 90 :track 30.0
   :on-frame ((16 hs-pull-go)))
-(defmove :hs-b-sp1 :kind :sp :clip :hs-raiden :callout "TSUZURI RAIDEN" :startup 14 :active 3 :recovery 24 :dmg 110
+(defmove :hs-b-sp1 :kind :sp :clip :hs-kb-raiden :callout "TSUZURI RAIDEN" :startup 14 :active 3 :recovery 24 :dmg 110
   :adv-block -14 :guard 22 :vol (:cap 0.3 4.0 1.1 0.3) :on-hit :bind :hits ((14 17 :stun 40)))
-(defmove :hs-b-sp2 :kind :sp :clip :hs-kari :callout "KOJO" :startup 20 :active 4 :recovery 30 :dmg 160 :adv-block -16
+(defmove :hs-b-sp2 :kind :sp :clip :hs-kb-kojo :callout "KOJO" :startup 20 :active 4 :recovery 30 :dmg 160 :adv-block -16
   :guard 30 :reach 3.0 :arc 160 :on-hit :crumple)                                                              ; 絞縄 KOJO
 (defmove-copy :hs-b-sp2c :hs-b-sp2 :enter 6)
-(defmove :hs-b-kikon :kind :kikon :clip :sh-run :clip-2 :hs-kari-o :callout "KOSHU" :cine hs-kikon-cine
+(defmove :hs-b-kikon :kind :kikon :clip :hs-kb-koshu-run :clip-2 :hs-kb-koshu :callout "KOSHU" :cine hs-kikon-cine
   :startup 8 :active 3 :recovery 24 :dmg 70 :adv-block -14 :reach 2.0 :arc 120 :on-hit :knockback :kb 2.5 :cooldown 90
   :params (:aura 6 :aim 120.0 :speed 14.0 :dash-max 30 :dash-track 0.0 :look :flash-step :sfx :hoho-out))      ; 絞首 KOSHU
 ;; UNWIND: the chains fall slack (20 f, no hit, no iframes): where either end of the bind leaves him (HS-BIND-END-EFFECTS!)
-(defmove :hs-b-unwind :kind :flash :clip :hs-modoshi :startup 20 :active 0 :recovery 0 :track 0)
+(defmove :hs-b-unwind :kind :flash :clip :hs-kb-unwind :startup 20 :active 0 :recovery 0 :track 0)
 
 (defparameter *hs-bk-hooks* '(:tick hs-bk-tick :ok hs-bk-ok :command hs-bk-command :hit hs-bk-hit :reset hs-reset
-                              :hash hs-hash :draw hisagi-draw :deck hs-deck :p hs-p-press :p-label hs-p-label
+                              :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :p hs-p-press :p-label hs-p-label
                               :bind hs-binding :bind-damage hs-bind-damage :bind-pool hs-bind-pool :bind-heal hs-bind-heal
                               :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot)
-  "The Bankai's hooks (both modes): the bind's state lives on the binder's HSS, so both modes answer B1b's bind hooks.")
+  "The Bankai's hooks (both modes): the bind's state lives on the binder's HSS, so both modes answer B1b's bind hooks; the
+:pose hook (HS-POSE: the right crescent let out on its hand chain) is a look, as the Shikai's.")
+(defparameter *hs-bk-clips* '(:hs-breaker :hs-k-breaker :hs-kubikake :hs-k-hammer)
+  "The Bankai's :clip-map (both modes; a look, DUEL_HISAGI §21.8): the shared Breaker's dash and strike on its own clips
+(every Bankai move names its own clip).")
+(defparameter *hs-bk-looks* '(:sh-walk-f :hs-k-walk-f :sh-walk-b :hs-k-walk-b :sh-strafe-r :hs-k-strafe-r
+                              :sh-strafe-l :hs-k-strafe-l)
+  "The Bankai's :look-clips: the shared walk's legs under his hanging arms (§21.8).")
 
 (defkit :hisagi :bankai
-  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-stance
+  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-k-stance
   :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI"
+  :clip-map *hs-bk-clips* :look-clips *hs-bk-looks* :run-clips (:hs-k-run :hs-k-skate-b :hs-k-slide-r :hs-k-slide-l)
   :walk *hs-r-walk* :run *hs-r-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *hs-r-mult* :taken *hs-r-taken*
   :push-reach *hs-r-push-reach*
   :commands (:q :hs-r-j1 :f :hs-r-k1 :sig :hs-r-l :sp1 :hs-r-sp1 :sp2 :hs-r-sp2 :breaker :hs-breaker :kikon :hs-r-kikon)
@@ -308,8 +316,10 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
        :kikon-range 9.0 :reflex hs-r-ai-reflex :opp-reflex hs-ai-opp :sp-ender hs-r-ai-ender))
 
 (defkit :hisagi :bankai-bind
-  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-stance
-  :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI" :endless-form :bankai
+  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-k-stance
+  :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI"
+  :clip-map *hs-bk-clips* :look-clips *hs-bk-looks* :run-clips (:hs-k-run :hs-k-skate-b :hs-k-slide-r :hs-k-slide-l)
+  :endless-form :bankai
   :walk *hs-b-walk* :run *hs-b-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult 1.0 :taken 1.0
   :commands (:q :hs-b-j1 :f :hs-b-k1 :sig :hs-b-l :sp1 :hs-b-sp1 :sp2 :hs-b-sp2 :breaker :hs-breaker :kikon :hs-b-kikon)
   :grid (:hs-b-j1 :hs-b-j2 :hs-b-j3 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-j2s :hs-b-k2s)
