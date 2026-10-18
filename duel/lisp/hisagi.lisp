@@ -63,10 +63,15 @@ user: 「可以」 to DUEL_HISAGI §22.1: he stands his ground, the chains move)
 (defparameter *hs-b-run* 9.0 "Run m/s, the bind mode (§17.3).")
 (defparameter *hs-r-push-reach* 7.5
   "The ranged mode's K ender push is measured from this (kit :push-reach, §17.1: K1 TSUISA's old 7.5 m line; kept for B4c's
-K3 / K3G, ~7.95 m: inside the O's 9 m lane and SP1's 9 m line, though K1 綁束 reaches 3.0 now, §22.6).")
+K3 / K3G, ~7.95 m: inside the O's 9 m lane and SP1's 9 m line, though K1 綁束 reaches 3.0 now, §22.6; 4.0 since B4d, §22.8).")
 (defparameter *hs-saharai-hit* 6.5 "L SAHARAI's hit pushes him to this many metres from Hisagi (18 f, §17.1) ...")
 (defparameter *hs-saharai-block* 4.5 "... its block to this many (the block slide).")
 (defparameter *hs-saharai-frames* 18 "SAHARAI's push, frames (the block's: 12).")
+;; B4d (§22.8; the user, 2026-10-18: 「近身的敵人要靠 L 快速擊退（去掉遠程時 L 的冷卻，一樣調整前後搖來控制出招的主動性）」; the
+;; numbers the lead's for that direction, 2026-10-18): the ranged L SAHARAI loses its cooldown (120 -> 0)
+(defparameter *hs-saharai-s* 10 "The ranged L SAHARAI's startup (14 -> 10: 「快速擊退」) ...")
+(defparameter *hs-saharai-r* 32 "... its recovery (22 -> 32: 「調整前後搖來控制出招的主動性」) ...")
+(defparameter *hs-saharai-adv* -16 "... and its block advantage (-4 -> -16): a quick repel with real commitment.")
 (defparameter *hs-ame-aim* 6 "SP2 KUSARI-AME aims this many frames from its first, then its lane is locked (§17.1).")
 (defparameter *hs-kubi-reiatsu* 200.0
   "KUBIKAKE binds only with this much of his own Reiatsu, checked at the press and at contact (the user, 2026-10-17:
@@ -97,7 +102,9 @@ real damage (the user, 2026-10-18: 「先還原再打，傷害 120（推薦）�
   "His CPU, ranged mode: KUBIKAKE (SP2 since B4c) cancelled off a J / K hit with his own 200 and the victim in its line's
 reach, one roll per hit (HS-R-AI-MOVE, HS-R-AI-ENDER; §17.5 #16 rolled it once per entry into 4-7 m, from neutral).")
 (defparameter *hs-ai-saharai-p* '(:easy 0.3 :normal 0.6 :hard 0.85)
-  "His CPU, ranged mode: L SAHARAI once per entry within *HS-AI-CLOSE* m (§17.1: the escape at close range).")
+  "His CPU, ranged mode: L SAHARAI once per entry within *HS-AI-CLOSE* m (§17.1: the escape at close range). B4d (§22.8):
+his only close-in answer (K1 misses inside 2.0 m), no cooldown now, so still one roll per entry (never per step: no spam);
+his :moves band inside 2.0 m gives L K1's old weight too.")
 (defparameter *hs-ai-close* 2.0 "... the close band, m (2.5 -> 2.0, 2026-10-18, §22.2: the dead zone's; J reaches from 2.0).")
 (defparameter *hs-ai-release-p* '(:easy 0.3 :normal 0.6 :hard 0.9)
   "His CPU in a bind: the release once per change event (a soul turned grey, every 100 of the pool drained) while his grey
@@ -117,8 +124,9 @@ waits for the strike's range (B4c).")
 ;;; (distance sweet spots) + 「遠程攻擊有效利用鎖鏈球拉動垂鏈迴轉對遠程進行抽打」; 「可以」 to the proposal (§22.1).
 (defparameter *hs-r-dead* 2.0
   "The ranged mode's dead zone: every attack of it but L SAHARAI (and the universal Breaker) misses a victim nearer than
-this (m, centre to centre: the moves' :min-reach) (none -> 2.0, 2026-10-18, the user, §22.1; B4c: K1 綁束 has none either,
-the user: 「身旁旋轉會打到」, §22.4).")
+this (m, centre to centre: the moves' :min-reach) (none -> 2.0, 2026-10-18, the user, §22.1; B4c: K1 綁束 had none, the
+user: 「身旁旋轉會打到」, §22.4; B4d: K1 has it again, 「讓 K1 只能打中遠方的敵人」, §22.8). The bind's SP1 KUSARI-AME has
+none since B4d (「鎖雨改成近距離也打得中」).")
 (defparameter *hs-r-tip* 1.0
   "The chain tip: a ranged-mode hit in the outer this many m of its volume (an arc / annulus: by his distance from the arc's
 r; a line / lane: along it, from its far end) ... (none -> 1.0, 2026-10-18, the user, §22.1; HS-DIST-MULT) ...")
@@ -279,9 +287,12 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :reach 4.5 :arc 100 :on-hit :flinch :hits ((14 17 :stun 24)) :flags (:ranged :no-close) :params (:melee-range 2.0)
   :min-reach *hs-r-dead* :on-land hs-r-j-push)                                                                 ; 旋鞭 SENBEN
 ;; K1 綁束 HOSOKU (the gathered opener): the hanging chains spun round him and bound into one bundle; the spin hits all
-;; round, r 3.0, no dead zone (the user: 「身旁旋轉會打到」), no close-in; the base K1's A / R / guard / block (§17.1)
+;; round, no close-in; the base K1's A / R / guard / block (§17.1). B4d (§22.8, the user 2026-10-18: 「讓 K1 只能打中遠方的
+;; 敵人」): the dead zone back and farther, an annulus 2.0-4.0 m (r 3.0 -> 4.0, no dead zone -> *HS-R-DEAD*); the tip x1.3
+;; on its outer 1.0 m (3.0-4.0)
 (defmove :hs-r-k1 :kind :flash :clip :hs-k-hosoku :clip-s 14 :startup 16 :active 4 :recovery 22 :dmg 40 :adv-block -3 :guard 14
-  :vol (:arc 3.0 360 0.2 2.0) :on-hit :stagger :flags (:ranged :no-close) :params (:melee-range 2.0))        ; 綁束 HOSOKU
+  :vol (:arc 4.0 360 0.2 2.0) :on-hit :stagger :flags (:ranged :no-close) :params (:melee-range 2.0)
+  :min-reach *hs-r-dead*)                                                                                      ; 綁束 HOSOKU
 ;; spread (J1 ->): the thin hanging chains. J2 the other side's curtain (B4a's J2), K2s a fan of chains whipping the ground,
 ;; J3 the full turn (B4a's J3), K3 every chain lashed forward at once
 (defmove :hs-r-j2 :kind :quick :clip :hs-k-kaeshi :clip-s 11 :startup 10 :active 3 :recovery 13 :dmg 19 :adv-block -2 :guard 8
@@ -327,18 +338,20 @@ spread (J2 / K2s, J3 / K3), K1-opened gathered (K2 / J2s, K3G / J3G).")
 Bankai's :clip-map; B4b deletes each entry it draws), and the bind SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture, its old L). The
 host's drawn-reach checks skip these moves.")
 ;; L 鎖払 SAHARAI: the chains whirled round him (360 deg r 3.0); a hit pushes him to 6.5 m, a block to 4.5 m (HS-R-PUSH,
-;; HS-BK-HIT); cooldown 120 from the press
-(defmove :hs-r-l :kind :sig :clip :hs-k-saharai :startup 14 :active 4 :recovery 22 :dmg 30 :adv-block -4 :guard 14
-  :vol (:arc 3.0 360 0.2 2.0) :on-hit :knockback :cooldown 120 :on-land hs-r-push)
+;; HS-BK-HIT). B4d (§22.8): his only close-in tool, no cooldown (120 -> 0), S *HS-SAHARAI-S* / R *HS-SAHARAI-R* / block
+;; *HS-SAHARAI-ADV*; its clip authored at S 14 (:clip-s 14: the strike still lands on S)
+(defmove :hs-r-l :kind :sig :clip :hs-k-saharai :clip-s 14 :startup *hs-saharai-s* :active 4 :recovery *hs-saharai-r* :dmg 30
+  :adv-block *hs-saharai-adv* :guard 14 :vol (:arc 3.0 360 0.2 2.0) :on-hit :knockback :on-land hs-r-push)
 (defmove :hs-r-sp1 :kind :sp :clip :hs-k-raiden :callout "TSUZURI RAIDEN" :startup 20 :active 3 :recovery 24 :dmg 110
   :adv-block -14 :guard 22 :vol (:cap 0.3 9.0 1.1 0.3) :track 30.0 :flags (:ranged) :on-hit :bind :hits ((20 23 :stun 40))
   :params (:melee-range 2.0) :min-reach *hs-r-dead*)                                                          ; 綴雷電
 ;; 鎖雨 KUSARI-AME: a 10 m x 2 m lane, aimed 120 deg/s for its first 6 f then locked (HS-R-AME-AIM); two windows; off a
 ;; J / K string hit the charge-less copy (:enter 10, S_eff 20: HS-BK-COMMAND). The ranged mode's SP2 until B4c; since then
-;; the bind mode's SP1 (the user, 2026-10-18: 「鎖雨移到捆綁的 SP1」: its data kept, the SP1 cost from the shared pool)
+;; the bind mode's SP1 (the user, 2026-10-18: 「鎖雨移到捆綁的 SP1」: its data kept, the SP1 cost from the shared pool). B4d
+;; (§22.8, 「鎖雨改成近距離也打得中」): no dead zone (*HS-R-DEAD* -> none), it hits at any range of its lane
 (defmove :hs-r-sp2 :kind :sp :clip :hs-k-ame :callout "KUSARI-AME" :startup 30 :active 14 :recovery 30 :dmg 70
   :adv-block -18 :guard 22 :vol (:cap 1.0 10.0 1.2 1.0) :track 120.0 :flags (:ranged) :params (:melee-range 2.0)
-  :tick hs-r-ame-aim :hits ((30 34 :on-hit :flinch) (40 44 :dmg 90 :on-hit :knockdown)) :min-reach *hs-r-dead*)
+  :tick hs-r-ame-aim :hits ((30 34 :on-hit :flinch) (40 44 :dmg 90 :on-hit :knockdown)))
 (defmove-copy :hs-r-sp2c :hs-r-sp2 :enter 10)
 ;; O 降鎖 KOSA: chains rain along a 9 m lane, no dash (it reaches the 7.95 m K ender push from where he stands)
 (defmove :hs-r-kikon :kind :kikon :clip :hs-k-kosa-aim :clip-2 :hs-k-kosa :callout "KOSA" :cine hs-kosa-cine
@@ -424,16 +437,18 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
   :commands (:q :hs-r-j1 :f :hs-r-k1 :sig :hs-r-l :sp1 :hs-r-sp1 :sp2 :hs-r-kubikake :breaker :hs-breaker :kikon :hs-r-kikon)
   :strings *hs-r-strings*
   :hooks *hs-r-hooks*
-  ;; the ranged mode by route (B4c, §22.4, §22.6): he holds 2-4.5 m; K1 綁束 (the gathered opener, no dead zone) within
-  ;; 3 m, J1 (the spread one, the annulus) at 3-4.5 m (both at 2-3 m, K1 first: the damage); his :move-reflex picks each
-  ;; link (the K for damage, the J when only it reaches, the end when neither does); inside 2 m also L SAHARAI (his
-  ;; :reflex) or a back Step; beyond 4.5 m SP1 now and then (nothing else of his reaches there); KUBIKAKE (SP2) cancelled
-  ;; off a confirmed J / K hit with his 200 (his :move-reflex / :sp-ender); his SP1 only off a link 3 above 300 (keeps the 200)
+  ;; the ranged mode by route (B4c, §22.4, §22.6): he holds 2-4.5 m; K1 綁束 (the gathered opener) at 2-3 m first (the
+  ;; damage), J1 (the spread one) at 2-4.5 m; his :move-reflex picks each link (the K for damage, the J when only it reaches,
+  ;; the end when neither does); beyond 4.5 m SP1 now and then (nothing else of his reaches there); KUBIKAKE (SP2) cancelled
+  ;; off a confirmed J / K hit with his 200 (his :move-reflex / :sp-ender); his SP1 only off a link 3 above 300 (keeps the
+  ;; 200). B4d (§22.8): K1 an annulus 2.0-4.0 m, so no K1 inside 2 m (L SAHARAI takes its weight there, plus his :reflex's
+  ;; roll per entry, or a back Step) and K1 at 3-4 m too (its tip), shared with J1
   :ai (:intents (:approach 1 :pressure 2 :zone 5 :defend 2)
        :ranges (:approach (2.5 4.0) :pressure (2.0 3.0) :zone (3.0 4.5) :defend (4.0 6.0))
-       :moves ((0.0 2.0 :f 3 :sig 3 :step 3 :breaker 1)
+       :moves ((0.0 2.0 :sig 6 :step 3 :breaker 1)
                (2.0 3.0 :f 5 :q 2 :step 1)
-               (3.0 4.5 :q 5 :step 1)
+               (3.0 4.0 :f 3 :q 3 :step 1)
+               (4.0 4.5 :q 5 :step 1)
                (4.5 8.0 :sp1 1 nil 4)
                (8.0 10.0 :sp1 1 :kikon 1 nil 2)
                (10.0 99.0 :kikon 1 nil 3))
@@ -1022,7 +1037,7 @@ arc's r, a line's end; + a hurt cylinder's 0.36), any window?"
 link-2 hit, on its land step: KUBIKAKE's cancel when HS-R-AI-THROW-P (the bind); else one roll (*HS-AI-ROUTE-DMG-P*): the damage pick (the K link: spread K2s / K3, gathered K2 /
 K3G) when the victim stands inside its reach, else the speed pick (the J link) inside its; neither reaches: the string
 ends there (:WAIT, kept until the move ends: no whiff). A learner baiting its Burst read: the generic reflex (NIL). (The
-route itself is the opener's: K1 within 3 m, J1 at 2.5-4.5 m, his :moves bands; B4c, §22.6.)"
+route itself is the opener's: K1 at 2-4 m, J1 at 2-4.5 m, his :moves bands; B4c, §22.6; B4d, §22.8.)"
   (let* ((st (hs e)) (kit (fighter-kit f)) (name (mv-name mv)))
     (cond ((not (and (eq (fighter-contact f) :hit) (string-link-p kit name) (null (fighter-queued f))
                      (not (and (brain-learn b) (eq (lrn-cmd (brain-learn b)) :bait)))))
@@ -1106,7 +1121,7 @@ HS-AWAKEN-NOW!): 10 the ranged mode 6 m from Kenpachi; 11 5 m from him, KUBIKAKE
 3 m from him with grey values (he dealt 300, took 200: the pool 600 -> 350); 13 as 12, the release pressed (applied this
 step: the snapshot back, the pool's 350 split 300 / 50, the reel, UNWIND); 14 as 12, the pool at 1 and a 10 hit (the
 drained end at this step's hits); 15 the Bankai mirror, both CPUs awakened, 6 m apart. B4c (§22.6): 16 the ranged mode
-2.5 m from an idle Kenpachi (the gathered route, K1 綁束 within 3 m: press K K K / K K J / K J J); 17 the ranged mode
+2.5 m from an idle Kenpachi (the gathered route, K1 綁束 at 2.0-4.0 m: press K K K / K K J / K J J); 17 the ranged mode
 3.5 m from him (the spread route off J1: J J J / J J K / J K K); 18 the ranged mode 4 m from a CPU Rukia, P1's CPU on (a
 fresh CPU battle); any other k the probe line only."
   (flet ((setup (c2 dist &key cpu)

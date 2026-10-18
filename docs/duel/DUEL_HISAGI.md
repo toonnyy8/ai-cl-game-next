@@ -2137,6 +2137,53 @@ What changes (the lead's numbers for the user's direction; batch B4d, a sim chan
 - **Gathered K2's second hit** stays a launch (B4c's choice, now the user's).
 - The CPU follows: K1 at 2.0–4.0 m; L whenever the foe is inside 2 m.
 
+**B4d as built (2026-10-18; a sim change, `duel/lisp/hisagi.lisp` and its test block only).**
+- **K1 綁束** (`:hs-r-k1`): `:vol (:arc 4.0 360 0.2 2.0)` (r 3.0 → 4.0) and `:min-reach *hs-r-dead*` (none → 2.0): an
+  annulus 2.0–4.0 m all round (a hurt cylinder from 2.0 to 4.36 m). S 16 / A 4 / R 22 / 40 / guard 14 / −3, stagger,
+  `:no-close`, `:clip-s 14` unchanged. The tip ×1.3 follows from the volume (HS-DIST-MULT reads the arc's r): 3.0–4.0 m.
+  It still plays SAHARAI's ring as its stand-in (`*hs-r-clip-stand-ins*`, drawn at r 3.0), so the host drawn-reach checks
+  still skip it, as in B4c; the art pass B4b draws it to 4.0 m and deletes the entry. No art table changed.
+- **The ranged L 鎖払** (`:hs-r-l`): new knobs `*hs-saharai-s*` 14 → **10**, `*hs-saharai-r*` 22 → **32**,
+  `*hs-saharai-adv*` −4 → **−16** (docstrings: the user's words, the lead's numbers, 2026-10-18); `:cooldown 120` removed
+  (→ 0). Volume (360°, r 3.0), damage 30, guard 14, the hit push to 6.5 m and the block push to 4.5 m unchanged. Its clip is
+  authored at S 14: `:clip-s 14` plays it at 1.4× so the strike lands on S 10 (its recovery holds the clip's last pose).
+- **鎖雨 KUSARI-AME** (`:hs-r-sp2`, the bind's SP1, and its copy `:hs-r-sp2c`): `:min-reach` removed; the lane
+  `(:cap 1.0 10.0 1.2 1.0)` reaches from his feet (a victim at 0.3 m is in both windows).
+- **Gathered K2's second hit** stays `:launch` (B4c's; the existing pin `(:stagger :launch)` kept).
+- **The CPU** (his ranged `:ai`): the 0–2 m band `:f 3 :sig 3 :step 3 :breaker 1` → **`:sig 6 :step 3 :breaker 1`** (K1
+  can't hit there; L takes its weight); 2–3 m unchanged (K1 5 / J1 2 / Step 1, gathered first); the old 3–4.5 m J1 band
+  split: **3–4 m K1 3 / J1 3 / Step 1** (K1's tip band, B4d's pick), 4–4.5 m J1 5 / Step 1. The `:reflex` HS-R-AI-REFLEX is
+  unchanged: one roll per entry into < 2.0 m (`*hs-ai-saharai-p*` 0.3 / 0.6 / 0.85), never per step, so with no cooldown
+  the reflex still cannot spam it; the band pick is the generic neutral decision's. The route picks (HS-R-AI-MOVE) as
+  B4c: their reach read (HS-R-REACHES-P) now sees K1's dead zone. No other reflex of his read K1 close in.
+- **Tests** (`tests/duel-rules-test.lisp` 9767 checks ALL PASS, 9765 at the parent): K1's row reach 4.0, its dead zone
+  (in the dead-zone list now; the rain and its copy out of it), its volume (misses at 0.5 and 1.9 m behind, hits at 2.0,
+  3.0 behind, 4.3, 3.5 aside, not 4.4), its tip (×1.3 at 3.0 and 4.0 m, ×1.0 at 2.9), HS-R-REACHES-P (not 1.9, 4.3 yes);
+  L's row 10 / 4 / 32 / 30 / 14 / −16, cooldown 0, the knobs, its clip speed 1.4, the pushes 6.5 / 4.5; the rain's
+  windows without `:min-reach`, hitting at 0.3 / 0.8 / 1.0 / 10.3 m; the CPU bands (`:f` only inside 2.0–4.0 m, one band
+  ending at 4.0, no K1 and some L inside 2.0 m). duel-control-test 89, learn-test 131, cine-test 18 ALL PASS;
+  `tools/pkgcheck.sh duel` clean; `./build.sh duel` with only the 4 known Lille style warnings; `run.mjs` 8 s smoke exit 0.
+- **Identity** (the parent a1c95a1 built from an archive, `[simgate] building` lines filtered): the 42 summary lines of the
+  21 pairings without him byte-identical at 10 seeds (`cmp`); `--cvc` yy / yk / kk PASS, identical to the parent's.
+- **His 7 pairings at 20 seeds** (B4c's 20-seed gate, §22.6 → B4d):
+
+  | Pairing | K.O.s of 20 | Median (s) | His P1 wins of 20 |
+  |---|---|---|---|
+  | HY | 20 → 20 | 126.5 → 128.8 | 7 → 6 |
+  | HK | 20 → 20 | 131.5 → 132.7 | 0 → 1 |
+  | HR | 20 → 20 | 168.4 → 151.8 | 3 → 5 |
+  | HI | 20 → **19** | 179.4 → 167.4 | 3 → 6 |
+  | HS | 20 → 20 | 165.4 → 162.8 | 6 → **11** |
+  | HB | 20 → 20 | 177.9 → 158.3 | 1 → 1 |
+  | HH (mirror) | 20 → **19** | 227.7 → 229.2 | 7 / 13 → 10 / 10 |
+
+  Every cross-pairing median is inside 125–210 s, but **two matches time out** (one HI at 300 s, one mirror): "every match
+  K.O." fails on those two rows. Reported, nothing retuned (the 10-seed pass showed the same two, HI and HH 9 of 10 K.O.;
+  at the parent every match of both passes was a K.O.).
+- **Known issues**: K1's look is still SAHARAI's r 3.0 ring for a 4.0 m annulus (B4b); L's recovery holds the clip's end
+  pose for its extra frames; the generic CPU branches (a punish, the pressure reset) may still press K1 inside 2 m (B4a's
+  issue for J1, now K1's too); the two time-outs above.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
