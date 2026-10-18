@@ -1389,23 +1389,33 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
 (defvar *hs-chain-black* 0
   "1 while the Bankai's chains are drawn (%HS-ORB-DRAW): VFX-HS-CHAIN's links are solid black kites in the alpha batch
 (%HS-BLACK-KITE: no toon INK palette's white edge or core, no steel glint). The user, 2026-10-18: 「我希望鎖鏈是黑色的」.")
+(declaim (fixnum *hs-chain-ink*))
+(defvar *hs-chain-ink* 0
+  "1 while P2's Hisagi is drawn (HISAGI-DRAW): %HS-BLACK-KITE draws the original ink link instead (the toon INK palette:
+its white edge), so a mirror's two sets of chains read apart. The user, 2026-10-18: 「始解的鎖鏈也同樣改成黑色，而 P2 的鎖鏈則
+改成原本的白色」.")
 (defmacro %hs-black-kite (x y z ux uy uz len w)
   "A solid black camera-facing kite centred at (X Y Z) along the unit (UX UY UZ), LEN long (0.6 ahead), half-width W,
-pushed 0.1 m toward the eye (FX-SHARD's shape without its palette): the alpha batch at uv 0 is opaque, unshaded. 0 B."
-  `(let* ((%e (camera-eye *camera*)) (%x ,x) (%y ,y) (%z ,z) (%ux ,ux) (%uy ,uy) (%uz ,uz)
-          (%dx (- (aref %e 0) %x)) (%dy (- (aref %e 1) %y)) (%dz (- (aref %e 2) %z))
-          (%d (f-max 1f-3 (f-hypot %dx %dy %dz))) (%p (f-min 0.1f0 (* 0.5f0 %d))) (%sc (/ (- %d %p) %d))
-          (%x (+ %x (* %p (/ %dx %d)))) (%y (+ %y (* %p (/ %dy %d)))) (%z (+ %z (* %p (/ %dz %d))))
-          (%sx (- (* %uy %dz) (* %uz %dy))) (%sy (- (* %uz %dx) (* %ux %dz))) (%sz (- (* %ux %dy) (* %uy %dx)))
-          (%w (/ (* ,w %sc) (f-max 1f-5 (f-hypot %sx %sy %sz)))) (%f (* 0.6f0 ,len %sc)) (%b (* 0.4f0 ,len %sc)))
-     (declare (type f32vec %e) (single-float %x %y %z %ux %uy %uz %dx %dy %dz %d %p %sc %sx %sy %sz %w %f %b))
-     (with-fx-verts (%v %o :alpha 6)
-       (vtx (+ %x (* %f %ux)) (+ %y (* %f %uy)) (+ %z (* %f %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
-       (vtx (+ %x (* %w %sx)) (+ %y (* %w %sy)) (+ %z (* %w %sz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
-       (vtx (- %x (* %b %ux)) (- %y (* %b %uy)) (- %z (* %b %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
-       (vtx (+ %x (* %f %ux)) (+ %y (* %f %uy)) (+ %z (* %f %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
-       (vtx (- %x (* %b %ux)) (- %y (* %b %uy)) (- %z (* %b %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
-       (vtx (- %x (* %w %sx)) (- %y (* %w %sy)) (- %z (* %w %sz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0))))
+pushed 0.1 m toward the eye (FX-SHARD's shape without its palette): the alpha batch at uv 0 is opaque, unshaded. While
+*HS-CHAIN-INK* is 1 (P2) the original ink link instead (FX-SHARD, +PAL-INK+, W / 0.7: the width the black ones lost). 0 B."
+  `(let* ((%x0 ,x) (%y0 ,y) (%z0 ,z) (%ux ,ux) (%uy ,uy) (%uz ,uz) (%len ,len) (%w0 ,w))
+     (declare (single-float %x0 %y0 %z0 %ux %uy %uz %len %w0))
+     (if (= *hs-chain-ink* 1)
+         (fx-shard %x0 %y0 %z0 %ux %uy %uz %len (* 1.43f0 %w0) 0.03f0 (+ 700f0 (* 100f0 %w0)) +pal-ink+ 0.9f0)
+         (let* ((%e (camera-eye *camera*)) (%x %x0) (%y %y0) (%z %z0)
+                (%dx (- (aref %e 0) %x)) (%dy (- (aref %e 1) %y)) (%dz (- (aref %e 2) %z))
+                (%d (f-max 1f-3 (f-hypot %dx %dy %dz))) (%p (f-min 0.1f0 (* 0.5f0 %d))) (%sc (/ (- %d %p) %d))
+                (%x (+ %x (* %p (/ %dx %d)))) (%y (+ %y (* %p (/ %dy %d)))) (%z (+ %z (* %p (/ %dz %d))))
+                (%sx (- (* %uy %dz) (* %uz %dy))) (%sy (- (* %uz %dx) (* %ux %dz))) (%sz (- (* %ux %dy) (* %uy %dx)))
+                (%w (/ (* %w0 %sc) (f-max 1f-5 (f-hypot %sx %sy %sz)))) (%f (* 0.6f0 %len %sc)) (%b (* 0.4f0 %len %sc)))
+           (declare (type f32vec %e) (single-float %x %y %z %dx %dy %dz %d %p %sc %sx %sy %sz %w %f %b))
+           (with-fx-verts (%v %o :alpha 6)
+             (vtx (+ %x (* %f %ux)) (+ %y (* %f %uy)) (+ %z (* %f %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+             (vtx (+ %x (* %w %sx)) (+ %y (* %w %sy)) (+ %z (* %w %sz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+             (vtx (- %x (* %b %ux)) (- %y (* %b %uy)) (- %z (* %b %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+             (vtx (+ %x (* %f %ux)) (+ %y (* %f %uy)) (+ %z (* %f %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+             (vtx (- %x (* %b %ux)) (- %y (* %b %uy)) (- %z (* %b %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
+             (vtx (- %x (* %w %sx)) (- %y (* %w %sy)) (- %z (* %w %sz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0))))))
 
 (defun-fast vfx-hs-chain (a b sag k)
   "Kazeshini's chain from point A to point B (f32vecs), sagging SAG m at its middle (a parabola; SAG < 0: -SAG m of slack
@@ -1989,7 +1999,7 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                              (and (= ck 4) (eq cn :hs-kb-koshu) (logtest geo 16) (= 1 (%hs-fr-from 8))))   ; (KOSHU's)
                      (setf lo (logior lo 8)))                          ; (KUBIKAKE's, KOSHU's garrote: through his neck)
                    (values 0 0 0 1)))
-        (setf *hs-chain-black* (if shikai 0 1))                        ; (the Bankai's chains black: the user, 2026-10-18)
+        (setf *hs-chain-black* 1 *hs-chain-ink* (if (eq e *p1*) 0 1))  ; (black, both forms; P2 the original ink: the user, 2026-10-18)
         (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
       (unless (or shikai (logtest cfl 2))                              ; the Bankai: the orb, its chains, the noose (§21.6)
         (setf (aref *hs-tipv* 0) 0f0 (aref *hs-tipv* 1) 0f0)            ; (and the chain strikes, §21.8)
@@ -2590,7 +2600,7 @@ only from KUBIKAKE)."
   ;; 5 (100-135) the tilt up past the frame's top: the orb forms, the chains drop, the bundle ties his neck
   (at 100 (cine-clip a :hs-aw-rise :blend 6) (lens 54) (play-sfx :awaken-rise :pitch 0.6))
   (during (100 135) (hs-aw-tilt a cf))
-  (during (100 116) (hs-aw-gather cf))
+  (during (100 116) (setf *hs-chain-ink* (if (eq a *p1*) 0 1)) (hs-aw-gather cf))
   (at 114 (play-sfx :chain-rattle :pitch 0.5))
   (at 130 (play-sfx :chain-snap) (shake 0.15 0.25))
   ;; 6 (135-168) wide, both: the CFYOW stance under the curtain; 風死絞縄
@@ -2657,7 +2667,7 @@ the curtain, he lowers the blade, unmoved: 降鎖."
   ;; 2 (25-60) the tilt up: the rope gathered under the orb
   (at 25 (play-sfx :chain-rattle :pitch 0.5) (lens 54))
   (during (25 60) (hs-kosa-tilt a cf))
-  (during (25 112) (hs-kosa-rope a v cf))
+  (during (25 112) (setf *hs-chain-ink* (if (eq a *p1*) 0 1)) (hs-kosa-rope a v cf))
   (at 44 (play-sfx :chain-rattle :pitch 0.4))
   ;; 3 (60-90) side-on, a long lens: the whip (KOSA's S at f61), the wave down the lane
   (at 58 (cine-clip a :hs-k-kosa :blend 0 :time (/ 17.0 60.0)))
@@ -2691,7 +2701,7 @@ tightens on both necks: both choke (the shared pain); 5 the victim drops, the Ko
   (at 38 (play-sfx :chain-snap) (shake 0.15 0.2) (face-beat v :hurt 3.0))
   ;; 3 (70-110) the orb sinks; the rain of chains; bound standing
   (at 70 (shot-on v 35 5.8 0.45 :look 2.6) (lens 62) (cine-clip v :sh-bound :blend 6) (play-sfx :chain-rattle :pitch 0.5))
-  (during (80 150) (hs-koshu-rain v cf))
+  (during (80 150) (setf *hs-chain-ink* (if (eq a *p1*) 0 1)) (hs-koshu-rain v cf))
   (at 82 (play-sfx :chain-rattle))
   (at 96 (play-sfx :chain-snap) (shake 0.2 0.3))
   ;; 4 (110-150) the blade raised; the noose bites both necks

@@ -2204,6 +2204,26 @@ The user took A: the bind kit's `:push-reach` is `*hs-b-push-reach*` 2.95 (2.6 +
 reaches ≈ 3.35 m. A host check pins it. B is not done; whether the others really reconnect after their K3 (most of
 their K3 reactions keep the victim down) is unmeasured.
 
+**Gate after A (the lead, 2026-10-18; 20 seeds).**
+- The 42 non-Hisagi lines and `--cvc` are byte-identical.
+- His medians: HY 128.8, HK 135.9, HR 160.6, HI 156.5, HS 158.6, HB 158.4 s, all in the window; HH 247.1 s.
+- HI has one time-out (19 / 20 K.O.), as at B4d, and the mirror also has one.
+- His P1 wins of 20: HY 7, HK **0**, HR **1**, HI 2, HS 8, HB 3.
+- Reported; nothing is retuned.
+
+### 22.10 Black chains in the Shikai too; P2's in the original white-edged ink (the user, 2026-10-18)
+
+The user's request: 「另外始解的鎖鏈也同樣改成黑色，而 P2 的鎖鏈則改成原本的白色」. This is presentation only.
+
+- Every chain HISAGI-DRAW draws is now the solid black kite (`%HS-BLACK-KITE`, §21.6) in both the Shikai and the
+  Bankai, for P1's Hisagi.
+- P2's Hisagi draws the original ink link (FX-SHARD, +PAL-INK+, the white value-opposite edge; the width the black
+  ones lost, ×1/0.7). The switch is `*hs-chain-ink*`, set per side by HISAGI-DRAW and by the three cinematic chain
+  helpers (the actor's side). A mirror's two sets of chains read apart.
+- The Shikai's steel glint goes with the old look on P1; P2 keeps the ink link only, without the glint.
+- The orb and the arm coils (meshes) are unchanged.
+- Proof: `simgate --seeds 10 --summary` byte-identical to the A commit's; debug 83901 0 B everywhere; a mirror still shows P1's black chains and P2's white-edged ones.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
