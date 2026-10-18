@@ -1673,6 +1673,50 @@ The user's answers (2026-10-18):
 
 Everything else (L, SP1, SP2, O, P, the tip x1.3, the walk 2.8, the bind mode) as B4a.
 
+**Approved (the user, 2026-10-18: 「可以，然後覺醒跟毀魂技的動畫的記得要做」).** The table above is built as batch B4c (sim,
+CPU, tests). The awakening and the Kikon (毀魂技) cinematics are built in parallel as batch B5 (presentation only).
+
+### 22.5 The cinematics, storyboards revised for the current design (the lead, 2026-10-18)
+
+§11.5's storyboards predate four decisions:
+- the S-pair blades (§21.5);
+- the orb above the frame with its black hanging chains (§21.5–§21.6);
+- the bind starting only from KUBIKAKE (§17.2), so the awakening must not noose the opponent;
+- three Kikons now (Shikai 刈れ, the ranged 降鎖 KŌSA, the bind 絞首 KŌSHU).
+
+Revised beats follow (CINE-PLACE the actors; landscape letterbox 9 %, portrait %PORTRAIT-DOLLY). The user can point
+at a beat after seeing the stills.
+
+**The awakening 「卍解 風死絞縄」 (~168 f).**
+
+| Beat | f | Camera | Action |
+|---|---|---|---|
+| 1 | 0–20 | close on his face | eyes shut; the chain between the two Kazeshini slack in his hands |
+| 2 | 20–50 | low, looking up, 20 mm | both Kazeshini thrown up; their chain twists into a whirlpool overhead |
+| 3 | 50–70 | wide | 卍解: a black wind bursts out (a negative frame, the shockwave); the stamp |
+| 4 | 70–100 | medium | silence, the world greys; the blades fall back into his hands; chain coils wind round his neck and right arm |
+| 5 | 100–135 | tilt up past the frame's top | the orb of chains forms high above; the black chains drop from it round him; the four-chain bundle ties round his neck; the pale patch on the ground |
+| 6 | 135–168 | wide, both | he stands still, arms hanging, crescents point-down (the CFYOW pose) under the curtain; 風死絞縄 stamp, ふしのこうじょう ruby |
+
+**Shikai Kikon 「刈れ」 (~180 f).** §11.5 as tabled, with the S-pair blades.
+
+**Ranged Kikon 降鎖 KŌSA (~150 f).**
+
+| Beat | f | Action |
+|---|---|---|
+| 1 | 0–25 | low, behind him: he raises one crescent; the neck bundle lifts off his back toward the orb |
+| 2 | 25–60 | tilt up: the orb turns; every hanging chain is hauled up into one giant twisted rope |
+| 3 | 60–90 | side, long lens: the rope whips down along the lane: a wave of black down the ground to the victim |
+| 4 | 90–120 | on the victim: the impact, the ground cracks in a line, a white card with the silhouette (2 drawings) |
+| 5 | 120–150 | wide: the chains fall back into the curtain; he lowers the blade, unmoved; stamp |
+
+**Bind Kikon 絞首 KŌSHU (~180 f).** §11.5's beats:
+1. He zips along the noose chain.
+2. Behind the victim, the chain is drawn across the throat.
+3. The orb sinks and chains rain onto the victim, bound standing.
+4. He raises a blade; the noose tightens on **both** necks, both choke (the shared pain).
+5. The victim drops; Hisagi stays up, shaking; the stamp.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
