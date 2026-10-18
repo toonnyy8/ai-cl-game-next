@@ -230,26 +230,26 @@ gathered K2 / K3) when the victim stands inside its reach, else the speed pick (
 ;; hauled up: a stagger) and K3 墜 TSUI (flung up, yanked down: the ender) follow a hit or a block (S2, §23.5: 「被防禦後也
 ;; 能繼續接連段」; S1's :hit-only gone) and strike along the chain from his hand to the victim wherever he is (:seg-fn
 ;; HS-FOE-SEG: they always connect, blockable; no dead zone: J1 -> K2 at J range). No move leaves the sickle out any more: the OUT / RETURNING states, the OUT graph
-;; (SEN-1H, MODOSHI), MAKI and HODOKI below are dormant (§23.3). The clips are stand-ins (NAGE's, HIKI's, HODOKI's: the
-;; art pass draws the sweep, the saw, the plunge); the chain of K2 / K3 is drawn to the anchor, kept on him (HS-TICK)
-(defmove :hs-k1 :kind :flash :clip :hs-nage :startup 18 :active 4 :recovery 22 :dmg 62 :adv-block -3 :guard 14
+;; (SEN-1H, MODOSHI), MAKI and HODOKI below are dormant (§23.3). Their own clips since A1 (§24.1, a look): K1 the sweep,
+;; K2 the saw, K3 the plunge (hisagi-art.lisp; K2 / K3 drawn on the victim, *HS-FOE-PATHS*)
+(defmove :hs-k1 :kind :flash :clip :hs-s-nagi :startup 18 :active 4 :recovery 22 :dmg 62 :adv-block -3 :guard 14
   :reach 6.0 :arc *hs-k1-arc* :height (0.2 2.0) :min-reach *hs-k-dead* :track 30.0 :on-hit :stagger
   :flags (:ranged :no-close) :params (:melee-range 2.0))                  ; 薙 NAGI
-(defmove :hs-k2 :kind :flash :clip :hs-hiki :enter 6 :startup 20 :active 4 :recovery 24 :dmg 56 :adv-block -3 :guard 14
+(defmove :hs-k2 :kind :flash :clip :hs-s-noko :enter 6 :startup 20 :active 4 :recovery 24 :dmg 56 :adv-block -3 :guard 14
   :reach 6.0 :on-hit :stagger :flags (:ranged) :hits ((20 24 :seg-fn hs-foe-seg)) :params (:melee-range 2.0))   ; 鋸 NOKO
 ;; MAKI (K2s after J1, Q8 A): the chain flung round his body (a 3.2 m line), the sickle OUT, anchored on him
 (defmove :hs-k2s :kind :flash :clip :hs-maki :enter 6 :startup 20 :active 4 :recovery 24 :dmg 52 :adv-block -3 :guard 14
   :vol (:cap 0.3 3.2 1.1 0.35) :on-hit :stagger :on-frame ((20 hs-throw-out)) :params (:throw 3.2))   ; 巻 MAKI
 ;; K3 墜 TSUI after NOKO or KAESHI-SEN (above); its push ~6.45 m (the kit's :push-reach, Q6 B: out of a restarted K1's 6.0)
-(defmove :hs-k3 :kind :flash :clip :hs-hodoki :enter 8 :startup 22 :active 5 :recovery 34 :dmg 80 :adv-block -20 :guard 18
+(defmove :hs-k3 :kind :flash :clip :hs-s-tsui :enter 8 :startup 22 :active 5 :recovery 34 :dmg 80 :adv-block -20 :guard 18
   :reach 6.0 :on-hit :crumple :flags (:ender :ranged) :hits ((22 27 :seg-fn hs-foe-seg))
   :params (:melee-range 2.0))                                             ; 墜 TSUI
 ;; S2 (§23.5): the cross link J1 -> K2 its own copy (K2J: no J after it, the grid's one switch: no JKJ), so K1 -> K2 can go
-;; on with J (KKJ); and the J links after a K (KJJ's J2K, KKJ's J3K: the leap, HS-LEAP-TICK; their clips stand-ins: the
-;; run as the leap pose, then the J's own clip on its windup's last frames)
+;; on with J (KKJ); and the J links after a K (KJJ's J2K, KKJ's J3K: the leap, HS-LEAP-TICK; their own clips since A1,
+;; §24.1: the crouch, the leap and J2's / J3's strike on landing, authored at S 14)
 (defmove-copy :hs-k2j :hs-k2)
-(defmove-copy :hs-j2k :hs-j2 :startup *hs-leap-s* :clip-s 8 :adv-block *hs-leap-block* :tick hs-leap-tick)
-(defmove-copy :hs-j3k :hs-j3 :startup *hs-leap-s* :clip-s 9 :adv-block *hs-leap-block* :tick hs-leap-tick)
+(defmove-copy :hs-j2k :hs-j2 :startup *hs-leap-s* :clip :hs-s-tobi-kaeshi :adv-block *hs-leap-block* :tick hs-leap-tick)
+(defmove-copy :hs-j3k :hs-j3 :startup *hs-leap-s* :clip :hs-s-tobi-rin :adv-block *hs-leap-block* :tick hs-leap-tick)
 ;; (dormant since S1, §23.3: HODOKI, MAKI's K3, the OUT graph's MODOSHI)
 (defmove :hs-k3h :kind :flash :clip :hs-hodoki :enter 8 :startup 22 :active 5 :recovery 34 :dmg 78 :adv-block -20 :guard 18
   :reach 3.2 :on-hit :crumple :flags (:ender) :on-frame ((22 hs-sickle-in))
@@ -716,13 +716,10 @@ Values ax ay az bx by bz r."
   (when (eq (mv-name (fighter-move (fighter e))) :hs-kaza-j) (pace e :bridge)))
 (defun hs-leap-tick (e)
   "J2K / J3K's :tick (S2, §23.5): in the startup the leap toward the victim's position (HS-LEAP-SPEED; the move step's own
-velocity replaced, a J link has no chase); a look: the run as the leap pose from f1, the J's own clip (stand-ins) from
-the frame its authored windup (:clip-s) is left, so it reaches its hit pose on the hit frame."
+velocity replaced, a J link has no chase). The look is the move's own clip (A1, §24.1: the crouch, the leap, the J)."
   (let* ((f (fighter e)) (mv (fighter-move f)) (sf (fighter-sf f)) (s (mv-s mv))
          (sp (hs-leap-speed (fighter-dist f) (mv-reach mv) s sf)))
-    (when (= sf 1) (pace e :leap) (play-clip e :hs-s-run :blend 2))
-    (when (= sf (- s (round (* s (mv-clip-speed mv)))))
-      (play-clip e (kit-move-clip (fighter-kit f) (mv-clip mv)) :blend 2))
+    (when (= sf 1) (pace e :leap))
     (when (> sp 0)
       (let* ((p (pos-of e)) (dx (- (fighter-ox f) (aref p 0))) (dz (- (fighter-oz f) (aref p 2))) (l (max 1e-4 (hypot dx dz)))
              (v (motion-vel (motion e))))

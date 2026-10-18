@@ -858,7 +858,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :hs-intro :hs-win                                                  ; Hisagi's B2a intro / win (the Bankai's forms)
     :hs-s-stance :hs-s-intro :hs-s-win :hs-s-walk-f :hs-s-walk-b :hs-s-strafe-r :hs-s-strafe-l   ; the Shikai's own
     :hs-s-run :hs-s-skate-b :hs-s-slide-r :hs-s-slide-l :hs-s-sen :hs-s-kaeshi :hs-s-rin :hs-s-kaeshi-1h :hs-s-rin-1h   ; (§21.4)
-    :hs-s-nage :hs-s-hiki :hs-s-maki :hs-s-hodoki :hs-s-modoshi :hs-s-kaza :hs-s-raiden :hs-s-shibari   ; (S1, §23.3: :hs-s-kari no move's since; MAKI dormant)
+    :hs-s-maki :hs-s-modoshi :hs-s-kaza :hs-s-raiden :hs-s-shibari   ; (S1, §23.3: :hs-s-kari no move's since; MAKI dormant;
+    :hs-s-nagi :hs-s-noko :hs-s-tsui :hs-s-tobi-kaeshi :hs-s-tobi-rin   ;  A1, §24.1: the K string's and the leap J's own, so
+                                                                        ;  :hs-s-nage, :hs-s-hiki, :hs-s-hodoki no move's)
     :hs-s-breaker :hs-s-kubikake :hs-s-kari-aim :hs-s-kari-o
     :hs-k-stance :hs-k-walk-f :hs-k-walk-b :hs-k-strafe-r :hs-k-strafe-l :hs-k-run :hs-k-skate-b :hs-k-slide-r   ; the Bankai's
     :hs-k-slide-l :hs-k-saben :hs-k-kaeshi :hs-k-sensa :hs-k-tsuisa :hs-k-nagisa :hs-k-rakusa :hs-k-saharai   ;  own (§21.8):
@@ -3346,14 +3348,16 @@ past the ends; DEFAULT if the clip is not listed."
                 (let ((x (m :hs-k1)))
                   (and (chain-open-p (- (mv-total x) *chain-lead*) (mv-s x) (mv-a x) (mv-r x) :block)
                        (not (chain-open-p (- (mv-total x) *chain-lead* 1) (mv-s x) (mv-a x) (mv-r x) :block))))))
-    ;; S2 (「始解 KJJ, KKJ 時 J 會跳近對手進行攻擊」): the J links after a K, J2K / J3K, are J2 / J3 with S 14 (their clips'
-    ;; authored 8 / 9: :clip-s), -6 on block (his J1 punishes: -9 with the J's +3) and the leap tick; no other move leaps
-    (dolist (row '((:hs-j2k :hs-j2 8) (:hs-j3k :hs-j3 9)))
-      (destructuring-bind (c o cs) row
+    ;; S2 (「始解 KJJ, KKJ 時 J 會跳近對手進行攻擊」): the J links after a K, J2K / J3K, are J2 / J3 with S 14 (since A1, §24.1,
+    ;; their own leap clips authored at S 14: speed 1, the hit pose on S), -6 on block (his J1 punishes: -9 with the J's +3)
+    ;; and the leap tick; no other move leaps
+    (dolist (row '((:hs-j2k :hs-j2 :hs-s-tobi-kaeshi) (:hs-j3k :hs-j3 :hs-s-tobi-rin)))
+      (destructuring-bind (c o cl) row
         (let ((x (m c)) (y (m o)))
           (check (or (and (= *hs-leap-s* (mv-s x) 14) (= (mv-a x) (mv-a y)) (= (mv-r x) (mv-r y)) (= (mv-dmg x) (mv-dmg y))
-                          (equal (mv-flags x) (mv-flags y)) (eq (mv-clip x) (mv-clip y)) (~= (mv-reach x) (mv-reach y)) (~= (mv-reach x) 1.4)
-                          (~= (mv-clip-speed x) (/ cs 14.0)) (= cs (round (* (mv-s x) (mv-clip-speed x))))
+                          (equal (mv-flags x) (mv-flags y)) (eq (mv-clip x) cl) (~= (mv-reach x) (mv-reach y)) (~= (mv-reach x) 1.4)
+                          (~= (mv-clip-speed x) 1.0) (= 14 (round (* 60 (clip-mark cl :s))))
+                          (= (+ 14 (mv-a x) (mv-r x)) (round (* 60 (clip-dur (find-clip cl)))))
                           (eq (hw-react (svref (mv-hits x) 0)) (hw-react (svref (mv-hits y) 0)))
                           (= (hw-from (svref (mv-hits x) 0)) 14) (= (mv-adv-block x) *hs-leap-block* -6)
                           (eq 'hs-leap-tick (mv-tick x)) (null (mv-tick y))
@@ -3417,7 +3421,7 @@ past the ends; DEFAULT if the clip is not listed."
   (let ((*package* (find-package :duel)))
     (loop for form = (read in nil in) until (eq form in)
           when (and (consp form) (eq (first form) 'defparameter)
-                    (member (second form) '(*hs-strike-reach* *hs-flights* *hs-letout* *hs-bk-chains*)))
+                    (member (second form) '(*hs-strike-reach* *hs-flights* *hs-letout* *hs-bk-chains* *hs-foe-paths*)))
             do (eval form))))
 (defun hs-bind-end-effects! (b) (push b *t-ends*))                                     ; (B9: clips, reels, hazards)
 (let* ((kr (kit :hisagi :bankai)) (kb (kit :hisagi :bankai-bind)))
@@ -3923,7 +3927,8 @@ past the ends; DEFAULT if the clip is not listed."
     ;; farthest end out on the move's hit frames; every one of them reaches its hit volume's far edge within 0.15 m (the
     ;; arc's r, the line's end + its r; a chain dropped on a line within its r), and nothing lands past it
     (let ((bk-moves '(:hs-r-j1 :hs-r-j2 :hs-r-j3 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake   ; (B4c: the route links' stand-ins wait for B4b)
-                      :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l)))
+                      :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l
+                      :hs-k1 :hs-j2k :hs-j3k)))   ; (A1, §24.1: the Shikai's K1 sweep and leap J, their let-outs too)
       (dolist (n bk-moves)
         (let* ((mv (m n)) (clip (mv-clip mv)) (hw (svref (mv-hits mv) 0)) (vol (first (hw-vols hw)))
                (cap (> (aref vol 0) 0.5)) (edge (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1)))
@@ -3934,7 +3939,34 @@ past the ends; DEFAULT if the clip is not listed."
                                    when (and (eq c clip) (<= f1 c1) (> f3 c0)) collect r)))
                (art (and ends (reduce #'max ends))) (sr (third (assoc clip *hs-strike-reach*))))
           (check (or (and art (<= (abs (- art edge)) 0.15) (or (null sr) (~= sr art)))
-                     (format t "~a ~a: the volume ends ~,2f m, the drawn end ~a, the table ~a~%" n clip edge art sr))))))))
+                     (format t "~a ~a: the volume ends ~,2f m, the drawn end ~a, the table ~a~%" n clip edge art sr))))))
+    ;; A1 (DUEL_HISAGI §24.1, the user, 2026-10-18: 「可以，照這個順序開始畫」): the Shikai's K string drawn. K1 NAGI: its
+    ;; let-out out over every hit frame at r x the charge, on the charged copy's arc edge within 0.15 m at x1.0 and x1.6,
+    ;; its sweep's bearing inside the arc (+- *HS-K1-ARC* / 2) on each; K2 NOKO, K2J, K3 TSUI (placed on the victim,
+    ;; HS-FOE-SEG): every hit frame on a path segment held at the victim's centre (code 6 to 6), its points known codes
+    (let ((row (find-if (lambda (r) (and (eq (first r) :hs-s-nagi) (eq (second r) :l))) *hs-letout*)))
+      (destructuring-bind (c sd f0 f1 f2 f3 r h az bulge) row
+        (declare (ignore c sd f3 h bulge))
+        (flet ((bearing (f) (cond ((< f f1) (+ (first az) (* (/ (- f f0) (- f1 f0)) (- (second az) (first az)))))
+                                  ((< f f2) (+ (second az) (* (/ (- f f1) (- f2 f1)) (- (third az) (second az)))))
+                                  (t (third az)))))
+          (dolist (n '(0 60))
+            (let* ((mv (hs-scaled :hs-k1 n)) (hw (svref (mv-hits mv) 0)) (edge (aref (first (hw-vols hw)) 1))
+                   (art (* r (hs-charge-scale n))))
+              (check (or (and (eq (mv-clip mv) :hs-s-nagi) (<= (abs (- art edge)) 0.15)
+                              (loop for f from (hw-from hw) below (hw-to hw)
+                                    always (and (<= f1 f f2) (<= (abs (bearing f)) (/ *hs-k1-arc* 2)))))
+                         (format t "  Hisagi A1 K1 x~,2f: the arc ends ~,2f, the sweep at ~,2f, bearings ~a~%" (hs-charge-scale n)
+                                 edge art (loop for f from (hw-from hw) below (hw-to hw) collect (bearing f))))))))))
+    (dolist (n '(:hs-k2 :hs-k2j :hs-k3))
+      (let* ((mv (m n)) (hw (svref (mv-hits mv) 0)) (path (cdr (assoc (mv-clip mv) *hs-foe-paths*))))
+        (check (or (and path (hw-seg hw) (= 1.0 (mv-clip-speed mv))
+                        (every (lambda (g) (and (subsetp (list (third g) (fourth g)) '(0 6 7 8 9 10)) (member (fifth g) '(1 3 4))))
+                               path)
+                        (loop for f from (hw-from hw) below (hw-to hw)
+                              always (let ((g (find-if (lambda (g) (and (<= (first g) f) (< f (second g)))) path)))
+                                       (and g (= 6 (third g) (fourth g))))))
+                   (format t "  Hisagi A1 ~a (~a): not on the victim on its hit frames~%" n (mv-clip mv))))))))
 
 (format t "duel-rules-test: ~d checks, ~a~%" *checks*
         (if (zerop *fails*) "ALL PASS" (format nil "~d FAILED" *fails*)))

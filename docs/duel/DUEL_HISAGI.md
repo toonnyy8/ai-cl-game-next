@@ -2390,7 +2390,8 @@ Then (the user, 2026-10-18): 「卍解遠程 L 推到 3.5 公尺，J1 範圍設 
   KAESHI-SEN-1H / RIN-1H, MODOSHI), MAKI and HODOKI are unreachable. Their code, clips and tests stay, dormant, for a
   cleanup batch (or the return of a throw); the L / SP2 refusal while out never fires.
 - **Stand-in clips**: K1 plays NAGE's (its flight drawn to the arc's 6.0, back after the hit), K2 HIKI's, K3 HODOKI's (the
-  chain to him); KARI-OTOSHI's clip is no move's now. The art pass draws the sweep, the saw and the plunge.
+  chain to him); KARI-OTOSHI's clip is no move's now. The art pass draws the sweep, the saw and the plunge (done: batch A1,
+  §24.1).
 - His CPU: the close band no longer picks K (`:f` out of 0-2.0 m; 2.0-3.5 m keeps it); `:string-k` 0.7 picks NOKO after a
   J1 hit as it picked MAKI.
 
@@ -2488,7 +2489,8 @@ S1" → S2's block).
   +3, *QUICK-BLOCK-ADV*): his J1 (S 8) punishes; J2K → J3 on block leaves a gap his J1 interrupts.
 - **Placeholder clips** (stand-ins, marked in the code): from f1 the run (`:hs-s-run`) as the leap pose; from the frame
   the J clip's authored windup is left (`:clip-s` 8 / 9: f6 / f5) the J's own clip at speed 1, so it reaches its hit pose
-  on f14 (the FK reach test samples the clip at `:clip-s` / S: the J's hit pose too). The art pass draws a real leap.
+  on f14 (the FK reach test samples the clip at `:clip-s` / S: the J's hit pose too). The art pass draws a real leap
+  (done: batch A1, §24.1: each copy its own clip at S 14, `:clip-s` gone, HS-LEAP-TICK plays no clip).
 
 **3. Choices where the spec was silent:** S 14 for both copies (the leap's frames: long enough to read, short enough to
 combo); interpolation, not a fixed speed (the J always lands at J range as its window opens, whatever the distance); the
@@ -2582,9 +2584,74 @@ stand-in list.
    then the reap; SP2 KAIBAKU-GEKI's own release-and-strike (the noose thrown off at f18, then the 3.0 m 140° blow; now
    HIKIYOSE's gesture); the ranged L 鎖払's recovery drawn to its 32 f (now the clip's end pose held).
 
+### 24.1 Batch A1 as built (2026-10-18)
+
+> 「可以，照這個順序開始畫」 (the user, 2026-10-18)
+
+The Shikai's four stand-ins drawn as their own clips, all in `duel/lisp/hisagi-art.lisp` ("A1"): **presentation only**, no
+frame data, volume, damage, reaction, flag or knob changed. The moves name the clips (`:clip`, hisagi.lisp); the leap copies
+lose `:clip-s` (their clips are authored at S 14) and HS-LEAP-TICK no longer plays the run / the J clip (it keeps the leap
+and its `leap` count). NAGE's, HIKI's and HODOKI's clips stay (no move's now: the dormant throw, as KARI-OTOSHI's).
+
+**Machinery (a look, 0 B a frame).**
+- `*hs-letout*` takes a swept azimuth: `az` as `(a0 a1 a2)`, the bearing a0 when the sickle leaves the fist, a1 when it is
+  out (it spirals out round him between), swept to a2 by f2 and coming back from there. The radius keeps x the charge.
+- `*hs-foe-paths*` (clip → segments `(f0 f1 a b spin)`): the left sickle moved between %HS-POINT codes over move frame
+  ranges. New codes: 6 the victim's centre (HS-FOE-SEG's far end, 1.0 m over his feet), 7 3.0 m over him, 8 3.8 m over him
+  (the sky: the top of the match camera's frame), 9 an upright wheel 0.8 m round the left fist (spun faster each turn,
+  rolling forward), 10 K1's sweep end (6.0 m x the charge, 40° to his right; K2J, off J1, starts from the fist instead).
+  Every hit frame sits on a segment held at code 6 (host-checked).
+- %HS-PLACE! spins 3 (the upright saw about its crossing, its top leant 30° to his left so it reads as a disc from behind;
+  three ink comet smears trail its blades) and 4 (point down: the plunge). Long chains (K1's sweep past 5.5 m, the paths)
+  are drawn taut in two pieces (%HS-CHAIN2). Black for P1, the white-edged ink for P2 (`*hs-chain-ink*`, unchanged).
+
+| Move | Clip | S/A/R | Frame keys (the windup held near its peak, the hit pose snapped on S) | Drawn on the hit frames vs the volume |
+|---|---|---|---|---|
+| K1 薙 NAGI | `:hs-s-nagi` | 18/4/22 | f4 the coil starts; **f9-14 coiled far to his left on the bent back leg, the left arm flung back, the right pointing at him (the tell, held)**; the sickle leaves the fist at f9 behind him and spirals round his left side (bearing 160° → 75°) out to full chain by f16; S the lunge, the arm leading the chain; f16-24 swept left to right, +75° → -75°; f22 across his body; f24-36 hauled back to the chest | the let-out at **6.00 ×4 (x1.0) / 9.60 ×4 (x1.6)** vs the arc 6.0 / 9.6; bearings +38 / +19 / 0 / -19°, inside ±45° |
+| K2 鋸 NOKO (K2J too) | `:hs-s-noko` | 20/4/24, enter 6 | f6-9 yanked back to the hip (the sickle reeled in off K1's sweep); **f9-16 spun up on the wheel at his left fist, crouching, coiled (held)**; f17 cocked high; f16-20 flung along the line, spinning upright; S the arm thrust at him; f20-24 the saw grinding in him; f24-30 both arms haul it up 3.0 m over him; held to f38, back in the fist by f48 | the saw's crossing **0.00 m** off the victim on all 4 hit frames (K2 and K2J) |
+| K3 墜 TSUI | `:hs-s-tsui` | 22/5/34, enter 8 | f8-18 hauled hand over hand, the sickle rising off him into the sky (3.8 m); **f18-20 both arms straight up, arched back on his toes, looking up (held)**; f20-22 yanked down, the sickle plunging point first; S folded in a deep squat; held to f34; hauled back by f46 | the point **0.00 m** off the victim on all 5 hit frames |
+| J2K (KJJ's leap) | `:hs-s-tobi-kaeshi` | 14/3/13 | **f3-5 a deep crouch, the arms swept back (held)**; f7 the spring; f10 tucked at the top (0.75 m up), J2's windup; f12 the fall; S J2's hit pose on landing; the left sickle let out f9-24 (J2's, 6 f later); the short grip | the left let-out **1.40 ×3** vs 1.4 |
+| J3K (KKJ's leap) | `:hs-s-tobi-rin` | 14/3/18 | **f3-5 the crouch, wound right (held)**; f7 the spring; f9-13 J3's turn in the air (yaw -40 → 40 → 120 → 200 → 270 → 300, ~80° a key), both sickles let out from f8; S J3's hit pose on landing (330), on to 400 | both let-outs **1.40 ×3** vs 1.4 |
+
+The leap's sim move is unchanged (HS-LEAP-TICK carries him 0-9.6 m); the clips have no `:root :f`, so the drawn leap is the
+sim's distance. Measured in the browser by debug 83902 (new `duel hisagi tip base …` lines: the body posed by the clip,
+HS-POSE and HISAGI-DRAW run on each hit frame).
+
+**Host tests** (duel-rules-test 9817 checks ALL PASS; duel-control-test 89, learn-test 131, cine-test 18 ALL PASS;
+pkgcheck three 0 lines):
+- the FK reach test reads `*hs-strike-reach*`'s new rows (`:hs-s-nagi` 6.0, the leaps' 1.4); the let-out coverage check
+  (the Bankai's, §21.8) now also covers K1, J2K, J3K (out over every hit frame at the volume's edge);
+- new: K1's sweep at x1.0 and x1.6 (its let-out r x the charge within 0.15 m of the charged copy's arc edge, its bearing on
+  each hit frame within ±45°); K2 / K2J / K3: every hit frame on a `*hs-foe-paths*` segment held at the victim's centre,
+  the codes known;
+- the leap copies: their own clips, speed 1, the clips' :s mark on 14 and their length S + A + R (in place of `:clip-s` 8 / 9);
+- the clip list (§5): the five new clips in, NAGE's / HIKI's / HODOKI's out (no move's).
+
+**Identity** (the proof of presentation only): `simgate --seeds 10 --summary` (all 56 gate lines, Hisagi's 14 included) and
+`--cvc` (yy / yk / kk PASS) byte-identical to the parent 6548ee0's (`cmp`, the `[simgate] building` banner filtered).
+
+**Browser** (one Chrome, `--fixed-dt`): 83008 with L held into the windmill, then K: `windmill -> K string x1.60`, K1 hit
+Kenpachi at 8 m; 83009 KJJ (K1, J2K leapt and hit, J3); 83019 KKJ (K1, K2, J3K leapt and hit); 83006 JKK (J1, K2J, K3);
+83005 the mirror: no exception, no missing clip. 83901 on the repeat call 0 B everywhere (the new NAGI, NOKO, the wheel,
+TSUI, the sky and J3K entries included; the first call's one-time buffer growth, 128 / 256 KB as §23.5 noted, now lands on
+the windmill x1.4 and SAHARAI entries). `./build.sh duel` with the 4 known Lille warnings.
+
+**Strips**: debug 83910+k, slots 23 NAGI, 24 NOKO, 25 TSUI, 26 J2K, 27 J3K (`*hs-strips*`; 83940+3i+v from the side, the
+front, the match camera).
+
+**Known issues / for the user's eyes** (checked by numbers, needs your eyes):
+- From the behind camera the saw at the victim's centre (S, A) is mostly hidden in his body; it reads on the wheel, in the
+  flight (f16-20) and in the haul up; the hit spark marks the bite.
+- K2 reels the sickle in from K1's sweep end (code 10), which is where K1's sweep is when K2 links (f22: -38°); started
+  from the fist only after J1 (K2J).
+- K3 after J2 (JJK) starts its haul from the victim's centre while J2's left sickle is 1.4 m out there: a small jump.
+- The sky is 3.8 m over him (higher left the frame in the match camera); K2's haul 3.0 m.
+- The leap's top is a fixed 0.75 m whatever the distance (a hop at 2 m, a dive at 9.6 m).
+
 ## 18. Open
 
-- The art pass (§24): batches A1 (the Shikai), A2 (the Bankai ranged mode and the look), A3 (the bind), in that order.
+- The art pass (§24): batch A1 (the Shikai) built (§24.1, presentation only, waiting on the playtest); A2 (the Bankai
+  ranged mode and the look), A3 (the bind) next, in that order.
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
 - The two modes made distinct (§22): B4a built (§22.2: the sim, the CPU, a placeholder look); open: the playtest, his 7 pairings at 20 seeds and his awaken A/B, the art pass B4b.
