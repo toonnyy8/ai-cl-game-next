@@ -3383,25 +3383,6 @@ past the ends; DEFAULT if the clip is not listed."
       (check (and (~= 0.9 (leap 0.9)) (> (leap 12.0) 1.5) (~= 9.6 (nth-value 1 (leap 12.0)) 0.01)
                   (zerop (hs-leap-speed 6.0 1.4 14 14)) (zerop (hs-leap-speed 6.0 1.4 14 20))
                   (~= (hs-leap-speed 9.6 1.4 14 1) (/ (* 60 8.6) 13)))))
-    ;; his CPU (HS-AI-MOVE, the Shikai's :move-reflex): on a K1 / K2 hit's land step, beyond the dead zone, his intent close
-    ;; (:approach / :pressure): one roll *HS-AI-LEAP-P* (EASY <= NORMAL <= HARD) -> J (the leap), else K; at :zone /
-    ;; :defend, inside the dead zone: K, no roll; off any other step, a block or another link (K2J: no J after it): nothing
-    (check (and (eq 'hs-ai-move (getf (kit-ai k) :move-reflex))
-                (<= (getf *hs-ai-leap-p* :easy) (getf *hs-ai-leap-p* :normal) (getf *hs-ai-leap-p* :hard))))
-    (check (and (hs-ai-leap-wanted-p 5.0 :approach) (hs-ai-leap-wanted-p 9.6 :pressure) (hs-ai-leap-wanted-p 3.1 :approach)
-                (not (hs-ai-leap-wanted-p 3.0 :approach)) (not (hs-ai-leap-wanted-p 5.0 :zone)) (not (hs-ai-leap-wanted-p 5.0 :defend))))
-    (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))   ; (the steps that roll nothing: the host has no sim stream)
-      (declare (ignore b))
-      (let ((fa (fighter a)) (br (make-brain)))
-        (unless (fboundp 'why) (setf (symbol-function 'why) (lambda (b r c) (declare (ignore b r)) c)))
-        (flet ((cpu (name intent d &key (sf 22) (land 22) (contact :hit))
-                 (setf (fighter-state fa) :move (fighter-move fa) (m name) (fighter-sf fa) sf (fighter-land-sf fa) land
-                       (fighter-contact fa) contact (fighter-queued fa) nil (fighter-dist fa) d (brain-intent br) intent)
-                 (hs-ai-move a br fa (m name))))
-          (check (and (eq :f (cpu :hs-k1 :zone 5.0)) (eq :f (cpu :hs-k2 :defend 8.0)) (eq :f (cpu :hs-k1 :approach 1.9))
-                      (null (cpu :hs-k1 :approach 5.0 :sf 23)) (null (cpu :hs-k1 :approach 5.0 :contact :block))
-                      (null (cpu :hs-k2j :approach 5.0)) (null (cpu :hs-j1 :approach 5.0)) (null (cpu :hs-k3 :approach 5.0))))
-          (setf (fighter-state fa) :idle (fighter-move fa) nil))))
     ;; the ender push stays measured from the uncharged 6.0 m (a restarted string is uncharged; the O lane / SP1 reach it)
     (check (~= 6.0 (ender-push-reach k (m :hs-k3) (hs-scaled :hs-k1 60))))))
 
@@ -3787,14 +3768,13 @@ past the ends; DEFAULT if the clip is not listed."
       (check (loop for mv being the hash-values of *moves*
                    always (or (member (mv-name mv) dz) (eq (mv-name mv) :hs-k1)   ; (S1: the Shikai's K1 NAGI's 2.0 m, §23.3)
                               (every (lambda (w) (null (hw-min w))) (mv-hits mv))))))
-    ;; ... and only his Bankai has the :dmg-mult hook, only its ranged mode the CPU's :move-reflex
+    ;; ... and only his Bankai has the :dmg-mult hook, only his forms the CPU's :move-reflex (which of his: HISAGI-CPU-TESTS)
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (f . k) in alist
-                              always (if (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
-                                         (and (eq 'hs-dmg-mult (kit-hook k :dmg-mult))
-                                              (eq (getf (kit-ai k) :move-reflex) (and (eq f :bankai) 'hs-r-ai-move)))
-                                         (and (null (kit-hook k :dmg-mult))
-                                              (eq (getf (kit-ai k) :move-reflex) (and (eq c :hisagi) 'hs-ai-move)))))))   ; (S2: the Shikai's)
+                              always (and (if (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
+                                              (eq 'hs-dmg-mult (kit-hook k :dmg-mult))
+                                              (null (kit-hook k :dmg-mult)))
+                                          (or (eq c :hisagi) (null (getf (kit-ai k) :move-reflex)))))))
     ;; the annulus (J1 / J2 2.0-4.5 m 100 deg ahead, J3 2.0-5.0 m all round): a hurt cylinder r 0.36 at D m (ahead, or
     ;; behind); the window's dead zone first, then its volume (facing -Z)
     (flet ((reach-p (n d &optional behind)
@@ -3900,18 +3880,6 @@ past the ends; DEFAULT if the clip is not listed."
                             (blocked-gap (m :hs-r-k1) (m :hs-r-j2s)) (blocked-gap (m :hs-r-j2s) (m :hs-r-j3g))
                             (blocked-gap (m :hs-r-k2) (m :hs-r-j3g)))
                       '(8 8 15 14 15)))
-        ;; ... his CPU's reach read (HS-R-AI-MOVE's picks): past the dead zone, inside the far edge + 0.36
-        (check (and (hs-r-reaches-p (m :hs-r-k2) 7.5) (not (hs-r-reaches-p (m :hs-r-k2) 1.9)) (hs-r-reaches-p (m :hs-r-j2s) 5.3)
-                    (not (hs-r-reaches-p (m :hs-r-j2s) 5.9)) (not (hs-r-reaches-p (m :hs-r-k1) 1.9)) (hs-r-reaches-p (m :hs-r-k1) 4.3)
-                    (not (hs-r-reaches-p (m :hs-r-j3) 1.5))
-                    (eq 'hs-r-ai-move (getf (kit-ai kr) :move-reflex))))
-        ;; ... his CPU's openers (B4d, §22.8): K1 only in bands inside its annulus 2.0-4.0 m; inside 2.0 m L SAHARAI (no
-        ;; cooldown now: his :reflex rolls once per entry into the band, never per step)
-        (let ((bands (getf (kit-ai kr) :moves)))
-          (check (and (every (lambda (bd) (or (null (getf (cddr bd) :f)) (and (>= (first bd) 2.0) (<= (second bd) 4.0)))) bands)
-                      (some (lambda (bd) (and (getf (cddr bd) :f) (= 4.0 (second bd)))) bands)
-                      (let ((b0 (find 0.0 bands :key #'first))) (and (null (getf (cddr b0) :f)) (plusp (getf (cddr b0) :sig))))
-                      (~= 2.0 *hs-ai-close*) (eq 'hs-r-ai-reflex (getf (kit-ai kr) :reflex)))))
         (setf *t-moved* nil)))
     ;; the drawn reach (the Bankai's clips, DUEL_HISAGI §21.8): each of its clips in *HS-STRIKE-REACH* (the FK test above
     ;; reads that reach) is drawn to it by its let-out crescents (*HS-LETOUT*), chain strikes (*HS-BK-CHAINS*) or lashes
@@ -4031,6 +3999,47 @@ past the ends; DEFAULT if the clip is not listed."
       (setf (hss-leapt st) t)
       (hs-reset a)
       (check (null (hss-leapt st))))))
+
+;;; >>> BEGIN HISAGI-CPU-TESTS: the checks of Hisagi's own CPU's shipped values and pure HS-AI-* / HS-R-AI-* / HS-B-AI-*
+;;; functions (his CPU search, DUEL_HISAGI §25: a cell may rewrite THIS section only, to pin its own CPU; the lines between
+;;; the markers are spliced into the frozen test by docs/research/hisagi-ai-drsi/splice-tests.py; nothing outside them).
+(let* ((k (kit :hisagi :base)) (kr (kit :hisagi :bankai)))
+  (flet ((m (n) (find-move n)))
+    ;; which of his forms has the CPU's :move-reflex: the Shikai's HS-AI-MOVE, the ranged mode's HS-R-AI-MOVE, not the bind
+    (check (and (eq 'hs-ai-move (getf (kit-ai k) :move-reflex)) (eq 'hs-r-ai-move (getf (kit-ai kr) :move-reflex))
+                (null (getf (kit-ai (kit :hisagi :bankai-bind)) :move-reflex))))
+    ;; his CPU (HS-AI-MOVE, the Shikai's :move-reflex): on a K1 / K2 hit's land step, beyond the dead zone, his intent close
+    ;; (:approach / :pressure): one roll *HS-AI-LEAP-P* (EASY <= NORMAL <= HARD) -> J (the leap), else K; at :zone /
+    ;; :defend, inside the dead zone: K, no roll; off any other step, a block or another link (K2J: no J after it): nothing
+    (check (and (eq 'hs-ai-move (getf (kit-ai k) :move-reflex))
+                (<= (getf *hs-ai-leap-p* :easy) (getf *hs-ai-leap-p* :normal) (getf *hs-ai-leap-p* :hard))))
+    (check (and (hs-ai-leap-wanted-p 5.0 :approach) (hs-ai-leap-wanted-p 9.6 :pressure) (hs-ai-leap-wanted-p 3.1 :approach)
+                (not (hs-ai-leap-wanted-p 3.0 :approach)) (not (hs-ai-leap-wanted-p 5.0 :zone)) (not (hs-ai-leap-wanted-p 5.0 :defend))))
+    (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))   ; (the steps that roll nothing: the host has no sim stream)
+      (declare (ignore b))
+      (let ((fa (fighter a)) (br (make-brain)))
+        (unless (fboundp 'why) (setf (symbol-function 'why) (lambda (b r c) (declare (ignore b r)) c)))
+        (flet ((cpu (name intent d &key (sf 22) (land 22) (contact :hit))
+                 (setf (fighter-state fa) :move (fighter-move fa) (m name) (fighter-sf fa) sf (fighter-land-sf fa) land
+                       (fighter-contact fa) contact (fighter-queued fa) nil (fighter-dist fa) d (brain-intent br) intent)
+                 (hs-ai-move a br fa (m name))))
+          (check (and (eq :f (cpu :hs-k1 :zone 5.0)) (eq :f (cpu :hs-k2 :defend 8.0)) (eq :f (cpu :hs-k1 :approach 1.9))
+                      (null (cpu :hs-k1 :approach 5.0 :sf 23)) (null (cpu :hs-k1 :approach 5.0 :contact :block))
+                      (null (cpu :hs-k2j :approach 5.0)) (null (cpu :hs-j1 :approach 5.0)) (null (cpu :hs-k3 :approach 5.0))))
+          (setf (fighter-state fa) :idle (fighter-move fa) nil))))
+    ;; ... his CPU's reach read (HS-R-AI-MOVE's picks): past the dead zone, inside the far edge + 0.36
+    (check (and (hs-r-reaches-p (m :hs-r-k2) 7.5) (not (hs-r-reaches-p (m :hs-r-k2) 1.9)) (hs-r-reaches-p (m :hs-r-j2s) 5.3)
+                (not (hs-r-reaches-p (m :hs-r-j2s) 5.9)) (not (hs-r-reaches-p (m :hs-r-k1) 1.9)) (hs-r-reaches-p (m :hs-r-k1) 4.3)
+                (not (hs-r-reaches-p (m :hs-r-j3) 1.5))
+                (eq 'hs-r-ai-move (getf (kit-ai kr) :move-reflex))))
+    ;; ... his CPU's openers (B4d, §22.8): K1 only in bands inside its annulus 2.0-4.0 m; inside 2.0 m L SAHARAI (no
+    ;; cooldown now: his :reflex rolls once per entry into the band, never per step)
+    (let ((bands (getf (kit-ai kr) :moves)))
+      (check (and (every (lambda (bd) (or (null (getf (cddr bd) :f)) (and (>= (first bd) 2.0) (<= (second bd) 4.0)))) bands)
+                  (some (lambda (bd) (and (getf (cddr bd) :f) (= 4.0 (second bd)))) bands)
+                  (let ((b0 (find 0.0 bands :key #'first))) (and (null (getf (cddr b0) :f)) (plusp (getf (cddr b0) :sig))))
+                  (~= 2.0 *hs-ai-close*) (eq 'hs-r-ai-reflex (getf (kit-ai kr) :reflex)))))))
+;;; <<< END HISAGI-CPU-TESTS
 
 (format t "duel-rules-test: ~d checks, ~a~%" *checks*
         (if (zerop *fails*) "ALL PASS" (format nil "~d FAILED" *fails*)))

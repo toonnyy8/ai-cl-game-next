@@ -2875,6 +2875,54 @@ and `--cvc` byte-identical. His 7 pairings at 20 seeds (before = §24.4): HY 128
 (158.8), HI 167.6 (161.9), HS 161.1 (161.1), HB 136.5 (139.4), HH 235.6 (235.6, a mirror); every match a K.O., every cross
 median inside 125–210 s. His P1 wins 10 of 120 (9).
 
+## 25. His stylized learning CPU and ASSIST (dream-rsi; the user, 2026-10-18)
+
+> 「請參考過往風格型學習 AI 的開發經驗，使用 /anthropic-skills:dream-rsi 開放檜佐木的專用AI 與輔助模式」
+
+Asked (DREAM_RSI §7's pre-run questions, `duel-character-cpu`), the user chose: the weights 「0.3/0.2/0.5 招牌至上」; the
+signature themes 「始解鎖鐮連段」「卍解遠距路線」「捆綁」 plus 「請研究多種招牌風格，並使用機率將這些風格戰法互相結合」; the budget
+「先跑 1 輪 8 格」; the integration 「學玩家習慣」「AUTO COMBO 路線」「AUTO GUARD 風車」.
+
+### 25.1 The plan (Lille II's run, DUEL_LILLE_V3 §22, as the model)
+
+1. **The frozen evaluator** `tools/aieval.py --char 7` (one commit; the workspace `docs/research/hisagi-ai-drsi/`):
+   - **score = (0.3 strength + 0.2 masher + 0.5 signature) × the NORMAL factor**; 0 when NORMAL pacing fails (every match a
+     K.O. by the RESULTS line's Konpaku, median ≤ 220 s);
+   - **signature = a whitelist** (`SIG_HISAGI`, three themes, the JSON's `sig_by` per theme): **chain** the Shikai's K
+     string (HS-K1 / K2 / K2J / K3), the leaps J2K / J3K, the windmill KAZA and its bridge KAZA-J, SP1 RAIDEN, SP2 SHIBARI;
+     **ranged** the Bankai's K1, every route link past J1 (J2 / J2S / J3 / J3G / K2 / K2S / K3 / K3G), the L SAHARAI, the
+     SPs, KUBIKAKE; **bind** every HS-B- move but its Kikon. Never his plain J string (HS-J1..J3), the ranged J1, the
+     Breaker or a Kikon;
+   - **the NORMAL band** (as Lille II's, his shipped CPU being broken: below): his NORMAL win share (both seats) in
+     [0.30, 0.60] → ×1, falling linearly to 0 at 0.15 outside;
+   - six opponents (the retired old Lille out), both seats; fixed seeds; cells compare at 40 seeds, the final pick at 80.
+2. **Opponents fixed** at the freeze commit; every cell's worktree starts there.
+3. **Cells** change only `duel/lisp/hisagi.lisp`'s CPU parts (the three kits' `:ai` plists but what CPUs facing him read,
+   the HS-*-AI-* functions and knobs, CPU-only HSS slots, the CPU branches of the sim ticks) and the host test's new
+   `HISAGI-CPU-TESTS` section (his CPU checks moved there from the Shikai's S2 and the Bankai's B4a / B4d blocks; the
+   kit-wide pin now only keeps `:move-reflex` off every other character); every chance per event and difficulty-scaled;
+   AI-AWAKEN-P, the learner's read clock, the ASSIST's borrowed brain kept working.
+4. **Styles by probability** (the user's 「使用機率將這些風格戰法互相結合」): each branch of round 1 opens one primary style
+   (b0 the Shikai chain, b1 the ranged routes, b2 the bind, b3 a mix of all three); a cell builds named styles and, with
+   more than one, a mix rolled with SIM-RND01 once per match / form entry / event; every cell reports its STYLE paragraph,
+   relayed to the user as it lands.
+5. **dream-rsi**: W = 2, round 1 = 4 branches × 2 refines (8 cells), λ 0.25, `plan --beta 0.6`; the lead re-scores every
+   cell with the frozen evaluator before `record`; after round 1 the user picks (or asks for a combined candidate).
+6. **Integration** (after the pick): the styles' mix as picked, the learner's Hisagi situations (`learn-def-kit :hisagi`),
+   AUTO COMBO's routes (`:assist-combo`), AUTO GUARD's windmill against an incoming ranged threat (`:assist-guard`), the
+   manual's CPU / ASSIST lines, then the full gate (his pairings, the awaken A/B, ASSIST, G2).
+
+### 25.2 The freeze (2026-10-18)
+
+- The baseline at 40 seeds with the frozen evaluator (`baseline/score.json`): **score 0.0** (raw 0.4014): strength **0.000**
+  (0 of 480 HARD matches), masher 0.165 (the button-masher beats him 83 % of the time), signature 0.737 (chain 0.426,
+  ranged 0.20, bind 0.11, his plain J 0.114, the rest the Breaker, the Kikons, counters); NORMAL share **0.10** (Y 12, K 3,
+  R 5, I 6, S 19, Lille 3 of 80), factor 0; pacing ok (NORMAL medians 129.2-168.8 s, every match a K.O.).
+- The host test's `HISAGI-CPU-TESTS` section holds his CPU's checks (9871 checks, ALL PASS: +1, which of his forms has the
+  `:move-reflex`). `tools/aieval.py`: `HISAGI` weights (0.3, 0.2, 0.5), `SIG_HISAGI`, the NORMAL band and the K.O. by the
+  RESULTS line for both banded fighters (Lille II's numbers unchanged).
+- The freeze is the commit adding `docs/research/hisagi-ai-drsi/baseline/score.json` (`step.sh` / `rescore.sh` find it).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
