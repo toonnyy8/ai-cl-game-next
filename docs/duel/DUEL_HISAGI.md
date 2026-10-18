@@ -2224,6 +2224,27 @@ The user's request: 「另外始解的鎖鏈也同樣改成黑色，而 P2 的�
 - The orb and the arm coils (meshes) are unchanged.
 - Proof: `simgate --seeds 10 --summary` byte-identical to the A commit's; debug 83901 0 B everywhere; a mirror still shows P1's black chains and P2's white-edged ones.
 
+## 23. The Shikai's L as a bridge from J to K, charged reach (the user, 2026-10-18)
+
+The user's request: 「然後始解的 L 我想讓 L 能變成 J 與 K 之間的銜接連段。並增加 L 蓄力越長，接上 K 連段時攻擊距離越遠的特性」.
+
+Their answers:
+- Where it links: 「J1, J2 或 J3 命中後按 L 進風車，風車結束接一整串 K1→K2→K3。L 不算連段的一段，是接在中間的橋。例：J1 J2 L K1 K2 K3。」
+- The charge: 「連續：每幀 +1%，上限 ×1.6」
+- What it scales: 「接下來整串 K（推薦）」
+- The L from neutral: 「拿掉冷卻」
+
+The spec (batch S1, a sim change, the Shikai `:base` only):
+- **The bridge.** Off a J1, J2 or J3 hit, L cancels into the windmill 風車 KAZA. From the windmill, K starts a full K
+  string (K1 → K2 → K3). L is not a segment; the string after it is a fresh K string.
+- **The charge.** While L is held the windmill keeps spinning, up to its 60 f. Every frame held adds +1 % to the
+  following K string's reach, capped at ×1.6. Releasing L or pressing K ends the charge. The scale applies to K1, K2
+  and K3 of that string (their volumes' reach: K1's throw, K2's chain, K3's arc) and resets when the string ends or
+  breaks.
+- **The neutral L** keeps the windmill (its ranged ward), its cooldown 90 → 0. Whether a neutral windmill also feeds a K
+  string was not asked; the lead's default is no (only the J-hit bridge charges), to be confirmed in the playtest.
+- His CPU learns the bridge (J hit → L → K at range).
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
