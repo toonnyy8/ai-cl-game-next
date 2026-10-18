@@ -1294,6 +1294,21 @@ left one's u, [9-11] its fist, [12-14] its butt, [15] its point's distance.")
 (defvar *hs-grip-v* (make-f32 3) "[0-1] each side's drawn grip slide (m, HS-POSE eases it to its clip's *HS-GRIP*); [2] the
 last draw's effect seconds (HISAGI-DRAW keeps it for the next pose: the pose hook has no dt).")
 
+(declaim (type f32vec *hs-ks*))
+(defvar *hs-ks* (let ((v (make-f32 3))) (setf (aref v 0) 1f0 (aref v 1) (f32 (mv-reach (find-move :hs-k1))) (aref v 2) (f32 *hs-charge-step*)) v)
+  "S1 (DUEL_HISAGI §23.1): [0] the drawn fighter's charge x (%HS-KS!: the windmill's disc, the K string's strikes), [1] K1
+NAGE's line at x1 (its flight grows by it: HS-SCALED-TIP), [2] *HS-CHARGE-STEP*.")
+(defun-fast %hs-ks! (n)
+  "*HS-KS* [0] := the reach x of a charge of N frames (HS-CHARGE-SCALE's, in f32). 0 B."
+  (declare (fixnum n))
+  (let ((n (min n *hs-charge-max*))) (declare (fixnum n)) (setf (aref *hs-ks* 0) (+ 1f0 (* (aref *hs-ks* 2) (i->f n)))))
+  nil)
+(defun-fast %hs-fa-ks! (fa)
+  "FA [1] (a flight's drawn reach) grown by the charge: + K1's line x (x - 1) (HS-SCALED-TIP; x1 elsewhere). 0 B."
+  (declare (type f32vec fa))
+  (setf (aref fa 1) (+ (aref fa 1) (* (aref *hs-ks* 1) (- (aref *hs-ks* 0) 1f0))))
+  nil)
+
 (defparameter *hs-letout-v*
   (loop for (clip side f0 f1 f2 f3 r h az bulge) in *hs-letout*
         collect (list* clip side (coerce (mapcar #'f32 (list f0 f1 f2 f3 r (or h 0) (or az 0) bulge (if az 1 0) (if h 1 0)))
@@ -1324,7 +1339,7 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
          (a (+ (aref yaw 0) (* 0.017453292f0 (aref kv 6))))
          (bx (cond ((> (aref kv 8) 0.5f0) (- (f-sin a))) ((> rf 0.05f0) (/ dx rf)) (t (- (f-sin (aref yaw 0))))))
          (bz (cond ((> (aref kv 8) 0.5f0) (- (f-cos a))) ((> rf 0.05f0) (/ dz rf)) (t (- (f-cos (aref yaw 0))))))
-         (r (aref kv 4))
+         (r (* (aref kv 4) (aref *hs-ks* 0)))         ; (S1: KARI-OTOSHI's arc at the charge, x1 elsewhere)
          (sh (f-hypot (- fx (aref jm (+ so 12))) (- fz (aref jm (+ so 14)))))
          (slope (f-clamp (/ (- fy (aref jm (+ so 13))) (f-max 0.05f0 sh)) -0.8f0 0.8f0))
          (ty (if (> (aref kv 9) 0.5f0) (aref kv 5) (+ fy (* slope (- r rf)))))
@@ -1358,6 +1373,7 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
 
 (declaim (type f32vec *hs-fr* *hs-yaw*))
 (defvar *hs-fr* (make-f32 1) "The clip frame %HS-LETOUT! reads.")
+
 (defvar *hs-yaw* (make-f32 1) "His facing for %HS-LETOUT!.")
 (defun-fast hs-pose (e m)
   "His kit's :pose hook (draw.lisp DRAW-FIGHTER, right after the FK; the FK origin in *POSE-AT*): the J strings' short grip
@@ -1368,6 +1384,7 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
          (target (if g (the single-float (second g)) 0f0)) (cur (aref gv side)) (step (* 4f0 (aref gv 2)))
          (o (* 16 (ji :weapon-r))) (kv (hs-letout-of name :r)))
     (declare (type f32vec jm gv) (fixnum side o) (single-float target cur step))
+    (%hs-ks! (hss-charge (hs e)))
     (setf cur (cond ((<= step 0f0) target)                 ; (frozen effects, a still: the clip's grip at once)
                      ((< cur target) (f-min target (+ cur step))) (t (f-max target (- cur step))))
           (aref gv side) cur
@@ -1604,7 +1621,7 @@ swung round (f0-6), the push at the waist 2.0 m round him (the volume's r: f6-9)
 pointing out, %HS-PLACE! spin 0). 0 B."
   (declare (type f32vec out pos fa) (fixnum sf))
   (let* ((f (i->f sf)) (k (f-clamp (/ (- f 9f0) 7f0) 0f0 1f0)) (e (* k k (- 3f0 (* 2f0 k))))
-         (r (if (< f 6f0) (+ 0.8f0 (* 1.2f0 (/ f 6f0))) (- 2.0f0 (* 0.4f0 e))))
+         (r (* (aref *hs-ks* 0) (if (< f 6f0) (+ 0.8f0 (* 1.2f0 (/ f 6f0))) (- 2.0f0 (* 0.4f0 e)))))   ; (S1: grows with the charge)
          (h (+ 0.95f0 (* 1.35f0 e))) (a (+ (aref fa 0) 1.5707964f0 (* 0.5235988f0 f))) (g (- r 0.75f0)))
     (declare (single-float f k e r h a g))
     (setf (aref fa 0) a
@@ -1950,6 +1967,7 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
          (shikai (or (eq (fighter-form f) :base) (logtest cfl 1))) (lo 0) (geo 0) (an (model-anim m)) (c (anim-clip an))
          (cn (and c (clip-name c))))
     (when (and (> (model-alpha m) 0.5) (entity-alive-p o) (eq (model-weapon m) :kazeshini))
+      (%hs-ks! (hss-charge st))                                       ; (S1: the charge's x for the windmill / K string)
       (setf geo (%hs-geo! an (pos-of e) (pos-of o) fa (transform e) (if shikai 1 0) rdt))
       (when (logtest geo 1) (setf lo 1))
       (let ((kv (hs-letout-of cn :l)))
@@ -1971,7 +1989,7 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                 ((and shikai (eq (fighter-state f) :move) (eq (fighter-phase f) :follow))   ; the O's zip: hooked in him
                  (setf lo (logior lo 4)) (values 5 5 0 1))
                 ((and shikai (fighter-follow f) (eq name :hs-kikon)) (values 0 0 0 1))   ; (the follow-up: a close cut)
-                ((and shikai (eq name :hs-kaza))                       ; the windmill (S 6, A 60, R 14)
+                ((and shikai (member name *hs-kazas*))                 ; the windmill (S 6, A 60, R 14)
                  (let ((top (+ (mv-s mv) (mv-a mv))))
                    (%hs-kaza-point *hs-pt* (pos-of e) fa (min sf top))
                    (setf lo (logior lo 4))
@@ -1985,6 +2003,7 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                        (t (values 1 0 (- sf 50) 2))))
                 ((and mv (assoc name *hs-flights*))
                  (setf (aref fa 1) (second (assoc name *hs-flights*)))
+                 (%hs-fa-ks! fa)                                       ; (S1: NAGE at the charge's reach)
                  (when shikai (setf lo (logior lo (if (eq name :hs-k2s) 196 68))))
                  (hs-flight-codes st name sf (mv-s mv) (mv-a mv)))
                 ((and mv (member name *hs-pulls*))
@@ -2031,6 +2050,11 @@ must be 0."
              (grip (progn (setf (hss-state st) :in) (at :hs-j1 9 :hs-s-sen) (bytes)))
              (rin (progn (at :hs-j3 10 :hs-s-rin) (bytes)))
              (kari (progn (at :hs-k3 24 :hs-s-kari) (bytes)))
+             (ch (prog1 (progn (setf (hss-charge st) 40 (hss-kstr st) t)          ; (S1: a charge of x1.4)
+                               (list (progn (at :hs-kaza-j 30 :hs-s-kaza) (bytes))
+                                     (progn (at :hs-k1 19 :hs-s-nage) (setf (fighter-move f) (hs-scaled :hs-k1 40)) (bytes))
+                                     (progn (at :hs-k3 24 :hs-s-kari) (setf (fighter-move f) (hs-scaled :hs-k3 40)) (bytes))))
+                   (setf (hss-charge st) 0 (hss-kstr st) nil)))
              (shibari (progn (at :hs-shibari 30 :hs-s-shibari) (setf (fighter-contact f) :hit) (bytes)))
              (kubi (progn (setf (fighter-contact f) ct) (at :hs-breaker 9 :hs-s-kubikake) (bytes)))
              (fm (fighter-form f)) (b0 (hss-bound st))
@@ -2056,9 +2080,9 @@ must be 0."
               (fighter-contact f) ct (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm
               (hss-bound st) b0)
         (log-msg "duel hisagi look consing (10 calls, B): stance ~d, out ~d, NAGE ~d, HIKI ~d, windmill ~d, J1 grip ~d, J3 ~d, ~
-KARI-OTOSHI ~d, SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d; the Bankai's clips: J3 ~d, TSUISA ~d, KUBIKAKE ~d, SAHARAI ~d, ~
+KARI-OTOSHI ~d, S1's charge x1.4: windmill ~d, NAGE ~d, KARI-OTOSHI ~d; SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d; the Bankai's clips: J3 ~d, TSUISA ~d, KUBIKAKE ~d, SAHARAI ~d, ~
 SP1 ~d, SP2 ~d, KOSA ~d; the bind's MAKIGIRI ~d, SHIBORI ~d, SP1 ~d, KOSHU ~d, UNWIND ~d"
-                 idle out nage hiki kaza grip rin kari shibari kubi bankai bind
+                 idle out nage hiki kaza grip rin kari (nth 0 ch) (nth 1 ch) (nth 2 ch) shibari kubi bankai bind
                  (nth 0 bk) (nth 1 bk) (nth 2 bk) (nth 3 bk) (nth 4 bk) (nth 5 bk) (nth 6 bk)
                  (nth 0 bb) (nth 1 bb) (nth 2 bb) (nth 3 bb) (nth 4 bb))))))
 (defparameter *hs-tip-moves*

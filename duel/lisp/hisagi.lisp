@@ -38,6 +38,17 @@
 (defparameter *hs-hook-r* 0.5 "The sickle is drawn hooked in the victim while he is within this of the anchor (m, §7.1; a look).")
 (defparameter *hs-kaza-min* 20 "The windmill is held at least this many frames from its up frame (f6) ...")
 (defparameter *hs-kaza-max* 60 "... at most this many (its move's active frames), then R 14 (the lead's proposal, §8.3).")
+;; S1 (DUEL_HISAGI §23, §23.1; the user, 2026-10-18: 「然後始解的 L 我想讓 L 能變成 J 與 K 之間的銜接連段。並增加 L 蓄力越長，接上 K
+;; 連段時攻擊距離越遠的特性」): L a bridge off a J1 / J2 / J3 hit into the windmill, K from it a full K string whose reach grows
+;; with the frames L was held (「連續：每幀 +1%，上限 ×1.6」, 「接下來整串 K」; the neutral windmill too: 「中立的風車可以蓄力接 K」)
+(defparameter *hs-kaza-cooldown* 0 "The windmill's cooldown from the press (90 -> 0, 2026-10-18, the user: 「拿掉冷卻」).")
+(defparameter *hs-charge-step* 0.01
+  "Each frame L holds the windmill up adds this to the next K string's reach x (none -> +1 %, 2026-10-18, the user:
+「連續：每幀 +1%，上限 ×1.6」) ...")
+(defparameter *hs-charge-max* 60 "... counted at most this many frames (the windmill's 60 active: x1.6, the user's cap).")
+(defparameter *hs-kaza-k-from* 9
+  "K starts the K string from this windmill frame on (its push window's end, f6-8: the push lands first) to its last
+(hold or recovery; S1's pick, 2026-10-18, §23.1).")
 ;; the CPU (DUEL_HISAGI §10; every chance EASY <= NORMAL <= HARD, rolled once per event)
 (defparameter *hs-ai-string-k* 0.7 "His CPU's pull (K) after a NAGE contact, else the one-handed J (the kit's :string-k, §10).")
 (defparameter *hs-ai-modoshi-p* '(:easy 0.3 :normal 0.5 :hard 0.7)
@@ -45,6 +56,13 @@
 (defparameter *hs-ai-windmill-p* '(:easy 0.3 :normal 0.6 :hard 0.9)
   "His CPU: the windmill against a ranged threat (RANGED-THREAT-IN 4-24 f), once per threat (its rising edge).")
 (defparameter *hs-ai-windmill-hold* 36 "... L held this many frames (the threat passes).")
+(defparameter *hs-ai-l-after-j* 0.3
+  "His CPU's L off a J link that hit (the kit's :l-after-j, one roll per hit; S1 §23.1, 2026-10-18): the bridge into the
+windmill.")
+(defparameter *hs-ai-kaza-k-p* '(:easy 0.4 :normal 0.7 :hard 0.9)
+  "His CPU, once per L press (but against a ranged threat): K out of the windmill once the charged K1 reaches him (L held
+on meanwhile), else the plain windmill (S1 §23.1, 2026-10-18).")
+(defparameter *hs-ai-kaza-margin* 0.3 "... K once the real distance is within K1's charged line + this (m; its tip + radii ~0.66).")
 (defparameter *hs-ai-sp-ender-p* '(:easy 0.1 :normal 0.3 :hard 0.8)
   "His CPU's SP off a link-3 hit (:sp-ender): SP2 after RIN (IN, 4.5 m line), SP1 after a K ender (6.5 m line).")
 (defparameter *hs-ai-opp-step-p* '(:easy 0.1 :normal 0.25 :hard 0.5)
@@ -203,10 +221,15 @@ gathered K2 / K3) when the victim stands inside its reach, else the speed pick (
 ;; L 風車 KAZAGURUMA, the windmill (§8.3, Q3 A): up at f6, held 20-60 f (HS-KAZA-TICK), R 14; one push hit as it comes up
 ;; (20, 1.5 m, 8 f: no lock), 360 deg r 2.0; while it runs, hazards and :ranged windows are guarded from every side
 ;; (:ranged-ward: their full guard value, the usual chip, no blockstun; unguardables through; a crush drops it). Rooted,
-;; free; refused while the sickle is out (HS-OK); cooldown 90 from the press
-(defmove :hs-kaza :kind :sig :clip :hs-kaza :startup 6 :active 60 :recovery 14 :whiff 14 :cooldown 90 :dmg 20
+;; free; refused while the sickle is out (HS-OK). S1 (§23.1): no cooldown; L held from its up frame charges the next K
+;; string (HS-CHARGE-NEXT), K from f9 starts it (HS-KAZA-TICK)
+(defmove :hs-kaza :kind :sig :clip :hs-kaza :startup 6 :active 60 :recovery 14 :whiff 14 :cooldown *hs-kaza-cooldown* :dmg 20
   :vol (:arc 2.0 360 0.2 2.0) :on-hit :flinch :kb 1.5 :hits ((6 9 :stun 8)) :tick hs-kaza-tick :flags (:ranged-ward)
-  :on-frame ((6 hs-kaza-up)))
+  :on-frame ((0 hs-kaza-start) (6 hs-kaza-up)))
+;; ... the bridge (the kit's :l-after-j, S1): the same windmill off a J1 / J2 / J3 link, its push a stagger (26 f) so a K
+;; pressed by f14 (charge <= 9 frames) combos into K1; a longer charge trades the combo for reach (§23.1)
+(defmove-copy :hs-kaza-j :hs-kaza :on-hit :stagger :hits ((6 9)))
+(defparameter *hs-kazas* '(:hs-kaza :hs-kaza-j) "The windmill and its J bridge copy (S1).")
 ;; Shift+K, SP1 破道の十一 綴雷電 TSUZURI RAIDEN (ch. 337): lightning down its own 6.5 m line in every state, the sickle IN
 ;; at its S; a hit paralyses 40 f (KUSARI-BIKI's)
 (defmove :hs-raiden :kind :sp :clip :hs-raiden :callout "TSUZURI RAIDEN" :startup 20 :active 3 :recovery 24 :dmg 110
@@ -228,6 +251,29 @@ gathered K2 / K3) when the victim stands inside its reach, else the speed pick (
 
 (defparameter *hs-throws* '(:hs-k1 :hs-k2s) "The moves that throw the sickle (OUT at S; their :params :throw = the line's length).")
 (defparameter *hs-pulls* '(:hs-k2 :hs-k3h) "The pulls (the chain from the anchor: HS-CHAIN-SEG).")
+;; S1 (§23.1): the K string a windmill feeds plays its moves at the charge's reach: each a copy parsed at x (1 + n / 100)
+;; (PARSE-MOVE's :reach-mult: NAGE's line and its anchor :throw, HIKI's :reach (its chain is the anchor's), KARI-OTOSHI's
+;; arc), the same name, so the strings, the hooks and the CPU see the move they know; HS-TICK swaps it in
+(defparameter *hs-k-string* '(:hs-k1 :hs-k2 :hs-k3) "The K string (K1 NAGE -> K2 HIKI -> K3 KARI-OTOSHI) a windmill charges.")
+(defun hs-charge-scale (n) "The reach x of a charge of N frames (*HS-CHARGE-STEP* each, capped)." (+ 1.0 (* *hs-charge-step* (min n *hs-charge-max*))))
+(defun hs-scaled-spec (spec m)
+  "Move SPEC with its :params :throw (a throw's anchor line) x M."
+  (let ((p (getf spec :params)))
+    (if (getf p :throw) (list* :params (list* :throw (* m (getf p :throw)) p) spec) spec)))
+(defparameter *hs-k-scaled*
+  (loop for name in *hs-k-string*
+        collect (let ((mv (find-move name)))
+                  (cons name (coerce (loop for n from 0 to *hs-charge-max*
+                                           collect (if (zerop n) mv
+                                                       (let ((m (hs-charge-scale n)))
+                                                         (parse-move name (hs-scaled-spec (mv-spec mv) m) :reach-mult m))))
+                                     'simple-vector))))
+  "Name -> its copies by charge frames 0-60 (0: the move itself).")
+(defun hs-scaled (name n) "K string move NAME at a charge of N frames." (svref (cdr (assoc name *hs-k-scaled*)) (min n *hs-charge-max*)))
+(defun hs-scaled-tip (drawn line n)
+  "A drawn strike's reach DRAWN (m, at x1) at a charge of N: its volume's LINE (a cap's end, an arc's r) grows, its radius
+not (the art's %HS-FA-KS! / %HS-LETOUT!, host-tested against the copies)."
+  (+ drawn (* line (- (hs-charge-scale n) 1.0))))
 (defparameter *hs-hooks* '(:tick hs-tick :ok hs-ok :command hs-command :hit hs-hit :struck hs-struck :reset hs-reset
                            :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck))
 (defparameter *hs-shikai-clips* '(:hs-q1 :hs-s-sen :hs-q2 :hs-s-kaeshi :hs-spin :hs-s-rin :hs-nage :hs-s-nage
@@ -259,6 +305,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
             (:hs-j2-1h :q :hs-j3-1h) (:hs-k2s :f :hs-k3h)
             (:hs-j1-1h :q :hs-j2-1h))
   :awaken-form :bankai                          ; the Bankai's ranged mode (§17.1; batch B2b)
+  :l-after-j :hs-kaza-j                         ; L off a J1 / J2 / J3 link: the windmill bridge (S1, §23.1)
   :hooks *hs-hooks*
   ;; an all-rounder at 2-6 m (§6): the throw at 3.5-6.2 m, J strings up close, the windmill against projectiles (his
   ;; :reflex), SP2 / the Breaker at mid range
@@ -267,9 +314,10 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
        :moves ((0.0 1.8 :q 5 :f 1 :breaker 1 :sp2 1)
                (1.8 3.5 :f 3 :q 1 :sp2 2 :step 1)
                (3.5 6.2 :f 5 :sp1 1 :step 1)
-               (6.2 9.0 :sp1 1 :kikon 1 nil 2)
+               (6.2 9.0 :sp1 1 :kikon 1 :sig 1 nil 2)   ; (S1: the windmill charged into K1 at range)
                (9.0 99.0 :kikon 1 nil 2))
        :guard 0.4 :hoho 0.3 :dash 0.6 :dash-back 0.3 :block-string 0.6 :sp-cancel-bars 1 :string-k *hs-ai-string-k*
+       :l-after-j *hs-ai-l-after-j*
        :kikon-range 7.0 :reflex hs-ai-reflex :opp-reflex hs-ai-opp :sp-ender hs-ai-ender :sig-hold hs-ai-sig-hold))
 
 ;;; ================================================================ the Bankai 風死絞縄 (§17; batch B2b)
@@ -506,6 +554,14 @@ waits buffered, it throws on the arrival), or NIL (the kit's :commands entry)."
   "Does the windmill (S its up frame, TOP = S + A its last held frame) leave its hold at move frame SF: up at least
 *HS-KAZA-MIN* frames and L no longer HELD (else it stays up to TOP)?"
   (and (>= sf (+ s *hs-kaza-min*)) (< sf top) (not held)))
+(defun hs-charge-next (n held let sf s top)
+  "The windmill's charge one frame on (S1, §23.1): +1 while L is HELD and has not been let go in it (LET), from its up
+frame S to its last held frame (TOP), at most *HS-CHARGE-MAX*."
+  (if (and held (not let) (<= s sf) (< sf top)) (min *hs-charge-max* (1+ n)) n))
+(defun hs-kstr-keep-p (name kstr)
+  "Does the charge live on (S1, §23.1) with his move NAME (NIL: none): in a windmill, or in the K string one started (KSTR)
+-- K1 / K2 / K3; any other move, a hit taken, neutral: no (reset)."
+  (or (and (member name *hs-kazas*) t) (and kstr (member name *hs-k-string*) t)))
 (defun hs-band (d)
   "The time-at-range probe's band of distance D (§6): :at-close < 1.8, :at-mid < 4, :at-far <= 6.5, else :at-out."
   (cond ((< d 1.8) :at-close) ((< d 4.0) :at-mid) ((<= d 6.5) :at-far) (t :at-out)))
@@ -520,6 +576,11 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (out-t 0 :type fixnum) (ret-t 0 :type fixnum)   ; the out timer (frames out of his moves), the return's countdown
   (throw-t -1 :type fixnum)                   ; the tick the sickle last went out (the CPU's one roll per OUT start)
   (kaza nil)                                  ; he was in the windmill at the last tick (HS-STRUCK's counters)
+  (charge 0 :type fixnum)                     ; S1: the windmill's charge (frames L held), the K string's reach after it
+  (kstr nil)                                  ; S1: the K string he is in was started by a windmill (its reach x the charge)
+  (kz-let nil)                                ; S1: L was let go in this windmill (the charge stops)
+  (throw-n 0 :type fixnum)                    ; S1: the charge of the throw out now (its chain length x it, HS-TICK)
+  (ai-kz nil) (ai-kz-threat nil)              ; S1, his CPU: K out of this windmill (rolled at the press); the press is a ward
   (ai-out -1 :type fixnum) (ai-modoshi nil)   ; his CPU: the OUT start it rolled for, and its pick
   (ai-threat nil)                             ; his CPU: a ranged threat seen last step (the windmill's rising edge)
   (opp-key -1 :type fixnum) (opp-go nil)      ; a CPU FACING him (on that fighter's own component): the throw start it
@@ -570,7 +631,8 @@ Values ax ay az bx by bz r."
 (defun hs-throw-out (e)
   "A throw's S frame (NAGE / MAKI): the sickle OUT, whatever the result; its anchor still to write."
   (let ((st (hs e)))
-    (setf (hss-state st) :out (hss-anchored st) nil (hss-out-t st) 0 (hss-throw-t st) *match-tick*)
+    (setf (hss-state st) :out (hss-anchored st) nil (hss-out-t st) 0 (hss-throw-t st) *match-tick*
+          (hss-throw-n st) (if (hss-kstr st) (hss-charge st) 0))
     (pace e (if (eq (mv-name (fighter-move (fighter e))) :hs-k1) :throw :maki))
     (clog "~a SICKLE OUT ~a" (side-name e) (mv-name (fighter-move (fighter e))))))
 (defun hs-sickle-in (e)
@@ -582,7 +644,8 @@ Values ax ay az bx by bz r."
     (setf (hss-state st) :in (hss-out-t st) 0 (hss-ret-t st) 0)))
 (defun hs-reset (e)
   "His :reset hook (combat.lisp RESET-ROUND: a Kikon / Soul Break reset): the sickle IN."
-  (let ((st (hs e))) (setf (hss-state st) :in (hss-out-t st) 0 (hss-ret-t st) 0 (hss-anchored st) nil)))
+  (let ((st (hs e))) (setf (hss-state st) :in (hss-out-t st) 0 (hss-ret-t st) 0 (hss-anchored st) nil
+                           (hss-charge st) 0 (hss-kstr st) nil)))
 (defun hs-pull-to (e to frames)
   "E's chain drags his victim to TO m over FRAMES (his slide replaced; ICHIGO-PULL-TO's rule); T when it moved him."
   (let* ((v (opp-of e)) (p (pos-of e)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
@@ -595,11 +658,31 @@ Values ax ay az bx by bz r."
   "NAGE's / HIKI's first real hit (:on-land): the chain drags the victim to *HS-DRAG-TO* m over *HS-DRAG-FRAMES*."
   (when (hs-pull-to e *hs-drag-to* *hs-drag-frames*) (pace e :drag)))
 (defun hs-kaza-up (e) "The windmill's up frame (f6): counted." (declare (ignorable e)) (pace e :windmill))
+(defun hs-kaza-start (e)
+  "The windmill's frame 0 (both copies; not a :hold move, so it runs): no charge yet, no K string (S1)."
+  (let ((st (hs e))) (setf (hss-charge st) 0 (hss-kstr st) nil (hss-kz-let st) nil))
+  (when (eq (mv-name (fighter-move (fighter e))) :hs-kaza-j) (pace e :bridge)))
+(defun hs-tick-brain (e)
+  "The brain his windmill decides on: his own CPU's; NIL for a human (no brain, one switched off, the ASSIST gate's masher)."
+  (let ((b (brain e))) (and b (not (brain-off b)) (not (eq (brain-habit b) :dumb)) b)))
 (defun hs-kaza-tick (e)
-  "The windmill, each frame: once it has been up *HS-KAZA-MIN* frames, L let go ends the hold (its recovery R 14 next);
-the clip follows (a look)."
-  (let* ((f (fighter e)) (mv (fighter-move f)) (sf (fighter-sf f)) (top (+ (mv-s mv) (mv-a mv))))
-    (when (hs-kaza-release-p sf (mv-s mv) top (vpad-down (pilot-vpad (pilot e)) :sig))
+  "The windmill, each frame: L held charges the next K string (HS-CHARGE-NEXT; let go, the charge stops); from
+*HS-KAZA-K-FROM* a K (his CPU's: HS-AI-KAZA-K) starts K1, the K string at the charge's reach (HS-TICK swaps each link in;
+S1, §23.1); once it has been up *HS-KAZA-MIN* frames, L let go ends the hold (its recovery R 14 next); the clip follows
+(a look)."
+  (let* ((f (fighter e)) (mv (fighter-move f)) (sf (fighter-sf f)) (s (mv-s mv)) (top (+ s (mv-a mv))) (st (hs e))
+         (vp (pilot-vpad (pilot e))) (held (vpad-down vp :sig)) (b (hs-tick-brain e)))
+    (setf (hss-charge st) (hs-charge-next (hss-charge st) held (hss-kz-let st) sf s top))
+    (unless held (setf (hss-kz-let st) t))
+    (when (and (>= sf *hs-kaza-k-from*) (if b (hs-ai-kaza-k e f st) (vpad-command-pressed-p vp :flash nil)))
+      (setf (hss-kstr st) t)
+      (when (try-command e f :f :flash)
+        (unless b (vpad-consume! vp :flash))
+        (pace e :kaza-k) (pace e :charge (hss-charge st))
+        (clog "~a windmill -> K string x~,2f" (side-name e) (hs-charge-scale (hss-charge st)))
+        (return-from hs-kaza-tick nil))
+      (setf (hss-kstr st) nil))
+    (when (hs-kaza-release-p sf s top held)
       (setf (fighter-sf f) top)
       (play-clip e (kit-move-clip (fighter-kit f) (mv-clip mv)) :blend 2 :time (/ top 60.0)))))
 
@@ -635,6 +718,10 @@ the victim's centre (§7.1); the counters."
 timer (only out of his moves) and the auto-retrieve, the return's arrival; the counters."
   (declare (ignore g))
   (let* ((st (hs e)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (sf (fighter-sf f)))
+    (cond ((not (hs-kstr-keep-p (and mv (mv-name mv)) (hss-kstr st)))   ; S1 (§23.1): the charge ends with its K string
+           (setf (hss-charge st) 0 (hss-kstr st) nil))
+          ((and (hss-kstr st) (member (mv-name mv) *hs-k-string*) (not (eq mv (hs-scaled (mv-name mv) (hss-charge st)))))   ; its link at the charge's reach
+           (setf mv (hs-scaled (mv-name mv) (hss-charge st)) (fighter-move f) mv)))
     (when (and mv (eq (fighter-phase f) :main) (hs-throw-name-p (mv-name mv)) (eq (hss-state st) :out)
                (not (hss-anchored st)) (= sf (+ (mv-s mv) (mv-a mv) -1)))
       (let ((p (pos-of e)))
@@ -642,7 +729,8 @@ timer (only out of his moves) and the auto-retrieve, the return's arrival; the c
           (hs-anchor! e x z)))
       (pace e :throw-whiff))
     (case (hss-state st)
-      (:out (multiple-value-bind (s n) (hs-out-next :out (hss-out-t st) mv (and (not mv) (> (hs-hand-dist e) *hs-chain-max*)))
+      (:out (multiple-value-bind (s n) (hs-out-next :out (hss-out-t st) mv
+                                                    (and (not mv) (> (hs-hand-dist e) (* *hs-chain-max* (hs-charge-scale (hss-throw-n st))))))
               (setf (hss-out-t st) n)
               (when (eq s :ret)
                 (setf (hss-state st) :ret (hss-ret-t st) *hs-return-frames*)
@@ -651,18 +739,20 @@ timer (only out of his moves) and the auto-retrieve, the return's arrival; the c
       (:ret (when (<= (decf (hss-ret-t st)) 0)
               (setf (hss-state st) :in (hss-out-t st) 0)
               (clog "~a SICKLE IN (returned)" (side-name e)))))
-    (setf (hss-kaza st) (and mv (eq (mv-name mv) :hs-kaza) t))
+    (setf (hss-kaza st) (and mv (member (mv-name mv) *hs-kazas*) t))
     (when *pacing-log*
       (unless (eq (hss-state st) :in) (pace e :out-frames))
       (pace e (hs-band (fighter-dist f))))))
 (defun hs-hash (e)
   "His :hash hook (debug.lisp STATE-HASH-LINE): the sickle's state, the anchor (cm), the timers; the bind (B16): bound, the
-pool (x10), the snapshot, the release flags, KUBIKAKE's cooldown (B4a's marks and RAKUSA's spot gone with them, B4c)."
+pool (x10), the snapshot, the release flags, KUBIKAKE's cooldown (B4a's marks and RAKUSA's spot gone with them, B4c); S1:
+the charge, the K string's flag, L let go, the throw's charge."
   (let ((st (hs e)))
-    (format nil "s~a ~d ~d o~d r~d b~a p~d ~d/~d ~d/~d ~a~a c~d" (case (hss-state st) (:in "I") (:out "O") (t "R"))
+    (format nil "s~a ~d ~d o~d r~d b~a p~d ~d/~d ~d/~d ~a~a c~d k~d~a~a~d" (case (hss-state st) (:in "I") (:out "O") (t "R"))
             (round (* 100 (aref (hss-anchor st) 0))) (round (* 100 (aref (hss-anchor st) 1))) (hss-out-t st) (hss-ret-t st)
             (if (hss-bound st) 1 0) (round (* 10 (hss-pool st))) (hss-r0 st) (hss-k0 st) (hss-or0 st) (hss-ok0 st)
-            (if (hss-rel st) "R" "-") (if (hss-rel-held st) "H" "-") (hss-kubi-cd st))))
+            (if (hss-rel st) "R" "-") (if (hss-rel-held st) "H" "-") (hss-kubi-cd st)
+            (hss-charge st) (if (hss-kstr st) "K" "-") (if (hss-kz-let st) "L" "-") (hss-throw-n st))))
 
 ;;; ================================================================ the CPU (his kit's :ai; DUEL_HISAGI §10)
 (defun hs-p (b plist) "PLIST's chance (:easy :normal :hard) at brain B's difficulty." (getf plist (brain-difficulty b) (getf plist :normal 0.0)))
@@ -674,6 +764,7 @@ per OUT start (*HS-AI-MODOSHI-P*), else he waits the auto-retrieve out. A comman
     (setf (hss-ai-threat st) threat)
     (cond ((and edge (kit-command-ok-p e :sig) (< (sim-rnd01) (hs-p b *hs-ai-windmill-p*)))
            (pace e :ai-windmill)
+           (setf (hss-ai-kz-threat st) t)               ; (S1: a ward, no K out of it: HS-AI-SIG-HOLD)
            (why b :windmill :sig))
           ((and (eq (hss-state st) :out) (not (eql (hss-ai-out st) (hss-throw-t st))))
            (setf (hss-ai-out st) (hss-throw-t st) (hss-ai-modoshi st) (< (sim-rnd01) (hs-p b *hs-ai-modoshi-p*)))
@@ -683,9 +774,23 @@ per OUT start (*HS-AI-MODOSHI-P*), else he waits the auto-retrieve out. A comman
            (pace e :ai-modoshi)
            (why b :modoshi :f)))))
 (defun hs-ai-sig-hold (kit d &optional e)
-  "His :sig-hold (AI-COMMAND): the windmill held *HS-AI-WINDMILL-HOLD* frames."
-  (declare (ignore kit d e))
-  *hs-ai-windmill-hold*)
+  "His :sig-hold (AI-COMMAND, once per L press: neutral, the J bridge, a ward): S1 (§23.1) rolls K out of this windmill
+(*HS-AI-KAZA-K-P*; never for a ward against a ranged threat, HS-AI-REFLEX): then L held its full *HS-KAZA-MAX* (the charge
+runs until HS-AI-KAZA-K's K), else *HS-AI-WINDMILL-HOLD* frames (the threat passes)."
+  (declare (ignore kit d))
+  (let* ((st (and e (hs e))) (b (and e (ai-brain e))) (ward (and st (hss-ai-kz-threat st))))
+    (when st
+      (setf (hss-ai-kz-threat st) nil
+            (hss-ai-kz st) (and b (not ward) (< (sim-rnd01) (hs-p b *hs-ai-kaza-k-p*)))))
+    (if (and st (hss-ai-kz st)) *hs-kaza-max* *hs-ai-windmill-hold*)))
+(defun hs-ai-kaza-k (e f st)
+  "His CPU in the windmill (HS-KAZA-TICK, S1 §23.1): K, once, when the press rolled for it and K1 at the charge so far
+reaches him (the real distance within its line + *HS-AI-KAZA-MARGIN*): off the bridge at once (he stands in it: the combo),
+from range after the charge it needs. Out of reach at the full charge: no K (the windmill ends)."
+  (when (and (hss-ai-kz st) (<= (fighter-dist f) (+ (mv-reach (hs-scaled :hs-k1 (hss-charge st))) *hs-ai-kaza-margin*)))
+    (setf (hss-ai-kz st) nil)
+    (pace e :ai-kaza-k)
+    t))
 (defun hs-ai-ender (e kit)
   "His :sp-ender (ai.lisp STRING-REFLEX, a link-3 hit): SP2 SHIBARI after RIN with the sickle in (its 4.5 m line reaches
 the 2.15 m push), else SP1 TSUZURI RAIDEN (6.5 m: after a K ender's 6.45 m push), *HS-AI-SP-ENDER-P* of the time."
@@ -1107,9 +1212,10 @@ windmill's holds / blocks / crushes, out frames, the time-at-range bands)."
 
 (defun hisagi-probe-line (tag)
   (let ((st (hs *p1*)) (g2 (gauges *p2*)))
-    (log-msg "duel probe hisagi ~a t ~d p1 ~a ~a sickle ~a anchor ~,2f ~,2f out ~d ret ~d rei ~,1f | p2 ~a r~d gg ~d | d ~,2f"
+    (log-msg "duel probe hisagi ~a t ~d p1 ~a ~a sickle ~a anchor ~,2f ~,2f out ~d ret ~d rei ~,1f charge ~d~a | p2 ~a r~d gg ~d | d ~,2f"
              tag *match-tick* (fighter-form (fighter *p1*)) (state-of *p1*) (hss-state st) (aref (hss-anchor st) 0) (aref (hss-anchor st) 1)
-             (hss-out-t st) (hss-ret-t st) (gauges-reiatsu (gauges *p1*)) (state-of *p2*) (gauges-reishi g2)
+             (hss-out-t st) (hss-ret-t st) (gauges-reiatsu (gauges *p1*)) (hss-charge st) (if (hss-kstr st) " K" "")
+             (state-of *p2*) (gauges-reishi g2)
              (round (gauges-gg g2)) (fighter-dist (fighter *p1*))))
   (let ((st (hs *p1*)) (g1 (gauges *p1*)) (g2 (gauges *p2*)))
     (log-msg "duel probe hisagi-bind ~a t ~d bound ~a pool ~,1f p1 rei ~d/~d k ~d/~d ra ~,1f | p2 rei ~d/~d k ~d/~d ra ~,1f ~a | cd ~d"
@@ -1121,7 +1227,9 @@ windmill's holds / blocks / crushes, out frames, the time-at-range bands)."
   "83000+k (human P1 Hisagi, P2's CPU off unless noted, P1's Reiatsu full; a \"duel probe hisagi\" line): 0 2 m from an idle
 Kenpachi; 1 6 m from him; 2 4 m from him, the sickle out (anchored 3 m ahead, the timer at 0); 3 8 m from Yamamoto, his L
 wave started, the windmill started (blocked from every side); 4 5 m from Kenpachi, NAGE started (the throw); 5 the mirror,
-both CPUs, 6 m apart; 6 2 m from Kenpachi, J1 started (the JKK: K K for MAKI, HODOKI). The Bankai (B2b; P1 awakened,
+both CPUs, 6 m apart; 6 2 m from Kenpachi, J1 started (the JKK: K K for MAKI, HODOKI); S1 (§23.1): 7 2 m from him, J1
+started with L latched (the bridge: hold L to charge, K for the K string); 8 8 m from him, the windmill started (hold L,
+K: the charged K1 at range). The Bankai (B2b; P1 awakened,
 HS-AWAKEN-NOW!): 10 the ranged mode 6 m from Kenpachi; 11 5 m from him, KUBIKAKE started (SP2 since B4c: the bind on a hit); 12 a bind
 3 m from him with grey values (he dealt 300, took 200: the pool 600 -> 350); 13 as 12, the release pressed (applied this
 step: the snapshot back, the pool's 350 split 300 / 50, the reel, UNWIND); 14 as 12, the pool at 1 and a 10 hit (the
@@ -1146,6 +1254,8 @@ fresh CPU battle); any other k the probe line only."
       (4 (setup :kenpachi 5.0) (force-cmd *p1* :f))
       (5 (setup :hisagi 6.0 :cpu t))
       (6 (setup :kenpachi 2.0) (force-cmd *p1* :q))
+      (7 (setup :kenpachi 2.0) (force-cmd *p1* :q) (setf (fighter-queued (fighter *p1*)) :sig))
+      (8 (setup :kenpachi 8.0) (force-cmd *p1* :sig))
       (10 (setup :kenpachi 6.0) (hs-awaken-now! *p1*))
       (11 (setup :kenpachi 5.0) (hs-awaken-now! *p1*) (start-move *p1* (find-move :hs-r-kubikake)))
       ((12 13 14) (setup :kenpachi 3.0) (hs-awaken-now! *p1*) (hs-bind-start! *p1*) (set-form *p1* :bankai-bind)

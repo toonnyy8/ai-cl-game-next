@@ -1655,7 +1655,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                        (every (lambda (j) (getf (mv-params (kit-l-link k j)) :combo)) '(:sj-t-k1 :sj-k2 :sj-k2s :sj-t-k3))
                        (~= 0.35 (getf (kit-ai k) :l-after-j)))))
   (check (notany (lambda (j) (kit-l-link (kit :senjumaru :base) j)) '(:sj-j1 :sj-j2 :sj-j3 :sj-j2s)))
-  (check (every (lambda (cf) (or (member (first cf) '(:senjumaru :barro)) (null (kit-l-after-j (apply #'kit cf))))) *forms*)))   ; (Lille II: J3 -> L)
+  (check (every (lambda (cf) (or (member (first cf) '(:senjumaru :barro)) (equal cf '(:hisagi :base))   ; (Lille II: J3 -> L;
+                                 (null (kit-l-after-j (apply #'kit cf))))) *forms*)))   ; Hisagi's Shikai: the windmill bridge, S1)
 
 ;; SP1 裁ち直し releases the next two hanks (the user, 2026-09-29): the queue moves +2 (6 wraps to 1); the move cuts the live
 ;; zone(s) at f0 and releases at f8 and f14 (the combo cut's rules); off a landed link both land inside a stagger (26 f:
@@ -3174,7 +3175,8 @@ past the ends; DEFAULT if the clip is not listed."
         ;; 90 from the press, held 20-60 f (HS-KAZA-RELEASE-P), refused while the sickle is out; a ranged hit on it is warded
         ;; while the guard gauge can guard, an unguardable / an empty gauge land
         (let ((x (m :hs-kaza)) (w (svref (mv-hits (m :hs-kaza)) 0)))
-          (check (and (member :ranged-ward (mv-flags x)) (= 90 (mv-cooldown x)) (= 6 (mv-s x)) (= 60 (mv-a x)) (= 14 (mv-r x))
+          (check (and (member :ranged-ward (mv-flags x)) (= 0 (mv-cooldown x))   ; (S1: 90 -> 0, §23.1)
+                      (= 6 (mv-s x)) (= 60 (mv-a x)) (= 14 (mv-r x))
                       (= 1 (length (mv-hits x))) (= 6 (hw-from w)) (= 9 (hw-to w)) (= 20 (hw-dmg w)) (~= 1.5 (hw-kb w)) (= 8 (hw-stun w))
                       (~= 2.0 (mv-reach x)) (~= 360 (/ (* 2 (aref (first (hw-vols w)) 2)) (deg 1))) (null (mv-cost x)))))
         (check (and (not (hs-kaza-release-p 25 6 66 nil)) (hs-kaza-release-p 26 6 66 nil) (not (hs-kaza-release-p 40 6 66 t))
@@ -3212,6 +3214,121 @@ past the ends; DEFAULT if the clip is not listed."
         (check (<= d (+ (mv-reach sp2) 0.35 r)))
         (when (= r 0.38) (format t "  Hisagi: K ender push ~,2f m (r ~,2f); SP2 chases ~,2f m in its ~d f to ~,2f m; the O lane reaches ~,2f m~%"
                                  push r (- push d) (mv-s sp2) d (+ (aref ov 2) (aref ov 4) r)))))))
+
+;;; ================================================================ Hisagi's S1 (docs/duel/DUEL_HISAGI.md §23, §23.1): the
+;;; Shikai's L a bridge from a J hit into the windmill, K from it a K string at the charge's reach (+1 %/f, x1.6 at 60 f)
+(defun hs-charge-next-run (to let-at)
+  "The windmill's charge after move frames 1..TO (HS-KAZA-TICK's order: count, then L's let-go), L let go from LET-AT on."
+  (let ((n 0) (let nil))
+    (loop for sf from 1 to to
+          do (let ((held (or (null let-at) (< sf let-at))))
+               (setf n (hs-charge-next n held let sf 6 66))
+               (unless held (setf let t))))
+    n))
+(let* ((k (kit :hisagi :base)) (kz (kit-move k :hs-kaza)) (kj (kit-move k :hs-kaza-j)))
+  (flet ((m (n) (kit-move k n)))
+    ;; the bridge: L after J1 / J2 / J3 (and the one-handed J2 / J3 links, where HS-OK refuses it: the sickle is out); none after
+    ;; a K link; not a string segment (no J / K follow-up of its own: the K string after it starts fresh at K1)
+    (check (and (every (lambda (j) (eq kj (kit-l-link k j))) '(:hs-j1 :hs-j2 :hs-j3 :hs-j2-1h :hs-j3-1h))
+                (null (kit-l-link k :hs-j1-1h))   ; (the OUT graph's opener, started by HS-COMMAND: not a kit J link)
+                (notany (lambda (n) (kit-l-link k n)) '(:hs-k1 :hs-k2 :hs-k2s :hs-k3 :hs-k3h))
+                (null (kit-next k :hs-kaza-j :q)) (null (kit-next k :hs-kaza-j :f)) (not (string-link-p k :hs-kaza-j))
+                (not (string-link-p k :hs-kaza)) (eq kz (kit-command-move k :sig))
+                (equal (route k :q '((:q) (:q))) '(:hs-j1 :hs-j2 :hs-j3)) (equal (route k :f '((:f) (:f))) '(:hs-k1 :hs-k2 :hs-k3))
+                (null (kit-l-after-j (kit :hisagi :bankai))) (null (kit-l-after-j (kit :hisagi :bankai-bind)))
+                (~= 0.3 (getf (kit-ai k) :l-after-j))))
+    ;; both windmills: no cooldown (「拿掉冷卻」), the same frames, ward, tick and frame-0 reset (the neutral one charges too:
+    ;; 「中立的風車可以蓄力接 K」); the bridge's push a stagger, the neutral's 8 f
+    (check (and (= 0 (mv-cooldown kz) (mv-cooldown kj)) (= (mv-s kz) (mv-s kj) 6) (= (mv-a kz) (mv-a kj) 60) (= (mv-r kz) (mv-r kj) 14)
+                (member :ranged-ward (mv-flags kj)) (eq (mv-tick kz) (mv-tick kj))
+                (member '(0 hs-kaza-start) (mv-on-frame kz) :test #'equal) (member '(0 hs-kaza-start) (mv-on-frame kj) :test #'equal)
+                (eq :stagger (hw-react (svref (mv-hits kj) 0))) (null (hw-stun (svref (mv-hits kj) 0)))
+                (= 8 (hw-stun (svref (mv-hits kz) 0))) (= 20 (hw-dmg (svref (mv-hits kj) 0)))))
+    ;; J1 / J2 / J3 -> the windmill combos (its push inside J's flinch / stagger, hitstop on both sides); the windmill -> K1:
+    ;; the bridge's combos when K starts by f14 (a charge of at most 9 frames), not from f15; the neutral windmill's never
+    (dolist (j '(:hs-j1 :hs-j2 :hs-j3))
+      (let* ((ma (m j)) (w (svref (mv-hits ma) 0)) (hs (hw-hs w))
+             (free (+ (hw-from w) hs 1 (or (hw-stun w) (hitstun (hw-react w)))))
+             (hit (+ (mv-s ma) (mv-a ma) hs (- (mv-s kj) (mv-enter kj)))))
+        (check (or (< hit free) (format t "  Hisagi S1 ~a -> L: hit ~d, free ~d~%" j hit free)))))
+    (flet ((k1-combos-p (wm kf)
+             (let* ((w (svref (mv-hits wm) 0)) (hs (hw-hs w)))
+               (< (+ kf hs (mv-s (m :hs-k1))) (+ (hw-from w) hs 1 (or (hw-stun w) (hitstun (hw-react w))))))))
+      (check (and (= *hs-kaza-k-from* (hw-to (svref (mv-hits kj) 0))) (k1-combos-p kj 9) (k1-combos-p kj 14) (not (k1-combos-p kj 15))
+                  (not (k1-combos-p kz *hs-kaza-k-from*))
+                  (= 9 (hs-charge-next-run 14 nil)))))   ; (K at f14, L held throughout: 9 frames of charge, f6-14)
+    ;; the charge: +1 a frame held from the up frame f6, at most 60 (x1.6); let go: it stops (held again: no more)
+    (check (and (~= 1.0 (hs-charge-scale 0)) (~= 1.01 (hs-charge-scale 1)) (~= 1.37 (hs-charge-scale 37)) (~= 1.6 (hs-charge-scale 60))
+                (~= 1.6 (hs-charge-scale 61)) (= 60 (hs-charge-next-run 90 nil)) (= 4 (hs-charge-next-run 90 10))
+                (= 0 (hs-charge-next-run 90 3)) (= 0 (hs-charge-next 0 nil nil 10 6 66)) (= 60 (hs-charge-next 60 t nil 30 6 66))
+                (= 5 (hs-charge-next 5 t nil 66 6 66)) (= 5 (hs-charge-next 5 t t 20 6 66))))
+    ;; the K string's copies: the same move (name, frames, damage, hooks, links) at x (1 + n / 100): NAGE's line and its
+    ;; anchor, HIKI's reach (its chain the anchor's: the same :seg-fn), KARI-OTOSHI's arc; 0 = the move itself, capped at 60;
+    ;; the drawn tips (HS-SCALED-TIP) on their volume's edge at every charge (within 0.15 m: the FK rule)
+    (dolist (n '(1 9 30 59 60))
+      (let ((sc (hs-charge-scale n)))
+        (dolist (name *hs-k-string*)
+          (let ((a (m name)) (b (hs-scaled name n)))
+            (check (or (and (eq (mv-name a) (mv-name b)) (= (mv-s a) (mv-s b)) (= (mv-a a) (mv-a b)) (= (mv-r a) (mv-r b))
+                            (= (mv-enter a) (mv-enter b)) (= (mv-dmg a) (mv-dmg b)) (equal (mv-on-frame a) (mv-on-frame b))
+                            (equal (mv-flags a) (mv-flags b)) (eq (mv-on-land a) (mv-on-land b)) (~= (mv-clip-speed a) (mv-clip-speed b))
+                            (~= (* sc (mv-reach a)) (mv-reach b)) (eq (kit-next k name :f) (kit-next k (mv-name b) :f)))
+                       (format t "  Hisagi S1 copy ~a x~,2f~%" name sc)))))
+        (let ((v1 (first (hw-vols (svref (mv-hits (hs-scaled :hs-k1 n)) 0)))) (v3 (first (hw-vols (svref (mv-hits (hs-scaled :hs-k3 n)) 0)))))
+          (check (and (~= (* 6.0 sc) (aref v1 2)) (~= 0.3 (aref v1 4)) (~= (* 6.0 sc) (getf (mv-params (hs-scaled :hs-k1 n)) :throw))
+                      (~= 2.0 (getf (mv-params (hs-scaled :hs-k1 n)) :melee-range)) (~= (* 2.8 sc) (aref v3 1))
+                      (eq 'hs-chain-seg (hw-seg (svref (mv-hits (hs-scaled :hs-k2 n)) 0)))
+                      (<= (abs (- (hs-scaled-tip 6.3 6.0 n) (+ (aref v1 2) (aref v1 4)))) 0.15)
+                      (<= (abs (- (hs-scaled-tip 2.8 2.8 n) (aref v3 1))) 0.15))))))
+    (check (and (every (lambda (name) (eq (m name) (hs-scaled name 0))) *hs-k-string*) (eq (hs-scaled :hs-k1 60) (hs-scaled :hs-k1 99))
+                (~= 9.6 (mv-reach (hs-scaled :hs-k1 60))) (~= 4.48 (mv-reach (hs-scaled :hs-k3 60)))))
+    ;; the charge's life on stand-ins (HS-TICK): a windmill keeps it; the K string it started plays each link's copy (K1, K2,
+    ;; K3 swapped in); any other move (the one-handed J2 off K1), neutral, a hit taken: reset; a K string not from a windmill
+    ;; (KSTR NIL) never scales; the far return measured from the throw's charged chain; the whiff's anchor at the charged line
+    (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))
+      (let ((fa (fighter a)) (ga (gauges a)) (st (hs a)))
+        (declare (ignorable b))
+        (t-at a 0 0) (t-at b 0 -3)
+        (flet ((in (name &optional (sf 1)) (setf (fighter-state fa) :move (fighter-move fa) (m name) (fighter-phase fa) :main
+                                                 (fighter-sf fa) sf)))
+          (in :hs-kaza 20) (setf (hss-charge st) 25 (hss-kstr st) nil) (hs-tick a fa ga)
+          (check (and (= 25 (hss-charge st)) (eq (fighter-move fa) kz)))
+          (in :hs-kaza-j 20) (hs-tick a fa ga)
+          (check (= 25 (hss-charge st)))
+          (setf (hss-kstr st) t)
+          (dolist (name *hs-k-string*)
+            (in name) (hs-tick a fa ga)
+            (check (or (and (eq (fighter-move fa) (hs-scaled name 25)) (= 25 (hss-charge st)) (hss-kstr st))
+                       (format t "  Hisagi S1 swap ~a~%" name))))
+          (in :hs-j2-1h) (hs-tick a fa ga)
+          (check (and (= 0 (hss-charge st)) (null (hss-kstr st)) (eq (fighter-move fa) (m :hs-j2-1h))))
+          (setf (hss-charge st) 40) (in :hs-k1) (hs-tick a fa ga)            ; (K1 from neutral: no windmill, no scale)
+          (check (and (eq (fighter-move fa) (m :hs-k1)) (= 0 (hss-charge st))))
+          (setf (hss-charge st) 40 (hss-kstr st) t) (in :hs-k2) (setf (fighter-state fa) :stun) (hs-tick a fa ga)
+          (check (and (= 0 (hss-charge st)) (null (hss-kstr st))))
+          (setf (hss-charge st) 40 (hss-kstr st) t) (setf (fighter-state fa) :idle (fighter-move fa) nil) (hs-tick a fa ga)
+          (check (and (= 0 (hss-charge st)) (null (hss-kstr st))))
+          ;; NAGE at x1.6: the sickle out with its charge, the whiff's anchor at 9.6 m, the chain-length return at 6.5 x 1.6
+          (setf (hss-state st) :in (hss-charge st) 60 (hss-kstr st) t)
+          (in :hs-k1 (+ (mv-s (m :hs-k1)) (mv-a (m :hs-k1)) -1)) (hs-tick a fa ga)
+          (hs-throw-out a)
+          (check (and (eq :out (hss-state st)) (= 60 (hss-throw-n st))))
+          (hs-tick a fa ga)
+          (check (and (hss-anchored st) (~= -9.6 (aref (hss-anchor st) 1)) (~= 0.0 (aref (hss-anchor st) 0))))
+          (setf (fighter-state fa) :idle (fighter-move fa) nil) (hs-tick a fa ga)
+          (check (and (eq :out (hss-state st)) (> (hs-hand-dist a) *hs-chain-max*)))    ; (9.15 m: inside 10.4)
+          (setf (hss-throw-n st) 0) (hs-tick a fa ga)
+          (check (eq :ret (hss-state st)))                                    ; (an uncharged throw's 6.5 m)
+          (hs-reset a)
+          (check (and (eq :in (hss-state st)) (= 0 (hss-charge st))))
+          (check (search " k0--0" (hs-hash a)))
+          (setf (hss-charge st) 12 (hss-kstr st) t (hss-kz-let st) t)
+          (check (search " k12KL" (hs-hash a)))
+          (hs-kaza-start a)
+          (check (and (= 0 (hss-charge st)) (null (hss-kstr st)) (null (hss-kz-let st))))
+          (setf (fighter-state fa) :idle (fighter-move fa) nil))))
+    ;; the ender push stays measured from the uncharged 6.0 m (a restarted string is uncharged; the O lane / SP1 reach it)
+    (check (~= 6.0 (ender-push-reach k (hs-scaled :hs-k3 60) (m :hs-k1))))))
 
 ;;; ================================================================ Hisagi's Bankai (docs/duel/DUEL_HISAGI.md §17, batch B2b)
 ;; the ranged mode (§17.1) and the bind mode (§17.3) as their tables; the budget's own rows (the generic string walk above
