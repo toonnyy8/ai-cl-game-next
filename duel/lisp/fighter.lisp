@@ -675,6 +675,9 @@ action started."
               (cond ((and pip (< (gauges-meter (gauges e)) 1f0))   ; a K link with no pip left: the string ends here
                      (setf (fighter-queued f) nil)
                      nil)
+                    ((let ((h (kit-hook kit :link-ok))) (and h (not (funcall h e next))))   ; the kit refuses this link
+                     (setf (fighter-queued f) nil)                                      ;  (Hisagi: one leap a combo): it ends
+                     nil)
                     (t (when pip (setf (gauges-arm-owed (gauges e)) t))   ; the string's one pip, charged when it ends
                        (cold-spend! e kit q)                             ; each link's cold (Rukia)
                        (start-move e next (if (eq q :q) :quick :flash))
