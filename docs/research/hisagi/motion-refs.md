@@ -417,6 +417,8 @@ in the pin without the throw); J3 and the windmill's push are both flat spins (d
 
 ### 3.2 Bankai 風死絞縄: the ranged mode (`:bankai`, §17.1)
 
+**Approved (the user, 2026-10-18: 「可以，記得動作要配合誇張而明顯的前搖，來呈現出充滿張力的打擊感」)** with the revision below; every Bankai clip gets an exaggerated, readable windup inside the move's startup (DUEL_HISAGI §21.7).
+
 **Look in motion** (A picture + B): wrapped in his own chain (neck, right arm), a **single black crescent** in each
 hand (superseded: the Shikai's S-pair, see the revision below), the orb above, the thick twisted chain rope from his neck to it. **Idle** (A, the CFYOW illustration): standing
 straight and still, **arms hanging, the crescents point-down, chains pooling at his feet**; the stillness is the

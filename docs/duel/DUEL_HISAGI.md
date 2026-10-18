@@ -1286,9 +1286,28 @@ opaque and unshaded, near-black, no edge; `*HS-CHAIN-BLACK*` set by HISAGI-DRAW 
 coils and the orb were already black meshes. The Shikai's chain keeps the ink look. The engine's palettes are untouched,
 because a 17th palette would collide with the fan flag at 16. Proof: the same identity checks, debug 83901 0 B.
 
+### 21.7 The Bankai's slot plan (approved: the user, 2026-10-18: 「可以，記得動作要配合誇張而明顯的前搖，來呈現出充滿張力的打擊感」)
+
+The plan is `motion-refs.md` §3.2 (the ranged mode, re-sourced per §21.5: K1 / K2 / L / KUBIKAKE from the hanging
+chains, O 降鎖 from the neck bundle, J3 sweeps the nearest hanging chains, K3 / SP2 from the orb, J1 / J2 / SP1 / the
+Breaker as tabled) and §3.3 (the bind mode, K2 from a hanging chain instead of the arm coil), with the CFYOW idle
+(standing still, arms hanging, the crescents point-down). Hit volumes and frame data unchanged.
+
+The user's direction for every Bankai clip: **exaggerated, obvious anticipation (前搖) for a tense, heavy hit.** In
+this presentation-only batch that means the clip's anticipation fills the move's existing startup (`:s` frames; the
+ranged mode's are already long, §17.1). Each windup gets a big readable pose held near its peak:
+- the arm drawn far back, the body coiled away from the line;
+- the crescent raised high;
+- the hanging chain hauled up and taut;
+- the neck bundle lifted.
+
+Then a sharp release on the strike's first active frame (few in-betweens, overshoot) and a held follow-through
+(the ink style's anticipation → snap → hold, `procedural-ink-style`). No frame data moves. If a move's startup is too
+short to carry a readable windup, report it with its numbers instead of changing it.
+
 ## 18. Open
 
-- The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); next its slot plan (`motion-refs.md` §3.2–§3.3, re-sourced per §21.5) for the user's 「可以」. Still open: the awaken A/B (§20.9), waiting on the user's playtest.
+- The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), clips in progress (batch B3b). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
 
