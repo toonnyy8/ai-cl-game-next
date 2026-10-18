@@ -1397,6 +1397,30 @@ from the front (1280×720); six slots in portrait (720×1280); eight in the matc
 - The Kikon cinematics still play B2a's `:hs-kari-o` (§11.5's storyboard is its own batch); the opponent's reel is the
   shared clip.
 
+## 22. The two Bankai modes made distinct (the user, 2026-10-18)
+
+The user's playtest: 「目前近遠程的攻擊模組看不出各自的特色」.
+
+**Diagnosis (the lead).**
+- Both modes share one grammar: J1–J3 then K1–K3, the same recoveries, block advantages, guard values and hit
+  reactions (§17.1 / §17.3).
+- The ranged mode differs only by +3–4 f of startup and longer reach. Its J2, J3, K2 and K3 hit at point blank (only
+  J1, K1 and KUBIKAKE carry `:no-close`).
+- Both modes play from the same blade-in-hand stance (§21.8). The bind adds only the noose.
+
+**Options offered:**
+- A: the ranged mode as a placed zone game (standalone moves, delayed chain drops at a chosen spot, hits pushing out,
+  nothing inside 2 m).
+- B: the bind as a faster rushdown.
+- C: the looks and stances pulled apart.
+- D: distance sweet spots (the ranged mode's chain tip strong, close weak; the bind the reverse).
+
+**The user's choice:** A + C + D, plus 「遠程攻擊有效利用鎖鏈球拉動垂鏈迴轉對遠程進行抽打」. The orb turns and drags the
+hanging chains round in a carousel, lashing out at range. B is not taken: the bind keeps its timing.
+
+The proposal table (§22.1) goes to the user for a 「可以」 before anything is built. This is a sim change: his 7 pairings
+get gated against the parent, and his CPU learns the new moves.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
