@@ -1836,7 +1836,8 @@ link, the user's U → L).
   `:clip-s`); the others name their own clips, played through the Bankai's `:clip-map` as stand-ins
   (`*hs-r-clip-stand-ins*`): K1 `:hs-k-hosoku` → SAHARAI's ring, spread K2s `:hs-k-s-k2` → NAGISA, spread K3 `:hs-k-s-k3`
   → RAKUSA, gathered K2 `:hs-k-g-k2` → TSUISA, J2s `:hs-k-g-j2` → SABEN, K3G `:hs-k-g-k3` → SAHARAI, J3G `:hs-k-g-j3` →
-  SENSA. The host's drawn-reach checks skip the stand-ins; B4b deletes each entry it draws.
+  SENSA. The host's drawn-reach checks skip the stand-ins; B4b deletes each entry it draws. (Drawn by batch A2 and their
+  entries deleted, §24.2.)
 
 **The CPU** (`duel-character-cpu`: one roll per event, EASY ≤ NORMAL ≤ HARD).
 - The opener is the route: his ranged `:moves` bands 0–2 m K1 3 / L 3 / Step 3 / Breaker 1, 2–3 m **K1 5** / J1 2 /
@@ -1971,6 +1972,7 @@ SP2 262168, the first-call fx-buffer growth §21.8 noted (the marks' line gone).
   ranged SP2 is KUBIKAKE's clip (unchanged).
 - The drawn reach on the hit frames within 0.15 m of each volume's far edge (the host checks read `*hs-strike-reach*`,
   `*hs-letout*`, `*hs-bk-chains*`); then delete the move's entry from `*hs-r-clip-stand-ins*`.
+- (The seven ranged route links and the look: drawn by batch A2, §24.2; the bind's L / SP2: batch A3.)
 
 ### 22.7 B5 cinematics as built (2026-10-18)
 
@@ -2142,7 +2144,8 @@ What changes (the lead's numbers for the user's direction; batch B4d, a sim chan
   annulus 2.0–4.0 m all round (a hurt cylinder from 2.0 to 4.36 m). S 16 / A 4 / R 22 / 40 / guard 14 / −3, stagger,
   `:no-close`, `:clip-s 14` unchanged. The tip ×1.3 follows from the volume (HS-DIST-MULT reads the arc's r): 3.0–4.0 m.
   It still plays SAHARAI's ring as its stand-in (`*hs-r-clip-stand-ins*`, drawn at r 3.0), so the host drawn-reach checks
-  still skip it, as in B4c; the art pass B4b draws it to 4.0 m and deletes the entry. No art table changed.
+  still skip it, as in B4c; the art pass B4b draws it to 4.0 m and deletes the entry. No art table changed. (Drawn to 4.0 m by
+  batch A2, its entry deleted, §24.2.)
 - **The ranged L 鎖払** (`:hs-r-l`): new knobs `*hs-saharai-s*` 14 → **10**, `*hs-saharai-r*` 22 → **32**,
   `*hs-saharai-adv*` −4 → **−16** (docstrings: the user's words, the lead's numbers, 2026-10-18); `:cooldown 120` removed
   (→ 0). Volume (360°, r 3.0), damage 30, guard 14, the hit push to 6.5 m and the block push to 4.5 m unchanged. Its clip is
@@ -2582,9 +2585,102 @@ stand-in list.
    then the reap; SP2 KAIBAKU-GEKI's own release-and-strike (the noose thrown off at f18, then the 3.0 m 140° blow; now
    HIKIYOSE's gesture); the ranged L 鎖払's recovery drawn to its 32 f (now the clip's end pose held).
 
+### 24.2 Batch A2 as built (2026-10-18)
+
+> 「可以，照這個順序開始畫」 (the user, 2026-10-18, approving §24's order; this is its batch A2)
+
+The seven ranged route links get their own clips, and the Bankai gets the carousel and its two stances. All of it is in
+`duel/lisp/hisagi-art.lisp` ("The ranged route links", "The carousel, the lashes, the bundle", the bind's stance). In
+`hisagi.lisp` only presentation keys change:
+- the seven moves' `:clip-s` now equals their S, so each clip plays at speed 1;
+- `*hs-r-clip-stand-ins*` keeps only the bind SP2's entry (batch A3);
+- the bind kit gets `:stance :hs-kb-stance` and `:look-clips *hs-kb-looks*`.
+
+**Presentation only.** No frame data, volume, damage, reaction, flag or knob changed. B3b's dormant TSUISA, NAGISA and
+RAKUSA clips are deleted: no move had played them since B4a, and the stand-ins were their only use.
+
+**The lashes** (`*hs-lashes*`, drawn by `%hs-curtain-draw`).
+- Every strike is drawn from the orb as a cubic: down past a knee near him, then out to its free end.
+- The middle is lifted by the key's bend, or laid along the floor by a negative bend.
+- The chain lags behind its own motion: the middle is dragged toward where the end was 2 frames earlier, at most 1.8 m.
+- It tapers toward the free end while it lashes.
+- A strike (the end moving faster than 1.2 m a frame) leaves a black trail over its last 2 frames. A haul leaves none.
+- No lash is a straight line on its strike frames: the lag, the bend and the travelling wave (J2s) bend it.
+- Spread links use the separate hanging chains at ×0.8 width. Gathered links use **the bundle**: all eight hanging
+  chains twisted round one cubic (4 turns, tight below, fanning out under the orb).
+- The bundle is bound by K1 over f21–26 and held through every gathered link (`*hs-bundled*`). Outside those clips it
+  comes apart into the curtain over 0.25 s.
+- The keys give each end's r / h / az / bend per clip frame. The rank stagger spreads a fan over a fraction of a frame.
+
+| Move | Clip (S/A/R) | Windup (held) | Strike | Measured drawn reach on the hit frames (83902) vs edge |
+|---|---|---|---|---|
+| K1 綁束 | `:hs-k-hosoku` (16/4/22) | the stir: right arm overhead, circling every 3 f, coiled right on the back foot (f6–14); all eight chains hauled in and up round his head, swirling with the orb | unwound left with the spin, arms flung wide; the eight whirled out to 4.0 m, a key each 90° (f16–19); wound in and bound into the bundle at his right front (f21–26), right fist low on it | 4.00 ×4 vs 4.0 (arc) |
+| spread K2 | `:hs-k-s-k2` (21/4/24, link f6) | whip-crack: right arm up and back over his shoulder, arched, left hand pointing (f10–18); chains 1 2 5 6 hauled up high behind him | over the top and onto the ground in a 60° fan at 6 m, lying there to f30 | 6.00 ×4 vs 6.0 (arc) |
+| spread K3 | `:hs-k-s-k3` (21/5/34, link f6) | the curtain drawn back: arms flung back and wide, chest out (f9–19); all eight hauled back high behind him | both arms swept forward in a lunge; all eight lashed forward in a 160° fan to 6 m (0.45 f apart), settling to the floor | 6.00 ×5 vs 6.0 (arc) |
+| gathered K2 束打 | `:hs-k-g-k2` (27/10/24, link f6) | the heave: both fists up over his right shoulder, sunk on the back leg (f16–24); the bundle hauled up high behind him | the U: bent double, the bundle arcs over and slams 4.0 m ahead (f27–30); the L: a shove at f33, its tail lashed on along the ground to 8.5 m, left lying flat (to f46) | 4.00 ×4 vs 4.0, then 8.50 ×4 vs 8.5 (lines) |
+| gathered K3 束旋 | `:hs-k-g-k3` (27/5/34, link f6) | the lying bundle dragged in hand over hand (f10 / f15), then round to his right and wound up, crouched (f20–26) | the body turned with it, arms flung out; the bundle whirled round him at 6 m, a key each 90° (f27–31) | 6.00 ×5 vs 6.0 (arc) |
+| gathered J2 束鞭 | `:hs-k-g-j2` (16/3/13) | the bundle cocked back by his right hip, fist drawn back low, coiled (f6–14) | a lunging punch; the bundle straight down the line at chest height, a wave running out along it | 5.50 ×3 vs 5.5 (line) |
+| gathered J3 束薙 | `:hs-k-g-j3` (16/3/18) | wound low to his right, both fists by his right knee (f5–14); the bundle drawn round behind his right | unwound left; the bundle swept flat through the front half at 5 m (f16–18) | 5.00 ×3 vs 5.0 (arc) |
+
+**The tells.**
+- Gathered links read heavier: longer holds, the bundle hauled high, the whole body heaving.
+- Spread links read quicker: a one-arm crack or a two-arm fling.
+- The startups are as before: the spread links' effective S is 15 (link f6), and their holds are 8–10 f.
+
+**The carousel** (`%hs-car!`, `*hs-spins*`, `*hs-car-w*`).
+- The orb's phase turns at 0.25 rad/s (the orb's own turn of §21.6). The eight hanging chains orbit him with it.
+- A chain passing ahead of him or behind him (within about ±45°) is lifted 2.4 m and drawn in by 35%. §21.6's rule
+  stands: none hangs between the fighters or before the behind camera.
+- Each ranged strike clip (the seven new ones and B3b's J1 / J2 / J3 / L / SP1 / SP2 / O / KUBIKAKE) jerks the orb and
+  the curtain into a spin. It turns 0.5–1 turns: winding up from the windup's start, fastest at S, done by about S+10.
+- When the clip changes, the spin is banked into the phase, so a link that cuts it short never makes the curtain jump.
+- The §21.8 chain strikes start from and return to where the carousel has their chain.
+
+**The stances.**
+- Ranged: unchanged (§21.8: arms hanging, the crescents point-down at his sides, still), with the carousel turning
+  round him.
+- Bind (`:hs-kb-stance`, its walk `:hs-kb-walk-f/-b`, `-strafe-r/-l`): sunk low over bent knees, leaning in, the right
+  crescent gripped up at his chest, the left low. His left fist holds a chain run taut to the opponent's noose
+  (`*hs-kb-grip-clips*`: in a bind, the stance and walk only).
+- The blades stay the Shikai's S-pair. P1's chains are solid black, P2's the white-edged ink (§22.10).
+
+**Debug.** 83500+k slots 26–32 are the seven route links and 33 the bind's stance (DUEL_GAMEPLAY "Debug commands"; the
+slot list there corrected to k 0–33). 83901 adds the route links and the bind's stance. 83902 prints each hit window's
+edge.
+
+**Verification.**
+- `simgate --seeds 10 --summary` (56 lines) and `--cvc` (yy / yk / kk PASS) are byte-identical to the parent 6548ee0
+  (`cmp`, the `[simgate] building` lines filtered).
+- duel-rules-test: 9850 checks ALL PASS (9809 at the parent). The FK reach test now covers the seven moves through
+  `*hs-strike-reach*`. The tie check walks every hit window of the ranged and bind chain moves; it adds the seven moves,
+  evaluates `*hs-lashes*`' keys on their hit frames, and wants no stand-in for them.
+- duel-control-test 89, learn-test 131 and cine-test 18 ALL PASS. `tools/pkgcheck.sh duel` is clean.
+- `./build.sh duel` shows only the 4 known Lille style warnings.
+- Debug 83901 is 0 B in every state on the repeat call, the route links and the bundle included. The first call after a
+  scene grows the fx vertex buffer once, as §21.8 noted: 131 KB at KUBIKAKE and 262 KB at KOSA, or 524 KB at the bind's
+  stance after 83902's scene.
+- Browser smoke (`run.mjs --fixed-dt 16.666667`) ran with no JS / WebGPU error:
+  - 83016: K K K and K J J;
+  - 83017: J K K and J J K;
+  - 83012: the bind;
+  - 83018: the CPU zone game for 14 s;
+  - the strips 83500+26 … 33, both card views.
+
+**Known issues** (checked by numbers, needs your eyes):
+- From the behind camera the bundle and the chains come down from above the frame (the orb is out of it, §21.6). The
+  gathered K2's U reads mostly by its slam and the shove; the side view shows the whole arc.
+- The trails read as black blades on the spins (K1, K3G): wide and fast by design.
+- Thin spread chains are hair-thin in the 12 m wide stills.
+- At rest the carousel lifts a chain as it passes ahead of him or behind him. That cannot show in stills: the phase
+  advances only with live effect time.
+- The ranged stance is §21.8's, now with the carousel turning round it. It is not a new pose.
+- The bind leash runs to the hidden opponent's unposed neck on the card stills (as the noose does, §21.8).
+- B3b's J1 / J2 / J3 crescents still start in the fist.
+
 ## 18. Open
 
-- The art pass (§24): batches A1 (the Shikai), A2 (the Bankai ranged mode and the look), A3 (the bind), in that order.
+- The art pass (§24): batches A1 (the Shikai), A2 (the Bankai ranged mode and the look; built, §24.2, waiting on the
+  playtest), A3 (the bind), in that order.
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
 - The two modes made distinct (§22): B4a built (§22.2: the sim, the CPU, a placeholder look); open: the playtest, his 7 pairings at 20 seeds and his awaken A/B, the art pass B4b.

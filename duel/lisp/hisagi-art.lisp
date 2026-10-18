@@ -206,11 +206,15 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
                                   (:hs-k-saben :sickle 5.0) (:hs-k-kaeshi :sickle 4.5) (:hs-k-sensa :sickle 5.0)  ; (the Bankai's,
                                                                                 ;  §21.8; B4a: the annuli's 4.5 / 5.0, the K placed, §22.2: the
                                   (:hs-kb-kaeshi :sickle 1.5) (:hs-kb-hikigiri :sickle 2.95)                    ;  ranged mode,
-                                  (:hs-kb-makigiri :chain 2.8) (:hs-kb-shibori :chain 2.95))                    ;  the bind's)
+                                  (:hs-kb-makigiri :chain 2.8) (:hs-kb-shibori :chain 2.95)                     ;  the bind's)
+                                  (:hs-k-hosoku :chain 4.0) (:hs-k-s-k2 :chain 6.0) (:hs-k-s-k3 :chain 6.0)    ; (A2, §24.2: the
+                                  (:hs-k-g-k2 :chain 4.0) (:hs-k-g-j2 :chain 5.5) (:hs-k-g-k3 :chain 6.0)     ;  ranged route
+                                  (:hs-k-g-j3 :chain 5.0))                                                    ;  links, *HS-LASHES*)
   "Clip -> what strikes, and its drawn reach (m, the hit volume's far edge: line end + radius, or the arc's): the left
 sickle thrown on its chain, drawn by HISAGI-DRAW with its point there on the hit frames (*HS-FLIGHTS*), a sickle let out
 on its chain to there (*HS-LETOUT*: J2, J3, KARI-OTOSHI's two at the fan's edges; the Bankai's hand chains), or the Bankai's
-chain strike's free end (*HS-BK-CHAINS*: from a hanging chain, the neck bundle or the orb); the host FK test reads these
+chain strike's free end (*HS-BK-CHAINS*: from a hanging chain, the neck bundle or the orb; *HS-LASHES*: the ranged route
+links' lashes, the first hit window's edge, gathered K2's second 8.5 m); the host FK test reads these
 (as Senjumaru's *SJ-STRIKE-REACH*), and a host check ties them to those tables.")
 (defparameter *hs-flights* '((:hs-k1 6.0 nil) (:hs-k2s 3.55 t) (:hs-shibari 4.85 nil) (:hs-raiden 6.8 nil)
                              (:hs-kikon 8.0 nil))
@@ -788,69 +792,8 @@ draws the left one; both the chain from the fist.")
   (22 :hs-k-sensa-hit (:root :yaw 84 :u -0.08) (:chest :twist 20) (:arm-r :flex 60 :side 70) (:arm-l :flex 70 :side 60))
   (:end :hs-k-stance))
 
-;; K1 墜鎖 TSUISA (22/4/22, the 7.5 m line): the signal, the right crescent raised high over him, arched back, the left
-;; hand pointing at him, the hanging chain at his right front hauled up taut (held f7-19); cut down toward him: the chain
-;; snaps out level along the line at 1.1 m (*HS-BK-CHAINS*; on a hit it stays hooked in him through the drag)
-(defpose :hs-k-tsuisa-up (:base :hs-k-stance)
-  (:root :u 0.02 :f -0.06 :yaw -12) (:spine :flex -18) (:chest :twist -20) (:head :flex -14)
-  (:arm-r :flex 176 :side 18 :twist 0) (:elbow-r :flex 16) (:hand-r :flex -50)
-  (:arm-l :flex 84 :side 14 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -70)
-  (:thigh-r :flex -22 :side 8) (:knee-r :flex 20) (:thigh-l :flex 22 :side 8) (:knee-l :flex 10))
-(defpose :hs-k-tsuisa-hit (:base :hs-k-stance)
-  (:root :f 0.2 :u -0.22 :yaw 8) (:spine :flex 26) (:chest :twist 14) (:head :flex -6)
-  (:arm-r :flex 72 :side 8 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -90)
-  (:arm-l :flex -30 :side 26 :twist 0) (:elbow-l :flex 40) (:hand-l :flex -70)
-  (:thigh-l :flex 52 :side 8) (:knee-l :flex 52) (:thigh-r :flex -30 :side 10) (:knee-r :flex 16))
-(defstrike :hs-k-tsuisa (22 4 22 :base :hs-k-stance)
-  (0)
-  (7 :hs-k-tsuisa-up)
-  (19 :hs-k-tsuisa-up (:root :u 0.03) (:spine :flex -22) (:arm-r :flex 182))
-  (:s :snap :hs-k-tsuisa-hit)
-  (:a :hs-k-tsuisa-hit (:root :u -0.26) (:spine :flex 32) (:arm-r :flex 50))
-  (36 :hs-k-tsuisa-hit (:root :u -0.25) (:spine :flex 30) (:arm-r :flex 54))
-  (:end :hs-k-stance))
-
-;; K2 薙鎖 NAGISA (24/4/24, link f6; 6.0 m arc 140): coiled to his left, crouched, the left arm flung back low behind him,
-;; the hanging chain at his left hauled up (held f13-21); swept across low left to right: the chain reaps the floor
-(defpose :hs-k-nagisa-up (:base :hs-k-stance)
-  (:root :u -0.24 :yaw 40) (:pelvis :twist 10) (:spine :flex 22) (:chest :twist 42) (:neck :twist -30) (:head :flex 0)
-  (:arm-l :flex -50 :side 64 :twist 0) (:elbow-l :flex 16) (:hand-l :flex -90)
-  (:arm-r :flex 80 :side -20 :twist 0) (:elbow-r :flex 100) (:hand-r :flex -40)
-  (:thigh-r :flex 56 :side 10) (:knee-r :flex 70) (:thigh-l :flex 0 :side 16) (:knee-l :flex 56))
-(defpose :hs-k-nagisa-hit (:base :hs-k-stance)
-  (:root :f 0.12 :u -0.3 :yaw -20) (:spine :flex 28) (:chest :twist -30) (:head :flex 0)
-  (:arm-l :flex 104 :side 56 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -90)
-  (:arm-r :flex -30 :side 30 :twist 0) (:elbow-r :flex 40) (:hand-r :flex -70)
-  (:thigh-l :flex 50 :side 10) (:knee-l :flex 70) (:thigh-r :flex -10 :side 14) (:knee-r :flex 50))
-(defstrike :hs-k-nagisa (24 4 24 :base :hs-k-stance)
-  (0 :hs-k-tsuisa-hit (:root :u -0.25) (:spine :flex 30) (:arm-r :flex 54))
-  (6 :hs-k-tsuisa-hit (:root :u -0.24) (:spine :flex 28) (:arm-r :flex 56))
-  (13 :hs-k-nagisa-up)
-  (21 :hs-k-nagisa-up (:root :yaw 46) (:chest :twist 48) (:arm-l :flex -58))
-  (:s :snap :hs-k-nagisa-hit)
-  (:a :hs-k-nagisa-hit (:root :yaw -36) (:chest :twist -44) (:arm-l :flex 146 :side 66))
-  (38 :hs-k-nagisa-hit (:root :yaw -32 :u -0.28) (:chest :twist -40) (:arm-l :flex 140 :side 62))
-  (:end :hs-k-stance))
-
-;; K3 落鎖 RAKUSA (24/5/34, link f6; the 7.5 m line, r 0.5; ender): both crescents lifted high overhead, arched, on his
-;; toes (held f13-22); brought down hard, bent double: four chains drop out of the orb onto the line (*HS-BK-CHAINS*)
-(defpose :hs-k-rakusa-up (:base :hs-k-stance)
-  (:root :u 0.04 :f -0.06) (:spine :flex -20) (:chest :twist 0) (:head :flex -20)
-  (:arms :flex 178 :side 16) (:elbows :flex 12) (:hands :flex -40)
-  (:thigh-l :flex 14 :side 8) (:knee-l :flex 6) (:thigh-r :flex -12 :side 8) (:knee-r :flex 4))
-(defpose :hs-k-rakusa-hit (:base :hs-k-stance)
-  (:root :f 0.14 :u -0.34) (:spine :flex 40) (:head :flex -20)
-  (:arms :flex 62 :side 22) (:elbows :flex 4) (:hands :flex -80)
-  (:thigh-l :flex 62 :side 12) (:knee-l :flex 80) (:thigh-r :flex -6 :side 14) (:knee-r :flex 60))
-(defstrike :hs-k-rakusa (24 5 34 :base :hs-k-stance)
-  (0 :hs-k-nagisa-hit (:root :yaw -32 :u -0.28) (:chest :twist -40) (:arm-l :flex 140 :side 62))
-  (6 :hs-k-nagisa-hit (:root :yaw -30 :u -0.27) (:chest :twist -38) (:arm-l :flex 136 :side 60))
-  (13 :hs-k-rakusa-up)
-  (22 :hs-k-rakusa-up (:root :u 0.05) (:spine :flex -24) (:arms :flex 186))
-  (:s :snap :hs-k-rakusa-hit)
-  (:a :hs-k-rakusa-hit (:root :u -0.36) (:spine :flex 46))
-  (46 :hs-k-rakusa-hit (:root :u -0.35) (:spine :flex 44))
-  (:end :hs-k-stance))
+;; (B3b's K1 墜鎖 TSUISA, K2 薙鎖 NAGISA and K3 落鎖 RAKUSA clips: no move's since B4a's placed K and B4c's routes; deleted
+;; by batch A2, §24.2, when the route links got their own clips)
 
 ;; L 鎖払 SAHARAI (14/4/22, r 3.0 360): the wrap, the arms crossed tight over his chest, curled, the curtain drawn in and
 ;; up round him (held f6-12); the burst: the arms flung wide, arched, every hanging chain flung out to 3 m in a ring
@@ -997,7 +940,229 @@ draws the left one; both the chain from the fist.")
   (44 :hs-k-kubi-hit (:root :f 0.08 :u -0.1) (:spine :flex 6) (:chest :twist -4) (:arm-l :flex 36 :side 20) (:elbow-l :flex 110))
   (:end :hs-k-stance))
 
+;;; The ranged route links (batch A2, DUEL_HISAGI §24.2; the routes §22.4 / §22.6): each its own clip at its move's frames
+;;; (the moves' :clip-s = their S). He signals, the orb's chains strike (*HS-LASHES*: lagging, tapered lashes from the orb
+;;; with a trail, the spread links' thin hanging chains, the gathered links' one bundle of all eight); the windups are big
+;;; and held (the user, 2026-10-18: 「動作要配合誇張而明顯的前搖」), the gathered ones longer and heavier.
+;; K1 綁束 HOSOKU (16/4/22, the annulus 2.0-4.0 m, 360 deg; the gathered opener): the stir: the right arm up over his head
+;; circling (a key every 3 f: the orb winding, the curtain drawn in and up round him), coiled to his right on the back foot
+;; (held f6-14); the fling on S: unwound to his left with the spin, the arms flung wide, every hanging chain whirled out to
+;; 4.0 m round him (a key each 90 deg, f16-19); the haul: his fists brought in, the chains wound in and bound into one
+;; bundle at his right front (f21-26), the right fist low on it
+(defpose :hs-k-hosoku-up (:base :hs-k-stance)
+  (:root :u -0.16 :f -0.06 :yaw -36) (:pelvis :twist -10) (:spine :flex 8) (:chest :twist -34) (:neck :twist 24) (:head :flex -12)
+  (:arm-r :flex 168 :side 22 :twist 0) (:elbow-r :flex 64) (:hand-r :flex -30)
+  (:arm-l :flex 46 :side -28 :twist 0) (:elbow-l :flex 96) (:hand-l :flex -50)
+  (:thigh-r :flex -18 :side 10) (:knee-r :flex 46) (:thigh-l :flex 34 :side 10) (:knee-l :flex 30))
+(defpose :hs-k-hosoku-hit (:base :hs-k-stance)
+  (:root :u -0.26 :yaw 30) (:pelvis :twist 8) (:spine :flex 18) (:chest :twist 26) (:neck :twist -10) (:head :flex 0)
+  (:arm-r :flex 20 :side 96 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -90)
+  (:arm-l :flex 20 :side 96 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -90)
+  (:thigh-l :flex 40 :side 16) (:knee-l :flex 50) (:thigh-r :flex 0 :side 18) (:knee-r :flex 44))
+(defpose :hs-k-hosoku-bind (:base :hs-k-stance)       ; bound: the right fist low ahead on the bundle, the left at his chest
+  (:root :u -0.12 :yaw -8) (:spine :flex 12) (:chest :twist -8) (:head :flex 4)
+  (:arm-r :flex 40 :side 34 :twist 0) (:elbow-r :flex 36) (:hand-r :flex -70)
+  (:arm-l :flex 70 :side -10 :twist 0) (:elbow-l :flex 110) (:hand-l :flex -40)
+  (:thigh-l :flex 22 :side 8) (:knee-l :flex 26) (:thigh-r :flex -8 :side 10) (:knee-r :flex 24))
+(defstrike :hs-k-hosoku (16 4 22 :base :hs-k-stance)
+  (0)
+  (6 :hs-k-hosoku-up)
+  (9 :hs-k-hosoku-up (:arm-r :side 40 :twist 30) (:elbow-r :flex 50))
+  (12 :hs-k-hosoku-up (:arm-r :side 6 :twist -24) (:elbow-r :flex 72))
+  (14 :hs-k-hosoku-up (:root :yaw -44 :u -0.18) (:chest :twist -42) (:arm-r :flex 174 :side 30 :twist 20))      ; cocked
+  (:s :snap :hs-k-hosoku-hit)
+  (17 :hs-k-hosoku-hit (:root :yaw 54) (:chest :twist 36))
+  (18 :hs-k-hosoku-hit (:root :yaw 72) (:chest :twist 40) (:arm-r :side 100) (:arm-l :side 100))
+  (:a :hs-k-hosoku-hit (:root :yaw 80 :u -0.24) (:chest :twist 42))
+  (26 :hs-k-hosoku-bind (:root :yaw 20))
+  (34 :hs-k-hosoku-bind)
+  (:end :hs-k-stance))
+
+;; spread K2 散鞭 (21/4/24, link f6; a 60 deg fan to 6.0 m): the whip-crack: the right arm swung up and far back over his
+;; shoulder, arched back, coiled to his right, the left hand pointing (held f10-18), four hanging chains hauled up high
+;; behind him; cracked down on S: the arm flung down ahead, pitched over the front knee, the four whipping the ground in a
+;; fan at 6 m and lying there (to f30)
+(defpose :hs-k-sk2-up (:base :hs-k-stance)
+  (:root :u -0.04 :f -0.1 :yaw -22) (:spine :flex -22) (:chest :twist -26) (:head :flex -14)
+  (:arm-r :flex 160 :side 34 :twist 0) (:elbow-r :flex 96) (:hand-r :flex -20)
+  (:arm-l :flex 74 :side 10 :twist 0) (:elbow-l :flex 16) (:hand-l :flex -70)
+  (:thigh-r :flex -24 :side 8) (:knee-r :flex 30) (:thigh-l :flex 26 :side 8) (:knee-l :flex 14))
+(defpose :hs-k-sk2-hit (:base :hs-k-stance)
+  (:root :f 0.18 :u -0.26 :yaw 8) (:spine :flex 34) (:chest :twist 12) (:head :flex -10)
+  (:arm-r :flex 70 :side 6 :twist 0) (:elbow-r :flex 0) (:hand-r :flex -90)
+  (:arm-l :flex -30 :side 30 :twist 0) (:elbow-l :flex 40) (:hand-l :flex -70)
+  (:thigh-l :flex 54 :side 8) (:knee-l :flex 56) (:thigh-r :flex -30 :side 10) (:knee-r :flex 18))
+(defstrike :hs-k-s-k2 (21 4 24 :base :hs-k-stance)
+  (0 :hs-k-saben-hit (:root :yaw 22 :u -0.1) (:chest :twist 30) (:arm-r :flex 114 :side 78) (:elbow-r :flex 12))
+  (6 :hs-k-saben-hit (:root :yaw 20 :u -0.1) (:chest :twist 28) (:arm-r :flex 110 :side 76) (:elbow-r :flex 14))
+  (10 :hs-k-sk2-up)
+  (18 :hs-k-sk2-up (:root :yaw -26) (:spine :flex -26) (:arm-r :flex 166 :side 38))                            ; held
+  (:s :snap :hs-k-sk2-hit)
+  (:a :hs-k-sk2-hit (:root :u -0.3) (:spine :flex 40) (:arm-r :flex 56))
+  (30 :hs-k-sk2-hit (:root :u -0.28) (:spine :flex 38) (:arm-r :flex 58))
+  (:end :hs-k-stance))
+
+;; spread K3 散撃 (21/5/34, link f6; a 160 deg fan to 6.0 m; ender): the curtain drawn back: both arms flung back and wide,
+;; the chest thrown out, arched, every hanging chain hauled back high behind him (held f9-19); the fling on S: both arms
+;; swept forward and out together, a lunge onto the front foot, all eight lashed forward in a fan (a third of a frame
+;; apart), settling to the floor
+(defpose :hs-k-sk3-up (:base :hs-k-stance)
+  (:root :u -0.1 :f -0.1) (:spine :flex -24) (:chest :twist 0) (:head :flex -18)
+  (:arms :flex -52 :side 64) (:elbows :flex 12) (:hands :flex -80)
+  (:thigh-l :flex 20 :side 14) (:knee-l :flex 22) (:thigh-r :flex -16 :side 14) (:knee-r :flex 30))
+(defpose :hs-k-sk3-hit (:base :hs-k-stance)
+  (:root :f 0.2 :u -0.24) (:spine :flex 28) (:head :flex -6)
+  (:arms :flex 86 :side 52) (:elbows :flex 2) (:hands :flex -90)
+  (:thigh-l :flex 54 :side 12) (:knee-l :flex 54) (:thigh-r :flex -28 :side 12) (:knee-r :flex 16))
+(defstrike :hs-k-s-k3 (21 5 34 :base :hs-k-stance)
+  (0 :hs-k-sk2-hit (:root :u -0.28) (:spine :flex 38) (:arm-r :flex 58))
+  (6 :hs-k-sk2-hit (:root :u -0.27) (:spine :flex 36) (:arm-r :flex 60))
+  (9 :hs-k-sk3-up)
+  (19 :hs-k-sk3-up (:spine :flex -28) (:arms :flex -58 :side 68))                                                  ; held
+  (:s :snap :hs-k-sk3-hit)
+  (:a :hs-k-sk3-hit (:root :u -0.28) (:spine :flex 32) (:arms :flex 80 :side 60))
+  (36 :hs-k-sk3-hit (:root :u -0.26) (:spine :flex 30) (:arms :flex 76 :side 58))
+  (:end :hs-k-stance))
+
+;; gathered K2 束打 SOKUDA (27/10/24, link f6; hit 1 f27 on 2.0-3.5 m, hit 2 f33 on 3.5-8.0 m): the heave: both fists up
+;; over his right shoulder, sunk on the back leg, arched and coiled, the bundle hauled up high behind him (held f16-24);
+;; the U on S: both arms brought down over his head, bent double, the bundle arcing over and slammed onto the ground ahead
+;; (held to f30); the L at f33: a shove forward off the front foot, its tail lashed on along the ground to 8 m, left lying
+;; flat ahead
+(defpose :hs-k-gk2-up (:base :hs-k-stance)
+  (:root :u -0.2 :f -0.14 :yaw -30) (:pelvis :twist -10) (:spine :flex -22) (:chest :twist -40) (:neck :twist 20) (:head :flex -16)
+  (:arm-r :flex 164 :side 44 :twist 0) (:elbow-r :flex 92) (:hand-r :flex -30)
+  (:arm-l :flex 154 :side -12 :twist 0) (:elbow-l :flex 112) (:hand-l :flex -30)
+  (:thigh-r :flex -26 :side 10) (:knee-r :flex 52) (:thigh-l :flex 30 :side 10) (:knee-l :flex 24))
+(defpose :hs-k-gk2-hit (:base :hs-k-stance)
+  (:root :f 0.16 :u -0.36 :yaw 4) (:spine :flex 44) (:chest :twist 6) (:head :flex -14)
+  (:arms :flex 62 :side 12) (:elbows :flex 6) (:hands :flex -80)
+  (:thigh-l :flex 62 :side 12) (:knee-l :flex 76) (:thigh-r :flex -10 :side 14) (:knee-r :flex 52))
+(defpose :hs-k-gk2-shove (:base :hs-k-stance)
+  (:root :f 0.3 :u -0.3 :yaw 0) (:spine :flex 30) (:chest :twist 0) (:head :flex -4)
+  (:arms :flex 88 :side 10) (:elbows :flex 0) (:hands :flex -90)
+  (:thigh-l :flex 58 :side 10) (:knee-l :flex 50) (:thigh-r :flex -34 :side 12) (:knee-r :flex 16))
+(defstrike :hs-k-g-k2 (27 10 24 :base :hs-k-stance)
+  (0 :hs-k-hosoku-bind)
+  (6 :hs-k-hosoku-bind (:root :u -0.14))
+  (16 :hs-k-gk2-up)
+  (24 :hs-k-gk2-up (:root :u -0.22 :yaw -34) (:spine :flex -26) (:arm-r :flex 170) (:arm-l :flex 160))           ; held
+  (:s :snap :hs-k-gk2-hit)
+  (30 :hs-k-gk2-hit (:root :u -0.38) (:spine :flex 46))
+  (33 :snap :hs-k-gk2-shove)
+  (:a :hs-k-gk2-shove (:root :f 0.32))
+  (48 :hs-k-gk2-shove (:root :f 0.3 :u -0.28) (:spine :flex 28))
+  (:end :hs-k-stance))
+
+;; gathered K3 束旋 SOKUSEN (27/5/34, link f6; the annulus 2.0-6.0 m, 360 deg; ender): the haul: leaning back, the bundle
+;; dragged in off the floor hand over hand (f10 / f15), then swung round to his right and wound up, crouched (held f20-26);
+;; the spin on S: the whole body turned with it, arms flung out, the bundle whirled round him at 6 m (a key each 90 deg,
+;; f27-31), let fly through and settled
+(defpose :hs-k-gk3-haul (:base :hs-k-stance)
+  (:root :u -0.2 :f -0.14) (:spine :flex -16) (:chest :twist 0) (:head :flex -6)
+  (:arm-r :flex 40 :side 20 :twist 0) (:elbow-r :flex 100) (:hand-r :flex -60)
+  (:arm-l :flex 70 :side 6 :twist 0) (:elbow-l :flex 40) (:hand-l :flex -70)
+  (:thigh-l :flex 36 :side 10) (:knee-l :flex 30) (:thigh-r :flex -14 :side 12) (:knee-r :flex 40))
+(defpose :hs-k-gk3-up (:base :hs-k-stance)
+  (:root :u -0.3 :yaw -70) (:pelvis :twist -12) (:spine :flex 22) (:chest :twist -40) (:neck :twist 30) (:head :flex 0)
+  (:arm-r :flex -34 :side 62 :twist 0) (:elbow-r :flex 20) (:hand-r :flex -90)
+  (:arm-l :flex 60 :side -20 :twist 0) (:elbow-l :flex 60) (:hand-l :flex -70)
+  (:thigh-l :flex 50 :side 12) (:knee-l :flex 66) (:thigh-r :flex 8 :side 16) (:knee-r :flex 56))
+(defpose :hs-k-gk3-hit (:base :hs-k-stance)
+  (:root :u -0.2 :yaw 10) (:pelvis :twist 6) (:spine :flex 10) (:chest :twist 20) (:head :flex 0)
+  (:arm-r :flex 30 :side 94 :twist 0) (:elbow-r :flex 2) (:hand-r :flex -90)
+  (:arm-l :flex 20 :side 90 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -90)
+  (:thigh-l :flex 30 :side 16) (:knee-l :flex 40) (:thigh-r :flex 4 :side 18) (:knee-r :flex 38))
+(defstrike :hs-k-g-k3 (27 5 34 :base :hs-k-stance)
+  (0 :hs-k-gk2-shove (:root :f 0.3 :u -0.28) (:spine :flex 28))
+  (6 :hs-k-gk2-shove (:root :f 0.28 :u -0.28) (:spine :flex 26))
+  (10 :hs-k-gk3-haul)
+  (15 :hs-k-gk3-haul (:arm-r :flex 70 :side 6) (:elbow-r :flex 40) (:arm-l :flex 40 :side 20) (:elbow-l :flex 100))
+  (20 :hs-k-gk3-up)
+  (26 :hs-k-gk3-up (:root :yaw -80 :u -0.32) (:chest :twist -46))                                                 ; held
+  (:s :snap :hs-k-gk3-hit)
+  (29 :hs-k-gk3-hit (:root :yaw 60) (:chest :twist 30))
+  (31 :hs-k-gk3-hit (:root :yaw 104) (:chest :twist 36) (:arm-r :side 100) (:arm-l :side 98))
+  (:a :hs-k-gk3-hit (:root :yaw 112 :u -0.22) (:chest :twist 38))
+  (44 :hs-k-gk3-hit (:root :yaw 70 :u -0.16) (:spine :flex 6) (:arm-r :flex 10 :side 60) (:arm-l :flex 10 :side 60))
+  (:end :hs-k-stance))
+
+;; gathered J2 束鞭 SOKUBEN (16/3/13; the line 2.0-5.0 m at the chest): the bundle cocked back by his right hip, the right
+;; fist drawn back low, coiled, the weight back (held f6-14); the lash on S: the fist punched straight ahead in a lunge, the
+;; bundle straight out down the line at chest height, a wave running out along it
+(defpose :hs-k-gj2-up (:base :hs-k-stance)
+  (:root :u -0.16 :f -0.08 :yaw -30) (:spine :flex 6) (:chest :twist -36) (:neck :twist 24) (:head :flex 0)
+  (:arm-r :flex -52 :side 34 :twist 0) (:elbow-r :flex 86) (:hand-r :flex -40)
+  (:arm-l :flex 78 :side 10 :twist 0) (:elbow-l :flex 20) (:hand-l :flex -70)
+  (:thigh-r :flex -22 :side 10) (:knee-r :flex 40) (:thigh-l :flex 30 :side 8) (:knee-l :flex 22))
+(defpose :hs-k-gj2-hit (:base :hs-k-stance)
+  (:root :f 0.22 :u -0.16 :yaw 14) (:spine :flex 16) (:chest :twist 24) (:head :flex 0)
+  (:arm-r :flex 86 :side 4 :twist 0) (:elbow-r :flex 0) (:hand-r :flex -90)
+  (:arm-l :flex -36 :side 28 :twist 0) (:elbow-l :flex 40) (:hand-l :flex -70)
+  (:thigh-l :flex 48 :side 8) (:knee-l :flex 44) (:thigh-r :flex -30 :side 10) (:knee-r :flex 14))
+(defstrike :hs-k-g-j2 (16 3 13 :base :hs-k-stance)
+  (0 :hs-k-hosoku-bind)
+  (6 :hs-k-gj2-up)
+  (14 :hs-k-gj2-up (:root :yaw -34 :f -0.1) (:chest :twist -40) (:arm-r :flex -58))                               ; held
+  (:s :snap :hs-k-gj2-hit)
+  (:a :hs-k-gj2-hit (:root :f 0.26))
+  (24 :hs-k-gj2-hit (:root :f 0.22 :u -0.14) (:arm-r :flex 80))
+  (:end :hs-k-stance))
+
+;; gathered J3 束薙 SOKUTEI (16/3/18, the annulus 2.0-5.0 m, 180 deg; ender): wound up low to his right, both fists swung
+;; down by his right knee, crouched and coiled (held f5-14), the bundle drawn back round behind his right; the sweep on S:
+;; unwound to his left, the arms swept flat across, the bundle swept flat through the front half at 5 m (f16-18)
+(defpose :hs-k-gj3-up (:base :hs-k-stance)
+  (:root :u -0.3 :yaw -60) (:pelvis :twist -12) (:spine :flex 26) (:chest :twist -40) (:neck :twist 34) (:head :flex 0)
+  (:arm-r :flex 10 :side 40 :twist 0) (:elbow-r :flex 20) (:hand-r :flex -80)
+  (:arm-l :flex 50 :side -30 :twist 0) (:elbow-l :flex 30) (:hand-l :flex -80)
+  (:thigh-l :flex 50 :side 12) (:knee-l :flex 68) (:thigh-r :flex 6 :side 16) (:knee-r :flex 58))
+(defpose :hs-k-gj3-hit (:base :hs-k-stance)
+  (:root :u -0.22 :yaw 30) (:pelvis :twist 10) (:spine :flex 14) (:chest :twist 30) (:head :flex 0)
+  (:arm-r :flex 70 :side 70 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -90)
+  (:arm-l :flex -10 :side 60 :twist 0) (:elbow-l :flex 20) (:hand-l :flex -80)
+  (:thigh-l :flex 36 :side 14) (:knee-l :flex 44) (:thigh-r :flex 0 :side 18) (:knee-r :flex 40))
+(defstrike :hs-k-g-j3 (16 3 18 :base :hs-k-stance)
+  (0 :hs-k-gk2-shove (:root :f 0.28 :u -0.28) (:spine :flex 26))
+  (5 :hs-k-gj3-up)
+  (14 :hs-k-gj3-up (:root :yaw -68 :u -0.32) (:chest :twist -46))                                                   ; held
+  (:s :snap :hs-k-gj3-hit)
+  (17 :hs-k-gj3-hit (:root :yaw 56) (:chest :twist 38))
+  (:a :hs-k-gj3-hit (:root :yaw 76) (:chest :twist 42) (:arm-r :flex 110 :side 70))
+  (26 :hs-k-gj3-hit (:root :yaw 66 :u -0.18) (:chest :twist 36) (:arm-r :flex 100 :side 66))
+  (:end :hs-k-stance))
+
 ;;; The bind mode (§17.3; motion-refs §3.3): melee, both necks noosed to the orb
+;; the bind's stance and walk (§22.1, batch A2: 「the crescents gripped, a low forward stance, the noose taut」): sunk low
+;; over bent knees, leaning in, both crescents gripped up ahead of him (the right at his chest, the left low), his left
+;; fist on a chain run taut to the opponent's noose (HISAGI-DRAW, *HS-KB-GRIP-CLIPS*); the walk keeps the crouch
+(defpose :hs-kb-stance (:base :hs-k-stance)
+  (:root :u -0.2 :f 0.02) (:pelvis :twist -8) (:spine :flex 20) (:chest :twist -6) (:neck :twist 4) (:head :flex -12)
+  (:arm-r :flex 58 :side 26 :twist 0) (:elbow-r :flex 84) (:hand-r :flex -30)
+  (:arm-l :flex 50 :side 14 :twist 0) (:elbow-l :flex 40) (:hand-l :flex -60)
+  (:thigh-l :flex 40 :side 12) (:knee-l :flex 52) (:thigh-r :flex 6 :side 14) (:knee-r :flex 44))
+(defclip :hs-kb-stance (2.0 :loop t :base :hs-kb-stance)
+  (0) (1.0 (:root :u -0.22) (:spine :flex 22) (:elbow-r :flex 88) (:hand-l :flex -64)))
+(defclip :hs-kb-walk-f (0.9 :loop t :base :hs-kb-stance)
+  (0 (:thigh-r :flex 46) (:knee-r :flex 40) (:thigh-l :flex 14) (:knee-l :flex 52))
+  (0.225 (:root :u -0.23) (:thigh-r :flex 28) (:knee-r :flex 46) (:thigh-l :flex 30) (:knee-l :flex 80))
+  (0.45 (:root :u -0.24) (:thigh-l :flex 46) (:knee-l :flex 40) (:thigh-r :flex 14) (:knee-r :flex 52))
+  (0.675 (:root :u -0.23) (:thigh-l :flex 28) (:knee-l :flex 46) (:thigh-r :flex 30) (:knee-r :flex 80)))
+(defclip :hs-kb-walk-b (0.9 :loop t :base :hs-kb-stance)
+  (0 (:thigh-r :flex 14) (:knee-r :flex 52) (:thigh-l :flex 46) (:knee-l :flex 40))
+  (0.225 (:root :u -0.23) (:thigh-r :flex 30) (:knee-r :flex 80) (:thigh-l :flex 28) (:knee-l :flex 46))
+  (0.45 (:root :u -0.24) (:thigh-l :flex 14) (:knee-l :flex 52) (:thigh-r :flex 46) (:knee-r :flex 40))
+  (0.675 (:root :u -0.23) (:thigh-l :flex 30) (:knee-l :flex 80) (:thigh-r :flex 28) (:knee-r :flex 46)))
+(defclip :hs-kb-strafe-r (0.8 :loop t :base :hs-kb-stance)
+  (0 (:thigh-r :side 28) (:thigh-l :side 4) (:knee-l :flex 60))
+  (0.2 (:root :u -0.23) (:thigh-r :side 16) (:knee-r :flex 66) (:thigh-l :side 10))
+  (0.4 (:thigh-r :side 10) (:thigh-l :side 24) (:knee-l :flex 50))
+  (0.6 (:root :u -0.23) (:thigh-l :side 12) (:knee-l :flex 66) (:thigh-r :side 18)))
+(defclip :hs-kb-strafe-l (0.8 :loop t :base :hs-kb-stance)
+  (0 (:thigh-l :side 28) (:thigh-r :side 4) (:knee-r :flex 56))
+  (0.2 (:root :u -0.23) (:thigh-l :side 16) (:knee-l :flex 66) (:thigh-r :side 18))
+  (0.4 (:thigh-l :side 12) (:thigh-r :side 26) (:knee-r :flex 48))
+  (0.6 (:root :u -0.23) (:thigh-r :side 14) (:knee-r :flex 66) (:thigh-l :side 18)))
 ;; J1 弦 GEN (8/3/12, 1.5 m arc 110): coiled to his right, the right arm drawn far back (held f4-6); the right crescent
 ;; hooked flat right to left at the neck line (the held rod: the FK test's tip)
 (defpose :hs-kb-gen-up (:base :hs-k-stance)
@@ -1275,6 +1440,71 @@ for the links).")
   "*HS-BK-CHAINS* by clip: (clip f32vec ...), each src f0 f1 f2 f3 f4 r h az0 az1 lift flags.")
 (defparameter *hs-bolts* '((:hs-s-raiden 6.5) (:hs-k-raiden 9.3) (:hs-kb-raiden 4.3))
   "Clip -> TSUZURI RAIDEN's bolt along his line (m: from 0.5 to about this, the volume's far edge; the Shikai's 6.5).")
+(defparameter *hs-lashes*
+  '((:hs-k-hosoku 255 0 1.0 2 30                    ; K1 綁束: all eight hauled in and up, whirled out to 4.0 m round him
+     (6 0.8 2.4 0 45 0) (13 0.6 2.8 40 45 0.2) (15 0.9 2.2 70 45 0)          ;  (the orb winding), the spin a key each 90 deg
+     (16 4.0 1.0 100 45 0.6) (17 4.0 1.0 190 45 0.4) (18 4.0 1.0 280 45 0.3) (19 4.0 1.0 370 45 0.2)
+     (21 3.0 1.1 430 45 0.2) (25 1.6 1.0 470 45 0))                             ;  wound in: the bundle (*HS-BUNDLED*)
+    (:hs-k-s-k2 102 0.34 0.8 7 42                   ; spread K2: hanging chains 1 2 5 6 hauled up behind him, over the top,
+     (10 1.5 2.8 140 27 0) (17 1.7 3.6 145 27 0.3) (19 0.6 4.6 150 27 0)        ;  whipped onto the ground in a 60 deg fan
+     (20 3.0 3.4 30 -20 1.0) (21 6.0 0.05 30 -20 0.8) (24 6.0 0.05 30 -20 -0.6) (30 5.7 0.05 30 -20 -0.8))
+    (:hs-k-s-k3 255 0.45 0.85 7 50                  ; spread K3: all eight drawn back high behind him, lashed forward in a
+     (9 1.7 2.6 110 20 0) (18 2.0 3.0 112 20 0.3) (20 2.2 2.8 114 20 0)       ;  160 deg fan (a third of a frame apart)
+     (21 6.0 0.9 80 -22.857 0.6) (25 6.0 0.8 80 -22.857 0.2) (34 5.4 0.25 80 -22.857 -0.6))
+    (:hs-k-g-k2 256 0 1.0 6 58                      ; gathered K2: the bundle heaved up behind him, over: the U onto 4.0 m,
+     (9 1.2 2.2 -60 0 0) (16 1.4 4.4 -150 0 0.4) (24 1.6 4.8 -158 0 0.5)       ;  then its tail on along the ground to 8.5 m
+     (26 0.6 5.4 -20 0 0) (27 4.0 0.25 0 0 2.4) (30 4.0 0.2 0 0 1.4)           ;  (the L), left lying flat ahead
+     (31 5.8 0.12 0 0 -0.4) (33 8.5 0.1 0 0 -1.6) (36 8.5 0.1 0 0 -1.8) (46 8.3 0.05 0 0 -2.0))
+    (:hs-k-g-k3 256 0 1.0 5 58                      ; gathered K3: the lying bundle hauled in and round to his right, whirled
+     (6 8.3 0.05 0 0 -2.0) (14 6.0 0.15 -10 0 -1.2) (20 6.0 0.4 -60 0 -0.4)    ;  round him at 6.0 m (a key each 90 deg)
+     (25 6.0 0.6 -100 0 0) (26 6.0 0.7 -110 0 0) (27 6.0 0.8 -20 0 0.3) (28 6.0 0.8 70 0 0.3) (29 6.0 0.8 160 0 0.3)
+     (30 6.0 0.8 250 0 0.3) (31 6.0 0.8 340 0 0.3) (34 5.6 0.6 380 0 0) (42 5.0 0.3 400 0 -0.4))
+    (:hs-k-g-j2 256 0 1.0 1 30                      ; gathered J2: the bundle cocked back by his right hip, lashed straight
+     (5 1.0 1.2 -120 0 0) (13 1.5 1.5 -140 0 0.2) (15 1.2 1.6 -100 0 0)        ;  down the line at the chest, a wave along it
+     (16 5.5 1.0 0 0 0.6) (17 5.5 1.0 0 0 -0.4) (18 5.5 1.0 0 0 0.25) (20 5.3 0.9 0 0 -0.15))
+    (:hs-k-g-j3 256 0 1.0 1 36                      ; gathered J3: the bundle drawn round behind his right, swept flat
+     (5 2.0 0.9 -100 0 0) (13 2.6 0.9 -135 0 0.2) (15 2.8 0.9 -140 0 0)        ;  through the front half at 5.0 m
+     (16 5.0 0.8 -90 0 0.3) (17 5.0 0.8 0 0 0.3) (18 5.0 0.8 90 0 0.3) (20 4.6 0.7 130 0 0) (24 4.4 0.5 140 0 -0.3)))
+  "The ranged route links' lashes (batch A2, DUEL_HISAGI §24.2; a look): (clip mask ds w f0 f1 key ...). MASK: the
+hanging chains used (bits 0-7, *HS-CURTAIN*; their rank in the mask spreads them) or 256 the bundle (all eight bound
+together, *HS-BUNDLED*). A key (f r h az dz bend): at clip frame F the chain of rank k has its free end R m from his feet
+at H m up, AZ + k DZ degrees off his facing (+ his left; the short way round between keys), its middle lifted BEND m
+(< 0: laid along the floor); eased between keys 4 f or more apart, linear nearer; the chain of rank k DS k frames late;
+from its rest (the carousel's) from F0 to the first key and back from the last to F1; W its width x. Each is drawn from
+the orb by %HS-CURTAIN-DRAW as a cubic down past him and out to its end, lagging behind its motion, tapered, with a trail;
+its end on the keys at the hit volume's far edge on the hit frames (*HS-STRIKE-REACH*, the host checks).")
+(defun hs-lash-vec (x)
+  "A *HS-LASHES* entry as its f32vec: mask ds w f0 f1 n, then n keys of six."
+  (destructuring-bind (mask ds w f0 f1 &rest keys) x
+    (coerce (mapcar #'f32 (append (list mask ds w f0 f1 (length keys)) (apply #'append keys))) 'f32vec)))
+(defparameter *hs-lashes-v*
+  (let ((out nil))
+    (dolist (x *hs-lashes* out)
+      (let ((cell (assoc (first x) out)) (v (hs-lash-vec (rest x))))
+        (if cell (setf (cdr cell) (append (cdr cell) (list v))) (setf out (append out (list (list (first x) v))))))))
+  "*HS-LASHES* by clip: (clip f32vec ...).")
+(defparameter *hs-bundled* '((:hs-k-hosoku 21 26) (:hs-k-g-k2 -2 -1) (:hs-k-g-k3 -2 -1) (:hs-k-g-j2 -2 -1) (:hs-k-g-j3 -2 -1))
+  "Clip -> the clip frames over which the eight hanging chains are bound into one bundle (0 -> 1; bound after; the gathered
+links bound throughout): K1 綁束 binds them, the gathered links strike with the bundle (the user, 2026-10-18: 「K1 將垂降的
+鎖鏈在身旁旋轉並捆成一束」, DUEL_HISAGI §22.4). Out of these clips the bundle comes apart into the curtain over 0.25 s.")
+(defparameter *hs-bundled-v* (mapcar (lambda (x) (cons (first x) (coerce (mapcar #'f32 (rest x)) 'f32vec))) *hs-bundled*)
+  "*HS-BUNDLED* as (clip . f32vec).")
+(defparameter *hs-bundle-rest* '(-35.0 1.25 0.9)
+  "Where the bundle's free end hangs (degrees off his facing, m from his feet, m up): at his right front, by his right fist.")
+(defparameter *hs-spins*
+  '((:hs-k-saben 5 12 20 0.5) (:hs-k-kaeshi 5 11 19 -0.5) (:hs-k-sensa 5 13 24 1.0) (:hs-k-saharai 6 14 26 1.0)
+    (:hs-k-raiden 7 20 30 0.5) (:hs-k-ame 8 30 50 1.0) (:hs-k-kosa 7 20 30 0.5) (:hs-k-kubikake 5 24 34 1.0)
+    (:hs-k-hosoku 6 16 26 1.0) (:hs-k-s-k2 9 21 30 0.5) (:hs-k-s-k3 8 21 32 0.75) (:hs-k-g-k2 8 27 40 0.75)
+    (:hs-k-g-k3 6 27 36 1.0) (:hs-k-g-j2 3 16 22 0.5) (:hs-k-g-j3 4 16 22 0.75))
+  "The carousel's jerk (batch A2, DUEL_HISAGI §24.2; the user, 2026-10-18: §22.1's 旋鎖陣, 「遠程攻擊有效利用鎖鏈球拉動垂鏈迴轉
+對遠程進行抽打」): the ranged mode's strike clip -> (f0 f1 f2 turns): the orb (and the hanging chains round him) spun TURNS
+turns (+ counter-clockwise from above) on top of its slow turn, winding up from clip frame F0, fastest at F1 (S), done by F2.")
+(defparameter *hs-spins-v* (mapcar (lambda (x) (cons (first x) (coerce (mapcar #'f32 (rest x)) 'f32vec))) *hs-spins*)
+  "*HS-SPINS* as (clip . f32vec).")
+(defparameter *hs-car-w* 0.25 "The orb's slow turn at rest (rad/s, counter-clockwise from above): the hanging chains orbit
+him with it (§22.1, batch A2; the orb's own 0.25 of §21.6).")
+(defparameter *hs-kb-grip-clips* '(:hs-kb-stance :hs-kb-walk-f :hs-kb-walk-b :hs-kb-strafe-r :hs-kb-strafe-l)
+  "The bind's clips in which his left fist holds a chain run taut to the opponent's noose (§22.1: 「the noose taut」).")
 
 ;;; ---------------------------------------------------------------- looks (cosmetic; the sim's points, 0 B a frame)
 ;; (every float crosses a call through these f32vecs: a float argument boxes; 0 B a frame, debug 83901)
@@ -1790,6 +2020,273 @@ how far along his facing (m; HISAGI-DRAW zeroes it; the tip table, debug 83902).
         (declare (type f32vec kv))
         (when (and (>= f (aref kv 1)) (< f (aref kv 5))) (setf mask (logior mask (ash 1 (f->i (aref kv 0))))))))))
 
+;;; The carousel, the lashes, the bundle (batch A2, DUEL_HISAGI §24.2; a look, 0 B a frame)
+(declaim (type f32vec *hs-car* *hs-cz* *hs-lt* *hs-lt2* *hs-rp* *hs-fr2* *hs-bundle-rest-v*))
+(defvar *hs-car* (make-f32 10)
+  "The carousel (§22.1's 旋鎖陣): [0-1] each side's orb phase (rad), [2-3] each side's last jerk (%HS-CAR!), [4-5] each
+side's bundle weight, [6] this draw's phase (the orb's turn, the hanging chains' bearing), [7] this draw's bundle weight
+(0 the eight hanging chains apart .. 1 bound into one bundle), [8] the orb's underside height this draw.")
+(defvar *hs-car-clip* (make-array 2 :initial-element nil)
+  "Each side's clip at the last draw: a strike's jerk is banked into the phase when the clip changes (no jump when a link
+cuts it short).")
+(defvar *hs-cz* (make-f32 (* 9 14))
+  "Each chain's cubic this draw (%HS-CURVE!): the eight hanging chains then the bundle (8), each p0 p1 p2 p3 (12 floats),
+its taper (its lash weight) and its width x.")
+(defvar *hs-lt* (make-f32 8) "%HS-LASH-TIP!'s end: [0-2] the free end (world), [3] the bend, [4] the lash weight, [5] r, [6] az.")
+(defvar *hs-lt2* (make-f32 8) "%HS-LASH-TIP!'s end at an earlier frame (the lag, the trail).")
+(defvar *hs-rp* (make-f32 4) "%HS-REST-POLAR!: [0] r, [1] h, [2] az (degrees off his facing), [3] the sway (m).")
+(defvar *hs-fr2* (make-f32 1) "An earlier clip frame for %HS-LASH-TIP!.")
+(defvar *hs-bundle-rest-v* (coerce (mapcar #'f32 *hs-bundle-rest*) 'f32vec) "*HS-BUNDLE-REST* as floats.")
+(defmacro %hs-wrap180 (x)
+  "X (degrees) into -180 .. 180."
+  `(let ((%a ,x)) (declare (single-float %a))
+     (loop while (> %a 180f0) do (decf %a 360f0))
+     (loop while (< %a -180f0) do (incf %a 360f0))
+     %a))
+
+(defun-fast %hs-car! (an side sv bv)
+  "The carousel for the fighter on SIDE (0 / 1) at his clip frame *HS-FR* (AN his anim): the orb's phase turned *HS-CAR-W*
+x the draw's effect seconds plus his strike clip's jerk (SV its *HS-SPINS-V* f32vec or NIL: TURNS turns, eased in from F0,
+fastest at F1, out by F2; banked into the phase when his clip changes) -> *HS-CAR* [6]; the bundle weight (BV its
+*HS-BUNDLED-V* ramp or NIL; coming apart at 4 /s out of it, at once on a still) -> [7]. 0 B."
+  (declare (fixnum side))
+  (let* ((cv *hs-car*) (f (aref *hs-fr* 0)) (dt (aref *hs-grip-v* 2)) (c (anim-clip an)) (cc *hs-car-clip*)
+         (off 0f0) (tb 0f0))
+    (declare (type f32vec cv) (type simple-vector cc) (single-float f dt off tb))
+    (when sv
+      (let* ((v sv) (f0 (aref v 0)) (f1 (aref v 1)) (f2 (aref v 2))
+             (e (cond ((<= f f0) 0f0)
+                      ((< f f1) (let ((x (/ (- f f0) (f-max 1f0 (- f1 f0))))) (declare (single-float x)) (* 0.35f0 x x)))
+                      ((< f f2) (let ((y (- 1f0 (/ (- f f1) (f-max 1f0 (- f2 f1)))))) (declare (single-float y))
+                                  (- 1f0 (* 0.65f0 y y))))
+                      (t 1f0))))
+        (declare (type f32vec v) (single-float f0 f1 f2 e))
+        (setf off (* 6.2831855f0 (aref v 3) e))))
+    (when bv
+      (let ((v bv)) (declare (type f32vec v))
+        (setf tb (f-clamp (/ (- f (aref v 0)) (f-max 0.5f0 (- (aref v 1) (aref v 0)))) 0f0 1f0))))
+    (unless (eq c (svref cc side))
+      (setf (aref cv side) (+ (aref cv side) (aref cv (+ 2 side))) (svref cc side) c))
+    (setf (aref cv side) (f-mod (+ (aref cv side) (* (the single-float *hs-car-w*) (f-max 0f0 dt))) 6.2831855f0)
+          (aref cv (+ 2 side)) off
+          (aref cv 6) (+ (aref cv side) off)
+          (aref cv (+ 4 side)) (if (> dt 0f0) (f-max tb (- (aref cv (+ 4 side)) (* 4f0 dt))) tb)
+          (aref cv 7) (aref cv (+ 4 side))))
+  nil)
+
+(defun-fast %hs-rest-polar! (rp j)
+  "RP := hanging chain J's rest (0-7: *HS-CURTAIN* turned by the carousel's phase *HS-CAR* [6], lifted 2.4 m and drawn in
+where it passes ahead of him or behind him, so that none hangs between the fighters or before the behind camera; §21.6)
+or the bundle's (8: *HS-BUNDLE-REST*, swaying): [0] r, [1] h, [2] az (degrees off his facing), [3] its sway (m). 0 B."
+  (declare (type f32vec rp) (fixnum j))
+  (let ((tm (fx-clock)))
+    (declare (single-float tm))
+    (if (< j 8)
+        (let* ((cv *hs-curtain-v*) (b (aref cv (* 3 j))) (az (+ b (* 57.29578f0 (aref *hs-car* 6))))
+               (s (f-abs (f-sin (* 0.017453292f0 az))))
+               (x (f-clamp (/ (- s 0.3f0) 0.4f0) 0f0 1f0)) (wf (- 1f0 (* x x (- 3f0 (* 2f0 x))))))
+          (declare (type f32vec cv) (single-float b az s x wf))
+          (setf (aref rp 0) (* (aref cv (+ 1 (* 3 j))) (- 1f0 (* 0.35f0 wf)))
+                (aref rp 1) (+ (aref cv (+ 2 (* 3 j))) (* 2.4f0 wf))
+                (aref rp 2) az
+                (aref rp 3) (* 0.05f0 (f-sin (+ (* 1.1f0 tm) b)))))
+        (let ((br *hs-bundle-rest-v*))
+          (declare (type f32vec br))
+          (setf (aref rp 0) (aref br 1) (aref rp 1) (aref br 2) (aref rp 2) (+ (aref br 0) (* 4f0 (f-sin (* 0.7f0 tm))))
+                (aref rp 3) 0f0))))
+  nil)
+
+(defun-fast %hs-lash-of (lk j)
+  "The *HS-LASHES-V* entry of LK (his clip's) that moves chain J (0-7, 8 the bundle) at the clip frame *HS-FR*, or NIL."
+  (declare (fixnum j))
+  (let ((f (aref *hs-fr* 0)) (out nil))
+    (declare (single-float f))
+    (dolist (x lk out)
+      (let ((kv x))
+        (declare (type f32vec kv))
+        (when (and (null out) (logbitp j (f->i (aref kv 0))) (>= f (aref kv 3)) (< f (aref kv 4))) (setf out kv))))))
+
+(defun-fast %hs-lash-tip! (out kv fr rank j pos fa)
+  "OUT := the free end of chain J (rank RANK in the entry KV, *HS-LASHES-V*) at the clip frame FR[0] less RANK x its
+stagger: the keys' r h az bend (eased between keys 4 f or more apart, linear nearer, az the short way round), blended
+from its rest (%HS-REST-POLAR!) before the first key and back to it after the last: [0-2] the end (world, from his feet
+POS along FA[0] his facing), [3] the bend, [4] the lash weight (0 at rest .. 1 on the keys), [5] r, [6] az (deg). 0 B."
+  (declare (type f32vec out kv fr pos fa) (fixnum rank j))
+  (let* ((rk (i->f rank)) (f (- (aref fr 0) (* rk (aref kv 1))))
+         (fs (aref kv 3)) (fe (aref kv 4)) (n (f->i (aref kv 5))) (kl (+ 6 (* 6 (1- n))))
+         (rp *hs-rp*) (r 0f0) (h 0f0) (az 0f0) (bd 0f0) (lw 1f0))
+    (declare (single-float rk f fs fe r h az bd lw) (fixnum n kl) (type f32vec rp))
+    (%hs-rest-polar! rp j)
+    (cond ((< f (aref kv 6))                                           ; from rest to the first key
+           (let* ((x (f-clamp (/ (- f fs) (f-max 1f0 (- (aref kv 6) fs))) 0f0 1f0)) (u (* x x (- 3f0 (* 2f0 x))))
+                  (a1 (+ (aref kv 9) (* rk (aref kv 10)))))
+             (declare (single-float x u a1))
+             (setf r (+ (aref rp 0) (* u (- (aref kv 7) (aref rp 0)))) h (+ (aref rp 1) (* u (- (aref kv 8) (aref rp 1))))
+                   az (+ (aref rp 2) (* u (%hs-wrap180 (- a1 (aref rp 2))))) bd (* u (aref kv 11)) lw u)))
+          ((>= f (aref kv kl))                                         ; from the last key back to rest
+           (let* ((x (f-clamp (/ (- f (aref kv kl)) (f-max 1f0 (- fe (aref kv kl)))) 0f0 1f0)) (u (* x x (- 3f0 (* 2f0 x))))
+                  (a1 (+ (aref kv (+ kl 3)) (* rk (aref kv (+ kl 4))))))
+             (declare (single-float x u a1))
+             (setf r (+ (aref kv (+ kl 1)) (* u (- (aref rp 0) (aref kv (+ kl 1)))))
+                   h (+ (aref kv (+ kl 2)) (* u (- (aref rp 1) (aref kv (+ kl 2)))))
+                   az (+ a1 (* u (%hs-wrap180 (- (aref rp 2) a1)))) bd (* (- 1f0 u) (aref kv (+ kl 5))) lw (- 1f0 u))))
+          (t (let ((i 6))                                               ; between two keys
+               (declare (fixnum i))
+               (loop while (and (< (+ i 6) kl) (>= f (aref kv (+ i 6)))) do (incf i 6))
+               (let* ((f0 (aref kv i)) (f1 (aref kv (+ i 6))) (x (/ (- f f0) (f-max 0.001f0 (- f1 f0))))
+                      (u (if (>= (- f1 f0) 4f0) (* x x (- 3f0 (* 2f0 x))) x))
+                      (a0 (+ (aref kv (+ i 3)) (* rk (aref kv (+ i 4))))) (a1 (+ (aref kv (+ i 9)) (* rk (aref kv (+ i 10))))))
+                 (declare (single-float f0 f1 x u a0 a1))
+                 (setf r (+ (aref kv (+ i 1)) (* u (- (aref kv (+ i 7)) (aref kv (+ i 1)))))
+                       h (+ (aref kv (+ i 2)) (* u (- (aref kv (+ i 8)) (aref kv (+ i 2)))))
+                       az (+ a0 (* u (%hs-wrap180 (- a1 a0))))
+                       bd (+ (aref kv (+ i 5)) (* u (- (aref kv (+ i 11)) (aref kv (+ i 5)))))
+                       lw 1f0)))))
+    (let ((a (+ (aref fa 0) (* 0.017453292f0 az))))
+      (declare (single-float a))
+      (setf (aref out 0) (+ (aref pos 0) (* r (- (f-sin a)))) (aref out 1) h (aref out 2) (+ (aref pos 2) (* r (- (f-cos a))))
+            (aref out 3) bd (aref out 4) lw (aref out 5) r (aref out 6) az)))
+  nil)
+
+(defun-fast %hs-curve! (cz o tp e e2 pos)
+  "CZ[O..O+11] := a chain's cubic from TP (its top under the orb) to E (its free end, as *HS-LT*: [3] the bend, [4] the
+lash weight): at rest a straight line; lashing (weight 1) down from the orb past a knee near him (0.3 of the way out, 0.9 m
+over its height, lower by a negative bend), then out to the end, its middle lifted by the bend and dragged back toward E2 (the end two frames
+earlier: the lag, at most 1.8 m), no point under the floor; CZ[O+12] := the lash weight (its taper). 0 B."
+  (declare (type f32vec cz tp e e2 pos) (fixnum o))
+  (let* ((lw (aref e 4)) (ex (aref e 0)) (ey (aref e 1)) (ez (aref e 2)) (tx (aref tp 0)) (ty (aref tp 1)) (tz (aref tp 2))
+         (lx (* 0.45f0 (- (aref e2 0) ex))) (ly (* 0.45f0 (- (aref e2 1) ey))) (lz (* 0.45f0 (- (aref e2 2) ez)))
+         (ll (f-hypot lx ly lz)) (lk (if (> ll 1.8f0) (/ 1.8f0 ll) 1f0))
+         (kx (+ (aref pos 0) (* 0.3f0 (- ex (aref pos 0))))) (kz (+ (aref pos 2) (* 0.3f0 (- ez (aref pos 2)))))
+         (ky (f-max 1.3f0 (+ ey 0.5f0)))
+         (s1x (+ tx (* 0.333f0 (- ex tx)))) (s1y (+ ty (* 0.333f0 (- ey ty)))) (s1z (+ tz (* 0.333f0 (- ez tz))))
+         (s2x (+ tx (* 0.667f0 (- ex tx)))) (s2y (+ ty (* 0.667f0 (- ey ty)))) (s2z (+ tz (* 0.667f0 (- ez tz))))
+         (q2x (+ (* 0.5f0 (+ kx ex)) (* lk lx))) (q2y (+ (* 0.5f0 (+ ky ey)) (aref e 3) (* lk ly)))
+         (q2z (+ (* 0.5f0 (+ kz ez)) (* lk lz))))
+    (declare (single-float lw ex ey ez tx ty tz lx ly lz ll lk kx kz ky s1x s1y s1z s2x s2y s2z q2x q2y q2z))
+    (setf (aref cz o) tx (aref cz (+ o 1)) ty (aref cz (+ o 2)) tz
+          (aref cz (+ o 3)) (+ s1x (* lw (- kx s1x)))                   ; (a chain laid on the floor: its knee lower)
+          (aref cz (+ o 4)) (f-max 0f0 (+ s1y (* lw (- (+ ky 0.9f0 (f-min 0f0 (aref e 3))) s1y))))
+          (aref cz (+ o 5)) (+ s1z (* lw (- kz s1z)))
+          (aref cz (+ o 6)) (+ s2x (* lw (- q2x s2x))) (aref cz (+ o 7)) (f-max 0f0 (+ s2y (* lw (- q2y s2y))))
+          (aref cz (+ o 8)) (+ s2z (* lw (- q2z s2z)))
+          (aref cz (+ o 9)) ex (aref cz (+ o 10)) ey (aref cz (+ o 11)) ez
+          (aref cz (+ o 12)) lw))
+  nil)
+
+(defun-fast %hs-cubic-chain (cz o j)
+  "Draw hanging chain J's cubic CZ[O..] (%HS-CURVE!) link by link in black (%HS-BLACK-KITE), tapered toward its free end
+by its lash weight, its width x CZ[O+13]; with the bundle weight *HS-CAR* [7] it is drawn that far onto the bundle's
+cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out under the orb). 0 B."
+  (declare (type f32vec cz) (fixnum o j))
+  (let* ((bw (aref *hs-car* 7)) (ob 112) (cw (- 1f0 bw))
+         (len (+ (* cw (+ (f-hypot (- (aref cz (+ o 3)) (aref cz o)) (- (aref cz (+ o 4)) (aref cz (+ o 1))) (- (aref cz (+ o 5)) (aref cz (+ o 2))))
+                          (f-hypot (- (aref cz (+ o 6)) (aref cz (+ o 3))) (- (aref cz (+ o 7)) (aref cz (+ o 4))) (- (aref cz (+ o 8)) (aref cz (+ o 5))))
+                          (f-hypot (- (aref cz (+ o 9)) (aref cz (+ o 6))) (- (aref cz (+ o 10)) (aref cz (+ o 7))) (- (aref cz (+ o 11)) (aref cz (+ o 8))))))
+                 (* bw (+ (f-hypot (- (aref cz (+ ob 3)) (aref cz ob)) (- (aref cz (+ ob 4)) (aref cz (+ ob 1))) (- (aref cz (+ ob 5)) (aref cz (+ ob 2))))
+                          (f-hypot (- (aref cz (+ ob 6)) (aref cz (+ ob 3))) (- (aref cz (+ ob 7)) (aref cz (+ ob 4))) (- (aref cz (+ ob 8)) (aref cz (+ ob 5))))
+                          (f-hypot (- (aref cz (+ ob 9)) (aref cz (+ ob 6))) (- (aref cz (+ ob 10)) (aref cz (+ ob 7))) (- (aref cz (+ ob 11)) (aref cz (+ ob 8))))))))
+         (n (min 120 (max 2 (f->i (/ len 0.12f0)))))
+         (tp (+ (* cw (aref cz (+ o 12))) (* bw (aref cz (+ ob 12))))) (wx (aref cz (+ o 13))) (jp (* 0.7853982f0 (i->f j))))
+    (declare (single-float bw cw len tp wx jp) (fixnum ob n))
+    (dotimes (i n)
+      (let* ((u (/ (+ 0.5f0 (i->f i)) (i->f n))) (v (- 1f0 u))
+             (a (* v v v)) (b (* 3f0 v v u)) (c (* 3f0 v u u)) (d (* u u u))
+             (da (* 3f0 v v)) (db (* 6f0 v u)) (dc (* 3f0 u u)))
+        (declare (single-float u v a b c d da db dc))
+        (macrolet ((bz (o k) `(+ (* a (aref cz (+ ,o ,k))) (* b (aref cz (+ ,o 3 ,k))) (* c (aref cz (+ ,o 6 ,k)))
+                                 (* d (aref cz (+ ,o 9 ,k)))))
+                   (bt (o k) `(+ (* da (- (aref cz (+ ,o 3 ,k)) (aref cz (+ ,o ,k))))
+                                 (* db (- (aref cz (+ ,o 6 ,k)) (aref cz (+ ,o 3 ,k))))
+                                 (* dc (- (aref cz (+ ,o 9 ,k)) (aref cz (+ ,o 6 ,k)))))))
+          (let* ((px (bz o 0)) (py (bz o 1)) (pz (bz o 2)) (tx (bt o 0)) (ty (bt o 1)) (tz (bt o 2)))
+            (declare (single-float px py pz tx ty tz))
+            (when (> bw 0.001f0)                                           ; onto the bundle, twisted round it
+              (let* ((bx (bz ob 0)) (by (bz ob 1)) (bzz (bz ob 2)) (gx (bt ob 0)) (gy (bt ob 1)) (gz (bt ob 2))
+                     (gl (f-max 1f-4 (f-hypot gx gy gz))) (hl (f-hypot gx gz))
+                     (n1x (if (> hl 1f-3) (/ (- gz) hl) 1f0)) (n1z (if (> hl 1f-3) (/ gx hl) 0f0))
+                     (n2x (/ (* gy n1z) gl)) (n2y (/ (- (* gz n1x) (* gx n1z)) gl)) (n2z (/ (- (* gy n1x)) gl))
+                     (rr (+ 0.05f0 (* 0.45f0 v v v v))) (ph (+ (* 25.132741f0 u) jp))
+                     (ox (* rr (+ (* (f-cos ph) n1x) (* (f-sin ph) n2x)))) (oy (* rr (f-sin ph) n2y))
+                     (oz (* rr (+ (* (f-cos ph) n1z) (* (f-sin ph) n2z)))))
+                (declare (single-float bx by bzz gx gy gz gl hl n1x n1z n2x n2y n2z rr ph ox oy oz))
+                (setf px (+ (* cw px) (* bw (+ bx ox))) py (+ (* cw py) (* bw (+ by oy))) pz (+ (* cw pz) (* bw (+ bzz oz)))
+                      tx (+ (* cw tx) (* bw gx)) ty (+ (* cw ty) (* bw gy)) tz (+ (* cw tz) (* bw gz)))))
+            (let ((tl (f-max 1f-4 (f-hypot tx ty tz))))
+              (declare (single-float tl))
+              (%hs-black-kite px (f-max 0.03f0 py) pz (/ tx tl) (/ ty tl) (/ tz tl) 0.13f0
+                              (* (if (evenp i) 0.028f0 0.013f0) wx (- 1f0 (* 0.55f0 tp u))))))))))
+  nil)
+
+(defun-fast %hs-trail (kv rank j pos fa)
+  "A lash's trail: chain J's free end (rank RANK in KV) back over the last 2 frames (*HS-LT* at the frame, *HS-LT2* at
+each quarter frame back), a tapered black ribbon, when it moves faster than 1.2 m a frame (a strike, not a haul; the
+bundle's twice as wide). 0 B."
+  (declare (type f32vec kv pos fa) (fixnum rank j))
+  (let* ((e *hs-lt*) (e2 *hs-lt2*) (fr2 *hs-fr2*) (q *hs-mid*) (f (aref *hs-fr* 0)) (w0 (if (= j 8) 0.06f0 0.03f0)))
+    (declare (type f32vec e e2 fr2 q) (single-float f w0))
+    (setf (aref fr2 0) (- f 1f0))
+    (%hs-lash-tip! e2 kv fr2 rank j pos fa)
+    (when (and (> (aref e 4) 0.5f0)
+               (> (f-hypot (- (aref e 0) (aref e2 0)) (- (aref e 1) (aref e2 1)) (- (aref e 2) (aref e2 2))) 1.2f0))
+      (setf (aref q 0) (aref e 0) (aref q 1) (aref e 1) (aref q 2) (aref e 2))
+      (loop for k from 1 to 8
+            do (setf (aref fr2 0) (- f (* 0.25f0 (i->f k))))
+               (%hs-lash-tip! e2 kv fr2 rank j pos fa)
+               (let* ((dx (- (aref q 0) (aref e2 0))) (dy (- (aref q 1) (aref e2 1))) (dz (- (aref q 2) (aref e2 2)))
+                      (l (f-max 1f-3 (f-hypot dx dy dz))))
+                 (declare (single-float dx dy dz l))
+                 (%hs-black-kite (* 0.5f0 (+ (aref q 0) (aref e2 0))) (f-max 0.03f0 (* 0.5f0 (+ (aref q 1) (aref e2 1))))
+                                 (* 0.5f0 (+ (aref q 2) (aref e2 2))) (/ dx l) (/ dy l) (/ dz l) (* 1.15f0 l)
+                                 (* w0 (- 1f0 (/ (i->f k) 9f0))))
+                 (setf (aref q 0) (aref e2 0) (aref q 1) (aref e2 1) (aref q 2) (aref e2 2))))))
+  nil)
+
+(defun-fast %hs-curtain-draw (pos fa c lk mask)
+  "The hanging chains round him (§21.6) on the carousel, lashing and bound (batch A2, §24.2): each of the eight
+*HS-CURTAIN* chains not in MASK (a §21.8 chain strike draws that one: %HS-BK-STRIKE) from its top under the orb (C its
+centre) to its free end, at rest where the carousel has it (%HS-REST-POLAR!; a cinematic's drop *HS-CL* [1]) or lashing
+on its entry of LK (his clip's *HS-LASHES-V*: %HS-LASH-TIP!, the lag, the trail), bound into one bundle by the weight
+*HS-CAR* [7] (whose own entry, 256, moves it). POS his feet, FA[0] his facing. Its farthest free end on the keys into
+*HS-TIPV*. 0 B."
+  (declare (type f32vec pos fa c) (fixnum mask))
+  (let* ((cz *hs-cz*) (e *hs-lt*) (e2 *hs-lt2*) (tp *hs-q*) (rp *hs-rp*) (fr *hs-fr*) (fr2 *hs-fr2*) (tv *hs-tipv*)
+         (bot (aref *hs-car* 8)) (cl1 (aref *hs-cl* 1)) (bw (aref *hs-car* 7)) (yaw (aref fa 0)))
+    (declare (type f32vec cz e e2 tp rp fr fr2 tv) (single-float bot cl1 bw yaw))
+    (dotimes (jj 9)
+      (let* ((j (if (= jj 0) 8 (1- jj))) (kv (%hs-lash-of lk j)) (o (* 14 j)))
+        (declare (fixnum j o))
+        (when (or (< j 8) kv (> bw 0.001f0))
+          (%hs-rest-polar! rp j)
+          (let* ((a (+ yaw (* 0.017453292f0 (aref rp 2)))) (r (aref rp 0))
+                 (gx (+ (aref pos 0) (* r (- (f-sin a))))) (gz (+ (aref pos 2) (* r (- (f-cos a))))))
+            (declare (single-float a r gx gz))
+            (if (= j 8)
+                (setf (aref tp 0) (aref c 0) (aref tp 1) bot (aref tp 2) (aref c 2))
+                (setf (aref tp 0) (+ (aref c 0) (* 0.6f0 (- gx (aref c 0)))) (aref tp 1) bot
+                      (aref tp 2) (+ (aref c 2) (* 0.6f0 (- gz (aref c 2))))))
+            (if kv
+                (let* ((kv kv) (rank (if (= j 8) 0 (logcount (logand (f->i (aref kv 0)) (1- (ash 1 j)))))))
+                  (declare (type f32vec kv) (fixnum rank))   ; (bound, not a free declaration: a typed aref, 0 B)
+                  (setf (aref fr2 0) (- (aref fr 0) 2f0))
+                  (%hs-lash-tip! e2 kv fr2 rank j pos fa)
+                  (%hs-lash-tip! e kv fr rank j pos fa)
+                  (setf (aref cz (+ o 13)) (aref kv 2))
+                  (when (>= (aref e 4) 0.99f0)
+                    (setf (aref tv 0) (f-max (aref tv 0) (aref e 5))
+                          (aref tv 1) (f-max (aref tv 1) (* (aref e 5) (f-cos (* 0.017453292f0 (aref e 6)))))))
+                  (%hs-curve! cz o tp e e2 pos)
+                  (%hs-trail kv rank j pos fa))
+                (progn
+                  (setf (aref e 0) (+ gx (aref rp 3)) (aref e 1) (aref rp 1) (aref e 2) gz (aref e 3) 0f0 (aref e 4) 0f0
+                        (aref cz (+ o 13)) 1f0)
+                  (when (< cl1 1f0)                                     ; (a cinematic's drop: that share of its length)
+                    (dotimes (i 3) (setf (aref e i) (+ (aref tp i) (* cl1 (- (aref e i) (aref tp i)))))))
+                  (%hs-curve! cz o tp e e tp)))))))
+    (dotimes (j 8)
+      (unless (logbitp j mask) (%hs-cubic-chain cz (* 14 j) j))))
+  nil)
+
 (defun-fast %hs-bk-strike (kv pos fa c jm ojm hk)
   "One Bankai chain strike (*HS-BK-CHAINS*: KV its f32vec) at the clip frame *HS-FR*, drawn black: the hanging chain from
 the orb's underside (C its centre) to its free end, the neck bundle's tail from the back of his neck (JM his joints, over
@@ -1809,12 +2306,12 @@ frames into *HS-TIPV*. 0 B."
              (bot (- (aref c 1) (* 0.75f0 (the single-float *hs-orb-scale*))))
              (rx tx) (ry 7f0) (rz tz) (ax tx) (ay 7f0) (az tz))
         (declare (fixnum src fl) (type f32vec e kn q tp) (single-float yaw px pz r h k a tx tz bot rx ry rz ax ay az))
-        (cond ((< src 8)                                               ; a hanging chain: its rest end, its top
-               (let* ((cv *hs-curtain-v*) (b (aref cv (* 3 src))) (cr (aref cv (+ 1 (* 3 src))))
-                      (ca (+ yaw (* 0.017453292f0 b)))
+        (cond ((< src 8)                                               ; a hanging chain: its rest end (on the
+               (let* ((rp *hs-rp*) (cr (progn (%hs-rest-polar! rp src) (aref rp 0)))   ;  carousel, A2), its top
+                      (ca (+ yaw (* 0.017453292f0 (aref rp 2))))
                       (gx (+ px (* cr (- (f-sin ca))))) (gz (+ pz (* cr (- (f-cos ca))))))
-                 (declare (type f32vec cv) (single-float b cr ca gx gz))
-                 (setf rx (+ gx (* 0.05f0 (f-sin (+ (* 1.1f0 (fx-clock)) b)))) ry (aref cv (+ 2 (* 3 src))) rz gz
+                 (declare (type f32vec rp) (single-float cr ca gx gz))
+                 (setf rx (+ gx (aref rp 3)) ry (aref rp 1) rz gz
                        ax (+ (aref c 0) (* 0.6f0 (- gx (aref c 0)))) ay bot az (+ (aref c 2) (* 0.6f0 (- gz (aref c 2)))))))
               ((= src 8)                                               ; the neck bundle's tail
                (joint-point! kn jm (ji :neck) 0f0 0.07f0 0.06f0)
@@ -1863,7 +2360,7 @@ frames into *HS-TIPV*. 0 B."
                  (%hs-chain2 kn q) (%hs-chain2 q e))))))
   nil)
 
-(defun-fast %hs-orb-draw (jm pos fa opos ojm side bound tint ks hk)
+(defun-fast %hs-orb-draw (jm pos fa opos ojm side bound tint ks hk lk gp)
   "The Bankai's orb (DUEL_HISAGI §21.6), drawn by HISAGI-DRAW in both modes: its centre *HS-ORB-H* up and *HS-ORB-SIDE* to
 his right, *HS-ORB-BACK* behind him (BOUND 1, a bind: over the pair's midpoint), eased there at 2.5 /s (placed at once on
 a still or a jump > 8 m; SIDE 0 / 1 his slot in *HS-ORB-V*), swaying, turning slowly, *HS-ORB-SCALE* x its mesh; the pale
@@ -1872,8 +2369,10 @@ him); the bundle of four chains twisted together from it down to the back of his
 his facing) and its slack tail down his back; in a bind the same bundle to the opponent's neck (OPOS, OJM), tied twice
 round it (BOUND 2, UNWIND: that ring sliding down him, slack). KS: his clip's chain strikes (*HS-BK-CHAINS-V*, §21.8):
 each hanging chain or the tail one uses is drawn by %HS-BK-STRIKE instead (HK 1: his move hit). TINT: his body's (the
-mirror's P2). 0 B."
-  (declare (type f32vec jm pos fa opos ojm) (fixnum side bound))
+mirror's P2). Batch A2 (§24.2): the orb turns with the carousel's phase (%HS-CAR!, jerked on each strike), the hanging
+chains orbit with it and lash or bind into the bundle on LK (his clip's *HS-LASHES-V*: %HS-CURTAIN-DRAW); GP 1 in a bind
+(the bind's stance and walk): his left fist holds a chain taut to the opponent's noose. 0 B."
+  (declare (type f32vec jm pos fa opos ojm) (fixnum side bound gp))
   (let* ((ov *hs-orb-v*) (c *hs-oc*) (m *hs-om*) (v *hs-v*) (w *hs-w*) (q *hs-q*)
          (tm (fx-clock)) (yaw (aref fa 0)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (rx (f-cos yaw)) (rz (- (f-sin yaw)))
          (cl *hs-cl*) (gr (aref cl 0))                                  ; (the B5 cinematics' hold: *HS-CL*)
@@ -1887,13 +2386,13 @@ mirror's P2). 0 B."
          (ex (- tx (aref ov o))) (ey (- ty (aref ov (+ o 1)))) (ez (- tz (aref ov (+ o 2))))
          (k (if (or (<= dt 0f0) (< (aref ov (+ 6 side)) 0.5f0) (> (+ (* ex ex) (* ey ey) (* ez ez)) 64f0) (> (aref cl 4) 0.5f0)) 1f0
                 (f-min 1f0 (* 2.5f0 dt))))
-         (s (* 0.25f0 tm)) (cs (* sc (f-cos s))) (ss (* sc (f-sin s))) (bot 0f0) (mask 0))
+         (s (aref *hs-car* 6)) (cs (* sc (f-cos s))) (ss (* sc (f-sin s))) (bot 0f0) (mask 0))   ; (the carousel, A2)
     (declare (type f32vec ov c m v w q cl) (fixnum o mask)
              (single-float tm gr yaw fx fz rx rz sd bk sc tx tz ty dt ex ey ez k s cs ss bot))
     (setf (aref ov o) (+ (aref ov o) (* k ex)) (aref ov (+ o 1)) (+ (aref ov (+ o 1)) (* k ey))
           (aref ov (+ o 2)) (+ (aref ov (+ o 2)) (* k ez)) (aref ov (+ 6 side)) 1f0
           (aref c 0) (aref ov o) (aref c 1) (aref ov (+ o 1)) (aref c 2) (aref ov (+ o 2))
-          bot (- (aref c 1) (* 0.75f0 sc)))
+          bot (- (aref c 1) (* 0.75f0 sc)) (aref *hs-car* 8) bot)
     (setf (aref m 0) cs (aref m 1) 0f0 (aref m 2) (- ss) (aref m 3) 0f0
           (aref m 4) 0f0 (aref m 5) sc (aref m 6) 0f0 (aref m 7) 0f0
           (aref m 8) ss (aref m 9) 0f0 (aref m 10) cs (aref m 11) 0f0
@@ -1903,22 +2402,7 @@ mirror's P2). 0 B."
     ;; the inverted shadow: a pale patch on the ground under it
     (%sector-verts :add 20 (aref c 0) 0f0 (aref c 2) 0f0 (* 1.1f0 sc) 0f0 3.1415927f0 (* 0.2f0 gr) (* 0.21f0 gr) (* 0.2f0 gr)
                    0.5f0)
-    (let ((cv *hs-curtain-v*))                                          ; the curtain round him
-      (declare (type f32vec cv))
-      (dotimes (j (floor (length cv) 3))
-        (unless (logtest mask (ash 1 j))
-        (let* ((b (aref cv (* 3 j))) (y (aref cv (+ 2 (* 3 j))))
-               (a (+ yaw (* 0.017453292f0 b))) (r (aref cv (+ 1 (* 3 j))))
-               (gx (+ (aref pos 0) (* r (- (f-sin a))))) (gz (+ (aref pos 2) (* r (- (f-cos a)))))
-               (sw (* 0.05f0 (f-sin (+ (* 1.1f0 tm) b)))))
-          (declare (single-float b y a r gx gz sw))
-          (setf (aref w 0) (+ gx sw) (aref w 1) y (aref w 2) gz
-                (aref v 0) (+ (aref c 0) (* 0.6f0 (- gx (aref c 0)))) (aref v 1) bot
-                (aref v 2) (+ (aref c 2) (* 0.6f0 (- gz (aref c 2)))))
-          (when (< (aref cl 1) 1f0)                                     ; (a cinematic's drop: that share of its length)
-            (dotimes (i 3) (setf (aref w i) (+ (aref v i) (* (aref cl 1) (- (aref w i) (aref v i)))))))
-          (dotimes (i 3) (setf (aref q i) (* 0.5f0 (+ (aref v i) (aref w i)))))   ; (two pieces: VFX-HS-CHAIN's 48 links
-          (vfx-hs-chain v q 0f0 0.9f0) (vfx-hs-chain q w 0f0 0.9f0)))))         ;  span ~5.8 m)
+    (%hs-curtain-draw pos fa c lk mask)                                 ; the curtain round him (the carousel, A2)
     ;; his neck bundle: four chains twisted from the orb down behind his head, tied round his neck; its slack tail
     (setf (aref v 0) (aref c 0) (aref v 1) bot (aref v 2) (aref c 2))
     (if (< (aref cl 2) 1f0)                                             ; (a cinematic's descent: untied, partway down)
@@ -1949,7 +2433,11 @@ mirror's P2). 0 B."
         (let* ((a (* 0.62831855f0 (i->f i))) (ca (f-cos a)) (sa (f-sin a)) (y (if (< i 10) -0.015f0 0.02f0)))
           (declare (single-float a ca sa y))
           (%hs-black-kite (+ (aref w 0) (* 0.085f0 ca)) (+ (aref w 1) y) (+ (aref w 2) (* 0.085f0 sa)) (- sa) 0f0 ca
-                          0.075f0 (if (evenp i) 0.026f0 0.012f0))))))
+                          0.075f0 (if (evenp i) 0.026f0 0.012f0))))
+      (when (= gp 1)                                                   ; (A2: the bind's stance) the noose held taut
+        (joint-point! w jm (ji :weapon-l) 0f0 0f0 0f0)
+        (joint-point! q ojm (ji :neck) 0f0 0.24f0 0.2f0)
+        (%hs-chain2 w q))))
   (setf *hs-chain-black* 0)
   nil)
 
@@ -2023,9 +2511,11 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
         (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
       (unless (or shikai (logtest cfl 2))                              ; the Bankai: the orb, its chains, the noose (§21.6)
         (setf (aref *hs-tipv* 0) 0f0 (aref *hs-tipv* 1) 0f0)            ; (and the chain strikes, §21.8)
+        (%hs-car! an (if (eq e *p1*) 0 1) (cdr (assoc cn *hs-spins-v*)) (cdr (assoc cn *hs-bundled-v*)))   ; (A2: the carousel)
         (%hs-orb-draw (model-joints m) (pos-of e) fa (pos-of o) (model-joints (model o)) (if (eq e *p1*) 0 1)
                       (cond ((or (hss-bound st) (logtest cfl 4)) 1) ((eq cn :hs-kb-unwind) 2) (t 0)) (model-tint m)
-                      (cdr (assoc cn *hs-bk-chains-v*)) (if (and mv (eq (fighter-contact f) :hit)) 1 0))))))
+                      (cdr (assoc cn *hs-bk-chains-v*)) (if (and mv (eq (fighter-contact f) :hit)) 1 0)
+                      (cdr (assoc cn *hs-lashes-v*)) (if (and (hss-bound st) (member cn *hs-kb-grip-clips*)) 1 0))))))
 
 (defun hisagi-look-cons-check ()
   "Debug 83901 (P1 Hisagi): bytes consed by 10 calls of his :pose hook and HISAGI-DRAW in the stance, out at the anchor, in
@@ -2033,8 +2523,9 @@ NAGE's hit frame, in HIKI's, in the windmill, and (the Shikai's clips, §21.4) J
 SHIBARI's wrap and KUBIKAKE's garrote, and the Bankai's look (§21.6: the orb, the rope) in the stance and
 with the noose of a bind, and the Bankai's clips (§21.8): J3's two let out and its swept chain, TSUISA's lance (hooked),
 KUBIKAKE's whirl, SAHARAI's ring, SP1's bundle and bolt, SP2's rain, KOSA's whip, the bind's MAKIGIRI, SHIBORI's drops, KOSHU's
-garrote, UNWIND's ring (B4c: TSUISA's clip measured in gathered K2's hit, the clip it stands in for; B4a's marks gone): each
-must be 0."
+garrote, UNWIND's ring (B4a's marks gone), and batch A2's (§24.2): the route links' lashes, trails and the bundle (K1
+HOSOKU's spin and binding, spread K2 / K3, gathered K2 SOKUDA's U and L, K3 SOKUSEN, J2 SOKUBEN, J3 SOKUTEI), the bind's
+stance with the noose held taut: each must be 0."
   (let* ((e *p1*) (f (fighter e)) (st (hs e)) (m (model e)) (an (model-anim m)) (c0 (anim-clip an)) (t0 (anim-time an))
          (state (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)) (s0 (hss-state st))
          (ct (fighter-contact f)) (p (pos-of e)))
@@ -2065,27 +2556,39 @@ must be 0."
              (bind (progn (setf (hss-bound st) t) (bytes)))
              (bk (progn (setf (hss-bound st) nil)
                         (list (progn (at :hs-r-j3 14 :hs-k-sensa) (bytes))
-                              (progn (at :hs-r-k2 28 :hs-k-tsuisa) (setf (fighter-contact f) :hit) (bytes))
+                              (progn (at :hs-r-k2 28 :hs-k-g-k2) (setf (fighter-contact f) :hit) (bytes))
                               (progn (setf (fighter-contact f) ct) (at :hs-r-kubikake 12 :hs-k-kubikake) (bytes))
                               (progn (at :hs-r-l 15 :hs-k-saharai) (bytes))
                               (progn (at :hs-r-sp1 21 :hs-k-raiden) (bytes))
                               (progn (at :hs-r-sp2 31 :hs-k-ame) (bytes))
                               (progn (at :hs-r-kikon 21 :hs-k-kosa) (bytes)))))
+             (a2 (list (progn (at :hs-r-k1 17 :hs-k-hosoku) (bytes))           ; (A2, §24.2: the route links, the bundle)
+                       (progn (at :hs-r-k1 24 :hs-k-hosoku) (bytes))
+                       (progn (at :hs-r-k2s 21 :hs-k-s-k2) (bytes))
+                       (progn (at :hs-r-k3 22 :hs-k-s-k3) (bytes))
+                       (progn (at :hs-r-k2 34 :hs-k-g-k2) (bytes))
+                       (progn (at :hs-r-k3g 28 :hs-k-g-k3) (bytes))
+                       (progn (at :hs-r-j2s 16 :hs-k-g-j2) (bytes))
+                       (progn (at :hs-r-j3g 17 :hs-k-g-j3) (bytes))))
              (bb (progn (setf (hss-bound st) t (fighter-form f) :bankai-bind)
                         (list (progn (at :hs-b-k2 21 :hs-kb-makigiri) (bytes))
                               (progn (at :hs-b-k3 23 :hs-kb-shibori) (bytes))
                               (progn (at :hs-b-sp1 15 :hs-kb-raiden) (bytes))
                               (progn (at :hs-b-kikon 9 :hs-kb-koshu) (bytes))
+                              (progn (setf (fighter-state f) :idle (fighter-move f) nil (anim-clip an) (find-clip :hs-kb-stance))
+                                     (bytes))                                  ; (A2: the stance, the noose held taut)
                               (progn (setf (hss-bound st) nil) (at :hs-b-unwind 10 :hs-kb-unwind) (bytes))))))
         (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (hss-state st) s0
               (fighter-contact f) ct (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm
               (hss-bound st) b0)
         (log-msg "duel hisagi look consing (10 calls, B): stance ~d, out ~d, NAGE ~d, HIKI ~d, windmill ~d, J1 grip ~d, J3 ~d, ~
-KARI-OTOSHI ~d, S1's charge x1.4: windmill ~d, NAGE ~d, KARI-OTOSHI ~d; SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d; the Bankai's clips: J3 ~d, TSUISA ~d, KUBIKAKE ~d, SAHARAI ~d, ~
-SP1 ~d, SP2 ~d, KOSA ~d; the bind's MAKIGIRI ~d, SHIBORI ~d, SP1 ~d, KOSHU ~d, UNWIND ~d"
+KARI-OTOSHI ~d, S1's charge x1.4: windmill ~d, NAGE ~d, KARI-OTOSHI ~d; SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d; the Bankai's clips: J3 ~d, SOKUDA ~d, KUBIKAKE ~d, SAHARAI ~d, ~
+SP1 ~d, SP2 ~d, KOSA ~d; the route links (A2): HOSOKU ~d, its bundle ~d, spread K2 ~d, K3 ~d, SOKUDA's L ~d, SOKUSEN ~d, SOKUBEN ~d, ~
+SOKUTEI ~d; the bind's MAKIGIRI ~d, SHIBORI ~d, SP1 ~d, KOSHU ~d, stance ~d, UNWIND ~d"
                  idle out nage hiki kaza grip rin kari (nth 0 ch) (nth 1 ch) (nth 2 ch) shibari kubi bankai bind
                  (nth 0 bk) (nth 1 bk) (nth 2 bk) (nth 3 bk) (nth 4 bk) (nth 5 bk) (nth 6 bk)
-                 (nth 0 bb) (nth 1 bb) (nth 2 bb) (nth 3 bb) (nth 4 bb))))))
+                 (nth 0 a2) (nth 1 a2) (nth 2 a2) (nth 3 a2) (nth 4 a2) (nth 5 a2) (nth 6 a2) (nth 7 a2)
+                 (nth 0 bb) (nth 1 bb) (nth 2 bb) (nth 3 bb) (nth 4 bb) (nth 5 bb))))))
 (defparameter *hs-tip-moves*
   '((:bankai :hs-r-j1) (:bankai :hs-r-j2) (:bankai :hs-r-j3) (:bankai :hs-r-k1) (:bankai :hs-r-k2s) (:bankai :hs-r-k3)
     (:bankai :hs-r-k2) (:bankai :hs-r-j2s) (:bankai :hs-r-k3g) (:bankai :hs-r-j3g)
@@ -2093,8 +2596,8 @@ SP1 ~d, SP2 ~d, KOSA ~d; the bind's MAKIGIRI ~d, SHIBORI ~d, SP1 ~d, KOSHU ~d, U
     (:bankai :hs-breaker) (:bankai-bind :hs-b-j1) (:bankai-bind :hs-b-j2) (:bankai-bind :hs-b-j3) (:bankai-bind :hs-b-k1)
     (:bankai-bind :hs-b-k2) (:bankai-bind :hs-b-k3) (:bankai-bind :hs-b-sp1) (:bankai-bind :hs-b-sp2) (:bankai-bind :hs-b-l)
     (:bankai-bind :hs-b-kikon))
-  "Debug 83902's moves: (form move), every Bankai move with a hit window of volumes (B4c: the ranged route links too; those
-on a stand-in clip, *HS-R-CLIP-STAND-INS*, measure the stand-in until B4b draws theirs).")
+  "Debug 83902's moves: (form move), every Bankai move with a hit window of volumes (B4c: the ranged route links too, on
+their own clips since batch A2, §24.2).")
 (defun hisagi-tip-check ()
   "Debug 83902 (P1 Hisagi 3 m from an idle Kenpachi; DUEL_HISAGI §21.8): for every move of *HS-TIP-MOVES*, on each of its
 hit frames, the body posed by its form's clip (the FK and HS-POSE, as DRAW-FIGHTER) and HISAGI-DRAW run, what strikes
@@ -2113,7 +2616,7 @@ far edge. A debug measurement (it conses)."
         (let* ((kit (find-kit :hisagi form)) (mv (find-move name))
                (clip (kit-move-clip kit (if (member (mv-kind mv) '(:kikon :breaker)) (mv-clip-2 mv) (mv-clip mv))))
                (vol (first (hw-vols (svref (mv-hits mv) 0)))) (cap (> (aref vol 0) 0.5))
-               (edge (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1))) (tips nil))
+               (tips nil))
           (setf (fighter-form f) form (hss-bound st) (eq form :bankai-bind) (fighter-state f) :move (fighter-move f) mv
                 (fighter-phase f) :main (fighter-contact f) nil)
           (loop for w across (mv-hits mv)
@@ -2131,7 +2634,9 @@ far edge. A debug measurement (it conses)."
                                            (let ((dx (- (aref v 0) (aref p 0))) (dz (- (aref v 2) (aref p 2))))
                                              (if cap (- (* dx (- (sin yaw))) (* dz (cos yaw))) (sqrt (+ (* dx dx) (* dz dz)))))))
                                   tips)))
-          (log-msg "duel hisagi tip ~(~a ~a ~a~): ~{~,2f~^ ~} | edge ~,2f (~a)" form name clip (reverse tips) edge
+          (log-msg "duel hisagi tip ~(~a ~a ~a~): ~{~,2f~^ ~} | edge ~{~,2f~^ / ~} (~a)" form name clip (reverse tips)
+                   (loop for w across (mv-hits mv)                      ; (each window's: A2's gathered K2 has two)
+                         collect (let ((v (first (hw-vols w)))) (if cap (+ (aref v 2) (aref v 4)) (aref v 1))))
                    (if cap "line" "arc")))))
     (setf (fighter-form f) :bankai (hss-bound st) nil (fighter-contact f) nil)
     (to-idle e 0)))
@@ -2153,9 +2658,13 @@ far edge. A debug measurement (it conses)."
     (:hs-kb-gen :hs-b-j1 1.5 nil :bind) (:hs-kb-kaeshi :hs-b-j2 1.5 nil :bind) (:hs-kb-sogen :hs-b-j3 1.5 nil :bind)
     (:hs-kb-hikigiri :hs-b-k1 2.5 nil :bind) (:hs-kb-makigiri :hs-b-k2 2.5 nil :bind) (:hs-kb-shibori :hs-b-k3 2.8 nil :bind)
     (:hs-kb-hikiyose :hs-b-sp2 2.5 nil :bind) (:hs-kb-raiden :hs-b-sp1 3.5 nil :bind) (:hs-kb-kojo :hs-b-l 2.5 nil :bind)
-    (:hs-kb-koshu-run nil 4.0 nil :bind) (:hs-kb-koshu :hs-b-kikon 1.2 nil :bind) (:hs-kb-unwind :hs-b-unwind 2.0 nil :unwind))
+    (:hs-kb-koshu-run nil 4.0 nil :bind) (:hs-kb-koshu :hs-b-kikon 1.2 nil :bind) (:hs-kb-unwind :hs-b-unwind 2.0 nil :unwind)
+    (:hs-k-hosoku :hs-r-k1 3.5 nil :bankai) (:hs-k-s-k2 :hs-r-k2s 5.0 nil :bankai) (:hs-k-s-k3 :hs-r-k3 5.0 nil :bankai)
+    (:hs-k-g-k2 :hs-r-k2 5.0 nil :bankai) (:hs-k-g-k3 :hs-r-k3g 5.0 nil :bankai) (:hs-k-g-j2 :hs-r-j2s 4.0 nil :bankai)
+    (:hs-k-g-j3 :hs-r-j3g 4.0 nil :bankai) (:hs-kb-stance nil 1.5 nil :bind))
   "83500+k (DUEL_HISAGI §21.8): the Bankai's strip slots, as *HS-STRIPS* plus the form: :bankai the ranged mode, :bind a
-bind (the noose), :unwind the bind mode just ended (UNWIND's ring).")
+bind (the noose), :unwind the bind mode just ended (UNWIND's ring). Batch A2 (§24.2): 26-32 the ranged route links (K1
+HOSOKU, spread K2 / K3, gathered K2 / K3G / J2s / J3G), 33 the bind's stance.")
 (defparameter *hs-strips*
   '((:hs-s-stance nil 3.0) (:hs-s-walk-f nil 3.0) (:hs-s-run nil 3.0) (:hs-s-sen :hs-j1 2.0) (:hs-s-kaeshi :hs-j2 2.0)
     (:hs-s-rin :hs-j3 2.0) (:hs-s-kaeshi-1h :hs-j2-1h 2.0 :out) (:hs-s-rin-1h :hs-j3-1h 2.0 :out) (:hs-s-nage :hs-k1 6.0)

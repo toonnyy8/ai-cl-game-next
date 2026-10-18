@@ -375,8 +375,8 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 ;; the tip (>= *HS-R-J-PUSH*), J3's to *HS-R-J3-PUSH*. B4c (§22.4, §22.6): the opener decides the route of links 2-3 (the
 ;; ranged kit's :strings): J1 -> spread (J2, K2s, then J3 / K3: the base S *HS-R-SPREAD-S*, damage x *HS-R-SPREAD-MULT*),
 ;; K1 綁束 -> gathered (K2, J2s, then K3G / J3G: *HS-R-GATHER-S*, x *HS-R-GATHER-MULT*). Every link but K1 keeps the dead
-;; zone. The clips are B3b's, played to the new startups (:clip-s); the route links B3b had no clip for play a stand-in
-;; through *HS-R-CLIP-STAND-INS* (their own clip names, so the art pass B4b draws each route its own)
+;; zone. The clips are B3b's, played to the new startups (:clip-s); the route links B3b had no clip for are drawn as their
+;; own clips by the art pass's batch A2 (DUEL_HISAGI §24.2: hisagi-art.lisp, :clip-s their S)
 (defmove :hs-r-j1 :kind :quick :clip :hs-k-saben :clip-s 12 :startup 14 :active 3 :recovery 12 :dmg 22 :adv-block -2 :guard 8
   :reach 5.0 :arc 100 :on-hit :flinch :hits ((14 17 :stun 24)) :flags (:ranged :no-close) :params (:melee-range 2.0)
   :min-reach *hs-r-j1-dead* :on-land hs-r-j-push)                                                                 ; 旋鞭 SENBEN
@@ -384,7 +384,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 ;; round, no close-in; the base K1's A / R / guard / block (§17.1). B4d (§22.8, the user 2026-10-18: 「讓 K1 只能打中遠方的
 ;; 敵人」): the dead zone back and farther, an annulus 2.0-4.0 m (r 3.0 -> 4.0, no dead zone -> *HS-R-DEAD*); the tip x1.3
 ;; on its outer 1.0 m (3.0-4.0)
-(defmove :hs-r-k1 :kind :flash :clip :hs-k-hosoku :clip-s 14 :startup 16 :active 4 :recovery 22 :dmg 40 :adv-block -3 :guard 14
+(defmove :hs-r-k1 :kind :flash :clip :hs-k-hosoku :clip-s 16 :startup 16 :active 4 :recovery 22 :dmg 40 :adv-block -3 :guard 14
   :vol (:arc 4.0 360 0.2 2.0) :on-hit :stagger :flags (:ranged :no-close) :params (:melee-range 2.0)
   :min-reach *hs-r-dead*)                                                                                      ; 綁束 HOSOKU
 ;; spread (J1 ->): the thin hanging chains. J2 the other side's curtain (B4a's J2), K2s a fan of chains whipping the ground,
@@ -392,29 +392,29 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 (defmove :hs-r-j2 :kind :quick :clip :hs-k-kaeshi :clip-s 11 :startup 10 :active 3 :recovery 13 :dmg 19 :adv-block -2 :guard 8
   :reach 4.5 :arc 100 :on-hit :flinch :hits ((10 13 :stun 24)) :flags (:ranged) :params (:melee-range 2.0)
   :min-reach *hs-r-dead* :on-land hs-r-j-push)                                                                 ; 旋鞭 (back)
-(defmove :hs-r-k2s :kind :flash :clip :hs-k-s-k2 :clip-s 24 :enter 6 :startup 21 :active 4 :recovery 24 :dmg 37 :adv-block -3
+(defmove :hs-r-k2s :kind :flash :clip :hs-k-s-k2 :clip-s 21 :enter 6 :startup 21 :active 4 :recovery 24 :dmg 37 :adv-block -3
   :guard 14 :reach 6.0 :arc 60 :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*)   ; 散鞭
 (defmove :hs-r-j3 :kind :quick :clip :hs-k-sensa :clip-s 13 :startup 10 :active 3 :recovery 18 :dmg 26 :adv-block -4 :guard 12
   :reach 5.0 :arc 360 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*
   :on-land hs-r-j3-push)                                                                                       ; 旋鎖 SENSA
-(defmove :hs-r-k3 :kind :flash :clip :hs-k-s-k3 :clip-s 24 :enter 6 :startup 21 :active 5 :recovery 34 :dmg 56 :adv-block -20
+(defmove :hs-r-k3 :kind :flash :clip :hs-k-s-k3 :clip-s 21 :enter 6 :startup 21 :active 5 :recovery 34 :dmg 56 :adv-block -20
   :guard 18 :reach 6.0 :arc 160 :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0)
   :min-reach *hs-r-dead*)                                                                                      ; 散撃
 ;; gathered (K1 ->): the bundle. K2 the U -> L (the bundle arcs over and slams 2.0-3.5 m ahead, a stagger that pushes him
 ;; onto the line: HS-R-UCHI-PUSH; then its tail lashes on along the ground 3.5-8.0 m and knocks him off his feet: a launch,
 ;; so the K3 / J3 after it still combo; the bundle left lying ahead is the art's), J2s a straight lash, K3G the lying bundle
 ;; hauled into a 360 deg spin, J3G a flat sweep
-(defmove :hs-r-k2 :kind :flash :clip :hs-k-g-k2 :clip-s 22 :enter 6 :startup 27 :active 10 :recovery 24 :dmg 25 :adv-block -3
+(defmove :hs-r-k2 :kind :flash :clip :hs-k-g-k2 :clip-s 27 :enter 6 :startup 27 :active 10 :recovery 24 :dmg 25 :adv-block -3
   :guard 14 :reach 8.0 :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*
   :on-land hs-r-uchi-push
   :hits ((27 31 :vol (:cap 2.0 3.5 0.5 0.5)) (33 37 :dmg 32 :on-hit :launch :vol (:cap 3.5 8.0 0.4 0.5))))     ; 束打 SOKUDA
-(defmove :hs-r-j2s :kind :quick :clip :hs-k-g-j2 :clip-s 12 :startup 16 :active 3 :recovery 13 :dmg 29 :adv-block -2 :guard 8
+(defmove :hs-r-j2s :kind :quick :clip :hs-k-g-j2 :clip-s 16 :startup 16 :active 3 :recovery 13 :dmg 29 :adv-block -2 :guard 8
   :vol (:cap 2.0 5.0 1.0 0.5) :on-hit :flinch :hits ((16 19 :stun 24)) :flags (:ranged) :params (:melee-range 2.0)
   :min-reach *hs-r-dead*)                                                                                      ; 束鞭 SOKUBEN
-(defmove :hs-r-k3g :kind :flash :clip :hs-k-g-k3 :clip-s 14 :enter 6 :startup 27 :active 5 :recovery 34 :dmg 86 :adv-block -20
+(defmove :hs-r-k3g :kind :flash :clip :hs-k-g-k3 :clip-s 27 :enter 6 :startup 27 :active 5 :recovery 34 :dmg 86 :adv-block -20
   :guard 18 :reach 6.0 :arc 360 :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0)
   :min-reach *hs-r-dead*)                                                                                      ; 束旋 SOKUSEN
-(defmove :hs-r-j3g :kind :quick :clip :hs-k-g-j3 :clip-s 13 :startup 16 :active 3 :recovery 18 :dmg 39 :adv-block -4 :guard 12
+(defmove :hs-r-j3g :kind :quick :clip :hs-k-g-j3 :clip-s 16 :startup 16 :active 3 :recovery 18 :dmg 39 :adv-block -4 :guard 12
   :reach 5.0 :arc 180 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*
   :on-land hs-r-j3-push)                                                                                       ; 束薙 SOKUTEI
 (defparameter *hs-r-strings*
@@ -425,12 +425,10 @@ spread (J2 / K2s, J3 / K3), K1-opened gathered (K2 / J2s, K3G / J3G).")
 (defparameter *hs-r-spread-links* '(:hs-r-j2 :hs-r-k2s :hs-r-j3 :hs-r-k3) "The spread route's links 2-3 (J1-opened).")
 (defparameter *hs-r-gather-links* '(:hs-r-k2 :hs-r-j2s :hs-r-k3g :hs-r-j3g) "The gathered route's links 2-3 (K1-opened).")
 (defparameter *hs-r-clip-stand-ins*
-  '(:hs-k-hosoku :hs-k-saharai :hs-k-s-k2 :hs-k-nagisa :hs-k-s-k3 :hs-k-rakusa
-    :hs-k-g-k2 :hs-k-tsuisa :hs-k-g-j2 :hs-k-saben :hs-k-g-k3 :hs-k-saharai :hs-k-g-j3 :hs-k-sensa
-    :hs-kb-kaibaku :hs-kb-hikiyose)
-  "The route links' own clip names -> the B3b clip each plays until the art pass B4b draws it (a look, through the
-Bankai's :clip-map; B4b deletes each entry it draws), and the bind SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture, its old L). The
-host's drawn-reach checks skip these moves.")
+  '(:hs-kb-kaibaku :hs-kb-hikiyose)
+  "Clip names -> the clip each plays until the art pass draws it (a look, through the Bankai's :clip-map; the art pass
+deletes each entry it draws): the bind SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture, its old L). (The seven ranged route links'
+were drawn by batch A2, DUEL_HISAGI §24.2.) The host's drawn-reach checks skip these moves.")
 ;; L 鎖払 SAHARAI: the chains whirled round him (360 deg r 3.0); a hit or a block pushes him to 3.5 m (S1, §23.3; HS-R-PUSH,
 ;; HS-BK-HIT). B4d (§22.8): his only close-in tool, no cooldown (120 -> 0), S *HS-SAHARAI-S* / R *HS-SAHARAI-R* / block
 ;; *HS-SAHARAI-ADV*; its clip authored at S 14 (:clip-s 14: the strike still lands on S)
@@ -517,10 +515,13 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
 :pose hook (HS-POSE: the right crescent let out on its hand chain) is a look, as the Shikai's.")
 (defparameter *hs-bk-clips* (append '(:hs-breaker :hs-k-breaker :hs-kubikake :hs-k-hammer) *hs-r-clip-stand-ins*)
   "The Bankai's :clip-map (both modes; a look, DUEL_HISAGI §21.8): the shared Breaker's dash and strike on its own clips
-(every Bankai move names its own clip), and the ranged route links' stand-ins (*HS-R-CLIP-STAND-INS*, B4c).")
+(every Bankai move names its own clip), and the stand-ins still waiting for the art pass (*HS-R-CLIP-STAND-INS*).")
 (defparameter *hs-bk-looks* '(:sh-walk-f :hs-k-walk-f :sh-walk-b :hs-k-walk-b :sh-strafe-r :hs-k-strafe-r
                               :sh-strafe-l :hs-k-strafe-l)
   "The Bankai's :look-clips: the shared walk's legs under his hanging arms (§21.8).")
+(defparameter *hs-kb-looks* '(:sh-walk-f :hs-kb-walk-f :sh-walk-b :hs-kb-walk-b :sh-strafe-r :hs-kb-strafe-r
+                              :sh-strafe-l :hs-kb-strafe-l)
+  "The bind mode's :look-clips (batch A2, DUEL_HISAGI §24.2): the walk in the bind's low gripped stance.")
 
 (defkit :hisagi :bankai
   :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-k-stance
@@ -550,9 +551,9 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
        :kikon-range 9.0 :reflex hs-r-ai-reflex :opp-reflex hs-ai-opp :sp-ender hs-r-ai-ender :move-reflex hs-r-ai-move))
 
 (defkit :hisagi :bankai-bind
-  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-k-stance
-  :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI"
-  :clip-map *hs-bk-clips* :look-clips *hs-bk-looks* :run-clips (:hs-k-run :hs-k-skate-b :hs-k-slide-r :hs-k-slide-l)
+  :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-kb-stance
+  :intro :hs-intro :win :hs-win :intro-callout "KARE, KAZESHINI"   ; (A2, §24.2: its own stance and walk, a look)
+  :clip-map *hs-bk-clips* :look-clips *hs-kb-looks* :run-clips (:hs-k-run :hs-k-skate-b :hs-k-slide-r :hs-k-slide-l)
   :endless-form :bankai :push-reach *hs-b-push-reach*
   :walk *hs-b-walk* :run *hs-b-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult 1.0 :taken 1.0
   :commands (:q :hs-b-j1 :f :hs-b-k1 :sig :hs-b-l :sp1 :hs-r-sp2 :sp2 :hs-b-sp2 :breaker :hs-breaker :kikon :hs-b-kikon)

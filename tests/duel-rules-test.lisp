@@ -861,10 +861,12 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :hs-s-nage :hs-s-hiki :hs-s-maki :hs-s-hodoki :hs-s-modoshi :hs-s-kaza :hs-s-raiden :hs-s-shibari   ; (S1, §23.3: :hs-s-kari no move's since; MAKI dormant)
     :hs-s-breaker :hs-s-kubikake :hs-s-kari-aim :hs-s-kari-o
     :hs-k-stance :hs-k-walk-f :hs-k-walk-b :hs-k-strafe-r :hs-k-strafe-l :hs-k-run :hs-k-skate-b :hs-k-slide-r   ; the Bankai's
-    :hs-k-slide-l :hs-k-saben :hs-k-kaeshi :hs-k-sensa :hs-k-tsuisa :hs-k-nagisa :hs-k-rakusa :hs-k-saharai   ;  own (§21.8):
+    :hs-k-slide-l :hs-k-saben :hs-k-kaeshi :hs-k-sensa :hs-k-saharai                                         ;  own (§21.8):
     :hs-k-raiden :hs-k-ame :hs-k-kosa-aim :hs-k-kosa :hs-k-breaker :hs-k-hammer :hs-k-kubikake   ;  the ranged mode,
     :hs-kb-gen :hs-kb-kaeshi :hs-kb-sogen :hs-kb-hikigiri :hs-kb-makigiri :hs-kb-shibori :hs-kb-hikiyose   ;  the bind
-    :hs-kb-raiden :hs-kb-kojo :hs-kb-koshu-run :hs-kb-koshu :hs-kb-unwind))
+    :hs-kb-raiden :hs-kb-kojo :hs-kb-koshu-run :hs-kb-koshu :hs-kb-unwind
+    :hs-k-hosoku :hs-k-s-k2 :hs-k-s-k3 :hs-k-g-k2 :hs-k-g-j2 :hs-k-g-k3 :hs-k-g-j3   ; the ranged route links' (A2, §24.2)
+    :hs-kb-stance :hs-kb-walk-f :hs-kb-walk-b :hs-kb-strafe-r :hs-kb-strafe-l))     ; the bind's stance and walk (A2)
 ;; (Jilliel's SPs and Kikon, decision 56, DUEL_LILLE §23.37: :lb-w-sanren is KIN's SANREN through his :clip-map, :lb-e-sanren
 ;; EN's own, :lb-w-kikon / :lb-w-kikon-fire the Kikon in play; :lb-w-aim and :lb-w-fire are gone)
 ;; (the Kikon cinematics' own clips, :ya-kikon :ya-tenchi :ke-kikon :ke-kikon-n, are played by their
@@ -2743,8 +2745,9 @@ past the ends; DEFAULT if the clip is not listed."
   (check (every (lambda (cf) (or (and (eq (first cf) :barro) (not (eq (second cf) :base)))
                                  (and (equal cf '(:hisagi :base))   ; (Hisagi's Shikai: the walk's legs under his own arms,
                                       (equal (kit-look-clips (apply #'kit cf)) *hs-shikai-looks*))   ;  §21.4; his Bankai's, §21.8)
-                                 (and (member cf '((:hisagi :bankai) (:hisagi :bankai-bind)) :test #'equal)
-                                      (equal (kit-look-clips (apply #'kit cf)) *hs-bk-looks*))
+                                 (and (equal cf '(:hisagi :bankai)) (equal (kit-look-clips (apply #'kit cf)) *hs-bk-looks*))
+                                 (and (equal cf '(:hisagi :bankai-bind))   ; (the bind's low walk, A2 §24.2)
+                                      (equal (kit-look-clips (apply #'kit cf)) *hs-kb-looks*))
                                  (null (kit-look-clips (apply #'kit cf)))))
                 *forms*))
   (flet ((at (j) (joint-point! v jm (joint-index j) 0f0 0f0 0f0) (list (aref v 0) (aref v 1) (aref v 2)))
@@ -3417,7 +3420,7 @@ past the ends; DEFAULT if the clip is not listed."
   (let ((*package* (find-package :duel)))
     (loop for form = (read in nil in) until (eq form in)
           when (and (consp form) (eq (first form) 'defparameter)
-                    (member (second form) '(*hs-strike-reach* *hs-flights* *hs-letout* *hs-bk-chains*)))
+                    (member (second form) '(*hs-strike-reach* *hs-flights* *hs-letout* *hs-bk-chains* *hs-lashes*)))
             do (eval form))))
 (defun hs-bind-end-effects! (b) (push b *t-ends*))                                     ; (B9: clips, reels, hazards)
 (let* ((kr (kit :hisagi :bankai)) (kb (kit :hisagi :bankai-bind)))
@@ -3919,22 +3922,49 @@ past the ends; DEFAULT if the clip is not listed."
                       (~= 2.0 *hs-ai-close*) (eq 'hs-r-ai-reflex (getf (kit-ai kr) :reflex)))))
         (setf *t-moved* nil)))
     ;; the drawn reach (the Bankai's clips, DUEL_HISAGI §21.8): each of its clips in *HS-STRIKE-REACH* (the FK test above
-    ;; reads that reach) is drawn to it by its let-out crescents (*HS-LETOUT*) or chain strikes (*HS-BK-CHAINS*): their
-    ;; farthest end out on the move's hit frames; every one of them reaches its hit volume's far edge within 0.15 m (the
-    ;; arc's r, the line's end + its r; a chain dropped on a line within its r), and nothing lands past it
-    (let ((bk-moves '(:hs-r-j1 :hs-r-j2 :hs-r-j3 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake   ; (B4c: the route links' stand-ins wait for B4b)
-                      :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l)))
-      (dolist (n bk-moves)
-        (let* ((mv (m n)) (clip (mv-clip mv)) (hw (svref (mv-hits mv) 0)) (vol (first (hw-vols hw)))
-               (cap (> (aref vol 0) 0.5)) (edge (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1)))
-               (sp (mv-clip-speed mv)) (c0 (* sp (hw-from hw))) (c1 (* sp (1- (hw-to hw))))   ; (the hit frames in the clip's
-               (ends (append (loop for (c nil nil f1 f2 nil r) in *hs-letout*                  ;  own: B4c's J2 / J3 at S 10)
-                                   when (and (eq c clip) (<= f1 c0) (>= f2 c1)) collect r)
-                             (loop for (c nil nil f1 nil f3 nil r) in *hs-bk-chains*
-                                   when (and (eq c clip) (<= f1 c1) (> f3 c0)) collect r)))
-               (art (and ends (reduce #'max ends))) (sr (third (assoc clip *hs-strike-reach*))))
-          (check (or (and art (<= (abs (- art edge)) 0.15) (or (null sr) (~= sr art)))
-                     (format t "~a ~a: the volume ends ~,2f m, the drawn end ~a, the table ~a~%" n clip edge art sr))))))))
+    ;; reads that reach) is drawn to it by its let-out crescents (*HS-LETOUT*), chain strikes (*HS-BK-CHAINS*) or lashes
+    ;; (*HS-LASHES*, batch A2 §24.2: the ranged route links, their free ends on the keys, each rank's stagger, keys eased
+    ;; 4 f apart or more, as %HS-LASH-TIP!): their farthest end out on each hit window's frames; every one of them reaches
+    ;; its hit volume's far edge within 0.15 m (the arc's r, the line's end + its r, along his facing; a chain dropped on a
+    ;; line within its r), and nothing lands past it; the table holds the first window's
+    (flet ((lash-end (clip f cap)                                      ; the farthest lash end at clip frame F (NIL: none)
+             (let ((best nil))
+               (dolist (x *hs-lashes* best)
+                 (destructuring-bind (c mask ds w f0 f1 &rest keys) x
+                   (declare (ignore w f0 f1))
+                   (when (eq c clip)
+                     (dotimes (k (logcount mask))
+                       (let ((ff (- f (* k ds))))
+                         (when (<= (first (first keys)) ff (first (car (last keys))))
+                           (let* ((i (position-if (lambda (y) (> (first y) ff)) keys))
+                                  (a (nth (if i (max 0 (1- i)) (1- (length keys))) keys)) (b (if i (nth i keys) a))
+                                  (x (if (eq a b) 0 (/ (- ff (first a)) (- (first b) (first a)))))
+                                  (u (if (>= (- (first b) (first a)) 4) (* x x (- 3 (* 2 x))) x))
+                                  (r (+ (second a) (* u (- (second b) (second a)))))
+                                  (a0 (+ (fourth a) (* k (fifth a)))) (a1 (+ (fourth b) (* k (fifth b))))
+                                  (az (+ a0 (* u (- (mod (+ (- a1 a0) 180) 360) 180))))
+                                  (d (if cap (* r (cos (* az (/ pi 180)))) r)))
+                             (setf best (max (or best d) d))))))))))))
+      (let ((bk-moves '(:hs-r-j1 :hs-r-j2 :hs-r-j3 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake
+                        :hs-r-k1 :hs-r-k2s :hs-r-k3 :hs-r-k2 :hs-r-j2s :hs-r-k3g :hs-r-j3g      ; (A2: the route links)
+                        :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l)))
+        (dolist (n bk-moves)
+          (let* ((mv (m n)) (clip (mv-clip mv)) (sr (third (assoc clip *hs-strike-reach*))))
+            (check (null (getf *hs-r-clip-stand-ins* clip)))                ; (its own clip, no stand-in)
+            (loop for hw across (mv-hits mv) for wi from 0
+                  do (let* ((vol (first (hw-vols hw)))
+                            (cap (> (aref vol 0) 0.5)) (edge (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1)))
+                            (sp (mv-clip-speed mv)) (c0 (* sp (hw-from hw))) (c1 (* sp (1- (hw-to hw))))   ; (the hit frames in
+                            (ends (append (loop for (c nil nil f1 f2 nil r) in *hs-letout*                  ;  the clip's own: B4c's
+                                                when (and (eq c clip) (<= f1 c0) (>= f2 c1)) collect r)      ;  J2 / J3 at S 10)
+                                          (loop for (c nil nil f1 nil f3 nil r) in *hs-bk-chains*
+                                                when (and (eq c clip) (<= f1 c1) (> f3 c0)) collect r)
+                                          (remove nil (loop for f from (hw-from hw) below (hw-to hw)
+                                                            collect (lash-end clip (* sp f) cap)))))
+                            (art (and ends (reduce #'max ends))))
+                       (check (or (and art (<= (abs (- art edge)) 0.15) (or (null sr) (> wi 0) (~= sr art)))
+                                  (format t "~a ~a (window ~d): the volume ends ~,2f m, the drawn end ~a, the table ~a~%"
+                                          n clip wi edge art sr)))))))))))
 
 (format t "duel-rules-test: ~d checks, ~a~%" *checks*
         (if (zerop *fails*) "ALL PASS" (format nil "~d FAILED" *fails*)))
