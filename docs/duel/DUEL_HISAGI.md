@@ -1691,6 +1691,26 @@ What changes:
 
 These are added to batch B4c.
 
+**The bind's L and SP2 (the user, 2026-10-18).**
+
+The user's request: 「絞縄改成給捆綁的 L，捆綁的 SP2 換成解除並附加傷害（有專屬動畫、可被防禦）」. Their answers:
+- 「絞縄本身帶拉近」
+- 「不冷卻，降低傷害並增加大前搖，通過降低優勢來控制出招動機」
+- 「先還原再打，傷害 120（推薦）」
+
+What changes (the lead's numbers for the user's direction):
+- **The bind's L becomes 絞縄 KOJO.** It first pulls the victim to 2.0 m along the noose, then strikes (3.0 m, arc
+  160). No cooldown and no SP. Damage 160 → 70, startup 20 → 30 (a big windup), recovery 30 → 36, adv-block
+  -16 → -24. 引寄 HIKIYOSE is gone as a move: its pull lives in L.
+- **The bind's SP2 becomes 解縛擊, the release plus a strike.**
+  - The voluntary release as before: the entry snapshot restored, the remaining pool to the opponent first, the
+    opponent's 30 f reel.
+  - Then a strike for 120 real damage. It is blockable: a block still releases, with no damage.
+  - No SP spent. It gets its own animation.
+- **The bind's P** stays the plain release, with no damage.
+
+These are added to batch B4c.
+
 ### 22.5 The cinematics, storyboards revised for the current design (the lead, 2026-10-18)
 
 §11.5's storyboards predate four decisions:
