@@ -508,6 +508,11 @@ J2s or J3: `kit-j-link-p`), the value a move of that form (her 一越 HITOKOSHI,
 :l-after-j` for a J link as it reads `:l-after-k` for a K link. A refused L link (either key) now gets the `:refused` cue
 and its press is eaten, as a refused neutral command always did; the kit's `:ok` hook gets the link's move as `combo`.
 
+**The `:link-ok` hook** (2026-10-18, Hisagi, DUEL_HISAGI §24.4): a latched J / K link, as its chain opens, is offered to
+the kit's `:link-ok` function with the next move; NIL drops the latch and the string ends there (no cue: the string just
+stops, as a K link with no pip left does). Only Hisagi's Shikai has it (one leap J a combo); a kit without it keeps the old
+behaviour exactly.
+
 **On hit it combos**: from the K link's hit, `A(K) + hit frame(L) < hitstun(K)` (stagger 26 after K1 / K2, crumple 40
 after K3), host-tested for every K link of every form that has the key. **On block** the L comes out at block timing and
 can be guarded as usual (it is not a guard crush; its own guard value drains). It is not an ender: no O after it.

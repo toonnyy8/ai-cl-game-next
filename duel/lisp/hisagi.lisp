@@ -46,12 +46,16 @@
   "Each frame L holds the windmill up adds this to the next K string's reach x (none -> +1 %, 2026-10-18, the user:
 「連續：每幀 +1%，上限 ×1.6」) ...")
 (defparameter *hs-charge-max* 60 "... counted at most this many frames (the windmill's 60 active: x1.6, the user's cap).")
-(defparameter *hs-k-dead* 2.0
+(defparameter *hs-k-dead* 3.0
   "The Shikai's K1 misses a victim nearer than this (m, centre to centre: :min-reach) (none -> 2.0, 2026-10-18, the user:
-「K 串改成純遠距離，近距離打不中」, 「2.0 m（推薦）」, §23.2; K2 / K3 follow the victim: no dead zone, §23.3).")
+「K 串改成純遠距離，近距離打不中」, 「2.0 m（推薦）」, §23.2; 2.0 -> 3.0, 2026-10-18, the user: 「將 K1 能打中的最近距離拉遠」,
+「始解 K1 薙」, 「3.0 m（推薦）」, §24.4; K2 / K3 follow the victim: no dead zone, §23.3).")
 (defparameter *hs-k1-arc* 90
   "K1 NAGI's sweep, degrees (S1's pick for 「K1 是鎖鏈拉動鐮刀橫向遠程揮擊」: NAGE's 6 m line made a sideways swing, 2026-10-18,
 §23.3).")
+(defparameter *hs-bridge-kb* 2.5
+  "The bridge windmill's push :kb (m; the neutral windmill keeps 1.5): far enough that K1 out of a J1 -> L reaches past its
+dead zone (1.5 (the windmill's) -> 2.5, 2026-10-18, the user: 「3.0 m，風車銀接推更遠（推薦）」, §24.4).")
 (defparameter *hs-kaza-k-from* 9
   "K starts the K string from this windmill frame on (its push window's end, f6-8: the push lands first) to its last
 (hold or recovery; S1's pick, 2026-10-18, §23.1).")
@@ -250,6 +254,7 @@ gathered K2 / K3) when the victim stands inside its reach, else the speed pick (
 (defmove-copy :hs-k2j :hs-k2)
 (defmove-copy :hs-j2k :hs-j2 :startup *hs-leap-s* :clip :hs-s-tobi-kaeshi :adv-block *hs-leap-block* :tick hs-leap-tick)
 (defmove-copy :hs-j3k :hs-j3 :startup *hs-leap-s* :clip :hs-s-tobi-rin :adv-block *hs-leap-block* :tick hs-leap-tick)
+(defparameter *hs-leaps* '(:hs-j2k :hs-j3k) "The leap J copies (S2, §23.5): one a combo since §24.4 (HS-LINK-OK).")
 ;; (dormant since S1, §23.3: HODOKI, MAKI's K3, the OUT graph's MODOSHI)
 (defmove :hs-k3h :kind :flash :clip :hs-hodoki :enter 8 :startup 22 :active 5 :recovery 34 :dmg 78 :adv-block -20 :guard 18
   :reach 3.2 :on-hit :crumple :flags (:ender) :on-frame ((22 hs-sickle-in))
@@ -266,7 +271,7 @@ gathered K2 / K3) when the victim stands inside its reach, else the speed pick (
   :on-frame ((0 hs-kaza-start) (6 hs-kaza-up)))
 ;; ... the bridge (the kit's :l-after-j, S1): the same windmill off a J1 / J2 / J3 link, its push a stagger (26 f) so a K
 ;; pressed by f14 (charge <= 9 frames) combos into K1; a longer charge trades the combo for reach (§23.1)
-(defmove-copy :hs-kaza-j :hs-kaza :on-hit :stagger :hits ((6 9)))
+(defmove-copy :hs-kaza-j :hs-kaza :on-hit :stagger :kb *hs-bridge-kb* :hits ((6 9)))
 (defparameter *hs-kazas* '(:hs-kaza :hs-kaza-j) "The windmill and its J bridge copy (S1).")
 ;; Shift+K, SP1 破道の十一 綴雷電 TSUZURI RAIDEN (ch. 337): lightning down its own 6.5 m line in every state, the sickle IN
 ;; at its S; a hit paralyses 40 f (KUSARI-BIKI's)
@@ -313,7 +318,7 @@ on the victim for the look: HS-TICK).")
 not (the art's %HS-FA-KS! / %HS-LETOUT!, host-tested against the copies)."
   (+ drawn (* line (- (hs-charge-scale n) 1.0))))
 (defparameter *hs-hooks* '(:tick hs-tick :ok hs-ok :command hs-command :hit hs-hit :struck hs-struck :reset hs-reset
-                           :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck))
+                           :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :link-ok hs-link-ok))
 (defparameter *hs-shikai-clips* '(:hs-q1 :hs-s-sen :hs-q2 :hs-s-kaeshi :hs-spin :hs-s-rin :hs-nage :hs-s-nage
                                    :hs-hiki :hs-s-hiki :hs-maki :hs-s-maki :hs-kari :hs-s-kari :hs-hodoki :hs-s-hodoki
                                    :hs-modoshi :hs-s-modoshi :hs-kaza :hs-s-kaza :hs-raiden :hs-s-raiden
@@ -351,8 +356,9 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   ;; :reflex), SP2 / the Breaker at mid range
   :ai (:intents (:approach 2 :pressure 2 :zone 3 :defend 1)
        :ranges (:approach (3.0 5.5) :pressure (1.2 2.2) :zone (3.5 6.0) :defend (4.0 6.0))
-       :moves ((0.0 2.0 :q 5 :breaker 1 :sp2 1)        ; (S1: K1 has a 2.0 m dead zone, §23.3)
-               (2.0 3.5 :f 3 :q 1 :sp2 2 :step 1)
+       :moves ((0.0 2.0 :q 5 :breaker 1 :sp2 1)        ; (S1: K1 has a 2.0 m dead zone, §23.3; 3.0 since §24.4)
+               (2.0 3.0 :q 1 :sp2 2 :step 1)
+               (3.0 3.5 :f 3 :q 1 :sp2 2 :step 1)
                (3.5 6.2 :f 5 :sp1 1 :step 1)
                (6.2 9.0 :sp1 1 :kikon 1 :sig 1 nil 2)   ; (S1: the windmill charged into K1 at range)
                (9.0 99.0 :kikon 1 nil 2))
@@ -626,6 +632,7 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (charge 0 :type fixnum)                     ; S1: the windmill's charge (frames L held), the K string's reach after it
   (kstr nil)                                  ; S1: the K string he is in was started by a windmill (its reach x the charge)
   (kz-let nil)                                ; S1: L was let go in this windmill (the charge stops)
+  (leapt nil)                                 ; §24.4: he leapt (J2K / J3K) in the combo the victim is in now (HS-LINK-OK)
   (throw-n 0 :type fixnum)                    ; S1: the charge of the throw out now (its chain length x it, HS-TICK)
   (ai-kz nil) (ai-kz-threat nil)              ; S1, his CPU: K out of this windmill (rolled at the press); the press is a ward
   (ai-out -1 :type fixnum) (ai-modoshi nil)   ; his CPU: the OUT start it rolled for, and its pick
@@ -698,7 +705,7 @@ Values ax ay az bx by bz r."
 (defun hs-reset (e)
   "His :reset hook (combat.lisp RESET-ROUND: a Kikon / Soul Break reset): the sickle IN."
   (let ((st (hs e))) (setf (hss-state st) :in (hss-out-t st) 0 (hss-ret-t st) 0 (hss-anchored st) nil
-                           (hss-charge st) 0 (hss-kstr st) nil)))
+                           (hss-charge st) 0 (hss-kstr st) nil (hss-leapt st) nil)))
 (defun hs-pull-to (e to frames)
   "E's chain drags his victim to TO m over FRAMES (his slide replaced; ICHIGO-PULL-TO's rule); T when it moved him."
   (let* ((v (opp-of e)) (p (pos-of e)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
@@ -720,7 +727,7 @@ Values ax ay az bx by bz r."
 velocity replaced, a J link has no chase). The look is the move's own clip (A1, §24.1: the crouch, the leap, the J)."
   (let* ((f (fighter e)) (mv (fighter-move f)) (sf (fighter-sf f)) (s (mv-s mv))
          (sp (hs-leap-speed (fighter-dist f) (mv-reach mv) s sf)))
-    (when (= sf 1) (pace e :leap))
+    (when (= sf 1) (pace e :leap) (setf (hss-leapt (hs e)) t))
     (when (> sp 0)
       (let* ((p (pos-of e)) (dx (- (fighter-ox f) (aref p 0))) (dz (- (fighter-oz f) (aref p 2))) (l (max 1e-4 (hypot dx dz)))
              (v (motion-vel (motion e))))
@@ -756,6 +763,11 @@ for K while it returns (fighter.lisp TRY-COMMAND starts nothing, the press stays
   (let ((name (hs-command-for (hss-state (hs e)) cmd)))
     (cond ((eq name :hold) :hold)
           (name (find-move name)))))
+(defun hs-link-ok (e next)
+  "His Shikai's :link-ok hook (fighter.lisp, a latched J / K link as it starts): a leap J (J2K / J3K) refused once he has
+leapt in this combo (HSS-LEAPT, cleared when the victim is back in neutral: HS-TICK), so K -> J -> L -> K can't loop (§24.4,
+the user: 「一套連段只能跳近一次」); the string ends there."
+  (not (and (member (mv-name next) *hs-leaps*) (hss-leapt (hs e)))))
 (defun hs-ok (e cmd combo)
   "His :ok hook: L and SP2 refused while the sickle is out or returning (the cue; Q4 A)."
   (declare (ignore combo))
@@ -780,7 +792,9 @@ the victim's centre (§7.1); the counters."
   "His :tick hook in the Shikai (every step, after the hits): the whiffed throw's anchor on its last active frame, the out
 timer (only out of his moves) and the auto-retrieve, the return's arrival; the counters."
   (declare (ignore g))
-  (let* ((st (hs e)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (sf (fighter-sf f)))
+  (let* ((st (hs e)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (sf (fighter-sf f)) (o (opp-of e)))
+    (when (and (hss-leapt st) (or (null o) (zerop (fighter-combo-hits (fighter o)))))   ; §24.4: his leap's combo is over
+      (setf (hss-leapt st) nil))
     (cond ((not (hs-kstr-keep-p (and mv (mv-name mv)) (hss-kstr st)))   ; S1 (§23.1): the charge ends with its K string
            (setf (hss-charge st) 0 (hss-kstr st) nil))
           ((and (hss-kstr st) (member (mv-name mv) *hs-k-string*) (not (eq mv (hs-scaled (mv-name mv) (hss-charge st)))))   ; its link at the charge's reach
@@ -877,7 +891,8 @@ A learner baiting its Burst read: the generic reflex (NIL)."
   (when (and (eq (fighter-contact f) :hit) (= (fighter-sf f) (fighter-land-sf f)) (null (fighter-queued f))
              (member (mv-name mv) '(:hs-k1 :hs-k2)) (kit-next (fighter-kit f) (mv-name mv) :q)
              (not (and (brain-learn b) (eq (lrn-cmd (brain-learn b)) :bait))))
-    (if (and (hs-ai-leap-wanted-p (fighter-dist f) (brain-intent b)) (< (sim-rnd01) (hs-p b *hs-ai-leap-p*)))
+    (if (and (not (hss-leapt (hs e)))                 ; (§24.4: one leap a combo)
+             (hs-ai-leap-wanted-p (fighter-dist f) (brain-intent b)) (< (sim-rnd01) (hs-p b *hs-ai-leap-p*)))
         (progn (pace e :ai-leap) (why b :leap :q))
         (why b :string :f))))
 (defun hs-ai-opp (e b s d)

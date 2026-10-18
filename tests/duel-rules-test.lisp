@@ -3062,7 +3062,7 @@ past the ends; DEFAULT if the clip is not listed."
     (check (and (member :no-close (mv-flags (m :hs-k1))) (member :ranged (mv-flags (m :hs-k1)))
                 (~= 2.0 (getf (mv-params (m :hs-k1)) :melee-range)) (~= 30.0 (mv-track (m :hs-k1)))
                 (null (getf (mv-params (m :hs-k1)) :throw)) (null (mv-on-land (m :hs-k1))) (null (mv-on-frame (m :hs-k1)))
-                (~= *hs-k-dead* (hw-min (svref (mv-hits (m :hs-k1)) 0))) (~= 2.0 *hs-k-dead*)
+                (~= *hs-k-dead* (hw-min (svref (mv-hits (m :hs-k1)) 0))) (~= 3.0 *hs-k-dead*)
                 (let ((v (first (hw-vols (svref (mv-hits (m :hs-k1)) 0)))))
                   (and (< (aref v 0) 0.5) (~= 6.0 (aref v 1)) (~= 90 (/ (* 2 (aref v 2)) (deg 1)))))
                 (every (lambda (n) (let ((w (svref (mv-hits (m n)) 0)))
@@ -3388,8 +3388,8 @@ past the ends; DEFAULT if the clip is not listed."
     ;; :defend, inside the dead zone: K, no roll; off any other step, a block or another link (K2J: no J after it): nothing
     (check (and (eq 'hs-ai-move (getf (kit-ai k) :move-reflex))
                 (<= (getf *hs-ai-leap-p* :easy) (getf *hs-ai-leap-p* :normal) (getf *hs-ai-leap-p* :hard))))
-    (check (and (hs-ai-leap-wanted-p 5.0 :approach) (hs-ai-leap-wanted-p 9.6 :pressure) (hs-ai-leap-wanted-p 2.1 :approach)
-                (not (hs-ai-leap-wanted-p 2.0 :approach)) (not (hs-ai-leap-wanted-p 5.0 :zone)) (not (hs-ai-leap-wanted-p 5.0 :defend))))
+    (check (and (hs-ai-leap-wanted-p 5.0 :approach) (hs-ai-leap-wanted-p 9.6 :pressure) (hs-ai-leap-wanted-p 3.1 :approach)
+                (not (hs-ai-leap-wanted-p 3.0 :approach)) (not (hs-ai-leap-wanted-p 5.0 :zone)) (not (hs-ai-leap-wanted-p 5.0 :defend))))
     (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))   ; (the steps that roll nothing: the host has no sim stream)
       (declare (ignore b))
       (let ((fa (fighter a)) (br (make-brain)))
@@ -3998,6 +3998,32 @@ past the ends; DEFAULT if the clip is not listed."
                               always (let ((g (find-if (lambda (g) (and (<= (first g) f) (< f (second g)))) path)))
                                        (and g (= 6 (third g) (fourth g))))))
                    (format t "  Hisagi A1 ~a (~a): not on the victim on its hit frames~%" n (mv-clip mv))))))))
+
+;;; §24.4 (the user, 2026-10-18: 「一套連段只能跳近一次」, 「3.0 m，風車銀接推更遠（推薦）」): K -> J (the leap) -> L -> K looped
+;;; (K1 J2K J3 L K1 ..., K1 K2 J3K L K1 ...); his :link-ok hook refuses a second leap while the victim is still in the combo
+;;; of the first (the string ends), cleared once the victim is back in neutral; no other kit has the hook; K1's dead zone
+;;; 3.0 m and the bridge windmill's push 2.5 m (the neutral windmill's 1.5) so J1 -> L -> K1 still reaches
+(let ((k (kit :hisagi :base)))
+  (check (and (eq 'hs-link-ok (kit-hook k :link-ok)) (equal *hs-leaps* '(:hs-j2k :hs-j3k))
+              (~= 3.0 *hs-k-dead*) (~= 2.5 *hs-bridge-kb*)
+              (~= 2.5 (hw-kb (svref (mv-hits (find-move :hs-kaza-j)) 0))) (~= 1.5 (hw-kb (svref (mv-hits (find-move :hs-kaza)) 0)))
+              (notany (lambda (cf) (and (not (eq (first cf) :hisagi)) (kit-hook (apply #'kit cf) :link-ok))) *forms*)))
+  (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))
+    (let ((st (hs a)))
+      (setf (hss-leapt st) nil)
+      (check (and (hs-link-ok a (find-move :hs-j2k)) (hs-link-ok a (find-move :hs-j3k))))
+      (setf (hss-leapt st) t)
+      (check (and (not (hs-link-ok a (find-move :hs-j2k))) (not (hs-link-ok a (find-move :hs-j3k)))
+                  (hs-link-ok a (find-move :hs-k2)) (hs-link-ok a (find-move :hs-j3)) (hs-link-ok a (find-move :hs-k3))))
+      (setf (fighter-state (fighter b)) :stun (fighter-combo-hits (fighter b)) 2)
+      (hs-tick a (fighter a) nil)
+      (check (hss-leapt st))                                     ; (the combo goes on: still refused)
+      (setf (fighter-state (fighter b)) :idle (fighter-combo-hits (fighter b)) 0)
+      (hs-tick a (fighter a) nil)
+      (check (null (hss-leapt st)))                              ; (back in neutral: a new combo may leap)
+      (setf (hss-leapt st) t)
+      (hs-reset a)
+      (check (null (hss-leapt st))))))
 
 (format t "duel-rules-test: ~d checks, ~a~%" *checks*
         (if (zerop *fails*) "ALL PASS" (format nil "~d FAILED" *fails*)))

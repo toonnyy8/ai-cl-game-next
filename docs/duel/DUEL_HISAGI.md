@@ -2743,7 +2743,37 @@ edge.
 - The bind leash runs to the hidden opponent's unposed neck on the card stills (as the noose does, §21.8).
 - B3b's J1 / J2 / J3 crescents still start in the fist.
 
+### 24.4 One leap a combo; K1's dead zone 3.0 m; the bridge windmill's push (the user, 2026-10-18; a sim change)
+
+> 「將 K1 能打中的最近距離拉遠」 → 「始解 K1 薙」, 「3.0 m（推薦）」; the lead found J1 → L → K1 broken at 3.0 (the bridge
+> windmill left the victim at 2.31 m) and an infinite combo on main, K1 → J2K → J3 → L → K1 … (84 f a round, 150 raw, no
+> resource, the victim never back in neutral); the user found its twin: 「我發現始解 K1 K2 J3 L K1 K2 J3 L ... 能打出無限連招www，
+> 應該要怎麼修改比較好」 → 「一套連段只能跳近一次」, 「3.0 m，風車銀接推更遠（推薦）」
+
+**Why it looped.** S1's bridge (J → L → K) and S2's leap (K → J) close a cycle K → J → L → K, each link a true combo; the
+system has no combo cap (the hit-10 knockdown gone 2026-09-30, the stun tolerance's blow-away off since 2026-10-10). Every
+way back to K1 is the bridge after a J, and the first J after a K is always a leap, so one leap a combo breaks every cycle.
+
+**As built** (`duel/lisp/hisagi.lisp`, one shared hook in `fighter.lisp`):
+- `*hs-k-dead*` 2.0 → **3.0** (K1 NAGI misses inside 3.0 m); his CPU's Shikai band 2.0–3.5 m split at 3.0 (no K below it).
+- **One leap a combo**: HSS-LEAPT set as a leap J (J2K / J3K, `*hs-leaps*`) takes off, cleared by HS-TICK once the victim's
+  combo is over (`fighter-combo-hits` 0: neutral; a leap after a block leaves nothing set) and by HS-RESET. A new shared
+  hook `:link-ok` (fighter.lisp, the latched-link path; DUEL_STRINGS): his HS-LINK-OK refuses a leap J while it is set, so
+  the string ends there; his CPU (HS-AI-MOVE) takes the K link instead. No other kit has the hook.
+- **The bridge windmill's push** `*hs-bridge-kb*` 1.5 → **2.5** (`:hs-kaza-j`'s `:kb`; the neutral windmill's stays 1.5):
+  J1 → L → K1 lands from 3.31 m.
+- Longest strings now: two rounds, e.g. K1 K2 J3K L K1 K2 K3, J1 J2 L K1 J2K J3 (no L after it: the next would be K1 →
+  a second leap), K1 J2K J3 L K1 K2 K3.
+
+**Browser** (`--fixed-dt`): 83007 J1 → L → K1 hit from 3.31 m (2.31 before, a whiff at 3.0); 83009 K1 J2K J3 L K1 then J:
+no second leap (the string ends); 83019 K1 K2 J3K L K1 K2 then J: no J3K, the victim back in neutral.
+
+**Host tests** ("§24.4"): the hook only on his Shikai, the knobs, HS-LINK-OK refusing J2K / J3K while set and passing K2 /
+K3 / J3, set through a combo, cleared in neutral and by the reset; the leap CPU test's 2.0 / 2.1 m now 3.0 / 3.1.
+
 ## 18. Open
+
+- §24.4 (one leap a combo, K1 3.0 m, the bridge push 2.5): built; its gates below in §24.4 when they finish.
 
 - The art pass (§24): batches A1 (the Shikai; built, §24.1) and A2 (the Bankai ranged mode and the look; built, §24.2),
   presentation only, waiting on the playtest; A3 (the bind) next.
