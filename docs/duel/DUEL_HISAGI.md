@@ -2557,7 +2557,34 @@ intent is :zone (the K1 band), where the rule keeps K; the leaps the gate sees a
 window's edge (125.3 s at 60 seeds). His P1 wins stay low (11 of 120). The leap's clips are stand-ins (the run, then the J
 clip). The S1 issues stand (the dormant OUT machinery, the stand-in K clips, KOJO's wait). The awaken A/B not run.
 
+## 24. The art pass: the stand-in clips drawn (the user, 2026-10-18)
+
+> 「請列出接下來要正式修改的動作」 → the lead's list (below) → 「可以，照這個順序開始畫」 (the user, 2026-10-18)
+
+Presentation only: no frame data, volume, damage or reaction changes; every simgate summary line and `--cvc` stay
+byte-identical, the drawn reach on the hit frames within 0.15 m of each volume's far edge (host FK checks). Every clip
+gets the exaggerated, readable windup of §21.7 (「動作要配合誇張而明顯的前搖」). Each drawn move's entry leaves its
+stand-in list.
+
+**Order** (the user's 「照這個順序」):
+1. **Batch A1, the Shikai** (4): K1 薙 NAGI (the chain hauls the sickle in a horizontal long sweep, its reach the arc's
+   6.0 m x the charge, up to 9.6 m; now NAGE's clip); K2 鋸 NOKO (the sickle spun into a circular saw cutting upright
+   ahead, then hauled up by the chain; now HIKI's); K3 墜 TSUI (the airborne sickle yanked down in a plunge; now HODOKI's);
+   the leap J of KJJ / KKJ (J2K / J3K: 14 f, the J thrown on arrival at 1.0 m; now the run, then the J clip).
+2. **Batch A2, the Bankai's ranged mode** (7 + the look): K1 綁束 (the hanging chains spun round him, 360° to 4.0 m, bound
+   into one bundle; now SAHARAI's r 3.0 ring), spread K2 (a 60° fan of thin chains whipping the ground to 6.0 m), spread
+   K3 (every hanging chain lashed forward in a 160° fan to 6.0 m), gathered K2 (the U → L: over and down 2.0–3.5 m ahead,
+   the tail lashed on along the ground to 8.0 m, left lying flat), gathered K3 (the lying bundle hauled into a 360° spin to
+   6.0 m), gathered J2 (a straight lash of the bundle to 5.0 m), gathered J3 (a flat 180° sweep to 5.0 m); the carousel
+   (the orb turning, the 8 hanging chains orbiting at rest, jerked into each strike); the ranged stance (crescents hanging
+   at his sides) and the bind stance (gripped, low, the noose taut).
+3. **Batch A3, the bind and the rest** (2 + 1): L 絞縄 KOJO's 20 f tell (the noose hauled up and taut before the drag),
+   then the reap; SP2 KAIBAKU-GEKI's own release-and-strike (the noose thrown off at f18, then the 3.0 m 140° blow; now
+   HIKIYOSE's gesture); the ranged L 鎖払's recovery drawn to its 32 f (now the clip's end pose held).
+
 ## 18. Open
+
+- The art pass (§24): batches A1 (the Shikai), A2 (the Bankai ranged mode and the look), A3 (the bind), in that order.
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
 - The two modes made distinct (§22): B4a built (§22.2: the sim, the CPU, a placeholder look); open: the playtest, his 7 pairings at 20 seeds and his awaken A/B, the art pass B4b.
