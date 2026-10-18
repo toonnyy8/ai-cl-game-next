@@ -202,7 +202,8 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
   (:solid :ink 0 (mb-blade mb :length 0.66 :width 0.028 :curve 0.012 :blade-color '(0.6 0.62 0.66) :edge-color '(0.86 0.88 0.9) :hilt nil)))
 
 (defparameter *hs-strike-reach* '((:hs-s-nage :sickle 6.0) (:hs-s-maki :sickle 3.55) (:hs-s-kari :sickle 2.8)   ; (the Shikai's
-                                  (:hs-s-kaeshi :sickle 1.4) (:hs-s-rin :sickle 1.4)                          ;  clips, §21.4)
+                                  (:hs-s-kaeshi :sickle 1.4) (:hs-s-rin :sickle 1.4)                          ;  clips, §21.4;
+                                  (:hs-s-nagi :sickle 6.0) (:hs-s-tobi-kaeshi :sickle 1.4) (:hs-s-tobi-rin :sickle 1.4)   ;  A1, §24.1)
                                   (:hs-k-saben :sickle 5.0) (:hs-k-kaeshi :sickle 4.5) (:hs-k-sensa :sickle 5.0)  ; (the Bankai's,
                                                                                 ;  §21.8; B4a: the annuli's 4.5 / 5.0, the K placed, §22.2: the
                                   (:hs-kb-kaeshi :sickle 1.5) (:hs-kb-hikigiri :sickle 2.95)                    ;  ranged mode,
@@ -216,11 +217,10 @@ on its chain to there (*HS-LETOUT*: J2, J3, KARI-OTOSHI's two at the fan's edges
 chain strike's free end (*HS-BK-CHAINS*: from a hanging chain, the neck bundle or the orb; *HS-LASHES*: the ranged route
 links' lashes, the first hit window's edge, gathered K2's second 8.5 m); the host FK test reads these
 (as Senjumaru's *SJ-STRIKE-REACH*), and a host check ties them to those tables.")
-(defparameter *hs-flights* '((:hs-k1 6.0 nil) (:hs-k2s 3.55 t) (:hs-shibari 4.85 nil) (:hs-raiden 6.8 nil)
-                             (:hs-kikon 8.0 nil))
+(defparameter *hs-flights* '((:hs-k2s 3.55 t) (:hs-shibari 4.85 nil) (:hs-raiden 6.8 nil) (:hs-kikon 8.0 nil))
   "Move -> how far the left sickle's point flies out on its hit frames (m: the volume's far edge, as *HS-STRIKE-REACH*) and
-whether it stays out (a throw: then at the anchor). (KARI-OTOSHI's two sickles: *HS-LETOUT*, the Shikai's clip, §21.4.)
-S1 (DUEL_HISAGI §23.3): K1 NAGI's sweep reaches its arc's 6.0 and comes back (no throw); NAGE's clip stands in for it.")
+whether it stays out (a throw: then at the anchor). (KARI-OTOSHI's two sickles: *HS-LETOUT*, the Shikai's clip, §21.4;
+since A1, DUEL_HISAGI §24.1, K1 NAGI's sweep too: a let-out swept across the arc.)")
 
 ;;; ---------------------------------------------------------------- poses (his rig notes)
 ;;; The right hand's sickle is the J's: a horizontal cut is the arm held out (side ~88) swept by its flex (0 = to his
@@ -268,7 +268,7 @@ S1 (DUEL_HISAGI §23.3): K1 NAGI's sweep reaches its arc's 6.0 and comes back (n
 ;;; (KARI-OTOSHI, SHIBARI, the O), canon manner (stance, intro, win). The J strings hold the right rod short, near the
 ;;; blades (*HS-GRIP*); a sickle let out on its chain (*HS-LETOUT*) is drawn with its point at the strike's volume edge on
 ;;; its hit frames, and its clip is in *HS-STRIKE-REACH* (the FK test reads that reach).
-(defparameter *hs-grip* '((:hs-s-sen 0.25) (:hs-s-kaeshi 0.25) (:hs-s-kaeshi-1h 0.25))
+(defparameter *hs-grip* '((:hs-s-sen 0.25) (:hs-s-kaeshi 0.25) (:hs-s-kaeshi-1h 0.25) (:hs-s-tobi-kaeshi 0.25))
   "Clip -> the J strings' short grip (the user, 2026-10-17: 「握在靠刀的那端」, DUEL_HISAGI §21): the drawn right rod slid
 this far back through his fist (m), so he holds it just behind the blades' crossing; its point (the FK test's tip) is
 0.75 - this ahead of the fist, its butt 0.22 + this behind. HS-POSE eases it in and out (4 m/s); the FK test reads it.")
@@ -280,6 +280,11 @@ this far back through his fist (m), so he holds it just behind the blades' cross
     (:hs-s-kari :l 10 22 30 46 2.8 0.3 60 1.8)
     (:hs-s-intro :r 70 82 82 96 0.3 2.9 0 0)        ; the intro: tossed up, split, caught
     (:hs-s-intro :l 70 84 84 98 0.5 2.6 25 0)
+    (:hs-s-nagi :l 9 16 24 36 6.0 1.0 (160 75 -75) 0)   ; A1 (§24.1): K1 薙, flung out behind him, swept L -> R at 6.0 x the
+                                                        ;  charge (the hit frames f18-21 at +38 / +19 / 0 / -19: inside +-45)
+    (:hs-s-tobi-kaeshi :l 9 14 17 24 1.4 nil nil 0)     ; J2K: J2's let-out, 6 f later (out in the leap's fall)
+    (:hs-s-tobi-rin :r 8 12 17 27 1.4 nil nil 0)        ; J3K: J3's two, out from the leap's top
+    (:hs-s-tobi-rin :l 8 12 17 27 1.4 nil nil 0)
     (:hs-k-saben :r 9 12 16 24 5.0 1.2 nil 0)       ; the Bankai (§21.8): J1 鎖鞭, the right crescent cracked out (S1: 5.0)
     (:hs-k-kaeshi :l 8 11 15 23 4.5 1.2 nil 0)      ; J2 返鞭, the left lashed back (4.5)
     (:hs-k-sensa :r 10 13 17 26 5.0 1.0 nil 0)      ; J3 旋鎖, both at full chain round the half turn (5.0)
@@ -291,8 +296,20 @@ this far back through his fist (m), so he holds it just behind the blades' cross
   "Clip -> a sickle let out of the fist on its chain: (clip side f0 f1 f2 f3 r h az bulge): it leaves the fist at clip
 frame F0, is out from F1 to F2 with its point R m from his feet (horizontally), back in the fist at F3; along the fist's
 bearing from his feet (AZ NIL) or AZ degrees off his facing (+ his left); H m up (NIL: on the arm's line); BULGE m higher
-midway out (an overhead swing; a third of it coming back). HS-POSE moves the right one (its :weapon-r joint), HISAGI-DRAW
-draws the left one; both the chain from the fist.")
+midway out (an overhead swing; a third of it coming back). AZ a list (A0 A1 A2): a sweep, the bearing A0 at F0 turning to
+A1 at F1 (it spirals out) and on to A2 at F2 (linear), A2 coming back (K1 NAGI, A1). HS-POSE moves the right one (its
+:weapon-r joint), HISAGI-DRAW draws the left one; both the chain from the fist.")
+(defparameter *hs-foe-paths*
+  '((:hs-s-noko (6 9 10 9 1) (9 16 9 9 3) (16 20 9 6 3) (20 24 6 6 3) (24 30 6 7 3) (30 38 7 7 1) (38 48 7 0 1))
+    (:hs-s-tsui (8 18 6 8 1) (18 20 8 8 1) (20 22 8 6 4) (22 32 6 6 4) (32 46 6 0 1)))
+  "A1 (DUEL_HISAGI §24.1): the Shikai K links placed on the victim (K2 鋸 NOKO, K3 墜 TSUI; HS-FOE-SEG): clip -> the left
+sickle's path, segments (f0 f1 a b spin): on clip frames F0 <= f < F1 it moves from point A to point B (%HS-POINT's codes:
+0 his left fist, 6 the victim's centre (HS-FOE-SEG's far end), 7 3.0 m above him, 8 3.8 m above him (the sky: the top of the match camera's frame over him), 9 the saw's
+wheel round the left fist, 10 K1's sweep end: 6.0 m x the charge, 40 degrees to his right), placed by %HS-PLACE! SPIN (1
+tumbling, 3 the upright saw, 4 point down); outside every segment it is in his fist. On every hit frame it is at 6 (the
+host checks). NOKO: reeled in off K1's sweep (off J1, K2J: from the fist), spun up on the wheel, flung along the line at
+him (S 20), the saw grinding there through A, hauled up over him, back; TSUI: hauled from him up into the sky, held, yanked
+down point first onto him (S 22), held in him, hauled back.")
 
 ;; the stance (canon reveal, softened): weight on the back foot, upright; the right rod low-forward at the hip, its point
 ;; down-forward, the blades by the right shin; the left rod at the left hip, point down; the chain in one loop between
@@ -523,6 +540,132 @@ draws the left one; both the chain from the fist.")
       (:arm-r :flex 40 :side 30) (:elbow-r :flex 40))
   (46 (:root :yaw -350 :u -0.06) (:spine :flex 6))
   (:end :hs-s-stance (:root :yaw -360)))
+
+;;; A1 (DUEL_HISAGI §24, §24.1; the user, 2026-10-18: 「可以，照這個順序開始畫」): the S1 / S2 K string and the leap J drawn,
+;;; each windup big and held near its peak (§21.7: 「動作要配合誇張而明顯的前搖」), the hit pose snapped in on S, an impact hold.
+;; K1 薙 NAGI (18/4/22): coiled far to his left on the back foot, the left arm flung back, the right pointing at the foe
+;; (held f9-15); the sickle flung out behind him at f9 spirals round his left side out to the arc's 6.0 m (x the charge)
+;; and is swept left to right across his front by the chain (*HS-LETOUT*'s sweep, f16-24), the arm leading it through;
+;; the follow-through across his body, then the haul back hand to chest (f24-36)
+(defpose :hs-s-nagi-hit (:base :hs-s-stance)
+  (:root :f 0.16 :u -0.14 :yaw -12) (:pelvis :twist -6) (:spine :flex 12) (:chest :twist -24)
+  (:arm-l :flex 84 :side 42 :twist 0) (:elbow-l :flex 2) (:hand-l :flex -20)
+  (:arm-r :flex -30 :side 26) (:elbow-r :flex 50) (:hand-r :flex -80)
+  (:thigh-l :flex 46 :side 8) (:knee-l :flex 44) (:thigh-r :flex -28 :side 10) (:knee-r :flex 12))
+(defstrike :hs-s-nagi (18 4 22 :base :hs-s-stance)
+  (0)
+  (4 (:root :u -0.08 :yaw 20) (:chest :twist 20) (:arm-l :flex -30 :side 40 :twist 0) (:elbow-l :flex 20)
+     (:arm-r :flex 60 :side 10) (:elbow-r :flex 16) (:hand-r :flex -80))
+  (9 (:root :u -0.25 :yaw 40 :f -0.08) (:pelvis :twist 10) (:spine :flex -10) (:chest :twist 40) (:neck :twist -24)
+     (:arm-l :flex -70 :side 70) (:elbow-l :flex 6) (:hand-l :flex -30) (:arm-r :flex 80 :side 4) (:elbow-r :flex 8)
+     (:thigh-l :flex 16 :side 12) (:knee-l :flex 30) (:thigh-r :flex -26 :side 12) (:knee-r :flex 64))       ; coiled (the tell)
+  (14 (:root :u -0.28 :yaw 46 :f -0.09) (:pelvis :twist 12) (:spine :flex -12) (:chest :twist 44) (:neck :twist -28)
+      (:arm-l :flex -76 :side 74) (:elbow-l :flex 4) (:hand-l :flex -30) (:arm-r :flex 82 :side 2) (:elbow-r :flex 6)
+      (:thigh-l :flex 18 :side 12) (:knee-l :flex 32) (:thigh-r :flex -28 :side 12) (:knee-r :flex 70))      ; held
+  (16 (:root :u -0.18 :yaw 30 :f -0.02) (:chest :twist 30) (:neck :twist -16) (:arm-l :flex -20 :side 84) (:elbow-l :flex 4))
+  (:s :snap :hs-s-nagi-hit)
+  (:a (:root :yaw -30 :f 0.2) (:chest :twist -40) (:arm-l :flex 116 :side -20))                            ; across, L to R
+  (30 (:root :u -0.1 :yaw -24 :f 0.1) (:chest :twist -30) (:spine :flex 8) (:arm-l :flex 60 :side -10) (:elbow-l :flex 60)
+      (:arm-r :flex 30 :side 20) (:elbow-r :flex 40))                                                       ; the haul
+  (36 (:root :u -0.07 :yaw -8) (:chest :twist -8) (:arm-l :flex 20 :side 20) (:elbow-l :flex 40))         ; caught
+  (:end :hs-s-stance))
+
+;; K2 鋸 NOKO (S 20 from its link frame 6): the chain yanked back to the hip (the reel in), the sickle spun up on a short
+;; chain in an upright wheel at his left fist (*HS-FOE-PATHS* code 9, faster each turn) while he sinks and coils, the arm
+;; cocked high, then flung along the line at the victim (f16-20): the saw grinds in him (S, A); both hands haul it up over
+;; him (f24-30), held up, lowered back
+(defpose :hs-s-noko-hit (:base :hs-s-stance)
+  (:root :f 0.14 :u -0.16 :yaw -8) (:pelvis :twist 0) (:spine :flex 14) (:chest :twist -16)
+  (:arm-l :flex 90 :side 6 :twist 0) (:elbow-l :flex 0) (:hand-l :flex -10)
+  (:arm-r :flex -30 :side 24) (:elbow-r :flex 40) (:hand-r :flex -80)
+  (:thigh-l :flex 48 :side 8) (:knee-l :flex 46) (:thigh-r :flex -26 :side 10) (:knee-r :flex 14))
+(defpose :hs-s-noko-haul (:base :hs-s-stance)
+  (:root :u -0.08 :f -0.04) (:pelvis :twist 0) (:spine :flex -14) (:chest :twist -4) (:head :flex -10)
+  (:arm-l :flex 160 :side 10 :twist 0) (:elbow-l :flex 30) (:hand-l :flex -20)
+  (:arm-r :flex 150 :side 16 :twist 0) (:elbow-r :flex 50) (:hand-r :flex -20)
+  (:thigh-l :flex 26 :side 10) (:knee-l :flex 24) (:thigh-r :flex -8 :side 12) (:knee-r :flex 30))
+(defstrike :hs-s-noko (20 4 24 :base :hs-s-stance)
+  (0)
+  (6 (:root :u -0.12 :yaw 14) (:spine :flex -6) (:chest :twist 18) (:arm-l :flex -20 :side 30 :twist 0) (:elbow-l :flex 70)
+     (:hand-l :flex -40) (:arm-r :flex 60 :side 20) (:elbow-r :flex 40))                                 ; yanked in
+  (9 (:root :u -0.16 :yaw 18) (:chest :twist 22) (:arm-l :flex 60 :side 50) (:elbow-l :flex 20) (:hand-l :flex -20)
+     (:knees :flex 36))                                                                                   ; the wheel
+  (11 (:arm-l :flex 70 :side 56) (:elbow-l :flex 16)) (13 (:root :u -0.19) (:arm-l :flex 56 :side 48) (:elbow-l :flex 24))
+  (15 (:root :u -0.21 :yaw 22) (:chest :twist 28) (:arm-l :flex 72 :side 56) (:elbow-l :flex 14) (:knees :flex 42))   ; held
+  (17 (:root :u -0.18 :yaw 20) (:spine :flex -10) (:chest :twist 26) (:arm-l :flex 124 :side 40) (:elbow-l :flex 30))  ; cocked
+  (:s :snap :hs-s-noko-hit)
+  (:a :hs-s-noko-hit (:root :f 0.18) (:arm-l :flex 92))
+  (27 :hs-s-noko-haul)                                                                                    ; hauled up
+  (32 :hs-s-noko-haul (:root :u -0.05) (:arm-l :flex 166) (:arm-r :flex 158))
+  (40 (:root :u -0.06) (:arm-l :flex 60 :side 20) (:elbow-l :flex 40) (:arm-r :flex 40 :side 20) (:elbow-r :flex 50))
+  (:end :hs-s-stance))
+
+;; K3 墜 TSUI (S 22 from its link frame 8): the chain hauled hand over hand (the sickle up off the victim into the sky,
+;; *HS-FOE-PATHS*), then both arms straight up gripping it, arched back on his toes, looking up (held f18-20: the tell);
+;; yanked down on S, the sickle plunging point first into the victim; he ends folded in a deep squat (held to f34);
+;; then hauls it back
+(defpose :hs-s-tsui-up (:base :hs-s-stance)
+  (:root :u 0.06) (:pelvis :twist 0) (:spine :flex -22) (:chest :twist 0) (:head :flex -20)
+  (:arm-l :flex 178 :side 8 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -20)
+  (:arm-r :flex 178 :side 8 :twist 0) (:elbow-r :flex 10) (:hand-r :flex -20)
+  (:thigh-l :flex 6 :side 6) (:knee-l :flex 6) (:thigh-r :flex -4 :side 6) (:knee-r :flex 6))
+(defpose :hs-s-tsui-hit (:base :hs-s-stance)
+  (:root :f 0.04 :u -0.32) (:pelvis :twist 0) (:spine :flex 40) (:chest :twist 0) (:head :flex 10)
+  (:arm-l :flex -10 :side 20 :twist 0) (:elbow-l :flex 40) (:hand-l :flex -60)
+  (:arm-r :flex -10 :side 20 :twist 0) (:elbow-r :flex 40) (:hand-r :flex -60)
+  (:thigh-l :flex 60 :side 12) (:knee-l :flex 90) (:thigh-r :flex 10 :side 14) (:knee-r :flex 80))
+(defstrike :hs-s-tsui (22 5 34 :base :hs-s-stance)
+  (0 :hs-s-noko-haul)
+  (8 :hs-s-noko-haul)
+  (12 (:root :u -0.06) (:spine :flex -10) (:arm-l :flex 176 :side 6) (:elbow-l :flex 20) (:arm-r :flex 120 :side 20)
+      (:elbow-r :flex 90) (:head :flex -10))                                                             ; hand over hand
+  (15 (:arm-r :flex 176 :side 6) (:elbow-r :flex 20) (:arm-l :flex 130 :side 14) (:elbow-l :flex 80) (:spine :flex -16))
+  (18 :hs-s-tsui-up)                                                                                     ; up (the tell)
+  (20 :hs-s-tsui-up (:spine :flex -26) (:head :flex -24) (:root :u 0.08))                               ; held
+  (:s :snap :hs-s-tsui-hit)
+  (:a :hs-s-tsui-hit (:root :u -0.34) (:spine :flex 44))
+  (34 :hs-s-tsui-hit (:root :u -0.33) (:spine :flex 42))                                                 ; the impact hold
+  (44 (:root :u -0.12) (:spine :flex 12) (:arm-l :flex 40 :side 20) (:elbow-l :flex 60) (:arm-r :flex 30 :side 20)
+      (:elbow-r :flex 50) (:knees :flex 30))                                                              ; hauled back
+  (:end :hs-s-stance))
+
+;; S2's leap J (KJJ's J2K, KKJ's J3K: S 14; the sim carries him in, HS-LEAP-TICK, so no :root :f): a deep crouch (the
+;; tell, f3-5), the spring, tucked at the top (f9-10), then J2's / J3's own strike on landing (S 14)
+(defstrike :hs-s-tobi-kaeshi (14 3 13 :base :hs-s-stance)
+  (0)
+  (3 (:root :u -0.32) (:spine :flex 26) (:head :flex -16) (:arms :flex -50 :side 20) (:elbows :flex 20) (:hands :flex -100)
+     (:thighs :flex 70) (:knees :flex 100))                                                                 ; the crouch
+  (5 (:root :u -0.36) (:spine :flex 30) (:head :flex -18) (:arms :flex -56 :side 20) (:elbows :flex 20) (:hands :flex -100)
+     (:thighs :flex 76) (:knees :flex 108))                                                                 ; held
+  (7 (:root :u 0.25) (:spine :flex -6) (:head :flex 0) (:arms :flex 120 :side 30) (:elbows :flex 30) (:thighs :flex -10)
+     (:knees :flex 10))                                                                                     ; the spring
+  (10 (:root :u 0.75 :yaw 14) (:spine :flex 10) (:chest :twist 30) (:arm-l :flex 4 :side 34 :twist 0) (:elbow-l :flex 4)
+      (:hand-l :flex -90) (:arm-r :flex 120 :side 40) (:elbow-r :flex 100) (:hand-r :flex -50) (:thighs :flex 70)
+      (:knees :flex 110))                                                                                   ; tucked, wound
+  (12 (:root :u 0.3 :yaw 14) (:spine :flex 12) (:chest :twist 30) (:arm-l :flex 4 :side 34) (:arm-r :flex 120 :side 40)
+      (:elbow-r :flex 100) (:thigh-l :flex 40) (:knee-l :flex 30) (:thigh-r :flex -10) (:knee-r :flex 20))   ; the fall
+  (:s :snap :hs-s-kaeshi-hit)
+  (:a (:root :yaw -16) (:chest :twist -30) (:arm-l :flex 138 :side -30))
+  (24 (:root :u -0.06 :yaw -6) (:chest :twist -10) (:arm-l :flex 60 :side 20) (:elbow-l :flex 30) (:arm-r :flex 50 :side 24)
+      (:elbow-r :flex 50) (:hand-r :flex -80))
+  (:end :hs-s-stance))
+(defstrike :hs-s-tobi-rin (14 3 18 :base :hs-s-stance)
+  (0)
+  (3 (:root :u -0.32 :yaw -30) (:spine :flex 26) (:chest :twist -30) (:head :flex -16) (:arm-r :flex -10 :side 70)
+     (:elbow-r :flex 20) (:arm-l :flex 60 :side 60) (:elbow-l :flex 10) (:thighs :flex 70) (:knees :flex 100))   ; wound right
+  (5 (:root :u -0.36 :yaw -36) (:spine :flex 30) (:chest :twist -34) (:head :flex -18) (:arm-r :flex -14 :side 70)
+     (:thighs :flex 76) (:knees :flex 108))                                                                 ; held
+  (7 (:root :u 0.3 :yaw -40) (:spine :flex -6) (:head :flex 0) (:thighs :flex -10) (:knees :flex 10))      ; the spring
+  (9 (:root :u 0.75 :yaw 40) (:spine :flex 6) (:chest :twist -6) (:arm-r :flex 30 :side 74) (:elbow-r :flex 4)
+     (:arm-l :flex -30 :side 74) (:elbow-l :flex 4) (:hands :flex -90) (:thighs :flex 70) (:knees :flex 110))   ; turning, tucked
+  (10 (:root :u 0.72 :yaw 120)) (11 (:root :u 0.55 :yaw 200))
+  (12 (:root :u 0.32 :yaw 270) (:thigh-l :flex 30) (:knee-l :flex 30) (:thigh-r :flex 6) (:knee-r :flex 30))
+  (13 (:root :u 0.08 :yaw 300))
+  (:s :snap :hs-s-rin-hit)
+  (:a (:root :yaw 400) (:chest :twist 14))
+  (25 (:root :yaw 372 :u -0.06) (:chest :twist 4) (:arm-r :flex 30 :side 40) (:elbow-r :flex 30) (:arm-l :flex 4 :side 34)
+      (:elbow-l :flex 30))
+  (:end :hs-s-stance (:root :yaw 360)))
 
 ;; 戻 MODOSHI (6/0/6): two hand-over-hand pulls, left then right; the sickle home and caught in the left fist on f6 with a
 ;; short twirl
@@ -1522,6 +1665,10 @@ him with it (§22.1, batch A2; the orb's own 0.25 of §21.6).")
 fighter right after), [1-3] its fist, [4-6] its butt, [7] its point's distance from his feet (m, the tip table); [8] the
 left one's u, [9-11] its fist, [12-14] its butt, [15] its point's distance.")
 (defvar *hs-pt* (make-f32 3) "The left sickle's point the draw hook placed (%HS-POINT code 5: the windmill, SHIBARI's wrap).")
+(declaim (type f32vec *hs-foe-d*))
+(defvar *hs-foe-d* (make-f32 1)
+  "A1 (DUEL_HISAGI §24.1): [0] how far (m, on the ground) the last draw placed the left sickle off the victim's feet on an
+*HS-FOE-PATHS* path (-1: none; debug 83902).")
 (defvar *hs-grip-v* (make-f32 3) "[0-1] each side's drawn grip slide (m, HS-POSE eases it to its clip's *HS-GRIP*); [2] the
 last draw's effect seconds (HISAGI-DRAW keeps it for the next pose: the pose hook has no dt).")
 
@@ -1542,9 +1689,11 @@ NAGE's line at x1 (its flight grows by it: HS-SCALED-TIP), [2] *HS-CHARGE-STEP*.
 
 (defparameter *hs-letout-v*
   (loop for (clip side f0 f1 f2 f3 r h az bulge) in *hs-letout*
-        collect (list* clip side (coerce (mapcar #'f32 (list f0 f1 f2 f3 r (or h 0) (or az 0) bulge (if az 1 0) (if h 1 0)))
+        for sw = (consp az) for a1 = (if sw (second az) az)
+        collect (list* clip side (coerce (mapcar #'f32 (list f0 f1 f2 f3 r (or h 0) (or a1 0) bulge (if az 1 0) (if h 1 0)
+                                                             (if sw (first az) 0) (if sw (third az) 0) (if sw 1 0)))
                                          'f32vec)))
-  "*HS-LETOUT* as (clip side . f32vec): f0 f1 f2 f3 r h az bulge az-p h-p.")
+  "*HS-LETOUT* as (clip side . f32vec): f0 f1 f2 f3 r h az bulge az-p h-p, then a sweep's a0 a2 sweep-p (az its a1).")
 (defun hs-letout-of (name side)
   "The let-out entry (an f32vec) of clip NAME's SIDE (:r / :l), or NIL. 0 B."
   (loop for x in *hs-letout-v* when (and (eq (first x) name) (eq (second x) side)) return (cddr x)))
@@ -1554,7 +1703,7 @@ NAGE's line at x1 (its flight grows by it: HS-SCALED-TIP), [2] *HS-CHARGE-STEP*.
 joint as the clip posed it (the fist; the held rod along its -Z), UPPER the shoulder (the arm's line), POS his feet, YAW
 (an f32vec [0]) his facing. OUT[O] := u (smoothstep: 0 in the fist .. 1 out at R m from his feet), OUT[O+1..3] := the fist
 (the chain's near end), OUT[O+4..6] := the sickle's butt (its far end). Its point: from the held point (u 0) to R m out
-along the fist's bearing from his feet (or AZ degrees off his facing), H m up (or on the arm's line), BULGE m higher
+along the fist's bearing from his feet (or AZ degrees off his facing, or a sweep's), H m up (or on the arm's line), BULGE m higher
 midway (a third of it coming back); the rod pointing away from the fist, the blades 35 degrees off flat. 0 B."
   (declare (type f32vec m jm pos yaw kv fr out) (fixnum wj upper o))
   (let* ((f (aref fr 0)) (f0 (aref kv 0)) (f1 (aref kv 1)) (f2 (aref kv 2)) (f3 (aref kv 3))
@@ -1567,7 +1716,11 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
          (fx (aref jm (+ wo 12))) (fy (aref jm (+ wo 13))) (fz (aref jm (+ wo 14)))
          (dhx (- (aref jm (+ wo 8)))) (dhy (- (aref jm (+ wo 9)))) (dhz (- (aref jm (+ wo 10))))
          (px (aref pos 0)) (pz (aref pos 2)) (dx (- fx px)) (dz (- fz pz)) (rf (f-hypot dx dz))
-         (a (+ (aref yaw 0) (* 0.017453292f0 (aref kv 6))))
+         (az (cond ((< (aref kv 12) 0.5f0) (aref kv 6))      ; (A1: a sweep, a0 -> a1 out to F1, -> a2 by F2)
+                   ((< f f1) (+ (aref kv 10) (* x (- (aref kv 6) (aref kv 10)))))
+                   ((< f f2) (+ (aref kv 6) (* (/ (- f f1) (f-max 1f0 (- f2 f1))) (- (aref kv 11) (aref kv 6)))))
+                   (t (aref kv 11))))
+         (a (+ (aref yaw 0) (* 0.017453292f0 az)))
          (bx (cond ((> (aref kv 8) 0.5f0) (- (f-sin a))) ((> rf 0.05f0) (/ dx rf)) (t (- (f-sin (aref yaw 0))))))
          (bz (cond ((> (aref kv 8) 0.5f0) (- (f-cos a))) ((> rf 0.05f0) (/ dz rf)) (t (- (f-cos (aref yaw 0))))))
          (r (* (aref kv 4) (aref *hs-ks* 0)))         ; (S1: KARI-OTOSHI's arc at the charge, x1 elsewhere)
@@ -1590,7 +1743,7 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
          (zx (/ z1x zn)) (zy (/ z1y zn)) (zz (/ z1z zn))
          (xx (- (* yy zz) (* yz zy))) (xy (- (* yz zx) (* yx zz))) (xz (- (* yx zy) (* yy zx)))
          (ox (- qx (* 0.75f0 yx))) (oy (- qy (* 0.75f0 yy))) (oz (- qz (* 0.75f0 yz))))
-    (declare (single-float f f0 f1 f2 f3 x u fx fy fz dhx dhy dhz px pz dx dz rf a bx bz r sh slope ty lift k qx qy qz
+    (declare (single-float f f0 f1 f2 f3 x u fx fy fz dhx dhy dhz px pz dx dz rf az a bx bz r sh slope ty lift k qx qy qz
                            ex ey ez el yx yy yz zl hx hz z0x z0y z0z dot z1x z1y z1z zn zx zy zz xx xy xz ox oy oz)
              (fixnum wo so))
     (setf (aref m 0) xx (aref m 1) xy (aref m 2) xz (aref m 3) 0f0
@@ -1713,7 +1866,9 @@ turned alternately, a steel glint every other one, presence K (SAG and K: litera
 along his facing FA[0], 1.1 m up: its point at FA[1]), 2 the anchor (hooked: the victim's chest when he is within
 *HS-HOOK-R* of it, else on the ground), 3 the windmill's circle (1.9 m round him, 1.7 m up, the fx clock), 4 the sim hand
 (HS-HAND's point: the pulls' chain end), 5 the grip under the point the draw hook placed (*HS-PT*: the Shikai's windmill,
-SHIBARI's wrap)."
+SHIBARI's wrap); A1's (*HS-FOE-PATHS*): 6 the victim's centre (*HS-ANCHOR-UP* over his feet: HS-FOE-SEG's end), 7 / 8 3.0 /
+3.8 m over his feet, 9 the saw's wheel (0.8 m round the left fist, upright in his facing's plane, by the clip frame), 10 K1's
+sweep end (6.0 m x the charge, 40 degrees to his right, 1.0 m up)."
   (declare (type f32vec out jm pos fa anchor vpos) (fixnum code))
   (let* ((yaw (aref fa 0)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))))
     (declare (single-float yaw fx fz))
@@ -1732,6 +1887,17 @@ SHIBARI's wrap)."
            (declare (single-float a))
            (setf (aref out 0) (+ (aref pos 0) (* 1.9f0 (f-sin a))) (aref out 1) 1.7f0 (aref out 2) (+ (aref pos 2) (* 1.9f0 (f-cos a))))))
       (5 (let ((p *hs-pt*)) (declare (type f32vec p)) (replace out p)))
+      ((6 7 8) (let ((h (case code (6 (the single-float *hs-anchor-up*)) (7 3.0f0) (t 3.8f0))))
+                 (declare (single-float h))
+                 (setf (aref out 0) (aref vpos 0) (aref out 1) (+ (aref vpos 1) h) (aref out 2) (aref vpos 2))))
+      (9 (let* ((fr (aref *hs-fr* 0)) (g (- fr 8f0)) (th (- 1.5707964f0 (* 0.1f0 g g))))   ; (spun up: faster each turn,
+           (declare (single-float fr g th))                                                 ;  rolling forward)
+           (joint-point! out jm (ji :weapon-l) 0f0 0f0 0f0)
+           (setf (aref out 0) (+ (aref out 0) (* 0.8f0 (f-cos th) fx)) (aref out 1) (+ (aref out 1) (* 0.8f0 (f-sin th)))
+                 (aref out 2) (+ (aref out 2) (* 0.8f0 (f-cos th) fz)))))
+      (10 (let* ((r (* 6f0 (aref *hs-ks* 0))) (a (- yaw 0.6981317f0)))
+            (declare (single-float r a))
+            (setf (aref out 0) (- (aref pos 0) (* r (f-sin a))) (aref out 1) 1.0f0 (aref out 2) (- (aref pos 2) (* r (f-cos a))))))
       (t (setf (aref out 0) (+ (aref pos 0) (* (the single-float *hs-hand-ahead*) fx))
                (aref out 1) (+ (aref pos 1) (the single-float *hs-hand-up*))
                (aref out 2) (+ (aref pos 2) (* (the single-float *hs-hand-ahead*) fz))))))
@@ -1740,9 +1906,25 @@ SHIBARI's wrap)."
 (defun-fast %hs-place! (m v fa spin)
   "M := the flying sickle's world matrix: its grip at V, turned to his facing FA[0], its blade pitched forward (SPIN 0),
 tumbling with the fx clock (SPIN 1), or spun flat about its blades' crossing (SPIN 2: the Shikai's thrown disc, the
-crossing 0.6 m short of V's point, so its far edge stays within 0.15 m of it). M4-EULER!'s layout, inline (its float
+crossing 0.6 m short of V's point, so its far edge stays within 0.15 m of it); A1's: SPIN 3 the upright saw (its blades'
+crossing at V), 4 point down (its point at V). M4-EULER!'s layout, inline (its float
 arguments would box)."
   (declare (type f32vec m v fa) (fixnum spin))
+  (when (>= spin 3)                                                   ; A1: 3 the upright saw (its crossing at V, spun
+    (let* ((fx (- (f-sin (aref fa 0)))) (fz (- (f-cos (aref fa 0))))  ;  rolling forward in his facing's plane, its top
+           (a (* -30f0 (fx-clock))) (c (if (= spin 3) (f-cos a) 0f0))  ;  leant 30 degrees to his left so it reads as a
+           (s (if (= spin 3) (f-sin a) -1f0))                          ;  disc from behind), 4 point down (its point at
+           (kr (if (= spin 3) 0.5f0 0f0)) (ku (if (= spin 3) 0.8660254f0 1f0))   ;  V: the plunge); its plane's up
+           (ux (* kr fz)) (uz (* (- kr) fx)))                          ;  U' = (KR fz, KU, -KR fx)
+      (declare (single-float fx fz a c s kr ku ux uz))
+      (setf (aref m 0) (* (- ku) fz) (aref m 1) kr (aref m 2) (* ku fx) (aref m 3) 0f0   ; (X = F x U')
+            (aref m 4) (+ (* c fx) (* s ux)) (aref m 5) (* s ku) (aref m 6) (+ (* c fz) (* s uz)) (aref m 7) 0f0
+            (aref m 8) (- (* c ux) (* s fx)) (aref m 9) (* c ku) (aref m 10) (- (* c uz) (* s fz)) (aref m 11) 0f0
+            (aref m 15) 1f0)
+      (let ((k (if (= spin 3) 0.5f0 0.75f0)))                         ; (the crossing 0.5 up the rod, the point 0.75)
+        (declare (single-float k))
+        (dotimes (i 3) (setf (aref m (+ 12 i)) (- (aref v i) (* k (aref m (+ 4 i))))))))
+    (return-from %hs-place! nil))
   (if (= spin 2)
       (let* ((a (+ (aref fa 0) (* 25f0 (fx-clock)))) (yx (- (f-sin a))) (yz (- (f-cos a)))
              (fx (- (f-sin (aref fa 0)))) (fz (- (f-cos (aref fa 0))))
@@ -1784,7 +1966,9 @@ out to his left midway: the left-to-right wrap)."
               (progn (draw-weapon :kazeshini *hs-ml* :tint tint)
                      (setf (aref v 0) (aref l 9) (aref v 1) (aref l 10) (aref v 2) (aref l 11)
                            (aref q 0) (aref l 12) (aref q 1) (aref l 13) (aref q 2) (aref l 14))
-                     (vfx-hs-chain v q 0.06f0 0.9f0))                 ; (V: the left fist, the middle's far end)
+                     (if (> (aref l 15) 5.5f0)                        ; (V: the left fist, the middle's far end;
+                         (%hs-chain2 v q)                              ;  A1: K1's sweep taut, in two pieces)
+                         (vfx-hs-chain v q 0.06f0 0.9f0)))
               (let ((j (* 16 (ji :weapon-l))))
                 (replace m2 jm :start2 j :end2 (+ j 16))
                 (m4-mul! m m2 *weapon-m*)
@@ -1795,24 +1979,43 @@ out to his left midway: the left-to-right wrap)."
                  (vfx-hs-chain w q 0.02f0 0.9f0) (vfx-hs-chain q v 0.02f0 0.9f0))
                 ((logtest lo 3) (vfx-hs-chain w v -0.5f0 0.9f0))
                 (t (vfx-hs-chain w v -1.2f0 0.9f0))))
-        (let ((u (f-clamp (/ (i->f n) (i->f (max 1 d))) 0f0 1f0)))
-          (declare (single-float u))
+        (let* ((u (f-clamp (/ (i->f n) (i->f (max 1 d))) 0f0 1f0)) (ov (logand 7 (ash lo -8)))   ; (A1: a path's spin)
+               (spin (cond ((> ov 0) ov) ((and (logtest lo 64) (/= a 2) (/= b 2) (/= b 4)) 2) ((= a b) 0) (t 1))))
+          (declare (single-float u) (fixnum ov spin))
           (%hs-point v a jm pos fa anchor vpos)
           (%hs-point q b jm pos fa anchor vpos)
           (dotimes (i 3) (setf (aref v i) (+ (aref v i) (* u (- (aref q i) (aref v i))))))
+          (setf (aref *hs-foe-d* 0)                                   ; (A1: how far it is placed off the victim, 83902)
+                (if (> ov 0) (f-hypot (- (aref v 0) (aref vpos 0)) (- (aref v 2) (aref vpos 2))) -1f0))
           (when (logtest lo 128)                                      ; MAKI's curl: out to his left midway, in from there
             (let ((k (* 1.1f0 (f-sin (* 3.1415927f0 u)))) (yaw (aref fa 0)))
               (declare (single-float k yaw))
               (setf (aref v 0) (- (aref v 0) (* k (f-cos yaw))) (aref v 2) (+ (aref v 2) (* k (f-sin yaw))))))
-          (%hs-place! m v fa (cond ((and (logtest lo 64) (/= a 2) (/= b 2) (/= b 4)) 2) ((= a b) 0) (t 1)))
+          (%hs-place! m v fa spin)
           (draw-weapon :kazeshini m :tint tint)
-          (if (and (logtest lo 64) (/= a 2) (/= b 2) (/= b 4))         ; (the disc: its butt where it spins)
+          (when (= spin 3)                                            ; (A1: the saw's spin, three ink smears trailing
+            (let ((dr (drawing-no)))                                  ;  its blades round V in its plane: M's Y and Z)
+              (declare (single-float dr))
+              (dotimes (j 3)
+                (let* ((h (* 2.0943951f0 (i->f j))) (tq (+ h 1.5707964f0)) (mq (+ h 0.7853982f0))
+                       (ch (* 0.55f0 (f-cos h))) (sh (* 0.55f0 (f-sin h))) (ct (* 0.55f0 (f-cos tq))) (st (* 0.55f0 (f-sin tq)))
+                       (cm (* 0.7778f0 (f-cos mq))) (sm (* 0.7778f0 (f-sin mq))))
+                  (declare (single-float h tq mq ch sh ct st cm sm))
+                  (fx-crescent (+ (aref v 0) (* ct (aref m 4)) (* st (aref m 8))) (+ (aref v 1) (* ct (aref m 5)) (* st (aref m 9)))
+                               (+ (aref v 2) (* ct (aref m 6)) (* st (aref m 10)))
+                               (+ (aref v 0) (* ch (aref m 4)) (* sh (aref m 8))) (+ (aref v 1) (* ch (aref m 5)) (* sh (aref m 9)))
+                               (+ (aref v 2) (* ch (aref m 6)) (* sh (aref m 10)))
+                               (+ (aref v 0) (* cm (aref m 4)) (* sm (aref m 8))) (+ (aref v 1) (* cm (aref m 5)) (* sm (aref m 9)))
+                               (+ (aref v 2) (* cm (aref m 6)) (* sm (aref m 10)))
+                               0.06f0 :comet 0.03f0 (+ 900f0 dr (i->f j)) +pal-ink+ 0.85f0 :push 0.2f0)))))
+          (if (>= spin 2)                                             ; (the disc, the saw, the plunge: its butt off M)
               (dotimes (i 3) (setf (aref v i) (+ (aref m (+ 12 i)) (* -0.22f0 (aref m (+ 4 i))))))
               (dotimes (i 3) (setf (aref v i) (- (aref v i) (* 0.22f0 (aref m (+ 4 i)))))))   ; (its butt: the rod is M's +Y)
           (if (logtest lo 4)                                          ; the thrower's hand: right rod -> left fist -> sickle
               (progn (joint-point! q jm (ji :weapon-l) 0f0 0f0 0f0)
                      (vfx-hs-chain w q -0.4f0 0.9f0)
-                     (if (= a b) (vfx-hs-chain q v 0.12f0 0.9f0) (vfx-hs-chain q v 0.04f0 0.9f0)))
+                     (cond ((> ov 0) (%hs-chain2 q v))                ; (A1's paths: taut)
+                           ((= a b) (vfx-hs-chain q v 0.12f0 0.9f0)) (t (vfx-hs-chain q v 0.04f0 0.9f0))))
               (if (= a b) (vfx-hs-chain w v 0.12f0 0.9f0) (vfx-hs-chain w v 0.04f0 0.9f0)))
           (when (= b 4)                                               ; the pull: the chain taut along the sim's segment
             (setf (aref v 0) (aref anchor 0) (aref v 1) (the single-float *hs-anchor-up*) (aref v 2) (aref anchor 1))
@@ -2490,6 +2693,13 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                        ((logtest lo 32) (values 5 5 0 1))
                        ((< sf 50) (values 1 1 0 1))
                        (t (values 1 0 (- sf 50) 2))))
+                ((and shikai mv (assoc cn *hs-foe-paths*))             ; A1: NOKO / TSUI placed on the victim (§24.1)
+                 (let ((g (loop for g in (cdr (assoc cn *hs-foe-paths*)) when (and (<= (first g) sf) (< sf (second g))) return g)))
+                   (if g
+                       (destructuring-bind (f0 f1 a b sp) g
+                         (setf lo (logior lo 4 (* 256 sp)))
+                         (values (if (and (= a 10) (eq name :hs-k2j)) 0 a) b (- sf f0) (- f1 f0)))   ; (K2J: off J1, from the fist)
+                       (values 0 0 0 1))))
                 ((and mv (assoc name *hs-flights*))
                  (setf (aref fa 1) (second (assoc name *hs-flights*)))
                  (%hs-fa-ks! fa)                                       ; (S1: NAGE at the charge's reach)
@@ -2519,7 +2729,8 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
 
 (defun hisagi-look-cons-check ()
   "Debug 83901 (P1 Hisagi): bytes consed by 10 calls of his :pose hook and HISAGI-DRAW in the stance, out at the anchor, in
-NAGE's hit frame, in HIKI's, in the windmill, and (the Shikai's clips, §21.4) J1's short grip, J3's two let out, KARI-OTOSHI's,
+K1 NAGI's hit frame, in K2 NOKO's (A1, §24.1: also its wheel, K3 TSUI's plunge and its sky, the leap J3K), in the windmill,
+and (the Shikai's clips, §21.4) J1's short grip, J3's two let out, KARI-OTOSHI's,
 SHIBARI's wrap and KUBIKAKE's garrote, and the Bankai's look (§21.6: the orb, the rope) in the stance and
 with the noose of a bind, and the Bankai's clips (§21.8): J3's two let out and its swept chain, TSUISA's lance (hooked),
 KUBIKAKE's whirl, SAHARAI's ring, SP1's bundle and bolt, SP2's rain, KOSA's whip, the bind's MAKIGIRI, SHIBORI's drops, KOSHU's
@@ -2536,16 +2747,18 @@ stance with the noose held taut: each must be 0."
              (when clip (setf (anim-clip an) (find-clip clip) (anim-time an) (/ frame 60f0)))))
       (let* ((idle (bytes))
              (out (progn (setf (hss-state st) :out) (bytes)))
-             (nage (progn (at :hs-k1 18 :hs-s-nage) (bytes)))
-             (hiki (progn (at :hs-k2 21 :hs-s-hiki) (bytes)))
+             (nage (progn (at :hs-k1 18 :hs-s-nagi) (bytes)))                     ; (A1, §24.1: K1's sweep, K2's
+             (hiki (progn (at :hs-k2 21 :hs-s-noko) (bytes)))                     ;  saw on him, its wheel, K3's
+             (a1 (list (progn (at :hs-k2 12 :hs-s-noko) (bytes)) (progn (at :hs-k3 23 :hs-s-tsui) (bytes))   ;  plunge,
+                       (progn (at :hs-k3 19 :hs-s-tsui) (bytes)) (progn (at :hs-j3k 15 :hs-s-tobi-rin) (bytes))))   ;  the sky, the leap J3)
              (kaza (progn (at :hs-kaza 20 :hs-s-kaza) (bytes)))
              (grip (progn (setf (hss-state st) :in) (at :hs-j1 9 :hs-s-sen) (bytes)))
              (rin (progn (at :hs-j3 10 :hs-s-rin) (bytes)))
              (kari (progn (at :hs-k3 24 :hs-s-kari) (bytes)))
              (ch (prog1 (progn (setf (hss-charge st) 40 (hss-kstr st) t)          ; (S1: a charge of x1.4)
                                (list (progn (at :hs-kaza-j 30 :hs-s-kaza) (bytes))
-                                     (progn (at :hs-k1 19 :hs-s-nage) (setf (fighter-move f) (hs-scaled :hs-k1 40)) (bytes))
-                                     (progn (at :hs-k3 24 :hs-s-kari) (setf (fighter-move f) (hs-scaled :hs-k3 40)) (bytes))))
+                                     (progn (at :hs-k1 19 :hs-s-nagi) (setf (fighter-move f) (hs-scaled :hs-k1 40)) (bytes))
+                                     (progn (at :hs-k3 24 :hs-s-tsui) (setf (fighter-move f) (hs-scaled :hs-k3 40)) (bytes))))
                    (setf (hss-charge st) 0 (hss-kstr st) nil)))
              (shibari (progn (at :hs-shibari 30 :hs-s-shibari) (setf (fighter-contact f) :hit) (bytes)))
              (kubi (progn (setf (fighter-contact f) ct) (at :hs-breaker 9 :hs-s-kubikake) (bytes)))
@@ -2581,11 +2794,11 @@ stance with the noose held taut: each must be 0."
         (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (hss-state st) s0
               (fighter-contact f) ct (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm
               (hss-bound st) b0)
-        (log-msg "duel hisagi look consing (10 calls, B): stance ~d, out ~d, NAGE ~d, HIKI ~d, windmill ~d, J1 grip ~d, J3 ~d, ~
-KARI-OTOSHI ~d, S1's charge x1.4: windmill ~d, NAGE ~d, KARI-OTOSHI ~d; SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d; the Bankai's clips: J3 ~d, SOKUDA ~d, KUBIKAKE ~d, SAHARAI ~d, ~
+        (log-msg "duel hisagi look consing (10 calls, B): stance ~d, out ~d, NAGI ~d, NOKO ~d, A1's wheel ~d, TSUI ~d, sky ~d, J3K ~d, ~
+windmill ~d, J1 grip ~d, J3 ~d, KARI-OTOSHI ~d, S1's charge x1.4: windmill ~d, NAGI ~d, TSUI ~d; SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d; the Bankai's clips: J3 ~d, SOKUDA ~d, KUBIKAKE ~d, SAHARAI ~d, ~
 SP1 ~d, SP2 ~d, KOSA ~d; the route links (A2): HOSOKU ~d, its bundle ~d, spread K2 ~d, K3 ~d, SOKUDA's L ~d, SOKUSEN ~d, SOKUBEN ~d, ~
 SOKUTEI ~d; the bind's MAKIGIRI ~d, SHIBORI ~d, SP1 ~d, KOSHU ~d, stance ~d, UNWIND ~d"
-                 idle out nage hiki kaza grip rin kari (nth 0 ch) (nth 1 ch) (nth 2 ch) shibari kubi bankai bind
+                 idle out nage hiki (nth 0 a1) (nth 1 a1) (nth 2 a1) (nth 3 a1) kaza grip rin kari (nth 0 ch) (nth 1 ch) (nth 2 ch) shibari kubi bankai bind
                  (nth 0 bk) (nth 1 bk) (nth 2 bk) (nth 3 bk) (nth 4 bk) (nth 5 bk) (nth 6 bk)
                  (nth 0 a2) (nth 1 a2) (nth 2 a2) (nth 3 a2) (nth 4 a2) (nth 5 a2) (nth 6 a2) (nth 7 a2)
                  (nth 0 bb) (nth 1 bb) (nth 2 bb) (nth 3 bb) (nth 4 bb) (nth 5 bb))))))
@@ -2638,6 +2851,29 @@ far edge. A debug measurement (it conses)."
                    (loop for w across (mv-hits mv)                      ; (each window's: A2's gathered K2 has two)
                          collect (let ((v (first (hw-vols w)))) (if cap (+ (aref v 2) (aref v 4)) (aref v 1))))
                    (if cap "line" "arc")))))
+    ;; A1 (§24.1): the Shikai's K string and leap J: K1's sweep at x1 / x1.6 and the leaps against their arcs' r; K2 / K2J
+    ;; / K3 (a :seg-fn window: placed on the victim) as how far the drawn sickle sits off his feet (0 wanted)
+    (setf (fighter-form f) :base (hss-bound st) nil)
+    (dolist (row '((:hs-k1 0) (:hs-k1 60) (:hs-j2k 0) (:hs-j3k 0) (:hs-k2 0) (:hs-k2j 0) (:hs-k3 0)))
+      (destructuring-bind (name n) row
+        (let* ((mv (hs-scaled name n)) (clip (mv-clip mv)) (hw (svref (mv-hits mv) 0)) (seg (hw-seg hw)) (tips nil))
+          (setf (hss-charge st) n (hss-kstr st) (> n 0) (fighter-state f) :move (fighter-move f) mv (fighter-phase f) :main
+                (fighter-contact f) nil)
+          (loop for sf from (hw-from hw) below (hw-to hw)
+                do (setf (fighter-sf f) sf (anim-clip an) (find-clip clip) (anim-time an) (/ sf 60f0) (anim-blend an) 0f0
+                         (aref *pose-at* 0) (aref p 0) (aref *pose-at* 1) (aref p 1) (aref *pose-at* 2) (aref p 2)
+                         (aref *pose-at* 3) yaw)
+                   (pose-fk! jm (anim-eval an) (aref p 0) (aref p 1) (aref p 2) yaw (body-scale b) (body-hunch b) (body-props b))
+                   (hs-pose e m) (hisagi-draw e 0.016)
+                   (push (cond (seg (aref *hs-foe-d* 0))
+                               ((or (> (aref lo 0) 0.99) (> (aref lo 8) 0.99))
+                                (max (if (> (aref lo 0) 0.99) (aref lo 7) 0) (if (> (aref lo 8) 0.99) (aref lo 15) 0)))
+                               (t (joint-point! v jm (ji :weapon-r) 0f0 0f0 -0.75f0)
+                                  (sqrt (+ (expt (- (aref v 0) (aref p 0)) 2) (expt (- (aref v 2) (aref p 2)) 2)))))
+                         tips))
+          (log-msg "duel hisagi tip base ~(~a~) x~,2f ~(~a~): ~{~,2f~^ ~} | ~a" name (hs-charge-scale n) clip (reverse tips)
+                   (if seg "off the victim (0 wanted)" (format nil "edge ~,2f (arc)" (aref (first (hw-vols hw)) 1)))))))
+    (setf (hss-charge st) 0 (hss-kstr st) nil)
     (setf (fighter-form f) :bankai (hss-bound st) nil (fighter-contact f) nil)
     (to-idle e 0)))
 (pushnew '(83901 83902 hisagi-art-debug) *char-debug* :test #'equal)
@@ -2671,7 +2907,9 @@ HOSOKU, spread K2 / K3, gathered K2 / K3G / J2s / J3G), 33 the bind's stance.")
     (:hs-s-hiki :hs-k2 1.6 :hooked) (:hs-s-maki :hs-k2s 3.0) (:hs-s-kari :hs-k3 2.5) (:hs-s-hodoki :hs-k3h 2.0 :hooked)
     (:hs-s-modoshi :hs-modoshi 3.0 :out) (:hs-s-kaza :hs-kaza 3.0) (:hs-s-raiden :hs-raiden 6.0)
     (:hs-s-shibari :hs-shibari 3.0 :wrapped) (:hs-s-breaker nil 3.0) (:hs-s-kubikake :hs-breaker 1.0) (:hs-s-kari-aim nil 7.0)
-    (:hs-s-kari-o :hs-kikon 7.0) (:hs-s-intro nil 3.0) (:hs-s-win nil 3.0))
+    (:hs-s-kari-o :hs-kikon 7.0) (:hs-s-intro nil 3.0) (:hs-s-win nil 3.0)
+    (:hs-s-nagi :hs-k1 5.0) (:hs-s-noko :hs-k2 4.0) (:hs-s-tsui :hs-k3 4.0) (:hs-s-tobi-kaeshi :hs-j2k 1.0)   ; (A1, §24.1:
+    (:hs-s-tobi-rin :hs-j3k 1.0))                                                                       ;  slots 23-27)
   "83910+k: (clip move dist [sickle]): the clip, the move its frames are (NIL: idle), Kenpachi's distance, the sickle's
 state (:out anchored 4 m ahead on the floor, :hooked anchored in him, :wrapped SHIBARI's contact).")
 (defvar *hs-strip-k* 0 "The strip slot (83910+k, 83500+k).")
@@ -2705,7 +2943,7 @@ state (:out anchored 4 m ahead on the floor, :hooked anchored in him, :wrapped S
   (at 0 (card :white a) (hs-strip-pose a v)
       (destructuring-bind (clip move dist &optional sickle form) (nth *hs-strip-k* *hs-strip-tab*)
         (declare (ignore clip sickle))
-        (let ((far (member move '(:hs-k1 :hs-raiden :hs-kikon :hs-k2s :hs-shibari :hs-k2 :hs-k3h :hs-modoshi)))
+        (let ((far (member move '(:hs-k1 :hs-raiden :hs-kikon :hs-k2s :hs-shibari :hs-k2 :hs-k3h :hs-modoshi :hs-k3)))
               (wide (and form (>= dist 4.0))))                         ; (the Bankai's long reach)
           (cond (wide (if (= (second *hs-strip-fv*) 0)
                           (shot-on a -90 12.0 1.6 :look 1.2 :ahead (min 4.6 (* 0.55 dist)))
