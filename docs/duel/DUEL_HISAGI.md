@@ -2095,6 +2095,22 @@ byte-identical (below). The awakening moves no one.
   draws it slowly; a phone check belongs to the playtest.
 - KŌSHU at a Soul Break draws the noose and the forced garrote whatever the bind state.
 
+**B5 merged with B4c, gate (the lead, 2026-10-18; main a979cd9, 20 seeds).**
+- The awakening's cinematic goes through the shared awakening path (the opponent held, both to idle after), so his
+  pairings move. The lead accepts this as every awakened form's normal behaviour.
+- The 42 non-Hisagi lines and `--cvc` are byte-identical.
+- His pairings: all K.O. 20 / 20; every cross-pairing median inside 125–210 s.
+
+  | Pairing | Median | His P1 wins |
+  |---|---|---|
+  | HY | 128.3 s | 4 |
+  | HK | 129.2 s | 1 |
+  | HR | 171.6 s | 3 |
+  | HI | 177.1 s | 2 |
+  | HS | 163.4 s | 7 |
+  | HB | 167.9 s | 0 |
+  | HH (mirror) | 234.1 s | 10 / 9, 1 draw |
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
