@@ -2771,9 +2771,15 @@ no second leap (the string ends); 83019 K1 K2 J3K L K1 K2 then J: no J3K, the vi
 **Host tests** ("§24.4"): the hook only on his Shikai, the knobs, HS-LINK-OK refusing J2K / J3K while set and passing K2 /
 K3 / J3, set through a combo, cleared in neutral and by the reset; the leap CPU test's 2.0 / 2.1 m now 3.0 / 3.1.
 
+**Gates** (the lead): host duel-rules 9867, control 89, learn 131, cine 18 ALL PASS; pkgcheck clean; the 42 non-Hisagi
+lines of `simgate --seeds 10 --summary` and `--cvc` byte-identical (the shared hook is inert for them). His 7 pairings at
+20 seeds (before = S2, §23.5): HY 136.3 s (127.9), HK 130.9 (123.7; 125.3 at 60), HR 158.8 (151.3), HI 161.9 (157.4), HS
+161.1 (161.1), HB 139.4 (169.1), HH 235.6 (225.1, a mirror); every match a K.O., every cross median inside 125–210 s. His
+P1 wins 9 of 120 cross matches (S2: 11): still weak, nothing retuned.
+
 ## 18. Open
 
-- §24.4 (one leap a combo, K1 3.0 m, the bridge push 2.5): built; its gates below in §24.4 when they finish.
+- §24.4 (one leap a combo, K1 3.0 m, the bridge push 2.5): built and gated (every median in the window); his P1 wins 9 of 120.
 
 - The art pass (§24): batches A1 (the Shikai; built, §24.1) and A2 (the Bankai ranged mode and the look; built, §24.2),
   presentation only, waiting on the playtest; A3 (the bind) next.
