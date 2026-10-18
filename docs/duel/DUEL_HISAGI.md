@@ -1626,6 +1626,28 @@ His 7 pairings at 20 seeds against the parent 5ea33ab (main 1640589, `simgate --
 - Candidate levers offered: the 2.0 m dead zone, L's cooldown, the mark's 36 f delay, the 2.8 m/s walk.
 - The awaken A/B waits until that call.
 
+### 22.4 The ranged strings by route: gathered vs spread (the user, 2026-10-18)
+
+The user's request, verbatim:
+
+> K1 將垂降的鎖鏈在身旁旋轉並捆成一束
+> - K1 接續的 K2 會使用粗壯的鎖鏈束向前方地面抽打後，尾段繼續向前方直線地面甩擊：動畫就像 U => L
+> - K1 接續的 K3 會拉動 K2 時平躺於地面的鎖鏈束進行 360° 的旋轉甩打
+> - K1 接續的 J2 J3 也會用類似的邏輯使用鎖鏈束快攻
+> - J1 接續的 K2 K3 則會更採用散開的鎖鏈發動攻擊
+>
+> 散開的鎖鏈攻擊更快，聚合的鎖鏈攻擊更痛
+
+Reading (the lead):
+- The opener decides the route's chains.
+  - A K1-opened string is **gathered**: K1 spins the hanging chains beside him and binds them into one bundle; every
+    later segment strikes with the bundle.
+  - A J1-opened string is **spread**: the separate hanging chains.
+- Spread is faster, gathered hurts more.
+
+The segment table and the open points (K1's own hit, the fate of B4a's placed marks, the speed / damage ratios) go to
+the user before anything is built (`duel-move-modules`: restate the notation first).
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
