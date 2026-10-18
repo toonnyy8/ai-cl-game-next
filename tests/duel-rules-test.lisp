@@ -3419,7 +3419,6 @@ past the ends; DEFAULT if the clip is not listed."
                                (fighter-contact f) nil (fighter-queued f) nil))
   mv)
 (defvar *t-ends* nil)
-(defun hs-p-pressed! (e) (declare (ignore e)) nil)                                     ; (no vpad: HSS-REL-HELD set below)
 (with-open-file (in (merge-pathnames "../duel/lisp/hisagi-art.lisp" *load-truename*))   ; (the drawn reaches, the art's data)
   (let ((*package* (find-package :duel)))
     (loop for form = (read in nil in) until (eq form in)
@@ -3438,8 +3437,8 @@ past the ends; DEFAULT if the clip is not listed."
     (check (every (lambda (k) (every (lambda (h) (kit-hook k h)) '(:bind :bind-damage :bind-pool :bind-heal :bind-step
                                                                    :bind-resolve :bind-snapshot)))
                   (list kr kb)))
-    (check (and (kit-hook kb :p) (kit-hook kb :p-label) (null (kit-hook kr :p)) (null (kit-hook kr :p-label))))   ; (B4c: the
-                                                                   ; ranged P inert, KUBIKAKE on SP2; the bind's P the release)
+    (check (and (null (kit-hook kb :p)) (null (kit-hook kb :p-label)) (null (kit-hook kr :p)) (null (kit-hook kr :p-label))))   ; (B4c: the
+                                                                   ; ranged P inert, KUBIKAKE on SP2; §24.5: the bind's too, no FREE)
     (check (notany (lambda (h) (kit-hook (kit :hisagi :base) h)) '(:bind :p :p-label)))
     ;; the tables: S A R dmg guard block reach (§17.1 / §17.3)
     (dolist (row '((:hs-r-j1 14 3 12 22 8 -2 5.0) (:hs-r-k1 16 4 22 40 14 -3 4.0)   ; (B4c, §22.4: the openers, then
@@ -3475,7 +3474,7 @@ past the ends; DEFAULT if the clip is not listed."
                   (equal '(25 32) (map 'list #'hw-dmg (mv-hits (m :hs-r-k2)))) (= 57 (dmg :hs-r-k2)))))
     (check (and (= 14 (- (mv-s (m :hs-b-k2)) (mv-enter (m :hs-b-k2)))) (= 14 (- (mv-s (m :hs-b-k3)) (mv-enter (m :hs-b-k3))))
                 (= 20 (- (mv-s (m :hs-r-sp2c)) (mv-enter (m :hs-r-sp2c))))
-                (= 42 (mv-whiff (m :hs-r-kubikake))) (zerop (mv-cooldown (m :hs-r-l))) (zerop (mv-cooldown (m :hs-b-l)))
+                (= 60 (mv-whiff (m :hs-r-kubikake))) (zerop (mv-cooldown (m :hs-r-l))) (zerop (mv-cooldown (m :hs-b-l)))
                 (= 10 *hs-saharai-s*) (= 32 *hs-saharai-r*) (= -16 *hs-saharai-adv*)   ; (B4d, §22.8: L 14 / 22 / -4, cd 120 ->)
                 (~= (mv-clip-speed (m :hs-r-l)) 1.0) (~= 3.5 *hs-saharai-hit*) (~= 3.5 *hs-saharai-block*)   ; (S1, §23.3: both 3.5)
                    ; (its clip's S 14 on S 10)
@@ -3553,8 +3552,8 @@ past the ends; DEFAULT if the clip is not listed."
         (check (and (<= 7.85 push 8.05) (<= push (+ (aref ov 2) (aref ov 4) r)) (<= push (+ 9.0 0.3 r))))))
     ;; KUBIKAKE (§17.2): the 200 at the press (from idle / guard / a run only; not blockstun; cooling; a bind on the field)
     ;; (B4c: on SP2, its states the generic SP2's: from neutral, or cancelled off a J / K hit)
-    (check (and (hs-kubi-ready-p 200.0 0 nil) (hs-kubi-ready-p 300.0 0 nil) (not (hs-kubi-ready-p 199.9 0 nil))
-                (not (hs-kubi-ready-p 300.0 1 nil)) (not (hs-kubi-ready-p 300.0 0 t))))
+    (check (and (hs-kubi-ready-p 200.0 nil) (hs-kubi-ready-p 300.0 nil) (not (hs-kubi-ready-p 199.9 nil))
+                (not (hs-kubi-ready-p 300.0 t))))   ; (§24.5: no cooldown)
     ;; ... on hit +16 (the 30 f reel against the recovery cut to 14 from the hit): a bind J1 (S 8) and SP1 (S 14) combo,
     ;; a bind K1 (S 18) does not (hitstop freezes both alike)
     (check (and (< (+ *hs-kubi-cut* (mv-s (m :hs-b-j1))) *hs-bind-reel*)   ; (B4c: the bind's SP1 the rain, S 30: no combo)
@@ -3565,11 +3564,6 @@ past the ends; DEFAULT if the clip is not listed."
     (let ((turn (deg (* 30.0 (/ 24 60.0)))))
       (dolist (d '(4.0 5.5 7.0))
         (check (> (- 2.5 (* d (sin turn))) (+ 0.35 0.45)))))
-    ;; the release: at once from idle / guard / blockstun / a run, in hitstun only past the combo's 2nd hit (Q9 A, as a
-    ;; Burst); during his own move held to its last frame (never a cancel)
-    (check (and (hs-rel-free-p :idle nil) (hs-rel-free-p :guard-hit nil) (hs-rel-free-p :run nil) (not (hs-rel-free-p :stun nil))
-                (hs-rel-free-p :stun t) (hs-rel-free-p :air t) (not (hs-rel-free-p :move t))))
-    (check (and (not (hs-rel-due-p 40 42)) (hs-rel-due-p 41 42)))
     (check (and (= 1300 (hs-grey-loss 1300 1300 9 8)) (= 250 (hs-grey-loss 1000 750 3 3))
                 (hs-release-wanted-p 700 300) (not (hs-release-wanted-p 600 300))))
     ;; ---- the bind on stand-ins: H (P1, Hisagi in the ranged mode) binds K (P2, Kenpachi)
@@ -3587,8 +3581,7 @@ past the ends; DEFAULT if the clip is not listed."
                     (equal '((0 hs-kubi-start)) (mv-on-frame (m :hs-r-kubikake)))
                     (equal '((6 hs-kubi-start)) (mv-on-frame (m :hs-r-kubikake-c)))))
         (hs-kubi-start h)
-        (check (= 180 (hss-kubi-cd st)))
-        (check (not (kit-command-ok-p h :sp2)))                           ; (cooling)
+        (check (and (kit-command-ok-p h :sp2) (= *hs-kubi-whiff* 60 (mv-whiff (m :hs-r-kubikake)))))   ; (§24.5: no cooldown, whiff 60)
         ;; ... cancelled off a J / K hit (「可以，命中確認後接」): its copy :enter 6 (S_eff 18), the rest its data; a blocked
         ;; link: the move itself (no cancel: the generic SP rules)
         (let ((c (m :hs-r-kubikake-c)) (b (m :hs-r-kubikake)))
@@ -3603,7 +3596,7 @@ past the ends; DEFAULT if the clip is not listed."
         ;; under 200 at contact (星 drained him): a plain hit
         (setf (fighter-sf fh) 24 (fighter-contact fh) :hit *t-moved* nil *match-tick* 500)
         (hs-kubi-land h)
-        (check (and (= 500 (hss-bind-t st)) (zerop (hss-kubi-cd st)) (= (- (mv-total (m :hs-r-kubikake)) 14) (fighter-sf fh))
+        (check (and (= 500 (hss-bind-t st)) (= (- (mv-total (m :hs-r-kubikake)) 14) (fighter-sf fh))
                     (equal (list 3.0 12) (subseq (first *t-moved*) 1 3))))
         (setf (gauges-reiatsu gh) 199f0 (hss-bind-t st) -1)
         (hs-kubi-land h)
@@ -3619,7 +3612,7 @@ past the ends; DEFAULT if the clip is not listed."
         (setf (fighter-state fh) :idle (fighter-move fh) nil)
         (hs-bk-tick h fh gh)
         (check (eq :bankai-bind (fighter-form fh)))                       ; (a SET-FORM out of the move)
-        (check (equal (hs-p-label h) "FREE"))
+        (check (and (null (kit-hook (kit :hisagi :bankai-bind) :p)) (null (kit-hook (kit :hisagi :bankai-bind) :p-label))))   ; (§24.5: no FREE)
         ;; B3: the drain 1 per 2 nominal damage of either side, exact on odd damage; grey Reishi floors at 0, no Soul Break
         (check (and (null (deal-damage h o 7)) (= (hss-pool st) 426.5f0) (= (gauges-reishi go) (- (hss-or0 st) 7))))
         (check (and (null (deal-damage o h 2000)) (= 0 (gauges-reishi gh)) (null *soul-breaks*) (= (hss-pool st) 0f0)))
@@ -3644,20 +3637,13 @@ past the ends; DEFAULT if the clip is not listed."
         (check (and (null (settle-konpaku h o nil)) (= 0 (gauges-konpaku go)) (hss-bound st) (= 9 (bind-grey-souls o))))
         ;; Kenpachi's Bankai refused while bound (B11)
         (check (not (bankai-ok-p o)))
-        ;; the release (Q9 A): from idle at once; in a combo's 1st hit not (the press stays buffered), from its 2nd yes
-        (setf (fighter-state fh) :stun (fighter-combo-hits fh) 1 (fighter-lock fh) 0)
+        ;; §24.5 (「把 free 的按鍵拿掉」): P releases nothing in a bind (idle or in hitstun); only SP2 KAIBAKU-GEKI's S does
+        (setf (fighter-state fh) :idle (fighter-combo-hits fh) 0)
         (check (and (null (try-command h fh :awaken)) (not (hss-rel st))))
-        (setf (fighter-combo-hits fh) 2)
-        (check (and (try-command h fh :awaken) (hss-rel st)))
-        (setf (hss-rel st) nil (fighter-state fh) :idle (fighter-combo-hits fh) 0)
-        ;; ... during his own move: held to its last frame (the mode stays bind while he is in it)
-        (start-move h (m :hs-b-k1))
-        (setf (hss-rel-held st) t (fighter-sf fh) 10)
-        (hs-bk-tick h fh gh)
-        (check (and (not (hss-rel st)) (hss-rel-held st)))
-        (setf (fighter-sf fh) (1- (move-end-frame 18 4 20 (mv-whiff (m :hs-b-k1)) nil nil)))
-        (hs-bk-tick h fh gh)
-        (check (and (hss-rel st) (not (hss-rel-held st))))
+        (setf (fighter-state fh) :stun (fighter-combo-hits fh) 2 (fighter-lock fh) 0)
+        (check (and (null (try-command h fh :awaken)) (not (hss-rel st))))
+        (setf (fighter-state fh) :idle (fighter-combo-hits fh) 0 (hss-rel st) t)   ; (the release due, as KAIBAKU-GEKI's S sets it)
+        (start-move h (m :hs-b-k1))                                       ; (in a move: the mode stays bind until it ends)
         ;; B8 the release at the step's release slot: the snapshot back (the grey Kikon undone, the heal kept), the pool's
         ;; 426.5 to him first (300) and the rest (126.5) to Hisagi; the end effects; the ranged mode once out of the move
         (setf *t-ends* nil (gauges-reishi gh) 100)
@@ -3722,9 +3708,10 @@ past the ends; DEFAULT if the clip is not listed."
         (hs-kaibaku-go h)                                                 ; (no bind up: nothing; SP2 refused)
         (check (and (not (hss-rel st)) (not (hs-bk-ok h :sp2 nil))))
         (setf (fighter-state fh) :idle (fighter-move fh) nil (gauges-reishi go) 1300)
-        ;; ... and P stays the plain release (no strike: UNWIND, no reel after)
+        ;; ... a release without KAIBAKU-GEKI's strike (no button makes one since §24.5; the path stays): UNWIND, no reel after
         (hs-bind-start! h) (setf (fighter-form fh) :bankai-bind (fighter-kit fh) kb)
-        (check (and (try-command h fh :awaken) (hss-rel st) (not (hss-rel-strike st))))
+        (check (and (null (try-command h fh :awaken)) (not (hss-rel st))))
+        (setf (hss-rel st) t)
         (bind-step! h :release)
         (check (and (equal *t-ends* (list h)) (not (hss-rel-reel st))))
         (setf (fighter-form fh) :bankai (fighter-kit fh) kr *t-ends* nil)
@@ -3742,7 +3729,7 @@ past the ends; DEFAULT if the clip is not listed."
         ;; the tick came after its cinematic) binds nothing; two throws in one step (the mirror) bind neither
         (setf (gauges-konpaku gh) 9 (gauges-konpaku go) 9 (gauges-reishi gh) 1300 (gauges-reiatsu gh) 300f0)
         (hs-bind-start! h)
-        (check (not (hs-kubi-ready-p 300.0 0 (bind-of h))))
+        (check (not (hs-kubi-ready-p 300.0 (bind-of h))))
         (hs-bind-off! h :end-released)
         (setf (hss-bind-t st) (1- *match-tick*) (fighter-form fh) :bankai)
         (hs-bk-tick h fh gh)

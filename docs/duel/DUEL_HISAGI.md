@@ -2851,7 +2851,28 @@ lines of `simgate --seeds 10 --summary` and `--cvc` byte-identical (the shared h
 161.1 (161.1), HB 139.4 (169.1), HH 235.6 (225.1, a mirror); every match a K.O., every cross median inside 125–210 s. His
 P1 wins 9 of 120 cross matches (S2: 11): still weak, nothing retuned.
 
+### 24.5 No FREE button; KUBIKAKE without a cooldown (the user, 2026-10-18; a sim change)
+
+> 「把 free 的按鍵拿掉，然後 SP2 的捆縛去除冷卻，一樣用打空的後搖來控制出招成本」
+
+**As built** (`duel/lisp/hisagi.lisp`):
+- **No FREE**: the bind mode's P (the plain release, the touch deck's FREE chip) is gone: `*hs-bk-hooks*` loses `:p` /
+  `:p-label` (HS-P-PRESS, HS-P-LABEL, HS-P-PRESSED!, the release held through his own move, HS-REL-FREE-P / HS-REL-DUE-P and
+  HSS-REL-HELD deleted). P does nothing in either Bankai mode now; a bind ends by SP2 KAIBAKU-GEKI's release (its S sets the
+  release), the drain or the round. His CPU's plain-P branch (`*hs-ai-plain-release-p*`) is gone: behind on grey with the
+  foe out of KAIBAKU-GEKI's reach, he waits (the drain, KOJO's pull). The release path without the strike stays (the debug
+  scene 83013, the host test) but no button reaches it.
+- **KUBIKAKE (ranged SP2) has no cooldown** (`*hs-kubi-cooldown*` 180 and HSS-KUBI-CD deleted; HS-KUBI-READY-P: his own
+  200 and no bind up). Its price is its whiff recovery `*hs-kubi-whiff*` **42 → 60** (the lead's number; R 30, block −20 and
+  the rest unchanged; a hit still cuts the recovery to 14).
+
+**Host tests**: no `:p` / `:p-label` on either Bankai kit; P in a bind (idle, or in hitstun past the 2nd hit) releases
+nothing; KUBIKAKE ready right after its start (no cooldown), its whiff 60; the release's end effects (set as KAIBAKU-GEKI's
+S sets them).
+
 ## 18. Open
+
+- §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built; gates below when they finish.
 
 - §24.4 (one leap a combo, K1 3.0 m, the bridge push 2.5): built and gated (every median in the window); his P1 wins 9 of 120.
 

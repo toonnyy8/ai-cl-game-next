@@ -222,7 +222,7 @@ low zone = J, high zone = K, an up-flick = a forward Step, the dash)?"
 
 (defun hud-deck (s)
   "The thumb deck: the flow pad's outline and its tap split (F above, Q below), the chips (lit while held; AWAKEN only
-at EVOLUTION or a Bankai ready, or always for a form with a :p hook, labelled by its :p-label (e): Hisagi's BIND / FREE),
+at EVOLUTION or a Bankai ready, or always for a form with a :p hook, labelled by its :p-label (e); Hisagi's bind FREE until 2026-10-18, DUEL_HISAGI §24.5),
 the ink ring under the thumb, and the recognised gesture's glyph at the thumb for 0.3 s (the misread teacher)."
   (let* ((tr *touch*) (d (touch-dpx tr)) (dk *deck*)
          (u (u-chip-p))                                  ; a :u form: the chip is U
