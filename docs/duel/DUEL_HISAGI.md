@@ -1717,6 +1717,129 @@ at a beat after seeing the stills.
 4. He raises a blade; the noose tightens on **both** necks, both choke (the shared pain).
 5. The victim drops; Hisagi stays up, shaking; the stamp.
 
+### 22.7 B5 cinematics as built (2026-10-18)
+
+> 「覺醒跟毀魂技的動畫的記得要做」 (the user, 2026-10-18)
+
+Four scripts in `duel/lisp/hisagi-art.lisp` ("the cinematics (batch B5)"), built from §22.5's revised storyboards (the
+Shikai Kikon from §11.5's table). Hooks in `hisagi.lisp`: the `:bankai` kit's `:cine hs-awaken-cine` (combat.lisp
+AWAKEN! plays it, as every awakened form's), and the three Kikon moves' `:cine` (`:hs-kikon` → `hs-kare-cine`,
+`:hs-r-kikon` → `hs-kosa-cine`, `:hs-b-kikon` → `hs-koshu-cine`; KIT-KIKON-CINE also plays each for that form's Soul
+Break). B2a's placeholder `hs-kikon-cine` is deleted. No move's frame data, volume, damage or reaction changed.
+
+**Machinery (a look).** HISAGI-DRAW reads the running script's frame (`hs-cine-of`, `%hs-cine-look!`, 0 B): the
+awakening's Shikai look and orb forming, KŌSA's curtain hauled up and dropped back, KŌSHU's forced noose and sinking orb,
+the Shikai Kikon's sickle flight (`hs-kare-codes`) and KŌSHU's garrote. `%hs-orb-draw` takes `*hs-cl*` (the orb's
+growth, the curtain's drop, the neck bundle's descent, a height offset, placed at once); the match fills 1 1 1 0 0, so
+its floats are unchanged. A skipped or aborted script leaves nothing behind (CINE-END's REFRESH-LOOK restores his body
+and weapon). The scripts' own looks are DURING functions: the whirlpool (`%hs-aw-whirl`), the black wind
+(`%hs-aw-wind`), the coils winding on (`hs-aw-coil`), the orb gathering (`hs-aw-gather`), the giant rope and the black
+wave (`hs-kosa-rope`), the crack (`hs-kosa-crack`), the rain of chains (`hs-koshu-rain`). New clips: `:hs-aw-still`,
+`:hs-aw-throw`, `:hs-aw-catch`, `:hs-aw-rise`, `:hs-cine-raise`, `:hs-cine-shake`, and the victim's `:hs-cine-choke-v`;
+the rest are his own move clips. New brush glyphs (glyphs-extra.lisp, baked with tools/glyph-bake.py's GLYPH from the
+same Yuji Syuku font): 絞 降 and the ruby's ふ こ う じ ょ.
+
+**Staging.** Each Kikon script first puts him 3 m in front of the victim, where the placeholder left him for the reset
+that follows (combat.lisp RESET-ROUND places both from where they stand). It then stages its own distance with
+CINE-PLACE, and he is given the 3 m place back however the script ends (`hs-cine-stage`). This keeps the gate rows
+byte-identical (below). The awakening moves no one.
+
+**The awakening 卍解 風死絞縄 (168 f, `hs-awaken-cine`).**
+
+| Beat | f | Camera | Action as built |
+|---|---|---|---|
+| 1 | 0–20 | close on his face, 16°, 1.25 → 1.07 m, lens 36 | the Shikai body, head bowed, eyes down (neutral face), the rods hanging, the chain slack; the opponent held; a 2 f negative, silence |
+| 2 | 20–50 | low (0.3 m), 34°, 3.1 m, aimed 2.1 m up, lens 74 | sunk low, then the whole body thrown up (f32): both Kazeshini leave his hands, tumbling round a rim rising to 3.5 m; their ink chain twists down into a funnel over his head; dark wind streaks circle it (f36–50) |
+| 3 | 50–70 | wide, 62°, 9.5 m, lens 50, him left of centre | 卍解 / BANKAI stamp; a 2 f negative, a 6 f manga frame, a shake, a dust ring 6 m; 22 black streaks burst out to 8 m and fade |
+| 4 | 70–100 | medium, 38°, 3.3 m, lens 42 | silence; the world greys (desaturation to 0.7 by f84, to the end); the blades caught low (f70); the right arm held out, his head turned to it, as 113 black links wind up the forearm, the upper arm and round his neck (f74–89); the coiled `:hisagi-bankai` body from f90 |
+| 5 | 100–135 | tilt: low behind his left shoulder (150°, 6.2 m), aimed from 1.3 m up past the frame's top to the orb (f100–112), held, back down (f118–132) | his face up to the orb; the orb grows (f100–116) as six black chains spiral into it; the curtain drops (f114–126); the four-chain bundle comes down (f118–130) and ties round his neck (a snap, f130); the pale patch grows with the orb |
+| 6 | 135–168 | wide, both: 30°, 7 m + 0.6 × the gap, him on the left | the CFYOW stance under the curtain; 風死絞縄 with the ruby ふしのこうじょう (the caption's second column), FUSHI NO KOJO, — BANKAI —; no chain reaches the opponent |
+
+**The Shikai Kikon 刈れ (180 f, `hs-kare-cine`).**
+
+| Beat | f | Camera | Action as built |
+|---|---|---|---|
+| 1 | 0–24 | his left side, low (1.0 m), 5.2 m from the pair's middle, lens 38; 3 m apart | the victim reels (held 8 f); `:hs-s-kari-aim`: the chain whirled overhead, the blade across his face; silence |
+| 2 | 24–54 | over his left shoulder, 2.3 m behind him, lens 38 | `:hs-s-kari-o` (S at f30): the left sickle thrown flat as the spinning disc, through his left fist; it nicks the victim (f34: a spark, his flinch) and flies on to 6–7 m |
+| 3 | 54–84 | low (0.4 m), 62°, 4.2 m, lens 60 | `:hs-s-hiki` (S at f60): he drops and pulls; the sickle comes back through the victim's back (f63): the white card, the victim a black silhouette, held 4 f (2 drawings); a heavy spark |
+| 4 | 84–120 | side-on to the pair, 4.4 m, lens 46; 1.4 m apart | `:hs-s-kubikake`: the chain over the head (the garrote through his neck), the yank (f90: focus lines on the neck, the victim's crumple), the slam (f98: the victim down, a 2 f negative, a dust ring, an ink splash, a 6 f manga frame) |
+| 5 | 120–156 | nearly top-down, 6.4 m up, 2 m off | flash steps round the kneeling victim (f120 / 124 / 128, an afterimage each, 60° → 180°); behind him, `:hs-s-kari` (S at f142): both sickles let out over his head and down; the Konpaku shatter, a negative, a 12 f manga frame |
+| 6 | 156–180 | the white card, him alone, 30°, 5.2 m, lens 36 | `:hs-s-win`: the chain slack, the half-step back; 刈れ / 風死, KARE, KAZESHINI, — KIKON —, the hanko |
+
+**降鎖 KŌSA (150 f, `hs-kosa-cine`).**
+
+| Beat | f | Camera | Action as built |
+|---|---|---|---|
+| 1 | 0–25 | low (0.5 m) behind him (165°), 3 m, lens 50; 7 m apart | `:hs-k-kosa` at 0.45×: the right crescent raised, the left hand heaving the neck bundle up (held at its peak f17 from f38); silence |
+| 2 | 25–60 | tilt: 160°, 3.2 m, aimed from 2 m up to the orb (f25–42), held | the curtain hauled up into the orb (f28–44); under it the eight chains twisted into one giant rope, lowered to 5.2 m (f30–52) |
+| 3 | 60–90 | side-on to the lane, 15.5 m from its middle, 2.6 m high, lens 32 | the rope swung back over him (f60–68), whipped down 2 m ahead (f68–76, a shake, the crack sound), its end run along the ground to the victim (f76–90), the ground black behind it, black spray at its front; KOSA's own bundle whip (S at f61) |
+| 4 | 90–120 | on the victim, 35°, 3.8 m, lens 48 | the impact (a 2 f negative, a heavy spark, his crumple); the white card with his silhouette f92–96 (2 drawings); the Konpaku shatter (f96), a 10 f manga frame; a jagged crack along the lane from 1.2 m ahead of Hisagi to the victim (to f150, fading from f130) |
+| 5 | 120–150 | wide, 125°, 8 m, him on the left | the rope hauled back up (to f112), the curtain drops back (f120–134); `:hs-k-stance`, the blade lowered; 降鎖, KOSA, — FUSHI NO KOJO KIKON —, the hanko |
+
+**絞首 KŌSHU (180 f, `hs-koshu-cine`).**
+
+| Beat | f | Camera | Action as built |
+|---|---|---|---|
+| 1 | 0–30 | the pair side-on, 7 m, tracking, lens 44; 6 m apart | `:hs-kb-koshu-run`: six flash-step hops along the line (f4–24, an afterimage each) to 1 m |
+| 2 | 30–70 | the victim's front, 32°, 3.7 m, lens 46 | put 0.75 m behind his back; `:hs-kb-koshu` (S at f38): the chain drawn across his throat (the garrote); the victim's choke (both hands at the throat, the head back, a tremble); silence |
+| 3 | 70–110 | low (0.45 m) on the victim, 35°, 5.8 m, aimed 2.6 m up, lens 62 | the orb sinks 3.4 m (f70–86); eight black chains drop from it onto him, one every 2 f (f80–101); from f96 three turns bind him standing (`:sh-bound`) |
+| 4 | 110–150 | the victim's side, 68°, 3.8 m (f110); close on Hisagi's left side, 1.9 m (f132) | `:hs-cine-raise`: the right crescent straight up, his left hand at his own throat, the head back, a hurt face; the victim chokes; the noose bites (f128: a 1 f negative, a shake, focus lines on the neck) |
+| 5 | 150–180 | his left side, 95°, 5.6 m, him on the left | the victim crumples; the Konpaku shatter, a negative, a 12 f manga frame; `:hs-cine-shake`: standing, hunched a little, shaking, the hand at his throat; 絞首, KOSHU, — FUSHI NO KOJO KIKON —, the hanko (f156) |
+
+**Deviations from §22.5 / §11.5.**
+- Awakening beat 1: no closed-eye face exists (the faces are neutral / shout / hurt), so his head is bowed with the
+  neutral face. The green Reiatsu of §11.5 stays out (the user's rule: green only in the effects).
+- 刈れ beat 1: the line 「怖いか？」 is not shown (no spoken-line caption; 怖 and ？ aren't baked).
+- 刈れ beat 5: the victim kneels for the reaping cut (he is slammed down in beat 4).
+- KŌSHU: the noose is drawn whatever the bind state, so a Soul Break after a drained bind still shows it.
+- Beat lengths follow the tables; KŌSA's beat 3 is shared: the whip f60–76, the wave f76–90.
+
+**Debug.** 83965+c starts cinematic c from a fresh scene (0 the awakening, AWAKEN! itself, 6 m from an idle Kenpachi;
+1 刈れ 4 m; 2 KŌSA 7.5 m; 3 KŌSHU, a bind 2 m), played through; 83970+b restarts it held at beat b's middle
+(`*hs-cine-beats*`: awakening 10 36 60 85 117 152; 刈れ 12 40 64 94 140 168; KŌSA 12 42 75 113 135; KŌSHU 15 50 92 122
+165); 83976 lets go (DUEL_GAMEPLAY "Debug commands").
+
+**Proof.**
+- `simgate --seeds 10 --summary`, against the parent b42e2f9 (`git archive`, the `[simgate] building` banner filtered):
+  the 21 pairings without him are byte-identical (42 lines), and `--cvc` is identical (yy / yk / kk PASS).
+- **The three Kikon scripts are sim-neutral.** A run without the awakening's `:cine` gives his 7 pairings the parent's
+  rows: the same play-time list, KOs and wins. Only the "with the cinematics" median moves, because the scripts are
+  longer than the placeholder's 120 f.
+- **The awakening is a sim change**, as every awakened form's cinematic is: AWAKEN!'s cinematic holds the opponent and
+  returns both to idle (his slide from the awakening's repel is cut, a reaction ends, the buffered presses are dropped).
+  His 7 pairings move. At 20 seeds, parent → B5:
+
+  | Pairing | Median | P1 wins |
+  |---|---|---|
+  | HY | 129.4 → 124.1 s | 4 → 5 |
+  | HK | 116.0 → 114.3 s | 1 → 0 |
+  | HR | 147.5 → 168.9 s | 1 → 2 |
+  | HI | 171.1 → 175.5 s | 5 → 3 |
+  | HS | 187.6 → 177.4 s | 3 → 5 |
+  | HB | 169.6 → 170.4 s | 1 → 1 |
+  | HH | 228.6 → 261.1 s (KO 18 → 19 of 20) | 8 → 12 |
+
+  Every cross pairing is K.O. 20/20. HY (124.1) joins HK (116.0 already at the parent) under the 125 s floor.
+- Host tests ALL PASS (duel-rules 9697, duel-control 89, cine 18); `tools/pkgcheck.sh duel` 0 / 0 / 0; `./build.sh duel`
+  with only the 4 known Lille style warnings.
+- Debug 83901 is 0 B in every state on the repeat call (the first call after the scene grows the fx buffer once, 131 KB
+  at the bind and 262 KB at SHIBORI, as before).
+- **Stills** (`tools/run.mjs --fixed-dt 16.666667`, 83965+c then 83970+b; one per beat, mid-beat), 1280×720 and
+  720×1280: 22 per aspect, contact sheets per cinematic.
+
+**Known issues / for the user's eyes** (checked by stills, needs your eyes):
+- The awakening's sim change (above) needs the lead's gate verdict. If the gates must stay byte-identical instead,
+  remove the `:bankai` kit's `:cine` (one line): he then awakens with no cinematic, as before.
+- Portrait: in 刈れ beat 1 the victim is out of the frame (Hisagi alone, the whirl); in beat 6 the reading runs close to
+  him. In KŌSHU beat 5 the caption overlaps the pair's upper edge.
+- The face has no closed eyes (beat 1); the victim's choke pose is drawn on the shared rig (the hands near the throat,
+  read best from the front).
+- The whirlpool (awakening beat 2) is small in the low wide shot; the awakening's wide shots frame the opponent only in
+  beat 6.
+- KŌSA's rope is 8 black chains of 14 pieces each (`%hs-bundle`) every frame from f25 to f112. SwiftShader
+  draws it slowly; a phone check belongs to the playtest.
+- KŌSHU at a Soul Break draws the noose and the forced garrote whatever the bind state.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
