@@ -158,7 +158,7 @@ reach, one roll per hit (HS-R-AI-MOVE, HS-R-AI-ENDER; §17.5 #16 rolled it once 
   "His CPU, ranged mode: L SAHARAI once per entry within *HS-AI-CLOSE* m (§17.1: the escape at close range). B4d (§22.8):
 his only close-in answer (K1 misses inside 2.0 m), no cooldown now, so still one roll per entry (never per step: no spam);
 his :moves band inside 2.0 m gives L K1's old weight too.")
-(defparameter *hs-ai-close* 2.0 "... the close band, m (2.5 -> 2.0, 2026-10-18, §22.2: the dead zone's; J reaches from 2.0).")
+(defparameter *hs-ai-close* 1.0 "... the close band, m (2.5 -> 2.0, 2026-10-18, §22.2: the dead zone's; 2.0 -> 1.0, §25.3: K reaches from 1.0).")
 (defparameter *hs-ai-release-p* '(:easy 0.3 :normal 0.6 :hard 0.9)
   "His CPU in a bind: the release once per change event (a soul turned grey, every 100 of the pool drained) while his grey
 loss exceeds the opponent's by *HS-AI-RELEASE-MARGIN* (Konpaku x 1300 + Reishi, §17.5 #16).")
@@ -183,15 +183,26 @@ r; a line / lane: along it, from its far end) ... (none -> 1.0, 2026-10-18, the 
 (defparameter *hs-r-tip-mult* 1.3 "... deals x this, else x1.0 (x1.0 -> x1.3, 2026-10-18, the user, §22.1).")
 (defparameter *hs-b-close* 1.2 "A bind-mode hit within this many m (centre to centre) ...")
 (defparameter *hs-b-close-mult* 1.2 "... deals x this, else x1.0 (x1.0 -> x1.2, 2026-10-18, the user, §22.1).")
-(defparameter *hs-r-j1-dead* 3.0
-  "J1 旋鞭's own dead zone: an annulus 3.0-5.0 m (the other links keep *HS-R-DEAD*) (2.0 -> 3.0, reach 4.5 -> 5.0, 2026-10-18,
-the user: 「J1 範圍設 3.0–5 m 和 K1 設 2.0–4.0 m」, §23.3; its tip x1.3 on 4.0-5.0).")
+(defparameter *hs-r-j-dead* 3.0
+  "The ranged mode's J (J1 / J2 / J3, the gathered J2s / J3G) dead zone, m (the moves' :min-reach): an annulus out to
+*HS-R-J-REACH* (J1's 2.0 -> 3.0 and the other links' *HS-R-DEAD* 2.0 -> 3.0, 2026-10-18, the user: 「J 的範圍改 3~6」, §25.3;
+J1's own since S1, 「J1 範圍設 3.0–5 m」, §23.3) ...")
+(defparameter *hs-r-j-reach* 6.0
+  "... and its far edge, m (an arc's r, a line's end + its r) (J1 / J3 / J3G 5.0, J2 4.5, J2s 5.5 -> 6.0, the same; the tip
+x1.3 on 5.0-6.0).")
+(defparameter *hs-r-k-dead* 1.0
+  "The ranged mode's K (K1, the spread K2s / K3, the gathered K2 / K3G) dead zone, m: an annulus out to *HS-R-K-REACH*
+(*HS-R-DEAD* 2.0 -> 1.0, 2026-10-18, the user: 「K 的範圍改 1~4」, §25.3) ...")
+(defparameter *hs-r-k-reach* 4.0
+  "... and its far edge, m (K1 4.0, K2s / K3 / K3G 6.0, K2 8.5 -> 4.0, the same; the tip x1.3 on 3.0-4.0).")
 (defparameter *hs-r-j-push* 3.5
-  "J1 / J2 旋鞭's hit pushes the victim back to at least this many m (onto the tip; the annulus 2.0-4.5 reaches him there)
-(none -> 3.5, 2026-10-18, the user, §22.1) ...")
+  "J1 / J2's hit, K1's and gathered K2's first window's place the victim at this many m, pushed out or pulled in on the
+chain, where the J (3-6 m) and the K (1-4 m) both reach him, so the routes' J / K cross links still combo (B4a's push to at
+least 3.5, 2026-10-18, the user, §22.1; a placement and K1 / K2 too, 2026-10-18, the user: 「命中把對手定位到 3.5 m」,
+§25.3) ...")
 (defparameter *hs-r-j-push-frames* 10 "... over this many frames (B4a's pick: TSUISA's old drag time).")
-(defparameter *hs-r-j3-push* 5.5 "J3 旋鎖's ender push: to this many m (J1's 4.5 + body + 0.05 = 4.91 -> 5.5, 2026-10-18, the user, §22.1;
-since S1 J1 reaches 5.0: the generic push ~5.43, then this, still past J1's 5.0 + body).")
+(defparameter *hs-r-j3-push* 6.6 "J3 旋鎖's ender push: to this many m (J1's 4.5 + body + 0.05 = 4.91 -> 5.5, 2026-10-18, the user, §22.1;
+5.5 -> 6.6, 2026-10-18, §25.3: out of J1's 6.0 + a body 0.45 + 0.05 again, the lead's number from the same rule).")
 ;;; ---------------------------------------------------------------- the ranged strings by route (§22.4, batch B4c)
 ;;; The user, 2026-10-18: 「K1 將垂降的鎖鏈在身旁旋轉並捆成一束 ... J1 接續的 K2 K3 則會更採用散開的鎖鏈發動攻擊 / 散開的鎖鏈攻擊更快，
 ;;; 聚合的鎖鏈攻擊更痛」; 「身旁旋轉會打到」, 「拿掉落點」 (B4a's placed marks gone), 「散 −3 幀×0.85／聚 +3 幀×1.3」, 「可以」 to
@@ -205,6 +216,9 @@ since S1 J1 reaches 5.0: the generic push ~5.43, then this, still past J1's 5.0 
   "A gathered link's (K1-opened: K2, J2s, K3, J3) startup vs its base move's (none -> +3, the user, 2026-10-18:
 「聚 +3 幀×1.3」, §22.4) ...")
 (defparameter *hs-r-gather-mult* 1.3 "... and its damage x (rounded; K2's 57 split 25 + 32) (none -> x1.3, the user, 2026-10-18).")
+(defparameter *hs-r-k2-launch-kb* 0.5
+  "Gathered K2's tail (its launch) :kb: the airborne slide x0.6 = 0.3 m, so the victim placed at 3.5 m lands his K3G (1-4 m)
+and J3G (3-6 m) still (none: the generic 1.0 m -> 0.5, 2026-10-18, §25.3: the K 1-4 m, the lead's number).")
 (defparameter *hs-r-uchi-frames* 4
   "Gathered K2 打束's first hit (the bundle slammed 2.0-3.5 m ahead) pushes the victim onto its tail's line (to at least
 *HS-R-J-PUSH* m) over this many frames, before the second hit's window opens (B4c's pick, §22.6).")
@@ -383,44 +397,44 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 ;; zone. The clips are B3b's, played to the new startups (:clip-s); the route links B3b had no clip for are drawn as their
 ;; own clips by the art pass's batch A2 (DUEL_HISAGI §24.2: hisagi-art.lisp, :clip-s their S)
 (defmove :hs-r-j1 :kind :quick :clip :hs-k-saben :clip-s 12 :startup 14 :active 3 :recovery 12 :dmg 22 :adv-block -2 :guard 8
-  :reach 5.0 :arc 100 :on-hit :flinch :hits ((14 17 :stun 24)) :flags (:ranged :no-close) :params (:melee-range 2.0)
-  :min-reach *hs-r-j1-dead* :on-land hs-r-j-push)                                                                 ; 旋鞭 SENBEN
+  :reach *hs-r-j-reach* :arc 100 :on-hit :flinch :hits ((14 17 :stun 24)) :flags (:ranged :no-close) :params (:melee-range 2.0)
+  :min-reach *hs-r-j-dead* :on-land hs-r-j-push)                                                                 ; 旋鞭 SENBEN
 ;; K1 綁束 HOSOKU (the gathered opener): the hanging chains spun round him and bound into one bundle; the spin hits all
 ;; round, no close-in; the base K1's A / R / guard / block (§17.1). B4d (§22.8, the user 2026-10-18: 「讓 K1 只能打中遠方的
 ;; 敵人」): the dead zone back and farther, an annulus 2.0-4.0 m (r 3.0 -> 4.0, no dead zone -> *HS-R-DEAD*); the tip x1.3
 ;; on its outer 1.0 m (3.0-4.0)
 (defmove :hs-r-k1 :kind :flash :clip :hs-k-hosoku :clip-s 16 :startup 16 :active 4 :recovery 22 :dmg 40 :adv-block -3 :guard 14
-  :vol (:arc 4.0 360 0.2 2.0) :on-hit :stagger :flags (:ranged :no-close) :params (:melee-range 2.0)
-  :min-reach *hs-r-dead*)                                                                                      ; 綁束 HOSOKU
+  :vol (:arc *hs-r-k-reach* 360 0.2 2.0) :on-hit :stagger :flags (:ranged :no-close) :params (:melee-range 2.0)
+  :min-reach *hs-r-k-dead* :on-land hs-r-j-push)                                                                                    ; 綁束 HOSOKU
 ;; spread (J1 ->): the thin hanging chains. J2 the other side's curtain (B4a's J2), K2s a fan of chains whipping the ground,
 ;; J3 the full turn (B4a's J3), K3 every chain lashed forward at once
 (defmove :hs-r-j2 :kind :quick :clip :hs-k-kaeshi :clip-s 11 :startup 10 :active 3 :recovery 13 :dmg 19 :adv-block -2 :guard 8
-  :reach 4.5 :arc 100 :on-hit :flinch :hits ((10 13 :stun 24)) :flags (:ranged) :params (:melee-range 2.0)
-  :min-reach *hs-r-dead* :on-land hs-r-j-push)                                                                 ; 旋鞭 (back)
+  :reach *hs-r-j-reach* :arc 100 :on-hit :flinch :hits ((10 13 :stun 24)) :flags (:ranged) :params (:melee-range 2.0)
+  :min-reach *hs-r-j-dead* :on-land hs-r-j-push)                                                                 ; 旋鞭 (back)
 (defmove :hs-r-k2s :kind :flash :clip :hs-k-s-k2 :clip-s 21 :enter 6 :startup 21 :active 4 :recovery 24 :dmg 37 :adv-block -3
-  :guard 14 :reach 6.0 :arc 60 :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*)   ; 散鞭
+  :guard 14 :reach *hs-r-k-reach* :arc 60 :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0) :min-reach *hs-r-k-dead*)   ; 散鞭
 (defmove :hs-r-j3 :kind :quick :clip :hs-k-sensa :clip-s 13 :startup 10 :active 3 :recovery 18 :dmg 26 :adv-block -4 :guard 12
-  :reach 5.0 :arc 360 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*
+  :reach *hs-r-j-reach* :arc 360 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0) :min-reach *hs-r-j-dead*
   :on-land hs-r-j3-push)                                                                                       ; 旋鎖 SENSA
 (defmove :hs-r-k3 :kind :flash :clip :hs-k-s-k3 :clip-s 21 :enter 6 :startup 21 :active 5 :recovery 34 :dmg 56 :adv-block -20
-  :guard 18 :reach 6.0 :arc 160 :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0)
-  :min-reach *hs-r-dead*)                                                                                      ; 散撃
+  :guard 18 :reach *hs-r-k-reach* :arc 160 :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0)
+  :min-reach *hs-r-k-dead*)                                                                                      ; 散撃
 ;; gathered (K1 ->): the bundle. K2 the U -> L (the bundle arcs over and slams 2.0-3.5 m ahead, a stagger that pushes him
 ;; onto the line: HS-R-UCHI-PUSH; then its tail lashes on along the ground 3.5-8.0 m and knocks him off his feet: a launch,
 ;; so the K3 / J3 after it still combo; the bundle left lying ahead is the art's), J2s a straight lash, K3G the lying bundle
 ;; hauled into a 360 deg spin, J3G a flat sweep
 (defmove :hs-r-k2 :kind :flash :clip :hs-k-g-k2 :clip-s 27 :enter 6 :startup 27 :active 10 :recovery 24 :dmg 25 :adv-block -3
-  :guard 14 :reach 8.0 :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*
+  :guard 14 :reach *hs-r-k-reach* :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0) :min-reach *hs-r-k-dead*
   :on-land hs-r-uchi-push
-  :hits ((27 31 :vol (:cap 2.0 3.5 0.5 0.5)) (33 37 :dmg 32 :on-hit :launch :vol (:cap 3.5 8.0 0.4 0.5))))     ; 束打 SOKUDA
+  :hits ((27 31 :vol (:cap 1.0 3.5 0.5 0.5)) (33 37 :dmg 32 :on-hit :launch :kb *hs-r-k2-launch-kb* :vol (:cap 1.0 3.5 0.4 0.5))))     ; 束打 SOKUDA
 (defmove :hs-r-j2s :kind :quick :clip :hs-k-g-j2 :clip-s 16 :startup 16 :active 3 :recovery 13 :dmg 29 :adv-block -2 :guard 8
-  :vol (:cap 2.0 5.0 1.0 0.5) :on-hit :flinch :hits ((16 19 :stun 24)) :flags (:ranged) :params (:melee-range 2.0)
-  :min-reach *hs-r-dead*)                                                                                      ; 束鞭 SOKUBEN
+  :vol (:cap 3.0 5.5 1.0 0.5) :on-hit :flinch :hits ((16 19 :stun 24)) :flags (:ranged) :params (:melee-range 2.0)
+  :min-reach *hs-r-j-dead*)                                                                                      ; 束鞭 SOKUBEN
 (defmove :hs-r-k3g :kind :flash :clip :hs-k-g-k3 :clip-s 27 :enter 6 :startup 27 :active 5 :recovery 34 :dmg 86 :adv-block -20
-  :guard 18 :reach 6.0 :arc 360 :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0)
-  :min-reach *hs-r-dead*)                                                                                      ; 束旋 SOKUSEN
+  :guard 18 :reach *hs-r-k-reach* :arc 360 :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0)
+  :min-reach *hs-r-k-dead*)                                                                                      ; 束旋 SOKUSEN
 (defmove :hs-r-j3g :kind :quick :clip :hs-k-g-j3 :clip-s 16 :startup 16 :active 3 :recovery 18 :dmg 39 :adv-block -4 :guard 12
-  :reach 5.0 :arc 180 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*
+  :reach *hs-r-j-reach* :arc 180 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0) :min-reach *hs-r-j-dead*
   :on-land hs-r-j3-push)                                                                                       ; 束薙 SOKUTEI
 (defparameter *hs-r-strings*
   '((:hs-r-j1 :q :hs-r-j2) (:hs-r-j1 :f :hs-r-k2s) (:hs-r-j2 :q :hs-r-j3) (:hs-r-j2 :f :hs-r-k3) (:hs-r-k2s :f :hs-r-k3)
@@ -545,11 +559,11 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
   ;; roll per entry, or a back Step) and K1 at 3-4 m too (its tip), shared with J1
   :ai (:intents (:approach 1 :pressure 2 :zone 5 :defend 2)
        :ranges (:approach (2.5 4.0) :pressure (2.0 3.0) :zone (3.0 4.5) :defend (4.0 6.0))
-       :moves ((0.0 2.0 :sig 6 :step 3 :breaker 1)
-               (2.0 3.0 :f 5 :step 1)                   ; (S1, §23.3: J1 an annulus 3.0-5.0 m)
+       :moves ((0.0 1.0 :sig 6 :step 3 :breaker 1)     ; (§25.3: K 1.0-4.0 m, J 3.0-6.0 m)
+               (1.0 3.0 :f 5 :step 1)
                (3.0 4.0 :f 3 :q 3 :step 1)
-               (4.0 5.0 :q 5 :step 1)
-               (5.0 8.0 :sp1 1 nil 4)
+               (4.0 6.0 :q 5 :step 1)
+               (6.0 8.0 :sp1 1 nil 4)
                (8.0 10.0 :sp1 1 :kikon 1 nil 2)
                (10.0 99.0 :kikon 1 nil 3))
        :guard 0.5 :hoho 0.3 :dash 0.3 :dash-back 0.6 :block-string 0.4 :sp-cancel-bars 4
@@ -1052,9 +1066,12 @@ due at the step's end (HS-BK-TICK); else a plain hit."
   (let ((d (hypot (- (aref (pos-of e) 0) (aref (pos-of (opp-of e)) 0)) (- (aref (pos-of e) 2) (aref (pos-of (opp-of e)) 2)))))
     (when (< d to) (push-apart e (opp-of e) (- to d) frames))))
 (defun hs-r-push (e) "SAHARAI's hit: pushed to *HS-SAHARAI-HIT* m." (hs-push-to e *hs-saharai-hit* *hs-saharai-frames*) (pace e :saharai-hit))
+(defun hs-place-to (e to frames)
+  "Place E's opponent TO m from E over FRAMES: dragged in on the chain when farther (HS-PULL-TO), pushed out when nearer."
+  (or (hs-pull-to e to frames) (hs-push-to e to frames)))
 (defun hs-r-j-push (e)
-  "J1 / J2 旋鞭's first real hit (:on-land): pushed onto the tip, at least *HS-R-J-PUSH* m (B4a, §22.1)."
-  (hs-push-to e *hs-r-j-push* *hs-r-j-push-frames*) (pace e :j-push))
+  "J1 / J2 旋鞭's and K1 綁束's first real hit (:on-land): placed at *HS-R-J-PUSH* m (B4a, §22.1; a placement since §25.3)."
+  (hs-place-to e *hs-r-j-push* *hs-r-j-push-frames*) (pace e :j-push))
 (defun hs-r-j3-push (e)
   "J3 旋鎖's first real hit (:on-land, after the generic ender push, which it replaces): to *HS-R-J3-PUSH* m (§22.1)."
   (hs-push-to e *hs-r-j3-push* *ender-push-frames*) (pace e :j3-push))
@@ -1065,7 +1082,7 @@ the tail's line, at least *HS-R-J-PUSH* m, over *HS-R-UCHI-FRAMES* (its second w
 second window first pushes nothing."
   (let* ((f (fighter e)) (w (svref (mv-hits (fighter-move f)) 0)))
     (when (< (fighter-sf f) (hw-to w))
-      (hs-push-to e *hs-r-j-push* *hs-r-uchi-frames*) (pace e :uchi-push))))
+      (hs-place-to e *hs-r-j-push* *hs-r-uchi-frames*) (pace e :uchi-push))))
 (defun hs-dmg-mult (att def hw mv hazard d2)
   "The Bankai's :dmg-mult hook (combat.lisp APPLY-HIT): HS-DIST-MULT for his move's hit by his form, its window's first
 volume, the victim's distance (D2 squared, from the hit's source) and his distance along ATT's facing; x1.0 for L SAHARAI

@@ -2962,6 +2962,16 @@ byte-identical. His 7 pairings at 20 seeds (before = §24.5): HY 128.3 s (128.5)
 (167.6), HS 172.1 (161.1), HB 157.0 (136.5), HH 206.6 (235.6, a mirror); every match a K.O., every cross median inside 125–210 s.
 His P1 wins 13 of 120 (10).
 
+### 25.4 The re-freeze on §25.3's reach (2026-10-18)
+
+- The first freeze (8d11bee, §25.2) is superseded: round 1's two stopped cells and its briefs removed, the workspace's
+  `baseline/` re-taken on §25.3's rules (the CPU's ranged bands moved with the reach, §25.3), the brief's rules summary
+  updated, round 1 planned again (`plan --beta 0.6`).
+- The baseline at 40 seeds: **score 0.0** (raw 0.3803): strength 0.006 (3 of 480), masher 0.103, signature 0.716 (chain
+  0.385, ranged 0.20, bind 0.13, plain J 0.109); NORMAL share 0.115 (Y 20, K 3, R 4, I 6, S 17, Lille 5 of 80), factor 0;
+  pacing ok (NORMAL medians 126.2-165.6 s).
+- The freeze is the commit adding this baseline (`step.sh` / `rescore.sh` find it).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
