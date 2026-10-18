@@ -1421,6 +1421,38 @@ hanging chains round in a carousel, lashing out at range. B is not taken: the bi
 The proposal table (§22.1) goes to the user for a 「可以」 before anything is built. This is a sim change: his 7 pairings
 get gated against the parent, and his CPU learns the new moves.
 
+### 22.1 The proposal, approved (the user, 2026-10-18: 「可以」)
+
+**Shared rules.**
+- Dead zone: every ranged-mode attack except L misses inside 2.0 m.
+- Chain tip: a ranged-mode hit in the outer 1.0 m of its volume deals x1.3 (x1.0 elsewhere).
+- Bind close-in: a bind-mode hit within 1.2 m deals x1.2.
+- Walk: the ranged mode's 3.4 → 2.8 m/s (he stands his ground; the chains move).
+
+**The ranged mode, 旋鎖陣 (the carousel).** At rest the orb turns slowly and the 8 hanging chains orbit him. On a strike
+the orb jerks into a spin and flings the chains out; the crescents hang at his sides and only signal.
+
+| Move | New | Was |
+|---|---|---|
+| J1 / J2 旋鞭 | The orb twists right / left and that side's curtain sweeps an annulus 2.0–4.5 m, 100° ahead. S 14 / 13 (the orb winding). A hit pushes the victim back to ≥ 3.5 m (the tip) | a 4.0 m arc 100°, point blank too; S 12 / 11 |
+| J3 旋鎖 (ender) | The orb spins a full turn, every hanging chain lashing an annulus 2.0–5.0 m, 360°. Ender push to 5.5 m | 4.4 m arc 180° |
+| K1 墜鎖 (placed) | Marks the ground at the target's feet (2–8 m). A hanging chain is hauled up into the orb; after 36 f a bundle slams down there, r 1.2 m. His own S 12, R 14: he acts while it waits. At most 2 marks live | a 7.5 m line |
+| K2 薙鎖 (placed) | The mark leads the target's motion (where it is heading) | a 6.0 m arc 140° |
+| K3 落鎖 (ender) | Every live mark slams at once, plus a bundle on the target (r 1.5 m), crumple | a 7.5 m line |
+| L 鎖払 | Unchanged: a ring of chains bursts out, r 3.0, push to 6.5 m. His only close-in hit, his escape | — |
+| SP1, SP2, O, P | Unchanged (already long), under the 2.0 m dead zone | — |
+
+**The bind mode.** Moves and frame data unchanged, plus the x1.2 close-in. Its look: the crescents gripped, a low
+forward stance, the noose taut.
+
+**Build order.**
+1. Sim, CPU and host tests in one batch (B4a, a worktree). The marks are hazards (`hazards.lisp`'s delayed disc,
+   SPAWN-HAZARD with a hook), with a placeholder look so the playtest can read them.
+2. The playtest.
+3. His 7 pairings at 20 seeds against the parent, plus his awaken A/B.
+4. The art pass (B4b): the carousel, the orb's spin, the two stances, the new J / K clips with the exaggerated windups
+   of §21.7.
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
