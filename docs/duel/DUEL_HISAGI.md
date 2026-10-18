@@ -1676,6 +1676,41 @@ Everything else (L, SP1, SP2, O, P, the tip x1.3, the walk 2.8, the bind mode) a
 **Approved (the user, 2026-10-18: 「可以，然後覺醒跟毀魂技的動畫的記得要做」).** The table above is built as batch B4c (sim,
 CPU, tests). The awakening and the Kikon (毀魂技) cinematics are built in parallel as batch B5 (presentation only).
 
+**The binding throw moves to SP2 (the user, 2026-10-18).**
+
+The user's request: 「把卍解捆綁給到 SP2，但發動不會消耗 SP」. Their answers:
+- 「鎖雨移到捆綁的 SP1」
+- 「可以，命中確認後接（推薦）」
+
+What changes:
+- The ranged mode's SP2 is 首掛 KUBIKAKE. It keeps its own move data and rules and still needs his own 200 Reiatsu,
+  but the press spends no SP bars. It cancels off J / K string hits like any SP2 (hit-confirm).
+- The ranged P no longer throws, so it does nothing; the bind's P stays the release.
+- 鎖雨 KUSARI-AME becomes the bind mode's SP1, replacing the bind's 綴雷電, paid from the shared pool. The ranged
+  SP1 stays 綴雷電.
+
+These are added to batch B4c.
+
+**The bind's L and SP2 (the user, 2026-10-18).**
+
+The user's request: 「絞縄改成給捆綁的 L，捆綁的 SP2 換成解除並附加傷害（有專屬動畫、可被防禦）」. Their answers:
+- 「絞縄本身帶拉近」
+- 「不冷卻，降低傷害並增加大前搖，通過降低優勢來控制出招動機」
+- 「先還原再打，傷害 120（推薦）」
+
+What changes (the lead's numbers for the user's direction):
+- **The bind's L becomes 絞縄 KOJO.** It first pulls the victim to 2.0 m along the noose, then strikes (3.0 m, arc
+  160). No cooldown and no SP. Damage 160 → 70, startup 20 → 30 (a big windup), recovery 30 → 36, adv-block
+  -16 → -24. 引寄 HIKIYOSE is gone as a move: its pull lives in L.
+- **The bind's SP2 becomes 解縛擊, the release plus a strike.**
+  - The voluntary release as before: the entry snapshot restored, the remaining pool to the opponent first, the
+    opponent's 30 f reel.
+  - Then a strike for 120 real damage. It is blockable: a block still releases, with no damage.
+  - No SP spent. It gets its own animation.
+- **The bind's P** stays the plain release, with no damage.
+
+These are added to batch B4c.
+
 ### 22.5 The cinematics, storyboards revised for the current design (the lead, 2026-10-18)
 
 §11.5's storyboards predate four decisions:
