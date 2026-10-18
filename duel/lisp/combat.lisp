@@ -262,7 +262,9 @@ result (NIL = no effect)."
          (atk (if flat
                   '(:mult 1.0)
                   (kit-atk-mods (kit-of att) (- *konpaku-max* (gauges-konpaku (gauges att)))
-                                (* (if (eq res :blocked) 1.0 (+ 1.0 k)) (if (and own (fighter-assisted fa)) *assist-mult* 1.0))   ; ASSIST
+                                (let ((px (* (if (eq res :blocked) 1.0 (+ 1.0 k)) (if (and own (fighter-assisted fa)) *assist-mult* 1.0)))   ; ASSIST
+                                      (h (kit-hook (kit-of att) :dmg-mult)))   ; a kit's distance x (Hisagi's tip / close-in)
+                                  (if h (* px (funcall h att def hw mv hazard d2)) px))
                                 (and mv (getf (mv-params mv) :form-mult)))))   ; (a move's own form x: the owl's stance K / KL)
          (dmods (if (or optic flat) '(:mult 1.0) (kit-def-mods (kit-of def))))   ; (a ranged hit through Rukia's ward: x1.0 taken)
          (x (or x (aref p 0))) (z (or z (aref p 2))) (y (+ (aref p 1) 1.1))
@@ -443,6 +445,8 @@ Hoho's counter strike on its frame (it always connects)."
                (fx (f32 (fwd-x yaw))) (fz (f32 (fwd-z yaw))) (ob (model-body (model o))))
           (loop for w across (mv-hits mv) for i from 0
                 when (and (<= (hw-from w) sf) (< sf (hw-to w)) (not (logbitp i (fighter-hits f)))
+                          (let ((mn (hw-min w)))         ; a :min-reach dead zone (not a Kikon's follow-up strike)
+                            (or (null mn) (fighter-follow f) (>= (hypot (- (aref q 0) (aref p 0)) (- (aref q 2) (aref p 2))) mn)))
                           (window-touches-p w e (aref p 0) (aref p 1) (aref p 2) fx fz (aref q 0) (aref q 1) (aref q 2)
                                             (body-hurt-r ob) (body-hurt-h ob)))   ; (its volumes, or its :seg-fn capsule)
                   do (push (make-pending :att e :def o :hw w :i i :sx (aref p 0) :sz (aref p 2)

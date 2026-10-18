@@ -203,8 +203,8 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
 
 (defparameter *hs-strike-reach* '((:hs-s-nage :sickle 6.3) (:hs-s-maki :sickle 3.55) (:hs-s-kari :sickle 2.8)   ; (the Shikai's
                                   (:hs-s-kaeshi :sickle 1.4) (:hs-s-rin :sickle 1.4)                          ;  clips, §21.4)
-                                  (:hs-k-saben :sickle 4.0) (:hs-k-kaeshi :sickle 4.0) (:hs-k-sensa :sickle 4.4)  ; (the Bankai's,
-                                  (:hs-k-tsuisa :chain 7.85) (:hs-k-nagisa :chain 6.0) (:hs-k-rakusa :chain 7.9)  ;  §21.8: the
+                                  (:hs-k-saben :sickle 4.5) (:hs-k-kaeshi :sickle 4.5) (:hs-k-sensa :sickle 5.0)  ; (the Bankai's,
+                                                                                ;  §21.8; B4a: the annuli's 4.5 / 5.0, the K placed, §22.2: the
                                   (:hs-kb-kaeshi :sickle 1.5) (:hs-kb-hikigiri :sickle 2.95)                    ;  ranged mode,
                                   (:hs-kb-makigiri :chain 2.8) (:hs-kb-shibori :chain 2.95))                    ;  the bind's)
   "Clip -> what strikes, and its drawn reach (m, the hit volume's far edge: line end + radius, or the arc's): the left
@@ -275,10 +275,10 @@ this far back through his fist (m), so he holds it just behind the blades' cross
     (:hs-s-kari :l 10 22 30 46 2.8 0.3 60 1.8)
     (:hs-s-intro :r 70 82 82 96 0.3 2.9 0 0)        ; the intro: tossed up, split, caught
     (:hs-s-intro :l 70 84 84 98 0.5 2.6 25 0)
-    (:hs-k-saben :r 9 12 16 24 4.0 1.2 nil 0)       ; the Bankai (§21.8): J1 鎖鞭, the right crescent cracked out
-    (:hs-k-kaeshi :l 8 11 15 23 4.0 1.2 nil 0)      ; J2 返鞭, the left lashed back
-    (:hs-k-sensa :r 10 13 17 26 4.4 1.0 nil 0)      ; J3 旋鎖, both at full chain round the half turn
-    (:hs-k-sensa :l 10 13 17 26 4.4 1.0 nil 0)
+    (:hs-k-saben :r 9 12 16 24 4.5 1.2 nil 0)       ; the Bankai (§21.8): J1 鎖鞭, the right crescent cracked out (B4a: 4.5)
+    (:hs-k-kaeshi :l 8 11 15 23 4.5 1.2 nil 0)      ; J2 返鞭, the left lashed back (4.5)
+    (:hs-k-sensa :r 10 13 17 26 5.0 1.0 nil 0)      ; J3 旋鎖, both at full chain round the half turn (5.0)
+    (:hs-k-sensa :l 10 13 17 26 5.0 1.0 nil 0)
     (:hs-kb-kaeshi :l 5 8 11 18 1.5 nil nil 0)      ; the bind's J2 返弦, the left rising on a short chain
     (:hs-kb-hikigiri :r 15 18 23 32 2.95 1.1 0 0)   ; K1 引斬, the right hooked out along the line
     (:hs-kb-raiden :l 11 14 18 30 4.3 1.1 0 0)      ; SP1, the left down the line (the bolt along it)
@@ -1231,13 +1231,9 @@ draws the left one; both the chain from the fist.")
   (:end :hs-k-stance))
 
 (defparameter *hs-bk-chains*
-  '((:hs-k-sensa 6 2 13 16 20 28 3.9 0.8 -100 40 0.6 0)        ; J3: the hanging chain at his right swept round
-    (:hs-k-tsuisa 7 2 22 26 32 42 7.85 1.1 0 0 0 5)          ; K1: the right front one lanced level (hooked on a hit)
-    (:hs-k-nagisa 1 6 24 28 34 44 6.0 0.35 70 -70 0 8)       ; K2: the left one reaping the floor, left to right
-    (:hs-k-rakusa 9 6 24 29 40 52 1.8 0.05 3 3 0 0)            ; K3: four dropped out of the orb onto the line
-    (:hs-k-rakusa 9 6 24 29 40 52 3.9 0.05 -3 -3 0 0)
-    (:hs-k-rakusa 9 6 24 29 40 52 5.9 0.05 2 2 0 0)
-    (:hs-k-rakusa 9 6 24 29 40 52 7.9 0.05 0 0 0 0)
+  '((:hs-k-sensa 6 2 13 16 20 28 4.9 0.8 -100 40 0.6 0)        ; J3: the hanging chain at his right swept round (B4a: 4.9)
+    ;; (B4a, §22.2: K1 / K2 / K3 are placed, their marks drawn by HS-MARK-LOOK; their lance / reap / line drops are gone
+    ;; until the art pass B4b draws the carousel)
     (:hs-k-saharai 0 0 14 18 24 34 3.0 1.0 70 110 0.5 0)       ; L: the whole curtain flung out in a ring
     (:hs-k-saharai 1 0 14 18 24 34 3.0 1.0 100 140 0.5 0)
     (:hs-k-saharai 2 0 14 18 24 34 3.0 1.0 125 165 0.5 0)
@@ -1975,13 +1971,43 @@ strikes (%HS-ORB-DRAW). Nothing while the sealed sword is in hand (the intro)."
                       (cond ((hss-bound st) 1) ((eq cn :hs-kb-unwind) 2) (t 0)) (model-tint m)
                       (cdr (assoc cn *hs-bk-chains-v*)) (if (and mv (eq (fighter-contact f) :hit)) 1 0))))))
 
+(defun-fast hs-mark-look (hz rdt)
+  "A mark's look (K1 / K2's, and K3 RAKUSA's bundle spot: a look-only hazard; B4a's placeholder, §22.2, the art pass B4b
+redraws it): waiting, a black ring at its edge and a white one tightening onto it (1.5 x r -> r over the 36 f), blinking
+faster in its last 12 f; the slam, a bundle of three black chains dropped on it from 4 m (hauled back up over 6 f) and a
+dust ring spreading to 1.3 r, fading over its life. 0 B a frame (debug 83901)."
+  (declare (ignore rdt))
+  (let* ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)) (dl (i->f (the fixnum (hazard-delay hz))))
+         (a (i->f (the fixnum (hazard-age hz)))) (life (f-max 1f0 (i->f (the fixnum (hazard-life hz))))))
+    (declare (single-float x z r dl a life))
+    (if (> dl 0f0)
+        (let* ((u (f-min 1f0 (/ dl 36f0)))
+               (blink (if (< dl 12f0) (if (< (f-mod dl 4f0) 2f0) 0.95f0 0.45f0) (if (< (f-mod dl 8f0) 4f0) 0.9f0 0.6f0))))
+          (declare (single-float u blink))
+          (%tring x 0f0 z r 0.05f0 +pal-ink+ 0.95f0 2f0 24)
+          (%tring x 0f0 z (* r (+ 1f0 (* 0.5f0 u))) 0.035f0 +pal-hit+ blink 5f0 24))
+        (let* ((k (f-max 0.02f0 (- 0.95f0 (/ a life)))) (g (f-min 1f0 (/ a 6f0))) (w *hs-w*) (q *hs-q*))
+          (declare (single-float k g) (type f32vec w q))
+          (%tring x 0f0 z (* r (+ 1f0 (* 0.3f0 g))) 0.1f0 +pal-dust+ k 3f0 24)
+          (when (< a 6f0)
+            (setf *hs-chain-black* 1)
+            (dotimes (i 3)
+              (let* ((t0 (* 2.0944f0 (i->f i))) (ox (* 0.35f0 r (f-cos t0))) (oz (* 0.35f0 r (f-sin t0))))
+                (declare (single-float t0 ox oz))
+                (setf (aref w 0) (+ x ox) (aref w 1) 4f0 (aref w 2) (+ z oz)
+                      (aref q 0) (+ x ox) (aref q 1) (+ 0.05f0 (* 3.8f0 g)) (aref q 2) (+ z oz))
+                (vfx-hs-chain w q 0f0 0.9f0)))
+            (setf *hs-chain-black* 0)))))
+  nil)
+
 (defun hisagi-look-cons-check ()
   "Debug 83901 (P1 Hisagi): bytes consed by 10 calls of his :pose hook and HISAGI-DRAW in the stance, out at the anchor, in
 NAGE's hit frame, in HIKI's, in the windmill, and (the Shikai's clips, §21.4) J1's short grip, J3's two let out, KARI-OTOSHI's,
 SHIBARI's wrap and KUBIKAKE's garrote, and the Bankai's look (§21.6: the orb, the rope) in the stance and
 with the noose of a bind, and the Bankai's clips (§21.8): J3's two let out and its swept chain, TSUISA's lance (hooked),
 KUBIKAKE's whirl, SAHARAI's ring, SP1's bundle and bolt, SP2's rain, KOSA's whip, the bind's MAKIGIRI, SHIBORI's drops, KOSHU's
-garrote, UNWIND's ring: each must be 0."
+garrote, UNWIND's ring; and (B4a) the marks' look, waiting and slamming (HS-MARK-LOOK, 10 calls each; TSUISA's frame is now
+its recovery: the hanging chains only): each must be 0."
   (let* ((e *p1*) (f (fighter e)) (st (hs e)) (m (model e)) (an (model-anim m)) (c0 (anim-clip an)) (t0 (anim-time an))
          (state (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)) (s0 (hss-state st))
          (ct (fighter-contact f)) (p (pos-of e)))
@@ -2012,7 +2038,17 @@ garrote, UNWIND's ring: each must be 0."
                               (progn (at :hs-r-l 15 :hs-k-saharai) (bytes))
                               (progn (at :hs-r-sp1 21 :hs-k-raiden) (bytes))
                               (progn (at :hs-r-sp2 31 :hs-k-ame) (bytes))
-                              (progn (at :hs-r-kikon 21 :hs-k-kosa) (bytes)))))
+                              (progn (at :hs-r-kikon 21 :hs-k-kosa) (bytes))
+                              (let* ((q (pos-of (opp-of e)))
+                                     (h1 (spawn-look e 'hs-mark-look :x (aref q 0) :z (aref q 2) :size 1.2 :delay 20 :life 24))
+                                     (h2 (spawn-look e 'hs-mark-look :x (+ (aref q 0) 1.0) :z (aref q 2) :size 1.5 :life 24))
+                                     (z1 (hazard h1)) (z2 (hazard h2)))
+                                (setf (hazard-age z2) 3)
+                                (hs-mark-look z1 0.016f0) (hs-mark-look z2 0.016f0)   ; (the fx buffer grows once)
+                                (prog1 (let ((c0 (cons-bytes)))
+                                         (dotimes (i 10) (hs-mark-look z1 0.016f0) (hs-mark-look z2 0.016f0))
+                                         (- (cons-bytes) c0))
+                                  (destroy-entity h1) (destroy-entity h2))))))
              (bb (progn (setf (hss-bound st) t (fighter-form f) :bankai-bind)
                         (list (progn (at :hs-b-k2 21 :hs-kb-makigiri) (bytes))
                               (progn (at :hs-b-k3 23 :hs-kb-shibori) (bytes))
@@ -2024,17 +2060,18 @@ garrote, UNWIND's ring: each must be 0."
               (hss-bound st) b0)
         (log-msg "duel hisagi look consing (10 calls, B): stance ~d, out ~d, NAGE ~d, HIKI ~d, windmill ~d, J1 grip ~d, J3 ~d, ~
 KARI-OTOSHI ~d, SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d; the Bankai's clips: J3 ~d, TSUISA ~d, KUBIKAKE ~d, SAHARAI ~d, ~
-SP1 ~d, SP2 ~d, KOSA ~d; the bind's MAKIGIRI ~d, SHIBORI ~d, SP1 ~d, KOSHU ~d, UNWIND ~d"
+SP1 ~d, SP2 ~d, KOSA ~d, the marks ~d; the bind's MAKIGIRI ~d, SHIBORI ~d, SP1 ~d, KOSHU ~d, UNWIND ~d"
                  idle out nage hiki kaza grip rin kari shibari kubi bankai bind
-                 (nth 0 bk) (nth 1 bk) (nth 2 bk) (nth 3 bk) (nth 4 bk) (nth 5 bk) (nth 6 bk)
+                 (nth 0 bk) (nth 1 bk) (nth 2 bk) (nth 3 bk) (nth 4 bk) (nth 5 bk) (nth 6 bk) (nth 7 bk)
                  (nth 0 bb) (nth 1 bb) (nth 2 bb) (nth 3 bb) (nth 4 bb))))))
 (defparameter *hs-tip-moves*
-  '((:bankai :hs-r-j1) (:bankai :hs-r-j2) (:bankai :hs-r-j3) (:bankai :hs-r-k1) (:bankai :hs-r-k2) (:bankai :hs-r-k3)
+  '((:bankai :hs-r-j1) (:bankai :hs-r-j2) (:bankai :hs-r-j3)
     (:bankai :hs-r-l) (:bankai :hs-r-sp1) (:bankai :hs-r-sp2) (:bankai :hs-r-kikon) (:bankai :hs-r-kubikake)
     (:bankai :hs-breaker) (:bankai-bind :hs-b-j1) (:bankai-bind :hs-b-j2) (:bankai-bind :hs-b-j3) (:bankai-bind :hs-b-k1)
     (:bankai-bind :hs-b-k2) (:bankai-bind :hs-b-k3) (:bankai-bind :hs-b-sp1) (:bankai-bind :hs-b-sp2)
     (:bankai-bind :hs-b-kikon))
-  "Debug 83902's moves: (form move), every Bankai move with a hit window.")
+  "Debug 83902's moves: (form move), every Bankai move with a hit window of volumes (B4a: K1 / K2 placed, K3's bundle a
+:seg-fn on the target).")
 (defun hisagi-tip-check ()
   "Debug 83902 (P1 Hisagi 3 m from an idle Kenpachi; DUEL_HISAGI §21.8): for every move of *HS-TIP-MOVES*, on each of its
 hit frames, the body posed by its form's clip (the FK and HS-POSE, as DRAW-FIGHTER) and HISAGI-DRAW run, what strikes
@@ -2087,7 +2124,6 @@ far edge. A debug measurement (it conses)."
 (defparameter *hs-bk-strips*
   '((:hs-k-stance nil 3.0 nil :bankai) (:hs-k-walk-f nil 3.0 nil :bankai) (:hs-k-run nil 3.0 nil :bankai)
     (:hs-k-saben :hs-r-j1 4.0 nil :bankai) (:hs-k-kaeshi :hs-r-j2 4.0 nil :bankai) (:hs-k-sensa :hs-r-j3 4.0 nil :bankai)
-    (:hs-k-tsuisa :hs-r-k1 7.0 nil :bankai) (:hs-k-nagisa :hs-r-k2 5.5 nil :bankai) (:hs-k-rakusa :hs-r-k3 7.0 nil :bankai)
     (:hs-k-saharai :hs-r-l 2.5 nil :bankai) (:hs-k-raiden :hs-r-sp1 8.0 nil :bankai) (:hs-k-ame :hs-r-sp2 8.0 nil :bankai)
     (:hs-k-kosa-aim nil 8.0 nil :bankai) (:hs-k-kosa :hs-r-kikon 8.0 nil :bankai) (:hs-k-breaker nil 3.0 nil :bankai)
     (:hs-k-hammer :hs-breaker 1.0 nil :bankai) (:hs-k-kubikake :hs-r-kubikake 6.0 nil :bankai)

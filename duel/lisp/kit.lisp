@@ -36,6 +36,7 @@
   (guard nil)                   ; guard gauge a block drains (GUARD-VALUE; NIL = a hazard's *GG-HAZARD*)
   (frost 0 :type fixnum)        ; frames of frost a real hit sets (FROST-NEXT; Rukia's ice)
   (seg nil)                     ; :seg-fn: a kit function (e) -> the world capsule this frame, in place of VOLS (WINDOW-TOUCHES-P)
+  (min nil)                     ; :min-reach: no hit on a victim nearer than this (m, centre to centre; NIL = none: COLLECT-MELEE)
   (flags nil))                  ; :breaker :guard-crush :unguardable :ranged :ice
 
 (defstruct (move (:conc-name mv-))
@@ -153,7 +154,7 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
   (destructuring-bind (&key kind clip clip-2 callout startup active recovery whiff (dmg 0) adv-block
                          track reach (arc 90) (height '(0.2 2.0)) vol vols on-hit (kb 0.0) hs chip (meter 0.0)
                          cost hold (slide 0.0) flags hits on-frame tick release on-land cine params
-                         (enter 0) (blend 0.0) planted clip-s guard (armor-hits 0) (cooldown 0) (frost 0))
+                         (enter 0) (blend 0.0) planted clip-s guard (armor-hits 0) (cooldown 0) (frost 0) min-reach)
       spec
     (let* ((breaker (eq kind :breaker))
            (s (+ startup-add (or startup (if breaker *breaker-startup* 0))))
@@ -173,7 +174,8 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
            (flags (if breaker (adjoin :breaker flags) flags))
            (guard (guard-value kind adv-block guard)))
       (flet ((window (from to &key (dmg dmg) (on-hit react) (kb kb) ((:vol hit-vol)) ((:reach hit-reach)) ((:vols hit-vols) vols)
-                                   (chip chip) (meter meter) (flags flags) (hs hs) stun (guard guard) (frost frost) ((:seg-fn seg)))
+                                   (chip chip) (meter meter) (flags flags) (hs hs) stun (guard guard) (frost frost) ((:seg-fn seg))
+                                   ((:min-reach wmin) min-reach))
                ;; a window's own :reach / :vol (scaled like the move's), else the move's volume; :vols (a window's, else
                ;; the move's): several volumes in one window, which still hits once (a fan of lines)
                (let ((v (cond (hit-reach (list* :arc (* reach-mult hit-reach) arc height))
@@ -181,7 +183,7 @@ The CPU's ranged-threat reader (ai.lisp RANGED-THREAT-IN)."
                               (hit-vols nil)
                               (t vol))))
                  (make-hitwin :from (+ from startup-add) :to (+ to startup-add) :dmg dmg :react on-hit
-                              :kb kb :hs hs :chip chip :meter meter :flags flags :stun stun :guard guard :frost frost :seg seg
+                              :kb kb :hs hs :chip chip :meter meter :flags flags :stun stun :guard guard :frost frost :seg seg :min wmin
                               :vols (cond (seg nil)   ; (a :seg-fn window: its capsule is the kit function's, no fixed volume)
                                           (v (list (make-vol (first v) (rest v))))
                                           (t (loop for spec in hit-vols
@@ -259,6 +261,8 @@ new button."
             link that must combo after a J and a K link alike (every K2 / K3: S_eff 14); a derived form adds its startup-add to it
   :blend    crossfade frames into the clip (default 0, attacks snap); :planted  weapon planted
             in the ground during the strike (drawn with DRAW-PLANTED-WEAPON)
+  :min-reach  m: the move's windows (a window's own :min-reach in its place) miss a victim nearer than this, centre to
+            centre (COLLECT-MELEE; a Kikon's follow-up strike excepted): a dead zone (Hisagi's ranged mode, DUEL_HISAGI §22.2)
   hits: :stun  hitstun override (frames); :seg-fn SYMBOL  a kit function (e) -> (values ax ay az bx by bz r), this frame's
             world capsule, tested in place of the window's volumes (WINDOW-TOUCHES-P; the CPU: SEG-GAP); the window is
             the move's own, so its contact counts as the move's (strings, O ender, SP cancels, :on-land, ender push)

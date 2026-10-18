@@ -509,6 +509,9 @@ D = the perceived distance."
          (flet ((ok (m) (and m (integerp (mv-adv-block m)) (> (mv-adv-block m) *gg-ender-adv*))))
            (let ((nq (kit-next kit (mv-name mv) :q)) (nf (kit-next kit (mv-name mv) :f)))
              (why b :pressure (cond ((and (ok nf) (< (sim-rnd01) *ai-block-k-p*)) :f) ((ok nq) :q)))))))
+      ;; the form's own in-move reflex (the kit's :ai :move-reflex (e b f mv) -> a command or NIL: Hisagi's placed K string,
+      ;; whose links have no hit to read; no other kit has it)
+      ((and (eq st :move) (let ((h (ai-table e :move-reflex))) (and h (funcall h e b f mv)))))
       ((eq st :move) nil)
       ;; a Kikon rush's strike hit us, O held, and it dashes in after us: not red, hold guard from inside the
       ;; stagger (*AI-FOLLOW-GUARD-P* by difficulty); red, nothing guards it

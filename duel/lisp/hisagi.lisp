@@ -52,7 +52,9 @@
 throw start, while its line will reach it.")
 
 ;;; ---------------------------------------------------------------- the Bankai 風死絞縄 (§17, batch B2b)
-(defparameter *hs-r-walk* 3.4 "Walk m/s, the Bankai's ranged mode (the lead's proposal 2026-10-17, §17.1: Lille's base).")
+(defparameter *hs-r-walk* 2.8
+  "Walk m/s, the Bankai's ranged mode (the lead's proposal 2026-10-17, §17.1: Lille's base 3.4; 3.4 -> 2.8, 2026-10-18, the
+user: 「可以」 to DUEL_HISAGI §22.1: he stands his ground, the chains move).")
 (defparameter *hs-r-run* 8.5 "Run m/s, the ranged mode (§17.1).")
 (defparameter *hs-r-mult* 1.0
   "Damage dealt x, the ranged mode: the first pacing knob (the lead's proposal 2026-10-17, §17.1; 83300+k: 0.5 + k / 100).")
@@ -60,8 +62,6 @@ throw start, while its line will reach it.")
 (defparameter *hs-b-walk* 3.8 "Walk m/s, the bind mode (§17.3: Rukia's).")
 (defparameter *hs-b-run* 9.0 "Run m/s, the bind mode (§17.3).")
 (defparameter *hs-r-push-reach* 7.5 "The ranged mode's K ender push is measured from K1 TSUISA's 7.5 m (kit :push-reach, §17.1).")
-(defparameter *hs-tsuisa-to* 3.5 "K1 TSUISA's hit drags the victim to this many metres (inside J's 4.0 m: KJJ reaches; §17.1) ...")
-(defparameter *hs-tsuisa-frames* 10 "... over this many frames.")
 (defparameter *hs-saharai-hit* 6.5 "L SAHARAI's hit pushes him to this many metres from Hisagi (18 f, §17.1) ...")
 (defparameter *hs-saharai-block* 4.5 "... its block to this many (the block slide).")
 (defparameter *hs-saharai-frames* 18 "SAHARAI's push, frames (the block's: 12).")
@@ -82,7 +82,7 @@ throw start, while its line will reach it.")
   "His CPU, ranged mode: KUBIKAKE once per entry into 4-7 m with his own 200 (§17.5 #16).")
 (defparameter *hs-ai-saharai-p* '(:easy 0.3 :normal 0.6 :hard 0.85)
   "His CPU, ranged mode: L SAHARAI once per entry within *HS-AI-CLOSE* m (§17.1: the escape at close range).")
-(defparameter *hs-ai-close* 2.5 "... the close band, m.")
+(defparameter *hs-ai-close* 2.0 "... the close band, m (2.5 -> 2.0, 2026-10-18, §22.2: the dead zone's; J reaches from 2.0).")
 (defparameter *hs-ai-release-p* '(:easy 0.3 :normal 0.6 :hard 0.9)
   "His CPU in a bind: the release once per change event (a soul turned grey, every 100 of the pool drained) while his grey
 loss exceeds the opponent's by *HS-AI-RELEASE-MARGIN* (Konpaku x 1300 + Reishi, §17.5 #16).")
@@ -90,6 +90,40 @@ loss exceeds the opponent's by *HS-AI-RELEASE-MARGIN* (Konpaku x 1300 + Reishi, 
 (defparameter *hs-ai-pull-p* '(:easy 0.3 :normal 0.6 :hard 0.85) "His CPU in a bind: L HIKIYOSE once per entry beyond 4 m.")
 (defparameter *hs-ai-bind-sp-p* '(:easy 0.1 :normal 0.35 :hard 0.7)
   "His CPU in a bind: an SP off a link-3 hit (:sp-ender) only while he is ahead on grey (it drains the pool, §17.5 #16).")
+
+;;; ---------------------------------------------------------------- the two Bankai modes made distinct (§22.1, batch B4a)
+;;; The user, 2026-10-18: 「目前近遠程的攻擊模組看不出各自的特色」 -> A (the ranged mode a placed zone game) + C (looks) + D
+;;; (distance sweet spots) + 「遠程攻擊有效利用鎖鏈球拉動垂鏈迴轉對遠程進行抽打」; 「可以」 to the proposal (§22.1).
+(defparameter *hs-r-dead* 2.0
+  "The ranged mode's dead zone: every attack of it but L SAHARAI (and the universal Breaker) misses a victim nearer than
+this (m, centre to centre: the moves' :min-reach; a mark's slam too) (none -> 2.0, 2026-10-18, the user, §22.1).")
+(defparameter *hs-r-tip* 1.0
+  "The chain tip: a ranged-mode hit in the outer this many m of its volume (an arc / annulus: by his distance from the arc's
+r; a line / lane: along it, from its far end) ... (none -> 1.0, 2026-10-18, the user, §22.1; HS-DIST-MULT) ...")
+(defparameter *hs-r-tip-mult* 1.3 "... deals x this, else x1.0 (x1.0 -> x1.3, 2026-10-18, the user, §22.1).")
+(defparameter *hs-b-close* 1.2 "A bind-mode hit within this many m (centre to centre) ...")
+(defparameter *hs-b-close-mult* 1.2 "... deals x this, else x1.0 (x1.0 -> x1.2, 2026-10-18, the user, §22.1).")
+(defparameter *hs-r-j-push* 3.5
+  "J1 / J2 旋鞭's hit pushes the victim back to at least this many m (onto the tip; the annulus 2.0-4.5 reaches him there)
+(none -> 3.5, 2026-10-18, the user, §22.1) ...")
+(defparameter *hs-r-j-push-frames* 10 "... over this many frames (B4a's pick: TSUISA's old drag time).")
+(defparameter *hs-r-j3-push* 5.5 "J3 旋鎖's ender push: to this many m (J1's 4.5 + body + 0.05 = 4.91 -> 5.5, 2026-10-18, the user, §22.1).")
+(defparameter *hs-mark-delay* 36 "A K mark (墜鎖 / 薙鎖) slams this many frames after it is placed (2026-10-18, the user, §22.1) ...")
+(defparameter *hs-mark-r* 1.2 "... a chain bundle of this radius (m; a disc at the feet, *HS-MARK-H* high) ...")
+(defparameter *hs-mark-h* 2.0 "... this high (m: the whole body).")
+(defparameter *hs-mark-min* 2.0 "A mark is placed at least this far from him ...")
+(defparameter *hs-mark-max* 8.0 "... and at most this far (m, along the line to the target; then inside the arena).")
+(defparameter *hs-mark-live* 2 "At most this many marks wait at once; a third replaces the oldest (2026-10-18, the user, §22.1).")
+(defparameter *hs-mark-active* 3 "A slam hits during its first this many frames (B4a's pick) ...")
+(defparameter *hs-mark-life* 24 "... and its look (the dust) lasts this many from the slam.")
+(defparameter *hs-rakusa-r* 1.5 "K3 落鎖's bundle on the target: a disc of this radius (m, §22.1) ...")
+(defparameter *hs-rakusa-lock* 8 "... its spot locked this many frames before its hit (S - 8: B4a's pick; the ring shows from then).")
+(defparameter *hs-ai-k-link-p* '(:easy 0.3 :normal 0.55 :hard 0.8)
+  "His CPU in the ranged mode, once per placed K1 / K2 (HS-R-AI-MOVE): K1 -> K2 (a second, leading mark) or J2s (the foe at
+2.5-4.5 m); K2 -> K3 (every mark slams) only while the foe stands within *HS-AI-MARK-NEAR* of a waiting mark (B4a).")
+(defparameter *hs-ai-mark-near* 2.0 "... the foe this near (m) a waiting mark's centre (its 1.2 r + a step's slack).")
+(defparameter *hs-ai-opp-mark-p* '(:easy 0.15 :normal 0.35 :hard 0.6)
+  "A CPU facing him (:opp-reflex): a side Step out of a mark that will slam on it within 4-14 f, once per mark (B4a).")
 
 ;;; ================================================================ the Shikai 風死 (§8.2, §8.3)
 ;;; J: the chain held short, one sickle whirled round the body (H1: 1.4 m, 110°, J3 200°, Q5 A). The one-handed copies
@@ -210,46 +244,58 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 ;;;
 ;;; The ranged mode (§17.1, the user: 「由鎖鏈球設計與揮打鎖鏈為攻擊主體，此時前搖大、攻擊距離長， L 會將人推開」). Beyond
 ;;; 2.0 m every hit is :ranged (the chain, not the blade). J = chains swung from his hands, K / SP / O = from the orb.
-(defmove :hs-r-j1 :kind :quick :clip :hs-k-saben :startup 12 :active 3 :recovery 12 :dmg 22 :adv-block -2 :guard 8
-  :reach 4.0 :arc 100 :on-hit :flinch :hits ((12 15 :stun 24)) :flags (:ranged :no-close) :params (:melee-range 2.0))   ; 鎖鞭 SABEN
-(defmove :hs-r-j2 :kind :quick :clip :hs-k-kaeshi :startup 11 :active 3 :recovery 13 :dmg 22 :adv-block -2 :guard 8
-  :reach 4.0 :arc 100 :on-hit :flinch :hits ((11 14 :stun 24)) :flags (:ranged) :params (:melee-range 2.0))   ; 返鞭 KAESHI-BEN
+;; B4a (§22.1-§22.2): J 旋鞭 / 旋鎖, an annulus (*HS-R-DEAD* .. the arc's r: the moves' :min-reach); a J1 / J2 hit pushes him onto
+;; the tip (>= *HS-R-J-PUSH*), J3's to *HS-R-J3-PUSH*. Their clips still B3b's, played to the new startups (:clip-s)
+(defmove :hs-r-j1 :kind :quick :clip :hs-k-saben :clip-s 12 :startup 14 :active 3 :recovery 12 :dmg 22 :adv-block -2 :guard 8
+  :reach 4.5 :arc 100 :on-hit :flinch :hits ((14 17 :stun 24)) :flags (:ranged :no-close) :params (:melee-range 2.0)
+  :min-reach *hs-r-dead* :on-land hs-r-j-push)                                                                 ; 旋鞭 SENBEN
+(defmove :hs-r-j2 :kind :quick :clip :hs-k-kaeshi :clip-s 11 :startup 13 :active 3 :recovery 13 :dmg 22 :adv-block -2 :guard 8
+  :reach 4.5 :arc 100 :on-hit :flinch :hits ((13 16 :stun 24)) :flags (:ranged) :params (:melee-range 2.0)
+  :min-reach *hs-r-dead* :on-land hs-r-j-push)                                                                 ; 旋鞭 (back)
 (defmove-copy :hs-r-j2s :hs-r-j2)
 (defmove :hs-r-j3 :kind :quick :clip :hs-k-sensa :startup 13 :active 3 :recovery 18 :dmg 30 :adv-block -4 :guard 12
-  :reach 4.4 :arc 180 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0))                     ; 旋鎖 SENSA
-;; K1 TSUISA: a 7.5 m line from the orb, turning 30 deg/s in its startup, no close-in; a hit drags him to 3.5 m (HS-R-DRAG)
-(defmove :hs-r-k1 :kind :flash :clip :hs-k-tsuisa :startup 22 :active 4 :recovery 22 :dmg 52 :adv-block -3 :guard 14
-  :vol (:cap 0.3 7.5 1.1 0.35) :track 30.0 :on-hit :stagger :flags (:ranged :no-close) :params (:melee-range 2.0)
-  :on-land hs-r-drag)                                                                                          ; 墜鎖 TSUISA
-(defmove :hs-r-k2 :kind :flash :clip :hs-k-nagisa :enter 6 :startup 24 :active 4 :recovery 24 :dmg 44 :adv-block -3 :guard 14
-  :reach 6.0 :arc 140 :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0))                            ; 薙鎖 NAGISA
+  :reach 5.0 :arc 360 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*
+  :on-land hs-r-j3-push)                                                                                       ; 旋鎖 SENSA
+;; K 墜鎖 / 薙鎖, placed (§22.1): no hit window of their own; at S a mark at the target's feet (K2: where he heads), clamped
+;; *HS-MARK-MIN*-*HS-MARK-MAX* from him (HS-MARK-PLACE); after *HS-MARK-DELAY* f a bundle slams there (a hazard, K1's / K2's
+;; old damage and reaction: :params :mark-dmg / :mark-guard). The placement counts as the string's touch (the link after it
+;; starts at the chain lead, as after a block). :reach = the farthest mark (the chase, the CPU's reads); K3 落鎖: every
+;; waiting mark slams at its S (HS-MARKS-SLAM) and a bundle on the target (its own window, :seg-fn HS-RAKUSA-SEG, the spot
+;; locked at S - *HS-RAKUSA-LOCK*): the ender
+(defmove :hs-r-k1 :kind :flash :clip :hs-k-tsuisa :clip-s 22 :startup 12 :active 2 :recovery 14 :reach *hs-mark-max*
+  :track 30.0 :flags (:ranged :no-close) :params (:melee-range 2.0 :mark :feet :mark-dmg 52 :mark-guard 14)
+  :on-frame ((12 hs-mark-place)))                                                                              ; 墜鎖 TSUISA
+(defmove :hs-r-k2 :kind :flash :clip :hs-k-nagisa :clip-s 24 :startup 12 :active 2 :recovery 14 :reach *hs-mark-max*
+  :flags (:ranged) :params (:melee-range 2.0 :mark :lead :mark-dmg 44 :mark-guard 14)
+  :on-frame ((12 hs-mark-place)))                                                                              ; 薙鎖 NAGISA
 (defmove-copy :hs-r-k2s :hs-r-k2)
 (defmove :hs-r-k3 :kind :flash :clip :hs-k-rakusa :enter 6 :startup 24 :active 5 :recovery 34 :dmg 66 :adv-block -20 :guard 18
-  :vol (:cap 0.3 7.5 1.1 0.5) :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0))              ; 落鎖 RAKUSA
+  :reach *hs-mark-max* :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0) :min-reach *hs-r-dead*
+  :hits ((24 29 :seg-fn hs-rakusa-seg)) :on-frame ((7 hs-rakusa-aim) (16 hs-rakusa-lock) (24 hs-marks-slam)))   ; 落鎖 RAKUSA
 ;; L 鎖払 SAHARAI: the chains whirled round him (360 deg r 3.0); a hit pushes him to 6.5 m, a block to 4.5 m (HS-R-PUSH,
 ;; HS-BK-HIT); cooldown 120 from the press
 (defmove :hs-r-l :kind :sig :clip :hs-k-saharai :startup 14 :active 4 :recovery 22 :dmg 30 :adv-block -4 :guard 14
   :vol (:arc 3.0 360 0.2 2.0) :on-hit :knockback :cooldown 120 :on-land hs-r-push)
 (defmove :hs-r-sp1 :kind :sp :clip :hs-k-raiden :callout "TSUZURI RAIDEN" :startup 20 :active 3 :recovery 24 :dmg 110
   :adv-block -14 :guard 22 :vol (:cap 0.3 9.0 1.1 0.3) :track 30.0 :flags (:ranged) :on-hit :bind :hits ((20 23 :stun 40))
-  :params (:melee-range 2.0))                                                                                  ; 綴雷電
+  :params (:melee-range 2.0) :min-reach *hs-r-dead*)                                                          ; 綴雷電
 ;; SP2 鎖雨 KUSARI-AME: a 10 m x 2 m lane, aimed 120 deg/s for its first 6 f then locked (HS-R-AME-AIM); two windows;
 ;; off a J / K string hit the charge-less copy (:enter 10, S_eff 20: HS-BK-COMMAND)
 (defmove :hs-r-sp2 :kind :sp :clip :hs-k-ame :callout "KUSARI-AME" :startup 30 :active 14 :recovery 30 :dmg 70
   :adv-block -18 :guard 22 :vol (:cap 1.0 10.0 1.2 1.0) :track 120.0 :flags (:ranged) :params (:melee-range 2.0)
-  :tick hs-r-ame-aim :hits ((30 34 :on-hit :flinch) (40 44 :dmg 90 :on-hit :knockdown)))
+  :tick hs-r-ame-aim :hits ((30 34 :on-hit :flinch) (40 44 :dmg 90 :on-hit :knockdown)) :min-reach *hs-r-dead*)
 (defmove-copy :hs-r-sp2c :hs-r-sp2 :enter 10)
 ;; O 降鎖 KOSA: chains rain along a 9 m lane, no dash (it reaches the 7.95 m K ender push from where he stands)
 (defmove :hs-r-kikon :kind :kikon :clip :hs-k-kosa-aim :clip-2 :hs-k-kosa :callout "KOSA" :cine hs-kikon-cine
   :startup 20 :active 2 :recovery 30 :whiff 30 :dmg 70 :adv-block -14 :track 0 :vol (:cap 0.5 9.0 1.2 1.0)
-  :on-hit :knockback :kb 2.0 :cooldown 90
+  :on-hit :knockback :kb 2.0 :cooldown 90 :min-reach *hs-r-dead*                 ; (its follow-up strike: no dead zone)
   :params (:aura 6 :aim 120.0 :speed 0.0 :dash-max 0 :ender-dash 0 :dash-track 0.0 :look :lane :follow-speed 14.0))
 ;; P 首掛 KUBIKAKE, the binding throw (§17.2): a 7 m line from his hand; his own 200 checked at the press (HS-P-PRESS) and
 ;; at contact (HS-KUBI-LAND); a hit yanks him to 2.0 m into a 30 f reel, the recovery cut to 14, and the bind starts at the
 ;; end of the step (HS-BK-TICK); a block / whiff is punishable (-20 / R 42)
 (defmove :hs-r-kubikake :kind :flash :clip :hs-k-kubikake :callout "KUBIKAKE" :startup 24 :active 4 :recovery 30 :whiff 42
   :dmg 40 :adv-block -20 :guard 14 :vol (:cap 0.3 7.0 1.1 0.35) :track 30.0 :on-hit :stagger :hits ((24 28 :stun 30))
-  :flags (:ranged :no-close) :params (:melee-range 2.0) :on-land hs-kubi-land)
+  :flags (:ranged :no-close) :params (:melee-range 2.0) :on-land hs-kubi-land :min-reach *hs-r-dead*)
 
 ;;; The bind mode (§17.3, the user: 「攻擊模組切換成近戰，此時的 L 會將對手拉近」): the melee set at the §2.1 budget
 (defmove :hs-b-j1 :kind :quick :clip :hs-kb-gen :startup 8 :active 3 :recovery 12 :dmg 32 :adv-block -2 :guard 8
@@ -284,7 +330,8 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 (defparameter *hs-bk-hooks* '(:tick hs-bk-tick :ok hs-bk-ok :command hs-bk-command :hit hs-bk-hit :reset hs-reset
                               :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :p hs-p-press :p-label hs-p-label
                               :bind hs-binding :bind-damage hs-bind-damage :bind-pool hs-bind-pool :bind-heal hs-bind-heal
-                              :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot)
+                              :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot
+                              :dmg-mult hs-dmg-mult)
   "The Bankai's hooks (both modes): the bind's state lives on the binder's HSS, so both modes answer B1b's bind hooks; the
 :pose hook (HS-POSE: the right crescent let out on its hand chain) is a look, as the Shikai's.")
 (defparameter *hs-bk-clips* '(:hs-breaker :hs-k-breaker :hs-kubikake :hs-k-hammer)
@@ -303,17 +350,20 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :commands (:q :hs-r-j1 :f :hs-r-k1 :sig :hs-r-l :sp1 :hs-r-sp1 :sp2 :hs-r-sp2 :breaker :hs-breaker :kikon :hs-r-kikon)
   :grid (:hs-r-j1 :hs-r-j2 :hs-r-j3 :hs-r-k1 :hs-r-k2 :hs-r-k3 :hs-r-j2s :hs-r-k2s)
   :hooks *hs-bk-hooks*
-  ;; the ranged mode at 3.5-9 m (§17.5 #12): K at 4-7.8 m, J at 2-4.2 m, L SAHARAI / a back Step up close (his :reflex),
-  ;; KUBIKAKE at 4-7 m once per entry with his 200 (his :reflex); his SP only off a link 3 above 300 (keeps the 200)
-  :ai (:intents (:approach 1 :pressure 1 :zone 5 :defend 2)
-       :ranges (:approach (4.5 7.0) :pressure (3.0 4.2) :zone (4.5 7.5) :defend (5.5 8.5))
-       :moves ((0.0 2.0 :sig 2 :q 2 :step 3 :breaker 1)
-               (2.0 4.2 :q 4 :f 1 :step 1)
-               (4.2 7.8 :f 5 :step 1)
-               (7.8 10.0 :f 1 :kikon 1 nil 2)
+  ;; the ranged mode, the placed zone game (B4a, §22.1): he holds 3-5 m; J (the annulus) at 2.5-4.5 m, K (a mark) at
+  ;; 4.5-8 m; inside 2 m (the dead zone) L SAHARAI (his :reflex) or a back Step; K1 -> K2 / J2s and K2 -> K3 by his
+  ;; :move-reflex (K3 when the foe stands by a mark); KUBIKAKE at 4-7 m once per entry with his 200 (his :reflex); his SP
+  ;; only off a link 3 above 300 (keeps the 200)
+  :ai (:intents (:approach 1 :pressure 2 :zone 5 :defend 2)
+       :ranges (:approach (3.5 5.0) :pressure (3.0 4.5) :zone (3.5 5.5) :defend (4.5 7.0))
+       :moves ((0.0 2.0 :sig 3 :step 4 :breaker 1)
+               (2.0 2.5 :q 1 :step 2 :f 1)
+               (2.5 4.5 :q 5 :f 2 :step 1)
+               (4.5 8.0 :f 5 :step 1)
+               (8.0 10.0 :f 1 :kikon 1 nil 2)
                (10.0 99.0 :kikon 1 nil 3))
        :guard 0.5 :hoho 0.3 :dash 0.3 :dash-back 0.6 :block-string 0.4 :sp-cancel-bars 4
-       :kikon-range 9.0 :reflex hs-r-ai-reflex :opp-reflex hs-ai-opp :sp-ender hs-r-ai-ender))
+       :kikon-range 9.0 :reflex hs-r-ai-reflex :opp-reflex hs-ai-opp :sp-ender hs-r-ai-ender :move-reflex hs-r-ai-move))
 
 (defkit :hisagi :bankai-bind
   :awakening t :form-name "FUSHI NO KOJO" :name "HISAGI" :body :hisagi-bankai :weapon :kazeshini :stance :hs-k-stance
@@ -324,11 +374,13 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :commands (:q :hs-b-j1 :f :hs-b-k1 :sig :hs-b-l :sp1 :hs-b-sp1 :sp2 :hs-b-sp2 :breaker :hs-breaker :kikon :hs-b-kikon)
   :grid (:hs-b-j1 :hs-b-j2 :hs-b-j3 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-j2s :hs-b-k2s)
   :hooks *hs-bk-hooks*
-  ;; the melee rushdown inside the bind; L pulls beyond 4 m, the release and the SPs are his :reflex / :sp-ender's
-  ;; (HS-B-AI-REFLEX: behind on grey -> release; ahead -> SP off a link 3); no generic SP cancel (the pool is shared)
+  ;; the melee rushdown inside the bind, close in (x1.2 within 1.2 m, B4a); L pulls beyond 4 m, the release and the SPs
+  ;; are his :reflex / :sp-ender's (HS-B-AI-REFLEX: behind on grey -> release; ahead -> SP off a link 3); no generic SP
+  ;; cancel (the pool is shared)
   :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (2.0 4.0) :pressure (1.0 1.8) :zone (2.0 3.0) :defend (2.5 4.0))
-       :moves ((0.0 1.8 :q 5 :f 2 :breaker 1)
+       :ranges (:approach (1.2 3.0) :pressure (0.8 1.2) :zone (2.0 3.0) :defend (2.5 4.0))
+       :moves ((0.0 1.2 :q 5 :f 2 :breaker 1)
+               (1.2 1.8 :q 3 :f 2 :breaker 1)
                (1.8 3.2 :f 4 :q 1 :step 1)
                (3.2 99.0 nil 2))
        :guard 0.4 :hoho 0.3 :dash 0.8 :dash-back 0.1 :block-string 0.6 :sp-cancel-bars 7
@@ -389,7 +441,10 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (pull nil)                                  ; L HIKIYOSE's drag runs
   (aim-yaw 0f0 :type single-float)            ; SP2 KUSARI-AME's lane (locked after *HS-AME-AIM* frames)
   (ai-band nil) (ai-rolled nil) (ai-go nil)   ; his CPU (Bankai): the band he is in, rolled for this entry, the pick
-  (ai-rel-key -1 :type fixnum))               ; his CPU in a bind: the change event it last rolled the release for
+  (ai-rel-key -1 :type fixnum)                ; his CPU in a bind: the change event it last rolled the release for
+  (rk (make-f32 2) :type f32vec)              ; K3 RAKUSA's bundle spot x z (HS-RAKUSA-AIM / -LOCK; B4a)
+  (ai-mv-key -1 :type fixnum)                 ; his CPU: the placed K it last rolled its link for (its start tick)
+  (opp-mark-key -1 :type fixnum))             ; a CPU FACING him: the mark it last rolled its Step for (the mark's tick)
 (defun hs (e)
   "E's state (his HSS component, attached on the first call)."
   (or (hss e) (let ((st (make-hss))) (add-component e st) st)))
@@ -508,12 +563,14 @@ timer (only out of his moves) and the auto-retrieve, the return's arrival; the c
       (pace e (hs-band (fighter-dist f))))))
 (defun hs-hash (e)
   "His :hash hook (debug.lisp STATE-HASH-LINE): the sickle's state, the anchor (cm), the timers; the bind (B16): bound, the
-pool (x10), the snapshot, the release flags, KUBIKAKE's cooldown."
+pool (x10), the snapshot, the release flags, KUBIKAKE's cooldown; RAKUSA's spot (cm) and his marks (each 1 + its x + z in cm, B4a)."
   (let ((st (hs e)))
-    (format nil "s~a ~d ~d o~d r~d b~a p~d ~d/~d ~d/~d ~a~a c~d" (case (hss-state st) (:in "I") (:out "O") (t "R"))
+    (format nil "s~a ~d ~d o~d r~d b~a p~d ~d/~d ~d/~d ~a~a c~d k~d ~d m~d" (case (hss-state st) (:in "I") (:out "O") (t "R"))
             (round (* 100 (aref (hss-anchor st) 0))) (round (* 100 (aref (hss-anchor st) 1))) (hss-out-t st) (hss-ret-t st)
             (if (hss-bound st) 1 0) (round (* 10 (hss-pool st))) (hss-r0 st) (hss-k0 st) (hss-or0 st) (hss-ok0 st)
-            (if (hss-rel st) "R" "-") (if (hss-rel-held st) "H" "-") (hss-kubi-cd st))))
+            (if (hss-rel st) "R" "-") (if (hss-rel-held st) "H" "-") (hss-kubi-cd st)
+            (round (* 100 (aref (hss-rk st) 0))) (round (* 100 (aref (hss-rk st) 1)))
+            (let ((n 0)) (do-entities (h (hz hazard)) (when (hs-mark-p hz e) (incf n (+ 1 (round (* 100 (+ (hazard-x hz) (hazard-z hz)))))))) n))))
 
 ;;; ================================================================ the CPU (his kit's :ai; DUEL_HISAGI §10)
 (defun hs-p (b plist) "PLIST's chance (:easy :normal :hard) at brain B's difficulty." (getf plist (brain-difficulty b) (getf plist :normal 0.0)))
@@ -547,9 +604,20 @@ the 2.15 m push), else SP1 TSUZURI RAIDEN (6.5 m: after a K ender's 6.45 m push)
         (when (kit-command-ok-p e c) (pace e (if (eq c :sp2) :ai-sp2 :ai-sp1)) c)))))
 (defun hs-ai-opp (e b s d)
   "His kit's :opp-reflex (a CPU facing him): his perceived NAGE / SP1 in its startup, one roll per start (*HS-AI-OPP-STEP-P*);
-a yes side-Steps once the line will reach E within 0-14 f (RANGED-THREAT-IN: beyond the blade's 2.0 m)."
+a yes side-Steps once the line will reach E within 0-14 f (RANGED-THREAT-IN: beyond the blade's 2.0 m). His mark that will
+slam on E within 4-14 f: one roll per mark (*HS-AI-OPP-MARK-P*), a yes side-Steps out of it (B4a)."
   (let ((mv (snap-move s)) (st (hs e)))   ; (his HSS on the CPU's own fighter: a fresh one each match)
-    (when (and mv (eq (snap-state s) :move) (eq (snap-phase s) :main) (member (mv-name mv) '(:hs-k1 :hs-raiden :hs-r-k1 :hs-r-sp1 :hs-r-kubikake))
+    (let ((o (opp-of e)) (q (pos-of e)) (bd (model-body (model e))) (mk nil))
+      (do-entities (h (hz hazard))
+        (when (and (null mk) (hs-mark-p hz o) (<= 4 (hazard-delay hz) 14)
+                   (hazard-touches-p hz (aref q 0) (aref q 1) (aref q 2) (body-hurt-r bd) (body-hurt-h bd)))
+          (setf mk hz)))
+      (when (and mk (not (eql (hss-opp-mark-key st) (hazard-data mk))) (not (kit-rooted (kit-of e))))
+        (setf (hss-opp-mark-key st) (hazard-data mk))
+        (when (< (sim-rnd01) (hs-p b *hs-ai-opp-mark-p*))
+          (pace o :opp-step-mark)
+          (return-from hs-ai-opp (why b :anti-mark :side-step)))))
+    (when (and mv (eq (snap-state s) :move) (eq (snap-phase s) :main) (member (mv-name mv) '(:hs-k1 :hs-raiden :hs-r-sp1 :hs-r-kubikake))
                (< (snap-sf s) (mv-s mv)) (not (kit-rooted (kit-of e))))
       (unless (eql (hss-opp-key st) (snap-start s))
         (setf (hss-opp-key st) (snap-start s) (hss-opp-go st) (< (sim-rnd01) (hs-p b *hs-ai-opp-step-p*))))
@@ -571,6 +639,25 @@ the Burst rule (FREE: AWAKEN-STATE-P, past the combo's 2nd hit, Q9 A). During hi
   "A release held during his own move fires on its last frame (move frame SF = END - 1, END its MOVE-END-FRAME): never a
 cancel of a whiffed or blocked recovery (§17.5 #6)."
   (>= sf (1- end)))
+(defun hs-mark-spot (px pz yaw tx tz)
+  "Where a mark (or RAKUSA's bundle) aimed from (PX PZ) at (TX TZ) lands: on it, its distance clamped to *HS-MARK-MIN* ..
+*HS-MARK-MAX* along that line (his facing YAW when he stands on it), then inside the arena (r - *HS-ARENA-IN*). Values x z."
+  (let* ((dx (- tx px)) (dz (- tz pz)) (d (hypot dx dz)) (far (> d 1e-3))
+         (ux (if far (/ dx d) (fwd-x yaw))) (uz (if far (/ dz d) (fwd-z yaw))) (c (max *hs-mark-min* (min *hs-mark-max* d))))
+    (clamp-to-circle (+ px (* c ux)) (+ pz (* c uz)) (- *arena-radius* *hs-arena-in*))))
+(defun hs-mark-lead (tx tz vx vz kx kz kleft)
+  "K2 NAGISA's aim (§22.1: where he is heading): the target at (TX TZ) after *HS-MARK-DELAY* f, his walk / run velocity
+(VX VZ, m/s) over the delay plus what is left of his slide (KX KZ m a frame for KLEFT frames: a Step, a push). Values x z."
+  (let ((n (min kleft *hs-mark-delay*)) (s (/ *hs-mark-delay* 60.0)))
+    (values (+ tx (* vx s) (* kx n)) (+ tz (* vz s) (* kz n)))))
+(defun hs-dist-mult (form cap edge d along)
+  "A hit's damage x by distance (§22.1, D): in the ranged mode (FORM :bankai) the chain tip, *HS-R-TIP-MULT* when the victim
+is within *HS-R-TIP* m of the volume's far EDGE or past it (an arc / annulus: his distance D; a line, CAP: ALONG it), else
+1.0 (EDGE NIL, no volume: 1.0); in the bind (:bankai-bind) *HS-B-CLOSE-MULT* within *HS-B-CLOSE* m; else 1.0."
+  (case form
+    (:bankai (if (and edge (>= (if cap along d) (- edge *hs-r-tip*))) *hs-r-tip-mult* 1.0))
+    (:bankai-bind (if (<= d *hs-b-close*) *hs-b-close-mult* 1.0))
+    (t 1.0)))
 (defun hs-grey-loss (r0 r k0 k)
   "A fighter's grey loss since the bind's start (Konpaku x *REISHI-MAX* + Reishi: his CPU's release read, §17.5 #16)."
   (+ (* *reishi-max* (- k0 k)) (- r0 r)))
@@ -612,6 +699,7 @@ Reiatsu bars (200-600), the throw re-armed (Q13 C)."
           (hss-r0 st) (gauges-reishi g) (hss-k0 st) (gauges-konpaku g)
           (hss-or0 st) (gauges-reishi go) (hss-ok0 st) (gauges-konpaku go)
           (hss-pool st) (f32 (+ (gauges-reiatsu g) (gauges-reiatsu go))) (hss-ai-rel-key st) -1)
+    (hs-marks-clear e)                                  ; (the ranged mode's marks: gone with the mode, B4a)
     (pace e :binds)
     (pace e :pool-start (round (hss-pool st)))
     (emit :sfx :chain-snap e)
@@ -714,12 +802,102 @@ due at the step's end (HS-BK-TICK); else a plain hit."
     (if (and (>= (gauges-reiatsu (gauges e)) *hs-kubi-reiatsu*) (not (bind-of e)))
         (progn (setf (hss-bind-t st) *match-tick*) (pace e :kubi-hit))
         (pace e :kubi-plain))))
-(defun hs-r-drag (e) "TSUISA's first real hit: dragged to *HS-TSUISA-TO* m." (when (hs-pull-to e *hs-tsuisa-to* *hs-tsuisa-frames*) (pace e :tsuisa-drag)))
 (defun hs-push-to (e to frames)
   "Push E's opponent out to TO m from E over FRAMES (PUSH-APART: the wall pushes E back instead)."
   (let ((d (hypot (- (aref (pos-of e) 0) (aref (pos-of (opp-of e)) 0)) (- (aref (pos-of e) 2) (aref (pos-of (opp-of e)) 2)))))
     (when (< d to) (push-apart e (opp-of e) (- to d) frames))))
 (defun hs-r-push (e) "SAHARAI's hit: pushed to *HS-SAHARAI-HIT* m." (hs-push-to e *hs-saharai-hit* *hs-saharai-frames*) (pace e :saharai-hit))
+(defun hs-r-j-push (e)
+  "J1 / J2 旋鞭's first real hit (:on-land): pushed onto the tip, at least *HS-R-J-PUSH* m (B4a, §22.1)."
+  (hs-push-to e *hs-r-j-push* *hs-r-j-push-frames*) (pace e :j-push))
+(defun hs-r-j3-push (e)
+  "J3 旋鎖's first real hit (:on-land, after the generic ender push, which it replaces): to *HS-R-J3-PUSH* m (§22.1)."
+  (hs-push-to e *hs-r-j3-push* *ender-push-frames*) (pace e :j3-push))
+
+;;; ---------------------------------------------------------------- the marks (K1 墜鎖 / K2 薙鎖 placed, K3 落鎖: B4a, §22.1)
+;;; A mark is a hazard of kind :HS-MARK (his own: no generic reader knows it; HS-MARK-HOOK answers :touches), at the feet,
+;;; *HS-MARK-R* x *HS-MARK-H*, guarded facing him (:src), no damage of its own until its delay runs out: then one slam,
+;;; hittable for *HS-MARK-ACTIVE* f, its look lingering to *HS-MARK-LIFE*. Not fragile: a mark waits on if he is hit (the
+;;; chain is already up; B4a's pick). Cleared at the bind's start (HS-BIND-START!), at any end of a bind and every reset
+;;; (CLEAR-HAZARDS); in the state hash (HS-HASH). At most *HS-MARK-LIVE* wait: a third replaces the oldest.
+(defun hs-mark-p (hz e) "Is HZ one of E's marks?" (and (eq (hazard-kind hz) :hs-mark) (eql (hazard-owner hz) e)))
+(defun hs-mark-hook (h hz event &rest args)
+  "A mark's hazard hook: :step (the slam's snap; its hit window closes after *HS-MARK-ACTIVE* f), :touches (the disc at the
+feet; never a victim within the dead zone *HS-R-DEAD* of him)."
+  (declare (ignore h))
+  (case event
+    (:step (when (= (hazard-delay hz) 1) (emit :sfx :chain-snap (hazard-owner hz)))
+           (when (and (<= (hazard-delay hz) 0) (>= (hazard-age hz) (1- *hs-mark-active*))) (setf (hazard-hits-left hz) 0))
+           nil)
+    (:touches (destructuring-bind (tx ty tz tr th) args
+                (let ((p (pos-of (hazard-owner hz))))
+                  (and (>= (hypot (- tx (aref p 0)) (- tz (aref p 2))) *hs-r-dead*)
+                       (cyl-cyl-hit-p (hazard-x hz) 0f0 (hazard-z hz) (hazard-size hz) (hazard-y hz) tx ty tz tr th)))))))
+(defun hs-mark-spawn (e x z hw)
+  "A mark of E at (X Z) dealing HW after *HS-MARK-DELAY* f; with *HS-MARK-LIVE* of his waiting, the oldest (placed first)
+goes."
+  (let ((old nil) (n 0))
+    (do-entities (h (hz hazard))
+      (when (and (hs-mark-p hz e) (> (hazard-delay hz) 0))
+        (incf n)
+        (when (or (null old) (< (the fixnum (hazard-data hz)) (the fixnum (hazard-data (cdr old))))) (setf old (cons h hz)))))
+    (when (and old (>= n *hs-mark-live*))
+      (destroy-entity (car old))
+      (pace e :mark-replaced)))
+  (spawn-hazard :hs-mark e :x x :z z :size *hs-mark-r* :y *hs-mark-h* :delay *hs-mark-delay* :life *hs-mark-life* :src t
+                           :hw hw :hook 'hs-mark-hook :look 'hs-mark-look :data *match-tick*))
+(defun hs-marks-clear (e) "Every mark of E gone (the bind's start)." (do-entities (h (hz hazard)) (when (hs-mark-p hz e) (destroy-entity h))))
+(defun hs-mark-place (e)
+  "K1 / K2's S frame: a mark at the target's feet (K1) or where he heads (K2: HS-MARK-LEAD), HS-MARK-SPOT's clamp; its hit
+the move's :mark-dmg / :mark-guard, a stagger. The placement is the string's touch (FIGHTER-CHAINED: the next link starts
+at the chain lead, as after a block)."
+  (let* ((f (fighter e)) (mv (fighter-move f)) (prm (mv-params mv)) (o (opp-of e)) (p (pos-of e)) (q (pos-of o))
+         (lead (eq (getf prm :mark) :lead)))
+    (multiple-value-bind (tx tz)
+        (if lead
+            (let ((mo (motion o)))
+              (hs-mark-lead (aref q 0) (aref q 2) (aref (motion-vel mo) 0) (aref (motion-vel mo) 2)
+                            (aref (motion-kb mo) 0) (aref (motion-kb mo) 2) (motion-kb-left mo)))
+            (values (aref q 0) (aref q 2)))
+      (multiple-value-bind (x z) (hs-mark-spot (aref p 0) (aref p 2) (yaw-of e) tx tz)
+        (hs-mark-spawn e x z (make-hitwin :dmg (getf prm :mark-dmg) :react :stagger :hs *hitstop-heavy*
+                                          :guard (getf prm :mark-guard) :flags '(:ranged)))))
+    (setf (fighter-chained f) t)
+    (emit :sfx :chain-snap e)
+    (pace e (if lead :mark-lead :mark))))
+(defun hs-rakusa-aim (e)
+  "K3 RAKUSA's first frame and its lock (S - *HS-RAKUSA-LOCK*): the bundle's spot = the target's feet, HS-MARK-SPOT's clamp."
+  (let ((p (pos-of e)) (q (pos-of (opp-of e))) (rk (hss-rk (hs e))))
+    (multiple-value-bind (x z) (hs-mark-spot (aref p 0) (aref p 2) (yaw-of e) (aref q 0) (aref q 2))
+      (setf (aref rk 0) (f32 x) (aref rk 1) (f32 z)))))
+(defun hs-rakusa-lock (e)
+  "RAKUSA's lock frame: the spot fixed (HS-RAKUSA-AIM) and its ring shown (a look until the hit)."
+  (hs-rakusa-aim e)
+  (let ((rk (hss-rk (hs e))))
+    (spawn-look e 'hs-mark-look :x (aref rk 0) :z (aref rk 1) :size *hs-rakusa-r* :delay *hs-rakusa-lock* :life *hs-mark-life*)))
+(defun hs-rakusa-seg (e)
+  "RAKUSA's :seg-fn: the bundle on the target, a vertical capsule at the locked spot (r *HS-RAKUSA-R*). Values ax ay az bx
+by bz r."
+  (let ((rk (hss-rk (hs e))))
+    (values (aref rk 0) 0.2f0 (aref rk 1) (aref rk 0) 1.4f0 (aref rk 1) (f32 *hs-rakusa-r*))))
+(defun hs-marks-slam (e)
+  "RAKUSA's S frame: every mark of his still waiting slams now, with the bundle (its delay to 1: the hazard step that
+follows runs it out, the step's hits take it)."
+  (let ((n 0))
+    (do-entities (h (hz hazard))
+      (when (and (hs-mark-p hz e) (> (hazard-delay hz) 1)) (setf (hazard-delay hz) 1) (incf n)))
+    (pace e :k3-slams n)))
+(defun hs-dmg-mult (att def hw mv hazard d2)
+  "The Bankai's :dmg-mult hook (combat.lisp APPLY-HIT): HS-DIST-MULT for his move's hit by his form, its window's first
+volume, the victim's distance (D2 squared, from the hit's source) and his distance along ATT's facing; x1.0 for L SAHARAI
+(unchanged, §22.1), the universal Breaker, a hazard (the marks: placed, no tip, B4a) and a :seg-fn window (RAKUSA's
+bundle)."
+  (declare (ignore hazard))
+  (if (or (null mv) (eq (mv-kind mv) :breaker) (eq (mv-name mv) :hs-r-l))
+      1.0
+      (let* ((v (first (hw-vols hw))) (cap (and v (> (aref v 0) 0.5))) (yaw (yaw-of att)) (p (pos-of att)) (q (pos-of def)))
+        (hs-dist-mult (fighter-form (fighter att)) cap (and v (if cap (aref v 2) (aref v 1))) (sqrt d2)
+                      (+ (* (- (aref q 0) (aref p 0)) (fwd-x yaw)) (* (- (aref q 2) (aref p 2)) (fwd-z yaw)))))))
 (defun hs-r-ame-aim (e)
   "KUSARI-AME's :tick: the lane aims (the move's :track 120) for its first *HS-AME-AIM* frames, then it is locked."
   (let* ((f (fighter e)) (st (hs e)) (tr (transform e)))
@@ -831,6 +1009,28 @@ so the throw's 200 stays (*HS-AI-SP-ENDER-P*)."
                (< (sim-rnd01) (hs-p b *hs-ai-sp-ender-p*)))
       (pace e :ai-sp1)
       :sp1)))
+(defun hs-foe-near-mark-p (e)
+  "Does E's foe stand within *HS-AI-MARK-NEAR* of one of E's waiting marks?"
+  (let ((q (pos-of (opp-of e))) (near nil))
+    (do-entities (h (hz hazard))
+      (when (and (not near) (hs-mark-p hz e) (> (hazard-delay hz) 0)
+                 (<= (hypot (- (aref q 0) (hazard-x hz)) (- (aref q 2) (hazard-z hz))) *hs-ai-mark-near*))
+        (setf near t)))
+    near))
+(defun hs-r-ai-move (e b f mv)
+  "His :move-reflex in the ranged mode (ai.lisp AI-REFLEX, in his own move: a placed K has no hit to read): one roll per
+placed K1 / K2 (*HS-AI-K-LINK-P*, keyed by its start tick), on the frame after its mark: K1 -> J2s with the foe at 2.5-4.5 m
+(the annulus' tip), else K2 (a second mark, leading him) within 9 m; K2 -> K3 only while the foe stands within
+*HS-AI-MARK-NEAR* of a waiting mark (every mark slams, the bundle on him); else the string ends and the marks wait."
+  (let ((st (hs e)) (name (mv-name mv)) (key (- *match-tick* (fighter-sf f))))
+    (when (and (member name '(:hs-r-k1 :hs-r-k2 :hs-r-k2s)) (eq (fighter-phase f) :main) (> (fighter-sf f) (mv-s mv))
+               (not (eql (hss-ai-mv-key st) key)) (null (fighter-queued f)))
+      (setf (hss-ai-mv-key st) key)
+      (let ((d (fighter-dist f)))
+        (when (< (sim-rnd01) (hs-p b *hs-ai-k-link-p*))
+          (cond ((not (eq name :hs-r-k1)) (when (hs-foe-near-mark-p e) (pace e :ai-k3) (why b :mark-k3 :f)))
+                ((<= 2.5 d 4.5) (pace e :ai-kj) (why b :mark-j :q))
+                ((<= d 9.0) (pace e :ai-kk) (why b :mark-k :f))))))))
 (defun hs-grey-margin (e)
   "E's grey loss minus his opponent's in E's bind (positive: E is behind)."
   (let* ((st (hs e)) (o (opp-of e)) (g (gauges e)) (go (gauges o)))
@@ -894,7 +1094,10 @@ both CPUs, 6 m apart; 6 2 m from Kenpachi, J1 started (the JKK: K K for MAKI, HO
 HS-AWAKEN-NOW!): 10 the ranged mode 6 m from Kenpachi; 11 5 m from him, KUBIKAKE started (P: the bind on a hit); 12 a bind
 3 m from him with grey values (he dealt 300, took 200: the pool 600 -> 350); 13 as 12, the release pressed (applied this
 step: the snapshot back, the pool's 350 split 300 / 50, the reel, UNWIND); 14 as 12, the pool at 1 and a 10 hit (the
-drained end at this step's hits); 15 the Bankai mirror, both CPUs awakened, 6 m apart; any other k the probe line only."
+drained end at this step's hits); 15 the Bankai mirror, both CPUs awakened, 6 m apart. B4a (§22.2): 16 the ranged mode 5 m
+from an idle Kenpachi, K1 started (its mark at his feet); 17 the same, two marks already waiting by him (20 f and 30 f
+left) and K2 started (a third: the oldest goes); 18 the ranged mode 4 m from a CPU Rukia, P1's CPU on (the zone game; a fresh CPU battle);
+any other k the probe line only."
   (flet ((setup (c2 dist &key cpu)
            (ensure-battle :hisagi c2 :cpu cpu)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) (not cpu)))
@@ -919,7 +1122,14 @@ drained end at this step's hits); 15 the Bankai mirror, both CPUs awakened, 6 m 
        (case k
          (13 (setf (hss-rel (hs *p1*)) t))
          (14 (setf (hss-pool (hs *p1*)) 1f0) (deal-damage *p1* *p2* 10))))
-      (15 (setup :hisagi 6.0 :cpu t) (hs-awaken-now! *p1*) (hs-awaken-now! *p2*)))
+      (15 (setup :hisagi 6.0 :cpu t) (hs-awaken-now! *p1*) (hs-awaken-now! *p2*))
+      (16 (setup :kenpachi 5.0) (hs-awaken-now! *p1*) (force-cmd *p1* :f))
+      (17 (setup :kenpachi 5.0) (hs-awaken-now! *p1*)
+       (let ((q (pos-of *p2*)) (hw (make-hitwin :dmg 52 :react :stagger :hs *hitstop-heavy* :guard 14 :flags '(:ranged))))
+         (dolist (k '((0.9 20) (-0.9 30)))
+           (setf (hazard-delay (hazard (hs-mark-spawn *p1* (+ (aref q 0) (first k)) (aref q 2) hw))) (second k))))
+       (start-move *p1* (find-move :hs-r-k2)))
+      (18 (setup :rukia 4.0 :cpu t) (hs-awaken-now! *p1*)))   ; (Rukia: no other scene starts that battle, so a fresh CPU one)
     (hisagi-probe-line (format nil "test ~d" k))))
 
 (defun hs-awaken-now! (e)

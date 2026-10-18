@@ -1453,9 +1453,163 @@ forward stance, the noose taut.
 4. The art pass (B4b): the carousel, the orb's spin, the two stances, the new J / K clips with the exaggerated windups
    of §21.7.
 
+### 22.2 B4a as built (2026-10-18): the sim, the CPU, the host tests (a sim change)
+
+§22.1's approved table, built in `duel/lisp/hisagi.lisp` (the moves, the marks, the hooks, the CPU), with the smallest
+default-off support in the shared files and a placeholder look in `hisagi-art.lisp`. The clips are still B3b's (§21.8);
+the art pass B4b (the carousel, the stances, new J / K clips) is next.
+
+**Shared support (default off; every other character's results byte-identical, below).**
+- `kit.lisp`: a hit window's `:min-reach` (a move-level key every window inherits, or a window's own): `hw-min`, NIL for
+  every move but his ranged mode's. `combat.lisp` COLLECT-MELEE skips a victim nearer than it (centre to centre), except a
+  Kikon's follow-up strike (the dash lands it inside 2 m; the dead zone would erase the Kikon itself).
+- `combat.lisp` APPLY-HIT: a kit hook `:dmg-mult` (att def hw mv hazard d2) → a factor on the attacker's multiplier (with
+  the pierce / ASSIST ones). Only his two Bankai modes set it (HS-DMG-MULT).
+- `ai.lisp` AI-REFLEX: a kit `:ai :move-reflex` (e b f mv) asked during his own move, before the generic "in a move:
+  nothing". Only his ranged mode sets it (HS-R-AI-MOVE: a placed K has no hit for STRING-REFLEX to read).
+
+**Knobs** (all in `hisagi.lisp`, each with its docstring; the user, 2026-10-18, §22.1, unless marked B4a's pick)
+
+| Knob | Old → new | What |
+|---|---|---|
+| `*hs-r-walk*` | 3.4 → 2.8 | the ranged mode's walk (m/s) |
+| `*hs-r-dead*` | — → 2.0 | the dead zone (m): every ranged-mode attack but L and the universal Breaker |
+| `*hs-r-tip*` / `*hs-r-tip-mult*` | — → 1.0 m / x1.3 | the chain tip |
+| `*hs-b-close*` / `*hs-b-close-mult*` | — → 1.2 m / x1.2 | the bind's close-in |
+| `*hs-r-j-push*` / `-frames*` | — → 3.5 m / 10 f (B4a's frames) | J1 / J2's hit pushes onto the tip |
+| `*hs-r-j3-push*` | 4.91 (the generic J1-reach ender push) → 5.5 m | J3's ender push |
+| `*hs-mark-delay*` / `*hs-mark-r*` / `*hs-mark-h*` | — → 36 f / 1.2 m / 2.0 m (B4a's height) | a mark's slam |
+| `*hs-mark-min*` / `*hs-mark-max*` | — → 2.0 / 8.0 m | where a mark may land (from him) |
+| `*hs-mark-live*` | — → 2 | marks waiting at once; a third replaces the oldest |
+| `*hs-mark-active*` / `*hs-mark-life*` | — → 3 f / 24 f (B4a's) | the slam's hit window / its look |
+| `*hs-rakusa-r*` / `*hs-rakusa-lock*` | — → 1.5 m / 8 f (B4a's lock) | K3's bundle on the target, its spot locked at S − 8 |
+| `*hs-ai-close*` | 2.5 → 2.0 m | his CPU's L SAHARAI band (the dead zone's) |
+| `*hs-ai-k-link-p*` | — → 0.3 / 0.55 / 0.8 | his CPU's link off a placed K1 / K2 (EASY / NORMAL / HARD) |
+| `*hs-ai-mark-near*` | — → 2.0 m | ... K3 only with the foe this near a waiting mark |
+| `*hs-ai-opp-mark-p*` | — → 0.15 / 0.35 / 0.6 | a CPU facing him side-Steps out of a mark (once per mark) |
+| `*hs-tsuisa-to*` / `-frames*` | 3.5 m / 10 f → deleted | TSUISA's drag (K1 is placed now) |
+
+**The moves as built** (S / A / R; damage; the rest as §17.1)
+
+| Move | As built |
+|---|---|
+| J1 旋鞭 | S **14** / 3 / 12, 22, hitstun 24; annulus 2.0–4.5 m, 100° (`:reach 4.5 :arc 100 :min-reach 2.0`); `:no-close`; a hit pushes him to ≥ 3.5 m (10 f) |
+| J2 / J2s 旋鞭 | S **13** / 3 / 13, 22, the same annulus and push |
+| J3 旋鎖 (ender) | S 13 / 3 / 18, 30, stagger; annulus 2.0–5.0 m, **360°**; the ender push to 5.5 m (its `:on-land` after the generic push, which it replaces) |
+| K1 墜鎖 | S **12** / A 2 / R **14**, no hit window (`:reach 8.0` for the chase and the CPU's reads, damage 0); at S a mark at the target's feet; the mark: 52, guard 14, stagger |
+| K2 / K2s 薙鎖 | the same frames as K1 (**B4a's pick**: the spec gave none; a placed link needs no `:enter`, its own hit is 36 f later); the mark leads him; 44, guard 14, stagger |
+| K3 落鎖 (ender) | S 24 :enter 6 (S_eff 18) / 5 / 34, 66, guard 18, crumple, −20: every waiting mark slams at its S, plus its own window: a bundle on the target (`:seg-fn` HS-RAKUSA-SEG, a vertical capsule r 1.5 m at the target's feet, its spot aimed from its first frame and locked at S − 8, clamped 2–8 m); its ender push from the kit's `:push-reach` 7.5 (≈ 7.95 m, unchanged: inside the O's 9 m lane and SP1's 9 m line) |
+| SP1, SP2 (+ SP2c), O, P | unchanged but `:min-reach 2.0` (O's follow-up strike excepted, above) |
+| L 鎖払, the Breaker | unchanged (no dead zone, no tip) |
+| bind mode | unchanged but the x1.2 close-in on every bind move but the Breaker |
+
+**The choices where the spec was silent (B4a's).**
+- **The dead zone** is the centre-to-centre distance at the hit (2.0 m); a mark's slam has it too (HS-MARK-HOOK's
+  `:touches`). Not the Breaker (the universal one dashes in to 1.35 m: a dead zone would leave him without it).
+- **"The outer 1.0 m" (the tip)**: an arc / annulus by the victim's distance from him against the arc's r (J1 / J2 tip
+  from 3.5 m, J3 from 4.0); a line / lane along his facing against its far end (SP1 from 8.0 m, SP2 from 9.0, O from 8.0,
+  KUBIKAKE from 6.0). **The marks and K3's bundle get no tip** (placed: no "outer" reading; their power is the
+  placement). L SAHARAI (unchanged by §22.1) and the Breaker x1.0. The tip applies to SP1 / SP2 / O / P too: §22.1's
+  shared rule says "a ranged-mode hit"; "unchanged" in the table read as frame data and volumes.
+- **The bind's x1.2** on every bind move but the Breaker, by the centre-to-centre distance at the hit (≤ 1.2 m).
+- **The placed K and the string gate**: a placed K1 / K2 counts as the string's touch (FIGHTER-CHAINED at the placement),
+  so the next link starts at the chain lead, as after a block (K1 → K2 / J2s, K2 → K3, J1 → K2s → K3 all play); no whiff
+  penalty (a move with no hit window ends at S + A + R). KKK in time: K1's mark slams at its f48, K2's is placed at about
+  f37 of the string, K3's S at about f68 slams K2's (due at f73) early with the bundle. Combos: JJJ and JJK (J2 → K3: 3 + 18 = 21 ≤ 23)
+  as before; a placed K is a set-up, not a combo link (its mark lands 36 f later).
+- **K2's lead**: the target's walk / run velocity × the 36 f, plus what is left of his slide (a Step, a push), then the
+  2–8 m clamp and the arena.
+- **Marks are not fragile**: a mark waits on when he is hit (the chain is already up); they are cleared at the bind's
+  start (with the mode), at any bind's end and every reset (CLEAR-HAZARDS), and are in his state-hash text (each 1 + its
+  x + z in cm, with K3's spot). A mark is a hazard of his own kind `:hs-mark` (HS-MARK-HOOK answers `:touches`), so no
+  shared reader treats it as a projectile (Nozarashi's cut, Senjumaru's reflect, Ichigo's cut skip it); it is `:ranged`
+  (every hazard is): a front guard facing **him** blocks it (`:src`: the hazard blockstun 14), West's ward and the Shikai
+  windmill's `:ranged-ward` guard it, a parry does not catch it, Rukia's absolute zero lets it through as any ranged hit.
+  The opponents' CPUs read it through RANGED-THREAT-IN (hazards) and his `:opp-reflex` (below).
+- **Three marks**: the oldest waiting one (placed first) is destroyed when a third is placed.
+
+**The CPU** (`duel-character-cpu`: one roll per event, EASY ≤ NORMAL ≤ HARD).
+- The ranged `:ai`: ranges approach 3.5–5.0, pressure 3.0–4.5, zone 3.5–5.5, defend 4.5–7.0 (he holds 3–5 m); the move
+  bands 0–2 m L 3 / Step 4 / Breaker 1 (L also by his reflex, `*hs-ai-close*` 2.0), 2.0–2.5 J 1 / K 1 / Step 2, 2.5–4.5 J 5 /
+  K 2 / Step 1, 4.5–8 K 5 / Step 1, 8–10 K 1 / O 1 / wait 2, beyond 10 O 1 / wait 3.
+- `:move-reflex` HS-R-AI-MOVE: one roll per placed K1 / K2 (keyed by its start tick), the frame after its mark: off K1,
+  J2s with the foe at 2.5–4.5 m, else K2 within 9 m; off K2, K3 only while the foe stands within 2.0 m of a waiting mark.
+- The bind's `:ai`: ranges approach 1.2–3.0, pressure 0.8–1.2 (inside the x1.2); bands 0–1.2 J 5 / K 2 / Breaker 1,
+  1.2–1.8 J 3 / K 2 / Breaker 1, then as before.
+- A CPU facing him (`:opp-reflex` HS-AI-OPP): a side Step out of a mark that will slam on it in 4–14 f, once per mark
+  (`*hs-ai-opp-mark-p*`); K1 dropped from its anti-line Step (no line any more).
+- ASSIST / the learner: nothing of theirs names his moves (no change).
+
+**Look (placeholder, 0 B a frame).** HS-MARK-LOOK draws a mark and K3's bundle spot (a look-only hazard spawned at the
+lock): waiting, a black ring at its edge and a white one tightening onto it from 1.5 r, blinking faster in its last 12 f;
+the slam, three black chains dropped on it from 4 m (hauled back up over 6 f) and a dust ring spreading to 1.3 r. The
+drawn reach: J1 / J2's let-out crescents 4.0 → 4.5 m, J3's 4.4 → 5.0 (and its swept hanging chain 3.9 → 4.9), so the FK
+test's ±0.15 m holds; the J clips play at 12 / 14 and 11 / 13 speed (`:clip-s`) so their hit pose lands on the new S.
+K1's lance, K2's reap and K3's four line drops (`*hs-bk-chains*`) are deleted (they would lie: nothing hits there now);
+the K clips still play their B3b windups, squeezed into K1 / K2's S 12 (`:clip-s` 22 / 24).
+
+**Debug** (DUEL_GAMEPLAY "Debug commands"): 83016 the ranged mode 5 m from an idle Kenpachi, K1 started; 83017 the same
+with two marks waiting by him and K2 started (a third: the oldest goes); 83018 the ranged mode 4 m from a CPU Rukia (a fresh CPU battle),
+P1's CPU on. 83901's line counts the marks' look (waiting and slamming). New pacing keys in the `duel hisagi` line:
+`j-push`, `j3-push`, `mark`, `mark-lead`, `mark-replaced`, `k3-slams`, `ai-kj` / `ai-kk` / `ai-k3`, `opp-step-mark`
+(`tsuisa-drag` gone).
+
+**Tests** (`tests/duel-rules-test.lisp`, 9697 checks ALL PASS (9711 before: the placed K1 / K2 left the hit-based walks, B4a's own added)): the string budget walk takes his placed K1 / K2 off the hit-based
+checks (pinned in his block instead: no window, S 12, R 14, the mark at S); his block pins the dead zone on every ranged
+window but L's and the Breaker's and on no other move of the game, the `:dmg-mult` / `:move-reflex` hooks on no other kit,
+the annulus (1.9 m no, 2.0 yes, 4.85 yes, 4.9 no; J1 not behind; J3 all round to 5.36 m), the J pushes, HS-DIST-MULT and
+HS-DMG-MULT (the tip on arcs and lines, none for L / the Breaker / a mark / K3's bundle; the bind's x1.2 within 1.2 m), the
+mark spot's clamp and K2's lead, a placed mark (the hazard's kind, owner, spot, r 1.2, 36 f, guarded facing him, not
+fragile, K1's 52 / stagger / guard 14, the string's touch), its slam active on exactly frames 36–38, the dead zone on a
+slam, gone at its life, the third mark replacing the oldest, K3's slam of every waiting mark and its bundle (spot, r 1.5),
+the K ender push from 7.5, the bind's start clearing the marks; the route damage (marks' damage for the placed links)
+74 / 110 / 132 / 162 / 126 / 104 as before; every link with a hit window combos with its hitstop. duel-control-test 89,
+learn-test 131 ALL PASS; `tools/pkgcheck.sh duel` clean; `./build.sh duel` with only the 4 known Lille style warnings.
+
+**Gates on the worktree (parent 5ea33ab; `simgate --seeds 10 --summary`).** The 42 summary lines of the 21 pairings
+without him are byte-identical to the parent's (`cmp`; the parent built from a `git archive` of 5ea33ab); `--cvc` yy / yk /
+kk PASS, identical to the parent and `tests/style-cvc-ref.txt`. His 7 pairings at 10 seeds (parent → B4a):
+
+| Pairing | K.O.s | Median (s) | Wins (H as P1) |
+|---|---|---|---|
+| HY | 10 → 10 | 144.3 → **130.9** | 3 → 4 of 10 |
+| HK | 10 → 10 | 126.8 → **124.6** | 6 → 1 |
+| HR | 10 → 10 | 170.0 → 176.4 | 7 → 1 |
+| HI | 10 → 10 | 185.6 → 171.1 | 7 → 2 |
+| HS | 10 → 10 | 157.6 → 192.1 | 6 → 1 |
+| HB | 10 → 10 | 202.3 → 152.2 | 1 → 1 |
+| HH (mirror) | 9 → 9 | 236.4 → 228.6 | 1 → 4 |
+
+The quick pass (all K.O. and 135–200 s) does not clear HY and HK (and HH's one time-out, as on the parent): the lead's
+20-seed gate decides. No knob was retuned for the window. Debug 83901: the marks' look 0 B (10 calls waiting and slamming;
+SHIBARI 131096 and SP2 262168 are the first-call fx-buffer growth §21.8 noted, the same as on the parent); the browser smoke
+(83016, 83017, 83018, 30 s, `--fixed-dt 16.666667`) ran with no JS / WebGPU error, the CPU zone game playing.
+
+**Known issues** (for the playtest and B4b).
+- **He is much weaker on these 10 seeds** (wins as P1 against HK / HR / HS 6-7 → 1 of 10). The pacing log of HK shows
+  why: the ranged mode spends about a third of its frames inside 2 m (`r-near` 2052 of 6077 in seed 1), where only L,
+  a Step and the Breaker do anything; Kenpachi walks him into the dead zone. This is §17.1's "weak at 2 m by design" made
+  hard by the dead zone; the window, the walk 2.8 and the CPU's spacing are the user's calls after the playtest.
+- The generic CPU still presses J where it reads J1's reach as in range (a punish, a follow-up, the pressure reset) even
+  inside 2 m: a whiff there. His `:moves` bands keep J out of 0-2 m; the generic branches do not know a dead zone.
+- A perfect Hoho reads a move's volumes (PERFECT-HOHO-P), not its dead zone: inside 2 m his J can make a Hoho "perfect"
+  though it could not hit (defender-side generous; rare).
+- The placed K is not a true string link: a K1 → K2 / J2s starts at the chain lead (as after a block), and a mark lands
+  36 f later, so KKK combos only when K1's mark hits first (K1's mark at f48, its stagger outlasting K3's S at about f68).
+- The look is a placeholder: no carousel, no orb spin, the K clips' windups squeezed into S 12 and their chain strikes
+  removed (the hanging chains only); the rings sit at the feet (no chain is seen hauled up into the orb while one waits).
+
+**What the art batch B4b must draw.** The carousel (the orb turning, the 8 hanging chains orbiting at rest; the jerk into a
+spin on each strike); J1 / J2's side curtain sweeping the 2.0–4.5 m annulus, 100° ahead (14 / 13 f windups: the orb
+winding), J3's full turn to 5.0 m; K1 / K2: a chain hauled up into the orb at S 12, the mark's tell for 36 f and the bundle
+slamming from above (r 1.2), K2 aimed ahead of him; K3: every mark's bundle at once plus the one on the target (r 1.5, the
+spot shown from S − 8); the two stances (ranged: crescents hanging at his sides; bind: gripped, low, the noose taut); the
+drawn reach on the hit frames within 0.15 m of the annuli's 4.5 / 5.0 m (and the host check of `*hs-strike-reach*`).
+
 ## 18. Open
 
 - The Bankai's look approved (the user, 2026-10-18: 「可以 但我希望鎖鏈是黑色的」, §21.6); its slot plan approved (§21.7), its clips built (batch B3b, §21.8: presentation only, waiting on the playtest). Still open: the awaken A/B (§20.9), waiting on the user's playtest.
+- The two modes made distinct (§22): B4a built (§22.2: the sim, the CPU, a placeholder look); open: the playtest, his 7 pairings at 20 seeds and his awaken A/B, the art pass B4b.
 
 - Answered (the user, 2026-10-17): Q9 A, Q10 A, Q11 A, **Q12 B** (no drip), **Q13 C** (no re-arm wait); the body follows them. To watch at the gates: a stalled bind (no drip) and the clock. Hooks 5 / 7 built as batch B1b (2026-10-17, §17.4 "As built"); the Shikai built as batch B2a (2026-10-17, §19); the Bankai's rules, bookkeeping and CPU as batch B2b (2026-10-17, §20; its look held for a motion-style pass). Open from B2b: the awaken A/B (both directions, §20), the HB / HH medians.
 
