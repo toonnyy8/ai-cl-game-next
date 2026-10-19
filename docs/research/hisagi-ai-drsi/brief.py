@@ -86,7 +86,7 @@ the victim where he is). In short:
     SP2 KUBIKAKE the binding throw (7 m line, no cooldown; a whiff costs 60 f): its hit enters the bind; the tip (each
     volume's outer 1.0 m) x1.71 damage (§25.13) and x1.3 Reiatsu gain; a route link takes its opener's tip read (J1 / K1 on
     the tip: the whole route x1.71), not its own distance.
-  - the bind mode (:bankai-bind): both fighters on the chain, damage goes to a shared grey pool (1 of it per 4 damage since
+  - the bind mode (:bankai-bind): both fighters on the chain, damage goes to a shared grey pool (1 of it per 3 damage since
     §25.13; an SP spends it 1:1); it ends drained (the grey turns real) or released; his J / K strings (J 45 / 45 / 55, K 93 /
     81 / 116 since §25.13; x1.3 within 1.2 m), L KOJO the pull (its yank at f20 a 20-damage flinch along the chain, then the
     reap at S 30: §25.7), the Step's J 穿弦 SENGEN (:hs-b-sj, S 10 / A 3 / R 22, 40 dmg, 2.2 m arc 60, a stagger; on a HIT

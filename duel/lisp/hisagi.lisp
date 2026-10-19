@@ -201,9 +201,10 @@ distance (§25.13: 「鏈尖判定會直接延續 J1 / K1 打中時的判斷狀�
 (defparameter *hs-b-close-mult* 1.3
   "... deals x this, else x1.0 (x1.0 -> x1.2, 2026-10-18, the user, §22.1; 1.2 -> 1.3, 2026-10-19, the user: 「近身加成升到
 1.3 倍」, §25.13).")
-(defparameter *hs-bind-drain-rate* 0.25
+(defparameter *hs-bind-drain-rate* (/ 1.0 3)
   "The bind's pool loses this much per nominal damage of either fighter (rules BIND-DRAIN's rate; 0.5 -> 0.25, 2026-10-19,
-the user: 「延長近身的時長（SP 與血量互換從 1:2 改成 1:3）」 then 「1:4」, §25.13); an SP still spends it 1:1.")
+the user: 「延長近身的時長（SP 與血量互換從 1:2 改成 1:3）」 then 「1:4」, §25.13; 0.25 -> 1/3 the same day: 「捆綁模式的 SP 血量
+互換率還是改成 1:3 好了」, §25.13); an SP still spends it 1:1.")
 (defparameter *hs-r-j-dead* 3.0
   "The ranged mode's J (J1 / J2 / J3, the gathered J2s / J3G) dead zone, m (the moves' :min-reach): an annulus out to
 *HS-R-J-REACH* (J1's 2.0 -> 3.0 and the other links' *HS-R-DEAD* 2.0 -> 3.0, 2026-10-18, the user: 「J 的範圍改 3~6」, §25.3;
@@ -1001,7 +1002,7 @@ is within *HS-R-TIP* m of the volume's far EDGE or past it (an arc / annulus: hi
   (let ((st (hs b))) (if (eq e b) (values (hss-r0 st) (hss-k0 st)) (values (hss-or0 st) (hss-ok0 st)))))
 (defun hs-bind-damage (b att def n)
   "His :bind-damage hook (DEAL-DAMAGE in a bind): the pool loses *HS-BIND-DRAIN-RATE* per nominal damage of either fighter
-(B3, rules BIND-DRAIN; 1 per 4 since §25.13); the grey counters."
+(B3, rules BIND-DRAIN; 1 per 3 since §25.13); the grey counters."
   (declare (ignore def))
   (let ((st (hs b)))
     (setf (hss-pool st) (f32 (bind-drain (hss-pool st) n *hs-bind-drain-rate*)))

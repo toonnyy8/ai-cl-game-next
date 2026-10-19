@@ -3150,7 +3150,7 @@ awakened (every other fighter's; their kit's damage x included), per command slo
 | Bind Kikon KOSHU | 70 → **111** (91.8 x1.2) |
 | Bind SP2 KAIBAKU-GEKI, Step J SENGEN | unchanged (120 already x1.49; SENGEN has no slot to compare) |
 | `*hs-b-close-mult*` | 1.2 → **1.3** (within 1.2 m) |
-| `*hs-bind-drain-rate*` (new; rules BIND-DRAIN's rate) | 0.5 → **0.25**: the pool loses 1 per 4 damage (an SP still 1:1) |
+| `*hs-bind-drain-rate*` (new; rules BIND-DRAIN's rate) | 0.5 → **1/3**: the pool loses 1 per 3 damage (an SP still 1:1; 0.25, 1 per 4, at first, then the user: 「捆綁模式的 SP 血量互換率還是改成 1:3 好了」) |
 | `*hs-r-tip-mult*` (shared by every ranged move with a volume) | 1.3 → **1.71**: K1 → K2 → K3G all on the tip 68 + 43 + 55 + 147 = 313 >= 1.3 x the mean K string 240.3 |
 | The 3.5 m placement (`*hs-r-j-push*`, HS-R-J-PUSH, HS-R-UCHI-PUSH, HS-PLACE-TO, `*hs-r-uchi-frames*`) | **removed**: J1 / J2 / K1 / K2's slam place nothing; J3 / J3G's 6.6 m ender push, SAHARAI's 3.5 m and KUBIKAKE's yank kept |
 | The route links (J2 K2s J3 K3, K2 J2s K3G J3G) | their volumes and dead zones → one :seg-fn window each (K2 two), **HS-R-LINK-SEG**: the chain from his hand to the victim's centre, its far end capped at **`*hs-r-link-reach*` 7.0 m** from his feet (+ the victim's body); `:reach` 7.0 (the CPU's and the chase's read) |
@@ -3168,8 +3168,8 @@ awakened (every other fighter's; their kit's damage x included), per command slo
 **Host tests**: duel-rules **9850** ALL PASS (−30: the links' volume and dead-zone rows, the placement and K2 push rows, replaced by):
 - the links' chain windows, their 7.0 m end (5 m: on him; 9 m: 7.0 m out) and the CPU reach read;
 - the inherited tip (J1 / K1 on the tip → J3 / K3 / K2's second window / J2s / K3G x1.71 at any distance; off the tip → x1.0);
-- the knobs (1.71, 1.3, 0.25), the K string's 313 >= 312.4;
-- the bind's table and routes (145 206 242 290 229 193), the drain at 1 per 4.
+- the knobs (1.71, 1.3, 1/3), the K string's 313 >= 312.4;
+- the bind's table and routes (145 206 242 290 229 193), the drain at 1 per 3.
 
 Control 89, learn 131, cine 18 ALL PASS; pkgcheck clean; the build with the 4 known Lille warnings.
 

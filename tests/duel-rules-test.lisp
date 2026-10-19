@@ -3599,8 +3599,8 @@ past the ends; DEFAULT if the clip is not listed."
         (hs-bk-tick h fh gh)
         (check (eq :bankai-bind (fighter-form fh)))                       ; (a SET-FORM out of the move)
         (check (and (null (kit-hook (kit :hisagi :bankai-bind) :p)) (null (kit-hook (kit :hisagi :bankai-bind) :p-label))))   ; (§24.5: no FREE)
-        ;; B3: the drain 1 per 4 nominal damage of either side (1 per 2 until §25.13), exact; grey Reishi floors at 0, no Soul Break
-        (check (and (null (deal-damage h o 7)) (= (hss-pool st) 428.25f0) (= (gauges-reishi go) (- (hss-or0 st) 7))))
+        ;; B3: the drain 1 per 3 nominal damage of either side (1 per 2 until §25.13); grey Reishi floors at 0, no Soul Break
+        (check (and (null (deal-damage h o 7)) (~= (hss-pool st) (- 430.0 (/ 7.0 3))) (= (gauges-reishi go) (- (hss-or0 st) 7))))
         (check (and (null (deal-damage o h 2000)) (= 0 (gauges-reishi gh)) (null *soul-breaks*) (= (hss-pool st) 0f0)))
         (setf (hss-pool st) 426.5f0 (gauges-reishi gh) (hss-r0 st))
         ;; B4 every gain frozen; B5 SPs of either side from the pool (refused under the cost)
@@ -3644,7 +3644,7 @@ past the ends; DEFAULT if the clip is not listed."
         (check (eq :bankai (fighter-form fh)))
         ;; B7 the drained end, both at Reishi 0 (the opponent's Soul Break queued first), the grey counts cleared
         (hs-bind-start! h)
-        (setf (gauges-reishi go) 1 (gauges-reishi gh) 1 (hss-pool st) 0.75f0 *soul-breaks* nil *kikons* nil *t-ends* nil)   ; (3 x 0.25)
+        (setf (gauges-reishi go) 1 (gauges-reishi gh) 1 (hss-pool st) 1f0 *soul-breaks* nil *kikons* nil *t-ends* nil)   ; (3 x 1/3)
         (check (and (null (deal-damage h o 2)) (null (deal-damage o h 1))))
         (check (and (= (hss-pool st) 0f0) (null *soul-breaks*) (plusp (gauges-grey gh))))
         (bind-step! h :hits)
@@ -3817,7 +3817,7 @@ past the ends; DEFAULT if the clip is not listed."
                 (~= 1.0 (hs-dist-mult :bankai t 9.0 8.5 7.9)) (~= 1.0 (hs-dist-mult :bankai nil nil 7.0 7.0))
                 (~= 1.3 (hs-dist-mult :bankai-bind nil nil 1.2 0.0)) (~= 1.0 (hs-dist-mult :bankai-bind nil nil 1.21 0.0))
                 (~= 1.0 (hs-dist-mult :base nil 4.5 4.0 4.0)) (~= 1.71 *hs-r-tip-mult*) (~= 1.3 *hs-b-close-mult*)
-                (~= 0.25 *hs-bind-drain-rate*)))
+                (~= (/ 1.0 3) *hs-bind-drain-rate*)))
     ;; ... 1.71: the K string K1 -> K2 -> K3G all on the tip = 1.3 x the awakened forms' K string mean 240.3 (§25.13)
     (check (>= (loop for n in '(:hs-r-k1 :hs-r-k2 :hs-r-k3g) sum (loop for w across (mv-hits (m n)) sum (round (* (hw-dmg w) *hs-r-tip-mult*))))
                (* 1.3 240.3)))
