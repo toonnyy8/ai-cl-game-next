@@ -3034,9 +3034,11 @@ Built, not tested (the user: tests and gates wait for their word); the playtest 
 
 > 「讓遠距 L 鎖払被擋下後不能通過 J/K 取消後搖」
 
-MOVE-COMMANDS' `:r-cancel` branch (fighter.lisp) now also asks that the move's contact is not `:block` (blocked with no hit):
-a hit or a whiff still cancels into J1 / K1 from its first recovery frame, a blocked SAHARAI plays its full 32 f recovery
-(−16 on block). Built, not tested (tests wait for the user's word).
+> then 「打空也一樣不能取消」
+
+MOVE-COMMANDS' `:r-cancel` branch (fighter.lisp) now also asks that the move hit (its contact `:hit`): only a SAHARAI that
+hit cancels into J1 / K1 from its first recovery frame; a blocked or whiffed one plays its full 32 f recovery (−16 on block).
+Built, not tested (tests wait for the user's word).
 
 ## 18. Open
 
