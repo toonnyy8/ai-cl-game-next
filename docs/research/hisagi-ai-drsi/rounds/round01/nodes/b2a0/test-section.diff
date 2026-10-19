@@ -1,0 +1,102 @@
+--- frozen HISAGI-CPU-TESTS
++++ cell HISAGI-CPU-TESTS
+@@ -1,36 +1,89 @@
+ (let* ((k (kit :hisagi :base)) (kr (kit :hisagi :bankai)))
+-  (flet ((m (n) (find-move n)))
++  (flet ((m (n) (find-move n))
++         (ordered (pl) (<= (getf pl :easy) (getf pl :normal) (getf pl :hard))))
+     ;; which of his forms has the CPU's :move-reflex: the Shikai's HS-AI-MOVE, the ranged mode's HS-R-AI-MOVE, not the bind
+     (check (and (eq 'hs-ai-move (getf (kit-ai k) :move-reflex)) (eq 'hs-r-ai-move (getf (kit-ai kr) :move-reflex))
+                 (null (getf (kit-ai (kit :hisagi :bankai-bind)) :move-reflex))))
++    ;; the styles: RENSA / KARIBA by weight (one roll a match); every chance EASY <= NORMAL <= HARD, per style where it has one
++    (check (and (equal '(:rensa :kariba) (loop for (st nil) on *hs-ai-styles* by #'cddr collect st))
++                (~= 1.0 (loop for (nil w) on *hs-ai-styles* by #'cddr sum w))
++                (every (lambda (pl) (and (ordered (getf pl :rensa)) (ordered (getf pl :kariba))))
++                       (list *hs-ai-bridge-p* *hs-ai-jk-p* *hs-ai-style-leap-p* *hs-ai-k1-punish-p* *hs-ai-o-ender-p*))
++                (ordered *hs-ai-o-ender-mash-p*)
++                (every #'ordered (list *hs-ai-windmill-p* *hs-ai-kaza-k-p* *hs-ai-sp-ender-p* *hs-ai-throw-p*
++                                       *hs-ai-guard-wait-p* *hs-ai-anti-breaker-p* *hs-ai-release-p* *hs-ai-kojo-p*
++                                       *hs-ai-bind-sp-p* *hs-ai-modoshi-p*
++                                       ;; (cell b2a0: the noose, the bind's plan; b1a0's fence)
++                                       *hs-ai-plan-p* *hs-ai-noose-p* *hs-ai-punish-p* *hs-ai-anti-p* *hs-ai-dodge-p*
++                                       *hs-ai-r-anti-breaker-p* *hs-ai-escape-p* *hs-ai-saharai-p*
++                                       (getf *hs-ai-noose* :route-dmg)))
++                (< (getf (getf *hs-ai-bridge-p* :kariba) :hard) (getf (getf *hs-ai-bridge-p* :rensa) :hard))   ; RENSA bridges
++                (> (getf (getf *hs-ai-k1-punish-p* :kariba) :hard) (getf (getf *hs-ai-k1-punish-p* :rensa) :hard))))   ; KARIBA reaps
++    ;; the Shikai's :ai: the late awakening gate, no neutral / reeling Kikon rush (the O ender only), the generic string-k 0
++    ;; (HS-AI-MOVE picks every link), no neutral SHIBARI or Breaker
++    ;; (cell b2a0: the awakening gate the blade's: 2000 taken, 99.9 % of it from blades)
++    (check (and (equal '(:min-taken 2000 :melee-share 0.999) (getf (kit-ai k) :awaken)) (eq (getf (kit-ai k) :awaken) *hs-ai-awaken*)
++                (~= 0.0 (getf (kit-ai k) :kikon-range)) (~= 9.0 (getf (kit-ai kr) :kikon-range)) (~= 0.0 *hs-ai-string-k*)
++                (~= 0.0 (getf (kit-ai k) :o-ender))   ; (his O ender: HS-AI-ENDER's roll by style)
++                (notany (lambda (bd) (or (getf (cddr bd) :sp2) (getf (cddr bd) :breaker))) (getf (kit-ai k) :moves))))
+     ;; his CPU (HS-AI-MOVE, the Shikai's :move-reflex): on a K1 / K2 hit's land step, beyond the dead zone, his intent close
+-    ;; (:approach / :pressure): one roll *HS-AI-LEAP-P* (EASY <= NORMAL <= HARD) -> J (the leap), else K; at :zone /
+-    ;; :defend, inside the dead zone: K, no roll; off any other step, a block or another link (K2J: no J after it): nothing
+-    (check (and (eq 'hs-ai-move (getf (kit-ai k) :move-reflex))
+-                (<= (getf *hs-ai-leap-p* :easy) (getf *hs-ai-leap-p* :normal) (getf *hs-ai-leap-p* :hard))))
++    ;; (:approach / :pressure): one roll (*HS-AI-STYLE-LEAP-P*) -> J (the leap), else K; at :zone / :defend, inside the dead
++    ;; zone: K, no roll; off any other step, a block or another link (K2J: no J after it): nothing (a J1 / J2 hit rolls the
++    ;; bridge: not on the host, it has no sim stream)
+     (check (and (hs-ai-leap-wanted-p 5.0 :approach) (hs-ai-leap-wanted-p 9.6 :pressure) (hs-ai-leap-wanted-p 3.1 :approach)
+                 (not (hs-ai-leap-wanted-p 3.0 :approach)) (not (hs-ai-leap-wanted-p 5.0 :zone)) (not (hs-ai-leap-wanted-p 5.0 :defend))))
+     (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))   ; (the steps that roll nothing: the host has no sim stream)
+       (declare (ignore b))
+       (let ((fa (fighter a)) (br (make-brain)))
+         (unless (fboundp 'why) (setf (symbol-function 'why) (lambda (b r c) (declare (ignore b r)) c)))
++        (setf (hss-ai-style (hs a)) :rensa)
+         (flet ((cpu (name intent d &key (sf 22) (land 22) (contact :hit))
+                  (setf (fighter-state fa) :move (fighter-move fa) (m name) (fighter-sf fa) sf (fighter-land-sf fa) land
+                        (fighter-contact fa) contact (fighter-queued fa) nil (fighter-dist fa) d (brain-intent br) intent)
+                  (hs-ai-move a br fa (m name))))
+           (check (and (eq :f (cpu :hs-k1 :zone 5.0)) (eq :f (cpu :hs-k2 :defend 8.0)) (eq :f (cpu :hs-k1 :approach 1.9))
+                       (null (cpu :hs-k1 :approach 5.0 :sf 23)) (null (cpu :hs-k1 :approach 5.0 :contact :block))
+-                      (null (cpu :hs-k2j :approach 5.0)) (null (cpu :hs-j1 :approach 5.0)) (null (cpu :hs-k3 :approach 5.0))))
++                      (null (cpu :hs-k2j :approach 5.0)) (null (cpu :hs-j1 :approach 1.5 :contact :block))
++                      (null (cpu :hs-k3 :approach 5.0))))
+           (setf (fighter-state fa) :idle (fighter-move fa) nil))))
++    ;; the K1 punish (HS-AI-REFLEX): past the dead zone + 0.2, inside its reach + 0.2, its startup + 1 left as perceived
++    (check (and (hs-k1-punish-ok-p 4.0 19) (hs-k1-punish-ok-p 6.1 40) (not (hs-k1-punish-ok-p 3.1 30))
++                (not (hs-k1-punish-ok-p 6.3 40)) (not (hs-k1-punish-ok-p 4.0 18))))
+     ;; ... his CPU's reach read (HS-R-AI-MOVE's picks): past the dead zone, inside the far edge + 0.36
+     (check (and (hs-r-reaches-p (m :hs-r-k2) 5.3) (not (hs-r-reaches-p (m :hs-r-k2) 1.9)) (hs-r-reaches-p (m :hs-r-j2s) 6.3)
+                 (not (hs-r-reaches-p (m :hs-r-j2s) 6.4)) (not (hs-r-reaches-p (m :hs-r-k1) 1.9)) (hs-r-reaches-p (m :hs-r-k1) 5.3)
+                 (not (hs-r-reaches-p (m :hs-r-j3) 2.9)) (hs-r-reaches-p (m :hs-r-j3) 6.3)
+                 (eq 'hs-r-ai-move (getf (kit-ai kr) :move-reflex))))
+-    ;; ... his CPU's openers (B4d, §22.8; §25.5: K 2.0-5.0 m): K1 only in bands inside its annulus; inside 2.0 m L SAHARAI
+-    ;; (no cooldown now: his :reflex rolls once per entry into the band, never per step)
++    ;; ... the ranged punish by annulus (HS-R-PICK, b1a0's with the noose first, cell b2a0): KUBIKAKE with the 200 where it
++    ;; reaches (2.3-7.0 m) in its 24 f, else K1 (2.05-5.2), J1 (3.05-6.2), SAHARAI (to 3.1), each in the frames given
++    (check (and (eq :sp2 (hs-r-pick 4.0 24 t)) (eq :f (hs-r-pick 4.0 24)) (eq :f (hs-r-pick 4.0 23 t)) (eq :q (hs-r-pick 5.5 14))
++                (null (hs-r-pick 5.5 13)) (eq :sig (hs-r-pick 1.5 18 t)) (null (hs-r-pick 1.5 17)) (eq :sp2 (hs-r-pick 6.8 30 t))
++                (null (hs-r-pick 6.8 30)) (hs-r-hits-at-p :sp2 2.3) (not (hs-r-hits-at-p :sp2 2.2)) (not (hs-r-hits-at-p :q 3.0))))
++    ;; ... his CPU's openers (B4d, §22.8; §25.5: K 2.0-5.0 m): K1 only in bands inside its annulus; inside 2.0 m the back Step
++    ;; (b1a0's fence, kept by cell b2a0), SAHARAI's weight 1
+     (let ((bands (getf (kit-ai kr) :moves)))
+       (check (and (every (lambda (bd) (or (null (getf (cddr bd) :f)) (and (>= (first bd) 2.0) (<= (second bd) 5.0)))) bands)
+                   (some (lambda (bd) (and (getf (cddr bd) :f) (= 5.0 (second bd)))) bands)
+-                  (let ((b0 (find 0.0 bands :key #'first))) (and (null (getf (cddr b0) :f)) (plusp (getf (cddr b0) :sig))))
+-                  (~= 2.0 *hs-ai-close*) (eq 'hs-r-ai-reflex (getf (kit-ai kr) :reflex)))))))
++                  (let ((b0 (find 0.0 bands :key #'first)))
++                    (and (null (getf (cddr b0) :f)) (eql 1 (getf (cddr b0) :sig)) (eql 4 (getf (cddr b0) :step))))
++                  (~= 0.3 (getf (kit-ai kr) :dash)) (~= 0.9 (getf (kit-ai kr) :hoho)) (~= 0.85 (getf (kit-ai kr) :guard))
++                  (~= 2.0 *hs-ai-close*) (eq 'hs-r-ai-reflex (getf (kit-ai kr) :reflex)))))
++    ;; the bind (cell b2a0): the bind styles by weight (one roll a bind), the plan (HS-BIND-PLAN): he at 0 and the opponent
++    ;; not: release; the opponent at 0 and he not: lock; behind past :rel (:end-rel once the pool is down to :end-pool):
++    ;; release; ahead past :lock: lock; else fight on. SHIME locks sooner and releases sooner than TSURUSHI
++    (let ((sh (getf *hs-ai-bind-plan* :shime)) (ts (getf *hs-ai-bind-plan* :tsurushi)) (kb (kit :hisagi :bankai-bind)))
++      (check (and (equal '(:shime :tsurushi) (loop for (st nil) on *hs-ai-bind-styles* by #'cddr collect st))
++                  (~= 1.0 (loop for (nil w) on *hs-ai-bind-styles* by #'cddr sum w))
++                  (< (getf sh :lock) (getf ts :lock)) (< (getf sh :rel) (getf ts :rel))
++                  (eq :release (hs-bind-plan 0 400 0 500 sh)) (eq :lock (hs-bind-plan 0 400 500 0 sh))
++                  (null (hs-bind-plan 0 400 0 0 sh))
++                  (eq :release (hs-bind-plan 151 400 500 500 sh)) (null (hs-bind-plan 150 400 500 500 sh))
++                  (eq :release (hs-bind-plan 1 200 500 500 sh)) (null (hs-bind-plan 0 200 500 500 sh))
++                  (null (hs-bind-plan 151 400 500 500 ts)) (eq :release (hs-bind-plan 601 400 500 500 ts))
++                  (eq :release (hs-bind-plan 1 150 500 500 ts)) (null (hs-bind-plan 1 151 500 500 ts))
++                  (eq :lock (hs-bind-plan -101 400 500 500 sh)) (null (hs-bind-plan -100 400 500 500 sh))
++                  (null (hs-bind-plan -999 400 500 500 ts)) (eq :lock (hs-bind-plan -1001 400 500 500 ts))
++                  (~= 0.9 (getf (kit-ai kb) :hoho)) (eq 'hs-b-ai-reflex (getf (kit-ai kb) :reflex))
++                  (notany (lambda (bd) (getf (cddr bd) :breaker)) (getf (kit-ai kb) :moves))
++                  (some (lambda (bd) (and (getf (cddr bd) :sig) (= 99.0 (second bd)))) (getf (kit-ai kb) :moves))
++                  (~= 200.0 *hs-ai-keep*) (= 1 (getf (kit-ai k) :sp-cancel-bars)))))))
