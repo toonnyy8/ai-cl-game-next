@@ -37,6 +37,10 @@ You must read every historical proposal before proposing or implementing a new s
 - Cell {cell}, round {rnd}. Target file (EVAL_PROGRAM): duel/lisp/hisagi.lisp — its CPU parts only (below).
 - PARENT_DIR = {parent}
 - HISTORY_DIR = {WS}/rounds   (every earlier cell of every round: proposal.md, score.json, score.rescored.json, hisagi.lisp)
+- PRIOR_DIR = {WS}/prior      (round 1 run on OLDER rules, DUEL_HISAGI §25.12's freeze, before §25.13: four cells b0a0-b3a0
+  with their proposals and rescored scores; read them as history, their mechanisms are reusable but their scores are not
+  comparable to this freeze's. NEVER copy their hisagi.lisp over yours: it carries the old sim (the 3.5 m placement, the old
+  bind numbers, the old tip); port only CPU code from it)
 - BASELINE_DIR = {WS}/{BASE}  (the frozen hisagi.lisp, proposal.md: the shipped CPU, score.json: its parts at 40 seeds)
 - NODE_DIR (yours) = {rel_node}  — a path RELATIVE TO YOUR OWN WORKTREE ROOT (see Deliverables)
 - EVAL_COMMAND (in your worktree root): {EVAL}
@@ -50,7 +54,7 @@ python3 {REL}/splice-tests.py PARENT_DIR/duel-rules-test.lisp tests/duel-rules-t
 else start from the worktree's files (= BASELINE_DIR/hisagi.lisp and the frozen test).
 
 # Step 1. Read the complete history first
-Read every proposal.md under HISTORY_DIR (all rounds, all cells except your own) and BASELINE_DIR, in full, with its
+Read every proposal.md under HISTORY_DIR (all rounds, all cells except your own), PRIOR_DIR and BASELINE_DIR, in full, with its
 score.rescored.json (the coordinator's re-measure with the frozen evaluator: THE number) and score.json. Trust the measured
 result over what a proposal claims. For every past attempt note the mechanism and how it did; for a failure work out
 whether the idea was flawed or let down by a bug or a parameter (locate the bug in the code before retrying it).
@@ -62,9 +66,10 @@ duel/lisp/hisagi.lisp is the truth (its knobs' docstrings name the decisions); d
 record whose early sections are superseded: read §17.1-§17.3 (the Bankai's two modes and the bind), §20 (the Bankai's CPU as
 built), §22.2, §22.6, §22.8-§22.9 (the ranged mode's dead zone, routes, K1 annulus), §23.1-§23.5 (the Shikai's windmill
 bridge, charge, K string, the leap), §24.4-§24.5 (one leap a combo, K1's 3.0 m dead zone, no FREE button, KUBIKAKE
-without a cooldown, its whiff 60 f), §25.3 / §25.5 (the ranged mode's J 3-6 m, K 2-5 m, the 3.5 m placement, L's recovery
-cancel, the tip's SP), §25.7-§25.11 (SAHARAI S 18, KOJO's yank a hit, the cancel only on a hit, the Shikai's J 1.7 m, the
-bind's Step J SENGEN). In short:
+without a cooldown, its whiff 60 f), §25.3 / §25.5 (the ranged mode's J 3-6 m, K 2-5 m, L's recovery cancel, the tip's
+SP), §25.7-§25.11 (SAHARAI S 18, KOJO's yank a hit, the cancel only on a hit, the Shikai's J 1.7 m, the bind's Step J
+SENGEN, the routes' SP / guard), §25.13 (the bind stronger and longer, the tip x1.71, no placement: the route links reach
+the victim where he is). In short:
   - the Shikai (:base): J1-J3 close (the plain string, reach 1.7 m), K1 薙 NAGI a sideways chain sweep 3.0-6.0 m (dead zone 3.0), K2 NOKO
     / K3 TSUI follow the victim along the chain (always connect, blockable); the routes JJJ JJK JKK KKK KJJ KKJ; a J after a
     K leaps in (J2K / J3K, once a combo: HS-LINK-OK); L the windmill KAZAGURUMA (wards ranged hits, no cooldown; held, it
@@ -72,15 +77,18 @@ bind's Step J SENGEN). In short:
     (HS-KAZA-J, a 2.5 m stagger push) so J -> L -> K1 combos; SP1 TSUZURI RAIDEN (6.5 m line, paralyse), SP2 SHIBARI
     (4.5 m line, bind + slam); the awakening (AI-AWAKEN-P) -> the Bankai's ranged mode.
   - the Bankai ranged mode (:bankai): every hit :ranged; every J (J1 / J2 / J3, gathered J2s / J3G) an annulus 3.0-6.0 m,
-    every K (K1, spread K2s / K3, gathered K2 / K3G) 2.0-5.0 m (§25.5); J1 / J2 / K1 / K2's slam place the victim at 3.5 m
-    (pushed or dragged), so every route's cross link combos; the routes decided by the opener (J1 -> the spread route, K1 ->
+    every K (K1, spread K2s / K3, gathered K2 / K3G) 2.0-5.0 m (§25.5) for the OPENERS J1 / K1; no placement since §25.13:
+    the route links (links 2-3) strike the victim where he is along the chain (HS-R-LINK-SEG: no dead zone, out to 7.0 m from
+    his feet), so a route goes on wherever the opener left him; the routes decided by the opener (J1 -> the spread route, K1 ->
     the gathered route; §25.11: the spread route, J1 included, earns x1.3 Reiatsu, the gathered route, K1 included, x1.3
     guard damage); L SAHARAI the push-away (3.0 m ring, S 18 with a readable charge, R 32, -16 on block; on a HIT its
     recovery is cancelled by J / K into J1 / K1, never on a block or a whiff: §25.5, §25.8), SP1 TSUZURI RAIDEN (9 m line),
     SP2 KUBIKAKE the binding throw (7 m line, no cooldown; a whiff costs 60 f): its hit enters the bind; the tip (each
-    volume's outer 1.0 m) x1.3 damage and x1.3 Reiatsu gain.
-  - the bind mode (:bankai-bind): both fighters on the chain, damage goes to a shared grey pool; it ends drained (the grey
-    turns real) or released; his J / K strings, L KOJO the pull (its yank at f20 a 20-damage flinch along the chain, then the
+    volume's outer 1.0 m) x1.71 damage (§25.13) and x1.3 Reiatsu gain; a route link takes its opener's tip read (J1 / K1 on
+    the tip: the whole route x1.71), not its own distance.
+  - the bind mode (:bankai-bind): both fighters on the chain, damage goes to a shared grey pool (1 of it per 4 damage since
+    §25.13; an SP spends it 1:1); it ends drained (the grey turns real) or released; his J / K strings (J 45 / 45 / 55, K 93 /
+    81 / 116 since §25.13; x1.3 within 1.2 m), L KOJO the pull (its yank at f20 a 20-damage flinch along the chain, then the
     reap at S 30: §25.7), the Step's J 穿弦 SENGEN (:hs-b-sj, S 10 / A 3 / R 22, 40 dmg, 2.2 m arc 60, a stagger; on a HIT
     its recovery is cancelled by J into J1: §25.10), SP2 KAIBAKU-GEKI; the CPU releases on its grey margin.
 - duel/lisp/hisagi.lisp's CPU: the three kits' `:ai` plists (:base, :bankai, :bankai-bind), the CPU section (HS-P,
