@@ -3009,6 +3009,27 @@ shared: the new key is read only off a move that has it) and `--cvc` byte-identi
 §25.3): HY 127.3 s (128.3), HK 132.9 (131.9), HR 152.8 (152.4), HI 160.3 (151.3), HS 165.8 (172.1), HB 169.5 (157.0), HH 217.0
 (206.6, a mirror); every match a K.O., every cross median inside 125–210 s. His P1 wins 11 of 120 (13).
 
+### 25.7 SAHARAI's longer, readable charge; KOJO's yank a hit; the grey bar after a Kikon in a bind (the user, 2026-10-19)
+
+> 「不用跑 gate / 然後把 L 的前搖加長，並把前搖時蓄力的動作模組做的更容易辨識 / 都我說開始測試在測試 / 卍解近距離 L 拉扯的那一下
+> 也算入傷害判定 / 然後我發現如果在捆綁的狀態下受到毀魂技攻擊，那下一條血量的灰血就會失效」; asked which L and how long:
+> 「卍解遠距 L 鎖払 10→18 幀」
+
+Built, not tested (the user: tests and gates wait for their word); the playtest Artifact v109.
+- **L SAHARAI** `*hs-saharai-s*` 10 → **18** (A 4, R 32, block −16, the J / K recovery cancel unchanged). Its clip
+  `:hs-k-saharai` (18/4/32) redrawn for the charge: the wrap (f4), then he sinks and curls ever tighter with a shudder side to
+  side (f9-16), a beat's rise (f17), the burst on S; the orb spins up two full turns into S (`*hs-spins*` 3/10/24 x1 → 2/18/32
+  x2) and the curtain whirls faster and faster round him (the lashes' keys f4-17), the ring at 3.0 m on f18-21, the rest
+  shifted 8 f (f1 44 → 52); the 0-byte probe frames 15 / 26 → 23 / 34.
+- **The bind's L KOJO**: the noose's yank at `*hs-kojo-pull-at*` (f20) is a hit of its own, f20-21 (`*hs-kojo-yank-to*` 22)
+  along the chain to the victim (`:seg-fn hs-foe-seg`: any distance in the bind, blockable, guard 8), **20** damage
+  (`*hs-kojo-yank-dmg*`, the lead's number, the windmill push's), a flinch; the drag goes on and the reap (S 30-33, 70) combos
+  after it.
+- **The grey bar after a Kikon in a bind** (a display bug): the Kikon refilled the victim's Reishi bar on a lost soul, but
+  the HUD's grey band still ended at his Reishi at the bind's start, so the new bar showed no grey until it fell below that.
+  `bind-grey-frac` (combat.lisp): his Konpaku below the snapshot's → the band runs to the bar's max (the whole new bar is
+  grey). The bookkeeping was right (a release restores the snapshot, a drained end makes the grey real).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.

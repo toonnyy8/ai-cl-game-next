@@ -941,11 +941,13 @@ down point first onto him (S 22), held in him, hauled back.")
 ;; (B3b's K1 墜鎖 TSUISA, K2 薙鎖 NAGISA and K3 落鎖 RAKUSA clips: no move's since B4a's placed K and B4c's routes; deleted
 ;; by batch A2, §24.2, when the route links got their own clips)
 
-;; L 鎖払 SAHARAI (10/4/32, r 3.0 360; redrawn by batch A3, §24.3, for B4d's S 10 / R 32): the wrap, the arms crossed tight
-;; over his chest, curled, the curtain drawn in tight round his body (reached by f4, held to f9); the burst: the arms flung
-;; wide, arched, every hanging chain lashed out to 3 m in a ring (*HS-LASHES*), held to f18 as they fall to the floor; the
-;; recovery: both fists hauled in to his chest, leaning back, the chains dragged in along the floor and lifted back into
-;; the curtain (f26-44), him settling into the stance
+;; L 鎖払 SAHARAI (18/4/32, r 3.0 360; redrawn by batch A3, §24.3, for B4d's S 10 / R 32; the windup redrawn for S 18,
+;; §25.7, 「把 L 的前搖加長，並把前搖時蓄力的動作模組做的更容易辨識」): the wrap, the arms crossed tight over his chest, curled
+;; (f4); the charge: he sinks lower and curls tighter while the orb spins up two full turns and the curtain whirls ever
+;; faster round his body (f4-16, *HS-SPINS*, *HS-LASHES*), a beat's rise on f16-17; the burst: the arms flung wide, arched,
+;; every hanging chain lashed out to 3 m in a ring, held to f26 as they fall to the floor; the recovery: both fists hauled
+;; in to his chest, leaning back, the chains dragged in along the floor and lifted back into the curtain (f34-52), him
+;; settling into the stance
 (defpose :hs-k-saharai-up (:base :hs-k-stance)
   (:root :u -0.22) (:spine :flex 26) (:chest :twist 0) (:head :flex 20)
   (:arm-r :flex 70 :side -36 :twist 0) (:elbow-r :flex 120) (:hand-r :flex -60)
@@ -961,17 +963,22 @@ down point first onto him (S 22), held in him, hauled back.")
   (:arm-r :flex 46 :side 30 :twist 0) (:elbow-r :flex 104) (:hand-r :flex -40)
   (:arm-l :flex 46 :side 30 :twist 0) (:elbow-l :flex 104) (:hand-l :flex -40)
   (:thigh-l :flex 30 :side 12) (:knee-l :flex 34) (:thigh-r :flex -16 :side 14) (:knee-r :flex 26))
-(defstrike :hs-k-saharai (10 4 32 :base :hs-k-stance)
+(defstrike :hs-k-saharai (18 4 32 :base :hs-k-stance)
   (0)
-  (4 :hs-k-saharai-up)
-  (9 :hs-k-saharai-up (:root :u -0.26) (:spine :flex 32))                                  ; wound tight (held)
+  (4 :hs-k-saharai-up)                                                                     ; the wrap
+  (9 :hs-k-saharai-up (:root :u -0.3) (:spine :flex 34) (:head :flex 24) (:chest :twist -8))   ; the charge: sinking,
+  (13 :hs-k-saharai-up (:root :u -0.36) (:spine :flex 42) (:head :flex 28) (:chest :twist 8)   ;  curling tighter, a
+      (:elbow-r :flex 132) (:elbow-l :flex 132) (:thighs :flex 52 :side 10) (:knees :flex 72))   ;  shudder side to side
+  (16 :hs-k-saharai-up (:root :u -0.38) (:spine :flex 44) (:head :flex 30) (:chest :twist -6)
+      (:elbow-r :flex 136) (:elbow-l :flex 136) (:thighs :flex 56 :side 10) (:knees :flex 78))   ; coiled full (held)
+  (17 :hs-k-saharai-up (:root :u -0.3) (:spine :flex 36) (:head :flex 22))                  ; the beat's rise
   (:s :snap :hs-k-saharai-hit)
-  (12 :hs-k-saharai-hit (:spine :flex -18) (:arm-r :flex -10 :side 104) (:arm-l :flex -10 :side 104))
+  (20 :hs-k-saharai-hit (:spine :flex -18) (:arm-r :flex -10 :side 104) (:arm-l :flex -10 :side 104))
   (:a :hs-k-saharai-hit (:spine :flex -16) (:arm-r :flex -8 :side 100) (:arm-l :flex -8 :side 100))
-  (18 :hs-k-saharai-hit (:spine :flex -14) (:arm-r :flex -4 :side 96) (:arm-l :flex -4 :side 96))   ; the impact hold
-  (26 :hs-k-saharai-haul)                                                                   ; hauled in
-  (32 :hs-k-saharai-haul (:root :u -0.12 :f -0.1) (:spine :flex -14) (:elbow-r :flex 112) (:elbow-l :flex 112))
-  (38 :hs-k-stance (:root :u -0.08) (:spine :flex 2) (:elbows :flex 50))                    ; settling
+  (26 :hs-k-saharai-hit (:spine :flex -14) (:arm-r :flex -4 :side 96) (:arm-l :flex -4 :side 96))   ; the impact hold
+  (34 :hs-k-saharai-haul)                                                                   ; hauled in
+  (40 :hs-k-saharai-haul (:root :u -0.12 :f -0.1) (:spine :flex -14) (:elbow-r :flex 112) (:elbow-l :flex 112))
+  (46 :hs-k-stance (:root :u -0.08) (:spine :flex 2) (:elbows :flex 50))                    ; settling
   (:end :hs-k-stance))
 
 ;; Shift+K 綴雷電 TSUZURI RAIDEN (20/3/24, the 9 m line): the right crescent raised high, two fingers of the left on the neck
@@ -1646,11 +1653,12 @@ for the links).")
     (:hs-k-g-j3 256 0 1.0 1 36                      ; gathered J3: the bundle drawn round behind his right, swept flat
      (5 2.0 0.9 -100 0 0) (13 2.6 0.9 -135 0 0.2) (15 2.8 0.9 -140 0 0)        ;  through the front half at 6.0 m
      (16 6.0 0.8 -90 0 0.3) (17 6.0 0.8 0 0 0.3) (18 6.0 0.8 90 0 0.3) (20 5.6 0.7 130 0 0) (24 5.4 0.5 140 0 -0.3))
-    (:hs-k-saharai 255 0.2 0.9 0 44                 ; A3 (§24.3): L SAHARAI, all eight wrapped in tight round him, lashed out
-     (4 0.7 1.5 20 45 0) (9 0.55 1.3 35 45 0.2)                                ;  in a ring to 3.0 m on S (f10-13), fallen to
-     (10 3.0 1.0 60 45 0.7) (11 3.0 0.95 75 45 0.5) (13 3.0 0.85 95 45 0.3)    ;  the floor (the impact hold), dragged in along
-     (14 3.0 0.7 100 45 0.1) (18 2.9 0.1 108 45 -0.4) (26 2.4 0.05 112 45 -0.6) ;  it as he hauls, lifted back into the curtain
-     (34 1.6 0.4 116 45 -0.2)))                                                 ;  by f44
+    (:hs-k-saharai 255 0.2 0.9 0 52                 ; A3 (§24.3; §25.7: S 18): L SAHARAI, all eight wrapped in tight round
+     (4 0.7 1.5 20 45 0) (8 0.6 1.4 80 45 0.1) (12 0.55 1.3 170 45 0.2)        ;  him and whirled faster and faster (the charge,
+     (15 0.5 1.25 280 45 0.25) (17 0.5 1.2 380 45 0.3)                         ;  f4-17), lashed out in a ring to 3.0 m on S
+     (18 3.0 1.0 400 45 0.7) (19 3.0 0.95 415 45 0.5) (21 3.0 0.85 435 45 0.3) ;  (f18-21), fallen to the floor (the impact
+     (22 3.0 0.7 440 45 0.1) (26 2.9 0.1 448 45 -0.4) (34 2.4 0.05 452 45 -0.6) ;  hold), dragged in along it as he hauls,
+     (42 1.6 0.4 456 45 -0.2)))                                                 ;  lifted back into the curtain by f52
   "The ranged route links' lashes (batch A2, DUEL_HISAGI §24.2; a look): (clip mask ds w f0 f1 key ...). MASK: the
 hanging chains used (bits 0-7, *HS-CURTAIN*; their rank in the mask spreads them) or 256 the bundle (all eight bound
 together, *HS-BUNDLED*). A key (f r h az dz bend): at clip frame F the chain of rank k has its free end R m from his feet
@@ -1678,7 +1686,7 @@ links bound throughout): K1 綁束 binds them, the gathered links strike with th
 (defparameter *hs-bundle-rest* '(-35.0 1.25 0.9)
   "Where the bundle's free end hangs (degrees off his facing, m from his feet, m up): at his right front, by his right fist.")
 (defparameter *hs-spins*
-  '((:hs-k-saben 5 12 20 0.5) (:hs-k-kaeshi 5 11 19 -0.5) (:hs-k-sensa 5 13 24 1.0) (:hs-k-saharai 3 10 24 1.0)
+  '((:hs-k-saben 5 12 20 0.5) (:hs-k-kaeshi 5 11 19 -0.5) (:hs-k-sensa 5 13 24 1.0) (:hs-k-saharai 2 18 32 2.0)
     (:hs-k-raiden 7 20 30 0.5) (:hs-k-ame 8 30 50 1.0) (:hs-k-kosa 7 20 30 0.5) (:hs-k-kubikake 5 24 34 1.0)
     (:hs-k-hosoku 6 16 26 1.0) (:hs-k-s-k2 9 21 30 0.5) (:hs-k-s-k3 8 21 32 0.75) (:hs-k-g-k2 8 27 40 0.75)
     (:hs-k-g-k3 6 27 36 1.0) (:hs-k-g-j2 3 16 22 0.5) (:hs-k-g-j3 4 16 22 0.75))
@@ -2865,11 +2873,11 @@ trembling) and its reap, KAIBAKU-GEKI's haul and its throw-off (the noose reeled
                         (list (progn (at :hs-r-j3 14 :hs-k-sensa) (bytes))
                               (progn (at :hs-r-k2 28 :hs-k-g-k2) (setf (fighter-contact f) :hit) (bytes))
                               (progn (setf (fighter-contact f) ct) (at :hs-r-kubikake 12 :hs-k-kubikake) (bytes))
-                              (progn (at :hs-r-l 15 :hs-k-saharai) (bytes))
+                              (progn (at :hs-r-l 23 :hs-k-saharai) (bytes))
                               (progn (at :hs-r-sp1 21 :hs-k-raiden) (bytes))
                               (progn (at :hs-r-sp2 31 :hs-k-ame) (bytes))
                               (progn (at :hs-r-kikon 21 :hs-k-kosa) (bytes))
-                              (progn (at :hs-r-l 26 :hs-k-saharai) (bytes)))))            ; (A3: its recovery)
+                              (progn (at :hs-r-l 34 :hs-k-saharai) (bytes)))))            ; (A3: its recovery)
              (a2 (list (progn (at :hs-r-k1 17 :hs-k-hosoku) (bytes))           ; (A2, §24.2: the route links, the bundle)
                        (progn (at :hs-r-k1 24 :hs-k-hosoku) (bytes))
                        (progn (at :hs-r-k2s 21 :hs-k-s-k2) (bytes))

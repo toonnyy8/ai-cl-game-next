@@ -57,9 +57,13 @@ else NIL."
   (let* ((b (bind-of e)) (h (bind-hook b :bind-snapshot))) (if h (funcall h b e) (values nil nil))))
 
 (defun bind-grey-frac (e)
-  "The grey band's end on E's Reishi bar (hud.lisp: his Reishi at a bind's start, a fraction of max), else 0."
-  (let ((r0 (bind-snapshot-of e)))
-    (if r0 (f32 (/ r0 (float (gauges-reishi-max (gauges e))))) 0f0)))
+  "The grey band's end on E's Reishi bar (hud.lisp: his Reishi at a bind's start, a fraction of max), else 0. A soul he lost
+inside the bind (a Kikon refilled the bar: his Konpaku below the snapshot's) makes the whole bar grey up to its max (the
+user, 2026-10-19: 「如果在捆綁的狀態下受到毀魂技攻擊，那下一條血量的灰血就會失效」, DUEL_HISAGI §25.7)."
+  (multiple-value-bind (r0 k0) (bind-snapshot-of e)
+    (cond ((null r0) 0f0)
+          ((< (gauges-konpaku (gauges e)) k0) 1f0)
+          (t (f32 (/ r0 (float (gauges-reishi-max (gauges e)))))))))
 
 (defun bind-grey-souls (e)
   "E's grey souls drawn up to (hud.lisp: his Konpaku at a bind's start), else 0 (none)."

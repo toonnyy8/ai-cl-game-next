@@ -3427,7 +3427,7 @@ past the ends; DEFAULT if the clip is not listed."
                    (:hs-r-j3 10 3 18 26 12 -4 6.0) (:hs-r-k3 21 5 34 56 18 -20 5.0)         ;  the gathered ones;
                    (:hs-r-k2 27 10 24 25 14 -3 5.0) (:hs-r-j2s 16 3 13 29 8 -2 5.5)         ;  §25.3 / §25.5: J 3-6 m,
                    (:hs-r-k3g 27 5 34 86 18 -20 5.0) (:hs-r-j3g 16 3 18 39 12 -4 6.0)       ;  K 2-5 m, J2s 5.5 + r 0.5)
-                   (:hs-r-l 10 4 32 30 14 -16 3.0) (:hs-r-sp1 20 3 24 110 22 -14 9.0) (:hs-r-sp2 30 14 30 70 22 -18 10.0)   ; (B4d: L
+                   (:hs-r-l 18 4 32 30 14 -16 3.0) (:hs-r-sp1 20 3 24 110 22 -14 9.0) (:hs-r-sp2 30 14 30 70 22 -18 10.0)   ; (B4d: L
                    (:hs-r-kubikake 24 4 30 40 14 -20 7.0)
                    (:hs-b-j1 8 3 12 32 8 -2 1.5) (:hs-b-j2 8 3 13 32 8 -2 1.5) (:hs-b-j3 9 3 18 40 12 -4 1.5)
                    (:hs-b-k1 18 4 20 64 14 -3 2.6) (:hs-b-k2 20 4 24 56 14 -3 2.8) (:hs-b-k3 22 5 34 80 18 -20 3.0)
@@ -3456,7 +3456,7 @@ past the ends; DEFAULT if the clip is not listed."
     (check (and (= 14 (- (mv-s (m :hs-b-k2)) (mv-enter (m :hs-b-k2)))) (= 14 (- (mv-s (m :hs-b-k3)) (mv-enter (m :hs-b-k3))))
                 (= 20 (- (mv-s (m :hs-r-sp2c)) (mv-enter (m :hs-r-sp2c))))
                 (= 60 (mv-whiff (m :hs-r-kubikake))) (zerop (mv-cooldown (m :hs-r-l))) (zerop (mv-cooldown (m :hs-b-l)))
-                (= 10 *hs-saharai-s*) (= 32 *hs-saharai-r*) (= -16 *hs-saharai-adv*)   ; (B4d, §22.8: L 14 / 22 / -4, cd 120 ->)
+                (= 18 *hs-saharai-s*) (= 32 *hs-saharai-r*) (= -16 *hs-saharai-adv*)   ; (B4d, §22.8: L 14 / 22 / -4, cd 120 ->)
                 (~= (mv-clip-speed (m :hs-r-l)) 1.0) (~= 3.5 *hs-saharai-hit*) (~= 3.5 *hs-saharai-block*)   ; (S1, §23.3: both 3.5)
                    ; (its clip's S 14 on S 10)
                 (= 90 (mv-cooldown (m :hs-r-kikon))) (= 90 (mv-cooldown (m :hs-b-kikon)))
