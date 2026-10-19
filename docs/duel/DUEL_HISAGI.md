@@ -3211,6 +3211,22 @@ label reads "FREE". HS-REL-FREE-P and HS-REL-DUE-P are pinned again. FREE is ref
 **Smoke** (headless): debug 83012 (a bind 3 m from Kenpachi), P → `KAIBAKU`, `BIND RELEASED: 300.0 to the opponent, 133.3
 back`, UNWIND; the probe after shows no bind. The sim gates are not run (the user: 「不用跑 gate」).
 
+### 25.15 The re-freeze on §25.13-§25.14; round 1 restarted (the user, 2026-10-19: 「重新凍結 AI 基準並重開第一輪」)
+
+- §25.12's freeze (7623542) is superseded. Its round 1 (b0a0 0.637, b1a0 0.5669, b2a0 0.6836, b3a0 0.7658) is kept as
+  history in `prior/round01-s2512/`. The brief gives it as PRIOR_DIR and warns cells never to copy those files' sim: they
+  carry the old placement, the old bind and the old tip. Its rules summary is on §25.13-§25.14.
+- The baseline at 40 seeds: **score 0.0** (raw 0.4149):
+  - strength 0.006 (3 of 480);
+  - masher 0.188;
+  - signature 0.751 (chain 0.373, ranged 0.204, bind 0.174, plain J 0.111);
+  - NORMAL share **0.104** (Y 11, K 2, R 7, I 5, S 14, Lille 11 of 80), factor 0;
+  - pacing ok (NORMAL medians 115.0-174.7 s).
+
+  Two runs were stopped before this one: one on the 1:4 drain and one on 1:3 before FREE.
+- Round 1 is planned again (`plan --beta 0.6`, 4 × 2 cells, W = 2, the same branch styles). The freeze is the commit adding
+  this baseline.
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
