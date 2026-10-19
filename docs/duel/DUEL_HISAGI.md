@@ -3030,6 +3030,14 @@ Built, not tested (the user: tests and gates wait for their word); the playtest 
   `bind-grey-frac` (combat.lisp): his Konpaku below the snapshot's → the band runs to the bar's max (the whole new bar is
   grey). The bookkeeping was right (a release restores the snapshot, a drained end makes the grey real).
 
+### 25.8 SAHARAI blocked: no J / K cancel (the user, 2026-10-19)
+
+> 「讓遠距 L 鎖払被擋下後不能通過 J/K 取消後搖」
+
+MOVE-COMMANDS' `:r-cancel` branch (fighter.lisp) now also asks that the move's contact is not `:block` (blocked with no hit):
+a hit or a whiff still cancels into J1 / K1 from its first recovery frame, a blocked SAHARAI plays its full 32 f recovery
+(−16 on block). Built, not tested (tests wait for the user's word).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
