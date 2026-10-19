@@ -3009,6 +3009,31 @@ shared: the new key is read only off a move that has it) and `--cvc` byte-identi
 §25.3): HY 127.3 s (128.3), HK 132.9 (131.9), HR 152.8 (152.4), HI 160.3 (151.3), HS 165.8 (172.1), HB 169.5 (157.0), HH 217.0
 (206.6, a mirror); every match a K.O., every cross median inside 125–210 s. His P1 wins 11 of 120 (13).
 
+### 25.6 The search restarted: the re-freeze on §25.5-§25.10 (the user, 2026-10-19)
+
+> 「請幫我重新開始風格型學習 AI 的開發」
+
+- **The host tests on the rules since §25.7** (deferred until now on the user's word): duel-rules **9877** ALL PASS
+  (control 89, learn 131, cine 18, input 33; pkgcheck clean). The fixes, the tests only:
+  - the every-move walk lets a `:seg-fn` window start before S (KOJO's yank at f20, S 30);
+  - the Bankai table reads the guard of the window at S;
+  - the KOJO block reads the reap's window (index 1), with a new pin on the yank (f20-21, 20 damage, a flinch, `:seg-fn`);
+  - the drawn-reach walk skips windows without volumes and checks SENGEN's (2.2 m);
+  - the leap J copies' reach 1.4 → 1.7 (§25.9).
+- **The evaluator**: `SIG_HISAGI`'s bind theme takes `HS-B-SJ` (SENGEN, §25.10: "every HS-B- move but its Kikon").
+- **The workspace**: round 1's two stopped cells and briefs (§25.5) removed; the brief's rules summary on §25.5-§25.10;
+  `baseline/` re-taken; round 1 planned again (`plan --beta 0.6`, 4 × 2 cells, W = 2, the same branch styles).
+- **The baseline at 40 seeds**: **score 0.0** (raw 0.3842):
+  - strength **0.000** (0 of 480);
+  - masher 0.107;
+  - signature 0.726 (chain 0.442, ranged 0.176, bind 0.108, plain J 0.13);
+  - NORMAL share **0.033** (Y 3, K 0, R 2, I 2, S 6, Lille 3 of 80), factor 0;
+  - pacing ok (NORMAL medians 118.0-166.7 s).
+
+  He is weaker than at §25.4's freeze (NORMAL 0.115), likely because SAHARAI's slower startup and its hit-only cancel cost the shipped
+  CPU's close defence.
+- The freeze is the commit adding this baseline (`step.sh` / `rescore.sh` find it).
+
 ### 25.7 SAHARAI's longer, readable charge; KOJO's yank a hit; the grey bar after a Kikon in a bind (the user, 2026-10-19)
 
 > 「不用跑 gate / 然後把 L 的前搖加長，並把前搖時蓄力的動作模組做的更容易辨識 / 都我說開始測試在測試 / 卍解近距離 L 拉扯的那一下

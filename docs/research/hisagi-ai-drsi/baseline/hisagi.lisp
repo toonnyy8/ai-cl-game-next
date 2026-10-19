@@ -117,7 +117,9 @@ m); from 2.6 + the capsule's 0.35 the push reaches ~3.35 m (none -> 2.95, 2026-1
 (defparameter *hs-saharai-frames* 18 "SAHARAI's push, frames (the block's: 12).")
 ;; B4d (§22.8; the user, 2026-10-18: 「近身的敵人要靠 L 快速擊退（去掉遠程時 L 的冷卻，一樣調整前後搖來控制出招的主動性）」; the
 ;; numbers the lead's for that direction, 2026-10-18): the ranged L SAHARAI loses its cooldown (120 -> 0)
-(defparameter *hs-saharai-s* 10 "The ranged L SAHARAI's startup (14 -> 10: 「快速擊退」) ...")
+(defparameter *hs-saharai-s* 18
+  "The ranged L SAHARAI's startup (14 -> 10: 「快速擊退」; 10 -> 18, 2026-10-19, the user: 「把 L 的前搖加長，並把前搖時蓄力的
+動作模組做的更容易辨識」, 「10→18 幀」, §25.7: the charge drawn) ...")
 (defparameter *hs-saharai-r* 32 "... its recovery (22 -> 32: 「調整前後搖來控制出招的主動性」) ...")
 (defparameter *hs-saharai-adv* -16 "... and its block advantage (-4 -> -16): a quick repel with real commitment.")
 (defparameter *hs-ame-aim* 6 "SP2 KUSARI-AME aims this many frames from its first, then its lane is locked (§17.1).")
@@ -147,6 +149,11 @@ he arrives by f26, 4 f before the strike: the user's 「前 20 幀預備，拉�
   "... and the frame its noose starts dragging the victim to *HS-PULL-TO* (「絞縄本身帶拉近」; the drag stops at S) (6 -> 20,
 2026-10-18, the user: 「L 將對手拉近時，增加拉近對手前的動作識別度與前搖時間，並減少攻擊效果的前搖」, 「前 20 幀預備，拉到後 4 幀
 就打（推薦）」, §23.2: f0-19 the tell, S 30 kept).")
+(defparameter *hs-kojo-yank-dmg* 20
+  "... and the noose's yank at *HS-KOJO-PULL-AT*: a hit of its own along the chain (HS-FOE-SEG, any distance in the bind,
+blockable; a flinch, the drag goes on and the reap combos after it) for this damage (none -> 20, 2026-10-19, the user:
+「卍解近距離 L 拉扯的那一下也算入傷害判定」, §25.7; the lead's number, the windmill push's) ...")
+(defparameter *hs-kojo-yank-to* 22 "... its window ends at this frame (2 f; the reap's own window S 30-33 unchanged).")
 (defparameter *hs-kaibaku-dmg* 120
   "Bind SP2 解縛擊 KAIBAKU-GEKI: the release at its S (the snapshot back, the pool to the opponent first), then its strike's
 real damage (the user, 2026-10-18: 「先還原再打，傷害 120（推薦）」); no bars spent; blockable (blocked: the release, no damage).")
@@ -158,7 +165,7 @@ reach, one roll per hit (HS-R-AI-MOVE, HS-R-AI-ENDER; §17.5 #16 rolled it once 
   "His CPU, ranged mode: L SAHARAI once per entry within *HS-AI-CLOSE* m (§17.1: the escape at close range). B4d (§22.8):
 his only close-in answer (K1 misses inside 2.0 m), no cooldown now, so still one roll per entry (never per step: no spam);
 his :moves band inside 2.0 m gives L K1's old weight too.")
-(defparameter *hs-ai-close* 1.0 "... the close band, m (2.5 -> 2.0, 2026-10-18, §22.2: the dead zone's; 2.0 -> 1.0, §25.3: K reaches from 1.0).")
+(defparameter *hs-ai-close* 2.0 "... the close band, m (2.5 -> 2.0, 2026-10-18, §22.2: the dead zone's; 2.0 -> 1.0, §25.3: K reaches from 1.0; 1.0 -> 2.0, §25.5: K from 2.0).")
 (defparameter *hs-ai-release-p* '(:easy 0.3 :normal 0.6 :hard 0.9)
   "His CPU in a bind: the release once per change event (a soul turned grey, every 100 of the pool drained) while his grey
 loss exceeds the opponent's by *HS-AI-RELEASE-MARGIN* (Konpaku x 1300 + Reishi, §17.5 #16).")
@@ -180,7 +187,10 @@ none since B4d (「鎖雨改成近距離也打得中」).")
 (defparameter *hs-r-tip* 1.0
   "The chain tip: a ranged-mode hit in the outer this many m of its volume (an arc / annulus: by his distance from the arc's
 r; a line / lane: along it, from its far end) ... (none -> 1.0, 2026-10-18, the user, §22.1; HS-DIST-MULT) ...")
-(defparameter *hs-r-tip-mult* 1.3 "... deals x this, else x1.0 (x1.0 -> x1.3, 2026-10-18, the user, §22.1).")
+(defparameter *hs-r-tip-mult* 1.3 "... deals x this, else x1.0 (x1.0 -> x1.3, 2026-10-18, the user, §22.1) ...")
+(defparameter *hs-r-tip-sp-mult* 1.3
+  "... and the Reiatsu (SP) that hit earns him is x this on top (x1.0 -> x1.3, 2026-10-18, the user: 「卍解遠距的鎖鏈尾端除了
+傷害加成以外也增加 SP 恢復量的加成」, §25.5; the lead's number, the damage's: with it x1.69 a non-tip hit's).")
 (defparameter *hs-b-close* 1.2 "A bind-mode hit within this many m (centre to centre) ...")
 (defparameter *hs-b-close-mult* 1.2 "... deals x this, else x1.0 (x1.0 -> x1.2, 2026-10-18, the user, §22.1).")
 (defparameter *hs-r-j-dead* 3.0
@@ -190,14 +200,15 @@ J1's own since S1, 「J1 範圍設 3.0–5 m」, §23.3) ...")
 (defparameter *hs-r-j-reach* 6.0
   "... and its far edge, m (an arc's r, a line's end + its r) (J1 / J3 / J3G 5.0, J2 4.5, J2s 5.5 -> 6.0, the same; the tip
 x1.3 on 5.0-6.0).")
-(defparameter *hs-r-k-dead* 1.0
+(defparameter *hs-r-k-dead* 2.0
   "The ranged mode's K (K1, the spread K2s / K3, the gathered K2 / K3G) dead zone, m: an annulus out to *HS-R-K-REACH*
-(*HS-R-DEAD* 2.0 -> 1.0, 2026-10-18, the user: 「K 的範圍改 1~4」, §25.3) ...")
-(defparameter *hs-r-k-reach* 4.0
-  "... and its far edge, m (K1 4.0, K2s / K3 / K3G 6.0, K2 8.5 -> 4.0, the same; the tip x1.3 on 3.0-4.0).")
+(*HS-R-DEAD* 2.0 -> 1.0, 2026-10-18, the user: 「K 的範圍改 1~4」, §25.3; 1.0 -> 2.0, the same day: 「卍解遠距 K 改成 2~5 m」,
+§25.5) ...")
+(defparameter *hs-r-k-reach* 5.0
+  "... and its far edge, m (K1 4.0, K2s / K3 / K3G 6.0, K2 8.5 -> 4.0, §25.3; 4.0 -> 5.0, §25.5; the tip x1.3 on 4.0-5.0).")
 (defparameter *hs-r-j-push* 3.5
   "J1 / J2's hit, K1's and gathered K2's first window's place the victim at this many m, pushed out or pulled in on the
-chain, where the J (3-6 m) and the K (1-4 m) both reach him, so the routes' J / K cross links still combo (B4a's push to at
+chain, where the J (3-6 m) and the K (2-5 m since §25.5) both reach him, so the routes' J / K cross links still combo (B4a's push to at
 least 3.5, 2026-10-18, the user, §22.1; a placement and K1 / K2 too, 2026-10-18, the user: 「命中把對手定位到 3.5 m」,
 §25.3) ...")
 (defparameter *hs-r-j-push-frames* 10 "... over this many frames (B4a's pick: TSUISA's old drag time).")
@@ -218,7 +229,7 @@ least 3.5, 2026-10-18, the user, §22.1; a placement and K1 / K2 too, 2026-10-18
 (defparameter *hs-r-gather-mult* 1.3 "... and its damage x (rounded; K2's 57 split 25 + 32) (none -> x1.3, the user, 2026-10-18).")
 (defparameter *hs-r-k2-launch-kb* 0.5
   "Gathered K2's tail (its launch) :kb: the airborne slide x0.6 = 0.3 m, so the victim placed at 3.5 m lands his K3G (1-4 m)
-and J3G (3-6 m) still (none: the generic 1.0 m -> 0.5, 2026-10-18, §25.3: the K 1-4 m, the lead's number).")
+and J3G (3-6 m) still (none: the generic 1.0 m -> 0.5, 2026-10-18, §25.3: the K 1-4 m, the lead's number; K 2-5 since §25.5).")
 (defparameter *hs-r-uchi-frames* 4
   "Gathered K2 打束's first hit (the bundle slammed 2.0-3.5 m ahead) pushes the victim onto its tail's line (to at least
 *HS-R-J-PUSH* m) over this many frames, before the second hit's window opens (B4c's pick, §22.6).")
@@ -229,12 +240,15 @@ gathered K2 / K3) when the victim stands inside its reach, else the speed pick (
 ;;; ================================================================ the Shikai 風死 (§8.2, §8.3)
 ;;; J: the chain held short, one sickle whirled round the body (H1: 1.4 m, 110°, J3 200°, Q5 A). The one-handed copies
 ;;; (the OUT graph, KJJ) are the same clips at x0.8 written in, :params :one-hand (the empty-hand look).
+(defparameter *hs-j-reach* 1.7
+  "The Shikai's J1 / J2 / J3 reach, m (the J floor *J-REACH-MIN*'s 1.4 -> 1.7, 2026-10-19, the user: 「然後幫我把始解的 J 範圍稍微
+加長」, the lead's number, §25.9; the leaps J2K / J3K are their copies; the sickles let out on their chains to it).")
 (defmove :hs-j1 :kind :quick :clip :hs-q1 :startup 8 :active 3 :recovery 12 :dmg 30 :adv-block -2 :guard 8
-  :reach 1.4 :arc 110 :on-hit :flinch :slide 0.3)                         ; 旋 SEN
+  :reach *hs-j-reach* :arc 110 :on-hit :flinch :slide 0.3)                ; 旋 SEN
 (defmove :hs-j2 :kind :quick :clip :hs-q2 :startup 8 :active 3 :recovery 13 :dmg 30 :adv-block -2 :guard 8
-  :reach 1.4 :arc 110 :on-hit :flinch)                                    ; 返旋 KAESHI-SEN
+  :reach *hs-j-reach* :arc 110 :on-hit :flinch)                           ; 返旋 KAESHI-SEN
 (defmove :hs-j3 :kind :quick :clip :hs-spin :startup 9 :active 3 :recovery 18 :dmg 38 :adv-block -4 :guard 12
-  :reach 1.4 :arc 200 :on-hit :stagger :flags (:ender))                   ; 輪 RIN, the full spin
+  :reach *hs-j-reach* :arc 200 :on-hit :stagger :flags (:ender))          ; 輪 RIN, the full spin
 (defmove-copy :hs-j1-1h :hs-j1 :dmg 24 :params (:one-hand t))             ; SEN-1H (the OUT graph's J1)
 (defmove-copy :hs-j2-1h :hs-j2 :dmg 24 :params (:one-hand t) :clip :hs-s-kaeshi-1h)   ; KAESHI-SEN-1H (the IN graph's J2s,
                                                                           ;  the OUT J2: the reversed backhand, §21.4)
@@ -426,7 +440,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 (defmove :hs-r-k2 :kind :flash :clip :hs-k-g-k2 :clip-s 27 :enter 6 :startup 27 :active 10 :recovery 24 :dmg 25 :adv-block -3
   :guard 14 :reach *hs-r-k-reach* :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0) :min-reach *hs-r-k-dead*
   :on-land hs-r-uchi-push
-  :hits ((27 31 :vol (:cap 1.0 3.5 0.5 0.5)) (33 37 :dmg 32 :on-hit :launch :kb *hs-r-k2-launch-kb* :vol (:cap 1.0 3.5 0.4 0.5))))     ; 束打 SOKUDA
+  :hits ((27 31 :vol (:cap 2.0 4.5 0.5 0.5)) (33 37 :dmg 32 :on-hit :launch :kb *hs-r-k2-launch-kb* :vol (:cap 2.0 4.5 0.4 0.5))))     ; 束打 SOKUDA
 (defmove :hs-r-j2s :kind :quick :clip :hs-k-g-j2 :clip-s 16 :startup 16 :active 3 :recovery 13 :dmg 29 :adv-block -2 :guard 8
   :vol (:cap 3.0 5.5 1.0 0.5) :on-hit :flinch :hits ((16 19 :stun 24)) :flags (:ranged) :params (:melee-range 2.0)
   :min-reach *hs-r-j-dead*)                                                                                      ; 束鞭 SOKUBEN
@@ -450,9 +464,13 @@ deletes each entry it draws). Empty: the seven ranged route links' were drawn by
 SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The host's drawn-reach checks skip these moves.")
 ;; L 鎖払 SAHARAI: the chains whirled round him (360 deg r 3.0); a hit or a block pushes him to 3.5 m (S1, §23.3; HS-R-PUSH,
 ;; HS-BK-HIT). B4d (§22.8): his only close-in tool, no cooldown (120 -> 0), S *HS-SAHARAI-S* / R *HS-SAHARAI-R* / block
-;; *HS-SAHARAI-ADV*; its clip redrawn at S 10 / R 32 by batch A3 (DUEL_HISAGI §24.3: speed 1, the recovery drawn)
+;; *HS-SAHARAI-ADV*; its clip redrawn at S 10 / R 32 by batch A3 (DUEL_HISAGI §24.3: speed 1, the recovery drawn), its
+;; windup at S 18 with the charge (§25.7)
 (defmove :hs-r-l :kind :sig :clip :hs-k-saharai :startup *hs-saharai-s* :active 4 :recovery *hs-saharai-r* :dmg 30
-  :adv-block *hs-saharai-adv* :guard 14 :vol (:arc 3.0 360 0.2 2.0) :on-hit :knockback :on-land hs-r-push)
+  :adv-block *hs-saharai-adv* :guard 14 :vol (:arc 3.0 360 0.2 2.0) :on-hit :knockback :on-land hs-r-push
+  :params (:r-cancel (:q :f)))   ; §25.5 (the user, 2026-10-18: 「卍解的遠距 J / K 能取消 L 的後搖」): from its first recovery
+                                 ; frame, on a hit only, J / K start J1 / K1 (MOVE-COMMANDS); blocked or whiffed, none
+                                 ; (§25.8, 2026-10-19: 「讓遠距 L 鎖払被擋下後不能通過 J/K 取消後搖」, 「打空也一樣不能取消」)
 (defmove :hs-r-sp1 :kind :sp :clip :hs-k-raiden :callout "TSUZURI RAIDEN" :startup 20 :active 3 :recovery 24 :dmg 110
   :adv-block -14 :guard 22 :vol (:cap 0.3 9.0 1.1 0.3) :track 30.0 :flags (:ranged) :on-hit :bind :hits ((20 23 :stun 40))
   :params (:melee-range 2.0) :min-reach *hs-r-dead*)                                                          ; 綴雷電
@@ -490,6 +508,12 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
 (defmove-copy :hs-b-j2s :hs-b-j2)
 (defmove :hs-b-j3 :kind :quick :clip :hs-kb-sogen :startup 9 :active 3 :recovery 18 :dmg 40 :adv-block -4 :guard 12
   :reach 1.5 :arc 200 :on-hit :stagger :flags (:ender))                                                        ; 双弦 SOGEN
+;; Step + J 穿弦 SENGEN (§25.10, the user, 2026-10-19: 「給檜佐木的卍解捆縛狀態新增一個 step+J 能使出的新招式，這招打中
+;;對手的話能接 J1 取消後搖」): the Step's J (HS-BK-COMMAND, from the hop's *STEP-J-CANCEL*) is this lunge instead of J1, the
+;; right crescent hurled straight out on its chain to 2.2 m; a hit cancels its recovery into J1 (:r-cancel, from S + A);
+;; blocked -10, whiffed R 22 (the cancel only on a hit)
+(defmove :hs-b-sj :kind :quick :clip :hs-kb-sengen :startup 10 :active 3 :recovery 22 :dmg 40 :adv-block -10 :guard 10
+  :reach 2.2 :arc 60 :on-hit :stagger :slide 0.6 :params (:r-cancel (:q)))                                    ; 穿弦 SENGEN
 (defmove :hs-b-k1 :kind :flash :clip :hs-kb-hikigiri :startup 18 :active 4 :recovery 20 :dmg 64 :adv-block -3 :guard 14
   :vol (:cap 0.3 2.6 1.1 0.35) :on-hit :stagger)                                                               ; 引斬 HIKIGIRI
 (defmove :hs-b-k2 :kind :flash :clip :hs-kb-makigiri :enter 6 :startup 20 :active 4 :recovery 24 :dmg 56 :adv-block -3 :guard 14
@@ -502,6 +526,8 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
 ;; block -24; its clip drawn at S 30 by batch A3 (DUEL_HISAGI §24.3: the 20 f heave, the drag, the reap; speed 1)
 (defmove :hs-b-l :kind :sig :clip :hs-kb-kojo :callout "KOJO" :startup *hs-kojo-s* :active 4 :recovery *hs-kojo-r*
   :dmg *hs-kojo-dmg* :adv-block *hs-kojo-block* :guard 30 :reach 3.0 :arc 160 :on-hit :crumple :track 30.0
+  :hits ((*hs-kojo-pull-at* *hs-kojo-yank-to* :dmg *hs-kojo-yank-dmg* :on-hit :flinch :guard 8 :seg-fn hs-foe-seg)
+         (30 34))                                                                ; (§25.7: the yank a hit, then the reap)
   :on-frame ((*hs-kojo-pull-at* hs-pull-go)))                                                                 ; 絞縄 KOJO
 ;; (the bind's SP1 TSUZURI RAIDEN until B4c: KUSARI-AME took its slot, 「鎖雨移到捆綁的 SP1」; kept for its clip strip, 83524)
 (defmove :hs-b-sp1 :kind :sp :clip :hs-kb-raiden :callout "TSUZURI RAIDEN" :startup 14 :active 3 :recovery 24 :dmg 110
@@ -559,10 +585,10 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
   ;; roll per entry, or a back Step) and K1 at 3-4 m too (its tip), shared with J1
   :ai (:intents (:approach 1 :pressure 2 :zone 5 :defend 2)
        :ranges (:approach (2.5 4.0) :pressure (2.0 3.0) :zone (3.0 4.5) :defend (4.0 6.0))
-       :moves ((0.0 1.0 :sig 6 :step 3 :breaker 1)     ; (§25.3: K 1.0-4.0 m, J 3.0-6.0 m)
-               (1.0 3.0 :f 5 :step 1)
-               (3.0 4.0 :f 3 :q 3 :step 1)
-               (4.0 6.0 :q 5 :step 1)
+       :moves ((0.0 2.0 :sig 6 :step 3 :breaker 1)     ; (§25.5: K 2.0-5.0 m, J 3.0-6.0 m)
+               (2.0 3.0 :f 5 :step 1)
+               (3.0 5.0 :f 3 :q 3 :step 1)
+               (5.0 6.0 :q 5 :step 1)
                (6.0 8.0 :sp1 1 nil 4)
                (8.0 10.0 :sp1 1 :kikon 1 nil 2)
                (10.0 99.0 :kikon 1 nil 3))
@@ -646,6 +672,7 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (kstr nil)                                  ; S1: the K string he is in was started by a windmill (its reach x the charge)
   (kz-let nil)                                ; S1: L was let go in this windmill (the charge stops)
   (leapt nil)                                 ; §24.4: he leapt (J2K / J3K) in the combo the victim is in now (HS-LINK-OK)
+  (tip-r nil)                                 ; §25.5: a tip hit's Reiatsu before its gains (HS-DMG-MULT), read by HS-BK-HIT
   (throw-n 0 :type fixnum)                    ; S1: the charge of the throw out now (its chain length x it, HS-TICK)
   (ai-kz nil) (ai-kz-threat nil)              ; S1, his CPU: K out of this windmill (rolled at the press); the press is a ward
   (ai-out -1 :type fixnum) (ai-modoshi nil)   ; his CPU: the OUT start it rolled for, and its pick
@@ -1091,9 +1118,11 @@ volume, the victim's distance (D2 squared, from the hit's source) and his distan
   (declare (ignore hazard))
   (if (or (null mv) (eq (mv-kind mv) :breaker) (member (mv-name mv) '(:hs-r-l :hs-b-sp2)))   ; (KAIBAKU-GEKI: its 120 exact)
       1.0
-      (let* ((v (first (hw-vols hw))) (cap (and v (> (aref v 0) 0.5))) (yaw (yaw-of att)) (p (pos-of att)) (q (pos-of def)))
-        (hs-dist-mult (fighter-form (fighter att)) cap (and v (if cap (aref v 2) (aref v 1))) (sqrt d2)
-                      (+ (* (- (aref q 0) (aref p 0)) (fwd-x yaw)) (* (- (aref q 2) (aref p 2)) (fwd-z yaw)))))))
+      (let* ((v (first (hw-vols hw))) (cap (and v (> (aref v 0) 0.5))) (yaw (yaw-of att)) (p (pos-of att)) (q (pos-of def))
+             (x (hs-dist-mult (fighter-form (fighter att)) cap (and v (if cap (aref v 2) (aref v 1))) (sqrt d2)
+                              (+ (* (- (aref q 0) (aref p 0)) (fwd-x yaw)) (* (- (aref q 2) (aref p 2)) (fwd-z yaw))))))
+        (setf (hss-tip-r (hs att)) (and (eq (fighter-form (fighter att)) :bankai) (> x 1.0) (gauges-reiatsu (gauges att))))
+        x)))
 (defun hs-r-ame-aim (e)
   "KUSARI-AME's :tick: the lane aims (the move's :track 120) for its first *HS-AME-AIM* frames, then it is locked."
   (let* ((f (fighter e)) (st (hs e)) (tr (transform e)))
@@ -1134,15 +1163,23 @@ bind SP2 KAIBAKU-GEKI with no bind up (B4c). A refusal: the cue."
                    (hs-kubi-ready-p (gauges-reiatsu (gauges e)) (bind-of e))))
       (t t))))
 (defun hs-bk-command (e cmd)
-  "The Bankai's :command hook: off a J / K string hit, the ranged SP2 KUBIKAKE's cancel copy (:enter 6) and the bind's SP1
+  "The Bankai's :command hook: in a bind, the Step's J is SENGEN (§25.10); off a J / K string hit, the ranged SP2 KUBIKAKE's cancel copy (:enter 6) and the bind's SP1
 KUSARI-AME's charge-less copy (:enter 10) (B4c; the bind's SP2 KAIBAKU-GEKI as written, the generic SP cancel)."
   (let* ((f (fighter e)) (mv (fighter-move f)) (bind (eq (fighter-form f) :bankai-bind)))
+    (when (and bind (eq cmd :q) (eq (fighter-state f) :step))   ; the Step's J: 穿弦 SENGEN (§25.10)
+      (return-from hs-bk-command (find-move :hs-b-sj)))
     (when (and (eq cmd (if bind :sp1 :sp2))
                (eq (fighter-state f) :move) mv (member (mv-kind mv) '(:quick :flash)) (eq (fighter-contact f) :hit))
       (find-move (if bind :hs-r-sp2c :hs-r-kubikake-c)))))
 (defun hs-bk-hit (att def res hw mv hazard ranged)
-  "The Bankai's :hit hook: SAHARAI's block pushes him to *HS-SAHARAI-BLOCK* m; KUBIKAKE's block counted."
+  "The Bankai's :hit hook: SAHARAI's block pushes him to *HS-SAHARAI-BLOCK* m; KUBIKAKE's block counted; a chain-tip hit
+(HS-DMG-MULT marked it) earns its Reiatsu gain x *HS-R-TIP-SP-MULT* (§25.5: the gain since the mark, x the extra)."
   (declare (ignore def hw hazard ranged))
+  (let* ((st (hs att)) (r0 (hss-tip-r st)))
+    (when r0
+      (setf (hss-tip-r st) nil)
+      (let ((gain (- (gauges-reiatsu (gauges att)) r0)))
+        (when (> gain 0) (reiatsu-gain! att (* gain (- *hs-r-tip-sp-mult* 1.0))) (pace att :tip-sp)))))
   (when (and mv res (eq (contact-of res) :block))
     (case (mv-name mv)
       (:hs-r-l (hs-push-to att *hs-saharai-block* 12) (pace att :saharai-block))
