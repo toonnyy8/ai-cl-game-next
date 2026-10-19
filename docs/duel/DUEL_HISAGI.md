@@ -3117,6 +3117,18 @@ gates are not run (the user: 「不用跑 gate」).
 **The search**: round 1's b0a0 / b1a0 (minutes in) stopped, their briefs removed; the baseline re-taken on these rules,
 round 1 planned again (§25.12).
 
+### 25.12 The re-freeze on §25.11 (2026-10-19)
+
+- §25.6's freeze (1544267) is superseded; `baseline/` re-taken on §25.11's rules; round 1 planned again (`plan --beta 0.6`,
+  4 × 2 cells, W = 2).
+- The baseline at 40 seeds: **score 0.0** (raw 0.3848):
+  - strength 0.000 (0 of 480);
+  - masher 0.107;
+  - signature 0.727 (chain 0.436, ranged 0.178, bind 0.112, plain J 0.128);
+  - NORMAL share **0.042** (Y 5, K 0, R 3, I 3, S 6, Lille 3 of 80), factor 0;
+  - pacing ok (NORMAL medians 117.2-172.7 s).
+- The freeze is the commit adding this baseline (`step.sh` / `rescore.sh` find it).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.

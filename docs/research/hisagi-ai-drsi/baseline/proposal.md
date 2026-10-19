@@ -1,10 +1,10 @@
-# The shipped CPU (the baseline at the freeze; DUEL_HISAGI §20, §22.2, §22.6, §22.8, §23.1, §23.5, §24.4-§24.5, §25.3, §25.5-§25.10)
+# The shipped CPU (the baseline at the freeze; DUEL_HISAGI §20, §22.2, §22.6, §22.8, §23.1, §23.5, §24.4-§24.5, §25.3, §25.5-§25.11)
 
-Measured at 40 seeds with the frozen evaluator (`score.json`, re-frozen 2026-10-19 on §25.5-§25.10's rules: K 2-5 m, SAHARAI
-S 18 cancelled by J / K only on a hit, KOJO's yank a hit, the Shikai's J 1.7 m, the bind's Step J SENGEN): **score 0.0**
-(raw 0.3842; NORMAL share 0.033, factor 0): strength 0.000 (0 of 480 HARD matches), masher 0.107, signature 0.726 (chain
-0.442, ranged 0.176, bind 0.108, plain J 0.13), pacing ok (NORMAL medians 118-167 s). (§25.4's freeze: raw 0.3803, strength
-0.006, masher 0.103, NORMAL 0.115.)
+Measured at 40 seeds with the frozen evaluator (`score.json`, re-frozen 2026-10-19 on §25.5-§25.11's rules: K 2-5 m, SAHARAI
+S 18 cancelled by J / K only on a hit, KOJO's yank a hit, the Shikai's J 1.7 m, the bind's Step J SENGEN, the spread
+route's Reiatsu x1.3 and the gathered route's guard damage x1.3): **score 0.0** (raw 0.3848; NORMAL share 0.042, factor 0):
+strength 0.000 (0 of 480 HARD matches), masher 0.107, signature 0.727 (chain 0.436, ranged 0.178, bind 0.112, plain J
+0.128), pacing ok (NORMAL medians 117-173 s). (§25.6's: raw 0.3842, NORMAL 0.033; §25.4's: raw 0.3803, NORMAL 0.115.)
 
 - **Shikai** (`:base` `:ai`): intents approach 2 / pressure 2 / zone 3 / defend 1; bands 0-2 m J (+ Breaker, SP2), 2-3 m
   little, 3-3.5 m K1, 3.5-6.2 m K1 (+ SP1), 6.2-9 m SP1 / Kikon / the windmill (charged K1 at range), 9 m+ Kikon. HS-AI-REFLEX:
