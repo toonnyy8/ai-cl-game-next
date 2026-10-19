@@ -1,0 +1,51 @@
+--- frozen HISAGI-CPU-TESTS
++++ cell HISAGI-CPU-TESTS
+@@ -34,3 +34,48 @@
+                   (some (lambda (bd) (and (getf (cddr bd) :f) (= 5.0 (second bd)))) bands)
+                   (let ((b0 (find 0.0 bands :key #'first))) (and (null (getf (cddr b0) :f)) (plusp (getf (cddr b0) :sig))))
+                   (~= 2.0 *hs-ai-close*) (eq 'hs-r-ai-reflex (getf (kit-ai kr) :reflex)))))))
++;; b1a0 (dream-rsi, the ranged routes): the styles, their mix and the fence's pure reads
++(flet ((mono (p) (<= (getf p :easy) (getf p :normal) (getf p :hard))))
++  ;; every chance of his CPU EASY <= NORMAL <= HARD (the user's rule), the style mix's included
++  (check (every #'mono (list *hs-ai-punish-p* *hs-ai-anti-p* *hs-ai-escape-p* *hs-ai-dodge-p* *hs-ai-saharai-p* *hs-ai-anti-breaker-p*
++                             *hs-ai-sange-p* *hs-ai-kubigari-p* *hs-ai-throw-p* *hs-ai-release-p* *hs-ai-route-dmg-p*
++                             (hs-r-sv :sange :route-dmg) (hs-r-sv :sokubaku :route-dmg) (hs-r-sv :kubigari :route-dmg)
++                             (hs-r-sv :kubigari :noose))))
++  ;; the three styles: their openers and anti-approach strikes, the K link's chance per link hit (SANGE's J links, SOKUBAKU's
++  ;; K links), the back hop's distance; the shipped mix (KUBIGARI, then SANGE of the rest, else SOKUBAKU)
++  (check (and (eq :q (hs-r-sv :sange :open)) (eq :f (hs-r-sv :sokubaku :open)) (eq :f (hs-r-sv :kubigari :open))
++              (eq :q (hs-r-sv :sange :anti)) (eq :f (hs-r-sv :sokubaku :anti))
++              (< (getf (hs-r-sv :sange :route-dmg) :hard) 0.5 (getf (hs-r-sv :sokubaku :route-dmg) :easy))
++              (~= 3.8 (hs-r-sv :sange :keep)) (~= 3.2 (hs-r-sv :sokubaku :keep)) (~= 3.5 (hs-r-sv :kubigari :keep))
++              (null (hs-r-sv :sange :noose)) (null (hs-r-sv :sokubaku :noose))
++              (~= 0.2 (getf *hs-ai-kubigari-p* :normal)) (~= 0.2 (getf *hs-ai-sange-p* :normal))))
++  ;; the chances' shipped values
++  (check (and (equal *hs-ai-punish-p* '(:easy 0.3 :normal 0.6 :hard 0.9)) (equal *hs-ai-escape-p* '(:easy 0.3 :normal 0.7 :hard 0.85))
++              (equal *hs-ai-saharai-p* '(:easy 0.05 :normal 0.1 :hard 0.15)) (equal *hs-ai-dodge-p* '(:easy 0.2 :normal 0.45 :hard 0.7))
++              (equal *hs-ai-anti-breaker-p* '(:easy 0.3 :normal 0.6 :hard 0.85))
++              (~= 150 *hs-ai-rel-margin*) (= 50 *hs-ai-rel-step*) (~= 1.6 *hs-ai-bridge-k-from*) (~= 1.0 *hs-ai-string-k*)))
++  ;; his three kits' generic keys (b1a0): the Shikai's Hoho 0.1, the ranged mode's guard 0.85 / neutral guard 0.2 / Hoho 0.9 /
++  ;; K1 off the Breaker, the bind's Hoho 0.9; no Breaker in any :moves band of his (the generic long-guard reflex keeps it)
++  (let ((ab (kit-ai (kit :hisagi :base))) (ar (kit-ai (kit :hisagi :bankai))) (ag (kit-ai (kit :hisagi :bankai-bind))))
++    (check (and (~= 0.1 (getf ab :hoho)) (~= 0.4 (getf ab :guard)) (~= 0.85 (getf ar :guard)) (~= 0.2 (getf ar :neutral-guard))
++                (~= 0.9 (getf ar :hoho)) (~= 1.0 (getf ar :string-k)) (~= 0.8 (getf ar :dash-back)) (~= 0.9 (getf ag :hoho))
++                (notany (lambda (a) (some (lambda (bd) (getf (cddr bd) :breaker)) (getf a :moves))) (list ab ar ag)))))
++  ;; the annuli his fence reads (HS-R-HITS-AT-P): J1 3.05-6.2, K1 2.05-5.2, SAHARAI to 3.1, KUBIKAKE 2.3-7.0; inside the moves'
++  ;; own reach (HS-R-REACHES-P) at both ends
++  (check (and (hs-r-hits-at-p :q 3.05) (hs-r-hits-at-p :q 6.2) (not (hs-r-hits-at-p :q 3.0)) (not (hs-r-hits-at-p :q 6.3))
++              (hs-r-hits-at-p :f 2.05) (hs-r-hits-at-p :f 5.2) (not (hs-r-hits-at-p :f 2.0)) (not (hs-r-hits-at-p :f 5.3))
++              (hs-r-hits-at-p :sig 0.0) (hs-r-hits-at-p :sig 3.1) (not (hs-r-hits-at-p :sig 3.2))
++              (hs-r-hits-at-p :sp2 2.3) (hs-r-hits-at-p :sp2 7.0) (not (hs-r-hits-at-p :sp2 2.2)) (not (hs-r-hits-at-p :sp2 7.1))
++              (hs-r-reaches-p (find-move :hs-r-j1) 3.05) (hs-r-reaches-p (find-move :hs-r-j1) 6.2)
++              (hs-r-reaches-p (find-move :hs-r-k1) 2.05) (hs-r-reaches-p (find-move :hs-r-k1) 5.2)
++              (hs-r-reaches-p (find-move :hs-r-kubikake) 2.3) (hs-r-reaches-p (find-move :hs-r-kubikake) 7.0)
++              (eq :hs-r-l (mv-name (hs-r-cmd-move :sig))) (eq :hs-r-kubikake (mv-name (hs-r-cmd-move :sp2)))))
++  ;; HS-R-PICK: the punish by annulus in the frames there are: inside 2 m SAHARAI (S 18) or nothing; 2-3 m K1 (S 16); 3-5 m
++  ;; the style's opener first (SANGE J1 S 14, SOKUBAKU K1), the other when it alone is fast enough; 5.2-6.2 m J1 only;
++  ;; KUBIKAKE (S 24) first when his 200 is there and it reaches in time
++  (check (and (eq :sig (hs-r-pick :sange 1.0 18)) (null (hs-r-pick :sange 1.0 17)) (eq :f (hs-r-pick :sange 2.5 16))
++              (eq :f (hs-r-pick :sokubaku 2.5 17)) (null (hs-r-pick :sokubaku 2.5 15))
++              (eq :q (hs-r-pick :sange 4.0 20)) (eq :f (hs-r-pick :sokubaku 4.0 20)) (eq :q (hs-r-pick :sokubaku 4.0 15))
++              (eq :q (hs-r-pick :sokubaku 5.8 20)) (null (hs-r-pick :sokubaku 6.5 99))
++              (eq :sp2 (hs-r-pick :sange 4.0 24 t)) (eq :q (hs-r-pick :sange 4.0 23 t)) (eq :sp2 (hs-r-pick :sokubaku 6.5 30 t))
++              (eq :sig (hs-r-pick :sokubaku 1.5 30 t)))))
