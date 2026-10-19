@@ -3050,6 +3050,20 @@ Built, not tested (tests wait for the user's word).
 as J2's), J2 / J3 and the leaps' let-outs 1.4 → 1.7, `*hs-strike-reach*` likewise. Built, not tested (tests wait for the
 user's word).
 
+### 25.10 The bind's Step + J: 穿弦 SENGEN (the user, 2026-10-19)
+
+> 「給檜佐木的卍解捆縛狀態新增一個 step+J 能使出的新招式，這招打中對手的話能接 J1 取消後搖」
+
+In the bind mode (`:bankai-bind`) the Step's J (the hop's J cancel from `*step-j-cancel*` f12, or a J latched in the hop)
+starts the new `:hs-b-sj` 穿弦 SENGEN instead of J1 (`hs-bk-command`: the form, `:q`, the fighter still in `:step`).
+Frame data the lead's pick: S 10 / A 3 / R 22, 40 damage, reach 2.2 m arc 60, on hit `:stagger`, a 0.6 m lunge, blocked
+-10, guard 10. A hit cancels its recovery into J1 (`:params (:r-cancel (:q))`, MOVE-COMMANDS' §25.5 branch: from S + A,
+on a hit only; blocked or whiffed it plays its 22 f out); the J1 then opens the bind's J / K grid as usual. Its own
+clip `:hs-kb-sengen` (sunk low out of the hop, the right crescent by the hip; the lunge, the arm thrown straight, the
+crescent let out on its chain to 2.2 m, `*hs-letout*` f6-13-24; `*hs-strike-reach*` 2.2), strip slot 83534, in
+`*hs-tip-moves*`. The CPU: its existing step-J read now starts SENGEN in a bind (it still reads J1's reach); no new CPU
+use. Tests: the `:r-cancel` pin now names SENGEN too. Built, not tested (tests wait for the user's word).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.

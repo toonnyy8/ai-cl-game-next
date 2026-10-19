@@ -4012,10 +4012,12 @@ past the ends; DEFAULT if the clip is not listed."
       (check (null (hss-leapt st))))))
 
 ;;; §25.5 (the user, 2026-10-18: 「卍解的遠距 J / K 能取消 L 的後搖」): the ranged L SAHARAI's recovery is cancelled by J / K
-;;; into J1 / K1 (the move's :params :r-cancel, read by MOVE-COMMANDS from its first recovery frame); no other move has it
+;;; into J1 / K1 (the move's :params :r-cancel, read by MOVE-COMMANDS from its first recovery frame); §25.10: the bind's
+;;; Step + J SENGEN into J1; no other move has it
 (check (and (equal '(:q :f) (getf (mv-params (find-move :hs-r-l)) :r-cancel))
+            (equal '(:q) (getf (mv-params (find-move :hs-b-sj)) :r-cancel))
             (loop for mv being the hash-values of *moves*
-                  always (or (eq (mv-name mv) :hs-r-l) (null (getf (mv-params mv) :r-cancel))))))
+                  always (or (member (mv-name mv) '(:hs-r-l :hs-b-sj)) (null (getf (mv-params mv) :r-cancel))))))
 
 ;;; §25.5 (the user, 2026-10-18: 「卍解遠距的鎖鏈尾端除了傷害加成以外也增加 SP 恢復量的加成」): a tip hit (HS-DMG-MULT x1.3) marks his
 ;;; Reiatsu; his :hit hook pays the gain since the mark x *HS-R-TIP-SP-MULT* on top; a non-tip hit leaves no mark

@@ -207,6 +207,7 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
                                   (:hs-k-saben :sickle 6.0) (:hs-k-kaeshi :sickle 6.0) (:hs-k-sensa :sickle 6.0)  ; (the Bankai's,
                                                                                 ;  §21.8; B4a: the annuli's 4.5 / 5.0, the K placed, §22.2: the
                                   (:hs-kb-kaeshi :sickle 1.5) (:hs-kb-hikigiri :sickle 2.95)                    ;  ranged mode,
+                                  (:hs-kb-sengen :sickle 2.2)                                                   ;  §25.10,
                                   (:hs-kb-makigiri :chain 2.8) (:hs-kb-shibori :chain 2.95)                     ;  the bind's)
                                   (:hs-k-hosoku :chain 5.0) (:hs-k-s-k2 :chain 5.0) (:hs-k-s-k3 :chain 5.0)    ; (A2, §24.2: the
                                   (:hs-k-g-k2 :chain 5.0) (:hs-k-g-j2 :chain 6.0) (:hs-k-g-k3 :chain 5.0)     ;  ranged route
@@ -293,6 +294,7 @@ this far back through his fist (m), so he holds it just behind the blades' cross
     (:hs-k-sensa :l 10 13 17 26 6.0 1.0 nil 0)
     (:hs-kb-kaeshi :l 5 8 11 18 1.5 nil nil 0)      ; the bind's J2 返弦, the left rising on a short chain
     (:hs-kb-hikigiri :r 15 18 23 32 2.95 1.1 0 0)   ; K1 引斬, the right hooked out along the line
+    (:hs-kb-sengen :r 6 10 13 24 2.2 nil 0 0)       ; Step + J 穿弦 SENGEN (§25.10), the right hurled straight ahead
     (:hs-kb-raiden :l 11 14 18 30 4.3 1.1 0 0)      ; SP1, the left down the line (the bolt along it)
     (:hs-kb-kojo :r 27 30 34 46 3.0 0.7 nil 0.6)    ; A3 (§24.3): L 絞縄 KOJO (S 30), the wide reap, flung from overhead
     (:hs-kb-kaibaku :r 15 18 22 34 3.0 1.0 (-120 -50 50) 0))   ; SP2 解縛擊 (S 18), a flat sweep R -> L at 3.0 m (the hit
@@ -1390,6 +1392,28 @@ down point first onto him (S 22), held in him, hauled back.")
   (:s :snap :hs-kb-sogen-hit)
   (:a :hs-kb-sogen-hit (:spine :flex -6) (:arm-r :flex -4 :side 92) (:arm-l :flex -4 :side 92))
   (22 :hs-kb-sogen-hit (:spine :flex -4) (:arm-r :flex 0 :side 90) (:arm-l :flex 0 :side 90))
+  (:end :hs-k-stance))
+
+;; Step + J 穿弦 SENGEN (10/3/22, 2.2 m arc 60; §25.10): landing out of the hop he sinks low, the right crescent drawn
+;; back by his right hip, the left arm forward to aim (held f4-8); the lunge, the right arm thrown straight at the victim, the
+;; crescent let out on its chain to 2.2 m (*HS-LETOUT*), hauled back through the recovery
+(defpose :hs-kb-sengen-up (:base :hs-k-stance)
+  (:root :u -0.2 :f -0.06 :yaw -24) (:spine :flex 18) (:chest :twist -30) (:neck :twist 18) (:head :flex 4)
+  (:arm-r :flex -40 :side 30 :twist 0) (:elbow-r :flex 80) (:hand-r :flex -60)
+  (:arm-l :flex 80 :side 10 :twist 0) (:elbow-l :flex 20) (:hand-l :flex -40)
+  (:thigh-r :flex -24 :side 10) (:knee-r :flex 50) (:thigh-l :flex 44 :side 8) (:knee-l :flex 56))
+(defpose :hs-kb-sengen-hit (:base :hs-k-stance)
+  (:root :f 0.16 :u -0.14 :yaw 14) (:spine :flex 14) (:chest :twist 22) (:head :flex 0)
+  (:arm-r :flex 88 :side 6 :twist 0) (:elbow-r :flex 0) (:hand-r :flex -90 :twist 0)
+  (:arm-l :flex 10 :side 40 :twist 0) (:elbow-l :flex 50) (:hand-l :flex -70)
+  (:thigh-l :flex 50 :side 8) (:knee-l :flex 40) (:thigh-r :flex -30 :side 10) (:knee-r :flex 10))
+(defstrike :hs-kb-sengen (10 3 22 :base :hs-k-stance)
+  (0)
+  (4 :hs-kb-sengen-up)
+  (8 :hs-kb-sengen-up (:root :yaw -28 :u -0.22) (:chest :twist -36) (:arm-r :flex -46))
+  (:s :snap :hs-kb-sengen-hit)
+  (:a :hs-kb-sengen-hit (:arm-r :flex 92))
+  (24 :hs-kb-sengen-hit (:root :f 0.1 :u -0.1 :yaw 8) (:chest :twist 12) (:arm-r :flex 70 :side 20) (:elbow-r :flex 30))
   (:end :hs-k-stance))
 
 ;; K1 引斬 HIKIGIRI (18/4/20, the 2.6 m line): the right crescent drawn back high over his right shoulder, coiled, the left
@@ -2918,7 +2942,7 @@ stance ~d, UNWIND ~d"
     (:bankai :hs-r-l) (:bankai :hs-r-sp1) (:bankai :hs-r-sp2) (:bankai :hs-r-kikon) (:bankai :hs-r-kubikake)
     (:bankai :hs-breaker) (:bankai-bind :hs-b-j1) (:bankai-bind :hs-b-j2) (:bankai-bind :hs-b-j3) (:bankai-bind :hs-b-k1)
     (:bankai-bind :hs-b-k2) (:bankai-bind :hs-b-k3) (:bankai-bind :hs-b-sp1) (:bankai-bind :hs-b-sp2) (:bankai-bind :hs-b-l)
-    (:bankai-bind :hs-b-kikon))
+    (:bankai-bind :hs-b-kikon) (:bankai-bind :hs-b-sj))
   "Debug 83902's moves: (form move), every Bankai move with a hit window of volumes (B4c: the ranged route links too, on
 their own clips since batch A2, §24.2).")
 (defun hisagi-tip-check ()
@@ -3007,10 +3031,10 @@ far edge. A debug measurement (it conses)."
     (:hs-kb-koshu-run nil 4.0 nil :bind) (:hs-kb-koshu :hs-b-kikon 1.2 nil :bind) (:hs-kb-unwind :hs-b-unwind 2.0 nil :unwind)
     (:hs-k-hosoku :hs-r-k1 3.5 nil :bankai) (:hs-k-s-k2 :hs-r-k2s 5.0 nil :bankai) (:hs-k-s-k3 :hs-r-k3 5.0 nil :bankai)
     (:hs-k-g-k2 :hs-r-k2 5.0 nil :bankai) (:hs-k-g-k3 :hs-r-k3g 5.0 nil :bankai) (:hs-k-g-j2 :hs-r-j2s 4.0 nil :bankai)
-    (:hs-k-g-j3 :hs-r-j3g 4.0 nil :bankai) (:hs-kb-stance nil 1.5 nil :bind))
+    (:hs-k-g-j3 :hs-r-j3g 4.0 nil :bankai) (:hs-kb-stance nil 1.5 nil :bind) (:hs-kb-sengen :hs-b-sj 2.0 nil :bind))
   "83500+k (DUEL_HISAGI §21.8): the Bankai's strip slots, as *HS-STRIPS* plus the form: :bankai the ranged mode, :bind a
 bind (the noose), :unwind the bind mode just ended (UNWIND's ring). Batch A2 (§24.2): 26-32 the ranged route links (K1
-HOSOKU, spread K2 / K3, gathered K2 / K3G / J2s / J3G), 33 the bind's stance. Batch A3 (§24.3): 20 SP2 KAIBAKU-GEKI's own
+HOSOKU, spread K2 / K3, gathered K2 / K3G / J2s / J3G), 33 the bind's stance, 34 its Step + J SENGEN (§25.10). Batch A3 (§24.3): 20 SP2 KAIBAKU-GEKI's own
 clip (HIKIYOSE's, its stand-in, gone), 22 KOJO's and 6 SAHARAI's redrawn.")
 (defparameter *hs-strips*
   '((:hs-s-stance nil 3.0) (:hs-s-walk-f nil 3.0) (:hs-s-run nil 3.0) (:hs-s-sen :hs-j1 2.0) (:hs-s-kaeshi :hs-j2 2.0)
