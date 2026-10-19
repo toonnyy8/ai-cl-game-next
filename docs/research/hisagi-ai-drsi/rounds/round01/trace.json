@@ -26,6 +26,18 @@
       "seq": 1,
       "tags": [],
       "valid": true
+    },
+    "b2a0": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.458 mash 1.0 sig 0.896 raw 0.7855 normal 0.4542 (x1.0) pacing ok",
+      "score": 0.7855,
+      "seq": 3,
+      "tags": [],
+      "valid": true
     }
   },
   "directions": {},
