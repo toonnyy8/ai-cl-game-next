@@ -170,7 +170,8 @@ J beats I, 防 > J > I > 防), and with the thinnest hurt radius (0.34) past the
 (defparameter *fs-regen* 3.0 "Flash-step per second ...")
 (defparameter *fs-delay* 60 "... once this many frames passed since the last spend.")
 (defparameter *fs-taken* 0.03 "Flash-step per point of damage taken (a full 1300 Reishi bar = +39).")
-(defparameter *fs-refund* 15.0 "A perfect Hoho gives this back (net cost 15: it rewards the read).")
+;; (*FS-REFUND* 15, a perfect Hoho's flash-step back, removed 2026-10-18, the user: 「取消完美閃避能減少閃步量表消耗的設定」,
+;; DUEL_DESIGN "Perfect Hoho without a refund": a perfect Hoho costs its full 30)
 
 ;;; ---------------------------------------------------------------- guard gauge (design v3 G.2)
 (defparameter *gg-max* 100.0 "Guard gauge maximum; full at the start and after every Kikon reset (both).")

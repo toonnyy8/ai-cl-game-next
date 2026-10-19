@@ -283,8 +283,7 @@ back-skate, or a side slide (the kit's :run-clips)."
 
 (defun start-hoho (e f)
   "Hoho: spend *FS-HOHO* flash-step (during a burst what is left, if less: HOHO-COST), vanish, reappear behind the
-opponent (HOHO-STEP). Checks PERFECT now (a perfect one refunds *FS-REFUND*, not during a burst; one the assist pressed
-is never perfect)."
+opponent (HOHO-STEP). Checks PERFECT now (one the assist pressed is never perfect; no flash-step refund since 2026-10-18)."
   (let ((g (gauges e)))
     (spend-fs g (hoho-cost (gauges-fs g) (gauges-burst g)))
     (setf (fighter-perfect f) (and (not (fighter-assist-next f)) (perfect-now-p e))   ; (before leaving the move: a cancel
@@ -297,7 +296,6 @@ is never perfect)."
     (when (fighter-perfect f)
       (let ((o (opp-of e)))
         (incf (gauges-perfects g))
-        (setf (gauges-fs g) (f32 (min *fs-max* (+ (gauges-fs g) (burst-fs-gain *fs-refund* (gauges-burst g))))))
         (setf (fighter-lock-next (fighter o)) *perfect-lock*)
         (respect o)
         (slowmo *perfect-slowmo-scale* *perfect-slowmo-seconds*)

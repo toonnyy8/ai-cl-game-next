@@ -268,7 +268,7 @@ West's ward too, ×1.1: the 2nd K K K crushes it).
 
 **Flash-step gauge** (0–100, full at the start, kept through Kikon resets): Hoho costs 30; a burst (any of the three
 modes, "Burst modes" at the end) needs 70 and then drains it to 0, gaining nothing meanwhile; +3/s once 60 f pass after the last spend, +0.03 per damage taken (a full Reishi bar is
-+33); a perfect Hoho refunds 15. Full: Hoho ×3, or Burst + Hoho. HUD: a steel-blue bar under
++33); a perfect Hoho refunds nothing (15 until 2026-10-18). Full: Hoho ×3, or Burst + Hoho. HUD: a steel-blue bar under
 REIATSU with ticks at 30 and 70; the part past 70 glows while a Burst is possible.
 
 **Reiatsu** (3 bars, 0–300): SPs only. +3/s, +0.08 per damage dealt, +0.10 per damage taken, and KŌSEI (below). SP1
@@ -1042,7 +1042,7 @@ batch: §4, §6.1, §6.2, §12):
 | Burst invulnerability | v1: 30 f (critique: 20) | 20 f, the user neutral at once, attacker pushed 5 m over 20 f, 8 f hitstop | critique-design 1.7 |
 | Dash | design draft: "dash versions" of Q1 / F1 | hold Step: the run after the hop; any move out of it, +1 m of momentum | One rule for every move instead of two extra moves per kit |
 | Guard | infinite; only a Breaker breaks it | a **guard gauge**: guard values per move, GUARD CRUSH (40 f) at 0 and guardless until full; the Breaker still breaks and drains 35 | The user asked for it (design v3 G.2) |
-| Hoho / Burst cost | 1 / 2 Reiatsu bars; Reiatsu +5/s | a **flash-step gauge**: Hoho 30, Burst 70, +3/s after 60 f, perfect refund 15; Reiatsu pays SPs only, +3/s | The user asked for it (design v3 G.1, G.3) |
+| Hoho / Burst cost | 1 / 2 Reiatsu bars; Reiatsu +5/s | a **flash-step gauge**: Hoho 30, Burst 70, +3/s after 60 f, perfect refund 15 (0 since 2026-10-18); Reiatsu pays SPs only, +3/s | The user asked for it (design v3 G.1, G.3) |
 | The contact rule | armour and the stance's absorb counted as the attacker's hit (strings, cancels, the flurry went on) | only a real hit is a hit (`contact-of`) | A root-cause fix (design v2 §0) |
 | Kikon (O) | one rush per character (aura 5, 16 m/s ≤ 22 f, strike 8/3/24); unguardable on a red opponent | a **module** per form (ENJO, KITA: TENCHI, CHARGE, LEAP CLEAVE; cooldown 90); the strike always guardable; a hit with O held = the Kikon on red, a guardable **follow-up** otherwise (its hit = the Kikon) | The user asked for per-character O (design v2 §B) and corrected the guard rule (red: the strike can be guarded, a hit is a guaranteed Kikon; not red: a follow-up he can guard) |
 | Camera | one pair camera for every mode | behind P1 in VS CPU (default), the pair camera elsewhere; the sim owns both views' direction | The user asked for RoS's default camera |
@@ -1319,8 +1319,8 @@ A projectile / hazard hit never opens ORANGE (like KOSEI, only the fighter's own
 
 - **Nothing is spent up front** (the user's default 2026-09-30); the drain is the cost: `*burst-drain*` **18** flash-step
   per second from the press. Started at 70 it lasts 3.9 s, at 100 5.6 s.
-- During a burst the flash-step gauge **gains nothing**: no regen, no damage-taken gain, no KOSEI flash-step, no perfect-
-  Hoho refund, nothing a siphon would pay (`pay-gauges`, rules `burst-fs-gain`).
+- During a burst the flash-step gauge **gains nothing**: no regen, no damage-taken gain, no KOSEI flash-step (no perfect-
+  Hoho refund at all since 2026-10-18), nothing a siphon would pay (`pay-gauges`, rules `burst-fs-gain`).
 - **Hoho below one bar:** during a burst a Hoho needs only flash-step > 0 (not `*fs-hoho*` 30); it spends 30 or what is
   left (rules `hoho-cost`), so a Hoho at 12 empties the gauge and ends the burst. The Hoho lockout still applies.
 - The burst **ends** when the gauge reaches 0 (the regen delay `*fs-delay*` restarts then), or at a Kikon / Soul Break
@@ -1702,4 +1702,10 @@ assisted Hoho is never perfect. The design and its gate are in docs/duel/DUEL_AS
   learning CPU's tables use 100–10099.)
 - **Prompts** (control.lisp `key-prompt`, cached until a rebind): the HUD's BURST / CHAIN and HOLD .. KIKON text reads the
   current bindings of that side and device (P2's keyboard KP ENTER+KP1 included); the one-hand flick prompts are fixed.
+
+## Perfect Hoho without a refund (2026-10-18)
+
+The user: 「然後幫我取消完美閃避能減少閃步量表消耗的設定」. A perfect Hoho no longer gives flash-step back: `*fs-refund*` 15 → removed
+(fighter.lisp START-HOHO); it costs its full 30 like any Hoho (during a burst what is left, as before). Its other rewards stay:
+the slow motion, the opponent's 40 f lock, the automatic counter (60), RESPECT, the perfects counter. Gates: DEVLOG §286 (the lead, 2026-10-19).
 

@@ -492,7 +492,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (equal (multiple-value-list (kikon-refund 10.0 50.0)) '(45.0 150.0))
             (equal (multiple-value-list (kikon-refund 90.0 250.0)) '(100.0 300.0))))
 ;; the flash-step gauge (design v3 G.1): Hoho 30, Burst 70, no Reiatsu; 3 / s after 60 f; +0.03 per damage taken
-(check (and (= *fs-hoho* 30) (= *fs-burst* 70) (= *fs-refund* 15) (~= *fs-taken* 0.03) (= *fs-max* 100)))
+(check (and (= *fs-hoho* 30) (= *fs-burst* 70) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.03) (= *fs-max* 100)))
 (check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.05) (~= (fs-regen 99.99 600) 100.0)))
 (check (~= 3.0 (- (loop with f = 0.0 for i below 60 do (setf f (fs-regen f 60)) finally (return f)) 0.0)))   ; 3 per second
 (check (~= 600 (/ *fs-hoho* (/ *fs-regen* 60.0)) 0.5))                     ; ... a Hoho from empty in 11 s (10 + the 1 s delay)
