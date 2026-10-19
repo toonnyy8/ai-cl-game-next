@@ -62,20 +62,26 @@ duel/lisp/hisagi.lisp is the truth (its knobs' docstrings name the decisions); d
 record whose early sections are superseded: read §17.1-§17.3 (the Bankai's two modes and the bind), §20 (the Bankai's CPU as
 built), §22.2, §22.6, §22.8-§22.9 (the ranged mode's dead zone, routes, K1 annulus), §23.1-§23.5 (the Shikai's windmill
 bridge, charge, K string, the leap), §24.4-§24.5 (one leap a combo, K1's 3.0 m dead zone, no FREE button, KUBIKAKE
-without a cooldown, its whiff 60 f), §25.3 (the ranged mode's J 3-6 m, K 1-4 m, the 3.5 m placement). In short:
-  - the Shikai (:base): J1-J3 close (the plain string), K1 薙 NAGI a sideways chain sweep 3.0-6.0 m (dead zone 3.0), K2 NOKO
+without a cooldown, its whiff 60 f), §25.3 / §25.5 (the ranged mode's J 3-6 m, K 2-5 m, the 3.5 m placement, L's recovery
+cancel, the tip's SP), §25.7-§25.10 (SAHARAI S 18, KOJO's yank a hit, the cancel only on a hit, the Shikai's J 1.7 m, the
+bind's Step J SENGEN). In short:
+  - the Shikai (:base): J1-J3 close (the plain string, reach 1.7 m), K1 薙 NAGI a sideways chain sweep 3.0-6.0 m (dead zone 3.0), K2 NOKO
     / K3 TSUI follow the victim along the chain (always connect, blockable); the routes JJJ JJK JKK KKK KJJ KKJ; a J after a
     K leaps in (J2K / J3K, once a combo: HS-LINK-OK); L the windmill KAZAGURUMA (wards ranged hits, no cooldown; held, it
     charges the next K string's reach +1 %/f up to x1.6; K from its f9 starts the K string); L off a J link = the bridge
     (HS-KAZA-J, a 2.5 m stagger push) so J -> L -> K1 combos; SP1 TSUZURI RAIDEN (6.5 m line, paralyse), SP2 SHIBARI
     (4.5 m line, bind + slam); the awakening (AI-AWAKEN-P) -> the Bankai's ranged mode.
   - the Bankai ranged mode (:bankai): every hit :ranged; every J (J1 / J2 / J3, gathered J2s / J3G) an annulus 3.0-6.0 m,
-    every K (K1, spread K2s / K3, gathered K2 / K3G) 1.0-4.0 m (§25.3); J1 / J2 / K1 / K2's slam place the victim at 3.5 m
+    every K (K1, spread K2s / K3, gathered K2 / K3G) 2.0-5.0 m (§25.5); J1 / J2 / K1 / K2's slam place the victim at 3.5 m
     (pushed or dragged), so every route's cross link combos; the routes decided by the opener (J1 -> the spread route, K1 ->
-    the gathered route); L SAHARAI the push-away (3.0 m ring), SP1 TSUZURI RAIDEN (9 m line), SP2 KUBIKAKE the binding throw
-    (7 m line, no cooldown; a whiff costs 60 f): its hit enters the bind; the tip x1.3 on each volume's outer 1.0 m.
+    the gathered route); L SAHARAI the push-away (3.0 m ring, S 18 with a readable charge, R 32, -16 on block; on a HIT its
+    recovery is cancelled by J / K into J1 / K1, never on a block or a whiff: §25.5, §25.8), SP1 TSUZURI RAIDEN (9 m line),
+    SP2 KUBIKAKE the binding throw (7 m line, no cooldown; a whiff costs 60 f): its hit enters the bind; the tip (each
+    volume's outer 1.0 m) x1.3 damage and x1.3 Reiatsu gain.
   - the bind mode (:bankai-bind): both fighters on the chain, damage goes to a shared grey pool; it ends drained (the grey
-    turns real) or released; his J / K strings, L KOJO the pull, SP2 KAIBAKU-GEKI; the CPU releases on its grey margin.
+    turns real) or released; his J / K strings, L KOJO the pull (its yank at f20 a 20-damage flinch along the chain, then the
+    reap at S 30: §25.7), the Step's J 穿弦 SENGEN (:hs-b-sj, S 10 / A 3 / R 22, 40 dmg, 2.2 m arc 60, a stagger; on a HIT
+    its recovery is cancelled by J into J1: §25.10), SP2 KAIBAKU-GEKI; the CPU releases on its grey margin.
 - duel/lisp/hisagi.lisp's CPU: the three kits' `:ai` plists (:base, :bankai, :bankai-bind), the CPU section (HS-P,
   HS-AI-REFLEX, HS-AI-SIG-HOLD, HS-AI-KAZA-K, HS-AI-ENDER, HS-AI-LEAP-WANTED-P, HS-AI-MOVE; HS-R-AI-REFLEX, HS-R-AI-THROW-P,
   HS-R-AI-ENDER, HS-R-REACHES-P, HS-R-AI-MOVE, HS-GREY-MARGIN, HS-B-AI-REFLEX, HS-B-AI-ENDER, HS-RELEASE-WANTED-P), the
@@ -86,8 +92,8 @@ without a cooldown, its whiff 60 f), §25.3 (the ranged mode's J 3-6 m, K 1-4 m,
   :sp2 / :step weights press the form's commands), STRING-REFLEX (:move-reflex, :sp-ender, :l-after-j, :string-k), the
   generic keys, AI-AWAKEN-P, BRAIN-REACT-ROLL / BRAIN-GUARD-ROLL (one per opponent action), AI-BRAIN, RANGED-THREAT-IN.
 - tools/aieval.py (its docstring, SIG_HISAGI) and DUEL_HISAGI §25: what is measured.
-- The baseline is BROKEN: see BASELINE_DIR/score.json (at the old reach: HARD strength 0.000 of 480, masher 0.165, NORMAL
-  share 0.10; re-measured on §25.3's reach for this freeze). Diagnose with the combat log (tools/simgate/run-log.lisp, as aieval runs it; the `duel hisagi`
+- The baseline is BROKEN: see BASELINE_DIR/score.json (re-measured for this freeze on §25.5-§25.10's rules, DUEL_HISAGI
+  §25.6). Diagnose with the combat log (tools/simgate/run-log.lisp, as aieval runs it; the `duel hisagi`
   pacing line counts his CPU's choices) before designing.
 
 # The score (tools/aieval.py --char 7; frozen)
@@ -102,7 +108,7 @@ when pacing fails:
          HS-KAZA-J, SP1 HS-RAIDEN, SP2 HS-SHIBARI;
   ranged the Bankai's HS-R-K1, every route link past J1 (HS-R-J2 / J2S / J3 / J3G / K2 / K2S / K3 / K3G), the L HS-R-L, the
          SPs HS-R-SP1 / SP2(C), KUBIKAKE HS-R-KUBIKAKE(-C);
-  bind   every HS-B- move but its Kikon.
+  bind   every HS-B- move but its Kikon (SENGEN HS-B-SJ included).
   Never his plain J string (HS-J1..J3), the ranged J1, the Breaker or a Kikon. The JSON's "sig_by" breaks his damage down by
   theme (chain / ranged / bind / plain-j / other:NAME).
 - NORMAL factor: NORMAL Hisagi vs each other NORMAL CPU, both seats: his win share in [0.30, 0.60] -> x1; outside it the

@@ -207,8 +207,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
         (unless q (return (nreverse out)))
         (setf m (kit-next k (mv-name m) q))
         (push (mv-name m) out)))))
-(defun on-hit-adv (m)
-  (let ((w (svref (mv-hits m) 0))) (- (or (hw-stun w) (hitstun (hw-react w))) (- (mv-total m) (hw-from w)))))
+(defun on-hit-adv (m &optional (i 0))
+  (let ((w (svref (mv-hits m) i))) (- (or (hw-stun w) (hitstun (hw-react w))) (- (mv-total m) (hw-from w)))))
 (dolist (cf (remove-if #'trace-form-p *forms*))
   (let* ((k (apply #'kit cf)) (links (link-moves k)) (j1 (kit-command-move k :q)) (k1 (kit-command-move k :f))
          (cup3 (equal cf '(:kenpachi :nomihose))) (fails0 *fails*) (a (owl-adv cf))
@@ -740,7 +740,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
      (lambda (name m)
        (let ((ok (and (member (mv-kind m) *kinds*)
                       (>= (mv-s m) 0) (>= (mv-a m) 0) (>= (mv-r m) 0) (>= (mv-whiff m) (mv-r m))
-                      (every (lambda (w) (and (<= (mv-s m) (hw-from w)) (< (hw-from w) (hw-to w))
+                      (every (lambda (w) (and (or (<= (mv-s m) (hw-from w)) (hw-seg w))   ; (a :seg-fn hit may land
+                                              (< (hw-from w) (hw-to w))                    ;  before S: KOJO's yank, §25.7)
                                               (<= (hw-to w) (+ (mv-s m) (mv-a m))) (or (hw-vols w) (hw-seg w))))
                              (mv-hits m))
                       (or (eq (mv-kind m) :kikon) (zerop (mv-dmg m)) (plusp (length (mv-hits m))))
@@ -3358,7 +3359,7 @@ past the ends; DEFAULT if the clip is not listed."
       (destructuring-bind (c o cl) row
         (let ((x (m c)) (y (m o)))
           (check (or (and (= *hs-leap-s* (mv-s x) 14) (= (mv-a x) (mv-a y)) (= (mv-r x) (mv-r y)) (= (mv-dmg x) (mv-dmg y))
-                          (equal (mv-flags x) (mv-flags y)) (eq (mv-clip x) cl) (~= (mv-reach x) (mv-reach y)) (~= (mv-reach x) 1.4)
+                          (equal (mv-flags x) (mv-flags y)) (eq (mv-clip x) cl) (~= (mv-reach x) (mv-reach y)) (~= (mv-reach x) 1.7)   ; (§25.9: 1.4 -> 1.7)
                           (~= (mv-clip-speed x) 1.0) (= 14 (round (* 60 (clip-mark cl :s))))
                           (= (+ 14 (mv-a x) (mv-r x)) (round (* 60 (clip-dur (find-clip cl)))))
                           (eq (hw-react (svref (mv-hits x) 0)) (hw-react (svref (mv-hits y) 0)))
@@ -3435,7 +3436,7 @@ past the ends; DEFAULT if the clip is not listed."
                    (:hs-b-l 30 4 36 70 30 -24 3.0)))                                        ;  L KOJO)
       (destructuring-bind (name s a r dmg g adv reach) row
         (let ((x (m name)))
-          (check (or (and (= s (mv-s x)) (= a (mv-a x)) (= r (mv-r x)) (= dmg (mv-dmg x)) (= g (hw-guard (svref (mv-hits x) 0)))
+          (check (or (and (= s (mv-s x)) (= a (mv-a x)) (= r (mv-r x)) (= dmg (mv-dmg x)) (= g (hw-guard (or (find (mv-s x) (mv-hits x) :key #'hw-from) (svref (mv-hits x) 0))))
                           (= adv (mv-adv-block x)) (~= reach (mv-reach x)))
                      (format t "  Hisagi Bankai table mismatch ~s~%" name))))))
     ;; the routes' ratios (the user: 「散 −3 幀×0.85／聚 +3 幀×1.3」): every spread / gathered link 2-3 against its base
@@ -3733,9 +3734,14 @@ past the ends; DEFAULT if the clip is not listed."
         (t-at o 0 -8) (hs-pull-go h) (setf (fighter-sf fh) 30)
         (hs-pull-step h fh st)
         (check (and (not (hss-pull st)) (~= 8.0 (- (aref (pos-of o) 2)))))   ; (at S: no drag)
-        (check (and (= 0 (on-hit-adv (m :hs-b-l))) (= -24 (mv-adv-block (m :hs-b-l))) (zerop (kit-command-cost kb :sig))
-                    (eq :crumple (hw-react (svref (mv-hits (m :hs-b-l)) 0))) (= 30 *hs-kojo-s*) (= 36 *hs-kojo-r*)
+        (check (and (= 0 (on-hit-adv (m :hs-b-l) 1)) (= -24 (mv-adv-block (m :hs-b-l))) (zerop (kit-command-cost kb :sig))
+                    (eq :crumple (hw-react (svref (mv-hits (m :hs-b-l)) 1))) (= 30 *hs-kojo-s*) (= 36 *hs-kojo-r*)
                     (= 70 *hs-kojo-dmg*) (= -24 *hs-kojo-block*)))
+        ;; §25.7 (「卍解近距離 L 拉扯的那一下也算入傷害判定」): the yank its own hit along the chain, f20-21, 20 dmg, a flinch
+        (let ((y (svref (mv-hits (m :hs-b-l)) 0)))
+          (check (and (= 2 (length (mv-hits (m :hs-b-l)))) (= *hs-kojo-pull-at* (hw-from y) 20) (= *hs-kojo-yank-to* (hw-to y) 22)
+                      (= 20 *hs-kojo-yank-dmg* (hw-dmg y)) (eq :flinch (hw-react y)) (hw-seg y)
+                      (= 30 (hw-from (svref (mv-hits (m :hs-b-l)) 1))))))
         (setf (fighter-dist fh) 1.0f0)
         (check (and (hs-bk-ok h :sig nil) (hs-bk-ok h :q nil)))
         ;; SP2 KAIBAKU-GEKI (「捆綁的 SP2 換成解除並附加傷害」, 「先還原再打，傷害 120」): the move itself off a hit too (the
@@ -3919,11 +3925,13 @@ past the ends; DEFAULT if the clip is not listed."
       (let ((bk-moves '(:hs-r-j1 :hs-r-j2 :hs-r-j3 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake
                         :hs-r-k1 :hs-r-k2s :hs-r-k3 :hs-r-k2 :hs-r-j2s :hs-r-k3g :hs-r-j3g      ; (A2: the route links)
                         :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l :hs-b-sp2   ; (A3, §24.3: SP2's own)
+                        :hs-b-sj                                                         ; (§25.10: SENGEN)
                         :hs-k1 :hs-j2k :hs-j3k)))   ; (A1, §24.1: the Shikai's K1 sweep and leap J, their let-outs too)
         (dolist (n bk-moves)
           (let* ((mv (m n)) (clip (mv-clip mv)) (sr (third (assoc clip *hs-strike-reach*))))
             (check (null (getf *hs-r-clip-stand-ins* clip)))                ; (its own clip, no stand-in)
             (loop for hw across (mv-hits mv) for wi from 0
+                  when (hw-vols hw)                                       ; (KOJO's yank: a :seg-fn window, §25.7)
                   do (let* ((vol (first (hw-vols hw)))
                             (cap (> (aref vol 0) 0.5)) (edge (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1)))
                             (sp (mv-clip-speed mv)) (c0 (* sp (hw-from hw))) (c1 (* sp (1- (hw-to hw))))   ; (the hit frames in

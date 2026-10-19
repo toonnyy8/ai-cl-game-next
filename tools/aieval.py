@@ -57,7 +57,7 @@ SIG_BARRO = re.compile(r'^BR-(?:(?:S|E|OE)-(?:[JK]\d|JL\d|KL\d|L1-[23])|K-HIREN(
 # one-handed ones), the ranged J1, the Breaker or a Kikon
 SIG_HISAGI = {'chain': re.compile(r'^HS-(?:K[123]|K2[JS]|J[23]K|KAZA(?:-J)?|RAIDEN|SHIBARI)$'),
               'ranged': re.compile(r'^HS-R-(?:K1|K2S?|K3G?|J2S?|J3G?|L|SP1|SP2C?|KUBIKAKE(?:-C)?)$'),
-              'bind': re.compile(r'^HS-B-(?:[JK]\dS?|L|SP\d)$')}
+              'bind': re.compile(r'^HS-B-(?:[JK]\dS?|SJ|L|SP\d)$')}   # (SJ: the Step J SENGEN, §25.10)
 NORMAL_BAND = {BARRO: (0.30, 0.60),               # Lille II: his NORMAL win share (both seats) in this band (DREAM_RSI §5.5;
                HISAGI: (0.30, 0.60)}              # Hisagi: as Lille's, his shipped CPU weak (DUEL_HISAGI §25)
 NORMAL_FALL = 0.15                                # the baseline's broken weak by R12-R17: 0.07), else the score x a factor falling
