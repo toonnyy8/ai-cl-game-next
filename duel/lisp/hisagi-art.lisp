@@ -202,8 +202,8 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
   (:solid :ink 0 (mb-blade mb :length 0.66 :width 0.028 :curve 0.012 :blade-color '(0.6 0.62 0.66) :edge-color '(0.86 0.88 0.9) :hilt nil)))
 
 (defparameter *hs-strike-reach* '((:hs-s-nage :sickle 6.0) (:hs-s-maki :sickle 3.55) (:hs-s-kari :sickle 2.8)   ; (the Shikai's
-                                  (:hs-s-kaeshi :sickle 1.4) (:hs-s-rin :sickle 1.4)                          ;  clips, §21.4;
-                                  (:hs-s-nagi :sickle 6.0) (:hs-s-tobi-kaeshi :sickle 1.4) (:hs-s-tobi-rin :sickle 1.4)   ;  A1, §24.1)
+                                  (:hs-s-sen :sickle 1.7) (:hs-s-kaeshi :sickle 1.7) (:hs-s-rin :sickle 1.7)  ;  clips, §21.4;
+                                  (:hs-s-nagi :sickle 6.0) (:hs-s-tobi-kaeshi :sickle 1.7) (:hs-s-tobi-rin :sickle 1.7)   ;  A1, §24.1; §25.9: J 1.7)
                                   (:hs-k-saben :sickle 6.0) (:hs-k-kaeshi :sickle 6.0) (:hs-k-sensa :sickle 6.0)  ; (the Bankai's,
                                                                                 ;  §21.8; B4a: the annuli's 4.5 / 5.0, the K placed, §22.2: the
                                   (:hs-kb-kaeshi :sickle 1.5) (:hs-kb-hikigiri :sickle 2.95)                    ;  ranged mode,
@@ -274,18 +274,19 @@ since A1, DUEL_HISAGI §24.1, K1 NAGI's sweep too: a let-out swept across the ar
 this far back through his fist (m), so he holds it just behind the blades' crossing; its point (the FK test's tip) is
 0.75 - this ahead of the fist, its butt 0.22 + this behind. HS-POSE eases it in and out (4 m/s); the FK test reads it.")
 (defparameter *hs-letout*
-  '((:hs-s-kaeshi :l 3 8 11 18 1.4 nil nil 0)       ; J2: the left sickle flung out on the arm's rising line
-    (:hs-s-rin :r 2 6 12 22 1.4 nil nil 0)          ; J3: both whirled out round him
-    (:hs-s-rin :l 2 6 12 22 1.4 nil nil 0)
+  '((:hs-s-sen :r 3 8 11 18 1.7 nil nil 0)          ; J1: the right sickle let out a hand's length on its chain (§25.9)
+    (:hs-s-kaeshi :l 3 8 11 18 1.7 nil nil 0)       ; J2: the left sickle flung out on the arm's rising line
+    (:hs-s-rin :r 2 6 12 22 1.7 nil nil 0)          ; J3: both whirled out round him
+    (:hs-s-rin :l 2 6 12 22 1.7 nil nil 0)
     (:hs-s-kari :r 10 22 30 46 2.8 0.3 -60 1.8)     ; KARI-OTOSHI: over his head and down to the fan's edges
     (:hs-s-kari :l 10 22 30 46 2.8 0.3 60 1.8)
     (:hs-s-intro :r 70 82 82 96 0.3 2.9 0 0)        ; the intro: tossed up, split, caught
     (:hs-s-intro :l 70 84 84 98 0.5 2.6 25 0)
     (:hs-s-nagi :l 9 16 24 36 6.0 1.0 (160 75 -75) 0)   ; A1 (§24.1): K1 薙, flung out behind him, swept L -> R at 6.0 x the
                                                         ;  charge (the hit frames f18-21 at +38 / +19 / 0 / -19: inside +-45)
-    (:hs-s-tobi-kaeshi :l 9 14 17 24 1.4 nil nil 0)     ; J2K: J2's let-out, 6 f later (out in the leap's fall)
-    (:hs-s-tobi-rin :r 8 12 17 27 1.4 nil nil 0)        ; J3K: J3's two, out from the leap's top
-    (:hs-s-tobi-rin :l 8 12 17 27 1.4 nil nil 0)
+    (:hs-s-tobi-kaeshi :l 9 14 17 24 1.7 nil nil 0)     ; J2K: J2's let-out, 6 f later (out in the leap's fall)
+    (:hs-s-tobi-rin :r 8 12 17 27 1.7 nil nil 0)        ; J3K: J3's two, out from the leap's top
+    (:hs-s-tobi-rin :l 8 12 17 27 1.7 nil nil 0)
     (:hs-k-saben :r 9 12 16 24 6.0 1.2 nil 0)       ; the Bankai (§21.8): J1 鎖鞭, the right crescent cracked out (§25.3: 6.0)
     (:hs-k-kaeshi :l 8 11 15 23 6.0 1.2 nil 0)      ; J2 返鞭, the left lashed back (6.0)
     (:hs-k-sensa :r 10 13 17 26 6.0 1.0 nil 0)      ; J3 旋鎖, both at full chain round the half turn (6.0)

@@ -3040,6 +3040,16 @@ MOVE-COMMANDS' `:r-cancel` branch (fighter.lisp) now also asks that the move hit
 hit cancels into J1 / K1 from its first recovery frame; a blocked or whiffed one plays its full 32 f recovery (−16 on block).
 Built, not tested (tests wait for the user's word).
 
+### 25.9 The Shikai's J a little longer (the user, 2026-10-19)
+
+> 「然後幫我把始解的 J 範圍稍微加長」
+
+`*hs-j-reach*` (new) **1.7 m** for J1 旋 SEN / J2 返旋 KAESHI-SEN / J3 輪 RIN (1.4, the J floor's, → 1.7: the lead's number for
+「稍微」, +0.3 m); the leaps J2K / J3K are their copies; the J ender's push follows J1's reach (1.7 + its 0.3 lunge + the body
++ 0.05). The art: J1 now lets its right sickle out on the chain to 1.7 m on its hit frames (a new `*hs-letout*` row, f3-18,
+as J2's), J2 / J3 and the leaps' let-outs 1.4 → 1.7, `*hs-strike-reach*` likewise. Built, not tested (tests wait for the
+user's word).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.

@@ -3075,7 +3075,7 @@ past the ends; DEFAULT if the clip is not listed."
                 (eq 'hs-chain-seg (hw-seg (svref (mv-hits (find-move :hs-k3h)) 0)))
                 (notany (lambda (n) (gethash n (kit-moves k))) '(:hs-k2s :hs-k3h))))
     ;; the §8.2 table (S1's K string): S A R dmg guard block reach
-    (dolist (row '((:hs-j1 8 3 12 30 8 -2 1.4) (:hs-j2 8 3 13 30 8 -2 1.4) (:hs-j3 9 3 18 38 12 -4 1.4)
+    (dolist (row '((:hs-j1 8 3 12 30 8 -2 1.7) (:hs-j2 8 3 13 30 8 -2 1.7) (:hs-j3 9 3 18 38 12 -4 1.7)   ; (§25.9: J 1.7)
                    (:hs-k1 18 4 22 62 14 -3 6.0) (:hs-k2 20 4 24 56 14 -3 6.0) (:hs-k3 22 5 34 80 18 -20 6.0)))
       (destructuring-bind (name s a r dmg g adv reach) row
         (let ((x (find-move name)))
@@ -3224,11 +3224,11 @@ past the ends; DEFAULT if the clip is not listed."
         (check (eq :idle (fighter-state fa)))
         (setf (hss-state st) :in)))
     ;; the K enders' push (Q6 B): from 6.0 m, out of the throw's full reach: 6.0 + the victim's radius + 0.05 (6.43 by a 0.38
-    ;; body, 6.50 by Kenpachi's 0.45); a J ender's from J1's (1.4 + 0.3 + r + 0.05). After it: the O lane reaches him from
+    ;; body, 6.50 by Kenpachi's 0.45); a J ender's from J1's (1.7 since §25.9 + 0.3 + r + 0.05). After it: the O lane reaches him from
     ;; where Hisagi stands (no dash; 7.0 + its radius 1.0 + r); SP1 (6.5 + 0.3 + r) too; SP2's 4.5 m line chases him in its
     ;; 16 f startup (STRING-CHASE-SPEED off an ender, <= *ENDER-CHASE-MAX*), measured below
     (check (and (~= 6.0 (ender-push-reach k (m :hs-k3) (m :hs-k1))) (~= 6.0 (ender-push-reach k (find-move :hs-k3h) (m :hs-k1)))
-                (~= 1.4 (ender-push-reach k (m :hs-j3) (m :hs-j1)))))
+                (~= 1.7 (ender-push-reach k (m :hs-j3) (m :hs-j1)))))
     (dolist (r '(0.34 0.36 0.38 0.45))
       (let* ((push (+ 6.0 (mv-slide (m :hs-k1)) r *ender-push*)) (o (m :hs-kikon)) (ov (first (hw-vols (svref (mv-hits o) 0))))
              (sp1 (m :hs-raiden)) (sp2 (m :hs-shibari)) (d push))
