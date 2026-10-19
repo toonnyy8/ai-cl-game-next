@@ -3177,7 +3177,39 @@ Control 89, learn 131, cine 18 ALL PASS; pkgcheck clean; the build with the 4 kn
 and K3G (40 25 32 86); debug 83902 runs; no exception. The sim gates are not run (the user: 「不用跑 gate」).
 
 **The search**: stopped after round 1's four first cells (b0a0 0.637, b1a0 0.5669, b2a0 0.6836, b3a0 0.7658 at the §25.12
-freeze); b0a1 / b1a1 were briefed but not dispatched (removed). It re-freezes on these rules (§25.14).
+freeze); b0a1 / b1a1 were briefed but not dispatched (removed). It re-freezes on these rules (§25.15).
+
+### 25.14 FREE back: the bind's P release (the user, 2026-10-19; a sim change)
+
+> 「目前捆綁模式被攻擊與其他的硬直狀態下，能主動使用 SP2 解除綁縛並打斷對手攻勢嗎」 (no: in hitstun / blockstun only Burst and
+> AWAKEN are taken, and KAIBAKU-GEKI has S 18, no invulnerability); 「原本 free 按鍵的效果是不是能做到這件事？」 (yes: §17.3's
+> FREE, removed in §24.5); 「恢復 FREE 按鍵」.
+
+**As built**: §24.5's removal reverted for FREE only (KUBIKAKE keeps no cooldown and its 60 f whiff):
+- **The hook**: `*hs-bk-hooks*` regains `:p hs-p-press :p-label hs-p-label` (the bind mode only; the ranged mode's
+  `*hs-r-hooks*` has none), so the touch deck's chip reads FREE again.
+- **The release**: HS-P-PRESS, HS-REL-FREE-P, HS-REL-DUE-P, HS-P-PRESSED! and HSS-REL-HELD are back. When it can be pressed:
+  - at once from idle / walk / guard / blockstun / a run;
+  - in hitstun or airborne under the Burst rule (inputs not locked, past the combo's 2nd hit);
+  - during his own move: held to its last frame, never a cancel.
+
+  At the step's release slot (where a Burst applies, before the hits) the effects are:
+  - the bind ends (the snapshot back, the pool split, B8);
+  - the hazards are cleared;
+  - the opponent's move ends into a `*hs-bind-reel*` 30 f stagger;
+  - his own hitstun ends into UNWIND (20 f, no hit).
+
+  No damage, no cost. The hash line's H column is back.
+- **His CPU (the baseline's)**: `*hs-ai-plain-release-p*` (0.1 / 0.15 / 0.2) and HS-B-AI-REFLEX's plain-P branch are back.
+  Behind on grey with the foe beyond KAIBAKU-GEKI's reach, he presses FREE that often, else he waits.
+
+**Host tests**: duel-rules **9854** ALL PASS (+4). The bind kit has `:p` / `:p-label`, the ranged kit has none, and the
+label reads "FREE". HS-REL-FREE-P and HS-REL-DUE-P are pinned again. FREE is refused in a combo's 1st hit and taken from its
+2nd. A press held during a move fires on its last frame. P is the plain release (no strike, UNWIND, no reel after). Control
+89, learn 131, cine 18, touch 64 ALL PASS; pkgcheck clean; built.
+
+**Smoke** (headless): debug 83012 (a bind 3 m from Kenpachi), P → `KAIBAKU`, `BIND RELEASED: 300.0 to the opponent, 133.3
+back`, UNWIND; the probe after shows no bind. The sim gates are not run (the user: 「不用跑 gate」).
 
 ## 18. Open
 

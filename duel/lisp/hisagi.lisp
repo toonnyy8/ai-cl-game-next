@@ -175,6 +175,9 @@ loss exceeds the opponent's by *HS-AI-RELEASE-MARGIN* (Konpaku x 1300 + Reishi, 
 (defparameter *hs-ai-kojo-p* '(:easy 0.1 :normal 0.2 :hard 0.3)
   "His CPU in a bind: L KOJO (the pull and the strike) once per entry into 2.5-4 m, sparingly (its -24 / 0: B4c; HIKIYOSE's
 was 0.3 / 0.6 / 0.85 beyond 4 m).")
+(defparameter *hs-ai-plain-release-p* '(:easy 0.1 :normal 0.15 :hard 0.2)
+  "His CPU in a bind, behind on grey with the foe beyond KAIBAKU-GEKI's reach: the plain release (P, FREE) this often, else
+he waits for the strike's range (B4c; gone with FREE in §24.5, back with it in §25.14).")
 (defparameter *hs-ai-bind-sp-p* '(:easy 0.1 :normal 0.35 :hard 0.7)
   "His CPU in a bind: an SP off a link-3 hit (:sp-ender) only while he is ahead on grey (it drains the pool, §17.5 #16).")
 
@@ -566,9 +569,10 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
                              :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot
                              :dmg-mult hs-dmg-mult)
   "The ranged mode's hooks: the Bankai's (*HS-BK-HOOKS*) without :p / :p-label: P does nothing there since KUBIKAKE moved
-to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the bind mode's too since §24.5 (no FREE).")
+to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the bind mode's P the release FREE (gone in
+§24.5, back since §25.14).")
 (defparameter *hs-bk-hooks* '(:tick hs-bk-tick :ok hs-bk-ok :command hs-bk-command :hit hs-bk-hit :reset hs-reset
-                              :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck
+                              :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :p hs-p-press :p-label hs-p-label
                               :bind hs-binding :bind-damage hs-bind-damage :bind-pool hs-bind-pool :bind-heal hs-bind-heal
                               :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot
                               :dmg-mult hs-dmg-mult)
@@ -622,7 +626,8 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
   :hooks *hs-bk-hooks*
   ;; the melee rushdown inside the bind, close in (x1.2 within 1.2 m, B4a); L KOJO (pull + strike) now and then at 2.5-4 m,
   ;; the release and the SPs his :reflex / :sp-ender's (HS-B-AI-REFLEX: behind on grey -> SP2 KAIBAKU-GEKI in its reach,
-  ;; no plain P since §24.5; ahead -> SP1 the rain off a link 3, B4c); no generic SP cancel (the pool is shared)
+  ;; else the plain P FREE rarely (gone in §24.5, back in §25.14); ahead -> SP1 the rain off a link 3, B4c); no generic SP
+  ;; cancel (the pool is shared)
   :ai (:intents (:approach 3 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (1.2 3.0) :pressure (0.8 1.2) :zone (2.0 3.0) :defend (2.5 4.0))
        :moves ((0.0 1.2 :q 5 :f 2 :breaker 1)
@@ -704,7 +709,8 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (or0 0 :type fixnum) (ok0 0 :type fixnum)   ; the opponent's
   (bind-t -1 :type fixnum)                    ; the tick his KUBIKAKE hit with his 200 (the bind starts at that step's end)
   (bind-from -1 :type fixnum)                 ; the tick the bind started
-  (rel nil)                                   ; the release: due at the step's release slot (KAIBAKU-GEKI's S)
+  (rel nil) (rel-held nil)                    ; the release: due at the step's release slot (FREE, KAIBAKU-GEKI's S) /
+                                              ;  FREE pressed during his own move (§25.14)
   (rel-strike nil) (rel-reel nil)             ; B4c: the due release is KAIBAKU-GEKI's (no UNWIND) / its reel after the hits
   (pull nil)                                  ; L KOJO's drag runs
   (aim-yaw 0f0 :type single-float)            ; SP2 KUSARI-AME's lane (locked after *HS-AME-AIM* frames)
@@ -896,7 +902,7 @@ the charge, the K string's flag, L let go, the throw's charge."
     (format nil "s~a ~d ~d o~d r~d b~a p~d ~d/~d ~d/~d ~a~a c~d k~d~a~a~d" (case (hss-state st) (:in "I") (:out "O") (t "R"))
             (round (* 100 (aref (hss-anchor st) 0))) (round (* 100 (aref (hss-anchor st) 1))) (hss-out-t st) (hss-ret-t st)
             (if (hss-bound st) 1 0) (round (* 10 (hss-pool st))) (hss-r0 st) (hss-k0 st) (hss-or0 st) (hss-ok0 st)
-            (if (hss-rel st) "R" "-") "-" 0
+            (if (hss-rel st) "R" "-") (if (hss-rel-held st) "H" "-") 0
             (hss-charge st) (if (hss-kstr st) "K" "-") (if (hss-kz-let st) "L" "-") (hss-throw-n st))))
 
 ;;; ================================================================ the CPU (his kit's :ai; DUEL_HISAGI §10)
@@ -980,6 +986,15 @@ out of a mark: gone with the marks, B4c.)"
   "May SP2 start KUBIKAKE (§17.2; B4c: its states the generic SP2's, from neutral or as a cancel off a J / K hit): his own
 Reiatsu at *HS-KUBI-REIATSU*, no bind on the field (B15)? (No cooldown since §24.5: its whiff recovery is the price.)"
   (and (>= reiatsu *hs-kubi-reiatsu*) (not bound) t))
+(defun hs-rel-free-p (state free)
+  "May P (FREE) release the bind now (§17.3; back since §25.14): from idle / walk / guard / blockstun / a run at once; in
+hitstun / airborne under the Burst rule (FREE: AWAKEN-STATE-P, past the combo's 2nd hit, Q9 A). During his own move the
+press is held (HS-REL-DUE-P)."
+  (or (and (member state '(:idle :guard :guard-hit :run)) t) (and free (member state '(:stun :air)) t)))
+(defun hs-rel-due-p (sf end)
+  "A release held during his own move fires on its last frame (move frame SF = END - 1, END its MOVE-END-FRAME): never a
+cancel of a whiffed or blocked recovery (§17.5 #6)."
+  (>= sf (1- end)))
 (defun hs-dist-mult (form cap edge d along)
   "A hit's damage x by distance (§22.1, D): in the ranged mode (FORM :bankai) the chain tip, *HS-R-TIP-MULT* when the victim
 is within *HS-R-TIP* m of the volume's far EDGE or past it (an arc / annulus: his distance D; a line, CAP: ALONG it), else
@@ -1025,7 +1040,7 @@ floors at 0, the drained end follows at the step's hits)."
   "The bind starts (B0, at the end of KUBIKAKE's hit step): both fighters' Reishi and Konpaku snapshot, the pool = both
 Reiatsu bars (200-600), the throw re-armed (Q13 C)."
   (let* ((st (hs e)) (o (opp-of e)) (g (gauges e)) (go (gauges o)))
-    (setf (hss-bound st) t (hss-rel st) nil (hss-bind-from st) *match-tick*
+    (setf (hss-bound st) t (hss-rel st) nil (hss-rel-held st) nil (hss-bind-from st) *match-tick*
           (hss-r0 st) (gauges-reishi g) (hss-k0 st) (gauges-konpaku g)
           (hss-or0 st) (gauges-reishi go) (hss-ok0 st) (gauges-konpaku go)
           (hss-pool st) (f32 (+ (gauges-reiatsu g) (gauges-reiatsu go))) (hss-ai-rel-key st) -1)
@@ -1038,7 +1053,7 @@ Reiatsu bars (200-600), the throw re-armed (Q13 C)."
   (let ((st (hs b)))
     (pace b key)
     (pace b :pool-end (round (hss-pool st)))
-    (setf (hss-bound st) nil (hss-rel st) nil (hss-pull st) nil (hss-rel-strike st) nil)))
+    (setf (hss-bound st) nil (hss-rel st) nil (hss-rel-held st) nil (hss-pull st) nil (hss-rel-strike st) nil)))
 (defun hs-bind-drained! (b &optional (key :end-drained))
   "The drained end (B7, before SETTLE-SOULS; time-up's too, B10): the grey becomes real (the live values stay), both
 Reiatsu bars 0, the grey counts cleared; each fighter at Reishi 0 or out of Konpaku who isn't this step's Kikon victim is
@@ -1103,6 +1118,18 @@ cinematic, no reset; then flow.lisp TIME-UP reads the winner."
   (setf *soul-breaks* nil))
 
 ;;; ================================================================ the Bankai: P, the moves' hooks
+(defun hs-p-press (e free)
+  "His :p hook (the bind mode's FREE: fighter.lisp TRY-COMMAND, P once he is awakened; FREE = AWAKEN-STATE-P): in a bind the
+release (HS-REL-FREE-P; else NIL, the press stays buffered as a Burst's): at the step's release slot the bind ends, the
+opponent's move ends into a *HS-BIND-REEL* f reel, his own hitstun into UNWIND (HS-BIND-END-EFFECTS!). T = the press taken.
+(Gone in §24.5, back since §25.14, the user 2026-10-19: 「恢復 FREE 按鍵」; the ranged mode has no :p since B4c.)"
+  (let* ((f (fighter e)) (st (hs e)) (s (fighter-state f)))
+    (when (and (hss-bound st) (hs-rel-free-p s free))
+      (setf (hss-rel st) t)
+      (pace e :release-press)
+      (clog "~a KAIBAKU" (side-name e))
+      t)))
+(defun hs-p-label (e) "His :p-label hook (the bind mode's): the touch chip's label." (declare (ignore e)) "FREE")
 (defun hs-kubi-start (e) "KUBIKAKE's first frame (its cancel copy's :enter): the counter (no cooldown since §24.5)." (pace e :kubi))
 (defun hs-kubi-land (e)
   "KUBIKAKE's first real hit (:on-land): the noose yanks him to *HS-KUBI-YANK* m, his recovery cut to *HS-KUBI-CUT* f, the
@@ -1157,7 +1184,7 @@ KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other 
   "KAIBAKU-GEKI's S: the release due at this step's release slot (as P's), his move kept (HS-BIND-STEP); nothing unbound."
   (let ((st (hs e)))
     (when (hss-bound st)
-      (setf (hss-rel st) t (hss-rel-strike st) t)
+      (setf (hss-rel st) t (hss-rel-strike st) t (hss-rel-held st) nil)
       (pace e :kaibaku)
       (clog "~a KAIBAKU-GEKI" (side-name e)))))
 (defun hs-pull-step (e f st)
@@ -1216,6 +1243,10 @@ came later and the hit is stale: no bind, B2 / §17.2): the bind starts unless o
     (if (or (bind-of e) (and os (= (hss-bind-t os) *match-tick*)))
         (pace e :kubi-nobind)
         (hs-bind-start! e))))
+(defun hs-p-pressed! (e)
+  "Is P buffered on E's vpad (then consumed)? FREE pressed during his own move (HS-BK-TICK)."
+  (let ((vp (pilot-vpad (pilot e))))
+    (when (vpad-command-pressed-p vp :awaken :any) (vpad-consume! vp :awaken) t)))
 (defun hs-bk-tick (e f g)
   "The Bankai's :tick hook (every step, after the hits and SETTLE-SOULS): the bind's start, the release held through his
 own move, KOJO's drag, the mode = the bind (a SET-FORM only out of a move), KUBIKAKE's cooldown, KAIBAKU-GEKI's reel after
@@ -1230,7 +1261,18 @@ its strike (B4c: the opponent's *HS-BIND-REEL*, unless the step ended the round)
                (null (fighter-contact f)))
       (pace e :kubi-whiff))
     (when (= (hss-bind-t st) *match-tick*) (hs-try-bind! e))
-    (when (hss-bound st) (pace e :bind-frames))
+    (when (hss-bound st)
+      (pace e :bind-frames)
+      (when (and mv (not (eq (mv-name mv) :hs-b-unwind)) (hs-p-pressed! e))   ; FREE during his own move: held
+        (setf (hss-rel-held st) t))
+      (when (and (hss-rel-held st) (not (hss-rel st))
+                 (if mv
+                     (and (eq (fighter-phase f) :main)
+                          (hs-rel-due-p (fighter-sf f) (move-end-frame (mv-s mv) (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)
+                                                                       (zerop (length (mv-hits mv))))))
+                     (hs-rel-free-p s (awaken-state-p e f))))
+        (setf (hss-rel st) t (hss-rel-held st) nil)
+        (pace e :release-held)))
     (when (hss-pull st) (hs-pull-step e f st))
     (let ((want (if (hss-bound st) :bankai-bind :bankai)))
       (unless (or (eq (fighter-form f) want) (member s '(:move :cine)))
@@ -1305,7 +1347,7 @@ route itself is the opener's: K1 at 2-4 m, J1 at 2-4.5 m, his :moves bands; B4c,
 (defun hs-b-ai-reflex (e b s d)
   "His :reflex in the bind mode (free): once per change event (either Konpaku changed: a grey Kikon; every 100 of the pool
 drained) when behind (HS-RELEASE-WANTED-P, *HS-AI-RELEASE-P*) the release: SP2 KAIBAKU-GEKI with the foe inside its reach
-(the snapshot back, then 120 real), else he waits (no plain P release since §24.5); L KOJO (the
+(the snapshot back, then 120 real), else the plain P (FREE, back since §25.14) *HS-AI-PLAIN-RELEASE-P* of the time; L KOJO (the
 pull and the strike) once per entry into 2.5-4 m, *HS-AI-KOJO-P* (B4c)."
   (declare (ignore s))
   (let* ((st (hs e)))
@@ -1314,9 +1356,12 @@ pull and the strike) once per entry into 2.5-4 m, *HS-AI-KOJO-P* (B4c)."
         (unless (= key (hss-ai-rel-key st))
           (setf (hss-ai-rel-key st) key)
           (when (and (> (hs-grey-margin e) *hs-ai-release-margin*) (< (sim-rnd01) (hs-p b *hs-ai-release-p*)))
-            (when (and (<= d (+ 3.0 0.36)) (kit-command-ok-p e :sp2))   ; (§24.5: no plain P release; out of reach he waits)
-              (pace e :ai-kaibaku)
-              (return-from hs-b-ai-reflex (why b :kaibaku-geki :sp2)))))))
+            (cond ((and (<= d (+ 3.0 0.36)) (kit-command-ok-p e :sp2))
+                   (pace e :ai-kaibaku)
+                   (return-from hs-b-ai-reflex (why b :kaibaku-geki :sp2)))
+                  ((< (sim-rnd01) (hs-p b *hs-ai-plain-release-p*))   ; (FREE, §25.14)
+                   (pace e :ai-release)
+                   (return-from hs-b-ai-reflex (why b :kaibaku :awaken))))))))
     (let ((band (and (<= 2.5 d 4.0) :kojo)))
       (unless (eq band (hss-ai-band st)) (setf (hss-ai-band st) band (hss-ai-rolled st) nil))
       (when (and band (not (hss-ai-rolled st)) (kit-command-ok-p e :sig))

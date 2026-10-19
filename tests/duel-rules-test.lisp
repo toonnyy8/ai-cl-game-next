@@ -3401,6 +3401,7 @@ past the ends; DEFAULT if the clip is not listed."
                                (fighter-contact f) nil (fighter-queued f) nil))
   mv)
 (defvar *t-ends* nil)
+(defun hs-p-pressed! (e) (declare (ignore e)) nil)                                     ; (no vpad: HSS-REL-HELD set below)
 (with-open-file (in (merge-pathnames "../duel/lisp/hisagi-art.lisp" *load-truename*))   ; (the drawn reaches, the art's data)
   (let ((*package* (find-package :duel)))
     (loop for form = (read in nil in) until (eq form in)
@@ -3419,8 +3420,9 @@ past the ends; DEFAULT if the clip is not listed."
     (check (every (lambda (k) (every (lambda (h) (kit-hook k h)) '(:bind :bind-damage :bind-pool :bind-heal :bind-step
                                                                    :bind-resolve :bind-snapshot)))
                   (list kr kb)))
-    (check (and (null (kit-hook kb :p)) (null (kit-hook kb :p-label)) (null (kit-hook kr :p)) (null (kit-hook kr :p-label))))   ; (B4c: the
-                                                                   ; ranged P inert, KUBIKAKE on SP2; §24.5: the bind's too, no FREE)
+    (check (and (kit-hook kb :p) (kit-hook kb :p-label) (null (kit-hook kr :p)) (null (kit-hook kr :p-label))))   ; (B4c: the
+                                                                   ; ranged P inert, KUBIKAKE on SP2; the bind's P FREE: gone in
+                                                                   ; §24.5, back since §25.14)
     (check (notany (lambda (h) (kit-hook (kit :hisagi :base) h)) '(:bind :p :p-label)))
     ;; the tables: S A R dmg guard block reach (§17.1 / §17.3)
     (dolist (row '((:hs-r-j1 14 3 12 22 8 -2 6.0) (:hs-r-k1 16 4 22 40 18 -3 5.0)   ; (B4c, §22.4: the openers, then
@@ -3550,6 +3552,11 @@ past the ends; DEFAULT if the clip is not listed."
     (let ((turn (deg (* 30.0 (/ 24 60.0)))))
       (dolist (d '(4.0 5.5 7.0))
         (check (> (- 2.5 (* d (sin turn))) (+ 0.35 0.45)))))
+    ;; the release FREE (§25.14, as before §24.5): at once from idle / guard / blockstun / a run, in hitstun only past the
+    ;; combo's 2nd hit (Q9 A, as a Burst); during his own move held to its last frame (never a cancel)
+    (check (and (hs-rel-free-p :idle nil) (hs-rel-free-p :guard-hit nil) (hs-rel-free-p :run nil) (not (hs-rel-free-p :stun nil))
+                (hs-rel-free-p :stun t) (hs-rel-free-p :air t) (not (hs-rel-free-p :move t))))
+    (check (and (not (hs-rel-due-p 40 42)) (hs-rel-due-p 41 42)))
     (check (and (= 1300 (hs-grey-loss 1300 1300 9 8)) (= 250 (hs-grey-loss 1000 750 3 3))
                 (hs-release-wanted-p 700 300) (not (hs-release-wanted-p 600 300))))
     ;; ---- the bind on stand-ins: H (P1, Hisagi in the ranged mode) binds K (P2, Kenpachi)
@@ -3598,7 +3605,7 @@ past the ends; DEFAULT if the clip is not listed."
         (setf (fighter-state fh) :idle (fighter-move fh) nil)
         (hs-bk-tick h fh gh)
         (check (eq :bankai-bind (fighter-form fh)))                       ; (a SET-FORM out of the move)
-        (check (and (null (kit-hook (kit :hisagi :bankai-bind) :p)) (null (kit-hook (kit :hisagi :bankai-bind) :p-label))))   ; (§24.5: no FREE)
+        (check (equal (hs-p-label h) "FREE"))                             ; (§25.14: FREE back)
         ;; B3: the drain 1 per 3 nominal damage of either side (1 per 2 until §25.13); grey Reishi floors at 0, no Soul Break
         (check (and (null (deal-damage h o 7)) (~= (hss-pool st) (- 430.0 (/ 7.0 3))) (= (gauges-reishi go) (- (hss-or0 st) 7))))
         (check (and (null (deal-damage o h 2000)) (= 0 (gauges-reishi gh)) (null *soul-breaks*) (= (hss-pool st) 0f0)))
@@ -3623,13 +3630,21 @@ past the ends; DEFAULT if the clip is not listed."
         (check (and (null (settle-konpaku h o nil)) (= 0 (gauges-konpaku go)) (hss-bound st) (= 9 (bind-grey-souls o))))
         ;; Kenpachi's Bankai refused while bound (B11)
         (check (not (bankai-ok-p o)))
-        ;; §24.5 (「把 free 的按鍵拿掉」): P releases nothing in a bind (idle or in hitstun); only SP2 KAIBAKU-GEKI's S does
-        (setf (fighter-state fh) :idle (fighter-combo-hits fh) 0)
+        ;; FREE (Q9 A; §25.14, the user 2026-10-19: 「恢復 FREE 按鍵」): from idle at once; in a combo's 1st hit not (the press
+        ;; stays buffered), from its 2nd yes
+        (setf (fighter-state fh) :stun (fighter-combo-hits fh) 1 (fighter-lock fh) 0)
         (check (and (null (try-command h fh :awaken)) (not (hss-rel st))))
-        (setf (fighter-state fh) :stun (fighter-combo-hits fh) 2 (fighter-lock fh) 0)
-        (check (and (null (try-command h fh :awaken)) (not (hss-rel st))))
-        (setf (fighter-state fh) :idle (fighter-combo-hits fh) 0 (hss-rel st) t)   ; (the release due, as KAIBAKU-GEKI's S sets it)
-        (start-move h (m :hs-b-k1))                                       ; (in a move: the mode stays bind until it ends)
+        (setf (fighter-combo-hits fh) 2)
+        (check (and (try-command h fh :awaken) (hss-rel st)))
+        (setf (hss-rel st) nil (fighter-state fh) :idle (fighter-combo-hits fh) 0)
+        ;; ... during his own move: held to its last frame (the mode stays bind while he is in it)
+        (start-move h (m :hs-b-k1))
+        (setf (hss-rel-held st) t (fighter-sf fh) 10)
+        (hs-bk-tick h fh gh)
+        (check (and (not (hss-rel st)) (hss-rel-held st)))
+        (setf (fighter-sf fh) (1- (move-end-frame 18 4 20 (mv-whiff (m :hs-b-k1)) nil nil)))
+        (hs-bk-tick h fh gh)
+        (check (and (hss-rel st) (not (hss-rel-held st))))
         ;; B8 the release at the step's release slot: the snapshot back (the grey Kikon undone, the heal kept), the pool's
         ;; 426.5 to him first (300) and the rest (126.5) to Hisagi; the end effects; the ranged mode once out of the move
         (setf *t-ends* nil (gauges-reishi gh) 100)
@@ -3694,10 +3709,9 @@ past the ends; DEFAULT if the clip is not listed."
         (hs-kaibaku-go h)                                                 ; (no bind up: nothing; SP2 refused)
         (check (and (not (hss-rel st)) (not (hs-bk-ok h :sp2 nil))))
         (setf (fighter-state fh) :idle (fighter-move fh) nil (gauges-reishi go) 1300)
-        ;; ... a release without KAIBAKU-GEKI's strike (no button makes one since §24.5; the path stays): UNWIND, no reel after
+        ;; ... and P stays the plain release FREE (no strike: UNWIND, no reel after; §25.14)
         (hs-bind-start! h) (setf (fighter-form fh) :bankai-bind (fighter-kit fh) kb)
-        (check (and (null (try-command h fh :awaken)) (not (hss-rel st))))
-        (setf (hss-rel st) t)
+        (check (and (try-command h fh :awaken) (hss-rel st) (not (hss-rel-strike st))))
         (bind-step! h :release)
         (check (and (equal *t-ends* (list h)) (not (hss-rel-reel st))))
         (setf (fighter-form fh) :bankai (fighter-kit fh) kr *t-ends* nil)
