@@ -2,7 +2,20 @@
   "baseline_score": 0.0,
   "beta": 0.6,
   "branch_count": 4,
-  "cells": {},
+  "cells": {
+    "b0a0": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.346 mash 0.67 sig 0.799 raw 0.637 normal 0.5396 (x1.0) pacing ok",
+      "score": 0.637,
+      "seq": 1,
+      "tags": [],
+      "valid": true
+    }
+  },
   "directions": {},
   "higher_is_better": true,
   "max_parallelism": 2,
