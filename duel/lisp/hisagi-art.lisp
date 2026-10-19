@@ -1768,6 +1768,37 @@ NAGE's line at x1 (its flight grows by it: HS-SCALED-TIP), [2] *HS-CHARGE-STEP*.
   (setf (aref fa 1) (+ (aref fa 1) (* (aref *hs-ks* 1) (- (aref *hs-ks* 0) 1f0))))
   nil)
 
+(defvar *hs-lk* (make-f32 3)
+  "§25.13 (the ranged route links strike the victim where he is, HS-R-LINK-SEG): [0] his distance from Hisagi's feet (m,
+capped at *HS-R-LINK-REACH*), [1] the link's drawn reach as authored (*HS-LK-REACH*), [2] 1 while a link is drawn, else 0.
+%HS-LK-R stretches the link's chain to him. A look.")
+(defparameter *hs-lk-reach*
+  '((:hs-r-j2 6.0) (:hs-r-j3 6.0) (:hs-r-k2s 5.0) (:hs-r-k3 5.0) (:hs-r-k2 5.0) (:hs-r-j2s 6.0) (:hs-r-k3g 5.0) (:hs-r-j3g 6.0))
+  "The ranged route links -> the reach their clips' chains were authored to (§25.3 / §25.5: J 6.0, K 5.0 m).")
+(defun-fast %hs-lk-set! (on rr pos opos)
+  "*HS-LK* := ON (1 / 0), the authored reach RR, the distance from POS to OPOS (capped). 0 B."
+  (declare (fixnum on) (single-float rr) (type f32vec pos opos))
+  (setf (aref *hs-lk* 0) (f-min (the single-float *hs-r-link-reach*)
+                                (f-hypot (- (aref opos 0) (aref pos 0)) (- (aref opos 2) (aref pos 2))))
+        (aref *hs-lk* 1) rr (aref *hs-lk* 2) (i->f on))
+  nil)
+(defun hs-lk! (e)
+  "*HS-LK* for E this frame: on in the ranged mode's route links (their move, its main phase), off else. 0 B."
+  (let* ((f (fighter e)) (o (opp-of e))
+         (row (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (eq (fighter-form f) :bankai) o
+                   (assoc (mv-name (fighter-move f)) *hs-lk-reach*))))
+    (if row (%hs-lk-set! 1 (second row) (pos-of e) (pos-of o)) (setf (aref *hs-lk* 2) 0f0))))
+(defmacro %hs-lk-r (r)
+  "R (a chain end's distance from his feet, m) stretched for a route link (*HS-LK*): x (1 + (k - 1) u^2), k the victim's
+distance / the authored reach, u = R / the authored reach (<= 1): his strike point lands on the victim, the windup's near
+keys barely move. R as is otherwise."
+  `(let ((%r ,r)) (declare (single-float %r))
+     (if (< (aref *hs-lk* 2) 0.5f0)
+         %r
+         (let* ((%rr (aref *hs-lk* 1)) (%u (f-min 1f0 (/ %r %rr))))
+           (declare (single-float %rr %u))
+           (* %r (+ 1f0 (* (- (/ (aref *hs-lk* 0) %rr) 1f0) %u %u)))))))
+
 (defparameter *hs-letout-v*
   (loop for (clip side f0 f1 f2 f3 r h az bulge) in *hs-letout*
         for sw = (consp az) for a1 = (if sw (second az) az)
@@ -1804,7 +1835,8 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
          (a (+ (aref yaw 0) (* 0.017453292f0 az)))
          (bx (cond ((> (aref kv 8) 0.5f0) (- (f-sin a))) ((> rf 0.05f0) (/ dx rf)) (t (- (f-sin (aref yaw 0))))))
          (bz (cond ((> (aref kv 8) 0.5f0) (- (f-cos a))) ((> rf 0.05f0) (/ dz rf)) (t (- (f-cos (aref yaw 0))))))
-         (r (* (aref kv 4) (aref *hs-ks* 0)))         ; (S1: KARI-OTOSHI's arc at the charge, x1 elsewhere)
+         (r (%hs-lk-r (* (aref kv 4) (aref *hs-ks* 0))))   ; (S1: KARI-OTOSHI's arc at the charge, x1 elsewhere;
+                                                             ;  §25.13: a route link's to the victim)
          (sh (f-hypot (- fx (aref jm (+ so 12))) (- fz (aref jm (+ so 14)))))
          (slope (f-clamp (/ (- fy (aref jm (+ so 13))) (f-max 0.05f0 sh)) -0.8f0 0.8f0))
          (ty (if (> (aref kv 9) 0.5f0) (aref kv 5) (+ fy (* slope (- r rf)))))
@@ -1850,6 +1882,7 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
          (o (* 16 (ji :weapon-r))) (kv (hs-letout-of name :r)))
     (declare (type f32vec jm gv) (fixnum side o) (single-float target cur step))
     (%hs-ks! (hss-charge (hs e)))
+    (hs-lk! e)                                             ; (§25.13: a route link's chain stretched to the victim)
     (setf cur (cond ((<= step 0f0) target)                 ; (frozen effects, a still: the clip's grip at once)
                      ((< cur target) (f-min target (+ cur step))) (t (f-max target (- cur step))))
           (aref gv side) cur
@@ -2426,6 +2459,7 @@ POS along FA[0] his facing), [3] the bend, [4] the lash weight (0 at rest .. 1 o
                        az (+ a0 (* u (%hs-wrap180 (- a1 a0))))
                        bd (+ (aref kv (+ i 5)) (* u (- (aref kv (+ i 11)) (aref kv (+ i 5)))))
                        lw 1f0)))))
+    (setf r (%hs-lk-r r))                                              ; (§25.13: a route link's to the victim)
     (let ((a (+ (aref fa 0) (* 0.017453292f0 az))))
       (declare (single-float a))
       (setf (aref out 0) (+ (aref pos 0) (* r (- (f-sin a)))) (aref out 1) h (aref out 2) (+ (aref pos 2) (* r (- (f-cos a))))
@@ -2583,7 +2617,7 @@ frames into *HS-TIPV*. 0 B."
     (declare (single-float f f0 f1 f2 f3 f4))
     (when (and (>= f f0) (< f f4))
       (let* ((src (f->i (aref kv 0))) (fl (f->i (aref kv 11))) (e *hs-e*) (kn *hs-kn*) (q *hs-q*) (tp *hs-tipv*)
-             (yaw (aref fa 0)) (px (aref pos 0)) (pz (aref pos 2)) (r (aref kv 6)) (h (aref kv 7))
+             (yaw (aref fa 0)) (px (aref pos 0)) (pz (aref pos 2)) (r (%hs-lk-r (aref kv 6))) (h (aref kv 7))
              (k (f-clamp (/ (- f f1) (f-max 1f0 (- f2 f1))) 0f0 1f0))
              (a (+ yaw (* 0.017453292f0 (+ (aref kv 8) (* k (- (aref kv 9) (aref kv 8)))))))
              (tx (+ px (* r (- (f-sin a))))) (tz (+ pz (* r (- (f-cos a)))))
@@ -2785,6 +2819,7 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
          (cn (and c (clip-name c))))
     (when (and (> (model-alpha m) 0.5) (entity-alive-p o) (eq (model-weapon m) :kazeshini))
       (%hs-ks! (hss-charge st))                                       ; (S1: the charge's x for the windmill / K string)
+      (hs-lk! e)                                                      ; (§25.13: a route link's chain to the victim)
       (setf geo (%hs-geo! an (pos-of e) (pos-of o) fa (transform e) (if shikai 1 0) rdt))
       (when (logtest geo 1) (setf lo 1))
       (let ((kv (hs-letout-of cn :l)))
@@ -2958,9 +2993,9 @@ far edge. A debug measurement (it conses)."
   (hs-awaken-now! *p1*)
   (let* ((e *p1*) (f (fighter e)) (m (model e)) (an (model-anim m)) (b (model-body m)) (p (pos-of e)) (st (hs e))
          (v (make-f32 3)) (jm (model-joints m)) (yaw (yaw-of e)) (lo *hs-lo*) (tp *hs-tipv*))
-    (dolist (fm *hs-tip-moves*)
-      (destructuring-bind (form name) fm
-        (let* ((kit (find-kit :hisagi form)) (mv (find-move name))
+    (dolist (fm (remove-if-not (lambda (fm) (hw-vols (svref (mv-hits (find-move (second fm))) 0))) *hs-tip-moves*))
+      (destructuring-bind (form name) fm                              ; (a :seg-fn window has no edge: the route links
+        (let* ((kit (find-kit :hisagi form)) (mv (find-move name))      ;  since §25.13, KOJO's yank since §25.7)
                (clip (kit-move-clip kit (if (member (mv-kind mv) '(:kikon :breaker)) (mv-clip-2 mv) (mv-clip mv))))
                (vol (first (hw-vols (svref (mv-hits mv) 0)))) (cap (> (aref vol 0) 0.5))
                (tips nil))

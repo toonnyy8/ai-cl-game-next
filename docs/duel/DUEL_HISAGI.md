@@ -3129,6 +3129,56 @@ round 1 planned again (§25.12).
   - pacing ok (NORMAL medians 117.2-172.7 s).
 - The freeze is the commit adding this baseline (`step.sh` / `rescore.sh` find it).
 
+### 25.13 The bind stronger and longer, the tip x1.71, the route links reach him where he is (the user, 2026-10-19; a sim change)
+
+> 「1. 把捆縛提高到沒有乘上近身倍率依舊能高於平均值 1.2 倍、並把近身加成升到 1.3 倍。 2. 將遠距的鏈尖加成提高到能讓 K 串傷害能到平均值的
+> 1.3 倍。 3. 遠距 J / K 不再將人固定到 3.5 m 處。 4. 延長近身的時長（SP 與血量互換從 1:2 改成 1:3）」; asked (the plan first,
+> 「一樣先跟我講修改方式」): 「共用 1.71」, 「1:4」, 「先停掉搜尋」, 「拿掉定位，改成後續接上的 J / K 會自動調整判定範圍，然後鏈尖判定會
+> 直接延續 J1 / K1 打中時的判斷狀態」; on a blocked opener and the reach: 「都照你的建議，7.0 m 可以」.
+
+The comparison (the lead's dump of every form's slots, 2026-10-19): the "average" is the mean of the 21 forms the game flags
+awakened (every other fighter's; their kit's damage x included), per command slot.
+
+**As built** (`duel/lisp/hisagi.lisp`, `hisagi-art.lisp`):
+
+| What | Old → new |
+|---|---|
+| Bind J1 / J2, J3 | 32 → **45**, 40 → **55** (the mean 37.0 / 37.1 / 45.8, x1.2 rounded up) |
+| Bind K1, K2, K3 | 64 → **93**, 56 → **81**, 80 → **116** (76.9 / 67.4 / 96.0 x1.2) |
+| Bind L KOJO (`*hs-kojo-dmg*`) | the reap 70 → **83** (with the yank's 20: 103 >= 85.5 x1.2) |
+| Bind SP1 KUSARI-AME (`:hs-r-sp2`, the bind's only) | 70 + 90 → **112 + 144** (256 >= 212.7 x1.2) |
+| Bind Kikon KOSHU | 70 → **111** (91.8 x1.2) |
+| Bind SP2 KAIBAKU-GEKI, Step J SENGEN | unchanged (120 already x1.49; SENGEN has no slot to compare) |
+| `*hs-b-close-mult*` | 1.2 → **1.3** (within 1.2 m) |
+| `*hs-bind-drain-rate*` (new; rules BIND-DRAIN's rate) | 0.5 → **0.25**: the pool loses 1 per 4 damage (an SP still 1:1) |
+| `*hs-r-tip-mult*` (shared by every ranged move with a volume) | 1.3 → **1.71**: K1 → K2 → K3G all on the tip 68 + 43 + 55 + 147 = 313 >= 1.3 x the mean K string 240.3 |
+| The 3.5 m placement (`*hs-r-j-push*`, HS-R-J-PUSH, HS-R-UCHI-PUSH, HS-PLACE-TO, `*hs-r-uchi-frames*`) | **removed**: J1 / J2 / K1 / K2's slam place nothing; J3 / J3G's 6.6 m ender push, SAHARAI's 3.5 m and KUBIKAKE's yank kept |
+| The route links (J2 K2s J3 K3, K2 J2s K3G J3G) | their volumes and dead zones → one :seg-fn window each (K2 two), **HS-R-LINK-SEG**: the chain from his hand to the victim's centre, its far end capped at **`*hs-r-link-reach*` 7.0 m** from his feet (+ the victim's body); `:reach` 7.0 (the CPU's and the chase's read) |
+| The tip of a route link | **its opener's**: HS-DMG-MULT records J1 / K1's tip read at their contact (hit or block: 「都照你的建議」) in HSS-ROUTE-TIP; a link takes x1.71 / x1.0 from it, whatever its own distance (both of K2's windows); the SP marks follow (the tip's x1.3, the spread route's x1.3) |
+
+- **The look**: `*hs-lk*` / HS-LK! / %HS-LK-R. While a route link is drawn, its chain's distance from his feet r is stretched
+  to r x (1 + (k - 1) u^2): k is the victim's distance (capped at 7.0) over the clip's authored reach (`*hs-lk-reach*`: J
+  6.0, K 5.0), u is r over that reach. The strike point lands on the victim; the windup's near keys barely move. It is
+  applied to the let-outs, the chain strikes and the lashes.
+  - The art FK walk skips :seg-fn windows (it measures fixed volumes).
+  - Debug 83902's tip list skips moves whose first window has no volume.
+- **The CPU (the baseline's, the minimum)**: HS-R-REACHES-P reads a route link's chain as 7.0 m (+ 0.36), so the route
+  picks still fire.
+
+**Host tests**: duel-rules **9850** ALL PASS (−30: the links' volume and dead-zone rows, the placement and K2 push rows, replaced by):
+- the links' chain windows, their 7.0 m end (5 m: on him; 9 m: 7.0 m out) and the CPU reach read;
+- the inherited tip (J1 / K1 on the tip → J3 / K3 / K2's second window / J2s / K3G x1.71 at any distance; off the tip → x1.0);
+- the knobs (1.71, 1.3, 0.25), the K string's 313 >= 312.4;
+- the bind's table and routes (145 206 242 290 229 193), the drain at 1 per 4.
+
+Control 89, learn 131, cine 18 ALL PASS; pkgcheck clean; the build with the 4 known Lille warnings.
+
+**Smoke** (headless, `--fixed-dt`): from debug 83017, J J J lands all three (22 19 26); from 83016, K K K lands K1, K2's two
+and K3G (40 25 32 86); debug 83902 runs; no exception. The sim gates are not run (the user: 「不用跑 gate」).
+
+**The search**: stopped after round 1's four first cells (b0a0 0.637, b1a0 0.5669, b2a0 0.6836, b3a0 0.7658 at the §25.12
+freeze); b0a1 / b1a1 were briefed but not dispatched (removed). It re-freezes on these rules (§25.14).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
