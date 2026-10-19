@@ -3423,11 +3423,12 @@ past the ends; DEFAULT if the clip is not listed."
                                                                    ; ranged P inert, KUBIKAKE on SP2; §24.5: the bind's too, no FREE)
     (check (notany (lambda (h) (kit-hook (kit :hisagi :base) h)) '(:bind :p :p-label)))
     ;; the tables: S A R dmg guard block reach (§17.1 / §17.3)
-    (dolist (row '((:hs-r-j1 14 3 12 22 8 -2 6.0) (:hs-r-k1 16 4 22 40 14 -3 5.0)   ; (B4c, §22.4: the openers, then
+    (dolist (row '((:hs-r-j1 14 3 12 22 8 -2 6.0) (:hs-r-k1 16 4 22 40 18 -3 5.0)   ; (B4c, §22.4: the openers, then
                    (:hs-r-j2 10 3 13 19 8 -2 6.0) (:hs-r-k2s 21 4 24 37 14 -3 5.0)          ;  the spread links,
                    (:hs-r-j3 10 3 18 26 12 -4 6.0) (:hs-r-k3 21 5 34 56 18 -20 5.0)         ;  the gathered ones;
-                   (:hs-r-k2 27 10 24 25 14 -3 5.0) (:hs-r-j2s 16 3 13 29 8 -2 5.5)         ;  §25.3 / §25.5: J 3-6 m,
-                   (:hs-r-k3g 27 5 34 86 18 -20 5.0) (:hs-r-j3g 16 3 18 39 12 -4 6.0)       ;  K 2-5 m, J2s 5.5 + r 0.5)
+                   (:hs-r-k2 27 10 24 25 18 -3 5.0) (:hs-r-j2s 16 3 13 29 10 -2 5.5)        ;  §25.3 / §25.5: J 3-6 m,
+                   (:hs-r-k3g 27 5 34 86 23 -20 5.0) (:hs-r-j3g 16 3 18 39 16 -4 6.0)       ;  K 2-5 m, J2s 5.5 + r 0.5;
+                                                                            ;  §25.11: the gathered guard x1.3)
                    (:hs-r-l 18 4 32 30 14 -16 3.0) (:hs-r-sp1 20 3 24 110 22 -14 9.0) (:hs-r-sp2 30 14 30 70 22 -18 10.0)   ; (B4d: L
                    (:hs-r-kubikake 24 4 30 40 14 -20 7.0)
                    (:hs-b-j1 8 3 12 32 8 -2 1.5) (:hs-b-j2 8 3 13 32 8 -2 1.5) (:hs-b-j3 9 3 18 40 12 -4 1.5)
@@ -4028,20 +4029,33 @@ past the ends; DEFAULT if the clip is not listed."
                   always (or (member (mv-name mv) '(:hs-r-l :hs-b-sj)) (null (getf (mv-params mv) :r-cancel))))))
 
 ;;; §25.5 (the user, 2026-10-18: 「卍解遠距的鎖鏈尾端除了傷害加成以外也增加 SP 恢復量的加成」): a tip hit (HS-DMG-MULT x1.3) marks his
-;;; Reiatsu; his :hit hook pays the gain since the mark x *HS-R-TIP-SP-MULT* on top; a non-tip hit leaves no mark
+;;; Reiatsu; his :hit hook pays the gain since the mark x *HS-R-TIP-SP-MULT* on top; a non-tip hit leaves no mark. §25.11
+;;; (the user, 2026-10-19: 「幫我把遠距 J1 起手的散路線再增加額外的 SP 回收量」, x1.3, 「起手也加」): a spread-route hit (J1 and
+;;; J2 / K2s / J3 / K3) is marked too, its gain x *HS-R-SPREAD-SP-MULT*, x the tip's on a tip hit (x1.69); the gathered
+;;; route's guard x *HS-R-GATHER-GUARD-MULT* (the table above)
+(check (and (~= 1.3 *hs-r-spread-sp-mult*) (~= 1.3 *hs-r-gather-guard-mult*)
+            (loop for (n g0) in '((:hs-r-k1 14) (:hs-r-k2 14) (:hs-r-j2s 8) (:hs-r-k3g 18) (:hs-r-j3g 12))
+                  always (loop for w across (mv-hits (find-move n)) always (= (hw-guard w) (round (* g0 *hs-r-gather-guard-mult*)))))))
 (multiple-value-bind (h o) (t-pair (kit :hisagi :bankai) (kit :kenpachi :base))
   (let ((fh (fighter h)) (st (hs h)) (g (gauges h)))
-    (t-at h 0 0) (t-at o 0 -5.5)
-    (setf (fighter-form fh) :bankai (gauges-reiatsu g) 100f0)
-    (check (and (~= 1.3 (hs-dmg-mult h o (svref (mv-hits (find-move :hs-r-j1)) 0) (find-move :hs-r-j1) nil 30.25))
-                (~= 100.0 (hss-tip-r st))))
-    (setf (gauges-reiatsu g) 110f0)                              ; (the hit's own gain: 10)
-    (hs-bk-hit h o :hit nil (find-move :hs-r-j1) nil t)
-    (check (and (~= 113.0 (gauges-reiatsu g)) (null (hss-tip-r st))))
-    (check (and (~= 1.0 (hs-dmg-mult h o (svref (mv-hits (find-move :hs-r-j1)) 0) (find-move :hs-r-j1) nil 16.0))
-                (null (hss-tip-r st))))
-    (hs-bk-hit h o :hit nil (find-move :hs-r-j1) nil t)
-    (check (~= 113.0 (gauges-reiatsu g)))))
+    (t-at h 0 0) (t-at o 0 -4.5)
+    (setf (fighter-form fh) :bankai)
+    (flet ((try (n d2 mult r1)                                  ; (the hit's own gain: 10, from 100)
+             (setf (gauges-reiatsu g) 100f0)
+             (let ((x (hs-dmg-mult h o (svref (mv-hits (find-move n)) 0) (find-move n) nil d2)) (marked (hss-tip-r st)))
+               (setf (gauges-reiatsu g) 110f0)
+               (hs-bk-hit h o :hit nil (find-move n) nil t)
+               (or (and (~= x mult) (eq (null marked) (~= r1 110.0)) (~= r1 (gauges-reiatsu g)) (null (hss-tip-r st)))
+                   (format t "  Hisagi tip / spread SP ~a ~,2f: x~,2f, Reiatsu ~,2f~%" n d2 x (gauges-reiatsu g))))))
+      (check (try :hs-r-k1 20.25 1.3 113.0))                    ; (K1 at 4.5 m: the tip only, x1.3)
+      (check (try :hs-r-k1 9.0 1.0 110.0))                      ; (K1 at 3.0 m: no mark)
+      (t-at o 0 -3.0)
+      (check (try :hs-r-k2 9.0 1.0 110.0))                      ; (a gathered link at 3.0 m along its line: no SP extra)
+      (t-at o 0 -5.5)
+      (check (try :hs-r-j1 30.25 1.3 116.9))                    ; (J1 at 5.5 m: the tip and the spread, x1.69)
+      (t-at o 0 -4.0)
+      (check (try :hs-r-j1 16.0 1.0 113.0))                     ; (J1 at 4.0 m: the spread only)
+      (check (try :hs-r-k2s 9.0 1.0 113.0)))))                  ; (a spread link: x1.3)
 
 ;;; >>> BEGIN HISAGI-CPU-TESTS: the checks of Hisagi's own CPU's shipped values and pure HS-AI-* / HS-R-AI-* / HS-B-AI-*
 ;;; functions (his CPU search, DUEL_HISAGI §25: a cell may rewrite THIS section only, to pin its own CPU; the lines between

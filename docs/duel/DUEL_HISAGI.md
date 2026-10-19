@@ -3089,6 +3089,34 @@ crescent let out on its chain to 2.2 m, `*hs-letout*` f6-13-24; `*hs-strike-reac
 `*hs-tip-moves*`. The CPU: its existing step-J read now starts SENGEN in a bind (it still reads J1's reach); no new CPU
 use. Tests: the `:r-cancel` pin now names SENGEN too. Built, not tested (tests wait for the user's word).
 
+### 25.11 The spread route's SP, the gathered route's guard damage (the user, 2026-10-19; a sim change, the search re-frozen)
+
+> 「幫我把遠距 J1 起手的散路線再增加額外的 SP 回收量，K1 起手的聚路線增加削防值」
+
+Asked, the user chose: 「×1.3（推薦）」 for both; 「起手也加」 (J1 and K1 themselves too); for the search's two cells (minutes in),
+「停掉，改完重新凍結（推薦）」.
+
+**As built** (`duel/lisp/hisagi.lisp`):
+
+| Knob / value | Old → new |
+|---|---|
+| `*hs-r-spread-sp-mult*` (new) | — → **1.3**: J1, J2, K2s, J3, K3's Reiatsu gain x1.3; on a tip hit x the tip's 1.3 (x1.69) |
+| `*hs-r-gather-guard-mult*` (new; the values written into the moves) | — → **1.3**: K1 / K2 guard 14 → **18**, J2s 8 → **10**, K3G 18 → **23**, J3G 12 → **16** |
+
+- The mechanism is §25.5's tip-SP mark:
+  - HS-DMG-MULT marks his Reiatsu on a tip hit or a spread-route hit, with the extra factor (a new HSS slot, `tip-x`, not
+    hashed);
+  - HS-BK-HIT pays the gain since the mark x that extra (the `tip-sp` counter counts both).
+- The damage multipliers are unchanged (the spread x0.85, the gathered x1.3, the tip x1.3).
+
+**Host tests**: duel-rules 9880 ALL PASS (the Bankai table's gathered guard values; the knobs and the guard x1.3 of the
+old values on every window; the SP cases: K1 at the tip x1.3, K1 / gathered K2 off the tip none, J1 at the tip x1.69, J1 /
+K2s off the tip x1.3). Control 89, learn 131, cine 18 ALL PASS; pkgcheck clean; built (playtest Artifact v115). The sim
+gates are not run (the user: 「不用跑 gate」).
+
+**The search**: round 1's b0a0 / b1a0 (minutes in) stopped, their briefs removed; the baseline re-taken on these rules,
+round 1 planned again (§25.12).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.

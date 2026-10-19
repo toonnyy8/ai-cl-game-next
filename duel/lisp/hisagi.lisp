@@ -227,6 +227,14 @@ least 3.5, 2026-10-18, the user, §22.1; a placement and K1 / K2 too, 2026-10-18
   "A gathered link's (K1-opened: K2, J2s, K3, J3) startup vs its base move's (none -> +3, the user, 2026-10-18:
 「聚 +3 幀×1.3」, §22.4) ...")
 (defparameter *hs-r-gather-mult* 1.3 "... and its damage x (rounded; K2's 57 split 25 + 32) (none -> x1.3, the user, 2026-10-18).")
+(defparameter *hs-r-spread-sp-mult* 1.3
+  "The spread route's hits (J1 and its links J2 / K2s / J3 / K3) earn their Reiatsu (SP) gain x this, on top of the tip's
+x1.3 (x1.69 a tip hit of the route) (none -> x1.3, 2026-10-19, the user: 「幫我把遠距 J1 起手的散路線再增加額外的 SP 回收量」,
+「×1.3」, 「起手也加」, DUEL_HISAGI §25.11; HS-DMG-MULT marks, HS-BK-HIT pays).")
+(defparameter *hs-r-gather-guard-mult* 1.3
+  "The gathered route's guard damage (K1 and its links K2 / J2s / K3G / J3G): their :guard x this, rounded, written into the
+moves (none -> x1.3, 2026-10-19, the user: 「K1 起手的聚路線增加削防值」, 「×1.3」, 「起手也加」, §25.11: K1 / K2 14 -> 18,
+J2s 8 -> 10, K3G 18 -> 23, J3G 12 -> 16; host-pinned against these).")
 (defparameter *hs-r-k2-launch-kb* 0.5
   "Gathered K2's tail (its launch) :kb: the airborne slide x0.6 = 0.3 m, so the victim placed at 3.5 m lands his K3G (1-4 m)
 and J3G (3-6 m) still (none: the generic 1.0 m -> 0.5, 2026-10-18, §25.3: the K 1-4 m, the lead's number; K 2-5 since §25.5).")
@@ -417,7 +425,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 ;; round, no close-in; the base K1's A / R / guard / block (§17.1). B4d (§22.8, the user 2026-10-18: 「讓 K1 只能打中遠方的
 ;; 敵人」): the dead zone back and farther, an annulus 2.0-4.0 m (r 3.0 -> 4.0, no dead zone -> *HS-R-DEAD*); the tip x1.3
 ;; on its outer 1.0 m (3.0-4.0)
-(defmove :hs-r-k1 :kind :flash :clip :hs-k-hosoku :clip-s 16 :startup 16 :active 4 :recovery 22 :dmg 40 :adv-block -3 :guard 14
+(defmove :hs-r-k1 :kind :flash :clip :hs-k-hosoku :clip-s 16 :startup 16 :active 4 :recovery 22 :dmg 40 :adv-block -3 :guard 18
   :vol (:arc *hs-r-k-reach* 360 0.2 2.0) :on-hit :stagger :flags (:ranged :no-close) :params (:melee-range 2.0)
   :min-reach *hs-r-k-dead* :on-land hs-r-j-push)                                                                                    ; 綁束 HOSOKU
 ;; spread (J1 ->): the thin hanging chains. J2 the other side's curtain (B4a's J2), K2s a fan of chains whipping the ground,
@@ -438,16 +446,16 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 ;; so the K3 / J3 after it still combo; the bundle left lying ahead is the art's), J2s a straight lash, K3G the lying bundle
 ;; hauled into a 360 deg spin, J3G a flat sweep
 (defmove :hs-r-k2 :kind :flash :clip :hs-k-g-k2 :clip-s 27 :enter 6 :startup 27 :active 10 :recovery 24 :dmg 25 :adv-block -3
-  :guard 14 :reach *hs-r-k-reach* :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0) :min-reach *hs-r-k-dead*
+  :guard 18 :reach *hs-r-k-reach* :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0) :min-reach *hs-r-k-dead*
   :on-land hs-r-uchi-push
   :hits ((27 31 :vol (:cap 2.0 4.5 0.5 0.5)) (33 37 :dmg 32 :on-hit :launch :kb *hs-r-k2-launch-kb* :vol (:cap 2.0 4.5 0.4 0.5))))     ; 束打 SOKUDA
-(defmove :hs-r-j2s :kind :quick :clip :hs-k-g-j2 :clip-s 16 :startup 16 :active 3 :recovery 13 :dmg 29 :adv-block -2 :guard 8
+(defmove :hs-r-j2s :kind :quick :clip :hs-k-g-j2 :clip-s 16 :startup 16 :active 3 :recovery 13 :dmg 29 :adv-block -2 :guard 10
   :vol (:cap 3.0 5.5 1.0 0.5) :on-hit :flinch :hits ((16 19 :stun 24)) :flags (:ranged) :params (:melee-range 2.0)
   :min-reach *hs-r-j-dead*)                                                                                      ; 束鞭 SOKUBEN
 (defmove :hs-r-k3g :kind :flash :clip :hs-k-g-k3 :clip-s 27 :enter 6 :startup 27 :active 5 :recovery 34 :dmg 86 :adv-block -20
-  :guard 18 :reach *hs-r-k-reach* :arc 360 :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0)
+  :guard 23 :reach *hs-r-k-reach* :arc 360 :on-hit :crumple :flags (:ender :ranged) :params (:melee-range 2.0)
   :min-reach *hs-r-k-dead*)                                                                                      ; 束旋 SOKUSEN
-(defmove :hs-r-j3g :kind :quick :clip :hs-k-g-j3 :clip-s 16 :startup 16 :active 3 :recovery 18 :dmg 39 :adv-block -4 :guard 12
+(defmove :hs-r-j3g :kind :quick :clip :hs-k-g-j3 :clip-s 16 :startup 16 :active 3 :recovery 18 :dmg 39 :adv-block -4 :guard 16
   :reach *hs-r-j-reach* :arc 180 :on-hit :stagger :flags (:ender :ranged) :params (:melee-range 2.0) :min-reach *hs-r-j-dead*
   :on-land hs-r-j3-push)                                                                                       ; 束薙 SOKUTEI
 (defparameter *hs-r-strings*
@@ -673,6 +681,7 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (kz-let nil)                                ; S1: L was let go in this windmill (the charge stops)
   (leapt nil)                                 ; §24.4: he leapt (J2K / J3K) in the combo the victim is in now (HS-LINK-OK)
   (tip-r nil)                                 ; §25.5: a tip hit's Reiatsu before its gains (HS-DMG-MULT), read by HS-BK-HIT
+  (tip-x 0.0)                                 ; §25.11: that hit's extra gain factor (the tip's and the spread route's, - 1)
   (throw-n 0 :type fixnum)                    ; S1: the charge of the throw out now (its chain length x it, HS-TICK)
   (ai-kz nil) (ai-kz-threat nil)              ; S1, his CPU: K out of this windmill (rolled at the press); the press is a ward
   (ai-out -1 :type fixnum) (ai-modoshi nil)   ; his CPU: the OUT start it rolled for, and its pick
@@ -1112,7 +1121,8 @@ second window first pushes nothing."
       (hs-place-to e *hs-r-j-push* *hs-r-uchi-frames*) (pace e :uchi-push))))
 (defun hs-dmg-mult (att def hw mv hazard d2)
   "The Bankai's :dmg-mult hook (combat.lisp APPLY-HIT): HS-DIST-MULT for his move's hit by his form, its window's first
-volume, the victim's distance (D2 squared, from the hit's source) and his distance along ATT's facing; x1.0 for L SAHARAI
+volume, the victim's distance (D2 squared, from the hit's source) and his distance along ATT's facing (and marks a tip or a
+spread-route hit for its SP gain, HS-BK-HIT: §25.5, §25.11); x1.0 for L SAHARAI
 (unchanged, §22.1), the bind's SP2 KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and a :seg-fn window
 (no volume)."
   (declare (ignore hazard))
@@ -1121,7 +1131,10 @@ volume, the victim's distance (D2 squared, from the hit's source) and his distan
       (let* ((v (first (hw-vols hw))) (cap (and v (> (aref v 0) 0.5))) (yaw (yaw-of att)) (p (pos-of att)) (q (pos-of def))
              (x (hs-dist-mult (fighter-form (fighter att)) cap (and v (if cap (aref v 2) (aref v 1))) (sqrt d2)
                               (+ (* (- (aref q 0) (aref p 0)) (fwd-x yaw)) (* (- (aref q 2) (aref p 2)) (fwd-z yaw))))))
-        (setf (hss-tip-r (hs att)) (and (eq (fighter-form (fighter att)) :bankai) (> x 1.0) (gauges-reiatsu (gauges att))))
+        (let* ((st (hs att)) (bk (eq (fighter-form (fighter att)) :bankai))
+               (spread (and bk (member (mv-name mv) '(:hs-r-j1 :hs-r-j2 :hs-r-k2s :hs-r-j3 :hs-r-k3))))
+               (sx (* (if (and bk (> x 1.0)) *hs-r-tip-sp-mult* 1.0) (if spread *hs-r-spread-sp-mult* 1.0))))
+          (setf (hss-tip-r st) (and (> sx 1.0) (gauges-reiatsu (gauges att))) (hss-tip-x st) (- sx 1.0)))
         x)))
 (defun hs-r-ame-aim (e)
   "KUSARI-AME's :tick: the lane aims (the move's :track 120) for its first *HS-AME-AIM* frames, then it is locked."
@@ -1173,13 +1186,14 @@ KUSARI-AME's charge-less copy (:enter 10) (B4c; the bind's SP2 KAIBAKU-GEKI as w
       (find-move (if bind :hs-r-sp2c :hs-r-kubikake-c)))))
 (defun hs-bk-hit (att def res hw mv hazard ranged)
   "The Bankai's :hit hook: SAHARAI's block pushes him to *HS-SAHARAI-BLOCK* m; KUBIKAKE's block counted; a chain-tip hit
-(HS-DMG-MULT marked it) earns its Reiatsu gain x *HS-R-TIP-SP-MULT* (§25.5: the gain since the mark, x the extra)."
+(HS-DMG-MULT marked it) earns its Reiatsu gain x *HS-R-TIP-SP-MULT*, a spread-route hit x *HS-R-SPREAD-SP-MULT*, both
+multiplied (§25.5, §25.11: the gain since the mark, x the extra)."
   (declare (ignore def hw hazard ranged))
   (let* ((st (hs att)) (r0 (hss-tip-r st)))
     (when r0
       (setf (hss-tip-r st) nil)
       (let ((gain (- (gauges-reiatsu (gauges att)) r0)))
-        (when (> gain 0) (reiatsu-gain! att (* gain (- *hs-r-tip-sp-mult* 1.0))) (pace att :tip-sp)))))
+        (when (> gain 0) (reiatsu-gain! att (* gain (hss-tip-x st))) (pace att :tip-sp)))))
   (when (and mv res (eq (contact-of res) :block))
     (case (mv-name mv)
       (:hs-r-l (hs-push-to att *hs-saharai-block* 12) (pace att :saharai-block))
