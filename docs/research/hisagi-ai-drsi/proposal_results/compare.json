@@ -1,0 +1,30 @@
+{
+  "worlds": [
+    "docs/research/hisagi-ai-drsi/trace_pool/iter01/trace.json"
+  ],
+  "incumbent_sha1": "08ca95197098",
+  "ranking": [
+    {
+      "policy": "<scratch>/adaptive_template.py",
+      "sha1": "0188982a20b8",
+      "pareto": {
+        "auc": 0.4926726726726727,
+        "parallel_penalty": 0.5277777777777778,
+        "reward": 0.36072822822822825,
+        "lambda": 0.25
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "docs/research/hisagi-ai-drsi/policy/current.py",
+      "sha1": "08ca95197098",
+      "pareto": {
+        "auc": 0.3294894894894895,
+        "parallel_penalty": 0.5,
+        "reward": 0.20448948948948947,
+        "lambda": 0.25
+      },
+      "non_degenerate": true
+    }
+  ]
+}

@@ -3246,6 +3246,42 @@ back`, UNWIND; the probe after shows no bind. The sim gates are not run (the use
 - The user, on whether to tell b1a1 (the Bankai ranged refine, in flight): 「不用 這套留給使用始解戰鬥的探索格研究即可」. So
   b1a1 is not told. The brief marks the route for cells whose style fights in the Shikai.
 
+### 25.17 Round 1 on the §25.15 freeze: results (2026-10-20)
+
+- 12 cells (4 branches × 3 attempts), each rescored at the freeze 3686d94 with 40 seeds. Every cell passed its host tests,
+  pkgcheck and the awaken A/B (the never-awaken side ≥ 21 of 60 on every row; the baseline's rows were 0-4).
+
+| cell | parent | what it added | score | HARD strength | signature | NORMAL share | chain / ranged / bind of his damage |
+|---|---|---|---|---|---|---|---|
+| b0a0 | - | b3a0's (§25.12) Shikai ported; KAZAGURUMA-GAESHI (the windmill wards a charging shot, then a charged K string), TODOME (RAIDEN ender on a red victim); Bankai at 4500 | 0.783 | 0.435 | 0.905 | 0.525 | 0.895 / 0.005 / 0.005 |
+| b0a1 | b0a0 | MIKIRI / TSUME: past a 0.42 perfect-Hoho rate on K1 he walks the chain in by hand | 0.7945 | 0.498 | 0.890 | 0.527 | 0.881 / 0.005 / 0.004 |
+| b0a2 | b0a1 | the HARD combo plan at the first hit: RINNE 80 % (J1 > L > K1 K2 > J3K > L > K1 K2 K3 > RAIDEN), RINNE-OWARI 10 %, HANA 10 % (§25.16's showpiece exactly) | 0.8203 | 0.552 | 0.909 | 0.527 | 0.901 / 0.005 / 0.004 |
+| b1a0 | - | Bankai at 2000; ranged route styles SENTAN 60 / KAISEN 25 / NAWAJI 15 | 0.7517 | 0.400 | 0.863 | 0.5625 | 0.605 / 0.175 / 0.083 |
+| b1a1 | b1a0 | MACHI-GUSARI: the Bankai never swings at a standing opponent, every route off an answer | 0.7741 | 0.448 | 0.879 | 0.490 | 0.562 / 0.219 / 0.098 |
+| b1a2 | b1a1 | TAIHO / NIGE: a pure hop once his hop lash is blocked or Hoho'd; MIKIRI across forms | 0.7783 | 0.467 | 0.877 | 0.523 | 0.572 / 0.216 / 0.089 |
+| b2a0 | - | Bankai at 3000; KUBIKAKE only off a confirmed hit; the SAHARAI-cancel read fixed; binds TSURI / SHIME | 0.7855 | 0.458 | 0.896 | 0.454 | 0.777 / 0.066 / 0.053 |
+| b2a1 | b2a0 | b0a2's Shikai merged in; KOSHU: in the bind he walks in to J1 range and every string ends in the cinching K route | 0.8229 | 0.565 | 0.907 | 0.475 | 0.812 / 0.046 / 0.049 |
+| **b2a2** | b2a1 | SHIBARI-GUCHI: the bind's first J1 timed to land inside the noose's reel (first hit his in 96 % of binds, from 75 %); SANGE 0.5 at HARD | **0.8325** | 0.598 | 0.908 | 0.508 | 0.795 / 0.050 / 0.063 |
+| b3a0 | - | the three themes by probability; the HARD reap's 3-frame approach proof; the waking noose; the bind's ledger | 0.785 | 0.490 | 0.876 | 0.5625 | 0.757 / 0.079 / 0.041 |
+| b3a1 | b3a0 | b0a2's wheel + MIKIRI merged in; b1a1's MACHI-GUSARI; every Shikai SP ender RAIDEN (SHIBARI's slam lost to hitstun decay) | 0.8144 | 0.552 | 0.899 | 0.506 | 0.806 / 0.062 / 0.031 |
+| b3a2 | b3a1 | UTSUSEMI: HARD Hohos a committed swing near him 0.9 while his flash-step lasts; b2a1's KOSHU bind; the waking noose off | 0.8281 | 0.623 | 0.882 | 0.508 | 0.815 / 0.043 / 0.025 |
+
+- §25.16's showpiece, measured (b0a2, HARD, 480 matches each, one route forced): RINNE 254 wins, RINNE-OWARI 251, the
+  showpiece HANA 237, no plan 233, an SP in the middle (J1 > L > K1 K2 > RAIDEN) 203. The back half is his strongest
+  route; the J1 J2 J3 head is plain J and starts the damage decay early. An SP in the middle can't carry into a second K
+  string: the generic guard-cancel lock (FIGHTER-GC-LEFT) and RAIDEN's recovery (f47) leave K1 landing 5 f after the 40 f
+  paralysis. SP2 SHIBARI as the ender measured weaker than RAIDEN (b3a1).
+- A 40-seed score moves about ±0.01-0.02 with the seed draw alone; the cells compared variants on 960-1200 HARD matches.
+  b2a2, b3a2, b2a1 and b0a2 are within that of each other.
+- Shared-code findings (not done; they touch other characters):
+  - ai.lisp's generic Step → J fires his ranged J1 off every escape hop, the Bankai ranged mode's largest leak.
+  - The kit's `:hoho` is one number for every difficulty.
+  - AI-AWAKEN-P has no per-style or per-difficulty hook.
+  - The forced O ender on a red victim has no kit hook.
+- Lille stays 0-2 of 80 at HARD in every cell (her level-3 snipe goes through the windmill).
+- dream-rsi: `close-round` froze round 1 into `trace_pool/iter01`. `compare` ranked the skill's adaptive_template
+  (reward 0.361) over the fixed parallel-refine incumbent (0.205), and it was promoted for round 2.
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
