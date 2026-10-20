@@ -3325,6 +3325,69 @@ back`, UNWIND; the probe after shows no bind. The sim gates are not run (the use
   the cell's awaken A/B (seed0 100) passed.
 - Next: the integration (§25.1 step 6): the learner's Hisagi situations, AUTO COMBO's routes, AUTO GUARD's windmill.
 
+### 25.20 The integration: the learner's situations, AUTO COMBO's routes, AUTO GUARD's windmill (2026-10-20)
+
+> The user (2026-10-18, §25): 「學玩家習慣」「AUTO COMBO 路線」「AUTO GUARD 風車」; built on the shipped CPU (§25.19).
+
+His CPU's decisions are unchanged: everything below runs only with a learner (a CPU Hisagi facing a human) or for a human
+with ASSIST on. CPU vs CPU, `aieval --char 7 --seeds 10 -j 2` before / after: the JSON is identical (score 0.8324, HARD
+strength 0.633, masher 1.0, signature 0.885, NORMAL share 0.575, every pacing median the same). The only shared code it
+uses is the existing hooks (`learn-def-kit`, `:assist-guard`, `:assist-combo`); no shared file changed. All in
+`duel/lisp/hisagi.lisp`'s new section "the learning CPU's situations and ASSIST".
+
+**The learner** (`learn-def-kit :hisagi`, DUEL_LEARNING §11; the user's design §17.5 #16 asked for "bound, ahead / behind"):
+
+| Situation | Opens (HS-LEARN-SIT) | Read where (once per event, the learner's own stream × `*hs-learn-diff*`) | The plan for his predicted answer |
+|---|---|---|---|
+| `:reap` | his K1 (not a windmill's K string) starts on a free human | the fence's reap roll, once an approach (HS-AI-FENCE → HS-LEARN-REAP) | a Hoho → no reap (MIKIRI per human); a swing / taking it / backing off → the reap; else as rolled |
+| `:ward` | his windmill KAZA (not the bridge) starts, the human not reeling | the ward's sweep roll (HS-AI-SIG-HOLD → HS-LEARN-WARD) | he comes in / shoots again / backs off → the sweep (L held, the charged K string after the shot); a Hoho / a guard → the plain hold |
+| `:bind-ahead` / `:bind-behind` | a bind's neutral (both free, its first step), by the grey ledger (HS-GREY-MARGIN ≤ 0: ahead) | the bind's walk-in decision (HS-B-AI-REFLEX → HS-LEARN-BIND; HARD's, `*hs-ai-b-close-p*`) | he swings or Hohos → a guard (the punish after); he guards → the Breaker (inside 3 m, allowed); else the walk-in |
+
+- The human's answer classes `:guard :hoho :attack :back :take`: the generic LEARN-ACTION read as his (HS-LEARN-CLASS: any
+  move an attack, a Hoho or Step a Hoho, backing off > 1.2 m along the onset's line); reeling `:take`; at the episode's end
+  (`*hs-learn-episode*` 30 f + the perception delay) a held guard `:guard`, else uncounted. The sickle-out situation of §10's
+  table is not one: no move leaves the sickle out since S1 (§23.1).
+- A read that changes the pick is counted (LEARN-COUNT-READ, its 60 f pay-off) and logged (`read-<situation>-<class>` in the
+  pacing log). Without a learner (every gate, aieval) HS-LEARN-READ returns NIL: the rolls are the same SIM-RND01 draws,
+  their results kept.
+- Knobs: `*hs-learn-diff*` (:easy 0.5 :normal 1.0 :hard 1.5, Lille's), `*hs-learn-episode*` 30.
+- Native smoke (the learning gate's runner, HARD, 4 seeds each: P1 Hoho-happy Rukia, a plain CPU Kenpachi, grab-happy
+  Yamamoto, P2 Hisagi learning): every kit situation counted and predicted (e.g. `reap=hoho 0.57/18.7 ward=attack 1.00/4.7`
+  against the Hoho habit, `bind-ahead=attack 0.49/3.8` against the plain CPU); no errors.
+
+**AUTO GUARD's windmill** (`:assist-guard` HS-ASSIST-GUARD, the Shikai only; §10's row): a ranged threat 4-24 f out
+(RANGED-THREAT-IN, the sickle in, L allowed), one roll per threat at his CPU's `*hs-ai-windmill-p*` (the assist's HARD
+brain: 0.9): L, the windmill up through it, marked `:assist` so HS-AI-SIG-HOLD holds it `*hs-ai-windmill-hold*` (36 f) and
+rolls no K (his own K out of it starts the charged K string). In ALWAYS it comes before the held guard. Nothing existed for
+it before (his kits had no `:assist-guard`; AUTO GUARD's generic parry / guard / Hoho only).
+
+**AUTO COMBO's routes** (`:assist-combo` HS-ASSIST-COMBO, all three forms): at a hit's land step his CPU's own pick on the
+assist's brain, the latch emptied (HS-AS-DECIDE), pressed on his J (HS-AS-PRESS: J pressed or latched in that move, the
+generic rule); where the pick is J, his own J does it (unassisted); a pick that ends the string eats his J (no whiff).
+- **The Shikai**: the combo's route plan (HS-AI-PLAN / HS-AI-PLAN-CMD, *HS-AI-PLAN-P* HARD 1.0: RINNE 80 %, RINNE-OWARI
+  10 %, HANA 10 %): J1 > L > K1 K2 > J3K > L > K1 K2 K3 > RAIDEN (the user's §25.16 showpiece HANA one combo in ten). The K
+  out of a bridge the assist pressed comes at his CPU's frame (HS-KAZA-TICK: a windmill that is FIGHTER-ASSISTED, the K its
+  press rolled, HS-AI-KAZA-K; the assist's held L let go; that K string assisted, x0.8); a human's own windmill never.
+  The enders (K3: RAIDEN by `:sp-ender`, the O on a red victim) are the generic AUTO COMBO's.
+- **The Bankai's ranged mode**: his J while free with the opponent on K1's chain tip (4-5 m, HS-R-TIP-CMD) is K1 (on J1's
+  tip, 5-6.2 m, his J already is); each link by the style rolled at the mode's entry (HS-R-AI-MOVE: SENTAN / NAWAJI / KAISEN,
+  the K for the tip's damage, the J, the end where neither reaches, NAWAJI's noose off the opener); SAHARAI that hit: his J
+  is K1 when the style's pick from where it pushes him is K1.
+- **The bind**: the cinching K route and its TODOME (HS-B-AI-MOVE, `*hs-ai-b-route-p*` HARD 1.0); the bite's timing
+  (HS-B-BITE-CMD: his J held back while his yank still brings the victim in).
+- State: two never-hashed HSS slots (`as-key` the move's start tick, `as-cmd` its entry).
+
+**Debug** (DUEL_GAMEPLAY "Debug commands", claimed): 83020 P1 the ASSIST gate's button-masher with ASSIST ALWAYS + COMBO +
+BREAK vs a CPU Lille 6 m off (her shots: the windmill; the route plans), 83021 the same in the Bankai's ranged mode vs
+Kenpachi. Native runs of each (one match): 83020 the full RINNE wheel from the first combo (J1 > L > K1 K2 > J3K > L > K1 K2
+K3, 29 windmill K strings, 11 leaps, 2 RAIDEN; the windmill against her shots blocked BR-K-HIREN twice), P1 9-0; 83021 J1 >
+K2s > K3 > the noose (KUBIKAKE's cancel) > the bind's J1 > K2s > K3 > KUSARI-AME, TODOME off K2s.
+
+**Tests**: duel-rules 9885 (+7 in a new "Hisagi's learner and ASSIST" block after HISAGI-CPU-TESTS: the spec, the class map,
+the onsets, the three plans, HS-AS-ENTRY / HS-AS-PRESS, the keys on his kits only); control 89, learn 131, input 33, cine 18
+ALL PASS; touch 64, 0 failures; pkgcheck clean; `./build.sh duel` built (the 4 known Lille style warnings). The sim gates,
+ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate」); the manual's CPU / ASSIST lines are not written.
+
 ### 25.21 Faster seed runs (the user, 2026-10-20)
 
 - The user asked how to speed the seed runs up; of the options offered, 「先做 1、3、4」, and asked whether turning off the

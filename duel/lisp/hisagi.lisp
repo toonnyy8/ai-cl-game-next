@@ -1037,7 +1037,9 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (ai-rel nil)                                ; in a bind: the release rolled for, fired once he isn't attacking
   (ai-wake nil) (ai-wake-t -1 :type fixnum)   ; cell b3a0: the waking noose rolled for this awakening, and its tick
   ;; round01 cell b2a2 (CPU-only, never hashed): the bind's bite (HS-B-AI-BITE; merged by the b3a2+b2a2 combination)
-  (ai-bite-from -1 :type fixnum))             ; the bind (its start tick) whose bite was decided
+  (ai-bite-from -1 :type fixnum)              ; the bind (its start tick) whose bite was decided
+  ;; ASSIST's AUTO COMBO routes on a human's fighter (HS-ASSIST-COMBO, DUEL_HISAGI §25.20; never hashed)
+  (as-key -1 :type fixnum) (as-cmd nil))      ; the move (its start tick) the route decided for, and its entry (HS-AS-ENTRY)
 (defun hs (e)
   "E's state (his HSS component, attached on the first call)."
   (or (hss e) (let ((st (make-hss))) (add-component e st) st)))
@@ -1134,19 +1136,29 @@ velocity replaced, a J link has no chase). The look is the move's own clip (A1, 
 S1, §23.1); once it has been up *HS-KAZA-MIN* frames, L let go ends the hold (its recovery R 14 next); the clip follows
 (a look)."
   (let* ((f (fighter e)) (mv (fighter-move f)) (sf (fighter-sf f)) (s (mv-s mv)) (top (+ s (mv-a mv))) (st (hs e))
-         (vp (pilot-vpad (pilot e))) (held (vpad-down vp :sig)) (b (hs-tick-brain e)))
+         (vp (pilot-vpad (pilot e))) (held (vpad-down vp :sig)) (b (hs-tick-brain e)) (auto nil))
     (setf (hss-charge st) (hs-charge-next (hss-charge st) held (hss-kz-let st) sf s top))
     (unless held (setf (hss-kz-let st) t))
-    (when (and (>= sf *hs-kaza-k-from*) (if b (hs-ai-kaza-k e f st) (vpad-command-pressed-p vp :flash nil)))
+    (when (and (>= sf *hs-kaza-k-from*)
+               (if b
+                   (hs-ai-kaza-k e f st)
+                   (or (vpad-command-pressed-p vp :flash nil)
+                       ;; §25.20: a windmill ASSIST pressed (AUTO COMBO's bridge): the K its press rolled (HS-AI-SIG-HOLD),
+                       ;; at his CPU's frame (HS-AI-KAZA-K); a human's own windmill never (not FIGHTER-ASSISTED)
+                       (and (fighter-assisted f) (hss-ai-kz st) (setf auto (hs-ai-kaza-k e f st))))))
       (setf (hss-kstr st) t)
+      (when auto (setf (fighter-assist-next f) t))   ; (the K string the assist pressed: x*ASSIST-MULT*, as its every press)
       (when (try-command e f :f :flash)
         (if b
             (setf (brain-press-left b) 0)   ; (his CPU lets L go: its hold would keep his reflexes off through the K string)
-            (vpad-consume! vp :flash))
+            (let ((ab (and auto (svref *assist-brains* (fighter-side f)))))
+              (vpad-consume! vp :flash)
+              (when ab (setf (brain-press-left ab) 0))))   ; (the assist lets its held L go)
         (pace e :kaza-k) (pace e :charge (hss-charge st))
         (clog "~a windmill -> K string x~,2f" (side-name e) (hs-charge-scale (hss-charge st)))
         (return-from hs-kaza-tick nil))
-      (setf (hss-kstr st) nil))
+      (setf (hss-kstr st) nil)
+      (when auto (setf (fighter-assist-next f) nil)))
     (when (hs-kaza-release-p sf s top held)
       (setf (fighter-sf f) top)
       (play-clip e (kit-move-clip (fighter-kit f) (mv-clip mv)) :blend 2 :time (/ top 60.0)))))
@@ -1394,7 +1406,7 @@ where the reap waits for him. An approach counts once he has closed in *HS-AI-RE
          (fz (hs-fence-band (hss-ai-fz st) d)))
     (setf (hss-ai-pd st) (f32 d) (hss-ai-pt st) *match-tick*)
     (when (and coming (not (hss-ai-app st)))
-      (setf (hss-ai-app-go st) (< (sim-rnd01) (hs-sp e b *hs-ai-reap-p*))))
+      (setf (hss-ai-app-go st) (hs-learn-reap e b (< (sim-rnd01) (hs-sp e b *hs-ai-reap-p*)))))   ; (§25.20: a learner's read)
     (unless (eq fz (hss-ai-fz st)) (setf (hss-ai-fz-rolled st) nil))
     (setf (hss-ai-app st) coming (hss-ai-fz st) fz)
     (cond ((and coming (hss-ai-app-go st) (eq (hss-state st) :in) (kit-command-ok-p e :f)
@@ -1441,10 +1453,13 @@ HS-AI-REFLEX) rolls its sweep instead (*HS-AI-SWEEP-P*: :SWEEP, its K waits for 
 *HS-KAZA-MAX* (the charge runs until HS-AI-KAZA-K's K), else *HS-AI-WINDMILL-HOLD* frames (the threat passes)."
   (declare (ignore kit d))
   (let* ((st (and e (hs e))) (b (and e (ai-brain e))) (ward (and st (hss-ai-kz-threat st))))
+    (when (eq ward :assist)                           ; (§25.20: AUTO GUARD's ward, HS-ASSIST-GUARD: the threat's hold, no K)
+      (setf (hss-ai-kz-threat st) nil (hss-ai-kz st) nil)
+      (return-from hs-ai-sig-hold *hs-ai-windmill-hold*))
     (when st
       (setf (hss-ai-kz-threat st) nil
             (hss-ai-kz st) (and b (if ward
-                                      (and (< (sim-rnd01) (hs-sp e b *hs-ai-sweep-p*)) :sweep)   ; (cell b0a0: the ward's sweep)
+                                      (hs-learn-ward e b (and (< (sim-rnd01) (hs-sp e b *hs-ai-sweep-p*)) :sweep))   ; (cell b0a0: the ward's sweep; §25.20 a read)
                                       (or (hs-bridge-p (fighter e)) (< (sim-rnd01) (hs-p b *hs-ai-kaza-k-p*)))))))
     (if (and st (hss-ai-kz st)) *hs-kaza-max* *hs-ai-windmill-hold*)))
 (defun hs-ai-kaza-k (e f st)
@@ -2084,7 +2099,7 @@ KAIBAKU-GEKI only within *HS-AI-KAIBAKU-REACH*, else the plain P (FREE, §25.14)
     (when (and (hss-bound st) (>= d 1.8) (<= (brain-decide-t b) 1) (hs-roll b *hs-ai-b-close-p*))
       (setf (brain-decide-t b) (ai-decide-time e b))
       (pace e :ai-b-close)
-      nil)))
+      (hs-learn-bind e b d))))                     ; (§25.20: a learner's read of the bind's neutral; else NIL, the walk-in)
 (defun hs-b-bite-cmd (d left lock)
   "The bite's command (cell b2a2, pure): the victim D m off (his own yank's), LEFT frames of his reel as perceived, LOCK his
 own frames before an attack may start (the guard cancel's, FIGHTER-GC-LEFT): :q J1 when its startup fits the reel after
@@ -2130,6 +2145,203 @@ of the pool, *HS-AI-BIND-SP-P*); behind, nothing (the pool is his clock too; the
       (pace e :ai-bsp1)
       :sp1)))
 
+;;; ================================================================ the learning CPU's situations and ASSIST (DUEL_HISAGI §25.20)
+;;; The integration of the shipped CPU (§25.1 step 6, §25.19; the user, 2026-10-18: 「學玩家習慣」「AUTO COMBO 路線」「AUTO
+;;; GUARD 風車」). His CPU's decisions are unchanged: a learner (a CPU Hisagi facing a human) only re-reads three of its rolls,
+;;; and ASSIST presses for a human what his CPU's own functions pick on the assist's HARD brain.
+;;;   learner  his own situations (LEARN-DEF-KIT, DUEL_LEARNING §11): :REAP his K1 at a free human (the fence's reap, the
+;;;            punish, a neutral K1), :WARD his windmill up (the ward: the human shot or charged), :BIND-AHEAD / :BIND-BEHIND
+;;;            a bind's neutral with him ahead / behind on grey (§17.5 #16's 「bound, ahead / behind」). The human's answer:
+;;;            :GUARD :HOHO :ATTACK :BACK :TAKE. Read once per event (the learner's own stream, x *HS-LEARN-DIFF*): the
+;;;            reap's roll per approach (HS-LEARN-REAP), the ward's sweep roll (HS-LEARN-WARD), the bind's walk-in
+;;;            (HS-LEARN-BIND)
+;;;   AUTO GUARD  the Shikai's :assist-guard: the windmill against an incoming ranged threat (HS-ASSIST-GUARD)
+;;;   AUTO COMBO  every form's :assist-combo: the Shikai's route plans (RINNE / RINNE-OWARI / HANA, §25.16), the ranged
+;;;            mode's routes by style off the tip opener, the bind's cinching K route and its bite (HS-ASSIST-COMBO)
+(defparameter *hs-learn-diff* '(:easy 0.5 :normal 1.0 :hard 1.5)
+  "His learner's read chance (p_exploit) x this by difficulty (§25.20, 2026-10-20: Lille's *BR-LEARN-DIFF*).")
+(defparameter *hs-learn-episode* 30
+  "Frames a situation of his waits for the human's answer, + the perception delay (§25.20: K1's 18 f startup and its reach).")
+
+(defun hs-learn-class (act)
+  "The human's generic action class ACT (an index of *LEARN-ACTIONS*, LEARN-ACTION's) as his situations' class: a move of
+any kind :ATTACK, a Hoho / Step :HOHO, a guard :GUARD, backing off :BACK; else NIL (a burst: not counted)."
+  (and act (case (aref *learn-actions* act) ((:j :k :i :l :sp :o) :attack) (:hoho :hoho) (:guard :guard) (:back :back))))
+
+(defun hs-learn-sit (name new kstr hstate bound calm was-calm ahead)
+  "Pure: the situation of his that opens this step, or NIL. NAME his move (NIL: none), NEW it started this step, KSTR it is
+a windmill's K string, HSTATE the human's perceived state, BOUND a bind on, CALM both free (WAS-CALM: last step), AHEAD
+him not behind on grey. A reeling human: none; :REAP his K1 (not a windmill's) on a free human; :WARD his windmill (not the
+bridge); :BIND-AHEAD / :BIND-BEHIND a bind's neutral (both free, its first step)."
+  (cond ((member hstate '(:stun :air :down :wakeup)) nil)
+        ((and new (eq name :hs-k1) (not kstr) (member hstate '(:idle :run :guard))) :reap)
+        ((and new (eq name :hs-kaza)) :ward)
+        ((and bound calm (not was-calm)) (if ahead :bind-ahead :bind-behind))))
+
+(defun hs-learn-reap-plan (read go)
+  "Pure: the reap's roll GO (HS-AI-FENCE, once an approach) for the human's predicted answer READ to his K1: a Hoho -> no
+reap (it would be Hoho'd: MIKIRI's read by rate, per human); he swings, takes it or backs off -> the reap (it sweeps his
+walk); else GO."
+  (case read (:hoho nil) ((:attack :take :back) t) (t go)))
+(defun hs-learn-ward-plan (read sweep)
+  "Pure: the ward's sweep roll SWEEP (:SWEEP or NIL, HS-AI-SIG-HOLD) for the human's predicted answer READ to his windmill:
+he comes in, shoots again or backs off -> :SWEEP (L held, the charged K string after the shot); he Hohos or guards -> NIL
+(the plain hold); else SWEEP."
+  (case read ((:attack :back) :sweep) ((:hoho :guard) nil) (t sweep)))
+(defun hs-learn-bind-plan (read)
+  "Pure: the bind's neutral (his walk-in, HS-B-AI-REFLEX) for the human's predicted answer READ: he swings or Hohos as
+Hisagi comes -> :GUARD (wait it out, the punish after); he guards -> :BREAKER; else NIL (the walk-in)."
+  (case read ((:attack :hoho) :guard) (:guard :breaker)))
+
+(defstruct (hsl (:conc-name hsl-))
+  "His learner's own state within a match (LRN-KDATA)."
+  (own-mv nil) (calm nil) (ox 0f0 :type single-float) (oz 0f0 :type single-float) (ux 0f0 :type single-float)
+  (uz 0f0 :type single-float) (len 0 :type fixnum))
+(defun hs-learn-l (b) "Brain B's learner when it reads his situations (LRN-KIT: a CPU Hisagi facing a human), else NIL."
+  (let ((l (and b (brain-learn b)))) (and l (lrn-kit l) l)))
+
+(defun hs-learn-step (e b s d l)
+  "His learner's step (LEARN-DEF-KIT's :step): a situation's onset (HS-LEARN-SIT) and the human's answer to it (LEARN-ACTION
+as HS-LEARN-CLASS, with his way away from the onset's line; reeling :TAKE; at the episode's end a held guard :GUARD, else
+uncounted)."
+  (declare (ignore d))
+  (let* ((k (or (lrn-kdata l) (setf (lrn-kdata l) (make-hsl))))
+         (st (hs e)) (f (fighter e)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
+         (hst (snap-state s)) (hprev (lrn-hstate l)) (bound (hss-bound st))
+         (calm (and (member (fighter-state f) '(:idle :run :guard)) (member hst '(:idle :run :guard)) t))
+         (sit (and (< (lrn-ksit l) 0)
+                   (hs-learn-sit (and mv (mv-name mv)) (and mv (not (eq mv (hsl-own-mv k)))) (hss-kstr st) hst bound
+                                 calm (hsl-calm k) (or (not bound) (<= (hs-grey-margin e) 0))))))
+    (setf (hsl-own-mv k) mv (hsl-calm k) calm)
+    (when sit
+      (let* ((dx (- (snap-x s) (aref (pos-of e) 0))) (dz (- (snap-z s) (aref (pos-of e) 2))) (m (max 1e-3 (hypot dx dz))))
+        (setf (hsl-ox k) (f32 (snap-x s)) (hsl-oz k) (f32 (snap-z s)) (hsl-ux k) (f32 (/ dx m)) (hsl-uz k) (f32 (/ dz m))
+              (hsl-len k) (+ *hs-learn-episode* (brain-delay b))))
+      (learn-kit-open l sit))
+    (when (>= (lrn-ksit l) 0)
+      (let ((end (>= (incf (lrn-kep-t l)) (hsl-len k)))
+            (away (+ (* (- (snap-x s) (hsl-ox k)) (hsl-ux k)) (* (- (snap-z s) (hsl-oz k)) (hsl-uz k)))))
+        (cond ((member hst '(:stun :air :down :wakeup)) (learn-kit-close l :take))
+              ((let ((a (learn-action hprev hst (snap-kind s) (/= (snap-start s) (lrn-hstart l)) away)))
+                 (and a (progn (learn-kit-close l (hs-learn-class a)) t))))
+              (end (learn-kit-close l (and (member hst '(:guard :guard-hit)) :guard))))))))
+
+(defun hs-learn-read (b key)
+  "Brain B's learner's read of his situation KEY (LEARN-KIT-READ, x *HS-LEARN-DIFF*), or NIL (no learner with his
+situations: every CPU vs CPU match, the ASSIST's brain)."
+  (let ((l (hs-learn-l b)))
+    (and l (learn-kit-read l key (float (getf *hs-learn-diff* (brain-difficulty b) 1.0) 1.0)))))
+(defun hs-learn-acted (e b key read)
+  "A read of KEY (the predicted READ) that changed his CPU's pick: counted (LEARN-COUNT-READ), the logs."
+  (learn-count-read e (brain-learn b) read)
+  (pace e (intern (format nil "READ-~a-~a" key read) :keyword))
+  (clog "~a read ~(~a~) ~(~a~)" (side-name e) key read))
+(defun hs-learn-reap (e b go)
+  "HS-AI-FENCE's reap roll GO for one approach as a learner's read of :REAP leaves it (HS-LEARN-REAP-PLAN); else GO."
+  (let ((r (hs-learn-read b :reap)))
+    (if r
+        (let ((g (hs-learn-reap-plan r go))) (unless (eq (and g t) (and go t)) (hs-learn-acted e b :reap r)) g)
+        go)))
+(defun hs-learn-ward (e b sweep)
+  "HS-AI-SIG-HOLD's ward sweep roll SWEEP as a learner's read of :WARD leaves it (HS-LEARN-WARD-PLAN); else SWEEP."
+  (let ((r (and b (hs-learn-read b :ward))))
+    (if r
+        (let ((w (hs-learn-ward-plan r sweep))) (unless (eq w sweep) (hs-learn-acted e b :ward r)) w)
+        sweep)))
+(defun hs-learn-bind (e b d)
+  "HS-B-AI-REFLEX's walk-in (a neutral decision due in a bind, D m off) as a learner's read of the bind's neutral (ahead /
+behind on grey) leaves it (HS-LEARN-BIND-PLAN): :GUARD, the Breaker (within *AI-GUARD-BREAK-RANGE*, allowed), or NIL
+(the walk-in)."
+  (let* ((key (if (<= (hs-grey-margin e) 0) :bind-ahead :bind-behind))
+         (r (hs-learn-read b key)) (c (and r (hs-learn-bind-plan r))))
+    (when (and (eq c :breaker) (not (and (< d *ai-guard-break-range*) (kit-command-ok-p e :breaker)))) (setf c nil))
+    (when c (hs-learn-acted e b key r) (why b :read-bind c))))
+
+(learn-def-kit :hisagi :situations #(:reap :ward :bind-ahead :bind-behind) :actions #(:guard :hoho :attack :back :take)
+               :step 'hs-learn-step)
+
+;;; ASSIST (assist.lisp; DUEL_ASSIST): the windmill for AUTO GUARD, the routes for AUTO COMBO
+(defun hs-assist-guard (e b s d)
+  "The Shikai's :assist-guard (AUTO GUARD's first answer, 「AUTO GUARD 風車」): a ranged threat coming (RANGED-THREAT-IN
+4-24 f, the sickle in, L allowed), one roll per threat at his CPU's *HS-AI-WINDMILL-P* on the assist's HARD brain: L, the
+windmill up through it, marked :ASSIST (HS-AI-SIG-HOLD: held *HS-AI-WINDMILL-HOLD* f, no K of the assist's: his own K
+takes the charged string). A command or NIL."
+  (let* ((st (hs e)) (threat (and (eq (hss-state st) :in) (ranged-threat-in e b s d 4 24)))
+         (edge (and threat (not (hss-ai-threat st)))))
+    (setf (hss-ai-threat st) threat)
+    (when (and edge (kit-command-ok-p e :sig) (< (sim-rnd01) (hs-p b *hs-ai-windmill-p*)))
+      (setf (hss-ai-kz-threat st) :assist)
+      (pace e :as-windmill)
+      (why b :as-windmill :sig))))
+
+(defun hs-as-entry (c)
+  "Pure: his CPU's pick C at a link's hit as that move's AUTO COMBO entry: NIL -> :GENERIC (the generic AUTO COMBO), :WAIT
+-> :END (the string ends there: his J eaten, no whiff), :Q -> :OWN (his own J is the link), else the command."
+  (case c ((nil) :generic) (:wait :end) (:q :own) (t c)))
+(defun hs-as-press (entry j)
+  "Pure: one step of a move's AUTO COMBO ENTRY with his J pressed or latched (J): values the route's answer (a command,
+:NONE or NIL), the entry after it, and whether his J is eaten. Undecided / :GENERIC: NIL; :OWN: :NONE (his J goes on);
+:END / :DONE: :NONE, his J eaten; a command: on his J (then :DONE), else :NONE (waiting for it)."
+  (case entry
+    ((nil :generic) (values nil entry nil))
+    (:own (values :none entry nil))
+    ((:end :done) (values :none entry t))
+    (t (if j (values entry :done nil) (values :none entry nil)))))
+
+(defun hs-as-decide (e f b mv)
+  "AUTO COMBO's pick at a hit of his move MV (its land step): his CPU's own on the assist's brain, the latch emptied (as
+STRING-REFLEX's): the Shikai's route plan (HS-AI-PLAN at every hit, its plan at the first: RINNE / RINNE-OWARI / HANA,
+HS-AI-PLAN-CMD); the ranged mode's link by its style (HS-R-AI-MOVE: the K for the damage, the J, the end, NAWAJI's noose);
+the bind's cinching K route and TODOME (HS-B-AI-MOVE). The entry (HS-AS-ENTRY)."
+  (let ((q (fighter-queued f)) (name (mv-name mv)))
+    (setf (fighter-queued f) nil)
+    (prog1 (hs-as-entry
+            (case (fighter-form f)
+              (:base (let ((route (hs-ai-plan e b name))) (and route (hs-ai-plan-cmd e b f name route))))
+              (:bankai (and (string-link-p (fighter-kit f) name) (hs-r-ai-move e b f mv)))
+              (t (setf (hss-ai-form (hs e)) :bankai-bind)   ; (the ranged style re-rolls at the next entry: HS-R-STYLE)
+                 (hs-b-ai-move e b f mv))))
+      (setf (fighter-queued f) q))))
+
+(defun hs-assist-combo (e f b s d vp)
+  "His forms' :assist-combo (assist.lisp AUTO-ROUTE, 「AUTO COMBO 路線」). In a move: at a hit's land step the pick is decided
+(HS-AS-DECIDE), then pressed on his J (HS-AS-PRESS: the J pressed or latched in this move, the generic AUTO COMBO's rule);
+the windmill's K off a bridge the assist pressed is his tick's (HS-KAZA-TICK); the ranged L SAHARAI that hit: his J ->
+K1 when the style's pick from where it pushes him is K1. Free, his J: the ranged mode's tip opener (K1 with him on its tip,
+4-5 m, HS-R-TIP-CMD; on J1's, 5-6.2 m, his J is it); a bind's bite (HS-B-BITE-CMD: his J held back while the yank still
+brings the victim in). A command, :NONE or NIL (the generic AUTO COMBO)."
+  (let* ((st (hs e)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (j (vpad-command-pressed-p vp :quick nil)))
+    (cond (mv
+           (let ((key (- *match-tick* (fighter-sf f))))
+             (unless (= key (hss-as-key st)) (setf (hss-as-key st) key (hss-as-cmd st) nil))
+             (when (and (null (hss-as-cmd st)) (eq (fighter-contact f) :hit) (= (fighter-sf f) (fighter-land-sf f)))
+               (setf (hss-as-cmd st) (hs-as-decide e f b mv)))
+             (if (and j (eq (mv-name mv) :hs-r-l) (eq (fighter-contact f) :hit) (>= (fighter-sf f) (+ (mv-s mv) (mv-a mv)))
+                      (eq :f (hs-r-pick (hs-r-style e b) (max (fighter-dist f) *hs-saharai-hit*) 99)))
+                 (progn (pace e :as-l-cancel) :f)
+                 (multiple-value-bind (c entry eat) (hs-as-press (hss-as-cmd st) (or j (eq (fighter-queued f) :q)))
+                   (setf (hss-as-cmd st) entry)
+                   (when eat (vpad-consume! vp :quick) (when (eq (fighter-queued f) :q) (setf (fighter-queued f) nil)))
+                   (when (and c (not (member c '(:none :f :sig)))) (setf (fighter-queued f) nil))   ; (a cancel drops his J link)
+                   (when (and c (not (eq c :none))) (pace e :as-route))
+                   c))))
+          ((and j (member (fighter-state f) '(:idle :run :guard)))
+           (case (fighter-form f)
+             (:bankai (and (eq (hs-r-tip-cmd d) :f) (kit-command-ok-p e :f) (progn (pace e :as-tip) :f)))
+             (:bankai-bind
+              (when (and (hss-bound st) (< (- *match-tick* (hss-bind-from st)) *hs-ai-bite-window*))
+                (case (hs-b-bite-cmd (fighter-dist f) (if (eq (snap-state s) :stun) (snap-left-seen s b) 0) (fighter-gc-left f))
+                  (:wait (vpad-consume! vp :quick) :none)
+                  (:q :none)))))))))
+
+;; the keys (assist.lisp reads them off the form's kit; his CPU never does): AUTO GUARD's windmill in the Shikai, AUTO
+;; COMBO's routes in every form
+(let ((k (find-kit :hisagi :base)))
+  (unless (getf (kit-ai k) :assist-guard) (setf (kit-ai k) (list* :assist-guard 'hs-assist-guard (kit-ai k)))))
+(dolist (form *hs-forms*)
+  (let ((k (find-kit :hisagi form)))
+    (unless (getf (kit-ai k) :assist-combo) (setf (kit-ai k) (list* :assist-combo 'hs-assist-combo (kit-ai k))))))
+
 ;;; ================================================================ the gate line, probes, debug (83000-83999)
 (defun hisagi-acc-line ()
   "After a gate row: a \"duel hisagi\" line per side that played him (the pacing log: throws, pulls, auto-returns, the
@@ -2166,7 +2378,8 @@ step: the snapshot back, the pool's 350 split 300 / 50, the reel, UNWIND); 14 as
 drained end at this step's hits); 15 the Bankai mirror, both CPUs awakened, 6 m apart. B4c (§22.6): 16 the ranged mode
 2.5 m from an idle Kenpachi (the gathered route, K1 綁束 at 2.0-4.0 m: press K K K / K K J / K J J); 17 the ranged mode
 3.5 m from him (the spread route off J1: J J J / J J K / J K K); 18 the ranged mode 4 m from a CPU Rukia, P1's CPU on (a
-fresh CPU battle); any other k the probe line only."
+fresh CPU battle); §25.20: 20 / 21 P1 the button-masher with ASSIST ALWAYS + COMBO + BREAK vs a CPU, 6 m: the Shikai vs
+Lille, the Bankai's ranged mode vs Kenpachi; any other k the probe line only."
   (flet ((setup (c2 dist &key cpu)
            (ensure-battle :hisagi c2 :cpu cpu)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) (not cpu)))
@@ -2197,7 +2410,13 @@ fresh CPU battle); any other k the probe line only."
       (15 (setup :hisagi 6.0 :cpu t) (hs-awaken-now! *p1*) (hs-awaken-now! *p2*))
       (16 (setup :kenpachi 2.5) (hs-awaken-now! *p1*))
       (17 (setup :kenpachi 3.5) (hs-awaken-now! *p1*))
-      (18 (setup :rukia 4.0 :cpu t) (hs-awaken-now! *p1*)))   ; (Rukia: no other scene starts that battle, so a fresh CPU one)
+      (18 (setup :rukia 4.0 :cpu t) (hs-awaken-now! *p1*))   ; (Rukia: no other scene starts that battle, so a fresh CPU one)
+      ;; §25.20: P1 the ASSIST gate's button-masher (habit :dumb, an EASY CPU's eyes) with ASSIST ALWAYS + COMBO + BREAK
+      ;; against a CPU: 20 the Shikai vs Lille 6 m (her shots: AUTO GUARD's windmill; J mashed: the route plans), 21 the
+      ;; Bankai's ranged mode vs Kenpachi 6 m (the tip opener, the routes, the noose and the bind's cinching route)
+      ((20 21) (setup (if (= k 20) :barro :kenpachi) 6.0 :cpu t)
+       (when (= k 21) (hs-awaken-now! *p1*))
+       (setf (brain-habit (brain *p1*)) :dumb (brain-delay (brain *p1*)) (getf *ai-delay* :easy) *assist-debug* (list 2 t t))))
     (hisagi-probe-line (format nil "test ~d" k))))
 
 (defun hs-awaken-now! (e)

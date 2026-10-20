@@ -37,7 +37,7 @@ gives the buttons and how long to hold them.
   land when `PERFECT-NOW-P` holds: one of his hit volumes is active now or within 12 f.
   - First, since AI v2 (2026-10-02), the form's own defensive answers: the function its kit's `:ai` names
     `:assist-guard` (the timed anti-Breaker hit, the timed Hoho, Rukia's REIDO at zero, Ichigo's red guard, the loom's
-    Hoho through a Breaker), on the assist's brain as the CPU sees him (`AUTO-GUARD-KIT`; docs/duel/DUEL_AI_V2.md).
+    Hoho through a Breaker, Hisagi's windmill against a ranged threat), on the assist's brain as the CPU sees him (`AUTO-GUARD-KIT`; docs/duel/DUEL_AI_V2.md).
   - Against his melee move, the form's parry: a kit command whose move has `:parry` and that may start (Ichigo's KESSA
     L, Yamamoto's GOKUI GAESHI).
   - Otherwise a Hoho, if allowed and the form isn't rooted.
@@ -53,8 +53,8 @@ gives the buttons and how long to hold them.
 - **A form's own routes** (2026-10-07, "Lille's signature routes" below): before the generic AUTO COMBO, on every step
   it is on (free or in a move), `AUTO-ROUTE` asks the function the form's kit `:ai` names `:assist-combo`. It returns a
   command (pressed and marked like every assisted press), `:none` (the route holds this step: no generic AUTO COMBO, SP
-  or read) or NIL (the generic AUTO COMBO as before). Only Lille's kits have the key, so every other character's
-  assisted play is unchanged, bit for bit.
+  or read) or NIL (the generic AUTO COMBO as before). Only Lille's and Hisagi's kits have the key (Hisagi's since
+  2026-10-20, "Hisagi's routes and windmill" below), so every other character's assisted play is unchanged, bit for bit.
 - **AUTO BREAK**: J pressed while free, with the opponent holding a guard (or Bankai West's ward) for at least
   `*ai-guard-break-hold*` (24 f) within `*ai-guard-break-range*` (3 m), not guardless, and the Breaker allowed. The J
   becomes the Breaker, held as the CPU holds it.
@@ -271,3 +271,24 @@ The user (verbatim): 「我希望 auto guard always 功能可以防禦而不是�
   the parry / Hoho). The manual's AUTO GUARD line says so.
 - The ASSIST gate after it (with Lille II's O ender and stance route, DUEL_LILLE_V3 §25.2; 720 matches a setting): k0 72%,
   k1 (HOLD U) 84%, k2 (ALWAYS) 99%, k3 69%, k6 82%, k10 86%, k11 99% (before: 72 / 85 / 100 / 71 / 82 / 87 / 99).
+
+## Hisagi's routes and windmill (the user, 2026-10-18 / 2026-10-20)
+
+The user (DUEL_HISAGI §25): 「AUTO COMBO 路線」「AUTO GUARD 風車」, built on his shipped CPU (§25.19) in DUEL_HISAGI §25.20 (the
+full record). His CPU's own functions pick, on the assist's HARD brain (`AI-BRAIN`); his CPU itself is unchanged.
+
+- **AUTO GUARD** (`:assist-guard` `HS-ASSIST-GUARD`, the Shikai only): a ranged threat 4-24 f out (`RANGED-THREAT-IN`, the
+  sickle in), one roll per threat at his CPU's `*hs-ai-windmill-p*` (HARD 0.9): L, the windmill (KAZAGURUMA) up through
+  it, held `*hs-ai-windmill-hold*` (36 f); the assist rolls no K out of it (his own K takes the charged K string). In
+  ALWAYS it comes before the held guard (the guard only for what reaches him anyway).
+- **AUTO COMBO** (`:assist-combo` `HS-ASSIST-COMBO`, every form), at a link's hit his CPU's pick, pressed on his J (the
+  generic rule: J pressed or latched in that move); his J is left alone where the pick is his J:
+  - the Shikai: the combo's route plan (`HS-AI-PLAN` / `HS-AI-PLAN-CMD`: RINNE 80 %, RINNE-OWARI 10 %, HANA 10 %, the
+    user's §25.16 showpiece): J1 > L (the bridge) > K1 K2 > J3K > L > K1 K2 K3 > RAIDEN. The K out of a bridge the assist
+    pressed comes at his CPU's frame (`HS-KAZA-TICK`); the enders (K3: RAIDEN, the O on red) are the generic AUTO COMBO's;
+  - the Bankai's ranged mode: his J while free with the opponent on K1's tip (4-5 m) is K1 (on J1's tip, 5-6.2 m, his J
+    is it); each link by the style rolled at the mode's entry (`HS-R-AI-MOVE`: the K for the tip's damage, the J, the end
+    where neither reaches: his J eaten, no whiff; NAWAJI's noose off the opener); SAHARAI that hit: his J is K1 when the
+    style's pick is K1;
+  - the bind: the cinching K route and its TODOME (`HS-B-AI-MOVE`), and the bite's timing (`HS-B-BITE-CMD`: his J held back
+    while his yank still brings the victim in).

@@ -263,7 +263,8 @@ guard reads (the bait's guard among them) pay 92-93 %.
 The user's plan for Lille's adaptive CPU (DUEL_LILLE §24.1 step 5): 「學習玩家習慣」, the learning CPU gains his own
 situations, so a Lille CPU learns the human's habits against his signature and answers them in character. The generic
 part below lets any character do that; Lille is the first (DUEL_LILLE §24.9 has his situations, counters, knobs and
-numbers).
+numbers; Lille II's DUEL_LILLE_V3 §22.3), Hisagi the second (2026-10-20, DUEL_HISAGI §25.20: `:reap`, `:ward`,
+`:bind-ahead`, `:bind-behind`; the classes `:guard :hoho :attack :back :take`).
 
 **The kit model** (`learn.lisp`):
 

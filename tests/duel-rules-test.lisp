@@ -4358,6 +4358,61 @@ past the ends; DEFAULT if the clip is not listed."
               (null (hs-b-bite-cmd 2.0 12 5)) (null (hs-b-bite-cmd 2.0 4 11)) (null (hs-b-bite-cmd 3.0 0 0)))))
 ;;; <<< END HISAGI-CPU-TESTS
 
+;;; ================================================================ Hisagi's learner and ASSIST (DUEL_HISAGI §25.20)
+;; his situations (LEARN-DEF-KIT) and the human's answers; every other character's spec as before (Lille II's)
+(let ((sp (learn-kit-spec :hisagi)))
+  (check (and (equalp (getf sp :situations) #(:reap :ward :bind-ahead :bind-behind))
+              (equalp (getf sp :actions) #(:guard :hoho :attack :back :take)) (eq (getf sp :step) 'hs-learn-step)
+              (equalp (getf (learn-kit-spec :barro) :situations) #(:shot :charge))
+              (notany #'learn-kit-spec '(:yamamoto :kenpachi :rukia :ichigo :senjumaru))
+              (equal *hs-learn-diff* '(:easy 0.5 :normal 1.0 :hard 1.5)) (= 30 *hs-learn-episode*))))
+;; the generic classes as his: a move of any kind an attack, a Hoho / Step a Hoho, the guard, backing off; a burst none
+(check (equal (loop for i below (length *learn-actions*) collect (hs-learn-class i))
+              '(:guard :attack :attack :attack :hoho :back :attack :attack :attack nil)))
+(check (null (hs-learn-class nil)))
+;; the onsets: K1 (not a windmill's) on a free human, the windmill (not the bridge), a bind's neutral by the ledger; none on a
+;; reeling human, an old move, the K string's K1, a bind neutral already open
+(check (and (eq :reap (hs-learn-sit :hs-k1 t nil :idle nil nil nil t)) (eq :reap (hs-learn-sit :hs-k1 t nil :guard nil nil nil t))
+            (null (hs-learn-sit :hs-k1 nil nil :idle nil nil nil t)) (null (hs-learn-sit :hs-k1 t t :idle nil nil nil t))
+            (null (hs-learn-sit :hs-k1 t nil :move nil nil nil t)) (null (hs-learn-sit :hs-k1 t nil :stun nil nil nil t))
+            (eq :ward (hs-learn-sit :hs-kaza t nil :move nil nil nil t)) (null (hs-learn-sit :hs-kaza-j t nil :idle nil nil nil t))
+            (null (hs-learn-sit :hs-kaza t nil :air nil nil nil t))
+            (eq :bind-ahead (hs-learn-sit nil nil nil :idle t t nil t)) (eq :bind-behind (hs-learn-sit nil nil nil :run t t nil nil))
+            (null (hs-learn-sit nil nil nil :idle t t t t)) (null (hs-learn-sit nil nil nil :idle nil t nil t))
+            (null (hs-learn-sit nil nil nil :idle t nil nil t))))
+;; the reads' plans: the reap off a Hoho, on a swing / a hit / a retreat; the ward's sweep on a swing / a retreat, off a Hoho
+;; / a guard; the bind's neutral: a guard against his swing or Hoho, the Breaker against his guard; else as rolled
+(check (and (null (hs-learn-reap-plan :hoho t)) (eq t (hs-learn-reap-plan :attack nil)) (eq t (hs-learn-reap-plan :take nil))
+            (eq t (hs-learn-reap-plan :back nil)) (eq t (hs-learn-reap-plan :guard t)) (null (hs-learn-reap-plan :guard nil))
+            (null (hs-learn-reap-plan nil nil))
+            (eq :sweep (hs-learn-ward-plan :attack nil)) (eq :sweep (hs-learn-ward-plan :back nil))
+            (null (hs-learn-ward-plan :hoho :sweep)) (null (hs-learn-ward-plan :guard :sweep))
+            (eq :sweep (hs-learn-ward-plan :take :sweep)) (null (hs-learn-ward-plan nil nil))
+            (eq :guard (hs-learn-bind-plan :attack)) (eq :guard (hs-learn-bind-plan :hoho)) (eq :breaker (hs-learn-bind-plan :guard))
+            (null (hs-learn-bind-plan :back)) (null (hs-learn-bind-plan :take)) (null (hs-learn-bind-plan nil))))
+;; AUTO COMBO's entries and presses: his CPU's pick as the entry; pressed on his J, then done (his J eaten); his own J
+;; left alone; the end eats his J; undecided / generic: the generic AUTO COMBO
+(check (and (eq :generic (hs-as-entry nil)) (eq :end (hs-as-entry :wait)) (eq :own (hs-as-entry :q))
+            (eq :f (hs-as-entry :f)) (eq :sig (hs-as-entry :sig)) (eq :sp1 (hs-as-entry :sp1)) (eq :sp2 (hs-as-entry :sp2))
+            (equal '(nil nil nil) (multiple-value-list (hs-as-press nil t)))
+            (equal '(nil :generic nil) (multiple-value-list (hs-as-press :generic t)))
+            (equal '(:none :own nil) (multiple-value-list (hs-as-press :own t)))
+            (equal '(:none :end t) (multiple-value-list (hs-as-press :end nil)))
+            (equal '(:none :done t) (multiple-value-list (hs-as-press :done t)))
+            (equal '(:none :f nil) (multiple-value-list (hs-as-press :f nil)))
+            (equal '(:f :done nil) (multiple-value-list (hs-as-press :f t)))
+            (equal '(:sig :done nil) (multiple-value-list (hs-as-press :sig t)))))
+;; the keys: AUTO GUARD's windmill in the Shikai only, AUTO COMBO's routes in his every form; no other character's kit
+;; names his; his CPU's own keys as shipped (the :move-reflex per form, HISAGI-CPU-TESTS)
+(check (and (eq 'hs-assist-guard (getf (kit-ai (kit :hisagi :base)) :assist-guard))
+            (null (getf (kit-ai (kit :hisagi :bankai)) :assist-guard)) (null (getf (kit-ai (kit :hisagi :bankai-bind)) :assist-guard))
+            (every (lambda (f) (eq 'hs-assist-combo (getf (kit-ai (kit :hisagi f)) :assist-combo))) *hs-forms*)
+            (notany (lambda (cf) (and (not (eq (first cf) :hisagi))
+                                      (or (member (getf (kit-ai (apply #'kit cf)) :assist-combo) '(hs-assist-combo))
+                                          (eq (getf (kit-ai (apply #'kit cf)) :assist-guard) 'hs-assist-guard))))
+                    *forms*)
+            (eq 'hs-ai-reflex (getf (kit-ai (kit :hisagi :base)) :reflex)) (eq 'hs-ai-sig-hold (getf (kit-ai (kit :hisagi :base)) :sig-hold))))
+
 (format t "duel-rules-test: ~d checks, ~a~%" *checks*
         (if (zerop *fails*) "ALL PASS" (format nil "~d FAILED" *fails*)))
 (ext:quit (if (zerop *fails*) 0 1))
