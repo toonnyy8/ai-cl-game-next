@@ -3306,6 +3306,25 @@ back`, UNWIND; the probe after shows no bind. The sim gates are not run (the use
   from 43.9, 570 drained from 516) but the ranged mode after it worse (Rukia, Ichigo); no located bug. b2a2's SANGE 0.5
   was not carried (b3a2's ranged mode has no SANGE style). Every match a K.O.; NORMAL medians 106-160 s.
 
+### 25.19 The pick: the combined candidate ships (the user, 2026-10-20)
+
+- Asked to pick from the 80-seed final (b3a2 0.8324, b2a2 0.8285, the combined 0.8282), the user chose 「合併版」.
+- Adopted onto main: `combo/b3a2+b2a2/hisagi.lisp` as `duel/lisp/hisagi.lisp` (main's file was still the freeze's, so a
+  plain copy), its `HISAGI-CPU-TESTS` section spliced into `tests/duel-rules-test.lisp` (identical to the delivered file).
+- What ships, per difficulty (HARD; EASY / NORMAL keep the gentler values the cells left them):
+  - **The Shikai** (most of a match): RENSA 80 % of HARD matches / KARIBA 20 %; MIKIRI / TSUME (walk in once his K1 is
+    perfect-Hoho'd past 0.42); the combo plan at the first hit (RINNE 80 %, RINNE-OWARI 10 %, HANA 10 % = §25.16's
+    showpiece); KAZAGURUMA-GAESHI; TODOME; every Shikai SP ender RAIDEN; UTSUSEMI (a committed swing near him Hoho'd 0.9
+    while his flash-step lasts).
+  - **The Bankai** at 3000 taken: MACHI-GUSARI at the chain tips (only answers, no neutral swings), the route style per
+    entry SENTAN 60 / KAISEN 25 / NAWAJI 15, the noose off a confirmed hit, no waking noose.
+  - **The bind**: KOSHU (walk in to J1 range, every string the cinching K route), SHIBARI-GUCHI (the first J1 timed into
+    the noose's reel), the grey ledger (release when behind, drain when ahead).
+- Checks on main: duel-rules 9878 ALL PASS; control 89, learn 131, input 33, cine 18 ALL PASS; touch 64, 0 failures;
+  pkgcheck clean; `./build.sh duel` built; headless smoke ok. The sim gates are not run (the user's 「不用跑 gate」 stands);
+  the cell's awaken A/B (seed0 100) passed.
+- Next: the integration (§25.1 step 6): the learner's Hisagi situations, AUTO COMBO's routes, AUTO GUARD's windmill.
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
