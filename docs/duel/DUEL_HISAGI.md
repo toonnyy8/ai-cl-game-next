@@ -3295,13 +3295,13 @@ back`, UNWIND; the probe after shows no bind. The sim gates are not run (the use
   style mix, learner situations, AUTO COMBO, AUTO GUARD's windmill, gates).
 - **The final at 80 seeds** (the freeze 3686d94):
 
-| candidate | score | HARD strength | signature | NORMAL share | HARD Y / K / R / I / S / Lille of 160 | ranged + bind of his damage |
+| candidate | score | HARD strength | signature | NORMAL share | NORMAL wins Y / K / R / I / S / Lille of 160 | ranged + bind of his damage |
 |---|---|---|---|---|---|---|
-| b3a2 | **0.8324** | 0.635 | 0.884 | 0.509 | 93 / 54 / 70 / 91 / 119 / 62 (NORMAL by_opp) | 0.063 |
+| b3a2 | **0.8324** | 0.635 | 0.884 | 0.509 | 93 / 54 / 70 / 91 / 119 / 62 | 0.063 |
 | combined (b3a2 + b2a2's bite) | 0.8282 | 0.621 | 0.884 | 0.5125 | 93 / 55 / 72 / 91 / 119 / 62 | 0.066 |
 | b2a2 | 0.8285 | 0.584 | **0.907** | 0.496 | 95 / 47 / 71 / 77 / 122 / 64 | 0.110 |
 
-  The by-opponent counts are aieval's NORMAL row (both seats). The combined candidate's 40-seed score was 0.8239. On paired HARD matches
+  The combined candidate's 40-seed score was 0.8239. On paired HARD matches
   (seeds 1-240, 2880) b3a2 won 1789, the combined 1759, b2a2 1638: the bite makes the bind itself better (49.4 dealt / s
   from 43.9, 570 drained from 516) but the ranged mode after it worse (Rukia, Ichigo); no located bug. b2a2's SANGE 0.5
   was not carried (b3a2's ranged mode has no SANGE style). Every match a K.O.; NORMAL medians 106-160 s.
