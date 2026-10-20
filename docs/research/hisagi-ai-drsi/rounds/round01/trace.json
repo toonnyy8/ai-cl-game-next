@@ -122,6 +122,18 @@
       "seq": 10,
       "tags": [],
       "valid": true
+    },
+    "b3a2": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.623 mash 1.0 sig 0.882 raw 0.8281 normal 0.5083 (x1.0) pacing ok",
+      "score": 0.8281,
+      "seq": 11,
+      "tags": [],
+      "valid": true
     }
   },
   "directions": {},
@@ -129,8 +141,7 @@
   "max_parallelism": 2,
   "notes": "",
   "pending_batch": [
-    "b2a2",
-    "b3a2"
+    "b2a2"
   ],
   "policy_file": "policy/current.py",
   "refine_count": 2,
