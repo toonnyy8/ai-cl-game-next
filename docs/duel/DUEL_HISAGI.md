@@ -3243,6 +3243,8 @@ back`, UNWIND; the probe after shows no bind. The sim gates are not run (the use
 - Nothing in the sim changes. The CPU search's brief (`docs/research/hisagi-ai-drsi/brief.py`) now names the route and its
   SP versions, so the cells briefed from here on (round 1's b2a1 / b3a1 on) may build it into his Shikai CPU. The cells
   already run (b0a0-b3a0, b0a1) and b1a1, in flight, were briefed before it.
+- The user, on whether to tell b1a1 (the Bankai ranged refine, in flight): 「不用 這套留給使用始解戰鬥的探索格研究即可」. So
+  b1a1 is not told. The brief marks the route for cells whose style fights in the Shikai.
 
 ## 18. Open
 

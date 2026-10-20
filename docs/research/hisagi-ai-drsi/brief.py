@@ -77,7 +77,8 @@ the victim where he is), §25.16 (the user's Shikai showpiece combo and its SP v
     (HS-KAZA-J, a 2.5 m stagger push) so J -> L -> K1 combos; SP1 TSUZURI RAIDEN (6.5 m line, paralyse), SP2 SHIBARI
     (4.5 m line, bind + slam); the awakening (AI-AWAKEN-P) -> the Bankai's ranged mode. §25.16 (the user, 2026-10-20):
     his strong showpiece combo is J1 J2 J3 > L > K1 K2 > J (J3K, the combo's one leap) > L > K1 K2 K3 (two bridges); a
-    shorter, harder-hitting version cancels the middle or the end into an SP (e.g. ... K1 K2 > SP). His CPU may use either.
+    shorter, harder-hitting version cancels the middle or the end into an SP (e.g. ... K1 K2 > SP). For a cell whose
+    style fights in the Shikai, research it (the user: 「這套留給使用始解戰鬥的探索格研究即可」); others may leave it.
   - the Bankai ranged mode (:bankai): every hit :ranged; every J (J1 / J2 / J3, gathered J2s / J3G) an annulus 3.0-6.0 m,
     every K (K1, spread K2s / K3, gathered K2 / K3G) 2.0-5.0 m (§25.5) for the OPENERS J1 / K1; no placement since §25.13:
     the route links (links 2-3) strike the victim where he is along the chain (HS-R-LINK-SEG: no dead zone, out to 7.0 m from
