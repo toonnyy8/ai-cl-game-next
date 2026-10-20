@@ -3282,6 +3282,18 @@ back`, UNWIND; the probe after shows no bind. The sim gates are not run (the use
 - dream-rsi: `close-round` froze round 1 into `trace_pool/iter01`. `compare` ranked the skill's adaptive_template
   (reward 0.361) over the fixed parallel-refine incumbent (0.205), and it was promoted for round 2.
 
+### 25.18 After round 1: a combined candidate and an 80-seed final (the user, 2026-10-20)
+
+- Asked to pick between a combined final (recommended), a round 2, an 80-seed final of the top two, or the shared-code
+  fixes first, the user chose 「合併後決選（推薦）」.
+- The combined candidate (`combo/b3a2+b2a2/`, not a search cell): b3a2's file plus b2a2's own changes over b2a1
+  (SHIBARI-GUCHI, the bind's bite; SANGE 0.5 at HARD). The two change different parts (b3a2 the Shikai's defence, UTSUSEMI;
+  b2a2 the bind's first hit) and share b2a1's KOSHU bind and b0a2's Shikai, so the merge is a three-way merge of b2a2's
+  CPU diff against b2a1 onto b3a2.
+- The final (`final80/`): b2a2, b3a2 and the combined candidate rescored at the freeze 3686d94 with 80 seeds
+  (`aieval --char 7 --seeds 80`). The user picks the shipped CPU from these. Integration follows the pick (task: the
+  style mix, learner situations, AUTO COMBO, AUTO GUARD's windmill, gates).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
