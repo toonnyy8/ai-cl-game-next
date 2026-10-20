@@ -87,6 +87,18 @@
       "tags": [],
       "valid": true
     },
+    "b2a1": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.565 mash 1.0 sig 0.907 raw 0.8229 normal 0.475 (x1.0) pacing ok",
+      "score": 0.8229,
+      "seq": 9,
+      "tags": [],
+      "valid": true
+    },
     "b3a0": {
       "error": null,
       "evaluated": true,
@@ -105,7 +117,6 @@
   "max_parallelism": 2,
   "notes": "",
   "pending_batch": [
-    "b2a1",
     "b3a1"
   ],
   "policy_file": "policy/current.py",
