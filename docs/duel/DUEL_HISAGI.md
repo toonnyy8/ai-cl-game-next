@@ -3325,6 +3325,23 @@ back`, UNWIND; the probe after shows no bind. The sim gates are not run (the use
   the cell's awaken A/B (seed0 100) passed.
 - Next: the integration (§25.1 step 6): the learner's Hisagi situations, AUTO COMBO's routes, AUTO GUARD's windmill.
 
+### 25.21 Faster seed runs (the user, 2026-10-20)
+
+- The user asked how to speed the seed runs up; of the options offered, 「先做 1、3、4」, and asked whether turning off the
+  picture and sound would help.
+- Measured (4 cores): the native build ~2 min (redone when hisagi.lisp changes); a process's load 1.2 s + init 1.0 s; a
+  match ~0.55 s a core; aieval's 40 seeds = 31 processes, ~12 min at -j 2 with the build; 80 seeds ~17 min at -j 2, ~11 min
+  at -j 4. A cell's 1.5-5 h went to its own variant comparisons (960-2880 HARD matches each) and the awaken A/B (1080).
+- **Picture and sound**: already off in the sim (tools/simgate/stubs.c: frames draw nothing, no audio device, so no sound
+  is synthesized; the turbo steps never draw). What is left of the startup (~2.2 s a process, ~70 s of CPU an aieval run,
+  ~3 %) is not worth a sim change.
+- **1. -j 4 when alone**: `rescore.sh` / `step.sh done` take `JOBS=4` (the rows are the same at any -j); the cells keep -j 2
+  (two run at once).
+- **3. Stop early**: the brief's Step 4 now asks for paired comparisons in 240-match blocks, stopping once the paired win
+  difference passes 2 standard errors or at 960 matches (a tie: keep the simpler file).
+- **4. The awaken A/B only when it can change**: only when the cell changes the awakening's gate or NORMAL's Shikai CPU
+  (the never-awaken side); otherwise the parent's rows are quoted.
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.

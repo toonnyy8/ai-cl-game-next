@@ -14,4 +14,9 @@ The plan is DUEL_HISAGI §25 (the user's request, 2026-10-18); the method and th
 
 The loop (as Lille II's README): `drsi.py plan`, `step.sh next` (briefs), dispatch each brief to an agent in its own
 worktree at the freeze commit, `step.sh done <cell> <round> <worktree>` (copy, rescore at the freeze, record, next),
-`step.sh fail ...`; the rescore worktree is `.claude/worktrees/rescore-hisagi` (one 40-seed rescore ≈ 1 h at -j 2).
+`step.sh fail ...`; the rescore worktree is `.claude/worktrees/rescore-hisagi`.
+
+Times (measured 2026-10-20, 4 cores): the native build ~2 min (redone whenever hisagi.lisp changes), a process's load +
+init ~2.2 s, a match ~0.55 s a core; a 40-seed rescore ~12 min at -j 2, an 80-seed one ~17 min at -j 2 and ~11 min at
+-j 4. Rescore at -j 4 when no cell is running (`JOBS=4 step.sh done ...` / `JOBS=4 rescore.sh ...`), else the config's
+-j 2. The sim already draws nothing and has no audio device (tools/simgate/stubs.c).

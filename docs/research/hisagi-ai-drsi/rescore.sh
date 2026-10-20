@@ -14,6 +14,7 @@ ECL=${ECL_HOST:-/media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl}
 FREEZE=${FREEZE:-$(git -C "$REPO" log -1 --format=%H -- tools/aieval.py tests/duel-rules-test.lisp "$REL/baseline/score.json")}
 RESCORE_WT=${RESCORE_WT:-$REPO/.claude/worktrees/rescore-hisagi}
 EVAL=${EVAL:-$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['eval_command'])" "$WS/config.json")}
+[ -n "${JOBS:-}" ] && EVAL=$(echo "$EVAL" | sed "s/-j [0-9]*/-j $JOBS/")   # JOBS=4 when nothing else runs (the rows are the same at any -j)
 EVAL_TIMEOUT=${EVAL_TIMEOUT:-10800}                             # seconds (one 40-seed eval at -j 2: see README)
 
 N=$(cd "$1" && pwd)

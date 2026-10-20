@@ -175,12 +175,21 @@ In your worktree:
    stays frozen. The section's checks must still pin your own shipped values and contracts (update a pinned value to
    yours, don't delete the pin), and may not weaken a test of shared behaviour, a rule, a hook or another character.
 2. touch duel/lisp/hisagi.lisp (the native build goes by mtime), then run the EVAL_COMMAND (the first run builds the native
-   sim, ~3 min; one 40-seed run takes ~1 h at -j 2). It prints one JSON line. Another cell runs on this machine at the same
-   time: keep -j as given. Iterate with quicker passes (--seeds 10 / 20, or tools/simgate.py --pairs on his pairings
-   28-35 for the matches themselves), but compare candidate variants at 40 seeds (20-seed results are noisy: ±0.03).
-3. If you changed the awakening (Shikai -> Bankai): the awaken A/B, Hisagi P1 "never awaken" vs each other character,
-   python3 tools/simgate.py --pairs 28,29,30,31,32,34 --seed0 S --seeds 60 --cmd 39020 -j 2 for S in 100, 300, 500 (check
-   tools/simgate.py's pair list for his indices first): report the never-awaken side's wins per stream next to the baseline's.
+   sim, ~2 min; one 40-seed run then takes ~10 min at -j 2, about 0.55 s a match a core). It prints one JSON line. Another
+   cell runs on this machine at the same time: keep -j 2 (use -j 4 only if you know nothing else is running). Iterate with
+   quicker passes (--seeds 10 / 20, or tools/simgate.py --pairs on his pairings 28-35 for the matches themselves); a
+   40-seed score moves ±0.01-0.02 with the seed draw alone.
+   Comparing variants (the user, 2026-10-20: stop early): compare PAIRED, the same seeds and seats for both files (HARD,
+   his pairings, both seats), in blocks of 240 matches (seeds 1-20 x 6 opponents x 2 seats). After each block compute the
+   paired win difference and its standard error (per-match win indicator differences); STOP as soon as |difference| > 2
+   standard errors (a clear winner) or after 960 matches (call it a tie and keep the simpler file). Don't run 960-2880
+   matches on a variant whose first 240-480 already decide it. Report the blocks you ran and the stopping rule's numbers.
+3. The awaken A/B ONLY if your file changes what decides the awakening or the never-awaken side's play (the user,
+   2026-10-20): the awakening gate / AI-AWAKEN-P's kit gate, or NORMAL's Shikai CPU (the never-awaken side is Hisagi P1 at
+   NORMAL in his Shikai). Then: python3 tools/simgate.py --pairs 28,29,30,31,32,34 --seed0 S --seeds 60 --cmd 39020 -j 2
+   for S in 100, 300, 500 (check tools/simgate.py's pair list for his indices first): report the never-awaken side's wins
+   per stream next to the baseline's. If neither changed, don't run it: say so and quote your parent's rows (they are the
+   same by construction).
 You may iterate inside the cell, but the cell's result is the LAST file you deliver and its LAST measured 40-seed JSON (the
 coordinator re-measures it with the frozen evaluator anyway). Never edit tools/aieval.py or anything it reads.
 
