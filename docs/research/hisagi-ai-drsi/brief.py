@@ -69,13 +69,15 @@ bridge, charge, K string, the leap), §24.4-§24.5 (one leap a combo, K1's 3.0 m
 without a cooldown, its whiff 60 f), §25.3 / §25.5 (the ranged mode's J 3-6 m, K 2-5 m, L's recovery cancel, the tip's
 SP), §25.7-§25.11 (SAHARAI S 18, KOJO's yank a hit, the cancel only on a hit, the Shikai's J 1.7 m, the bind's Step J
 SENGEN, the routes' SP / guard), §25.13 (the bind stronger and longer, the tip x1.71, no placement: the route links reach
-the victim where he is). In short:
+the victim where he is), §25.16 (the user's Shikai showpiece combo and its SP versions). In short:
   - the Shikai (:base): J1-J3 close (the plain string, reach 1.7 m), K1 薙 NAGI a sideways chain sweep 3.0-6.0 m (dead zone 3.0), K2 NOKO
     / K3 TSUI follow the victim along the chain (always connect, blockable); the routes JJJ JJK JKK KKK KJJ KKJ; a J after a
     K leaps in (J2K / J3K, once a combo: HS-LINK-OK); L the windmill KAZAGURUMA (wards ranged hits, no cooldown; held, it
     charges the next K string's reach +1 %/f up to x1.6; K from its f9 starts the K string); L off a J link = the bridge
     (HS-KAZA-J, a 2.5 m stagger push) so J -> L -> K1 combos; SP1 TSUZURI RAIDEN (6.5 m line, paralyse), SP2 SHIBARI
-    (4.5 m line, bind + slam); the awakening (AI-AWAKEN-P) -> the Bankai's ranged mode.
+    (4.5 m line, bind + slam); the awakening (AI-AWAKEN-P) -> the Bankai's ranged mode. §25.16 (the user, 2026-10-20):
+    his strong showpiece combo is J1 J2 J3 > L > K1 K2 > J (J3K, the combo's one leap) > L > K1 K2 K3 (two bridges); a
+    shorter, harder-hitting version cancels the middle or the end into an SP (e.g. ... K1 K2 > SP). His CPU may use either.
   - the Bankai ranged mode (:bankai): every hit :ranged; every J (J1 / J2 / J3, gathered J2s / J3G) an annulus 3.0-6.0 m,
     every K (K1, spread K2s / K3, gathered K2 / K3G) 2.0-5.0 m (§25.5) for the OPENERS J1 / K1; no placement since §25.13:
     the route links (links 2-3) strike the victim where he is along the chain (HS-R-LINK-SEG: no dead zone, out to 7.0 m from

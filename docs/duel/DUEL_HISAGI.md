@@ -3227,6 +3227,23 @@ back`, UNWIND; the probe after shows no bind. The sim gates are not run (the use
 - Round 1 is planned again (`plan --beta 0.6`, 4 × 2 cells, W = 2, the same branch styles). The freeze is the commit adding
   this baseline.
 
+### 25.16 The Shikai's showpiece combo for his CPU (the user, 2026-10-20; CPU only, no sim change)
+
+- The user: 「始解可以用 J1 J2 J3 > L > K1 K2 > J3 > L > K1 K2 K3 做為強力的花式連段，也可以將中段或結尾換成 SP 減少連段並提高
+  輸出。」
+- The route uses the rules as built:
+  - J1 J2 J3: the plain J string.
+  - L: the bridge off a J link (§23.1).
+  - K1 K2: the windmill's K string.
+  - J: after K2 this is the leap J3K, the combo's one leap (§23.5, §24.4).
+  - L: the bridge again (J3K is a J link).
+  - K1 K2 K3: the K string again.
+- The SP versions cancel the middle or the end into SP1 / SP2 (the generic SP cancel off a hit): a shorter string that
+  hits harder.
+- Nothing in the sim changes. The CPU search's brief (`docs/research/hisagi-ai-drsi/brief.py`) now names the route and its
+  SP versions, so the cells briefed from here on (round 1's b2a1 / b3a1 on) may build it into his Shikai CPU. The cells
+  already run (b0a0-b3a0, b0a1) and b1a1, in flight, were briefed before it.
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.
