@@ -972,47 +972,57 @@ shipped behaviour). AI-BRAIN: for a human the ASSIST's borrowed (HARD) brain (it
   "ICHIGO-HUD-METER's labels, made once: [n 0] BUNSHIN xN, [n 1+j] BUNSHIN xN K KONPAKU (K = CLONE-KONPAKU j, the O
 press's flash), n 0-3.")
 
-(defun ichigo-hud-meter (e kit x y w h right tm lx ly ls)
+(defun-fast ichigo-hud-meter (e kit x y w h right tm lx ly ls)
   "KESSA's kit-meter row: three clone pips (lit BLOOD-rimmed white per live clone, a thin arc of its life; pulsing at 3:
 the 4-Konpaku Kikon), under them ZANZO's white bar draining, the label BUNSHIN xN (and on an O press the pips flash with
-the Kikon's worth)."
+the Kikon's worth). Single-float math, %HRECT quads (REFACTOR_NEXT N2: the same floats as the old generic UI-RECT path)."
   (declare (ignore kit))
-  (let* ((st (ic e)) (live (ichigo-live-clones e))
-         (n (length live)) (pw (/ w 3.6)) (hh (* 3.6 h)) (y0 (- (+ y (* 0.5 h)) (* 0.5 hh)))
-         (flash (max 0.0 (- 1.0 (/ (- *match-tick* (ics-o-at st)) 40.0))))
-         (pulse (if (= n 3) (+ 0.6 (* 0.4 (abs (sin (* 6.0 tm))))) 1.0)))
-    (dotimes (i 3)
-      (let* ((px (if right (- (+ x w) (* (1+ i) (+ pw (* 0.2 pw)))) (+ x (* i (+ pw (* 0.2 pw))))))
-             (c (and (< i n) (hazard-data (hazard (nth i live))))) (cx (+ px (* 0.5 pw))))
-        (flet ((figure (col rim)                       ; a small standing silhouette: head, shoulders, the robe
-                 (when rim (ui-rect (- cx (* 0.27 hh)) (+ y0 (* 0.27 hh)) (* 0.54 hh) (* 0.75 hh) rim))
-                 (ui-rect (- cx (* 0.12 hh)) y0 (* 0.24 hh) (* 0.26 hh) col)
-                 (ui-rect (- cx (* 0.22 hh)) (+ y0 (* 0.3 hh)) (* 0.44 hh) (* 0.7 hh) col)))
-          (if c
-              (progn
-                (figure (list 0.95 0.95 0.93 pulse) (list 0.82 0.06 0.11 pulse))
-                (%arc (f32 cx) (f32 (+ y0 (* 0.5 hh))) (f32 (* 0.62 hh)) (f32 (max 1.0 (* 0.08 hh)))   ; its life
-                      (f32 (max 0.0 (min 1.0 (/ (icc-life c) (float *clone-life*))))) 0.95 0.9 0.85 0.8))
-              (figure '(0.3 0.3 0.34 0.6) nil)))
-        (when (> flash 0.0) (ui-rect (- cx (* 0.4 pw)) (- y0 2) (* 0.8 pw) (+ hh 4) (list 1.0 1.0 1.0 (* 0.5 flash))))))
-    (let ((z (block zz (do-entities (h (hz hazard)) (when (and (eql (hazard-owner hz) e) (eq (hazard-look hz) 'ichigo-zanzo-look))
-                                                       (return-from zz hz))))))
-      (when z                                       ; 残像: a white bar draining under the pips
-        (let ((fr (max 0.0 (- 1.0 (/ (hazard-age z) (float (max 1 (hazard-life z))))))))
-          (ui-rect (if right (+ x (- w (* w fr))) x) (+ y0 hh 2) (* w fr) (max 2.0 (* 0.35 h)) '(0.96 0.96 0.94 0.9)))))
-    (when lx
-      (let ((col '(0.82 0.06 0.11 1.0)))
-        (hud-text (let ((on (> flash 0.0)) (j (max 0 (min 3 (ics-o-n st)))))   ; (CLONE-KONPAKU's clamp)
-                    (if (<= 0 n 3) (aref *ic-bunshin-labels* n (if on (1+ j) 0))
-                        (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n on (clone-konpaku (ics-o-n st)))))
-                  lx ly ls col :align (if right :right :left))))))
+  (with-floats (x y w h tm)
+    (let* ((st (ic e)) (live (ichigo-live-clones e))
+           (n (length live)) (pw (/ w 3.6f0)) (hh (* 3.6f0 h)) (y0 (- (+ y (* 0.5f0 h)) (* 0.5f0 hh)))
+           (flash (f-max 0f0 (- 1f0 (/ (i->f (- *match-tick* (ics-o-at st))) 40f0))))
+           (pulse (if (= n 3) (+ 0.6f0 (* 0.4f0 (f-abs (f-sin (* 6f0 tm))))) 1f0)))
+      (declare (fixnum n) (single-float pw hh y0 flash pulse))
+      (dotimes (i 3)
+        (let* ((px (if right (- (+ x w) (* (i->f (1+ i)) (+ pw (* 0.2f0 pw)))) (+ x (* (i->f i) (+ pw (* 0.2f0 pw))))))
+               (c (and (< i n) (hazard-data (hazard (nth i live))))) (cx (+ px (* 0.5f0 pw))))
+          (declare (single-float px cx))
+          (macrolet ((figure (r g b a)                 ; a small standing silhouette: head, shoulders, the robe
+                       `(progn (%hrect (- cx (* 0.12f0 hh)) y0 (* 0.24f0 hh) (* 0.26f0 hh) ,r ,g ,b ,a)
+                               (%hrect (- cx (* 0.22f0 hh)) (+ y0 (* 0.3f0 hh)) (* 0.44f0 hh) (* 0.7f0 hh) ,r ,g ,b ,a))))
+            (if c
+                (progn
+                  (%hrect (- cx (* 0.27f0 hh)) (+ y0 (* 0.27f0 hh)) (* 0.54f0 hh) (* 0.75f0 hh) 0.82f0 0.06f0 0.11f0 pulse)
+                  (figure 0.95f0 0.95f0 0.93f0 pulse)
+                  (%arc cx (+ y0 (* 0.5f0 hh)) (* 0.62f0 hh) (f-max 1f0 (* 0.08f0 hh))   ; its life
+                        (f-max 0f0 (f-min 1f0 (/ (i->f (icc-life c)) (i->f *clone-life*)))) 0.95f0 0.9f0 0.85f0 0.8f0))
+                (figure 0.3f0 0.3f0 0.34f0 0.6f0)))
+          (when (> flash 0f0) (%hrect (- cx (* 0.4f0 pw)) (- y0 2f0) (* 0.8f0 pw) (+ hh 4f0) 1f0 1f0 1f0 (* 0.5f0 flash)))))
+      (let ((z (block zz (do-entities (h (hz hazard)) (when (and (eql (hazard-owner hz) e) (eq (hazard-look hz) 'ichigo-zanzo-look))
+                                                         (return-from zz hz))))))
+        (when z                                       ; 残像: a white bar draining under the pips
+          (let ((fr (f-max 0f0 (- 1f0 (/ (i->f (hazard-age z)) (i->f (max 1 (hazard-life z))))))))
+            (declare (single-float fr))
+            (%hrect (if right (+ x (- w (* w fr))) x) (+ y0 hh 2f0) (* w fr) (f-max 2f0 (* 0.35f0 h)) 0.96f0 0.96f0 0.94f0 0.9f0))))
+      (when lx
+        (let ((col '(0.82 0.06 0.11 1.0)))
+          (hud-text (let ((on (> flash 0f0)) (j (max 0 (min 3 (ics-o-n st)))))   ; (CLONE-KONPAKU's clamp)
+                      (if (<= 0 n 3) (aref *ic-bunshin-labels* n (if on (1+ j) 0))
+                          (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n on (clone-konpaku (ics-o-n st)))))
+                    lx ly ls col :align (if right :right :left)))))))
 
-(defun ichigo-deck (e cx cy d)
-  "KESSA's :deck hook (one hand): three BLOOD dots round the thumb, lit per live clone."
-  (let ((n (clone-count e)) (r (* d 52.0)))
-    (dotimes (i 3)
-      (let* ((a (+ (* -0.5 pi) (* (1- i) 0.45))) (x (+ cx (* r (cos a)))) (y (+ cy (* r (sin a)))))
-        (ui-rect (- x (* 3 d)) (- y (* 3 d)) (* 6 d) (* 6 d) (if (< i n) '(0.82 0.06 0.11 1.0) '(0.3 0.3 0.32 0.6)))))))
+(defun-fast ichigo-deck (e cx cy d)
+  "KESSA's :deck hook (one hand): three BLOOD dots round the thumb, lit per live clone (single-float angles: +PI+, F-COS /
+F-SIN, REFACTOR_NEXT N2; the double PI before moved the dots by float ulps)."
+  (with-floats (cx cy d)
+    (let ((n (clone-count e)) (r (* d 52f0)))
+      (declare (fixnum n) (single-float r))
+      (dotimes (i 3)
+        (let* ((a (+ (* -0.5f0 +pi+) (* (i->f (1- i)) 0.45f0))) (x (+ cx (* r (f-cos a)))) (y (+ cy (* r (f-sin a))))
+               (lit (< i n)))
+          (declare (single-float a x y))
+          (%hrect (- x (* 3f0 d)) (- y (* 3f0 d)) (* 6f0 d) (* 6f0 d)
+                  (if lit 0.82f0 0.3f0) (if lit 0.06f0 0.3f0) (if lit 0.11f0 0.32f0) (if lit 1f0 0.6f0)))))))
 
 ;;; ================================================================ debug (74000-75599, docs/duel/DUEL_ICHIGO.md "Knobs")
 (pushnew '(74000 75599 ichigo-debug) *char-debug* :test #'equal)
@@ -1040,7 +1050,9 @@ Shikai vs Yamamoto's wave at 8 m (Shift+K: JUJISHO cuts it), 6 the Shikai 8 m fr
 (defun ichigo-hud-cons-check ()
   "Debug 74907 (REFACTOR_NEXT N2's probe): bytes consed by 10 calls each of KESSA's HUD meter (ICHIGO-HUD-METER) with three
 clones (ICHIGO-TEST 7): the portrait slot (no label) facing left and right, the landscape row with its label, the same
-while an O press's flash runs, the label's FORMAT alone, and the one-hand deck (ICHIGO-DECK)."
+while an O press's flash runs, the label's FORMAT alone, and the one-hand deck (ICHIGO-DECK). After N2's float path
+(round 3, 2026-10-21) a meter call is 240 B (was 1200): ICHIGO-CLONES' list and sort 96, REMOVE-IF-NOT's three conses 24,
+%ARC's five boxed floats per live clone 120; the label adds HUD-TEXT's 208; the deck is ICHIGO-CLONES' 96 (was 864)."
   (ichigo-test 7)
   (let* ((e *p1*) (kit (kit-of e)) (st (ic e)) (at (ics-o-at st)) (on (ics-o-n st)))
     (flet ((bytes (thunk) (let ((c0 (cons-bytes))) (dotimes (i 10) (funcall thunk)) (- (cons-bytes) c0))))

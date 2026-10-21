@@ -1151,6 +1151,14 @@ with a thin arc of its life, pulsing at 3), ZANZŌ's white bar under them, the l
 flash and the label adds the Kikon's worth. One hand: rest is guard again; the thumb ring shows three BLOOD dots for the
 clones (`:deck`).
 
+Code (refactor round 3, REFACTOR_NEXT N2, the user 2026-10-21: 「三項都做」): `ichigo-hud-meter` and `ichigo-deck` are
+`defun-fast`s on single floats drawing `%hrect` quads (the same vertices and floats as the old `ui-rect` path: the meter's
+stills are byte-identical); the deck's angles are single-float (`+pi+`, `f-cos` / `f-sin`: the old double `pi`'s
+floats differ by ulps, under pixel rounding: the `deck-ichigo` still is byte-identical too). Probe 74907 (10 calls, B), before → after: meter 12000 → 2400, facing right 12320 → 2400,
+with its label 14080 → 4480, flashing 16400 → 4480, the deck 8640 → 960. What is left per call: `ichigo-clones` (the list
+and its sort) 96 B, `remove-if-not`'s three conses 24, `%arc`'s five boxed floats 40 per live clone (a call into a
+`defun-fast`), the label's `hud-text` 208 (REFACTOR_NEXT N3).
+
 ### Code: the shared hook points
 
 The design listed six (H1–H6). Four were not needed: the `:tick` hook (which runs after the hits of every step) reads
