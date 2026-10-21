@@ -286,7 +286,8 @@ screen punctuation with an impact splash and of a brush Latin line (callouts, bi
 
 (defun hud-cons-check ()
   "2328: bytes consed by 100 draws of each HUD gauge bar added with the gauges (guard, flash-step, cooldowns) and
-by 10 draws of each Bankai stance look (0 B each; the crossfade only while it runs)."
+by 10 draws of each Bankai stance look (0 B each; the crossfade only while it runs); and 10 HUD-TEXT draws of a literal
+and of a run-time string."
   (let ((c0 (cons-bytes)))
     (dotimes (i 100) (%hud-guard 10f0 10f0 300f0 6f0 0.4f0 0.6f0 nil nil 1 1f0)
                      (%hud-guard 10f0 10f0 300f0 6f0 0.4f0 0.6f0 t nil 3 1f0))
@@ -300,6 +301,10 @@ by 10 draws of each Bankai stance look (0 B each; the crossfade only while it ru
             (dotimes (i 100) (%hud-arm 10f0 90f0 300f0 6f0 3 100 nil 1f0) (%hud-arm 10f0 90f0 300f0 6f0 1 260 t 1f0))
             (log-msg "hud consing: 100 x 2 guard bars ~d B, 100 x 2 flash-step bars ~d B, 100 x 2 cooldown bars ~d B, 100 x 2 NOME bars ~d B, 100 x 2 UDE bars ~d B"
                      (- c1 c0) (- c2 c1) (- c3 c2) (- c4 c3) (- (cons-bytes) c4)))))))
+  ;; HUD-TEXT (the battle HUD's labels, ~a dozen a frame; REFACTOR_NEXT N3): a literal and a string made at run time
+  (let ((fresh (format nil "~d" 12345)))
+    (log-msg "hud-text consing (10 draws, B): ~a, ~a" (cons-per "const" (hud-text "REIATSU" 10 10 2 *white*))
+             (cons-per "fresh" (hud-text fresh 10 10 2 *white*))))
   ;; the Bankai stances' per-frame looks (10 draws each; particles emitted too): West's flame garb, the bound ash,
   ;; the heat sheet, KYOKKO's ray, South's crack, the aura crossfade (DRAW-AURA); and the Phase-3 :heat aura for
   ;; comparison
