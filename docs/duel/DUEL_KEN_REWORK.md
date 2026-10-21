@@ -218,6 +218,12 @@ volumes unchanged:
   with the cleaver: K1 1.56, K2 0.93.)
 - Not built: cup 3's grin (a body variant can add parts but not swap the face); the left fist's residual drift on the
   handle.
+- Re-checked 2026-10-21 (the user: 「確定這兩件還沒完成嗎？」): (1) the grin: cup 3's entry already shows it, the
+  `:shout` face (the maniac laugh) with the head thrown back for 0.9 s (feedback.lisp `:rung`, since 2026-09-30), and
+  every non-Quick move shouts; what is missing is a standing grin for the whole cup (FACE-OF picks the face from the
+  state; a per-form default is a small draw change, so "can't swap the face" was wrong). (2) the left fist: debug 2392 on
+  Kenpachi (2380 first) after GRIP-LEFT!: RYOTE 26–54 mm (`:ke-r-f1` 160), NOMIHOSE 273–289 mm on every `:ke-x-*` clip
+  (their shared stance pose: the left hand short of the handle). Both still open.
 - Checks: host tests ALL PASS (rules 6481, control 89, learn 131, cine 18); `pkgcheck` 0 / 0 / 0; `./build.sh duel` 0
   warnings; `simgate --seeds 10 --summary` (42 gate lines) and `--cvc` byte-identical to the branch base `cc40146`.
 
