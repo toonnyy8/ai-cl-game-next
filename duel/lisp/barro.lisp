@@ -439,6 +439,8 @@ before the form's x and the combo scaling (R10: one hit 16 + 0 / 16 / 32) ...")
   "The stance's moves (BR-DEFSTANCE, decision R3 [G]): name, kind, startup, the hits' frames after it (a 2-frame window
 each), recovery, damage a hit, the reaction of the hits before the last and of the last, role, extra params (L's :gain
 step, the follow-ups' :spend, a string's last segment :end: his CPU's SP2 call)."))
+(defparameter *br-ai-hold* '(1 24 44)
+  "Frames his CPU holds L for a charged L of level 1 / 2 / 3 (the levels at 20 / 40 f held, *BR-W-L-LEVELS*; dream-rsi b1a0).")
 (defmacro br-defstance (prefix clips &key (adv 0) melee snipe (l-slow 1) k-mult kl-mult)
   "The stance's moves of PREFIX (*BR-S-SEGS*). CLIPS by segment; ADV the owl's +1 (R one less); K-MULT / KL-MULT the K / KL
 segments' :form-mult (the owl's, §29). MELEE (the awakened forms, R4:
@@ -1596,8 +1598,6 @@ the owl)."
 (defparameter *br-ai-diff* '(:easy 0.2 :normal 0.3 :hard 1.5)
   "His CPU's chances (his kits' :ai :p values) x this by difficulty, at most 1 (the old Lille's *LB-AI-DIFF*).")
 (defparameter *br-ai-every* 30 "Frames between two of his window rolls (the far snipe / dash, the burst; new 2026-10-09).")
-(defparameter *br-ai-hold* '(1 24 44)
-  "Frames his CPU holds L for a charged L of level 1 / 2 / 3 (the levels at 20 / 40 f held, *BR-W-L-LEVELS*; dream-rsi b1a0).")
 (defparameter *br-ai-dash-reach* '(4.5 10.2)
   "The awakened dash at level 2 / 3: his CPU charges level 2 inside the first (m), level 3 inside the second (the dash's
 longest 10 m + its 0.9 m volume - the 0.5 m it must still pass); farther, the fast Step first (dream-rsi b1a0; b1a1: level 2

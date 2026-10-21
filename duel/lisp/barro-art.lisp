@@ -1531,31 +1531,6 @@ else toward 0 (*BR-WALL-IN* / *BR-WALL-OUT* a second of RDT); smoothstepped into
     (declare (type f32vec v) (single-float u))
     (setf (aref v side) u (aref *lb-wf* 91) (%lb-ss u))
     nil))
-(defun br-art-wall (k)
-  "82394+k (the wing wall): Lille II 2 m from an idle Kenpachi, 8 wings, holding his guard (his brain's press: P1's brain
-made when he has none): k 0 JILLIEL KIN, 1 the owl KIN (kept without a burst), 2 JILLIEL EN, 3 the owl EN; P1 (the behind
-camera: his back), or P2 (the front view) after 82389. 82399: the opponent's J1 started now (the block: the wall's knock)."
-  (let ((front *br-art-front*) (owl (oddp k)) (en (>= k 2)))
-    (setf *br-art-front* nil)
-    (ensure-battle (if front :kenpachi :barro) (if front :barro :kenpachi) :cpu t)
-    (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
-      (dolist (e (list *p1* *p2*))                      ; (no CPU plays: his brain only holds the guard)
-        (when (brain e) (setf (brain-off (brain e)) t (brain-press-left (brain e)) 0)))
-      (setf *br-keep-owl* owl)
-      (force-form b (if en (if owl :shin :jilliel) (if owl :shin-kin :jilliel-kin)))
-      (place *p1* *p2* 2.0)
-      (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
-            (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))
-      (br-set-ammo b 8)
-      (if (brain b)
-          (let ((br (brain b))) (setf (brain-press br) :guard (brain-press-mod br) nil (brain-press-left br) 100000 (brain-act br) :hold))
-          (log-msg "duel barro: wall scene: no brain for P~d (hold U)" (if front 2 1))))))
-(defun br-art-wall-hit ()
-  "82399: the opponent of the Lille II on the field starts his J1 now (the wing wall takes it: the block's knock)."
-  (let* ((b (if (and *p1* (eq (kit-character (fighter-kit (fighter *p1*))) :barro)) *p1* *p2*)) (o (if (eq b *p1*) *p2* *p1*))
-         (mv (kit-command-move (fighter-kit (fighter o)) :q)))
-    (when mv (start-move o mv))))
-
 ;;; ---------------------------------------------------------------- the draw hook
 (defparameter *br-aim-stance* '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
   "The base stance's moves: the aim line tracks while one runs ...")
@@ -2893,6 +2868,31 @@ link frame :enter) 2.3 m out. The awakened stances' moves: BR-ART-STANCE."
       (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))
 
 (defvar *br-art-front* nil "Debug 82389 (R11): the next BR-ART-STANCE scene puts him as P2 (the front view), the owl's too.")
+(defun br-art-wall (k)
+  "82394+k (the wing wall): Lille II 2 m from an idle Kenpachi, 8 wings, holding his guard (his brain's press: P1's brain
+made when he has none): k 0 JILLIEL KIN, 1 the owl KIN (kept without a burst), 2 JILLIEL EN, 3 the owl EN; P1 (the behind
+camera: his back), or P2 (the front view) after 82389. 82399: the opponent's J1 started now (the block: the wall's knock)."
+  (let ((front *br-art-front*) (owl (oddp k)) (en (>= k 2)))
+    (setf *br-art-front* nil)
+    (ensure-battle (if front :kenpachi :barro) (if front :barro :kenpachi) :cpu t)
+    (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
+      (dolist (e (list *p1* *p2*))                      ; (no CPU plays: his brain only holds the guard)
+        (when (brain e) (setf (brain-off (brain e)) t (brain-press-left (brain e)) 0)))
+      (setf *br-keep-owl* owl)
+      (force-form b (if en (if owl :shin :jilliel) (if owl :shin-kin :jilliel-kin)))
+      (place *p1* *p2* 2.0)
+      (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
+            (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))
+      (br-set-ammo b 8)
+      (if (brain b)
+          (let ((br (brain b))) (setf (brain-press br) :guard (brain-press-mod br) nil (brain-press-left br) 100000 (brain-act br) :hold))
+          (log-msg "duel barro: wall scene: no brain for P~d (hold U)" (if front 2 1))))))
+(defun br-art-wall-hit ()
+  "82399: the opponent of the Lille II on the field starts his J1 now (the wing wall takes it: the block's knock)."
+  (let* ((b (if (and *p1* (eq (kit-character (fighter-kit (fighter *p1*))) :barro)) *p1* *p2*)) (o (if (eq b *p1*) *p2* *p1*))
+         (mv (kit-command-move (fighter-kit (fighter o)) :q)))
+    (when mv (start-move o mv))))
+
 (defun br-art-stance (m)
   "82320+m: Lille II (P1) 3 m from an idle Kenpachi, 8 wings, Reiatsu and flash step full, his awakened stance's move
 started on its own: m 0-14 JILLIEL EN's (L1 L2 L3 J1 J2 J3 K1 K2 K3 JL1 JL2 JL3 KL1 KL2 KL3, *BR-S-SEGS*' order: the
