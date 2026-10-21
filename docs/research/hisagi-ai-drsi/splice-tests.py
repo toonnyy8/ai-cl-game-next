@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # splice-tests.py — a cell's HISAGI-CPU-TESTS section into the frozen host test (DUEL_HISAGI §25; rescore.sh calls it).
-# Only the lines between the markers of the CELL's tests/duel-rules-test.lisp are used; everything outside them is the
+# Only the lines between the markers of the CELL's copy of tests/duel-rules/hisagi.lisp are used (or of a whole pre-split duel-rules-test.lisp: only the markers matter); everything outside them is the
 # FROZEN file's. The section's diff vs the frozen one is written for the coordinator's review (the checks must still pin
 # the cell's own shipped values and may not weaken tests of shared behaviour, rules, hooks or other characters).
-# usage: splice-tests.py <cell's duel-rules-test.lisp> <frozen duel-rules-test.lisp, rewritten in place> <diff out>
+# usage: splice-tests.py <cell's copy of tests/duel-rules/hisagi.lisp> <the frozen tests/duel-rules/hisagi.lisp, rewritten in place> <diff out>
 import difflib, sys
 
 BEGIN, END = ';;; >>> BEGIN HISAGI-CPU-TESTS', ';;; <<< END HISAGI-CPU-TESTS'

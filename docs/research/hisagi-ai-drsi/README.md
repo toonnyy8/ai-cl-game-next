@@ -4,7 +4,7 @@ The plan is DUEL_HISAGI §25 (the user's request, 2026-10-18); the method and th
 `docs/guides/DREAM_RSI.zh-TW.md`; the model for these scripts: Lille II's run `docs/research/lille2-ai-drsi/`.
 
 - **Task**: SOUL DUEL Hisagi CPU AI (`duel/lisp/hisagi.lisp` CPU parts), scored by `tools/aieval.py --char 7 --seeds 40`
-  at the freeze commit (the last commit touching `tools/aieval.py`, `tests/duel-rules-test.lisp` or `baseline/score.json`;
+  at the freeze commit (the last commit touching `tools/aieval.py`, `tests/duel-rules-test.lisp`, `tests/duel-rules/hisagi.lisp` or `baseline/score.json`;
   `FREEZE=<hash>` overrides). The opponents: the six other CPUs as they read there.
 - **Host test**: frozen except the `HISAGI-CPU-TESTS` section (`splice-tests.py`).
 - **Score**: (0.3 strength + 0.2 masher + 0.5 signature) × the NORMAL band factor ([0.30, 0.60], 0 at 0.15 outside); 0 when

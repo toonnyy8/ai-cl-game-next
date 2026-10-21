@@ -3,7 +3,7 @@
 #   step.sh next [round]                         ask the policy for the next batch; write a brief for every cell not yet
 #                                                briefed (a cell whose brief exists is in flight: W = 2 run at once)
 #   step.sh done <cell> <round> [cell-worktree]  a cell reported: copy its deliverables from its worktree (the fixed
-#                                                relative path; a delivered duel-rules-test.lisp gives only its
+#                                                relative path; a delivered duel-rules-test.lisp (the cell's copy of tests/duel-rules/barro.lisp) gives only its
 #                                                BARRO-CPU-TESTS section), rescore with the frozen evaluator, record the
 #                                                RESCORED score with a truthful --fail-class, then `next`
 #   step.sh fail <cell> <round> <class> <error>  a cell delivered nothing scorable: record the failure, then `next`
@@ -15,7 +15,7 @@ REPO=$(cd "$WS/../../.." && pwd)
 REL=${WS#$REPO/}
 DREAM_RSI=${DREAM_RSI:-$(ls -d "$HOME/.claude/skills/dream-rsi" "$HOME"/.claude/skills/synced/*/dream-rsi 2>/dev/null | head -1)}
 DRSI="python3 $DREAM_RSI/scripts/drsi.py -w $WS"
-export FREEZE=${FREEZE:-$(git -C "$REPO" log -1 --format=%H -- tools/aieval.py tests/duel-rules-test.lisp "$REL/baseline/score.json")}
+export FREEZE=${FREEZE:-$(git -C "$REPO" log -1 --format=%H -- tools/aieval.py tests/duel-rules-test.lisp tests/duel-rules/barro.lisp "$REL/baseline/score.json")}
 RESCORE_WT=${RESCORE_WT:-$REPO/.claude/worktrees/rescore-lille2}
 export RESCORE_WT
 

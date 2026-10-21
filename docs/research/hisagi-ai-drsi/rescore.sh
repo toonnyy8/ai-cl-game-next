@@ -1,6 +1,6 @@
 #!/bin/bash
 # rescore.sh — re-measure one delivered cell with the FROZEN evaluator (DUEL_HISAGI §25): a dedicated worktree detached
-# at the freeze commit, only duel/lisp/hisagi.lisp replaced and, when the cell delivered tests/duel-rules-test.lisp, only
+# at the freeze commit, only duel/lisp/hisagi.lisp replaced and, when the cell delivered its copy of tests/duel-rules/hisagi.lisp (as duel-rules-test.lisp), only
 # its HISAGI-CPU-TESTS section spliced into the frozen test (splice-tests.py; the section's diff -> NODE_DIR/test-section.diff
 # for review); the host rules test first, then the config's eval command. Writes NODE_DIR/score.rescored.json
 # (+ rescore-host.log, rescore-eval.log). Exit 0 ok, 2 build failed (compile_other), 3 host tests failed or the section
@@ -11,7 +11,7 @@ WS=$(cd "$(dirname "$0")" && pwd)                                # this workspac
 REPO=$(cd "$WS/../../.." && pwd)
 REL=${WS#$REPO/}
 ECL=${ECL_HOST:-/media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl}
-FREEZE=${FREEZE:-$(git -C "$REPO" log -1 --format=%H -- tools/aieval.py tests/duel-rules-test.lisp "$REL/baseline/score.json")}
+FREEZE=${FREEZE:-$(git -C "$REPO" log -1 --format=%H -- tools/aieval.py tests/duel-rules-test.lisp tests/duel-rules/hisagi.lisp "$REL/baseline/score.json")}
 RESCORE_WT=${RESCORE_WT:-$REPO/.claude/worktrees/rescore-hisagi}
 EVAL=${EVAL:-$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['eval_command'])" "$WS/config.json")}
 [ -n "${JOBS:-}" ] && EVAL=$(echo "$EVAL" | sed "s/-j [0-9]*/-j $JOBS/")   # JOBS=4 when nothing else runs (the rows are the same at any -j)
@@ -26,7 +26,7 @@ cp "$N/hisagi.lisp" "$RESCORE_WT/duel/lisp/hisagi.lisp" && touch "$RESCORE_WT/du
 cd "$RESCORE_WT" || exit 5
 rm -f "$N/test-section.diff"
 if [ -f "$N/duel-rules-test.lisp" ] &&                         # the cell's CPU test section, spliced (nothing else)
-   ! python3 "$WS/splice-tests.py" "$N/duel-rules-test.lisp" tests/duel-rules-test.lisp "$N/test-section.diff" 2> "$N/rescore-host.log"; then
+   ! python3 "$WS/splice-tests.py" "$N/duel-rules-test.lisp" tests/duel-rules/hisagi.lisp "$N/test-section.diff" 2> "$N/rescore-host.log"; then
   echo '{"error": "the cell test section could not be spliced (HISAGI-CPU-TESTS markers)"}' > "$N/score.rescored.json"; exit 3
 fi
 echo "rescore: $N at $(git rev-parse --short HEAD): $EVAL" >&2

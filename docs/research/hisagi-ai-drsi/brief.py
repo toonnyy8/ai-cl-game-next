@@ -49,8 +49,8 @@ You must read every historical proposal before proposing or implementing a new s
 You work in your own git worktree of the repo, checked out at the freeze commit {FREEZE} (the evaluator, the opponents'
 CPUs and every rule are fixed there). HISTORY_DIR and BASELINE_DIR are in the coordinator's checkout: read them there.
 If PARENT_DIR is a directory, first copy PARENT_DIR/hisagi.lisp over duel/lisp/hisagi.lisp in your worktree and, when
-PARENT_DIR/duel-rules-test.lisp exists, splice ONLY its HISAGI-CPU-TESTS section into your frozen test:
-python3 {REL}/splice-tests.py PARENT_DIR/duel-rules-test.lisp tests/duel-rules-test.lisp /dev/null ; then refine it;
+PARENT_DIR/duel-rules-test.lisp exists, splice ONLY its HISAGI-CPU-TESTS section into your frozen test file tests/duel-rules/hisagi.lisp (the delivered file keeps the name duel-rules-test.lisp; it is the cell's copy of tests/duel-rules/hisagi.lisp):
+python3 {REL}/splice-tests.py PARENT_DIR/duel-rules-test.lisp tests/duel-rules/hisagi.lisp /dev/null ; then refine it;
 else start from the worktree's files (= BASELINE_DIR/hisagi.lisp and the frozen test).
 
 # Step 1. Read the complete history first
@@ -168,7 +168,7 @@ duel/lisp/hisagi.lisp, ONLY in his own CPU's code:
 
 # Step 4. Evaluate honestly
 In your worktree:
-1. {ECL} --norc --load tests/duel-rules-test.lisp  must print ALL PASS. The section between the markers
+1. {ECL} --norc --load tests/duel-rules-test.lisp  must print ALL PASS (the runner loads tests/duel-rules/*.lisp; the markers are in tests/duel-rules/hisagi.lisp). The section between the markers
    ";;; >>> BEGIN HISAGI-CPU-TESTS" and ";;; <<< END HISAGI-CPU-TESTS" checks HIS OWN CPU (his kits' :ai values, the pure
    HS-*-AI-* functions). You may edit THAT SECTION ONLY, to match what your CPU now does, and deliver the whole file
    (below): the coordinator splices only the lines between the markers into the frozen test; everything outside them
@@ -200,7 +200,7 @@ coordinator re-measures it with the frozen evaluator anyway). Never edit tools/a
   and pacing vs the baseline), the expected benefit, the risks (a pacing median within 15 s of its cap is a risk),
   shared-code recommendations if any.
 - NODE_DIR/score.json: the exact JSON line the EVAL_COMMAND printed for that final file.
-- NODE_DIR/duel-rules-test.lisp (only if you edited its HISAGI-CPU-TESTS section): your whole tests/duel-rules-test.lisp.
+- NODE_DIR/duel-rules-test.lisp (only if you edited its HISAGI-CPU-TESTS section): your whole tests/duel-rules/hisagi.lisp.
 Keep scratch files under a directory named after your cell (e.g. scratchpad/hisagi-{cell}/), never in NODE_DIR. Do not
 commit, push, merge or open PRs. Never run pkill / kill / killall / pkill -f / pgrep -f; no self-matching pgrep loops;
 bounded waits only (wait on a PID or with a timeout).
