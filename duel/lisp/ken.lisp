@@ -848,6 +848,58 @@ with 1 pip, 2.2 m: the 4th strike, then the burst; 3 片腕 at 2.2 m."
      (place *p1* *p2* 2.2))
     (3 (force-form *p1* :kataude) (setf (gauges-reishi (gauges *p1*)) 900))))
 
+(defparameter *grip-torso*
+  '((:chest 0.105 -0.005 0.236 0.165 0.154) (:spine 0.11 -0.005 0.208 0.125 0.143) (:pelvis 0.0 0.0 0.165 0.09 0.127))
+  "Kenpachi's torso boxes for GRIP-FRONT (ken-art.lisp: each box's half size x girth x :width 1.18, in the joint's frame,
+before the body's scale): (joint centre-u centre-f half-r half-u half-f).")
+
+(defun grip-front (jm)
+  "The left arm against the torso, on joint matrices after GRIP-LEFT! (2392; allocates). In the chest's frame (world m):
+the elbow's and the fist's signed distance to the chest's frontal plane (through the chest joint; + = in front), the
+worst of the arm's points (the elbow, the forearm at 1/3 and 2/3, the wrist, the fist) below the shoulders (chest-frame
+up < 0.2 m), each against the frontal plane of the torso segment at its height (the chest box's, else the spine's, else
+the pelvis's: a twisted chest can't hide an arm behind the waist), and the deepest of them inside a *GRIP-TORSO* box.
+The back plane is 0.165 m behind the frontal one: an arm point below the shoulders there is the left arm wrapped round
+his back (the user, 2026-10-21: 「改完之後手反而會跑到背後欸」,
+DUEL_KEN_REWORK §6.2.2)."
+  (labels ((pt (j) (let ((o (* 16 j))) (list (aref jm (+ o 12)) (aref jm (+ o 13)) (aref jm (+ o 14)))))
+           (ax (j k) (let ((o (+ (* 16 j) (* 4 k)))) (list (aref jm o) (aref jm (+ o 1)) (aref jm (+ o 2)))))
+           (dot (a b) (reduce #'+ (mapcar #'* a b)))
+           (in-frame (j p)                                   ; P in joint J's frame: (r u f), world m
+             (let ((d (mapcar #'- p (pt j))))
+               (loop for k below 3 for a = (ax j k) for v = (/ (dot d a) (sqrt (dot a a))) collect (if (= k 2) (- v) v)))))
+    (let* ((e (pt (ji :lower-arm-l))) (h (pt (ji :hand-l))) (fist (pt (ji :weapon-l)))
+           (pts (list e (mapcar (lambda (a b) (+ a (* 0.33 (- b a)))) e h) (mapcar (lambda (a b) (+ a (* 0.67 (- b a)))) e h) h fist))
+           (low 1.0) (deep 0.0))
+      (dolist (p pts)
+        (when (< (second (in-frame (ji :chest) p)) 0.2)
+          (setf low (min low (loop for (j cu nil nil hu) in *grip-torso*            ; the segment at its height
+                                   for jj = (joint-index j) for s = (sqrt (dot (ax jj 0) (ax jj 0))) for l = (in-frame jj p)
+                                   when (or (eq j :pelvis) (>= (second l) (* s (- cu hu)))) return (third l)))))
+        (loop for (j cu cf hr hu hf) in *grip-torso*
+              for jj = (joint-index j) for s = (sqrt (dot (ax jj 0) (ax jj 0)))
+              for l = (in-frame jj p)
+              do (setf deep (max deep (* s (min (- hr (/ (abs (first l)) s)) (- hu (/ (abs (- (second l) (* s cu))) s))
+                                                (- hf (/ (abs (- (third l) (* s cf))) s))))))))
+      (values (third (in-frame (ji :chest) e)) (third (in-frame (ji :chest) fist)) low deep))))
+
+(defun grip-front-check (clip b jm an)
+  "2392's front rows: CLIP sampled at 120 Hz on body B after GRIP-LEFT! (GRIP-FRONT): 'grip front <clip> (mm, + = in
+front of the chest): elbow min …, fist min …, below the shoulders min … ('--': none there) (… of … samples behind the back plane), in the
+torso max …'. Returns the below-the-shoulders min (m)."
+  (let ((one (fv 1)) (el 1.0) (fi 1.0) (lo 1.0) (dp 0.0) (back 0) (n (1+ (floor (* 120 (clip-dur (find-clip clip)))))))
+    (anim-play an clip :blend 0)
+    (dotimes (i n)
+      (pose-fk! jm (anim-eval an) 0.0 0.0 0.0 0.0 (body-scale b) (body-hunch b) (body-props b))
+      (grip-left! jm one)
+      (multiple-value-bind (e f l d) (grip-front jm)
+        (setf el (min el e) fi (min fi f) lo (min lo l) dp (max dp d))
+        (when (< l -0.165) (incf back)))
+      (anim-advance an (/ 1f0 120)))
+    (log-msg "grip front ~a (mm, + = in front of the chest): elbow min ~d, fist min ~d, below the shoulders min ~a (~d of ~d samples behind the back plane), in the torso max ~d"
+             clip (round (* 1000 el)) (round (* 1000 fi)) (if (< lo 1.0) (round (* 1000 lo)) "--") back n (round (* 1000 dp)))
+    lo))
+
 (defun grip-drift-check ()
   "2392: the left fist's gap to the cleaver's handle over every grip clip and every grip-clip -> grip-clip transition
 (a 4 f crossfade from 0.1 s before the first one's end), sampled at 60 Hz on P1's body, raw and after GRIP-LEFT! (W 1):
@@ -878,7 +930,9 @@ with 1 pip, 2.2 m: the 4th strike, then the burst; 3 片腕 at 2.2 m."
           (anim-play an c :blend 4f0)
           (loop repeat 18 do (sample (list a c)) (anim-advance an (/ 1f0 60))))))
     (dolist (e (reverse per)) (when (> (second e) 0.03) (log-msg "grip drift ~a: raw ~,0f mm, IK ~,0f mm" (first e) (* 1000 (second e)) (* 1000 (third e)))))
-    (log-msg "grip drift: raw max ~,0f mm (~a), IK max ~,0f mm (~a)" (* 1000 raw) worst (* 1000 ik) iw)))
+    (log-msg "grip drift: raw max ~,0f mm (~a), IK max ~,0f mm (~a)" (* 1000 raw) worst (* 1000 ik) iw)
+    (let ((lo (loop for a in *grip-clips* minimize (grip-front-check a b jm an))))   ; (the left arm in front, §6.2.2)
+      (log-msg "grip front: below the shoulders min ~d mm" (round (* 1000 lo))))))
 
 (defun ken-debug (c)
   "His debug commands (docs/duel/DUEL_GAMEPLAY.md \"Debug commands\"): 2380+k NOME-TEST k, 2386+k BANKAI-TEST k, 2392

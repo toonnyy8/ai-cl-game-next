@@ -278,6 +278,70 @@ volumes unchanged:
   NOMIHOSE: the grin and the new stance; the diff only on him). Before / after sheets (front and side, landscape and
   portrait): the stance, the face, J1, K1, K2, the J string, RYOTE K1.
 
+#### 6.2.2 The left arm in front of the body, not round his back (2026-10-21)
+
+- The user (2026-10-21), on §6.2.1's sheets: 「改完之後手反而會跑到背後欸」: after the change the left hand goes behind his
+  back. Confirmed in the behind-camera stills (the stance, K1, K2): the left forearm crossed his back to reach the handle.
+- The cause: §6.2.1's solver had no front-of-body constraint. NOMIHOSE's cleaver points forward and down from the right
+  fist (its tip on the floor before him, not behind), so its handle runs BACK from the right fist; with the right fist at
+  the hip (0.08 m ahead of the chest's frontal plane) the handle section 0.16–0.42 m from it sat behind his back, and the
+  solver reached it with the arm wrapped round the torso. The original keys (42351a3) had the same fault without the
+  reach: the left fist 243 mm behind the frontal plane, off the handle.
+- The check (lasting): ken.lisp GRIP-FRONT, printed by debug 2392 after the IK rows (DUEL_GAMEPLAY "Debug commands"):
+  per grip clip at 120 Hz, after GRIP-LEFT! (as drawn): the left elbow's and fist's signed distance to the chest's
+  frontal plane (+ = in front); the worst of the arm's points (the elbow, the forearm at 1/3 and 2/3, the wrist, the
+  fist) below the shoulders (chest-frame up < 0.2 m; above them a raised arm may sit behind the plane, the overhead
+  windups), each against the frontal plane of the torso segment at its height (the chest box's, else the spine's, else
+  the pelvis's); the samples where that is behind the back plane (0.165 m behind: Kenpachi's chest box); and the deepest
+  point inside the torso boxes (`*GRIP-TORSO*`). By height, because a first cut on the chest's plane alone passed K1's
+  wind-up while the sheet showed the hand behind his waist: the chest there is twisted 50° left of the hips, so a fist
+  in front of the chest was 0.12 m behind the pelvis. mm, orig 42351a3 / previous ca9899c / new:
+
+  | Clip | elbow min (chest) | fist min (chest) | below the shoulders min (by height) | samples behind the back plane | in the torso max | IK gap max (120 Hz) |
+  |---|---|---|---|---|---|---|
+  | `:ke-x-stance` | −101 / −187 / 166 | −243 / −306 / 285 | −345 / −363 / 122 | 193 / 193 / 0 of 193 | 57 / 27 / 0 | 273 / 0 / 0 |
+  | `:ke-x-q1` J1 | −101 / −187 / −30 | −243 / −306 / −98 | −329 / −349 / 141 | 8 / 8 / 0 of 51 | 103 / 108 / 18 | 273 / 24 / 15 |
+  | `:ke-x-kote` J2 | −101 / −206 / 121 | −243 / −306 / 285 | −329 / −349 / 145 | 10 / 12 / 0 of 51 | 106 / 109 / 12 | 273 / 44 / 14 |
+  | `:ke-x-q3` J3 | −101 / −248 / 101 | −243 / −306 / 153 | −329 / −349 / 103 | 16 / 26 / 0 of 81 | 113 / 135 / 44 | 295 / 13 / 27 |
+  | `:ke-x-f1` K1 | −101 / −273 / 141 | −243 / −306 / 184 | −329 / −349 / −131 | 18 / 51 / 0 of 93 | 123 / 152 / 30 | 285 / 8 / 27 |
+  | `:ke-x-tsuki` K2 | −101 / −187 / 151 | −243 / −306 / 277 | −329 / −349 / 145 | 29 / 30 / 0 of 99 | 110 / 133 / 8 | 273 / 16 / 18 |
+  | `:ke-x-f2` K3 | −101 / −187 / 146 | −243 / −306 / 272 | −329 / −349 / 91 | 22 / 25 / 0 of 109 | 118 / 122 / 7 | 289 / 10 / 16 |
+  | `:ke-x-meteor` SP1 | −101 / −208 / 109 | −243 / −314 / 199 | −329 / −349 / −34 | 45 / 86 / 0 of 121 | 123 / 129 / 17 | 273 / 8 / 4 |
+  | `:ke-r-f1` RYOTE K1 | 167 / 123 / 123 | 331 / 314 / 314 | −9 / −7 / −7 | 0 / 0 / 0 of 87 | 11 / 36 / 36 | 160 / 41 / 41 |
+
+  The new negatives are all at his side, outside the torso's width: K1's −131 the elbow beside his left hip in the
+  low-left wind-up (the forearm and the fist on the handle beside the hip, ≥ −22 mm), SP1's −34 the fist beside the right
+  hip at the end, RYOTE K1's −7 the elbow at the fumikomi (unchanged since §6.2.1); J1's chest-plane −30 / −98 are the
+  raise over the head. RYOTE's other clips, `:ke-n-f1` and the drink never had the arm behind the back (unchanged).
+- How: the host FK search of §6.2.1 with the constraint added: below the shoulders every left-arm point ≥ 0.04 m in
+  front of the frontal plane of the torso segment at its height (the elbow ≥ 0; at his side, outside the torso's width,
+  ≥ −0.10 m), above them not behind the back plane, no point inside the torso boxes; the fist on the handle (0.16–0.45 m
+  from the right fist). Where the left arm alone could not hold both, the grip moved, not the arm: the stance became a
+  low gedan, both fists in front of the belly, the right one ahead (its fist 0.08 → 0.45 m ahead of the chest's frontal
+  plane: the right arm flex −3 → 38, side −9 → 3, twist 0 → −18, elbow 25 → 15, wrist −46 → −80; the chest's twist −34 →
+  −22, back near the original −20; the blade's direction within 4°, its tip 0.4 m further ahead, still on the floor);
+  the left fist rests 0.29 m in front of the belly. The strikes' first keys keep their own chest and right arm (no hit
+  pose moves through the stance). The K1 wind-up's keys opened the right arm and the chest too (the grip at his left hip
+  came forward, beside the hip instead of behind it; f8 / f16: the blade 1–2°, the tip 10–12 cm; no hit frame), and so
+  did the meteor's crouch (f8: the tip 18 cm) and its strike keys (S / A: the blade 3.4°, the tip 9 cm; the meteor is
+  not a link, no reach test). Every other key moved only its left arm. §6.2.1's 19 in-between keys were removed and
+  redone against the new rule: wherever a 120 Hz sample had an IK gap or a front / torso violation over 20 mm a key was
+  added at that frame (24 keys: J1 2, J2 2, J3 2, K1 7, K3 6, SP1 5; marked "in-between: the left fist on the handle,
+  the arm in front"). RYOTE K1 (`:ke-r-f1`) keeps §6.2.1's keys: its arm was always in front.
+- Left over (the arm in front won over a perfect fit): the elbow grazes the belly at half-frame samples (J3 f13.5 44 mm,
+  K1 30 mm: the centreline inside the bevelled box, a 120 Hz in-between between two keys a frame apart); the IK gap ≤ 27
+  mm on every clip and ≤ 49 mm in the 2392 crossfades (x-stance → J2 49, J1 → J2 49).
+- 2392 IK gap per clip (60 Hz, mm, previous → new): stance 0 → 0, J1 3 → 15, J2 2 → 5, J3 5 → 27, K1 1 → 27, K2 15 → 18,
+  K3 4 → 5, SP1 8 → 3, RYOTE K1 5 → 5.
+- Drawn reach (the FK test, art / edge m): unchanged, every RYOTE and NOMIHOSE row identical to §6.2.1 (NOMIHOSE J1 2.06
+  / 2.06, J2 1.48 / 1.44, J3 1.55 / 1.52, K1 2.84 / 3.90, K2 3.37 / 4.50, K3 2.88 / 4.45; RYOTE K1 2.85 / 3.90).
+- Checks (presentation only): `simgate.py --seeds 10` rows byte-identical to main (816 lines), `--cvc` 3 PASS; host
+  tests ALL PASS (rules 9888, control 89, learn 131, input 33, touch 64, cine 18); `pkgcheck` 0 / 0 / 0; `./build.sh duel`
+  0 warnings; the smoke run clean; the looks gate against ca9899c (`--only fx-a`, `--only mobile`): all identical but the
+  cup-3 HUD review scene (`fx-a/hud-3`, `mobile/hud-3`: Kenpachi in NOMIHOSE, the diff only on his arms and cleaver).
+  Sheets for the user: ORIGINAL / PREVIOUS / NEW from the behind camera (VS CPU's) and the side / front, landscape and
+  portrait: the stance, J1–J3, K1–K3, SP1 and RYOTE K1, cropped on the arms.
+
 ## 7. The second awakenings free as the first (2026-10-09; a rule change)
 
 > 我發現更木與利傑的二次覺醒只能在站立不動或是防禦時發動，我希望能像一般覺醒一樣只要達成條件就能發動。
