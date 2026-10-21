@@ -85,21 +85,22 @@ TIME's and the K.O.'s winner).")
   "Fighter E's expression this frame (docs/style/STYLE_STORM_DESIGN.md §2.5, Phase 5; a look, read from the state): a held
 face (MODEL-FACE-T) first; in a cinematic the attacker shouts and a Kikon's / Soul Break's / K.O.'s victim is hurt; hurt
 while stunned, airborne, down or lost; shouting through a non-Quick move from 10 f before its hit to 12 f after it (and
-through its charge, aura or dash phases). A :calm form (the white Rukia) never shouts."
-  (let ((st (fighter-state f)))
+through its charge, aura or dash phases). A :calm form (the white Rukia) never shouts. Otherwise the form's resting face
+(its kit's :face, default :neutral: Kenpachi's cup 3 grins, DUEL_KEN_REWORK §6.2)."
+  (let ((st (fighter-state f)) (resting (or (kit-face (fighter-kit f)) :neutral)))
     (cond ((> (model-face-t m) 0f0) (model-face m))
           ((eq st :cine)
            (let ((c *cine*))
-             (cond ((null c) :neutral)
+             (cond ((null c) resting)
                    ((eql e (cine-a c)) (if (or (kit-calm (fighter-kit f)) (member (cine-name c) '(intro-cine time-cine ko-cine)))
                                            :neutral :shout))
                    ((member (cine-name c) *hurt-cines*) :hurt)
-                   (t :neutral))))
+                   (t resting))))
           ((member st '(:stun :air :down :lose)) :hurt)
           ((and mv (eq st :move) (not (eq (mv-kind mv) :quick))
                 (or (not (eq (fighter-phase f) :main)) (<= (- (mv-s mv) 10) (fighter-sf f) (+ (mv-s mv) (mv-a mv) 12))))
            (if (kit-calm (fighter-kit f)) :neutral :shout))
-          (t :neutral))))
+          (t resting))))
 
 (defun face-beat (e face secs &optional head-back)
   "Hold fighter E's expression FACE for SECS (effect seconds); HEAD-BACK: also throw his head back over them (the

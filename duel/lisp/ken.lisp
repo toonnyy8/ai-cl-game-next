@@ -215,6 +215,7 @@
   :passives (:projectile-cut :cut :drink) :aura :nomihose :drink-clip :ke-x-drink :enter-hook ken-nomihose-enter
   ;; its own set (a look, DUEL_KEN_REWORK §6.2: 「三杯也改用一套自己的獨立動作」): RYOTE's moves on cup 3's clips
   :stance :ke-x-stance :body :kenpachi-nomi              ; (the hair lifted: a body variant, the same rig)
+  :face :shout                                            ; the maniac grin the whole cup (§6.2, 2026-10-21: 「兩件都做」)
   :clip-map (:ke-r-q1 :ke-x-q1 :ke-r-kote :ke-x-kote :ke-r-q3 :ke-x-q3 :ke-n-f1 :ke-x-f1 :ke-r-tsuki :ke-x-tsuki
              :ke-r-f2 :ke-x-f2 :ke-meteor :ke-x-meteor)
   :commands (:f :ke-n-f1 :sp1 :ke-meteor-n)
@@ -243,7 +244,7 @@
 (defkit :kenpachi :bankai :inherit :nomihose
   :awakening t :mult *bankai-ken-mult* :form-name "BANKAI" :kikon-konpaku 4 :blade-chip *nomihose-chip*
   :bankai-form nil :passives (:projectile-cut :drink)
-  :drink-clip :ke-drink                              ; (not cup 3's drink)
+  :drink-clip :ke-drink :face nil                    ; (not cup 3's drink, nor its standing grin)
   ;; its own strikes for the moves it borrows (a look, DUEL_KEN_REWORK §8)
   :clip-map (:ke-q1 :ke-b-q1 :ke-q2 :ke-b-q2 :ke-f1 :ke-b-f1 :ke-f2 :ke-b-f2 :ke-r-f2 :ke-b-f3 :ke-meteor :ke-b-split
              :ke-stance-cut :ke-b-cut)

@@ -307,6 +307,7 @@ new button."
   (reset-form nil)                      ; a Kikon / Soul Break reset puts the fighter in this form
   (u-tag nil)                           ; the HUD's tag for what U does in the form (default by its passives)
   (calm nil)                            ; the face never shouts in this form (a look: MAIN.LISP FACE-OF)
+  (face nil)                            ; the form's resting expression (NIL = :neutral; a look: DRAW.LISP FACE-OF)
   (stun-tolerance nil)                  ; the hidden stun it takes (NIL: *STUN-TOLERANCE*; STUN-TOLERANCE-OF)
   (gg-regen 1.0)                        ; x the guard gauge's refill rate in this form, not guardless (rules GG-REGEN)
   (l-after-k nil)                       ; L chained after a K link (docs/duel/DUEL_STRINGS.md §12): T its L, or a move (a combo copy)
@@ -533,6 +534,9 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      (its own contact, docs/duel/DUEL_STRINGS.md §12): T the form's L, else MOVE, a combo copy
   :l-after-j T | MOVE                the same after a J link (J1 / J2 / J2s / J3)
   :calm T                            the face stays calm (no shout: a look, FACE-OF)
+  :face :shout | :hurt               the form's resting expression where FACE-OF would pick :neutral (idle, walk, guard,
+                                     a cinematic's onlooker; not the intro's, TIME's or the K.O.'s winner): Kenpachi's cup
+                                     3 grins the whole cup (a look; default NIL = :neutral)
   :gg-regen x                        x the guard gauge's refill rate in this form (default 1.0)
   :stun-tolerance n                  the hidden stun the form takes before the blow-away (default *STUN-TOLERANCE*;
                                      a derived form inherits it)

@@ -217,7 +217,7 @@ volumes unchanged:
   1.48 / 1.44, J3 1.55 / 1.52, K1 2.84 / 3.90, K2 3.39 / 4.50, K3 2.82 / 4.45. (Before, KATATE played the base clips
   with the cleaver: K1 1.56, K2 0.93.)
 - Not built: cup 3's grin (a body variant can add parts but not swap the face); the left fist's residual drift on the
-  handle.
+  handle. (The grin built 2026-10-21: §6.2.1.)
 - Re-checked 2026-10-21 (the user: 「確定這兩件還沒完成嗎？」): (1) the grin: cup 3's entry already shows it, the
   `:shout` face (the maniac laugh) with the head thrown back for 0.9 s (feedback.lisp `:rung`, since 2026-09-30), and
   every non-Quick move shouts; what is missing is a standing grin for the whole cup (FACE-OF picks the face from the
@@ -226,6 +226,20 @@ volumes unchanged:
   (their shared stance pose: the left hand short of the handle). Both still open.
 - Checks: host tests ALL PASS (rules 6481, control 89, learn 131, cine 18); `pkgcheck` 0 / 0 / 0; `./build.sh duel` 0
   warnings; `simgate --seeds 10 --summary` (42 gate lines) and `--cvc` byte-identical to the branch base `cc40146`.
+
+#### 6.2.1 Cup 3's standing grin and the left fist on the handle (2026-10-21)
+
+- The user (2026-10-21), on the two open items above: 「兩件都做」. Both presentation only (the sim never reads a face or a
+  pose).
+- **The grin.** A generic kit key `:face` (kit.lisp; the form's resting expression, default NIL = `:neutral`): FACE-OF
+  (draw.lisp) returns it wherever it returned `:neutral` (idle, walk, run, guard, a cinematic with nothing running, a
+  cinematic's onlooker); a held face (MODEL-FACE-T), the hurt states and cinematics, the shouting moves and the neutral
+  intro / TIME / K.O. winner are as before. NOMIHOSE sets `:face :shout`: the existing maniac laugh (eyes wide with pin
+  pupils, the open mouth with both rows of teeth, the corners up) reads as the canon cup-3 grin, so no new face was
+  built. The Bankai, which inherits NOMIHOSE's keys, sets `:face nil` back. The face accent (VFX-FACE-ACCENT) still fires
+  when the face changes: on the entry, and when the grin comes back after a hurt face; no longer on each move (the face
+  stays the same).
+- The left fist: below (the next commit).
 
 ## 7. The second awakenings free as the first (2026-10-09; a rule change)
 
