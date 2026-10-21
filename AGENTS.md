@@ -91,7 +91,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 | ASSIST | `python3 tools/assistgate.py` | report the masher's win % per setting |
 | CPU score | `python3 tools/aieval.py --char C` (roster index 0–4) | AI work only (DUEL_AI_V2) |
 | G2 references | `python3 tests/style-gates.py cvc dist/duel` (or `simgate.py --cvc`) | identical to `tests/style-cvc-ref.txt`; on an intended change regenerate it (header note + "Before:") and update every quote of those lines |
-| Looks (refactors) | `python3 tests/style-gates.py looks BASE_DIST dist/duel --jobs 4 [--keep-base]` (BASE = a copy of `dist/duel` built before the change) | 105 stills byte-identical to BASE (noise floor 0; 104 before Hisagi joined, 2026-10-17; 112 before the old Lille's removal, 2026-10-13); for changes that must not move a pixel |
+| Looks (refactors) | `python3 tests/style-gates.py looks BASE_DIST dist/duel --jobs 4 [--keep-base]` (BASE = a copy of `dist/duel` built before the change) | 110 stills byte-identical to BASE (noise floor 0; 105 before refactor round 2 added five, 2026-10-21; 104 before Hisagi joined, 2026-10-17; 112 before the old Lille's removal, 2026-10-13); for changes that must not move a pixel |
 | Shipping build | `./build.sh duel` last | |
 
 - Engine and RAVEN EDGE tests (run what a change touches): `tests/ecs-test.lisp`, `tests/test-math.lisp` (header has its load line), `tests/input-test.lisp`,
@@ -120,12 +120,14 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 - **Roster**: index 0 Yamamoto (`yama*.lisp`), 1 Kenpachi (`ken*`), 2 Rukia (`rukia*`), 3 Ichigo (`ichigo*`),
   4 Senjumaru (`senjumaru*`), 5 **reserved** (the old Lille's slot: retired 2026-10-12, his code removed 2026-10-13; `:lille` stays in `*roster*` for the saved data's and the gates' indices: `*retired*` / `playable-roster` in kit.lisp, simgate's `RETIRED`), 6 Lille (`barro*`, kit `:barro`, called "Lille II" before 2026-10-13; his art and cinematics also in `lille-art.lisp`; version 3: DUEL_LILLE_V3, the V2 record DUEL_LILLE_V2, the old Lille's design DUEL_LILLE), 7 **Hisagi** (`hisagi*`, kit `:hisagi`; the Shikai built in batch B2a, the Bankai in B2b: DUEL_HISAGI; debug 83000–83999). Each character = data + hooks: `defkit` forms with `:ai` plists, `defmove`s, its own CPU
   functions (`:reflex`, `:opp-reflex`, `:sp-ender`, `:sig-hold`, `:assist-guard`), cinematics; art in `<char>-art.lisp`
-  (`defstrike` clips, bodies).
+  (`defstrike` clips, bodies); big characters split by role under the same prefix (`-ai -clips -draw -cine -stills -vfx -look`,
+  DUEL_DESIGN "Character code layout: split by role").
 - **Plain CL, host-tested**: `tuning.lisp` (every shared knob, `defparameter` + docstring with old → new, date, who decided; a character's own knobs
   sit in its file under the same rule),
   `rules.lisp`, `control.lisp`, `learn.lisp`, `kit.lisp` (`parse-move`, reach floors). **Systems**: `fighter`, `combat`,
-  `hazards`, `ai`, `ai-learn`, `assist`, `camera`, `feedback`, `flow`, `hud`, `onehand`, `endless`, `debug` (debug commands, gate
-  scenarios), `draw`, `main`; shared look: `body`, `brush`, `vfx`, `stage`, `cinema`, `glyphs`, `sounds`. Compile order:
+  `hazards`, `ai`, `ai-learn`, `assist`, `camera`, `feedback`, `flow`, `hud`, `hud-screens`, `onehand`, `endless`, `gate` (the gate
+  machinery), `debug` (debug commands, scenarios), `draw`, `main`; shared look: `body`, `brush`, `vfx`, `vfx-stamps`, `stage`,
+  `cinema`, `glyphs`, `sounds`. Compile order:
   `duel/MANIFEST`.
 - **Determinism**: fixed 60 Hz steps, vpads for every input source (keys, touch, CPU), `sim-rnd01` inside the step only
   (`rnd01` for cosmetics), per-match reset, periodic state-hash lines. The native sim and the browser must agree bit for bit.
@@ -143,7 +145,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 | `docs/README.md` | the index of every doc, one line each |
 | `docs/DEVLOG.zh-TW.md` | the decision log (numbered §, newest last), why things are the way they are |
 | `docs/guides/` | `TUTORIAL.zh-TW.md` (learning path), `PLAYBOOK.zh-TW.md` (reusable experience), `DREAM_RSI.zh-TW.md` (the AI search experience), `CHARACTER_DESIGN.zh-TW.md` (designing a fighter, from Lille: the ⚠ questions to ask first) |
-| `docs/engine/` | `ARCHITECTURE.md`, `ENGINE_API.md`, `AUDIO.md`, `WORLD.md` (+ `world-shots/`), `REFACTOR_2026-10.md` (the refactor: verdicts, determinism rules for helpers), `REFACTOR_NEXT.md` (the next round's backlog) |
+| `docs/engine/` | `ARCHITECTURE.md`, `ENGINE_API.md`, `AUDIO.md`, `WORLD.md` (+ `world-shots/`), `REFACTOR_2026-10.md` (the refactor: verdicts, determinism rules for helpers), `REFACTOR_2026-10-21.md` (round 2: splits by role, dead code, helpers), `REFACTOR_NEXT.md` (the backlog) |
 | `docs/raven-edge/` | `GAME_DESIGN.md`, `GAMEPLAY.md` |
 | `docs/duel/` | `DUEL_DESIGN.md` (rules + move tables, the source of truth), `DUEL_GAMEPLAY.md` (build, debug commands, gates), `DUEL_STRINGS.md`, per character (`DUEL_YAMA_REWORK`, `DUEL_YAMA_TYBW` / `DUEL_ICHIGO_TYBW` (the TYBW look and motion reworks), `DUEL_NOZARASHI_V2`, `DUEL_KEN_BANKAI`, `DUEL_RUKIA`, `DUEL_ICHIGO`, `DUEL_SENJUMARU`, `DUEL_LILLE` (the old Lille's design, removed 2026-10-13), `DUEL_LILLE_V2` (Lille, index 6: the rebuild's record), `DUEL_LILLE_V3` (his version 3, the current one; the animation inventory), `DUEL_HISAGI` (the next fighter, in design)), systems (`DUEL_AI_V2`, `DUEL_LEARNING`, `DUEL_ASSIST`, `DUEL_ENDLESS`, `DUEL_MOBILE_DESIGN`) |
 | `docs/style/` | `STYLE_STORM_RESEARCH.md`, `STYLE_STORM_DESIGN.md` (the ink look, its numbers and gates) |
@@ -174,6 +176,8 @@ Skills (in `skills/`, symlinked into `~/.claude/skills/`; each `SKILL.md` is sho
 | `build.sh`, `tools/build.lisp` | the build (Lisp → C → wasm) |
 | `tools/run.mjs` | headless Chrome driver: `--script`, `--shot`, `--fixed-dt`, exit code on errors |
 | `tools/pkgcheck.sh` / `.lisp` | undefined / unexported / shadowed symbols |
+| `tools/unit-forms.lisp` | refactor proof: two build units (`build/<t>/game-all.lisp`) compared as read forms (pure moves EQUAL, macro sweeps expanded) |
+| `tests/debug-ranges-check.py` | every debug command range is in DUEL_GAMEPLAY "Debug commands", no silent overlap |
 | `tools/simgate.py` (+ `tools/simgate/`) | native SOUL DUEL sim: seed gate, A/B, `--cvc` |
 | `tools/aieval.py` | one character's CPU score (strength / masher / signature) |
 | `tools/assistgate.py` | the ASSIST masher gate |

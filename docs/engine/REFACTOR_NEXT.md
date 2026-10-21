@@ -1,7 +1,7 @@
 # Refactor: the next round (backlog)
 
 Recorded 2026-10-09 after the 2026-10 refactor merged (`REFACTOR_2026-10.md`, DEVLOG §153–§155). The user: 「把下一輪的修改事項紀錄下來，之後再執行」.
-Nothing here is started. Each item says why, where, what to measure first, and how to know it is done. When the user asks
+Round 2 (2026-10-21, `REFACTOR_2026-10-21.md`, DEVLOG §304) worked through it: each item below says what it did. Each item says why, where, what to measure first, and how to know it is done. When the user asks
 for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below), and tick the item off with its DEVLOG §.
 
 ## Bar (unchanged from 2026-10)
@@ -15,7 +15,11 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
 
 ## Items
 
-### N1. `defdebug`: the debug command table from one source (the user's item 2)
+### N1. `defdebug`: the debug command table from one source (the user's item 2) — closed by a checker (round 2, 2026-10-21)
+- Round 2: the advisor counted 112 clauses, two overlap patterns (2209 inside 2200–2299, the specific 23xx before the
+  2300–2399 catch-all) and one undocumented range (31101–31199); the drift was in the prose. The user chose 「檢查程式」:
+  `tests/debug-ranges-check.py` (every range in DUEL_GAMEPLAY "Debug commands", no silent overlap; 96 ranges, 22 through
+  `*char-debug*`, 0 errors), the doc fixed, `cine-still-command-p`. A registry only if the table drifts again.
 - Decided: 「第 2 項下一輪再做」(2026-10-09, after the macro discussion; REFACTOR_2026-10 §1).
 - Why: `debug.lisp`'s dispatch is ~112 `cond` clauses on number ranges, and `docs/duel/DUEL_GAMEPLAY.md` "Debug commands"
   is written by hand. They drift: batch B2 found more than a dozen ranges the doc lacked.
@@ -26,7 +30,11 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
 - Watch: clause order matters where ranges overlap (`(>= c 6300)` style fall-throughs in the viewer and debug.lisp):
   keep it explicit. Debug commands drive the gates: simgate rows and cvc must be byte-identical.
 
-### N2. Ichigo's and Senjumaru's HUD meters: per-frame consing (was D11 / C12)
+### N2. Ichigo's and Senjumaru's HUD meters: per-frame consing (was D11 / C12) — probed, partly done (round 2)
+- Round 2: probes 74907 (Ichigo) / 2490 (Senjumaru). Ichigo meter + label 2864 → 1408 B a frame, Senjumaru's Shikai label
+  728 → 0, her Bankai meter 4016 → 3904 (live zones once, labels from load-time tables). Left: Ichigo's meter 1200 B, his
+  deck 864 B, her Bankai meter ~3900 B, her ring 2288 B: generic float math, colour lists, closures — a float-path rewrite,
+  so a look change (the looks gate decides), not a refactor.
 - Where: `ichigo-hud-meter`, `ichigo-deck`, `senju-hud-meter`, `senju-hud-label`, `senju-ring` (ichigo.lisp,
   senjumaru.lisp), Ichigo's `ic-rgb` boxing, `ichigo-live-clones`: `list`, `sort`, `remove-if-not`, `format nil`, boxed
   floats every frame.
@@ -34,7 +42,10 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
   meter, the deck, the ring. Claim a debug range in DUEL_GAMEPLAY first.
 - Done when: the probe reads 0 B (or the remaining bytes are explained), pixels identical.
 
-### N3. `hud-text`: ~200 B per call, dozens of calls per frame (the advisor's find)
+### N3. `hud-text`: ~200 B per call, dozens of calls per frame (the advisor's find) — probed (round 2)
+- Round 2: the probe in `hud-cons-check` (2328) reads 208 B a call, the same for a literal and a run-time string; a battle
+  frame makes ~12–16 calls (2.5–3.3 KB). The cost is the engine's `ui-block-text` (`&key`, boxed floats), called twice a
+  `hud-text` (the shadow): the fix is a no-boxing path there, then the looks gate.
 - Where: duel/lisp/hud.lisp `hud-text` (block text on whole pixels). It is the biggest remaining HUD allocator, larger
   than everything removed in 2026-10's HUD batch.
 - First: count calls and bytes per frame in a battle with a probe (both orientations, every form's HUD).
@@ -47,7 +58,10 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
 - First: measure with a probe; do it together with the next Senjumaru rework, not alone. Pixel risk: a single-float port
   moves vertices by ulps, so the looks gate will differ; that makes it a look change for the user to accept, not a refactor.
 
-### N5. `gate.lisp`: the gate machinery out of debug.lisp (with B3.3)
+### N5. `gate.lisp`: the gate machinery out of debug.lisp (with B3.3) — done (round 2, 2026-10-21)
+- Round 2: `duel/lisp/gate.lisp` (state hash, cvc, the seed / learning gates, the scripted players ai.lisp calls, the
+  pacing printers); Rukia's and Kenpachi's scenarios and knobs through `*char-debug*` (`rukia-debug`, `ken-debug`, narrow
+  ranges); the two-character scenarios, `*cine-names*` and the face stills stay in debug.lisp (1166 → 725 lines).
 - Why: `debug.lisp` (now ~1150 lines) mixes the gate code (`start-cvc`, `gate-update`, `state-hash-line`, `hash-log`, the
   pacing printers) with scenarios and knobs; scenario churn risks the gate.
 - What: move the gate code to `duel/lisp/gate.lisp` (MANIFEST before debug.lisp), and the character-specific scenarios to
@@ -66,6 +80,7 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
   only if that is the same order as the old nested sum, else bind it explicitly), then move the macro; looks gate.
 
 ### N7. Smaller ones (do only with a reason)
+- Round 2: C8 done (171 `with-xform` one-liners → `mb-at`, W3-B); C4 rejected again (P6); the rest unchanged.
 - Per-side state created on the draw path: `(lb e)` / `(ic e)` / `(sj e)` can `add-component` when the HUD meter is the
   first reader (a render-path mutation of the ECS, same as before B8 in spirit). Attach the component in the kit's enter
   hook or at spawn instead, if creation order can be proven not to change any read (simgate + cvc).
@@ -78,6 +93,31 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
 - C4 `stamp-code` (read `*stamp-kinds*` at macroexpansion for the stamp magic numbers), C8 the art files' 138 long-form
   `with-xform` one-liners -> `mb-at`, C9 the sound shower helpers (needs an audio buffer diff tool first: no audio gate
   exists).
+
+### N8. Kenpachi's and Rukia's meters through the kit hooks (round 2's S4 / S7)
+- Why: NOME / UDE and the cold gauge are wired into combat.lisp (`gauge-system`), hud.lisp and ai.lisp by name, while the
+  four later characters use `:tick` / the meter's `:draw` / `:label`. A pure move to a file (S4) keeps that coupling.
+- What: when a Kenpachi or Rukia HUD change is wanted anyway, move their meter steps to `:tick` and their widgets to
+  `:draw` / `:label` in a new `hud-meters.lisp` (not their kit files: those are host-loaded). Both HUD orientations in the
+  looks gate; simgate rows for the step order.
+
+### N9. `tests/duel-rules-test.lisp` per character (the advisor's find)
+- Why: 4400+ lines, 9887 checks; four of round 2's eight batches and every character batch edit it (load lists, art reader).
+- What: a shared prelude + one file per character; the suite's check count is quoted in many docs, so update every quote.
+
+### N10. `scripted.lisp`: the players the sim calls
+- Why: ai.lisp calls `dumb-step` / `habit-fire` / `habit-neutral` (now in gate.lisp, before round 2 in debug.lisp): the sim
+  depends on gate code. The masher / habit players are sim code and could own a file before gate.lisp.
+
+### N11. The 82320+m stance stills crash (found by round 2's W2-B)
+- `82320` / `82118` stop the page with "game-frame: unknown vpad action NIL" (engine/lisp/input.lisp `vpad-index`), on
+  4a48540 too: not a refactor regression. A debug-scene bug in `br-art-stance` / its scene; fix with the next Lille work.
+
+### N12. Smaller deferrals of round 2
+- P9: `glyphs-extra.lisp` has no generator recipe in `tools/glyph-bake.py` (needs the font, not in the cloud container);
+  before the next fighter's glyphs. P11: `hazard-draw` hard-codes Yamamoto's hazard looks (ichigo.lisp reads `hazard-look`
+  in a rule: move the `case` body only). K2: ichigo.lisp / senjumaru.lisp `-ai` / `-debug` splits when they pass ~1500
+  lines (the amended layout rule). L7's 8th site (`br-s-end-push`, a name parse once per string-end hit).
 
 ## Not to do (decided in 2026-10, with reasons in REFACTOR_2026-10 §7)
 Fold `(expt x 2)` into `hypot`; swap `sqrt` / `f-sqrt` flavours; port the landscape cameras to single-float; merge `%h01`

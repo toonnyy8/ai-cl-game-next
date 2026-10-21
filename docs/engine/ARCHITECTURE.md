@@ -345,9 +345,9 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/kit.lisp         | characters as data: DEFMOVE, DEFKIT, the roster             |
 | lisp/cinema.lisp      | the director's hooks, shot helpers, the generic cinematics (intro, K.O., soul break, time) |
 | lisp/stage.lisp       | the ruins at night: meshes, the toon env look, ash, cracks  |
-| lisp/vfx.lisp         | fire / aura / hit / UI effects (built from the engine's toon kit, FX-RIBBON, UI-BITMAP) |
-| lisp/yama-art.lisp, ken-art.lisp | the two characters' bodies, weapons and clips (DEFSTRIKE) |
-| lisp/yama.lisp, ken.lisp | their moves, forms, hooks and cinematics                 |
+| lisp/vfx.lisp         | aura / hit / line-cut / UI effects (built from the engine's toon kit, FX-RIBBON, UI-BITMAP); vfx-stamps.lisp the hit stamps; yama-vfx.lisp Yamamoto's fire |
+| lisp/<name>-art.lisp (+ -clips -draw -cine -stills -look) | a character's bodies, weapons, clips (DEFSTRIKE), draw code, cinematics (DUEL_DESIGN "Character code layout: split by role") |
+| lisp/<name>.lisp (+ -ai) | its moves, forms, hooks, debug range; its CPU                 |
 | lisp/fighter.lisp     | FIGHTER-SYSTEM: vpad → commands → state machine → physics   |
 | lisp/combat.lisp      | HIT-SYSTEM (clash, collect then apply every hit, blocks, Kikon, soul break), forms / awakening, GAUGE-SYSTEM |
 | lisp/hazards.lisp     | projectiles, pillars, skeletons, cuts as HAZARD entities    |
@@ -355,8 +355,9 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/camera.lisp      | the behind-P1 camera (VS CPU) and the pair camera (3/4 side view), cinematic shots |
 | lisp/feedback.lisp    | FEEDBACK-SYSTEM: events → sounds, sparks, shake, big words  |
 | lisp/flow.lisp        | the screens: title, mode, select, intro, battle, results, pause; MATCH-SYSTEM (timer, time-up), match end |
-| lisp/hud.lisp         | the battle HUD and every screen                             |
-| lisp/debug.lisp       | debug commands, seeded CPU-vs-CPU gate, hash lines, hitbox overlay |
+| lisp/hud.lisp         | the battle HUD; hud-screens.lisp every other screen          |
+| lisp/gate.lisp        | the gate machinery: state-hash lines, cvc, the seed and learning gates, the scripted players, the pacing printers |
+| lisp/debug.lisp       | debug commands and scenarios, probes, cinematic stills, hitbox overlay |
 | lisp/main.lisp        | the fixed step (cinematic or sim systems), the frame, `RUN-GAME` |
 
 `examples/hello/hello.lisp` (one file, package `HELLO`) and `examples/engine-demo/demo.lisp`

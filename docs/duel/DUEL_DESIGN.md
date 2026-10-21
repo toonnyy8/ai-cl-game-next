@@ -1265,6 +1265,21 @@ hazard blade) and `:parry-block` / `:shield` (a parry that blocks vs a guard win
 is the moment to fold them into one key. Registration of a new character: two MANIFEST lines, its `*pairs*` rows in
 debug.lisp (the gate is now 15 pairings, 2125+k with k 0–14), its brush names / glyphs appended from its art file.
 
+## Character code layout: split by role (the user, 2026-10-21)
+
+「請開啟新的 branch 並配合 fable 進行優化，檢查 duel 跟遊戲引擎中是否有冗餘、過度耦合、抽象化錯誤以及可讀性低的程式，並將其重構或拆分檔案以保持專案的簡潔性與維護、擴增效率。」
+The 2026-09-28 rule stands (a character's code in its own files, the shared files get hooks only), amended for size
+(refactor round 2, docs/engine/REFACTOR_2026-10-21.md): a character's files all carry its prefix: `<name>.lisp` (kit,
+rules, hooks, HUD meter), `<name>-art.lisp` (bodies, props, clips). When a file passes ~1500 lines or holds three roles it
+is split by role, same prefix: `-clips` (poses and clips when the art file holds the bodies), `-draw` (the per-frame draw
+code, the HUD widgets), `-cine` (sounds, cinematics and their clips), `-stills` (debug stills and probes), `-ai` (CPU,
+learner, ASSIST routes), `-vfx` / `-look` (effects and looks a shared file used to hold, e.g. Yamamoto's). Today: Lille
+`lille-art / -clips / -draw / -cine`, `barro-art / -draw / -stills`, `barro`, `barro-ai`; Hisagi `hisagi`, `hisagi-ai`,
+`hisagi-art / -draw / -cine / -stills`; Yamamoto `yama-vfx`; Ichigo `ichigo-look`. The host test's loader lists name the
+files the host needs (`<name>`, `<name>-ai`), its art reader every file holding clips. Shared files split by topic the
+same way: `gate.lisp` (the gate machinery) out of debug.lisp, `hud-screens.lisp` out of hud.lisp, `vfx-stamps.lisp` out
+of vfx.lisp, the engine's `fx-shapes.lisp` out of fx.lisp.
+
 ## In-game manual (the user, 2026-09-30)
 
 「完成後請寫一個中文版的遊戲系統與角色操作的 html 說明文件，並在遊戲中可以跳轉到說明頁中。」 A Traditional Chinese

@@ -4034,3 +4034,21 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - 手冊：AUTO GUARD、AUTO COMBO 兩列加上檜佐木的說明；「會學習的電腦」加一條檜佐木（電腦打法、學習的四個情境）。
 - 主機測試 9885 / 131 / 89 全過，pkgcheck 乾淨，已建置，冒煙正常；沒跑 gate（使用者「不用跑 gate」）。
 - 細節：DUEL_HISAGI §25.22、DUEL_ASSIST「A kit's answer through a held guard」。
+
+## 304. 第二輪重構：大檔按職責拆分、刪掉改版留下的死碼、共用 helper（2026-10-21）
+
+使用者：「請開啟新的 branch 並配合 fable 進行優化，檢查 duel 跟遊戲引擎中是否有冗餘、過度耦合、抽象化錯誤以及可讀性低的程式，並將其重構或拆分檔案以保持專案的簡潔性與維護、擴增效率。」
+
+- 做法：新 branch `claude/refactor-2026-10-21`（從 main 4a48540 開，沒有合回 main）。五份唯讀盤點（引擎、duel 共用系統、表現層、Lille + 檜佐木、舊角色）共 64 個候選項；Fable 當顧問，到程式裡抽查每個說法（全部成立，修正三處）、逐項判定、排成 8 批 3 波；每批一個 worktree 和一個 subagent，lead 合併每一波後重跑整套 gate。紀錄：`docs/engine/REFACTOR_2026-10-21.md`。
+- 使用者的決定：上一輪延到這輪的 `defdebug`（「第 2 項下一輪再做」），Fable 查到 112 個分支只有兩種重疊、文件只缺一個範圍，真正過時的是說明文字；使用者選「檢查程式」：`tests/debug-ranges-check.py`（96 個範圍、0 個錯誤）＋修文件，不做註冊表。
+- 拆檔（角色的檔案一律同前綴，依職責分；規則寫進 DUEL_DESIGN「Character code layout: split by role」）：
+  - 引擎 `fx.lisp` → `fx-shapes.lisp`（toon 繪圖工具）＋ `fx.lisp`（粒子、拖尾、震動）。
+  - `vfx.lisp` 1745 行 → `vfx.lisp` 660 ＋ `vfx-stamps.lisp` 434 ＋ `yama-vfx.lisp` 657（山本的火）；`ichigo-art.lisp` 的外觀與過場 → `ichigo-look.lisp`。
+  - `debug.lisp` 1166 → 725 行：gate 機制搬到 `gate.lisp`，露琪亞、劍八的測試場景走 `*char-debug*` 回到各自的檔案；`hud.lisp` 的選單等畫面 → `hud-screens.lisp`。
+  - Lille：`lille-art` → lille-art / -clips / -draw / -cine，`barro-art` → barro-art / -draw / -stills，CPU → `barro-ai.lisp`；檜佐木：CPU → `hisagi-ai.lisp`，`hisagi-art` → hisagi-art / -draw / -cine / -stills。最大的檔案 3755 → 1735 行，沒有檔案超過 2000 行（之前五個）。
+  - `toon-ground-seg` 搬進引擎（上一輪留下的 N6：先把四個讀到巨集自己變數的地方改寫成同樣的浮點順序）。
+- 刪掉的：舊 Lille 留下的復活 / MUJITTAI 繪圖分支與 8 個沒人用的動作片段、檜佐木和 Lille 沒人讀的旋鈕與函式（`hs-drag`、`hs-release-wanted-p` 等）、引擎兩個沒人用的函式、`*tachi-second*`，共約 330 行；build 的 4 個「先用後定義」警告修掉，現在 0 個。
+- 共用 helper：`brain-chance` / `brain-roll` 取代劍八和檜佐木各自抄的機率函式（49 處）、`current-move`（24 處）、`snap-lead-seen`、`ai-o-ender-ok-p`、`hoho-open-p`、`impact-splash-at`。
+- 每幀配置：一護量表 2864 → 1408 B、千手丸始解標籤 728 → 0；Lille CPU 每次決定不再 intern 關鍵字（每次 720 B）。剩下的要改浮點路徑，會動像素，留在 REFACTOR_NEXT N2。
+- 確認：每一批、每一波合併後都過：主機測試全過（duel-rules 9885 → 9887），pkgcheck 乾淨，兩個 build 0 警告，冒煙正常，sim 28 組 × 10 種子 816 行與 4a48540 逐位元相同，cvc 3/3，畫面 110 張（新增 5 張專門蓋被搬動的程式）逐位元相同，RAVEN G1 相同。新工具 `tools/unit-forms.lisp` 證明每次搬檔前後的程式形式完全相同。
+- 找到但不在這輪修：82320 的 Lille 覺醒架式靜態畫面會當掉（4a48540 就有，REFACTOR_NEXT N11）。下一輪的候選（劍八、露琪亞量表走掛鉤、測試檔按角色拆等）記在 REFACTOR_NEXT N8–N12。
