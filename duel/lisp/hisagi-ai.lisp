@@ -1,7 +1,7 @@
 ;;;; hisagi-ai.lisp — Hisagi's CPU: the Shikai's (his kit's :ai, docs/duel/DUEL_HISAGI.md §10), the Bankai's (§17.5 #16), the learner's
 ;;;; situations and the ASSIST routes (§25.20), and the CPU's knobs (the *HS-AI-...* parameters, every chance EASY <= NORMAL <= HARD)
 ;;;; (split out of hisagi.lisp 2026-10-21, refactor round 2). Loads right after hisagi.lisp, which keeps the three knobs the kit data
-;;;; reads while its DEFKIT is evaluated (*HS-AI-STRING-K* *HS-AI-L-AFTER-J* *HS-AI-AWAKEN*); the kits name the CPU functions as bare
+;;;; reads while its DEFKIT is evaluated (*HS-AI-STRING-K* *HS-AI-L-AFTER-J* *HS-AI-AWAKEN*) and *HS-AI-RELEASE-MARGIN* (read by the rule function HS-RELEASE-WANTED-P); the kits name the CPU functions as bare
 ;;;; symbols (:reflex :opp-reflex :sp-ender :sig-hold :move-reflex), so they are late-bound. Plain CL (the host rules test loads it
 ;;;; after hisagi.lisp); no DEFUN-FAST. The dream-rsi searches (docs/research/hisagi-ai-drsi, skill duel-character-cpu) edit this file.
 (in-package :duel)
@@ -222,7 +222,6 @@ baseline's SAHARAIs were hit in their startup), never into a runner; SAHARAI's m
 (defparameter *hs-ai-release-p* '(:easy 0.05 :normal 0.1 :hard 0.9)
   "His CPU in a bind: the release once per change event (a soul turned grey, every 100 of the pool drained) while his grey
 loss exceeds the opponent's by *HS-AI-RELEASE-MARGIN* (Konpaku x 1300 + Reishi, §17.5 #16). (Round01 cell b1a0: NORMAL 0.6 -> 0.3, EASY 0.3 -> 0.2: the fair game once the Bankai comes at 2000 taken; HARD kept. Round01 cell b3a0: NORMAL 0.3 -> 0.1, EASY 0.2 -> 0.05: the Bankai at 3000 taken put NORMAL at 0.61 (factor 0.93); 0.562 after these cuts, 480 matches; HARD kept.)")
-(defparameter *hs-ai-release-margin* 300 "... the margin (Reishi points).")
 (defparameter *hs-ai-rel-margin* 150
   "His CPU's own release margin in the bind's reflex (b1a0; *HS-AI-RELEASE-MARGIN*'s 300 before): a release undoes every grey
 loss, his Kikons in it too, so he takes it sooner; KAIBAKU-GEKI releases at its S at any distance, once the opponent is

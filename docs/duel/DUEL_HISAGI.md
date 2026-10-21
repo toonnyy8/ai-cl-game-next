@@ -76,7 +76,7 @@ Every number from here to §12 is **the lead's proposal** unless a line says "de
 §13 is pending, the body assumes its recommended option (marked "Qn A"). Code prefix `hs-`, kit `:hisagi`, files (the file map since the split of 2026-10-21, refactor round 2;
 older § name the files as they were when written): `duel/lisp/hisagi.lisp` (knobs, kits, rules, state, hooks, the Bankai's
 rules and moves, debug), `hisagi-ai.lisp` (the Shikai's and the Bankai's CPU, the learner, ASSIST, and the `*hs-ai-…*` knobs, except
-the three the kit data reads at load: `*hs-ai-string-k*`, `*hs-ai-l-after-j*`, `*hs-ai-awaken*`, which stay in hisagi.lisp),
+the three the kit data reads at load, `*hs-ai-string-k*`, `*hs-ai-l-after-j*`, `*hs-ai-awaken*`, and `*hs-ai-release-margin*`, which a rule function reads: they stay in hisagi.lisp),
 `hisagi-art.lisp` (body, Kazeshini, clips), `hisagi-draw.lisp` (looks, `HISAGI-DRAW`, the HUD icon, the name), `hisagi-cine.lisp` (the four
 cinematics), `hisagi-stills.lisp` (debug stills and probes), in that load order; forms `:base` (Shikai) and `:bankai`. (There is no §3: the concept talk's numbering
 is kept so the DEVLOG's references hold.)

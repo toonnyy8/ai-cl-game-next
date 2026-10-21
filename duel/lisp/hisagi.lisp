@@ -12,7 +12,7 @@
 ;;;; Everything of his lives here and in his other files; the shared files only call his :hooks. His files (the art ones split
 ;;;; 2026-10-21, refactor round 2): this one (knobs, kit, rules, state, hooks, the Bankai's rules and moves, the debug tail),
 ;;;; hisagi-ai.lisp (the Shikai's and the Bankai's CPU, the learner, ASSIST, and the *HS-AI-...* knobs: loads right after this file;
-;;;; the three knobs the kit data reads at load stay here), hisagi-art.lisp (body, Kazeshini, clips), hisagi-draw.lisp (looks,
+;;;; the three knobs the kit data reads at load stay here, with *HS-AI-RELEASE-MARGIN*, which a rule function reads), hisagi-art.lisp (body, Kazeshini, clips), hisagi-draw.lisp (looks,
 ;;;; HISAGI-DRAW, the HUD icon), hisagi-cine.lisp (the cinematics), hisagi-stills.lisp (debug stills and probes). Plain CL above
 ;;;; the hooks: the host rules test loads it.
 (in-package :duel)
@@ -155,6 +155,8 @@ blockable; a flinch, the drag goes on and the reap combos after it) for this dam
 (defparameter *hs-kaibaku-dmg* 120
   "Bind SP2 解縛擊 KAIBAKU-GEKI: the release at its S (the snapshot back, the pool to the opponent first), then its strike's
 real damage (the user, 2026-10-18: 「先還原再打，傷害 120（推薦）」); no bars spent; blockable (blocked: the release, no damage).")
+;; (a CPU knob, kept here because HS-RELEASE-WANTED-P in the Bankai rules below reads it; hisagi-ai.lisp holds the other *HS-AI-...* knobs)
+(defparameter *hs-ai-release-margin* 300 "... the margin (Reishi points).")
 
 ;;; ---------------------------------------------------------------- the two Bankai modes made distinct (§22.1, batch B4a)
 ;;; The user, 2026-10-18: 「目前近遠程的攻擊模組看不出各自的特色」 -> A (the ranged mode a placed zone game) + C (looks) + D
