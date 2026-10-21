@@ -49,6 +49,8 @@ lisp/lille-clips.lisp
 lisp/lille-draw.lisp
 lisp/lille-cine.lisp
 lisp/barro-art.lisp
+lisp/barro-draw.lisp
+lisp/barro-stills.lisp
 lisp/barro.lisp
 lisp/hisagi.lisp
 lisp/hisagi-art.lisp
