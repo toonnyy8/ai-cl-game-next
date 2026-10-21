@@ -711,9 +711,9 @@ SOUL-glass edges, eroding over LIFE (HAKKA's lane, the Hakuren-like wave of ç™½é
            (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5))) (e (* run l)))
       (declare (single-float dx dz l ux uz run k dr sd e))
       (when (> k 0.02f0)
-        (toon-ground-seg (+ x0 (* 0.5f0 ux)) (+ z0 (* 0.5f0 uz)) (+ x0 (* e ux)) (+ z0 (* e uz)) 0.03f0 0.9f0 1f0 0.4f0 (+ sd 30f0)
+        (toon-ground-seg (+ x0 (* 0.5f0 ux)) (+ z0 (* 0.5f0 uz)) (+ x0 (* 0.5f0 ux) (* e ux)) (+ z0 (* 0.5f0 uz) (* e uz)) 0.03f0 0.9f0 1f0 0.4f0 (+ sd 30f0)
                          0.25f0 (toon-a +pal-soul+ k))
-        (toon-ground-seg (+ x0 (* 0.5f0 ux)) (+ z0 (* 0.5f0 uz)) (+ x0 (* e ux)) (+ z0 (* e uz)) 0.035f0 0.35f0 1f0 0.6f0 (+ sd 34f0)
+        (toon-ground-seg (+ x0 (* 0.5f0 ux)) (+ z0 (* 0.5f0 uz)) (+ x0 (* 0.5f0 ux) (* e ux)) (+ z0 (* 0.5f0 uz) (* e uz)) 0.035f0 0.35f0 1f0 0.6f0 (+ sd 34f0)
                          0.12f0 (toon-a +pal-hit+ k))
         (dotimes (i 5)                                   ; ice spikes standing along it
           (let* ((u (* (+ 0.15f0 (* 0.18f0 (i->f i))) e)))

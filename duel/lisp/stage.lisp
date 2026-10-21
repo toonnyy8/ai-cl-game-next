@@ -233,24 +233,6 @@ the newest +CRACK-MAX+ (the oldest is replaced)."
     (incf *st-ncracks*)
     nil))
 
-(defmacro toon-ground-seg (x0 z0 x1 z1 y w h0 h1 seed wob pk)
-  "Queue a flat toon strip on the ground (the toon fx batch, docs/style/STYLE_STORM_DESIGN.md §3.2) from (x0 z0) to
-(x1 z1) at height Y, half-width W: an along shape (SEED is made negative) whose field runs across it, heat H0
-at the start .. H1 at the end (the low-heat end erodes first as the presence in PK fades). A macro: 0 B."
-  `(let* ((x0 ,x0) (z0 ,z0) (x1 ,x1) (z1 ,z1) (gy ,y) (w ,w) (h0 ,h0) (h1 ,h1) (sd (- -1f0 (f-abs ,seed))) (wb ,wob) (pk ,pk)
-          (dx (- x1 x0)) (dz (- z1 z0)) (l (f-hypot dx dz)))
-     (declare (single-float x0 z0 x1 z1 gy w h0 h1 sd wb pk dx dz l))
-     (when (> l 1f-4)
-       (let* ((nx (* w (/ (- dz) l))) (nz (* w (/ dx l))))
-         (declare (single-float nx nz))
-         (with-fx-verts (d o :toon 6)
-           (vtx (- x0 nx) gy (- z0 nz) -1f0 0f0 h0 sd wb pk)
-           (vtx (+ x0 nx) gy (+ z0 nz) 1f0 0f0 h0 sd wb pk)
-           (vtx (+ x1 nx) gy (+ z1 nz) 1f0 0f0 h1 sd wb pk)
-           (vtx (- x0 nx) gy (- z0 nz) -1f0 0f0 h0 sd wb pk)
-           (vtx (+ x1 nx) gy (+ z1 nz) 1f0 0f0 h1 sd wb pk)
-           (vtx (- x1 nx) gy (- z1 nz) -1f0 0f0 h1 sd wb pk))))))
-
 (defun-fast st-draw-cracks ()
   "Bankai's cracks (docs/style/STYLE_STORM_DESIGN.md §4.1): each ray an ink gash (BLACK SMOKE, a white hairline on the
 mid-grey page) narrowing and eroding toward the ray's end, with a thin drawn EMBER core (EMBER has no edge since user

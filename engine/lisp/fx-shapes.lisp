@@ -81,7 +81,7 @@ bodies or the floor with a straight depth line."
 
 ;;; ---------------------------------------------------------------- the toon kit (0 B macros)
 ;;; Small macros the toon looks are written with: every argument a single-float form, nothing consed. Shapes on
-;;; the ground (%TRING, %SECTOR-VERTS) and along an axis (TOON-RIBBON, %TONGUE) write the toon batch directly;
+;;; the ground (%TRING, %SECTOR-VERTS, TOON-GROUND-SEG) and along an axis (TOON-RIBBON, %TONGUE) write the toon batch directly;
 ;;; %T-BLOB / %T-SHARD are toon particles; %LIGHT is ADD-POINT-LIGHT without boxing; the rest place a layer
 ;;; (the camera's axes, the view ray, the fx clock's drawings).
 (defmacro drawing-no (&optional (per-second 12f0))
@@ -278,6 +278,24 @@ re-draws it when it changes (pass a per-drawing seed). A macro: 0 B."
   `(let* ((%sd (- -1f0 (f-abs ,seed))) (%pk (toon-a ,pal ,k)))
      (declare (single-float %sd %pk))
      (toon-ribbon (,x ,y ,z) (,ax ,ay ,az) (,w 0f0) :seed %sd :wob ,wob :k %pk :ph ,ph :sway ,sway :segs ,segs)))
+
+(defmacro toon-ground-seg (x0 z0 x1 z1 y w h0 h1 seed wob pk)
+  "Queue a flat toon strip on the ground (the toon fx batch, docs/style/STYLE_STORM_DESIGN.md §3.2) from (x0 z0) to
+(x1 z1) at height Y, half-width W: an along shape (SEED is made negative) whose field runs across it, heat H0
+at the start .. H1 at the end (the low-heat end erodes first as the presence in PK fades). A macro: 0 B."
+  `(let* ((x0 ,x0) (z0 ,z0) (x1 ,x1) (z1 ,z1) (gy ,y) (w ,w) (h0 ,h0) (h1 ,h1) (sd (- -1f0 (f-abs ,seed))) (wb ,wob) (pk ,pk)
+          (dx (- x1 x0)) (dz (- z1 z0)) (l (f-hypot dx dz)))
+     (declare (single-float x0 z0 x1 z1 gy w h0 h1 sd wb pk dx dz l))
+     (when (> l 1f-4)
+       (let* ((nx (* w (/ (- dz) l))) (nz (* w (/ dx l))))
+         (declare (single-float nx nz))
+         (with-fx-verts (d o :toon 6)
+           (vtx (- x0 nx) gy (- z0 nz) -1f0 0f0 h0 sd wb pk)
+           (vtx (+ x0 nx) gy (+ z0 nz) 1f0 0f0 h0 sd wb pk)
+           (vtx (+ x1 nx) gy (+ z1 nz) 1f0 0f0 h1 sd wb pk)
+           (vtx (- x0 nx) gy (- z0 nz) -1f0 0f0 h0 sd wb pk)
+           (vtx (+ x1 nx) gy (+ z1 nz) 1f0 0f0 h1 sd wb pk)
+           (vtx (- x1 nx) gy (- z1 nz) -1f0 0f0 h1 sd wb pk))))))
 
 ;;; ---------------------------------------------------------------- ground sectors
 (defmacro %sector-verts (mode segs x y z r0 r1 yaw half l0 l1 l2 l3)

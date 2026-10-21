@@ -99,9 +99,9 @@
    #:+pal-fire+ #:+pal-ember+ #:+pal-reiatsu+ #:+pal-ink+ #:+pal-steel+ #:+pal-hit+ #:+pal-smoke+ #:+pal-dust+
    #:+pal-ash+ #:+pal-soul+ #:+pal-blood+ #:+pal-black-smoke+ #:+pal-blue+ #:+pal-jade+ #:+pal-gold+ #:+pal-flame+ #:+p-t-blob+ #:+p-t-shard+
    #:ui-focus-lines #:ui-speed-lines #:ui-ink-splash
-   ;; fx.lisp, the toon kit (0 B macros over the toon batch): hash, particles, rings, sectors, ribbons, lights, the
-   ;; camera's axes (WITH-CAM binds the six names its caller gives), drawings
-   #:hash01 #:%t-blob #:%t-shard #:%tring #:%sector-verts #:toon-ribbon #:%tongue #:%light #:with-cam
+   ;; fx.lisp, the toon kit (0 B macros over the toon batch): hash, particles, rings, sectors, ribbons, ground strips,
+   ;; lights, the camera's axes (WITH-CAM binds the six names its caller gives), drawings
+   #:hash01 #:%t-blob #:%t-shard #:%tring #:%sector-verts #:toon-ribbon #:%tongue #:toon-ground-seg #:%light #:with-cam
    #:drawing-no #:%away-from-eye #:%near-cam
    ;; cine.lisp: the cinematic director (scripted cutscenes inside the fixed step)
    #:defcine #:cine #:*cine* #:cine-name #:cine-cf #:cine-a #:cine-v #:cine-hold #:cine-hold-frame

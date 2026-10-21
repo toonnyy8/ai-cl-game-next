@@ -412,7 +412,7 @@ and erode), :kyoku (KYOKUJITSUJIN's heat sheet), :south (South's ring crack), :k
                 (sd (i->f (mod (f->i dr) 7))) (r1 (* 9f0 run)) (half 0.2182f0))
            (declare (single-float sa run yaw k dr sd r1 half))
            (when (> k 0.02f0)
-             (toon-ground-seg (+ x0 (* 0.5f0 px)) (+ z0 (* 0.5f0 pz)) (+ x0 (* 2.4f0 (/ dx l))) (+ z0 (* 2.4f0 (/ dz l)))
+             (toon-ground-seg (+ x0 (* 0.5f0 px)) (+ z0 (* 0.5f0 pz)) (+ x0 (* 0.5f0 px) (* 2.4f0 (/ dx l))) (+ z0 (* 0.5f0 pz) (* 2.4f0 (/ dz l)))
                               0.03f0 0.16f0 1f0 0.3f0 (+ seed 2f0) 0.25f0 (toon-a +pal-ink+ k))
              (when (> r1 0.6f0)                          ; (no dark backing: the effects carry no black rim)
                (%sector-verts :toon 8 x0 0.01f0 z0 0.5f0 r1 yaw half 0.8f0 (+ 61f0 sd) 0.25f0 (toon-a +pal-ember+ (* 0.9f0 k)))
@@ -435,7 +435,7 @@ and erode), :kyoku (KYOKUJITSUJIN's heat sheet), :south (South's ring crack), :k
            (dotimes (i 5)
              (let* ((a (+ (* 1.2566f0 (i->f i)) (hash01 (i->f i) seed))) (c (f-cos a)) (sn (f-sin a)) (r2 (* l (+ 1.3f0 (* 0.6f0 (hash01 (i->f i) 3.1f0))))))
                (declare (single-float a c sn r2))
-               (toon-ground-seg (+ x0 (* 0.4f0 l c)) (+ z0 (* 0.4f0 l sn)) (+ x0 (* r2 c)) (+ z0 (* r2 sn)) 0.03f0 0.05f0 1f0 0.3f0
+               (toon-ground-seg (+ x0 (* 0.4f0 l c)) (+ z0 (* 0.4f0 l sn)) (+ x0 (* 0.4f0 l c) (* r2 c)) (+ z0 (* 0.4f0 l sn) (* r2 sn)) 0.03f0 0.05f0 1f0 0.3f0
                                 (+ seed (i->f i)) 0.2f0 (toon-a +pal-ink+ k))))
            (when (and tell (< sa 0.2f0))
              (dotimes (i (n-of 30f0 dt))
