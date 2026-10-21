@@ -562,7 +562,7 @@ silence; the shatter: a negative, a manga page, the ice and the figure in shards
   (at 150 (impact-frame :negative 2)
       (multiple-value-bind (x y z) (actor-point v 1.0) (vfx-ru-dust x y z) (vfx-konpaku-shatter x (+ y 0.1) z 3))
       (setf (model-alpha (model v)) 0f0)
-      (let ((q (pos-of v))) (impact-splash (aref q 0) 0.0 (aref q 2) 14 0.07))
+      (impact-splash-at v 0.0 14 0.07)
       (play-sfx :ice-shatter) (play-sfx :konpaku-shatter) (shake 0.25 0.35))
   (at 152 (impact-frame :manga 12))
   (at 170 (shot-on a 160 5.0 1.0 :look 1.2) (lens 48)))

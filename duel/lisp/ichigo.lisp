@@ -397,13 +397,14 @@ L; within 4.2 m (RANGETSU's lunge + reach 4.8) TSUKI-OTOSHI on a guard (or a gau
 (defun ichigo-kikon-worth (e)
   "KESSA's :kikon-worth hook: what 千影 would take if O were pressed now (CLONE-KONPAKU of the live clones), for the red
 Konpaku hint (the user 2026-09-29: it followed the kit's fixed 3) and his Soul Break (this + 1, the user 2026-09-30)."
-  (clone-konpaku (count-if (lambda (h) (clone-live-p (hazard-data (hazard h)))) (ichigo-clones e))))
+  (clone-konpaku (clone-count e)))
 (defun clone-count (e) "E's live clones (idle or answering)." (count-if (lambda (h) (clone-live-p (hazard-data (hazard h)))) (ichigo-clones e)))
+(defun ichigo-live-clones (e) "E's live clone hazards (idle or answering), oldest first." (remove-if-not (lambda (h) (clone-live-p (hazard-data (hazard h)))) (ichigo-clones e)))
 (defun clone-fade (c) (setf (icc-state c) :fade (icc-fade c) 0))
 
 (defun ichigo-clone-spawn (e x z src)
   "A clone at (X Z) facing the opponent; at the cap the oldest live one fades out (CLONE-EVICT)."
-  (let* ((live (remove-if-not (lambda (h) (clone-live-p (hazard-data (hazard h)))) (ichigo-clones e)))
+  (let* ((live (ichigo-live-clones e))
          (i (clone-evict (mapcar (lambda (h) (icc-born (hazard-data (hazard h)))) live)))
          (q (pos-of (opp-of e))))
     (when i (clone-fade (hazard-data (hazard (nth i live)))) (pace e :clone-evicted))
@@ -969,7 +970,7 @@ shipped behaviour). AI-BRAIN: for a human the ASSIST's borrowed (HARD) brain (it
 the 4-Konpaku Kikon), under them ZANZO's white bar draining, the label BUNSHIN xN (and on an O press the pips flash with
 the Kikon's worth)."
   (declare (ignore kit))
-  (let* ((st (ic e)) (hs (ichigo-clones e)) (live (remove-if-not (lambda (h) (clone-live-p (hazard-data (hazard h)))) hs))
+  (let* ((st (ic e)) (live (ichigo-live-clones e))
          (n (length live)) (pw (/ w 3.6)) (hh (* 3.6 h)) (y0 (- (+ y (* 0.5 h)) (* 0.5 hh)))
          (flash (max 0.0 (- 1.0 (/ (- *match-tick* (ics-o-at st)) 40.0))))
          (pulse (if (= n 3) (+ 0.6 (* 0.4 (abs (sin (* 6.0 tm))))) 1.0)))

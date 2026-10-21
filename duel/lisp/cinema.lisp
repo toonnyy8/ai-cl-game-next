@@ -234,6 +234,9 @@ time; pair it with HOLD-POSE on the actors."
     (when (world-to-screen v (f32 x) (f32 y) (f32 z))
       (setf *splash-args* (list (aref v 0) (aref v 1) (f32 (* r (window-height))) (f32 (mod (* 13.7 x) 50.0)))
             (aref *screen-fx* 7) (f32 (/ frames 60.0))))))
+(defun impact-splash-at (v y frames &optional (r 0.1))
+  "IMPACT-SPLASH at actor V's feet point (its x, z) and height Y, for FRAMES, R x the screen height."
+  (let ((q (pos-of v))) (impact-splash (aref q 0) y (aref q 2) frames r)))
 
 (defvar *silhouette* nil "(actor . tint) while an actor is drawn as a black silhouette (SILHOUETTE-BLACK).")
 (defun silhouette-black (e)

@@ -469,7 +469,7 @@ and an ink splash; the aftermath wide."
   (at 100 (shot-on v 150 3.8 0.35 :look 1.4) (lens 88) (caption-exit))
   (push-in-on a v 120 3.6 0.6 0.4 0.05)   ; a slow push-in, not cuts
   (at 142 (cine-shatter v 3)
-      (impact-frame :negative 2) (let ((q (pos-of v))) (impact-splash (aref q 0) 0.0 (aref q 2) 16 0.07))
+      (impact-frame :negative 2) (impact-splash-at v 0.0 16 0.07)
       (play-sfx :explode) (play-sfx :konpaku-shatter) (shake 0.3 0.4))
   (at 144 (impact-frame :manga 12))
   (at 156 (shot-pair a v (- (camera-side a)) 9.0 1.6) (lens 48)))
@@ -489,7 +489,7 @@ grey world."
   (at 72 (impact-frame :manga 12))
   (at 86 (multiple-value-bind (x y z) (actor-point v 1.0) (vfx-ash-burst x y z) (vfx-konpaku-shatter x y z 3))
       (setf (model-alpha (model v)) 0f0)
-      (let ((q (pos-of v))) (impact-splash (aref q 0) 0.0 (aref q 2) 14 0.07))
+      (impact-splash-at v 0.0 14 0.07)
       (play-sfx :konpaku-shatter) (play-sfx :sizzle) (shake 0.2 0.3))
   (at 110 (shot-on a -35 4.6 0.5 :look 1.3) (lens 48) (caption-exit)))
 
