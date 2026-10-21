@@ -156,7 +156,7 @@
          (bite (kit-command-move b :sig)) (j1 (kit-command-move b :q)) (split (kit-command-move b :sp1)))
     (check (and (move-follows-p b charge punch) (move-follows-p b k1 k2) (move-follows-p b k3 o) (move-follows-p b k1 (kit-next b :ke-b-k1 :q))
                 (not (move-follows-p b bite j1)) (not (move-follows-p b split j1)) (not (move-follows-p b k1 o))))
-    (flet ((burst-frame (pending frames)             ; ARM-STEP's rule over (state move) frames: the frame the burst fires
+    (flet ((burst-frame (pending frames)             ; KEN-ARM-STEP's rule (ken-meter.lisp) over (state move) frames: the frame the burst fires
              (loop for (st m) in frames for i from 0
                    do (when (and (typep pending 'move) m (not (eq m pending)) (move-follows-p b pending m)) (setf pending m))
                    when (burst-due-p pending m st) return i)))
