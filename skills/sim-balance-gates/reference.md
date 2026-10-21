@@ -13,7 +13,7 @@ Source repo: /media/8tsp/projects/ai-cl-game-test (CL → ECL → wasm; `duel/` 
   hitstop = steps that read devices only (DUEL_GAMEPLAY.md "Time model").
 - **Two RNG streams.** `engine/c/rng.c`: `rng_state` → `RND01` (cosmetics: particles, shake, camera) and `rng2_state` →
   `SIM-RND01` (everything the sim / AI decides). Seeding through murmur3 `fmix32` so seeds 1,2,3 start far apart;
-  `sim-rnd-seed` in `engine/lisp/package.lisp`. `start-cvc` (debug.lisp) seeds the sim stream per match.
+  `sim-rnd-seed` in `engine/lisp/package.lisp`. `start-cvc` (gate.lisp) seeds the sim stream per match.
 - **No wall clock in the sim.** Devices are read *inside* the step (`pilot-system`), the human stick is converted through
   a **sim-owned view**, not the lagging render camera; CPU pilots never read the view, so the camera option cannot change
   a CPU match. Cinematics run on the step clock. (DUEL_GAMEPLAY.md "Determinism".)
@@ -22,7 +22,7 @@ Source repo: /media/8tsp/projects/ai-cl-game-test (CL → ECL → wasm; `duel/` 
   (`tools/simgate/build.lisp`, DEVLOG §38).
 - **Matches start from nothing.** `spawn-pair` makes new entities; `start-match` reseeds, zeroes `*match-tick*`, timer,
   slow-mo clock (`reset-slow-clock`), `time-reset` clears hitstop.
-- **Determinism hash.** `state-hash-line` (debug.lisp:135) every 600 ticks: positions in cm, yaw in 0.01 rad, every
+- **Determinism hash.** `state-hash-line` (gate.lisp) every 600 ticks: positions in cm, yaw in 0.01 rad, every
   gauge, cooldowns, hazard count → `duel hash t=...`. Plus `duel -> RESULTS winner .. konpaku a-b ticks N secs S`.
   Comparing these lines between two runs is the whole determinism test.
 
@@ -318,7 +318,7 @@ evidence (§18: cross pairings and G2 bit-identical, only mirrors moved).
 - Always rebuild the shipped target (`./build.sh duel`) after fixes validated on the native runner.
 
 ### S — SOUL DUEL specifics worth knowing (not to copy blindly)
-- Pairing index k = debug.lisp `*pairs*` order (0 YY 1 YK 2 KK 3 RY 4 RK 5 RR 6 IY 7 IK 8 IR 9 II 10 SY 11 SK 12 SR
+- Pairing index k = gate.lisp `*pairs*` order (0 YY 1 YK 2 KK 3 RY 4 RK 5 RR 6 IY 7 IK 8 IR 9 II 10 SY 11 SK 12 SR
   13 SS 14 SI); gate commands 2125+k, seeds 30000+k0 / 31100+n; RESULTS `ticks/60 = secs`.
 - 300 s timer, 9 Konpaku, Reishi 1300; median window 125–210 s; awaken floor 20/60 per stream.
 - Ichigo's awaken A/B has failed since the user's damage cut (open, user's call); Kenpachi's NORMAL tuned to sit on the
