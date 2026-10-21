@@ -325,6 +325,7 @@ An EMBER scorch ring under the walls."
             (%light x 1.5f0 z 1f0 0.5f0 0.2f0 16f0 (* 3.5f0 (- 1f0 v)) 9)))))
   nil)
 
+;;; ---------------------------------------------------------------- Tenchi Kaijin's slash (UI space)
 (defvar *ts-c0* (make-f32 4)) (defvar *ts-c1* (make-f32 4))
 (defun vfx-tenchi-slash (age life)
   "Tenchi Kaijin: a full-screen hard white slash (UI space) with an ink border, sweeping lower-left → upper-right
@@ -371,6 +372,7 @@ One-shot."
       (%t-shard x 0.2f0 z (rnd-range -2f0 2f0) (rnd-range 2f0 4f0) (rnd-range -2f0 2f0) (rnd-range 0.5f0 0.8f0)
                 (rnd-range 0.07f0 0.12f0) 9f0 +pal-dust+))))
 
+;;; ---------------------------------------------------------------- one-shots
 (defun-fast vfx-fire-cone (x z yaw &key (reach 4.0) (half 0.785))
   "Taimatsu (§4.1, Phase 5): the drawn sweep of fire over the REACH m / +-HALF rad sector toward YAW, a :CONE stamp
 (%ST-CONE: a white flash, 9 FIRE flames fanned over the sector rolling out and up, a FIRE ground sector for 2 drawings,

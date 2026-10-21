@@ -22,6 +22,7 @@ lisp/brush.lisp
 lisp/cinema.lisp
 lisp/stage.lisp
 lisp/vfx.lisp
+lisp/vfx-stamps.lisp
 lisp/yama-vfx.lisp
 lisp/yama-art.lisp
 lisp/ken-art.lisp

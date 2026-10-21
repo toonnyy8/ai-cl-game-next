@@ -1,8 +1,10 @@
-;;;; duel-vfx.lisp — SOUL DUEL VFX gallery: every effect of duel/lisp/vfx.lisp on the dusk stage
+;;;; duel-vfx.lisp — SOUL DUEL VFX gallery: every effect of duel/lisp/vfx.lisp, vfx-stamps.lisp and yama-vfx.lisp on the dusk stage
 ;;;; with posed fighters for scale, looping over time, plus a worst-case scene with a stats line.
 ;;;; A test target, not part of the game:
 ;;;;   ./build.sh duelvfx duel/lisp/package.lisp duel/lisp/body.lisp duel/lisp/yama-art.lisp \
-;;;;     duel/lisp/ken-art.lisp duel/lisp/stage.lisp duel/lisp/vfx.lisp tests/duel-vfx.lisp
+;;;;     duel/lisp/ken-art.lisp duel/lisp/stage.lisp duel/lisp/vfx.lisp duel/lisp/vfx-stamps.lisp \
+;;;;     duel/lisp/yama-vfx.lisp tests/duel-vfx.lisp      (built and run once 2026-10-21 after the vfx.lisp split: 0 warnings;
+;;;;                                                      run it without --fixed-dt, which stalls this target)
 ;;;;   python3 tests/scripts/duel-vfx.py   (writes tests/scripts/duel-vfx.json)
 ;;;;   node tools/run.mjs dist/duelvfx --secs 150 --script tests/scripts/duel-vfx.json
 ;;;; Keys: N / P next / previous scene. Debug commands (Module._debug_cmd):
