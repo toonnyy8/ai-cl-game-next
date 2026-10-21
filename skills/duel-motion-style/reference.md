@@ -132,7 +132,7 @@ RD = docs/research/lille-retrospective/digest.md. "[G]" in the sources = the lea
   - the owl's claws from FK targets (DL §23.37);
   - the muzzle at az −2…−7°, ≤ 0.1 m aside (V3 §8.3);
   - `tools/pose-solve.py` grid-searches hand twist / flex for a blade az / el.
-- In the repo: `*br-tip-print*` in `tests/duel-rules-test.lisp`. Kenpachi's script is not committed.
+- In the repo: `*br-tip-print*` in `tests/duel-rules/core.lisp`. Kenpachi's script is not committed.
 
 **Review loop**
 - `duel-view` strips 1000000+1000i+k (k 1: 8 frames from the side; k 2: 33° off the front); a 4-frame strip hides the anticipation.

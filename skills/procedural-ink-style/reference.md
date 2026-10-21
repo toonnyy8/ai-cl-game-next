@@ -267,7 +267,7 @@ Main evidence: `docs/style/STYLE_STORM_DESIGN.md` (SD), `docs/style/STYLE_STORM_
 - Babylon port: per-sound length / peak / RMS / DC stats, and every event kind and every cinematic's beats checked to
   render NaN-free.
 
-### 3.4 Art against hit volume (P: `tests/duel-rules-test.lisp`, search "the volume ends")
+### 3.4 Art against hit volume (P: `tests/duel-rules/art.lisp`, search "the volume ends")
 - The host test **loads the real `anim.lisp`** (with the C float intrinsics replaced by plain CL macros), reads each
   `*-art.lisp` file form by form (evaluating only `defpose / defclip / defstrike`, collecting `defbody` and `defweapon`
   data), then for every form and every J / K link and the Breaker runs FK over the active frames

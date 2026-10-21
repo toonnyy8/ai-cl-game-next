@@ -43,7 +43,7 @@ The user's verbatim lines that set the shape: 「架式 > JJ/KK > LL 中，最�
 - Generic hooks this added to shared files (each default off, the other pairings byte-identical): `:armor` (kit armour),
   `:pose` (squash-and-stretch; never scale the facing axis so reach stays honest, `BR-DEFORM`), `:look-clips`,
   `:through`, `:charge` / `:hold` + `:release`, `:step-branch`, `FIGHTER-STEP-OPEN`, `DRAW-WEAPON :tint`.
-- Host tests (`tests/duel-rules-test.lisp`, BARRO sections): every link combos on a hit incl. hitstop; every segment →
+- Host tests (`tests/duel-rules/barro.lisp`, the BARRO sections): every link combos on a hit incl. hitstop; every segment →
   SP2 combos; `:end` only on last segments; routes on distinct clips; clip length / `:s` / speed 1; FK tip = reach
   ±0.15 m; `BR-K-ORDER-P` (KL > stance K > attack-state K, R14); the route rule's cases (`BR-ROUTE-J-P`).
 

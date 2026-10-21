@@ -25,7 +25,7 @@ the full design record: `docs/style/STYLE_STORM_DESIGN.md`.
   wind-up → `:s :snap <hit-pose>` → overshoot through `:a` → settle → `(:end stance)`. `:root :f` lunges are cosmetic;
   real displacement is the move's `:slide`. Re-time with clip speed instead of re-keying.
 - **Drawn reach = hit reach**: the host test runs real FK over the art files and wants the weapon tip within ±0.15 m of
-  the hit volume (`tests/duel-rules-test.lisp`, "the volume ends"; it walks J / K links and the Breaker — add any new
+  the hit volume (`tests/duel-rules/art.lisp`, "the volume ends"; it walks J / K links and the Breaker — add any new
   move kind to its coverage). When they disagree, decide which number balance
   depends on and change the other — usually the art.
 - Bodies: shapes per rig joint, data-driven proportions (`:props`, `:girth`), variants share rig and hurt volume.

@@ -656,14 +656,18 @@ YY 1.9, YK 0.5, KK 0.2 (mostly Yamamoto's Signature / Shiranui once back in his 
 
 ```sh
 E=/media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl
-$E --norc --load tests/duel-rules-test.lisp      # duel-rules-test: 2350 checks, ALL PASS (2323 before ENDLESS)
+$E --norc --load tests/duel-rules-test.lisp      # duel-rules-test: 9887 checks, ALL PASS (2350 when ENDLESS landed)
 $E --norc --load tests/duel-control-test.lisp    # duel-control-test: 71 checks, ALL PASS
 $E --norc --load tests/input-test.lisp           # input-test: 31 checks, ALL PASS  (engine vpad)
 $E --norc --load tests/cine-test.lisp            # cine-test: 18 checks, ALL PASS   (engine director)
 ```
 
-* **duel-rules-test** loads `tuning`, `rules`, `kit`, `yama`, `ken`, `rukia`, `endless-rules` over the engine's plain-CL
-  `math`, `hitvol`, `input` (DEFCINE stubbed): the triangle and clash matrix; block / whiff
+* **duel-rules-test** is a runner (`tests/duel-rules-test.lisp`: the engine and duel loads over the engine's plain-CL
+  `math`, `hitvol`, `input` with DEFCINE stubbed, then `tests/duel-rules/{core,yama,ken,rukia,senjumaru,art,systems,barro,sim,hisagi}.lisp`
+  in that order into one image, then the one `N checks, ALL PASS` line; `core` holds `check` and the shared helpers; `art`
+  loads `anim.lisp` and runs the FK reach test; `sim` loads `touch`, `components`, `combat`, `fighter`, `flow` over
+  stand-in entities; `hisagi` adds `hazards`, `hisagi`, `hisagi-ai`; refactor round 3 cut it from one 4433-line file, no
+  check changed). It holds: the triangle and clash matrix; block / whiff
   advantage, including a frame-by-frame replay of every move of every form against its table;
   damage and combo scaling; the contact rule; armour budgets; the J / K strings (DUEL_STRINGS: every form's six routes
   walked from J1 / K1, the §2.1 budget on every reachable link: J1 / K1 frames, J beats K, K2 / K3 at S_eff 14, every

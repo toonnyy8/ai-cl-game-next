@@ -822,7 +822,7 @@ MODE 選單第二列是 ENDLESS（2026-09-29，完整規則在 [DUEL_ENDLESS.md]
 
 **7. 替劍八換一個第三段。** 讓劍八 J1 J2 之後按 K 出的不是 BUNMAWASHI，而是一招新的收尾「追擊斬」`:ke-chase`。
 
-> 提示：在 `duel/lisp/ken.lisp` 的 base 區塊仿照 `:ke-k3` 寫一個 `defmove`：`(defmove :ke-chase :kind :flash :clip :ke-q3 :clip-s 11 :enter 6 :startup 20 :active 5 :recovery 34 :dmg 70 :adv-block -20 :reach 2.8 :arc 180 :on-hit :crumple :flags (:ender))`。第三段的 K 要照 DUEL_STRINGS §2.1 的預算：`:enter` 讓實際起手是 14 格（前一段不管是 J 還是 K 都連得上）、被擋 −20、打中跪倒，`:ender` 讓它打中之後可以接 O 收尾。然後在 `(defkit :kenpachi :base …)` 的 `:strings` 加一列 `(:ke-j2 :f :ke-chase)`：自己寫的 `:strings` 排在 `:grid` 展開的十條線前面，`kit-next` 先找到它，所以蓋掉格子裡的 J2 → K3（K1 K2 → K3 不受影響）。野晒一杯會自動推導出它（起手 +2、`:enter` 也 +2、距離 ×1.3）；二杯、三杯有自己的格子，J2 是 `:ke-r-j2`，所以那一列在它們那裡用不到。動畫先借 `:ke-q3`；要用新的動畫名稱，就得在 `ken-art.lisp` 用 `defstrike` 做一個，並把名字加進 `tests/duel-rules-test.lisp` 的 `*clips-5*`。先跑 `$E --norc --load tests/duel-rules-test.lisp`（它會走遍每個型態的每一條連段、檢查幀數預算），再 `./build.sh duel`、`tools/pkgcheck.sh duel`，用除錯指令 2396（劍八對一個不動的劍八，相隔 2.2 公尺）按 J、J、K，在 console 找 `P1 move KE-CHASE`。注意連段只在碰到對手時才接：揮空就停在那一刀。
+> 提示：在 `duel/lisp/ken.lisp` 的 base 區塊仿照 `:ke-k3` 寫一個 `defmove`：`(defmove :ke-chase :kind :flash :clip :ke-q3 :clip-s 11 :enter 6 :startup 20 :active 5 :recovery 34 :dmg 70 :adv-block -20 :reach 2.8 :arc 180 :on-hit :crumple :flags (:ender))`。第三段的 K 要照 DUEL_STRINGS §2.1 的預算：`:enter` 讓實際起手是 14 格（前一段不管是 J 還是 K 都連得上）、被擋 −20、打中跪倒，`:ender` 讓它打中之後可以接 O 收尾。然後在 `(defkit :kenpachi :base …)` 的 `:strings` 加一列 `(:ke-j2 :f :ke-chase)`：自己寫的 `:strings` 排在 `:grid` 展開的十條線前面，`kit-next` 先找到它，所以蓋掉格子裡的 J2 → K3（K1 K2 → K3 不受影響）。野晒一杯會自動推導出它（起手 +2、`:enter` 也 +2、距離 ×1.3）；二杯、三杯有自己的格子，J2 是 `:ke-r-j2`，所以那一列在它們那裡用不到。動畫先借 `:ke-q3`；要用新的動畫名稱，就得在 `ken-art.lisp` 用 `defstrike` 做一個，並把名字加進 `tests/duel-rules/core.lisp` 的 `*clips-5*`。先跑 `$E --norc --load tests/duel-rules-test.lisp`（它會走遍每個型態的每一條連段、檢查幀數預算），再 `./build.sh duel`、`tools/pkgcheck.sh duel`，用除錯指令 2396（劍八對一個不動的劍八，相隔 2.2 公尺）按 J、J、K，在 console 找 `P1 move KE-CHASE`。注意連段只在碰到對手時才接：揮空就停在那一刀。
 
 **8. 再加一個角色。** 以劍八為底，複製出一個新角色 `:ronin`（第四個角色；露琪亞是怎麼加的見 9.2）。
 
@@ -833,7 +833,7 @@ MODE 選單第二列是 ENDLESS（2026-09-29，完整規則在 [DUEL_ENDLESS.md]
 > 4. `(defkit :kenpachi :base …)` 和 `(defkit :kenpachi :nozarashi …)` 改成 `(defkit :ronin …)`，`:name "RONIN"`，數值隨你調。
 > 5. `duel/MANIFEST`：`lisp/ronin-art.lisp` 放在 `lisp/rukia-art.lisp` 後面，`lisp/ronin.lisp` 放在 `lisp/rukia.lisp` 後面（都要在 `lisp/fighter.lisp` 之前）。
 > 6. 角色選單不用改：`*roster*`（`kit.lisp` 第 202 行）在 `register-kit` 裡自動收集每個有 `:base` 型態的角色（第 300～301 行）。除錯指令 2000+s 從名單裡抽角色，所以電腦對戰也會抽到它；`debug.lisp` 的 `*pairs*` 列了 YY／YK／KK、露琪亞的 RY／RK／RR 和一護的 IY／IK／IR／II，要讓節奏測試涵蓋新角色就加一組。
-> 7. 想讓主機測試也檢查它：在 `tests/duel-rules-test.lisp` 的載入清單（第 12 行）加 `"ronin"`，並更新 `*forms*`、`*clips-5*` 和 `(equal *roster* '(:yamamoto :kenpachi :rukia))` 那一項。
+> 7. 想讓主機測試也檢查它：在 `tests/duel-rules-test.lisp`（執行入口）的載入清單（第 14 行）加 `"ronin"`，並更新 `tests/duel-rules/core.lisp` 裡的 `*forms*`、`*clips-5*` 和 `(equal *roster* '(:yamamoto :kenpachi :rukia))` 那一項。
 > 8. `./build.sh duel`、`tools/pkgcheck.sh duel`（撞名或漏改的函式會出現在第二、三行），最後跑一次 `grep -nE ':ya-|:ke-|:ru-|:ro-|yama|kenpachi|rukia|ronin' duel/lisp/{rules,control,fighter,combat,hazards,ai,camera,flow,endless-rules,endless}.lisp`，應該什麼都印不出來。
 
 ---

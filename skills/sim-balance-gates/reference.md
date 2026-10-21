@@ -72,7 +72,7 @@ Source repo: /media/8tsp/projects/ai-cl-game-test (CL → ECL → wasm; `duel/` 
 
 ### Host rules tests — what they assert (S, but the *kinds* are G)
 - Load pure files (`tuning rules kit <chars> endless-rules`) over the engine's plain-CL `math hitvol input`, stub
-  cinematics (`defcine` → nil). `check` macro counts checks/fails; prints `ALL PASS`. (duel-rules-test.lisp:1–20)
+  cinematics (`defcine` → nil). `check` macro counts checks/fails; prints `ALL PASS`. (the runner `tests/duel-rules-test.lisp`'s prelude, lines 1–15; the checks are in `tests/duel-rules/*.lisp`)
 - **Frame-math replay:** `free-steps` re-implements how fighters step and asserts every move's measured block
   advantage == its table value, for every move of every form (l.135–152). Headless twin in-game: frame probes
   2315+k → `duel probe ... advantage A (table T)`.

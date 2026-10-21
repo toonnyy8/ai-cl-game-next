@@ -72,7 +72,7 @@ $E --norc --load tests/rules-test.lisp             # RAVEN EDGE 的規則
 $E --norc --load engine/lisp/package.lisp --load engine/lisp/math.lisp --load tests/test-math.lisp
 $E --norc --load tests/input-test.lisp             # 引擎的虛擬手把（vpad），31 項
 $E --norc --load tests/cine-test.lisp              # 引擎的過場導演，18 項
-$E --norc --load tests/duel-rules-test.lisp        # SOUL DUEL 的規則與招式表，575 項
+$E --norc --load tests/duel-rules-test.lisp        # SOUL DUEL 的規則與招式表，9887 項（檢查分在 `tests/duel-rules/*.lisp`）
 $E --norc --load tests/duel-control-test.lisp      # SOUL DUEL 的操作與指令表，53 項
 ```
 
