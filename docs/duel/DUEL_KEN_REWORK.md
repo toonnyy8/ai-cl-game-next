@@ -217,7 +217,7 @@ volumes unchanged:
   1.48 / 1.44, J3 1.55 / 1.52, K1 2.84 / 3.90, K2 3.39 / 4.50, K3 2.82 / 4.45. (Before, KATATE played the base clips
   with the cleaver: K1 1.56, K2 0.93.)
 - Not built: cup 3's grin (a body variant can add parts but not swap the face); the left fist's residual drift on the
-  handle. (The grin built 2026-10-21: §6.2.1.)
+  handle. (Both built 2026-10-21: §6.2.1.)
 - Re-checked 2026-10-21 (the user: 「確定這兩件還沒完成嗎？」): (1) the grin: cup 3's entry already shows it, the
   `:shout` face (the maniac laugh) with the head thrown back for 0.9 s (feedback.lisp `:rung`, since 2026-09-30), and
   every non-Quick move shouts; what is missing is a standing grin for the whole cup (FACE-OF picks the face from the
@@ -239,7 +239,44 @@ volumes unchanged:
   built. The Bankai, which inherits NOMIHOSE's keys, sets `:face nil` back. The face accent (VFX-FACE-ACCENT) still fires
   when the face changes: on the entry, and when the grin comes back after a hurt face; no longer on each move (the face
   stays the same).
-- The left fist: below (the next commit).
+- **The left fist.** Measured first: debug 2392 after 2380 in the native sim (`tools/simgate/run.lisp`), per clip, raw
+  (the keys) / IK (after GRIP-LEFT!), mm:
+
+  | Clip | before | after |
+  |---|---|---|
+  | `:ke-x-stance` | 731 / 273 | ≤ 30 / ≤ 30 (not listed: under the 30 mm print floor) |
+  | `:ke-x-q1` J1 | 731 / 273 | 109 / 3 |
+  | `:ke-x-kote` J2 | 731 / 273 | 206 / 2 |
+  | `:ke-x-q3` J3 | 731 / 273 | 294 / 5 |
+  | `:ke-x-f1` K1 KUKAN-GIRI | 737 / 285 | 94 / 1 |
+  | `:ke-x-tsuki` K2 | 731 / 273 | 155 / 15 |
+  | `:ke-x-f2` K3 | 731 / 289 | 91 / 4 |
+  | `:ke-x-meteor` SP1 | 731 / 273 | 155 / 8 |
+  | `:ke-r-f1` RYOTE K1 | 353 / 160 | 122 / 5 |
+
+  RYOTE's other clips are unchanged (q1 41, q3 54, f2 53, kote 26, tsuki 53 mm IK: their recoveries back to jodan); the
+  check's crossfade rows into cup 3's clips: x-stance → J1 48 mm, J1 → J2 52 (before 273–285).
+- How: a host FK search (the art files' own poses and rig, `*key-ease*` 1 as in the game) solved the left arm of every key
+  of `:ke-x-stance`, the seven `:ke-x-*` strikes and `:ke-r-f1` onto the handle, the fist 0.16–0.42 m down it from the
+  right fist (the left arm's four channels: the shoulder's flex / side / twist, the elbow; each key starting from and
+  staying near the previous key's solution, so the in-betweens don't swap arm branches). Where the handle was out of
+  the arm's reach the chest's twist and the right arm (flex, side, elbow, wrist) opened too, holding the blade's
+  direction (≤ 6°) and on the hit frames its tip. The stance needed that: the chest twisted −20 → −34°, the right arm
+  hanging (flex −20 → −3, side 25 → −9), both fists together low at the right hip, the cleaver still dragged low behind,
+  hunched and wide; the strikes' first keys keep the old stance's chest and right arm, so no hit pose moves through it.
+  Then the in-betweens: wherever a 120 Hz sample of a clip still had an IK gap over 20 mm, a key was added at that frame
+  (the interpolated pose with the left arm solved; marked "in-between: the left fist on the handle"): 19 keys (J1 3, J2 1,
+  J3 2, K1 2, K3 4, SP1 2, RYOTE K1 5).
+- Drawn reach (the FK test; art / the volume's edge, m): J unchanged (NOMIHOSE J1 2.06 / 2.06, J2 1.48 / 1.44, J3 1.55 /
+  1.52; RYOTE J1 2.15, J2 1.45, J3 1.53); K2 3.39 → 3.37 / 4.50, K3 2.82 → 2.88 / 4.45, K1 2.84 / 3.90 and RYOTE K1
+  2.85 / 3.90 unchanged (K falls short, as before).
+- Not done: the Bankai's `:ke-b-split` (130 mm IK: its own form, out of this request); RYOTE's other clips (above).
+- Checks (presentation only): `simgate.py --seeds 10` rows byte-identical to main 42351a3 (816 lines), `--cvc` 3 PASS;
+  host tests ALL PASS (rules 9888, control 89, learn 131, input 33, touch 64, cine 18); `pkgcheck` 0 / 0 / 0;
+  `./build.sh duel` 0 warnings; the smoke run clean; the looks gate against 42351a3: 113 of 115 stills byte-identical,
+  the two that changed are the portrait HUD review's cup-3 scene (`fx-a/hud-3`, `mobile/hud-3`: debug 2433, Kenpachi in
+  NOMIHOSE: the grin and the new stance; the diff only on him). Before / after sheets (front and side, landscape and
+  portrait): the stance, the face, J1, K1, K2, the J string, RYOTE K1.
 
 ## 7. The second awakenings free as the first (2026-10-09; a rule change)
 
