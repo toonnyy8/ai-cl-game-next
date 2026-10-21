@@ -645,11 +645,16 @@ move-beat choices of DRAW-FIGHTER."
     (setf (model-beat m) 0f0)))
 
 
+(defun cine-still-command-p (c)
+  "The cinematic-still commands (FORCE-CINE / CINE-AT): a held cinematic stays held for them (tests/debug-ranges-check.py
+checks every such clause of DEBUG-COMMAND is listed here)."
+  (or (<= 2200 c 2299) (<= 10000 c 19999) (<= 35000 c 36999) (<= 40000 c 42999) (<= 69000 c 70999)))
+
 (defun debug-command (c)
   "Module._debug_cmd(C): see the file header."
   (setf *combat-log* t *stats-log* t *learn-debug-off* t)   ; (no learner in any debug run: LEARN-GATE attaches its own)
   (log-msg "debug cmd ~d" c)
-  (unless (or (<= 2200 c 2299) (<= 10000 c 19999) (<= 35000 c 36999) (<= 40000 c 42999) (<= 69000 c 70999))
+  (unless (cine-still-command-p c)
     (setf *cine-hold* nil))
   (cond ((<= 2000 c 2099) (start-cvc (- c 2000) nil))
         ((<= 200000 c 209999) (start-learn-gate (floor (- c 200000) 1000) (mod (floor c 100) 10) (mod (floor c 10) 10) (mod c 10)))
