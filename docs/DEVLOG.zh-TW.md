@@ -4039,7 +4039,7 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 
 使用者：「請開啟新的 branch 並配合 fable 進行優化，檢查 duel 跟遊戲引擎中是否有冗餘、過度耦合、抽象化錯誤以及可讀性低的程式，並將其重構或拆分檔案以保持專案的簡潔性與維護、擴增效率。」
 
-- 做法：新 branch `claude/refactor-2026-10-21`（從 main 4a48540 開，沒有合回 main）。五份唯讀盤點（引擎、duel 共用系統、表現層、Lille + 檜佐木、舊角色）共 64 個候選項；Fable 當顧問，到程式裡抽查每個說法（全部成立，修正三處）、逐項判定、排成 8 批 3 波；每批一個 worktree 和一個 subagent，lead 合併每一波後重跑整套 gate。紀錄：`docs/engine/REFACTOR_2026-10-21.md`。
+- 做法：新 branch `claude/refactor-2026-10-21`（從 main 4a48540 開；使用者「合併回 main 後開始第二輪」，已快轉合回 main）。五份唯讀盤點（引擎、duel 共用系統、表現層、Lille + 檜佐木、舊角色）共 64 個候選項；Fable 當顧問，到程式裡抽查每個說法（全部成立，修正三處）、逐項判定、排成 8 批 3 波；每批一個 worktree 和一個 subagent，lead 合併每一波後重跑整套 gate。紀錄：`docs/engine/REFACTOR_2026-10-21.md`。
 - 使用者的決定：上一輪延到這輪的 `defdebug`（「第 2 項下一輪再做」），Fable 查到 112 個分支只有兩種重疊、文件只缺一個範圍，真正過時的是說明文字；使用者選「檢查程式」：`tests/debug-ranges-check.py`（96 個範圍、0 個錯誤）＋修文件，不做註冊表。
 - 拆檔（角色的檔案一律同前綴，依職責分；規則寫進 DUEL_DESIGN「Character code layout: split by role」）：
   - 引擎 `fx.lisp` → `fx-shapes.lisp`（toon 繪圖工具）＋ `fx.lisp`（粒子、拖尾、震動）。
