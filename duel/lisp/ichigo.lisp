@@ -10,7 +10,7 @@
 ;;;; Most of his mechanics run in his :tick hook (after the hits of the step): the stance's follow-ups, the parry from
 ;;;; blockstun, the clones' answers (a J / K press edge), the Hoho clone, the O charge, the afterimages.
 (in-package :duel)
-(declaim (special *p1* *p2* *match-tick* *mode* *gate* *gate-seed0* *pairs* *match-seed*))   ; (flow.lisp's, debug.lisp's)
+(declaim (special *mode* *gate* *gate-seed0* *pairs* *match-seed*))   ; (flow.lisp's, debug.lisp's)
 
 ;;; ================================================================ knobs (debug 74000-75599, ICHIGO-DEBUG)
 (defparameter *walk-ichigo* 4.2 "Ichigo's walk (Shikai).")
@@ -451,15 +451,17 @@ paid (CLONE-PAY!)."
   "A J / K press edge of E's (the user's choice: EVERY clone answers): an idle clone starts its string where it stands
 (the user, 2026-09-29: the clones swing in place); an answering one queues the press for a later link (each press one
 link, in order, 3 links at most: the clone plays his whole string back, *CLONE-LAG* behind)."
-  (let ((w (if (eq button :quick) :q :f)) (reach (if (eq button :quick) "3.0" "2.4")))
+  (let ((w (if (eq button :quick) :q :f)))
     (pace e (ic-key "PRESS" w))
-    (dolist (h (ichigo-clones e))
-      (let ((c (hazard-data (hazard h))))
-        (when (clone-live-p c)
-          (pace e (ic-key "PRESS" w "CLONES"))
-          (when (or (string= (ic-reach-key (hazard-x (hazard h)) (hazard-z (hazard h)) e) "IN")
-                    (and (eq w :q) (string= (ic-reach-key (hazard-x (hazard h)) (hazard-z (hazard h)) e) "MID")))
-            (pace e (ic-key "PRESS" w "INREACH" reach))))))
+    (when *pacing-log*                                    ; (the pacing log's watch only: reads, then PACE)
+      (let ((reach (if (eq button :quick) "3.0" "2.4")))
+        (dolist (h (ichigo-clones e))
+          (let ((c (hazard-data (hazard h))))
+            (when (clone-live-p c)
+              (pace e (ic-key "PRESS" w "CLONES"))
+              (when (or (string= (ic-reach-key (hazard-x (hazard h)) (hazard-z (hazard h)) e) "IN")
+                        (and (eq w :q) (string= (ic-reach-key (hazard-x (hazard h)) (hazard-z (hazard h)) e) "MID")))
+                (pace e (ic-key "PRESS" w "INREACH" reach))))))))
     (dolist (h (ichigo-clones e))
       (let ((c (hazard-data (hazard h))))
         (case (icc-state c)

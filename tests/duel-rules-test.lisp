@@ -1677,8 +1677,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
       for sp = (kit-command-move k :sp1)
       do (check (and (eq :sp (mv-kind sp)) (= 8 (mv-s sp)) (= 30 (mv-total sp)) (= 1 (kit-command-cost k :sp1))
                      (equal (mv-on-frame sp) '((0 senju-combo-cut) (8 senju-tachi-release) (14 senju-tachi-release)))
-                     (= 6 *tachi-second*)
-                     (< (+ 1 8 *unfold-combo*) (hitstun :stagger)) (< (+ 1 8 *tachi-second* *unfold-combo*) (hitstun :stagger))
+                     (= 6 (- (first (third (mv-on-frame sp))) (first (second (mv-on-frame sp)))))   ; the two releases' gap
+                     (< (+ 1 8 *unfold-combo*) (hitstun :stagger)) (< (+ 1 8 6 *unfold-combo*) (hitstun :stagger))
                      (equal (getf (mv-params sp) :tell)
                             (cond ((hank-hits-p n) '(10 22)) ((hank-hits-p (hank-next n)) '(16 28)))))))
 (check (and (null (getf (mv-params (kit-command-move (kit :senjumaru :tsuji1) :sp1)) :tell))   ; 眼 + 星: no hit

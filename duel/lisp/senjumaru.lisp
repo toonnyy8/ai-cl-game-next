@@ -56,7 +56,6 @@ flinch (each flinch outlasts the next wind-up: a true combo once the first lands
 (defparameter *ai-senju-hari* 0.1 "Her CPU's chance per free step to cash >= :min stitches out with L.")
 (defparameter *ai-senju-tachi* 0.5 "The loom's CPU's chance to end a landed string with SP1 (when one of its two hanks hits).")
 (defparameter *ai-senju-pair* 0.04 "The loom's CPU's chance per free step to open a designed SP1 pair that suits (SENJU-PAIR-P).")
-(defparameter *tachi-second* 6 "TACHINAOSHI: frames between its two releases.")
 
 ;;; the six hanks (死出六色浮文機), their values at 3 passes (§4.2)
 (defparameter *hanks*
