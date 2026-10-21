@@ -54,6 +54,9 @@ lisp/barro-stills.lisp
 lisp/barro.lisp
 lisp/hisagi.lisp
 lisp/hisagi-art.lisp
+lisp/hisagi-draw.lisp
+lisp/hisagi-cine.lisp
+lisp/hisagi-stills.lisp
 lisp/debug.lisp
 lisp/endless.lisp
 lisp/draw.lisp

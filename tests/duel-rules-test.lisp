@@ -1751,7 +1751,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                                                  ; own clips, both ways since DUEL_YAMA_TYBW §3.3)
 (let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0) (grips nil))
   (dolist (art '("yama-art" "ken-art" "rukia-art" "ichigo-art" "senjumaru-art" "lille-art" "lille-clips" "lille-draw" "lille-cine"
-                 "barro-art" "barro-draw" "hisagi-art"))        ; (the files that hold clips, strikes, bodies and the tables read below)
+                 "barro-art" "barro-draw" "hisagi-art" "hisagi-draw" "hisagi-cine" "hisagi-stills"))   ; (the files that hold clips, strikes, bodies and the tables read below)
     (with-open-file (in (merge-pathnames (format nil "../duel/lisp/~a.lisp" art) *load-truename*))
       (let ((*package* (find-package :duel)))
         (loop for form = (read in nil in) until (eq form in)
