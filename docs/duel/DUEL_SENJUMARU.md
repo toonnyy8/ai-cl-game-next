@@ -1392,3 +1392,19 @@ awakens against Kenpachi never (as designed) and against Yamamoto rarely (his Ea
 **Review stills**: `tests/shots/duel-senjumaru-contact.png` (landscape: the Shikai stance, the stitches on him, J3, the
 umbrella vs Yamamoto, the soldier's thrust, the loom stance, a weave, the six hanks unfolded, key frames of the three
 cinematics; portrait 390×844: the same with the portrait HUD blocks and the close-up cinematic frames).
+
+## The HUD and draw code's float path (refactor round 3, 2026-10-21: REFACTOR_NEXT N2 / N4)
+
+The user: 「三項都做」 (N2 / N3 / N4: pixels may move by float ulps only; each changed still goes to him on a before /
+after sheet; a visibly different shape is a bug). No sim bit: the gauges, moves and hazards are untouched.
+
+**N2: her HUD meter and the thumb ring.** `senju-hud-meter` and `senju-ring` (`senjumaru.lisp`) are DEFUN-FASTs with
+every float local declared. The meter does the same single-float operations in the same order as the generic body
+before it (only `max` / `min` became `f-max` / `f-min`, the Shikai's stitch count is read once instead of per pip): its
+stills are byte-identical (`fx-b` `senju-*`, `mobile` `senju-hank2` / `senju-stitches`). The ring took CL's double `pi`;
+it now works in single floats (`+pi+`, `f-cos` / `f-sin`): the ticks could move by ulps, and the `mobile` `deck-senju`
+still (the Shikai's six ticks) came out byte-identical too. Probe
+2490 (10 calls, B): the Shikai meter 5120 → 2400, the Bankai meter 39040 → 2160, the ring 22880 → 0 (Shikai) and
+80 → 0 (Bankai); the label 0 as before. What is left: 240 B a Shikai meter call is its six `%sj-needle` calls' boxed
+float arguments (a DEFUN-FAST across a call boxes them), 216 B a Bankai one the entity's component reads and the
+live zones' list (`senju-live-zones`); the landscape label's `brush-text` / `hud-text` (~320 B) is N3's.
