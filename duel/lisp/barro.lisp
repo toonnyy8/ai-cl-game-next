@@ -709,6 +709,18 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
                        :jl1 (:br-oe-jf1 8) :jl2 (:br-oe-jf2 8) :jl3 (:br-oe-jf3 8) :kl1 (:br-oe-kf1 10) :kl2 (:br-oe-kf2 10)
                        :kl3 (:br-oe-kf3 10))
               :adv 1 :melee t :l-slow *br-w-l-slow* :k-mult *br-owl-s-k-mult* :kl-mult *br-owl-s-kl-mult*)
+(defparameter *br-s-openers*
+  (let ((h (make-hash-table :test 'eq)))
+    (maphash (lambda (name mv)
+               (when (getf (mv-params mv) :end)
+                 (let* ((s (symbol-name name)) (pre (subseq s 0 (position #\- s :from-end t)))
+                        (first (case (getf (mv-params mv) :stance) (:l "L1") ((:j :jl) "J1") (t "K1"))))
+                   (setf (gethash name h) (gethash (intern (format nil "~a-~a" pre first) :keyword) *moves*)))))
+             *moves*)
+    h)
+  "A string's last segment (every move with :end, after the last BR-DEFSTANCE) -> the MOVE of its string's first segment
+(the same prefix: L1 after L3, J1 after J3 / JL3, K1 after K3 / KL3), or NIL: BR-S-END-PUSH's opener, looked up once at load
+instead of a name parse per hit (refactor round 3, REFACTOR_NEXT L7's 8th site).")
 
 ;;; His own moves' clips (barro-art.lisp): the owl's twins through its kits' :clip-map
 (defparameter *br-owl-clip-map* '(:br-recall :br-o-recall :br-rc0 :br-o-rc0 :br-rc1 :br-o-rc1 :br-rc2 :br-o-rc2
@@ -1086,9 +1098,7 @@ sphere's distance + its radius); MV-REACH without volumes."
 first segment (L1 after L3, J1 after J3 / JL3, K1 after K3 / KL3, the same prefix) as a J / K string's ender (ENDER-PUSH's
 rule on its whole reach, BR-MOVE-REACH, + *BR-S-END-MARGIN*, R12; the user 2026-10-11: 「架式連段結束後要像 J/K 結尾一樣將對手推離初始起手勢的攻擊範圍避免無限壓制」). The
 awakened L (one dash, R10) leaves him behind it, 1.6 m past: no push. What starts off it chases him (BR-S-TICK's SP2)."
-  (let* ((name (symbol-name (mv-name mv))) (pre (subseq name 0 (position #\- name :from-end t)))
-         (first (case (getf (mv-params mv) :stance) (:l "L1") ((:j :jl) "J1") (t "K1")))
-         (opener (gethash (intern (format nil "~a-~a" pre first) :keyword) *moves*))
+  (let* ((opener (gethash (mv-name mv) *br-s-openers*))
          (push (and opener (not (getf (mv-params opener) :dash))
                     (- (+ (br-move-reach opener) (mv-slide opener) (body-hurt-r (model-body (model o))) *br-s-end-margin*)
                        (fighter-dist (fighter e))))))

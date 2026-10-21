@@ -170,6 +170,14 @@
   (check (and (member :lille *roster*) (equal (playable-roster) (remove :lille *roster*)) (member :barro (playable-roster))))   ; (the old Lille retired, 2026-10-12)
   (check (br-k-order-p))   ; (R14: 「K 之後的 LL 傷害大於架式 K 又大於普通 K」)
   (check (fboundp 'br-s-end-push))
+  ;; (refactor round 3, L7: BR-S-END-PUSH's opener from *BR-S-OPENERS*, the string's J1 / K1 by the old name logic, every
+  ;; stance's J3 K3 JL3 KL3; the table holds the :end moves only)
+  (check (and (loop for pre in '("BR-S" "BR-E" "BR-OE")
+                    always (loop for (sg first) in '(("J3" "J1") ("K3" "K1") ("JL3" "J1") ("KL3" "K1"))
+                                 for opener = (gethash (intern (format nil "~a-~a" pre sg) :keyword) *br-s-openers*)
+                                 always (and opener (eq opener (find-move (intern (format nil "~a-~a" pre first) :keyword))))))
+              (loop for mv being the hash-values of *moves*
+                    always (eq (and (getf (mv-params mv) :end) t) (nth-value 1 (gethash (mv-name mv) *br-s-openers*))))))
   (dolist (pre '("BR-S" "BR-E" "BR-OE"))
     (dolist (sg '("J3" "K3" "JL3" "KL3"))
       (check (getf (mv-params (find-move (intern (format nil "~a-~a" pre sg) :keyword))) :end)))
