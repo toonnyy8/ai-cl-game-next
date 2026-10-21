@@ -180,12 +180,13 @@ LOOKS_START = 4.0          # virtual s of the first event: the title stands from
 # and ((1 YS) (56 RI) (32 KL) (39 BK)) over seven (2026-10-10, DUEL_LILLE_V2 §14)
 LOOKS_SEEDS = ((1, "YS"), (3, "HY"), (7, "IR"), (25, "BK"))
 LOOKS_WINDOWS = ((2, (0.1,)), (8, (0.1, 0.4)), (16, (0.1,)), (30, (0.1,)))   # (turbo frames of 120 steps, the live shots after)
-# the cinematics at their key frames: (still name, debug command base, frames); 10000 + 1000 k + f is debug.lisp's, the
+# the cinematics at their key frames (rukia-hakka 132: HAKKA's sheet, a toon-ground-seg site, refactor round 2,
+# 2026-10-21): (still name, debug command base, frames); 10000 + 1000 k + f is debug.lisp's, the
 # others a character's own range (75300 + k: Ichigo's awakening at frame 2k; 82300 + k: Lille's at frame 10k)
 LOOKS_CINES = {
     "cine-yama": [("yama-kikon", 12000, (20, 112)), ("yama-bankai", 10000, (30, 74, 128)), ("ko", 18000, (12, 60))],
     "cine-ken": [("ken-kikon", 14000, (20, 80)), ("ken-nozarashi", 11000, (26, 96)), ("ken-bankai", 35000, (30, 80, 120))],
-    "cine-rukia": [("rukia-kikon", 40000, (60, 112)), ("rukia-awaken", 42000, (20, 60, 110)), ("rukia-hakka", 41000, (60, 120))],
+    "cine-rukia": [("rukia-kikon", 40000, (60, 112)), ("rukia-awaken", 42000, (20, 60, 110)), ("rukia-hakka", 41000, (60, 120, 132))],
     "cine-ichigo": [("ichigo-awaken", 75300, (10, 30, 55))],
     "cine-senju": [("senju-awaken", 78000, (30, 90, 150))],
     "cine-barro": [("barro-awaken", 82300, (3, 9, 15))],
