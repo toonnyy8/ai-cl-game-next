@@ -280,7 +280,17 @@ def looks_scenarios():
     ev(s, t + 11.0, 10110); shot(s, t + 12.0, "cine")
     ev(s, t + 12.4, 2100); ev(s, t + 12.5, 2100)                                        # release the held cinematic
     for i, k in enumerate((0, 3, 4, 7)): ev(s, t + 13.0 + 1.2 * i, 2430 + k); shot(s, t + 13.7 + 1.2 * i, f"hud-{k}")     # the portrait HUD
-    ev(s, t + 18.5, 2209); shot(s, t + 25.0, "results")
+    # the kit meters in portrait and the one-hand thumb ring's :deck hooks (a finger held on the pad, no end until the
+    # still: the stick only draws while touched): KESSA's three clones (74007), Senjumaru's Bankai cross pair (2471) and
+    # her Shikai stitches (2451) (refactor round 3, 2026-10-21: the N2 / N4 float-path batches' stills)
+    ev(s, t + 18.0, 74007); shot(s, t + 18.8, "ichigo-clones")
+    s.append({"at": round(t + 19.0, 3), "touch": "start", "x": 146, "y": 697}); shot(s, t + 19.5, "deck-ichigo")
+    s.append({"at": round(t + 19.6, 3), "touch": "end", "x": 146, "y": 697})
+    ev(s, t + 20.0, 2471); shot(s, t + 20.8, "senju-hank2")
+    ev(s, t + 21.2, 2451); shot(s, t + 22.0, "senju-stitches")
+    s.append({"at": round(t + 22.2, 3), "touch": "start", "x": 146, "y": 697}); shot(s, t + 22.7, "deck-senju")
+    s.append({"at": round(t + 22.8, 3), "touch": "end", "x": 146, "y": 697})
+    ev(s, t + 23.5, 2209); shot(s, t + 30.0, "results")
     sc["mobile"] = (s, done(s), ("--mobile", "--dpr", "1"))
     return sc
 
