@@ -338,7 +338,7 @@ def looks(base, new, jobs=3, size="640x360", only=None, once=False, keep_base=Fa
         a1, a2, n = lines("base1"), lines("base2"), lines("new")
         if name.startswith("cvc-"):
             m = [l for l in a1 if l.startswith("duel match")]
-            pair = name[4:].upper(); want = [dict(Y="YAMAMOTO", K="KENPACHI", R="RUKIA", I="ICHIGO", S="SENJUMARU", L="LILLE", B="BARRO")[c] for c in pair]
+            pair = name[4:].upper(); want = [dict(Y="YAMAMOTO", K="KENPACHI", R="RUKIA", I="ICHIGO", S="SENJUMARU", L="LILLE", B="BARRO", H="HISAGI")[c] for c in pair]
             check(f"looks {name} fighters", bool(m) and all(w in m[0] for w in want), (m[0] if m else "no match line") + f" (want {' vs '.join(want)})")
         check(f"looks {name} sim lines", a1 == a2 and a1 == n or a1 != a2, f"{len(a1)} lines" + ("" if a1 == n else " DIFFER from base") + ("" if a1 == a2 else " (base runs differ: not compared)"))
     print(f"looks: {len(stills)} stills in {len(sc)} scenarios, {total:.0f} s wall for 3 renders at {jobs} jobs "
