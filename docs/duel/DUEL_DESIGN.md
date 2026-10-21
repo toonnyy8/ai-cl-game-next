@@ -1291,7 +1291,10 @@ every cup and the Bankai; `ken-hud-meter` / `ken-hud-label` the meter's `:draw` 
 `:tick` slot was between the arm and the cold / ladder calls, and no form of theirs had another `:tick`), so the sim is
 bit-identical (simgate rows, cvc) and the HUD draws the same quads (looks byte-identical). What stays generic:
 `arm-spend!` / `arm-burst!` (fighter.lisp's pip commands call them), `nome-gain!` / `cold-add!` (the hit path, gated on
-`:meter-gain` / `:temp`) and the `:temp` flag itself (onehand's frost arc, ai.lisp, gate.lisp's row read it).
+`:meter-gain` / `:temp`) and the `:temp` flag itself (onehand's frost arc, ai.lisp, gate.lisp's row read it). The CPU
+players the sim calls left the gate code the same way (N10): `scripted.lisp` before ai.lisp (the learning gate's habits,
+ASSIST's button-masher: `habit-fire`, `habit-neutral`, `dumb-step`, `*dumb-delay*`, `*dumb-guard-p*`); gate.lisp keeps the
+knobs that pick them (`*habits*`, `*dumb-p2*`, `learn-gate-setup`).
 
 ## In-game manual (the user, 2026-09-30)
 

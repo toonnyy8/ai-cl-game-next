@@ -12,7 +12,7 @@
 ;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
-;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates, the scripted players) is gate.lisp.
+;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates) is gate.lisp, their scripted players scripted.lisp.
 (in-package :duel)
 
 (defvar *hitboxes* nil)

@@ -351,12 +351,13 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/fighter.lisp     | FIGHTER-SYSTEM: vpad → commands → state machine → physics   |
 | lisp/combat.lisp      | HIT-SYSTEM (clash, collect then apply every hit, blocks, Kikon, soul break), forms / awakening, GAUGE-SYSTEM |
 | lisp/hazards.lisp     | projectiles, pillars, skeletons, cuts as HAZARD entities    |
+| lisp/scripted.lisp    | the scripted players the sim calls (the learning gate's habits, ASSIST's button-masher), before ai.lisp |
 | lisp/ai.lisp          | BRAIN-SYSTEM: the CPU player (writes its vpad)              |
 | lisp/camera.lisp      | the behind-P1 camera (VS CPU) and the pair camera (3/4 side view), cinematic shots |
 | lisp/feedback.lisp    | FEEDBACK-SYSTEM: events → sounds, sparks, shake, big words  |
 | lisp/flow.lisp        | the screens: title, mode, select, intro, battle, results, pause; MATCH-SYSTEM (timer, time-up), match end |
 | lisp/hud.lisp         | the battle HUD; hud-screens.lisp every other screen          |
-| lisp/gate.lisp        | the gate machinery: state-hash lines, cvc, the seed and learning gates, the scripted players, the pacing printers |
+| lisp/gate.lisp        | the gate machinery: state-hash lines, cvc, the seed and learning gates, the pacing printers |
 | lisp/debug.lisp       | debug commands and scenarios, probes, cinematic stills, hitbox overlay |
 | lisp/main.lisp        | the fixed step (cinematic or sim systems), the frame, `RUN-GAME` |
 

@@ -3,6 +3,7 @@
 # engine/MANIFEST). Order matters: macros, structs, components and special variables before their
 # users. tuning / rules / control / learn / kit are plain CL (host-tested); yama / ken / rukia / ichigo are the characters
 # (data + hooks + cinematics); fighter ... main are the generic systems (no character names, except gate.lisp's pacing companions and debug.lisp's test scenarios).
+# scripted.lisp (the learning / ASSIST gates' scripted players: ai.lisp calls them from the sim) loads right before ai.lisp.
 # ken-meter / rukia-meter (Kenpachi's NOME / UDE, Rukia's cold gauge: each meter's step, reached by the kit's :tick hook, and its
 # HUD widgets, the meter's :draw / :label) load right after hud.lisp: they use components' CLOG and hud's HUD-TEXT.
 # senjumaru.lisp loads after hud / onehand: its HUD meter calls their functions (hud-text ...); the quad drawing macros are the engine's (ui.lisp), docs/duel/DUEL_SENJUMARU.md.
@@ -43,6 +44,7 @@ lisp/endless-rules.lisp
 lisp/fighter.lisp
 lisp/combat.lisp
 lisp/hazards.lisp
+lisp/scripted.lisp
 lisp/ai.lisp
 lisp/ai-learn.lisp
 lisp/assist.lisp

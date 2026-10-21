@@ -63,7 +63,7 @@ gives the buttons and how long to hold them.
 
 ## The gate: the button-masher (`tools/assistgate.py`)
 
-Debug habit `:dumb` (`DUMB-STEP`) models a new player. It sees like an EASY CPU (24 f, `*dumb-delay*`) and holds U for
+Debug habit `:dumb` (`DUMB-STEP`, `duel/lisp/scripted.lisp`) models a new player. It sees like an EASY CPU (24 f, `*dumb-delay*`) and holds U for
 half of the moves it sees coming (`*dumb-guard-p*`). It mashes J (a press every 8 f) inside J1's reach and otherwise
 walks in. It never Steps, Hohos, presses L / SP / I / O, Bursts or awakens on its own: those come only from the assist.
 
