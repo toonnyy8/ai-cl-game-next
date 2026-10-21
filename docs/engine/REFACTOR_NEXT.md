@@ -30,7 +30,9 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
 - Watch: clause order matters where ranges overlap (`(>= c 6300)` style fall-throughs in the viewer and debug.lisp):
   keep it explicit. Debug commands drive the gates: simgate rows and cvc must be byte-identical.
 
-### N2. Ichigo's and Senjumaru's HUD meters: per-frame consing (was D11 / C12) — probed, partly done (round 2)
+### N2. Ichigo's and Senjumaru's HUD meters: per-frame consing (was D11 / C12) — probed, partly done (round 2) — done (round 3, 2026-10-21, REFACTOR_2026-10-21-R3.md)
+- Round 3: `defun-fast` / `%hrect` / single-float angles: Ichigo's meter 1200 → 240 B a call, his deck 864 → 96; Senjumaru's
+  Bankai meter 3904 → 216 B, her ring 2288 → 0. Left: Ichigo's clone list / sort / `%arc` arguments (240 B).
 - Round 2: probes 74907 (Ichigo) / 2490 (Senjumaru). Ichigo meter + label 2864 → 1408 B a frame, Senjumaru's Shikai label
   728 → 0, her Bankai meter 4016 → 3904 (live zones once, labels from load-time tables). Left: Ichigo's meter 1200 B, his
   deck 864 B, her Bankai meter ~3900 B, her ring 2288 B: generic float math, colour lists, closures — a float-path rewrite,
@@ -42,7 +44,9 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
   meter, the deck, the ring. Claim a debug range in DUEL_GAMEPLAY first.
 - Done when: the probe reads 0 B (or the remaining bytes are explained), pixels identical.
 
-### N3. `hud-text`: ~200 B per call, dozens of calls per frame (the advisor's find) — probed (round 2)
+### N3. `hud-text`: ~200 B per call, dozens of calls per frame (the advisor's find) — probed (round 2) — done (round 3, 2026-10-21, REFACTOR_2026-10-21-R3.md)
+- Round 3: `%ui-block-text` (`defun-fast`) in the engine: `hud-text` 208 → 16 B a call (8 B per `ui-block-text`: the
+  returned width), every still byte-identical.
 - Round 2: the probe in `hud-cons-check` (2328) reads 208 B a call, the same for a literal and a run-time string; a battle
   frame makes ~12–16 calls (2.5–3.3 KB). The cost is the engine's `ui-block-text` (`&key`, boxed floats), called twice a
   `hud-text` (the shadow): the fix is a no-boxing path there, then the looks gate.
@@ -52,7 +56,10 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
 - Idea: cache the block quads per (string object, scale) since the strings are mostly constants (as `line-width` caches
   per string object); strings built per frame (numbers) need a fixed buffer instead.
 
-### N4. Senjumaru's draw layer has no `defun-fast`
+### N4. Senjumaru's draw layer has no `defun-fast` — done (round 3, 2026-10-21, REFACTOR_2026-10-21-R3.md)
+- Round 3 (the user: 「三項都做」): `sj-prop` / `sj-seg` macros over fixed-arity `defun-fast`s, the domain / ring props /
+  needle thread on single floats: `senju-draw` 84880–156080 → ~20000 B per 10 calls (probe 2491); 9 stills moved by
+  1–8 edge pixels (the old double `pi`), the user: 「接受」.
 - Where: duel/lisp/senjumaru-art.lisp (`sj-seg`, `sj-prop`: generic double math, boxing; ~12 calls a frame for the
   echo arms alone).
 - First: measure with a probe; do it together with the next Senjumaru rework, not alone. Pixel risk: a single-float port
@@ -94,26 +101,32 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
   `with-xform` one-liners -> `mb-at`, C9 the sound shower helpers (needs an audio buffer diff tool first: no audio gate
   exists).
 
-### N8. Kenpachi's and Rukia's meters through the kit hooks (round 2's S4 / S7)
+### N8. Kenpachi's and Rukia's meters through the kit hooks (round 2's S4 / S7) — done (round 3, 2026-10-21, REFACTOR_2026-10-21-R3.md)
+- Round 3: `ken-meter.lisp` / `rukia-meter.lisp` (`:tick` hooks, the meter's `:draw` / `:label`); hud.lisp's nine
+  character branches gone; rows and stills identical. Still by name in generic files: onehand.lisp's frost arc, ai.lisp's
+  `ai-cool-p`.
 - Why: NOME / UDE and the cold gauge are wired into combat.lisp (`gauge-system`), hud.lisp and ai.lisp by name, while the
   four later characters use `:tick` / the meter's `:draw` / `:label`. A pure move to a file (S4) keeps that coupling.
 - What: when a Kenpachi or Rukia HUD change is wanted anyway, move their meter steps to `:tick` and their widgets to
   `:draw` / `:label` in a new `hud-meters.lisp` (not their kit files: those are host-loaded). Both HUD orientations in the
   looks gate; simgate rows for the step order.
 
-### N9. `tests/duel-rules-test.lisp` per character (the advisor's find)
+### N9. `tests/duel-rules-test.lisp` per character (the advisor's find) — done (round 3, 2026-10-21, REFACTOR_2026-10-21-R3.md)
+- Round 3: a runner + `tests/duel-rules/{core,yama,ken,rukia,senjumaru,art,systems,barro,sim,hisagi}.lisp`.
 - Why: 4400+ lines, 9887 checks; four of round 2's eight batches and every character batch edit it (load lists, art reader).
 - What: a shared prelude + one file per character; the suite's check count is quoted in many docs, so update every quote.
 
-### N10. `scripted.lisp`: the players the sim calls
+### N10. `scripted.lisp`: the players the sim calls — done (round 3, 2026-10-21, REFACTOR_2026-10-21-R3.md)
+- Round 3: `duel/lisp/scripted.lisp` before ai.lisp.
 - Why: ai.lisp calls `dumb-step` / `habit-fire` / `habit-neutral` (now in gate.lisp, before round 2 in debug.lisp): the sim
   depends on gate code. The masher / habit players are sim code and could own a file before gate.lisp.
 
-### N11. The 82320+m stance stills crash (found by round 2's W2-B)
+### N11. The 82320+m stance stills crash (found by round 2's W2-B) — done (round 3, 2026-10-21, REFACTOR_2026-10-21-R3.md)
+- Round 3: the held L dash was started with no button; `start-move ... :sig` at both sites.
 - `82320` / `82118` stop the page with "game-frame: unknown vpad action NIL" (engine/lisp/input.lisp `vpad-index`), on
   4a48540 too: not a refactor regression. A debug-scene bug in `br-art-stance` / its scene; fix with the next Lille work.
 
-### N12. Smaller deferrals of round 2
+### N12. Smaller deferrals of round 2 — round 3: L7's last site done (`*br-s-openers*`); P9, P11, K2 stay
 - P9: `glyphs-extra.lisp` has no generator recipe in `tools/glyph-bake.py` (needs the font, not in the cloud container);
   before the next fighter's glyphs. P11: `hazard-draw` hard-codes Yamamoto's hazard looks (ichigo.lisp reads `hazard-look`
   in a rule: move the `case` body only). K2: ichigo.lisp / senjumaru.lisp `-ai` / `-debug` splits when they pass ~1500

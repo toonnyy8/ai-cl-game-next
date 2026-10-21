@@ -23,6 +23,7 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [AUDIO.md](engine/AUDIO.md) | 音訊：Lisp API、C 混音器設計、瀏覽器自動播放處理、合成工具、音效清單 |
 | [REFACTOR_2026-10.md](engine/REFACTOR_2026-10.md) | 2026-10 的重構：精簡、抽象化、搬進引擎的元件；66 個候選項的判定、確定性規則、各批結果與延後清單 |
 | [REFACTOR_2026-10-21.md](engine/REFACTOR_2026-10-21.md) | 第二輪重構（2026-10-21）：大檔按職責拆分（角色檔同前綴）、`gate.lisp`、刪掉改版留下的死碼、共用 helper；64 個候選項的判定與各批結果 |
+| [REFACTOR_2026-10-21-R3.md](engine/REFACTOR_2026-10-21-R3.md) | 第三輪重構（使用者的「第二輪」，2026-10-21）：清完待辦（劍八／露琪亞量表走掛鉤、測試檔按角色拆、`scripted.lisp`、82320 當掉）與 HUD 的浮點路徑（`hud-text` 208 → 16 B，千手丸繪圖約 1/5） |
 | [REFACTOR_NEXT.md](engine/REFACTOR_NEXT.md) | 下一輪重構的待辦清單（N1–N7）：`defdebug`、HUD 每幀配置、`hud-text` 快取、千手丸 `defun-fast`、`gate.lisp` 拆檔、`toon-ground-seg` 搬進引擎等，各附先量什麼與完成條件 |
 | [WORLD.md](engine/WORLD.md) | 頂樓場景：API、碰撞體、場景內容、光源配置、雨、效能數據 |
 | [world-shots/](engine/world-shots/) | 場景 demo 的截圖（出生點、各角落、俯視、水窪、頭目戰的血雨） |

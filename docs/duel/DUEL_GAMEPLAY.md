@@ -431,7 +431,7 @@ the 125–210 window); otherwise it is rerun with the full 20 (31120, or no knob
 gates and the awaken A/B streams run on the host-native sim gate** (`tools/simgate.py`, below; built 2026-09-29, DEVLOG
 §38); the browser keeps G2 (`style-gates.py cvc`, the bit-exact references), smoke, duelstill and the touch scripts.
 
-**The looks gate (`style-gates.py looks BASE NEW`, for refactors that must not change a pixel).** 110 fixed stills of (105 before refactor round 2 added `kyoku`, `south`, `rukia-hakka-132`, `senju-hank2`, `ichigo-clones`, 2026-10-21)
+**The looks gate (`style-gates.py looks BASE NEW`, for refactors that must not change a pixel).** 115 fixed stills of (110 before refactor round 3 added the portrait meters and thumb rings `ichigo-clones`, `deck-ichigo`, `senju-hank2`, `senju-stitches`, `deck-senju` to `mobile`; 105 before refactor round 2 added `kyoku`, `south`, `rukia-hakka-132`, `senju-hank2`, `ichigo-clones`, 2026-10-21)
 SOUL DUEL from `run.mjs --fixed-dt` at 640x360 (390x844 for the portrait ones), 15 scripts generated in Python (nothing
 committed): title, MODE / SETTINGS / CONTROLS, the select screen with all seven fighters; four CPU-vs-CPU matches (debug
 2000+seed: Yamamoto-Senjumaru, Hisagi-Yamamoto, Ichigo-Rukia, Lille-Kenpachi (re-pinned 2026-10-17 for Hisagi, seeds 1 / 3 / 7 / 25;

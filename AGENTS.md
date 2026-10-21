@@ -84,14 +84,14 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 
 | Layer | Command | Pass |
 |---|---|---|
-| Host tests (~seconds) | `$E --norc --load tests/duel-rules-test.lisp` (also `duel-control-test`, `learn-test`, `input-test`, `touch-test`, `cine-test`) | ALL PASS |
+| Host tests (~seconds) | `$E --norc --load tests/duel-rules-test.lisp` (a runner over `tests/duel-rules/*.lisp`, one file per character / topic) (also `duel-control-test`, `learn-test`, `input-test`, `touch-test`, `cine-test`) | ALL PASS |
 | Seed / pacing gate | `python3 tools/simgate.py --summary` (native sim of the same sources; `--pairs`, `--seeds`, `--seed0`, `--cmd`); the match time leaves every cinematic out since 2026-10-08 (DEVLOG §134; earlier quotes include them) | every match K.O.; cross-pairing medians 125–210 s; mirrors may exceed 210. Quick first pass `--seeds 10`: passes at once only if all K.O. and median 135–200 s, else 20 seeds = verdict |
 | Edge rerun | a 20-seed median outside the window → `--pairs k --seeds 60`; still outside → **report to the user**, don't retune other knobs | |
 | Awaken A/B | `--pairs k --seed0 {100,300,500} --seeds 60 --cmd 39020` (39000+10a+b; the character as P2, e.g. Ichigo in SI: `39002`) | the "never awaken" side wins ≥ 20/60 on every stream |
 | ASSIST | `python3 tools/assistgate.py` | report the masher's win % per setting |
 | CPU score | `python3 tools/aieval.py --char C` (roster index 0–4) | AI work only (DUEL_AI_V2) |
 | G2 references | `python3 tests/style-gates.py cvc dist/duel` (or `simgate.py --cvc`) | identical to `tests/style-cvc-ref.txt`; on an intended change regenerate it (header note + "Before:") and update every quote of those lines |
-| Looks (refactors) | `python3 tests/style-gates.py looks BASE_DIST dist/duel --jobs 4 [--keep-base]` (BASE = a copy of `dist/duel` built before the change) | 110 stills byte-identical to BASE (noise floor 0; 105 before refactor round 2 added five, 2026-10-21; 104 before Hisagi joined, 2026-10-17; 112 before the old Lille's removal, 2026-10-13); for changes that must not move a pixel |
+| Looks (refactors) | `python3 tests/style-gates.py looks BASE_DIST dist/duel --jobs 4 [--keep-base]` (BASE = a copy of `dist/duel` built before the change) | 115 stills byte-identical to BASE (noise floor 0; BASE built at or after refactor round 3's merge, whose 9 accepted Senjumaru stills moved by ulps; 110 before round 3 added five portrait / thumb-ring stills, 105 before round 2 added five, 2026-10-21; 104 before Hisagi joined, 2026-10-17; 112 before the old Lille's removal, 2026-10-13); for changes that must not move a pixel |
 | Shipping build | `./build.sh duel` last | |
 
 - Engine and RAVEN EDGE tests (run what a change touches): `tests/ecs-test.lisp`, `tests/test-math.lisp` (header has its load line), `tests/input-test.lisp`,
@@ -145,7 +145,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 | `docs/README.md` | the index of every doc, one line each |
 | `docs/DEVLOG.zh-TW.md` | the decision log (numbered §, newest last), why things are the way they are |
 | `docs/guides/` | `TUTORIAL.zh-TW.md` (learning path), `PLAYBOOK.zh-TW.md` (reusable experience), `DREAM_RSI.zh-TW.md` (the AI search experience), `CHARACTER_DESIGN.zh-TW.md` (designing a fighter, from Lille: the ⚠ questions to ask first) |
-| `docs/engine/` | `ARCHITECTURE.md`, `ENGINE_API.md`, `AUDIO.md`, `WORLD.md` (+ `world-shots/`), `REFACTOR_2026-10.md` (the refactor: verdicts, determinism rules for helpers), `REFACTOR_2026-10-21.md` (round 2: splits by role, dead code, helpers), `REFACTOR_NEXT.md` (the backlog) |
+| `docs/engine/` | `ARCHITECTURE.md`, `ENGINE_API.md`, `AUDIO.md`, `WORLD.md` (+ `world-shots/`), `REFACTOR_2026-10.md` (the refactor: verdicts, determinism rules for helpers), `REFACTOR_2026-10-21.md` (round 2: splits by role, dead code, helpers), `REFACTOR_2026-10-21-R3.md` (round 3: the backlog, the HUD float paths), `REFACTOR_NEXT.md` (the backlog) |
 | `docs/raven-edge/` | `GAME_DESIGN.md`, `GAMEPLAY.md` |
 | `docs/duel/` | `DUEL_DESIGN.md` (rules + move tables, the source of truth), `DUEL_GAMEPLAY.md` (build, debug commands, gates), `DUEL_STRINGS.md`, per character (`DUEL_YAMA_REWORK`, `DUEL_YAMA_TYBW` / `DUEL_ICHIGO_TYBW` (the TYBW look and motion reworks), `DUEL_NOZARASHI_V2`, `DUEL_KEN_BANKAI`, `DUEL_RUKIA`, `DUEL_ICHIGO`, `DUEL_SENJUMARU`, `DUEL_LILLE` (the old Lille's design, removed 2026-10-13), `DUEL_LILLE_V2` (Lille, index 6: the rebuild's record), `DUEL_LILLE_V3` (his version 3, the current one; the animation inventory), `DUEL_HISAGI` (the next fighter, in design)), systems (`DUEL_AI_V2`, `DUEL_LEARNING`, `DUEL_ASSIST`, `DUEL_ENDLESS`, `DUEL_MOBILE_DESIGN`) |
 | `docs/style/` | `STYLE_STORM_RESEARCH.md`, `STYLE_STORM_DESIGN.md` (the ink look, its numbers and gates) |
