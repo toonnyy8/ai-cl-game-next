@@ -38,15 +38,15 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 
 | 文件 | 內容 |
 |---|---|
-| [DUEL_DESIGN.md](duel/DUEL_DESIGN.md) | SOUL DUEL 的設計（照實作）：與 RoS 的差異、規則、操作、共通機制、兩個角色的招式表、AI、流程、開發中改過的決定 |
+| [DUEL_DESIGN.md](duel/DUEL_DESIGN.md) | SOUL DUEL 的設計（照實作）：與 RoS 的差異、規則、操作、共通機制、兩個角色的招式表、AI、流程、開發中改過的決定；角色程式的檔案配置（角色檔同前綴、按職責拆分：`-ai` `-art` `-draw` `-meter` …）與共用的 hook 表 |
 | [DUEL_GAMEPLAY.md](duel/DUEL_GAMEPLAY.md) | SOUL DUEL 的建置與操作、時間模型、除錯指令、log、測試腳本、決定性檢查、節奏測試結果、效能、主機測試 |
 | [DUEL_STRINGS.md](duel/DUEL_STRINGS.md) | J／K 連段、O 收尾與「攻勢」KŌSEI（2026-09-27，已實作）：最多三段、J／K 只能切換一次、接觸閘門、揮空硬直、幀數預算、O 收尾只接在打中的第 3 段之後、進攻獎勵的公式、AI 調整、使用者的決定、實作偏離之處與節奏測試結果（英文） |
 | [DUEL_YAMA_REWORK.md](duel/DUEL_YAMA_REWORK.md) | 山本卍解重製（2026-09-27，已實作）：U 從『東・旭日刃』切到『西・殘日獄衣』、東的穿透、西的全方位霸體防禦、新 L 技旭光／焦熱地獄、使用者的決定與實作偏離之處（英文） |
 | [DUEL_YAMA_TYBW.md](duel/DUEL_YAMA_TYBW.md) | 山本千年血戰篇造型與動作模組重做（2026-10-13）：披風羽織、獄炎、卍解的燒破死霸裝、各型態動作、卍解東西的判定跟著刀走、gate（英文） |
 | [DUEL_NOZARASHI_V2.md](duel/DUEL_NOZARASHI_V2.md) | 劍八野晒形態的重新設計 v2「呑め」三杯梯（已實作），含西式「按住 U＝鎧甲」與移除 `:ignore-armor`；三杯之後的卍解見 DUEL_KEN_BANKAI.md |
-| [DUEL_KEN_BANKAI.md](duel/DUEL_KEN_BANKAI.md) | 劍八卍解（第二次覺醒）與片腕（2026-09-28，已實作）：三杯紅血按 P、魂魄變 1 且 HP 回滿、「腕」4 格與爆裂、卍解招式表（咬、盾ごと、殴り飛ばし、真っ二つ）、片腕、過場、HUD、AI 的進入規則、使用者的決定、實作偏離之處、節奏測試與「必開／不開」A/B（英文）。同時記錄 Soul Break 的新規則（播攻擊方的毀魂技動畫、上限 5） |
+| [DUEL_KEN_BANKAI.md](duel/DUEL_KEN_BANKAI.md) | 劍八卍解（第二次覺醒）與片腕（2026-09-28，已實作）：三杯紅血按 P、魂魄變 1 且 HP 回滿、「腕」4 格與爆裂、卍解招式表（咬、盾ごと、殴り飛ばし、真っ二つ）、片腕、過場、HUD、AI 的進入規則、使用者的決定、實作偏離之處、節奏測試與「必開／不開」A/B（英文）。同時記錄 Soul Break 的新規則（播攻擊方的毀魂技動畫、上限 5）；「腕」與 NOME 的程式在 `ken-meter.lisp`（第三輪重構） |
 | [DUEL_KEN_REWORK.md](duel/DUEL_KEN_REWORK.md) | 劍八動作與造型重做（2026-10-08，討論中）：現況診斷、研究摘要、待決問題（英文） |
-| [DUEL_RUKIA.md](duel/DUEL_RUKIA.md) | 朽木露琪亞（血戰篇）：袖白雪與絶対零度的設計與實作（英文） |
+| [DUEL_RUKIA.md](duel/DUEL_RUKIA.md) | 朽木露琪亞（血戰篇）：袖白雪與絶対零度的設計與實作（英文）；冷度計的程式在 `rukia-meter.lisp`（第三輪重構） |
 | [DUEL_ICHIGO.md](duel/DUEL_ICHIGO.md) | 黑崎一護（血戰篇）：二刀斬月與血鎖の一護，含試玩後的 v2 重新設計（英文） |
 | [DUEL_ICHIGO_TYBW.md](duel/DUEL_ICHIGO_TYBW.md) | 一護千年血戰篇造型與動作模組重做（2026-10-14）：診斷、正手短刀與 TYBW 服裝、各型態動作標準、月牙殘光與地面龜裂、K3 真的往前踏步、gate（英文） |
 | [DUEL_SENJUMARU.md](duel/DUEL_SENJUMARU.md) | 修多羅千手丸：刺絡與卍解娑闥迦羅骸刺絡辻的設計與實作（英文） |

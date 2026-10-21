@@ -1012,3 +1012,13 @@ x0.55, back Steps x0.75) then holds him. Zero stays rooted (no Hoho there). Buil
 Checked in-game (debug 2422 then 67165: -50 at 165 cold, Hoho): `P1 ZERO` on the reappearance frame, U: BRACE. Native
 gate (seeds 1-20): RY 169.5 s (Rukia 12 / 20), RK 151.6 (16), RR 197.6, IR 202.7 (Rukia 17), SR 199.4 (Rukia 14; was 6),
 all K.O.; her A/B ("never" wins of 60, streams 100 / 300 / 500): RY 23 / 41 / 27, RK 31 / 34 / 23, RR 27 / 24 / 27.
+
+## Code home: `rukia-meter.lisp` (refactor round 3, the user 2026-10-21)
+
+「合併回 main 後開始第二輪」 (refactor round 3, docs/engine/REFACTOR_NEXT.md N8). The cold gauge's step and widgets moved out of
+the shared files into her own `duel/lisp/rukia-meter.lisp`: `temp-step` (combat.lisp) → `rukia-cold-step`, reached by her
+kit's `:tick` hook `rukia-tick` (added to `:m18`'s `:hooks` beside `:hoho rukia-hoho-cold`; -50 / zero inherit it);
+`%hud-temp`, `hud-temp`, `hud-temp-label`, `temp-label` (hud.lisp) behind the meter's `:draw rukia-hud-meter` /
+`:label temp-label`. The `:temp t` flag stays on the meter: `cold-add!` (the hit path), the one-hand frost arc and the CPU's
+`ai-cool-p` read it. Pure move: the same bodies and step order, simgate rows and cvc byte-identical, the looks (`hud-7`,
+cvc seed 7 IR, both orientations) byte-identical. The sections above that name `temp-step` / hud.lisp are the build record.

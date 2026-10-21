@@ -350,7 +350,7 @@ without E (the CPU's reach reads, the HUD) see the :commands entry."
 (defun move-follows-p (kit mv next)
   "Is move NEXT a continuation of move MV in KIT: its string follow-up for any button (a latched J / K link, a :land
 follow-up a hook starts: SP2's punch) or, after a link 3 (:ender), the O ender's rush? (The arm's pending burst waits
-through the whole chain: combat.lisp ARM-STEP.)"
+through the whole chain: ken-meter.lisp KEN-ARM-STEP.)"
   (or (loop for (from nil to) in (kit-strings kit) thereis (and (eq from (mv-name mv)) (eq (kit-move kit to) next)))
       (and (member :ender (mv-flags mv)) (eq (mv-kind next) :kikon) t)))
 
@@ -515,7 +515,7 @@ child's keys win, :commands merge per command, :strings add. Keys:
   :kikon-konpaku n                   Konpaku a Kikon removes in this form (default 2, awakened 3; read when the
                                      rush starts; a Soul Break +1, at most *KIKON-MAX-EVENT*)
   :meter (... :start n :ladder ((form drain/s delay up-at down-below) ...))   a meter that picks the form
-                                     (Nozarashi's NOME: rules LADDER-RUNG, combat.lisp NOME-STEP); :start = its value
+                                     (Nozarashi's NOME: rules LADDER-RUNG, ken-meter.lisp KEN-NOME-STEP); :start = its value
                                      at the awakening
   :meter-gain (:dealt :taken :drunk) the meter per point dealt / lost / drunk (DRINK, the stance's absorb)
   :form-name :drink-clip :respect-callout  the HUD's form name; the clip of a drunk hit; the callout when the
@@ -525,7 +525,7 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      the CPU's Bankai reflex, ai.lisp, consults it too)
   :pips (:n :cmds (cmd ...) :to FORM)  the arm meter (the kit meter holds the pips): each command in :cmds (and every
                                      latched K link) spends one on its frame 0 (refused at 0); at 0 the arm bursts to
-                                     FORM (combat.lisp ARM-STEP)
+                                     FORM (ken-meter.lisp KEN-ARM-STEP)
   :crush-hook SYMBOL                 a broken ward calls it instead of dropping to :drop-to (Rukia's CRACK)
   :rooted T                          no Step / Hoho / run, no move slide or string chase   :reset-form FORM  the form
                                      after a Kikon reset
@@ -565,8 +565,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      (docs/duel/DUEL_ENDLESS.md §4)
   :u-tag STRING                      the HUD's tag for U   :meter (... :draw fn :label fn :bankai-prompt (:key :right
                                      :pad :one-hand strings :rgb colour))  a character's own meter row / portrait label /
-                                     BANKAI prompt words   :meter (:name :max :temp t)  Rukia's cold gauge (combat.lisp
-                                     TEMP-STEP: the kit meter holds the cold C, the band is the form, rules TEMP-BAND)
+                                     BANKAI prompt words   :meter (:name :max :temp t)  Rukia's cold gauge (rukia-meter.lisp
+                                     RUKIA-COLD-STEP: the kit meter holds the cold C, the band is the form, rules TEMP-BAND)
   :warm n  :cold (cmd n ...)         a :temp form's warming per second; the cold each command spends (L refused without)
   :field (:r :away :step)            the cold field: the opponent within :r m moves away from her x :away, Steps away x :step
   :frost-touch n                     every real hit of the form frosts n frames

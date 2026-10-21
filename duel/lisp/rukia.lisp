@@ -1,6 +1,6 @@
 ;;;; rukia.lisp — KUCHIKI RUKIA (TYBW), docs/duel/DUEL_RUKIA.md: her moves (DEFMOVE) and her four forms (DEFKIT): :base (the
 ;;;; Shikai 舞え、袖白雪, a mid-range placer of ice) and the awakening 絶対零度 ZETTAI REIDO, a cold gauge of two stacked
-;;;; bars (the kit meter, C 0-200: combat.lisp TEMP-STEP, rules TEMP-BAND) whose band is the form: :m18 (-18 C), :m50
+;;;; bars (the kit meter, C 0-200: rukia-meter.lisp RUKIA-COLD-STEP, rules TEMP-BAND) whose band is the form: :m18 (-18 C), :m50
 ;;;; (-50 C, bar 1 full) and :zero (-273.15 C, both full: rooted, the ward with freeze-touch, ranged hits guarded too). Guarding cools her,
 ;;;; not guarding warms her, actions spend cold (at -18 only L); colder is slower but longer, harder and wider in every
 ;;;; button, and the opponent is slower to leave her field. A CRACK (the zero ward broken) empties the gauge. Clip names
@@ -131,8 +131,8 @@
 (defkit :rukia :m18 :inherit :base
   :awakening t :form-name "-18C" :walk *walk-m18* :run *run-m18* :passives (:chipless) :frost-touch *frost-touch*
   :mult *rukia-awake-mult* :taken *rukia-awake-taken*
-  :meter (:name "COLD" :max *cold-max* :temp t) :warm *ru-warm-m18* :cold *ru-cold-m18* :field *ru-field-m18*
-  :reset-form :m18 :u-tag "U: COOL" :hooks (:hoho rukia-hoho-cold)
+  :meter (:name "COLD" :max *cold-max* :temp t :draw rukia-hud-meter :label temp-label) :warm *ru-warm-m18* :cold *ru-cold-m18* :field *ru-field-m18*
+  :reset-form :m18 :u-tag "U: COOL" :hooks (:hoho rukia-hoho-cold :tick rukia-tick)   ; (the cold gauge's step: rukia-meter.lisp)
   :stance :ru-cold-stance :aura rukia-aura-cold :cine ru-awaken-cine :swing-sfx :whoosh-light
   :commands (:f :ru-a-k1 :sig :ru-shimobashira :kikon :ru-hakka-18)
   :grid (:ru-j1 :ru-j2 :ru-j3 :ru-a-k1 :ru-k2 :ru-a-k3 :ru-j2s :ru-k2s)

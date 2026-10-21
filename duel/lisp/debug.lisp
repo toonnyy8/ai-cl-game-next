@@ -364,7 +364,7 @@ and of a run-time string."
   (destructuring-bind (c form) (nth k '((:yamamoto :base) (:yamamoto :bankai-east) (:kenpachi :base) (:kenpachi :ryote)))
     (ensure-battle c :kenpachi)
     (unless (eq (fighter-form (fighter *p1*)) form) (force-form *p1* form))
-    (when (eq form :ryote) (setf (gauges-meter (gauges *p1*)) 60f0))   ; NOME keeps him in cup 2 (NOME-STEP)
+    (when (eq form :ryote) (setf (gauges-meter (gauges *p1*)) 60f0))   ; NOME keeps him in cup 2 (KEN-NOME-STEP)
     (when (eq form :bankai-east) (setf (gauges-gg (gauges *p1*)) 30f0))   ; a low gauge: KOSEI x2.4 (the HUD tag)
     (place *p1* *p2* 2.2)))
 

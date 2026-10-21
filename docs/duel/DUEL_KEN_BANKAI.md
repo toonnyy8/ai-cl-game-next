@@ -556,3 +556,14 @@ reads black-and-red). The BLOOD flecks, the red light and the Bankai entry burst
 The same pillar in the Bankai entry cinematic is see-through too (one code path). The Kikon rush aura (`:kikon`) and every
 other fighter are untouched; RAVEN's G1 stills are byte-identical (no shader change) and the sim (G2) never reads it.
 Debug 71000 toggles every glass level off / on (before / after stills), 71004 puts human P1 Kenpachi in the Bankai.
+
+## Code home: `ken-meter.lisp` (refactor round 3, the user 2026-10-21)
+
+「合併回 main 後開始第二輪」 (refactor round 3, docs/engine/REFACTOR_NEXT.md N8). The arm's per-step code and its widgets moved
+out of the shared files into his own `duel/lisp/ken-meter.lisp` (with NOME's): `arm-step` → `ken-arm-step`, `nome-step` →
+`ken-nome-step`, both reached by his kit's `:tick` hook `ken-tick` (set on `:nozarashi`, inherited by the cups and the
+Bankai; `gauge-system` calls it in the slot the two calls used to sit around); `%hud-arm`, `hud-arm-label` and NOME's
+`%hud-nome` behind the meter's `:draw ken-hud-meter` / `:label ken-hud-label` (both HUDs). `arm-spend!` / `arm-burst!` stay
+in combat.lisp (fighter.lisp's pip commands call them). Pure move: the same bodies, the same step order, simgate rows and
+cvc byte-identical, the looks (`hud-3`, `hud-4`, cvc seed 25 BK, both orientations) byte-identical. §11's "combat.lisp:
+`arm-step`" and "hud.lisp: §7" above are the build record of 2026-09-28.

@@ -347,7 +347,7 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/stage.lisp       | the ruins at night: meshes, the toon env look, ash, cracks  |
 | lisp/vfx.lisp         | aura / hit / line-cut / UI effects (built from the engine's toon kit, FX-RIBBON, UI-BITMAP); vfx-stamps.lisp the hit stamps; yama-vfx.lisp Yamamoto's fire |
 | lisp/<name>-art.lisp (+ -clips -draw -cine -stills -look) | a character's bodies, weapons, clips (DEFSTRIKE), draw code, cinematics (DUEL_DESIGN "Character code layout: split by role") |
-| lisp/<name>.lisp (+ -ai) | its moves, forms, hooks, debug range; its CPU                 |
+| lisp/<name>.lisp (+ -ai -meter) | its moves, forms, hooks, debug range; its CPU; its kit meter's step and HUD widgets (`ken-meter`, `rukia-meter`: loaded after hud.lisp, reached by the `:tick` hook and the meter's `:draw` / `:label`) |
 | lisp/fighter.lisp     | FIGHTER-SYSTEM: vpad → commands → state machine → physics   |
 | lisp/combat.lisp      | HIT-SYSTEM (clash, collect then apply every hit, blocks, Kikon, soul break), forms / awakening, GAUGE-SYSTEM |
 | lisp/hazards.lisp     | projectiles, pillars, skeletons, cuts as HAZARD entities    |

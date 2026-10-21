@@ -347,7 +347,7 @@ window: the user 2026-10-01; was f4-15) ...")
 (defparameter *ryote-reach* 1.4 "RYOTE (cup 2): reach x of the base moves it doesn't list.")
 (defparameter *ryote-startup* 3 "RYOTE (cup 2): extra startup frames of the base moves it doesn't list.")
 ;;; Nozarashi v2, NOME (呑め): the three-cup ladder (docs/duel/DUEL_NOZARASHI_V2.md). The meter is the kit meter
-;;; (GAUGES-METER); a rung is a kit form, changed only while he is free (combat.lisp NOME-STEP)
+;;; (GAUGES-METER); a rung is a kit form, changed only while he is free (ken-meter.lisp KEN-NOME-STEP)
 (defparameter *nome-max* 100.0 "The NOME gauge.")
 (defparameter *nome-awaken* 10.0 "NOME at the awakening (cup 1).")
 (defparameter *nome-dealt* 0.08 "NOME per point of damage he deals ...")
@@ -388,7 +388,7 @@ him to full (the user's decision 2026-09-28): the gate's knob.")
 (defparameter *arm-burst-stun* 40 "The burst's self-inflicted crumple, frames.")
 (defparameter *kataude-reach* 0.7 "片腕 KATAUDE: reach x of his sword moves (the kick, the Breaker and O as written).")
 ;;; Kuchiki Rukia (docs/duel/DUEL_RUKIA.md): frost, the one new status, and the cold gauge of 絶対零度 (the awakened bands
-;;; :m18 :m50 :zero; the kit meter holds the cold C, 0 .. *COLD-MAX*, two stacked bars: combat.lisp TEMP-STEP)
+;;; :m18 :m50 :zero; the kit meter holds the cold C, 0 .. *COLD-MAX*, two stacked bars: rukia-meter.lisp RUKIA-COLD-STEP)
 (defparameter *walk-rukia* 3.8 "Rukia's walk (Shikai).")
 (defparameter *rukia-mult* 1.5
   "Damage x of the Shikai (the base kit's :mult; 58000+k at run time). The seed gate's lever: the CPU's Shikai fights the
