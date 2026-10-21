@@ -42,6 +42,7 @@ lisp/camera.lisp
 lisp/feedback.lisp
 lisp/flow.lisp
 lisp/hud.lisp
+lisp/hud-screens.lisp
 lisp/onehand.lisp
 lisp/senjumaru.lisp
 lisp/lille-art.lisp
