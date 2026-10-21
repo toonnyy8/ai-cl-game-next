@@ -434,7 +434,9 @@
     (check (and (= 14 (- (mv-s (m :hs-b-k2)) (mv-enter (m :hs-b-k2)))) (= 14 (- (mv-s (m :hs-b-k3)) (mv-enter (m :hs-b-k3))))
                 (= 20 (- (mv-s (m :hs-r-sp2c)) (mv-enter (m :hs-r-sp2c))))
                 (= 60 (mv-whiff (m :hs-r-kubikake))) (zerop (mv-cooldown (m :hs-r-l))) (zerop (mv-cooldown (m :hs-b-l)))
-                (= 18 *hs-saharai-s*) (= 32 *hs-saharai-r*) (= -16 *hs-saharai-adv*)   ; (B4d, §22.8: L 14 / 22 / -4, cd 120 ->)
+                (= 18 *hs-saharai-s*) (= 32 *hs-saharai-r*) (= -16 *hs-saharai-adv*)
+                (= 1 *hs-saharai-armor*) (= 1 (mv-armor-hits (m :hs-r-l))) (zerop (mv-armor-hits (m :hs-b-l)))   ; (§25.23: one hit through
+                   ; the ranged L's charge, f6-17; the bind's L none)   ; (B4d, §22.8: L 14 / 22 / -4, cd 120 ->)
                 (~= (mv-clip-speed (m :hs-r-l)) 1.0) (~= 3.5 *hs-saharai-hit*) (~= 3.5 *hs-saharai-block*)   ; (S1, §23.3: both 3.5)
                    ; (its clip's S 14 on S 10)
                 (= 90 (mv-cooldown (m :hs-r-kikon))) (= 90 (mv-cooldown (m :hs-b-kikon)))

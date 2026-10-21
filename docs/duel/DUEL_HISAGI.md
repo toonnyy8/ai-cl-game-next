@@ -3423,6 +3423,19 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
   few lines and the learner's four situations).
 - Host tests 9885 / 131 / 89 ALL PASS, pkgcheck clean, built, smoke; no gate run (「不用跑 gate」).
 
+### 25.23 The ranged L's armour: one hit through the charge (the user, 2026-10-21)
+
+- The user (verbatim): 「我想要請你幫我把修兵卍解的遠距 L 多加一層的霸體，讓他可以扛下一次攻擊」.
+- **Built** (a sim change): `:hs-r-l` SAHARAI gains `:armor-hits *hs-saharai-armor*` (0 -> 1), the shared move armour
+  (fighter.lisp DEFENDER-STATE, rules ARMOR, the same as Kenpachi's KITTE MIRO YO charge): from move frame *ARMOR-FROM* (6)
+  to S-1 (17), i.e. through the charge his §25.7 windup draws, the first hit he takes is `:armored`: its damage, no
+  hit-stun or knockback, the move goes on; a second hit in the same charge, a hit from frame 18 on (the swing, the
+  recovery) and a Breaker / unguardable / rend hit him as before. The bind mode's L (`:hs-b-l`) keeps none.
+- Not changed: his CPU / ASSIST / learner (they still pick L by distance, not as an armoured reversal); no new look (the
+  generic `:armored` feedback shows the absorbed hit).
+- Host tests 9888 ALL PASS (the knob and both moves' `armor-hits` checked), pkgcheck clean, built, smoke; no gate run
+  (「不用跑 gate」): the simgate rows of his pairings change.
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.

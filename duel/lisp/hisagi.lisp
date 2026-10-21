@@ -116,6 +116,10 @@ m); from 2.6 + the capsule's 0.35 the push reaches ~3.35 m (none -> 2.95, 2026-1
 動作模組做的更容易辨識」, 「10→18 幀」, §25.7: the charge drawn) ...")
 (defparameter *hs-saharai-r* 32 "... its recovery (22 -> 32: 「調整前後搖來控制出招的主動性」) ...")
 (defparameter *hs-saharai-adv* -16 "... and its block advantage (-4 -> -16): a quick repel with real commitment.")
+(defparameter *hs-saharai-armor* 1
+  "... and its armour: the hits it takes from move frame *ARMOR-FROM* to S-1, its charge (0 -> 1, 2026-10-21, the user:
+「把修兵卍解的遠距 L 多加一層的霸體，讓他可以扛下一次攻擊」, DUEL_HISAGI §25.23): damage, no reaction; a Breaker, an
+unguardable or a rend still breaks it (rules ARMOR).")
 (defparameter *hs-ame-aim* 6 "SP2 KUSARI-AME aims this many frames from its first, then its lane is locked (§17.1).")
 (defparameter *hs-kubi-reiatsu* 200.0
   "KUBIKAKE binds only with this much of his own Reiatsu, checked at the press and at contact (the user, 2026-10-17:
@@ -460,6 +464,7 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
 ;; windup at S 18 with the charge (§25.7)
 (defmove :hs-r-l :kind :sig :clip :hs-k-saharai :startup *hs-saharai-s* :active 4 :recovery *hs-saharai-r* :dmg 30
   :adv-block *hs-saharai-adv* :guard 14 :vol (:arc 3.0 360 0.2 2.0) :on-hit :knockback :on-land hs-r-push
+  :armor-hits *hs-saharai-armor*   ; §25.23 (the user, 2026-10-21): one hit taken through the charge
   :params (:r-cancel (:q :f)))   ; §25.5 (the user, 2026-10-18: 「卍解的遠距 J / K 能取消 L 的後搖」): from its first recovery
                                  ; frame, on a hit only, J / K start J1 / K1 (MOVE-COMMANDS); blocked or whiffed, none
                                  ; (§25.8, 2026-10-19: 「讓遠距 L 鎖払被擋下後不能通過 J/K 取消後搖」, 「打空也一樣不能取消」)
