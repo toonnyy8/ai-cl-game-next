@@ -12,7 +12,7 @@
 ;;;; Everything of his lives here and in hisagi-art.lisp; the shared files only call his :hooks. Plain CL above the hooks:
 ;;;; the host rules test loads it.
 (in-package :duel)
-(declaim (special *p1* *p2* *match-tick* *match-seed* *pacing* *pacing-log*))   ; (flow.lisp's, components.lisp's)
+(declaim (special *match-seed* *pacing* *pacing-log*))   ; (flow.lisp's, components.lisp's; the host test loads this file before them)
 
 ;;; ================================================================ knobs (DUEL_HISAGI §7-§8, debug 83000-83999)
 (defparameter *hs-walk* 3.8 "Walk m/s, the Shikai (the lead's proposal 2026-10-16, DUEL_HISAGI §8.1: Rukia's 3.8).")

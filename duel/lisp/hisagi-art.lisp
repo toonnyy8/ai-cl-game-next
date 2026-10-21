@@ -10,7 +10,6 @@
 ;;;; *HS-STRIKE-REACH*; the pulls' chain along HS-CHAIN-SEG's segment), the windmill, the lightning, the HUD's sickle icon,
 ;;;; his glyphs' name and his four cinematics (batch B5, §22.7: the awakening, the Shikai Kikon 刈れ, KOSA, KOSHU).
 (in-package :duel)
-(declaim (special *p1* *p2*))
 
 ;;; ---------------------------------------------------------------- body
 ;; The Shikai look to canon (DUEL_HISAGI §21 "Look as built"; motion-refs §4.2, notes §3): 1.81 m (scale 1.0), lean (width
