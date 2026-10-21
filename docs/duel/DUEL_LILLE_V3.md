@@ -774,7 +774,9 @@ the wing rising to straight overhead f13–f16, the split f17–f18 (S 18), its 
 charge pose `:br-en-lc` / `:br-oen-lc` (held to 60 f), the dash `:clip-2` on release; by level the body coiled lower and
 wider, the wings swept tighter, 4 / 8 / 12 motes, the core lit from level 2 (white at 3), a flash and star burst at 20 / 40 f
 held, the streaks ×1 / 1.5 / 2.1, the cuts 5 / 9 / 13 (2.2 / 2.5 / 2.8 m); the old L2 / L3 clips deleted. Debug 82320+m:
-m = 1 / 21 / 41 the stance scene with nothing started (a script holds KeyL). 0 B a frame on every new path. Host tests 8257
+m = 1 / 21 / 41 the stance scene with nothing started (a script holds KeyL). Since 2026-10-21 (refactor round 3) m 0 / 20 / 40
+(and 82118) start the dash with its button L (`:sig`), released at once (level 1, as 82115): the stills work again (before,
+its button NIL stopped the page, `unknown vpad action NIL`). 0 B a frame on every new path. Host tests 8257
 (with §15.1), pkgcheck 0, build 0 warnings. Browser (v66): L tapped / held 30 / 50 f hit 16 / 32 / 48 (both forms); J J J
 → L L L all hit (J3's end push 1.0 m); K K K all hit (K3's end push 2.1 m, the owl's 2.0). Playtest v66.
 

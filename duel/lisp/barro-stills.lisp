@@ -34,7 +34,7 @@ link frame :enter) 2.3 m out. The awakened stances' moves: BR-ART-STANCE."
         (14 (start-move b (find-move :br-w-sanren)))
         (15 (start-move b (find-move :br-s-l1) :sig))   ; (R15: a held move, its button L: released at once, level 1)
         (16 (start-move b (find-move :br-s-j1))) (17 (start-move b (find-move :br-s-k1)))
-        (18 (start-move b (find-move :br-e-l1))) (19 (start-move b (find-move :br-e-k1)))
+        (18 (start-move b (find-move :br-e-l1) :sig)) (19 (start-move b (find-move :br-e-k1)))   ; (18: the awakened L dash, held as 15)
         ((40 41 42 43 44 45 46 47 48 49 50 51)
          (br-set-ammo b 3)
          (setf (fighter-charge (fighter b)) (case k (40 30) (41 50) (t 0)))   ; (R15: the snipe's level 2 / 3 as if held)
@@ -101,7 +101,7 @@ owl's too)."
             (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
                   (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))
             (br-set-ammo b 8)
-            (when mv (start-move b mv))
+            (when mv (start-move b mv (and (mv-hold mv) :sig)))   ; (a held L, the dash: its button L, released at once)
             (setf *br-art-hold* *br-art-hold-next* *br-art-hold-next* -1))))))
 
 (defun br-art-legs (k)
