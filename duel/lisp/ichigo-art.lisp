@@ -292,17 +292,17 @@
             (slab '((0.08 -0.005 0.124) (0.4 -0.005 0.14) (0.72 -0.005 0.158)) 0.03)           ; ... and the blade
             (slab '((0.72 -0.06 0.158) (1.0 -0.06 0.18) (1.25 -0.06 0.2) (1.36 -0.06 0.19) (1.44 -0.06 0.15)
                     (1.5 -0.06 0.08) (1.535 -0.06 0.0) (1.55 -0.06 -0.052)) 0.03)              ; widening, the swept point
-            (with-xform (mb (xform :y 0.05 :z -0.08)) (mb-box mb 0.03 0.1 0.04))                ; the stepped spur
-            (with-xform (mb (xform :y 0.025 :z -0.11)) (mb-box mb 0.03 0.05 0.02))
+            (mb-at (mb :y 0.05 :z -0.08) (mb-box mb 0.03 0.1 0.04))                ; the stepped spur
+            (mb-at (mb :y 0.025 :z -0.11) (mb-box mb 0.03 0.05 0.02))
             (mbc mb #xC8CCD4)                                                                   ; the white edge
             (slab '((0.0 0.104 0.122) (0.4 0.124 0.142) (0.72 0.142 0.16) (1.0 0.164 0.182) (1.25 0.184 0.202)
                     (1.36 0.174 0.192) (1.44 0.134 0.152) (1.5 0.064 0.082) (1.535 -0.016 0.002)) 0.034))
           (mbc mb #xD8D6CC)                                                                     ; the wrapped grip
-          (with-xform (mb (xform :y -0.14)) (mb-box mb 0.045 0.28 0.045))
+          (mb-at (mb :y -0.14) (mb-box mb 0.045 0.28 0.045))
           (mbc mb #x2A2A30)
-          (loop for i below 4 do (with-xform (mb (xform :y (- -0.03 (* i 0.07)) :roll 0.785)) (mb-box mb 0.032 0.032 0.052)))
+          (loop for i below 4 do (mb-at (mb :y (- -0.03 (* i 0.07)) :roll 0.785) (mb-box mb 0.032 0.032 0.052)))
           (mbc mb #xD8D6CC)
-          (with-xform (mb (xform :y -0.34 :z -0.02 :pitch 0.3)) (mb-box mb 0.035 0.16 0.012))))  ; the loose cloth end
+          (mb-at (mb :y -0.34 :z -0.02 :pitch 0.3) (mb-box mb 0.035 0.16 0.012))))  ; the loose cloth end
 
 ;; Tensa Zangetsu, KESSA's (v2 §5.8, the figures): a long straight white slab, no point and no guard: 0.025 thick x 0.17
 ;; wide x 1.55 long, a cold-grey hairline on the edge side, a jagged black line down the flat's middle (both faces, 5
@@ -310,20 +310,20 @@
 ;; diamond wrap straight into the blade
 (defweapon :tensa (:length 1.62 :base 0.12)
   (:solid (mbc mb #xECECEA)
-          (with-xform (mb (xform :y 0.78)) (mb-box mb 0.025 1.52 0.17))                          ; the slab, y 0.02-1.54
-          (with-xform (mb (xform :y 1.555 :z -0.025)) (mb-box mb 0.025 0.03 0.12))                ; the square end, short
-          (with-xform (mb (xform :y 1.546 :z 0.05 :pitch 0.785)) (mb-box mb 0.025 0.03 0.03))     ; ... the notch's chamfer
+          (mb-at (mb :y 0.78) (mb-box mb 0.025 1.52 0.17))                          ; the slab, y 0.02-1.54
+          (mb-at (mb :y 1.555 :z -0.025) (mb-box mb 0.025 0.03 0.12))                ; the square end, short
+          (mb-at (mb :y 1.546 :z 0.05 :pitch 0.785) (mb-box mb 0.025 0.03 0.03))     ; ... the notch's chamfer
           (mbc mb #xB8BCC4)                                                                     ; the edge's hairline
-          (with-xform (mb (xform :y 0.78 :z 0.086)) (mb-box mb 0.027 1.5 0.008))
+          (mb-at (mb :y 0.78 :z 0.086) (mb-box mb 0.027 1.5 0.008))
           (mbc mb #x101014)                                                                     ; the jagged black line
           (loop for (y l z r) in '((0.24 0.22 0.004 0.12) (0.45 0.2 -0.012 -0.1) (0.66 0.24 0.01 0.14) (0.88 0.2 -0.008 -0.12)
                                    (1.07 0.18 0.006 0.1))
                 for w in '(0.02 0.032 0.026 0.035 0.022)
-                do (with-xform (mb (xform :y y :z z :pitch r)) (mb-box mb 0.029 l w)))
+                do (mb-at (mb :y y :z z :pitch r) (mb-box mb 0.029 l w)))
           (mbc mb #xE4E2DA)                                                                     ; the white hilt
-          (with-xform (mb (xform :y -0.11)) (mb-box mb 0.04 0.22 0.04))
+          (mb-at (mb :y -0.11) (mb-box mb 0.04 0.22 0.04))
           (mbc mb #x8A8C94)
-          (loop for i below 3 do (with-xform (mb (xform :y (- -0.04 (* i 0.065)) :pitch 0.785)) (mb-box mb 0.042 0.004 0.052)))))
+          (loop for i below 3 do (mb-at (mb :y (- -0.04 (* i 0.065)) :pitch 0.785) (mb-box mb 0.042 0.004 0.052)))))
 
 ;;; ---------------------------------------------------------------- poses (his rig notes)
 ;;; The right hand holds the long blade (the K links, L, the cross's right half), the left the short one (the J links);

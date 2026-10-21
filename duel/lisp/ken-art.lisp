@@ -286,25 +286,25 @@
   ;; the hilt (DUEL_KEN_REWORK §5.1, 「封印刀的刀鍔與柄」): a grey collar, a long spindle tsuba (16 x 5 cm, pointed along the
   ;; edge and the spine) with teeth round its rim in dark iron, a white bandage-wrapped grip with diagonal seams, a grey cap
   (:solid (mbc mb #x8A8A90)
-          (with-xform (mb (xform :y 0.025)) (mb-box mb 0.013 0.04 0.041))
+          (mb-at (mb :y 0.025) (mb-box mb 0.013 0.04 0.041))
           (mbc mb #x4A4542)
-          (with-xform (mb (xform :y -0.004 :sx 0.31)) (mb-cylinder mb 0.08 0.015 :segments 4))
+          (mb-at (mb :y -0.004 :sx 0.31) (mb-cylinder mb 0.08 0.015 :segments 4))
           (loop for (x z) in '((0.0063 0.06) (0.0125 0.04) (0.0188 0.02) (0.0063 -0.06) (0.0125 -0.04) (0.0188 -0.02)
                                (-0.0063 0.06) (-0.0125 0.04) (-0.0188 0.02) (-0.0063 -0.06) (-0.0125 -0.04) (-0.0188 -0.02))
-                do (with-xform (mb (xform :x x :y -0.004 :z z :yaw (atan (* -0.025 (signum z)) (* 0.08 (signum x)))
-                                          :roll (* -0.5 pi)))
+                do (mb-at (mb :x x :y -0.004 :z z :yaw (atan (* -0.025 (signum z)) (* 0.08 (signum x)))
+                                          :roll (* -0.5 pi))
                      (mb-cone mb 0.007 0.03 :segments 4)))
           (mbc mb #xE6E4DC)
-          (with-xform (mb (xform :y -0.17)) (mb-bevel-box mb 0.03 0.31 0.038 0.006))
+          (mb-at (mb :y -0.17) (mb-bevel-box mb 0.03 0.31 0.038 0.006))
           (mbc mb #x9A988E)
-          (loop for i below 6 do (with-xform (mb (xform :y (- -0.045 (* i 0.05)) :roll 0.35)) (mb-box mb 0.034 0.005 0.04)))
+          (loop for i below 6 do (mb-at (mb :y (- -0.045 (* i 0.05)) :roll 0.35) (mb-box mb 0.034 0.005 0.04)))
           (mbc mb #x8A8A90)
-          (with-xform (mb (xform :y -0.33)) (mb-bevel-box mb 0.034 0.018 0.042 0.004)))
+          (mb-at (mb :y -0.33) (mb-bevel-box mb 0.034 0.018 0.042 0.004)))
   (:solid :ink 0 (mb-blade mb :length 1.02 :width 0.036 :curve 0.018 :blade-color '(0.55 0.57 0.6) :edge-color '(0.78 0.8 0.82)
                               :hilt nil)
           (mbc mb #x2A2A2E)                              ; chips: dark notches bitten out of the edge
           (loop for (y d) in '((0.22 0.012) (0.37 0.008) (0.55 0.014) (0.71 0.009) (0.86 0.011))
-                do (with-xform (mb (xform :y y :z (- 0.016 (* 0.018 (/ y 1.02) (/ y 1.02))) :roll 0.6))
+                do (mb-at (mb :y y :z (- 0.016 (* 0.018 (/ y 1.02) (/ y 1.02))) :roll 0.6)
                      (mb-box mb 0.012 d d)))))
 
 ;; NOZARASHI (DUEL_KEN_REWORK §6.1; the user 2026-10-08: 「改成原作形狀，大小貼合現有判定」, then 2026-10-09 a model sheet to
@@ -330,8 +330,8 @@
   "Run BODY (Nozarashi's head and what rides on it) turned 10 degrees about the black bar's joint with the head, (y z) =
 (0.4 0.08): the far end down toward the haft line, seen with the haft on the left and the edge up (the user 2026-10-09:
 「以黑色斜槓跟刀身的連接點為基準，將刀身順時針轉 10 度」); the bar and the haft stay."
-  `(with-xform (,mb (xform :y 0.4 :z 0.08 :pitch -0.17453292))
-     (with-xform (,mb (xform :y -0.4 :z -0.08)) ,@body)))
+  `(mb-at (,mb :y 0.4 :z 0.08 :pitch -0.17453292)
+     (mb-at (,mb :y -0.4 :z -0.08) ,@body)))
 
 ;; Nozarashi's head up to END along the blade (1.62: whole; the Bankai's broken cleaver cuts it short): the black bar; the
 ;; body, the point, the pale band and its chips (turned: WITH-KE-TILT), each profile clipped at the plane y = END; then the haft and the butt
@@ -365,31 +365,31 @@
     (mbc mb #x1C1C20)                                    ; chips bitten out of the edge
     (loop for (y z) in '((0.22 0.415) (0.65 0.562) (1.0 0.594) (1.3 0.603))
           when (< y (- end 0.05))
-            do (with-xform (mb (xform :y y :z z :roll 0.6)) (mb-box mb 0.05 0.03 0.03))))
+            do (mb-at (mb :y y :z z :roll 0.6) (mb-box mb 0.05 0.03 0.03))))
     (let* ((len (* 0.76 haft)) (drop (- len 0.76)))
       (mbc mb #xECECE8)                                  ; the long white-wrapped haft
-      (with-xform (mb (xform :y (- 0.08 (* 0.5 len)))) (mb-box mb 0.05 len 0.05))   ; (it stops short of the head: the bar joins them)
+      (mb-at (mb :y (- 0.08 (* 0.5 len))) (mb-box mb 0.05 len 0.05))   ; (it stops short of the head: the bar joins them)
       (mbc mb #x6A6A70)
-      (loop for i below (round (* 8 haft)) do (with-xform (mb (xform :y (- 0.03 (* i 0.085)) :roll 0.6)) (mb-box mb 0.054 0.006 0.054)))
+      (loop for i below (round (* 8 haft)) do (mb-at (mb :y (- 0.03 (* i 0.085)) :roll 0.6) (mb-box mb 0.054 0.006 0.054)))
       (mbc mb #x16161A)                                  ; the black butt
-      (with-xform (mb (xform :y (- -0.67 drop))) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))
+      (mb-at (mb :y (- -0.67 drop)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))
 
 (defweapon :nozarashi (:length 1.62 :base 0.2)         ; the haft below the grip, the head above it
   (:solid (ke-mb-noz-head mb 1.62)
           (with-ke-tilt (mb)                             ; the cap and the tassel ride on the turned head
           (mbc mb #x9C9478)                              ; the khaki cap over the far end, its stepped foot
-          (with-xform (mb (xform :y 1.525 :z 0.348)) (mb-bevel-box mb 0.07 0.2 0.56 0.012))
-          (with-xform (mb (xform :y 1.39 :z 0.14)) (mb-bevel-box mb 0.06 0.09 0.13 0.01))
+          (mb-at (mb :y 1.525 :z 0.348) (mb-bevel-box mb 0.07 0.2 0.56 0.012))
+          (mb-at (mb :y 1.39 :z 0.14) (mb-bevel-box mb 0.06 0.09 0.13 0.01))
           (mbc mb #x6E6852)                              ; its groove
-          (with-xform (mb (xform :y 1.455 :z 0.36)) (mb-box mb 0.074 0.018 0.46))
+          (mb-at (mb :y 1.455 :z 0.36) (mb-box mb 0.074 0.018 0.46))
           (mbc mb #x2F4A35)                              ; the tassel (candidate B, the user 2026-10-09: 「調整始解的流蘇成 B
-          (with-xform (mb (xform :y 1.54 :z 0.06)) (mb-box mb 0.035 0.06 0.045))   ; 選項」): a dark green knot at the cap's
+          (mb-at (mb :y 1.54 :z 0.06) (mb-box mb 0.035 0.06 0.045))   ; 選項」): a dark green knot at the cap's
           ;; (spine corner) the strands: each a cone whose point sits in the knot, its base fanning out away from the blade
           ;; (each turned about the knot, not its middle: the head up, the tail spread; the user: 「當時流蘇的頭尾掛反了」)
           (loop for (ax ay) in '((0.0 0.0) (0.22 0.1) (-0.22 0.1) (0.14 -0.18) (-0.14 -0.18) (0.0 0.24))
                 do (let* ((n (sqrt (+ (* ax ax) (* ay ay) 1.0))) (ux (/ (- ax) n)) (uy (/ (- ay) n)) (uz (/ 1.0 n)) (h 0.42))
-                     (with-xform (mb (xform :x (* -0.5 h ux) :y (- 1.51 (* 0.5 h uy)) :z (- 0.04 (* 0.5 h uz))
-                                            :pitch (atan uz uy) :roll (asin (- ux))))
+                     (mb-at (mb :x (* -0.5 h ux) :y (- 1.51 (* 0.5 h uy)) :z (- 0.04 (* 0.5 h uz))
+                                            :pitch (atan uz uy) :roll (asin (- ux)))
                        (mb-cone mb 0.026 h :segments 4)))))))
 
 ;; the Bankai's broken cleaver (DUEL_KEN_REWORK §8; the user 2026-10-09: 「卍解刀身直接沿用始解刀身，然後將我打 X 的地方移除
@@ -401,7 +401,7 @@
           (with-ke-tilt (mb)
             (mbc mb #x1C1C20)                            ; the square break, chipped
             (loop for (z r) in '((0.13 0.5) (0.3 -0.4) (0.46 0.7))
-                  do (with-xform (mb (xform :y 0.9 :z z :roll r)) (mb-box mb 0.05 0.045 0.05))))))
+                  do (mb-at (mb :y 0.9 :z z :roll r) (mb-box mb 0.05 0.045 0.05))))))
 
 ;;; ---------------------------------------------------------------- poses
 (defpose :ke-stance ()

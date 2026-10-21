@@ -185,12 +185,12 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
 (defweapon :kazeshini (:length 0.75 :base 0.2)
   (:solid (mbc mb #x121216)                                                                ; the rod, its point, the fork
           (mb-tube mb 0 -0.16 0 0 0.64 0 0.012 :sides 6)
-          (with-xform (mb (xform :y 0.695)) (mb-cone mb 0.012 0.11 :segments 6))
+          (mb-at (mb :y 0.695) (mb-cone mb 0.012 0.11 :segments 6))
           (mb-tube mb 0 -0.16 0 0.022 -0.215 0 0.008 :sides 4)
           (mb-tube mb 0 -0.16 0 -0.022 -0.215 0 0.008 :sides 4)
           (mb-tube mb -0.024 -0.222 0 0.024 -0.222 0 0.006 :sides 4)
           (mbc mb #x2A2A30)                                                                ; the chain's first link
-          (with-xform (mb (xform :y -0.25 :yaw 1.57)) (mb-box mb 0.01 0.05 0.03))
+          (mb-at (mb :y -0.25 :yaw 1.57) (mb-box mb 0.01 0.05 0.03))
           (mbc mb #x18181C)                                                                ; the blades' spines
           (hs-mb-crescent mb 1 0.0 0.008 nil)
           (hs-mb-crescent mb 2 -0.008 0.0 nil))

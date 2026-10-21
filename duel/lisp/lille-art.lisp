@@ -391,16 +391,16 @@
 (defparameter *lb-butt* 0.6 "Diagramm: the plank's strike point, metres behind the grip (the weapon frame's -Y; the FK test).")
 (defweapon :diagramm (:length 1.75 :base 0.3)
   (:solid (mbc mb #x16161E)
-          (with-xform (mb (xform :y 0.55)) (mb-cylinder mb 0.024 2.4 :segments 6))           ; the barrel, -0.65 .. 1.75
-          (with-xform (mb (xform :y 1.72)) (mb-box mb 0.2 0.07 0.05) (mb-box mb 0.05 0.07 0.2))   ; the muzzle cross
-          (with-xform (mb (xform :y -0.6 :z 0.15)) (mb-box mb 0.035 0.1 1.2))                 ; the plank, across the rear
-          (with-xform (mb (xform :y -0.62 :z -0.38)) (mb-box mb 0.12 0.08 0.04))              ; its two lower plates
-          (mbc mb #xBCC1CC) (with-xform (mb (xform :y -0.56 :z 0.42 :x 0.03)) (mb-cylinder mb 0.03 0.02 :segments 8)))
-  (:solid (mbc mb #x434D3B) (with-xform (mb (xform :y 0.2)) (mb-cylinder mb 0.1 0.6 :segments 8))      ; the fur sleeve
-          (with-xform (mb (xform :y 0.5 :x 0.1 :roll -1.4)) (mb-cone mb 0.03 0.06 :segments 4))      ; jagged fur
-          (with-xform (mb (xform :y -0.09 :x -0.1 :roll 1.6)) (mb-cone mb 0.03 0.06 :segments 4))
-          (mbc mb #x2A3124) (with-xform (mb (xform :y 0.3 :z 0.1)) (mb-box mb 0.03 0.03 0.012))
-          (with-xform (mb (xform :y 0.1 :z 0.1)) (mb-box mb 0.03 0.03 0.012))))
+          (mb-at (mb :y 0.55) (mb-cylinder mb 0.024 2.4 :segments 6))           ; the barrel, -0.65 .. 1.75
+          (mb-at (mb :y 1.72) (mb-box mb 0.2 0.07 0.05) (mb-box mb 0.05 0.07 0.2))   ; the muzzle cross
+          (mb-at (mb :y -0.6 :z 0.15) (mb-box mb 0.035 0.1 1.2))                 ; the plank, across the rear
+          (mb-at (mb :y -0.62 :z -0.38) (mb-box mb 0.12 0.08 0.04))              ; its two lower plates
+          (mbc mb #xBCC1CC) (mb-at (mb :y -0.56 :z 0.42 :x 0.03) (mb-cylinder mb 0.03 0.02 :segments 8)))
+  (:solid (mbc mb #x434D3B) (mb-at (mb :y 0.2) (mb-cylinder mb 0.1 0.6 :segments 8))      ; the fur sleeve
+          (mb-at (mb :y 0.5 :x 0.1 :roll -1.4) (mb-cone mb 0.03 0.06 :segments 4))      ; jagged fur
+          (mb-at (mb :y -0.09 :x -0.1 :roll 1.6) (mb-cone mb 0.03 0.06 :segments 4))
+          (mbc mb #x2A3124) (mb-at (mb :y 0.3 :z 0.1) (mb-box mb 0.03 0.03 0.012))
+          (mb-at (mb :y 0.1 :z 0.1) (mb-box mb 0.03 0.03 0.012))))
 
 ;;; the props' mesh helpers (load time only: they allocate)
 (defun lb-plate (mb pts th &optional (z0 0.0))
@@ -554,10 +554,10 @@ tell) fills the hole with light."
 ;; the ㄇ legs' props (decision 26), drawn by LILLE-DRAW from the fork at the thigh's end: a shank (unit length along +Y, its
 ;; root at the origin, tapering to a point; drawn at its length so its tip meets the floor) and the strut (unit along +Y, the
 ;; corner's knob at its end; drawn at 0.52 m), cream (KIN) or white (the owl)
-(defun lb-shank (mb c) (mbc mb c) (with-xform (mb (xform :y 0.5)) (mb-cylinder mb 0.048 1.0 :segments 8 :top-radius 0.006 :smooth t)))
+(defun lb-shank (mb c) (mbc mb c) (mb-at (mb :y 0.5) (mb-cylinder mb 0.048 1.0 :segments 8 :top-radius 0.006 :smooth t)))
 (defun lb-strut (mb c d)
-  (mbc mb c) (with-xform (mb (xform :y 0.5)) (mb-cylinder mb 0.08 1.0 :segments 8 :top-radius 0.074 :smooth t))
-  (mbc mb d) (with-xform (mb (xform :y 1.0)) (mb-sphere mb 0.11 :segments 8 :rings 5 :smooth t)))
+  (mbc mb c) (mb-at (mb :y 0.5) (mb-cylinder mb 0.08 1.0 :segments 8 :top-radius 0.074 :smooth t))
+  (mbc mb d) (mb-at (mb :y 1.0) (mb-sphere mb 0.11 :segments 8 :rings 5 :smooth t)))
 (defweapon :lb-shank-cream (:length 1.0) (:solid (lb-shank mb #xEDE6CC)))
 (defweapon :lb-shank-white (:length 1.0) (:solid (lb-shank mb #xECECE8)))
 (defweapon :lb-strut-cream (:length 1.0) (:solid (lb-strut mb #xEDE6CC #xD9D0B2)))
@@ -568,65 +568,65 @@ tell) fills the hole with light."
   (dotimes (i n)
     (unless (member i skip)
       (let ((a (* 2 pi (/ i n))))
-        (with-xform (mb (xform :x (* 0.95 (cos a)) :z (* 0.95 (sin a)) :y 0.18 :yaw (- (/ pi 2) a) :pitch 0.0 :roll -0.25))
+        (mb-at (mb :x (* 0.95 (cos a)) :z (* 0.95 (sin a)) :y 0.18 :yaw (- (/ pi 2) a) :pitch 0.0 :roll -0.25)
           (mb-cone mb 0.09 0.38 :segments 4))))))
 (defweapon :lb-halo-gold (:length 1.0) (:solid (mbc mb #xB89A5A) (lb-ring mb 0.82 1.0 0.1 :n 24) (mbc mb #xC2A866) (lb-spikes mb 6)))
 (defweapon :lb-halo-broken (:length 1.0)              ; sealed: a piece out, an arc dropped and tilted, a spike lying
   (:solid (mbc mb #x8C7440) (lb-ring mb 0.82 1.0 0.1 :n 24 :from 0 :to 6) (lb-ring mb 0.82 1.0 0.1 :n 24 :from 16 :to 24)
-          (with-xform (mb (xform :y -0.16 :x 0.1 :roll 0.28 :pitch 0.12)) (lb-ring mb 0.82 1.0 0.1 :n 24 :from 8 :to 14))
+          (mb-at (mb :y -0.16 :x 0.1 :roll 0.28 :pitch 0.12) (lb-ring mb 0.82 1.0 0.1 :n 24 :from 8 :to 14))
           (mbc mb #x9A8456) (lb-spikes mb 6 :skip '(2 3))
-          (with-xform (mb (xform :x 0.2 :y -0.3 :z 0.5 :roll 1.3)) (mb-cone mb 0.09 0.38 :segments 4))))
+          (mb-at (mb :x 0.2 :y -0.3 :z 0.5 :roll 1.3) (mb-cone mb 0.09 0.38 :segments 4))))
 ;; the left eye opened (the base form), in the head joint's frame (the body's x1.2 head girth applied): the eye white, a
 ;; jade iris, the mark recoloured jade and flaring into four long strokes along its X
 (defparameter *lb-eye-at* '(-0.0336 0.1488 -0.0763) "The left eye's centre in the head joint frame (x right, y up, z back).")
 (defweapon :lb-eye-open (:length 0.1)
   (:solid :ink 0
           (destructuring-bind (x y z) *lb-eye-at*
-            (mbc mb #xF2F0EC) (with-xform (mb (xform :x x :y y :z (- z 0.0012))) (mb-box mb 0.031 0.013 0.003))
-            (mbc mb #x6E9A80) (with-xform (mb (xform :x (+ x 0.001) :y y :z (- z 0.0022))) (mb-box mb 0.014 0.013 0.003))
-            (mbc mb #x16161E) (with-xform (mb (xform :x (+ x 0.001) :y y :z (- z 0.003))) (mb-box mb 0.006 0.008 0.003))
-            (with-xform (mb (xform :x x :y (+ y 0.0085) :z (- z 0.0026))) (mb-box mb 0.032 0.0035 0.003))
+            (mbc mb #xF2F0EC) (mb-at (mb :x x :y y :z (- z 0.0012)) (mb-box mb 0.031 0.013 0.003))
+            (mbc mb #x6E9A80) (mb-at (mb :x (+ x 0.001) :y y :z (- z 0.0022)) (mb-box mb 0.014 0.013 0.003))
+            (mbc mb #x16161E) (mb-at (mb :x (+ x 0.001) :y y :z (- z 0.003)) (mb-box mb 0.006 0.008 0.003))
+            (mb-at (mb :x x :y (+ y 0.0085) :z (- z 0.0026)) (mb-box mb 0.032 0.0035 0.003))
             (mbc mb #x9CC4AC)
             (dolist (a '(0 90 180 270))
               (dolist (d '(-15 15))
                 (let ((tt (* (/ pi 180) (+ a d))))
-                  (with-xform (mb (xform :x (+ x (* 0.0204 (cos tt))) :y (+ y (* 0.0204 (sin tt))) :z (- z 0.0034)
-                                         :roll (+ tt (/ pi 2))))
+                  (mb-at (mb :x (+ x (* 0.0204 (cos tt))) :y (+ y (* 0.0204 (sin tt))) :z (- z 0.0034)
+                                         :roll (+ tt (/ pi 2)))
                     (mb-box mb 0.0104 0.0036 0.002)))))
             (mbc mb #xEAF4EE)
             (dolist (a '(45 135 225 315))
               (let ((tt (* (/ pi 180) a)))
-                (with-xform (mb (xform :x (+ x (* 0.045 (cos tt))) :y (+ y (* 0.045 (sin tt))) :z (- z 0.004) :roll tt))
+                (mb-at (mb :x (+ x (* 0.045 (cos tt))) :y (+ y (* 0.045 (sin tt))) :z (- z 0.004) :roll tt)
                   (mb-box mb 0.058 0.004 0.002)))))))
 ;; the reticle (the eye mark, the motif: DUEL_LILLE §3): four arcs and four inward ticks, unit radius, flat in XZ
 (defun lb-reticle-mesh (mb)
   (dolist (k '(0 6 12 18)) (lb-ring mb 0.84 1.0 0.03 :n 24 :from (- k 2) :to (+ k 2)))
   (dolist (a '(0.7854 2.3562 3.927 5.4978))
-    (with-xform (mb (xform :x (* 0.76 (cos a)) :z (* 0.76 (sin a)) :yaw (- a))) (mb-box mb 0.4 0.03 0.11))))
+    (mb-at (mb :x (* 0.76 (cos a)) :z (* 0.76 (sin a)) :yaw (- a)) (mb-box mb 0.4 0.03 0.11))))
 (defweapon :lb-reticle-grey (:length 1.0) (:solid :ink 0 (mbc mb #xE4E6EA) (lb-reticle-mesh mb)))
 (defweapon :lb-reticle-jade (:length 1.0) (:solid :ink 0 (mbc mb #xB4DCC4) (lb-reticle-mesh mb)))
 ;; the looks' line props, unit along +Y (a floor line: X across, Z its thickness)
-(defweapon :lb-line (:length 1.0) (:solid :ink 0 (mbc mb #x3A3E48) (with-xform (mb (xform :y 0.5)) (mb-box mb 1.0 1.0 1.0))))
-(defweapon :lb-line-jade (:length 1.0) (:solid :ink 0 (mbc mb #x7FAE92) (with-xform (mb (xform :y 0.5)) (mb-box mb 1.0 1.0 1.0))))
-(defweapon :lb-line-grey (:length 1.0) (:solid :ink 0 (mbc mb #xB4B8C0) (with-xform (mb (xform :y 0.5)) (mb-box mb 1.0 1.0 1.0))))
-(defweapon :lb-line-gold (:length 1.0) (:solid :ink 0 (mbc mb #xCDB070) (with-xform (mb (xform :y 0.5)) (mb-box mb 1.0 1.0 1.0))))   ; the owl's traces
+(defweapon :lb-line (:length 1.0) (:solid :ink 0 (mbc mb #x3A3E48) (mb-at (mb :y 0.5) (mb-box mb 1.0 1.0 1.0))))
+(defweapon :lb-line-jade (:length 1.0) (:solid :ink 0 (mbc mb #x7FAE92) (mb-at (mb :y 0.5) (mb-box mb 1.0 1.0 1.0))))
+(defweapon :lb-line-grey (:length 1.0) (:solid :ink 0 (mbc mb #xB4B8C0) (mb-at (mb :y 0.5) (mb-box mb 1.0 1.0 1.0))))
+(defweapon :lb-line-gold (:length 1.0) (:solid :ink 0 (mbc mb #xCDB070) (mb-at (mb :y 0.5) (mb-box mb 1.0 1.0 1.0))))   ; the owl's traces
 ;; 神の喇叭 the trumpet, unit length along +Y from the mouthpiece to the bell: a long plain gold horn (no valves) flaring to
 ;; a wide bell whose ring is joined to an outer ring by four struts (the reticle again), a plume of five curved feather
 ;; blades rising (+X) near the mouthpiece
 (defweapon :lb-trumpet (:length 1.0)
   (:solid (mbc mb #xB89A5A)
-          (with-xform (mb (xform :y 0.4)) (mb-cylinder mb 0.022 0.8 :segments 8 :top-radius 0.05))
-          (with-xform (mb (xform :y 0.875)) (mb-cylinder mb 0.05 0.15 :segments 12 :top-radius 0.17))
-          (with-xform (mb (xform :y 0.955)) (mb-cylinder mb 0.17 0.02 :segments 16 :top-radius 0.19))
-          (with-xform (mb (xform :y 0.0)) (mb-cylinder mb 0.035 0.04 :segments 8 :top-radius 0.02))
+          (mb-at (mb :y 0.4) (mb-cylinder mb 0.022 0.8 :segments 8 :top-radius 0.05))
+          (mb-at (mb :y 0.875) (mb-cylinder mb 0.05 0.15 :segments 12 :top-radius 0.17))
+          (mb-at (mb :y 0.955) (mb-cylinder mb 0.17 0.02 :segments 16 :top-radius 0.19))
+          (mb-at (mb :y 0.0) (mb-cylinder mb 0.035 0.04 :segments 8 :top-radius 0.02))
           (mbc mb #xC2A866) (lb-ring mb 0.24 0.27 0.02 :n 20 :y 0.975)
-          (with-xform (mb (xform :x 0.215 :y 0.968)) (mb-box mb 0.06 0.014 0.016))
-          (with-xform (mb (xform :x -0.215 :y 0.968)) (mb-box mb 0.06 0.014 0.016))
-          (with-xform (mb (xform :z 0.215 :y 0.968)) (mb-box mb 0.016 0.014 0.06))
-          (with-xform (mb (xform :z -0.215 :y 0.968)) (mb-box mb 0.016 0.014 0.06))
+          (mb-at (mb :x 0.215 :y 0.968) (mb-box mb 0.06 0.014 0.016))
+          (mb-at (mb :x -0.215 :y 0.968) (mb-box mb 0.06 0.014 0.016))
+          (mb-at (mb :z 0.215 :y 0.968) (mb-box mb 0.016 0.014 0.06))
+          (mb-at (mb :z -0.215 :y 0.968) (mb-box mb 0.016 0.014 0.06))
           (loop for y in '(0.12 0.17 0.22 0.27 0.32) for r in '(0.2 0.4 0.62 0.84 1.05) for c in '(#xC2A866 #xF2E6C0 #xC2A866 #xF2E6C0 #xC2A866)
-                do (mbc mb c) (with-xform (mb (xform :y y :roll r)) (lb-plate mb '((0 -0.02) (0.4 0.06) (0.44 0.12) (0 0.02)) 0.014))))
-  (:solid :ink 0 (mbc mb #xF2E6C0) (with-xform (mb (xform :y 0.958)) (mb-cylinder mb 0.15 0.012 :segments 16))))
+                do (mbc mb c) (mb-at (mb :y y :roll r) (lb-plate mb '((0 -0.02) (0.4 0.06) (0.44 0.12) (0 0.02)) 0.014))))
+  (:solid :ink 0 (mbc mb #xF2E6C0) (mb-at (mb :y 0.958) (mb-cylinder mb 0.15 0.012 :segments 16))))
 ;; the reflect's mirror: a flat white hexagon on its edge (Hakkyoken's look, a generic reflector)
 
 ;;; ---------------------------------------------------------------- the strike points (the host FK test)

@@ -207,18 +207,18 @@ points out of its corners, in colour C."
   (mbc mb c)
   (dotimes (i 6)
     (let ((a (* i (/ pi 3))))
-      (with-xform (mb (xform :x (* r (cos a)) :z (* r (sin a)) :yaw (- (+ a (/ pi 2)))))    ; a side of the hexagon
+      (mb-at (mb :x (* r (cos a)) :z (* r (sin a)) :yaw (- (+ a (/ pi 2))))    ; a side of the hexagon
         (mb-box mb (* 1.16 r) 0.01 0.011))
       (let ((b (+ a (/ pi 6))) (rr (* 1.12 r)))                                            ; a point off its corner
-        (with-xform (mb (xform :x (* rr (cos b)) :z (* rr (sin b)) :yaw (- b) :roll (- (/ pi 2))))
+        (mb-at (mb :x (* rr (cos b)) :z (* rr (sin b)) :yaw (- b) :roll (- (/ pi 2)))
           (mb-cone mb 0.006 0.022 :segments 4))))))
 
 (defun ru-ribbon (mb n l bend twist w)
   "A ribbon of N segments L long hanging on from the pommel (the weapon frame's -Y), curling toward the spine by BEND
 and turning by TWIST (radians) at each segment: static geometry, short enough never to poke far out of a pose."
   (when (plusp n)
-    (with-xform (mb (xform :y (* -0.5 l))) (mb-box mb 0.004 l w))
-    (with-xform (mb (xform :y (- l) :pitch bend :yaw twist)) (ru-ribbon mb (1- n) l bend twist w))))
+    (mb-at (mb :y (* -0.5 l)) (mb-box mb 0.004 l w))
+    (mb-at (mb :y (- l) :pitch bend :yaw twist) (ru-ribbon mb (1- n) l bend twist w))))
 
 (defweapon :ru-katana (:length 0.86)                   ; sealed: a plain katana (the intro only)
   (:solid (mb-blade mb :width 0.03 :guard-color '(0.3 0.3 0.32) :handle-color '(0.08 0.07 0.08) :wrap-color '(0.2 0.2 0.24) :blade nil))
@@ -229,39 +229,39 @@ and turning by TWIST (radians) at each segment: static geometry, short enough ne
 (defweapon :sode-no-shirayuki (:length 0.9)
   (:solid :ink 0 (mb-blade mb :length 0.84 :width 0.032 :curve 0.01 :blade-color '(0.94 0.95 0.97) :edge-color '(1.0 1.0 1.0) :hilt nil))
   (:solid (mbc mb #xECEEF2)                            ; the white hilt, its wrap in the cold shade, the pommel cap
-          (with-xform (mb (xform :y -0.1)) (mb-bevel-box mb 0.026 0.2 0.032 0.006))
-          (with-xform (mb (xform :y 0.02)) (mb-box mb 0.014 0.03 0.036))
-          (with-xform (mb (xform :y -0.206)) (mb-bevel-box mb 0.03 0.016 0.036 0.004))
+          (mb-at (mb :y -0.1) (mb-bevel-box mb 0.026 0.2 0.032 0.006))
+          (mb-at (mb :y 0.02) (mb-box mb 0.014 0.03 0.036))
+          (mb-at (mb :y -0.206) (mb-bevel-box mb 0.03 0.016 0.036 0.004))
           (mbc mb #x9AA8BE)
-          (loop for i below 4 do (with-xform (mb (xform :y (- -0.035 (* i 0.045)) :roll 0.785)) (mb-box mb 0.02 0.02 0.034)))
+          (loop for i below 4 do (mb-at (mb :y (- -0.035 (* i 0.045)) :roll 0.785) (mb-box mb 0.02 0.02 0.034)))
           (ru-snow-guard mb 0.042 #xF4F6F8))
   (:solid :ink 0.6 (mbc mb #xF4F6F8)                   ; the ribbon: a long curl and a short one
-          (with-xform (mb (xform :y -0.212 :z -0.006)) (ru-ribbon mb 8 0.05 0.17 0.07 0.026))
-          (with-xform (mb (xform :y -0.212 :z 0.006 :yaw 0.5)) (ru-ribbon mb 5 0.05 0.24 -0.1 0.02))))
+          (mb-at (mb :y -0.212 :z -0.006) (ru-ribbon mb 8 0.05 0.17 0.07 0.026))
+          (mb-at (mb :y -0.212 :z 0.006 :yaw 0.5) (ru-ribbon mb 5 0.05 0.24 -0.1 0.02))))
 
 ;; -50 C: Sode no Shirayuki rimed: the white blade with an ice edge grown along it, the guard frosted
 (defweapon :ru-rime (:length 1.0)
   (:solid :ink 0 (mb-blade mb :length 0.9 :width 0.036 :curve 0.01 :blade-color '(0.9 0.93 0.97) :edge-color '(0.78 0.86 0.96) :hilt nil))
   (:solid (mbc mb #xECEEF2)
-          (with-xform (mb (xform :y -0.1)) (mb-bevel-box mb 0.026 0.2 0.032 0.006))
-          (with-xform (mb (xform :y 0.02)) (mb-box mb 0.014 0.03 0.036))
-          (with-xform (mb (xform :y -0.206)) (mb-bevel-box mb 0.03 0.016 0.036 0.004))
+          (mb-at (mb :y -0.1) (mb-bevel-box mb 0.026 0.2 0.032 0.006))
+          (mb-at (mb :y 0.02) (mb-box mb 0.014 0.03 0.036))
+          (mb-at (mb :y -0.206) (mb-bevel-box mb 0.03 0.016 0.036 0.004))
           (mbc mb #x9AA8BE)
-          (loop for i below 4 do (with-xform (mb (xform :y (- -0.035 (* i 0.045)) :roll 0.785)) (mb-box mb 0.02 0.02 0.034)))
+          (loop for i below 4 do (mb-at (mb :y (- -0.035 (* i 0.045)) :roll 0.785) (mb-box mb 0.02 0.02 0.034)))
           (ru-snow-guard mb 0.046 #xE6ECF4))
   (:solid :ink 0.6 (mbc mb #xE6ECF4)                   ; ice crystals along the back of the blade, the ribbon stiff with frost
-          (loop for i below 4 do (with-xform (mb (xform :y (+ 0.2 (* i 0.17)) :z -0.02 :pitch 0.5)) (mb-cone mb 0.008 0.05 :segments 4)))
-          (with-xform (mb (xform :y -0.212 :z -0.006)) (ru-ribbon mb 7 0.05 0.12 0.05 0.026))))
+          (loop for i below 4 do (mb-at (mb :y (+ 0.2 (* i 0.17)) :z -0.02 :pitch 0.5) (mb-cone mb 0.008 0.05 :segments 4)))
+          (mb-at (mb :y -0.212 :z -0.006) (ru-ribbon mb 7 0.05 0.12 0.05 0.026))))
 
 ;; the Bankai's ice blade (the 白霞罸 cinematic, and absolute zero in play): pale ice, a white core line, the snowflake ring in ice, an ice hilt
 (defweapon :ru-ice (:length 1.0)
   (:solid :ink 0 (mb-blade mb :length 0.96 :width 0.04 :curve 0.008 :blade-color '(0.86 0.9 0.95) :edge-color '(1.0 1.0 1.0) :hilt nil))
   (:solid (mbc mb #xE6ECF4)
-          (with-xform (mb (xform :y -0.1)) (mb-bevel-box mb 0.028 0.2 0.034 0.006))
-          (with-xform (mb (xform :y -0.215)) (mb-cone mb 0.02 0.05 :segments 4))
+          (mb-at (mb :y -0.1) (mb-bevel-box mb 0.028 0.2 0.034 0.006))
+          (mb-at (mb :y -0.215) (mb-cone mb 0.02 0.05 :segments 4))
           (ru-snow-guard mb 0.05 #xE6ECF4))
   (:solid :ink 0.6 (mbc mb #xE6ECF4)
-          (with-xform (mb (xform :y -0.22 :z -0.006)) (ru-ribbon mb 7 0.05 0.2 0.08 0.024))))
+          (mb-at (mb :y -0.22 :z -0.006) (ru-ribbon mb 7 0.05 0.2 0.08 0.024))))
 
 ;;; ---------------------------------------------------------------- poses
 ;;; Her rig notes: the right side leads (a fencer's stance: the right foot forward, the body turned left, the head turned

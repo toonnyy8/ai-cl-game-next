@@ -321,24 +321,24 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
 ;;; ---------------------------------------------------------------- weapons
 (defweapon :ya-cane (:length 0.86 :base 0.1)          ; the shikomizue: Ryujin Jakka sheathed in a cane
   (:solid (mbc mb #x3A3430)                           ; dark wood, desaturated (colour is spot-only)
-          (with-xform (mb (xform :y 0.4)) (mb-cylinder mb 0.018 0.92 :segments 6))
+          (mb-at (mb :y 0.4) (mb-cylinder mb 0.018 0.92 :segments 6))
           (mbc mb #x26221E)
-          (with-xform (mb (xform :y -0.06)) (mb-cylinder mb 0.02 0.14 :segments 6))
-          (with-xform (mb (xform :y 0.855)) (mb-cylinder mb 0.02 0.03 :segments 6))))
+          (mb-at (mb :y -0.06) (mb-cylinder mb 0.02 0.14 :segments 6))
+          (mb-at (mb :y 0.855) (mb-cylinder mb 0.02 0.03 :segments 6))))
 
 (defweapon :ryujin-jakka (:length 0.95)
   (:solid :ink 0 (mb-blade mb :length 0.9 :width 0.036 :blade-color '(0.76 0.78 0.82) :edge-color '(1.0 0.93 0.85) :hilt nil))
   (:solid (mb-blade mb :width 0.036 :guard-color '(0.44 0.42 0.38) :handle-color '(0.08 0.06 0.07) :wrap-color '(0.3 0.25 0.4) :blade nil))
-  (:glow 1.2 #xFF7A2A (with-xform (mb (xform :y 0.45 :z 0.017)) (mb-box mb 0.003 0.8 0.004))))
+  (:glow 1.2 #xFF7A2A (mb-at (mb :y 0.45 :z 0.017) (mb-box mb 0.003 0.8 0.004))))
 
 (defweapon :zanka (:length 0.95)
   (:solid :ink 0 (mb-blade mb :length 0.9 :width 0.04 :curve 0.004 :blade-color '(0.07 0.055 0.055)
                               :edge-color '(0.3 0.07 0.03) :hilt nil))
   (:solid (mb-blade mb :width 0.04 :guard-color '(0.16 0.12 0.1) :handle-color '(0.05 0.04 0.04) :wrap-color '(0.18 0.08 0.06)
                        :blade nil))
-  (:glow 3.5 #xFF5A14 (with-xform (mb (xform :y 0.46 :z 0.02)) (mb-box mb 0.005 0.86 0.006))
-                      (with-xform (mb (xform :y 0.3 :z 0.0 :roll 0.5)) (mb-box mb 0.009 0.07 0.004))
-                      (with-xform (mb (xform :y 0.62 :z 0.004 :roll -0.4)) (mb-box mb 0.009 0.08 0.004))))
+  (:glow 3.5 #xFF5A14 (mb-at (mb :y 0.46 :z 0.02) (mb-box mb 0.005 0.86 0.006))
+                      (mb-at (mb :y 0.3 :z 0.0 :roll 0.5) (mb-box mb 0.009 0.07 0.004))
+                      (mb-at (mb :y 0.62 :z 0.004 :roll -0.4) (mb-box mb 0.009 0.08 0.004))))
 
 ;;; ---------------------------------------------------------------- the charred skeleton (Bankai South)
 (defbody :skeleton (:scale 1.0 :width 1.0 :hunch 20 :hurt-r 0.3 :hurt-h 1.7
