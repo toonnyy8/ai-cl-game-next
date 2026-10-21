@@ -143,95 +143,6 @@ gauge at 40); 7 / 8 make P2 cast South at once; 9: P2 is a cup-3 Kenpachi (NOME 
       (5 (set-probe :parry-bait nil) (setf (gauges-gg (gauges *p1*)) 40f0))
       ((7 8) (when (= k 8) (slowmo 0.25 6.0)) (force-cmd *p2* :sp2)))))
 
-(defparameter *nome-tests*
-  ;; k: P1 P1-form P2 P2-form distance P1-NOME
-  '((:kenpachi :nozarashi :yamamoto :base 4.0 38.0) (:kenpachi :nomihose :yamamoto :bankai-east 2.0 100.0)
-    (:kenpachi :nomihose :yamamoto :base 3.0 100.0) (:kenpachi :nomihose :yamamoto :base 3.0 100.0)
-    (:kenpachi :nomihose :yamamoto :base 4.0 100.0) (:yamamoto :bankai-west :kenpachi :ryote 2.5 0.0)))
-
-(defun nome-test (k)
-  "Nozarashi v2 test 2380+K (*NOME-TESTS*): human P1, P2's CPU off; the script presses the keys. 0 runs the :nome
-probe (the ladder), 1 the :drink probe (P2 mashes Quick), 2 / 4 hold P2's guard, 4 makes P2 red, 5 the :cut probe
-(P2, RYOTE, presses K K into West's held U)."
-  (destructuring-bind (c1 f1 c2 f2 d m) (nth k *nome-tests*)
-    (setf *probe* nil)                                   ; (a probe still running from the test before)
-    (ensure-battle c1 c2)
-    (force-form *p1* f1) (force-form *p2* f2)
-    (place *p1* *p2* d)
-    (dolist (e (list *p1* *p2*)) (full-gauges! e 0f0))   ; (the meters are set right below)
-    (setf (gauges-meter (gauges *p1*)) (f32 m) (gauges-meter (gauges *p2*)) (if (= k 5) 70f0 0f0))
-    (when (= k 4) (setf (gauges-reishi (gauges *p2*)) 200))
-    (let ((b (brain *p2*)))
-      (hold-guard! b (if (member k '(2 4)) 999 0)))
-    (case k
-      (0 (set-probe :nome nil))
-      (1 (set-probe :drink :quick))
-      (5 (set-probe :cut :flash)))))
-
-(defun bankai-test (k)
-  "Kenpachi's Bankai tests 2386+K (docs/duel/DUEL_KEN_BANKAI.md; human P1 Kenpachi, P2 an idle Yamamoto CPU; the script presses
-the keys; his Konpaku at most *BANKAI-KONPAKU*, the entry's condition): 0 cup 3 (NOME 100), red (300), 3 m: P enters
-the Bankai (its cinematic); 1 in the Bankai at once (no cinematic), 2.2 m: KKK, a whiffed K, JJJ ...; 2 in the Bankai
-with 1 pip, 2.2 m: the 4th strike, then the burst; 3 片腕 at 2.2 m."
-  (setf *probe* nil)
-  (ensure-battle :kenpachi :yamamoto)
-  (force-form *p1* :nomihose)
-  (place *p1* *p2* (if (zerop k) 3.0 2.2))
-  (full-gauges! *p1* 100f0)
-  (let ((g (gauges *p1*)))
-    (setf (gauges-reishi g) 300 (gauges-arm-pending g) nil
-          (gauges-konpaku g) (min (gauges-konpaku g) *bankai-konpaku*)))   ; the entry: <= 4 Konpaku (2026-09-28)
-  (setf (gauges-reishi (gauges *p2*)) (gauges-reishi-max (gauges *p2*)))
-  (case k
-    ((1 2) (let ((*skip-cines* t)) (bankai! *p1*))
-     (when (= k 2) (setf (gauges-meter (gauges *p1*)) 1f0) (refresh-look *p1*))
-     (place *p1* *p2* 2.2))
-    (3 (force-form *p1* :kataude) (setf (gauges-reishi (gauges *p1*)) 900))))
-
-(defparameter *rukia-tests*
-  ;; k: P1-form P2 P2-form distance
-  '((:base :kenpachi :base 5.0) (:m18 :kenpachi :base 2.2) (:m50 :kenpachi :base 2.2) (:zero :kenpachi :base 1.8)
-    (:zero :yamamoto :base 7.0) (:zero :kenpachi :base 5.0) (:zero :kenpachi :base 5.0) (:zero :kenpachi :base 4.0)
-    (:zero :kenpachi :base 3.0)))
-
-(defun rukia-test (k)
-  "Rukia's tests 2410+K (*RUKIA-TESTS*; human P1 Rukia, P2's CPU off): 3 P2's J1 into the ward (the freeze-touch), 4 P2's
-full Shiranui (optic), 5 P2's Breaker (the CRACK), 6 the Breaker answered by REIDO TOKETSU when it is within 5.5 m, 7
-zero left to warm out, 8 zero 3 m from him (hold U: braced to the CRACK). A :rukia probe logs \"duel probe rukia ...\" lines (form, state, Reishi, P2's state) every 10 f."
-  (destructuring-bind (f1 c2 f2 d) (nth k *rukia-tests*)
-    (setf *probe* nil)
-    (ensure-battle :rukia c2)
-    (force-form *p1* (if (eq f1 :zero) :m50 f1)) (force-form *p2* f2)
-    (place *p1* *p2* d)
-    (dolist (e (list *p1* *p2*)) (full-gauges! e 0f0))
-    (setf (gauges-meter (gauges *p1*)) (case f1 (:m50 150f0) (:zero *cold-max*) (t 0f0)))   ; the band's cold
-    (when (eq f1 :zero) (force-form *p1* :zero))
-    (set-probe :rukia k)
-    (let ((b (brain *p2*)))                             ; (the switched-off brain still writes its held button)
-      (case k
-        (3 (force-cmd *p2* :q))
-        (4 (force-cmd *p2* :sp1) (setf (brain-press b) :flash (brain-press-mod b) t (brain-press-left b) 70))
-        ((5 6) (force-cmd *p2* :breaker) (setf (brain-press b) :breaker (brain-press-mod b) nil (brain-press-left b) 60))))))
-
-(defparameter *kl-tests* '((:base 0 nil) (:m18 60 nil) (:m50 150 nil) (:zero 200 nil) (:m18 10 nil) (:base 0 t) (:m18 60 t))
-  "K -> L (2420+k): P1-form, its cold, P2 guarding. 4: -18 with 10 cold, short of L's 25 (refused); 5 / 6 blocked.")
-
-(defun rukia-kl-test (k)
-  "2420+k: human P1 Rukia (*KL-TESTS* k) 2.2 m from an idle Kenpachi (holding guard in 5 / 6); a :kl probe logs each hit
-P2 takes: its reaction, his stun frames left just before it (> 0: a combo), the combo count, P1's move and cold."
-  (destructuring-bind (form cold guard) (nth k *kl-tests*)
-    (setf *probe* nil)
-    (ensure-battle :rukia :kenpachi)
-    (force-form *p1* (if (eq form :zero) :m50 form)) (force-form *p2* :base)
-    (place *p1* *p2* 2.2)
-    (dolist (e (list *p1* *p2*)) (full-gauges! e 0f0))
-    (setf (gauges-meter (gauges *p1*)) (f32 cold))
-    (when (eq form :zero) (force-form *p1* :zero))
-    (when guard
-      (setf (fighter-state (fighter *p2*)) :guard (fighter-guard-t (fighter *p2*)) 30
-            (brain-press (brain *p2*)) :guard (brain-press-left (brain *p2*)) 999))
-    (set-probe :kl k 0 0)))
-
 (defparameter *hud-review*
   ;; P1 (character form meter) P2 (character form meter) low-gauge: the portrait HUD's last row in every form (stills)
   '(((:yamamoto :base 60) (:kenpachi :base 0) nil) ((:yamamoto :hellfire 0) (:kenpachi :nozarashi 20) t)
@@ -558,38 +469,6 @@ when K already runs, it continues to F."
           (stage-mark :crack (- (aref q 0) 1.2) (- (aref q 2) 1.4) 1.1) (stage-debris (- (aref q 0) 1.2) (- (aref q 2) 1.4) 5))
         (face-beat *p1* :shout 0.6) (face-beat *p2* :hurt 0.6))))                ; and both face accents
 
-(defun grip-drift-check ()
-  "2392: the left fist's gap to the cleaver's handle over every grip clip and every grip-clip -> grip-clip transition
-(a 4 f crossfade from 0.1 s before the first one's end), sampled at 60 Hz on P1's body, raw and after GRIP-LEFT! (W 1):
-'grip drift: raw max … mm, IK max … mm'."
-  (let* ((b (model-body (model *p1*))) (jm (make-f32 (* 16 +nj+))) (an (make-anim)) (raw 0.0) (ik 0.0) (worst nil) (iw nil)
-         (one (fv 1)) (per '()))
-    (flet ((sample (tag)
-             (pose-fk! jm (anim-eval an) 0.0 0.0 0.0 0.0 (body-scale b) (body-hunch b) (body-props b))
-             (let ((g (grip-gap jm)))
-               (when (> g raw) (setf raw g worst tag))
-               (grip-left! jm one)
-               (let ((g2 (grip-gap jm)))
-                 (when (> g2 ik) (setf ik g2 iw tag))
-                 (let ((e (assoc tag per :test #'equal)))
-                   (if e (setf (second e) (max (second e) g) (third e) (max (third e) g2)) (push (list tag g g2) per)))))))
-      (dolist (a *grip-clips*)
-        (anim-play an a :blend 0)
-        (let ((fr '()))
-          (loop for i from 0 below (floor (* 60 (clip-dur (find-clip a)))) do
-            (pose-fk! jm (anim-eval an) 0.0 0.0 0.0 0.0 (body-scale b) (body-hunch b) (body-props b))
-            (push (round (* 1000 (grip-gap jm))) fr)
-            (grip-left! jm one) (push (round (* 1000 (grip-gap jm))) fr)
-            (sample a) (anim-advance an (/ 1f0 60)))
-          (log-msg "grip ~a (raw/IK mm): ~{~d/~d~^ ~}" a (reverse fr)))
-        (dolist (c *grip-clips*)
-          (anim-play an a :blend 0)
-          (loop repeat (max 1 (floor (* 60 (- (clip-dur (find-clip a)) 0.1)))) do (anim-advance an (/ 1f0 60)))
-          (anim-play an c :blend 4f0)
-          (loop repeat 18 do (sample (list a c)) (anim-advance an (/ 1f0 60))))))
-    (dolist (e (reverse per)) (when (> (second e) 0.03) (log-msg "grip drift ~a: raw ~,0f mm, IK ~,0f mm" (first e) (* 1000 (second e)) (* 1000 (third e)))))
-    (log-msg "grip drift: raw max ~,0f mm (~a), IK max ~,0f mm (~a)" (* 1000 raw) worst (* 1000 ik) iw)))
-
 (defun vfx6-cons-check ()
   "2391: bytes consed by 10 draws of each Phase 6 per-frame look (docs/style/STYLE_STORM_DESIGN.md §14 Phase 6): the marks and
 chips (both pools full), a pillar beside the lens, the fire wave passing it, the skull, the rain, both face accents, the
@@ -702,13 +581,8 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2329) (brush-cons-check))
         ((= c 2390) (vfx5-cons-check))
         ((= c 2391) (vfx6-cons-check))
-        ((= c 2392) (grip-drift-check))
         ((<= 2330 c 2361) (module-test (- c 2330)))
         ((<= 2370 c 2379) (stance-test (- c 2370)))
-        ((<= 2380 c 2385) (nome-test (- c 2380)))
-        ((<= 2386 c 2389) (bankai-test (- c 2386)))
-        ((<= 2410 c 2418) (rukia-test (- c 2410)))
-        ((<= 2420 c 2426) (rukia-kl-test (- c 2420)))
         ((<= 2430 c 2438) (hud-review (- c 2430)))
         ((= c 2326) (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (clash! *p1* *p2*))
         ((<= 2322 c 2325) (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.5)
@@ -744,59 +618,9 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 31000 c 31033) (let ((m '(nil :always :never :sure)))
                               (setf (svref *ai-bankai-mode* 0) (nth (floor (- c 31000) 10) m)
                                     (svref *ai-bankai-mode* 1) (nth (mod (- c 31000) 10) m))))
-        ((<= 32000 c 32999) (setf *arm-self* (- c 32000)))
-        ((<= 33000 c 33999) (setf *arm-burst-self* (- c 33000)))
-        ((<= 34000 c 34999) (setf *arm-crack* (- c 34000)))
-        ((<= 37000 c 37100) (setf (getf (getf (kit-ai (find-kit :kenpachi :nomihose)) :bankai) :p) (/ (- c 37000) 100.0)))
-        ((<= 38000 c 38009) (setf (getf (getf (kit-ai (find-kit :kenpachi :nomihose)) :bankai) :own-konpaku) (- c 38000)))
         ((<= 39000 c 39022) (let ((m '(nil :always :never)))
                               (setf (svref *ai-awaken-mode* 0) (nth (floor (- c 39000) 10) m)
                                     (svref *ai-awaken-mode* 1) (nth (mod (- c 39000) 10) m))))
-        ((<= 43000 c 43100) (setf *frost-slow* (/ (- c 43000) 100.0)))
-        ((<= 44000 c 44999) (setf *zero-brace-drain* (/ (- c 44000) 10.0)))
-        ((<= 45000 c 45999) (setf *freeze-touch* (- c 45000)))
-        ((<= 46000 c 46999) (setf *ru-cool-rate* (float (- c 46000))))
-        ((<= 47000 c 47999) (setf *crack-self* (- c 47000)))
-        ((<= 48000 c 48300) (setf (kit-mult (find-kit :rukia :zero)) (/ (- c 48000) 100.0)))   ; zero's damage x k / 100
-        ((<= 49000 c 49099) (setf (getf (getf (kit-ai (find-kit :rukia :base)) :awaken) :melee-share) (/ (- c 49000) 100.0)))
-        ((<= 50000 c 50100) (dolist (f '(:m18 :m50)) (setf (getf (getf (kit-ai (find-kit :rukia f)) :cool) :p) (/ (- c 50000) 100.0))))
-        ((<= 51000 c 51999) (setf *ru-thaw-lock* (- c 51000)))
-        ((<= 53000 c 53099) (dolist (f '(:m18 :m50)) (setf (getf (getf (kit-ai (find-kit :rukia f)) :cool) :near) (/ (- c 53000) 10.0))))
-        ((<= 54000 c 54009) (setf (getf (getf (kit-ai (find-kit :rukia :base)) :intents) :zone) (- c 54000)))
-        ((<= 55000 c 55999) (setf (kit-warm (find-kit :rukia :zero)) (/ (- c 55000) 10.0)))   ; zero's warming k / 10 per s
-        ((<= 56000 c 56099) (setf (kit-walk (find-kit :rukia :m50)) (/ (- c 56000) 10.0)))
-        ((<= 57000 c 57099) (setf (kit-walk (find-kit :rukia :m18)) (/ (- c 57000) 10.0)))
-        ((<= 58000 c 58300) (setf (kit-mult (find-kit :rukia :base)) (/ (- c 58000) 100.0)))
-        ((<= 60000 c 60200) (setf (kit-taken (find-kit :rukia :base)) (/ (- c 60000) 100.0)))
-        ((<= 61000 c 61200) (loop for f in '(:m18 :m50 :zero) for r in '(1.0 0.9 0.889)   ; every band's damage taken,
-                                  do (setf (kit-taken (find-kit :rukia f)) (* r (/ (- c 61000) 100.0)))))   ; -18's = k / 100
-        ((<= 62000 c 62200) (setf *ru-block-cool* (/ (- c 62000) 100.0)))
-        ((<= 63000 c 63100) (setf *ru-hit-warm* (/ (- c 63000) 100.0)))
-        ((<= 65000 c 65100) (setf (getf (kit-field (find-kit :rukia :zero)) :away) (/ (- c 65000) 100.0)))
-        ((<= 66000 c 66100) (setf *field-floor* (/ (- c 66000) 100.0)))
-        ((<= 72000 c 72100) (setf (getf (kit-ai (find-kit :rukia :base)) :l-after-k) (/ (- c 72000) 100.0)))   ; her CPU's
-        ((<= 73000 c 73100) (dolist (f '(:m18 :m50 :zero))   ; L after a K link, k / 100 per hit: the Shikai / the bands
-                              (setf (getf (kit-ai (find-kit :rukia f)) :l-after-k) (/ (- c 73000) 100.0))))
-        ((= c 71000) (setf *reiatsu-glass*                      ; review stills: Kenpachi's reiatsu opaque / see-through
-                           (if (zerop (getf *reiatsu-glass* :nomihose)) '(:reiatsu 3 :nozarashi 3 :nomihose 2 :oni 2 :oni-ink 3)
-                               '(:reiatsu 0 :nozarashi 0 :nomihose 0 :oni 0 :oni-ink 0))))
-        ((<= 71001 c 71004) (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0)   ; his cups 1-3 (4: the Bankai)
-                            (force-form *p1* (nth (- c 71001) '(:nozarashi :ryote :nomihose :bankai)))
-                            (setf (gauges-meter (gauges *p1*)) (f32 (nth (- c 71001) '(20 70 100 4)))   ; NOME holds the cup
-                                  (gauges-meter-idle (gauges *p1*)) 0))
-        ((= c 68000) (dolist (n '(:rukia-zero :rukia-bankai))   ; review stills: the white Rukia's look before the ice
-                       (let ((b (find-body n)))                ; keyline (the ink, brows the hair's colour)
-                         (setf (body-ink b) nil (body-palette b) (cons '(:brow #xE4E8EE) (body-palette b)))
-                         (build-body b))))
-        ((= c 68001) (dolist (n '(:rukia-zero :rukia-bankai))   ; review stills: the white Rukia's lashes before playtest 2
-                       (let ((b (find-body n)))                ; (the ink's dark, not the brows' ice)
-                         (setf (body-palette b) (cons '(:lid #x141016) (body-palette b)))
-                         (build-body b))))
-        ((<= 67000 c 67200) (let ((g (gauges *p1*)) (f (fighter *p1*)))   ; P1's cold = k and the band it asks for (stills)
-                              (setf (gauges-meter g) (f32 (- c 67000)))
-                              (when (getf (kit-meter (fighter-kit f)) :temp)
-                                (let ((b (temp-band (gauges-meter g) (fighter-form f))))
-                                  (unless (eq b (fighter-form f)) (force-form *p1* b))))))
         ((<= 2500 c 2503)
          (setf *picks* (nth (- c 2500) '((:yamamoto :kenpachi) (:kenpachi :yamamoto) (:yamamoto :yamamoto) (:kenpachi :kenpachi)))
                *mode* :vs-cpu *match-seed* 1 *probe* nil)

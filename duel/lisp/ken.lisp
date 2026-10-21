@@ -803,3 +803,105 @@ Kenpachi laughing, head back."
   (during (68 162) (let ((q (pos-of v))) (vfx-sky-split (aref q 0) (aref q 2) (yaw-of a) (/ (- cf 68) 60.0) 1.5)))
   (at 102 (shot-on v 95 7.5 1.2 :look 1.0) (lens 50) (caption-exit))
   (at 132 (shot-on a 60 4.6 0.7 :look 1.4) (lens 45) (face-beat a :shout 1.0 t) (play-sfx :laugh :pitch 0.8)))
+
+;;; ================================================================ debug (KEN-DEBUG through *CHAR-DEBUG*; out of debug.lisp 2026-10-21)
+(declaim (special *probe*))   ; (debug.lisp's)
+
+(defparameter *nome-tests*
+  ;; k: P1 P1-form P2 P2-form distance P1-NOME
+  '((:kenpachi :nozarashi :yamamoto :base 4.0 38.0) (:kenpachi :nomihose :yamamoto :bankai-east 2.0 100.0)
+    (:kenpachi :nomihose :yamamoto :base 3.0 100.0) (:kenpachi :nomihose :yamamoto :base 3.0 100.0)
+    (:kenpachi :nomihose :yamamoto :base 4.0 100.0) (:yamamoto :bankai-west :kenpachi :ryote 2.5 0.0)))
+
+(defun nome-test (k)
+  "Nozarashi v2 test 2380+K (*NOME-TESTS*): human P1, P2's CPU off; the script presses the keys. 0 runs the :nome
+probe (the ladder), 1 the :drink probe (P2 mashes Quick), 2 / 4 hold P2's guard, 4 makes P2 red, 5 the :cut probe
+(P2, RYOTE, presses K K into West's held U)."
+  (destructuring-bind (c1 f1 c2 f2 d m) (nth k *nome-tests*)
+    (setf *probe* nil)                                   ; (a probe still running from the test before)
+    (ensure-battle c1 c2)
+    (force-form *p1* f1) (force-form *p2* f2)
+    (place *p1* *p2* d)
+    (dolist (e (list *p1* *p2*)) (full-gauges! e 0f0))   ; (the meters are set right below)
+    (setf (gauges-meter (gauges *p1*)) (f32 m) (gauges-meter (gauges *p2*)) (if (= k 5) 70f0 0f0))
+    (when (= k 4) (setf (gauges-reishi (gauges *p2*)) 200))
+    (let ((b (brain *p2*)))
+      (hold-guard! b (if (member k '(2 4)) 999 0)))
+    (case k
+      (0 (set-probe :nome nil))
+      (1 (set-probe :drink :quick))
+      (5 (set-probe :cut :flash)))))
+
+(defun bankai-test (k)
+  "Kenpachi's Bankai tests 2386+K (docs/duel/DUEL_KEN_BANKAI.md; human P1 Kenpachi, P2 an idle Yamamoto CPU; the script presses
+the keys; his Konpaku at most *BANKAI-KONPAKU*, the entry's condition): 0 cup 3 (NOME 100), red (300), 3 m: P enters
+the Bankai (its cinematic); 1 in the Bankai at once (no cinematic), 2.2 m: KKK, a whiffed K, JJJ ...; 2 in the Bankai
+with 1 pip, 2.2 m: the 4th strike, then the burst; 3 片腕 at 2.2 m."
+  (setf *probe* nil)
+  (ensure-battle :kenpachi :yamamoto)
+  (force-form *p1* :nomihose)
+  (place *p1* *p2* (if (zerop k) 3.0 2.2))
+  (full-gauges! *p1* 100f0)
+  (let ((g (gauges *p1*)))
+    (setf (gauges-reishi g) 300 (gauges-arm-pending g) nil
+          (gauges-konpaku g) (min (gauges-konpaku g) *bankai-konpaku*)))   ; the entry: <= 4 Konpaku (2026-09-28)
+  (setf (gauges-reishi (gauges *p2*)) (gauges-reishi-max (gauges *p2*)))
+  (case k
+    ((1 2) (let ((*skip-cines* t)) (bankai! *p1*))
+     (when (= k 2) (setf (gauges-meter (gauges *p1*)) 1f0) (refresh-look *p1*))
+     (place *p1* *p2* 2.2))
+    (3 (force-form *p1* :kataude) (setf (gauges-reishi (gauges *p1*)) 900))))
+
+(defun grip-drift-check ()
+  "2392: the left fist's gap to the cleaver's handle over every grip clip and every grip-clip -> grip-clip transition
+(a 4 f crossfade from 0.1 s before the first one's end), sampled at 60 Hz on P1's body, raw and after GRIP-LEFT! (W 1):
+'grip drift: raw max … mm, IK max … mm'."
+  (let* ((b (model-body (model *p1*))) (jm (make-f32 (* 16 +nj+))) (an (make-anim)) (raw 0.0) (ik 0.0) (worst nil) (iw nil)
+         (one (fv 1)) (per '()))
+    (flet ((sample (tag)
+             (pose-fk! jm (anim-eval an) 0.0 0.0 0.0 0.0 (body-scale b) (body-hunch b) (body-props b))
+             (let ((g (grip-gap jm)))
+               (when (> g raw) (setf raw g worst tag))
+               (grip-left! jm one)
+               (let ((g2 (grip-gap jm)))
+                 (when (> g2 ik) (setf ik g2 iw tag))
+                 (let ((e (assoc tag per :test #'equal)))
+                   (if e (setf (second e) (max (second e) g) (third e) (max (third e) g2)) (push (list tag g g2) per)))))))
+      (dolist (a *grip-clips*)
+        (anim-play an a :blend 0)
+        (let ((fr '()))
+          (loop for i from 0 below (floor (* 60 (clip-dur (find-clip a)))) do
+            (pose-fk! jm (anim-eval an) 0.0 0.0 0.0 0.0 (body-scale b) (body-hunch b) (body-props b))
+            (push (round (* 1000 (grip-gap jm))) fr)
+            (grip-left! jm one) (push (round (* 1000 (grip-gap jm))) fr)
+            (sample a) (anim-advance an (/ 1f0 60)))
+          (log-msg "grip ~a (raw/IK mm): ~{~d/~d~^ ~}" a (reverse fr)))
+        (dolist (c *grip-clips*)
+          (anim-play an a :blend 0)
+          (loop repeat (max 1 (floor (* 60 (- (clip-dur (find-clip a)) 0.1)))) do (anim-advance an (/ 1f0 60)))
+          (anim-play an c :blend 4f0)
+          (loop repeat 18 do (sample (list a c)) (anim-advance an (/ 1f0 60))))))
+    (dolist (e (reverse per)) (when (> (second e) 0.03) (log-msg "grip drift ~a: raw ~,0f mm, IK ~,0f mm" (first e) (* 1000 (second e)) (* 1000 (third e)))))
+    (log-msg "grip drift: raw max ~,0f mm (~a), IK max ~,0f mm (~a)" (* 1000 raw) worst (* 1000 ik) iw)))
+
+(defun ken-debug (c)
+  "His debug commands (docs/duel/DUEL_GAMEPLAY.md \"Debug commands\"): 2380+k NOME-TEST k, 2386+k BANKAI-TEST k, 2392
+GRIP-DRIFT-CHECK; the Bankai's knobs 32000+k *ARM-SELF*, 33000+k *ARM-BURST-SELF*, 34000+k *ARM-CRACK*, 37000+k the entry's
+:p = k / 100, 38000+k its :own-konpaku = k; 71000 his reiatsu opaque / see-through, 71001+k cup k+1 (4: the Bankai) stills."
+  (cond ((<= 2380 c 2385) (nome-test (- c 2380)))
+        ((<= 2386 c 2389) (bankai-test (- c 2386)))
+        ((= c 2392) (grip-drift-check))
+        ((<= 32000 c 32999) (setf *arm-self* (- c 32000)))
+        ((<= 33000 c 33999) (setf *arm-burst-self* (- c 33000)))
+        ((<= 34000 c 34999) (setf *arm-crack* (- c 34000)))
+        ((<= 37000 c 37100) (setf (getf (getf (kit-ai (find-kit :kenpachi :nomihose)) :bankai) :p) (/ (- c 37000) 100.0)))
+        ((<= 38000 c 38009) (setf (getf (getf (kit-ai (find-kit :kenpachi :nomihose)) :bankai) :own-konpaku) (- c 38000)))
+        ((= c 71000) (setf *reiatsu-glass*                      ; review stills: Kenpachi's reiatsu opaque / see-through
+                           (if (zerop (getf *reiatsu-glass* :nomihose)) '(:reiatsu 3 :nozarashi 3 :nomihose 2 :oni 2 :oni-ink 3)
+                               '(:reiatsu 0 :nozarashi 0 :nomihose 0 :oni 0 :oni-ink 0))))
+        ((<= 71001 c 71004) (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0)   ; his cups 1-3 (4: the Bankai)
+                            (force-form *p1* (nth (- c 71001) '(:nozarashi :ryote :nomihose :bankai)))
+                            (setf (gauges-meter (gauges *p1*)) (f32 (nth (- c 71001) '(20 70 100 4)))   ; NOME holds the cup
+                                  (gauges-meter-idle (gauges *p1*)) 0))))
+(dolist (r '((2380 2389 ken-debug) (2392 2392 ken-debug) (32000 34999 ken-debug) (37000 38009 ken-debug) (71000 71004 ken-debug)))
+  (pushnew r *char-debug* :test #'equal))
