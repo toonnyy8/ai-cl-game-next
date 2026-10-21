@@ -101,7 +101,7 @@ Battle cinematics stay unskippable in PRACTICE too.
 ## Files
 
 `duel/MANIFEST` order: `package`, `tuning`, `rules`, `control` (plain CL, host-tested), `sounds`,
-`components`, `body`, `kit`, `cinema`, `stage`, `vfx`, `yama-art`, `ken-art`, `rukia-art`, `ichigo-art`, `senjumaru-art`,
+`components`, `body`, `kit`, `cinema`, `stage`, `vfx`, `vfx-stamps`, `yama-vfx`, `yama-art`, `ken-art`, `rukia-art`, `ichigo-art`, `ichigo-look`, `senjumaru-art`,
 `yama`, `ken`, `rukia`, `ichigo` (the characters: data, hooks, cinematics; Ichigo's and Senjumaru's mechanics live in their
 own files and the generic ones call them through the kit's `:hooks`, DUEL_DESIGN "Character code layout"), `endless-rules`
 (plain CL, host-tested), `fighter`, `combat`, `hazards`, `ai`, `camera`, `feedback`, `flow`, `hud`, `onehand`, `senjumaru`

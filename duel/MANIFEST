@@ -28,6 +28,7 @@ lisp/yama-art.lisp
 lisp/ken-art.lisp
 lisp/rukia-art.lisp
 lisp/ichigo-art.lisp
+lisp/ichigo-look.lisp
 lisp/senjumaru-art.lisp
 lisp/yama.lisp
 lisp/ken.lisp
