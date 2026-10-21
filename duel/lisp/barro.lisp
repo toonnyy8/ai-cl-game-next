@@ -522,7 +522,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (br-defstring :j :br-j2 :kind :quick :clip :lb-q2 :startup 7 :active 3 :recovery 13 :dmg 22 :adv-block -2
   :reach 1.45 :arc 110 :on-hit :flinch :stun *br-j-link-stun*)
 ;; (R16, the user 2026-10-12: 「普通攻擊的 J3 幫我插入更多關鍵幀並放慢一些速度」: its own clip :br-jab, startup 7 -> 10, recovery
-;; 16 -> 18 after V8; Lille's :lb-jab is the old Lille's)
+;; 16 -> 18 after V8; the old Lille's :lb-jab went 2026-10-21)
 (br-defstring :j :br-j3 :kind :quick :clip :br-jab :clip-s 10 :startup 12 :active 3 :recovery 20 :dmg 28 :adv-block -4
   :reach 1.6 :arc 70 :on-hit :stagger :flags (:ender))
 ;; (the user 2026-10-12: 「將常態的普攻 K 動作模組改的更加明顯大膽」: the K string's own clips :br-f1 / -f2 / -f3, authored at

@@ -2688,7 +2688,7 @@ past the ends; DEFAULT if the clip is not listed."
       (clip-sample! p2 (find-clip c) 0.0)
       (check (every (lambda (a b) (< (abs (- a b)) 1e-4)) pose p2))))
   ;; R16 (§20, the user 2026-10-12: 「普通攻擊的 J3 幫我插入更多關鍵幀並放慢一些速度」): the base form's attack-state J3 銃口突
-  ;; :br-j3 plays its own clip :br-jab (Lille's :lb-jab is the old Lille's) at speed 1: S 10, A 3, R 18, the clip lasting
+  ;; :br-j3 plays its own clip :br-jab (the old Lille's :lb-jab went 2026-10-21) at speed 1: S 10, A 3, R 18, the clip lasting
   ;; them, its :s on S (its drawn reach: the generic J / K reach check above)
   (let ((m (find-move :br-j3)))
     (check (or (and (eq (mv-clip m) :br-jab) (null (mv-clip-2 m)) (~= 1.0 (mv-clip-speed m))

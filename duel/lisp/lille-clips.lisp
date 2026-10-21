@@ -6,7 +6,8 @@
 
 ;;; ---------------------------------------------------------------- poses and clips: the base form
 ;;; Upright and still, Diagramm levelled at the hip (idle) or shouldered (aim). The J links swing the plank (the rifle
-;;; reversed), J3 and the K links strike with the muzzle cross.
+;;; reversed); J3's muzzle-cross pose stays (barro-art.lisp's :br-jab-hit bases on it; the old Lille's J3 / K1-K3 strikes and
+;;; his K -> L snap shot went 2026-10-21, refactor round 2).
 (defpose :lb-stance ()
   (:root :u -0.03) (:pelvis :twist 12) (:spine :flex 2) (:chest :twist -8) (:neck :twist -4) (:head :twist -4)
   (:arm-r :flex 16 :side 12) (:elbow-r :flex 64) (:hand-r :flex -78)
@@ -26,11 +27,6 @@
   (:s :snap (:root :f -0.04) (:head :flex 2))
   (:a (:root :f -0.1) (:arm-r :flex 70 :side 32) (:chest :flex -6))
   (20 (:root :f -0.04) (:arm-r :flex 50) (:elbow-r :flex 90) (:hand-r :flex -140))
-  (:end :lb-stance))
-(defstrike :lb-snap (6 2 20 :base :lb-stance)          ; K -> L: the snap shot from the hip
-  (0 (:arm-r :flex 40) (:hand-r :flex -100))
-  (:s :snap (:root :f -0.03) (:arm-r :flex 30 :side 14) (:elbow-r :flex 60) (:hand-r :flex -90) (:chest :twist -12))
-  (:a (:root :f -0.08))
   (:end :lb-stance))
 
 ;; J1 SHOBI-UCHI: the rifle reversed, the plank swung up from the hip into him
@@ -54,51 +50,10 @@
   (:a :lb-q2-hit)
   (17 (:root :f 0.1) (:chest :twist -6) (:arm-r :flex 40) (:hand-r :flex 0))
   (:end :lb-stance))
-;; J3 JUKO-TSUKI: the muzzle cross jabbed up into his face, the hand at the hip
+;; J3 JUKO-TSUKI's hit pose: the muzzle cross jabbed up into his face, the hand at the hip (:br-jab-hit's base)
 (defpose :lb-jab-hit (:base :lb-stance)
   (:root :f 0.0 :u -0.06) (:chest :twist 4) (:arm-r :flex 24 :side 12) (:elbow-r :flex 46) (:hand-r :flex -24)
   (:arm-l :flex 70) (:elbow-l :flex 30) (:thigh-r :flex 16) (:knee-r :flex 14))
-(defstrike :lb-jab (9 3 18 :base :lb-stance)
-  (0)
-  (5 (:root :f -0.06) (:arm-r :flex 0) (:elbow-r :flex 40) (:hand-r :flex -40))
-  (:s :snap :lb-jab-hit)
-  (:a :lb-jab-hit)
-  (22 (:arm-r :flex 16) (:elbow-r :flex 60) (:hand-r :flex -70))
-  (:end :lb-stance))
-;; K1 JUSHIN-NAGI: the barrel swept flat across him
-(defpose :lb-f1-hit (:base :lb-stance)
-  (:root :f 0.0 :u -0.08) (:pelvis :twist -6) (:chest :twist -20) (:arm-r :flex 36 :side 16) (:elbow-r :flex 6) (:hand-r :flex -42)
-  (:arm-l :flex 50 :side 10) (:elbow-l :flex 30) (:thigh-l :flex 16) (:knees :flex 12))
-(defstrike :lb-f1 (17 4 21 :base :lb-stance)
-  (0)
-  (10 (:root :u -0.08) (:chest :twist 36) (:arm-r :flex 40 :side 50) (:elbow-r :flex 20) (:hand-r :flex -60))
-  (:s :snap :lb-f1-hit)
-  (:a :lb-f1-hit)
-  (30 (:chest :twist -10) (:arm-r :flex 30 :side 20) (:elbow-r :flex 40))
-  (:end :lb-stance))
-;; K2 FURIOROSHI: the barrel raised overhead and brought down onto him
-(defpose :lb-f2-hit (:base :lb-stance)
-  (:root :f 0.0 :u -0.1) (:spine :flex 14) (:arm-r :flex 66 :side 8) (:elbow-r :flex 4) (:hand-r :flex -80)
-  (:arm-l :flex 70) (:elbow-l :flex 20) (:knees :flex 16))
-(defstrike :lb-f2 (20 4 24 :base :lb-stance)
-  (0)
-  (10 (:spine :flex -8) (:arm-r :flex 150 :side 10) (:elbow-r :flex 20) (:hand-r :flex -100) (:arm-l :flex 150) (:elbow-l :flex 20))
-  (16 (:spine :flex -10) (:arm-r :flex 160))
-  (:s :snap :lb-f2-hit)
-  (:a :lb-f2-hit)
-  (34 (:spine :flex 4) (:arm-r :flex 40) (:elbow-r :flex 40))
-  (:end :lb-stance))
-;; K3 REI-KYORI: the muzzle pressed in level and fired point-blank
-(defpose :lb-f3-hit (:base :lb-stance)
-  (:root :f 0.0 :u -0.1) (:spine :flex 8) (:arm-r :flex 38 :side 8) (:elbow-r :flex 34) (:hand-r :flex -72)
-  (:arm-l :flex 74) (:elbow-l :flex 10) (:thigh-r :flex 18) (:knee-r :flex 16))
-(defstrike :lb-f3 (21 5 34 :base :lb-stance)
-  (0)
-  (12 (:root :f -0.08) (:arm-r :flex 20) (:elbow-r :flex 80) (:hand-r :flex -100))
-  (:s :snap :lb-f3-hit)
-  (:a (:root :f -0.04) (:head :flex 4))                ; the shot's kick
-  (44 (:arm-r :flex 20) (:elbow-r :flex 60))
-  (:end :lb-stance))
 
 ;; SP1 SANREN: three snap shots from the shoulder, turning between them
 (defstrike :lb-sanren (12 22 24 :base :lb-aim-pose)
@@ -840,9 +795,8 @@
 ;;; ---- the owl on Jilliel's system (decision 36, DUEL_LILLE §23.14): functional clips. 遠 EN (decision 38: 「遠程模式翼張開、
 ;;; 站直」) floats (the kit's :lift, *LB-OWL-LIFT*) bolt upright, the S-neck raised tall, the long arms hanging open at the
 ;;; sides, the thighs a little forward and the ㄇ legs folded up under the column (LILLE-DRAW tucks them), the eight wings fanned wide
-;;; and forward; 近 KIN is the pitched claw stance above (the wings swept back). MUJITTAI keeps each mode's silhouette: EN's
-;;; upright, floating (:lb-oe-fold), KIN's pitched on its legs (:lb-o-fold); the arms crossed low before the column (the
-;;; wings curl round it). EN's SP1 裁きの光明: three chops, right, left, both, one a line (f6, f12, f18). TENSHIN: the owl
+;;; and forward; 近 KIN is the pitched claw stance above (the wings swept back). KIN's arms crossed low before the column
+;;; (:lb-o-fold-pose, the old MUJITTAI's: Lille's KIN -> EN turn, barro-art.lisp's :br-o-to-en, starts from it). EN's SP1 裁きの光明: three chops, right, left, both, one a line (f6, f12, f18). TENSHIN: the owl
 ;;; crouched, the arms swept back, the flash step (in: the wind-up first, the arms raised, 16 f; the cancel enters it at
 ;;; f14); the form (and its lift) changes inside the dash, so the clip's root height steps by the lift there to hide it.
 (defpose :lb-oe-stance (:base :lb-o-stance)
@@ -853,11 +807,6 @@
 (defpose :lb-o-fold-pose (:base :lb-o-stance)
   (:root :u -0.03) (:spine :flex 26) (:head :flex 14) (:arm-r :flex 34 :side 18 :twist 45) (:elbow-r :flex 118)
   (:arm-l :flex 34 :side 18 :twist -45) (:elbow-l :flex 118))
-(defclip :lb-o-fold (2.0 :loop t :base :lb-o-fold-pose) (0) (1.0 (:root :u -0.06)))
-(defpose :lb-oe-fold-pose (:base :lb-oe-stance)
-  (:root :u 0.0) (:head :flex 6) (:arm-r :flex 34 :side 18 :twist 45) (:elbow-r :flex 118)
-  (:arm-l :flex 34 :side 18 :twist -45) (:elbow-l :flex 118))
-(defclip :lb-oe-fold (2.0 :loop t :base :lb-oe-fold-pose) (0) (1.0 (:root :u 0.05)))
 ;; Decision 56: the owl EN's own six casts at EN's frames (KIN's claw clips at :clip-s / S before): upright and afloat, the
 ;; claws thrown down onto the ground line, the striking claw's tip at the move's :reach on S (the frame the line is laid;
 ;; the host's cast check). Solved as KIN's above.

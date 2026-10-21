@@ -394,7 +394,7 @@
 (defpose :br-pl-brace-kick (:base :br-pl-kick)   ; its recoil: muzzle (0.01 1.69 1.90) az -3.2 el 12.0, grip (0.11 1.33 0.19)
   (:root :f -0.1 :u -0.14) (:head :flex 10 :twist 16) (:thigh-r :flex -16 :side 12) (:knee-r :flex 30) (:thigh-l :flex 34 :side 10) (:knee-l :flex 44))
 ;; the base form's J3 銃口突 JUKO-TSUKI (R16, DUEL_LILLE_V3 §20, the user 2026-10-12: 「普通攻擊的 J3 幫我插入更多關鍵幀並放慢
-;; 一些速度」; its own clip: Lille's :lb-jab stays the old Lille's): the muzzle cross jabbed up into his face, in the base form's
+;; 一些速度」; its own clip; the old Lille's :lb-jab went 2026-10-21): the muzzle cross jabbed up into his face, in the base form's
 ;; big readable style: drawn back low over 8 f (the weight on the back foot, the rifle dipped and pulled in, the free hand
 ;; up), a held beat, then the whole body driven into the thrust (stretched, *BR-SQUASH*), the hit S 10 (the muzzle as
 ;; :lb-jab-hit's, its reach 1.6 m: the host FK test), held through A, the recoil rocking him back, the rifle let down
@@ -422,7 +422,7 @@
   (26 :lb-stance (:root :u -0.04)) (:end :lb-stance))
 ;; ---------------------------------------------------------------- the base form's attack-state K string, bold (K1-K3)
 ;; The user 2026-10-12: 「將常態的普攻 K 動作模組改的更加明顯大膽」: :br-k1 / :br-k2 / :br-k3 (and the copy :br-k2s) play
-;; their own clips (the old Lille's :lb-f1 / -f2 / -f3 stay his), the same three ideas exaggerated in the stance clips'
+;; their own clips (the old Lille's :lb-f1 / -f2 / -f3 went 2026-10-21), the same three ideas exaggerated in the stance clips'
 ;; style (bigger wind-ups held a beat, the body thrown round, the weight shifted onto a stepped foot, a held impact, a long
 ;; follow-through, the squash and stretch *BR-SQUASH*). Each at its move's own frames (S A R after decision V8, played at
 ;; speed 1: :clip-s = S); K2 / K3 are links, entered on their frame 7 / 8 (:enter) from the pose the link before holds at
