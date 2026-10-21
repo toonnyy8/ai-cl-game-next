@@ -1093,77 +1093,101 @@ level). On a cross slot with a bar for SP1 it wants one pass: the quick single r
     (when lit (%hrect (- cx (* 0.5f0 nw)) (+ y (* 0.05f0 h)) nw (* 0.1f0 h) 0.82f0 0.06f0 0.11f0 a))   ; the thread
     nil))
 
-(defun senju-hud-meter (e kit x y w h right tm lx ly ls)
+(defun-fast senju-hud-meter (e kit x y w h right tm lx ly ls)
   "Her kit-meter row (LX LY LS: where the landscape label goes, NIL in the portrait slot): the Shikai's six needle pips
 (lit by the stitches, the next to fall flickering in its last 30 f, a refused L flashes the row) and the brush 針 HARI;
 the Bankai's six hank swatches in the queue's order, in its three SP1 pairs (the next lit and raised, filling in three
 steps while she weaves, the live zones' draining, a torn one slashed, a refused release washing the next one white; the
 two SP1 would release framed: one gold frame round a designed pair, a grey one round each of a cross pair; bright with
-the bar for it) and the brush 機 + the next hank's short name."
-  (let* ((f (fighter e)) (g (gauges e)) (st (sj e)) (side (fighter-side f)) (x (f32 x)) (y (f32 y)) (w (f32 w)) (h (f32 h))
-         (next (form-hank (kit-form kit))) (pw (if next (/ w 7.5) (/ w 6.6))) (gap (* 0.12 pw)) (pgap (if next (* 0.45 pw) 0.0))
-         (hh (* 2.6 h)) (y0 (- y (* 0.8 h)))
-         (refused (max 0.0 (- 1.0 (* 4.0 (- tm (aref *refused-t* side))))))
-         (zones (and next (senju-live-zones e))))     ; (read once: nothing changes them during a draw)
-    (flet ((slot-x (i) (let ((o (+ (* i (+ pw gap)) (* (floor i 2) pgap)))) (f32 (if right (- (+ x w) o pw) (+ x o))))))
-    (when next                                          ; SP1's two hanks: a designed pair, or a cross pair
-      (let* ((s (hank-slot next)) (a (if (>= (reiatsu-bars e) (kit-command-cost kit :sp1)) 1.0 0.35))
-             (top (f32 (- y0 (* 0.25 hh) 3))) (fh (f32 (+ (* 1.25 hh) 5))))
-        (if (tachi-aligned-p next)
-            (let ((x0 (min (slot-x s) (slot-x (1+ s)))))
-              (%houtline (f32 (- x0 3)) top (f32 (+ pw pw gap 6)) fh 0.76f0 0.66f0 0.4f0 (f32 a)))
-            (flet ((cross (i) (%houtline (f32 (- (slot-x i) 2)) top (f32 (+ pw 4)) fh 0.55f0 0.55f0 0.6f0 (f32 (* 0.8 a)))))
-              (cross s) (cross (mod (1+ s) 6))))))
-    (dotimes (i 6)
-      (let* ((px (slot-x i)))
-        (if (null next)
-            (let* ((n (round (gauges-meter g))) (lit (< i n))
-                   (flick (if (and lit (= i (1- n)) (<= (hari-falls-in n (gauges-meter-idle g)) 30))
-                              (+ 0.35 (* 0.65 (%pulse (f32 tm) 8.0))) 1.0)))
-              (%sj-needle px (f32 y0) (f32 pw) (f32 hh) lit (f32 flick)))
-            (let* ((k (nth i *hank-order*)) (dye (hank-dye k)) (lit (= k next)) (lift (if lit (* 0.25 hh) 0.0))
-                   (live (find k zones :key (lambda (z) (let ((hz (hazard z))) (if hz (sjh-hank (hazard-data hz)) 0)))))
-                   (a (if (or lit live) 1.0 0.55)) (torn-age (- *match-tick* (sjs-torn st))))
-              (%hrect px (f32 (- y0 lift)) (f32 pw) (f32 hh) (f32 (first dye)) (f32 (second dye)) (f32 (third dye)) (f32 a))
-              (%houtline px (f32 (- y0 lift)) (f32 pw) (f32 hh) (if lit 0.76f0 0.3f0) (if lit 0.66f0 0.3f0) (if lit 0.4f0 0.34f0) 1f0)
-              (when lit                                  ; the passes stored on it fill it in three steps (every segment)
-                (let ((p (senju-stored e)))
-                  (%hrect px (f32 (+ (- y0 lift) (* hh (- 1.0 (/ p 3.0))))) (f32 pw) (f32 (* hh (/ p 3.0)))
-                          0.95f0 0.9f0 0.8f0 0.55f0))
-                  (when (> refused 0.0)                  ; a refused release (nothing woven): the swatch washes white
-                    (%hrect px (f32 (- y0 lift)) (f32 pw) (f32 hh) 1f0 1f0 1f0 (f32 (* 0.85 refused)))))
-              (when live                                 ; the live zone's life, draining
-                (let* ((hz (hazard live))
-                       (fr (if hz (if (plusp (hazard-delay hz)) 1.0 (max 0.0 (- 1.0 (/ (hazard-age hz) (float (max 1 (hazard-life hz))))))) 0.0)))
-                  (%hrect px (f32 (+ y0 hh 2)) (f32 (* pw fr)) (f32 (max 1.0 (* 0.3 h))) 0.95f0 0.9f0 0.85f0 (f32 (+ 0.6 (* 0.4 (%pulse (f32 tm) 2.0)))))))
-              (when (and (= k (sjs-torn-hank st)) (<= 0 torn-age *torn-lock*))   ; torn: a BLOOD slash, the lock grey
-                (%hq (+ px (* 0.8 pw)) y0 (+ px pw) y0 (+ px (* 0.2 pw)) (+ y0 hh) px (+ y0 hh) 0.82f0 0.06f0 0.11f0
-                     (f32 (max 0.3 (- 1.0 (/ torn-age 30.0)))))
-                (%hrect px (f32 (+ y0 hh 2)) (f32 (* pw (- 1.0 (/ torn-age (float *torn-lock*))))) (f32 (max 1.0 (* 0.3 h)))
-                        0.5f0 0.51f0 0.55f0 0.9f0)))))))
-    (when (> refused 0.0) (%houtline (f32 (- x 2)) (f32 (- y0 2)) (f32 (+ w 4)) (f32 (+ hh 4)) 1f0 1f0 1f0 (f32 refused)))
-    (when lx                                          ; the label: the brush 針 / 機 and HARI / the next hank
-      (let* ((em (* 8 ls)) (kanji (if next "機" "針")) (col (if next '(0.76 0.66 0.4 1.0) '(0.82 0.06 0.11 1.0))))
-        (brush-text kanji (if right (- lx (* 0.5 em)) (+ lx (* 0.5 em))) (+ ly (* 3.5 ls)) em col)
-        (hud-text (if next (hank next :short) "HARI") (if right (- lx em (* 2 ls)) (+ lx em (* 2 ls))) ly ls col
-                  :align (if right :right :left))))))
-
-(defun senju-ring (e ox oy d)
-  "The one-hand thumb ring (her kit's :deck hook): six needle ticks lit by the stitches; in the Bankai, while L is held, three
-pass ticks filling in the next hank's dye."
-  (let* ((f (fighter e)) (next (form-hank (fighter-form f))) (r (* d 56.0)))
-    (if (null next)
-        (let ((n (hari e)))
+the bar for it) and the brush 機 + the next hank's short name. (A DEFUN-FAST with its float locals declared: the same
+single-float operations, in the same order, as the generic body before it (refactor round 3, REFACTOR_NEXT N2).)"
+  (with-floats (x y w h tm)
+    (let* ((g (gauges e)) (st (sj e)) (side (fighter-side (fighter e)))
+           (next (form-hank (kit-form kit))) (pw (if next (/ w 7.5f0) (/ w 6.6f0))) (gap (* 0.12f0 pw))
+           (pgap (if next (* 0.45f0 pw) 0f0)) (hh (* 2.6f0 h)) (y0 (- y (* 0.8f0 h)))
+           (refused (f-max 0f0 (- 1f0 (* 4f0 (- tm (aref *refused-t* side))))))
+           (zones (and next (senju-live-zones e))))     ; (read once: nothing changes them during a draw)
+      (declare (fixnum side) (single-float pw gap pgap hh y0 refused))
+      (macrolet ((slot-x (i) `(let* ((i ,i) (o (+ (* (i->f i) (+ pw gap)) (* (i->f (ash i -1)) pgap))))
+                                (declare (fixnum i) (single-float o))
+                                (if right (- (+ x w) o pw) (+ x o)))))
+        (when next                                      ; SP1's two hanks: a designed pair, or a cross pair
+          (let* ((s (hank-slot next)) (a (if (>= (reiatsu-bars e) (kit-command-cost kit :sp1)) 1f0 0.35f0))
+                 (top (- y0 (* 0.25f0 hh) 3f0)) (fh (+ (* 1.25f0 hh) 5f0)))
+            (declare (fixnum s) (single-float a top fh))
+            (if (tachi-aligned-p next)
+                (let ((x0 (f-min (slot-x s) (slot-x (1+ s)))))
+                  (declare (single-float x0))
+                  (%houtline (- x0 3f0) top (+ pw pw gap 6f0) fh 0.76f0 0.66f0 0.4f0 a))
+                (macrolet ((cross (i) `(%houtline (- (slot-x ,i) 2f0) top (+ pw 4f0) fh 0.55f0 0.55f0 0.6f0 (* 0.8f0 a))))
+                  (cross s) (cross (mod (1+ s) 6))))))
+        (let ((n (if next 0 (round (gauges-meter g)))))   ; (the Shikai's stitches: one read, the loop draws)
+          (declare (fixnum n))
           (dotimes (i 6)
-            (let* ((a (+ (* -0.5 pi) (* i (/ pi 3.0)))) (x (+ ox (* r (cos a)))) (y (+ oy (* r (sin a)))) (lit (< i n)))
-              (%hrect (f32 (- x (* 2 d))) (f32 (- y (* 2 d))) (f32 (* 4 d)) (f32 (* 4 d))
-                      (if lit 0.82f0 0.3f0) (if lit 0.06f0 0.3f0) (if lit 0.11f0 0.32f0) (if lit 1f0 0.6f0)))))
-        (when (and (eq (fighter-phase f) :hold) (fighter-move f) (getf (mv-params (fighter-move f)) :hank))
-          (let ((p (min 3 (floor (fighter-hold f) *weave-pass*))) (dye (hank-dye next)))
-            (dotimes (i 3)
-              (let* ((a (+ (* -0.5 pi) (* (1- i) 0.5))) (x (+ ox (* r (cos a)))) (y (+ oy (* r (sin a)))) (lit (< i p)))
-                (%hrect (f32 (- x (* 3 d))) (f32 (- y (* 3 d))) (f32 (* 6 d)) (f32 (* 6 d))
-                        (f32 (if lit (first dye) 0.2)) (f32 (if lit (second dye) 0.2)) (f32 (if lit (third dye) 0.22)) 1f0))))))))
+            (let* ((px (slot-x i)))
+              (declare (single-float px))
+              (if (null next)
+                  (let* ((lit (< i n))
+                         (flick (if (and lit (= i (1- n)) (<= (the fixnum (hari-falls-in n (gauges-meter-idle g))) 30))
+                                    (+ 0.35f0 (* 0.65f0 (%pulse tm 8.0))) 1f0)))
+                    (declare (single-float flick))
+                    (%sj-needle px y0 pw hh lit flick))
+                  (let* ((k (nth i *hank-order*)) (dye (hank-dye k)) (lit (= k next)) (lift (if lit (* 0.25f0 hh) 0f0))
+                         (live (find k zones :key (lambda (z) (let ((hz (hazard z))) (if hz (sjh-hank (hazard-data hz)) 0)))))
+                         (a (if (or lit live) 1f0 0.55f0)) (torn-age (- *match-tick* (sjs-torn st))))
+                    (declare (fixnum k torn-age) (single-float lift a))
+                    (%hrect px (- y0 lift) pw hh (f32 (first dye)) (f32 (second dye)) (f32 (third dye)) a)
+                    (%houtline px (- y0 lift) pw hh (if lit 0.76f0 0.3f0) (if lit 0.66f0 0.3f0) (if lit 0.4f0 0.34f0) 1f0)
+                    (when lit                            ; the passes stored on it fill it in three steps (every segment)
+                      (let ((p (i->f (senju-stored e))))
+                        (declare (single-float p))
+                        (%hrect px (+ (- y0 lift) (* hh (- 1f0 (/ p 3f0)))) pw (* hh (/ p 3f0)) 0.95f0 0.9f0 0.8f0 0.55f0))
+                      (when (> refused 0f0)              ; a refused release (nothing woven): the swatch washes white
+                        (%hrect px (- y0 lift) pw hh 1f0 1f0 1f0 (* 0.85f0 refused))))
+                    (when live                           ; the live zone's life, draining
+                      (let* ((hz (hazard live))
+                             (fr (if hz (if (plusp (hazard-delay hz)) 1f0
+                                            (f-max 0f0 (- 1f0 (/ (i->f (hazard-age hz)) (i->f (max 1 (the fixnum (hazard-life hz))))))))
+                                     0f0)))
+                        (declare (single-float fr))
+                        (%hrect px (+ y0 hh 2f0) (* pw fr) (f-max 1f0 (* 0.3f0 h)) 0.95f0 0.9f0 0.85f0 (+ 0.6f0 (* 0.4f0 (%pulse tm 2.0))))))
+                    (when (and (= k (the fixnum (sjs-torn-hank st))) (<= 0 torn-age (the fixnum *torn-lock*)))   ; torn: a BLOOD slash, the lock grey
+                      (%hq (+ px (* 0.8f0 pw)) y0 (+ px pw) y0 (+ px (* 0.2f0 pw)) (+ y0 hh) px (+ y0 hh) 0.82f0 0.06f0 0.11f0
+                           (f-max 0.3f0 (- 1f0 (/ (i->f torn-age) 30f0))))
+                      (%hrect px (+ y0 hh 2f0) (* pw (- 1f0 (/ (i->f torn-age) (i->f (the fixnum *torn-lock*))))) (f-max 1f0 (* 0.3f0 h))
+                              0.5f0 0.51f0 0.55f0 0.9f0))))))))
+      (when (> refused 0f0) (%houtline (- x 2f0) (- y0 2f0) (+ w 4f0) (+ hh 4f0) 1f0 1f0 1f0 refused))
+      (when lx                                          ; the label: the brush 針 / 機 and HARI / the next hank
+        (let* ((em (* 8 ls)) (kanji (if next "機" "針")) (col (if next '(0.76 0.66 0.4 1.0) '(0.82 0.06 0.11 1.0))))
+          (brush-text kanji (if right (- lx (* 0.5 em)) (+ lx (* 0.5 em))) (+ ly (* 3.5 ls)) em col)
+          (hud-text (if next (hank next :short) "HARI") (if right (- lx em (* 2 ls)) (+ lx em (* 2 ls))) ly ls col
+                    :align (if right :right :left)))))))
+
+(defun-fast senju-ring (e ox oy d)
+  "The one-hand thumb ring (her kit's :deck hook): six needle ticks lit by the stitches; in the Bankai, while L is held, three
+pass ticks filling in the next hank's dye. (A DEFUN-FAST: the angles in single floats, +PI+ / F-COS / F-SIN where the
+generic body took CL's double PI: the ticks move by float ulps (refactor round 3, REFACTOR_NEXT N2).)"
+  (with-floats (ox oy d)
+    (let* ((f (fighter e)) (next (form-hank (fighter-form f))) (r (* d 56f0)))
+      (declare (single-float r))
+      (if (null next)
+          (let ((n (hari e)))
+            (declare (fixnum n))
+            (dotimes (i 6)
+              (let* ((a (+ (* -0.5f0 +pi+) (* (i->f i) (/ +pi+ 3f0)))) (x (+ ox (* r (f-cos a)))) (y (+ oy (* r (f-sin a))))
+                     (lit (< i n)))
+                (declare (single-float a x y))
+                (%hrect (- x (* 2f0 d)) (- y (* 2f0 d)) (* 4f0 d) (* 4f0 d)
+                        (if lit 0.82f0 0.3f0) (if lit 0.06f0 0.3f0) (if lit 0.11f0 0.32f0) (if lit 1f0 0.6f0)))))
+          (when (and (eq (fighter-phase f) :hold) (fighter-move f) (getf (mv-params (fighter-move f)) :hank))
+            (let ((p (min 3 (floor (the fixnum (fighter-hold f)) (the fixnum *weave-pass*)))) (dye (hank-dye next)))
+              (declare (fixnum p))
+              (dotimes (i 3)
+                (let* ((a (+ (* -0.5f0 +pi+) (* (i->f (1- i)) 0.5f0))) (x (+ ox (* r (f-cos a)))) (y (+ oy (* r (f-sin a))))
+                       (lit (< i p)))
+                  (declare (single-float a x y))
+                  (%hrect (- x (* 3f0 d)) (- y (* 3f0 d)) (* 6f0 d) (* 6f0 d)
+                          (if lit (f32 (first dye)) 0.2f0) (if lit (f32 (second dye)) 0.2f0) (if lit (f32 (third dye)) 0.22f0) 1f0)))))))))
 
 ;;; ================================================================ debug: tests, knobs, the pacing log (debug.lisp dispatches)
 (defun senju-acc-line ()
@@ -1289,14 +1313,28 @@ stitches) and the Bankai (SENJU-TEST 22: hank 3 live under him, woven 40, hank 5
         (log-msg "duel senju hud consing (10 calls, B): ~a; ~a" a (line "Bankai (a live hank, woven 40, a torn one):"))
         (setf (sjs-woven st) wv (sjs-torn st) tn (sjs-torn-hank st) th)))))
 
+(defun senju-draw-cons-check ()
+  "Debug 2491 (REFACTOR_NEXT N4's probe): bytes consed by 10 calls of her kit's :draw hook (SENJU-DRAW, rdt 1/60) in the
+Shikai idle (SENJU-TEST 0: the echo arms at rest, the needle's thread), at MACHIBARI's (:sj-k1) first active frame (the
+arms following, its two pins) and in the Bankai (SENJU-TEST 14: the domain's 18 drapes and the loom). The rig poses are the
+last drawn frame's."
+  (flet ((bytes () (let ((c0 (cons-bytes))) (dotimes (i 10) (senju-draw *p1* 0.016666668f0)) (- (cons-bytes) c0))))
+    (senju-test 0)
+    (let ((idle (bytes)) (mv (find-move :sj-k1)))
+      (start-move *p1* mv) (setf (fighter-sf (fighter *p1*)) (mv-s mv))
+      (let ((k1 (bytes)))
+        (senju-test 14)
+        (log-msg "duel senju draw consing (10 calls, B): Shikai idle ~d, K1 hit frame ~d, Bankai domain ~d" idle k1 (bytes))))))
+
 (defun senju-debug (c)
-  "Her debug commands (debug.lisp *CHAR-DEBUG*): 2450+k SENJU-TEST k, 2490 SENJU-HUD-CONS-CHECK; 76000+f / 77000+f / 78000+f her cinematics' stills
-(FORCE-CINE 16-18) held at frame f; 90000+ SENJU-KNOB."
+  "Her debug commands (debug.lisp *CHAR-DEBUG*): 2450+k SENJU-TEST k, 2490 SENJU-HUD-CONS-CHECK, 2491 SENJU-DRAW-CONS-CHECK;
+76000+f / 77000+f / 78000+f her cinematics' stills (FORCE-CINE 16-18) held at frame f; 90000+ SENJU-KNOB."
   (cond ((= c 2490) (senju-hud-cons-check))
+        ((= c 2491) (senju-draw-cons-check))
         ((< c 2500) (senju-test (- c 2450)))
         ((< c 79000) (cine-at (+ 16 (floor (- c 76000) 1000)) (mod c 1000)))
         (t (senju-knob c))))
-(dolist (r '((2450 2490 senju-debug) (76000 78999 senju-debug) (90000 99999 senju-debug)))
+(dolist (r '((2450 2491 senju-debug) (76000 78999 senju-debug) (90000 99999 senju-debug)))
   (pushnew r *char-debug* :test #'equal))
 
 ;;; ================================================================ cinematics (§5, §6; unskippable; every shot SHOT-ON its subject)

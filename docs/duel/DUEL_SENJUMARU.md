@@ -1392,3 +1392,34 @@ awakens against Kenpachi never (as designed) and against Yamamoto rarely (his Ea
 **Review stills**: `tests/shots/duel-senjumaru-contact.png` (landscape: the Shikai stance, the stitches on him, J3, the
 umbrella vs Yamamoto, the soldier's thrust, the loom stance, a weave, the six hanks unfolded, key frames of the three
 cinematics; portrait 390×844: the same with the portrait HUD blocks and the close-up cinematic frames).
+
+## The HUD and draw code's float path (refactor round 3, 2026-10-21: REFACTOR_NEXT N2 / N4)
+
+The user: 「三項都做」 (N2 / N3 / N4: pixels may move by float ulps only; each changed still goes to him on a before /
+after sheet; a visibly different shape is a bug). No sim bit: the gauges, moves and hazards are untouched.
+
+**N2: her HUD meter and the thumb ring.** `senju-hud-meter` and `senju-ring` (`senjumaru.lisp`) are DEFUN-FASTs with
+every float local declared. The meter does the same single-float operations in the same order as the generic body
+before it (only `max` / `min` became `f-max` / `f-min`, the Shikai's stitch count is read once instead of per pip): its
+stills are byte-identical (`fx-b` `senju-*`, `mobile` `senju-hank2` / `senju-stitches`). The ring took CL's double `pi`;
+it now works in single floats (`+pi+`, `f-cos` / `f-sin`): the ticks could move by ulps, and the `mobile` `deck-senju`
+still (the Shikai's six ticks) came out byte-identical too. Probe
+2490 (10 calls, B): the Shikai meter 5120 → 2400, the Bankai meter 39040 → 2160, the ring 22880 → 0 (Shikai) and
+80 → 0 (Bankai); the label 0 as before. What is left: 240 B a Shikai meter call is its six `%sj-needle` calls' boxed
+float arguments (a DEFUN-FAST across a call boxes them), 216 B a Bankai one the entity's component reads and the
+live zones' list (`senju-live-zones`); the landscape label's `brush-text` / `hud-text` (~320 B) is N3's.
+
+**N4: her draw hook (`senjumaru-art.lisp`).** `sj-prop` / `sj-seg` are macros over the DEFUN-FASTs `%sj-prop` /
+`%sj-seg` (the 29 sites keep their spelling; every argument is coerced as the functions did); `sj-seg`'s body is a macro
+(`%sj-seg-body`) that the echo arms' twelve bones a frame expand in place. `sj-echo-arms`, `sj-needle-thread`,
+`sj-strike-props`, `sj-domain` and `sj-ring-props` are DEFUN-FASTs with declared floats; `sj-hist` and `sj-rim-alpha`
+are macros (no boxed values), `*sj-act*` an f32vec. Where those bodies already worked in single floats (the echo arms, the
+needle's thread, the K props, the bones' matrix) the same operations run in the same order: those pixels are
+byte-identical (`fx-b` `senju-stitches` / `senju-umbrella`, `menus` `select-4`, the Shikai stills). The domain's drapes and
+the hanks' ring props took CL's double `pi`; they now work in single floats (`+pi+`, `f-cos` / `f-sin`) and moved by
+float ulps: 1-8 single pixels on drape / prop edges per still, max channel diff 6-55 (`fx-b` hank1 / hank2 / hank4 /
+drapes, `cine-senju` 090 / 150, `cvc-ys` w2-0 / w3-0, `mobile` senju-hank2: nine stills; the before / after sheet goes to the user). Probe 2491 (10 calls
+of `senju-draw`, B): the Shikai idle 84880 → 19680, MACHIBARI's hit frame 92560 → 21280, the Bankai with its domain
+156080 → 20000. What is left (~2 KB a frame): `draw-weapon` / `draw-mesh`'s keyword calls per mesh part (body.lisp,
+render.lisp), the boxed float arguments of the calls into other DEFUN-FASTs (`joint-point!`, `%sj-prop`, `m4-euler!`,
+`sj-thread`), the component reads. The host FK reach test ("the volume ends") reads the clips, not the props: it passes.

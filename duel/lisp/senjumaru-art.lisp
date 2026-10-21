@@ -540,28 +540,55 @@ indexed by hank 1..6 (slot 0 unused), so the per-draw sites need no INTERN / FOR
 (defvar *sj-p* (make-f32 3))
 (defvar *sj-q* (make-f32 3))
 
-(defun sj-prop (key x y z &key (yaw 0.0) (pitch 0.0) (roll 0.0) (s 1.0) sx sy sz (alpha 1.0) (feet 0.0))
-  "Draw prop KEY (a DEFWEAPON built with the weapons) at (X Y Z), turned YAW / PITCH / ROLL, scaled S (or SX SY SZ). FEET:
-the toon's darker-toward-the-feet height (a cloth lying on the plaza passes -2: no darkening)."
-  (m4-euler! *sj-m* (f32 x) (f32 y) (f32 z) (f32 yaw) (f32 pitch) (f32 roll) (f32 (or sx s)) (f32 (or sy s)) (f32 (or sz s)))
-  (setf (aref *toon-body* 1) (f32 feet))
-  (draw-weapon key *sj-m* :alpha (f32 alpha)))
+(defun-fast %sj-prop (key x y z yaw pitch roll sx sy sz alpha feet)
+  "SJ-PROP's body (the macro coerces its arguments): the prop's matrix, the toon's feet height, the draw."
+  (declare (single-float x y z yaw pitch roll sx sy sz alpha feet))
+  (m4-euler! *sj-m* x y z yaw pitch roll sx sy sz)
+  (setf (aref *toon-body* 1) feet)
+  (draw-weapon key *sj-m* :alpha alpha))
 
-(defun sj-seg (key ax ay az bx by bz w &optional (alpha 1.0))
-  "Draw prop KEY (built along +Y, unit length) from A to B, W wide (a bone of an echo arm, a bolt)."
-  (let* ((dx (- bx ax)) (dy (- by ay)) (dz (- bz az)) (l (max 1e-4 (hypot dx dy dz)))
-         (ux (/ dx l)) (uy (/ dy l)) (uz (/ dz l))
-         ;; a unit perpendicular (the side axis), then the third
-         (px (if (> (abs uy) 0.9) 1.0 (- uz))) (py (if (> (abs uy) 0.9) 0.0 0.0)) (pz (if (> (abs uy) 0.9) 0.0 ux))
-         (pl (max 1e-4 (hypot px py pz))) (px (/ px pl)) (py (/ py pl)) (pz (/ pz pl))
-         (qx (- (* uy pz) (* uz py))) (qy (- (* uz px) (* ux pz))) (qz (- (* ux py) (* uy px)))
-         (m *sj-m*))
-    (setf (aref m 0) (f32 (* w px)) (aref m 1) (f32 (* w py)) (aref m 2) (f32 (* w pz)) (aref m 3) 0f0
-          (aref m 4) (f32 dx) (aref m 5) (f32 dy) (aref m 6) (f32 dz) (aref m 7) 0f0
-          (aref m 8) (f32 (* w qx)) (aref m 9) (f32 (* w qy)) (aref m 10) (f32 (* w qz)) (aref m 11) 0f0
-          (aref m 12) (f32 ax) (aref m 13) (f32 ay) (aref m 14) (f32 az) (aref m 15) 1f0)
-    (setf (aref *toon-body* 1) 0f0)
-    (draw-weapon key m :alpha (f32 alpha))))
+(defmacro sj-prop (key x y z &key (yaw 0.0) (pitch 0.0) (roll 0.0) (s 1.0) sx sy sz (alpha 1.0) (feet 0.0))
+  "Draw prop KEY (a DEFWEAPON built with the weapons) at (X Y Z), turned YAW / PITCH / ROLL, scaled S (or SX SY SZ). FEET:
+the toon's darker-toward-the-feet height (a cloth lying on the plaza passes -2: no darkening). A macro over the DEFUN-FAST
+%SJ-PROP (refactor round 3, REFACTOR_NEXT N4): the sites keep the keyword spelling and get one fixed-arity call, every
+argument coerced as the function did (F32); the forms are pure (every site's), S is evaluated once."
+  (let ((sv (gensym "S")))
+    `(let ((,sv ,s))
+       (declare (ignorable ,sv))
+       (%sj-prop ,key (f32 ,x) (f32 ,y) (f32 ,z) (f32 ,yaw) (f32 ,pitch) (f32 ,roll)
+                 (f32 ,(or sx sv)) (f32 ,(or sy sv)) (f32 ,(or sz sv)) (f32 ,alpha) (f32 ,feet)))))
+
+(defmacro %sj-seg-body (key ax ay az bx by bz w alpha)
+  "SJ-SEG's body over single-float forms (bound once, in order): prop KEY (built along +Y, unit length) from A to B, W wide.
+%SJ-SEG expands it, and so do the echo arms' three bones (no call between their declared floats and the matrix)."
+  (let ((forms (list ax ay az bx by bz w alpha)) (vs (loop repeat 8 collect (gensym "A"))))
+    (destructuring-bind (ax ay az bx by bz w alpha) vs
+      `(let* (,@(mapcar #'list vs forms))
+         (declare (single-float ,@vs))
+         (let* ((dx (- ,bx ,ax)) (dy (- ,by ,ay)) (dz (- ,bz ,az)) (l (f-max 1f-4 (f-hypot dx dy dz)))
+                (ux (/ dx l)) (uy (/ dy l)) (uz (/ dz l))
+                ;; a unit perpendicular (the side axis), then the third
+                (px0 (if (> (f-abs uy) 0.9f0) 1f0 (- uz))) (py0 0f0) (pz0 (if (> (f-abs uy) 0.9f0) 0f0 ux))
+                (pl (f-max 1f-4 (f-hypot px0 py0 pz0))) (px (/ px0 pl)) (py (/ py0 pl)) (pz (/ pz0 pl))
+                (qx (- (* uy pz) (* uz py))) (qy (- (* uz px) (* ux pz))) (qz (- (* ux py) (* uy px)))
+                (m *sj-m*))
+           (declare (single-float dx dy dz l ux uy uz px0 py0 pz0 pl px py pz qx qy qz) (type f32vec m))
+           (setf (aref m 0) (* ,w px) (aref m 1) (* ,w py) (aref m 2) (* ,w pz) (aref m 3) 0f0
+                 (aref m 4) dx (aref m 5) dy (aref m 6) dz (aref m 7) 0f0
+                 (aref m 8) (* ,w qx) (aref m 9) (* ,w qy) (aref m 10) (* ,w qz) (aref m 11) 0f0
+                 (aref m 12) ,ax (aref m 13) ,ay (aref m 14) ,az (aref m 15) 1f0)
+           (setf (aref *toon-body* 1) 0f0)
+           (draw-weapon ,key m :alpha ,alpha))))))
+
+(defun-fast %sj-seg (key ax ay az bx by bz w alpha)
+  "SJ-SEG's DEFUN-FAST (the macro coerces its arguments)."
+  (declare (single-float ax ay az bx by bz w alpha))
+  (%sj-seg-body key ax ay az bx by bz w alpha))
+
+(defmacro sj-seg (key ax ay az bx by bz w &optional (alpha 1.0))
+  "Draw prop KEY (built along +Y, unit length) from A to B, W wide (a bone of an echo arm, a bolt): the DEFUN-FAST %SJ-SEG
+with every argument coerced as the function did (F32)."
+  `(%sj-seg ,key (f32 ,ax) (f32 ,ay) (f32 ,az) (f32 ,bx) (f32 ,by) (f32 ,bz) (f32 ,w) (f32 ,alpha)))
 
 (defun sj-thread (ax ay az bx by bz &optional (k 0.9) (w 0.006) (seed 0.0))
   "A thin BLOOD thread from A to B (the only BLOOD she shows: 1-2 px lines)."
@@ -585,53 +612,68 @@ the toon's darker-toward-the-feet height (a cloth lying on the plaza passes -2: 
     (joint-point! v jm (ji :hand-l) 0f0 -0.06f0 0f0)
     (setf (aref *sj-hist* (+ o 3)) (aref v 0) (aref *sj-hist* (+ o 4)) (aref v 1) (aref *sj-hist* (+ o 5)) (aref v 2))))
 
-(defun sj-hist (side lag hand)
-  "Values x y z of rig hand HAND (0 right, 1 left) LAG drawings ago."
-  (let ((o (+ (* side 48) (* (mod (- (svref *sj-hist-i* side) lag) 8) 6) (* 3 hand))))
-    (values (aref *sj-hist* o) (aref *sj-hist* (+ o 1)) (aref *sj-hist* (+ o 2)))))
+(defmacro sj-hist (side lag hand)
+  "Values x y z of rig hand HAND (0 right, 1 left) LAG drawings ago (a macro: the floats stay unboxed in the callers'
+DEFUN-FASTs; SIDE a variable)."
+  (let ((o (gensym "O")))
+    `(let ((,o (+ (* ,side 48) (* (mod (- (the fixnum (svref *sj-hist-i* ,side)) ,lag) 8) 6) (* 3 ,hand))))
+       (declare (fixnum ,o))
+       (values (aref *sj-hist* ,o) (aref *sj-hist* (+ ,o 1)) (aref *sj-hist* (+ ,o 2))))))
 
 (defparameter *sj-echo-arms* '((1 28 2 0.02) (-1 28 2 0.02) (1 52 4 -0.17) (-1 52 4 -0.17))
   "The four echo arms (§2, engine gap N12): per arm its side (+1 right), its spread (degrees about the spine), its lag
 (drawings) and its anchor's height on the back (chest frame).")
 
-(defvar *sj-act* (make-array 2 :initial-element 0.0) "Per side, 0..1: how far the echo arms follow her strike (0: the rest fan).")
+(declaim (type f32vec *sj-act*))
+(defvar *sj-act* (make-f32 2) "Per side, 0..1: how far the echo arms follow her strike (0: the rest fan).")
 
-(defun sj-echo-arms (e side m rdt)
+(defun-fast sj-echo-arms (e side m rdt)
   "Four gold bone chains from anchors on her upper back to her rig hands' positions of 2 / 4 drawings ago, turned about
 her spine by +-28 / +-52 degrees: every strike ripples through six hands; at rest they settle into a half-fan behind her,
 framing the crescent (eased over ~0.1 s either way)."
-  (let* ((jm (model-joints m)) (p (pos-of e)) (cx (aref p 0)) (cz (aref p 2)) (a *sj-p*) (r *sj-q*) (i 0)
-         (f (fighter e)) (want (if (member (fighter-state f) '(:move :hoho :cine)) 1.0 0.0))
-         (act (setf (svref *sj-act* side) (+ (svref *sj-act* side) (* (- want (svref *sj-act* side)) (min 1.0 (* 10.0 rdt)))))))
-    (dolist (arm *sj-echo-arms*)
-      (destructuring-bind (s spread lag up) arm
-        (joint-point! a jm (ji :chest) (f32 (* s 0.09)) (f32 up) 0.1f0)            ; (joint frames: +z is behind)
-        (joint-point! r jm (ji :chest) (f32 (* s (if (< up 0) 0.42 0.3))) (f32 (if (< up 0) 0.12 0.42)) 0.34f0)   ; the rest fan
-        (multiple-value-bind (hx hy hz) (sj-hist side lag (if (plusp s) 0 1))
-          (let* ((ang (* s (deg spread))) (c (cos ang)) (sn (sin ang))
-                 (rx (- hx cx)) (rz (- hz cz))
-                 (tx (+ cx (- (* c rx) (* sn rz)))) (tz (+ cz (+ (* sn rx) (* c rz)))) (ty (+ hy (if (< up 0) -0.12 0.02)))
-                 (tx (+ (* act tx) (* (- 1 act) (aref r 0)))) (ty (+ (* act ty) (* (- 1 act) (aref r 1))))
-                 (tz (+ (* act tz) (* (- 1 act) (aref r 2))))
-                 (ax (aref a 0)) (ay (aref a 1)) (az (aref a 2))
-                 (mx (* 0.5 (+ ax tx))) (mz (* 0.5 (+ az tz))) (ox (- mx cx)) (oz (- mz cz)) (ol (max 1e-3 (hypot ox oz)))
-                 (ex (+ mx (* 0.16 (/ ox ol)))) (ey (+ (* 0.5 (+ ay ty)) 0.06)) (ez (+ mz (* 0.16 (/ oz ol)))))
-            (sj-seg :sj-bone ax ay az ex ey ez 0.018)
-            (sj-seg :sj-bone ex ey ez tx ty tz 0.013)
-            (sj-seg :sj-hand tx ty tz (+ tx (* 0.8 (- tx ex))) (+ ty (* 0.8 (- ty ey))) (+ tz (* 0.8 (- tz ez))) 1.0)
-            (let ((o (+ (* side 12) (* 3 i))))
-              (setf (aref *sj-echo* o) (f32 tx) (aref *sj-echo* (+ o 1)) (f32 ty) (aref *sj-echo* (+ o 2)) (f32 tz)))
-            (incf i)))))))
+  (declare (fixnum side))
+  (with-floats (rdt)
+    (let* ((jm (model-joints m)) (p (pos-of e)) (cx (aref p 0)) (cz (aref p 2)) (a *sj-p*) (r *sj-q*) (i 0)
+           (f (fighter e)) (want (if (member (fighter-state f) '(:move :hoho :cine)) 1f0 0f0))
+           (act (setf (aref *sj-act* side) (+ (aref *sj-act* side) (* (- want (aref *sj-act* side)) (f-min 1f0 (* 10f0 rdt)))))))
+      (declare (type f32vec p a r) (single-float cx cz want act) (fixnum i))
+      (dolist (arm *sj-echo-arms*)
+        (destructuring-bind (s spread lag up) arm
+          (declare (fixnum s spread lag) (single-float up))
+          (joint-point! a jm (ji :chest) (* (i->f s) 0.09f0) up 0.1f0)            ; (joint frames: +z is behind)
+          (joint-point! r jm (ji :chest) (* (i->f s) (if (< up 0f0) 0.42f0 0.3f0)) (if (< up 0f0) 0.12f0 0.42f0) 0.34f0)   ; the rest fan
+          (multiple-value-bind (hx hy hz) (sj-hist side lag (if (plusp s) 0 1))
+            (declare (single-float hx hy hz))
+            (let* ((ang (* (i->f s) (deg spread))) (c (f-cos ang)) (sn (f-sin ang))
+                   (rx (- hx cx)) (rz (- hz cz))
+                   (tx0 (+ cx (- (* c rx) (* sn rz)))) (tz0 (+ cz (+ (* sn rx) (* c rz)))) (ty0 (+ hy (if (< up 0f0) -0.12f0 0.02f0)))
+                   (tx (+ (* act tx0) (* (- 1f0 act) (aref r 0)))) (ty (+ (* act ty0) (* (- 1f0 act) (aref r 1))))
+                   (tz (+ (* act tz0) (* (- 1f0 act) (aref r 2))))
+                   (ax (aref a 0)) (ay (aref a 1)) (az (aref a 2))
+                   (mx (* 0.5f0 (+ ax tx))) (mz (* 0.5f0 (+ az tz))) (ox (- mx cx)) (oz (- mz cz)) (ol (f-max 1f-3 (f-hypot ox oz)))
+                   (ex (+ mx (* 0.16f0 (/ ox ol)))) (ey (+ (* 0.5f0 (+ ay ty)) 0.06f0)) (ez (+ mz (* 0.16f0 (/ oz ol)))))
+              (declare (single-float ang c sn rx rz tx0 tz0 ty0 tx ty tz ax ay az mx mz ox oz ol ex ey ez))
+              (%sj-seg-body :sj-bone ax ay az ex ey ez 0.018f0 1f0)          ; (SJ-SEG's body inline: 12 a frame)
+              (%sj-seg-body :sj-bone ex ey ez tx ty tz 0.013f0 1f0)
+              (%sj-seg-body :sj-hand tx ty tz (+ tx (* 0.8f0 (- tx ex))) (+ ty (* 0.8f0 (- ty ey))) (+ tz (* 0.8f0 (- tz ez))) 1f0 1f0)
+              (let ((o (+ (* side 12) (* 3 i))))
+                (declare (fixnum o))
+                (setf (aref *sj-echo* o) tx (aref *sj-echo* (+ o 1)) ty (aref *sj-echo* (+ o 2)) tz))
+              (incf i))))))))
 
-(defun sj-needle-thread (e m)
+(defun-fast sj-needle-thread (e m)
   "The endless red reishi thread from the needle's eye, trailing where the hand has been."
   (let* ((jm (model-joints m)) (v *sj-p*) (side (fighter-side (fighter e))))
+    (declare (type f32vec v) (fixnum side))
     (joint-point! v jm (ji :weapon-r) 0f0 0f0 0.035f0)
     (let ((x0 (aref v 0)) (y0 (aref v 1)) (z0 (aref v 2)))
-      (loop for lag from 1 to 5
+      (declare (single-float x0 y0 z0))
+      (loop for lag fixnum from 1 to 5
             do (multiple-value-bind (x y z) (sj-hist side lag 0)
-                 (let ((x1 (+ x (* 0.02 lag))) (y1 (- y (* 0.08 lag))) (z1 z))
-                   (sj-thread x0 y0 z0 x1 y1 z1 (- 0.9 (* 0.12 lag)) 0.004 (float lag))
+                 (declare (single-float x y z))
+                 (let ((x1 (+ x (* 0.02f0 (i->f lag)))) (y1 (- y (* 0.08f0 (i->f lag)))) (z1 z))
+                   (declare (single-float x1 y1 z1))
+                   (sj-thread x0 y0 z0 x1 y1 z1 (- 0.9f0 (* 0.12f0 (i->f lag))) 0.004f0 (i->f lag))
                    (setf x0 x1 y0 y1 z0 z1)))))))
 
 ;; the K links' props (the user's playtest, 2026-09-29: the reach matches the art; docs/duel/DUEL_SENJUMARU.md "Playtest"):
@@ -649,51 +691,65 @@ through the active frames, drawn back over the 8 after."
         ((< sf (+ s a)) 1.0)
         (t (max 0.0 (- 1.0 (/ (- sf (+ s a)) 8.0))))))
 
-(defun sj-strike-props (e f)
+(defun-fast sj-strike-props (e f)
   "The K link's prop (*SJ-STRIKE-REACH*), drawn from her rig hands out to its far end."
   (let* ((mv (fighter-move f))
          (spec (and mv (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (rest (assoc (mv-clip mv) *sj-strike-reach*))))
-         (sf (fighter-sf f)) (k (if spec (sj-strike-out sf (mv-s mv) (mv-a mv)) 0.0)))
-    (when (> k 0.0)
+         (sf (fighter-sf f)) (k (if spec (f32 (sj-strike-out sf (mv-s mv) (mv-a mv))) 0f0)))
+    (declare (single-float k))
+    (when (> k 0f0)
       (let* ((jm (model-joints (model e))) (p (pos-of e)) (cx (aref p 0)) (cz (aref p 2)) (yaw (yaw-of e))
-             (fx (fwd-x yaw)) (fz (fwd-z yaw)) (v *sj-p*) (w *sj-q*) (d (second spec)))
+             (fx (fwd-x yaw)) (fz (fwd-z yaw)) (v *sj-p*) (w *sj-q*) (d (f32 (second spec))))
+        (declare (type f32vec p v w) (single-float cx cz yaw fx fz d))
         (joint-point! v jm (ji :hand-r) 0f0 -0.06f0 0f0)
         (joint-point! w jm (ji :hand-l) 0f0 -0.06f0 0f0)
-        (flet ((fwd (x z) (+ (* (- x cx) fx) (* (- z cz) fz)))            ; metres ahead of her centre
-               (turned (a) (let ((c (cos (deg a))) (s (sin (deg a)))) (values (- (* c fx) (* s fz)) (+ (* s fx) (* c fz))))))
+        (macrolet ((fwd (x z) `(+ (* (- ,x cx) fx) (* (- ,z cz) fz)))            ; metres ahead of her centre
+                   (turned (a) `(let ((c (f-cos (deg ,a))) (s (f-sin (deg ,a))))
+                                  (declare (single-float c s))
+                                  (values (- (* c fx) (* s fz)) (+ (* s fx) (* c fz))))))
           (ecase (first spec)
             (:pins                                     ; MACHIBARI: a long pin out of each hand, straight ahead
              (dolist (h (list v w))
-               (let* ((x (aref h 0)) (y (aref h 1)) (z (aref h 2)) (hf (fwd x z)) (l (* k (- d hf))))
-                 (when (> l 0.05) (sj-seg :sj-pin x y z (+ x (* l fx)) y (+ z (* l fz)) 0.016)))))
+               (let* ((h h) (x (aref h 0)) (y (aref h 1)) (z (aref h 2)) (hf (fwd x z)) (l (* k (- d hf))))
+                 (declare (type f32vec h) (single-float x y z hf l))
+                 (when (> l 0.05f0) (sj-seg :sj-pin x y z (+ x (* l fx)) y (+ z (* l fz)) 0.016f0)))))
             (:loop                                     ; MATSURI: a loop of thread whipped up from the needle and down
              (joint-point! v jm (ji :weapon-r) 0f0 0f0 -1.2f0)           ; ahead at him (two strands)
              (let* ((x0 (aref v 0)) (y0 (aref v 1)) (z0 (aref v 2)) (r (* k d)) (ex (+ cx (* r fx))) (ez (+ cz (* r fz)))
-                    (mx (* 0.5 (+ x0 ex))) (my (+ (max y0 2.2) 0.5)) (mz (* 0.5 (+ z0 ez))))
+                    (mx (* 0.5f0 (+ x0 ex))) (my (+ (f-max y0 2.2f0) 0.5f0)) (mz (* 0.5f0 (+ z0 ez))))
+               (declare (single-float x0 y0 z0 r ex ez mx my mz))
                (dotimes (strand 2)
-                 (let ((px x0) (py y0) (pz z0) (lx (* strand 0.06 (- fz))) (lz (* strand 0.06 fx)))
-                   (loop for i from 1 to 10
-                         do (let* ((u (/ i 10.0)) (a (* (- 1 u) (- 1 u))) (b (* 2 u (- 1 u))) (c (* u u))
-                                   (qx (+ (* a x0) (* b mx) (* c ex) (* u lx))) (qy (+ (* a y0) (* b (- my (* 0.1 strand))) (* c 0.6)))
+                 (let ((px x0) (py y0) (pz z0) (lx (* (i->f strand) 0.06f0 (- fz))) (lz (* (i->f strand) 0.06f0 fx)))
+                   (declare (single-float px py pz lx lz))
+                   (loop for i fixnum from 1 to 10
+                         do (let* ((u (/ (i->f i) 10f0)) (a (* (- 1f0 u) (- 1f0 u))) (b (* 2f0 u (- 1f0 u))) (c (* u u))
+                                   (qx (+ (* a x0) (* b mx) (* c ex) (* u lx))) (qy (+ (* a y0) (* b (- my (* 0.1f0 (i->f strand)))) (* c 0.6f0)))
                                    (qz (+ (* a z0) (* b mz) (* c ez) (* u lz))))
-                              (sj-thread px py pz qx qy qz (* 0.95 k) 0.011 (float (+ i (* 10 strand))))
+                              (declare (single-float u a b c qx qy qz))
+                              (sj-thread px py pz qx qy qz (* 0.95f0 k) 0.011f0 (i->f (+ i (* 10 strand))))
                               (setf px qx py qy pz qz)))))))
             (:stakes                                   ; KUKE: five pins slammed down round his feet, threads from the hands
-             (let ((drop (if (< sf (mv-s mv)) (* 1.2 (- 1.0 k)) 0.0)) (a (if (< sf (mv-s mv)) 1.0 k)))
+             (let ((drop (if (< sf (mv-s mv)) (* 1.2f0 (- 1f0 k)) 0f0)) (a (if (< sf (mv-s mv)) 1f0 k)))
+               (declare (single-float drop a))
                (dotimes (i 5)
                  (multiple-value-bind (dx dz) (turned (* 20 (- i 2)))
-                   (let* ((r (* d (if (evenp i) 1.0 0.75))) (x (+ cx (* r dx))) (z (+ cz (* r dz))) (h (if (evenp i) v w)))
+                   (declare (single-float dx dz))
+                   (let* ((r (* d (if (evenp i) 1f0 0.75f0))) (x (+ cx (* r dx))) (z (+ cz (* r dz))) (h (if (evenp i) v w)))
+                     (declare (single-float r x z) (type f32vec h))
                      (sj-prop :sj-stake x drop z :alpha a)
-                     (sj-thread (aref h 0) (aref h 1) (aref h 2) x (+ 0.8 drop) z (* 0.9 a) 0.006 (float i)))))))
+                     (sj-thread (aref h 0) (aref h 1) (aref h 2) x (+ 0.8f0 drop) z (* 0.9f0 a) 0.006f0 (i->f i)))))))
             (:bolt                                     ; TANMONO-UCHI: a bolt of cloth flung straight out from both hands
-             (let* ((x (* 0.5 (+ (aref v 0) (aref w 0)))) (y (* 0.5 (+ (aref v 1) (aref w 1)))) (z (* 0.5 (+ (aref v 2) (aref w 2))))
+             (let* ((x (* 0.5f0 (+ (aref v 0) (aref w 0)))) (y (* 0.5f0 (+ (aref v 1) (aref w 1)))) (z (* 0.5f0 (+ (aref v 2) (aref w 2))))
                     (l (* k (- d (fwd x z)))))
-               (when (> l 0.05) (sj-seg :sj-strip x y z (+ x (* l fx)) y (+ z (* l fz)) 2.6))))
+               (declare (single-float x y z l))
+               (when (> l 0.05f0) (sj-seg :sj-strip x y z (+ x (* l fx)) y (+ z (* l fz)) 2.6f0))))
             (:wrap                                     ; MAKITORI: a cloth from each hand down to his feet
              (loop for h in (list v w) for s in '(-10 10)
-                   do (multiple-value-bind (dx dz) (turned s)
-                        (let ((r (max (fwd (aref h 0) (aref h 2)) (* k d))))
-                          (sj-seg :sj-strip (aref h 0) (aref h 1) (aref h 2) (+ cx (* r dx)) 0.35 (+ cz (* r dz)) 1.6)))))))))))
+                   do (multiple-value-bind (dx dz) (turned (the fixnum s))
+                        (declare (single-float dx dz))
+                        (let* ((h h) (r (f-max (fwd (aref h 0) (aref h 2)) (* k d))))
+                          (declare (type f32vec h) (single-float r))
+                          (sj-seg :sj-strip (aref h 0) (aref h 1) (aref h 2) (+ cx (* r dx)) 0.35f0 (+ cz (* r dz)) 1.6f0)))))))))))
 
 (defun sj-stitches-on (o n)
   "N red threads standing out of opponent O's torso: the stitches she has sewn into his clothes (a look, from her meter)."
@@ -709,43 +765,55 @@ through the active frames, drawn back over the 8 after."
 a prop LEAD metres or more nearer the camera than the nearer fighter is at alpha FLOOR, from there it ramps up to 1 over
 RAMP metres (lead ramp floor; debug 99500+k sets the floor to k / 100).")
 
-(defun sj-rim-alpha (x z near vx vz)
+(defmacro sj-rim-alpha (x z near vx vz)
   "The alpha of a domain prop at (X Z): its depth along the camera's view (unit VX VZ, from *CAM-EYE*) against NEAR, the
-nearer fighter's depth; 1 behind him (the backdrop), down to the floor in front of him (*SJ-DRAPE-FADE*)."
-  (destructuring-bind (lead ramp floor) *sj-drape-fade*
-    (let ((d (- (+ (* (- x (aref *cam-eye* 0)) vx) (* (- z (aref *cam-eye* 2)) vz)) near)))
-      (max floor (min 1.0 (/ (+ d lead) ramp))))))
+nearer fighter's depth; 1 behind him (the backdrop), down to the floor in front of him (*SJ-DRAPE-FADE*). (A macro for
+SJ-DOMAIN's DEFUN-FAST: the floats stay unboxed; the arguments are its variables.)"
+  `(let ((eye *cam-eye*) (x ,x) (z ,z) (near ,near) (vx ,vx) (vz ,vz))
+     (declare (type f32vec eye) (single-float x z near vx vz))
+     (destructuring-bind (lead ramp floor) *sj-drape-fade*
+       (declare (single-float lead ramp floor))
+       (let ((d (- (+ (* (- x (aref eye 0)) vx) (* (- z (aref eye 2)) vz)) near)))
+         (declare (single-float d))
+         (f-max floor (f-min 1f0 (/ (+ d lead) ramp)))))))
 
-(defun sj-domain (e side)
+(defun-fast sj-domain (e side)
   "The Bankai's domain (a look, §10 N12): madder drapes hung on the plaza's rim, the golden torii-loom at the rim behind
 where she awakened (placed once); red threads from it to her upper hands while she weaves. The camera can stand outside
 the drapes' ring (it keeps to *CAM-MAX-R* 18 m, the drapes hang at 16.8), so the ones between it and the fighters fade
-(SJ-RIM-ALPHA), in every camera: landscape, the portrait / behind camera, the cinematics."
-  (let* ((o (opp-of e)) (at (svref *sj-loom-at* side))
-         (ex (aref *cam-eye* 0)) (ez (aref *cam-eye* 2))
-         (vx (- (aref *cam-at* 0) ex)) (vz (- (aref *cam-at* 2) ez)) (vl (max 1e-3 (hypot vx vz)))
-         (vx (/ vx vl)) (vz (/ vz vl))
-         (near (flet ((depth (q) (+ (* (- (aref q 0) ex) vx) (* (- (aref q 2) ez) vz))))
-                 (if (entity-alive-p o) (min (depth (pos-of e)) (depth (pos-of o))) (depth (pos-of e))))))
+(SJ-RIM-ALPHA), in every camera: landscape, the portrait / behind camera, the cinematics. (The ring's angles in single
+floats, +PI+, since refactor round 3: the drapes moved by float ulps.)"
+  (declare (fixnum side))
+  (let* ((o (opp-of e)) (at (svref *sj-loom-at* side)) (eye *cam-eye*) (cat *cam-at*)
+         (ex (aref eye 0)) (ez (aref eye 2))
+         (vx0 (- (aref cat 0) ex)) (vz0 (- (aref cat 2) ez)) (vl (f-max 1f-3 (f-hypot vx0 vz0)))
+         (vx (/ vx0 vl)) (vz (/ vz0 vl))
+         (near (macrolet ((depth (q) `(let ((q ,q)) (declare (type f32vec q)) (+ (* (- (aref q 0) ex) vx) (* (- (aref q 2) ez) vz)))))
+                 (if (entity-alive-p o) (f-min (depth (pos-of e)) (depth (pos-of o))) (depth (pos-of e))))))
+    (declare (type f32vec eye cat) (single-float ex ez vx0 vz0 vl vx vz near))
     (unless (and at (eql (first at) e))
       (let* ((p (pos-of e)) (q (pos-of o)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
-             (l (max 0.01 (hypot dx dz))) (x (* 15.6 (/ dx l))) (z (* 15.6 (/ dz l))))
+             (l (f-max 0.01f0 (f-hypot dx dz))) (x (* 15.6f0 (/ dx l))) (z (* 15.6f0 (/ dz l))))
+        (declare (type f32vec p q) (single-float dx dz l x z))
         (setf at (list e x z (dir-yaw (- x) (- z))) (svref *sj-loom-at* side) at)))
     (unless (and (= side 1) (entity-alive-p o) (eq (fighter-character (fighter o)) :senjumaru)
                  (kit-awakening (kit-of o)))                ; two awakened Senjumarus drape the rim once
       (dotimes (i 18)
-        (let ((a (* i (/ (* 2 pi) 18))))
-          (let ((x (* 16.8 (cos a))) (z (* 16.8 (sin a))))
-            (sj-prop :sj-drape x 0.0 z :yaw (- (/ pi 2) a) :alpha (sj-rim-alpha x z near vx vz))))))
+        (let* ((a (* (i->f i) (/ (* 2f0 +pi+) 18f0))) (x (* 16.8f0 (f-cos a))) (z (* 16.8f0 (f-sin a))))
+          (declare (single-float a x z))
+          (sj-prop :sj-drape x 0f0 z :yaw (- (/ +pi+ 2f0) a) :alpha (sj-rim-alpha x z near vx vz)))))
     (destructuring-bind (ee x z yaw) at
       (declare (ignore ee))
-      (sj-prop :sj-torii x 0.0 z :yaw yaw :alpha (sj-rim-alpha x z near vx vz))
-      (let ((f (fighter e)))
-        (when (and (eq (fighter-state f) :move) (eq (fighter-phase f) :hold))
-          (let* ((jm (model-joints (model e))) (v *sj-q*))
-            (dolist (h (list (ji :hand-r) (ji :hand-l)))
-              (joint-point! v jm h 0f0 -0.05f0 0f0)
-              (sj-thread x 3.9 z (aref v 0) (aref v 1) (aref v 2) 0.9 0.006))))))))
+      (let ((x (f32 x)) (z (f32 z)))
+        (declare (single-float x z))
+        (sj-prop :sj-torii x 0f0 z :yaw yaw :alpha (sj-rim-alpha x z near vx vz))
+        (let ((f (fighter e)))
+          (when (and (eq (fighter-state f) :move) (eq (fighter-phase f) :hold))
+            (let* ((jm (model-joints (model e))) (v *sj-q*))
+              (declare (type f32vec v))
+              (dolist (h (list (ji :hand-r) (ji :hand-l)))
+                (joint-point! v jm h 0f0 -0.05f0 0f0)
+                (sj-thread x 3.9f0 z (aref v 0) (aref v 1) (aref v 2) 0.9f0 0.006f0)))))))))
 
 (defun senju-draw (e rdt)
   "Her kit's :draw hook (after her body): the four echo arms, the needle's red thread (the Shikai), the stitches on him, the
@@ -877,11 +945,15 @@ Bankai's domain."
                   (- mx (* l (cos yaw))) my (+ mz (* l (sin yaw))) (+ mx (* l (cos yaw))) my (- mz (* l (sin yaw)))
                   (+ 0.8 (* 0.25 p))))))))
 
-(defun sj-ring-props (key x z r n y &key (tilt 0.0) (alpha 1.0) (s 1.0))
-  "N props KEY standing round a circle of radius R at (X Z), facing its centre, TILT toward it."
-  (dotimes (i n)
-    (let ((a (* i (/ (* 2 pi) n))))
-      (sj-prop key (+ x (* r (cos a))) y (+ z (* r (sin a))) :yaw (dir-yaw (- (cos a)) (- (sin a))) :pitch tilt :alpha alpha :s s))))
+(defun-fast sj-ring-props (key x z r n y &key (tilt 0.0) (alpha 1.0) (s 1.0))
+  "N props KEY standing round a circle of radius R at (X Z), facing its centre, TILT toward it. (The angles in single
+floats, +PI+, since refactor round 3: the props moved by float ulps.)"
+  (declare (fixnum n))
+  (with-floats (x z r y tilt alpha s)
+    (dotimes (i n)
+      (let* ((a (* (i->f i) (/ (* 2f0 +pi+) (i->f n)))) (c (f-cos a)) (sn (f-sin a)))
+        (declare (single-float a c sn))
+        (sj-prop key (+ x (* r c)) y (+ z (* r sn)) :yaw (dir-yaw (- c) (- sn)) :pitch tilt :alpha alpha :s s)))))
 
 (defun senju-zone-look (hz rdt)
   "The six hanks' zones: every one first unfolds (its cloth unrolling onto its shape, 20 f), then 眼's mirror-eyes, 刃金's
