@@ -15,11 +15,10 @@
 (defconstant +pal-fire+ 0f0) (defconstant +pal-ember+ 1f0) (defconstant +pal-reiatsu+ 2f0) (defconstant +pal-ink+ 3f0)
 (defconstant +pal-steel+ 4f0) (defconstant +pal-hit+ 5f0) (defconstant +pal-smoke+ 6f0) (defconstant +pal-dust+ 7f0)
 (defconstant +pal-ash+ 8f0) (defconstant +pal-soul+ 9f0) (defconstant +pal-blood+ 10f0) (defconstant +pal-black-smoke+ 11f0)
-(defconstant +pal-blue+ 12f0 "SOUL DUEL's BLUE burst (energy, a coloured edge).")
-(defconstant +pal-jade+ 13f0 "SOUL DUEL's muted jade (an ink tone, not a spot hue: energy with a coloured edge).")
-(defconstant +pal-gold+ 14f0 "SOUL DUEL's muted gold #B89A5A (energy with a coloured edge).")
-(defconstant +pal-flame+ 15f0 "SOUL DUEL's orange flame (fire style; core #FADBA5, body #F18349, shade #8E4737): Yamamoto's Bankai
-West garb (canon manga colour). Palette 15 is the last: 16 is TOON-A's fan flag.")
+(defconstant +pal-blue+ 12f0 "A blue burst (energy, a coloured edge).")
+(defconstant +pal-jade+ 13f0 "A muted jade (an ink tone, not a spot hue: energy with a coloured edge).")
+(defconstant +pal-gold+ 14f0 "A muted gold #B89A5A (energy with a coloured edge).")
+(defconstant +pal-flame+ 15f0 "An orange flame (fire style; core #FADBA5, body #F18349, shade #8E4737), a canon manga colour. Palette 15 is the last: 16 is TOON-A's fan flag.")
 
 (defmacro fx-clock () "The fx clock in seconds (*FX-CLOCK*, render.lisp)." `(aref (the f32vec *fx-clock*) 0))
 (defun-fast fx-clock-advance (dt)
@@ -152,7 +151,7 @@ The ring is an along shape whose heat varies around it, so it breaks into arcs a
      (add-point-light-v %v 0 ,priority)))
 
 ;;; Toon shape primitives: macros that write their float arguments into *TN-ARGS* and call the body
-;;; (%FX-STAR ...), so a call conses nothing (the FX-RIBBON pattern). PAL = palette (0..11), K = presence.
+;;; (%FX-STAR ...), so a call conses nothing (the FX-RIBBON pattern). PAL = palette (0..15), K = presence.
 (declaim (type f32vec *tn-args*))
 (defvar *tn-args* (make-f32 16) "FX-STAR / FX-SHARD / FX-CRESCENT / FX-WALL arguments (see each).")
 (defmacro %tn-call (fn args &rest fixargs)

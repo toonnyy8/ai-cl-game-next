@@ -6,7 +6,7 @@
 
 ;;; ---------------------------------------------------------------- camera shake (real time)
 (defparameter *shake-mult* 1.0 "Scales every SHAKE request (tuning knob).")
-(defparameter *shake-hz* 30f0 "Shake offsets change this many times a second (fewer = a drawn, stepped shake; SOUL DUEL 12).")
+(defparameter *shake-hz* 30f0 "Shake offsets change this many times a second (fewer = a drawn, stepped shake; 12 reads as drawn).")
 (declaim (type f32vec *shake*))
 (defvar *shake* (make-f32 8) "amp dur left noise-t ox oy oz")
 (defun shake (amp dur)
@@ -48,7 +48,7 @@
 ;;;                ALPHA scales that (additive: brightness), e.g. 0.3-0.5 so flames do not saturate
 ;;;                to white over a bright sky.
 ;;; Every kind's alpha is multiplied by the particle's ALPHA (default 1 = unchanged).
-;;; Toon kinds (the toon batch, docs/style/STYLE_STORM_DESIGN.md §3.4): R = wobble, ALPHA = the palette (0..11);
+;;; Toon kinds (the toon batch, docs/style/STYLE_STORM_DESIGN.md §3.4): R = wobble, ALPHA = the palette (0..15);
 ;;; presence K = the life left, seed = the slot. Drawn stepped on the fx clock (at pos - vel x the time
 ;;; since the drawing began: twos, threes for the matter palettes), so a burst of scraps moves in drawings.
 ;;;   t-blob       a pushed billboard puff or flame (the palette's style decides): matter grows, the rest shrinks
@@ -260,7 +260,7 @@ SMIN..SMAX, LIFE s (±25 %), SIZE radius (0.5x..1x)."
 (defconstant +ring-stride+ 13)
 (defvar *rings* (make-f32 (* +ring-stride+ +ring-n+)) "x y z r0 r1 age dur r g b flat width palette (-1 = soft)")
 (defun fx-ring (x y z r0 r1 dur r g b &key flat (width 0.05) palette)
-  "Expanding ring: camera-facing (parry) or FLAT on the ground (shockwave). PALETTE (0..11, see
+  "Expanding ring: camera-facing (parry) or FLAT on the ground (shockwave). PALETTE (0..15, see
 TOON-A): drawn as a toon shape instead (the band's two edges inked, eroding as it fades; R G B unused)."
   (let* ((s *rings*) (best 0) (ba -1f0))
     (dotimes (i +ring-n+)

@@ -571,7 +571,7 @@ Real-time or sim-time effects that live in flat float pools (no entities, no con
 * **Ribbons, sectors** (`fx-ribbon`, `fx-sector`) and **debug outlines** (`draw-circle`, `draw-vol`):
   see the FX batch table and "Hit volumes".
 * `(edge-vignette r g b a frac)` — UI-space darkening toward the screen edges.
-* `*shake-hz*` (30.0): how often the shake offsets change; SOUL DUEL 12 (a drawn, stepped shake).
+* `*shake-hz*` (30.0): how often the shake offsets change; 12 reads as a drawn, stepped shake.
 
 ### Toon effects (docs/style/STYLE_STORM_DESIGN.md §3; SOUL DUEL)
 Hard, inked shapes in one of 16 palettes (0..15: `+pal-fire+ +pal-ember+ +pal-reiatsu+ +pal-ink+ +pal-steel+
