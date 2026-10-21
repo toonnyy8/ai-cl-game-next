@@ -15,7 +15,7 @@
 ;;;; (0.45 h), captions (0.8 h). Callouts float over the user's head and step out of a word's box.
 ;;;; Consing: the battle HUD runs every frame, so its strings are cached (timer, labels, combo), its
 ;;;; quads are written by DEFUN-FAST helpers with WITH-UI-VERTS (0 bytes), its text is drawn with
-;;;; HUD-TEXT (block text, ~200 B a call however long) and UI-BIG-TEXT, and colours are quoted lists (ELT on a literal
+;;;; HUD-TEXT (block text, 16 B a call however long since refactor round 3, was ~200 B) and UI-BIG-TEXT, and colours are quoted lists (ELT on a literal
 ;;;; list conses nothing) or preallocated lists whose alpha is set in place.
 (in-package :duel)
 
@@ -39,7 +39,7 @@ fresh list every frame."
 
 (defun hud-text (str x y scale color &key (align :left) (shadow *shade*))
   "UI-TEXT's look (the 5x7 font at integer SCALE, top edge Y, ALIGN relative to X) drawn as block
-text on whole pixels: ~200 B a call whatever the length. SHADOW: colour or NIL. (The engine's
+text on whole pixels: 16 B a call whatever the length (two UI-BLOCK-TEXT calls, 8 B each: the returned width; ~200 B before refactor round 3, 2026-10-21). SHADOW: colour or NIL. (The engine's
 UI-TEXT no longer conses per glyph either; the HUD keeps its block look.)"
   (let* ((s (max 1 (round scale)))
          (x0 (round (ecase align (:left x) (:center (- x (/ (text-width str s) 2))) (:right (- x (text-width str s))))))

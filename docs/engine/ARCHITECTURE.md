@@ -419,7 +419,7 @@ and grep the function for `ecl_make_single_float`/`ecl_times`/`ecl_divide`.
   compiler macro to `(funcall #'f …)`; only a call through a variable holding the function boxes.
   The expansion binds every argument to a gensym first (left-to-right evaluation, no capture).
   Measured: 100 `fx-emit` / `%ui-poly4` / `with-ui-verts` quads / `ui-rect` 0 B (was ~210 B per
-  `fx-emit`), `ui-block-text` ~100 B per call (was ~250 B per font pixel).
+  `fx-emit`), `ui-block-text` 8 B per call (the returned width; ~100 B before refactor round 3, 2026-10-21; ~250 B per font pixel before that).
 * **Fixnums are 30-bit on wasm32.** An LCG like `(* seed 1103515245)` goes to bignums and conses
   on every call. Do it in C with `long long` (the engine's `rnd01` / `sim-rnd01` are C xorshifts;
   `rnd-state` returns the 32-bit word, a bignum above 2^29, so it is not for per-frame use).
