@@ -57,13 +57,19 @@ base stance's spend-all K (replaced by its KK → JJ).
 
 ## 1. The animation inventory
 
-Lille's art lives in two files and is shared by both kits (`DUEL_LILLE_V2` §2: the art is shared, not copied):
-`lille-art.lisp` holds **73** clips (`defclip` / `defstrike`) plus their poses, `barro-art.lisp` **17** (Lille II's
-recall, its strings, the mode turns, the owl's twins). Walking, running, Step, Hoho, guard and the hit reactions use the
+Lille's art lives in files that both kits share (`DUEL_LILLE_V2` §2: the art is shared, not copied). Since the file split of
+2026-10-21 (refactor round 2) they are one set by role: `lille-art.lisp` (bodies, Diagramm, props, `*LB-STRIKE-POINTS*`),
+`lille-clips.lisp` (the poses and clips), `lille-draw.lisp` (`LILLE-DRAW`, `%LB-WINGS`, `LB-LOOK`), `lille-cine.lisp` (HUD pips, sounds,
+the four cinematics); then Lille II's own `barro-art.lisp` (clips), `barro-draw.lisp` (`BR-DRAW`, his looks, the HUD row),
+`barro-stills.lisp` (art stills 82100-82399, `BR-CONS-PROBE`), `barro.lisp` (kit, rules, hooks) and `barro-ai.lisp` (his CPU, the
+learner's situations, the ASSIST routes). Older § below name the file as it was when written. `lille-clips.lisp` holds **63** clips
+(`defclip` / `defstrike`; **73** when this inventory was written, before the old Lille's spares went) plus their poses,
+`barro-art.lisp` and `barro-draw.lisp` **69** (Lille II's recall, its strings, the mode turns, the owl's twins). Walking, running,
+Step, Hoho, guard and the hit reactions use the
 game's generic clips on his bodies, not clips of his own. Frames are startup / active / recovery as the clip is timed
 (`defstrike`), or a loop's length. "v3" is the proposed use (§3–§6).
 
-**Base form (the man and Diagramm)** (`lille-art.lisp`)
+**Base form (the man and Diagramm)** (`lille-clips.lisp`)
 
 | Clip | Frames (S / A / R) | Motion | Lille | Lille II | v3 |
 |---|---|---|---|---|---|
@@ -87,7 +93,7 @@ game's generic clips on his bodies, not clips of his own. Frames are startup / a
 | `:lb-breaker + :lb-butt` | loop 0.4 s; 8 / 4 / 18 | Breaker: the dash, the plank slammed down | Breaker | Breaker | same |
 | `:lb-intro / :lb-win` | 2.0 s | intro (the rifle levelled) / win (the rifle upright) | yes | yes | same |
 
-**Jilliel melee (KIN, the wing blades)** (`lille-art.lisp`)
+**Jilliel melee (KIN, the wing blades)** (`lille-clips.lisp`)
 
 | Clip | Frames (S / A / R) | Motion | Lille | Lille II | v3 |
 |---|---|---|---|---|---|
@@ -100,7 +106,7 @@ game's generic clips on his bodies, not clips of his own. Frames are startup / a
 | `:lb-w-f3` | 21 / 5 / 34 | K3 昇翼: a rising cleave, the landing | KIN K3 | KIN K3 | KIN K3 |
 | `:lb-w-fold` | loop 2.0 s | MUJITTAI: the wings curled round the column | MUJITTAI | MUJITTAI, the L turn | spare (MUJITTAI dropped) |
 
-**Jilliel ranged (EN, the casts)** (`lille-art.lisp`)
+**Jilliel ranged (EN, the casts)** (`lille-clips.lisp`)
 
 | Clip | Frames (S / A / R) | Motion | Lille | Lille II | v3 |
 |---|---|---|---|---|---|
@@ -112,7 +118,7 @@ game's generic clips on his bodies, not clips of his own. Frames are startup / a
 | `:lb-e-f3` | 11 / 5 / 17 | EN K3: risen, both wings slammed down | EN K3 | ranged L, 5th | spare |
 | `:lb-e-sanren` | 6 / 14 / 12 | EN SP1: three lines | EN SP1 | ranged SP1 (3 points) | SP1 in the stance (by the wings) |
 
-**Jilliel's specials and Kikon** (`lille-art.lisp`)
+**Jilliel's specials and Kikon** (`lille-clips.lisp`)
 
 | Clip | Frames (S / A / R) | Motion | Lille | Lille II | v3 |
 |---|---|---|---|---|---|
@@ -157,7 +163,7 @@ game's generic clips on his bodies, not clips of his own. Frames are startup / a
 | `:br-o-recall, :br-o-rc0 … rc4` | as Jilliel's | the recall strings on the claws | — | the recall | the burst's full volley (the one spend-all) |
 | `:lb-o-breaker + :lb-o-stamp` | loop 0.4 s; 8 / 4 / 18 | Breaker: the stamp | Breaker | Breaker | burst owl Breaker |
 
-**Cinematics** (`lille-art.lisp`)
+**Cinematics** (`lille-clips.lisp` clips, `lille-cine.lisp` scripts)
 
 | Clip | Frames (S / A / R) | Motion | Lille | Lille II | v3 |
 |---|---|---|---|---|---|
@@ -315,7 +321,7 @@ None blocks the build; every [G] number is a starting value for the playtest. As
   JK1's startup) and the volley's looks; the HUD row draws 3 pips (SN n) or 8 (WG n); the art stills 82100+k rewritten.
 - SP2's routers start their tier through the kit's strings (`:tier0` .. `:tier2`, `*BR-SP2-TIERS*`): a move the kit does
   not list can't be started by name (the first build's router stopped there).
-- **The looks (§4, an art agent in its own worktree, merged)**: `lille-art.lisp` `*LB-FX*` slot 19 per side (his loaded
+- **The looks (§4, an art agent in its own worktree, merged)**: `lille-draw.lisp` `*LB-FX*` slot 19 per side (his loaded
   wings + 1; the old Lille never sets it, his path unchanged): `%LB-WINGS` lights the first N blades (rim 0.6 → 0.85, the
   three holes glowing, jade / the owl's gold) and dims the rest (glass 0.12, rim 0.25); `barro-art.lisp` `%BR-SPEND-NOTE`
   reads last frame's count per side (`*BR-WL*`, draw-side memory): one wing (or the volley's) a burst at that blade's tip,
@@ -528,7 +534,7 @@ and the owl EN; the base stance's stay 4 m shots; the spending L L follow-ups st
 Merged with it: the awakened stance's own clips (a subagent's batch on R3, 26 clips; its 8 two-segment follow-up clips
 dropped for §8.5's three-segment ones): `:br-en-*` (JILLIEL EN: L the gathering casts, J the rapid flicks, K the heavy
 throws) and `:br-oen-*` (the owl EN's claws), now the melee openers' clips, in Jilliel's / the owl's strike lists
-(`lille-art.lisp` `*LB-JILLIEL-STRIKES*` / `*LB-OWL-STRIKES*`: the tip smear, the wings converging on the ring at his reach;
+(`lille-draw.lisp` `*LB-JILLIEL-STRIKES*` / `*LB-OWL-STRIKES*`: the tip smear, the wings converging on the ring at his reach;
 old Lille never plays these clips). `:br-e-swing` / `:br-oe-swing` (§1 "stance L 1 (revived)") are spare again. Three §8.5
 follow-up clips moved so a tip is on his line on the shot frame (JILLIEL / the owl JF3 the hop back after the shot, JILLIEL
 KF3 both wings at him before the recoil).
@@ -591,7 +597,7 @@ The choice ([G], frame data and hit counts unchanged; each hit's reach the drawn
 - K 大刀 → 近身 → 零距離砲擊: K1 the held overhead wind-up, the whole-body chop, a rising cut; K2 stepping in, the folded wings
   clubbed down R then L; K3 a folded-wing hook, a club, then both tips thrust into him with the blast.
 - The stretch (a look): `barro-art.lisp *br-w-stretch*` keys (frame right left) metres past the hand, by clip, loaded into
-  `lille-art.lisp *lb-stretch*`; `%lb-stretch!` / `%lb-wings` (JILLIEL's front blades continued along root → hand) and the
+  `lille-draw.lisp *lb-stretch*`; `%lb-stretch!` / `%lb-wings` (JILLIEL's front blades continued along root → hand) and the
   owl's `%lb-lashes` (a gold comet from the claw along the forearm). Zero for every other clip: old Lille's draw unchanged.
 - The blast (a look): `%br-blast-look` for `:br-e-k3` / `:br-oe-k3`, 18 f from the last hit: a white flash, a jade (the owl:
   gold) star over an ink star, a white core, rising smoke, fixed on his line at the hit's reach. 0 B a frame (82398).
@@ -757,7 +763,7 @@ The user (verbatim, on v65):
 The base stance's L string is unchanged. Host tests 8233, ALL PASS (the levels, the knobs, no L link in the awakened
 forms).
 
-As built (the art, barro-art.lisp / lille-art.lisp): the JL moves spawn their look hazard as `:whip` (not drawn; the hit and
+As built (the art, barro-art.lisp / lille-clips.lisp): the JL moves spawn their look hazard as `:whip` (not drawn; the hit and
 the hazard count the line's); `%BR-WHIP-REACH` (draw time only, `*lb-wf*` slots 80–88, the vector 80 → 92) carries the striking
 front wing (the owl: its claw's gold lash) toward his facing line at the opponent's distance (≤ 31 m), 1.1 m up, out over
 2 f before S, held 3 f, back over 5 f, JILLIEL's jade lash ribbon `%BR-WHIP-LASH`, a crack star on him at S; Lille's look
@@ -1261,7 +1267,7 @@ only: no frame data, volume, reach or damage changed (G2 identical; his native s
   shared one the generic code starts; every other kit has none, so nothing else changes): `*br-wall-clips*` (JILLIEL KIN, EN
   inherits it) `:sh-guard` → `:br-w-guard`, `:sh-guard-hit` → `:br-w-guard-hit`; `*br-owl-wall-clips*` (the owl KIN)
   `:br-o-guard` / `-hit`; `*br-oe-wall-clips*` (the owl EN) `:br-oe-guard` / `-hit` (barro-art.lisp "the wing wall"). The wall
-  itself is LILLE-DRAW's (lille-art.lisp %LB-WINGS): BR-DRAW eases a per-side share (`*br-wall-in*` 9/s, `*br-wall-out*` 7/s,
+  itself is LILLE-DRAW's (lille-draw.lisp %LB-WINGS): BR-DRAW eases a per-side share (`*br-wall-in*` 9/s, `*br-wall-out*` 7/s,
   smoothstepped) into `*LB-WF*` [91] while his state is `:guard` / `:guard-hit` in an awakened form; the rows
   `*lb-wall-jl*` / `*lb-wall-owl*` give each wing its place in his chest's frame (across −0.3 m past his midline; JILLIEL up +0.35 / −0.05 /
   the hands / −0.85 m, forward 0.7–0.75 m, curl 1.1 / 1.1 / 1.0 / 0.8 rad a joint; the owl +0.45 / +0.1 / −0.3 / −0.7 m,

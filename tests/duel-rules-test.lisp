@@ -11,7 +11,7 @@
 ;; plain structs here (no entities: the tests make them with MAKE-...)
 (defmacro duel::defcine (&rest r) (declare (ignore r)) nil)
 (defmacro engine:defcomponent (name &rest slots) `(defstruct (,name (:copier nil) (:predicate nil)) ,@slots))
-(dolist (f '("tuning" "rules" "learn" "kit" "yama" "ken" "rukia" "ichigo" "endless-rules" "senjumaru" "barro" "hisagi"))
+(dolist (f '("tuning" "rules" "learn" "kit" "yama" "ken" "rukia" "ichigo" "endless-rules" "senjumaru" "barro" "barro-ai" "hisagi" "hisagi-ai"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 
@@ -1750,8 +1750,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai) (:rukia :zero)))   ; (Yamamoto's East / West: their
                                                                  ; own clips, both ways since DUEL_YAMA_TYBW §3.3)
 (let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0) (grips nil))
-  (dolist (art '("yama" "ken" "rukia" "ichigo" "senjumaru" "lille" "barro" "hisagi"))
-    (with-open-file (in (merge-pathnames (format nil "../duel/lisp/~a-art.lisp" art) *load-truename*))
+  (dolist (art '("yama-art" "ken-art" "rukia-art" "ichigo-art" "senjumaru-art" "lille-art" "lille-clips" "lille-draw" "lille-cine"
+                 "barro-art" "barro-draw" "hisagi-art" "hisagi-draw" "hisagi-cine" "hisagi-stills"))   ; (the files that hold clips, strikes, bodies and the tables read below)
+    (with-open-file (in (merge-pathnames (format nil "../duel/lisp/~a.lisp" art) *load-truename*))
       (let ((*package* (find-package :duel)))
         (loop for form = (read in nil in) until (eq form in)
               when (consp form)
@@ -3045,6 +3046,7 @@ past the ends; DEFAULT if the clip is not listed."
 (defun hazard (h) (cdr (assoc h *t-hz*)))
 (load (merge-pathnames "../duel/lisp/hazards.lisp" *load-truename*))
 (load (merge-pathnames "../duel/lisp/hisagi.lisp" *load-truename*))
+(load (merge-pathnames "../duel/lisp/hisagi-ai.lisp" *load-truename*))   ; (the CPU tests below call HS-R-PICK, HS-AS-PRESS ...)
 (defvar *t-pos* (make-hash-table :test 'eq)) (defvar *t-yaw* (make-hash-table :test 'eq)) (defvar *t-hss* (make-hash-table :test 'eq))
 (defun pos-of (e) (or (gethash e *t-pos*) (setf (gethash e *t-pos*) (make-f32 3))))
 (defun yaw-of (e) (gethash e *t-yaw* 0f0))

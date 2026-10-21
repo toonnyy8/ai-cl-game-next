@@ -73,8 +73,12 @@ The lead's numbers, **confirmed** (the user, 2026-10-16: 「數字照你的提�
 ## 6. Role and roster fit (the lead's proposal, 2026-10-16; revised after the review, §14)
 
 Every number from here to §12 is **the lead's proposal** unless a line says "decided" (§2, §4, §5). Where an answer in
-§13 is pending, the body assumes its recommended option (marked "Qn A"). Code prefix `hs-`, files `duel/lisp/hisagi.lisp`
-+ `hisagi-art.lisp`, kit `:hisagi`, forms `:base` (Shikai) and `:bankai`. (There is no §3: the concept talk's numbering
+§13 is pending, the body assumes its recommended option (marked "Qn A"). Code prefix `hs-`, kit `:hisagi`, files (the file map since the split of 2026-10-21, refactor round 2;
+older § name the files as they were when written): `duel/lisp/hisagi.lisp` (knobs, kits, rules, state, hooks, the Bankai's
+rules and moves, debug), `hisagi-ai.lisp` (the Shikai's and the Bankai's CPU, the learner, ASSIST, and the `*hs-ai-…*` knobs, except
+the three the kit data reads at load, `*hs-ai-string-k*`, `*hs-ai-l-after-j*`, `*hs-ai-awaken*`, and `*hs-ai-release-margin*`, which a rule function reads: they stay in hisagi.lisp),
+`hisagi-art.lisp` (body, Kazeshini, clips), `hisagi-draw.lisp` (looks, `HISAGI-DRAW`, the HUD icon, the name), `hisagi-cine.lisp` (the four
+cinematics), `hisagi-stills.lisp` (debug stills and probes), in that load order; forms `:base` (Shikai) and `:bankai`. (There is no §3: the concept talk's numbering
 is kept so the DEVLOG's references hold.)
 
 **Identity (H1, H2).** An all-rounder whose best band is **2–6 m**: short one-chain cuts (J, 1.4 m, Q5 A) up close, the
@@ -2897,7 +2901,7 @@ signature themes 「始解鎖鐮連段」「卍解遠距路線」「捆綁」 pl
      [0.30, 0.60] → ×1, falling linearly to 0 at 0.15 outside;
    - six opponents (the retired old Lille out), both seats; fixed seeds; cells compare at 40 seeds, the final pick at 80.
 2. **Opponents fixed** at the freeze commit; every cell's worktree starts there.
-3. **Cells** change only `duel/lisp/hisagi.lisp`'s CPU parts (the three kits' `:ai` plists but what CPUs facing him read,
+3. **Cells** change only `duel/lisp/hisagi-ai.lisp`'s (until 2026-10-21 `hisagi.lisp`'s) CPU parts (the three kits' `:ai` plists but what CPUs facing him read,
    the HS-*-AI-* functions and knobs, CPU-only HSS slots, the CPU branches of the sim ticks) and the host test's new
    `HISAGI-CPU-TESTS` section (his CPU checks moved there from the Shikai's S2 and the Bankai's B4a / B4d blocks; the
    kit-wide pin now only keeps `:move-reflex` off every other character); every chance per event and difficulty-scaled;
@@ -3333,7 +3337,7 @@ His CPU's decisions are unchanged: everything below runs only with a learner (a 
 with ASSIST on. CPU vs CPU, `aieval --char 7 --seeds 10 -j 2` before / after: the JSON is identical (score 0.8324, HARD
 strength 0.633, masher 1.0, signature 0.885, NORMAL share 0.575, every pacing median the same). The only shared code it
 uses is the existing hooks (`learn-def-kit`, `:assist-guard`, `:assist-combo`); no shared file changed. All in
-`duel/lisp/hisagi.lisp`'s new section "the learning CPU's situations and ASSIST".
+`duel/lisp/hisagi.lisp`'s new section "the learning CPU's situations and ASSIST" (since 2026-10-21 in `hisagi-ai.lisp`).
 
 **The learner** (`learn-def-kit :hisagi`, DUEL_LEARNING §11; the user's design §17.5 #16 asked for "bound, ahead / behind"):
 
