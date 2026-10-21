@@ -97,7 +97,7 @@ game, so it stays rare there).")
 (defparameter *hs-ai-reap-closing* 1.5 "... an approach: his perceived closing speed above this (m/s) ...")
 (defparameter *hs-ai-reap-from* 7.5 "... within this many m.")
 (defparameter *hs-ai-reap-sustain* '(:easy 1 :normal 1 :hard 3)
-  "... and only once he has closed in this many perceived steps in a row, by his brain's difficulty (HS-P) (round01 cell b3a0,
+  "... and only once he has closed in this many perceived steps in a row, by his brain's difficulty (BRAIN-CHANCE) (round01 cell b3a0,
 §25.15, HARD only: NORMAL's 1 keeps the never-awaken Shikai of the awaken A/B as it was, HK 17-19 of 60 with 3; a one-step blip of a walk,
 Lille's stance step, read as a 3.6 m/s approach, swept K1 at 6-7 m into the air: 913 of 1784 reaps at HARD whiffed, her shot
 landing on its recovery; 6 steps: 354 whiffs of 893 but fewer K strings, signature -0.013; 2: HARD -0.02; a runner exempt:
@@ -322,11 +322,6 @@ the back hop through it (the Step's iframes), else the generic guard / Hoho (b1a
 style's :keep (b1a0); else SAHARAI *HS-AI-SAHARAI-P* of the rest (not into a runner), else the generic guard. (Round01 cell b1a0: NORMAL 0.7 -> 0.35, EASY 0.3 -> 0.2: the fair game once the Bankai comes at 2000 taken; HARD kept.) (Round01 cell b3a0: NORMAL 0.35 -> 0.2: the Bankai at 3000 taken put NORMAL at 0.61 (factor 0.93); 0.562 after these cuts, 480 matches; HARD kept.)")
 
 ;;; ================================================================ the CPU (his kit's :ai; DUEL_HISAGI §10)
-(defun hs-p (b plist) "PLIST's chance (:easy :normal :hard) at brain B's difficulty." (getf plist (brain-difficulty b) (getf plist :normal 0.0)))
-(defun hs-roll (b plist)
-  "One roll of PLIST's chance at brain B's difficulty (round01 cell b2a1's): no SIM-RND01 drawn at 0 or 1 (a sure answer; the
-host tests have no sim stream)."
-  (let ((c (hs-p b plist))) (and (plusp c) (or (>= c 1.0) (< (sim-rnd01) c)))))
 (defun hs-ai-style (e)
   "His CPU's style this match (*HS-AI-STYLES*): rolled once (SIM-RND01) on the first brain step that asks, kept on his HSS (a
 fresh one each match, never reset by a Kikon)."
@@ -336,7 +331,7 @@ fresh one each match, never reset by a Kikon)."
                (style (apply #'weighted-pick (sim-rnd01) (getf *hs-ai-styles* (if b (brain-difficulty b) :normal)))))
           (pace e (if (eq style :rensa) :style-rensa :style-kariba))   ; (the `duel hisagi` line: which style played)
           (setf (hss-ai-style st) style)))))
-(defun hs-sp (e b plist) "PLIST's (by style, then by difficulty) chance for E's style at brain B's difficulty." (hs-p b (getf plist (hs-ai-style e))))
+(defun hs-sp (e b plist) "PLIST's (by style, then by difficulty) chance for E's style at brain B's difficulty." (brain-chance b (getf plist (hs-ai-style e))))
 (defun hs-k1-punish-ok-p (d left)
   "May K1 punish an opponent D m away with LEFT frames of recovery as perceived: past its dead zone (+ 0.2, the step he may
 take), inside its reach + 0.2, and K1's startup + 1 frame left?"
@@ -348,7 +343,7 @@ Breaker whiffed 70 of 103 at HARD: the stronger CPUs J it). A command or NIL."
   (when (and (eq (snap-state s) :guard) (>= (snap-guard-t s) *ai-guard-break-hold*) (< d *ai-guard-break-range*)
              (/= (brain-break-key b) (snap-start s)))
     (setf (brain-break-key b) (snap-start s))
-    (and (>= (sim-rnd01) (hs-p b plist)) (why b :guard-break :breaker))))
+    (and (>= (sim-rnd01) (brain-chance b plist)) (why b :guard-break :breaker))))
 (defun hs-ai-guard-reflex (e b s d)
   "The Shikai's free reflex's first answers (cell b0a0): his Breaker seen in its aura up close (*HS-AI-ANTI-BREAKER-P*, one
 roll per Breaker): J1 at once while it still lands first (the generic waits for the dash: too late there; HARD's 8 f
@@ -358,14 +353,14 @@ command or NIL."
     (cond ((and (eq (snap-kind s) :breaker) (eq (snap-phase s) :aura) (< d (+ *hs-j-reach* 0.3))
                 (/= (snap-start s) (hss-ai-pk st)) (<= (+ (snap-hold s) (brain-delay b)) *breaker-aura*))
            (setf (hss-ai-pk st) (snap-start s))         ; (up close its strike comes 8 f after the aura: J beats I)
-           (and (< (sim-rnd01) (hs-p b *hs-ai-anti-breaker-p*)) (why b :anti-breaker-j :q)))
+           (and (< (sim-rnd01) (brain-chance b *hs-ai-anti-breaker-p*)) (why b :anti-breaker-j :q)))
           ((hs-ai-guard-wait b s d)))))
 (defun hs-ai-utsusemi (e b s d)
   "空蝉 UTSUSEMI (cell b3a2): his CPU's Hoho through a committed move coming, the generic Hoho's test (ai.lisp AI-REFLEX: a
 live J / K / L / SP / Breaker / Kikon near him, perceived >= 6 f of its startup left, his flash-step to spare, no reflect),
 on the brain's one Hoho roll per opponent action between the kit's :hoho (the generic acts below it) and
 *HS-AI-UTSUSEMI-P*. A command or NIL."
-  (let ((g (gauges e)) (p (hs-p b *hs-ai-utsusemi-p*)) (h (getf (kit-ai (kit-of e)) :hoho 0.2)) (r (brain-hoho-roll b)))
+  (let ((g (gauges e)) (p (brain-chance b *hs-ai-utsusemi-p*)) (h (getf (kit-ai (kit-of e)) :hoho 0.2)) (r (brain-hoho-roll b)))
     (when (and (> p h) (<= h r) (< r p)
                (eq (snap-state s) :move) (member (snap-kind s) '(:quick :flash :sig :sp :breaker :kikon))
                (snap-live-p s) (snap-near-p s e d *ai-threat-margin*) (>= (- (snap-s s) (snap-sf s)) 6)
@@ -383,7 +378,7 @@ the windmill up before the shot; a ward rolls its sweep (HS-AI-SIG-HOLD). A comm
          (edge (and threat (not (hss-ai-threat st)))))
     (setf (hss-ai-threat st) threat (hss-ai-form st) :base)   ; (the ranged style re-rolls at the next entry: HS-R-STYLE)
     (hs-mikiri-note e b s nil)                                ; (cell b0a1: the read's K1 resolved, his Hoho seen)
-    (cond ((and edge (kit-command-ok-p e :sig) (< (sim-rnd01) (hs-p b *hs-ai-windmill-p*)))
+    (cond ((and edge (kit-command-ok-p e :sig) (< (sim-rnd01) (brain-chance b *hs-ai-windmill-p*)))
            (pace e :ai-windmill)
            (setf (hss-ai-kz-threat st) t)               ; (a ward: HS-AI-SIG-HOLD rolls its sweep, cell b0a0)
            (why b :windmill :sig))
@@ -403,7 +398,7 @@ the windmill up before the shot; a ward rolls its sweep (HS-AI-SIG-HOLD). A comm
              (pace e :ai-k1-punish)
              (why b :k1-punish :f)))
           ((and (eq (hss-state st) :out) (not (eql (hss-ai-out st) (hss-throw-t st))))
-           (setf (hss-ai-out st) (hss-throw-t st) (hss-ai-modoshi st) (< (sim-rnd01) (hs-p b *hs-ai-modoshi-p*)))
+           (setf (hss-ai-out st) (hss-throw-t st) (hss-ai-modoshi st) (< (sim-rnd01) (brain-chance b *hs-ai-modoshi-p*)))
            nil)
           ((and (eq (hss-state st) :out) (hss-ai-modoshi st))
            (setf (hss-ai-modoshi st) nil)
@@ -457,7 +452,7 @@ the dash in to 3.2 m. A command, :PRESSED or NIL."
                (member (snap-state s) '(:idle :run)) (eq (hss-state st) :in)
                (not (ai-mash-p b)) (not (kit-rooted (kit-of e))) (hs-mikiri-unsafe-p e s))
       (setf (hss-ai-cz-rolled st) t)
-      (when (< (sim-rnd01) (hs-p b *hs-ai-close-p*))
+      (when (< (sim-rnd01) (brain-chance b *hs-ai-close-p*))
         (when (<= (brain-decide-t b) 1) (setf (brain-decide-t b) (ai-decide-time e b)))   ; (the decision taken: the close-in)
         (pace e (if (eq zone :step) :ai-close :ai-rush))
         (ai-dash b 1.0 (if (eq zone :step) r 3.2))
@@ -483,7 +478,7 @@ where the reap waits for him. An approach counts once he has closed in *HS-AI-RE
          (v (if (= (hss-ai-pt st) (1- *match-tick*)) (* 60.0 (- (hss-ai-pd st) d)) 0.0))
          (closing (and calm (not (eq ss :guard)) (> v *hs-ai-reap-closing*) (< d *hs-ai-reap-from*)))
          (n (setf (hss-ai-app-n st) (if closing (min 999 (1+ (hss-ai-app-n st))) 0)))
-         (coming (and closing (>= n (hs-p b *hs-ai-reap-sustain*))))
+         (coming (and closing (>= n (brain-chance b *hs-ai-reap-sustain*))))
          (fz (hs-fence-band (hss-ai-fz st) d)))
     (setf (hss-ai-pd st) (f32 d) (hss-ai-pt st) *match-tick*)
     (when (and coming (not (hss-ai-app st)))
@@ -493,13 +488,13 @@ where the reap waits for him. An approach counts once he has closed in *HS-AI-RE
     (cond ((and coming (hss-ai-app-go st) (eq (hss-state st) :in) (kit-command-ok-p e :f)
                 (hs-reap-ok-p (hs-reap-at d v (+ (brain-delay b) (mv-s (find-move :hs-k1)) 1))))
            (setf (hss-ai-app-go st) nil)
-           (if (and (hs-mikiri-unsafe-p e s) (< (sim-rnd01) (hs-p b *hs-ai-mikiri-p*)))   ; (cell b0a1: the read)
+           (if (and (hs-mikiri-unsafe-p e s) (< (sim-rnd01) (brain-chance b *hs-ai-mikiri-p*)))   ; (cell b0a1: the read)
                (progn (pace e :ai-mikiri) nil)
                (progn (pace e :ai-reap) (why b :reap :f))))
           ((and fz calm (not (hss-ai-fz-rolled st)) (not (kit-rooted (kit-of e))))
            (setf (hss-ai-fz-rolled st) t)
            (when (and (< (sim-rnd01) (hs-sp e b *hs-ai-hop-p*))
-                      (not (and (hs-mikiri-unsafe-p e s) (< (sim-rnd01) (hs-p b *hs-ai-mikiri-p*)))))   ; (b0a1: stay close)
+                      (not (and (hs-mikiri-unsafe-p e s) (< (sim-rnd01) (brain-chance b *hs-ai-mikiri-p*)))))   ; (b0a1: stay close)
              (ai-dash b -1.0 *hs-ai-hop-keep*)
              (pace e :ai-hop)
              (why b :hop :pressed))))))
@@ -541,7 +536,7 @@ HS-AI-REFLEX) rolls its sweep instead (*HS-AI-SWEEP-P*: :SWEEP, its K waits for 
       (setf (hss-ai-kz-threat st) nil
             (hss-ai-kz st) (and b (if ward
                                       (hs-learn-ward e b (and (< (sim-rnd01) (hs-sp e b *hs-ai-sweep-p*)) :sweep))   ; (cell b0a0: the ward's sweep; §25.20 a read)
-                                      (or (hs-bridge-p (fighter e)) (< (sim-rnd01) (hs-p b *hs-ai-kaza-k-p*)))))))
+                                      (or (hs-bridge-p (fighter e)) (< (sim-rnd01) (brain-chance b *hs-ai-kaza-k-p*)))))))
     (if (and st (hss-ai-kz st)) *hs-kaza-max* *hs-ai-windmill-hold*)))
 (defun hs-ai-kaza-k (e f st)
   "His CPU in the windmill (HS-KAZA-TICK, S1 §23.1): K, once, when the press rolled for it: off the bridge that hit at its
@@ -566,9 +561,9 @@ SP end) of 1238 binds at HARD, 480 matches, the slam landed 402 times and was bl
   (let ((b (ai-brain e)))
     (when b
       (cond ((and (kit-command-ok-p e :kikon kit t)
-                  (< (sim-rnd01) (if (ai-mash-p b) (hs-p b *hs-ai-o-ender-mash-p*) (hs-sp e b *hs-ai-o-ender-p*))))
+                  (< (sim-rnd01) (if (ai-mash-p b) (brain-chance b *hs-ai-o-ender-mash-p*) (hs-sp e b *hs-ai-o-ender-p*))))
              (pace e :ai-o-ender) :kikon)
-            ((and (>= (reiatsu-bars e) 1) (< (sim-rnd01) (hs-p b *hs-ai-sp-ender-p*)) (kit-command-ok-p e :sp1))
+            ((and (>= (reiatsu-bars e) 1) (< (sim-rnd01) (brain-chance b *hs-ai-sp-ender-p*)) (kit-command-ok-p e :sp1))
              (pace e :ai-sp1) :sp1)))))
 (defun hs-ai-leap-wanted-p (d intent)
   "Does his CPU roll for the leap (S2, §23.5) off a K1 / K2 hit with the victim D m away and his brain's INTENT? Beyond
@@ -599,7 +594,7 @@ hits not above the last link hit's, or 90 f since it) clears it; its first J1 / 
     (setf (hss-ai-plan-hits st) hits (hss-ai-plan-t st) *match-tick*)
     (when (and (null (hss-ai-plan st)) (member name '(:hs-j1 :hs-k1)))
       (setf (hss-ai-plan st)
-            (if (let ((c (hs-p b *hs-ai-plan-p*))) (and (plusp c) (< (sim-rnd01) c)))   ; (no roll at 0: the host test)
+            (if (let ((c (brain-chance b *hs-ai-plan-p*))) (and (plusp c) (< (sim-rnd01) c)))   ; (no roll at 0: the host test)
                 (let ((p (apply #'weighted-pick (sim-rnd01) *hs-ai-plans*)))
                   (case p
                     (:rinne (pace e :plan-rinne)) (:rinne-owari (pace e :plan-rinne-owari)) (:hana (pace e :plan-hana))
@@ -634,7 +629,7 @@ learner baiting its Burst read, any other link: the generic reflex (NIL)."
     (let* ((kit (fighter-kit f)) (name (mv-name mv)) (nq (kit-next kit name :q)) (nf (kit-next kit name :f))
            (route (hs-ai-plan e b name)))                      ; (cell b0a2: the combo's plan, its bookkeeping)
       (cond ((and (member name '(:hs-j2 :hs-k2 :hs-k2j :hs-j2k)) (kikon-ready-p e) (not (ai-sb-finish-p e))   ; (cell b0a0)
-                  (kit-command-ok-p e :sp1) (< (sim-rnd01) (hs-p b *hs-ai-todome-p*)))
+                  (kit-command-ok-p e :sp1) (< (sim-rnd01) (brain-chance b *hs-ai-todome-p*)))
              (pace e :ai-todome) (why b :todome :sp1))
             ((and route (hs-ai-plan-cmd e b f name route)))     ; (cell b0a2: the plan's route)
             ((and (member name '(:hs-k1 :hs-k2)) nq)
@@ -658,7 +653,7 @@ out of a mark: gone with the marks, B4c.)"
     (when (and mv (eq (snap-state s) :move) (eq (snap-phase s) :main) (member (mv-name mv) '(:hs-k1 :hs-raiden :hs-r-sp1 :hs-r-kubikake :hs-r-kubikake-c))
                (< (snap-sf s) (mv-s mv)) (not (kit-rooted (kit-of e))))
       (unless (eql (hss-opp-key st) (snap-start s))
-        (setf (hss-opp-key st) (snap-start s) (hss-opp-go st) (< (sim-rnd01) (hs-p b *hs-ai-opp-step-p*))))
+        (setf (hss-opp-key st) (snap-start s) (hss-opp-go st) (< (sim-rnd01) (brain-chance b *hs-ai-opp-step-p*))))
       (when (and (hss-opp-go st) (ranged-threat-in e b s d 0 14))
         (setf (hss-opp-go st) nil)
         (pace (opp-of e) (if (member (mv-name mv) *hs-kubi-moves*) :opp-step-kubi :opp-side-step))
@@ -670,7 +665,7 @@ out of a mark: gone with the marks, B4c.)"
 (*HS-AI-R-ANTI-BREAKER-P*): Hoho through it, else the back hop (its iframes). The generic answer, J1 into the dash, is beaten
 by its strike more often than not (and misses inside the ranged J's 3 m dead zone). A command or NIL."
   (and (eq (snap-kind s) :breaker) (eq (snap-phase s) :dash) (< d *ai-anti-breaker-range*) (not (kit-rooted (kit-of e)))   ; (b1a1 via b3a1: 4.0 -> the generic's 5.0: its J1 there hit 6 of 96)
-       (< (brain-react-roll b) (hs-p b *hs-ai-r-anti-breaker-p*))
+       (< (brain-react-roll b) (brain-chance b *hs-ai-r-anti-breaker-p*))
        (progn (pace e :ai-anti-breaker) (if (hoho-ready-p e) (why b :anti-breaker :hoho) (why b :anti-breaker :step)))))
 (defun hs-r-style (e b)
   "His CPU's ranged style: rolled once per entry into the ranged mode (*HS-AI-R-STYLE-W*, round01 b1a0), kept while he stays
@@ -679,7 +674,7 @@ the waking noose (*HS-AI-WAKE-P*, round01 cell b3a0)."
   (let ((st (hs e)))
     (unless (eq (hss-ai-form st) :bankai)
       (when (eq (hss-ai-form st) :base)                ; (cell b3a0: the awakening, one roll: the waking noose)
-        (setf (hss-ai-wake st) (< (sim-rnd01) (hs-p b *hs-ai-wake-p*)) (hss-ai-wake-t st) *match-tick*))
+        (setf (hss-ai-wake st) (< (sim-rnd01) (brain-chance b *hs-ai-wake-p*)) (hss-ai-wake-t st) *match-tick*))
       (setf (hss-ai-form st) :bankai
             (hss-ai-rstyle st) (apply #'weighted-pick (sim-rnd01) *hs-ai-r-style-w*))
       (pace e (hss-ai-rstyle st)))
@@ -724,13 +719,13 @@ side-stepped, 17 % hit, round01 b1a0); once per entry within *HS-AI-CLOSE* m whi
          (run (and (member (snap-state s) '(:idle :run)) (> v *hs-ai-reap-closing*) (< d *hs-ai-reap-from*))))
     (setf (hss-ai-pd st) (f32 d) (hss-ai-pt st) *match-tick*)
     (unless (eq band (hss-ai-band st)) (setf (hss-ai-band st) band (hss-ai-rolled st) nil ))
-    (when (and run (not (hss-ai-run st))) (setf (hss-ai-run-go st) (< (sim-rnd01) (hs-p b *hs-ai-anti-p*))))
+    (when (and run (not (hss-ai-run st))) (setf (hss-ai-run-go st) (< (sim-rnd01) (brain-chance b *hs-ai-anti-p*))))
     (setf (hss-ai-run st) run)
     (flet ((fire (c why) (and c (kit-command-ok-p e c) (progn (pace e why) (why b why c)))))
       (cond
         ;; the block punish (our blockstun just ended: what he has left we feel at once)
         ((and (eq (brain-was b) :guard-hit) (<= (fighter-block-adv f) *ai-punish-adv*))
-         (or (and (< (sim-rnd01) (hs-p b *hs-ai-punish-p*))
+         (or (and (< (sim-rnd01) (brain-chance b *hs-ai-punish-p*))
                   (fire (hs-r-pick style (fighter-dist f) (- (fighter-block-adv f)) (kit-command-ok-p e :sp2)) :ai-block-punish))
              (and (< d 3.0) :wait)))
         ;; his Breaker coming: Hoho through its dash, else the back hop (HS-R-AI-ANTI-BREAKER)
@@ -748,11 +743,11 @@ side-stepped, 17 % hit, round01 b1a0); once per entry within *HS-AI-CLOSE* m whi
         ;; hop's J1 then lashes him from its far end: the generic Step -> J), one roll per action
         ((and (hs-threat-p e s d) (< d 3.5) (member (snap-kind s) '(:quick :flash :sig))
               (<= 2 (- (snap-s s) (snap-sf s) (brain-delay b)) 14) (not (kit-rooted (kit-of e))))
-         (and (< (brain-react-roll b) (hs-p b *hs-ai-dodge-p*)) (progn (pace e :ai-dodge) (why b :dodge :step))))
+         (and (< (brain-react-roll b) (brain-chance b *hs-ai-dodge-p*)) (progn (pace e :ai-dodge) (why b :dodge :step))))
         ;; (a red opponent reeling: the generic Kikon rush until cell b3a1; :kikon-range 0 now, b1a1's: the punish below takes him)
         ;; he recovers / reels: the punish by annulus, one roll per action
         ((and (snap-punishable-p s) (not (member (snap-state s) '(:air :down :wakeup))))
-         (or (and (< (brain-react-roll b) (hs-p b *hs-ai-punish-p*))
+         (or (and (< (brain-react-roll b) (brain-chance b *hs-ai-punish-p*))
                   (fire (hs-r-pick style d (- (snap-left-seen s b) 1) (kit-command-ok-p e :sp2)) :ai-punish))
              (and (< d 3.0) :wait)))
         ;; b1a1 via cell b3a1: his parry up close: wait it out (the punish above takes its recovery; the generic Breaker into it
@@ -773,15 +768,15 @@ side-stepped, 17 % hit, round01 b1a0); once per entry within *HS-AI-CLOSE* m whi
         ;; close in, he isn't attacking: one roll per entry
         ((and band (not (hss-ai-rolled st)) (not (hs-threat-p e s d)))
          (setf (hss-ai-rolled st) t)
-         (let ((r (sim-rnd01)) (pe (hs-p b *hs-ai-escape-p*)))
+         (let ((r (sim-rnd01)) (pe (brain-chance b *hs-ai-escape-p*)))
            (cond ((and (< r pe) (not (kit-rooted (kit-of e))))
                   (ai-dash b -1.0 (hs-r-sv style :keep)) (pace e :ai-escape) (why b :escape :pressed))
-                 ((and (< (- r pe) (* (- 1.0 pe) (hs-p b *hs-ai-saharai-p*))) (not run))
+                 ((and (< (- r pe) (* (- 1.0 pe) (brain-chance b *hs-ai-saharai-p*))) (not run))
                   (fire :sig :ai-saharai)))))))))
 (defun hs-r-ai-throw-p (e b d)
   "His CPU's KUBIKAKE off a confirmed J / K hit (B4c: SP2's cancel copy): his own 200 there (HS-BK-OK, KIT-COMMAND-OK-P), the
 victim D m off inside its line (HS-R-REACHES-P), one roll *HS-AI-THROW-P*."
-  (and (kit-command-ok-p e :sp2) (hs-r-reaches-p (find-move :hs-r-kubikake-c) d) (< (sim-rnd01) (hs-p b *hs-ai-throw-p*))))
+  (and (kit-command-ok-p e :sp2) (hs-r-reaches-p (find-move :hs-r-kubikake-c) d) (< (sim-rnd01) (brain-chance b *hs-ai-throw-p*))))
 (defun hs-r-ai-ender (e kit)
   "His :sp-ender in the ranged mode (a link-3 hit): KUBIKAKE (the bind) when HS-R-AI-THROW-P; else SP1 (9 m line: after the
 7.95 m K push too) only above 300 Reiatsu, so the throw's 200 stays (*HS-AI-SP-ENDER-P*)."
@@ -790,7 +785,7 @@ victim D m off inside its line (HS-R-REACHES-P), one roll *HS-AI-THROW-P*."
     (when b
       (cond ((hs-r-ai-throw-p e b (fighter-dist (fighter e))) (pace e :ai-throw) :sp2)
             ((and (>= (reiatsu-of e) (+ *hs-kubi-reiatsu* *reiatsu-bar*)) (kit-command-ok-p e :sp1)
-                  (< (sim-rnd01) (hs-p b *hs-ai-sp-ender-p*)))
+                  (< (sim-rnd01) (brain-chance b *hs-ai-sp-ender-p*)))
              (pace e :ai-sp1)
              :sp1)))))
 (defun hs-r-reaches-p (mv d)
@@ -821,7 +816,7 @@ route itself is the opener's: K1 at 2-4 m, J1 at 2-4.5 m, his :moves bands; B4c,
                   (in-q (and nq (hs-r-reaches-p nq d))) (in-f (and nf (hs-r-reaches-p nf d))))
              (cond ((and (eql 1 (hs-r-sv style :kubi-at)) (hs-r-ai-throw-p e b d))   ; (NAWAJI: the bind first)
                     (pace e :ai-throw) (why b :kubikake :sp2))
-                   ((and in-f (< (sim-rnd01) (hs-p b (hs-r-sv style :route-dmg)))) (pace e :ai-dmg) (why b :route-dmg :f))
+                   ((and in-f (< (sim-rnd01) (brain-chance b (hs-r-sv style :route-dmg)))) (pace e :ai-dmg) (why b :route-dmg :f))
                    (in-q (pace e :ai-fast) (why b :route-fast :q))
                    (in-f (pace e :ai-dmg) (why b :route-dmg :f))
                    (t (setf (hss-ai-end st) mv) (pace e :ai-end) (why b :route-end :wait)))))
@@ -849,7 +844,7 @@ KAIBAKU-GEKI only within *HS-AI-KAIBAKU-REACH*, else the plain P (FREE, §25.14)
                     (gauges-konpaku (gauges e)))))
         (unless (= key (hss-ai-rel-key st))
           (setf (hss-ai-rel-key st) key
-                (hss-ai-rel st) (and (> (hs-grey-margin e) (hs-rel-bar (hss-pool st))) (< (sim-rnd01) (hs-p b *hs-ai-release-p*))))))
+                (hss-ai-rel st) (and (> (hs-grey-margin e) (hs-rel-bar (hss-pool st))) (< (sim-rnd01) (brain-chance b *hs-ai-release-p*))))))
       ;; b1a0: KAIBAKU-GEKI releases at its S whatever its strike touches; pressed once he is not attacking (his hit in its
       ;; startup would stop the release), while still behind. Cell b3a0 (the ledger): within its reach only (+120 real on
       ;; his reel), farther the plain P (FREE: at once, no 28 f recovery after a whiff: 128 of 150 KAIBAKU-GEKIs whiffed)
@@ -859,7 +854,7 @@ KAIBAKU-GEKI only within *HS-AI-KAIBAKU-REACH*, else the plain P (FREE, §25.14)
           (cond ((and (kit-command-ok-p e :sp2) (< d *hs-ai-kaibaku-reach*))
                  (pace e :ai-kaibaku)
                  (return-from hs-b-ai-reflex (why b :kaibaku-geki :sp2)))
-                ((< (sim-rnd01) (hs-p b *hs-ai-plain-release-p*))   ; (the plain P, FREE, §25.14)
+                ((< (sim-rnd01) (brain-chance b *hs-ai-plain-release-p*))   ; (the plain P, FREE, §25.14)
                  (pace e :ai-release)
                  (return-from hs-b-ai-reflex (why b :kaibaku :awaken)))))))
     (let ((bite (hs-b-ai-bite e b s))) (when bite (return-from hs-b-ai-reflex bite)))   ; (cell b2a2: the bind's bite)
@@ -869,12 +864,12 @@ KAIBAKU-GEKI only within *HS-AI-KAIBAKU-REACH*, else the plain P (FREE, §25.14)
       (unless (eq band (hss-ai-band st)) (setf (hss-ai-band st) band (hss-ai-rolled st) nil))
       (when (and band (not (hss-ai-rolled st)) (kit-command-ok-p e :sig))
         (setf (hss-ai-rolled st) t)
-        (when (< (sim-rnd01) (hs-p b *hs-ai-kojo-p*))
+        (when (< (sim-rnd01) (brain-chance b *hs-ai-kojo-p*))
           (pace e :ai-kojo)
           (return-from hs-b-ai-reflex (why b :kojo :sig)))))
     ;; round01 cell b2a1's walk-in (ported by cell b3a2): a neutral decision due at 1.8 m or more: taken with nothing
     ;; (*HS-AI-B-CLOSE-P*), so he walks in to J1 (the bind's bands have no K1 or Step there)
-    (when (and (hss-bound st) (>= d 1.8) (<= (brain-decide-t b) 1) (hs-roll b *hs-ai-b-close-p*))
+    (when (and (hss-bound st) (>= d 1.8) (<= (brain-decide-t b) 1) (brain-roll b *hs-ai-b-close-p*))
       (setf (brain-decide-t b) (ai-decide-time e b))
       (pace e :ai-b-close)
       (hs-learn-bind e b d))))                     ; (§25.20: a learner's read of the bind's neutral; else NIL, the walk-in)
@@ -897,7 +892,7 @@ the yank brings him in (the KOJO band and the generic follow-up read its perceiv
                            (fighter-gc-left (fighter e)))
         (:wait :wait)
         (:q (setf (hss-ai-bite-from st) from)
-            (and (hs-roll b *hs-ai-bite-p*) (kit-command-ok-p e :q) (progn (pace e :ai-bite) (why b :bite :q))))))))
+            (and (brain-roll b *hs-ai-bite-p*) (kit-command-ok-p e :q) (progn (pace e :ai-bite) (why b :bite :q))))))))
 (defun hs-b-ai-move (e b f mv)
   "His :move-reflex in the bind mode (round01 cells b2a0 / b2a1's, ported by cell b3a2), a link's hit, its land step: a K link
 2 (K2 / K2s) on a red victim with no Soul Break finish due, him not behind on grey and a bar in the pool: SP1 KUSARI-AME
@@ -908,10 +903,10 @@ reflex)."
              (hss-bound (hs e)) (not (and (brain-learn b) (eq (lrn-cmd (brain-learn b)) :bait))))
     (cond ((and (member (mv-name mv) '(:hs-b-k2 :hs-b-k2s))
                 (kikon-ready-p e) (not (ai-sb-finish-p e)) (<= (hs-grey-margin e) 0) (kit-command-ok-p e :sp1)
-                (< (sim-rnd01) (hs-p b *hs-ai-b-todome-p*)))
+                (< (sim-rnd01) (brain-chance b *hs-ai-b-todome-p*)))
            (pace e :ai-b-todome)
            (why b :b-todome :sp1))
-          ((and (kit-next (fighter-kit f) (mv-name mv) :f) (hs-roll b *hs-ai-b-route-p*))
+          ((and (kit-next (fighter-kit f) (mv-name mv) :f) (brain-roll b *hs-ai-b-route-p*))
            (pace e :ai-b-route)
            (why b :b-route :f)))))
 (defun hs-b-ai-ender (e kit)
@@ -919,7 +914,7 @@ reflex)."
 of the pool, *HS-AI-BIND-SP-P*); behind, nothing (the pool is his clock too; the release-strike is his reflex's, B4c)."
   (declare (ignore kit))
   (let ((b (ai-brain e)))
-    (when (and b (hss-bound (hs e)) (<= (hs-grey-margin e) 0) (kit-command-ok-p e :sp1) (< (sim-rnd01) (hs-p b *hs-ai-bind-sp-p*)))
+    (when (and b (hss-bound (hs e)) (<= (hs-grey-margin e) 0) (kit-command-ok-p e :sp1) (< (sim-rnd01) (brain-chance b *hs-ai-bind-sp-p*)))
       (pace e :ai-bsp1)
       :sp1)))
 
@@ -1047,7 +1042,7 @@ takes the charged string). A command or NIL."
   (let* ((st (hs e)) (threat (and (eq (hss-state st) :in) (ranged-threat-in e b s d 4 24)))
          (edge (and threat (not (hss-ai-threat st)))))
     (setf (hss-ai-threat st) threat)
-    (when (and edge (kit-command-ok-p e :sig) (< (sim-rnd01) (hs-p b *hs-ai-windmill-p*)))
+    (when (and edge (kit-command-ok-p e :sig) (< (sim-rnd01) (brain-chance b *hs-ai-windmill-p*)))
       (setf (hss-ai-kz-threat st) :assist)
       (pace e :as-windmill)
       (why b :as-windmill :sig))))

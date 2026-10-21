@@ -327,7 +327,7 @@ him (*AI-BRAIN*; the gate's masher has a brain of its own), else his own (a CPU)
 (defun ai-chance (e plist)
   "PLIST's chance (:easy :normal :hard) at E's CPU difficulty: its brain's (AI-BRAIN: an assisted human's is the assist's
 HARD one); no brain: NORMAL's."
-  (let ((b (ai-brain e))) (getf plist (if b (brain-difficulty b) :normal) (getf plist :normal 0.0))))
+  (let ((b (ai-brain e))) (if b (brain-chance b plist) (getf plist :normal 0.0))))
 
 (defun ai-event-rolls (b s)
   "One roll per opponent action (his SNAP S starts a new one): brain B's guard / Hoho / reaction rolls (AI-REFLEX; the

@@ -418,12 +418,6 @@ dash starts = guard-crushing (the Breaker property)."
 (defparameter *ken-charge-mpf* 0.233 "The charge's dash, metres per frame (14 m/s).")
 (defparameter *ken-breaker-speed* 0.16 "A Breaker dash's metres per frame (9-10 m/s), for the anti-Breaker timing.")
 
-(defun ken-p (b table) "TABLE's chance at B's difficulty." (getf table (brain-difficulty b) 0.0))
-
-(defun ken-roll (b table)
-  "Roll TABLE's chance at B's difficulty (SIM-RND01; no draw at 0 or 1)."
-  (let ((p (ken-p b table))) (and (plusp p) (or (>= p 1.0) (< (sim-rnd01) p)))))
-
 (defun ken-ai-reflex (e b s d)
   "Kenpachi's :reflex (ai.lisp AI-REFLEX, free states, before the generic reflexes): a command or NIL."
   (ken-bankai-gate e b)
@@ -448,7 +442,7 @@ own left, 3 with him at <= 4, 4 with him at <= 2; else this cup-3 stay's roll is
   (let* ((kit (kit-of e)) (k (gauges-konpaku (gauges e))) (ko (gauges-konpaku (gauges (opp-of e)))))
     (when (and (kit-bankai-form kit) (not (brain-bankai-rolled b)) (bankai-allowed-p t k)
                (not (or (<= k 2) (and (<= k 3) (<= ko 4)) (and (<= k 4) (<= ko 2))))
-               (ken-roll b *ken-ai-bankai-strict*))
+               (brain-roll b *ken-ai-bankai-strict*))
       (setf (brain-bankai-rolled b) t))
     nil))
 
@@ -459,7 +453,7 @@ lunge); :WAIT (the stick is set here)."
   (let ((q (kit-command-move (kit-of e) :q)))
     (when (and q (member (snap-state s) '(:idle :run :guard)) (member (state-of e) '(:idle :run)) (not (ai-mash-p b))
                (> d (max (+ (ken-lunge-reach e) 0.1) (+ (mv-reach q) 0.3))) (< d 3.0)
-               (ken-roll b *ken-ai-walk-in*))
+               (brain-roll b *ken-ai-walk-in*))
       (vpad-stick! (pilot-vpad (pilot e)) (* 0.3 (brain-strafe b)) 1f0)
       (why b :walk-in :wait))))
 
@@ -475,10 +469,10 @@ he is free (one roll per move: *KEN-AI-LUNGE-PUNISH*), or open on him there in n
     (when (and q (> d (+ (mv-reach q) 0.2)) (<= d (+ lr 0.1)) (kit-command-ok-p e :q))
       (cond ((and (snap-punishable-p s)
                   (< (snap-left s) 99) (>= left (+ (mv-s q) 2))
-                  (< (brain-react-roll b) (ken-p b *ken-ai-lunge-punish*)))
+                  (< (brain-react-roll b) (brain-chance b *ken-ai-lunge-punish*)))
              (why b :lunge-punish :q))
             ((and (member (snap-state s) '(:idle :run))
-                  (ken-roll b *ken-ai-lunge*))
+                  (brain-roll b *ken-ai-lunge*))
              (why b :lunge :q))))))
 
 (defun ken-anti-breaker (e b s d)
@@ -486,7 +480,7 @@ he is free (one roll per move: *KEN-AI-LUNGE-PUNISH*), or open on him there in n
 at *KEN-BREAKER-SPEED*, from where we saw it a perception delay ago) and when its strike lands (the trigger range, then 8 f):
 K1 if it is within K1's reach before the strike, else J1, else a Hoho close to the strike; meanwhile wait (:WAIT)."
   (when (and (eq (snap-kind s) :breaker) (member (snap-phase s) '(:aura :dash)) (< d 6.0)
-             (< (brain-react-roll b) (ken-p b *ken-ai-anti-breaker*)))
+             (< (brain-react-roll b) (brain-chance b *ken-ai-anti-breaker*)))
     (let* ((kit (kit-of e)) (v *ken-breaker-speed*) (dl (brain-delay b)) (trig *breaker-trigger*)
            (dash (if (eq (snap-phase s) :dash) dl (- dl *breaker-aura*)))   ; frames it has dashed by now (< 0: aura left)
            (wait (max 0 (- dash)))                                          ; aura frames still to come
@@ -513,7 +507,7 @@ move), with flash-step to spare; a K whose startup the stance can still beat is 
                (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g))
                (not (and (eq (snap-kind s) :flash) (getf (ai-table e :react) :flash-startup) (< d 4.0)
                          (>= left (+ *stance-in* 2)) (< (brain-react-roll b) *ai-react-p*)))
-               (< (brain-hoho-roll b) (ken-p b *ken-ai-hoho*)))
+               (< (brain-hoho-roll b) (brain-chance b *ken-ai-hoho*)))
       (why b :hoho-commit :hoho))))
 
 ;;; (from cell b1a0: an arrival model per command and the opponent's perceived closing speed)
@@ -544,7 +538,7 @@ is free, as why TAG."
     (when (and (snap-punishable-p s)
                (< (snap-left s) 99) (> left 4)
                (if near (<= d (+ (ken-lunge-reach e) 0.1)) (and (> d (+ (ken-lunge-reach e) 0.1)) (< d 9.0)))
-               (< (brain-react-roll b) (ken-p b table)))
+               (< (brain-react-roll b) (brain-chance b table)))
       (let ((c (find-if (lambda (c) (let ((t0 (ken-arrive e c d))) (and t0 (< t0 (1- left))))) (ken-sp-order e))))
         (and c (why b tag c))))))
 
@@ -571,7 +565,7 @@ all his own) lands before he is free: the charge instead of a J1 string, on the 
   "Neutral first strike timed to his perceived closing speed: J1 when he will be inside its lunge's reach as it lands,
 else K1 when he walks into K1's reach outside his own J's (a masher walks into it); *KEN-AI-FIRST-STRIKE* a step."
   (when (and (member (snap-state s) '(:idle :run :guard)) (member (state-of e) '(:idle :run)) (< d 4.0)
-             (ken-roll b (if (ai-mash-p b) *ken-ai-first-strike* *ken-ai-first-strike-n*)))
+             (brain-roll b (if (ai-mash-p b) *ken-ai-first-strike* *ken-ai-first-strike-n*)))
     (let ((cv (max 0.0 (ken-closing e b s d))) (his (kit-command-move (kit-of (opp-of e)) :q))
           (q (kit-command-move (kit-of e) :q)) (f (kit-command-move (kit-of e) :f)))
       (flet ((at (c mv) (and mv (kit-command-ok-p e c) (- d (* cv (+ (mv-s mv) (brain-delay b)))))))
@@ -592,7 +586,7 @@ his string and cuts back (KEN-SIG-HOLD holds it through the string)."
                (or (not (eq (snap-state s) :move))
                    (and (eq (snap-kind s) :quick) (>= (snap-sf s) (snap-active-end s))))
                (not (member (snap-state s) '(:stun :air :down :wakeup)))
-               (ken-roll b *ken-ai-mash-stance*))
+               (brain-roll b *ken-ai-mash-stance*))
       (why b :anti-mash :sig))))
 
 (defun ken-no-reset (e b d)
@@ -600,7 +594,7 @@ his string and cuts back (KEN-SIG-HOLD holds it through the string)."
   (let* ((f (fighter e)) (q (kit-command-move (kit-of e) :q)))
     (when (and (eq (brain-was b) :move) (eq (fighter-contact f) :block) q (>= (mv-s q) 10)
                (< d (+ (mv-reach q) 0.2)) (guarding-p (opp-of e))
-               (ken-roll b *ken-ai-no-reset*))
+               (brain-roll b *ken-ai-no-reset*))
       (why b :no-reset :guard))))
 
 (defun ken-sp-ender (e kit)
@@ -611,9 +605,9 @@ Shift+L (the charge into the flurry; it chases off the ender) *KEN-AI-SP2-ENDER*
     (when b
       (cond ((ken-line-ender-p e kit b) :sp1)
             ((and (not (kikon-ready-p e)) (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t)
-                  (ken-roll b *ken-ai-o-ender*))
+                  (brain-roll b *ken-ai-o-ender*))
              :kikon)
-            ((and (kit-command-ok-p e :sp2) (ken-roll b *ken-ai-sp2-ender*)) :sp2)))))
+            ((and (kit-command-ok-p e :sp2) (brain-roll b *ken-ai-sp2-ender*)) :sp2)))))
 
 (defun ken-line-ender-p (e kit b)
   "Off a landed ender (J3 staggers 26 f, K3 crumples 40 f; the push leaves him out of reach, but an SP started off a
@@ -625,7 +619,7 @@ damage, before the O ender (63) or the charge (two bars, ~185); not NOMIHOSE's c
          (sp (kit-command-move kit :sp1)))
     (and hw sp (< (+ (mv-s sp) 2) (getf *reaction-frames* (hw-react hw) 0)) (not (eq (mv-name sp) :ke-meteor-n))
          (not (ai-sb-finish-p e)) (kit-command-ok-p e :sp1 kit)
-         (ken-roll b *ken-ai-sp1-ender*))))
+         (brain-roll b *ken-ai-sp1-ender*))))
 
 (defun ken-sig-hold (kit d &optional e)
   "Frames his CPU holds L: the stance against a J masher through his string (36 f), else as ai.lisp holds a stance."

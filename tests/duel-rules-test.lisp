@@ -4340,15 +4340,24 @@ past the ends; DEFAULT if the clip is not listed."
       (check (and (eq :f (cpu :hs-b-j1)) (eq :f (cpu :hs-b-k1)) (eq :f (cpu :hs-b-k2s)) (eq :f (cpu :hs-b-j2))
                   (null (cpu :hs-b-k3)) (null (cpu :hs-b-j1 :contact :block)) (null (cpu :hs-b-j1 :bound nil))))
       (setf (hss-bound (hs a)) nil (fighter-state fa) :idle (fighter-move fa) nil))))
-;; ... its chances (HARD 1.0 / 0.9, EASY <= NORMAL <= HARD), HS-ROLL (no draw at 0 or 1), the bind's bands without a neutral
+;; ... its chances (HARD 1.0 / 0.9, EASY <= NORMAL <= HARD), BRAIN-ROLL (no draw at 0 or 1), the bind's bands without a neutral
 ;; K1 or Step (the walk-in)
 (check (flet ((ordered (pl) (<= (getf pl :easy) (getf pl :normal) (getf pl :hard))))
          (and (equal *hs-ai-b-route-p* '(:easy 0.0 :normal 0.3 :hard 1.0)) (ordered *hs-ai-b-route-p*)
               (equal *hs-ai-b-close-p* '(:easy 0.0 :normal 0.0 :hard 1.0)) (ordered *hs-ai-b-close-p*)
               (equal *hs-ai-b-todome-p* '(:easy 0.1 :normal 0.2 :hard 0.9)) (ordered *hs-ai-b-todome-p*)
-              (let ((b (make-brain))) (and (null (hs-roll b '(:normal 0.0))) (hs-roll b '(:normal 1.0))))
+              (let ((b (make-brain))) (and (null (brain-roll b '(:normal 0.0))) (brain-roll b '(:normal 1.0))))
               (notany (lambda (bd) (or (getf (cddr bd) :f) (getf (cddr bd) :step)))
                       (getf (kit-ai (kit :hisagi :bankai-bind)) :moves)))))
+;; every Kenpachi CPU table (*KEN-AI-*, 15) carries :easy :normal :hard: BRAIN-CHANCE's NORMAL fallback (which replaced
+;; KEN-P's 0.0 default, refactor round 2 K3, 2026-10-21) is never taken for him
+(let ((ts nil))
+  (do-symbols (s :duel)
+    (let ((n (symbol-name s)))
+      (when (and (eq (symbol-package s) (find-package :duel)) (boundp s) (> (length n) 8) (string= "*KEN-AI-" n :end2 8))
+        (pushnew s ts))))
+  (check (and (= 15 (length ts))
+              (every (lambda (s) (every (lambda (k) (realp (getf (symbol-value s) k))) '(:easy :normal :hard))) ts))))
 ;; round01 cell b2a2's 縛口 SHIBARI-GUCHI the bind's bite (merged by the b3a2+b2a2 combination): its chance (EASY <= NORMAL <=
 ;; HARD, HARD 1.0: no roll), the window; HS-B-BITE-CMD: J1 (S 8) once its startup fits the reel after his guard-cancel lock
 ;; and the victim is within the generic follow-up's reach (1.5 + 0.6), :wait while the yank brings him in, else nothing yet

@@ -866,7 +866,7 @@ and the O where J1 can't reach; beyond 7.5 m the kit's own bands.")
 
 (defun senju-dp (b key)
   "Policy chance KEY of *SENJU-DP* at brain B's difficulty."
-  (let ((p (getf *senju-dp* key))) (getf p (brain-difficulty b) (getf p :normal 0.0))))
+  (brain-chance b (getf *senju-dp* key)))
 
 (defun senju-o-arrive (mv d)
   "Frames her O rush MV takes to strike from D m: its aura, the dash to its strike reach, its startup."
