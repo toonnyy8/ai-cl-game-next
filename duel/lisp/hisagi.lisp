@@ -881,7 +881,7 @@ the victim's centre (§7.1); the counters."
   "His :tick hook in the Shikai (every step, after the hits): the whiffed throw's anchor on its last active frame, the out
 timer (only out of his moves) and the auto-retrieve, the return's arrival; the counters."
   (declare (ignore g))
-  (let* ((st (hs e)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (sf (fighter-sf f)) (o (opp-of e)))
+  (let* ((st (hs e)) (mv (current-move f)) (sf (fighter-sf f)) (o (opp-of e)))
     (when (and (hss-leapt st) (or (null o) (zerop (fighter-combo-hits (fighter o)))))   ; §24.4: his leap's combo is over
       (setf (hss-leapt st) nil))
     (cond ((not (hs-kstr-keep-p (and mv (mv-name mv)) (hss-kstr st)))   ; S1 (§23.1): the charge ends with its K string

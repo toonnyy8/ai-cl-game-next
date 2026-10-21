@@ -186,6 +186,13 @@ is holding. Identity comes from the kit's :AI tables."
   (habit nil)                           ; debug: a scripted player's habit (debug.lisp HABIT-FIRE)
   (jkey -1 :type fixnum) (jstarts nil)  ; his last perceived J's start; the ticks his J's started (AI-MASH-P)
   (off nil))                            ; debug: this CPU does nothing
+(defun brain-chance (b plist)
+  "PLIST's chance (:easy :normal :hard) at brain B's difficulty (a missing key: NORMAL's, else 0)."
+  (getf plist (brain-difficulty b) (getf plist :normal 0.0)))
+(defun brain-roll (b plist)
+  "One roll of PLIST's chance at brain B's difficulty: no SIM-RND01 drawn at 0 or 1 (a sure answer; the host tests have
+no sim stream)."
+  (let ((p (brain-chance b plist))) (and (plusp p) (or (>= p 1.0) (< (sim-rnd01) p)))))
 
 (defcomponent hazard
   "A hit that is not a fighter's melee: fire wave, Shiranui, Ennetsu pillars, line cuts (looks only),

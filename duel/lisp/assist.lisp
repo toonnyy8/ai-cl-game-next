@@ -86,7 +86,7 @@ rush, the loom's Hoho through a Breaker ...; never a neutral decision or an offe
   "Would a guard stop what is about to hit E? Not his Breaker or Kikon rush, a grab, a window flagged :breaker /
 :guard-crush / :unguardable, nor with E's guard gauge empty or guardless (CAN-GUARD-P). His hazards (lines, projectiles)
 and every other move: yes."
-  (let* ((fo (fighter (opp-of e))) (mv (and (eq (fighter-state fo) :move) (fighter-move fo))) (g (gauges e)))
+  (let* ((fo (fighter (opp-of e))) (mv (current-move fo)) (g (gauges e)))
     (and (can-guard-p (gauges-gg g) (gauges-guardless g))
          (or (null mv)
              (and (not (member (mv-kind mv) '(:breaker :kikon)))
@@ -110,7 +110,7 @@ STRING-REFLEX with the latch emptied); pressed once J was pressed in this move (
     (unless (eq (car (svref *assist-plan* side)) mv) (setf (svref *assist-plan* side) nil))
     (when (and (eq (fighter-contact f) :hit) (= (fighter-sf f) (fighter-land-sf f)) (member (mv-kind mv) '(:quick :flash)))
       (setf (svref *assist-plan* side)
-            (cons mv (if (and (member :ender (mv-flags mv)) (kikon-ready-p e) (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t))
+            (cons mv (if (and (member :ender (mv-flags mv)) (kikon-ready-p e) (ai-o-ender-ok-p e kit))
                          :kikon
                          (let ((q (fighter-queued f)))
                            (setf (fighter-queued f) nil)

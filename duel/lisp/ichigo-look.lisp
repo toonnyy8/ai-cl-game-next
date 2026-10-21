@@ -560,7 +560,7 @@ the plaza back, violet ash drifting."
                                         (/ dx d) (/ dz d) (* 0.14 (/ cf 60.0)) 0.95)))
   (at 160 (card nil) (shot-on v 150 5.0 1.2 :look 1.3) (lens 58) (impact-frame :negative 2)
       (multiple-value-bind (x y z) (actor-point v 1.0) (vfx-konpaku-shatter x (+ y 0.1) z 2) (vfx-hit x (+ y 0.3) z :heavy))
-      (let ((q (pos-of v))) (impact-splash (aref q 0) 0.0 (aref q 2) 14 0.08))
+      (impact-splash-at v 0.0 14 0.08)
       (play-sfx :getsuga :pitch 0.7) (play-sfx :konpaku-shatter) (shake 0.3 0.4))
   (at 162 (impact-frame :manga 12))
   (during (160 172) (let ((q (pos-of v)))                  ; the ring bursting on him
@@ -713,7 +713,7 @@ points; the victim: the impact, the Konpaku; back inside the C as it burns away 
                       (vfx-ic-c-cut px pz ux uz d (+ 0.8 (* 0.15 (sin (* 0.4 cf)))) 0.0 1.0)))
   (at 140 (shot-on v 160 5.0 1.3 :look 1.3) (lens 58) (impact-frame :negative 2)
       (multiple-value-bind (x y z) (actor-point v 1.0) (vfx-konpaku-shatter x (+ y 0.1) z 4) (vfx-hit x (+ y 0.3) z :heavy))
-      (let ((q (pos-of v))) (impact-splash (aref q 0) 0.0 (aref q 2) 14 0.1))
+      (impact-splash-at v 0.0 14 0.1)
       (play-sfx :konpaku-shatter) (play-sfx :chain-snap) (shake 0.3 0.4))
   (at 142 (impact-frame :manga 12))
   (during (140 160) (multiple-value-bind (px pz ux uz d) (ic-line-from a v) (vfx-ic-c-cut px pz ux uz d 0.95 0.0 1.0 :flare (- 1.0 u))))

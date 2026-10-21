@@ -7,7 +7,7 @@
 ;;;; cinematics (the Cero Getsuga, 千影, 漆黒の月牙天衝, the awakening) are ichigo-look.lisp's, loaded right after this file
 ;;;; (BLOOD in KESSA's coils and rims, docs/style/STYLE_STORM_DESIGN.md §A.2).
 (in-package :duel)
-(declaim (special *p1* *p2* *ic-pose-ang*))           ; (flow.lisp's: the auras find their fighter; ichigo.lisp's)
+(declaim (special *ic-pose-ang*))                     ; (ichigo.lisp's)
 
 ;;; ---------------------------------------------------------------- body
 ;; 1.80 m (scale 1.0), lean (width 0.96); the hurt cylinder r 0.38 / h 1.80. One black mass (the robe and the hakama),

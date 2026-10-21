@@ -1383,7 +1383,7 @@ share it was let out at, down to 0 over *BR-LEGS-OUT* frames of the fx clock), J
 EN 0.35 m) raised off him over the let-out. Its fold and pull for LILLE-DRAW in *BR-LEGS* [7 8]. 0 B."
   (declare (fixnum side))
   (let* ((v *br-legs*) (o (* 10 side)) (form (fighter-form f)) (tm (fx-clock))
-         (mv (and (eq (fighter-state f) :move) (fighter-move f)))
+         (mv (current-move f))
          (kin (member form '(:jilliel-kin :shin-kin))) (owl (member form '(:shin-kin :shin)))
          (mode (cond ((and kin mv (member (mv-name mv) '(:br-to-en :br-to-en-l)) (eq (fighter-phase f) :main)) 1)
                      ((member form '(:jilliel :shin)) 2) (kin 0) (t -1)))
@@ -1445,7 +1445,7 @@ back by its level (*BR-SNIPE-KICK*). Cosmetic. 0 B."
                          (setf sy (+ (aref kv (+ o 1)) (* u (- (aref kv (+ o 4)) (aref kv (+ o 1)))))
                                sx (+ (aref kv (+ o 2)) (* u (- (aref kv (+ o 5)) (aref kv (+ o 2))))))))))))))
     (when (> dc 0f0) (setf sy (* sy (- 1f0 (* 0.1f0 dc))) sx (* sx (+ 1f0 (* 0.06f0 dc)))))
-    (let ((mv (and (eq (fighter-state f) :move) (fighter-move f))))   ; R15 (§19): the snipe's kick throws him back by its level
+    (let ((mv (current-move f)))   ; R15 (§19): the snipe's kick throws him back by its level
       (when (and mv (eq (fighter-phase f) :main) (member (mv-name mv) *br-snipe-moves*))
         (let* ((a (- (the fixnum (fighter-sf f)) (the fixnum (mv-s mv))))
                (d (* (the single-float (nth (the fixnum (position (mv-name mv) *br-snipe-moves*)) *br-snipe-kick*))

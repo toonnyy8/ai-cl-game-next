@@ -56,7 +56,6 @@ flinch (each flinch outlasts the next wind-up: a true combo once the first lands
 (defparameter *ai-senju-hari* 0.1 "Her CPU's chance per free step to cash >= :min stitches out with L.")
 (defparameter *ai-senju-tachi* 0.5 "The loom's CPU's chance to end a landed string with SP1 (when one of its two hanks hits).")
 (defparameter *ai-senju-pair* 0.04 "The loom's CPU's chance per free step to open a designed SP1 pair that suits (SENJU-PAIR-P).")
-(defparameter *tachi-second* 6 "TACHINAOSHI: frames between its two releases.")
 
 ;;; the six hanks (死出六色浮文機), their values at 3 passes (§4.2)
 (defparameter *hanks*
@@ -867,7 +866,7 @@ and the O where J1 can't reach; beyond 7.5 m the kit's own bands.")
 
 (defun senju-dp (b key)
   "Policy chance KEY of *SENJU-DP* at brain B's difficulty."
-  (let ((p (getf *senju-dp* key))) (getf p (brain-difficulty b) (getf p :normal 0.0))))
+  (brain-chance b (getf *senju-dp* key)))
 
 (defun senju-o-arrive (mv d)
   "Frames her O rush MV takes to strike from D m: its aura, the dash to its strike reach, its startup."
@@ -984,7 +983,7 @@ past his wake-up); the Shikai: the soldier (SP1) walks to him. A command or NIL.
   "The Shikai's :sp-ender (ai.lisp STRING-REFLEX, a J3 / K3 that hit, the push begun): the O ender (:o-ender-p; not
 when hits finish him, AI-SB-FINISH-P); else after K3 the stitches' L with >= 3 (:l-ender-p)."
   (let* ((b (ai-brain e)) (f (fighter e)) (mv (fighter-move f)))
-    (cond ((and (member :ender (mv-flags mv)) (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t)
+    (cond ((and (member :ender (mv-flags mv)) (ai-o-ender-ok-p e kit)
                 (< (sim-rnd01) (senju-dp b :o-ender-p)))
            :kikon)
           ((and (kit-k-link-p kit (mv-name mv)) (>= (hari e) 3) (kit-l-link kit (mv-name mv))
@@ -1038,7 +1037,7 @@ lane, at :o-ender-p (not when hits finish him)."
   (let ((n (form-hank (kit-form kit))) (mv (fighter-move (fighter e))))
     (or (and n (kit-command-ok-p e :sp1) (multiple-value-bind (a b) (tachi-hanks n) (or (hank-hits-p a) (hank-hits-p b)))
              (< (sim-rnd01) (* (if (ai-brain e) (senju-dp (ai-brain e) :tachi-p) *ai-senju-tachi*) (if (tachi-aligned-p n) 1.0 0.5))) :sp1)
-        (and (ai-brain e) (member :ender (mv-flags mv)) (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t)
+        (and (ai-brain e) (member :ender (mv-flags mv)) (ai-o-ender-ok-p e kit)
              (< (sim-rnd01) (senju-dp (ai-brain e) :o-ender-p)) :kikon))))
 
 (defun senju-opp-reflex (e b s d)
@@ -1075,10 +1074,13 @@ level). On a cross slot with a bar for SP1 it wants one pass: the quick single r
   "The six hanks' dyes (S <= 0.45): 眼 purple, 刃金 gold, 黒砂 ink, 褥 blue, 焼野原 madder, 星 night blue.")
 (defun hank-dye (n) (nth (1- n) *hank-dyes*))
 
+(defparameter *sj-hari-labels* (coerce (loop for i from 0 to 6 collect (format nil "HARI ~d" i)) 'simple-vector)
+  "SENJU-HUD-LABEL's strings HARI 0 .. HARI 6, made once (the label is drawn every frame).")
 (defun senju-hud-label (g kit)
   "The portrait block's label: HARI n, or the next hank's short name."
   (let ((n (form-hank (kit-form kit))))
-    (if n (hank n :short) (format nil "HARI ~d" (round (gauges-meter g))))))
+    (if n (hank n :short)
+        (let ((m (round (gauges-meter g)))) (if (<= 0 m 6) (svref *sj-hari-labels* m) (format nil "HARI ~d" m))))))
 
 (defun-fast %sj-needle (x y w h lit flick)
   "One needle pip (a gold needle standing in the W x H slot at (X Y)); LIT: its eye threaded BLOOD; FLICK: its alpha."
@@ -1101,7 +1103,8 @@ the bar for it) and the brush 機 + the next hank's short name."
   (let* ((f (fighter e)) (g (gauges e)) (st (sj e)) (side (fighter-side f)) (x (f32 x)) (y (f32 y)) (w (f32 w)) (h (f32 h))
          (next (form-hank (kit-form kit))) (pw (if next (/ w 7.5) (/ w 6.6))) (gap (* 0.12 pw)) (pgap (if next (* 0.45 pw) 0.0))
          (hh (* 2.6 h)) (y0 (- y (* 0.8 h)))
-         (refused (max 0.0 (- 1.0 (* 4.0 (- tm (aref *refused-t* side)))))))
+         (refused (max 0.0 (- 1.0 (* 4.0 (- tm (aref *refused-t* side))))))
+         (zones (and next (senju-live-zones e))))     ; (read once: nothing changes them during a draw)
     (flet ((slot-x (i) (let ((o (+ (* i (+ pw gap)) (* (floor i 2) pgap)))) (f32 (if right (- (+ x w) o pw) (+ x o))))))
     (when next                                          ; SP1's two hanks: a designed pair, or a cross pair
       (let* ((s (hank-slot next)) (a (if (>= (reiatsu-bars e) (kit-command-cost kit :sp1)) 1.0 0.35))
@@ -1109,8 +1112,8 @@ the bar for it) and the brush 機 + the next hank's short name."
         (if (tachi-aligned-p next)
             (let ((x0 (min (slot-x s) (slot-x (1+ s)))))
               (%houtline (f32 (- x0 3)) top (f32 (+ pw pw gap 6)) fh 0.76f0 0.66f0 0.4f0 (f32 a)))
-            (dolist (i (list s (mod (1+ s) 6)))
-              (%houtline (f32 (- (slot-x i) 2)) top (f32 (+ pw 4)) fh 0.55f0 0.55f0 0.6f0 (f32 (* 0.8 a)))))))
+            (flet ((cross (i) (%houtline (f32 (- (slot-x i) 2)) top (f32 (+ pw 4)) fh 0.55f0 0.55f0 0.6f0 (f32 (* 0.8 a)))))
+              (cross s) (cross (mod (1+ s) 6))))))
     (dotimes (i 6)
       (let* ((px (slot-x i)))
         (if (null next)
@@ -1119,7 +1122,7 @@ the bar for it) and the brush 機 + the next hank's short name."
                               (+ 0.35 (* 0.65 (%pulse (f32 tm) 8.0))) 1.0)))
               (%sj-needle px (f32 y0) (f32 pw) (f32 hh) lit (f32 flick)))
             (let* ((k (nth i *hank-order*)) (dye (hank-dye k)) (lit (= k next)) (lift (if lit (* 0.25 hh) 0.0))
-                   (live (find k (senju-live-zones e) :key (lambda (z) (let ((hz (hazard z))) (if hz (sjh-hank (hazard-data hz)) 0)))))
+                   (live (find k zones :key (lambda (z) (let ((hz (hazard z))) (if hz (sjh-hank (hazard-data hz)) 0)))))
                    (a (if (or lit live) 1.0 0.55)) (torn-age (- *match-tick* (sjs-torn st))))
               (%hrect px (f32 (- y0 lift)) (f32 pw) (f32 hh) (f32 (first dye)) (f32 (second dye)) (f32 (third dye)) (f32 a))
               (%houtline px (f32 (- y0 lift)) (f32 pw) (f32 hh) (if lit 0.76f0 0.3f0) (if lit 0.66f0 0.3f0) (if lit 0.4f0 0.34f0) 1f0)
@@ -1265,13 +1268,35 @@ awakened Senjumaru near the rim (the drapes' fade stills): the pair on a tangent
           ((<= 99500 c 99600) (setf (third *sj-drape-fade*) (/ (- c 99500) 100.0))))   ; the drapes' fade floor (100: off)
     (log-msg "duel senju knob ~d" c)))
 
+(defun senju-hud-cons-check ()
+  "Debug 2490 (REFACTOR_NEXT N2's probe): bytes consed by 10 calls each of her HUD hooks, the Shikai (SENJU-TEST 0, four
+stitches) and the Bankai (SENJU-TEST 22: hank 3 live under him, woven 40, hank 5 torn now): the meter in the portrait slot
+(SENJU-HUD-METER, no label), the landscape row with its label, the portrait label (SENJU-HUD-LABEL), the one-hand ring
+(SENJU-RING)."
+  (labels ((bytes (thunk) (let ((c0 (cons-bytes))) (dotimes (i 10) (funcall thunk)) (- (cons-bytes) c0)))
+           (line (tag)
+             (let* ((e *p1*) (kit (kit-of e)) (g (gauges e)))
+               (format nil "~a meter ~d, meter + label ~d, label ~d, ring ~d" tag
+                       (bytes (lambda () (senju-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 nil nil nil)))
+                       (bytes (lambda () (senju-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 300f0 40f0 2)))
+                       (bytes (lambda () (senju-hud-label g kit)))
+                       (bytes (lambda () (senju-ring e 200f0 200f0 1f0)))))))
+    (senju-test 0) (set-hari *p1* 4)
+    (let ((a (line "Shikai (4 stitches):")))
+      (senju-test 22)
+      (let* ((st (sj *p1*)) (wv (sjs-woven st)) (tn (sjs-torn st)) (th (sjs-torn-hank st)))
+        (setf (sjs-woven st) 40 (sjs-torn st) *match-tick* (sjs-torn-hank st) 5)
+        (log-msg "duel senju hud consing (10 calls, B): ~a; ~a" a (line "Bankai (a live hank, woven 40, a torn one):"))
+        (setf (sjs-woven st) wv (sjs-torn st) tn (sjs-torn-hank st) th)))))
+
 (defun senju-debug (c)
-  "Her debug commands (debug.lisp *CHAR-DEBUG*): 2450+k SENJU-TEST k; 76000+f / 77000+f / 78000+f her cinematics' stills
+  "Her debug commands (debug.lisp *CHAR-DEBUG*): 2450+k SENJU-TEST k, 2490 SENJU-HUD-CONS-CHECK; 76000+f / 77000+f / 78000+f her cinematics' stills
 (FORCE-CINE 16-18) held at frame f; 90000+ SENJU-KNOB."
-  (cond ((< c 2500) (senju-test (- c 2450)))
+  (cond ((= c 2490) (senju-hud-cons-check))
+        ((< c 2500) (senju-test (- c 2450)))
         ((< c 79000) (cine-at (+ 16 (floor (- c 76000) 1000)) (mod c 1000)))
         (t (senju-knob c))))
-(dolist (r '((2450 2489 senju-debug) (76000 78999 senju-debug) (90000 99999 senju-debug)))
+(dolist (r '((2450 2490 senju-debug) (76000 78999 senju-debug) (90000 99999 senju-debug)))
   (pushnew r *char-debug* :test #'equal))
 
 ;;; ================================================================ cinematics (§5, §6; unskippable; every shot SHOT-ON its subject)

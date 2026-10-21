@@ -245,7 +245,8 @@ def looks_scenarios():
 
     # looks that are not on screen at a chosen tick: the HUD in every form (2430+k), sword smears, the Bankai's cracks and
     # impact stamps (2312, 2366), Yamamoto's KYOKUJITSUJIN gash and South ring cracks (2304, 2303: toon-ground-seg's
-    # line-cut sites, refactor round 2, 2026-10-21), Rukia's ice, Senjumaru's bolts of cloth, stitches, umbrella and drapes (2450+k)
+    # line-cut sites, refactor round 2, 2026-10-21), Rukia's ice, Senjumaru's bolts of cloth, stitches, umbrella and drapes
+    # (2450+k), her Bankai meter on a cross pair (2471) and KESSA's meter with three clones (74007, refactor round 2 K1)
     # (the old Lille's wings and claws, 79197 / 79198, went with him, 2026-10-13): (command, seconds to the still, still name)
     for name, lst in (("fx-a", [(2430, 0.6, "hud-0"), (2433, 0.6, "hud-3"), (2434, 0.6, "hud-4"), (2437, 0.6, "hud-7"),
                                 (2309, 0.4, "smear-a"), (None, 0.55, "smear-b"), (2312, 0.8, "bankai-crack"), (2366, 0.8, "destruction"),
@@ -253,7 +254,8 @@ def looks_scenarios():
                                 (2304, 0.6, "kyoku"), (2303, 0.7, "south")]),
                       ("fx-b", [(2412, 1.0, "rukia-m50"), (2413, 0.3, "rukia-freeze-touch"), (2418, 1.0, "rukia-zero"),
                                 (2470, 0.8, "senju-hank1"), (2473, 0.8, "senju-hank4"), (2476, 0.8, "senju-stitches"),
-                                (2477, 0.7, "senju-umbrella"), (2481, 0.8, "senju-drapes")])):
+                                (2477, 0.7, "senju-umbrella"), (2481, 0.8, "senju-drapes"),
+                                (2471, 0.8, "senju-hank2"), (74007, 0.8, "ichigo-clones")])):
         s, t = [], LOOKS_START
         for c, d, still in lst:
             if c is None: shot(s, t0 + d, still); continue                 # a second still of the same command

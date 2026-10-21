@@ -310,7 +310,7 @@ still): a 7-segment SMOKE ribbon 1.1 m up from (X Y Z), widening as it rises, it
 
 (defun yama-draw (e rdt)
   "KIT-HOOK :draw: step the hem spring; Bankai East's smoke thread from the drawn blade's tip."
-  (let* ((f (fighter e)) (m (model e)) (mv (and (eq (fighter-state f) :move) (fighter-move f))))
+  (let* ((f (fighter e)) (m (model e)) (mv (current-move f)))
     (%ya-hem-step *ya-hem* (* 16 (fighter-side f)) (f32 rdt))
     (when (and (eq (kit-form (fighter-kit f)) :bankai-east) (model-weapon m) (> (model-alpha m) 0.5)
                (not (and mv (mv-planted mv) (eq (fighter-phase f) :main))))

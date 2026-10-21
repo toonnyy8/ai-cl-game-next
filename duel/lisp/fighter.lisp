@@ -23,6 +23,8 @@
 (defun hoho-ready-p (e)
   "May E Hoho now (rules HOHO-ALLOWED-P over his flash-step, Hoho lockout and burst)?"
   (let ((f (fighter e)) (g (gauges e))) (hoho-allowed-p nil (gauges-fs g) (fighter-hoho-lock f) (gauges-burst g))))
+(defun hoho-open-p (e) "May E Hoho at all: his form is not rooted and HOHO-READY-P?" (and (not (kit-rooted (kit-of e))) (hoho-ready-p e)))
+(defun current-move (f) "The move fighter F is in (his MOVE while his state is :move), else NIL." (and (eq (fighter-state f) :move) (fighter-move f)))
 (defun reishi-frac (g) "Gauges G's Reishi as a fraction of its maximum." (/ (gauges-reishi g) (float (gauges-reishi-max g))))
 (defun gauges-red-p (g) "Is gauges G's Reishi in the red (rules RED-P)?" (red-p (gauges-reishi g) (gauges-reishi-max g)))
 (defun reiatsu-bars (e) "E's full Reiatsu bars (REIATSU-OF: a bind's shared pool)." (floor (reiatsu-of e) *reiatsu-bar*))
@@ -187,7 +189,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
 
 (defun start-move (e mv &optional button)
   "Enter move MV (a MOVE of E's kit). Frame (MV-ENTER mv) is this step; MOVE-STEP advances it."
-  (let* ((f (fighter e)) (enter (mv-enter mv)) (old (and (eq (fighter-state f) :move) (fighter-move f)))
+  (let* ((f (fighter e)) (enter (mv-enter mv)) (old (current-move f))
          (off-ender (or (plusp (fighter-chain f))                       ; ORANGE's restart, or a move started off a J / K
                         (and old (member :ender (mv-flags old)) (member (mv-kind old) '(:quick :flash))   ; ender that hit
                              (eq (fighter-contact f) :hit))

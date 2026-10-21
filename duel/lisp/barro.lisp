@@ -947,7 +947,7 @@ button-masher (habit :dumb, read as a human)."
   "His kit's refusals: an L link off a stance string (the stance is not re-entered from its own strings: they end in the
 attack state, decision R2); SP2 out of any move but the base stance's window, except a stance J / K segment's own charge-less
 SP2 (COMBO, its :sp2c; decision R3: 「必須接在 KK 後執行才能有效利用」: no generic SP cancel)."
-  (let* ((f (fighter e)) (cur (and (eq (fighter-state f) :move) (fighter-move f))))
+  (let* ((f (fighter e)) (cur (current-move f)))
     (cond ((and (eq command :sp2) cur (not (member (mv-name cur) '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re))))
            (and (typep combo 'move) (eq combo (kit-next (fighter-kit f) (mv-name cur) :sp2c))))
           (t (not (and (typep combo 'move) (eq (mv-kind combo) :sig) cur (br-stance-move-p cur)))))))
@@ -1004,7 +1004,7 @@ specials' cap; the pacing clocks."
          (when (and (not (brs-in-string st)) (>= (incf (brs-en-t st)) *br-en-hold*))
            (setf (brs-en-t st) 0 form (br-melee-of form))
            (set-form e form) (pace e :stance-timeout)))))
-    (let ((mv (and (eq (fighter-state f) :move) (fighter-move f))))
+    (let ((mv (current-move f)))
       (cond ((and mv (br-stance-move-p mv) (br-ranged-form-p form)) (setf (brs-in-string st) t))
             ((and (brs-in-string st) (member (fighter-state f) '(:idle :run :guard)))
              (setf (brs-in-string st) nil)

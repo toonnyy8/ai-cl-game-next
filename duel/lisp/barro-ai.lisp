@@ -767,7 +767,7 @@ re-aimed at its end); once a charge."
 onset (his charged L entering its charge on a free opponent), their answer (BR-LEARN-ANSWER; :charge's walk off the line a
 Step; at its end :TAKE, or :GUARD held through)."
   (declare (ignore b d))
-  (let* ((k (br-learn-state l)) (f (fighter e)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
+  (let* ((k (br-learn-state l)) (f (fighter e)) (mv (current-move f))
          (hs (snap-state s)) (hprev (lrn-hstate l)) (new (/= (snap-start s) (lrn-hstart l)))
          (sit (and mv (not (eq mv (brl-own-mv k))) (< (lrn-ksit l) 0) (member hs '(:idle :run :guard))
                    (cond ((member (mv-name mv) '(:br-s-k1 :br-e-k1 :br-oe-k1)) :shot)
@@ -821,7 +821,7 @@ Step; at its end :TAKE, or :GUARD held through)."
 
 (defun br-as-track (f b vp)
   "The route state of F's side for brain B, its move instance brought up to date, his J this step noted."
-  (let* ((side (fighter-side f)) (a (svref *br-as* side)) (mv (and (eq (fighter-state f) :move) (fighter-move f))))
+  (let* ((side (fighter-side f)) (a (svref *br-as* side)) (mv (current-move f)))
     (unless (eq (bras-b a) b) (setf a (make-bras :b b) (svref *br-as* side) a))
     (cond ((null mv) (setf (bras-mv a) nil (bras-j a) nil (bras-done a) nil))
           ((or (not (eq mv (bras-mv a))) (< (fighter-sf f) (bras-sf a)))

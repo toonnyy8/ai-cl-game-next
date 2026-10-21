@@ -131,6 +131,9 @@ answers it at its timing (AI-OPP-REFLECT): the kits' timed Hohos and the generic
   "Is he, as perceived, recovering (SNAP-RECOVERING-P) or reeling?"
   (or (snap-recovering-p s) (eq (snap-state s) :stun)))
 (defun snap-left-seen (s b) "His frames left as perceived S, less brain B's perception delay." (- (snap-left s) (brain-delay b)))
+(defun snap-lead-seen (s b)
+  "Frames from his perceived frame (S) to his move's first active frame, less brain B's perception delay."
+  (- (snap-s s) (snap-sf s) (brain-delay b)))
 
 (defun x-on-line-p (s e)
   "Are E's feet on his perceived :x-axis line: within its radius + E's hurt radius + *AI-LINE-MARGIN*?"
@@ -268,6 +271,9 @@ stay), which breaks a combo the same way since the user 2026-10-09 (DUEL_KEN_REW
   "E's opponent is nearly out of Reishi (under *AI-SB-FINISH* of his max): finish him with hits, the Soul Break (the
 Kikon count + 1), not the Kikon rush he might still guard or dodge."
   (let ((go (gauges (opp-of e)))) (< (gauges-reishi go) (* *ai-sb-finish* (gauges-reishi-max go)))))
+(defun ai-o-ender-ok-p (e kit)
+  "May E's CPU press the O ender now: no Soul Break finish due (AI-SB-FINISH-P) and KIT's Kikon command open?"
+  (and (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t)))
 
 (defun ai-burst-roll (e b)
   "Burst Reverse (or the awakening, which breaks a combo too: AI-AWAKEN-BREAK-P) now? No sooner than the perception
@@ -327,7 +333,7 @@ him (*AI-BRAIN*; the gate's masher has a brain of its own), else his own (a CPU)
 (defun ai-chance (e plist)
   "PLIST's chance (:easy :normal :hard) at E's CPU difficulty: its brain's (AI-BRAIN: an assisted human's is the assist's
 HARD one); no brain: NORMAL's."
-  (let ((b (ai-brain e))) (getf plist (if b (brain-difficulty b) :normal) (getf plist :normal 0.0))))
+  (let ((b (ai-brain e))) (if b (brain-chance b plist) (getf plist :normal 0.0))))
 
 (defun ai-event-rolls (b s)
   "One roll per opponent action (his SNAP S starts a new one): brain B's guard / Hoho / reaction rolls (AI-REFLEX; the
@@ -641,7 +647,7 @@ D = the perceived distance."
          (and r (< (brain-react-roll b) *ai-react-p*)
               (or (and (snap-projectile s) (getf r :projectile))
                   (and (eq (snap-kind s) :flash) (< d 4.0) (getf r :flash-startup) (kit-command-ok-p e (getf r :flash-startup))
-                       (let ((lead (- (snap-s s) (snap-sf s) (brain-delay b)))
+                       (let ((lead (snap-lead-seen s b))
                              (mv (kit-command-move kit (getf r :flash-startup))))
                          (if (member :parry (mv-flags mv))
                              (and (eq (snap-phase s) :main) (parry-frame-p (+ lead *super-freeze*)))
@@ -850,7 +856,7 @@ or a back Step out of his reach (the user 2026-10-02); else nothing (a reflex ma
     (cond ((< r p) (ai-press b :guard *ai-wake-guard-frames* :act :hold) (setf (brain-why b) :wake-guard))
           ((< r (+ p (* 0.5 (- 1.0 p))))
            (ai-command b (kit-of e)
-                       (if (and (not (kit-rooted (kit-of e))) (hoho-ready-p e)
+                       (if (and (hoho-open-p e)
                                 (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g)))
                            :hoho :step)                       ; (a Step with the stick at rest: the back hop)
                        d e)

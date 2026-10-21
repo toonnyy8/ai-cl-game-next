@@ -10,7 +10,7 @@
 ;;;; Most of his mechanics run in his :tick hook (after the hits of the step): the stance's follow-ups, the parry from
 ;;;; blockstun, the clones' answers (a J / K press edge), the Hoho clone, the O charge, the afterimages.
 (in-package :duel)
-(declaim (special *p1* *p2* *match-tick* *mode* *gate* *gate-seed0* *pairs* *match-seed*))   ; (flow.lisp's, debug.lisp's)
+(declaim (special *mode* *gate* *gate-seed0* *pairs* *match-seed*))   ; (flow.lisp's, debug.lisp's)
 
 ;;; ================================================================ knobs (debug 74000-75599, ICHIGO-DEBUG)
 (defparameter *walk-ichigo* 4.2 "Ichigo's walk (Shikai).")
@@ -397,13 +397,14 @@ L; within 4.2 m (RANGETSU's lunge + reach 4.8) TSUKI-OTOSHI on a guard (or a gau
 (defun ichigo-kikon-worth (e)
   "KESSA's :kikon-worth hook: what 千影 would take if O were pressed now (CLONE-KONPAKU of the live clones), for the red
 Konpaku hint (the user 2026-09-29: it followed the kit's fixed 3) and his Soul Break (this + 1, the user 2026-09-30)."
-  (clone-konpaku (count-if (lambda (h) (clone-live-p (hazard-data (hazard h)))) (ichigo-clones e))))
+  (clone-konpaku (clone-count e)))
 (defun clone-count (e) "E's live clones (idle or answering)." (count-if (lambda (h) (clone-live-p (hazard-data (hazard h)))) (ichigo-clones e)))
+(defun ichigo-live-clones (e) "E's live clone hazards (idle or answering), oldest first." (remove-if-not (lambda (h) (clone-live-p (hazard-data (hazard h)))) (ichigo-clones e)))
 (defun clone-fade (c) (setf (icc-state c) :fade (icc-fade c) 0))
 
 (defun ichigo-clone-spawn (e x z src)
   "A clone at (X Z) facing the opponent; at the cap the oldest live one fades out (CLONE-EVICT)."
-  (let* ((live (remove-if-not (lambda (h) (clone-live-p (hazard-data (hazard h)))) (ichigo-clones e)))
+  (let* ((live (ichigo-live-clones e))
          (i (clone-evict (mapcar (lambda (h) (icc-born (hazard-data (hazard h)))) live)))
          (q (pos-of (opp-of e))))
     (when i (clone-fade (hazard-data (hazard (nth i live)))) (pace e :clone-evicted))
@@ -451,15 +452,17 @@ paid (CLONE-PAY!)."
   "A J / K press edge of E's (the user's choice: EVERY clone answers): an idle clone starts its string where it stands
 (the user, 2026-09-29: the clones swing in place); an answering one queues the press for a later link (each press one
 link, in order, 3 links at most: the clone plays his whole string back, *CLONE-LAG* behind)."
-  (let ((w (if (eq button :quick) :q :f)) (reach (if (eq button :quick) "3.0" "2.4")))
+  (let ((w (if (eq button :quick) :q :f)))
     (pace e (ic-key "PRESS" w))
-    (dolist (h (ichigo-clones e))
-      (let ((c (hazard-data (hazard h))))
-        (when (clone-live-p c)
-          (pace e (ic-key "PRESS" w "CLONES"))
-          (when (or (string= (ic-reach-key (hazard-x (hazard h)) (hazard-z (hazard h)) e) "IN")
-                    (and (eq w :q) (string= (ic-reach-key (hazard-x (hazard h)) (hazard-z (hazard h)) e) "MID")))
-            (pace e (ic-key "PRESS" w "INREACH" reach))))))
+    (when *pacing-log*                                    ; (the pacing log's watch only: reads, then PACE)
+      (let ((reach (if (eq button :quick) "3.0" "2.4")))
+        (dolist (h (ichigo-clones e))
+          (let ((c (hazard-data (hazard h))))
+            (when (clone-live-p c)
+              (pace e (ic-key "PRESS" w "CLONES"))
+              (when (or (string= (ic-reach-key (hazard-x (hazard h)) (hazard-z (hazard h)) e) "IN")
+                        (and (eq w :q) (string= (ic-reach-key (hazard-x (hazard h)) (hazard-z (hazard h)) e) "MID")))
+                (pace e (ic-key "PRESS" w "INREACH" reach))))))))
     (dolist (h (ichigo-clones e))
       (let ((c (hazard-data (hazard h))))
         (case (icc-state c)
@@ -577,7 +580,7 @@ bonus); the Kikon is worth CLONE-KONPAKU N."
 
 (defun echo-watch (e f st)
   "A new attack of E's (a move with hits, not the Breaker; a Kikon rush at its strike) while ZANZO is on: its echo."
-  (let* ((mv (and (eq (fighter-state f) :move) (fighter-move f))) (main (and mv (eq (fighter-phase f) :main))))
+  (let* ((mv (current-move f)) (main (and mv (eq (fighter-phase f) :main))))
     (unless (and (eq mv (ics-seen st)) (eq main (ics-seen-main st)))
       (setf (ics-seen st) mv (ics-seen-main st) main)
       (when (and main (plusp (length (mv-hits mv))) (not (eq (mv-kind mv) :breaker)) (zanzo-p e))
@@ -660,7 +663,7 @@ link *AI-IC-PARRY-BS-P* of the time, on the frame that puts the string's next hi
 (defun parry-watch (e f st)
   "The parry's window tell: a white rim, fading linearly over the window (its brightness is the timer); the parry frame
 kept for the practice judge (ICHIGO-STRUCK)."
-  (let* ((m (model e)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
+  (let* ((m (model e)) (mv (current-move f))
          (in (and mv (member :parry (mv-flags mv)) (eq (fighter-phase f) :main))) (sf (fighter-sf f)))
     (setf (ics-parry-sf st) (if in sf -1))
     (if (and in (parry-frame-p sf (getf (mv-params mv) :window)))
@@ -673,7 +676,7 @@ kept for the practice judge (ICHIGO-STRUCK)."
 (defun ic-acc-watch (e f st)
   "Each move instance of his, by name, and at its end its contact (NAME-HIT / -BLK / -WHF); the stance's entries by
 distance; the ticks in KESSA; each Kikon he lands, by form and worth."
-  (let* ((mv (and (eq (fighter-state f) :move) (fighter-move f))) (sf (fighter-sf f)) (old (ics-acc-mv st)))
+  (let* ((mv (current-move f)) (sf (fighter-sf f)) (old (ics-acc-mv st)))
     (when (and old (or (not (eq mv old)) (< sf (ics-acc-sf st))))
       (pace e (ic-key (mv-name old) (case (ics-acc-hit st) (:hit "HIT") (:block "BLK") (t "WHF"))))
       (setf (ics-acc-mv st) nil))
@@ -747,7 +750,7 @@ edges they answer, the Hoho clone, the O charge), the parry from blockstun and i
           (if (eq state :guard-hit) (parry-from-blockstun e f st vp) (setf (ics-bs-key st) -1))
           (parry-watch e f st)
           (echo-watch e f st))
-        (let ((mv (and (eq (fighter-state f) :move) (fighter-move f))))
+        (let ((mv (current-move f)))
           (if (and mv (member (mv-name mv) '(:ic-tsuki :ic-tsuki-k2 :ic-tsuki-re)))
               (tsuki-step e f st mv)
               (unless (and mv (eq (mv-name mv) :ic-tsuki-dash)) (setf (ics-dashed st) nil)))))))
@@ -789,7 +792,7 @@ into a coming hit (2, 3 with the gauge for them); the O itself stays the generic
           ((ichigo-ai-convert e b s d))
           ((and (>= gg *kessa-parry-cost*) (not (gauges-guardless g))
                 (< (brain-react-roll b) (ic-p b (* 0.6 *ai-ic-parry-p*) *ai-ic-parry-p* 1.0))
-                (let ((lead (- (snap-s s) (snap-sf s) (brain-delay b))))
+                (let ((lead (snap-lead-seen s b)))
                   (or (and (eq (snap-state s) :move) (eq (snap-phase s) :main) (member (snap-kind s) '(:quick :flash :sig :sp :kikon))
                            (<= 4 lead 22) (< d (+ (snap-reach s) 0.6))
                            (not (snap-x-axis-p s)))                ; (an :x-axis line is :ranged: no parry catches it)
@@ -856,12 +859,11 @@ Breaker's strike, an O strike) lands 0-11 frames from now (its startup left minu
 + 1.5 m: Hoho now, inside the perfect window (*PERFECT-LEAD* 12: the automatic counter strike, his inputs locked 40 f,
 15 flash-step back; KESSA's Hoho also posts a clone in front of him). One roll per his action (the Hoho roll) at (EASY 0 /
 NORMAL 0 / HARD 1.0); only the Hoho's own price, no Burst reserve (the perfect refund pays most of it back), not in a burst."
-  (let ((g (gauges e)) (lead (- (snap-s s) (snap-sf s) (brain-delay b))))
+  (let ((g (gauges e)) (lead (snap-lead-seen s b)))
     (and (eq (snap-state s) :move) (eq (snap-phase s) :main) (member (snap-kind s) '(:quick :flash :sig :sp :breaker :kikon))
          (> (snap-active-end s) (snap-s s)) (<= 0 lead 11) (snap-near-p s e d 1.5)   ; (an :x-axis line: on it, ai.lisp)
          (not (snap-reflect-p s))                     ; (a reflect is :opp-reflect's, ai.lisp)
-         (not (kit-rooted (kit-of e)))
-         (hoho-ready-p e)
+         (hoho-open-p e)
          (not (gauges-burst g))
          (< (brain-hoho-roll b) (ic-p b 0.0 0.0 1.0))
          (why b :perfect-hoho :hoho))))
@@ -962,13 +964,20 @@ shipped behaviour). AI-BRAIN: for a human the ASSIST's borrowed (HARD) brain (it
 
 ;;; ================================================================ the HUD: the clones' row (the kit meter's :draw / :label, :deck)
 (defun ichigo-hud-label (g kit) "The portrait label." (declare (ignore g kit)) "BUNSHIN")
+(defparameter *ic-bunshin-labels*
+  (let ((v (make-array '(4 5))))
+    (dotimes (n 4 v)
+      (setf (aref v n 0) (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n nil 0))
+      (dotimes (j 4) (setf (aref v n (1+ j)) (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n t (clone-konpaku j))))))
+  "ICHIGO-HUD-METER's labels, made once: [n 0] BUNSHIN xN, [n 1+j] BUNSHIN xN K KONPAKU (K = CLONE-KONPAKU j, the O
+press's flash), n 0-3.")
 
 (defun ichigo-hud-meter (e kit x y w h right tm lx ly ls)
   "KESSA's kit-meter row: three clone pips (lit BLOOD-rimmed white per live clone, a thin arc of its life; pulsing at 3:
 the 4-Konpaku Kikon), under them ZANZO's white bar draining, the label BUNSHIN xN (and on an O press the pips flash with
 the Kikon's worth)."
   (declare (ignore kit))
-  (let* ((st (ic e)) (hs (ichigo-clones e)) (live (remove-if-not (lambda (h) (clone-live-p (hazard-data (hazard h)))) hs))
+  (let* ((st (ic e)) (live (ichigo-live-clones e))
          (n (length live)) (pw (/ w 3.6)) (hh (* 3.6 h)) (y0 (- (+ y (* 0.5 h)) (* 0.5 hh)))
          (flash (max 0.0 (- 1.0 (/ (- *match-tick* (ics-o-at st)) 40.0))))
          (pulse (if (= n 3) (+ 0.6 (* 0.4 (abs (sin (* 6.0 tm))))) 1.0)))
@@ -993,7 +1002,9 @@ the Kikon's worth)."
           (ui-rect (if right (+ x (- w (* w fr))) x) (+ y0 hh 2) (* w fr) (max 2.0 (* 0.35 h)) '(0.96 0.96 0.94 0.9)))))
     (when lx
       (let ((col '(0.82 0.06 0.11 1.0)))
-        (hud-text (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n (> flash 0.0) (clone-konpaku (ics-o-n st)))
+        (hud-text (let ((on (> flash 0.0)) (j (max 0 (min 3 (ics-o-n st)))))   ; (CLONE-KONPAKU's clamp)
+                    (if (<= 0 n 3) (aref *ic-bunshin-labels* n (if on (1+ j) 0))
+                        (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n on (clone-konpaku (ics-o-n st)))))
                   lx ly ls col :align (if right :right :left))))))
 
 (defun ichigo-deck (e cx cy d)
@@ -1025,6 +1036,24 @@ Shikai vs Yamamoto's wave at 8 m (Shift+K: JUJISHO cuts it), 6 the Shikai 8 m fr
     (dotimes (i n)
       (let ((a (+ yaw (* (- i 1) 0.9))))
         (ichigo-clone-spawn e (+ (aref p 0) (* 1.2 (fwd-x a))) (+ (aref p 2) (* 1.2 (fwd-z a))) :debug)))))
+
+(defun ichigo-hud-cons-check ()
+  "Debug 74907 (REFACTOR_NEXT N2's probe): bytes consed by 10 calls each of KESSA's HUD meter (ICHIGO-HUD-METER) with three
+clones (ICHIGO-TEST 7): the portrait slot (no label) facing left and right, the landscape row with its label, the same
+while an O press's flash runs, the label's FORMAT alone, and the one-hand deck (ICHIGO-DECK)."
+  (ichigo-test 7)
+  (let* ((e *p1*) (kit (kit-of e)) (st (ic e)) (at (ics-o-at st)) (on (ics-o-n st)))
+    (flet ((bytes (thunk) (let ((c0 (cons-bytes))) (dotimes (i 10) (funcall thunk)) (- (cons-bytes) c0))))
+      (let* ((pl (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 nil nil nil))))
+             (pr (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 t 1f0 nil nil nil))))
+             (ll (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 300f0 40f0 2))))
+             (lf (progn (setf (ics-o-at st) *match-tick* (ics-o-n st) 3)
+                        (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 300f0 40f0 2)))))
+             (fm (bytes (lambda () (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" 3 t 4))))
+             (dk (bytes (lambda () (ichigo-deck e 200f0 200f0 1f0)))))
+        (setf (ics-o-at st) at (ics-o-n st) on)
+        (log-msg "duel ichigo hud consing (10 calls, B): meter ~d, meter right ~d, meter + label ~d, meter + label flashing ~d, label format ~d, deck ~d"
+                 pl pr ll lf fm dk)))))
 
 (defun ichigo-test (k)
   (destructuring-bind (f1 c2 f2 d act n) (nth k *ichigo-tests*)
@@ -1059,7 +1088,7 @@ it already runs it continues to F."
   "74000+k ICHIGO-TEST k, 74080+k the 60-seed gate of pairing k (ICHIGO-AB-GATE); 74100+k .. 74400+k the forms' damage dealt / taken x (0.5 + k / 100) (Shikai dealt, taken,
 KESSA dealt, taken); 74500+k the parry window's length = k (from f2); 74600+k *KESSA-PARRY-CATCH* = k; 74700+k
 *CLONE-LIFE* = 10k; 74800+k *CLONE-BURST-DMG* = k; 74900+k (k 0-3) P1's clones = k, 74905 log P2's combo, 74906 the
-looks' consing probe (ICHIGO-LOOK-CONS-CHECK); 74910+k
+looks' consing probe (ICHIGO-LOOK-CONS-CHECK), 74907 the HUD's (ICHIGO-HUD-CONS-CHECK); 74910+k
 *CLONE-SCALE* = k / 20 (k < 40); 74950+k *AI-IC-PARRY-P* = k / 50 (k < 40); 74990+k a pose still (*ICHIGO-POSES*), 74989
 its camera turned 90 deg; 75000 + 150 i + k stills of cinematic i (0 the Shikai
 Kikon, 1 千影, 2 the awakening, 3 the KESSA Getsuga Soul Break) held at frame 2k."
@@ -1081,6 +1110,7 @@ Kikon, 1 千影, 2 the awakening, 3 the KESSA Getsuga Soul Break) held at frame 
       (9 (cond ((< k 4) (ichigo-set-clones *p1* k))
                ((= k 89) (setf *ic-pose-ang* (mod (+ *ic-pose-ang* 90.0) 360.0)))
                ((= k 6) (ichigo-look-cons-check))
+               ((= k 7) (ichigo-hud-cons-check))
                ((= k 5) (let ((f (fighter *p2*)))
                           (log-msg "duel ichigo combo P2 hits ~d dmg ~d reishi ~d" (fighter-combo-hits f) (fighter-combo-dmg f)
                                    (gauges-reishi (gauges *p2*)))))
