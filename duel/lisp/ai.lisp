@@ -41,6 +41,20 @@
 ;;;;   learning    a CPU facing a human (VS CPU / ENDLESS, the LEARNING CPU setting) carries a learner (BRAIN-LEARN,
 ;;;;               ai-learn.lisp; learn.lisp): it predicts his next action per situation and answers it, and weighs the
 ;;;;               kit's :moves by a bandit; NIL (every CPU vs CPU, every gate): nothing of it runs (docs/duel/DUEL_LEARNING.md)
+;;;; The kit's :ai keys the generic code reads (AI-TABLE, ai.lisp + assist.lisp; the one list: kit.lisp DEFKIT points here).
+;;;; A kit's own CPU functions may read further keys of their own form (Lille's :stance :burst :far-dash :far-snipe ...).
+;;;;   identity    :intents (:approach :pressure :zone :defend weights)  :ranges (intent -> (lo hi) m)
+;;;;               :moves ((lo hi cmd w ...) ...) the weighted moves per distance band  :tempo  :attack  :respect
+;;;;   defence     :guard p  :neutral-guard p  :hoho p  :react (:projectile cmd :flash-startup cmd)  :gg-low  :dash  :dash-back
+;;;;               :dash-gap
+;;;;   strings     :o-ender p  :string-k p  :cancel (:sig p ...)  :l-after-k p  :l-after-j p  :sp-cancel-bars n
+;;;;               :block-string p  :low  :sig-gg  :stun-follow (cmd lo hi)  :oki :sp1-full  :oki-above fraction
+;;;;   Kikon       :kikon-range m  :kikon-p p
+;;;;   forms       :awaken (:melee-share :min-taken)  :awaken-above reishi-fraction  :bankai (:p :own-konpaku ...)
+;;;;               :cashout (:punish :near :below)  :pip-hurry frames  :cool (:p :near :no-projectile :min-gg)
+;;;;               :brace (:p :near :min-gg)  :ward-reversal p
+;;;;   hooks       :reflex (e b s d)  :move-reflex (e b f mv)  :sp-ender  :sig-hold  :assist-guard  :assist-combo
+;;;;   read by the OPPONENT's CPU: :opp-reflex (e b s d)  :opp-aim  :opp-reflect  :opp-intent (:zone n :defend n)
 (in-package :duel)
 
 (defstruct snap

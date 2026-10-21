@@ -575,7 +575,6 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      hue: the composite's spot-keep mode, main.lisp FORM-GRADE)
   :intro :win :intro-callout :callout  clips / texts; :intro-weapon (key frame) = a prop held in the
                                      intro clip until FRAME (Yamamoto's cane)   :reset-reiatsu  bonus at each Kikon reset
-  :ai (:intents plist :ranges plist :moves ((lo hi cmd w ...) ...) :guard p :hoho p :kikon-range m
-       :awaken-above reishi-fraction :react plist :sp-cancel-bars n :oki cmd :oki-above fraction
-       :dash p :dash-back p)   CPU identity (§8, ai.lisp)"
+  :ai (:intents plist :ranges plist :moves ((lo hi cmd w ...) ...) :guard p :hoho p :kikon-range m ...)
+                                     CPU identity (§8): every key the generic CPU reads is listed in ai.lisp's header"
   `(register-kit ,character ,form ',spec))

@@ -7,7 +7,7 @@ format and the measurements.
 **Files:** `duel/lisp/learn.lisp` (the pure part: tables, counting, prediction, EXP3, p_exploit, storage; host-tested by
 `tests/learn-test.lisp`); `duel/lisp/ai-learn.lisp` (the hooks: `learn-step`, `learn-fire`, `learn-neutral`,
 `learn-weights` / `learn-window`); `flow.lisp` (`learn-match-start` / `learn-match-end`, the SETTINGS rows);
-`duel/web/pwa.js` (storage); `debug.lisp` (the scripted players and the learning gate). All of it is character-free. A
+`duel/web/pwa.js` (storage); `gate.lisp` (the scripted players and the learning gate; debug.lisp until 2026-10-21). All of it is character-free. A
 character may add situations of its own in its own file (§11; Lille's, DUEL_LILLE §24.9).
 
 ## 1. What it is

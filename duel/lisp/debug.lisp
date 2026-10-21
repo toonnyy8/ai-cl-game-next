@@ -12,122 +12,18 @@
 ;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
+;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates, the scripted players) is gate.lisp.
 (in-package :duel)
 
-(defvar *turbo* nil "Debug 2102: fast-forward (many steps per frame, scene not drawn).")
 (defvar *hitboxes* nil)
 (defvar *intents* nil)
 (defvar *god* nil)
-(defvar *gate-log* nil "Debug 2114+p: the seed gate keeps the combat log and logs a pace line every 60 ticks.")
 (defvar *no-draw* (make-array 4 :initial-element nil) "Debug 2120+k: skip drawing part k (perf bisection).")
 
 (defmacro cons-per (name form &optional (n 10))
   "The consing probes' unit: run FORM N times and give \"NAME bytes\" (the string the *-cons-check lines list).
 FORM sees the iteration index as I."
   `(let ((c0 (cons-bytes))) (dotimes (i ,n) ,form) (format nil "~a ~d" ,name (- (cons-bytes) c0))))
-
-(defun state-hash-line ()
-  "The determinism hash: positions quantized to cm, facing to 0.01 rad, every gauge (f flash-step,
-g guard gauge, ! = guardless, m the kit meter: Inferno / NOME), n the Konpaku the last Kikon rush was worth."
-  (with-output-to-string (s)
-    (format s "duel hash t=~d" *match-tick*)
-    (dolist (e (list *p1* *p2*))
-      (let ((p (pos-of e)) (g (gauges e)) (f (fighter e)))
-        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d a~d f~d g~d~:[~;!~] w~d m~d~@[ u~d~]~:[~;*~] n~d~@[ fr~d~]~@[ h~d~]~@[ ~a~]" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
-                (round (* 100 (aref p 2))) (round (* 100 (yaw-of e))) (fighter-state f) (fighter-form f)
-                (gauges-reishi g) (gauges-konpaku g) (round (gauges-reiatsu g)) (round (gauges-fs g)) (round (gauges-gg g))
-                (gauges-guardless g) (round (gauges-awaken g))
-                (round (gauges-meter g)) (and (or (kit-pips (fighter-kit f)) (getf (kit-meter (fighter-kit f)) :temp))   ; the arm's
-                                              (gauges-meter-idle g))                            ; crack clock / Rukia's warm clock,
-                (gauges-arm-pending g)                                                          ; * = its burst pending
-                (fighter-kikon-n f) (and (plusp (fighter-frost f)) (fighter-frost f))           ; fr = frost left (Rukia's ice)
-                (and (brain e) (floor (brain-heat (brain e))))
-                (let ((h (kit-hook (fighter-kit f) :hash))) (and h (funcall h e))))))   ; a kit's own state (Hisagi's sickle)
-    (format s " | cd ~{~d~^.~} ~{~d~^.~} | haz ~d" (coerce (fighter-cd (fighter *p1*)) 'list) (coerce (fighter-cd (fighter *p2*)) 'list)
-            (let ((n 0)) (do-entities (h hazard) (incf n)) n))))
-
-(defvar *band-acc* (vector (make-array 18 :element-type 'fixnum :initial-element 0)
-                           (make-array 18 :element-type 'fixnum :initial-element 0))
-  "Per side, the cold bands' pacing (debug only: never read by the sim): frames, damage dealt and taken per band (-18
--50 zero: 0-2, 3-5, 6-8), zero visits (9), exits by CRACK (10) and by spending / warming (11), bracing frames (12),
-freeze-touches (13), the last dealt / taken totals (14 15), the last band (16: -1 none) and freeze-touch flag (17).")
-
-(defun band-acc-reset ()
-  (dotimes (i 2) (let ((a (svref *band-acc* i))) (fill a 0) (setf (aref a 16) -1))))
-
-(defun band-acc-step ()
-  "Per battle step outside cinematics: every awakened Rukia side's band bookkeeping (BAND-ACC-LINE logs it)."
-  (when (and (eq *flow* :battle) (not *cine*) (entity-alive-p *p1*) (entity-alive-p *p2*))
-    (dolist (e (list *p1* *p2*))
-      (let* ((f (fighter e)) (a (svref *band-acc* (fighter-side f))) (g (gauges e)) (go (gauges (opp-of e)))
-             (b (position (fighter-form f) '(:m18 :m50 :zero))) (last (aref a 16))
-             (d (- (gauges-dealt g) (aref a 14))) (tk (- (gauges-dealt go) (aref a 15))))
-        (setf (aref a 14) (gauges-dealt g) (aref a 15) (gauges-dealt go))
-        (when b
-          (incf (aref a b)) (incf (aref a (+ 3 b)) d) (incf (aref a (+ 6 b)) tk)
-          (when (and (= b 2) (/= last 2)) (incf (aref a 9)))
-          (when (and (= last 2) (/= b 2)) (incf (aref a (if (and (= b 0) (plusp (gauges-meter-idle g))) 10 11))))
-          (when (and (= b 2) (vpad-down (pilot-vpad (pilot e)) :guard)) (incf (aref a 12)))
-          (when (and (gauges-froze g) (zerop (aref a 17))) (incf (aref a 13))))
-        (setf (aref a 16) (or b -1) (aref a 17) (if (gauges-froze g) 1 0))))))
-
-(defun band-acc-line ()
-  "The gate row's companion: a \"duel band\" line per side that was awakened Rukia."
-  (dotimes (i 2)
-    (let ((a (svref *band-acc* i)))
-      (when (plusp (+ (aref a 0) (aref a 1) (aref a 2)))
-        (log-msg "duel band seed ~d P~d vs ~a frames ~d ~d ~d dealt ~d ~d ~d taken ~d ~d ~d visits ~d crack ~d exit ~d brace ~d ft ~d"
-                 *match-seed* (1+ i) (fighter-character (fighter (if (zerop i) *p2* *p1*)))
-                 (aref a 0) (aref a 1) (aref a 2) (aref a 3) (aref a 4) (aref a 5) (aref a 6) (aref a 7) (aref a 8)
-                 (aref a 9) (aref a 10) (aref a 11) (aref a 12) (aref a 13))))))
-
-(defvar *cup-acc* (vector (make-array 15 :element-type 'fixnum :initial-element 0)
-                          (make-array 15 :element-type 'fixnum :initial-element 0))
-  "Per side, Kenpachi's NOME cups (debug only: never read by the sim): frames in KATATE / RYOTE / NOMIHOSE / BANKAI /
-KATAUDE (0-4), rung changes 1->2 (5), 2->3 (6), 3->2 (7), 2->1 (8), 3->1 (9: the cash-out), frames at > 4.2 m in cup 2
-/ 3 (10 11), frames guarding (or drinking) in cup 2 / 3 (12 13), the last form (14: -1 none).")
-
-(defun cup-acc-reset ()
-  (dotimes (i 2) (let ((a (svref *cup-acc* i))) (fill a 0) (setf (aref a 14) -1))))
-
-(defun cup-acc-step ()
-  "Per battle step outside cinematics: every Kenpachi side's cup bookkeeping (CUP-ACC-LINE logs it)."
-  (when (and (eq *flow* :battle) (not *cine*) (entity-alive-p *p1*) (entity-alive-p *p2*))
-    (dolist (e (list *p1* *p2*))
-      (let* ((f (fighter e)) (a (svref *cup-acc* (fighter-side f)))
-             (c (and (eq (fighter-character f) :kenpachi)
-                     (position (fighter-form f) '(:nozarashi :ryote :nomihose :bankai :kataude))))
-             (last (aref a 14)))
-        (when c
-          (incf (aref a c))
-          (let ((k (cond ((and (= last 0) (= c 1)) 5) ((and (= last 1) (= c 2)) 6) ((and (= last 2) (= c 1)) 7)
-                         ((and (= last 1) (= c 0)) 8) ((and (= last 2) (= c 0)) 9))))
-            (when k (incf (aref a k))))
-          (when (<= 1 c 2)
-            (when (> (fighter-dist f) 4.2) (incf (aref a (+ 9 c))))
-            (when (member (fighter-state f) '(:guard :guard-hit)) (incf (aref a (+ 11 c))))))
-        (setf (aref a 14) (or c -1))))))
-
-(defun cup-acc-line ()
-  "The gate row's companion: a \"duel cups\" line per side that was awakened Kenpachi."
-  (dotimes (i 2)
-    (let ((a (svref *cup-acc* i)))
-      (when (plusp (+ (aref a 0) (aref a 1) (aref a 2) (aref a 3) (aref a 4)))
-        (log-msg "duel cups seed ~d P~d vs ~a frames ~{~d~^ ~} up12 ~d up23 ~d dn32 ~d dn21 ~d cash ~d far ~d ~d guard ~d ~d"
-                 *match-seed* (1+ i) (fighter-character (fighter (if (zerop i) *p2* *p1*)))
-                 (coerce (subseq a 0 5) 'list) (aref a 5) (aref a 6) (aref a 7) (aref a 8) (aref a 9)
-                 (aref a 10) (aref a 11) (aref a 12) (aref a 13))))))
-
-(defun hash-log ()
-  (when *pacing-log* (band-acc-step) (cup-acc-step))   ; (the gate's lines only: off in play)
-  (when (and (eq *flow* :battle) (plusp *match-tick*) (zerop (mod *match-tick* 600)))
-    (log-msg "~a" (state-hash-line)))
-  (when (and *gate-log* (eq *flow* :battle) (plusp *match-tick*) (zerop (mod *match-tick* 60)))   ; pace.py reads these
-    (log-msg "pace t=~d~{ ~a~}" *match-tick*
-             (loop for e in (list *p1* *p2*) for g = (gauges e)
-                   collect (format nil "| ~a m~d r~d g~d~:[~;!~] k~d w~d" (fighter-form (fighter e)) (round (gauges-meter g))
-                                   (gauges-reishi g) (round (gauges-gg g)) (gauges-guardless g) (gauges-konpaku g)
-                                   (round (gauges-awaken g)))))))
 
 (defvar *probe* nil "A running frame probe: (kind name t0 attacker-free defender-free blocked).")
 
@@ -246,95 +142,6 @@ gauge at 40); 7 / 8 make P2 cast South at once; 9: P2 is a cup-3 Kenpachi (NOME 
          (set-probe :ranged nil))
       (5 (set-probe :parry-bait nil) (setf (gauges-gg (gauges *p1*)) 40f0))
       ((7 8) (when (= k 8) (slowmo 0.25 6.0)) (force-cmd *p2* :sp2)))))
-
-(defparameter *nome-tests*
-  ;; k: P1 P1-form P2 P2-form distance P1-NOME
-  '((:kenpachi :nozarashi :yamamoto :base 4.0 38.0) (:kenpachi :nomihose :yamamoto :bankai-east 2.0 100.0)
-    (:kenpachi :nomihose :yamamoto :base 3.0 100.0) (:kenpachi :nomihose :yamamoto :base 3.0 100.0)
-    (:kenpachi :nomihose :yamamoto :base 4.0 100.0) (:yamamoto :bankai-west :kenpachi :ryote 2.5 0.0)))
-
-(defun nome-test (k)
-  "Nozarashi v2 test 2380+K (*NOME-TESTS*): human P1, P2's CPU off; the script presses the keys. 0 runs the :nome
-probe (the ladder), 1 the :drink probe (P2 mashes Quick), 2 / 4 hold P2's guard, 4 makes P2 red, 5 the :cut probe
-(P2, RYOTE, presses K K into West's held U)."
-  (destructuring-bind (c1 f1 c2 f2 d m) (nth k *nome-tests*)
-    (setf *probe* nil)                                   ; (a probe still running from the test before)
-    (ensure-battle c1 c2)
-    (force-form *p1* f1) (force-form *p2* f2)
-    (place *p1* *p2* d)
-    (dolist (e (list *p1* *p2*)) (full-gauges! e 0f0))   ; (the meters are set right below)
-    (setf (gauges-meter (gauges *p1*)) (f32 m) (gauges-meter (gauges *p2*)) (if (= k 5) 70f0 0f0))
-    (when (= k 4) (setf (gauges-reishi (gauges *p2*)) 200))
-    (let ((b (brain *p2*)))
-      (hold-guard! b (if (member k '(2 4)) 999 0)))
-    (case k
-      (0 (set-probe :nome nil))
-      (1 (set-probe :drink :quick))
-      (5 (set-probe :cut :flash)))))
-
-(defun bankai-test (k)
-  "Kenpachi's Bankai tests 2386+K (docs/duel/DUEL_KEN_BANKAI.md; human P1 Kenpachi, P2 an idle Yamamoto CPU; the script presses
-the keys; his Konpaku at most *BANKAI-KONPAKU*, the entry's condition): 0 cup 3 (NOME 100), red (300), 3 m: P enters
-the Bankai (its cinematic); 1 in the Bankai at once (no cinematic), 2.2 m: KKK, a whiffed K, JJJ ...; 2 in the Bankai
-with 1 pip, 2.2 m: the 4th strike, then the burst; 3 片腕 at 2.2 m."
-  (setf *probe* nil)
-  (ensure-battle :kenpachi :yamamoto)
-  (force-form *p1* :nomihose)
-  (place *p1* *p2* (if (zerop k) 3.0 2.2))
-  (full-gauges! *p1* 100f0)
-  (let ((g (gauges *p1*)))
-    (setf (gauges-reishi g) 300 (gauges-arm-pending g) nil
-          (gauges-konpaku g) (min (gauges-konpaku g) *bankai-konpaku*)))   ; the entry: <= 4 Konpaku (2026-09-28)
-  (setf (gauges-reishi (gauges *p2*)) (gauges-reishi-max (gauges *p2*)))
-  (case k
-    ((1 2) (let ((*skip-cines* t)) (bankai! *p1*))
-     (when (= k 2) (setf (gauges-meter (gauges *p1*)) 1f0) (refresh-look *p1*))
-     (place *p1* *p2* 2.2))
-    (3 (force-form *p1* :kataude) (setf (gauges-reishi (gauges *p1*)) 900))))
-
-(defparameter *rukia-tests*
-  ;; k: P1-form P2 P2-form distance
-  '((:base :kenpachi :base 5.0) (:m18 :kenpachi :base 2.2) (:m50 :kenpachi :base 2.2) (:zero :kenpachi :base 1.8)
-    (:zero :yamamoto :base 7.0) (:zero :kenpachi :base 5.0) (:zero :kenpachi :base 5.0) (:zero :kenpachi :base 4.0)
-    (:zero :kenpachi :base 3.0)))
-
-(defun rukia-test (k)
-  "Rukia's tests 2410+K (*RUKIA-TESTS*; human P1 Rukia, P2's CPU off): 3 P2's J1 into the ward (the freeze-touch), 4 P2's
-full Shiranui (optic), 5 P2's Breaker (the CRACK), 6 the Breaker answered by REIDO TOKETSU when it is within 5.5 m, 7
-zero left to warm out, 8 zero 3 m from him (hold U: braced to the CRACK). A :rukia probe logs \"duel probe rukia ...\" lines (form, state, Reishi, P2's state) every 10 f."
-  (destructuring-bind (f1 c2 f2 d) (nth k *rukia-tests*)
-    (setf *probe* nil)
-    (ensure-battle :rukia c2)
-    (force-form *p1* (if (eq f1 :zero) :m50 f1)) (force-form *p2* f2)
-    (place *p1* *p2* d)
-    (dolist (e (list *p1* *p2*)) (full-gauges! e 0f0))
-    (setf (gauges-meter (gauges *p1*)) (case f1 (:m50 150f0) (:zero *cold-max*) (t 0f0)))   ; the band's cold
-    (when (eq f1 :zero) (force-form *p1* :zero))
-    (set-probe :rukia k)
-    (let ((b (brain *p2*)))                             ; (the switched-off brain still writes its held button)
-      (case k
-        (3 (force-cmd *p2* :q))
-        (4 (force-cmd *p2* :sp1) (setf (brain-press b) :flash (brain-press-mod b) t (brain-press-left b) 70))
-        ((5 6) (force-cmd *p2* :breaker) (setf (brain-press b) :breaker (brain-press-mod b) nil (brain-press-left b) 60))))))
-
-(defparameter *kl-tests* '((:base 0 nil) (:m18 60 nil) (:m50 150 nil) (:zero 200 nil) (:m18 10 nil) (:base 0 t) (:m18 60 t))
-  "K -> L (2420+k): P1-form, its cold, P2 guarding. 4: -18 with 10 cold, short of L's 25 (refused); 5 / 6 blocked.")
-
-(defun rukia-kl-test (k)
-  "2420+k: human P1 Rukia (*KL-TESTS* k) 2.2 m from an idle Kenpachi (holding guard in 5 / 6); a :kl probe logs each hit
-P2 takes: its reaction, his stun frames left just before it (> 0: a combo), the combo count, P1's move and cold."
-  (destructuring-bind (form cold guard) (nth k *kl-tests*)
-    (setf *probe* nil)
-    (ensure-battle :rukia :kenpachi)
-    (force-form *p1* (if (eq form :zero) :m50 form)) (force-form *p2* :base)
-    (place *p1* *p2* 2.2)
-    (dolist (e (list *p1* *p2*)) (full-gauges! e 0f0))
-    (setf (gauges-meter (gauges *p1*)) (f32 cold))
-    (when (eq form :zero) (force-form *p1* :zero))
-    (when guard
-      (setf (fighter-state (fighter *p2*)) :guard (fighter-guard-t (fighter *p2*)) 30
-            (brain-press (brain *p2*)) :guard (brain-press-left (brain *p2*)) 999))
-    (set-probe :kl k 0 0)))
 
 (defparameter *hud-review*
   ;; P1 (character form meter) P2 (character form meter) low-gauge: the portrait HUD's last row in every form (stills)
@@ -479,7 +286,8 @@ screen punctuation with an impact splash and of a brush Latin line (callouts, bi
 
 (defun hud-cons-check ()
   "2328: bytes consed by 100 draws of each HUD gauge bar added with the gauges (guard, flash-step, cooldowns) and
-by 10 draws of each Bankai stance look (0 B each; the crossfade only while it runs)."
+by 10 draws of each Bankai stance look (0 B each; the crossfade only while it runs); and 10 HUD-TEXT draws of a literal
+and of a run-time string."
   (let ((c0 (cons-bytes)))
     (dotimes (i 100) (%hud-guard 10f0 10f0 300f0 6f0 0.4f0 0.6f0 nil nil 1 1f0)
                      (%hud-guard 10f0 10f0 300f0 6f0 0.4f0 0.6f0 t nil 3 1f0))
@@ -493,6 +301,10 @@ by 10 draws of each Bankai stance look (0 B each; the crossfade only while it ru
             (dotimes (i 100) (%hud-arm 10f0 90f0 300f0 6f0 3 100 nil 1f0) (%hud-arm 10f0 90f0 300f0 6f0 1 260 t 1f0))
             (log-msg "hud consing: 100 x 2 guard bars ~d B, 100 x 2 flash-step bars ~d B, 100 x 2 cooldown bars ~d B, 100 x 2 NOME bars ~d B, 100 x 2 UDE bars ~d B"
                      (- c1 c0) (- c2 c1) (- c3 c2) (- c4 c3) (- (cons-bytes) c4)))))))
+  ;; HUD-TEXT (the battle HUD's labels, ~a dozen a frame; REFACTOR_NEXT N3): a literal and a string made at run time
+  (let ((fresh (format nil "~d" 12345)))
+    (log-msg "hud-text consing (10 draws, B): ~a, ~a" (cons-per "const" (hud-text "REIATSU" 10 10 2 *white*))
+             (cons-per "fresh" (hud-text fresh 10 10 2 *white*))))
   ;; the Bankai stances' per-frame looks (10 draws each; particles emitted too): West's flame garb, the bound ash,
   ;; the heat sheet, KYOKKO's ray, South's crack, the aura crossfade (DRAW-AURA); and the Phase-3 :heat aura for
   ;; comparison
@@ -662,38 +474,6 @@ when K already runs, it continues to F."
           (stage-mark :crack (- (aref q 0) 1.2) (- (aref q 2) 1.4) 1.1) (stage-debris (- (aref q 0) 1.2) (- (aref q 2) 1.4) 5))
         (face-beat *p1* :shout 0.6) (face-beat *p2* :hurt 0.6))))                ; and both face accents
 
-(defun grip-drift-check ()
-  "2392: the left fist's gap to the cleaver's handle over every grip clip and every grip-clip -> grip-clip transition
-(a 4 f crossfade from 0.1 s before the first one's end), sampled at 60 Hz on P1's body, raw and after GRIP-LEFT! (W 1):
-'grip drift: raw max … mm, IK max … mm'."
-  (let* ((b (model-body (model *p1*))) (jm (make-f32 (* 16 +nj+))) (an (make-anim)) (raw 0.0) (ik 0.0) (worst nil) (iw nil)
-         (one (fv 1)) (per '()))
-    (flet ((sample (tag)
-             (pose-fk! jm (anim-eval an) 0.0 0.0 0.0 0.0 (body-scale b) (body-hunch b) (body-props b))
-             (let ((g (grip-gap jm)))
-               (when (> g raw) (setf raw g worst tag))
-               (grip-left! jm one)
-               (let ((g2 (grip-gap jm)))
-                 (when (> g2 ik) (setf ik g2 iw tag))
-                 (let ((e (assoc tag per :test #'equal)))
-                   (if e (setf (second e) (max (second e) g) (third e) (max (third e) g2)) (push (list tag g g2) per)))))))
-      (dolist (a *grip-clips*)
-        (anim-play an a :blend 0)
-        (let ((fr '()))
-          (loop for i from 0 below (floor (* 60 (clip-dur (find-clip a)))) do
-            (pose-fk! jm (anim-eval an) 0.0 0.0 0.0 0.0 (body-scale b) (body-hunch b) (body-props b))
-            (push (round (* 1000 (grip-gap jm))) fr)
-            (grip-left! jm one) (push (round (* 1000 (grip-gap jm))) fr)
-            (sample a) (anim-advance an (/ 1f0 60)))
-          (log-msg "grip ~a (raw/IK mm): ~{~d/~d~^ ~}" a (reverse fr)))
-        (dolist (c *grip-clips*)
-          (anim-play an a :blend 0)
-          (loop repeat (max 1 (floor (* 60 (- (clip-dur (find-clip a)) 0.1)))) do (anim-advance an (/ 1f0 60)))
-          (anim-play an c :blend 4f0)
-          (loop repeat 18 do (sample (list a c)) (anim-advance an (/ 1f0 60))))))
-    (dolist (e (reverse per)) (when (> (second e) 0.03) (log-msg "grip drift ~a: raw ~,0f mm, IK ~,0f mm" (first e) (* 1000 (second e)) (* 1000 (third e)))))
-    (log-msg "grip drift: raw max ~,0f mm (~a), IK max ~,0f mm (~a)" (* 1000 raw) worst (* 1000 ik) iw)))
-
 (defun vfx6-cons-check ()
   "2391: bytes consed by 10 draws of each Phase 6 per-frame look (docs/style/STYLE_STORM_DESIGN.md §14 Phase 6): the marks and
 chips (both pools full), a pillar beside the lens, the fire wave passing it, the skull, the rain, both face accents, the
@@ -748,183 +528,17 @@ move-beat choices of DRAW-FIGHTER."
                        (setf (fighter-sf f) sf)))))
     (setf (model-beat m) 0f0)))
 
-(defvar *gate-difficulty* :normal "Debug 81020+i: the gates' CPU difficulty (0 EASY 1 NORMAL 2 HARD; ASSIST's gate).")
 
-(defun start-cvc (seed pair)
-  "Seeded CPU vs CPU (*GATE-DIFFICULTY*, NORMAL): PAIR = (c1 c2), or NIL to draw both from SEED."
-  (setf *match-seed* seed *mode* :cpu-cpu *difficulty* *gate-difficulty* *blow-aways* 0)
-  (band-acc-reset) (cup-acc-reset) (pacing-reset)
-  (setf *pacing-log* t)                                 ; (the pacing lines: PACE, BAND- / CUP-ACC-STEP)
-  (sim-rnd-seed seed)
-  (setf *picks* (or pair (let ((r (playable-roster)))   ; (the retired out: 2026-10-12)
-                           (list (nth (floor (* (length r) (sim-rnd01))) r) (nth (floor (* (length r) (sim-rnd01))) r)))))
-  (start-match))
-
-(defvar *gate* nil "Seed gate: (seed pair) matches still to run.")
-(defvar *gate-results* nil "(pair secs ko-p) of the finished gate matches.")
-(defparameter *pairs-0* '((:yamamoto :yamamoto) (:yamamoto :kenpachi) (:kenpachi :kenpachi)
-                          (:rukia :yamamoto) (:rukia :kenpachi) (:rukia :rukia)
-                          (:ichigo :yamamoto) (:ichigo :kenpachi) (:ichigo :rukia) (:ichigo :ichigo)
-                          (:senjumaru :yamamoto) (:senjumaru :kenpachi) (:senjumaru :rukia) (:senjumaru :senjumaru)
-                          (:senjumaru :ichigo))
-  "The first five characters' fifteen pairings in their historical order (pairing k 0-14; YK has P1 Yamamoto, and SS comes
-before SI: Senjumaru's pairings were gated before Ichigo joined).")
-
-(defun roster-pairs ()
-  "Every seed-gate pairing: *PAIRS-0*, then for each later roster character i (index 5 on) its pairings with every earlier
-character (P1 i), then its mirror, in roster order (pairing k = the position here: tools/simgate.py builds the same list)."
-  (append *pairs-0*
-          (loop for i from 5 below (length *roster*) for c = (nth i *roster*)
-                append (loop for j from 0 to i collect (list c (nth j *roster*))))))
-
-(defparameter *pairs* (roster-pairs) "ROSTER-PAIRS (refreshed by START-GATE, whatever the kit files' load order).")
-
-(defun char-pairs (i)
-  "Roster character I's pairings, in *PAIRS* order: those with I and no later character (Rukia's RY RK RR, Senjumaru's SY SK
-SR SS SI; a new character's: its pairings with every earlier character and its mirror)."
-  (remove-if-not (lambda (pair) (= i (max (position (first pair) *roster*) (position (second pair) *roster*)))) *pairs*))
-
-(defvar *gate-seed0* 0 "Debug 30000+k: the seed gate plays seeds k+1 .. k+N (the 60-seed A/B in three runs).")
-(defvar *gate-seeds* 20 "Debug 31100+n: seeds per pairing N (the quick pass plays 10; the user 2026-09-29: two-stage gates).")
-(defun start-gate (p)
-  "The seed gate of P: 0-2 pairing p, 3 every pairing, 4 Rukia's three (= 102), 5 RY and RK, 10+k pairing k alone,
-100+i roster character i's pairings (CHAR-PAIRS: 104 Senjumaru's five). A pairing that doesn't exist: a log line, no gate."
-  (setf *pairs* (roster-pairs))
-  (let ((pairs (cond ((= p 3) (remove-if (lambda (pr) (or (member (first pr) *retired*) (member (second pr) *retired*)))
-                                         *pairs*))   ; (every pairing: the retired's out, 2026-10-12) ((= p 4) (char-pairs 2)) ((= p 5) (subseq *pairs* 3 5))
-                     ((>= p 100) (and (< (- p 100) (length *roster*)) (char-pairs (- p 100))))
-                     (t (let ((k (if (< p 10) p (- p 10))))   ; (10+k: pairing k alone)
-                          (and (< k (length *pairs*)) (list (nth k *pairs*))))))))
-    (unless pairs
-      (return-from start-gate (log-msg "duel gate: no pairing for ~d (~d pairings)" p (length *pairs*))))
-    (setf *turbo* t *skip-cines* nil *combat-log* nil *gate-log* nil *gate-results* nil
-          *gate* (loop for pair in pairs
-                       append (loop for seed from (1+ *gate-seed0*) to (+ *gate-seed0* *gate-seeds*) collect (list seed pair)))))
-  (gate-update))
-
-(defvar *gate-busy* nil "A gate match is running.")
-(defvar *learn-gate* nil "The learning gate running (START-LEARN-GATE): (habit learn-p).")
-
-(defun gate-update ()
-  "Per frame: record a finished gate match, start the next, summarise at the end."
-  (when (and *gate-busy* (eq *flow* :results))
-    (push (list *picks* (/ (match-play-ticks) 60.0)          ; (the length without the cinematics: MATCH-PLAY-TICKS)
-                (or (zerop (gauges-konpaku (gauges *p1*))) (zerop (gauges-konpaku (gauges *p2*)))))
-          *gate-results*)
-    (log-msg "duel gate row seed ~d ~a ~a secs ~,1f winner ~a forms ~a ~a blow ~d" *match-seed* (first *picks*) (second *picks*)
-             (/ (match-play-ticks) 60.0) (case *winner* (0 "P1") (1 "P2") (t "DRAW"))
-             (fighter-form (fighter *p1*)) (fighter-form (fighter *p2*)) *blow-aways*)   ; (the gamble A/B reads the final forms)
-    (log-msg "duel evo seed ~d P1 ~,1f P2 ~,1f secs ~,1f" *match-seed*   ; the first EVOLUTION per side (-1: none)
-             (/ (gauges-evo-t (gauges *p1*)) 60.0) (/ (gauges-evo-t (gauges *p2*)) 60.0) (/ (match-play-ticks) 60.0))
-    (band-acc-line) (cup-acc-line)
-    (senju-acc-line) (ichigo-acc-line) (barro-acc-line) (hisagi-acc-line)
-    (when *learn-gate* (learn-gate-line))
-    (setf *gate-busy* nil))
-  (unless *gate-busy*
-    (cond (*gate* (destructuring-bind (seed pair) (pop *gate*) (start-cvc seed pair)) (setf *gate-busy* t)
-                  (when *learn-gate* (learn-gate-setup)))
-          (*gate-results*
-           (dolist (pair *pairs*)
-             (let* ((rs (remove pair *gate-results* :key #'first :test-not #'equal))
-                    (secs (sort (mapcar #'second rs) #'<)))
-               (when secs
-                 (log-msg "duel gate ~a ~a: ~d matches, KOs ~d, median ~,1f s, min ~,1f, max ~,1f | ~{~,0f~^ ~}"
-                          (first pair) (second pair) (length secs) (count-if #'third rs)
-                          (nth (floor (length secs) 2) secs) (first secs) (car (last secs)) secs))))
-           (setf *gate-results* nil *turbo* nil *learn-gate* nil)))))
-
-;;; ---------------------------------------------------------------- the learning CPU's gate (docs/duel/DUEL_LEARNING.md)
-(defparameter *dumb-delay* 24 "The button-masher sees as late as an EASY CPU (frames).")
-(defparameter *dumb-guard-p* 0.5 "... and guards this share of the moves he sees coming.")
-
-(defvar *dumb-p2* nil "Debug 81040+i: P2 of the learning gate is a button-masher too (ASSIST's anti-mash check).")
-(defparameter *habits* #(nil :wake-j :block-guard :grab :hoho :burst :dumb)
-  "The scripted players (debug 200000+): 0 a plain CPU, 1 J on every wake-up, 2 guard after every block, 3 grab-happy
-(the Breaker at every close neutral decision), 4 Hoho-happy (Hoho at neutral decisions and into every committed move),
-5 burst-happy (BLUE at every chance: AI-BURST-ROLL's chance 1), 6 the button-masher (DUMB-STEP: ASSIST's gate). (7-9, the
-habits against the old Lille, went with him: 2026-10-13.)")
-
-(defun start-learn-gate (h c1 c2 on)
-  "200000 + 1000 H + 100 C1 + 10 C2 + ON: seeds *GATE-SEED0* + 1 .. + *GATE-SEEDS* back to back, P1 (roster C1) a CPU with
-habit H (*HABITS*), P2 (roster C2) the CPU, learning when ON (its table fresh at the start, kept in memory across the
-matches; 4: model + bandit without its character's own situations, LRN-KIT, DUEL_LILLE §24.9); a \"duel learn row\" per
-match."
-  (fill *learn-tables* nil)
-  (let ((pair (list (nth c1 *roster*) (nth c2 *roster*))))
-    (setf *turbo* t *skip-cines* nil *combat-log* nil *gate-log* nil *gate-results* nil *gate-busy* nil
-          *gate* (loop for seed from (1+ *gate-seed0*) to (+ *gate-seed0* *gate-seeds*) collect (list seed pair))
-          *learn-gate* (list (svref *habits* h) (plusp on) on)
-          *learn-use* (case on (2 '(:model)) (3 '(:bandit)) (t '(:model :bandit)))))   ; (4: no kit situations)
-  (gate-update))
-
-(defun learn-gate-setup ()
-  "A learning-gate match began: P1's habit, P2's learner."
-  (setf (brain-habit (brain *p1*)) (first *learn-gate*))
-  (when (eq (first *learn-gate*) :dumb) (setf (brain-delay (brain *p1*)) *dumb-delay*))
-  (when *dumb-p2* (setf (brain-habit (brain *p2*)) :dumb (brain-delay (brain *p2*)) *dumb-delay*))
-  (when (second *learn-gate*)
-    (learn-attach! *p2*)
-    (when (eql (third *learn-gate*) 4) (setf (lrn-kit (brain-learn (brain *p2*))) nil))))   ; (the kit situations' A/B)
-
-(defun learn-gate-line ()
-  "The learning gate's row: the result, damage, P2's counter-hits, its reads (and those that paid), p_exploit, the form."
-  (let* ((l (brain-learn (brain *p2*))) (tab (and l (lrn-tab l))))
-    (log-msg "duel learn row seed ~d habit ~a ~a ~a learn ~:[off~;on~] winner ~a dealt ~d ~d counters ~d ~d reads ~d paid ~d pexp ~,2f form ~,2f~@[ model~{ ~a~}~]~@[ by~{ ~{~(~a~)~* ~d/~d~}~}~]~@[ kit~{ ~a~}~]"
-             *match-seed* (first *learn-gate*) (first *picks*) (second *picks*) l (case *winner* (0 "P1") (1 "P2") (t "DRAW"))
-             (gauges-dealt (gauges *p1*)) (gauges-dealt (gauges *p2*)) (gauges-counters (gauges *p1*)) (gauges-counters (gauges *p2*))
-             (if l (lrn-reads l) 0) (if l (lrn-paid l) 0) (if tab (learn-p-exploit (ltab-form tab)) 0.0) (if tab (ltab-form tab) 0.0)
-             (and tab (loop for k across *learn-situations* for i from 0    ; the model's prediction per situation
-                            collect (multiple-value-bind (act p n) (learn-predict tab i)
-                                      (format nil "~(~a~)=~:[-~;~:*~(~a~)~]~,2f/~,1f" k (and act (aref *learn-actions* act)) p n))))
-             (and l (mapcar (lambda (x) (list (first x) nil (second x) (third x))) (lrn-stats l)))
-             (and tab (lrn-kit l)                                  ; its character's own situations' predictions (§24.9)
-                  (loop for k across (getf (lrn-kit l) :situations) for i from 0
-                        collect (multiple-value-bind (act p n) (learn-kit-predict tab i)
-                                  (format nil "~(~a~)=~:[-~;~:*~(~a~)~]~,2f/~,1f" k (and act (aref (getf (lrn-kit l) :actions) act)) p n)))))))
-
-(defun habit-fire (e b s d)
-  "A scripted player's habit before its reflexes (BRAIN-STEP): T when it pressed."
-  (let* ((f (fighter e)) (g (gauges e)) (was (brain-was b))
-         (hoho-ok (and (zerop (fighter-hoho-lock f)) (>= (gauges-fs g) *fs-hoho*))))
-    (when (and (member (fighter-state f) '(:idle :guard :run)) (zerop (fighter-lock f)))
-      (case (brain-habit b)
-        (:wake-j (when (eq was :wakeup) (ai-press b :quick 1) (setf (brain-why b) :habit)))
-        (:block-guard (when (eq was :guard-hit) (ai-press b :guard 40 :act :hold) (setf (brain-why b) :habit)))
-        (:hoho (when (and hoho-ok (eq (snap-state s) :move) (member (snap-kind s) '(:quick :flash :sig :sp :breaker))
-                          (< (snap-sf s) (snap-active-end s)) (< d (+ (snap-reach s) *ai-threat-margin*)))
-                 (ai-press b :step 1 :modded t :act :hoho) (setf (brain-why b) :habit)))))))
-
-(defun dumb-step (e b s d)
-  "The button-masher (habit :dumb, ASSIST's gate, docs/duel/DUEL_ASSIST.md): nothing of the CPU's play, only what a new player
-does: hold U while a move of his comes, seen late (*DUMB-DELAY*) and only *DUMB-GUARD-P* of his moves, mash J (a press
-every 8 f) within J1's reach, else walk at him.
-Never a Step, Hoho, L, SP, Breaker, O, Burst or awakening of its own: those come from the assist (*ASSIST-DEBUG*). T."
-  (let ((vp (pilot-vpad (pilot e))) (reach (mv-reach (kit-command-move (kit-of e) :q))))
-    (setf (brain-press-left b) 0)                       ; every step decides afresh (a press lasts that step)
-    (when (/= (snap-start s) (brain-roll-key b))        ; one guard roll per move of his
-      (setf (brain-roll-key b) (snap-start s) (brain-guard-roll b) (sim-rnd01)))
-    (cond ((and (eq (snap-state s) :move) (< (brain-guard-roll b) *dumb-guard-p*) (member (snap-kind s) '(:quick :flash :sig :sp :breaker :kikon))
-                (< (snap-sf s) (snap-active-end s)) (< d (+ (snap-reach s) *ai-threat-margin*)))
-           (ai-press b :guard 1 :act :guard))
-          ((< d (+ reach 0.3)) (when (zerop (mod *match-tick* 8)) (ai-press b :quick 1)))
-          (t (vpad-stick! vp 0f0 1f0)))
-    (setf (brain-why b) :dumb)
-    t))
-
-(defun habit-neutral (e b kit d)
-  "A scripted player's habit at a neutral decision (AI-DECIDE): T when it pressed."
-  (let ((f (fighter e)) (g (gauges e)))
-    (case (brain-habit b)
-      (:grab (when (and (< d 2.6) (kit-command-ok-p e :breaker))
-               (ai-command b kit :breaker d e) (setf (brain-why b) :habit)))
-      (:hoho (when (and (< d 7.0) (zerop (fighter-hoho-lock f)) (>= (gauges-fs g) *fs-hoho*) (< (sim-rnd01) 0.5))
-               (ai-command b kit :hoho d e) (setf (brain-why b) :habit))))))
+(defun cine-still-command-p (c)
+  "The cinematic-still commands (FORCE-CINE / CINE-AT): a held cinematic stays held for them (tests/debug-ranges-check.py
+checks every such clause of DEBUG-COMMAND is listed here)."
+  (or (<= 2200 c 2299) (<= 10000 c 19999) (<= 35000 c 36999) (<= 40000 c 42999) (<= 69000 c 70999)))
 
 (defun debug-command (c)
   "Module._debug_cmd(C): see the file header."
   (setf *combat-log* t *stats-log* t *learn-debug-off* t)   ; (no learner in any debug run: LEARN-GATE attaches its own)
   (log-msg "debug cmd ~d" c)
-  (unless (or (<= 2200 c 2299) (<= 10000 c 19999) (<= 35000 c 36999) (<= 40000 c 42999) (<= 69000 c 70999))
+  (unless (cine-still-command-p c)
     (setf *cine-hold* nil))
   (cond ((<= 2000 c 2099) (start-cvc (- c 2000) nil))
         ((<= 200000 c 209999) (start-learn-gate (floor (- c 200000) 1000) (mod (floor c 100) 10) (mod (floor c 10) 10) (mod c 10)))
@@ -972,13 +586,8 @@ Never a Step, Hoho, L, SP, Breaker, O, Burst or awakening of its own: those come
         ((= c 2329) (brush-cons-check))
         ((= c 2390) (vfx5-cons-check))
         ((= c 2391) (vfx6-cons-check))
-        ((= c 2392) (grip-drift-check))
         ((<= 2330 c 2361) (module-test (- c 2330)))
         ((<= 2370 c 2379) (stance-test (- c 2370)))
-        ((<= 2380 c 2385) (nome-test (- c 2380)))
-        ((<= 2386 c 2389) (bankai-test (- c 2386)))
-        ((<= 2410 c 2418) (rukia-test (- c 2410)))
-        ((<= 2420 c 2426) (rukia-kl-test (- c 2420)))
         ((<= 2430 c 2438) (hud-review (- c 2430)))
         ((= c 2326) (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (clash! *p1* *p2*))
         ((<= 2322 c 2325) (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.5)
@@ -1014,59 +623,9 @@ Never a Step, Hoho, L, SP, Breaker, O, Burst or awakening of its own: those come
         ((<= 31000 c 31033) (let ((m '(nil :always :never :sure)))
                               (setf (svref *ai-bankai-mode* 0) (nth (floor (- c 31000) 10) m)
                                     (svref *ai-bankai-mode* 1) (nth (mod (- c 31000) 10) m))))
-        ((<= 32000 c 32999) (setf *arm-self* (- c 32000)))
-        ((<= 33000 c 33999) (setf *arm-burst-self* (- c 33000)))
-        ((<= 34000 c 34999) (setf *arm-crack* (- c 34000)))
-        ((<= 37000 c 37100) (setf (getf (getf (kit-ai (find-kit :kenpachi :nomihose)) :bankai) :p) (/ (- c 37000) 100.0)))
-        ((<= 38000 c 38009) (setf (getf (getf (kit-ai (find-kit :kenpachi :nomihose)) :bankai) :own-konpaku) (- c 38000)))
         ((<= 39000 c 39022) (let ((m '(nil :always :never)))
                               (setf (svref *ai-awaken-mode* 0) (nth (floor (- c 39000) 10) m)
                                     (svref *ai-awaken-mode* 1) (nth (mod (- c 39000) 10) m))))
-        ((<= 43000 c 43100) (setf *frost-slow* (/ (- c 43000) 100.0)))
-        ((<= 44000 c 44999) (setf *zero-brace-drain* (/ (- c 44000) 10.0)))
-        ((<= 45000 c 45999) (setf *freeze-touch* (- c 45000)))
-        ((<= 46000 c 46999) (setf *ru-cool-rate* (float (- c 46000))))
-        ((<= 47000 c 47999) (setf *crack-self* (- c 47000)))
-        ((<= 48000 c 48300) (setf (kit-mult (find-kit :rukia :zero)) (/ (- c 48000) 100.0)))   ; zero's damage x k / 100
-        ((<= 49000 c 49099) (setf (getf (getf (kit-ai (find-kit :rukia :base)) :awaken) :melee-share) (/ (- c 49000) 100.0)))
-        ((<= 50000 c 50100) (dolist (f '(:m18 :m50)) (setf (getf (getf (kit-ai (find-kit :rukia f)) :cool) :p) (/ (- c 50000) 100.0))))
-        ((<= 51000 c 51999) (setf *ru-thaw-lock* (- c 51000)))
-        ((<= 53000 c 53099) (dolist (f '(:m18 :m50)) (setf (getf (getf (kit-ai (find-kit :rukia f)) :cool) :near) (/ (- c 53000) 10.0))))
-        ((<= 54000 c 54009) (setf (getf (getf (kit-ai (find-kit :rukia :base)) :intents) :zone) (- c 54000)))
-        ((<= 55000 c 55999) (setf (kit-warm (find-kit :rukia :zero)) (/ (- c 55000) 10.0)))   ; zero's warming k / 10 per s
-        ((<= 56000 c 56099) (setf (kit-walk (find-kit :rukia :m50)) (/ (- c 56000) 10.0)))
-        ((<= 57000 c 57099) (setf (kit-walk (find-kit :rukia :m18)) (/ (- c 57000) 10.0)))
-        ((<= 58000 c 58300) (setf (kit-mult (find-kit :rukia :base)) (/ (- c 58000) 100.0)))
-        ((<= 60000 c 60200) (setf (kit-taken (find-kit :rukia :base)) (/ (- c 60000) 100.0)))
-        ((<= 61000 c 61200) (loop for f in '(:m18 :m50 :zero) for r in '(1.0 0.9 0.889)   ; every band's damage taken,
-                                  do (setf (kit-taken (find-kit :rukia f)) (* r (/ (- c 61000) 100.0)))))   ; -18's = k / 100
-        ((<= 62000 c 62200) (setf *ru-block-cool* (/ (- c 62000) 100.0)))
-        ((<= 63000 c 63100) (setf *ru-hit-warm* (/ (- c 63000) 100.0)))
-        ((<= 65000 c 65100) (setf (getf (kit-field (find-kit :rukia :zero)) :away) (/ (- c 65000) 100.0)))
-        ((<= 66000 c 66100) (setf *field-floor* (/ (- c 66000) 100.0)))
-        ((<= 72000 c 72100) (setf (getf (kit-ai (find-kit :rukia :base)) :l-after-k) (/ (- c 72000) 100.0)))   ; her CPU's
-        ((<= 73000 c 73100) (dolist (f '(:m18 :m50 :zero))   ; L after a K link, k / 100 per hit: the Shikai / the bands
-                              (setf (getf (kit-ai (find-kit :rukia f)) :l-after-k) (/ (- c 73000) 100.0))))
-        ((= c 71000) (setf *reiatsu-glass*                      ; review stills: Kenpachi's reiatsu opaque / see-through
-                           (if (zerop (getf *reiatsu-glass* :nomihose)) '(:reiatsu 3 :nozarashi 3 :nomihose 2 :oni 2 :oni-ink 3)
-                               '(:reiatsu 0 :nozarashi 0 :nomihose 0 :oni 0 :oni-ink 0))))
-        ((<= 71001 c 71004) (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0)   ; his cups 1-3 (4: the Bankai)
-                            (force-form *p1* (nth (- c 71001) '(:nozarashi :ryote :nomihose :bankai)))
-                            (setf (gauges-meter (gauges *p1*)) (f32 (nth (- c 71001) '(20 70 100 4)))   ; NOME holds the cup
-                                  (gauges-meter-idle (gauges *p1*)) 0))
-        ((= c 68000) (dolist (n '(:rukia-zero :rukia-bankai))   ; review stills: the white Rukia's look before the ice
-                       (let ((b (find-body n)))                ; keyline (the ink, brows the hair's colour)
-                         (setf (body-ink b) nil (body-palette b) (cons '(:brow #xE4E8EE) (body-palette b)))
-                         (build-body b))))
-        ((= c 68001) (dolist (n '(:rukia-zero :rukia-bankai))   ; review stills: the white Rukia's lashes before playtest 2
-                       (let ((b (find-body n)))                ; (the ink's dark, not the brows' ice)
-                         (setf (body-palette b) (cons '(:lid #x141016) (body-palette b)))
-                         (build-body b))))
-        ((<= 67000 c 67200) (let ((g (gauges *p1*)) (f (fighter *p1*)))   ; P1's cold = k and the band it asks for (stills)
-                              (setf (gauges-meter g) (f32 (- c 67000)))
-                              (when (getf (kit-meter (fighter-kit f)) :temp)
-                                (let ((b (temp-band (gauges-meter g) (fighter-form f))))
-                                  (unless (eq b (fighter-form f)) (force-form *p1* b))))))
         ((<= 2500 c 2503)
          (setf *picks* (nth (- c 2500) '((:yamamoto :kenpachi) (:kenpachi :yamamoto) (:yamamoto :yamamoto) (:kenpachi :kenpachi)))
                *mode* :vs-cpu *match-seed* 1 *probe* nil)

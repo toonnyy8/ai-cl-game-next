@@ -8,6 +8,7 @@
 ;;;; The BEHIND camera (VS CPU, the default there; fighter.lisp *VIEW-BEHIND*): over P1's right shoulder,
 ;;;; looking along the sim's *BEHIND-YAW* (P1 -> P2, rate-limited: it swings round after a Hoho), at a
 ;;;; point between the fighters biased to P2; it follows P1 on a spring and backs off with distance.
+;;;; MENU-CAMERA (the end of the file): the menus' views (the title's orbit, the results' winner, the select pair).
 (in-package :duel)
 
 (declaim (single-float *cam-ang* *cam-dist* *punch-t*) (type f32vec *cam-eye* *cam-at*))
@@ -269,3 +270,26 @@ smoothing, e.g. a new round)."
         (%roll-up up e c *dutch*)
         (v3-set! up 0f0 1f0 0f0))
     (camera-look-at (aref e 0) (aref e 1) (aref e 2) (aref c 0) (aref c 1) (aref c 2))))
+
+;;; ---------------------------------------------------------------- the menus' camera (main.lisp GAME-FRAME)
+(declaim (special *flow* *winner*))   ; (flow.lisp's)
+(defun menu-camera ()
+  "Title: a slow orbit of the burning plaza; results: the winner from his front-right, on the right
+of the screen (the stats take the left third); select: both fighters from the front. Portrait: see below."
+  (landscape-lens)
+  (case *flow*
+    ((:title :mode :settings :controls) (let ((a (* 0.05 (elapsed-time))))
+                                (camera-look-at (* 11 (sin a)) 3.2 (* 11 (cos a)) 0 1.4 0)))
+    ((:results :clear) (let* ((w (if (eql *winner* 1) *p2* *p1*)) (p (pos-of w)) (yaw (yaw-of w))
+                     (fx (fwd-x yaw)) (fz (fwd-z yaw)) (rx (- fz)) (rz fx))   ; his forward, his right
+                (if (portrait-p)                         ; portrait: from his front, in the top part (the card below)
+                    (progn (camera-look-at (+ (aref p 0) (* 5.2 fx) (* 1.2 rx)) 1.6 (+ (aref p 2) (* 5.2 fz) (* 1.2 rz))
+                                           (aref p 0) 1.0 (aref p 2))
+                           (portrait-lens 60 0.5))
+                    (camera-look-at (+ (aref p 0) (* 3.6 fx) (* 2.4 rx)) 1.7 (+ (aref p 2) (* 3.6 fz) (* 2.4 rz))
+                                    (+ (aref p 0) (* 0.9 rx)) 1.15 (+ (aref p 2) (* 0.9 rz))))))
+    (t (let* ((p (pos-of *p1*)) (q (pos-of *p2*))
+              (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
+         (if (portrait-p)                                 ; portrait select: farther, the pair above the names
+             (progn (camera-look-at (- mx 11.5) 2.4 (+ mz 9.0) mx 1.0 mz) (portrait-lens 60 0.35))   ; a diagonal: the pair overlaps
+             (camera-look-at mx 1.6 (+ mz 6.8) mx 1.15 mz))))))

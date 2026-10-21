@@ -14,9 +14,9 @@ gate's summary line, plus a wins / blow-aways line.
                                                    natively vs the browser's tests/style-cvc-ref.txt, line for line
 
 --cmd N (repeatable) queues debug command N before each process's gate command, as a run.mjs script would (knobs:
-39000+10a+b, 74385, ...). Pairing k is debug.lisp *PAIRS*' index (0 YY 1 YK 2 KK 3 RY 4 RK 5 RR 6 IY 7 IK 8 IR 9 II
+39000+10a+b, 74385, ...). Pairing k is gate.lisp *PAIRS*' index (0 YY 1 YK 2 KK 3 RY 4 RK 5 RR 6 IY 7 IK 8 IR 9 II
 10 SY 11 SK 12 SR 13 SS 14 SI; then, per later character in ROSTER order, its pairings with every earlier one and its
-mirror: PAIRS, ROSTER-PAIRS in debug.lisp). A new character = its name appended to ROSTER, nothing else. The build (build/simgate/duel.fas, ~2 min) is redone when a source is newer.
+mirror: PAIRS, ROSTER-PAIRS in gate.lisp). A new character = its name appended to ROSTER, nothing else. The build (build/simgate/duel.fas, ~2 min) is redone when a source is newer.
 One process plays a pairing's seeds back to back, as the page does. --chunk N splits them over processes (faster for
 one long stream); rows are the same either way (Senjumaru's per-side state carried over between matches until
 2026-09-29, DEVLOG §38-§39: SJ now makes a fresh one per fighter).
@@ -34,7 +34,7 @@ MUSL_MATH = ('sinf cosf tanf __sindf __cosdf __tandf __rem_pio2f __rem_pio2_larg
              '__math_divzerof __math_oflow __math_uflow __math_xflow __math_invalid __math_divzero')
 ROSTER = ['YAMAMOTO', 'KENPACHI', 'RUKIA', 'ICHIGO', 'SENJUMARU', 'LILLE', 'BARRO', 'HISAGI']   # kit.lisp *ROSTER*, in order (the tools' one roster list)
 RETIRED = {'LILLE'}   # kit.lisp *RETIRED*: index 5, the old Lille's slot (out 2026-10-12, his code removed 2026-10-13); BARRO is Lille
-# debug.lisp ROSTER-PAIRS: the first five characters' fifteen in their historical order (YK has P1 Yamamoto; SS before SI),
+# gate.lisp ROSTER-PAIRS: the first five characters' fifteen in their historical order (YK has P1 Yamamoto; SS before SI),
 # then per later character i its pairings (i, j) with every earlier j, then its mirror (i, i)
 PAIRS = [f'{ROSTER[a]} {ROSTER[b]}' for a, b in ((0, 0), (0, 1), (1, 1), (2, 0), (2, 1), (2, 2), (3, 0), (3, 1), (3, 2), (3, 3),
                                                  (4, 0), (4, 1), (4, 2), (4, 4), (4, 3))]

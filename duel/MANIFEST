@@ -2,7 +2,7 @@
 # SOUL DUEL sources in compile order, relative to this directory (the engine's come first, see
 # engine/MANIFEST). Order matters: macros, structs, components and special variables before their
 # users. tuning / rules / control / learn / kit are plain CL (host-tested); yama / ken / rukia / ichigo are the characters
-# (data + hooks + cinematics); fighter ... main are the generic systems (no character names, except debug.lisp's test scenarios).
+# (data + hooks + cinematics); fighter ... main are the generic systems (no character names, except gate.lisp's pacing companions and debug.lisp's test scenarios).
 # senjumaru.lisp loads after hud / onehand: its HUD meter calls their functions (hud-text ...); the quad drawing macros are the engine's (ui.lisp), docs/duel/DUEL_SENJUMARU.md.
 # Lille's art loads after senjumaru.lisp: lille-art (bodies, props) / lille-clips / lille-draw / lille-cine (Lille's shared art and
 # cinematics), then barro-art (clips) / barro-draw / barro-stills, barro.lisp and barro-ai.lisp (Lille, kit :barro, roster index 6:
@@ -48,6 +48,7 @@ lisp/camera.lisp
 lisp/feedback.lisp
 lisp/flow.lisp
 lisp/hud.lisp
+lisp/hud-screens.lisp
 lisp/onehand.lisp
 lisp/senjumaru.lisp
 lisp/lille-art.lisp
@@ -65,6 +66,7 @@ lisp/hisagi-art.lisp
 lisp/hisagi-draw.lisp
 lisp/hisagi-cine.lisp
 lisp/hisagi-stills.lisp
+lisp/gate.lisp
 lisp/debug.lisp
 lisp/endless.lisp
 lisp/draw.lisp
