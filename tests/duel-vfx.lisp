@@ -140,7 +140,7 @@
              (let ((an (* i (/ (* 2 pi) 7))))
                (vfx-fire-pillar (+ (actor-x ya) (* 4.0 (cos an))) (+ (actor-z ya) (* 4.0 (sin an))) u 0.8 dt))))))
       (6 (let ((u (cycle 2.6))) (when (< u 2.0) (vfx-fire-dome (actor-x ke) (actor-z ke) 2.5 u 2.0 dt))))
-      (7 (vfx-aura (actor-x ya) 0 (actor-z ya) 1.68 :evolution age dt :rgb '(1.0 0.6 0.3))
+      (7 (vfx-aura (actor-x ya) 0 (actor-z ya) 1.68 :evolution age dt)
        (vfx-aura (actor-x ke) 0 (actor-z ke) 2.02 :reiatsu age dt))
       (8 (let ((u (cycle 1.0)))
            (vfx-aura (actor-x ya) 0 (actor-z ya) 2.02 :breaker age dt :k (max 0.0 (/ (- u 0.6) 0.4)))

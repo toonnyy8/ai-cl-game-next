@@ -1,15 +1,15 @@
 [
 {
 "at": 9.0,
-"eval": "Module._debug_cmd(1086000)"
+"eval": "Module._debug_cmd(1144000)"
 },
 {
 "at": 10.15,
-"shot": "tests/shots/duel-string-ya-sleeve.png"
+"shot": "tests/shots/duel-string-ya-tsuka.png"
 },
 {
 "at": 10.35,
-"eval": "Module._debug_cmd(1067000)"
+"eval": "Module._debug_cmd(1115000)"
 },
 {
 "at": 11.5,
@@ -17,7 +17,7 @@
 },
 {
 "at": 11.7,
-"eval": "Module._debug_cmd(1008000)"
+"eval": "Module._debug_cmd(1048000)"
 },
 {
 "at": 12.85,
@@ -25,7 +25,7 @@
 },
 {
 "at": 13.05,
-"eval": "Module._debug_cmd(1021000)"
+"eval": "Module._debug_cmd(1061000)"
 },
 {
 "at": 14.2,
@@ -33,7 +33,7 @@
 },
 {
 "at": 14.4,
-"eval": "Module._debug_cmd(1025000)"
+"eval": "Module._debug_cmd(1065000)"
 },
 {
 "at": 15.55,

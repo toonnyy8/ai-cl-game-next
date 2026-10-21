@@ -161,15 +161,15 @@ BLOOD tongues 2, its taller INK tongues 3 (at 2 the black read as a grey smear).
   "0.5..1: alpha cap of every body aura this frame. HUD-DRAW (AURA-CAP-UPDATE) lowers it while the
 fighters stand within ~3 m, where two auras (or one over the other fighter) summed to a white blob.")
 
-(defun-fast vfx-aura (x y z height kind age dt &key rgb (k 1.0))
+(defun-fast vfx-aura (x y z height kind age dt &key (k 1.0))
   "Body aura at the feet (x y z) of a fighter HEIGHT m tall, every kind a drawn toon look (Phase 5 redrew the last soft
 ones). KIND: :hellfire (a bonfire of FIRE tongues + a ring at the feet), :heat (Bankai East: 4 charcoal wisps),
 :garb (Bankai West wrapped in orange flame, winged at the shoulders; K > 1 flares it taller and wider), :evolution
-(mono STEEL tongues; RGB is ignored), :reiatsu / :nozarashi / :nomihose (Kenpachi's yellow brush-flame aura, base /
+(mono STEEL tongues), :reiatsu / :nozarashi / :nomihose (Kenpachi's yellow brush-flame aura, base /
 awakened / cup 3's pillar: %REIATSU-AURA), :bound (ash at the held feet), :kikon (the BLOOD rush aura), :breaker /
 :breaker-fire / :breaker-ember (the owner's colour over an INK backing; K 0.5..2 grows it over the strike's startup).
-K is the presence (0..1). :heat also fades by *AURA-CAP* and when the camera is within ~4 m."
-  (declare (ignorable age rgb))
+K is the presence (0..1). :heat also fades by *AURA-CAP* and when the camera is within ~4 m. AGE is unused (kept: 22 callers)."
+  (declare (ignorable age))
   (with-floats (x y z height dt k)
     (let* ((h height) (eye (camera-eye *camera*))
            (ex (- (aref eye 0) x)) (ey (- (aref eye 1) (+ y (* 0.6f0 h)))) (ez (- (aref eye 2) z))

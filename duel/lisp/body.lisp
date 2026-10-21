@@ -511,8 +511,3 @@ a float argument would box). 0 B."
   (0.04 :snap (:spine :flex -20) (:root :f -0.2) (:arm-r :flex 110 :side 30) (:elbow-r :flex 20) (:head :flex -12))
   (0.2 (:root :u -0.15) (:knees :flex 50) (:spine :flex 15))
   (0.4 :stance))
-(defclip :sh-awaken-ready (0.6)
-  (0 (:root :u -0.15) (:knees :flex 45) (:spine :flex 25))
-  (0.25 (:root :u 0.0) (:spine :flex -15) (:chest :flex -10) (:head :flex -15) (:arms :side 55 :flex 15)
-        (:elbows :flex 20))
-  (0.6 (:root :u -0.03) (:spine :flex -10) (:head :flex -10) (:arms :side 50 :flex 12)))
