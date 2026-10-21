@@ -1264,13 +1264,35 @@ awakened Senjumaru near the rim (the drapes' fade stills): the pair on a tangent
           ((<= 99500 c 99600) (setf (third *sj-drape-fade*) (/ (- c 99500) 100.0))))   ; the drapes' fade floor (100: off)
     (log-msg "duel senju knob ~d" c)))
 
+(defun senju-hud-cons-check ()
+  "Debug 2490 (REFACTOR_NEXT N2's probe): bytes consed by 10 calls each of her HUD hooks, the Shikai (SENJU-TEST 0, four
+stitches) and the Bankai (SENJU-TEST 22: hank 3 live under him, woven 40, hank 5 torn now): the meter in the portrait slot
+(SENJU-HUD-METER, no label), the landscape row with its label, the portrait label (SENJU-HUD-LABEL), the one-hand ring
+(SENJU-RING)."
+  (labels ((bytes (thunk) (let ((c0 (cons-bytes))) (dotimes (i 10) (funcall thunk)) (- (cons-bytes) c0)))
+           (line (tag)
+             (let* ((e *p1*) (kit (kit-of e)) (g (gauges e)))
+               (format nil "~a meter ~d, meter + label ~d, label ~d, ring ~d" tag
+                       (bytes (lambda () (senju-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 nil nil nil)))
+                       (bytes (lambda () (senju-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 300f0 40f0 2)))
+                       (bytes (lambda () (senju-hud-label g kit)))
+                       (bytes (lambda () (senju-ring e 200f0 200f0 1f0)))))))
+    (senju-test 0) (set-hari *p1* 4)
+    (let ((a (line "Shikai (4 stitches):")))
+      (senju-test 22)
+      (let* ((st (sj *p1*)) (wv (sjs-woven st)) (tn (sjs-torn st)) (th (sjs-torn-hank st)))
+        (setf (sjs-woven st) 40 (sjs-torn st) *match-tick* (sjs-torn-hank st) 5)
+        (log-msg "duel senju hud consing (10 calls, B): ~a; ~a" a (line "Bankai (a live hank, woven 40, a torn one):"))
+        (setf (sjs-woven st) wv (sjs-torn st) tn (sjs-torn-hank st) th)))))
+
 (defun senju-debug (c)
-  "Her debug commands (debug.lisp *CHAR-DEBUG*): 2450+k SENJU-TEST k; 76000+f / 77000+f / 78000+f her cinematics' stills
+  "Her debug commands (debug.lisp *CHAR-DEBUG*): 2450+k SENJU-TEST k, 2490 SENJU-HUD-CONS-CHECK; 76000+f / 77000+f / 78000+f her cinematics' stills
 (FORCE-CINE 16-18) held at frame f; 90000+ SENJU-KNOB."
-  (cond ((< c 2500) (senju-test (- c 2450)))
+  (cond ((= c 2490) (senju-hud-cons-check))
+        ((< c 2500) (senju-test (- c 2450)))
         ((< c 79000) (cine-at (+ 16 (floor (- c 76000) 1000)) (mod c 1000)))
         (t (senju-knob c))))
-(dolist (r '((2450 2489 senju-debug) (76000 78999 senju-debug) (90000 99999 senju-debug)))
+(dolist (r '((2450 2490 senju-debug) (76000 78999 senju-debug) (90000 99999 senju-debug)))
   (pushnew r *char-debug* :test #'equal))
 
 ;;; ================================================================ cinematics (§5, §6; unskippable; every shot SHOT-ON its subject)

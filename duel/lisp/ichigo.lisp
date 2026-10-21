@@ -1028,6 +1028,24 @@ Shikai vs Yamamoto's wave at 8 m (Shift+K: JUJISHO cuts it), 6 the Shikai 8 m fr
       (let ((a (+ yaw (* (- i 1) 0.9))))
         (ichigo-clone-spawn e (+ (aref p 0) (* 1.2 (fwd-x a))) (+ (aref p 2) (* 1.2 (fwd-z a))) :debug)))))
 
+(defun ichigo-hud-cons-check ()
+  "Debug 74907 (REFACTOR_NEXT N2's probe): bytes consed by 10 calls each of KESSA's HUD meter (ICHIGO-HUD-METER) with three
+clones (ICHIGO-TEST 7): the portrait slot (no label) facing left and right, the landscape row with its label, the same
+while an O press's flash runs, the label's FORMAT alone, and the one-hand deck (ICHIGO-DECK)."
+  (ichigo-test 7)
+  (let* ((e *p1*) (kit (kit-of e)) (st (ic e)) (at (ics-o-at st)) (on (ics-o-n st)))
+    (flet ((bytes (thunk) (let ((c0 (cons-bytes))) (dotimes (i 10) (funcall thunk)) (- (cons-bytes) c0))))
+      (let* ((pl (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 nil nil nil))))
+             (pr (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 t 1f0 nil nil nil))))
+             (ll (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 300f0 40f0 2))))
+             (lf (progn (setf (ics-o-at st) *match-tick* (ics-o-n st) 3)
+                        (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 300f0 40f0 2)))))
+             (fm (bytes (lambda () (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" 3 t 4))))
+             (dk (bytes (lambda () (ichigo-deck e 200f0 200f0 1f0)))))
+        (setf (ics-o-at st) at (ics-o-n st) on)
+        (log-msg "duel ichigo hud consing (10 calls, B): meter ~d, meter right ~d, meter + label ~d, meter + label flashing ~d, label format ~d, deck ~d"
+                 pl pr ll lf fm dk)))))
+
 (defun ichigo-test (k)
   (destructuring-bind (f1 c2 f2 d act n) (nth k *ichigo-tests*)
     (ensure-battle :ichigo c2)
@@ -1061,7 +1079,7 @@ it already runs it continues to F."
   "74000+k ICHIGO-TEST k, 74080+k the 60-seed gate of pairing k (ICHIGO-AB-GATE); 74100+k .. 74400+k the forms' damage dealt / taken x (0.5 + k / 100) (Shikai dealt, taken,
 KESSA dealt, taken); 74500+k the parry window's length = k (from f2); 74600+k *KESSA-PARRY-CATCH* = k; 74700+k
 *CLONE-LIFE* = 10k; 74800+k *CLONE-BURST-DMG* = k; 74900+k (k 0-3) P1's clones = k, 74905 log P2's combo, 74906 the
-looks' consing probe (ICHIGO-LOOK-CONS-CHECK); 74910+k
+looks' consing probe (ICHIGO-LOOK-CONS-CHECK), 74907 the HUD's (ICHIGO-HUD-CONS-CHECK); 74910+k
 *CLONE-SCALE* = k / 20 (k < 40); 74950+k *AI-IC-PARRY-P* = k / 50 (k < 40); 74990+k a pose still (*ICHIGO-POSES*), 74989
 its camera turned 90 deg; 75000 + 150 i + k stills of cinematic i (0 the Shikai
 Kikon, 1 千影, 2 the awakening, 3 the KESSA Getsuga Soul Break) held at frame 2k."
@@ -1083,6 +1101,7 @@ Kikon, 1 千影, 2 the awakening, 3 the KESSA Getsuga Soul Break) held at frame 
       (9 (cond ((< k 4) (ichigo-set-clones *p1* k))
                ((= k 89) (setf *ic-pose-ang* (mod (+ *ic-pose-ang* 90.0) 360.0)))
                ((= k 6) (ichigo-look-cons-check))
+               ((= k 7) (ichigo-hud-cons-check))
                ((= k 5) (let ((f (fighter *p2*)))
                           (log-msg "duel ichigo combo P2 hits ~d dmg ~d reishi ~d" (fighter-combo-hits f) (fighter-combo-dmg f)
                                    (gauges-reishi (gauges *p2*)))))
