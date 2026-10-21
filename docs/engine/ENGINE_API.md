@@ -628,6 +628,10 @@ gone: matter perforates, energy erodes). Existing calls take `:mode :toon` (`fx-
     `fx-ribbon`'s positional order (a form repeated there is repeated here, as written by hand);
     `(%tongue x y z ax ay az w pal k seed ph sway &key (segs 6) (wob 0.3))` — a toon flame tongue (w1 = 0,
     SEED made negative: along) through it;
+  - `(toon-ground-seg x0 z0 x1 z1 y w h0 h1 seed wob pk)` — a flat toon strip on the ground from (x0 z0) to
+    (x1 z1) at height Y, half-width W, heat H0 → H1 (the low-heat end erodes first), SEED made negative
+    (along), PK the presence lane (`(toon-a pal k)`). Its `let*` binds `x0 z0 x1 …` in order as ENGINE's
+    symbols, so a later argument form reads the caller's own `x0` (moved from SOUL DUEL's stage.lisp 2026-10-21);
   - `(%light x y z r g b radius intensity priority)` — `add-point-light` without boxing (one shared record).
 
 ## ECS (`ecs.lisp`)

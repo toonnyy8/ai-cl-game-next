@@ -295,7 +295,7 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/anim.lisp    | humanoid rig + proportions, pose / clip DSL (DEFCLIP, DEFSTRIKE), playback, blending, FK |
 | lisp/body.lisp    | rigid-part characters: shape spec → meshes per joint (BUILD-PARTS), DRAW-PARTS |
 | lisp/time.lisp    | fixed step (RUN-FIXED-STEPS), hitstop, slow-mo               |
-| lisp/fx-shapes.lisp | the stateless fx-batch drawing kit (loads before fx.lisp): toon clock, palettes, envelope, the toon shapes and the 0 B toon kit (HASH01, %TRING, %SECTOR-VERTS, TOON-RIBBON, %TONGUE, %T-BLOB, %LIGHT, WITH-CAM …), FX-RIBBON / FX-SECTOR, screen punctuation |
+| lisp/fx-shapes.lisp | the stateless fx-batch drawing kit (loads before fx.lisp): toon clock, palettes, envelope, the toon shapes and the 0 B toon kit (HASH01, %TRING, %SECTOR-VERTS, TOON-RIBBON, %TONGUE, TOON-GROUND-SEG, %T-BLOB, %LIGHT, WITH-CAM …), FX-RIBBON / FX-SECTOR, screen punctuation |
 | lisp/fx.lisp      | the pools: shake, particles, rings, debris, trail buffers (%TRAIL-PUSH / %TRAIL-DROP) and the drawn smear (FX-SMEAR-CAPTURE!), edge vignette, hit-volume debug outlines |
 | lisp/cine.lisp    | the cinematic director: DEFCINE (AT / DURING), start / step / draw / skip, shots, game hooks |
 | lisp/ecs.lisp     | entities, components, systems, events (DO-EVENTS), the shared TRANSFORM component (POS-OF / YAW-OF) |
@@ -445,8 +445,8 @@ and grep the function for `ecl_make_single_float`/`ecl_times`/`ecl_divide`.
 * **Moving a macro into the engine changes the package of the names it binds.** A game macro's
   `(let* ((x0 ,x0) (x1 ,x1)) …)` binds the game's `x0`, so a call whose X1 form reads `x0` sees the macro's
   binding (capture); the same macro in ENGINE binds `engine::x0` and the call reads its own `x0`. Check the
-  call sites before a move (SOUL DUEL's `toon-ground-seg` stayed in stage.lisp for that: four sites read
-  the rebound X0 / Z0). Names a body is meant to see are passed in by the caller, never
+  call sites before a move (SOUL DUEL's `toon-ground-seg`: four sites read the rebound X0 / Z0 and were
+  spelled out in the same float order before it moved, 2026-10-21). Names a body is meant to see are passed in by the caller, never
   anaphoric: `(with-cam (rx ry rz ux uy uz) …)`, `fx-smear-capture!`'s `(len width)` (an anaphoric engine
   macro would need its names exported, and an exported generic name like `ux` becomes the engine's symbol in
   every game file).

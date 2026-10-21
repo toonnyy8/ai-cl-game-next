@@ -54,7 +54,11 @@ for the next round, pick from here, keep the same bar as 2026-10 (§ "Bar" below
   their characters' `*char-debug*` hooks (B3.3, ~500 lines). Pure moves; tools/simgate loads the MANIFEST, check its
   fixed lists anyway. Pairs well with N1.
 
-### N6. `toon-ground-seg` into the engine
+### N6. `toon-ground-seg` into the engine — done (round 2, 2026-10-21)
+- Done: the four sites (rukia-art `vfx-ru-sheet` x2, vfx.lisp `vfx-line-cut` `:kyoku` / `:south`) spell the
+  shifted start out as a 3-term `+` (left-folded: the old nested sum's float order), the macro moved verbatim to
+  engine/lisp/fx-shapes.lisp (after `%tongue`) and is exported; the looks gate gained fx-a `kyoku` / `south`
+  (2304 / 2303; neither look was guaranteed in the 105 stills). Record below.
 - Why it stayed in duel/lisp/stage.lisp: four sites read the macro's own `x0` / `z0` binding in a later argument
   (vfx.lisp ~703, ~726; rukia-art.lisp ~714, ~716), e.g. `(+ x0 (* e ux))` really adds to the macro's x0. In the engine
   that binding becomes `engine::x0` and the sites would read their own x0 (pixels change).
