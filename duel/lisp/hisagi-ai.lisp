@@ -364,7 +364,7 @@ on the brain's one Hoho roll per opponent action between the kit's :hoho (the ge
     (when (and (> p h) (<= h r) (< r p)
                (eq (snap-state s) :move) (member (snap-kind s) '(:quick :flash :sig :sp :breaker :kikon))
                (snap-live-p s) (snap-near-p s e d *ai-threat-margin*) (>= (- (snap-s s) (snap-sf s)) 6)
-               (not (snap-reflect-p s)) (not (kit-rooted (kit-of e))) (hoho-ready-p e)
+               (not (snap-reflect-p s)) (hoho-open-p e)
                (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g)))
       (pace e :ai-utsusemi)
       (why b :utsusemi :hoho))))
@@ -742,7 +742,7 @@ side-stepped, 17 % hit, round01 b1a0); once per entry within *HS-AI-CLOSE* m whi
         ;; his J / K / L coming up close, its hit 2-14 f off as perceived: the back hop through it (its iframes f3-9; the
         ;; hop's J1 then lashes him from its far end: the generic Step -> J), one roll per action
         ((and (hs-threat-p e s d) (< d 3.5) (member (snap-kind s) '(:quick :flash :sig))
-              (<= 2 (- (snap-s s) (snap-sf s) (brain-delay b)) 14) (not (kit-rooted (kit-of e))))
+              (<= 2 (snap-lead-seen s b) 14) (not (kit-rooted (kit-of e))))
          (and (< (brain-react-roll b) (brain-chance b *hs-ai-dodge-p*)) (progn (pace e :ai-dodge) (why b :dodge :step))))
         ;; (a red opponent reeling: the generic Kikon rush until cell b3a1; :kikon-range 0 now, b1a1's: the punish below takes him)
         ;; he recovers / reels: the punish by annulus, one roll per action
@@ -979,7 +979,7 @@ as HS-LEARN-CLASS, with his way away from the onset's line; reeling :TAKE; at th
 uncounted)."
   (declare (ignore d))
   (let* ((k (or (lrn-kdata l) (setf (lrn-kdata l) (make-hsl))))
-         (st (hs e)) (f (fighter e)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
+         (st (hs e)) (f (fighter e)) (mv (current-move f))
          (hst (snap-state s)) (hprev (lrn-hstate l)) (bound (hss-bound st))
          (calm (and (member (fighter-state f) '(:idle :run :guard)) (member hst '(:idle :run :guard)) t))
          (sit (and (< (lrn-ksit l) 0)
@@ -1083,7 +1083,7 @@ the windmill's K off a bridge the assist pressed is his tick's (HS-KAZA-TICK); t
 K1 when the style's pick from where it pushes him is K1. Free, his J: the ranged mode's tip opener (K1 with him on its tip,
 4-5 m, HS-R-TIP-CMD; on J1's, 5-6.2 m, his J is it); a bind's bite (HS-B-BITE-CMD: his J held back while the yank still
 brings the victim in). A command, :NONE or NIL (the generic AUTO COMBO)."
-  (let* ((st (hs e)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (j (vpad-command-pressed-p vp :quick nil)))
+  (let* ((st (hs e)) (mv (current-move f)) (j (vpad-command-pressed-p vp :quick nil)))
     (cond (mv
            (let ((key (- *match-tick* (fighter-sf f))))
              (unless (= key (hss-as-key st)) (setf (hss-as-key st) key (hss-as-cmd st) nil))

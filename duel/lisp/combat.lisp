@@ -697,7 +697,7 @@ and a self-inflicted *ARM-BURST-STUN* crumple in place (hits on him during it ar
   "The arm meter per step (a form with :pips): the pip a finished J / K string owes is charged (rules STRING-PIP-DUE-P);
 the crack clock (rules PIP-STEP: paused while locked) cracks a pip every *ARM-CRACK* frames without a spend; once the
 last pip went, the pending burst fires when BURST-DUE-P says."
-  (let ((mv (and (eq (fighter-state f) :move) (fighter-move f))) (pend (gauges-arm-pending g)))
+  (let ((mv (current-move f)) (pend (gauges-arm-pending g)))
     (when (string-pip-due-p (gauges-arm-owed g) (fighter-state f) (and mv (mv-kind mv)))
       (setf (gauges-arm-owed g) nil)
       (arm-spend! e mv))                                ; (a cancel out of the string: the burst waits for it too)
@@ -710,7 +710,7 @@ last pip went, the pending burst fires when BURST-DUE-P says."
         (multiple-value-bind (n idle cracked) (pip-step (round (gauges-meter g)) (gauges-meter-idle g) (plusp (fighter-lock f)))
           (setf (gauges-meter g) (f32 n) (gauges-meter-idle g) idle)
           (when cracked
-            (when (zerop n) (setf (gauges-arm-pending g) (or (and (eq (fighter-state f) :move) (fighter-move f)) :none)))
+            (when (zerop n) (setf (gauges-arm-pending g) (or (current-move f) :none)))
             (refresh-look e)
             (emit :arm-crack e n)
             (clog "~a UDE cracked, ~d left" (side-name e) n))))))

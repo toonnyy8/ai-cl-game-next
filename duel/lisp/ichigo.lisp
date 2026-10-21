@@ -579,7 +579,7 @@ bonus); the Kikon is worth CLONE-KONPAKU N."
 
 (defun echo-watch (e f st)
   "A new attack of E's (a move with hits, not the Breaker; a Kikon rush at its strike) while ZANZO is on: its echo."
-  (let* ((mv (and (eq (fighter-state f) :move) (fighter-move f))) (main (and mv (eq (fighter-phase f) :main))))
+  (let* ((mv (current-move f)) (main (and mv (eq (fighter-phase f) :main))))
     (unless (and (eq mv (ics-seen st)) (eq main (ics-seen-main st)))
       (setf (ics-seen st) mv (ics-seen-main st) main)
       (when (and main (plusp (length (mv-hits mv))) (not (eq (mv-kind mv) :breaker)) (zanzo-p e))
@@ -662,7 +662,7 @@ link *AI-IC-PARRY-BS-P* of the time, on the frame that puts the string's next hi
 (defun parry-watch (e f st)
   "The parry's window tell: a white rim, fading linearly over the window (its brightness is the timer); the parry frame
 kept for the practice judge (ICHIGO-STRUCK)."
-  (let* ((m (model e)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
+  (let* ((m (model e)) (mv (current-move f))
          (in (and mv (member :parry (mv-flags mv)) (eq (fighter-phase f) :main))) (sf (fighter-sf f)))
     (setf (ics-parry-sf st) (if in sf -1))
     (if (and in (parry-frame-p sf (getf (mv-params mv) :window)))
@@ -675,7 +675,7 @@ kept for the practice judge (ICHIGO-STRUCK)."
 (defun ic-acc-watch (e f st)
   "Each move instance of his, by name, and at its end its contact (NAME-HIT / -BLK / -WHF); the stance's entries by
 distance; the ticks in KESSA; each Kikon he lands, by form and worth."
-  (let* ((mv (and (eq (fighter-state f) :move) (fighter-move f))) (sf (fighter-sf f)) (old (ics-acc-mv st)))
+  (let* ((mv (current-move f)) (sf (fighter-sf f)) (old (ics-acc-mv st)))
     (when (and old (or (not (eq mv old)) (< sf (ics-acc-sf st))))
       (pace e (ic-key (mv-name old) (case (ics-acc-hit st) (:hit "HIT") (:block "BLK") (t "WHF"))))
       (setf (ics-acc-mv st) nil))
@@ -749,7 +749,7 @@ edges they answer, the Hoho clone, the O charge), the parry from blockstun and i
           (if (eq state :guard-hit) (parry-from-blockstun e f st vp) (setf (ics-bs-key st) -1))
           (parry-watch e f st)
           (echo-watch e f st))
-        (let ((mv (and (eq (fighter-state f) :move) (fighter-move f))))
+        (let ((mv (current-move f)))
           (if (and mv (member (mv-name mv) '(:ic-tsuki :ic-tsuki-k2 :ic-tsuki-re)))
               (tsuki-step e f st mv)
               (unless (and mv (eq (mv-name mv) :ic-tsuki-dash)) (setf (ics-dashed st) nil)))))))
@@ -791,7 +791,7 @@ into a coming hit (2, 3 with the gauge for them); the O itself stays the generic
           ((ichigo-ai-convert e b s d))
           ((and (>= gg *kessa-parry-cost*) (not (gauges-guardless g))
                 (< (brain-react-roll b) (ic-p b (* 0.6 *ai-ic-parry-p*) *ai-ic-parry-p* 1.0))
-                (let ((lead (- (snap-s s) (snap-sf s) (brain-delay b))))
+                (let ((lead (snap-lead-seen s b)))
                   (or (and (eq (snap-state s) :move) (eq (snap-phase s) :main) (member (snap-kind s) '(:quick :flash :sig :sp :kikon))
                            (<= 4 lead 22) (< d (+ (snap-reach s) 0.6))
                            (not (snap-x-axis-p s)))                ; (an :x-axis line is :ranged: no parry catches it)
@@ -858,12 +858,11 @@ Breaker's strike, an O strike) lands 0-11 frames from now (its startup left minu
 + 1.5 m: Hoho now, inside the perfect window (*PERFECT-LEAD* 12: the automatic counter strike, his inputs locked 40 f,
 15 flash-step back; KESSA's Hoho also posts a clone in front of him). One roll per his action (the Hoho roll) at (EASY 0 /
 NORMAL 0 / HARD 1.0); only the Hoho's own price, no Burst reserve (the perfect refund pays most of it back), not in a burst."
-  (let ((g (gauges e)) (lead (- (snap-s s) (snap-sf s) (brain-delay b))))
+  (let ((g (gauges e)) (lead (snap-lead-seen s b)))
     (and (eq (snap-state s) :move) (eq (snap-phase s) :main) (member (snap-kind s) '(:quick :flash :sig :sp :breaker :kikon))
          (> (snap-active-end s) (snap-s s)) (<= 0 lead 11) (snap-near-p s e d 1.5)   ; (an :x-axis line: on it, ai.lisp)
          (not (snap-reflect-p s))                     ; (a reflect is :opp-reflect's, ai.lisp)
-         (not (kit-rooted (kit-of e)))
-         (hoho-ready-p e)
+         (hoho-open-p e)
          (not (gauges-burst g))
          (< (brain-hoho-roll b) (ic-p b 0.0 0.0 1.0))
          (why b :perfect-hoho :hoho))))

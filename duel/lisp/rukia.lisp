@@ -348,7 +348,7 @@ would cash the top bar for less than REIDO). A command or NIL."
           ((and (kit-j-link-p kit name) (not (kit-rooted kit)) (kit-command-ok-p e :sp2) (rukia-ai-bars-p e)
                 (< (sim-rnd01) (ai-chance e *ai-ru-j-ender-sp2*)))
            :sp2)
-          ((and (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t) (< (sim-rnd01) (ai-chance e *ai-ru-ender-o*))) :kikon))))
+          ((and (ai-o-ender-ok-p e kit) (< (sim-rnd01) (ai-chance e *ai-ru-ender-o*))) :kikon))))
 
 ;;; ---------------------------------------------------------------- her CPU (AI v2): the perfect-Hoho counter-fighter
 ;;; Her answer to a commitment is not to meet it but to vanish through it: a Hoho timed into his hit window from what she
@@ -374,8 +374,7 @@ through its startup; a committed move's window is SNAP-S .. SNAP-ACTIVE-END of h
 masher restarts his J as soon as his recovering one ends. A Hoho started inside *PERFECT-LEAD* of the window is PERFECT."
   (let* ((g (gauges e)) (dl (brain-delay b)) (el (- *match-tick* (snap-start s)))
          (roll (brain-react-roll b)) (fs (gauges-fs g)))
-    (when (and (not (kit-rooted (kit-of e)))
-               (hoho-ready-p e)
+    (when (and (hoho-open-p e)
                (ai-hoho-spare-p fs (gauges-reishi g) (gauges-reishi-max g)))
       (flet ((go-when (frames-to-window into)          ; pressed INTO frames inside the window (a frame or two of slack)
                (if (<= frames-to-window (- into)) (why b :perfect-hoho :hoho) (why b :ph-wait :wait))))

@@ -499,7 +499,7 @@ K1 if it is within K1's reach before the strike, else J1, else a Hoho close to t
 (defun ken-hoho-commit (e b s d)
   "His K / L / SP coming at us whose hit, as we see it, falls 1-12 f from now (the perfect-Hoho lead): Hoho it (one roll per
 move), with flash-step to spare; a K whose startup the stance can still beat is left to the stance (the kit's :react)."
-  (let* ((g (gauges e)) (left (- (snap-s s) (snap-sf s) (brain-delay b))))
+  (let* ((g (gauges e)) (left (snap-lead-seen s b)))
     (when (and (eq (snap-state s) :move) (member (snap-kind s) '(:flash :sig :sp)) (eq (snap-phase s) :main)
                (snap-live-p s) (<= 1 left *perfect-lead*) (snap-near-p s e d 1.0)   ; (an :x-axis line: on it, ai.lisp)
                (not (member :grab (snap-flags s))) (not (snap-reflect-p s))   ; (a reflect is :opp-reflect's)
@@ -604,7 +604,7 @@ Shift+L (the charge into the flurry; it chases off the ender) *KEN-AI-SP2-ENDER*
   (let ((b (ai-brain e)))
     (when b
       (cond ((ken-line-ender-p e kit b) :sp1)
-            ((and (not (kikon-ready-p e)) (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t)
+            ((and (not (kikon-ready-p e)) (ai-o-ender-ok-p e kit)
                   (brain-roll b *ken-ai-o-ender*))
              :kikon)
             ((and (kit-command-ok-p e :sp2) (brain-roll b *ken-ai-sp2-ender*)) :sp2)))))

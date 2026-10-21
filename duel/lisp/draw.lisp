@@ -199,7 +199,7 @@ after the window. Cosmetic (VFX-BLADE-FIRE's drawing, inline); 0 B."
 frame's effect seconds (0 while paused). A Kikon rush module's look (its :look): :flash-step shows only
 ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawing (RUSH-LIFT)."
   (let* ((m (model e)) (f (fighter e)) (kit (fighter-kit f)) (b (model-body m)) (p (pos-of e)) (yaw (yaw-of e))
-         (mv (and (eq (fighter-state f) :move) (fighter-move f)))
+         (mv (current-move f))
          (look (and mv (eq (mv-kind mv) :kikon) (getf (mv-params mv) :look)))
          (flashing (and (eq look :flash-step) (rush-dashing-p f)))   ; the flash step: afterimages only
          (planted (and mv (mv-planted mv) (eq (fighter-phase f) :main)))

@@ -164,7 +164,7 @@ K route's balls (in an awakened KL, R8), the whips' reach and the L charge's tel
 switch's legs (R11), the base stance's snipe charge, its shot and the gun-kata / swings' looks (R15; a \"barro consing\"
 line)."
   (let* ((e *p1*) (f (fighter e)) (side (fighter-side f)) (m (model e)) (jm (model-joints m))
-         (mv (and (eq (fighter-state f) :move) (fighter-move f))))
+         (mv (current-move f)))
     (macrolet ((per (form) `(let ((c0 (cons-bytes))) (dotimes (i 10) ,form) (- (cons-bytes) c0))))
       (setf (aref *br-armed* side) 0f0)                 ; (R15: the gun-kata's crack is a sound, not a draw)
       (log-msg "barro consing (10 draws, B): form ~a clock ~d draw ~d (Lille's ~d) spends ~d recall ~d beat (lines drive beat) ~a kiwami ~d stretch ~d lashes ~d deform ~d kl-balls ~d dash ~d cuts ~d whip ~d charge ~d legs ~d snipe-charge ~d snipe ~d kata ~d"

@@ -983,7 +983,7 @@ past his wake-up); the Shikai: the soldier (SP1) walks to him. A command or NIL.
   "The Shikai's :sp-ender (ai.lisp STRING-REFLEX, a J3 / K3 that hit, the push begun): the O ender (:o-ender-p; not
 when hits finish him, AI-SB-FINISH-P); else after K3 the stitches' L with >= 3 (:l-ender-p)."
   (let* ((b (ai-brain e)) (f (fighter e)) (mv (fighter-move f)))
-    (cond ((and (member :ender (mv-flags mv)) (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t)
+    (cond ((and (member :ender (mv-flags mv)) (ai-o-ender-ok-p e kit)
                 (< (sim-rnd01) (senju-dp b :o-ender-p)))
            :kikon)
           ((and (kit-k-link-p kit (mv-name mv)) (>= (hari e) 3) (kit-l-link kit (mv-name mv))
@@ -1037,7 +1037,7 @@ lane, at :o-ender-p (not when hits finish him)."
   (let ((n (form-hank (kit-form kit))) (mv (fighter-move (fighter e))))
     (or (and n (kit-command-ok-p e :sp1) (multiple-value-bind (a b) (tachi-hanks n) (or (hank-hits-p a) (hank-hits-p b)))
              (< (sim-rnd01) (* (if (ai-brain e) (senju-dp (ai-brain e) :tachi-p) *ai-senju-tachi*) (if (tachi-aligned-p n) 1.0 0.5))) :sp1)
-        (and (ai-brain e) (member :ender (mv-flags mv)) (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t)
+        (and (ai-brain e) (member :ender (mv-flags mv)) (ai-o-ender-ok-p e kit)
              (< (sim-rnd01) (senju-dp (ai-brain e) :o-ender-p)) :kikon))))
 
 (defun senju-opp-reflex (e b s d)

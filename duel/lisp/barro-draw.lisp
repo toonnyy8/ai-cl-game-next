@@ -326,7 +326,7 @@ Reads *BR-AT* (his place and the opponent's, BR-DRAW's) and the move's frame. 0 
 ;; his shoulder onto the new sigil 0.5 m behind him, while the set's flare (%BR-LIVE-LOOK) stamps it in
 (defun br-hold-clock (f)
   "The art stills' clock of F's move (debug 82200+f): the recall chain's (%BR-CHAIN-CLOCK), else the move's frame, else -1."
-  (let ((mv (and (eq (fighter-state f) :move) (fighter-move f))))
+  (let ((mv (current-move f)))
     (if mv (let ((c (%br-chain-clock (mv-name mv) (fighter-sf f)))) (if (>= c 0) c (fighter-sf f))) -1)))
 
 
@@ -1212,7 +1212,7 @@ glint. 0 B."
     (when (and (= pool (f->i (aref wl (+ o 1)))) (< n last) (<= -0.001f0 dt 0.25f0))
       (if (= pool 1)
           (setf (aref wl (+ o 3)) tm)
-          (let* ((mv (and (eq (fighter-state f) :move) (fighter-move f)))
+          (let* ((mv (current-move f))
                  (volley (and mv (member (mv-name mv) *br-volley-moves*)))
                  (mode (if (and (>= (- last n) 2) (not volley)) 2f0 1f0))
                  (gold (if (> (lb-fxs side 15) 0.5f0) 1f0 0f0)) (p *lb-p*) (h *lb-holes*))
@@ -1312,7 +1312,7 @@ wing's burst at its tip, the armour's shatter, a pip's glint at the muzzle; %BR-
 the stance switch's legs' fold and pull handed to it (*BR-LEGS*, set by his :pose hook); R15 (§19): the base stance's
 snipe shot and its gun-kata / swings (%BR-SNIPE-LOOK, %BR-KATA-LOOK; the snipe's charge is his :charge hook, BR-CHARGE)."
   (declare (single-float rdt))
-  (let* ((f (fighter e)) (side (fighter-side f)) (mv (and (eq (fighter-state f) :move) (fighter-move f)))
+  (let* ((f (fighter e)) (side (fighter-side f)) (mv (current-move f))
          (c (if mv (%br-chain-clock (mv-name mv) (fighter-sf f)) -1)) (o (* 65 side))
          (awake (member (fighter-form f) '(:jilliel-kin :jilliel :shin-kin :shin))) (n (br-ammo-look e)))
     (declare (fixnum side c o n))

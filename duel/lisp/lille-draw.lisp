@@ -1152,7 +1152,7 @@ the base form and the owl; one more while he aims or a gold look plays). (The ol
 2026-10-21, refactor round 2.)"
   (declare (single-float rdt))
   (let* ((f (fighter e)) (side (fighter-side f)) (form (fighter-form f)) (m (model e)) (jm (model-joints m))
-         (mv (and (eq (fighter-state f) :move) (fighter-move f))) (v *lb-v*) (tm (fx-clock))
+         (mv (current-move f)) (v *lb-v*) (tm (fx-clock))
          (cj (lb-cine-frame e 'lb-jilliel-cine))
          (ct (lb-cine-frame e 'lb-trompete-cine)) (ck (lb-cine-frame e 'lb-jilliel-kikon-cine))
          (look (cond ((and cj (< (the fixnum cj) 92)) :base)
