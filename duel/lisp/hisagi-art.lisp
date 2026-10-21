@@ -5,10 +5,14 @@
 ;;;; lieutenant's badge on the left arm, short messy black hair, three scars down over the right eye, the 69 and the blue
 ;;;; stripe on the left cheek; redone to canon, DUEL_HISAGI §21 "Look as built"), Kazeshini (a 0.97 m black rod with a
 ;;;; crescent of two blades, one inverted, the chain from butt to butt: the right hand's is the held weapon, the left
-;;;; hand's the thrown one, drawn by HISAGI-DRAW), the model-sheet scenes (83980-83985), one clip per move at the move's
-;;;; frames, the chain and the sickle's flight (drawn to the sim's points: the thrown sickle's tip at the hit volume's end,
-;;;; *HS-STRIKE-REACH*; the pulls' chain along HS-CHAIN-SEG's segment), the windmill, the lightning, the HUD's sickle icon,
-;;;; his glyphs' name and his four cinematics (batch B5, §22.7: the awakening, the Shikai Kikon 刈れ, KOSA, KOSHU).
+;;;; hand's the thrown one, drawn by HISAGI-DRAW), one clip per move at the move's frames, and the data the drawn reaches
+;;;; come from (the thrown sickle's tip at the hit volume's end, *HS-STRIKE-REACH*; the pulls' chain along HS-CHAIN-SEG's
+;;;; segment; the host test reads those tables here).
+;;;; The rest of what was one file until 2026-10-21 (refactor round 2) loads right after this one, same prefix:
+;;;;   hisagi-draw.lisp   the looks, the chain and the sickle's flight, the windmill, the lightning, HISAGI-DRAW, the HUD's sickle
+;;;;                      icon, his glyphs' name
+;;;;   hisagi-cine.lisp   his four cinematics (batch B5, §22.7: the awakening, the Shikai Kikon 刈れ, KOSA, KOSHU)
+;;;;   hisagi-stills.lisp debug stills and probes (83500-83549, 83901-83994), including the model-sheet scenes (83980-83985)
 (in-package :duel)
 
 ;;; ---------------------------------------------------------------- body

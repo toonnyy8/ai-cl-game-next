@@ -1,19 +1,23 @@
-;;;; lille-art.lisp — LILLE BARRO as art data (docs/duel/DUEL_LILLE.md §3, §9, §10, §12 Art; the model sheet
+;;;; lille-art.lisp — LILLE BARRO's art data, the body half (docs/duel/DUEL_LILLE.md §3, §9, §10, §12 Art; the model sheet
 ;;;; docs/research/tybw-characters/notes/lille_barro_model_sheet.md): his four bodies (:lille 182 cm, dark skin #7A6155, all
 ;;;; in white with the green fur bicorne / stole / panel, the left eye shut under the ring-of-four-arcs mark; :lille-jilliel,
 ;;;; the holed cream column floating, its face in a round window, its arms hidden in it (the rig's hands are the front wing
 ;;;; pair's tips); :lille-jilliel-kin, that column on two ㄇ-shaped legs; and :lille-shin, the owl on KIN's model: the column
-;;;; in white, the ㄇ legs, long arms and an extra cosmetic pair, a segmented S-neck to a tiny barn-owl face),
-;;;; Diagramm (2.4 m: the barrel through a fur sleeve, the plank across the rear, the muzzle cross), the props of his looks
-;;;; (the wing blades with their three oval holes, the halos, the open eye, the reticle, the trumpet), every :lb-* pose and
-;;;; clip, his draw hook (Jilliel's eight wing blades in two fans / folded in MUJITTAI, the owl's eight gold wings, all of
-;;;; them translucent glass in a translucent rim, each blade three jointed segments; the ㄇ legs' shanks and struts; the owl's extra arms; the halos, the aim line
-;;;; and its reticle, the eye opening, the trumpet, the reflect), his hazards' look, his HUD meter
-;;;; (the eye pips, the halo icon), his one-hand ring, his sounds and brush glyphs, and the cinematics' looks.
-;;;; Batch 1 built the functional art (the strikes put the plank (J1 / J2 / the Breaker), the muzzle (J3, K) or the wing /
-;;;; arm tips (Jilliel, the owl) where the moves' volumes end: *LB-STRIKE-POINTS*; the host FK test checks them); batch 3b
-;;;; (2026-10-06) the look. Everything here is cosmetic: the sim never reads it. The jade is an ink tone and the owl's gold
-;;;; is Senjumaru's muted #B89A5A (decision 11): the three spot hues stay FIRE, REIATSU and BLOOD.
+;;;; in white, the ㄇ legs, long arms and an extra cosmetic pair, a segmented S-neck to a tiny barn-owl face), Diagramm (2.4 m:
+;;;; the barrel through a fur sleeve, the plank across the rear, the muzzle cross), the props of his looks (the wing blades with
+;;;; their three oval holes, the halos, the open eye, the reticle, the trumpet) and *LB-STRIKE-POINTS* (the strikes put the plank
+;;;; (J1 / J2 / the Breaker), the muzzle (J3, K) or the wing / arm tips (Jilliel, the owl) where the moves' volumes end; the host
+;;;; FK test checks them).
+;;;; The rest of what was one file until 2026-10-21 (refactor round 2) loads right after this one, same prefix:
+;;;;   lille-clips.lisp  every :lb-* pose and clip (the base form, JILLIEL, the owl)
+;;;;   lille-draw.lisp   his draw hook LILLE-DRAW (Jilliel's eight wing blades in two fans, the owl's eight gold wings, all of them
+;;;;                     translucent glass in a translucent rim, each blade three jointed segments; the ㄇ legs; the owl's extra
+;;;;                     arms; the halos, the aim line and its reticle, the eye opening, the trumpet, the reflect) and LB-LOOK (his
+;;;;                     hazards' look)
+;;;;   lille-cine.lisp   his HUD pips, sounds and brush glyphs, the cinematics' looks and the four DEFCINEs
+;;;; Lille II (barro*.lisp, kit :barro, roster index 6) shares all of it by reference: docs/duel/DUEL_LILLE_V3.md. Everything here
+;;;; is cosmetic: the sim never reads it. The jade is an ink tone and the owl's gold is Senjumaru's muted #B89A5A (decision 11): the
+;;;; three spot hues stay FIRE, REIATSU and BLOOD.
 (in-package :duel)
 
 ;;; ---------------------------------------------------------------- bodies

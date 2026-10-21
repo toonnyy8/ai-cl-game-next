@@ -1,11 +1,12 @@
-;;;; barro-art.lisp — LILLE BARRO II's own looks (docs/duel/DUEL_LILLE_V2.md §7, §12, §17, §22; version 3: DUEL_LILLE_V3.md).
-;;;; His art is Lille's, shared by reference (lille-art.lisp: the bodies, Diagramm, every :lb-* clip, LILLE-DRAW's wings /
-;;;; halos / legs, LB-LOOK's lines and beams); this file holds only what is his: the clips Lille never had (the volley
-;;;; :br-recall and its strings, the turn, the owl's twins, the stance's swing L1), the draw hook BR-DRAW (his wing count to
-;;;; Lille's lit wings, Lille's, then the base stance's aim line, the spends' looks and the volley's) and the special
-;;;; resource's HUD row.
-;;;; Everything here is cosmetic: the sim never reads it. Loaded after lille-art.lisp (its macros and props) and before
-;;;; barro.lisp (whose state and knobs these functions read at draw time).
+;;;; barro-art.lisp — LILLE BARRO II's own clips (docs/duel/DUEL_LILLE_V2.md §7, §12, §17, §22; version 3: DUEL_LILLE_V3.md).
+;;;; His art is Lille's, shared by reference (lille-art.lisp: the bodies, Diagramm; lille-clips.lisp: every :lb-* clip; lille-draw.lisp:
+;;;; LILLE-DRAW's wings / halos / legs, LB-LOOK's lines and beams); this file holds only the clips Lille never had (the volley
+;;;; :br-recall and its strings, the turn, the owl's twins, the stance's swing L1, the base stance's strings). His other art files
+;;;; (split out 2026-10-21, refactor round 2): barro-draw.lisp (the draw hook BR-DRAW, the looks, the special resource's HUD row)
+;;;; and barro-stills.lisp (the art stills, debug 82100-82399, and BR-CONS-PROBE).
+;;;; Everything here is cosmetic: the sim never reads it. Loaded after lille-art / -clips / -draw / -cine (the macros and props) and
+;;;; before barro.lisp (whose state and knobs these functions read at draw time); the host FK test reads this file's clips and the
+;;;; tables *BR-W-STRETCH* and *BR-SQUASH*.
 (in-package :duel)
 
 (declaim (special *br-at* *br-keep-owl* *br-dash-moves* *br-snipe-moves* *br-snipe-kick* *br-w-l-levels*))   ; (*BR-AT*, *BR-DASH-MOVES*,

@@ -1,6 +1,6 @@
 ;;;; barro.lisp — LILLE BARRO II (roster index 6, kit :barro, display name "LILLE II"), version 3 (docs/duel/DUEL_LILLE_V3.md;
-;;;; the earlier versions' record: DUEL_LILLE_V2.md). A separate fighter built from a copy of lille.lisp (the old Lille stays
-;;;; as he is, index 5). Version 3 (the user, 2026-10-10, decisions R1 / R2; revised 2026-10-11, R3): one grammar in every
+;;;; the earlier versions' record: DUEL_LILLE_V2.md). A separate fighter (index 5 is the removed old Lille's slot, kept reserved;
+;;;; his code is gone since 2026-10-13). Version 3 (the user, 2026-10-10, decisions R1 / R2; revised 2026-10-11, R3): one grammar in every
 ;;;; form, the base stance's. The attack state is the form's J / K strings (the man with Diagramm, JILLIEL's wing cuts KIN,
 ;;;; the owl's claws); L enters THE STANCE (the base form's 狙擊架式 move, the awakened forms' ranged mode EN; from a link
 ;;;; the same plain entry), whose first press picks one of three strings of short several-hit shots (4 m: nothing spent,
@@ -11,9 +11,11 @@
 ;;;; the owl until it ends (one buff set); the owl's SP2 is the full volley. Awakened, a hit during his own attack spends 4
 ;;;; wings (the owl 2) and the attack goes on. U guards in every form. 萬物貫通 THE X-AXIS on every spending line (a block
 ;;;; drains 40 of the guard gauge and lets 30 % through, the line runs 31 m).
-;;;; Sim code shares nothing with lille.lisp (every function, knob, struct, move and hazard here is BR- / :BR-). The art is
-;;;; shared by reference: his moves name Lille's clips, bodies (:lille :lille-jilliel :lille-jilliel-kin :lille-shin), weapon
-;;;; :diagramm, his kits Lille's cinematics and draw hook; barro-art.lisp holds his own clips and looks.
+;;;; Every function, knob, struct, move and hazard here is BR- / :BR-. The art is shared by reference: his moves name Lille's clips,
+;;;; bodies (:lille :lille-jilliel :lille-jilliel-kin :lille-shin), weapon :diagramm, his kits Lille's cinematics and draw hook.
+;;;; His files: this one (knobs, rules, strings, forms, state, hooks, the stance's moves, the debug tail, the HUD registration),
+;;;; barro-ai.lisp (his CPU, the learner's situations, the ASSIST routes: loads right after this file), and the art files that load
+;;;; before it (barro-art.lisp clips, barro-draw.lisp draw hook and looks, barro-stills.lisp art stills; lille-art / -clips / -draw / -cine).
 ;;;; Plain CL above the hooks: the host rules test loads it.
 (in-package :duel)
 

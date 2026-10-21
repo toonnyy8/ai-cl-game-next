@@ -9,8 +9,12 @@
 ;;;; start state: two static string graphs (§7.2), the IN graph as the kit's :strings and the OUT graph's neutral J1 / K
 ;;;; through the :command hook (one-handed J, K = MODOSHI the no-hit retrieve). The pulls (HIKI, HODOKI) hit along the
 ;;;; chain from the anchor to his hand (:seg-fn HS-CHAIN-SEG). L is the windmill KAZAGURUMA (:ranged-ward, Q3 A).
-;;;; Everything of his lives here and in hisagi-art.lisp; the shared files only call his :hooks. Plain CL above the hooks:
-;;;; the host rules test loads it.
+;;;; Everything of his lives here and in his other files; the shared files only call his :hooks. His files (the art ones split
+;;;; 2026-10-21, refactor round 2): this one (knobs, kit, rules, state, hooks, the Bankai's rules and moves, the debug tail),
+;;;; hisagi-ai.lisp (the Shikai's and the Bankai's CPU, the learner, ASSIST, and the *HS-AI-...* knobs: loads right after this file;
+;;;; the three knobs the kit data reads at load stay here), hisagi-art.lisp (body, Kazeshini, clips), hisagi-draw.lisp (looks,
+;;;; HISAGI-DRAW, the HUD icon), hisagi-cine.lisp (the cinematics), hisagi-stills.lisp (debug stills and probes). Plain CL above
+;;;; the hooks: the host rules test loads it.
 (in-package :duel)
 (declaim (special *match-seed* *pacing* *pacing-log*))   ; (flow.lisp's, components.lisp's; the host test loads this file before them)
 
