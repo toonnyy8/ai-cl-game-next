@@ -45,6 +45,9 @@ lisp/hud.lisp
 lisp/onehand.lisp
 lisp/senjumaru.lisp
 lisp/lille-art.lisp
+lisp/lille-clips.lisp
+lisp/lille-draw.lisp
+lisp/lille-cine.lisp
 lisp/barro-art.lisp
 lisp/barro.lisp
 lisp/hisagi.lisp
