@@ -11,7 +11,7 @@
 ;; plain structs here (no entities: the tests make them with MAKE-...)
 (defmacro duel::defcine (&rest r) (declare (ignore r)) nil)
 (defmacro engine:defcomponent (name &rest slots) `(defstruct (,name (:copier nil) (:predicate nil)) ,@slots))
-(dolist (f '("tuning" "rules" "learn" "kit" "yama" "ken" "rukia" "ichigo" "endless-rules" "senjumaru" "barro" "hisagi"))
+(dolist (f '("tuning" "rules" "learn" "kit" "yama" "ken" "rukia" "ichigo" "endless-rules" "senjumaru" "barro" "barro-ai" "hisagi" "hisagi-ai"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 
@@ -3046,6 +3046,7 @@ past the ends; DEFAULT if the clip is not listed."
 (defun hazard (h) (cdr (assoc h *t-hz*)))
 (load (merge-pathnames "../duel/lisp/hazards.lisp" *load-truename*))
 (load (merge-pathnames "../duel/lisp/hisagi.lisp" *load-truename*))
+(load (merge-pathnames "../duel/lisp/hisagi-ai.lisp" *load-truename*))   ; (the CPU tests below call HS-R-PICK, HS-AS-PRESS ...)
 (defvar *t-pos* (make-hash-table :test 'eq)) (defvar *t-yaw* (make-hash-table :test 'eq)) (defvar *t-hss* (make-hash-table :test 'eq))
 (defun pos-of (e) (or (gethash e *t-pos*) (setf (gethash e *t-pos*) (make-f32 3))))
 (defun yaw-of (e) (gethash e *t-yaw* 0f0))

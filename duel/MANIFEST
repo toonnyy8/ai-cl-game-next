@@ -52,7 +52,9 @@ lisp/barro-art.lisp
 lisp/barro-draw.lisp
 lisp/barro-stills.lisp
 lisp/barro.lisp
+lisp/barro-ai.lisp
 lisp/hisagi.lisp
+lisp/hisagi-ai.lisp
 lisp/hisagi-art.lisp
 lisp/hisagi-draw.lisp
 lisp/hisagi-cine.lisp
