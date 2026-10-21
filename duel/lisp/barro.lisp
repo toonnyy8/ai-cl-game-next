@@ -526,7 +526,7 @@ charge-less SP2 SP2 (:sp2c, decision R3)."
 (br-defstring :j :br-j3 :kind :quick :clip :br-jab :clip-s 10 :startup 12 :active 3 :recovery 20 :dmg 28 :adv-block -4
   :reach 1.6 :arc 70 :on-hit :stagger :flags (:ender))
 ;; (the user 2026-10-12: 「將常態的普攻 K 動作模組改的更加明顯大膽」: the K string's own clips :br-f1 / -f2 / -f3, authored at
-;; their moves' S after V8, :clip-s = S; Lille's :lb-f* are the old Lille's; frame data unchanged)
+;; their moves' S after V8, :clip-s = S; the old Lille's :lb-f* went 2026-10-21; frame data unchanged)
 (br-defstring :k :br-k1 :kind :flash :clip :br-f1 :clip-s 19 :startup 17 :active 4 :recovery 21 :dmg 48 :adv-block -3
   :reach 2.05 :arc 150 :on-hit :stagger)
 (br-defstring :k :br-k2 :kind :flash :clip :br-f2 :clip-s 22 :enter 6 :startup 20 :active 4 :recovery 24 :dmg 48 :adv-block -3

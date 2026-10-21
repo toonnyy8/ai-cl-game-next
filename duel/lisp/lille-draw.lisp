@@ -28,7 +28,7 @@ last pass-through (never written now: 0, the wings' ripple over the fx clock's f
 whose third-opening line was shown, [15] 1 while he is the owl (his hazards' gold), [16] the wings' spread 0..1 (an SP
 fans them out), [17] its joints' unfurl 0..1 (slower: they furl, then open from the root), [18] the owl's EN spread 0..1
 (decision 36: EN fans the wings out, KIN sweeps them back; decision 38: also EN's legs folded up, 5 / s); [19] Lille II's
-loaded wings + 1 (BR-DRAW sets it before LILLE-DRAW, which clears it after the wings; 0: none, the old Lille).")
+loaded wings + 1 (BR-DRAW sets it before LILLE-DRAW, which clears it after the wings; 0: none lit).")
 (dotimes (s 2) (setf (aref *lb-fx* (* 24 s)) -1f0 (aref *lb-fx* (+ (* 24 s) 14)) -1f0))
 (defvar *lb-hud* (make-f32 8) "The HUD pip's arguments: cx cy r, [3] the fx clock.")
 (defvar *lb-alphas* (let ((v (make-array 21))) (dotimes (i 21 v) (setf (svref v i) (f32 (/ i 20.0)))))
@@ -121,8 +121,8 @@ path's colour back to the jade / gold.")
 glass (0.35) so the blade's outline, teeth and holes still read.")
 ;; Lille II's lit wings (DUEL_LILLE_V3 §3.1, §4: 「a lit blade each; the owl's gold wings」, 2026-10-10): in his awakened
 ;; forms his special resource is the wings, and the count shows on the eight blades. BR-DRAW (barro-art.lisp) puts the
-;; count + 1 in *LB-FX* [19] of his side before LILLE-DRAW; LILLE-DRAW clears it after the wings. The old Lille never sets it
-;; (0: every blade as it always was). The loaded blades are the first N by row (top pair down, right before left), so a
+;; count + 1 in *LB-FX* [19] of his side before LILLE-DRAW; LILLE-DRAW clears it after the wings
+;; (0: every blade plain, neither loaded nor spent). The loaded blades are the first N by row (top pair down, right before left), so a
 ;; spent wing goes dark from the lowest pair up: the loaded ones' rims stronger and their three holes glowing (jade / the
 ;; owl's gold, a white core), the spent ones dimmed. A blade lit by a volley beat ([65]) keeps the normal look.
 (defparameter *lb-load-rim* 0.85 "Lille II's loaded wing: its rim's alpha (the normal 0.6), the outline and holes reading brighter ...")
@@ -231,7 +231,7 @@ its claws are its hands.")
 ;; rig's hand, where his guard clip puts it), its face square to his side and its two joints curled toward the column so
 ;; it bows round his side and crosses his midline in front (the right wings' tips past his left, overlapping the left's).
 ;; Per wing, a row of 4 (in his chest's frame, the root's side +): across (x the wing's side: - = past his midline), up,
-;; forward (m; a front wing's ignored: the hand), the curl at each joint (radians). The old Lille never sets [91].
+;; forward (m; a front wing's ignored: the hand), the curl at each joint (radians).
 (defparameter *lb-wall-jl*
   (coerce (mapcar #'f32 '(-0.3  0.35 0.7  1.1    -0.3  0.35 0.7  1.1
                           -0.3 -0.05 0.75 1.1    -0.3 -0.05 0.75 1.1
@@ -460,7 +460,7 @@ test reads (*LB-STRIKE-POINTS*), its jointed chain turned and stretched to end t
   (let* ((v *lb-v*) (w *lb-wf*) (mm *lb-wm*) (k (aref v 11)) (j (- 1f0 k)) (rip (aref v 12)) (tm (aref v 13)) (a (aref v 14))
          (ga (lb-alpha (* a (the single-float *lb-glass-alpha*))))
          (ra (lb-alpha (* a (the single-float *lb-rim-alpha*))))
-         (ld (f->i (aref *lb-fx* (+ (* 24 side) 19))))   ; Lille II's loaded wings + 1 (0: none, the old Lille)
+         (ld (f->i (aref *lb-fx* (+ (* 24 side) 19))))   ; Lille II's loaded wings + 1 (0: none)
          (rl (lb-alpha (* a (the single-float *lb-load-rim*))))       ; (his loaded blade's rim, ...
          (gs (lb-alpha (* a (the single-float *lb-spent-glass*))))    ;  his spent blade's glass and rim)
          (rs (lb-alpha (* a (the single-float *lb-spent-rim*))))
