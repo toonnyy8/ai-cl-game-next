@@ -4023,3 +4023,14 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - 主機測試 9885 項全過，pkgcheck 乾淨，已建置，冒煙測試正常。沒有跑 sim gate、ASSIST gate、學習 gate（使用者「不用跑 gate」）。
 - 細節：DUEL_HISAGI §25.20、DUEL_ASSIST、DUEL_LEARNING §11。
 
+## 303. 手冊補檜佐木 CPU / ASSIST、ALWAYS 防禦中也能換風車（2026-10-21）
+
+使用者：「幫我修改你說的這兩件事」（§302 後留下的兩件：手冊沒寫檜佐木的 CPU / ASSIST；ASSIST ALWAYS 正在替你防禦時來不及換成風車）
+
+- ALWAYS 的防禦一次按住 10～30 幀，這段時間 ASSIST 什麼都不問，所以防禦途中飛來的遠程攻擊只會被擋，不會換風車。
+- 改法（共用的 assist.lisp）：AUTO GUARD 開著且能動時，按住防禦的每一幀也問角色自己的 AUTO GUARD 答案；答案不是防禦（例如檜佐木的風車）就立刻換掉。其他按住的動作（Breaker 衝刺、蓄力、Hoho）不打斷。
+- 其他角色的 AUTO GUARD 答案（劍八、山本的反 Breaker、露琪亞冷度歸零的 REIDO、一護的紅色防禦、千手丸的 Hoho）也一樣能在防禦途中出來，都是防禦擋不住的情況。
+- 83020 一場前後比：風車 33 → 35 次，其中一次在防禦開始後 4 幀換上（之前 0 次）；被打中 22 → 20 次；P1 都是 9-0。
+- 手冊：AUTO GUARD、AUTO COMBO 兩列加上檜佐木的說明；「會學習的電腦」加一條檜佐木（電腦打法、學習的四個情境）。
+- 主機測試 9885 / 131 / 89 全過，pkgcheck 乾淨，已建置，冒煙正常；沒跑 gate（使用者「不用跑 gate」）。
+- 細節：DUEL_HISAGI §25.22、DUEL_ASSIST「A kit's answer through a held guard」。

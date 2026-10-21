@@ -3405,6 +3405,20 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
 - **4. The awaken A/B only when it can change**: only when the cell changes the awakening's gate or NORMAL's Shikai CPU
   (the never-awaken side); otherwise the parent's rows are quoted.
 
+### 25.22 The manual's lines, the windmill through a held guard (the user, 2026-10-21)
+
+- The user (verbatim): 「幫我修改你說的這兩件事」, of the two left open after §25.20: the manual had no line on his CPU or
+  ASSIST, and in ALWAYS a held guard (10-30 f) kept HS-ASSIST-GUARD from being asked, so a shot arriving during it got the
+  guard instead of the windmill.
+- **The held guard**: shared, assist.lisp ASSIST-STEP (DUEL_ASSIST "A kit's answer through a held guard"): the kit's
+  `:assist-guard` is asked through a held guard too; an answer other than the guard replaces it at once. 83020, one match:
+  windmills 33 -> 35, one 4 f into a held guard (none before), hits taken 22 -> 20.
+- **The manual** (duel/web/manual.html; he still has no section of his own): AUTO GUARD's row (the windmill against a shot,
+  also out of ALWAYS's guard; his own K out of it), AUTO COMBO's row (the Shikai's route, the ranged mode's tip K1 and
+  SAHARAI's K1, the bind's cinching route and the bite held while the yank reels), and a bullet in 會學習的電腦 (his CPU in a
+  few lines and the learner's four situations).
+- Host tests 9885 / 131 / 89 ALL PASS, pkgcheck clean, built, smoke; no gate run (「不用跑 gate」).
+
 ## 18. Open
 
 - §24.5 (no FREE, KUBIKAKE without a cooldown, whiff 60): built and gated (every median in the window); his P1 wins 10 of 120.

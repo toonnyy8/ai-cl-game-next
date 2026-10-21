@@ -292,3 +292,20 @@ full record). His CPU's own functions pick, on the assist's HARD brain (`AI-BRAI
     style's pick is K1;
   - the bind: the cinching K route and its TODOME (`HS-B-AI-MOVE`), and the bite's timing (`HS-B-BITE-CMD`: his J held back
     while his yank still brings the victim in).
+
+## A kit's answer through a held guard (the user, 2026-10-21)
+
+The user (verbatim): 「幫我修改你說的這兩件事」, of the two left open by the Hisagi integration (DUEL_HISAGI §25.22): the
+manual's lines, and ALWAYS's held guard (10-30 f) that kept the form's own answer from being asked until it ended.
+
+- **Before**: while the assist's held press ran (`BRAIN-PRESS-LEFT`), ASSIST-STEP asked nothing, so a ranged shot that came
+  4-24 f out during ALWAYS's held guard got the guard, never Hisagi's windmill (or any kit's `:assist-guard` answer).
+- **Now** (assist.lisp ASSIST-STEP): with AUTO GUARD on and E free, the kit's answer (AUTO-GUARD-KIT, ALWAYS's Hoho-to-guard
+  rule as before) is asked on every step without a held press **and** on every step of a held guard; an answer that is not
+  the guard ends the held guard and is pressed at once. Held presses of other buttons (the Breaker's dash, a charge, a
+  Hoho) are not interrupted, nor asked. The learner's step still comes first (the same order of rolls).
+- Every kit's `:assist-guard` now also answers through a held guard (Kenpachi's and Yamamoto's anti-Breaker hit, Rukia's
+  REIDO at zero, Ichigo's red guard of a rush, the loom's Hoho through a Breaker): what a guard would not stop anyway.
+- Measured: 83020 (the masher, ALWAYS, Hisagi vs Lille's shots), one match before / after: windmills raised 33 / 35, one
+  of them 4 f into a held guard (none before); hits taken 22 / 20, blocks 17 / 11; P1 9-0 both. No gate run (the user's
+  「不用跑 gate」, DUEL_HISAGI §25.20).

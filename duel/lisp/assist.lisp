@@ -173,20 +173,24 @@ generic AUTO COMBO). NIL for a kit without it, nothing read."
   "One step of E's assist CFG (ASSIST-CONFIG): its learner watches him; a press it holds goes on, else AUTO GUARD / COMBO /
 BREAK may press one."
   (let* ((f (fighter e)) (side (fighter-side f)) (vp (pilot-vpad (pilot e))) (b (assist-brain e side))
-         (st (fighter-state f)) (free (and (member st '(:idle :guard :run)) (zerop (fighter-lock f)))))
+         (st (fighter-state f)) (free (and (member st '(:idle :guard :run)) (zerop (fighter-lock f))))
+         (guard-on (and free (plusp (first cfg)) (or (= 2 (first cfg)) (vpad-down vp :guard)))))
     (multiple-value-bind (s d) (brain-perceive e b (opp-of e))   ; him as HARD's delay sees him
      (let ((*ai-brain* b))                                     ; (the kits' CPU code decides on this brain: AI-BRAIN)
       (when (brain-learn b) (learn-step e b s d))
       (when (plusp (svref *assist-tag* side)) (decf (svref *assist-tag* side)))
+      (let ((kc (and guard-on (or (<= (brain-press-left b) 0) (eq (brain-press b) :guard))   ; the form's own answer, also
+                     (let ((c (auto-guard-kit e b s d)))     ; through a held guard (ALWAYS: a kit's Hoho at what a guard
+                       (if (and (eq c :hoho) (= 2 (first cfg)) (auto-guardable-p e)) :guard c)))))   ; stops is the guard)
+      (when (and kc (not (eq kc :guard)) (eq (brain-press b) :guard))   ; it breaks a held guard (the user, 2026-10-21:
+        (setf (brain-press-left b) 0))                                  ; Hisagi's windmill against a shot, DUEL_ASSIST)
       (if (plusp (brain-press-left b))
           (progn (decf (brain-press-left b))                 ; a held press (the Breaker's dash, O through the strike, a
                  (vpad-hold! vp (brain-press b))             ; charge, the bait's guard: his J mashing doesn't restart the string)
                  (when (eq (brain-press b) :guard) (vpad-consume! vp :quick) (setf (fighter-queued f) nil)))
           (let* ((route nil)                                ; (the form's own route: AUTO-ROUTE, NIL for every kit
-                 (cmd (or (and free (plusp (first cfg)) (or (= 2 (first cfg)) (vpad-down vp :guard))   ; but Lille's)
-                               (or (let ((c (auto-guard-kit e b s d)))   ; (ALWAYS: a kit's Hoho at what a guard stops is the guard, 2026-10-13)
-                                       (if (and (eq c :hoho) (= 2 (first cfg)) (auto-guardable-p e)) :guard c))
-                                     (auto-guard e f (= 2 (first cfg)))
+                 (cmd (or (and guard-on                     ; but Lille's and Hisagi's)
+                               (or kc (auto-guard e f (= 2 (first cfg)))
                                    (and (j-beats-open-p e b) (why b :j-back :q))))   ; guard -> J out of his blocked string
                           (and (second cfg) (setf route (auto-route e f b s d vp)) (not (eq route :none)) route)
                           (and (second cfg) (not route) (eq st :move) (auto-combo e f b side vp))
@@ -199,7 +203,7 @@ BREAK may press one."
               (vpad-stamp! vp (brain-press b) (brain-press-mod b))
               (decf (brain-press-left b))
               (setf (fighter-assist-next f) t (svref *assist-tag* side) *assist-tag-frames*)
-              (clog "~a assist ~a" (side-name e) cmd)))))
+              (clog "~a assist ~a" (side-name e) cmd))))))
       (setf (brain-was b) st))))   ; (J-BEATS-OPEN-P: the step after blockstun)
 
 (defun assist-system ()
