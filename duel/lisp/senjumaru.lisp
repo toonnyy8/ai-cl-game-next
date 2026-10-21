@@ -1074,10 +1074,13 @@ level). On a cross slot with a bar for SP1 it wants one pass: the quick single r
   "The six hanks' dyes (S <= 0.45): 眼 purple, 刃金 gold, 黒砂 ink, 褥 blue, 焼野原 madder, 星 night blue.")
 (defun hank-dye (n) (nth (1- n) *hank-dyes*))
 
+(defparameter *sj-hari-labels* (coerce (loop for i from 0 to 6 collect (format nil "HARI ~d" i)) 'simple-vector)
+  "SENJU-HUD-LABEL's strings HARI 0 .. HARI 6, made once (the label is drawn every frame).")
 (defun senju-hud-label (g kit)
   "The portrait block's label: HARI n, or the next hank's short name."
   (let ((n (form-hank (kit-form kit))))
-    (if n (hank n :short) (format nil "HARI ~d" (round (gauges-meter g))))))
+    (if n (hank n :short)
+        (let ((m (round (gauges-meter g)))) (if (<= 0 m 6) (svref *sj-hari-labels* m) (format nil "HARI ~d" m))))))
 
 (defun-fast %sj-needle (x y w h lit flick)
   "One needle pip (a gold needle standing in the W x H slot at (X Y)); LIT: its eye threaded BLOOD; FLICK: its alpha."
@@ -1100,7 +1103,8 @@ the bar for it) and the brush 機 + the next hank's short name."
   (let* ((f (fighter e)) (g (gauges e)) (st (sj e)) (side (fighter-side f)) (x (f32 x)) (y (f32 y)) (w (f32 w)) (h (f32 h))
          (next (form-hank (kit-form kit))) (pw (if next (/ w 7.5) (/ w 6.6))) (gap (* 0.12 pw)) (pgap (if next (* 0.45 pw) 0.0))
          (hh (* 2.6 h)) (y0 (- y (* 0.8 h)))
-         (refused (max 0.0 (- 1.0 (* 4.0 (- tm (aref *refused-t* side)))))))
+         (refused (max 0.0 (- 1.0 (* 4.0 (- tm (aref *refused-t* side))))))
+         (zones (and next (senju-live-zones e))))     ; (read once: nothing changes them during a draw)
     (flet ((slot-x (i) (let ((o (+ (* i (+ pw gap)) (* (floor i 2) pgap)))) (f32 (if right (- (+ x w) o pw) (+ x o))))))
     (when next                                          ; SP1's two hanks: a designed pair, or a cross pair
       (let* ((s (hank-slot next)) (a (if (>= (reiatsu-bars e) (kit-command-cost kit :sp1)) 1.0 0.35))
@@ -1108,8 +1112,8 @@ the bar for it) and the brush 機 + the next hank's short name."
         (if (tachi-aligned-p next)
             (let ((x0 (min (slot-x s) (slot-x (1+ s)))))
               (%houtline (f32 (- x0 3)) top (f32 (+ pw pw gap 6)) fh 0.76f0 0.66f0 0.4f0 (f32 a)))
-            (dolist (i (list s (mod (1+ s) 6)))
-              (%houtline (f32 (- (slot-x i) 2)) top (f32 (+ pw 4)) fh 0.55f0 0.55f0 0.6f0 (f32 (* 0.8 a)))))))
+            (flet ((cross (i) (%houtline (f32 (- (slot-x i) 2)) top (f32 (+ pw 4)) fh 0.55f0 0.55f0 0.6f0 (f32 (* 0.8 a)))))
+              (cross s) (cross (mod (1+ s) 6))))))
     (dotimes (i 6)
       (let* ((px (slot-x i)))
         (if (null next)
@@ -1118,7 +1122,7 @@ the bar for it) and the brush 機 + the next hank's short name."
                               (+ 0.35 (* 0.65 (%pulse (f32 tm) 8.0))) 1.0)))
               (%sj-needle px (f32 y0) (f32 pw) (f32 hh) lit (f32 flick)))
             (let* ((k (nth i *hank-order*)) (dye (hank-dye k)) (lit (= k next)) (lift (if lit (* 0.25 hh) 0.0))
-                   (live (find k (senju-live-zones e) :key (lambda (z) (let ((hz (hazard z))) (if hz (sjh-hank (hazard-data hz)) 0)))))
+                   (live (find k zones :key (lambda (z) (let ((hz (hazard z))) (if hz (sjh-hank (hazard-data hz)) 0)))))
                    (a (if (or lit live) 1.0 0.55)) (torn-age (- *match-tick* (sjs-torn st))))
               (%hrect px (f32 (- y0 lift)) (f32 pw) (f32 hh) (f32 (first dye)) (f32 (second dye)) (f32 (third dye)) (f32 a))
               (%houtline px (f32 (- y0 lift)) (f32 pw) (f32 hh) (if lit 0.76f0 0.3f0) (if lit 0.66f0 0.3f0) (if lit 0.4f0 0.34f0) 1f0)

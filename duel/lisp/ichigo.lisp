@@ -964,6 +964,13 @@ shipped behaviour). AI-BRAIN: for a human the ASSIST's borrowed (HARD) brain (it
 
 ;;; ================================================================ the HUD: the clones' row (the kit meter's :draw / :label, :deck)
 (defun ichigo-hud-label (g kit) "The portrait label." (declare (ignore g kit)) "BUNSHIN")
+(defparameter *ic-bunshin-labels*
+  (let ((v (make-array '(4 5))))
+    (dotimes (n 4 v)
+      (setf (aref v n 0) (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n nil 0))
+      (dotimes (j 4) (setf (aref v n (1+ j)) (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n t (clone-konpaku j))))))
+  "ICHIGO-HUD-METER's labels, made once: [n 0] BUNSHIN xN, [n 1+j] BUNSHIN xN K KONPAKU (K = CLONE-KONPAKU j, the O
+press's flash), n 0-3.")
 
 (defun ichigo-hud-meter (e kit x y w h right tm lx ly ls)
   "KESSA's kit-meter row: three clone pips (lit BLOOD-rimmed white per live clone, a thin arc of its life; pulsing at 3:
@@ -995,7 +1002,9 @@ the Kikon's worth)."
           (ui-rect (if right (+ x (- w (* w fr))) x) (+ y0 hh 2) (* w fr) (max 2.0 (* 0.35 h)) '(0.96 0.96 0.94 0.9)))))
     (when lx
       (let ((col '(0.82 0.06 0.11 1.0)))
-        (hud-text (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n (> flash 0.0) (clone-konpaku (ics-o-n st)))
+        (hud-text (let ((on (> flash 0.0)) (j (max 0 (min 3 (ics-o-n st)))))   ; (CLONE-KONPAKU's clamp)
+                    (if (<= 0 n 3) (aref *ic-bunshin-labels* n (if on (1+ j) 0))
+                        (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n on (clone-konpaku (ics-o-n st)))))
                   lx ly ls col :align (if right :right :left))))))
 
 (defun ichigo-deck (e cx cy d)
