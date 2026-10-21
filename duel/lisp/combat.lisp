@@ -192,7 +192,7 @@ blown off (the :ward-crush event); a kit with a :crush-hook calls it instead (Ru
 
 (defun cold-add! (e n)
   "E's cold gauge (a :temp kit meter) changes by N (a blocked melee hit cools her, a real hit warms her), clamped to
-0 .. *COLD-MAX*; the band follows once she is free (TEMP-STEP)."
+0 .. *COLD-MAX*; the band follows once she is free (rukia-meter.lisp RUKIA-COLD-STEP)."
   (when (and (getf (kit-meter (kit-of e)) :temp) (or (<= n 0) (not (siphon-of e))))   ; (siphoned: no cooling)
     (let ((g (gauges e)))
       (setf (gauges-meter g) (f32 (max 0.0 (min *cold-max* (+ (gauges-meter g) n))))))))
@@ -671,7 +671,7 @@ they are; then the form's :cine (both fighters idle after it)."
 (defun arm-spend! (e mv)
   "A pip command starts MV (or a J / K string's pip is charged as it ends: MV the move running then, NIL none): one pip of
 the arm spent, the crack clock restarted, *ARM-SELF* burnt
-(BURN: never below 1). The last one: the burst is pending until MV is over (ARM-STEP)."
+(BURN: never below 1). The last one: the burst is pending until MV is over (ken-meter.lisp KEN-ARM-STEP)."
   (let ((g (gauges e)))
     (multiple-value-bind (n ok) (pip-spend (round (gauges-meter g)))
       (when ok
@@ -692,28 +692,6 @@ and a self-inflicted *ARM-BURST-STUN* crumple in place (hits on him during it ar
     (callout e "GOMEN NE, KEN-CHAN")
     (emit :arm-burst e)
     (clog "~a ARM BURST r~d" (side-name e) (gauges-reishi g))))
-
-(defun arm-step (e f g)
-  "The arm meter per step (a form with :pips): the pip a finished J / K string owes is charged (rules STRING-PIP-DUE-P);
-the crack clock (rules PIP-STEP: paused while locked) cracks a pip every *ARM-CRACK* frames without a spend; once the
-last pip went, the pending burst fires when BURST-DUE-P says."
-  (let ((mv (current-move f)) (pend (gauges-arm-pending g)))
-    (when (string-pip-due-p (gauges-arm-owed g) (fighter-state f) (and mv (mv-kind mv)))
-      (setf (gauges-arm-owed g) nil)
-      (arm-spend! e mv))                                ; (a cancel out of the string: the burst waits for it too)
-    ;; the last pip's move goes on as a chain (a latched link, SP2's punch, the O ender): the burst waits for the chain
-    (when (and (typep pend 'move) mv (not (eq mv pend)) (move-follows-p (fighter-kit f) pend mv))
-      (setf (gauges-arm-pending g) mv)))
-  (let ((pend (gauges-arm-pending g)))
-    (if pend
-        (when (burst-due-p pend (fighter-move f) (fighter-state f)) (arm-burst! e))
-        (multiple-value-bind (n idle cracked) (pip-step (round (gauges-meter g)) (gauges-meter-idle g) (plusp (fighter-lock f)))
-          (setf (gauges-meter g) (f32 n) (gauges-meter-idle g) idle)
-          (when cracked
-            (when (zerop n) (setf (gauges-arm-pending g) (or (current-move f) :none)))
-            (refresh-look e)
-            (emit :arm-crack e n)
-            (clog "~a UDE cracked, ~d left" (side-name e) n))))))
 
 ;;; ---------------------------------------------------------------- Kikon, Soul Break, reset
 (defun bankai-ok-p (e)
@@ -818,43 +796,7 @@ kit's :reset hook (e) (Hisagi's sickle)."
       (to-idle e 0)))
   (emit :reset))
 
-;;; ---------------------------------------------------------------- Rukia's cold gauge (docs/duel/DUEL_RUKIA.md §4)
-(defun temp-step (e f g kit)
-  "A :temp kit meter per step: the cold C (rules TEMP-NEXT) cools while she guards (:guard / :guard-hit; at absolute zero,
-where the ward is always up, bracing: U held while free, which drains the guard gauge *ZERO-BRACE-DRAIN* per second and
-ends in the CRACK when it runs out) and warms at the form's :warm otherwise. The THAW lock (GAUGES-METER-IDLE frames
-after a CRACK) stops the cooling. The band (the form, rules TEMP-BAND-AT) follows C only while she is free, so a combo
-(a string and everything chained to it) or a special finishes in the band it started in, and the band then re-resolves
-from what is left (an overdrawn -273 combo at C 0 lands at -18)."
-  (let* ((st (fighter-state f)) (free (member st '(:idle :guard :run))) (lock (gauges-meter-idle g))
-         (brace (and free (passive-p e :ward) (not (gauges-guardless g)) (vpad-down (pilot-vpad (pilot e)) :guard)))
-         (guarding (and (zerop lock) (or (member st '(:guard :guard-hit)) brace))))
-    (when (plusp lock) (setf (gauges-meter-idle g) (1- lock)))
-    (setf (gauges-meter g) (f32 (temp-next (gauges-meter g) guarding (kit-warm kit))))
-    (if (and brace (drain-guard e (/ *zero-brace-drain* 60.0) :brace))
-        (ward-drop e)                                   ; braced on credit until the gauge ran out: the CRACK
-        (let ((band (temp-band-at (gauges-meter g) (fighter-form f) st)))   ; locked while she is in a combo
-          (unless (eq band (fighter-form f))
-            (set-form e band)
-            (emit :sfx :frost-tick e))))))
-
 ;;; ---------------------------------------------------------------- gauges per step
-(defun nome-step (e f g m)
-  "A meter with a :ladder (Nozarashi's NOME, meter M): only while he is free (idle, walk, guard, run: never under
-a string), the rung NOME asks for (LADDER-RUNG, several steps at once), which is his form; then the rung's drain
-(METER-DRAIN; the rung is read before the drain, so a gain to exactly 100 is cup 3 on the first free frame)."
-  (let* ((ladder (getf m :ladder)) (i (or (position (fighter-form f) ladder :key #'first) 0)))
-    (when (member (fighter-state f) '(:idle :guard :run))
-      (let ((j (ladder-rung (gauges-meter g) i ladder)))
-        (unless (= i j)
-          (set-form e (first (nth j ladder)))
-          (emit :rung e (> j i))
-          (setf i j))))
-    (let ((r (nth i ladder)))
-      (setf (gauges-meter g) (f32 (meter-drain (gauges-meter g) (second r) (third r) (gauges-meter-idle g)))
-            (gauges-meter-idle g) (min 9999 (1+ (gauges-meter-idle g)))))))
-
-
 (defun gauge-system ()
   "Regen (Reiatsu; flash-step and the guard gauge after their delays: a full guard gauge ends
 guardless), timed forms (burn, drain, end), the meter's full form (Hellfire), EVOLUTION. GUARD HOLD: one
@@ -889,11 +831,8 @@ delay counter (frozen): West never refills."
           (incf (gauges-burn-step g))
           (when (zerop (decf (gauges-form-left g)))
             (set-form e (kit-inherit kit)))))
-      (when (kit-pips kit) (arm-step e f g))
       (let ((h (kit-hook kit :tick))) (when h (funcall h e f g)))   ; the form's own per-step mechanics (a meter, a cut)
-      (when (getf (kit-meter kit) :temp) (temp-step e f g kit))
       (let ((m (kit-meter kit)))
-        (when (getf m :ladder) (nome-step e f g m))
         (when (and m (zerop (gauges-form-left g)) (>= (gauges-meter g) (getf m :max)) (getf m :full-form))
           (setf (gauges-meter g) 0f0)                    ; the bar now shows the form's timer
           (set-form e (getf m :full-form))

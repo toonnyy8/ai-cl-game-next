@@ -163,7 +163,8 @@ select screen cycles through it.
 `python3 tests/debug-ranges-check.py` checks this table against the code: no two ranges overlap except a specific
 range consulted before the generic one holding it, every range's low number is in this section, and every cinematic-still
 range keeps a held cinematic (`cine-still-command-p`). The gates' machinery (`start-gate`, `roster-pairs`, the learning
-gate) is `gate.lisp`; the commands that start it are dispatched here.
+gate) is `gate.lisp`, its scripted players (the habits, the masher: ai.lisp calls them) `scripted.lisp`; the commands that start
+them are dispatched here.
 
 The first command turns on the combat log (`*combat-log*`) and the 2 s stats line. Arguments are
 encoded in the integer.

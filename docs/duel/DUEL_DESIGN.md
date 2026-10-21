@@ -1234,7 +1234,7 @@ both files register with (her ranges were hard-coded, and her knobs moved 80000+
 | kit `:hooks` | `:u (e)` | U pressed in a free state: U is a move, the form never guards (`u-press!`; no CPU guard rolls, `ai-guard-k`; the one-hand U chip) | Ichigo |
 | kit `:hooks` | `:step (e)` | a Step's frame 0 (`start-step`) | Ichigo |
 | kit `:hooks` | `:ok (e cmd combo)` | may the command start (`kit-command-ok-p`; COMBO: L after a K link); NIL at a press eats it with the `:refused` cue (`refused-cue`) | Ichigo, Senjumaru |
-| kit `:hooks` | `:tick (e f g)` | every sim step (`gauge-system`) | Ichigo, Senjumaru |
+| kit `:hooks` | `:tick (e f g)` | every sim step (`gauge-system`) | Ichigo, Senjumaru; Kenpachi (NOME's ladder, the Bankai's arm UDE: `ken-meter.lisp`), Rukia (the cold gauge: `rukia-meter.lisp`), since refactor round 3 N8 |
 | kit `:hooks` | `:hit (att def res hw mv hazard ranged)` / `:struck (def att …)` | the end of `apply-hit`, for the attacker's / the defender's kit | Senjumaru |
 | kit `:hooks` | `:parried (def att)` | a catch by the form's parry | Ichigo |
 | kit `:hooks` | `:armor (e f mv)` | `defender-state` (fighter.lisp) while E is in move MV: true reports `:armor` (the move's armour rules: damage, no reaction; a Breaker and an unguardable go through; the kit's `:struck` pays its own price on `:armored`); `combat.lisp` spends `:armor-hits` only while the move has some | Lille Barro II (v3: the 4-wing armour, DUEL_LILLE_V3 R1) |
@@ -1244,7 +1244,7 @@ both files register with (her ranges were hard-coded, and her knobs moved 80000+
 | kit `:hooks` | `:kikon-worth (e)` | the Konpaku its Kikon would take now, when that follows the fighter's state (`kikon-worth`, combat.lisp: a running rush's fixed worth first, else this hook, else `:kikon-konpaku`): the red Konpaku hint, the rush still reads its worth at O (the user 2026-09-29); a Soul Break takes it + 1 (`settle-konpaku`, the user 2026-09-30) | Ichigo (KESSA: 千影 by live clones, 2/2/3/4) |
 | kit `:hooks` | `:deck (e x y d)` | the one-hand thumb ring | Ichigo, Senjumaru |
 | kit `:hooks` | `:siphon (o e)` | read off the **opponent's** kit at every gain of E (`siphon-of`): true while something of O's takes E's gains (E gains nothing from a hit, block, parry or his blade; his Reiatsu / flash-step go to O) | Senjumaru (星) |
-| kit `:meter` | `:draw`, `:label` | the kit-meter row / portrait slot, the portrait label | Senjumaru |
+| kit `:meter` | `:draw`, `:label` | the kit-meter row / portrait slot, the portrait label | Senjumaru, Ichigo, Lille; Kenpachi, Rukia (round 3 N8: hud.lisp lost their NOME / UDE / cold branches) |
 | kit `:ai` | `:reflex (e b s d)` | among the CPU's reflexes | Ichigo, Senjumaru |
 | kit `:ai` | `:opp-reflex (e b s d)` | read off the **opponent's** kit: what a CPU facing this form does | Senjumaru |
 | kit `:ai` | `:opp-aim (:step :hoho :rush)` | read off the **opponent's** kit (a plist, generic code in ai.lisp `ai-opp-aim`): a CPU facing his `:hold` move flagged `:x-axis` rolls once per aim: a Hoho before his lock, the rush within `:rush` m, else a sideways Step off the line on the perceived lock (HARD) or pre-Stepped at a rolled lock .. lock + 10 (NORMAL / EASY); chances × `*ai-opp-diff*` (DUEL_AI_V2 ":x-axis lines") | the old Lille (removed 2026-10-13; the generic code stays: `:x-axis` lines are also Lille's, kit `:barro`) |
@@ -1273,12 +1273,28 @@ The 2026-09-28 rule stands (a character's code in its own files, the shared file
 rules, hooks, HUD meter), `<name>-art.lisp` (bodies, props, clips). When a file passes ~1500 lines or holds three roles it
 is split by role, same prefix: `-clips` (poses and clips when the art file holds the bodies), `-draw` (the per-frame draw
 code, the HUD widgets), `-cine` (sounds, cinematics and their clips), `-stills` (debug stills and probes), `-ai` (CPU,
-learner, ASSIST routes), `-vfx` / `-look` (effects and looks a shared file used to hold, e.g. Yamamoto's). Today: Lille
+learner, ASSIST routes), `-vfx` / `-look` (effects and looks a shared file used to hold, e.g. Yamamoto's), `-meter` (a kit
+meter's sim step and its HUD widgets, reached by the `:tick` hook and the meter's `:draw` / `:label`; loaded after hud.lisp,
+not host-loaded). Today: Lille
 `lille-art / -clips / -draw / -cine`, `barro-art / -draw / -stills`, `barro`, `barro-ai`; Hisagi `hisagi`, `hisagi-ai`,
-`hisagi-art / -draw / -cine / -stills`; Yamamoto `yama-vfx`; Ichigo `ichigo-look`. The host test's loader lists name the
+`hisagi-art / -draw / -cine / -stills`; Yamamoto `yama-vfx`; Ichigo `ichigo-look`; Kenpachi `ken-meter`, Rukia `rukia-meter` (round 3 N8, below). The host test's loader lists name the
 files the host needs (`<name>`, `<name>-ai`), its art reader every file holding clips. Shared files split by topic the
 same way: `gate.lisp` (the gate machinery) out of debug.lisp, `hud-screens.lisp` out of hud.lisp, `vfx-stamps.lisp` out
 of vfx.lisp, the engine's `fx-shapes.lisp` out of fx.lisp.
+
+Round 3 (the user, 2026-10-21: 「合併回 main 後開始第二輪」; docs/engine/REFACTOR_NEXT.md N8, N10): the last two characters whose
+meters lived in the shared files moved behind the hooks. Kenpachi's NOME ladder and Bankai arm (`nome-step`, `arm-step` in
+combat.lisp; `%hud-nome`, `%hud-arm`, `hud-arm-label` in hud.lisp) and Rukia's cold gauge (`temp-step`; `%hud-temp`,
+`hud-temp`, `hud-temp-label`, `temp-label`) are now `ken-meter.lisp` (`ken-tick` the `:tick` of `:nozarashi`, inherited by
+every cup and the Bankai; `ken-hud-meter` / `ken-hud-label` the meter's `:draw` / `:label`) and `rukia-meter.lisp`
+(`rukia-tick` in `:m18`'s `:hooks` next to `:hoho`; `rukia-hud-meter`, `:label temp-label`). The step order is unchanged (the
+`:tick` slot was between the arm and the cold / ladder calls, and no form of theirs had another `:tick`), so the sim is
+bit-identical (simgate rows, cvc) and the HUD draws the same quads (looks byte-identical). What stays generic:
+`arm-spend!` / `arm-burst!` (fighter.lisp's pip commands call them), `nome-gain!` / `cold-add!` (the hit path, gated on
+`:meter-gain` / `:temp`) and the `:temp` flag itself (onehand's frost arc, ai.lisp, gate.lisp's row read it). The CPU
+players the sim calls left the gate code the same way (N10): `scripted.lisp` before ai.lisp (the learning gate's habits,
+ASSIST's button-masher: `habit-fire`, `habit-neutral`, `dumb-step`, `*dumb-delay*`, `*dumb-guard-p*`); gate.lisp keeps the
+knobs that pick them (`*habits*`, `*dumb-p2*`, `learn-gate-setup`).
 
 ## In-game manual (the user, 2026-09-30)
 

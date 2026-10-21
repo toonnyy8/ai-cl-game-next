@@ -12,7 +12,7 @@
 ;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
-;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates, the scripted players) is gate.lisp.
+;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates) is gate.lisp, their scripted players scripted.lisp.
 (in-package :duel)
 
 (defvar *hitboxes* nil)
@@ -364,7 +364,7 @@ and of a run-time string."
   (destructuring-bind (c form) (nth k '((:yamamoto :base) (:yamamoto :bankai-east) (:kenpachi :base) (:kenpachi :ryote)))
     (ensure-battle c :kenpachi)
     (unless (eq (fighter-form (fighter *p1*)) form) (force-form *p1* form))
-    (when (eq form :ryote) (setf (gauges-meter (gauges *p1*)) 60f0))   ; NOME keeps him in cup 2 (NOME-STEP)
+    (when (eq form :ryote) (setf (gauges-meter (gauges *p1*)) 60f0))   ; NOME keeps him in cup 2 (KEN-NOME-STEP)
     (when (eq form :bankai-east) (setf (gauges-gg (gauges *p1*)) 30f0))   ; a low gauge: KOSEI x2.4 (the HUD tag)
     (place *p1* *p2* 2.2)))
 

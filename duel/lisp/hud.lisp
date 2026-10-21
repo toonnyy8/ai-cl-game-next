@@ -185,117 +185,9 @@ possible (BURST: the mode a press would start) the part past the burst tick glow
     (%hrect (if right (+ x (* w (- 1f0 hk))) (+ x (* w hk))) (- y 2f0) 1f0 (+ h 4f0) 1f0 1f0 1f0 0.9f0)
     (%hrect (if right (+ x (* w (- 1f0 bk))) (+ x (* w bk))) (- y 2f0) 1f0 (+ h 4f0) 1f0 1f0 1f0 0.9f0)))
 
-(defun-fast %hud-nome (x y w h fill right rung floor tm)
-  "Nozarashi's NOME bar: dark back, the REIATSU yellow FILL (pulsing while within 10 of the current cup's FLOOR,
-where it would drop a cup), bright marks at a cup's entry (40, 100), dim floor ticks (25, 50), and three cup pips
-inside the frame, RUNG + 1 of them lit."
-  (declare (single-float x y w h fill floor tm) (fixnum rung))
-  (let* ((near (and (> floor 0f0) (< fill (+ floor 0.1f0))))
-         (a (if near (+ 0.55f0 (* 0.45f0 (%pulse tm 5.0))) 1f0)))
-    (declare (single-float a))
-    (%hrect x y w h 0.05f0 0.04f0 0.07f0 0.75f0)
-    (%hbar x y w h fill right 1f0 0.88f0 0.3f0 a 0.9f0 0.62f0 0.1f0 a)
-    (macrolet ((tick (v r g b al) `(let ((k (/ (the single-float (f32 ,v)) (the single-float (f32 *nome-max*)))))
-                                     (declare (single-float k))
-                                     (%hrect (if right (+ x (* w (- 1f0 k))) (+ x (* w k))) (- y 2f0) 1f0 (+ h 4f0) ,r ,g ,b ,al))))
-      (tick *nome-up-t2* 1f0 1f0 0.9f0 0.95f0)
-      (tick *nome-down-t2* 0.6f0 0.6f0 0.55f0 0.6f0)
-      (tick *nome-down-t3* 0.6f0 0.6f0 0.55f0 0.6f0))
-    (dotimes (i 3)                                        ; the cups, from the bar's inner end
-      (let* ((ps (f-max 2f0 (* 0.6f0 h))) (px (+ x (* 1.5f0 ps (i->f i)) 1f0)) (px (if right (- (+ x w) (- px x) ps) px)))
-        (declare (single-float ps px))
-        (if (<= i rung)
-            (%hrect px (+ y (* 0.2f0 h)) ps ps 1f0 1f0 0.95f0 1f0)
-            (%hrect px (+ y (* 0.2f0 h)) ps ps 0.3f0 0.3f0 0.28f0 0.8f0))))
-    nil))
-
-(defun-fast %hud-arm (x y w h pips idle right tm)
-  "Kenpachi's Bankai arm meter UDE (docs/duel/DUEL_KEN_BANKAI.md §7) in the W x H slot at (X Y): four BLOOD claw-slash pips from
-the slot's inner end (RIGHT: mirrored), PIPS of them intact; a spent pip INK with a white crack line; under the next
-pip to crack a thin line draining over the *ARM-CRACK* clock (IDLE frames of it gone), the pip flickering in its last
-60 f."
-  (declare (single-float x y w h tm) (fixnum pips idle))
-  (let* ((pw (/ w 4.6f0)) (gap (* 0.2f0 pw)) (hh (* 2.4f0 h)) (y0 (- y (* 0.7f0 h))) (sl (* 0.35f0 pw))
-         (left (- (the fixnum *arm-crack*) idle)) (fl (if (< left 60) (+ 0.35f0 (* 0.65f0 (%pulse tm 8.0))) 1f0)))
-    (declare (single-float pw gap hh y0 sl fl) (fixnum left))
-    (dotimes (i 4)
-      (let* ((k (i->f i)) (px (if right (- (+ x w) (* (+ k 1f0) (+ pw gap))) (+ x (* k (+ pw gap)))))
-             (lit (< i pips)) (nx (= i (1- pips))) (a (if nx fl 1f0)))
-        (declare (single-float k px a))
-        (if lit
-            (%hq (+ px sl) y0 (+ px pw) y0 (- (+ px pw) sl) (+ y0 hh) px (+ y0 hh) 0.82f0 0.06f0 0.11f0 a 0.55f0 0.03f0 0.06f0 a)
-            (progn (%hq (+ px sl) y0 (+ px pw) y0 (- (+ px pw) sl) (+ y0 hh) px (+ y0 hh) 0.05f0 0.05f0 0.07f0 0.85f0)
-                   (%hq (+ px (* 0.55f0 pw)) (+ y0 (* 0.15f0 hh)) (+ px (* 0.62f0 pw)) (+ y0 (* 0.15f0 hh))
-                        (+ px (* 0.4f0 pw)) (+ y0 (* 0.85f0 hh)) (+ px (* 0.33f0 pw)) (+ y0 (* 0.85f0 hh)) 0.9f0 0.9f0 0.92f0 0.8f0)))
-        (when nx                                          ; the crack clock under the next pip
-          (%hrect px (+ y0 hh 2f0) (* pw (f-clamp (/ (i->f left) (i->f *arm-crack*)) 0f0 1f0)) (f-max 1f0 (* 0.3f0 h))
-                  0.95f0 0.9f0 0.85f0 0.9f0))))
-    nil))
-
-(defun-fast %hud-temp (x y w h c band cost lock crack refused right tm)
-  "Rukia's cold gauge (docs/duel/DUEL_RUKIA.md §8) in the W x H slot at (X Y): two stacked bars overlaid in one strip (the user's
-decision 2026-09-28), bar 1 (cold C 0..100) steel-ice, bar 2 (100..200) white over it. BAND 0 / 1 / 2 (-18 / -50 /
-zero): as many ice pips lit at the strip's inner end; at zero bar 2 pulses, flickering in its last tenth. COST: L's
-cold, the part of the top bar it would spend dimmed (a hollow notch at the cost when C is short of it; REFUSED 0..1
-flashes it). LOCK: the THAW lock after a CRACK (grey). CRACK 0..1: a BLOOD hairline across it. White on ink: ice is mono."
-  (declare (single-float x y w h c cost crack refused tm) (fixnum band) (boolean lock))
-  (let* ((bar (the single-float (f32 *cold-bar*)))
-         (f1 (f-clamp (/ c bar) 0f0 1f0)) (f2 (f-clamp (/ (- c bar) bar) 0f0 1f0))
-         (a2 (cond ((and (= band 2) (< f2 0.1f0)) (+ 0.35f0 (* 0.65f0 (%pulse tm 8.0))))
-                   ((= band 2) (+ 0.75f0 (* 0.25f0 (%pulse tm 3.0))))
-                   (t 1f0))))
-    (declare (single-float bar f1 f2 a2))
-    (%hrect x y w h 0.05f0 0.04f0 0.07f0 0.75f0)
-    (if lock
-        (%hbar x y w h f1 right 0.5f0 0.51f0 0.55f0 0.9f0 0.38f0 0.39f0 0.43f0 0.9f0)
-        (progn (%hbar x y w h f1 right 0.55f0 0.66f0 0.8f0 1f0 0.34f0 0.43f0 0.56f0 1f0)
-               (when (> f2 0f0) (%hbar x y w h f2 right 0.97f0 0.98f0 1f0 a2 0.8f0 0.86f0 0.95f0 a2))))
-    (when (and (> cost 0f0) (not lock))                   ; L's cost on the top bar
-      (let* ((top (if (> c bar) f2 f1)) (base (if (> c bar) bar 0f0))
-             (lo (f-clamp (/ (- c cost base) bar) 0f0 1f0)) (k (f-max 0.45f0 refused)))
-        (declare (single-float top base lo k))
-        (if (>= c cost)
-            (let ((sx (if right (+ x (* w (- 1f0 top))) (+ x (* w lo)))))
-              (declare (single-float sx))
-              (%hrect sx y (* w (- top lo)) h 0.05f0 0.04f0 0.07f0 (* 0.55f0 k)))
-            (let ((cx (if right (+ x (* w (- 1f0 (/ cost bar)))) (+ x (* w (/ cost bar))))))
-              (declare (single-float cx))
-              (%hrect cx (- y 2f0) 1f0 (+ h 4f0) 1f0 1f0 1f0 (f-max 0.35f0 refused))))))
-    (dotimes (i 3)                                        ; the band: -18 | -50 | -273
-      (let* ((ps (f-max 2f0 (* 0.6f0 h))) (px (+ x (* 1.5f0 ps (i->f i)) 1f0)) (px (if right (- (+ x w) (- px x) ps) px)))
-        (declare (single-float ps px))
-        (%hrect (- px 1f0) (- (+ y (* 0.2f0 h)) 1f0) (+ ps 2f0) (+ ps 2f0) 0.05f0 0.05f0 0.08f0 1f0)   ; an ink box
-        (if (<= i band)                                   ; lit: ice white; unlit: dark
-            (%hrect px (+ y (* 0.2f0 h)) ps ps 0.85f0 0.93f0 1f0 1f0)
-            (%hrect px (+ y (* 0.2f0 h)) ps ps 0.22f0 0.24f0 0.3f0 1f0))))
-    (when (> crack 0f0)                                   ; the hand cracked: a BLOOD hairline across the strip
-      (%hrect x (+ y (* 0.4f0 h)) w (f-max 1f0 (* 0.25f0 h)) 0.82f0 0.06f0 0.11f0 crack))
-    nil))
-
 (declaim (type f32vec *refused-t*))
 (defvar *refused-t* (make-f32 2) "Per side: FX-CLOCK of the last refused L press (its bar, or the cold gauge's cost, flashes).")
 (defun refused-flash (side tm) "SIDE's refused-press flash at fx time TM: 1 at the press, 0 after 0.25 s." (f32 (max 0.0 (- 1.0 (* 4.0 (- tm (aref *refused-t* side)))))))
-
-(defun hud-temp (e kit x y w h right tm)
-  "Draw E's cold gauge (KIT has a :temp meter) at (X Y), W x H: HUD-TEMP's numbers from the gauges and the form."
-  (let* ((g (gauges e)) (side (fighter-side (fighter e))))
-    (%hud-temp (f32 x) (f32 y) (f32 w) (f32 h) (gauges-meter g) (case (kit-form kit) (:m50 1) (:zero 2) (t 0))
-               (f32 (cold-cost kit :sig)) (plusp (gauges-meter-idle g))
-               (f32 (max 0.0 (- 1.0 (* 2.5 (- tm (aref *crack-t* side))))))
-               (refused-flash side tm)
-               right tm)))
-
-(defparameter *temp-kanji* "凍")
-(defparameter *c-ice* (list 0.9 0.94 1.0 1.0))
-(defun temp-label (g kit) "The cold gauge's label: the band, or THAW in the lock after a CRACK."
-  (if (plusp (gauges-meter-idle g)) "THAW" (kit-form-name kit)))
-
-(defun hud-temp-label (x y s right name)
-  "The cold gauge's label: the brush glyph 凍 and the band (-18C, -50C, -273C, or THAW in the lock), from X toward the
-panel's outside."
-  (let* ((em (* 8 s)))
-    (brush-text *temp-kanji* (if right (- x (* 0.5 em)) (+ x (* 0.5 em))) (+ y (* 3.5 s)) em *c-ice*)
-    (hud-text name (if right (- x em (* 2 s)) (+ x em (* 2 s))) y s *c-ice* :align (if right :right :left))))
 
 (defmacro %soul-flame (cx cy r lean r0 g0 b0 a0 r1 g1 b1 a1)
   "A soul-flame glyph centred at (CX CY), radius R: a rounded base and a pointed tip leaning LEAN px;
@@ -484,15 +376,7 @@ bindings, CONTROLS-KEY-PROMPT)."
 (defvar *c-callout* (list 1.0 0.85 0.55 1.0))
 (defvar *c-hint* (list 0.6 0.95 1.0 1.0) "PERFECT HINT's HOHO!.")
 
-(defparameter *arm-kanji* "腕")
 (defparameter *c-blood* (list 0.82 0.06 0.11 1.0))
-(defun hud-arm-label (x y s right)
-  "The arm meter's label: the brush glyph 腕 and UDE, from X toward the panel's outside (RIGHT: the right panel)."
-  (let* ((em (* 8 s)) (tw (text-width "UDE" s)))
-    (brush-text *arm-kanji* (if right (- x (* 0.5 em)) (+ x (* 0.5 em))) (+ y (* 3.5 s)) em *c-blood*)
-    (hud-text "UDE" (if right (- x em (* 2 s)) (+ x em (* 2 s))) y s *c-blood* :align (if right :right :left))
-    tw))
-
 (defun trail-step! (i target rate)
   "*TRAIL-V*[I], a damage trail, eases down to TARGET at RATE per second (HUD seconds), or snaps up to it."
   (let ((tr (aref *trail-v* i)))
@@ -566,18 +450,6 @@ an awakening, else the awakening gauge."
               (hud-cooldowns f kit ax my aw ah right tm)
               (hud-text "COOLDOWN" lx (+ my ty) ls '(0.84 0.88 0.94 0.9) :align align))))
         (let ((meter (svref kh 1)))
-          (when (getf meter :ladder)                    ; NOME: the cup ladder (Nozarashi), yellow
-            (let* ((ladder (getf meter :ladder)) (rung (or (position (kit-form kit) ladder :key #'first) 0))
-                   (mx (getf meter :max)))
-              (%hud-nome (f32 ax) (f32 (+ ay row)) (f32 aw) (f32 ah) (f32 (/ (gauges-meter g) mx)) right rung
-                         (f32 (/ (fifth (nth rung ladder)) mx)) tm)
-              (hud-text (getf meter :name) lx (+ ay row ty) ls '(1 0.85 0.3 0.95) :align align)))
-          (when (kit-pips kit)                          ; UDE: the Bankai's arm (Kenpachi), BLOOD pips
-            (%hud-arm (f32 ax) (f32 (+ ay row)) (f32 aw) (f32 ah) (round (gauges-meter g)) (gauges-meter-idle g) right tm)
-            (hud-arm-label lx (+ ay row ty) ls right))
-          (when (getf meter :temp)                      ; Rukia's cold gauge (the awakened form has no L cooldown: the row
-            (hud-temp e kit ax (+ ay row) aw ah right tm) ; is hers alone)
-            (hud-temp-label lx (+ ay row ty) ls right (temp-label g kit)))
           (when (getf meter :draw)                      ; a character's own meter (its :draw function, e.g. Senjumaru's)
             (funcall (getf meter :draw) e kit ax (+ ay row) aw ah right tm lx (+ ay row ty) ls))
           (when (and meter (not (kit-awakening kit)) (not (getf meter :draw)))
@@ -643,9 +515,6 @@ an awakening, else the awakening gauge."
   "The one label of a portrait block, or NIL: EVOLUTION, the kit meter's name / COOLDOWN, U's tag."
   (cond ((gauges-evolution g) "EVOLUTION")
         ((getf meter :label) (funcall (getf meter :label) g kit))   ; a character's own meter
-        ((kit-pips kit) (getf meter :name))                ; UDE
-        ((getf meter :temp) (temp-label g kit))            ; Rukia's band: -18C, -50C, -273C, THAW
-        ((getf meter :ladder) (getf meter :name))
         ((and (kit-awakening kit) (kit-command-move kit :sig) (plusp (mv-cooldown (kit-command-move kit :sig)))) "COOLDOWN")
         ((and meter (not (kit-awakening kit))) (getf meter :name))
         (t (svref kh 2))))
@@ -700,7 +569,7 @@ an awakening, else the awakening gauge."
     ;; cooldowns
     (let* ((x0 m) (a bw) (gap (* 3 s)) (cd (and (kit-awakening kit) (kit-command-move kit :sig)
                                                         (plusp (mv-cooldown (kit-command-move kit :sig)))))
-           (kitp (or (getf meter :draw) (getf meter :ladder) (kit-pips kit) (getf meter :temp) cd (and meter (not (kit-awakening kit)))))
+           (kitp (or (getf meter :draw) cd (and meter (not (kit-awakening kit)))))
            (n (if kitp 4 3)) (gw (/ (- a (* (1- n) gap)) n)) (sw (/ (- gw (* 2 s)) 3))
            (hot (or (gauges-evolution g) (kit-awakening kit)))
            (afill (awaken-fill g kit)))
@@ -712,13 +581,6 @@ an awakening, else the awakening gauge."
       (when kitp
         (let ((kx (+ x0 (* 3 (+ gw gap)))))
           (cond ((getf meter :draw) (funcall (getf meter :draw) e kit kx yb gw bar nil tm nil nil nil))   ; its own meter
-                ((kit-pips kit)                          ; UDE: the Bankai's arm
-                 (%hud-arm (f32 kx) (f32 yb) (f32 gw) (f32 bar) (round (gauges-meter g)) (gauges-meter-idle g) nil tm))
-                ((getf meter :temp) (hud-temp e kit kx yb gw bar nil tm))   ; Rukia's cold gauge
-                ((getf meter :ladder)
-                 (let* ((ladder (getf meter :ladder)) (rung (or (position (kit-form kit) ladder :key #'first) 0)) (mx (getf meter :max)))
-                   (%hud-nome (f32 kx) (f32 yb) (f32 gw) (f32 bar) (f32 (/ (gauges-meter g) mx)) nil rung
-                              (f32 (/ (fifth (nth rung ladder)) mx)) tm)))
                 (cd (hud-cooldowns f kit kx yb gw bar nil tm))
                 (t (let ((burning (plusp (gauges-form-left g))))
                      (%hud-thin (f32 kx) (f32 yb) (f32 gw) (f32 bar)

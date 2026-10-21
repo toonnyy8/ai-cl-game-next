@@ -167,10 +167,11 @@
   :endless-form :nozarashi                      ; ENDLESS: every cup (and the Bankai, inheriting it) stays as cup 1, NOME 10
   :weapon :nozarashi :stance :ke-n-stance :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
-  :meter (:name "NOME" :max *nome-max* :start *nome-awaken*
+  :meter (:name "NOME" :max *nome-max* :start *nome-awaken* :draw ken-hud-meter :label ken-hud-label   ; (ken-meter.lisp)
           :ladder ((:nozarashi 0.0 0 0.0 0.0) (:ryote *nome-drain-t2* *nome-delay* *nome-up-t2* *nome-down-t2*)
                    (:nomihose *nome-drain-t3* 0 *nome-up-t3* *nome-down-t3*)))
   :meter-gain (:dealt *nome-dealt* :taken *nome-taken* :drunk *nome-drunk*)
+  :hooks (:tick ken-tick)                       ; the NOME ladder and (the Bankai, inheriting it) the arm: ken-meter.lisp
   :commands (:sp1 :ke-meteor :kikon :ke-kikon-n)
   ;; its own one-handed clips for the base moves and the meteor (a look: DUEL_KEN_REWORK §6.2)
   :clip-map (:ke-q1 :ke-k-q1 :ke-q2 :ke-k-q2 :ke-f1 :ke-k-f1 :ke-f2 :ke-k-f2 :ke-q3 :ke-k-spin :ke-meteor :ke-k-meteor)
@@ -246,7 +247,7 @@
   ;; its own strikes for the moves it borrows (a look, DUEL_KEN_REWORK §8)
   :clip-map (:ke-q1 :ke-b-q1 :ke-q2 :ke-b-q2 :ke-f1 :ke-b-f1 :ke-f2 :ke-b-f2 :ke-r-f2 :ke-b-f3 :ke-meteor :ke-b-split
              :ke-stance-cut :ke-b-cut)
-  :meter (:name "UDE" :max *arm-pips* :start *arm-pips*) :meter-gain nil
+  :meter (:name "UDE" :max *arm-pips* :start *arm-pips* :draw ken-hud-meter :label ken-hud-label) :meter-gain nil
   :pips (:n *arm-pips* :to :kataude :cmds (:f :sig :sp1 :sp2 :breaker :kikon))
   :body :kenpachi-oni :weapon :ke-broken :stance :ke-b-stance :aura :oni :hide (:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4)
   :run-clips (:ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l)
