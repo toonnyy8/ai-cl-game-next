@@ -76,7 +76,7 @@ Every number from here to §12 is **the lead's proposal** unless a line says "de
 §13 is pending, the body assumes its recommended option (marked "Qn A"). Code prefix `hs-`, kit `:hisagi`, files (the file map since the split of 2026-10-21, refactor round 2;
 older § name the files as they were when written): `duel/lisp/hisagi.lisp` (knobs, kits, rules, state, hooks, the Bankai's
 rules and moves, debug), `hisagi-ai.lisp` (the Shikai's and the Bankai's CPU, the learner, ASSIST, and the `*hs-ai-…*` knobs, except
-the three the kit data reads at load, `*hs-ai-string-k*`, `*hs-ai-l-after-j*`, `*hs-ai-awaken*`, and `*hs-ai-release-margin*`, which a rule function reads: they stay in hisagi.lisp),
+the three the kit data reads at load, `*hs-ai-string-k*`, `*hs-ai-l-after-j*`, `*hs-ai-awaken*`: they stay in hisagi.lisp; `*hs-ai-release-margin*` and its reader `hs-release-wanted-p`, superseded by `hs-rel-bar` / `*hs-ai-rel-margin*`, were deleted 2026-10-21, refactor round 2),
 `hisagi-art.lisp` (body, Kazeshini, clips), `hisagi-draw.lisp` (looks, `HISAGI-DRAW`, the HUD icon, the name), `hisagi-cine.lisp` (the four
 cinematics), `hisagi-stills.lisp` (debug stills and probes), in that load order; forms `:base` (Shikai) and `:bankai`. (There is no §3: the concept talk's numbering
 is kept so the DEVLOG's references hold.)
@@ -1809,7 +1809,7 @@ link, the user's U → L).
 | `*hs-r-spread-s*` / `*hs-r-spread-mult*` | — → −3 f / ×0.85 | spread links 2–3 vs their base (the user: 「散 −3 幀×0.85」) |
 | `*hs-r-gather-s*` / `*hs-r-gather-mult*` | — → +3 f / ×1.3 | gathered links 2–3 vs their base (「聚 +3 幀×1.3」) |
 | `*hs-r-uchi-frames*` | — → 4 f (B4c's pick) | gathered K2's slam pushes the victim onto its line (to `*hs-r-j-push*` 3.5 m) |
-| `*hs-ai-route-dmg-p*` | — → 0.3 / 0.55 / 0.8 | his CPU's damage pick (the K link) per link-1 / -2 hit (EASY / NORMAL / HARD) |
+| `*hs-ai-route-dmg-p*` | — → 0.3 / 0.55 / 0.8 | his CPU's damage pick (the K link) per link-1 / -2 hit (EASY / NORMAL / HARD); superseded by each route style's `:route-dmg` (`*hs-ai-r-styles*`, round01 b1a0) and deleted 2026-10-21 (refactor round 2) |
 | `*hs-r-push-reach*` | 7.5 (unchanged) | the K ender push still measured from 7.5 m (~7.95 m), docstring updated: K1 reaches 3.0 now |
 | `*hs-mark-delay*`, `*hs-mark-r*`, `*hs-mark-h*`, `*hs-mark-min*`, `*hs-mark-max*`, `*hs-mark-live*`, `*hs-mark-active*`, `*hs-mark-life*`, `*hs-rakusa-r*`, `*hs-rakusa-lock*`, `*hs-ai-k-link-p*`, `*hs-ai-mark-near*`, `*hs-ai-opp-mark-p*` | B4a's → deleted | the marks (「拿掉落點」) |
 
@@ -1848,7 +1848,7 @@ link, the user's U → L).
   Step 1 (gathered first: the damage), 3–4.5 m J1 5 / Step 1 (spread), 4.5–8 m SP1 1 / wait 4 (nothing else of his
   reaches there), then as before; ranges approach 2.5–4.0, pressure 2.0–3.0, zone 3.0–4.5, defend 4.0–6.0.
 - `:move-reflex` HS-R-AI-MOVE, one roll on each link-1 / link-2 hit's land step: the damage pick (the K link: spread K2s /
-  K3, gathered K2 / K3G) `*hs-ai-route-dmg-p*` of the time when the victim stands inside its reach (HS-R-REACHES-P: past
+  K3, gathered K2 / K3G) `*hs-ai-route-dmg-p*` (since round01 b1a0 the style's `:route-dmg`; the knob deleted 2026-10-21) of the time when the victim stands inside its reach (HS-R-REACHES-P: past
   the dead zone, inside the far edge + 0.36), else the speed pick (the J link) inside its reach; neither: the string ends
   there (`:wait`, kept to the move's end, no whiff). A learner baiting its Burst read keeps the generic reflex.
 - **Shared change** (`ai.lisp` AI-REFLEX): the `:move-reflex` clause moved ahead of the generic "our own hit → STRING-REFLEX"

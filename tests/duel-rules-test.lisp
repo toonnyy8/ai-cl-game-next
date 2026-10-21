@@ -3559,8 +3559,7 @@ past the ends; DEFAULT if the clip is not listed."
     (check (and (hs-rel-free-p :idle nil) (hs-rel-free-p :guard-hit nil) (hs-rel-free-p :run nil) (not (hs-rel-free-p :stun nil))
                 (hs-rel-free-p :stun t) (hs-rel-free-p :air t) (not (hs-rel-free-p :move t))))
     (check (and (not (hs-rel-due-p 40 42)) (hs-rel-due-p 41 42)))
-    (check (and (= 1300 (hs-grey-loss 1300 1300 9 8)) (= 250 (hs-grey-loss 1000 750 3 3))
-                (hs-release-wanted-p 700 300) (not (hs-release-wanted-p 600 300))))
+    (check (and (= 1300 (hs-grey-loss 1300 1300 9 8)) (= 250 (hs-grey-loss 1000 750 3 3))))
     ;; ---- the bind on stand-ins: H (P1, Hisagi in the ranged mode) binds K (P2, Kenpachi)
     (multiple-value-bind (h o) (t-pair kr (kit :kenpachi :base))
       (let ((fh (fighter h)) (gh (gauges h)) (go (gauges o)) (st (hs h)))
@@ -4242,7 +4241,7 @@ past the ends; DEFAULT if the clip is not listed."
        (ordered-p (p) (<= (getf p :easy) (getf p :normal) (getf p :hard))))
   ;; every chance of his CPU EASY <= NORMAL <= HARD (the user's rule), the route styles' included
   (check (every #'mono (list* *hs-ai-punish-p* *hs-ai-anti-p* *hs-ai-escape-p* *hs-ai-dodge-p* *hs-ai-saharai-p* *hs-ai-r-anti-breaker-p*
-                              *hs-ai-throw-p* *hs-ai-release-p* *hs-ai-route-dmg-p* *hs-ai-bind-sp-p*
+                              *hs-ai-throw-p* *hs-ai-release-p* *hs-ai-bind-sp-p*
                               *hs-ai-wake-p* *hs-ai-plain-release-p*
                               (loop for (st nil) on *hs-ai-r-styles* by #'cddr collect (hs-r-sv st :route-dmg)))))
   ;; the three route styles (one roll per entry into the ranged mode): their weights, openers, the tip read, the K link's

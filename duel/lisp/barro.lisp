@@ -398,7 +398,6 @@ release, 8 -> 16 (levels 2 / 3, the copies :br-s-l1-2 / -3, keep 8: their wind-u
 成連續斬擊」): the dash's frames from S (its hit window the same frames + 2) ...")
 (defparameter *br-w-dash-past* 1.6 "... it ends this far past him (m) ...")
 (defparameter *br-w-dash-min* 2.0 "... at least this long (m) ...")
-(defparameter *br-w-dash-max* 6.0 "... at most this long (m: farther, it stops short) ...")
 (defparameter *br-w-dash-reach* 0.9 "... its hit volume: from him to this far ahead ...")
 (defparameter *br-w-dash-r* 0.7 "... this wide (m: his body, the folded wings; the drawn reach is the dash) ([G]).")
 (defparameter *br-w-l-hold* 60
@@ -876,8 +875,7 @@ awakened form inherits these).")
 ;;; ================================================================ his state (the sim's): a component on his fighter entity
 ;;; hazard data: his looks' hazards (BR-FX's lines, the misuji) carry one of these, drawn by LB-LOOK (lille-art.lisp)
 (defstruct (lbh (:conc-name lbh-))
-  (kind nil)                              ; :beam :lane :judge :shot :sabaki (the look)
-  (len 0f0 :type single-float) (width 0f0 :type single-float)
+  (kind nil)                              ; :beam :lane :judge :shot :sabaki (the look; its length: the hazard's size)
   (lock nil))                             ; a look's colour / width: T jade (a locked shot), :thick, NIL ink
 
 (defcomponent brs
@@ -888,7 +886,6 @@ awakened form inherits these).")
   (k-plan nil)                            ; his CPU's base stance pick (once a stance)
   (cpu-go nil)                            ; his CPU's follow-up / SP2 call for the running stance move (one roll)
   (l-next nil)                            ; a stance move: an L latched for its :lchain follow-up
-  (dash-dir 0f0 :type single-float)       ; his CPU's stance Step: the strafe (0 straight back)
   (dashed nil)                            ; the stance's fast Step used (once per stance: the base's, EN's first Step)
   (in-string nil)                         ; a stance string runs in the awakened stance (its end: back to KIN)
   (slow nil)                              ; the stance's first hit may slow the match (armed at its entry)
@@ -1422,21 +1419,21 @@ hit), each drawn by barro-art.lisp's BR-CUT-LOOK for *BR-W-CUT-LIFE* frames from
     ;; (R10, §15: 「J 陀螺完之後還是射擊不是長鞭呀」: the awakened J route's L L drawn as the whip reaching him, barro-art.lisp
     ;; %BR-WHIP-LASH since R11, §16; its look :whip, which LB-LOOK does not draw either)
     (br-spawn-look e (if (eq (fighter-form f) :base) :shot (case (getf (mv-params mv) :stance) (:kl :ball) (:jl :whip) (t :shot)))
-                   (or (move-param e :len) *br-x-len*) 0.05 (and (member :x-axis (mv-flags mv)) t))
+                   (or (move-param e :len) *br-x-len*) (and (member :x-axis (mv-flags mv)) t))
     ;; (R11, §16: 「現在的架式 J > L 看起來依舊是射擊？」: the awakened J route's L L sound a whip's crack, barro-art.lisp's
     ;; :br-whip-crack; the base form's stay the gunshot)
     (emit :sfx (if (and (not (eq (fighter-form f) :base)) (eq (getf (mv-params mv) :stance) :jl)) :br-whip-crack :lb-crack) e)))
 (defun br-line-shot (e)
   "SANREN's shots (f12, f22, f32): the line's look."
-  (br-spawn-look e :shot (move-param e :len) 0.04 (and (member :uncatchable (mv-flags (fighter-move (fighter e)))) t))
+  (br-spawn-look e :shot (move-param e :len) (and (member :uncatchable (mv-flags (fighter-move (fighter e)))) t))
   (emit :sfx :rift-cut e))
 (defun br-lane-shot (e)
   "A Kikon module's lane: its look (the hit is the move's lane)."
-  (br-spawn-look e :lane (move-param e :len) 0.5 t)
+  (br-spawn-look e :lane (move-param e :len) t)
   (emit :sfx :kikon-slash e))
 (defun br-beam-shot (e)
   "NIJUSHI-KO's / Trompete's / the volley's last line: the beam's look."
-  (br-spawn-look e :beam 31.0 (or (move-param e :width) 1.2) t)
+  (br-spawn-look e :beam 31.0 t)
   (emit :sfx :explode e))
 (defun br-sanren-tick (e)
   "SANREN: he turns 90 deg/s between the shots."
@@ -1458,13 +1455,14 @@ hit), each drawn by barro-art.lisp's BR-CUT-LOOK for *BR-W-CUT-LIFE* frames from
     (when (and (eq (fighter-phase f) :main) (< (fighter-sf f) (move-param e :lock)))
       (turn-to-opp e f (track-step (move-param e :track))))))
 (defun br-nijushi-tell (e) "NIJUSHI-KO f0: the 24 holes glow (the tell)." (setf (model-super (model e)) 0.6) (emit :sfx :awaken-rise e))
-(defun br-spawn-look (e kind len width lock)
-  "A look-only hazard of his along his facing: a shot, a beam or a lane (Lille's LB-LOOK draws it; no hit)."
-  (let ((p (pos-of e))) (br-spawn-look-at e kind (aref p 0) (aref p 2) (yaw-of e) len width lock)))
-(defun br-spawn-look-at (e kind x z yaw len width lock)
+(defun br-spawn-look (e kind len lock)
+  "A look-only hazard of his along his facing: a shot, a beam or a lane, LEN m long (Lille's LB-LOOK draws it, its width by
+KIND; no hit)."
+  (let ((p (pos-of e))) (br-spawn-look-at e kind (aref p 0) (aref p 2) (yaw-of e) len lock)))
+(defun br-spawn-look-at (e kind x z yaw len lock)
   "BR-SPAWN-LOOK from (X Z) along YAW."
   (spawn-hazard :br-fx e :x x :z z :yaw yaw :size len :life (case kind ((:beam :judge) 30) (t 16))
-                         :hook 'br-hz :data (make-lbh :kind kind :len (f32 len) :width (f32 width) :lock lock) :look 'lb-look))
+                         :hook 'br-hz :data (make-lbh :kind kind :lock lock) :look 'lb-look))
 
 ;;; ---------------------------------------------------------------- the awakened stance, the routes, the volley
 (defun br-go-ranged (e)
@@ -1536,7 +1534,7 @@ the owl)."
   "The volley's strings: he keeps on the opponent (*BR-RC-TRACK*)."
   (halt! e)
   (turn-to-opp e (fighter e) (track-step *br-rc-track*)))
-(defun br-rc-shot (e) "A volley line: its look." (br-spawn-look e :shot *br-x-len* 0.05 t) (emit :sfx :lb-crack e))
+(defun br-rc-shot (e) "A volley line: its look." (br-spawn-look e :shot *br-x-len* t) (emit :sfx :lb-crack e))
 
 (defun br-hz (h hz ev &optional a b c dd ee)
   "His hazards' hook: a 裁きの光明 ground line's burning span; the looks touch nothing."
@@ -1562,7 +1560,7 @@ the owl)."
     (dolist (a fan)
       (spawn-hazard :br-misuji e :x (aref p 0) :z (aref p 2) :yaw (+ (yaw-of e) (deg a)) :size *br-misuji-to*
                                  :life (br-misuji-frames) :group group :hook 'br-hz :look 'lb-look
-                                 :data (make-lbh :kind :sabaki :len (f32 *br-misuji-to*) :width (f32 *br-misuji-width*))
+                                 :data (make-lbh :kind :sabaki)
                                  :hw (make-hitwin :dmg (move-param e :dmg) :react :stagger :kb 1.0 :hs *hitstop-heavy*
                                                   :chip 0.15 :guard (move-param e :guard)
                                                   :flags '(:ranged :x-axis :uncatchable))))

@@ -223,13 +223,13 @@ time), else a tap (the stance's strings in reach, the fast Step from afar)."
 the stance's opener now, the turn skipped: K1 in its reach (cut to *BR-LINK-K-S*: it combos), J1 in J's, else the dash
 (:SIG, charged by the distance). One call a turn (its first frame)."
   (when (<= (fighter-sf f) 1)
-    (let* ((form (br-ranged-of (fighter-form f))) (pre (if (br-owl-form-p form) "BR-OE" "BR-E"))
+    (let* ((form (br-ranged-of (fighter-form f))) (owl (br-owl-form-p form))   ; (the openers by keyword: no string a call)
            (d (br-ai-seen-d e (br-ai-seen b))))
-      (cond ((and (<= d (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword)))   ; (the resource rule: the J route)
+      (cond ((and (<= d (br-ai-reach e (if owl :br-oe-j1 :br-e-j1)))   ; (the resource rule: the J route)
                   (br-route-j-p (gauges-fs (gauges e)) (reiatsu-bars e) (br-spare e) (ai-table e :stance)))
              :q)
-            ((<= d (br-ai-reach e (intern (format nil "~a-K1" pre) :keyword))) :f)
-            ((<= d (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword))) :q)
+            ((<= d (br-ai-reach e (if owl :br-oe-k1 :br-e-k1))) :f)
+            ((<= d (br-ai-reach e (if owl :br-oe-j1 :br-e-j1))) :q)
             ((br-ai-dash-level d) :sig)))))
 
 (defparameter *br-ai-breaker-v* 0.16 "A Breaker dash's metres per frame (9-10 m/s: *BREAKER-SPEED-MIN* / -MAX), his CPU's timing.")
@@ -266,9 +266,9 @@ a signature string (dream-rsi b1a0)."
   (let ((k (ai-table e :stance)))
     (when (and (member (fighter-state f) '(:idle :run :guard)) (zerop (fighter-lock f)) (getf k :punish)
                (snap-punishable-p s) (< (snap-left s) 99) (not (br-ranged-form-p form)))
-      (let* ((base (eq form :base)) (pre (cond (base "BR-S") ((br-owl-form-p (br-ranged-of form)) "BR-OE") (t "BR-E")))
-             (jr (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword)))
-             (lead (+ (if base *br-kamae-up* *br-to-en-f*) (mv-s (find-move (intern (format nil "~a-J1" pre) :keyword))) 2)))
+      (let* ((base (eq form :base)) (j1 (cond (base :br-s-j1) ((br-owl-form-p (br-ranged-of form)) :br-oe-j1) (t :br-e-j1)))
+             (jr (br-ai-reach e j1))
+             (lead (+ (if base *br-kamae-up* *br-to-en-f*) (mv-s (find-move j1)) 2)))
         (when (and (>= (snap-left-seen s b) lead) (<= d jr) (kit-command-ok-p e :sig)
                    (< (brain-react-roll b) (br-ai-p k :punish (brain-difficulty b))))
           (pace e :ai-stance-punish) (why b :stance-punish :sig))))))
@@ -281,9 +281,9 @@ BR-AI-EN-PLAN, pressed at once (the window lasts *BR-EN-HOLD* f); his attack com
                 (and (not (br-ai-facing-p e s))   ; (the dash goes where he faces: wait for the turn, round 2 b1a0)
                      (> d (br-ai-reach e (if (br-owl-form-p (fighter-form f)) :br-oe-k1 :br-e-k1)))))
       (setf (brs-ai-t st) epoch)
-      (let* ((pre (if (br-owl-form-p (fighter-form f)) "BR-OE" "BR-E"))
-             (plan (br-ai-en-plan (sim-rnd01) d (br-ai-reach e (intern (format nil "~a-J1" pre) :keyword))
-                                  (br-ai-reach e (intern (format nil "~a-K1" pre) :keyword)) (ai-table e :stance)
+      (let* ((owl (br-owl-form-p (fighter-form f)))
+             (plan (br-ai-en-plan (sim-rnd01) d (br-ai-reach e (if owl :br-oe-j1 :br-e-j1))
+                                  (br-ai-reach e (if owl :br-oe-k1 :br-e-k1)) (ai-table e :stance)
                                   (brs-dashed st)
                                   (br-route-j-p (gauges-fs (gauges e)) (reiatsu-bars e) (br-spare e) (ai-table e :stance)))))
         (pace e (intern (format nil "AI-EN-~a" plan) :keyword))
@@ -374,6 +374,11 @@ first-strike envelope (BR-AI-ENVELOPE), him free, one roll a *BR-AI-KITE-EVERY* 
   (let ((q (kit-command-move (kit-of (opp-of e)) :q)))
     (+ (if q (+ (mv-reach q) (min 0.8 (mv-slide q))) 1.6) 0.5 (* 15 (max 0.0 (br-ai-closing b s d e))))))
 
+(defparameter *br-ai-snipe-min* 6.0
+  ;; (round 2 b1a2: the far window opens the stance from :far-snipe :in 4.5 again; this stays the line's own range, where
+  ;;  his back-offs stop, BR-AI-BACK-TO)
+  "The base snipe starts from no nearer (m): the charge move's reach (*BR-S-NEAR* 4) + the CPUs' threat margin
+(*AI-THREAT-MARGIN* 1.5) + 0.5: inside it a CPU's Hoho / guard roll answers the charge (the far window's :in 4.5 before).")
 (defparameter *br-ai-snipe-back* 0.5
   "The base form backs off (the kite, the unguard) to the far snipe's range + this (m): *BR-AI-SNIPE-MIN* + 0.5 = 6.5 m (round 2
 b1a1: b1a0 moved the far snipe out to 6 m but its kite still stopped at his envelope + 2 m, ~5-5.7 m, and the unguard at
@@ -424,11 +429,6 @@ the planned hold (the old rule).")
 (defparameter *br-ai-line-margin* 0.1
   "Metres taken off a charged L's half-width on him (its volume's radius + his body's hurt radius) when his CPU reads the line.")
 (defparameter *br-ai-line-k* 6 "Steps of the perceived ring his lateral speed is measured over (BR-AI-LINE-OF).")
-(defparameter *br-ai-snipe-min* 6.0
-  ;; (round 2 b1a2: the far window opens the stance from :far-snipe :in 4.5 again; this stays the line's own range, where
-  ;;  his back-offs stop, BR-AI-BACK-TO)
-  "The base snipe starts from no nearer (m): the charge move's reach (*BR-S-NEAR* 4) + the CPUs' threat margin
-(*AI-THREAT-MARGIN* 1.5) + 0.5: inside it a CPU's Hoho / guard roll answers the charge (the far window's :in 4.5 before).")
 
 (defun br-ai-line-of (e b s &optional (k *br-ai-line-k*))
   "His perceived feet against E's facing line (the frozen aim of a charge): values PERP (signed m off it), ALONG (m ahead of
@@ -472,6 +472,10 @@ Hoho perceived (he reappears behind the rooted charge: the shot would go forward
 charge's own Step (R18: iframes, 5 m away, the charge kept and re-aimed onto him at its end), this share of those charges
 by difficulty (one roll a charge). The line's charges (*BR-AI-LINE-P*) Step out of a Hoho by their own rule.")
 
+(defparameter *br-ai-step-fire-min* 2.5
+  "His charge back from its Step (R18: the sim re-aimed it on him at the Step's f9) is let go at once at level 2 / 3 when he
+is perceived at least this far (m); nearer (he chased the Step down) the line / the envelope decide as before (b1a2's logs:
+the re-aimed shot hit 630 of 848 from 6.5-10 m, its whiffs sat under 2 m).")
 (defun br-ai-charge-tick (e f b mv)
   "His CPU's charge (the snipe, the dash; their hold phase, BR-S-TICK), one roll a charge (keyed on its start tick): the
 let-go (*BR-AI-LET-GO-P*: his attack perceived in reach + 1 m, or him running / stepping in within 3 m: L let go at the level
@@ -577,10 +581,6 @@ after it skipped for this hit), else NIL (the generic ender)."
       (pace e :ai-keep-burst)
       :keep-burst)))
 
-(defparameter *br-ai-step-fire-min* 2.5
-  "His charge back from its Step (R18: the sim re-aimed it on him at the Step's f9) is let go at once at level 2 / 3 when he
-is perceived at least this far (m); nearer (he chased the Step down) the line / the envelope decide as before (b1a2's logs:
-the re-aimed shot hit 630 of 848 from 6.5-10 m, its whiffs sat under 2 m).")
 (defparameter *br-ai-cash-wary-p* '(:easy 0.0 :normal 0.3 :hard 1.0)
   "His read of a Hoho reader (BR-AI-CASH-READ): a cash-out the opponent made him pay for (his damage taken between the
 cash-out and his next free step) counts, this share of those events by difficulty (one roll an event). b1a1's 40-seed HARD

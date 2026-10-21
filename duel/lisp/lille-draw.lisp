@@ -1278,7 +1278,7 @@ this many m/s (31 m in 8 f: the hit is the whole line at once, the look follows 
 (defmacro %lb-judge-burn () "... each point burning this many seconds." 0.3f0)
 (defun-fast lb-look (hz rdt)
   "His hazards' draw function (HAZARD-DRAW): a shot's line at the volume's height (jade for an aimed one, ink for a snap
-shot; a white core and the muzzle's cross flash on its first frames), the volley's five, a beam (a wide toon band, jade or
+shot; a white core and the muzzle's cross flash on its first frames), a beam (a wide toon band, jade or
 the owl's gold, a white core), a Kikon lane on the floor, the SABAKI line's gold blasts erupting along its burning span (a
 thin gold sheet under them). Fading over the hazard's life. 0 B."
   (declare (single-float rdt))
@@ -1294,21 +1294,17 @@ thin gold sheet under them). Fading over the hazard's life. 0 B."
              (wall (%lb-wall x z ux uz)) (l (f-min len wall)) (sd (i->f (mod age 97))))
         (declare (single-float x z yaw ux uz fade len w wall l sd) (fixnum age))
         (case kind
-          (:shot                                       ; (the volley's five-line fan went with rework R)
-           (let ((n 1) (sp 0f0) (y 1.2f0))
-             (declare (fixnum n) (single-float sp y))
-             (dotimes (i n)
-               (let* ((a (if (= n 1) yaw (+ yaw (* sp (i->f (- i 2)))))) (vx (- (f-sin a))) (vz (- (f-cos a)))
-                      (ll (f-min len (%lb-wall x z vx vz))) (ww (* (if (lbh-lock d) 0.07f0 0.05f0) (+ 0.3f0 fade))))
-                 (declare (single-float a vx vz ll ww))
-                 (toon-ribbon ((+ x (* 0.6f0 vx)) y (+ z (* 0.6f0 vz))) ((* (- ll 0.6f0) vx) 0f0 (* (- ll 0.6f0) vz)) (ww ww) :heat (1f0 0.7f0)
-                              :seed (- -11f0 sd) :wob 0.02f0 :pal (if (lbh-lock d) +pal-jade+ +pal-ink+) :k (* 0.98f0 fade) :k1 (* 0.9f0 fade) :segs 2)
-                 (when (< age 4)                        ; the first frames: a white core, the cross flash at the muzzle
-                   (fx-ribbon (+ x (* 0.6f0 vx)) y (+ z (* 0.6f0 vz)) (* (- ll 0.6f0) vx) 0f0 (* (- ll 0.6f0) vz) (* 0.4f0 ww) (* 0.4f0 ww)
-                              1f0 (- -12f0 sd) 0.0f0 (toon-a +pal-hit+ 0.95f0) 1f0 (- -12f0 sd) 0f0 (toon-a +pal-hit+ 0.9f0) 0f0 0f0
-                              :segs 2 :mode :toon)
-                   (fx-star (+ x (* 1.0f0 vx)) y (+ z (* 1.0f0 vz)) 0.06f0 0.32f0 4 0f0 0f0 0f0 0.05f0 (+ 13f0 (i->f i))
-                            +pal-hit+ (- 0.98f0 (* 0.2f0 (i->f age))) :push 0.2f0))))))
+          (:shot                                       ; (one line along his facing: the volley's five-line fan went with rework R)
+           (let ((y 1.2f0) (ww (* (if (lbh-lock d) 0.07f0 0.05f0) (+ 0.3f0 fade))))
+             (declare (single-float y ww))
+             (toon-ribbon ((+ x (* 0.6f0 ux)) y (+ z (* 0.6f0 uz))) ((* (- l 0.6f0) ux) 0f0 (* (- l 0.6f0) uz)) (ww ww) :heat (1f0 0.7f0)
+                          :seed (- -11f0 sd) :wob 0.02f0 :pal (if (lbh-lock d) +pal-jade+ +pal-ink+) :k (* 0.98f0 fade) :k1 (* 0.9f0 fade) :segs 2)
+             (when (< age 4)                            ; the first frames: a white core, the cross flash at the muzzle
+               (fx-ribbon (+ x (* 0.6f0 ux)) y (+ z (* 0.6f0 uz)) (* (- l 0.6f0) ux) 0f0 (* (- l 0.6f0) uz) (* 0.4f0 ww) (* 0.4f0 ww)
+                          1f0 (- -12f0 sd) 0.0f0 (toon-a +pal-hit+ 0.95f0) 1f0 (- -12f0 sd) 0f0 (toon-a +pal-hit+ 0.9f0) 0f0 0f0
+                          :segs 2 :mode :toon)
+               (fx-star (+ x (* 1.0f0 ux)) y (+ z (* 1.0f0 uz)) 0.06f0 0.32f0 4 0f0 0f0 0f0 0.05f0 13f0
+                        +pal-hit+ (- 0.98f0 (* 0.2f0 (i->f age))) :push 0.2f0))))
           (:beam
            (let* ((ww (* w (+ 0.35f0 (* 0.65f0 fade)))) (pal (if owl +pal-gold+ +pal-jade+)))
              (declare (single-float ww pal))

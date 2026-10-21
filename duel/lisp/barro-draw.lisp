@@ -381,7 +381,6 @@ every two frames. Single-float forms (a macro: 0 B)."
 (defparameter *br-blast-life* 18
   "A ball of light (%BR-BALL: the awakened K route's L L, R8; K3's 零距離砲擊 until R9 took the blast out, §14): the frames it
 lasts from the shot ...")
-(defparameter *br-blast-r* 0.8 "... its radius at full size (m), x the draw scale.")
 
 ;; R8 (DUEL_LILLE_V3 §13, the user 2026-10-11: 「K 砲擊銜接的 L 也用一樣的砲擊特效炸在不同位置上」): the awakened K route's
 ;; L L (KL1 KL2 KL3, the 萬物貫通 lines after K3's blast) drawn as K3's balls of light instead of the line (BR-SHOT-FIRE spawns
