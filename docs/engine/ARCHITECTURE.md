@@ -135,7 +135,7 @@ swapchain     composite (scene + bloom + vignette, desaturate *grade-desat*, spl
   `RP_FXT` (slot 16, `fx-toon.vert/frag.wgsl`) right after the transparent meshes, with depth test and
   write and **alpha-to-coverage** instead of blending (`r_make_pipe` blend code 3; A2C only with MSAA —
   the shader discards below `F.clk.y` = 0.5 otherwise). Its 9 vertex floats are position, shape uv,
-  heat, seed, wobble and palette + presence; the 12 palettes are a WGSL constant (`fx-toon-pal.wgsl`),
+  heat, seed, wobble and palette + presence; the 16 palettes are a WGSL constant (`fx-toon-pal.wgsl`),
   the noise steps on the fx clock (`F.clk.x`, 24 Hz ticks, 0 while paused). An "along" shape (negative
   seed: ribbons, crescents, walls) takes its field from |uv.x| and uses uv.y only as a second noise axis
   (Phase 3: `fx-wall` writes the distance along the wall there, so its core and shade break up along it). **Screen punctuation**:
@@ -286,6 +286,7 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/math.lisp    | scalars (HYPOT, COUNTDOWN!), facing (FWD-X / YAW-TO / TURN-TOWARD), WEIGHTED-PICK, vec3 / mat4 on single-float arrays (plain CL, host-loadable) |
 | lisp/hitvol.lisp  | hit volumes vs hurt cylinders: MAKE-VOL / VOL-HIT-P, capsule / box / cylinder tests (plain CL, host-loadable) |
 | lisp/input.lisp   | the virtual controller (vpad): buttons, buffer, modifier, stick, command tables, device bindings (plain CL, host-loadable) |
+| lisp/touch.lisp   | the one-thumb gesture recogniser (TOUCH-FEED!, TOUCH-TAKE!, ...; plain CL, host-loadable; docs/duel/DUEL_MOBILE_DESIGN.md §3.2) |
 | lisp/platform.lisp| SDL3 window, time, events → input state (C: c/platform.c)    |
 | lisp/render.lisp  | SDL_GPU pipelines, WGSL loader, camera, lights, meshes, draw queue, fx batch (C: c/render.c, shaders/*.wgsl) |
 | lisp/meshgen.lisp | procedural mesh builders (box, cylinder, cone, blade, tube…), WITH-XFORM / MB-AT |
@@ -294,7 +295,8 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/anim.lisp    | humanoid rig + proportions, pose / clip DSL (DEFCLIP, DEFSTRIKE), playback, blending, FK |
 | lisp/body.lisp    | rigid-part characters: shape spec → meshes per joint (BUILD-PARTS), DRAW-PARTS |
 | lisp/time.lisp    | fixed step (RUN-FIXED-STEPS), hitstop, slow-mo               |
-| lisp/fx.lisp      | shake, particles, rings, debris, trail buffers (%TRAIL-PUSH / %TRAIL-DROP) and the drawn smear (FX-SMEAR-CAPTURE!), edge vignette, FX-RIBBON / FX-SECTOR, hit-volume debug outlines, the toon shapes and the 0 B toon kit (HASH01, %TRING, %SECTOR-VERTS, TOON-RIBBON, %TONGUE, %T-BLOB, %LIGHT, WITH-CAM …) |
+| lisp/fx-shapes.lisp | the stateless fx-batch drawing kit (loads before fx.lisp): toon clock, palettes, envelope, the toon shapes and the 0 B toon kit (HASH01, %TRING, %SECTOR-VERTS, TOON-RIBBON, %TONGUE, %T-BLOB, %LIGHT, WITH-CAM …), FX-RIBBON / FX-SECTOR, screen punctuation |
+| lisp/fx.lisp      | the pools: shake, particles, rings, debris, trail buffers (%TRAIL-PUSH / %TRAIL-DROP) and the drawn smear (FX-SMEAR-CAPTURE!), edge vignette, hit-volume debug outlines |
 | lisp/cine.lisp    | the cinematic director: DEFCINE (AT / DURING), start / step / draw / skip, shots, game hooks |
 | lisp/ecs.lisp     | entities, components, systems, events (DO-EVENTS), the shared TRANSFORM component (POS-OF / YAW-OF) |
 | lisp/app.lisp     | `RUN-GAME`, startup steps, frame driver, debug queue, stats line |

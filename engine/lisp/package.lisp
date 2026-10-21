@@ -14,8 +14,8 @@
    ;; math.lisp: vec3 / mat4 on f32vecs (! = writes into its first argument)
    #:fv #:make-f32 #:deg #:angle-wrap #:angle-lerp #:approach #:smoothstep #:hypot #:countdown!
    #:fwd-x #:fwd-z #:yaw-to #:turn-toward #:weighted-pick
-   #:v3 #:v3-set! #:v3-copy! #:v3-copy #:v3-add! #:v3-sub! #:v3-scale! #:v3-madd! #:v3-lerp! #:v3-cross!
-   #:v3-normalize! #:v3-normalize #:v3-dot #:v3-len #:v3-len2 #:v3-dist
+   #:v3 #:v3-set! #:v3-copy! #:v3-copy #:v3-add! #:v3-sub! #:v3-scale! #:v3-lerp! #:v3-cross!
+   #:v3-normalize! #:v3-normalize #:v3-dot #:v3-len #:v3-dist
    #:m4 #:m4-identity! #:m4-copy! #:m4-mul! #:m4-translation! #:m4-euler! #:m4-perspective! #:m4-look-at!
    #:m4-invert! #:m4-transform-point! #:m4-transform-dir! #:xform
    ;; hitvol.lisp: hit volumes vs hurt cylinders (plain CL)

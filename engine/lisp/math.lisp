@@ -13,8 +13,8 @@
      ,@(loop for x in xs for i from 0 collect `(setf (aref v ,i) (float ,x 1f0)))
      v))
 
-(declaim (inline make-f32 v3 v3-set! v3-copy! v3-dot v3-len v3-len2 v3-dist deg
-                 v3-add! v3-sub! v3-scale! v3-madd! v3-lerp! v3-cross! v3-normalize!
+(declaim (inline make-f32 v3 v3-set! v3-copy! v3-dot v3-len v3-dist deg
+                 v3-add! v3-sub! v3-scale! v3-lerp! v3-cross! v3-normalize!
                  angle-wrap angle-lerp approach smoothstep))
 
 (defun-fast make-f32 (n) (make-array n :element-type 'single-float :initial-element 0f0))
@@ -93,10 +93,6 @@ are allowed (\"do nothing\"); NIL if all weights are 0. For AI choices: pass a S
 (defun-fast v3-scale! (o a s)
   (declare (type f32vec o a) (single-float s))
   (v3-set! o (* (aref a 0) s) (* (aref a 1) s) (* (aref a 2) s)))
-(defun-fast v3-madd! (o a b s)
-  "o = a + b*s"
-  (declare (type f32vec o a b) (single-float s))
-  (v3-set! o (+ (aref a 0) (* (aref b 0) s)) (+ (aref a 1) (* (aref b 1) s)) (+ (aref a 2) (* (aref b 2) s))))
 (defun-fast v3-lerp! (o a b u)
   (declare (type f32vec o a b) (single-float u))
   (v3-set! o (+ (aref a 0) (* (- (aref b 0) (aref a 0)) u))
@@ -105,7 +101,6 @@ are allowed (\"do nothing\"); NIL if all weights are 0. For AI choices: pass a S
 (defun-fast v3-dot (a b)
   (declare (type f32vec a b))
   (+ (* (aref a 0) (aref b 0)) (* (aref a 1) (aref b 1)) (* (aref a 2) (aref b 2))))
-(defun-fast v3-len2 (a) (declare (type f32vec a)) (v3-dot a a))
 (defun-fast v3-len (a) (declare (type f32vec a)) (sqrt (the (single-float 0f0) (v3-dot a a))))
 (defun-fast v3-dist (a b)
   (declare (type f32vec a b))
