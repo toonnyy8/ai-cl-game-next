@@ -267,7 +267,6 @@ the match camera, frozen); 83964 lets go."
 ;; 83965+c starts cinematic c from a fresh scene (0 the awakening: P1 Hisagi in his Shikai 6 m from an idle Kenpachi,
 ;; AWAKEN! itself; 1 刈れ, the Shikai 4 m from him; 2 KOSA, the ranged mode 7.5 m from him; 3 KOSHU, a bind 2 m from him),
 ;; played through; 83970+b restarts the last one held at its beat b's middle frame (*HS-CINE-BEATS*); 83976 lets go.
-(defparameter *hs-cines* '(hs-awaken-cine hs-kare-cine hs-kosa-cine hs-koshu-cine) "83965+c: the cinematic c.")
 (defparameter *hs-cine-beats*
   '((10 36 60 85 117 152) (12 40 64 94 140 168) (12 42 75 113 135) (15 50 92 122 165))
   "Each cinematic's beats' middle frames (83970+b; as built, DUEL_HISAGI §22.7).")

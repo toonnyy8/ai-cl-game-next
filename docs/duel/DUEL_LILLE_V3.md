@@ -62,8 +62,9 @@ Lille's art lives in files that both kits share (`DUEL_LILLE_V2` §2: the art is
 `lille-clips.lisp` (the poses and clips), `lille-draw.lisp` (`LILLE-DRAW`, `%LB-WINGS`, `LB-LOOK`), `lille-cine.lisp` (HUD pips, sounds,
 the four cinematics); then Lille II's own `barro-art.lisp` (clips), `barro-draw.lisp` (`BR-DRAW`, his looks, the HUD row),
 `barro-stills.lisp` (art stills 82100-82399, `BR-CONS-PROBE`), `barro.lisp` (kit, rules, hooks) and `barro-ai.lisp` (his CPU, the
-learner's situations, the ASSIST routes). Older § below name the file as it was when written. `lille-clips.lisp` holds **63** clips
-(`defclip` / `defstrike`; **73** when this inventory was written, before the old Lille's spares went) plus their poses,
+learner's situations, the ASSIST routes). Older § below name the file as it was when written. `lille-clips.lisp` holds **56** clips
+(`defclip` / `defstrike`; **73** when this inventory was written, 63 before 2026-10-21's refactor round 2 deleted the
+old Lille's unreferenced `:lb-snap`, `:lb-jab`, `:lb-f1..3`, `:lb-o-fold`, `:lb-oe-fold`: rows marked *deleted*) plus their poses,
 `barro-art.lisp` and `barro-draw.lisp` **69** (Lille II's recall, its strings, the mode turns, the owl's twins). Walking, running,
 Step, Hoho, guard and the hit reactions use the
 game's generic clips on his bodies, not clips of his own. Frames are startup / active / recovery as the clip is timed
@@ -76,13 +77,13 @@ game's generic clips on his bodies, not clips of his own. Frames are startup / a
 | `:lb-stance` | loop 2.6 s | idle: upright, Diagramm levelled at the hip | idle | idle | idle |
 | `:lb-aim` | loop 0.6 s | the shouldered aim, held | old L aim | Kikon's wind-up | as II (Kikon) |
 | `:lb-fire` | 4 / 2 / 26 | the shoulder shot: recoil, the plank drops | old L shot | Kikon's shot | stance L 1 (gather) |
-| `:lb-snap` | 6 / 2 / 20 | the snap shot from the hip | unused | stance J snap (also in a Step) | stance J 1; L 2 |
+| `:lb-snap` | 6 / 2 / 20 | the snap shot from the hip | unused | stance J snap (also in a Step) | *deleted 2026-10-21* (unused again since §8.5) |
 | `:lb-q1` | 8 / 3 / 12 | J1 SHOBI-UCHI: the rifle reversed, the plank swung up | J1 | J1 | J1 |
 | `:lb-q2` | 7 / 3 / 13 | J2 KAESHI: the plank's backhand | J2 | J2 | J2 |
-| `:lb-jab` | 9 / 3 / 18 | J3 JUKO-TSUKI: the muzzle cross jabbed up | J3 | J3 | J3 |
-| `:lb-f1` | 17 / 4 / 21 | K1 JUSHIN-NAGI: the barrel swept flat | K1 | K1 | K1 |
-| `:lb-f2` | 20 / 4 / 24 | K2 FURIOROSHI: raised overhead, brought down | K2 | K2 | K2 |
-| `:lb-f3` | 21 / 5 / 34 | K3 REI-KYORI: the muzzle pressed in, fired | K3 | K3 | K3 |
+| `:lb-jab` | 9 / 3 / 18 | J3 JUKO-TSUKI: the muzzle cross jabbed up | J3 | J3 | *deleted 2026-10-21* (`:br-jab` since §20; its pose `:lb-jab-hit` stays, `:br-jab-hit`'s base) |
+| `:lb-f1` | 17 / 4 / 21 | K1 JUSHIN-NAGI: the barrel swept flat | K1 | K1 | *deleted 2026-10-21* (`:br-f1` since the bold K string) |
+| `:lb-f2` | 20 / 4 / 24 | K2 FURIOROSHI: raised overhead, brought down | K2 | K2 | *deleted 2026-10-21* (`:br-f2` since the bold K string) |
+| `:lb-f3` | 21 / 5 / 34 | K3 REI-KYORI: the muzzle pressed in, fired | K3 | K3 | *deleted 2026-10-21* (`:br-f3` since the bold K string) |
 | `:lb-sanren` | 12 / 22 / 24 | SP1 SANREN: three shoulder shots, turning | SP1 | SP1, stance SP1 | SP1 (by the pips) |
 | `:lb-hiren` | 20 / 2 / 22 | SP2 HIRENKYAKU: the low back-slide, then a shot | SP2 | SP2, stance SP2 | SP2 (by the pips) |
 | `:lb-kamae` | loop 0.8 s | the 狙撃構え: low, levelled, aimed | stance | the stance | L into the stance |
@@ -157,7 +158,7 @@ game's generic clips on his bodies, not clips of his own. Frames are startup / a
 | `:lb-oe-q3` | 5 / 3 / 8 | EN J3: both claws and a peck | EN J3 | unused | owl stance L 2 |
 | `:lb-oe-f1 / f2 / f3` | 9/4/9; 10/4/11; 11/5/16 | EN rakes and the slam | EN K1–K3 | ranged L 3–5 | owl stance K 1–2 (f3 spare) |
 | `:lb-oe-sabaki` | 6 / 14 / 11 | EN SP1: three chops, a line each | EN SP1 | ranged SP1 | owl stance SP1 |
-| `:lb-o-fold / :lb-oe-fold` | loop 2.0 s | MUJITTAI, each mode's silhouette | MUJITTAI | MUJITTAI | spare (MUJITTAI dropped) |
+| `:lb-o-fold / :lb-oe-fold` | loop 2.0 s | MUJITTAI, each mode's silhouette | MUJITTAI | MUJITTAI | *deleted 2026-10-21* (MUJITTAI dropped; `:lb-o-fold-pose` stays, `:br-o-to-en`'s f0) |
 | `:lb-o-tenshin / -in` | 14 / 0 / 8; 30 / 0 / 8 | the owl's TENSHIN out / in | TENSHIN | in: ranged J; out: unused | spare (no dash) |
 | `:br-o-to-en / :br-o-backstep` | 12 / 0 / 0; 14 / 0 / 8 | KIN to EN / the backstep (ranged at f0) | — | L turn / J3 → L | as II (in the burst) |
 | `:br-o-recall, :br-o-rc0 … rc4` | as Jilliel's | the recall strings on the claws | — | the recall | the burst's full volley (the one spend-all) |
@@ -171,8 +172,8 @@ game's generic clips on his bodies, not clips of his own. Frames are startup / a
 | `:lb-o-reveal` | 2.0 s | the owl revealed | cinematic | cinematic | burst transformation (candidate) |
 
 **Spare clips** (in no move of revision 3): `:lb-e-f3` / `:lb-oe-f3`, `:lb-w-tenshin-in`, `:lb-o-tenshin` /
-`-in` (no dash), Jilliel's `:br-recall` and `:br-rc0..rc4` (the volley is the owl's), `:lb-w-judge-*`, the MUJITTAI folds
-`:lb-w-fold`, `:lb-o-fold`, `:lb-oe-fold`, the revival's `:lb-rise`. Revived from the spares: `:lb-k-hosha`, `:lb-e-q3` /
+`-in` (no dash), Jilliel's `:br-recall` and `:br-rc0..rc4` (the volley is the owl's), `:lb-w-judge-*`, the MUJITTAI fold
+`:lb-w-fold` (the Kikon cinematic plays it; `:lb-o-fold`, `:lb-oe-fold` deleted 2026-10-21), the revival's `:lb-rise`. Revived from the spares: `:lb-k-hosha`, `:lb-e-q3` /
 `:lb-oe-q3`, `:br-e-swing` / `:br-oe-swing`.
 
 ## 2. What the base stance already is

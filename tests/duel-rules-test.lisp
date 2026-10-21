@@ -2688,7 +2688,7 @@ past the ends; DEFAULT if the clip is not listed."
       (clip-sample! p2 (find-clip c) 0.0)
       (check (every (lambda (a b) (< (abs (- a b)) 1e-4)) pose p2))))
   ;; R16 (§20, the user 2026-10-12: 「普通攻擊的 J3 幫我插入更多關鍵幀並放慢一些速度」): the base form's attack-state J3 銃口突
-  ;; :br-j3 plays its own clip :br-jab (Lille's :lb-jab is the old Lille's) at speed 1: S 10, A 3, R 18, the clip lasting
+  ;; :br-j3 plays its own clip :br-jab (the old Lille's :lb-jab went 2026-10-21) at speed 1: S 10, A 3, R 18, the clip lasting
   ;; them, its :s on S (its drawn reach: the generic J / K reach check above)
   (let ((m (find-move :br-j3)))
     (check (or (and (eq (mv-clip m) :br-jab) (null (mv-clip-2 m)) (~= 1.0 (mv-clip-speed m))
@@ -3559,8 +3559,7 @@ past the ends; DEFAULT if the clip is not listed."
     (check (and (hs-rel-free-p :idle nil) (hs-rel-free-p :guard-hit nil) (hs-rel-free-p :run nil) (not (hs-rel-free-p :stun nil))
                 (hs-rel-free-p :stun t) (hs-rel-free-p :air t) (not (hs-rel-free-p :move t))))
     (check (and (not (hs-rel-due-p 40 42)) (hs-rel-due-p 41 42)))
-    (check (and (= 1300 (hs-grey-loss 1300 1300 9 8)) (= 250 (hs-grey-loss 1000 750 3 3))
-                (hs-release-wanted-p 700 300) (not (hs-release-wanted-p 600 300))))
+    (check (and (= 1300 (hs-grey-loss 1300 1300 9 8)) (= 250 (hs-grey-loss 1000 750 3 3))))
     ;; ---- the bind on stand-ins: H (P1, Hisagi in the ranged mode) binds K (P2, Kenpachi)
     (multiple-value-bind (h o) (t-pair kr (kit :kenpachi :base))
       (let ((fh (fighter h)) (gh (gauges h)) (go (gauges o)) (st (hs h)))
@@ -4242,7 +4241,7 @@ past the ends; DEFAULT if the clip is not listed."
        (ordered-p (p) (<= (getf p :easy) (getf p :normal) (getf p :hard))))
   ;; every chance of his CPU EASY <= NORMAL <= HARD (the user's rule), the route styles' included
   (check (every #'mono (list* *hs-ai-punish-p* *hs-ai-anti-p* *hs-ai-escape-p* *hs-ai-dodge-p* *hs-ai-saharai-p* *hs-ai-r-anti-breaker-p*
-                              *hs-ai-throw-p* *hs-ai-release-p* *hs-ai-route-dmg-p* *hs-ai-bind-sp-p*
+                              *hs-ai-throw-p* *hs-ai-release-p* *hs-ai-bind-sp-p*
                               *hs-ai-wake-p* *hs-ai-plain-release-p*
                               (loop for (st nil) on *hs-ai-r-styles* by #'cddr collect (hs-r-sv st :route-dmg)))))
   ;; the three route styles (one roll per entry into the ranged mode): their weights, openers, the tip read, the K link's

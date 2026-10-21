@@ -29,8 +29,6 @@
 (defparameter *hs-return-frames* 8 "The auto-retrieve's flight, frames: the sickle RETURNING, no hit (the lead's proposal, §7.1).")
 (defparameter *hs-chain-max* 6.5
   "Out of his moves, his hand farther than this (m) from the anchor starts the auto-retrieve at once (the lead's proposal, §7.1).")
-(defparameter *hs-drag-to* 1.6 "A NAGE / HIKI hit drags the victim to this many metres (§7.4 M2, M3: ICHIGO-PULL-TO's rule) ...")
-(defparameter *hs-drag-frames* 10 "... over this many frames (the lead's proposal 2026-10-16, §7.4).")
 (defparameter *hs-push-reach* 6.0
   "The K enders' push is measured from this reach (kit :push-reach): out of the throw's full reach, ~6.45 m by the victim
 (the user, 2026-10-17: Q6 B, §13).")
@@ -155,8 +153,6 @@ blockable; a flinch, the drag goes on and the reap combos after it) for this dam
 (defparameter *hs-kaibaku-dmg* 120
   "Bind SP2 解縛擊 KAIBAKU-GEKI: the release at its S (the snapshot back, the pool to the opponent first), then its strike's
 real damage (the user, 2026-10-18: 「先還原再打，傷害 120（推薦）」); no bars spent; blockable (blocked: the release, no damage).")
-;; (a CPU knob, kept here because HS-RELEASE-WANTED-P in the Bankai rules below reads it; hisagi-ai.lisp holds the other *HS-AI-...* knobs)
-(defparameter *hs-ai-release-margin* 300 "... the margin (Reishi points).")
 
 ;;; ---------------------------------------------------------------- the two Bankai modes made distinct (§22.1, batch B4a)
 ;;; The user, 2026-10-18: 「目前近遠程的攻擊模組看不出各自的特色」 -> A (the ranged mode a placed zone game) + C (looks) + D
@@ -798,9 +794,6 @@ within the chain's length. Values ax ay az bx by bz r."
       (set-slide v (- dist to) frames dx dz)
       (emit :sfx :chain-snap e)
       t)))
-(defun hs-drag (e)
-  "NAGE's / HIKI's first real hit (:on-land): the chain drags the victim to *HS-DRAG-TO* m over *HS-DRAG-FRAMES*."
-  (when (hs-pull-to e *hs-drag-to* *hs-drag-frames*) (pace e :drag)))
 (defun hs-kaza-up (e) "The windmill's up frame (f6): counted." (declare (ignorable e)) (pace e :windmill))
 (defun hs-kaza-start (e)
   "The windmill's frame 0 (both copies; not a :hold move, so it runs): no charge yet, no K string (S1)."
@@ -954,9 +947,6 @@ is within *HS-R-TIP* m of the volume's far EDGE or past it (an arc / annulus: hi
 (defun hs-grey-loss (r0 r k0 k)
   "A fighter's grey loss since the bind's start (Konpaku x *REISHI-MAX* + Reishi: his CPU's release read, §17.5 #16)."
   (+ (* *reishi-max* (- k0 k)) (- r0 r)))
-(defun hs-release-wanted-p (mine theirs)
-  "His CPU's release read: his grey loss MINE exceeds the opponent's THEIRS by *HS-AI-RELEASE-MARGIN*."
-  (> (- mine theirs) *hs-ai-release-margin*))
 
 ;;; ================================================================ the bind's bookkeeping (§17.3 B0-B16)
 (defun hs-binding (x) "His :bind hook (combat.lisp BIND-OF): does X bind now?" (let ((st (hss x))) (and st (hss-bound st))))

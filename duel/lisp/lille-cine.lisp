@@ -62,7 +62,7 @@ unspent (the shut eye ― in a white ring), 1 spent (the open eye in jade, a jad
     (au-mix! b pad 0.0 0.7)
     (au-reverb! b 0.35 :size 1.6)))
 
-;;; ================================================================ the cinematics' looks (cosmetic; DURING forms, lille.lisp §10)
+;;; ================================================================ the cinematics' looks (cosmetic; DURING forms)
 (defun vfx-lb-reticle-view (v k)
   "万物貫通's reticle view: the eye mark round V's chest, facing the camera, closing as K goes 1 -> 0."
   (multiple-value-bind (x y z) (actor-point v 1.25)

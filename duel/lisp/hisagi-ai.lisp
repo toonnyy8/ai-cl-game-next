@@ -272,9 +272,6 @@ b3a2).")
   "In a bind, once per neutral decision due with him 1.8 m or more off (HS-B-AI-REFLEX): taken with nothing, so he walks in to
 the bind's J1 (+162 net a neutral J1 at HARD) instead of the generic Step-in (its SENGEN -40 net) or a neutral K1 (-24; none in
 the bind's bands either) (round01 cell b2a1's, ported by cell b3a2).")
-(defparameter *hs-ai-route-dmg-p* '(:easy 0.3 :normal 0.55 :hard 0.8)
-  "His CPU in the ranged mode, once per link-1 / link-2 hit (HS-R-AI-MOVE): the damage pick (the K link: spread K2s / K3,
-gathered K2 / K3) when the victim stands inside its reach, else the speed pick (the J link) (B4c, §22.6).")
 
 ;; dream-rsi round01 cell b1a0 on §25.13's rules (DUEL_HISAGI §25.15; the user, 2026-10-18: 「請研究多種招牌風格，並使用機率將這些
 ;; 風格戰法互相結合」): the ranged mode played as one of three ROUTE styles, rolled once per entry into it (the awakening, every
