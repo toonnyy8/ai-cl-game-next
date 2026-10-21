@@ -91,6 +91,15 @@ nine buttons, command table and bindings); no device is touched here.
   game's `(down-p device name)`; `(inputs-down-p inputs down-p)`. Reader example:
   `(make-vpad :actions *my-actions* :reader (lambda (vp) (vpad-read! vp *p1-bindings* #'my-down-p (pad-lx 0) (pad-ly 0))))`.
 
+## Touch gestures (`touch.lisp`, plain CL, tested by `tests/touch-test.lisp`)
+
+The one-thumb gesture recogniser (design: `docs/duel/DUEL_MOBILE_DESIGN.md` §3.2; the file header lists the reads).
+`(make-touch)` makes one; `(touch-layout! tr dpx pad chips &optional holds)` sets the scale, the flow pad (x0 y0 x1 y1, px)
+and the chips ((cx cy r) list); `(touch-poll tr)` (platform.lisp, once per frame after `platform-poll`) feeds it the frame's
+finger events. Reads: `(touch-take! tr)` once per vpad read, then `(touch-pulse-p tr +tp-tap+ / +tp-flick+ / +tp-tap-hi+ /
++tp-hoho+)`, `touch-resting-p` (guard), `touch-step-held-p`, `touch-sx` / `touch-sy` (the drag stick), `touch-chip-down-p`,
+`touch-tapped-p` (menus). Knobs: `gesture-config` (`gc-*`, CSS px and ms). No consing per event or per frame.
+
 ## Math (`math.lisp`, pure CL, tested by `tests/test-math.lisp`)
 
 Constructors (allocate; setup code): `(v3 x y z)` `(m4)` = identity,
@@ -130,8 +139,8 @@ Hurt volumes are vertical cylinders (radius TR, height TH) on the target's feet 
   0.8))`, `(draw-vol v ax ay az yaw &optional tx ty tz)` (red; a TSPH needs the target point).
 
 vec3: `v3-set! (o x y z)`, `v3-copy! (o a)`, `v3-add! v3-sub! (o a b)`, `v3-scale! (o a s)`,
-`v3-madd! (o a b s)` (a + b·s), `v3-lerp! (o a b u)`, `v3-cross! (o a b)`, `v3-normalize! (o a)`,
-`v3-dot (a b)`, `v3-len`, `v3-len2`, `v3-dist (a b)` (these are inline: no boxing in typed code).
+`v3-lerp! (o a b u)`, `v3-cross! (o a b)`, `v3-normalize! (o a)`,
+`v3-dot (a b)`, `v3-len`, `v3-dist (a b)` (these are inline: no boxing in typed code).
 
 mat4: `m4-identity! m4-copy!`, `m4-mul! (o a b)` (o = a·b, aliasing OK), `m4-translation! (o x y z)`,
 **`m4-euler! (o px py pz yaw pitch roll &optional sx sy sz)`** (T·Ry·Rx·Rz·S) — the workhorse for rigid parts,
@@ -297,7 +306,7 @@ edge toward +Z, handle toward −Y (~0.28 m). `:hilt nil` / `:blade nil` build t
 separately (e.g. to draw the blade emissive); `:smooth t` on a sphere / capsule / cylinder side gives
 analytic per-vertex normals (round shading; cylinder caps stay flat), otherwise every face is flat;
 `(mb-hull dst src &key start end k c color)` appends to builder DST the ink hull of SRC's triangles in
-floats [START, END) (default all; read `mb-fill` around a shape for its range): the same triangles in
+floats [START, END) (default all; the range of a shape is the engine-internal `mb-fill` before and after it): the same triangles in
 COLOR, each vertex's normal slot holding its extrusion E (vertices grouped by position, face normals
 recomputed; E = K·ŝ / max(min ŝ·n, C): a box corner gets (±1 ±1 ±1)·K; C 0.55 for boxes and round
 shapes, 0.8 caps the spike at cone / blade tips). Draw the built mesh with DRAW-MESH toon mode 3.
@@ -521,7 +530,7 @@ replay includes them. Used by SOUL DUEL (duel/lisp/cinema.lisp: hooks, shot help
 * Debug: `*skip-cines*` (every cinematic ends at once), `*cine-hold*` (stop at the script's HOLD
   frame; `(cine-hold-frame name)`, `(setf (cine-hold *cine*) …)`); accessors `cine-name cine-cf cine-a cine-v`.
 
-## FX (`fx.lisp`)
+## FX (`fx.lisp` pools, `fx-shapes.lisp` drawing kit)
 
 Real-time or sim-time effects that live in flat float pools (no entities, no consing).
 * **Shake:** `(shake amp dur)` (metres, seconds; max wins, × `*shake-mult*`), `(shake-update dt)`
@@ -565,8 +574,9 @@ Real-time or sim-time effects that live in flat float pools (no entities, no con
 * `*shake-hz*` (30.0): how often the shake offsets change; SOUL DUEL 12 (a drawn, stepped shake).
 
 ### Toon effects (docs/style/STYLE_STORM_DESIGN.md §3; SOUL DUEL)
-Hard, inked shapes in one of 12 palettes (`+pal-fire+ +pal-ember+ +pal-reiatsu+ +pal-ink+ +pal-steel+
-+pal-hit+ +pal-smoke+ +pal-dust+ +pal-ash+ +pal-soul+ +pal-blood+ +pal-black-smoke+`; core / body /
+Hard, inked shapes in one of 16 palettes (0..15: `+pal-fire+ +pal-ember+ +pal-reiatsu+ +pal-ink+ +pal-steel+
++pal-hit+ +pal-smoke+ +pal-dust+ +pal-ash+ +pal-soul+ +pal-blood+ +pal-black-smoke+ +pal-blue+ +pal-jade+
++pal-gold+ +pal-flame+`; core / body /
 shade / edge tones, the edge taking the value opposite to the body) in the `:toon` batch, drawn with
 depth write and alpha-to-coverage. A toon vertex's colour lanes: HEAT (ribbons: base 1 → tip 0.2),
 SEED (0..999; negative = an "along" shape whose tip erodes first; +1000 = the charcoal style), WOBBLE
