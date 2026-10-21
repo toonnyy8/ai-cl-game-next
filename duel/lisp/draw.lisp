@@ -8,7 +8,6 @@
 (defvar *tip* (make-f32 3))
 (defvar *base* (make-f32 3))
 (defvar *super-rim* (rim-vec #xFFFFFF 3.0) "SP start: the rim-light super flash.")
-(defparameter *evolution-rgb* '(1.0 0.85 0.3))
 (defvar *no-parts* (make-array +nj+ :initial-element nil) "DRAW-PARTS with no solids: the hulls alone (ink afterimage).")
 (defparameter *ghost-ink* '(0.35 0.35 0.4) "Ink afterimage tint: the keyline grey of black parts darkened to ink.")
 
@@ -283,7 +282,7 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
           (vfx-frost x z (/ (fighter-frost f) 60.0) rdt)
           (when (and (eq (fighter-state f) :stun) (eq (fighter-phase f) :bind))   ; bound by South: ash drifting at the feet
             (vfx-aura x y z (body-hurt-h b) :bound age rdt)))
-      (when (gauges-evolution (gauges e)) (vfx-aura x y z (body-hurt-h b) :evolution age rdt :rgb *evolution-rgb* :k 0.5))
+      (when (gauges-evolution (gauges e)) (vfx-aura x y z (body-hurt-h b) :evolution age rdt :k 0.5))
       (let ((bm (gauges-burst (gauges e))))              ; a running burst: its colour (docs/duel/DUEL_DESIGN.md "Burst modes")
         (when (and bm (> (model-alpha m) 0f0) (not (eq (fighter-state f) :cine)))
           (vfx-aura x y z (body-hurt-h b) (case bm (:white :burst-white) (:blue :burst-blue) (t :burst-orange)) age rdt))

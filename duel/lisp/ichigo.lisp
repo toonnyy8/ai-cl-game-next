@@ -5,7 +5,7 @@
 ;;;; KESSA NO ICHIGO (:kessa) holds one white slab: a normal guard, the easy parry 鎖盾 on L (from blockstun too), the
 ;;;; clones 分身 (a Step or a Hoho leaves one, up to three; every clone answers each J / K press, reversed: J a heavy, K a
 ;;;; light), O the clones' self-destructing charge 影討 (its Kikon 千影 worth 2 / 2 / 3 / 4 Konpaku by the clones at the
-;;;; press), SP2 the afterimage state 残像. Everything of his lives here and in ichigo-art.lisp (the user's code layout,
+;;;; press), SP2 the afterimage state 残像. Everything of his lives here and in ichigo-art.lisp / ichigo-look.lisp (the user's code layout,
 ;;;; docs/duel/DUEL_DESIGN.md "Character code layout"): the shared files only call his :hooks. Clip names are the art contract.
 ;;;; Most of his mechanics run in his :tick hook (after the hits of the step): the stance's follow-ups, the parry from
 ;;;; blockstun, the clones' answers (a J / K press edge), the Hoho clone, the O charge, the afterimages.

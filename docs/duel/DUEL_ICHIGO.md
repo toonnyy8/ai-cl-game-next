@@ -4,7 +4,7 @@ Status: **v2 built 2026-09-29** (the playtest redesign: "Playtest redesign decis
 at the end of this file, which override everything above them where they differ). v1 was built 2026-09-28: the design
 below with the user's decisions of that day ("User decisions"); its as-built values are in "Built: deviations", "Knobs"
 and "Measurements". Code layout (the user's rule, DUEL_DESIGN "Character code layout"): everything of his is in
-`duel/lisp/ichigo.lisp` and `duel/lisp/ichigo-art.lisp`; the shared files only gained small generic hook points.
+`duel/lisp/ichigo.lisp`, `duel/lisp/ichigo-art.lisp` (body, weapons, poses, clips) and `duel/lisp/ichigo-look.lisp` (looks, sounds, brush names, cinematics: the tail of `ichigo-art.lisp`, split out 2026-10-21, refactor round 2); the shared files only gained small generic hook points.
 
 ## Summary (v2)
 

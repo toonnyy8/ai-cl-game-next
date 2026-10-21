@@ -1,8 +1,10 @@
-;;;; duel-vfx.lisp — SOUL DUEL VFX gallery: every effect of duel/lisp/vfx.lisp on the dusk stage
+;;;; duel-vfx.lisp — SOUL DUEL VFX gallery: every effect of duel/lisp/vfx.lisp, vfx-stamps.lisp and yama-vfx.lisp on the dusk stage
 ;;;; with posed fighters for scale, looping over time, plus a worst-case scene with a stats line.
 ;;;; A test target, not part of the game:
 ;;;;   ./build.sh duelvfx duel/lisp/package.lisp duel/lisp/body.lisp duel/lisp/yama-art.lisp \
-;;;;     duel/lisp/ken-art.lisp duel/lisp/stage.lisp duel/lisp/vfx.lisp tests/duel-vfx.lisp
+;;;;     duel/lisp/ken-art.lisp duel/lisp/stage.lisp duel/lisp/vfx.lisp duel/lisp/vfx-stamps.lisp \
+;;;;     duel/lisp/yama-vfx.lisp tests/duel-vfx.lisp      (built and run once 2026-10-21 after the vfx.lisp split: 0 warnings;
+;;;;                                                      run it without --fixed-dt, which stalls this target)
 ;;;;   python3 tests/scripts/duel-vfx.py   (writes tests/scripts/duel-vfx.json)
 ;;;;   node tools/run.mjs dist/duelvfx --secs 150 --script tests/scripts/duel-vfx.json
 ;;;; Keys: N / P next / previous scene. Debug commands (Module._debug_cmd):
@@ -138,7 +140,7 @@
              (let ((an (* i (/ (* 2 pi) 7))))
                (vfx-fire-pillar (+ (actor-x ya) (* 4.0 (cos an))) (+ (actor-z ya) (* 4.0 (sin an))) u 0.8 dt))))))
       (6 (let ((u (cycle 2.6))) (when (< u 2.0) (vfx-fire-dome (actor-x ke) (actor-z ke) 2.5 u 2.0 dt))))
-      (7 (vfx-aura (actor-x ya) 0 (actor-z ya) 1.68 :evolution age dt :rgb '(1.0 0.6 0.3))
+      (7 (vfx-aura (actor-x ya) 0 (actor-z ya) 1.68 :evolution age dt)
        (vfx-aura (actor-x ke) 0 (actor-z ke) 2.02 :reiatsu age dt))
       (8 (let ((u (cycle 1.0)))
            (vfx-aura (actor-x ya) 0 (actor-z ya) 2.02 :breaker age dt :k (max 0.0 (/ (- u 0.6) 0.4)))
