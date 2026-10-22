@@ -187,8 +187,8 @@ folded the three into one slot; traits take none and free none.
 | Hisagi | 尖端強化: tip x3.42, non-tip x0.1 | 尖端平均: every hit x1.355, SP x1.15 |
 | Kenpachi | 隨時卍解: the Bankai from any cup, Konpaku kept, Reishi refilled, once a stage | 無手臂限制: no UDE pip spent, no KATAUDE |
 | Yamamoto (lead's draft) | 旭日刃: East's pierce chip k 0.1–0.45 -> 1.0 (a guard takes the full hit); limit: guarding never turns him to West | 殘日獄衣: West's ward never drops (West the rest of the stage); limit: only West's commands, walk −30 % |
-| Rukia (lead's draft) | 凍天常駐: −273 °C ends only by the CRACK (no warming, the top bar not spent); limit: rooted as ever | 霜天: at −273 °C she walks at −50's speed; limit: it warms x2 (zero lasts half as long) |
-| Ichigo (lead's draft) | 無月: once a stage SP2 deals x3; limit: after it KESSA ends for the stage (base form) | 天鎖斬月: Hoho and Burst Reverse cost no flash step; limit: damage taken +25 % |
+| Rukia (from 永久凍土, R4; the user: 「露琪亞請以永久凍土為基礎設計孿生卡」) | 永久凍土: −273 °C's L REIDO TOKETSU costs no cold (L never drops her out of zero); limit: no ward at −273 °C (hits land as usual; still rooted) | 瞬凍: at −50 °C L is REIDO TOKETSU (100 cold, as at zero; the zero kit's move on P1's −50 copy); limit: she never enters −273 °C |
+| Ichigo (from 虛影 I2 and 分身亂舞 I4; the user: 「一護將虛影跟分身亂舞重新設計成孿生卡」) | 虛影: SP2 ZANZO costs 1 bar and its echo state lasts until he is hit (not 6 s); limit: no clones while the echo is on | 分身亂舞: a clone costs no guard gauge (15 -> 0); limit: no SP2 ZANZO (sealed) |
 | Senjumaru (lead's draft) | 天衣無縫: a hit while weaving no longer voids the hank; limit: a pass takes 30 f (not 20) | 一越千針: every pass weaves 2; limit: any hit taken voids the live hank (not only while weaving) |
 | Lille (lead's draft) | 神梟: the owl burst lasts the rest of the stage; limit: no wing regen in it (wings only from hits) | 萬翼: wing armour spends no wing; limit: no owl (his burst is a plain one) |
 
