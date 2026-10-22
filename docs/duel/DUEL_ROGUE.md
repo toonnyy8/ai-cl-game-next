@@ -92,9 +92,9 @@ Implemented as one **run modifier table** on P1 (a plist on the fighter, nil out
   stun, GUARD CRUSH, mid-move): no Konpaku lost, no guard drain, no chip. The rush's first strike is unchanged. Konpaku
   then goes only through Soul Breaks (the Kikon count + 1, at most 5) and time-up. **The CPU** reads it: one predicate
   (the Soul Break finish's AI-SB-FINISH-P widened to "the Kikon is futile") closes every Kikon site in ai.lisp (the
-  neutral rush on a red opponent, the O ender, the rush on hitstun), so the CPU fights on to the Soul Break. Not held with
-  殘心 (once a stage a lethal Soul Break leaves 1 Reishi): the pool never offers one while the other is held, or no
-  Konpaku would be lost on most stages.
+  neutral rush on a red opponent, the O ender, the rush on hitstun), so the CPU fights on to the Soul Break. It may be held with 殘心: the first draft kept them apart, but 殘心 only
+  turns one lethal hit a stage into 1 Reishi and the next real hit is the Soul Break (chip leaves 1, so only a hit), so
+  the pair is one hit of margin a stage, not immunity (corrected 2026-10-22 when the user asked 「為什麼會無敵？」).
 - **Pairs cross categories**: a pair's two prerequisites never share a 1-slot category (they could not be held together).
 
 **The list** (the user's picks of 2026-10-22 on the first candidate list: 「砍 15 縮地、16 返し」, the changes to 6 and 25
@@ -115,8 +115,8 @@ number only.
 | 9 | 守 | 不屈 | one armour hit for 3 s after losing Konpaku to a Kikon or a Soul Break | rule |
 | 10 | 守 | 鐵甲 | chip and Breaker damage taken −40 % | rule |
 | 11 | 守 | 回生 | after 3 s unhit, 1 % Reishi a second (not while red) | rule |
-| 12 | 守 | 殘心 (RARE+) | once a stage the Soul Break's lethal hit leaves 1 Reishi; never with 28 | rule |
-| 28 | 守 | 魄鎧 (RARE only, no tiers) | the Kikon always guarded (above); never with 12 | rule |
+| 12 | 守 | 殘心 (RARE+) | once a stage the Soul Break's lethal hit leaves 1 Reishi | rule |
+| 28 | 守 | 魄鎧 (RARE only, no tiers) | the Kikon always guarded (above) | rule |
 | 13 | 瞬 | 疾風 | flash-step gauge regen +30 % | gauge |
 | 14 | 瞬 | 瞬歩 | Hoho cost −30 % | gauge |
 | 17 | 靈 | 威壓 | damage taken −15 % while awakened | rule |
