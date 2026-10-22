@@ -41,6 +41,7 @@ lisp/ken.lisp
 lisp/rukia.lisp
 lisp/ichigo.lisp
 lisp/endless-rules.lisp
+lisp/rogue-rules.lisp
 lisp/fighter.lisp
 lisp/combat.lisp
 lisp/hazards.lisp

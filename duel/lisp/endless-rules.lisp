@@ -14,9 +14,13 @@ opponent-reishi-%). The last row is the plateau (DUEL_ENDLESS §3).")
   (let ((row (first *endless-ramp*)))
     (dolist (r *endless-ramp* row) (when (>= stage (first r)) (setf row r)))))
 
+(defun ramp-difficulty (floor row &optional (levels '(:easy :normal :hard)))
+  "The CPU difficulty of ramp ROW for a run started at FLOOR: the row's steps above it, clamped at the last of LEVELS."
+  (nth (min (1- (length levels)) (+ (or (position floor levels) 0) (second row))) levels))
+
 (defun endless-difficulty (floor stage &optional (levels '(:easy :normal :hard)))
   "The CPU difficulty at STAGE for a run started at FLOOR: the ramp's steps above it, clamped at the last of LEVELS."
-  (nth (min (1- (length levels)) (+ (or (position floor levels) 0) (second (endless-ramp stage)))) levels))
+  (ramp-difficulty floor (endless-ramp stage) levels))
 
 (defun endless-lcg (x) "One step of the bag's own LCG (not SIM-RND: the order never depends on the fights)." (mod (+ (* x 1103515245) 12345) 2147483648))
 
