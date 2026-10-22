@@ -71,14 +71,15 @@ row that reuses its run machinery. Open items for the user are in §11.
 
 - 9 slots in all. **Full category (R8)**: its rewards are still offered, the card reads REPLACE; taking one asks which held
   reward of that category to drop; the dropped one goes back into the pool.
-- **Pairs (duo rewards)**: offered only while both prerequisites are held; taking one replaces one prerequisite and takes
-  its slot (the total never exceeds 9). Version 1 has 3–5 pairs.
+- **Traits (追加特性)**: a pair or a composite is never a card and takes no slot: it switches on by itself while all its
+  prerequisites are held and off when one is replaced away (the user, 2026-10-22: 「我想將合體改成追加特性，這樣就不會有吃掉
+  的問題（但也沒辦法空出格子）」). No tiers. A card that would complete a trait names it (`+ 死線`).
 - **Tiers**: COMMON → RARE → LEGEND, the tier scales the reward's numbers only. RARE offers come from elites and RARE doors;
   UPGRADE (rest points, elite rewards) raises one held reward one tier.
 - **Offers**: 3 cards, never a reward the character cannot use, never the same reward twice in one offer; the MOVE door's
   offer is all 解 cards.
 
-### 4.2 Generic rewards (26 and 5 pairs)
+### 4.2 Generic rewards (26, and 8 traits)
 
 Implemented as one **run modifier table** on P1 (a plist on the fighter, nil outside a run), read at a few rule points
 (damage dealt, perfect guard, flash step, Kikon taken, gauge gains). With no table every point reads its old value.
@@ -93,7 +94,7 @@ Implemented as one **run modifier table** on P1 (a plist on the fighter, nil out
   then goes only through Soul Breaks (the Kikon count + 1, at most 5) and time-up. **The CPU** reads it: one predicate
   (the Soul Break finish's AI-SB-FINISH-P widened to "the Kikon is futile") closes every Kikon site in ai.lisp (the
   neutral rush on a red opponent, the O ender, the rush on hitstun), so the CPU fights on to the Soul Break. It may be held with 殘心 (12).
-- **Pairs cross categories**: a pair's two prerequisites never share a 1-slot category (they could not be held together).
+- **Traits cross categories**: a trait's prerequisites never overfill a category (two in a 1-slot category could not be held together).
 
 **The list** (the user's picks of 2026-10-22 on the first candidate list: 「砍 15 縮地、16 返し」, the changes to 6 and 25
 quoted below, 17 and 20 reworked by the no-gauge rule, 27 and 28 added; 19 and 21 both stay: 「21 必殺跟 19 靈體效果不是
@@ -133,9 +134,9 @@ Cut: 15 縮地 (dash speed, it moves the CPU's range reads) and 16 返し (Burst
 The first 鬥氣 (awakening gauge +25 %) is gone by the no-gauge rule.
 
 **Konpaku taken, with 6 and 25**: the Kikon's (or Soul Break's) count, + 1 for 捨身, then the usual cap (4 a Kikon, 5 a
-Soul Break); then + 1 for 斷魂 on a Kikon, past the cap. So a held pair of both on an awakened Kikon: 3 + 1 = 4 (cap) + 1 = 5.
+Soul Break); then + 1 for 斷魂 on a Kikon, past the cap. So holding both, an awakened Kikon: 3 + 1 = 4 (cap) + 1 = 5.
 
-**Pairs** (both prerequisites held; the pair takes one prerequisite's slot):
+**Pair traits** (on while both are held):
 
 | | Name | Needs | Effect |
 |---|---|---|---|
@@ -145,10 +146,10 @@ Soul Break); then + 1 for 斷魂 on a Kikon, past the cap. So a held pair of bot
 | D | 鬼道 | 見切 + 鐵甲 | damage taken −60 % for 2 s after a perfect Hoho |
 | E | 修羅 | 血契 + 斷魂 | a Kikon takes 2 more Konpaku past the cap; Konpaku cap 6 |
 
-**Composites** (the user, 2026-10-22: 「新增一個名為『真劍勝負』的複合型合體」, then, shown three drafts:
-「你說的這三種合體都新增進來，分別是『最古最強』『真劍勝負』跟『劍八』」): three prerequisites held at once fold into **one
-slot**, freeing two; the composite keeps all three prerequisites' effects and adds its own. Offered like a pair, only while
-all three are held.
+**Composite traits** (the user, 2026-10-22: 「新增一個名為『真劍勝負』的複合型合體」, then, shown three drafts:
+「你說的這三種合體都新增進來，分別是『最古最強』『真劍勝負』跟『劍八』」): on while all three are held, on top of the three
+rewards' own effects and of any pair trait they also complete (背水 + 不屈 under 劍八 also gives 死線). The first draft
+folded the three into one slot; traits take none and free none.
 
 | | Name | Needs | Its own effect |
 |---|---|---|---|
@@ -194,7 +195,7 @@ all three are held.
 
 ## 8. Code layout
 
-- `duel/lisp/rogue-rules.lisp`: pure (the layout, doors, offers, slots and replacement, pairs, tiers, unlocks, ranks),
+- `duel/lisp/rogue-rules.lisp`: pure (the layout, doors, offers, slots and replacement, traits, tiers, unlocks, ranks),
   host-tested.
 - `duel/lisp/rogue.lisp`: the mode (the run state on top of ENDLESS's, the screens, the record, debug entries).
 - Shared files get hook lines only (flow, hud, the rule points of §4.2, kit for `:boss` and the per-fighter kit copy).
@@ -204,7 +205,7 @@ all three are held.
 ## 9. Tests and gates
 
 - Host tests: the layout; doors never repeat a character; offers obey slots and never offer the unusable; REPLACE puts
-  the dropped reward back; pairs only with both prerequisites; tiers; ranks monotone; the generator replays and never
+  the dropped reward back (and its traits off); a trait on exactly while its prerequisites are held; tiers; ranks monotone; the generator replays and never
   reads `sim-rnd`.
 - Byte-identity with no run: simgate's 816 lines, cvc, looks 115 stills (every batch that touches a shared file).
 - **Run autopilot** (like ENDLESS's 80990): P1 a HARD CPU, offers taken by a random and a greedy policy; per character at
@@ -215,7 +216,7 @@ all three are held.
 ## 10. Batches
 
 1. The skeleton: the mode row, the layout, doors, elites and the boss without rules, REWARD / DOORS screens, the record.
-2. Generic rewards: the modifier table, its rule points, categories, slots, REPLACE, pairs, tiers.
+2. Generic rewards: the modifier table, its rule points, categories, slots, REPLACE, traits, tiers.
 3. Conditions and the seven `:boss` rules.
 4. 解 rewards: one batch per character (parallel worktrees), after the user picks the candidates.
 5. Unlocks, 靈壓階, the record, the manual, the autopilot gate.
@@ -228,4 +229,4 @@ a new boss character, rewards for the CPU, online boards.
 - The mode's name (working name DANGAI 斷界行).
 - The seven bosses' rules (a candidate list before batch 3).
 - Each character's 3–4 解 candidates (a list before batch 4).
-- The generic reward list and the pairs (a list before batch 2), with the slot counts of §4.1.
+- The generic reward list and the traits (picked 2026-10-22, §4.2), with the slot counts of §4.1.
