@@ -1,0 +1,210 @@
+[
+{
+"at": 8.5,
+"eval": "Module._debug_cmd(2106)"
+},
+{
+"at": 9.0,
+"key": "Enter",
+"down": true
+},
+{
+"at": 9.08,
+"key": "Enter",
+"down": false
+},
+{
+"at": 10.8,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 10.88,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 11.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 11.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 11.3,
+"key": "Enter",
+"down": true
+},
+{
+"at": 11.38,
+"key": "Enter",
+"down": false
+},
+{
+"at": 12.0,
+"key": "KeyD",
+"down": true
+},
+{
+"at": 12.08,
+"key": "KeyD",
+"down": false
+},
+{
+"at": 12.3,
+"key": "Enter",
+"down": true
+},
+{
+"at": 12.38,
+"key": "Enter",
+"down": false
+},
+{
+"at": 13.8,
+"key": "Enter",
+"down": true
+},
+{
+"at": 13.88,
+"key": "Enter",
+"down": false
+},
+{
+"at": 15.5,
+"key": "Escape",
+"down": true
+},
+{
+"at": 15.58,
+"key": "Escape",
+"down": false
+},
+{
+"at": 17.0,
+"eval": "Module._debug_cmd(80980)"
+},
+{
+"at": 22.0,
+"shot": "tests/shots/duel-rogue-clear.png"
+},
+{
+"at": 23.0,
+"key": "Enter",
+"down": true
+},
+{
+"at": 23.08,
+"key": "Enter",
+"down": false
+},
+{
+"at": 24.5,
+"shot": "tests/shots/duel-rogue-doors.png"
+},
+{
+"at": 25.0,
+"key": "Enter",
+"down": true
+},
+{
+"at": 25.08,
+"key": "Enter",
+"down": false
+},
+{
+"at": 27.0,
+"key": "Escape",
+"down": true
+},
+{
+"at": 27.08,
+"key": "Escape",
+"down": false
+},
+{
+"at": 29.0,
+"eval": "Module._debug_cmd(80980)"
+},
+{
+"at": 35.0,
+"key": "Enter",
+"down": true
+},
+{
+"at": 35.08,
+"key": "Enter",
+"down": false
+},
+{
+"at": 36.5,
+"shot": "tests/shots/duel-rogue-doors-2.png"
+},
+{
+"at": 37.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 37.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 37.3,
+"key": "Enter",
+"down": true
+},
+{
+"at": 37.38,
+"key": "Enter",
+"down": false
+},
+{
+"at": 39.0,
+"key": "Escape",
+"down": true
+},
+{
+"at": 39.08,
+"key": "Escape",
+"down": false
+},
+{
+"at": 41.0,
+"key": "Escape",
+"down": true
+},
+{
+"at": 41.08,
+"key": "Escape",
+"down": false
+},
+{
+"at": 41.8,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 41.88,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 42.1,
+"key": "Enter",
+"down": true
+},
+{
+"at": 42.18,
+"key": "Enter",
+"down": false
+},
+{
+"at": 47.0,
+"shot": "tests/shots/duel-rogue-results.png"
+}
+]

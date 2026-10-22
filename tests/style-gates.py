@@ -207,7 +207,7 @@ def looks_scenarios():
     s, t = [], LOOKS_START
     shot(s, t, "title"); key(s, t + 0.3, "Enter"); shot(s, t + 0.9, "mode")
     t += 1.2
-    for i in range(5): key(s, t + 0.15 * i, "ArrowDown")
+    for i in range(6): key(s, t + 0.13 * i, "ArrowDown")              # SETTINGS (row 6 since DANGAI)
     key(s, t + 0.9, "Enter"); shot(s, t + 1.5, "settings"); key(s, t + 1.7, "Escape")
     key(s, t + 2.1, "ArrowDown"); key(s, t + 2.4, "Enter"); shot(s, t + 3.0, "controls"); key(s, t + 3.2, "Escape")
     key(s, t + 3.6, "ArrowUp"); key(s, t + 3.8, "ArrowUp"); key(s, t + 4.0, "Enter")          # CPU VS CPU

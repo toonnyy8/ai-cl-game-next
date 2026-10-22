@@ -266,7 +266,7 @@ write("strings", ev)
 # -> skip (Esc) -> BATTLE -> pause (Esc) -> RESUME -> pause -> CHARACTER SELECT -> back ... -> TITLE;
 # then VS CPU HARD. Expected "duel -> STATE" lines in that order.
 t = T0
-ev = tap(t, "Enter") + tap(t + 0.4, "ArrowDown") + tap(t + 0.6, "ArrowDown") + tap(t + 0.8, "ArrowDown") + tap(t + 1.0, "Enter")   # VS PLAYER (row 3)
+ev = tap(t, "Enter") + tap(t + 0.4, "ArrowDown") + tap(t + 0.55, "ArrowDown") + tap(t + 0.7, "ArrowDown") + tap(t + 0.85, "ArrowDown") + tap(t + 1.0, "Enter")   # VS PLAYER (row 4)
 ev += tap(t + 1.6, "KeyD") + tap(t + 2.0, "Enter") + tap(t + 2.4, "Numpad1")      # P1 Kenpachi, P2 confirms
 ev += tap(t + 4.0, "Escape") + tap(t + 6.0, "Escape") + tap(t + 6.6, "Enter")     # skip intro, pause, resume
 ev += tap(t + 8.0, "Escape") + tap(t + 8.4, "ArrowDown") + tap(t + 8.8, "ArrowDown") + tap(t + 9.2, "Enter")  # -> select
@@ -276,8 +276,8 @@ ev += tap(t + 13.4, "KeyD") + tap(t + 14.2, "Enter")                            
 ev += [shot(t + 21, "flow-vs-cpu-hard")]
 write("flow", ev)
 
-# SETTINGS and PRACTICE by keyboard (the MODE menu since ENDLESS, 2026-09-29: VS CPU / ENDLESS / PRACTICE / VS PLAYER /
-# CPU VS CPU / SETTINGS / CONTROLS). Expected, in order: duel -> SETTINGS, duel setting HAND LEFT, ... HAND RIGHT, duel setting CAMERA SIDE,
+# SETTINGS and PRACTICE by keyboard (the MODE menu since DANGAI, 2026-10-22: VS CPU / ENDLESS / DANGAI / PRACTICE / VS PLAYER /
+# CPU VS CPU / SETTINGS / CONTROLS / MANUAL). Expected, in order: duel -> SETTINGS, duel setting HAND LEFT, ... HAND RIGHT, duel setting CAMERA SIDE,
 # duel camera CAMERA  SIDE (the pause menu flips it back: BEHIND), duel -> MODE, duel -> SELECT, the match seed line with
 # PRACTICE, duel -> BATTLE; J J J on the standing dummy: YA-J1 / J2 / J3 -> P2 HIT (the dump after it: P2 r1300, the
 # HP refilled); duel practice DUMMY  GUARD ALL, then J1 / J2 -> P2 BLOCKED; DUMMY  GUARD AFTER HIT: J1 -> HIT, then a J1
@@ -287,13 +287,13 @@ write("flow", ev)
 t = T0                                   # (a shot stalls the page ~0.5 s: no key within 1 s after one)
 ev = tap(t, "Enter") + [shot(t + 0.8, "practice-mode")]                           # TITLE -> MODE
 t += 2.0
-for i in range(5): ev += tap(t + 0.2 * i, "ArrowDown")                             # SETTINGS (row 5)
+for i in range(6): ev += tap(t + 0.18 * i, "ArrowDown")                            # SETTINGS (row 6)
 ev += tap(t + 1.2, "Enter") + [shot(t + 1.8, "practice-settings")]
 t += 3.0
 ev += tap(t, "ArrowDown") + tap(t + 0.3, "ArrowRight") + tap(t + 0.6, "ArrowLeft")   # HAND LEFT, back to RIGHT
 for i in range(3): ev += tap(t + 0.9 + 0.25 * i, "ArrowDown")                      # CAMERA
 ev += tap(t + 1.8, "ArrowRight") + tap(t + 2.2, "Escape")                          # SIDE; back to MODE (cursor on SETTINGS)
-for i in range(3): ev += tap(t + 2.6 + 0.25 * i, "ArrowUp")                        # PRACTICE (row 2)
+for i in range(3): ev += tap(t + 2.6 + 0.25 * i, "ArrowUp")                        # PRACTICE (row 3)
 ev += tap(t + 3.6, "Enter") + tap(t + 4.1, "Enter") + tap(t + 4.6, "Enter") + tap(t + 5.1, "Enter")   # P1, P2, CPU
 ev += tap(t + 6.6, "Escape")                                                       # skip the intro
 t += 8.5
@@ -583,6 +583,22 @@ def endless_script(portrait):
     return ev
 write("endless", endless_script(False))
 write("endless-portrait", endless_script(True))
+# DANGAI (docs/duel/DUEL_ROGUE.md batch 1; --fixed-dt 16.666667 --secs 60): MODE row 2 -> P1 Kenpachi -> START NORMAL;
+# stage 1 cleared by 80980 -> CONTINUE -> DOORS (shot) -> door 0 -> stage 2 cleared -> CONTINUE -> DOORS -> door 1 ->
+# pause RETIRE -> RESULTS ("DANGAI  ..."). Log: "duel rogue door 0 step 2 fight ...", "duel rogue door 1 step 3 ...".
+def rogue_script():
+    def es(t, n): return {"at": round(t, 2), "shot": f"{SHOTS}rogue-{n}.png"}
+    t = T0; ev = [cmd(t - 0.5, 2106)]
+    ev += tap(t, "Enter") + tap(t + 1.8, "ArrowDown") + tap(t + 2.0, "ArrowDown") + tap(t + 2.3, "Enter")
+    ev += tap(t + 3.0, "KeyD") + tap(t + 3.3, "Enter") + tap(t + 4.8, "Enter") + tap(t + 6.5, "Escape")
+    t += 8.0
+    ev += [cmd(t, 80980), es(t + 5.0, "clear")] + tap(t + 6.0, "Enter") + [es(t + 7.5, "doors")] + tap(t + 8.0, "Enter")
+    ev += tap(t + 10.0, "Escape"); t += 12.0
+    ev += [cmd(t, 80980)] + tap(t + 6.0, "Enter") + [es(t + 7.5, "doors-2")] + tap(t + 8.0, "ArrowDown") + tap(t + 8.3, "Enter")
+    ev += tap(t + 10.0, "Escape"); t += 12.0
+    ev += tap(t, "Escape") + tap(t + 0.8, "ArrowDown") + tap(t + 1.1, "Enter") + [es(t + 6.0, "results")]
+    return ev
+write("rogue", rogue_script())
 # the ENDLESS pacing check (debug 80990: every character x seeds 1-20, CONTINUE policy; 80991 for REVERT): one
 # "duel endless over" line per run, then "duel endless gate P1 c policy stay runs 20 median m ..." per character
 write("endless-gate", [cmd(T0, 80990)])

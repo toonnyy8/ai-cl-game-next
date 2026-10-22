@@ -24,42 +24,52 @@
 "down": false
 },
 {
-"at": 11.2,
+"at": 11.18,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 11.28,
+"at": 11.26,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 11.4,
+"at": 11.36,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 11.48,
+"at": 11.44,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 11.6,
+"at": 11.54,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 11.68,
+"at": 11.62,
 "key": "ArrowDown",
 "down": false
+},
+{
+"at": 11.72,
+"key": "ArrowDown",
+"down": true
 },
 {
 "at": 11.8,
 "key": "ArrowDown",
+"down": false
+},
+{
+"at": 11.9,
+"key": "ArrowDown",
 "down": true
 },
 {
-"at": 11.88,
+"at": 11.98,
 "key": "ArrowDown",
 "down": false
 },

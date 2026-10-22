@@ -11,13 +11,15 @@
   (if (eq (getf d :kind) :rest) "REST" (kit-name (find-kit (getf d :opponent) :base))))
 
 (defun rogue-door-note (d step)
-  "What the selected door leads to: the rest's Konpaku, or the step's kind, CPU difficulty, awakening and Reishi."
+  "What the selected door leads to: the rest's Konpaku, or the step's kind, CPU difficulty, the opponent's awakening
+(awakened, or its gauge at FIGHT) and Reishi."
   (if (eq (getf d :kind) :rest)
       (format nil "KONPAKU +~d" *rogue-rest-konpaku*)
       (let ((r (rogue-ramp step)))
-        (format nil "~@[~a  ~]~a~:[~;  AWAKENED~]  REISHI ~d%"
+        (format nil "~@[~a  ~]~a~:[~;  AWAKENED~]~:[~*~;  AWAKENING ~d~]  REISHI ~d%"
                 (case (rogue-step-kind step) (:elite "ELITE") (:boss "BOSS"))
-                (ramp-difficulty *endless-floor* r *difficulties*) (fourth r) (fifth r)))))
+                (ramp-difficulty *endless-floor* r *difficulties*) (fourth r)
+                (and (not (fourth r)) (plusp (third r))) (third r) (fifth r)))))
 
 (defun rogue-open-doors ()
   "After STAGE CLEAR's CONTINUE / REVERT (the carry made) or a rest: the next step's doors (the DOORS screen)."
