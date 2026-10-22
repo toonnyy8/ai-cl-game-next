@@ -60,6 +60,7 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_ASSIST.md](duel/DUEL_ASSIST.md) | ASSIST：AUTO GUARD／AUTO COMBO／AUTO BREAK 輔助模式與它的代價、assistgate（英文） |
 | [DUEL_ENDLESS.md](duel/DUEL_ENDLESS.md) | ENDLESS 無限連戰：CPU 關卡、規則與 gate（英文） |
 | [DUEL_ROGUE.md](duel/DUEL_ROGUE.md) | 疊在 ENDLESS 上的 roguelite 新模式（暫名斷界行）：10 步一輪、兩扇門、分類格數的獎勵、精英與頭目、靈壓階（設計中，英文，2026-10-22） |
+| [DUEL_ROGUE_B1_PLAN.md](duel/DUEL_ROGUE_B1_PLAN.md) | 斷界行第 1 批（骨架）的實作計畫：純規則、疊在 ENDLESS 上的一輪、門的畫面、MODE 列、測試與文件（英文，2026-10-22） |
 | [DUEL_MOBILE_DESIGN.md](duel/DUEL_MOBILE_DESIGN.md) | 單手（片手）直式手機模式的設計 v2：預設右手、FULL 輔助不打折、不做本機直式雙人、日後藍牙／Wi-Fi 對戰；§12 是 2026-09-26 已做好的簡單版（P0 + PWA）與偏離之處 |
 
 ## 畫風（`style/`）
