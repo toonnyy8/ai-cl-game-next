@@ -175,6 +175,8 @@ folded the three into one slot; traits take none and free none.
     Hisagi tip cards pull opposite ways: the pool never offers one while the other is held.
   - Kenpachi 「卍解隨時可開，且不扣除魂魄」: the Bankai from any Nozarashi cup (awakened), not red-only, Konpaku kept (not ->
     1), Reishi still refilled, once a stage (the user's pick: 「覺醒後隨時、照樣回血」).
+  - Kenpachi 「無手臂限制」 (asked as one more card, 2026-10-22: 「再多加一項『無手臂限制』」): in the Bankai no command spends a UDE
+    pip, so no KATAUDE: the Bankai lasts the rest of the stage (the boss's arm rule as a player card).
 
 ## 5. Conditions, elites, the boss
 
