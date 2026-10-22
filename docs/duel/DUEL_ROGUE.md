@@ -83,6 +83,11 @@ row that reuses its run machinery. Open items for the user are in §11.
 Implemented as one **run modifier table** on P1 (a plist on the fighter, nil outside a run), read at a few rule points
 (damage dealt, perfect guard, flash step, Kikon taken, gauge gains). With no table every point reads its old value.
 
+- **No awakening-gauge rewards** (the user, 2026-10-22, on the first candidate list: 「覺醒槽提昇量沒什麼用處，因為通常第一場就能
+  滿槽開覺醒了」): the gauge fills in the first stage anyway and ENDLESS's carry keeps it, so 靈 rewards act on the
+  awakened state, the awakening's moment or Reiatsu / Reishi / SP, never on how fast the gauge fills.
+- **Pairs cross categories**: a pair's two prerequisites never share a 1-slot category (they could not be held together).
+
 ### 4.3 Move changes (解, 3–4 per character)
 
 - Each one a `defmove-copy` override of one move (frame data, damage, armour hits, cooldown, hit count), applied to **P1's
