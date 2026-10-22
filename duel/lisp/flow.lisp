@@ -15,11 +15,12 @@
 
 (defparameter *difficulties* '(:easy :normal :hard))
 
-(defvar *flow* :title "Screen: :title :mode :settings :controls :select :intro :battle :finish :results :clear (ENDLESS)")
+(defvar *flow* :title "Screen: :title :mode :settings :controls :select :intro :battle :finish :results :clear (ENDLESS) :doors (DANGAI)")
 (defvar *ft* 0.0 "Real seconds on the current screen.")
 (defvar *menu* 0)
 (defvar *paused* nil)
 (defvar *mode* :vs-cpu "Match mode: :vs-cpu :endless :practice :vs-player :cpu-cpu")
+(defvar *rogue* nil "An :endless run that is DANGAI (rogue.lisp, DUEL_ROGUE.md): the MODE row DANGAI and debug 84000+ set it.")
 (defun vs-cpu-p () "A human P1 against the CPU: VS CPU, ENDLESS or PRACTICE (the camera option, the one-hand deck)." (member *mode* '(:vs-cpu :endless :practice)))
 (defvar *picks* (list (first *roster*) (second *roster*)) "Characters of P1 and P2 (kit.lisp *ROSTER*): Yamamoto, Kenpachi.")
 (defvar *difficulty* :normal)
@@ -299,7 +300,7 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
               ((eq *mode* :endless) (setf *select-phase* 0))
               (t (decf *select-phase*)))))))
 
-(defparameter *mode-menu* '("VS CPU" "ENDLESS" "PRACTICE" "VS PLAYER" "CPU VS CPU" "SETTINGS" "CONTROLS" "MANUAL"))
+(defparameter *mode-menu* '("VS CPU" "ENDLESS" "DANGAI" "PRACTICE" "VS PLAYER" "CPU VS CPU" "SETTINGS" "CONTROLS" "MANUAL"))
 
 (defvar *learn-reset-t* -9.0 "*FT* when RESET LEARNING was chosen (its note says so for a moment).")
 (defun settings-items ()
@@ -341,10 +342,10 @@ at once; Escape / Start cancels the wait. Then RESET DEFAULTS and BACK."
           (t (let ((i (menu-nav (+ 2 n))))
                (when (and (< *menu* n) (or (menu-left-p) (menu-right-p)))
                  (setf *bind-col* (mod (+ *bind-col* (if (menu-left-p) -1 1)) 4)) (play-sfx :select))
-               (cond ((eql i (1+ n)) (go-mode 6))
+               (cond ((eql i (1+ n)) (go-mode 7))
                      ((eql i n) (reset-bindings *bind-pair*) (save-bindings) (log-msg "duel bind reset"))
                      (i (setf *capture* t)))
-               (when (back-p) (play-sfx :back) (go-mode 6)))))))
+               (when (back-p) (play-sfx :back) (go-mode 7)))))))
 
 (defun pause-keys ()
   "The pause menu's rows: PRACTICE's options replace RESTART; ENDLESS has RETIRE only (the run's results are one row
@@ -386,21 +387,22 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
               (play-sfx :confirm) (go-mode)))
     (:mode (let ((i (menu-nav (length *mode-menu*))))
              (case i
-               ((0 1 2 3 4) (setf *mode* (nth i '(:vs-cpu :endless :practice :vs-player :cpu-cpu))   ; VS CPU / ENDLESS /
-                                  *one-hand* (and (< i 3) (one-hand-effective-p)))   ; PRACTICE: one-handed when the
-                            (go-select))                                              ; setting is in effect
-               (5 (set-flow :settings))
-               (6 (set-flow :controls))
-               (7 (open-manual))))
+               ((0 1 2 3 4 5) (setf *mode* (nth i '(:vs-cpu :endless :endless :practice :vs-player :cpu-cpu))   ; VS CPU /
+                                    *rogue* (= i 2)                                    ; ENDLESS / DANGAI (an ENDLESS run,
+                                    *one-hand* (and (< i 4) (one-hand-effective-p)))   ; rogue.lisp) / PRACTICE: one-handed
+                              (go-select))                                              ; when the setting is in effect
+               (6 (set-flow :settings))
+               (7 (set-flow :controls))
+               (8 (open-manual))))
            (when (back-p) (play-sfx :back) (go-title)))
     (:settings (let* ((n (length *settings*)) (i (menu-nav (+ 2 n))) (d (option-dir)))   ; confirm / a tap: the next option
-                 (cond ((eql i (1+ n)) (go-mode 5))                                      ; BACK
+                 (cond ((eql i (1+ n)) (go-mode 6))                                      ; BACK
                        ((eql i n) (learn-reset-all) (setf *learn-reset-t* *ft*))         ; RESET LEARNING
                        (i (settings-step i 1))
                        ((and d (< *menu* n)) (play-sfx :select) (settings-step *menu* d))))
-               (when (back-p) (play-sfx :back) (go-mode 5)))
+               (when (back-p) (play-sfx :back) (go-mode 6)))
     (:controls (if (one-hand-offered-p)                  ; a phone: the gestures page
-                   (when (or (back-p) (confirm-p) (tap-p)) (play-sfx :back) (go-mode 6))
+                   (when (or (back-p) (confirm-p) (tap-p)) (play-sfx :back) (go-mode 7))
                    (controls-update)))
     (:select (select-update))
     ((:intro :finish) (when (and *cine* (or (pause-p) (confirm-p) (tap-p))) (skip-cine)))
@@ -417,6 +419,7 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
                 (and *one-hand* (not (portrait-p))))              ; ONE-HAND turned to landscape: ROTATE TO PORTRAIT
             (setf *paused* t *menu* 0) (play-sfx :select))))
     (:clear (endless-clear-update))
+    (:doors (rogue-doors-update))
     (:results (cond ((eq *mode* :endless) (endless-results-update))
                     ((> *ft* 2.5)                        ; a masher doesn't skip the results
                      (case (menu-nav 3)

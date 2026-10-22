@@ -56,6 +56,7 @@
       if (k >= 10 && k < 10 + settings.length) return +(stored('soulduel.' + settings[k - 10]) || 0) | 0;
       if (k === 3 || k === 4) return inset(k - 3);
       if (k >= 30 && k < 50) return +(stored('soulduel.endless.' + (k - 30)) || 0) | 0;
+      if (k >= 50 && k < 70) return +(stored('soulduel.rogue.' + (k - 50)) || 0) | 0;
       if (k >= 20000 && k < 20200) return +(stored('soulduel.bind.' + (k - 20000)) || 0) | 0;
       if (k >= 100 && k < 10100) { var t = ltab(((k - 100) / 1000) | 0), j = (k - 100) % 1000; return j ? (t[j - 1] | 0) : t.length; }
       if (k >= 10100 && k < 20000) { var t = ltab('a' + (((k - 10100) / 1000) | 0)), j = (k - 10100) % 1000; return j ? (t[j - 1] | 0) : t.length; }
@@ -66,6 +67,7 @@
       if (k === 0 && coarse) { wakeOn = !!v; if (wakeOn) wake(); else if (lock && lock.release) { lock.release(); lock = null; } }
       if (k >= 10 && k < 10 + settings.length) store('soulduel.' + settings[k - 10], String(v));
       if (k >= 30 && k < 50) store('soulduel.endless.' + (k - 30), String(v));
+      if (k >= 50 && k < 70) store('soulduel.rogue.' + (k - 50), String(v));
       if (k >= 20000 && k < 20200) store('soulduel.bind.' + (k - 20000), String(v));
       if (k >= 100 && k < 10100) {
         var i = ((k - 100) / 1000) | 0, j = (k - 100) % 1000, t = ltab(i);

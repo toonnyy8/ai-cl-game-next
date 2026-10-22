@@ -76,5 +76,6 @@ lisp/hisagi-stills.lisp
 lisp/gate.lisp
 lisp/debug.lisp
 lisp/endless.lisp
+lisp/rogue.lisp
 lisp/draw.lisp
 lisp/main.lisp
