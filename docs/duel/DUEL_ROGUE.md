@@ -1,6 +1,6 @@
 # SOUL DUEL: a roguelite run built on ENDLESS (working name DANGAI 斷界行)
 
-Status: **design, 2026-10-22; not built.** The user's request and decisions are in §0; the research behind them is
+Status: **design, 2026-10-22; batch 1 (the skeleton) built the same day** ("Built: batch 1" at the end). The user's request and decisions are in §0; the research behind them is
 `docs/research/roguelike/digest.md`. The existing ENDLESS mode (`DUEL_ENDLESS.md`) stays as it is; this is a new MODE
 row that reuses its run machinery. Open items for the user are in §11.
 
@@ -273,3 +273,29 @@ a new boss character, rewards for the CPU, online boards.
 - The mode's name (working name DANGAI 斷界行).
 - Each character's 3–4 解 candidates (a list before batch 4).
 - The generic reward list and the traits (picked 2026-10-22, §4.2), with the slot counts of §4.1.
+
+## Built: batch 1 (2026-10-22)
+
+The user: 「先走 2」 (start building before the 解 picks). Plan: `DUEL_ROGUE_B1_PLAN.md`.
+
+- **What exists**: the MODE row DANGAI (row 2; PRACTICE … MANUAL moved down one); the run is an ENDLESS run (`*mode*`
+  `:endless`) with `*rogue*` set (flow.lisp), so the carry, STAGE CLEAR (CONTINUE / REVERT / QUIT), RETIRE and the
+  RESULTS are ENDLESS's; `rogue-rules.lisp` (pure: the layout, the ramp per step, rests, doors, a rest's carry) and
+  `rogue.lisp` (the DOORS screen, flow state `:doors`). STAGE CLEAR's NEXT line names the step's kind (ELITE / BOSS)
+  instead of the bag's opponent; step 10 cleared reads RUN CLEAR there and on the RESULTS; the continuation is CONTINUE
+  after step 10 (no further boss; elites every third step). The record: page 50 + 2i / 51 + 2i (`soulduel.rogue.<k-50>`),
+  ENDLESS's untouched. Debug 84000–84999 (DUEL_GAMEPLAY).
+- **Numbers**: an elite is ENDLESS's row two stages on with one more difficulty step (step 3 at a NORMAL floor: HARD,
+  awakening 50); the boss `(10 2 100 t 150)`: HARD from any floor, awakened, Reishi 150 %; rests from step 4, normal
+  steps only, a 1-in-3 draw, at most 2, Konpaku + 3.
+- **Log**: `duel rogue door i step n fight|rest [opponent]`, then ENDLESS's lines.
+- **Deviations from the design**: the doors are STAGE CLEAR-style rows (a note line over them), not cards yet; both doors
+  draw from the roster minus the last opponent (not ENDLESS's bag); the doors don't show a reward type until batch 2;
+  REST gives only Konpaku + 3 (UPGRADE needs rewards); the HUD tag stays "STAGE n".
+- **Gates**: host 9888 -> 9899 ALL PASS; pkgcheck 0; build 0 warnings; smoke; simgate 28 x 10 seeds 816 lines identical
+  to the parent's; cvc 3/3; looks 113 of 115 byte-identical, the two MODE stills (menus/mode, mobile/mode) changed by the
+  new row (the BASE rendered with the parent's own script, which reaches SETTINGS one row higher); `duel-rogue.json`
+  (two doors taken, the elite at HARD with awakening 50, RETIRE -> "DANGAI" RESULTS); flow / practice scripts reach
+  their rows; `duel-endless.json`'s log equals the parent's where both ran (both stop after stage 2: its stage-3 Bankai
+  step no longer clears, a drift that predates this batch).
+
