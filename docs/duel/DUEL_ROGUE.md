@@ -78,7 +78,7 @@ row that reuses its run machinery. Open items for the user are in §11.
 - **Offers**: 3 cards, never a reward the character cannot use, never the same reward twice in one offer; the MOVE door's
   offer is all 解 cards.
 
-### 4.2 Generic rewards (about 20)
+### 4.2 Generic rewards (26 and 5 pairs)
 
 Implemented as one **run modifier table** on P1 (a plist on the fighter, nil outside a run), read at a few rule points
 (damage dealt, perfect guard, flash step, Kikon taken, gauge gains). With no table every point reads its old value.
@@ -96,6 +96,56 @@ Implemented as one **run modifier table** on P1 (a plist on the fighter, nil out
   殘心 (once a stage a lethal Soul Break leaves 1 Reishi): the pool never offers one while the other is held, or no
   Konpaku would be lost on most stages.
 - **Pairs cross categories**: a pair's two prerequisites never share a 1-slot category (they could not be held together).
+
+**The list** (the user's picks of 2026-10-22 on the first candidate list: 「砍 15 縮地、16 返し」, the changes to 6 and 25
+quoted below, 17 and 20 reworked by the no-gauge rule, 27 and 28 added; 19 and 21 both stay: 「21 必殺跟 19 靈體效果不是
+不一樣嗎？」). Numbers are COMMON; RARE / LEGEND scale them about x1.5 / x2. "rule" = a new rule point, "gauge" = a gauge
+number only.
+
+| # | Cat | Name | Effect (COMMON) | Kind |
+|---|---|---|---|---|
+| 1 | 斬 | 鋭刃 | all damage +10 % | rule |
+| 2 | 斬 | 連撃 | link-3 enders (J3 / K3) +25 % | rule |
+| 3 | 斬 | 破鎧 | hits on guard drain the guard gauge +40 % | rule |
+| 4 | 斬 | 背水 | damage +25 % while red | rule |
+| 5 | 斬 | 追擊 | the first hit after a Hoho or a Burst Reverse +30 % | rule |
+| 6 | 斬 | 斷魂 (RARE+) | a Kikon takes 1 more Konpaku, **outside the per-event cap of 4** (「Kikon 多拿 1 魂魄，不受單次上限 4 的限制」) | rule |
+| 7 | 守 | 堅守 | guard gauge max +30 %, regen +30 % | gauge |
+| 8 | 守 | 見切 | a perfect Hoho refills 25 % flash step and half a Reiatsu bar | rule |
+| 9 | 守 | 不屈 | one armour hit for 3 s after losing Konpaku to a Kikon or a Soul Break | rule |
+| 10 | 守 | 鐵甲 | chip and Breaker damage taken −40 % | rule |
+| 11 | 守 | 回生 | after 3 s unhit, 1 % Reishi a second (not while red) | rule |
+| 12 | 守 | 殘心 (RARE+) | once a stage the Soul Break's lethal hit leaves 1 Reishi; never with 28 | rule |
+| 28 | 守 | 魄鎧 (RARE only, no tiers) | the Kikon always guarded (above); never with 12 | rule |
+| 13 | 瞬 | 疾風 | flash-step gauge regen +30 % | gauge |
+| 14 | 瞬 | 瞬歩 | Hoho cost −30 % | gauge |
+| 17 | 靈 | 威壓 | damage taken −15 % while awakened | rule |
+| 18 | 靈 | 靈力 | Reiatsu regen +30 % | gauge |
+| 19 | 靈 | 靈體 | Reishi max +15 % | gauge |
+| 20 | 靈 | 解放 | the awakening's heal 20 → 40 % of max Reishi | gauge |
+| 21 | 靈 | 必殺 | SP1 / SP2 damage +20 % | rule |
+| 27 | 靈 | 覇氣 | one armour hit for 3 s after the awakening's cinematic | rule |
+| 22 | 契 | 血契 | Konpaku cap 9 → 7; damage +20 % | gauge + rule |
+| 23 | 契 | 狂契 | guard gauge max −40 %; damage +15 %, Reiatsu regen +30 % | gauge + rule |
+| 24 | 契 | 時契 | the stage timer 300 → 150 s; a clear gives Konpaku +3 (not +2) | run |
+| 25 | 契 | 捨身 | Reishi max −20 %; every soul break (Kikon and Soul Break) takes 1 more Konpaku (「Reishi 上限 −20% → 毀魂時（Kikon 跟 Soul Break）多拿 1 魂魄」) | gauge + rule |
+| 26 | 契 | 賭契 | no Konpaku at a clear; one extra reward pick at every clear | run |
+
+Cut: 15 縮地 (dash speed, it moves the CPU's range reads) and 16 返し (Burst Reverse cost, too close to 14). 瞬 keeps two.
+The first 鬥氣 (awakening gauge +25 %) is gone by the no-gauge rule.
+
+**Konpaku taken, with 6 and 25**: the Kikon's (or Soul Break's) count, + 1 for 捨身, then the usual cap (4 a Kikon, 5 a
+Soul Break); then + 1 for 斷魂 on a Kikon, past the cap. So a held pair of both on an awakened Kikon: 3 + 1 = 4 (cap) + 1 = 5.
+
+**Pairs** (both prerequisites held; the pair takes one prerequisite's slot):
+
+| | Name | Needs | Effect |
+|---|---|---|---|
+| A | 死線 | 背水 + 不屈 | damage +35 % while red; an armour hit refilled every 5 s while red |
+| B | 瞬閧 | 追擊 + 疾風 | the first hit after a Hoho +45 %, and on hit 15 % flash step back |
+| C | 卍禍 | 必殺 + 連撃 | an SP within 1 s of a link-3 ender +40 % |
+| D | 鬼道 | 見切 + 鐵甲 | damage taken −60 % for 2 s after a perfect Hoho |
+| E | 修羅 | 血契 + 斷魂 | a Kikon takes 2 more Konpaku past the cap; Konpaku cap 6 |
 
 ### 4.3 Move changes (解, 3–4 per character)
 
