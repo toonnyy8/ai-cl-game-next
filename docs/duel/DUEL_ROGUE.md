@@ -171,7 +171,19 @@ folded the three into one slot; traits take none and free none.
   one armour hit; the CPU favours its ranged moves; the stage timer 180 s.
 - **Elite**: the ramp one level up from the step's own, two conditions, the reward RARE.
 - **Boss** (R4): drawn from the bag; awakened at FIGHT, Reishi 150 %, HARD, plus its own rule, a new kit key `:boss`
-  (data in the character's file; a list for the user, §11).
+  (data in the character's file). The rules (the user's list of 2026-10-22 over the lead's drafts; Yamamoto and Rukia
+  took no note, so the lead's drafts stand for them):
+
+| Boss | Rule | The user's words |
+|---|---|---|
+| Yamamoto | 殘火灼身: Reishi **200 %** (not 150), burning 0.5 % of max a second | (the lead's draft) |
+| Kenpachi | the Bankai at FIGHT; the arm is never spent (no UDE pip spent, no KATAUDE): the Bankai the whole fight | 「BOSS 劍八卍解解除手臂（不扣臂、無時限）」 |
+| Rukia | 永凍: never warms back to −18 °C (the floor is −50 °C); −273 °C entered as usual | (the lead's draft) |
+| Ichigo | KESSA; a clone never spends the BUNSHIN meter; SP2's clone afterimages always on | 「BOSS 一護改成分身不扣除量表，且常駐 SP2 的分身殘影」 |
+| Senjumaru | TSUJI always fully woven (the top hank form at FIGHT, never unwoven) | 「BOSS 千手丸永遠是織滿的狀態」 |
+| Lille | JILLIEL KIN at FIGHT, the wings refilling over time as in the burst (the owl's wing every 2 s); his first Konpaku lost puts him in the owl (SHIN KIN) for the rest of the fight | 「BOSS 利傑改成開場時就在 JILLIEL KIN，且會有跟爆氣一樣隨時間自動補充『翼』的特性，第一次失去魂魄就進入常駐梟型態」 |
+| Hisagi | 1 % Reishi a second while not attacked (a guarded hit counts as attacked; the lead's reading: 3 s clear before it starts, as 回生); the bind needs 1 bar (100) of his Reiatsu, not 2; when he releases the bind the pool left goes **to him first**, the rest to the opponent | 「BOSS 檜佐木改成只要沒受到攻擊（防禦算受到攻擊）每秒回 1% Reishi，只要有一格 SP 就能發動捆綁，且主動解除捆綁時 SP 優先歸還自身」 |
+
 - The CPU never holds rewards; conditions are the only thing that changes it, and they act through existing knobs
   (gauges, `brain-difficulty`, the AI plists' weights).
 
@@ -227,6 +239,5 @@ a new boss character, rewards for the CPU, online boards.
 ## 11. Open for the user
 
 - The mode's name (working name DANGAI 斷界行).
-- The seven bosses' rules (a candidate list before batch 3).
 - Each character's 3–4 解 candidates (a list before batch 4).
 - The generic reward list and the traits (picked 2026-10-22, §4.2), with the slot counts of §4.1.
