@@ -172,11 +172,26 @@ folded the three into one slot; traits take none and free none.
   - Hisagi 「尖端強化 100%，非尖端削弱 90%」: the ranged mode's tip damage x1.71 -> **x3.42**, a non-tip hit x1.0 ->
     **x0.1** (the user's pick of the readings: 「尖端 ×3.42、非尖端 ×0.1」; damage only, the tip's SP x1.3 unchanged).
   - Hisagi 「尖端與非尖端效果平均」: tip and non-tip hits both at the mean, damage **x1.355**, SP gain **x1.15**. The two
-    Hisagi tip cards pull opposite ways: the pool never offers one while the other is held.
+    Hisagi tip cards are twins (below).
   - Kenpachi 「卍解隨時可開，且不扣除魂魄」: the Bankai from any Nozarashi cup (awakened), not red-only, Konpaku kept (not ->
     1), Reishi still refilled, once a stage (the user's pick: 「覺醒後隨時、照樣回血」).
   - Kenpachi 「無手臂限制」 (asked as one more card, 2026-10-22: 「再多加一項『無手臂限制』」): in the Bankai no command spends a UDE
     pip, so no KATAUDE: the Bankai lasts the rest of the stage (the boss's arm rule as a player card).
+- **Twin cards (孿生卡)** (the user, 2026-10-22: 「將其設成孿生卡，另一個效果還是會再度出現，但是只能二擇一。劍八的『隨時卍解』跟
+  『無手臂限制』也做成孿生卡的機制。我希望你能為其他角色也設計類似的破格但有侷限性的孿生卡。」): two rule-breaking 解 cards
+  of one character, each with its own limit; only one is held at a time; while one is held the other still appears, marked
+  TWIN, and taking it swaps them (the held one goes back into the pool). Each character has one twin pair:
+
+| Character | Twin A | Twin B |
+|---|---|---|
+| Hisagi | 尖端強化: tip x3.42, non-tip x0.1 | 尖端平均: every hit x1.355, SP x1.15 |
+| Kenpachi | 隨時卍解: the Bankai from any cup, Konpaku kept, Reishi refilled, once a stage | 無手臂限制: no UDE pip spent, no KATAUDE |
+| Yamamoto (lead's draft) | 旭日刃: East's pierce chip k 0.1–0.45 -> 1.0 (a guard takes the full hit); limit: guarding never turns him to West | 殘日獄衣: West's ward never drops (West the rest of the stage); limit: only West's commands, walk −30 % |
+| Rukia (lead's draft) | 凍天常駐: −273 °C ends only by the CRACK (no warming, the top bar not spent); limit: rooted as ever | 霜天: at −273 °C she walks at −50's speed; limit: it warms x2 (zero lasts half as long) |
+| Ichigo (lead's draft) | 無月: once a stage SP2 deals x3; limit: after it KESSA ends for the stage (base form) | 天鎖斬月: Hoho and Burst Reverse cost no flash step; limit: damage taken +25 % |
+| Senjumaru (lead's draft) | 天衣無縫: a hit while weaving no longer voids the hank; limit: a pass takes 30 f (not 20) | 一越千針: every pass weaves 2; limit: any hit taken voids the live hank (not only while weaving) |
+| Lille (lead's draft) | 神梟: the owl burst lasts the rest of the stage; limit: no wing regen in it (wings only from hits) | 萬翼: wing armour spends no wing; limit: no owl (his burst is a plain one) |
+
 
 ## 5. Conditions, elites, the boss
 
