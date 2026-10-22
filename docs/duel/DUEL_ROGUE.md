@@ -86,6 +86,15 @@ Implemented as one **run modifier table** on P1 (a plist on the fighter, nil out
 - **No awakening-gauge rewards** (the user, 2026-10-22, on the first candidate list: 「覺醒槽提昇量沒什麼用處，因為通常第一場就能
   滿槽開覺醒了」): the gauge fills in the first stage anyway and ENDLESS's carry keeps it, so 靈 rewards act on the
   awakened state, the awakening's moment or Reiatsu / Reishi / SP, never on how fast the gauge fills.
+- **魄鎧 HAKUGAI, the Kikon always guarded** (the user, 2026-10-22: 「增加一個必定自動防禦 Kikon（紅血時也一樣），設計上可能可以
+  讓 AI 檢測到這個效果時就不出 Kikon 只打到 Soul Break」): 守, RARE doors and elites only, no tiers (nothing to scale). The
+  Kikon (the rush's follow-up strike, KIKON-OUTCOME :kikon) on its holder is guarded automatically in any state (red, hit
+  stun, GUARD CRUSH, mid-move): no Konpaku lost, no guard drain, no chip. The rush's first strike is unchanged. Konpaku
+  then goes only through Soul Breaks (the Kikon count + 1, at most 5) and time-up. **The CPU** reads it: one predicate
+  (the Soul Break finish's AI-SB-FINISH-P widened to "the Kikon is futile") closes every Kikon site in ai.lisp (the
+  neutral rush on a red opponent, the O ender, the rush on hitstun), so the CPU fights on to the Soul Break. Not held with
+  殘心 (once a stage a lethal Soul Break leaves 1 Reishi): the pool never offers one while the other is held, or no
+  Konpaku would be lost on most stages.
 - **Pairs cross categories**: a pair's two prerequisites never share a 1-slot category (they could not be held together).
 
 ### 4.3 Move changes (解, 3–4 per character)
