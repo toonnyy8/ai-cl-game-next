@@ -181,6 +181,8 @@ folded the three into one slot; traits take none and free none.
   『無手臂限制』也做成孿生卡的機制。我希望你能為其他角色也設計類似的破格但有侷限性的孿生卡。」): two rule-breaking 解 cards
   of one character, each with its own limit; only one is held at a time; while one is held the other still appears, marked
   TWIN, and taking it swaps them (the held one goes back into the pool). Each character has one twin pair:
+  Settled: Hisagi's and Kenpachi's. The other five are **kept as they stand, to be redesigned later** (the user,
+  2026-10-22: 「除了檜佐木、劍八之外的孿生卡效果我都先保留，以後再重新設計」).
 
 | Character | Twin A | Twin B |
 |---|---|---|
@@ -265,6 +267,8 @@ Not in version 1 (YAGNI): rerolls and banish, a daily seed (easy later: the run 
 a new boss character, rewards for the CPU, online boards.
 
 ## 11. Open for the user
+
+- The twin cards of Yamamoto, Rukia, Ichigo, Senjumaru and Lille (kept as placeholders, §4.3).
 
 - The mode's name (working name DANGAI 斷界行).
 - Each character's 3–4 解 candidates (a list before batch 4).
