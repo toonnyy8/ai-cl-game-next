@@ -163,7 +163,18 @@ folded the three into one slot; traits take none and free none.
   own copy of its kit** for the run, so a mirror opponent keeps the stock move.
 - **Reach is not changed** by default: drawn reach must equal hit reach, so a reach change needs a new clip. Any candidate
   that changes reach goes to the user separately.
-- The candidates per character are a list for the user to pick from before the batch that builds them (§11).
+- **Applied by re-parsing the move under its own name** into P1's kit copy (every form holding it, and its load-time copies
+  such as `-k` / `-1..6`), not as a renamed `defmove-copy`: many hooks look moves up by name. Shared knobs a card changes
+  (a clone's cost, Lille's charge levels) get a per-fighter read in the character's file, so a mirror opponent keeps them.
+- **Candidates**: 4 per character (+ a spare and the reach ideas that need clips) in
+  `docs/research/roguelike/kai-candidates-A.md` (Yamamoto, Kenpachi, Rukia, Ichigo) and `-B.md` (Senjumaru, Lille,
+  Hisagi), shown to the user 2026-10-22; the picks are pending. Added by the user the same day:
+  - Hisagi 「尖端強化 100%，非尖端削弱 90%」: the ranged mode's tip damage x1.71 -> **x3.42**, a non-tip hit x1.0 ->
+    **x0.1** (the user's pick of the readings: 「尖端 ×3.42、非尖端 ×0.1」; damage only, the tip's SP x1.3 unchanged).
+  - Hisagi 「尖端與非尖端效果平均」: tip and non-tip hits both at the mean, damage **x1.355**, SP gain **x1.15**. The two
+    Hisagi tip cards pull opposite ways: the pool never offers one while the other is held.
+  - Kenpachi 「卍解隨時可開，且不扣除魂魄」: the Bankai from any Nozarashi cup (awakened), not red-only, Konpaku kept (not ->
+    1), Reishi still refilled, once a stage (the user's pick: 「覺醒後隨時、照樣回血」).
 
 ## 5. Conditions, elites, the boss
 
