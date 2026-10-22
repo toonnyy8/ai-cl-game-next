@@ -145,6 +145,17 @@ Soul Break); then + 1 for 斷魂 on a Kikon, past the cap. So a held pair of bot
 | D | 鬼道 | 見切 + 鐵甲 | damage taken −60 % for 2 s after a perfect Hoho |
 | E | 修羅 | 血契 + 斷魂 | a Kikon takes 2 more Konpaku past the cap; Konpaku cap 6 |
 
+**Composites** (the user, 2026-10-22: 「新增一個名為『真劍勝負』的複合型合體」, then, shown three drafts:
+「你說的這三種合體都新增進來，分別是『最古最強』『真劍勝負』跟『劍八』」): three prerequisites held at once fold into **one
+slot**, freeing two; the composite keeps all three prerequisites' effects and adds its own. Offered like a pair, only while
+all three are held.
+
+| | Name | Needs | Its own effect |
+|---|---|---|---|
+| F | 最古最強 | 魄鎧 + 殘心 + 斷魂 (守 守 斬) | P1's Soul Break takes 1 more Konpaku, past the cap |
+| G | 真劍勝負 | 背水 + 魄鎧 + 血契 (斬 守 契) | both sides' Reishi max halved; the Kikon sealed for both (the O button and the O ender do nothing; Konpaku goes only by Soul Break); P1's damage +30 % |
+| H | 劍八 | 不屈 + 背水 + 覇氣 (守 斬 靈) | while red: one armour hit always (refilled 2 s after it breaks), damage +40 %, no guard |
+
 ### 4.3 Move changes (解, 3–4 per character)
 
 - Each one a `defmove-copy` override of one move (frame data, damage, armour hits, cooldown, hit count), applied to **P1's
