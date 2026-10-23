@@ -482,3 +482,35 @@ half is the data, the fold, the screens and the stage start.
   selected one (rogue.lisp ROGUE-NAV). Keys and pads are unchanged (up / down select, confirm takes). Checked at 390 x 844:
   two taps on the second card left the page open with its note shown, CONFIRM took it (`pick 10`), the DOORS the same.
 
+
+## Built: batch 3, conditions and the bosses (2026-10-23)
+
+The user: 「推到 gh page 後開始 DANGAI 第 3 批」 (after 「繼續完成 DANGAI 模式」).
+
+- **Conditions** (rogue-rules.lisp `*rogue-conditions*`, §5's five candidates, each with words for the doors and the battle
+  tag): FOE REISHI 130% (the opponent's Reishi max x1.3 at spawn), REIATSU REGEN X2 (both sides' Reiatsu regen x2), FOE SP
+  ARMOR (the opponent's SP1 / SP2 take one armour hit in their startup: START-MOVE gives `armor-left` at least 1), FOE
+  ZONES (the CPU's :zone intent weight +3, AI-NEUTRAL), TIMER 180S (the stage timer, the smaller with 時契's). A normal step
+  draws 1, an elite 2, the boss none (its own rule) (`rogue-cond-count`); `rogue-door-conds` is a Fisher-Yates shuffle on
+  the run's LCG keyed on (seed, step, 20 + door), so the two doors can differ and a run replays; step 1 and a debug run's
+  first stage use door 0's draw.
+- **How they act** (`rogue-cond-mods`: P1's keys, the opponent's, the stage's): the opponent's go in a second table,
+  `*run-foe-mods*` (run-mods.lisp), which RMOD reads for every fighter but `*run-mods-who*`, so every existing rule point
+  serves the opponent too; P1's (REIATSU X2's half) stack onto his rewards' plist by multiplying (`rogue-merge-x`); the
+  stage keys are applied in ROGUE-STAGE-START. START-MATCH and ROGUE-END clear `*run-foe-mods*` and `*run-boss*` with
+  `*run-mods*`.
+- **Shown** on the DOORS (a conditions line over the selected door's note; the boss door reads BOSS RULE) and in the
+  battle under STAGE n (`hud-rogue-tag`: the conditions or BOSS, fitted between the gauge blocks). Deviation: the INTRO is
+  the versus cinematic and shows nothing extra; the doors and the tag carry the preview.
+- **The boss** (`*run-boss*`, run-mods.lisp): P2 on step 10. ROGUE-STAGE-START, after the ramp and everything else, calls
+  the boss character's base kit's `:boss` hook with the entity; each character file applies the rest behind
+  `(eq e *run-boss*)`. Facing the boss, a CPU (the autopilot's P1) ignores the boss form's `:opp-intent` (it never ends).
+- **Debug** 84560+c: a debug DANGAI run straight at the boss step against roster c (P1 Yamamoto, or Kenpachi against
+  Yamamoto; seed 1, no record).
+- **Yamamoto** 殘火灼身 (yama.lisp YAMA-BOSS / YAMA-TICK): Reishi max x200/150 over the ramp's (1950 -> 2600), burning 0.5 %
+  of max a second (13) through Hellfire's BURN (never his last point), in every form.
+- **Kenpachi** (ken.lisp KEN-BOSS, ken-meter.lisp, combat.lisp ARM-SPEND!'s one guarded line): the Bankai at FIGHT (UDE 4,
+  no cinematic), no pip ever spent (ARM-SPEND! returns for the boss: no pip, no self-burn), no crack clock, never KATAUDE.
+  He keeps his Konpaku (BANKAI! would set 1).
+- **Rukia** 永凍 (rukia.lisp RUKIA-BOSS, rukia-meter.lisp RUKIA-BAND-FLOOR / RUKIA-RESET): spawns at −50 with C 100; −18 is
+  read as −50 for her (the band's resolve and CRACK), the post-Kikon reset puts her back at −50; −273 entered as usual.

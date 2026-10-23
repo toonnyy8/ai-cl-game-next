@@ -709,7 +709,8 @@ more; J strings alone shouldn't crush a guard, the CPU's included); against a J 
       (let ((w (ai-table e :intents)) (hot (min 3.0 (/ heat 4.0))) (r (sim-rnd01)))
         (setf (brain-intent b)
               (cond ((ai-gg-low-p e) (weighted-pick r :zone 3 :defend 2))   ; low guard gauge: zone (the cone), no pressure
-                    (t (let ((oi (getf (kit-ai (kit-of (opp-of e))) :opp-intent)))   ; facing a form a CPU waits out
+                    (t (let ((oi (unless (and *run-boss* (eql (opp-of e) *run-boss*))   ; facing a form a CPU waits out (not a
+                                 (getf (kit-ai (kit-of (opp-of e))) :opp-intent))))         ;  DANGAI boss's: it never ends)
                          (or (weighted-pick r :approach (getf w :approach 1)
                                             :pressure (+ (getf w :pressure 1) hot (if (or (opp-guardless-p e) (opp-gg-low-p e)) 3 0))
                                             :zone (rmod-plus e :zone-bias (+ (getf w :zone 1) (getf oi :zone 0)))   ; (DANGAI's FOE ZONES)
