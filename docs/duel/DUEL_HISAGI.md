@@ -3585,3 +3585,33 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
 
 - The user (verbatim): 「流光的落下速度跟頻率都改成 1s 看看」. `*hs-flow-period*` 0.7 -> 1.0 s (the streak's run down a
   chain) and `*hs-flow-every*` 0.7 -> 1.0 s (one a second per chain, still back to back). A look only; built 0 warnings.
+
+### 25.34 The ranged mode's reaches: J 4-7 m, K 2.5-5.5 m (the user, 2026-10-23)
+
+- The user (verbatim): 「J 的攻擊範圍修改成 4~7 m，K 的攻擊範圍修改成 2.5~5.5 m　這樣有什麼要注意的事情嗎」; the lead listed what
+  moves (the tips, the larger dead zone, J3's push by its rule, the 7.0 m route links, the balance, the art, the CPU) with
+  defaults; the user: 「好，照這樣調整」.
+- **The sim** (hisagi.lisp): `*hs-r-j-dead*` 3.0 -> 4.0, `*hs-r-j-reach*` 6.0 -> 7.0, `*hs-r-k-dead*` 2.0 -> 2.5,
+  `*hs-r-k-reach*` 5.0 -> 5.5 (the openers J1 / K1; the route links keep `*hs-r-link-reach*` 7.0, which J1's far edge now
+  meets); `*hs-r-j3-push*` 6.6 -> 7.55 (out of J1's 7.0 + a body 0.45 + 0.05, plus the ender push the host checks). The
+  tips follow (0.75 m): K1 4.75-5.5, J1 6.25-7.0 (HS-R-TIP-CMD 4.75-5.7 / 6.25-7.2; none at 5.7-6.25); the cues and the
+  Step's landing (§25.32: the bands' middles 5.125 / 6.625) with them. Nothing of his reaches inside 2.5 m but L SAHARAI
+  (3.0 m) and the Breaker.
+- **The CPU** (hisagi-ai.lisp): HS-R-HITS-AT-P reads the knobs (J1 4.05-7.2, K1 2.55-5.7); the route styles' back hop
+  (:keep) SENTAN 4.75 -> 5.125, KAISEN 5.75 -> 6.625 (the tips' middles), NAWAJI 3.5 -> 4.5 (both openers reach); the waits
+  inside J1's dead zone (3.0 -> *HS-R-J-DEAD*) and the blocked-string K1 (2.1-3.0 -> 2.6-4.0); the kit's :ranges (approach
+  4.75-5.5, pressure 4.0-5.0, zone 4.75-6.6, defend 6.0-7.5) and :moves bands (0-2.5-4-5.5-7 m).
+- **The art** (hisagi-art.lisp; the drawn reach equals the hit reach): `*hs-strike-reach*` J1 / J2 / J3's crescents and
+  the gathered J2s / J3G 6.0 -> 7.0, K1 / the spread K2s / K3 / the gathered K2 / K3G 5.0 -> 5.5; the crescents' let-outs
+  6.0 -> 7.0; J3's swept chain 5.9 -> 6.9; the lashes' strike keys (r >= 4) x1.1 (K) / x7/6 (J). Debug 83902: J1 7.00 x3,
+  K1 5.50 x4 against edges of 7.00 / 5.50. Debug 83022 / 83023 / 83024 moved to the new tips (5.125 / 6.625 m).
+- **Tests** 10066 ALL PASS (the tables, the dead zones, the annuli, the tips, the CPU's reads, HS-R-PICK at the new
+  distances, the Step's landings re-pinned); control 89, learn 131, cine 18; pkgcheck clean; built 0 warnings; 83901 0 B on
+  the repeat call; the browser: J1 at 6.625 m and K1 at 5.125 m land (the tip flash on K1).
+- **Simgate** (10 seeds, every pairing): every row without him identical, cvc 3/3; his rows (before -> after): HY 108.5
+  -> 108.7 s, HK 110.7 -> 110.7, HR 145.5 -> 136.5, HI 153.0 -> 147.7, HS 159.8 -> 156.3, HB 157.2 -> 161.9, all K.O.; the
+  mirror 9 of 10 K.O. (one 300 s time-out), so 20 seeds: 19 of 20 K.O., median 168.0 s; the parent commit at 20 seeds:
+  20 of 20, 168.1 s, so the time-out is this change's (reported to the user, nothing retuned). HY and HK stay under 125 s
+  as before.
+- **CPU score** (`aieval --char 7 --seeds 10 -j 2`, before -> after): 0.8253 -> 0.8256 (strength 0.617 both, masher 1.0,
+  signature 0.881; NORMAL's share 0.49 -> 0.47, in its 0.3-0.6 band).

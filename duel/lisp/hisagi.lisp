@@ -187,27 +187,28 @@ distance (§25.13: 「鏈尖判定會直接延續 J1 / K1 打中時的判斷狀�
   "The bind's pool loses this much per nominal damage of either fighter (rules BIND-DRAIN's rate; 0.5 -> 0.25, 2026-10-19,
 the user: 「延長近身的時長（SP 與血量互換從 1:2 改成 1:3）」 then 「1:4」, §25.13; 0.25 -> 1/3 the same day: 「捆綁模式的 SP 血量
 互換率還是改成 1:3 好了」, §25.13); an SP still spends it 1:1.")
-(defparameter *hs-r-j-dead* 3.0
+(defparameter *hs-r-j-dead* 4.0
   "The ranged mode's J (J1 / J2 / J3, the gathered J2s / J3G) dead zone, m (the moves' :min-reach): an annulus out to
 *HS-R-J-REACH* (J1's 2.0 -> 3.0 and the other links' *HS-R-DEAD* 2.0 -> 3.0, 2026-10-18, the user: 「J 的範圍改 3~6」, §25.3;
-J1's own since S1, 「J1 範圍設 3.0–5 m」, §23.3) ...")
-(defparameter *hs-r-j-reach* 6.0
+J1's own since S1, 「J1 範圍設 3.0–5 m」, §23.3; 3.0 -> 4.0, 2026-10-23, the user: 「J 的攻擊範圍修改成 4~7 m，K 的攻擊範圍修改成 2.5~5.5 m」, §25.34) ...")
+(defparameter *hs-r-j-reach* 7.0
   "... and its far edge, m (an arc's r, a line's end + its r) (J1 / J3 / J3G 5.0, J2 4.5, J2s 5.5 -> 6.0, the same; the tip
-x1.3 on 5.0-6.0; x1.71 on 5.5-6.0 since §25.26, 5.25-6.0 since §25.30).")
-(defparameter *hs-r-k-dead* 2.0
+x1.3 on 5.0-6.0; x1.71 on 5.5-6.0 since §25.26, 5.25-6.0 since §25.30; 6.0 -> 7.0, §25.34: the tip 6.25-7.0).")
+(defparameter *hs-r-k-dead* 2.5
   "The ranged mode's K (K1, the spread K2s / K3, the gathered K2 / K3G) dead zone, m: an annulus out to *HS-R-K-REACH*
 (*HS-R-DEAD* 2.0 -> 1.0, 2026-10-18, the user: 「K 的範圍改 1~4」, §25.3; 1.0 -> 2.0, the same day: 「卍解遠距 K 改成 2~5 m」,
-§25.5) ...")
-(defparameter *hs-r-k-reach* 5.0
+§25.5; 2.0 -> 2.5, 2026-10-23, §25.34) ...")
+(defparameter *hs-r-k-reach* 5.5
   "... and its far edge, m (K1 4.0, K2s / K3 / K3G 6.0, K2 8.5 -> 4.0, §25.3; 4.0 -> 5.0, §25.5; the tip x1.3 on 4.0-5.0; x1.71 on 4.5-5.0
-since §25.26, 4.25-5.0 since §25.30).")
+since §25.26, 4.25-5.0 since §25.30; 5.0 -> 5.5, §25.34: the tip 4.75-5.5).")
 (defparameter *hs-r-link-reach* 7.0
   "The ranged route links (links 2-3: J2 / K2s / J3 / K3, K2 / J2s / K3G / J3G) strike the victim where he is, along the
 chain (HS-R-LINK-SEG: no dead zone), out to this many m from his feet (+ the victim's body); farther, they miss. They
 replace the 3.5 m placement of J1 / J2 / K1 / K2's slam (B4a's push, §22.1; a placement since §25.3; gone 2026-10-19, the
 user: 「拿掉定位，改成後續接上的 J / K 會自動調整判定範圍」, 「7.0 m 可以」, DUEL_HISAGI §25.13).")
-(defparameter *hs-r-j3-push* 6.6 "J3 旋鎖's ender push: to this many m (J1's 4.5 + body + 0.05 = 4.91 -> 5.5, 2026-10-18, the user, §22.1;
-5.5 -> 6.6, 2026-10-18, §25.3: out of J1's 6.0 + a body 0.45 + 0.05 again, the lead's number from the same rule).")
+(defparameter *hs-r-j3-push* 7.55 "J3 旋鎖's ender push: to this many m (J1's 4.5 + body + 0.05 = 4.91 -> 5.5, 2026-10-18, the user, §22.1;
+5.5 -> 6.6, 2026-10-18, §25.3: out of J1's 6.0 + a body 0.45 + 0.05 again, the lead's number from the same rule; 6.6 -> 7.55,
+2026-10-23, §25.34: out of J1's 7.0 by the same rule, + the ender push's 0.05 the host checks).")
 ;;; ---------------------------------------------------------------- the ranged strings by route (§22.4, batch B4c)
 ;;; The user, 2026-10-18: 「K1 將垂降的鎖鏈在身旁旋轉並捆成一束 ... J1 接續的 K2 K3 則會更採用散開的鎖鏈發動攻擊 / 散開的鎖鏈攻擊更快，
 ;;; 聚合的鎖鏈攻擊更痛」; 「身旁旋轉會打到」, 「拿掉落點」 (B4a's placed marks gone), 「散 −3 幀×0.85／聚 +3 幀×1.3」, 「可以」 to
@@ -586,15 +587,16 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
   ;; roll per entry, or a back Step) and K1 at 3-4 m too (its tip), shared with J1. Round01 cell b1a0 (§25.13's tip x1.71 for
   ;; the whole route): his intents hold the chain tips' distance, 4-5.6 m (K1's tip 4-5, J1's 5-6), 2.5-4.5 before
   :ai (:intents (:approach 1 :pressure 2 :zone 5 :defend 2)
-       :ranges (:approach (4.0 5.0) :pressure (3.5 4.5) :zone (4.2 5.6) :defend (5.0 6.5))
-       :moves ((0.0 2.0 :sig 1 :step 4)     ; (§25.5: K 2.0-5.0 m, J 3.0-6.0 m; b1a0: the back Step, not L)
+       :ranges (:approach (4.75 5.5) :pressure (4.0 5.0) :zone (4.75 6.6) :defend (6.0 7.5))   ; (§25.34: the tips moved,
+                                                                                ;  4.0 5.0 / 3.5 4.5 / 4.2 5.6 / 5.0 6.5 before)
+       :moves ((0.0 2.5 :sig 1 :step 4)     ; (§25.5: K 2.0-5.0 m, J 3.0-6.0 m; §25.34: K 2.5-5.5, J 4-7; b1a0: the back Step, not L)
                ;; (round01 cell b3a1: b1a1's 待鎖 MACHI-GUSARI, the waiting chain, ported: no J1 / K1 / Step from the bands
                ;; beyond 2 m, no dash in, no KOSA / SP1 from afar: his J1 / K1 come only off his :reflex's answers (b1a1, HARD,
                ;; the awakening forced, 240 matches: 0.338 -> 0.425))
-               (2.0 3.0 nil 6)               ; (b1a1: :f 5 :step 1 -> nothing)
-               (3.0 5.0 nil 7)               ; (b1a1: :f 3 :q 3 :step 1 -> nothing)
-               (5.0 6.0 nil 6)               ; (b1a1: :q 5 :step 1 -> nothing)
-               (6.0 99.0 nil 4))             ; (b1a1: no KOSA / SP1 from afar)
+               (2.5 4.0 nil 6)               ; (b1a1: :f 5 :step 1 -> nothing; 2.0-3.0 until §25.34)
+               (4.0 5.5 nil 7)               ; (b1a1: :f 3 :q 3 :step 1 -> nothing; 3.0-5.0)
+               (5.5 7.0 nil 6)               ; (b1a1: :q 5 :step 1 -> nothing; 5.0-6.0)
+               (7.0 99.0 nil 4))             ; (b1a1: no KOSA / SP1 from afar; 6.0-)
        :guard 0.85 :neutral-guard 0.2 :hoho 0.9 :dash 0.0 :dash-back 0.8 :block-string 0.4 :sp-cancel-bars 4 :string-k 1.0
        ;; (b1a0: the fence: :guard 0.5 -> 0.85 against a committed move, the neutral guard 0.2 (a held guard up close fed
        ;; the opponents' Breaker), :hoho 0.3 -> 0.9 (his slow J / K lose every close trade; the Hoho's iframes don't),
@@ -1357,8 +1359,8 @@ drained end at this step's hits); 15 the Bankai mirror, both CPUs awakened, 6 m 
 2.5 m from an idle Kenpachi (the gathered route, K1 綁束 at 2.0-4.0 m: press K K K / K K J / K J J); 17 the ranged mode
 3.5 m from him (the spread route off J1: J J J / J J K / J K K); 18 the ranged mode 4 m from a CPU Rukia, P1's CPU on (a
 fresh CPU battle); §25.20: 20 / 21 P1 the button-masher with ASSIST ALWAYS + COMBO + BREAK vs a CPU, 6 m: the Shikai vs
-Lille, the Bankai's ranged mode vs Kenpachi; §25.26: 22 / 23 the ranged mode 4.75 / 5.75 m from an idle Kenpachi (on K1's / J1's
-tip: the glint); §25.27: 24 the Bankai mirror 4.75 m apart, both CPUs off (P1's white flow, P2's black); any other k
+Lille, the Bankai's ranged mode vs Kenpachi; §25.26: 22 / 23 the ranged mode 5.125 / 6.625 m (4.75 / 5.75 until §25.34) from an idle
+Kenpachi (on K1's / J1's tip: the cues); §25.27: 24 the Bankai mirror 5.125 m apart, both CPUs off (P1's white flow, P2's black); any other k
 the probe line only."
   (flet ((setup (c2 dist &key cpu)
            (ensure-battle :hisagi c2 :cpu cpu)
@@ -1391,8 +1393,8 @@ the probe line only."
       (16 (setup :kenpachi 2.5) (hs-awaken-now! *p1*))
       (17 (setup :kenpachi 3.5) (hs-awaken-now! *p1*))
       (18 (setup :rukia 4.0 :cpu t) (hs-awaken-now! *p1*))   ; (Rukia: no other scene starts that battle, so a fresh CPU one)
-      ((22 23) (setup :kenpachi (if (= k 22) 4.75 5.75)) (hs-awaken-now! *p1*))   ; §25.26: on K1's / J1's tip (the glint)
-      (24 (setup :hisagi 4.75) (hs-awaken-now! *p1*) (hs-awaken-now! *p2*))         ; §25.27: the mirror on K1's tip (both flows)
+      ((22 23) (setup :kenpachi (if (= k 22) 5.125 6.625)) (hs-awaken-now! *p1*))  ; §25.26: on K1's / J1's tip (the cues; §25.34's)
+      (24 (setup :hisagi 5.125) (hs-awaken-now! *p1*) (hs-awaken-now! *p2*))        ; §25.27: the mirror on K1's tip (both flows)
       ;; §25.20: P1 the ASSIST gate's button-masher (habit :dumb, an EASY CPU's eyes) with ASSIST ALWAYS + COMBO + BREAK
       ;; against a CPU: 20 the Shikai vs Lille 6 m (her shots: AUTO GUARD's windmill; J mashed: the route plans), 21 the
       ;; Bankai's ranged mode vs Kenpachi 6 m (the tip opener, the routes, the noose and the bind's cinching route)

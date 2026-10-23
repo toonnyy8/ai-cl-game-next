@@ -283,16 +283,16 @@ the bind's bands either) (round01 cell b2a1's, ported by cell b3a2).")
   "His CPU, once per entry into the ranged mode: the route style (weights; HS-R-STYLE, SIM-RND01): SENTAN 尖端 the tip
 reaper, NAWAJI 縄路 the noose road, KAISEN 回旋 the Reiatsu wheel (*HS-AI-R-STYLES*).")
 (defparameter *hs-ai-r-styles*
-  '(:sentan (:open :f :anti :f :tip t :route-dmg (:easy 0.7 :normal 0.8 :hard 0.9) :kubi-at 3 :keep 4.75)
-    :nawaji (:open :f :anti :f :tip nil :route-dmg (:easy 0.5 :normal 0.6 :hard 0.7) :kubi-at 1 :keep 3.5)
-    :kaisen (:open :q :anti :q :tip t :route-dmg (:easy 0.1 :normal 0.15 :hard 0.2) :kubi-at 3 :keep 5.75))
+  '(:sentan (:open :f :anti :f :tip t :route-dmg (:easy 0.7 :normal 0.8 :hard 0.9) :kubi-at 3 :keep 5.125)
+    :nawaji (:open :f :anti :f :tip nil :route-dmg (:easy 0.5 :normal 0.6 :hard 0.7) :kubi-at 1 :keep 4.5)
+    :kaisen (:open :q :anti :q :tip t :route-dmg (:easy 0.1 :normal 0.15 :hard 0.2) :kubi-at 3 :keep 6.625))
   "The ranged route styles: :open the opener where both reach and no tip holds him (J1 the spread route, K1 the gathered
 one), :anti the anti-approach strike, :tip (T) every opener picked so the victim stands on its chain tip (HS-R-TIP-CMD: K1
-at 4.25-5 m, J1 at 5.25-6 m since §25.30: the whole route x1.71, §25.13), :route-dmg the K link's chance per link hit (HS-R-AI-MOVE), :kubi-at
+at 4.75-5.5 m, J1 at 6.25-7 m since §25.34: the whole route x1.71, §25.13), :route-dmg the K link's chance per link hit (HS-R-AI-MOVE), :kubi-at
 the first link KUBIKAKE's cancel may take (1: off the opener's hit, the bind first; 3: only off the ender, the route's
-damage first), :keep the distance his back hop runs out to. SENTAN keeps K1's tip (4.6 m; 4.75 since the tip's 0.5 m, §25.26) and plays the gathered K route
+damage first), :keep the distance his back hop runs out to. SENTAN keeps K1's tip (4.6 m; 4.75 since the tip's 0.5 m, §25.26; 5.125 since §25.34's reaches) and plays the gathered K route
 to the end (K1 -> K2 -> K3G on the tip: 313); NAWAJI throws the noose off the first link that hits; KAISEN keeps J1's tip
-(5.0 m; 5.75 since §25.26) and plays the spread J route (J2 -> J3's 6.6 m push: back to the tip; the Reiatsu x1.69) for the bars.")
+(5.0 m; 5.75 since §25.26; 6.625 since §25.34; NAWAJI 3.5 -> 4.5, where both openers reach) and plays the spread J route (J2 -> J3's 6.6 m push: back to the tip; the Reiatsu x1.69) for the bars.")
 (defparameter *hs-ai-wake-p* '(:easy 0.0 :normal 0.0 :hard 0.0)
   "Cell b3a0, once per awakening (the entry into the ranged mode from the Shikai): the waking noose, KUBIKAKE thrown as soon
 as its line holds him and he isn't attacking, inside *HS-AI-WAKE-WINDOW* frames (HS-R-AI-REFLEX): the bind sought at once. (Round01 cell b3a0: NORMAL 0.1 -> 0.05: the Bankai at 3000 taken put NORMAL at 0.61 (factor 0.93); 0.562 after these cuts, 480 matches; HARD kept.)
@@ -682,8 +682,10 @@ the waking noose (*HS-AI-WAKE-P*, round01 cell b3a0)."
 (defun hs-r-sv (style key) "STYLE's value of KEY (*HS-AI-R-STYLES*)." (getf (getf *hs-ai-r-styles* style) key))
 (defun hs-r-hits-at-p (cmd d)
   "Does the ranged mode's command CMD (:q J1, :f K1, :sig SAHARAI, :sp2 KUBIKAKE) reach a victim D m away (centre to
-centre)? J1 3.05-6.2, K1 2.05-5.2, SAHARAI to 3.1, KUBIKAKE 2.3-7.0 (their volumes + a hurt radius, a little inside)."
-  (case cmd (:q (<= 3.05 d 6.2)) (:f (<= 2.05 d 5.2)) (:sig (<= d 3.1)) (:sp2 (<= 2.3 d 7.0))))
+centre)? J1 4.05-7.2, K1 2.55-5.7 (3.05-6.2 / 2.05-5.2 until §25.34: the knobs' annuli, 0.05 in, + 0.2 of hurt radius),
+SAHARAI to 3.1, KUBIKAKE 2.3-7.0 (their volumes + a hurt radius, a little inside)."
+  (case cmd (:q (<= (+ *hs-r-j-dead* 0.05) d (+ *hs-r-j-reach* 0.2))) (:f (<= (+ *hs-r-k-dead* 0.05) d (+ *hs-r-k-reach* 0.2)))
+    (:sig (<= d 3.1)) (:sp2 (<= 2.3 d 7.0))))
 (defun hs-r-cmd-move (cmd)
   "The ranged mode's move of CMD (:q J1, :f K1, :sig SAHARAI, :sp2 KUBIKAKE)."
   (find-move (case cmd (:q :hs-r-j1) (:f :hs-r-k1) (:sig :hs-r-l) (t :hs-r-kubikake))))
@@ -737,7 +739,7 @@ side-stepped, 17 % hit, round01 b1a0); once per entry within *HS-AI-CLOSE* m whi
         ((and (eq (brain-was b) :guard-hit) (<= (fighter-block-adv f) *ai-punish-adv*))
          (or (and (< (sim-rnd01) (brain-chance b *hs-ai-punish-p*))
                   (fire (hs-r-pick style (fighter-dist f) (- (fighter-block-adv f)) (kit-command-ok-p e :sp2)) :ai-block-punish))
-             (and (< d 3.0) :wait)))
+             (and (< d *hs-r-j-dead*) :wait)))   ; (inside J1's dead zone: 3.0 until §25.34)
         ;; his Breaker coming: Hoho through its dash, else the back hop (HS-R-AI-ANTI-BREAKER)
         ((hs-r-ai-anti-breaker e b s d))
         ;; his long guard: the Breaker only now and then (HS-AI-GUARD-WAIT, cell b0a0's)
@@ -759,13 +761,13 @@ side-stepped, 17 % hit, round01 b1a0); once per entry within *HS-AI-CLOSE* m whi
         ((and (snap-punishable-p s) (not (member (snap-state s) '(:air :down :wakeup))))
          (or (and (< (brain-react-roll b) (brain-chance b *hs-ai-punish-p*))
                   (fire (hs-r-pick style d (- (snap-left-seen s b) 1) (kit-command-ok-p e :sp2)) :ai-punish))
-             (and (< d 3.0) :wait)))
+             (and (< d *hs-r-j-dead*) :wait)))
         ;; b1a1 via cell b3a1: his parry up close: wait it out (the punish above takes its recovery; the generic Breaker into it
         ;; hit 11 of 43 at HARD, -66 net a press)
         ((and (member :parry (snap-flags s)) (eq (snap-phase s) :main) (< d 4.0)) :wait)
-        ;; our blocked string just ended: the generic reset's J1 misses inside 3 m
+        ;; our blocked string just ended: the generic reset's J1 misses inside its dead zone (K1 there: 2.1-3.0 m until §25.34)
         ((and (eq (brain-was b) :move) (eq (fighter-contact f) :block))   ; (at range too: no J1 reset into a free guard)
-         (or (and (<= 2.1 d 3.0) (ai-pressure-p e) (fire :f :ai-pressure)) :wait))
+         (or (and (<= (+ *hs-r-k-dead* 0.1) d *hs-r-j-dead*) (ai-pressure-p e) (fire :f :ai-pressure)) :wait))
         ;; he comes in: the style's strike (or the other) as he arrives in its annulus
         ((and run (hss-ai-run-go st))
          (let* ((a (hs-r-sv style :anti)))
@@ -1091,7 +1093,7 @@ the bind's cinching K route and TODOME (HS-B-AI-MOVE). The entry (HS-AS-ENTRY)."
 (HS-AS-DECIDE), then pressed on his J (HS-AS-PRESS: the J pressed or latched in this move, the generic AUTO COMBO's rule);
 the windmill's K off a bridge the assist pressed is his tick's (HS-KAZA-TICK); the ranged L SAHARAI that hit: his J ->
 K1 when the style's pick from where it pushes him is K1. Free, his J: the ranged mode's tip opener (K1 with him on its tip,
-4-5 m, HS-R-TIP-CMD; on J1's, 5-6.2 m, his J is it); a bind's bite (HS-B-BITE-CMD: his J held back while the yank still
+4.75-5.7 m since §25.34, HS-R-TIP-CMD; on J1's, 6.25-7.2 m, his J is it); a bind's bite (HS-B-BITE-CMD: his J held back while the yank still
 brings the victim in). A command, :NONE or NIL (the generic AUTO COMBO)."
   (let* ((st (hs e)) (mv (current-move f)) (j (vpad-command-pressed-p vp :quick nil)))
     (cond (mv
