@@ -229,3 +229,10 @@
 (check (let ((p (rogue-rank-put (rogue-rank-put 0 1 3) 7 6)))
          (and (= (rogue-rank-get p 1) 3) (= (rogue-rank-get p 7) 6) (= (rogue-rank-get p 0) 0)
               (= (rogue-rank-open p 1) 3) (= (rogue-rank-open p 7) 5) (= (rogue-rank-open p 0) 0) (< p (ash 1 29)))))
+;; the first lap's CPU (the user, 2026-10-23): normal steps EASY, elites NORMAL from any floor; the boss and on by the ramp
+(check (loop for fl in '(:easy :normal :hard)
+             always (and (equal (loop for st from 1 to 9 collect (rogue-difficulty st fl (rogue-ramp st)))
+                                '(:easy :easy :normal :easy :easy :normal :easy :easy :normal))
+                         (eq (rogue-difficulty 10 fl (rogue-ramp 10)) :hard)
+                         (eq (rogue-difficulty 12 fl (rogue-ramp 12)) (ramp-difficulty fl (rogue-ramp 12))))))
+

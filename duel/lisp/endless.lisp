@@ -66,7 +66,7 @@
 (defun endless-apply! ()
   "START-MATCH's hook: P1's carry over his fresh fighter, P2's ramp (difficulty, Reishi, awakening), the autopilot's
 brain on P1."
-  (let* ((n *endless-stage*) (r (endless-row n)) (d (ramp-difficulty *endless-floor* r *difficulties*))
+  (let* ((n *endless-stage*) (r (endless-row n)) (d (if *rogue* (rogue-difficulty n *endless-floor* r) (ramp-difficulty *endless-floor* r *difficulties*)))
          (g1 (gauges *p1*)) (g2 (gauges *p2*)) (b (brain *p2*)) (c *endless-carry*))
     (when c
       (unless (eq (getf c :form) (fighter-form (fighter *p1*))) (set-form *p1* (getf c :form)))

@@ -31,6 +31,14 @@ Reishi % x1.1, from 4 the boss's 150 -> 180 (both: 198)."
       (setf (fifth r) (round (* (fifth r) 11) 10)))
     r))
 
+(defun rogue-difficulty (step floor row)
+  "The CPU's difficulty on STEP: in the first lap (steps 1-9) a normal step EASY and an elite NORMAL whatever the START
+floor (the user, 2026-10-23: 「第一輪的普通關都設為 easy, 菁英關都設 normal」); the boss and the continuation by the ramp (ROW
+over FLOOR: RAMP-DIFFICULTY)."
+  (cond ((>= step *rogue-steps*) (ramp-difficulty floor row))
+        ((eq (rogue-step-kind step) :elite) :normal)
+        (t :easy)))
+
 (defun rogue-lcg-at (seed step salt)
   "The doors' own draw for (SEED, STEP, SALT): ENDLESS-LCG, never SIM-RND (how a fight goes never changes the doors)."
   (endless-lcg (endless-lcg (+ (* seed 7919) (* step 104729) (* salt 15485863) 3))))

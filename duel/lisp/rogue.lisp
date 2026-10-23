@@ -322,7 +322,7 @@ it acts from the next stage's start."
       (let ((r (rogue-ramp step *rogue-rank*)))
         (format nil "~@[~a  ~]~a~:[~;  AWAKENED~]~:[~*~;  AWAKENING ~d~]  REISHI ~d%  ~a"
                 (case (rogue-step-kind step) (:elite "ELITE") (:boss "BOSS"))
-                (ramp-difficulty *endless-floor* r *difficulties*) (fourth r)
+                (rogue-difficulty step *endless-floor* r) (fourth r)
                 (and (not (fourth r)) (plusp (third r))) (third r) (fifth r)
                 (case (getf d :reward) (:rare "RARE REWARD") (:konpaku (format nil "KONPAKU +~d" *rogue-rest-konpaku*)) (t "REWARD"))))))
 

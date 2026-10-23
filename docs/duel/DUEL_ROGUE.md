@@ -635,3 +635,17 @@ The user: 「善哉 開始做 DANGAI 第 5 批」. §6 as designed; the unlock g
 - **Gates**: host 10051 -> 10063 ALL PASS; pkgcheck 0; build 0 warnings; no-run simgate 28 x 10 summary identical to the
   previous one; cvc 3/3; debug ranges 0 errors. SELECT's three rows checked in the browser (rank 3 open via page 66: RANK 2
   picked, the run logs `duel rogue run rank 2`).
+
+## The first lap: normal steps EASY, elites NORMAL (2026-10-23)
+
+The user, after batch 5's first reading: 「第一輪的普通關都設為 easy, 菁英關都設 normal」.
+
+- **ROGUE-DIFFICULTY (step floor row)** (rogue-rules.lisp): steps 1–9 ignore the START floor and the ramp: an elite
+  (3, 6, 9) is NORMAL, every other step EASY. Step 10 (the boss, HARD) and the continuation keep RAMP-DIFFICULTY. ENDLESS-APPLY!
+  and the doors' note read it when `*rogue*`; ENDLESS itself is unchanged. The awakening, Reishi and condition ramps stay.
+- **Gate reading** (greedy, 20 runs each; before -> after): Yamamoto 0 -> 4 clears, Kenpachi 0 -> 6, Rukia 0 -> 5,
+  Ichigo 0 -> 6, Senjumaru 0 -> 1, Lille 10 -> 18, Hisagi 0 -> 5; medians 2 -> 9 steps (Lille 17 -> 36). The runs now
+  end at the boss: step 10's HARD, awakened, 150 % opponent is the wall. Top reward rates (Lille's mostly): GORENSHA 17 /
+  18, YOKUGAI 14 / 15, HAKUGAI 8 / 15; the generic cards sit near 0.5.
+- **Gates**: host 10063 -> 10064 ALL PASS (steps 1–9 give EASY EASY NORMAL x3 for every floor, step 10 HARD, step 12 the
+  ramp); pkgcheck 0; build 0 warnings; no-run simgate 28 x 10 summary identical; cvc 3/3; debug ranges 0 errors.
