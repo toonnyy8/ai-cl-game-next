@@ -823,11 +823,11 @@
                 (notany #'fboundp '(hs-r-j-push hs-r-uchi-push hs-place-to)) (~= 7.0 *hs-r-link-reach*) (~= 6.6 *hs-r-j3-push*)
                 (~= 3.0 *hs-r-j-dead*) (~= 6.0 *hs-r-j-reach*) (~= 2.0 *hs-r-k-dead*) (~= 5.0 *hs-r-k-reach*) (~= 1.3 *hs-r-tip-sp-mult*)
                 (> *hs-r-j3-push* (+ *hs-r-j-reach* 0.45 *ender-push*)) (< (+ *hs-r-j3-push* 0.45) 9.0)))
-    ;; the tip x1.71 (§25.13; x1.3 until then; the outer 0.5 m since §25.26, 1.0 until then: an arc by his distance, a line
+    ;; the tip x1.71 (§25.13; x1.3 until then; the outer 0.75 m since §25.30, 0.5 since §25.26, 1.0 until then: an arc by his distance, a line
     ;; along it) and the bind's x1.3 within 1.2 m (§25.13; x1.2 until then)
-    (check (and (~= 0.5 *hs-r-tip*) (~= 1.71 (hs-dist-mult :bankai nil 4.5 4.0 0.0)) (~= 1.0 (hs-dist-mult :bankai nil 4.5 3.99 0.0))
-                (~= 1.71 (hs-dist-mult :bankai nil 4.5 4.8 0.0)) (~= 1.71 (hs-dist-mult :bankai t 9.0 3.0 8.5))
-                (~= 1.0 (hs-dist-mult :bankai t 9.0 3.0 8.4))
+    (check (and (~= 0.75 *hs-r-tip*) (~= 1.71 (hs-dist-mult :bankai nil 4.5 3.75 0.0)) (~= 1.0 (hs-dist-mult :bankai nil 4.5 3.74 0.0))
+                (~= 1.71 (hs-dist-mult :bankai nil 4.5 4.8 0.0)) (~= 1.71 (hs-dist-mult :bankai t 9.0 3.0 8.25))
+                (~= 1.0 (hs-dist-mult :bankai t 9.0 3.0 8.2))
                 (~= 1.0 (hs-dist-mult :bankai t 9.0 8.5 7.9)) (~= 1.0 (hs-dist-mult :bankai nil nil 7.0 7.0))
                 (~= 1.3 (hs-dist-mult :bankai-bind nil nil 1.2 0.0)) (~= 1.0 (hs-dist-mult :bankai-bind nil nil 1.21 0.0))
                 (~= 1.0 (hs-dist-mult :base nil 4.5 4.0 4.0)) (~= 1.71 *hs-r-tip-mult*) (~= 1.3 *hs-b-close-mult*)
@@ -842,7 +842,7 @@
         (flet ((x (n d2 &optional (i 0)) (hs-dmg-mult h o (svref (mv-hits (m n)) i) (m n) nil d2)))
           ;; §25.13 (「鏈尖判定會直接延續 J1 / K1 打中時的判斷狀態」): an opener records its tip read, its links take it whatever
           ;; their own distance
-          (check (and (~= 1.71 (x :hs-r-j1 30.25)) (~= 1.71 (x :hs-r-j3 1.0)) (~= 1.71 (x :hs-r-k3 1.0)) (~= 1.0 (x :hs-r-j1 29.0))
+          (check (and (~= 1.71 (x :hs-r-j1 30.25)) (~= 1.71 (x :hs-r-j3 1.0)) (~= 1.71 (x :hs-r-k3 1.0)) (~= 1.0 (x :hs-r-j1 27.0))
                       (~= 1.0 (x :hs-r-j3 25.0)) (~= 1.0 (x :hs-r-k2s 25.0)) (~= 1.71 (x :hs-r-k1 20.25)) (~= 1.71 (x :hs-r-k2 1.0 1))
                       (~= 1.71 (x :hs-r-j2s 1.0)) (~= 1.71 (x :hs-r-k3g 1.0)) (~= 1.0 (x :hs-r-k1 4.0)) (~= 1.0 (x :hs-r-j3g 36.0))
                       (~= 1.0 (x :hs-r-l 4.0)) (~= 1.0 (x :hs-breaker 1.0))
@@ -850,10 +850,10 @@
                       (~= 1.0 (x :hs-r-sp1 16.0))))                      ; (SP1's 9 m line: 4 m along it, no tip)
           (t-at o 0 -8.5)
           (check (and (~= 1.71 (x :hs-r-sp1 72.25)) (~= 1.71 (x :hs-r-kubikake 49.0)) (~= 1.0 (x :hs-r-sp2 72.25 1))))
-          (t-at o 0 -4.5)                                                 ; (K1's tip, the outer 0.5 m of r 5.0, §25.26)
-          (check (and (~= 1.71 (x :hs-r-k1 20.25)) (~= 1.71 (x :hs-r-k1 25.0))))
-          (t-at o 0 -4.4)
-          (check (and (~= 1.0 (x :hs-r-k1 19.36)) (~= 1.0 (x :hs-r-k1 16.0))))
+          (t-at o 0 -4.25)                                                ; (K1's tip, the outer 0.75 m of r 5.0, §25.30)
+          (check (and (~= 1.71 (x :hs-r-k1 18.0625)) (~= 1.71 (x :hs-r-k1 25.0))))
+          (t-at o 0 -4.2)
+          (check (and (~= 1.0 (x :hs-r-k1 17.64)) (~= 1.0 (x :hs-r-k1 16.0))))
           (t-at o 0 -9.5)
           (check (and (~= 1.71 (x :hs-r-sp2 90.25 1)) (~= 1.71 (x :hs-r-kikon 90.25))))
           (t-at o 0 -1.0)
@@ -1284,14 +1284,14 @@
               (hs-r-reaches-p (find-move :hs-r-k1) 2.05) (hs-r-reaches-p (find-move :hs-r-k1) 5.2)
               (hs-r-reaches-p (find-move :hs-r-kubikake) 2.3) (hs-r-reaches-p (find-move :hs-r-kubikake) 7.0)
               (eq :hs-r-l (mv-name (hs-r-cmd-move :sig))) (eq :hs-r-kubikake (mv-name (hs-r-cmd-move :sp2)))))
-  ;; HS-R-TIP-CMD (round01 b1a0): the opener whose chain tip holds him (§25.13's x1.71 for the whole route): J1 5.5-6.2, K1
-  ;; 4.5-5.2 (§25.26's 0.5 m tip; 5.0-6.2 / 4.0-5.0 until then), nothing between, nearer or farther; it matches the moves'
+  ;; HS-R-TIP-CMD (round01 b1a0): the opener whose chain tip holds him (§25.13's x1.71 for the whole route): J1 5.25-6.2, K1
+  ;; 4.25-5.2 (§25.30's 0.75 m tip; 5.5 / 4.5 with §25.26's 0.5 m; 5.0-6.2 / 4.0-5.0 until then), nothing between, nearer or farther; it matches the moves'
   ;; tip (HS-DIST-MULT: the outer *HS-R-TIP* of each volume); HISAGI-DRAW's glint band (HS-TIP-BAND) is the same at every
   ;; distance 0-8 m (a tenth apart)
-  (check (and (eq :q (hs-r-tip-cmd 5.5)) (eq :q (hs-r-tip-cmd 6.2)) (null (hs-r-tip-cmd 6.3)) (eq :f (hs-r-tip-cmd 4.5))
-              (eq :f (hs-r-tip-cmd 5.2)) (null (hs-r-tip-cmd 5.3)) (null (hs-r-tip-cmd 5.45)) (null (hs-r-tip-cmd 4.4))
-              (~= 1.71 (hs-dist-mult :bankai nil 6.0 5.5 0.0)) (~= 1.71 (hs-dist-mult :bankai nil 5.0 4.5 0.0))
-              (~= 1.0 (hs-dist-mult :bankai nil 5.0 4.4 0.0)) (~= 1.0 (hs-dist-mult :bankai nil 6.0 5.4 0.0))
+  (check (and (eq :q (hs-r-tip-cmd 5.25)) (eq :q (hs-r-tip-cmd 6.2)) (null (hs-r-tip-cmd 6.3)) (eq :f (hs-r-tip-cmd 4.25))
+              (eq :f (hs-r-tip-cmd 5.2)) (null (hs-r-tip-cmd 5.22)) (null (hs-r-tip-cmd 4.2))
+              (~= 1.71 (hs-dist-mult :bankai nil 6.0 5.25 0.0)) (~= 1.71 (hs-dist-mult :bankai nil 5.0 4.25 0.0))
+              (~= 1.0 (hs-dist-mult :bankai nil 5.0 4.2 0.0)) (~= 1.0 (hs-dist-mult :bankai nil 6.0 5.2 0.0))
               (let ((v (make-f32 1)))
                 (loop for i from 0 to 80 for d = (* 0.1 i)
                       always (progn (setf (aref v 0) (f32 d))

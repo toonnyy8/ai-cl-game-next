@@ -288,7 +288,7 @@ reaper, NAWAJI 縄路 the noose road, KAISEN 回旋 the Reiatsu wheel (*HS-AI-R-
     :kaisen (:open :q :anti :q :tip t :route-dmg (:easy 0.1 :normal 0.15 :hard 0.2) :kubi-at 3 :keep 5.75))
   "The ranged route styles: :open the opener where both reach and no tip holds him (J1 the spread route, K1 the gathered
 one), :anti the anti-approach strike, :tip (T) every opener picked so the victim stands on its chain tip (HS-R-TIP-CMD: K1
-at 4.5-5 m, J1 at 5.5-6 m since §25.26: the whole route x1.71, §25.13), :route-dmg the K link's chance per link hit (HS-R-AI-MOVE), :kubi-at
+at 4.25-5 m, J1 at 5.25-6 m since §25.30: the whole route x1.71, §25.13), :route-dmg the K link's chance per link hit (HS-R-AI-MOVE), :kubi-at
 the first link KUBIKAKE's cancel may take (1: off the opener's hit, the bind first; 3: only off the ender, the route's
 damage first), :keep the distance his back hop runs out to. SENTAN keeps K1's tip (4.6 m; 4.75 since the tip's 0.5 m, §25.26) and plays the gathered K route
 to the end (K1 -> K2 -> K3G on the tip: 313); NAWAJI throws the noose off the first link that hits; KAISEN keeps J1's tip
@@ -697,13 +697,13 @@ nothing reaches in time."
             return c)))
 (defun hs-r-tip-cmd (d)
   "The ranged opener whose chain tip (its outer *HS-R-TIP* m: x1.71 for the whole route, §25.13) holds a victim D m away
-(centre to centre, 0.2 m of hurt radius past the reach): J1 at 5.5-6.2, K1 at 4.5-5.2 (J1 5.0-6.2, K1 4.0-5.0 with the
-1.0 m tip until §25.26); NIL elsewhere. HISAGI-DRAW's tip glint reads it too."
+(centre to centre, 0.2 m of hurt radius past the reach): J1 at 5.25-6.2, K1 at 4.25-5.2 with the 0.75 m tip (§25.30;
+5.5 / 4.5 with §25.26's 0.5 m; J1 5.0-6.2, K1 4.0-5.0 with the 1.0 m tip until §25.26); NIL elsewhere. HISAGI-DRAW's tip glint reads it too."
   (cond ((<= (- *hs-r-j-reach* *hs-r-tip*) d (+ *hs-r-j-reach* 0.2)) :q)
         ((<= (- *hs-r-k-reach* *hs-r-tip*) d (+ *hs-r-k-reach* 0.2)) :f)))
 (defun-fast hs-tip-band (v)
   "HS-R-TIP-CMD on the distance V [0] (an f32vec: HISAGI-DRAW's *HS-G*, the opponent's) without boxing it: 1 K1's tip
-(4.5-5.2 m), 2 J1's (5.5-6.2), else NIL (the host test sweeps both against each other). 0 B."
+(4.25-5.2 m), 2 J1's (5.25-6.2), else NIL (the host test sweeps both against each other). 0 B."
   (declare (type f32vec v))
   (let ((d (aref v 0)) (tip (the single-float *hs-r-tip*))
         (jr (the single-float *hs-r-j-reach*)) (kr (the single-float *hs-r-k-reach*)))

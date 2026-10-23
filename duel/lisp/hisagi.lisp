@@ -166,10 +166,11 @@ real damage (the user, 2026-10-18: 「先還原再打，傷害 120（推薦）�
 this (m, centre to centre: the moves' :min-reach) (none -> 2.0, 2026-10-18, the user, §22.1; B4c: K1 綁束 had none, the
 user: 「身旁旋轉會打到」, §22.4; B4d: K1 has it again, 「讓 K1 只能打中遠方的敵人」, §22.8). The bind's SP1 KUSARI-AME has
 none since B4d (「鎖雨改成近距離也打得中」).")
-(defparameter *hs-r-tip* 0.5
+(defparameter *hs-r-tip* 0.75
   "The chain tip: a ranged-mode hit in the outer this many m of its volume (an arc / annulus: by his distance from the arc's
 r; a line / lane: along it, from its far end) ... (none -> 1.0, 2026-10-18, the user, §22.1; HS-DIST-MULT; 1.0 -> 0.5,
-2026-10-23, the user: 「幫我將鏈尖加成縮短至 0.5m」: J 5.5-6 m, K 4.5-5 m) ...")
+2026-10-23, the user: 「幫我將鏈尖加成縮短至 0.5m」: J 5.5-6 m, K 4.5-5 m; 0.5 -> 0.75 the same day, §25.30: 「尖端距離改成
+0.75m」: J 5.25-6 m, K 4.25-5 m) ...")
 (defparameter *hs-r-tip-mult* 1.71
   "... deals x this, else x1.0 (x1.0 -> x1.3, 2026-10-18, the user, §22.1; 1.3 -> 1.71, 2026-10-19, the user: 「將遠距的鏈尖
 加成提高到能讓 K 串傷害能到平均值的 1.3 倍」, 「共用 1.71」: K1 -> K2 -> K3G all on the tip 313, 1.3 x the 21 awakened forms'
@@ -192,14 +193,14 @@ the user: 「延長近身的時長（SP 與血量互換從 1:2 改成 1:3）」 
 J1's own since S1, 「J1 範圍設 3.0–5 m」, §23.3) ...")
 (defparameter *hs-r-j-reach* 6.0
   "... and its far edge, m (an arc's r, a line's end + its r) (J1 / J3 / J3G 5.0, J2 4.5, J2s 5.5 -> 6.0, the same; the tip
-x1.3 on 5.0-6.0; x1.71 on 5.5-6.0 since §25.26).")
+x1.3 on 5.0-6.0; x1.71 on 5.5-6.0 since §25.26, 5.25-6.0 since §25.30).")
 (defparameter *hs-r-k-dead* 2.0
   "The ranged mode's K (K1, the spread K2s / K3, the gathered K2 / K3G) dead zone, m: an annulus out to *HS-R-K-REACH*
 (*HS-R-DEAD* 2.0 -> 1.0, 2026-10-18, the user: 「K 的範圍改 1~4」, §25.3; 1.0 -> 2.0, the same day: 「卍解遠距 K 改成 2~5 m」,
 §25.5) ...")
 (defparameter *hs-r-k-reach* 5.0
   "... and its far edge, m (K1 4.0, K2s / K3 / K3G 6.0, K2 8.5 -> 4.0, §25.3; 4.0 -> 5.0, §25.5; the tip x1.3 on 4.0-5.0; x1.71 on 4.5-5.0
-since §25.26).")
+since §25.26, 4.25-5.0 since §25.30).")
 (defparameter *hs-r-link-reach* 7.0
   "The ranged route links (links 2-3: J2 / K2s / J3 / K3, K2 / J2s / K3G / J3G) strike the victim where he is, along the
 chain (HS-R-LINK-SEG: no dead zone), out to this many m from his feet (+ the victim's body); farther, they miss. They

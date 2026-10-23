@@ -3548,3 +3548,12 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
 
 - The user (verbatim): 「流光改成 1 秒」. `*hs-flow-every*` 1.8 -> 1.0 s: each hanging chain's streak starts once a second
   (read as the interval §25.28 set; its run down the chain stays 0.7 s). Built 0 warnings; a look only.
+
+### 25.30 The chain tip 0.75 m (the user, 2026-10-23)
+
+- The user (verbatim): 「尖端距離改成 0.75m」. `*hs-r-tip*` 0.5 -> 0.75 (a sim change): J1's tip 5.25-6.0 m, K1's 4.25-5.0 m
+  (plus the hurt radius: HS-R-TIP-CMD / HS-TIP-BAND J1 5.25-6.2, K1 4.25-5.2, nothing at 5.2-5.25); the cues follow the
+  bands (§25.28). The CPU's :keep values (4.75, 5.75) stay inside them.
+- Host tests 10065 ALL PASS (the bands re-pinned to 0.75 m); pkgcheck clean; built 0 warnings; smoke clean. Simgate (10
+  seeds): every row without him identical; his rows as §25.26's except one mirror match (the mirror's median 169.4 s
+  unchanged); all K.O.
