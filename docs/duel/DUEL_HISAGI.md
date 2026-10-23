@@ -3470,5 +3470,10 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
   ward branch: the same BLOCKSTUN / *HAZARD-BLOCKSTUN* the guard would get); the windmill's K string (hisagi.lisp
   HS-KAZA-K-FREE-P) waits for it and then, like the guard lock, while the attacker's move can still go on (CHAIN-MORE-P).
   A windmill that caught nothing (the J bridge, S1) is unchanged; the windmill still blocks everything it did.
+- **Measured after** (native sim, the mirror at 4.5 m; A = the attacker free again): K1 alone: the windmill's K1 at A+0,
+  as a plain guard (was A−25, hitting on f36 and beating K2); K1→K2: held through both catches, no interrupt; K3 TSUI:
+  still punished (as a plain guard punishes it); SP1 RAIDEN, Yamamoto's L wave, Lille's SANREN: no punish any more (was
+  A−26 / A−21 / a trade); the J1 → L bridge → K string identical on hit and on guard. The wait first ran 3 f short (the
+  block's hitstop passes *MATCH-TICK* but not a guard's blockstun): the catch adds *HITSTOP-BLOCK*.
 - Host tests 9983 ALL PASS, pkgcheck clean, built 0 warnings; no gate run (「不用跑 gate」).
 
