@@ -94,6 +94,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (guard-t 0 :type fixnum)              ; frames Guard has been held (raised at *GUARD-RAISE*)
                                         ; (Bankai West: frames in the ward, which is up at *GUARD-RAISE*)
   (warded -1 :type fixnum)              ; the tick his ward (Bankai West) last blocked a hit (the CPU's reversal)
+  (ward-until 0 :type fixnum)           ; a :ranged-ward move's last catch: the tick a plain guard's blockstun would end (0 none)
   (stored 0 :type fixnum)               ; stance: damage absorbed
   (charge 0 :type fixnum)               ; hold frames when a charge move was released (Shiranui)
   (perfect nil)                         ; this Hoho was perfect: its counter strike is pending

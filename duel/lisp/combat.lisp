@@ -484,6 +484,7 @@ result (NIL = no effect)."
                    (ward                                ; super armour: no blockstun, what he does goes on
                     (unless intangible (set-slide def *block-pushback* 6 (- (aref p 0) sx) (- (aref p 2) sz)))   ; (no push)
                     (setf (fighter-warded fd) *match-tick*)
+                    (when rward (setf (fighter-ward-until fd) (+ *match-tick* stun)))   ; the windmill: what a guard would feel
                     (when (and (passive-p def :freeze-touch) (not ranged) (not (gauges-froze (gauges def))))
                       (freeze-touch! def att))           ; Rukia's absolute zero: whatever touches her freezes
                     (hitstop *hitstop-block*)

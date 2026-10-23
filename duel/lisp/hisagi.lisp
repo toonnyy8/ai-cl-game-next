@@ -803,6 +803,7 @@ within the chain's length. Values ax ay az bx by bz r."
 (defun hs-kaza-start (e)
   "The windmill's frame 0 (both copies; not a :hold move, so it runs): no charge yet, no K string (S1)."
   (let ((st (hs e))) (setf (hss-charge st) 0 (hss-kstr st) nil (hss-kz-let st) nil))
+  (setf (fighter-ward-until (fighter e)) 0)
   (when (eq (mv-name (fighter-move (fighter e))) :hs-kaza-j) (pace e :bridge)))
 (defun hs-leap-tick (e)
   "J2K / J3K's :tick (S2, §23.5): in the startup the leap toward the victim's position (HS-LEAP-SPEED; the move step's own
@@ -817,6 +818,18 @@ velocity replaced, a J link has no chase). The look is the move's own clip (A1, 
 (defun hs-tick-brain (e)
   "The brain his windmill decides on: his own CPU's; NIL for a human (no brain, one switched off, the ASSIST gate's masher)."
   (let ((b (brain e))) (and b (not (brain-off b)) (not (eq (brain-habit b) :dumb)) b)))
+(defun hs-kaza-k-free-p (f)
+  "May the windmill start its K string now (F its fighter)? Not while a ranged hit it caught would still hold a plain
+guard (the user, 2026-10-23, Hisagi's Shikai mirror: 「擋下後給硬直」 over 「為什麼修兵一擋下遠攻後就可以直接發動 K 攻擊？甚至能打斷
+對手繼續出招」, DUEL_HISAGI §25.24): the blockstun that hit gives (FIGHTER-WARD-UNTIL, set at the catch: combat.lisp
+APPLY-HIT), then, as the guard lock does, while the attacker's move can still go on (CHAIN-MORE-P). No catch this
+windmill (HS-KAZA-START clears it), no wait: the J bridge into it is unchanged."
+  (let ((u (fighter-ward-until f)))
+    (or (zerop u)
+        (and (>= *match-tick* u)
+             (let* ((o (fighter-opp f)) (fo (and o (entity-alive-p o) (fighter o)))
+                    (mv (and fo (eq (fighter-state fo) :move) (fighter-move fo))))
+               (not (and mv (chain-more-p o fo mv))))))))
 (defun hs-kaza-tick (e)
   "The windmill, each frame: L held charges the next K string (HS-CHARGE-NEXT; let go, the charge stops); from
 *HS-KAZA-K-FROM* a K (his CPU's: HS-AI-KAZA-K) starts K1, the K string at the charge's reach (HS-TICK swaps each link in;
@@ -826,7 +839,7 @@ S1, §23.1); once it has been up *HS-KAZA-MIN* frames, L let go ends the hold (i
          (vp (pilot-vpad (pilot e))) (held (vpad-down vp :sig)) (b (hs-tick-brain e)) (auto nil))
     (setf (hss-charge st) (hs-charge-next (hss-charge st) held (hss-kz-let st) sf s top))
     (unless held (setf (hss-kz-let st) t))
-    (when (and (>= sf *hs-kaza-k-from*)
+    (when (and (>= sf *hs-kaza-k-from*) (hs-kaza-k-free-p f)
                (if b
                    (hs-ai-kaza-k e f st)
                    (or (vpad-command-pressed-p vp :flash nil)

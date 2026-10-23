@@ -3455,3 +3455,20 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
 - The user's answers to §13; then a second review pass on what they change, and batch 1 (`duel-character`'s build order).
 - The motion-style confirmation and its research (§11.2: kusarigama, rope dart, Blades of Chaos), then the model sheet
   stills.
+
+### 25.24 The windmill's catch holds its K as a guard would (the user, 2026-10-23)
+
+- The user (verbatim, in a Hisagi Shikai mirror): 「為什麼修兵一擋下遠攻後就可以直接發動 K 攻擊？甚至能打斷對手繼續出招」; then
+  「幫我確認普通防禦是否有類似的問題」; shown the measurements: 「擋下後給硬直」.
+- **Cause (measured in the native sim)**: the windmill's :ranged-ward catches a ranged hit with no blockstun, its K string
+  starts from windmill frame 9 (S1) and it has no cooldown (2026-10-18). Against the mirror's K1 the defender's K1 hit on
+  the attacker's frame 36 of 44: +26, beating his K2. A **plain guard** has no such gap: every blocked link that can still
+  chain is held by the guard lock (advantage 0), only the ender K3 TSUI (+20, his K1 punishes at 3.5–4.5 m) and SP1 / SP2 /
+  O (+14, nothing reaches) leave the attacker open; hazards give a fixed 14 f (at most about +12). Hisagi's edge there is
+  reach (K1 3–6 m in 18 f, the Bankai J1 in 14 f), not the guard.
+- **Change**: a catch records the tick a plain guard's blockstun would end (FIGHTER-WARD-UNTIL, combat.lisp APPLY-HIT's
+  ward branch: the same BLOCKSTUN / *HAZARD-BLOCKSTUN* the guard would get); the windmill's K string (hisagi.lisp
+  HS-KAZA-K-FREE-P) waits for it and then, like the guard lock, while the attacker's move can still go on (CHAIN-MORE-P).
+  A windmill that caught nothing (the J bridge, S1) is unchanged; the windmill still blocks everything it did.
+- Host tests 9983 ALL PASS, pkgcheck clean, built 0 warnings; no gate run (「不用跑 gate」).
+
