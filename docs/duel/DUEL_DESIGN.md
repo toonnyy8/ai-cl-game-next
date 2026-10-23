@@ -1773,3 +1773,12 @@ lag: 「只擋攻擊這個選項應該只能開放 step 跟 hoho，不能移動�
   -> 134.7, HB 162.3 -> 153.7, HH 173.9 -> 206.8 s (many cross pairings were already under 135 before the change); cvc's
   three matches changed (tests/style-cvc-ref.txt regenerated: yy P2 0-7 102.7 s, yk P2 0-6 96.8 s, kk P2 0-1 146.2 s).
   The 60-seed edge reruns and the awaken A/B were not run (the user's call).
+- **Heavy** (the user, the same day: 「幫我將拉長改成重度」, the question's 「強烈」 set): `*whiff-add*` 8 -> 16 each (Kenpachi's J1
+  whiff 46 f, K1 68 f), `*block-add*` J 4 -> 8, K / O 6 -> 10 (his blocked J1 30 f: −13 counting `*quick-block-adv*`, K
+  −13), `*guard-raise*` 4 -> 6, `*guard-exit*` 4 -> 6 (released on f20: J1 on f26); a whiffed J1's guard cancel from f28.
+  Gates (28 x 10): every match K.O., no draw; medians against the medium set: YY 84.6 -> 86.4, YK 84.4 -> 78.8, KK 81.4 ->
+  87.9, RY 101.0 -> 95.2, RK 100.5 -> 97.4, RR 131.0 -> 128.4, IY 110.4 -> 111.3, IK 93.6 -> 107.2, IR 132.2 -> 111.9, II
+  127.4 -> 152.6, SY 97.6 -> 97.3, SK 103.0 -> 95.0, SR 119.6 -> 136.7, SS 128.4 -> 126.9, SI 119.3 -> 119.0, BY 109.4 ->
+  109.2, BK 116.7 -> 105.6, BR 153.7 -> 140.3, BI 160.9 -> 126.3, BS 130.5 -> 131.1, BB 154.9 -> 139.0, HY 115.2 -> 104.9,
+  HK 130.6 -> 89.2, HR 146.2 -> 140.8, HI 140.7 -> 137.1, HS 134.7 -> 137.2, HB 153.7 -> 138.4, HH 206.8 -> 155.5 s; cvc
+  regenerated (yy P1 7-0 113.2 s, yk P2 0-1 164.6 s, kk P2 0-1 96.5 s).
