@@ -784,7 +784,7 @@ victim D m off inside its line (HS-R-REACHES-P), one roll *HS-AI-THROW-P*."
   (let ((b (ai-brain e)))
     (when b
       (cond ((hs-r-ai-throw-p e b (fighter-dist (fighter e))) (pace e :ai-throw) :sp2)
-            ((and (>= (reiatsu-of e) (+ *hs-kubi-reiatsu* *reiatsu-bar*)) (kit-command-ok-p e :sp1)
+            ((and (>= (reiatsu-of e) (+ (hs-kubi-need e) *reiatsu-bar*)) (kit-command-ok-p e :sp1)   ; (the boss keeps 1 bar)
                   (< (sim-rnd01) (brain-chance b *hs-ai-sp-ender-p*)))
              (pace e :ai-sp1)
              :sp1)))))

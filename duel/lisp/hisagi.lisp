@@ -337,7 +337,7 @@ on the victim for the look: HS-TICK).")
 not (the art's %HS-FA-KS! / %HS-LETOUT!, host-tested against the copies)."
   (+ drawn (* line (- (hs-charge-scale n) 1.0))))
 (defparameter *hs-hooks* '(:tick hs-tick :ok hs-ok :command hs-command :hit hs-hit :struck hs-struck :reset hs-reset
-                           :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :link-ok hs-link-ok))
+                           :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :link-ok hs-link-ok :boss hs-boss))
 (defparameter *hs-shikai-clips* '(:hs-q1 :hs-s-sen :hs-q2 :hs-s-kaeshi :hs-spin :hs-s-rin :hs-nage :hs-s-nage
                                    :hs-hiki :hs-s-hiki :hs-maki :hs-s-maki :hs-kari :hs-s-kari :hs-hodoki :hs-s-hodoki
                                    :hs-modoshi :hs-s-modoshi :hs-kaza :hs-s-kaza :hs-raiden :hs-s-raiden
@@ -545,7 +545,7 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
                              :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck
                              :bind hs-binding :bind-damage hs-bind-damage :bind-pool hs-bind-pool :bind-heal hs-bind-heal
                              :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot
-                             :dmg-mult hs-dmg-mult)
+                             :dmg-mult hs-dmg-mult :struck hs-bk-struck)
   "The ranged mode's hooks: the Bankai's (*HS-BK-HOOKS*) without :p / :p-label: P does nothing there since KUBIKAKE moved
 to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the bind mode's P the release FREE (gone in
 §24.5, back since §25.14).")
@@ -553,7 +553,7 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
                               :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :p hs-p-press :p-label hs-p-label
                               :bind hs-binding :bind-damage hs-bind-damage :bind-pool hs-bind-pool :bind-heal hs-bind-heal
                               :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot
-                              :dmg-mult hs-dmg-mult)
+                              :dmg-mult hs-dmg-mult :struck hs-bk-struck)
   "The Bankai's hooks (both modes): the bind's state lives on the binder's HSS, so both modes answer B1b's bind hooks; the
 :pose hook (HS-POSE: the right crescent let out on its hand chain) is a look, as the Shikai's.")
 (defparameter *hs-bk-clips* (append '(:hs-breaker :hs-k-breaker :hs-kubikake :hs-k-hammer) *hs-r-clip-stand-ins*)
@@ -729,7 +729,8 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   ;; round01 cell b2a2 (CPU-only, never hashed): the bind's bite (HS-B-AI-BITE; merged by the b3a2+b2a2 combination)
   (ai-bite-from -1 :type fixnum)              ; the bind (its start tick) whose bite was decided
   ;; ASSIST's AUTO COMBO routes on a human's fighter (HS-ASSIST-COMBO, DUEL_HISAGI §25.20; never hashed)
-  (as-key -1 :type fixnum) (as-cmd nil))      ; the move (its start tick) the route decided for, and its entry (HS-AS-ENTRY)
+  (as-key -1 :type fixnum) (as-cmd nil)       ; the move (its start tick) the route decided for, and its entry (HS-AS-ENTRY)
+  (boss-unhit 0 :type fixnum))                ; DANGAI's boss (HS-BOSS-STEP): sim frames since a hit last touched him
 (defun hs (e)
   "E's state (his HSS component, attached on the first call)."
   (or (hss e) (let ((st (make-hss))) (add-component e st) st)))
@@ -946,10 +947,15 @@ the charge, the K string's flag, L let go, the throw's charge."
             (hss-charge st) (if (hss-kstr st) "K" "-") (if (hss-kz-let st) "L" "-") (hss-throw-n st))))
 
 ;;; ================================================================ the Bankai: pure rules (host-tested)
-(defun hs-kubi-ready-p (reiatsu bound)
+(defun hs-kubi-ready-p (reiatsu bound &optional (need *hs-kubi-reiatsu*))
   "May SP2 start KUBIKAKE (§17.2; B4c: its states the generic SP2's, from neutral or as a cancel off a J / K hit): his own
-Reiatsu at *HS-KUBI-REIATSU*, no bind on the field (B15)? (No cooldown since §24.5: its whiff recovery is the price.)"
-  (and (>= reiatsu *hs-kubi-reiatsu*) (not bound) t))
+Reiatsu at NEED (*HS-KUBI-REIATSU*; DANGAI's boss HS-KUBI-NEED), no bind on the field (B15)? (No cooldown since §24.5: its
+whiff recovery is the price.)"
+  (and (>= reiatsu need) (not bound) t))
+(defun hs-release-shares (pool self-first)
+  "A released bind's POOL left given back (BIND-RELEASE-SPLIT): values the opponent's share and the binder's; the
+opponent's first (B8), or the binder's first when SELF-FIRST (DANGAI's boss, DUEL_ROGUE §5)."
+  (multiple-value-bind (a r) (bind-release-split pool) (if self-first (values r a) (values a r))))
 (defun hs-rel-free-p (state free)
   "May P (FREE) release the bind now (§17.3; back since §25.14): from idle / walk / guard / blockstun / a run at once; in
 hitstun / airborne under the Burst rule (FREE: AWAKEN-STATE-P, past the combo's 2nd hit, Q9 A). During his own move the
@@ -1007,6 +1013,7 @@ Reiatsu bars (200-600), the throw re-armed (Q13 C)."
           (hss-pool st) (f32 (+ (gauges-reiatsu g) (gauges-reiatsu go))) (hss-ai-rel-key st) -1)
     (pace e :binds)
     (pace e :pool-start (round (hss-pool st)))
+    (when (eq e *run-boss*) (log-msg "duel boss hisagi bind reiatsu ~,1f pool ~,1f" (gauges-reiatsu g) (hss-pool st)))
     (emit :sfx :chain-snap e)
     (clog "~a BIND pool ~,1f" (side-name e) (hss-pool st))))
 (defun hs-bind-off! (b key)
@@ -1034,7 +1041,8 @@ settled this step (a Kikon or a Soul Break: the reset or the finish follows), el
   "The released end (B8): both fighters' Reishi and Konpaku = the snapshot (the heals in it, the grey Kikons undone); the
 pool left to the opponent first up to his 300, the rest to Hisagi (rules BIND-RELEASE-SPLIT)."
   (let* ((st (hs b)) (o (opp-of b)) (g (gauges b)) (go (gauges o)))
-    (multiple-value-bind (to-o to-b) (bind-release-split (hss-pool st))
+    (multiple-value-bind (to-o to-b) (hs-release-shares (hss-pool st) (eq b *run-boss*))   ; (the boss: his share first)
+      (when (eq b *run-boss*) (log-msg "duel boss hisagi release pool ~,1f self ~,1f opp ~,1f" (hss-pool st) to-b to-o))
       (pace b :rel-opp (round to-o))
       (pace b :rel-self (round to-b))
       (hs-bind-off! b :end-released)
@@ -1100,7 +1108,7 @@ due at the step's end (HS-BK-TICK); else a plain hit."
     (hs-pull-to e *hs-kubi-yank* *hs-kubi-yank-frames*)
     (when (and mv (member (mv-name mv) *hs-kubi-moves*))
       (setf (fighter-sf f) (max (fighter-sf f) (- (mv-total mv) *hs-kubi-cut*))))
-    (if (and (>= (gauges-reiatsu (gauges e)) *hs-kubi-reiatsu*) (not (bind-of e)))
+    (if (and (>= (gauges-reiatsu (gauges e)) (hs-kubi-need e)) (not (bind-of e)))
         (progn (setf (hss-bind-t st) *match-tick*) (pace e :kubi-hit))
         (pace e :kubi-plain))))
 (defun hs-push-to (e to frames)
@@ -1171,7 +1179,7 @@ bind SP2 KAIBAKU-GEKI with no bind up (B4c). A refusal: the cue."
     (case (fighter-form f)
       (:bankai-bind (or (not (eq cmd :sp2)) (hss-bound (hs e))))
       (:bankai (or (not (eq cmd :sp2))
-                   (hs-kubi-ready-p (gauges-reiatsu (gauges e)) (bind-of e))))
+                   (hs-kubi-ready-p (gauges-reiatsu (gauges e)) (bind-of e) (hs-kubi-need e))))
       (t t))))
 (defun hs-bk-command (e cmd)
   "The Bankai's :command hook: in a bind, the Step's J is SENGEN (§25.10); off a J / K string hit, the ranged SP2 KUBIKAKE's cancel copy (:enter 6) and the bind's SP1
@@ -1211,9 +1219,9 @@ came later and the hit is stale: no bind, B2 / §17.2): the bind starts unless o
 (defun hs-bk-tick (e f g)
   "The Bankai's :tick hook (every step, after the hits and SETTLE-SOULS): the bind's start, the release held through his
 own move, KOJO's drag, the mode = the bind (a SET-FORM only out of a move), KUBIKAKE's cooldown, KAIBAKU-GEKI's reel after
-its strike (B4c: the opponent's *HS-BIND-REEL*, unless the step ended the round), the counters."
-  (declare (ignore g))
+its strike (B4c: the opponent's *HS-BIND-REEL*, unless the step ended the round), the counters; DANGAI's boss rule (HS-BOSS-STEP)."
   (let* ((st (hs e)) (s (fighter-state f)) (mv (and (eq s :move) (fighter-move f))))
+    (when (eq e *run-boss*) (hs-boss-step e g st))
     (setf (hss-state st) :in)                           ; (no out-of-hand state in the Bankai: the scythes come back)
     (when (hss-rel-reel st)
       (setf (hss-rel-reel st) nil)
@@ -1244,6 +1252,36 @@ its strike (B4c: the opponent's *HS-BIND-REEL*, unless the step ended the round)
             (when (< d 2.0) (pace e :b-near))
             (progn (pace e :r-frames)
                    (cond ((< d 2.0) (pace e :r-near)) ((<= 3.5 d 9.0) (pace e :r-mid)))))))))
+
+;;; ================================================================ DANGAI's boss (DUEL_ROGUE §5, batch 3)
+;; the user, 2026-10-22: 「BOSS 檜佐木改成只要沒受到攻擊（防禦算受到攻擊）每秒回 1% Reishi，只要有一格 SP 就能發動捆綁，且主動解除捆綁時
+;; SP 優先歸還自身」. Every path is guarded by (EQ E *RUN-BOSS*): with no run nothing here runs.
+(defparameter *hs-boss-kubi-reiatsu* 100.0 "The boss's KUBIKAKE binds with this much of his own Reiatsu (1 bar, not 2).")
+(defparameter *hs-boss-regen* 0.01
+  "The boss's Reishi regen, of his max a second, after *RUN-REGEN-DELAY* (3 s, as 回生: the lead's reading) with no hit
+touching him (a hit, a block, an armour hit, a parry: any contact, from any source).")
+(defun hs-kubi-need (e) "E's own Reiatsu KUBIKAKE needs to bind: the boss's 1 bar, else *HS-KUBI-REIATSU*."
+  (if (eq e *run-boss*) *hs-boss-kubi-reiatsu* *hs-kubi-reiatsu*))
+(defun hs-boss (e)
+  "His base kit's :boss hook (rogue.lisp ROGUE-STAGE-START, the boss step's spawn, already in his Bankai): the rule's line."
+  (setf (hss-boss-unhit (hs e)) 0)
+  (log-msg "duel boss hisagi rule regen ~,2f/s after ~d f unhit bind at ~,1f release self first form ~(~a~) reishi ~d/~d"
+           *hs-boss-regen* *run-regen-delay* *hs-boss-kubi-reiatsu* (fighter-form (fighter e)) (gauges-reishi (gauges e))
+           (gauges-reishi-max (gauges e))))
+(defun hs-bk-struck (def att res hw mv hazard ranged)
+  "The Bankai's :struck hook: a contact on the boss (any RESULT) restarts his regen's wait (HS-BOSS-STEP)."
+  (declare (ignore att res hw mv hazard ranged))
+  (when (eq def *run-boss*) (setf (hss-boss-unhit (hs def)) 0)))
+(defun hs-boss-step (e g st)
+  "The boss's regen, each sim step (HS-BK-TICK): *HS-BOSS-REGEN* of his Reishi max a second once *RUN-REGEN-DELAY* frames
+passed with no contact (RUN-REGEN-HEAL); its log lines (the regen's start, his Reishi every 10 s)."
+  (let* ((u (setf (hss-boss-unhit st) (min 99999 (1+ (hss-boss-unhit st)))))
+         (n (run-regen-heal u (gauges-reishi-max g) *hs-boss-regen*)))
+    (when (plusp n) (heal! e n))
+    (when (= u (1+ *run-regen-delay*)) (log-msg "duel boss hisagi regen on t ~d reishi ~d" *match-tick* (gauges-reishi g)))
+    (when (zerop (mod *match-tick* 600))
+      (log-msg "duel boss hisagi state t ~d form ~(~a~) reishi ~d/~d reiatsu ~,1f unhit ~d bound ~:[no~;yes~]" *match-tick*
+               (fighter-form (fighter e)) (gauges-reishi g) (gauges-reishi-max g) (gauges-reiatsu g) u (hss-bound st)))))
 
 ;;; ================================================================ the gate line, probes, debug (83000-83999)
 (defun hisagi-acc-line ()
