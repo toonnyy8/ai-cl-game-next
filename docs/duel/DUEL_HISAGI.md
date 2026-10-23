@@ -3543,3 +3543,8 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
   free-end glints (§25.26's, unchanged in look); the right crescent's glint removed (with `*hs-gl*`).
 - 0 B a frame (83901 at 4.75 and 5.75 m: 0 on the repeat call); built 0 warnings; shots 83022 / 83023 checked; nothing
   the sim reads changed.
+
+### 25.29 The flow once a second (the user, 2026-10-23)
+
+- The user (verbatim): 「流光改成 1 秒」. `*hs-flow-every*` 1.8 -> 1.0 s: each hanging chain's streak starts once a second
+  (read as the interval §25.28 set; its run down the chain stays 0.7 s). Built 0 warnings; a look only.
