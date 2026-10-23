@@ -583,19 +583,26 @@ def endless_script(portrait):
     return ev
 write("endless", endless_script(False))
 write("endless-portrait", endless_script(True))
-# DANGAI (docs/duel/DUEL_ROGUE.md batch 1; --fixed-dt 16.666667 --secs 60): MODE row 2 -> P1 Kenpachi -> START NORMAL;
-# stage 1 cleared by 80980 -> CONTINUE -> DOORS (shot) -> door 0 -> stage 2 cleared -> CONTINUE -> DOORS -> door 1 ->
-# pause RETIRE -> RESULTS ("DANGAI  ..."). Log: "duel rogue door 0 step 2 fight ...", "duel rogue door 1 step 3 ...".
+# DANGAI (docs/duel/DUEL_ROGUE.md batches 1-2; --fixed-dt 16.666667 --secs 80): MODE row 2 -> P1 Kenpachi -> START NORMAL;
+# stage 1 cleared by 80980 -> CONTINUE -> REWARD (shot, GENERIC: 3 cards) -> card 0 -> DOORS (shot: the reward types) ->
+# door 0; stage 2: every category filled by debug 84501-84522 and the stage's reward forced GENERIC (84550), cleared ->
+# REWARD (every card REPLACE, shot) -> card 0 -> the drop menu (shot) -> its row 0 -> DOORS -> door 1; stage 3 (an elite,
+# RARE) cleared -> RARE REWARD (shot) -> card 0 -> DOORS -> door 0; stage 4: pause RETIRE -> RESULTS (the BUILD line).
+# Log: "duel rogue reward step 1 pick ...", "duel rogue reward step 2 pick ... replace ...", "duel rogue mods (...)".
 def rogue_script():
     def es(t, n): return {"at": round(t, 2), "shot": f"{SHOTS}rogue-{n}.png"}
     t = T0; ev = [cmd(t - 0.5, 2106)]
     ev += tap(t, "Enter") + tap(t + 1.8, "ArrowDown") + tap(t + 2.0, "ArrowDown") + tap(t + 2.3, "Enter")
     ev += tap(t + 3.0, "KeyD") + tap(t + 3.3, "Enter") + tap(t + 4.8, "Enter") + tap(t + 6.5, "Escape")
     t += 8.0
-    ev += [cmd(t, 80980), es(t + 5.0, "clear")] + tap(t + 6.0, "Enter") + [es(t + 7.5, "doors")] + tap(t + 8.0, "Enter")
-    ev += tap(t + 10.0, "Escape"); t += 12.0
-    ev += [cmd(t, 80980)] + tap(t + 6.0, "Enter") + [es(t + 7.5, "doors-2")] + tap(t + 8.0, "ArrowDown") + tap(t + 8.3, "Enter")
-    ev += tap(t + 10.0, "Escape"); t += 12.0
+    ev += [cmd(t, 80980), es(t + 5.0, "clear")] + tap(t + 6.0, "Enter") + [es(t + 7.5, "reward")] + tap(t + 8.0, "Enter")
+    ev += [es(t + 9.5, "doors")] + tap(t + 10.0, "Enter") + tap(t + 12.0, "Escape"); t += 14.0
+    ev += [cmd(t + 0.1 * i, c) for i, c in enumerate((84501, 84502, 84507, 84508, 84513, 84517, 84522, 84550))]
+    ev += [cmd(t + 1.0, 80980)] + tap(t + 7.0, "Enter") + [es(t + 8.5, "reward-replace")] + tap(t + 9.0, "Enter")
+    ev += [es(t + 10.5, "replace")] + tap(t + 11.0, "Enter")
+    ev += [es(t + 12.5, "doors-2")] + tap(t + 13.0, "ArrowDown") + tap(t + 13.3, "Enter") + tap(t + 15.0, "Escape"); t += 17.0
+    ev += [cmd(t, 80980)] + tap(t + 6.0, "Enter") + [es(t + 7.5, "reward-rare")] + tap(t + 8.0, "Enter")
+    ev += [es(t + 9.5, "doors-3")] + tap(t + 10.0, "Enter") + tap(t + 12.0, "Escape"); t += 14.0
     ev += tap(t, "Escape") + tap(t + 0.8, "ArrowDown") + tap(t + 1.1, "Enter") + [es(t + 6.0, "results")]
     return ev
 write("rogue", rogue_script())

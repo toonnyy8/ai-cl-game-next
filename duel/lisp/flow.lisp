@@ -15,7 +15,7 @@
 
 (defparameter *difficulties* '(:easy :normal :hard))
 
-(defvar *flow* :title "Screen: :title :mode :settings :controls :select :intro :battle :finish :results :clear (ENDLESS) :doors (DANGAI)")
+(defvar *flow* :title "Screen: :title :mode :settings :controls :select :intro :battle :finish :results :clear (ENDLESS) :doors :reward (DANGAI)")
 (defvar *ft* 0.0 "Real seconds on the current screen.")
 (defvar *menu* 0)
 (defvar *paused* nil)
@@ -28,12 +28,13 @@
 (defvar *select-phase* 0 "SELECT: 0 P1 picks, 1 P2 picks, 2 difficulty.")
 (defvar *p1* nil) (defvar *p2* nil)
 (defvar *timer* 0 "Match frames left.")
+(defvar *timer-cut* 0 "Frames a DANGAI stage cut off the match timer (rogue.lisp :timer; 0 otherwise): MATCH-PLAY-TICKS stays the time played.")
 (defun match-frames-left () "Frames left on the match timer (the CPU's last-minute rules)." *timer*)
 (defun match-play-ticks ()
   "The match's length in frames without its cinematics: the frames its timer ran (MAIN's step stops it while a cinematic
 plays). The gate's and the results screen's match length (the user, 2026-10-08: 「毀魂技演出不計入對戰時長」, every
 cinematic; *MATCH-TICK* still counts every step: the hash, the logs, the CPU's clocks)."
-  (play-ticks *match-seconds* *timer*))
+  (- (play-ticks *match-seconds* *timer*) *timer-cut*))
 (defvar *winner* nil "0, 1 or :draw once the match is over.")
 (defvar *match-seed* 1 "SIM-RND-SEED of the current match (seeded CPU matches: the debug command's).")
 (defvar *konpaku-start* *konpaku-max* "Debug 2101: start the match with fewer Konpaku (smoke runs).")
@@ -124,7 +125,8 @@ always behind when one-handed (the portrait camera; the setting is kept); VS PLA
 (defun start-match ()
   "Spawn the fighters for *MODE* / *PICKS*, seed the sim stream, play the intro."
   (setf *paused* nil *winner* nil *match-tick* 0 *timer* (* 60 *match-seconds*)
-        *pending* nil *soul-breaks* nil)          ; nothing of the last match may leak in
+        *pending* nil *soul-breaks* nil           ; nothing of the last match may leak in
+        *timer-cut* 0 *run-mods* nil *run-mods-who* nil)   ; (a DANGAI stage sets them again in ENDLESS-APPLY!)
   (reset-slow-clock)
   (abort-cine)
   (clear-words)
@@ -136,7 +138,7 @@ always behind when one-handed (the portrait camera; the setting is kept); VS PLA
     (setf (fighter-state (fighter e)) :intro))
   (when (eq *mode* :practice) (practice-dummy!) (practice-set! *p1*) (practice-set! *p2*))
   (when (eq *mode* :endless) (endless-apply!))            ; P1's carry, P2's ramp
-  (when *run-mods-test* (setf *run-mods* *run-mods-test* *run-mods-who* *p1*))   ; debug 84400+k (RUN-MODS-DEBUG)
+  (when *run-mods-test* (setf *run-mods* *run-mods-test* *run-mods-who* *p1*))   ; debug 84800+k (RUN-MODS-DEBUG)
   (learn-match-start)
   (play-music :music 0.2)
   (log-msg "duel match seed ~d ~a ~a vs ~a ~a" *match-seed* *mode* (first *picks*) (second *picks*) *difficulty*)
@@ -421,6 +423,7 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
             (setf *paused* t *menu* 0) (play-sfx :select))))
     (:clear (endless-clear-update))
     (:doors (rogue-doors-update))
+    (:reward (rogue-reward-update))
     (:results (cond ((eq *mode* :endless) (endless-results-update))
                     ((> *ft* 2.5)                        ; a masher doesn't skip the results
                      (case (menu-nav 3)

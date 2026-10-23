@@ -103,7 +103,7 @@
 },
 {
 "at": 24.5,
-"shot": "tests/shots/duel-rogue-doors.png"
+"shot": "tests/shots/duel-rogue-reward.png"
 },
 {
 "at": 25.0,
@@ -116,95 +116,221 @@
 "down": false
 },
 {
+"at": 26.5,
+"shot": "tests/shots/duel-rogue-doors.png"
+},
+{
 "at": 27.0,
-"key": "Escape",
+"key": "Enter",
 "down": true
 },
 {
 "at": 27.08,
-"key": "Escape",
+"key": "Enter",
 "down": false
 },
 {
 "at": 29.0,
+"key": "Escape",
+"down": true
+},
+{
+"at": 29.08,
+"key": "Escape",
+"down": false
+},
+{
+"at": 31.0,
+"eval": "Module._debug_cmd(84501)"
+},
+{
+"at": 31.1,
+"eval": "Module._debug_cmd(84502)"
+},
+{
+"at": 31.2,
+"eval": "Module._debug_cmd(84507)"
+},
+{
+"at": 31.3,
+"eval": "Module._debug_cmd(84508)"
+},
+{
+"at": 31.4,
+"eval": "Module._debug_cmd(84513)"
+},
+{
+"at": 31.5,
+"eval": "Module._debug_cmd(84517)"
+},
+{
+"at": 31.6,
+"eval": "Module._debug_cmd(84522)"
+},
+{
+"at": 31.7,
+"eval": "Module._debug_cmd(84550)"
+},
+{
+"at": 32.0,
 "eval": "Module._debug_cmd(80980)"
 },
 {
-"at": 35.0,
+"at": 38.0,
 "key": "Enter",
 "down": true
 },
 {
-"at": 35.08,
+"at": 38.08,
 "key": "Enter",
 "down": false
 },
 {
-"at": 36.5,
+"at": 39.5,
+"shot": "tests/shots/duel-rogue-reward-replace.png"
+},
+{
+"at": 40.0,
+"key": "Enter",
+"down": true
+},
+{
+"at": 40.08,
+"key": "Enter",
+"down": false
+},
+{
+"at": 41.5,
+"shot": "tests/shots/duel-rogue-replace.png"
+},
+{
+"at": 42.0,
+"key": "Enter",
+"down": true
+},
+{
+"at": 42.08,
+"key": "Enter",
+"down": false
+},
+{
+"at": 43.5,
 "shot": "tests/shots/duel-rogue-doors-2.png"
 },
 {
-"at": 37.0,
+"at": 44.0,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 37.08,
+"at": 44.08,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 37.3,
+"at": 44.3,
 "key": "Enter",
 "down": true
 },
 {
-"at": 37.38,
+"at": 44.38,
 "key": "Enter",
 "down": false
 },
 {
-"at": 39.0,
+"at": 46.0,
 "key": "Escape",
 "down": true
 },
 {
-"at": 39.08,
+"at": 46.08,
 "key": "Escape",
 "down": false
 },
 {
-"at": 41.0,
+"at": 48.0,
+"eval": "Module._debug_cmd(80980)"
+},
+{
+"at": 54.0,
+"key": "Enter",
+"down": true
+},
+{
+"at": 54.08,
+"key": "Enter",
+"down": false
+},
+{
+"at": 55.5,
+"shot": "tests/shots/duel-rogue-reward-rare.png"
+},
+{
+"at": 56.0,
+"key": "Enter",
+"down": true
+},
+{
+"at": 56.08,
+"key": "Enter",
+"down": false
+},
+{
+"at": 57.5,
+"shot": "tests/shots/duel-rogue-doors-3.png"
+},
+{
+"at": 58.0,
+"key": "Enter",
+"down": true
+},
+{
+"at": 58.08,
+"key": "Enter",
+"down": false
+},
+{
+"at": 60.0,
 "key": "Escape",
 "down": true
 },
 {
-"at": 41.08,
+"at": 60.08,
 "key": "Escape",
 "down": false
 },
 {
-"at": 41.8,
+"at": 62.0,
+"key": "Escape",
+"down": true
+},
+{
+"at": 62.08,
+"key": "Escape",
+"down": false
+},
+{
+"at": 62.8,
 "key": "ArrowDown",
 "down": true
 },
 {
-"at": 41.88,
+"at": 62.88,
 "key": "ArrowDown",
 "down": false
 },
 {
-"at": 42.1,
+"at": 63.1,
 "key": "Enter",
 "down": true
 },
 {
-"at": 42.18,
+"at": 63.18,
 "key": "Enter",
 "down": false
 },
 {
-"at": 47.0,
+"at": 68.0,
 "shot": "tests/shots/duel-rogue-results.png"
 }
 ]

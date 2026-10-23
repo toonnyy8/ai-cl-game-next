@@ -395,14 +395,14 @@ X), so with no table the sim computes exactly what it did.
   it; "Breaker damage taken" is a hit from a `:breaker` window; the Kikon guarded by `:kikon-guard` puts P1 in blockstun
   (as a guard would); the run armour is one hit wherever he would be `:neutral` (also in a reaction or airborne), and, as
   a move's armour, a Breaker, an unguardable hit (the red Kikon's follow-up) or a rend go through it.
-- **Test hook**: debug 84400+k (DUEL_GAMEPLAY "Debug commands"): `*run-mods-tests*` row k (§4.4's order, k 0–30) as a
-  one-key table on P1, kept for every match START-MATCH starts (`*run-mods-test*`); 84499 clears. Test values: `:dmg` 1.5,
+- **Test hook**: debug 84800+k (DUEL_GAMEPLAY "Debug commands"): `*run-mods-tests*` row k (§4.4's order, k 0–30) as a
+  one-key table on P1, kept for every match START-MATCH starts (`*run-mods-test*`); 84899 clears. Test values: `:dmg` 1.5,
   `:ender-dmg` / `:red-dmg` / `:post-burst-dmg` / `:sp-dmg` / `:ender-sp-dmg` / `:guard-drain` 2.0, `:post-burst-fs` 0.5,
   `:kikon-plus` / `:sb-plus` 1, `:kikon-past` / `:sb-past` 2, `:kikon-guard` / `:kikon-seal` / `:red-no-guard` T, `:revive` 1,
   `:armor-on-soul-loss` / `:armor-on-awaken` 3 s, `:red-armor` 2 s, `:chip-taken` / `:breaker-taken` / `:awake-taken` 0.5,
   `:perfect-taken` 0.4, `:perfect-fs` 0.25, `:perfect-reiatsu` 0.5, `:regen` 0.05, `:fs-regen` / `:reiatsu-regen` /
   `:gg-regen` 2.0, `:hoho-cost` 0.5, `:awaken-heal` 0.2. Log lines `duel runmod ...` (only while a table is on).
-- **Evidence** (native sim, CPU vs CPU, `--cmd 84400+k`, seeds 1–2, YK unless named): `:dmg` x1.5 on every P1 hit (83
+- **Evidence** (native sim, CPU vs CPU, `--cmd 84800+k`, seeds 1–2, YK unless named): `:dmg` x1.5 on every P1 hit (83
   lines); `:ender-dmg` x2 on ya-j3 / ya-k3 only; `:red-dmg` x2 (KK: 18 hits, IY: 12); `:post-burst-dmg` x2 (Hoho / Burst
   armed, the next hit); `:post-burst-fs` (fs 38.8 -> 51.4 on that hit); `:sp-dmg` / `:ender-sp-dmg` x2 on ya-kyoku,
   ya-nadegiri and the pillars; `:guard-drain` P1's blocked drains 14 -> 28, 12 -> 24; `:chip-taken` chip 18 -> 9, 14 -> 7;
@@ -417,4 +417,59 @@ X), so with no table the sim computes exactly what it did.
   (nothing to apply it to) replays the no-table match line for line.
 - **Gates**: host 9899 -> 9926 ALL PASS; pkgcheck 0; build 0 warnings; smoke exit 0; simgate 28 pairings x 10 seeds 816
   lines identical (cmp) to the parent e8e2af2's; cvc 3/3; debug-ranges 0 errors.
-- **Debug range note**: 84400–84499 sits inside DANGAI's 84000+100c+n and shadows c = 4 (Senjumaru's debug DANGAI run).
+- **Debug range**: moved at the merge from 84400+k (it shadowed Senjumaru's debug DANGAI run, c = 4) to 84800+k / 84899 (no roster index 8).
+
+## Built: batch 2, the run layer (2026-10-23)
+
+The other half of batch 2 (the in-fight rule points that read `*run-mods*`, run-mods.lisp) is a parallel branch; this
+half is the data, the fold, the screens and the stage start.
+
+- **Data** (rogue-rules.lisp, pure, host-tested in `tests/duel-rules/rogue.lisp`): `*rogue-rewards*` the 26 rewards of
+  §4.2 (ids = the table's #, categories, romanized names for the Latin HUD font: EIJIN RENGEKI HAGAI HAISUI TSUIGEKI
+  DANKON / KENSHU MIKIRI FUKUTSU TEKKO KAISEI ZANSHIN HAKUGAI / SHIPPU SHUNPO / IATSU REIRYOKU REITAI KAIHO HISSATSU HAKI /
+  KEKKEI KYOKEI JIKEI SUTEMI TOKEI; 6 + 7 + 2 + 6 + 5), each with its §4.4 keys at COMMON; `*rogue-traits*` A–H with their
+  prerequisites and keys; `*rogue-slots*` 斬2 守2 瞬1 靈1 契1 解2 (解 has no cards until batch 4).
+- **The fold** `(rogue-mods held)`, HELD = `((id . tier) ...)`: every held reward's keys at its tier, then the traits it
+  switches on, stacked in table order (so the floats never depend on the pick order): x multiplies, + adds, flags OR,
+  `:konpaku-cap` / `:timer` / `:red-armor` the smaller, `:clear-konpaku` 0 (賭契) over 3 (時契). Only keys some reward
+  sets appear; nothing held = NIL. **Tiers**: a benefit x1.5 / x2 (x: the bonus m − 1; +: the value); costs and
+  integer counts never (殘心: RARE 1, LEGEND 2). So a LEGEND 鐵甲 reads chip / Breaker x0.20, a LEGEND 瞬歩 Hoho x0.40.
+  Rewards with nothing to scale (斷魂, 魄鎧, 時契, 捨身, 賭契) show no tier and are never an UPGRADE.
+- **Offers** `(rogue-offer seed step salt held rare)`: the candidates in table order, a Fisher-Yates shuffle on
+  ENDLESS-LCG keyed on (seed, step, 10 + salt; salt = the pick index, 賭契's extra pick 1), the first 3. Never a held
+  reward, except on a RARE offer as an UPGRADE card (one tier up, tierable ones below LEGEND); RARE+ only rewards (斷魂,
+  殘心, 魄鎧) only on a RARE offer; a GENERIC offer's new cards are COMMON, a RARE offer's RARE. A full category's card is
+  `:replace`; a card that completes a trait names it (`+ SHISEN`). REPLACE's dropped reward is simply not held any more,
+  so it is back in the pool and its traits go off.
+- **Door reward types** (`rogue-door-reward`, salt 3 + door): elites and the boss RARE; a normal step, of 10: RARE 1,
+  KONPAKU +3 2, GENERIC 7 (`*rogue-door-odds*` (1 2 7)); step 1 (and a debug run's first step) by its kind
+  (`rogue-step-reward`). Rest doors carry none.
+- **The run** (rogue.lisp): `*rogue-held*` (reset by ENDLESS-START when `*rogue*`). Flow: STAGE CLEAR's CONTINUE / REVERT
+  → **REWARD** (flow state `:reward`, drawn like the DOORS: title, `KONPAKU k   HELD n / 9`, the rows, the selected row's
+  effect line above them, the rows fitted to the card's width) → DOORS. A card row reads `NAME  CATEGORY  TIER  [REPLACE |
+  UPGRADE]`, its note the effect at that tier and `+ TRAIT` when it completes one; REPLACE opens
+  a second page (the held ones of that category, each with its effect, then BACK). A KONPAKU door's clear shows a notice
+  page instead (`KONPAKU +3`, `k -> m`, CONTINUE). 賭契: 1 + `:extra-pick` picks a clear (the extra one at the stage's
+  tier, GENERIC after a KONPAKU door). A rest: KONPAKU +3 or UPGRADE (shown while a held reward can go up; a second page
+  picks it), then the doors. Every page waits 1 s for input, as STAGE CLEAR. The DOORS' note ends with the door's type
+  (REWARD / KONPAKU +3 / RARE REWARD; a rest: KONPAKU +3 OR UPGRADE).
+- **Stage start** (ENDLESS-APPLY!, only with `*rogue*`, before the autopilot's brain): `*run-mods*` = `(rogue-mods
+  held)`, `*run-mods-who*` = `*p1*`; `:reishi-max` on P1's Reishi max and Reishi, `:both-reishi` on both (after the
+  ramp's Reishi %), `:gg-max` on P1's guard gauge at spawn, `:konpaku-cap` over the carry / spawn, `:timer` on the stage
+  timer (`*timer-cut*`, flow.lisp, keeps MATCH-PLAY-TICKS the time played; 0 outside). The clear: STAGE CLEAR's KONPAKU
+  line and the carry use `rogue-clear-konpaku` (+ `:clear-konpaku`, at most the cap). START-MATCH clears both vars (and
+  `*timer-cut*`) for every match, ENDLESS-OVER again at the run's end, so they are NIL in every other mode.
+- **RESULTS**: two BUILD lines under the opponents (each held reward with its tier initial, then `+ TRAIT ...`, split in half).
+- **Log**: `duel rogue mods (plist)` at each stage start; `duel rogue reward step n pick id tier t [replace id] [upgrade]`;
+  `duel rogue reward step n konpaku a->b`; `duel rogue rest step n konpaku a->b | upgrade id tier t`; the door line adds
+  the reward type.
+- **Autopilot** (84990+): row 0 of every page (card 0, REPLACE's first held, a rest's KONPAKU +3).
+- **Debug** (DUEL_GAMEPLAY, inside roster index 5's unused 84500–84599): 84501–84528 grant reward 1–28 to the running run;
+  84550–84552 the running stage's reward type GENERIC / KONPAKU / RARE.
+- **Interpretations / deviations**: UPGRADE cards appear on RARE offers only ("UPGRADE (rest points, elite rewards)"),
+  never on GENERIC ones; a RARE offer's every new card is RARE tier; untierable rewards carry no tier; 賭契 picked now
+  counts from the next clear; a clear's Konpaku (STAGE CLEAR, before the REWARD) uses the rewards held at the clear, so a
+  pact picked on that REWARD acts from the next stage's spawn (its cap there, its clear Konpaku at the next clear); `:gg-max` is applied only as P1's gauge at spawn — the gauge's regen cap and its refills
+  read the global `*gg-max*` (combat / rules), so the in-fight rule points must also read `(rmod e :gg-max 1.0)` for the
+  max to hold (a value above 1 is clamped back at the first regen, one below regens up); the cards are rows, not cards
+  (as the DOORS); the pause's BUILD page is not built (RESULTS has the line).

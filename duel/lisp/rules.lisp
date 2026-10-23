@@ -629,15 +629,16 @@ advantage ADV <= *GG-ENDER-ADV*)."
   "The guard gauge GG after a drain of V. Values: new-gg crushed-p (it reached 0: GUARD CRUSH / guardless)."
   (let ((n (max 0.0 (- gg v)))) (values n (<= n 0.0))))
 
-(defun gg-regen (gg idle guardless guarding &optional blue (mult 1.0))
+(defun gg-regen (gg idle guardless guarding &optional blue (mult 1.0) (cap *gg-max*))
   "The guard gauge one frame later: nothing while GUARDING (GUARD HOLD) or before *GG-DELAY* frames without a
 drain (IDLE), then *GG-REGEN*/s (*GG-REGEN-GUARDLESS*/s while GUARDLESS), capped at *GG-MAX*. Bankai West's ward
 counts as guarding (combat.lisp GAUGE-SYSTEM): he refills only in East. In a BLUE burst there is no delay and the rate
-is x*BLUE-GG-MULT*, x*BLUE-GG-GUARDING* while guarding. MULT: the form's :gg-regen (Bankai East's *EAST-GG-REGEN*), not while guardless."
+is x*BLUE-GG-MULT*, x*BLUE-GG-GUARDING* while guarding. MULT: the form's :gg-regen (Bankai East's *EAST-GG-REGEN*), not while guardless.
+CAP: the fighter's max (*GG-MAX*; a DANGAI reward's :gg-max, combat.lisp GG-CAP)."
   (let ((rate (/ (if guardless *gg-regen-guardless* (* mult *gg-regen*)) 60.0)))
-    (cond (blue (min *gg-max* (+ gg (* rate (if guarding *blue-gg-guarding* *blue-gg-mult*)))))
+    (cond (blue (min cap (+ gg (* rate (if guarding *blue-gg-guarding* *blue-gg-mult*)))))
           ((or guarding (< idle *gg-delay*)) gg)
-          (t (min *gg-max* (+ gg rate))))))
+          (t (min cap (+ gg rate))))))
 
 (defun gg-idle-next (idle guarding)
   "GUARD HOLD: the refill delay counter (frames since the last drain) one frame later: frozen while GUARDING

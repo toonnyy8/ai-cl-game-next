@@ -12,7 +12,7 @@
 (every rule point then reads its old value). Set with *RUN-MODS-WHO* at each stage start by the run layer.")
 (defvar *run-mods-who* nil "The fighter entity *RUN-MODS* applies to (P1), or NIL.")
 (defvar *run-mods-test* nil
-  "Debug 84400-84499 (debug.lisp RUN-MODS-DEBUG): a test plist START-MATCH installs on every match's P1 (NIL = none).")
+  "Debug 84800-84899 (debug.lisp RUN-MODS-DEBUG): a test plist START-MATCH installs on every match's P1 (NIL = none).")
 
 (defun rmod (e key default)
   "KEY of the run modifier table for fighter E: DEFAULT unless a run is active (*RUN-MODS*) and E is *RUN-MODS-WHO*."
@@ -71,7 +71,7 @@ most KONPAKU. PLUS = PAST = 0 is KIKON-RESULT exactly. Values: konpaku-left lost
     (:armor-on-soul-loss 3) (:armor-on-awaken 3) (:red-armor 2) (:red-no-guard t) (:chip-taken 0.5) (:breaker-taken 0.5)
     (:awake-taken 0.5) (:perfect-taken 0.4) (:perfect-fs 0.25) (:perfect-reiatsu 0.5) (:regen 0.05) (:fs-regen 2.0)
     (:hoho-cost 0.5) (:reiatsu-regen 2.0) (:gg-regen 2.0) (:awaken-heal 0.2))
-  "Debug 84400+k (debug.lisp RUN-MODS-DEBUG): the k-th rule-point key of DUEL_ROGUE §4.4 (its table's order, :perfect-fs and :perfect-reiatsu two
+  "Debug 84800+k (debug.lisp RUN-MODS-DEBUG): the k-th rule-point key of DUEL_ROGUE §4.4 (its table's order, :perfect-fs and :perfect-reiatsu two
 keys) with a test value, as a one-key plist on P1 (RUN-MODS-DEBUG). Values are tests, not the rewards' (the multipliers
 x2 / x0.5 to show in a log).")
 

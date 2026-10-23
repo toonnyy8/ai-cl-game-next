@@ -36,7 +36,7 @@
 ;; :regen: nothing before the delay, then exactly the rate a second
 (check (zerop (run-regen-heal *run-regen-delay* 1000 0.01)))
 (check (= 10 (loop for u from (1+ *run-regen-delay*) repeat 60 sum (run-regen-heal u 1000 0.01))))
-;; debug 84400+k: one test row per rule-point key of §4.4 (from :dmg to :awaken-heal), none twice
+;; debug 84800+k: one test row per rule-point key of §4.4 (from :dmg to :awaken-heal), none twice
 (check (= 31 (length *run-mods-tests*)))
 (check (= 31 (length (remove-duplicates (mapcar #'first *run-mods-tests*)))))
 (check (every (lambda (r) (and (keywordp (first r)) (second r) (null (cddr r)))) *run-mods-tests*))

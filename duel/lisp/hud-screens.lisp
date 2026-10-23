@@ -230,7 +230,7 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
       ((:battle :finish) (unless *cine* (hud-battle w h s) (when (and *one-hand* (portrait-p) (not *paused*)) (hud-deck s))))
       (:results (hud-results w h s))
       (:clear (hud-endless-clear w h s))
-      (:doors (hud-rogue-doors w h s)))
+      ((:doors :reward) (hud-rogue-doors w h s)))
     (draw-words w h)
     (when (and *paused* (eq *flow* :battle))
       (ui-rect 0 0 w h '(0 0 0 0.55))

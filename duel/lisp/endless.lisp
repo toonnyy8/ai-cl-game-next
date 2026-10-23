@@ -51,6 +51,7 @@
   (setf *endless-debug* debug *endless-floor* *difficulty* *endless-stage* (1- stage) *endless-cleared* 0
         *endless-carry* nil *endless-ticks* 0 *endless-foes* nil *endless-record* nil)
   (fill *endless-stats* 0)
+  (when *rogue* (rogue-reset))                             ; DANGAI: nothing held (rogue.lisp)
   (log-msg "duel endless start seed ~d P1 ~(~a~) floor ~(~a~)~:[~; debug~]" *endless-seed* (first *picks*) *endless-floor* debug)
   (endless-next-stage))
 
@@ -78,6 +79,7 @@ brain on P1."
       (set-form *p2* (kit-awaken-form (kit-of *p2*)))
       (setf (gauges-awakened g2) t (gauges-awaken g2) 0f0)
       (let ((st (getf (kit-meter (kit-of *p2*)) :start))) (when st (setf (gauges-meter g2) (f32 st)))))
+    (when *rogue* (rogue-stage-start))                    ; DANGAI: *RUN-MODS* and the stage-start keys (rogue.lisp)
     (when *endless-auto*                                  ; the autopilot: P1 is a HARD CPU
       (add-component *p1* (make-brain :difficulty :hard :delay (getf *ai-delay* :hard 8)))
       (setf (vpad-reader (pilot-vpad (pilot *p1*))) nil (pilot-cam-relative (pilot *p1*)) nil))
@@ -116,6 +118,7 @@ else ends the run (its RESULTS)."
 (defun endless-over ()
   "The run is over (a loss, a draw, RETIRE, QUIT): the log line, the RESULTS strings, the autopilot's tally."
   (let ((secs (round *endless-ticks* 60)))
+    (when *rogue* (rogue-end))                            ; DANGAI: no mods outside the run
     (multiple-value-bind (bs bt) (endless-best)
       (log-msg "duel endless over stages ~d secs ~d best ~d secs ~d record ~a" *endless-cleared* secs bs bt *endless-record*)
       (when *endless-auto* (push (list (first *picks*) *endless-cleared* secs) *endless-runs*))
@@ -129,7 +132,8 @@ else ends the run (its RESULTS)."
                       (loop for v across s collect (format nil "~d" v))
                       (format nil "~{~a~^ ~}~:[~; X~]"      ; the opponents faced; X: the last one ended the run
                               (mapcar (lambda (c) (char (kit-name (find-kit c :base)) 0)) (reverse *endless-foes*))
-                              lost)))))))
+                              lost)
+                      (and *rogue* (rogue-build-lines))))))))   ; DANGAI: the held rewards
 
 (defun endless-retire ()
   "The pause's RETIRE: the stage is lost, the run's RESULTS."
@@ -157,7 +161,7 @@ else ends the run (its RESULTS)."
           *endless-lines*
           (vector (format nil "STAGE ~d CLEAR" n)
                   (format nil "TIME ~a   RUN ~a" (mm-ss (round (match-play-ticks) 60)) (mm-ss (round *endless-ticks* 60)))
-                  (format nil "KONPAKU  ~d -> ~d" k (min *konpaku-max* (+ k 2)))
+                  (format nil "KONPAKU  ~d -> ~d" k (if *rogue* (rogue-clear-konpaku k (rogue-run-mods)) (min *konpaku-max* (+ k 2))))
                   "REISHI FULL   GUARD FULL"
                   "REIATSU  FLASH STEP  KEPT"
                   (if *rogue*                             ; DANGAI: the doors pick the opponent (rogue.lisp)
@@ -177,10 +181,12 @@ else ends the run (its RESULTS)."
       (progn (endless-over) (set-flow :results))
       (let ((snap *endless-snap*))
         (setf *endless-carry* (endless-carry snap k))
+        (when *rogue*                                     ; DANGAI: the pacts' clear Konpaku and cap (rogue-rules.lisp)
+          (setf (getf *endless-carry* :konpaku) (rogue-clear-konpaku (getf snap :konpaku) (rogue-run-mods))))
         (log-msg "duel endless clear ~d konpaku ~d->~d choice ~(~a~) form ~(~a~)->~(~a~) meter ~d ticks ~d"
                  *endless-stage* (getf snap :konpaku) (getf *endless-carry* :konpaku) k (getf snap :form)
                  (getf *endless-carry* :form) (round (getf *endless-carry* :meter)) *endless-ticks*)
-        (if *rogue* (rogue-open-doors) (endless-next-stage)))))
+        (if *rogue* (rogue-open-reward) (endless-next-stage)))))
 
 (defun endless-clear-update ()
   "STAGE CLEAR per frame: the rows take input after 1 s (a masher doesn't skip it); back does nothing. The autopilot
@@ -231,6 +237,11 @@ menu (NEW RUN / CHARACTER SELECT / TITLE)."
                 (hud-text label lx yy sc *dim*)
                 (hud-text v vx yy sc *white* :align :right))
         (hud-text (svref l 6) cx (+ y (* 6 s) (* 10.5 row)) sc *dim* :align :center)
+        (when (svref l 7)                                 ; DANGAI: the build (ROGUE-BUILD-LINES), one scale
+          (let ((bs sc))
+            (dolist (b (svref l 7)) (setf bs (min bs (fit-scale b sc (- pw (* 8 s))))))
+            (loop for b in (svref l 7) for i from 0
+                  do (hud-text b cx (+ y (* 6 s) (* (+ 11.3 (* 0.8 i)) row)) bs *ember* :align :center))))
         (when (> *ft* 2.5) (hud-menu *endless-results-menu* (if (portrait-p) 0.8 0.72) w h s cx))))))
 
 (defun hud-endless-tag (w h s)

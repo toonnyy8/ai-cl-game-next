@@ -17,6 +17,8 @@
   "(attacker . victim) of every Reishi that reached 0 during this step's HIT-SYSTEM: settled together
 at its end (SETTLE-SOULS), so a lethal trade breaks both souls and no side goes first.")
 
+(defun gg-cap (e) "E's guard-gauge max: *GG-MAX*, x a DANGAI reward's :gg-max (DUEL_ROGUE §4.4) on the run's fighter." (rmod-x e :gg-max *gg-max*))
+
 (defun siphon-of (e)
   "The fighter taking E's gains now, or NIL: the opponent's kit's :siphon hook (o e) is true while something of his drains
 E (a zone he stands in). Asked at every gain, so it ends the frame the zone ends or E leaves it. Siphoned, E gains nothing
@@ -436,7 +438,7 @@ result (NIL = no effect)."
            (setf (fighter-armor-left fa) 0)
            (scorch att def)
            (when (and (passive-p def :ward) (not (siphon-of def)))   ; West's GOKUI GAESHI: the catch refills his guard gauge
-             (setf (gauges-gg (gauges def)) (f32 *gg-max*) (gauges-gg-idle (gauges def)) 0))
+             (setf (gauges-gg (gauges def)) (f32 (gg-cap def)) (gauges-gg-idle (gauges def)) 0))
            (let ((h (kit-hook (kit-of def) :parried))) (when (and h (not (siphon-of def))) (funcall h def att)))   ; its own catch
            (emit :parried att def x y z)
            (let ((c (and (fighter-move fd) (kit-next (kit-of def) (mv-name (fighter-move fd)) :land))))
@@ -887,7 +889,7 @@ kit's :reset hook (e) (Hisagi's sickle)."
     (let ((f (fighter e)) (g (gauges e)) (mo (motion e)))
       (setf (motion-grounded mo) t (motion-kb-left mo) 0 (fighter-lock f) *reset-neutral* (fighter-combo-dmg f) 0)
       (reiatsu-gain! e (kit-reset-reiatsu (kit-of e)))
-      (setf (gauges-gg g) (f32 *gg-max*) (gauges-gg-idle g) 0 (gauges-guardless g) nil (gauges-stun g) 0f0)
+      (setf (gauges-gg g) (f32 (gg-cap e)) (gauges-gg-idle g) 0 (gauges-guardless g) nil (gauges-stun g) 0f0)
       (let ((rf (kit-reset-form (kit-of e))))          ; Rukia: absolute zero never carries over the reset (-18, C 0)
         (when rf (set-form e rf) (setf (gauges-meter g) 0f0 (gauges-meter-idle g) 0)))
       (fill (motion-vel mo) 0f0)
@@ -915,11 +917,11 @@ delay counter (frozen): West never refills."
         (decf (gauges-awake-regen g))
         (white-regen! e g (incf (gauges-awake-t g))))
       (setf (gauges-gg g) (f32 (gg-regen (gauges-gg g) (gauges-gg-idle g) (gauges-guardless g) guarding
-                                         (eq (gauges-burst g) :blue) (rmod-x e :gg-regen (kit-gg-regen kit)))))
+                                         (eq (gauges-burst g) :blue) (rmod-x e :gg-regen (kit-gg-regen kit)) (gg-cap e))))
       (setf (gauges-gg-idle g) (gg-idle-next (gauges-gg-idle g) guarding))
       (setf (gauges-stun g) (f32 (stun-decay (gauges-stun g) (gauges-stun-idle g)))   ; the hidden stun's decay
             (gauges-stun-idle g) (min 9999 (1+ (gauges-stun-idle g))))
-      (when (and (gauges-guardless g) (>= (gauges-gg g) *gg-max*))
+      (when (and (gauges-guardless g) (>= (gauges-gg g) (gg-cap e)))
         (setf (gauges-guardless g) nil)
         (emit :guard-back e)
         (clog "~a GUARD BACK" (side-name e)))
