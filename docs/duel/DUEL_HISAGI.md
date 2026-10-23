@@ -3477,3 +3477,17 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
   block's hitstop passes *MATCH-TICK* but not a guard's blockstun): the catch adds *HITSTOP-BLOCK*.
 - Host tests 9983 ALL PASS, pkgcheck clean, built 0 warnings; no gate run (「不用跑 gate」).
 
+### 25.25 The windmill's hold stands still while a catch holds its K (the user, 2026-10-23)
+
+- The user (verbatim): 「修兵的風車每次擋下對手攻擊後的硬直時間不計入風車的延續時長中，以免在對手的連擊過程中被中斷風車」.
+- **Change** (hisagi.lisp HS-KAZA-TICK): from the windmill's K frame (*HS-KAZA-K-FROM*, f9) to its last held frame,
+  while a catch holds the K (HS-KAZA-K-FREE-P, §25.24: the plain guard's blockstun, then the attacker's chain), the
+  move's frame stands still (FIGHTER-SF steps back each frame), and its clip with it (a look). The 60 held frames, the
+  20-frame minimum and L's release count only the free frames; the charge still counts the frames L is held (cap x1.6
+  unchanged). A windmill that caught nothing is unchanged.
+- **Measured** (native sim, L held from frame 0): the mirror's K1 → K2 → K3 at 3.5 m and 4.5 m: before, the windmill
+  ended on frame 79 and K3 hit him (stun 93–132); after, it stays up through the string (0–158), nothing lands.
+  Yamamoto's two separate L waves: the windmill 0–79 → 0–92 (the second wave is a new press, not a chain: it still
+  lands after the hold). No attack: 0–79 both.
+- Host tests ALL PASS, pkgcheck clean, built 0 warnings; no gate run (「不用跑 gate」).
+

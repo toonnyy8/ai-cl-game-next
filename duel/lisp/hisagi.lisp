@@ -839,6 +839,11 @@ S1, §23.1); once it has been up *HS-KAZA-MIN* frames, L let go ends the hold (i
          (vp (pilot-vpad (pilot e))) (held (vpad-down vp :sig)) (b (hs-tick-brain e)) (auto nil))
     (setf (hss-charge st) (hs-charge-next (hss-charge st) held (hss-kz-let st) sf s top))
     (unless held (setf (hss-kz-let st) t))
+    ;; §25.25 (the user, 2026-10-23: 「風車每次擋下對手攻擊後的硬直時間不計入風車的延續時長中，以免在對手的連擊過程中被中斷風車」):
+    ;; while a catch holds the K (HS-KAZA-K-FREE-P), the hold's frame stands still, its clip with it (a look)
+    (when (and (<= *hs-kaza-k-from* sf) (< sf top) (not (hs-kaza-k-free-p f)))
+      (decf (fighter-sf f))
+      (let ((an (model-anim (model e)))) (setf (anim-time an) (- (anim-time an) (/ 1f0 60f0)))))
     (when (and (>= sf *hs-kaza-k-from*) (hs-kaza-k-free-p f)
                (if b
                    (hs-ai-kaza-k e f st)
