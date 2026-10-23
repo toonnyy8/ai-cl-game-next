@@ -659,4 +659,8 @@ The user: 「然後通過精英關恢復 5 魂魄，通過 BOSS 關恢復全部�
   and `*rogue-elite-konpaku*` 5 (2 -> 5). Boss: up to the cap. Every kind stays at most the :konpaku-cap (血契's 7) and 9;
   賭契's 0 still gives nothing on any kind (its cost; the lead's call). 靈壓階 3's +1 is the normal steps' only.
 - **Gates**: host 10064 -> 10065 ALL PASS; pkgcheck 0; build 0 warnings; no-run simgate 28 x 10 summary identical; cvc
-  3/3. The autopilot's reading follows below once it finishes.
+  3/3.
+- **Gate reading** (greedy, 20 runs each; the first-lap reading -> this): Yamamoto 4 -> 5 clears, Kenpachi 6 -> 8, Rukia
+  5 -> 7, Ichigo 6 -> 7, Senjumaru 1 -> 1, Lille 18 -> 18, Hisagi 5 -> 6 (45 -> 52 of 140); medians unchanged (9, Lille
+  36): the boss stays the wall, the elites' +5 brings more runs to it with Konpaku in hand. Top rewards: GORENSHA 17 / 18,
+  YOKUGAI 14 / 15, ZANSHIN 9 / 15, UDE MUSEIGEN 3 / 5, FUKUTSU 25 / 42.
