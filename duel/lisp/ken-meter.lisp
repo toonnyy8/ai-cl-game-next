@@ -11,9 +11,29 @@
   "His :tick hook (GAUGE-SYSTEM, every step, after the form timers): the arm meter in a form with :pips (the Bankai), then
 the NOME ladder in a form whose meter has a :ladder (the three cups). KIT is read once, before either step."
   (let ((kit (fighter-kit f)))
-    (when (kit-pips kit) (ken-arm-step e f g))
+    (when (kit-pips kit)
+      (if (eq e *run-boss*)
+          (progn (setf (gauges-arm-owed g) nil)          ; the DANGAI boss: no pip owed, no crack clock (KEN-BOSS)
+                 (when (zerop (mod *match-tick* 600))
+                   (log-msg "duel boss kenpachi t~d ~(~a~) ude ~d konpaku ~d" *match-tick* (fighter-form f)
+                            (round (gauges-meter g)) (gauges-konpaku g))))
+          (ken-arm-step e f g)))
     (let ((m (kit-meter kit)))
       (when (getf m :ladder) (ken-nome-step e f g m)))))
+
+(defun ken-boss (e)
+  "His base kit's :boss hook (rogue.lisp ROGUE-STAGE-START, after the ramp's KATATE): the Bankai at FIGHT, its arm full
+(as BANKAI!, without its cinematic, its Konpaku -> 1 or its repel: the boss keeps his Konpaku); from here no pip is ever
+spent (ARM-SPEND!) and none cracks (KEN-TICK), so no KATAUDE: the Bankai the whole fight (DUEL_ROGUE §5, the user
+2026-10-22: 「BOSS 劍八卍解解除手臂（不扣臂、無時限）」). His CPU needs nothing more: the crack clock stays at 0, so the
+:pip-hurry never fires."
+  (let ((g (gauges e)) (was (fighter-form (fighter e))))
+    (set-form e :bankai)
+    (setf (gauges-meter g) (f32 (getf (kit-pips (kit-of e)) :n)) (gauges-meter-idle g) 0 (gauges-arm-pending g) nil
+          (gauges-arm-owed g) nil (gauges-reishi g) (gauges-reishi-max g))
+    (refresh-look e)
+    (log-msg "duel boss kenpachi ~(~a~)->~(~a~) ude ~d konpaku ~d reishi ~d" was (fighter-form (fighter e))
+             (round (gauges-meter g)) (gauges-konpaku g) (gauges-reishi g))))
 
 (defun ken-arm-step (e f g)
   "The arm meter per step (a form with :pips): the pip a finished J / K string owes is charged (rules STRING-PIP-DUE-P);

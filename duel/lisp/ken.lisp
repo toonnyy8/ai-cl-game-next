@@ -150,6 +150,7 @@
   :grid (:ke-j1 :ke-j2 :ke-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)
   :strings ((:ke-charge :land :ke-flurry))
   :awaken-form :nozarashi
+  :hooks (:boss ken-boss)                       ; the DANGAI boss: the Bankai at FIGHT, the arm never spent (ken-meter.lisp)
   :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (2.0 4.0) :pressure (1.0 2.6) :zone (4.0 6.0) :defend (3.0 5.0))
        :moves ((0.0 1.3 :q 5 :f 2 :breaker 1 :sp2 1 :sig 2 nil 3)    ; J up close only (DUEL_STRINGS §13), K beyond

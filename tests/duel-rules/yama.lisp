@@ -112,3 +112,10 @@
     (multiple-value-bind (x z) (cast-point 0.0 0.0 12.0 0.0 10.0) (check (and (~= x 10.0) (~= z 0.0))))
     (multiple-value-bind (x z) (cast-point 0.0 0.0 3.0 4.0 10.0) (check (and (~= x 3.0) (~= z 4.0))))))
 
+
+;; the DANGAI boss (DUEL_ROGUE §5, 殘火灼身): the base kit's :boss hook, every form's :tick (the burn); the ramp's 150 % ->
+;; 200 % of a 1000 max, burning 0.5 % = 10 a second (whole points, spread over the steps)
+(check (and (eq (kit-hook (kit :yamamoto :base) :boss) 'yama-boss)
+            (every (lambda (f) (eq (kit-hook (kit :yamamoto f) :tick) 'yama-tick)) '(:base :hellfire :bankai-east :bankai-west))
+            (= 2000 (round (* (round (* 1000 (fifth *rogue-boss-row*)) 100) *yama-boss-reishi*) (fifth *rogue-boss-row*)))
+            (= 10 (loop for s below 60 sum (burn-amount 2000 *yama-boss-burn* s)))))

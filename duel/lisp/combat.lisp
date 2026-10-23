@@ -766,8 +766,10 @@ they are; then the form's :cine (both fighters idle after it)."
 (defun arm-spend! (e mv)
   "A pip command starts MV (or a J / K string's pip is charged as it ends: MV the move running then, NIL none): one pip of
 the arm spent, the crack clock restarted, *ARM-SELF* burnt
-(BURN: never below 1). The last one: the burst is pending until MV is over (ken-meter.lisp KEN-ARM-STEP)."
+(BURN: never below 1). The last one: the burst is pending until MV is over (ken-meter.lisp KEN-ARM-STEP). The DANGAI
+boss (*RUN-BOSS*) never spends one (DUEL_ROGUE §5: ken-meter.lisp KEN-BOSS)."
   (let ((g (gauges e)))
+    (when (eq e *run-boss*) (log-msg "duel boss kenpachi pip kept ~a" (if mv (mv-name mv) "")) (return-from arm-spend! nil))
     (multiple-value-bind (n ok) (pip-spend (round (gauges-meter g)))
       (when ok
         (setf (gauges-meter g) (f32 n) (gauges-meter-idle g) 0 (gauges-reishi g) (burn (gauges-reishi g) *arm-self*))

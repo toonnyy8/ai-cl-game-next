@@ -113,6 +113,7 @@
   :grid (:ru-j1 :ru-j2 :ru-j3 :ru-k1 :ru-k2 :ru-k3 :ru-j2s :ru-k2s)
   :l-after-k :ru-tsukishiro-k                   ; L after K1 / K2 / K3 (docs/duel/DUEL_STRINGS.md §12): the combo ring
   :awaken-form :m18
+  :hooks (:boss rukia-boss)                     ; the DANGAI boss: 永凍, -50 at FIGHT and never -18 again (rukia-meter.lisp)
   ;; a mid-range zoner: the ring and the waves at 5-8 m, J1 up close, Shirafune on a frozen / staggered victim
   ;; (:stun-follow); she awakens only against a melee opponent (:awaken: >= 60 % of >= 150 taken from blades)
   :ai (:intents (:approach 2 :pressure 3 :zone 2 :defend 1)
@@ -132,7 +133,7 @@
   :awakening t :form-name "-18C" :walk *walk-m18* :run *run-m18* :passives (:chipless) :frost-touch *frost-touch*
   :mult *rukia-awake-mult* :taken *rukia-awake-taken*
   :meter (:name "COLD" :max *cold-max* :temp t :draw rukia-hud-meter :label temp-label) :warm *ru-warm-m18* :cold *ru-cold-m18* :field *ru-field-m18*
-  :reset-form :m18 :u-tag "U: COOL" :hooks (:hoho rukia-hoho-cold :tick rukia-tick)   ; (the cold gauge's step: rukia-meter.lisp)
+  :reset-form :m18 :u-tag "U: COOL" :hooks (:hoho rukia-hoho-cold :tick rukia-tick :reset rukia-reset)   ; (rukia-meter.lisp)
   :stance :ru-cold-stance :aura rukia-aura-cold :cine ru-awaken-cine :swing-sfx :whoosh-light
   :commands (:f :ru-a-k1 :sig :ru-shimobashira :kikon :ru-hakka-18)
   :grid (:ru-j1 :ru-j2 :ru-j3 :ru-a-k1 :ru-k2 :ru-a-k3 :ru-j2s :ru-k2s)
@@ -529,7 +530,7 @@ freeze-touch; the white burst."
 (-18 at once), *CRACK-SELF* burnt (never below 1), a *CRACK-STUN* crumple in place when she isn't in a reaction already,
 and the THAW lock (*RU-THAW-LOCK* frames in which guarding doesn't cool: the kit meter's idle clock)."
   (let ((f (fighter e)) (g (gauges e)) (p (pos-of e)))
-    (set-form e :m18)
+    (set-form e (rukia-band-floor e :m18))           ; (the DANGAI boss: -50)
     (setf (gauges-meter g) 0f0 (gauges-meter-idle g) *ru-thaw-lock* (gauges-reishi g) (burn (gauges-reishi g) *crack-self*))
     (unless (member (fighter-state f) '(:stun :air :down :wakeup))
       (set-reaction e :crumple *crack-stun* (aref p 0) (aref p 2) 0.0))

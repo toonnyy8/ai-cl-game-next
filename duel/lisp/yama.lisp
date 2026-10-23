@@ -143,7 +143,8 @@
   :intro :ya-intro :win :ya-win :intro-callout "BANSHO ISSAI KAIJIN TO NASE" :intro-weapon (:ya-cane 81)
   :walk *walk-yamamoto* :run *run-yamamoto* :reishi *reishi-max* :blade (:fire 1.0) :swing-sfx :fire-whoosh
   :stun-tolerance 18.0                          ; the hidden stun (DUEL_DESIGN.md): the old man stands a long beating
-  :hooks (:pose yama-pose :draw yama-draw)      ; looks only: the swinging hem, East's smoke thread (yama-art.lisp YAMA-POSE)
+  :hooks (:pose yama-pose :draw yama-draw       ; looks only: the swinging hem, East's smoke thread (yama-art.lisp YAMA-POSE)
+          :tick yama-tick :boss yama-boss)      ; the DANGAI boss's rule (YAMA-BOSS, YAMA-TICK)
   :commands (:q :ya-j1 :f :ya-k1 :sig :ya-sig :sp1 :ya-shiranui :sp2 :ya-taimatsu
              :breaker :ya-breaker :kikon :ya-kikon)
   :grid (:ya-j1 :ya-j2 :ya-j3 :ya-k1 :ya-k2 :ya-k3 :ya-j2s :ya-k2s)
@@ -350,6 +351,33 @@ the ground there cracks (a look) and :hands skeleton hands claw out; a :bind haz
         (let ((a (* i (/ +two-pi+ (move-param e :hands)))))
           (spawn-hand e (+ x (* 0.7 r (fwd-x a))) (+ z (* 0.7 r (fwd-z a))) (+ a +pi+) (- delay 8)))))
     (emit :sfx :ground-crack e)))
+
+;;; ---------------------------------------------------------------- the DANGAI boss: 殘火灼身 (docs/duel/DUEL_ROGUE.md §5)
+(declaim (special *run-boss* *rogue-boss-row*))   ; (run-mods.lisp's, rogue-rules.lisp's)
+(defparameter *yama-boss-reishi* 200
+  "The boss's Reishi max, % of his normal one (DUEL_ROGUE §5, the lead's draft 2026-10-22; new 2026-10-23): the ramp's
+*ROGUE-BOSS-ROW* 150 % replaced, any other scaling (a reward's, a condition's) kept.")
+(defparameter *yama-boss-burn* 0.005
+  "The boss burns this fraction of his max Reishi a second, in every form, never his last point (BURN, as Hellfire)
+(DUEL_ROGUE §5, the lead's draft 2026-10-22; new 2026-10-23).")
+
+(defun yama-boss (e)
+  "His base kit's :boss hook (rogue.lisp ROGUE-STAGE-START, after the ramp): Reishi max and Reishi *YAMA-BOSS-REISHI* %
+of normal instead of the ramp's 150 %."
+  (let* ((g (gauges e)) (was (gauges-reishi-max g)) (rm (round (* was *yama-boss-reishi*) (fifth *rogue-boss-row*))))
+    (setf (gauges-reishi-max g) rm (gauges-reishi g) rm (gauges-burn-step g) 0)
+    (log-msg "duel boss yamamoto reishi ~d->~d burn ~a/s" was rm *yama-boss-burn*)))
+
+(defun yama-tick (e f g)
+  "His :tick hook (combat.lisp GAUGE-SYSTEM, every form inherits it): the boss's burn (*YAMA-BOSS-BURN*, BURN-AMOUNT spread
+over the seconds; GAUGES-BURN-STEP is his step count, which only a timed form's own burn also advances); nothing for
+anyone else."
+  (declare (ignore f))
+  (when (eq e *run-boss*)
+    (let ((step (gauges-burn-step g)))
+      (setf (gauges-reishi g) (burn (gauges-reishi g) (burn-amount (gauges-reishi-max g) *yama-boss-burn* step)))
+      (when (zerop (gauges-form-left g)) (setf (gauges-burn-step g) (1+ step)))
+      (when (zerop (mod step 600)) (log-msg "duel boss yamamoto burn r~d/~d" (gauges-reishi g) (gauges-reishi-max g))))))
 
 ;;; ================================================================ the CPU (the kit's :ai hooks; ai.lisp; docs/duel/DUEL_AI_V2.md)
 (defparameter *yama-breaker-step* 0.16 "A Breaker's dash per frame (9.6 m/s, *BREAKER-SPEED-MIN* .. -MAX): what the delay hides.")
