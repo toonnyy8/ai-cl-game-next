@@ -5,7 +5,7 @@
 ;;;;
 ;;;; Events (positions captured when they happen):
 ;;;;   (:swing e kind)  (:super e)  (:breaker e) (:breaker-end e)  (:rush e) (:rush-dash e) (:kikon-follow att def)  (:step e)
-;;;;   (:hit att def x y z hitstop counter-p dmg kind)  (:blocked att def x y z)  (:armored def x y z)
+;;;;   (:hit att def x y z hitstop counter-p dmg kind)  (the attacker's kit hook :hit-fx sees it after the spark)  (:blocked att def x y z)  (:armored def x y z)
 ;;;;   (:absorbed def x y z)  (:guard-crush att def x y z) (:guard-back e)  (:guard-break att def x y z)  (:stance-break att def x y z)  (:clash x y z)
 ;;;;   (:parried att def x y z)  (:scorch att)  (:ward-crush e)  (:cold-crack e)  (:refused e cmd)  (:kosei att m x y z)
 ;;;;   (:hazard-cut x y z)  (:hoho-out e x z) (:hoho-in e x z) (:perfect e victim)  (:burst e attacker mode) (:burst-end e)
@@ -88,7 +88,9 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
       (sfx-on :whoosh-heavy att :pitch 0.6)
       (focus-lines 10)
       (announce "KIKON" :sub (if (kikon-ready-p att) nil "GUARD IT!") :color '(0.82 0.06 0.11 1) :secs 0.6 :small t))
-    (:hit args (apply #'show-hit args))
+    (:hit args (apply #'show-hit args)
+      (let ((h (kit-hook (kit-of (first args)) :hit-fx)))   ; a kit's own mark on its hit (Hisagi's chain tip)
+        (when h (apply h args))))
     (:blocked (att def x y z)
       (multiple-value-bind (dx dz) (hit-dir att def)
         (if (and (passive-p def :ward) (not (passive-p def :freeze-touch)))   ; West's ward (not the ice one): the hexagon in fire,

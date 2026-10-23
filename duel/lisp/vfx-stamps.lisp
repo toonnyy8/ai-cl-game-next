@@ -21,7 +21,7 @@
 (defparameter *stamp-kinds*
   '(:cut 1 :heavy 2 :fire 3 :counter 4 :guard 5 :guard-break 6 :clash 7 :hoho-out 8 :hoho-in 9 :burst 10
     :konpaku 11 :rush 12 :land 13 :guard-crush 14 :reiatsu 15 :ember 16 :slit 17 :garb 18 :wisps 20
-    :cone 21 :boom 22 :ring 23 :gash 24 :garb-guard 25 :scorch 26 :flare 27 :gutter 28 :nade 29)
+    :cone 21 :boom 22 :ring 23 :gash 24 :garb-guard 25 :scorch 26 :flare 27 :gutter 28 :nade 29 :tip 30)
   "Stamp kind -> its code in *STAMPS*.")
 (defvar *stamp-seed* 0.0 "Advances per stamp: every one-shot draws its own irregular shape.")
 
@@ -274,6 +274,24 @@ charcoal double ring with an ember line) and :ring (a shockwave in the palette N
                      (%tring x (+ y 0.01f0) z (* sc (+ 0.25f0 (* 4.2f0 a))) 0.025f0 +pal-ember+ k (+ seed 2f0))))
         (= ph 5)))))
 
+(defun-fast %st-tip (o)
+  "Hisagi's chain tip landing (:tip, at the hit, over its :cut / :heavy spark; DUEL_HISAGI §25.26): the white flash, then a
+long 4-point STEEL glint (a cross of light) round a white 8-spike core, held 3 drawings, and 6 STEEL shards thrown along
+the hit. Envelope 1 2 3 9."
+  (declare (fixnum o))
+  (with-stamp (o)
+    (let* ((a (hit-age age)))
+      (declare (single-float a))
+      (fx-envelope (es k fl ph) (a 1 2 3 9)
+        (if (= ph 1)
+            (%flash x y z (* sc 0.24f0) seed)
+            (when (< ph 5)
+              (fx-star x y z (* sc 0.05f0) (* sc es 1.1f0) 4 (* 0.4f0 (hash01 0.9f0 seed)) 0f0 0f0 0.02f0 seed +pal-steel+ k
+                       :push 0.5f0)
+              (%star x y z (* sc 0.1f0) (* sc es 0.42f0) 8 sdx sdy 0.04f0 (+ seed 1f0) +pal-hit+ k 0.52f0)
+              (%shards-out 6 x y z sdx sdy a 5.5f0 (* sc 0.32f0) (* sc 0.04f0) +pal-steel+ k seed 0.8f0)))
+        (= ph 5)))))
+
 (defun-fast %st-gash (o)
   "KUKAN-GIRI's rift cutting (:gash): X Y Z its near end, DX DY DZ along it, SC its length. Envelope 0 1 4 16: an INK
 gash (a black lens with a white edge) hanging in the air along the rift, a white HIT line in it while it holds, and
@@ -307,7 +325,7 @@ gash (a black lens with a white edge) hanging in the air along the rift, a white
                   ((8 9) (%st-hoho o)) (10 (%st-burst o)) (11 (%st-konpaku o)) ((12 13 18) (%st-ring o))
                   (16 (%st-ember o)) (17 (%st-slit o)) (20 (%st-wisps o))
                   (21 (%st-cone o)) (22 (%st-boom o)) (23 (%st-ring o)) (24 (%st-gash o)) (25 (%st-garb-guard o)) (26 (%st-scorch o))
-                  (27 (%st-flare o)) (28 (%st-gutter o)) (29 (%st-nade o)) (t t))
+                  (27 (%st-flare o)) (28 (%st-gutter o)) (29 (%st-nade o)) (30 (%st-tip o)) (t t))
             (setf (aref s o) 0f0)))))
     nil))
 

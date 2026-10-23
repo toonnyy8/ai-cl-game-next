@@ -104,6 +104,14 @@
     (au-mix! b (au-fnoise 0.03 :hp 3000 :decay 0.004) 0.0 1.2)
     (au-drive! b 1.3)))
 
+(defsound :hs-tip (:peak 0.7)
+  ;; Hisagi's chain tip landing (DUEL_HISAGI §25.26): a bright high ring over the cut, a short chain jingle under it
+  (let ((b (au-buf 0.7)))
+    (au-partials! b 0.0 '((1480 1.0 0.32) (1496 0.45 0.28) (2960 0.55 0.2) (4420 0.4 0.12) (6300 0.25 0.07)))
+    (au-mix! b (au-fnoise 0.05 :hp 4500 :decay 0.012) 0.02 0.6)
+    (au-mix! b (au-fnoise 0.04 :hp 5000 :decay 0.01) 0.07 0.4)
+    b))
+
 (defsound :guard-break (:peak 0.95)
   (let ((b (au-buf 1.2)))
     (au-thump! b 0.0 120 40 0.06 0.2 0.9)

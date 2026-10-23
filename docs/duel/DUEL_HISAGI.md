@@ -3492,3 +3492,32 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
   lands after the hold). No attack: 0–79 both.
 - Host tests ALL PASS, pkgcheck clean, built 0 warnings; no gate run (「不用跑 gate」).
 
+
+### 25.26 The chain tip 0.5 m, its glint and its landing (the user, 2026-10-23)
+
+- The user (verbatim): 「我想為修兵的尖端位置增加提示，你覺得有什麼適合又不會突兀的方式嗎？」; the lead proposed 1 a glint
+  before the hit on what would strike (the hanging chains' ends for K, the right crescent for J), 2 a mark on a tip hit,
+  3 a ground ink arc (the most UI-like, held back); the user: 「1+2，然後幫我將鏈尖加成縮短至 0.5m」.
+- **The tip 1.0 -> 0.5 m** (`*hs-r-tip*`; a sim change): the ranged mode's x1.71 (and the SP x1.3) now in the outer 0.5 m of
+  each volume: J1 5.5-6.0 m, K1 4.5-5.0 m (plus the hurt radius), SP1's line its last 0.5 m, a route link still by its
+  opener's read (§25.13). The CPU follows: HS-R-TIP-CMD reads the knob (J1 5.5-6.2, K1 4.5-5.2; at 1.0 it gives the old
+  bands exactly), the route styles' back-hop distance (:keep) SENTAN 4.6 -> 4.75, KAISEN 5.0 -> 5.75 (the bands' middles).
+- **The glint** (a look, hisagi-draw.lisp): free in the ranged mode (idle / walk / guard / run, no bind, no cinematic), the
+  opponent on K1's tip (HS-TIP-BAND, the same bands as HS-R-TIP-CMD, the host sweeps both 0-8 m): each resting hanging
+  chain's free end shows a small white 4-point star (r 0.15 m, twinkling on the drawings, each chain its own phase); on
+  J1's tip the right crescent's blades (0.6 m along the weapon joint) show one twice as large (it sits on black steel).
+  `*hs-tg*` holds the band for the draw; 0 B a frame (83901 at 4.75 and 5.75 m: 0 on the repeat call).
+- **The landing** (a look): HS-DMG-MULT notes a tip hit in a new HSS slot `tip-hit` (no sim reads it, not hashed); a new
+  generic kit hook `:hit-fx` (FEEDBACK-SYSTEM calls the attacker's after the hit's spark; only his Bankai kits have one,
+  HS-TIP-FX) adds the stamp `:tip` (vfx-stamps.lisp %ST-TIP, code 30: the white flash, a long 4-point STEEL cross of light
+  round a white 8-spike core, 6 steel shards; envelope 1 2 3 9) and the sound `:hs-tip` (a bright 1.5 kHz ring and a
+  short jingle).
+- **Debug**: 83022 / 83023 the ranged mode 4.75 / 5.75 m from an idle Kenpachi (the K / J glint; DUEL_GAMEPLAY).
+- **Host tests** 10065 ALL PASS (the tip's bands re-pinned to 0.5 m: HS-DIST-MULT, the opener reads, K1 at 4.5 / 4.4 m,
+  HS-R-TIP-CMD 5.5-6.2 / 4.5-5.2 and nothing at 5.3-5.45, HS-TIP-BAND = HS-R-TIP-CMD at every 0.1 m, the :keep values on
+  their bands, KAISEN's punish at 4.0 m now J1 (off the tip) and K1 at 4.6); control 89, learn 131, cine 18; pkgcheck clean;
+  built 0 warnings. Browser: the glints and the landing seen (83022 / 83023, K1 at 4.75 m), no exception.
+- **Simgate** (10 seeds, every pairing): every row without him identical to the last run; cvc 3/3. His rows, all K.O.
+  (before -> after): HY 110.3 -> 108.5 s, HK 110.7 -> 110.7, HR 145.5 -> 145.5, HI 152.6 -> 153.0, HS 160.9 -> 159.8, HB
+  unchanged, the mirror 185.2 -> 169.4. HY and HK sat under 125 s before this change too; the awaken A/B not run (his recent
+  changes went in without it, 「不用跑 gate」).

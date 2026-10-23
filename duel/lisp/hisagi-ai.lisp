@@ -283,16 +283,16 @@ the bind's bands either) (round01 cell b2a1's, ported by cell b3a2).")
   "His CPU, once per entry into the ranged mode: the route style (weights; HS-R-STYLE, SIM-RND01): SENTAN 尖端 the tip
 reaper, NAWAJI 縄路 the noose road, KAISEN 回旋 the Reiatsu wheel (*HS-AI-R-STYLES*).")
 (defparameter *hs-ai-r-styles*
-  '(:sentan (:open :f :anti :f :tip t :route-dmg (:easy 0.7 :normal 0.8 :hard 0.9) :kubi-at 3 :keep 4.6)
+  '(:sentan (:open :f :anti :f :tip t :route-dmg (:easy 0.7 :normal 0.8 :hard 0.9) :kubi-at 3 :keep 4.75)
     :nawaji (:open :f :anti :f :tip nil :route-dmg (:easy 0.5 :normal 0.6 :hard 0.7) :kubi-at 1 :keep 3.5)
-    :kaisen (:open :q :anti :q :tip t :route-dmg (:easy 0.1 :normal 0.15 :hard 0.2) :kubi-at 3 :keep 5.0))
+    :kaisen (:open :q :anti :q :tip t :route-dmg (:easy 0.1 :normal 0.15 :hard 0.2) :kubi-at 3 :keep 5.75))
   "The ranged route styles: :open the opener where both reach and no tip holds him (J1 the spread route, K1 the gathered
 one), :anti the anti-approach strike, :tip (T) every opener picked so the victim stands on its chain tip (HS-R-TIP-CMD: K1
-at 4-5 m, J1 at 5-6 m: the whole route x1.71, §25.13), :route-dmg the K link's chance per link hit (HS-R-AI-MOVE), :kubi-at
+at 4.5-5 m, J1 at 5.5-6 m since §25.26: the whole route x1.71, §25.13), :route-dmg the K link's chance per link hit (HS-R-AI-MOVE), :kubi-at
 the first link KUBIKAKE's cancel may take (1: off the opener's hit, the bind first; 3: only off the ender, the route's
-damage first), :keep the distance his back hop runs out to. SENTAN keeps K1's tip (4.6 m) and plays the gathered K route
+damage first), :keep the distance his back hop runs out to. SENTAN keeps K1's tip (4.6 m; 4.75 since the tip's 0.5 m, §25.26) and plays the gathered K route
 to the end (K1 -> K2 -> K3G on the tip: 313); NAWAJI throws the noose off the first link that hits; KAISEN keeps J1's tip
-(5.0 m) and plays the spread J route (J2 -> J3's 6.6 m push: back to the tip; the Reiatsu x1.69) for the bars.")
+(5.0 m; 5.75 since §25.26) and plays the spread J route (J2 -> J3's 6.6 m push: back to the tip; the Reiatsu x1.69) for the bars.")
 (defparameter *hs-ai-wake-p* '(:easy 0.0 :normal 0.0 :hard 0.0)
   "Cell b3a0, once per awakening (the entry into the ranged mode from the Shikai): the waking noose, KUBIKAKE thrown as soon
 as its line holds him and he isn't attacking, inside *HS-AI-WAKE-WINDOW* frames (HS-R-AI-REFLEX): the bind sought at once. (Round01 cell b3a0: NORMAL 0.1 -> 0.05: the Bankai at 3000 taken put NORMAL at 0.61 (factor 0.93); 0.562 after these cuts, 480 matches; HARD kept.)
@@ -697,8 +697,18 @@ nothing reaches in time."
             return c)))
 (defun hs-r-tip-cmd (d)
   "The ranged opener whose chain tip (its outer *HS-R-TIP* m: x1.71 for the whole route, §25.13) holds a victim D m away
-(centre to centre, a hurt radius of slack): J1 at 5.0-6.2, K1 at 4.0-5.0; NIL nearer."
-  (cond ((<= 5.0 d 6.2) :q) ((<= 4.0 d 5.0) :f)))
+(centre to centre, 0.2 m of hurt radius past the reach): J1 at 5.5-6.2, K1 at 4.5-5.2 (J1 5.0-6.2, K1 4.0-5.0 with the
+1.0 m tip until §25.26); NIL elsewhere. HISAGI-DRAW's tip glint reads it too."
+  (cond ((<= (- *hs-r-j-reach* *hs-r-tip*) d (+ *hs-r-j-reach* 0.2)) :q)
+        ((<= (- *hs-r-k-reach* *hs-r-tip*) d (+ *hs-r-k-reach* 0.2)) :f)))
+(defun-fast hs-tip-band (v)
+  "HS-R-TIP-CMD on the distance V [0] (an f32vec: HISAGI-DRAW's *HS-G*, the opponent's) without boxing it: 1 K1's tip
+(4.5-5.2 m), 2 J1's (5.5-6.2), else NIL (the host test sweeps both against each other). 0 B."
+  (declare (type f32vec v))
+  (let ((d (aref v 0)) (tip (the single-float *hs-r-tip*))
+        (jr (the single-float *hs-r-j-reach*)) (kr (the single-float *hs-r-k-reach*)))
+    (declare (single-float d tip jr kr))
+    (cond ((and (<= (- jr tip) d) (<= d (+ jr 0.2f0))) 2) ((and (<= (- kr tip) d) (<= d (+ kr 0.2f0))) 1))))
 (defun hs-threat-p (e s d)
   "Is his perceived move S a live threat to E at the perceived distance D (the generic guard's test)?"
   (and (eq (snap-state s) :move) (snap-live-p s) (snap-near-p s e d *ai-threat-margin*)))

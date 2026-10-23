@@ -166,9 +166,10 @@ real damage (the user, 2026-10-18: 「先還原再打，傷害 120（推薦）�
 this (m, centre to centre: the moves' :min-reach) (none -> 2.0, 2026-10-18, the user, §22.1; B4c: K1 綁束 had none, the
 user: 「身旁旋轉會打到」, §22.4; B4d: K1 has it again, 「讓 K1 只能打中遠方的敵人」, §22.8). The bind's SP1 KUSARI-AME has
 none since B4d (「鎖雨改成近距離也打得中」).")
-(defparameter *hs-r-tip* 1.0
+(defparameter *hs-r-tip* 0.5
   "The chain tip: a ranged-mode hit in the outer this many m of its volume (an arc / annulus: by his distance from the arc's
-r; a line / lane: along it, from its far end) ... (none -> 1.0, 2026-10-18, the user, §22.1; HS-DIST-MULT) ...")
+r; a line / lane: along it, from its far end) ... (none -> 1.0, 2026-10-18, the user, §22.1; HS-DIST-MULT; 1.0 -> 0.5,
+2026-10-23, the user: 「幫我將鏈尖加成縮短至 0.5m」: J 5.5-6 m, K 4.5-5 m) ...")
 (defparameter *hs-r-tip-mult* 1.71
   "... deals x this, else x1.0 (x1.0 -> x1.3, 2026-10-18, the user, §22.1; 1.3 -> 1.71, 2026-10-19, the user: 「將遠距的鏈尖
 加成提高到能讓 K 串傷害能到平均值的 1.3 倍」, 「共用 1.71」: K1 -> K2 -> K3G all on the tip 313, 1.3 x the 21 awakened forms'
@@ -191,13 +192,14 @@ the user: 「延長近身的時長（SP 與血量互換從 1:2 改成 1:3）」 
 J1's own since S1, 「J1 範圍設 3.0–5 m」, §23.3) ...")
 (defparameter *hs-r-j-reach* 6.0
   "... and its far edge, m (an arc's r, a line's end + its r) (J1 / J3 / J3G 5.0, J2 4.5, J2s 5.5 -> 6.0, the same; the tip
-x1.3 on 5.0-6.0).")
+x1.3 on 5.0-6.0; x1.71 on 5.5-6.0 since §25.26).")
 (defparameter *hs-r-k-dead* 2.0
   "The ranged mode's K (K1, the spread K2s / K3, the gathered K2 / K3G) dead zone, m: an annulus out to *HS-R-K-REACH*
 (*HS-R-DEAD* 2.0 -> 1.0, 2026-10-18, the user: 「K 的範圍改 1~4」, §25.3; 1.0 -> 2.0, the same day: 「卍解遠距 K 改成 2~5 m」,
 §25.5) ...")
 (defparameter *hs-r-k-reach* 5.0
-  "... and its far edge, m (K1 4.0, K2s / K3 / K3G 6.0, K2 8.5 -> 4.0, §25.3; 4.0 -> 5.0, §25.5; the tip x1.3 on 4.0-5.0).")
+  "... and its far edge, m (K1 4.0, K2s / K3 / K3G 6.0, K2 8.5 -> 4.0, §25.3; 4.0 -> 5.0, §25.5; the tip x1.3 on 4.0-5.0; x1.71 on 4.5-5.0
+since §25.26).")
 (defparameter *hs-r-link-reach* 7.0
   "The ranged route links (links 2-3: J2 / K2s / J3 / K3, K2 / J2s / K3G / J3G) strike the victim where he is, along the
 chain (HS-R-LINK-SEG: no dead zone), out to this many m from his feet (+ the victim's body); farther, they miss. They
@@ -545,7 +547,7 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
                              :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck
                              :bind hs-binding :bind-damage hs-bind-damage :bind-pool hs-bind-pool :bind-heal hs-bind-heal
                              :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot
-                             :dmg-mult hs-dmg-mult :struck hs-bk-struck)
+                             :dmg-mult hs-dmg-mult :struck hs-bk-struck :hit-fx hs-tip-fx)
   "The ranged mode's hooks: the Bankai's (*HS-BK-HOOKS*) without :p / :p-label: P does nothing there since KUBIKAKE moved
 to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the bind mode's P the release FREE (gone in
 §24.5, back since §25.14).")
@@ -553,7 +555,7 @@ to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the 
                               :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :p hs-p-press :p-label hs-p-label
                               :bind hs-binding :bind-damage hs-bind-damage :bind-pool hs-bind-pool :bind-heal hs-bind-heal
                               :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot
-                              :dmg-mult hs-dmg-mult :struck hs-bk-struck)
+                              :dmg-mult hs-dmg-mult :struck hs-bk-struck :hit-fx hs-tip-fx)
   "The Bankai's hooks (both modes): the bind's state lives on the binder's HSS, so both modes answer B1b's bind hooks; the
 :pose hook (HS-POSE: the right crescent let out on its hand chain) is a look, as the Shikai's.")
 (defparameter *hs-bk-clips* (append '(:hs-breaker :hs-k-breaker :hs-kubikake :hs-k-hammer) *hs-r-clip-stand-ins*)
@@ -683,6 +685,7 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (tip-r nil)                                 ; §25.5: a tip hit's Reiatsu before its gains (HS-DMG-MULT), read by HS-BK-HIT
   (tip-x 0.0)                                 ; §25.11: that hit's extra gain factor (the tip's and the spread route's, - 1)
   (route-tip nil)                             ; §25.13: his last opener's (J1 / K1) contact was on the tip (its links take it)
+  (tip-hit nil)                               ; §25.26: his last hit was on the tip (a look: HS-TIP-FX's flash; no sim reads it)
   (throw-n 0 :type fixnum)                    ; S1: the charge of the throw out now (its chain length x it, HS-TICK)
   (ai-kz nil) (ai-kz-threat nil)              ; S1, his CPU: K out of this windmill (rolled at the press); the press is a ward
   (ai-out -1 :type fixnum) (ai-modoshi nil)   ; his CPU: the OUT start it rolled for, and its pick
@@ -1144,6 +1147,7 @@ KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other 
                           (t 1.0))
                     (if spread *hs-r-spread-sp-mult* 1.0))))
         (when (and bk (member name '(:hs-r-j1 :hs-r-k1))) (setf (hss-route-tip st) tip))
+        (setf (hss-tip-hit st) (and bk tip))
         (setf (hss-tip-r st) (and (> sx 1.0) (gauges-reiatsu (gauges att))) (hss-tip-x st) (- sx 1.0))
         (cond ((not bk) x)                              ; DANGAI's 尖端強化 / 尖端平均 (DUEL_ROGUE §4.3): the ranged mode's
               (tip (rmod att :hs-tip-dmg x))            ;  tip and other hits at the card's x (x3.42 / x0.1; x1.355 both)
@@ -1326,7 +1330,8 @@ drained end at this step's hits); 15 the Bankai mirror, both CPUs awakened, 6 m 
 2.5 m from an idle Kenpachi (the gathered route, K1 綁束 at 2.0-4.0 m: press K K K / K K J / K J J); 17 the ranged mode
 3.5 m from him (the spread route off J1: J J J / J J K / J K K); 18 the ranged mode 4 m from a CPU Rukia, P1's CPU on (a
 fresh CPU battle); §25.20: 20 / 21 P1 the button-masher with ASSIST ALWAYS + COMBO + BREAK vs a CPU, 6 m: the Shikai vs
-Lille, the Bankai's ranged mode vs Kenpachi; any other k the probe line only."
+Lille, the Bankai's ranged mode vs Kenpachi; §25.26: 22 / 23 the ranged mode 4.75 / 5.75 m from an idle Kenpachi (on K1's / J1's
+tip: the glint); any other k the probe line only."
   (flet ((setup (c2 dist &key cpu)
            (ensure-battle :hisagi c2 :cpu cpu)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) (not cpu)))
@@ -1358,6 +1363,7 @@ Lille, the Bankai's ranged mode vs Kenpachi; any other k the probe line only."
       (16 (setup :kenpachi 2.5) (hs-awaken-now! *p1*))
       (17 (setup :kenpachi 3.5) (hs-awaken-now! *p1*))
       (18 (setup :rukia 4.0 :cpu t) (hs-awaken-now! *p1*))   ; (Rukia: no other scene starts that battle, so a fresh CPU one)
+      ((22 23) (setup :kenpachi (if (= k 22) 4.75 5.75)) (hs-awaken-now! *p1*))   ; §25.26: on K1's / J1's tip (the glint)
       ;; §25.20: P1 the ASSIST gate's button-masher (habit :dumb, an EASY CPU's eyes) with ASSIST ALWAYS + COMBO + BREAK
       ;; against a CPU: 20 the Shikai vs Lille 6 m (her shots: AUTO GUARD's windmill; J mashed: the route plans), 21 the
       ;; Bankai's ranged mode vs Kenpachi 6 m (the tip opener, the routes, the noose and the bind's cinching route)

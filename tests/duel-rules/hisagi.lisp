@@ -823,10 +823,11 @@
                 (notany #'fboundp '(hs-r-j-push hs-r-uchi-push hs-place-to)) (~= 7.0 *hs-r-link-reach*) (~= 6.6 *hs-r-j3-push*)
                 (~= 3.0 *hs-r-j-dead*) (~= 6.0 *hs-r-j-reach*) (~= 2.0 *hs-r-k-dead*) (~= 5.0 *hs-r-k-reach*) (~= 1.3 *hs-r-tip-sp-mult*)
                 (> *hs-r-j3-push* (+ *hs-r-j-reach* 0.45 *ender-push*)) (< (+ *hs-r-j3-push* 0.45) 9.0)))
-    ;; the tip x1.71 (§25.13; x1.3 until then; the outer 1.0 m: an arc by his distance, a line along it) and the bind's x1.3
-    ;; within 1.2 m (§25.13; x1.2 until then)
-    (check (and (~= 1.71 (hs-dist-mult :bankai nil 4.5 3.5 0.0)) (~= 1.0 (hs-dist-mult :bankai nil 4.5 3.49 0.0))
-                (~= 1.71 (hs-dist-mult :bankai nil 4.5 4.8 0.0)) (~= 1.71 (hs-dist-mult :bankai t 9.0 3.0 8.0))
+    ;; the tip x1.71 (§25.13; x1.3 until then; the outer 0.5 m since §25.26, 1.0 until then: an arc by his distance, a line
+    ;; along it) and the bind's x1.3 within 1.2 m (§25.13; x1.2 until then)
+    (check (and (~= 0.5 *hs-r-tip*) (~= 1.71 (hs-dist-mult :bankai nil 4.5 4.0 0.0)) (~= 1.0 (hs-dist-mult :bankai nil 4.5 3.99 0.0))
+                (~= 1.71 (hs-dist-mult :bankai nil 4.5 4.8 0.0)) (~= 1.71 (hs-dist-mult :bankai t 9.0 3.0 8.5))
+                (~= 1.0 (hs-dist-mult :bankai t 9.0 3.0 8.4))
                 (~= 1.0 (hs-dist-mult :bankai t 9.0 8.5 7.9)) (~= 1.0 (hs-dist-mult :bankai nil nil 7.0 7.0))
                 (~= 1.3 (hs-dist-mult :bankai-bind nil nil 1.2 0.0)) (~= 1.0 (hs-dist-mult :bankai-bind nil nil 1.21 0.0))
                 (~= 1.0 (hs-dist-mult :base nil 4.5 4.0 4.0)) (~= 1.71 *hs-r-tip-mult*) (~= 1.3 *hs-b-close-mult*)
@@ -841,18 +842,18 @@
         (flet ((x (n d2 &optional (i 0)) (hs-dmg-mult h o (svref (mv-hits (m n)) i) (m n) nil d2)))
           ;; §25.13 (「鏈尖判定會直接延續 J1 / K1 打中時的判斷狀態」): an opener records its tip read, its links take it whatever
           ;; their own distance
-          (check (and (~= 1.71 (x :hs-r-j1 25.0)) (~= 1.71 (x :hs-r-j3 1.0)) (~= 1.71 (x :hs-r-k3 1.0)) (~= 1.0 (x :hs-r-j1 16.0))
-                      (~= 1.0 (x :hs-r-j3 25.0)) (~= 1.0 (x :hs-r-k2s 25.0)) (~= 1.71 (x :hs-r-k1 16.0)) (~= 1.71 (x :hs-r-k2 1.0 1))
+          (check (and (~= 1.71 (x :hs-r-j1 30.25)) (~= 1.71 (x :hs-r-j3 1.0)) (~= 1.71 (x :hs-r-k3 1.0)) (~= 1.0 (x :hs-r-j1 29.0))
+                      (~= 1.0 (x :hs-r-j3 25.0)) (~= 1.0 (x :hs-r-k2s 25.0)) (~= 1.71 (x :hs-r-k1 20.25)) (~= 1.71 (x :hs-r-k2 1.0 1))
                       (~= 1.71 (x :hs-r-j2s 1.0)) (~= 1.71 (x :hs-r-k3g 1.0)) (~= 1.0 (x :hs-r-k1 4.0)) (~= 1.0 (x :hs-r-j3g 36.0))
                       (~= 1.0 (x :hs-r-l 4.0)) (~= 1.0 (x :hs-breaker 1.0))
                       (~= 1.0 (hs-dmg-mult h o (make-hitwin) nil t 16.0))      ; (a mark: a hazard, no move)
                       (~= 1.0 (x :hs-r-sp1 16.0))))                      ; (SP1's 9 m line: 4 m along it, no tip)
           (t-at o 0 -8.5)
           (check (and (~= 1.71 (x :hs-r-sp1 72.25)) (~= 1.71 (x :hs-r-kubikake 49.0)) (~= 1.0 (x :hs-r-sp2 72.25 1))))
-          (t-at o 0 -4.0)                                                 ; (K1's tip, the outer 1.0 m of r 5.0, §25.5)
-          (check (and (~= 1.71 (x :hs-r-k1 16.0)) (~= 1.71 (x :hs-r-k1 25.0))))
-          (t-at o 0 -3.9)
-          (check (~= 1.0 (x :hs-r-k1 15.21)))
+          (t-at o 0 -4.5)                                                 ; (K1's tip, the outer 0.5 m of r 5.0, §25.26)
+          (check (and (~= 1.71 (x :hs-r-k1 20.25)) (~= 1.71 (x :hs-r-k1 25.0))))
+          (t-at o 0 -4.4)
+          (check (and (~= 1.0 (x :hs-r-k1 19.36)) (~= 1.0 (x :hs-r-k1 16.0))))
           (t-at o 0 -9.5)
           (check (and (~= 1.71 (x :hs-r-sp2 90.25 1)) (~= 1.71 (x :hs-r-kikon 90.25))))
           (t-at o 0 -1.0)
@@ -1244,7 +1245,7 @@
                               (loop for (st nil) on *hs-ai-r-styles* by #'cddr collect (hs-r-sv st :route-dmg)))))
   ;; the three route styles (one roll per entry into the ranged mode): their weights, openers, the tip read, the K link's
   ;; chance per link hit (SENTAN's gathered K route, KAISEN's spread J route), where KUBIKAKE may come (NAWAJI off the
-  ;; first link, the others off the ender), the back hop's distance (SENTAN K1's tip 4.6, KAISEN J1's 5.0)
+  ;; first link, the others off the ender), the back hop's distance (SENTAN K1's tip 4.75, KAISEN J1's 5.75 since §25.26's 0.5 m tip; 4.6 / 5.0 until then)
   (check (and (equal '(:sentan :nawaji :kaisen) (loop for (st nil) on *hs-ai-r-style-w* by #'cddr collect st))
               (equal '(:sentan :nawaji :kaisen) (loop for (st nil) on *hs-ai-r-styles* by #'cddr collect st))
               (~= 1.0 (loop for (nil w) on *hs-ai-r-style-w* by #'cddr sum w))
@@ -1253,7 +1254,8 @@
               (hs-r-sv :sentan :tip) (hs-r-sv :kaisen :tip) (null (hs-r-sv :nawaji :tip))
               (< (getf (hs-r-sv :kaisen :route-dmg) :hard) 0.5 (getf (hs-r-sv :sentan :route-dmg) :easy))
               (= 3 (hs-r-sv :sentan :kubi-at)) (= 1 (hs-r-sv :nawaji :kubi-at)) (= 3 (hs-r-sv :kaisen :kubi-at))
-              (~= 4.6 (hs-r-sv :sentan :keep)) (~= 3.5 (hs-r-sv :nawaji :keep)) (~= 5.0 (hs-r-sv :kaisen :keep))))
+              (~= 4.75 (hs-r-sv :sentan :keep)) (~= 3.5 (hs-r-sv :nawaji :keep)) (~= 5.75 (hs-r-sv :kaisen :keep))
+              (eq :f (hs-r-tip-cmd (hs-r-sv :sentan :keep))) (eq :q (hs-r-tip-cmd (hs-r-sv :kaisen :keep)))))
   ;; the chances' shipped values (round01 b1a0: NORMAL's fair game once the Bankai comes at 2000 taken; HARD's kept, its
   ;; KUBIKAKE 0.7 -> 0.95; round01 cell b3a0: NORMAL's Bankai cut again with the gate at 3000, NORMAL 0.61 -> 0.56)
   (check (and (equal *hs-ai-punish-p* '(:easy 0.05 :normal 0.1 :hard 0.9)) (equal *hs-ai-escape-p* '(:easy 0.1 :normal 0.2 :hard 0.85))
@@ -1282,12 +1284,18 @@
               (hs-r-reaches-p (find-move :hs-r-k1) 2.05) (hs-r-reaches-p (find-move :hs-r-k1) 5.2)
               (hs-r-reaches-p (find-move :hs-r-kubikake) 2.3) (hs-r-reaches-p (find-move :hs-r-kubikake) 7.0)
               (eq :hs-r-l (mv-name (hs-r-cmd-move :sig))) (eq :hs-r-kubikake (mv-name (hs-r-cmd-move :sp2)))))
-  ;; HS-R-TIP-CMD (round01 b1a0): the opener whose chain tip holds him (§25.13's x1.71 for the whole route): J1 5.0-6.2, K1
-  ;; 4.0-5.0, nothing nearer or farther; it matches the moves' tip (HS-DIST-MULT: the outer *HS-R-TIP* of each volume)
-  (check (and (eq :q (hs-r-tip-cmd 5.0)) (eq :q (hs-r-tip-cmd 6.2)) (null (hs-r-tip-cmd 6.3)) (eq :f (hs-r-tip-cmd 4.0))
-              (eq :f (hs-r-tip-cmd 4.9)) (null (hs-r-tip-cmd 3.9))
-              (~= 1.71 (hs-dist-mult :bankai nil 6.0 5.0 0.0)) (~= 1.71 (hs-dist-mult :bankai nil 5.0 4.0 0.0))
-              (~= 1.0 (hs-dist-mult :bankai nil 5.0 3.9 0.0))))
+  ;; HS-R-TIP-CMD (round01 b1a0): the opener whose chain tip holds him (§25.13's x1.71 for the whole route): J1 5.5-6.2, K1
+  ;; 4.5-5.2 (§25.26's 0.5 m tip; 5.0-6.2 / 4.0-5.0 until then), nothing between, nearer or farther; it matches the moves'
+  ;; tip (HS-DIST-MULT: the outer *HS-R-TIP* of each volume); HISAGI-DRAW's glint band (HS-TIP-BAND) is the same at every
+  ;; distance 0-8 m (a tenth apart)
+  (check (and (eq :q (hs-r-tip-cmd 5.5)) (eq :q (hs-r-tip-cmd 6.2)) (null (hs-r-tip-cmd 6.3)) (eq :f (hs-r-tip-cmd 4.5))
+              (eq :f (hs-r-tip-cmd 5.2)) (null (hs-r-tip-cmd 5.3)) (null (hs-r-tip-cmd 5.45)) (null (hs-r-tip-cmd 4.4))
+              (~= 1.71 (hs-dist-mult :bankai nil 6.0 5.5 0.0)) (~= 1.71 (hs-dist-mult :bankai nil 5.0 4.5 0.0))
+              (~= 1.0 (hs-dist-mult :bankai nil 5.0 4.4 0.0)) (~= 1.0 (hs-dist-mult :bankai nil 6.0 5.4 0.0))
+              (let ((v (make-f32 1)))
+                (loop for i from 0 to 80 for d = (* 0.1 i)
+                      always (progn (setf (aref v 0) (f32 d))
+                                    (eql (hs-tip-band v) (case (hs-r-tip-cmd (aref v 0)) (:q 2) (:f 1))))))))
   ;; HS-R-PICK: the punish by annulus in the frames there are: inside 2 m SAHARAI (S 18) or nothing; 2-3 m K1 (S 16); a :tip
   ;; style's opener on the tip first (SENTAN / KAISEN), else the style's opener (KAISEN J1 S 14, SENTAN / NAWAJI K1), the
   ;; other when it alone is fast enough; 5.2-6.2 m J1 only; KUBIKAKE (S 24) first when his 200 is there and it reaches in time
@@ -1296,7 +1304,7 @@
               (eq :q (hs-r-pick :kaisen 3.5 20)) (eq :f (hs-r-pick :sentan 3.5 20)) (eq :q (hs-r-pick :sentan 3.5 15))
               (eq :q (hs-r-pick :sentan 5.5 20)) (eq :f (hs-r-pick :kaisen 4.5 20)) (eq :f (hs-r-pick :nawaji 4.5 20))
               (eq :q (hs-r-pick :nawaji 5.5 20)) (eq :q (hs-r-pick :kaisen 4.5 15)) (null (hs-r-pick :sentan 6.5 99))
-              (eq :sp2 (hs-r-pick :kaisen 4.0 24 t)) (eq :f (hs-r-pick :kaisen 4.0 23 t)) (eq :sp2 (hs-r-pick :sentan 6.5 30 t))
+              (eq :sp2 (hs-r-pick :kaisen 4.0 24 t)) (eq :q (hs-r-pick :kaisen 4.0 23 t)) (eq :f (hs-r-pick :kaisen 4.6 23 t)) (eq :sp2 (hs-r-pick :sentan 6.5 30 t))
               (eq :sig (hs-r-pick :sentan 1.5 30 t)))))
 ;; round01 cell b3a0: the waking noose (one roll per awakening; off since cell b3a2: it netted -92 a throw) and the bind's
 ;; ledger (HS-REL-BAR: the release's margin is *HS-AI-REL-MARGIN* while the pool is high, 0 once it is down to *HS-AI-REL-LOW*;
