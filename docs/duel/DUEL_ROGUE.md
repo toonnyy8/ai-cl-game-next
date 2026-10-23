@@ -473,3 +473,12 @@ half is the data, the fold, the screens and the stage start.
   read the global `*gg-max*` (combat / rules), so the in-fight rule points must also read `(rmod e :gg-max 1.0)` for the
   max to hold (a value above 1 is clamped back at the first regen, one below regens up); the cards are rows, not cards
   (as the DOORS); the pause's BUILD page is not built (RESULTS has the line).
+
+## Touch: the CONFIRM row (2026-10-23)
+
+- The user: 「在關卡之間選擇獎勵的時候請提供一個額外的確認鍵，不然手機點擊連詳細內容預覽都看不見就直接選擇了」.
+- On touch (TOUCH-TAP-ZONES-P) every REWARD page (cards, REPLACE, the KONPAKU notice, the rest, UPGRADE) and the DOORS
+  draw a CONFIRM row under their rows; a tap on a row only selects it (its note shows above the rows), CONFIRM takes the
+  selected one (rogue.lisp ROGUE-NAV). Keys and pads are unchanged (up / down select, confirm takes). Checked at 390 x 844:
+  two taps on the second card left the page open with its note shown, CONFIRM took it (`pick 10`), the DOORS the same.
+
