@@ -827,7 +827,8 @@ Returns T when DEF is out of Konpaku; never in a bind (BIND-OF: grey souls, the 
                                   (rmod att (if soul-break :sb-past :kikon-past) 0))
               (kikon-result (gauges-konpaku gd) n soul-break)))
       (when *run-mods*
-        (when (run-mods-on-p att) (log-msg "duel runmod konpaku ~:[kikon~;soul-break~] lost ~d left ~d" soul-break lost left))
+        (when (or (run-mods-on-p att) (run-mods-on-p def))
+          (log-msg "duel runmod konpaku side ~d ~:[kikon~;soul-break~] lost ~d left ~d" (fighter-side (fighter def)) soul-break lost left))
         (let ((r (and ko (not bound) (run-revive! def))))   ; :revive: the fight goes on
           (when r (setf left r ko nil)))
         (when (plusp lost) (run-armor-give! def :armor-on-soul-loss)))
