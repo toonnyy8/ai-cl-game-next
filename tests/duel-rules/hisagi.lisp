@@ -1459,3 +1459,23 @@
       (check (eq :shin-kin (fighter-form f))))                      ; (the owl stays with no burst)
     (barro-tick l f g)
     (check (eq :jilliel-kin (fighter-form f)))))                    ; (no run: an owl without a burst goes back)
+
+;; §25.32 (the user, 2026-10-23: 「選 1 但改成長度在 1.75~2.5 之間自動調整」): the ranged mode's Step lands on a chain tip:
+;; forward the nearest band inward, back the nearest outward, the hop 1.75-2.5 m; a side Step or no band in reach 2.5
+(flet ((land (d0 c l) (sqrt (+ (* d0 d0) (* -2 l d0 c) (* l l)))))
+  (check (and (~= 1.75 *hs-step-min*) (eq 'hs-step-dist (getf *hs-r-hooks* :step-dist)) (null (getf *hs-bk-hooks* :step-dist))
+              (~= 2.375 (hs-step-length 8.0 1.0)) (~= 2.375 (hs-step-length 7.0 1.0))     ; (8 m -> J's 5.625; 7 m -> K's 4.625)
+              (~= 1.75 (hs-step-length 3.0 -1.0)) (~= 2.5 (hs-step-length 2.0 -1.0))      ; (3 m -> 4.75; 2 m -> 4.5)
+              (~= 2.025 (hs-step-length 3.6 -1.0))                                       ; (3.6 m: past K's band -> J's 5.625)
+              (~= 2.5 (hs-step-length 5.0 0.0)) (~= 2.5 (hs-step-length 5.0 0.6)) (~= 2.5 (hs-step-length 10.0 1.0))
+              (~= 2.5 (hs-step-length 4.6 -1.0)) (~= 1.5 (hs-step-length 8.0 1.0 1.5))   ; (on K's tip, back: none; her field's 1.5)
+              (< (abs (- 5.625 (land 7.2 0.8 (hs-step-length 7.2 0.8)))) 0.01)           ; (a diagonal one: the same landing)
+              ;; every hop it changes is 1.75-2.5 m and lands 0.04 m inside a band, forward or back, 0-10 m
+              (loop for i from 0 to 100 for d0 = (* 0.1 i)
+                    always (loop for c in '(1.0 0.8 -0.8 -1.0)
+                                 always (let ((l (hs-step-length d0 c)) (k0 (- *hs-r-k-reach* *hs-r-tip*)) (j0 (- *hs-r-j-reach* *hs-r-tip*)))
+                                          (or (= l *step-distance*)
+                                              (and (<= 1.75 l 2.5)
+                                                   (let ((d (land d0 c l)))
+                                                     (or (<= (+ k0 0.04) d (- *hs-r-k-reach* 0.04))
+                                                         (<= (+ j0 0.04) d (- *hs-r-j-reach* 0.04))))))))))))

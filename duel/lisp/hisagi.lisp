@@ -548,7 +548,7 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
                              :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck
                              :bind hs-binding :bind-damage hs-bind-damage :bind-pool hs-bind-pool :bind-heal hs-bind-heal
                              :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot
-                             :dmg-mult hs-dmg-mult :struck hs-bk-struck :hit-fx hs-tip-fx)
+                             :dmg-mult hs-dmg-mult :struck hs-bk-struck :hit-fx hs-tip-fx :step-dist hs-step-dist)
   "The ranged mode's hooks: the Bankai's (*HS-BK-HOOKS*) without :p / :p-label: P does nothing there since KUBIKAKE moved
 to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the bind mode's P the release FREE (gone in
 §24.5, back since §25.14).")
@@ -977,6 +977,32 @@ is within *HS-R-TIP* m of the volume's far EDGE or past it (an arc / annulus: hi
     (:bankai (if (and edge (>= (if cap along d) (- edge *hs-r-tip*))) *hs-r-tip-mult* 1.0))
     (:bankai-bind (if (<= d *hs-b-close*) *hs-b-close-mult* 1.0))
     (t 1.0)))
+(defparameter *hs-step-min* 1.75
+  "The ranged mode's Step lands on a chain tip (HS-STEP-LENGTH, §25.32): its hop shortened down to this many m (from
+*STEP-DISTANCE* 2.5), never lengthened (the user, 2026-10-23: 「選 1 但改成長度在 1.75~2.5 之間自動調整」).")
+(defun hs-step-length (d0 c &optional (len *step-distance*))
+  "His ranged-mode Step's hop (m) with the opponent D0 m away and the hop's cosine C toward him (§25.32): a forward one
+(C >= 0.7) lands in the nearest chain-tip band inward (J1's 5.25-6.0 m first, then K1's 4.25-5.0), a back one
+(C <= -0.7) the nearest outward (K1's first), each band 0.05 m in from its edges, its middle when the hop can reach it,
+else the nearest point it can; the hop LEN (2.5, or her field's) shortened to at most *HS-STEP-MIN*. No band in reach,
+or a side Step: LEN."
+  (if (< (abs c) 0.7)
+      len
+      (flet ((dist (l) (sqrt (max 0.0 (+ (* d0 d0) (* -2 l d0 c) (* l l))))))
+        (let* ((a (dist *hs-step-min*)) (b (dist len)) (lo (min a b)) (hi (max a b)) (m 0.05)
+               (bands (list (list (- *hs-r-k-reach* *hs-r-tip*) *hs-r-k-reach*)
+                            (list (- *hs-r-j-reach* *hs-r-tip*) *hs-r-j-reach*))))
+          (dolist (bd (if (> c 0) (reverse bands) bands) len)
+            (let ((x (max lo (+ (first bd) m))) (y (min hi (- (second bd) m))))
+              (when (<= x y)
+                (let* ((tt (min y (max x (* 0.5 (+ (first bd) (second bd))))))
+                       (disc (sqrt (max 0.0 (- (* tt tt) (* d0 d0 (- 1 (* c c))))))))
+                  (return (min len (max *hs-step-min* (if (> c 0) (- (* d0 c) disc) (+ (* d0 c) disc)))))))))))))
+(defun hs-step-dist (e f to st len)
+  "His ranged mode's :step-dist hook (fighter.lisp START-STEP): the hop HS-STEP-LENGTH gives for the stick TO / ST (after
+STEP-DIRECTION) and the opponent where the Step reads him (FIGHTER-OX / -OZ)."
+  (let* ((p (pos-of e)) (d0 (hypot (- (fighter-ox f) (aref p 0)) (- (fighter-oz f) (aref p 2)))) (n (hypot to st)))
+    (if (< n 1e-4) len (hs-step-length d0 (/ to n) len))))
 (defun hs-grey-loss (r0 r k0 k)
   "A fighter's grey loss since the bind's start (Konpaku x *REISHI-MAX* + Reishi: his CPU's release read, §17.5 #16)."
   (+ (* *reishi-max* (- k0 k)) (- r0 r)))

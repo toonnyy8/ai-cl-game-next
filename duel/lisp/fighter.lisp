@@ -304,11 +304,13 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
   (multiple-value-bind (to st) (stick-relative e f)
     (multiple-value-bind (to st) (step-direction to st)
       (multiple-value-bind (dx dz) (world-dir e f to st)
-        (set-slide e (multiple-value-bind (k ux uz) (opp-field e f)   ; her cold field shortens a Step away from her
-                       (if k
-                           (field-step *step-distance* (/ (- (+ (* dx ux) (* dz uz))) (max 1e-4 (hypot dx dz)))
-                                       (getf k :step))
-                           *step-distance*))
+        (set-slide e (let ((len (multiple-value-bind (k ux uz) (opp-field e f)   ; her cold field shortens a Step away from her
+                                  (if k
+                                      (field-step *step-distance* (/ (- (+ (* dx ux) (* dz uz))) (max 1e-4 (hypot dx dz)))
+                                                  (getf k :step))
+                                      *step-distance*)))
+                           (h (kit-hook (fighter-kit f) :step-dist)))   ; a form's own landing (Hisagi's chain tips)
+                       (if h (funcall h e f to st len) len))
                    12 dx dz))
       (setf (fighter-state f) :step (fighter-sf f) 0 (fighter-move f) nil (fighter-queued f) nil   ; (the J latch)
             (fighter-step-open f) nil)

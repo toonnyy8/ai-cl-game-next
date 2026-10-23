@@ -3562,3 +3562,21 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
 
 - The user (verbatim): 「流光改回 0.7s」. `*hs-flow-every*` 1.0 -> 0.7 s: each chain's streak starts again as the last
   ends (§25.27's rhythm); the run down stays 0.7 s. A look only; built 0 warnings.
+
+### 25.32 The ranged mode's Step lands on a chain tip (the user, 2026-10-23)
+
+- The user (verbatim): 「我還想設計讓修兵透過 step 移動時，能優先落在尖端的距離，請問有什麼好的設計方式嗎？」; the lead's
+  options: 1 by direction, the nearest band (1.5-3.5 m), 2 forward = K's band, back = J's, 3 a soft 0.5 m pull; plus a side
+  Step circling (left open). The user: 「選 1 但改成長度在 1.75~2.5 之間自動調整」 (the side Step unchanged).
+- **Rule** (hisagi.lisp HS-STEP-LENGTH, a sim change; the ranged mode's new `:step-dist` hook, START-STEP calls it with the
+  hop it would make): a forward Step (its cosine toward him >= 0.7) lands in the nearest chain-tip band inward (J1's
+  5.25-6.0 m first, then K1's 4.25-5.0), a back one (<= -0.7, neutral included) the nearest outward (K1's first); each band
+  0.05 m in from its edges, its middle (5.625 / 4.625 m) when the hop reaches it, else the nearest point it can; the hop
+  only shortens: 2.5 -> at least `*hs-step-min*` 1.75 m (her field's shorter hop stays the cap). No band in reach, or a
+  side Step: 2.5 m as before. The Step's frames, iframes and J cancel are unchanged. Not in the bind or the Shikai.
+- **Measured** (browser, the neutral Step): 3.5 m -> 5.62 (J1's middle, a 2.125 m hop); 2.5 m -> 4.62 (K1's middle);
+  4.75 m -> 7.25 (nothing outward in reach: 2.5 m).
+- Host tests 10066 ALL PASS (+1: the forward / back picks at 8, 7, 3, 2, 3.6 m, a side Step, no band, her field's hop, a
+  diagonal one, and a 0-10 m sweep: every changed hop 1.75-2.5 m lands 0.04 m inside a band); control 89, learn 131;
+  pkgcheck clean; built 0 warnings. Simgate (10 seeds): every row without him identical; cvc 3/3; his rows all K.O., the
+  medians as §25.30 (HY 108.5, HK 110.7, HR 145.5, HI 153.0, HS 159.8, HB 157.2 s) but the mirror 169.4 -> 188.9 s.
