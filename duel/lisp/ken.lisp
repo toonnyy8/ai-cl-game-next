@@ -172,7 +172,8 @@
           :ladder ((:nozarashi 0.0 0 0.0 0.0) (:ryote *nome-drain-t2* *nome-delay* *nome-up-t2* *nome-down-t2*)
                    (:nomihose *nome-drain-t3* 0 *nome-up-t3* *nome-down-t3*)))
   :meter-gain (:dealt *nome-dealt* :taken *nome-taken* :drunk *nome-drunk*)
-  :hooks (:tick ken-tick)                       ; the NOME ladder and (the Bankai, inheriting it) the arm: ken-meter.lisp
+  :hooks (:tick ken-tick :p ken-card-bankai)    ; the NOME ladder and (the Bankai, inheriting it) the arm: ken-meter.lisp;
+                                                ; P: DANGAI's 隨時卍解 card from any cup
   :commands (:sp1 :ke-meteor :kikon :ke-kikon-n)
   ;; its own one-handed clips for the base moves and the meteor (a look: DUEL_KEN_REWORK §6.2)
   :clip-map (:ke-q1 :ke-k-q1 :ke-q2 :ke-k-q2 :ke-f1 :ke-k-f1 :ke-f2 :ke-k-f2 :ke-q3 :ke-k-spin :ke-meteor :ke-k-meteor)

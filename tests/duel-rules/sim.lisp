@@ -21,11 +21,13 @@
     (setf (fighter-opp (fighter a)) b (fighter-opp (fighter b)) a *p1* a *p2* b *soul-breaks* nil)
     (values a b)))
 (defparameter *bind-hooks* '(:bind :bind-damage :bind-pool :bind-heal :bind-step :bind-resolve :bind-snapshot :p :p-label))
-;; inert: no kit but Hisagi's Bankai (B2b) holds a bind hook or :p; every reader then does what the old code did
+;; inert: no kit but Hisagi's Bankai (B2b) holds a bind hook or :p (Kenpachi's cups' :p is DANGAI's 隨時卍解 card, inert
+;; without it); every reader then does what the old code did
 (check (loop for c being the hash-keys of *kits* using (hash-value alist)
              never (loop for (f . k) in alist
                          thereis (and (not (and (eq c :hisagi) (member f '(:bankai :bankai-bind))))
-                                      (some (lambda (h) (kit-hook k h)) *bind-hooks*)))))
+                                      (some (lambda (h) (and (kit-hook k h) (not (eq (kit-hook k h) 'ken-card-bankai))))
+                                            *bind-hooks*)))))
 (check (and (member :awaken *run-commands-p*) (not (member :awaken *run-commands*))
             (equal (rest *run-commands-p*) *run-commands*)))
 (multiple-value-bind (a b) (t-pair (kit :yamamoto :base) (kit :kenpachi :base))

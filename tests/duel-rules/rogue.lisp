@@ -35,10 +35,11 @@
             (= 6 (getf (rogue-rest '(:konpaku 3 :form :base)) :konpaku))))
 ;; ---------------------------------------------------------------- batch 2: rewards, traits, slots, offers (§4.1-§4.4)
 ;; the data: 26 rewards with §4.2's ids and categories, 8 traits whose prerequisites exist and never overfill a category
-(check (= 26 (length *rogue-rewards*)))
-(check (equal (sort (mapcar #'first *rogue-rewards*) #'<)
+(defun rg-generic () (remove-if #'rogue-kai-char *rogue-rewards* :key #'first))   ; the 26 generic rewards (解 cards apart)
+(check (= 26 (length (rg-generic))))
+(check (equal (sort (mapcar #'first (rg-generic)) #'<)
               '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 17 18 19 20 21 22 23 24 25 26 27 28)))
-(check (equal (loop for c in '(:zan :mamori :shun :rei :chigiri :kai) collect (count c *rogue-rewards* :key #'second)) '(6 7 2 6 5 0)))
+(check (equal (loop for c in '(:zan :mamori :shun :rei :chigiri :kai) collect (count c (rg-generic) :key #'second)) '(6 7 2 6 5 0)))
 (check (equal (loop for c in '(:zan :mamori :shun :rei :chigiri :kai) sum (rogue-slots c)) 9))
 (check (equal (remove-if-not #'rogue-rare-only-p (mapcar #'first *rogue-rewards*)) '(6 12 28)))
 (check (= 8 (length *rogue-traits*)))
@@ -46,7 +47,7 @@
                                 (every (lambda (c) (<= (count c (third tr) :key #'rogue-reward-cat) (rogue-slots c)))
                                        '(:zan :mamori :shun :rei :chigiri))))
               *rogue-traits*))
-(check (equal (remove-if #'rogue-tierable-p (mapcar #'first *rogue-rewards*)) '(6 28 24 25 26)))   ; 斷魂 魄鎧 時契 捨身 賭契
+(check (equal (remove-if #'rogue-tierable-p (mapcar #'first (rg-generic))) '(6 28 24 25 26)))   ; 斷魂 魄鎧 時契 捨身 賭契
 ;; the fold: nothing held = NIL (every rule point reads its default); COMMON = §4.4's numbers
 (check (null (rogue-mods nil)))
 (check (equal (rogue-mods '((1 . 0))) '(:dmg 1.10)))
@@ -166,3 +167,16 @@
 (check (equal (rogue-merge-x '(:dmg 1.1 :reiatsu-regen 1.3) '(:reiatsu-regen 2.0)) '(:dmg 1.1 :reiatsu-regen 2.6)))
 (check (equal (rogue-merge-x nil '(:reiatsu-regen 2.0)) '(:reiatsu-regen 2.0)))
 (check (null (rogue-merge-x nil nil)))
+;; batch 4 (skeleton): 解 cards only in their character's run; a held twin makes the other a :twin card, which swaps them
+(check (loop for seed from 1 to 200 never (some (lambda (c) (rogue-kai-char (getf c :id))) (rogue-offer seed 4 0 nil nil :rukia))))
+(check (loop for seed from 1 to 200 never (some (lambda (c) (rogue-kai-char (getf c :id))) (rogue-offer seed 4 0 nil nil))))
+(check (loop for seed from 1 to 200 thereis (some (lambda (c) (eq (rogue-kai-char (getf c :id)) :kenpachi)) (rogue-offer seed 4 0 nil nil :kenpachi))))
+(check (loop for seed from 1 to 200 never (some (lambda (c) (eq (rogue-kai-char (getf c :id)) :hisagi)) (rogue-offer seed 4 0 nil nil :kenpachi))))
+(check (loop for seed from 1 to 300
+             always (every (lambda (c) (or (/= (getf c :id) 102) (eq (getf c :kind) :twin))) (rogue-offer seed 4 0 '((101 . 0)) t :kenpachi))))
+(check (loop for seed from 1 to 300 thereis (find 104 (rogue-offer seed 4 0 '((103 . 0)) nil :hisagi) :key (lambda (c) (getf c :id)))))
+(check (equal (rogue-take-card '((1 . 0) (103 . 0)) '(:id 104 :tier 0 :kind :twin)) '((1 . 0) (104 . 0))))
+(check (equal (mapcar #'rogue-twin '(101 102 103 104)) '(102 101 104 103)))
+(check (notany #'rogue-tierable-p '(101 102 103 104)))   ; no tiers, never an UPGRADE
+(check (let ((m (rogue-mods '((103 . 0))))) (and (= (getf m :hs-tip-dmg) 3.42) (= (getf m :hs-flat-dmg) 0.1) (= 4 (length m)))))
+(check (let ((m (rogue-mods '((104 . 1))))) (and (= (getf m :hs-tip-dmg) (getf m :hs-flat-dmg) 1.355) (= (getf m :hs-tip-sp) (getf m :hs-flat-sp) 1.15))))

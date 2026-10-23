@@ -12,9 +12,9 @@
 the NOME ladder in a form whose meter has a :ladder (the three cups). KIT is read once, before either step."
   (let ((kit (fighter-kit f)))
     (when (kit-pips kit)
-      (if (eq e *run-boss*)
-          (progn (setf (gauges-arm-owed g) nil)          ; the DANGAI boss: no pip owed, no crack clock (KEN-BOSS)
-                 (when (zerop (mod *match-tick* 600))
+      (if (or (eq e *run-boss*) (rmod e :no-arm nil))   ; the DANGAI boss / the 無手臂限制 card: no pip owed, no crack clock
+          (progn (setf (gauges-arm-owed g) nil)
+                 (when (and (eq e *run-boss*) (zerop (mod *match-tick* 600)))
                    (log-msg "duel boss kenpachi t~d ~(~a~) ude ~d konpaku ~d" *match-tick* (fighter-form f)
                             (round (gauges-meter g)) (gauges-konpaku g))))
           (ken-arm-step e f g)))
@@ -34,6 +34,17 @@ spent (ARM-SPEND!) and none cracks (KEN-TICK), so no KATAUDE: the Bankai the who
     (refresh-look e)
     (log-msg "duel boss kenpachi ~(~a~)->~(~a~) ude ~d konpaku ~d reishi ~d" was (fighter-form (fighter e))
              (round (gauges-meter g)) (gauges-konpaku g) (gauges-reishi g))))
+
+(defun ken-card-bankai (e free)
+  "His cups' :p hook (fighter.lisp TRY-COMMAND :awaken, after the awakening and the cup-3 Bankai refused): DANGAI's 隨時卍解
+card (:any-bankai, DUEL_ROGUE §4.3, the user 2026-10-22: 「卍解隨時可開，且不扣除魂魄」, 「覺醒後隨時、照樣回血」): FREE and
+awakened in any cup, the Bankai at any Konpaku (BANKAI! keeps his Konpaku, refills his Reishi). Once a stage by
+construction: after the Bankai comes KATAUDE, never a cup again. T when it took the press."
+  (when (and free (rmod e :any-bankai nil) (gauges-awakened (gauges e))
+             (member (fighter-form (fighter e)) '(:nozarashi :ryote :nomihose)) (not (bind-of e)))
+    (log-msg "duel runmod any-bankai from ~(~a~) konpaku ~d" (fighter-form (fighter e)) (gauges-konpaku (gauges e)))
+    (bankai! e :bankai)
+    t))
 
 (defun ken-arm-step (e f g)
   "The arm meter per step (a form with :pips): the pip a finished J / K string owes is charged (rules STRING-PIP-DUE-P);

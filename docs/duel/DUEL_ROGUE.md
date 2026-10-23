@@ -543,3 +543,29 @@ The user: 「推到 gh page 後開始 DANGAI 第 3 批」 (after 「繼續完成
 - **Gates**: host 9998 -> 10018 ALL PASS; pkgcheck 0; build 0 warnings; smoke 0; with no run the native sim is
   byte-identical (each character batch on its pairings; after the merge simgate 28 pairings x 10 seeds, 815 lines, cmp-identical
   to the parent 14d6da5's; cvc 3/3).
+
+## Built: batch 4, the 解 skeleton and the settled twins (2026-10-23)
+
+The user: 「繼續」 after batch 3. The 解 picks of Yamamoto, Rukia, Ichigo, Senjumaru and Lille are still the user's, so this
+part builds what is settled: the 解 category's cards, the twin mechanic, and the two twin pairs the user fixed (§4.3).
+
+- **Data** (rogue-rules.lisp): the 解 cards sit in `*rogue-rewards*` (ids 101 on, category :kai, every value a :count:
+  no tiers, never an UPGRADE); `*rogue-kai*` names each one's character and twin. 101 ZUIJI BANKAI 隨時卍解 / 102 UDE
+  MUSEIGEN 無手臂限制 (Kenpachi), 103 SENTAN KYOKA 尖端強化 / 104 SENTAN HEIKIN 尖端平均 (Hisagi).
+- **Offers** (`rogue-offer ... char`): a 解 card only in a run of its character (P1's); while its twin is held it is
+  offered as `:twin` (the row reads TWIN) and taking it swaps them (`rogue-take-card`: the held twin goes back to the
+  pool); 解 cards join GENERIC and RARE offers alike (no MOVE door type yet: with two cards a character the pool is thin).
+- **Kenpachi** 隨時卍解 (`:any-bankai`): his cups' new `:p` hook (ken-meter.lisp KEN-CARD-BANKAI) after the awakening and the
+  cup-3 Bankai refused: free, awakened, in any cup (KATATE / RYOTE / NOMIHOSE), any Konpaku: BANKAI! to `:bankai` (its
+  new optional FORM), his Konpaku kept, Reishi refilled. Once a stage by construction (the Bankai ends in KATAUDE, never a
+  cup again). 無手臂限制 (`:no-arm`): ARM-SPEND! and KEN-TICK treat him as the boss does (no pip spent, no crack clock, no
+  KATAUDE). The HUD's P BANKAI prompt does not show for the card's path (it reads BANKAI-READY-P).
+- **Hisagi** 尖端強化 / 尖端平均: HS-DMG-MULT reads P1's `:hs-tip-dmg` / `:hs-flat-dmg` (the ranged mode's tip and other hits'
+  x: 3.42 / 0.1, or 1.355 both) and `:hs-tip-sp` / `:hs-flat-sp` (the SP gain x: 1.15 both for 尖端平均; 尖端強化 keeps the
+  tip's x1.3); the tip read itself (route tips included) is unchanged.
+- **Evidence** (native sim, Kenpachi's debug run, the keys set directly): P in KATATE at Konpaku 7 with the card -> BANKAI,
+  Konpaku 7, Reishi 500 -> 1300, UDE 4; without it the same P refused; with 無手臂限制 three spends and 20 s kept UDE 4,
+  the card off one spend took a pip (UDE 3, Reishi −60).
+- **Debug** 84570+i grants 解 card 101+i to the running run (from the next stage).
+- **Gates**: host 10018 -> 10029 ALL PASS (the old tests count the 26 generic rewards apart; sim.lisp's inert-hook check
+  allows Kenpachi's card hook); pkgcheck 0; build 0 warnings; smoke 0; no-run simgate 815 lines cmp-identical; cvc 3/3.

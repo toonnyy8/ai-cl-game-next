@@ -78,7 +78,9 @@ between the two gauge blocks)."
     (:regen "REISHI REGEN /S" :frac) (:fs-regen "FLASH STEP REGEN" :pct) (:hoho-cost "HOHO COST" :pct)
     (:reiatsu-regen "REIATSU REGEN" :pct) (:gg-regen "GUARD REGEN" :pct) (:awaken-heal "AWAKENING HEAL" :frac)
     (:reishi-max "REISHI MAX" :pct) (:gg-max "GUARD MAX" :pct) (:konpaku-cap "KONPAKU CAP" :value) (:timer "TIMER" :sec)
-    (:clear-konpaku "CLEAR KONPAKU" :count) (:extra-pick "PICKS A CLEAR" :count))
+    (:clear-konpaku "CLEAR KONPAKU" :count) (:extra-pick "PICKS A CLEAR" :count)
+    (:any-bankai "BANKAI FROM ANY CUP, KONPAKU KEPT" :flag) (:no-arm "BANKAI ARM NEVER SPENT" :flag)
+    (:hs-tip-dmg "RANGED TIP" :times) (:hs-flat-dmg "OTHER HITS" :times) (:hs-tip-sp "TIP SP" :times) (:hs-flat-sp "OTHER SP" :times))
   "A reward mod's words on its card: the label and how its value reads.")
 
 (defun rogue-num (x) "X with one decimal only when it has one." (if (< (abs (- x (round x))) 0.05) (format nil "~d" (round x)) (format nil "~,1f" x)))
@@ -92,14 +94,15 @@ between the two gauge blocks)."
       (:sec (format nil "~a ~aS" label (rogue-num v)))
       (:count (format nil "~a +~d" label v))
       (:value (format nil "~a ~d" label v))
+      (:times (format nil "~a X~,2f" label v))
       (t label))))
 (defun rogue-effect (id tier) "Reward ID's effect line at TIER." (format nil "~{~a~^  ~}" (mapcar (lambda (m) (rogue-phrase (first m) (rogue-mod-value m tier))) (rogue-reward-mods id))))
 (defun rogue-tier-tag (id tier) "TIER's name for a tierable ID, else NIL (魄鎧 and the pacts have no tiers)." (and (rogue-tierable-p id) (nth tier *rogue-tiers*)))
 (defun rogue-card-label (c)
-  "A card's row: the name, the category, the tier, REPLACE / UPGRADE."
+  "A card's row: the name, the category, the tier, REPLACE / UPGRADE / TWIN (a 解 card whose twin is held: they swap)."
   (let ((id (getf c :id)))
     (format nil "~a  ~a~@[  ~a~]~@[  ~a~]" (rogue-reward-name id) (cdr (assoc (rogue-reward-cat id) *rogue-cat-names*))
-            (rogue-tier-tag id (getf c :tier)) (case (getf c :kind) (:replace "REPLACE") (:upgrade "UPGRADE")))))
+            (rogue-tier-tag id (getf c :tier)) (case (getf c :kind) (:replace "REPLACE") (:upgrade "UPGRADE") (:twin "TWIN")))))
 (defun rogue-card-note (c)
   "A card's note: its effect at its tier, then the trait it completes (`+ SHISEN`)."
   (format nil "~a~@[  + ~a~]" (rogue-effect (getf c :id) (getf c :tier))
@@ -132,7 +135,7 @@ headed BUILD), the items split in half."
 
 (defun rogue-show-cards ()
   "This clear's next pick: an offer of 3 (fewer if the pool is short; none: on to the doors)."
-  (setf *rogue-offer* (rogue-offer *endless-seed* *endless-stage* *rogue-pick* *rogue-held* *rogue-rare*))
+  (setf *rogue-offer* (rogue-offer *endless-seed* *endless-stage* *rogue-pick* *rogue-held* *rogue-rare* (first *picks*)))
   (if *rogue-offer* (rogue-cards-screen) (rogue-open-doors)))
 
 (defun rogue-open-reward ()
@@ -217,8 +220,10 @@ takes the selected one (the user, 2026-10-23: 「在關卡之間選擇獎勵的�
 (defun rogue-debug (k)
   "Debug 84500+K (DUEL_GAMEPLAY): 1-28 grant reward K to the running run (COMMON, RARE for a RARE+ only one) when it is
 not held and its category has a free slot; 50-52 the running stage's reward type GENERIC / KONPAKU / RARE; 60+c (batch
-3) a debug DANGAI run from the boss step against roster c (P1 Yamamoto, or Kenpachi against Yamamoto; seed 1, no record)."
-  (cond ((<= 60 k 67)
+3) a debug DANGAI run from the boss step against roster c (P1 Yamamoto, or Kenpachi against Yamamoto; seed 1, no record);
+70-73 (batch 4) grant 解 card 101-104."
+  (cond ((<= 70 k 73) (rogue-debug-grant (+ 31 k)))      ; batch 4: 84570+i grants 解 card 101+i
+        ((<= 60 k 67)
          (let ((c (nth (- k 60) *roster*)))
            (when (member c (playable-roster))
              (setf *mode* :endless *rogue* t *picks* (list (if (eq c :yamamoto) :kenpachi :yamamoto) c) *endless-seed* 1
@@ -226,10 +231,15 @@ not held and its category has a free slot; 50-52 the running stage's reward type
              (let ((*skip-cines* t)) (endless-start :debug t :stage *rogue-steps*)))))
         ((<= 50 k 52) (setf *rogue-reward* (nth (- k 50) '(:generic :konpaku :rare)))
          (log-msg "duel rogue debug reward ~(~a~)" *rogue-reward*))
-        ((and (rogue-reward k) (not (assoc k *rogue-held*)) (not (rogue-cat-full-p *rogue-held* (rogue-reward-cat k))))
-         (setf *rogue-held* (rogue-take-card *rogue-held* (list :id k :tier (if (rogue-rare-only-p k) 1 0) :kind :new)))
-         (log-msg "duel rogue debug grant ~d held ~a" k *rogue-held*))
-        (t (log-msg "duel rogue debug grant ~d refused" k))))
+        (t (rogue-debug-grant k))))
+
+(defun rogue-debug-grant (k)
+  "Reward K into the running run (COMMON, RARE for a RARE+ only one) when it is not held and its category has a free slot;
+it acts from the next stage's start."
+  (if (and (rogue-reward k) (not (assoc k *rogue-held*)) (not (rogue-cat-full-p *rogue-held* (rogue-reward-cat k))))
+      (progn (setf *rogue-held* (rogue-take-card *rogue-held* (list :id k :tier (if (rogue-rare-only-p k) 1 0) :kind :new)))
+             (log-msg "duel rogue debug grant ~d held ~a" k *rogue-held*))
+      (log-msg "duel rogue debug grant ~d refused" k)))
 
 (defvar *rogue-doors* nil "The DOORS screen's doors (ROGUE-DOORS' plists).")
 

@@ -742,19 +742,21 @@ form's :cine if it has one (both fighters idle after it). The guard gauge is lef
         (to-idle e 0))))
 
 ;;; ---------------------------------------------------------------- Kenpachi's Bankai: the arm meter (docs/duel/DUEL_KEN_BANKAI.md)
-(defun bankai! (e)
+(defun bankai! (e &optional (form (kit-bankai-form (kit-of e))))
   "The Bankai (P in cup 3, red, free: rules BANKAI-ALLOWED-P): the kit's :bankai-form, its arm meter full (the kit meter
 holds the pips, the crack clock at 0), his OWN Konpaku set to 1 and his Reishi refilled (the user's decisions
 2026-09-28: all his remaining souls for one full bar fought with the Bankai); the guard gauge, Reiatsu and flash-step as
-they are; then the form's :cine (both fighters idle after it)."
-  (let* ((g (gauges e)) (o (opp-of e)) (lost (- (gauges-konpaku g) 1)))
+they are; then the form's :cine (both fighters idle after it). FORM: the target (DANGAI's 隨時卍解 card names it from a cup
+without one, and keeps his Konpaku: ken-meter.lisp KEN-CARD-BANKAI, DUEL_ROGUE §4.3)."
+  (let* ((g (gauges e)) (o (opp-of e)) (keep (rmod e :any-bankai nil))   ; (DANGAI's 隨時卍解: his Konpaku kept)
+         (lost (if keep 0 (- (gauges-konpaku g) 1))))
     (repel! e)                                          ; the second awakening breaks his attack too
     (start-awake-regen! g)
-    (set-form e (kit-bankai-form (kit-of e)))
+    (set-form e form)
     (when (kit-pips (kit-of e))                         ; the arm meter, full (a form without :pips has none)
       (setf (gauges-meter g) (f32 (getf (kit-pips (kit-of e)) :n)) (gauges-meter-idle g) 0 (gauges-arm-pending g) nil
             (gauges-arm-owed g) nil))
-    (setf (gauges-konpaku g) 1 (gauges-reishi g) (gauges-reishi-max g))
+    (setf (gauges-konpaku g) (if keep (gauges-konpaku g) 1) (gauges-reishi g) (gauges-reishi-max g))
     (refresh-look e)
     (when (plusp lost) (emit :konpaku e lost))
     (emit :bankai e)
@@ -767,9 +769,11 @@ they are; then the form's :cine (both fighters idle after it)."
   "A pip command starts MV (or a J / K string's pip is charged as it ends: MV the move running then, NIL none): one pip of
 the arm spent, the crack clock restarted, *ARM-SELF* burnt
 (BURN: never below 1). The last one: the burst is pending until MV is over (ken-meter.lisp KEN-ARM-STEP). The DANGAI
-boss (*RUN-BOSS*) never spends one (DUEL_ROGUE §5: ken-meter.lisp KEN-BOSS)."
+boss (*RUN-BOSS*) never spends one (DUEL_ROGUE §5: ken-meter.lisp KEN-BOSS), nor P1 holding the 無手臂限制 card (§4.3)."
   (let ((g (gauges e)))
-    (when (eq e *run-boss*) (log-msg "duel boss kenpachi pip kept ~a" (if mv (mv-name mv) "")) (return-from arm-spend! nil))
+    (when (or (eq e *run-boss*) (rmod e :no-arm nil))   ; (the boss, DANGAI's 無手臂限制 card)
+      (log-msg "duel ~:[runmod no-arm~;boss kenpachi~] pip kept ~a" (eq e *run-boss*) (if mv (mv-name mv) ""))
+      (return-from arm-spend! nil))
     (multiple-value-bind (n ok) (pip-spend (round (gauges-meter g)))
       (when ok
         (setf (gauges-meter g) (f32 n) (gauges-meter-idle g) 0 (gauges-reishi g) (burn (gauges-reishi g) *arm-self*))

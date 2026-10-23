@@ -157,9 +157,23 @@ CAP (the run's :konpaku-cap) and *KONPAKU-MAX*."
     (23 :chigiri "KYOKEI" nil (:gg-max :x 0.60 :cost) (:dmg :x 1.15) (:reiatsu-regen :x 1.30))   ; 狂契
     (24 :chigiri "JIKEI" nil (:timer :min 150 :cost) (:clear-konpaku :clear 3 :count))          ; 時契 timer 150 s; a clear +3
     (25 :chigiri "SUTEMI" nil (:reishi-max :x 0.80 :cost) (:kikon-plus :+ 1 :count) (:sb-plus :+ 1 :count))   ; 捨身
-    (26 :chigiri "TOKEI" nil (:clear-konpaku :clear 0 :cost) (:extra-pick :+ 1 :count)))        ; 賭契 no Konpaku; +1 pick
-  "The 26 generic rewards (DUEL_ROGUE §4.2's table, ids = its #), COMMON values = §4.4's. Names are romanized (the HUD
-font is Latin); the kanji are in the comments and the doc.")
+    (26 :chigiri "TOKEI" nil (:clear-konpaku :clear 0 :cost) (:extra-pick :+ 1 :count))         ; 賭契 no Konpaku; +1 pick
+    ;; 解 KAI (batch 4, §4.3): one character's own cards (*ROGUE-KAI*: whose, its twin), no tiers (every value :count)
+    (101 :kai "ZUIJI BANKAI" nil (:any-bankai :flag t))                      ; 劍八 隨時卍解: the Bankai from any cup
+    (102 :kai "UDE MUSEIGEN" nil (:no-arm :flag t))                          ; 劍八 無手臂限制: no UDE pip spent
+    (103 :kai "SENTAN KYOKA" nil (:hs-tip-dmg :x 3.42 :count) (:hs-flat-dmg :x 0.1 :count))   ; 檜佐木 尖端強化
+    (104 :kai "SENTAN HEIKIN" nil (:hs-tip-dmg :x 1.355 :count) (:hs-flat-dmg :x 1.355 :count)  ; 檜佐木 尖端平均
+     (:hs-tip-sp :x 1.15 :count) (:hs-flat-sp :x 1.15 :count)))
+  "The 26 generic rewards (DUEL_ROGUE §4.2's table, ids = its #), COMMON values = §4.4's, then the 解 cards (101 on, one
+character's each: *ROGUE-KAI*). Names are romanized (the HUD font is Latin); the kanji are in the comments and the doc.")
+
+(defparameter *rogue-kai*
+  '((101 :kenpachi 102) (102 :kenpachi 101) (103 :hisagi 104) (104 :hisagi 103))
+  "The 解 cards' owners and twins (DUEL_ROGUE §4.3, the user 2026-10-22: 「將其設成孿生卡，另一個效果還是會再度出現，但是只能二擇一」):
+(id character twin). A card is offered only in a run of its character; while one twin is held the other still appears,
+as :twin, and taking it swaps them. The settled pairs (Kenpachi's, Hisagi's); the other characters' wait for the user.")
+(defun rogue-kai-char (id) "The character whose 解 card ID is, or NIL (a generic reward)." (second (assoc id *rogue-kai*)))
+(defun rogue-twin (id) "ID's twin card, or NIL." (third (assoc id *rogue-kai*)))
 
 (defparameter *rogue-traits*
   ;; (id name (needs...) mods...): on while every reward it needs is held, no tier, no slot (§4.1, §4.2)
@@ -232,17 +246,20 @@ order). Only keys some reward sets appear; NIL when nothing is held."
     (loop for tr in *rogue-traits*
           when (and (not (member (first tr) on)) (member id (third tr)) (subsetp (third tr) ids)) return (first tr))))
 
-(defun rogue-offer (seed step salt held rare)
+(defun rogue-offer (seed step salt held rare &optional char)
   "An offer of up to 3 cards after STEP of run SEED (SALT: the pick's index, 賭契's extra pick 1), from the run's own
 LCG: plists (:id :tier :kind :trait). :kind :new (a free slot), :replace (its category full: taking it drops one held
 of the category), :upgrade (RARE offers only: a held tierable reward below LEGEND comes back one tier up; a held one is
-never offered otherwise). Never the same reward twice; RARE+ only rewards (斷魂, 殘心, 魄鎧) only when RARE; a RARE
-offer's new cards are RARE (tier 1), a GENERIC offer's COMMON."
+never offered otherwise), :twin (a 解 card whose twin is held: taking it swaps them). Never the same reward twice; RARE+
+only rewards (斷魂, 殘心, 魄鎧) only when RARE; 解 cards only of CHAR (P1's character; NIL: none); a RARE offer's new
+cards are RARE (tier 1), a GENERIC offer's COMMON."
   (let* ((tier (if rare 1 0))
-         (cands (loop for r in *rogue-rewards* for id = (first r) for h = (assoc id held)
-                      for c = (cond (h (when (and rare (rogue-tierable-p id) (< (cdr h) 2))
+         (cands (loop for r in *rogue-rewards* for id = (first r) for h = (assoc id held) for kc = (rogue-kai-char id)
+                      for c = (cond ((and kc (not (eq kc char))) nil)
+                                    (h (when (and rare (rogue-tierable-p id) (< (cdr h) 2))
                                          (list :id id :tier (1+ (cdr h)) :kind :upgrade :trait nil)))
                                     ((and (rogue-rare-only-p id) (not rare)) nil)
+                                    ((and kc (assoc (rogue-twin id) held)) (list :id id :tier 0 :kind :twin :trait nil))
                                     (t (list :id id :tier tier
                                              :kind (if (rogue-cat-full-p held (second r)) :replace :new)
                                              :trait (rogue-completes held id))))
@@ -254,9 +271,11 @@ offer's new cards are RARE (tier 1), a GENERIC offer's COMMON."
 
 (defun rogue-take-card (held card &optional drop)
   "HELD after taking CARD (ROGUE-OFFER's plist): :upgrade raises its reward a tier (LEGEND the top); :new adds it;
-:replace drops DROP (a held reward id of the same category, back into the pool) and adds it. HELD is never changed."
+:replace drops DROP (a held reward id of the same category, back into the pool) and adds it; :twin drops its held twin
+(back into the pool) and adds it. HELD is never changed."
   (let ((id (getf card :id)) (tier (getf card :tier)))
     (ecase (getf card :kind)
+      (:twin (append (remove (rogue-twin id) held :key #'car) (list (cons id tier))))
       (:upgrade (mapcar (lambda (h) (if (eql (car h) id) (cons id (min 2 tier)) h)) held))
       (:new (append held (list (cons id tier))))
       (:replace (assert (and drop (eq (rogue-reward-cat drop) (rogue-reward-cat id)) (assoc drop held)))
