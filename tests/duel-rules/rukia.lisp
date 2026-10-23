@@ -219,6 +219,9 @@
               (null (clone-evict '(5 9))) (= 1 (clone-evict '(7 3 9)))
               (clone-vanish-p :hit) (clone-vanish-p :counter) (clone-vanish-p :guard-break)
               (not (clone-vanish-p :blocked)) (not (clone-vanish-p :parried)) (not (clone-vanish-p nil))))
+  ;; the DANGAI boss (DUEL_ROGUE §5): only *RUN-BOSS*'s clones are free; the :boss hook is the base kit's
+  (check (and (let ((*run-boss* nil)) (not (clone-free-p :x))) (let ((*run-boss* :x)) (and (clone-free-p :x) (not (clone-free-p :y))))
+              (eq 'ichigo-boss (kit-hook (kit :ichigo :base) :boss))))
   ;; the parry: its own window f2-25 (24 f; the move's :window), 360 deg, 10 of the gauge, R 18; GOKUI GAESHI's shared
   ;; window is the same f2-25 since 2026-10-01; a catch staggers 40 f, and ZANGETSU-GAESHI (the :land string) is +15: his J1 combos
   (check (and (member :parry (mv-flags parry)) (equal '(2 25) win) (= 2 (mv-s parry)) (= 24 (mv-a parry)) (= 44 (mv-total parry))

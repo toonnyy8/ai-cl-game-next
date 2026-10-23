@@ -187,3 +187,11 @@
 (check (every (lambda (f) (eq 'senju-siphon (kit-hook (kit :senjumaru f) :siphon))) '(:base :tsuji1 :tsuji6)))
 (check (every (lambda (cf) (or (eq (first cf) :senjumaru) (null (kit-hook (apply #'kit cf) :siphon)))) *forms*))
 
+;; the DANGAI boss (DUEL_ROGUE §5): her loom always full (3 passes) after a cast or a void, 0 for anyone else; HITOKOSHI is
+;; no move for her (a full hank); the :boss hook on every form (inherited from :base)
+(check (and (= 3 (weave-stored (senju-full-woven))) (= 3 (release-passes (senju-full-woven)))
+            (= (senju-full-woven) (quick-weave (senju-full-woven))) (= (senju-full-woven) (weave-add (senju-full-woven) 30))
+            (let ((*run-boss* nil)) (zerop (senju-woven-after :x)))
+            (let ((*run-boss* :x)) (and (= (senju-full-woven) (senju-woven-after :x)) (zerop (senju-woven-after :y))))
+            (senju-boss-l-idle-p :x (find-move :sj-hitokoshi))
+            (every (lambda (f) (eq 'senju-boss (kit-hook (kit :senjumaru f) :boss))) '(:base :tsuji1 :tsuji3 :tsuji6))))
