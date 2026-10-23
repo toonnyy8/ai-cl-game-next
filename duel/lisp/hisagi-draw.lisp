@@ -183,17 +183,18 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
   "1 while P2's Hisagi is drawn (HISAGI-DRAW): %HS-BLACK-KITE draws the original ink link instead (the toon INK palette:
 its white edge), so a mirror's two sets of chains read apart. The user, 2026-10-18: 「始解的鎖鏈也同樣改成黑色，而 P2 的鎖鏈則
 改成原本的白色」.")
-(defmacro %hs-black-kite (x y z ux uy uz len w)
+(defmacro %hs-black-kite (x y z ux uy uz len w &optional (push 0.1f0))
   "A solid black camera-facing kite centred at (X Y Z) along the unit (UX UY UZ), LEN long (0.6 ahead), half-width W,
-pushed 0.1 m toward the eye (FX-SHARD's shape without its palette): the alpha batch at uv 0 is opaque, unshaded. While
-*HS-CHAIN-INK* is 1 (P2) the original ink link instead (FX-SHARD, +PAL-INK+, W / 0.7: the width the black ones lost). 0 B."
+pushed PUSH (0.1) m toward the eye (FX-SHARD's shape without its palette): the alpha batch at uv 0 is opaque, unshaded.
+While *HS-CHAIN-INK* is 1 (P2) the original ink link instead (FX-SHARD, +PAL-INK+, W / 0.7: the width the black ones
+lost). 0 B."
   `(let* ((%x0 ,x) (%y0 ,y) (%z0 ,z) (%ux ,ux) (%uy ,uy) (%uz ,uz) (%len ,len) (%w0 ,w))
      (declare (single-float %x0 %y0 %z0 %ux %uy %uz %len %w0))
      (if (= *hs-chain-ink* 1)
          (fx-shard %x0 %y0 %z0 %ux %uy %uz %len (* 1.43f0 %w0) 0.03f0 (+ 700f0 (* 100f0 %w0)) +pal-ink+ 0.9f0)
          (let* ((%e (camera-eye *camera*)) (%x %x0) (%y %y0) (%z %z0)
                 (%dx (- (aref %e 0) %x)) (%dy (- (aref %e 1) %y)) (%dz (- (aref %e 2) %z))
-                (%d (f-max 1f-3 (f-hypot %dx %dy %dz))) (%p (f-min 0.1f0 (* 0.5f0 %d))) (%sc (/ (- %d %p) %d))
+                (%d (f-max 1f-3 (f-hypot %dx %dy %dz))) (%p (f-min ,push (* 0.5f0 %d))) (%sc (/ (- %d %p) %d))
                 (%x (+ %x (* %p (/ %dx %d)))) (%y (+ %y (* %p (/ %dy %d)))) (%z (+ %z (* %p (/ %dz %d))))
                 (%sx (- (* %uy %dz) (* %uz %dy))) (%sy (- (* %uz %dx) (* %ux %dz))) (%sz (- (* %ux %dy) (* %uy %dx)))
                 (%w (/ (* %w0 %sc) (f-max 1f-5 (f-hypot %sx %sy %sz)))) (%f (* 0.6f0 %len %sc)) (%b (* 0.4f0 %len %sc)))
@@ -740,6 +741,14 @@ POS along FA[0] his facing), [3] the bend, [4] the lash weight (0 at rest .. 1 o
             (aref out 3) bd (aref out 4) lw (aref out 5) r (aref out 6) az)))
   nil)
 
+(defparameter *hs-flow-period* 0.7
+  "Seconds the K tip's flow takes down a hanging chain (§25.27, the user, 2026-10-23: 「幫我將 K 添加白色流光流過鎖鏈作為提示
+（p2 則是黑色流光）」; the lead's number).")
+(declaim (type f32vec *hs-tg* *hs-gl*))
+(defvar *hs-tg* (make-f32 1)
+  "The chain-tip glint this draw (DUEL_HISAGI §25.26; HISAGI-DRAW sets it): 0 none, 1 the opponent on K1's tip (the eight
+hanging chains' free ends glint), 2 on J1's (the right crescent glints).")
+(defvar *hs-gl* (make-f32 3) "The right crescent's blades (world), the J tip glint's place.")
 (defun-fast %hs-curve! (cz o tp e e2 pos)
   "CZ[O..O+11] := a chain's cubic from TP (its top under the orb) to E (its free end, as *HS-LT*: [3] the bend, [4] the
 lash weight): at rest a straight line; lashing (weight 1) down from the orb past a knee near him (0.3 of the way out, 0.9 m
@@ -769,7 +778,9 @@ earlier: the lag, at most 1.8 m), no point under the floor; CZ[O+12] := the lash
 (defun-fast %hs-cubic-chain (cz o j)
   "Draw hanging chain J's cubic CZ[O..] (%HS-CURVE!) link by link in black (%HS-BLACK-KITE), tapered toward its free end
 by its lash weight, its width x CZ[O+13]; with the bundle weight *HS-CAR* [7] it is drawn that far onto the bundle's
-cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out under the orb). 0 B."
+cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out under the orb). On K1's tip (*HS-TG* 1,
+§25.27) a resting chain carries the flow: a streak of light running down it from 0.35 of its length to its end every
+*HS-FLOW-PERIOD* s (each chain its own phase), white on P1's black links, solid black on P2's ink ones (x1.5 wide: the ink links are lighter and wider). 0 B."
   (declare (type f32vec cz) (fixnum o j))
   (let* ((bw (aref *hs-car* 7)) (ob 112) (cw (- 1f0 bw))
          (len (+ (* cw (+ (f-hypot (- (aref cz (+ o 3)) (aref cz o)) (- (aref cz (+ o 4)) (aref cz (+ o 1))) (- (aref cz (+ o 5)) (aref cz (+ o 2))))
@@ -779,8 +790,10 @@ cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out 
                           (f-hypot (- (aref cz (+ ob 6)) (aref cz (+ ob 3))) (- (aref cz (+ ob 7)) (aref cz (+ ob 4))) (- (aref cz (+ ob 8)) (aref cz (+ ob 5))))
                           (f-hypot (- (aref cz (+ ob 9)) (aref cz (+ ob 6))) (- (aref cz (+ ob 10)) (aref cz (+ ob 7))) (- (aref cz (+ ob 11)) (aref cz (+ ob 8))))))))
          (n (min 120 (max 2 (f->i (/ len 0.12f0)))))
-         (tp (+ (* cw (aref cz (+ o 12))) (* bw (aref cz (+ ob 12))))) (wx (aref cz (+ o 13))) (jp (* 0.7853982f0 (i->f j))))
-    (declare (single-float bw cw len tp wx jp) (fixnum ob n))
+         (tp (+ (* cw (aref cz (+ o 12))) (* bw (aref cz (+ ob 12))))) (wx (aref cz (+ o 13))) (jp (* 0.7853982f0 (i->f j)))
+         (flow (and (= (aref *hs-tg* 0) 1f0) (< tp 0.01f0) (< bw 0.01f0)))
+         (pu (+ 0.35f0 (* 0.65f0 (f-mod (+ (/ (fx-clock) (the single-float *hs-flow-period*)) (* 0.37f0 (i->f j))) 1f0)))))
+    (declare (single-float bw cw len tp wx jp pu) (fixnum ob n))
     (dotimes (i n)
       (let* ((u (/ (+ 0.5f0 (i->f i)) (i->f n))) (v (- 1f0 u))
              (a (* v v v)) (b (* 3f0 v v u)) (c (* 3f0 v u u)) (d (* u u u))
@@ -807,7 +820,19 @@ cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out 
             (let ((tl (f-max 1f-4 (f-hypot tx ty tz))))
               (declare (single-float tl))
               (%hs-black-kite px (f-max 0.03f0 py) pz (/ tx tl) (/ ty tl) (/ tz tl) 0.13f0
-                              (* (if (evenp i) 0.028f0 0.013f0) wx (- 1f0 (* 0.55f0 tp u))))))))))
+                              (* (if (evenp i) 0.028f0 0.013f0) wx (- 1f0 (* 0.55f0 tp u))))
+              (when flow                                                   ; (§25.27: the flow, K1's tip)
+                (let ((dd (f-abs (- u pu))))
+                  (declare (single-float dd))
+                  (when (< dd 0.07f0)
+                    (let ((fw (* 0.045f0 (- 1f0 (/ dd 0.07f0)))))
+                      (declare (single-float fw))
+                      (if (= *hs-chain-ink* 1)
+                          (progn (setf *hs-chain-ink* 0)
+                                 (%hs-black-kite px (f-max 0.03f0 py) pz (/ tx tl) (/ ty tl) (/ tz tl) 0.18f0 (* 1.5f0 fw) 0.14f0)
+                                 (setf *hs-chain-ink* 1))
+                          (fx-shard px (f-max 0.03f0 py) pz (/ tx tl) (/ ty tl) (/ tz tl) 0.16f0 fw 0.02f0 (+ jp u)
+                                    +pal-hit+ 0.95f0 :push 0.14f0))))))))))))
   nil)
 
 (defun-fast %hs-trail (kv rank j pos fa)
@@ -834,11 +859,6 @@ bundle's twice as wide). 0 B."
                  (setf (aref q 0) (aref e2 0) (aref q 1) (aref e2 1) (aref q 2) (aref e2 2))))))
   nil)
 
-(declaim (type f32vec *hs-tg* *hs-gl*))
-(defvar *hs-tg* (make-f32 1)
-  "The chain-tip glint this draw (DUEL_HISAGI §25.26; HISAGI-DRAW sets it): 0 none, 1 the opponent on K1's tip (the eight
-hanging chains' free ends glint), 2 on J1's (the right crescent glints).")
-(defvar *hs-gl* (make-f32 3) "The right crescent's blades (world), the J tip glint's place.")
 (defun-fast %hs-glint (p j)
   "A chain-tip glint at P (an f32vec, world): a small 4-point white star twinkling on the drawings, glint J's (0-8) own phase
 and spikes (8, the crescent's, twice as large: it sits on black steel) (§25.26: the opponent stands on that strike's chain tip; HS-R-TIP-CMD). 0 B."

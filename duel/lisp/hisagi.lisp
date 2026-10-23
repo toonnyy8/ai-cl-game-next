@@ -1331,7 +1331,8 @@ drained end at this step's hits); 15 the Bankai mirror, both CPUs awakened, 6 m 
 3.5 m from him (the spread route off J1: J J J / J J K / J K K); 18 the ranged mode 4 m from a CPU Rukia, P1's CPU on (a
 fresh CPU battle); §25.20: 20 / 21 P1 the button-masher with ASSIST ALWAYS + COMBO + BREAK vs a CPU, 6 m: the Shikai vs
 Lille, the Bankai's ranged mode vs Kenpachi; §25.26: 22 / 23 the ranged mode 4.75 / 5.75 m from an idle Kenpachi (on K1's / J1's
-tip: the glint); any other k the probe line only."
+tip: the glint); §25.27: 24 the Bankai mirror 4.75 m apart, both CPUs off (P1's white flow, P2's black); any other k
+the probe line only."
   (flet ((setup (c2 dist &key cpu)
            (ensure-battle :hisagi c2 :cpu cpu)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) (not cpu)))
@@ -1364,6 +1365,7 @@ tip: the glint); any other k the probe line only."
       (17 (setup :kenpachi 3.5) (hs-awaken-now! *p1*))
       (18 (setup :rukia 4.0 :cpu t) (hs-awaken-now! *p1*))   ; (Rukia: no other scene starts that battle, so a fresh CPU one)
       ((22 23) (setup :kenpachi (if (= k 22) 4.75 5.75)) (hs-awaken-now! *p1*))   ; §25.26: on K1's / J1's tip (the glint)
+      (24 (setup :hisagi 4.75) (hs-awaken-now! *p1*) (hs-awaken-now! *p2*))         ; §25.27: the mirror on K1's tip (both flows)
       ;; §25.20: P1 the ASSIST gate's button-masher (habit :dumb, an EASY CPU's eyes) with ASSIST ALWAYS + COMBO + BREAK
       ;; against a CPU: 20 the Shikai vs Lille 6 m (her shots: AUTO GUARD's windmill; J mashed: the route plans), 21 the
       ;; Bankai's ranged mode vs Kenpachi 6 m (the tip opener, the routes, the noose and the bind's cinching route)

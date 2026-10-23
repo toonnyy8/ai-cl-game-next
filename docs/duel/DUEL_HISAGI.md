@@ -3521,3 +3521,15 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
   (before -> after): HY 110.3 -> 108.5 s, HK 110.7 -> 110.7, HR 145.5 -> 145.5, HI 152.6 -> 153.0, HS 160.9 -> 159.8, HB
   unchanged, the mirror 185.2 -> 169.4. HY and HK sat under 125 s before this change too; the awaken A/B not run (his recent
   changes went in without it, 「不用跑 gate」).
+
+### 25.27 The K tip's flow down the hanging chains (the user, 2026-10-23)
+
+- The user (verbatim): 「幫我將 K 添加白色流光流過鎖鏈作為提示（p2 則是黑色流光）」.
+- **Change** (a look, hisagi-draw.lisp %HS-CUBIC-CHAIN): while the opponent stands on K1's tip (`*hs-tg*` 1, §25.26's
+  band), each resting hanging chain (no lash, not bundled) carries a streak of light running down it from 0.35 of its
+  length (below the frame's top) to its free end every `*hs-flow-period*` 0.7 s (each chain 0.37 of a period apart; the
+  streak 0.14 of the chain long, widest at its middle, 0.045 m half-width): white (FX-SHARD, +PAL-HIT+) on P1's black links,
+  solid black (%HS-BLACK-KITE, now with an optional push, x1.5 wide) on P2's ink links. It adds to §25.26's end glints; J's
+  glint on the crescent unchanged. 0 B a frame (83901 at 4.75 m: 0 on the repeat call).
+- **Debug** 83024: the Bankai mirror 4.75 m apart, both CPUs off (both on K1's tip: both flows).
+- Built 0 warnings, the browser shots checked (83022, 83024), no exception; nothing the sim reads changed (no gate run).
