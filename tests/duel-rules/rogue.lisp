@@ -168,7 +168,7 @@
 (check (equal (rogue-merge-x nil '(:reiatsu-regen 2.0)) '(:reiatsu-regen 2.0)))
 (check (null (rogue-merge-x nil nil)))
 ;; batch 4 (skeleton): 解 cards only in their character's run; a held twin makes the other a :twin card, which swaps them
-(check (loop for seed from 1 to 200 never (some (lambda (c) (rogue-kai-char (getf c :id))) (rogue-offer seed 4 0 nil nil :rukia))))
+(check (loop for seed from 1 to 200 never (some (lambda (c) (member (rogue-kai-char (getf c :id)) '(:kenpachi :hisagi))) (rogue-offer seed 4 0 nil nil :rukia))))
 (check (loop for seed from 1 to 200 never (some (lambda (c) (rogue-kai-char (getf c :id))) (rogue-offer seed 4 0 nil nil))))
 (check (loop for seed from 1 to 200 thereis (some (lambda (c) (eq (rogue-kai-char (getf c :id)) :kenpachi)) (rogue-offer seed 4 0 nil nil :kenpachi))))
 (check (loop for seed from 1 to 200 never (some (lambda (c) (eq (rogue-kai-char (getf c :id)) :hisagi)) (rogue-offer seed 4 0 nil nil :kenpachi))))
@@ -180,3 +180,34 @@
 (check (notany #'rogue-tierable-p '(101 102 103 104)))   ; no tiers, never an UPGRADE
 (check (let ((m (rogue-mods '((103 . 0))))) (and (= (getf m :hs-tip-dmg) 3.42) (= (getf m :hs-flat-dmg) 0.1) (= 4 (length m)))))
 (check (let ((m (rogue-mods '((104 . 1))))) (and (= (getf m :hs-tip-dmg) (getf m :hs-flat-dmg) 1.355) (= (getf m :hs-tip-sp) (getf m :hs-flat-sp) 1.15))))
+;; batch 4: the 解 move cards (*ROGUE-KAI-EDITS*): every named move is in some kit of its character, the copies carry the
+;; edit, the stock moves and kits never change, forms that shared a move share its copy, nothing held = no copies
+(check (loop for (id . eds) in *rogue-kai-edits*
+             always (loop for ed in eds
+                          always (loop for n in (getf ed :moves)
+                                       always (some (lambda (fk) (gethash n (kit-moves (cdr fk)))) (gethash (rogue-kai-char id) *kits*))))))
+(check (null (rogue-run-kits :yamamoto nil)))
+(check (null (rogue-run-kits :kenpachi '((101 . 0) (102 . 0)))))     ; the twins edit no move
+(let* ((stock (gethash :ya-tenchi (kit-moves (find-kit :yamamoto :bankai-east))))
+       (rk (rogue-run-kits :yamamoto '((112 . 0) (113 . 0))))
+       (k (cdr (assoc :bankai-east rk))) (mv (gethash :ya-tenchi (kit-moves k))))
+  (check (and (= (mv-armor-hits mv) 1) (= (mv-armor-hits stock) 0) (not (eq mv stock))))
+  (check (= (mv-cooldown (gethash :ya-e-kyokko (kit-moves k))) 40))
+  (check (= (mv-cooldown (gethash :ya-e-kyokko (kit-moves (find-kit :yamamoto :bankai-east)))) 100))
+  (check (not (eq k (find-kit :yamamoto :bankai-east))))
+  (let ((kw (cdr (assoc :bankai-west rk))))                            ; East and West share TENCHI: they share its copy
+    (check (or (null (gethash :ya-tenchi (kit-moves kw))) (eq (gethash :ya-tenchi (kit-moves kw)) mv)))))
+(let ((rk (rogue-run-kits :hisagi '((127 . 0) (129 . 0)))))
+  (check (= 2 (length (mv-hits (gethash :hs-kaza (kit-moves (cdr (assoc :base rk))))))))
+  (check (= 1 (length (mv-hits (find-move :hs-kaza)))))
+  (check (= 64 (hw-stun (svref (mv-hits (gethash :hs-r-sp1 (kit-moves (cdr (assoc :bankai rk))))) 0))))
+  (check (= 40 (hw-stun (svref (mv-hits (find-move :hs-r-sp1)) 0)))))
+(let ((rk (rogue-run-kits :barro '((126 . 0)))))
+  (check (= 5 (length (mv-hits (gethash :br-w-sanren (kit-moves (cdr (assoc :jilliel-kin rk))))))))
+  (check (= 3 (length (mv-hits (find-move :br-w-sanren))))))
+(let ((rk (rogue-run-kits :rukia '((118 . 0)))))
+  (check (equal (kit-cold (cdr (assoc :m18 rk))) '(:sig 0)))
+  (check (equal (kit-cold (find-kit :rukia :m18)) *ru-cold-m18*)))
+(check (every #'rogue-kai-note (loop for (id) in *rogue-kai-edits* collect id)))
+(check (notany #'rogue-tierable-p (loop for id from 111 to 129 collect id)))
+(check (= 2 (getf (rogue-mods '((125 . 0))) :br-armor-wings)))

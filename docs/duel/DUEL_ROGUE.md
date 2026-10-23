@@ -569,3 +569,37 @@ part builds what is settled: the 解 category's cards, the twin mechanic, and th
 - **Debug** 84570+i grants 解 card 101+i to the running run (from the next stage).
 - **Gates**: host 10018 -> 10029 ALL PASS (the old tests count the 26 generic rewards apart; sim.lisp's inert-hook check
   allows Kenpachi's card hook); pkgcheck 0; build 0 warnings; smoke 0; no-run simgate 815 lines cmp-identical; cvc 3/3.
+
+## Built: batch 4, the move cards (2026-10-23)
+
+- The user (verbatim): 「卡就先選你推薦的，等這段處理完我想跟你討論下戰鬥系統的調整（我想增加 J/K/O 等等普攻打空後的硬直，避免一直無腦連打進行壓制）」.
+  The lead's picks: the candidates of `docs/research/roguelike/kai-candidates-A/B.md` that are low risk and undo no
+  earlier decision of the user's; Rukia's 永久凍土 and Ichigo's 虛影 / 分身亂舞 stay out (they became twin drafts, which
+  wait for the user's redesign: §4.3).
+
+| Character | Cards (id, name) | Left out, why |
+|---|---|---|
+| Yamamoto | 111 疾不知火 HAYA SHIRANUI (SHIRANUI's full charge at 36 f), 112 天地一貫 TENCHI IKKAN (TENCHI's dash armour 1), 113 旭光連閃 KYOKKO RENSEN (KYOKKO cooldown 100 -> 40), 114 焦熱三獄 SHONETSU SANGOKU (3 pillar hits, cooldown 150 -> 90) | — |
+| Kenpachi | 115 流星不退 RYUSEI FUTAI (SPLIT THE METEOR armour 1), 116 空裂不止 KURETSU FUSHI (LEAP CLEAVE / MAPPUTATSU armour 1), and the twins 101 / 102 | #1 剣鬼構 (a strong guard breaker: the user's balance call), #4 鯨飲 (undoes the user's 2026-09-29 drain x2) |
+| Rukia | 117 月白瞬 GEPPAKU SHUN (TSUKISHIRO's pillar 10 f sooner, its tell with it), 118 霜柱無尽 SHIMOBASHIRA MUJIN (−18: L costs no cold), 119 白船不沈 SHIRAFUNE FUCHIN (SHIRAFUNE armour 1, all three bands) | #4 (her twin's basis) |
+| Ichigo | 120 鎧月落 GAIGETSU RAKU (TSUKI-OTOSHI armour 1), 121 天鎖縛 TENSA BAKU (KUSARI-BIKI bind 40 -> 60 f) | #2, #4 (his twins' basis) |
+| Senjumaru | 122 蛇目傘 JANOMEGASA (KASA 1 bar), 123 疾杼 HAYAHI (HITOKOSHI recovery 10 -> 4), 124 速裁 SOKUSAI (TACHINAOSHI 1–6 recovery 22 -> 10) | #1 針返 (reopens blocker B2's stitch loop) |
+| Lille | 125 翼鎧 YOKUGAI (wing armour 4 -> 2 wings, the owl 2 -> 1), 126 五連射 GORENSHA (SANREN 5 lines, active 22 -> 42) | #1 神速蓄 (8 knob sites), #4 疾風飛廉 (undoes R3's 「單發破綻大」) |
+| Hisagi | 127 二重風車 NIJU KAZAGURUMA (a second push at f36 while L is held), 128 剛鎖払 GOSA BARAI (SAHARAI armour 1 -> 2), 129 痺雷電 HI RAIDEN (TSUZURI RAIDEN bind 40 -> 64, both forms), and the twins 103 / 104 | #3 鉄絞縄 (softens KOJO's deliberate tell) |
+
+- **P1's kit copies** (rogue-rules.lisp `rogue-run-kits`, `*rogue-kai-edits*`): at each stage start, when a held card
+  edits a move or a kit, every kit of P1's character is copied with its own moves table and the edited moves swapped in
+  (`rogue-kai-edit-move`: armour hits, cost, cooldown, hold, recovery, active, params, every window's stun, added windows
+  copied from the last one, added frame hooks; frames shifted by a derived form's startup). One copy per move object, so
+  forms that shared a move still share it; a kit field (`:cold`) is set on its form's copy. `*run-kits*` (run-mods.lisp)
+  holds them; FIGHTER-FIND-KIT (SET-FORM, a :drop-to command) returns P1's copy, the stock kit for everyone else, so a
+  mirror opponent keeps the stock moves. Reach is never edited (drawn reach must equal hit reach).
+- **Knob card**: 翼鎧 is a run-mods key (BR-ARMOR-COST takes the fighter: `:br-armor-wings` / `:br-owl-armor-wings`).
+- **Gaps**: a hook that starts a move by its global name (FIND-MOVE) gets the stock move; none of the 19 cards' moves is
+  started that way as far as the lead read. SANREN's lines 4–5 fire on the last aim (its turn window is f14–32).
+- **Evidence**: host checks (every named move is in its character's kits; the copies carry the edits; the stock moves and
+  kits unchanged; East and West share TENCHI's copy); native sim: Hisagi's run with 127 + 129 held, P1's Shikai KAZAGURUMA
+  2 windows, his Bankai's TSUZURI RAIDEN stun 64; with no cards the stock kit.
+- **Debug** 84580+i grants card 111+i (i 0–18).
+- **Gates**: host 10029 -> 10048 ALL PASS; pkgcheck 0; build 0 warnings; smoke 0; no-run simgate 815 lines cmp-identical;
+  cvc 3/3.

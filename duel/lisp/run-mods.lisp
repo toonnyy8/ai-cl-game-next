@@ -21,6 +21,14 @@ through RMOD for every fighter but *RUN-MODS-WHO*; NIL outside a stage with such
   "The DANGAI boss (DUEL_ROGUE §5, batch 3): the opponent entity of a run's step 10, whose character file applies its
 `:boss` rule (its base kit's :boss hook at the stage start, then its own checks of (EQ E *RUN-BOSS*)); NIL otherwise.")
 
+(defvar *run-kits* nil
+  "P1's copies of his kits in a DANGAI stage whose 解 cards edit moves (rogue-rules.lisp ROGUE-RUN-KITS: (form . kit)), NIL
+otherwise; FIGHTER-FIND-KIT reads them for *RUN-MODS-WHO*.")
+(defun fighter-find-kit (e form)
+  "Fighter E's kit for FORM: P1's run copy (*RUN-KITS*) when he has one, else the stock FIND-KIT."
+  (or (and *run-kits* (eql e *run-mods-who*) (cdr (assoc form *run-kits*)))
+      (find-kit (fighter-character (fighter e)) form)))
+
 (defun rmod (e key default)
   "KEY of the run modifier table for fighter E: *RUN-MODS*' for *RUN-MODS-WHO*, *RUN-FOE-MODS*' for his opponent (a
 stage's conditions), else DEFAULT (no run: DEFAULT)."

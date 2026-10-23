@@ -279,13 +279,17 @@ ends; 「沒有消耗資源的話就不能有遠距離攻擊」)?"
   (destructuring-bind (a b) (if (br-awake-form-p form) *br-sp-tiers* *br-sp-tiers-base*)
     (cond ((>= n b) 2) ((>= n a) 1) (t 0))))
 (defun br-sp1-fs (tier) "The flash step SP1 of TIER gives back (*BR-SP1-FS*)." (nth tier *br-sp1-fs*))
-(defun br-armor-cost (form) "The wings his armour spends in FORM: the owl's *BR-OWL-ARMOR-WINGS*, else *BR-ARMOR-WINGS*."
-  (if (br-owl-form-p form) *br-owl-armor-wings* *br-armor-wings*))
-(defun br-armor-p (form kind phase wings)
+(defun br-armor-cost (form &optional e)
+  "The wings his armour spends in FORM: the owl's *BR-OWL-ARMOR-WINGS*, else *BR-ARMOR-WINGS* (fighter E given: DANGAI's
+翼鎧 card on P1, :br-owl-armor-wings / :br-armor-wings)."
+  (if (br-owl-form-p form)
+      (if e (rmod e :br-owl-armor-wings *br-owl-armor-wings*) *br-owl-armor-wings*)
+      (if e (rmod e :br-armor-wings *br-armor-wings*) *br-armor-wings*)))
+(defun br-armor-p (form kind phase wings &optional e)
   "Does a hit on him now meet the wing armour (decision R1: 「攻擊時如果被攻擊可以消耗四片翼使自己不會被打斷（不足時不觸發效果）」): an
 awakened FORM, his own attack (move KIND :quick :flash :sig :sp, PHASE :main: startup to recovery; not a Breaker or a
 Kikon rush) and WINGS >= its cost (BR-ARMOR-COST)? Fewer: never (「不足時不觸發」)."
-  (and (br-awake-form-p form) (member kind '(:quick :flash :sig :sp)) (eq phase :main) (>= wings (br-armor-cost form)) t))
+  (and (br-awake-form-p form) (member kind '(:quick :flash :sig :sp)) (eq phase :main) (>= wings (br-armor-cost form e)) t))
 (defun br-recall-tier (n) "The full volley's tier (0-4) for N wings (*BR-RECALL-TIERS*; 8: 4)." (or (second (assoc n *br-recall-tiers*)) 4))
 (defun br-recall-move (tier) "The volley string's move for TIER." (svref #(:br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4) tier))
 (defun br-recall-damage (tier)
@@ -991,7 +995,7 @@ the stance, KIN's plain Step (R12: 「只能像常態架槍一樣通過一次 st
 (defun barro-armor (e f mv)
   "His kit's :armor (fighter.lisp DEFENDER-STATE): the wing armour holds for this hit (BR-ARMOR-P: awakened, his own
 attack, the wings for it)."
-  (br-armor-p (fighter-form f) (mv-kind mv) (fighter-phase f) (brs-ammo (br e))))
+  (br-armor-p (fighter-form f) (mv-kind mv) (fighter-phase f) (brs-ammo (br e)) e))
 
 (defun barro-tick (e f g)
   "Per step (his kit's :tick): the burst owl (BR-OWL-SWITCH: a burst in a JILLIEL form turns him into the owl, its end back,
@@ -1138,7 +1142,7 @@ so every :armored is the wings'): its wings spent (BR-ARMOR-COST), the flash."
   (declare (ignore att hw mv hazard ranged))
   (when (eq res :armored)
     (let* ((st (br def)) (form (fighter-form (fighter def))))
-      (setf (brs-ammo st) (br-ammo-add (brs-ammo st) (- (br-armor-cost form)) form))
+      (setf (brs-ammo st) (br-ammo-add (brs-ammo st) (- (br-armor-cost form def)) form))
       (incf (brs-armored st))
       (pace def :armored)
       (emit :sfx :lb-crack def)

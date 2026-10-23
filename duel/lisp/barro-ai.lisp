@@ -354,7 +354,7 @@ re-entry into EN's K1 / J1 from 2.8 m was punished, v3.)"
 attack is on him (the guard), nor on a downed opponent. :SIG, :PRESSED or NIL."
   (when (and (not (member (snap-state s) '(:down :wakeup))) (not (br-ai-threat-p e s d))
              (< (sim-rnd01) (getf *br-ai-exit-p* (brain-difficulty b) 0.0)))
-    (let ((plan (br-ai-exit-plan d (brs-ammo st) (br-armor-cost (fighter-form f))
+    (let ((plan (br-ai-exit-plan d (brs-ammo st) (br-armor-cost (fighter-form f) e)
                                  (and (br-ai-facing-p e s) (br-ai-dash-level d)))))   ; (the dash where he faces: round 2 b1a0)
       (pace e (if plan (intern (format nil "AI-EXIT-~a" plan) :keyword) :ai-exit-none))
       (case plan

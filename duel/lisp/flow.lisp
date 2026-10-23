@@ -126,7 +126,7 @@ always behind when one-handed (the portrait camera; the setting is kept); VS PLA
   "Spawn the fighters for *MODE* / *PICKS*, seed the sim stream, play the intro."
   (setf *paused* nil *winner* nil *match-tick* 0 *timer* (* 60 *match-seconds*)
         *pending* nil *soul-breaks* nil           ; nothing of the last match may leak in
-        *timer-cut* 0 *run-mods* nil *run-mods-who* nil *run-foe-mods* nil *run-boss* nil)   ; (a DANGAI stage sets them again in ENDLESS-APPLY!)
+        *timer-cut* 0 *run-mods* nil *run-mods-who* nil *run-foe-mods* nil *run-boss* nil *run-kits* nil)   ; (a DANGAI stage sets them again in ENDLESS-APPLY!)
   (reset-slow-clock)
   (abort-cine)
   (clear-words)

@@ -37,7 +37,9 @@ on his Reishi, :timer); on the boss step *RUN-BOSS* and his character's :boss ho
          (conds (if d (getf d :conds) (rogue-door-conds *endless-seed* step 0))))
     (multiple-value-bind (cp1 cfoe cstage) (rogue-cond-mods conds)
       (let ((m (rogue-merge-x (rogue-run-mods) cp1)) (g1 (gauges *p1*)) (g2 (gauges *p2*)))
-        (setf *run-mods* m *run-mods-who* *p1* *run-foe-mods* cfoe *rogue-stage-conds* conds)
+        (setf *run-mods* m *run-mods-who* *p1* *run-foe-mods* cfoe *rogue-stage-conds* conds
+              *run-kits* (rogue-run-kits (fighter-character (fighter *p1*)) *rogue-held*))   ; batch 4: his 解 move cards
+        (when *run-kits* (setf (fighter-kit (fighter *p1*)) (fighter-find-kit *p1* (fighter-form (fighter *p1*)))))
         (flet ((scale-reishi (g x) (let ((rm (round (* (gauges-reishi-max g) x)))) (setf (gauges-reishi-max g) rm (gauges-reishi g) rm))))
           (let ((x (getf m :reishi-max))) (when x (scale-reishi g1 x)))
           (let ((x (getf m :both-reishi))) (when x (scale-reishi g1 x) (scale-reishi g2 x)))
@@ -64,7 +66,7 @@ between the two gauge blocks)."
           (hud-text l (floor w 2) (+ (* 0.13 h) (* 22 s)) (fit-scale l (* 1.5 s) (* 0.16 w)) *ember* :align :center)))))   ; (between the gauges)
 
 (defun rogue-end () "The run is over (ENDLESS-OVER): no rule point reads a run's mods any more."
-  (setf *run-mods* nil *run-mods-who* nil *run-foe-mods* nil *run-boss* nil))
+  (setf *run-mods* nil *run-mods-who* nil *run-foe-mods* nil *run-boss* nil *run-kits* nil))
 
 ;;; ---------------------------------------------------------------- the cards' text
 (defparameter *rogue-cat-names* '((:zan . "ZAN") (:mamori . "MAMORI") (:shun . "SHUN") (:rei . "REI") (:chigiri . "CHIGIRI") (:kai . "KAI")))
@@ -96,7 +98,9 @@ between the two gauge blocks)."
       (:value (format nil "~a ~d" label v))
       (:times (format nil "~a X~,2f" label v))
       (t label))))
-(defun rogue-effect (id tier) "Reward ID's effect line at TIER." (format nil "~{~a~^  ~}" (mapcar (lambda (m) (rogue-phrase (first m) (rogue-mod-value m tier))) (rogue-reward-mods id))))
+(defun rogue-effect (id tier) "Reward ID's effect line at TIER (a 解 move card: its note)."
+  (or (rogue-kai-note id)
+      (format nil "~{~a~^  ~}" (mapcar (lambda (m) (rogue-phrase (first m) (rogue-mod-value m tier))) (rogue-reward-mods id)))))
 (defun rogue-tier-tag (id tier) "TIER's name for a tierable ID, else NIL (魄鎧 and the pacts have no tiers)." (and (rogue-tierable-p id) (nth tier *rogue-tiers*)))
 (defun rogue-card-label (c)
   "A card's row: the name, the category, the tier, REPLACE / UPGRADE / TWIN (a 解 card whose twin is held: they swap)."
@@ -221,8 +225,9 @@ takes the selected one (the user, 2026-10-23: 「在關卡之間選擇獎勵的�
   "Debug 84500+K (DUEL_GAMEPLAY): 1-28 grant reward K to the running run (COMMON, RARE for a RARE+ only one) when it is
 not held and its category has a free slot; 50-52 the running stage's reward type GENERIC / KONPAKU / RARE; 60+c (batch
 3) a debug DANGAI run from the boss step against roster c (P1 Yamamoto, or Kenpachi against Yamamoto; seed 1, no record);
-70-73 (batch 4) grant 解 card 101-104."
-  (cond ((<= 70 k 73) (rogue-debug-grant (+ 31 k)))      ; batch 4: 84570+i grants 解 card 101+i
+70-73 (batch 4) grant 解 card 101-104, 80-98 card 111-129."
+  (cond ((<= 70 k 73) (rogue-debug-grant (+ 31 k)))      ; batch 4: 84570+i grants 解 card 101+i, 84580+i card 111+i
+        ((<= 80 k 98) (rogue-debug-grant (+ 31 k)))
         ((<= 60 k 67)
          (let ((c (nth (- k 60) *roster*)))
            (when (member c (playable-roster))

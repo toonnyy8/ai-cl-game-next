@@ -163,17 +163,109 @@ CAP (the run's :konpaku-cap) and *KONPAKU-MAX*."
     (102 :kai "UDE MUSEIGEN" nil (:no-arm :flag t))                          ; 劍八 無手臂限制: no UDE pip spent
     (103 :kai "SENTAN KYOKA" nil (:hs-tip-dmg :x 3.42 :count) (:hs-flat-dmg :x 0.1 :count))   ; 檜佐木 尖端強化
     (104 :kai "SENTAN HEIKIN" nil (:hs-tip-dmg :x 1.355 :count) (:hs-flat-dmg :x 1.355 :count)  ; 檜佐木 尖端平均
-     (:hs-tip-sp :x 1.15 :count) (:hs-flat-sp :x 1.15 :count)))
+     (:hs-tip-sp :x 1.15 :count) (:hs-flat-sp :x 1.15 :count))
+    ;; the move cards (the lead's picks of docs/research/roguelike/kai-candidates-A/B.md, the user 2026-10-23: 「卡就先選你推薦的」):
+    ;; no mods, their edits in *ROGUE-KAI-EDITS* (P1's kit copies, ROGUE-RUN-KITS)
+    (111 :kai "HAYA SHIRANUI" nil) (112 :kai "TENCHI IKKAN" nil) (113 :kai "KYOKKO RENSEN" nil) (114 :kai "SHONETSU SANGOKU" nil)
+    (115 :kai "RYUSEI FUTAI" nil) (116 :kai "KURETSU FUSHI" nil)
+    (117 :kai "GEPPAKU SHUN" nil) (118 :kai "SHIMOBASHIRA MUJIN" nil) (119 :kai "SHIRAFUNE FUCHIN" nil)
+    (120 :kai "GAIGETSU RAKU" nil) (121 :kai "TENSA BAKU" nil)
+    (122 :kai "JANOMEGASA" nil) (123 :kai "HAYAHI" nil) (124 :kai "SOKUSAI" nil)
+    (125 :kai "YOKUGAI" nil (:br-armor-wings :x 2 :count) (:br-owl-armor-wings :x 1 :count))   ; 翼鎧: the wing armour's cost
+    (126 :kai "GORENSHA" nil)
+    (127 :kai "NIJU KAZAGURUMA" nil) (128 :kai "GOSA BARAI" nil) (129 :kai "HI RAIDEN" nil))
   "The 26 generic rewards (DUEL_ROGUE §4.2's table, ids = its #), COMMON values = §4.4's, then the 解 cards (101 on, one
 character's each: *ROGUE-KAI*). Names are romanized (the HUD font is Latin); the kanji are in the comments and the doc.")
 
 (defparameter *rogue-kai*
-  '((101 :kenpachi 102) (102 :kenpachi 101) (103 :hisagi 104) (104 :hisagi 103))
+  '((101 :kenpachi 102) (102 :kenpachi 101) (103 :hisagi 104) (104 :hisagi 103)
+    (111 :yamamoto nil "SHIRANUI FULL CHARGE AT 36F") (112 :yamamoto nil "TENCHI KAIJIN DASH ARMOR 1 HIT")
+    (113 :yamamoto nil "KYOKKO COOLDOWN 100 -> 40F") (114 :yamamoto nil "SHONETSU 3 PILLAR HITS, COOLDOWN 90F")
+    (115 :kenpachi nil "SPLIT THE METEOR ARMOR 1 HIT") (116 :kenpachi nil "LEAP CLEAVE / MAPPUTATSU ARMOR 1 HIT")
+    (117 :rukia nil "TSUKISHIRO PILLAR 10F SOONER") (118 :rukia nil "-18: SHIMOBASHIRA COSTS NO COLD")
+    (119 :rukia nil "SHIRAFUNE ARMOR 1 HIT")
+    (120 :ichigo nil "TSUKI-OTOSHI ARMOR 1 HIT") (121 :ichigo nil "KUSARI-BIKI BIND 40 -> 60F")
+    (122 :senjumaru nil "KASA COSTS 1 BAR") (123 :senjumaru nil "HITOKOSHI RECOVERY 10 -> 4F")
+    (124 :senjumaru nil "TACHINAOSHI RECOVERY 22 -> 10F")
+    (125 :barro nil "WING ARMOR COSTS 2 WINGS (OWL 1)") (126 :barro nil "SANREN FIRES 5 LINES")
+    (127 :hisagi nil "KAZAGURUMA PUSHES AGAIN AT F36") (128 :hisagi nil "SAHARAI ARMOR 2 HITS")
+    (129 :hisagi nil "TSUZURI RAIDEN BIND 40 -> 64F"))
   "The 解 cards' owners and twins (DUEL_ROGUE §4.3, the user 2026-10-22: 「將其設成孿生卡，另一個效果還是會再度出現，但是只能二擇一」):
 (id character twin). A card is offered only in a run of its character; while one twin is held the other still appears,
 as :twin, and taking it swaps them. The settled pairs (Kenpachi's, Hisagi's); the other characters' wait for the user.")
 (defun rogue-kai-char (id) "The character whose 解 card ID is, or NIL (a generic reward)." (second (assoc id *rogue-kai*)))
 (defun rogue-twin (id) "ID's twin card, or NIL." (third (assoc id *rogue-kai*)))
+(defun rogue-kai-note (id) "A move card's effect line (its mods have none), or NIL." (fourth (assoc id *rogue-kai*)))
+
+(defparameter *rogue-kai-edits*
+  ;; id -> edits: (:moves (names) field value ...) edits those moves in every form holding them (each move object once:
+  ;; forms that share it keep sharing the copy); (:kit FORM :cold plist) edits that form's kit field. Fields: :armor-hits
+  ;; :cost :cooldown :hold :r :a :params (keys merged) :stun (every window) :add-hits ((from to) ...: copies of the last
+  ;; window) :on-frame (added; frames shifted by a derived form's startup, as the windows)
+  '((111 (:moves (:ya-shiranui) :hold (12 36)))
+    (112 (:moves (:ya-tenchi) :armor-hits 1))
+    (113 (:moves (:ya-e-kyokko) :cooldown 40))
+    (114 (:moves (:ya-w-shonetsu) :params (:hits 3) :cooldown 90))
+    (115 (:moves (:ke-meteor) :armor-hits 1))
+    (116 (:moves (:ke-kikon-n :ke-b-kikon) :armor-hits 1))
+    (117 (:moves (:ru-tsukishiro) :params (:delay 14 :tell (11 20))))
+    (118 (:kit :m18 :cold (:sig 0)))
+    (119 (:moves (:ru-shirafune :ru-shirafune-50 :ru-shirafune-0) :armor-hits 1))
+    (120 (:moves (:ic-tsuki-k) :armor-hits 1))
+    (121 (:moves (:ic-k-hiki) :stun 60))
+    (122 (:moves (:sj-kasa) :cost 1))
+    (123 (:moves (:sj-hitokoshi) :r 4))
+    (124 (:moves (:sj-tachinaoshi-1 :sj-tachinaoshi-2 :sj-tachinaoshi-3 :sj-tachinaoshi-4 :sj-tachinaoshi-5 :sj-tachinaoshi-6) :r 10))
+    (126 (:moves (:br-w-sanren) :a 42 :add-hits ((42 44) (52 54)) :on-frame ((42 br-line-shot) (52 br-line-shot))))
+    (127 (:moves (:hs-kaza) :add-hits ((36 39))))
+    (128 (:moves (:hs-r-l) :armor-hits 2))
+    (129 (:moves (:hs-r-sp1 :hs-raiden) :stun 64)))
+  "The 解 move cards' edits (DUEL_ROGUE §4.3: a move's own numbers on P1's copy of his kits, never its reach: drawn reach
+must equal hit reach; the candidates' notes in docs/research/roguelike/kai-candidates-A/B.md).")
+
+(defun rogue-kai-edit-move (mv ed)
+  "A copy of move MV with edit ED's fields (*ROGUE-KAI-EDITS*); MV is never changed."
+  (let ((m (copy-move mv)) (sh (- (mv-s mv) (mv-s (find-move (mv-name mv))))))   ; (a derived form's startup shift)
+    (loop for (k v) on ed by #'cddr
+          do (case k
+               (:armor-hits (setf (mv-armor-hits m) v))
+               (:cost (setf (mv-cost m) v))
+               (:cooldown (setf (mv-cooldown m) v))
+               (:hold (setf (mv-hold m) v))
+               (:r (setf (mv-r m) v))
+               (:a (setf (mv-a m) v))
+               (:params (let ((p (copy-list (mv-params m))))
+                          (loop for (pk pv) on v by #'cddr do (setf (getf p pk) pv))
+                          (setf (mv-params m) p)))
+               (:stun (setf (mv-hits m) (map 'simple-vector (lambda (w) (let ((c (copy-hitwin w))) (setf (hw-stun c) v) c)) (mv-hits m))))
+               (:add-hits (let ((last (svref (mv-hits m) (1- (length (mv-hits m))))))
+                            (setf (mv-hits m) (concatenate 'simple-vector (mv-hits m)
+                                                           (mapcar (lambda (ft) (let ((c (copy-hitwin last)))
+                                                                                  (setf (hw-from c) (+ sh (first ft)) (hw-to c) (+ sh (second ft)))
+                                                                                  c))
+                                                                   v)))))
+               (:on-frame (setf (mv-on-frame m) (append (mv-on-frame m) (mapcar (lambda (x) (list (+ sh (first x)) (second x))) v))))))
+    m))
+
+(defun rogue-run-kits (char held)
+  "P1's copies of CHAR's kits for a run holding HELD ((id . tier) each), as (form . kit), or NIL when no held card edits a
+move or a kit: each kit copied with its own moves table, the edited moves swapped in (one copy per move object, so the
+forms that shared it still share it), a kit field set on its form. The stock kits are never changed (a mirror opponent
+plays them)."
+  (let ((eds (loop for (id) in held append (cdr (assoc id *rogue-kai-edits*)))))
+    (when eds
+      (let ((memo (make-hash-table :test 'eq)))
+        (loop for (form . kit) in (gethash char *kits*)
+              collect (let ((k (copy-kit kit)) (h (make-hash-table :test 'eq)))
+                        (maphash (lambda (n mv) (setf (gethash n h) mv)) (kit-moves kit))
+                        (setf (kit-moves k) h)
+                        (dolist (ed eds)
+                          (if (getf ed :moves)
+                              (dolist (n (getf ed :moves))
+                                (let ((mv (gethash n h)))
+                                  (when mv (setf (gethash n h) (or (gethash mv memo) (setf (gethash mv memo) (rogue-kai-edit-move mv ed)))))))
+                              (when (eq (getf ed :kit) form) (setf (kit-cold k) (getf ed :cold)))))
+                        (cons form k)))))))
 
 (defparameter *rogue-traits*
   ;; (id name (needs...) mods...): on while every reward it needs is held, no tier, no slot (§4.1, §4.2)

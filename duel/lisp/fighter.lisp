@@ -408,7 +408,7 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
                        ((let ((h (kit-hook kit :p))) (and h (funcall h e free) t))))))
       (:burst (let ((m (burst-ok-p e))) (when m (setf (fighter-burst f) m) t)))   ; applied after both stepped
       (t (let* ((to (kit-drop kit cmd))
-                (kit (if to (find-kit (fighter-character f) to) kit))
+                (kit (if to (fighter-find-kit e to) kit))
                 (mv (if (and with (not to)) with (kit-command-move kit cmd e))))   ; (E: the kit's :command hook)
            (when (and (move-p mv) (kit-command-ok-p e cmd kit ender with))   ; (WITH: a chained L, inside a combo; a
                                                                              ;  :command hook's :hold: nothing, the press stays)

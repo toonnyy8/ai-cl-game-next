@@ -712,7 +712,7 @@ and spends no flash-step (the user 2026-09-30)."
 ;;; ---------------------------------------------------------------- forms, awakening
 (defun set-form (e form)
   "E's character changes to FORM: the old form's exit hook, the new kit, its timer, look and entry hook."
-  (let* ((f (fighter e)) (g (gauges e)) (old (fighter-kit f)) (new (find-kit (fighter-character f) form)))
+  (let* ((f (fighter e)) (g (gauges e)) (old (fighter-kit f)) (new (fighter-find-kit e form)))
     (when (and (kit-exit-hook old) (not (eq old new))) (funcall (kit-exit-hook old) e))
     (setf (fighter-kit f) new (fighter-form f) form (gauges-burn-step g) 0
           (gauges-form-left g) (if (kit-duration new) (seconds->frames (kit-duration new)) 0)
