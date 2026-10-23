@@ -602,6 +602,8 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2400) (setf *god* (not *god*)))
         ((<= 2600 c 2699) (setf *red-threshold* (/ (- c 2600) 100.0)))
         ((<= 80000 c 80999) (endless-debug (- c 80000) nil))    ; ENDLESS (endless.lisp)
+        ((<= 84501 c 84528) (rogue-debug (- c 84500)))         ; DANGAI: grant a reward (rogue.lisp)
+        ((<= 84550 c 84552) (rogue-debug (- c 84500)))         ; DANGAI: the running stage's reward type
         ((<= 84000 c 84999) (endless-debug (- c 84000) t))      ; DANGAI (rogue.lisp: an ENDLESS run)
         ((<= 81000 c 81011) (let ((k (- c 81000)))          ; ASSIST for the :dumb player (guard + 3 combo + 6 break)
                               (setf *assist-debug* (list (mod k 3) (oddp (floor k 3)) (>= k 6)))))

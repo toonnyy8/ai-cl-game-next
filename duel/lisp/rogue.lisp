@@ -1,8 +1,185 @@
 ;;;; rogue.lisp — DANGAI 斷界行 (docs/duel/DUEL_ROGUE.md), batch 1: the run is an ENDLESS run (endless.lisp: the carry,
 ;;;; STAGE CLEAR, RESULTS, the record) with *ROGUE* set; this file is the DOORS screen between steps (flow state :doors:
-;;;; ROGUE-DOORS' doors, a rest or the next fight). The rules are rogue-rules.lisp. Debug 84000-84999 (debug.lisp:
-;;;; ENDLESS-DEBUG with ROGUE). Log: "duel rogue door i step n kind [opponent]".
+;;;; ROGUE-DOORS' doors, a rest or the next fight). Batch 2 (the run layer): the held rewards (*ROGUE-HELD*), the REWARD
+;;;; screen (flow state :reward: 3 cards, REPLACE's drop menu, a KONPAKU door's notice, 賭契's extra pick, a rest's
+;;;; KONPAKU +3 / UPGRADE), and each stage start's *RUN-MODS* (run-mods.lisp) with the stage-start keys (DUEL_ROGUE §4.4).
+;;;; The rules are rogue-rules.lisp. Debug 84000-84999 (debug.lisp: ENDLESS-DEBUG with ROGUE; ROGUE-DEBUG 84501-84552).
+;;;; Log: "duel rogue door i step n kind [opponent]", "duel rogue reward step n pick id tier t [replace id]",
+;;;; "duel rogue mods (plist)" at each stage start.
 (in-package :duel)
+
+(defvar *rogue-held* nil "The run's held rewards, (id . tier) each in pick order (ROGUE-RESET at the run start).")
+(defvar *rogue-reward* nil "The reward type of the stage being played (the door's :reward; NIL: ROGUE-STEP-REWARD).")
+(defvar *rogue-sub* :cards "The REWARD screen's page: :cards :replace :notice :rest :upgrade.")
+(defvar *rogue-offer* nil "The REWARD screen's cards (ROGUE-OFFER's plists).")
+(defvar *rogue-rows* nil "The REWARD screen's row keys for its page (reward ids on :replace / :upgrade, then :back).")
+(defvar *rogue-card* nil "The REPLACE card waiting for its drop.")
+(defvar *rogue-pick* 0 "This clear's pick index (0; 賭契's extra picks 1 on).")
+(defvar *rogue-picks* 1 "This clear's picks (1 + :extra-pick).")
+(defvar *rogue-rare* nil "This clear's offers are RARE.")
+
+(defun rogue-reset () "A new run: nothing held, the first step's reward by its kind." (setf *rogue-held* nil *rogue-reward* nil))
+(defun rogue-run-mods () "The held rewards' modifier plist (ROGUE-MODS)." (rogue-mods *rogue-held*))
+
+;;; ---------------------------------------------------------------- the stage start (ENDLESS-APPLY!'s hook)
+(defun rogue-stage-start ()
+  "A DANGAI stage's spawn: *RUN-MODS* / *RUN-MODS-WHO* (P1) for every rule point, then the stage-start keys of §4.4:
+P1's :reishi-max, both sides' :both-reishi, P1's :gg-max (his gauge at spawn), :konpaku-cap over the carry / spawn,
+:timer on the stage timer (*TIMER-CUT* keeps MATCH-PLAY-TICKS the time played)."
+  (let ((m (rogue-run-mods)) (g1 (gauges *p1*)) (g2 (gauges *p2*)))
+    (setf *run-mods* m *run-mods-who* *p1*)
+    (flet ((scale-reishi (g x) (let ((rm (round (* (gauges-reishi-max g) x)))) (setf (gauges-reishi-max g) rm (gauges-reishi g) rm))))
+      (let ((x (getf m :reishi-max))) (when x (scale-reishi g1 x)))
+      (let ((x (getf m :both-reishi))) (when x (scale-reishi g1 x) (scale-reishi g2 x))))
+    (let ((x (getf m :gg-max))) (when x (setf (gauges-gg g1) (f32 (* *gg-max* x)))))
+    (setf (gauges-konpaku g1) (min (gauges-konpaku g1) (getf m :konpaku-cap *konpaku-max*)))
+    (let ((tm (getf m :timer)))
+      (when tm (let ((f (* 60 (min tm *match-seconds*)))) (setf *timer-cut* (- *timer* f) *timer* f))))
+    (log-msg "duel rogue mods ~(~s~)" m)))
+
+(defun rogue-end () "The run is over (ENDLESS-OVER): no rule point reads a run's mods any more." (setf *run-mods* nil *run-mods-who* nil))
+
+;;; ---------------------------------------------------------------- the cards' text
+(defparameter *rogue-cat-names* '((:zan . "ZAN") (:mamori . "MAMORI") (:shun . "SHUN") (:rei . "REI") (:chigiri . "CHIGIRI") (:kai . "KAI")))
+(defparameter *rogue-mod-labels*
+  '((:dmg "DAMAGE" :pct) (:ender-dmg "ENDERS" :pct) (:red-dmg "RED DAMAGE" :pct) (:post-burst-dmg "HIT AFTER HOHO" :pct)
+    (:sp-dmg "SP DAMAGE" :pct) (:guard-drain "GUARD DRAIN" :pct) (:kikon-plus "KIKON KONPAKU" :count)
+    (:sb-plus "SOUL BREAK KONPAKU" :count) (:kikon-past "KIKON KONPAKU PAST CAP" :count) (:kikon-guard "KIKON ALWAYS GUARDED" :flag)
+    (:revive "AT 0 KONPAKU ONCE A STAGE" :count) (:armor-on-soul-loss "ARMOR AFTER SOUL LOSS" :sec)
+    (:armor-on-awaken "ARMOR AFTER AWAKENING" :sec) (:chip-taken "CHIP TAKEN" :pct) (:breaker-taken "BREAKER TAKEN" :pct)
+    (:awake-taken "AWAKENED DAMAGE TAKEN" :pct) (:perfect-fs "PERFECT HOHO FLASH STEP" :frac) (:perfect-reiatsu "REIATSU" :bar)
+    (:regen "REISHI REGEN /S" :frac) (:fs-regen "FLASH STEP REGEN" :pct) (:hoho-cost "HOHO COST" :pct)
+    (:reiatsu-regen "REIATSU REGEN" :pct) (:gg-regen "GUARD REGEN" :pct) (:awaken-heal "AWAKENING HEAL" :frac)
+    (:reishi-max "REISHI MAX" :pct) (:gg-max "GUARD MAX" :pct) (:konpaku-cap "KONPAKU CAP" :value) (:timer "TIMER" :sec)
+    (:clear-konpaku "CLEAR KONPAKU" :count) (:extra-pick "PICKS A CLEAR" :count))
+  "A reward mod's words on its card: the label and how its value reads.")
+
+(defun rogue-num (x) "X with one decimal only when it has one." (if (< (abs (- x (round x))) 0.05) (format nil "~d" (round x)) (format nil "~,1f" x)))
+(defun rogue-phrase (key v)
+  "One mod at value V in words: DAMAGE +10%, KONPAKU CAP 7, ARMOR AFTER SOUL LOSS 3S, KIKON ALWAYS GUARDED."
+  (destructuring-bind (label how) (rest (assoc key *rogue-mod-labels*))
+    (case how
+      (:pct (format nil "~a ~:[~;+~]~a%" label (> v 1) (rogue-num (* 100 (- v 1)))))
+      (:frac (format nil "~a +~a%" label (rogue-num (* 100 v))))
+      (:bar (format nil "~a +~a BAR" label (rogue-num v)))
+      (:sec (format nil "~a ~aS" label (rogue-num v)))
+      (:count (format nil "~a +~d" label v))
+      (:value (format nil "~a ~d" label v))
+      (t label))))
+(defun rogue-effect (id tier) "Reward ID's effect line at TIER." (format nil "~{~a~^  ~}" (mapcar (lambda (m) (rogue-phrase (first m) (rogue-mod-value m tier))) (rogue-reward-mods id))))
+(defun rogue-tier-tag (id tier) "TIER's name for a tierable ID, else NIL (魄鎧 and the pacts have no tiers)." (and (rogue-tierable-p id) (nth tier *rogue-tiers*)))
+(defun rogue-card-label (c)
+  "A card's row: the name, the category, the tier, REPLACE / UPGRADE."
+  (let ((id (getf c :id)))
+    (format nil "~a  ~a~@[  ~a~]~@[  ~a~]" (rogue-reward-name id) (cdr (assoc (rogue-reward-cat id) *rogue-cat-names*))
+            (rogue-tier-tag id (getf c :tier)) (case (getf c :kind) (:replace "REPLACE") (:upgrade "UPGRADE")))))
+(defun rogue-card-note (c)
+  "A card's note: its effect at its tier, then the trait it completes (`+ SHISEN`)."
+  (format nil "~a~@[  + ~a~]" (rogue-effect (getf c :id) (getf c :tier))
+          (let ((tr (getf c :trait))) (and tr (second (assoc tr *rogue-traits*))))))
+(defun rogue-held-label (id) "A held reward's row: its name and tier." (let ((h (assoc id *rogue-held*))) (format nil "~a~@[  ~a~]" (rogue-reward-name id) (rogue-tier-tag id (cdr h)))))
+(defun rogue-build-line ()
+  "The held rewards in one line (the run's RESULTS): name and tier initial, then the traits on."
+  (format nil "~:[BUILD  -~;BUILD  ~:*~{~a~^  ~}~]~@[  + ~{~a~^ + ~}~]"
+          (loop for (id . tier) in *rogue-held* collect (format nil "~a~@[ ~a~]" (rogue-reward-name id) (let ((tg (rogue-tier-tag id tier))) (and tg (char tg 0)))))
+          (mapcar (lambda (tr) (second (assoc tr *rogue-traits*))) (rogue-traits-on *rogue-held*))))
+
+;;; ---------------------------------------------------------------- the REWARD screen
+(defun rogue-screen (sub title rows labels notes)
+  "Show REWARD page SUB: TITLE, the Konpaku / held line, ROWS (their LABELS, the selected one's NOTES above)."
+  (setf *rogue-sub* sub *rogue-rows* rows
+        *endless-lines* (vector title
+                                (format nil "KONPAKU  ~d   HELD  ~d / 9" (getf *endless-carry* :konpaku) (length *rogue-held*))
+                                labels notes))
+  (set-flow :reward))
+
+(defun rogue-cards-screen ()
+  "The REWARD page of *ROGUE-OFFER*: one row a card, its effect line the note."
+  (rogue-screen :cards (format nil "~:[REWARD~;RARE REWARD~]~:[~*~*~;  ~d / ~d~]" *rogue-rare* (> *rogue-picks* 1)
+                               (1+ *rogue-pick*) *rogue-picks*)
+                *rogue-offer* (mapcar #'rogue-card-label *rogue-offer*) (mapcar #'rogue-card-note *rogue-offer*)))
+
+(defun rogue-show-cards ()
+  "This clear's next pick: an offer of 3 (fewer if the pool is short; none: on to the doors)."
+  (setf *rogue-offer* (rogue-offer *endless-seed* *endless-stage* *rogue-pick* *rogue-held* *rogue-rare*))
+  (if *rogue-offer* (rogue-cards-screen) (rogue-open-doors)))
+
+(defun rogue-open-reward ()
+  "After STAGE CLEAR's CONTINUE / REVERT (the carry made): this stage's reward (its door's type), then the doors. KONPAKU:
++3 with a notice; GENERIC / RARE: 1 + :extra-pick offers (賭契's extra picks are the stage's tier, GENERIC after KONPAKU)."
+  (let ((type (or (shiftf *rogue-reward* nil) (rogue-step-reward *endless-stage*))))
+    (setf *rogue-pick* 0 *rogue-picks* (1+ (getf (rogue-run-mods) :extra-pick 0)) *rogue-rare* (eq type :rare))
+    (if (eq type :konpaku)
+        (let ((k (getf *endless-carry* :konpaku)))
+          (setf *endless-carry* (rogue-rest *endless-carry* (getf (rogue-run-mods) :konpaku-cap *konpaku-max*)))
+          (log-msg "duel rogue reward step ~d konpaku ~d->~d" *endless-stage* k (getf *endless-carry* :konpaku))
+          (setf *rogue-picks* (1- *rogue-picks*))
+          (rogue-screen :notice (format nil "KONPAKU +~d" *rogue-rest-konpaku*) '(:ok) '("CONTINUE")
+                        (list (format nil "KONPAKU  ~d -> ~d" k (getf *endless-carry* :konpaku)))))
+        (rogue-show-cards))))
+
+(defun rogue-picked (card &optional drop)
+  "CARD taken (DROP: the held reward REPLACE gives back): the held list, the log line, the next pick or the doors."
+  (setf *rogue-held* (rogue-take-card *rogue-held* card drop))
+  (log-msg "duel rogue reward step ~d pick ~d tier ~d~@[ replace ~d~]~@[ ~(~a~)~]" *endless-stage* (getf card :id) (getf card :tier)
+           drop (and (eq (getf card :kind) :upgrade) :upgrade))
+  (rogue-next-pick))
+
+(defun rogue-next-pick () "The clear's next pick, else the doors." (if (< (incf *rogue-pick*) *rogue-picks*) (rogue-show-cards) (rogue-open-doors)))
+
+(defun rogue-open-rest ()
+  "A rest door taken: KONPAKU +3 or UPGRADE (one held reward a tier up; offered while one can go up)."
+  (let ((up (rogue-upgradable *rogue-held*)))
+    (rogue-screen :rest "REST" (if up '(:konpaku :upgrade) '(:konpaku)) (list* (format nil "KONPAKU +~d" *rogue-rest-konpaku*) (and up '("UPGRADE")))
+                  (list* (format nil "KONPAKU  ~d -> ~d" (getf *endless-carry* :konpaku)
+                                 (getf (rogue-rest *endless-carry* (getf (rogue-run-mods) :konpaku-cap *konpaku-max*)) :konpaku))
+                         (and up (list "ONE HELD REWARD ONE TIER UP"))))))
+
+(defun rogue-row (i)
+  "REWARD row I chosen on the current page."
+  (let ((k (nth i *rogue-rows*)))
+    (ecase *rogue-sub*
+      (:cards (if (eq (getf k :kind) :replace)
+                  (let ((ids (rogue-held-ids (rogue-cat-held *rogue-held* (rogue-reward-cat (getf k :id))))))
+                    (setf *rogue-card* k)
+                    (rogue-screen :replace (format nil "REPLACE WITH ~a" (rogue-reward-name (getf k :id)))
+                                  (append ids '(:back)) (append (mapcar #'rogue-held-label ids) '("BACK"))
+                                  (append (mapcar (lambda (id) (format nil "DROP: ~a" (rogue-effect id (cdr (assoc id *rogue-held*))))) ids)
+                                          '("BACK TO THE CARDS"))))
+                  (rogue-picked k)))
+      (:replace (if (eq k :back) (rogue-cards-screen) (rogue-picked *rogue-card* k)))
+      (:notice (if (plusp *rogue-picks*) (rogue-show-cards) (rogue-open-doors)))
+      (:rest (if (eq k :konpaku)
+                 (let ((k0 (getf *endless-carry* :konpaku)))
+                   (setf *endless-carry* (rogue-rest *endless-carry* (getf (rogue-run-mods) :konpaku-cap *konpaku-max*)))
+                   (log-msg "duel rogue rest step ~d konpaku ~d->~d" *endless-stage* k0 (getf *endless-carry* :konpaku))
+                   (rogue-open-doors))
+                 (let ((ids (rogue-upgradable *rogue-held*)))
+                   (rogue-screen :upgrade "UPGRADE" (append ids '(:back)) (append (mapcar #'rogue-held-label ids) '("BACK"))
+                                 (append (mapcar (lambda (id) (let ((tr (cdr (assoc id *rogue-held*))))
+                                                                (format nil "~a -> ~a" (nth tr *rogue-tiers*) (rogue-effect id (1+ tr)))))
+                                                 ids)
+                                         '("BACK TO THE REST"))))))
+      (:upgrade (if (eq k :back)
+                    (rogue-open-rest)
+                    (progn (setf *rogue-held* (rogue-upgrade *rogue-held* k))
+                           (log-msg "duel rogue rest step ~d upgrade ~d tier ~d" *endless-stage* k (cdr (assoc k *rogue-held*)))
+                           (rogue-open-doors)))))))
+
+(defun rogue-reward-update ()
+  "REWARD per frame: the rows take input after 1 s (each page), as STAGE CLEAR; the autopilot takes row 0 every time."
+  (cond (*endless-auto* (rogue-row 0))
+        ((> *ft* 1.0) (let ((i (menu-nav (length *rogue-rows*)))) (when i (rogue-row i))))))
+
+(defun rogue-debug (k)
+  "Debug 84500+K (DUEL_GAMEPLAY): 1-28 grant reward K to the running run (COMMON, RARE for a RARE+ only one) when it is
+not held and its category has a free slot; 50-52 the running stage's reward type GENERIC / KONPAKU / RARE."
+  (cond ((<= 50 k 52) (setf *rogue-reward* (nth (- k 50) '(:generic :konpaku :rare)))
+         (log-msg "duel rogue debug reward ~(~a~)" *rogue-reward*))
+        ((and (rogue-reward k) (not (assoc k *rogue-held*)) (not (rogue-cat-full-p *rogue-held* (rogue-reward-cat k))))
+         (setf *rogue-held* (rogue-take-card *rogue-held* (list :id k :tier (if (rogue-rare-only-p k) 1 0) :kind :new)))
+         (log-msg "duel rogue debug grant ~d held ~a" k *rogue-held*))
+        (t (log-msg "duel rogue debug grant ~d refused" k))))
 
 (defvar *rogue-doors* nil "The DOORS screen's doors (ROGUE-DOORS' plists).")
 
@@ -11,15 +188,16 @@
   (if (eq (getf d :kind) :rest) "REST" (kit-name (find-kit (getf d :opponent) :base))))
 
 (defun rogue-door-note (d step)
-  "What the selected door leads to: the rest's Konpaku, or the step's kind, CPU difficulty, the opponent's awakening
-(awakened, or its gauge at FIGHT) and Reishi."
+  "What the selected door leads to: the rest's choice, or the step's kind, CPU difficulty, the opponent's awakening
+(awakened, or its gauge at FIGHT), Reishi and the reward type (REWARD = GENERIC, KONPAKU +3, RARE REWARD)."
   (if (eq (getf d :kind) :rest)
-      (format nil "KONPAKU +~d" *rogue-rest-konpaku*)
+      (format nil "KONPAKU +~d OR UPGRADE" *rogue-rest-konpaku*)
       (let ((r (rogue-ramp step)))
-        (format nil "~@[~a  ~]~a~:[~;  AWAKENED~]~:[~*~;  AWAKENING ~d~]  REISHI ~d%"
+        (format nil "~@[~a  ~]~a~:[~;  AWAKENED~]~:[~*~;  AWAKENING ~d~]  REISHI ~d%  ~a"
                 (case (rogue-step-kind step) (:elite "ELITE") (:boss "BOSS"))
                 (ramp-difficulty *endless-floor* r *difficulties*) (fourth r)
-                (and (not (fourth r)) (plusp (third r))) (third r) (fifth r)))))
+                (and (not (fourth r)) (plusp (third r))) (third r) (fifth r)
+                (case (getf d :reward) (:rare "RARE REWARD") (:konpaku (format nil "KONPAKU +~d" *rogue-rest-konpaku*)) (t "REWARD"))))))
 
 (defun rogue-open-doors ()
   "After STAGE CLEAR's CONTINUE / REVERT (the carry made) or a rest: the next step's doors (the DOORS screen)."
@@ -32,15 +210,16 @@
     (set-flow :doors)))
 
 (defun rogue-take (i)
-  "Door I: a rest (Konpaku +3, the step passed, the record checked, the next doors) or the next fight."
+  "Door I: a rest (the step passed, the record checked, the rest's KONPAKU +3 / UPGRADE, then the next doors) or the next
+fight (its reward type kept for its clear)."
   (let ((d (nth i *rogue-doors*)))
-    (log-msg "duel rogue door ~d step ~d ~(~a~)~@[ ~(~a~)~]" i (1+ *endless-stage*) (getf d :kind) (getf d :opponent))
+    (log-msg "duel rogue door ~d step ~d ~(~a~)~@[ ~(~a~)~]~@[ ~(~a~)~]" i (1+ *endless-stage*) (getf d :kind) (getf d :opponent)
+             (getf d :reward))
     (if (eq (getf d :kind) :rest)
         (progn (incf *endless-stage*) (incf *endless-cleared*)
-               (setf *endless-carry* (rogue-rest *endless-carry*))
                (endless-save-record)
-               (rogue-open-doors))
-        (progn (setf *rogue-next* (getf d :opponent)) (endless-next-stage)))))
+               (rogue-open-rest))
+        (progn (setf *rogue-next* (getf d :opponent) *rogue-reward* (getf d :reward)) (endless-next-stage)))))
 
 (defun rogue-doors-update ()
   "DOORS per frame: the rows take input after 1 s, as STAGE CLEAR; the autopilot takes door 0."
@@ -48,7 +227,7 @@
         ((> *ft* 1.0) (let ((i (menu-nav (length *rogue-doors*)))) (when i (rogue-take i))))))
 
 (defun hud-rogue-doors (w h s)
-  "DOORS: the next stage, P1's Konpaku, the doors as rows with the selected one's note above them."
+  "DOORS (and REWARD, the same layout): the title, P1's Konpaku, the rows with the selected one's note above them."
   (let ((l *endless-lines*))
     (multiple-value-bind (cx y pw) (results-card w h s)
       (ui-big-text (svref l 0) (round cx) (round (+ y (* 4 s))) (fit-scale (svref l 0) (* 3 s) (- pw (* 8 s)))
@@ -58,4 +237,4 @@
       (when (> *ft* 1.0)
         (let* ((y0 (if (portrait-p) 0.8 0.72)) (note (nth *menu* (svref l 3))))
           (hud-text note cx (- (* y0 h) (* 14 s)) (fit-scale note (* 1.5 s) (- pw (* 8 s))) *ember* :align :center)
-          (hud-menu (svref l 2) y0 w h s cx))))))
+          (hud-menu (svref l 2) y0 pw h s cx))))))      ; (the rows fit the card's width)
