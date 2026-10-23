@@ -181,6 +181,7 @@ Skills (in `skills/`, symlinked into `~/.claude/skills/`; each `SKILL.md` is sho
 | `tools/simgate.py` (+ `tools/simgate/`) | native SOUL DUEL sim: seed gate, A/B, `--cvc` |
 | `tools/aieval.py` | one character's CPU score (strength / masher / signature) |
 | `tools/assistgate.py` | the ASSIST masher gate |
+| `tools/roguegate.py` | the DANGAI autopilot gate: per character clears / median steps, each reward's runs and clears (`--pick first\|random\|greedy`) |
 | `tools/toon_check.py` | pixel checks of the ink style rules |
 | `tools/glyph-bake.py`, `tools/pwa-icons.py`, `tools/pose-solve.py` | offline generators (glyph polygons, app icons, arm pose solving) |
 | `tools/deploy-pages.sh` | publish `dist/duel` to `gh-pages` (only on request) |

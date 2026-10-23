@@ -603,3 +603,35 @@ part builds what is settled: the 解 category's cards, the twin mechanic, and th
 - **Debug** 84580+i grants card 111+i (i 0–18).
 - **Gates**: host 10029 -> 10048 ALL PASS; pkgcheck 0; build 0 warnings; smoke 0; no-run simgate 815 lines cmp-identical;
   cvc 3/3.
+
+## Built: batch 5, ranks, unlocks, the record, the gate (2026-10-23)
+
+The user: 「善哉 開始做 DANGAI 第 5 批」. §6 as designed; the unlock goals are the lead's picks (§6 left them open).
+
+- **靈壓階 0–5** (rogue-rules.lisp; `*rogue-rank*`, flow.lisp): cumulative. 1: every opponent's Reishi % x1.1 (ROGUE-RAMP:
+  the doors' note shows it); 2: an elite draws 3 conditions (ROGUE-COND-COUNT); 3: a clear gives Konpaku +1, not +2
+  (ROGUE-CLEAR-KONPAKU's default; 時契's 3 stays); 4: the boss's Reishi 150 -> 180 % (198 with rank 1's x1.1; Yamamoto's
+  boss rule then x200/150 on top); 5: an offer shows 2 cards (ROGUE-OFFER-SIZE). SELECT's last page gains a RANK row
+  (`select-rows`: the difficulty, RANK once a rank above 0 is open, the camera); a run starts at the picked rank clamped
+  to the open one (ROGUE-RESET; a debug run keeps 84553+r's); the RESULTS title adds RANK r.
+- **The record**: page 66 packs every roster index's highest rank cleared + 1 (3 bits each, ROGUE-RANK-GET / -PUT); a
+  boss beaten at rank r stores r + 1, which opens r + 1 (at most 5; ROGUE-RANK-OPEN). ENDLESS's steps / seconds record
+  (pages 50 + 2i) stays the run's best steps, continuation included.
+- **Unlocks** (`*rogue-unlocks*`, page 67's bits; ROGUE-PROGRESS at every clear of a non-debug run): locked at first, the
+  pacts (契 five; open at the first clear of step 3, the first elite), the RARE+ three (斷魂, 殘心, 魄鎧; the first boss
+  beaten) and each character's 解 cards (that character's first clear of step 5). STAGE CLEAR's third line reads
+  `UNLOCKED ...` on the clear that opens something. A debug or autopilot run has everything open (the native sim has no
+  page).
+- **The gate** (`tools/roguegate.py`, `tools/roguegate/run.lisp`; debug 84900 + 10c + p): per character 20 runs (seeds
+  1–20, door 0, CONTINUE, rank 0, everything open), P1 a HARD CPU, the rewards picked by p: 0 the first card, 1 a random
+  one (the run's LCG), 2 the greedy one (ROGUE-CARD-SCORE: + 3 a trait it completes, + 2 an UPGRADE, + 1 a free slot, + 1
+  RARE); lines `duel rogue gate P1 c pick p runs n clears k median m` and, per reward held at a run's end, its runs and
+  clears (the tool sums them over the characters and sorts by the clear rate).
+- **First reading** (greedy, 2026-10-23): Lille 20 runs, 10 clears, median 17 steps; every other character 0 clears,
+  median 2 (their runs end at the first elite or the HARD steps after it, P1 carrying lost Konpaku into a fresh HARD
+  opponent at awakening 50). The reward rates are therefore Lille's (his YOKUGAI 9 / 9, GORENSHA 10 / 12); with no other
+  character clearing, no reward reads dominant yet. The run's difficulty against the CPU is the user's call (the elite's
+  ramp, the carry, the conditions); nothing was retuned.
+- **Gates**: host 10051 -> 10063 ALL PASS; pkgcheck 0; build 0 warnings; no-run simgate 28 x 10 summary identical to the
+  previous one; cvc 3/3; debug ranges 0 errors. SELECT's three rows checked in the browser (rank 3 open via page 66: RANK 2
+  picked, the run logs `duel rogue run rank 2`).

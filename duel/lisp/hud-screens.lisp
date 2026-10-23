@@ -80,8 +80,13 @@ and the tap help (left / right third: choose, the middle: confirm)."
       (ui-text name (floor w 2) (+ y (* 10 s)) :scale (fit-scale name (* 3 s) (* 0.94 w)) :align :center
                :color (if active *white* *dim-ink*) :shadow active)))
   (when (and (/= *select-phase* 0) (/= *select-phase* 1) (not (eq *mode* :vs-player)))
-    (ui-text (format nil "~a  < ~a >" (if (eq *mode* :endless) "START" "CPU") (symbol-name *difficulty*)) (floor w 2) (* 0.82 h) :scale (* 2 s)
-             :align :center :color '(1 0.85 0.3 1) :shadow t))
+    (let* ((rows (select-rows)) (row (nth (mod *menu* (length rows)) rows)))
+      (ui-text (format nil "~a  < ~a >" (if (eq *mode* :endless) "START" "CPU") (symbol-name *difficulty*)) (floor w 2) (* 0.82 h) :scale (* 2 s)
+               :align :center :color (if (eq row :difficulty) '(1 0.85 0.3 1) *dim-ink*) :shadow (eq row :difficulty))
+      (when (member :rank rows)                         ; DANGAI's 靈壓階 (DUEL_ROGUE §6)
+        (let ((str (format nil "< ~a >" (nth *rogue-rank* *rogue-rank-names*))))
+          (ui-text str (floor w 2) (* 0.87 h) :scale (fit-scale str (* 1.5 s) (* 0.94 w))
+                   :align :center :color (if (eq row :rank) '(1 0.85 0.3 1) *dim-ink*) :shadow (eq row :rank))))))
   (ui-text "TAP LEFT / RIGHT: CHOOSE" (floor w 2) (- h (* 30 s)) :scale s :align :center :color *white* :shadow t)
   (ui-text "TAP THE MIDDLE: CONFIRM" (floor w 2) (- h (* 20 s)) :scale s :align :center :color *white* :shadow t))
 
@@ -96,13 +101,18 @@ and the tap help (left / right third: choose, the middle: confirm)."
       (ui-text (format nil "~:[  ~;< ~]~a~:[  ~; >~]" (and active (< *select-phase* 2)) (kit-name (kit-of e)) (and active (< *select-phase* 2)))
                x (* 0.78 h) :scale (* 3 s) :align :center :color (if active *white* *dim-ink*) :shadow active)))
   (when (and (/= *select-phase* 0) (/= *select-phase* 1) (not (eq *mode* :vs-player)))
-    (let ((cam (vs-cpu-p)))                             ; VS CPU / PRACTICE: a second row, up / down picks the row
-      (ui-text (format nil "~a  < ~a >" (if (eq *mode* :endless) "START" "CPU") (symbol-name *difficulty*)) (floor w 2) (* (if cam 0.85 0.88) h) :scale (* 2 s)
-               :align :center :color (if (and cam (= *menu* 1)) *dim-ink* '(1 0.85 0.3 1)) :shadow (not (and cam (= *menu* 1))))
-      (when cam
-        (ui-text (format nil "< ~a >" (camera-label)) (floor w 2) (* 0.9 h) :scale (* 2 s)
-                 :align :center :color (if (= *menu* 1) '(1 0.85 0.3 1) *dim-ink*) :shadow (= *menu* 1)))))
-  (ui-text (if (and (= *select-phase* 2) (vs-cpu-p))
+    (let* ((rows (select-rows)) (row (nth (mod *menu* (length rows)) rows)) (three (> (length rows) 2))
+           (y (case (length rows) (1 0.88) (2 0.85) (t 0.845))) (dy (if three 0.035 0.05)))
+      (dolist (r rows)                                  ; the difficulty, DANGAI's RANK, VS CPU's camera: up / down picks
+        (let ((on (eq r row)))
+          (ui-text (case r
+                     (:difficulty (format nil "~a  < ~a >" (if (eq *mode* :endless) "START" "CPU") (symbol-name *difficulty*)))
+                     (:rank (format nil "< ~a >" (nth *rogue-rank* *rogue-rank-names*)))
+                     (t (format nil "< ~a >" (camera-label))))
+                   (floor w 2) (* y h) :scale (* (if (or three (eq r :rank)) 1.5 2) s)   ; (three rows: all smaller)
+                   :align :center :color (if on '(1 0.85 0.3 1) *dim-ink*) :shadow on))
+        (incf y dy))))
+  (ui-text (if (and (= *select-phase* 2) (> (length (select-rows)) 1))
                "UP / DOWN ROW    LEFT / RIGHT CHOOSE    ENTER / J CONFIRM    ESC BACK"
                "LEFT / RIGHT CHOOSE    ENTER / J CONFIRM    ESC BACK")
            (floor w 2) (- h (* 12 s)) :scale s :align :center :color *white* :shadow t))

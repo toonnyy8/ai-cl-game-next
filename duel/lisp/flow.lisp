@@ -21,6 +21,8 @@
 (defvar *paused* nil)
 (defvar *mode* :vs-cpu "Match mode: :vs-cpu :endless :practice :vs-player :cpu-cpu")
 (defvar *rogue* nil "An :endless run that is DANGAI (rogue.lisp, DUEL_ROGUE.md): the MODE row DANGAI and debug 84000+ set it.")
+(defvar *rogue-rank* 0 "The DANGAI run's 靈壓階 0-5 (DUEL_ROGUE §6; SELECT's RANK row).")
+(defvar *rogue-auto-pick* :first "The DANGAI autopilot's reward pick: :first :random :greedy (rogue.lisp ROGUE-AUTO-ROW).")
 (defun vs-cpu-p () "A human P1 against the CPU: VS CPU, ENDLESS or PRACTICE (the camera option, the one-hand deck)." (member *mode* '(:vs-cpu :endless :practice)))
 (defvar *picks* (list (first *roster*) (second *roster*)) "Characters of P1 and P2 (kit.lisp *ROSTER*): Yamamoto, Kenpachi.")
 (defvar *difficulty* :normal)
@@ -271,6 +273,12 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
   (begin-battle))
 
 ;;; ---------------------------------------------------------------- per-frame flow
+(defun select-rows ()
+  "SELECT's last page's rows: the difficulty, DANGAI's RANK once a 靈壓階 above 0 is open, VS CPU's camera."
+  (append '(:difficulty)
+          (and *rogue* (eq *mode* :endless) (plusp (rogue-rank-open-now)) '(:rank))
+          (and (vs-cpu-p) (not *one-hand*) '(:camera))))
+
 (defun select-update ()
   "SELECT: P1 picks, then P2 / the CPU, then the CPU difficulty (either player's keys, like every menu)."
   (let ((side (min 1 *select-phase*)))
@@ -288,12 +296,15 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
                                       ((eq *mode* :endless) 2)    ; ENDLESS: no P2 pick (the bag)
                                       (t (1+ *select-phase*)))
                  *menu* 0)))
-        (2 (let ((cam (and (vs-cpu-p) (not *one-hand*))))   ; row 0 the difficulty, row 1 (VS CPU) the camera
-             (when (and cam (or (menu-up-p) (menu-down-p))) (setf *menu* (- 1 *menu*)) (play-sfx :select))
+        (2 (let* ((rows (select-rows)) (n (length rows)) (row (nth (mod *menu* n) rows)) (dir (if (or (menu-left-p) (eql (tap-third) -1)) -1 1)))
+             ;; the difficulty, DANGAI's RANK once one is open (DUEL_ROGUE §6), VS CPU's camera
+             (when (and (> n 1) (menu-up-p)) (setf *menu* (mod (1- *menu*) n)) (play-sfx :select))
+             (when (and (> n 1) (menu-down-p)) (setf *menu* (mod (1+ *menu*) n)) (play-sfx :select))
              (when (or (menu-left-p) (menu-right-p) (member (tap-third) '(-1 1)))
-               (if (and cam (= *menu* 1))
-                   (toggle-cam)
-                   (setf *difficulty* (cycle *difficulty* *difficulties* (if (or (menu-left-p) (eql (tap-third) -1)) -1 1))))
+               (case row
+                 (:camera (toggle-cam))
+                 (:rank (setf *rogue-rank* (mod (+ *rogue-rank* dir) (1+ (rogue-rank-open-now)))))
+                 (t (setf *difficulty* (cycle *difficulty* *difficulties* dir))))
                (play-sfx :select)))
            (when (or (confirm-p) (eql (tap-third) 0)) (play-sfx :confirm) (setf *select-phase* 3))))
       (when (>= *select-phase* 3) (if (eq *mode* :endless) (endless-start) (progn (new-seed) (start-match))))

@@ -30,7 +30,7 @@
 (defconstant +pg-endless+ 30 "Page get / set 30 + 2i: roster index i's best stages, 31 + 2i its seconds (i < 10).")
 (defconstant +pg-rogue+ 50 "Page get / set 50 + 2i: roster index i's best DANGAI steps, 51 + 2i its seconds (i < 10).")
 (defun endless-pg () "The record's page base: DANGAI's or ENDLESS's." (if *rogue* +pg-rogue+ +pg-endless+))
-(defun endless-row (n) "Stage N's ramp row: DANGAI's per step (ROGUE-RAMP) or ENDLESS's." (if *rogue* (rogue-ramp n) (endless-ramp n)))
+(defun endless-row (n) "Stage N's ramp row: DANGAI's per step (ROGUE-RAMP) or ENDLESS's." (if *rogue* (rogue-ramp n *rogue-rank*) (endless-ramp n)))
 
 (defun endless-p () (eq *mode* :endless))
 (defun mm-ss (secs) (format nil "~d:~2,'0d" (floor secs 60) (mod secs 60)))
@@ -101,6 +101,7 @@ else ends the run (its RESULTS)."
                                      :konpaku (gauges-konpaku g) :reiatsu (gauges-reiatsu g) :fs (gauges-fs g)
                                      :awaken (gauges-awaken g) :awakened (gauges-awakened g) :meter (gauges-meter g)))
           (endless-save-record)
+          (when *rogue* (rogue-progress))                 ; DANGAI: the unlocks, the rank cleared (rogue.lisp)
           (endless-clear-lines)
           (set-flow :clear))
         (endless-over))))
@@ -121,10 +122,11 @@ else ends the run (its RESULTS)."
     (when *rogue* (rogue-end))                            ; DANGAI: no mods outside the run
     (multiple-value-bind (bs bt) (endless-best)
       (log-msg "duel endless over stages ~d secs ~d best ~d secs ~d record ~a" *endless-cleared* secs bs bt *endless-record*)
-      (when *endless-auto* (push (list (first *picks*) *endless-cleared* secs) *endless-runs*))
+      (when *endless-auto* (push (list (first *picks*) *endless-cleared* secs (and *rogue* (rogue-held-now))) *endless-runs*))
       (let ((s *endless-stats*) (lost (not (eql *winner* 0))))
         (setf *endless-lines*
-              (vector (format nil "~:[ENDLESS~;DANGAI~]  ~a" *rogue* (kit-name (find-kit (first *picks*) :base)))
+              (vector (format nil "~:[ENDLESS~;DANGAI~]  ~a~:[~*~;  RANK ~d~]" *rogue* (kit-name (find-kit (first *picks*) :base))
+                              (and *rogue* (plusp *rogue-rank*)) *rogue-rank*)
                       (format nil "STAGES CLEARED  ~d~:[~;  RUN CLEAR~]" *endless-cleared* (and *rogue* (>= *endless-cleared* *rogue-steps*)))
                       (format nil "TIME  ~a" (mm-ss secs))
                       (if (plusp bs) (format nil "BEST  ~d  ~a" bs (mm-ss bt)) "BEST  -")
@@ -161,8 +163,8 @@ else ends the run (its RESULTS)."
           *endless-lines*
           (vector (format nil "STAGE ~d CLEAR" n)
                   (format nil "TIME ~a   RUN ~a" (mm-ss (round (match-play-ticks) 60)) (mm-ss (round *endless-ticks* 60)))
-                  (format nil "KONPAKU  ~d -> ~d" k (if *rogue* (rogue-clear-konpaku k (rogue-run-mods)) (min *konpaku-max* (+ k 2))))
-                  "REISHI FULL   GUARD FULL"
+                  (format nil "KONPAKU  ~d -> ~d" k (if *rogue* (rogue-clear-konpaku k (rogue-run-mods) *rogue-rank*) (min *konpaku-max* (+ k 2))))
+                  (or (and *rogue* (rogue-unlock-note)) "REISHI FULL   GUARD FULL")   ; (DANGAI: a new unlock instead)
                   "REIATSU  FLASH STEP  KEPT"
                   (if *rogue*                             ; DANGAI: the doors pick the opponent (rogue.lisp)
                       (format nil "NEXT  STAGE ~d~@[  ~a~]" next (case (rogue-step-kind next) (:elite "ELITE") (:boss "BOSS")))
@@ -182,7 +184,7 @@ else ends the run (its RESULTS)."
       (let ((snap *endless-snap*))
         (setf *endless-carry* (endless-carry snap k))
         (when *rogue*                                     ; DANGAI: the pacts' clear Konpaku and cap (rogue-rules.lisp)
-          (setf (getf *endless-carry* :konpaku) (rogue-clear-konpaku (getf snap :konpaku) (rogue-run-mods))))
+          (setf (getf *endless-carry* :konpaku) (rogue-clear-konpaku (getf snap :konpaku) (rogue-run-mods) *rogue-rank*)))
         (log-msg "duel endless clear ~d konpaku ~d->~d choice ~(~a~) form ~(~a~)->~(~a~) meter ~d ticks ~d"
                  *endless-stage* (getf snap :konpaku) (getf *endless-carry* :konpaku) k (getf snap :form)
                  (getf *endless-carry* :form) (round (getf *endless-carry* :meter)) *endless-ticks*)
@@ -291,6 +293,7 @@ is, then the clear (80980): STAGE CLEAR with that form's carry."
             (when st
               (log-msg "duel endless gate P1 ~(~a~) policy ~(~a~) runs ~d median ~a stages ~a" c *endless-auto* (length st)
                        (nth (floor (length st) 2) st) st))))
+        (when *rogue* (rogue-gate-summary *endless-runs*))   ; DANGAI: clear rates, each reward's pick-to-clear (rogue.lisp)
         (setf *endless-auto* nil *turbo* nil *skip-cines* nil)
         (go-title))))
 
@@ -298,10 +301,16 @@ is, then the clear (80980): STAGE CLEAR with that form's carry."
   "Debug 80000+K: 100c+n (n 1-99) a debug run of roster c from stage n (seed 1, fresh, no record); 980 clear the stage;
 981 P1's Bankai; 982+f P1 in his f-th form, then clear; 990+p the autopilot (p 0 stay / 1 revert) over every character x
 seeds 1-20; 992+p the autopilot once (P1's pick, seed 1). ROGUE (debug 84000+): those runs are DANGAI's; the 980-989
-entries act on the running run, either kind."
+entries act on the running run, either kind; 900 + 10c + p (DANGAI, batch 5) the autopilot over roster c x seeds 1-20 with
+the reward pick policy p (0 the first card, 1 a random one, 2 the greedy one: ROGUE-AUTO-ROW)."
   (cond ((= k 980) (endless-debug-clear))
         ((= k 981) (endless-debug-bankai))
         ((<= 982 k 989) (endless-debug-form (- k 982)))
+        ((and rogue (<= 900 k 979) (nth (floor (- k 900) 10) *roster*))   ; DANGAI's gate: one character, a pick policy
+         (setf *rogue* t *endless-auto* :stay *endless-runs* nil *turbo* t *skip-cines* t
+               *rogue-auto-pick* (nth (min 2 (mod k 10)) '(:first :random :greedy))
+               *endless-queue* (loop with c = (nth (floor (- k 900) 10) *roster*) for seed from 1 to 20 collect (list c seed)))
+         (endless-auto-next))
         ((<= 990 k 993)
          (setf *rogue* rogue *endless-auto* (if (evenp k) :stay :revert) *endless-runs* nil *turbo* t *skip-cines* t
                *endless-queue* (if (< k 992)

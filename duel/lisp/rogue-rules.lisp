@@ -17,13 +17,19 @@
   "STEP's kind (1-based): :boss at *ROGUE-STEPS*, :elite every third step (3 6 9, and on in the continuation), :normal."
   (cond ((= step *rogue-steps*) :boss) ((zerop (mod step 3)) :elite) (t :normal)))
 
-(defun rogue-ramp (step)
+(defun rogue-ramp (step &optional (rank 0))
   "STEP's ramp row (stage steps awaken awakened reishi-%): a normal step ENDLESS's own; an elite the row two stages on with
-one more difficulty step (at most 2); the boss *ROGUE-BOSS-ROW*."
-  (case (rogue-step-kind step)
-    (:boss *rogue-boss-row*)
-    (:elite (let ((r (copy-list (endless-ramp (+ step 2))))) (setf (second r) (min 2 (1+ (second r)))) r))
-    (t (endless-ramp step))))
+one more difficulty step (at most 2); the boss *ROGUE-BOSS-ROW*. RANK (靈壓階, §6, batch 5): from 1 every opponent's
+Reishi % x1.1, from 4 the boss's 150 -> 180 (both: 198)."
+  (let ((r (case (rogue-step-kind step)
+             (:boss (copy-list *rogue-boss-row*))
+             (:elite (let ((r (copy-list (endless-ramp (+ step 2))))) (setf (second r) (min 2 (1+ (second r)))) r))
+             (t (endless-ramp step)))))
+    (when (plusp rank)
+      (setf r (copy-list r))
+      (when (and (>= rank 4) (eq (rogue-step-kind step) :boss)) (setf (fifth r) 180))
+      (setf (fifth r) (round (* (fifth r) 11) 10)))
+    r))
 
 (defun rogue-lcg-at (seed step salt)
   "The doors' own draw for (SEED, STEP, SALT): ENDLESS-LCG, never SIM-RND (how a fight goes never changes the doors)."
@@ -60,16 +66,17 @@ else GENERIC."
 opponent's SP takes one armour hit in its startup; the CPU favours its zoning range (+3 on its :zone intent weight); the
 stage timer 180 s. Constant for the fight, shown on the doors and the battle tag (§1 fair failure).")
 
-(defun rogue-cond-count (step) "Conditions on STEP: 1 a normal step, 2 an elite, none the boss (its own rule, §5)."
-  (case (rogue-step-kind step) (:normal 1) (:elite 2) (t 0)))
+(defun rogue-cond-count (step &optional (rank 0))
+  "Conditions on STEP: 1 a normal step, 2 an elite (3 from 靈壓階 2), none the boss (its own rule, §5)."
+  (case (rogue-step-kind step) (:normal 1) (:elite (if (>= rank 2) 3 2)) (t 0)))
 
-(defun rogue-door-conds (seed step i)
+(defun rogue-door-conds (seed step i &optional (rank 0))
   "Door I's conditions before STEP of run SEED (ids, ROGUE-COND-COUNT of them, distinct): the first of a Fisher-Yates
 shuffle of *ROGUE-CONDITIONS* on the run's LCG keyed on (SEED, STEP, 20 + I). Step 1 (no doors) uses door 0's."
   (let ((v (coerce (mapcar #'first *rogue-conditions*) 'vector)) (x (rogue-lcg-at seed step (+ 20 i))))
     (loop for k from (1- (length v)) downto 1
           do (setf x (endless-lcg x)) (rotatef (aref v k) (aref v (mod (floor x 65536) (1+ k)))))
-    (coerce (subseq v 0 (rogue-cond-count step)) 'list)))
+    (coerce (subseq v 0 (rogue-cond-count step rank)) 'list)))
 
 (defun rogue-cond-name (id) "Condition ID's words on the doors and the battle tag." (second (assoc id *rogue-conditions*)))
 
@@ -100,19 +107,19 @@ each, at most *ROGUE-REST-MAX* (pure in SEED, so the doors replay)."
             do (push st out))
     (nreverse out)))
 
-(defun rogue-doors (seed step prev roster)
+(defun rogue-doors (seed step prev roster &optional (rank 0))
   "The doors before STEP (2 on) of run SEED, PREV the last opponent fought: plists (:kind :fight :opponent c) or
 (:kind :rest). Two doors with two different opponents, neither PREV while ROSTER allows (one door when only one is
 left); the boss step one door; on a rest step (ROGUE-REST-STEPS) the second door is the rest."
   (let* ((pool (or (remove prev roster) roster)) (n (length pool))
          (x (rogue-lcg-at seed step 2)) (i (mod (floor x 65536) n))
          (j (mod (+ i 1 (mod (floor (endless-lcg x) 65536) (max 1 (1- n)))) n))
-         (a (list :kind :fight :opponent (nth i pool) :reward (rogue-door-reward seed step 0) :conds (rogue-door-conds seed step 0))))
+         (a (list :kind :fight :opponent (nth i pool) :reward (rogue-door-reward seed step 0) :conds (rogue-door-conds seed step 0 rank))))
     (cond ((eq (rogue-step-kind step) :boss) (list a))
           ((member step (rogue-rest-steps seed)) (list a (list :kind :rest)))
           ((= n 1) (list a))
           (t (list a (list :kind :fight :opponent (nth j pool) :reward (rogue-door-reward seed step 1)
-                           :conds (rogue-door-conds seed step 1)))))))
+                           :conds (rogue-door-conds seed step 1 rank)))))))
 
 (defun rogue-rest (carry &optional (cap *konpaku-max*))
   "CARRY (ENDLESS-CARRY's plist) after a rest door (or a KONPAKU door's reward): Konpaku + *ROGUE-REST-KONPAKU*, at most
@@ -338,16 +345,17 @@ order). Only keys some reward sets appear; NIL when nothing is held."
     (loop for tr in *rogue-traits*
           when (and (not (member (first tr) on)) (member id (third tr)) (subsetp (third tr) ids)) return (first tr))))
 
-(defun rogue-offer (seed step salt held rare &optional char)
+(defun rogue-offer (seed step salt held rare &optional char (n 3) locked)
   "An offer of up to 3 cards after STEP of run SEED (SALT: the pick's index, 賭契's extra pick 1), from the run's own
 LCG: plists (:id :tier :kind :trait). :kind :new (a free slot), :replace (its category full: taking it drops one held
 of the category), :upgrade (RARE offers only: a held tierable reward below LEGEND comes back one tier up; a held one is
 never offered otherwise), :twin (a 解 card whose twin is held: taking it swaps them). Never the same reward twice; RARE+
 only rewards (斷魂, 殘心, 魄鎧) only when RARE; 解 cards only of CHAR (P1's character; NIL: none); a RARE offer's new
-cards are RARE (tier 1), a GENERIC offer's COMMON."
+cards are RARE (tier 1), a GENERIC offer's COMMON. N cards (2 from 靈壓階 5); never a LOCKED id (batch 5's unlocks)."
   (let* ((tier (if rare 1 0))
          (cands (loop for r in *rogue-rewards* for id = (first r) for h = (assoc id held) for kc = (rogue-kai-char id)
                       for c = (cond ((and kc (not (eq kc char))) nil)
+                                    ((member id locked) nil)
                                     (h (when (and rare (rogue-tierable-p id) (< (cdr h) 2))
                                          (list :id id :tier (1+ (cdr h)) :kind :upgrade :trait nil)))
                                     ((and (rogue-rare-only-p id) (not rare)) nil)
@@ -359,7 +367,7 @@ cards are RARE (tier 1), a GENERIC offer's COMMON."
          (v (coerce cands 'simple-vector)) (x (rogue-lcg-at seed step (+ 10 salt))))
     (loop for i from (1- (length v)) downto 1                  ; Fisher-Yates on the run's LCG
           do (setf x (endless-lcg x)) (rotatef (svref v i) (svref v (mod (floor x 65536) (1+ i)))))
-    (subseq (coerce v 'list) 0 (min 3 (length v)))))
+    (subseq (coerce v 'list) 0 (min n (length v)))))
 
 (defun rogue-take-card (held card &optional drop)
   "HELD after taking CARD (ROGUE-OFFER's plist): :upgrade raises its reward a tier (LEGEND the top); :new adds it;
@@ -376,7 +384,36 @@ cards are RARE (tier 1), a GENERIC offer's COMMON."
 (defun rogue-upgradable (held) "HELD's rewards a rest's UPGRADE can raise: tierable, below LEGEND (ids)." (loop for (id . tier) in held when (and (rogue-tierable-p id) (< tier 2)) collect id))
 (defun rogue-upgrade (held id) "HELD with reward ID one tier up (at most LEGEND)." (mapcar (lambda (h) (if (eql (car h) id) (cons id (min 2 (1+ (cdr h)))) h)) held))
 
-(defun rogue-clear-konpaku (konpaku mods)
-  "P1's Konpaku after a clear in a run with MODS: + its :clear-konpaku (2; 時契 3, 賭契 0), at most its :konpaku-cap and
-*KONPAKU-MAX* (ENDLESS's carry with the pacts in)."
-  (min (getf mods :konpaku-cap *konpaku-max*) *konpaku-max* (+ konpaku (getf mods :clear-konpaku 2))))
+(defun rogue-clear-konpaku (konpaku mods &optional (rank 0))
+  "P1's Konpaku after a clear in a run with MODS: + its :clear-konpaku (2, 1 from 靈壓階 3; 時契 3, 賭契 0), at most its
+:konpaku-cap and *KONPAKU-MAX* (ENDLESS's carry with the pacts in)."
+  (min (getf mods :konpaku-cap *konpaku-max*) *konpaku-max* (+ konpaku (getf mods :clear-konpaku (if (>= rank 3) 1 2)))))
+
+;;; ---------------------------------------------------------------- across runs (DUEL_ROGUE §6, batch 5)
+(defparameter *rogue-rank-max* 5 "靈壓階 0-5 (§6, R5).")
+(defparameter *rogue-rank-names*
+  '("RANK 0" "RANK 1  FOE REISHI +10%" "RANK 2  ELITES 3 CONDITIONS" "RANK 3  CLEAR KONPAKU +1" "RANK 4  BOSS REISHI 180%"
+    "RANK 5  REWARDS 1 OF 2")
+  "Each 靈壓階's words (its own step; the ranks are cumulative).")
+(defun rogue-offer-size (rank) "Cards an offer shows at RANK: 3, 2 from 5." (if (>= rank 5) 2 3))
+
+(defparameter *rogue-unlocks*
+  '((0 "PACTS" (22 23 24 25 26)) (1 "DANKON ZANSHIN HAKUGAI" (6 12 28)))
+  "The rewards locked at first (§6: 「解鎖」), (bit name ids): bit 0 the pacts, opened by clearing step 3 (the first elite);
+bit 1 the RARE+ three, by beating a boss; bit 2 + roster index i the 解 cards of character i, by clearing step 5 with it.
+The lead's picks (batch 5); a debug or autopilot run has everything open.")
+(defparameter *rogue-unlock-all* #x3ff "Every unlock bit (2 + 8 roster slots).")
+(defun rogue-locked-ids (bits char-index)
+  "The reward ids still locked under unlock BITS for the character of roster index CHAR-INDEX."
+  (append (loop for (bit nil ids) in *rogue-unlocks* unless (logbitp bit bits) append ids)
+          (unless (logbitp (+ 2 char-index) bits)
+            (loop for (id) in *rogue-kai* when (eql (position (rogue-kai-char id) *roster*) char-index) collect id))))
+(defun rogue-unlocks-earned (bits cleared char-index)
+  "BITS after a clear with CLEARED steps so far by the character of roster index CHAR-INDEX (step 3: the pacts; step 10,
+the boss: the RARE+ three; step 5: its 解 cards)."
+  (logior bits (if (>= cleared 3) 1 0) (if (>= cleared *rogue-steps*) 2 0) (if (>= cleared 5) (ash 1 (+ 2 char-index)) 0)))
+
+(defun rogue-rank-get (packed i) "Roster index I's highest 靈壓階 cleared + 1 in PACKED (3 bits each; 0 = none)." (ldb (byte 3 (* 3 i)) packed))
+(defun rogue-rank-put (packed i v) "PACKED with roster index I's field set to V." (dpb v (byte 3 (* 3 i)) packed))
+(defun rogue-rank-open (packed i) "The highest 靈壓階 roster index I may pick: one past its best cleared, at most 5."
+  (min *rogue-rank-max* (rogue-rank-get packed i)))

@@ -22,9 +22,40 @@
 (defvar *rogue-stage-conds* nil "The conditions of the DANGAI stage being fought (ids, DUEL_ROGUE §5).")
 (defvar *rogue-cond-line* nil "The battle tag's second line: the stage's conditions, or BOSS (made once a stage: 0 B a frame).")
 
+(defvar *rogue-unlock-text* nil "The newest unlock's words for STAGE CLEAR (ROGUE-PROGRESS), cleared when shown.")
 (defun rogue-reset () "A new run: nothing held, the first step's reward by its kind and conditions by its draw."
-  (setf *rogue-held* nil *rogue-reward* nil *rogue-door* nil))
+  (setf *rogue-held* nil *rogue-reward* nil *rogue-door* nil *rogue-unlock-text* nil)
+  (unless *endless-debug* (setf *rogue-rank* (min *rogue-rank* (rogue-rank-open-now))))   ; (a debug run keeps 84553+r's)
+  (log-msg "duel rogue run rank ~d" *rogue-rank*))
+
+;;; ---------------------------------------------------------------- across runs (DUEL_ROGUE §6, batch 5)
+(defconstant +pg-rogue-ranks+ 66 "Page 66: every roster index's highest 靈壓階 cleared + 1, 3 bits each (ROGUE-RANK-GET).")
+(defconstant +pg-rogue-unlocks+ 67 "Page 67: the unlock bits (*ROGUE-UNLOCKS*: 0 the pacts, 1 the RARE+ three, 2 + i character i's 解 cards).")
+(defun rogue-roster-ix () "P1's roster index." (or (position (first *picks*) *roster*) 0))
+(defun rogue-unlock-bits () "The unlock bits: the page's, or all of them in a debug or autopilot run." (if *endless-debug* *rogue-unlock-all* (page-get +pg-rogue-unlocks+)))
+(defun rogue-locked () "The reward ids still locked for this run's character." (rogue-locked-ids (rogue-unlock-bits) (rogue-roster-ix)))
+(defun rogue-rank-open-now () "The highest 靈壓階 P1's character may pick now (the page's record)." (rogue-rank-open (page-get +pg-rogue-ranks+) (rogue-roster-ix)))
+
+(defun rogue-progress ()
+  "At every clear of a run (not a debug one): the unlocks it earned (ROGUE-UNLOCKS-EARNED: step 3, step 5, the boss) into
+page 67, their words for STAGE CLEAR; on the boss's clear the 靈壓階 cleared into page 66 when it beats the record."
+  (unless *endless-debug*
+    (let* ((i (rogue-roster-ix)) (old (page-get +pg-rogue-unlocks+)) (new (rogue-unlocks-earned old *endless-cleared* i)))
+      (when (/= new old)
+        (page-set +pg-rogue-unlocks+ new)
+        (setf *rogue-unlock-text*
+              (format nil "UNLOCKED  ~{~a~^  ~}"
+                      (append (loop for (bit name) in *rogue-unlocks* when (and (logbitp bit new) (not (logbitp bit old))) collect name)
+                              (and (logbitp (+ 2 i) new) (not (logbitp (+ 2 i) old)) (list "KAI CARDS")))))
+        (log-msg "duel rogue unlock ~d -> ~d" old new))
+      (when (= *endless-cleared* *rogue-steps*)
+        (let ((packed (page-get +pg-rogue-ranks+)))
+          (when (> (1+ *rogue-rank*) (rogue-rank-get packed i))
+            (page-set +pg-rogue-ranks+ (rogue-rank-put packed i (1+ *rogue-rank*)))
+            (log-msg "duel rogue rank cleared ~d" *rogue-rank*)))))))
+(defun rogue-unlock-note () "STAGE CLEAR's unlock line, once." (shiftf *rogue-unlock-text* nil))
 (defun rogue-run-mods () "The held rewards' modifier plist (ROGUE-MODS)." (rogue-mods *rogue-held*))
+(defun rogue-held-now () "The run's held reward ids (the autopilot's tally, ENDLESS-OVER)." (rogue-held-ids *rogue-held*))
 
 ;;; ---------------------------------------------------------------- the stage start (ENDLESS-APPLY!'s hook)
 (defun rogue-stage-start ()
@@ -34,7 +65,7 @@ P1's :reishi-max, both sides' :both-reishi, P1's :gg-max (his gauge at spawn), :
 taken, else step 1's draw: §5) as P1's extra keys, the opponent's table (*RUN-FOE-MODS*) and the stage keys (:foe-reishi
 on his Reishi, :timer); on the boss step *RUN-BOSS* and his character's :boss hook (its base kit's), after all of that."
   (let* ((step *endless-stage*) (d (shiftf *rogue-door* nil))
-         (conds (if d (getf d :conds) (rogue-door-conds *endless-seed* step 0))))
+         (conds (if d (getf d :conds) (rogue-door-conds *endless-seed* step 0 *rogue-rank*))))
     (multiple-value-bind (cp1 cfoe cstage) (rogue-cond-mods conds)
       (let ((m (rogue-merge-x (rogue-run-mods) cp1)) (g1 (gauges *p1*)) (g2 (gauges *p2*)))
         (setf *run-mods* m *run-mods-who* *p1* *run-foe-mods* cfoe *rogue-stage-conds* conds
@@ -139,7 +170,8 @@ headed BUILD), the items split in half."
 
 (defun rogue-show-cards ()
   "This clear's next pick: an offer of 3 (fewer if the pool is short; none: on to the doors)."
-  (setf *rogue-offer* (rogue-offer *endless-seed* *endless-stage* *rogue-pick* *rogue-held* *rogue-rare* (first *picks*)))
+  (setf *rogue-offer* (rogue-offer *endless-seed* *endless-stage* *rogue-pick* *rogue-held* *rogue-rare* (first *picks*)
+                                    (rogue-offer-size *rogue-rank*) (rogue-locked)))
   (if *rogue-offer* (rogue-cards-screen) (rogue-open-doors)))
 
 (defun rogue-open-reward ()
@@ -218,14 +250,43 @@ takes the selected one (the user, 2026-10-23: 「在關卡之間選擇獎勵的�
 
 (defun rogue-reward-update ()
   "REWARD per frame: the rows take input after 1 s (each page), as STAGE CLEAR; the autopilot takes row 0 every time."
-  (cond (*endless-auto* (rogue-row 0))
+  (cond (*endless-auto* (rogue-row (rogue-auto-row)))
         ((> *ft* 1.0) (let ((i (rogue-nav (length *rogue-rows*)))) (when i (rogue-row i))))))
+
+(defun rogue-card-score (c)
+  "The greedy autopilot's worth of card C: + 3 a trait it completes, + 2 an UPGRADE, + 1 a free slot, + 1 a RARE tier."
+  (+ (if (getf c :trait) 3 0) (if (eq (getf c :kind) :upgrade) 2 0) (if (eq (getf c :kind) :new) 1 0) (if (plusp (getf c :tier)) 1 0)))
+(defun rogue-auto-row ()
+  "The autopilot's row on the REWARD page: on the cards, by *ROGUE-AUTO-PICK* (:first the first; :random one drawn on the
+run's LCG, salt 40 + the pick; :greedy the best ROGUE-CARD-SCORE, the first of a tie); any other page row 0."
+  (let ((n (length *rogue-rows*)))
+    (if (and (eq *rogue-sub* :cards) (> n 1))
+        (case *rogue-auto-pick*
+          (:random (mod (floor (rogue-lcg-at *endless-seed* *endless-stage* (+ 40 *rogue-pick*)) 65536) n))
+          (:greedy (let ((best 0)) (loop for c in *rogue-rows* for i from 0 when (> (rogue-card-score c) (rogue-card-score (nth best *rogue-rows*))) do (setf best i)) best))
+          (t 0))
+        0)))
+
+(defun rogue-gate-summary (runs)
+  "The DANGAI gate's lines (the autopilot's RUNS: (character cleared secs held-ids) each): per character the runs, the
+clears (step 10 beaten) and the median steps; per reward held at a run's end, how many runs and how many of them cleared."
+  (dolist (c *roster*)
+    (let ((st (sort (loop for r in runs when (eq (first r) c) collect (second r)) #'<)))
+      (when st
+        (log-msg "duel rogue gate P1 ~(~a~) pick ~(~a~) runs ~d clears ~d median ~a" c *rogue-auto-pick* (length st)
+                 (count-if (lambda (n) (>= n *rogue-steps*)) st) (nth (floor (length st) 2) st)))))
+  (dolist (r *rogue-rewards*)
+    (let* ((id (first r)) (with (remove-if-not (lambda (x) (member id (fourth x))) runs)))
+      (when with
+        (log-msg "duel rogue gate reward ~d ~a runs ~d clears ~d median ~a" id (third r) (length with)
+                 (count-if (lambda (x) (>= (second x) *rogue-steps*)) with)
+                 (nth (floor (length with) 2) (sort (mapcar #'second with) #'<)))))))
 
 (defun rogue-debug (k)
   "Debug 84500+K (DUEL_GAMEPLAY): 1-28 grant reward K to the running run (COMMON, RARE for a RARE+ only one) when it is
 not held and its category has a free slot; 50-52 the running stage's reward type GENERIC / KONPAKU / RARE; 60+c (batch
 3) a debug DANGAI run from the boss step against roster c (P1 Yamamoto, or Kenpachi against Yamamoto; seed 1, no record);
-70-73 (batch 4) grant 解 card 101-104, 80-98 card 111-129."
+70-73 (batch 4) grant 解 card 101-104, 80-98 card 111-129; 53-58 (batch 5) the 靈壓階 0-5 of the runs started after it."
   (cond ((<= 70 k 73) (rogue-debug-grant (+ 31 k)))      ; batch 4: 84570+i grants 解 card 101+i, 84580+i card 111+i
         ((<= 80 k 98) (rogue-debug-grant (+ 31 k)))
         ((<= 60 k 67)
@@ -234,6 +295,7 @@ not held and its category has a free slot; 50-52 the running stage's reward type
              (setf *mode* :endless *rogue* t *picks* (list (if (eq c :yamamoto) :kenpachi :yamamoto) c) *endless-seed* 1
                    *one-hand* (one-hand-effective-p) *rogue-next* c)
              (let ((*skip-cines* t)) (endless-start :debug t :stage *rogue-steps*)))))
+        ((<= 53 k 58) (setf *rogue-rank* (- k 53)) (log-msg "duel rogue debug rank ~d" *rogue-rank*))   ; batch 5: the next runs' rank
         ((<= 50 k 52) (setf *rogue-reward* (nth (- k 50) '(:generic :konpaku :rare)))
          (log-msg "duel rogue debug reward ~(~a~)" *rogue-reward*))
         (t (rogue-debug-grant k))))
@@ -257,7 +319,7 @@ it acts from the next stage's start."
 (awakened, or its gauge at FIGHT), Reishi and the reward type (REWARD = GENERIC, KONPAKU +3, RARE REWARD)."
   (if (eq (getf d :kind) :rest)
       (format nil "KONPAKU +~d OR UPGRADE" *rogue-rest-konpaku*)
-      (let ((r (rogue-ramp step)))
+      (let ((r (rogue-ramp step *rogue-rank*)))
         (format nil "~@[~a  ~]~a~:[~;  AWAKENED~]~:[~*~;  AWAKENING ~d~]  REISHI ~d%  ~a"
                 (case (rogue-step-kind step) (:elite "ELITE") (:boss "BOSS"))
                 (ramp-difficulty *endless-floor* r *difficulties*) (fourth r)
@@ -273,7 +335,7 @@ it acts from the next stage's start."
 (defun rogue-open-doors ()
   "After STAGE CLEAR's CONTINUE / REVERT (the carry made) or a rest: the next step's doors (the DOORS screen)."
   (let ((next (1+ *endless-stage*)))
-    (setf *rogue-doors* (rogue-doors *endless-seed* next (first *endless-foes*) (playable-roster))
+    (setf *rogue-doors* (rogue-doors *endless-seed* next (first *endless-foes*) (playable-roster) *rogue-rank*)
           *endless-lines* (vector (format nil "STAGE ~d" next)
                                   (format nil "KONPAKU  ~d" (getf *endless-carry* :konpaku))
                                   (mapcar #'rogue-door-label *rogue-doors*)

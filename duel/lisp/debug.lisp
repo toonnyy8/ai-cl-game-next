@@ -612,7 +612,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 80000 c 80999) (endless-debug (- c 80000) nil))    ; ENDLESS (endless.lisp)
         ((<= 84800 c 84899) (run-mods-debug (- c 84800)))      ; DANGAI's run table: one key on P1 (run-mods.lisp)
         ((<= 84501 c 84528) (rogue-debug (- c 84500)))         ; DANGAI: grant a reward (rogue.lisp)
-        ((or (<= 84550 c 84552) (<= 84560 c 84567) (<= 84570 c 84598)) (rogue-debug (- c 84500)))   ; DANGAI: the stage's reward type; a boss run
+        ((or (<= 84550 c 84558) (<= 84560 c 84567) (<= 84570 c 84598)) (rogue-debug (- c 84500)))   ; DANGAI: the stage's reward type; a boss run
         ((<= 84000 c 84999) (endless-debug (- c 84000) t))      ; DANGAI (rogue.lisp: an ENDLESS run)
         ((<= 81000 c 81011) (let ((k (- c 81000)))          ; ASSIST for the :dumb player (guard + 3 combo + 6 break)
                               (setf *assist-debug* (list (mod k 3) (oddp (floor k 3)) (>= k 6)))))
