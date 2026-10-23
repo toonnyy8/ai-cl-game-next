@@ -205,19 +205,23 @@ after. So he acts TOTAL - HIT-FRAME + ADV steps after the hit, the attacker TOTA
 ADV frames of advantage exactly."
   (max 1 (+ (- total hit-frame) adv)))
 
-(defun move-end-frame (s a r whiff contact hitless)
+(defun move-end-frame (s a r whiff contact hitless &optional kind)
   "Move frame on which a move with S / A / R ends (back to idle). R after a hit or block (CONTACT) or
-for a move with no hit windows (HITLESS: its hits are hazards), else the whiff recovery WHIFF."
-  (+ s a (if hitless r (recovery-frames r contact whiff))))
+for a move with no hit windows (HITLESS: its hits are hazards), else the whiff recovery WHIFF; a J / K / O (its KIND)
+blocked or whiffed longer (RECOVERY-FRAMES)."
+  (+ s a (if hitless r (recovery-frames r contact whiff kind))))
 
 (defun hitstun (react &optional counter)
   "Stun frames of reaction REACT (*REACTION-FRAMES*), +*COUNTER-STUN* on a counter-hit."
   (+ (getf *reaction-frames* react 0) (if counter *counter-stun* 0)))
 
-(defun recovery-frames (r contact &optional whiff)
-  "Recovery actually played: R after a hit or block (CONTACT), else WHIFF (a move's own whiff
-recovery, e.g. the Breaker's 30) or R + *WHIFF-EXTRA*."
-  (if contact r (or whiff (+ r *whiff-extra*))))
+(defun recovery-frames (r contact &optional whiff kind)
+  "Recovery actually played: R after a hit (CONTACT), R + KIND's *BLOCK-ADD* after a block, else WHIFF (a move's own
+whiff recovery, e.g. the Breaker's 30) or R + *WHIFF-EXTRA*, + KIND's *WHIFF-ADD* (KIND :quick / :flash / :kikon, the J /
+K links and the O: 2026-10-23; any other kind, or none, adds nothing)."
+  (cond ((eq contact :block) (+ r (getf *block-add* kind 0)))
+        (contact r)
+        (t (+ (or whiff (+ r *whiff-extra*)) (getf *whiff-add* kind 0)))))
 
 (defun chain-open-p (sf s a r contact)
   "May the next link of a string start at move frame SF? Only after CONTACT (the string gate, docs/duel/DUEL_STRINGS.md
@@ -250,13 +254,14 @@ circle (0 when it is already on or outside it): the arena's room for a push (PUS
 LANDED, from its first hit frame HIT-FRAME until its recovery ends (TOTAL)."
   (and landed (>= sf hit-frame) (< sf total)))
 
-(defun guard-cancel-open-p (sf s a r contact &optional quick)
-  "The guard cancel: may a move with S / A / R whose own hit landed (CONTACT :hit; a whiff never; a block only for a
-QUICK (J) move, the user 2026-10-02: J and guard trade places fast) end in a guard at move frame SF? From the frame
-*GUARD-CANCEL* of its recovery is left (the last floor(R x *GUARD-CANCEL*) frames) to its end."
-  (let ((total (+ s a r)))
-    (and (or (eq contact :hit) (and quick (eq contact :block)))
-         (>= sf (- total (floor (* r *guard-cancel*)))) (< sf total))))
+(defun guard-cancel-open-p (sf s a r contact &optional kind whiff)
+  "The guard cancel: may a move with S / A / R end in a guard at move frame SF? Any move whose own hit landed (CONTACT
+:hit); a J / K link or an O (KIND :quick / :flash / :kikon) also blocked or whiffed (2026-10-23, the user: 「收招可以用防禦
+取消」, 「收招後半」; before: a J's block only, the user 2026-10-02). From the frame *GUARD-CANCEL* of the recovery actually
+played is left (RECOVERY-FRAMES: WHIFF its whiff recovery) to its end."
+  (let* ((rec (recovery-frames r contact whiff kind)) (total (+ s a rec)))
+    (and (or (eq contact :hit) (and (member kind '(:quick :flash :kikon)) t))
+         (>= sf (- total (floor (* rec *guard-cancel*)))) (< sf total))))
 
 ;; ---------------------------------------------------------------- the guard lock (the user 2026-09-30)
 (defun guard-locked-p (def-state was chain-left state phase sf s a r touched more)

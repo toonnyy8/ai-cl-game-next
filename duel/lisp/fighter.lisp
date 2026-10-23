@@ -510,10 +510,16 @@ is always up (:ward)."
   (and (guard-held-p e vp) (not (kit-guard-to (kit-of e))) (not (passive-p e :ward))))
 
 (defun neutral-step (e f vp)
-  "Idle / walk / strafe / guard: commands, then guard or walk, auto-facing. A form with :guard-to (Bankai East)
+  "Idle / walk / strafe / guard: commands, then guard or walk, auto-facing. While guarding, and for *GUARD-EXIT* frames
+after a guard is let go, no attack starts (Step, Hoho, the burst and the awakening do; the attack's press stays buffered)
+and after the guard he stands (a guard may go up again). A form with :guard-to (Bankai East)
 switches to that form while U is held instead of guarding (from idle / walk; a run stops into this step too): its
 ward is up after *GUARD-RAISE* frames (FIGHTER-GUARD-T counts them, and keeps counting while he walks in it)."
-  (unless (and (zerop (fighter-lock f)) (or (command! e f vp *neutral-commands*) (u-press! e f vp)))
+  (unless (and (zerop (fighter-lock f))
+               (if (or (plusp (fighter-guard-exit f)) (eq (fighter-state f) :guard))   ; guarding or just out of a guard:
+                   (command! e f vp '(:awaken :burst :hoho :step))      ;  no attack (*GUARD-EXIT*, the user 2026-10-23;
+                                                                        ;  the press stays buffered)
+                   (or (command! e f vp *neutral-commands*) (u-press! e f vp))))
     (let ((v (motion-vel (motion e))))
       (when (and (zerop (fighter-lock f)) (kit-guard-to (fighter-kit f)) (guard-held-p e vp))
         (set-form e (kit-guard-to (fighter-kit f)))
@@ -526,8 +532,10 @@ ward is up after *GUARD-RAISE* frames (FIGHTER-GUARD-T counts them, and keeps co
               (play-clip e :sh-guard :blend 3))
             (incf (fighter-guard-t f))
             (fill v 0f0))
-          (multiple-value-bind (to st) (if (zerop (fighter-lock f)) (stick-relative e f) (values 0.0 0.0))
-            (when (eq (fighter-state f) :guard) (to-idle e 4))
+          (multiple-value-bind (to st) (if (and (zerop (fighter-lock f)) (zerop (fighter-guard-exit f))) (stick-relative e f) (values 0.0 0.0))
+            (when (eq (fighter-state f) :guard)
+              (to-idle e 4)
+              (setf (fighter-guard-exit f) *guard-exit*))
             (setf (fighter-guard-t f) (if (passive-p e :ward) (min 9999 (1+ (fighter-guard-t f))) 0))
             (let ((m (hypot to st)) (kit (fighter-kit f)))
               (if (or (< m 0.2) (<= (kit-walk kit) 0))   ; (absolute zero: rooted where she stands)
@@ -628,16 +636,18 @@ the end (MOVE-END-FRAME)."
           do (emit :swing e (mv-kind mv)) (return))
     (when (eq (fighter-move f) mv)                        ; a hook may have started another move
       (cond ((and (zerop (fighter-lock f)) (move-commands e f vp mv sf)))
-            ((and (zerop (fighter-lock f)) (guard-cancel-open-p sf s (mv-a mv) (mv-r mv) (fighter-contact f) (eq (mv-kind mv) :quick))
-                  (guard-held-p e vp))                  ; the guard cancel: U held after its hit landed
-             (clog "~a guard cancel ~a f~d" (side-name e) (mv-name mv) sf)
+            ((and (zerop (fighter-lock f)) (guard-cancel-open-p sf s (mv-a mv) (mv-r mv) (fighter-contact f) (mv-kind mv) (mv-whiff mv))
+                  (guard-held-p e vp))                  ; the guard cancel: U held late in its recovery (a hit; a J / K / O
+             (clog "~a guard cancel ~a f~d" (side-name e) (mv-name mv) sf)   ;  blocked or whiffed too)
              (to-idle e)                                ; (a :guard-to / :ward form: neutral, whose U does the rest)
-             (setf (fighter-gc-left f) (- (+ s (mv-a mv) (mv-r mv)) sf))   ; no attack before its recovery would have ended
+             (setf (fighter-gc-left f) (- (move-end-frame s (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)   ; no attack before
+                                                          (zerop (length (mv-hits mv))) (mv-kind mv))           ;  its recovery
+                                          sf))                                                                  ;  would have ended
              (when (guard-p e vp)
                (setf (fighter-state f) :guard (fighter-guard-t f) 0)
                (play-clip e :sh-guard :blend 3)))
             ((>= sf (move-end-frame s (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)
-                                    (zerop (length (mv-hits mv)))))
+                                    (zerop (length (mv-hits mv))) (mv-kind mv)))
              (to-idle e))))))
 
 (defun push-apart (a b dist frames)
@@ -994,6 +1004,7 @@ cinematic or a :through move."
   (when (> (fighter-lock f) 0) (decf (fighter-lock f)))
   (when (> (fighter-hoho-lock f) 0) (decf (fighter-hoho-lock f)))
   (when (> (fighter-gc-left f) 0) (decf (fighter-gc-left f)))
+  (when (> (fighter-guard-exit f) 0) (decf (fighter-guard-exit f)))
   (when (> (fighter-invuln f) 0) (decf (fighter-invuln f)))
   (when (> (fighter-callout-t f) 0) (decf (fighter-callout-t f)))
   (when (> (fighter-frost f) 0) (decf (fighter-frost f)))

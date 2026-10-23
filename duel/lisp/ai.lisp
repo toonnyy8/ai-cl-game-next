@@ -81,7 +81,7 @@
           (snap-guard-t s) (fighter-guard-t f) (snap-projectile s) (incoming-projectile-p o))
     (if (and (eq st :move) mv)
         (let ((total (move-end-frame (mv-s mv) (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)
-                                     (zerop (length (mv-hits mv))))))
+                                     (zerop (length (mv-hits mv))) (mv-kind mv))))
           (setf (snap-kind s) (mv-kind mv) (snap-phase s) (fighter-phase f) (snap-s s) (mv-s mv) (snap-flags s) (mv-flags mv)
                 (snap-contact s) (fighter-contact f)
                 (snap-tell s) (getf (mv-params mv) :tell)
@@ -516,7 +516,7 @@ D = the perceived distance."
       ;; our hit landed and only the guard cancel's share of its recovery is left (no link latched): guard out of it,
       ;; unless we see him still reeling past our recovery's end
       ((and (eq st :move) (not (fighter-queued f))
-            (guard-cancel-open-p (fighter-sf f) (mv-s mv) (mv-a mv) (mv-r mv) (fighter-contact f) (eq (mv-kind mv) :quick))
+            (guard-cancel-open-p (fighter-sf f) (mv-s mv) (mv-a mv) (mv-r mv) (fighter-contact f) (mv-kind mv) (mv-whiff mv))
             (not (and (member (snap-state s) '(:stun :air :down :wakeup))
                       (> (snap-left-seen s b) (- (mv-total mv) (fighter-sf f))))))
        (why b :guard-cancel :guard-cancel))

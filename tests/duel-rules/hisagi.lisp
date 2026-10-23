@@ -615,7 +615,7 @@
         (setf (hss-rel-held st) t (fighter-sf fh) 10)
         (hs-bk-tick h fh gh)
         (check (and (not (hss-rel st)) (hss-rel-held st)))
-        (setf (fighter-sf fh) (1- (move-end-frame 18 4 20 (mv-whiff (m :hs-b-k1)) nil nil)))
+        (setf (fighter-sf fh) (1- (move-end-frame 18 4 20 (mv-whiff (m :hs-b-k1)) nil nil :flash)))   ; (a whiffed K: + *WHIFF-ADD*)
         (hs-bk-tick h fh gh)
         (check (and (hss-rel st) (not (hss-rel-held st))))
         ;; B8 the release at the step's release slot: the snapshot back (the grey Kikon undone, the heal kept), the pool's

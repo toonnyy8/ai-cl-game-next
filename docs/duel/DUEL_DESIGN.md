@@ -1740,3 +1740,36 @@ The user: 「然後幫我取消完美閃避能減少閃步量表消耗的設定�
 (fighter.lisp START-HOHO); it costs its full 30 like any Hoho (during a burst what is left, as before). Its other rewards stay:
 the slow motion, the opponent's 40 f lock, the automatic counter (60), RESPECT, the perfects counter. Gates: DEVLOG §286 (the lead, 2026-10-19).
 
+## Whiff and block recovery, the guard's commitment (the user, 2026-10-23)
+
+「然後我想跟你討論下戰鬥系統的調整（我想增加 J/K/O 等等普攻打空後的硬直，避免一直無腦連打進行壓制）」; shown the numbers (a J1
+whiff 30 f, only a J1 inside its own reach could punish it), the user's design: 「拉長打空與被防禦的收招，但收招可以用防禦取消，進入防禦
+跟解除防禦會有短暫的硬直」; picks: 「收招後半」, 「J／K 連段與 O」, the numbers left to the lead (the medium set), and on the release
+lag: 「只擋攻擊這個選項應該只能開放 step 跟 hoho，不能移動對吧？」 (yes).
+
+- **Recovery** (rules.lisp RECOVERY-FRAMES / MOVE-END-FRAME take the move's kind): a J link (:quick), K link (:flash) or an
+  O (:kikon) that touched nothing recovers its whiff recovery + `*whiff-add*` (8 each: Kenpachi's J1 30 -> 38 f, K1 52 ->
+  60 f); one blocked that goes on into nothing recovers R + `*block-add*` (J 4, K 6, O 6: his J1 22 -> 26 f). The
+  defender's blockstun still comes from the move's own S + A + R (BLOCKSTUN), so his block advantage grows by as much
+  (a blocked J −5 -> −9 counting `*quick-block-adv*`, K −3 -> −9). A string's chain keeps its own timing (CHAIN-OPEN-P,
+  the guard lock): a blocked string still flows; only stopping costs the frames. Other kinds (L, SP, the Breaker) as
+  they were.
+- **The guard cancel** (GUARD-CANCEL-OPEN-P, now given the kind and the whiff recovery): any move's own hit, as before;
+  a J / K / O also blocked or whiffed, over the last half of the recovery actually played (a whiffed J1 into a guard on
+  f24 of 38). As before it is only a guard: no attack before that recovery would have ended (FIGHTER-GC-LEFT, now
+  measured to MOVE-END-FRAME's end).
+- **Guard in and out**: `*guard-raise*` 2 -> 4 f; `*guard-exit*` 4 (new): after letting go of a guard (the :guard state ->
+  idle) only Step and Hoho start for 4 f, he stands (no walk); while guarding no attack starts either (the burst and the
+  awakening still do); an attack's press stays buffered and fires when allowed (released on f20: J1 on f24). Blockstun
+  that ends with U already let go goes straight to neutral (no exit lag: the punish after a block stays as it was).
+- **Tests**: host checks of RECOVERY-FRAMES, MOVE-END-FRAME and GUARD-CANCEL-OPEN-P (core.lisp), Hisagi's release test
+  passes the kind; native sim (Kenpachi mirror): the frames above, the release lag (GUARD f0–19, IDLE f20–23, J1 f24), a
+  Step on f21 allowed.
+- **Gates** (simgate 28 pairings x 10 seeds): every match K.O. but one draw (the Hisagi mirror); medians against the
+  parent: YY 86.2 -> 84.6, YK 80.2 -> 84.4, KK 96.2 -> 81.4, RY 100.4 -> 101.0, RK 106.2 -> 100.5, RR 129.5 -> 131.0, IY
+  118.2 -> 110.4, IK 108.2 -> 93.6, IR 121.8 -> 132.2, II 130.6 -> 127.4, SY 107.7 -> 97.6, SK 93.3 -> 103.0, SR 147.7 ->
+  119.6, SS 140.2 -> 128.4, SI 129.2 -> 119.3, BY 100.6 -> 109.4, BK 115.5 -> 116.7, BR 149.2 -> 153.7, BI 155.8 -> 160.9,
+  BS 154.1 -> 130.5, BB 173.8 -> 154.9, HY 113.9 -> 115.2, HK 111.7 -> 130.6, HR 153.4 -> 146.2, HI 153.6 -> 140.7, HS 148.1
+  -> 134.7, HB 162.3 -> 153.7, HH 173.9 -> 206.8 s (many cross pairings were already under 135 before the change); cvc's
+  three matches changed (tests/style-cvc-ref.txt regenerated: yy P2 0-7 102.7 s, yk P2 0-6 96.8 s, kk P2 0-1 146.2 s).
+  The 60-seed edge reruns and the awaken A/B were not run (the user's call).

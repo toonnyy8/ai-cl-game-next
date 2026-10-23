@@ -1244,7 +1244,7 @@ its strike (B4c: the opponent's *HS-BIND-REEL*, unless the step ended the round)
                  (if mv
                      (and (eq (fighter-phase f) :main)
                           (hs-rel-due-p (fighter-sf f) (move-end-frame (mv-s mv) (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)
-                                                                       (zerop (length (mv-hits mv))))))
+                                                                       (zerop (length (mv-hits mv))) (mv-kind mv))))
                      (hs-rel-free-p s (awaken-state-p e f))))
         (setf (hss-rel st) t (hss-rel-held st) nil)
         (pace e :release-held)))

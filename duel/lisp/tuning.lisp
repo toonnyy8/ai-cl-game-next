@@ -70,7 +70,19 @@ again, so he can guard it (not red), Step or Hoho out (KIKON-FOLLOW-WAIT).")
 (defparameter *run-brake* 6 "Frames of braking after Step is released (committed, like recovery).")
 (defparameter *run-carry* 1.0 "A move started out of a run slides this far along the run (momentum) ...")
 (defparameter *run-carry-frames* 10 "... over this many frames (never past *RUN-STOP* from the opponent).")
-(defparameter *guard-raise* 2 "Frames of holding Guard before it blocks.")
+(defparameter *guard-raise* 4
+  "Frames of holding Guard before it blocks (2 -> 4, 2026-10-23, the user: 「拉長打空與被防禦的收招，但收招可以用防禦取消，進入防禦跟
+解除防禦會有短暫的硬直」, the lead's medium numbers; DUEL_DESIGN \"Whiff and block recovery\").")
+(defparameter *guard-exit* 4
+  "Frames after letting go of a guard (leaving the :guard state) in which only Step and Hoho may start: no attack, no
+walk (none -> 4, 2026-10-23, the same decision: 「只擋攻擊這個選項應該只能開放 step 跟 hoho，不能移動對吧？」).")
+(defparameter *whiff-add* '(:quick 8 :flash 8 :kikon 8)
+  "A J link (:quick), K link (:flash) or O (:kikon) that touched nothing recovers this much longer than its own whiff
+recovery (none -> 8 each, 2026-10-23, the same decision: J R + 8 -> R + 16, K R + 12 -> R + 20, O whiff + 8) ...")
+(defparameter *block-add* '(:quick 4 :flash 6 :kikon 6)
+  "... and one that was blocked and goes on into nothing (no link: a string's chain keeps its own timing) recovers R +
+this, the defender's blockstun unchanged: his block advantage grows by as much (none -> J 4, K 6, O 6, the same
+decision). Both recoveries may end in a guard over their last half (GUARD-CANCEL-OPEN-P).")
 (defparameter *guard-arc* 200.0 "Guard covers this many degrees in front (while the guard gauge lasts).")
 (defparameter *block-pushback* 0.6 "Metres a blocked hit pushes the defender back.")
 (defparameter *whiff-extra* 6 "A move that touched nothing recovers R + this (a J / K link: the two below).")
