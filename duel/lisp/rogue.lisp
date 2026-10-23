@@ -94,7 +94,7 @@ headed BUILD), the items split in half."
   (setf *rogue-sub* sub *rogue-rows* rows
         *endless-lines* (vector title
                                 (format nil "KONPAKU  ~d   HELD  ~d / 9" (getf *endless-carry* :konpaku) (length *rogue-held*))
-                                labels notes))
+                                labels notes (append labels '("CONFIRM"))))
   (set-flow :reward))
 
 (defun rogue-cards-screen ()
@@ -170,10 +170,22 @@ headed BUILD), the items split in half."
                            (log-msg "duel rogue rest step ~d upgrade ~d tier ~d" *endless-stage* k (cdr (assoc k *rogue-held*)))
                            (rogue-open-doors)))))))
 
+(defun rogue-nav (n)
+  "A REWARD / DOORS page's input over N rows: the keys as MENU-NAV (up / down, confirm takes the selected row); a tap on a
+row only selects it, so its note shows first, and the CONFIRM row under the rows (drawn on touch only, HUD-ROGUE-DOORS)
+takes the selected one (the user, 2026-10-23: 「在關卡之間選擇獎勵的時候請提供一個額外的確認鍵，不然手機點擊連詳細內容預覽都看不見就
+直接選擇了」)."
+  (when (menu-up-p) (setf *menu* (mod (1- *menu*) n)) (play-sfx :select))
+  (when (menu-down-p) (setf *menu* (mod (1+ *menu*) n)) (play-sfx :select))
+  (let ((r (tapped-row (1+ n))))
+    (cond ((and r (< r n)) (unless (= r *menu*) (setf *menu* r) (play-sfx :select)) nil)
+          (r (play-sfx :confirm) *menu*)
+          ((confirm-p) (play-sfx :confirm) *menu*))))
+
 (defun rogue-reward-update ()
   "REWARD per frame: the rows take input after 1 s (each page), as STAGE CLEAR; the autopilot takes row 0 every time."
   (cond (*endless-auto* (rogue-row 0))
-        ((> *ft* 1.0) (let ((i (menu-nav (length *rogue-rows*)))) (when i (rogue-row i))))))
+        ((> *ft* 1.0) (let ((i (rogue-nav (length *rogue-rows*)))) (when i (rogue-row i))))))
 
 (defun rogue-debug (k)
   "Debug 84500+K (DUEL_GAMEPLAY): 1-28 grant reward K to the running run (COMMON, RARE for a RARE+ only one) when it is
@@ -210,7 +222,8 @@ not held and its category has a free slot; 50-52 the running stage's reward type
           *endless-lines* (vector (format nil "STAGE ~d" next)
                                   (format nil "KONPAKU  ~d" (getf *endless-carry* :konpaku))
                                   (mapcar #'rogue-door-label *rogue-doors*)
-                                  (mapcar (lambda (d) (rogue-door-note d next)) *rogue-doors*)))
+                                  (mapcar (lambda (d) (rogue-door-note d next)) *rogue-doors*)
+                                  (append (mapcar #'rogue-door-label *rogue-doors*) '("CONFIRM"))))
     (set-flow :doors)))
 
 (defun rogue-take (i)
@@ -228,10 +241,11 @@ fight (its reward type kept for its clear)."
 (defun rogue-doors-update ()
   "DOORS per frame: the rows take input after 1 s, as STAGE CLEAR; the autopilot takes door 0."
   (cond (*endless-auto* (rogue-take 0))
-        ((> *ft* 1.0) (let ((i (menu-nav (length *rogue-doors*)))) (when i (rogue-take i))))))
+        ((> *ft* 1.0) (let ((i (rogue-nav (length *rogue-doors*)))) (when i (rogue-take i))))))
 
 (defun hud-rogue-doors (w h s)
-  "DOORS (and REWARD, the same layout): the title, P1's Konpaku, the rows with the selected one's note above them."
+  "DOORS (and REWARD, the same layout): the title, P1's Konpaku, the rows with the selected one's note above them; on touch
+a CONFIRM row under them (a tap on a row only selects it: ROGUE-NAV)."
   (let ((l *endless-lines*))
     (multiple-value-bind (cx y pw) (results-card w h s)
       (ui-big-text (svref l 0) (round cx) (round (+ y (* 4 s))) (fit-scale (svref l 0) (* 3 s) (- pw (* 8 s)))
@@ -241,4 +255,4 @@ fight (its reward type kept for its clear)."
       (when (> *ft* 1.0)
         (let* ((y0 (if (portrait-p) 0.8 0.72)) (note (nth *menu* (svref l 3))))
           (hud-text note cx (- (* y0 h) (* 14 s)) (fit-scale note (* 1.5 s) (- pw (* 8 s))) *ember* :align :center)
-          (hud-menu (svref l 2) y0 pw h s cx))))))      ; (the rows fit the card's width)
+          (hud-menu (svref l (if (touch-tap-zones-p) 4 2)) y0 pw h s cx))))))   ; touch: + CONFIRM (ROGUE-NAV); rows fit the card
