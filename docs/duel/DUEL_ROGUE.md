@@ -522,3 +522,24 @@ The user: 「推到 gh page 後開始 DANGAI 第 3 批」 (after 「繼續完成
 - **Senjumaru** (senjumaru.lisp SENJU-BOSS, SENJU-WOVEN-AFTER): the loom always full: 3 passes stored (woven 60) at FIGHT,
   refilled after every cast and a void, so every release is a 3-pass one; the queue and the forms advance as usual; her
   `:ok` refuses the L presses that could only weave (J→L HITOKOSHI, a neutral L while a zone lives), so her CPU strings on.
+- **Lille** (barro.lisp BR-BOSS, BR-BOSS-SETTLED, BARRO-TICK): JILLIEL KIN at FIGHT (the ramp's awakening); in JILLIEL his
+  wings refill as the owl's do (one every 120 f, `*br-owl-wing-every*`); his first Konpaku lost (a bind's grey loss not
+  counted) sets the owl for good: the form follows the burst OR that flag, so the burst's end no longer turns him back
+  (SHIN KIN / SHIN to the end). His CPU stops bursting there (its burst reflex is JILLIEL's).
+- **Hisagi** (hisagi.lisp HS-KUBI-NEED, HS-BOSS-STEP, HS-RELEASE-SHARES, hisagi-ai.lisp): KUBIKAKE binds at 100 Reiatsu
+  (`*hs-boss-kubi-reiatsu*`; the CPU's SP1 ender keeps that + 1 bar); 1 % of his Reishi max a second once 180 f pass with
+  no contact on him (any hit, block, armour or parry, any source; RUN-REGEN-HEAL's spread; also while red, the user's
+  「只要沒受到攻擊」 taken literally); an active release (FREE, KAIBAKU-GEKI) gives the pool to him first (up to 300), the
+  rest to the opponent; a drained bind and time-up unchanged.
+- **Evidence** (native sim, debug 84560+c with P1 a HARD CPU, seed 1): Yamamoto `reishi 1950->2600 burn 0.005/s`, Reishi
+  burning down through the fight; Kenpachi BANKAI UDE 4 to the K.O., `pip kept KE-B-KIKON` / `KE-BREAKER`; Rukia at −50 on
+  every reset and after a CRACK, −273 reached; Ichigo 18 free clones and 59 echoes by t 90 s, no SP2; Senjumaru 12 casts all
+  at 3 passes, no weave; Lille a wing every 2 s in JILLIEL, the owl kept after the first Konpaku lost (forced Soul Breaks in
+  a scratch driver); Hisagi binding at 113.6 / 164.7 Reiatsu, +20 Reishi a second after 3 s clear. The release split is in
+  the host tests only (no active release in the runs).
+- **Interpretations for the user**: Kenpachi keeps his Konpaku in the Bankai (BANKAI! sets 1); Ichigo's "meter" is the
+  clone's guard-gauge cost and "SP2's afterimages" ZANZO for good (his SP2 refused); Senjumaru's "full" is 3 passes;
+  Hisagi's regen also while red; Lille's owl ignores the burst gauge's end.
+- **Gates**: host 9998 -> 10018 ALL PASS; pkgcheck 0; build 0 warnings; smoke 0; with no run the native sim is
+  byte-identical (each character batch on its pairings; after the merge simgate 28 pairings x 10 seeds, 815 lines, cmp-identical
+  to the parent 14d6da5's; cvc 3/3).
