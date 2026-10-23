@@ -392,10 +392,20 @@ cards are RARE (tier 1), a GENERIC offer's COMMON. N cards (2 from 靈壓階 5);
 (defun rogue-upgradable (held) "HELD's rewards a rest's UPGRADE can raise: tierable, below LEGEND (ids)." (loop for (id . tier) in held when (and (rogue-tierable-p id) (< tier 2)) collect id))
 (defun rogue-upgrade (held id) "HELD with reward ID one tier up (at most LEGEND)." (mapcar (lambda (h) (if (eql (car h) id) (cons id (min 2 (1+ (cdr h)))) h)) held))
 
-(defun rogue-clear-konpaku (konpaku mods &optional (rank 0))
-  "P1's Konpaku after a clear in a run with MODS: + its :clear-konpaku (2, 1 from 靈壓階 3; 時契 3, 賭契 0), at most its
-:konpaku-cap and *KONPAKU-MAX* (ENDLESS's carry with the pacts in)."
-  (min (getf mods :konpaku-cap *konpaku-max*) *konpaku-max* (+ konpaku (getf mods :clear-konpaku (if (>= rank 3) 1 2)))))
+(defparameter *rogue-elite-konpaku* 5
+  "Konpaku an elite's clear gives (a normal step's 2; the boss's refills to the cap). Was 2 (every clear alike); 5 the user,
+2026-10-23: 「然後通過精英關恢復 5 魂魄，通過 BOSS 關恢復全部魂魄」.")
+
+(defun rogue-clear-konpaku (konpaku mods &optional (rank 0) (kind :normal))
+  "P1's Konpaku after clearing a KIND step (ROGUE-STEP-KIND) in a run with MODS, at most its :konpaku-cap and
+*KONPAKU-MAX*: a normal step + its :clear-konpaku (2, 1 from 靈壓階 3; 時契 3), an elite + the larger of that and
+*ROGUE-ELITE-KONPAKU*, the boss up to the cap. 賭契's 0 holds for every kind (its cost)."
+  (let ((cap (min (getf mods :konpaku-cap *konpaku-max*) *konpaku-max*))
+        (gain (getf mods :clear-konpaku (if (>= rank 3) 1 2))))
+    (min cap (cond ((zerop gain) konpaku)
+                   ((eq kind :boss) cap)
+                   ((eq kind :elite) (+ konpaku (max gain *rogue-elite-konpaku*)))
+                   (t (+ konpaku gain))))))
 
 ;;; ---------------------------------------------------------------- across runs (DUEL_ROGUE §6, batch 5)
 (defparameter *rogue-rank-max* 5 "靈壓階 0-5 (§6, R5).")

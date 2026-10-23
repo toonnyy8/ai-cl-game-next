@@ -649,3 +649,14 @@ The user, after batch 5's first reading: 「第一輪的普通關都設為 easy,
   18, YOKUGAI 14 / 15, HAKUGAI 8 / 15; the generic cards sit near 0.5.
 - **Gates**: host 10063 -> 10064 ALL PASS (steps 1–9 give EASY EASY NORMAL x3 for every floor, step 10 HARD, step 12 the
   ramp); pkgcheck 0; build 0 warnings; no-run simgate 28 x 10 summary identical; cvc 3/3; debug ranges 0 errors.
+
+## Clear Konpaku: an elite +5, the boss refills (2026-10-23)
+
+The user: 「然後通過精英關恢復 5 魂魄，通過 BOSS 關恢復全部魂魄」.
+
+- **ROGUE-CLEAR-KONPAKU (konpaku mods &optional rank kind)**: kind from ROGUE-STEP-KIND of the cleared step. Normal: + its
+  :clear-konpaku as before (2; 1 from 靈壓階 3; 時契 3). Elite (3, 6, 9 and on in the continuation): + the larger of that
+  and `*rogue-elite-konpaku*` 5 (2 -> 5). Boss: up to the cap. Every kind stays at most the :konpaku-cap (血契's 7) and 9;
+  賭契's 0 still gives nothing on any kind (its cost; the lead's call). 靈壓階 3's +1 is the normal steps' only.
+- **Gates**: host 10064 -> 10065 ALL PASS; pkgcheck 0; build 0 warnings; no-run simgate 28 x 10 summary identical; cvc
+  3/3. The autopilot's reading follows below once it finishes.

@@ -163,7 +163,7 @@ else ends the run (its RESULTS)."
           *endless-lines*
           (vector (format nil "STAGE ~d CLEAR" n)
                   (format nil "TIME ~a   RUN ~a" (mm-ss (round (match-play-ticks) 60)) (mm-ss (round *endless-ticks* 60)))
-                  (format nil "KONPAKU  ~d -> ~d" k (if *rogue* (rogue-clear-konpaku k (rogue-run-mods) *rogue-rank*) (min *konpaku-max* (+ k 2))))
+                  (format nil "KONPAKU  ~d -> ~d" k (if *rogue* (rogue-clear-konpaku k (rogue-run-mods) *rogue-rank* (rogue-step-kind n)) (min *konpaku-max* (+ k 2))))
                   (or (and *rogue* (rogue-unlock-note)) "REISHI FULL   GUARD FULL")   ; (DANGAI: a new unlock instead)
                   "REIATSU  FLASH STEP  KEPT"
                   (if *rogue*                             ; DANGAI: the doors pick the opponent (rogue.lisp)
@@ -184,7 +184,7 @@ else ends the run (its RESULTS)."
       (let ((snap *endless-snap*))
         (setf *endless-carry* (endless-carry snap k))
         (when *rogue*                                     ; DANGAI: the pacts' clear Konpaku and cap (rogue-rules.lisp)
-          (setf (getf *endless-carry* :konpaku) (rogue-clear-konpaku (getf snap :konpaku) (rogue-run-mods) *rogue-rank*)))
+          (setf (getf *endless-carry* :konpaku) (rogue-clear-konpaku (getf snap :konpaku) (rogue-run-mods) *rogue-rank* (rogue-step-kind *endless-stage*))))
         (log-msg "duel endless clear ~d konpaku ~d->~d choice ~(~a~) form ~(~a~)->~(~a~) meter ~d ticks ~d"
                  *endless-stage* (getf snap :konpaku) (getf *endless-carry* :konpaku) k (getf snap :form)
                  (getf *endless-carry* :form) (round (getf *endless-carry* :meter)) *endless-ticks*)
