@@ -744,11 +744,14 @@ POS along FA[0] his facing), [3] the bend, [4] the lash weight (0 at rest .. 1 o
 (defparameter *hs-flow-period* 0.7
   "Seconds the K tip's flow takes down a hanging chain (§25.27, the user, 2026-10-23: 「幫我將 K 添加白色流光流過鎖鏈作為提示
 （p2 則是黑色流光）」; the lead's number).")
-(declaim (type f32vec *hs-tg* *hs-gl*))
+(defparameter *hs-flow-every* 1.8
+  "Seconds between one chain's flows (§25.28: it runs *HS-FLOW-PERIOD*, then the chain rests; 0.7, back to back, until the
+user, 2026-10-23: 「降低流光的頻率」; 1.8 the lead's number).")
+(declaim (type f32vec *hs-tg*))
 (defvar *hs-tg* (make-f32 1)
-  "The chain-tip glint this draw (DUEL_HISAGI §25.26; HISAGI-DRAW sets it): 0 none, 1 the opponent on K1's tip (the eight
-hanging chains' free ends glint), 2 on J1's (the right crescent glints).")
-(defvar *hs-gl* (make-f32 3) "The right crescent's blades (world), the J tip glint's place.")
+  "The chain-tip cue this draw (DUEL_HISAGI §25.26-§25.28; HISAGI-DRAW sets it): 0 none, 1 the opponent on K1's tip (the
+flow down the hanging chains), 2 on J1's (the hanging chains' free ends glint; the right crescent's glint gone since
+§25.28).")
 (defun-fast %hs-curve! (cz o tp e e2 pos)
   "CZ[O..O+11] := a chain's cubic from TP (its top under the orb) to E (its free end, as *HS-LT*: [3] the bend, [4] the
 lash weight): at rest a straight line; lashing (weight 1) down from the orb past a knee near him (0.3 of the way out, 0.9 m
@@ -779,8 +782,8 @@ earlier: the lag, at most 1.8 m), no point under the floor; CZ[O+12] := the lash
   "Draw hanging chain J's cubic CZ[O..] (%HS-CURVE!) link by link in black (%HS-BLACK-KITE), tapered toward its free end
 by its lash weight, its width x CZ[O+13]; with the bundle weight *HS-CAR* [7] it is drawn that far onto the bundle's
 cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out under the orb). On K1's tip (*HS-TG* 1,
-§25.27) a resting chain carries the flow: a streak of light running down it from 0.35 of its length to its end every
-*HS-FLOW-PERIOD* s (each chain its own phase), white on P1's black links, solid black on P2's ink ones (x1.5 wide: the ink links are lighter and wider). 0 B."
+§25.27) a resting chain carries the flow: a streak of light running down it from 0.35 of its length to its end in
+*HS-FLOW-PERIOD* s, once every *HS-FLOW-EVERY* s (each chain its own phase), white on P1's black links, solid black on P2's ink ones (x1.5 wide: the ink links are lighter and wider). 0 B."
   (declare (type f32vec cz) (fixnum o j))
   (let* ((bw (aref *hs-car* 7)) (ob 112) (cw (- 1f0 bw))
          (len (+ (* cw (+ (f-hypot (- (aref cz (+ o 3)) (aref cz o)) (- (aref cz (+ o 4)) (aref cz (+ o 1))) (- (aref cz (+ o 5)) (aref cz (+ o 2))))
@@ -792,7 +795,9 @@ cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out 
          (n (min 120 (max 2 (f->i (/ len 0.12f0)))))
          (tp (+ (* cw (aref cz (+ o 12))) (* bw (aref cz (+ ob 12))))) (wx (aref cz (+ o 13))) (jp (* 0.7853982f0 (i->f j)))
          (flow (and (= (aref *hs-tg* 0) 1f0) (< tp 0.01f0) (< bw 0.01f0)))
-         (pu (+ 0.35f0 (* 0.65f0 (f-mod (+ (/ (fx-clock) (the single-float *hs-flow-period*)) (* 0.37f0 (i->f j))) 1f0)))))
+         (pu (+ 0.35f0 (* 0.65f0 (/ (* (the single-float *hs-flow-every*)
+                                         (f-mod (+ (/ (fx-clock) (the single-float *hs-flow-every*)) (* 0.37f0 (i->f j))) 1f0))
+                                      (the single-float *hs-flow-period*))))))   ; (past 1: resting till its next)
     (declare (single-float bw cw len tp wx jp pu) (fixnum ob n))
     (dotimes (i n)
       (let* ((u (/ (+ 0.5f0 (i->f i)) (i->f n))) (v (- 1f0 u))
@@ -860,11 +865,11 @@ bundle's twice as wide). 0 B."
   nil)
 
 (defun-fast %hs-glint (p j)
-  "A chain-tip glint at P (an f32vec, world): a small 4-point white star twinkling on the drawings, glint J's (0-8) own phase
-and spikes (8, the crescent's, twice as large: it sits on black steel) (§25.26: the opponent stands on that strike's chain tip; HS-R-TIP-CMD). 0 B."
+  "A chain-tip glint at P (an f32vec, world): a small 4-point white star twinkling on the drawings, glint J's (0-7) own phase
+and spikes (§25.26; since §25.28 on J1's tip only: HS-R-TIP-CMD). 0 B."
   (declare (type f32vec p) (fixnum j))
   (let* ((jf (i->f j)) (dr (i->f (logand (f->i (* 12f0 (fx-clock))) 63)))
-         (tw (f-abs (f-sin (+ (* 0.7f0 jf) (* 0.5f0 dr))))) (r (* (if (= j 8) 0.3f0 0.15f0) (+ 0.45f0 (* 0.55f0 tw)))))
+         (tw (f-abs (f-sin (+ (* 0.7f0 jf) (* 0.5f0 dr))))) (r (* 0.15f0 (+ 0.45f0 (* 0.55f0 tw)))))
     (declare (single-float jf dr tw r))
     (fx-star (aref p 0) (aref p 1) (aref p 2) (* 0.12f0 r) r 4 (* 0.3f0 (hash01 jf 4.7f0)) 0f0 0f0 0.02f0 (+ jf dr) +pal-hit+
              0.95f0 :push 0.3f0))
@@ -910,7 +915,7 @@ on its entry of LK (his clip's *HS-LASHES-V*: %HS-LASH-TIP!, the lag, the trail)
                         (aref cz (+ o 13)) 1f0)
                   (when (< cl1 1f0)                                     ; (a cinematic's drop: that share of its length)
                     (dotimes (i 3) (setf (aref e i) (+ (aref tp i) (* cl1 (- (aref e i) (aref tp i)))))))
-                  (when (and (< j 8) (= (aref *hs-tg* 0) 1f0)) (%hs-glint e j))   ; (§25.26: on K1's tip)
+                  (when (and (< j 8) (= (aref *hs-tg* 0) 2f0)) (%hs-glint e j))   ; (§25.28: on J1's tip)
                   (%hs-curve! cz o tp e e tp)))))))
     (dotimes (j 8)
       (unless (logbitp j mask) (%hs-cubic-chain cz (* 14 j) j))))
@@ -1202,10 +1207,7 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                       (cond ((and mv (eq name :hs-b-sp2) (>= sf (mv-s mv))) 3)   ; (A3: KAIBAKU-GEKI's release)
                             ((or (hss-bound st) (logtest cfl 4)) 1) ((eq cn :hs-kb-unwind) 2) (t 0)) (model-tint m)
                       (cdr (assoc cn *hs-bk-chains-v*)) (if (and mv (eq (fighter-contact f) :hit)) 1 0)
-                      (cdr (assoc cn *hs-lashes-v*)) (and (hss-bound st) (cdr (assoc cn *hs-kb-grips-v*))))
-        (when (= (aref *hs-tg* 0) 2f0)                                 ; (§25.26: on J1's tip, the right crescent)
-          (joint-point! *hs-gl* (model-joints m) (ji :weapon-r) 0f0 0f0 -0.6f0)
-          (%hs-glint *hs-gl* 8))))))
+                      (cdr (assoc cn *hs-lashes-v*)) (and (hss-bound st) (cdr (assoc cn *hs-kb-grips-v*))))))))
 
 (defun hs-tip-fx (att def x y z &rest more)
   "His :hit-fx hook (FEEDBACK-SYSTEM, after the hit's spark; DUEL_HISAGI §25.26): a hit on the chain tip (HS-DMG-MULT's

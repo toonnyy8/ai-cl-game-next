@@ -3533,3 +3533,13 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
   glint on the crescent unchanged. 0 B a frame (83901 at 4.75 m: 0 on the repeat call).
 - **Debug** 83024: the Bankai mirror 4.75 m apart, both CPUs off (both on K1's tip: both flows).
 - Built 0 warnings, the browser shots checked (83022, 83024), no exception; nothing the sim reads changed (no gate run).
+
+### 25.28 The flow rarer, the end glints to J, the crescent's glint off (the user, 2026-10-23)
+
+- The user (verbatim): 「降低流光的頻率，然後把 K 原本鎖鏈端點閃耀的特效轉交給 J，並將 J 的鐮刀閃耀關閉」.
+- **The flow** (§25.27): each chain's streak still runs down in `*hs-flow-period*` 0.7 s, now once every
+  `*hs-flow-every*` 1.8 s (back to back until now; the lead's number), the chains still 0.37 of a cycle apart.
+- **The cues by band** (`*hs-tg*`): on K1's tip (4.5-5.2 m) the flow only; on J1's tip (5.5-6.2 m) the hanging chains'
+  free-end glints (§25.26's, unchanged in look); the right crescent's glint removed (with `*hs-gl*`).
+- 0 B a frame (83901 at 4.75 and 5.75 m: 0 on the repeat call); built 0 warnings; shots 83022 / 83023 checked; nothing
+  the sim reads changed.
