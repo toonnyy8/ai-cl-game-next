@@ -157,6 +157,59 @@ folded the three into one slot; traits take none and free none.
 | G | 真劍勝負 | 背水 + 魄鎧 + 血契 (斬 守 契) | both sides' Reishi max halved; the Kikon sealed for both (the O button and the O ender do nothing; Konpaku goes only by Soul Break); P1's damage +30 % |
 | H | 劍八 | 不屈 + 背水 + 覇氣 (守 斬 靈) | while red: one armour hit always (refilled 2 s after it breaks), damage +40 %, no guard |
 
+### 4.4 The run modifier table (batch 2's contract)
+
+The held generic rewards and their traits fold into **one plist**, `*run-mods*` (NIL outside a DANGAI stage), which
+applies to **one fighter**, `*run-mods-who*` (P1). Every rule point reads it through `(rmod e key default)`: the
+DEFAULT unless a run is active and E is that fighter, so with no run every point computes exactly what it did (no
+`(* x 1.0)` on the default path). `run-mods.lisp` (before fighter.lisp) holds the two vars and RMOD; `rogue-rules.lisp`
+folds the held rewards into the plist (`rogue-mods held`), the run layer sets both vars at each stage start.
+
+**Stacking**: multipliers (`x`) multiply; counts and fractions (`+`) add; flags are OR. **Tiers** scale only a reward's
+benefit: a multiplier's bonus `m − 1` (and a `+` fraction or a seconds value) x1.5 RARE, x2 LEGEND; integer counts do
+not scale (except 殘心: LEGEND 2); a pact's cost never scales.
+
+| Key | Kind, default | Read where (rule point) | From |
+|---|---|---|---|
+| `:dmg` | x 1.0 | every damage P1 deals | 鋭刃 1.10, 血契 1.20, 狂契 1.15, 真劍勝負 1.30 |
+| `:ender-dmg` | x 1.0 | P1's link-3 enders (move flag `:ender`) | 連撃 1.25 |
+| `:red-dmg` | x 1.0 | P1's damage while P1 is red | 背水 1.25, 死線 1.35, 劍八 1.40 |
+| `:post-burst-dmg` | x 1.0 | P1's first hit after his Hoho or Burst Reverse | 追擊 1.30, 瞬閧 1.45 |
+| `:post-burst-fs` | + 0 | flash-step gauge (fraction of max) back when that first hit lands | 瞬閧 0.15 |
+| `:sp-dmg` | x 1.0 | P1's SP1 / SP2 | 必殺 1.20 |
+| `:ender-sp-dmg` | x 1.0 | P1's SP started within 60 f of his link-3 ender hitting | 卍禍 1.40 |
+| `:guard-drain` | x 1.0 | the guard gauge P1's blocked hits drain | 破鎧 1.40 |
+| `:kikon-plus` | + 0 | Konpaku P1's Kikon takes, before the per-event cap | 捨身 1 |
+| `:sb-plus` | + 0 | Konpaku P1's Soul Break takes, before the cap | 捨身 1 |
+| `:kikon-past` | + 0 | Konpaku P1's Kikon takes, after the cap | 斷魂 1, 修羅 2 |
+| `:sb-past` | + 0 | Konpaku P1's Soul Break takes, after the cap | 最古最強 1 |
+| `:kikon-guard` | flag | the Kikon (KIKON-OUTCOME :kikon) on P1 guarded in any state, no Konpaku, no drain, no chip; the CPU's AI-SB-FINISH-P is true against him (never rushes) | 魄鎧 |
+| `:kikon-seal` | flag | neither side's Kikon (the O button and the O ender do nothing; the CPU never presses O) | 真劍勝負 |
+| `:revive` | + 0 | once a stage, P1's Konpaku reaching 0 comes back to this; a both-out trade is then P1's win | 殘心 1 (LEGEND 2) |
+| `:armor-on-soul-loss` | + 0 s | one armour hit for this long after P1 loses Konpaku to a Kikon / Soul Break | 不屈 3 |
+| `:armor-on-awaken` | + 0 s | one armour hit for this long after P1's awakening cinematic | 覇氣 3 |
+| `:red-armor` | + 0 s | while P1 is red, one armour hit, refilled this long after it breaks | 死線 5, 劍八 2 (the smaller wins) |
+| `:red-no-guard` | flag | P1 cannot guard while red | 劍八 |
+| `:chip-taken` | x 1.0 | chip P1 takes | 鐵甲 0.60 |
+| `:breaker-taken` | x 1.0 | Breaker damage P1 takes | 鐵甲 0.60 |
+| `:awake-taken` | x 1.0 | damage P1 takes while awakened | 威壓 0.85 |
+| `:perfect-taken` | x 1.0 | damage P1 takes within 120 f of his perfect Hoho | 鬼道 0.40 |
+| `:perfect-fs` / `:perfect-reiatsu` | + 0 | flash step (fraction of max) / Reiatsu (bars) back on P1's perfect Hoho | 見切 0.25 / 0.5 |
+| `:regen` | + 0 | Reishi (fraction of max) a second after 180 f unhit, not while red | 回生 0.01 |
+| `:fs-regen` | x 1.0 | flash-step regen | 疾風 1.30 |
+| `:hoho-cost` | x 1.0 | Hoho's flash-step cost | 瞬歩 0.70 |
+| `:reiatsu-regen` | x 1.0 | Reiatsu regen | 靈力 1.30, 狂契 1.30 |
+| `:gg-regen` | x 1.0 | guard-gauge regen | 堅守 1.30 |
+| `:awaken-heal` | + 0 | added to the awakening's heal (20 % of max) | 解放 0.20 |
+| Stage-start keys (the run layer applies them at spawn) | | | |
+| `:reishi-max` | x 1.0 | P1's Reishi max (and Reishi) | 靈體 1.15, 捨身 0.80 |
+| `:gg-max` | x 1.0 | P1's guard-gauge max | 堅守 1.30, 狂契 0.60 |
+| `:both-reishi` | x 1.0 | both sides' Reishi max | 真劍勝負 0.50 |
+| `:konpaku-cap` | min 9 | P1's Konpaku cap (the carry and the spawn) | 血契 7, 修羅 6 |
+| `:timer` | min 300 s | the stage timer | 時契 150 |
+| `:clear-konpaku` | 2 | Konpaku a clear gives (時契 3, 賭契 0; 賭契 wins) | 時契, 賭契 |
+| `:extra-pick` | + 0 | extra reward screens after a clear | 賭契 1 |
+
 ### 4.3 Move changes (解, 3–4 per character)
 
 - Each one a `defmove-copy` override of one move (frame data, damage, armour hits, cooldown, hit count), applied to **P1's
