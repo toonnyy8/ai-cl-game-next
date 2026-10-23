@@ -245,12 +245,14 @@ menu (NEW RUN / CHARACTER SELECT / TITLE)."
         (when (> *ft* 2.5) (hud-menu *endless-results-menu* (if (portrait-p) 0.8 0.72) w h s cx))))))
 
 (defun hud-endless-tag (w h s)
-  "The battle's STAGE n: landscape under the timer, portrait left under P2's block (the pause chip is on the right)."
+  "The battle's STAGE n: landscape under the timer, portrait left under P2's block (the pause chip is on the right); a
+DANGAI stage's conditions under it."
   (let* ((n (min 99 *endless-stage*))
          (str (or (svref *stage-strings* n) (setf (svref *stage-strings* n) (format nil "STAGE ~d" n)))))
     (if (portrait-p)
         (hud-text str (* 4 s) (+ (portrait-hud-bottom s) s) (* 1.2 s) *dim*)
-        (hud-text str (floor w 2) (* 0.13 h) (* 2 s) *dim* :align :center))))
+        (hud-text str (floor w 2) (* 0.13 h) (* 2 s) *dim* :align :center))
+    (when *rogue* (hud-rogue-tag w h s))))                ; DANGAI: the stage's conditions (rogue.lisp)
 
 ;;; ---------------------------------------------------------------- debug (80000-80999; DUEL_GAMEPLAY.md)
 (defun endless-debug-clear ()

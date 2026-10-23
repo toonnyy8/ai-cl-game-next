@@ -14,9 +14,19 @@
 (defvar *run-mods-test* nil
   "Debug 84800-84899 (debug.lisp RUN-MODS-DEBUG): a test plist START-MATCH installs on every match's P1 (NIL = none).")
 
+(defvar *run-foe-mods* nil
+  "The DANGAI stage's conditions on the opponent (DUEL_ROGUE §5, batch 3: :reiatsu-regen 2.0 :sp-armor t :zone-bias 3), read
+through RMOD for every fighter but *RUN-MODS-WHO*; NIL outside a stage with such a condition.")
+(defvar *run-boss* nil
+  "The DANGAI boss (DUEL_ROGUE §5, batch 3): the opponent entity of a run's step 10, whose character file applies its
+`:boss` rule (its base kit's :boss hook at the stage start, then its own checks of (EQ E *RUN-BOSS*)); NIL otherwise.")
+
 (defun rmod (e key default)
-  "KEY of the run modifier table for fighter E: DEFAULT unless a run is active (*RUN-MODS*) and E is *RUN-MODS-WHO*."
-  (if (and *run-mods* (eql e *run-mods-who*)) (getf *run-mods* key default) default))
+  "KEY of the run modifier table for fighter E: *RUN-MODS*' for *RUN-MODS-WHO*, *RUN-FOE-MODS*' for his opponent (a
+stage's conditions), else DEFAULT (no run: DEFAULT)."
+  (cond ((and *run-mods* (eql e *run-mods-who*)) (getf *run-mods* key default))
+        ((and *run-foe-mods* *run-mods-who* (not (eql e *run-mods-who*))) (getf *run-foe-mods* key default))
+        (t default)))
 
 (defun rmod-x (e key x)
   "X times E's multiplier KEY, or X itself (the same object: no float operation) when E has none."

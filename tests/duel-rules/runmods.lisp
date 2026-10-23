@@ -8,6 +8,12 @@
 (check (let ((*run-mods* '(:dmg 1.2)) (*run-mods-who* 7) (x 30.0))   ; a holder without the key: X itself too
          (and (eq (rmod-x 7 :hoho-cost x) x) (= (rmod-x 7 :dmg 10.0) 12.0) (= (rmod-plus 7 :dmg 1.0) 2.2)
               (run-mods-on-p 7) (not (run-mods-on-p 9)))))
+;; batch 3: the opponent's table (a stage's conditions) for every fighter but *RUN-MODS-WHO*; nothing without a run
+(check (let ((*run-mods* nil) (*run-foe-mods* '(:reiatsu-regen 2.0)) (*run-mods-who* 7))
+         (and (= (rmod 9 :reiatsu-regen 1.0) 2.0) (= (rmod 7 :reiatsu-regen 1.0) 1.0) (= (rmod-x 9 :reiatsu-regen 3.0) 6.0))))
+(check (let ((*run-mods* '(:reiatsu-regen 1.5)) (*run-foe-mods* '(:zone-bias 3)) (*run-mods-who* 7))
+         (and (= (rmod 7 :reiatsu-regen 1.0) 1.5) (null (rmod 7 :zone-bias nil)) (= (rmod-plus 9 :zone-bias 1) 4))))
+(check (let ((*run-mods* nil) (*run-foe-mods* '(:zone-bias 3)) (*run-mods-who* nil)) (null (rmod 9 :zone-bias nil))))
 (check (null (rmod *run-mods-who* :kikon-seal nil)))
 ;; the multiplier folding: an empty table x1; each key on its own condition; stacked multiplicatively
 (check (= 1.0 (run-dmg-mult nil :red t :ender t :sp t :ender-sp t :post-burst t)))

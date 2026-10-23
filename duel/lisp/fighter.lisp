@@ -259,7 +259,10 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
           (fighter-stored f) 0                           ; an interrupted stance keeps nothing
           (fighter-button f) button (fighter-hold f) 0 (fighter-perfect f) nil
           (fighter-assisted f) (fighter-assist-next f) (fighter-assist-next f) nil   ; ASSIST: pressed for him
-          (fighter-follow f) nil (fighter-armor-left f) (mv-armor-hits mv)
+          (fighter-follow f) nil
+          (fighter-armor-left f) (if (and *run-foe-mods* (eq (mv-kind mv) :sp) (rmod e :sp-armor nil))   ; DANGAI's FOE SP
+                                     (max 1 (mv-armor-hits mv))                                          ; ARMOR (§5)
+                                     (mv-armor-hits mv))
           (fighter-phase f) (cond ((member (mv-kind mv) '(:breaker :kikon)) :aura) ((mv-hold mv) :hold) (t :main)))
     (halt! e)
     (play-clip e (kit-move-clip (fighter-kit f) (mv-clip mv)) :blend (mv-blend mv) :speed (mv-clip-speed mv)   ; (the

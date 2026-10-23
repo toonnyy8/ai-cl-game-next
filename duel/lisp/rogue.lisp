@@ -18,26 +18,52 @@
 (defvar *rogue-picks* 1 "This clear's picks (1 + :extra-pick).")
 (defvar *rogue-rare* nil "This clear's offers are RARE.")
 
-(defun rogue-reset () "A new run: nothing held, the first step's reward by its kind." (setf *rogue-held* nil *rogue-reward* nil))
+(defvar *rogue-door* nil "The door taken (ROGUE-TAKE) for the next stage's conditions (NIL: step 1 or a debug run).")
+(defvar *rogue-stage-conds* nil "The conditions of the DANGAI stage being fought (ids, DUEL_ROGUE §5).")
+(defvar *rogue-cond-line* nil "The battle tag's second line: the stage's conditions, or BOSS (made once a stage: 0 B a frame).")
+
+(defun rogue-reset () "A new run: nothing held, the first step's reward by its kind and conditions by its draw."
+  (setf *rogue-held* nil *rogue-reward* nil *rogue-door* nil))
 (defun rogue-run-mods () "The held rewards' modifier plist (ROGUE-MODS)." (rogue-mods *rogue-held*))
 
 ;;; ---------------------------------------------------------------- the stage start (ENDLESS-APPLY!'s hook)
 (defun rogue-stage-start ()
   "A DANGAI stage's spawn: *RUN-MODS* / *RUN-MODS-WHO* (P1) for every rule point, then the stage-start keys of §4.4:
 P1's :reishi-max, both sides' :both-reishi, P1's :gg-max (his gauge at spawn), :konpaku-cap over the carry / spawn,
-:timer on the stage timer (*TIMER-CUT* keeps MATCH-PLAY-TICKS the time played)."
-  (let ((m (rogue-run-mods)) (g1 (gauges *p1*)) (g2 (gauges *p2*)))
-    (setf *run-mods* m *run-mods-who* *p1*)
-    (flet ((scale-reishi (g x) (let ((rm (round (* (gauges-reishi-max g) x)))) (setf (gauges-reishi-max g) rm (gauges-reishi g) rm))))
-      (let ((x (getf m :reishi-max))) (when x (scale-reishi g1 x)))
-      (let ((x (getf m :both-reishi))) (when x (scale-reishi g1 x) (scale-reishi g2 x))))
-    (let ((x (getf m :gg-max))) (when x (setf (gauges-gg g1) (f32 (* *gg-max* x)))))
-    (setf (gauges-konpaku g1) (min (gauges-konpaku g1) (getf m :konpaku-cap *konpaku-max*)))
-    (let ((tm (getf m :timer)))
-      (when tm (let ((f (* 60 (min tm *match-seconds*)))) (setf *timer-cut* (- *timer* f) *timer* f))))
-    (log-msg "duel rogue mods ~(~s~)" m)))
+:timer on the stage timer (*TIMER-CUT* keeps MATCH-PLAY-TICKS the time played). Batch 3: the stage's conditions (the door
+taken, else step 1's draw: §5) as P1's extra keys, the opponent's table (*RUN-FOE-MODS*) and the stage keys (:foe-reishi
+on his Reishi, :timer); on the boss step *RUN-BOSS* and his character's :boss hook (its base kit's), after all of that."
+  (let* ((step *endless-stage*) (d (shiftf *rogue-door* nil))
+         (conds (if d (getf d :conds) (rogue-door-conds *endless-seed* step 0))))
+    (multiple-value-bind (cp1 cfoe cstage) (rogue-cond-mods conds)
+      (let ((m (rogue-merge-x (rogue-run-mods) cp1)) (g1 (gauges *p1*)) (g2 (gauges *p2*)))
+        (setf *run-mods* m *run-mods-who* *p1* *run-foe-mods* cfoe *rogue-stage-conds* conds)
+        (flet ((scale-reishi (g x) (let ((rm (round (* (gauges-reishi-max g) x)))) (setf (gauges-reishi-max g) rm (gauges-reishi g) rm))))
+          (let ((x (getf m :reishi-max))) (when x (scale-reishi g1 x)))
+          (let ((x (getf m :both-reishi))) (when x (scale-reishi g1 x) (scale-reishi g2 x)))
+          (let ((x (getf cstage :foe-reishi))) (when x (scale-reishi g2 x))))
+        (let ((x (getf m :gg-max))) (when x (setf (gauges-gg g1) (f32 (* *gg-max* x)))))
+        (setf (gauges-konpaku g1) (min (gauges-konpaku g1) (getf m :konpaku-cap *konpaku-max*)))
+        (let ((tm (min (getf m :timer *match-seconds*) (getf cstage :timer *match-seconds*))))
+          (when (< tm *match-seconds*) (let ((f (* 60 tm))) (setf *timer-cut* (- *timer* f) *timer* f))))
+        (let ((boss (eq (rogue-step-kind step) :boss)))
+          (setf *rogue-cond-line* (cond (boss "BOSS") (conds (format nil "~{~a~^  ~}" (mapcar #'rogue-cond-name conds)))))
+          (when boss
+            (setf *run-boss* *p2*)
+            (let ((h (kit-hook (find-kit (fighter-character (fighter *p2*)) :base) :boss))) (when h (funcall h *p2*)))))
+        (log-msg "duel rogue mods ~(~s~) conds ~(~a~) foe ~(~s~)~:[~; boss ~(~a~)~]" m conds cfoe *run-boss*
+                 (fighter-character (fighter *p2*)))))))
 
-(defun rogue-end () "The run is over (ENDLESS-OVER): no rule point reads a run's mods any more." (setf *run-mods* nil *run-mods-who* nil))
+(defun hud-rogue-tag (w h s)
+  "The battle tag's second line (HUD-ENDLESS-TAG): the stage's conditions or BOSS, in ember under STAGE n."
+  (let ((l *rogue-cond-line*))
+    (when l
+      (if (portrait-p)
+          (hud-text l (* 4 s) (+ (portrait-hud-bottom s) (* 14 s)) (* 1.0 s) *ember*)
+          (hud-text l (floor w 2) (+ (* 0.13 h) (* 22 s)) (* 1.5 s) *ember* :align :center)))))
+
+(defun rogue-end () "The run is over (ENDLESS-OVER): no rule point reads a run's mods any more."
+  (setf *run-mods* nil *run-mods-who* nil *run-foe-mods* nil *run-boss* nil))
 
 ;;; ---------------------------------------------------------------- the cards' text
 (defparameter *rogue-cat-names* '((:zan . "ZAN") (:mamori . "MAMORI") (:shun . "SHUN") (:rei . "REI") (:chigiri . "CHIGIRI") (:kai . "KAI")))
@@ -189,8 +215,15 @@ takes the selected one (the user, 2026-10-23: 「在關卡之間選擇獎勵的�
 
 (defun rogue-debug (k)
   "Debug 84500+K (DUEL_GAMEPLAY): 1-28 grant reward K to the running run (COMMON, RARE for a RARE+ only one) when it is
-not held and its category has a free slot; 50-52 the running stage's reward type GENERIC / KONPAKU / RARE."
-  (cond ((<= 50 k 52) (setf *rogue-reward* (nth (- k 50) '(:generic :konpaku :rare)))
+not held and its category has a free slot; 50-52 the running stage's reward type GENERIC / KONPAKU / RARE; 60+c (batch
+3) a debug DANGAI run from the boss step against roster c (P1 Yamamoto, or Kenpachi against Yamamoto; seed 1, no record)."
+  (cond ((<= 60 k 67)
+         (let ((c (nth (- k 60) *roster*)))
+           (when (member c (playable-roster))
+             (setf *mode* :endless *rogue* t *picks* (list (if (eq c :yamamoto) :kenpachi :yamamoto) c) *endless-seed* 1
+                   *one-hand* (one-hand-effective-p) *rogue-next* c)
+             (let ((*skip-cines* t)) (endless-start :debug t :stage *rogue-steps*)))))
+        ((<= 50 k 52) (setf *rogue-reward* (nth (- k 50) '(:generic :konpaku :rare)))
          (log-msg "duel rogue debug reward ~(~a~)" *rogue-reward*))
         ((and (rogue-reward k) (not (assoc k *rogue-held*)) (not (rogue-cat-full-p *rogue-held* (rogue-reward-cat k))))
          (setf *rogue-held* (rogue-take-card *rogue-held* (list :id k :tier (if (rogue-rare-only-p k) 1 0) :kind :new)))
@@ -215,6 +248,12 @@ not held and its category has a free slot; 50-52 the running stage's reward type
                 (and (not (fourth r)) (plusp (third r))) (third r) (fifth r)
                 (case (getf d :reward) (:rare "RARE REWARD") (:konpaku (format nil "KONPAKU +~d" *rogue-rest-konpaku*)) (t "REWARD"))))))
 
+(defun rogue-door-cond-line (d step)
+  "The selected door's conditions line (DUEL_ROGUE §5): BOSS RULE on the boss step, its conditions, else NIL (a rest)."
+  (cond ((eq (getf d :kind) :rest) nil)
+        ((eq (rogue-step-kind step) :boss) "BOSS RULE")
+        (t (format nil "~{~a~^  ~}" (mapcar #'rogue-cond-name (getf d :conds))))))
+
 (defun rogue-open-doors ()
   "After STAGE CLEAR's CONTINUE / REVERT (the carry made) or a rest: the next step's doors (the DOORS screen)."
   (let ((next (1+ *endless-stage*)))
@@ -223,7 +262,8 @@ not held and its category has a free slot; 50-52 the running stage's reward type
                                   (format nil "KONPAKU  ~d" (getf *endless-carry* :konpaku))
                                   (mapcar #'rogue-door-label *rogue-doors*)
                                   (mapcar (lambda (d) (rogue-door-note d next)) *rogue-doors*)
-                                  (append (mapcar #'rogue-door-label *rogue-doors*) '("CONFIRM"))))
+                                  (append (mapcar #'rogue-door-label *rogue-doors*) '("CONFIRM"))
+                                  (mapcar (lambda (d) (rogue-door-cond-line d next)) *rogue-doors*)))
     (set-flow :doors)))
 
 (defun rogue-take (i)
@@ -236,7 +276,7 @@ fight (its reward type kept for its clear)."
         (progn (incf *endless-stage*) (incf *endless-cleared*)
                (endless-save-record)
                (rogue-open-rest))
-        (progn (setf *rogue-next* (getf d :opponent) *rogue-reward* (getf d :reward)) (endless-next-stage)))))
+        (progn (setf *rogue-next* (getf d :opponent) *rogue-reward* (getf d :reward) *rogue-door* d) (endless-next-stage)))))
 
 (defun rogue-doors-update ()
   "DOORS per frame: the rows take input after 1 s, as STAGE CLEAR; the autopilot takes door 0."
@@ -253,6 +293,8 @@ a CONFIRM row under them (a tap on a row only selects it: ROGUE-NAV)."
       (hud-text (svref l 1) cx (+ y (* 6 s) (* 11 (max 1 (round (* 1.5 s))))) (fit-scale (svref l 1) (* 1.5 s) (- pw (* 8 s)))
                 *dim* :align :center)
       (when (> *ft* 1.0)
-        (let* ((y0 (if (portrait-p) 0.8 0.72)) (note (nth *menu* (svref l 3))))
+        (let* ((y0 (if (portrait-p) 0.8 0.72)) (note (nth *menu* (svref l 3)))
+               (cl (and (> (length l) 5) (nth *menu* (svref l 5)))))   ; the DOORS: the door's conditions over its note
           (hud-text note cx (- (* y0 h) (* 14 s)) (fit-scale note (* 1.5 s) (- pw (* 8 s))) *ember* :align :center)
+          (when cl (hud-text cl cx (- (* y0 h) (* 30 s)) (fit-scale cl (* 1.5 s) (- pw (* 8 s))) *ember* :align :center))
           (hud-menu (svref l (if (touch-tap-zones-p) 4 2)) y0 pw h s cx))))))   ; touch: + CONFIRM (ROGUE-NAV); rows fit the card

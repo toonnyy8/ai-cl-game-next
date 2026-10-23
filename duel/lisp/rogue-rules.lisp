@@ -1,6 +1,7 @@
 ;;;; rogue-rules.lisp — DANGAI 斷界行 (docs/duel/DUEL_ROGUE.md) as pure rules: the run's layout, the ramp per step, the
 ;;;; rest doors, the doors between steps and their reward types, a rest's carry; batch 2: the generic rewards and traits
-;;;; (§4.2) as data, slots, offers, REPLACE / UPGRADE, tiers and the fold into the run modifier plist (§4.4). Plain CL over endless-rules.lisp, host-tested
+;;;; (§4.2) as data, slots, offers, REPLACE / UPGRADE, tiers and the fold into the run modifier plist (§4.4); batch 3: the
+;;;; stages' conditions (§5). Plain CL over endless-rules.lisp, host-tested
 ;;;; (tests/duel-rules/rogue.lisp); the mode (the doors screen, the record) is rogue.lisp over endless.lisp.
 ;;;; No character names in here.
 (in-package :duel)
@@ -45,6 +46,50 @@ else GENERIC."
       (let ((r (mod (floor (rogue-lcg-at seed step (+ 3 i)) 65536) 10)) (o *rogue-door-odds*))
         (cond ((< r (first o)) :rare) ((< r (+ (first o) (second o))) :konpaku) (t :generic)))))
 
+;;; ---------------------------------------------------------------- conditions (DUEL_ROGUE §5, batch 3)
+(defparameter *rogue-conditions*
+  ;; (id name effect...); an effect (where key value): :foe the opponent's rule-point table (*RUN-FOE-MODS*), :p1 P1's
+  ;; (stacked with his rewards: x multiplies), :stage the stage start (:foe-reishi x on the opponent's Reishi max, :timer
+  ;; the smaller wins)
+  '((:foe-reishi "FOE REISHI 130%" (:stage :foe-reishi 1.3))
+    (:reiatsu "REIATSU REGEN X2" (:foe :reiatsu-regen 2.0) (:p1 :reiatsu-regen 2.0))
+    (:sp-armor "FOE SP ARMOR" (:foe :sp-armor t))
+    (:zone "FOE ZONES" (:foe :zone-bias 3))
+    (:timer "TIMER 180S" (:stage :timer 180)))
+  "A stage's conditions (DUEL_ROGUE §5's five candidates): the opponent's Reishi 130 %; both sides' Reiatsu regen x2; the
+opponent's SP takes one armour hit in its startup; the CPU favours its zoning range (+3 on its :zone intent weight); the
+stage timer 180 s. Constant for the fight, shown on the doors and the battle tag (§1 fair failure).")
+
+(defun rogue-cond-count (step) "Conditions on STEP: 1 a normal step, 2 an elite, none the boss (its own rule, §5)."
+  (case (rogue-step-kind step) (:normal 1) (:elite 2) (t 0)))
+
+(defun rogue-door-conds (seed step i)
+  "Door I's conditions before STEP of run SEED (ids, ROGUE-COND-COUNT of them, distinct): the first of a Fisher-Yates
+shuffle of *ROGUE-CONDITIONS* on the run's LCG keyed on (SEED, STEP, 20 + I). Step 1 (no doors) uses door 0's."
+  (let ((v (coerce (mapcar #'first *rogue-conditions*) 'vector)) (x (rogue-lcg-at seed step (+ 20 i))))
+    (loop for k from (1- (length v)) downto 1
+          do (setf x (endless-lcg x)) (rotatef (aref v k) (aref v (mod (floor x 65536) (1+ k)))))
+    (coerce (subseq v 0 (rogue-cond-count step)) 'list)))
+
+(defun rogue-cond-name (id) "Condition ID's words on the doors and the battle tag." (second (assoc id *rogue-conditions*)))
+
+(defun rogue-cond-mods (conds)
+  "CONDS' effects folded (§5): values the P1 plist, the opponent's plist, the stage plist (NIL each when empty)."
+  (let ((out (list nil nil nil)))
+    (dolist (id conds)
+      (dolist (ef (cddr (assoc id *rogue-conditions*)))
+        (destructuring-bind (where key v) ef
+          (let ((k (position where '(:p1 :foe :stage))))
+            (setf (nth k out) (append (nth k out) (list key v)))))))
+    (values-list out)))
+
+(defun rogue-merge-x (mods extra)
+  "The P1 plist MODS (his rewards' fold) with EXTRA's keys stacked on: a key in both multiplies, else it is added."
+  (let ((m (copy-list mods)))
+    (loop for (k v) on extra by #'cddr
+          do (let ((old (getf m k))) (setf (getf m k) (if (and (numberp old) (numberp v)) (* old v) v))))
+    m))
+
 (defun rogue-rest-steps (seed)
   "The steps of run SEED whose second door is a rest: normal steps from *ROGUE-REST-FROM* before the boss, a 1-in-3 draw
 each, at most *ROGUE-REST-MAX* (pure in SEED, so the doors replay)."
@@ -62,11 +107,12 @@ left); the boss step one door; on a rest step (ROGUE-REST-STEPS) the second door
   (let* ((pool (or (remove prev roster) roster)) (n (length pool))
          (x (rogue-lcg-at seed step 2)) (i (mod (floor x 65536) n))
          (j (mod (+ i 1 (mod (floor (endless-lcg x) 65536) (max 1 (1- n)))) n))
-         (a (list :kind :fight :opponent (nth i pool) :reward (rogue-door-reward seed step 0))))
+         (a (list :kind :fight :opponent (nth i pool) :reward (rogue-door-reward seed step 0) :conds (rogue-door-conds seed step 0))))
     (cond ((eq (rogue-step-kind step) :boss) (list a))
           ((member step (rogue-rest-steps seed)) (list a (list :kind :rest)))
           ((= n 1) (list a))
-          (t (list a (list :kind :fight :opponent (nth j pool) :reward (rogue-door-reward seed step 1)))))))
+          (t (list a (list :kind :fight :opponent (nth j pool) :reward (rogue-door-reward seed step 1)
+                           :conds (rogue-door-conds seed step 1)))))))
 
 (defun rogue-rest (carry &optional (cap *konpaku-max*))
   "CARRY (ENDLESS-CARRY's plist) after a rest door (or a KONPAKU door's reward): Konpaku + *ROGUE-REST-KONPAKU*, at most

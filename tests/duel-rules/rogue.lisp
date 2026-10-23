@@ -140,3 +140,29 @@
              (dolist (d (rogue-doors seed st :rukia *rg-roster*))
                (when (eq (getf d :kind) :fight) (incf (nth (position (getf d :reward) '(:rare :konpaku :generic)) n))))))
          (and (< (first n) (second n) (third n)) (plusp (first n)))))
+;; batch 3: conditions (DUEL_ROGUE §5): 1 a normal step, 2 an elite, none the boss; distinct, known ids, replayable
+(check (loop for seed from 1 to 100
+             always (loop for st from 1 to 13
+                          always (loop for i from 0 to 1
+                                       for c = (rogue-door-conds seed st i)
+                                       always (and (= (length c) (rogue-cond-count st))
+                                                   (= (length c) (length (remove-duplicates c)))
+                                                   (every (lambda (id) (assoc id *rogue-conditions*)) c)
+                                                   (equal c (rogue-door-conds seed st i)))))))
+(check (equal (mapcar #'rogue-cond-count '(1 3 10)) '(1 2 0)))
+;; every condition is drawn somewhere, and the two doors of a step can differ
+(check (every (lambda (id) (loop for seed from 1 to 100 thereis (member id (rogue-door-conds seed 2 0)))) (mapcar #'first *rogue-conditions*)))
+(check (loop for seed from 1 to 50 thereis (not (equal (rogue-door-conds seed 2 0) (rogue-door-conds seed 2 1)))))
+;; a fight door carries its conditions
+(check (loop for seed from 1 to 30
+             always (loop for d in (rogue-doors seed 3 :rukia *rg-roster*)
+                          always (or (eq (getf d :kind) :rest) (= 2 (length (getf d :conds)))))))
+;; the fold: P1's / the opponent's / the stage's plists; P1's stacks onto the rewards' by multiplying
+(multiple-value-bind (p1 foe st) (rogue-cond-mods '(:reiatsu :timer))
+  (check (equal p1 '(:reiatsu-regen 2.0)))
+  (check (equal foe '(:reiatsu-regen 2.0)))
+  (check (equal st '(:timer 180))))
+(multiple-value-bind (p1 foe st) (rogue-cond-mods nil) (check (and (null p1) (null foe) (null st))))
+(check (equal (rogue-merge-x '(:dmg 1.1 :reiatsu-regen 1.3) '(:reiatsu-regen 2.0)) '(:dmg 1.1 :reiatsu-regen 2.6)))
+(check (equal (rogue-merge-x nil '(:reiatsu-regen 2.0)) '(:reiatsu-regen 2.0)))
+(check (null (rogue-merge-x nil nil)))

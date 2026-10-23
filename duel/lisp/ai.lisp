@@ -712,7 +712,7 @@ more; J strings alone shouldn't crush a guard, the CPU's included); against a J 
                     (t (let ((oi (getf (kit-ai (kit-of (opp-of e))) :opp-intent)))   ; facing a form a CPU waits out
                          (or (weighted-pick r :approach (getf w :approach 1)
                                             :pressure (+ (getf w :pressure 1) hot (if (or (opp-guardless-p e) (opp-gg-low-p e)) 3 0))
-                                            :zone (+ (getf w :zone 1) (getf oi :zone 0))
+                                            :zone (rmod-plus e :zone-bias (+ (getf w :zone 1) (getf oi :zone 0)))   ; (DANGAI's FOE ZONES)
                                             :defend (+ (getf w :defend 1) (getf oi :defend 0)))
                              :approach)))))))
     (when (<= (decf (brain-strafe-t b)) 0)
