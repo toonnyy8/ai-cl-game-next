@@ -55,12 +55,13 @@ on his Reishi, :timer); on the boss step *RUN-BOSS* and his character's :boss ho
                  (fighter-character (fighter *p2*)))))))
 
 (defun hud-rogue-tag (w h s)
-  "The battle tag's second line (HUD-ENDLESS-TAG): the stage's conditions or BOSS, in ember under STAGE n."
+  "The battle tag's second line (HUD-ENDLESS-TAG): the stage's conditions or BOSS, in ember under STAGE n (landscape: fitted
+between the two gauge blocks)."
   (let ((l *rogue-cond-line*))
     (when l
       (if (portrait-p)
           (hud-text l (* 4 s) (+ (portrait-hud-bottom s) (* 14 s)) (* 1.0 s) *ember*)
-          (hud-text l (floor w 2) (+ (* 0.13 h) (* 22 s)) (* 1.5 s) *ember* :align :center)))))
+          (hud-text l (floor w 2) (+ (* 0.13 h) (* 22 s)) (fit-scale l (* 1.5 s) (* 0.16 w)) *ember* :align :center)))))   ; (between the gauges)
 
 (defun rogue-end () "The run is over (ENDLESS-OVER): no rule point reads a run's mods any more."
   (setf *run-mods* nil *run-mods-who* nil *run-foe-mods* nil *run-boss* nil))
