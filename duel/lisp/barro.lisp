@@ -739,11 +739,13 @@ instead of a name parse per hit (refactor round 3, REFACTOR_NEXT L7's 8th site).
 
 ;;; ================================================================ forms
 (defparameter *barro-hooks* '(:tick barro-tick :ok barro-ok :hit barro-hit :struck barro-struck :armor barro-armor
-                               :step barro-step :draw br-draw :pose br-deform :charge br-charge)
+                               :step barro-step :draw br-draw :pose br-deform :charge br-charge
+                               :settled br-boss-settled :boss br-boss)
   "His mechanics (kit.lisp KIT-HOOK): the burst owl, the owl's wings, the stance's end (:tick); the stance links (:ok); the
 specials and the recovery shots' gains (:hit); the wing armour's price (:struck) and its test (:armor, fighter.lisp
 DEFENDER-STATE); EN's fast Step (:step, decision R3); his looks (:draw, barro-art.lisp) and his body's squash and stretch (:pose, BR-DEFORM: R8, DUEL_LILLE_V3 §13);
-the base stance's snipe charge at the muzzle (:charge, BR-CHARGE, a look in place of the generic fire charge: R15, §19).")
+the base stance's snipe charge at the muzzle (:charge, BR-CHARGE, a look in place of the generic fire charge: R15, §19);
+DANGAI's boss rule (:boss at the stage start, :settled his first Konpaku lost: BR-BOSS).")
 
 (defparameter *br-kamae-strings*
   (append (loop for s in '(:br-kamae :br-kamae-k :br-kamae-j :br-kamae-re)
@@ -925,7 +927,9 @@ awakened form inherits these).")
   (ai-cash-hp 0 :type fixnum)             ; ... his damage taken then (his own gauges)
   (ai-cash-read 0 :type fixnum)           ; ... cash-outs this match the opponent made him pay for (BR-AI-CASH-READ)
   (ai-hoho-key -999 :type fixnum)         ; his CPU: the charge whose answer to his Hoho it rolled (dream-rsi b2a0)
-  (awake-t -1 :type fixnum) (owl-at -1 :type fixnum))   ; ticks of the awakening and the first burst owl (the pacing log)
+  (awake-t -1 :type fixnum) (owl-at -1 :type fixnum)   ; ticks of the awakening and the first burst owl (the pacing log)
+  (boss-owl nil)                          ; DANGAI's boss: his first Konpaku lost put him in the owl for good (BR-BOSS)
+  (boss-wings 0 :type fixnum))            ; ... the wings the boss's JILLIEL refill gave (its log line)
 (defvar *br-test-awake* nil
   "Debug 82041 (82040 off): the ASSIST gate's masher as him (P1, habit :dumb) plays every match from JILLIEL KIN (forced at
 its first free step: the masher never awakens itself).")
@@ -997,17 +1001,22 @@ specials' cap; the pacing clocks."
   (when (or *br-test-awake* *br-test-diff*) (br-test-tick e f))
   (let* ((st (br e)) (form (fighter-form f))
          (to (and (not *br-keep-owl*) (not (eq (fighter-state f) :move))   ; (never inside a move: its string's links are
-                  (br-owl-switch form (gauges-burst g)))))                     ;  its form's; the gate's crash, 2026-10-10)
+                  (br-owl-switch form (or (gauges-burst g)                     ;  its form's; the gate's crash, 2026-10-10)
+                                          (and (eq e *run-boss*) (brs-boss-owl st)))))))   ; (the boss's owl for good: a burst)
     (when to
       (set-form e to)
       (setf (brs-owl-t st) 0 form to)
       (pace e (if (br-owl-form-p to) :owl-in :owl-out))
       (when (and (br-owl-form-p to) (minusp (brs-owl-at st))) (setf (brs-owl-at st) *match-tick*) (pace e :owl-tick *match-tick*))
       (emit :sfx (if (br-owl-form-p to) :awaken-boom :rift-open) e))
-    (when (br-owl-form-p form)
+    (when (or (br-owl-form-p form) (and (eq e *run-boss*) (br-jilliel-form-p form)))   ; (the boss: JILLIEL's too, BR-BOSS)
       (when (and (>= (incf (brs-owl-t st)) *br-owl-wing-every*) (zerop (fighter-freeze f)))
         (setf (brs-owl-t st) 0 (brs-ammo st) (br-ammo-add (brs-ammo st) 1 form))
+        (unless (br-owl-form-p form) (incf (brs-boss-wings st)))
         (pace e :owl-wing)))
+    (when (and (eq e *run-boss*) (zerop (mod *match-tick* 600)))
+      (log-msg "duel boss lille state t ~d form ~(~a~) wings ~d jilliel-refill ~d konpaku ~d burst ~(~a~) owl-for-good ~:[no~;yes~]"
+               *match-tick* form (brs-ammo st) (brs-boss-wings st) (gauges-konpaku g) (gauges-burst g) (brs-boss-owl st)))
     (setf (brs-ammo st) (br-ammo-add (brs-ammo st) 0 form))
     (when (br-ranged-form-p form)                       ; (R12: the stance EN rooted, one Step, a short stand)
       (case (fighter-state f)
@@ -1025,6 +1034,22 @@ specials' cap; the pacing clocks."
       (unless (and mv (eq (mv-tick mv) 'br-s-tick)) (setf (brs-sp2-next st) nil (brs-l-next st) nil))   ; (+ the owl's K, R4)
       (when (and (br-awake-form-p form) (minusp (brs-awake-t st)))
         (setf (brs-awake-t st) *match-tick*) (pace e :awaken-tick *match-tick*)))))
+
+;; DANGAI's boss (DUEL_ROGUE §5, batch 3; the user, 2026-10-22: 「BOSS 利傑改成開場時就在 JILLIEL KIN，且會有跟爆氣一樣隨時間自動補充
+;; 『翼』的特性，第一次失去魂魄就進入常駐梟型態」): the stage start awakens him (JILLIEL KIN, ROGUE-STAGE-START); BARRO-TICK
+;; gives JILLIEL the owl's wing every *BR-OWL-WING-EVERY* f and, once BRS-BOSS-OWL is set, reads it as a burst that never
+;; ends (the owl for good). Every path is guarded by (EQ E *RUN-BOSS*): with no run nothing here runs.
+(defun br-boss (e)
+  "His base kit's :boss hook (the boss step's spawn, awakened): the rule's line."
+  (log-msg "duel boss lille rule form ~(~a~) wings ~d refill 1 per ~d f owl at the first konpaku lost konpaku ~d"
+           (fighter-form (fighter e)) (brs-ammo (br e)) *br-owl-wing-every* (gauges-konpaku (gauges e))))
+(defun br-boss-settled (def lost left)
+  "His kits' :settled hook (SETTLE-KONPAKU): the boss's first Konpaku lost (not a bind's grey one) sets the owl for good
+(BARRO-TICK switches him once he is out of a move)."
+  (when (and (eq def *run-boss*) (plusp lost) (not (bind-of def)) (not (brs-boss-owl (br def))))
+    (setf (brs-boss-owl (br def)) t)
+    (log-msg "duel boss lille owl for good t ~d lost ~d left ~d form ~(~a~) wings ~d" *match-tick* lost left
+             (fighter-form (fighter def)) (brs-ammo (br def)))))
 
 (defun barro-hit (att def res hw mv hazard ranged)
   "After a hit he dealt (his kit's :hit): a stance shot's gains, once a move (decision R2): L the specials (BR-L-GAIN, a hit
