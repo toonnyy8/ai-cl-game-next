@@ -328,3 +328,8 @@
             (not (endless-better-p 3 500 3 500)) (not (endless-better-p 3 600 3 500)) (endless-better-p 1 999 0 0)
             (not (endless-better-p 0 10 0 0))))
 
+
+;; the DANGAI boss (DUEL_ROGUE §5, 永凍): the base kit's :boss hook; every band's :reset hook (back to -50) and :tick
+(check (and (eq (kit-hook (kit :rukia :base) :boss) 'rukia-boss)
+            (every (lambda (f) (and (eq (kit-hook (kit :rukia f) :reset) 'rukia-reset) (eq (kit-hook (kit :rukia f) :tick) 'rukia-tick)))
+                   '(:m18 :m50 :zero))))

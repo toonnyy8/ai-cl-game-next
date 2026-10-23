@@ -10,7 +10,9 @@
 (defun rukia-tick (e f g)
   "Her :tick hook (GAUGE-SYSTEM, every step, after the form timers): the cold gauge in a form with a :temp meter."
   (let ((kit (fighter-kit f)))
-    (when (getf (kit-meter kit) :temp) (rukia-cold-step e f g kit))))
+    (when (getf (kit-meter kit) :temp) (rukia-cold-step e f g kit))
+    (when (and (eq e *run-boss*) (zerop (mod *match-tick* 600)))   ; the DANGAI boss's evidence line, every 10 s or so
+      (log-msg "duel boss rukia t~d ~(~a~) cold ~d" *match-tick* (fighter-form f) (round (gauges-meter g))))))
 
 (defun rukia-cold-step (e f g kit)
   "A :temp kit meter per step: the cold C (rules TEMP-NEXT) cools while she guards (:guard / :guard-hit; at absolute zero,
@@ -26,10 +28,27 @@ from what is left (an overdrawn -273 combo at C 0 lands at -18)."
     (setf (gauges-meter g) (f32 (temp-next (gauges-meter g) guarding (kit-warm kit))))
     (if (and brace (drain-guard e (/ *zero-brace-drain* 60.0) :brace))
         (ward-drop e)                                   ; braced on credit until the gauge ran out: the CRACK
-        (let ((band (temp-band-at (gauges-meter g) (fighter-form f) st)))   ; locked while she is in a combo
+        (let ((band (rukia-band-floor e (temp-band-at (gauges-meter g) (fighter-form f) st))))   ; locked while in a combo
           (unless (eq band (fighter-form f))
             (set-form e band)
             (emit :sfx :frost-tick e))))))
+
+(defun rukia-band-floor (e band)
+  "BAND, but -50 for -18 when E is the DANGAI boss (永凍, DUEL_ROGUE §5, the lead's draft 2026-10-22: she never warms
+back to -18; her cold C keeps its rules, so -50 can sit at C 0, L refused there until she cools)."
+  (if (and (eq band :m18) (eq e *run-boss*)) :m50 band))
+
+(defun rukia-reset (e)
+  "Her bands' :reset hook (combat.lisp's reset, after the kit's :reset-form -18 and C 0): the DANGAI boss back to -50."
+  (when (eq e *run-boss*) (set-form e :m50) (log-msg "duel boss rukia reset t~d -> m50" *match-tick*)))
+
+(defun rukia-boss (e)
+  "Her base kit's :boss hook (rogue.lisp ROGUE-STAGE-START, after the ramp's -18): -50 at FIGHT with bar 1 full (C
+*COLD-BAR*, where -18 enters it); RUKIA-BAND-FLOOR / RUKIA-RESET / RUKIA-CRACK keep her there or colder; -273 as usual.
+Her CPU needs nothing more: -18's table never runs, -50's :cool and Hoho in still climb to -273."
+  (set-form e :m50)
+  (setf (gauges-meter (gauges e)) (f32 *cold-bar*) (gauges-meter-idle (gauges e)) 0)
+  (log-msg "duel boss rukia ~(~a~) cold ~d" (fighter-form (fighter e)) (round (gauges-meter (gauges e)))))
 
 (defun-fast %hud-temp (x y w h c band cost lock crack refused right tm)
   "Rukia's cold gauge (docs/duel/DUEL_RUKIA.md §8) in the W x H slot at (X Y): two stacked bars overlaid in one strip (the user's

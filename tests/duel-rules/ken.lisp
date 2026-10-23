@@ -189,3 +189,7 @@
               (~= 0.6 (getf (kit-ai b) :string-k)) (= 90 (getf (kit-ai b) :pip-hurry))
               (equal (getf (kit-ai b) :opp-intent) '(:zone 2 :defend 2)) (null (getf (kit-ai b) :cashout)))))
 
+
+;; the DANGAI boss (DUEL_ROGUE §5): the base kit's :boss hook (ken-meter.lisp KEN-BOSS); the Bankai keeps the arm's tick
+(check (and (eq (kit-hook (kit :kenpachi :base) :boss) 'ken-boss) (eq (kit-hook (kit :kenpachi :bankai) :tick) 'ken-tick)
+            (eq (kit-bankai-form (kit :kenpachi :nomihose)) :bankai) (kit-pips (kit :kenpachi :bankai))))
