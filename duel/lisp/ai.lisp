@@ -267,10 +267,17 @@ stay), which breaks a combo the same way since the user 2026-10-09 (DUEL_KEN_REW
         (let ((bk (ai-table e :bankai)))
           (and b bk (bankai-ready-p e) (ai-bankai-p e b bk) t)))))
 
+(defun ai-kikon-futile-p (e)
+  "Is E's Kikon futile in this DANGAI stage (DUEL_ROGUE §4.4): his opponent's Kikon is always guarded (:kikon-guard), or
+the Kikon is sealed for both sides (:kikon-seal)? NIL outside a run."
+  (and *run-mods* (or (rmod (opp-of e) :kikon-guard nil) (rmod *run-mods-who* :kikon-seal nil)) t))
+
 (defun ai-sb-finish-p (e)
   "E's opponent is nearly out of Reishi (under *AI-SB-FINISH* of his max): finish him with hits, the Soul Break (the
-Kikon count + 1), not the Kikon rush he might still guard or dodge."
-  (let ((go (gauges (opp-of e)))) (< (gauges-reishi go) (* *ai-sb-finish* (gauges-reishi-max go)))))
+Kikon count + 1), not the Kikon rush he might still guard or dodge. Always, when the Kikon is futile (AI-KIKON-FUTILE-P:
+every Kikon site asks this, so the CPU fights on to the Soul Break)."
+  (or (ai-kikon-futile-p e)
+      (let ((go (gauges (opp-of e)))) (< (gauges-reishi go) (* *ai-sb-finish* (gauges-reishi-max go))))))
 (defun ai-o-ender-ok-p (e kit)
   "May E's CPU press the O ender now: no Soul Break finish due (AI-SB-FINISH-P) and KIT's Kikon command open?"
   (and (not (ai-sb-finish-p e)) (kit-command-ok-p e :kikon kit t)))

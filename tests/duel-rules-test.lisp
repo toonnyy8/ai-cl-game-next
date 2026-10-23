@@ -11,10 +11,10 @@
 ;; plain structs here (no entities: the tests make them with MAKE-...)
 (defmacro duel::defcine (&rest r) (declare (ignore r)) nil)
 (defmacro engine:defcomponent (name &rest slots) `(defstruct (,name (:copier nil) (:predicate nil)) ,@slots))
-(dolist (f '("tuning" "rules" "learn" "kit" "yama" "ken" "rukia" "ichigo" "endless-rules" "rogue-rules" "senjumaru" "barro" "barro-ai" "hisagi" "hisagi-ai"))
+(dolist (f '("tuning" "rules" "learn" "kit" "yama" "ken" "rukia" "ichigo" "endless-rules" "rogue-rules" "run-mods" "senjumaru" "barro" "barro-ai" "hisagi" "hisagi-ai"))
   (load (merge-pathnames (format nil "../duel/lisp/~a.lisp" f) *load-truename*)))
 ;; the checks live in tests/duel-rules/*.lisp, loaded in order into this one image (CHECK, *CHECKS* and the shared helpers are in core)
-(dolist (f '("core" "yama" "ken" "rukia" "senjumaru" "art" "systems" "barro" "sim" "hisagi" "rogue"))
+(dolist (f '("core" "yama" "ken" "rukia" "senjumaru" "art" "systems" "barro" "sim" "hisagi" "rogue" "runmods"))
   (load (merge-pathnames (format nil "duel-rules/~a.lisp" f) *load-truename*)))
 (in-package :duel)
 

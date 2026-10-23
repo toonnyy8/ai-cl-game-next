@@ -136,6 +136,7 @@ always behind when one-handed (the portrait camera; the setting is kept); VS PLA
     (setf (fighter-state (fighter e)) :intro))
   (when (eq *mode* :practice) (practice-dummy!) (practice-set! *p1*) (practice-set! *p2*))
   (when (eq *mode* :endless) (endless-apply!))            ; P1's carry, P2's ramp
+  (when *run-mods-test* (setf *run-mods* *run-mods-test* *run-mods-who* *p1*))   ; debug 84400+k (RUN-MODS-DEBUG)
   (learn-match-start)
   (play-music :music 0.2)
   (log-msg "duel match seed ~d ~a ~a vs ~a ~a" *match-seed* *mode* (first *picks*) (second *picks*) *difficulty*)

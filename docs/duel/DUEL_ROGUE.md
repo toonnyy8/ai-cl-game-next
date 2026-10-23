@@ -352,3 +352,69 @@ The user: 「先走 2」 (start building before the 解 picks). Plan: `DUEL_ROGU
   their rows; `duel-endless.json`'s log equals the parent's where both ran (both stop after stage 2: its stage-3 Bankai
   step no longer clears, a drift that predates this batch).
 
+
+## Built: batch 2 (rule points)
+
+The §4.4 contract's upper part (`:dmg` .. `:awaken-heal`), read through `run-mods.lisp`: `*run-mods*`, `*run-mods-who*`,
+`(rmod e key default)`, its shorthands `rmod-x` (a multiplier: X itself when the key is absent) and `rmod-plus`, and the pure
+helpers `run-dmg-mult`, `run-taken-mult`, `run-konpaku-result`, `run-regen-heal` (host checks:
+`tests/duel-rules/runmods.lisp`). Every rule point is behind `*run-mods*` (or RMOD's own test, or an RMOD-X that returns its
+X), so with no table the sim computes exactly what it did.
+
+| Key | Read in |
+|---|---|
+| `:dmg` `:red-dmg` `:ender-dmg` `:sp-dmg` `:ender-sp-dmg` `:post-burst-dmg` | combat.lisp RUN-ATK-MODS (APPLY-HIT's attacker plist: every hit, armoured / absorbed / drunk hits and hazards too) |
+| `:post-burst-fs`, the `:ender-sp-dmg` window's start | combat.lisp RUN-HIT-LANDED! (APPLY-HIT); armed in fighter.lisp START-HOHO / combat.lisp BURST! (RUN-POST-BURST!), the SP marked in START-MOVE (RUN-MOVE-START!) |
+| `:guard-drain` | combat.lisp APPLY-HIT :blocked (the drain V) |
+| `:chip-taken` | combat.lisp APPLY-HIT :blocked (the chip, rounded) |
+| `:breaker-taken` `:awake-taken` `:perfect-taken` | combat.lisp RUN-DEF-MODS (APPLY-HIT's defender plist) |
+| `:kikon-plus` `:sb-plus` `:kikon-past` `:sb-past` | combat.lisp SETTLE-KONPAKU (RUN-KONPAKU-RESULT in place of KIKON-RESULT) |
+| `:revive` | combat.lisp SETTLE-KONPAKU (RUN-REVIVE!: left = the count, no K.O.; SETTLE-SOULS then makes a both-out trade P1's win) |
+| `:armor-on-soul-loss` | combat.lisp SETTLE-KONPAKU (RUN-ARMOR-GIVE!) |
+| `:armor-on-awaken` | combat.lisp AWAKEN! (RUN-ARMOR-GIVE!; the timer counts in GAUGE-SYSTEM, so after the cinematic) |
+| `:red-armor` and the timed armour | fighter.lisp DEFENDER-STATE (:armor wherever he would be :neutral: RUN-ARMOR-P), combat.lisp APPLY-HIT :armored (RUN-ARMOR-SPEND!, unless his move's own armour took the hit: OWN-ARMOR-P, split out of DEFENDER-STATE) |
+| `:kikon-guard` | combat.lisp APPLY-HIT (KIKON-OUTCOME :kikon -> the new result `:kikon-guarded`: blockstun, the :blocked event, no Konpaku, drain or chip); ai.lisp AI-KIKON-FUTILE-P |
+| `:kikon-seal` | fighter.lisp KIT-COMMAND-OK-P (:kikon refused for both sides: the O button, the O ender, every CPU check); ai.lisp AI-KIKON-FUTILE-P |
+| `:red-no-guard` | fighter.lisp GUARD-HELD-P (RUN-NO-GUARD-P) |
+| `:perfect-fs` `:perfect-reiatsu` (and the `:perfect-taken` window) | fighter.lisp START-HOHO (RUN-PERFECT!) |
+| `:regen` | combat.lisp RUN-MODS-STEP! (GAUGE-SYSTEM; "unhit" reset in DEAL-DAMAGE) |
+| `:fs-regen` `:reiatsu-regen` `:gg-regen` | combat.lisp GAUGE-SYSTEM (rules FS-REGEN took an optional rate; GG-REGEN's form multiplier) |
+| `:hoho-cost` | fighter.lisp HOHO-READY-P (the need: rules HOHO-ALLOWED-P took an optional NEED) and START-HOHO (the spend) |
+| `:awaken-heal` | combat.lisp AWAKEN! |
+
+- **The CPU**: AI-SB-FINISH-P is true whenever AI-KIKON-FUTILE-P is (the opponent holds `:kikon-guard`, or the Kikon is
+  sealed), which closes every site that asks it (the neutral rush on a red opponent, the O ender, the rush on hitstun, the
+  characters' own O sites); Hisagi's O-ender reflex, which never asked it, asks AI-KIKON-FUTILE-P.
+- **Per-fighter state**: the fighter component's new slot `rm` holds an RMST (run-mods.lisp), made on first use while the
+  table applies (a fresh fighter every match: all of it resets per match): `post-burst`, `ender-left` (60 f,
+  `*run-ender-window*`), `ender-sp`, `perfect-left` (120 f, `*run-perfect-window*`), `unhit` (180 f, `*run-regen-delay*`),
+  `armor-t`, `red-cd`, `revived`, `frames` (the log's clock).
+- **Interpretations**: "Burst Reverse" arms the post-burst hit for every burst mode (WHITE / BLUE / ORANGE) and every Hoho;
+  the first hit is the first `:hit` / `:counter` (an armoured or blocked contact neither gets nor spends it); `:hoho-cost`
+  scales the flash-step a Hoho needs as well as what it spends; "an SP's" damage covers its hazards while he is still in
+  it; "Breaker damage taken" is a hit from a `:breaker` window; the Kikon guarded by `:kikon-guard` puts P1 in blockstun
+  (as a guard would); the run armour is one hit wherever he would be `:neutral` (also in a reaction or airborne), and, as
+  a move's armour, a Breaker, an unguardable hit (the red Kikon's follow-up) or a rend go through it.
+- **Test hook**: debug 84400+k (DUEL_GAMEPLAY "Debug commands"): `*run-mods-tests*` row k (§4.4's order, k 0–30) as a
+  one-key table on P1, kept for every match START-MATCH starts (`*run-mods-test*`); 84499 clears. Test values: `:dmg` 1.5,
+  `:ender-dmg` / `:red-dmg` / `:post-burst-dmg` / `:sp-dmg` / `:ender-sp-dmg` / `:guard-drain` 2.0, `:post-burst-fs` 0.5,
+  `:kikon-plus` / `:sb-plus` 1, `:kikon-past` / `:sb-past` 2, `:kikon-guard` / `:kikon-seal` / `:red-no-guard` T, `:revive` 1,
+  `:armor-on-soul-loss` / `:armor-on-awaken` 3 s, `:red-armor` 2 s, `:chip-taken` / `:breaker-taken` / `:awake-taken` 0.5,
+  `:perfect-taken` 0.4, `:perfect-fs` 0.25, `:perfect-reiatsu` 0.5, `:regen` 0.05, `:fs-regen` / `:reiatsu-regen` /
+  `:gg-regen` 2.0, `:hoho-cost` 0.5, `:awaken-heal` 0.2. Log lines `duel runmod ...` (only while a table is on).
+- **Evidence** (native sim, CPU vs CPU, `--cmd 84400+k`, seeds 1–2, YK unless named): `:dmg` x1.5 on every P1 hit (83
+  lines); `:ender-dmg` x2 on ya-j3 / ya-k3 only; `:red-dmg` x2 (KK: 18 hits, IY: 12); `:post-burst-dmg` x2 (Hoho / Burst
+  armed, the next hit); `:post-burst-fs` (fs 38.8 -> 51.4 on that hit); `:sp-dmg` / `:ender-sp-dmg` x2 on ya-kyoku,
+  ya-nadegiri and the pillars; `:guard-drain` P1's blocked drains 14 -> 28, 12 -> 24; `:chip-taken` chip 18 -> 9, 14 -> 7;
+  `:kikon-plus` a Kikon 2 -> 3; `:kikon-past` 2 -> 4 (P1 wins 7-0 / 2-0 for 0-1 / 0-1); `:sb-plus` a Soul Break 4 -> 5;
+  `:sb-past` 4 -> 6; `:kikon-guard` with the CPU's predicate forced off (a scratch build) the Kikon guarded 3 (YK) and 8 (KK) times
+  (P1 lost Konpaku only to Soul Breaks), with it on the CPU never rushed him; `:kikon-seal` no Kikon by either side, only
+  Soul Breaks; `:revive` once a match (match 2: P1 at 0, back to 1, wins 1-0); the armours (`:armor-on-soul-loss` 7
+  given, `:armor-on-awaken` 2, `:red-armor` 5 hits taken); `:red-no-guard` 17 refusals; `:breaker-taken` / `:awake-taken`
+  x0.5, `:perfect-taken` x0.4 (KK: 9 hits); `:perfect-fs` / `:perfect-reiatsu`, `:regen`, `:fs-regen` (fs 35 -> 58 at
+  t=1200), `:hoho-cost` (fs 0 -> 13 at t=600), `:reiatsu-regen` (90 -> 117 at t=600), `:gg-regen`, `:awaken-heal`
+  (Reishi 1300 of 1300 after it) each move the match from their first use; a table holding only `:perfect-taken` in YK
+  (nothing to apply it to) replays the no-table match line for line.
+- **Gates**: host 9899 -> 9926 ALL PASS; pkgcheck 0; build 0 warnings; smoke exit 0; simgate 28 pairings x 10 seeds 816
+  lines identical (cmp) to the parent e8e2af2's; cvc 3/3; debug-ranges 0 errors.
+- **Debug range note**: 84400–84499 sits inside DANGAI's 84000+100c+n and shadows c = 4 (Senjumaru's debug DANGAI run).
