@@ -76,10 +76,8 @@ RIGHT m to his right) with no subject kept in frame: a tilt that leaves his body
     (cine-cam (+ tx (* dist (fwd-x yaw))) h (+ tz (* dist (fwd-z yaw))) tx look tz)))
 
 (defun hs-cine-stage (a v gap)
-  "A Kikon cinematic's frame 0: A put 3 m in front of V first, where the placeholder cinematic (B2a's HS-KIKON-CINE) left
-him for the reset that follows (combat.lisp RESET-ROUND places both from where they stand: the gates' rows stay as they
-were), then staged GAP m from V (CINE-PLACE: he is given back the 3 m place however the cinematic ends)."
-  (face-each-other a v 3.0)
+  "A Kikon cinematic's frame 0: A staged GAP m from V (CINE-PLACE; both set down mid-stage first, combat.lisp CINE-STAGE,
+and given back however the cinematic ends)."
   (cine-place a v gap))
 
 (defun hs-face (a v)

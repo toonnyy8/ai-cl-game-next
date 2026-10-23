@@ -2006,7 +2006,8 @@ same Yuji Syuku font): 絞 降 and the ruby's ふ こ う じ ょ.
 **Staging.** Each Kikon script first puts him 3 m in front of the victim, where the placeholder left him for the reset
 that follows (combat.lisp RESET-ROUND places both from where they stand). It then stages its own distance with
 CINE-PLACE, and he is given the 3 m place back however the script ends (`hs-cine-stage`). This keeps the gate rows
-byte-identical (below). The awakening moves no one.
+byte-identical (below). The awakening moves no one. (Since 2026-10-23 every Kikon is first set down mid-stage by `cine-stage` and both actors get their own places
+back; `hs-cine-stage` is CINE-PLACE alone: STYLE_STORM_DESIGN §5 "Staging", DEVLOG §315.)
 
 **The awakening 卍解 風死絞縄 (168 f, `hs-awaken-cine`).**
 

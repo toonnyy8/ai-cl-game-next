@@ -786,6 +786,17 @@ Helpers (draw-mode, cosmetic):
   `(focus-lines frames &key center color)`.
 - Orbits: **at most one per cinematic, ≤ 90° over ≥ 10 f, eased**. Otherwise, cut on the action
   (art §3.3).
+- **Staging** (the user, 2026-10-23: 「毀魂技動畫最近會出現鏡頭錯位空拍的問題，我希望你能都像利捷的覺醒毀魂技動畫一樣，先將角色移動到固定位置在拍攝演出」):
+  every Kikon / Soul Break cinematic starts with `cine-stage` (combat.lisp, just before `start-cine`): both actors set down
+  on the ground (y 0), their midpoint on the arena's centre, on the line and at the distance they stood, facing, and the
+  pair camera snapped there (`*cam-cut*`). Cause of the empty shots: a first beat with no shot of its own (the trigger,
+  frames 0–12 in most scripts) keeps the pair camera, frozen by `hold-both` / the impact frame (no smoothing), while
+  frame 0's `face-each-other` gap moved the attacker; a fighter mid-air (a leap cleave) or by the walls (r 19) left
+  shots with absolute heights / long dollies looking at nothing. The script's own gaps (`face-each-other a v GAP`,
+  `cine-place`) then work from that spot. Both actors are given back where they stood when it ends (`cine-save`,
+  played, skipped or aborted); `reset-round` reads only their line, so only float rounding changes (10 seeds: all
+  K.O., 7 pairings' medians moved −6 … +10 s, e.g. HH 164.2 → 173.9; G2 cvc: every RESULTS line the same, yk's hash line
+  printed inside its Kikon cinematic shows them mid-stage, tests/style-cvc-ref.txt regenerated).
 
 **Grammar** (inside the existing `:len`):
 0. **Trigger** (6–8 f): freeze (`model-hold` on both) + a negative impact frame (2 f).

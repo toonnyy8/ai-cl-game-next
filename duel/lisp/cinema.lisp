@@ -13,6 +13,7 @@
 (in-package :duel)
 
 (declaim (type f32vec *ui-flash*))
+(declaim (special *cam-cut*))   ; (camera.lisp's)
 (defvar *ui-flash* (make-f32 5) "Full-screen UI flash: r g b alpha, fade per second (hud.lisp).")
 (defvar *card* nil "The beat's background card: :black, :white or NIL (the stage; CARD).")
 (defvar *card-only* nil "The one actor drawn on the card (CARD's ONLY), or NIL = both.")
@@ -55,8 +56,9 @@ camera's easing) run at this rate; the script's frames do not (a look: the sim n
   (let ((m (model e))) (when m (anim-advance (model-anim m) (* +step+ *cine-time-scale*)))))   ; (CINE-SLOW)
 
 (declaim (type f32vec *cine-placed*))
-(defvar *cine-placed* (make-f32 4) "CINE-PLACE: A's place before it (x y z) and [3] 1 while it is to be given back.")
-(defvar *cine-placed-e* nil "CINE-PLACE's actor.")
+(defvar *cine-placed* (make-f32 7) "CINE-SAVE: A's and V's places before the cinematic moved them (x y z each) and [6] 1
+while they are to be given back.")
+(defvar *cine-placed-e* nil "CINE-SAVE's actors (A . V).")
 (defun cine-end (c)
   "A cinematic ended (C, or NIL when none ran): restore the stage look, clear the caption and the
 flash, give the actors back (the presses buffered during it forgotten: mashing through a
@@ -66,9 +68,11 @@ cinematic fires nothing)."
         *aura-off* nil *cine-subject* nil *draw-scale-e* nil *draw-scale* 1f0   ; (played, skipped or aborted)
         *cine-time-scale* 1f0)
   (v3-set! (camera-up *camera*) 0f0 1f0 0f0)
-  (when (and *cine-placed-e* (> (aref *cine-placed* 3) 0f0))   ; CINE-PLACE: A back where he stood
-    (let ((p (pos-of *cine-placed-e*)) (s *cine-placed*))
-      (setf (aref p 0) (aref s 0) (aref p 1) (aref s 1) (aref p 2) (aref s 2) (aref s 3) 0f0)))
+  (when (and *cine-placed-e* (> (aref *cine-placed* 6) 0f0))   ; CINE-SAVE: both back where they stood
+    (let ((s *cine-placed*))
+      (loop for e in (list (car *cine-placed-e*) (cdr *cine-placed-e*)) for i from 0 by 3
+            do (let ((p (pos-of e))) (setf (aref p 0) (aref s i) (aref p 1) (aref s (+ i 1)) (aref p 2) (aref s (+ i 2)))))
+      (setf (aref s 6) 0f0)))
   (setf *cine-placed-e* nil)
   (unsilhouette)
   (fill *ui-flash* 0f0)
@@ -111,14 +115,35 @@ the other third to a caption."
           (transform-yaw (transform v)) (f32 (dir-yaw (- (aref p 0) (aref q 0)) (- (aref p 2) (aref q 2)))))
     (setf (aref q 1) 0f0)))
 
+(defun cine-save (a v)
+  "Keep A's and V's places to give back when the cinematic ends (CINE-END, however it ends); the first save of a
+cinematic holds."
+  (let ((s *cine-placed*))
+    (unless (> (aref s 6) 0f0)
+      (loop for e in (list a v) for i from 0 by 3
+            do (let ((p (pos-of e))) (setf (aref s i) (aref p 0) (aref s (+ i 1)) (aref p 1) (aref s (+ i 2)) (aref p 2))))
+      (setf (aref s 6) 1f0 *cine-placed-e* (cons a v)))))
+
+(defun cine-stage (a v)
+  "A Kikon's or a Soul Break's cinematic (combat.lisp, before START-CINE): both actors set down on the stage first, their
+midpoint on the arena's centre, on the line and at the distance they stood, facing; the script's shots (and its own
+FACE-EACH-OTHER / CINE-PLACE gaps) frame them there, never a fighter mid-air or by the walls (the user, 2026-10-23:
+「毀魂技動畫最近會出現鏡頭錯位空拍的問題，我希望你能都像利捷的覺醒毀魂技動畫一樣，先將角色移動到固定位置在拍攝演出」). Both
+are given back when it ends (CINE-SAVE): a look only, RESET-ROUND reads only their line."
+  (cine-save a v)
+  (let* ((p (pos-of a)) (q (pos-of v)) (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
+    (setf (aref p 0) (f32 (- (aref p 0) mx)) (aref p 1) 0f0 (aref p 2) (f32 (- (aref p 2) mz))
+          (aref q 0) (f32 (- (aref q 0) mx)) (aref q 1) 0f0 (aref q 2) (f32 (- (aref q 2) mz))))
+  (face-each-other a v)
+  (setf *cam-cut* t))   ; a first beat with no shot of its own (its effects frozen: no smoothing) frames them here
+
 (defun cine-place (a v gap)
   "Stage the shot at a set distance: put A GAP metres in front of V (FACE-EACH-OTHER's flash step) for the cinematic's
-camera, and give A its place back when it ends (CINE-END, however it ends): a look only, the match goes on from where
-they stood (the user, 2026-10-08: 「應該進入毀魂技過場動畫時就要先調整演員的位置才對」). Their facings are FACE-EACH-OTHER's
-either way (the same line)."
-  (let ((p (pos-of a)) (s *cine-placed*))
-    (setf (aref s 0) (aref p 0) (aref s 1) (aref p 1) (aref s 2) (aref p 2) (aref s 3) 1f0 *cine-placed-e* a)
-    (face-each-other a v gap)))
+camera, and give both their places back when it ends (CINE-SAVE): a look only, the match goes on from where they stood
+(the user, 2026-10-08: 「應該進入毀魂技過場動畫時就要先調整演員的位置才對」). Their facings are FACE-EACH-OTHER's either way
+(the same line)."
+  (cine-save a v)
+  (face-each-other a v gap))
 
 (defun cine-clip (e clip &key (blend 3) (speed 1.0) (time 0.0))
   "Play CLIP on actor E (falls back to the stance with a log line if the art lacks it)."
