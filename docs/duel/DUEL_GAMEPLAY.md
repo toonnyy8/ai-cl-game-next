@@ -341,10 +341,11 @@ run fresh gives the same combat log as after a gate.
 Reference (YK, seed 7, `duel-cvc-yk.json`):
 
 ```
-duel -> RESULTS winner P2 konpaku 0-1 ticks 9873 secs 164.6
+duel -> RESULTS winner P2 konpaku 0-6 ticks 8135 secs 135.6
 ```
 
-(The heavy whiff / block recovery, 2026-10-23: all three changed; before it `winner P2 konpaku 0-6 ticks 5809 secs 96.8`.) (The whiff / block recovery rework, 2026-10-23 (DUEL_DESIGN "Whiff and block recovery"): all three changed; before it `winner P2
+(The recovery back to medium and the guard cancel earlier, 2026-10-23: all three changed; before it `winner P2 konpaku 0-1 ticks
+9873 secs 164.6`.) (The heavy whiff / block recovery, 2026-10-23: all three changed; before it `winner P2 konpaku 0-6 ticks 5809 secs 96.8`.) (The whiff / block recovery rework, 2026-10-23 (DUEL_DESIGN "Whiff and block recovery"): all three changed; before it `winner P2
 konpaku 0-1 ticks 6622 secs 110.4`.) (A perfect Hoho stops refunding flash-step, 2026-10-19: yk and kk changed; before it `winner P2 konpaku 0-6 ticks 6173 secs
 102.9`.) (The CPU learns Step -> J, 2026-10-02 (DUEL_STRINGS.md §19): all three changed; before it `winner P2 konpaku 0-1 ticks 7168
 secs 119.5`.) (The Breaker opens a combo, 2026-10-02 (DUEL_STRINGS.md §17): all three changed; before it `winner P1 konpaku 1-0 ticks 8178

@@ -457,27 +457,29 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (~= (gg-regen 50.0 999 nil t) 50.0)))                            ; outside BLUE: GUARD HOLD as ever
 ;; ORANGE: the cancel window is the hit's cancel window (first hit frame .. end of recovery); the startup cut 40 %, >= 1 f left
 (check (and (cancel-open-p 12 10 30 t) (not (cancel-open-p 9 10 30 t)) (not (cancel-open-p 30 10 30 t)) (not (cancel-open-p 12 10 30 nil))))
-;; the guard cancel (the user, 2026-10-01): only after its own hit, over the last half of the recovery (K2 21/4/24: f37-44)
-(check (and (= 0.5 *guard-cancel*) (not (guard-cancel-open-p 36 21 4 24 :hit)) (guard-cancel-open-p 37 21 4 24 :hit)
+;; the guard cancel (the user, 2026-10-01): after its own hit, over the last half of the recovery; the last three
+;; quarters since 2026-10-23 (「將防禦取消提早」; K2 21/4/24: f31-48)
+(check (and (= 0.75 *guard-cancel*) (not (guard-cancel-open-p 30 21 4 24 :hit)) (guard-cancel-open-p 31 21 4 24 :hit)
             (guard-cancel-open-p 48 21 4 24 :hit) (not (guard-cancel-open-p 49 21 4 24 :hit))
             (not (guard-cancel-open-p 40 21 4 24 :block)) (not (guard-cancel-open-p 40 21 4 24 nil))))
 ;; the arena's room for a push (RAY-ROOM): from the centre 5 to an r 5 edge; at 4 m out along +x, 1 left that way and 9 back
 (check (and (< (abs (- (ray-room 0.0 0.0 1.0 0.0 5.0) 5.0)) 1e-4) (< (abs (- (ray-room 4.0 0.0 1.0 0.0 5.0) 1.0)) 1e-4)
             (< (abs (- (ray-room 4.0 0.0 -1.0 0.0 5.0) 9.0)) 1e-4) (= 0.0 (ray-room 5.0 0.0 1.0 0.0 5.0))))
 ;; a J (QUICK) may guard-cancel on block too (the user 2026-10-02): J1 9/3/12 opens f18-23; never on a whiff
-;; 2026-10-23 (「拉長打空與被防禦的收招，但收招可以用防禦取消」, 「收招後半」; 「重度」): a J / K / O blocked recovers R + *BLOCK-ADD*,
-;; whiffed its whiff + *WHIFF-ADD*; both may guard-cancel over their last half (J S9 A3 R12: blocked 20, whiffed 20 + 16)
-(check (and (equal *block-add* '(:quick 8 :flash 10 :kikon 10)) (equal *whiff-add* '(:quick 16 :flash 16 :kikon 16))))
-(check (and (guard-cancel-open-p 22 9 3 12 :block :quick) (not (guard-cancel-open-p 21 9 3 12 :block :quick))
-            (guard-cancel-open-p 31 9 3 12 :block :quick) (not (guard-cancel-open-p 32 9 3 12 :block :quick))
-            (guard-cancel-open-p 30 9 3 12 nil :quick 20) (not (guard-cancel-open-p 29 9 3 12 nil :quick 20))
-            (guard-cancel-open-p 20 9 3 12 :hit :quick) (not (guard-cancel-open-p 17 9 3 12 :hit :quick))
+;; 2026-10-23 (「拉長打空與被防禦的收招，但收招可以用防禦取消」; 「重度」, then 「調回中間」; 「將防禦取消提早」): a J / K / O blocked
+;; recovers R + *BLOCK-ADD*, whiffed its whiff + *WHIFF-ADD*; both may guard-cancel over the last three quarters (J S9 A3
+;; R12: blocked 16 from f16, whiffed 20 + 8 from f19)
+(check (and (equal *block-add* '(:quick 4 :flash 6 :kikon 6)) (equal *whiff-add* '(:quick 8 :flash 8 :kikon 8))))
+(check (and (guard-cancel-open-p 16 9 3 12 :block :quick) (not (guard-cancel-open-p 15 9 3 12 :block :quick))
+            (guard-cancel-open-p 27 9 3 12 :block :quick) (not (guard-cancel-open-p 28 9 3 12 :block :quick))
+            (guard-cancel-open-p 19 9 3 12 nil :quick 20) (not (guard-cancel-open-p 18 9 3 12 nil :quick 20))
+            (guard-cancel-open-p 15 9 3 12 :hit :quick) (not (guard-cancel-open-p 14 9 3 12 :hit :quick))
             (not (guard-cancel-open-p 40 21 4 24 nil :sig 30)) (not (guard-cancel-open-p 40 21 4 24 :block :sp))))
-(check (and (= (recovery-frames 12 :block nil :quick) 20) (= (recovery-frames 20 :block nil :flash) 30)
-            (= (recovery-frames 24 :block nil :kikon) 34) (= (recovery-frames 12 :hit nil :quick) 12)
-            (= (recovery-frames 12 nil 20 :quick) 36) (= (recovery-frames 20 nil 32 :flash) 48) (= (recovery-frames 30 nil 30 :kikon) 46)
+(check (and (= (recovery-frames 12 :block nil :quick) 16) (= (recovery-frames 20 :block nil :flash) 26)
+            (= (recovery-frames 24 :block nil :kikon) 30) (= (recovery-frames 12 :hit nil :quick) 12)
+            (= (recovery-frames 12 nil 20 :quick) 28) (= (recovery-frames 20 nil 32 :flash) 40) (= (recovery-frames 30 nil 30 :kikon) 38)
             (= (recovery-frames 24 :block nil :sp) 24) (= (recovery-frames 24 nil 30 :sig) 30)))
-(check (= (move-end-frame 9 3 12 20 :block nil :quick) 32))
+(check (= (move-end-frame 9 3 12 20 :block nil :quick) 28))
 (check (and (= (chain-startup-cut 10 0) 4) (= (chain-startup-cut 20 0) 8) (= (chain-startup-cut 2 0) 0) (= (chain-startup-cut 1 0) 0)
             (= (chain-startup-cut 3 0) 1) (= (chain-startup-cut 12 2) 4) (= *chain-window* 12)))
 (check (and (~= (burst-gain-mult :orange) 1.5) (~= (burst-gain-mult :white) 1.0) (~= (burst-gain-mult nil) 1.0)))

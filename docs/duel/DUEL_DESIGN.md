@@ -1782,3 +1782,13 @@ lag: 「只擋攻擊這個選項應該只能開放 step 跟 hoho，不能移動�
   109.2, BK 116.7 -> 105.6, BR 153.7 -> 140.3, BI 160.9 -> 126.3, BS 130.5 -> 131.1, BB 154.9 -> 139.0, HY 115.2 -> 104.9,
   HK 130.6 -> 89.2, HR 146.2 -> 140.8, HI 140.7 -> 137.1, HS 134.7 -> 137.2, HB 153.7 -> 138.4, HH 206.8 -> 155.5 s; cvc
   regenerated (yy P1 7-0 113.2 s, yk P2 0-1 164.6 s, kk P2 0-1 96.5 s).
+- **Back to medium, the guard cancel earlier** (the user, the same day: 「調回中間，然後將防禦取消提早」): the medium set again
+  (`*whiff-add*` 8, `*block-add*` J 4 / K 6 / O 6, `*guard-raise*` 4, `*guard-exit*` 4); `*guard-cancel*` 0.5 -> 0.75 (the
+  lead's reading of 「提早」: from the last three quarters of the recovery, every guard cancel, a hit's too): Kenpachi's
+  blocked J1 into a guard from f14 (was f16 at medium), a whiffed one from f17 (was f24), K2 on hit from f31 of 49 (was
+  f37). Gates (28 x 10): every match K.O. but one draw (HR); medians against the first medium run: YY 84.6 -> 85.5, YK
+  84.4 -> 87.1, KK 81.4 -> 92.5, RY 101.0 -> 104.3, RK 100.5 -> 97.6, RR 131.0 -> 128.9, IY 110.4 -> 109.8, IK 93.6 ->
+  103.3, IR 132.2 -> 140.1, II 127.4 -> 119.2, SY 97.6 -> 102.5, SK 103.0 -> 106.3, SR 119.6 -> 113.6, SS 128.4 -> 121.9,
+  SI 119.3 -> 117.0, BY 109.4 -> 114.4, BK 116.7 -> 109.3, BR 153.7 -> 140.3, BI 160.9 -> 147.0, BS 130.5 -> 161.1, BB
+  154.9 -> 158.6, HY 115.2 -> 110.3, HK 130.6 -> 110.7, HR 146.2 -> 145.5, HI 140.7 -> 152.6, HS 134.7 -> 160.9, HB 153.7
+  -> 157.2, HH 206.8 -> 185.2 s; cvc regenerated (yy P2 0-3 116.3 s, yk P2 0-6 135.6 s, kk P1 6-0 160.2 s).
