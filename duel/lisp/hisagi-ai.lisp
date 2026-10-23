@@ -560,7 +560,7 @@ its bind's 46 f stun outlasts the combo's hitstun decay: as a string's SP (after
 SP end) of 1238 binds at HARD, 480 matches, the slam landed 402 times and was blocked 659 (after RIN: 35 and 52 of 100): 60 + 90 written against RAIDEN's clean 110.)"
   (let ((b (ai-brain e)))
     (when b
-      (cond ((and (kit-command-ok-p e :kikon kit t)
+      (cond ((and (kit-command-ok-p e :kikon kit t) (not (ai-kikon-futile-p e))   ; (DANGAI's :kikon-guard)
                   (< (sim-rnd01) (if (ai-mash-p b) (brain-chance b *hs-ai-o-ender-mash-p*) (hs-sp e b *hs-ai-o-ender-p*))))
              (pace e :ai-o-ender) :kikon)
             ((and (>= (reiatsu-bars e) 1) (< (sim-rnd01) (brain-chance b *hs-ai-sp-ender-p*)) (kit-command-ok-p e :sp1))

@@ -9,7 +9,7 @@
 ;;;;   2300-2399, 2410-2430, 2450+k   scenarios and probes (2300+k specials, 2315+k frame probes, 2370+k / 2380+k stance
 ;;;;               tests, 2386+k Bankai tests, 2410+k Rukia, 2450+k Senjumaru); 2400 god; 2500+k human P1 vs an idle CPU
 ;;;;   20000-29000, 32000-73000   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc)
-;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
+;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 84000-84999 DANGAI (84400+k its run table), 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
 ;;;; "duel -> RESULTS winner ..." (flow.lisp), CLOG combat lines "[tick] ...".
 ;;;; The gates' machinery (the hash line, CPU vs CPU, the seed / learning gates) is gate.lisp, their scripted players scripted.lisp.
@@ -529,6 +529,14 @@ move-beat choices of DRAW-FIGHTER."
     (setf (model-beat m) 0f0)))
 
 
+(defun run-mods-debug (k)
+  "Debug 84400-84499: K < (length *RUN-MODS-TESTS*) installs that one-key table on P1 (now, and on every match START-MATCH
+starts: *RUN-MODS-TEST*); 99 clears it. A plain VS CPU / CPU VS CPU match then runs with P1 under the key."
+  (let ((row (nth k *run-mods-tests*)))
+    (setf *run-mods-test* (and (/= k 99) row (copy-list row))
+          *run-mods* *run-mods-test* *run-mods-who* (and *run-mods-test* *p1*))
+    (log-msg "duel runmod test ~d ~s" k *run-mods-test*)))
+
 (defun cine-still-command-p (c)
   "The cinematic-still commands (FORCE-CINE / CINE-AT): a held cinematic stays held for them (tests/debug-ranges-check.py
 checks every such clause of DEBUG-COMMAND is listed here)."
@@ -602,6 +610,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2400) (setf *god* (not *god*)))
         ((<= 2600 c 2699) (setf *red-threshold* (/ (- c 2600) 100.0)))
         ((<= 80000 c 80999) (endless-debug (- c 80000) nil))    ; ENDLESS (endless.lisp)
+        ((<= 84400 c 84499) (run-mods-debug (- c 84400)))      ; DANGAI's run table: one key on P1 (run-mods.lisp)
         ((<= 84000 c 84999) (endless-debug (- c 84000) t))      ; DANGAI (rogue.lisp: an ENDLESS run)
         ((<= 81000 c 81011) (let ((k (- c 81000)))          ; ASSIST for the :dumb player (guard + 3 combo + 6 break)
                               (setf *assist-debug* (list (mod k 3) (oddp (floor k 3)) (>= k 6)))))

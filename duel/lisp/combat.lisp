@@ -120,6 +120,7 @@ floors at 0 with no Soul Break, the nominal DMG goes to the binder's :bind-damag
 count (DEALT-REAL)."
   (let* ((ga (gauges att)) (gd (gauges def)) (b (brain att)) (bd (bind-of def)) (h (bind-hook bd :bind-damage)))
     (setf (gauges-reishi gd) (max 0 (- (gauges-reishi gd) dmg)))
+    (when (and *run-mods* (plusp dmg) (run-mods-on-p def)) (setf (rmst-unhit (rm-of def)) 0))   ; DANGAI's :regen waits
     (incf (gauges-dealt ga) dmg)
     (when bd (incf (gauges-grey ga) dmg))
     (when h (funcall h bd att def dmg))
@@ -167,6 +168,75 @@ flash-step, x KOSEI-MULT of his guard gauge (x1 full .. x3 empty); the :kosei ev
     (multiple-value-bind (r fs m) (kosei-gain g (gauges-gg (gauges att)))
       (pay-gauges to (* r (burst-gain-mult (gauges-burst (gauges att)))) fs)   ; ORANGE: x1.5 Reiatsu
       (emit :kosei to m x y z))))
+
+;;; ---------------------------------------------------------------- DANGAI's run modifiers on a hit (run-mods.lisp, DUEL_ROGUE §4.4)
+(defun run-atk-mods (att atk mv hazard)
+  "ATK (APPLY-HIT's attacker plist) with the run table's damage multiplier for ATT (RUN-DMG-MULT): :dmg, :red-dmg while he
+is red, :ender-dmg on a J3 / K3 (an :ender of kind :quick / :flash), :sp-dmg on an SP (its hazards: while he is still in
+it), :ender-sp-dmg on an SP started off an ender's hit, :post-burst-dmg on the first hit after his Hoho / Burst. ATK
+itself when it is x1."
+  (let* ((st (rm-of att)) (sm (or mv (and hazard (current-move (fighter att)))))
+         (m (run-dmg-mult *run-mods* :red (gauges-red-p (gauges att))
+                                     :ender (and mv (member :ender (mv-flags mv)) (member (mv-kind mv) '(:quick :flash)) t)
+                                     :sp (and sm (eq (mv-kind sm) :sp)) :ender-sp (rmst-ender-sp st)
+                                     :post-burst (rmst-post-burst st))))
+    (if (= m 1.0)
+        atk
+        (progn (log-msg "duel runmod dmg x~,3f ~(~a~)" m (cond (mv (mv-name mv)) (hazard (hazard-kind hazard)) (t :counter)))
+               (list* :mult (* (getf atk :mult 1.0) m) atk)))))
+
+(defun run-def-mods (def dmods flags)
+  "DMODS (APPLY-HIT's defender plist) with the run table's taken multiplier for DEF (RUN-TAKEN-MULT): :breaker-taken from a
+:breaker window (FLAGS), :awake-taken while awakened, :perfect-taken inside the window after his perfect Hoho. DMODS
+itself when it is x1."
+  (let ((m (run-taken-mult *run-mods* :breaker (and (member :breaker flags) t) :awake (gauges-awakened (gauges def))
+                                      :perfect (plusp (rmst-perfect-left (rm-of def))))))
+    (if (= m 1.0)
+        dmods
+        (progn (log-msg "duel runmod taken x~,3f" m)
+               (list* :mult (* (getf dmods :mult 1.0) m) dmods)))))
+
+(defun run-hit-landed! (att res mv own)
+  "ATT's hit landed as RES (APPLY-HIT): a real hit spends his post-Hoho / Burst first hit (:post-burst-fs of max back),
+and his own J3 / K3's opens the :ender-sp-dmg window."
+  (when (and (run-mods-on-p att) (member res '(:hit :counter)))
+    (let ((st (rm-of att)) (g (gauges att)))
+      (when (rmst-post-burst st)
+        (setf (rmst-post-burst st) nil)
+        (let ((fs (rmod att :post-burst-fs nil)))
+          (when fs
+            (setf (gauges-fs g) (f32 (gauge-add (gauges-fs g) (* fs *fs-max*) *fs-max*)))
+            (log-msg "duel runmod post-burst-fs ~,1f" (gauges-fs g)))))
+      (when (and own mv (member :ender (mv-flags mv)) (member (mv-kind mv) '(:quick :flash)))
+        (setf (rmst-ender-left st) *run-ender-window*)))))
+
+(defun run-revive! (def)
+  "DEF's Konpaku ran out: his :revive (once a match, a stage) brings this many back (NIL: none, or used)."
+  (let ((n (rmod def :revive nil)))
+    (when (and n (plusp n) (not (rmst-revived (rm-of def))))
+      (setf (rmst-revived (rm-of def)) t)
+      (log-msg "duel runmod revive ~d" n)
+      n)))
+
+(defun run-mods-step! (e g)
+  "One sim frame of E's run state (GAUGE-SYSTEM, gauges G): its windows and armour count down, :red-armor's refill, and
+:regen (Reishi, of max a second, after *RUN-REGEN-DELAY* frames unhit, not while red)."
+  (when (run-mods-on-p e)
+    (let ((st (rm-of e)))
+      (when (plusp (rmst-ender-left st)) (decf (rmst-ender-left st)))
+      (when (plusp (rmst-perfect-left st)) (decf (rmst-perfect-left st)))
+      (when (plusp (rmst-armor-t st)) (decf (rmst-armor-t st)))
+      (when (plusp (rmst-red-cd st)) (decf (rmst-red-cd st)))
+      (setf (rmst-unhit st) (min 99999 (1+ (rmst-unhit st))))
+      (when (zerop (mod (incf (rmst-frames st)) 600))
+        (log-msg "duel runmod state f ~d reishi ~d fs ~,1f reiatsu ~,1f gg ~,1f unhit ~d armor ~d red-cd ~d"
+                 (rmst-frames st) (gauges-reishi g) (gauges-fs g) (gauges-reiatsu g) (gauges-gg g) (rmst-unhit st)
+                 (rmst-armor-t st) (rmst-red-cd st)))
+      (let ((r (rmod e :regen nil)))
+        (when (and r (not (gauges-red-p g)))
+          (let ((n (run-regen-heal (rmst-unhit st) (gauges-reishi-max g) r)))
+            (when (plusp n) (heal! e n))
+            (when (= (rmst-unhit st) (+ 60 *run-regen-delay*)) (log-msg "duel runmod regen 1 s reishi ~d" (gauges-reishi g)))))))))
 
 ;;; ---------------------------------------------------------------- one hit
 (defun drain-guard (e v &optional (why :block))
@@ -271,13 +341,17 @@ result (NIL = no effect)."
                                   (if h (* px (funcall h att def hw mv hazard d2)) px))
                                 (and mv (getf (mv-params mv) :form-mult)))))   ; (a move's own form x: the owl's stance K / KL)
          (dmods (if (or optic flat) '(:mult 1.0) (kit-def-mods (kit-of def))))   ; (a ranged hit through Rukia's ward: x1.0 taken)
+         (atk (if (and *run-mods* (run-mods-on-p att)) (run-atk-mods att atk mv hazard) atk))     ; DANGAI's run table
+         (dmods (if (and *run-mods* (run-mods-on-p def)) (run-def-mods def dmods flags) dmods))
          (x (or x (aref p 0))) (z (or z (aref p 2))) (y (+ (aref p 1) 1.1))
          (base (+ (hw-dmg hw) bonus))
          (outcome (and rush (kikon-outcome (vpad-down (pilot-vpad (pilot att)) :kikon) res fstrike)))
          (follow (eq outcome :follow)))                 ; knocked back, then the rusher dashes in to the follow-up
     (when (eq outcome :kikon)
-      (setf res :kikon)
-      (unless (find def *kikons* :key #'second) (push (list att def mv) *kikons*)))
+      (if (rmod def :kikon-guard nil)                   ; DANGAI's :kikon-guard: the Kikon guarded, nothing lost
+          (setf res :kikon-guarded)
+          (progn (setf res :kikon)
+                 (unless (find def *kikons* :key #'second) (push (list att def mv) *kikons*)))))
     (when res
       (let ((first (and own (not (eq (fighter-contact fa) :hit)) (eq (contact-of res) :hit))))   ; its first real hit
         (when own                                       ; only a real hit counts as one (CONTACT-OF)
@@ -289,8 +363,14 @@ result (NIL = no effect)."
         (when (and own (not ranged) (not (member res '(:parried :kikon))))   ; KOSEI: his own blade touched him
           (kosei! att (or (hw-guard hw) 0) x y z))
         (when (eq res :counter) (respect def) (incf (gauges-counters (gauges att))))
+        (when *run-mods* (run-hit-landed! att res mv own))
         (ecase res
           (:kikon nil)                                  ; settled at the end of the step (SETTLE-SOULS)
+          (:kikon-guarded                               ; DANGAI's :kikon-guard: a block with no drain, no chip
+           (set-blockstun def (blockstun (mv-total mv) (fighter-sf fa) 0) sx sz 0)
+           (hitstop *hitstop-block*)
+           (emit :blocked att def x y z)
+           (log-msg "duel runmod kikon-guard side ~d" (fighter-side fd)))
           ((:hit :counter)
            (multiple-value-bind (react hits launches air)
                (combo-step (if follow :stagger (hw-react hw)) (eq (fighter-state fd) :air) (fighter-combo-hits fd)
@@ -341,7 +421,10 @@ result (NIL = no effect)."
                  (emit :rush-dash att)
                  (clog "~a KIKON FOLLOW-UP on ~a~:[~; (red)~]" (side-name att) (side-name def) red)))))
           (:armored                                     ; a move's armour (one hit spent)
-           (when (and (eq def-state :armor) (plusp (fighter-armor-left fd))) (decf (fighter-armor-left fd)))   ; (a kit's
+           (if (and *run-mods* (eq def-state :armor) (run-armor-p def)   ; DANGAI's run armour, unless his move's own took it
+                    (not (and (eq (fighter-state fd) :move) (own-armor-p def fd (fighter-move fd)))))
+               (run-armor-spend! def)
+               (when (and (eq def-state :armor) (plusp (fighter-armor-left fd))) (decf (fighter-armor-left fd))))   ; (a kit's
                                                         ;  :armor hook pays its own price: its :struck)
            (hitstop *hitstop-block*)
            (emit :armored def x y z)
@@ -376,16 +459,19 @@ result (NIL = no effect)."
                          (- (if (and drink mv) (drink-adv a) a)          ; (the attacker's advantage: a blocked J's
                             (if (and mv (eq (mv-kind mv) :quick)) *quick-block-adv* 0))))   ; defender is free sooner)
                   (stun (if mv (blockstun (mv-total mv) (fighter-sf fa) adv) *hazard-blockstun*))
-                  (v (let* ((v0 (or (hw-guard hw) *gg-hazard*)) (v1 (if (and mv (passive-p att :cut)) (cut-value v0 (mv-kind mv)) v0)))
-                       (if (and ward (passive-p def :ward))
-                           (* (if (passive-p def :intangible) *mujittai-mult* *ward-mult*) v1)   ; (an intangible ward's own)
-                           v1)))
+                  (v (rmod-x att :guard-drain                     ; (DANGAI's :guard-drain)
+                             (let* ((v0 (or (hw-guard hw) *gg-hazard*)) (v1 (if (and mv (passive-p att :cut)) (cut-value v0 (mv-kind mv)) v0)))
+                               (if (and ward (passive-p def :ward))
+                                   (* (if (passive-p def :intangible) *mujittai-mult* *ward-mult*) v1)   ; (an intangible ward's own)
+                                   v1))))
                   (pierce (and (plusp k) k))
                   (intangible (and ward (passive-p def :ward) (passive-p def :intangible)))   ; it passes through him
-                  (chip (if (or catch (passive-p def :chipless) intangible)   ; Rukia awakened, an intangible ward: no chip
-                            0
-                            (chip-damage base (if drink pierce (or (hw-chip hw) (and mv (kit-blade-chip (kit-of att))) pierce))
-                                         (gauges-reishi (gauges def))))))
+                  (chip (let ((c (if (or catch (passive-p def :chipless) intangible)   ; Rukia awakened, an intangible ward: no chip
+                                     0
+                                     (chip-damage base (if drink pierce (or (hw-chip hw) (and mv (kit-blade-chip (kit-of att))) pierce))
+                                                  (gauges-reishi (gauges def)))))
+                              (m (rmod def :chip-taken nil)))      ; (DANGAI's :chip-taken)
+                          (if m (round (* c m)) c))))
              (cond (catch (funcall catch def base) (hitstop *hitstop-block*) (emit :blocked att def x y z))   ; no gauge, no stun
                    ((drain-guard def v)
                     (ward-drop def)
@@ -408,6 +494,8 @@ result (NIL = no effect)."
                  (deal-damage att def taken)
                  (nome-gain! def 0 0 drunk)
                  (clog "~a DRINK ~d (+~d drunk)" (side-name def) taken drunk)))
+             (when (and *run-mods* (or (run-mods-on-p att) (run-mods-on-p def)))
+               (log-msg "duel runmod block side ~d drain ~,1f chip ~d" (fighter-side fd) v chip))
              (when (plusp chip) (deal-damage att def chip))
              (when (and mv (not ranged)) (cold-add! def (* *ru-block-cool* (or (hw-guard hw) 0))))   ; Rukia: a blocked blade cools her
              (when (and hazard (plusp (hw-meter hw))) (add-meter att *meter-on-block*))))
@@ -577,6 +665,7 @@ modes\"): nothing spent, the flash-step drains from now (GAUGE-SYSTEM). BLUE bre
 move's recovery, the next move started within *CHAIN-WINDOW* f has its startup cut (START-MOVE). A short global hitstop."
   (let ((o (opp-of e)) (g (gauges e)) (f (fighter e)))
     (setf (gauges-burst g) mode (gauges-burst-t g) 0 (gauges-fs-idle g) 0)
+    (when *run-mods* (run-post-burst! e))
     (case mode
       (:blue (repel! e)                                   ; + one Reiatsu bar, as RoS does (the user 2026-09-30)
        (reiatsu-gain! e *reiatsu-bar*))
@@ -640,7 +729,10 @@ form's :cine if it has one (both fighters idle after it). The guard gauge is lef
     (set-form e (kit-awaken-form (kit-of e)))
     (let ((st (getf (kit-meter (kit-of e)) :start)))    ; NOME starts at 10
       (when st (setf (gauges-meter g) (f32 st) (gauges-meter-idle g) 0)))
-    (heal! e (round (* *awaken-heal* (gauges-reishi-max g))))
+    (heal! e (round (* (rmod-plus e :awaken-heal *awaken-heal*) (gauges-reishi-max g))))   ; (DANGAI's :awaken-heal)
+    (when *run-mods*                                    ; (its armour counts once the cinematic is over: GAUGE-SYSTEM)
+      (run-armor-give! e :armor-on-awaken)
+      (when (run-mods-on-p e) (log-msg "duel runmod awaken reishi ~d of ~d" (gauges-reishi g) (gauges-reishi-max g))))
     (emit :awaken e)
     (if (kit-cine (kit-of e))
         (start-cine (kit-cine (kit-of e)) e o :after (lambda () (to-idle e 0) (to-idle o 0)))
@@ -728,9 +820,17 @@ clones, 3 clones 4 + 1 = 5, the user 2026-09-30); his Reishi refills.
 Then DEF's kit's :settled hook (def lost left): what his form does with the souls he has left (a beheading).
 Returns T when DEF is out of Konpaku; never in a bind (BIND-OF: grey souls, the Konpaku floors at 0, no K.O.)."
   (let ((gd (gauges def)) (bound (bind-of def)))
-    (multiple-value-bind (left lost ko) (kikon-result (gauges-konpaku gd)
-                                                      (if soul-break (kikon-worth att) (fighter-kikon-n (fighter att)))
-                                                      soul-break)
+    (multiple-value-bind (left lost ko)
+        (let ((n (if soul-break (kikon-worth att) (fighter-kikon-n (fighter att)))))
+          (if (and *run-mods* (run-mods-on-p att))      ; DANGAI's counts: before the cap, past it
+              (run-konpaku-result (gauges-konpaku gd) n soul-break (rmod att (if soul-break :sb-plus :kikon-plus) 0)
+                                  (rmod att (if soul-break :sb-past :kikon-past) 0))
+              (kikon-result (gauges-konpaku gd) n soul-break)))
+      (when *run-mods*
+        (when (run-mods-on-p att) (log-msg "duel runmod konpaku ~:[kikon~;soul-break~] lost ~d left ~d" soul-break lost left))
+        (let ((r (and ko (not bound) (run-revive! def))))   ; :revive: the fight goes on
+          (when r (setf left r ko nil)))
+        (when (plusp lost) (run-armor-give! def :armor-on-soul-loss)))
       (setf (gauges-konpaku gd) left (gauges-reishi gd) (gauges-reishi-max gd))
       (let ((h (kit-hook (kit-of def) :settled))) (when h (funcall h def lost left)))
       (unless (or (gauges-awakened gd) (siphon-of def))
@@ -805,16 +905,16 @@ delay counter (frozen): West never refills."
   (do-entities (e (f fighter) (g gauges))
     (let* ((kit (fighter-kit f))
            (guarding (and (or (member (fighter-state f) '(:guard :guard-hit)) (passive-p e :ward)) (not (gauges-guardless g)))))
-      (reiatsu-gain! e (reiatsu-gain 0 0 1))
+      (reiatsu-gain! e (rmod-x e :reiatsu-regen (reiatsu-gain 0 0 1)))   ; (DANGAI's :reiatsu-regen, :fs-regen, :gg-regen)
       (if (gauges-burst g)
           (burst-step e g)                               ; a burst: the gauge drains, no regen
-          (setf (gauges-fs g) (f32 (fs-regen (gauges-fs g) (gauges-fs-idle g)))
+          (setf (gauges-fs g) (f32 (fs-regen (gauges-fs g) (gauges-fs-idle g) (rmod-x e :fs-regen *fs-regen*)))
                 (gauges-fs-idle g) (min 9999 (1+ (gauges-fs-idle g)))))
       (when (plusp (gauges-awake-regen g))                ; the awakening's regen (overlaps a burst)
         (decf (gauges-awake-regen g))
         (white-regen! e g (incf (gauges-awake-t g))))
       (setf (gauges-gg g) (f32 (gg-regen (gauges-gg g) (gauges-gg-idle g) (gauges-guardless g) guarding
-                                         (eq (gauges-burst g) :blue) (kit-gg-regen kit))))
+                                         (eq (gauges-burst g) :blue) (rmod-x e :gg-regen (kit-gg-regen kit)))))
       (setf (gauges-gg-idle g) (gg-idle-next (gauges-gg-idle g) guarding))
       (setf (gauges-stun g) (f32 (stun-decay (gauges-stun g) (gauges-stun-idle g)))   ; the hidden stun's decay
             (gauges-stun-idle g) (min 9999 (1+ (gauges-stun-idle g))))
@@ -832,6 +932,7 @@ delay counter (frozen): West never refills."
           (when (zerop (decf (gauges-form-left g)))
             (set-form e (kit-inherit kit)))))
       (let ((h (kit-hook kit :tick))) (when h (funcall h e f g)))   ; the form's own per-step mechanics (a meter, a cut)
+      (when *run-mods* (run-mods-step! e g))            ; DANGAI's run state (windows, armour, :regen)
       (let ((m (kit-meter kit)))
         (when (and m (zerop (gauges-form-left g)) (>= (gauges-meter g) (getf m :max)) (getf m :full-form))
           (setf (gauges-meter g) 0f0)                    ; the bar now shows the form's timer

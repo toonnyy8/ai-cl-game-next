@@ -555,10 +555,10 @@ away), is scaled by K; approaching and strafing are untouched. Values vx vz."
 S, a diagonal one part of it, a side Step (TOWARD 0) or one toward her untouched."
   (* dist (- 1.0 (* (- 1.0 s) (max 0.0 (- toward))))))
 
-(defun hoho-allowed-p (stunned fs lockout-left &optional bursting)
-  "Hoho needs *FS-HOHO* flash-step (FS; during a burst, BURSTING, any FS > 0: the burst modes), no block/hitstun
-(STUNNED) and the *HOHO-LOCKOUT* over."
-  (and (not stunned) (if bursting (> fs 0.0) (>= fs *fs-hoho*)) (<= lockout-left 0)))
+(defun hoho-allowed-p (stunned fs lockout-left &optional bursting (need *fs-hoho*))
+  "Hoho needs NEED flash-step (FS; *FS-HOHO*, a DANGAI run's :hoho-cost scales it; during a burst, BURSTING, any FS > 0:
+the burst modes), no block/hitstun (STUNNED) and the *HOHO-LOCKOUT* over."
+  (and (not stunned) (if bursting (> fs 0.0) (>= fs need)) (<= lockout-left 0)))
 
 (defun hoho-cost (fs bursting)
   "Flash-step a Hoho spends: *FS-HOHO*, or during a burst what is left of it when less (the gauge to 0 ends the burst)."
@@ -609,10 +609,10 @@ startup, leaving at least 1 f."
 clamped. Values: fs reiatsu."
   (values (gauge-add fs *kikon-fs-refund* *fs-max*) (gauge-add reiatsu *kikon-reiatsu-refund* *reiatsu-max*)))
 
-(defun fs-regen (fs idle)
-  "Flash-step one frame later: +*FS-REGEN*/s once IDLE (frames since the last spend) reaches
-*FS-DELAY*, capped at *FS-MAX*. (Damage taken adds *FS-TAKEN* per point: combat.lisp GAIN-GAUGES.)"
-  (if (>= idle *fs-delay*) (min *fs-max* (+ fs (/ *fs-regen* 60.0))) fs))
+(defun fs-regen (fs idle &optional (rate *fs-regen*))
+  "Flash-step one frame later: +RATE/s (*FS-REGEN*; a DANGAI run's :fs-regen scales it) once IDLE (frames since the last
+spend) reaches *FS-DELAY*, capped at *FS-MAX*. (Damage taken adds *FS-TAKEN* per point: combat.lisp GAIN-GAUGES.)"
+  (if (>= idle *fs-delay*) (min *fs-max* (+ fs (/ rate 60.0))) fs))
 
 ;;; ---------------------------------------------------------------- the guard gauge (design v3 G.2)
 (defun guard-value (kind adv &optional override)
