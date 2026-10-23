@@ -514,3 +514,11 @@ The user: 「推到 gh page 後開始 DANGAI 第 3 批」 (after 「繼續完成
   He keeps his Konpaku (BANKAI! would set 1).
 - **Rukia** 永凍 (rukia.lisp RUKIA-BOSS, rukia-meter.lisp RUKIA-BAND-FLOOR / RUKIA-RESET): spawns at −50 with C 100; −18 is
   read as −50 for her (the band's resolve and CRACK), the post-Kikon reset puts her back at −50; −273 entered as usual.
+- **Ichigo** (ichigo.lisp ICHIGO-BOSS, CLONE-PAY! / CLONE-AFFORDABLE-P): KESSA; a clone's cost (15 of the guard gauge, the
+  meter the user means: the BUNSHIN row only counts the clones) is never paid, even guardless; the cap of 3, the 5 s life
+  and a real hit clearing them unchanged. SP2's afterimages: ZANZO (every attack's echo 10 f later at half damage) runs
+  for good, re-armed when a reset clears the hazards; so his SP2 itself is refused (ZANZO is on) and the CPU never spends
+  on it; his CPU banks 3 clones.
+- **Senjumaru** (senjumaru.lisp SENJU-BOSS, SENJU-WOVEN-AFTER): the loom always full: 3 passes stored (woven 60) at FIGHT,
+  refilled after every cast and a void, so every release is a 3-pass one; the queue and the forms advance as usual; her
+  `:ok` refuses the L presses that could only weave (J→L HITOKOSHI, a neutral L while a zone lives), so her CPU strings on.
