@@ -78,11 +78,15 @@ P1's :reishi-max, both sides' :both-reishi, P1's :gg-max (his gauge at spawn), :
   (format nil "~a~@[  + ~a~]" (rogue-effect (getf c :id) (getf c :tier))
           (let ((tr (getf c :trait))) (and tr (second (assoc tr *rogue-traits*))))))
 (defun rogue-held-label (id) "A held reward's row: its name and tier." (let ((h (assoc id *rogue-held*))) (format nil "~a~@[  ~a~]" (rogue-reward-name id) (rogue-tier-tag id (cdr h)))))
-(defun rogue-build-line ()
-  "The held rewards in one line (the run's RESULTS): name and tier initial, then the traits on."
-  (format nil "~:[BUILD  -~;BUILD  ~:*~{~a~^  ~}~]~@[  + ~{~a~^ + ~}~]"
-          (loop for (id . tier) in *rogue-held* collect (format nil "~a~@[ ~a~]" (rogue-reward-name id) (let ((tg (rogue-tier-tag id tier))) (and tg (char tg 0)))))
-          (mapcar (lambda (tr) (second (assoc tr *rogue-traits*))) (rogue-traits-on *rogue-held*))))
+(defun rogue-build-lines ()
+  "The run's RESULTS: the held rewards (name and tier initial), then the traits on (+ NAME), as two lines (the first
+headed BUILD), the items split in half."
+  (let* ((items (append (loop for (id . tier) in *rogue-held*
+                              collect (format nil "~a~@[ ~a~]" (rogue-reward-name id) (let ((tg (rogue-tier-tag id tier))) (and tg (char tg 0)))))
+                        (mapcar (lambda (tr) (format nil "+ ~a" (second (assoc tr *rogue-traits*)))) (rogue-traits-on *rogue-held*))))
+         (k (ceiling (length items) 2)))
+    (remove nil (list (format nil "BUILD  ~:[-~;~:*~{~a~^  ~}~]" (subseq items 0 k))
+                      (and (> (length items) k) (format nil "~{~a~^  ~}" (subseq items k)))))))
 
 ;;; ---------------------------------------------------------------- the REWARD screen
 (defun rogue-screen (sub title rows labels notes)

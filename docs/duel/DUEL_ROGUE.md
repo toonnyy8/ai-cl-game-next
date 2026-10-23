@@ -352,3 +352,58 @@ The user: 「先走 2」 (start building before the 解 picks). Plan: `DUEL_ROGU
   their rows; `duel-endless.json`'s log equals the parent's where both ran (both stop after stage 2: its stage-3 Bankai
   step no longer clears, a drift that predates this batch).
 
+
+## Built: batch 2, the run layer (2026-10-23)
+
+The other half of batch 2 (the in-fight rule points that read `*run-mods*`, run-mods.lisp) is a parallel branch; this
+half is the data, the fold, the screens and the stage start.
+
+- **Data** (rogue-rules.lisp, pure, host-tested in `tests/duel-rules/rogue.lisp`): `*rogue-rewards*` the 26 rewards of
+  §4.2 (ids = the table's #, categories, romanized names for the Latin HUD font: EIJIN RENGEKI HAGAI HAISUI TSUIGEKI
+  DANKON / KENSHU MIKIRI FUKUTSU TEKKO KAISEI ZANSHIN HAKUGAI / SHIPPU SHUNPO / IATSU REIRYOKU REITAI KAIHO HISSATSU HAKI /
+  KEKKEI KYOKEI JIKEI SUTEMI TOKEI; 6 + 7 + 2 + 6 + 5), each with its §4.4 keys at COMMON; `*rogue-traits*` A–H with their
+  prerequisites and keys; `*rogue-slots*` 斬2 守2 瞬1 靈1 契1 解2 (解 has no cards until batch 4).
+- **The fold** `(rogue-mods held)`, HELD = `((id . tier) ...)`: every held reward's keys at its tier, then the traits it
+  switches on, stacked in table order (so the floats never depend on the pick order): x multiplies, + adds, flags OR,
+  `:konpaku-cap` / `:timer` / `:red-armor` the smaller, `:clear-konpaku` 0 (賭契) over 3 (時契). Only keys some reward
+  sets appear; nothing held = NIL. **Tiers**: a benefit x1.5 / x2 (x: the bonus m − 1; +: the value); costs and
+  integer counts never (殘心: RARE 1, LEGEND 2). So a LEGEND 鐵甲 reads chip / Breaker x0.20, a LEGEND 瞬歩 Hoho x0.40.
+  Rewards with nothing to scale (斷魂, 魄鎧, 時契, 捨身, 賭契) show no tier and are never an UPGRADE.
+- **Offers** `(rogue-offer seed step salt held rare)`: the candidates in table order, a Fisher-Yates shuffle on
+  ENDLESS-LCG keyed on (seed, step, 10 + salt; salt = the pick index, 賭契's extra pick 1), the first 3. Never a held
+  reward, except on a RARE offer as an UPGRADE card (one tier up, tierable ones below LEGEND); RARE+ only rewards (斷魂,
+  殘心, 魄鎧) only on a RARE offer; a GENERIC offer's new cards are COMMON, a RARE offer's RARE. A full category's card is
+  `:replace`; a card that completes a trait names it (`+ SHISEN`). REPLACE's dropped reward is simply not held any more,
+  so it is back in the pool and its traits go off.
+- **Door reward types** (`rogue-door-reward`, salt 3 + door): elites and the boss RARE; a normal step, of 10: RARE 1,
+  KONPAKU +3 2, GENERIC 7 (`*rogue-door-odds*` (1 2 7)); step 1 (and a debug run's first step) by its kind
+  (`rogue-step-reward`). Rest doors carry none.
+- **The run** (rogue.lisp): `*rogue-held*` (reset by ENDLESS-START when `*rogue*`). Flow: STAGE CLEAR's CONTINUE / REVERT
+  → **REWARD** (flow state `:reward`, drawn like the DOORS: title, `KONPAKU k   HELD n / 9`, the rows, the selected row's
+  effect line above them, the rows fitted to the card's width) → DOORS. A card row reads `NAME  CATEGORY  TIER  [REPLACE |
+  UPGRADE]`, its note the effect at that tier and `+ TRAIT` when it completes one; REPLACE opens
+  a second page (the held ones of that category, each with its effect, then BACK). A KONPAKU door's clear shows a notice
+  page instead (`KONPAKU +3`, `k -> m`, CONTINUE). 賭契: 1 + `:extra-pick` picks a clear (the extra one at the stage's
+  tier, GENERIC after a KONPAKU door). A rest: KONPAKU +3 or UPGRADE (shown while a held reward can go up; a second page
+  picks it), then the doors. Every page waits 1 s for input, as STAGE CLEAR. The DOORS' note ends with the door's type
+  (REWARD / KONPAKU +3 / RARE REWARD; a rest: KONPAKU +3 OR UPGRADE).
+- **Stage start** (ENDLESS-APPLY!, only with `*rogue*`, before the autopilot's brain): `*run-mods*` = `(rogue-mods
+  held)`, `*run-mods-who*` = `*p1*`; `:reishi-max` on P1's Reishi max and Reishi, `:both-reishi` on both (after the
+  ramp's Reishi %), `:gg-max` on P1's guard gauge at spawn, `:konpaku-cap` over the carry / spawn, `:timer` on the stage
+  timer (`*timer-cut*`, flow.lisp, keeps MATCH-PLAY-TICKS the time played; 0 outside). The clear: STAGE CLEAR's KONPAKU
+  line and the carry use `rogue-clear-konpaku` (+ `:clear-konpaku`, at most the cap). START-MATCH clears both vars (and
+  `*timer-cut*`) for every match, ENDLESS-OVER again at the run's end, so they are NIL in every other mode.
+- **RESULTS**: two BUILD lines under the opponents (each held reward with its tier initial, then `+ TRAIT ...`, split in half).
+- **Log**: `duel rogue mods (plist)` at each stage start; `duel rogue reward step n pick id tier t [replace id] [upgrade]`;
+  `duel rogue reward step n konpaku a->b`; `duel rogue rest step n konpaku a->b | upgrade id tier t`; the door line adds
+  the reward type.
+- **Autopilot** (84990+): row 0 of every page (card 0, REPLACE's first held, a rest's KONPAKU +3).
+- **Debug** (DUEL_GAMEPLAY, inside roster index 5's unused 84500–84599): 84501–84528 grant reward 1–28 to the running run;
+  84550–84552 the running stage's reward type GENERIC / KONPAKU / RARE.
+- **Interpretations / deviations**: UPGRADE cards appear on RARE offers only ("UPGRADE (rest points, elite rewards)"),
+  never on GENERIC ones; a RARE offer's every new card is RARE tier; untierable rewards carry no tier; 賭契 picked now
+  counts from the next clear; a clear's Konpaku (STAGE CLEAR, before the REWARD) uses the rewards held at the clear, so a
+  pact picked on that REWARD acts from the next stage's spawn (its cap there, its clear Konpaku at the next clear); `:gg-max` is applied only as P1's gauge at spawn — the gauge's regen cap and its refills
+  read the global `*gg-max*` (combat / rules), so the in-fight rule points must also read `(rmod e :gg-max 1.0)` for the
+  max to hold (a value above 1 is clamped back at the first regen, one below regens up); the cards are rows, not cards
+  (as the DOORS); the pause's BUILD page is not built (RESULTS has the line).

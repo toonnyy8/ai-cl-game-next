@@ -133,7 +133,7 @@ else ends the run (its RESULTS)."
                       (format nil "~{~a~^ ~}~:[~; X~]"      ; the opponents faced; X: the last one ended the run
                               (mapcar (lambda (c) (char (kit-name (find-kit c :base)) 0)) (reverse *endless-foes*))
                               lost)
-                      (and *rogue* (rogue-build-line))))))))   ; DANGAI: the held rewards
+                      (and *rogue* (rogue-build-lines))))))))   ; DANGAI: the held rewards
 
 (defun endless-retire ()
   "The pause's RETIRE: the stage is lost, the run's RESULTS."
@@ -237,8 +237,11 @@ menu (NEW RUN / CHARACTER SELECT / TITLE)."
                 (hud-text label lx yy sc *dim*)
                 (hud-text v vx yy sc *white* :align :right))
         (hud-text (svref l 6) cx (+ y (* 6 s) (* 10.5 row)) sc *dim* :align :center)
-        (let ((b (svref l 7)))                            ; DANGAI: the build
-          (when b (hud-text b cx (+ y (* 6 s) (* 11.5 row)) (fit-scale b sc (- pw (* 8 s))) *ember* :align :center)))
+        (when (svref l 7)                                 ; DANGAI: the build (ROGUE-BUILD-LINES), one scale
+          (let ((bs sc))
+            (dolist (b (svref l 7)) (setf bs (min bs (fit-scale b sc (- pw (* 8 s))))))
+            (loop for b in (svref l 7) for i from 0
+                  do (hud-text b cx (+ y (* 6 s) (* (+ 11.3 (* 0.8 i)) row)) bs *ember* :align :center))))
         (when (> *ft* 2.5) (hud-menu *endless-results-menu* (if (portrait-p) 0.8 0.72) w h s cx))))))
 
 (defun hud-endless-tag (w h s)
