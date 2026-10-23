@@ -3557,3 +3557,8 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
 - Host tests 10065 ALL PASS (the bands re-pinned to 0.75 m); pkgcheck clean; built 0 warnings; smoke clean. Simgate (10
   seeds): every row without him identical; his rows as §25.26's except one mirror match (the mirror's median 169.4 s
   unchanged); all K.O.
+
+### 25.31 The flow back to 0.7 s (the user, 2026-10-23)
+
+- The user (verbatim): 「流光改回 0.7s」. `*hs-flow-every*` 1.0 -> 0.7 s: each chain's streak starts again as the last
+  ends (§25.27's rhythm); the run down stays 0.7 s. A look only; built 0 warnings.

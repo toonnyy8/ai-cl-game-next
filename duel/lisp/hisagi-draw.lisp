@@ -744,9 +744,10 @@ POS along FA[0] his facing), [3] the bend, [4] the lash weight (0 at rest .. 1 o
 (defparameter *hs-flow-period* 0.7
   "Seconds the K tip's flow takes down a hanging chain (§25.27, the user, 2026-10-23: 「幫我將 K 添加白色流光流過鎖鏈作為提示
 （p2 則是黑色流光）」; the lead's number).")
-(defparameter *hs-flow-every* 1.0
+(defparameter *hs-flow-every* 0.7
   "Seconds between one chain's flows (§25.28: it runs *HS-FLOW-PERIOD*, then the chain rests; 0.7, back to back, until the
-user, 2026-10-23: 「降低流光的頻率」; 1.8 the lead's number; 1.8 -> 1.0 the same day, §25.29: 「流光改成 1 秒」).")
+user, 2026-10-23: 「降低流光的頻率」; 1.8 the lead's number; 1.8 -> 1.0 the same day, §25.29: 「流光改成 1 秒」; 1.0 -> 0.7,
+§25.31: 「流光改回 0.7s」: back to back again, as §25.27).")
 (declaim (type f32vec *hs-tg*))
 (defvar *hs-tg* (make-f32 1)
   "The chain-tip cue this draw (DUEL_HISAGI §25.26-§25.28; HISAGI-DRAW sets it): 0 none, 1 the opponent on K1's tip (the
