@@ -136,7 +136,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 <ol>
   <li><a href="#modes">模式與選單</a>
     <ol><li><a href="#flow">從標題到對戰</a></li><li><a href="#practice">練習模式 PRACTICE</a></li>
-    <li><a href="#endless">無限連戰 ENDLESS</a></li><li><a href="#settings">設定 SETTINGS</a></li>
+    <li><a href="#endless">無限連戰 ENDLESS</a></li><li><a href="#dangai">斷界行 DANGAI</a></li><li><a href="#settings">設定 SETTINGS</a></li>
     <li><a href="#orient">直拿與橫拿</a></li></ol></li>
   <li><a href="#controls">操作</a>
     <ol><li><a href="#keys">鍵盤與手把</a></li><li><a href="#touch">觸控（單手模式）</a></li><li><a href="#menukeys">選單操作</a></li></ol></li>
@@ -167,6 +167,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 <tbody>
 <tr><td>VS CPU</td><td data-l="內容">你對電腦。在觸控手機上直拿時，會自動變成單手操作（看設定的 ONE-HAND）。電腦預設會學習你的習慣（<a href="#learn">會學習的電腦</a>）。</td></tr>
 <tr><td>ENDLESS</td><td data-l="內容">無限連戰：一個人連續打電腦，看能過幾關（<a href="#endless">下方說明</a>）。</td></tr>
+<tr><td>DANGAI</td><td data-l="內容">斷界行（暫名，製作中）：10 關一輪、每關之後選路的連戰，打贏第 10 關的頭目算通關（<a href="#dangai">下方說明</a>）。</td></tr>
 <tr><td>PRACTICE</td><td data-l="內容">練習模式：對假人練習，沒有時間限制、不會結束（<a href="#practice">下方說明</a>）。</td></tr>
 <tr><td>VS PLAYER</td><td data-l="內容">兩個人在同一台電腦對戰：P1 用鍵盤左半邊或 1 號手把，P2 用方向鍵加數字鍵盤或 2 號手把。</td></tr>
 <tr><td>CPU VS CPU</td><td data-l="內容">電腦對電腦，看戲用。</td></tr>
@@ -199,6 +200,32 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 <li><b>對手越來越強</b>：對手從打亂的名單裡抽，每一輪每個角色各出現一次、不會連續兩關同一人。電腦每兩關升一級難度到 HARD；第 5 關起對手開場帶半條覺醒量表、第 7 關起是滿的、第 9 關起一開場就已覺醒；第 9 關起對手靈子 +10%，第 12 關起 +20%，之後不再變強。</li>
 <li><b>紀錄</b>：比過了幾關，一樣時比總時間。每個角色各存一筆最佳紀錄（存在瀏覽器裡），每過一關就寫一次。暫停選單只有 RESUME 和 RETIRE（放棄，直接看結算）。</li>
 </ul>
+
+<h3 id="dangai">斷界行 DANGAI（暫名，製作中）</h3>
+<ul>
+<li><b>開始</b>：跟無限連戰一樣，只有 P1 選角色，再選 START 難度。魂魄、靈子、覺醒的帶法和 STAGE CLEAR 的 CONTINUE／REVERT 都跟無限連戰相同。</li>
+<li><b>一輪 10 關</b>：第 3、6、9 關是<b>精英</b>（電腦更強），第 10 關是<b>頭目</b>（HARD、開場就已覺醒、靈子 150%）。打贏頭目就算<b>通關</b>，之後可以繼續打下去拼紀錄。</li>
+<li><b>選路</b>：每次過關後選兩扇門之一，每扇門寫著下一關的對手、難度、靈子和<b>獎勵種類</b>：REWARD（一般獎勵）、KONPAKU +3（不選獎勵，魂魄 +3）或 RARE REWARD（稀有獎勵）。一般關卡大多是一般獎勵，偶爾魂魄 +3，少數是稀有；精英和頭目一定是稀有。第 4 關之後偶爾有一扇是<b>休息</b>：不用打，選魂魄 +3（最多 9）或 UPGRADE（把一個持有的獎勵升一級）。</li>
+<li><b>紀錄</b>：每個角色各存一筆最佳紀錄，跟無限連戰的紀錄分開。結算畫面最下面一行（BUILD）列出這一輪持有的獎勵和湊齊的特性。</li>
+<li><b>過關獎勵</b>：每次過關（STAGE CLEAR 選完 CONTINUE／REVERT 之後）從 3 張獎勵卡裡選 1 張，整輪都有效。卡上寫著名字、類別、等級，下面那行是效果。第 1 關一定是一般獎勵。</li>
+<li><b>類別與格數</b>：獎勵分成 斬 ZAN（攻擊，2 格）、守 MAMORI（防禦，2 格）、瞬 SHUN（移動，1 格）、靈 REI（覺醒與靈子，1 格）、契 CHIGIRI（代價換力量的契約，1 格）、解 KAI（角色專屬改招，2 格，之後才加入），每類只能持有這麼多個。</li>
+<li><b>替換 REPLACE</b>：某類已滿時，那一類的卡還是會出現，標著 REPLACE；選了它會再問要丟掉哪一個同類的獎勵，丟掉的獎勵會回到獎勵池，之後可能再出現。</li>
+<li><b>等級</b>：COMMON → RARE → LEGEND，等級只放大好處的數字（RARE 約 1.5 倍、LEGEND 2 倍），契約的代價不變。稀有獎勵的卡都是 RARE 級，而且會出現已持有獎勵的 UPGRADE 卡（升一級）；一般獎勵不會出現已持有的獎勵。斷魂、殘心、魄鎧只在稀有獎勵出現；魄鎧和時契、捨身、賭契、斷魂沒有等級可升。</li>
+<li><b>追加特性</b>：同時持有特定的幾個獎勵時，會自動多出一個特性，不佔格子、沒有等級；丟掉其中一個就消失。卡片會寫著「+ 特性名」，表示選了它就會湊齊。</li>
+<li>對手的修飾條件和頭目的專屬規則之後才會加入。</li>
+<li><b>手機操作</b>：選獎勵和選門時，點選項只會選取並顯示說明，再點下方的 <b>CONFIRM</b> 才確定。</li>
+</ul>
+<table>
+<thead><tr><th>類別</th><th>獎勵（COMMON 的數值）</th></tr></thead>
+<tbody>
+<tr><td>斬 ZAN</td><td>鋭刃 EIJIN 傷害 +10%；連撃 RENGEKI 第三段收招 +25%；破鎧 HAGAI 打在防禦上削防禦量表 +40%；背水 HAISUI 紅血時傷害 +25%；追擊 TSUIGEKI 步法（Hoho）或 Burst Reverse 後的第一擊 +30%；斷魂 DANKON（只在稀有）Kikon 多拿 1 魂魄，不受單次上限</td></tr>
+<tr><td>守 MAMORI</td><td>堅守 KENSHU 防禦量表上限與回復 +30%；見切 MIKIRI 完美步法回 25% 瞬步量表和半格靈壓；不屈 FUKUTSU 被 Kikon／Soul Break 拿走魂魄後 3 秒內擋一擊；鐵甲 TEKKO 削血與 Breaker 傷害 −40%；回生 KAISEI 3 秒沒被打中後每秒回 1% 靈子（紅血時不回）；殘心 ZANSHIN（只在稀有）每關一次魂魄歸零時回 1 個（LEGEND 2 個）；魄鎧 HAKUGAI（只在稀有）Kikon 一定自動防住</td></tr>
+<tr><td>瞬 SHUN</td><td>疾風 SHIPPU 瞬步量表回復 +30%；瞬歩 SHUNPO 步法消耗 −30%</td></tr>
+<tr><td>靈 REI</td><td>威壓 IATSU 覺醒中受到傷害 −15%；靈力 REIRYOKU 靈壓回復 +30%；靈體 REITAI 靈子上限 +15%；解放 KAIHO 覺醒回血 20% → 40%；必殺 HISSATSU SP1／SP2 傷害 +20%；覇氣 HAKI 覺醒演出後 3 秒內擋一擊</td></tr>
+<tr><td>契 CHIGIRI</td><td>血契 KEKKEI 魂魄上限 9 → 7，傷害 +20%；狂契 KYOKEI 防禦量表上限 −40%，傷害 +15%、靈壓回復 +30%；時契 JIKEI 每關時間 300 → 150 秒，過關魂魄 +3；捨身 SUTEMI 靈子上限 −20%，Kikon 和 Soul Break 各多拿 1 魂魄；賭契 TOKEI 過關不加魂魄，每次過關多選 1 張獎勵</td></tr>
+<tr><td>追加特性</td><td>死線 SHISEN（背水＋不屈）紅血時傷害再 +35%，每 5 秒補一次擋一擊；瞬閧 SHUNKO（追擊＋疾風）步法後第一擊再 +45%，打中回 15% 瞬步量表；卍禍 MANKA（必殺＋連撃）收招後 1 秒內的 SP +40%；鬼道 KIDO（見切＋鐵甲）完美步法後 2 秒內受到傷害 −60%；修羅 SHURA（血契＋斷魂）Kikon 再多拿 2 魂魄、魂魄上限 6；最古最強 SAIKO SAIKYO（魄鎧＋殘心＋斷魂）Soul Break 多拿 1 魂魄；真劍勝負 SHINKEN SHOBU（背水＋魄鎧＋血契）雙方靈子上限減半、雙方都不能用 Kikon，傷害再 +30%；劍八 KENPACHI（不屈＋背水＋覇氣）紅血時一直有擋一擊（破了 2 秒後補）、傷害再 +40%，但不能防禦</td></tr>
+</tbody>
+</table>
 
 <h3 id="settings">設定 SETTINGS</h3>
 <p>每一列點一下（或按左右鍵、確定鍵）就換到下一個值，立刻生效，並存在瀏覽器裡（無痕模式存不了時用預設值）。選到某一列時，下方那行字會說明它的作用。</p>
