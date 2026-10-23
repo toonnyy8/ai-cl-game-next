@@ -3580,3 +3580,8 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
   diagonal one, and a 0-10 m sweep: every changed hop 1.75-2.5 m lands 0.04 m inside a band); control 89, learn 131;
   pkgcheck clean; built 0 warnings. Simgate (10 seeds): every row without him identical; cvc 3/3; his rows all K.O., the
   medians as §25.30 (HY 108.5, HK 110.7, HR 145.5, HI 153.0, HS 159.8, HB 157.2 s) but the mirror 169.4 -> 188.9 s.
+
+### 25.33 The flow's run and rhythm 1 s (the user, 2026-10-23)
+
+- The user (verbatim): 「流光的落下速度跟頻率都改成 1s 看看」. `*hs-flow-period*` 0.7 -> 1.0 s (the streak's run down a
+  chain) and `*hs-flow-every*` 0.7 -> 1.0 s (one a second per chain, still back to back). A look only; built 0 warnings.
