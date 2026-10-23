@@ -251,7 +251,7 @@ first falls out, then one every *HARI-FALL*. Values: n idle fell-p."
 (defparameter *senju-meter* '(:name "HARI" :max 6 :start 0 :draw senju-hud-meter :label senju-hud-label)
   "Her one resource per form, on the kit-meter row: the stitches (the Shikai) or the loom (the Bankai).")
 (defparameter *senju-hooks* '(:tick senju-tick :ok senju-ok :hit senju-hit :struck senju-struck :draw senju-draw :deck senju-ring
-                              :siphon senju-siphon))
+                              :siphon senju-siphon :boss senju-boss))
 
 (defkit :senjumaru :base
   :name "SENJUMARU" :body :senjumaru :weapon :shigarami :stance :sj-stance :calm t
@@ -371,9 +371,11 @@ native gate once found the loom's woven frames, torn clock and handles carried o
 
 (defun senju-ok (e command combo)
   "Her kit's refusals: the Shikai's L at 0 stitches; the Bankai's K -> L with no pass stored (LOOM-OK-P; its L from
-neutral always starts: it may weave, and its tap is refused at release, SENJU-WEAVE-RELEASE; J -> L always weaves)."
+neutral always starts: it may weave, and its tap is refused at release, SENJU-WEAVE-RELEASE; J -> L always weaves). The
+DANGAI boss's full loom also refuses the L that could only weave (SENJU-BOSS-L-IDLE-P)."
   (cond ((not (eq command :sig)) t)
         ((hari-form-p e) (>= (hari e) 1))
+        ((and (eq e *run-boss*) (senju-boss-l-idle-p e combo)) nil)
         (t (loom-ok-p command combo (sjs-woven (sj e))))))
 
 (defun senju-hit (att def res hw mv hazard ranged)
@@ -631,6 +633,26 @@ gone silently otherwise (only a hit tears it: CLOSE-RIFTS)."
         (let ((p (pos-of e))) (setf (hazard-x hz) (aref p 0) (hazard-z hz) (aref p 2) (hazard-yaw hz) (yaw-of e)) nil)
         (progn (destroy-entity h) t))))
 
+;;; ---------------------------------------------------------------- the DANGAI boss (DUEL_ROGUE §5): the loom always full
+(defun senju-full-woven () "Three passes' woven frames: the top of the weave (WEAVE-STORED 3)." (* 3 *weave-pass*))
+(defun senju-woven-after (e)
+  "The woven frames on a new hank (a cast, a voided weave): 0, the DANGAI boss's always three passes (SENJU-BOSS)."
+  (if (eq e *run-boss*) (senju-full-woven) 0))
+(defun senju-boss-l-idle-p (e combo)
+  "The boss's loom is full, so an L that could only weave is no move: J -> L HITOKOSHI (COMBO, +1 pass on a full hank) and
+a neutral L while a zone of hers lives (its tap is refused there: the loom holds one hank). Her CPU asks the :ok hook
+before it presses or rolls, so it plays the K link / string on instead (K -> L, the combo cut, is still open)."
+  (or (and (move-p combo) (eq (mv-name combo) :sj-hitokoshi))
+      (and (null combo) (senju-live-zones e) t)))
+(defvar *boss-sj-casts* 0 "The DANGAI boss's hanks cast this stage (SENJU-BOSS's log lines).")
+(defun senju-boss (e)
+  "The base kit's :boss hook (ROGUE-STAGE-START: E is *RUN-BOSS*, already in TSUJI, HARD): the user's rule 「BOSS 千手丸永遠是
+織滿的狀態」: her hank is fully woven (three passes) at FIGHT and after every cast or void (SENJU-WOVEN-AFTER), so every
+release (a tap, K -> L, SP1's two) is a 3-pass one; her CPU taps (SENJU-SIG-HOLD wants at most 3) and drops the L that
+could only weave (SENJU-BOSS-L-IDLE-P)."
+  (setf (sjs-woven (sj e)) (senju-full-woven) *boss-sj-casts* 0)
+  (log-msg "duel boss senjumaru form ~(~a~) woven ~d passes ~d" (fighter-form (fighter e)) (sjs-woven (sj e)) (senju-stored e)))
+
 (defun senju-torn (e hank advance)
   "A hit on her tore the hank. While she weaves (ADVANCE): it is void (the user, 2026-09-29): its passes are lost and the
 form moves on to the next hank (WEAVE-VOID), no lock. An unfolding zone (it had already moved the form on): L locked
@@ -639,7 +661,7 @@ form moves on to the next hank (WEAVE-VOID), no lock. An unfolding zone (it had 
     (setf (sjs-torn st) *match-tick* (sjs-torn-hank st) hank)
     (if (and advance (form-hank (fighter-form f)))
         (multiple-value-bind (next woven) (weave-void (form-hank (fighter-form f)))
-          (setf (sjs-woven st) woven)
+          (setf (sjs-woven st) (if (eq e *run-boss*) (senju-full-woven) woven))   ; (the boss: full again)
           (set-form e (hank-form next)))
         (setf (aref (fighter-cd f) (position :sig *kit-commands*)) *torn-lock*))
     (pace e :torn)
@@ -695,7 +717,10 @@ the first alive beside it (LIVE2). Its name is called out."
         (setf (sjs-live st) z (sjs-live-hank st) n
               (sjs-live-life st) (max 1 (let ((hz (hazard z))) (if hz (hazard-life hz) 1))))))
     (set-form e (hank-form (hank-next n)))
-    (setf (sjs-woven st) 0)                             ; (a new hank: nothing woven on it yet)
+    (setf (sjs-woven st) (senju-woven-after e))         ; (a new hank: nothing woven on it yet; the boss's full)
+    (when (eq e *run-boss*)
+      (log-msg "duel boss senjumaru cast ~d hank ~d passes ~d next ~(~a~) woven ~d" (incf *boss-sj-casts*) n passes
+               (fighter-form (fighter e)) (sjs-woven st)))
     (pace e (hank-key n "CAST")) (pace e :passes passes)
     (emit :sfx :cloth-unfurl e)))
 
