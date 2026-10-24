@@ -223,3 +223,14 @@ Removed from today's Shikai: the K hits' frost timers (60 / 90 f), the K → L �
 2. The Shikai's grammar chosen → its segment table → the user's 「可以」 → the sim batch, host tests, gates vs the parent.
 3. The motion plan per form (inventory → archetype per string → slot table) → 「可以」 → the clips, FK reach, the awakened
    bands' volumes moved to the drawn reach (gated), before/after sheets from both cameras, landscape and portrait.
+
+### 5.1 Baseline (main eee02f4, before the new Shikai; 20 seeds, match time without cinematics)
+
+| Pairing | RY | RK | RR | IR | SR | BR | HR |
+|---|---|---|---|---|---|---|---|
+| Median (s) | 92.0 | 94.5 | 116.5 | 117.2 | 120.8 | 135.3 | 138.8 |
+| Wins (P1 / P2) | 13 / 7 | 9 / 11 | 8 / 12 | 9 / 11 | 10 / 10 | 6 / 14 | 3 / 17 |
+
+All 140 K.O. Five of the seven already sit under the 125 s floor on main: the global whiff / block recovery and Kikon
+changes of 2026-10-23 (DEVLOG §319–§335) moved many pairings below it before this rework (YY 85.5, YK 87.1 there). The new
+Shikai is judged against this parent, not the window alone.
