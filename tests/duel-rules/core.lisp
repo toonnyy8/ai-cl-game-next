@@ -329,6 +329,15 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;;; ================================================================ damage (§4)
 (check (and (~= (combo-scale 1) 1.0) (~= (combo-scale 3) 1.0) (~= (combo-scale 4) 0.85) (~= (combo-scale 6) 0.55) (~= (combo-scale 7) 0.4)
             (~= (combo-scale 8) 0.25) (~= (combo-scale 9) 0.2) (~= (combo-scale 12) 0.2)))
+;; ORANGE (the user 2026-10-24: 「橙色爆氣會將減免補正重置，且期間減免速度改成 10%、最低 50%」): -10 % a hit, 50 % floor
+(check (and (~= (combo-scale 3 t) 1.0) (~= (combo-scale 4 t) 0.9) (~= (combo-scale 7 t) 0.6) (~= (combo-scale 8 t) 0.5)
+            (~= (combo-scale 20 t) 0.5) (= 50 (hit-damage 100 nil nil 20 nil t))))
+;; Lille's awakened stance K > L wing spends (the user 2026-10-24: 「不受減免補正影響」): :unscaled on KL1-3 of EN and the
+;; owl's stance, never on the base stance's
+(check (and (every (lambda (n) (every (lambda (w) (member :unscaled (hw-flags w))) (mv-hits (find-move n))))
+                   '(:br-e-kl1 :br-e-kl2 :br-e-kl3 :br-oe-kl1 :br-oe-kl2 :br-oe-kl3))
+            (notany (lambda (n) (some (lambda (w) (member :unscaled (hw-flags w))) (mv-hits (find-move n))))
+                    '(:br-s-kl1 :br-s-kl3 :br-e-k3 :br-e-jl1))))
 (check (= (hit-damage 100 nil nil 1 nil) 100))
 (check (= (hit-damage 100 '(:mult 1.3) nil 1 nil) 130))                 ; Hellfire
 (check (= (hit-damage 100 '(:cornered 0.05 :cornered-max 0.25 :lost 2) nil 1 nil) 110))

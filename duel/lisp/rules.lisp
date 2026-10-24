@@ -285,23 +285,24 @@ escapes (a BLUE burst, the awakening) leave blockstun, so the lock is over. Haza
   (and window (<= (first window) sf (second window))))
 
 ;;; ================================================================ damage (§4)
-(defun combo-scale (n)
+(defun combo-scale (n &optional orange)
   "Damage fraction of the Nth hit of a combo (1-based): 100 % for hits 1..*COMBO-FULL-HITS*, then
--*COMBO-DECAY* per hit, floored at *COMBO-FLOOR*."
+-*COMBO-DECAY* per hit, floored at *COMBO-FLOOR*; ORANGE (the attacker's ORANGE runs): *ORANGE-COMBO-DECAY* / -FLOOR."
   (if (<= n *combo-full-hits*)
       1.0
-      (max *combo-floor* (- 1.0 (* *combo-decay* (- n *combo-full-hits*))))))
+      (max (if orange *orange-combo-floor* *combo-floor*)
+           (- 1.0 (* (if orange *orange-combo-decay* *combo-decay*) (- n *combo-full-hits*))))))
 
 (defun cornered-mult (per lost cap)
   "Cornered passive: 1 + PER per Konpaku LOST, the bonus capped at CAP."
   (+ 1.0 (min cap (* per lost))))
 
-(defun hit-damage (base atk-mods def-mods combo-index counter-hit)
+(defun hit-damage (base atk-mods def-mods combo-index counter-hit &optional orange)
   "Damage (integer, >= 1 for a damaging hit) of a hit with BASE damage. ATK-MODS, a plist of the
 attacker's multipliers, all stacked multiplicatively: :mult (the form's: Hellfire 1.30, RYOTE 1.15, x(1 + k) of
 Bankai East's pierce), :cornered / :cornered-max / :lost (Cornered: +per Konpaku lost, capped).
 DEF-MODS: :mult on the defender's side (1 in v1). COMBO-INDEX: this hit's number in the combo
-(1-based, COMBO-SCALE). COUNTER-HIT: x*COUNTER-MULT*."
+(1-based, COMBO-SCALE; ORANGE its ORANGE rates). COUNTER-HIT: x*COUNTER-MULT*."
   (if (<= base 0)
       0
       (max 1 (round (* base
@@ -309,7 +310,7 @@ DEF-MODS: :mult on the defender's side (1 in v1). COMBO-INDEX: this hit's number
                        (cornered-mult (getf atk-mods :cornered 0.0) (getf atk-mods :lost 0)
                                       (getf atk-mods :cornered-max 0.0))
                        (getf def-mods :mult 1.0)
-                       (combo-scale combo-index)
+                       (combo-scale combo-index orange)
                        (if counter-hit *counter-mult* 1.0))))))
 
 ;;; ---------------------------------------------------------------- Bankai East's pierce (docs/duel/DUEL_YAMA_REWORK.md)

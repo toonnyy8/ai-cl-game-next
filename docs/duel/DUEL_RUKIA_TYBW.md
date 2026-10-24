@@ -669,3 +669,17 @@ limits" and the manual's 連段傷害衰減 updated. Host 10224 ALL PASS, build 
 `*combo-floor*` 0.40 → 0.20: hits 1–3 full, then 85 / 70 / 55 / 40 / 25 %, 20 % from hit 9. Host checks follow
 (`combo-scale` 8 0.25, 9 and 12 0.2; hit 20 of 100: 40 → 20); DUEL_DESIGN and the manual updated. Host 10224 ALL PASS,
 build 0 warnings, smoke exit 0; no sim gate (§15). Playtest v162.
+
+### 16.2 ORANGE restarts the scaling; Lille's awakened KL unscaled (the user, 2026-10-24)
+
+> 「1. 橙色爆氣會將減免補正重置，且期間減免速度改成 10%、最低 50%　2. 利捷（覺醒）的架勢 L > K 之後再按 L 消耗翼打出的追加傷害連段不受減免補正影響。」 (the user, 2026-10-24)
+
+- **ORANGE** (combat.lisp BURST!, COMBAT's damage; rules COMBO-SCALE / HIT-DAMAGE's ORANGE): the burst stores his combo's
+  hit count (new fighter slot `combo-from`, reset with the combo in TO-IDLE); the scaling counts from the next hit (hits
+  1–3 after it full again), and while the attacker's ORANGE runs each hit past 3 loses `*orange-combo-decay*` 0.10 down to
+  `*orange-combo-floor*` 0.50 (85 / 70 / ... / 20 % otherwise). The HUD's hit count still counts the whole combo.
+- **Lille** (DUEL_LILLE_V3 §31): the awakened stances' KL1–3 windows carry `:unscaled` (combo index 1; form and taken
+  multipliers as before); the base stance's KL and every other segment scale as usual.
+- Host 10226 ALL PASS (orange 4: 0.9, 7: 0.6, 8+: 0.5; the six KL moves flagged, the base's and the K / JL not); pkgcheck
+  clean, build 0 warnings, smoke exit 0; no sim gate (§15's word). DUEL_DESIGN "Combo limits" and "Burst modes", the
+  manual's 連段傷害衰減. Playtest v163.

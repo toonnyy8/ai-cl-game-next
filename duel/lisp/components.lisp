@@ -113,6 +113,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (run-yaw 0f0 :type single-float)      ; the run's heading (he faces the opponent; this is where he goes)
   ;; as a victim: the running combo (reset when back to neutral)
   (combo-hits 0 :type fixnum) (combo-launches 0 :type fixnum) (combo-air 0 :type fixnum)
+  (combo-from 0 :type fixnum)           ; combo-hits when the attacker's ORANGE started: its damage scaling counts from there
   (combo-dmg 0 :type fixnum)
   (frost 0 :type fixnum)                ; frames of frost left: walk and run x*FROST-SLOW* (Rukia's ice, rules FROST-NEXT)
   (layers 0 :type fixnum)               ; 霜の層 on him, 0-3 (Rukia's Shikai: walk / run x*RU-LAYER-SLOW*, rules LAYERS-ADD)

@@ -269,6 +269,11 @@ then :down + :wakeup (iframes in both).")
 55 %, 7 40 %) ...")
 (defparameter *combo-floor* 0.20
   "... down to this fraction (0.40 -> 0.20, 2026-10-24, the user: 「減免最低 20%」: hit 8 25 %, 9 on the floor).")
+(defparameter *orange-combo-decay* 0.10
+  "While the attacker's ORANGE runs (the user, 2026-10-24: 「橙色爆氣會將減免補正重置，且期間減免速度改成 10%、最低 50%」): the
+scaling counts again from the hit after it started (FIGHTER-COMBO-FROM) and each hit past *COMBO-FULL-HITS* deals this much
+less ...")
+(defparameter *orange-combo-floor* 0.50 "... down to this fraction (new 2026-10-24, the user).")
 ;; the hidden hit-stun tolerance (docs/duel/DUEL_DESIGN.md "Hidden hit-stun tolerance", the user 2026-09-29): every connected
 ;; hit fills the victim's hidden stun gauge; the hit that takes it past his kit's :stun-tolerance blows him away
 (defparameter *stun-weights* '(:flinch 1 :bind 1 :stagger 2 :crumple 3 :knockback 3 :launch 3 :knockdown 3 :heavy 3)

@@ -1515,3 +1515,11 @@ The user (verbatim): 「梟頭的基礎倍率全改成 1.5，梟頭架勢 K1 / K
 
 The user on §30.1 (BY 108.9 s, BK 115.6 s at 60 seeds; the awaken A/B's eight failing rows): 「全部列為例外，推到 gh page」.
 Recorded in AGENTS.md's accepted exceptions; deployed to GitHub Pages.
+
+## 31. The awakened stance's K > L wing spends ignore the combo scaling (the user, 2026-10-24)
+
+> 「利捷（覺醒）的架勢 L > K 之後再按 L 消耗翼打出的追加傷害連段不受減免補正影響。」 (the user, 2026-10-24)
+
+BR-DEFSTANCE gives the KL1–3 segments of the awakened stances (JILLIEL EN `:br-e-kl*`, the owl's `:br-oe-kl*`; not the base
+stance's) the hit flag `:unscaled`: COMBAT deals them at combo index 1 (no combo scaling), every other multiplier as before.
+Host check in tests/duel-rules/core.lisp. Record: DUEL_RUKIA_TYBW §16.2, DEVLOG §363.

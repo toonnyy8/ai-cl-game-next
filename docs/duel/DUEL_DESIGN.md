@@ -326,7 +326,7 @@ the player and the CPU (Lille's revival and the CPU's Bankai were idle / guard o
 
 **Combo limits** (a combo lasts until the victim is back in neutral): 1 launch (a second launch
 becomes a knockback), 3 airborne hits (the third knocks down, and the falling victim is then
-invulnerable), damage 100 % for hits 1–3 then −15 % per hit down to 20 % (−10 % to 40 % until 2026-10-24, the user: 「幫我提高連段的傷害減免」「減免最低 20%」), hit 10 = forced
+invulnerable), damage 100 % for hits 1–3 then −15 % per hit down to 20 % (−10 % to 40 % until 2026-10-24, the user: 「幫我提高連段的傷害減免」「減免最低 20%」); the attacker's ORANGE restarts the count from its next hit and, while it runs, −10 % per hit down to 50 % (`*orange-combo-decay*` / `-floor*`, the user 2026-10-24); a window flagged `:unscaled` is never scaled (Lille's awakened stance KL1–3), hit 10 = forced
 knockdown.
 On top of them the hidden hit-stun tolerance (below, "Hidden hit-stun tolerance"): the hit that takes the victim's
 hidden stun past his form's tolerance blows him away; hit 10 stays as the hard backstop.
@@ -1373,7 +1373,7 @@ A projectile / hazard hit never opens ORANGE (like KOSEI, only the fighter's own
 | --- | --- | --- |
 | **WHITE** SOUL REVERSE | the shockwave, 8 f hitstop | Reishi **+70/s** (`*white-reishi*`, integer points, never past max; 12 → 24 → 70 by the user 2026-09-30: a full 5.55 s run restores ~30 % of 1300); Reiatsu **+15/s** on top of the normal 3/s (`*white-reiatsu*`); the awakening gauge **+1.4/s** (`*white-awaken*`, 2 × the slower gauge's 0.7; not once awakened). No guard-gauge boost (the user's decision 2026-09-30). |
 | **BLUE** BURST REVERSE | today's Burst: `repel!` (the attacker's move / Hoho / step / run ends, he slides `*burst-push*` 5 m away, not stunned; the user neutral at once, invulnerable `*burst-invuln*` 20 f), 8 f hitstop | the guard gauge refills with no delay: `*blue-gg-mult*` **×2** its normal rate when not guarding (11/s, 13/s guardless), and **×0.5** (`*blue-gg-guarding*`, 2.75/s) **even while guarding** (normally GUARD HOLD stops it) |
-| **ORANGE** CHAIN REVERSE | the current move's remaining recovery is cancelled at once (neutral), 8 f hitstop and the shockwave; for the next `*chain-window*` **12** f the next move started has its startup cut by `*chain-cut*` **40 %** (at least 1 f of startup left; the skipped frames' hooks still run), and it may be any command: a J / K string from its first link, L, an SP, I, O | Reiatsu gained from hits dealt and from KOSEI **×1.5**, awakening gauge from hits dealt **×1.5** (`*orange-gain*`) |
+| **ORANGE** CHAIN REVERSE | the current move's remaining recovery is cancelled at once (neutral), 8 f hitstop and the shockwave; for the next `*chain-window*` **12** f the next move started has its startup cut by `*chain-cut*` **40 %** (at least 1 f of startup left; the skipped frames' hooks still run), and it may be any command: a J / K string from its first link, L, an SP, I, O | Reiatsu gained from hits dealt and from KOSEI **×1.5**, awakening gauge from hits dealt **×1.5** (`*orange-gain*`); his victim's combo scaling starts over at the burst and runs at −10 % a hit to 50 % while it lasts (the user 2026-10-24) |
 
 The combo's damage scaling, its launch / air-hit limits and the hidden hit-stun tolerance all still apply to an ORANGE
 extension, so the blow-away ends any loop.

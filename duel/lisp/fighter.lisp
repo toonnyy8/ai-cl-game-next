@@ -237,7 +237,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
   (let ((f (fighter e)))
     (setf (fighter-state f) :idle (fighter-sf f) 0 (fighter-phase f) nil (fighter-move f) nil
           (fighter-crush f) nil (fighter-dmg-bonus f) 0 (fighter-assist-next f) nil
-          (fighter-combo-hits f) 0 (fighter-combo-launches f) 0 (fighter-combo-air f) 0)
+          (fighter-combo-hits f) 0 (fighter-combo-launches f) 0 (fighter-combo-air f) 0 (fighter-combo-from f) 0)
     (halt! e)
     (play-clip e (kit-stance (fighter-kit f)) :blend blend)))
 

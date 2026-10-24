@@ -489,7 +489,9 @@ copies -L1-2 / -L1-3 after the form) instead of the dash, its J / K MELEE as the
                                 (far '(:cap 0.6 *br-x-len* 1.2 0.25))
                                 (t '(:cap 0.6 *br-s-near* 1.2 0.25)))
                     :on-hit ,last :kb ,(if cut *br-w-kb* 0.3)
-                    ,@(cond (far '(:chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable)))
+                    ,@(cond ((and far melee (not snipe) (eq role :kl))   ; (the awakened stance's K > L wing spends: no combo scaling, the
+                             '(:chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable :unscaled)))   ; user 2026-10-24)
+                            (far '(:chip *br-x-chip* :guard *br-x-guard* :flags (:ranged :x-axis :uncatchable)))
                             (dash '(:flags (:through :step-branch)))   ; (R18: its charge takes Step, BR-SNIPE-STEP)
                             (cut nil)
                             (sniper '(:flags (:ranged :step-branch)))

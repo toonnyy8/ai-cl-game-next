@@ -335,6 +335,7 @@ result (NIL = no effect)."
                                :unguardable (or (member :unguardable flags) (and fstrike (kikon-follow-unguardable-p red)))
                                :hazard ranged :ward ward :rend (member :rend flags)))
          (flat (member :flat flags))                    ; a :flat window deals its damage as written (Lille II's traces)
+                                                        ; (:unscaled: no combo scaling, the rest as usual: Lille's awakened KL)
          (atk (if flat
                   '(:mult 1.0)
                   (kit-atk-mods (kit-of att) (- *konpaku-max* (gauges-konpaku (gauges att)))
@@ -386,7 +387,9 @@ result (NIL = no effect)."
                     (blow (and *stun-blow-away* (not rush) (not (eq (gauges-burst (gauges att)) :orange))   ; (off since 2026-10-10)
                                (stun-over-p st (stun-tolerance-of (kit-of def)))))
                     (react (if blow :knockdown react))
-                    (dmg (let ((d (hit-damage base atk dmods (if flat 1 hits) (and (not flat) (eq res :counter)))))   ; :spare: never the last point
+                    (dmg (let ((d (hit-damage base atk dmods
+                                              (if (or flat (member :unscaled flags)) 1 (max 1 (- hits (fighter-combo-from fd))))
+                                              (and (not flat) (eq res :counter)) (eq (gauges-burst (gauges att)) :orange))))   ; :spare: never the last point
                            (if (member :spare flags) (min d (max 0 (1- (gauges-reishi (gauges def))))) d)))
                     (stun (cond (follow (kikon-follow-stun red (mv-s mv)))
                                 ((and (hw-stun hw) (eq react (hw-react hw))) (hw-stun hw))   ; (a bind in a combo: a flinch)
@@ -673,7 +676,8 @@ move's recovery, the next move started within *CHAIN-WINDOW* f has its startup c
     (case mode
       (:blue (repel! e)                                   ; + one Reiatsu bar, as RoS does (the user 2026-09-30)
        (reiatsu-gain! e *reiatsu-bar*))
-      (:orange (to-idle e 0) (setf (fighter-chain f) *chain-window*)))
+      (:orange (to-idle e 0) (setf (fighter-chain f) *chain-window*)
+       (setf (fighter-combo-from (fighter o)) (fighter-combo-hits (fighter o)))))   ; (his combo's scaling starts over)
     (hitstop *burst-hitstop*)
     (emit :burst e o mode)
     (clog "~a BURST ~a fs ~,1f" (side-name e) mode (gauges-fs g))))
