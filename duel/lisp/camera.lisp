@@ -42,7 +42,7 @@ view, so the gap between the fighters reads; DUEL_DESIGN §9). Only the look, li
 ;;; and the thumb deck (*BAND*, brush.lisp; onehand.lisp DECK-UPDATE sets it). Render-side only: *BEHIND-YAW* (sim state, it steers the
 ;;; stick) is read, never written. The eye orbits at the sim yaw plus a lead of at most *PT-LEAD* toward the true
 ;;; P1 -> P2 direction (the catch-up after a Hoho or a sidestep), farther back and lower than the landscape one; the aim
-;;; bisects P1 and P2 (azimuth: their centres; pitch: P1's feet and P2's head), within *PT-LEAD* of the orbit; the lens
+;;; bisects P1 and P2 (azimuth: their centres; pitch: P1's feet and P2's head), within *PT-LEAD* (+ the side swing) of the orbit; the lens
 ;;; is shifted (G6) so that aim lands on the band's middle, with the vertical FOV that gives the band *PT-BAND-FOV*.
 (declaim (type f32vec *pcam*))
 (defvar *pcam* (make-f32 3) "Portrait camera state: [0] the orbit's lead over *BEHIND-YAW* (radians, smoothed); [1] unused; [2] the
@@ -52,6 +52,8 @@ smoothed vertical FOV (radians).")
 (defparameter *pt-up* 2f0 "... this high ...")
 (defparameter *pt-shoulder* 0.5f0 "... this far to his right.")
 (defparameter *pt-close* 15f0 "Up close the orbit swings to P1's right by up to this many degrees (landscape: *BEHIND-CLOSE* 40).")
+(defparameter *pt-side* 30f0 "... and at every distance at least this many (0 -> 30, the user 2026-10-24: one hand follows the landscape
+*BEHIND-SIDE*; DUEL_MOBILE_DESIGN §4.1).")
 (defparameter *pt-lead* 20f0 "Degrees the orbit may lead the sim yaw toward P2 (the catch-up), and the aim may leave the orbit.")
 (defparameter *pt-head* 2.2f0 "The aim's pitch bisects P1's feet and this height over P2.")
 (defparameter *pt-frame-bottom* 0.82 "The frame's bottom (a fraction of the height): the fighters stand low, the thumb may cover their feet.")
@@ -75,7 +77,7 @@ smoothing. 0 B (state in *PCAM* / *CAM-ANCHOR*, knobs read as floats)."
          (yaw (+ sim lead)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw)))
          (wide (* (the single-float *behind-widen*) (f-max 0f0 (- sep 4f0))))
          (back (* (the single-float *cam-close*) (+ (the single-float *pt-back*) wide) (if (> *punch-t* 0f0) 0.8f0 1f0)))
-         (off (* 0.017453292f0 (the single-float *pt-close*) (f-clamp (/ (- 6f0 sep) 4f0) 0f0 1f0)))
+         (off (* 0.017453292f0 (f-max (the single-float *pt-side*) (* (the single-float *pt-close*) (f-clamp (/ (- 6f0 sep) 4f0) 0f0 1f0)))))
          (side (+ (the single-float *pt-shoulder*) (* back (f-sin off))))
          (bk (* back (f-cos off)))
          (ka (if snap 1f0 (- 1f0 (f-exp (* (- (the single-float *behind-rate*)) rdt))))))
@@ -99,7 +101,7 @@ smoothing. 0 B (state in *PCAM* / *CAM-ANCHOR*, knobs read as floats)."
       (let* ((ax (- (aref p 0) ex)) (az (- (aref p 2) ez)) (bx (- (aref q 0) ex)) (bz (- (aref q 2) ez))
              (d1 (f-hypot ax az)) (d2 (f-hypot bx bz))
              (a1 (f-atan2 (- ax) (- az))) (a2 (f-atan2 (- bx) (- bz))) (da (f-wrap (- a2 a1)))
-             (want (f-wrap (- (+ a1 (* 0.5f0 da)) yaw))) (dy (f-clamp want (- lim) lim)) (aim (+ yaw dy))
+             (want (f-wrap (- (+ a1 (* 0.5f0 da)) yaw))) (dy (f-clamp want (- (+ lim off)) (+ lim off))) (aim (+ yaw dy))   ; (+ OFF: the eye stands OFF round to the right)
              (t1 (f-atan2 h (f-max 0.5f0 (- d1 0.6f0)))) (t2 (f-atan2 (- h (the single-float *pt-head*) 0.3f0) (+ d2 0.6f0)))
              (pitch (* 0.5f0 (+ t1 t2))) (cp (* 5f0 (f-cos pitch)))
              (b (f-max 0.1f0 (- (aref bd 1) (aref bd 0))))
