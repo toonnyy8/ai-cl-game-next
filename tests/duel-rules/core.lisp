@@ -857,6 +857,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                                                         ;  no form's since, its strike clips the bands' still)
     :ru-s-shimochiri :ru-s-setsuen :ru-s-sojin :ru-s-hyoreki :ru-s-tsurara :ru-s-hakuren   ; the new Shikai's bursts and kido
     :ru-s-byakurai :ru-s-tsukishiro :ru-s-kido :ru-s-sokatsui :ru-s-rikujo :ru-s-rikujo-cast   ; (DUEL_RUKIA_TYBW §13.3)
+    :ru-18-stance :ru-18-walk-f :ru-18-walk-b :ru-18-strafe-r :ru-18-strafe-l :ru-18-run :ru-18-j1 :ru-18-j2 :ru-18-j3   ; -18's own
+    :ru-18-k1 :ru-18-k2 :ru-18-k3 :ru-18-shimobashira :ru-18-hakuren-hold :ru-18-hakuren :ru-18-shirafune   ; (§13.4)
+    :ru-18-hakka :ru-18-hainawa
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
     :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
     :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)
