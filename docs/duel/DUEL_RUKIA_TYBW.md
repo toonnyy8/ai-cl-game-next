@@ -336,3 +336,8 @@ Presentation only: host tests 10220 ALL PASS; her seven pairings at 10 seeds byt
   wave (taken only off a K3 hit, so the reach matters little). The clip is HAKUREN's release (`:ru-hakuren` at `:clip-s`
   12; a placeholder until the motion pass).
 - Host tests 10220 ALL PASS (the K route's checks renamed, its reach 11 m); her gate rows follow below.
+
+Gates after §8 (her pairings, 20 seeds, all K.O.; median s, Rukia's wins of 20; §6.1's numbers before): RY 96.5 (11;
+97.3, 11), RK 89.7 (6; 89.7, 6), RR 114.5 (114.5), IR 108.0 (13; 108.0, 13), SR 123.4 (14; 123.4, 14), BR 131.3 (13;
+131.3, 13), HR 141.1 (14; 139.9, 14). Only RY and HR moved: her CPU seldom holds SP1 (RIKUJŌKŌRŌ), and K3 + L's damage is
+unchanged. `--cvc` PASS.
