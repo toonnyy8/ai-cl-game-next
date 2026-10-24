@@ -328,13 +328,13 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 
 ;;; ================================================================ damage (§4)
 (check (and (~= (combo-scale 1) 1.0) (~= (combo-scale 3) 1.0) (~= (combo-scale 4) 0.85) (~= (combo-scale 6) 0.55) (~= (combo-scale 7) 0.4)
-            (~= (combo-scale 9) 0.4) (~= (combo-scale 12) 0.4)))
+            (~= (combo-scale 8) 0.25) (~= (combo-scale 9) 0.2) (~= (combo-scale 12) 0.2)))
 (check (= (hit-damage 100 nil nil 1 nil) 100))
 (check (= (hit-damage 100 '(:mult 1.3) nil 1 nil) 130))                 ; Hellfire
 (check (= (hit-damage 100 '(:cornered 0.05 :cornered-max 0.25 :lost 2) nil 1 nil) 110))
 (check (= (hit-damage 100 '(:cornered 0.05 :cornered-max 0.25 :lost 6) nil 1 nil) 125))   ; capped
 (check (= (hit-damage 100 '(:mult 1.15 :cornered 0.05 :cornered-max 0.25 :lost 3) nil 5 t) 116)) ; x1.15x1.15x1.25x0.7 (hit 5: 0.8 until 2026-10-24's -15 %)
-(check (= (hit-damage 100 nil nil 20 nil) 40))                          ; floor 40 %
+(check (= (hit-damage 100 nil nil 20 nil) 20))                          ; floor 20 % (40 % until 2026-10-24)
 (check (= (hit-damage 1 nil nil 12 nil) 1))                             ; a hit always does 1
 (check (= (hit-damage 0 '(:mult 2.0) nil 1 t) 0))
 (check (= (hit-damage 100 (kit-atk-mods (kit :yamamoto :bankai-east) 4) nil 1 nil) 100))     ; East x1.0 (the rework)

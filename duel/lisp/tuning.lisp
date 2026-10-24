@@ -266,8 +266,9 @@ then :down + :wakeup (iframes in both).")
 (defparameter *combo-full-hits* 3 "Hits 1..this deal full damage...")
 (defparameter *combo-decay* 0.15
   "... then each hit deals this much less (0.10 -> 0.15, 2026-10-24, the user: 「幫我提高連段的傷害減免」: hit 4 85 %, 5 70 %, 6
-55 %, 7 on the floor) ...")
-(defparameter *combo-floor* 0.40 "... down to this fraction.")
+55 %, 7 40 %) ...")
+(defparameter *combo-floor* 0.20
+  "... down to this fraction (0.40 -> 0.20, 2026-10-24, the user: 「減免最低 20%」: hit 8 25 %, 9 on the floor).")
 ;; the hidden hit-stun tolerance (docs/duel/DUEL_DESIGN.md "Hidden hit-stun tolerance", the user 2026-09-29): every connected
 ;; hit fills the victim's hidden stun gauge; the hit that takes it past his kit's :stun-tolerance blows him away
 (defparameter *stun-weights* '(:flinch 1 :bind 1 :stagger 2 :crumple 3 :knockback 3 :launch 3 :knockdown 3 :heavy 3)

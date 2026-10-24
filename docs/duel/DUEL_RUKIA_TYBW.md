@@ -661,3 +661,11 @@ where to say it.
 The pinned damage checks follow (70 at hit 4: 63 → 60; Hisagi's B4c routes 174 / 132 → 170 / 130). DUEL_DESIGN "Combo
 limits" and the manual's 連段傷害衰減 updated. Host 10224 ALL PASS, build 0 warnings, smoke exit 0; no sim gate run
 (§15's word), playtest v161.
+
+### 16.1 The floor 40 % → 20 % (the user, 2026-10-24)
+
+> 「減免最低 20%」 (the user, 2026-10-24)
+
+`*combo-floor*` 0.40 → 0.20: hits 1–3 full, then 85 / 70 / 55 / 40 / 25 %, 20 % from hit 9. Host checks follow
+(`combo-scale` 8 0.25, 9 and 12 0.2; hit 20 of 100: 40 → 20); DUEL_DESIGN and the manual updated. Host 10224 ALL PASS,
+build 0 warnings, smoke exit 0; no sim gate (§15). Playtest v162.
