@@ -341,7 +341,7 @@ run fresh gives the same combat log as after a gate.
 Reference (YK, seed 7, `duel-cvc-yk.json`):
 
 ```
-duel -> RESULTS winner P2 konpaku 0-6 ticks 8135 secs 135.6
+duel -> RESULTS winner P2 konpaku 0-9 ticks 5474 secs 91.2
 ```
 
 (The recovery back to medium and the guard cancel earlier, 2026-10-23: all three changed; before it `winner P2 konpaku 0-1 ticks

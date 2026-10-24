@@ -167,3 +167,27 @@
               '((0.0 0.0) (150.0 0.0) (300.0 0.0) (300.0 150.0) (300.0 300.0))))
 (check (and (= (bind-drain 300.0 7) 296.5) (= (bind-drain 3.0 7) 0.0)))
 
+
+;; 2026-10-24 (the user: 「只要被 O 打中，非紅血狀態就鎖定防禦以外的一切行為（此狀態可防禦取消硬直並擋下毀魂技），紅血狀態則連同
+;; 防禦都鎖定」): the Kikon lock. Its holder (KIKON-LOCK-HOLDS-P) is the rusher's follow-up; in the reel, lock 1 (not red)
+;; U cancels it into a guard, lock 2 (red) nothing does, and no Burst / awakening is read under either
+(multiple-value-bind (a b) (t-pair (kit :yamamoto :base) (kit :kenpachi :base))
+  (let* ((fa (fighter a)) (fb (fighter b)) (held nil) (og (fdefinition 'guard-p)) (oc (fdefinition 'play-clip)))
+    (setf (fdefinition 'guard-p) (lambda (e vp) (declare (ignore e vp)) held)
+          (fdefinition 'play-clip) (lambda (&rest r) (declare (ignore r)) nil))
+    (unwind-protect
+         (flet ((reel (lock) (setf (fighter-state fb) :stun (fighter-stun fb) 40 (fighter-sf fb) 0 (fighter-kikon-lock fb) lock)))
+           (setf (fighter-state fa) :move (fighter-move fa) (kit-command-move (kit :yamamoto :base) :kikon)
+                 (fighter-follow fa) t (fighter-phase fa) :follow)
+           (check (kikon-lock-holds-p fb))
+           (setf (fighter-phase fa) :main (fighter-sf fa) 0 (fighter-contact fa) :hit)
+           (check (not (kikon-lock-holds-p fb)))                                    ; (the strike connected)
+           (setf (fighter-contact fa) nil (fighter-follow fa) nil)
+           (check (not (kikon-lock-holds-p fb)))                                    ; (not a follow-up)
+           (reel 1) (setf held t) (stun-step b fb nil)
+           (check (eq :guard (fighter-state fb)))                                  ; (not red: U cancels the reel)
+           (reel 2) (stun-step b fb nil)
+           (check (and (eq :stun (fighter-state fb)) (= 1 (fighter-sf fb))))      ; (red: nothing does)
+           (reel 1) (setf held nil) (stun-step b fb nil)
+           (check (and (eq :stun (fighter-state fb)) (= 1 (fighter-sf fb)))))    ; (no U: he reels on)
+      (setf (fdefinition 'guard-p) og (fdefinition 'play-clip) oc))))

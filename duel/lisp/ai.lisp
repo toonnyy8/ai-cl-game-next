@@ -319,7 +319,8 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
         (:side-step (ai-press b :step 1 :act :side-step))  ; BRAIN-STEP holds the stick sideways
         (:hoho (ai-press b :step 1 :modded t :act :hoho))
         (:guard (ai-press b :guard (+ 10 (floor (* r 20)))))
-        (:guard-long (ai-press b :guard 40 :act :guard))    ; through a stagger and the dash-in after it
+        (:guard-long (ai-press b :guard 60 :act :guard))    ; through a stagger and the dash-in after it (40 until the
+                                                            ;  follow-up's 41 f, 2026-10-24)
         (:guard-cancel (ai-press b :guard 4))               ; the guard cancel, then neutral decides
         (:kikon (let ((mv (kit-command-move kit :kikon)))                ; held through the strike (aura + dash + S)
                   (ai-press b :kikon (+ (rush-param mv :aura) (rush-param mv :dash-max) (mv-s mv) 4))))

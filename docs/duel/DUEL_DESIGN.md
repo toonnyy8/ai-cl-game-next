@@ -90,13 +90,21 @@ rules.lisp):
   leap, ENJO a straight dash; the red rush aura, speed lines, a "KIKON" word) and strikes again: the
   follow-up. Its hit is the **Kikon** (no damage, the Konpaku are settled at the end of that step's hit
   resolution, `settle-souls`, combat.lisp; the character's Kikon cinematic plays, 2.7–3.2 s, not skippable).
-  - **Not red**: the stagger lasts 16 f (`*kikon-follow-stun*`) and the follow-up lands **12 f after he can
-    act again** (`*kikon-follow-gap*`, `kikon-follow-wait`): a guard pressed (and held) during the dash
-    **blocks** it (no Konpaku, −14, −20 guard gauge; "KIKON / GUARD IT!" announces it); Step / Hoho dodge it;
-    hitting the rusher first stops it.
-  - **Red**: the same dash plays, but he reels until the strike has landed (`kikon-follow-stun`) and it
-    **can't be guarded** (guard, stance, armour, a parry: `kikon-follow-unguardable-p`): the Kikon, unless
-    something stops the rusher.
+  - **The lock** (2026-10-24, the user: 「請把所有角色 O 到毀魂技的空檔延長，然後只要被 O 打中，非紅血狀態就鎖定防禦（此狀態可防禦
+    取消硬直並擋下毀魂技）以外的一切行為，紅血狀態則連同防禦都鎖定。」): the follow-up lands 41 f after the O's hit
+    (`*kikon-follow-stun*` 16 + 1 + `*kikon-follow-gap*` 24; 29 f with the gap's 12 before), and every victim reels
+    until it has landed (`kikon-follow-stun`), held by the **Kikon lock** (`fighter-kikon-lock`, set at the follow's
+    start; `kikon-lock-p`: while the rusher dashes in and until his strike connected or its active frames ended): no
+    command (Burst, awakening, Hoho, Step, attacks) and no walk.
+  - **Not red** (lock 1): U cancels the reel into a guard (raised over `*guard-raise*`) that **blocks** the strike (no
+    Konpaku, −14, −20 guard gauge; "KIKON / GUARD IT!" announces it); let go, he stands locked and may guard again; no
+    U, the Kikon. (Until 2026-10-24: free after the 16 f stagger for the gap's 12 f: guard, Step or Hoho.)
+  - **Red** (lock 2): not even the guard; the strike **can't be guarded** anyway (guard, stance, armour, a parry:
+    `kikon-follow-unguardable-p`; BLUE could break the reel until 2026-10-24): the Kikon, unless something stops the
+    rusher.
+  - Gates (2026-10-24, DEVLOG §335): host 10073 ALL PASS; simgate 10 seeds, all 28 pairings K.O., the medians −4.9 s on
+    average (mixed); many sat under 125 s before this change too; cvc regenerated (every line). The CPU holds its guard
+    60 f (40 before) through the reel (`:guard-long`).
   - The dash arrives at the trigger range exactly as the wait ends (`kikon-follow-speed`, at most the
     module's `:follow-speed` / `:speed`, at least 14 m/s): TENCHI's strike lands 29 f after its first hit.
 - **Released** before the strike connects: a plain hit (70, knockback), which may Soul Break a red

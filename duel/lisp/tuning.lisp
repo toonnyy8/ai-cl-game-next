@@ -35,9 +35,12 @@ him 0.6 m back: 2.2 m, still inside both characters' Q1 reach, so the -14 is pun
   "A rush strike that hits with the button held knocks the victim this far back (a short stagger) ...")
 (defparameter *kikon-follow-stun* 16
   "... for this long (a victim who isn't red; a red one reels until the Kikon lands: KIKON-FOLLOW-STUN) ...")
-(defparameter *kikon-follow-gap* 12
-  "... while the rusher dashes in after him: its strike (the Kikon) lands this many frames after he can act
-again, so he can guard it (not red), Step or Hoho out (KIKON-FOLLOW-WAIT).")
+(defparameter *kikon-follow-gap* 24
+  "... while the rusher dashes in after him: its strike (the Kikon) lands *KIKON-FOLLOW-STUN* + 1 + this many frames
+after the O's hit (KIKON-FOLLOW-WAIT). 12 -> 24 (29 -> 41 frames from the O's hit to the Kikon), 2026-10-24, the user:
+「請把所有角色 O 到毀魂技的空檔延長，然後只要被 O 打中，非紅血狀態就鎖定防禦（此狀態可防禦取消硬直並擋下毀魂技）以外的一切行為，紅血狀態則連同防禦都鎖定。」 Until then the victim (not red) was free for these frames (guard, Step, Hoho); since then he reels until the
+strike lands, locked to the guard (not red: U cancels the reel into a guard that blocks it) or to nothing (red):
+KIKON-LOCK-P, FIGHTER-KIKON-LOCK.")
 (defparameter *kikon-track* 120.0 "Default :track (deg/s) of a Kikon rush strike's startup (like the Breaker's dash).")
 (defparameter *armor-from* 6 "A move's armour (:armor-hits) starts on this move frame (no frame-1 reversals).")
 (defparameter *reset-distance* 8.0 "After a Kikon / Soul Break both fighters are placed this far apart.")

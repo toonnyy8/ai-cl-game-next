@@ -380,10 +380,20 @@ strike (startup S) starts: it then hits *KIKON-FOLLOW-GAP* frames after a non-re
   (max 0 (- (+ *kikon-follow-stun* 1 *kikon-follow-gap*) s)))
 
 (defun kikon-follow-stun (red s)
-  "The follow-up's victim reels this long (after the knockback): *KIKON-FOLLOW-STUN* (then he is free for
-*KIKON-FOLLOW-GAP* frames to guard or dodge the strike), or, RED, until the strike (startup S) has landed:
-the Kikon is certain unless something stops the rusher."
-  (if red (+ (kikon-follow-wait s) s 2) *kikon-follow-stun*))
+  "The follow-up's victim reels (after the knockback) until the strike (startup S) has landed, red or not (2026-10-24:
+not red he was free after *KIKON-FOLLOW-STUN* until then); not red, U cancels the reel into a guard that blocks it
+(FIGHTER-KIKON-LOCK 1); red, nothing does: the Kikon is certain unless something stops the rusher."
+  (declare (ignore red))
+  (+ (kikon-follow-wait s) s 2))
+
+(defun kikon-lock-p (state follow phase contact sf s a)
+  "Does the rusher (STATE, FOLLOW: his move is a Kikon rush past its first strike, PHASE, CONTACT, move frame SF of a
+strike S / A) still hold his victim's Kikon lock (FIGHTER-KIKON-LOCK: guard only, or nothing when red)? While he dashes
+in (:follow) and until the follow-up strike connected (hit or blocked) or its active frames are over."
+  (and (eq state :move) follow
+       (or (eq phase :follow)
+           (and (eq phase :main) (null contact) (< sf (+ s a))))
+       t))
 
 (defun kikon-follow-speed (dist frames-left cap)
   "The dash-in's speed (m/s) this frame: arrive at *KIKON-TRIGGER* from DIST exactly when the FRAMES-LEFT

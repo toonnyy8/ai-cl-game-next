@@ -418,7 +418,8 @@ result (NIL = no effect)."
                                 (when (> pull 0.01)                                ; reach him (the user 2026-10-02:
                                   (set-slide att pull *string-pull-frames* (- (aref p 0) sx) (- (aref p 2) sz))))))))   ; no chase)
                (when (and follow own)                     ; the rush dashes in, then strikes again (KIKON-RUSH-STEP)
-                 (setf (fighter-phase fa) :follow (fighter-hold fa) 0 (fighter-follow fa) t)
+                 (setf (fighter-phase fa) :follow (fighter-hold fa) 0 (fighter-follow fa) t
+                       (fighter-kikon-lock fd) (if red 2 1))   ; (2026-10-24: guard only, or nothing when red; KIKON-LOCK-P)
                  (emit :kikon-follow att def)
                  (emit :rush-dash att)
                  (clog "~a KIKON FOLLOW-UP on ~a~:[~; (red)~]" (side-name att) (side-name def) red)))))

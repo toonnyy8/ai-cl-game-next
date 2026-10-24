@@ -516,17 +516,18 @@ is always up (:ward)."
 after a guard is let go, no attack starts (Step, Hoho, the burst and the awakening do; the attack's press stays buffered)
 and after the guard he stands (a guard may go up again). A form with :guard-to (Bankai East)
 switches to that form while U is held instead of guarding (from idle / walk; a run stops into this step too): its
-ward is up after *GUARD-RAISE* frames (FIGHTER-GUARD-T counts them, and keeps counting while he walks in it)."
-  (unless (and (zerop (fighter-lock f))
+ward is up after *GUARD-RAISE* frames (FIGHTER-GUARD-T counts them, and keeps counting while he walks in it). Under a
+Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard only, 2 not even that."
+  (unless (and (zerop (fighter-lock f)) (zerop (fighter-kikon-lock f))         ; (a Kikon lock: no command, 2026-10-24)
                (if (or (plusp (fighter-guard-exit f)) (eq (fighter-state f) :guard))   ; guarding or just out of a guard:
                    (command! e f vp '(:awaken :burst :hoho :step))      ;  no attack (*GUARD-EXIT*, the user 2026-10-23;
                                                                         ;  the press stays buffered)
                    (or (command! e f vp *neutral-commands*) (u-press! e f vp))))
     (let ((v (motion-vel (motion e))))
-      (when (and (zerop (fighter-lock f)) (kit-guard-to (fighter-kit f)) (guard-held-p e vp))
+      (when (and (zerop (fighter-lock f)) (< (fighter-kikon-lock f) 2) (kit-guard-to (fighter-kit f)) (guard-held-p e vp))
         (set-form e (kit-guard-to (fighter-kit f)))
         (setf (fighter-guard-t f) 0))
-      (if (and (zerop (fighter-lock f)) (guard-p e vp))
+      (if (and (zerop (fighter-lock f)) (< (fighter-kikon-lock f) 2) (guard-p e vp))   ; (a red Kikon lock: no guard)
           (progn
             (unless (eq (fighter-state f) :guard)
               (setf (fighter-state f) :guard (fighter-guard-t f) 0)
@@ -534,7 +535,8 @@ ward is up after *GUARD-RAISE* frames (FIGHTER-GUARD-T counts them, and keeps co
               (play-clip e :sh-guard :blend 3))
             (incf (fighter-guard-t f))
             (fill v 0f0))
-          (multiple-value-bind (to st) (if (and (zerop (fighter-lock f)) (zerop (fighter-guard-exit f))) (stick-relative e f) (values 0.0 0.0))
+          (multiple-value-bind (to st) (if (and (zerop (fighter-lock f)) (zerop (fighter-guard-exit f)) (zerop (fighter-kikon-lock f)))
+                                           (stick-relative e f) (values 0.0 0.0))
             (when (eq (fighter-state f) :guard)
               (to-idle e 4)
               (setf (fighter-guard-exit f) *guard-exit*))
@@ -772,11 +774,22 @@ action started."
        (cancel-open-p sf (fighter-land-sf f) (mv-total mv) (eq landed :hit))
        (try-command e f cmd button)))
 
+(defun kikon-lock-holds-p (f)
+  "Does F's opponent still hold F's Kikon lock (rules KIKON-LOCK-P on the rusher's move)?"
+  (let* ((o (fighter-opp f)) (fo (and o (entity-alive-p o) (fighter o))) (mv (and fo (eq (fighter-state fo) :move) (fighter-move fo))))
+    (and mv (kikon-lock-p (fighter-state fo) (fighter-follow fo) (fighter-phase fo) (fighter-contact fo) (fighter-sf fo)
+                          (mv-s mv) (mv-a mv)))))
+
 (defun stun-step (e f vp)
   "A reaction / blockstun counts down (Burst Reverse may be pressed); then neutral (guard again if
 Guard is held). Blockstun past its end waits while the guard lock holds him (FIGHTER-GLOCK: his attacker may still
-chain); only BLUE and the awakening break it."
-  (when (zerop (fighter-lock f)) (command! e f vp '(:burst :awaken)))
+chain); only BLUE and the awakening break it. Under a Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no Burst or
+awakening; lock 1 (not red): U cancels the reel into a guard (the follow-up's strike is then blocked)."
+  (when (and (= (fighter-kikon-lock f) 1) (eq (fighter-state f) :stun) (guard-p e vp))
+    (setf (fighter-state f) :guard (fighter-guard-t f) 0 (fighter-sf f) 0)
+    (play-clip e :sh-guard :blend 3)
+    (return-from stun-step nil))
+  (when (and (zerop (fighter-lock f)) (zerop (fighter-kikon-lock f))) (command! e f vp '(:burst :awaken)))
   (when (and (>= (incf (fighter-sf f)) (fighter-stun f)) (not (and (eq (fighter-state f) :guard-hit) (fighter-glock f))))
     (to-idle e)
     (when (guard-p e vp) (setf (fighter-state f) :guard (fighter-guard-t f) *guard-raise*) (play-clip e :sh-guard :blend 3))))
@@ -1007,6 +1020,7 @@ cinematic or a :through move."
   (when (> (fighter-hoho-lock f) 0) (decf (fighter-hoho-lock f)))
   (when (> (fighter-gc-left f) 0) (decf (fighter-gc-left f)))
   (when (> (fighter-guard-exit f) 0) (decf (fighter-guard-exit f)))
+  (when (and (plusp (fighter-kikon-lock f)) (not (kikon-lock-holds-p f))) (setf (fighter-kikon-lock f) 0))
   (when (> (fighter-invuln f) 0) (decf (fighter-invuln f)))
   (when (> (fighter-callout-t f) 0) (decf (fighter-callout-t f)))
   (when (> (fighter-frost f) 0) (decf (fighter-frost f)))

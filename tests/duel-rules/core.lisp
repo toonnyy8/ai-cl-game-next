@@ -362,11 +362,19 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (null (kikon-outcome nil :hit nil)))                                ; released: a plain hit
 (check (notany (lambda (r) (or (kikon-outcome t r nil) (kikon-outcome t r t)))
                '(nil :blocked :absorbed :armored :parried :guard-break)))  ; guarded / dodged: nothing
-;; the dash-in: a non-red victim reels *KIKON-FOLLOW-STUN*, then has *KIKON-FOLLOW-GAP* frames (a guard needs
-;; *GUARD-RAISE*) before the strike: a guard held during the dash blocks it; a red one reels until it has landed
-;; and can't guard it (iframes still dodge it)
-(check (and (>= *kikon-follow-gap* (+ *guard-raise* 1)) (= (kikon-follow-wait 6) (- (+ *kikon-follow-stun* 1 *kikon-follow-gap*) 6))
+;; the dash-in (2026-10-24: 「O 到毀魂技的空檔延長」, gap 12 -> 24, the strike 41 f after the O's hit): every victim reels
+;; until the strike has landed, locked (KIKON-LOCK-P): not red, U cancels the reel into a guard that blocks it; red,
+;; nothing, and the strike can't be guarded (iframes still dodge it)
+(check (and (= 24 *kikon-follow-gap*) (= 41 (+ *kikon-follow-stun* 1 *kikon-follow-gap*))
+            (= (kikon-follow-wait 6) (- (+ *kikon-follow-stun* 1 *kikon-follow-gap*) 6))
             (= (kikon-follow-wait 99) 0) (~= *kikon-follow-kb* 2.5)))
+;; the lock holds while the rusher dashes in (:follow) and until his follow-up strike connected or its active frames
+;; are over; never off any other move or state
+(check (and (kikon-lock-p :move t :follow nil 0 8 3) (kikon-lock-p :move t :main nil 10 8 3)
+            (not (kikon-lock-p :move t :main :hit 10 8 3)) (not (kikon-lock-p :move t :main :block 9 8 3))
+            (not (kikon-lock-p :move t :main nil 11 8 3)) (not (kikon-lock-p :move nil :follow nil 0 8 3))
+            (not (kikon-lock-p :move nil :main nil 2 8 3)) (not (kikon-lock-p :idle t :follow nil 0 8 3))
+            (not (kikon-lock-p :stun t :main nil 2 8 3))))
 (check (and (null (kikon-follow-unguardable-p nil)) (kikon-follow-unguardable-p t)))
 (check (and (eq (resolve-contact :guard :unguardable (kikon-follow-unguardable-p nil)) :blocked)     ; not red: blocked
             (eq (resolve-contact :guard :unguardable (kikon-follow-unguardable-p t)) :hit)           ; red: the Kikon
@@ -375,8 +383,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (null (resolve-contact :invuln :unguardable (kikon-follow-unguardable-p t)))))
 (dolist (cf *forms*)
   (let ((s (mv-s (kit-command-move (apply #'kit cf) :kikon))))
-    (check (= (+ (kikon-follow-wait s) s) (+ (kikon-follow-stun nil s) 1 *kikon-follow-gap*)))     ; free GAP f first
-    (check (> (kikon-follow-stun t s) (+ (kikon-follow-wait s) s)))))                              ; red: still reeling
+    (check (= (kikon-follow-stun nil s) (kikon-follow-stun t s)))                                   ; (2026-10-24: both reel)
+    (check (> (kikon-follow-stun t s) (+ (kikon-follow-wait s) s)))))                              ; still reeling as it lands
 ;; the dash-in's speed: it reaches the trigger range exactly as the wait runs out, never over the module's cap
 (check (and (~= (kikon-follow-speed 4.6 10 99.0) 18.0) (~= (kikon-follow-speed 4.6 10 12.0) 12.0)
             (~= (kikon-follow-speed 1.0 10 99.0) 0.0) (~= (kikon-follow-speed 4.6 0 99.0) 99.0)))

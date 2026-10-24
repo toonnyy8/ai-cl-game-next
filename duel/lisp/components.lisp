@@ -103,6 +103,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (end-chase nil)                       ; this move started off a J / K ender's hit (or ORANGE's restart): it chases (ENDER-PUSH)
   (gc-left 0 :type fixnum)              ; frames a guard cancel still keeps attacks out (COMMAND!: its recovery's rest)
   (guard-exit 0 :type fixnum)           ; frames after letting go of a guard: only Step / Hoho, no walk (*GUARD-EXIT*)
+  (kikon-lock 0 :type fixnum)           ; a Kikon follow-up coming at him: 1 guard only (not red), 2 nothing (red); KIKON-LOCK-P
   (burst nil)                           ; the burst mode pressed this step (:white :blue :orange; applied after both stepped)
   (chain 0 :type fixnum)                ; ORANGE: frames the next move started still has its startup cut
   (invuln 0 :type fixnum)               ; frames of invulnerability left (after a Burst)
