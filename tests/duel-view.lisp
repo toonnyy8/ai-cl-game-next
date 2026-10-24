@@ -2,6 +2,9 @@
 ;;;; clip strips, the stage, and every sound. A test target, not part of the game:
 ;;;;   ./build.sh duelview duel/lisp/package.lisp duel/lisp/body.lisp duel/lisp/yama-art.lisp \
 ;;;;     duel/lisp/ken-art.lisp duel/lisp/sounds.lisp duel/lisp/stage.lisp tests/duel-view.lisp
+;;;;   With Rukia's clips (her RU-S- strips, DUEL_RUKIA_TYBW §13.3) her art's dependencies come first:
+;;;;   ./build.sh duelview duel/lisp/{package,tuning,rules,control,learn,sounds,components,body,kit,glyphs,glyphs-extra,brush,
+;;;;     cinema,stage,vfx,vfx-stamps,yama-vfx,yama-art,ken-art,rukia-art}.lisp tests/duel-view.lisp
 ;;;;   python3 tests/scripts/duel-view.py   (writes tests/scripts/duel-view-*.json, see its header)
 ;;;;   node tools/run.mjs dist/duelview --secs 60 --script tests/scripts/duel-view-looks.json
 ;;;; Keys: 1-5 scenes, LEFT/RIGHT turn, SPACE spin, N/P next/previous clip strip, G stage on/off.
@@ -80,6 +83,7 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           ((or (prefix-p name "IC-K-") (member name '(:ic-c-light :ic-c-heavy)))
            '((:ichigo :tensa (:shikai :mark))))                          ; KESSA (DUEL_ICHIGO_TYBW)
           ((prefix-p name "IC-") '((:ichigo :zangetsu-long (:kessa :mark))))   ; the dual Shikai
+          ((prefix-p name "RU-S-") '((:rukia :sode-no-shirayuki (:ice-trim :hand-crack))))   ; Rukia's Shikai (DUEL_RUKIA_TYBW §13.3)
           ((prefix-p name "SK-") '((:skeleton nil nil)))
           (t '((:yamamoto :ryujin-jakka nil) (:kenpachi :ken-katana nil))))))
 

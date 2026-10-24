@@ -735,6 +735,8 @@ past the ends; DEFAULT if the clip is not listed."
                                  (and (equal cf '(:hisagi :bankai)) (equal (kit-look-clips (apply #'kit cf)) *hs-bk-looks*))
                                  (and (equal cf '(:hisagi :bankai-bind))   ; (the bind's low walk, A2 §24.2)
                                       (equal (kit-look-clips (apply #'kit cf)) *hs-kb-looks*))
+                                 (and (equal cf '(:rukia :base))   ; (Rukia's Shikai: 摺り足 under her stance, DUEL_RUKIA_TYBW §13.3)
+                                      (equal (kit-look-clips (apply #'kit cf)) *ru-shikai-looks*))
                                  (null (kit-look-clips (apply #'kit cf)))))
                 *forms*))
   (flet ((at (j) (joint-point! v jm (joint-index j) 0f0 0f0 0f0) (list (aref v 0) (aref v 1) (aref v 2)))

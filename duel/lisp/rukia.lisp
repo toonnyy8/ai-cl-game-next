@@ -108,7 +108,7 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 (defmove :ru-breaker :kind :breaker :clip :ru-breaker :clip-2 :ru-hainawa :callout "BAKUDO NO YON: HAINAWA")
 ;; O, the Kikon rush module ENBU: 6 f of aura, a flash step at 24 m/s for <= 16 f (locked at take-off), then the pirouette:
 ;; 8.0 m, 360 deg, <= 30 f from the press; its hit lays a layer. Its Kikon is SOME NO MAI: TSUKISHIRO. Cooldown 90.
-(defmove :ru-kikon :kind :kikon :clip :sh-run :clip-2 :ru-spin :callout "SOME NO MAI: TSUKISHIRO" :cine ru-kikon-cine
+(defmove :ru-kikon :kind :kikon :clip :ru-s-enbu-run :clip-2 :ru-s-enbu :callout "SOME NO MAI: TSUKISHIRO" :cine ru-kikon-cine
   :startup 8 :active 3 :recovery 24 :dmg 70 :adv-block -14 :reach 2.4 :arc 360 :on-hit :knockback :kb 2.5 :cooldown 90
   :params (:aura 6 :aim 120.0 :speed 24.0 :dash-max 16 :dash-track 0.0 :look :flash-step :sfx :hoho-out :layers 1))
 
@@ -169,8 +169,19 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 (defmove-copy :ru-hakka-0 :ru-hakka :vol (:cap 0.5 9.0 1.2 1.2))
 
 ;;; ================================================================ forms
+;; The Shikai's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.3; a look, the user 2026-10-24 「可以，先做始解」): its moves'
+;; through the :base kit's :clip-map, the walk through :look-clips, the run set; the bands (-18 and the forms that inherit
+;; it) set all three back, so they keep today's clips
+(defparameter *ru-shikai-clips* '(:ru-q1 :ru-s-j1 :ru-q2 :ru-s-j2 :ru-spin :ru-s-j3 :ru-thrust :ru-s-k1 :ru-ring :ru-s-k2
+                                  :ru-drop :ru-s-k3 :ru-shirafune :ru-s-shirafune :ru-breaker :ru-s-breaker
+                                  :ru-hainawa :ru-s-hainawa)
+  "The Shikai's :clip-map: J1-J3, K1-K3 (K2 / K2s), SP2 SHIRAFUNE, the Breaker HAINAWA on their own clips (ENBU names its own).")
+(defparameter *ru-shikai-looks* '(:sh-walk-f :ru-s-walk-f :sh-walk-b :ru-s-walk-b :sh-strafe-r :ru-s-strafe-r
+                                  :sh-strafe-l :ru-s-strafe-l)
+  "The Shikai's :look-clips: the walk 摺り足 under her stance's arms.")
 (defkit :rukia :base
-  :name "RUKIA" :body :rukia :weapon :sode-no-shirayuki :stance :ru-stance :hide (:ice-trim :hand-crack)
+  :name "RUKIA" :body :rukia :weapon :sode-no-shirayuki :stance :ru-s-stance :hide (:ice-trim :hand-crack)
+  :clip-map *ru-shikai-clips* :look-clips *ru-shikai-looks* :run-clips (:ru-s-run :sh-skate-b :sh-slide-r :sh-slide-l)
   :intro :ru-intro :win :ru-win :intro-callout "MAE, SODE NO SHIRAYUKI" :intro-weapon (:ru-katana 70)
   :walk *walk-rukia* :run *run-rukia* :reishi *reishi-max* :swing-sfx :whoosh-light :mult *rukia-mult* :taken *rukia-taken*
   :stun-tolerance 13.0                          ; the hidden stun (DUEL_DESIGN.md): light, blown away sooner
@@ -206,6 +217,7 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
   :meter (:name "COLD" :max *cold-max* :temp t :draw rukia-hud-meter :label temp-label) :warm *ru-warm-m18* :cold *ru-cold-m18* :field *ru-field-m18*
   :reset-form :m18 :u-tag "U: COOL" :hooks (:hoho rukia-hoho-cold :tick rukia-tick :reset rukia-reset)   ; (rukia-meter.lisp)
   :stance :ru-cold-stance :aura rukia-aura-cold :cine ru-awaken-cine :swing-sfx :whoosh-light
+  :clip-map nil :look-clips nil :run-clips (:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)   ; (the Shikai's clips are its own)
   ;; (every command pinned: the Shikai's L / SP1 / SP2 and its bursts are its own since 2026-10-24, DUEL_RUKIA_TYBW §2)
   :commands (:q :ru-j1 :f :ru-a-k1 :sig :ru-shimobashira :sp1 :ru-hakuren :sp2 :ru-shirafune :breaker :ru-breaker :kikon :ru-hakka-18)
   :grid (:ru-j1 :ru-j2 :ru-j3 :ru-a-k1 :ru-k2 :ru-a-k3 :ru-j2s :ru-k2s)

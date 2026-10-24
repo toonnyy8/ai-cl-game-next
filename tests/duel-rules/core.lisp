@@ -833,10 +833,13 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ke-b-stance :ke-b-fist :ke-b-bite                ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12)
     :ke-b-hook :ic-cross-j :ic-k-jab :ic-k-wrap-j     ; the J cut's close J links (DUEL_STRINGS §13)
     :ke-b-leap :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l   ; its feral pass (2026-09-28; also 片腕)
-    :ru-stance :ru-intro :ru-win :ru-q1 :ru-q2 :ru-spin :ru-thrust :ru-ring :ru-drop :ru-tsukishiro :ru-stab :ru-hakuren
+    :ru-intro :ru-win :ru-q1 :ru-q2 :ru-spin :ru-thrust :ru-ring :ru-drop :ru-tsukishiro :ru-stab :ru-hakuren
     :ru-shirafune :ru-breaker :ru-hainawa :ru-cold-stance :ru-palm :ru-flower :ru-zero :ru-reido :ru-hakka   ; Rukia
     :ru-palm-50 :ru-spin-50 :ru-flower-50 :ru-stab-2h   ; her -50 key edits (zero's pinned J1 / K1 are body-variant clips)
     :ru-q1-z :ru-thrust-z   ; (since 2026-10-24 also the Shikai's placeholders for 霜散 / 氷礫, DUEL_RUKIA_TYBW §4.4)
+    :ru-s-stance :ru-s-walk-f :ru-s-walk-b :ru-s-strafe-r :ru-s-strafe-l :ru-s-run :ru-s-j1 :ru-s-j2 :ru-s-j3   ; the Shikai's
+    :ru-s-k1 :ru-s-k2 :ru-s-k3 :ru-s-shirafune :ru-s-enbu-run :ru-s-enbu :ru-s-breaker :ru-s-hainawa   ; own (§13.3; :ru-stance
+                                                                        ;  no form's since, its strike clips the bands' still)
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
     :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
     :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)
