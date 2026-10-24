@@ -443,3 +443,7 @@ the rods on him at 0.4 / 0.9 / 1.4 / 1.75 / 1.95 s.
 The failing awaken A/B rows (§11.1) stand as they are, read as her CPU not yet playing the new Shikai (霜の層, the bursts,
 the held kidō: it holds SP1 only to 16 f, seldom bursts off J1) rather than a balance verdict; no knob moves. Her CPU is
 to be rebuilt later (skill `duel-character-cpu`), and the A/B is re-run then.
+
+60-seed reruns of §11.1's three short pairings (all K.O.): RY 95.8 s (Rukia 30 of 60), RK 101.0 s (14), SR 113.0 s
+(29). Still under 125 s, as on main before the rework (§5.1: RY 92.0, RK 94.5, SR 120.8) and as many pairings without
+her since the global recovery and Kikon changes of 2026-10-23; reported, no knob moved.
