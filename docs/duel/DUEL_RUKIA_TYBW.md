@@ -341,3 +341,27 @@ Gates after §8 (her pairings, 20 seeds, all K.O.; median s, Rukia's wins of 20;
 97.3, 11), RK 89.7 (6; 89.7, 6), RR 114.5 (114.5), IR 108.0 (13; 108.0, 13), SR 123.4 (14; 123.4, 14), BR 131.3 (13;
 131.3, 13), HR 141.1 (14; 139.9, 14). Only RY and HR moved: her CPU seldom holds SP1 (RIKUJŌKŌRŌ), and K3 + L's damage is
 unchanged. `--cvc` PASS.
+
+## 9. Every burst leaves him out of its route's opener (the user, 2026-10-24)
+
+> 「然後（始解的）J/K+L 收尾記得都要至少退出到 J1 或 K1 的攻擊範圍之外，萊醬你先跟我說打算怎麼修改」
+> → the plan (below) and the reading: 「依路線：J 推出 J1、K 推出 K1」 (the user, 2026-10-24; the other reading, every
+> burst out of K1, rejected: it would push 霜陣's victim out of its own 3 m circle)
+
+The measure is the J3 / K3 enders' (DUEL_STRINGS §16, fighter.lisp ENDER-PUSH): the opener's reach + its lunge + his
+body + `*ender-push*` (0.05 m): J1 1.44 + 0.6 + 0.45 + 0.05 = 2.54 m, K1 2.8 + 0.45 + 0.05 = 3.30 m against Kenpachi.
+`RUKIA-BURST-OUT` (each burst's `:opener` :q / :f) gives the floor; `RUKIA-BURST!` pushes him to it over
+`*ender-push-frames*` (8 f; she moves only when the arena's edge holds him, PUSH-APART), except where the burst's own
+effect already leaves him farther (霜散's hop, 氷柱's 6 m, 白漣's knockdown: no second slide over theirs).
+
+| Burst (3 layers, vs Kenpachi; debug 85010–85015) | End distance before | After | Out of |
+|---|---|---|---|
+| J1 + L 霜散 | 3.29 m (her hop) | 3.29 | J1 (2.54) |
+| J2 + L 雪煙 | 1.20 | **2.54** | J1 |
+| J3 + L 霜陣 | 1.60 | **2.54** (still inside the r 3 m circle) | J1 |
+| K1 + L 氷礫 | 0.79 | **3.30** | K1 (3.30) |
+| K2 + L 氷柱 | 6.00 | 6.00 | K1 |
+| K3 + L 白漣 | 4.30 (knockdown) | 4.30 | K1 |
+
+Damage unchanged. Host tests 10221 ALL PASS (a new check: the routes' `:opener`, the floors, the hop and 氷柱 clear them for
+the widest body, 霜陣's circle wider than J1's floor); pkgcheck clean; the build 0 warnings; the playtest Artifact v154.

@@ -52,23 +52,23 @@
 (defparameter *ru-hyoreki-stun* 34 "氷礫 HYOREKI: its stagger, frames (26 + 8; new 2026-10-24, the user, §4.4).")
 (defmove :ru-shimochiri :kind :sig :clip :ru-q1-z :clip-s 7 :callout "SHIMO-CHIRI" :startup *ru-burst-j-s* :active 3 :recovery 22
   :dmg 20 :adv-block -10 :reach 2.0 :arc 360 :on-hit :flinch :on-frame ((0 rukia-burst-arm))
-  :params (:burst 1 :per 20 :fx :hop))                               ; J1 + L 霜散: an ice spray, the hop back
+  :params (:burst 1 :per 20 :fx :hop :opener :q))                               ; J1 + L 霜散: an ice spray, the hop back
 (defmove :ru-setsuen :kind :sig :clip :ru-spin-50 :clip-s 8 :callout "SETSUEN" :startup *ru-burst-j-s* :active 3 :recovery 22
   :dmg 20 :adv-block -10 :reach 2.0 :arc 360 :on-hit :flinch :on-frame ((0 rukia-burst-arm))
-  :params (:burst 2 :per 20 :fx :refund))                            ; J2 + L 雪煙: a mist burst, Reiatsu back
+  :params (:burst 2 :per 20 :fx :refund :opener :q))                            ; J2 + L 雪煙: a mist burst, Reiatsu back
 (defmove :ru-sojin :kind :sig :clip :ru-reido :clip-s 6 :callout "SOJIN" :startup *ru-burst-j-s* :active 3 :recovery 22
   :dmg 20 :adv-block -10 :reach 2.0 :arc 360 :on-hit :flinch :on-frame ((0 rukia-burst-arm))
-  :params (:burst 3 :per 20 :fx :circle))                            ; J3 + L 霜陣: the shards lie as a frost circle
+  :params (:burst 3 :per 20 :fx :circle :opener :q))                            ; J3 + L 霜陣: the shards lie as a frost circle
 (defmove :ru-hyoreki :kind :sig :clip :ru-thrust-z :clip-s 17 :callout "HYOREKI" :startup *ru-burst-k-s* :active 4 :recovery 26
   :dmg 30 :adv-block -14 :vol (:cap 0.2 2.8 1.1 0.3) :on-hit :stagger :on-frame ((0 rukia-burst-arm))
-  :hits ((12 16 :stun *ru-hyoreki-stun*)) :params (:burst 1 :per 30))   ; K1 + L 氷礫: the shard hits again
+  :hits ((12 16 :stun *ru-hyoreki-stun*)) :params (:burst 1 :per 30 :opener :f))   ; K1 + L 氷礫: the shard hits again
 (defmove :ru-tsurara :kind :sig :clip :ru-flower-50 :clip-s 21 :callout "TSURARA" :startup *ru-burst-k-s* :active 4 :recovery 26
   :dmg 30 :adv-block -14 :reach 2.8 :arc 160 :on-hit :stagger :on-frame ((0 rukia-burst-arm))
-  :params (:burst 2 :per 25 :fx :push))                              ; K2 + L 氷柱: a pillar under him, out to 6 m
+  :params (:burst 2 :per 25 :fx :push :opener :f))                              ; K2 + L 氷柱: a pillar under him, out to 6 m
 (defmove :ru-hakuren-k :kind :sig :clip :ru-hakuren :clip-s 12 :callout "TSUGI NO MAI: HAKUREN" :startup *ru-burst-k-s* :active 4
   :recovery 26 :dmg 40 :adv-block -14 :vol (:cap 0.3 11.0 1.0 0.6) :on-hit :knockdown
   :on-frame ((0 rukia-burst-arm) (0 rukia-hakuren-spikes) (12 rukia-hakuren-k-wave))
-  :params (:burst 3 :per 35 :fx :wave))   ; K3 + L 次の舞・白漣 (雪崩 until the user 2026-10-24, §8): the four stabs, the 11 m wave
+  :params (:burst 3 :per 35 :fx :wave :opener :f))   ; K3 + L 次の舞・白漣 (雪崩 until the user 2026-10-24, §8): the four stabs, the 11 m wave
 ;; L, a tap: HADO NO YON: BYAKURAI, a straight beam from her fingers (a :ranged line 0.5 -> 6 m, 0.3 m wide), no bar; held
 ;; >= 12 f (RUKIA-L-HOLD at its f11, before its hit) it becomes TSUKISHIRO (the kit's non-button :hold string)
 (defparameter *ru-l-hold* 12 "L held this many frames is TSUKISHIRO, fewer BYAKURAI (new 2026-10-24, the user, §4.4).")
@@ -299,7 +299,9 @@ bonus, :per each (the hit bursts them: RUKIA-HIT)."
 (defun rukia-burst! (att def mv n)
   "Burst move MV of ATT hit DEF bursting N layers: they go (RUKIA-BURST-ARM counted them), the shards fly, and its
 benefit (:fx): :hop she hops back *RU-HOP*, :refund Reiatsu *RU-REFUND* a bar a layer, :circle the frost circle 霜陣
-round her (*RU-SOJIN*), :push he is pushed out to *RU-TSURARA-TO*, :wave 白漣's look runs out (RUKIA-NADARE-WAVE)."
+round her (*RU-SOJIN*), :push he is pushed out to *RU-TSURARA-TO*, :wave 白漣's look runs out (RUKIA-HAKUREN-K-WAVE).
+Every burst leaves him out of its route's opener's reach (RUKIA-BURST-OUT: J1's after a J link, K1's after a K link; the
+user 2026-10-24, DUEL_RUKIA_TYBW §9): the hop, the pillar's push and the knockdown already do; the rest are pushed."
   (let* ((fd (fighter def)) (p (pos-of att)) (q (pos-of def))
          (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (d (hypot dx dz)))
     (setf (fighter-layers fd) (max 0 (- (fighter-layers fd) n)))
@@ -313,7 +315,17 @@ round her (*RU-SOJIN*), :push he is pushed out to *RU-TSURARA-TO*, :wave 白漣'
       (:circle (spawn-hazard :fx att :x (aref p 0) :z (aref p 2) :size (getf *ru-sojin* :r) :life (getf *ru-sojin* :life)
                                      :look 'rukia-sojin-look :hook 'rukia-sojin-step :data (list 0)))
       (:push (push-apart att def (max 0.0 (- *ru-tsurara-to* d)) 12)))
+    (unless (member (getf (mv-params mv) :fx) '(:hop :push :wave))   ; (their own move leaves him farther: no second slide)
+      (let ((push (- (rukia-burst-out att def mv) d)))
+        (when (plusp push) (push-apart att def push *ender-push-frames*))))
     (clog "~a BURST ~a ~d layers" (side-name att) (mv-name mv) n)))
+
+(defun rukia-burst-out (att def mv)
+  "How far burst MV of ATT must leave DEF: out of its route's opener's reach (its :opener, :q J1 / :f K1), as a J3 / K3
+ender's push is (fighter.lisp ENDER-PUSH): the opener's reach + its lunge + DEF's body + *ENDER-PUSH* (the user
+2026-10-24: 「J/K+L 收尾記得都要至少退出到 J1 或 K1 的攻擊範圍之外」, by route)."
+  (let ((op (kit-command-move (fighter-kit (fighter att)) (getf (mv-params mv) :opener) att)))
+    (+ (mv-reach op) (mv-slide op) (body-hurt-r (model-body (model def))) *ender-push*)))
 
 (defun rukia-hit (att def res hw mv hazard ranged)
   "The Shikai's :hit hook (霜の層 on him, DUEL_RUKIA_TYBW §4.4): a real hit of a move with :layers (the K links, ENBU) or a

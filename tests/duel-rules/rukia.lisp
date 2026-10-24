@@ -207,6 +207,14 @@
               (eq :knockdown (hw-react (svref (mv-hits (kit-move b :ru-hakuren-k)) 0))) (~= 11.0 (mv-reach (kit-move b :ru-hakuren-k)))
               (every (lambda (n) (~= 2.0 (mv-reach (kit-move b n)))) '(:ru-shimochiri :ru-setsuen :ru-sojin))
               (every (lambda (n) (~= 2.8 (mv-reach (kit-move b n)))) '(:ru-hyoreki :ru-tsurara))))
+  ;; every burst leaves him out of its route's opener (the user 2026-10-24, DUEL_RUKIA_TYBW §9): the J routes J1's reach,
+  ;; the K routes K1's (RUKIA-BURST-OUT: reach + lunge + his body + *ENDER-PUSH*); 霜散's hop and 氷柱's 6 m clear it by
+  ;; themselves for the widest body (0.45 m), 霜陣's circle (r 3 m) still holds a man pushed out of J1
+  (let ((jo (+ (mv-reach (kit-command-move b :q)) (mv-slide (kit-command-move b :q)) 0.45 *ender-push*))
+        (ko (+ (mv-reach (kit-command-move b :f)) (mv-slide (kit-command-move b :f)) 0.45 *ender-push*)))
+    (check (and (every (lambda (n) (eq :q (getf (mv-params (kit-move b n)) :opener))) '(:ru-shimochiri :ru-setsuen :ru-sojin))
+                (every (lambda (n) (eq :f (getf (mv-params (kit-move b n)) :opener))) '(:ru-hyoreki :ru-tsurara :ru-hakuren-k))
+                (~= 2.54 jo) (> (+ 1.2 *ru-hop*) jo) (> *ru-tsurara-to* ko) (< jo (getf *ru-sojin* :r)))))
   ;; every burst combos off its link with the link's hitstop on both sides: the link's chain opens at S + A on a hit, the
   ;; burst's hit S_eff later; the victim is free from the link's hit frame + its hitstop + 1 + its hitstun
   (dolist (l links)
