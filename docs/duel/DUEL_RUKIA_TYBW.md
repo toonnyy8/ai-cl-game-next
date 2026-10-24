@@ -187,6 +187,37 @@ The kidō, 「1+2」 (both of the lead's options, joined; the reading below is c
 SP2 参の舞・白刀: bursts every layer, **110 + 25 a layer** (0: 110, 3: 185), usable alone (off a ring's freeze at 5 m)
 and off any string hit; the one spend-all.
 
+The user confirmed the burst table as shown in full (「可以，照這張表」) and amended the kidō reading: 「SP1 也分輕按／長按」
+(the user, 2026-10-24): **SP1 tap = 破道の三十三 蒼火墜, SP1 held = 縛道の六十一 六杖光牢 RIKUJŌKŌRŌ** (six rods of light
+pin him). 白漣 stays inside K3 + L.
+
+### 4.4 The whole Shikai, frames and numbers (the lead's proposal for the user's 「可以」)
+
+Frames S / A / R at 60 Hz; every number a knob in `rukia.lisp` (docstring: old → new, date, who). The one-hand deck plays
+the same buttons, so a tap and a hold on the L / SP1 chips are the keys' tap and hold.
+
+| Input | Move | S / A / R | Dmg | Range | 霜 | Note |
+|---|---|---|---|---|---|---|
+| J1–J3 | the universal J (as now) | 7/3/12, 7/3/13, 8/3/18 | 34 / 34 / 42 | 1.44 / 1.32 / 1.56 m | +0, his thaw paused | frost timers removed from the Shikai |
+| K1–K3 | the universal K (as now) | 17/4/20, 21→14/4/24, 21→14/5/34 | 66 / 58 / 84 | 2.8 / 2.5 / 2.7 m | **+1 a hit** | |
+| J1 / J2 / J3 + L | 霜散 / 雪煙 / 霜陣 | S_eff 10 (A 3 + 10 < flinch 18), A 3, R 22 | 20 + 20 a layer burst | 2.0 m round her | bursts 1 / ≤ 2 / all | 霜散 hops back 2.5 m; 雪煙 refunds 8 % of a bar a layer; 霜陣 the r 3 m circle, 4 s, +1 a 60 f inside |
+| K1 / K2 / K3 + L | 氷礫 / 氷柱 / 雪崩 | S_eff 12 (A 4 + 12 < stagger 26), A 4, R 26 | 30 + 30 / 30 + 25 / **40 + 35** a layer | 2.8 m; 雪崩's wave 6 m | bursts 1 / ≤ 2 / all | 氷礫 stagger +8 f; 氷柱 push to 6 m; 雪崩 knockdown (3 layers: 145) |
+| L tap | 破道の四 白雷 | 12 / 3 / 28 | 45 | a line 0.5 → 6 m, 0.3 m wide | +0 | `:ranged`, flinch, guard 10, block −12; no bar |
+| L held (≥ 12 f) | 初の舞・月白 | from the hold: ring at S, pillar 24 f later (as now) | 60 | ≤ 8 m, r 1.8 | **+2** on the pillar's hit | freeze 36 f as now; guardable, a Step clears it |
+| Shift+K tap | SP1 破道の三十三 蒼火墜 | 14 / 4 / 26 | 90 | a 5 m cone, 40° | +0 | knockback 3 m; 1 bar |
+| Shift+K held (≥ 16 f) | SP1 縛道の六十一 六杖光牢 | the rods at f16 after the hold, a 14 f tell | 20 | ≤ 6 m at him | +0 | `:bind` 45 f (an opener: he may Burst); guardable from her side; 1 bar |
+| Shift+L | SP2 参の舞・白刀 | 16 / 4 / 28 (as now) | **110 + 25 a layer** | a line to 5 m | **bursts all** | alone or off any string hit; the one spend-all |
+| O | 円舞 ENBU (as now) | as now | 70 | 8 m rush | +1 | |
+| I | 縛道の四 這縄 (the Breaker, as now) | universal | 150 | | +0 | |
+
+| 霜 layer | 0 | 1 | 2 | 3 (cap) |
+|---|---|---|---|---|
+| His walk / run | ×1.0 | ×0.85 | ×0.70 | ×0.55 |
+| Thaw | — | one layer a 150 f without a new one (J hits hold the timer) | | |
+
+Removed from today's Shikai: the K hits' frost timers (60 / 90 f), the K → L 月白 combo copy, SP1 次の舞・白漣 as a button
+(its wave lives on in 雪崩). The awakened kits keep their own commands, grids and frost (§2), pinned by a host test.
+
 ## 5. Next steps
 1. The research notes (`docs/research/rukia-rework/`), then the look plan (a model-sheet review against canon, stills).
 2. The Shikai's grammar chosen → its segment table → the user's 「可以」 → the sim batch, host tests, gates vs the parent.
