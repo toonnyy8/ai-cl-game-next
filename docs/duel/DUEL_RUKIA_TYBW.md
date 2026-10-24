@@ -1,6 +1,6 @@
 # SOUL DUEL: Rukia, TYBW look, motion modules and a new Shikai (2026-10-24)
 
-Status: **in design** (the request and the scope are decided, §1–§2; the diagnosis §3; the Shikai's combat logic is a
+Status: **in design** (the request and the scope are decided, §1–§2; the diagnosis §3; the Shikai's combat logic: 霜の層 chosen, §4.1, its details under discussion; was a
 proposal under discussion, §4). Skills: `duel-move-modules` (the Shikai's grammar), `duel-motion-style` (decide,
 research, plan, measure, draw), `duel-character-rework` (presentation vs sim, the proofs). Research:
 `docs/research/rukia-rework/` (canon looks, canon motion, nihon buyō style references; in progress) on top of
@@ -104,6 +104,40 @@ Shirafune's wound that keeps freezing, the fewest new moves), optionally with 2'
 skill asks before any build (tap or hold per button and its one-hand mapping, what a press does with nothing to pay,
 which hits reach far, where each string ends, what she does at 2 m) follow once the shape is chosen, as a segment table
 for the user's yes.
+
+### 4.1 Chosen: 3, 霜の層; her role 遠近各半 (the user, 2026-10-24)
+
+> 始解戰鬥邏輯：「3 霜の層」；定位：「遠近各半」
+> (the user, 2026-10-24; candidates 1 and 2 rejected, 2's dance order not taken)
+
+「遠近各半」 restated: close (1–3 m) and far (5–8 m) both get a full kit, each with a way to add layers and a way to cash
+them; neither is the fallback. The lead's restatement as a segment table (numbers are proposals, knobs in `rukia.lisp`):
+
+| Move | Enter by | Range | 霜 layers (on him) | Cashes | Note |
+|---|---|---|---|---|---|
+| J1–J3 | J | 1.4–1.6 m (close) | **+0** (keeps his thaw timer from running) | — | her fast close answer, S 7 beats every K1 |
+| K1–K3 | K | 2.5–2.8 m (close) | **+1 a hit** (KKK = 3) | — | the close gain |
+| K → L 月白 (combo copy) | L after a K link | at him | **+2** | — | the close route to 3 layers |
+| L 初の舞・月白 | L | ≤ 8 m (far) | **+2** on the pillar's hit | — | the far gain; tell, guardable, a Step clears it (as now) |
+| SP1 次の舞・白漣 | Shift+K, held | 11 m wave (far) | **+1** | — | lanes; a side Step clears it (as now) |
+| SP2 参の舞・白刀 | Shift+L; off a string hit or alone | 5 m (mid) | **all → 0** | **shatter**: damage by the layers it breaks | the one sink, from close (after a string) and far (after a ring) |
+| O 円舞 | O / the O ender | 8 m rush | +1 (proposal) | — | |
+| I 這縄 | I | universal | 0 | — | |
+
+| Layer | His walk / run | Look (on his model) |
+|---|---|---|
+| 0 | ×1.0 | — |
+| 1 | ×0.85 | an ice crust on the feet |
+| 2 | ×0.70 | to the knees |
+| 3 (cap) | ×0.55, brittle | to the waist, a white breath |
+
+- Step, Hoho, dashes and every frame number stay untouched by the layers (the old frost's rule, DUEL_RUKIA §3.1: the
+  universal escapes hold).
+- Thaw: one layer a **150 f** without a new layer (proposal; the old frost cap).
+- Shatter damage (proposal): **70 + 25 a layer** (0: 70, 1: 95, 2: 120, 3: 145; today's SHIRAFUNE 110), before the combo
+  scaling.
+- The awakening keeps its own frost (frost on every hit, 30 / 60 / 90 f, the core rules, §2): the layers are a separate
+  status that only the Shikai's moves add; whether layers survive her awakening is an open question.
 
 ## 5. Next steps
 1. The research notes (`docs/research/rukia-rework/`), then the look plan (a model-sheet review against canon, stills).
