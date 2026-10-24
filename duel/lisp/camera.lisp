@@ -25,14 +25,16 @@
 (declaim (type f32vec *cam-anchor*))
 (defvar *cam-anchor* (fv 0 0 0) "Behind camera: P1's position, followed on a spring.")
 (defparameter *behind-back* 5.5 "Behind camera: metres behind P1 ...")
-(defparameter *behind-up* 3.2
-  "... this high (2.0 -> 3.2, the user 2026-10-24: a steeper look down, so the gap between the fighters reads; DUEL_DESIGN §9) ...")
+(defparameter *behind-up* 2.0 "... this high (3.2 for one build, back to 2.0: the user wanted the side angle, not the pitch, 2026-10-24) ...")
 (defparameter *behind-shoulder* 0.9 "... and this far to his right (over the shoulder) ...")
 (defparameter *behind-widen* 0.2 "... backing off this much (and rising a third of it) per metre of separation beyond 4 m.")
 (defparameter *behind-look* 0.6 "It looks this fraction of the way to P2, 1.1 m up.")
 (defparameter *behind-close* 40.0
   "Up close P1 would hide P2: the eye swings round to P1's right by up to this many degrees (full at
 2 m, none from 6 m). Only the look; steering keeps the sim's *BEHIND-YAW*.")
+(defparameter *behind-side* 30.0
+  "At every distance the eye stands at least this many degrees round to P1's right (0 -> 30, the user 2026-10-24: a more side-on
+view, so the gap between the fighters reads; DUEL_DESIGN §9). Only the look, like *BEHIND-CLOSE*.")
 (defparameter *behind-rate* 8.0 "The anchor follows P1 at this rate (1/s): a spring, so a Step or a Hoho glides.")
 
 ;;; The PORTRAIT camera (ONE-HAND on a phone; docs/duel/DUEL_MOBILE_DESIGN.md §4.1, P2, the user's request 2026-09-27):
@@ -198,7 +200,7 @@ line the duel camera is on."
          (sep (sqrt (+ (expt (- (aref q 0) (aref p 0)) 2) (expt (- (aref q 2) (aref p 2)) 2))))
          (wide (* *behind-widen* (max 0.0 (- sep 4.0))))
          (back (* *cam-close* (+ *behind-back* wide) (if (> *punch-t* 0) 0.6 1.0)))
-         (off (deg (* *behind-close* (max 0.0 (min 1.0 (/ (- 6.0 sep) 4.0))))))
+         (off (deg (max *behind-side* (* *behind-close* (max 0.0 (min 1.0 (/ (- 6.0 sep) 4.0)))))))
          (side (+ *behind-shoulder* (* back (sin off))))     ; to the right of P1 ...
          (fx (fwd-x *behind-yaw*)) (fz (fwd-z *behind-yaw*)))
     (setf back (* back (cos off)))                         ; ... and behind him
