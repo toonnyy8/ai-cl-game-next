@@ -435,3 +435,11 @@ stays full while he is in the bind's stun; from the frame he is free (the stun o
 f. Its data (the victim, the bind's frames, the age he was seen free) is the look's own note; the sim reads none of it.
 Presentation only: host tests 10222 ALL PASS, the build 0 warnings, consing 0 B (85499); stills of 85028 (a 100 f bind):
 the rods on him at 0.4 / 0.9 / 1.4 / 1.75 / 1.95 s.
+
+### 11.2 The A/B left to the CPU rebuild (the user, 2026-10-24)
+
+> 「目前應該是 AI 的機制對不上，等後續重建 AI 就沒問題了」 (the user, 2026-10-24)
+
+The failing awaken A/B rows (§11.1) stand as they are, read as her CPU not yet playing the new Shikai (霜の層, the bursts,
+the held kidō: it holds SP1 only to 16 f, seldom bursts off J1) rather than a balance verdict; no knob moves. Her CPU is
+to be rebuilt later (skill `duel-character-cpu`), and the A/B is re-run then.
