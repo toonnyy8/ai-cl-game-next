@@ -458,7 +458,7 @@ follow-up's dash, until his stun ends (§12's 12 f fade). A bind that missed shu
 only: host tests 10222 ALL PASS, the build 0 warnings, consing 0 B; stills of 85028 with O pressed as she recovers: the
 rods on him at the bind, through ENBU's hit and into the Kikon (bind f17, ENBU's hit f77, the Kikon f126).
 
-## 13. The motion plan (proposed; waiting on the user's 「可以」)
+## 13. The motion plan (approved: the user, 2026-10-24, §13.7)
 
 > 「可以開始準備動作設計了」 (the user, 2026-10-24)
 
@@ -586,3 +586,9 @@ where to say it.
    identical to the parent.
 3. **−18, −50, −273** one band at a time: the clips, the FK report, the volume changes with their gates against the parent
    (her seven pairings, `--cvc`; the A/B stays deferred, §11.2), the playtest.
+
+### 13.7 Decided (the user, 2026-10-24)
+
+- The K reach: 「霜の穂先」 (§13.2 option 1; rejected: the Shikai's real glide, reach strictly blade and body).
+- The bands' reach: 「大致維持現在」 (the ice sized to today's ×1.0 / ×1.1 / ×1.35; rejected: three bands set further apart).
+- The tables §13.3–§13.4: 「可以，先做始解」: the Shikai first, presentation only; then −18, −50, −273.
