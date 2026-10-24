@@ -1,7 +1,7 @@
 # SOUL DUEL: Rukia, TYBW look, motion modules and a new Shikai (2026-10-24)
 
-Status: **in design** (the request and the scope are decided, §1–§2; the diagnosis §3; the Shikai's combat logic: 霜の層 chosen
-from the §4 candidates, its details under discussion, §4.1). Skills: `duel-move-modules` (the Shikai's grammar), `duel-motion-style` (decide,
+Status: **in design** (the request and the scope are decided, §1–§2; the diagnosis §3; the Shikai's combat logic: 霜の層, approved as
+the §4.4 frame table; the build starts with the sim batch and the look batch, §5). Skills: `duel-move-modules` (the Shikai's grammar), `duel-motion-style` (decide,
 research, plan, measure, draw), `duel-character-rework` (presentation vs sim, the proofs). Research:
 `docs/research/rukia-rework/` (`canon-looks.md`, `canon-motion.md`, `style-refs.md`: canon looks, canon motion, nihon buyō archetypes and draft motion bars) on top of
 `docs/research/tybw-characters/notes/rukia_tybw.md`. Earlier design: `DUEL_RUKIA.md` (the kit as built 2026-09-28 and
@@ -191,7 +191,7 @@ The user confirmed the burst table as shown in full (「可以，照這張表」
 (the user, 2026-10-24): **SP1 tap = 破道の三十三 蒼火墜, SP1 held = 縛道の六十一 六杖光牢 RIKUJŌKŌRŌ** (six rods of light
 pin him). 白漣 stays inside K3 + L.
 
-### 4.4 The whole Shikai, frames and numbers (the lead's proposal for the user's 「可以」)
+### 4.4 The whole Shikai, frames and numbers (approved: the user, 2026-10-24: 「可以」)
 
 Frames S / A / R at 60 Hz; every number a knob in `rukia.lisp` (docstring: old → new, date, who). The one-hand deck plays
 the same buttons, so a tap and a hold on the L / SP1 chips are the keys' tap and hold.
