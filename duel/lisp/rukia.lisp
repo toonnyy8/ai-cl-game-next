@@ -141,7 +141,7 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 ;; L, one family that grows with the cold (the playtest fix: colder is never weaker): a disc round her, guardable
 ;; facing her (:src). -18 SHIMOBASHIRA, the frost pillars (r 2.5); -50 HYOSHIN, the ice quake (r 3.5, crumple); zero
 ;; REIDO TOKETSU (r 5.5 = the field, a 45 f freeze: a counter-hit on a Breaker's dash; it cashes the top bar)
-(defmove :ru-shimobashira :kind :sig :clip :ru-stab :callout "SHIMOBASHIRA" :startup 12 :active 0 :recovery 22
+(defmove :ru-shimobashira :kind :sig :clip :ru-18-shimobashira :callout "SHIMOBASHIRA" :startup 12 :active 0 :recovery 22
   :on-frame ((0 rukia-hyoshin-tell) (12 rukia-shimobashira))
   :params (:radius 2.5 :height 0.6 :dmg 60 :frost 90 :guard 12 :react :stagger))
 (defmove :ru-hyoshin :kind :sig :clip :ru-stab-2h :callout "HYOSHIN" :startup 14 :active 0 :recovery 22
@@ -171,8 +171,8 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 
 ;;; ================================================================ forms
 ;; The Shikai's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.3; a look, the user 2026-10-24 「可以，先做始解」): its moves'
-;; through the :base kit's :clip-map, the walk through :look-clips, the run set; the bands (-18 and the forms that inherit
-;; it) set all three back, so they keep today's clips
+;; through the :base kit's :clip-map, the walk through :look-clips, the run set; -18 sets its own (*RU-18-CLIPS*), -50 and
+;; zero today's
 (defparameter *ru-shikai-clips* '(:ru-q1 :ru-s-j1 :ru-q2 :ru-s-j2 :ru-spin :ru-s-j3 :ru-thrust :ru-s-k1 :ru-ring :ru-s-k2
                                   :ru-drop :ru-s-k3 :ru-shirafune :ru-s-shirafune :ru-breaker :ru-s-breaker
                                   :ru-hainawa :ru-s-hainawa)
@@ -210,6 +210,18 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
        :l-after-k rukia-ai-burst-p :l-after-j rukia-ai-burst-p :sig-hold rukia-ai-sig-hold :sp1-hold rukia-ai-sp1-hold
        :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard))
 
+;; -18's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.4; a look, the user 2026-10-24): its moves' through the :m18 kit's
+;; :clip-map (SHIMOBASHIRA names its own: SP1's hold shares its old clip), the walk through :look-clips, the run set; -50
+;; and zero (they inherit :m18) set all three and their stance back, so they keep today's clips
+(defparameter *ru-18-clips* '(:ru-q1 :ru-18-j1 :ru-q2 :ru-18-j2 :ru-spin :ru-18-j3 :ru-palm :ru-18-k1 :ru-ring :ru-18-k2
+                              :ru-flower :ru-18-k3 :ru-stab :ru-18-hakuren-hold :ru-hakuren :ru-18-hakuren
+                              :ru-shirafune :ru-18-shirafune :ru-cold-stance :ru-18-stance :ru-hakka :ru-18-hakka
+                              :ru-hainawa :ru-18-hainawa)
+  "-18's :clip-map: J1-J3 (J2s), K1-K3 (K2s), SP1 HAKUREN's hold and release, SP2 SHIRAFUNE, O HAKKA (its aura and its
+strike), the Breaker HAINAWA's strike on its own clips.")
+(defparameter *ru-18-looks* '(:sh-walk-f :ru-18-walk-f :sh-walk-b :ru-18-walk-b :sh-strafe-r :ru-18-strafe-r
+                              :sh-strafe-l :ru-18-strafe-l)
+  "-18's :look-clips: the walk 摺り足 under her stance's arms (the palm held out).")
 ;;; -18 C, the awakening's first band: the Shikai grid (+ TOSHU / HYOKA), frost on every hit, no chip on her; U guards
 ;;; and cools (the cold gauge, the kit meter); only L spends cold here (the user's decision 2026-09-28)
 (defkit :rukia :m18 :inherit :base
@@ -217,8 +229,8 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
   :mult *rukia-awake-mult* :taken *rukia-awake-taken*
   :meter (:name "COLD" :max *cold-max* :temp t :draw rukia-hud-meter :label temp-label) :warm *ru-warm-m18* :cold *ru-cold-m18* :field *ru-field-m18*
   :reset-form :m18 :u-tag "U: COOL" :hooks (:hoho rukia-hoho-cold :tick rukia-tick :reset rukia-reset)   ; (rukia-meter.lisp)
-  :stance :ru-cold-stance :aura rukia-aura-cold :cine ru-awaken-cine :swing-sfx :whoosh-light
-  :clip-map nil :look-clips nil :run-clips (:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)   ; (the Shikai's clips are its own)
+  :stance :ru-18-stance :aura rukia-aura-cold :cine ru-awaken-cine :swing-sfx :whoosh-light
+  :clip-map *ru-18-clips* :look-clips *ru-18-looks* :run-clips (:ru-18-run :sh-skate-b :sh-slide-r :sh-slide-l)
   ;; (every command pinned: the Shikai's L / SP1 / SP2 and its bursts are its own since 2026-10-24, DUEL_RUKIA_TYBW §2)
   :commands (:q :ru-j1 :f :ru-a-k1 :sig :ru-shimobashira :sp1 :ru-hakuren :sp2 :ru-shirafune :breaker :ru-breaker :kikon :ru-hakka-18)
   :grid (:ru-j1 :ru-j2 :ru-j3 :ru-a-k1 :ru-k2 :ru-a-k3 :ru-j2s :ru-k2s)
@@ -239,6 +251,7 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
   :reach-mult 1.1 :form-name "-50C" :walk *walk-m50* :run *run-m50* :mult *rukia-m50-mult* :taken *rukia-m50-taken*
   :frost-touch *frost-touch-m50* :warm *ru-warm-m50* :cold *ru-cold-m50* :field *ru-field-m50*
   :weapon :ru-rime :hide (:hand-crack) :aura rukia-aura-frost
+  :stance :ru-cold-stance :clip-map nil :look-clips nil :run-clips (:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)   ; (-18's are its own)
   :commands (:f :ru-a-k1-50 :sig :ru-hyoshin :sp1 :ru-hakuren-50 :sp2 :ru-shirafune-50 :kikon :ru-hakka)
   :grid (:ru-j1 :ru-j2 :ru-j3-50 :ru-a-k1-50 :ru-k2 :ru-a-k3-50 :ru-j2s :ru-k2s)
   :ai (:intents (:approach 1 :pressure 3 :zone 0 :defend 2)
@@ -262,6 +275,7 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
   :field *ru-field-zero* :crush-hook rukia-crack :u-tag "U: BRACE"
   :body :rukia-zero :weapon :ru-ice :hide (:ice-trim :hand-crack) :stance :ru-zero :aura rukia-aura-zero
   :enter-hook rukia-zero-enter :calm t                ; the white Rukia's face stays composed (never the shout)
+  :clip-map nil :look-clips nil :run-clips (:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)   ; (-18's clips are its own)
   :commands (:f :ru-z-k1 :sig :ru-reido :sp1 :ru-hakuren-0 :sp2 :ru-shirafune-0 :kikon :ru-hakka-0 :breaker nil)
   :grid (:ru-j1 :ru-z-j2 :ru-j3 :ru-z-k1 :ru-k2 :ru-z-k3 :ru-z-j2s :ru-k2s)
   ;; it can't move: answers within its reach (J to 2.1 m, K to 3.4, K1 3.8, REIDO 5.5, SHIRAFUNE 7.5, HAKUREN's wave to 14),
