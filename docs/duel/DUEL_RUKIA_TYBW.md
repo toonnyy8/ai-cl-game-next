@@ -618,3 +618,22 @@ where to say it.
   0; her seven pairings × 10 seeds line for line identical to the parent b86ef45 (RY 104.7, RK 101.8, RR 123.0, IR 126.8,
   SR 114.4, BR 111.5, HR 129.8 s, all K.O.), `--cvc` identical (3 PASS). Playtest Artifact v159. Checked by numbers and
   8-frame strips from both sides; the feel needs the user's playtest.
+
+## 14. K1 shorter; the K route pushes out of its edge (the user, 2026-10-24)
+
+> 「目前始解的 K 連段結尾推的不夠遠，導致連打 K 能重複壓制，請縮短 K1 的攻擊距離」 (the user, 2026-10-24)
+
+- **Why it reached.** K3's ender push (fighter.lisp ENDER-PUSH) and the K bursts' floor push (§9, RUKIA-BURST-OUT)
+  measured K1's reach as its capsule's length b (2.8 m), but a capsule hits out to b + r (3.1 m): he was left 0.25 m
+  inside a restarted K1 every time, so K K K, K K K ... kept him pinned.
+- **Changed.** K1 `:vol (:cap 0.2 2.8 1.1 0.3)` → `(:cap 0.2 2.55 1.1 0.3)` (edge 3.10 → 2.85 m; still 0.5 m past J1's
+  2.04 with its lunge, DUEL_STRINGS §13). The Shikai kit's new `:push-reach *ru-k-push-reach*` 2.85 (K1's edge, b + r)
+  is what K3's push and the K bursts' floor push measure from: he lands out of K1 by *ender-push* (0.05 m) plus his
+  walk-in, as every other K1 (K1 + L 氷礫 pushes to 2.85 + 0.45 + 0.05 = 3.35 m against Kenpachi, §9's 3.30 before). The
+  bands set `:push-reach nil` (unchanged). The frost point on K1 1.40 → 1.15 m (drawn 2.82 / 2.85, −3 cm).
+- **Tests.** Host 10203 ALL PASS (a check that the push reach is K1's b + r, the bands without one; Hisagi's hook-inertness
+  check knows Rukia's Shikai sets `:push-reach`); pkgcheck clean, build 0 warnings, smoke exit 0.
+- **Gates** (20 seeds, vs the parent 1a350d2; all K.O.; `--cvc` identical 3 PASS): RY 96.9 → 101.6 s (Rukia 10 → 8 of
+  20), RK 101.8 → 101.0 (4 → 9), RR 114.0 → 114.0, IR 128.1 → 126.8 (10 → 11), SR 113.0 → 114.4 (10 → 11), BR 133.7 →
+  152.6 (5 → 7), HR 137.5 → 140.0 (6 → 4). RY / RK / SR stay under 125 s as before the rework (§11.2, reported then).
+  Playtest Artifact v160.

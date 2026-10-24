@@ -596,9 +596,9 @@ SIDE (its seed); the floor and the pin come from %RU-PIN!. Its drawn segments ar
 ;;; sheet trailing the cut, K3 a column dropped with the blade). Drawn by RUKIA-LOOK-DRAW (%RU-FROST!) off the drawn blade;
 ;;; the FK test (tests/duel-rules/art.lisp) reads the same table: the tip of the ice is the striking point, within 0.15 m
 ;;; of the volume's far edge. A look: the sim reads none of it. 0 B a frame.
-(defparameter *ru-frost-points* '((:ru-s-k1 1.4 :ru-frost-spike) (:ru-s-k2 1.3 :ru-frost-sheet) (:ru-s-k3 1.4 :ru-frost-column))
+(defparameter *ru-frost-points* '((:ru-s-k1 1.15 :ru-frost-spike) (:ru-s-k2 1.3 :ru-frost-sheet) (:ru-s-k3 1.4 :ru-frost-column))
   "霜の穂先: clip -> metres of ice past the blade's tip along its axis, and its mesh (the user 2026-10-24: 「霜の穂先」,
-DUEL_RUKIA_TYBW §13.7; sized to the volumes: K1 3.10, K2 2.50, K3 3.05 m).")
+DUEL_RUKIA_TYBW §13.7; sized to the volumes: K1 2.85 (3.10 before §14), K2 2.50, K3 3.05 m).")
 (defparameter *ru-frost-grow* 6 "霜の穂先: it grows over the startup's last this many frames (a look; new 2026-10-24).")
 (defparameter *ru-frost-shatter* 6 "... and shatters into snow over this many frames after the active ones (a look; new 2026-10-24).")
 (defweapon :ru-frost-spike (:length 1.0 :ink-color #x7F97B4)   ; K1: a four-sided spike along the thrust, two crystals off its root

@@ -24,8 +24,13 @@
   :reach 1.32 :arc 100 :on-hit :flinch)                              ; KAZAHANA: the backhand along the same line
 (defmove :ru-j3 :kind :quick :clip :ru-spin :startup 8 :active 3 :recovery 18 :dmg 42 :adv-block -4
   :reach 1.56 :arc 200 :on-hit :stagger :flags (:ender))             ; MAI-SODE: the pirouette, the ribbon whipping round
+(defparameter *ru-k-push-reach* 2.85
+  "The Shikai's K3 ender push and its K route bursts' floor push are measured from this reach (kit :push-reach, RUKIA-BURST-OUT):
+K1's far edge (its capsule's b 2.55 + r 0.3), so a K1 restarted off them can't touch him; it was K1's b alone (2.8), 0.25 m
+inside its 3.1 m edge (new 2026-10-24, the user: 「目前始解的 K 連段結尾推的不
+夠遠，導致連打 K 能重複壓制，請縮短 K1 的攻擊距離」, DUEL_RUKIA_TYBW §14).")
 (defmove :ru-k1 :kind :flash :clip :ru-thrust :startup 17 :active 4 :recovery 20 :dmg 66 :adv-block -3
-  :vol (:cap 0.2 2.8 1.1 0.3) :on-hit :stagger :params (:chill 1))   ; SHIMO-TSUKI: the fencer's lunge (a 冰凍值 point: two make a layer)
+  :vol (:cap 0.2 2.55 1.1 0.3) :on-hit :stagger :params (:chill 1))   ; SHIMO-TSUKI: the fencer's lunge (a 冰凍值 point: two make a layer)
 (defmove :ru-k2 :kind :flash :clip :ru-ring :enter 7 :startup 21 :active 4 :recovery 24 :dmg 58 :adv-block -3
   :reach 2.5 :arc 140 :on-hit :stagger :frost 60)                    ; HYORIN: the rising turn, a white ring (the bands')
 (defmove :ru-k3 :kind :flash :clip :ru-drop :enter 7 :startup 21 :active 5 :recovery 34 :dmg 84 :adv-block -20
@@ -189,6 +194,7 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
   :commands (:q :ru-j1 :f :ru-k1 :sig :ru-byakurai :sp1 :ru-sokatsui :sp2 :ru-shirafune-s :breaker :ru-breaker :kikon :ru-kikon)
   :grid (:ru-j1 :ru-j2 :ru-j3 :ru-k1 :ru-sk2 :ru-k3 :ru-j2s :ru-sk2s)
   :strings ((:ru-byakurai :hold :ru-tsukishiro) (:ru-sokatsui :hold :ru-rikujo))   ; the held L / SP1 (RUKIA-L-HOLD, -SP1-RELEASE)
+  :push-reach *ru-k-push-reach*                 ; K3's push clears K1's 2.85 m edge (b 2.55 + r 0.3; §14)
   ;; the six bursts (DUEL_RUKIA_TYBW §4.3): L after each J / K link that hit, >= 1 layer on him (RUKIA-OK)
   :l-after-j (:ru-j1 :ru-shimochiri :ru-j2 :ru-setsuen :ru-j2s :ru-setsuen :ru-j3 :ru-sojin)
   :l-after-k (:ru-k1 :ru-hyoreki :ru-sk2 :ru-tsurara :ru-sk2s :ru-tsurara :ru-k3 :ru-hakuren-k)
@@ -218,7 +224,7 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
   :meter (:name "COLD" :max *cold-max* :temp t :draw rukia-hud-meter :label temp-label) :warm *ru-warm-m18* :cold *ru-cold-m18* :field *ru-field-m18*
   :reset-form :m18 :u-tag "U: COOL" :hooks (:hoho rukia-hoho-cold :tick rukia-tick :reset rukia-reset)   ; (rukia-meter.lisp)
   :stance :ru-cold-stance :aura rukia-aura-cold :cine ru-awaken-cine :swing-sfx :whoosh-light
-  :clip-map nil :look-clips nil :run-clips (:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)   ; (the Shikai's clips are its own)
+  :push-reach nil :clip-map nil :look-clips nil :run-clips (:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)   ; (the Shikai's clips are its own)
   ;; (every command pinned: the Shikai's L / SP1 / SP2 and its bursts are its own since 2026-10-24, DUEL_RUKIA_TYBW §2)
   :commands (:q :ru-j1 :f :ru-a-k1 :sig :ru-shimobashira :sp1 :ru-hakuren :sp2 :ru-shirafune :breaker :ru-breaker :kikon :ru-hakka-18)
   :grid (:ru-j1 :ru-j2 :ru-j3 :ru-a-k1 :ru-k2 :ru-a-k3 :ru-j2s :ru-k2s)
@@ -349,11 +355,12 @@ user 2026-10-24, DUEL_RUKIA_TYBW §9): the hop, the pillar's push and the knockd
     (clog "~a BURST ~a ~d layers" (side-name att) (mv-name mv) n)))
 
 (defun rukia-burst-out (att def mv)
-  "How far burst MV of ATT must leave DEF: out of its route's opener's reach (its :opener, :q J1 / :f K1), as a J3 / K3
-ender's push is (fighter.lisp ENDER-PUSH): the opener's reach + its lunge + DEF's body + *ENDER-PUSH* (the user
+  "How far burst MV of ATT must leave DEF: out of its route's opener's reach (its :opener, :q J1 / :f K1: the kit's
+:push-reach when set, §14), as a J3 / K3 ender's push is (fighter.lisp ENDER-PUSH): the opener's reach + its lunge + DEF's body + *ENDER-PUSH* (the user
 2026-10-24: 「J/K+L 收尾記得都要至少退出到 J1 或 K1 的攻擊範圍之外」, by route)."
   (let ((op (kit-command-move (fighter-kit (fighter att)) (getf (mv-params mv) :opener) att)))
-    (+ (mv-reach op) (mv-slide op) (body-hurt-r (model-body (model def))) *ender-push*)))
+    (+ (if (eq (getf (mv-params mv) :opener) :f) (or (kit-push-reach (fighter-kit (fighter att))) (mv-reach op)) (mv-reach op))
+       (mv-slide op) (body-hurt-r (model-body (model def))) *ender-push*)))
 
 (defun rukia-hit (att def res hw mv hazard ranged)
   "The Shikai's :hit hook (霜の層 on him, DUEL_RUKIA_TYBW §4.4): a real hit of a move with :layers (the K links, ENBU) or a

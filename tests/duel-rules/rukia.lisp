@@ -220,7 +220,12 @@
   ;; the K routes K1's (RUKIA-BURST-OUT: reach + lunge + his body + *ENDER-PUSH*); 霜散's hop and 氷柱's 6 m clear it by
   ;; themselves for the widest body (0.45 m), 霜陣's circle (r 3 m) still holds a man pushed out of J1
   (let ((jo (+ (mv-reach (kit-command-move b :q)) (mv-slide (kit-command-move b :q)) 0.45 *ender-push*))
-        (ko (+ (mv-reach (kit-command-move b :f)) (mv-slide (kit-command-move b :f)) 0.45 *ender-push*)))
+        (ko (+ (kit-push-reach b) (mv-slide (kit-command-move b :f)) 0.45 *ender-push*)))
+    ;; the K route measures from the kit's :push-reach, K1's far edge (b + r), so a restarted K1 can't touch him after K3
+    ;; or a K burst (the user 2026-10-24: 「連打 K 能重複壓制，請縮短 K1 的攻擊距離」, §14): K1 2.55 + 0.3
+    (let ((v (first (hw-vols (svref (mv-hits (kit-command-move b :f)) 0)))))
+      (check (and (~= *ru-k-push-reach* (+ (aref v 2) (aref v 4))) (~= 2.55 (aref v 2)) (eq *ru-k-push-reach* (kit-push-reach b))
+                  (null (kit-push-reach (kit :rukia :m18))) (null (kit-push-reach (kit :rukia :zero))))))
     (check (and (every (lambda (n) (eq :q (getf (mv-params (kit-move b n)) :opener))) '(:ru-shimochiri :ru-setsuen :ru-sojin))
                 (every (lambda (n) (eq :f (getf (mv-params (kit-move b n)) :opener))) '(:ru-hyoreki :ru-tsurara :ru-hakuren-k))
                 (~= 2.54 jo) (> (+ 1.2 *ru-hop*) jo) (> *ru-tsurara-to* ko) (< jo (getf *ru-sojin* :r))
