@@ -81,6 +81,8 @@ motion: the user's scope).
 
 ### 3.1 Shikai 袖白雪 (舞: turns for J, kenbu for K, canon dances for the specials)
 
+> Superseded for the new Shikai (霜の層, the bursts, the kidō) by `docs/duel/DUEL_RUKIA_TYBW.md` §13.3 (2026-10-24).
+
 **Idle.** 構え: hips low, knees soft and close, no bounce (the hips sink 1 cm with the breath); the blade one-handed forward
 at chest height, level (A `Ep385RukiaShikaiSodeNoShirayuki.png`); the left hand at the chest (A `Ep155SomeNoMaiTsukishiro1.png`);
 the ribbon hanging to the plaza. **Walk.** 摺り足, no head bob. **Run.** Crouched, the blade trailing level behind (A

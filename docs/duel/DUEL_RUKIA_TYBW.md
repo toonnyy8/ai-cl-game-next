@@ -457,3 +457,132 @@ bind that hit (his seal set: RUKIA-HIT) draws the rods at his feet wherever he i
 follow-up's dash, until his stun ends (§12's 12 f fade). A bind that missed shuts on its empty ring and fades. Presentation
 only: host tests 10222 ALL PASS, the build 0 warnings, consing 0 B; stills of 85028 with O pressed as she recovers: the
 rods on him at the bind, through ENBU's hit and into the Kikon (bind f17, ENBU's hit f77, the Kikon f126).
+
+## 13. The motion plan (proposed; waiting on the user's 「可以」)
+
+> 「可以開始準備動作設計了」 (the user, 2026-10-24)
+
+Skill `duel-motion-style`: the style is settled (「原作舉止＋日本舞踊」, §2; archetypes and sources:
+`docs/research/rukia-rework/style-refs.md` §2), so this is the plan step: the clips today, their drawn reach, the slot
+tables per form, then the user's yes before any clip is drawn. The Shikai's table replaces style-refs §3.1 (which predates
+the new Shikai); the bands' tables are style-refs §3.2–§3.4 with the reach column added here.
+
+### 13.1 Drawn reach today (host FK over the art, main 273fa0a)
+
+The blade's tip (the palm for `:ru-palm`, two fingers for `:ru-hainawa`) at the hit frames against the volume's far edge
+(an arc's r, a capsule's b + r):
+
+| Form | Strike (clip) | edge | drawn | gap |
+|---|---|---|---|---|
+| Shikai | J1 / J2 / J3 (`:ru-q1` / `:ru-q2` / `:ru-spin`) | 1.44 / 1.40 / 1.56 | 1.39 / 1.30 / 1.51 | −5 / −10 / −5 cm |
+| | K1 / K2 / K3 (`:ru-thrust` / `:ru-ring` / `:ru-drop`) | 3.10 / 2.50 / 3.05 | 1.66 / 0.86 / 1.60 | −144 / −164 / −145 |
+| | 霜散 / 雪煙 / 霜陣 (placeholders `:ru-q1-z` / `:ru-spin-50` / `:ru-reido`) | 2.00 round her | 1.18 / 1.54 / 0.69 | −82 / −46 / −131 |
+| | 氷礫 / 氷柱 (`:ru-thrust-z` / `:ru-flower-50`) | 3.10 / 2.80 | 1.31 / 0.95 | −179 / −185 |
+| | I (`:ru-hainawa`) | 1.35 | 0.82 | −53 |
+| −18 | J1–J3 (the Shikai's clips) | 1.44 / 1.40 / 1.56 | as the Shikai | −5 / −10 / −5 |
+| | K1 TŌSHU / K2 / K3 HYŌKA (`:ru-palm` / `:ru-ring` / `:ru-flower`) | 2.35 / 2.50 / 2.40 | 0.90 / 0.86 / 0.67 | −145 / −164 / −173 |
+| −50 | J1 / J2 / J3 (`:ru-q1` / `:ru-q2` / `:ru-spin-50`) | 1.58 / 1.45 / 1.72 | 1.46 / 1.38 / 1.62 | −12 / −7 / −10 |
+| | K1 / K2 / K3 (`:ru-palm-50` / `:ru-ring` / `:ru-flower-50`) | 2.55 / 2.75 / 2.64 | 1.43 / 0.91 / 1.02 | −112 / −184 / −162 |
+| −273 | J1 / J2 / J3 (`:ru-q1` / `:ru-palm` / `:ru-spin`) | 1.94 / 1.78 / 2.11 | 1.46 / 0.91 / 1.59 | −48 / −87 / −51 |
+| | K1 / K2 / K3 (`:ru-thrust` / `:ru-ring` / `:ru-flower`) | 4.08 / 3.38 / 3.24 | 1.74 / 0.91 / 0.74 | −234 / −247 / −250 |
+
+The J's are drawn where they hit (the J cut, ±0.15 m), except at −273 (its ×1.35 reach on clips drawn for ×1.0). **Every
+K falls 1.1–2.5 m short**: she is the smallest fighter (1.44 m), the blade 0.84 m, and a one-hand lunge reaches about
+1.7 m; the universal K reach (2.5–2.8 m, K beyond J, DUEL_STRINGS §13) is out of her body's range, today carried by
+nothing drawn. The rules test allows a K to fall short (ice, fire and cloth carry it, never over by > 0.15 m); the skill
+counts it a red flag (Kenpachi's K1 / K2 drawn 1.6 m short).
+
+### 13.2 How a K reaches (the lead's proposal; ⚠ the user's call)
+
+Canon carries her reach in the cold off the blade (the 白刀 ice blade, ch. 268 [A]; the cold "released from the tip" [A,
+canon-motion.md]); Ichigo's TYBW closed the same gap with 月牙の残光, an ink crescent from the drawn tip to the volume's
+edge (DUEL_ICHIGO_TYBW §3.3). The proposal: **霜の穂先 (frost points)**, a solid drawn piece of ice for each K, part of
+the strike, measured by the FK test as the striking point (the tip of the ice, ±0.15 m of the edge):
+
+- **Shikai**: the ice grows off the point over the startup's last frames and shatters into snow after the hit (K1 a
+  spike along the thrust; K2 a curved sheet trailing the cut; K3 a column dropped with the blade). Volumes unchanged
+  (§4.4's approved numbers): **presentation only**, byte-identical.
+- **The bands** (the scope: motion and reach follow each other): each band's ice is its own shape (−18 the palm's frost
+  bloom, the sleeve's frost sheet, the ice flower; −50 the rime spike, the ice wall, both palms' flowers; −273 the long ice
+  blade, lengthened 0.96 → 1.30 m for its ×1.35 J reach, and the lance off the levelled guard). The ice is sized to
+  today's volumes where the new body fits them, and the volume moves only where the new archetype changes the shape
+  (listed per row below, "→"): a sim change, gated against the parent.
+
+Options for the user: (1) the above; (2) the Shikai's K glide made real (`:slide`, its capsule shortened by the same, the
+effective reach kept: Ichigo's K3, DUEL_ICHIGO_TYBW §3.4) plus a shorter frost point (a sim change); (3) reach strictly the
+blade and body: every K shrinks to about 1.7 m (her 遠近各半 role and the gates move a lot).
+
+### 13.3 Shikai 袖白雪 (replaces style-refs §3.1)
+
+Notation as style-refs §3 (B1 blade right hand, B1b backhand, B1r reversed, B2 both hands, P left palm, F the left index
+finger, F2 two fingers, S a sleeve leading; planes H→ H← ↘ ↗ V↓ V↑ T T-hi, ⟲ ⟳ turns, G a circle on the plaza, stab, pt).
+Grades A canon, C dance reference, D the lead's proposal. Every strike: a tell inside its startup, the hit pose on S,
+an impact hold, follow-through and a settle key in the recovery; turns keyed every 90°.
+
+**Idle** 構え: hips low, knees close, the blade one-handed level at chest height (A), the left hand at the chest (A), no
+bounce (the hips sink 1 cm with the breath). **Walk** 摺り足, no head bob. **Run** crouched, the blade trailing level
+behind (A).
+
+| # | Archetype | Body in one line | Grade | Slot (S/A/R; volume) | Reach |
+|---|---|---|---|---|---|
+| J1 | 回り | a quarter turn ⟲ on the ball of the right foot, hips low; the blade flat across at chest height, the left hand at the chest [H→ / B1] | D (⟲ A) | 7/3/12; arc 100°, 1.44 | blade |
+| J2 | 回り back | a quarter turn ⟳; the wrist turns over: a rising backhand from her left hip to above the right shoulder, the ribbon flipping over [↗ / B1b] | D | 7/3/13; 100°, 1.40 | blade |
+| J3 | 回り, finale | a full turn ⟲ keyed every 90°, arms in a T, the hakama belling, the ribbon a hip ring; a small 決まり [⟲ / B1] | A + D | 8/3/18; 200°, 1.56 | blade |
+| K1 | 剣舞・摺り足 | from the two-hand high guard (hilt at the right temple, A) a 0.5 m glide (drawn, recovered in R) and a two-hand thrust at the head line; the frost spike off the point [T-hi / B2] | A + D | 17/4/20; cap 0.2–2.8 r 0.3 | ice 3.10 |
+| K2 | 剣舞 | the hips turn out of the thrust: a two-hand cut across the waist, sleeves flaring, weight back; a frost sheet trails the cut [H← / B2] | D | 21/4/24; arc 140°, 2.50 | ice 2.50 |
+| K3 | 剣舞 → 見得 | a step in, the blade raised straight overhead (A), held 3 f, dropped with an ice column; the low finish held 12+ f, the head last [V↓ / B2] | A + C | 21/5/34; cap 0.3–2.7 r 0.35 | ice 3.05 |
+| 霜散 J1+L | 袖返し + ヒラキ | the left sleeve flung round her as she hops back 2.5 m, frost scattering off it; lands in a low 決まり [⟳ / S] | C + D | 10/3/22; 360°, 2.0 | sleeve + frost 2.0 |
+| 雪煙 J2+L | 扇の手 (かざし) | the blade raised over her head and spun flat on the wrist (要返し), a halo; snow-smoke falls round her [overhead ⟲ / B1] | C + D | 10/3/22; 360°, 2.0 | blade + snow 2.0 |
+| 霜陣 J3+L | 足拍子 + 突き | one stamp and one stab point-down at her feet (canon 白漣's first stab draws the circle, A); the circle opens round him [stab / B1r] | A + C | 10/3/22; 360°, 2.0 | snow ring 2.0 |
+| 氷礫 K1+L | 剣舞 (返し) | out of the thrust the point flicks up, throwing a spray of ice pebbles ahead [V↑ / B1] | D | 12/4/26; cap 0.2–2.8 r 0.3 | pebbles 3.10 |
+| 氷柱 K2+L | 剣舞 (突き立て) | the blade reversed and driven into the plaza in both hands; icicles erupt in a fan ahead and shove him [stab / B2r] | A (pillars) + D | 12/4/26; arc 160°, 2.8 | icicles 2.80 |
+| 白漣 K3+L | canon 白漣 | from K3's low finish the blade swept up and forward from the plaza, the wave running out 11 m [↗ / B2] | A | 12/4/26; cap 0.3–11 r 0.6 | the wave (not the blade) |
+| L tap 白雷 | 鬼道 | the left arm drawn back to the right shoulder (the tell), then shot straight, one finger: the lightning line [T / F] | D | 12/3/28; line to 6 m | the line |
+| L hold 月白 | canon 月白 (能・円) | the blade reversed, a glow (A); she sinks into the deep crouch (A) and sweeps round ⟲, the tip drawing the circle (A); rises, turns half away (A) [G / B1r] | **A** | ring ≤ 8 m | the ring |
+| SP1 tap 蒼火墜 | canon 鬼道 | the left palm driven at his face (A, ch. 266), the right hand brought to the left wrist; the blue fire cone [T-hi / P] | **A** + D | 14/4/26; cone 40°, 5 m | the fire |
+| SP1 hold 六杖光牢 | 鬼道 + 巫女舞 | the hold: two fingers raised straight overhead, the sleeve hanging, the ribbon rising; the release: dropped to point at him, the rods [V↓ / F2] | D | the rods ≤ 6 m | the rods |
+| SP2 白刀 | canon 白刀 (サシコミ) | the right arm rises from low and drives straight at his face (A), the ice growing in three steps; after a burst, ヒラキ: three steps back opening both arms (C) [T / B1] | **A** + C | 16/4/28; cap 0.3–5.0 r 0.3 | the ice blade 5.3 |
+| O 円舞 | 回り reversed + shunpo | the crouched shunpo run, blade trailing (A); a turn ⟳ with the blade raised overhead in two hands, descending in a spiral to the waist [⟳ / B2] | A + D | 8/3/24; 360°, 2.4 | blade + snow |
+| I 這縄 | 仕舞 サシ | a low dash; the left arm rises from the side to point forward-high, two fingers (A ch. 266, C), the blade low and back point-down [↗ pt / F2] | A + C | 8/4/18; 1.35 | the rope (fingers 0.82) |
+
+Check (plane / hand set): J1 H→ B1, J2 ↗ B1b, J3 ⟲ B1, K1 T-hi B2, K2 H← B2, K3 V↓ B2, 霜散 ⟳ S, 雪煙 overhead ⟲ B1
+(a halo above her, against J3's ring at the chest), 霜陣 stab B1r, 氷礫 V↑ B1, 氷柱 stab B2r, 白漣 ↗ B2, 白雷 T F, 月白 G
+B1r, 蒼火墜 T-hi P, 六杖光牢 V↓ F2, 白刀 T B1, 円舞 ⟳ B2, 這縄 ↗ F2. No two share both. One archetype a string: J = 回り
+(its bursts the 回り's finishes: sleeve, fan, stamp), K = 剣舞 (its bursts the sword dance's ends: flick, plant, the
+canon wave); the kidō are the canon gestures.
+
+### 13.4 The bands (style-refs §3.2–§3.4, bodies unchanged; reach added)
+
+Each band its own clips, no clip shared with another form. Reach: the striking point the proposal of §13.2 draws; "keep"
+= the volume as today, "→" = moved (a gated sim change).
+
+| Band | J1 / J2 / J3 | K1 / K2 / K3 | L / SP1 / SP2 / O / I |
+|---|---|---|---|
+| −18 (摺り足 J, 袖・素手 K) | ↘ B1 / ↖ B1b / H← B1 pass; blade, keep 1.44 / 1.40 / 1.56 | TŌSHU palm + frost bloom, keep 2.35; sleeve-led cut + frost sheet, keep 2.50; HYŌKA palm + ice flower, keep 2.40 | 霜柱 stab + ⟲ (disc r 2.5); 白漣 one-hand stabs gliding; 白刀 glide + thrust 5.0; 白霞罸 overhead raise, levelled; I サシ low |
+| −50 (足拍子 J, 両掌 K) | ↘ B2 / ↗ B2 / H← low B2, each on a stamp; the rime blade (1.0 m) two-handed: 1.58 / 1.45 → 1.40 (a two-hand rising cut is shorter) / 1.72 | palm + the point beside it, rime spike, keep 2.55; the ice wall rising from both palms, keep 2.75; both palms down, flowers, keep 2.64 | 氷震 two stamps + the stab (disc r 3.5); 白漣 by stamps; 白刀 low two-hand 6.0; 白霞罸 two-hand raise; I stamp + point |
+| −273 (扇の手 J, サシ / 袖 K; feet never move) | wrist flicks of the ice blade lengthened 0.96 → 1.30 m (a look): H→ / ↙ B1b / overhead ⟲; keep 1.94 / 1.78 / 2.11 | the guard levelled, the lance off it, keep 4.08; 袂払い sleeve + frost sheet, keep 3.38; the bow, palm, ice flower, keep 3.24 | 零度凍結 the sleeve swept low (disc r 5.5); 白漣 one stab, the wave; 白刀 7.5; 白霞罸 levelled from point-down; no I |
+
+Only one volume moves in this proposal (−50 J2 1.45 → 1.40); the bands' reach follows their motion by sizing the drawn ice
+to it. If the user wants the bands to differ more in reach than ×1.0 / ×1.1 / ×1.35 already makes them, the rows are
+where to say it.
+
+### 13.5 Inventory: new clips and what retires
+
+- **Shikai** 22: idle, walk, run; J1–J3, K1–K3; the six bursts; 白雷, 月白 (redrawn), 蒼火墜, 六杖光牢 (cast + hold
+  loop), 白刀 (+ its ヒラキ after a burst), 円舞 (its own run and turn, off `:sh-run` / `:ru-spin`), 這縄 (dash + strike).
+- **−18** 12, **−50** 12, **−273** 11 (style-refs §3.2–§3.4 plus each band's idle). The cinematics, intro, win and the
+  awakening keep their clips.
+- Retire when nothing plays them: `:ru-q1-z`, `:ru-thrust-z`, `:ru-spin-50`, `:ru-flower-50`, `:ru-palm-50`,
+  `:ru-ring` (four forms' K2), `:ru-palm` (−273's J2), `:ru-reido` (re-timed into −273's own L), `:ru-stab` (shared).
+- 霜の穂先: one look (`rukia-art.lisp`, a stamp per band) drawn from the strike's clip hook, 0 B a frame, the sim reads
+  none of it.
+
+### 13.6 Order and checks
+
+1. The user's 「可以」 on §13.2–§13.4 (and the questions with them).
+2. **Shikai first** (presentation only): the clips, the FK report (every strike's drawing point ±0.15 m of its edge, the
+   Shikai's K and bursts included, the 85000+ scenes for the in-match look), 8-frame strips from the side and the front,
+   then the playtest; host tests, the looks gate is moved on purpose (her stills), `--cvc` identical, her pairings
+   identical to the parent.
+3. **−18, −50, −273** one band at a time: the clips, the FK report, the volume changes with their gates against the parent
+   (her seven pairings, `--cvc`; the A/B stays deferred, §11.2), the playtest.
