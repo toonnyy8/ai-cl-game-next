@@ -695,3 +695,28 @@ build 0 warnings, smoke exit 0; no sim gate (§15). Playtest v162.
   multipliers as before; the hits still count in the combo (the HUD, the next hits' scaling).
 - Host 10227 ALL PASS (which moves count); pkgcheck clean, build 0 warnings, smoke exit 0; no sim gate. DUEL_DESIGN
   "Combo limits", the manual. Playtest v164.
+
+### 13.9 As built: −18's clips (batch ru-m18 a36d567, merged; presentation only)
+
+- **Wiring.** The `:m18` kit plays its own `:ru-18-` clips through `:clip-map *ru-18-clips*` (`:ru-q1 / q2 / spin / palm /
+  ring / flower / stab / hakuren / shirafune / cold-stance / hakka / hainawa`), `:look-clips *ru-18-looks*` (the walks),
+  `:run-clips` and `:stance :ru-18-stance`; SHIMOBASHIRA names `:ru-18-shimobashira` directly (`:ru-stab` is also SP1's
+  hold). −50 and −273 set the three back (−50 its stance too): they play what they played. The Kikon cinematic and the
+  Breaker's dash keep their shared clips.
+- **Clips (18)**: `-stance` (the canon catch: left arm forward-high, palm open, blade low and back, hips 5 cm under the
+  Shikai's), `-walk-f / -walk-b / -strafe-r / -strafe-l` (摺り足), `-run`, `-j1` (↘ with a drawn 0.3 m glide), `-j2` (↖
+  backhand), `-j3` (the pass: a 0.6 m glide across his line, a flat cut, ends side-on), `-k1` TŌSHU, `-k2` (the sleeve
+  leads, the blade under it), `-k3` HYŌKA (one knee, the palm on the plaza, the head up last at f47), `-shimobashira`
+  (three point-down taps at −90 / 0 / +90°), `-hakuren-hold` (a stab a 16 f with a sideways glide), `-hakuren`, `-shirafune`
+  (a 0.42 m glide, the thrust), `-hakka`, `-hainawa`.
+- **霜の穂先**: `*ru-frost-points*` + `(:ru-18-k1 1.5 :ru-frost-bloom :palm)` (grown from the wrist along the forearm),
+  `(:ru-18-k2 1.2 :ru-frost-sleeve)`, `(:ru-18-k3 1.8 :ru-frost-flower :flat)` (along the forearm's heading, laid on the
+  plaza). Consing 0 B (the 85900 probe's warm-up 240 → 1000 calls: six frost meshes grow the draw queue inside a slot).
+- **Drawn reach** (both ways ±0.15 m): J1 1.44 / 1.44 (0), J2 1.46 / 1.40 (+6), J3 1.47 / 1.56 (−9), K1 palm + bloom
+  2.36 / 2.35 (+1), K2 blade + sheet 2.50 / 2.50 (0), K3 palm + flower 2.40 / 2.40 (0), HAINAWA 1.27 / 1.35 (−8); the
+  Shikai, −50 and −273 lines unchanged.
+- **Checks on the merge**: host 10227 ALL PASS, pkgcheck clean, build 0 warnings, smoke exit 0; her seven pairings × 10
+  seeds identical to the parent (the batch's run). The G2 reference `tests/style-cvc-ref.txt` regenerated from the browser
+  for §15–§16.3's intended changes (stale since them; native `--cvc` 3 PASS against it): yy winner P2 0-2 122.8 s, yk P2
+  0-1 95.5 s, kk P1 5-0 101.8 s. Playtest v165. Notes for the playtest: the point grazes the plaza 2–3 cm for a frame in
+  J2, SHIRAFUNE and HAKKA; SP1's release from the middle stab's pose turns up to 60° in a frame after a short hold.
