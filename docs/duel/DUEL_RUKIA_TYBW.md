@@ -447,3 +447,13 @@ to be rebuilt later (skill `duel-character-cpu`), and the A/B is re-run then.
 60-seed reruns of §11.1's three short pairings (all K.O.): RY 95.8 s (Rukia 30 of 60), RK 101.0 s (14), SR 113.0 s
 (29). Still under 125 s, as on main before the rework (§5.1: RY 92.0, RK 94.5, SR 120.8) and as many pairings without
 her since the global recovery and Kikon changes of 2026-10-23; reported, no knob moved.
+
+### 12.1 The rods stick to him (the user, 2026-10-24)
+
+> 「六丈光牢的特效要黏在對手身上」 (the user, 2026-10-24)
+
+While the bind waits, the six marks stay at the cast point (the ring he must Step out of); from the frame it shuts, a
+bind that hit (his seal set: RUKIA-HIT) draws the rods at his feet wherever he is, through ENBU's knockback and the Kikon
+follow-up's dash, until his stun ends (§12's 12 f fade). A bind that missed shuts on its empty ring and fades. Presentation
+only: host tests 10222 ALL PASS, the build 0 warnings, consing 0 B; stills of 85028 with O pressed as she recovers: the
+rods on him at the bind, through ENBU's hit and into the Kikon (bind f17, ENBU's hit f77, the Kikon f126).

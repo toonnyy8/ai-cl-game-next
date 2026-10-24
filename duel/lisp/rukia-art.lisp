@@ -1428,15 +1428,20 @@ from the frame he is free (FADE frames since; < 0 while bound; the user 2026-10-
     nil))
 
 (defun rukia-rods-look (hz rdt)
-  "RIKUJOKORO: the six marks while the bind waits (pulsing as it nears), then the rods holding him until his stun ends
-(DATA: the victim, the bind's frames, the age he was seen free: a look's own note, never read by the sim)."
+  "RIKUJOKORO: the six marks at the cast point while the bind waits (pulsing as it nears), then the rods holding him
+until his stun ends, drawn on him wherever he is (the user 2026-10-24: 「六丈光牢的特效要黏在對手身上」, §12.1; a bind that
+missed shuts on its empty ring). DATA, a look's own note the sim never reads: the victim, the bind's frames, the age he was
+seen free, :hit / :miss (his seal at the first shut frame: RUKIA-HIT set it)."
   (declare (ignore rdt))
-  (let* ((dt (hazard-data hz)) (v (first dt)) (age (hazard-age hz)))
-    (when (and (<= (hazard-delay hz) 0) (null (third dt))
-               (or (>= age (second dt)) (not (entity-alive-p v)) (not (eq (fighter-state (fighter v)) :stun))))
+  (let* ((dt (hazard-data hz)) (v (first dt)) (age (hazard-age hz)) (shut (<= (hazard-delay hz) 0)))
+    (when (and shut (null (fourth dt)))
+      (setf (fourth dt) (if (and v (entity-alive-p v) (plusp (fighter-seal (fighter v)))) :hit :miss)))
+    (when (and shut (null (third dt))
+               (or (eq (fourth dt) :miss) (>= age (second dt)) (not (entity-alive-p v)) (not (eq (fighter-state (fighter v)) :stun))))
       (setf (third dt) age))                            ; (free now: the rods fade from here)
-    (vfx-ru-rods (hazard-x hz) (hazard-z hz) (hazard-size hz) (hazard-delay hz)
-                 (if (third dt) (- age (third dt)) -1))))
+    (let ((on (and shut (eq (fourth dt) :hit) (entity-alive-p v))))
+      (vfx-ru-rods (if on (aref (pos-of v) 0) (hazard-x hz)) (if on (aref (pos-of v) 2) (hazard-z hz)) (hazard-size hz)
+                   (hazard-delay hz) (if (third dt) (- age (third dt)) -1)))))
 
 ;;; ---------------------------------------------------------------- the model sheets (debug 85500-85999: stills, a look)
 ;; 85500+10l+s: P1 Rukia in look L (0 the Shikai, 1 -18, 2 -50, 3 -273, 4 the 白霞罸 costume: zero's form drawn in the
