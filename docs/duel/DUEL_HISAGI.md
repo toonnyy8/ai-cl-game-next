@@ -3615,3 +3615,22 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
   as before.
 - **CPU score** (`aieval --char 7 --seeds 10 -j 2`, before -> after): 0.8253 -> 0.8256 (strength 0.617 both, masher 1.0,
   signature 0.881; NORMAL's share 0.49 -> 0.47, in its 0.3-0.6 band).
+
+### 25.35 The tip 0.5 m, J back to 3-6 m, K 2.5-4.5 m (the user, 2026-10-24)
+
+- The user (verbatim): 「尖端範圍及改成 0.5m　J 範圍改回 3~6m　K 範圍改 2.5~4.5m」.
+- **The sim**: `*hs-r-tip*` 0.75 -> 0.5; `*hs-r-j-dead*` / `*hs-r-j-reach*` back to 3.0 / 6.0; `*hs-r-k-dead*` 2.5 (kept),
+  `*hs-r-k-reach*` 5.5 -> 4.5; `*hs-r-j3-push*` back to 6.6 (its rule from J1's 6.0). The tips: K1 4.0-4.5, J1 5.5-6.0
+  (HS-R-TIP-CMD 4.0-4.7 / 5.5-6.2, none at 4.7-5.5); the Step lands at their middles 4.25 / 5.75.
+- **The CPU**: the reads follow the knobs (J1 3.05-6.2, K1 2.55-4.7); :keep SENTAN 4.25, KAISEN 5.75, NAWAJI 3.5 (both
+  openers reach); the kit's :ranges approach 4.0-4.5, pressure 3.5-4.5, zone 4.0-6.0, defend 5.5-6.5, the :moves bands
+  0-2.5-3-4.5-6 m. The waits use the knobs (J1's dead zone 3.0; the blocked-string K1 2.6-3.0).
+- **The art**: J's reaches back to §25.3's 6.0 (the crescents, the let-outs, J3's swept chain 5.9, the gathered J2s / J3G
+  lashes); K's 4.5 (K1 HOSOKU's whirl, the spread K2s / K3, the gathered K2 / K3G: the strike keys x 4.5 / 5.5). 83902: J1
+  6.00 x3, K1 4.50 x4 against edges of 6.00 / 4.50. Debug 83022 / 83023 / 83024 at 4.25 / 5.75 m.
+- Host tests 10066 ALL PASS (the tables, the dead zones, the annuli, the tips, the CPU's reads, HS-R-PICK, the Step's
+  landings re-pinned); control 89, learn 131, cine 18; pkgcheck clean; built 0 warnings; 83901 0 B on the repeat call; the
+  browser: K1 at 4.25 m lands with the tip flash, J1 at 5.75 m lands.
+- **Simgate** (10 seeds, every pairing): every row without him identical, cvc 3/3; his rows all K.O. (vs §25.32's, before
+  §25.34): HY 108.5 -> 108.5 s, HK 110.7 -> 103.0, HR 145.5 -> 137.5, HI 153.0 -> 152.6, HS 159.8 -> 157.1, HB 157.2 ->
+  170.2, the mirror 188.9 -> 163.4 (10 of 10 K.O.: §25.34's time-out gone). HY and HK stay under 125 s, as before §25.34.
