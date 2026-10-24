@@ -1,7 +1,7 @@
 # SOUL DUEL: Rukia, TYBW look, motion modules and a new Shikai (2026-10-24)
 
-Status: **in design** (the request and the scope are decided, §1–§2; the diagnosis §3; the Shikai's combat logic: 霜の層 chosen, §4.1, its details under discussion; was a
-proposal under discussion, §4). Skills: `duel-move-modules` (the Shikai's grammar), `duel-motion-style` (decide,
+Status: **in design** (the request and the scope are decided, §1–§2; the diagnosis §3; the Shikai's combat logic: 霜の層 chosen
+from the §4 candidates, its details under discussion, §4.1). Skills: `duel-move-modules` (the Shikai's grammar), `duel-motion-style` (decide,
 research, plan, measure, draw), `duel-character-rework` (presentation vs sim, the proofs). Research:
 `docs/research/rukia-rework/` (canon looks, canon motion, nihon buyō style references; in progress) on top of
 `docs/research/tybw-characters/notes/rukia_tybw.md`. Earlier design: `DUEL_RUKIA.md` (the kit as built 2026-09-28 and
@@ -138,6 +138,25 @@ them; neither is the fallback. The lead's restatement as a segment table (number
   scaling.
 - The awakening keeps its own frost (frost on every hit, 30 / 60 / 90 f, the core rules, §2): the layers are a separate
   status that only the Shikai's moves add; whether layers survive her awakening is an open question.
+
+### 4.2 The details (the user, 2026-10-24)
+
+> J：「J 不加層，只停住退冰」
+> 震碎：「能透過 J1/2/3+L 與 K1/2/3+L 爆開不同的層數並帶來多樣化的效益，並配合鬼道對中程實施壓制逼對手踏入近身陷阱。」
+> 0 層白刀：「保留現在的 110」
+> 覺醒時的層數：「留著自然退冰」
+> (the user, 2026-10-24)
+
+What changes in §4.1:
+- **The bursts replace SP2 as the sink**: L after any J link or K link (J1–J3, K1–K3: six routes) **bursts** layers on
+  him; each route bursts its own number of layers and gives its own benefit. The K → L 月白 combo copy (+2) gives way to
+  the K bursts. The burst table is the lead's proposal below, for the user's yes.
+- **Kidō at mid range** (3–5 m): pressure that makes the middle distance costly, so he either backs out to her far tools
+  or steps into her close traps. Which kidō (canon manga: 破道の四 白雷, 破道の三十三 蒼火墜, 縛道の六十一 六杖光牢; 這縄 is the
+  Breaker) and on which button: open.
+- **SP2 白刀 at 0 layers keeps today's 110** (whether it still bursts layers on top: open).
+- **Her awakening leaves his layers on him**, thawing as usual; the awakened moves neither add nor burst them (the
+  awakening's rules stay, §2).
 
 ## 5. Next steps
 1. The research notes (`docs/research/rukia-rework/`), then the look plan (a model-sheet review against canon, stills).
