@@ -115,6 +115,8 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (combo-hits 0 :type fixnum) (combo-launches 0 :type fixnum) (combo-air 0 :type fixnum)
   (combo-dmg 0 :type fixnum)
   (frost 0 :type fixnum)                ; frames of frost left: walk and run x*FROST-SLOW* (Rukia's ice, rules FROST-NEXT)
+  (layers 0 :type fixnum)               ; 霜の層 on him, 0-3 (Rukia's Shikai: walk / run x*RU-LAYER-SLOW*, rules LAYERS-ADD)
+  (thaw 0 :type fixnum)                 ; frames since his last layer (one thaws at *RU-THAW*: rules LAYERS-THAW)
   (rm nil)                              ; DANGAI's run state (run-mods.lisp RMST: RM-OF makes it while *RUN-MODS* applies to him)
   ;; HUD (sim frames)
   (callout nil) (callout-t 0 :type fixnum))

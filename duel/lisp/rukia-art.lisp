@@ -922,3 +922,113 @@ status is read on the model, not the HUD)."
     (dotimes (i (n-of (* 3f0 k) dt))
       (%t-blob (+ x (rnd-range -0.6f0 0.6f0)) (+ y (rnd-range 0.2f0 1.4f0)) (+ z (rnd-range -0.6f0 0.6f0)) 0f0 0.02f0 0f0
                (rnd-range 1f0 1.5f0) (rnd-range 0.015f0 0.025f0) 0f0 0.05f0 +pal-hit+))))
+
+;;; ---------------------------------------------------------------- the Shikai's 霜の層 and new moves (DUEL_RUKIA_TYBW §4.4,
+;;; 2026-10-24; minimal looks until the motion / look pass: the crust by layers, the burst shards (RUKIA-BURST-LOOK), the
+;;; 霜陣 circle, BYAKURAI's beam, SOKATSUI's blue fire, RIKUJOKORO's six rods). Cosmetic: RND01, the fx clock; 0 B a frame.
+(defun-fast vfx-ru-layers (x z h n dt)
+  "霜の層 on a fighter's body (x z his feet, H his height, N 1-3 layers): an ice crust of SOUL-glass shards up the legs, to
+the feet (1), the knees (2), the waist (3: brittle, a white breath now and then); a white ring at his feet."
+  (with-floats (x z h n dt)
+    (let* ((dr (drawing-no)) (top (* h (if (< n 1.5f0) 0.14f0 (if (< n 2.5f0) 0.34f0 0.56f0)))) (k (+ 0.5f0 (* 0.15f0 n))))
+      (declare (single-float dr top k))
+      (%tring x 0f0 z (+ 0.38f0 (* 0.04f0 n)) 0.05f0 +pal-soul+ k (i->f (mod (f->i dr) 5)) 16)
+      (dotimes (i 9)
+        (let* ((f (i->f i)) (a (+ (* 0.698f0 f) 0.2f0)) (u (hash01 f 4.7f0)) (y (+ 0.06f0 (* top u))))
+          (declare (single-float f a u y))
+          (when (< (* 3f0 f) (* 9f0 n))                    ; (more shards the more layers)
+            (fx-shard (+ x (* 0.22f0 (f-cos a))) y (+ z (* 0.22f0 (f-sin a))) (* 0.35f0 (f-cos a)) 0.94f0 (* 0.35f0 (f-sin a))
+                      (+ 0.14f0 (* 0.08f0 (hash01 (+ f dr) 2.9f0))) 0.04f0 0.1f0 (+ f 70f0) +pal-soul+ k))))
+      (when (and (> n 2.5f0) (< (f-mod (fx-clock) 0.8f0) dt))   ; brittle: a white breath
+        (vfx-ru-breath x (* 0.92f0 h) z 0f0))
+      (dotimes (i (n-of (* 2f0 n) dt))
+        (%t-blob (+ x (rnd-range -0.3f0 0.3f0)) (rnd-range 0.1f0 top) (+ z (rnd-range -0.3f0 0.3f0)) 0f0 (rnd-range 0.1f0 0.3f0) 0f0
+                 (rnd-range 0.5f0 0.8f0) (rnd-range 0.015f0 0.03f0) 0f0 0.1f0 +pal-hit+)))
+    nil))
+
+(defun-fast vfx-ru-sojin (x z r left)
+  "霜陣 SOJIN's frost circle (x z, radius R; LEFT frames of it to go): VFX-RU-LAKE's rings and cracks, fading over its
+last second (inlined: 0 B)."
+  (with-floats (x z r)
+    (let* ((k (f-min 0.85f0 (/ (i->f left) 60f0))) (dr (drawing-no)) (sd (i->f (mod (f->i dr) 5))))
+      (declare (single-float k dr sd))
+      (%tring x 0.02f0 z r 0.08f0 +pal-hit+ k sd 32)
+      (%tring x 0.02f0 z (* 0.72f0 r) 0.12f0 +pal-soul+ (* 0.8f0 k) (+ sd 1f0) 32)
+      (dotimes (i 6)
+        (let* ((a (+ (* 1.0472f0 (i->f i)) (hash01 (i->f i) 5.5f0))) (c (f-cos a)) (s (f-sin a)))
+          (declare (single-float a c s))
+          (toon-ground-seg (+ x (* 0.2f0 r c)) (+ z (* 0.2f0 r s)) (+ x (* 0.95f0 r c)) (+ z (* 0.95f0 r s)) 0.03f0
+                           0.025f0 1f0 0.3f0 (+ 20f0 (i->f i)) 0.2f0 (toon-a +pal-ink+ (* 0.7f0 k))))))
+    nil))
+
+(defun rukia-sojin-look (hz rdt)
+  "霜陣 SOJIN: the frost circle round where she burst him (SIZE m), fading out over its last second."
+  (declare (ignore rdt))
+  (vfx-ru-sojin (hazard-x hz) (hazard-z hz) (hazard-size hz) (- (hazard-life hz) (hazard-age hz))))
+
+(defun-fast vfx-ru-beam (x z yaw l age)
+  "破道の四 白雷 BYAKURAI: a straight white beam at chest height from 0.5 m to L m along YAW, a jagged second stroke; AGE
+frames old (bright for 4, gone in 8 more)."
+  (with-floats (x z yaw l)
+    (let* ((k (if (< age 4) 0.95f0 (f-max 0.02f0 (- 0.95f0 (* 0.11f0 (i->f (- age 4)))))))
+           (fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (dr (drawing-no)) (j (* 0.06f0 (- (hash01 dr 1.3f0) 0.5f0)))
+           (x0 (+ x (* 0.5f0 fx))) (z0 (+ z (* 0.5f0 fz))) (x1 (+ x (* l fx))) (z1 (+ z (* l fz))))
+      (declare (single-float k fx fz dr j x0 z0 x1 z1))
+      (fx-crescent x0 1.1f0 z0 x1 1.1f0 z1 (+ (* 0.5f0 (+ x0 x1)) (* j fz 4f0)) (+ 1.12f0 j) (- (* 0.5f0 (+ z0 z1)) (* j fx 4f0))
+                   0.05f0 :lens 0.08f0 81f0 +pal-hit+ k :push 0.25f0)
+      (fx-crescent x0 1.1f0 z0 x1 1.1f0 z1 (* 0.5f0 (+ x0 x1)) 1.1f0 (* 0.5f0 (+ z0 z1)) 0.11f0 :lens 0.05f0 82f0 +pal-soul+ (* 0.7f0 k) :push 0.2f0)
+      (%light x1 1.1f0 z1 0.9f0 0.95f0 1f0 3f0 (* 1.4f0 k) 6))
+    nil))
+
+(defun rukia-beam-look (hz rdt)
+  "BYAKURAI's beam (a look: SIZE m along its yaw), bright for 4 frames, then gone in 8."
+  (declare (ignore rdt))
+  (vfx-ru-beam (hazard-x hz) (hazard-z hz) (hazard-yaw hz) (hazard-size hz) (hazard-age hz)))
+
+(defun-fast vfx-ru-fire (x z yaw l fage life)
+  "破道の三十三 蒼火墜 SOKATSUI: blue fire rolling out of her palms over a 40 deg cone to L m (FAGE frames of LIFE): SOUL-glass
+tongues over white cores, racing out in 0.12 s, fading over its life."
+  (with-floats (x z yaw l)
+    (let* ((age (/ (i->f fage) 60f0)) (k (f-max 0.02f0 (- 0.95f0 (/ (i->f fage) (i->f (max 1 life))))))
+           (run (* l (f-clamp (/ age 0.12f0) 0.15f0 1f0))) (dr (drawing-no)))
+      (declare (single-float age k run dr))
+      (dotimes (i 7)
+        (let* ((f (i->f i)) (a (+ yaw (* 0.1164f0 (- f 3f0)))) (u (* run (+ 0.35f0 (* 0.65f0 (hash01 (+ f dr) 5.1f0)))))
+               (bx (- x (* u (f-sin a)))) (bz (- z (* u (f-cos a)))) (hh (+ 0.5f0 (* 0.5f0 (hash01 f 2.3f0)))))
+          (declare (single-float f a u bx bz hh))
+          (toon-ribbon (bx 0.6f0 bz) ((* -0.3f0 (f-sin a)) hh (* -0.3f0 (f-cos a))) (0.3f0 0.04f0) :heat (1f0 0.3f0) :seed (- -41f0 f)
+                       :wob 0.25f0 :pal +pal-soul+ :k k :ph (+ f dr) :sway 0.08f0 :segs 4)
+          (toon-ribbon (bx 0.7f0 bz) ((* -0.2f0 (f-sin a)) (* 0.6f0 hh) (* -0.2f0 (f-cos a))) (0.12f0 0.02f0) :heat (1f0 0.5f0)
+                       :seed (- -51f0 f) :wob 0.15f0 :pal +pal-hit+ :k k :ph (+ f dr) :sway 0.05f0 :segs 3)))
+      (%light (- x (* 0.5f0 run (f-sin yaw))) 1f0 (- z (* 0.5f0 run (f-cos yaw))) 0.6f0 0.75f0 1f0 4f0 (* 1.5f0 k) 6))
+    nil))
+
+(defun rukia-fire-look (hz rdt)
+  "SOKATSUI's fire (a look: SIZE m along its yaw), fading over its life."
+  (declare (ignore rdt))
+  (vfx-ru-fire (hazard-x hz) (hazard-z hz) (hazard-yaw hz) (hazard-size hz) (hazard-age hz) (hazard-life hz)))
+
+(defun-fast vfx-ru-rods (x z r delay age)
+  "縛道の六十一 六杖光牢 RIKUJOKORO at (x z), radius R: six marks of light on the plaza round him while the bind waits
+(DELAY frames left: pulsing), then six rods of light driven in at his middle (AGE frames, gone in 50)."
+  (with-floats (x z r)
+    (let* ((dr (drawing-no)) (shut (if (> delay 0) 0f0 1f0))
+           (k (if (> delay 0) (if (evenp (floor delay 3)) 0.95f0 0.55f0) (f-max 0.02f0 (- 0.95f0 (/ (i->f age) 50f0))))))
+      (declare (single-float dr shut k))
+      (dotimes (i 6)
+        (let* ((a (* 1.0472f0 (i->f i))) (c (f-cos a)) (s (f-sin a)))
+          (declare (single-float a c s))
+          (if (< shut 0.5f0)
+              (toon-ground-seg (+ x (* (+ r 0.25f0) c)) (+ z (* (+ r 0.25f0) s)) (+ x (* (- r 0.35f0) c)) (+ z (* (- r 0.35f0) s))
+                               0.02f0 0.05f0 1f0 0.4f0 (+ 90f0 (i->f i)) 0.1f0 (toon-a +pal-hit+ k))
+              (let ((ox (+ x (* 1.1f0 r c))) (oz (+ z (* 1.1f0 r s))))
+                (declare (single-float ox oz))
+                (toon-ribbon (ox 1.6f0 oz) ((* -0.9f0 r c) -0.55f0 (* -0.9f0 r s)) (0.06f0 0.03f0) :heat (1f0 0.6f0) :seed (- -61f0 (i->f i))
+                             :wob 0.04f0 :pal +pal-hit+ :k k :ph (+ (i->f i) dr) :segs 3)))))
+      (when (> shut 0.5f0) (%light x 1f0 z 1f0 0.95f0 0.8f0 3f0 (* 1.2f0 k) 6)))
+    nil))
+
+(defun rukia-rods-look (hz rdt)
+  "RIKUJOKORO: the six marks while the bind waits (pulsing as it nears), then the rods holding him for 50 f."
+  (declare (ignore rdt))
+  (vfx-ru-rods (hazard-x hz) (hazard-z hz) (hazard-size hz) (hazard-delay hz) (hazard-age hz)))

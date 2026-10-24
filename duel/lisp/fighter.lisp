@@ -545,7 +545,7 @@ Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard 
               (if (or (< m 0.2) (<= (kit-walk kit) 0))   ; (absolute zero: rooted where she stands)
                   (progn (fill v 0f0) (play-clip e (kit-stance kit) :blend 6 :restart nil))
                   (multiple-value-bind (dx dz) (world-dir e f to st)
-                    (let ((s (* (frost-speed (kit-walk kit) (fighter-frost f)) (min 1.0 m) (/ 1.0 m))))
+                    (let ((s (* (layer-speed (frost-speed (kit-walk kit) (fighter-frost f)) (fighter-layers f)) (min 1.0 m) (/ 1.0 m))))
                       (setf (aref v 0) (f32 (* s dx)) (aref v 2) (f32 (* s dz)))
                       (field-slow! e f v))
                     (play-clip e (cond ((> (abs st) (abs to)) (if (> st 0) :sh-strafe-r :sh-strafe-l))
@@ -848,7 +848,7 @@ direction relative to the opponent (neutral = at him), the heading turning at *R
 *RUN-STOP* from him (RUN-STOP-P). He faces the opponent throughout (as in neutral, *FACE-RATE*), so the
 clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
   (let* ((v (motion-vel (motion e))) (vx (aref v 0)) (vz (aref v 2))
-         (speed (frost-speed (kit-run (fighter-kit f)) (fighter-frost f))) (sf (incf (fighter-sf f))) (free (zerop (fighter-lock f))))
+         (speed (layer-speed (frost-speed (kit-run (fighter-kit f)) (fighter-frost f)) (fighter-layers f))) (sf (incf (fighter-sf f))) (free (zerop (fighter-lock f))))
     (cond ((eq (fighter-phase f) :brake)
            (let ((s (if (run-stop-p (fighter-dist f) (run-closing e f) speed) 0.0 (brake-speed speed sf))))
              (turn-to-opp e f (deg *face-rate*))
@@ -1024,6 +1024,9 @@ cinematic or a :through move."
   (when (> (fighter-invuln f) 0) (decf (fighter-invuln f)))
   (when (> (fighter-callout-t f) 0) (decf (fighter-callout-t f)))
   (when (> (fighter-frost f) 0) (decf (fighter-frost f)))
+  (when (plusp (fighter-layers f))                       ; 霜の層 thaw (Rukia's Shikai: rules LAYERS-THAW)
+    (multiple-value-bind (l th) (layers-thaw (fighter-layers f) (fighter-thaw f))
+      (setf (fighter-layers f) l (fighter-thaw f) th)))
   (let ((cd (fighter-cd f))) (dotimes (i (length cd)) (when (plusp (aref cd i)) (decf (aref cd i)))))
   (let ((vp (pilot-vpad (pilot e))))
     (case (fighter-state f)

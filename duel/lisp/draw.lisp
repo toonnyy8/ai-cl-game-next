@@ -279,6 +279,8 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
                          ((and (eq look :charge) (not (eq (fighter-phase f) :main))) 1.5)
                          ((and mv (eq (mv-kind mv) :kikon) (eq (kit-aura kit) :oni)) 0.15)   ; the oni pillar smoulders in
                          (t 1.0))))                                                           ; his rush (its trail is the tell)
+      (when (plusp (fighter-layers f))                     ; 霜の層 (Rukia's Shikai): the crust up his legs by layers
+        (vfx-ru-layers x z (body-hurt-h b) (fighter-layers f) rdt))
       (if (plusp (fighter-frost f))                        ; frosted (Rukia's ice): the crust at his feet
           (vfx-frost x z (/ (fighter-frost f) 60.0) rdt)
           (when (and (eq (fighter-state f) :stun) (eq (fighter-phase f) :bind))   ; bound by South: ash drifting at the feet

@@ -520,6 +520,29 @@ any later move is interrupted by it (a masher can't dodge it)."
   "Walk / run SPEED of a fighter with FROST frames of frost left: x *FROST-SLOW* while it lasts."
   (if (plusp frost) (* speed *frost-slow*) speed))
 
+;;; 霜の層, the Shikai's frost layers on him (docs/duel/DUEL_RUKIA_TYBW.md §4.4): 0-3, a thaw timer; separate from the frost timer
+(defun layers-add (cur n) "The layers after N more on CUR, capped at *RU-LAYER-MAX*." (min *ru-layer-max* (+ cur n)))
+
+(defun layers-thaw (layers thaw)
+  "One step of the thaw: values the layers and the thaw timer after it (one layer per *RU-THAW* frames, the timer back
+to 0 at each; none left: 0 0)."
+  (cond ((<= layers 0) (values 0 0))
+        ((>= (1+ thaw) *ru-thaw*) (values (1- layers) 0))
+        (t (values layers (1+ thaw)))))
+
+(defun layer-speed (speed layers)
+  "Walk / run SPEED of a fighter with LAYERS frost layers on him: x the layer's *RU-LAYER-SLOW* (0 layers: SPEED itself)."
+  (if (plusp layers) (* speed (nth (min layers *ru-layer-max*) *ru-layer-slow*)) speed))
+
+(defun layer-burst-ok-p (contact layers)
+  "May a burst follow a string link whose CONTACT is NIL (not yet: the press waits for the chain), :hit or :block, with
+LAYERS on him? Never on a block; at the chain (a hit) only with >= 1 layer: 0 layers, the L is not taken (§4.3)."
+  (and (not (eq contact :block)) (or (null contact) (plusp layers))))
+
+(defun burst-count (link layers)
+  "Layers a burst off string link LINK (1-3) bursts with LAYERS on him: link n up to n, link 3 all (§4.3)."
+  (if (>= link 3) layers (min link layers)))
+
 (defun optic-p (ward optic ranged)
   "Does a hit bypass the defender's ward (Rukia's absolute zero, passive :optic)? A RANGED hit (a hazard, a :ranged window
 beyond its :melee-range) on a WARD with OPTIC: it lands as on an open defender (the canon's optical loophole)."

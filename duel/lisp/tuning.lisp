@@ -428,6 +428,13 @@ opponents' awakened forms for most of a match (docs/duel/DUEL_RUKIA.md, Measurem
 (defparameter *frost-touch* 30 "-18 C: every real hit of hers frosts this long (the kit's :frost-touch; a hit window's own :frost wins if longer) ...")
 (defparameter *frost-touch-m50* 60 "... at -50 C ...")
 (defparameter *frost-touch-zero* 90 "... at absolute zero.")
+(defparameter *ru-layer-max* 3
+  "霜の層 (DUEL_RUKIA_TYBW §4.4): the cap of the frost layers her Shikai lays on him (new 2026-10-24, the user).")
+(defparameter *ru-thaw* 150
+  "霜の層: one layer thaws per this many frames without a new layer (a J hit of hers holds the timer; new 2026-10-24, the
+user: §4.4's 150 f, the old frost cap).")
+(defparameter *ru-layer-slow* '(1.0 0.85 0.70 0.55)
+  "霜の層: his walk / run x this by layers 0-3 (Step, Hoho, dashes, frames untouched; new 2026-10-24, the user, §4.4).")
 (defparameter *cold-max* 200.0 "The cold gauge: two stacked bars of *COLD-BAR* (the user's decision 2026-09-28).")
 (defparameter *cold-bar* 100.0
   "One bar of cold. -18 -> -50 when C reaches it, -50 -> -18 when C falls to 0; -50 -> zero when C reaches *COLD-MAX*,

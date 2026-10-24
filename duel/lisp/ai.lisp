@@ -53,7 +53,8 @@
 ;;;;   forms       :awaken (:melee-share :min-taken)  :awaken-above reishi-fraction  :bankai (:p :own-konpaku ...)
 ;;;;               :cashout (:punish :near :below)  :pip-hurry frames  :cool (:p :near :no-projectile :min-gg)
 ;;;;               :brace (:p :near :min-gg)  :ward-reversal p
-;;;;   hooks       :reflex (e b s d)  :move-reflex (e b f mv)  :sp-ender  :sig-hold  :assist-guard  :assist-combo
+;;;;   hooks       :reflex (e b s d)  :move-reflex (e b f mv)  :sp-ender  :sig-hold  :sp1-hold  :assist-guard  :assist-combo
+;;;;               (:l-after-k / :l-after-j may name a function (e link L) -> its chance: Rukia's bursts)
 ;;;;   read by the OPPONENT's CPU: :opp-reflex (e b s d)  :opp-aim  :opp-reflect  :opp-intent (:zone n :defend n)
 (in-package :duel)
 
@@ -309,9 +310,10 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
         (:sig (ai-press b :sig (let ((h (getf (kit-ai kit) :sig-hold)))   ; a kit's own hold length (its :sig-hold function)
                                  (if h (funcall h kit d e) (hold-for (kit-command-move kit :sig) 12 40)))))
         ((:sp1 :sp1-full)                                 ; :sp1-full: a charge move held to its end
-         (let ((mv (kit-command-move kit :sp1)))
-           (ai-press b :flash (if (and mv (mv-hold mv) (or (eq cmd :sp1-full) (> d 7.0))) (+ 2 (second (mv-hold mv)))
-                                  (hold-for mv 14 46))
+         (let ((mv (kit-command-move kit :sp1)) (h (getf (kit-ai kit) :sp1-hold)))   ; (a kit's own hold length: its
+           (ai-press b :flash (cond (h (funcall h kit d e))                         ;  :sp1-hold function, Rukia's tap / hold)
+                                    ((and mv (mv-hold mv) (or (eq cmd :sp1-full) (> d 7.0))) (+ 2 (second (mv-hold mv))))
+                                    (t (hold-for mv 14 46)))
                      :modded t :act :sp1)))
         (:sp2 (ai-press b :sig (if (< r 0.4) 20 1) :modded t :act :sp2))
         (:breaker (ai-press b :breaker (+ 12 (floor (* r 30)))))
@@ -387,8 +389,9 @@ cancel into SP2 when the victim is on the ground (a launched victim would drop o
           ((and (brain-learn b) (eq (lrn-cmd (brain-learn b)) :bait)   ; a learner baits his predicted burst: the string
                 (>= (fighter-combo-hits (fighter (opp-of e))) 2))       ; ends at its 2nd hit (then a guard: LEARN-FIRE)
            (why b :bait nil))
-          ((let ((p (ai-table e (if (kit-k-link-p kit (mv-name mv)) :l-after-k :l-after-j) 0.0))   ; L after a K link
-                 (l (kit-l-link kit (mv-name mv))))                                                  ; (a J link: :l-after-j):
+          ((let* ((p (ai-table e (if (kit-k-link-p kit (mv-name mv)) :l-after-k :l-after-j) 0.0))   ; L after a K link
+                  (l (kit-l-link kit (mv-name mv)))                                                  ; (a J link: :l-after-j):
+                  (p (if (and p (symbolp p)) (if l (funcall p e mv l) 0.0) p)))   ; (a kit function (e link L): its chance)
              (and (plusp p) (= (fighter-sf f) (fighter-land-sf f)) l (kit-command-ok-p e :sig kit nil l)   ; one roll per hit
                   (< (sim-rnd01) p)))
            (why b :l-after-k :sig))
