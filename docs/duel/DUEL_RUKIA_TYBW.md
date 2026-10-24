@@ -386,3 +386,31 @@ the widest body, 霜陣's circle wider than J1's floor); pkgcheck clean; the bui
    he stands in it (was a layer a 60 f round her).
 
 Host tests 10222 ALL PASS (the chill rules, the sources, the hold's cap); pkgcheck clean; the build 0 warnings.
+
+Gates after §9 and §10 (with the SP2 crash fixed, ea81e90; her pairings 20 seeds, all K.O.; median s, Rukia's wins of 20):
+RY 92.3 (10), RK 89.9 (11), RR 105.6, IR 99.9 (14), SR 115.9 (9), BR 143.2 (14), HR 144.0 (11, one draw). The 18 pairings
+without her, 10 seeds, identical to 8f452e0 line for line (the two new shared slots stay 0 for them); `--cvc` PASS. The §9
+gate run (a1de708) had died on RY's seed 2: SP2 SHIRAFUNE carries `:burst` without an `:opener`, and §9's floor push asked
+for a NIL move; SP2 now keeps its own knockback (a host check pins it). Playtest v154 had that crash; v155 fixed it.
+
+## 11. Her numbers back into the roster's range (the user, 2026-10-24)
+
+> 「修改的期間能先列出露琪亞的數值表與其他角色的平均值比較嗎？」 → the table (the six others' mean, min–max, her % off)
+> 「等跑完後幫我將露琪亞的數值調回正常區間，另外覺醒的三階段倍率調動成 1.1/1.25/1.65」
+> (the user, 2026-10-24)
+
+The table (base forms; resolved from the loaded kits): her frames, reaches and movement sit at the mean (J1 7 f vs 7.3,
+K1 17 vs 17.3, walk / run 3.8 / 9.0 vs 3.77 / 9.0); her raw strings are 11–13 % over it (JJJ 110 vs 97, KKK 208 vs 188).
+What set her apart was the form's multipliers: dealt ×1.5 (the six 1.0–1.6, mean 1.17) and taken ×0.8 (mean 0.96), so
+JJJ / KKK after them were +49 % / +46 %, the roster's highest. Other rows off the mean stay as designed: the stun tolerance
+13 (light, blown away sooner; tied lowest), the smallest body (0.34 / 1.5 m), the kidō's damage (just decided).
+
+| Knob | Before | After |
+|---|---|---|
+| `*rukia-mult*` (Shikai dealt) | 1.5 | **1.0** (JJJ 110 vs the six's after-multiplier mean 111) |
+| `*rukia-taken*` (Shikai taken) | 0.8 | **1.0** (most of the six) |
+| `*rukia-awake-mult*` / `*rukia-m50-mult*` / `*rukia-zero-mult*` | 1.15 / 1.5 / 1.65 | **1.1 / 1.25 / 1.65** (the user's numbers) |
+| the bands' taken (0.95 / 0.85 / 0.8) | — | unchanged (the user named only the dealt) |
+
+The awakened kits' pinned snapshot (§2) moves with the two band multipliers. Host tests 10222 ALL PASS; the build 0
+warnings; playtest v156. Gates and the awaken A/B: below when they finish.

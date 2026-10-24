@@ -243,7 +243,7 @@ ender (a cash-out), or one L / SP1 / SP2 (100) and she is back at −50 once fre
 | | −18 `:m18` 氷点下十八度 | −50 `:m50` 氷点下五十度 | −273.15 `:zero` 絶対零度 |
 |---|---|---|---|
 | Walk / run | **3.4 / 8.0** (Shikai 3.8 / 9.0) | **2.8 / 6.4** | **0 / 0**, rooted: no Step / Hoho, no move slide, no string chase |
-| Damage dealt / taken × | 1.15 / 0.95 | 1.5 / 0.85 | 1.65 / 0.8 (a ranged hit through the ward ×1.0: optic) |
+| Damage dealt / taken × | 1.1 / 0.95 (1.15 until 2026-10-24) | 1.25 / 0.85 (1.5 until 2026-10-24) | 1.65 / 0.8 (a ranged hit through the ward ×1.0: optic) |
 | Frost on every hit | 30 f | 60 f | 90 f |
 | Reach × (the derived grid) | 1.0 | 1.1 | 1.35 |
 | Blade | Sode no Shirayuki | **`:ru-rime`** (rimed: an ice edge, crystals along the back) | **`:ru-ice`** (the ice blade) |
@@ -826,7 +826,7 @@ keylines (`body-variant … :ink`) and the `:brow` palette key (the ice look).
 | `*zero-brace-drain*` (guard gauge / s while bracing) | 8 | 44000+k (k / 10) |
 | `*ru-thaw-lock*` (frames of no cooling after a CRACK) | 120 | 51000+k |
 | `*crack-self*` / `*crack-stun*` / `*freeze-touch*` | 60 / 30 / 18 | 47000+k / — / 45000+k |
-| `*rukia-awake-mult*` / `*rukia-m50-mult*` / `*rukia-zero-mult*` | 1.15 / 1.5 / 1.65 | 48000+k (zero's) |
+| `*rukia-awake-mult*` / `*rukia-m50-mult*` / `*rukia-zero-mult*` | 1.1 / 1.25 / 1.65 (1.15 / 1.5 / 1.65 until 2026-10-24, DUEL_RUKIA_TYBW §11) | 48000+k (zero's) |
 | `*rukia-awake-taken*` / `*rukia-m50-taken*` / `*rukia-zero-taken*` | 0.95 / 0.85 / 0.8 | 61000+k |
 | `*frost-touch*` / `*frost-touch-m50*` / `*frost-touch-zero*` | 30 / 60 / 90 | — |
 | walks / runs | −18 3.4 / 8.0, −50 2.8 / 6.4, zero rooted | 57000+k / 56000+k |

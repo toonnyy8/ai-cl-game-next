@@ -408,12 +408,14 @@ him to full (the user's decision 2026-09-28): the gate's knob.")
 ;;; Kuchiki Rukia (docs/duel/DUEL_RUKIA.md): frost, the one new status, and the cold gauge of 絶対零度 (the awakened bands
 ;;; :m18 :m50 :zero; the kit meter holds the cold C, 0 .. *COLD-MAX*, two stacked bars: rukia-meter.lisp RUKIA-COLD-STEP)
 (defparameter *walk-rukia* 3.8 "Rukia's walk (Shikai).")
-(defparameter *rukia-mult* 1.5
-  "Damage x of the Shikai (the base kit's :mult; 58000+k at run time). The seed gate's lever: the CPU's Shikai fights the
-opponents' awakened forms for most of a match (docs/duel/DUEL_RUKIA.md, Measurements) ...")
-(defparameter *rukia-taken* 0.8 "... and the damage it takes x this (60000+k).")
-(defparameter *rukia-awake-mult* 1.15 "Damage x at -18 C (48000+k sets zero's, the colder-never-weaker lever) ...")
-(defparameter *rukia-m50-mult* 1.5 "... at -50 C ...")
+(defparameter *rukia-mult* 1.0
+  "Damage x of the Shikai (the base kit's :mult; 58000+k at run time). 1.5 -> 1.0, the user 2026-10-24 (「將露琪亞的數值
+調回正常區間」, DUEL_RUKIA_TYBW §11: x1.5 put her JJJ / KKK 46-49 % over the roster's mean; the other six 1.0-1.6, mean 1.17,
+three of them 1.0). Was the seed gate's lever: the CPU's Shikai fights the opponents' awakened forms for most of a match
+(docs/duel/DUEL_RUKIA.md, Measurements) ...")
+(defparameter *rukia-taken* 1.0 "... and the damage it takes x this (60000+k; 0.8 -> 1.0, the user 2026-10-24, §11: the six's mean 0.96).")
+(defparameter *rukia-awake-mult* 1.1 "Damage x at -18 C (48000+k sets zero's, the colder-never-weaker lever; 1.15 -> 1.1, the user 2026-10-24, §11) ...")
+(defparameter *rukia-m50-mult* 1.25 "... at -50 C (1.5 -> 1.25, the user 2026-10-24) ...")
 (defparameter *rukia-zero-mult* 1.65 "... and at absolute zero (melee and ranged alike).")
 (defparameter *rukia-awake-taken* 0.95 "Damage taken x at -18 C (61000+k scales every band) ...")
 (defparameter *rukia-m50-taken* 0.85 "... at -50 C (hardened) ...")
