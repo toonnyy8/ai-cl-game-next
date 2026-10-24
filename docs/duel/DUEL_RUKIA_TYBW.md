@@ -3,7 +3,7 @@
 Status: **in design** (the request and the scope are decided, §1–§2; the diagnosis §3; the Shikai's combat logic: 霜の層 chosen
 from the §4 candidates, its details under discussion, §4.1). Skills: `duel-move-modules` (the Shikai's grammar), `duel-motion-style` (decide,
 research, plan, measure, draw), `duel-character-rework` (presentation vs sim, the proofs). Research:
-`docs/research/rukia-rework/` (canon looks, canon motion, nihon buyō style references; in progress) on top of
+`docs/research/rukia-rework/` (`canon-looks.md`, `canon-motion.md`, `style-refs.md`: canon looks, canon motion, nihon buyō archetypes and draft motion bars) on top of
 `docs/research/tybw-characters/notes/rukia_tybw.md`. Earlier design: `DUEL_RUKIA.md` (the kit as built 2026-09-28 and
 every decision since; it stays the record of the awakening's rules), `DUEL_STRINGS.md` §2 / §12.
 
@@ -157,6 +157,35 @@ What changes in §4.1:
 - **SP2 白刀 at 0 layers keeps today's 110** (whether it still bursts layers on top: open).
 - **Her awakening leaves his layers on him**, thawing as usual; the awakened moves neither add nor burst them (the
   awakening's rules stay, §2).
+
+### 4.3 The bursts, the kidō, SP2 (the user, 2026-10-24)
+
+> 爆開表：「可以，照這張表」　鬼道：「1+2」　白刀：「爆全部：110 ＋ 每層 25」　0 層接 L：「不接，連段在這裡結束」
+> (the user, 2026-10-24)
+
+The burst table (the lead's proposal, approved; numbers are knobs). L after a J or K link with at least one layer on him:
+**link n bursts up to n layers** (link 1: 1, link 2: 2, link 3: all three); the J routes give position and resource, the
+K routes damage and distance. Every burst ends the string (an `:end` row: no link after it); with 0 layers the L is not
+taken and the string ends at that link (no 0-resource loop).
+
+| Route | Name [G] | Bursts | Benefit |
+|---|---|---|---|
+| J1 + L | 霜散 SHIMO-CHIRI | 1 | an ice spray off the blade, a small hit; she hops back 2.5 m, out to the kidō's middle distance |
+| J2 + L | 雪煙 SETSUEN | ≤ 2 | a mist burst; refunds Reiatsu (the SP gauge) for each layer burst |
+| J3 + L | 霜陣 SŌJIN (the close trap) | all | the shards lie as a frost circle round her, r 3 m, 4 s: while he stands in it he gains a layer every 60 f |
+| K1 + L | 氷礫 HYŌREKI | 1 | the shard hits again: extra damage, the stagger lengthened |
+| K2 + L | 氷柱 TSURARA | ≤ 2 | an ice pillar out of the plaza under him pushes him to 6 m, into her far tools |
+| K3 + L | 雪崩 NADARE-KUDAKI | all | the big shatter: damage by the layers, a knockdown |
+
+The kidō, 「1+2」 (both of the lead's options, joined; the reading below is confirmed with the user):
+- **L tap = 破道の四 白雷 BYAKURAI** (a fast straight beam, 3–6 m, no bar; repeats limited by its recovery); **L held =
+  初の舞・月白** (the ring ≤ 8 m, as now, a pillar's hit +2 layers).
+- **SP1 = kidō**: 破道の三十三 蒼火墜 SŌKATSUI (1 bar; the tap / hold split of option 2 has 白雷 already on L, so SP1 is 蒼火墜).
+- **次の舞・白漣 moves into K3 + L** (the avalanche of cold off the shatter, canon ch. 235's release), so 雪崩 is drawn
+  as 白漣's wave.
+
+SP2 参の舞・白刀: bursts every layer, **110 + 25 a layer** (0: 110, 3: 185), usable alone (off a ring's freeze at 5 m)
+and off any string hit; the one spend-all.
 
 ## 5. Next steps
 1. The research notes (`docs/research/rukia-rework/`), then the look plan (a model-sheet review against canon, stills).
