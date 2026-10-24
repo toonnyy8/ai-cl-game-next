@@ -113,7 +113,8 @@ perfect): playing it by hand still pays.")
 (defparameter *assist-tag-frames* 45 "Frames the AUTO tag shows over a fighter after the assist pressed for him.")
 (defparameter *ender-push* 0.05
   "A J / K string's ender (J3 / K3) that hits pushes its victim at once out of the attacker's J1 (J3) / K1 (K3) reach:
-that move's reach + its lunge (:slide) + the victim's body + this many metres (his walk-in while both recover); the
+that move's far edge (its reach, + a capsule's radius since 2026-10-24, the user: 「請修改推開規則，要將半徑也計算進去」,
+MOVE-EDGE) + its lunge (:slide) + the victim's body + this many metres (his walk-in while both recover); the
 attacker doesn't move (the user 2026-10-02: J1 / K1 must not reach him straight away). What the attacker starts off the
 ender (the O ender's dash, L, SP, ORANGE's restart) chases him (FIGHTER-END-CHASE) ...")
 (defparameter *ender-push-frames* 8 "... over this many frames.")
@@ -263,7 +264,9 @@ then :down + :wakeup (iframes in both).")
 (defparameter *combo-launches* 1 "Launches per combo; a later launch becomes a knockback.")
 (defparameter *combo-air-hits* 3 "Airborne hits per combo; the last one knocks down.")
 (defparameter *combo-full-hits* 3 "Hits 1..this deal full damage...")
-(defparameter *combo-decay* 0.10 "... then each hit deals this much less ...")
+(defparameter *combo-decay* 0.15
+  "... then each hit deals this much less (0.10 -> 0.15, 2026-10-24, the user: 「幫我提高連段的傷害減免」: hit 4 85 %, 5 70 %, 6
+55 %, 7 on the floor) ...")
 (defparameter *combo-floor* 0.40 "... down to this fraction.")
 ;; the hidden hit-stun tolerance (docs/duel/DUEL_DESIGN.md "Hidden hit-stun tolerance", the user 2026-09-29): every connected
 ;; hit fills the victim's hidden stun gauge; the hit that takes it past his kit's :stun-tolerance blows him away

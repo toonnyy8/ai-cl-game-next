@@ -311,7 +311,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;; of the design's, §9): JJJ 112, KKK 210 (the design's 245), KJJ 147; the O ender as hit 4 x0.9 = 63
 (flet ((dmg (&rest names) (loop for n in names for i from 1 sum (hit-damage (mv-dmg (mv :kenpachi :base n)) nil nil i nil))))
   (check (and (= 112 (dmg :ke-j1 :ke-j2 :ke-j3)) (= 210 (dmg :ke-k1 :ke-k2 :ke-k3)) (= 147 (dmg :ke-k1 :ke-j2s :ke-j3))
-              (= 63 (hit-damage 70 nil nil 4 nil)))))
+              (= 60 (hit-damage 70 nil nil 4 nil)))))
 ;; Yama's J1 -> J2 on block: exactly the 6 f gap (free on step 23, J2 hits on step 21 + 8)
 (let ((q1 (mv :yamamoto :base :ya-j1)) (q2 (mv :yamamoto :base :ya-j2)))
   (check (= 23 (nth-value 1 (free-steps q1))))
@@ -327,13 +327,13 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (= (move-end-frame 9 3 12 18 :block nil) 24) (= (move-end-frame 2 1 20 26 nil t) 23)))
 
 ;;; ================================================================ damage (§4)
-(check (and (~= (combo-scale 1) 1.0) (~= (combo-scale 3) 1.0) (~= (combo-scale 4) 0.9)
+(check (and (~= (combo-scale 1) 1.0) (~= (combo-scale 3) 1.0) (~= (combo-scale 4) 0.85) (~= (combo-scale 6) 0.55) (~= (combo-scale 7) 0.4)
             (~= (combo-scale 9) 0.4) (~= (combo-scale 12) 0.4)))
 (check (= (hit-damage 100 nil nil 1 nil) 100))
 (check (= (hit-damage 100 '(:mult 1.3) nil 1 nil) 130))                 ; Hellfire
 (check (= (hit-damage 100 '(:cornered 0.05 :cornered-max 0.25 :lost 2) nil 1 nil) 110))
 (check (= (hit-damage 100 '(:cornered 0.05 :cornered-max 0.25 :lost 6) nil 1 nil) 125))   ; capped
-(check (= (hit-damage 100 '(:mult 1.15 :cornered 0.05 :cornered-max 0.25 :lost 3) nil 5 t) 132)) ; x1.15x1.15x1.25x0.8
+(check (= (hit-damage 100 '(:mult 1.15 :cornered 0.05 :cornered-max 0.25 :lost 3) nil 5 t) 116)) ; x1.15x1.15x1.25x0.7 (hit 5: 0.8 until 2026-10-24's -15 %)
 (check (= (hit-damage 100 nil nil 20 nil) 40))                          ; floor 40 %
 (check (= (hit-damage 1 nil nil 12 nil) 1))                             ; a hit always does 1
 (check (= (hit-damage 0 '(:mult 2.0) nil 1 t) 0))

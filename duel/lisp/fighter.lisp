@@ -667,7 +667,7 @@ user 2026-10-02: a victim against the wall can't be moved, so the attacker is). 
 
 (defun ender-push (e o mv)
   "E's J / K string ender MV (J3 / K3) just hit O: O is pushed out of the reach of E's J1 (after J3) or K1 (after K3) --
-its reach (a K ender: the kit's :push-reach in its place when set, ENDER-PUSH-REACH) + its own lunge + O's body + *ENDER-PUSH* (the user 2026-10-02: a restarted string must not reach him; pushed
+its far edge (its reach, + a capsule's radius: MOVE-EDGE; a K ender: the kit's :push-reach in its place when set, ENDER-PUSH-REACH) + its own lunge + O's body + *ENDER-PUSH* (the user 2026-10-02: a restarted string must not reach him; pushed
 at the hit). E doesn't move, unless the arena's edge holds O (PUSH-APART). What E starts off the ender chases him
 (START-MOVE: FIGHTER-END-CHASE)."
   (let* ((f (fighter e)) (opener (kit-command-move (fighter-kit f) (if (eq (mv-kind mv) :quick) :q :f) e))

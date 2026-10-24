@@ -637,3 +637,27 @@ where to say it.
   20), RK 101.8 → 101.0 (4 → 9), RR 114.0 → 114.0, IR 128.1 → 126.8 (10 → 11), SR 113.0 → 114.4 (10 → 11), BR 133.7 →
   152.6 (5 → 7), HR 137.5 → 140.0 (6 → 4). RY / RK / SR stay under 125 s as before the rework (§11.2, reported then).
   Playtest Artifact v160.
+
+## 15. The ender push counts a capsule's radius, for everyone (the user, 2026-10-24)
+
+> 「請修改推開規則，要將半徑也計算進去。其他角色我試過沒有這問題。」「沒改程式不用測試」 (the user, 2026-10-24)
+
+- The shared rule (kit.lisp `move-edge`, ENDER-PUSH-REACH; RUKIA-BURST-OUT): a J3 / K3 ender (and Rukia's bursts) pushes
+  him out of the opener's **far edge**, its reach + its first volume's radius when that is a capsule (b + r), not its
+  capsule length alone. §14's Rukia-only `:push-reach` 2.85 (`*ru-k-push-reach*`) is removed: her K1's edge is 2.85 by
+  the shared rule. A kit's own `:push-reach` (Hisagi) still wins.
+- Openers it moves (the push grows by the capsule's r): Senjumaru K1 (2.90 → 3.20) and TSUJI K1 (3.80 → 4.10), Lille's
+  SHIN / JILLIEL J1 (+0.40) and K1 (+0.40), Kenpachi's RYŌTE / NOMIHOSE J1 (+0.50), Yamamoto's Bankai J1 (+0.25) and K1
+  (+0.30), Rukia's −18 / −50 / −273 K1 (+0.35 / +0.35 / +0.30); every arc opener is unchanged.
+- Tests: host 10224 ALL PASS (every kit's ender push reach = its opener's MOVE-EDGE; Rukia's K1 edge 2.85, J1 1.44); build
+  0 warnings, smoke exit 0. **No sim gate**: the user said no testing for the other characters (their code is unchanged).
+  Playtest v161.
+
+## 16. Combo damage scaling −10 % → −15 % a hit (the user, 2026-10-24)
+
+> 「幫我提高連段的傷害減免」 (the user, 2026-10-24)
+
+`*combo-decay*` 0.10 → 0.15 (tuning.lisp; hits 1–3 full, then 85 / 70 / 55 %, the 40 % floor from hit 7; it was hit 9).
+The pinned damage checks follow (70 at hit 4: 63 → 60; Hisagi's B4c routes 174 / 132 → 170 / 130). DUEL_DESIGN "Combo
+limits" and the manual's 連段傷害衰減 updated. Host 10224 ALL PASS, build 0 warnings, smoke exit 0; no sim gate run
+(§15's word), playtest v161.

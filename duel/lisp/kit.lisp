@@ -394,10 +394,15 @@ else QUEUED: the press is eaten (after a switch the original button is ignored a
 generic close-in on a hit (combat.lisp: the attacker dashes to *STRING-PULL-TO*)? Not with the move flag :no-close."
   (and (member (mv-kind mv) '(:quick :flash)) (not (member :no-close (mv-flags mv)))
        (eq mv (kit-command-move kit (if (eq (mv-kind mv) :quick) :q :f) e))))
+(defun move-edge (mv)
+  "MV's far edge, where it still touches a hurt cylinder's near side: its reach, + its first volume's radius when that is a
+capsule (a capsule hits out to b + r; the user 2026-10-24: 「請修改推開規則，要將半徑也計算進去」, DUEL_RUKIA_TYBW §15)."
+  (let* ((hits (mv-hits mv)) (v (and (plusp (length hits)) (first (hw-vols (svref hits 0))))))
+    (if (and v (= (aref v 0) 1f0)) (+ (mv-reach mv) (aref v 4)) (mv-reach mv))))
 (defun ender-push-reach (kit mv opener)
   "The reach a string ender MV's push is measured from (fighter.lisp ENDER-PUSH): a K ender's the kit's :push-reach when
-it has one, else OPENER's (J1's after J3, K1's after K3)."
-  (or (and (not (eq (mv-kind mv) :quick)) (kit-push-reach kit)) (mv-reach opener)))
+it has one, else OPENER's far edge (J1's after J3, K1's after K3: MOVE-EDGE)."
+  (or (and (not (eq (mv-kind mv) :quick)) (kit-push-reach kit)) (move-edge opener)))
 (defun kit-hook (kit point)
   "The character file's function for hook POINT in KIT (its :hooks plist), or NIL: the generic code calls it where the
 point is (docs/duel/DUEL_DESIGN.md \"Character code layout\")."

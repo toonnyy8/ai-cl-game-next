@@ -119,7 +119,7 @@
                 (= 90 (fr m18 :ru-a-k1)) (= 120 (fr m18 :ru-a-k3)) (= 120 (fr m18 :ru-hakka-18)) (= 150 (fr z :ru-z-k3)))))
   ;; the route damage on hit (before multipliers): KKK 208, JJJ 110, the O ender 63
   (flet ((dmg (&rest names) (loop for n in names for i from 1 sum (hit-damage (mv-dmg (kit-move b n)) nil nil i nil))))
-    (check (and (= 110 (dmg :ru-j1 :ru-j2 :ru-j3)) (= 208 (dmg :ru-k1 :ru-sk2 :ru-k3)) (= 63 (hit-damage 70 nil nil 4 nil)))))
+    (check (and (= 110 (dmg :ru-j1 :ru-j2 :ru-j3)) (= 208 (dmg :ru-k1 :ru-sk2 :ru-k3)) (= 60 (hit-damage 70 nil nil 4 nil)))))
   ;; the looks and the HUD: the body variants, the blades, the hidden tags, the U tags, the band names
   (check (and (eq :rukia (kit-body b)) (eq :rukia (kit-body m50)) (eq :rukia-zero (kit-body z))
               (equal '(:sode-no-shirayuki :ru-rime :ru-ice) (mapcar #'kit-weapon (list m18 m50 z)))
@@ -220,12 +220,11 @@
   ;; the K routes K1's (RUKIA-BURST-OUT: reach + lunge + his body + *ENDER-PUSH*); 霜散's hop and 氷柱's 6 m clear it by
   ;; themselves for the widest body (0.45 m), 霜陣's circle (r 3 m) still holds a man pushed out of J1
   (let ((jo (+ (mv-reach (kit-command-move b :q)) (mv-slide (kit-command-move b :q)) 0.45 *ender-push*))
-        (ko (+ (kit-push-reach b) (mv-slide (kit-command-move b :f)) 0.45 *ender-push*)))
-    ;; the K route measures from the kit's :push-reach, K1's far edge (b + r), so a restarted K1 can't touch him after K3
-    ;; or a K burst (the user 2026-10-24: 「連打 K 能重複壓制，請縮短 K1 的攻擊距離」, §14): K1 2.55 + 0.3
-    (let ((v (first (hw-vols (svref (mv-hits (kit-command-move b :f)) 0)))))
-      (check (and (~= *ru-k-push-reach* (+ (aref v 2) (aref v 4))) (~= 2.55 (aref v 2)) (eq *ru-k-push-reach* (kit-push-reach b))
-                  (null (kit-push-reach (kit :rukia :m18))) (null (kit-push-reach (kit :rukia :zero))))))
+        (ko (+ (move-edge (kit-command-move b :f)) (mv-slide (kit-command-move b :f)) 0.45 *ender-push*)))
+    ;; the K route measures from K1's far edge (b + r: MOVE-EDGE), so a restarted K1 can't touch him after K3 or a K burst
+    ;; (the user 2026-10-24: 「連打 K 能重複壓制，請縮短 K1 的攻擊距離」「要將半徑也計算進去」, §14–§15): K1 2.55 + 0.3
+    (check (and (~= 2.85 (move-edge (kit-command-move b :f))) (~= 2.55 (mv-reach (kit-command-move b :f)))
+                (~= 1.44 (move-edge (kit-command-move b :q))) (null (kit-push-reach b))))
     (check (and (every (lambda (n) (eq :q (getf (mv-params (kit-move b n)) :opener))) '(:ru-shimochiri :ru-setsuen :ru-sojin))
                 (every (lambda (n) (eq :f (getf (mv-params (kit-move b n)) :opener))) '(:ru-hyoreki :ru-tsurara :ru-hakuren-k))
                 (~= 2.54 jo) (> (+ 1.2 *ru-hop*) jo) (> *ru-tsurara-to* ko) (< jo (getf *ru-sojin* :r))

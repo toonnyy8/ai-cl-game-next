@@ -775,12 +775,10 @@ past the ends; DEFAULT if the clip is not listed."
 ;; Hisagi's shared hooks (docs/duel/DUEL_HISAGI.md §12.4, batch B1): each defaults off. Inert: no kit / move but Hisagi's
 ;; (B2a, his own section below) sets one, and the generic readers they changed return what the old code did for every
 ;; other kit form and move.
-(defun ru-push-reach-p (k)   ; (Rukia's Shikai sets :push-reach too: K1's edge, DUEL_RUKIA_TYBW §14)
-  (and (eq (kit-character k) :rukia) (eq (kit-form k) :base) (= (kit-push-reach k) *ru-k-push-reach*)))
 (defun hs-own-move-p (name) (let ((n (symbol-name name))) (and (> (length n) 3) (string= "HS-" n :end2 3))))
 (let ((kits (remove :hisagi (loop for alist being the hash-values of *kits* append (mapcar #'cdr alist)) :key #'kit-character))
       (moves (loop for name being the hash-keys of *moves* using (hash-value m) unless (hs-own-move-p name) collect m)))
-  (check (every (lambda (k) (and (or (null (kit-push-reach k)) (ru-push-reach-p k)) (null (kit-hook k :command)))) kits))
+  (check (every (lambda (k) (and (null (kit-push-reach k)) (null (kit-hook k :command)))) kits))
   (check (loop for m in moves
                never (or (intersection '(:no-close :ranged-ward) (mv-flags m)) (some #'hw-seg (mv-hits m)))))
   (dolist (k kits)
@@ -791,7 +789,7 @@ past the ends; DEFAULT if the clip is not listed."
                         (and (member (mv-kind m) '(:quick :flash))
                              (eq m (kit-command-move k (if (eq (mv-kind m) :quick) :q :f))) t)))
              (let ((o (kit-command-move k (if (eq (mv-kind m) :quick) :q :f))))   ; :push-reach: the opener's reach
-               (when (and o (not (ru-push-reach-p k))) (check (= (ender-push-reach k m o) (mv-reach o)))))))
+               (when o (check (= (ender-push-reach k m o) (move-edge o)))))))   ; (its far edge, §15)
   ;; :seg-fn: WINDOW-TOUCHES-P = the old volume loop for every window of every move, at points around the attacker
   (check (loop for m in moves
                always (loop for w across (mv-hits m)

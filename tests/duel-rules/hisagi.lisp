@@ -461,7 +461,7 @@
                                       sum (loop for w across (mv-hits (m n)) sum (hit-damage (hw-dmg w) nil nil (incf i) nil))))))
       (check (or (equal (list (dmg :hs-r-j1 :hs-r-j2 :hs-r-j3) (dmg :hs-r-j1 :hs-r-j2 :hs-r-k3) (dmg :hs-r-j1 :hs-r-k2s :hs-r-k3)
                               (dmg :hs-r-k1 :hs-r-k2 :hs-r-k3g) (dmg :hs-r-k1 :hs-r-k2 :hs-r-j3g) (dmg :hs-r-k1 :hs-r-j2s :hs-r-j3g))
-                        '(67 97 115 174 132 108))
+                        '(67 97 115 170 130 108))   ; (174 132 before 2026-10-24's -15 % a hit)
                  (format t "  Hisagi B4c route damage ~a~%"
                          (list (dmg :hs-r-j1 :hs-r-j2 :hs-r-j3) (dmg :hs-r-j1 :hs-r-j2 :hs-r-k3) (dmg :hs-r-j1 :hs-r-k2s :hs-r-k3)
                                (dmg :hs-r-k1 :hs-r-k2 :hs-r-k3g) (dmg :hs-r-k1 :hs-r-k2 :hs-r-j3g) (dmg :hs-r-k1 :hs-r-j2s :hs-r-j3g)))))
