@@ -304,4 +304,5 @@ the match from behind, 8 the same walking in), 85900 the consing line.
 Checks: on its base, `simgate --seeds 10 --summary` and `--cvc` byte-identical; after the merge with the new Shikai the
 host tests 10220 ALL PASS, pkgcheck clean, the ranges check passes, the build 0 warnings, the merged stills checked, the
 consing lines 0 B in all five looks (standing / J1 hit) and for every new Shikai look (layers, 霜陣, the beam, the fire,
-the rods). Before / after sheets (landscape and portrait) went to the user; the playtest Artifact is v151.
+the rods). After the merge, `simgate --seeds 10 --summary` over all 28 pairings is byte-identical to main 8f452e0 (the new Shikai
+without the look). Before / after sheets (landscape and portrait) went to the user; the playtest Artifact is v151.
