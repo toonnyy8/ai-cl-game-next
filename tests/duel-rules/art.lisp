@@ -91,12 +91,14 @@
                                     (and (not (assoc clip strike))   ; (her K props: both ways)
                                          (or (member cf *reach-one-sided* :test #'equal) (member (mv-kind mv) '(:flash :breaker)))))))
                        (format t "~a ~a: the volume ends ~,2f m, the art ~,2f m~%" (second cf) (mv-name mv) edge art)))))))
-    ;; Rukia's Shikai bursts (DUEL_RUKIA_TYBW §4.4, 2026-10-24) on placeholder clips until the motion pass: the blade's tip
-    ;; against the volume's far edge, reported (a "Rukia burst reach" line each), checked only never to pass it by > 0.15 m
-    ;; (K3 + L 白漣's 11 m wave and the kido are not the blade: out)
+    ;; Rukia's Shikai bursts (DUEL_RUKIA_TYBW §4.4) on their own clips (the motion pass, §13.3, 2026-10-24; at speed 1): the
+    ;; blade's tip, her farthest drawn point (霜散's flung sleeve rides the arm inside it), against the volume's far edge,
+    ;; reported (a "Rukia burst reach" line each), checked only never to pass it by > 0.15 m. Every one falls short: the
+    ;; rest is carried by 霜散's frost off the sleeve, 雪煙's snow-smoke, 霜陣's snow ring, 氷礫's pebbles, 氷柱's icicles
+    ;; and 白漣's 11 m wave (the kido are lines, a cone and rings off the hand: out)
     (let* ((k (kit :rukia :base)) (b (cdr (assoc :rukia bodies))) (props (and (getf b :props) (apply #'make-rig-proportions (getf b :props))))
            (wlen (cdr (assoc (kit-weapon k) weapons))))
-      (dolist (n '(:ru-shimochiri :ru-setsuen :ru-sojin :ru-hyoreki :ru-tsurara))
+      (dolist (n '(:ru-shimochiri :ru-setsuen :ru-sojin :ru-hyoreki :ru-tsurara :ru-hakuren-k))
         (let* ((mv (kit-move k n)) (hw (svref (mv-hits mv) 0)) (vol (first (hw-vols hw))) (cap (> (aref vol 0) 0.5))
                (edge (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1)))
                (art (loop for sf from (hw-from hw) below (hw-to hw)
