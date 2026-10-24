@@ -93,7 +93,7 @@
                        (format t "~a ~a: the volume ends ~,2f m, the art ~,2f m~%" (second cf) (mv-name mv) edge art)))))))
     ;; Rukia's Shikai bursts (DUEL_RUKIA_TYBW §4.4, 2026-10-24) on placeholder clips until the motion pass: the blade's tip
     ;; against the volume's far edge, reported (a "Rukia burst reach" line each), checked only never to pass it by > 0.15 m
-    ;; (雪崩's 6 m wave and the kido are not the blade: out)
+    ;; (K3 + L 白漣's 11 m wave and the kido are not the blade: out)
     (let* ((k (kit :rukia :base)) (b (cdr (assoc :rukia bodies))) (props (and (getf b :props) (apply #'make-rig-proportions (getf b :props))))
            (wlen (cdr (assoc (kit-weapon k) weapons))))
       (dolist (n '(:ru-shimochiri :ru-setsuen :ru-sojin :ru-hyoreki :ru-tsurara))

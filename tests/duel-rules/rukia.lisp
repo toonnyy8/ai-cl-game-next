@@ -168,8 +168,8 @@
               (equal '(1 0) (thaw-run 3 0 300)) (equal '(0 0) (thaw-run 0 0 10)) (equal '(2 0) (thaw-run 3 140 10)))))
 (let* ((b (kit :rukia :base))
        (links '((:ru-j1 :ru-shimochiri 1) (:ru-j2 :ru-setsuen 2) (:ru-j2s :ru-setsuen 2) (:ru-j3 :ru-sojin 3)
-                (:ru-k1 :ru-hyoreki 1) (:ru-sk2 :ru-tsurara 2) (:ru-sk2s :ru-tsurara 2) (:ru-k3 :ru-nadare 3)))
-       (bursts '(:ru-shimochiri :ru-setsuen :ru-sojin :ru-hyoreki :ru-tsurara :ru-nadare)))
+                (:ru-k1 :ru-hyoreki 1) (:ru-sk2 :ru-tsurara 2) (:ru-sk2s :ru-tsurara 2) (:ru-k3 :ru-hakuren-k 3)))
+       (bursts '(:ru-shimochiri :ru-setsuen :ru-sojin :ru-hyoreki :ru-tsurara :ru-hakuren-k)))
   ;; the six routes: every J / K link of the Shikai's grid has its own burst, link n bursting up to n (:burst n); the J
   ;; routes S 10 / A 3 / R 22, the K routes S 12 / A 4 / R 26; each a :sig ending the string (no J / K / L link after it,
   ;; no :ender: no O ender; a :sig: no SP cancel); six distinct clips; their damage (§4.4)
@@ -193,18 +193,18 @@
                 (equal '(40 60 80) (mapcar (lambda (k) (at :ru-sojin k)) '(1 2 3)))
                 (equal '(60 60 60) (mapcar (lambda (k) (at :ru-hyoreki k)) '(1 2 3)))
                 (equal '(55 80 80) (mapcar (lambda (k) (at :ru-tsurara k)) '(1 2 3)))
-                (equal '(75 110 145) (mapcar (lambda (k) (at :ru-nadare k)) '(1 2 3)))
+                (equal '(75 110 145) (mapcar (lambda (k) (at :ru-hakuren-k k)) '(1 2 3)))
                 ;; SP2 SHIRAFUNE: 110 + 25 a layer, every layer (alone or off a string hit)
                 (equal '(110 135 160 185) (mapcar (lambda (k) (at :ru-shirafune-s k)) '(0 1 2 3)))
                 (eq :ru-shirafune-s (mv-name (kit-command-move b :sp2))) (= 3 (getf (mv-params (kit-command-move b :sp2)) :burst)))))
   ;; the benefits: 霜散 hops 2.5 m, 雪煙 8 % of a bar a layer, 霜陣 r 3 m for 4 s (+1 a 60 f), 氷礫 stagger 26 + 8,
-  ;; 氷柱 out to 6 m, 雪崩 a knockdown along a 6 m line; the J routes 2.0 m round her, the K routes 2.8 m
+  ;; 氷柱 out to 6 m, 白漣 a knockdown along an 11 m line; the J routes 2.0 m round her, the K routes 2.8 m
   (check (and (eq :hop (getf (mv-params (kit-move b :ru-shimochiri)) :fx)) (~= 2.5 *ru-hop*)
               (eq :refund (getf (mv-params (kit-move b :ru-setsuen)) :fx)) (~= 0.08 *ru-refund*)
               (eq :circle (getf (mv-params (kit-move b :ru-sojin)) :fx)) (equal *ru-sojin* '(:r 3.0 :life 240 :per 60))
               (= 34 (hw-stun (svref (mv-hits (kit-move b :ru-hyoreki)) 0))) (eq :stagger (hw-react (svref (mv-hits (kit-move b :ru-hyoreki)) 0)))
               (eq :push (getf (mv-params (kit-move b :ru-tsurara)) :fx)) (~= 6.0 *ru-tsurara-to*)
-              (eq :knockdown (hw-react (svref (mv-hits (kit-move b :ru-nadare)) 0))) (~= 6.0 (mv-reach (kit-move b :ru-nadare)))
+              (eq :knockdown (hw-react (svref (mv-hits (kit-move b :ru-hakuren-k)) 0))) (~= 11.0 (mv-reach (kit-move b :ru-hakuren-k)))
               (every (lambda (n) (~= 2.0 (mv-reach (kit-move b n)))) '(:ru-shimochiri :ru-setsuen :ru-sojin))
               (every (lambda (n) (~= 2.8 (mv-reach (kit-move b n)))) '(:ru-hyoreki :ru-tsurara))))
   ;; every burst combos off its link with the link's hitstop on both sides: the link's chain opens at S + A on a hit, the

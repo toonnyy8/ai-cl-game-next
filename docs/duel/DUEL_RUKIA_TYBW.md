@@ -317,3 +317,22 @@ The ru-look batch drew the left sleeve as a short puffed cap with a tie (gap #2 
 (0.13 × 0.04 × 0.14, the tan plaque with 十三 on its outside), the sleeve's **loose mouth flaring below the band** round the
 upper arm (a black frustum r 0.07 → 0.145, 0.115 tall), the white under-sleeve beneath, and −50's frosted hem on the mouth.
 Presentation only: host tests 10220 ALL PASS; her seven pairings at 10 seeds byte-identical to the build before.
+
+## 8. RIKUJŌKŌRŌ through a guard; K3 + L becomes 白漣 (the user, 2026-10-24)
+
+> 「六丈光牢就算對手在防禦也能強制讓對手陷入 45f 的硬直差。但要可以用 step 跟 hoho 躲避」
+> 「K3+L 的雪崩直接改成白漣」
+> (the user, 2026-10-24)
+
+- **RIKUJŌKŌRŌ**: its bind's hitwin is `:unguardable` (rules RESOLVE-CONTACT: a guard is read as neutral), so a guarding
+  victim is bound 45 f all the same. It stays a disc marked at its f2 (r 1.2 m) that shuts at f16: a Step (2.5 m) or a
+  Hoho out of the ring escapes it (a walk can't: 14 f at 3.8 m/s is 0.9 m, the ring plus his body 1.56 m). The CPU's
+  anti-bind (ai.lisp: step sideways or Hoho inside a `:bind` move's `:tell`) already reads it. Debug 85026 (into a held
+  guard: bound, 20 damage) and 85027 (into his CPU: in four tries it Stepped out once, ran in and hit her once, was
+  bound twice).
+- **K3 + L is 次の舞・白漣** (`:ru-hakuren-k`, was `:ru-nadare` 雪崩): the four stabs at once at its f0 (zero's
+  HAKUREN-SPIKES), the full four-stab wave (half-width 1.8) running 11 m at its f12, the callout and brush 白漣; the burst
+  is unchanged (all layers, 40 + 35 a layer, a knockdown, S_eff 12), its line hit lengthened 6 → 11 m to match the drawn
+  wave (taken only off a K3 hit, so the reach matters little). The clip is HAKUREN's release (`:ru-hakuren` at `:clip-s`
+  12; a placeholder until the motion pass).
+- Host tests 10220 ALL PASS (the K route's checks renamed, its reach 11 m); her gate rows follow below.
