@@ -48,6 +48,7 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_KEN_BANKAI.md](duel/DUEL_KEN_BANKAI.md) | 劍八卍解（第二次覺醒）與片腕（2026-09-28，已實作）：三杯紅血按 P、魂魄變 1 且 HP 回滿、「腕」4 格與爆裂、卍解招式表（咬、盾ごと、殴り飛ばし、真っ二つ）、片腕、過場、HUD、AI 的進入規則、使用者的決定、實作偏離之處、節奏測試與「必開／不開」A/B（英文）。同時記錄 Soul Break 的新規則（播攻擊方的毀魂技動畫、上限 5）；「腕」與 NOME 的程式在 `ken-meter.lisp`（第三輪重構） |
 | [DUEL_KEN_REWORK.md](duel/DUEL_KEN_REWORK.md) | 劍八動作與造型重做（2026-10-08，討論中）：現況診斷、研究摘要、待決問題（英文） |
 | [DUEL_RUKIA.md](duel/DUEL_RUKIA.md) | 朽木露琪亞（血戰篇）：袖白雪與絶対零度的設計與實作（英文）；冷度計的程式在 `rukia-meter.lisp`（第三輪重構） |
+| [DUEL_RUKIA_TYBW.md](duel/DUEL_RUKIA_TYBW.md) | 露琪亞重做（2026-10-24，設計中）：整體造型、動作模組（原作舉止＋日本舞踊）、新的始解戰鬥邏輯；覺醒只改動作與判定距離（英文） |
 | [DUEL_ICHIGO.md](duel/DUEL_ICHIGO.md) | 黑崎一護（血戰篇）：二刀斬月與血鎖の一護，含試玩後的 v2 重新設計（英文） |
 | [DUEL_ICHIGO_TYBW.md](duel/DUEL_ICHIGO_TYBW.md) | 一護千年血戰篇造型與動作模組重做（2026-10-14）：診斷、正手短刀與 TYBW 服裝、各型態動作標準、月牙殘光與地面龜裂、K3 真的往前踏步、gate（英文） |
 | [DUEL_SENJUMARU.md](duel/DUEL_SENJUMARU.md) | 修多羅千手丸：刺絡與卍解娑闥迦羅骸刺絡辻的設計與實作（英文） |
