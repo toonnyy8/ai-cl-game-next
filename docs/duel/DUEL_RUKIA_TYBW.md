@@ -276,3 +276,32 @@ Awaken A/B (the merged main; Rukia never awakens, the other side on its rule; he
 `--cmd 39020` with her as P1, `39002` as P2): RY 38 / 42 / 43, RK 21 / 21 / 32, RR 29 / 30 / 32, IR 28 / 30 / 28, SR
 33 / 43 / 36, BR 41 / 40 / 41, HR 44 / 47 / 45: every row ≥ 20, pass (RK the closest). All 1260 matches K.O.; `--cvc`
 PASS (yy / yk / kk identical).
+
+## 7. As built: the look (batch ru-look, 9337f55, merged 57c31f7; 2026-10-24; presentation only)
+
+By the gap numbers of `docs/research/rukia-rework/canon-looks.md` §5:
+
+| Gap | As built |
+|---|---|
+| #1 the ribbon | a 1.8 m chain from the pommel, lying behind her and out to her right, looping in turns; stiffer and shorter in the colder bands (canon ~6 m: cut so it stays out of the behind camera) |
+| #2–#4 the sleeves | the left a short puffed cap with the 十三 plaque (muted tan #B4A486, S < 0.3); white fingerless tekkō on both arms; the right sleeve a hanging panel swinging behind the arm |
+| #5 the hakama | an 8-panel bell that trails her and flares in turns (Yamamoto's hem spring, rotated, never scaled); wide hakama legs |
+| #6 the scabbard | black, at her left hip |
+| #7 the guard | a round ring with six spokes |
+| #8 the sash | white |
+| #10 the irises | a lighter lavender #7A7096 |
+| #12 / #17 the ornament | −273 and the Bankai share one ice spray on her left side wrapping behind the head (replaces the symmetric half-crown) |
+| #13–#16, #18 the Bankai | four stacked ice collar rings, tiered shoulder plates, an ankle-length white kimono bell, knee-length hanging sleeves, a bow of four loops and three ribbons on her back, a chest snowflake with a tassel |
+| skipped | #9, #11 (already canon); #19 the Bankai's guard (a bar or a ring: the user's call); #20 the Ep411 stole (optional) |
+
+The −50 frost rims and the white looks' ice keyline cover the new cloth too. Shared files: `body.lisp` (`defweapon`
+takes `:ink-color`, so a cloth part can carry the black-cloth or the ice keyline), `tests/duel-rules/art.lisp` (a body
+variant takes its base body's rig: `:rukia` is now built on `:rukia-core`). Her look's draw hook is registered on every form
+at the end of `rukia-meter.lisp`. Debug 85500+10l+s the model sheets (l: 0 the Shikai, 1 −18, 2 −50, 3 −273, 4 the
+Bankai costume; s: 0 front, 1 left side, 2 back, 3 three-quarters, 4 face, 5 the blade out, 6 the J3 turn from behind, 7
+the match from behind, 8 the same walking in), 85900 the consing line.
+
+Checks: on its base, `simgate --seeds 10 --summary` and `--cvc` byte-identical; after the merge with the new Shikai the
+host tests 10220 ALL PASS, pkgcheck clean, the ranges check passes, the build 0 warnings, the merged stills checked, the
+consing lines 0 B in all five looks (standing / J1 hit) and for every new Shikai look (layers, 霜陣, the beam, the fire,
+the rods). Before / after sheets (landscape and portrait) went to the user; the playtest Artifact is v151.
