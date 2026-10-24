@@ -234,3 +234,40 @@ Removed from today's Shikai: the K hits' frost timers (60 / 90 f), the K → L �
 All 140 K.O. Five of the seven already sit under the 125 s floor on main: the global whiff / block recovery and Kikon
 changes of 2026-10-23 (DEVLOG §319–§335) moved many pairings below it before this rework (YY 85.5, YK 87.1 there). The new
 Shikai is judged against this parent, not the window alone.
+
+## 6. As built: the new Shikai's rules (batch ru-sim, 3d2b045, merged cd97427; 2026-10-24)
+
+- **霜 layers**: a per-fighter status separate from the frost timer (0–3 + a thaw timer). K hits +1, J hits reset his
+  thaw, TSUKISHIRO's pillar +2, ENBU +1, the 霜陣 circle +1 a 60 f inside; one layer thaws a 150 f; walk / run ×0.85 /
+  0.70 / 0.55; nothing else slows.
+- **Bursts**: the generic `:l-after-j` / `:l-after-k` also take a per-link plist (every other kit's data unchanged). A
+  burst needs ≥ 1 layer and a hit (refused on a block), ends the string, and combos off its link including hitstop
+  (host-tested).
+- **Tap / hold**: L tap BYAKURAI, L held ≥ 12 f TSUKISHIRO (`*ru-l-hold*`); SP1 tap SŌKATSUI, held 16 f RIKUJŌKŌRŌ;
+  SP2 110 + 25 a layer.
+- **Removed**: the K → L TSUKISHIRO copy, the Shikai's HAKUREN button, every Shikai frost timer.
+- **Awakened kits pinned**: their commands and `:l-after-j nil` are set in `:m18`; a host test checks their kit data
+  equals adcb94b's. The Shikai's K2 is renamed `:ru-sk2` / `:ru-sk2s` so the bands keep `:ru-k2` with its frost 60.
+- **CPU**: `string-reflex` takes a kit function for `:l-after-*` (shared with AUTO COMBO) and a new `:sp1-hold` hook;
+  every new move fires in 40 CPU matches, though rarely 霜散 (0), the held TSUKISHIRO (3) and RIKUJŌKŌRŌ (1).
+- **DANGAI**: card 119 白船不沈 now covers the Shikai's SP2 too.
+- **Knobs**: `*ru-burst-j-s*` `*ru-burst-k-s*` `*ru-hop*` `*ru-refund*` `*ru-sojin*` `*ru-tsurara-to*`
+  `*ru-hyoreki-stun*` `*ru-l-hold*`; the CPU's `*ai-ru-burst-1/2/3*` `*ai-ru-zone-kido*` `*ai-ru-sp2-layers*`
+  `*ai-ru-l-far*` `*ai-ru-sp1-far*`. Debug 85000+k the scenes, 85499 the looks' consing check (0 B a frame); a
+  `duel rukia` pacing line follows her gate rows. 10 kanji baked into `glyphs-extra.lisp`.
+- **Placeholder clips** (the motion pass replaces them): 霜散 `:ru-q1-z`, 雪煙 `:ru-spin-50`, 霜陣 `:ru-reido`, 氷礫
+  `:ru-thrust-z`, 氷柱 `:ru-flower-50`, 雪崩 `:ru-hakka`, BYAKURAI `:ru-palm-50`, SŌKATSUI `:ru-palm` (its hold
+  `:ru-cold-stance`), RIKUJŌKŌRŌ `:ru-flower`. The FK report: every melee burst's drawn tip falls short of its volume
+  (霜散 −82 cm, 雪煙 −46, 霜陣 −131, 氷礫 −179, 氷柱 −185); none overshoots.
+- **Deviations from §4.4** (the lead's calls, reported to the user): frost also left the Shikai's SP2, TSUKISHIRO and
+  ENBU (§4.4 named only the K hits); a 霜陣 laid before her awakening keeps adding layers after it; RIKUJŌKŌRŌ marks
+  his spot at its f2 and binds at f16; SŌKATSUI's startup counts from the release, so a tap hits 1–6 f later than S 14.
+
+### 6.1 Checks and gates (the merged main)
+
+Host tests 10220 ALL PASS (control 89, learn 131), pkgcheck clean, the debug ranges check passes, `./build.sh duel` 0
+warnings, a browser smoke exit 0 (the batch ran `duel-rukia.json` to the end: every burst fires). Non-Rukia pairings
+(YY YK KK IY IK II SS SI, 10 seeds) identical to adcb94b; G2 `--cvc` identical to the reference. Her pairings, 20 seeds,
+all K.O. (median s and Rukia's wins of 20, parent → now): RY 92.0 → 97.3 (13 → 11), RK 94.5 → 89.7 (9 → 6), RR 116.5 →
+114.5, IR 117.2 → 108.0 (11 → 13), SR 120.8 → 123.4 (10 → 14), BR 135.3 → 131.3 (14 → 13), HR 138.8 → 139.9 (17 →
+14). The playtest Artifact is v150.
