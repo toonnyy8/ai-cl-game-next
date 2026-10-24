@@ -40,7 +40,7 @@
 ;; at 0 layers or on a block: the string ends at that link): link n's own burst, up to n layers (:burst n; 3: all,
 ;; rules BURST-COUNT), :dmg + :per a layer burst (RUKIA-BURST-ARM at f0), the benefit at its hit (RUKIA-BURST!). Each ends
 ;; the string (a :sig: no link, no SP cancel, no O ender). After a J (A 3, flinch 18): S 10; after a K (A 4, stagger 26):
-;; S 12; both combo with the link's hitstop (the host test). Clips: placeholders until the motion pass (§5)
+;; S 12; both combo with the link's hitstop (the host test). Clips: their own at speed 1 (the motion pass, DUEL_RUKIA_TYBW §13.3)
 (defparameter *ru-burst-j-s* 10 "J1 / J2 / J3 + L: startup (S_eff; A 3 + 10 < flinch 18 with the hitstop; new 2026-10-24, the user, §4.4).")
 (defparameter *ru-burst-k-s* 12 "K1 / K2 / K3 + L: startup (A 4 + 12 < stagger 26; new 2026-10-24, the user, §4.4).")
 (defparameter *ru-hop* 2.5 "霜散 SHIMO-CHIRI: she hops back this far at its hit (new 2026-10-24, the user, §4.3).")
@@ -51,43 +51,44 @@ many frames he stands in it (new 2026-10-24, the user, §4.4; round her, a layer
 the user 2026-10-24, DUEL_RUKIA_TYBW §10).")
 (defparameter *ru-tsurara-to* 6.0 "氷柱 TSURARA: he is pushed out to this distance (m) at its hit (new 2026-10-24, the user, §4.3).")
 (defparameter *ru-hyoreki-stun* 34 "氷礫 HYOREKI: its stagger, frames (26 + 8; new 2026-10-24, the user, §4.4).")
-(defmove :ru-shimochiri :kind :sig :clip :ru-q1-z :clip-s 7 :callout "SHIMO-CHIRI" :startup *ru-burst-j-s* :active 3 :recovery 22
+;; (each burst crossfades 3 f out of the link it follows, :blend 3: a look, DUEL_RUKIA_TYBW §13.8)
+(defmove :ru-shimochiri :kind :sig :clip :ru-s-shimochiri :blend 3 :callout "SHIMO-CHIRI" :startup *ru-burst-j-s* :active 3 :recovery 22
   :dmg 20 :adv-block -10 :reach 2.0 :arc 360 :on-hit :flinch :on-frame ((0 rukia-burst-arm))
   :params (:burst 1 :per 20 :fx :hop :opener :q))                               ; J1 + L 霜散: an ice spray, the hop back
-(defmove :ru-setsuen :kind :sig :clip :ru-spin-50 :clip-s 8 :callout "SETSUEN" :startup *ru-burst-j-s* :active 3 :recovery 22
+(defmove :ru-setsuen :kind :sig :clip :ru-s-setsuen :blend 3 :callout "SETSUEN" :startup *ru-burst-j-s* :active 3 :recovery 22
   :dmg 20 :adv-block -10 :reach 2.0 :arc 360 :on-hit :flinch :on-frame ((0 rukia-burst-arm))
   :params (:burst 2 :per 20 :fx :refund :opener :q))                            ; J2 + L 雪煙: a mist burst, Reiatsu back
-(defmove :ru-sojin :kind :sig :clip :ru-reido :clip-s 6 :callout "SOJIN" :startup *ru-burst-j-s* :active 3 :recovery 22
+(defmove :ru-sojin :kind :sig :clip :ru-s-sojin :blend 3 :callout "SOJIN" :startup *ru-burst-j-s* :active 3 :recovery 22
   :dmg 20 :adv-block -10 :reach 2.0 :arc 360 :on-hit :flinch :on-frame ((0 rukia-burst-arm))
   :params (:burst 3 :per 20 :fx :circle :opener :q))                            ; J3 + L 霜陣: the shards lie as a frost circle
-(defmove :ru-hyoreki :kind :sig :clip :ru-thrust-z :clip-s 17 :callout "HYOREKI" :startup *ru-burst-k-s* :active 4 :recovery 26
+(defmove :ru-hyoreki :kind :sig :clip :ru-s-hyoreki :blend 3 :callout "HYOREKI" :startup *ru-burst-k-s* :active 4 :recovery 26
   :dmg 30 :adv-block -14 :vol (:cap 0.2 2.8 1.1 0.3) :on-hit :stagger :on-frame ((0 rukia-burst-arm))
   :hits ((12 16 :stun *ru-hyoreki-stun*)) :params (:burst 1 :per 30 :opener :f))   ; K1 + L 氷礫: the shard hits again
-(defmove :ru-tsurara :kind :sig :clip :ru-flower-50 :clip-s 21 :callout "TSURARA" :startup *ru-burst-k-s* :active 4 :recovery 26
+(defmove :ru-tsurara :kind :sig :clip :ru-s-tsurara :blend 3 :callout "TSURARA" :startup *ru-burst-k-s* :active 4 :recovery 26
   :dmg 30 :adv-block -14 :reach 2.8 :arc 160 :on-hit :stagger :on-frame ((0 rukia-burst-arm))
   :params (:burst 2 :per 25 :fx :push :opener :f))                              ; K2 + L 氷柱: a pillar under him, out to 6 m
-(defmove :ru-hakuren-k :kind :sig :clip :ru-hakuren :clip-s 12 :callout "TSUGI NO MAI: HAKUREN" :startup *ru-burst-k-s* :active 4
+(defmove :ru-hakuren-k :kind :sig :clip :ru-s-hakuren :blend 3 :callout "TSUGI NO MAI: HAKUREN" :startup *ru-burst-k-s* :active 4
   :recovery 26 :dmg 40 :adv-block -14 :vol (:cap 0.3 11.0 1.0 0.6) :on-hit :knockdown
   :on-frame ((0 rukia-burst-arm) (0 rukia-hakuren-spikes) (12 rukia-hakuren-k-wave))
   :params (:burst 3 :per 35 :fx :wave :opener :f))   ; K3 + L 次の舞・白漣 (雪崩 until the user 2026-10-24, §8): the four stabs, the 11 m wave
 ;; L, a tap: HADO NO YON: BYAKURAI, a straight beam from her fingers (a :ranged line 0.5 -> 6 m, 0.3 m wide), no bar; held
 ;; >= 12 f (RUKIA-L-HOLD at its f11, before its hit) it becomes TSUKISHIRO (the kit's non-button :hold string)
 (defparameter *ru-l-hold* 12 "L held this many frames is TSUKISHIRO, fewer BYAKURAI (new 2026-10-24, the user, §4.4).")
-(defmove :ru-byakurai :kind :sig :clip :ru-palm-50 :clip-s 17 :callout "HADO NO YON: BYAKURAI" :startup 12 :active 3 :recovery 28
+(defmove :ru-byakurai :kind :sig :clip :ru-s-byakurai :callout "HADO NO YON: BYAKURAI" :startup 12 :active 3 :recovery 28
   :dmg 45 :adv-block -12 :guard 10 :vol (:cap 0.5 6.0 1.1 0.15) :on-hit :flinch :flags (:ranged) :tick rukia-l-hold
   :on-frame ((12 rukia-byakurai-beam)))
 ;; L held: SOME NO MAI: TSUKISHIRO: at f12 the point under the opponent (<= :range m, CAST-POINT) gets a white ring (the
 ;; tell); :delay frames later a pillar of ice erupts in it: a :bind disc, guardable from her side (:src), fragile (it
 ;; closes if she is hit first): :dmg + frozen :stun frames; its hit lays :layers (2; its frost 90 gone, 2026-10-24). A
 ;; Step (2.5 m) always clears it. No cooldown: S 12 / R 36
-(defmove :ru-tsukishiro :kind :sig :clip :ru-tsukishiro :callout "SOME NO MAI: TSUKISHIRO" :startup 12 :active 0
+(defmove :ru-tsukishiro :kind :sig :clip :ru-s-tsukishiro :callout "SOME NO MAI: TSUKISHIRO" :startup 12 :active 0
   :recovery 36 :flags (:bind) :on-frame ((12 rukia-tsukishiro))   ; (no cooldown, the user 2026-09-29: S 12 / R 36 instead)
   :params (:range 8.0 :radius 1.8 :height 3.0 :delay 24 :dmg 60 :stun 36 :guard 14 :frost 0 :layers 2 :life 8 :tell (21 30)))
 ;; Shift+K, a tap: HADO NO SANJUSAN: SOKATSUI, blue fire from both palms (a 5 m cone, 40 deg, knockback 3 m), 1 bar; held
 ;; >= 16 f (RUKIA-SP1-RELEASE at the hold's end): BAKUDO NO ROKUJUICHI: RIKUJOKORO, six rods of light at him <= 6 m (the
 ;; ring under him at its f2, the bind 14 f later: a :bind disc 45 f that no guard stops (the user 2026-10-24: a guarding
 ;; victim is bound too, DUEL_RUKIA_TYBW §8); only a Step or a Hoho out of the ring before it shuts escapes it)
-(defmove :ru-sokatsui :kind :sp :clip :ru-cold-stance :clip-2 :ru-palm :clip-s 17 :callout "HADO NO SANJUSAN: SOKATSUI"
+(defmove :ru-sokatsui :kind :sp :clip :ru-s-kido :clip-2 :ru-s-sokatsui :callout "HADO NO SANJUSAN: SOKATSUI"
   :hold (1 16) :release rukia-sp1-release :startup 14 :active 4 :recovery 26 :dmg 90 :adv-block -16
   :reach 5.0 :arc 40 :height (0.2 1.8) :on-hit :knockback :kb 3.0 :flags (:ranged) :on-frame ((14 rukia-sokatsui-fire)))
 (defparameter *ru-rikujo-max* 100
@@ -96,7 +97,7 @@ this, which lasts from the bind at its farthest (6 m) until her O's Kikon follow
 recovery 26 + ENBU's hit 25 f after the press at 5.9 m + the follow-up 49 = 100) (the user 2026-10-24: 「長按可延長
 六丈光牢的鎖定時間，最長可封鎖至毀魂技追擊打中」, DUEL_RUKIA_TYBW §10). While it seals him (FIGHTER-SEAL) a Kikon
 follow-up treats him as red: no guard cancels its reel or blocks it.")
-(defmove :ru-rikujo :kind :sig :clip :ru-flower :clip-s 21 :callout "BAKUDO NO ROKUJUICHI: RIKUJOKORO" :startup 16 :active 0
+(defmove :ru-rikujo :kind :sig :clip :ru-s-rikujo :clip-2 :ru-s-rikujo-cast :callout "BAKUDO NO ROKUJUICHI: RIKUJOKORO" :startup 16 :active 0
   :hold (0 56) :recovery 26 :flags (:bind) :on-frame ((2 rukia-rikujo))
   :params (:range 6.0 :radius 1.2 :height 2.2 :delay 14 :dmg 20 :stun 45 :guard 12 :life 6 :tell (2 16)))
 ;; Shift+L, SAN NO MAI: SHIRAFUNE: the ice blade grows off the point: a 5 m thrust (her own blade: melee), frost 150 (the

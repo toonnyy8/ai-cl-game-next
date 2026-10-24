@@ -592,3 +592,29 @@ where to say it.
 - The K reach: 「霜の穂先」 (§13.2 option 1; rejected: the Shikai's real glide, reach strictly blade and body).
 - The bands' reach: 「大致維持現在」 (the ice sized to today's ×1.0 / ×1.1 / ×1.35; rejected: three bands set further apart).
 - The tables §13.3–§13.4: 「可以，先做始解」: the Shikai first, presentation only; then −18, −50, −273.
+
+### 13.8 As built: the Shikai's clips (batches ru-mA ae50225, ru-mB 25f4a33, merged; presentation only)
+
+- **Wiring.** The Shikai plays its own `:ru-s-` clips; the bands play today's, untouched. The `:base` kit maps the shared
+  strike clips through `:clip-map *ru-shikai-clips*` (J1–J3, K1–K3, SP2, I), its walk through `:look-clips`, its run
+  through `:run-clips`, its idle `:stance :ru-s-stance`; `:m18` sets the three back (−50 and −273 inherit that). ENBU,
+  the bursts and the kidō name their new clips directly (base-only moves). The bursts crossfade 3 f out of the link
+  they follow (`:blend 3`).
+- **Clips (29)**: `:ru-s-stance`, `-walk-f / -walk-b / -strafe-r / -strafe-l`, `-run`, `-j1 / -j2 / -j3`, `-k1 / -k2 /
+  -k3`, `-shirafune` (its recovery a small ヒラキ), `-enbu-run`, `-enbu` (⟳ keyed every 90°, two hands, descending),
+  `-breaker`, `-hainawa`; `-shimochiri`, `-setsuen`, `-sojin`, `-hyoreki`, `-tsurara`, `-hakuren`, `-byakurai`,
+  `-tsukishiro` (its frame 0 is 白雷's tell, so the hold switch at f11 does not snap), `-kido` (蒼火墜's gather),
+  `-sokatsui`, `-rikujo` (the hold, two fingers overhead, readable at any length to 100 f), `-rikujo-cast` (the release).
+- **霜の穂先**: `*ru-frost-points*` (K1 1.40 m a four-sided spike, K2 1.30 m a curved sheet, K3 1.40 m a hex column, past
+  the blade's tip along its axis), read by the look (`%ru-frost!` in her draw hook: grows over the last 6 startup frames,
+  held through the active frames, shatters over 6) and by the FK test. Consing 0 B (the 85900 line).
+- **Drawn reach** (tip, or tip + ice, at the hit frames vs the volume's edge; checked both ways ±0.15 m): J1 1.48 / 1.44
+  (+4 cm), J2 1.47 / 1.40 (+7), J3 1.54 / 1.56 (−2), K1 3.07 / 3.10 (−3), K2 2.46 / 2.50 (−4), K3 3.05 / 3.05 (0), I
+  1.28 / 1.35 (−7, the fingers). The bursts (never over the edge): 霜散 1.39 / 2.00, 雪煙 0.82 / 2.00, 霜陣 0.65 / 2.00,
+  氷礫 1.63 / 3.10, 氷柱 0.74 / 2.80, 白漣 1.19 / 11.6; their frost, snow ring, pebbles, icicles and wave carry the rest
+  (the burst looks of §6). Not in the test: SP2 (the ice blade carries it to 5 m), ENBU (1.4 m blade + snow on a 2.4 m arc).
+- Old clips no form plays now (`:ru-stance`, `:ru-drop`, `:ru-tsukishiro`) stay until the bands' batches retire the rest.
+- **Checks on the merge**: host tests 10223 ALL PASS; pkgcheck clean; the build 0 warnings; the browser smoke run exit
+  0; her seven pairings × 10 seeds line for line identical to the parent b86ef45 (RY 104.7, RK 101.8, RR 123.0, IR 126.8,
+  SR 114.4, BR 111.5, HR 129.8 s, all K.O.), `--cvc` identical (3 PASS). Playtest Artifact v159. Checked by numbers and
+  8-frame strips from both sides; the feel needs the user's playtest.
