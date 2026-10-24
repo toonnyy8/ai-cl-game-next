@@ -399,6 +399,10 @@ generic close-in on a hit (combat.lisp: the attacker dashes to *STRING-PULL-TO*)
 capsule (a capsule hits out to b + r; the user 2026-10-24: 「請修改推開規則，要將半徑也計算進去」, DUEL_RUKIA_TYBW §15)."
   (let* ((hits (mv-hits mv)) (v (and (plusp (length hits)) (first (hw-vols (svref hits 0))))))
     (if (and v (= (aref v 0) 1f0)) (+ (mv-reach mv) (aref v 4)) (mv-reach mv))))
+(defun sp-move-p (kit mv)
+  "Is MV an SP of KIT: kind :sp, or its :sp1 / :sp2 command's move (Hisagi's ranged KUBIKAKE, Lille's SHIN recall)? Its
+hits and its hazards' ignore the combo scaling (the user 2026-10-24: 「所有角色的 SP 也都設置成不受傷害減免影響」)."
+  (or (eq (mv-kind mv) :sp) (eq mv (kit-command-move kit :sp1)) (eq mv (kit-command-move kit :sp2))))
 (defun ender-push-reach (kit mv opener)
   "The reach a string ender MV's push is measured from (fighter.lisp ENDER-PUSH): a K ender's the kit's :push-reach when
 it has one, else OPENER's far edge (J1's after J3, K1's after K3: MOVE-EDGE)."

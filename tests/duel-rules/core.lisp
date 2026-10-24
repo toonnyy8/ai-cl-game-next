@@ -332,6 +332,13 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;; ORANGE (the user 2026-10-24: 「橙色爆氣會將減免補正重置，且期間減免速度改成 10%、最低 50%」): -10 % a hit, 50 % floor
 (check (and (~= (combo-scale 3 t) 1.0) (~= (combo-scale 4 t) 0.9) (~= (combo-scale 7 t) 0.6) (~= (combo-scale 8 t) 0.5)
             (~= (combo-scale 20 t) 0.5) (= 50 (hit-damage 100 nil nil 20 nil t))))
+;; every SP ignores the combo scaling (the user 2026-10-24: 「所有角色的 SP 也都設置成不受傷害減免影響」): kind :sp, or the
+;; form's SP1 / SP2 command of another kind (Hisagi's ranged KUBIKAKE, Lille's SHIN recall); never a J / K / L
+(check (and (sp-move-p (kit :rukia :base) (find-move :ru-shirafune-s)) (sp-move-p (kit :ichigo :kessa) (find-move :ic-k-zanzo))
+            (sp-move-p (kit :hisagi :bankai) (kit-command-move (kit :hisagi :bankai) :sp2))
+            (sp-move-p (kit :barro :shin) (kit-command-move (kit :barro :shin) :sp2))
+            (not (sp-move-p (kit :rukia :base) (find-move :ru-k1))) (not (sp-move-p (kit :hisagi :bankai) (find-move :hs-r-k1)))
+            (not (sp-move-p (kit :rukia :base) (find-move :ru-byakurai)))))
 ;; Lille's awakened stance K > L wing spends (the user 2026-10-24: 「不受減免補正影響」): :unscaled on KL1-3 of EN and the
 ;; owl's stance, never on the base stance's
 (check (and (every (lambda (n) (every (lambda (w) (member :unscaled (hw-flags w))) (mv-hits (find-move n))))

@@ -480,7 +480,8 @@ link, in order, 3 links at most: the clone plays his whole string back, *CLONE-L
   "A clone's / an echo's hit: an :ic-hit hazard with HW at MULT (ECHO-HITWIN) in the frame (X Z YAW), for its active
 frames; guarded facing Ichigo (:src); a hazard: no KOSEI, it counts in his combo."
   (spawn-hazard :ic-hit e :x x :z z :yaw yaw :size 0.5 :life (max 1 (- (hw-to hw) (hw-from hw))) :hw (echo-hitwin hw mult)
-                          :src t :hook 'ichigo-strike-hz :data data))
+                          :src t :hook 'ichigo-strike-hz :data data
+                          :sp (eq data :echo)))   ; (SP2 ZANZO's afterimage echoes ignore the combo scaling, the user 2026-10-24)
 
 (defun ichigo-strike-hz (h hz ev &optional tx ty tz tr th)
   "The :ic-hit hazards' hook: their volume is the hit window's own (in the frame they were struck in)."

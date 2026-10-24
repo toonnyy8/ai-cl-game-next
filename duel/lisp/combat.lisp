@@ -388,7 +388,9 @@ result (NIL = no effect)."
                                (stun-over-p st (stun-tolerance-of (kit-of def)))))
                     (react (if blow :knockdown react))
                     (dmg (let ((d (hit-damage base atk dmods
-                                              (if (or flat (member :unscaled flags)) 1 (max 1 (- hits (fighter-combo-from fd))))
+                                              (if (or flat (member :unscaled flags)   ; (an SP's hit or hazard: unscaled)
+                                                      (if hazard (hazard-sp hazard) (and mv (sp-move-p (kit-of att) mv))))
+                                                  1 (max 1 (- hits (fighter-combo-from fd))))
                                               (and (not flat) (eq res :counter)) (eq (gauges-burst (gauges att)) :orange))))   ; :spare: never the last point
                            (if (member :spare flags) (min d (max 0 (1- (gauges-reishi (gauges def))))) d)))
                     (stun (cond (follow (kikon-follow-stun red (mv-s mv)))

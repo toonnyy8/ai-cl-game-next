@@ -15,16 +15,19 @@
 (in-package :duel)
 
 (defun spawn-hazard (kind owner &key (x 0.0) (y 0.0) (z 0.0) (yaw 0.0) (speed 0.0) (turn 0.0) (size 0.5)
-                                  (life 60) (delay 0) (hits 1) hw look src fragile hook data group)
+                                  (life 60) (delay 0) (hits 1) hw look src fragile hook data group
+                                  (sp (let ((f (and owner (fighter owner))))   ; (an SP's: its owner's move now)
+                                        (and f (fighter-move f) (sp-move-p (fighter-kit f) (fighter-move f)) t))))
   "A new hazard of KIND for fighter OWNER. LIFE / DELAY in frames; HW = the HITWIN it deals (NIL = look only). SRC: its
 hit comes from the owner's position; FRAGILE: it closes while it waits if the owner is hit (CLOSE-RIFTS). HOOK: a
 character's function (h hz event &rest args) called with :step (each step, first: T skips the generic step), :close
 (CLOSE-RIFTS closed it) and :touches (the volume test of a kind this file doesn't know); DATA: what it keeps. GROUP: a
-hit group (MAKE-HIT-GROUP) shared with other hazards: together they deal its hits, at most one of them per step."
+hit group (MAKE-HIT-GROUP) shared with other hazards: together they deal its hits, at most one of them per step. SP: its hits
+ignore the combo scaling (default: spawned while its owner plays an SP, SP-MOVE-P)."
   (spawn-entity (make-hazard :kind kind :owner owner :x (f32 x) :y (f32 y) :z (f32 z) :px (f32 x) :pz (f32 z)
                              :yaw (f32 yaw) :speed (f32 speed) :turn (f32 turn) :size (f32 size)
                              :life life :delay delay :hits-left (if hw hits 0) :hw hw :look look :src src :fragile fragile
-                             :hook hook :data data :group group)))
+                             :hook hook :data data :group group :sp sp)))
 
 (defun spawn-look (e look &key (x (aref (pos-of e) 0)) (z (aref (pos-of e) 2)) (yaw 0.0) (size 1.0) (life 30) (delay 0)
                                fragile data)

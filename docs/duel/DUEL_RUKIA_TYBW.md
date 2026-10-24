@@ -683,3 +683,15 @@ build 0 warnings, smoke exit 0; no sim gate (§15). Playtest v162.
 - Host 10226 ALL PASS (orange 4: 0.9, 7: 0.6, 8+: 0.5; the six KL moves flagged, the base's and the K / JL not); pkgcheck
   clean, build 0 warnings, smoke exit 0; no sim gate (§15's word). DUEL_DESIGN "Combo limits" and "Burst modes", the
   manual's 連段傷害衰減. Playtest v163.
+
+### 16.3 Every SP ignores the combo scaling (the user, 2026-10-24)
+
+> 「對了，順便幫我將所有角色的 SP 也都設置成不受傷害減免影響（包含一護卍解 SP2 的殘影攻擊）」 (the user, 2026-10-24)
+
+- `sp-move-p` (kit.lisp): kind `:sp`, or the form's SP1 / SP2 command's move of another kind (Hisagi's ranged KUBIKAKE
+  `:flash`, Lille's SHIN recall `:sig`). Its own hits are dealt at combo index 1 (COMBAT), as are its hazards': a hazard
+  spawned while its owner plays an SP carries the new slot `sp` (SPAWN-HAZARD's default, overridable). Ichigo's KESSA SP2
+  ZANZO: its afterimage echoes (`:ic-hit` hazards, data `:echo`) are `:sp` too, his clones are not. Form, taken and counter
+  multipliers as before; the hits still count in the combo (the HUD, the next hits' scaling).
+- Host 10227 ALL PASS (which moves count); pkgcheck clean, build 0 warnings, smoke exit 0; no sim gate. DUEL_DESIGN
+  "Combo limits", the manual. Playtest v164.

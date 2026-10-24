@@ -221,6 +221,7 @@ its volume test and its look (hazards.lisp)."
   (fragile nil)                         ; T: it closes while it waits if its owner is hit (CLOSE-RIFTS)
   (hook nil) (data nil)                 ; a character's own hazard: HOOK (h hz event ...) and the DATA it keeps (hazards.lisp)
   (group nil)                           ; NIL, or a hit group shared by several hazards (MAKE-HIT-GROUP): they hit once together
+  (sp nil)                              ; T: spawned by its owner's SP (SP-MOVE-P): its hits ignore the combo scaling
   (look nil))                           ; a look keyword, or a draw function symbol (HAZARD-DRAW)
 
 ;;; ---------------------------------------------------------------- small helpers every file uses

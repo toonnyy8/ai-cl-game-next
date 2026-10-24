@@ -326,7 +326,7 @@ the player and the CPU (Lille's revival and the CPU's Bankai were idle / guard o
 
 **Combo limits** (a combo lasts until the victim is back in neutral): 1 launch (a second launch
 becomes a knockback), 3 airborne hits (the third knocks down, and the falling victim is then
-invulnerable), damage 100 % for hits 1–3 then −15 % per hit down to 20 % (−10 % to 40 % until 2026-10-24, the user: 「幫我提高連段的傷害減免」「減免最低 20%」); the attacker's ORANGE restarts the count from its next hit and, while it runs, −10 % per hit down to 50 % (`*orange-combo-decay*` / `-floor*`, the user 2026-10-24); a window flagged `:unscaled` is never scaled (Lille's awakened stance KL1–3), hit 10 = forced
+invulnerable), damage 100 % for hits 1–3 then −15 % per hit down to 20 % (−10 % to 40 % until 2026-10-24, the user: 「幫我提高連段的傷害減免」「減免最低 20%」); the attacker's ORANGE restarts the count from its next hit and, while it runs, −10 % per hit down to 50 % (`*orange-combo-decay*` / `-floor*`, the user 2026-10-24); a window flagged `:unscaled` is never scaled (Lille's awakened stance KL1–3), nor is any SP's hit or hazard (`sp-move-p`: kind :sp or the form's SP1 / SP2 command; Ichigo's ZANZO echoes too; the user 2026-10-24), hit 10 = forced
 knockdown.
 On top of them the hidden hit-stun tolerance (below, "Hidden hit-stun tolerance"): the hit that takes the victim's
 hidden stun past his form's tolerance blows him away; hit 10 stays as the hard backstop.
