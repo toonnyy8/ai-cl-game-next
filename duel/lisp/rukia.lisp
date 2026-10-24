@@ -25,16 +25,16 @@
 (defmove :ru-j3 :kind :quick :clip :ru-spin :startup 8 :active 3 :recovery 18 :dmg 42 :adv-block -4
   :reach 1.56 :arc 200 :on-hit :stagger :flags (:ender))             ; MAI-SODE: the pirouette, the ribbon whipping round
 (defmove :ru-k1 :kind :flash :clip :ru-thrust :startup 17 :active 4 :recovery 20 :dmg 66 :adv-block -3
-  :vol (:cap 0.2 2.8 1.1 0.3) :on-hit :stagger :params (:layers 1))  ; SHIMO-TSUKI: the fencer's lunge (frost 60 -> layer +1)
+  :vol (:cap 0.2 2.8 1.1 0.3) :on-hit :stagger :params (:chill 1))   ; SHIMO-TSUKI: the fencer's lunge (a 冰凍值 point: two make a layer)
 (defmove :ru-k2 :kind :flash :clip :ru-ring :enter 7 :startup 21 :active 4 :recovery 24 :dmg 58 :adv-block -3
   :reach 2.5 :arc 140 :on-hit :stagger :frost 60)                    ; HYORIN: the rising turn, a white ring (the bands')
 (defmove :ru-k3 :kind :flash :clip :ru-drop :enter 7 :startup 21 :active 5 :recovery 34 :dmg 84 :adv-block -20
-  :vol (:cap 0.3 2.7 1.2 0.35) :on-hit :crumple :flags (:ender) :params (:layers 1)   ; (frost 90 -> layer +1)
+  :vol (:cap 0.3 2.7 1.2 0.35) :on-hit :crumple :flags (:ender) :params (:chill 1)    ; (a 冰凍值 point)
   :on-frame ((21 rukia-snow-burst)))                                 ; NADARE: both hands, held, dropped; snow bursts
 (defmove-copy :ru-j2s :ru-j2)
 (defmove-copy :ru-k2s :ru-k2)
 ;; the Shikai's K2 (the bands keep :ru-k2 with its frost 60): no frost, a layer
-(defmove-copy :ru-sk2 :ru-k2 :frost 0 :params (:layers 1))
+(defmove-copy :ru-sk2 :ru-k2 :frost 0 :params (:chill 1))
 (defmove-copy :ru-sk2s :ru-sk2)
 ;; L after a J / K link that hit with >= 1 layer on him (the kit's per-link :l-after-j / :l-after-k, RUKIA-OK refuses it
 ;; at 0 layers or on a block: the string ends at that link): link n's own burst, up to n layers (:burst n; 3: all,
@@ -45,9 +45,10 @@
 (defparameter *ru-burst-k-s* 12 "K1 / K2 / K3 + L: startup (A 4 + 12 < stagger 26; new 2026-10-24, the user, §4.4).")
 (defparameter *ru-hop* 2.5 "霜散 SHIMO-CHIRI: she hops back this far at its hit (new 2026-10-24, the user, §4.3).")
 (defparameter *ru-refund* 0.08 "雪煙 SETSUEN: Reiatsu refunded per layer burst, x a bar (new 2026-10-24, the user, §4.4).")
-(defparameter *ru-sojin* '(:r 3.0 :life 240 :per 60)
-  "霜陣 SOJIN: the frost circle round her, radius m, frames, and a layer per this many frames he stands in it (new
-2026-10-24, the user, §4.4).")
+(defparameter *ru-sojin* '(:r 3.0 :life 240 :per 30)
+  "霜陣 SOJIN: the frost circle centred on him where the burst leaves him, radius m, frames, and a 冰凍值 point per this
+many frames he stands in it (new 2026-10-24, the user, §4.4; round her, a layer a 60 f -> centred on him, a point a 30 f,
+the user 2026-10-24, DUEL_RUKIA_TYBW §10).")
 (defparameter *ru-tsurara-to* 6.0 "氷柱 TSURARA: he is pushed out to this distance (m) at its hit (new 2026-10-24, the user, §4.3).")
 (defparameter *ru-hyoreki-stun* 34 "氷礫 HYOREKI: its stagger, frames (26 + 8; new 2026-10-24, the user, §4.4).")
 (defmove :ru-shimochiri :kind :sig :clip :ru-q1-z :clip-s 7 :callout "SHIMO-CHIRI" :startup *ru-burst-j-s* :active 3 :recovery 22
@@ -89,8 +90,14 @@
 (defmove :ru-sokatsui :kind :sp :clip :ru-cold-stance :clip-2 :ru-palm :clip-s 17 :callout "HADO NO SANJUSAN: SOKATSUI"
   :hold (1 16) :release rukia-sp1-release :startup 14 :active 4 :recovery 26 :dmg 90 :adv-block -16
   :reach 5.0 :arc 40 :height (0.2 1.8) :on-hit :knockback :kb 3.0 :flags (:ranged) :on-frame ((14 rukia-sokatsui-fire)))
+(defparameter *ru-rikujo-max* 100
+  "RIKUJOKORO: the longest bind (frames): SP1 held past its 16 f adds a frame a held frame to its 45 (:hold (0 56)), up to
+this, which lasts from the bind at its farthest (6 m) until her O's Kikon follow-up lands (measured, debug 85028: her
+recovery 26 + ENBU's hit 25 f after the press at 5.9 m + the follow-up 49 = 100) (the user 2026-10-24: 「長按可延長
+六丈光牢的鎖定時間，最長可封鎖至毀魂技追擊打中」, DUEL_RUKIA_TYBW §10). While it seals him (FIGHTER-SEAL) a Kikon
+follow-up treats him as red: no guard cancels its reel or blocks it.")
 (defmove :ru-rikujo :kind :sig :clip :ru-flower :clip-s 21 :callout "BAKUDO NO ROKUJUICHI: RIKUJOKORO" :startup 16 :active 0
-  :recovery 26 :flags (:bind) :on-frame ((2 rukia-rikujo))
+  :hold (0 56) :recovery 26 :flags (:bind) :on-frame ((2 rukia-rikujo))
   :params (:range 6.0 :radius 1.2 :height 2.2 :delay 14 :dmg 20 :stun 45 :guard 12 :life 6 :tell (2 16)))
 ;; Shift+L, SAN NO MAI: SHIRAFUNE: the ice blade grows off the point: a 5 m thrust (her own blade: melee), frost 150 (the
 ;; bands' own). The Shikai's copy: no frost, it bursts every layer: 110 + 25 a layer (alone or off any string hit)
@@ -281,6 +288,12 @@
   "N more 霜の層 on fighter V (capped: rules LAYERS-ADD), his thaw timer back to 0."
   (let ((f (fighter v))) (setf (fighter-layers f) (layers-add (fighter-layers f) n) (fighter-thaw f) 0)))
 
+(defun rukia-chill+ (v n)
+  "N more 冰凍值 points on fighter V (two make a layer: rules CHILL-ADD), his thaw timer back to 0."
+  (let ((f (fighter v)))
+    (multiple-value-bind (l c) (chill-add (fighter-layers f) (fighter-chill f) n)
+      (setf (fighter-layers f) l (fighter-chill f) c (fighter-thaw f) 0))))
+
 (defun rukia-ok (e cmd combo)
   "The Shikai's :ok hook: a burst (COMBO, an L link with :burst) only with >= 1 layer on him and off a link that hit
 (pressed before the link's contact it waits for the chain, refused there on a block or with no layer): with 0 layers
@@ -312,8 +325,9 @@ user 2026-10-24, DUEL_RUKIA_TYBW §9): the hop, the pillar's push and the knockd
     (case (getf (mv-params mv) :fx)
       (:hop (set-slide att *ru-hop* 10 (- dx) (- dz)))
       (:refund (reiatsu-gain! att (* n *ru-refund* *reiatsu-bar*)))
-      (:circle (spawn-hazard :fx att :x (aref p 0) :z (aref p 2) :size (getf *ru-sojin* :r) :life (getf *ru-sojin* :life)
-                                     :look 'rukia-sojin-look :hook 'rukia-sojin-step :data (list 0)))
+      (:circle (let ((to (/ (max d (rukia-burst-out att def mv)) (max 1e-4 d))))   ; (where the burst's push leaves him)
+                 (spawn-hazard :fx att :x (+ (aref p 0) (* dx to)) :z (+ (aref p 2) (* dz to)) :size (getf *ru-sojin* :r)
+                                       :life (getf *ru-sojin* :life) :look 'rukia-sojin-look :hook 'rukia-sojin-step :data (list 0))))
       (:push (push-apart att def (max 0.0 (- *ru-tsurara-to* d)) 12)))
     (unless (member (getf (mv-params mv) :fx) '(:hop :push :wave))   ; (their own move leaves him farther: no second slide)
       (let ((push (- (rukia-burst-out att def mv) d)))
@@ -333,15 +347,18 @@ hazard carrying them (TSUKISHIRO's pillar: 2) adds them; a J link's holds his th
 The bands have no :hit hook: their moves neither add nor burst layers."
   (declare (ignore hw ranged))
   (when (member res '(:hit :counter))
-    (cond (hazard (let ((n (hazard-data hazard))) (when (integerp n) (rukia-layers+ def n) (pace att :layers-laid n))))
+    (cond (hazard (let ((n (hazard-data hazard)))
+                    (cond ((integerp n) (rukia-layers+ def n) (pace att :layers-laid n))
+                          ((consp n) (setf (fighter-seal (fighter def)) (getf n :seal 0))))))   ; RIKUJOKORO's seal
           ((null mv))
           ((getf (mv-params mv) :burst)
            (rukia-burst! att def mv (floor (fighter-dmg-bonus (fighter att)) (getf (mv-params mv) :per))))
           ((getf (mv-params mv) :layers) (rukia-layers+ def (getf (mv-params mv) :layers)) (pace att :layers-laid (getf (mv-params mv) :layers)))
+          ((getf (mv-params mv) :chill) (rukia-chill+ def (getf (mv-params mv) :chill)) (pace att :chill-laid (getf (mv-params mv) :chill)))
           ((eq (mv-kind mv) :quick) (setf (fighter-thaw (fighter def)) 0)))))
 
 (defun rukia-sojin-step (h hz event &rest args)
-  "霜陣's circle (a look's hazard hook, each step): while he stands inside its radius, a layer every :per frames there."
+  "霜陣's circle (a look's hazard hook, each step): while he stands inside its radius, a 冰凍值 point every :per frames there."
   (declare (ignore h args))
   (when (eq event :step)
     (let ((v (hazard-target hz)) (c (hazard-data hz)))
@@ -349,8 +366,8 @@ The bands have no :hit hook: their moves neither add nor burst layers."
         (let ((q (pos-of v)) (r (hazard-size hz)))
           (when (and (< (+ (expt (- (aref q 0) (hazard-x hz)) 2) (expt (- (aref q 2) (hazard-z hz)) 2)) (* r r))
                      (zerop (mod (incf (car c)) (getf *ru-sojin* :per))))
-            (rukia-layers+ v 1)
-            (pace (hazard-owner hz) :sojin-layer)
+            (rukia-chill+ v 1)
+            (pace (hazard-owner hz) :sojin-chill)
             (emit :sfx :frost-tick v))))))
   nil)
 
@@ -401,9 +418,11 @@ string: TSUKISHIRO), from its frame 0."
 a Step or a Hoho out of the ring escapes it)."
   (let* ((p (pos-of e)) (q (pos-of (opp-of e))) (r (move-param e :radius)) (d (1+ (move-param e :delay))))
     (multiple-value-bind (x z) (cast-point (aref p 0) (aref p 2) (aref q 0) (aref q 2) (move-param e :range))
-      (spawn-hazard :freeze e :x x :z z :size r :y (move-param e :height) :delay d :life (move-param e :life) :src t
-                            :hw (make-hitwin :dmg (move-param e :dmg) :react :bind :stun (move-param e :stun) :hs *hitstop-heavy*
-                                             :guard (move-param e :guard) :flags '(:unguardable)))
+      (let ((stun (min *ru-rikujo-max* (+ (move-param e :stun) (max 0 (1- (fighter-charge (fighter e))))))))   ; (held longer)
+        (spawn-hazard :freeze e :x x :z z :size r :y (move-param e :height) :delay d :life (move-param e :life) :src t
+                              :data (list :seal stun)
+                              :hw (make-hitwin :dmg (move-param e :dmg) :react :bind :stun stun :hs *hitstop-heavy*
+                                               :guard (move-param e :guard) :flags '(:unguardable))))
       (spawn-look e 'rukia-rods-look :x x :z z :size r :delay d :life 50)))
   (emit :sfx :frost-tick e))
 
@@ -925,12 +944,13 @@ P2 takes: its reaction, his stun frames left just before it (> 0: a combo), the 
 (defparameter *ru-layer-tests*
   ;; k -> (P2's layers, distance (a J2 / J3 started on its own: 1.2 m, no opener's close-in), what P1 starts: a J / K link with L latched (its burst), :sig / :hold-l / :sp1 / :hold-sp1
   ;; / :sp2, NIL), P2's CPU on[, P2 holding guard]: 26 RIKUJOKORO into a held guard (bound all the same), 27 into his CPU (it
-  ;; Steps or Hohos out of the ring: the user 2026-10-24, DUEL_RUKIA_TYBW §8)
+  ;; Steps or Hohos out of the ring: the user 2026-10-24, DUEL_RUKIA_TYBW §8); 28 RIKUJOKORO held to its end at 5.9 m (its longest bind: O
+  ;; then, its Kikon follow-up sealed, §10)
   '((0 (0 2.2 nil nil)) (1 (1 2.2 nil nil)) (2 (2 2.2 nil nil)) (3 (3 2.2 nil nil))
     (10 (3 2.2 :ru-j1 nil)) (11 (3 1.2 :ru-j2 nil)) (12 (3 1.2 :ru-j3 nil)) (13 (3 2.2 :ru-k1 nil)) (14 (3 2.2 :ru-sk2 nil))
     (15 (3 2.2 :ru-k3 nil)) (16 (0 2.2 :ru-j1 nil)) (17 (1 2.2 :ru-sk2 nil))
     (20 (0 5.0 :sig nil)) (21 (0 6.0 :hold-l nil)) (22 (0 3.5 :sp1 nil)) (23 (0 5.0 :hold-sp1 nil)) (24 (3 3.0 :sp2 nil))
-    (25 (0 3.0 :sp2 nil)) (26 (0 4.0 :hold-sp1 nil t)) (27 (0 4.0 :hold-sp1 t)) (30 (3 3.0 nil nil)) (31 (3 8.0 nil t))
+    (25 (0 3.0 :sp2 nil)) (26 (0 4.0 :hold-sp1 nil t)) (27 (0 4.0 :hold-sp1 t)) (28 (0 5.9 :hold-sp1-max nil)) (30 (3 3.0 nil nil)) (31 (3 8.0 nil t))
     (40 (3 1.2 :ru-j3 nil)))
   "85000+k (DUEL_GAMEPLAY \"Debug commands\"): the Shikai's 霜の層 scenes (RUKIA-LAYER-TEST).")
 
@@ -956,7 +976,9 @@ layers (P2's CPU on), 40 霜陣's circle round him. A \"duel probe rukia 1xx\" l
         (:sig (try-command *p1* f :sig))
         (:hold-l (start-move *p1* (kit-next kit :ru-byakurai :hold)))
         (:sp1 (try-command *p1* f :sp1 :flash))
-        (:hold-sp1 (start-move *p1* (kit-next kit :ru-sokatsui :hold)))
+        (:hold-sp1 (start-move *p1* (kit-next kit :ru-sokatsui :hold) :flash))   ; (its hold: let go at once)
+        (:hold-sp1-max (start-move *p1* (kit-next kit :ru-sokatsui :hold) :flash)    ; (held to its hold's end)
+         (setf (fighter-hold f) (second (mv-hold (fighter-move f)))))
         (:sp2 (try-command *p1* f :sp2))
         (t (start-move *p1* (kit-move kit start)) (setf (fighter-queued f) :sig))))
     (set-probe :rukia (+ 100 k))))

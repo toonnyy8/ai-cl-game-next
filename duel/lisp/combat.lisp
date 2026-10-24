@@ -547,7 +547,7 @@ Hoho's counter strike on its frame (it always connects)."
                                             (body-hurt-r ob) (body-hurt-h ob)))   ; (its volumes, or its :seg-fn capsule)
                   do (push (make-pending :att e :def o :hw w :i i :sx (aref p 0) :sz (aref p 2)
                                          :state (defender-state o) :mv mv
-                                         :red (gauges-red-p go)
+                                         :red (or (gauges-red-p go) (plusp (fighter-seal (fighter o))))   ; (a sealing bind: as red)
                                          :bonus (fighter-dmg-bonus f) :crush (fighter-crush f))
                            *pending*)))))))
 

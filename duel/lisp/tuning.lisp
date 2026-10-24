@@ -430,6 +430,8 @@ opponents' awakened forms for most of a match (docs/duel/DUEL_RUKIA.md, Measurem
 (defparameter *frost-touch-zero* 90 "... at absolute zero.")
 (defparameter *ru-layer-max* 3
   "霜の層 (DUEL_RUKIA_TYBW §4.4): the cap of the frost layers her Shikai lays on him (new 2026-10-24, the user).")
+(defparameter *ru-chill-per* 2
+  "冰凍值 points a 霜の層 takes (new 2026-10-24, the user: a K hit 1 point, two points a layer; 霜陣 a point a 30 f).")
 (defparameter *ru-thaw* 150
   "霜の層: one layer thaws per this many frames without a new layer (a J hit of hers holds the timer; new 2026-10-24, the
 user: §4.4's 150 f, the old frost cap).")

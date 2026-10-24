@@ -117,6 +117,8 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (frost 0 :type fixnum)                ; frames of frost left: walk and run x*FROST-SLOW* (Rukia's ice, rules FROST-NEXT)
   (layers 0 :type fixnum)               ; 霜の層 on him, 0-3 (Rukia's Shikai: walk / run x*RU-LAYER-SLOW*, rules LAYERS-ADD)
   (thaw 0 :type fixnum)                 ; frames since his last layer (one thaws at *RU-THAW*: rules LAYERS-THAW)
+  (chill 0 :type fixnum)                ; 冰凍值 toward his next layer, 0-1 (two make a layer: rules CHILL-ADD; the user 2026-10-24)
+  (seal 0 :type fixnum)                 ; frames a bind (RIKUJOKORO) still seals him: a Kikon follow-up treats him as red
   (rm nil)                              ; DANGAI's run state (run-mods.lisp RMST: RM-OF makes it while *RUN-MODS* applies to him)
   ;; HUD (sim frames)
   (callout nil) (callout-t 0 :type fixnum))

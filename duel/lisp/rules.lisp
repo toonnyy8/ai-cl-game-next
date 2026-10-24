@@ -523,12 +523,19 @@ any later move is interrupted by it (a masher can't dodge it)."
 ;;; 霜の層, the Shikai's frost layers on him (docs/duel/DUEL_RUKIA_TYBW.md §4.4): 0-3, a thaw timer; separate from the frost timer
 (defun layers-add (cur n) "The layers after N more on CUR, capped at *RU-LAYER-MAX*." (min *ru-layer-max* (+ cur n)))
 
-(defun layers-thaw (layers thaw)
-  "One step of the thaw: values the layers and the thaw timer after it (one layer per *RU-THAW* frames, the timer back
-to 0 at each; none left: 0 0)."
-  (cond ((<= layers 0) (values 0 0))
-        ((>= (1+ thaw) *ru-thaw*) (values (1- layers) 0))
-        (t (values layers (1+ thaw)))))
+(defun layers-thaw (layers thaw &optional (chill 0))
+  "One step of the thaw: values the layers, the thaw timer and the chill after it (one layer per *RU-THAW* frames, the
+timer back to 0 at each; with no layer left a lone chill point thaws the same way; nothing left: 0 0 0)."
+  (cond ((and (<= layers 0) (<= chill 0)) (values 0 0 0))
+        ((>= (1+ thaw) *ru-thaw*) (if (plusp layers) (values (1- layers) 0 chill) (values 0 0 0)))
+        (t (values layers (1+ thaw) chill))))
+
+(defun chill-add (layers chill n)
+  "Values the layers and the chill after N more 冰凍值 points on LAYERS + CHILL: every *RU-CHILL-PER* points make a
+layer (the user 2026-10-24: 「每次 K 能累積 1 點冰凍值，兩點冰凍值提升一層」), capped at *RU-LAYER-MAX* layers (no chill
+kept at the cap)."
+  (let ((pts (+ (* layers *ru-chill-per*) chill n)) (top (* *ru-layer-max* *ru-chill-per*)))
+    (if (>= pts top) (values *ru-layer-max* 0) (floor pts *ru-chill-per*))))
 
 (defun layer-speed (speed layers)
   "Walk / run SPEED of a fighter with LAYERS frost layers on him: x the layer's *RU-LAYER-SLOW* (0 layers: SPEED itself)."

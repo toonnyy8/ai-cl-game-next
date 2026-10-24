@@ -365,3 +365,24 @@ effect already leaves him farther (霜散's hop, 氷柱's 6 m, 白漣's knockdow
 
 Damage unchanged. Host tests 10221 ALL PASS (a new check: the routes' `:opener`, the floors, the hop and 氷柱 clear them for
 the widest body, 霜陣's circle wider than J1's floor); pkgcheck clean; the build 0 warnings; the playtest Artifact v154.
+
+## 10. RIKUJŌKŌRŌ held longer; 冰凍值; 霜陣 round him (the user, 2026-10-24)
+
+> 「1. 長按可延長六丈光牢的鎖定時間，最長可封鎖至毀魂技追擊打中。
+> 2. 改成每次 K 能累積 1 點冰凍值，兩點冰凍值提升一層。
+> 3. 霜陣每 30f 加一點冰凍值，並改成以對手為中心展開。」
+> (the user, 2026-10-24)
+
+1. **RIKUJŌKŌRŌ held**: after SOKATSUI's 16 f hold it has its own hold, `:hold (0 56)`; a held frame adds a bind frame to
+   its 45, up to `*ru-rikujo-max*` **100**, measured (debug 85028, the victim at 5.9 m): the bind at its f16, her recovery 26
+   f, ENBU pressed at once hits 25 f later, its Kikon follow-up 49 f after that: 26 + 25 + 49 = 100. While a bind seals him
+   (`FIGHTER-SEAL`, the bind's frames, a new shared slot, 0 for everyone else) a Kikon follow-up treats him as red
+   (combat.lisp: the pending hit's `:red`), so no guard cancels its reel or blocks it: O pressed in time makes the Kikon
+   certain ("KIKON FOLLOW-UP on P2 (red)" in the log). The CPU still holds SP1 only to 16 f.
+2. **冰凍值**: K1–K3 add a point (`:chill 1`), `*ru-chill-per*` 2 points a layer (rules CHILL-ADD, a new shared slot
+   `chill`, 0 for everyone else); KKK leaves 1 layer + 1 point. TSUKISHIRO's pillar (+2 layers) and ENBU (+1) unchanged. A
+   lone point with no layer thaws after 150 f like a layer (LAYERS-THAW); a burst spends layers only.
+3. **霜陣**: centred on him where the burst's push leaves him (2.54 m off her vs Kenpachi), r 3 m, 4 s; a point a 30 f
+   he stands in it (was a layer a 60 f round her).
+
+Host tests 10222 ALL PASS (the chill rules, the sources, the hold's cap); pkgcheck clean; the build 0 warnings.

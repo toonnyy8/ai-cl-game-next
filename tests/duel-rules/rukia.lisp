@@ -166,6 +166,15 @@
 (flet ((thaw-run (layers thaw n) (dotimes (i n (list layers thaw)) (multiple-value-setq (layers thaw) (layers-thaw layers thaw)))))
   (check (and (equal '(3 149) (thaw-run 3 0 149)) (equal '(2 0) (thaw-run 3 0 150)) (equal '(0 0) (thaw-run 3 0 450))
               (equal '(1 0) (thaw-run 3 0 300)) (equal '(0 0) (thaw-run 0 0 10)) (equal '(2 0) (thaw-run 3 140 10)))))
+;; 冰凍值 (the user 2026-10-24, DUEL_RUKIA_TYBW §10): two points a layer (a K hit 1, 霜陣 1 a 30 f); capped at 3 layers with no
+;; point kept; a lone point with no layer thaws like a layer; a layer thaws with its point kept
+(check (and (= 2 *ru-chill-per*)
+            (equal '(0 1) (multiple-value-list (chill-add 0 0 1))) (equal '(1 0) (multiple-value-list (chill-add 0 1 1)))
+            (equal '(1 1) (multiple-value-list (chill-add 1 0 1))) (equal '(3 0) (multiple-value-list (chill-add 2 1 1)))
+            (equal '(3 0) (multiple-value-list (chill-add 3 0 1))) (equal '(3 0) (multiple-value-list (chill-add 0 0 9)))
+            (equal '(0 149 1) (let ((l 0) (th 0) (c 1)) (dotimes (i 149) (multiple-value-setq (l th c) (layers-thaw l th c))) (list l th c)))
+            (equal '(0 0 0) (let ((l 0) (th 0) (c 1)) (dotimes (i 150) (multiple-value-setq (l th c) (layers-thaw l th c))) (list l th c)))
+            (equal '(0 0 1) (let ((l 1) (th 0) (c 1)) (dotimes (i 150) (multiple-value-setq (l th c) (layers-thaw l th c))) (list l th c)))))
 (let* ((b (kit :rukia :base))
        (links '((:ru-j1 :ru-shimochiri 1) (:ru-j2 :ru-setsuen 2) (:ru-j2s :ru-setsuen 2) (:ru-j3 :ru-sojin 3)
                 (:ru-k1 :ru-hyoreki 1) (:ru-sk2 :ru-tsurara 2) (:ru-sk2s :ru-tsurara 2) (:ru-k3 :ru-hakuren-k 3)))
@@ -197,11 +206,11 @@
                 ;; SP2 SHIRAFUNE: 110 + 25 a layer, every layer (alone or off a string hit)
                 (equal '(110 135 160 185) (mapcar (lambda (k) (at :ru-shirafune-s k)) '(0 1 2 3)))
                 (eq :ru-shirafune-s (mv-name (kit-command-move b :sp2))) (= 3 (getf (mv-params (kit-command-move b :sp2)) :burst)))))
-  ;; the benefits: 霜散 hops 2.5 m, 雪煙 8 % of a bar a layer, 霜陣 r 3 m for 4 s (+1 a 60 f), 氷礫 stagger 26 + 8,
+  ;; the benefits: 霜散 hops 2.5 m, 雪煙 8 % of a bar a layer, 霜陣 r 3 m round him for 4 s (a point a 30 f, §10), 氷礫 stagger 26 + 8,
   ;; 氷柱 out to 6 m, 白漣 a knockdown along an 11 m line; the J routes 2.0 m round her, the K routes 2.8 m
   (check (and (eq :hop (getf (mv-params (kit-move b :ru-shimochiri)) :fx)) (~= 2.5 *ru-hop*)
               (eq :refund (getf (mv-params (kit-move b :ru-setsuen)) :fx)) (~= 0.08 *ru-refund*)
-              (eq :circle (getf (mv-params (kit-move b :ru-sojin)) :fx)) (equal *ru-sojin* '(:r 3.0 :life 240 :per 60))
+              (eq :circle (getf (mv-params (kit-move b :ru-sojin)) :fx)) (equal *ru-sojin* '(:r 3.0 :life 240 :per 30))
               (= 34 (hw-stun (svref (mv-hits (kit-move b :ru-hyoreki)) 0))) (eq :stagger (hw-react (svref (mv-hits (kit-move b :ru-hyoreki)) 0)))
               (eq :push (getf (mv-params (kit-move b :ru-tsurara)) :fx)) (~= 6.0 *ru-tsurara-to*)
               (eq :knockdown (hw-react (svref (mv-hits (kit-move b :ru-hakuren-k)) 0))) (~= 11.0 (mv-reach (kit-move b :ru-hakuren-k)))
@@ -222,8 +231,11 @@
            (free (+ (hw-from w) hs 1 (or (hw-stun w) (hitstun (hw-react w)))))
            (hit (+ (mv-s ma) (mv-a ma) hs (- (mv-s mb) (mv-enter mb)))))
       (check (or (< hit free) (format t "  Rukia burst ~a -> ~a: hit ~d, free ~d~%" (first l) (second l) hit free)))))
-  ;; the layers' sources: the K links +1 (K1 K2 K2s K3), ENBU +1, TSUKISHIRO's pillar +2; J, the kido and the bands: 0
-  (check (and (every (lambda (n) (eql 1 (getf (mv-params (kit-move b n)) :layers))) '(:ru-k1 :ru-sk2 :ru-sk2s :ru-k3 :ru-kikon))
+  ;; the layers' sources: the K links a 冰凍值 point (K1 K2 K2s K3: two make a layer, §10), ENBU +1, TSUKISHIRO's pillar +2;
+  ;; J, the kido and the bands: 0
+  (check (and (every (lambda (n) (and (eql 1 (getf (mv-params (kit-move b n)) :chill)) (null (getf (mv-params (kit-move b n)) :layers))))
+                     '(:ru-k1 :ru-sk2 :ru-sk2s :ru-k3))
+              (eql 1 (getf (mv-params (kit-move b :ru-kikon)) :layers))
               (eql 2 (getf (mv-params (kit-next b :ru-byakurai :hold)) :layers))
               (notany (lambda (n) (getf (mv-params (kit-move b n)) :layers)) '(:ru-j1 :ru-j2 :ru-j3 :ru-byakurai :ru-sokatsui))
               (null (getf (mv-params (kit-next b :ru-sokatsui :hold)) :layers))
@@ -247,6 +259,8 @@
                 (eq :ru-rikujo (mv-name ri)) (= 16 (mv-s ri)) (zerop (length (mv-hits ri))) (member :bind (mv-flags ri))
                 (= 16 (+ 2 (getf (mv-params ri) :delay))) (equal '((2 rukia-rikujo)) (mv-on-frame ri))
                 (= 20 (getf (mv-params ri) :dmg)) (= 45 (getf (mv-params ri) :stun)) (~= 6.0 (getf (mv-params ri) :range))
+                ;; held past 16 f, a bind frame a held frame up to *RU-RIKUJO-MAX* (§10): its hold's end reaches the cap
+                (equal (list 0 (1+ (- *ru-rikujo-max* (getf (mv-params ri) :stun)))) (mv-hold ri))
                 (< (+ (getf (mv-params ri) :radius) 0.45) *step-distance*) (equal '(2 16) (getf (mv-params ri) :tell))
                 (eq :ru-shirafune-s (mv-name (kit-command-move b :sp2))) (= 1 (kit-command-cost b :sp2)))))
   ;; removed from the Shikai: the K -> L TSUKISHIRO copy, HAKUREN on SP1, the K hits' frost (above)
