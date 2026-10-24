@@ -116,3 +116,9 @@ panel's outside."
 its label at (LX LY), scale LS (LX NIL: the portrait row, no label)."
   (hud-temp e kit x y w h right tm)
   (when lx (hud-temp-label lx ly ls right (temp-label (gauges e) kit))))
+
+;; Her look's :draw hook (rukia-art.lisp RUKIA-LOOK-DRAW: the moving cloth, presentation only), set on every form of hers
+;; here, after rukia.lisp made them, so the kits' rules stay rukia.lisp's alone (the TYBW look rebuild, 2026-10-24).
+(dolist (fk (gethash :rukia *kits*))
+  (unless (getf (kit-hooks (cdr fk)) :draw)
+    (setf (kit-hooks (cdr fk)) (list* :draw 'rukia-look-draw (kit-hooks (cdr fk))))))

@@ -45,6 +45,7 @@
                                      (*br-squash* (eval form))                              ; (his squash, R8)
                                      ((*lb-wall-jl* *lb-wall-owl*) (eval form))))           ; (his wing wall)
                      (defbody (push (cons (second form) (third form)) bodies))
+                     (body-variant (push (cons (second form) (cdr (assoc (third form) bodies))) bodies))   ; (its base's rig)
                      (defweapon (push (cons (second form) (getf (third form) :length)) weapons)))))))
   (let ((jm (make-f32 (* 16 +nj+))) (pose (make-f32 +pose-n+)) (v (make-f32 3))
         (min-hurt (loop for (nil . b) in bodies minimize (getf b :hurt-r))) (max-hurt (loop for (nil . b) in bodies maximize (getf b :hurt-r))))

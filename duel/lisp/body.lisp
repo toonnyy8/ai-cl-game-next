@@ -144,18 +144,19 @@ glow / per (joint, tag)."
 (defvar *weapons* (make-hash-table :test 'eq))
 (defun find-weapon (name) (or (gethash name *weapons*) (error "unknown weapon ~s" name)))
 
-(defmacro defweapon (name (&key (length 1.0) (base 0.25)) &body sections)
+(defmacro defweapon (name (&key (length 1.0) (base 0.25) ink-color) &body sections)
   "Register a weapon. SECTIONS: (:solid [:ink k] meshgen-forms...) drawn toon like the body, with an
 ink hull K widths wide (default 1; 0 = none, e.g. a katana blade: build it as its own section with
 MB-BLADE :hilt nil), or (:glow emissive #xRRGGBB meshgen-forms...) drawn as a glowing part. The forms use MB (the builder)
-in the weapon frame: grip at the origin, blade along +Y, edge toward +Z."
+in the weapon frame: grip at the origin, blade along +Y, edge toward +Z. INK-COLOR (#xRRGGBB): the hulls' colour instead
+of *BODY-INK*'s default (a cloth part drawn as a weapon: Rukia's black hakama gores take the black cloth's grey keyline)."
   `(setf (gethash ,name *weapons*)
          (%make-weapon :name ,name :len (f32 ,length) :base (f32 ,base)
                        :sections (list ,@(loop for s in sections collect
                                                (if (eq (first s) :solid)
                                                    (let ((ink (if (eq (second s) :ink) (third s) 1))
                                                          (forms (if (eq (second s) :ink) (cdddr s) (rest s))))
-                                                     `(list :solid ,ink (lambda (mb) ,@forms)))
+                                                     `(list :solid ,ink (lambda (mb) ,@forms) ,ink-color))
                                                    `(list :glow ,(second s) ,(third s)
                                                           (lambda (mb) ,@(cdddr s)))))))))
 
@@ -163,12 +164,12 @@ in the weapon frame: grip at the origin, blade along +Y, edge toward +Z."
   (setf (weapon-meshes wp)
         (loop for s in (weapon-sections wp) collect
               (if (eq (first s) :solid)
-                  (destructuring-bind (ink fn) (rest s)
+                  (destructuring-bind (ink fn &optional ink-color) (rest s)
                     (let ((mb (make-mesh-builder)))
                       (funcall fn mb)
                       (vector (mb-build mb) nil 0f0
                               (when (plusp ink)
-                                (mb-build (mb-hull (make-mesh-builder) mb :k ink :c 0.8 :color (hexc (cdr (assoc t *body-ink*)))))))))
+                                (mb-build (mb-hull (make-mesh-builder) mb :k ink :c 0.8 :color (hexc (or ink-color (cdr (assoc t *body-ink*))))))))))
                   (destructuring-bind (e hex fn) (rest s)
                     (vector (build-mesh (mb :color '(1 1 1)) (funcall fn mb))
                             (coerce (hexc hex) 'simple-vector) (f32 e) nil)))))
