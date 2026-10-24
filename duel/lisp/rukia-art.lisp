@@ -1404,12 +1404,15 @@ tongues over white cores, racing out in 0.12 s, fading over its life."
   (declare (ignore rdt))
   (vfx-ru-fire (hazard-x hz) (hazard-z hz) (hazard-yaw hz) (hazard-size hz) (hazard-age hz) (hazard-life hz)))
 
-(defun-fast vfx-ru-rods (x z r delay age)
+(defun-fast vfx-ru-rods (x z r delay fade)
   "縛道の六十一 六杖光牢 RIKUJOKORO at (x z), radius R: six marks of light on the plaza round him while the bind waits
-(DELAY frames left: pulsing), then six rods of light driven in at his middle (AGE frames, gone in 50)."
+(DELAY frames left: pulsing), then six rods of light driven in at his middle, full while he is bound and fading over 12 f
+from the frame he is free (FADE frames since; < 0 while bound; the user 2026-10-24: the rods last until his stun ends)."
   (with-floats (x z r)
     (let* ((dr (drawing-no)) (shut (if (> delay 0) 0f0 1f0))
-           (k (if (> delay 0) (if (evenp (floor delay 3)) 0.95f0 0.55f0) (f-max 0.02f0 (- 0.95f0 (/ (i->f age) 50f0))))))
+           (k (cond ((> delay 0) (if (evenp (floor delay 3)) 0.95f0 0.55f0))
+                    ((< fade 0) 0.95f0)
+                    (t (f-max 0.02f0 (- 0.95f0 (/ (i->f fade) 12f0)))))))
       (declare (single-float dr shut k))
       (dotimes (i 6)
         (let* ((a (* 1.0472f0 (i->f i))) (c (f-cos a)) (s (f-sin a)))
@@ -1425,9 +1428,15 @@ tongues over white cores, racing out in 0.12 s, fading over its life."
     nil))
 
 (defun rukia-rods-look (hz rdt)
-  "RIKUJOKORO: the six marks while the bind waits (pulsing as it nears), then the rods holding him for 50 f."
+  "RIKUJOKORO: the six marks while the bind waits (pulsing as it nears), then the rods holding him until his stun ends
+(DATA: the victim, the bind's frames, the age he was seen free: a look's own note, never read by the sim)."
   (declare (ignore rdt))
-  (vfx-ru-rods (hazard-x hz) (hazard-z hz) (hazard-size hz) (hazard-delay hz) (hazard-age hz)))
+  (let* ((dt (hazard-data hz)) (v (first dt)) (age (hazard-age hz)))
+    (when (and (<= (hazard-delay hz) 0) (null (third dt))
+               (or (>= age (second dt)) (not (entity-alive-p v)) (not (eq (fighter-state (fighter v)) :stun))))
+      (setf (third dt) age))                            ; (free now: the rods fade from here)
+    (vfx-ru-rods (hazard-x hz) (hazard-z hz) (hazard-size hz) (hazard-delay hz)
+                 (if (third dt) (- age (third dt)) -1))))
 
 ;;; ---------------------------------------------------------------- the model sheets (debug 85500-85999: stills, a look)
 ;; 85500+10l+s: P1 Rukia in look L (0 the Shikai, 1 -18, 2 -50, 3 -273, 4 the 白霞罸 costume: zero's form drawn in the

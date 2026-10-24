@@ -423,8 +423,9 @@ a Step or a Hoho out of the ring escapes it)."
         (spawn-hazard :freeze e :x x :z z :size r :y (move-param e :height) :delay d :life (move-param e :life) :src t
                               :data (list :seal stun)
                               :hw (make-hitwin :dmg (move-param e :dmg) :react :bind :stun stun :hs *hitstop-heavy*
-                                               :guard (move-param e :guard) :flags '(:unguardable))))
-      (spawn-look e 'rukia-rods-look :x x :z z :size r :delay d :life 50)))
+                                               :guard (move-param e :guard) :flags '(:unguardable)))
+        (spawn-look e 'rukia-rods-look :x x :z z :size r :delay d :life (+ stun 12)   ; (the rods stay while he is bound:
+                    :data (list (opp-of e) stun nil)))))                         ;  the user 2026-10-24, §12)
   (emit :sfx :frost-tick e))
 
 (defun rukia-acc-line ()
@@ -987,7 +988,7 @@ layers (P2's CPU on), 40 霜陣's circle round him. A \"duel probe rukia 1xx\" l
 (defun rukia-look-consing ()
   "85499: bytes consed by 10 calls of each of the Shikai's new looks (the layer crust at 1-3, 霜陣's circle, BYAKURAI's
 beam, SOKATSUI's fire, RIKUJOKORO's marks and rods; 0 B wanted), a \"duel rukia look consing\" line."
-  (let ((hz (make-hazard :kind :fx :x 0f0 :z 0f0 :yaw 0.5f0 :size 5f0 :life 30 :age 3)))
+  (let ((hz (make-hazard :kind :fx :x 0f0 :z 0f0 :yaw 0.5f0 :size 5f0 :life 30 :age 3 :data (list nil 60 0))))
     (flet ((bytes (fn) (let ((c0 (cons-bytes))) (dotimes (i 10) (funcall fn)) (- (cons-bytes) c0))))
       (log-msg "duel rukia look consing (10 calls, B): layers 1 ~d, 2 ~d, 3 ~d, sojin ~d, beam ~d, fire ~d, rods-tell ~d, rods ~d"
                (bytes (lambda () (vfx-ru-layers 0f0 0f0 1.8f0 1 0.016f0))) (bytes (lambda () (vfx-ru-layers 0f0 0f0 1.8f0 2 0.016f0)))

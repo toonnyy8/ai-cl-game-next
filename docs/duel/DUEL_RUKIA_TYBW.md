@@ -414,3 +414,24 @@ JJJ / KKK after them were +49 % / +46 %, the roster's highest. Other rows off th
 
 The awakened kits' pinned snapshot (§2) moves with the two band multipliers. Host tests 10222 ALL PASS; the build 0
 warnings; playtest v156. Gates and the awaken A/B: below when they finish.
+
+### 11.1 Gates after §11 (main 2a8511f)
+
+Her pairings, 20 seeds, all K.O. (median s, Rukia's wins of 20; §10's in brackets): RY 96.9 (10; 92.3, 10), RK 101.8 (4;
+89.9, 11), RR 114.0 (105.6), IR 128.1 (10; 99.9, 14), SR 113.0 (10; 115.9, 9), BR 133.7 (5; 143.2, 14), HR 137.5 (6;
+144.0, 11). `--cvc` PASS. RY / RK / SR stay under 125 s (as they were before the rework, §5.1): 60-seed reruns started.
+
+**The awaken A/B fails on every row** (Rukia never awakens, her wins of 60 at seed0 100 / 300 / 500; pass ≥ 20): RY 15 /
+17 / 18, RK 5 / 6 / 5, RR 6 / 10 / 9, IR 4 / 9 / 6, SR 9 / 8 / 10, BR 9 / 9 / 7, HR 9 / 11 / 4 (before §11 they passed
+21–47). With the Shikai at ×1.0 / ×1.0 her awakening (×1.1–1.65 dealt, ×0.8–0.95 taken) decides the match. Reported to
+the user; no other knob retuned (the gate policy).
+
+## 12. RIKUJŌKŌRŌ's rods last until his stun ends (the user, 2026-10-24)
+
+> 「六丈光牢的特效要維持到硬直解除」 (the user, 2026-10-24)
+
+The rods look (`rukia-rods-look`) lives the bind's frames + 12 (was a fixed 50 f, gone before a held bind's 100) and
+stays full while he is in the bind's stun; from the frame he is free (the stun over, a Burst, his death) it fades over 12
+f. Its data (the victim, the bind's frames, the age he was seen free) is the look's own note; the sim reads none of it.
+Presentation only: host tests 10222 ALL PASS, the build 0 warnings, consing 0 B (85499); stills of 85028 (a 100 f bind):
+the rods on him at 0.4 / 0.9 / 1.4 / 1.75 / 1.95 s.
