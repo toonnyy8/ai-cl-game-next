@@ -15,7 +15,7 @@ g guard gauge, ! = guardless, m the kit meter: Inferno / NOME), n the Konpaku th
     (format s "duel hash t=~d" *match-tick*)
     (dolist (e (list *p1* *p2*))
       (let ((p (pos-of e)) (g (gauges e)) (f (fighter e)))
-        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d a~d f~d g~d~:[~;!~] w~d m~d~@[ u~d~]~:[~;*~] n~d~@[ fr~d~]~@[ h~d~]~@[ ~a~]" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
+        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d a~d f~d g~d~:[~;!~] w~d m~d~@[ u~d~]~:[~;*~] n~d~@[ fr~d~]~@[ sl~d~]~@[ h~d~]~@[ ~a~]" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
                 (round (* 100 (aref p 2))) (round (* 100 (yaw-of e))) (fighter-state f) (fighter-form f)
                 (gauges-reishi g) (gauges-konpaku g) (round (gauges-reiatsu g)) (round (gauges-fs g)) (round (gauges-gg g))
                 (gauges-guardless g) (round (gauges-awaken g))
@@ -23,6 +23,7 @@ g guard gauge, ! = guardless, m the kit meter: Inferno / NOME), n the Konpaku th
                                               (gauges-meter-idle g))                            ; crack clock / Rukia's warm clock,
                 (gauges-arm-pending g)                                                          ; * = its burst pending
                 (fighter-kikon-n f) (and (plusp (fighter-frost f)) (fighter-frost f))           ; fr = frost left (Rukia's ice)
+                (and (plusp (fighter-layers f)) (+ (* 1000 (fighter-layers f)) (fighter-thaw f)))   ; sl = her 霜の層 on him
                 (and (brain e) (floor (brain-heat (brain e))))
                 (let ((h (kit-hook (fighter-kit f) :hash))) (and h (funcall h e))))))   ; a kit's own state (Hisagi's sickle)
     (format s " | cd ~{~d~^.~} ~{~d~^.~} | haz ~d" (coerce (fighter-cd (fighter *p1*)) 'list) (coerce (fighter-cd (fighter *p2*)) 'list)
@@ -180,7 +181,7 @@ SR SS SI; a new character's: its pairings with every earlier character and its m
     (log-msg "duel evo seed ~d P1 ~,1f P2 ~,1f secs ~,1f" *match-seed*   ; the first EVOLUTION per side (-1: none)
              (/ (gauges-evo-t (gauges *p1*)) 60.0) (/ (gauges-evo-t (gauges *p2*)) 60.0) (/ (match-play-ticks) 60.0))
     (band-acc-line) (cup-acc-line)
-    (senju-acc-line) (ichigo-acc-line) (barro-acc-line) (hisagi-acc-line)
+    (senju-acc-line) (ichigo-acc-line) (barro-acc-line) (hisagi-acc-line) (rukia-acc-line)
     (when *learn-gate* (learn-gate-line))
     (setf *gate-busy* nil))
   (unless *gate-busy*

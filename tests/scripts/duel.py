@@ -397,8 +397,9 @@ write("bankai", ev)
 
 # Kuchiki Rukia (docs/duel/DUEL_RUKIA.md; run with --fixed-dt 16.666667 --secs 80, landscape, and duel-rukia-portrait.json with
 # --size 390x844). The select screen (the roster cycled to her by keyboard; in portrait by a tap on the right third),
-# then human P1 Rukia vs an idle Kenpachi (debug 2410+k): the Shikai (stance, TSUKISHIRO's ring and pillar, J1, K1, the
-# pirouette J3, K3, HAKUREN's stabs and wave, SHIRAFUNE), -18 C (TOSHU, HYOKA, HAKKA's pillar and lane), -50 C (HYOSHIN's
+# then human P1 Rukia vs an idle Kenpachi (debug 2410+k): the Shikai (stance, L tap BYAKURAI, L held TSUKISHIRO's ring and
+# pillar, J1, K1, the pirouette J3, K3, SP1 tap SOKATSUI, SP1 held RIKUJOKORO, SHIRAFUNE; since 2026-10-24 the 霜の層 crust
+# and the six bursts, 85000+k), -18 C (TOSHU, HYOKA, HAKKA's pillar and lane, HAKUREN's stabs and wave), -50 C (HYOSHIN's
 # tell and quake), absolute zero (the freeze-touch on Kenpachi's J1, REIDO TOKETSU), the CRACK after a Breaker, then key
 # frames of her three cinematics (40000+f 月白, 41000+f 白霞罸, 42000+f 絶対零度). Shots tests/shots/duel-rukia[-p]-*.png.
 def rukia_script(tag, portrait):
@@ -412,7 +413,9 @@ def rukia_script(tag, portrait):
     ev.append(rs(t + 3.8, "select")); t += 4.5
     ev += [cmd(t, 2410)] + ([] if portrait else [cmd(t + 0.1, 2109)]); t += 1.2
     ev.append(rs(t, "base-stance")); t += 0.3
-    ev += tap(t, "KeyL", 0.06); ev += [rs(t + 0.3, "tsukishiro-ring"), rs(t + 0.64, "tsukishiro-pillar")]; t += 1.6
+    ev += tap(t, "KeyL", 0.06); ev.append(rs(t + 0.22, "byakurai")); t += 1.2         # L tap: BYAKURAI (5 m out)
+    ev += [cmd(t, 2410)]; t += 0.4
+    ev += tap(t, "KeyL", 0.35); ev += [rs(t + 0.5, "tsukishiro-ring"), rs(t + 0.84, "tsukishiro-pillar")]; t += 1.8   # L held
     ev += [cmd(t, 2393)]; t += 0.4
     ev += tap(t, "KeyJ", 0.06); ev.append(rs(t + 0.12, "j1")); t += 0.9
     ev += [cmd(t, 2393)]; t += 0.3
@@ -422,10 +425,18 @@ def rukia_script(tag, portrait):
     ev += [cmd(t, 2393)]; t += 0.3
     ev += tap(t, "KeyK", 0.06) + tap(t + 0.2, "KeyK", 0.06) + tap(t + 0.55, "KeyK", 0.06); ev.append(rs(t + 0.97, "k3-drop")); t += 1.8
     ev += [cmd(t, 2410), cmd(t + 0.05, 2108)]; t += 0.4
-    ev += [key(t, "ShiftLeft"), key(t + 0.02, "KeyK"), rs(t + 0.8, "hakuren-stab"), key(t + 1.1, "KeyK", False),
-           key(t + 1.12, "ShiftLeft", False), rs(t + 1.45, "hakuren-wave")]; t += 2.4
+    ev += stap(t, "KeyK"); ev.append(rs(t + 0.34, "sokatsui")); t += 1.4               # SP1 tap: SOKATSUI's cone
+    ev += [cmd(t, 2410), cmd(t + 0.05, 2108)]; t += 0.4
+    ev += [key(t, "ShiftLeft"), key(t + 0.02, "KeyK"), rs(t + 0.36, "rikujo-tell"), key(t + 0.5, "KeyK", False),
+           key(t + 0.52, "ShiftLeft", False), rs(t + 0.64, "rikujo")]; t += 1.6      # SP1 held: RIKUJOKORO's rods
     ev += [cmd(t, 2410), cmd(t + 0.05, 2108)]; t += 0.4
     ev += stap(t, "KeyL"); ev.append(rs(t + 0.3, "shirafune")); t += 1.3
+    # 霜の層 and the six bursts (debug 85000+k, DUEL_RUKIA_TYBW §4.4): the crust at 3 layers, each J / K link + L, 霜陣's circle
+    ev += [cmd(t, 85003)]; t += 0.5; ev.append(rs(t, "layers-3")); t += 0.3
+    for k, n, at in ((10, "shimochiri", 0.42), (11, "setsuen", 0.42), (12, "sojin", 0.43), (13, "hyoreki", 0.72),
+                     (14, "tsurara", 0.66), (15, "nadare", 0.68)):
+        ev += [cmd(t, 85000 + k), rs(t + at, f"burst-{n}")]; t += 1.5
+    ev += [cmd(t, 85040), rs(t + 1.5, "sojin-circle")]; t += 2.2
     ev += [cmd(t, 2411)]; t += 1.0
     ev.append(rs(t, "m18-stance")); t += 0.2
     ev += tap(t, "KeyK", 0.06); ev.append(rs(t + 0.29, "toshu")); t += 1.2
@@ -433,6 +444,9 @@ def rukia_script(tag, portrait):
     ev += tap(t, "KeyK", 0.06) + tap(t + 0.2, "KeyK", 0.06) + tap(t + 0.55, "KeyK", 0.06); ev.append(rs(t + 1.0, "hyoka")); t += 1.8
     ev += [cmd(t, 2411)]; t += 0.4
     ev += tap(t, "KeyO", 0.06); ev += [rs(t + 0.2, "hakka-pillar"), rs(t + 0.5, "hakka-lane")]; t += 1.6
+    ev += [cmd(t, 2411), cmd(t + 0.05, 2108)]; t += 0.4                                # -18's HAKUREN (the bands' SP1)
+    ev += [key(t, "ShiftLeft"), key(t + 0.02, "KeyK"), rs(t + 0.8, "hakuren-stab"), key(t + 1.1, "KeyK", False),
+           key(t + 1.12, "ShiftLeft", False), rs(t + 1.45, "hakuren-wave")]; t += 2.4
     ev += [cmd(t, 2412)]; t += 1.0
     ev.append(rs(t, "m50-stance")); ev += tap(t + 0.1, "KeyL", 0.06); ev += [rs(t + 0.3, "hyoshin-tell"), rs(t + 0.4, "hyoshin")]; t += 1.4
     ev += [cmd(t, 2413)]; t += 0.25

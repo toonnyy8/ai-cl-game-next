@@ -369,9 +369,12 @@ latch (STRING-LATCH); link 3 has none, so presses there are plain buffered press
       (loop for (nil cmd to) in (kit-strings kit) thereis (and (eq cmd :q) (eq to move-name)))))
 (defun kit-l-link (kit move-name)
   "The L link after string link MOVE-NAME (docs/duel/DUEL_STRINGS.md §12): after a K link the kit's :l-after-k, after a J
-link its :l-after-j; the form's L (T) or the named copy of it, a MOVE; NIL when the form has none for that link."
+link its :l-after-j; the form's L (T) or the named copy of it, a MOVE; NIL when the form has none for that link. A plist
+(link-move L-move ...) names each link's own L (Rukia's six bursts, DUEL_RUKIA_TYBW §4.3); a link it lacks has none."
   (let ((l (cond ((kit-k-link-p kit move-name) (kit-l-after-k kit)) ((kit-j-link-p kit move-name) (kit-l-after-j kit)))))
-    (and l (if (eq l t) (kit-command-move kit :sig) (kit-move kit l)))))
+    (cond ((eq l t) (kit-command-move kit :sig))
+          ((consp l) (let ((m (getf l move-name))) (and m (kit-move kit m))))
+          (l (kit-move kit l)))))
 (defun string-latch (kit move-name command queued)
   "The latch (docs/duel/DUEL_STRINGS.md §2.1, §2.3): a J / K press (COMMAND :q / :f) during string link MOVE-NAME, with
 QUEUED latched so far. The new latched command: COMMAND when the string may go on with it (the last press wins),
@@ -466,7 +469,8 @@ through its :clip-map."
       (dolist (m (remove-duplicates
                   (append (loop for (nil m) on commands by #'cddr when m collect m)   ; (a NIL command: none in this form)
                           (loop for (from nil to) in strings collect from collect to)
-                          (loop for l in (list (kit-l-after-k kit) (kit-l-after-j kit)) when (and l (not (eq l t))) collect l))))
+                          (loop for l in (list (kit-l-after-k kit) (kit-l-after-j kit))   ; (a per-link plist: its moves)
+                                append (cond ((consp l) (loop for (nil m) on l by #'cddr collect m)) ((and l (not (eq l t))) (list l)))))))
         (let ((mv (find-move m)) (pmv (and parent (gethash m (kit-moves parent)))))
           (setf (gethash m (kit-moves kit))
                 (cond ((or (member m own) (not pmv)) mv)
@@ -532,7 +536,8 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      after a Kikon reset
   :l-after-k T | MOVE                L latched during a K link (K1 / K2 / K2s / K3) starts when that link's chain opens
                                      (its own contact, docs/duel/DUEL_STRINGS.md §12): T the form's L, else MOVE, a combo copy
-  :l-after-j T | MOVE                the same after a J link (J1 / J2 / J2s / J3)
+  :l-after-j T | MOVE                the same after a J link (J1 / J2 / J2s / J3); either may be a plist (link MOVE ...):
+                                     each link its own L (KIT-L-LINK; Rukia's bursts)
   :calm T                            the face stays calm (no shout: a look, FACE-OF)
   :face :shout | :hurt               the form's resting expression where FACE-OF would pick :neutral (idle, walk, guard,
                                      a cinematic's onlooker; not the intro's, TIME's or the K.O.'s winner): Kenpachi's cup

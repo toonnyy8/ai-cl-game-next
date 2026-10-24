@@ -229,11 +229,13 @@ presses (J down every other step: the switched-off brain still writes its held b
                       (try-command *p1* f1 :sig))
 
                     (when (zerop (mod dt 10))
-                      (log-msg "duel probe rukia ~d t=~d P1 ~a ~a r~d gg ~d m~d fr~d | P2 ~a ~a r~d fr~d" name dt (fighter-form f1)
-                               (state-of *p1*) (gauges-reishi (gauges *p1*)) (round (gauges-gg (gauges *p1*)))
+                      (log-msg "duel probe rukia ~d t=~d P1 ~a ~a ~(~a~) r~d ra~d gg ~d m~d fr~d | P2 ~a ~a r~d fr~d sl~d th~d | d ~,2f"
+                               name dt (fighter-form f1) (state-of *p1*) (let ((mv (fighter-move f1))) (and mv (mv-name mv)))
+                               (gauges-reishi (gauges *p1*)) (round (gauges-reiatsu (gauges *p1*))) (round (gauges-gg (gauges *p1*)))
                                (round (gauges-meter (gauges *p1*))) (fighter-frost f1)
-                               (state-of *p2*) (fighter-form (fighter *p2*)) (gauges-reishi (gauges *p2*)) (fighter-frost (fighter *p2*))))
-                    (when (> dt 420) (setf *probe* nil))))
+                               (state-of *p2*) (fighter-form (fighter *p2*)) (gauges-reishi (gauges *p2*)) (fighter-frost (fighter *p2*))
+                               (fighter-layers (fighter *p2*)) (fighter-thaw (fighter *p2*)) (fighter-dist f1)))   ; (霜の層: 85000+k)
+                    (when (> dt (if (>= name 100) 600 420)) (setf *probe* nil))))
           (:kl (let* ((f2 (fighter *p2*)) (f1 (fighter *p1*)) (n (fighter-combo-hits f2)) (st (state-of *p2*)))
                  (when (or (/= n af) (and (eq st :guard-hit) (not blocked)))   ; a hit (the combo count moved) or a block
                    (log-msg "duel probe kl ~d t=~d P2 ~a ~a left-before ~d combo ~d | P1 ~a sf ~d m~d" name dt st

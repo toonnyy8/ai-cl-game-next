@@ -225,7 +225,7 @@ as :twin, and taking it swaps them. The settled pairs (Kenpachi's, Hisagi's); th
     (116 (:moves (:ke-kikon-n :ke-b-kikon) :armor-hits 1))
     (117 (:moves (:ru-tsukishiro) :params (:delay 14 :tell (11 20))))
     (118 (:kit :m18 :cold (:sig 0)))
-    (119 (:moves (:ru-shirafune :ru-shirafune-50 :ru-shirafune-0) :armor-hits 1))
+    (119 (:moves (:ru-shirafune-s :ru-shirafune :ru-shirafune-50 :ru-shirafune-0) :armor-hits 1))   ; (the Shikai's copy since 2026-10-24)
     (120 (:moves (:ic-tsuki-k) :armor-hits 1))
     (121 (:moves (:ic-k-hiki) :stun 60))
     (122 (:moves (:sj-kasa) :cost 1))

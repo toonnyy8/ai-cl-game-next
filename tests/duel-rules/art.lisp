@@ -89,7 +89,24 @@
                                 (or (>= d -0.15)
                                     (and (not (assoc clip strike))   ; (her K props: both ways)
                                          (or (member cf *reach-one-sided* :test #'equal) (member (mv-kind mv) '(:flash :breaker)))))))
-                       (format t "~a ~a: the volume ends ~,2f m, the art ~,2f m~%" (second cf) (mv-name mv) edge art)))))))))
+                       (format t "~a ~a: the volume ends ~,2f m, the art ~,2f m~%" (second cf) (mv-name mv) edge art)))))))
+    ;; Rukia's Shikai bursts (DUEL_RUKIA_TYBW §4.4, 2026-10-24) on placeholder clips until the motion pass: the blade's tip
+    ;; against the volume's far edge, reported (a "Rukia burst reach" line each), checked only never to pass it by > 0.15 m
+    ;; (雪崩's 6 m wave and the kido are not the blade: out)
+    (let* ((k (kit :rukia :base)) (b (cdr (assoc :rukia bodies))) (props (and (getf b :props) (apply #'make-rig-proportions (getf b :props))))
+           (wlen (cdr (assoc (kit-weapon k) weapons))))
+      (dolist (n '(:ru-shimochiri :ru-setsuen :ru-sojin :ru-hyoreki :ru-tsurara))
+        (let* ((mv (kit-move k n)) (hw (svref (mv-hits mv) 0)) (vol (first (hw-vols hw))) (cap (> (aref vol 0) 0.5))
+               (edge (if cap (+ (aref vol 2) (aref vol 4)) (aref vol 1)))
+               (art (loop for sf from (hw-from hw) below (hw-to hw)
+                          maximize (progn
+                                     (clip-sample! pose (find-clip (mv-clip mv)) (/ (* sf (mv-clip-speed mv)) 60.0))
+                                     (pose-fk! jm pose 0f0 0f0 0f0 0f0 (f32 (getf b :scale)) (f32 (deg (getf b :hunch 0))) props)
+                                     (joint-point! v jm (ji :weapon-r) 0f0 0f0 (f32 (- wlen)))
+                                     (if cap (- (aref v 2)) (sqrt (+ (expt (aref v 0) 2) (expt (aref v 2) 2))))))))
+          (format t "  Rukia burst reach ~a (~a): the volume ends ~,2f m, the art ~,2f m (~@d cm)~%" n (mv-clip mv) edge art
+                  (round (* 100 (- art edge))))
+          (check (<= (- art edge) 0.15)))))))
 
 ;; Lille II's own clips (the art batch, DUEL_LILLE_V2 §12; the art evaluated above): each lasts its move (S + A + R, its :s
 ;; mark on S), JILLIEL's and the owl's; the recall strings' beats are their moves' line frames (BR-RC-SHOT / BR-BEAM-SHOT),

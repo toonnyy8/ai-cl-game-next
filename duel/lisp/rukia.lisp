@@ -7,10 +7,17 @@
 ;;;; are the art contract (rukia-art.lisp). Below the data: her hooks and her three cinematics (DEFCINE). Every name
 ;;;; without a canon tag in the doc is the game's own.
 (in-package :duel)
+(declaim (special *match-seed*))   ; (flow.lisp's: RUKIA-ACC-LINE)
 
 ;;; ================================================================ Shikai (base)
-;;; the J / K strings (docs/duel/DUEL_STRINGS.md §2.1 budget): J1 7 f beats every K1 in the game; the K links frost. The reach
-;;; since the J cut (§13): J 0.6x, close; K -10 %
+;;; The Shikai's combat logic since 2026-10-24 (docs/duel/DUEL_RUKIA_TYBW.md §4.1-§4.4, the user's 「可以」): 霜の層, frost
+;;; layers on him (0-3, the fighter's LAYERS / THAW; rules LAYERS-ADD / -THAW / LAYER-SPEED; tuning *RU-LAYER-MAX* *RU-THAW*
+;;; *RU-LAYER-SLOW*): her K hits +1, J hits hold his thaw, TSUKISHIRO's pillar +2, ENBU +1; L after a J / K link that hit
+;;; bursts them (six routes, link n up to n, each its own benefit, each the string's end); L tap BYAKURAI / held TSUKISHIRO;
+;;; SP1 tap SOKATSUI / held RIKUJOKORO; SP2 SHIRAFUNE bursts all. RUKIA-HIT (the base kit's :hit hook) keeps the layers.
+;;; The awakened bands keep their own moves, frost and rules (pinned in their kits below; the host test lists them).
+;;; the J / K strings (docs/duel/DUEL_STRINGS.md §2.1 budget): J1 7 f beats every K1 in the game. The reach since the J cut
+;;; (§13): J 0.6x, close; K -10 %. The J links are shared with the bands; the Shikai's K links lay a layer (:params :layers)
 (defmove :ru-j1 :kind :quick :clip :ru-q1 :startup 7 :active 3 :recovery 12 :dmg 34 :adv-block -2
   :reach 1.44 :arc 100 :on-hit :flinch :slide 0.6)                              ; HATSUSHIMO: a one-handed flat cut
 (defmove :ru-j2 :kind :quick :clip :ru-q2 :startup 7 :active 3 :recovery 13 :dmg 34 :adv-block -2
@@ -18,42 +25,91 @@
 (defmove :ru-j3 :kind :quick :clip :ru-spin :startup 8 :active 3 :recovery 18 :dmg 42 :adv-block -4
   :reach 1.56 :arc 200 :on-hit :stagger :flags (:ender))             ; MAI-SODE: the pirouette, the ribbon whipping round
 (defmove :ru-k1 :kind :flash :clip :ru-thrust :startup 17 :active 4 :recovery 20 :dmg 66 :adv-block -3
-  :vol (:cap 0.2 2.8 1.1 0.3) :on-hit :stagger :frost 60)            ; SHIMO-TSUKI: the fencer's lunge
+  :vol (:cap 0.2 2.8 1.1 0.3) :on-hit :stagger :params (:layers 1))  ; SHIMO-TSUKI: the fencer's lunge (frost 60 -> layer +1)
 (defmove :ru-k2 :kind :flash :clip :ru-ring :enter 7 :startup 21 :active 4 :recovery 24 :dmg 58 :adv-block -3
-  :reach 2.5 :arc 140 :on-hit :stagger :frost 60)                    ; HYORIN: the rising turn, a white ring
+  :reach 2.5 :arc 140 :on-hit :stagger :frost 60)                    ; HYORIN: the rising turn, a white ring (the bands')
 (defmove :ru-k3 :kind :flash :clip :ru-drop :enter 7 :startup 21 :active 5 :recovery 34 :dmg 84 :adv-block -20
-  :vol (:cap 0.3 2.7 1.2 0.35) :on-hit :crumple :frost 90 :flags (:ender)
+  :vol (:cap 0.3 2.7 1.2 0.35) :on-hit :crumple :flags (:ender) :params (:layers 1)   ; (frost 90 -> layer +1)
   :on-frame ((21 rukia-snow-burst)))                                 ; NADARE: both hands, held, dropped; snow bursts
 (defmove-copy :ru-j2s :ru-j2)
 (defmove-copy :ru-k2s :ru-k2)
-;; L, SOME NO MAI: TSUKISHIRO: at f10 the point under the opponent (<= :range m, CAST-POINT) gets a white ring (the tell);
-;; :delay frames later a pillar of ice erupts in it: a :bind disc, guardable from her side (:src), fragile (it closes if
-;; she is hit first): :dmg + frozen :stun frames + frost. A Step (2.5 m) always clears it. No cooldown: S 12 / R 36.
+;; the Shikai's K2 (the bands keep :ru-k2 with its frost 60): no frost, a layer
+(defmove-copy :ru-sk2 :ru-k2 :frost 0 :params (:layers 1))
+(defmove-copy :ru-sk2s :ru-sk2)
+;; L after a J / K link that hit with >= 1 layer on him (the kit's per-link :l-after-j / :l-after-k, RUKIA-OK refuses it
+;; at 0 layers or on a block: the string ends at that link): link n's own burst, up to n layers (:burst n; 3: all,
+;; rules BURST-COUNT), :dmg + :per a layer burst (RUKIA-BURST-ARM at f0), the benefit at its hit (RUKIA-BURST!). Each ends
+;; the string (a :sig: no link, no SP cancel, no O ender). After a J (A 3, flinch 18): S 10; after a K (A 4, stagger 26):
+;; S 12; both combo with the link's hitstop (the host test). Clips: placeholders until the motion pass (§5)
+(defparameter *ru-burst-j-s* 10 "J1 / J2 / J3 + L: startup (S_eff; A 3 + 10 < flinch 18 with the hitstop; new 2026-10-24, the user, §4.4).")
+(defparameter *ru-burst-k-s* 12 "K1 / K2 / K3 + L: startup (A 4 + 12 < stagger 26; new 2026-10-24, the user, §4.4).")
+(defparameter *ru-hop* 2.5 "霜散 SHIMO-CHIRI: she hops back this far at its hit (new 2026-10-24, the user, §4.3).")
+(defparameter *ru-refund* 0.08 "雪煙 SETSUEN: Reiatsu refunded per layer burst, x a bar (new 2026-10-24, the user, §4.4).")
+(defparameter *ru-sojin* '(:r 3.0 :life 240 :per 60)
+  "霜陣 SOJIN: the frost circle round her, radius m, frames, and a layer per this many frames he stands in it (new
+2026-10-24, the user, §4.4).")
+(defparameter *ru-tsurara-to* 6.0 "氷柱 TSURARA: he is pushed out to this distance (m) at its hit (new 2026-10-24, the user, §4.3).")
+(defparameter *ru-hyoreki-stun* 34 "氷礫 HYOREKI: its stagger, frames (26 + 8; new 2026-10-24, the user, §4.4).")
+(defmove :ru-shimochiri :kind :sig :clip :ru-q1-z :clip-s 7 :callout "SHIMO-CHIRI" :startup *ru-burst-j-s* :active 3 :recovery 22
+  :dmg 20 :adv-block -10 :reach 2.0 :arc 360 :on-hit :flinch :on-frame ((0 rukia-burst-arm))
+  :params (:burst 1 :per 20 :fx :hop))                               ; J1 + L 霜散: an ice spray, the hop back
+(defmove :ru-setsuen :kind :sig :clip :ru-spin-50 :clip-s 8 :callout "SETSUEN" :startup *ru-burst-j-s* :active 3 :recovery 22
+  :dmg 20 :adv-block -10 :reach 2.0 :arc 360 :on-hit :flinch :on-frame ((0 rukia-burst-arm))
+  :params (:burst 2 :per 20 :fx :refund))                            ; J2 + L 雪煙: a mist burst, Reiatsu back
+(defmove :ru-sojin :kind :sig :clip :ru-reido :clip-s 6 :callout "SOJIN" :startup *ru-burst-j-s* :active 3 :recovery 22
+  :dmg 20 :adv-block -10 :reach 2.0 :arc 360 :on-hit :flinch :on-frame ((0 rukia-burst-arm))
+  :params (:burst 3 :per 20 :fx :circle))                            ; J3 + L 霜陣: the shards lie as a frost circle
+(defmove :ru-hyoreki :kind :sig :clip :ru-thrust-z :clip-s 17 :callout "HYOREKI" :startup *ru-burst-k-s* :active 4 :recovery 26
+  :dmg 30 :adv-block -14 :vol (:cap 0.2 2.8 1.1 0.3) :on-hit :stagger :on-frame ((0 rukia-burst-arm))
+  :hits ((12 16 :stun *ru-hyoreki-stun*)) :params (:burst 1 :per 30))   ; K1 + L 氷礫: the shard hits again
+(defmove :ru-tsurara :kind :sig :clip :ru-flower-50 :clip-s 21 :callout "TSURARA" :startup *ru-burst-k-s* :active 4 :recovery 26
+  :dmg 30 :adv-block -14 :reach 2.8 :arc 160 :on-hit :stagger :on-frame ((0 rukia-burst-arm))
+  :params (:burst 2 :per 25 :fx :push))                              ; K2 + L 氷柱: a pillar under him, out to 6 m
+(defmove :ru-nadare :kind :sig :clip :ru-hakka :clip-s 20 :callout "NADARE-KUDAKI" :startup *ru-burst-k-s* :active 4 :recovery 26
+  :dmg 40 :adv-block -14 :vol (:cap 0.3 6.0 1.0 0.6) :on-hit :knockdown :on-frame ((0 rukia-burst-arm) (12 rukia-nadare-wave))
+  :params (:burst 3 :per 35 :fx :wave))                              ; K3 + L 雪崩: the big shatter, 白漣's wave 6 m
+;; L, a tap: HADO NO YON: BYAKURAI, a straight beam from her fingers (a :ranged line 0.5 -> 6 m, 0.3 m wide), no bar; held
+;; >= 12 f (RUKIA-L-HOLD at its f11, before its hit) it becomes TSUKISHIRO (the kit's non-button :hold string)
+(defparameter *ru-l-hold* 12 "L held this many frames is TSUKISHIRO, fewer BYAKURAI (new 2026-10-24, the user, §4.4).")
+(defmove :ru-byakurai :kind :sig :clip :ru-palm-50 :clip-s 17 :callout "HADO NO YON: BYAKURAI" :startup 12 :active 3 :recovery 28
+  :dmg 45 :adv-block -12 :guard 10 :vol (:cap 0.5 6.0 1.1 0.15) :on-hit :flinch :flags (:ranged) :tick rukia-l-hold
+  :on-frame ((12 rukia-byakurai-beam)))
+;; L held: SOME NO MAI: TSUKISHIRO: at f12 the point under the opponent (<= :range m, CAST-POINT) gets a white ring (the
+;; tell); :delay frames later a pillar of ice erupts in it: a :bind disc, guardable from her side (:src), fragile (it
+;; closes if she is hit first): :dmg + frozen :stun frames; its hit lays :layers (2; its frost 90 gone, 2026-10-24). A
+;; Step (2.5 m) always clears it. No cooldown: S 12 / R 36
 (defmove :ru-tsukishiro :kind :sig :clip :ru-tsukishiro :callout "SOME NO MAI: TSUKISHIRO" :startup 12 :active 0
   :recovery 36 :flags (:bind) :on-frame ((12 rukia-tsukishiro))   ; (no cooldown, the user 2026-09-29: S 12 / R 36 instead)
-  :params (:range 8.0 :radius 1.8 :height 3.0 :delay 24 :dmg 60 :stun 36 :guard 14 :frost 90 :life 8 :tell (21 30)))
-;; TSUKISHIRO after a K link (the kit's :l-after-k, the user's decision 2026-09-28: K -> L is a combo): the ring at f8, the
-;; pillar 10 f later (f18 < a K link's stagger 26 - its A 4), its clip played at 10 / 8. Its reach is the ring's range, so
-;; the follow-up chase (which closes to the reach) leaves her where she stands: the ring is cast at him
-(defmove-copy :ru-tsukishiro-k :ru-tsukishiro :startup 8 :clip-s 10 :reach 8.0 :on-frame ((8 rukia-tsukishiro))
-  :params (:range 8.0 :radius 1.8 :height 3.0 :delay 10 :dmg 60 :stun 36 :guard 14 :frost 90 :life 8 :tell (8 17)))
-;; Shift+K, TSUGI NO MAI: HAKUREN: held 16-64 f, one stab per 16 f (1-4, a spike each); released, the wave of cold
-;; (a :wave hazard): wider and harder per stab; a hit freezes :stun frames; a side Step always clears it
-(defmove :ru-hakuren :kind :sp :clip :ru-stab :clip-2 :ru-hakuren :callout "TSUGI NO MAI: HAKUREN"
-  :hold (16 64) :startup 6 :active 1 :recovery 24 :tick rukia-hakuren-charge :on-frame ((6 rukia-hakuren-wave))
-  :params (:speed 12.0 :range 11.0 :width 2.4 :width-per 0.4 :dmg 70 :dmg-per 20 :stun 24 :frost 120 :guard 12 :guard-per 2))
-;; Shift+L, SAN NO MAI: SHIRAFUNE: the ice blade grows off the point: a 5 m thrust (her own blade: melee), frost 150
+  :params (:range 8.0 :radius 1.8 :height 3.0 :delay 24 :dmg 60 :stun 36 :guard 14 :frost 0 :layers 2 :life 8 :tell (21 30)))
+;; Shift+K, a tap: HADO NO SANJUSAN: SOKATSUI, blue fire from both palms (a 5 m cone, 40 deg, knockback 3 m), 1 bar; held
+;; >= 16 f (RUKIA-SP1-RELEASE at the hold's end): BAKUDO NO ROKUJUICHI: RIKUJOKORO, six rods of light at him <= 6 m (the
+;; ring under him at its f2, the bind 14 f later: a :bind disc 45 f, guardable from her side, a side Step clears it)
+(defmove :ru-sokatsui :kind :sp :clip :ru-cold-stance :clip-2 :ru-palm :clip-s 17 :callout "HADO NO SANJUSAN: SOKATSUI"
+  :hold (1 16) :release rukia-sp1-release :startup 14 :active 4 :recovery 26 :dmg 90 :adv-block -16
+  :reach 5.0 :arc 40 :height (0.2 1.8) :on-hit :knockback :kb 3.0 :flags (:ranged) :on-frame ((14 rukia-sokatsui-fire)))
+(defmove :ru-rikujo :kind :sig :clip :ru-flower :clip-s 21 :callout "BAKUDO NO ROKUJUICHI: RIKUJOKORO" :startup 16 :active 0
+  :recovery 26 :flags (:bind) :on-frame ((2 rukia-rikujo))
+  :params (:range 6.0 :radius 1.2 :height 2.2 :delay 14 :dmg 20 :stun 45 :guard 12 :life 6 :tell (2 16)))
+;; Shift+L, SAN NO MAI: SHIRAFUNE: the ice blade grows off the point: a 5 m thrust (her own blade: melee), frost 150 (the
+;; bands' own). The Shikai's copy: no frost, it bursts every layer: 110 + 25 a layer (alone or off any string hit)
 (defmove :ru-shirafune :kind :sp :clip :ru-shirafune :callout "SAN NO MAI: SHIRAFUNE" :startup 16 :active 4 :recovery 28
   :dmg 110 :adv-block -14 :slide 1.0 :vol (:cap 0.3 5.0 1.1 0.3) :on-hit :knockback :kb 2.0 :frost 150
   :on-frame ((13 rukia-shirafune-ice)))
+(defmove-copy :ru-shirafune-s :ru-shirafune :frost 0 :on-frame ((0 rukia-burst-arm) (13 rukia-shirafune-ice)) :params (:burst 3 :per 25))
 (defmove :ru-breaker :kind :breaker :clip :ru-breaker :clip-2 :ru-hainawa :callout "BAKUDO NO YON: HAINAWA")
 ;; O, the Kikon rush module ENBU: 6 f of aura, a flash step at 24 m/s for <= 16 f (locked at take-off), then the pirouette:
-;; 8.0 m, 360 deg, <= 30 f from the press. Its Kikon is SOME NO MAI: TSUKISHIRO. Cooldown 90.
+;; 8.0 m, 360 deg, <= 30 f from the press; its hit lays a layer. Its Kikon is SOME NO MAI: TSUKISHIRO. Cooldown 90.
 (defmove :ru-kikon :kind :kikon :clip :sh-run :clip-2 :ru-spin :callout "SOME NO MAI: TSUKISHIRO" :cine ru-kikon-cine
   :startup 8 :active 3 :recovery 24 :dmg 70 :adv-block -14 :reach 2.4 :arc 360 :on-hit :knockback :kb 2.5 :cooldown 90
-  :params (:aura 6 :aim 120.0 :speed 24.0 :dash-max 16 :dash-track 0.0 :look :flash-step :sfx :hoho-out))
+  :params (:aura 6 :aim 120.0 :speed 24.0 :dash-max 16 :dash-track 0.0 :look :flash-step :sfx :hoho-out :layers 1))
 
 ;;; ================================================================ 絶対零度 (the awakened bands, docs/duel/DUEL_RUKIA.md §4)
+;; SP1 TSUGI NO MAI: HAKUREN, the bands' (the Shikai's button until 2026-10-24; its wave lives on in 雪崩): held 16-64 f,
+;; one stab per 16 f (1-4, a spike each); released, the wave of cold (a :wave hazard): wider and harder per stab; a hit
+;; freezes :stun frames; a side Step always clears it
+(defmove :ru-hakuren :kind :sp :clip :ru-stab :clip-2 :ru-hakuren :callout "TSUGI NO MAI: HAKUREN"
+  :hold (16 64) :startup 6 :active 1 :recovery 24 :tick rukia-hakuren-charge :on-frame ((6 rukia-hakuren-wave))
+  :params (:speed 12.0 :range 11.0 :width 2.4 :width-per 0.4 :dmg 70 :dmg-per 20 :stun 24 :frost 120 :guard 12 :guard-per 2))
 ;; -18: the Shikai grid (reach x1.0) with two bare-hand / ice links of its own (the user's decision 2026-09-28): K1 TOSHU,
 ;; the left palm catching and freezing (a short lunge); K3 HYOKA, the palm driven into the plaza, an ice flower bursting
 ;; at his feet. -50 derives it (reach x1.1) with key-edited clips; zero (x1.35, rooted) swaps J2 / K1 / K3. The frames
@@ -70,7 +126,7 @@
 ;; blade (the reach she lost with her feet), K3 HYOKA with a frost that lasts
 (defmove-copy :ru-z-j2 :ru-j2 :clip :ru-palm :clip-s 17 :reach 1.78)
 (defmove-copy :ru-z-j2s :ru-z-j2)
-(defmove-copy :ru-z-k1 :ru-k1 :vol (:cap 0.2 3.78 1.1 0.3) :frost 90)
+(defmove-copy :ru-z-k1 :ru-k1 :vol (:cap 0.2 3.78 1.1 0.3) :frost 90 :params nil)   ; (no Shikai layer)
 (defmove-copy :ru-z-k3 :ru-a-k3 :reach 3.24 :frost 150)
 ;; L, one family that grows with the cold (the playtest fix: colder is never weaker): a disc round her, guardable
 ;; facing her (:src). -18 SHIMOBASHIRA, the frost pillars (r 2.5); -50 HYOSHIN, the ice quake (r 3.5, crumple); zero
@@ -109,22 +165,28 @@
   :intro :ru-intro :win :ru-win :intro-callout "MAE, SODE NO SHIRAYUKI" :intro-weapon (:ru-katana 70)
   :walk *walk-rukia* :run *run-rukia* :reishi *reishi-max* :swing-sfx :whoosh-light :mult *rukia-mult* :taken *rukia-taken*
   :stun-tolerance 13.0                          ; the hidden stun (DUEL_DESIGN.md): light, blown away sooner
-  :commands (:q :ru-j1 :f :ru-k1 :sig :ru-tsukishiro :sp1 :ru-hakuren :sp2 :ru-shirafune :breaker :ru-breaker :kikon :ru-kikon)
-  :grid (:ru-j1 :ru-j2 :ru-j3 :ru-k1 :ru-k2 :ru-k3 :ru-j2s :ru-k2s)
-  :l-after-k :ru-tsukishiro-k                   ; L after K1 / K2 / K3 (docs/duel/DUEL_STRINGS.md §12): the combo ring
+  :commands (:q :ru-j1 :f :ru-k1 :sig :ru-byakurai :sp1 :ru-sokatsui :sp2 :ru-shirafune-s :breaker :ru-breaker :kikon :ru-kikon)
+  :grid (:ru-j1 :ru-j2 :ru-j3 :ru-k1 :ru-sk2 :ru-k3 :ru-j2s :ru-sk2s)
+  :strings ((:ru-byakurai :hold :ru-tsukishiro) (:ru-sokatsui :hold :ru-rikujo))   ; the held L / SP1 (RUKIA-L-HOLD, -SP1-RELEASE)
+  ;; the six bursts (DUEL_RUKIA_TYBW §4.3): L after each J / K link that hit, >= 1 layer on him (RUKIA-OK)
+  :l-after-j (:ru-j1 :ru-shimochiri :ru-j2 :ru-setsuen :ru-j2s :ru-setsuen :ru-j3 :ru-sojin)
+  :l-after-k (:ru-k1 :ru-hyoreki :ru-sk2 :ru-tsurara :ru-sk2s :ru-tsurara :ru-k3 :ru-nadare)
   :awaken-form :m18
-  :hooks (:boss rukia-boss)                     ; the DANGAI boss: 永凍, -50 at FIGHT and never -18 again (rukia-meter.lisp)
-  ;; a mid-range zoner: the ring and the waves at 5-8 m, J1 up close, Shirafune on a frozen / staggered victim
-  ;; (:stun-follow); she awakens only against a melee opponent (:awaken: >= 60 % of >= 150 taken from blades)
+  :hooks (:boss rukia-boss :hit rukia-hit :ok rukia-ok)   ; the DANGAI boss (rukia-meter.lisp); the layers; the bursts' price
+  ;; 遠近各半 (§4.1): J up close, the bursts off J / K hits with layers on him (RUKIA-AI-BURST-P), BYAKURAI at 3-6 m and
+  ;; TSUKISHIRO held beyond (RUKIA-AI-SIG-HOLD), SOKATSUI tapped / RIKUJOKORO held (RUKIA-AI-SP1-HOLD), SHIRAFUNE on a
+  ;; frozen / staggered victim (:stun-follow) and at >= 2 layers (RUKIA-AI-ZONE); she awakens only against a melee
+  ;; opponent (:awaken: >= 60 % of >= 150 taken from blades)
   :ai (:intents (:approach 2 :pressure 3 :zone 2 :defend 1)
        :ranges (:approach (2.8 5.0) :pressure (1.0 2.4) :zone (5.0 7.5) :defend (3.5 6.0))
        :moves ((0.0 1.8 :q 6 :f 2 :breaker 1 :sp2 1)                   ; J up close only (DUEL_STRINGS §13), K beyond
                (1.8 2.8 :f 4 :breaker 1 :sp2 1)
-               (2.8 5.0 :f 1 :sp2 2 :sig 2 :kikon 1 :step 1)
-               (5.0 8.0 :sig 4 :sp1 2 :kikon 2 :step 1)
-               (8.0 99.0 :sp1 2 :kikon 2 nil 1))
-       :guard 0.4 :hoho 0.35 :sp-cancel-bars 1 :oki :sp1-full :oki-above 0.4 :dash 0.5 :dash-back 0.4 :kikon-range 8.0
-       :stun-follow (:sp2 2.4 5.0) :awaken (:melee-share 0.6 :min-taken 150) :l-after-k *ai-ru-l-after-k*
+               (2.8 5.0 :f 1 :sp2 2 :sig 2 :sp1 1 :kikon 1 :step 1)
+               (5.0 8.0 :sig 4 :sp1 1 :kikon 2 :step 1)
+               (8.0 99.0 :kikon 2 nil 2))
+       :guard 0.4 :hoho 0.35 :sp-cancel-bars 1 :dash 0.5 :dash-back 0.4 :kikon-range 8.0
+       :stun-follow (:sp2 2.4 5.0) :awaken (:melee-share 0.6 :min-taken 150)
+       :l-after-k rukia-ai-burst-p :l-after-j rukia-ai-burst-p :sig-hold rukia-ai-sig-hold :sp1-hold rukia-ai-sp1-hold
        :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard))
 
 ;;; -18 C, the awakening's first band: the Shikai grid (+ TOSHU / HYOKA), frost on every hit, no chip on her; U guards
@@ -135,9 +197,11 @@
   :meter (:name "COLD" :max *cold-max* :temp t :draw rukia-hud-meter :label temp-label) :warm *ru-warm-m18* :cold *ru-cold-m18* :field *ru-field-m18*
   :reset-form :m18 :u-tag "U: COOL" :hooks (:hoho rukia-hoho-cold :tick rukia-tick :reset rukia-reset)   ; (rukia-meter.lisp)
   :stance :ru-cold-stance :aura rukia-aura-cold :cine ru-awaken-cine :swing-sfx :whoosh-light
-  :commands (:f :ru-a-k1 :sig :ru-shimobashira :kikon :ru-hakka-18)
+  ;; (every command pinned: the Shikai's L / SP1 / SP2 and its bursts are its own since 2026-10-24, DUEL_RUKIA_TYBW §2)
+  :commands (:q :ru-j1 :f :ru-a-k1 :sig :ru-shimobashira :sp1 :ru-hakuren :sp2 :ru-shirafune :breaker :ru-breaker :kikon :ru-hakka-18)
   :grid (:ru-j1 :ru-j2 :ru-j3 :ru-a-k1 :ru-k2 :ru-a-k3 :ru-j2s :ru-k2s)
   :l-after-k t                                  ; L after a K link: the band's own L (S 10-14: a combo as it is)
+  :l-after-j nil                                ; (none after a J link: the Shikai's bursts are not the bands')
   :ai (:intents (:approach 2 :pressure 3 :zone 1 :defend 2)
        :ranges (:approach (2.5 4.5) :pressure (1.0 2.2) :zone (4.5 7.0) :defend (3.0 5.0))
        :moves ((0.0 1.8 :q 5 :f 2 :breaker 1 :sig 1)
@@ -204,10 +268,136 @@
   (let* ((p (pos-of e)) (q (pos-of (opp-of e))) (r (move-param e :radius)) (d (1+ (move-param e :delay))))
     (multiple-value-bind (x z) (cast-point (aref p 0) (aref p 2) (aref q 0) (aref q 2) (move-param e :range))
       (spawn-hazard :freeze e :x x :z z :size r :y (move-param e :height) :delay d :life (move-param e :life) :src t :fragile t
+                            :data (move-param e :layers)        ; (its hit's 霜の層: RUKIA-HIT)
                             :hw (make-hitwin :dmg (move-param e :dmg) :react :bind :stun (move-param e :stun) :hs *hitstop-heavy*
                                              :guard (move-param e :guard) :frost (move-param e :frost) :flags '(:ice)))
       (spawn-look e 'rukia-ring-look :x x :z z :size r :delay d :life 36 :fragile t)))
   (emit :sfx :frost-tick e))
+
+;;; ---------------------------------------------------------------- 霜の層 and the Shikai's new moves (DUEL_RUKIA_TYBW §4.4)
+(defun rukia-layers+ (v n)
+  "N more 霜の層 on fighter V (capped: rules LAYERS-ADD), his thaw timer back to 0."
+  (let ((f (fighter v))) (setf (fighter-layers f) (layers-add (fighter-layers f) n) (fighter-thaw f) 0)))
+
+(defun rukia-ok (e cmd combo)
+  "The Shikai's :ok hook: a burst (COMBO, an L link with :burst) only with >= 1 layer on him and off a link that hit
+(pressed before the link's contact it waits for the chain, refused there on a block or with no layer): with 0 layers
+the L is not taken and the string ends at that link (no 0-resource loop). Every other command: yes."
+  (declare (ignore cmd))
+  (or (null combo) (null (getf (mv-params combo) :burst))
+      (layer-burst-ok-p (fighter-contact (fighter e)) (fighter-layers (fighter (opp-of e))))))
+
+(defun rukia-burst-arm (e)
+  "A burst's f0 (the six L links, SP2): the layers it will burst now (rules BURST-COUNT of its :burst link) as its damage
+bonus, :per each (the hit bursts them: RUKIA-HIT)."
+  (let ((f (fighter e)))
+    (setf (fighter-dmg-bonus f)
+          (* (move-param e :per) (burst-count (move-param e :burst) (fighter-layers (fighter (opp-of e))))))))
+
+(defun rukia-burst! (att def mv n)
+  "Burst move MV of ATT hit DEF bursting N layers: they go (RUKIA-BURST-ARM counted them), the shards fly, and its
+benefit (:fx): :hop she hops back *RU-HOP*, :refund Reiatsu *RU-REFUND* a bar a layer, :circle the frost circle 霜陣
+round her (*RU-SOJIN*), :push he is pushed out to *RU-TSURARA-TO*, :wave 白漣's look runs out (RUKIA-NADARE-WAVE)."
+  (let* ((fd (fighter def)) (p (pos-of att)) (q (pos-of def))
+         (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (d (hypot dx dz)))
+    (setf (fighter-layers fd) (max 0 (- (fighter-layers fd) n)))
+    (pace att (mv-name mv)) (pace att :layers-burst n)
+    (when (plusp n)
+      (spawn-look att 'rukia-burst-look :x (aref q 0) :z (aref q 2) :size (+ 0.6 (* 0.4 n)) :life 24)
+      (emit :sfx :ice-shatter att))
+    (case (getf (mv-params mv) :fx)
+      (:hop (set-slide att *ru-hop* 10 (- dx) (- dz)))
+      (:refund (reiatsu-gain! att (* n *ru-refund* *reiatsu-bar*)))
+      (:circle (spawn-hazard :fx att :x (aref p 0) :z (aref p 2) :size (getf *ru-sojin* :r) :life (getf *ru-sojin* :life)
+                                     :look 'rukia-sojin-look :hook 'rukia-sojin-step :data (list 0)))
+      (:push (push-apart att def (max 0.0 (- *ru-tsurara-to* d)) 12)))
+    (clog "~a BURST ~a ~d layers" (side-name att) (mv-name mv) n)))
+
+(defun rukia-hit (att def res hw mv hazard ranged)
+  "The Shikai's :hit hook (霜の層 on him, DUEL_RUKIA_TYBW §4.4): a real hit of a move with :layers (the K links, ENBU) or a
+hazard carrying them (TSUKISHIRO's pillar: 2) adds them; a J link's holds his thaw; a burst's bursts what it counted.
+The bands have no :hit hook: their moves neither add nor burst layers."
+  (declare (ignore hw ranged))
+  (when (member res '(:hit :counter))
+    (cond (hazard (let ((n (hazard-data hazard))) (when (integerp n) (rukia-layers+ def n) (pace att :layers-laid n))))
+          ((null mv))
+          ((getf (mv-params mv) :burst)
+           (rukia-burst! att def mv (floor (fighter-dmg-bonus (fighter att)) (getf (mv-params mv) :per))))
+          ((getf (mv-params mv) :layers) (rukia-layers+ def (getf (mv-params mv) :layers)) (pace att :layers-laid (getf (mv-params mv) :layers)))
+          ((eq (mv-kind mv) :quick) (setf (fighter-thaw (fighter def)) 0)))))
+
+(defun rukia-sojin-step (h hz event &rest args)
+  "霜陣's circle (a look's hazard hook, each step): while he stands inside its radius, a layer every :per frames there."
+  (declare (ignore h args))
+  (when (eq event :step)
+    (let ((v (hazard-target hz)) (c (hazard-data hz)))
+      (when (and v (entity-alive-p v))
+        (let ((q (pos-of v)) (r (hazard-size hz)))
+          (when (and (< (+ (expt (- (aref q 0) (hazard-x hz)) 2) (expt (- (aref q 2) (hazard-z hz)) 2)) (* r r))
+                     (zerop (mod (incf (car c)) (getf *ru-sojin* :per))))
+            (rukia-layers+ v 1)
+            (pace (hazard-owner hz) :sojin-layer)
+            (emit :sfx :frost-tick v))))))
+  nil)
+
+(defun rukia-drift (h hz event &rest args)
+  "A look that runs along its yaw at its :speed (the :fx kind stands still): 雪崩's wave."
+  (declare (ignore h args))
+  (when (eq event :step)
+    (let ((d (* (hazard-speed hz) +step+)))
+      (setf (hazard-x hz) (f32 (+ (hazard-x hz) (* d (fwd-x (hazard-yaw hz)))))
+            (hazard-z hz) (f32 (+ (hazard-z hz) (* d (fwd-z (hazard-yaw hz))))))))
+  nil)
+
+(defun rukia-nadare-wave (e)
+  "雪崩 at its hit frame: 白漣's wave runs out 6 m along her facing (a look; the hit is the move's line)."
+  (multiple-value-bind (x z) (ahead e 0.8)
+    (spawn-hazard :fx e :x x :z z :yaw (yaw-of e) :speed 18.0 :size 1.0 :life 18 :look 'rukia-wave-look :hook 'rukia-drift))
+  (emit :sfx :ice-rise e))
+
+(defun rukia-l-hold (e)
+  "BYAKURAI's :tick: L still held at its frame *RU-L-HOLD* - 1 (before its hit): the hold's move instead (the kit's :hold
+string: TSUKISHIRO), from its frame 0."
+  (let ((f (fighter e)))
+    (when (and (= (fighter-sf f) (1- *ru-l-hold*)) (fighter-button f) (vpad-down (pilot-vpad (pilot e)) (fighter-button f)))
+      (let ((mv (kit-next (fighter-kit f) (mv-name (fighter-move f)) :hold)))
+        (when mv (pace e :l-held) (start-move e mv (fighter-button f)))))))
+
+(defun rukia-sp1-release (e)
+  "SOKATSUI's :release: held to the end of its hold (16 f), the hold's move instead (RIKUJOKORO); let go sooner, SOKATSUI."
+  (let* ((f (fighter e)) (mv (fighter-move f)))
+    (if (>= (fighter-hold f) (second (mv-hold mv)))
+        (let ((h (kit-next (fighter-kit f) (mv-name mv) :hold))) (when h (pace e :sp1-held) (start-move e h (fighter-button f))))
+        (pace e :sp1-tap))))
+
+(defun rukia-byakurai-beam (e)
+  "BYAKURAI f12: the white lightning from her fingers along the line (a look; the hit is the move's line)."
+  (pace e :byakurai)
+  (spawn-look e 'rukia-beam-look :yaw (yaw-of e) :size (mv-reach (fighter-move (fighter e))) :life 12)
+  (emit :sfx :kikon-slash e))
+
+(defun rukia-sokatsui-fire (e)
+  "SOKATSUI f14: blue fire out of both palms over the cone (a look; the hit is the move's cone)."
+  (spawn-look e 'rukia-fire-look :yaw (yaw-of e) :size (mv-reach (fighter-move (fighter e))) :life 20)
+  (emit :sfx :whoosh-heavy e))
+
+(defun rukia-rikujo (e)
+  "RIKUJOKORO f2: the point under him (<= :range m) marked by six rods' light (the tell), the bind :delay frames later: a
+:freeze disc (:radius x :height, guardable facing her: :src), :dmg and a :bind of :stun frames."
+  (let* ((p (pos-of e)) (q (pos-of (opp-of e))) (r (move-param e :radius)) (d (1+ (move-param e :delay))))
+    (multiple-value-bind (x z) (cast-point (aref p 0) (aref p 2) (aref q 0) (aref q 2) (move-param e :range))
+      (spawn-hazard :freeze e :x x :z z :size r :y (move-param e :height) :delay d :life (move-param e :life) :src t
+                            :hw (make-hitwin :dmg (move-param e :dmg) :react :bind :stun (move-param e :stun) :hs *hitstop-heavy*
+                                             :guard (move-param e :guard)))
+      (spawn-look e 'rukia-rods-look :x x :z z :size r :delay d :life 50)))
+  (emit :sfx :frost-tick e))
+
+(defun rukia-acc-line ()
+  "After a gate row: a \"duel rukia\" line per side that played her (the Shikai's pacing log: bursts by name, layers laid /
+burst, the 霜陣 layers, the held / tapped L and SP1, BYAKURAI's beams, the CPU's burst picks)."
+  (dolist (e (list *p1* *p2*))
+    (when (and (entity-alive-p e) (eq (fighter-character (fighter e)) :rukia) (svref *pacing* (fighter-side (fighter e))))
+      (log-msg "duel rukia ~a seed ~d ~{~(~a~) ~a~^ ~}" (side-name e) *match-seed* (svref *pacing* (fighter-side (fighter e)))))))
 
 (defun rukia-spike (e i)
   "HAKUREN's stab I (0-3): an ice spike in a half circle before her."
@@ -328,7 +518,7 @@ now and then (*AI-RU-HOHO-IN* per free step). A command or NIL."
 ;;; ---------------------------------------------------------------- her CPU's action policy (AI v2, docs/duel/DUEL_AI_V2.md)
 ;;; Every chance is per difficulty (EASY <= NORMAL <= HARD; NORMAL near the shipped CPU, HARD the full version).
 (defparameter *ai-ru-k-ender-l* '(:easy 0.0 :normal 0.02 :hard 0.9)
-  "Her K3 (the K ender, crumple) hit: the band's L chained after it (the K -> L latch: TSUKISHIRO-K, SHIMOBASHIRA, HYOSHIN,
+  "Her K3 (the K ender, crumple) hit: the band's L chained after it (the K -> L latch: the Shikai's 雪崩 burst, SHIMOBASHIRA, HYOSHIN,
 REIDO), per ender hit (RUKIA-AI-SP-ENDER).")
 (defparameter *ai-ru-j-ender-sp2* '(:easy 0.1 :normal 0.15 :hard 0.85)
   "Her J3 (the J ender, stagger) hit: SHIRAFUNE off it (it chases the pushed victim), per ender hit, the bars permitting.")
@@ -440,18 +630,60 @@ a perfect Hoho's counter with no bar left, where a J string went before). A comm
                       (rukia-ai-o-lands-p o d left) (< (brain-react-roll b) (ai-chance e *ai-ru-cash-o*))))
                (why b :o-cash :kikon)))))))
 
-(defparameter *ai-ru-zone-wave* '(:easy 0.0 :normal 0.0 :hard 0.5)
-  "A Shikai neutral decision at 5-11 m: HAKUREN's wave (a bar) instead of the table's pick (whose TSUKISHIRO a CPU
-steps out of: about one in six lands, the wave about two in three), per decision.")
+(defparameter *ai-ru-zone-kido* '(:easy 0.0 :normal 0.05 :hard 0.3)
+  "A Shikai neutral decision at 3-6.5 m: SP1's kido (SOKATSUI tapped within *AI-RU-SP1-FAR*, RIKUJOKORO held beyond:
+RUKIA-AI-SP1-HOLD) instead of the table's pick, per decision (HAKUREN's wave at 5-11 m before 2026-10-24: :hard 0.5).")
+(defparameter *ai-ru-sp2-layers* '(:easy 0.0 :normal 0.1 :hard 0.35)
+  "A Shikai neutral decision with >= 2 霜の層 on him inside SHIRAFUNE's line: SP2 (it bursts them all: 110 + 25 a layer),
+per decision (new 2026-10-24).")
+(defparameter *ai-ru-burst-1* '(:easy 0.0 :normal 0.05 :hard 0.15)
+  "Her CPU's L off a J1 / K1 that hit with >= 1 layer on him (霜散 / 氷礫: the string ends there), per hit (new 2026-10-24).")
+(defparameter *ai-ru-burst-2* '(:easy 0.05 :normal 0.2 :hard 0.4)
+  "... off a J2 / K2 with >= 2 layers (雪煙 / 氷柱), per hit (new 2026-10-24).")
+(defparameter *ai-ru-burst-3* '(:easy 0.2 :normal 0.5 :hard 0.85)
+  "... off a J3 / K3 (霜陣 / 雪崩: every layer), per hit (new 2026-10-24).")
+(defparameter *ai-ru-l-far* 6.0 "Her CPU's L beyond this (m) is held (TSUKISHIRO), nearer tapped (BYAKURAI's 6 m line; new 2026-10-24).")
+(defparameter *ai-ru-sp1-far* 4.5 "Her CPU's SP1 beyond this (m) is held (RIKUJOKORO), nearer tapped (SOKATSUI's 5 m cone; new 2026-10-24).")
+
+(defun rukia-ai-burst-p (e link l)
+  "The Shikai's :l-after-k / :l-after-j (ai.lisp STRING-REFLEX, AUTO COMBO's too): the chance of L, burst L, off LINK's
+hit by its link number (L's :burst) and the layers on him: link 3 *AI-RU-BURST-3*, link 2 with >= 2 layers
+*AI-RU-BURST-2*, link 1 *AI-RU-BURST-1* (rolled once per hit; no layer: RUKIA-OK refuses it anyway)."
+  (declare (ignore link))
+  (let ((n (getf (mv-params l) :burst)) (layers (fighter-layers (fighter (opp-of e)))))
+    (cond ((or (null n) (zerop layers)) 0.0)
+          ((>= n 3) (ai-chance e *ai-ru-burst-3*))
+          ((= n 2) (if (>= layers 2) (ai-chance e *ai-ru-burst-2*) 0.0))
+          (t (ai-chance e *ai-ru-burst-1*)))))
+
+(defun rukia-ai-sig-hold (kit d &optional e)
+  "The Shikai's :sig-hold (ai.lisp AI-COMMAND): frames L is held: beyond *AI-RU-L-FAR* TSUKISHIRO (held past *RU-L-HOLD*),
+nearer a tap (BYAKURAI)."
+  (declare (ignore kit e))
+  (if (> d *ai-ru-l-far*) (+ *ru-l-hold* 4) 1))
+
+(defun rukia-ai-sp1-hold (kit d &optional e)
+  "The Shikai's :sp1-hold (ai.lisp AI-COMMAND): frames SP1 is held: beyond *AI-RU-SP1-FAR* RIKUJOKORO (to its hold's end),
+nearer a tap (SOKATSUI)."
+  (declare (ignore e))
+  (if (> d *ai-ru-sp1-far*) (+ 2 (second (mv-hold (kit-command-move kit :sp1)))) 1))
 
 (defun rukia-ai-zone (e b s d)
-  "Her Shikai's neutral decision at range, at HARD half the time: HAKUREN (SP1, held: AI-COMMAND). A command or NIL."
+  "Her Shikai's neutral decision (one roll a decision): with >= 2 layers on him inside SHIRAFUNE's line, SP2
+(*AI-RU-SP2-LAYERS*); else at 3-6.5 m the kido (SP1: AI-COMMAND's tap / hold by RUKIA-AI-SP1-HOLD, *AI-RU-ZONE-KIDO*). A
+command or NIL."
   (declare (ignore s))
-  (when (and (<= (brain-decide-t b) 1) (eq (kit-form (kit-of e)) :base) (<= 5.0 d 11.0)
-             (kit-command-ok-p e :sp1) (let ((p (ai-chance e *ai-ru-zone-wave*))) (and (plusp p) (< (sim-rnd01) p))))
-    ;; (the next decision, as AI-NEUTRAL times it)
-    (setf (brain-decide-t b) (ai-decide-time e b))
-    (why b :zone-wave :sp1)))
+  (when (and (<= (brain-decide-t b) 1) (eq (kit-form (kit-of e)) :base))
+    (let ((cmd (cond ((and (>= (fighter-layers (fighter (opp-of e))) 2) (< 1.5 d 4.6) (kit-command-ok-p e :sp2) (rukia-ai-bars-p e)
+                           (let ((p (ai-chance e *ai-ru-sp2-layers*))) (and (plusp p) (< (sim-rnd01) p))))
+                      :sp2)
+                     ((and (<= 3.0 d 6.5) (kit-command-ok-p e :sp1)
+                           (let ((p (ai-chance e *ai-ru-zone-kido*))) (and (plusp p) (< (sim-rnd01) p))))
+                      :sp1))))
+      (when cmd
+        (setf (brain-decide-t b) (ai-decide-time e b))   ; (the next decision, as AI-NEUTRAL times it)
+        (pace e (if (eq cmd :sp2) :ai-sp2-layers :ai-kido))
+        (why b (if (eq cmd :sp2) :sp2-layers :zone-kido) cmd)))))
 
 ;;; ---------------------------------------------------------------- absolute zero (round 2): REIDO is her answer
 ;;; Rooted, no Hoho: the shipped CPU at zero only answered with J / K (the ward's freeze-touch was followed up by a J1
@@ -499,9 +731,10 @@ cashed in ice: RUKIA-AI-CASH). A command or NIL."
 
 (defun rukia-ai-reflex (e b s d)
   "Her forms' :reflex: the timed Hoho (RUKIA-AI-PERFECT-HOHO); the stun / recovery cashed with her ice, a stun with no
-bar for it with her O (RUKIA-AI-CASH); at -50 the Hoho in (RUKIA-AI-HOHO-IN); the Shikai's neutral decision at range
-HAKUREN's wave (RUKIA-AI-ZONE). A command or NIL. (Her ender confirms are b0a0's
-RUKIA-AI-SP-ENDER; b0a0's anti-Breaker J1 and guard break cost strength on top of this and were dropped.)"
+bar for it with her O (RUKIA-AI-CASH); at -50 the Hoho in (RUKIA-AI-HOHO-IN); the Shikai's neutral decision
+(RUKIA-AI-ZONE). A command or NIL. (Her ender confirms are b0a0's
+RUKIA-AI-SP-ENDER; b0a0's anti-Breaker J1 and guard break cost strength on top of this and were dropped.) The Shikai's
+neutral pick (RUKIA-AI-ZONE) since 2026-10-24: SP2 at >= 2 layers, the kido at 3-6.5 m."
   (or (and (eq (kit-form (kit-of e)) :zero) (rukia-ai-zero e b s d))
       (rukia-ai-perfect-hoho e b s d)
       (rukia-ai-cash e b s d)
@@ -674,10 +907,56 @@ P2 takes: its reaction, his stun frames left just before it (> 0: a combo), the 
             (brain-press (brain *p2*)) :guard (brain-press-left (brain *p2*)) 999))
     (set-probe :kl k 0 0)))
 
+(defparameter *ru-layer-tests*
+  ;; k -> (P2's layers, distance (a J2 / J3 started on its own: 1.2 m, no opener's close-in), what P1 starts: a J / K link with L latched (its burst), :sig / :hold-l / :sp1 / :hold-sp1
+  ;; / :sp2, NIL), P2's CPU on
+  '((0 (0 2.2 nil nil)) (1 (1 2.2 nil nil)) (2 (2 2.2 nil nil)) (3 (3 2.2 nil nil))
+    (10 (3 2.2 :ru-j1 nil)) (11 (3 1.2 :ru-j2 nil)) (12 (3 1.2 :ru-j3 nil)) (13 (3 2.2 :ru-k1 nil)) (14 (3 2.2 :ru-sk2 nil))
+    (15 (3 2.2 :ru-k3 nil)) (16 (0 2.2 :ru-j1 nil)) (17 (1 2.2 :ru-sk2 nil))
+    (20 (0 5.0 :sig nil)) (21 (0 6.0 :hold-l nil)) (22 (0 3.5 :sp1 nil)) (23 (0 5.0 :hold-sp1 nil)) (24 (3 3.0 :sp2 nil))
+    (25 (0 3.0 :sp2 nil)) (30 (3 3.0 nil nil)) (31 (3 8.0 nil t)) (40 (3 1.2 :ru-j3 nil)))
+  "85000+k (DUEL_GAMEPLAY \"Debug commands\"): the Shikai's 霜の層 scenes (RUKIA-LAYER-TEST).")
+
+(defun rukia-layer-test (k)
+  "85000+k: human P1 Rukia's Shikai vs Kenpachi (*RU-LAYER-TESTS*: P2's CPU off unless noted), both gauges full, P2 with
+that many 霜の層; P1's link started with L latched (16: 0 layers, the L refused, the string ends; 17: one layer, K2's
+burst bursts it), BYAKURAI / TSUKISHIRO / SOKATSUI / RIKUJOKORO / SP2 started; 30 the thaw, 31 his walk in under 3
+layers (P2's CPU on), 40 霜陣's circle round him. A \"duel probe rukia 1xx\" line every 10 f (his layers, thaw, distance)."
+  (destructuring-bind (layers d start cpu) (or (second (assoc k *ru-layer-tests*)) '(0 2.2 nil nil))
+    (setf *probe* nil)
+    (ensure-battle :rukia :kenpachi)
+    (force-form *p1* :base) (force-form *p2* :base)
+    (place *p1* *p2* d)
+    (dolist (e (list *p1* *p2*)) (full-gauges! e 0f0))
+    (setf (fighter-layers (fighter *p2*)) layers (fighter-thaw (fighter *p2*)) 0 (brain-off (brain *p2*)) (not cpu))
+    (let* ((f (fighter *p1*)) (kit (fighter-kit f)))
+      (case start
+        ((nil))
+        (:sig (try-command *p1* f :sig))
+        (:hold-l (start-move *p1* (kit-next kit :ru-byakurai :hold)))
+        (:sp1 (try-command *p1* f :sp1 :flash))
+        (:hold-sp1 (start-move *p1* (kit-next kit :ru-sokatsui :hold)))
+        (:sp2 (try-command *p1* f :sp2))
+        (t (start-move *p1* (kit-move kit start)) (setf (fighter-queued f) :sig))))
+    (set-probe :rukia (+ 100 k))))
+
+(defun rukia-look-consing ()
+  "85499: bytes consed by 10 calls of each of the Shikai's new looks (the layer crust at 1-3, 霜陣's circle, BYAKURAI's
+beam, SOKATSUI's fire, RIKUJOKORO's marks and rods; 0 B wanted), a \"duel rukia look consing\" line."
+  (let ((hz (make-hazard :kind :fx :x 0f0 :z 0f0 :yaw 0.5f0 :size 5f0 :life 30 :age 3)))
+    (flet ((bytes (fn) (let ((c0 (cons-bytes))) (dotimes (i 10) (funcall fn)) (- (cons-bytes) c0))))
+      (log-msg "duel rukia look consing (10 calls, B): layers 1 ~d, 2 ~d, 3 ~d, sojin ~d, beam ~d, fire ~d, rods-tell ~d, rods ~d"
+               (bytes (lambda () (vfx-ru-layers 0f0 0f0 1.8f0 1 0.016f0))) (bytes (lambda () (vfx-ru-layers 0f0 0f0 1.8f0 2 0.016f0)))
+               (bytes (lambda () (vfx-ru-layers 0f0 0f0 1.8f0 3 0.016f0))) (bytes (lambda () (rukia-sojin-look hz 0.016f0)))
+               (bytes (lambda () (rukia-beam-look hz 0.016f0))) (bytes (lambda () (rukia-fire-look hz 0.016f0)))
+               (progn (setf (hazard-delay hz) 5) (bytes (lambda () (rukia-rods-look hz 0.016f0))))
+               (progn (setf (hazard-delay hz) 0) (bytes (lambda () (rukia-rods-look hz 0.016f0))))))))
+
 (defun rukia-debug (c)
   "Her debug commands (docs/duel/DUEL_GAMEPLAY.md \"Debug commands\"): 2410+k RUKIA-TEST k, 2420+k RUKIA-KL-TEST k; her
 knobs 43000+k .. 66000+k, 72000+k / 73000+k (her CPU's :l-after-k); 67000+k P1's cold = k and its band, 68000 / 68001 the
-white Rukia's earlier looks (stills). Her cinematics' stills (40000+, 69000+) stay with CINE-AT in debug.lisp."
+white Rukia's earlier looks (stills); 85000+k RUKIA-LAYER-TEST k, 85499 the new looks' consing. Her cinematics' stills
+(40000+, 69000+) stay with CINE-AT in debug.lisp."
   (cond ((<= 2410 c 2418) (rukia-test (- c 2410)))
         ((<= 2420 c 2426) (rukia-kl-test (- c 2420)))
         ((<= 43000 c 43100) (setf *frost-slow* (/ (- c 43000) 100.0)))
@@ -702,6 +981,8 @@ white Rukia's earlier looks (stills). Her cinematics' stills (40000+, 69000+) st
         ((<= 63000 c 63100) (setf *ru-hit-warm* (/ (- c 63000) 100.0)))
         ((<= 65000 c 65100) (setf (getf (kit-field (find-kit :rukia :zero)) :away) (/ (- c 65000) 100.0)))
         ((<= 66000 c 66100) (setf *field-floor* (/ (- c 66000) 100.0)))
+        ((<= 85000 c 85098) (rukia-layer-test (- c 85000)))   ; the Shikai's 霜の層 (2026-10-24, DUEL_RUKIA_TYBW §4.4)
+        ((= c 85499) (rukia-look-consing))
         ((<= 72000 c 72100) (setf (getf (kit-ai (find-kit :rukia :base)) :l-after-k) (/ (- c 72000) 100.0)))   ; her CPU's
         ((<= 73000 c 73100) (dolist (f '(:m18 :m50 :zero))   ; L after a K link, k / 100 per hit: the Shikai / the bands
                               (setf (getf (kit-ai (find-kit :rukia f)) :l-after-k) (/ (- c 73000) 100.0))))
@@ -718,5 +999,17 @@ white Rukia's earlier looks (stills). Her cinematics' stills (40000+, 69000+) st
                               (when (getf (kit-meter (fighter-kit f)) :temp)
                                 (let ((b (temp-band (gauges-meter g) (fighter-form f))))
                                   (unless (eq b (fighter-form f)) (force-form *p1* b))))))))
-(dolist (r '((2410 2418 rukia-debug) (2420 2426 rukia-debug) (43000 68001 rukia-debug) (72000 73100 rukia-debug)))
+(dolist (r '((2410 2418 rukia-debug) (2420 2426 rukia-debug) (43000 68001 rukia-debug) (72000 73100 rukia-debug)
+             (85000 85499 rukia-debug)))
   (pushnew r *char-debug* :test #'equal))
+
+;; the Shikai's new names in the brush column (brush.lisp; not on the host): the kido, the bursts, its SP2 copy
+(when (boundp '*brush-callouts*)
+  (setf *brush-callouts*
+        (append (remove-if (lambda (c) (member (first c) '(:ru-byakurai :ru-sokatsui :ru-rikujo :ru-shirafune-s :ru-shimochiri
+                                                           :ru-setsuen :ru-sojin :ru-hyoreki :ru-tsurara :ru-nadare)))
+                           *brush-callouts*)
+                '((:ru-byakurai "白雷" "HADO NO YON: BYAKURAI" "破") (:ru-sokatsui "蒼火墜" "HADO NO SANJUSAN: SOKATSUI" "破")
+                  (:ru-rikujo "六杖光牢" "BAKUDO NO ROKUJUICHI: RIKUJOKORO" "縛") (:ru-shirafune-s "白刀" "SAN NO MAI: SHIRAFUNE" "参")
+                  (:ru-shimochiri "霜散" "SHIMO-CHIRI" nil) (:ru-setsuen "雪煙" "SETSUEN" nil) (:ru-sojin "霜陣" "SOJIN" nil)
+                  (:ru-hyoreki "氷礫" "HYOREKI" nil) (:ru-tsurara "氷柱" "TSURARA" nil) (:ru-nadare "雪崩" "NADARE-KUDAKI" nil)))))

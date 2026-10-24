@@ -129,6 +129,7 @@
                        (~= 0.35 (getf (kit-ai k) :l-after-j)))))
   (check (notany (lambda (j) (kit-l-link (kit :senjumaru :base) j)) '(:sj-j1 :sj-j2 :sj-j3 :sj-j2s)))
   (check (every (lambda (cf) (or (member (first cf) '(:senjumaru :barro)) (equal cf '(:hisagi :base))   ; (Lille II: J3 -> L;
+                                 (equal cf '(:rukia :base))       ; Rukia's Shikai: the J bursts, DUEL_RUKIA_TYBW §4.3)
                                  (null (kit-l-after-j (apply #'kit cf))))) *forms*)))   ; Hisagi's Shikai: the windmill bridge, S1)
 
 ;; SP1 裁ち直し releases the next two hanks (the user, 2026-09-29): the queue moves +2 (6 wraps to 1); the move cuts the live

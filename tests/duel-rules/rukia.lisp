@@ -102,21 +102,24 @@
   ;; fairness: TSUKISHIRO's circle + Kenpachi's hurt radius < a Step; every HAKUREN's widest half-width + his hurt radius
   ;; < a Step (a side Step clears every wave, never shortened by the field); the ring's tell 24 f, one ring at a time (no
   ;; cooldown since 2026-09-29: the move outlasts its pillar)
-  (let* ((ts (kit-command-move b :sig)) (pa (mv-params ts)))
+  ;; (TSUKISHIRO: L held since 2026-10-24, the Shikai's :hold string off BYAKURAI; HAKUREN: the bands' SP1 only)
+  (let* ((ts (kit-next b :ru-byakurai :hold)) (pa (mv-params ts)))
     (check (and (< (+ (getf pa :radius) 0.45) *step-distance*) (= 24 (getf pa :delay)) (> (mv-total ts) (+ (mv-s ts) (getf pa :delay)))
                 (member :bind (mv-flags ts)) (equal (getf pa :tell) '(21 30))
                 (every (lambda (k) (let ((hp (mv-params (kit-command-move k :sp1))))
                                      (< (+ (* 0.5 (+ (getf hp :width) (* 3 (getf hp :width-per)))) 0.45) *step-distance*)))
-                       (list b m18 m50 z))
-                (equal (mv-hold (kit-command-move b :sp1)) '(16 64))
-                (= 130 (let ((hp (mv-params (kit-command-move b :sp1)))) (+ (getf hp :dmg) (* 3 (getf hp :dmg-per))))))))
-  ;; frost on the hits: the K links, Shirafune, the new links
+                       (list m18 m50 z))
+                (equal (mv-hold (kit-command-move m18 :sp1)) '(16 64))
+                (= 130 (let ((hp (mv-params (kit-command-move m18 :sp1)))) (+ (getf hp :dmg) (* 3 (getf hp :dmg-per))))))))
+  ;; frost on the hits: no frost timer in the Shikai since 2026-10-24 (its K links lay 霜の層 instead); the bands' own
   (flet ((fr (k n) (hw-frost (svref (mv-hits (kit-move k n)) 0))))
-    (check (and (= 60 (fr b :ru-k1)) (= 60 (fr b :ru-k2)) (= 90 (fr b :ru-k3)) (= 0 (fr b :ru-j1)) (= 150 (fr b :ru-shirafune))
+    (check (and (= 0 (fr b :ru-k1)) (= 0 (fr b :ru-sk2)) (= 0 (fr b :ru-sk2s)) (= 0 (fr b :ru-k3)) (= 0 (fr b :ru-j1))
+                (= 0 (fr b :ru-shirafune-s)) (= 0 (fr b :ru-kikon)) (= 0 (getf (mv-params (kit-next b :ru-byakurai :hold)) :frost))
+                (= 60 (fr m18 :ru-k2)) (= 150 (fr m18 :ru-shirafune))
                 (= 90 (fr m18 :ru-a-k1)) (= 120 (fr m18 :ru-a-k3)) (= 120 (fr m18 :ru-hakka-18)) (= 150 (fr z :ru-z-k3)))))
   ;; the route damage on hit (before multipliers): KKK 208, JJJ 110, the O ender 63
   (flet ((dmg (&rest names) (loop for n in names for i from 1 sum (hit-damage (mv-dmg (kit-move b n)) nil nil i nil))))
-    (check (and (= 110 (dmg :ru-j1 :ru-j2 :ru-j3)) (= 208 (dmg :ru-k1 :ru-k2 :ru-k3)) (= 63 (hit-damage 70 nil nil 4 nil)))))
+    (check (and (= 110 (dmg :ru-j1 :ru-j2 :ru-j3)) (= 208 (dmg :ru-k1 :ru-sk2 :ru-k3)) (= 63 (hit-damage 70 nil nil 4 nil)))))
   ;; the looks and the HUD: the body variants, the blades, the hidden tags, the U tags, the band names
   (check (and (eq :rukia (kit-body b)) (eq :rukia (kit-body m50)) (eq :rukia-zero (kit-body z))
               (equal '(:sode-no-shirayuki :ru-rime :ru-ice) (mapcar #'kit-weapon (list m18 m50 z)))
@@ -131,11 +134,11 @@
               (equal (getf (kit-ai z) :opp-intent) '(:zone 2 :defend 2)) (null (getf (kit-ai b) :opp-intent)))))
 
 ;; L after a K link (the kit's :l-after-k, docs/duel/DUEL_STRINGS.md §12, the user's decision 2026-09-28): every K link of
-;; every Rukia form (K1 K2 K2s K3) has one, no J link and no other character; the Shikai's is the combo copy of TSUKISHIRO,
-;; the bands' their own L. On hit it combos: from the K link's hit its A + the L's hit frame (the last :on-frame hook + a
-;; hazard's :delay) < the K link's hitstun; the Shikai's plain TSUKISHIRO wouldn't (its 24 f tell)
+;; every awakened band (K1 K2 K2s K3) has one, the band's own L, and no J link; on hit it combos: from the K link's hit its
+;; A + the L's hit frame (the last :on-frame hook + a hazard's :delay) < the K link's hitstun. The Shikai's since
+;; 2026-10-24: the bursts below (no other character's kit names :l-after-k but the ones listed)
 (flet ((l-hit (l) (+ (first (car (last (mv-on-frame l)))) (or (getf (mv-params l) :delay) 0))))
-  (dolist (form '(:base :m18 :m50 :zero))
+  (dolist (form '(:m18 :m50 :zero))
     (let* ((k (kit :rukia form)) (ks (remove-if-not (lambda (l) (eq :f (car (last (third l))))) (link-moves k))))
       (check (= 4 (length (remove-duplicates (mapcar #'first ks)))))
       (dolist (l ks)
@@ -144,14 +147,133 @@
           (check (< (+ (- (mv-s m) (hw-from w)) (mv-a m) (l-hit lm)) (hitstun (hw-react w))))))
       (check (notany (lambda (l) (and (eq :q (car (last (third l)))) (kit-l-link k (mv-name (first l)))))
                      (link-moves k)))))
-  (let* ((b (kit :rukia :base)) (lk (kit-l-link b :ru-k1)) (ts (kit-command-move b :sig)))
-    (check (and (eq :ru-tsukishiro-k (mv-name lk)) (= 18 (l-hit lk)) (= 36 (l-hit ts)) (zerop (mv-cooldown ts)) (zerop (mv-cooldown lk))   ; (no L cooldown: the user 2026-09-29)
-                (>= (+ 4 (l-hit ts)) 26)                                 ; the plain one misses the combo after a K1
-                (>= (mv-reach lk) (getf (mv-params lk) :range))           ; no chase: the ring is cast at him
-                (equal (mv-callout ts) (mv-callout lk)) (member :bind (mv-flags lk))))
-    (check (every (lambda (f) (eq (kit-l-link (kit :rukia f) :ru-k2) (kit-command-move (kit :rukia f) :sig))) '(:m18 :m50 :zero)))
-    (check (every (lambda (cf) (null (kit-l-after-k (apply #'kit cf)))) (remove-if (lambda (c) (member c '(:rukia :ichigo :senjumaru :lille :barro))) *forms* :key #'first)))
-    (check (every (lambda (f) (numberp (getf (kit-ai (kit :rukia f)) :l-after-k))) '(:base :m18 :m50 :zero)))))
+  (check (every (lambda (f) (eq (kit-l-link (kit :rukia f) :ru-k2) (kit-command-move (kit :rukia f) :sig))) '(:m18 :m50 :zero)))
+  (check (every (lambda (cf) (null (kit-l-after-k (apply #'kit cf)))) (remove-if (lambda (c) (member c '(:rukia :ichigo :senjumaru :lille :barro))) *forms* :key #'first)))
+  (check (every (lambda (f) (numberp (getf (kit-ai (kit :rukia f)) :l-after-k))) '(:m18 :m50 :zero))))
+
+;; ================================================================ the Shikai's 霜の層 (DUEL_RUKIA_TYBW §4.1-§4.4, the user 2026-10-24)
+;; the layers (rules): +n capped at 3; one thaws per *RU-THAW* (150) frames without a new one (the timer back to 0 at each);
+;; walk / run x 0.85 / 0.70 / 0.55; the bursts' count: link n up to n, link 3 all; a burst never off a block, at the chain
+;; only with a layer (0 layers: the L is not taken)
+(check (and (= 3 *ru-layer-max*) (= 150 *ru-thaw*) (= 1 (layers-add 0 1)) (= 3 (layers-add 2 2)) (= 3 (layers-add 3 1)) (= 2 (layers-add 0 2))
+            (~= (layer-speed 3.8 0) 3.8) (~= (layer-speed 3.8 1) (* 3.8 0.85)) (~= (layer-speed 3.8 2) (* 3.8 0.7))
+            (~= (layer-speed 9.0 3) (* 9.0 0.55)) (eql 3.8 (layer-speed 3.8 0))
+            (equal '(1 1 1 0) (mapcar (lambda (n) (burst-count 1 n)) '(3 2 1 0)))
+            (equal '(2 2 1 0) (mapcar (lambda (n) (burst-count 2 n)) '(3 2 1 0)))
+            (equal '(3 2 1 0) (mapcar (lambda (n) (burst-count 3 n)) '(3 2 1 0)))
+            (layer-burst-ok-p nil 0) (layer-burst-ok-p nil 2) (layer-burst-ok-p :hit 1) (not (layer-burst-ok-p :hit 0))
+            (not (layer-burst-ok-p :block 3))))
+(flet ((thaw-run (layers thaw n) (dotimes (i n (list layers thaw)) (multiple-value-setq (layers thaw) (layers-thaw layers thaw)))))
+  (check (and (equal '(3 149) (thaw-run 3 0 149)) (equal '(2 0) (thaw-run 3 0 150)) (equal '(0 0) (thaw-run 3 0 450))
+              (equal '(1 0) (thaw-run 3 0 300)) (equal '(0 0) (thaw-run 0 0 10)) (equal '(2 0) (thaw-run 3 140 10)))))
+(let* ((b (kit :rukia :base))
+       (links '((:ru-j1 :ru-shimochiri 1) (:ru-j2 :ru-setsuen 2) (:ru-j2s :ru-setsuen 2) (:ru-j3 :ru-sojin 3)
+                (:ru-k1 :ru-hyoreki 1) (:ru-sk2 :ru-tsurara 2) (:ru-sk2s :ru-tsurara 2) (:ru-k3 :ru-nadare 3)))
+       (bursts '(:ru-shimochiri :ru-setsuen :ru-sojin :ru-hyoreki :ru-tsurara :ru-nadare)))
+  ;; the six routes: every J / K link of the Shikai's grid has its own burst, link n bursting up to n (:burst n); the J
+  ;; routes S 10 / A 3 / R 22, the K routes S 12 / A 4 / R 26; each a :sig ending the string (no J / K / L link after it,
+  ;; no :ender: no O ender; a :sig: no SP cancel); six distinct clips; their damage (§4.4)
+  (check (= 8 (length (remove-duplicates (mapcar (lambda (l) (mv-name (first l))) (link-moves b))))))
+  (dolist (l links)
+    (destructuring-bind (link burst n) l
+      (let ((m (kit-l-link b link)))
+        (check (or (and m (eq burst (mv-name m)) (= n (getf (mv-params m) :burst))) (format t "  Rukia burst ~a -> ~a~%" link m))))))
+  (dolist (n bursts)
+    (let ((m (kit-move b n)) (j (member n '(:ru-shimochiri :ru-setsuen :ru-sojin))))
+      (check (and (eq :sig (mv-kind m)) (null (kit-next b n :q)) (null (kit-next b n :f)) (null (kit-l-link b n))
+                  (not (member :ender (mv-flags m))) (= 1 (length (mv-hits m)))
+                  (equal (list (mv-s m) (mv-a m) (mv-r m)) (if j '(10 3 22) '(12 4 26)))
+                  (member '(0 rukia-burst-arm) (mv-on-frame m) :test #'equal)))))
+  (check (= 6 (length (remove-duplicates (mapcar (lambda (n) (mv-clip (kit-move b n))) bursts)))))
+  (check (null (intersection (mapcar (lambda (n) (mv-clip (kit-move b n))) bursts)
+                             (mapcar (lambda (l) (mv-clip (first l))) (link-moves b)))))   ; (not the openers' clips)
+  (flet ((at (n layers) (let ((m (kit-move b n))) (+ (mv-dmg m) (* (getf (mv-params m) :per) (burst-count (getf (mv-params m) :burst) layers))))))
+    (check (and (equal '(40 40 40) (mapcar (lambda (k) (at :ru-shimochiri k)) '(1 2 3)))
+                (equal '(40 60 60) (mapcar (lambda (k) (at :ru-setsuen k)) '(1 2 3)))
+                (equal '(40 60 80) (mapcar (lambda (k) (at :ru-sojin k)) '(1 2 3)))
+                (equal '(60 60 60) (mapcar (lambda (k) (at :ru-hyoreki k)) '(1 2 3)))
+                (equal '(55 80 80) (mapcar (lambda (k) (at :ru-tsurara k)) '(1 2 3)))
+                (equal '(75 110 145) (mapcar (lambda (k) (at :ru-nadare k)) '(1 2 3)))
+                ;; SP2 SHIRAFUNE: 110 + 25 a layer, every layer (alone or off a string hit)
+                (equal '(110 135 160 185) (mapcar (lambda (k) (at :ru-shirafune-s k)) '(0 1 2 3)))
+                (eq :ru-shirafune-s (mv-name (kit-command-move b :sp2))) (= 3 (getf (mv-params (kit-command-move b :sp2)) :burst)))))
+  ;; the benefits: 霜散 hops 2.5 m, 雪煙 8 % of a bar a layer, 霜陣 r 3 m for 4 s (+1 a 60 f), 氷礫 stagger 26 + 8,
+  ;; 氷柱 out to 6 m, 雪崩 a knockdown along a 6 m line; the J routes 2.0 m round her, the K routes 2.8 m
+  (check (and (eq :hop (getf (mv-params (kit-move b :ru-shimochiri)) :fx)) (~= 2.5 *ru-hop*)
+              (eq :refund (getf (mv-params (kit-move b :ru-setsuen)) :fx)) (~= 0.08 *ru-refund*)
+              (eq :circle (getf (mv-params (kit-move b :ru-sojin)) :fx)) (equal *ru-sojin* '(:r 3.0 :life 240 :per 60))
+              (= 34 (hw-stun (svref (mv-hits (kit-move b :ru-hyoreki)) 0))) (eq :stagger (hw-react (svref (mv-hits (kit-move b :ru-hyoreki)) 0)))
+              (eq :push (getf (mv-params (kit-move b :ru-tsurara)) :fx)) (~= 6.0 *ru-tsurara-to*)
+              (eq :knockdown (hw-react (svref (mv-hits (kit-move b :ru-nadare)) 0))) (~= 6.0 (mv-reach (kit-move b :ru-nadare)))
+              (every (lambda (n) (~= 2.0 (mv-reach (kit-move b n)))) '(:ru-shimochiri :ru-setsuen :ru-sojin))
+              (every (lambda (n) (~= 2.8 (mv-reach (kit-move b n)))) '(:ru-hyoreki :ru-tsurara))))
+  ;; every burst combos off its link with the link's hitstop on both sides: the link's chain opens at S + A on a hit, the
+  ;; burst's hit S_eff later; the victim is free from the link's hit frame + its hitstop + 1 + its hitstun
+  (dolist (l links)
+    (let* ((ma (kit-move b (first l))) (mb (kit-move b (second l))) (w (svref (mv-hits ma) 0)) (hs (hw-hs w))
+           (free (+ (hw-from w) hs 1 (or (hw-stun w) (hitstun (hw-react w)))))
+           (hit (+ (mv-s ma) (mv-a ma) hs (- (mv-s mb) (mv-enter mb)))))
+      (check (or (< hit free) (format t "  Rukia burst ~a -> ~a: hit ~d, free ~d~%" (first l) (second l) hit free)))))
+  ;; the layers' sources: the K links +1 (K1 K2 K2s K3), ENBU +1, TSUKISHIRO's pillar +2; J, the kido and the bands: 0
+  (check (and (every (lambda (n) (eql 1 (getf (mv-params (kit-move b n)) :layers))) '(:ru-k1 :ru-sk2 :ru-sk2s :ru-k3 :ru-kikon))
+              (eql 2 (getf (mv-params (kit-next b :ru-byakurai :hold)) :layers))
+              (notany (lambda (n) (getf (mv-params (kit-move b n)) :layers)) '(:ru-j1 :ru-j2 :ru-j3 :ru-byakurai :ru-sokatsui))
+              (null (getf (mv-params (kit-next b :ru-sokatsui :hold)) :layers))
+              (equal (kit-hooks b) '(:boss rukia-boss :hit rukia-hit :ok rukia-ok))
+              (every (lambda (f) (and (null (kit-hook (kit :rukia f) :hit)) (null (kit-hook (kit :rukia f) :ok)))) '(:m18 :m50 :zero))))
+  ;; the tap / hold splits: L tap BYAKURAI (12 / 3 / 28, 45, a :ranged line 0.5 -> 6 m, 0.3 m wide, flinch, guard 10, -12,
+  ;; no bar), held >= 12 f TSUKISHIRO (the switch at its f11, before its hit; no :track that hides aim); SP1 tap SOKATSUI
+  ;; (14 / 4 / 26, 90, a 5 m cone of 40 deg, knockback 3 m, 1 bar), held 16 f RIKUJOKORO (the rods at f16: the mark at f2,
+  ;; the bind 14 f later, 20, a :bind of 45 f, <= 6 m, :src: guardable facing her; its :tell for a CPU victim)
+  (let* ((by (kit-command-move b :sig)) (ts (kit-next b :ru-byakurai :hold)) (so (kit-command-move b :sp1)) (ri (kit-next b :ru-sokatsui :hold))
+         (wb (svref (mv-hits by) 0)) (vb (first (hw-vols wb))) (ws (svref (mv-hits so) 0)))
+    (check (and (eq :ru-byakurai (mv-name by)) (equal '(12 3 28) (list (mv-s by) (mv-a by) (mv-r by))) (= 45 (mv-dmg by))
+                (member :ranged (mv-flags by)) (eq :flinch (hw-react wb)) (~= 10 (hw-guard wb)) (= -12 (mv-adv-block by))
+                (~= 6.0 (mv-reach by)) (~= 0.5 (aref vb 1)) (~= 6.0 (aref vb 2)) (~= 0.15 (aref vb 4)) (null (mv-hold by))
+                (= 0 (kit-command-cost b :sig)) (eq 'rukia-l-hold (mv-tick by)) (= 12 *ru-l-hold*) (< (1- *ru-l-hold*) (mv-s by))
+                (eq :ru-tsukishiro (mv-name ts)) (= 12 (mv-s ts)) (equal '((12 rukia-tsukishiro)) (mv-on-frame ts))
+                (<= (mv-track by) *track-heavy*) (<= (mv-track ts) *track-heavy*)
+                (eq :ru-sokatsui (mv-name so)) (equal '(1 16) (mv-hold so)) (eq 'rukia-sp1-release (mv-release so))
+                (equal '(14 4 26) (list (mv-s so) (mv-a so) (mv-r so))) (= 90 (mv-dmg so)) (~= 5.0 (mv-reach so))
+                (eq :knockback (hw-react ws)) (~= 3.0 (hw-kb ws)) (member :ranged (mv-flags so)) (= 1 (kit-command-cost b :sp1))
+                (eq :ru-rikujo (mv-name ri)) (= 16 (mv-s ri)) (zerop (length (mv-hits ri))) (member :bind (mv-flags ri))
+                (= 16 (+ 2 (getf (mv-params ri) :delay))) (equal '((2 rukia-rikujo)) (mv-on-frame ri))
+                (= 20 (getf (mv-params ri) :dmg)) (= 45 (getf (mv-params ri) :stun)) (~= 6.0 (getf (mv-params ri) :range))
+                (< (+ (getf (mv-params ri) :radius) 0.45) *step-distance*) (equal '(2 16) (getf (mv-params ri) :tell))
+                (eq :ru-shirafune-s (mv-name (kit-command-move b :sp2))) (= 1 (kit-command-cost b :sp2)))))
+  ;; removed from the Shikai: the K -> L TSUKISHIRO copy, HAKUREN on SP1, the K hits' frost (above)
+  (check (and (not (gethash :ru-tsukishiro-k *moves*)) (not (gethash :ru-hakuren (kit-moves b)))
+              (not (gethash :ru-k2 (kit-moves b))) (not (gethash :ru-tsukishiro-k (kit-moves b)))))
+  ;; her CPU's hooks: the bursts' chance by its function (link 3 > link 2 > link 1, EASY <= NORMAL <= HARD), L held beyond
+  ;; 6 m, SP1 held beyond 4.5 m
+  (check (and (eq 'rukia-ai-burst-p (getf (kit-ai b) :l-after-k)) (eq 'rukia-ai-burst-p (getf (kit-ai b) :l-after-j))
+              (eq 'rukia-ai-sig-hold (getf (kit-ai b) :sig-hold)) (eq 'rukia-ai-sp1-hold (getf (kit-ai b) :sp1-hold))
+              (= 1 (rukia-ai-sig-hold b 4.0)) (> (rukia-ai-sig-hold b 7.0) *ru-l-hold*)
+              (= 1 (rukia-ai-sp1-hold b 3.0)) (> (rukia-ai-sp1-hold b 5.5) 16)
+              (null (getf (kit-ai b) :oki))
+              (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
+                     (list *ai-ru-burst-1* *ai-ru-burst-2* *ai-ru-burst-3* *ai-ru-zone-kido* *ai-ru-sp2-layers*))
+              (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard)))))
+
+;; the awakened bands are pinned (DUEL_RUKIA_TYBW §2: their rules stay): every command, every link's follow-ups and L link,
+;; their hits' frost, startup, reach and params, the kit keys, as on adcb94b (the parent of the Shikai's rebuild; printed
+;; by the same expression there)
+(defparameter *ru-bands-pinned* (quote ((:M18 (:RU-J1 :RU-A-K1 :RU-SHIMOBASHIRA :RU-HAKUREN :RU-SHIRAFUNE :RU-BREAKER :RU-HAKKA-18) ((:RU-J1 :RU-J2 :RU-K2S NIL (0) 7 1.44) (:RU-J2 :RU-J3 :RU-A-K3 NIL (0) 7 1.4) (:RU-J3 NIL NIL NIL (0) 8 1.56) (:RU-A-K3 NIL NIL :RU-SHIMOBASHIRA (120) 21 2.4) (:RU-K2S NIL :RU-A-K3 :RU-SHIMOBASHIRA (60) 21 2.5) (:RU-A-K3 NIL NIL :RU-SHIMOBASHIRA (120) 21 2.4) (:RU-A-K1 :RU-J2S :RU-K2 :RU-SHIMOBASHIRA (90) 17 2.0) (:RU-J2S :RU-J3 NIL NIL (0) 7 1.4) (:RU-J3 NIL NIL NIL (0) 8 1.56) (:RU-K2 :RU-J3 :RU-A-K3 :RU-SHIMOBASHIRA (60) 21 2.5) (:RU-J3 NIL NIL NIL (0) 8 1.56) (:RU-A-K3 NIL NIL :RU-SHIMOBASHIRA (120) 21 2.4)) ((:RU-J1 (0) 7 1.44 NIL) (:RU-A-K1 (90) 17 2.0 NIL) (:RU-SHIMOBASHIRA NIL 12 0.0 (:RADIUS 2.5 :HEIGHT 0.6 :DMG 60 :FROST 90 :GUARD 12 :REACT :STAGGER)) (:RU-HAKUREN NIL 6 0.0 (:SPEED 12.0 :RANGE 11.0 :WIDTH 2.4 :WIDTH-PER 0.4 :DMG 70 :DMG-PER 20 :STUN 24 :FROST 120 :GUARD 12 :GUARD-PER 2)) (:RU-SHIRAFUNE (150) 16 5.0 NIL) (:RU-BREAKER (0) 8 1.35 NIL) (:RU-HAKKA-18 (120) 20 6.5 (:AURA 8 :AIM 120.0 :SPEED 0.0 :DASH-MAX 0 :DASH-TRACK 0.0 :LOOK :LANE))) T NIL 30 (:SIG 25) (:HOHO RUKIA-HOHO-COLD :TICK RUKIA-TICK :RESET RUKIA-RESET) 3.4 8.0 1.15 0.95 (:R 3.0 :AWAY 0.85 :STEP 1.0)) (:M50 (:RU-J1 :RU-A-K1-50 :RU-HYOSHIN :RU-HAKUREN-50 :RU-SHIRAFUNE-50 :RU-BREAKER :RU-HAKKA) ((:RU-J1 :RU-J2 :RU-K2S NIL (0) 7 1.5840001) (:RU-J2 :RU-J3-50 :RU-A-K3-50 NIL (0) 7 1.4520001) (:RU-J3-50 NIL NIL NIL (0) 8 1.72) (:RU-A-K3-50 NIL NIL :RU-HYOSHIN (120) 21 2.64) (:RU-K2S NIL :RU-A-K3-50 :RU-HYOSHIN (60) 21 2.75) (:RU-A-K3-50 NIL NIL :RU-HYOSHIN (120) 21 2.64) (:RU-A-K1-50 :RU-J2S :RU-K2 :RU-HYOSHIN (90) 17 2.2) (:RU-J2S :RU-J3-50 NIL NIL (0) 7 1.4520001) (:RU-J3-50 NIL NIL NIL (0) 8 1.72) (:RU-K2 :RU-J3-50 :RU-A-K3-50 :RU-HYOSHIN (60) 21 2.75) (:RU-J3-50 NIL NIL NIL (0) 8 1.72) (:RU-A-K3-50 NIL NIL :RU-HYOSHIN (120) 21 2.64)) ((:RU-J1 (0) 7 1.5840001 NIL) (:RU-A-K1-50 (90) 17 2.2 NIL) (:RU-HYOSHIN NIL 14 0.0 (:RADIUS 3.5 :HEIGHT 0.6 :DMG 85 :FROST 120 :GUARD 16 :REACT :CRUMPLE)) (:RU-HAKUREN-50 NIL 6 0.0 (:PER 12 :SPEED 14.0 :RANGE 12.0 :WIDTH 2.4 :WIDTH-PER 0.4 :DMG 80 :DMG-PER 23 :STUN 30 :FROST 120 :GUARD 12 :GUARD-PER 2)) (:RU-SHIRAFUNE-50 (150) 16 6.0 NIL) (:RU-BREAKER (0) 8 1.35 NIL) (:RU-HAKKA (120) 20 7.5 (:AURA 8 :AIM 120.0 :SPEED 0.0 :DASH-MAX 0 :DASH-TRACK 0.0 :LOOK :LANE))) T NIL 60 (:Q 6 :F 12 :SIG 36 :SP1 40 :SP2 40 :KIKON 20 :BREAKER 20 :STEP 12) (:HOHO RUKIA-HOHO-COLD :TICK RUKIA-TICK :RESET RUKIA-RESET) 2.8 6.4 1.5 0.85 (:R 4.0 :AWAY 0.7 :STEP 0.9)) (:ZERO (:RU-J1 :RU-Z-K1 :RU-REIDO :RU-HAKUREN-0 :RU-SHIRAFUNE-0 NIL :RU-HAKKA-0) ((:RU-J1 :RU-Z-J2 :RU-K2S NIL (0) 7 1.9440001) (:RU-Z-J2 :RU-J3 :RU-Z-K3 NIL (0) 7 1.78) (:RU-J3 NIL NIL NIL (0) 8 2.106) (:RU-Z-K3 NIL NIL :RU-REIDO (150) 21 3.24) (:RU-K2S NIL :RU-Z-K3 :RU-REIDO (60) 21 3.375) (:RU-Z-K3 NIL NIL :RU-REIDO (150) 21 3.24) (:RU-Z-K1 :RU-Z-J2S :RU-K2 :RU-REIDO (90) 17 3.78) (:RU-Z-J2S :RU-J3 NIL NIL (0) 7 1.78) (:RU-J3 NIL NIL NIL (0) 8 2.106) (:RU-K2 :RU-J3 :RU-Z-K3 :RU-REIDO (60) 21 3.375) (:RU-J3 NIL NIL NIL (0) 8 2.106) (:RU-Z-K3 NIL NIL :RU-REIDO (150) 21 3.24)) ((:RU-J1 (0) 7 1.9440001 NIL) (:RU-Z-K1 (90) 17 3.78 NIL) (:RU-REIDO NIL 10 0.0 (:RADIUS 5.5 :HEIGHT 2.2 :DMG 120 :STUN 45 :FROST 150 :GUARD 20)) (:RU-HAKUREN-0 NIL 10 0.0 (:STABS 4 :SPEED 16.0 :RANGE 14.0 :WIDTH 3.6 :WIDTH-PER 0.0 :DMG 160 :DMG-PER 0 :STUN 36 :FROST 150 :GUARD 18 :GUARD-PER 0)) (:RU-SHIRAFUNE-0 (150) 16 7.5 NIL) (:RU-HAKKA-0 (120) 20 9.0 (:AURA 8 :AIM 120.0 :SPEED 0.0 :DASH-MAX 0 :DASH-TRACK 0.0 :LOOK :LANE))) T NIL 90 (:Q 20 :F 40 :SIG 100 :SP1 100 :SP2 100 :KIKON 60) (:HOHO RUKIA-HOHO-COLD :TICK RUKIA-TICK :RESET RUKIA-RESET) 0.0 0.0 1.65 0.8 (:R 5.5 :AWAY 0.55 :STEP 0.75)))))
+(check (equal *ru-bands-pinned*
+              (loop for form in '(:m18 :m50 :zero)
+                    collect (let ((k (kit :rukia form)))
+                              (list form
+                                    (mapcar (lambda (c) (let ((m (kit-command-move k c))) (and m (mv-name m)))) *kit-commands*)
+                                    (loop for l in (link-moves k)
+                                          collect (let ((n (mv-name (first l))))
+                                                    (list n (let ((m (kit-next k n :q))) (and m (mv-name m)))
+                                                          (let ((m (kit-next k n :f))) (and m (mv-name m)))
+                                                          (let ((m (kit-l-link k n))) (and m (mv-name m)))
+                                                          (map 'list #'hw-frost (mv-hits (first l))) (mv-s (first l)) (mv-reach (first l)))))
+                                    (loop for c in *kit-commands* for m = (kit-command-move k c)
+                                          when m collect (list (mv-name m) (map 'list #'hw-frost (mv-hits m)) (mv-s m) (mv-reach m) (mv-params m)))
+                                    (kit-l-after-k k) (kit-l-after-j k) (kit-frost-touch k) (kit-cold k) (kit-hooks k) (kit-walk k) (kit-run k)
+                                    (kit-mult k) (kit-taken k) (kit-field k))))))
 
 ;; the combo band lock with overdraft (the user's decision 2026-09-28): inside a combo the band holds whatever C does; L is
 ;; refused short of its cold outside a combo, allowed on credit inside one while C > 0; once free the band re-resolves,
