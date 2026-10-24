@@ -309,3 +309,17 @@ manual's lines, and ALWAYS's held guard (10-30 f) that kept the form's own answe
 - Measured: 83020 (the masher, ALWAYS, Hisagi vs Lille's shots), one match before / after: windmills raised 33 / 35, one
   of them 4 f into a held guard (none before); hits taken 22 / 20, blocks 17 / 11; P1 9-0 both. No gate run (the user's
   「不用跑 gate」, DUEL_HISAGI §25.20).
+
+## AUTO GUARD blocks the Kikon follow-up (the user, 2026-10-24)
+
+The user: 「當開啟 auto mode 時能防住毀魂記得追擊」 (after DEVLOG §335's Kikon lock: hit by an O with the button held, a
+victim not red may only guard, and U cancels the reel into a guard that blocks the follow-up).
+
+- **AUTO-KIKON-GUARD** (assist.lisp): with AUTO GUARD ALWAYS, while his `fighter-kikon-lock` is 1 (an O's hit, not red),
+  the assist holds U for him every step (the AUTO tag shows) and does nothing else that step (nothing else may act under
+  the lock): the reel cancels into a guard and the follow-up is BLOCKED. HOLD U: his own U does it. Red (lock 2) or
+  guardless (a broken guard gauge): nothing can.
+- **Measured** (the native sim, the masher P1 with ALWAYS vs Kenpachi, 4 seeds, a temporary log): 13 follow-ups on him
+  not red, 11 BLOCKED, the other 2 with his guard gauge broken (guardless); the 5 on him red, the Kikon.
+- **The gate** (`assistgate.py --ks 2`, 20 seeds x 49 pairings, NORMAL, the learner on): the masher's wins 477 / 980 =
+  49 % -> 608 / 980 = 62 %. Simgate (CPU vs CPU) identical, cvc 3/3: no CPU has the assist.

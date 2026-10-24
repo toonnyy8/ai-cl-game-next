@@ -169,9 +169,19 @@ generic AUTO COMBO). NIL for a kit without it, nothing read."
          (kit-command-ok-p e :breaker)
          :breaker)))
 
+(defun auto-kikon-guard (e f vp cfg)
+  "AUTO GUARD ALWAYS under a Kikon lock (FIGHTER-KIKON-LOCK 1: an O's hit, not red; the user, 2026-10-24: 「當開啟 auto mode
+時能防住毀魂記得追擊」): U held for him, so his reel cancels into the guard that blocks the follow-up (HOLD U: his own U does
+it). T when it held it (the step's other assists wait: nothing else may act under the lock)."
+  (when (and (= 2 (first cfg)) (= 1 (fighter-kikon-lock f)))
+    (vpad-hold! vp :guard)
+    (setf (svref *assist-tag* (fighter-side f)) *assist-tag-frames*)
+    (when (member (fighter-state f) '(:stun)) (clog "~a assist kikon-guard" (side-name e)))
+    t))
+
 (defun assist-step (e cfg)
   "One step of E's assist CFG (ASSIST-CONFIG): its learner watches him; a press it holds goes on, else AUTO GUARD / COMBO /
-BREAK may press one."
+BREAK may press one. Under a Kikon lock AUTO GUARD ALWAYS only holds U (AUTO-KIKON-GUARD)."
   (let* ((f (fighter e)) (side (fighter-side f)) (vp (pilot-vpad (pilot e))) (b (assist-brain e side))
          (st (fighter-state f)) (free (and (member st '(:idle :guard :run)) (zerop (fighter-lock f))))
          (guard-on (and free (plusp (first cfg)) (or (= 2 (first cfg)) (vpad-down vp :guard)))))
@@ -179,6 +189,9 @@ BREAK may press one."
      (let ((*ai-brain* b))                                     ; (the kits' CPU code decides on this brain: AI-BRAIN)
       (when (brain-learn b) (learn-step e b s d))
       (when (plusp (svref *assist-tag* side)) (decf (svref *assist-tag* side)))
+      (when (auto-kikon-guard e f vp cfg)                      ; (a Kikon lock: U only, 2026-10-24)
+        (setf (brain-was b) st)
+        (return-from assist-step nil))
       (let ((kc (and guard-on (or (<= (brain-press-left b) 0) (eq (brain-press b) :guard))   ; the form's own answer, also
                      (let ((c (auto-guard-kit e b s d)))     ; through a held guard (ALWAYS: a kit's Hoho at what a guard
                        (if (and (eq c :hoho) (= 2 (first cfg)) (auto-guardable-p e)) :guard c)))))   ; stops is the guard)
