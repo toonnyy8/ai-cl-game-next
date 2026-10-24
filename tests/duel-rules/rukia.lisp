@@ -223,7 +223,9 @@
         (ko (+ (mv-reach (kit-command-move b :f)) (mv-slide (kit-command-move b :f)) 0.45 *ender-push*)))
     (check (and (every (lambda (n) (eq :q (getf (mv-params (kit-move b n)) :opener))) '(:ru-shimochiri :ru-setsuen :ru-sojin))
                 (every (lambda (n) (eq :f (getf (mv-params (kit-move b n)) :opener))) '(:ru-hyoreki :ru-tsurara :ru-hakuren-k))
-                (~= 2.54 jo) (> (+ 1.2 *ru-hop*) jo) (> *ru-tsurara-to* ko) (< jo (getf *ru-sojin* :r)))))
+                (~= 2.54 jo) (> (+ 1.2 *ru-hop*) jo) (> *ru-tsurara-to* ko) (< jo (getf *ru-sojin* :r))
+                ;; SP2 SHIRAFUNE bursts but ends no string: no :opener, no floor push (a missing one crashed the gate, §10)
+                (getf (mv-params (kit-move b :ru-shirafune-s)) :burst) (null (getf (mv-params (kit-move b :ru-shirafune-s)) :opener)))))
   ;; every burst combos off its link with the link's hitstop on both sides: the link's chain opens at S + A on a hit, the
   ;; burst's hit S_eff later; the victim is free from the link's hit frame + its hitstop + 1 + its hitstun
   (dolist (l links)
