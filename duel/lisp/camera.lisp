@@ -25,7 +25,8 @@
 (declaim (type f32vec *cam-anchor*))
 (defvar *cam-anchor* (fv 0 0 0) "Behind camera: P1's position, followed on a spring.")
 (defparameter *behind-back* 5.5 "Behind camera: metres behind P1 ...")
-(defparameter *behind-up* 2.0 "... this high ...")
+(defparameter *behind-up* 3.2
+  "... this high (2.0 -> 3.2, the user 2026-10-24: a steeper look down, so the gap between the fighters reads; DUEL_DESIGN §9) ...")
 (defparameter *behind-shoulder* 0.9 "... and this far to his right (over the shoulder) ...")
 (defparameter *behind-widen* 0.2 "... backing off this much (and rising a third of it) per metre of separation beyond 4 m.")
 (defparameter *behind-look* 0.6 "It looks this fraction of the way to P2, 1.1 m up.")

@@ -902,8 +902,9 @@ the camera choice.
 - **Behind P1** (VS CPU and PRACTICE; the default, option CAMERA: BEHIND / SIDE in SETTINGS, the pause menu and on the
   select screen's difficulty page, up / down picks the row): the sim's view yaw turns toward P1 → P2
   at most 300°/s (after a Hoho behind either fighter it swings round in ~0.6 s instead of snapping;
-  every start and reset snaps it). The eye stands 5.5 m behind and 2.3 m above P1 and 0.9 m to his
-  right, backing off 0.2 m (and rising 0.07 m) per metre of separation beyond 4 m; up close (under
+  every start and reset snaps it). The eye stands 5.5 m behind (× `*cam-close*` 0.6: 3.3 m) and 3.2 m above P1 and 0.9 m to his
+  right (`*behind-up*` 2.0 → 3.2, the user 2026-10-24: 「我希望能增加拍攝的傾斜角度，使玩家更容易判斷距離」; the look
+  down at P2 4 m away went from about 9° to about 20°, so the floor between the fighters shows; DEVLOG §337), backing off 0.2 m (and rising 0.07 m) per metre of separation beyond 4 m; up close (under
   6 m, full at 2 m) it swings up to 40° round to his right so he does not hide the opponent (the
   look only: steering keeps the sim's yaw). It looks 60 % of the way to P2, 1.1 m up, follows P1 on
   a spring (8/s), stays within 18 m of the centre (rising when the wall pulls it in) and out of both
