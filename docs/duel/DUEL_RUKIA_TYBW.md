@@ -271,3 +271,8 @@ warnings, a browser smoke exit 0 (the batch ran `duel-rukia.json` to the end: ev
 all K.O. (median s and Rukia's wins of 20, parent → now): RY 92.0 → 97.3 (13 → 11), RK 94.5 → 89.7 (9 → 6), RR 116.5 →
 114.5, IR 117.2 → 108.0 (11 → 13), SR 120.8 → 123.4 (10 → 14), BR 135.3 → 131.3 (14 → 13), HR 138.8 → 139.9 (17 →
 14). The playtest Artifact is v150.
+
+Awaken A/B (the merged main; Rukia never awakens, the other side on its rule; her wins of 60 at seed0 100 / 300 / 500;
+`--cmd 39020` with her as P1, `39002` as P2): RY 38 / 42 / 43, RK 21 / 21 / 32, RR 29 / 30 / 32, IR 28 / 30 / 28, SR
+33 / 43 / 36, BR 41 / 40 / 41, HR 44 / 47 / 45: every row ≥ 20, pass (RK the closest). All 1260 matches K.O.; `--cvc`
+PASS (yy / yk / kk identical).
