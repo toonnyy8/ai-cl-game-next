@@ -306,3 +306,14 @@ host tests 10220 ALL PASS, pkgcheck clean, the ranges check passes, the build 0 
 consing lines 0 B in all five looks (standing / J1 hit) and for every new Shikai look (layers, 霜陣, the beam, the fire,
 the rods). After the merge, `simgate --seeds 10 --summary` over all 28 pairings is byte-identical to main 8f452e0 (the new Shikai
 without the look). Before / after sheets (landscape and portrait) went to the user; the playtest Artifact is v151.
+
+### 7.1 The left sleeve is the long sleeve pulled up (the user, 2026-10-24)
+
+> 「不對稱的袖子也是跟右邊一樣的寬鬆長袖往上拉後再用臂章固定，所以應該會在上手臂有寬鬆的袖口」
+> (the user, 2026-10-24)
+
+The ru-look batch drew the left sleeve as a short puffed cap with a tie (gap #2 read as a cut sleeve). Rebuilt in
+`:rukia-core`'s `:upper-arm-l`: the gathered fabric above (a bevel 0.15 × 0.12 × 0.16), the white armband holding it
+(0.13 × 0.04 × 0.14, the tan plaque with 十三 on its outside), the sleeve's **loose mouth flaring below the band** round the
+upper arm (a black frustum r 0.07 → 0.145, 0.115 tall), the white under-sleeve beneath, and −50's frosted hem on the mouth.
+Presentation only: host tests 10220 ALL PASS; her seven pairings at 10 seeds byte-identical to the build before.

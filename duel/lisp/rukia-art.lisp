@@ -153,14 +153,18 @@
            (:shoulder-r (:bevel 0.11 0.06 0.17 0.02 :at (0.02 -0.02 0) :rot (0 0 -20) :c :black))
            (:shoulder-l (:bevel 0.11 0.06 0.17 0.02 :at (-0.02 -0.02 0) :rot (0 0 20) :c :black))
            (:upper-arm-r (:box 0.12 0.3 0.13 :at (0 -0.15 0) :c :black))
-           (:upper-arm-l (:bevel 0.15 0.13 0.16 0.04 :at (0 -0.045 0) :c :black)                  ; the puffed short sleeve
-                         (:box 0.104 0.2 0.112 :at (0 -0.19 0) :c :white)                         ; the under-sleeve / tekko
-                         (:box 0.006 0.056 0.046 :at (-0.055 -0.155 0.004) :c :plaque)             ; the plaque on its outside,
-                         (:box 0.003 0.036 0.004 :at (-0.0585 -0.155 0.004) :c :badge)             ;  十三 in ink
-                         (:box 0.003 0.004 0.03 :at (-0.0585 -0.146 0.004) :c :badge)
-                         (:box 0.003 0.004 0.022 :at (-0.0585 -0.166 0.004) :c :badge)
-                         (:box 0.112 0.016 0.12 :at (0 -0.122 0) :c :white)                       ; the white tie above it
-                         (:box 0.152 0.01 0.162 :at (0 -0.108 0) :c :ice :tag :ice-trim))          ; -50: the puff's frosted hem
+           ;; the left sleeve is the right one's loose long sleeve pulled up and held by the armband (the user, 2026-10-24,
+           ;; DUEL_RUKIA_TYBW §7.1): the gathered fabric above the band, the band with the plaque, the sleeve's loose mouth
+           ;; flaring below it round the upper arm, the white under-sleeve showing beneath
+           (:upper-arm-l (:bevel 0.15 0.12 0.16 0.04 :at (0 -0.04 0) :c :black)                   ; the gathered sleeve
+                         (:box 0.13 0.04 0.14 :at (0 -0.112 0) :c :white)                         ; the armband holding it
+                         (:box 0.006 0.036 0.046 :at (-0.066 -0.112 0.004) :c :plaque)             ; the plaque on its outside,
+                         (:box 0.003 0.026 0.004 :at (-0.0695 -0.112 0.004) :c :badge)             ;  十三 in ink
+                         (:box 0.003 0.004 0.03 :at (-0.0695 -0.104 0.004) :c :badge)
+                         (:box 0.003 0.004 0.022 :at (-0.0695 -0.12 0.004) :c :badge)
+                         (:cyl 0.145 0.115 :top 0.07 :seg 10 :at (0 -0.188 0) :c :black)             ; the loose mouth below the band
+                         (:box 0.096 0.1 0.104 :at (0 -0.25 0) :c :white)                         ; the under-sleeve / tekko
+                         (:cyl 0.149 0.01 :seg 10 :at (0 -0.245 0) :c :ice :tag :ice-trim))        ; -50: the mouth's frosted hem
            (:lower-arm-r (:box 0.13 0.2 0.14 :at (0 -0.1 0) :c :black)                             ; the sleeve on the forearm
                          (:box 0.135 0.01 0.145 :at (0 -0.2 0) :c :ice :tag :ice-trim)              ; the frosted hem
                          (:box 0.088 0.08 0.094 :at (0 -0.228 0) :c :white))                       ; the tekko's cuff
