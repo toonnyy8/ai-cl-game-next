@@ -738,6 +738,7 @@ past the ends; DEFAULT if the clip is not listed."
                                  (and (equal cf '(:rukia :base))   ; (Rukia's Shikai: 摺り足 under her stance, DUEL_RUKIA_TYBW §13.3)
                                       (equal (kit-look-clips (apply #'kit cf)) *ru-shikai-looks*))
                                  (and (equal cf '(:rukia :m18)) (equal (kit-look-clips (apply #'kit cf)) *ru-18-looks*))   ; (-18's, §13.4)
+                                 (and (equal cf '(:rukia :m50)) (equal (kit-look-clips (apply #'kit cf)) *ru-50-looks*))   ; (-50's)
                                  (null (kit-look-clips (apply #'kit cf)))))
                 *forms*))
   (flet ((at (j) (joint-point! v jm (joint-index j) 0f0 0f0 0f0) (list (aref v 0) (aref v 1) (aref v 2)))

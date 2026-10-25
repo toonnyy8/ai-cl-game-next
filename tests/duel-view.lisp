@@ -85,6 +85,7 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           ((prefix-p name "IC-") '((:ichigo :zangetsu-long (:kessa :mark))))   ; the dual Shikai
           ((prefix-p name "RU-S-") '((:rukia :sode-no-shirayuki (:ice-trim :hand-crack))))   ; Rukia's Shikai (DUEL_RUKIA_TYBW §13.3)
           ((prefix-p name "RU-18-") '((:rukia :sode-no-shirayuki (:ice-trim :hand-crack))))  ; her -18 (§13.4)
+          ((prefix-p name "RU-50-") '((:rukia :ru-rime (:hand-crack))))                      ; her -50 (§13.4)
           ((prefix-p name "SK-") '((:skeleton nil nil)))
           (t '((:yamamoto :ryujin-jakka nil) (:kenpachi :ken-katana nil))))))
 
@@ -153,9 +154,10 @@ the front (the strike reworks' stills, DUEL_KEN_REWORK §5.2)."
     (setf *v-clip* i *v-yaw* 0.0)
     (loop for (body weapon hide) in owners for row from 0 do
       (loop for f in frames for col from 0 do
-        (push (make-actor body weapon name :hide hide :frame f :x (* dx (- col (/ (1- n) 2.0)))
-                          :z (* -3.4 row) :yaw (- (/ pi -2) (if (= mode 2) 1.0 0.45)))
-              acts)))
+        (let ((a (make-actor body weapon name :hide hide :frame f :x (* dx (- col (/ (1- n) 2.0)))
+                             :z (* -3.4 row) :yaw (- (/ pi -2) (if (= mode 2) 1.0 0.45)))))
+          (setf (actor-grip a) (and (member name *grip-clips*) t))   ; (a two-handed clip as the match draws it)
+          (push a acts))))
     (setf *actors* (nreverse acts)
           *v-label* (format nil "~d ~a  ~,2f S  FRAMES ~{~d~^ ~}~@[  S/A/R ~{~d~^/~}~]" i name (clip-dur clip) frames sar))
     (cond ((cdr owners) (look-at 0 3.4 6.8 0 0.7 -1.7))
