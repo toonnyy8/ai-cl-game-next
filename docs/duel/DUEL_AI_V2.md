@@ -342,3 +342,10 @@ step (AI-PICK-INTENT → the next intent); AI-DECIDE is its steps in order (DEF-
 place), `:cool` / `:brace` (Rukia's bands), `:step-in`, `:dash-in`, `:dash-back`, `:neutral-guard`, `:neutral-attack` (AI-ATTACK,
 the kit's distance bands). The walk to the intent's range stays shared (one stick rule for every kit).
 
+**Batch 6** (2026-10-25, 「繼續轉移下一批共用 AI 的功能」): inside the two big pieces the earlier steps call. AI-ATTACK's weight
+shaping is `:attack-weights (e b kit s d heat hurry weights)` → the weights (AI-ATTACK-WEIGHTS: the Breaker by heat, the
+stance's, HURRY's pips, the learner's bandit); STRING-REFLEX is its claiming steps (DEF-STRING-STEP, each (e b f mv) →
+`:pass` or the command): `:string-queued`, `:string-bait` (the learner's), `:l-link`, `:k-link`, `:j-link`, `:k-only`,
+`:l-cancel`, the kit's `:sp-ender` hook (in place), `:sp-cancel`, `:end-orange`. Left shared: BRAIN-STEP's frame (perception, the
+Burst clock, the press written to the vpad), AI-COMMAND (how a command is held / charged) and the walk.
+

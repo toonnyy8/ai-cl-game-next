@@ -73,6 +73,9 @@
 ;;;;               AI-NEUTRAL's :intent (e b heat) -> the next intent (AI-PICK-INTENT); AI-DECIDE's, each (e b kit s d lo hi heat)
 ;;;;               -> :PASS or it decided (DEF-DECIDE-STEP): :neutral-kikon :white :pip-hurry, the habit (debug), :cool :brace
 ;;;;               :step-in :dash-in :dash-back :neutral-guard :neutral-attack
+;;;;               AI-ATTACK's :attack-weights (e b kit s d heat hurry weights) -> the weights (AI-ATTACK-WEIGHTS); STRING-REFLEX's,
+;;;;               each (e b f mv) -> :PASS or the command (DEF-STRING-STEP): :string-queued :string-bait :l-link :k-link :j-link
+;;;;               :k-only :l-cancel, the kit's :sp-ender, :sp-cancel :end-orange
 (in-package :duel)
 
 (defstruct snap
@@ -353,6 +356,7 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
                            :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush
                            :o-ender ai-o-ender :step-j ai-step-j :breaker-string ai-breaker-string :guard-cancel ai-guard-cancel
                            :string ai-string :orange ai-orange :pressure ai-pressure
+                           :attack-weights ai-attack-weights :string-queued ai-string-queued :string-bait ai-string-bait :l-link ai-l-link :k-link ai-k-link :j-link ai-j-link :k-only ai-k-only :l-cancel ai-l-cancel :sp-cancel ai-sp-cancel :end-orange ai-end-orange
                            :intent ai-pick-intent :neutral-kikon ai-neutral-kikon :white ai-white :pip-hurry ai-pip-hurry :cool ai-cool :brace ai-brace :step-in ai-step-in :dash-in ai-dash-in :dash-back ai-dash-back :neutral-guard ai-neutral-guard :neutral-attack ai-neutral-attack
                            :ward-reversal ai-ward-reversal :reset ai-reset :kikon-rush ai-kikon-rush :bankai ai-bankai :cashout ai-cashout :anti-bind ai-anti-bind :anti-parry ai-anti-parry :awaken ai-awaken :follow-up ai-follow-up :stun-follow ai-stun-follow :oki ai-oki :react ai-react :guard-break ai-guard-break :threat ai-threat)
   "BRAIN-STEP's replaceable steps and their generic defaults (NIL: no default, the step is skipped); a kit's :ai names
@@ -416,40 +420,96 @@ assist's AUTO GUARD for the kit's :assist-guard)."
   (let* ((c (ai-table e :cancel)) (p (getf c :sig)) (mv (kit-command-move kit :sig)))
     (and p mv (member :cancel (mv-flags mv)) (kit-command-ok-p e :sig) (< (sim-rnd01) p))))
 
+;;; ---------------------------------------------------------------- STRING-REFLEX's steps (batch 6, 2026-10-25): claiming steps
+;;; (AI-STRING-CLAIM, :PASS when the clause's test fails, else its value, NIL too: it ends the string reflex as the clause did)
+(defun ai-string-claim (e name b f mv)
+  "STRING-REFLEX's step NAME (e b f mv): :PASS (not this one) or its command (NIL included)."
+  (let ((h (ai-step e name))) (if h (funcall h e b f mv) :pass)))
+
+(defmacro def-string-step (name doc test &body body)
+  "A claiming STRING-REFLEX step NAME (e b f mv): BODY's value when TEST holds, else :PASS; STRING-REFLEX's locals bound: KIT,
+NQ / NF (the J / K links KIT-NEXT allows; no K link with no pip of the arm), BARS (her Reiatsu bars)."
+  `(defun ,name (e b f mv)
+     ,doc
+     (let* ((kit (fighter-kit f))
+            (nq (kit-next kit (mv-name mv) :q))
+            (nf (let ((n (kit-next kit (mv-name mv) :f)))
+                  (and n (not (and (kit-pip-cmd-p kit :f) (< (gauges-meter (gauges e)) 1f0))) n)))   ; no pip: no K link
+            (bars (reiatsu-bars e)))
+       (declare (ignorable kit nq nf bars))
+       (if ,test (progn ,@body) :pass))))
+
+(def-string-step ai-string-queued
+  "the next link is latched already: nothing more"
+  (fighter-queued f)
+  nil)
+
+(def-string-step ai-string-bait
+  "a learner baits his predicted burst: the string ends at its 2nd hit (then a guard: LEARN-FIRE)"
+  (and (brain-learn b) (eq (lrn-cmd (brain-learn b)) :bait)
+       (>= (fighter-combo-hits (fighter (opp-of e))) 2))
+  (why b :bait nil))
+
+(def-string-step ai-l-link
+  "L after a K link (a J link: :l-after-j; a kit function (e link L) gives its chance), one roll per hit"
+  (let* ((p (ai-table e (if (kit-k-link-p kit (mv-name mv)) :l-after-k :l-after-j) 0.0))
+         (l (kit-l-link kit (mv-name mv)))
+         (p (if (and p (symbolp p)) (if l (funcall p e mv l) 0.0) p)))   ; (a kit function (e link L): its chance)
+    (and (plusp p) (= (fighter-sf f) (fighter-land-sf f)) l (kit-command-ok-p e :sig kit nil l)   ; one roll per hit
+         (< (sim-rnd01) p)))
+  (why b :l-after-k :sig))
+
+(def-string-step ai-k-link
+  "the next K link, the kit's :string-k share of the time"
+  (and nf (< (sim-rnd01) (ai-table e :string-k *ai-string-flash-p*)))
+  :f)
+
+(def-string-step ai-j-link
+  "else the next J link"
+  nq
+  :q)
+
+(def-string-step ai-k-only
+  "else the K link when it's the only one"
+  nf
+  :f)
+
+(def-string-step ai-l-cancel
+  "the string's last link: end it with L (the kit's :cancel, AI-CANCEL-P)"
+  (and (>= (fighter-sf f) (fighter-land-sf f)) (ai-cancel-p e kit))
+  (why b :cancel :sig))
+
+(def-string-step ai-sp-cancel
+  "SP2 off the last link's hit when the victim is on the ground and the kit's :sp-cancel-bars are there, *AI-SP-CANCEL-P* of the time"
+  (and (>= bars (ai-table e :sp-cancel-bars 1)) (kit-command-ok-p e :sp2)
+       (= (fighter-sf f) (fighter-land-sf f)) (not (eq (state-of (opp-of e)) :air))
+       (< (sim-rnd01) *ai-sp-cancel-p*))              ; one roll, on the first step we see the hit
+  :sp2)
+
+(def-string-step ai-end-orange
+  "the string's end: ORANGE off it (AI-ORANGE-P)"
+  (and (not nq) (not nf) (= (fighter-sf f) (fighter-land-sf f)) (ai-orange-p e b f))
+  (why b :orange :burst))
+
 (defun string-reflex (e b f mv)
   "Our link hit: go on with the string (the next link K *AI-STRING-FLASH-P* of the time, among the links KIT-NEXT
 allows: after a switch only one; pressed once, the latch does the rest), or end it with L (the kit's :cancel), else
 cancel into SP2 when the victim is on the ground (a launched victim would drop out of it) and the kit's
 :sp-cancel-bars are there, *AI-SP-CANCEL-P* of the time (link 3 staggers / crumples: SP2 always combos off it)."
-  (let* ((kit (fighter-kit f))
-         (nq (kit-next kit (mv-name mv) :q))
-         (nf (kit-next kit (mv-name mv) :f))
-         (bars (reiatsu-bars e)))
+  (let ((kit (fighter-kit f)) (r nil))
     (setf (brain-why b) :string)
-    (when (and nf (kit-pip-cmd-p kit :f) (< (gauges-meter (gauges e)) 1f0)) (setf nf nil))   ; no pip: no K link
-    (cond ((fighter-queued f) nil)                      ; the next link is latched already
-          ((and (brain-learn b) (eq (lrn-cmd (brain-learn b)) :bait)   ; a learner baits his predicted burst: the string
-                (>= (fighter-combo-hits (fighter (opp-of e))) 2))       ; ends at its 2nd hit (then a guard: LEARN-FIRE)
-           (why b :bait nil))
-          ((let* ((p (ai-table e (if (kit-k-link-p kit (mv-name mv)) :l-after-k :l-after-j) 0.0))   ; L after a K link
-                  (l (kit-l-link kit (mv-name mv)))                                                  ; (a J link: :l-after-j):
-                  (p (if (and p (symbolp p)) (if l (funcall p e mv l) 0.0) p)))   ; (a kit function (e link L): its chance)
-             (and (plusp p) (= (fighter-sf f) (fighter-land-sf f)) l (kit-command-ok-p e :sig kit nil l)   ; one roll per hit
-                  (< (sim-rnd01) p)))
-           (why b :l-after-k :sig))
-          ((and nf (< (sim-rnd01) (ai-table e :string-k *ai-string-flash-p*))) :f)
-          (nq :q)
-          (nf :f)
-          ((and (>= (fighter-sf f) (fighter-land-sf f)) (ai-cancel-p e kit)) (why b :cancel :sig))
+    (cond ((not (eq (setq r (ai-string-claim e :string-queued b f mv)) :pass)) r)   ; its steps in order (batch 6, *AI-STEPS*)
+          ((not (eq (setq r (ai-string-claim e :string-bait b f mv)) :pass)) r)
+          ((not (eq (setq r (ai-string-claim e :l-link b f mv)) :pass)) r)
+          ((not (eq (setq r (ai-string-claim e :k-link b f mv)) :pass)) r)
+          ((not (eq (setq r (ai-string-claim e :j-link b f mv)) :pass)) r)
+          ((not (eq (setq r (ai-string-claim e :k-only b f mv)) :pass)) r)
+          ((not (eq (setq r (ai-string-claim e :l-cancel b f mv)) :pass)) r)
           ((let ((h (ai-table e :sp-ender)))            ; the kit's own SP ender (its function picks it, or NIL)
              (and h (= (fighter-sf f) (fighter-land-sf f)) (not (eq (state-of (opp-of e)) :air))
                   (let ((c (funcall h e kit))) (and c (why b :sp-ender c))))))
-          ((and (>= bars (ai-table e :sp-cancel-bars 1)) (kit-command-ok-p e :sp2)
-                (= (fighter-sf f) (fighter-land-sf f)) (not (eq (state-of (opp-of e)) :air))
-                (< (sim-rnd01) *ai-sp-cancel-p*))              ; one roll, on the first step we see the hit
-           :sp2)
-          ((and (not nq) (not nf) (= (fighter-sf f) (fighter-land-sf f)) (ai-orange-p e b f))
-           (why b :orange :burst)))))
+          ((not (eq (setq r (ai-string-claim e :sp-cancel b f mv)) :pass)) r)
+          ((not (eq (setq r (ai-string-claim e :end-orange b f mv)) :pass)) r))))
 
 (defun ai-orange-p (e b f)
   "CHAIN REVERSE (ORANGE) out of a string link that hit and has no link after it? Allowed (BURST-OK-P :orange), the victim
@@ -1047,16 +1107,23 @@ its middle), guard, attack (a weighted pick from the kit's band for D), or wait:
     (and h (kit-pips (kit-of e)) (>= (gauges-meter g) 1f0) (null (gauges-arm-pending g))
          (>= (gauges-meter-idle g) (- *arm-crack* h)))))
 
+(defun ai-attack-weights (e b kit s d heat hurry weights)
+  "The generic :attack-weights step (batch 6, 2026-10-25): AI-ATTACK's band WEIGHTS for D (a fresh plist, changed in place) ->
+the weights it picks from: the Breaker by heat (none on a guardless opponent), the stance's (AI-STANCE-WEIGHTS), HURRY's pip
+commands only, the learning CPU's bandit."
+  (when (getf weights :breaker)                  ; (a guardless opponent has no guard to break)
+    (setf (getf weights :breaker) (if (opp-guardless-p e) 0 (* (getf weights :breaker) (heat-breaker-mult heat)))))
+  (ai-stance-weights e s d weights)
+  (when hurry
+    (loop for (cmd nil) on weights by #'cddr unless (and cmd (kit-pip-cmd-p kit cmd)) do (setf (getf weights cmd) 0)))
+  (when (brain-learn b) (setf weights (learn-weights e (brain-learn b) d weights)))   ; the bandit (learning CPU only)
+  weights)
+
 (defun ai-attack (e b kit s d heat hurry)
   "A weighted pick from the kit's band for D, pressed when it may start (not a J / K out of its reach). HURRY: only the
 pip commands of the band (the arm's crack is near: AI-PIP-HURRY-P). T when something was pressed."
-  (let* ((weights (copy-list (band-weights (ai-table e :moves) d))))
-    (when (getf weights :breaker)                  ; (a guardless opponent has no guard to break)
-      (setf (getf weights :breaker) (if (opp-guardless-p e) 0 (* (getf weights :breaker) (heat-breaker-mult heat)))))
-    (ai-stance-weights e s d weights)
-    (when hurry
-      (loop for (cmd nil) on weights by #'cddr unless (and cmd (kit-pip-cmd-p kit cmd)) do (setf (getf weights cmd) 0)))
-    (when (brain-learn b) (setf weights (learn-weights e (brain-learn b) d weights)))   ; the bandit (learning CPU only)
+  (let* ((weights (funcall (ai-step e :attack-weights) e b kit s d heat hurry
+                           (copy-list (band-weights (ai-table e :moves) d)))))   ; (AI-ATTACK-WEIGHTS)
     (let ((cmd (apply #'weighted-pick (sim-rnd01) weights)))
       (cond ((and cmd (or (not (member cmd *kit-commands*)) (and (kit-command-move kit cmd) (kit-command-ok-p e cmd)))
                   (or (not (member cmd '(:q :f)))                  ; don't whiff a string at range
