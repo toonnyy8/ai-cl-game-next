@@ -777,3 +777,14 @@ A kit `:unscaled` hook (combat.lisp) next to §16.3's SP rule; Hisagi's ranged m
   raised ice blade off the top of the frame; K2's sleeve reads weakly from behind (the sheet carries it); K3's reversed
   blade stands up behind her in the bow; O's pillar hides her levelling.
 - **The motion pass is complete**: every Rukia form plays its own clips (the Shikai 29, −18 18, −50 18, −273 11).
+
+## 17. Her CPU: the catalogue first (the user, 2026-10-25)
+
+> 「我希望將步驟改成先從幀數表、取消規則、位移與量表消耗等資訊展開出可行的連段與攻擊手段，在思考如何將這些手段引用至對戰策略中」
+> (the user, 2026-10-25)
+
+The CPU work's order (skill `duel-character-cpu` "Order", for every fighter from now): (1) a data sheet per form from
+the kit; (2) a catalogue of hit-confirmed combos and non-combo means, each verified in the native sim against a dummy;
+(3) a strategy (situations → catalogue entries, styles as weightings) for the user's pick; (4) the CPU encoding it, a
+search only tuning it under a frozen evaluator; then the gates (her pairings, the awaken A/B deferred since §11.2,
+ASSIST, G2). Rukia's comes first: the Shikai, then −18, −50, −273.

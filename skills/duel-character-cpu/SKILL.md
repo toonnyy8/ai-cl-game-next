@@ -17,6 +17,22 @@ evaluator frozen before the first cell.** Generic CPU rules (per-difficulty chan
   to BK 1 / 60) and don't tune it in between.
 - A rule change during a search costs a re-measure and a re-freeze (R18: the pick fell 0.9716 → 0.9102).
 
+## Order: the catalogue first, then the strategy, then the CPU (the user, 2026-10-25)
+「先從幀數表、取消規則、位移與量表消耗等資訊展開出可行的連段與攻擊手段，再思考如何將這些手段引用至對戰策略中」
+(DEVLOG §369). Don't open a search on the CPU's knobs before the fighter's options are known:
+1. **Data sheet** per form, from the kit (never from memory): S / A / R, advantage on hit and block, hitstun /
+   reaction, volume and reach, lunge / chase / slide / push, every cancel (string links, L after J / K, SP cancels, the
+   O ender, ORANGE's chain, the guard cancel, holds and releases), costs and gains (Reiatsu bars, flash step, the kit's
+   own resource), the combo limits and scaling (unscaled windows, SPs).
+2. **Catalogue** expanded from the sheet: the hit-confirmed combos (route, frames, damage after scaling, cost / gain,
+   where both stand after, who is plus), and the non-combo means (pokes by range, whiff punishes, punishes by block
+   disadvantage, safe pressure, anti-approach, zoning, setups, oki). Every entry **verified in the native sim** (a
+   scripted input against a dummy), its measured numbers recorded; a frame-math entry that the sim refutes is dropped.
+3. **Strategy**: situations (distance band, his state, both sides' resources) → which catalogue entries; styles are
+   weightings over the catalogue. The user picks before any CPU code.
+4. **CPU**: encode the strategy in the kit's CPU (the rules below); a search (dream-rsi or a grid) only tunes weights
+   and thresholds of the chosen strategy, under the frozen evaluator.
+
 ## Teaching it one new move (the CPU, ASSIST, learner together)
 1. **Where it looks**: a kit tick runs after the step's frame count, so a check "on the land frame" never fires: look on
    `land + 1` (the O ender). Prove it fires: a counter in the `duel <char>` gate line, counted over 20 sim matches (51).
