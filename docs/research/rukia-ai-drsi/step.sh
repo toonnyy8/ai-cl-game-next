@@ -15,7 +15,7 @@ REPO=$(cd "$WS/../../.." && pwd)
 REL=${WS#$REPO/}
 DREAM_RSI=${DREAM_RSI:-$(ls -d "$HOME/.claude/skills/dream-rsi" "$HOME"/.claude/skills/synced/*/dream-rsi 2>/dev/null | head -1)}
 DRSI="python3 $DREAM_RSI/scripts/drsi.py -w $WS"
-export FREEZE=${FREEZE:-$(git -C "$REPO" log -1 --format=%H -- tools/aieval.py tests/duel-rules-test.lisp tests/duel-rules/rukia.lisp "$REL/baseline/score.json")}
+export FREEZE=${FREEZE:-2a68ece0b56741f343030fe5715a1fbb5a359bca}   # pinned (rescore.sh: a later edit of her test file moved it)
 RESCORE_WT=${RESCORE_WT:-$REPO/.claude/worktrees/rescore-rukia}
 export RESCORE_WT
 
