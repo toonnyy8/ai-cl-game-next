@@ -307,10 +307,24 @@ identical; the step's default is the old code, the same SIM-RND01 calls in the s
 | `:block-punish (e b s d)` | the step after our blockstun, his ender at ≤ *AI-PUNISH-ADV* (−8) | AI-BLOCK-PUNISH | — |
 | `:punish (e b s d)` | a recovering opponent in J1's reach | AI-PUNISH | — |
 | `:anti-rush (e b s d)` | an incoming Breaker / Kikon rush / its follow-up | AI-ANTI-RUSH | — |
+| `:o-ender (e b s d)` † | our link 3 hit: the O ender (red: always; else :o-ender) | AI-O-ENDER | — |
+| `:step-j (e b s d)` † | our Step lands him in J1's reach: J at f10 | AI-STEP-J | — |
+| `:breaker-string (e b s d)` † | our Breaker landed: a string off it | AI-BREAKER-STRING | — |
+| `:guard-cancel (e b s d)` † | our hit landed, only the guard cancel's share of recovery left | AI-GUARD-CANCEL | — |
+| `:string (e b s d)` † | our J / K link hit: finish the string or cancel (STRING-REFLEX) | AI-STRING | — |
+| `:orange (e b s d)` † | our L / O hit: ORANGE off it | AI-ORANGE | — |
+| `:pressure (e b s d)` † | our link blocked: go on (the kit's :block-string) | AI-PRESSURE | — |
+
+† **Claiming steps** (AI-STEP-CLAIM): `:pass` when the step doesn't apply (the reflexes go on), else its command; a NIL
+command ends the reflexes, as the clause did (a cond clause whose test held returned its body's NIL: e.g. a blocked link
+with no safe follow-up presses nothing and no later reflex runs that step).
 
 Record of the first move: DUEL_RUKIA_TYBW §17.6. **Batch 2** (2026-10-25, the user: 「繼續轉移下一批共用 AI 的功能」): `:burst`,
 `:wake-guard` and AI-REFLEX's `:anti-kikon`, `:block-punish`, `:punish`, `:anti-rush`, each moved as written into its own
 default function, in its old place (AI-STEP-CMD); no kit replaces them yet. Proof (after the `:steps` fix, 72dbca2): `--cvc` 3 PASS
-and all 28 pairings' 2-seed gate lines (56) identical to the parent 6a751b4. Next: the remaining AI-REFLEX clauses (the O ender, the string reflex,
-the guard cancel, the cash-outs, the threat guard / Hoho), then AI-NEUTRAL / AI-DECIDE.
+and all 28 pairings' 2-seed gate lines (56) identical to the parent 6a751b4. Next: the remaining AI-REFLEX clauses (the cash-outs, the threat guard / Hoho ...), then AI-NEUTRAL /
+AI-DECIDE.
+
+**Batch 3** (2026-10-25, 「繼續轉移下一批共用 AI 的功能」): AI-REFLEX's in-move clauses (†), as claiming steps; the kit's
+`:move-reflex` keeps its place between `:guard-cancel` and `:string`.
 

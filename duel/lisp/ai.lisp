@@ -64,7 +64,9 @@
 ;;;;               a press made with :act :block-hold is held as :hold is (Rukia's post-block hold, which her :held lets go)
 ;;;;               :burst (e b) Burst / awakening out of a combo? (AI-BURST-ROLL)  :wake-guard (e b d) out of a hit, him close
 ;;;;               (AI-WAKE-STEP); AI-REFLEX's, each (e b s d) -> a command or NIL, in its old place: :anti-kikon (AI-ANTI-KIKON)
-;;;;               :block-punish (AI-BLOCK-PUNISH)  :punish (AI-PUNISH)  :anti-rush (AI-ANTI-RUSH)
+;;;;               :block-punish (AI-BLOCK-PUNISH)  :punish (AI-PUNISH)  :anti-rush (AI-ANTI-RUSH); AI-REFLEX's in-move ones,
+;;;;               each (e b s d) -> :PASS or the command (NIL too ends the reflexes, AI-STEP-CLAIM): :o-ender :step-j
+;;;;               :breaker-string :guard-cancel, the kit's :move-reflex, :string :orange :pressure (AI-O-ENDER ... AI-PRESSURE)
 (in-package :duel)
 
 (defstruct snap
@@ -342,7 +344,9 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
 (defun ai-table (e key &optional default) (getf (kit-ai (kit-of e)) key default))
 
 (defparameter *ai-steps* '(:block-hold ai-block-hold :held nil :burst ai-burst-roll :wake-guard ai-wake-step
-                           :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush)
+                           :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush
+                           :o-ender ai-o-ender :step-j ai-step-j :breaker-string ai-breaker-string :guard-cancel ai-guard-cancel
+                           :string ai-string :orange ai-orange :pressure ai-pressure)
   "BRAIN-STEP's replaceable steps and their generic defaults (NIL: no default, the step is skipped); a kit's :ai names
 its own (the header's \"steps\"; one moved over at a time, each proved to leave the other kits' matches unchanged).")
 
@@ -568,6 +572,89 @@ the aura only reappears in front of the dash)."
                     ((> d *ai-anti-breaker-q*) :q)
                     (t :side-step))))))
 
+;;; ---------------------------------------------------------------- AI-REFLEX's in-move steps (batch 3, 2026-10-25): each returns
+;;; :PASS when its clause's test fails, else the clause's value (NIL too: as before, it ends the reflexes); moved as written
+(defun ai-step-claim (e name b s d)
+  "AI-REFLEX's claiming step NAME (e b s d): :PASS (not this one, the reflexes go on) or its command (NIL included)."
+  (let ((h (ai-step e name))) (if h (funcall h e b s d) :pass)))
+
+(defun ai-o-ender (e b s d)
+  "Our completed string (a link-3 hit): the O ender, on a red opponent always, else the kit's :o-ender chance; one roll, on
+the first step we see the hit (its land frame)."
+  (declare (ignore s d))
+  (let* ((f (fighter e)) (mv (fighter-move f)) (kit (fighter-kit f)))
+    (if (and (eq (fighter-state f) :move) (eq (fighter-contact f) :hit) (member :ender (mv-flags mv)) (not (ai-sb-finish-p e))
+             (= (fighter-sf f) (fighter-land-sf f)) (kit-command-ok-p e :kikon kit t)
+             (or (kikon-ready-p e) (< (sim-rnd01) (ai-table e :o-ender *ai-o-ender*))))
+        (why b :o-ender :kikon)
+        :pass)))
+
+(defun ai-step-j (e b s d)
+  "Step -> J: our Step lands him within J1's reach and he isn't mid-attack (a Breaker is: J beats it): J at f10, the latch
+starts J1 at the Step's *STEP-J-CANCEL*; one roll per Step."
+  (declare (ignore d))
+  (let* ((f (fighter e)) (q (kit-command-move (fighter-kit f) :q)))
+    (if (and (eq (fighter-state f) :step) (= (fighter-sf f) (- *step-j-cancel* 2)) q
+             (< (fighter-dist f) (+ (mv-reach q) *ai-step-j-margin*))   ; (our own hop)
+             (not (and (eq (snap-state s) :move) (< (snap-sf s) (snap-active-end s)) (not (eq (snap-kind s) :breaker))))
+             (not (eq (snap-state s) :hoho))
+             (< (sim-rnd01) (getf *ai-step-j-p* (brain-difficulty b) 0.0)))
+        (why b :step-j :q)
+        :pass)))
+
+(defun ai-breaker-string (e b s d)
+  "Our Breaker landed (a hit or a Guard Break): open a string off it, K1 the kit's :string-k share of the time."
+  (declare (ignore s d))
+  (let* ((f (fighter e)) (mv (fighter-move f)) (kit (fighter-kit f)))
+    (if (and (eq (fighter-state f) :move) (eq (fighter-contact f) :hit) (eq (mv-kind mv) :breaker) (>= (fighter-sf f) (fighter-land-sf f)))
+        (flet ((ok (c) (and (or (kit-command-move kit c) (kit-drop kit c)) (kit-command-ok-p e c))))
+          (why b :breaker-string (cond ((and (ok :f) (< (sim-rnd01) (ai-table e :string-k *ai-string-flash-p*))) :f)
+                                       ((ok :q) :q) ((ok :f) :f))))
+        :pass)))
+
+(defun ai-guard-cancel (e b s d)
+  "Our hit landed and only the guard cancel's share of its recovery is left (no link latched): guard out of it, unless we see
+him still reeling past our recovery's end."
+  (declare (ignore d))
+  (let* ((f (fighter e)) (mv (fighter-move f)))
+    (if (and (eq (fighter-state f) :move) (not (fighter-queued f))
+             (guard-cancel-open-p (fighter-sf f) (mv-s mv) (mv-a mv) (mv-r mv) (fighter-contact f) (mv-kind mv) (mv-whiff mv))
+             (not (and (member (snap-state s) '(:stun :air :down :wakeup))
+                       (> (snap-left-seen s b) (- (mv-total mv) (fighter-sf f))))))
+        (why b :guard-cancel :guard-cancel)
+        :pass)))
+
+(defun ai-string (e b s d)
+  "Our own hit: finish the string, else an SP / L cancel (STRING-REFLEX)."
+  (declare (ignore s d))
+  (let* ((f (fighter e)) (mv (fighter-move f)))
+    (if (and (eq (fighter-state f) :move) (eq (fighter-contact f) :hit) (member (mv-kind mv) '(:quick :flash)))
+        (string-reflex e b f mv)
+        :pass)))
+
+(defun ai-orange (e b s d)
+  "Our L / O hit him (he reels): CHAIN REVERSE (ORANGE) on it too, as off a string's last link."
+  (declare (ignore s d))
+  (let* ((f (fighter e)) (mv (fighter-move f)))
+    (if (and (eq (fighter-state f) :move) (eq (fighter-contact f) :hit) (member (mv-kind mv) '(:sig :kikon))
+             (= (fighter-sf f) (fighter-land-sf f)) (ai-orange-p e b f))
+        (why b :orange :burst)
+        :pass)))
+
+(defun ai-pressure (e b s d)
+  "Guard pressure (the kit's :block-string): a link the opponent blocked goes on, pressed just before the chain opens (one
+roll per link): a J link, a K link only *AI-BLOCK-K-P* of the time (his J interrupts it), never a punishable ender (K3): the
+string resets instead (AI-REFLEX's reset); not below :gg-low or into a parry."
+  (declare (ignore s d))
+  (let* ((f (fighter e)) (mv (fighter-move f)))
+    (if (and (eq (fighter-state f) :move) (eq (fighter-contact f) :block) (member (mv-kind mv) '(:quick :flash))
+             (ai-pressure-p e) (= (fighter-sf f) (- (mv-total mv) *chain-lead* 1)))
+        (let* ((kit (fighter-kit f)))
+          (flet ((ok (m) (and m (integerp (mv-adv-block m)) (> (mv-adv-block m) *gg-ender-adv*))))
+            (let ((nq (kit-next kit (mv-name mv) :q)) (nf (kit-next kit (mv-name mv) :f)))
+              (why b :pressure (cond ((and (ok nf) (< (sim-rnd01) *ai-block-k-p*)) :f) ((ok nq) :q))))))
+        :pass)))
+
 (defun ai-reflex (e b s d)
   "The reflexes (checked before the intent): a command keyword or NIL. S = the perceived opponent,
 D = the perceived distance."
@@ -576,53 +663,23 @@ D = the perceived distance."
          (red (gauges-red-p g))
          (hoho-ok (hoho-ready-p e))   ; flash-step for one
          (guard-k (ai-guard-k e))                                                      ; the guard gauge left
-         (q (kit-command-move kit :q)))
+         (q (kit-command-move kit :q))
+         (r nil))                                         ; (a claimed step's command)
     (ai-event-rolls b s)                                  ; one roll per opponent action
     (cond
-      ;; our completed string (a link-3 hit): the O ender, on a red opponent always, else the kit's :o-ender chance;
-      ;; one roll, on the first step we see the hit (its land frame)
-      ((and (eq st :move) (eq (fighter-contact f) :hit) (member :ender (mv-flags mv)) (not (ai-sb-finish-p e))
-            (= (fighter-sf f) (fighter-land-sf f)) (kit-command-ok-p e :kikon kit t)
-            (or (kikon-ready-p e) (< (sim-rnd01) (ai-table e :o-ender *ai-o-ender*))))
-       (why b :o-ender :kikon))
-      ;; Step -> J: our Step lands him within J1's reach and he isn't mid-attack (a Breaker is: J beats it): J at f10, the
-      ;; latch starts J1 at the Step's *STEP-J-CANCEL*; one roll per Step
-      ((and (eq st :step) (= (fighter-sf f) (- *step-j-cancel* 2)) q (< (fighter-dist f) (+ (mv-reach q) *ai-step-j-margin*))   ; (our own hop)
-            (not (and (eq (snap-state s) :move) (< (snap-sf s) (snap-active-end s)) (not (eq (snap-kind s) :breaker))))
-            (not (eq (snap-state s) :hoho))
-            (< (sim-rnd01) (getf *ai-step-j-p* (brain-difficulty b) 0.0)))
-       (why b :step-j :q))
-      ;; our Breaker landed (a hit or a Guard Break): open a string off it, K1 the kit's :string-k share of the time
-      ((and (eq st :move) (eq (fighter-contact f) :hit) (eq (mv-kind mv) :breaker) (>= (fighter-sf f) (fighter-land-sf f)))
-       (flet ((ok (c) (and (or (kit-command-move kit c) (kit-drop kit c)) (kit-command-ok-p e c))))
-         (why b :breaker-string (cond ((and (ok :f) (< (sim-rnd01) (ai-table e :string-k *ai-string-flash-p*))) :f)
-                                      ((ok :q) :q) ((ok :f) :f)))))
-      ;; our hit landed and only the guard cancel's share of its recovery is left (no link latched): guard out of it,
-      ;; unless we see him still reeling past our recovery's end
-      ((and (eq st :move) (not (fighter-queued f))
-            (guard-cancel-open-p (fighter-sf f) (mv-s mv) (mv-a mv) (mv-r mv) (fighter-contact f) (mv-kind mv) (mv-whiff mv))
-            (not (and (member (snap-state s) '(:stun :air :down :wakeup))
-                      (> (snap-left-seen s b) (- (mv-total mv) (fighter-sf f))))))
-       (why b :guard-cancel :guard-cancel))
+      ;; the in-move steps (*AI-STEPS*, AI-STEP-CLAIM: :PASS when it doesn't apply, else its command, NIL included, ends
+      ;; the reflexes as its clause did): the O ender, Step -> J, a string off a landed Breaker, the guard cancel
+      ((not (eq (setq r (ai-step-claim e :o-ender b s d)) :pass)) r)
+      ((not (eq (setq r (ai-step-claim e :step-j b s d)) :pass)) r)
+      ((not (eq (setq r (ai-step-claim e :breaker-string b s d)) :pass)) r)
+      ((not (eq (setq r (ai-step-claim e :guard-cancel b s d)) :pass)) r)
       ;; the form's own in-move reflex, before the generic string reflex (the kit's :ai :move-reflex (e b f mv) -> a command
       ;; or NIL: Hisagi's ranged route picks, DUEL_HISAGI §22.6; no other kit has it)
       ((and (eq st :move) (let ((h (ai-table e :move-reflex))) (and h (funcall h e b f mv)))))
-      ;; our own hit: finish the string, else an SP / L cancel
-      ((and (eq st :move) (eq (fighter-contact f) :hit) (member (mv-kind mv) '(:quick :flash)))
-       (string-reflex e b f mv))
-      ;; our L / O hit him (he reels): CHAIN REVERSE (ORANGE) on it too, as off a string's last link
-      ((and (eq st :move) (eq (fighter-contact f) :hit) (member (mv-kind mv) '(:sig :kikon))
-            (= (fighter-sf f) (fighter-land-sf f)) (ai-orange-p e b f))
-       (why b :orange :burst))
-      ;; guard pressure (the kit's :block-string): a link the opponent blocked goes on, pressed just before the chain
-      ;; opens (one roll per link): a J link, a K link only *AI-BLOCK-K-P* of the time (his J interrupts it), never a
-      ;; punishable ender (K3): the string resets instead (below); not below :gg-low or into a parry
-      ((and (eq st :move) (eq (fighter-contact f) :block) (member (mv-kind mv) '(:quick :flash))
-            (ai-pressure-p e) (= (fighter-sf f) (- (mv-total mv) *chain-lead* 1)))
-       (let* ((kit (fighter-kit f)))
-         (flet ((ok (m) (and m (integerp (mv-adv-block m)) (> (mv-adv-block m) *gg-ender-adv*))))
-           (let ((nq (kit-next kit (mv-name mv) :q)) (nf (kit-next kit (mv-name mv) :f)))
-             (why b :pressure (cond ((and (ok nf) (< (sim-rnd01) *ai-block-k-p*)) :f) ((ok nq) :q)))))))
+      ;; ... then the string (our own hit: finish it, else an SP / L cancel), ORANGE off a landed L / O, guard pressure
+      ((not (eq (setq r (ai-step-claim e :string b s d)) :pass)) r)
+      ((not (eq (setq r (ai-step-claim e :orange b s d)) :pass)) r)
+      ((not (eq (setq r (ai-step-claim e :pressure b s d)) :pass)) r)
       ((eq st :move) nil)
       ;; a Kikon rush's strike hit us, O held, and it dashes in after us: not red, hold guard from inside the
       ;; stagger (*AI-FOLLOW-GUARD-P* by difficulty); red, nothing guards it
