@@ -310,7 +310,7 @@ identical; the step's default is the old code, the same SIM-RND01 calls in the s
 
 Record of the first move: DUEL_RUKIA_TYBW §17.6. **Batch 2** (2026-10-25, the user: 「繼續轉移下一批共用 AI 的功能」): `:burst`,
 `:wake-guard` and AI-REFLEX's `:anti-kikon`, `:block-punish`, `:punish`, `:anti-rush`, each moved as written into its own
-default function, in its old place (AI-STEP-CMD); no kit replaces them yet. Proof: `--cvc` 3 PASS and every live pairing's
-2-seed gate line for line identical to the parent. Next: the remaining AI-REFLEX clauses (the O ender, the string reflex,
+default function, in its old place (AI-STEP-CMD); no kit replaces them yet. Proof (after the `:steps` fix, 72dbca2): `--cvc` 3 PASS
+and all 28 pairings' 2-seed gate lines (56) identical to the parent 6a751b4. Next: the remaining AI-REFLEX clauses (the O ender, the string reflex,
 the guard cancel, the cash-outs, the threat guard / Hoho), then AI-NEUTRAL / AI-DECIDE.
 
