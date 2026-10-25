@@ -1,0 +1,32 @@
+--- frozen RUKIA-CPU-TESTS
++++ cell RUKIA-CPU-TESTS
+@@ -16,4 +16,28 @@
+               (null (getf (kit-ai b) :oki))
+               (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
+                      (list *ai-ru-burst-1* *ai-ru-burst-2* *ai-ru-burst-3* *ai-ru-zone-kido* *ai-ru-sp2-layers*))
+-              (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard)))))
++              (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard))))
++  ;; cell b0a0 (round 1): the K string on a hit in every form (:string-k), no O ender on a victim who isn't red (the ender's
++  ;; payoff pick instead: RUKIA-AI-SP-ENDER), RIKUJOKORO held 14 f past SOKATSUI's 16 (the bind long enough for the O)
++  (check (and (every (lambda (k) (and (= 0.9 (getf (kit-ai k) :string-k)) (= 0.0 (getf (kit-ai k) :o-ender)))) (list b m18 m50 z))
++              (eq 'rukia-ai-sp-ender (getf (kit-ai b) :sp-ender)) (eq 'rukia-ai-reflex (getf (kit-ai b) :reflex))
++              (= 14 *ai-ru-rikujo-hold*) (= 30 (rukia-ai-sp1-hold b 5.5)) (= 1 *ai-ru-bind-bar*)
++              (equal (getf (getf (kit-ai b) :ranges) :poke) '(2.1 2.8)) (equal (getf (getf (kit-ai b) :ranges) :mid) '(3.0 5.0))
++              (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
++                     (list *ai-ru-mu-p* *ai-ru-mu-guard-p* *ai-ru-seal-o* *ai-ru-k-ender-l*))
++              (= 1.0 (getf *ai-ru-mu-p* :hard)) (= 1.0 (getf *ai-ru-seal-o* :hard))))
++  ;; her matchup tables: every zone's options are hers, their weights >= 0; the rows as shipped; Lille's :guard-on names his
++  ;; awakened dash L (the EN / SHIN stances' L)
++  (let ((opts '(:q :f :byakurai :tsukishiro :sokatsui :rikujo :sp2 :enbu :breaker :guard :back :in :wait))
++        (zones '(:close :his-j :k :mid :far :out)))
++    (check (every (lambda (row)
++                    (every (lambda (z) (loop for (o w) on (getf row z) by #'cddr always (and (member o opts) (realp w) (>= w 0))))
++                           zones))
++                  (cons *ai-ru-mu-default* (mapcar #'rest *ai-ru-mu*))))
++    (check (every (lambda (z) (getf *ai-ru-mu-default* z)) zones))
++    (check (equal (mapcar #'first *ai-ru-mu*) '(:kenpachi :barro :hisagi :yamamoto :ichigo :senjumaru)))
++    (check (= 0.0 (getf *ai-ru-mu-default* :breaker-p)))
++    (check (equal (getf (rest (assoc :barro *ai-ru-mu*)) :guard-on) '(:br-e-l1 :br-oe-l1)))
++    (check (and (= 0.6 (getf (rest (assoc :ichigo *ai-ru-mu*)) :breaker-p)) (= 0.7 (getf (rest (assoc :senjumaru *ai-ru-mu*)) :breaker-p))
++                (eq :br-e-l1 (mv-name (kit-command-move (kit :barro :jilliel) :sig)))
++                (eq :br-oe-l1 (mv-name (kit-command-move (kit :barro :shin) :sig)))))))

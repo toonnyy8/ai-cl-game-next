@@ -2,13 +2,25 @@
   "baseline_score": 0.5898,
   "beta": 1.0,
   "branch_count": 4,
-  "cells": {},
+  "cells": {
+    "b0a0": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.325 mash 1.0 sig 0.836 raw 0.7154 normal 0.4375 (x1.0) pacing ok",
+      "score": 0.7154,
+      "seq": 1,
+      "tags": [],
+      "valid": true
+    }
+  },
   "directions": {},
   "higher_is_better": true,
   "max_parallelism": 2,
   "notes": "",
   "pending_batch": [
-    "b0a0",
     "b1a0"
   ],
   "policy_file": "rounds/round01/policy.py",
