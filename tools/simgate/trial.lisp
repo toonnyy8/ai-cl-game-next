@@ -5,7 +5,7 @@
 ;;;; "trial begin" and a "trial end" summary line per trial (combo-trial.py reads them).
 ;;;; Usage: ecl-host --norc --load tools/simgate/trial.lisp -- <duel.fas> <trials.lisp>
 ;;;; A trial: (:name S :p1 C :form F :p2 C :p2-form F :dist M :layers N :chill N :dummy :stand|:guard :frames N
-;;;;           :script ((button frames &key modded wait on) ...) :bars N :fs N): the presses in order (scripted.lisp TRIAL-STEP)
+;;;;           :script ((button frames &key modded wait on) ...) :bars N :fs N :meter X): the presses in order (scripted.lisp TRIAL-STEP)
 (defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
 (load (first cl-user::*sg-args*) :verbose nil)
 (in-package :duel)
@@ -19,12 +19,13 @@
 
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :rukia) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
-                         (dummy :stand) (frames 150) script (bars 3) (fs 100)) tr
+                         (dummy :stand) (frames 150) script (bars 3) (fs 100) (meter 0.0)) tr
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
     (place *p1* *p2* dist)
     (when *cine* (skip-cine))
     (dolist (e (list *p1* *p2*)) (burst-end! e) (full-gauges! e 0f0) (setf (gauges-konpaku (gauges e)) *konpaku-max*))
+    (setf (gauges-meter (gauges *p1*)) (f32 meter))   ; (her kit meter: Rukia's cold, which picks her band)
     (setf (gauges-reiatsu (gauges *p1*)) (f32 (* bars *reiatsu-bar*)) (gauges-fs (gauges *p1*)) (f32 fs))
     (let ((f2 (fighter *p2*)) (b1 (brain *p1*)) (b2 (brain *p2*)))
       (setf (fighter-layers f2) layers (fighter-chill f2) chill (fighter-thaw f2) 0

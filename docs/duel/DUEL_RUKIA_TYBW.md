@@ -828,3 +828,16 @@ plan built on every character's frame data and reach, and improves it round by r
 (`docs/research/rukia-cpu/matchups-shikai.md`, new `tools/matchup-sheet.lisp`: per opponent form his J1 / K1 startup and
 far edge, his fastest hit, his longest reach, what her J1 (7 f) punishes on his block, his pokes). The evaluator, budget
 and parallelism are confirmed with the user before the first cell (the skill's rule).
+
+### 17.4 The search's settings (the user, 2026-10-25)
+
+> 「0.3/0.2/0.5 招牌至上，如果有複數種選項都能帶來優勢效益，那就根據帶來的效益依機率選擇出招。」; the signature themes
+> 「中近距離牽制與霜層的回收」「霜層爆開與收割」「鬼道」「封印毀魂」「K 連段與橙色爆氣」; 「先跑 1 輪 8 格，同時 2 個」;
+> 「四個型態一起，在開始前先試打來驗證覺醒的資料表」 (the user, 2026-10-25)
+
+- **Score** = 0.3 strength + 0.2 masher + 0.5 signature (× the NORMAL factor), Hisagi's weights; where several options pay,
+  the CPU picks among them **by probability weighted by their payoff** (not the single best).
+- **Signature**: five themes (a whitelist per theme, frozen with the evaluator): mid / close pokes and layer recovery, the
+  bursts and their harvest, the kido, the seal → Kikon, the K string and ORANGE.
+- **Budget**: one round of 8 cells, W = 2.
+- **Scope**: all four forms; first the awakened bands' data sheets verified by trials (as the Shikai's, §17.2).
