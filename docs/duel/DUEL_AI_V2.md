@@ -293,7 +293,8 @@ or a kit without it: today's five characters keep their pairings byte for byte (
 
 The user: 「請逐步將共用 AI 的功能轉移給專屬 AI」, picking 「可替換的預設步驟」: the shared CPU (ai.lisp) is cut into named steps
 whose generic code stays the default; a character's own CPU (`<char>-ai.lisp`) may replace one by naming its function in its
-kit's `:ai` plist. One step moves at a time, and each move is proved to leave every other kit's matches unchanged (`--cvc`
+kit's `:ai` plist, under `:steps` (`:steps (:held rukia-ai-held ...)`: a sub-plist, since some kits' own keys share the
+steps' names, Lille's `:burst` / `:punish` tables). One step moves at a time, and each move is proved to leave every other kit's matches unchanged (`--cvc`
 identical; the step's default is the old code, the same SIM-RND01 calls in the same order).
 
 | Step | Called | Default | Replaced by |

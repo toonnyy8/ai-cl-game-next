@@ -21,7 +21,7 @@
        :guard 0.4 :hoho 0.35 :sp-cancel-bars 1 :dash 0.5 :dash-back 0.4 :kikon-range 8.0
        :stun-follow (:sp2 2.4 5.0) :awaken (:melee-share 0.6 :min-taken 150)
        :l-after-k rukia-ai-burst-p :l-after-j rukia-ai-burst-p :sig-hold rukia-ai-sig-hold :sp1-hold rukia-ai-sp1-hold
-       :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :block-hold rukia-ai-block-hold :held rukia-ai-held)
+       :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :steps (:block-hold rukia-ai-block-hold :held rukia-ai-held))
   "Her base form's CPU (the kit's :ai: ai.lisp; DUEL_RUKIA_TYBW §17).")
 (defparameter *ru-ai-m18*
   `(:intents (:approach 2 :pressure 3 :zone 1 :defend 2)
@@ -31,7 +31,7 @@
                (2.8 5.0 :sp2 2 :step 1 nil 2)
                (5.0 99.0 :sp1 2 nil 2))
        :guard 0.5 :hoho 0.3 :dash 0.2 :dash-back 0.2 :o-ender 0.25 :l-after-k ,*ai-ru-l-after-k-awake* :kikon-range 6.5 :sp-cancel-bars 2
-       :cool (:p 0.3 :near 3.5) :stun-follow (:sp2 2.4 5.0) :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :block-hold rukia-ai-block-hold :held rukia-ai-held)
+       :cool (:p 0.3 :near 3.5) :stun-follow (:sp2 2.4 5.0) :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :steps (:block-hold rukia-ai-block-hold :held rukia-ai-held))
   "Her m18 form's CPU (the kit's :ai: ai.lisp; DUEL_RUKIA_TYBW §17).")
 (defparameter *ru-ai-m50*
   `(:intents (:approach 1 :pressure 3 :zone 0 :defend 2)
@@ -40,7 +40,7 @@
                (1.9 3.5 :f 3 :sig 3)
                (3.5 99.0 :sp2 1 :sp1 1 nil 2))
        :guard 0.45 :hoho 0.25 :dash 0.1 :dash-back 0.1 :o-ender 0.25 :l-after-k ,*ai-ru-l-after-k-awake* :kikon-range 7.5 :sp-cancel-bars 2
-       :cool (:p 0.35 :near 4.0 :no-projectile t :min-gg 50) :stun-follow (:sp2 2.4 6.0) :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :block-hold rukia-ai-block-hold :held rukia-ai-held
+       :cool (:p 0.35 :near 4.0 :no-projectile t :min-gg 50) :stun-follow (:sp2 2.4 6.0) :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :steps (:block-hold rukia-ai-block-hold :held rukia-ai-held)
        :sp-ender rukia-ai-sp-ender)
   "Her m50 form's CPU (the kit's :ai: ai.lisp; DUEL_RUKIA_TYBW §17).")
 (defparameter *ru-ai-zero*
@@ -54,7 +54,7 @@
                (14.0 99.0 nil 1))
        :guard 0.0 :hoho 0.0 :o-ender 0.25 :l-after-k ,*ai-ru-l-after-k-awake* :kikon-range 9.0 :sp-cancel-bars 2
        :brace (:p 0.2 :near 5.5 :min-gg 30) :opp-intent (:zone 2 :defend 2) :sp-ender rukia-ai-sp-ender
-       :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :block-hold rukia-ai-block-hold :held rukia-ai-held)
+       :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :steps (:block-hold rukia-ai-block-hold :held rukia-ai-held))
   "Her zero form's CPU (the kit's :ai: ai.lisp; DUEL_RUKIA_TYBW §17).")
 
 (defparameter *ai-ru-hoho-in* 0.05 "-50's CPU: chance per free step to Hoho in when that Hoho reaches -273 (RUKIA-AI-HOHO-IN).")

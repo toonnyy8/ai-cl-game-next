@@ -57,7 +57,8 @@
 ;;;;               (:l-after-k / :l-after-j may name a function (e link L) -> its chance: Rukia's bursts)
 ;;;;   read by the OPPONENT's CPU: :opp-reflex (e b s d)  :opp-aim  :opp-reflect  :opp-intent (:zone n :defend n)
 ;;;;   steps       BRAIN-STEP's replaceable steps (AI-STEP; the user 2026-10-25: 「請逐步將共用 AI 的功能轉移給專屬 AI」): a kit
-;;;;               names its own function for one, else the generic default in *AI-STEPS* runs (the same code as before):
+;;;;               names its own function for one in its :steps sub-plist (:steps (:held fn ...)), else the generic default
+;;;;               in *AI-STEPS* runs (the same code as before):
 ;;;;               :block-hold (e b f) a guard just blocked a hit: hold on through the string?  (AI-BLOCK-HOLD)
 ;;;;               :held (e b f) before every generic choice, the press it holds: T = this step is spent (default none);
 ;;;;               a press made with :act :block-hold is held as :hold is (Rukia's post-block hold, which her :held lets go)
@@ -346,8 +347,9 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
 its own (the header's \"steps\"; one moved over at a time, each proved to leave the other kits' matches unchanged).")
 
 (defun ai-step (e name)
-  "The function E's CPU runs for step NAME: its kit's own, else *AI-STEPS*'s default (NIL: none)."
-  (or (ai-table e name) (getf *ai-steps* name)))
+  "The function E's CPU runs for step NAME: its kit's own (the :ai plist's :steps sub-plist, apart from the other keys: a
+kit's :burst / :punish tables are not steps), else *AI-STEPS*'s default (NIL: none)."
+  (or (getf (ai-table e :steps) name) (getf *ai-steps* name)))
 
 (defun ai-step-cmd (e name b s d)
   "AI-REFLEX's step NAME (e b s d) -> a command or NIL (NIL too when it has no function)."
