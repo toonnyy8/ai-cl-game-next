@@ -841,3 +841,20 @@ and parallelism are confirmed with the user before the first cell (the skill's r
   bursts and their harvest, the kido, the seal → Kikon, the K string and ORANGE.
 - **Budget**: one round of 8 cells, W = 2.
 - **Scope**: all four forms; first the awakened bands' data sheets verified by trials (as the Shikai's, §17.2).
+
+### 17.5 The search, frozen (2026-10-25)
+
+- **Her CPU split out**: `duel/lisp/rukia-ai.lisp` (loads before rukia.lisp) holds the four forms' :ai plists
+  (`*ru-ai-base*` .. `*ru-ai-zero*`; the DEFKITs read them by name), every RUKIA-AI-* function and *AI-RU-* knob; the kits'
+  :ai values identical before / after (compared), `--cvc` 3 PASS, the build 0 warnings. Her CPU's host checks moved into one
+  `RUKIA-CPU-TESTS` section (10228 ALL PASS, the same count).
+- **The awakened bands' catalogue**: `docs/research/rukia-cpu/catalogue-awakened.md` (trials-m18 / -m50 / -zero; every route
+  a combo; K string + L 285 / 349 / 512, + SP2 350 / 415 / 575, + SP1 held 306 / 388 / 608; at −273 an ORANGE restart's K
+  links spend cold and she warms to −50 mid-combo).
+- **The evaluator**: `tools/aieval.py --char 2`: 0.3 / 0.2 / 0.5, the NORMAL band [0.30, 0.60], `SIG_RUKIA`'s five themes by
+  name and by the sim's "Px ru-sig seal / orange / tsukishiro / rikujo" tags (rukia.lisp RUKIA-HIT, combat log only), a
+  new "str_by_opp" (her HARD wins by opponent). **Baseline 0.5898** at 40 seeds: strength 0.273 (Ichigo 58 / 80, Senjumaru
+  44, Yamamoto 29, **Kenpachi, Lille, Hisagi 0**), masher 1.0, signature 0.616 (burst 0.23, poke 0.23, kstring 0.13, kido
+  0.03, seal 0.002), NORMAL 0.423, pacing ok (medians 100.8–140.4 s).
+- **The workspace** `docs/research/rukia-ai-drsi/` (README, step.sh, rescore.sh, brief.py, splice-tests.py; W = 2, 4 × 2
+  cells, λ 0.25); the branches open the condition axes: the opponent, her resources, the distance, the awakening and bands.

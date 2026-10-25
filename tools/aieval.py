@@ -18,6 +18,7 @@ The parts (seeds 1..N, fixed; the mirror is never played: C vs C is 0.5 by symme
   pacing    NORMAL, C vs each other character (C as P1): every match a K.O. and the median <= PACE_MAX (220 s), else the
             score is 0. A K.O.: for Lille the RESULTS line's Konpaku (his cinematics put K.O.s past 300 s of match ticks);
             for the others, as frozen on 2026-10-02, a match under 299.5 s
+Rukia (--char 2, DUEL_RUKIA_TYBW §17.4, the user 2026-10-25): 0.3 / 0.2 / 0.5, SIG_RUKIA's five themes, the NORMAL band.
 score = w_str strength + w_mash masher + w_sig signature: 0.6 / 0.2 / 0.2 (the user's choice 2026-10-02: win rate +
 character colour); Lille (--char 6, DUEL_LILLE_V3 §22, the user 2026-10-12: 「風格偏重 0.4/0.2/0.4」) 0.4 / 0.2 / 0.4, his
 signature the whitelist SIG_BARRO (the stance strings' J / K, the spending L L
@@ -37,9 +38,11 @@ from simgate import ROOT, ECL, FAS, MUSLM, ROSTER, RETIRED, build
 NAMES = ROSTER                                    # (simgate.ROSTER: the roster in order)
 BARRO = NAMES.index('BARRO')                      # Lille (kit :barro): SIG_BARRO, the K.O. by the RESULTS line
 HISAGI = NAMES.index('HISAGI')                    # Hisagi (kit :hisagi): SIG_HISAGI, the K.O. by the RESULTS line
+RUKIA = NAMES.index('RUKIA')                      # Rukia: SIG_RUKIA (the user 2026-10-25, DUEL_RUKIA_TYBW §17.4)
 PACE_MAX = 220.0   # a 20-seed median's ceiling here (the gate's 210 s at 60 seeds: 20-seed medians run ~10 s noisy)
 WEIGHTS = {BARRO: (0.4, 0.2, 0.4),               # strength, masher, signature; everyone else DEFAULT_W (Lille: the user
-           HISAGI: (0.3, 0.2, 0.5)}               # 2026-10-12, 「風格偏重 0.4/0.2/0.4」, DUEL_LILLE_V3 §22; Hisagi: the user
+           HISAGI: (0.3, 0.2, 0.5),               # 2026-10-12
+           RUKIA: (0.3, 0.2, 0.5)}                # (Rukia: the user 2026-10-25, 「0.3/0.2/0.5 招牌至上」, DUEL_RUKIA_TYBW §17.4), 「風格偏重 0.4/0.2/0.4」, DUEL_LILLE_V3 §22; Hisagi: the user
                                                   # 2026-10-18, 「0.3/0.2/0.5 招牌至上」, DUEL_HISAGI §25)
 DEFAULT_W = (0.6, 0.2, 0.2)
 LINK = re.compile(r'-[JK]\d')                    # a J / K string link's move name (YA-J1, KE-R-K2S, RU-A-K3-50 ...)
@@ -58,8 +61,18 @@ SIG_BARRO = re.compile(r'^BR-(?:(?:S|E|OE)-(?:[JK]\d|JL\d|KL\d|L1-[23])|K-HIREN(
 SIG_HISAGI = {'chain': re.compile(r'^HS-(?:K[123]|K2[JS]|J[23]K|KAZA(?:-J)?|RAIDEN|SHIBARI)$'),
               'ranged': re.compile(r'^HS-R-(?:K1|K2S?|K3G?|J2S?|J3G?|L|SP1|SP2C?|KUBIKAKE(?:-C)?)$'),
               'bind': re.compile(r'^HS-B-(?:[JK]\dS?|SJ|L|SP\d)$')}   # (SJ: the Step J SENGEN, §25.10)
+# Rukia's signature themes (the user 2026-10-25: 「中近距離牽制與霜層的回收」「霜層爆開與收割」「鬼道」「封印毀魂」「K 連段與橙色爆氣」,
+# DUEL_RUKIA_TYBW §17.4), every form: by name, or by the sim's "Px ru-sig TAG" line (rukia.lisp RUKIA-HIT: the seal's O, a
+# hit under ORANGE, TSUKISHIRO's pillar, RIKUJOKORO's bind; the bands' L hazards FREEZE and SP1's WAVE by kind); never her
+# J2 / J3 links, the Breaker, a plain O
+SIG_RUKIA = {'poke': re.compile(r'^(?:RU-(?:J1|K1|A-K1|A-K1-50|Z-K1)|FREEZE)$'),
+             'burst': re.compile(r'^(?:RU-(?:SHIMOCHIRI|SETSUEN|SOJIN|HYOREKI|TSURARA|HAKUREN-K|SHIRAFUNE(?:-S|-50|-0)?)|WAVE)$'),
+             'kido': re.compile(r'^RU-(?:BYAKURAI|SOKATSUI)$'),
+             'kstring': re.compile(r'^RU-(?:SK2S?|K2S?|K3|A-K3(?:-50)?|Z-K3)$')}
+RU_TAGS = {'seal': 'seal', 'orange': 'kstring', 'tsukishiro': 'poke', 'rikujo': 'kido'}
 NORMAL_BAND = {BARRO: (0.30, 0.60),               # Lille II: his NORMAL win share (both seats) in this band (DREAM_RSI §5.5;
-               HISAGI: (0.30, 0.60)}              # Hisagi: as Lille's, his shipped CPU weak (DUEL_HISAGI §25)
+               HISAGI: (0.30, 0.60),              # Hisagi: as Lille's, his shipped CPU weak (DUEL_HISAGI §25)
+               RUKIA: (0.30, 0.60)}               # Rukia: as theirs (DUEL_RUKIA_TYBW §17.4)
 NORMAL_FALL = 0.15                                # the baseline's broken weak by R12-R17: 0.07), else the score x a factor falling
                                                   # linearly to 0 at NORMAL_FALL outside it (partial credit: the search's signal)
 
@@ -88,7 +101,7 @@ def matches(job):
         if m:
             hits[int(m.group(1)) - 1].append([m.group(2), int(m.group(4)), None])
             continue
-        m = re.search(r'\] P([12]) br-sig (\S+)', line)   # (Lille's BARRO-HIT)
+        m = re.search(r'\] P([12]) (?:br|ru)-sig (\S+)', line)   # (Lille's BARRO-HIT, Rukia's RUKIA-HIT)
         if m:
             side = hits[int(m.group(1)) - 1]
             if side:
@@ -121,6 +134,16 @@ def hisagi_class(name):
     return False, 'plain-j' if LINK.search(name) else 'other:' + name.lower()
 
 
+def rukia_class(name, tag):
+    """One of Rukia's hits -> (signature, category: a theme of SIG_RUKIA / a tag's theme, else plain-j / other)."""
+    if tag in RU_TAGS:
+        return True, RU_TAGS[tag]
+    for k, rx in SIG_RUKIA.items():
+        if rx.match(name):
+            return True, k
+    return False, 'plain-j' if LINK.search(name) else 'other:' + name.lower()
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--char', type=int, required=True)
@@ -148,6 +171,7 @@ def main():
     drift = {}                                    # Lille: opponent -> [his wins, matches] (both seats: NORMAL)
     sig = [0, 0]
     cat = {}                                      # Lille: his damage by category (the breakdown)
+    strb = {}                                     # opponent -> [C's HARD wins, matches] (the strength by matchup)
     pace_ok, pace = True, {}
     with cf.ProcessPoolExecutor(a.j) as ex:
         futs = {ex.submit(matches, job): kind for kind, job in jobs}
@@ -176,6 +200,10 @@ def main():
                 won[kind][1] += 1
                 won[kind][0] += (w == ('P1' if side == 0 else 'P2'))
                 if kind == 'str':
+                    b = strb.setdefault(opp, [0, 0])
+                    b[0] += (w == ('P1' if side == 0 else 'P2'))
+                    b[1] += 1
+                if kind == 'str':
                     for name, dmg, tag in hits[side]:
                         if barro:
                             counted, mine, k = barro_class(name, tag)
@@ -183,8 +211,8 @@ def main():
                             if counted:
                                 sig[1] += dmg
                                 sig[0] += dmg if mine else 0
-                        elif c == HISAGI:
-                            mine, k = hisagi_class(name)
+                        elif c in (HISAGI, RUKIA):
+                            mine, k = (hisagi_class(name) if c == HISAGI else rukia_class(name, tag))
                             cat[k] = cat.get(k, 0) + dmg
                             sig[1] += dmg
                             sig[0] += dmg if mine else 0
@@ -196,7 +224,7 @@ def main():
     ws, wm, wg = WEIGHTS.get(c, DEFAULT_W)
     out = {'char': NAMES[c], 'score': 0.0, 'strength': round(part['str'], 3), 'masher': round(part['mash'], 3),
            'signature': round(part['signature'], 3), 'pacing_ok': pace_ok, 'pacing': pace,
-           'matches': {k: won[k][1] for k in won}}
+           'matches': {k: won[k][1] for k in won}, 'str_by_opp': {k: f'{v[0]}/{v[1]}' for k, v in sorted(strb.items())}}
     ok = pace_ok
     normal_k = 1.0
     if banded:                                    # (Lille II, Hisagi: a NORMAL band, not a drift from a broken baseline)
@@ -208,7 +236,7 @@ def main():
         normal_k = max(0.0, 1.0 - off / NORMAL_FALL)
         out['normal'] = {'share': round(share, 4), 'band': [lo, hi], 'ok': band_ok, 'factor': round(normal_k, 4), 'seeds': dn,
                          'by_opp': {k: f'{v[0]}/{v[1]}' for k, v in sorted(drift.items())}}
-    if barro or c == HISAGI:
+    if barro or c in (HISAGI, RUKIA):
         tot = sum(cat.values()) or 1
         out['sig_by'] = {k: round(v / tot, 3) for k, v in sorted(cat.items(), key=lambda kv: -kv[1])}
         out['weights'] = [ws, wm, wg]

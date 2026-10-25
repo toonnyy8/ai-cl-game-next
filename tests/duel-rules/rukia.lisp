@@ -125,13 +125,7 @@
               (equal '(:sode-no-shirayuki :ru-rime :ru-ice) (mapcar #'kit-weapon (list m18 m50 z)))
               (not (member :ice-trim (kit-hide m50))) (member :ice-trim (kit-hide m18)) (member :hand-crack (kit-hide z))
               (equal (mapcar #'kit-u-tag (list m18 m50 z)) '("U: COOL" "U: COOL" "U: BRACE"))
-              (equal (mapcar #'kit-form-name (list m18 m50 z)) '("-18C" "-50C" "-273C"))))
-  ;; AI keys: the awakening rule, cooling (-50 not below half a guard gauge), bracing at zero, the stun follow-ups, the
-  ;; opponent's wait
-  (check (and (equal (getf (kit-ai b) :awaken) '(:melee-share 0.6 :min-taken 150)) (equal (getf (kit-ai b) :stun-follow) '(:sp2 2.4 5.0))
-              (equal (getf (kit-ai m18) :cool) '(:p 0.3 :near 3.5)) (= 50 (getf (getf (kit-ai m50) :cool) :min-gg))
-              (null (getf (kit-ai z) :cool)) (getf (kit-ai z) :brace) (null (getf (kit-ai z) :zero-exit))
-              (equal (getf (kit-ai z) :opp-intent) '(:zone 2 :defend 2)) (null (getf (kit-ai b) :opp-intent)))))
+              (equal (mapcar #'kit-form-name (list m18 m50 z)) '("-18C" "-50C" "-273C")))))
 
 ;; L after a K link (the kit's :l-after-k, docs/duel/DUEL_STRINGS.md §12, the user's decision 2026-09-28): every K link of
 ;; every awakened band (K1 K2 K2s K3) has one, the band's own L, and no J link; on hit it combos: from the K link's hit its
@@ -148,8 +142,7 @@
       (check (notany (lambda (l) (and (eq :q (car (last (third l)))) (kit-l-link k (mv-name (first l)))))
                      (link-moves k)))))
   (check (every (lambda (f) (eq (kit-l-link (kit :rukia f) :ru-k2) (kit-command-move (kit :rukia f) :sig))) '(:m18 :m50 :zero)))
-  (check (every (lambda (cf) (null (kit-l-after-k (apply #'kit cf)))) (remove-if (lambda (c) (member c '(:rukia :ichigo :senjumaru :lille :barro))) *forms* :key #'first)))
-  (check (every (lambda (f) (numberp (getf (kit-ai (kit :rukia f)) :l-after-k))) '(:m18 :m50 :zero))))
+  (check (every (lambda (cf) (null (kit-l-after-k (apply #'kit cf)))) (remove-if (lambda (c) (member c '(:rukia :ichigo :senjumaru :lille :barro))) *forms* :key #'first))))
 
 ;; ================================================================ the Shikai's 霜の層 (DUEL_RUKIA_TYBW §4.1-§4.4, the user 2026-10-24)
 ;; the layers (rules): +n capped at 3; one thaws per *RU-THAW* (150) frames without a new one (the timer back to 0 at each);
@@ -271,18 +264,7 @@
                 (eq :ru-shirafune-s (mv-name (kit-command-move b :sp2))) (= 1 (kit-command-cost b :sp2)))))
   ;; removed from the Shikai: the K -> L TSUKISHIRO copy, HAKUREN on SP1, the K hits' frost (above)
   (check (and (not (gethash :ru-tsukishiro-k *moves*)) (not (gethash :ru-hakuren (kit-moves b)))
-              (not (gethash :ru-k2 (kit-moves b))) (not (gethash :ru-tsukishiro-k (kit-moves b)))))
-  ;; her CPU's hooks: the bursts' chance by its function (link 3 > link 2 > link 1, EASY <= NORMAL <= HARD), L held beyond
-  ;; 6 m, SP1 held beyond 4.5 m
-  (check (and (eq 'rukia-ai-burst-p (getf (kit-ai b) :l-after-k)) (eq 'rukia-ai-burst-p (getf (kit-ai b) :l-after-j))
-              (eq 'rukia-ai-sig-hold (getf (kit-ai b) :sig-hold)) (eq 'rukia-ai-sp1-hold (getf (kit-ai b) :sp1-hold))
-              (= 1 (rukia-ai-sig-hold b 4.0)) (> (rukia-ai-sig-hold b 7.0) *ru-l-hold*)
-              (= 1 (rukia-ai-sp1-hold b 3.0)) (> (rukia-ai-sp1-hold b 5.5) 16)
-              (null (getf (kit-ai b) :oki))
-              (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
-                     (list *ai-ru-burst-1* *ai-ru-burst-2* *ai-ru-burst-3* *ai-ru-zone-kido* *ai-ru-sp2-layers*))
-              (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard)))))
-
+              (not (gethash :ru-k2 (kit-moves b))) (not (gethash :ru-tsukishiro-k (kit-moves b))))))
 ;; the awakened bands are pinned (DUEL_RUKIA_TYBW §2: their rules stay): every command, every link's follow-ups and L link,
 ;; their hits' frost, startup, reach and params, the kit keys, as on adcb94b (the parent of the Shikai's rebuild; printed
 ;; by the same expression there)
@@ -487,3 +469,26 @@
 (check (and (eq (kit-hook (kit :rukia :base) :boss) 'rukia-boss)
             (every (lambda (f) (and (eq (kit-hook (kit :rukia f) :reset) 'rukia-reset) (eq (kit-hook (kit :rukia f) :tick) 'rukia-tick)))
                    '(:m18 :m50 :zero))))
+
+;;; >>> BEGIN RUKIA-CPU-TESTS: the checks of Rukia's own CPU's shipped values and pure RUKIA-AI-* functions (duel/lisp/rukia-ai.lisp;
+;;; her CPU search, docs/research/rukia-ai-drsi, DUEL_RUKIA_TYBW §17: a cell may edit THIS SECTION ONLY, to pin its own CPU)
+(let ((b (kit :rukia :base)) (m18 (kit :rukia :m18)) (m50 (kit :rukia :m50)) (z (kit :rukia :zero)))
+  ;; AI keys: the awakening rule, cooling (-50 not below half a guard gauge), bracing at zero, the stun follow-ups, the
+  ;; opponent's wait
+  (check (and (equal (getf (kit-ai b) :awaken) '(:melee-share 0.6 :min-taken 150)) (equal (getf (kit-ai b) :stun-follow) '(:sp2 2.4 5.0))
+              (equal (getf (kit-ai m18) :cool) '(:p 0.3 :near 3.5)) (= 50 (getf (getf (kit-ai m50) :cool) :min-gg))
+              (null (getf (kit-ai z) :cool)) (getf (kit-ai z) :brace) (null (getf (kit-ai z) :zero-exit))
+              (equal (getf (kit-ai z) :opp-intent) '(:zone 2 :defend 2)) (null (getf (kit-ai b) :opp-intent))))
+  ;; every band's L after a K link by its chance
+  (check (every (lambda (f) (numberp (getf (kit-ai (kit :rukia f)) :l-after-k))) '(:m18 :m50 :zero)))
+  ;; her CPU's hooks: the bursts' chance by its function (link 3 > link 2 > link 1, EASY <= NORMAL <= HARD), L held beyond
+  ;; 6 m, SP1 held beyond 4.5 m
+  (check (and (eq 'rukia-ai-burst-p (getf (kit-ai b) :l-after-k)) (eq 'rukia-ai-burst-p (getf (kit-ai b) :l-after-j))
+              (eq 'rukia-ai-sig-hold (getf (kit-ai b) :sig-hold)) (eq 'rukia-ai-sp1-hold (getf (kit-ai b) :sp1-hold))
+              (= 1 (rukia-ai-sig-hold b 4.0)) (> (rukia-ai-sig-hold b 7.0) *ru-l-hold*)
+              (= 1 (rukia-ai-sp1-hold b 3.0)) (> (rukia-ai-sp1-hold b 5.5) 16)
+              (null (getf (kit-ai b) :oki))
+              (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
+                     (list *ai-ru-burst-1* *ai-ru-burst-2* *ai-ru-burst-3* *ai-ru-zone-kido* *ai-ru-sp2-layers*))
+              (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard)))))
+;;; <<< END RUKIA-CPU-TESTS

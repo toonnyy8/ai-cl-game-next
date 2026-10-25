@@ -38,6 +38,7 @@ lisp/ichigo-look.lisp
 lisp/senjumaru-art.lisp
 lisp/yama.lisp
 lisp/ken.lisp
+lisp/rukia-ai.lisp
 lisp/rukia.lisp
 lisp/ichigo.lisp
 lisp/endless-rules.lisp
