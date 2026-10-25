@@ -1,0 +1,62 @@
+--- frozen RUKIA-CPU-TESTS
++++ cell RUKIA-CPU-TESTS
+@@ -1,15 +1,36 @@
+ (let ((b (kit :rukia :base)) (m18 (kit :rukia :m18)) (m50 (kit :rukia :m50)) (z (kit :rukia :zero)))
+   ;; AI keys: the awakening rule, cooling (-50 not below half a guard gauge), bracing at zero, the stun follow-ups, the
+   ;; opponent's wait
+-  (check (and (equal (getf (kit-ai b) :awaken) '(:melee-share 0.6 :min-taken 150)) (equal (getf (kit-ai b) :stun-follow) '(:sp2 2.4 5.0))
++  (check (and (equal (getf (kit-ai b) :awaken) '(:melee-share 0.6 :min-taken 1800))   ; (b1a1: the comeback, 150 -> 1800) (equal (getf (kit-ai b) :stun-follow) '(:sp2 2.4 5.0))
+               (equal (getf (kit-ai m18) :cool) '(:p 0.3 :near 3.5)) (= 50 (getf (getf (kit-ai m50) :cool) :min-gg))
+               (null (getf (kit-ai z) :cool)) (getf (kit-ai z) :brace) (null (getf (kit-ai z) :zero-exit))
+               (equal (getf (kit-ai z) :opp-intent) '(:zone 2 :defend 2)) (null (getf (kit-ai b) :opp-intent))))
+-  ;; every band's L after a K link by its chance
+-  (check (every (lambda (f) (numberp (getf (kit-ai (kit :rukia f)) :l-after-k))) '(:m18 :m50 :zero)))
++  ;; every band's L after a K link by the confirm table's function (cell b1a0: its generic chance *AI-RU-L-AFTER-K-AWAKE*)
++  (check (every (lambda (f) (eq 'rukia-ai-link-l (getf (kit-ai (kit :rukia f)) :l-after-k))) '(:m18 :m50 :zero)))
++  ;; the confirm table (b1a0): every form takes the K link (:string-k 1), no plain O ender (:o-ender 0: red is ai.lisp's
++  ;; Kikon), the SP enders by RUKIA-AI-SP-ENDER, no :move-reflex (Hisagi's only); its chances EASY <= NORMAL <= HARD; its
++  ;; values from the moves' damage; the cash table's route values; no neutral ENBU and no Breaker in the Shikai's / -18's
++  ;; :moves (the guard-break reflex keeps the Breaker); the envelope table; RIKUJOKORO from 3.5 m against a long poke
++  (check (and (every (lambda (f) (let ((a (kit-ai (kit :rukia f))))
++                                   (and (= 1.0 (getf a :string-k)) (= 0.0 (getf a :o-ender)) (eq 'rukia-ai-sp-ender (getf a :sp-ender))
++                                        (null (getf a :move-reflex)))))
++                     '(:base :m18 :m50 :zero))
++              (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
++                     (list *ai-ru-confirm* *ai-ru-seal-o* *ai-ru-confirm-sharp* *ai-ru-front* *ai-ru-ph-cash* *ai-ru-zone-kido*))
++              (= 3 (getf *ai-ru-confirm-sharp* :hard)) (= 0.95 (getf *ai-ru-confirm* :hard)) (= 0.95 (getf *ai-ru-front* :hard))
++              (= 0.6 (getf *ai-ru-zone-kido* :hard))
++              (equal *ai-ru-front-values* '(:guard 40 :q 50 :step 25 :f 60 :sp1 55))
++              (= 110 (rukia-ai-dmg (kit-command-move b :sp2))) (= 60 (rukia-ai-dmg (kit-command-move m18 :sig)))
++              (= 120 (rukia-ai-dmg (kit-command-move z :sig))) (= 66 (rukia-ai-dmg (kit-command-move b :f)))
++              (= 268 (rukia-ai-route b (kit-command-move b :f))) (= 236 (rukia-ai-route b (kit-command-move b :q)))
++              (equal *ai-ru-bar-cost* '(80 45 15)) (= 60 *ai-ru-route-ender*) (= 250 *ai-ru-bind-cash*)
++              (= 4.5 (rukia-ai-sp1-far nil)) (= 3.5 *ai-ru-sp1-far-long*) (= 4.0 *ai-ru-long-poke*)
++              (every (lambda (k) (null (find-if (lambda (c) (member c '(:kikon :breaker)))
++                                                 (loop for band in (getf (kit-ai k) :moves) append (cddr band)))))
++                     (list b m18))))
+   ;; her CPU's hooks: the bursts' chance by its function (link 3 > link 2 > link 1, EASY <= NORMAL <= HARD), L held beyond
+   ;; 6 m, SP1 held beyond 4.5 m
+-  (check (and (eq 'rukia-ai-burst-p (getf (kit-ai b) :l-after-k)) (eq 'rukia-ai-burst-p (getf (kit-ai b) :l-after-j))
++  (check (and (eq 'rukia-ai-link-l (getf (kit-ai b) :l-after-k)) (eq 'rukia-ai-link-l (getf (kit-ai b) :l-after-j))
+               (eq 'rukia-ai-sig-hold (getf (kit-ai b) :sig-hold)) (eq 'rukia-ai-sp1-hold (getf (kit-ai b) :sp1-hold))
+               (= 1 (rukia-ai-sig-hold b 4.0)) (> (rukia-ai-sig-hold b 7.0) *ru-l-hold*)
+               (= 1 (rukia-ai-sp1-hold b 3.0)) (> (rukia-ai-sp1-hold b 5.5) 16)
+@@ -17,3 +38,18 @@
+               (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
+                      (list *ai-ru-burst-1* *ai-ru-burst-2* *ai-ru-burst-3* *ai-ru-zone-kido* *ai-ru-sp2-layers*))
+               (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard)))))
++;; cell b1a1: one bar kept for the oki's seal (:sp-cancel-bars 2, no SP in the Shikai's :moves); the oki, the anti-step and
++;; ORANGE's gate; no plain O (the ender / cash O at 0: a red or sealed victim's O is the Kikon); the oki's frame math (his
++;; wake-up 30 + 30, RIKUJOKORO's hold by distance, the O's frames from D m) and the reflexes' hold hand-over
++(let ((b (kit :rukia :base)))
++  (check (and (= 2 (getf (kit-ai b) :sp-cancel-bars))
++              (null (find-if (lambda (c) (member c '(:sp1 :sp2))) (loop for band in (getf (kit-ai b) :moves) append (cddr band))))
++              (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard))) (list *ai-ru-oki* *ai-ru-anti-step*))
++              (= 0.95 (getf *ai-ru-oki* :hard)) (= 1.0 (getf *ai-ru-anti-step* :hard)) (= 0.0 (getf *ai-ru-anti-step* :easy))
++              (every (lambda (p) (every (lambda (d) (= 0.0 (getf p d))) '(:easy :normal :hard))) (list *ai-ru-ender-o* *ai-ru-cash-o*))
++              (= 100.0 *ai-ru-orange-fs*) (= 280 *ai-ru-orange-route*) (= 150 *ai-ru-orange-cost*)
++              (= 15 *ai-ru-oki-lead*) (= 433 *ai-ru-konpaku-dmg*) (= 150 *ai-ru-oki-tsuki*) (= 2.4 *ai-ru-hop*)
++              (= 60 (rukia-ai-free-in :down 0 0)) (= 22 (rukia-ai-free-in :wakeup 0 8)) (null (rukia-ai-free-in :stun 0 8))
++              (<= (rukia-ai-o-frames (kit-command-move b :kikon) 1.0) (rukia-ai-o-frames (kit-command-move b :kikon) 5.9))
++              (>= (rukia-ai-sp1-hold b 5.9) (rukia-ai-sp1-hold b 4.6) (+ 2 (second (mv-hold (kit-command-move b :sp1)))))
++              (<= (rukia-ai-sp1-hold b 5.9) (+ 2 (second (mv-hold (kit-command-move b :sp1))) 40)))))
