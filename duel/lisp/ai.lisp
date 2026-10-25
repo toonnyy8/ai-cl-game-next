@@ -80,6 +80,7 @@
 ;;;;               a command's buttons are held: charges, stances, the Breaker, the Kikon rush); the frame's (batch 8): :respect (e b)
 ;;;;               :wake (e b d) :event-rolls (b s) :strafe (e b) :walk (e b vp d lo hi) :decide-time (e b) (AI-RESPECT AI-WAKE
 ;;;;               AI-EVENT-ROLLS AI-STRAFE AI-WALK AI-DECIDE-TIME-DEFAULT)
+;;;;               ASSIST's (batch 9, assist.lisp "STEPS"): :auto-guard :auto-combo :auto-break :auto-sp :auto-read
 (in-package :duel)
 
 (defstruct snap
@@ -366,6 +367,7 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
                            :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush
                            :o-ender ai-o-ender :step-j ai-step-j :breaker-string ai-breaker-string :guard-cancel ai-guard-cancel
                            :string ai-string :orange ai-orange :pressure ai-pressure
+                           :auto-guard auto-guard :auto-combo auto-combo :auto-break auto-break :auto-sp auto-sp :auto-read auto-read
                            :respect ai-respect :wake ai-wake :event-rolls ai-event-rolls :strafe ai-strafe :walk ai-walk
                            :decide-time ai-decide-time-default :chain-follow ai-chain-follow :j-beats-k ai-j-beats-k :gap-step ai-gap-step :command ai-command-press
                            :attack-weights ai-attack-weights :string-queued ai-string-queued :string-bait ai-string-bait :l-link ai-l-link :k-link ai-k-link :j-link ai-j-link :k-only ai-k-only :l-cancel ai-l-cancel :sp-cancel ai-sp-cancel :end-orange ai-end-orange

@@ -5024,3 +5024,10 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - brain-step 剩下會「做決定」的地方全部拆成步驟：被打後轉守備 `:respect`、起身防禦的觸發條件 `:wake`、反應骰子 `:event-rolls`、側移方向 `:strafe`、走向意圖距離的移動 `:walk`、決策間隔 `:decide-time`（角色檔裡直接呼叫的地方也一起走這一步）。
 - 到此 CPU 本體（ai.lisp）的每個決定都能由角色替換；仍共用的只有每個角色都必須一樣的介面：感知延遲、爆氣計時、按鍵倒數與手把輸出（CPU 與玩家走同一條輸入路徑，原生模擬與瀏覽器逐位元一致）。接下來是 ASSIST 與學習型 CPU。G2 參考 3 組相同、28 組對戰各 2 場和改動前（0a82759）56 行逐行相同。DUEL_AI_V2「Replaceable steps」。
 
+## 385. 共用 AI 轉移第九批：ASSIST（2026-10-25）
+
+使用者：「ASSIST 和學習型 CPU 也一起轉移，每批次完成就回報進度後自己接續。」
+
+- ASSIST 的五個自動判斷拆成可替換步驟：自動防禦 `:auto-guard`、自動連段 `:auto-combo`、自動破防 `:auto-break`、中立自動 SP `:auto-sp`、讀招 `:auto-read`；角色自己的 `:assist-guard`／`:assist-combo` 留在原位。
+- 證明：28 組對戰 × ASSIST 三種設定（ALWAYS；HOLD U + 連段 + 破防；ALWAYS + 連段 + 破防）× 2 場，亂按玩家開 ASSIST 對 CPU，共 294 場、4038 行狀態雜湊與結果，和改動前（c1ea6f7）逐行相同；G2 參考 3 組相同。DUEL_AI_V2「Replaceable steps」。
+

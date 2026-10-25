@@ -23,6 +23,10 @@
 ;;;;                kit's :oki on a downed opponent, its :stun-follow on a stunned one
 ;;;;   J back        (the user, 2026-10-02) AUTO GUARD also presses J on the first free step out of blocking his J (or K) link
 ;;;;                that still recovers (J-BEATS-OPEN-P, the CPU's own window): guard -> J at once, J mashing answered
+;;;;   STEPS        (2026-10-25, batch 9 of 「請逐步將共用 AI 的功能轉移給專屬 AI」, 「ASSIST 和學習型 CPU 也一起轉移」) each AUTO's
+;;;;                generic answer is a replaceable step (ai.lisp *AI-STEPS*, a kit's :ai :steps): :auto-guard (e f always)
+;;;;                AUTO-GUARD, :auto-combo (e f b side vp) AUTO-COMBO, :auto-break (e f vp) AUTO-BREAK, :auto-sp (e b s d)
+;;;;                AUTO-SP, :auto-read (e f b d) AUTO-READ; the kit's :assist-guard / :assist-combo hooks keep their places
 ;;;; A CPU never has it, except the debug gate's button-masher (habit :dumb, *ASSIST-DEBUG*): CPU-vs-CPU gates are unchanged.
 (in-package :duel)
 
@@ -203,13 +207,13 @@ BREAK may press one. Under a Kikon lock AUTO GUARD ALWAYS only holds U (AUTO-KIK
                  (when (eq (brain-press b) :guard) (vpad-consume! vp :quick) (setf (fighter-queued f) nil)))
           (let* ((route nil)                                ; (the form's own route: AUTO-ROUTE, NIL for every kit
                  (cmd (or (and guard-on                     ; but Lille's and Hisagi's)
-                               (or kc (auto-guard e f (= 2 (first cfg)))
+                               (or kc (funcall (ai-step e :auto-guard) e f (= 2 (first cfg)))   ; (AUTO-GUARD)
                                    (and (j-beats-open-p e b) (why b :j-back :q))))   ; guard -> J out of his blocked string
                           (and (second cfg) (setf route (auto-route e f b s d vp)) (not (eq route :none)) route)
-                          (and (second cfg) (not route) (eq st :move) (auto-combo e f b side vp))
-                          (and (third cfg) free (auto-break e f vp))
+                          (and (second cfg) (not route) (eq st :move) (funcall (ai-step e :auto-combo) e f b side vp))
+                          (and (third cfg) free (funcall (ai-step e :auto-break) e f vp))
                           (and (second cfg) (not route) free (vpad-command-pressed-p vp :quick nil)
-                               (or (auto-sp e b s d) (auto-read e f b d))))))
+                               (or (funcall (ai-step e :auto-sp) e b s d) (funcall (ai-step e :auto-read) e f b d))))))
             (when cmd
               (vpad-consume! vp :quick)                     ; the J it answered (a guard's press: none)
               (ai-command b (fighter-kit f) cmd (fighter-dist f) e)

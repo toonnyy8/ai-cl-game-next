@@ -361,3 +361,9 @@ by every caller of AI-DECIDE-TIME, the kits' own reflexes too). With it every de
 shared is the plumbing every kit must use alike (the perception ring, the Burst clock, the press count-down written to the
 vpad: the CPU and a player take the same input path, and the native sim stays bit for bit with the browser).
 
+**Batch 9** (2026-10-25, 「ASSIST 和學習型 CPU 也一起轉移」): ASSIST's generic answers (assist.lisp "STEPS"): `:auto-guard (e f
+always)` AUTO-GUARD, `:auto-combo (e f b side vp)` AUTO-COMBO, `:auto-break (e f vp)` AUTO-BREAK, `:auto-sp (e b s d)` AUTO-SP,
+`:auto-read (e f b d)` AUTO-READ; the kits' `:assist-guard` / `:assist-combo` keep their places. Proof: every live pairing x
+ASSIST k 2 / 10 / 11 (ALWAYS; HOLD U + COMBO + BREAK; ALWAYS + COMBO + BREAK) x 2 seeds, the masher assisted against a CPU:
+all 4038 hash / learn-row lines (294 matches) identical to the parent c1ea6f7; `--cvc` 3 PASS.
+
