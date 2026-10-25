@@ -300,7 +300,16 @@ identical; the step's default is the old code, the same SIM-RND01 calls in the s
 |---|---|---|---|
 | `:block-hold (e b f)` | blockstun's first step: hold Guard through the string? | AI-BLOCK-HOLD (*AI-HOLD-GUARD*, stun + 20) | Rukia (tags the press :block-hold) |
 | `:held (e b f)` | before every generic choice; T = the step is spent | none | Rukia (keep Guard under a Kikon lock; let the post-block hold go at the blockstun's end) |
+| `:burst (e b)` | a combo on us (or a locked string on a low guard): Burst / awaken out of it? | AI-BURST-ROLL | — |
+| `:wake-guard (e b d)` | the first free step out of a hit / a wake-up, him close | AI-WAKE-STEP | — |
+| `:anti-kikon (e b s d)` | in the stagger of a Kikon strike, its follow-up coming: guard | AI-ANTI-KIKON | — |
+| `:block-punish (e b s d)` | the step after our blockstun, his ender at ≤ *AI-PUNISH-ADV* (−8) | AI-BLOCK-PUNISH | — |
+| `:punish (e b s d)` | a recovering opponent in J1's reach | AI-PUNISH | — |
+| `:anti-rush (e b s d)` | an incoming Breaker / Kikon rush / its follow-up | AI-ANTI-RUSH | — |
 
-Next candidates (the generic reflexes a search cell could not reach): the perfect-Hoho reflex, the block punish
-(*AI-PUNISH-ADV* −8), the anti-Kikon guard, the wake guard, the Burst roll. Record of the first move: DUEL_RUKIA_TYBW §17.6.
+Record of the first move: DUEL_RUKIA_TYBW §17.6. **Batch 2** (2026-10-25, the user: 「繼續轉移下一批共用 AI 的功能」): `:burst`,
+`:wake-guard` and AI-REFLEX's `:anti-kikon`, `:block-punish`, `:punish`, `:anti-rush`, each moved as written into its own
+default function, in its old place (AI-STEP-CMD); no kit replaces them yet. Proof: `--cvc` 3 PASS and every live pairing's
+2-seed gate line for line identical to the parent. Next: the remaining AI-REFLEX clauses (the O ender, the string reflex,
+the guard cancel, the cash-outs, the threat guard / Hoho), then AI-NEUTRAL / AI-DECIDE.
 

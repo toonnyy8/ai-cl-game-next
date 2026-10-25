@@ -61,6 +61,9 @@
 ;;;;               :block-hold (e b f) a guard just blocked a hit: hold on through the string?  (AI-BLOCK-HOLD)
 ;;;;               :held (e b f) before every generic choice, the press it holds: T = this step is spent (default none);
 ;;;;               a press made with :act :block-hold is held as :hold is (Rukia's post-block hold, which her :held lets go)
+;;;;               :burst (e b) Burst / awakening out of a combo? (AI-BURST-ROLL)  :wake-guard (e b d) out of a hit, him close
+;;;;               (AI-WAKE-STEP); AI-REFLEX's, each (e b s d) -> a command or NIL, in its old place: :anti-kikon (AI-ANTI-KIKON)
+;;;;               :block-punish (AI-BLOCK-PUNISH)  :punish (AI-PUNISH)  :anti-rush (AI-ANTI-RUSH)
 (in-package :duel)
 
 (defstruct snap
@@ -337,13 +340,18 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
 ;;; ---------------------------------------------------------------- decisions
 (defun ai-table (e key &optional default) (getf (kit-ai (kit-of e)) key default))
 
-(defparameter *ai-steps* '(:block-hold ai-block-hold :held nil)
+(defparameter *ai-steps* '(:block-hold ai-block-hold :held nil :burst ai-burst-roll :wake-guard ai-wake-step
+                           :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush)
   "BRAIN-STEP's replaceable steps and their generic defaults (NIL: no default, the step is skipped); a kit's :ai names
 its own (the header's \"steps\"; one moved over at a time, each proved to leave the other kits' matches unchanged).")
 
 (defun ai-step (e name)
   "The function E's CPU runs for step NAME: its kit's own, else *AI-STEPS*'s default (NIL: none)."
   (or (ai-table e name) (getf *ai-steps* name)))
+
+(defun ai-step-cmd (e name b s d)
+  "AI-REFLEX's step NAME (e b s d) -> a command or NIL (NIL too when it has no function)."
+  (let ((h (ai-step e name))) (and h (funcall h e b s d))))
 
 (defun ai-block-hold (e b f)
   "The generic :block-hold step (blockstun's first step): keep holding Guard through the string with *AI-HOLD-GUARD*'s
@@ -508,6 +516,56 @@ he is within :near m and the guard gauge is at least :min-gg %, :p of the decisi
   (let ((c (ai-table e :brace)))
     (and c (< d (getf c :near 5.5)) (>= (gauges-gg (gauges e)) (getf c :min-gg 0)) (< (sim-rnd01) (getf c :p 1.0)))))
 
+;;; ---------------------------------------------------------------- AI-REFLEX's replaceable steps (*AI-STEPS*: the defaults, the
+;;; code these clauses held before 2026-10-25, moved as written; the same rolls in the same order)
+(defun ai-anti-kikon (e b s d)
+  "A Kikon rush's strike hit us, O held, and it dashes in after us: not red, hold guard from inside the stagger
+(*AI-FOLLOW-GUARD-P* by difficulty); red, nothing guards it."
+  (declare (ignore d))
+  (and (eq (fighter-state (fighter e)) :stun) (eq (snap-kind s) :kikon) (eq (snap-phase s) :follow)
+       (not (gauges-red-p (gauges e))) (plusp (ai-guard-k e))
+       (< (brain-react-roll b) (getf *ai-follow-guard-p* (brain-difficulty b) 0.85))
+       (why b :anti-kikon :guard-long)))
+
+(defun ai-block-punish (e b s d)
+  "We just blocked an ender (-12 ...): it's our turn, felt at once (no perception delay); a K3 (-20) HARD punishes with K1
+when it reaches."
+  (declare (ignore s d))
+  (let* ((f (fighter e)) (kit (fighter-kit f)) (q (kit-command-move kit :q)))
+    (and (eq (brain-was b) :guard-hit) (<= (fighter-block-adv f) *ai-punish-adv*)
+         (< (fighter-dist f) (+ (mv-reach q) 0.4))
+         (< (sim-rnd01) (getf *ai-block-punish-p* (brain-difficulty b) 0.5))
+         (why b :block-punish
+              (if (and (eq (brain-difficulty b) :hard) (<= (fighter-block-adv f) -20)
+                       (< (fighter-dist f) (mv-reach (kit-command-move kit :f))))
+                  :f :q)))))
+
+(defun ai-punish (e b s d)
+  "A recovering opponent in reach: punish (J1)."
+  (let ((q (kit-command-move (kit-of e) :q)))
+    (and (snap-recovering-p s) (>= (snap-left-seen s b) (mv-s q)) (< d (+ (mv-reach q) 0.4))
+         (why b :punish :q))))
+
+(defun ai-anti-rush (e b s d)
+  "An incoming Breaker, a Kikon rush, or a rush's follow-up strike coming (it hit us, not red): guard a rush when not red
+(the chance by difficulty); else Hoho through its dash (flash-step); a Breaker: J1 as its dash runs into J1's reach (J beats
+I, docs/duel/DUEL_STRINGS.md §14: waiting till then); a rush: Q1 it while it has the room, else Step sideways (a Hoho in
+the aura only reappears in front of the dash)."
+  (let* ((q (kit-command-move (kit-of e) :q)) (red (gauges-red-p (gauges e))) (hoho-ok (hoho-ready-p e)) (guard-k (ai-guard-k e)))
+    (and (member (snap-kind s) '(:breaker :kikon)) (member (snap-phase s) '(:aura :dash :follow))
+         (< d (if (eq (snap-phase s) :follow) (+ (snap-reach s) *ai-threat-margin*) *ai-anti-breaker-range*))
+         (< (brain-react-roll b) (getf *ai-anti-breaker-p* (brain-difficulty b) 0.5))
+         (or (not (eq (snap-kind s) :breaker))
+             (and (eq (snap-phase s) :dash)
+                  (or (and hoho-ok (< (brain-hoho-roll b) (ai-table e :hoho 0.2))) (< d (+ (mv-reach q) *ai-anti-breaker-j*)))))
+         (why b :anti-breaker
+              (cond ((and (eq (snap-kind s) :kikon) (not red) (plusp guard-k)) :guard)
+                    ((and (eq (snap-phase s) :dash) hoho-ok (< (brain-hoho-roll b) (ai-table e :hoho 0.2)))
+                     :hoho)
+                    ((eq (snap-kind s) :breaker) :q)
+                    ((> d *ai-anti-breaker-q*) :q)
+                    (t :side-step))))))
+
 (defun ai-reflex (e b s d)
   "The reflexes (checked before the intent): a command keyword or NIL. S = the perceived opponent,
 D = the perceived distance."
@@ -566,9 +624,7 @@ D = the perceived distance."
       ((eq st :move) nil)
       ;; a Kikon rush's strike hit us, O held, and it dashes in after us: not red, hold guard from inside the
       ;; stagger (*AI-FOLLOW-GUARD-P* by difficulty); red, nothing guards it
-      ((and (eq st :stun) (eq (snap-kind s) :kikon) (eq (snap-phase s) :follow) (not red) (plusp guard-k)
-            (< (brain-react-roll b) (getf *ai-follow-guard-p* (brain-difficulty b) 0.85)))
-       (why b :anti-kikon :guard-long))
+      ((ai-step-cmd e :anti-kikon b s d))                 ; (AI-ANTI-KIKON)
       ((not free) nil)
       ;; the learning CPU's neutral read (LEARN-NEUTRAL) on its own clock, before the kit's reflexes: several take the
       ;; neutral decision over (AI v2: Yamamoto's rush veto, Rukia's zone wave, Ichigo's conversion ... reset the decision
@@ -629,13 +685,7 @@ D = the perceived distance."
        :awaken)
       ;; we just blocked an ender (-12 ...): it's our turn, felt at once (no perception delay); a K3 (-20) HARD
       ;; punishes with K1 when it reaches
-      ((and (eq (brain-was b) :guard-hit) (<= (fighter-block-adv f) *ai-punish-adv*)
-            (< (fighter-dist f) (+ (mv-reach q) 0.4))
-            (< (sim-rnd01) (getf *ai-block-punish-p* (brain-difficulty b) 0.5)))
-       (why b :block-punish
-            (if (and (eq (brain-difficulty b) :hard) (<= (fighter-block-adv f) -20)
-                     (< (fighter-dist f) (mv-reach (kit-command-move kit :f))))
-                :f :q)))
+      ((ai-step-cmd e :block-punish b s d))               ; (AI-BLOCK-PUNISH)
       ;; a stunned opponent (Guard Break, broken stance, our knockback) still stunned when Q1 lands
       ((and (eq (snap-state s) :stun) (>= (snap-left-seen s b) (mv-s q)) (< d (+ (mv-reach q) 0.6)))
        (why b :follow-up :q))
@@ -652,25 +702,12 @@ D = the perceived distance."
             (>= (reishi-frac g) (ai-table e :oki-above 0.0)))
        (why b :oki (ai-table e :oki)))
       ;; a recovering opponent in reach: punish
-      ((and (snap-recovering-p s) (>= (snap-left-seen s b) (mv-s q)) (< d (+ (mv-reach q) 0.4)))
-       (why b :punish :q))
+      ((ai-step-cmd e :punish b s d))                     ; (AI-PUNISH)
       ;; an incoming Breaker, a Kikon rush, or a rush's follow-up strike coming (it hit us, not red): guard
       ;; a rush when not red (the chance by difficulty); else Hoho through its dash (flash-step); a Breaker: J1 as its dash
       ;; runs into J1's reach (J beats I, docs/duel/DUEL_STRINGS.md §14: waiting till then); a rush: Q1 it while it has the room,
       ;; else Step sideways (a Hoho in the aura only reappears in front of the dash)
-      ((and (member (snap-kind s) '(:breaker :kikon)) (member (snap-phase s) '(:aura :dash :follow))
-            (< d (if (eq (snap-phase s) :follow) (+ (snap-reach s) *ai-threat-margin*) *ai-anti-breaker-range*))
-            (< (brain-react-roll b) (getf *ai-anti-breaker-p* (brain-difficulty b) 0.5))
-            (or (not (eq (snap-kind s) :breaker))
-                (and (eq (snap-phase s) :dash)
-                     (or (and hoho-ok (< (brain-hoho-roll b) (ai-table e :hoho 0.2))) (< d (+ (mv-reach q) *ai-anti-breaker-j*))))))
-       (why b :anti-breaker
-            (cond ((and (eq (snap-kind s) :kikon) (not red) (plusp guard-k)) :guard)
-                  ((and (eq (snap-phase s) :dash) hoho-ok (< (brain-hoho-roll b) (ai-table e :hoho 0.2)))
-                   :hoho)
-                  ((eq (snap-kind s) :breaker) :q)
-                  ((> d *ai-anti-breaker-q*) :q)
-                  (t :side-step))))
+      ((ai-step-cmd e :anti-rush b s d))                  ; (AI-ANTI-RUSH)
       ;; the kit's reactions: stance vs a projectile / a Flash startup it can still beat (stance-in
       ;; must end before the Flash hits, after our perception delay); a parry (West) vs a Flash startup
       ;; whose hit falls in its window (the SP's super freeze holds him *SUPER-FREEZE* f more)
@@ -921,7 +958,7 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
       (when (and (member (brain-was b) '(:stun :air :down :wakeup)) (member (fighter-state f) '(:idle :guard :run))
                  (zerop (fighter-lock f)) (< d *ai-wake-guard-range*) (not (brain-off b)) (not (brain-habit b))
                  (ai-mash-p b))                                                 ; (against a J masher: CPU pacing stays)
-        (ai-wake-step e b d))                                                   ; out of a hit: guard first
+        (funcall (ai-step e :wake-guard) e b d))                                ; out of a hit: guard first (AI-WAKE-STEP)
       (if (or (and (member (fighter-state f) '(:stun :air)) (>= (fighter-combo-hits f) *burst-min-hits*))
               (and (eq (fighter-state f) :guard-hit) (fighter-glock f) (ai-gg-low-p e)))   ; a locked string on a low guard
           (incf (brain-burst-t b))                                                ; the Burst clock
@@ -933,7 +970,7 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
         (cond ((eq (brain-habit b) :dumb) (dumb-step e b s d))                  ; debug: the button-masher (ASSIST's gate)
               ((eq (brain-habit b) :trial) (trial-step e b))                     ; debug: the trial player (combo-trial.py)
               ((let ((h (ai-step e :held))) (and h (funcall h e b f))))           ; the kit's own held press (AI-STEPS)
-              ((ai-burst-roll e b)                                                ; a Burst, else the awakening
+              ((funcall (ai-step e :burst) e b)                                   ; a Burst, else the awakening (AI-BURST-ROLL)
                (if (burst-ok-p e) (ai-press b :quick 1 :modded t :act :burst) (ai-press b :awaken 1))
                (setf (brain-why b) :burst))
               ((ai-chain-follow-p e) (ai-press b :quick 1) (setf (brain-why b) :chain))   ; ORANGE's restart
