@@ -336,3 +336,9 @@ AI-DECIDE.
 / side step), all claiming steps (DEF-REFLEX-STEP: AI-REFLEX's locals bound alike, each clause's test and body as written).
 AI-REFLEX is now its order of steps and hooks only; AI-NEUTRAL / AI-DECIDE come next.
 
+**Batch 5** (2026-10-25, 「繼續轉移下一批共用 AI 的功能」): the neutral. AI-NEUTRAL's intent re-pick is the `:intent (e b heat)`
+step (AI-PICK-INTENT → the next intent); AI-DECIDE is its steps in order (DEF-DECIDE-STEP, each (e b kit s d lo hi heat) →
+`:pass` or it decided; AI-DECIDE's value is not used): `:neutral-kikon`, `:white`, `:pip-hurry`, the scripted habit (debug, in
+place), `:cool` / `:brace` (Rukia's bands), `:step-in`, `:dash-in`, `:dash-back`, `:neutral-guard`, `:neutral-attack` (AI-ATTACK,
+the kit's distance bands). The walk to the intent's range stays shared (one stick rule for every kit).
+

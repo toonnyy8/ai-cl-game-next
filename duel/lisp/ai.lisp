@@ -70,6 +70,9 @@
 ;;;;               and the free-state ones after the kit's :reflex / :opp-reflex (DEF-REFLEX-STEP): :ward-reversal :reset
 ;;;;               :kikon-rush :bankai :cashout :anti-bind :anti-parry :awaken :block-punish :follow-up :stun-follow :oki
 ;;;;               :punish :anti-rush :react :guard-break :threat
+;;;;               AI-NEUTRAL's :intent (e b heat) -> the next intent (AI-PICK-INTENT); AI-DECIDE's, each (e b kit s d lo hi heat)
+;;;;               -> :PASS or it decided (DEF-DECIDE-STEP): :neutral-kikon :white :pip-hurry, the habit (debug), :cool :brace
+;;;;               :step-in :dash-in :dash-back :neutral-guard :neutral-attack
 (in-package :duel)
 
 (defstruct snap
@@ -350,6 +353,7 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
                            :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush
                            :o-ender ai-o-ender :step-j ai-step-j :breaker-string ai-breaker-string :guard-cancel ai-guard-cancel
                            :string ai-string :orange ai-orange :pressure ai-pressure
+                           :intent ai-pick-intent :neutral-kikon ai-neutral-kikon :white ai-white :pip-hurry ai-pip-hurry :cool ai-cool :brace ai-brace :step-in ai-step-in :dash-in ai-dash-in :dash-back ai-dash-back :neutral-guard ai-neutral-guard :neutral-attack ai-neutral-attack
                            :ward-reversal ai-ward-reversal :reset ai-reset :kikon-rush ai-kikon-rush :bankai ai-bankai :cashout ai-cashout :anti-bind ai-anti-bind :anti-parry ai-anti-parry :awaken ai-awaken :follow-up ai-follow-up :stun-follow ai-stun-follow :oki ai-oki :react ai-react :guard-break ai-guard-break :threat ai-threat)
   "BRAIN-STEP's replaceable steps and their generic defaults (NIL: no default, the step is skipped); a kit's :ai names
 its own (the header's \"steps\"; one moved over at a time, each proved to leave the other kits' matches unchanged).")
@@ -894,21 +898,26 @@ more; J strings alone shouldn't crush a guard, the CPU's included); against a J 
              (and (eq (mv-kind om) :quick) (>= (fighter-sf fo) (+ (mv-s om) (mv-a om)))))   ; his blocked J still recovering
          (< (fighter-dist f) (+ (mv-reach q) 0.2)))))
 
+(defun ai-pick-intent (e b heat)
+  "The generic :intent step (AI-NEUTRAL, every *AI-REPICK* steps): the next intent, a weighted pick of the kit's :intents
+(pressure + heat, + 3 on a guardless / low-gauge opponent; his kit's :opp-intent added), zone / defend on our low guard gauge."
+  (declare (ignore b))
+  (let ((w (ai-table e :intents)) (hot (min 3.0 (/ heat 4.0))) (r (sim-rnd01)))
+    (cond ((ai-gg-low-p e) (weighted-pick r :zone 3 :defend 2))   ; low guard gauge: zone (the cone), no pressure
+          (t (let ((oi (unless (and *run-boss* (eql (opp-of e) *run-boss*))   ; facing a form a CPU waits out (not a
+                       (getf (kit-ai (kit-of (opp-of e))) :opp-intent))))         ;  DANGAI boss's: it never ends)
+               (or (weighted-pick r :approach (getf w :approach 1)
+                                  :pressure (+ (getf w :pressure 1) hot (if (or (opp-guardless-p e) (opp-gg-low-p e)) 3 0))
+                                  :zone (rmod-plus e :zone-bias (+ (getf w :zone 1) (getf oi :zone 0)))   ; (DANGAI's FOE ZONES)
+                                  :defend (+ (getf w :defend 1) (getf oi :defend 0)))
+                   :approach))))))
+
 (defun ai-neutral (e b s d)
   "No reflex fired: walk to the intent's range, and now and then decide (AI-DECIDE)."
   (let* ((kit (kit-of e)) (vp (pilot-vpad (pilot e))) (heat (brain-heat b)))
     (when (<= (decf (brain-intent-t b)) 0)
       (setf (brain-intent-t b) *ai-repick*)
-      (let ((w (ai-table e :intents)) (hot (min 3.0 (/ heat 4.0))) (r (sim-rnd01)))
-        (setf (brain-intent b)
-              (cond ((ai-gg-low-p e) (weighted-pick r :zone 3 :defend 2))   ; low guard gauge: zone (the cone), no pressure
-                    (t (let ((oi (unless (and *run-boss* (eql (opp-of e) *run-boss*))   ; facing a form a CPU waits out (not a
-                                 (getf (kit-ai (kit-of (opp-of e))) :opp-intent))))         ;  DANGAI boss's: it never ends)
-                         (or (weighted-pick r :approach (getf w :approach 1)
-                                            :pressure (+ (getf w :pressure 1) hot (if (or (opp-guardless-p e) (opp-gg-low-p e)) 3 0))
-                                            :zone (rmod-plus e :zone-bias (+ (getf w :zone 1) (getf oi :zone 0)))   ; (DANGAI's FOE ZONES)
-                                            :defend (+ (getf w :defend 1) (getf oi :defend 0)))
-                             :approach)))))))
+      (setf (brain-intent b) (funcall (ai-step e :intent) e b heat)))   ; (AI-PICK-INTENT)
     (when (<= (decf (brain-strafe-t b)) 0)
       (setf (brain-strafe-t b) (+ (first *ai-strafe-time*) (floor (* (second *ai-strafe-time*) (sim-rnd01))))
             (brain-strafe b) (if (< (sim-rnd01) 0.5) -1f0 1f0)))
@@ -940,42 +949,97 @@ OPP-GG-LOW-P)? Only while the opponent really holds guard (or a ward), never bel
   "E's opponent's guard gauge (on the HUD) is under half: hunt the crush (press him; a blocked string goes on)."
   (< (gauges-gg (gauges (opp-of e))) (* 0.5 *gg-max*)))
 
+;;; ---------------------------------------------------------------- AI-DECIDE's steps (batch 5, 2026-10-25): claiming steps (AI-DECIDE-CLAIM:
+;;; :PASS when the clause's test fails; otherwise the decision is taken, whatever its body returns: AI-DECIDE's value is not used)
+(defun ai-decide-claim (e name b kit s d lo hi heat)
+  "AI-DECIDE's step NAME (e b kit s d lo hi heat): :PASS (not this one) or anything else (it decided)."
+  (let ((h (ai-step e name))) (if h (funcall h e b kit s d lo hi heat) :pass)))
+
+(defmacro def-decide-step (name doc test &body body)
+  "A claiming AI-DECIDE step NAME: BODY when TEST holds (then T), else :PASS; AI-DECIDE's local Q (the kit's J1) bound."
+  `(defun ,name (e b kit s d lo hi heat)
+     ,doc
+     (declare (ignorable s d lo hi heat))
+     (let ((q (kit-command-move kit :q)))
+       (declare (ignorable q))
+       (if ,test (progn ,@body t) :pass))))
+
+(def-decide-step ai-neutral-kikon
+  "the Kikon rush on a red opponent within the kit's :kikon-range, one roll a decision (AI-KIKON-P)"
+  (and (kikon-ready-p e) (< d (ai-table e :kikon-range 7.0)) (not (member (snap-state s) '(:down :wakeup :hoho)))
+       (kit-command-ok-p e :kikon) (not (ai-sb-finish-p e)) (< (sim-rnd01) (ai-kikon-p e)))
+  (ai-command b kit :kikon d e) (setf (brain-why b) :kikon))
+
+(def-decide-step ai-white
+  "WHITE (AI-WHITE-P)"
+  (ai-white-p e b s d)
+  (ai-command b kit :burst d e) (setf (brain-why b) :white))
+
+(def-decide-step ai-pip-hurry
+  "the arm's next crack is near: spend the pip now (AI-PIP-HURRY-P)"
+  (ai-pip-hurry-p e)
+  (ai-attack e b kit s d heat t))
+
+(def-decide-step ai-cool
+  "Rukia: hold U the frames the next colder band still needs (AI-COOL-P)"
+  (ai-cool-p e s d)
+  (ai-press b :guard (+ 2 (temp-cool-frames (gauges-meter (gauges e)))) :act :cool)
+  (setf (brain-why b) :cool))
+
+(def-decide-step ai-brace
+  "Rukia at zero: brace a while, the warming stops (AI-BRACE-P)"
+  (ai-brace-p e d)
+  (ai-press b :guard 20 :act :brace)
+  (setf (brain-why b) :brace))
+
+(def-decide-step ai-step-in
+  "Step -> J: a forward Step that lands within J1's reach (*AI-STEP-IN-P*)"
+  (let ((r (and q (mv-reach q))))
+    (and r (not (kit-rooted kit)) (> d (+ r *ai-step-j-margin*)) (< d (+ r *step-distance* -0.2))
+         (not (and (eq (snap-state s) :move) (< (snap-sf s) (snap-active-end s)))) (not (eq (snap-state s) :hoho))
+         (< (sim-rnd01) (getf *ai-step-in-p* (brain-difficulty b) 0.0))))
+  (ai-dash b 1.0 (mv-reach q)) (setf (brain-why b) :step-in))
+
+(def-decide-step ai-dash-in
+  "beyond the range by the kit's :dash-gap: dash in to its middle, the kit's :dash chance"
+  (and (> d (+ hi (ai-table e :dash-gap *ai-dash-gap*))) (< (sim-rnd01) (ai-table e :dash 0.0)))
+  (ai-dash b 1.0 (* 0.5 (+ lo hi))) (setf (brain-why b) :dash))
+
+(def-decide-step ai-dash-back
+  "inside the range: dash back to its middle (the kit's :dash-back; 0.6 on a low guard gauge)"
+  (and (< d (- lo *ai-dash-gap*))
+       (< (sim-rnd01) (if (ai-gg-low-p e) 0.6 (ai-table e :dash-back 0.0))))
+  (ai-dash b -1.0 (* 0.5 (+ lo hi))) (setf (brain-why b) :dash-back))
+
+(def-decide-step ai-neutral-guard
+  "within 3.4 m: guard a while (the kit's :neutral-guard, else :guard; +0.2 defending; x AI-GUARD-K)"
+  (and (< d 3.4) (< (sim-rnd01) (* (min 0.9 (+ (ai-table e :neutral-guard (ai-table e :guard 0.3))
+                                                (if (eq (brain-intent b) :defend) 0.2 0.0)))
+                                    (ai-guard-k e))))
+  (ai-press b :guard (+ (first *ai-guard-hold*) (floor (* (second *ai-guard-hold*) (sim-rnd01))))))
+
+(def-decide-step ai-neutral-attack
+  "attack (AI-ATTACK: the kit's band for D) with the intent's *AI-AGGRESSION* + heat + the kit's :attack + KOSEI + his guard"
+  (< (sim-rnd01) (min 0.9 (+ (getf *ai-aggression* (brain-intent b) 0.3) (* 0.04 heat) (ai-table e :attack 0.0)
+                              (* *ai-kosei-aggression* (- 1.0 (ai-gg e)))   ; KOSEI: a low gauge pays to attack
+                              (cond ((opp-guardless-p e) 0.3) ((opp-gg-low-p e) 0.2) (t 0.0)))))
+  (ai-attack e b kit s d heat nil))
+
 (defun ai-decide (e b kit s d lo hi heat)
   "A neutral decision, at distance D with the preferred range LO..HI (S: the perceived opponent):
 the Kikon rush on a red opponent within its range (*AI-KIKON-P*), dash to / from that range (until
-its middle), guard, attack (a weighted pick from the kit's band for D), or wait."
-  (let ((q (kit-command-move kit :q)))
-  (cond ((and (kikon-ready-p e) (< d (ai-table e :kikon-range 7.0)) (not (member (snap-state s) '(:down :wakeup :hoho)))
-              (kit-command-ok-p e :kikon) (not (ai-sb-finish-p e)) (< (sim-rnd01) (ai-kikon-p e)))
-         (ai-command b kit :kikon d e) (setf (brain-why b) :kikon))
-        ((ai-white-p e b s d) (ai-command b kit :burst d e) (setf (brain-why b) :white))
-        ((ai-pip-hurry-p e)                                ; the arm's next crack is near: spend the pip now
-         (ai-attack e b kit s d heat t))
+its middle), guard, attack (a weighted pick from the kit's band for D), or wait: its steps in order (batch 5, *AI-STEPS*)."
+  (cond ((not (eq (ai-decide-claim e :neutral-kikon b kit s d lo hi heat) :pass)))
+        ((not (eq (ai-decide-claim e :white b kit s d lo hi heat) :pass)))
+        ((not (eq (ai-decide-claim e :pip-hurry b kit s d lo hi heat) :pass)))
         ((and (brain-habit b) (habit-neutral e b kit d)))  ; debug: a scripted player's habit
-        ((ai-cool-p e s d)                                 ; Rukia: hold U the frames the next colder band still needs
-         (ai-press b :guard (+ 2 (temp-cool-frames (gauges-meter (gauges e)))) :act :cool)
-         (setf (brain-why b) :cool))
-        ((ai-brace-p e d)                                  ; Rukia at zero: brace a while (the warming stops)
-         (ai-press b :guard 20 :act :brace)
-         (setf (brain-why b) :brace))
-        ((let ((r (and q (mv-reach q))))                  ; Step -> J: a forward Step that lands within J1's reach
-           (and r (not (kit-rooted kit)) (> d (+ r *ai-step-j-margin*)) (< d (+ r *step-distance* -0.2))
-                (not (and (eq (snap-state s) :move) (< (snap-sf s) (snap-active-end s)))) (not (eq (snap-state s) :hoho))
-                (< (sim-rnd01) (getf *ai-step-in-p* (brain-difficulty b) 0.0))))
-         (ai-dash b 1.0 (mv-reach q)) (setf (brain-why b) :step-in))
-        ((and (> d (+ hi (ai-table e :dash-gap *ai-dash-gap*))) (< (sim-rnd01) (ai-table e :dash 0.0)))
-         (ai-dash b 1.0 (* 0.5 (+ lo hi))) (setf (brain-why b) :dash))
-        ((and (< d (- lo *ai-dash-gap*))
-              (< (sim-rnd01) (if (ai-gg-low-p e) 0.6 (ai-table e :dash-back 0.0))))
-         (ai-dash b -1.0 (* 0.5 (+ lo hi))) (setf (brain-why b) :dash-back))
-        ((and (< d 3.4) (< (sim-rnd01) (* (min 0.9 (+ (ai-table e :neutral-guard (ai-table e :guard 0.3))
-                                                      (if (eq (brain-intent b) :defend) 0.2 0.0)))
-                                          (ai-guard-k e))))
-         (ai-press b :guard (+ (first *ai-guard-hold*) (floor (* (second *ai-guard-hold*) (sim-rnd01))))))
-        ((< (sim-rnd01) (min 0.9 (+ (getf *ai-aggression* (brain-intent b) 0.3) (* 0.04 heat) (ai-table e :attack 0.0)
-                                    (* *ai-kosei-aggression* (- 1.0 (ai-gg e)))   ; KOSEI: a low gauge pays to attack
-                                    (cond ((opp-guardless-p e) 0.3) ((opp-gg-low-p e) 0.2) (t 0.0)))))
-         (ai-attack e b kit s d heat nil)))))
+        ((not (eq (ai-decide-claim e :cool b kit s d lo hi heat) :pass)))
+        ((not (eq (ai-decide-claim e :brace b kit s d lo hi heat) :pass)))
+        ((not (eq (ai-decide-claim e :step-in b kit s d lo hi heat) :pass)))
+        ((not (eq (ai-decide-claim e :dash-in b kit s d lo hi heat) :pass)))
+        ((not (eq (ai-decide-claim e :dash-back b kit s d lo hi heat) :pass)))
+        ((not (eq (ai-decide-claim e :neutral-guard b kit s d lo hi heat) :pass)))
+        ((not (eq (ai-decide-claim e :neutral-attack b kit s d lo hi heat) :pass)))))
 
 (defun ai-pip-hurry-p (e)
   "The kit's :pip-hurry: a pip of the arm is left and its crack is at most that many frames away."
