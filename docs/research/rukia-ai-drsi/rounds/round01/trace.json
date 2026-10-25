@@ -1,0 +1,18 @@
+{
+  "baseline_score": 0.5898,
+  "beta": 1.0,
+  "branch_count": 4,
+  "cells": {},
+  "directions": {},
+  "higher_is_better": true,
+  "max_parallelism": 2,
+  "notes": "",
+  "pending_batch": [
+    "b0a0",
+    "b1a0"
+  ],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "SOUL DUEL Rukia CPU AI (duel/lisp/rukia-ai.lisp: her four forms' tactics by condition), scored by tools/aieval.py --char 2 --seeds 40 at the freeze commit (opponents: the six other CPUs as they read there; DUEL_RUKIA_TYBW \u00a717)"
+}
