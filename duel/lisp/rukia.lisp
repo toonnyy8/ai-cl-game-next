@@ -171,8 +171,8 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 
 ;;; ================================================================ forms
 ;; The Shikai's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.3; a look, the user 2026-10-24 「可以，先做始解」): its moves'
-;; through the :base kit's :clip-map, the walk through :look-clips, the run set; -18 sets its own (*RU-18-CLIPS*), -50 and
-;; zero today's
+;; through the :base kit's :clip-map, the walk through :look-clips, the run set; -18 and -50 set their own (*RU-18-CLIPS*,
+;; *RU-50-CLIPS*), zero today's
 (defparameter *ru-shikai-clips* '(:ru-q1 :ru-s-j1 :ru-q2 :ru-s-j2 :ru-spin :ru-s-j3 :ru-thrust :ru-s-k1 :ru-ring :ru-s-k2
                                   :ru-drop :ru-s-k3 :ru-shirafune :ru-s-shirafune :ru-breaker :ru-s-breaker
                                   :ru-hainawa :ru-s-hainawa)
@@ -212,7 +212,7 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 
 ;; -18's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.4; a look, the user 2026-10-24): its moves' through the :m18 kit's
 ;; :clip-map (SHIMOBASHIRA names its own: SP1's hold shares its old clip), the walk through :look-clips, the run set; -50
-;; and zero (they inherit :m18) set all three and their stance back, so they keep today's clips
+;; sets its own (*RU-50-CLIPS*), zero (it inherits :m18) all three and its stance back, so it keeps today's clips
 (defparameter *ru-18-clips* '(:ru-q1 :ru-18-j1 :ru-q2 :ru-18-j2 :ru-spin :ru-18-j3 :ru-palm :ru-18-k1 :ru-ring :ru-18-k2
                               :ru-flower :ru-18-k3 :ru-stab :ru-18-hakuren-hold :ru-hakuren :ru-18-hakuren
                               :ru-shirafune :ru-18-shirafune :ru-cold-stance :ru-18-stance :ru-hakka :ru-18-hakka
@@ -222,6 +222,17 @@ strike), the Breaker HAINAWA's strike on its own clips.")
 (defparameter *ru-18-looks* '(:sh-walk-f :ru-18-walk-f :sh-walk-b :ru-18-walk-b :sh-strafe-r :ru-18-strafe-r
                               :sh-strafe-l :ru-18-strafe-l)
   "-18's :look-clips: the walk 摺り足 under her stance's arms (the palm held out).")
+;; -50's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.4; a look, the user 2026-10-25): the quake (足拍子 J, both palms K,
+;; the rime blade two-handed), its moves' through the :m50 kit's :clip-map, the walk through :look-clips, the run set
+(defparameter *ru-50-clips* '(:ru-q1 :ru-50-j1 :ru-q2 :ru-50-j2 :ru-spin-50 :ru-50-j3 :ru-palm-50 :ru-50-k1 :ru-ring :ru-50-k2
+                              :ru-flower-50 :ru-50-k3 :ru-stab-2h :ru-50-hyoshin :ru-stab :ru-50-hakuren-hold
+                              :ru-hakuren :ru-50-hakuren :ru-shirafune :ru-50-shirafune :ru-cold-stance :ru-50-stance
+                              :ru-hakka :ru-50-hakka :ru-hainawa :ru-50-hainawa)
+  "-50's :clip-map: J1-J3 (J2s), K1-K3 (K2s), L HYOSHIN, SP1 HAKUREN's hold and release, SP2 SHIRAFUNE, O HAKKA (its aura
+and its strike), the Breaker HAINAWA's strike on its own clips.")
+(defparameter *ru-50-looks* '(:sh-walk-f :ru-50-walk-f :sh-walk-b :ru-50-walk-b :sh-strafe-r :ru-50-strafe-r
+                              :sh-strafe-l :ru-50-strafe-l)
+  "-50's :look-clips: the heavy walk under her two-hand guard.")
 ;;; -18 C, the awakening's first band: the Shikai grid (+ TOSHU / HYOKA), frost on every hit, no chip on her; U guards
 ;;; and cools (the cold gauge, the kit meter); only L spends cold here (the user's decision 2026-09-28)
 (defkit :rukia :m18 :inherit :base
@@ -251,7 +262,7 @@ strike), the Breaker HAINAWA's strike on its own clips.")
   :reach-mult 1.1 :form-name "-50C" :walk *walk-m50* :run *run-m50* :mult *rukia-m50-mult* :taken *rukia-m50-taken*
   :frost-touch *frost-touch-m50* :warm *ru-warm-m50* :cold *ru-cold-m50* :field *ru-field-m50*
   :weapon :ru-rime :hide (:hand-crack) :aura rukia-aura-frost
-  :stance :ru-cold-stance :clip-map nil :look-clips nil :run-clips (:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)   ; (-18's are its own)
+  :stance :ru-50-stance :clip-map *ru-50-clips* :look-clips *ru-50-looks* :run-clips (:ru-50-run :sh-skate-b :sh-slide-r :sh-slide-l)
   :commands (:f :ru-a-k1-50 :sig :ru-hyoshin :sp1 :ru-hakuren-50 :sp2 :ru-shirafune-50 :kikon :ru-hakka)
   :grid (:ru-j1 :ru-j2 :ru-j3-50 :ru-a-k1-50 :ru-k2 :ru-a-k3-50 :ru-j2s :ru-k2s)
   :ai (:intents (:approach 1 :pressure 3 :zone 0 :defend 2)

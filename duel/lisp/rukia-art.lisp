@@ -598,12 +598,14 @@ SIDE (its seed); the floor and the pin come from %RU-PIN!. Its drawn segments ar
 ;;; of the volume's far edge. A look: the sim reads none of it. 0 B a frame.
 (defparameter *ru-frost-points* '((:ru-s-k1 1.15 :ru-frost-spike) (:ru-s-k2 1.3 :ru-frost-sheet) (:ru-s-k3 1.4 :ru-frost-column)
                                   (:ru-18-k1 1.5 :ru-frost-bloom :palm) (:ru-18-k2 1.2 :ru-frost-sleeve)
-                                  (:ru-18-k3 1.8 :ru-frost-flower :flat))
+                                  (:ru-18-k3 1.8 :ru-frost-flower :flat) (:ru-50-k1 1.83 :ru-frost-rime :flat)
+                                  (:ru-50-k2 2.29 :ru-frost-wall :flat) (:ru-50-k3 1.9 :ru-frost-flowers :flat))
   "霜の穂先: clip -> metres of ice past the blade's tip along its axis, and its mesh (the user 2026-10-24: 「霜の穂先」,
 DUEL_RUKIA_TYBW §13.7; sized to the volumes: K1 2.85 (3.10 before §14), K2 2.50, K3 3.05 m). A fourth :palm: the ice
 grows off her left palm (the wrist, :hand-l) along the forearm instead; :flat: the same along the plaza (the forearm's
 level heading). -18's own (§13.4, its K reach kept: K1 2.35, K2 2.50, K3 2.40 m): TOSHU's frost bloom off the palm, K2's
-frost sheet off the sleeve's cut, HYOKA's ice flower run out from the palm on the plaza.")
+frost sheet off the sleeve's cut, HYOKA's ice flower run out from the palm on the plaza. -50's (§13.4, kept: K1 2.55, K2
+2.75, K3 2.64 m), all run out along the plaza from the left palm: K1's rime spike, K2's ice wall, K3's three flowers.")
 (defparameter *ru-frost-grow* 6 "霜の穂先: it grows over the startup's last this many frames (a look; new 2026-10-24).")
 (defparameter *ru-frost-shatter* 6 "... and shatters into snow over this many frames after the active ones (a look; new 2026-10-24).")
 (defweapon :ru-frost-spike (:length 1.0 :ink-color #x7F97B4)   ; K1: a four-sided spike along the thrust, two crystals off its root
@@ -644,6 +646,38 @@ frost sheet off the sleeve's cut, HYOKA's ice flower run out from the palm on th
           (mb-at (mb :y 0.92 :x -0.08 :z 0.08 :pitch 1.57 :roll 0.6) (mb-cone mb 0.04 0.22 :segments 4))
           (mb-at (mb :y 0.96 :z 0.08 :pitch 1.0) (mb-cone mb 0.04 0.22 :segments 4))
           (mb-at (mb :y 0.88 :z 0.08 :pitch 2.1) (mb-cone mb 0.04 0.2 :segments 4))))
+(defweapon :ru-frost-rime (:length 1.0 :ink-color #x7F97B4)   ; -50 K1: a rime crust run out along the plaza (+Z up), a spike
+  (:solid (mbc mb #xE6ECF4) (mb-at (mb :y 0.38 :z 0.02 :yaw -1.571) (mb-prism mb 0.045 0.76 3))   ; thrust up at him at its end
+          (mb-at (mb :y 0.8 :z 0.4 :pitch 1.1) (mb-cone mb 0.1 0.9 :segments 5))         ; (its point at the tip, 1.0)
+          (mbc mb #xF8FAFC)
+          (mb-at (mb :y 0.22 :x 0.04 :z 0.07 :pitch 1.2) (mb-cone mb 0.03 0.16 :segments 4))
+          (mb-at (mb :y 0.45 :x -0.05 :z 0.11 :pitch 1.1) (mb-cone mb 0.04 0.24 :segments 4))
+          (mb-at (mb :y 0.62 :x 0.06 :z 0.13 :pitch 1.0) (mb-cone mb 0.05 0.32 :segments 4))))
+(defweapon :ru-frost-wall (:length 1.0 :ink-color #x7F97B4)   ; -50 K2: ice run out from the palms, a wall of shards rising at its end
+  (:solid (mbc mb #xE6ECF4) (mb-at (mb :y 0.32 :z 0.02 :yaw -1.571) (mb-prism mb 0.05 0.64 3))
+          (mb-at (mb :y 0.9 :z 0.65 :pitch 1.57) (mb-cone mb 0.1 1.3 :segments 5))       ; the wall's tallest shard (its
+          (mb-at (mb :y 0.86 :x 0.2 :z 0.5 :pitch 1.57 :roll -0.12) (mb-cone mb 0.09 1.0 :segments 5))   ; far side the tip)
+          (mb-at (mb :y 0.86 :x -0.2 :z 0.5 :pitch 1.57 :roll 0.12) (mb-cone mb 0.09 1.0 :segments 5))
+          (mbc mb #xF8FAFC)
+          (mb-at (mb :y 0.82 :x 0.38 :z 0.35 :pitch 1.57 :roll -0.25) (mb-cone mb 0.07 0.7 :segments 4))
+          (mb-at (mb :y 0.82 :x -0.38 :z 0.35 :pitch 1.57 :roll 0.25) (mb-cone mb 0.07 0.7 :segments 4))
+          (mb-at (mb :y 0.6 :x 0.1 :z 0.12 :pitch 1.3) (mb-cone mb 0.04 0.26 :segments 4))))
+(defweapon :ru-frost-flowers (:length 1.0 :ink-color #x7F97B4)   ; -50 K3: ice run out from both palms, three flowers
+  (:solid (mbc mb #xE6ECF4) (mb-at (mb :y 0.45 :z 0.02 :yaw -1.571) (mb-prism mb 0.05 0.9 3))
+          (mb-at (mb :y 0.52 :x 0.16 :z 0.02 :roll -0.77) (mb-prism mb 0.035 0.46 4))     ; the side branches
+          (mb-at (mb :y 0.52 :x -0.16 :z 0.02 :roll 0.77) (mb-prism mb 0.035 0.46 4))
+          (mbc mb #xF8FAFC)
+          (mb-at (mb :y 0.92 :z 0.12 :pitch 1.57) (mb-cone mb 0.05 0.3 :segments 5))      ; the far flower: a core and
+          (mb-at (mb :y 0.92 :x 0.08 :z 0.08 :pitch 1.57 :roll -0.6) (mb-cone mb 0.04 0.22 :segments 4))   ; petals
+          (mb-at (mb :y 0.92 :x -0.08 :z 0.08 :pitch 1.57 :roll 0.6) (mb-cone mb 0.04 0.22 :segments 4))
+          (mb-at (mb :y 0.96 :z 0.08 :pitch 1.0) (mb-cone mb 0.04 0.22 :segments 4))
+          (mb-at (mb :y 0.88 :z 0.08 :pitch 2.1) (mb-cone mb 0.04 0.2 :segments 4))
+          (mb-at (mb :y 0.68 :x 0.32 :z 0.1 :pitch 1.57) (mb-cone mb 0.045 0.26 :segments 5))   ; the side flowers
+          (mb-at (mb :y 0.68 :x 0.39 :z 0.07 :pitch 1.57 :roll -0.6) (mb-cone mb 0.035 0.18 :segments 4))
+          (mb-at (mb :y 0.71 :x 0.3 :z 0.07 :pitch 1.0) (mb-cone mb 0.035 0.18 :segments 4))
+          (mb-at (mb :y 0.68 :x -0.32 :z 0.1 :pitch 1.57) (mb-cone mb 0.045 0.26 :segments 5))
+          (mb-at (mb :y 0.68 :x -0.39 :z 0.07 :pitch 1.57 :roll 0.6) (mb-cone mb 0.035 0.18 :segments 4))
+          (mb-at (mb :y 0.71 :x -0.3 :z 0.07 :pitch 1.0) (mb-cone mb 0.035 0.18 :segments 4))))
 (defvar *ru-frost-m* (m4) "霜の穂先's world matrix (the weapon frame at the blade's tip, its +Y the ice's length).")
 
 (defun-fast %ru-frost! (jm an fr wp cp rim tint flash)
@@ -755,8 +789,8 @@ while her body isn't drawn (a vanishing Hoho, ENBU's flash step)."
 
 (defun rukia-look-cons-check ()
   "Debug 85900 (P1 Rukia, e.g. after 85507): bytes consed by 10 calls of RUKIA-LOOK-DRAW in each look (the Shikai, -18,
--50, zero, the Bankai costume), standing and in the form's J (its first link's hit frame); then the Shikai's and -18's K
-霜の穂先 (each K's clip at its S and just after its active frames). Each must be 0. (The probe queues its 1220 calls'
+-50, zero, the Bankai costume), standing and in the form's J (its first link's hit frame); then every K 霜の穂先 (the
+Shikai's, -18's and -50's: each K's clip at its S and just after its active frames). Each must be 0. (The probe queues its 1280 calls'
 meshes in one frame: the first 1000, Bankai costume calls, let the draw queue grow to hold them all.)"
   (let* ((e *p1*) (f (fighter e)) (m (model e)) (b0 (model-body m)) (w0 (model-weapon m)) (k0 (fighter-kit f))
          (st (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)) (out nil))
@@ -770,7 +804,7 @@ meshes in one frame: the first 1000, Bankai costume calls, let the draw queue gr
         (push (bytes) out)
         (setf (fighter-state f) :move (fighter-move f) (kit-command-move (fighter-kit f) :q) (fighter-phase f) :main (fighter-sf f) (mv-s (fighter-move f)))
         (push (bytes) out))
-      ;; the Shikai's and -18's K 霜の穂先 (%RU-FROST!: drawn off the model's clip): each K's clip at its S (the ice) and after its
+      ;; every K 霜の穂先 (%RU-FROST!: drawn off the model's clip): each K's clip at its S (the ice) and after its
       ;; active frames (the shatter)
       (let* ((an (model-anim m)) (c0 (anim-clip an)) (t0 (anim-time an)) (fr nil))
         (setf (fighter-kit f) k0 (model-body m) (find-body :rukia) (model-weapon m) :sode-no-shirayuki (fighter-state f) :idle)
@@ -781,7 +815,7 @@ meshes in one frame: the first 1000, Bankai costume calls, let the draw queue gr
         (push (reverse fr) out)))
     (setf (fighter-kit f) k0 (model-body m) b0 (model-weapon m) w0
           (fighter-state f) st (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf)
-    (log-msg "duel rukia look consing (10 calls, B; standing / J1 hit): base ~{~d~^ / ~} | -18 ~{~d~^ / ~} | -50 ~{~d~^ / ~} | zero ~{~d~^ / ~} | bankai ~{~d~^ / ~} | frost Shikai K1-K3, -18 K1-K3 (ice / shatter) ~{~d~^ / ~}"
+    (log-msg "duel rukia look consing (10 calls, B; standing / J1 hit): base ~{~d~^ / ~} | -18 ~{~d~^ / ~} | -50 ~{~d~^ / ~} | zero ~{~d~^ / ~} | bankai ~{~d~^ / ~} | frost Shikai K1-K3, -18 K1-K3, -50 K1-K3 (ice / shatter) ~{~d~^ / ~}"
              (subseq (reverse out) 0 2) (subseq (reverse out) 2 4) (subseq (reverse out) 4 6) (subseq (reverse out) 6 8)
              (subseq (reverse out) 8 10) (first out))))
 
@@ -1635,7 +1669,7 @@ meshes in one frame: the first 1000, Bankai costume calls, let the draw queue gr
 ;;; ---------------------------------------------------------------- -18 C's own clips (DUEL_RUKIA_TYBW §13.4)
 ;;; 摺り足 for J (the glide: the root level, no step), 袖・素手 for K (the sleeve and the bare left palm), the canon gestures
 ;;; for L / SP / O / I (docs/research/rukia-rework/style-refs.md §3.2). Played by -18 only, through the :m18 kit's :clip-map
-;;; (rukia.lisp *RU-18-CLIPS*; -50 and zero set it back) and its :look-clips / :run-clips. Every strike: a tell inside the
+;;; (rukia.lisp *RU-18-CLIPS*; -50 sets its own, zero sets it back) and its :look-clips / :run-clips. Every strike: a tell inside the
 ;;; startup, the hit pose on S, an impact hold through A, a follow-through and a settle key in the recovery; turns keyed
 ;;; about every 90 deg with root yaw + a pelvis roll. Each K's 霜の穂先 (*RU-FROST-POINTS*: the palm's bloom, the sleeve's
 ;;; sheet, the ice flower) carries its reach past the palm or the point.
@@ -1902,6 +1936,322 @@ meshes in one frame: the first 1000, Bankai costume calls, let the draw queue gr
   (:a (:root :f 0.89) (:arm-l :flex 118))
   (22 (:root :f 0.44 :u -0.14) (:chest :twist -24) (:arm-l :flex 90 :side 10) (:elbow-l :flex 30))
   (:end :ru-18-stance))
+
+;;; ---------------------------------------------------------------- -50 C's own clips (DUEL_RUKIA_TYBW §13.4)
+;;; The quake: 足拍子 for J (a knee lifted in the tell, the foot stamped down on S, the root dropping into it), both palms
+;;; for K, the rime blade (1.0 m) two-handed in the guard and every blade strike (*GRIP-CLIPS*: the left fist on the
+;;; handle); heavier, lower and slower-looking than -18 (docs/research/rukia-rework/style-refs.md §3.3). Played by -50
+;;; only, through the :m50 kit's :clip-map (rukia.lisp *RU-50-CLIPS*) and its :look-clips / :run-clips. Every strike: a
+;;; tell inside the startup, the hit pose on S, an impact hold through A (a stamp's weight), a follow-through and a settle
+;;; key in the recovery; turns keyed about every 90 deg with root yaw + a pelvis roll. Each K's 霜の穂先
+;;; (*RU-FROST-POINTS*: the rime spike, the ice wall, the ice flowers, run out along the plaza from the left palm)
+;;; carries its reach. The knees are solved for the root's height (the ankle on the plaza).
+(defpose :ru-50-stance ()                              ; the quake's guard: low and wide, the knees deep, both hands on the
+  (:root :u -0.2) (:pelvis :twist 14) (:spine :flex 14) (:chest :twist -10) (:neck :twist 6) (:head :flex -6 :twist 4)   ; hilt
+  (:arm-r :flex 36 :side 6) (:elbow-r :flex 40) (:hand-r :twist 0 :flex -80)                     ; before her navel, the point
+  (:arm-l :flex 34 :side -26) (:elbow-l :flex 50) (:hand-l :flex -20)                            ; low at him
+  (:thigh-r :flex 54 :side 10) (:knee-r :flex 62) (:thigh-l :flex -20 :side 14) (:knee-l :flex 30))
+(defclip :ru-50-stance (3.0 :loop t :base :ru-50-stance)   ; still and heavy: the hips sink 1 cm with the breath
+  (0) (1.5 (:root :u -0.21) (:spine :flex 15) (:knee-r :flex 69) (:knee-l :flex 32)))
+
+;; the walk: a heavy shuffle under the guard, each foot set down with the hips dropping onto it (no lift of the head)
+(defclip :ru-50-walk-f (1.2 :loop t :base :ru-50-stance)
+  (0 (:root :u -0.21) (:thigh-r :flex 54) (:knee-r :flex 69) (:thigh-l :flex -20) (:knee-l :flex 32))      ; the right foot down
+  (0.3 (:root :u -0.18) (:thigh-r :flex 44) (:knee-r :flex 74) (:thigh-l :flex -4) (:knee-l :flex 66))     ; the left drawn up
+  (0.6 (:root :u -0.21) (:thigh-r :flex 44) (:knee-r :flex 78) (:thigh-l :flex -8) (:knee-l :flex 48))     ; the left down
+  (0.9 (:root :u -0.18) (:thigh-r :flex 58) (:knee-r :flex 96) (:thigh-l :flex -14) (:knee-l :flex 36)))   ; the right slid on
+(defclip :ru-50-walk-b (1.2 :loop t :base :ru-50-stance)
+  (0 (:root :u -0.21) (:thigh-r :flex 44) (:knee-r :flex 78) (:thigh-l :flex -8) (:knee-l :flex 48))
+  (0.3 (:root :u -0.18) (:thigh-r :flex 40) (:knee-r :flex 70) (:thigh-l :flex -24) (:knee-l :flex 50))    ; the left set back
+  (0.6 (:root :u -0.21) (:thigh-r :flex 54) (:knee-r :flex 69) (:thigh-l :flex -20) (:knee-l :flex 32))
+  (0.9 (:root :u -0.18) (:thigh-r :flex 46) (:knee-r :flex 92) (:thigh-l :flex -14) (:knee-l :flex 36)))   ; the right drawn back
+(defclip :ru-50-strafe-r (1.1 :loop t :base :ru-50-stance)
+  (0 (:root :u -0.21) (:thigh-r :side 22) (:thigh-l :side 6))
+  (0.275 (:root :u -0.18) (:thigh-r :side 14) (:knee-r :flex 80) (:thigh-l :side 10))
+  (0.55 (:root :u -0.21) (:thigh-r :side 4) (:thigh-l :side 20))
+  (0.825 (:root :u -0.18) (:thigh-r :side 12) (:knee-l :flex 52) (:thigh-l :side 12)))
+(defclip :ru-50-strafe-l (1.1 :loop t :base :ru-50-stance)
+  (0 (:root :u -0.21) (:thigh-l :side 24) (:thigh-r :side 2))
+  (0.275 (:root :u -0.18) (:thigh-l :side 16) (:knee-l :flex 52) (:thigh-r :side 8))
+  (0.55 (:root :u -0.21) (:thigh-l :side 6) (:thigh-r :side 18))
+  (0.825 (:root :u -0.18) (:thigh-l :side 14) (:knee-r :flex 80) (:thigh-r :side 10)))
+
+;; the run: crouched lower than -18's, both hands on the hilt before her, the point low ahead; heavy strides, the hips
+;; dropping on each
+(defpose :ru-50-run-pose (:base :ru-50-stance)
+  (:pelvis :twist 6) (:spine :flex 30) (:chest :twist -6) (:neck :twist 2) (:head :flex -20 :twist 2)
+  (:arm-r :flex 30 :side 6) (:elbow-r :flex 40) (:hand-r :twist 0 :flex -62)
+  (:arm-l :flex 28 :side -26) (:elbow-l :flex 50))
+(defclip :ru-50-run (0.6 :loop t :base :ru-50-run-pose)
+  (0 (:root :u -0.26) (:thigh-r :flex 56) (:knee-r :flex 40) (:thigh-l :flex -30) (:knee-l :flex 70))
+  (0.15 (:root :u -0.2) (:thigh-r :flex 20) (:knee-r :flex 50) (:thigh-l :flex 16) (:knee-l :flex 100))
+  (0.3 (:root :u -0.26) (:thigh-l :flex 56) (:knee-l :flex 40) (:thigh-r :flex -30) (:knee-r :flex 70))
+  (0.45 (:root :u -0.2) (:thigh-l :flex 20) (:knee-l :flex 50) (:thigh-r :flex 16) (:knee-r :flex 100)))
+
+;; J1 足拍子 (down-right B2, his view): the right knee lifted as both hands raise the blade over her right shoulder (the
+;; tell), then the right foot stamps as the short chop lands at her waist
+(defpose :ru-50-j1-hit (:base :ru-50-stance)
+  (:root :yaw 8 :f 0.3 :u -0.26) (:pelvis :side -4) (:spine :flex 20) (:chest :twist -4) (:neck :twist 4)
+  (:arm-r :flex 80 :side 40) (:elbow-r :flex 10) (:hand-r :twist -10 :flex -85)
+  (:arm-l :flex 76 :side 10) (:elbow-l :flex 30) (:hand-l :flex -20)
+  (:thigh-r :flex 60 :side 10) (:knee-r :flex 80) (:thigh-l :flex -24 :side 14) (:knee-l :flex 34))
+(defstrike :ru-50-j1 (7 3 12 :base :ru-50-stance)
+  (0)
+  (3 (:root :yaw -20 :u -0.12 :f 0.06) (:pelvis :side 4) (:spine :flex 6) (:chest :twist 10) (:neck :twist 16)   ; the tell: the
+     (:arm-r :flex 120 :side 60) (:elbow-r :flex 60) (:hand-r :twist -40 :flex -15)                           ; blade up over
+     (:arm-l :flex 110 :side 30) (:elbow-l :flex 80)                                                          ; her right
+     (:thigh-r :flex 80 :side 8) (:knee-r :flex 110) (:thigh-l :flex -6) (:knee-l :flex 33))                  ; shoulder, the
+  (5 (:root :yaw -22 :u -0.11 :f 0.1) (:thigh-r :flex 84) (:arm-r :flex 124))                    ; knee up (held)
+  (:s :snap :ru-50-j1-hit)                                                                       ; the stamp and the chop
+  (9 (:root :yaw 14 :f 0.32 :u -0.29) (:spine :flex 22) (:arm-r :flex 98 :side 10) (:hand-r :twist 15 :flex -90)
+     (:thigh-r :flex 62) (:knee-r :flex 88) (:thigh-l :flex -26) (:knee-l :flex 36))
+  (:a (:root :yaw 16 :f 0.32 :u -0.29) (:arm-r :flex 100 :side 8))                               ; the impact held: low left
+  (16 (:root :yaw 10 :f 0.2 :u -0.24) (:arm-r :flex 60 :side 20) (:elbow-r :flex 30) (:hand-r :twist 0 :flex -80)   ; settle
+      (:thigh-r :flex 58) (:knee-r :flex 76) (:thigh-l :flex -22) (:knee-l :flex 33))
+  (:end :ru-50-stance))
+
+;; J2 足拍子 (up-left B2, his view): the left knee lifted, the blade drawn down to her right hip, its point low (the tell);
+;; the left foot stamps as the two-hand cut rises across her front to above her left shoulder
+(defpose :ru-50-j2-hit (:base :ru-50-stance)
+  (:root :yaw -10 :f 0.26 :u -0.26) (:pelvis :side 4) (:spine :flex 12) (:chest :twist -14) (:neck :twist 10)
+  (:arm-r :flex 90 :side 25) (:elbow-r :flex 10) (:hand-r :twist 5 :flex -65)
+  (:arm-l :flex 86 :side -10) (:elbow-l :flex 30) (:hand-l :flex -20)
+  (:thigh-r :flex 60 :side 10) (:knee-r :flex 80) (:thigh-l :flex -18 :side 12) (:knee-l :flex 44))
+(defstrike :ru-50-j2 (7 3 13 :base :ru-50-stance)
+  (0)
+  (3 (:root :yaw 6 :u -0.14 :f 0.06) (:pelvis :side -4) (:chest :twist -16) (:neck :twist 10)     ; the tell: the blade low at
+     (:arm-r :flex 20 :side 30) (:elbow-r :flex 40) (:hand-r :twist 20 :flex -80)                 ; her right hip, the point
+     (:arm-l :flex 20 :side 0) (:elbow-l :flex 70)                                                ; low, the left knee lifted
+     (:thigh-l :flex 60 :side 14) (:knee-l :flex 114) (:thigh-r :flex 30) (:knee-r :flex 63))
+  (5 (:root :yaw 8 :u -0.13 :f 0.1) (:thigh-l :flex 64))                                          ; (held, the foot up)
+  (:s :snap :ru-50-j2-hit)                                                                        ; the stamp and the cut
+  (9 (:root :yaw -16 :f 0.28 :u -0.28) (:arm-r :flex 110 :side 12) (:hand-r :twist 25 :flex -60)
+     (:thigh-r :flex 62) (:knee-r :flex 88) (:knee-l :flex 48))
+  (:a (:root :yaw -18 :f 0.28 :u -0.28) (:arm-r :flex 120 :side 5) (:elbow-r :flex 15) (:hand-r :twist 35 :flex -55))   ; held
+  (17 (:root :yaw -10 :f 0.18 :u -0.24) (:arm-r :flex 60 :side 20) (:elbow-r :flex 30) (:hand-r :twist 0 :flex -75)    ; settle
+      (:thigh-r :flex 58) (:knee-r :flex 76) (:knee-l :flex 40))
+  (:end :ru-50-stance))
+
+;; J3 足拍子, the finale (H<- low B2, his view): wound to her left, a low two-hand half turn at knee height, then a double
+;; stamp (right, then left), held; the blade drawn back up to the guard
+(defpose :ru-50-j3-hit (:base :ru-50-stance)
+  (:root :yaw 0 :f 0.5 :u -0.36) (:pelvis :side -6) (:spine :flex 30) (:chest :twist -14) (:neck :twist 14) (:head :flex 10)
+  (:arm-r :flex 66 :side 32) (:elbow-r :flex 0) (:hand-r :twist -20 :flex -50)
+  (:arm-l :flex 56 :side 0) (:elbow-l :flex 20) (:hand-l :flex -20)
+  (:thigh-r :flex 70 :side 14) (:knee-r :flex 98) (:thigh-l :flex -26 :side 16) (:knee-l :flex 46))
+(defstrike :ru-50-j3 (8 3 18 :base :ru-50-stance)
+  (0)
+  (3 (:root :yaw 70 :u -0.24) (:pelvis :side 6) (:spine :flex 24) (:chest :twist 20) (:neck :twist -30) (:head :twist -20)   ; wound
+     (:arm-r :flex 60 :side -20) (:elbow-r :flex 30) (:hand-r :twist 35 :flex -90)                                           ; to her
+     (:arm-l :flex 40 :side -40) (:elbow-l :flex 40)                                                                         ; left
+     (:thigh-r :flex 46 :side 8) (:knee-r :flex 86) (:thigh-l :flex -18 :side 12) (:knee-l :flex 42))
+  (6 (:root :yaw 40 :u -0.32 :f 0.14) (:pelvis :side 2) (:arm-r :flex 60 :side 10))                  ; turning back, sinking
+  (:s :snap :ru-50-j3-hit)                                                                           ; through at knee height
+  (10 (:root :yaw -40 :f 0.5 :u -0.36) (:pelvis :side -8) (:arm-r :flex 62 :side 30))             ; (about 90 deg a key)
+  (:a (:root :yaw -74 :f 0.48 :u -0.36) (:arm-r :flex 60 :side 28) (:hand-r :twist -25 :flex -50))
+  (14 (:root :yaw -64 :f 0.44 :u -0.3) (:thigh-r :flex 80) (:knee-r :flex 116))                      ; the right knee up
+  (16 :snap (:root :yaw -64 :f 0.44 :u -0.37) (:thigh-r :flex 70) (:knee-r :flex 100))                ; stamp 1
+  (19 (:root :yaw -60 :f 0.42 :u -0.31) (:thigh-l :flex 40) (:knee-l :flex 110))                      ; the left knee up
+  (21 :snap (:root :yaw -58 :f 0.42 :u -0.38) (:thigh-l :flex -26) (:knee-l :flex 48))                ; stamp 2
+  (25 (:root :yaw -54 :f 0.4 :u -0.37))                                                               ; held
+  (:end :ru-50-stance))
+
+;; K1 両掌 (T / P + B1): risen, the left palm drawn back to her hip and the blade lifted high in the right hand (the tell);
+;; then down into the lunge: the left palm driven out forward-low, the point driven into the plaza beside it; the rime
+;; spike runs out from the palm (*RU-FROST-POINTS*)
+(defpose :ru-50-k1-hit (:base :ru-50-stance)
+  (:root :f 0.36 :u -0.32) (:pelvis :twist 0) (:spine :flex 34) (:chest :twist -10) (:neck :twist 6) (:head :flex -4 :twist 4)
+  (:arm-l :flex 70 :side 4) (:elbow-l :flex 0) (:hand-l :flex -60)
+  (:arm-r :flex 64 :side 12) (:elbow-r :flex 16) (:hand-r :twist 0 :flex -92)
+  (:thigh-r :flex 70 :side 14) (:knee-r :flex 94) (:thigh-l :flex -30 :side 14) (:knee-l :flex 40))
+(defstrike :ru-50-k1 (17 4 20 :base :ru-50-stance)
+  (0)
+  (7 (:root :u -0.14 :f -0.04) (:pelvis :twist 30) (:spine :flex 4) (:chest :twist 20) (:neck :twist -10)   ; the tell: risen, coiled,
+     (:arm-l :flex -20 :side 30) (:elbow-l :flex 60) (:hand-l :flex -40)                                   ; the palm at her hip, the
+     (:arm-r :flex 120 :side 30) (:elbow-r :flex 60) (:hand-r :twist 0 :flex -40)                          ; blade lifted high
+     (:thigh-r :flex 30) (:knee-r :flex 63) (:thigh-l :flex -12) (:knee-l :flex 30))
+  (14 (:root :u -0.16 :f -0.02) (:arm-r :flex 126) (:elbow-l :flex 66))                           ; (held: moving)
+  (:s :snap :ru-50-k1-hit)
+  (19 (:root :f 0.38 :u -0.33) (:arm-l :flex 71))
+  (:a (:root :f 0.38 :u -0.33) (:arm-l :flex 71))                                                 ; the impact held
+  (32 (:root :f 0.2 :u -0.26) (:spine :flex 24) (:arm-l :flex 50 :side -10) (:elbow-l :flex 30) (:arm-r :flex 40 :side 10)
+      (:elbow-r :flex 30) (:thigh-r :flex 60) (:knee-r :flex 80) (:thigh-l :flex -24) (:knee-l :flex 34))   ; settle
+  (36 (:root :f 0.06 :u -0.22))
+  (:end :ru-50-stance))
+
+;; K2 両掌 (V-up / P2): sunk deep, both palms low over the plaza, the blade reversed along her right forearm (the tell);
+;; then both palms swept up from the plaza as she rises: the ice wall rises out ahead of them (*RU-FROST-POINTS*)
+(defpose :ru-50-k2-hit (:base :ru-50-stance)
+  (:root :f 0.16 :u -0.18) (:pelvis :twist 6) (:spine :flex -4) (:chest :twist -6) (:neck :twist 4) (:head :flex -16 :twist 2)
+  (:arm-l :flex 120 :side 4) (:elbow-l :flex 10) (:hand-l :flex -60)
+  (:arm-r :flex 115 :side 14) (:elbow-r :flex 10) (:hand-r :twist 0 :flex 90)
+  (:thigh-r :flex 46 :side 10) (:knee-r :flex 70) (:thigh-l :flex -14 :side 14) (:knee-l :flex 33))
+(defstrike :ru-50-k2 (21 4 24 :base :ru-50-stance)
+  (0)
+  (9 (:root :u -0.36 :f 0.1) (:pelvis :twist 6) (:spine :flex 40) (:chest :twist 0) (:neck :twist 0) (:head :flex 10)   ; the tell:
+     (:arm-l :flex 40 :side 0) (:elbow-l :flex 10) (:hand-l :flex 40)                                                 ; sunk, both
+     (:arm-r :flex 40 :side 10) (:elbow-r :flex 10) (:hand-r :twist 0 :flex 90)                                       ; palms low
+     (:thigh-r :flex 70 :side 14) (:knee-r :flex 98) (:thigh-l :flex -26 :side 16) (:knee-l :flex 46))
+  (16 (:root :u -0.37 :f 0.1) (:spine :flex 41))                                                  ; (held: moving)
+  (19 (:root :u -0.3 :f 0.12) (:spine :flex 26) (:arm-l :flex 70) (:arm-r :flex 70) (:head :flex 0)
+      (:thigh-r :flex 62) (:knee-r :flex 90) (:knee-l :flex 42))                                   ; sweeping up
+  (:s :snap :ru-50-k2-hit)
+  (23 (:root :u -0.16 :f 0.16) (:arm-l :flex 128) (:arm-r :flex 122))
+  (:a (:root :u -0.16 :f 0.16) (:arm-l :flex 130) (:arm-r :flex 124))                             ; held: the wall up
+  (36 (:root :u -0.2 :f 0.12) (:spine :flex 8) (:arm-l :flex 80 :side 0) (:elbow-l :flex 30) (:hand-l :flex -30)
+      (:arm-r :flex 70) (:elbow-r :flex 30) (:head :flex -6))
+  (43 (:root :u -0.21 :f 0.04) (:arm-l :flex 40 :side -20) (:elbow-l :flex 50) (:arm-r :flex 40) (:hand-r :twist 0 :flex -20))
+  (:end :ru-50-stance))
+
+;; K3 両掌 -> 見得 (V-down / P2): risen, both palms raised overhead (the tell), then dropped into the deep squat, both
+;; palms slammed flat on the plaza before her: the ice flowers run out (*RU-FROST-POINTS*); held, the head up last
+(defpose :ru-50-k3-hit (:base :ru-50-stance)
+  (:root :u -0.55 :f 0.3) (:pelvis :twist 0) (:spine :flex 56) (:chest :twist 0) (:neck :twist 0) (:head :flex 10 :twist 0)
+  (:arm-l :flex 90 :side 4) (:elbow-l :flex 0) (:hand-l :flex 30)
+  (:arm-r :flex 90 :side -4) (:elbow-r :flex 0) (:hand-r :twist 0 :flex 90)
+  (:thigh-r :flex 90 :side 24) (:knee-r :flex 130) (:thigh-l :flex 60 :side 24) (:knee-l :flex 120))
+(defstrike :ru-50-k3 (21 5 34 :base :ru-50-stance)
+  (0)
+  (9 (:root :u -0.04 :f 0.06) (:pelvis :twist 8) (:spine :flex -8) (:chest :twist 0) (:neck :twist 0) (:head :flex -24)   ; the tell:
+     (:arm-l :flex 165 :side 10) (:elbow-l :flex 14) (:hand-l :flex -30)                                                 ; risen,
+     (:arm-r :flex 165 :side 10) (:elbow-r :flex 14) (:hand-r :twist 0 :flex 90)                                         ; both
+     (:thigh-r :flex 20 :side 8) (:knee-r :flex 30) (:thigh-l :flex -8 :side 10) (:knee-l :flex 20))                    ; palms up
+  (17 (:root :u 0.0 :f 0.08) (:arm-l :flex 170) (:arm-r :flex 170) (:spine :flex -11))            ; (held: moving)
+  (:s :snap :ru-50-k3-hit)
+  (:a (:root :u -0.56) (:spine :flex 57))                                                         ; the impact held
+  (42 (:root :u -0.55 :f 0.3) (:head :flex 16))                                                   ; 見得: held, the head down
+  (47 (:head :flex -14 :twist 6))                                                                 ; the head up last
+  (52 (:root :u -0.53))
+  (56 (:root :u -0.26 :f 0.1) (:spine :flex 24) (:arm-l :flex 50 :side -10) (:elbow-l :flex 30) (:hand-l :flex -30)
+      (:arm-r :flex 40 :side 10) (:elbow-r :flex 30) (:thigh-r :flex 60 :side 10) (:knee-r :flex 86) (:thigh-l :flex -20 :side 14)
+      (:knee-l :flex 40) (:head :flex -8))
+  (:end :ru-50-stance))
+
+;; L HYOSHIN 足拍子 (stab B2): the blade raised reversed overhead in both hands, point down; two stamps, left then right;
+;; then both hands drive it into the plaza before her: the quake on S
+(defpose :ru-50-raised (:base :ru-50-stance)          ; the blade raised overhead in both hands, its point hanging down
+  (:root :u -0.12) (:spine :flex -6) (:chest :twist 0) (:neck :twist 0) (:head :flex -20 :twist 0)
+  (:arm-r :flex 160 :side 6) (:elbow-r :flex 40) (:hand-r :twist 160 :flex -100)
+  (:arm-l :flex 156 :side -6) (:elbow-l :flex 44) (:hand-l :flex -20))
+(defpose :ru-50-hyoshin-hit (:base :ru-50-stance)
+  (:root :f 0.1 :u -0.36) (:pelvis :twist 8) (:spine :flex 44) (:chest :twist 0) (:neck :twist 0) (:head :flex 14 :twist 0)
+  (:arm-r :flex 90 :side 6) (:elbow-r :flex 40) (:hand-r :twist 160 :flex 10)
+  (:arm-l :flex 90 :side -10) (:elbow-l :flex 44) (:hand-l :flex 0)
+  (:thigh-r :flex 70 :side 14) (:knee-r :flex 98) (:thigh-l :flex -26 :side 16) (:knee-l :flex 46))
+(defstrike :ru-50-hyoshin (14 0 22 :base :ru-50-stance)
+  (0)
+  (3 :ru-50-raised (:thigh-l :flex 50 :side 14) (:knee-l :flex 110) (:thigh-r :flex 34) (:knee-r :flex 70))   ; the left knee up
+  (5 :snap :ru-50-raised (:root :u -0.2) (:thigh-l :flex -20) (:knee-l :flex 30) (:thigh-r :flex 54) (:knee-r :flex 62))   ; stamp
+  (8 :ru-50-raised (:thigh-r :flex 80 :side 8) (:knee-r :flex 110) (:thigh-l :flex -6) (:knee-l :flex 33))     ; the right knee up
+  (10 :snap :ru-50-raised (:root :u -0.21) (:thigh-r :flex 54) (:knee-r :flex 69) (:thigh-l :flex -20) (:knee-l :flex 32))   ; stamp
+  (12 :ru-50-raised (:root :u -0.16) (:arm-r :flex 168) (:arm-l :flex 164) (:spine :flex -9) (:thigh-r :flex 46) (:knee-r :flex 70)
+      (:thigh-l :flex -16) (:knee-l :flex 30))                                                    ; drawn up
+  (:s :snap :ru-50-hyoshin-hit)                                                                    ; driven in: the quake
+  (20 (:root :u -0.37) (:spine :flex 45))                                                          ; held
+  (28 (:root :u -0.28 :f 0.06) (:spine :flex 30) (:arm-r :flex 70) (:elbow-r :flex 50) (:arm-l :flex 70) (:elbow-l :flex 50)
+      (:thigh-r :flex 62) (:knee-r :flex 88) (:thigh-l :flex -22) (:knee-l :flex 40))
+  (:end :ru-50-stance))
+
+;; SP1 HAKUREN canon 白漣 by stamps: the hold (<= 48 f, a stamp per 12 f, each raising one of the CHARGE's spikes in a
+;; half circle before her, her left to her right, RUKIA-SPIKE): the blade two-handed at her right hip, its point back,
+;; turning to each spike and stamping, the feet alternating; then held
+(defpose :ru-50-waki (:base :ru-50-stance)            ; the blade two-handed at her right hip, the point low behind
+  (:root :u -0.24) (:spine :flex 20) (:chest :twist -10) (:neck :twist 10) (:head :flex 6 :twist 6)
+  (:arm-r :flex 10 :side 30) (:elbow-r :flex 40) (:hand-r :twist 165 :flex 5)
+  (:arm-l :flex 10 :side -30) (:elbow-l :flex 60) (:hand-l :flex -20)
+  (:thigh-r :flex 50 :side 10) (:knee-r :flex 82) (:thigh-l :flex -20 :side 14) (:knee-l :flex 38))
+(defpose :ru-50-waki-r (:base :ru-50-waki)            ; ... the right knee lifted
+  (:root :u -0.16) (:thigh-r :flex 80 :side 8) (:knee-r :flex 110) (:thigh-l :flex -8) (:knee-l :flex 36))
+(defpose :ru-50-waki-l (:base :ru-50-waki)            ; ... the left knee lifted
+  (:root :u -0.16) (:thigh-l :flex 50 :side 14) (:knee-l :flex 110) (:thigh-r :flex 38) (:knee-r :flex 72))
+(defclip :ru-50-hakuren-hold (48 :fps 60 :base :ru-50-stance)
+  (0 :ru-50-waki)
+  (6 :ru-50-waki-r (:root :yaw 40))
+  (12 :snap :ru-50-waki (:root :yaw 45))                         ; stamp 1 (right)
+  (18 :ru-50-waki-l (:root :yaw 26))
+  (24 :snap :ru-50-waki (:root :yaw 15))                         ; stamp 2 (left)
+  (30 :ru-50-waki-r (:root :yaw -4))
+  (36 :snap :ru-50-waki (:root :yaw -15))                        ; stamp 3 (right)
+  (42 :ru-50-waki-l (:root :yaw -34))
+  (48 :snap :ru-50-waki (:root :yaw -45)))                       ; stamp 4 (left, held)
+;; ... released: from the hip the blade swept low across the plaza, her right to her left (frame 0 the guard at the hip,
+;; facing him: a release after any stamp turns <= 45 deg into it)
+(defstrike :ru-50-hakuren (6 1 24 :base :ru-50-stance)
+  (0 :ru-50-waki)
+  (3 :ru-50-waki (:root :yaw -16 :u -0.26) (:chest :twist -20) (:arm-r :side 40))                ; wound back
+  (4 (:root :yaw -8 :u -0.28) (:spine :flex 26) (:chest :twist -14) (:arm-r :flex 10 :side 60) (:elbow-r :flex 20)
+     (:hand-r :twist 5 :flex -90))                                                               ; the point out to her right
+  (:s :snap (:root :yaw 10 :f 0.2 :u -0.32) (:pelvis :side -6) (:spine :flex 30) (:chest :twist 0) (:neck :twist 0) (:head :flex 10)
+      (:arm-r :flex 60 :side 60) (:elbow-r :flex 6) (:hand-r :twist -10 :flex -90) (:arm-l :flex 60 :side 10) (:elbow-l :flex 20)
+      (:thigh-r :flex 66 :side 12) (:knee-r :flex 96) (:thigh-l :flex -24 :side 14) (:knee-l :flex 46))
+  (:a (:root :yaw 14) (:arm-r :flex 70 :side 50))
+  (16 (:root :yaw 26 :f 0.2 :u -0.32) (:arm-r :flex 80 :side 20) (:hand-r :twist 20 :flex -75))  ; through to her left
+  (24 (:root :yaw 14 :f 0.1 :u -0.24) (:spine :flex 20) (:arm-r :flex 50 :side 14) (:elbow-r :flex 30) (:hand-r :twist 0 :flex -80)
+      (:thigh-r :flex 58) (:knee-r :flex 76) (:thigh-l :flex -22) (:knee-l :flex 33))
+  (:end :ru-50-stance))
+
+;; SP2 SHIRAFUNE canon 白刀, two hands (T low / B2): sunk with the hilt drawn back to her right hip, the point at him (the
+;; tell), then the deep lunge, the back knee near the plaza, the thrust rising to his chest; the ice runs on to 6 m
+;; (RUKIA-BLADE-LOOK)
+(defpose :ru-50-shirafune-hit (:base :ru-50-stance)
+  (:root :f 0.6 :u -0.42) (:pelvis :twist 10) (:spine :flex 10) (:chest :twist 4) (:neck :twist -6) (:head :flex -10 :twist -4)
+  (:arm-r :flex 95 :side 4) (:elbow-r :flex 4) (:hand-r :twist -20 :flex -75)
+  (:arm-l :flex 90 :side -10) (:elbow-l :flex 10) (:hand-l :flex -20)
+  (:thigh-r :flex 80 :side 4) (:knee-r :flex 86) (:thigh-l :flex -40 :side 6) (:knee-l :flex 50))   ; (the back knee low)
+(defstrike :ru-50-shirafune (16 4 28 :base :ru-50-stance)
+  (0)
+  (6 (:root :u -0.26 :f -0.04) (:chest :twist -26) (:neck :twist 14) (:arm-r :flex 10 :side 30) (:elbow-r :flex 70)   ; the tell:
+     (:hand-r :twist 0 :flex -60) (:arm-l :flex 10 :side -20) (:elbow-l :flex 70)                                    ; drawn back
+     (:thigh-r :flex 56) (:knee-r :flex 88) (:thigh-l :flex -22) (:knee-l :flex 40))                                ; to the hip
+  (13 (:root :u -0.3 :f 0.1) (:chest :twist -30) (:arm-r :flex 6) (:elbow-r :flex 76))           ; sinking, moving in
+  (:s :snap :ru-50-shirafune-hit)
+  (:a (:root :f 0.64) (:arm-r :flex 96))
+  (30 (:root :f 0.5 :u -0.38))
+  (40 (:root :f 0.2 :u -0.26) (:arm-r :flex 50 :side 10) (:elbow-r :flex 30) (:hand-r :twist 0 :flex -80) (:arm-l :flex 50 :side -20)
+      (:elbow-l :flex 40) (:thigh-r :flex 60) (:knee-r :flex 82) (:thigh-l :flex -24) (:knee-l :flex 36))   ; back up
+  (:end :ru-50-stance))
+
+;; O HAKKA NO TOGAME canon battle stance (up + level / B2): the blade raised overhead in both hands, held while the
+;; pillar rises at her (f4), then levelled at him (S), both arms out, the cold off the tip
+(defpose :ru-50-hakka-hit (:base :ru-50-stance)
+  (:root :f 0.22 :u -0.22) (:pelvis :twist 14) (:spine :flex 6) (:chest :twist 0) (:neck :twist -6) (:head :flex -6 :twist -4)
+  (:arm-r :flex 96 :side 2) (:elbow-r :flex 0) (:hand-r :twist -15 :flex -85)
+  (:arm-l :flex 92 :side -10) (:elbow-l :flex 6) (:hand-l :flex -20)
+  (:thigh-r :flex 54 :side 10) (:knee-r :flex 69) (:thigh-l :flex -20 :side 14) (:knee-l :flex 32))
+(defstrike :ru-50-hakka (20 3 30 :base :ru-50-stance)
+  (0)
+  (4 (:root :u -0.06) (:spine :flex -8) (:chest :twist 0) (:neck :twist 0) (:head :flex -24 :twist 0)   ; raised overhead
+     (:arm-r :flex 170 :side 4) (:elbow-r :flex 6) (:hand-r :twist -5 :flex -90) (:arm-l :flex 166 :side -8) (:elbow-l :flex 10)
+     (:thigh-r :flex 30 :side 10) (:knee-r :flex 44) (:thigh-l :flex -12 :side 14) (:knee-l :flex 22))
+  (10 (:arm-r :flex 172) (:arm-l :flex 168) (:root :u -0.05))                                     ; held
+  (17 (:arm-r :flex 174) (:root :u -0.04))
+  (:s :snap :ru-50-hakka-hit)
+  (:a (:root :f 0.24))
+  (40 (:root :f 0.16 :u -0.21) (:arm-r :flex 60 :side 10) (:elbow-r :flex 20) (:hand-r :twist 0 :flex -80) (:arm-l :flex 56 :side -20)
+      (:elbow-l :flex 30))
+  (:end :ru-50-stance))
+
+;; I HAINAWA サシ + 足拍子 (pt / P): the Breaker's strike: out of the dash a stamp (the right foot), then the left arm
+;; shot out, two fingers pointed at him; the blade dropped to the right hand, reversed along the forearm
+(defpose :ru-50-hainawa-hit (:base :ru-50-stance)
+  (:root :f 0.86 :u -0.22) (:pelvis :twist -6) (:spine :flex 12) (:chest :twist -34) (:neck :twist 18) (:head :flex -8 :twist 12)
+  (:arm-l :flex 116 :side 2) (:elbow-l :flex 0) (:hand-l :flex -6)
+  (:arm-r :flex -10 :side 30) (:elbow-r :flex 30) (:hand-r :twist 160 :flex 20)
+  (:thigh-r :flex 56 :side 10) (:knee-r :flex 78) (:thigh-l :flex -24 :side 14) (:knee-l :flex 36))
+(defstrike :ru-50-hainawa (8 4 18 :base :ru-50-stance)
+  (0 (:root :u -0.16 :f 0.12) (:spine :flex 26) (:chest :twist 10) (:arm-l :flex -10 :side 20) (:elbow-l :flex 30)   ; the fingers
+     (:hand-l :flex -10) (:arm-r :flex -10 :side 30) (:elbow-r :flex 30) (:hand-r :twist 160 :flex 20)              ; at her hip,
+     (:thigh-r :flex 80 :side 8) (:knee-r :flex 110) (:thigh-l :flex -6) (:knee-l :flex 33))                         ; the knee up
+  (4 :snap (:root :u -0.26 :f 0.3) (:thigh-r :flex 58) (:knee-r :flex 84) (:thigh-l :flex -22) (:knee-l :flex 34))   ; the stamp
+  (6 (:root :u -0.24 :f 0.5) (:chest :twist -6) (:arm-l :flex 40 :side 40) (:elbow-l :flex 10))   ; flicked out
+  (:s :snap :ru-50-hainawa-hit)
+  (10 (:root :f 0.9) (:arm-l :flex 119))
+  (:a (:root :f 0.89) (:arm-l :flex 118))
+  (22 (:root :f 0.44 :u -0.2) (:chest :twist -24) (:arm-l :flex 70 :side -10) (:elbow-l :flex 40))
+  (:end :ru-50-stance))
+(dolist (c '(:ru-50-stance :ru-50-walk-f :ru-50-walk-b :ru-50-strafe-r :ru-50-strafe-l :ru-50-run :ru-50-j1 :ru-50-j2
+             :ru-50-j3 :ru-50-hyoshin :ru-50-hakuren-hold :ru-50-hakuren :ru-50-shirafune :ru-50-hakka))
+  (pushnew c *grip-clips*))                            ; (two hands on the hilt: the K's palms and I's fingers are free)
 
 ;;; ---------------------------------------------------------------- ice looks (cosmetic: RND01, the fx clock)
 (defun-fast vfx-ru-ring (x z r grow k)
