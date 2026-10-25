@@ -908,6 +908,7 @@ on to its 8 cells at the freeze 2a68ece (the old damage); the pick is integrated
 Gates (her seven pairings, 20 seeds, all K.O.; median s and Rukia's wins of 20, §17.6's numbers before): RY 103.5 → 110.4
 (10 → 11), RK 94.0 → 105.4 (8 → 8), RR 132.0 → 156.1, IR 112.0 → 128.0 (10 → 7), SR 111.0 → 134.4 (13 → 6), BR 137.0 →
 152.0 (7 → 6), HR 126.5 → 141.0 (6 → 5). IR and SR now in the 125–210 s window; the edge reruns at 60 seeds: **RY 108.5 s**
-(Rukia 28 of 60), **RK 102.7 s** (20 of 60), still under 125 s as they have been since §11.1: reported to the user.
+(Rukia 28 of 60), **RK 102.7 s** (20 of 60), still under 125 s as they have been since §11.1: reported to the user, who
+accepted them: 「RY 和 RK 先列為例外」 (2026-10-25).
 - **The search**: cells b0a0 and b1a0 were made on the freeze 2a68ece (without these steps); the remaining cells start from
   the new commit, and the baseline is re-scored on it (§17.5's 0.5898 was before).
