@@ -854,13 +854,14 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ke-b-stance :ke-b-fist :ke-b-bite                ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12)
     :ke-b-hook :ic-cross-j :ic-k-jab :ic-k-wrap-j     ; the J cut's close J links (DUEL_STRINGS §13)
     :ke-b-leap :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l   ; its feral pass (2026-09-28; also 片腕)
-    :ru-intro :ru-win :ru-q1 :ru-q2 :ru-spin :ru-thrust :ru-ring :ru-drop :ru-stab :ru-hakuren
-    :ru-shirafune :ru-breaker :ru-hainawa :ru-cold-stance :ru-palm :ru-flower :ru-zero :ru-reido :ru-hakka   ; Rukia
-    ;; (her -50 key edits :ru-palm-50 :ru-spin-50 :ru-flower-50 :ru-stab-2h: no form's since -50's own, §13.4, kept;
-    ;;  zero's pinned J1 / K1 are body-variant clips)
+    :ru-intro :ru-win :ru-q2 :ru-spin :ru-thrust :ru-drop :ru-stab :ru-hakuren
+    :ru-breaker :ru-hainawa :ru-palm :ru-flower   ; Rukia (the shared moves' clips a form's table still names unmapped;
+    ;; every form plays its own since -273's, DUEL_RUKIA_TYBW §13.4: :ru-q1 / :ru-ring are Senjumaru's Divine Soldier's
+    ;; (*SHINPEI-COMBO*), :ru-hakka the 白霞罸 cinematic's, the :ru-shirafune / :ru-cold-stance clips are gone (the moves'
+    ;; names stay, every form maps them))
     :ru-s-stance :ru-s-walk-f :ru-s-walk-b :ru-s-strafe-r :ru-s-strafe-l :ru-s-run :ru-s-j1 :ru-s-j2 :ru-s-j3   ; the Shikai's
-    :ru-s-k1 :ru-s-k2 :ru-s-k3 :ru-s-shirafune :ru-s-enbu-run :ru-s-enbu :ru-s-breaker :ru-s-hainawa   ; own (§13.3; :ru-stance
-                                                                        ;  no form's since, its strike clips the bands' still)
+    :ru-s-k1 :ru-s-k2 :ru-s-k3 :ru-s-shirafune :ru-s-enbu-run :ru-s-enbu :ru-s-breaker :ru-s-hainawa   ; own (§13.3; the old
+                                                                        ;  :ru-stance clip retired with zero's own, §13.4)
     :ru-s-shimochiri :ru-s-setsuen :ru-s-sojin :ru-s-hyoreki :ru-s-tsurara :ru-s-hakuren   ; the new Shikai's bursts and kido
     :ru-s-byakurai :ru-s-tsukishiro :ru-s-kido :ru-s-sokatsui :ru-s-rikujo :ru-s-rikujo-cast   ; (DUEL_RUKIA_TYBW §13.3)
     :ru-18-stance :ru-18-walk-f :ru-18-walk-b :ru-18-strafe-r :ru-18-strafe-l :ru-18-run :ru-18-j1 :ru-18-j2 :ru-18-j3   ; -18's own
@@ -869,6 +870,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ru-50-stance :ru-50-walk-f :ru-50-walk-b :ru-50-strafe-r :ru-50-strafe-l :ru-50-run :ru-50-j1 :ru-50-j2 :ru-50-j3   ; -50's own
     :ru-50-k1 :ru-50-k2 :ru-50-k3 :ru-50-hyoshin :ru-50-hakuren-hold :ru-50-hakuren :ru-50-shirafune   ; (§13.4)
     :ru-50-hakka :ru-50-hainawa
+    :ru-0-stance :ru-0-j1 :ru-0-j2 :ru-0-j3 :ru-0-k1 :ru-0-k2 :ru-0-k3 :ru-0-reido :ru-0-hakuren :ru-0-shirafune   ; -273's own
+    :ru-0-hakka                                                                                                 ; (§13.4)
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
     :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
     :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)

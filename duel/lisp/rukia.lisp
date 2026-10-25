@@ -122,19 +122,20 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
   :params (:speed 12.0 :range 11.0 :width 2.4 :width-per 0.4 :dmg 70 :dmg-per 20 :stun 24 :frost 120 :guard 12 :guard-per 2))
 ;; -18: the Shikai grid (reach x1.0) with two bare-hand / ice links of its own (the user's decision 2026-09-28): K1 TOSHU,
 ;; the left palm catching and freezing (a short lunge); K3 HYOKA, the palm driven into the plaza, an ice flower bursting
-;; at his feet. -50 derives it (reach x1.1) with key-edited clips; zero (x1.35, rooted) swaps J2 / K1 / K3. The frames
-;; never change with the band (DUEL_STRINGS §2.1): colder is longer reach, harder hits and other motions.
+;; at his feet. -50 derives it (reach x1.1); zero (x1.35, rooted) swaps J2 / K1 / K3. The frames never change with the
+;; band (DUEL_STRINGS §2.1): colder is longer reach, harder hits and other motions. -50's and zero's own moves name their
+;; own clips (DUEL_RUKIA_TYBW §13.4: -50's key edits gone 2026-10-25)
 (defmove :ru-a-k1 :kind :flash :clip :ru-palm :startup 17 :active 4 :recovery 20 :dmg 66 :adv-block -3
   :vol (:cap 0.2 2.0 1.2 0.35) :slide 0.8 :on-hit :stagger :frost 90)
 (defmove :ru-a-k3 :kind :flash :clip :ru-flower :enter 7 :startup 21 :active 5 :recovery 34 :dmg 84 :adv-block -20
   :reach 2.4 :arc 160 :height (0.0 1.4) :on-hit :crumple :frost 120 :flags (:ender) :on-frame ((21 rukia-ice-flower)))
 ;; -50 (the links it doesn't derive are written at x1.1): palm and blade together, the pirouette two-handed, both palms down
-(defmove-copy :ru-a-k1-50 :ru-a-k1 :clip :ru-palm-50 :vol (:cap 0.2 2.2 1.2 0.35))
-(defmove-copy :ru-j3-50 :ru-j3 :clip :ru-spin-50 :reach 1.72)
-(defmove-copy :ru-a-k3-50 :ru-a-k3 :clip :ru-flower-50 :reach 2.64)
-;; absolute zero (written at x1.35): J2 a palm backhand (the TOSHU clip re-timed), K1 SHIMO-TSUKI's thrust with the ice
-;; blade (the reach she lost with her feet), K3 HYOKA with a frost that lasts
-(defmove-copy :ru-z-j2 :ru-j2 :clip :ru-palm :clip-s 17 :reach 1.78)
+(defmove-copy :ru-a-k1-50 :ru-a-k1 :clip :ru-50-k1 :vol (:cap 0.2 2.2 1.2 0.35))
+(defmove-copy :ru-j3-50 :ru-j3 :clip :ru-50-j3 :reach 1.72)
+(defmove-copy :ru-a-k3-50 :ru-a-k3 :clip :ru-50-k3 :reach 2.64)
+;; absolute zero (written at x1.35): J2 the wrist flipped back (its own clip, DUEL_RUKIA_TYBW §13.4), K1 SHIMO-TSUKI's
+;; reach with the ice lance (the reach she lost with her feet), K3 HYOKA with a frost that lasts
+(defmove-copy :ru-z-j2 :ru-j2 :clip :ru-0-j2 :reach 1.78)
 (defmove-copy :ru-z-j2s :ru-z-j2)
 (defmove-copy :ru-z-k1 :ru-k1 :vol (:cap 0.2 3.78 1.1 0.3) :frost 90 :params nil)   ; (no Shikai layer)
 (defmove-copy :ru-z-k3 :ru-a-k3 :reach 3.24 :frost 150)
@@ -144,16 +145,16 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 (defmove :ru-shimobashira :kind :sig :clip :ru-18-shimobashira :callout "SHIMOBASHIRA" :startup 12 :active 0 :recovery 22
   :on-frame ((0 rukia-hyoshin-tell) (12 rukia-shimobashira))
   :params (:radius 2.5 :height 0.6 :dmg 60 :frost 90 :guard 12 :react :stagger))
-(defmove :ru-hyoshin :kind :sig :clip :ru-stab-2h :callout "HYOSHIN" :startup 14 :active 0 :recovery 22
+(defmove :ru-hyoshin :kind :sig :clip :ru-50-hyoshin :callout "HYOSHIN" :startup 14 :active 0 :recovery 22
   :on-frame ((0 rukia-hyoshin-tell) (14 rukia-hyoshin))
   :params (:radius 3.5 :height 0.6 :dmg 85 :frost 120 :guard 16 :react :crumple))
-(defmove :ru-reido :kind :sig :clip :ru-reido :clip-s 6 :callout "REIDO TOKETSU" :startup 10 :active 0 :recovery 26
+(defmove :ru-reido :kind :sig :clip :ru-0-reido :callout "REIDO TOKETSU" :startup 10 :active 0 :recovery 26
   :on-frame ((10 rukia-reido)) :params (:radius 5.5 :height 2.2 :dmg 120 :stun 45 :frost 150 :guard 20))
 ;; SP1 HAKUREN colder: -50 a stab every 12 f (hold 12-48), a faster, longer, harder wave; zero no hold: the four stabs at
 ;; once and the widest, hardest wave (a half-width of 1.8 m: a side Step still clears every one)
 (defmove-copy :ru-hakuren-50 :ru-hakuren :hold (12 48)
   :params (:per 12 :speed 14.0 :range 12.0 :width 2.4 :width-per 0.4 :dmg 80 :dmg-per 23 :stun 30 :frost 120 :guard 12 :guard-per 2))
-(defmove :ru-hakuren-0 :kind :sp :clip :ru-hakuren :clip-s 6 :callout "TSUGI NO MAI: HAKUREN" :startup 10 :active 1 :recovery 24
+(defmove :ru-hakuren-0 :kind :sp :clip :ru-0-hakuren :callout "TSUGI NO MAI: HAKUREN" :startup 10 :active 1 :recovery 24
   :on-frame ((0 rukia-hakuren-spikes) (10 rukia-hakuren-wave))
   :params (:stabs 4 :speed 16.0 :range 14.0 :width 3.6 :width-per 0.0 :dmg 160 :dmg-per 0 :stun 36 :frost 150 :guard 18 :guard-per 0))
 ;; SP2 SHIRAFUNE colder: 5.0 m (-18) -> 6.0 m -> 7.5 m planted, crumpling
@@ -171,8 +172,8 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 
 ;;; ================================================================ forms
 ;; The Shikai's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.3; a look, the user 2026-10-24 「可以，先做始解」): its moves'
-;; through the :base kit's :clip-map, the walk through :look-clips, the run set; -18 and -50 set their own (*RU-18-CLIPS*,
-;; *RU-50-CLIPS*), zero today's
+;; through the :base kit's :clip-map, the walk through :look-clips, the run set; the bands set their own (*RU-18-CLIPS*,
+;; *RU-50-CLIPS*, *RU-0-CLIPS*)
 (defparameter *ru-shikai-clips* '(:ru-q1 :ru-s-j1 :ru-q2 :ru-s-j2 :ru-spin :ru-s-j3 :ru-thrust :ru-s-k1 :ru-ring :ru-s-k2
                                   :ru-drop :ru-s-k3 :ru-shirafune :ru-s-shirafune :ru-breaker :ru-s-breaker
                                   :ru-hainawa :ru-s-hainawa)
@@ -212,7 +213,7 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 
 ;; -18's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.4; a look, the user 2026-10-24): its moves' through the :m18 kit's
 ;; :clip-map (SHIMOBASHIRA names its own: SP1's hold shares its old clip), the walk through :look-clips, the run set; -50
-;; sets its own (*RU-50-CLIPS*), zero (it inherits :m18) all three and its stance back, so it keeps today's clips
+;; and zero set their own (*RU-50-CLIPS*, *RU-0-CLIPS*)
 (defparameter *ru-18-clips* '(:ru-q1 :ru-18-j1 :ru-q2 :ru-18-j2 :ru-spin :ru-18-j3 :ru-palm :ru-18-k1 :ru-ring :ru-18-k2
                               :ru-flower :ru-18-k3 :ru-stab :ru-18-hakuren-hold :ru-hakuren :ru-18-hakuren
                               :ru-shirafune :ru-18-shirafune :ru-cold-stance :ru-18-stance :ru-hakka :ru-18-hakka
@@ -224,15 +225,20 @@ strike), the Breaker HAINAWA's strike on its own clips.")
   "-18's :look-clips: the walk 摺り足 under her stance's arms (the palm held out).")
 ;; -50's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.4; a look, the user 2026-10-25): the quake (足拍子 J, both palms K,
 ;; the rime blade two-handed), its moves' through the :m50 kit's :clip-map, the walk through :look-clips, the run set
-(defparameter *ru-50-clips* '(:ru-q1 :ru-50-j1 :ru-q2 :ru-50-j2 :ru-spin-50 :ru-50-j3 :ru-palm-50 :ru-50-k1 :ru-ring :ru-50-k2
-                              :ru-flower-50 :ru-50-k3 :ru-stab-2h :ru-50-hyoshin :ru-stab :ru-50-hakuren-hold
+(defparameter *ru-50-clips* '(:ru-q1 :ru-50-j1 :ru-q2 :ru-50-j2 :ru-ring :ru-50-k2 :ru-stab :ru-50-hakuren-hold
                               :ru-hakuren :ru-50-hakuren :ru-shirafune :ru-50-shirafune :ru-cold-stance :ru-50-stance
                               :ru-hakka :ru-50-hakka :ru-hainawa :ru-50-hainawa)
-  "-50's :clip-map: J1-J3 (J2s), K1-K3 (K2s), L HYOSHIN, SP1 HAKUREN's hold and release, SP2 SHIRAFUNE, O HAKKA (its aura
-and its strike), the Breaker HAINAWA's strike on its own clips.")
+  "-50's :clip-map: J1 / J2 (J2s), K2 (K2s), SP1 HAKUREN's hold and release, SP2 SHIRAFUNE, O HAKKA (its aura and its
+strike), the Breaker HAINAWA's strike on its own clips (J3, K1, K3 and HYOSHIN, its own moves, name theirs).")
 (defparameter *ru-50-looks* '(:sh-walk-f :ru-50-walk-f :sh-walk-b :ru-50-walk-b :sh-strafe-r :ru-50-strafe-r
                               :sh-strafe-l :ru-50-strafe-l)
   "-50's :look-clips: the heavy walk under her two-hand guard.")
+;; -273's own clips (rukia-art.lisp, DUEL_RUKIA_TYBW §13.4; a look, the user 2026-10-25): rooted (扇の手 J, サシ / 袖 K, the
+;; feet never move), its shared moves' through the :zero kit's :clip-map, its idle the stance (and O's aura); J2, REIDO and
+;; HAKUREN name their own
+(defparameter *ru-0-clips* '(:ru-q1 :ru-0-j1 :ru-spin :ru-0-j3 :ru-thrust :ru-0-k1 :ru-ring :ru-0-k2 :ru-flower :ru-0-k3
+                             :ru-shirafune :ru-0-shirafune :ru-cold-stance :ru-0-stance :ru-hakka :ru-0-hakka)
+  "-273's :clip-map: J1 / J3, K1-K3 (K2s), SP2 SHIRAFUNE, O HAKKA (its aura and its strike) on its own clips.")
 ;;; -18 C, the awakening's first band: the Shikai grid (+ TOSHU / HYOKA), frost on every hit, no chip on her; U guards
 ;;; and cools (the cold gauge, the kit meter); only L spends cold here (the user's decision 2026-09-28)
 (defkit :rukia :m18 :inherit :base
@@ -284,9 +290,9 @@ and its strike), the Breaker HAINAWA's strike on its own clips.")
   :reach-mult 1.35 :form-name "-273C" :walk 0.0 :run 0.0 :rooted t :mult *rukia-zero-mult* :taken *rukia-zero-taken*
   :passives (:ward :freeze-touch :chipless) :frost-touch *frost-touch-zero* :warm *ru-warm-zero* :cold *ru-cold-zero*
   :field *ru-field-zero* :crush-hook rukia-crack :u-tag "U: BRACE"
-  :body :rukia-zero :weapon :ru-ice :hide (:ice-trim :hand-crack) :stance :ru-zero :aura rukia-aura-zero
+  :body :rukia-zero :weapon :ru-ice :hide (:ice-trim :hand-crack) :stance :ru-0-stance :aura rukia-aura-zero
   :enter-hook rukia-zero-enter :calm t                ; the white Rukia's face stays composed (never the shout)
-  :clip-map nil :look-clips nil :run-clips (:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)   ; (-18's clips are its own)
+  :clip-map *ru-0-clips* :look-clips nil :run-clips (:sh-run :sh-skate-b :sh-slide-r :sh-slide-l)   ; (no walk or run: rooted)
   :commands (:f :ru-z-k1 :sig :ru-reido :sp1 :ru-hakuren-0 :sp2 :ru-shirafune-0 :kikon :ru-hakka-0 :breaker nil)
   :grid (:ru-j1 :ru-z-j2 :ru-j3 :ru-z-k1 :ru-k2 :ru-z-k3 :ru-z-j2s :ru-k2s)
   ;; it can't move: answers within its reach (J to 2.1 m, K to 3.4, K1 3.8, REIDO 5.5, SHIRAFUNE 7.5, HAKUREN's wave to 14),

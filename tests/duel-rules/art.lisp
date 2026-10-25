@@ -10,8 +10,9 @@
 ;; carry them) but never pass the edge by more than 0.15 m. 片腕 KATAUDE is
 ;; the exception: the base clips at x0.7 with the broken cleaver (the ruined arm; pass the edge by up to 0.6 m, as before
 ;; the J cut). Rukia's Shikai K's strike with their 霜の穂先 (*RU-FROST-POINTS*: the ice's tip, that many metres past the
-;; blade's along its axis, DUEL_RUKIA_TYBW §13.2; -18's K1 / K3 past the palm along the forearm, K3's level, and -50's
-;; K1-K3 level from the palm, §13.4) and, with her Breaker HAINAWA's two fingers, both ways within 0.15 m
+;; blade's along its axis, DUEL_RUKIA_TYBW §13.2; -18's K1 / K3 past the palm along the forearm, K3's level, -50's
+;; K1-K3 level from the palm, -273's K1 lance off the point, K2 sheet off the sleeve, K3 flower level from the palm, §13.4)
+;; and, with her Breaker HAINAWA's two fingers, both ways within 0.15 m
 ;; (*TWO-SIDED*). The host has no C: anim.lisp's float intrinsics as plain CL
 (defmacro engine::f-max (a b) `(max ,a ,b))
 (defmacro engine::f-mod (a b) `(mod ,a ,b))
@@ -24,17 +25,19 @@
                            (:ya-ikkotsu . :hand-r) (:ke-shoulder . :shoulder-l) (:ru-hainawa . :hand-l) (:sj-saidan . :hand-r)
                            (:ke-a-q1 . :hand-l) (:ke-a-q2 . :hand-l) (:ke-a-f1 . :hand-l) (:ke-a-f2 . :hand-l) (:ke-a-spin . :foot-r)
                            (:ru-s-hainawa :hand-l -0.07) (:ru-18-k1 . :hand-l) (:ru-18-k3 . :hand-l) (:ru-18-hainawa :hand-l -0.07)
-                           (:ru-50-k1 . :hand-l) (:ru-50-k2 . :hand-l) (:ru-50-k3 . :hand-l) (:ru-50-hainawa :hand-l -0.07))
+                           (:ru-50-k1 . :hand-l) (:ru-50-k2 . :hand-l) (:ru-50-k3 . :hand-l) (:ru-50-hainawa :hand-l -0.07)
+                           (:ru-0-k2 . :hand-l) (:ru-0-k3 . :hand-l))
   "Clip -> what strikes when it isn't the held weapon's tip: a joint (clip . joint), or a point down a joint's -Y
 (clip joint y): Yamamoto's J3 TSUKABI, the pommel at :weapon-r y +0.14 (DUEL_YAMA_TYBW §8); Ichigo's Shikai J, the short blade held forward in the left fist, its tip at :weapon-l y -0.90
 (DUEL_ICHIGO_TYBW §3.1); Rukia's Shikai HAINAWA, her two fingers' tips at :hand-l y -0.07 (DUEL_RUKIA_TYBW §13.3); -18's
 TOSHU / HYOKA, the palm (its frost off the wrist, *RU-FROST-POINTS*), and its HAINAWA's fingers (§13.4); -50's K1-K3 the
-left palm (the rime spike, the ice wall, the flowers run out from it) and its HAINAWA's fingers.")
+left palm (the rime spike, the ice wall, the flowers run out from it) and its HAINAWA's fingers; -273's K2 / K3 the left
+hand (the sleeve's frost sheet, the flower off the palm laid on the plaza).")
 (defparameter *two-sided* '(:ru-s-hainawa :ru-18-hainawa :ru-50-hainawa)
   "Clips whose striking point must reach the edge both ways although their move may fall short (a K, a Breaker): Rukia's
 Shikai HAINAWA, -18's and -50's (and every clip with a frost point, *RU-FROST-POINTS*).")
-(defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai) (:rukia :zero)))   ; (Yamamoto's East / West: their
-                                                                 ; own clips, both ways since DUEL_YAMA_TYBW §3.3)
+(defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai)))   ; (Yamamoto's East / West: their own clips,
+                                       ; both ways since DUEL_YAMA_TYBW §3.3; Rukia's zero since its own, DUEL_RUKIA_TYBW §13.4)
 (let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0) (grips nil) (frost nil) (seen nil))
   (dolist (art '("yama-art" "ken-art" "rukia-art" "ichigo-art" "senjumaru-art" "lille-art" "lille-clips" "lille-draw" "lille-cine"
                  "barro-art" "barro-draw" "hisagi-art" "hisagi-draw" "hisagi-cine" "hisagi-stills"))   ; (the files that hold clips, strikes, bodies and the tables read below)
@@ -101,11 +104,11 @@ Shikai HAINAWA, -18's and -50's (and every clip with a frost point, *RU-FROST-PO
                                                (dotimes (i 3) (incf (aref v i) (* ice (/ (- (aref v i) (aref g i)) l))))))
                                            (if cap (- (aref v 2)) (sqrt (+ (expt (aref v 0) 2) (expt (aref v 2) 2))))))))
                  (d (- art edge)))
-            (when (and (member cf '((:rukia :base) (:rukia :m18) (:rukia :m50)) :test #'equal)   ; (her Shikai's, -18's and
-                       (not (member clip seen)))                                     ;  -50's own strikes, §13.3 / §13.4: reported)
+            (when (and (member cf '((:rukia :base) (:rukia :m18) (:rukia :m50) (:rukia :zero)) :test #'equal)   ; (her Shikai's,
+                       (not (member clip seen)))                                     ;  and the bands' own strikes, §13.3 / §13.4: reported)
               (push clip seen)
               (format t "  Rukia ~a reach ~a (~a~@[ + ice ~,2f~]): the volume ends ~,2f m, the art ~,2f m (~@d cm)~%"
-                      (case (second cf) (:base "Shikai") (:m18 "-18") (t "-50")) (mv-name mv) clip (and (plusp ice) ice) edge art (round (* 100 d))))
+                      (case (second cf) (:base "Shikai") (:m18 "-18") (:m50 "-50") (t "-273")) (mv-name mv) clip (and (plusp ice) ice) edge art (round (* 100 d))))
             (when (eq (mv-kind mv) :quick)
               (check (<= (max *lunge-stop* (- (mv-reach mv) *chase-margin*)) (- (+ (mv-reach mv) min-hurt) 0.02))))
             (check (or (if (equal cf '(:kenpachi :kataude))

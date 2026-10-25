@@ -86,6 +86,7 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           ((prefix-p name "RU-S-") '((:rukia :sode-no-shirayuki (:ice-trim :hand-crack))))   ; Rukia's Shikai (DUEL_RUKIA_TYBW §13.3)
           ((prefix-p name "RU-18-") '((:rukia :sode-no-shirayuki (:ice-trim :hand-crack))))  ; her -18 (§13.4)
           ((prefix-p name "RU-50-") '((:rukia :ru-rime (:hand-crack))))                      ; her -50 (§13.4)
+          ((prefix-p name "RU-0-") '((:rukia-zero :ru-ice (:ice-trim :hand-crack))))         ; her -273 (§13.4)
           ((prefix-p name "SK-") '((:skeleton nil nil)))
           (t '((:yamamoto :ryujin-jakka nil) (:kenpachi :ken-katana nil))))))
 
