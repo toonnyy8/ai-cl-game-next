@@ -881,5 +881,9 @@ their own turn).
 - **Proof the others are untouched**: `--cvc` 3 PASS (identical to the reference), host tests 10228 ALL PASS, pkgcheck clean.
 - **Effect** (10 HARD matches, Rukia P1 vs Kenpachi, seeds 1–10): his non-red follow-ups blocked 6 → 51, Kikons landed 42 → 25
   (the red ones are unguardable by rule); her wins **0 → 4 of 10**.
+- **Gates** (her seven pairings, 20 seeds, vs the parent 2bf0488; all K.O.; median s, Rukia's wins of 20): RY 102.2 → 103.5
+  (8 → 10), RK 99.2 → 94.0 (9 → 8), RR 121.8 → 132.0, IR 107.9 → 112.0 (11 → 10), SR 107.6 → 111.0 (7 → 13), BR 132.1 →
+  137.0 (6 → 7), HR 134.6 → 126.5 (7 → 6). RY / RK / IR / SR stay under 125 s as on the parent (her short pairings since
+  §11.1, not this change); the awaken A/B stays deferred (§11.2).
 - **The search**: cells b0a0 and b1a0 were made on the freeze 2a68ece (without these steps); the remaining cells start from
   the new commit, and the baseline is re-scored on it (§17.5's 0.5898 was before).
