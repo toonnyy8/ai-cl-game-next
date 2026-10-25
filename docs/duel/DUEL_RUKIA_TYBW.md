@@ -788,3 +788,11 @@ the kit; (2) a catalogue of hit-confirmed combos and non-combo means, each verif
 (3) a strategy (situations → catalogue entries, styles as weightings) for the user's pick; (4) the CPU encoding it, a
 search only tuning it under a frozen evaluator; then the gates (her pairings, the awaken A/B deferred since §11.2,
 ASSIST, G2). Rukia's comes first: the Shikai, then −18, −50, −273.
+
+### 17.1 Step 1: the Shikai's data sheet (2026-10-25)
+
+`tools/move-sheet.lisp -- rukia base` (new, any character / form; host only) prints the sheet from the kit:
+`docs/research/rukia-cpu/sheet-shikai.md` (the kit's numbers; every move's S / A / R, whiff and block recovery, hit
+windows and damage, reaction and stun, hit and block advantage, volume and far edge, slide / kb, cost, params; the
+on-hit cancel edges with their frame math; the shared rules). Every edge it lists combos on paper (J1 → K2s +2 and J2 →
+K3 +2 the tightest; the SP cancels off J1 / J2 +3 to +5); step 2 verifies them in the native sim against a dummy.
