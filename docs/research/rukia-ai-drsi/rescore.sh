@@ -11,7 +11,9 @@ WS=$(cd "$(dirname "$0")" && pwd)                                # this workspac
 REPO=$(cd "$WS/../../.." && pwd)
 REL=${WS#$REPO/}
 ECL=${ECL_HOST:-/media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl}
-FREEZE=${FREEZE:-$(git -C "$REPO" log -1 --format=%H -- tools/aieval.py tests/duel-rules-test.lisp tests/duel-rules/rukia.lisp "$REL/baseline/score.json")}
+# the freeze, pinned (2026-10-25: it was "the last commit touching the evaluator or her test file", and main's later edits of
+# tests/duel-rules/rukia.lisp, her damage x0.75 4b8e80f, moved it: b2a0 was first rescored there, 0.8327, and redone here)
+FREEZE=${FREEZE:-2a68ece0b56741f343030fe5715a1fbb5a359bca}
 RESCORE_WT=${RESCORE_WT:-$REPO/.claude/worktrees/rescore-rukia}
 EVAL=${EVAL:-$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['eval_command'])" "$WS/config.json")}
 [ -n "${JOBS:-}" ] && EVAL=$(echo "$EVAL" | sed "s/-j [0-9]*/-j $JOBS/")   # JOBS=4 when nothing else runs (the rows are the same at any -j)
