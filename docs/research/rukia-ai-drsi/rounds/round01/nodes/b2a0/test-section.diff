@@ -1,0 +1,24 @@
+--- frozen RUKIA-CPU-TESTS
++++ cell RUKIA-CPU-TESTS
+@@ -16,4 +16,20 @@
+               (null (getf (kit-ai b) :oki))
+               (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
+                      (list *ai-ru-burst-1* *ai-ru-burst-2* *ai-ru-burst-3* *ai-ru-zone-kido* *ai-ru-sp2-layers*))
+-              (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard)))))
++              (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard))))
++  ;; cell b2a0 (the distance bands): no plain O ender in the Shikai, the K links in every form, one bar kept for the seal,
++  ;; the SPs out of the Shikai's :moves; her new chances EASY <= NORMAL <= HARD
++  (check (and (eql 0.0 (getf (kit-ai b) :o-ender)) (= 2 (getf (kit-ai b) :sp-cancel-bars))
++              (every (lambda (f) (eql 1.0 (getf (kit-ai (kit :rukia f)) :string-k))) '(:base :m18 :m50 :zero))
++              (notany (lambda (band) (or (getf (cddr band) :sp1) (getf (cddr band) :sp2))) (getf (kit-ai b) :moves))
++              (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
++                     (list *ai-ru-oki* *ai-ru-anti-step* *ai-ru-range-p* *ai-ru-seal-o* *ai-ru-sharp*))
++              (every (lambda (p) (zerop (getf p :hard))) (list *ai-ru-ender-o* *ai-ru-cash-o*))))
++  ;; the bind held for its cash: her O's frames from 6 m (aura 6 + S 8 + 1 + the dash 10), SP1 held at 5.5 m (16 + 2 + 10:
++  ;; the bind 45 + 9 outlasts her recovery 26 + the O's 24), the oki's lead in the verified window (P - H 13..17)
++  (let ((o (kit-command-move b :kikon)))
++    (check (and (= 25 (rukia-ai-o-frames o 6.0)) (= 28 (rukia-ai-sp1-hold b 5.5))
++                (>= (+ 45 (- (rukia-ai-sp1-hold b 5.9) 18) -1) (+ 26 (rukia-ai-o-frames o 5.9)))
++                (<= 13 *ai-ru-oki-lead* 17))))
++  ;; his knockdown's frames left, seen at HARD (delay 8): :down 30 + :wakeup 30
++  (check (and (= 52 (rukia-ai-free-in :down 0 8)) (= 12 (rukia-ai-free-in :wakeup 10 8)) (null (rukia-ai-free-in :stun 3 8)))))
