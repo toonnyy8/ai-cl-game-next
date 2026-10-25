@@ -796,3 +796,22 @@ ASSIST, G2). Rukia's comes first: the Shikai, then −18, −50, −273.
 windows and damage, reaction and stun, hit and block advantage, volume and far edge, slide / kb, cost, params; the
 on-hit cancel edges with their frame math; the shared rules). Every edge it lists combos on paper (J1 → K2s +2 and J2 →
 K3 +2 the tightest; the SP cancels off J1 / J2 +3 to +5); step 2 verifies them in the native sim against a dummy.
+
+### 17.2 Step 2: the Shikai's catalogue, sim-verified (2026-10-25)
+
+> 「繼續」 (the user, 2026-10-25)
+
+- **The trial player** (debug only, sim-neutral: `--cvc` 3 PASS identical): `scripted.lisp` TRIAL-STEP (brain habit
+  `:trial`, wired in ai.lisp BRAIN-STEP next to the button-masher): it presses only `*trial-script*`'s steps, each `(button
+  frames &key modded wait on stick)`, the next once the last started its move (`:on :hit` once it landed, `:on :free` once
+  she is neutral), `:walk` for the stick alone; a "press" combat-log line each. `tools/simgate/trial.lisp` (a native
+  process: per trial a fresh placement, gauges, layers, a standing or guarding dummy, cinematics skipped) and
+  `tools/combo-trial.py` (builds the native sim as simgate does, prints the table: damage, the gaps before each hit, the
+  advantage, the distance, Reiatsu / flash step, his layers).
+- **The catalogue**: `docs/research/rukia-cpu/catalogue-shikai.md` (findings + all 53 trials of
+  `trials-shikai.lisp`). Highlights: K1 K2 K3 ORANGE K1 K2 K3 416; K1 K2 K3 SP2 at 3 layers 393; I K1 K2 K3 345; K1 K2
+  K3 +L 白漣 331 with no bar (the K string makes its own layer, so the burst is always on); the K string alone 208, +1; the
+  J3 enders +5 at 2.54 m; 氷礫 the one plus burst (+4); 氷柱 pushes to 6 m (TSUKISHIRO after it is not a combo, 52 f
+  free); RIKUJOKORO → O lands the Kikon from full health (the seal's red); RIKUJOKORO → Step in → K is not a combo (17 f).
+  Blocked: J1 −4, K1 −6; a blocked K string's K2 whiffs and K3 is −26; SP2 −14.
+- Host tests 10228 / control 89 / learn 131 ALL PASS, pkgcheck clean, the build 0 warnings.

@@ -912,6 +912,7 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
         (setf (brain-press-left b) 0 (brain-decide-t b) 1))                      ; decide now (out of the run)
       (unless (or (brain-off b) (> (fighter-lock f) 0) (eq (fighter-state f) :cine))
         (cond ((eq (brain-habit b) :dumb) (dumb-step e b s d))                  ; debug: the button-masher (ASSIST's gate)
+              ((eq (brain-habit b) :trial) (trial-step e b))                     ; debug: the trial player (combo-trial.py)
               ((ai-burst-roll e b)                                                ; a Burst, else the awakening
                (if (burst-ok-p e) (ai-press b :quick 1 :modded t :act :burst) (ai-press b :awaken 1))
                (setf (brain-why b) :burst))
