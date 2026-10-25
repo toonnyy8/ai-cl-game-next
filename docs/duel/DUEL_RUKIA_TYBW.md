@@ -815,3 +815,16 @@ K3 +2 the tightest; the SP cancels off J1 / J2 +3 to +5); step 2 verifies them i
   free); RIKUJOKORO → O lands the Kikon from full health (the seal's red); RIKUJOKORO → Step in → K is not a combo (17 f).
   Blocked: J1 −4, K1 −6; a blocked K string's K2 whiffs and K3 is −26; SP2 −14.
 - Host tests 10228 / control 89 / learn 131 ALL PASS, pkgcheck clean, the build 0 warnings.
+
+### 17.3 Step 3 by a strategy search (the user, 2026-10-25)
+
+> 「利用新的 /anthropic-skills:dream-rsi 來探索在面對不同對手、距離、量表、等等條件下，適合使用的戰術策略。請先以每個角色的幀數表、攻防距離等等資訊為基礎來規劃策略並逐步改進。」;
+> RIKUJOKORO → O and ORANGE's use: 「依據攻防戰略的探索結果來決定」 (the user, 2026-10-25)
+
+The three styles of `docs/research/rukia-cpu/strategy-shikai.md` are not picked by hand: a dream-rsi search explores the
+tactics by condition (the opponent and his form, the distance, both sides' gauges, his layers / red), starting from a
+plan built on every character's frame data and reach, and improves it round by round. The base: every form's data sheet
+(`docs/research/rukia-cpu/opponents/*.md`, `tools/move-sheet.lisp`) and her matchup sheet
+(`docs/research/rukia-cpu/matchups-shikai.md`, new `tools/matchup-sheet.lisp`: per opponent form his J1 / K1 startup and
+far edge, his fastest hit, his longest reach, what her J1 (7 f) punishes on his block, his pokes). The evaluator, budget
+and parallelism are confirmed with the user before the first cell (the skill's rule).
