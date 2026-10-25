@@ -1,0 +1,40 @@
+--- frozen RUKIA-CPU-TESTS
++++ cell RUKIA-CPU-TESTS
+@@ -1,8 +1,9 @@
+ (let ((b (kit :rukia :base)) (m18 (kit :rukia :m18)) (m50 (kit :rukia :m50)) (z (kit :rukia :zero)))
+   ;; AI keys: the awakening rule, cooling (-50 not below half a guard gauge), bracing at zero, the stun follow-ups, the
+   ;; opponent's wait
+-  (check (and (equal (getf (kit-ai b) :awaken) '(:melee-share 0.6 :min-taken 150)) (equal (getf (kit-ai b) :stun-follow) '(:sp2 2.4 5.0))
+-              (equal (getf (kit-ai m18) :cool) '(:p 0.3 :near 3.5)) (= 50 (getf (getf (kit-ai m50) :cool) :min-gg))
++  ;; (b3a0: she awakens against every opponent, :melee-share 0.6 -> 0; -18 cools at once, 0.3 within 3.5 m -> 0.9 anywhere)
++  (check (and (equal (getf (kit-ai b) :awaken) '(:melee-share 0.0 :min-taken 150)) (equal (getf (kit-ai b) :stun-follow) '(:sp2 2.4 5.0))
++              (equal (getf (kit-ai m18) :cool) '(:p 0.9 :near 99.0)) (= 50 (getf (getf (kit-ai m50) :cool) :min-gg))
+               (null (getf (kit-ai z) :cool)) (getf (kit-ai z) :brace) (null (getf (kit-ai z) :zero-exit))
+               (equal (getf (kit-ai z) :opp-intent) '(:zone 2 :defend 2)) (null (getf (kit-ai b) :opp-intent))))
+   ;; every band's L after a K link by its chance
+@@ -17,3 +18,25 @@
+               (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
+                      (list *ai-ru-burst-1* *ai-ru-burst-2* *ai-ru-burst-3* *ai-ru-zone-kido* *ai-ru-sp2-layers*))
+               (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard)))))
++;; b3a0 (the cold clock): one grammar in every form (the K route, no plain O ender, the bands' Kikon a confirm within 3.5 m),
++;; the K3 cashed by payoff, the ward's freeze answered by the J route or REIDO
++(let ((forms (mapcar (lambda (f) (kit :rukia f)) '(:base :m18 :m50 :zero))))
++  (check (every (lambda (k) (and (eql 1.0 (getf (kit-ai k) :string-k)) (eql 0.0 (getf (kit-ai k) :o-ender)))) forms))
++  (check (and (every (lambda (f) (= 3.5 (getf (kit-ai (kit :rukia f)) :kikon-range))) '(:m18 :m50))
++              (every (lambda (f) (eql 0.0 (getf (kit-ai (kit :rukia f)) :l-after-k))) '(:m18 :m50 :zero))
++              (notany (lambda (row) (member :kikon row)) (getf (kit-ai (kit :rukia :base)) :moves))))
++  ;; the cash-out table: every form, L / SP2 / SP1 / nothing; the bands' gains grow with the cold (catalogue-awakened.md)
++  (check (and (every (lambda (f) (let ((g (getf *ai-ru-band-gain* f)))
++                                   (and (getf g :sig) (getf g :sp2) (getf g :sp1) (member nil g))))
++                     '(:base :m18 :m50 :zero))
++              (< (getf (getf *ai-ru-band-gain* :m18) :sp1) (getf (getf *ai-ru-band-gain* :m50) :sp1)
++                 (getf (getf *ai-ru-band-gain* :zero) :sp1))
++              (< (getf (getf *ai-ru-band-gain* :m18) :sp2) (getf (getf *ai-ru-band-gain* :m50) :sp2)
++                 (getf (getf *ai-ru-band-gain* :zero) :sp2))
++              (< (getf *ai-ru-ward-route* :reido) (getf *ai-ru-ward-route* :route))
++              (plusp *ai-ru-bar-cost*) (plusp *ai-ru-overdraw*) (= 25 *ai-ru-sp2-per*)
++              (<= (getf *ai-ru-pick-sharp* :easy) (getf *ai-ru-pick-sharp* :normal) (getf *ai-ru-pick-sharp* :hard))
++              (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
++                     (list *ai-ru-band-ender* *ai-ru-cash-o* *ai-ru-z-ward-reido*))))
++  ;; at HARD the K3's L is left to the pick (RUKIA-AI-BURST-P's link-3 chance x (1 - the pick's share))
++  (check (= 1.0 (getf *ai-ru-band-ender* :hard))))
