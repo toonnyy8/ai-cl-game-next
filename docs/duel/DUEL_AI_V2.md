@@ -367,3 +367,13 @@ always)` AUTO-GUARD, `:auto-combo (e f b side vp)` AUTO-COMBO, `:auto-break (e f
 ASSIST k 2 / 10 / 11 (ALWAYS; HOLD U + COMBO + BREAK; ALWAYS + COMBO + BREAK) x 2 seeds, the masher assisted against a CPU:
 all 4038 hash / learn-row lines (294 matches) identical to the parent c1ea6f7; `--cvc` 3 PASS.
 
+**Batch 10** (2026-10-25, the last): the learning CPU's decisions (ai-learn.lisp "STEPS"): `:learn-plan (b l sit)` (an event's
+planned counter), `:learn-fire (e b s d)`, `:learn-press (e b cmd d &optional anywhere)`, `:learn-neutral (e b s d)` (the
+neutral read), `:learn-weights (e l d weights)` (the bandit), `:burst-chance (b color p)`; the model, its tables, clocks and
+pay-offs stay shared (one model for every kit). Proof: every live pairing x scripted habits 1 / 3 x 2 seeds, P2 learning:
+all 2771 hash / learn-row lines (196 matches) identical to the parent 6e7f056; `--cvc` 3 PASS.
+
+**Where it stands** (after batch 10): 71 replaceable steps across ai.lisp, assist.lisp and ai-learn.lisp; every decision a
+CPU, the ASSIST or the learner makes is one. Shared on purpose: the perception ring, the Burst clock, the press count-down and
+the vpad it writes (the CPU and a player take one input path; the native sim stays bit for bit with the browser), and the
+learner's model. Replaced so far: Rukia's `:block-hold` / `:held` (DUEL_RUKIA_TYBW §17.6).

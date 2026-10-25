@@ -5031,3 +5031,9 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - ASSIST 的五個自動判斷拆成可替換步驟：自動防禦 `:auto-guard`、自動連段 `:auto-combo`、自動破防 `:auto-break`、中立自動 SP `:auto-sp`、讀招 `:auto-read`；角色自己的 `:assist-guard`／`:assist-combo` 留在原位。
 - 證明：28 組對戰 × ASSIST 三種設定（ALWAYS；HOLD U + 連段 + 破防；ALWAYS + 連段 + 破防）× 2 場，亂按玩家開 ASSIST 對 CPU，共 294 場、4038 行狀態雜湊與結果，和改動前（c1ea6f7）逐行相同；G2 參考 3 組相同。DUEL_AI_V2「Replaceable steps」。
 
+## 386. 共用 AI 轉移第十批：學習型 CPU，轉移完成（2026-10-25）
+
+- 學習型 CPU 的決策拆成可替換步驟：事件的預定反擊 `:learn-plan`、出手 `:learn-fire`、按法 `:learn-press`、中立讀招 `:learn-neutral`、選招權重的強化學習 `:learn-weights`、爆氣機率 `:burst-chance`；模型本身（表、時鐘、回報）仍共用。
+- 證明：28 組對戰 × 腳本玩家 2 種習慣 × 2 場，P2 為學習型 CPU，共 196 場、2771 行狀態雜湊與結果，和改動前（6e7f056）逐行相同；G2 參考 3 組相同。
+- 十批合計 71 個可替換步驟，CPU、ASSIST、學習型 CPU 的每個決定都能由角色的專屬 AI 替換。刻意共用的只剩介面：感知延遲、爆氣計時、按鍵倒數與手把輸出，以及學習模型本身。目前替換過的只有露琪亞的兩步（§375）。DUEL_AI_V2「Replaceable steps」。
+

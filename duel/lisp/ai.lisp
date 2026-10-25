@@ -81,6 +81,8 @@
 ;;;;               :wake (e b d) :event-rolls (b s) :strafe (e b) :walk (e b vp d lo hi) :decide-time (e b) (AI-RESPECT AI-WAKE
 ;;;;               AI-EVENT-ROLLS AI-STRAFE AI-WALK AI-DECIDE-TIME-DEFAULT)
 ;;;;               ASSIST's (batch 9, assist.lisp "STEPS"): :auto-guard :auto-combo :auto-break :auto-sp :auto-read
+;;;;               the learning CPU's (batch 10, ai-learn.lisp): :learn-plan (b l sit) :learn-fire (e b s d) :learn-press
+;;;;               (e b cmd d &optional anywhere) :learn-neutral (e b s d) :learn-weights (e l d weights) :burst-chance (b color p)
 (in-package :duel)
 
 (defstruct snap
@@ -367,6 +369,8 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
                            :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush
                            :o-ender ai-o-ender :step-j ai-step-j :breaker-string ai-breaker-string :guard-cancel ai-guard-cancel
                            :string ai-string :orange ai-orange :pressure ai-pressure
+                           :learn-plan learn-plan :learn-fire learn-fire :learn-press learn-press :learn-neutral learn-neutral
+                           :learn-weights learn-weights :burst-chance ai-burst-chance
                            :auto-guard auto-guard :auto-combo auto-combo :auto-break auto-break :auto-sp auto-sp :auto-read auto-read
                            :respect ai-respect :wake ai-wake :event-rolls ai-event-rolls :strafe ai-strafe :walk ai-walk
                            :decide-time ai-decide-time-default :chain-follow ai-chain-follow :j-beats-k ai-j-beats-k :gap-step ai-gap-step :command ai-command-press
@@ -1145,7 +1149,7 @@ commands only, the learning CPU's bandit."
   (ai-stance-weights e s d weights)
   (when hurry
     (loop for (cmd nil) on weights by #'cddr unless (and cmd (kit-pip-cmd-p kit cmd)) do (setf (getf weights cmd) 0)))
-  (when (brain-learn b) (setf weights (learn-weights e (brain-learn b) d weights)))   ; the bandit (learning CPU only)
+  (when (brain-learn b) (setf weights (funcall (ai-step e :learn-weights) e (brain-learn b) d weights)))   ; the bandit (LEARN-WEIGHTS)
   weights)
 
 (defun ai-attack (e b kit s d heat hurry)
@@ -1301,7 +1305,7 @@ stays otherwise): the :wake-guard step (AI-WAKE-STEP)."
               ((not (eq (ai-brain-claim e :j-beats-k b s d) :pass)))            ; (AI-J-BEATS-K)
               ((not (eq (ai-brain-claim e :gap-step b s d) :pass)))             ; out of his restart (AI-GAP-STEP)
               ((and (brain-habit b) (habit-fire e b s d)))                     ; debug: a scripted player's habit
-              ((and (brain-learn b) (learn-fire e b s d)))                     ; the learning CPU's planned counter
+              ((and (brain-learn b) (funcall (ai-step e :learn-fire) e b s d)))   ; the learning CPU's planned counter (LEARN-FIRE)
               ((and (> (brain-press-left b) 0)                                    ; a reflex may drop a guard / a dash,
                     (not (and (eq (fighter-state f) :move) (eq (mv-kind (fighter-move f)) :breaker)   ; or a Breaker's
                               (eq (fighter-contact f) :hit)))                                          ; hold once it landed

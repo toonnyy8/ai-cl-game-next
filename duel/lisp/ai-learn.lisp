@@ -2,6 +2,10 @@
 ;;;; per-character tables and their page storage, the LRN learner a CPU facing a human carries, its plan / fire / press of
 ;;;; a predicted counter, the bandit over the kit's :moves, the Burst and kit episodes. The pure part is learn.lisp
 ;;;; (host-tested); docs/duel/DUEL_LEARNING.md.
+;;;; STEPS (2026-10-25, batch 10 of 「請逐步將共用 AI 的功能轉移給專屬 AI」, 「ASSIST 和學習型 CPU 也一起轉移」): the learner's
+;;;; decisions are replaceable steps (ai.lisp *AI-STEPS*, a kit's :ai :steps): :learn-plan LEARN-PLAN (an event's planned counter),
+;;;; :learn-fire LEARN-FIRE, :learn-press LEARN-PRESS, :learn-neutral LEARN-NEUTRAL (the neutral read), :learn-weights LEARN-WEIGHTS
+;;;; (the bandit), :burst-chance AI-BURST-CHANCE; the model, its tables, clocks and pay-offs stay shared (one model for every kit)
 (in-package :duel)
 
 ;;; ---------------------------------------------------------------- the learning CPU (learn.lisp; docs/duel/DUEL_LEARNING.md)
@@ -94,7 +98,7 @@ then its character's own situations (the kit's :step, LEARN-DEF-KIT), before the
                                   (>= (gauges-fs (gauges (opp-of e))) *fs-burst*))))))
       (when on
         (setf (lrn-sit l) on (lrn-ep-t l) 0 (lrn-away l) 0f0)
-        (when (< on +learn-events+) (learn-plan b l on))))
+        (when (< on +learn-events+) (funcall (ai-step e :learn-plan) b l on))))   ; (LEARN-PLAN)
     (let ((sit (lrn-sit l)))
       (when (>= sit 0)
         (let* ((burst (and (gauges-burst (gauges (opp-of e))) (not (lrn-hburst l))))   ; (a burst: its aura, at once)
@@ -143,7 +147,7 @@ perception delay) and swings where he reappears."
     (when (and (lrn-cmd l) (<= (lrn-delay l) 0) (member (fighter-state f) '(:idle :guard :run)) (zerop (fighter-lock f))
                (or (not (eq (lrn-cmd l) :hoho-punish)) (eq (snap-state s) :hoho)))
       (let ((c (lrn-cmd l))) (setf (lrn-cmd l) nil)
-        (learn-press e b (case c (:hoho-punish :q) (:bait :guard) (t c)) d (eq c :hoho-punish))))))
+        (funcall (ai-step e :learn-press) e b (case c (:hoho-punish :q) (:bait :guard) (t c)) d (eq c :hoho-punish))))))   ; (LEARN-PRESS)
 
 (defun learn-press (e b cmd d &optional anywhere)
   "Press counter CMD at distance D when it can go (a J / K only within its reach, unless ANYWHERE: he reappears behind
@@ -187,7 +191,7 @@ stream): T when it pressed."
     (let ((l (brain-learn b)))
       (multiple-value-bind (r st) (learn-rnd (lrn-rng l))
         (setf (lrn-rng l) st (lrn-read-clock l) (+ (getf *ai-think* (brain-difficulty b) 24) (floor (* 40 r))))))
-    (learn-neutral e b s d)))
+    (funcall (ai-step e :learn-neutral) e b s d)))   ; (LEARN-NEUTRAL)
 
 (defun learn-neutral (e b s d)
   "A neutral read (AI-REFLEX, on the learner's own clock): read him for the band he is in (its counter, T when pressed); a
@@ -200,7 +204,7 @@ predicted Hoho is only primed (the decision goes on: the bait)."
           (if (eq c :hoho-punish)
               (progn (setf (lrn-cmd l) c (lrn-delay l) 0 (lrn-pend-t l) 60)   ; don't feed his Hoho: wait
                      (ai-press b :guard 12) (setf (brain-why b) :read-wait) t)
-              (learn-press e b c d)))))))
+              (funcall (ai-step e :learn-press) e b c d)))))))
 
 (defun learn-context (e)
   "E's bandit context (LEARN-CTX): its form's index in its character's kits (definition order) x its kit meter's third."
@@ -294,6 +298,6 @@ and confident and the learner's own roll comes under p_exploit x SCALE (the kit'
 
 (defun ai-burst-rolled (e b color p)
   "Roll a burst of COLOR at the base chance P (a learner's bandit re-weighting it, and opening its window): T to burst."
-  (let* ((q (ai-burst-chance b color p)) (yes (< (sim-rnd01) q)))
+  (let* ((q (funcall (ai-step e :burst-chance) b color p)) (yes (< (sim-rnd01) q)))   ; (AI-BURST-CHANCE)
     (when (brain-learn b) (learn-burst-open e (brain-learn b) color yes q))
     yes))
