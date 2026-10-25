@@ -858,3 +858,28 @@ and parallelism are confirmed with the user before the first cell (the skill's r
   0.03, seal 0.002), NORMAL 0.423, pacing ok (medians 100.8–140.4 s).
 - **The workspace** `docs/research/rukia-ai-drsi/` (README, step.sh, rescore.sh, brief.py, splice-tests.py; W = 2, 4 × 2
   cells, λ 0.25); the branches open the condition axes: the opponent, her resources, the distance, the awakening and bands.
+
+### 17.6 Two CPU bugs, fixed in her own CPU (the user, 2026-10-25)
+
+Cell b0a0 (round 1) reported two things her file could not reach. The user: 「請調查原因並修復你說的兩個問題：1. 劍八的毀魂追擊會穿過防禦
+2. CPU 擋下攻擊後不會反擊」; then, mid-fix, 「請逐步將共用 AI 的功能轉移給專屬 AI」, with the picks 「可替換的預設步驟」 (the shared
+CPU's parts become named steps a character's own CPU may replace) and 「只修露琪亞專屬 AI」 (the other CPUs keep both bugs until
+their own turn).
+
+- **Cause 1 (the Kikon through her guard).** Not a rule: the follow-up is blocked by a held guard (a scripted trial: BLOCKED).
+  Her CPU held Guard through the stagger and the dash-in, but on the strike's own step her perfect-Hoho reflex pressed Step;
+  under the Kikon lock no Hoho can start, so the only effect was that Guard was let go: she was :neutral when the strike
+  was collected, and the Kikon landed (traced in the native sim, seed 1: def-state NEUTRAL, red NIL, in front).
+  **Fix**: her `:held` step (RUKIA-AI-HELD): under a Kikon lock 1 a guard she holds stays held, nothing else is chosen.
+- **Cause 2 (no punish after a block).** The generic CPU rolls on each blocked hit (*AI-HOLD-GUARD*, HARD 0.8) to hold Guard
+  for the blockstun + 20 steps, and no reflex runs while it holds (the block punish included). Still holding when the
+  blockstun ends, she went back into a guard, and an attack waits *GUARD-EXIT* after it is let go. **Fix**: her
+  `:block-hold` step tags that press, and her `:held` step lets it go on the blockstun's last step once nothing is left to
+  chain (FIGHTER-GLOCK off): she comes out in neutral and the block punish / her reflexes run on the next step.
+- **The steps** (ai.lisp *AI-STEPS*, AI-STEP; DUEL_AI_V2 "Replaceable steps"): `:block-hold` (default AI-BLOCK-HOLD, the old
+  code) and `:held` (default none); a kit's :ai names its own. Only her four forms name them.
+- **Proof the others are untouched**: `--cvc` 3 PASS (identical to the reference), host tests 10228 ALL PASS, pkgcheck clean.
+- **Effect** (10 HARD matches, Rukia P1 vs Kenpachi, seeds 1–10): his non-red follow-ups blocked 6 → 51, Kikons landed 42 → 25
+  (the red ones are unguardable by rule); her wins **0 → 4 of 10**.
+- **The search**: cells b0a0 and b1a0 were made on the freeze 2a68ece (without these steps); the remaining cells start from
+  the new commit, and the baseline is re-scored on it (§17.5's 0.5898 was before).

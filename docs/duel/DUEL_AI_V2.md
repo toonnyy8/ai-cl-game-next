@@ -288,3 +288,19 @@ or a kit without it: today's five characters keep their pairings byte for byte (
 - **`:bankai-ok`** (a kit key, a function of the fighter entity): the Bankai entry reflex also asks it (NIL key: yes).
 - Host tests (duel-rules-test): `line-dist`, `x-line-gap`, `x-live-p` (no threat before the lock), `line-off-strafe`
   (away from the line), `opp-chance`, `reflect-action`'s frames, and no form of the five has the flags or the keys.
+
+## Replaceable steps: the shared CPU moves into the characters' own (2026-10-25)
+
+The user: 「請逐步將共用 AI 的功能轉移給專屬 AI」, picking 「可替換的預設步驟」: the shared CPU (ai.lisp) is cut into named steps
+whose generic code stays the default; a character's own CPU (`<char>-ai.lisp`) may replace one by naming its function in its
+kit's `:ai` plist. One step moves at a time, and each move is proved to leave every other kit's matches unchanged (`--cvc`
+identical; the step's default is the old code, the same SIM-RND01 calls in the same order).
+
+| Step | Called | Default | Replaced by |
+|---|---|---|---|
+| `:block-hold (e b f)` | blockstun's first step: hold Guard through the string? | AI-BLOCK-HOLD (*AI-HOLD-GUARD*, stun + 20) | Rukia (tags the press :block-hold) |
+| `:held (e b f)` | before every generic choice; T = the step is spent | none | Rukia (keep Guard under a Kikon lock; let the post-block hold go at the blockstun's end) |
+
+Next candidates (the generic reflexes a search cell could not reach): the perfect-Hoho reflex, the block punish
+(*AI-PUNISH-ADV* −8), the anti-Kikon guard, the wake guard, the Burst roll. Record of the first move: DUEL_RUKIA_TYBW §17.6.
+

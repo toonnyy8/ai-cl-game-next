@@ -21,7 +21,7 @@
        :guard 0.4 :hoho 0.35 :sp-cancel-bars 1 :dash 0.5 :dash-back 0.4 :kikon-range 8.0
        :stun-follow (:sp2 2.4 5.0) :awaken (:melee-share 0.6 :min-taken 150)
        :l-after-k rukia-ai-burst-p :l-after-j rukia-ai-burst-p :sig-hold rukia-ai-sig-hold :sp1-hold rukia-ai-sp1-hold
-       :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard)
+       :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :block-hold rukia-ai-block-hold :held rukia-ai-held)
   "Her base form's CPU (the kit's :ai: ai.lisp; DUEL_RUKIA_TYBW §17).")
 (defparameter *ru-ai-m18*
   `(:intents (:approach 2 :pressure 3 :zone 1 :defend 2)
@@ -31,7 +31,7 @@
                (2.8 5.0 :sp2 2 :step 1 nil 2)
                (5.0 99.0 :sp1 2 nil 2))
        :guard 0.5 :hoho 0.3 :dash 0.2 :dash-back 0.2 :o-ender 0.25 :l-after-k ,*ai-ru-l-after-k-awake* :kikon-range 6.5 :sp-cancel-bars 2
-       :cool (:p 0.3 :near 3.5) :stun-follow (:sp2 2.4 5.0) :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard)
+       :cool (:p 0.3 :near 3.5) :stun-follow (:sp2 2.4 5.0) :sp-ender rukia-ai-sp-ender :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :block-hold rukia-ai-block-hold :held rukia-ai-held)
   "Her m18 form's CPU (the kit's :ai: ai.lisp; DUEL_RUKIA_TYBW §17).")
 (defparameter *ru-ai-m50*
   `(:intents (:approach 1 :pressure 3 :zone 0 :defend 2)
@@ -40,7 +40,7 @@
                (1.9 3.5 :f 3 :sig 3)
                (3.5 99.0 :sp2 1 :sp1 1 nil 2))
        :guard 0.45 :hoho 0.25 :dash 0.1 :dash-back 0.1 :o-ender 0.25 :l-after-k ,*ai-ru-l-after-k-awake* :kikon-range 7.5 :sp-cancel-bars 2
-       :cool (:p 0.35 :near 4.0 :no-projectile t :min-gg 50) :stun-follow (:sp2 2.4 6.0) :reflex rukia-ai-reflex :assist-guard rukia-assist-guard
+       :cool (:p 0.35 :near 4.0 :no-projectile t :min-gg 50) :stun-follow (:sp2 2.4 6.0) :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :block-hold rukia-ai-block-hold :held rukia-ai-held
        :sp-ender rukia-ai-sp-ender)
   "Her m50 form's CPU (the kit's :ai: ai.lisp; DUEL_RUKIA_TYBW §17).")
 (defparameter *ru-ai-zero*
@@ -54,7 +54,7 @@
                (14.0 99.0 nil 1))
        :guard 0.0 :hoho 0.0 :o-ender 0.25 :l-after-k ,*ai-ru-l-after-k-awake* :kikon-range 9.0 :sp-cancel-bars 2
        :brace (:p 0.2 :near 5.5 :min-gg 30) :opp-intent (:zone 2 :defend 2) :sp-ender rukia-ai-sp-ender
-       :reflex rukia-ai-reflex :assist-guard rukia-assist-guard)
+       :reflex rukia-ai-reflex :assist-guard rukia-assist-guard :block-hold rukia-ai-block-hold :held rukia-ai-held)
   "Her zero form's CPU (the kit's :ai: ai.lisp; DUEL_RUKIA_TYBW §17).")
 
 (defparameter *ai-ru-hoho-in* 0.05 "-50's CPU: chance per free step to Hoho in when that Hoho reaches -273 (RUKIA-AI-HOHO-IN).")
@@ -294,6 +294,29 @@ neutral pick (RUKIA-AI-ZONE) since 2026-10-24: SP2 at >= 2 layers, the kido at 3
       (and (eq (kit-form (kit-of e)) :m50) (rukia-ai-hoho-in e b s d))
       (rukia-ai-zone e b s d)
       (rukia-ai-band-disc e b s d)))
+
+;;; ---------------------------------------------------------------- her own BRAIN-STEP steps (ai.lisp *AI-STEPS*, 2026-10-25:
+;;; 「請調查原因並修復你說的兩個問題」, then 「請逐步將共用 AI 的功能轉移給專屬 AI」 / 「只修露琪亞專屬 AI」; DUEL_RUKIA_TYBW §17.6)
+(defun rukia-ai-block-hold (e b f)
+  "Her :block-hold step: the generic chance and length (AI-BLOCK-HOLD), the press tagged :block-hold for her :held step."
+  (when (ai-block-hold e b f) (setf (brain-act b) :block-hold)))
+
+(defun rukia-ai-held (e b f)
+  "Her :held step, before every other choice. Under a Kikon lock 1 (a follow-up coming, she isn't red) only the guard works:
+a guard she holds stays held (T), so no reflex lets it go on the strike's frame (her perfect Hoho pressed Step there: the
+Kikon landed through her guard, 45 of 46). Her post-block hold (:block-hold) ends on the blockstun's last step once
+nothing is left to chain (FIGHTER-GLOCK off): she comes out in neutral, not back in a guard (*GUARD-EXIT*), and the block
+punish and her reflexes run on the next step (NIL: the step goes on)."
+  (declare (ignore e))
+  (let ((held (> (brain-press-left b) 0)))
+    (cond ((and held (= (fighter-kikon-lock f) 1) (eq (brain-press b) :guard))
+           (decf (brain-press-left b))
+           t)
+          ((and held (eq (brain-act b) :block-hold)
+                (not (and (eq (fighter-state f) :guard-hit)
+                          (or (fighter-glock f) (< (1+ (fighter-sf f)) (fighter-stun f))))))
+           (setf (brain-press-left b) 0)
+           nil))))
 
 (defun rukia-assist-guard (e b s d)
   "Her forms' :assist-guard (assist.lisp AUTO GUARD): her defensive answers only, REIDO at zero (a ward block, a Breaker)

@@ -56,6 +56,11 @@
 ;;;;   hooks       :reflex (e b s d)  :move-reflex (e b f mv)  :sp-ender  :sig-hold  :sp1-hold  :assist-guard  :assist-combo
 ;;;;               (:l-after-k / :l-after-j may name a function (e link L) -> its chance: Rukia's bursts)
 ;;;;   read by the OPPONENT's CPU: :opp-reflex (e b s d)  :opp-aim  :opp-reflect  :opp-intent (:zone n :defend n)
+;;;;   steps       BRAIN-STEP's replaceable steps (AI-STEP; the user 2026-10-25: 「請逐步將共用 AI 的功能轉移給專屬 AI」): a kit
+;;;;               names its own function for one, else the generic default in *AI-STEPS* runs (the same code as before):
+;;;;               :block-hold (e b f) a guard just blocked a hit: hold on through the string?  (AI-BLOCK-HOLD)
+;;;;               :held (e b f) before every generic choice, the press it holds: T = this step is spent (default none);
+;;;;               a press made with :act :block-hold is held as :hold is (Rukia's post-block hold, which her :held lets go)
 (in-package :duel)
 
 (defstruct snap
@@ -331,6 +336,21 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
 
 ;;; ---------------------------------------------------------------- decisions
 (defun ai-table (e key &optional default) (getf (kit-ai (kit-of e)) key default))
+
+(defparameter *ai-steps* '(:block-hold ai-block-hold :held nil)
+  "BRAIN-STEP's replaceable steps and their generic defaults (NIL: no default, the step is skipped); a kit's :ai names
+its own (the header's \"steps\"; one moved over at a time, each proved to leave the other kits' matches unchanged).")
+
+(defun ai-step (e name)
+  "The function E's CPU runs for step NAME: its kit's own, else *AI-STEPS*'s default (NIL: none)."
+  (or (ai-table e name) (getf *ai-steps* name)))
+
+(defun ai-block-hold (e b f)
+  "The generic :block-hold step (blockstun's first step): keep holding Guard through the string with *AI-HOLD-GUARD*'s
+chance, to the blockstun's end + 20 steps (no reflex drops it: BRAIN-STEP)."
+  (declare (ignore e))
+  (when (< (sim-rnd01) (getf *ai-hold-guard* (brain-difficulty b) 0.85))
+    (ai-press b :guard (+ (fighter-stun f) 20) :act :hold)))
 
 (defvar *ai-brain* nil
   "The brain deciding for a fighter that has none (a human): the ASSIST's borrowed brain while ASSIST-STEP runs for him.")
@@ -897,8 +917,7 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
       (when (member (fighter-state f) '(:stun :air :down :wakeup :guard-hit))   ; just took it: respect
         (setf (brain-intent b) :defend (brain-intent-t b) (ai-table e :respect *ai-respect*)))
       (when (and (eq (fighter-state f) :guard-hit) (zerop (fighter-sf f)) (not (brain-off b)))   ; blocked: hold on through the string?
-        (when (< (sim-rnd01) (getf *ai-hold-guard* (brain-difficulty b) 0.85))
-          (ai-press b :guard (+ (fighter-stun f) 20) :act :hold)))   ; (no reflex drops it: BRAIN-STEP)
+        (funcall (ai-step e :block-hold) e b f))
       (when (and (member (brain-was b) '(:stun :air :down :wakeup)) (member (fighter-state f) '(:idle :guard :run))
                  (zerop (fighter-lock f)) (< d *ai-wake-guard-range*) (not (brain-off b)) (not (brain-habit b))
                  (ai-mash-p b))                                                 ; (against a J masher: CPU pacing stays)
@@ -913,6 +932,7 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
       (unless (or (brain-off b) (> (fighter-lock f) 0) (eq (fighter-state f) :cine))
         (cond ((eq (brain-habit b) :dumb) (dumb-step e b s d))                  ; debug: the button-masher (ASSIST's gate)
               ((eq (brain-habit b) :trial) (trial-step e b))                     ; debug: the trial player (combo-trial.py)
+              ((let ((h (ai-step e :held))) (and h (funcall h e b f))))           ; the kit's own held press (AI-STEPS)
               ((ai-burst-roll e b)                                                ; a Burst, else the awakening
                (if (burst-ok-p e) (ai-press b :quick 1 :modded t :act :burst) (ai-press b :awaken 1))
                (setf (brain-why b) :burst))
@@ -924,7 +944,7 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
               ((and (> (brain-press-left b) 0)                                    ; a reflex may drop a guard / a dash,
                     (not (and (eq (fighter-state f) :move) (eq (mv-kind (fighter-move f)) :breaker)   ; or a Breaker's
                               (eq (fighter-contact f) :hit)))                                          ; hold once it landed
-                    (or (eq (brain-act b) :hold)                                   ; not a guard held through a string
+                    (or (member (brain-act b) '(:hold :block-hold))                ; not a guard held through a string
                         (not (or (eq (brain-press b) :guard) (eq (brain-act b) :dash)))))
                (decf (brain-press-left b)))
               (t (let ((cmd (ai-reflex e b s d)))
