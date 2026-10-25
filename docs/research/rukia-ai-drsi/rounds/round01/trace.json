@@ -15,6 +15,18 @@
       "tags": [],
       "valid": true
     },
+    "b0a1": {
+      "error": null,
+      "evaluated": true,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "rescored at the freeze: str 0.742 mash 1.0 sig 0.923 raw 0.8839 normal 0.4542 (x1.0) pacing ok",
+      "score": 0.8839,
+      "seq": 8,
+      "tags": [],
+      "valid": true
+    },
     "b1a0": {
       "error": null,
       "evaluated": true,
@@ -69,7 +81,8 @@
   "max_parallelism": 2,
   "notes": "",
   "pending_batch": [
-    "b0a1"
+    "b0a2",
+    "b1a2"
   ],
   "policy_file": "rounds/round01/policy.py",
   "refine_count": 2,

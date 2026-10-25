@@ -1,0 +1,79 @@
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules-test.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../engine/lisp/package.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../engine/lisp/math.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../engine/lisp/hitvol.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../engine/lisp/input.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/tuning.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/rules.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/learn.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/kit.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/yama.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/ken.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/rukia-ai.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/rukia.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/ichigo.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/endless-rules.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/rogue-rules.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/run-mods.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/senjumaru.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/barro.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/barro-ai.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/hisagi.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/../duel/lisp/hisagi-ai.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/core.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/yama.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/ken.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/rukia.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/senjumaru.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/art.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../engine/lisp/anim.lisp"
+  Rukia Shikai reach RU-J1 (RU-S-J1): the volume ends 1.44 m, the art 1.48 m (+4 cm)
+  Rukia Shikai reach RU-J2 (RU-S-J2): the volume ends 1.40 m, the art 1.47 m (+7 cm)
+  Rukia Shikai reach RU-J3 (RU-S-J3): the volume ends 1.56 m, the art 1.54 m (-2 cm)
+  Rukia Shikai reach RU-K3 (RU-S-K3 + ice 1.40): the volume ends 3.05 m, the art 3.05 m (+0 cm)
+  Rukia Shikai reach RU-SK2S (RU-S-K2 + ice 1.30): the volume ends 2.50 m, the art 2.46 m (-4 cm)
+  Rukia Shikai reach RU-K1 (RU-S-K1 + ice 1.15): the volume ends 2.85 m, the art 2.82 m (-3 cm)
+  Rukia Shikai reach RU-BREAKER (RU-S-HAINAWA): the volume ends 1.35 m, the art 1.28 m (-7 cm)
+  Rukia -18 reach RU-J1 (RU-18-J1): the volume ends 1.44 m, the art 1.44 m (+0 cm)
+  Rukia -18 reach RU-J2 (RU-18-J2): the volume ends 1.40 m, the art 1.46 m (+6 cm)
+  Rukia -18 reach RU-J3 (RU-18-J3): the volume ends 1.56 m, the art 1.47 m (-9 cm)
+  Rukia -18 reach RU-A-K3 (RU-18-K3 + ice 1.80): the volume ends 2.40 m, the art 2.40 m (+0 cm)
+  Rukia -18 reach RU-K2S (RU-18-K2 + ice 1.20): the volume ends 2.50 m, the art 2.50 m (+0 cm)
+  Rukia -18 reach RU-A-K1 (RU-18-K1 + ice 1.50): the volume ends 2.35 m, the art 2.36 m (+1 cm)
+  Rukia -18 reach RU-BREAKER (RU-18-HAINAWA): the volume ends 1.35 m, the art 1.27 m (-8 cm)
+  Rukia -50 reach RU-J1 (RU-50-J1): the volume ends 1.58 m, the art 1.56 m (-2 cm)
+  Rukia -50 reach RU-J2 (RU-50-J2): the volume ends 1.45 m, the art 1.46 m (+0 cm)
+  Rukia -50 reach RU-J3-50 (RU-50-J3): the volume ends 1.72 m, the art 1.67 m (-5 cm)
+  Rukia -50 reach RU-A-K3-50 (RU-50-K3 + ice 1.90): the volume ends 2.64 m, the art 2.64 m (+0 cm)
+  Rukia -50 reach RU-K2S (RU-50-K2 + ice 2.29): the volume ends 2.75 m, the art 2.75 m (+0 cm)
+  Rukia -50 reach RU-A-K1-50 (RU-50-K1 + ice 1.83): the volume ends 2.55 m, the art 2.54 m (-1 cm)
+  Rukia -50 reach RU-BREAKER (RU-50-HAINAWA): the volume ends 1.35 m, the art 1.28 m (-7 cm)
+  Rukia -273 reach RU-J1 (RU-0-J1): the volume ends 1.94 m, the art 1.88 m (-7 cm)
+  Rukia -273 reach RU-Z-J2 (RU-0-J2): the volume ends 1.78 m, the art 1.71 m (-7 cm)
+  Rukia -273 reach RU-J3 (RU-0-J3): the volume ends 2.11 m, the art 1.98 m (-13 cm)
+  Rukia -273 reach RU-Z-K3 (RU-0-K3 + ice 2.92): the volume ends 3.24 m, the art 3.24 m (+0 cm)
+  Rukia -273 reach RU-K2S (RU-0-K2 + ice 2.95): the volume ends 3.38 m, the art 3.39 m (+2 cm)
+  Rukia -273 reach RU-Z-K1 (RU-0-K1 + ice 2.57): the volume ends 4.08 m, the art 4.08 m (+0 cm)
+  Rukia burst reach RU-SHIMOCHIRI (RU-S-SHIMOCHIRI): the volume ends 2.00 m, the art 1.39 m (-61 cm)
+  Rukia burst reach RU-SETSUEN (RU-S-SETSUEN): the volume ends 2.00 m, the art 0.82 m (-118 cm)
+  Rukia burst reach RU-SOJIN (RU-S-SOJIN): the volume ends 2.00 m, the art 0.65 m (-135 cm)
+  Rukia burst reach RU-HYOREKI (RU-S-HYOREKI): the volume ends 3.10 m, the art 1.63 m (-147 cm)
+  Rukia burst reach RU-TSURARA (RU-S-TSURARA): the volume ends 2.80 m, the art 0.74 m (-206 cm)
+  Rukia burst reach RU-HAKUREN-K (RU-S-HAKUREN): the volume ends 11.60 m, the art 1.19 m (-1041 cm)
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/systems.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/barro.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/sim.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../engine/lisp/touch.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../duel/lisp/components.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../duel/lisp/combat.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../duel/lisp/fighter.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../duel/lisp/flow.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/hisagi.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../duel/lisp/hazards.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../duel/lisp/hisagi.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../duel/lisp/hisagi-ai.lisp"
+  Hisagi: K ender push 6.43 m (r 0.38); SP2 chases 2.33 m in its 16 f to 4.10 m; the O lane reaches 8.38 m
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/../../duel/lisp/barro.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/rogue.lisp"
+;;; Loading #P"/home/user/ai-cl-game-test/.claude/worktrees/rescore-rukia/tests/duel-rules/runmods.lisp"
+duel-rules-test: 10237 checks, ALL PASS
