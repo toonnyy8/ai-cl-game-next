@@ -77,7 +77,9 @@
 ;;;;               each (e b f mv) -> :PASS or the command (DEF-STRING-STEP): :string-queued :string-bait :l-link :k-link :j-link
 ;;;;               :k-only :l-cancel, the kit's :sp-ender, :sp-cancel :end-orange; BRAIN-STEP's :chain-follow :j-beats-k :gap-step
 ;;;;               (e b s d) -> :PASS or it pressed (AI-BRAIN-CLAIM); AI-COMMAND's :command (b kit cmd d e) (AI-COMMAND-PRESS: how
-;;;;               a command's buttons are held: charges, stances, the Breaker, the Kikon rush)
+;;;;               a command's buttons are held: charges, stances, the Breaker, the Kikon rush); the frame's (batch 8): :respect (e b)
+;;;;               :wake (e b d) :event-rolls (b s) :strafe (e b) :walk (e b vp d lo hi) :decide-time (e b) (AI-RESPECT AI-WAKE
+;;;;               AI-EVENT-ROLLS AI-STRAFE AI-WALK AI-DECIDE-TIME-DEFAULT)
 (in-package :duel)
 
 (defstruct snap
@@ -364,7 +366,8 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
                            :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush
                            :o-ender ai-o-ender :step-j ai-step-j :breaker-string ai-breaker-string :guard-cancel ai-guard-cancel
                            :string ai-string :orange ai-orange :pressure ai-pressure
-                           :chain-follow ai-chain-follow :j-beats-k ai-j-beats-k :gap-step ai-gap-step :command ai-command-press
+                           :respect ai-respect :wake ai-wake :event-rolls ai-event-rolls :strafe ai-strafe :walk ai-walk
+                           :decide-time ai-decide-time-default :chain-follow ai-chain-follow :j-beats-k ai-j-beats-k :gap-step ai-gap-step :command ai-command-press
                            :attack-weights ai-attack-weights :string-queued ai-string-queued :string-bait ai-string-bait :l-link ai-l-link :k-link ai-k-link :j-link ai-j-link :k-only ai-k-only :l-cancel ai-l-cancel :sp-cancel ai-sp-cancel :end-orange ai-end-orange
                            :intent ai-pick-intent :neutral-kikon ai-neutral-kikon :white ai-white :pip-hurry ai-pip-hurry :cool ai-cool :brace ai-brace :step-in ai-step-in :dash-in ai-dash-in :dash-back ai-dash-back :neutral-guard ai-neutral-guard :neutral-attack ai-neutral-attack
                            :ward-reversal ai-ward-reversal :reset ai-reset :kikon-rush ai-kikon-rush :bankai ai-bankai :cashout ai-cashout :anti-bind ai-anti-bind :anti-parry ai-anti-parry :awaken ai-awaken :follow-up ai-follow-up :stun-follow ai-stun-follow :oki ai-oki :react ai-react :guard-break ai-guard-break :threat ai-threat)
@@ -867,7 +870,7 @@ D = the perceived distance."
          (guard-k (ai-guard-k e))                                                      ; the guard gauge left
          (q (kit-command-move kit :q))
          (r nil))                                         ; (a claimed step's command)
-    (ai-event-rolls b s)                                  ; one roll per opponent action
+    (funcall (ai-step e :event-rolls) b s)                ; one roll per opponent action (AI-EVENT-ROLLS)
     (cond
       ;; the in-move steps (*AI-STEPS*, AI-STEP-CLAIM: :PASS when it doesn't apply, else its command, NIL included, ends
       ;; the reflexes as its clause did): the O ender, Step -> J, a string off a landed Breaker, the guard cancel
@@ -981,6 +984,18 @@ more; J strings alone shouldn't crush a guard, the CPU's included); against a J 
                                   :defend (+ (getf w :defend 1) (getf oi :defend 0)))
                    :approach))))))
 
+(defun ai-strafe (e b)
+  "The generic :strafe step (batch 8): the strafe's next side and how long it lasts (*AI-STRAFE-TIME*)."
+  (declare (ignore e))
+  (setf (brain-strafe-t b) (+ (first *ai-strafe-time*) (floor (* (second *ai-strafe-time*) (sim-rnd01))))
+        (brain-strafe b) (if (< (sim-rnd01) 0.5) -1f0 1f0)))
+
+(defun ai-walk (e b vp d lo hi)
+  "The generic :walk step (batch 8): the stick toward the intent's range LO..HI (the heat's), strafing inside it."
+  (declare (ignore e))
+  (vpad-stick! vp (if (<= lo d hi) (brain-strafe b) (* 0.3 (brain-strafe b)))
+               (cond ((> d hi) 1f0) ((< d lo) -1f0) (t 0f0))))
+
 (defun ai-neutral (e b s d)
   "No reflex fired: walk to the intent's range, and now and then decide (AI-DECIDE)."
   (let* ((kit (kit-of e)) (vp (pilot-vpad (pilot e))) (heat (brain-heat b)))
@@ -988,18 +1003,21 @@ more; J strings alone shouldn't crush a guard, the CPU's included); against a J 
       (setf (brain-intent-t b) *ai-repick*)
       (setf (brain-intent b) (funcall (ai-step e :intent) e b heat)))   ; (AI-PICK-INTENT)
     (when (<= (decf (brain-strafe-t b)) 0)
-      (setf (brain-strafe-t b) (+ (first *ai-strafe-time*) (floor (* (second *ai-strafe-time*) (sim-rnd01))))
-            (brain-strafe b) (if (< (sim-rnd01) 0.5) -1f0 1f0)))
+      (funcall (ai-step e :strafe) e b))                  ; (AI-STRAFE)
     (destructuring-bind (lo hi) (getf (ai-table e :ranges) (brain-intent b) '(2.0 4.0))
       (multiple-value-bind (lo hi) (heat-range lo hi heat)
-        (vpad-stick! vp (if (<= lo d hi) (brain-strafe b) (* 0.3 (brain-strafe b)))
-                     (cond ((> d hi) 1f0) ((< d lo) -1f0) (t 0f0)))
+        (funcall (ai-step e :walk) e b vp d lo hi)        ; (AI-WALK)
         (when (<= (decf (brain-decide-t b)) 0)
           (setf (brain-decide-t b) (ai-decide-time e b))
           (ai-decide e b kit s d lo hi heat))))))
 
 (defun ai-decide-time (e b)
-  "Frames to the next neutral decision: the difficulty's *AI-THINK* + up to 40, x the kit's :tempo."
+  "Frames to the next neutral decision: the kit's :decide-time step (batch 8, 2026-10-25; every caller, the kits' own
+reflexes too), else AI-DECIDE-TIME-DEFAULT."
+  (funcall (ai-step e :decide-time) e b))
+
+(defun ai-decide-time-default (e b)
+  "The generic :decide-time step: the difficulty's *AI-THINK* + up to 40, x the kit's :tempo."
   (let ((n (+ (getf *ai-think* (brain-difficulty b) 24) (floor (* 40 (sim-rnd01))))) (k (ai-table e :tempo)))
     (if k (max 1 (round (* k n))) n)))
 
@@ -1214,6 +1232,20 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
          (>= (fighter-sf fo) (+ (mv-s om) (mv-a om))) (>= (fighter-dist f) (+ (mv-reach q) 0.2))
          (< (sim-rnd01) (getf *ai-gap-step-p* (brain-difficulty b) 0.5)))))
 
+;;; ---------------------------------------------------------------- BRAIN-STEP's frame steps (batch 8, 2026-10-25), moved as written
+(defun ai-respect (e b)
+  "The generic :respect step: we just took a hit or a block: defend for the kit's :respect frames (*AI-RESPECT*)."
+  (setf (brain-intent b) :defend (brain-intent-t b) (ai-table e :respect *ai-respect*)))
+
+(defun ai-wake (e b d)
+  "The generic :wake step: our first free step out of a hit or a wake-up, him close, against a J masher (the CPU's pacing
+stays otherwise): the :wake-guard step (AI-WAKE-STEP)."
+  (let ((f (fighter e)))
+    (when (and (member (brain-was b) '(:stun :air :down :wakeup)) (member (fighter-state f) '(:idle :guard :run))
+               (zerop (fighter-lock f)) (< d *ai-wake-guard-range*) (not (brain-off b)) (not (brain-habit b))
+               (ai-mash-p b))
+      (funcall (ai-step e :wake-guard) e b d))))
+
 ;;; ---------------------------------------------------------------- BRAIN-STEP's press-first steps (batch 7, 2026-10-25): claiming
 ;;; steps (AI-BRAIN-CLAIM, :PASS when not this one; else they pressed and the step is spent), moved as written
 (defun ai-brain-claim (e name b s d)
@@ -1244,14 +1276,11 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
       (when (and (brain-learn b) (not (brain-off b))) (learn-step e b s d))   ; the learning CPU watches (perceived)
       (vpad-stick! vp 0f0 0f0)
       (unless (kit-bankai-form (fighter-kit f)) (setf (brain-bankai-rolled b) nil))   ; a new cup-3 stay rolls again
-      (when (member (fighter-state f) '(:stun :air :down :wakeup :guard-hit))   ; just took it: respect
-        (setf (brain-intent b) :defend (brain-intent-t b) (ai-table e :respect *ai-respect*)))
+      (when (member (fighter-state f) '(:stun :air :down :wakeup :guard-hit))   ; just took it: respect (AI-RESPECT)
+        (funcall (ai-step e :respect) e b))
       (when (and (eq (fighter-state f) :guard-hit) (zerop (fighter-sf f)) (not (brain-off b)))   ; blocked: hold on through the string?
         (funcall (ai-step e :block-hold) e b f))
-      (when (and (member (brain-was b) '(:stun :air :down :wakeup)) (member (fighter-state f) '(:idle :guard :run))
-                 (zerop (fighter-lock f)) (< d *ai-wake-guard-range*) (not (brain-off b)) (not (brain-habit b))
-                 (ai-mash-p b))                                                 ; (against a J masher: CPU pacing stays)
-        (funcall (ai-step e :wake-guard) e b d))                                ; out of a hit: guard first (AI-WAKE-STEP)
+      (funcall (ai-step e :wake) e b d)                                         ; out of a hit: guard first? (AI-WAKE)
       (if (or (and (member (fighter-state f) '(:stun :air)) (>= (fighter-combo-hits f) *burst-min-hits*))
               (and (eq (fighter-state f) :guard-hit) (fighter-glock f) (ai-gg-low-p e)))   ; a locked string on a low guard
           (incf (brain-burst-t b))                                                ; the Burst clock

@@ -354,3 +354,10 @@ recovering blocked link), `:gap-step` (out of his restart), claiming steps (AI-B
 and AI-COMMAND's `:command (b kit cmd d e)` (AI-COMMAND-PRESS: every command's buttons and hold lengths; read from KIT's own
 `:steps` when the fighter E is given).
 
+**Batch 8** (2026-10-25, 「第七批完成後就自動接續第八批」): BRAIN-STEP's frame. `:respect (e b)` (a hit or block on us: defend
+for the kit's :respect), `:wake (e b d)` (the trigger of `:wake-guard`), `:event-rolls (b s)` (the guard / Hoho / react rolls,
+one per opponent action), `:strafe (e b)` and `:walk (e b vp d lo hi)` (the stick in the neutral), `:decide-time (e b)` (read
+by every caller of AI-DECIDE-TIME, the kits' own reflexes too). With it every decision a CPU makes is a step; what stays
+shared is the plumbing every kit must use alike (the perception ring, the Burst clock, the press count-down written to the
+vpad: the CPU and a player take the same input path, and the native sim stays bit for bit with the browser).
+
