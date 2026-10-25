@@ -885,5 +885,24 @@ their own turn).
   (8 → 10), RK 99.2 → 94.0 (9 → 8), RR 121.8 → 132.0, IR 107.9 → 112.0 (11 → 10), SR 107.6 → 111.0 (7 → 13), BR 132.1 →
   137.0 (6 → 7), HR 134.6 → 126.5 (7 → 6). RY / RK / IR / SR stay under 125 s as on the parent (her short pairings since
   §11.1, not this change); the awaken A/B stays deferred (§11.2).
+
+### 17.7 Her damage x0.75 (the user, 2026-10-25)
+
+> 「請在將露琪亞的基礎傷害量減少 25%，先讓我確認你會怎麼修改後再開始行動」
+
+Proposed and confirmed (「四個型態都 ×0.75」; the search: 「跑完這輪再重新凍結」): only the four forms' dealt multipliers move,
+no move's own damage (one place, every move, link and hazard, the forms' ratios kept; rounding per move avoided).
+
+| Knob | Old | New |
+|---|---|---|
+| `*rukia-mult*` (Shikai) | 1.0 | **0.75** |
+| `*rukia-awake-mult*` (−18) | 1.1 | **0.825** |
+| `*rukia-m50-mult*` (−50) | 1.25 | **0.9375** |
+| `*rukia-zero-mult*` (−273) | 1.65 | **1.2375** |
+
+Unchanged: the combo scaling, the Kikon (Konpaku), the damage she takes, frames, reach. Down with it: the Reiatsu she gains
+by dealing damage (the rule). Host tests 10228 ALL PASS (the pinned bands' multipliers updated). The search's round 1 runs
+on to its 8 cells at the freeze 2a68ece (the old damage); the pick is integrated and re-scored on this damage.
+`docs/research/rukia-cpu/stats-vs-roster.md` regenerated.
 - **The search**: cells b0a0 and b1a0 were made on the freeze 2a68ece (without these steps); the remaining cells start from
   the new commit, and the baseline is re-scored on it (§17.5's 0.5898 was before).

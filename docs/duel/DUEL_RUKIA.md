@@ -826,7 +826,7 @@ keylines (`body-variant … :ink`) and the `:brow` palette key (the ice look).
 | `*zero-brace-drain*` (guard gauge / s while bracing) | 8 | 44000+k (k / 10) |
 | `*ru-thaw-lock*` (frames of no cooling after a CRACK) | 120 | 51000+k |
 | `*crack-self*` / `*crack-stun*` / `*freeze-touch*` | 60 / 30 / 18 | 47000+k / — / 45000+k |
-| `*rukia-awake-mult*` / `*rukia-m50-mult*` / `*rukia-zero-mult*` | 1.1 / 1.25 / 1.65 (1.15 / 1.5 / 1.65 until 2026-10-24, DUEL_RUKIA_TYBW §11) | 48000+k (zero's) |
+| `*rukia-awake-mult*` / `*rukia-m50-mult*` / `*rukia-zero-mult*` | 0.825 / 0.9375 / 1.2375 (×0.75 on 2026-10-25, DUEL_RUKIA_TYBW §17.7; 1.1 / 1.25 / 1.65 until then; 1.15 / 1.5 / 1.65 until 2026-10-24, §11) | 48000+k (zero's) |
 | `*rukia-awake-taken*` / `*rukia-m50-taken*` / `*rukia-zero-taken*` | 0.95 / 0.85 / 0.8 | 61000+k |
 | `*frost-touch*` / `*frost-touch-m50*` / `*frost-touch-zero*` | 30 / 60 / 90 | — |
 | walks / runs | −18 3.4 / 8.0, −50 2.8 / 6.4, zero rooted | 57000+k / 56000+k |
