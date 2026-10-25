@@ -339,6 +339,11 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (sp-move-p (kit :barro :shin) (kit-command-move (kit :barro :shin) :sp2))
             (not (sp-move-p (kit :rukia :base) (find-move :ru-k1))) (not (sp-move-p (kit :hisagi :bankai) (find-move :hs-r-k1)))
             (not (sp-move-p (kit :rukia :base) (find-move :ru-byakurai)))))
+;; Hisagi's Bankai ranged mode: a chain-tip hit ignores the combo scaling (the user 2026-10-25: 「修兵卍解遠距的尖端判定也設成
+;; 不受連擊衰減的影響」): its :unscaled hook, after :dmg-mult read the tip (HS-TIP-NOW-P); no other kit has the hook
+(check (and (eq 'hs-tip-now-p (kit-hook (kit :hisagi :bankai) :unscaled))
+            (every (lambda (k) (or (eq (kit-character k) :hisagi) (null (kit-hook k :unscaled))))
+                   (loop for al being the hash-values of *kits* append (mapcar #'cdr al)))))
 ;; Lille's awakened stance K > L wing spends (the user 2026-10-24: 「不受減免補正影響」): :unscaled on KL1-3 of EN and the
 ;; owl's stance, never on the base stance's
 (check (and (every (lambda (n) (every (lambda (w) (member :unscaled (hw-flags w))) (mv-hits (find-move n))))

@@ -720,3 +720,10 @@ build 0 warnings, smoke exit 0; no sim gate (§15). Playtest v162.
   for §15–§16.3's intended changes (stale since them; native `--cvc` 3 PASS against it): yy winner P2 0-2 122.8 s, yk P2
   0-1 95.5 s, kk P1 5-0 101.8 s. Playtest v165. Notes for the playtest: the point grazes the plaza 2–3 cm for a frame in
   J2, SHIRAFUNE and HAKKA; SP1's release from the middle stab's pose turns up to 60° in a frame after a short hold.
+
+### 16.4 Hisagi's chain tip unscaled (the user, 2026-10-25)
+
+> 「幫我將修兵卍解遠距的尖端判定也設成不受連擊衰減的影響」 (the user, 2026-10-25)
+
+A kit `:unscaled` hook (combat.lisp) next to §16.3's SP rule; Hisagi's ranged mode answers it for a chain-tip hit
+(DUEL_HISAGI §25.36). Host 10228 ALL PASS, build 0 warnings, smoke exit 0; no sim gate. Playtest v166.

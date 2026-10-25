@@ -3634,3 +3634,14 @@ ASSIST's gate and the learning gate were not run (the user's 「不用跑 gate�
 - **Simgate** (10 seeds, every pairing): every row without him identical, cvc 3/3; his rows all K.O. (vs §25.32's, before
   §25.34): HY 108.5 -> 108.5 s, HK 110.7 -> 103.0, HR 145.5 -> 137.5, HI 153.0 -> 152.6, HS 159.8 -> 157.1, HB 157.2 ->
   170.2, the mirror 188.9 -> 163.4 (10 of 10 K.O.: §25.34's time-out gone). HY and HK stay under 125 s, as before §25.34.
+
+### 25.36 A chain-tip hit ignores the combo scaling (the user, 2026-10-25)
+
+> 「幫我將修兵卍解遠距的尖端判定也設成不受連擊衰減的影響」 (the user, 2026-10-25)
+
+A new kit hook `:unscaled` (combat.lisp APPLY-HIT, read after `:dmg-mult`): the ranged mode's `hs-tip-now-p` answers T for
+a hit HS-DMG-MULT just read on the tip (x > 1: the volume's last `*hs-r-tip*` m, or a route link riding its opener's tip
+read), so it is dealt at combo index 1; the bind mode, L SAHARAI, the Breaker and hazards stay scaled. The new HSS slot
+`tip-now` is reset on every read (the look-only `tip-hit` is unchanged). Host check in tests/duel-rules/core.lisp; host
+10228 ALL PASS, build 0 warnings, smoke exit 0; no sim gate (the user's standing word, DUEL_RUKIA_TYBW §15). Record:
+DUEL_RUKIA_TYBW §16.4, DEVLOG §366. Playtest v166.

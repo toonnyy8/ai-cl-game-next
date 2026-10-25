@@ -552,7 +552,8 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
                              :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck
                              :bind hs-binding :bind-damage hs-bind-damage :bind-pool hs-bind-pool :bind-heal hs-bind-heal
                              :bind-step hs-bind-step :bind-resolve hs-bind-resolve :bind-snapshot hs-bind-snapshot
-                             :dmg-mult hs-dmg-mult :struck hs-bk-struck :hit-fx hs-tip-fx :step-dist hs-step-dist)
+                             :dmg-mult hs-dmg-mult :struck hs-bk-struck :hit-fx hs-tip-fx :step-dist hs-step-dist
+                             :unscaled hs-tip-now-p)
   "The ranged mode's hooks: the Bankai's (*HS-BK-HOOKS*) without :p / :p-label: P does nothing there since KUBIKAKE moved
 to SP2 (B4c, the user 2026-10-18), so the touch deck hides its AWAKEN chip; the bind mode's P the release FREE (gone in
 §24.5, back since §25.14).")
@@ -694,6 +695,7 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (tip-x 0.0)                                 ; §25.11: that hit's extra gain factor (the tip's and the spread route's, - 1)
   (route-tip nil)                             ; §25.13: his last opener's (J1 / K1) contact was on the tip (its links take it)
   (tip-hit nil)                               ; §25.26: his last hit was on the tip (a look: HS-TIP-FX's flash; no sim reads it)
+  (tip-now nil)                               ; the hit HS-DMG-MULT just read is a ranged-mode tip hit: no combo scaling
   (throw-n 0 :type fixnum)                    ; S1: the charge of the throw out now (its chain length x it, HS-TICK)
   (ai-kz nil) (ai-kz-threat nil)              ; S1, his CPU: K out of this windmill (rolled at the press); the press is a ward
   (ai-out -1 :type fixnum) (ai-modoshi nil)   ; his CPU: the OUT start it rolled for, and its pick
@@ -1164,6 +1166,7 @@ volume, the victim's distance (D2 squared, from the hit's source) and his distan
 tip or a spread-route hit for its SP gain (HS-BK-HIT: §25.5, §25.11); x1.0 for L SAHARAI (unchanged, §22.1), the bind's SP2
 KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other :seg-fn window (no volume)."
   (declare (ignore hazard))
+  (setf (hss-tip-now (hs att)) nil)
   (if (or (null mv) (eq (mv-kind mv) :breaker) (member (mv-name mv) '(:hs-r-l :hs-b-sp2)))   ; (KAIBAKU-GEKI: its 120 exact)
       1.0
       (let* ((st (hs att)) (name (mv-name mv)) (bk (eq (fighter-form (fighter att)) :bankai))
@@ -1181,11 +1184,15 @@ KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other 
                           (t 1.0))
                     (if spread *hs-r-spread-sp-mult* 1.0))))
         (when (and bk (member name '(:hs-r-j1 :hs-r-k1))) (setf (hss-route-tip st) tip))
-        (setf (hss-tip-hit st) (and bk tip))
+        (setf (hss-tip-hit st) (and bk tip) (hss-tip-now st) (and bk tip))
         (setf (hss-tip-r st) (and (> sx 1.0) (gauges-reiatsu (gauges att))) (hss-tip-x st) (- sx 1.0))
         (cond ((not bk) x)                              ; DANGAI's 尖端強化 / 尖端平均 (DUEL_ROGUE §4.3): the ranged mode's
               (tip (rmod att :hs-tip-dmg x))            ;  tip and other hits at the card's x (x3.42 / x0.1; x1.355 both)
               (t (rmod att :hs-flat-dmg x))))))
+(defun hs-tip-now-p (att)
+  "The ranged mode's :unscaled hook (combat.lisp APPLY-HIT, after its :dmg-mult): is this hit on the chain tip (HS-DMG-MULT's
+read)? Then it ignores the combo scaling (the user 2026-10-25: 「修兵卍解遠距的尖端判定也設成不受連擊衰減的影響」)."
+  (hss-tip-now (hs att)))
 (defun hs-r-ame-aim (e)
   "KUSARI-AME's :tick: the lane aims (the move's :track 120) for its first *HS-AME-AIM* frames, then it is locked."
   (let* ((f (fighter e)) (st (hs e)) (tr (transform e)))

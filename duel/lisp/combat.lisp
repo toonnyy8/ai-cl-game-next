@@ -389,7 +389,8 @@ result (NIL = no effect)."
                     (react (if blow :knockdown react))
                     (dmg (let ((d (hit-damage base atk dmods
                                               (if (or flat (member :unscaled flags)   ; (an SP's hit or hazard: unscaled)
-                                                      (if hazard (hazard-sp hazard) (and mv (sp-move-p (kit-of att) mv))))
+                                                      (if hazard (hazard-sp hazard) (and mv (sp-move-p (kit-of att) mv)))
+                                                      (let ((h (kit-hook (kit-of att) :unscaled))) (and h (funcall h att))))   ; (Hisagi's tip)
                                                   1 (max 1 (- hits (fighter-combo-from fd))))
                                               (and (not flat) (eq res :counter)) (eq (gauges-burst (gauges att)) :orange))))   ; :spare: never the last point
                            (if (member :spare flags) (min d (max 0 (1- (gauges-reishi (gauges def))))) d)))
