@@ -67,6 +67,9 @@
 ;;;;               :block-punish (AI-BLOCK-PUNISH)  :punish (AI-PUNISH)  :anti-rush (AI-ANTI-RUSH); AI-REFLEX's in-move ones,
 ;;;;               each (e b s d) -> :PASS or the command (NIL too ends the reflexes, AI-STEP-CLAIM): :o-ender :step-j
 ;;;;               :breaker-string :guard-cancel, the kit's :move-reflex, :string :orange :pressure (AI-O-ENDER ... AI-PRESSURE)
+;;;;               and the free-state ones after the kit's :reflex / :opp-reflex (DEF-REFLEX-STEP): :ward-reversal :reset
+;;;;               :kikon-rush :bankai :cashout :anti-bind :anti-parry :awaken :block-punish :follow-up :stun-follow :oki
+;;;;               :punish :anti-rush :react :guard-break :threat
 (in-package :duel)
 
 (defstruct snap
@@ -346,7 +349,8 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
 (defparameter *ai-steps* '(:block-hold ai-block-hold :held nil :burst ai-burst-roll :wake-guard ai-wake-step
                            :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush
                            :o-ender ai-o-ender :step-j ai-step-j :breaker-string ai-breaker-string :guard-cancel ai-guard-cancel
-                           :string ai-string :orange ai-orange :pressure ai-pressure)
+                           :string ai-string :orange ai-orange :pressure ai-pressure
+                           :ward-reversal ai-ward-reversal :reset ai-reset :kikon-rush ai-kikon-rush :bankai ai-bankai :cashout ai-cashout :anti-bind ai-anti-bind :anti-parry ai-anti-parry :awaken ai-awaken :follow-up ai-follow-up :stun-follow ai-stun-follow :oki ai-oki :react ai-react :guard-break ai-guard-break :threat ai-threat)
   "BRAIN-STEP's replaceable steps and their generic defaults (NIL: no default, the step is skipped); a kit's :ai names
 its own (the header's \"steps\"; one moved over at a time, each proved to leave the other kits' matches unchanged).")
 
@@ -655,6 +659,131 @@ string resets instead (AI-REFLEX's reset); not below :gg-low or into a parry."
               (why b :pressure (cond ((and (ok nf) (< (sim-rnd01) *ai-block-k-p*)) :f) ((ok nq) :q))))))
         :pass)))
 
+;;; ---------------------------------------------------------------- AI-REFLEX's free-state steps (batch 4, 2026-10-25): claiming steps
+;;; (AI-STEP-CLAIM), each clause's test and body moved as written into DEF-REFLEX-STEP (the reflexes' locals bound alike)
+(defmacro def-reflex-step (name doc test &body body)
+  "A claiming AI-REFLEX step NAME (e b s d): BODY's value when TEST holds, else :PASS; AI-REFLEX's locals bound (F G KIT RED
+HOHO-OK GUARD-K Q: pure reads of this step's state, as AI-REFLEX's own)."
+  `(defun ,name (e b s d)
+     ,doc
+     (declare (ignorable s d))
+     (let* ((f (fighter e)) (g (gauges e)) (kit (fighter-kit f)) (red (gauges-red-p g)) (hoho-ok (hoho-ready-p e))
+            (guard-k (ai-guard-k e)) (q (kit-command-move kit :q)))
+       (declare (ignorable f g kit red hoho-ok guard-k q))
+       (if ,test (progn ,@body) :pass))))
+
+(def-reflex-step ai-ward-reversal
+  "Bankai West's reversal: the ward just blocked a hit up close (no blockstun): SHONETSU JIGOKU (L) now and then"
+  (let ((p (ai-table e :ward-reversal)))
+    (and p (passive-p e :ward) (<= (- *match-tick* (fighter-warded f)) 1) (< (fighter-dist f) 3.0)
+         (kit-command-ok-p e :sig) (< (brain-react-roll b) p)))
+  (why b :ward-reversal :sig))
+
+(def-reflex-step ai-reset
+  "the reset: our blocked string just ended (no safe hit left in it) and he still guards: Q1 again"
+  (and (eq (brain-was b) :move) (eq (fighter-contact f) :block) (< d (+ (mv-reach q) 0.2)) (ai-pressure-p e))
+  (why b :pressure :q))
+
+(def-reflex-step ai-kikon-rush
+  "a red opponent still reeling from our hits (or bound): rush him"
+  (and (kikon-ready-p e) (member (snap-state s) '(:stun :air)) (< d (ai-table e :kikon-range 7.0))
+       (kit-command-ok-p e :kikon) (not (ai-sb-finish-p e)))
+  (why b :kikon :kikon))
+
+(def-reflex-step ai-bankai
+  "the Bankai (cup 3, red, free: the kit's :bankai), before the cash-out; free as for the first awakening (AWAKEN-STATE-P, the user 2026-10-09; it was idle / guard only)"
+  (let ((bk (ai-table e :bankai)))
+    (and bk (kit-bankai-form kit) (bankai-allowed-p (awaken-state-p e f) (gauges-konpaku g))
+         (let ((ok (kit-bankai-ok kit))) (or (null ok) (funcall ok e)))   ; (the kit's own rule, if any: :bankai-ok)
+         (not (bind-of e))                                                ; (never in a bind: BANKAI-OK-P refuses it)
+         (ai-bankai-p e b bk)))
+  (why b :bankai :awaken))
+
+(def-reflex-step ai-cashout
+  "NOMIHOSE's cash-out (the kit's :cashout): Shift+K only as a punish (he has >= :punish frames of recovery or stun left, in the 12 m lane) or within :near m while NOME is below :below (it would drain away anyway)"
+  (let ((c (ai-table e :cashout)))
+    (and c (kit-command-ok-p e :sp1) (< d 12.0)
+         (setf (brain-why b)
+               (cond ((and (member (snap-state s) '(:move :stun)) (< (snap-left s) 99)
+                           (>= (snap-left-seen s b) (getf c :punish)))
+                      :cashout-punish)
+                     ((and (< d (getf c :near)) (< (gauges-meter g) (getf c :below))) :cashout-near)))))
+  :sp1)
+
+(def-reflex-step ai-anti-bind
+  "South's tell under us: its grab comes 16 f after the stab (real move frame 36); from what we see (delayed), step sideways out of it (the anti-rush chance) or Hoho it (the Hoho roll; perfect late)"
+  (and (member :bind (snap-flags s)) (eq (snap-phase s) :main)
+       (<= (first (or (snap-tell s) '(21 30))) (+ (snap-sf s) (brain-delay b)) (second (or (snap-tell s) '(21 30)))))
+  (cond ((and hoho-ok (< (brain-hoho-roll b) (ai-table e :hoho 0.2))) (why b :anti-bind :hoho))
+        ((< (brain-react-roll b) (getf *ai-anti-breaker-p* (brain-difficulty b) 0.5)) (why b :anti-bind :side-step))))
+
+(def-reflex-step ai-anti-parry
+  "a parry up close: don't feed it; a Breaker breaks it (half the time), else wait"
+  (and (member :parry (snap-flags s)) (eq (snap-phase s) :main) (< d 4.0))
+  (and (< (brain-react-roll b) 0.5) (why b :anti-parry :breaker)))
+
+(def-reflex-step ai-awaken
+  "The awakening: EVOLUTION ready, our Reishi at or above the kit's :awaken-above and its rule says awaken (AI-AWAKEN-P)."
+  (and (gauges-evolution g) (>= (reishi-frac g) (ai-table e :awaken-above 0.0))
+       (ai-awaken-p e))
+  :awaken)
+
+(def-reflex-step ai-follow-up
+  "a stunned opponent (Guard Break, broken stance, our knockback) still stunned when Q1 lands"
+  (and (eq (snap-state s) :stun) (>= (snap-left-seen s b) (mv-s q)) (< d (+ (mv-reach q) 0.6)))
+  (why b :follow-up :q))
+
+(def-reflex-step ai-stun-follow
+  "... farther, the kit's :stun-follow (cmd lo hi): its move if it lands before he is free (Rukia: Shirafune, SOSEN)"
+  (let* ((sf (ai-table e :stun-follow)) (c (first sf)))
+    (and sf (eq (snap-state s) :stun) (<= (second sf) d (third sf)) (kit-command-ok-p e c)
+         (>= (snap-left-seen s b) (mv-s (kit-command-move kit c)))))
+  (why b :stun-follow (first (ai-table e :stun-follow))))
+
+(def-reflex-step ai-oki
+  "the opponent is launched / down (untouchable for a while): the kit's :oki command (Yamamoto: a full-charge Shiranui, which also fills Inferno -> Hellfire, whose burn he only risks above :oki-above of his Reishi)"
+  (and (member (snap-state s) '(:air :down)) (eq (ai-table e :oki) :sp1-full) (mv-hold (kit-command-move kit :sp1))
+       (kit-command-ok-p e :sp1) (> d 3.0)
+       (>= (reishi-frac g) (ai-table e :oki-above 0.0)))
+  (why b :oki (ai-table e :oki)))
+
+(def-reflex-step ai-react
+  "the kit's reactions: stance vs a projectile / a Flash startup it can still beat (stance-in must end before the Flash hits, after our perception delay); a parry (West) vs a Flash startup whose hit falls in its window (the SP's super freeze holds him *SUPER-FREEZE* f more)"
+  (let ((r (ai-table e :react)))
+    (and r (< (brain-react-roll b) *ai-react-p*)
+         (or (and (snap-projectile s) (getf r :projectile))
+             (and (eq (snap-kind s) :flash) (< d 4.0) (getf r :flash-startup) (kit-command-ok-p e (getf r :flash-startup))
+                  (let ((lead (snap-lead-seen s b))
+                        (mv (kit-command-move kit (getf r :flash-startup))))
+                    (if (member :parry (mv-flags mv))
+                        (and (eq (snap-phase s) :main) (parry-frame-p (+ lead *super-freeze*)))
+                        (>= lead (+ *stance-in* 2))))))))
+  (let ((r (ai-table e :react)))
+    (why b :react (if (snap-projectile s) (getf r :projectile) (getf r :flash-startup)))))
+
+(def-reflex-step ai-guard-break
+  "a long guard up close: Breaker it"
+  (and (eq (snap-state s) :guard) (>= (snap-guard-t s) *ai-guard-break-hold*) (< d *ai-guard-break-range*)
+       (/= (brain-break-key b) (snap-start s)))
+  (setf (brain-break-key b) (snap-start s))
+  (and (< (sim-rnd01) *ai-guard-break-p*) (why b :guard-break :breaker)))
+
+(def-reflex-step ai-threat
+  "a committed move coming: Hoho it (flash-step to spare) or guard it; a low guard gauge guards less and steps aside instead (AI-GUARD-MULT); a Kikon rush on us red: Hoho or Step"
+  (and (eq (snap-state s) :move) (member (snap-kind s) '(:quick :flash :sig :sp :breaker :kikon))
+       (snap-live-p s) (snap-near-p s e d *ai-threat-margin*))   ; (an :x-axis line: on it, in its real window)
+  (let ((chance (+ (ai-table e :guard 0.3) (if (eq (brain-intent b) :defend) 0.25 0.0))))
+    (cond ((and hoho-ok (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g))
+                (>= (- (snap-s s) (snap-sf s)) 6) (not (snap-reflect-p s))   ; (a reflect is :opp-reflect's)
+                (< (brain-hoho-roll b) (if (and (eq (snap-kind s) :quick) (ai-mash-p b))   ; a masher's J: Hoho it more
+                                           (max *ai-anti-mash-hoho* (* 2 (ai-table e :hoho 0.2)))
+                                           (ai-table e :hoho 0.2))))
+           (why b (if (ai-mash-p b) :anti-mash :hoho) :hoho))
+          ((and red (eq (snap-kind s) :kikon)) (why b :anti-kikon :side-step))
+          ((member :grab (snap-flags s)) (why b :anti-grab :side-step))   ; a grab: nothing guards it
+          ((< (brain-guard-roll b) (* chance guard-k)) :guard)
+          ((< (brain-guard-roll b) chance) (why b :low-guard :side-step)))))
+
 (defun ai-reflex (e b s d)
   "The reflexes (checked before the intent): a command keyword or NIL. S = the perceived opponent,
 D = the perceived distance."
@@ -701,65 +830,34 @@ D = the perceived distance."
       ((ai-opp-aim e b s d))
       ((ai-opp-reflect e b s d))
       ;; Bankai West's reversal: the ward just blocked a hit up close (no blockstun): SHONETSU JIGOKU (L) now and then
-      ((let ((p (ai-table e :ward-reversal)))
-         (and p (passive-p e :ward) (<= (- *match-tick* (fighter-warded f)) 1) (< (fighter-dist f) 3.0)
-              (kit-command-ok-p e :sig) (< (brain-react-roll b) p)))
-       (why b :ward-reversal :sig))
+      ((not (eq (setq r (ai-step-claim e :ward-reversal b s d)) :pass)) r)   ; (AI-WARD-REVERSAL)
       ;; the reset: our blocked string just ended (no safe hit left in it) and he still guards: Q1 again
-      ((and (eq (brain-was b) :move) (eq (fighter-contact f) :block) (< d (+ (mv-reach q) 0.2)) (ai-pressure-p e))
-       (why b :pressure :q))
+      ((not (eq (setq r (ai-step-claim e :reset b s d)) :pass)) r)   ; (AI-RESET)
       ;; a red opponent still reeling from our hits (or bound): rush him
-      ((and (kikon-ready-p e) (member (snap-state s) '(:stun :air)) (< d (ai-table e :kikon-range 7.0))
-            (kit-command-ok-p e :kikon) (not (ai-sb-finish-p e)))
-       (why b :kikon :kikon))
+      ((not (eq (setq r (ai-step-claim e :kikon-rush b s d)) :pass)) r)   ; (AI-KIKON-RUSH)
       ;; the Bankai (cup 3, red, free: the kit's :bankai), before the cash-out; free as for the first awakening
       ;; (AWAKEN-STATE-P, the user 2026-10-09; it was idle / guard only)
-      ((let ((bk (ai-table e :bankai)))
-         (and bk (kit-bankai-form kit) (bankai-allowed-p (awaken-state-p e f) (gauges-konpaku g))
-              (let ((ok (kit-bankai-ok kit))) (or (null ok) (funcall ok e)))   ; (the kit's own rule, if any: :bankai-ok)
-              (not (bind-of e))                                                ; (never in a bind: BANKAI-OK-P refuses it)
-              (ai-bankai-p e b bk)))
-       (why b :bankai :awaken))
+      ((not (eq (setq r (ai-step-claim e :bankai b s d)) :pass)) r)   ; (AI-BANKAI)
       ;; NOMIHOSE's cash-out (the kit's :cashout): Shift+K only as a punish (he has >= :punish frames of recovery
       ;; or stun left, in the 12 m lane) or within :near m while NOME is below :below (it would drain away anyway)
-      ((let ((c (ai-table e :cashout)))
-         (and c (kit-command-ok-p e :sp1) (< d 12.0)
-              (setf (brain-why b)
-                    (cond ((and (member (snap-state s) '(:move :stun)) (< (snap-left s) 99)
-                                (>= (snap-left-seen s b) (getf c :punish)))
-                           :cashout-punish)
-                          ((and (< d (getf c :near)) (< (gauges-meter g) (getf c :below))) :cashout-near)))))
-       :sp1)
+      ((not (eq (setq r (ai-step-claim e :cashout b s d)) :pass)) r)   ; (AI-CASHOUT)
       ;; South's tell under us: its grab comes 16 f after the stab (real move frame 36); from what we see
       ;; (delayed), step sideways out of it (the anti-rush chance) or Hoho it (the Hoho roll; perfect late)
-      ((and (member :bind (snap-flags s)) (eq (snap-phase s) :main)
-            (<= (first (or (snap-tell s) '(21 30))) (+ (snap-sf s) (brain-delay b)) (second (or (snap-tell s) '(21 30)))))
-       (cond ((and hoho-ok (< (brain-hoho-roll b) (ai-table e :hoho 0.2))) (why b :anti-bind :hoho))
-             ((< (brain-react-roll b) (getf *ai-anti-breaker-p* (brain-difficulty b) 0.5)) (why b :anti-bind :side-step))))
+      ((not (eq (setq r (ai-step-claim e :anti-bind b s d)) :pass)) r)   ; (AI-ANTI-BIND)
       ;; a parry up close: don't feed it; a Breaker breaks it (half the time), else wait
-      ((and (member :parry (snap-flags s)) (eq (snap-phase s) :main) (< d 4.0))
-       (and (< (brain-react-roll b) 0.5) (why b :anti-parry :breaker)))
-      ((and (gauges-evolution g) (>= (reishi-frac g) (ai-table e :awaken-above 0.0))
-            (ai-awaken-p e))
-       :awaken)
+      ((not (eq (setq r (ai-step-claim e :anti-parry b s d)) :pass)) r)   ; (AI-ANTI-PARRY)
+      ((not (eq (setq r (ai-step-claim e :awaken b s d)) :pass)) r)   ; (AI-AWAKEN)
       ;; we just blocked an ender (-12 ...): it's our turn, felt at once (no perception delay); a K3 (-20) HARD
       ;; punishes with K1 when it reaches
       ((ai-step-cmd e :block-punish b s d))               ; (AI-BLOCK-PUNISH)
       ;; a stunned opponent (Guard Break, broken stance, our knockback) still stunned when Q1 lands
-      ((and (eq (snap-state s) :stun) (>= (snap-left-seen s b) (mv-s q)) (< d (+ (mv-reach q) 0.6)))
-       (why b :follow-up :q))
+      ((not (eq (setq r (ai-step-claim e :follow-up b s d)) :pass)) r)   ; (AI-FOLLOW-UP)
       ;; ... farther, the kit's :stun-follow (cmd lo hi): its move if it lands before he is free (Rukia: Shirafune, SOSEN)
-      ((let* ((sf (ai-table e :stun-follow)) (c (first sf)))
-         (and sf (eq (snap-state s) :stun) (<= (second sf) d (third sf)) (kit-command-ok-p e c)
-              (>= (snap-left-seen s b) (mv-s (kit-command-move kit c)))))
-       (why b :stun-follow (first (ai-table e :stun-follow))))
+      ((not (eq (setq r (ai-step-claim e :stun-follow b s d)) :pass)) r)   ; (AI-STUN-FOLLOW)
       ;; the opponent is launched / down (untouchable for a while): the kit's :oki command
       ;; (Yamamoto: a full-charge Shiranui, which also fills Inferno -> Hellfire, whose burn he
       ;; only risks above :oki-above of his Reishi)
-      ((and (member (snap-state s) '(:air :down)) (eq (ai-table e :oki) :sp1-full) (mv-hold (kit-command-move kit :sp1))
-            (kit-command-ok-p e :sp1) (> d 3.0)
-            (>= (reishi-frac g) (ai-table e :oki-above 0.0)))
-       (why b :oki (ai-table e :oki)))
+      ((not (eq (setq r (ai-step-claim e :oki b s d)) :pass)) r)   ; (AI-OKI)
       ;; a recovering opponent in reach: punish
       ((ai-step-cmd e :punish b s d))                     ; (AI-PUNISH)
       ;; an incoming Breaker, a Kikon rush, or a rush's follow-up strike coming (it hit us, not red): guard
@@ -770,37 +868,12 @@ D = the perceived distance."
       ;; the kit's reactions: stance vs a projectile / a Flash startup it can still beat (stance-in
       ;; must end before the Flash hits, after our perception delay); a parry (West) vs a Flash startup
       ;; whose hit falls in its window (the SP's super freeze holds him *SUPER-FREEZE* f more)
-      ((let ((r (ai-table e :react)))
-         (and r (< (brain-react-roll b) *ai-react-p*)
-              (or (and (snap-projectile s) (getf r :projectile))
-                  (and (eq (snap-kind s) :flash) (< d 4.0) (getf r :flash-startup) (kit-command-ok-p e (getf r :flash-startup))
-                       (let ((lead (snap-lead-seen s b))
-                             (mv (kit-command-move kit (getf r :flash-startup))))
-                         (if (member :parry (mv-flags mv))
-                             (and (eq (snap-phase s) :main) (parry-frame-p (+ lead *super-freeze*)))
-                             (>= lead (+ *stance-in* 2))))))))
-       (let ((r (ai-table e :react)))
-         (why b :react (if (snap-projectile s) (getf r :projectile) (getf r :flash-startup)))))
+      ((not (eq (setq r (ai-step-claim e :react b s d)) :pass)) r)   ; (AI-REACT)
       ;; a long guard up close: Breaker it
-      ((and (eq (snap-state s) :guard) (>= (snap-guard-t s) *ai-guard-break-hold*) (< d *ai-guard-break-range*)
-            (/= (brain-break-key b) (snap-start s)))
-       (setf (brain-break-key b) (snap-start s))
-       (and (< (sim-rnd01) *ai-guard-break-p*) (why b :guard-break :breaker)))
+      ((not (eq (setq r (ai-step-claim e :guard-break b s d)) :pass)) r)   ; (AI-GUARD-BREAK)
       ;; a committed move coming: Hoho it (flash-step to spare) or guard it; a low guard gauge guards
       ;; less and steps aside instead (AI-GUARD-MULT); a Kikon rush on us red: Hoho or Step
-      ((and (eq (snap-state s) :move) (member (snap-kind s) '(:quick :flash :sig :sp :breaker :kikon))
-            (snap-live-p s) (snap-near-p s e d *ai-threat-margin*))   ; (an :x-axis line: on it, in its real window)
-       (let ((chance (+ (ai-table e :guard 0.3) (if (eq (brain-intent b) :defend) 0.25 0.0))))
-         (cond ((and hoho-ok (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g))
-                     (>= (- (snap-s s) (snap-sf s)) 6) (not (snap-reflect-p s))   ; (a reflect is :opp-reflect's)
-                     (< (brain-hoho-roll b) (if (and (eq (snap-kind s) :quick) (ai-mash-p b))   ; a masher's J: Hoho it more
-                                                (max *ai-anti-mash-hoho* (* 2 (ai-table e :hoho 0.2)))
-                                                (ai-table e :hoho 0.2))))
-                (why b (if (ai-mash-p b) :anti-mash :hoho) :hoho))
-               ((and red (eq (snap-kind s) :kikon)) (why b :anti-kikon :side-step))
-               ((member :grab (snap-flags s)) (why b :anti-grab :side-step))   ; a grab: nothing guards it
-               ((< (brain-guard-roll b) (* chance guard-k)) :guard)
-               ((< (brain-guard-roll b) chance) (why b :low-guard :side-step))))))))
+      ((not (eq (setq r (ai-step-claim e :threat b s d)) :pass)) r))))   ; (AI-THREAT)
 
 (defun j-beats-k-p (e b)
   "J beats K (docs/duel/DUEL_STRINGS.md §4): on the first free step after our blockstun, the string's next link is a K link

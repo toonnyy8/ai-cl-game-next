@@ -328,3 +328,11 @@ AI-DECIDE.
 **Batch 3** (2026-10-25, 「繼續轉移下一批共用 AI 的功能」): AI-REFLEX's in-move clauses (†), as claiming steps; the kit's
 `:move-reflex` keeps its place between `:guard-cancel` and `:string`.
 
+**Batch 4** (2026-10-25, again 「繼續轉移下一批共用 AI 的功能」): the rest of AI-REFLEX, after the learner's read and the kit's
+`:reflex` / `:opp-reflex` / `:opp-aim` / `:opp-reflect` (they keep their places): `:ward-reversal` (Bankai West's L), `:reset`
+(Q1 after a blocked string), `:kikon-rush` (a red, reeling opponent), `:bankai`, `:cashout` (NOMIHOSE), `:anti-bind`
+(South's tell), `:anti-parry`, `:awaken`, `:follow-up` (a stunned opponent in J1's reach), `:stun-follow`, `:oki`, `:react`
+(the kit's stance / parry reactions), `:guard-break` (a long guard up close), `:threat` (a committed move coming: Hoho / guard
+/ side step), all claiming steps (DEF-REFLEX-STEP: AI-REFLEX's locals bound alike, each clause's test and body as written).
+AI-REFLEX is now its order of steps and hooks only; AI-NEUTRAL / AI-DECIDE come next.
+
