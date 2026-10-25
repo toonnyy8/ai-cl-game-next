@@ -727,3 +727,25 @@ build 0 warnings, smoke exit 0; no sim gate (§15). Playtest v162.
 
 A kit `:unscaled` hook (combat.lisp) next to §16.3's SP rule; Hisagi's ranged mode answers it for a chain-tip hit
 (DUEL_HISAGI §25.36). Host 10228 ALL PASS, build 0 warnings, smoke exit 0; no sim gate. Playtest v166.
+
+### 13.10 As built: −50's clips (batch ru-m50 fd8cd90, merged; presentation only)
+
+- **Wiring.** The `:m50` kit: `:stance :ru-50-stance`, `:clip-map *ru-50-clips*` (HYŌSHIN included), `:look-clips
+  *ru-50-looks*`, `:run-clips`. −273 inherits `:m18` and keeps the map off. Every two-hand clip (the guard, walks, run, the
+  blade strikes) is in `*grip-clips*` (the left fist on the hilt); the K's and HAINAWA leave the left hand free. The old
+  −50 key edits (`:ru-palm-50 :ru-spin-50 :ru-flower-50 :ru-stab-2h`) play nowhere now (kept until the clean-up).
+- **Clips (18)**: `-stance` (low, wide, both hands on the hilt at the navel), `-walk-f / -walk-b / -strafe-r / -strafe-l`
+  (a heavy shuffle), `-run`, `-j1` (the right knee up, the chop on the right stamp), `-j2` (the left stamp, the rising cut),
+  `-j3` (the knee-height half turn, keyed every ~90°, a double stamp), `-k1` (the palm forward-low, the point ~10 cm into the
+  plaza beside it), `-k2` (both palms swept up: the ice wall), `-k3` (both palms down in a deep squat, the head up last at
+  f47), `-hyoshin` (two stamps, the two-hand stab), `-hakuren-hold` (a stamp a 12 f, turning to each spike), `-hakuren`
+  (swept low across), `-shirafune` (the deep lunge, the back knee near the plaza), `-hakka`, `-hainawa` (a stamp, the
+  fingers).
+- **霜の穂先** (`:flat` from the left palm): K1 1.83 m `:ru-frost-rime` (a crust, a spike at the tip), K2 2.29 m
+  `:ru-frost-wall` (a wall of shards at the end), K3 1.90 m `:ru-frost-flowers`. Consing 0 B.
+- **Drawn reach** (two-hand J's fit, no volume moved): J1 1.56 / 1.58 (−2 cm), J2 1.46 / 1.45 (+0), J3 1.67 / 1.72 (−5),
+  K1 2.54 / 2.55 (−1), K2 2.75 / 2.75 (0), K3 2.64 / 2.64 (0), HAINAWA 1.28 / 1.35 (−7); the other forms' lines unchanged.
+- **Checks on the merge**: host 10228 ALL PASS, pkgcheck clean, build 0 warnings, smoke exit 0, `--cvc` 3 PASS; her
+  seven pairings × 10 seeds identical to the parent (the batch's run). Playtest v167. For the playtest: the left fist
+  falls 0.1–0.2 m short of the hilt in the wide tells (J2, SP1's hold, J3's end); K1's point (~10 cm) and HYŌSHIN's (~18
+  cm) go into the plaza on purpose; up close the K ice runs past him to the edge.
