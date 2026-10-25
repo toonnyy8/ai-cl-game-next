@@ -502,6 +502,16 @@
 "down": false
 },
 {
+"at": 38.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 38.08,
+"key": "ArrowDown",
+"down": false
+},
+{
 "at": 38.2,
 "key": "Enter",
 "down": true
@@ -662,6 +672,16 @@
 },
 {
 "at": 43.38,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 43.5,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 43.58,
 "key": "ArrowDown",
 "down": false
 },

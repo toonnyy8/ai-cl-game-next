@@ -208,6 +208,16 @@ guards by itself)."
     (:guard-hit (if (member state '(:stun :air :down :wakeup :guard-hit)) *dummy-guard-hold* (max 0 (1- left))))
     (t 0)))
 
+(defun dummy-counter-now-p (state sf stun glock)
+  "PRACTICE's COUNTER (the user 2026-10-25: 「幫我將練習模式的假人新增一個受傷後反擊的功能」; 「固定 J1」, 「被打中或擋下後都反擊」):
+does the dummy press J1 at the end of this step? On the last step of a hit / block reaction STATE (its SF of STUN frames:
+the next step frees it, STUN-STEP; a wake-up's *REACTION-FRAMES*, AIR-STEP), not while a guard lock (GLOCK) still holds its
+blockstun. Pressed with Guard let go, the reaction ends in neutral, not back in a guard (*GUARD-EXIT*), and the buffered
+press starts J1 on its first free frame."
+  (case state
+    ((:stun :guard-hit) (and (>= (1+ sf) stun) (not (and (eq state :guard-hit) glock)) t))
+    (:wakeup (>= (1+ sf) (getf *reaction-frames* :wakeup)))))
+
 ;;; PRACTICE's HP / KONPAKU rows (the user's request 2026-09-28): the values RESET POSITION and every refill restore
 (defparameter *practice-hp* '(100 75 50 25 10) "The P1 HP / DUMMY HP steps, % of the fighter's Reishi maximum.")
 (defun practice-reishi (reishi-max pct) "Reishi for PCT % of REISHI-MAX (never 0: 0 would be a Soul Break)." (max 1 (ceiling (* reishi-max pct) 100)))

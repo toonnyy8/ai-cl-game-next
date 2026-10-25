@@ -703,6 +703,7 @@ duel -> RESULTS winner P2 konpaku 0-9 ticks 5474 secs 91.2
 | 項目 | 值（粗體是預設） | 效果 |
 |---|---|---|
 | DUMMY | **STAND**／GUARD ALL／GUARD AFTER HIT／CPU | 站著不動、全部防禦、被打中第一下之後才開始防（用來確認連段是不是真的連得上）、或交給電腦（用選角時選的難度） |
+| COUNTER | **OFF**／J1 | 假人每次被打中或擋下後，第一個能動的幀就用 J1 反擊（DUMMY 是 CPU 時不作用） |
 | HP REFILL | **AUTO**／OFF | AUTO：連段一結束假人的血就回到 DUMMY HP 的值；OFF：不補，可以把它打到紅血練 Kikon |
 | GAUGES | **NORMAL**／INFINITE | INFINITE：自己的血維持在 P1 HP 的值，防禦量表、靈壓、瞬步、覺醒量表一直是滿的，覺醒和 SP 隨便試（爆氣時瞬步量表照樣燒到 0、爆氣結束才回滿） |
 | P1 HP／DUMMY HP | **100%**／75／50／25／10% | 自己／假人的血，改了立刻生效；重置、補血、K.O. 之後也回到這個值。25% 就是紅血 |

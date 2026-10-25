@@ -90,6 +90,7 @@ left / right:
 | Option | Values (default first) | What it does |
 |---|---|---|
 | DUMMY | **STAND** / GUARD ALL / GUARD AFTER HIT / CPU | P2's brain switched off (STAND), holding guard always, or from the moment a hit lands on it until 60 f after its last hit or block (`dummy-guard-left`: a string's first hit lands, the rest is blocked unless it combos); CPU = the brain on, at the difficulty picked on the select screen |
+| COUNTER | **OFF** / J1 | J1 (2026-10-25, the user: 「幫我將練習模式的假人新增一個受傷後反擊的功能」, 「固定 J1」, 「被打中或擋下後都反擊」): on the last step of each hit / block reaction (or wake-up) the dummy lets Guard go and presses J1 (`dummy-counter-now-p`; not while a guard lock holds its blockstun), so J1 starts on its first free frame (measured: free f52 → KE-J1 f53 after a K1 hit; free f44 → f45 after a block); any DUMMY but CPU |
 | HP REFILL | **AUTO** / OFF | AUTO: the dummy's Reishi is back at its DUMMY HP row once it is out of its hit / block reactions (a combo ended); OFF: it stays, so it can be taken red, and a Soul Break (its Konpaku refilled) refills it |
 | GAUGES | **NORMAL** / INFINITE | INFINITE: P1's Reishi held at its P1 HP row, his guard gauge, Reiatsu, flash step and Awakening gauge full every frame (awakenings, SPs and Hohos are free to try). The kit meters (Inferno, NOME) keep their own play, so Hellfire and the cups still come from playing |
 | P1 HP, DUMMY HP | **100 %** / 75 / 50 / 25 / 10 % | that fighter's Reishi, at once; also what RESET POSITION, HP REFILL, INFINITE and a K.O. restore (`practice-reishi`; 25 % is red) |

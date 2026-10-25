@@ -309,15 +309,15 @@ ev += tap(t, "Escape") + tap(t + 0.5, "ArrowDown") + tap(t + 0.75, "ArrowDown") 
 ev += tap(t + 1.5, "Escape") + [cmd(t + 2.0, 2393)] + tap(t + 2.5, "KeyJ") + tap(t + 3.3, "KeyJ")
 t += 5.0
 ev += tap(t, "Escape")                                                             # GAUGES -> INFINITE, CAMERA -> BEHIND
-for i in range(4): ev += tap(t + 0.4 + 0.25 * i, "ArrowDown")
+for i in range(5): ev += tap(t + 0.4 + 0.25 * i, "ArrowDown")   # (row 5 since COUNTER, 2026-10-25)
 ev += tap(t + 1.6, "Enter")
-for i in range(7): ev += tap(t + 2.0 + 0.2 * i, "ArrowDown")                      # CAMERA (row 11)
+for i in range(7): ev += tap(t + 2.0 + 0.2 * i, "ArrowDown")                      # CAMERA (row 12)
 ev += tap(t + 3.6, "Enter") + tap(t + 4.1, "Escape") + [cmd(t + 5.0, 2107)]
 t += 5.5
 # the HP / KONPAKU rows (the user's request 2026-09-28): P1 HP 100 -> 50 %, P1 KONPAKU 9 -> 4, DUMMY HP -> 25 %,
 # DUMMY KONPAKU 9 -> 8; the dump: P1 r650 k4 (INFINITE holds his Reishi at his row), P2 r325 k8
 ev += tap(t, "Escape")
-for i in range(5): ev += tap(t + 0.4 + 0.2 * i, "ArrowDown")                       # P1 HP (row 5)
+for i in range(6): ev += tap(t + 0.4 + 0.2 * i, "ArrowDown")                       # P1 HP (row 6)
 ev += tap(t + 1.6, "ArrowRight") + tap(t + 1.8, "ArrowRight") + tap(t + 2.1, "ArrowDown")
 for i in range(5): ev += tap(t + 2.4 + 0.2 * i, "ArrowLeft")                       # P1 KONPAKU 4
 ev += tap(t + 3.6, "ArrowDown")

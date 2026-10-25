@@ -1,7 +1,7 @@
 ;;;; flow.lisp — the screens (design-v1 §6): TITLE → MODE (VS CPU / ENDLESS / PRACTICE / VS PLAYER / CPU VS CPU /
 ;;;; SETTINGS / CONTROLS / MANUAL (the page's manual.html, onehand.lisp OPEN-MANUAL); ENDLESS: endless.lisp, its STAGE CLEAR is the flow state :clear) → SELECT (P1, then P2 / the CPU, then difficulty and, VS CPU / PRACTICE, the camera; both models on the
 ;;;; plaza) → INTRO → BATTLE (pause: RESUME / RESTART / CHARACTER SELECT / TITLE, VS CPU also CAMERA; PRACTICE: RESUME /
-;;;; RESET POSITION / DUMMY / HP REFILL / GAUGES / P1 HP / P1 KONPAKU / DUMMY HP / DUMMY KONPAKU / CHARACTER SELECT /
+;;;; RESET POSITION / DUMMY / COUNTER / HP REFILL / GAUGES / P1 HP / P1 KONPAKU / DUMMY HP / DUMMY KONPAKU / CHARACTER SELECT /
 ;;;; TITLE / CAMERA) → FINISH (K.O. / TIME) → RESULTS
 ;;;; (REMATCH / SELECT / TITLE). SETTINGS (2026-09-28): ONE-HAND MODE (AUTO / ON / OFF), HAND, TAP SPLIT, SENSITIVITY,
 ;;;; CAMERA, LEARNING CPU (control.lisp *SETTINGS*, saved by onehand.lisp), then RESET LEARNING (ai-learn.lisp LEARN-RESET-ALL). VS CPU and PRACTICE are one-handed (the thumb deck,
@@ -226,6 +226,8 @@ it lives on in memory)."
   "The DUMMY option: stands, guards everything, guards after a hit lands (control.lisp DUMMY-GUARD-LEFT), the CPU at
 the chosen difficulty.")
 (defvar *dummy* :stand "PRACTICE's DUMMY option.")
+(defvar *dummy-counter* nil "PRACTICE's COUNTER: J1 (T: the dummy hits back with J1 as each hit / block reaction ends, any DUMMY
+but CPU; control.lisp DUMMY-COUNTER-NOW-P) / OFF.")
 (defvar *hp-refill* t "PRACTICE's HP REFILL: AUTO (T: the dummy's Reishi is full again once a combo on it ends) / OFF.")
 (defvar *gauges-inf* nil "PRACTICE's GAUGES: INFINITE (T: P1's Reishi at its P1 HP row; guard, Reiatsu, flash step, Awakening
 full) / NORMAL.")
@@ -250,7 +252,9 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
   (let* ((f (fighter *p2*)) (g (gauges *p2*)) (b (brain *p2*)))
     (unless (eq *dummy* :cpu)
       (setf (brain-press b) :guard (brain-press-mod b) nil
-            (brain-press-left b) (dummy-guard-left *dummy* (fighter-state f) (brain-press-left b))))
+            (brain-press-left b) (dummy-guard-left *dummy* (fighter-state f) (brain-press-left b)))
+      (when (and *dummy-counter* (dummy-counter-now-p (fighter-state f) (fighter-sf f) (fighter-stun f) (fighter-glock f)))
+        (setf (brain-press b) :quick (brain-press-left b) 1)))   ; COUNTER: J1 (BRAIN-STEP writes it, the guard let go)
     (setf (gauges-konpaku g) (svref *practice-rows* 3))
     (when (and *hp-refill* (not (member (fighter-state f) '(:stun :air :down :wakeup :guard-hit))))
       (setf (gauges-reishi g) (practice-hp *p2*))))
@@ -364,7 +368,7 @@ at once; Escape / Start cancels the wait. Then RESET DEFAULTS and BACK."
 (defun pause-keys ()
   "The pause menu's rows: PRACTICE's options replace RESTART; ENDLESS has RETIRE only (the run's results are one row
 away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA toggle."
-  (append (case *mode* (:practice '(:resume :reset :dummy :refill :gauges :p1-hp :p1-kon :dm-hp :dm-kon))
+  (append (case *mode* (:practice '(:resume :reset :dummy :counter :refill :gauges :p1-hp :p1-kon :dm-hp :dm-kon))
                 (:endless '(:resume :retire)) (t '(:resume :restart)))
           (unless (eq *mode* :endless) '(:select :title))
           (when (and (vs-cpu-p) (not *one-hand*)) '(:camera))))
@@ -372,11 +376,12 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
   (case k
     (:resume "RESUME") (:restart "RESTART") (:retire "RETIRE") (:select "CHARACTER SELECT") (:title "TITLE") (:camera (camera-label))
     (:reset "RESET POSITION") (:dummy (format nil "DUMMY  ~a" (cdr (assoc *dummy* *dummies*))))
+    (:counter (if *dummy-counter* "COUNTER  J1" "COUNTER  OFF"))
     (:refill (if *hp-refill* "HP REFILL  AUTO" "HP REFILL  OFF")) (:gauges (if *gauges-inf* "GAUGES  INFINITE" "GAUGES  NORMAL"))
     ((:p1-hp :p1-kon :dm-hp :dm-kon)
      (let ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))))
        (format nil "~a ~a  ~d~:[~;%~]" (if (< i 2) "P1" "DUMMY") (if (evenp i) "HP" "KONPAKU") (svref *practice-rows* i) (evenp i))))))
-(defparameter *practice-option-keys* '(:dummy :refill :gauges :p1-hp :p1-kon :dm-hp :dm-kon) "PRACTICE's option rows.")
+(defparameter *practice-option-keys* '(:dummy :counter :refill :gauges :p1-hp :p1-kon :dm-hp :dm-kon) "PRACTICE's option rows.")
 (defun pause-items () (mapcar #'pause-label (pause-keys)))
 (defun pause-do (k dir)
   "Pause row K chosen (DIR 1), or an option row moved by left / right (DIR -1 / 1)."
@@ -384,6 +389,7 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
     (:resume (setf *paused* nil)) (:restart (start-match)) (:retire (endless-retire)) (:select (go-select)) (:title (go-title)) (:camera (toggle-cam))
     (:reset (practice-reset))
     (:dummy (setf *dummy* (cycle *dummy* (mapcar #'car *dummies*) dir)) (practice-dummy!))
+    (:counter (setf *dummy-counter* (not *dummy-counter*)))
     (:refill (setf *hp-refill* (not *hp-refill*))) (:gauges (setf *gauges-inf* (not *gauges-inf*)))
     ((:p1-hp :p1-kon :dm-hp :dm-kon)                      ; the new value in force at once
      (let* ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))) (v (svref *practice-rows* i)))

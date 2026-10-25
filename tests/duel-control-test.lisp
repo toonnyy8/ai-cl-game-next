@@ -235,6 +235,15 @@
 (check (loop for d in '(:stand :cpu) always (loop for st in '(:idle :stun :guard-hit) always (zerop (dummy-guard-left d st 50)))))
 ;; GUARD AFTER HIT: nothing before a hit; a hit (or a blocked one) holds it *DUMMY-GUARD-HOLD* frames; free, it counts down
 (check (zerop (dummy-guard-left :guard-hit :idle 0)))
+;; COUNTER (2026-10-25): J1 on a hit / block reaction's last step, not under a guard lock, never when free
+(check (dummy-counter-now-p :stun 19 20 nil))
+(check (not (dummy-counter-now-p :stun 10 20 nil)))
+(check (dummy-counter-now-p :guard-hit 19 20 nil))
+(check (not (dummy-counter-now-p :guard-hit 25 20 t)))
+(check (dummy-counter-now-p :stun 19 20 t))
+(check (dummy-counter-now-p :wakeup (1- (getf *reaction-frames* :wakeup)) 0 nil))
+(check (not (dummy-counter-now-p :wakeup 0 0 nil)))
+(check (every (lambda (st) (not (dummy-counter-now-p st 99 1 nil))) '(:idle :guard :run :move :air :down)))
 (check (every (lambda (st) (= *dummy-guard-hold* (dummy-guard-left :guard-hit st 3))) '(:stun :air :down :wakeup :guard-hit)))
 (check (let ((left *dummy-guard-hold*) (n 0))
          (loop while (plusp left) do (setf left (dummy-guard-left :guard-hit :guard left)) (incf n))
