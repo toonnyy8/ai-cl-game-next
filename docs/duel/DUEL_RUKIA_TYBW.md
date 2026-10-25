@@ -749,3 +749,31 @@ A kit `:unscaled` hook (combat.lisp) next to §16.3's SP rule; Hisagi's ranged m
   seven pairings × 10 seeds identical to the parent (the batch's run). Playtest v167. For the playtest: the left fist
   falls 0.1–0.2 m short of the hilt in the wide tells (J2, SP1's hold, J3's end); K1's point (~10 cm) and HYŌSHIN's (~18
   cm) go into the plaza on purpose; up close the K ice runs past him to the edge.
+
+### 13.11 As built: −273's clips and the clean-up (batch ru-m0 317217a, merged; presentation only)
+
+- **Clips (11, `:ru-0-`; feet never move, 序破急)**: `-stance` (upright, head bowed, no breath, the point low across her),
+  `-j1` (the flick up flat across, the arm straight, the hips 0.12 m forward over the feet), `-j2` (the backhand ↙), `-j3`
+  (the halo over her head, the torso ~60° on planted feet, hips 0.2 m), `-k1` (the vertical guard tipped slowly level, the
+  lance), `-k2` (the sleeve brushed out at the waist, the frost sheet), `-k3` (the bow, the palm on the plaza, the head up at
+  f49), `-reido` (the head lifts, the sleeve swept low, sudden), `-hakuren` (one stab, the blade raised at him), `-shirafune`
+  (the arm raised straight forward), `-hakka` (levelled from point-down); helper poses `:ru-0-low` / `-low-r` keep the
+  1.3 m point out of the plaza on the way back.
+- **Wiring**: the `:zero` kit `:stance :ru-0-stance`, `:clip-map *ru-0-clips*`; `:ru-z-j2`, `:ru-reido`, `:ru-hakuren-0`
+  name their clips; −50's `:ru-a-k1-50 / :ru-j3-50 / :ru-a-k3-50 / :ru-hyoshin` name theirs (out of `*ru-50-clips*`; what
+  −50 plays is unchanged). The ice blade `:ru-ice` 0.96 → 1.30 m (length 1.34; a look).
+- **霜の穂先**: K1 2.57 m `:ru-frost-lance`, K2 2.95 m `:ru-frost-veil` (`:palm`), K3 2.92 m `:ru-frost-lotus` (`:flat`).
+  Consing 0 B.
+- **Drawn reach** (zero now checked both ways, out of `*reach-one-sided*`): J1 1.88 / 1.94 (−7 cm), J2 1.71 / 1.78 (−7),
+  J3 1.98 / 2.11 (−13), K1 4.08 / 4.08 (0), K2 3.39 / 3.38 (+2), K3 3.24 / 3.24 (0); the other forms unchanged. The J's
+  reach their ×1.35 arcs only with the arm straight and the hips leaning over the planted feet (J3 a visible lean).
+- **Retired**: the clips `:ru-q1-z :ru-thrust-z` (and the white body's `:clips` swap), `:ru-reido :ru-zero :ru-stance
+  :ru-tsukishiro :ru-palm-50 :ru-spin-50 :ru-flower-50 :ru-stab-2h :ru-shirafune :ru-cold-stance` (with their only poses;
+  `:ru-stance` / `:ru-cold-stance` stay as poses). **Kept**: `:ru-q1 :ru-ring` (Senjumaru's Divine Soldier), `:ru-hakka` (the
+  白霞罸 cinematic), `:ru-spin` (the model sheet), and the inherited moves' clip keys every form maps (`:ru-q2 :ru-thrust
+  :ru-drop :ru-stab :ru-hakuren :ru-palm :ru-flower :ru-breaker :ru-hainawa`), the intro / win / Kikon / awakening clips.
+- **Checks on the merge**: host 10228 ALL PASS, pkgcheck clean, build 0 warnings, smoke exit 0, `--cvc` 3 PASS; her seven
+  pairings × 10 seeds identical to the parent (the batch's run). Playtest v168. For the playtest: 白霞罸's card shows the
+  raised ice blade off the top of the frame; K2's sleeve reads weakly from behind (the sheet carries it); K3's reversed
+  blade stands up behind her in the bow; O's pillar hides her levelling.
+- **The motion pass is complete**: every Rukia form plays its own clips (the Shikai 29, −18 18, −50 18, −273 11).
