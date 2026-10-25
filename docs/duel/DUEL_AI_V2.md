@@ -349,3 +349,8 @@ stance's, HURRY's pips, the learner's bandit); STRING-REFLEX is its claiming ste
 `:l-cancel`, the kit's `:sp-ender` hook (in place), `:sp-cancel`, `:end-orange`. Left shared: BRAIN-STEP's frame (perception, the
 Burst clock, the press written to the vpad), AI-COMMAND (how a command is held / charged) and the walk.
 
+**Batch 7** (2026-10-25): BRAIN-STEP's press-first choices `:chain-follow` (ORANGE's restart J), `:j-beats-k` (J out of his
+recovering blocked link), `:gap-step` (out of his restart), claiming steps (AI-BRAIN-CLAIM, (e b s d) → `:pass` or it pressed);
+and AI-COMMAND's `:command (b kit cmd d e)` (AI-COMMAND-PRESS: every command's buttons and hold lengths; read from KIT's own
+`:steps` when the fighter E is given).
+

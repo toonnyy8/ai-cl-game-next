@@ -75,7 +75,9 @@
 ;;;;               :step-in :dash-in :dash-back :neutral-guard :neutral-attack
 ;;;;               AI-ATTACK's :attack-weights (e b kit s d heat hurry weights) -> the weights (AI-ATTACK-WEIGHTS); STRING-REFLEX's,
 ;;;;               each (e b f mv) -> :PASS or the command (DEF-STRING-STEP): :string-queued :string-bait :l-link :k-link :j-link
-;;;;               :k-only :l-cancel, the kit's :sp-ender, :sp-cancel :end-orange
+;;;;               :k-only :l-cancel, the kit's :sp-ender, :sp-cancel :end-orange; BRAIN-STEP's :chain-follow :j-beats-k :gap-step
+;;;;               (e b s d) -> :PASS or it pressed (AI-BRAIN-CLAIM); AI-COMMAND's :command (b kit cmd d e) (AI-COMMAND-PRESS: how
+;;;;               a command's buttons are held: charges, stances, the Breaker, the Kikon rush)
 (in-package :duel)
 
 (defstruct snap
@@ -319,7 +321,13 @@ string the guard lock holds him in while his guard gauge is low (AI-GG-LOW-P), o
                                                (getf *ai-burst-p* (brain-difficulty b) 0.4))))))
 
 (defun ai-command (b kit cmd d &optional e)
-  "Press the buttons of kit command CMD at distance D (holding charge / stance / Breaker moves a
+  "Press the buttons of kit command CMD at distance D: KIT's own :command step (its :ai :steps, given the fighter E; batch 7,
+2026-10-25), else AI-COMMAND-PRESS."
+  (let ((h (and e (getf (getf (kit-ai kit) :steps) :command))))
+    (if h (funcall h b kit cmd d e) (ai-command-press b kit cmd d e))))
+
+(defun ai-command-press (b kit cmd d &optional e)
+  "The generic :command step: press the buttons of kit command CMD at distance D (holding charge / stance / Breaker moves a
 while: a charge move is held to its full charge from beyond 7 m, where it has the time)."
   (let ((r (sim-rnd01))
         (cmd (if (and (kit-rooted kit) (member cmd '(:hoho :side-step :step))) :q cmd)))   ; rooted (Rukia's zero / THAW)
@@ -356,6 +364,7 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
                            :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush
                            :o-ender ai-o-ender :step-j ai-step-j :breaker-string ai-breaker-string :guard-cancel ai-guard-cancel
                            :string ai-string :orange ai-orange :pressure ai-pressure
+                           :chain-follow ai-chain-follow :j-beats-k ai-j-beats-k :gap-step ai-gap-step :command ai-command-press
                            :attack-weights ai-attack-weights :string-queued ai-string-queued :string-bait ai-string-bait :l-link ai-l-link :k-link ai-k-link :j-link ai-j-link :k-only ai-k-only :l-cancel ai-l-cancel :sp-cancel ai-sp-cancel :end-orange ai-end-orange
                            :intent ai-pick-intent :neutral-kikon ai-neutral-kikon :white ai-white :pip-hurry ai-pip-hurry :cool ai-cool :brace ai-brace :step-in ai-step-in :dash-in ai-dash-in :dash-back ai-dash-back :neutral-guard ai-neutral-guard :neutral-attack ai-neutral-attack
                            :ward-reversal ai-ward-reversal :reset ai-reset :kikon-rush ai-kikon-rush :bankai ai-bankai :cashout ai-cashout :anti-bind ai-anti-bind :anti-parry ai-anti-parry :awaken ai-awaken :follow-up ai-follow-up :stun-follow ai-stun-follow :oki ai-oki :react ai-react :guard-break ai-guard-break :threat ai-threat)
@@ -1205,6 +1214,27 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
          (>= (fighter-sf fo) (+ (mv-s om) (mv-a om))) (>= (fighter-dist f) (+ (mv-reach q) 0.2))
          (< (sim-rnd01) (getf *ai-gap-step-p* (brain-difficulty b) 0.5)))))
 
+;;; ---------------------------------------------------------------- BRAIN-STEP's press-first steps (batch 7, 2026-10-25): claiming
+;;; steps (AI-BRAIN-CLAIM, :PASS when not this one; else they pressed and the step is spent), moved as written
+(defun ai-brain-claim (e name b s d)
+  "BRAIN-STEP's step NAME (e b s d): :PASS (not this one) or anything else (it pressed)."
+  (let ((h (ai-step e name))) (if h (funcall h e b s d) :pass)))
+
+(defun ai-chain-follow (e b s d)
+  "ORANGE's restart: J now (AI-CHAIN-FOLLOW-P)."
+  (declare (ignore s d))
+  (if (ai-chain-follow-p e) (progn (ai-press b :quick 1) (setf (brain-why b) :chain) t) :pass))
+
+(defun ai-j-beats-k (e b s d)
+  "J out of his recovering blocked J / K link (J-BEATS-K-P)."
+  (declare (ignore s d))
+  (if (j-beats-k-p e b) (progn (ai-press b :quick 1) (setf (brain-why b) :j-beats-k) t) :pass))
+
+(defun ai-gap-step (e b s d)
+  "Step out of his restart (AI-GAP-STEP-P)."
+  (declare (ignore s d))
+  (if (ai-gap-step-p e b) (progn (ai-press b :step 1 :act :step) (setf (brain-why b) :gap-step) t) :pass))
+
 (defun brain-step (e b)
   "One step of the CPU: perceive, then hold / reflex / neutral, written to the vpad."
   (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))) (o (fighter-opp f)))
@@ -1236,9 +1266,9 @@ recovers, too far for our J1 (J-BEATS-OPEN-P's window but its reach), against a 
               ((funcall (ai-step e :burst) e b)                                   ; a Burst, else the awakening (AI-BURST-ROLL)
                (if (burst-ok-p e) (ai-press b :quick 1 :modded t :act :burst) (ai-press b :awaken 1))
                (setf (brain-why b) :burst))
-              ((ai-chain-follow-p e) (ai-press b :quick 1) (setf (brain-why b) :chain))   ; ORANGE's restart
-              ((j-beats-k-p e b) (ai-press b :quick 1) (setf (brain-why b) :j-beats-k))
-              ((ai-gap-step-p e b) (ai-press b :step 1 :act :step) (setf (brain-why b) :gap-step))   ; out of his restart
+              ((not (eq (ai-brain-claim e :chain-follow b s d) :pass)))         ; ORANGE's restart (AI-CHAIN-FOLLOW)
+              ((not (eq (ai-brain-claim e :j-beats-k b s d) :pass)))            ; (AI-J-BEATS-K)
+              ((not (eq (ai-brain-claim e :gap-step b s d) :pass)))             ; out of his restart (AI-GAP-STEP)
               ((and (brain-habit b) (habit-fire e b s d)))                     ; debug: a scripted player's habit
               ((and (brain-learn b) (learn-fire e b s d)))                     ; the learning CPU's planned counter
               ((and (> (brain-press-left b) 0)                                    ; a reflex may drop a guard / a dash,
