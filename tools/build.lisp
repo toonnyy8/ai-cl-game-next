@@ -5,6 +5,10 @@
 (defparameter *root* (truename (merge-pathnames "../" (directory-namestring *load-truename*))))
 (defparameter *emsdk* (or (ext:getenv "EMSCRIPTEN") "/media/8tsp/projects/emsdk/upstream/emscripten/"))
 (defun root (p) (namestring (merge-pathnames p *root*)))
+(defun no-circle-dump ()
+  "ECL's compiled-file syntax (SI::+ECL-SYNTAX-PROGV-LIST+, this host process only) with *PRINT-CIRCLE* NIL (see below)."
+  (let* ((pv si::+ecl-syntax-progv-list+) (i (position '*print-circle* (car pv))))
+    (setf (nth i (cdr pv)) nil)))
 ;; compile-time file reads (the WGSL macro in engine/lisp/render.lisp) use root-relative paths
 (setf *default-pathname-defaults* *root*)
 
@@ -37,6 +41,12 @@
   ;; documentation hash table rebuilt as it grows) while ECL-INIT-MODULE runs with the collector off,
   ;; e.g. 27 of the engine alone's 43 MB of load garbage (docs/engine/ARCHITECTURE.md, "Runtime model").
   (setf ext:*register-with-pde-hook* nil si::*keep-documentation* nil)
+  ;; The module's constants written without #n= labels (*PRINT-CIRCLE* off in ECL's dump syntax): with labels the
+  ;; reader's *SHARP-EQ-CONTEXT* is patched into every constant at load, one fresh hash table of all the labels a
+  ;; constant (READ-VV's PATCH-SHARP): 303 labels x ~15 k constants was ~340 MB of load garbage, the heap stuck at 359 MB
+  ;; and a 20 ms collection every ~25 s (2026-10-26, docs/engine/ARCHITECTURE.md "Runtime model"). Our constants share
+  ;; only atoms and literal lists (no circular data, no uninterned symbols: a shared one is written twice, an EQUAL copy).
+  (no-circle-dump)
   (unless (compile-file unit :output-file obj :system-p t)
     (ext:quit 1))
   (c:build-static-library (concatenate 'string out "game") :lisp-files (list obj) :init-name "init_game")

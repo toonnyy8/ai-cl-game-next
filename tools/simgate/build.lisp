@@ -29,4 +29,6 @@
                (ffi:clines \"#include \\\"tools/simgate/stubs.c\\\"\")~%~
                (defun simgate-cmd (c) (ffi:c-inline (c) (:int) :void \"debug_cmd(#0)\" :one-liner t))~%"))
   (setf ext:*register-with-pde-hook* nil si::*keep-documentation* nil)
+  (let* ((pv si::+ecl-syntax-progv-list+) (i (position '*print-circle* (car pv))))   ; (as tools/build.lisp: constants
+    (setf (nth i (cdr pv)) nil))                                                      ;  without #n= labels)
   (ext:quit (if (compile-file unit :output-file out) 0 1)))

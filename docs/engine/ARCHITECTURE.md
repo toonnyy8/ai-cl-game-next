@@ -166,6 +166,17 @@ swapchain     composite (scene + bloom + vignette, desaturate *grade-desat*, spl
    `ext:*register-with-pde-hook*` and `si::*keep-documentation*` NIL (no annotations, no runtime
    docstrings — nothing reads them; the docstrings stay in the source): examples/hello's load garbage
    42.6 → 15.5 MB, SOUL DUEL's heap 119 → 57 MB.
+   **#n= labels in the constants (2026-10-26)**: by 2026-10-26 SOUL DUEL's `ecl_init_module` consed ~347 MB (13 MB
+   live after it), the heap stuck at 359 MB, wasm memory 459 MB, and the user felt hitches in fights. ECL writes a
+   module's constants with `*print-circle*` T (its dump syntax, `si::+ecl-syntax-progv-list+`), so every object two
+   constants share gets a `#n=` label (303 of them: shared floats, literal lists, defstruct slot specs, docstrings);
+   at load, READ-VV then runs PATCH-SHARP on each of the ~15 k constants, and each call builds a fresh hash table of
+   all the labels: O(constants × labels) garbage, growing faster than the code. `tools/build.lisp` (and
+   `tools/simgate/build.lisp`) now set `*print-circle*` NIL in that syntax for the compile (the host process only):
+   no labels, no patching; a shared constant is written twice and read as two EQUAL copies (none of ours is circular
+   or an uninterned symbol). Module load garbage ~347 → ~16 MB; startup heap 359.1 → 87.3 MB, wasm memory 458.9 →
+   153.6 MB. A full collection (step 4) still takes ~20 ms on this machine's headless Chrome (22 MB live), every
+   ~25 s of play.
 3. `emscripten_set_main_loop` calls `ENGINE::%FRAME` every animation frame: platform poll,
    `BEGIN-FRAME`, queued `Module._debug_cmd(n)` commands (→ the game's `:debug`), the game's
    `:frame`, `END-FRAME`. Returning `NIL` stops the loop. Any unhandled Lisp condition unwinds to C
