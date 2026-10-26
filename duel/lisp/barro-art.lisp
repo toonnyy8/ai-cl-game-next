@@ -9,7 +9,7 @@
 ;;;; tables *BR-W-STRETCH* and *BR-SQUASH*.
 (in-package :duel)
 
-(declaim (special *br-at* *br-keep-owl* *br-dash-moves* *br-snipe-moves* *br-snipe-kick* *br-w-l-levels*))   ; (*BR-AT*, *BR-DASH-MOVES*,
+(declaim (special *br-at* *br-keep-owl* *br-dash-moves* *br-snipe-moves* *br-snipe-kick* *br-w-l-levels* *br-snipe-levels*))   ; (*BR-AT*, *BR-DASH-MOVES*,
                                                                               ;  *BR-SNIPE-MOVES* below; *BR-KEEP-OWL*,
                                                                               ;  *BR-W-L-LEVELS* barro.lisp's, loaded after)
 
@@ -317,7 +317,7 @@
 ;;; FK over the rig (the keys' comments: the muzzle and the grip in metres, x his right / y up / f ahead, the barrel's
 ;;; azimuth (+ = his right) and elevation): on each hit frame Diagramm's struck point on his line at the move's drawn reach
 ;;; (barro.lisp *BR-W-TIPS* "BR-S", the host FK test: drawn reach = hit reach).
-;;; - L 蓄力狙擊: the charge pose :br-sk-lc while L is held (the move's :clip, up to 60 f at speed 1): shouldered, the aim
+;;; - L 蓄力狙擊: the charge pose :br-sk-lc while L is held (the move's :clip, up to 90 f at speed 1): shouldered, the aim
 ;;;   settling, braced lower and wider by the level (BR-DEFORM); the shot :br-sk-l1 (the level 2 / 3 copies' clip; since R16,
 ;;;   DUEL_LILLE_V3 §20, level 1's own :br-sk-l1s, its :clip-2, with the 16-frame wind-up), its kick and its look by the level
 ;;;   (%BR-SNIPE-LOOK; the body thrown back by it, BR-DEFORM).
@@ -561,12 +561,14 @@
   (42 :lb-stance (:root :u -0.1) (:arm-r :flex 30) (:elbow-r :flex 70) (:hand-r :flex -90))
   (52 :lb-stance (:root :u -0.05)) (:end :lb-stance))
 (pushnew :br-f2 *grip-clips*)   ; (K2 two-handed: the left fist on the handle, GRIP-LEFT!)
-;; L 蓄力狙擊 (R15): the charge, held (the move's :clip, at speed 1 up to *BR-W-L-HOLD* 60 f): shouldered by f5, settled and
+;; L 蓄力狙擊 (R15): the charge, held (the move's :clip, at speed 1 up to *BR-SNIPE-HOLD* 90 f, 60 before 2026-10-26): shouldered by f5, settled and
 ;; braced by f9, then breathing on the aim, a little lower every beat (the level's coil on top: BR-DEFORM) ...
-(defstrike :br-sk-lc (8 2 50 :base :lb-kamae-pose)
+(defstrike :br-sk-lc (8 2 80 :base :lb-kamae-pose)
   (0) (5 :br-pl-aim (:root :u -0.08) (:head :flex 8)) (9 :br-pl-brace)
   (20 :br-pl-brace (:root :u -0.15) (:head :flex 11)) (30 :br-pl-brace (:root :u -0.14))
-  (40 :br-pl-brace (:root :u -0.16) (:head :flex 11)) (50 :br-pl-brace (:root :u -0.15)) (:end :br-pl-brace (:root :u -0.17) (:head :flex 11)))
+  (40 :br-pl-brace (:root :u -0.16) (:head :flex 11)) (50 :br-pl-brace (:root :u -0.15))
+  (60 :br-pl-brace (:root :u -0.16) (:head :flex 11)) (70 :br-pl-brace (:root :u -0.15))   ; (90 f since 2026-10-26)
+  (80 :br-pl-brace (:root :u -0.17) (:head :flex 11)) (:end :br-pl-brace (:root :u -0.17) (:head :flex 11)))
 ;; ... and the shot on the release (the move's :clip-2 from the braced aim; level 2 / 3 the same clip): still on the line,
 ;; the crack f8, the kick (+12 deg, rocked back), back on the line (the level's push back on top: BR-DEFORM)
 (defstrike :br-sk-l1 (8 2 14 :base :lb-kamae-pose)
@@ -1341,7 +1343,8 @@ R15 (DUEL_LILLE_V3 §19): the base stance's charged snipe (*BR-SNIPE-MOVES*, its
 same way."
   `(let* ((%f ,f) (%mv (and (eq (fighter-state %f) :move) (fighter-move %f))))
      (if (and %mv (or (member (mv-name %mv) *br-dash-moves*) (member (mv-name %mv) *br-snipe-moves*)))
-         (let* ((%l *br-w-l-levels*) (%a (i->f (the fixnum (first %l)))) (%b (i->f (the fixnum (second %l)))))
+         (let* ((%l (if (member (mv-name %mv) *br-snipe-moves*) *br-snipe-levels* *br-w-l-levels*))   ; (the snipe's own)
+                (%a (i->f (the fixnum (first %l)))) (%b (i->f (the fixnum (second %l)))))
            (declare (single-float %a %b))
            (if (eq (fighter-phase %f) :hold)
                (let ((%h (i->f (the fixnum (fighter-hold %f)))))

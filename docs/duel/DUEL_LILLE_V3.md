@@ -1523,3 +1523,22 @@ Recorded in AGENTS.md's accepted exceptions; deployed to GitHub Pages.
 BR-DEFSTANCE gives the KL1–3 segments of the awakened stances (JILLIEL EN `:br-e-kl*`, the owl's `:br-oe-kl*`; not the base
 stance's) the hit flag `:unscaled`: COMBAT deals them at combo index 1 (no combo scaling), every other multiplier as before.
 Host check in tests/duel-rules/core.lisp. Record: DUEL_RUKIA_TYBW §16.2, DEVLOG §363.
+
+## 32. The snipe: a longer whiff, a longer charge (the user, 2026-10-26)
+
+The user: 「請提高利捷狙擊打空時的硬質破綻，並提高蓄力的時間」. Asked how much, the user chose 「+20 幀，打空 42 幀」, 「×1.5：30／60，最多
+90」 and, the charge levels being shared with the awakened L dash, 「只改狙擊」.
+
+- **The whiff**: `*br-snipe-whiff*` 20 on top of the stance L's `*br-s-l-whiff*` 8: the base stance's L (`:br-s-l1`, and its
+  level 2 / 3 copies `:br-s-l1-2` / `-3`) whiffs into R 14 + 8 + 20 = **42** frames (was 22); a hit or a block as before.
+  The awakened stances' L (the dash) keeps R + 8.
+- **The charge**: the snipe's own `*br-snipe-levels*` (30 60) and `*br-snipe-hold*` 90 (were the dash's `*br-w-l-levels*`
+  20 / 40 and `*br-w-l-hold*` 60, which the dash keeps). BR-W-L-LEVEL takes the move (BR-L-LEVELS / BR-L-HOLD: the
+  `:charged` param picks the snipe's); BR-S-SNIPE-RELEASE, the stance's hold clamp and the move's `:hold` use them.
+- **His CPU**: `*br-ai-snipe-hold*` (1 34 64) for the snipe's planned levels (the dash keeps `*br-ai-hold*` 1 / 24 / 44: 4 f
+  past each level), `*br-ai-let-go*` 12 / 20 → 22 / 30 (the snipe held on into level 2 from 8 f short of it), and the charge
+  tick reads the move's levels and hold.
+- **The look**: the charge pose `:br-sk-lc` 60 → 90 frames (two more breaths on the aim); the charge glow and the snipe's look
+  step at the snipe's levels (presentation only).
+- Tests: `tests/duel-rules/barro.lisp` (the whiff 42 on the three snipe moves, the levels 29 / 30 / 59 / 60, the hold 90,
+  the dash's untouched, the CPU's holds past each level, the let-go at 15 / 25 / 35 f, the charge clip covering 90 f).

@@ -89,7 +89,7 @@
           (check (and (= (mv-dmg (mv "L1")) (if (string= pre "BR-S") *br-snipe-dmg-1* *br-w-cut-dmg*)) (= (mv-dmg (mv "K2")) *br-s-k-dmg*) (= (mv-dmg (mv "J1")) *br-s-j-dmg*)
                       (= (mv-dmg (mv "KL1")) *br-s-kl-dmg*) (= (mv-dmg (mv "JL2")) *br-s-jl-dmg*)))
           (if (string= pre "BR-S")
-              (check (and (getf (mv-params (mv "L1")) :charged) (equal (mv-hold (mv "L1")) (list 0 *br-w-l-hold*))   ; (R15)
+              (check (and (getf (mv-params (mv "L1")) :charged) (equal (mv-hold (mv "L1")) (list 0 *br-snipe-hold*))   ; (R15; 2026-10-26 its own 90)
                           (eq 'br-s-snipe-release (mv-release (mv "L1"))) (null (gethash (nm "L2") *moves*))
                           (equal (mapcar (lambda (n) (mv-dmg (find-move n))) '(:br-s-l1 :br-s-l1-2 :br-s-l1-3))
                                  (list *br-snipe-dmg-1* *br-snipe-dmg-2* *br-snipe-dmg-3*))
@@ -155,8 +155,17 @@
   (dolist (pre '("BR-S" "BR-E" "BR-OE"))
     (dolist (sg '("L1"))   ; (R15: the base's one charged L too)
       (let ((m (find-move (intern (format nil "~a-~a" pre sg) :keyword))))
-        (check (= (mv-whiff m) (+ (mv-r m) *br-s-l-whiff*))))))
+        (check (= (mv-whiff m) (+ (mv-r m) *br-s-l-whiff* (if (string= pre "BR-S") *br-snipe-whiff* 0)))))))   ; (the snipe +20)
   (check (= *br-s-l-whiff* *whiff-extra-j*))
+  ;; the snipe (the user 2026-10-26: 「請提高利捷狙擊打空時的硬質破綻，並提高蓄力的時間」: +20 f on a whiff, its own levels 30 / 60 and
+  ;; hold 90, x1.5; 「只改狙擊」: the dash keeps 20 / 40 / 60); its level 2 / 3 copies the same whiff; his CPU's holds past each level
+  (check (and (= *br-snipe-whiff* 20) (equal *br-snipe-levels* '(30 60)) (= *br-snipe-hold* 90)
+              (= 42 (mv-whiff (find-move :br-s-l1))) (= 42 (mv-whiff (find-move :br-s-l1-2))) (= 42 (mv-whiff (find-move :br-s-l1-3)))
+              (let ((s (find-move :br-s-l1)))
+                (and (= 1 (br-w-l-level 29 s)) (= 2 (br-w-l-level 30 s)) (= 2 (br-w-l-level 59 s)) (= 3 (br-w-l-level 60 s))
+                     (= 2 (br-w-l-level 30)) (= 90 (br-l-hold s)) (= *br-w-l-hold* (br-l-hold nil))))
+              (destructuring-bind (l2 l3) *br-snipe-levels*
+                (and (< (first *br-ai-snipe-hold*) l2) (<= l2 (second *br-ai-snipe-hold*) l3) (<= l3 (third *br-ai-snipe-hold*) *br-snipe-hold*)))))
   ;; R10 (「L 衝刺改成只能衝一次不能連接，但可以三階段續力…」): the awakened L held 0-60 f, levels at 20 / 40 f; by level the dash's
   ;; longest, its damage on the move's 16 and its specials
   (check (and (= 1 (br-w-l-level 0)) (= 1 (br-w-l-level 19)) (= 2 (br-w-l-level 20)) (= 3 (br-w-l-level 40)) (= 3 (br-w-l-level 60))))
@@ -364,9 +373,9 @@
     (check (= 0.0 (getf (kit-ai (kit :barro f)) :kikon-range))))
   (check (equal (mapcar (lambda (f) (getf (getf (kit-ai (kit :barro f)) :stance) :keep 0)) *br-forms*) '(0 4 4 2 2)))
   (check (equal (mapcar (lambda (f) (br-armor-cost f)) '(:jilliel :shin)) '(4 2)))   ; (the reserve is the armour's price)
-  (check (equal *br-ai-let-go* '(12 20)))   ; (the charge let go: the snipe held into level 2 from 12 f)
-  (check (equal (list (br-ai-let-go-p 5 t t) (br-ai-let-go-p 15 t t) (br-ai-let-go-p 25 t t) (br-ai-let-go-p 15 nil t)
-                      (br-ai-let-go-p 25 t nil))
+  (check (equal *br-ai-let-go* '(22 30)))   ; (the charge let go: the snipe held into level 2 from 22 f; 12 / 20 before 2026-10-26)
+  (check (equal (list (br-ai-let-go-p 15 t t) (br-ai-let-go-p 25 t t) (br-ai-let-go-p 35 t t) (br-ai-let-go-p 25 nil t)
+                      (br-ai-let-go-p 35 t nil))
                 '(t nil t t nil)))
   (check (equal (getf (getf (kit-ai (kit :barro :jilliel-kin)) :far-dash) :p) '(:easy 0.05 :normal 0.15 :hard 1.0)))   ; (round 2 b1a1)
   (check (equal (getf (getf (kit-ai (kit :barro :shin-kin)) :far-dash) :p) '(:easy 0.05 :normal 0.15 :hard 1.0)))
@@ -654,7 +663,7 @@ past the ends; DEFAULT if the clip is not listed."
                       0.5)))
   (let ((l (find-move :br-s-l1)))
     (check (and (eq (mv-clip l) :br-sk-lc) (eq (mv-clip-2 l) :br-sk-l1s) (~= 1.0 (mv-clip-speed l))
-                (>= (+ 0.01 (* 60 (clip-dur (find-clip :br-sk-lc)))) (* *br-w-l-hold* (mv-clip-speed l)))))
+                (>= (+ 0.01 (* 60 (clip-dur (find-clip :br-sk-lc)))) (* *br-snipe-hold* (mv-clip-speed l)))))
     ;; (R16, DUEL_LILLE_V3 §20, the user 2026-10-12: 「增加第 1 階 L 射擊的前搖」: level 1's shot S *BR-SNIPE-S1* 16, its own clip
     ;;  :br-sk-l1s the move's S + A + R, its :s on 16; the level 2 / 3 copies keep S 8 and :br-sk-l1, each lasting its move)
     (check (and (= (mv-s l) *br-snipe-s1* 16)

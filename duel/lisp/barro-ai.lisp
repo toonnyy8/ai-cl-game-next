@@ -199,7 +199,7 @@ the time, else a tap); a Step plan clears itself so the window after it (5 m out
       (when (eq plan :kamae-l)                            ; (the snipe: L held from its start, BR-KAMAE-GO's hold phase)
         (ai-press b :sig (nth (1- (br-learn-charge e b (br-ai-plan-level (br-ai-charge-p e b) (br-ai-snipe-level d k)
                                                                           (br-ai-snipe-floor e d))))
-                              *br-ai-hold*)
+                              *br-ai-snipe-hold*)
                   :act :hold))
       (pace e (intern (format nil "AI-~a" plan) :keyword))
       (why b :kamae plan)))
@@ -401,9 +401,10 @@ snipe's range (*BR-AI-SNIPE-MIN* + *BR-AI-SNIPE-BACK*); KIN keeps TO (the dash's
       (pace e :ai-kite)
       (why b :kite :pressed))))
 
-(defparameter *br-ai-let-go* '(12 20)
+(defparameter *br-ai-let-go* '(22 30)
   "His CPU holding a charge (BR-AI-CHARGE-TICK, dream-rsi b1a1): his attack (or his run in) perceived on him lets L go at
-once, but a base snipe held this many frames or more short of level 2 (*BR-W-L-LEVELS*' first) holds on into level 2 (its
+once, but a base snipe held this many frames or more short of level 2 (*BR-SNIPE-LEVELS*' first; 12 / 20 -> 22 / 30 with it,
+2026-10-26: the same 8 f before it) holds on into level 2 (its
 S 8 lands no later than level 1's S 16 from there, and harder: cell b2a0's finding); the dash lets go at any level (v5
 logs: 41 + 49 openings in the charges' hold, 90 of ~800 snipes Perfect-Hoho'd or hit while held).")
 
@@ -489,15 +490,15 @@ charge the line does not read Steps out of his Hoho (*BR-AI-HOHO-STEP-P*, one ro
         (setf (brs-ai-resume st) nil (brs-ai-charge-key st) key (brs-ai-stepped st) t))
       (unless (= key (brs-ai-charge-key st))
         (let ((lv (if (and (eq (brain-press b) :sig) (plusp (brain-press-left b)))
-                      (br-w-l-level (+ (fighter-hold f) (brain-press-left b)))
+                      (br-w-l-level (+ (fighter-hold f) (brain-press-left b)) mv)
                       1)))
           (setf (brs-ai-charge-key st) key (brs-ai-stepped st) nil
                 (brs-ai-let-go st) (< (sim-rnd01) (getf *br-ai-let-go-p* dif 0.0))
                 (brs-ai-line st) (if (and (>= lv 2) (< (sim-rnd01) (getf *br-ai-line-p* dif 0.0))) lv 0))
           (when (plusp (brs-ai-line st))   ; (L held to the cap: the line ends the press)
-            (setf (brain-press-left b) (max (brain-press-left b) (- *br-w-l-hold* (fighter-hold f))))))))
+            (setf (brain-press-left b) (max (brain-press-left b) (- (br-l-hold mv) (fighter-hold f))))))))
     (when (and s (eq (brain-press b) :sig) (plusp (brain-press-left b)))
-      (let* ((snipe (getf (mv-params mv) :charged)) (held (fighter-hold f)) (lv (br-w-l-level held))
+      (let* ((snipe (getf (mv-params mv) :charged)) (held (fighter-hold f)) (lv (br-w-l-level held mv))
              (closing (br-ai-closing b s d e)))
         (flet ((fire (why) (setf (brain-press-left b) 0) (pace e why) t)
                (step-out () (and (br-charge-step-go e f st mv) (setf (brs-ai-resume st) t) (pace e :ai-line-step) t)))
@@ -530,7 +531,7 @@ charge the line does not read Steps out of his Hoho (*BR-AI-HOHO-STEP-P*, one ro
                 (t
                  (multiple-value-bind (perp along vperp) (br-ai-line-of e b s)
                    (let* ((hurt (body-hurt-r (model-body (model (opp-of e)))))
-                          (lvls *br-w-l-levels*) (target (brs-ai-line st))
+                          (lvls (br-l-levels mv)) (target (brs-ai-line st))
                           (next-f (cond ((< held (first lvls)) (- (first lvls) held)) ((< held (second lvls)) (- (second lvls) held)) (t 0)))
                           (call (if snipe
                                     (br-ai-line-call lv target perp vperp along (+ (brain-delay b) 9)

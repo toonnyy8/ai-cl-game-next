@@ -385,6 +385,13 @@ facing axis. R9 (§14): J the top's flat wing (1.85 / 1.7), K2 the backhand (2.7
 (defparameter *br-s-l-whiff* 8
   "A whiffed stance L segment recovers R + this (decision R5, the user 2026-10-11: 「架式 > L 只要沒打中就進入硬直」, 「就跟一般的
 J / K 普攻一樣」: a J link's *WHIFF-EXTRA-J*; the :sig moves' *WHIFF-EXTRA* 6 before).")
+(defparameter *br-snipe-whiff* 20
+  "The base stance's charged snipe (its L): a whiff recovers R + *BR-S-L-WHIFF* + this (the user 2026-10-26: 「請提高利捷狙擊打空時
+的硬質破綻」, 「+20 幀」: 14 + 8 = 22 -> 42; a hit or a block as before; the awakened stance's L dash keeps R + 8).")
+(defparameter *br-snipe-levels* '(30 60)
+  "The base stance's charged snipe: L held this many frames: level 2, level 3 (else 1) (the user 2026-10-26: 「並提高蓄力的時間」,
+「×1.5：30／60，最多 90」, 「只改狙擊」; before: the dash's *BR-W-L-LEVELS* 20 / 40) ...")
+(defparameter *br-snipe-hold* 90 "... L held at most this many frames (60 before, the dash's *BR-W-L-HOLD*).")
 (defparameter *br-w-segs*
   '(("K1" 16 18) ("K3" 18 22))
   "The awakened stances' melee openers timed apart from *BR-S-SEGS*: name, startup, recovery (decision R6, the user
@@ -445,7 +452,10 @@ before the form's x and the combo scaling (R10: one hit 16 + 0 / 16 / 32) ...")
 each), recovery, damage a hit, the reaction of the hits before the last and of the last, role, extra params (L's :gain
 step, the follow-ups' :spend, a string's last segment :end: his CPU's SP2 call)."))
 (defparameter *br-ai-hold* '(1 24 44)
-  "Frames his CPU holds L for a charged L of level 1 / 2 / 3 (the levels at 20 / 40 f held, *BR-W-L-LEVELS*; dream-rsi b1a0).")
+  "Frames his CPU holds L for a charged L of level 1 / 2 / 3 (the levels at 20 / 40 f held, *BR-W-L-LEVELS*; dream-rsi b1a0):
+the awakened dash's; the base snipe's *BR-AI-SNIPE-HOLD*.")
+(defparameter *br-ai-snipe-hold* '(1 34 64)
+  "... the base snipe's, its levels at 30 / 60 (*BR-SNIPE-LEVELS*; 2026-10-26: 24 / 44 -> 34 / 64, the same 4 f past each).")
 (defmacro br-defstance (prefix clips &key (adv 0) melee snipe (l-slow 1) k-mult kl-mult)
   "The stance's moves of PREFIX (*BR-S-SEGS*). CLIPS by segment; ADV the owl's +1 (R one less); K-MULT / KL-MULT the K / KL
 segments' :form-mult (the owl's, §29). MELEE (the awakened forms, R4:
@@ -477,8 +487,10 @@ copies -L1-2 / -L1-3 after the form) instead of the dash, its J / K MELEE as the
                  `(defmove ,name :kind ,kind :clip ,(or (third clip) (first clip)) :clip-s ,(second clip)
                     ,@(when (third clip) `(:clip-2 ,(first clip)))   ; (R10, DUEL_LILLE_V3 §15: the charge pose while held, the dash)
                     :startup ,st :active ,a :recovery ,r
-                    ,@(when (eq role :l) `(:whiff ,(+ r *br-s-l-whiff*)))   ; (R5: a whiffed L recovers as a J link)
-                    ,@(when (or dash sniper) '(:hold (0 *br-w-l-hold*)))   ; (R10: held to charge, 3 levels)
+                    ,@(when (eq role :l) `(:whiff ,(+ r *br-s-l-whiff* (if sniper *br-snipe-whiff* 0))))   ; (R5: a whiffed L recovers
+                                                        ;  as a J link; the snipe +*BR-SNIPE-WHIFF*, 2026-10-26)
+                    ,@(when dash '(:hold (0 *br-w-l-hold*)))   ; (R10: held to charge, 3 levels)
+                    ,@(when sniper '(:hold (0 *br-snipe-hold*)))   ; (2026-10-26: the snipe's own, 90)
                     ,@(when sniper '(:release br-s-snipe-release))   ; (R15: its level, the level 2 / 3 copies)
                     :dmg ,(cond (dash '*br-w-cut-dmg*) (sniper '*br-snipe-dmg-1*) (t dmg)) :adv-block ,(max (+ -12 adv) (- 1 (+ a r))) :track ,(if (or sniper dash) 0.0 720.0)   ; (>= 1 f of blockstun; R18: the charged L aims where he faced)
                     :vol ,(cond (dash `(:cap 0.0 ,*br-w-dash-reach* 1.2 ,*br-w-dash-r*))
@@ -1187,7 +1199,7 @@ CPU's: BR-AI-KAMAE); past the hold (30 f, 90 while L is held) the stance recover
         (turn-to-opp e f (track-step *br-aim-track*))
         (when (and (>= sf *br-kamae-up*) (>= (vpad-held vp :sig) *br-to-dash-held*))   ; (R15: L held, the snipe's charge)
           (start-move e (find-move :br-s-l1) :sig)
-          (setf (fighter-hold f) (min (vpad-held vp :sig) (1- *br-w-l-hold*)))
+          (setf (fighter-hold f) (min (vpad-held vp :sig) (1- *br-snipe-hold*)))
           (pace e :to-snipe)
           (return-from br-kamae-tick nil))
         (when (>= sf *br-kamae-up*)
@@ -1388,9 +1400,18 @@ His CPU makes one call there (BR-S-CPU-CALL); holding a charge (the :hold phase)
                           (start-move e next) (pace e :l-chain))
                          (t (pace e :follow-empty)))))))))))
 
-(defun br-w-l-level (held)
-  "The awakened L dash's charge level for HELD frames (*BR-W-L-LEVELS*): 1, 2 or 3."
-  (destructuring-bind (a b) *br-w-l-levels* (cond ((>= held b) 3) ((>= held a) 2) (t 1))))
+(defun br-w-l-level (held &optional mv)
+  "The charge level for HELD frames of the charged L MV (none: the awakened L dash): 1, 2 or 3 (BR-L-LEVELS)."
+  (destructuring-bind (a b) (br-l-levels mv) (cond ((>= held b) 3) ((>= held a) 2) (t 1))))
+
+(defun br-l-levels (mv)
+  "The level 2 / 3 frames of the charged L MV: the base snipe's (its :charged param) *BR-SNIPE-LEVELS*, else (the dash, or
+none) *BR-W-L-LEVELS*."
+  (if (and mv (getf (mv-params mv) :charged)) *br-snipe-levels* *br-w-l-levels*))
+
+(defun br-l-hold (mv)
+  "The frames the charged L MV is held at most: the snipe's *BR-SNIPE-HOLD*, else *BR-W-L-HOLD*."
+  (if (and mv (getf (mv-params mv) :charged)) *br-snipe-hold* *br-w-l-hold*))
 
 (defun br-w-dash (e)
   "The awakened L's S (decision R9; R10: charged): its gains unpaid (BR-S-START: a held move's f0 hooks never run, START-MOVE
@@ -1412,7 +1433,7 @@ starts the level's cuts (BARRO-HIT, BR-W-CUTS)."
 move's f0 hooks never run), its level by the frames held (BR-W-L-LEVEL); level 2 / 3 the longer shots (:br-s-l1-2 /
 :br-s-l1-3, started in its place; level 1 the move goes on). The shot goes where he faces (R18, DUEL_LILLE_V3 §23: its :track 0,
 no turn here; the stance aimed it at *BR-AIM-TRACK*, the charge's Step re-aims it: BR-SNIPE-STEP)."
-  (let* ((f (fighter e)) (st (br e)) (lv (br-w-l-level (fighter-charge f))))
+  (let* ((f (fighter e)) (st (br e)) (lv (br-w-l-level (fighter-charge f) (fighter-move f))))   ; (the snipe's levels)
     (br-s-start e)
     (setf (brs-l-lv st) lv)
     (pace e (svref #(:snipe-1 :snipe-2 :snipe-3) (1- lv)))

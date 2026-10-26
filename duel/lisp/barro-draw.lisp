@@ -429,9 +429,10 @@ core streak in them as well).")
 (defparameter *br-dash-cut-len* '(2.2 2.5 2.8)
   "The cuts on him after the dash (R9; R11, DUEL_LILLE_V3 §16: each a hit of the sim's, barro.lisp BR-W-CUTS' :br-cut
 hazards, drawn by BR-CUT-LOOK): this long (m, by the charge level), crossing round his middle.")
-(defmacro %br-l-level (held)
-  "The awakened L dash's charge level 1-3 for HELD frames (barro.lisp's BR-W-L-LEVEL on *BR-W-L-LEVELS*, inline: 0 B)."
-  `(let ((%h ,held) (%l *br-w-l-levels*))
+(defmacro %br-l-level (held &optional (levels '*br-w-l-levels*))
+  "The charge level 1-3 for HELD frames (barro.lisp's BR-W-L-LEVEL on LEVELS: the dash's *BR-W-L-LEVELS*, the snipe's
+*BR-SNIPE-LEVELS*; inline: 0 B)."
+  `(let ((%h ,held) (%l ,levels))
      (declare (fixnum %h))
      (cond ((>= %h (the fixnum (second %l))) 3) ((>= %h (the fixnum (first %l))) 2) (t 1))))
 (defun-fast %br-dash-look (f side mv)
@@ -578,8 +579,8 @@ muzzle, a ring of shards off the reticle; bigger at 3) over 10 frames from the l
   (setf rdt 0f0)                                        ; (unused: the hook's signature)
   (let* ((f (fighter e)) (mv (fighter-move f)))
     (when (and mv (member (mv-name mv) *br-snipe-moves*))
-      (let* ((h (fighter-hold f)) (lvs *br-w-l-levels*) (la (the fixnum (first lvs))) (lb (the fixnum (second lvs)))
-             (lv (%br-l-level h)) (side (fighter-side f)) (jm (model-joints (model e))) (mz *br-mz*) (gp *br-gp*) (pa *pose-at*)
+      (let* ((h (fighter-hold f)) (lvs *br-snipe-levels*) (la (the fixnum (first lvs))) (lb (the fixnum (second lvs)))
+             (lv (%br-l-level h *br-snipe-levels*)) (side (fighter-side f)) (jm (model-joints (model e))) (mz *br-mz*) (gp *br-gp*) (pa *pose-at*)
              (at *br-at*) (o (* 8 side)) (rt (camera-right *camera*)) (up (camera-upv *camera*)) (sc (aref *lb-v* 31))
              (pal (if (= lv 1) +pal-ink+ +pal-jade+)) (fl (i->f (mod (floor h 2) 2)))
              (p (f-clamp (/ (i->f (- h (case lv (1 0) (2 la) (t lb)))) (i->f (- lb la))) 0f0 1f0))
