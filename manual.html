@@ -186,6 +186,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 <tbody>
 <tr><td>RESET POSITION</td><td data-l="值">—</td><td data-l="效果">兩人回到開場位置、型態回到最初、量表全滿。</td></tr>
 <tr><td>DUMMY</td><td data-l="值"><b>STAND</b>／GUARD ALL／GUARD AFTER HIT／CPU</td><td data-l="效果">站著不動／全部防禦／被打中第一下之後才開始防（用來確認連段是不是真的連得上）／交給電腦（用選角時的難度）。</td></tr>
+<tr><td>COUNTER</td><td data-l="值"><b>OFF</b>／J1</td><td data-l="效果">J1：假人每次被打中或擋下、硬直（或倒地起身）一結束，第一個能動的幀就用 J1 反擊（DUMMY 是 CPU 時不作用）。用來確認自己打完會不會被確反、起身壓制時要怎麼防。</td></tr>
 <tr><td>HP REFILL</td><td data-l="值"><b>AUTO</b>／OFF</td><td data-l="效果">AUTO：連段結束後假人的靈子回到設定值；OFF：不補，可以打到紅血練 Kikon。</td></tr>
 <tr><td>GAUGES</td><td data-l="值"><b>NORMAL</b>／INFINITE</td><td data-l="效果">INFINITE：自己的靈子維持設定值，防禦量表、靈壓、瞬步、覺醒量表一直是滿的，SP 和覺醒隨便試。爆氣時瞬步量表照樣會燒到 0、爆氣結束後才回滿。</td></tr>
 <tr><td>P1 HP／DUMMY HP</td><td data-l="值"><b>100%</b>／75／50／25／10%</td><td data-l="效果">自己／假人的靈子。25% 就是紅血。</td></tr>
@@ -753,6 +754,8 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 <li>−273 時等對手進 5.5 公尺：零度凍結能打中衝過來的 Breaker；被凍觸凍住的人用 J 懲罰。不要一直撐住 U，防禦量表見底就是碎裂。</li>
 <li>−18 冷度不到 25 時 L 按不出來，先按住 U 攢一點冷度再放；想省冷度就別在 −50 亂 Step。</li>
 <li>她很輕，被連段容易被打飛：被壓制時不要硬拚，用藍色爆氣或 Step 拉開再重新放冰。</li>
+<li><b>對付她（覺醒）：</b>單獨放的 L 被你擋下時，你比她早恢復很多（−18 與 −50 早 18 幀、−273 早 22 幀）。她可以按住防禦提早取消 L 的後搖，但防禦要在你恢復後 13 幀才生效：近距離時你恢復第一幀按 J1（每個角色都在 10 幀內）一定打得到，K1（16 幀以上）會被她擋下。−273 例外：REIDO 結束前她身上的零度護體還在，J1 打上去會被吃掉（還會被凍住），要等她掉回 −50 才打得到。從 1.8 公尺外放、被擋後退到約 2.4 公尺時，只有往前衝的 J1（劍八）搆得到。反過來 L 打中你時她有 9 幀優勢：她接 J1 是連段，接 K1 你來得及防。</li>
+<li><b>對付她（覺醒）：</b>K 連段接 L（K1+L、K1K2+L、K1K2K3+L）被擋時，防禦鎖定從第一下一路鎖到 L 結束，中間沒有空隙（想中途脫身只能用藍色爆氣），結束時雙方同一幀恢復（±0）。<b>她一直重複 K1K2K3+L 時，破綻在兩輪之間</b>：她的 K1 要 17 幀才出來，你恢復的第一幀按 J1（6～9 幀）就先打中她。−273 的零度凍結會把你推到約 4.6 公尺，J1 搆不到，這時趁空檔靠近或 Hoho。</li>
 </ul>
 </details>
 </section>
