@@ -972,3 +972,10 @@ blockstun from the first blocked K to the end of the L, no gap; both free on the
 to open a punish there (release the lock on the L, or a gap between K and L), the user chose 「維持現狀，只記錄」. The manual's
 Rukia tips quote both rows.
 
+**Her loop K1 K2 K3 +L, K1 K2 K3 +L** (the user, 2026-10-26: 「重點在於對方不斷使用 K123+L , K123+L 迴圈時要等中間的破綻」): the
+gap is the restart. Both are free on the same frame after each loop (±0); her next K1 needs 17 f, so his J1 pressed on his first
+free frame lands first: measured (2.2 m, GUARD ALL + COUNTER J1) at −18 her K1 restarts f174-175 and Kenpachi's / Hisagi's /
+Yamamoto's J1 land f182 / f182 / f183; at −50 (restart f176) f183 / f184 / f185; at −273 REIDO leaves him 4.6 m away, beyond
+every J1 (the gap is for closing in or a Hoho). Guarding only, the loop goes on (and her blocked hits cool her: −18 → −50 after
+the first loop). If she restarts with J1 (7 f) instead, it is J1 against J1. The manual's tip says so.
+
