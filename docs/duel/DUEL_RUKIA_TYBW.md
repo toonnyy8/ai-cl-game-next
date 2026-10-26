@@ -954,13 +954,13 @@ RUKIA-AI-MU-DECIDE; her ASSIST's AUTO GUARD tries the anti-dash first). Two over
 matchup decision and skips a red opponent (66 vs 67 of 80 either order); (2) b0a2's Lille `:guard-on` row (a long guard on his
 stance entry and both dash moves) is removed: with it the anti-dash Hoho fired 260 times in 40 matches but HARD won 25 of 80
 against Lille, without it 67 of 80 (b1a2 alone on main 71, b0a2 alone 22; ablations: no dash-move guard 23, no entry guard 25).
-RUKIA-AI-MU-GUARD stays, listed by no row. CPU tests: b0a2's section + b1a2's anti-dash block, Lille's `:guard-on` pinned absent.
+RUKIA-AI-MU-GUARD stays, listed by no row. The removal approved by the user (「可以」, 2026-10-26). CPU tests: b0a2's section + b1a2's anti-dash block, Lille's `:guard-on` pinned absent.
 aieval on main (40 seeds): **0.9398** (strength 0.892, masher 1.0, signature 0.945; NORMAL share 0.477 in its 0.3-0.6 band;
 HARD vs Yamamoto 70, Kenpachi 53, Ichigo 80, Senjumaru 78, Lille 67, Hisagi 80 of 80). Her gates (with §17.11's L): DEVLOG §392.
 
 **Her gates** (the CPU with §17.11's L, 2026-10-26): every match K.O.; 20 seeds RI 140.6 s, RS 147.5 s, RL 156.9 s, RH 148.6 s,
-the mirror 157.6 s; RY 117.0 s and RK 119.6 s, rerun at 60 seeds: **RY 115.9 s, RK 111.8 s**, outside the window, reported to the
-user (the exception on record: 108.5 s / 102.7 s, §17.7). Awaken A/B: all 21 rows pass (the never-awaken side 21-40 of 60;
+the mirror 157.6 s; RY 117.0 s and RK 119.6 s, rerun at 60 seeds: **RY 115.9 s, RK 111.8 s**, outside the window: accepted as the
+exception on record (the user, 2026-10-26: 「沿用例外」; it was 108.5 s / 102.7 s, §17.7). Awaken A/B: all 21 rows pass (the never-awaken side 21-40 of 60;
 before, 4-18, §11.1-§11.2: the rebuilt CPU closes that). aieval 0.9386 (NORMAL share 0.479). ASSIST (the masher's wins): off
 26%, GUARD 1 / 2 27% / 57%, COMBO 69%, BREAK 34%, all 78%, all with GUARD 2 97%. `--cvc` 3 PASS.
 
@@ -1026,7 +1026,7 @@ guard cancel set to keep the three rules, the user picked 「+10 幀 (Recommende
 - **−273's ward**: absolute zero's passives (`:ward :freeze-touch`) stay on until REIDO ends (the cold drops her to −50 when she
   is free). So without the guard cancel his J1 into a blocked REIDO meets her ward (no stun, and the first touch of the visit
   freezes him); with it, the cancel ends REIDO early, she drops to −50 there and his J1 hits her. Rule 3 at −273 holds only
-  once she leaves zero; left as is, asked of the user.
+  once she leaves zero. Asked whether REIDO should drop her to −50 at its strike, the user chose 「維持」 (2026-10-26): kept.
 - **Her K string + L blocked** (§17.10): the guard lock still holds him to the L's end, so it stays ±0, 10 frames later (−18
   f89 / f130 / f183, −50 and −273 f90 / f132 / f185); the loop's gap is still the restart.
 - Tests: `tests/duel-rules/rukia.lisp` (the three moves' recovery / stun / `:gc-from`, the cancel's window, the bands' pin).
