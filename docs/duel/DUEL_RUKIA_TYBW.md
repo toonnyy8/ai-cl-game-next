@@ -912,3 +912,29 @@ Gates (her seven pairings, 20 seeds, all K.O.; median s and Rukia's wins of 20, 
 accepted them: 「RY 和 RK 先列為例外」 (2026-10-25).
 - **The search**: cells b0a0 and b1a0 were made on the freeze 2a68ece (without these steps); the remaining cells start from
   the new commit, and the baseline is re-scored on it (§17.5's 0.5898 was before).
+
+### 17.8 The search's round 1 (8 cells, 2026-10-25 / 26)
+
+Every cell rescored at the freeze 2a68ece (the evaluator's 40 seeds; the rescore's freeze pinned after b2a0 was first
+measured at 4b8e80f, the damage x0.75 commit). Strength = her HARD wins share, signature = her five themes' share.
+
+| Cell | Parent | Direction | Score | Strength | Signature | HARD wins of 80: Y K I S Lille H | Awaken A/B rows passing |
+|---|---|---|---|---|---|---|---|
+| baseline | — | — | 0.5898 | 0.273 | 0.616 | 29 0 58 44 0 0 | 3 / 21 |
+| b0a0 | — | the opponent | 0.7154 | 0.325 | 0.836 | 35 0 55 31 8 27 | 7 |
+| b1a0 | — | her resources | 0.7506 | 0.410 | 0.855 | 42 0 78 65 0 12 | 1 |
+| b2a0 | — | distance | 0.8421 | 0.671 | 0.882 | 71 9 80 67 16 79 | 17 |
+| b3a0 | — | the awakening | 0.7190 | 0.329 | 0.841 | 39 1 64 33 1 20 | 2 |
+| b0a1 | b0a0 | + b2a0's reactive layer, measured-payoff pokes per opponent | 0.8839 | 0.742 | 0.923 | 76 6 80 71 43 80 | 20 |
+| b1a1 | b1a0 | + b2a0's anti-step and oki seal, awaken at 1800 taken | 0.8906 | 0.750 | 0.931 | 72 35 79 74 20 80 | 16 |
+| **b1a2** | b1a1 | + the anti-dash Hoho against Lille's awakened charged dash | **0.9214** | 0.863 | 0.925 | 72 35 79 74 **74** 80 | — (only BR moves: 35 / 28 / 21, pass) |
+| b0a2 | b0a1 | + the comeback awakening (1800), b1a0's first-strike envelope per opponent | 0.9188 | 0.827 | **0.941** | **78 38 80 79** 42 80 | **21** |
+
+What every strong cell shares: J1 meeting his Step-in (HARD, read on the hop's first frame), the K route into 白漣, the
+knockdown cashed by RIKUJOKORO on his wake-up and the O on the sealed victim (the Kikon from full health), a bar kept for the
+seal, no plain O, the Breaker out of the neutral; and the awakening as a comeback (her Shikai out-scores her bands at the
+freeze). Open: Kenpachi (35-38 of 80; §17.6's guard bug at the freeze) and, outside b1a2, Lille's awakened dash.
+
+The dream (round 1's world): the adaptive policy (the skill's template) replayed 0.3577 against the floor's 0.1929 and is
+promoted for a next round. Two more cells the policy asked for (b2a1, b3a1) were not run: the user's budget, 8 cells.
+
