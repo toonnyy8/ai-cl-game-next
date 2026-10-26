@@ -416,7 +416,12 @@ and grep the function for `ecl_make_single_float`/`ecl_times`/`ecl_divide`.
 * **An inline defun boxes its float arguments** when the parameter is untyped:
   `(declaim (inline f)) (defun f (x) (ffi:c-inline (x) (:float) …))` still conses at every call.
   Write it as a macro (package.lisp: `f-min`, `f-sqrt`, `i->f` …; render.lisp: `srgb->lin`). An inline `defun-fast` called from
-  another one re-runs its type checks, and ECL boxes each float just to check it.
+  another one re-runs its type checks, and ECL boxes each float just to check it (`ECL_SINGLE_FLOAT_P(ecl_make_single_float(x))`).
+  → **`defun-fast-inline`** (package.lisp, 2026-10-26): a `defun-fast` plus a compiler macro that expands a direct call
+  in place with no entry checks, each single-float argument through `(float x 1f0)` (a no-op on a typed float form, `F32`
+  on any other real). Used by the HUD meters (`%hud-reishi` …, `hud-kosei`), `%ring` / `%arc` / `%disc`, `joint-point!`,
+  Senjumaru's `%sj-thread`. Pass a caller's own forms: an argument form that is itself `(float x 1f0)` binds an untyped
+  temporary and boxes.
 * **The math.lisp `!` functions box when they're inlined into another function.** `v3-sub!`,
   `v3-cross!`, `v3-normalize!` and `m4-transform-point!` expand inline, but the `v3-set!` inside
   them is called out of line with 3 boxed floats. Hot loops should spell out the math (see
@@ -432,6 +437,14 @@ and grep the function for `ecl_make_single_float`/`ecl_times`/`ecl_divide`.
   The expansion binds every argument to a gensym first (left-to-right evaluation, no capture).
   Measured: 100 `fx-emit` / `%ui-poly4` / `with-ui-verts` quads / `ui-rect` 0 B (was ~210 B per
   `fx-emit`), `ui-block-text` 8 B per call (the returned width; ~100 B before refactor round 3, 2026-10-21; ~250 B per font pixel before that).
+* **Ratios cons, and so does converting one to a float.** `(/ fixnum fixnum)` makes a ratio, every operation on it
+  makes another, and `F32` of it goes through bignum shifts (`ratio_to_double`): the portrait HUD's gauge widths cost
+  ~100 B an operation. Where the generic code converted an exact quotient P / Q of small integers, `(float)((double)P /
+  (double)Q)` is the same float (`%q->f`, hud.lisp: the double quotient is correctly rounded, and ECL's conversion only
+  differs on an exact half, which such a quotient never is).
+* **ROUND conses its remainder** (8 B a call generic, 16 B on a typed float): `lrintf` (ties to even, as ROUND) via
+  `ffi:c-inline` is 0 B (`%hround`, hud.lisp). Two-argument ATAN of single floats goes through double `atan2` (unlike
+  SIN / COS / EXP / SQRT, which call the `f` functions): a typed replacement must too (`%atan2-d`, camera.lisp).
 * **Fixnums are 30-bit on wasm32.** An LCG like `(* seed 1103515245)` goes to bignums and conses
   on every call. Do it in C with `long long` (the engine's `rnd01` / `sim-rnd01` are C xorshifts;
   `rnd-state` returns the 32-bit word, a bignum above 2^29, so it is not for per-frame use).

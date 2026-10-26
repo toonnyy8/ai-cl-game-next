@@ -82,19 +82,25 @@ file F (same directory, recursively), every // comment is removed, and so are bl
 (defvar *camera* (make-camera))
 (defvar *cam-tmp* (make-f32 3))
 
-(defun update-camera ()
-  "Recompute derived vectors and matrices. Call after moving the camera, before fx-* calls."
-  (let* ((cam *camera*) (eye (camera-eye cam)) (tgt *cam-tmp*) (v (camera-view cam)))
-    (v3-add! eye (camera-pos cam) (camera-shake cam))
-    (v3-add! tgt (camera-target cam) (camera-shake cam))
+(defun-fast update-camera ()
+  "Recompute derived vectors and matrices. Call after moving the camera, before fx-* calls. 8 B (the aspect passed to
+M4-PERSPECTIVE!; ~740 B before 2026-10-26)."
+  (let* ((cam *camera*) (eye (camera-eye cam)) (tgt *cam-tmp*) (v (camera-view cam))
+         (pos (camera-pos cam)) (at (camera-target cam)) (sh (camera-shake cam))
+         (r (camera-right cam)) (u (camera-upv cam)) (f (camera-forward cam)) (pr (camera-proj cam))
+         (aspect (/ (float (window-width) 1f0) (float (max 1 (window-height)) 1f0))))   ; (WINDOW-ASPECT)
+    (declare (type f32vec eye tgt v pos at sh r u f pr) (single-float aspect))
+    (dotimes (i 3)                                    ; (V3-ADD!: eye = pos + shake, target + shake)
+      (setf (aref eye i) (+ (aref pos i) (aref sh i)) (aref tgt i) (+ (aref at i) (aref sh i))))
     (m4-look-at! v eye tgt (camera-up cam))
-    (v3-set! (camera-right cam) (aref v 0) (aref v 4) (aref v 8))
-    (v3-set! (camera-upv cam) (aref v 1) (aref v 5) (aref v 9))
-    (v3-set! (camera-forward cam) (- (aref v 2)) (- (aref v 6)) (- (aref v 10)))
-    (m4-perspective! (camera-proj cam) (camera-fov cam) (window-aspect) (camera-near cam) (camera-far cam))
+    (setf (aref r 0) (aref v 0) (aref r 1) (aref v 4) (aref r 2) (aref v 8)
+          (aref u 0) (aref v 1) (aref u 1) (aref v 5) (aref u 2) (aref v 9)
+          (aref f 0) (- (aref v 2)) (aref f 1) (- (aref v 6)) (aref f 2) (- (aref v 10)))
+    (m4-perspective! pr (camera-fov cam) aspect (camera-near cam) (camera-far cam))
     (let ((sy (camera-shift-y cam)))                ; an off-axis frustum (G6): ndc y += SY, the view is unchanged
-      (unless (= sy 0f0) (setf (m@ (camera-proj cam) 1 2) (- sy))))
-    (m4-mul! (camera-view-proj cam) (camera-proj cam) v)
+      (declare (single-float sy))
+      (unless (= sy 0f0) (setf (m@ pr 1 2) (- sy))))
+    (m4-mul! (camera-view-proj cam) pr v)
     (m4-invert! (camera-inv-view-proj cam) (camera-view-proj cam))
     cam))
 
@@ -104,7 +110,7 @@ file F (same directory, recursively), every // comment is removed, and so are bl
   (v3-set! (camera-target *camera*) (f32 tx) (f32 ty) (f32 tz))
   (update-camera))
 
-(defun-fast world-to-screen (out x y z)
+(defun-fast-inline world-to-screen (out x y z)
   "Project world point to framebuffer pixels: OUT[0]=x, OUT[1]=y (top-left origin), OUT[2]=depth (0 near .. 1 far).
 Returns T if the point is in front of the camera."
   (declare (type f32vec out) (single-float x y z))

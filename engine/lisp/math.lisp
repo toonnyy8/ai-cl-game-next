@@ -165,6 +165,7 @@ The workhorse for rigid parts: one call, no allocation."
   "WebGPU clip space (z in [0,1]: near -> 0, far -> 1); FOVY vertical, radians."
   (declare (type f32vec o) (single-float fovy aspect near far))
   (let* ((f (/ 1f0 (tan (* 0.5f0 fovy)))) (nf (/ 1f0 (- near far))))
+    (declare (single-float f nf))
     (fill o 0f0)
     (setf (m@ o 0 0) (/ f aspect) (m@ o 1 1) f
           (m@ o 2 2) (* far nf) (m@ o 2 3) (* far near nf)
@@ -175,16 +176,19 @@ The workhorse for rigid parts: one call, no allocation."
   (declare (type f32vec o eye target up))
   (let* ((fx (- (aref target 0) (aref eye 0))) (fy (- (aref target 1) (aref eye 1))) (fz (- (aref target 2) (aref eye 2)))
          (fl (sqrt (the (single-float 0f0) (+ (* fx fx) (* fy fy) (* fz fz))))))
+    (declare (single-float fx fy fz fl))             ; (undeclared, the locals were boxed: 480 B a call)
     (when (< fl 1f-9) (setf fz -1f0 fl 1f0))
     (setf fx (/ fx fl) fy (/ fy fl) fz (/ fz fl))
     ;; s = f x up
     (let* ((ux (aref up 0)) (uy (aref up 1)) (uz (aref up 2))
            (sx (- (* fy uz) (* fz uy))) (sy (- (* fz ux) (* fx uz))) (sz (- (* fx uy) (* fy ux)))
            (sl (sqrt (the (single-float 0f0) (+ (* sx sx) (* sy sy) (* sz sz))))))
+      (declare (single-float ux uy uz sx sy sz sl))
       (when (< sl 1f-9) (setf sx 1f0 sy 0f0 sz 0f0 sl 1f0)) ; looking straight along up
       (setf sx (/ sx sl) sy (/ sy sl) sz (/ sz sl))
       (let* ((vx (- (* sy fz) (* sz fy))) (vy (- (* sz fx) (* sx fz))) (vz (- (* sx fy) (* sy fx)))
             (ex (aref eye 0)) (ey (aref eye 1)) (ez (aref eye 2)))
+        (declare (single-float vx vy vz ex ey ez))
         (setf (m@ o 0 0) sx (m@ o 0 1) sy (m@ o 0 2) sz (m@ o 0 3) (- (+ (* sx ex) (* sy ey) (* sz ez)))
               (m@ o 1 0) vx (m@ o 1 1) vy (m@ o 1 2) vz (m@ o 1 3) (- (+ (* vx ex) (* vy ey) (* vz ez)))
               (m@ o 2 0) (- fx) (m@ o 2 1) (- fy) (m@ o 2 2) (- fz) (m@ o 2 3) (+ (* fx ex) (* fy ey) (* fz ez))
@@ -214,8 +218,10 @@ The workhorse for rigid parts: one call, no allocation."
             (aref inv 11) (+ (- (* (a 0) (a 5) (a 11))) (* (a 0) (a 7) (a 9)) (* (a 4) (a 1) (a 11)) (- (* (a 4) (a 3) (a 9))) (- (* (a 8) (a 1) (a 7))) (* (a 8) (a 3) (a 5)))
             (aref inv 15) (+ (* (a 0) (a 5) (a 10)) (- (* (a 0) (a 6) (a 9))) (- (* (a 4) (a 1) (a 10))) (* (a 4) (a 2) (a 9)) (* (a 8) (a 1) (a 6)) (- (* (a 8) (a 2) (a 5)))))
       (let* ((det (+ (* (a 0) (aref inv 0)) (* (a 1) (aref inv 4)) (* (a 2) (aref inv 8)) (* (a 3) (aref inv 12)))))
+        (declare (single-float det))
         (when (< (abs det) 1f-20) (return-from m4-invert! nil))
         (let* ((d (/ 1f0 det)))
+          (declare (single-float d))
           (dotimes (i 16 o) (setf (aref o i) (* (aref inv i) d))))))))
 
 (defun-fast m4-transform-point! (o m v)

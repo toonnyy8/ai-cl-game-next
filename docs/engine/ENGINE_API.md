@@ -362,7 +362,7 @@ them in place; `u v` default to the font atlas's solid white cell (flat color). 
 (R1 G1 B1 A1) (default the same) on the bottom; `(%hrect x y w h r g b a [r1 g1 b1 a1])` an axis-aligned rect;
 `(%hbar x y w h frac right r g b a [r1 g1 b1 a1])` FRAC (clamped 0..1) of the box, from the left or (RIGHT) the
 right; `(%houtline x y w h r g b a)` a 1 px outline; `(%pulse tm hz)` → 0..1, HZ times a second at time TM (HZ a
-literal). DEFUN-FASTs on `%hq` (24 segments): `(%ring cx cy r wd cr cg cb ca)`, `(%arc cx cy r wd frac cr cg cb ca)`
+literal). DEFUN-FAST-INLINEs on `%hq` (24 segments; a direct call expands in place, 0 B): `(%ring cx cy r wd cr cg cb ca)`, `(%arc cx cy r wd frac cr cg cb ca)`
 (FRAC of the ring, clockwise from the top), `(%disc cx cy r cr cg cb ca)`.
 
 ## Low-level (render.lisp internals, rarely needed by gameplay)
@@ -677,6 +677,9 @@ Plain CL (tested by `tests/ecs-test.lisp`). Background: ARCHITECTURE.md "Game st
   single-floats (callers may pass fixnums or doubles).
 * `(defun-fast name args …)` — DEFUN for hot numeric code: checks declared argument types on entry,
   runs the body at `(safety 0)` (see ARCHITECTURE.md Gotchas). Declare every float local.
+* `(defun-fast-inline name args …)` — a `defun-fast` plus a compiler macro: a direct call expands in place (no entry
+  checks; each single-float argument through `(float x 1f0)`), so a `defun-fast` caller's floats stay unboxed. Required
+  arguments only. `joint-point!`, `world-to-screen`, `%ring` / `%arc` / `%disc` are ones.
 * Float macros compiled to plain C (no boxing): `f-min f-max f-abs f-sqrt f-sin f-cos f-atan2 f-mod
   f-exp f-clamp f-wrap` (angle into [−π, π)), `i->f`, `f->i` (floor); `(f-hypot a b [c])` → exactly
   `(f-sqrt (+ (* a a) (* b b) [(* c c)]))` (forms other than symbols / literals bound once, declared

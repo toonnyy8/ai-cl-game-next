@@ -220,31 +220,38 @@ low zone = J, high zone = K, an up-flick = a forward Step, the dash)?"
 
 (defparameter *chip-labels* (coerce (mapcar #'fourth *chip-spots*) 'simple-vector))
 
-(defun hud-deck (s)
+(defun-fast hud-deck (s)
   "The thumb deck: the flow pad's outline and its tap split (F above, Q below), the chips (lit while held; AWAKEN only
 at EVOLUTION or a Bankai ready, or always for a form with a :p hook, labelled by its :p-label (e); Hisagi's bind FREE: gone 2026-10-18, DUEL_HISAGI §24.5, back 2026-10-19, §25.14),
-the ink ring under the thumb, and the recognised gesture's glyph at the thumb for 0.3 s (the misread teacher)."
+the ink ring under the thumb, and the recognised gesture's glyph at the thumb for 0.3 s (the misread teacher).
+(A DEFUN-FAST since 2026-10-26, ~2 KB a frame before: the floats unboxed, the generic code's operations.)"
+  (declare (fixnum s))
   (let* ((tr *touch*) (d (touch-dpx tr)) (dk *deck*)
          (u (u-chip-p))                                  ; a :u form: the chip is U
          (pk (and *p1* (kit-hook (kit-of *p1*) :p)))      ; a :p form: the chip is its P, labelled by :p-label
          (pl (and pk (let ((h (kit-hook (kit-of *p1*) :p-label))) (and h (funcall h *p1*)))))
          (evo (and *p1* (or u pk (gauges-evolution (gauges *p1*)) (bankai-ready-p *p1*)))))   ; AWAKEN: EVOLUTION, or the Bankai
-                                                                                          ; ready (cup 3, red, free)
+    (declare (single-float d) (type f32vec dk))                                          ; ready (cup 3, red, free)
     (%houtline (aref dk 0) (aref dk 1) (- (aref dk 2) (aref dk 0)) (- (aref dk 3) (aref dk 1)) 1f0 1f0 1f0 0.12f0)
-    (let* ((y (touch-split-y tr)) (left (eq *hand* :left))                  ; the tap zones' line, named at the far edge
-           (x (if left (- (aref dk 2) (* 6 d)) (+ (aref dk 0) (* 6 d)))) (al (if left :right :left)))
-      (%hrect (aref dk 0) y (- (aref dk 2) (aref dk 0)) (max 1f0 d) 1f0 1f0 1f0 0.18f0)
-      (hud-text "F" x (- y (* 13 s)) (* 1.5 s) '(1 1 1 0.4) :align al :shadow nil)
-      (hud-text "Q" x (+ y (* 3 s)) (* 1.5 s) '(1 1 1 0.4) :align al :shadow nil))
+    (let* ((y (the single-float (touch-split-y tr))) (left (eq *hand* :left))                  ; the tap zones' line, named at the far edge
+           (x (if left (- (aref dk 2) (* 6f0 d)) (+ (aref dk 0) (* 6f0 d)))) (al (if left :right :left))
+           (fs (%hround (* 1.5f0 (i->f s)))))           ; (HUD-TEXT rounds its (* 1.5 S))
+      (declare (single-float y x) (fixnum fs))
+      (%hrect (aref dk 0) y (- (aref dk 2) (aref dk 0)) (f-max 1f0 d) 1f0 1f0 1f0 0.18f0)
+      (%hud-text "F" x (- y (i->f (* 13 s))) fs '(1 1 1 0.4) :align al :shadow nil)
+      (%hud-text "Q" x (+ y (i->f (* 3 s))) fs '(1 1 1 0.4) :align al :shadow nil))
     (dotimes (i 8)
       (unless (or (and (= i 5) (not evo)) (and (= i 7) (not (and *p1* (burst-ok-p *p1*)))))   ; RV: while a burst is possible
         (let ((on (touch-chip-down-p tr i)) (cx (aref dk (+ 4 (* 3 i)))) (cy (aref dk (+ 5 (* 3 i)))) (r (aref dk (+ 6 (* 3 i)))))
+          (declare (single-float cx cy r))
           (%disc cx cy r 0.05 0.04 0.07 (if on 0.85 0.45))
           (%ring cx cy r (* 2f0 d) 1.0 (if on 0.85 0.55) (if on 0.4 0.3) (if on 1.0 0.7))
           (when (= i 1)                                  ; a refused L (cooling, cold, its kit's refusal): the chip flashes
-            (let ((fl (f32 (- 1.0 (* 4.0 (- (fx-clock) (aref *refused-t* 0)))))))
-              (when (> fl 0.0) (%disc cx cy r 1.0 1.0 1.0 (* 0.7f0 fl)) (%ring cx cy (* 1.15 r) (* 3f0 d) 1.0 1.0 1.0 fl))))
-          (hud-text (cond ((and u (= i 5)) "U") ((and pl (= i 5)) pl) (t (svref *chip-labels* i))) cx (- cy (* 3.5 s)) s *c-chip* :align :center :shadow nil))))
+            (let ((fl (- 1f0 (* 4f0 (- (fx-clock) (aref *refused-t* 0))))))
+              (declare (single-float fl))
+              (when (> fl 0f0) (%disc cx cy r 1.0 1.0 1.0 (* 0.7f0 fl)) (%ring cx cy (* 1.15f0 r) (* 3f0 d) 1.0 1.0 1.0 fl))))
+          (%hud-text (cond ((and u (= i 5)) "U") ((and pl (= i 5)) pl) (t (svref *chip-labels* i))) cx (- cy (* 3.5f0 (i->f s))) s
+                     *c-chip* :align :center :shadow nil))))
     (when (touch-active-p tr)                              ; the floating stick: an ink ring at its origin
       (%ring (touch-ox tr) (touch-oy tr) (* d 48f0) (* 2f0 d) 1.0 1.0 1.0 (if (touch-resting-p tr) 0.35 0.6))
       (let ((h (and *p1* (kit-hook (kit-of *p1*) :deck)))) (when h (funcall h *p1* (touch-ox tr) (touch-oy tr) d)))   ; a form's own ring
@@ -252,11 +259,12 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
         (when (getf m :temp)                                 ; bars round the ring, a notch at the half), grey in the THAW
           (let* ((g (gauges *p1*)) (k (/ (gauges-meter g) *cold-max*)) (lock (plusp (gauges-meter-idle g)))   ; lock;
                  (zero (eq (fighter-form (fighter *p1*)) :zero)) (r (* d 52f0)))                       ; white ring at zero
+            (declare (single-float r))
             (when zero (%ring (touch-ox tr) (touch-oy tr) r (* 3f0 d) 1.0 1.0 1.0 0.35))
             (if lock
                 (%arc (touch-ox tr) (touch-oy tr) r (* 3f0 d) k 0.55 0.56 0.6 0.8)
                 (%arc (touch-ox tr) (touch-oy tr) r (* 3f0 d) k 0.92 0.96 1.0 (if zero (+ 0.6 (* 0.4 (hud-pulse 3.0))) 0.9)))
-            (%hrect (- (touch-ox tr) d) (+ (touch-oy tr) r) (* 2f0 d) (* 3f0 d) 1.0 1.0 1.0 0.8))))) ; the half: bar 1 full
+            (%hrect (- (touch-ox tr) d) (+ (touch-oy tr) r) (* 2f0 d) (* 3f0 d) 1f0 1f0 1f0 0.8f0))))) ; the half: bar 1 full
     (let ((age (- (* 1000f0 (elapsed-time)) (touch-glyph-t tr))))
       (when (and (< age 300) (plusp (touch-glyph tr)))
         (hud-text (svref *glyph-names* (touch-glyph tr)) (touch-glyph-x tr) (- (touch-glyph-y tr) (* 60 d)) (* 2 s)

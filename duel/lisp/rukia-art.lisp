@@ -2540,7 +2540,7 @@ status is read on the model, not the HUD)."
         (progn (vfx-ru-ring x z r 1.0 (max 0.05 (- 0.95 (/ (hazard-age hz) 36.0))))
                (vfx-ru-pillar x z r 4.5 (/ (hazard-age hz) 60.0) rdt)))))
 
-(defun rukia-spike-look (hz rdt)
+(defun-fast rukia-spike-look (hz rdt)
   "HAKUREN's stab: an ice spike standing in the plaza, then crumbling."
   (declare (ignore rdt))
   (let* ((age (/ (hazard-age hz) 60.0)) (k (max 0.02 (- 0.95 (* 0.9 (/ (hazard-age hz) (max 1 (hazard-life hz)))))))
@@ -2550,7 +2550,7 @@ status is read on the model, not the HUD)."
         (toon-ribbon (x 0f0 z) (0.05f0 h 0f0) (0.09f0 0.005f0) :heat (1f0 0.3f0) :seed -7f0 :wob 0.1f0 :pal +pal-soul+ :k k :segs 3)
         (toon-ribbon (x 0f0 z) (0.02f0 (* 0.7f0 h) 0f0) (0.03f0 0.002f0) :heat (1f0 0.5f0) :seed -8f0 :wob 0.05f0 :pal +pal-hit+ :k k :segs 2)))))
 
-(defun rukia-wave-look (hz rdt)
+(defun-fast rukia-wave-look (hz rdt)
   "HAKUREN's wave: an avalanche of cold rolling along the ground, as wide as its hit box: a white crest over SOUL glass."
   (when (and (<= (hazard-delay hz) 0) (< (hazard-age hz) (hazard-life hz)))
     (let* ((x (hazard-x hz)) (z (hazard-z hz)) (yaw (hazard-yaw hz)) (hw (hazard-size hz))
@@ -2570,7 +2570,7 @@ status is read on the model, not the HUD)."
                    (rnd-range -0.5f0 0.5f0) (rnd-range 0.3f0 1.2f0) (rnd-range -0.5f0 0.5f0) (rnd-range 0.4f0 0.7f0)
                    (rnd-range 0.04f0 0.08f0) -0.1f0 0.2f0 +pal-hit+))))))
 
-(defun rukia-blade-look (hz rdt)
+(defun-fast rukia-blade-look (hz rdt)
   "SHIRAFUNE: the ice blade grown off the point along the thrust (SIZE m), in three stepped drawings, then gone."
   (declare (ignore rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (yaw (hazard-yaw hz)) (l (hazard-size hz)) (age (hazard-age hz))
@@ -2580,7 +2580,7 @@ status is read on the model, not the HUD)."
       (fx-crescent x 1.1f0 z x1 1.1f0 z1 (* 0.5f0 (+ x x1)) 1.12f0 (* 0.5f0 (+ z z1)) 0.07f0 :lens 0.05f0 71f0 +pal-soul+ k :push 0.2f0)
       (fx-crescent x 1.1f0 z x1 1.1f0 z1 (* 0.5f0 (+ x x1)) 1.12f0 (* 0.5f0 (+ z z1)) 0.025f0 :lens 0.03f0 72f0 +pal-hit+ k :push 0.24f0))))
 
-(defun rukia-burst-look (hz rdt)
+(defun-fast rukia-burst-look (hz rdt)
   "A burst of cold (NADARE's snow, REIDO's release, the entry to zero): a white ring out to SIZE m, SOUL-glass shards."
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)) (age (/ (hazard-age hz) 60.0))
          (k (max 0.02 (- 0.95 (/ (hazard-age hz) (max 1.0 (float (hazard-life hz))))))))
@@ -2594,7 +2594,7 @@ status is read on the model, not the HUD)."
             (%t-shard x (rnd-range 0.2f0 1.2f0) z (* sp (f-cos a)) (rnd-range 1f0 3f0) (* sp (f-sin a)) (rnd-range 0.4f0 0.8f0)
                       (rnd-range 0.06f0 0.12f0) 6f0 +pal-soul+)))))))
 
-(defun rukia-flower-look (hz rdt)
+(defun-fast rukia-flower-look (hz rdt)
   "HYOKA: the ice flower bursting at his feet: six SOUL-glass petals standing out of the plaza round a white core."
   (declare (ignore rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)) (age (hazard-age hz))
@@ -2608,7 +2608,7 @@ status is read on the model, not the HUD)."
       (toon-ribbon (x 0f0 z) (0f0 (* 1.6f0 g) 0f0) (0.1f0 0.005f0) :heat (1f0 0.5f0) :seed -38f0 :wob 0.05f0 :pal +pal-hit+ :k k :segs 3)
       (%tring x 0f0 z r 0.06f0 +pal-soul+ k 7f0 24))))
 
-(defun rukia-quake-look (hz rdt)
+(defun-fast rukia-quake-look (hz rdt)
   "HYOSHIN: frost cracks radiating from her (the tell, while it waits), then the quake: a white ring out to SIZE m."
   (let ((x (hazard-x hz)) (z (hazard-z hz)) (r (hazard-size hz)))
     (with-floats (x z r)
@@ -2640,13 +2640,13 @@ status is read on the model, not the HUD)."
     (vfx-ru-sheet x z (+ x (* l (fwd-x yaw))) (+ z (* l (fwd-z yaw))) (/ (hazard-age hz) 60.0) (/ (hazard-life hz) 60.0))))
 
 ;;; the auras (DRAW-AURA's kinds are VFX-AURA's; a symbol that names a function draws with it: (fn x y z h k dt))
-(defun rukia-field-ring (x y z field k)
+(defun-fast rukia-field-ring (x y z field k)
   "The cold field 寒域 (the band's :field radius): a thin dim white ring on the plaza round her."
   (let ((r (getf field :r)))
     (with-floats (x y z r k)
       (%tring x (+ y 0.01f0) z r 0.05f0 +pal-hit+ (* 0.6f0 k) 6f0 48))))
 
-(defun rukia-aura-cold (x y z h k dt)
+(defun-fast rukia-aura-cold (x y z h k dt)
   "-18 C: frost motes at her feet, a white breath puff every 40 f, the field's ring."
   (rukia-field-ring x y z *ru-field-m18* k)
   (with-floats (x y z h k dt)
@@ -2656,7 +2656,7 @@ status is read on the model, not the HUD)."
     (when (< (f-mod (fx-clock) 0.667f0) dt)
       (vfx-ru-breath x (+ y (* 0.92f0 h)) z 0f0))))
 
-(defun rukia-aura-frost (x y z h k dt)
+(defun-fast rukia-aura-frost (x y z h k dt)
   "-50 C: the plaza whitening in a 1 m disc under her, low white mist, rising motes, the field's ring."
   (rukia-field-ring x y z *ru-field-m50* k)
   (with-floats (x y z h k dt)
@@ -2668,7 +2668,7 @@ status is read on the model, not the HUD)."
       (%t-blob (+ x (rnd-range -0.4f0 0.4f0)) (+ y (* h (rnd-range 0.1f0 0.8f0))) (+ z (rnd-range -0.4f0 0.4f0)) 0f0
                (rnd-range 0.5f0 1f0) 0f0 (rnd-range 0.5f0 0.8f0) (rnd-range 0.015f0 0.03f0) 0f0 0.1f0 +pal-hit+))))
 
-(defun rukia-aura-zero (x y z h k dt)
+(defun-fast rukia-aura-zero (x y z h k dt)
   "Absolute zero: a thin white ring at her feet and still motes (no breath), the field's ring (5.5 m: REIDO's reach)."
   (declare (ignore h))
   (rukia-field-ring x y z *ru-field-zero* k)

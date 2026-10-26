@@ -590,11 +590,17 @@ argument coerced as the function did (F32); the forms are pure (every site's), S
 with every argument coerced as the function did (F32)."
   `(%sj-seg ,key (f32 ,ax) (f32 ,ay) (f32 ,az) (f32 ,bx) (f32 ,by) (f32 ,bz) (f32 ,w) (f32 ,alpha)))
 
-(defun sj-thread (ax ay az bx by bz &optional (k 0.9) (w 0.006) (seed 0.0))
-  "A thin BLOOD thread from A to B (the only BLOOD she shows: 1-2 px lines)."
-  (with-floats (ax ay az bx by bz k w seed)
-    (toon-ribbon (ax ay az) ((- bx ax) (- by ay) (- bz az)) (w (* 0.7f0 w)) :heat (1f0 0.8f0) :seed (- -60f0 seed) :wob 0.02f0 :pal +pal-blood+ :k k
-                 :ph seed :segs 2)))
+(defun-fast-inline %sj-thread (ax ay az bx by bz k w seed)
+  "SJ-THREAD's body (inlined: a DEFUN-FAST caller's floats stay unboxed)."
+  (declare (single-float ax ay az bx by bz k w seed))
+  (toon-ribbon (ax ay az) ((- bx ax) (- by ay) (- bz az)) (w (* 0.7f0 w)) :heat (1f0 0.8f0) :seed (- -60f0 seed) :wob 0.02f0 :pal +pal-blood+ :k k
+               :ph seed :segs 2))
+
+(defmacro sj-thread (ax ay az bx by bz &optional (k 0.9) (w 0.006) (seed 0.0))
+  "A thin BLOOD thread from A to B (the only BLOOD she shows: 1-2 px lines). A macro over %SJ-THREAD, a DEFUN-FAST-INLINE
+(was a DEFUN with WITH-FLOATS: ~160 B a thread): every argument coerced in order as WITH-FLOATS did (its (FLOAT x 1f0)
+is F32 on a real)."
+  `(%sj-thread ,ax ,ay ,az ,bx ,by ,bz ,k ,w ,seed))
 
 ;;; ---------------------------------------------------------------- her draw hook: echo arms, the thread, his stitches, the domain
 (declaim (type f32vec *sj-hist*))
@@ -612,13 +618,15 @@ with every argument coerced as the function did (F32)."
     (joint-point! v jm (ji :hand-l) 0f0 -0.06f0 0f0)
     (setf (aref *sj-hist* (+ o 3)) (aref v 0) (aref *sj-hist* (+ o 4)) (aref v 1) (aref *sj-hist* (+ o 5)) (aref v 2))))
 
-(defmacro sj-hist (side lag hand)
-  "Values x y z of rig hand HAND (0 right, 1 left) LAG drawings ago (a macro: the floats stay unboxed in the callers'
-DEFUN-FASTs; SIDE a variable)."
+(defmacro with-sj-hist (((x y z) side lag hand) &body body)
+  "BODY with X Y Z (single floats) bound to rig hand HAND (0 right, 1 left) LAG drawings ago (a macro binding them
+directly: the floats stay unboxed in the callers' DEFUN-FASTs, where multiple values were boxed; SIDE a variable)."
   (let ((o (gensym "O")))
     `(let ((,o (+ (* ,side 48) (* (mod (- (the fixnum (svref *sj-hist-i* ,side)) ,lag) 8) 6) (* 3 ,hand))))
        (declare (fixnum ,o))
-       (values (aref *sj-hist* ,o) (aref *sj-hist* (+ ,o 1)) (aref *sj-hist* (+ ,o 2))))))
+       (let ((,x (aref *sj-hist* ,o)) (,y (aref *sj-hist* (+ ,o 1))) (,z (aref *sj-hist* (+ ,o 2))))
+         (declare (single-float ,x ,y ,z))
+         ,@body))))
 
 (defparameter *sj-echo-arms* '((1 28 2 0.02) (-1 28 2 0.02) (1 52 4 -0.17) (-1 52 4 -0.17))
   "The four echo arms (§2, engine gap N12): per arm its side (+1 right), its spread (degrees about the spine), its lag
@@ -642,8 +650,7 @@ framing the crescent (eased over ~0.1 s either way)."
           (declare (fixnum s spread lag) (single-float up))
           (joint-point! a jm (ji :chest) (* (i->f s) 0.09f0) up 0.1f0)            ; (joint frames: +z is behind)
           (joint-point! r jm (ji :chest) (* (i->f s) (if (< up 0f0) 0.42f0 0.3f0)) (if (< up 0f0) 0.12f0 0.42f0) 0.34f0)   ; the rest fan
-          (multiple-value-bind (hx hy hz) (sj-hist side lag (if (plusp s) 0 1))
-            (declare (single-float hx hy hz))
+          (with-sj-hist ((hx hy hz) side lag (if (plusp s) 0 1))
             (let* ((ang (* (i->f s) (deg spread))) (c (f-cos ang)) (sn (f-sin ang))
                    (rx (- hx cx)) (rz (- hz cz))
                    (tx0 (+ cx (- (* c rx) (* sn rz)))) (tz0 (+ cz (+ (* sn rx) (* c rz)))) (ty0 (+ hy (if (< up 0f0) -0.12f0 0.02f0)))
@@ -669,8 +676,7 @@ framing the crescent (eased over ~0.1 s either way)."
     (let ((x0 (aref v 0)) (y0 (aref v 1)) (z0 (aref v 2)))
       (declare (single-float x0 y0 z0))
       (loop for lag fixnum from 1 to 5
-            do (multiple-value-bind (x y z) (sj-hist side lag 0)
-                 (declare (single-float x y z))
+            do (with-sj-hist ((x y z) side lag 0)
                  (let ((x1 (+ x (* 0.02f0 (i->f lag)))) (y1 (- y (* 0.08f0 (i->f lag)))) (z1 z))
                    (declare (single-float x1 y1 z1))
                    (sj-thread x0 y0 z0 x1 y1 z1 (- 0.9f0 (* 0.12f0 (i->f lag))) 0.004f0 (i->f lag))
@@ -751,13 +757,17 @@ through the active frames, drawn back over the 8 after."
                           (declare (type f32vec h) (single-float r))
                           (sj-seg :sj-strip (aref h 0) (aref h 1) (aref h 2) (+ cx (* r dx)) 0.35f0 (+ cz (* r dz)) 1.6f0)))))))))))
 
-(defun sj-stitches-on (o n)
-  "N red threads standing out of opponent O's torso: the stitches she has sewn into his clothes (a look, from her meter)."
+(defun-fast sj-stitches-on (o n)
+  "N red threads standing out of opponent O's torso: the stitches she has sewn into his clothes (a look, from her meter).
+(Single floats, the generic DEFUN's operations: 0 B but SJ-THREAD's boxed arguments.)"
+  (declare (fixnum n))
   (let* ((m (model o)) (jm (model-joints m)) (v *sj-p*) (yaw (yaw-of o)))
+    (declare (type f32vec v) (single-float yaw))
     (joint-point! v jm (ji :chest) 0f0 0.1f0 0f0)
     (dotimes (i n)
-      (let* ((a (+ yaw (* i 1.047) 0.5)) (x (aref v 0)) (y (+ (aref v 1) (* 0.08 (- i 2.5)))) (z (aref v 2)))
-        (sj-thread x y z (+ x (* 0.28 (sin a))) (- y 0.12) (+ z (* 0.28 (cos a))) 0.95 0.005 (float i))))))
+      (let* ((fi (i->f i)) (a (+ yaw (* fi 1.047f0) 0.5f0)) (x (aref v 0)) (y (+ (aref v 1) (* 0.08f0 (- fi 2.5f0)))) (z (aref v 2)))
+        (declare (single-float fi a x y z))
+        (sj-thread x y z (+ x (* 0.28f0 (f-sin a))) (- y 0.12f0) (+ z (* 0.28f0 (f-cos a))) 0.95f0 0.005f0 fi)))))
 
 (declaim (special *cam-eye* *cam-at*))               ; (camera.lisp loads later)
 (defparameter *sj-drape-fade* '(1.5 2.0 0.15)
@@ -843,7 +853,7 @@ Bankai's domain."
                    (+ x (* 0.8 (cos (+ a 0.8)))) (+ y (* 0.8 h)) (+ z (* 0.8 (sin (+ a 0.8)))) (* 0.6 k) 0.004 (float i))))))
 
 ;;; ---------------------------------------------------------------- the hazards' looks (HAZARD-DRAW: (fn hz rdt))
-(defun senju-spike-look (hz rdt)
+(defun-fast senju-spike-look (hz rdt)
   "悪い癖: a spike bursting out of his clothes (drawn on its hit frame): a fan of white-gold needles."
   (declare (ignore rdt))
   (when (and (<= (hazard-delay hz) 0) (<= (hazard-age hz) 1))
@@ -869,7 +879,7 @@ Bankai's domain."
               (body-scale b) (body-hunch b) (body-props b))
     (draw-body b (model-joints m) (hazard-x hz) 0.0 (hazard-z hz) (hazard-yaw hz) :weapon :sj-spear :alpha (f32 (max 0.0 a)))))
 
-(defun senju-burst-look (hz rdt)
+(defun-fast senju-burst-look (hz rdt)
   "The soldier bursting into red thread and cloth scraps (it sews one stitch into him)."
   (when (<= (hazard-age hz) 1)
     (let ((x (hazard-x hz)) (z (hazard-z hz)))
@@ -883,7 +893,7 @@ Bankai's domain."
           (let ((a (* i 0.785)))
             (sj-thread x 1.0 z (+ x (* 1.4 (cos a))) (+ 1.0 (* 0.6 (sin (* 3 a)))) (+ z (* 1.4 (sin a))) 0.9 0.006 (float i))))))))
 
-(defun senju-kasa-look (hz rdt)
+(defun-fast senju-kasa-look (hz rdt)
   "傘: a canopy of red thread strung over her from the six hands (its ribs are the arms)."
   (declare (ignore rdt))
   (let* ((e (hazard-owner hz)))
@@ -898,7 +908,7 @@ Bankai's domain."
             (sj-thread cx cy cz (aref *sj-echo* o) (aref *sj-echo* (+ o 1)) (aref *sj-echo* (+ o 2)) k 0.008 (float i))))
         (with-floats (cx cz k) (%tring cx 1.5f0 cz 1.1f0 0.02f0 +pal-blood+ (* 0.5f0 k) 3f0 24))))))
 
-(defun senju-tendril-look (hz rdt)
+(defun-fast senju-tendril-look (hz rdt)
   "傘's tendrils: red-cored ink strands lashing along the ground at him, as wide as their hit box."
   (declare (ignore rdt))
   (when (and (<= (hazard-delay hz) 0) (< (hazard-age hz) (hazard-life hz)))
@@ -955,7 +965,7 @@ floats, +PI+, since refactor round 3: the props moved by float ulps.)"
         (declare (single-float a c sn))
         (sj-prop key (+ x (* r c)) y (+ z (* r sn)) :yaw (dir-yaw (- c) (- sn)) :pitch tilt :alpha alpha :s s)))))
 
-(defun senju-zone-look (hz rdt)
+(defun-fast senju-zone-look (hz rdt)
   "The six hanks' zones: every one first unfolds (its cloth unrolling onto its shape, 20 f), then 眼's mirror-eyes, 刃金's
 rising gold sheets closing, 黒砂's black spiral and its swirl before each gulp, 褥's snowflake bed, 焼野原's burning cloth
 procession with ink trees, 星's night-blue dome with a white star."
@@ -1002,14 +1012,14 @@ procession with ink trees, 星's night-blue dome with a white star."
               (with-floats (x z r k) (%tring x 0.02f0 z r 0.05f0 +pal-hit+ (* 0.7f0 k) 3f0 48)))))))))
 
 ;;; ---------------------------------------------------------------- the cinematics' looks (cosmetic)
-(defun vfx-sj-candle (x y z lit)
+(defun-fast vfx-sj-candle (x y z lit)
   "A candle on a gold dish before her; LIT: its small flame."
   (sj-prop :sj-candle x y z)
   (when lit
     (with-floats (x y z)
       (%tongue x (+ y 0.25f0) z 0f0 0.12f0 0f0 0.025f0 +pal-fire+ 0.9f0 (drawing-no) 0f0 0.01f0 :segs 3))))
 
-(defun vfx-sj-needle-burst (x y z age)
+(defun-fast vfx-sj-needle-burst (x y z age)
   "Dozens of needles bursting outward from inside the garment (the bad habit), AGE 0..1."
   (with-floats (x y z age)
     (dotimes (i 28)

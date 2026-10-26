@@ -1366,9 +1366,12 @@ reticle glyph: a filled pip the open jade eye, an empty one the shut white): the
 eight wings; its label SN n / WG n."
   (let* ((st (brs e)) (v *lb-hud*) (n (if st (brs-ammo st) 0)) (cap (if (eq (kit-form kit) :base) 3 8)))
     (setf (aref v 3) (f32 tm) (aref v 4) (f32 x) (aref v 5) (f32 y) (aref v 6) (f32 w) (aref v 7) (f32 h))
-    (let* ((step (/ w cap)) (r (min (* 0.36 step) (max 5.0 (* 2.4 h)))))
+    (let* ((step (/ w cap)) (r (min (* 0.36 step) (max 5.0 (* 2.4 h))))
+           ;; X, STEP and X + W as the floats the mixed arithmetic below converts them to, once (the portrait slot passes
+           ;; ratios: each conversion consed, ~1.2 KB a frame; the same floats either way, 2026-10-26)
+           (fx (f32 x)) (fstep (f32 step)) (fxw (f32 (+ x w))))
       (dotimes (i cap)
-        (setf (aref v 0) (f32 (if right (- (+ x w) (* step (+ i 0.5))) (+ x (* step (+ i 0.5)))))
+        (setf (aref v 0) (f32 (if right (- fxw (* fstep (+ i 0.5))) (+ fx (* fstep (+ i 0.5)))))
               (aref v 1) (f32 (+ y (* 0.5 h))) (aref v 2) (f32 r))
         (%lb-pip (if (< i n) 1 0))))
     (when lx

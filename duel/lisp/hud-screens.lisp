@@ -205,14 +205,15 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
 
 (defvar *c-flash* (list 1.0 1.0 1.0 0.0))
 
-(defun aura-cap-update ()
+(defun-fast aura-cap-update ()
   "Set vfx.lisp's *AURA-CAP* for the next frame: 0.5 while the fighters stand within 2.5 m, 1 from
-3.5 m (two auras, or one over the other fighter, sum to a white blob up close)."
+3.5 m (two auras, or one over the other fighter, sum to a white blob up close). (Single floats, the generic ops: 8 B.)"
   (setf *aura-cap*
         (if (and *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*))
             (let* ((p (pos-of *p1*)) (q (pos-of *p2*))
-                   (d (sqrt (+ (expt (- (aref p 0) (aref q 0)) 2) (expt (- (aref p 2) (aref q 2)) 2)))))
-              (max 0.5 (min 1.0 (+ 0.5 (* 0.5 (- d 2.5))))))
+                   (d (f-sqrt (+ (%pow2 (- (aref p 0) (aref q 0))) (%pow2 (- (aref p 2) (aref q 2)))))))
+              (declare (type f32vec p q) (single-float d))
+              (f-max 0.5f0 (f-min 1f0 (+ 0.5f0 (* 0.5f0 (- d 2.5f0))))))
             1.0)))
 
 (defun hud-draw ()

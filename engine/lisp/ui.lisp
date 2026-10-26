@@ -170,7 +170,7 @@ bottom/right (VERTICAL chooses the axis). Corners TL TR BR / TL BR BL."
 
 ;;; ---------------------------------------------------------------- zero-cons quads, rings and discs
 ;;; Macros over WITH-UI-VERTS for DEFUN-FAST code: every argument a single-float form. %RING
-;;; %ARC %DISC are DEFUN-FASTs built on %HQ (24 segments).
+;;; %ARC %DISC are DEFUN-FAST-INLINEs built on %HQ (24 segments): a direct call is expanded in place (0 B).
 (defmacro %hq (x0 y0 x1 y1 x2 y2 x3 y3 r g b a &optional r1 g1 b1 a1)
   "One quad TL TR BR BL; colour (R G B A) on the top edge, (R1 G1 B1 A1) (default the same) on the bottom."
   (let ((vs (loop repeat 16 collect (gensym "Q"))))
@@ -208,7 +208,7 @@ bottom/right (VERTICAL chooses the axis). Corners TL TR BR / TL BR BL."
   "0..1, HZ times a second at time TM (single-float)."
   `(+ 0.5f0 (* 0.5f0 (f-sin (* ,(* 2 (float pi 1f0) hz) ,tm)))))
 
-(defun-fast %ring (cx cy r wd cr cg cb ca)
+(defun-fast-inline %ring (cx cy r wd cr cg cb ca)
   "A ring of radius R, WD px wide, 24 segments."
   (declare (single-float cx cy r wd cr cg cb ca))
   (let ((r1 (+ r wd)))
@@ -220,7 +220,7 @@ bottom/right (VERTICAL chooses the axis). Corners TL TR BR / TL BR BL."
         (%hq (+ cx (* r c0)) (+ cy (* r s0)) (+ cx (* r1 c0)) (+ cy (* r1 s0)) (+ cx (* r1 c1)) (+ cy (* r1 s1))
              (+ cx (* r c1)) (+ cy (* r s1)) cr cg cb ca)))))
 
-(defun-fast %arc (cx cy r wd frac cr cg cb ca)
+(defun-fast-inline %arc (cx cy r wd frac cr cg cb ca)
   "FRAC (0..1) of a ring of radius R, WD px wide, clockwise from the top."
   (declare (single-float cx cy r wd frac cr cg cb ca))
   (let ((r1 (+ r wd)) (n (f->i (* 24f0 (f-clamp frac 0f0 1f0)))))
@@ -232,7 +232,7 @@ bottom/right (VERTICAL chooses the axis). Corners TL TR BR / TL BR BL."
         (%hq (+ cx (* r c0)) (+ cy (* r s0)) (+ cx (* r1 c0)) (+ cy (* r1 s0)) (+ cx (* r1 c1)) (+ cy (* r1 s1))
              (+ cx (* r c1)) (+ cy (* r s1)) cr cg cb ca)))))
 
-(defun-fast %disc (cx cy r cr cg cb ca)
+(defun-fast-inline %disc (cx cy r cr cg cb ca)
   "A filled disc (a 24-gon)."
   (declare (single-float cx cy r cr cg cb ca))
   (dotimes (i 24)

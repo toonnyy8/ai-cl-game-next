@@ -7,7 +7,7 @@
   (:use :cl)
   (:export
    ;; package.lisp: types, compiler helpers, float math in C, random numbers, logging
-   #:f32 #:f32vec #:f32vec-p #:clamp #:lerp #:log-msg #:defun-fast #:with-floats
+   #:f32 #:f32vec #:f32vec-p #:clamp #:lerp #:log-msg #:defun-fast #:defun-fast-inline #:with-floats
    #:f-min #:f-max #:f-abs #:f-sqrt #:f-hypot #:f-sin #:f-cos #:f-atan2 #:f-mod #:f-exp #:f-clamp
    #:i->f #:f->i #:f-wrap #:rnd01 #:rnd-range #:rnd-seed #:rnd-state
    #:sim-rnd01 #:sim-rnd-range #:sim-rnd-seed #:sim-rnd-state
@@ -164,6 +164,37 @@ runs there. Declare every float local inside BODY."
        (let* ,(mapcar (lambda (v) (list v v)) vars)
          (declare (optimize (speed 3) (safety 0)) ,@typed)
          ,@body))))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun %fast-inline-form (forms gs args floats decls name body)
+    "DEFUN-FAST-INLINE's expansion of a call (NAME FORMS...): FORMS bound in order to GS, then ARGS to them (FLOATS
+through (FLOAT g 1f0)) under DECLS and (safety 0), BODY in a block NAME."
+    `(let* ,(mapcar #'list gs forms)
+       (let* ,(mapcar (lambda (a g) (list a (if (member a floats) `(float ,g 1f0) g))) args gs)
+         (declare (optimize (speed 3) (safety 0)) ,@decls)
+         (block ,name ,@body)))))
+
+(defmacro defun-fast-inline (name args &body body)
+  "DEFUN-FAST NAME (for #' and the calls from generic code) plus a compiler macro that expands a direct call in place, so
+a DEFUN-FAST caller's floats stay unboxed. (An INLINE declamation boxes them anyway: the inlined entry checks box every
+float to test it.) The expansion binds the argument forms in order, then each declared single-float argument through
+(FLOAT x 1f0) (nothing on a single-float form; a real converted as WITH-FLOATS does), every other one as it is, under the
+same declarations and (safety 0): no entry checks, so pass the declared types. Required arguments only."
+  (let* ((doc (when (and (stringp (first body)) (rest body)) (list (pop body))))
+         (decls (loop while (and (consp (first body)) (eq (car (first body)) 'declare))
+                      append (cdr (pop body))))
+         (floats (loop for d in decls
+                       append (cond ((eq (car d) 'single-float) (cdr d))
+                                    ((and (eq (car d) 'type) (eq (second d) 'single-float)) (cddr d)))))
+         (gs (loop for a in args collect (gensym (symbol-name a)))))
+    (assert (null (intersection args lambda-list-keywords)) () "DEFUN-FAST-INLINE ~a: required arguments only" name)
+    `(progn
+       (defun-fast ,name ,args ,@doc (declare ,@decls) ,@body)
+       (eval-when (:compile-toplevel :load-toplevel :execute)
+         (define-compiler-macro ,name (&whole w &rest forms)
+           (if (= (length forms) ,(length args))
+               (%fast-inline-form forms ',gs ',args ',floats ',decls ',name ',body)
+               w))))))
 
 ;;; ---------------------------------------------------------------- fast float helpers
 ;;; (ECL: float min/max/abs/sin are generic calls; these compile to plain C.)

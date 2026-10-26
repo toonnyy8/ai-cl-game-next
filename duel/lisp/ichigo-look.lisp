@@ -151,7 +151,7 @@ him; answering, the answer's clip at its frame; charging, the run; fading over i
     (when (>= (ice-sf d) 0)
       (ic-ghost hz clip (/ (* (ice-sf d) (mv-clip-speed mv)) 60.0) (* 0.35 (min 1.0 (/ (- (ice-end d) (ice-sf d)) 6.0))) nil))))
 
-(defun ichigo-burst-look (hz rdt)
+(defun-fast ichigo-burst-look (hz rdt)
   "A clone bursting (O's charge) or puffing out (he was hit): ink shards and white, BLOOD sparks."
   (declare (ignore rdt))
   (let* ((x (hazard-x hz)) (z (hazard-z hz)) (s (hazard-size hz)) (age (hazard-age hz)) (k (max 0.02 (- 1.0 (/ age 16.0)))))
@@ -164,7 +164,7 @@ him; answering, the answer's clip at its frame; charging, the run; fading over i
             (%t-shard x 1.0f0 z (* 5f0 s (f-cos a)) (rnd-range 0.5f0 3f0) (* 5f0 s (f-sin a)) 0.35f0 (rnd-range 0.03f0 0.07f0)
                       4f0 (if (evenp i) +pal-ink+ +pal-blood+))))))))
 
-(defun ichigo-zanzo-look (hz rdt)
+(defun-fast ichigo-zanzo-look (hz rdt)
   "残像 on: a pale ring round his feet, a white wisp peeling off him now and then."
   (let* ((e (hazard-owner hz)))
     (when (and (entity-alive-p e) (fighter e))
@@ -185,7 +185,7 @@ him; answering, the answer's clip at its frame; charging, the run; fading over i
                (zerop (mod (fighter-sf f) 4)))
       (start-ghost e))))
 
-(defun ichigo-aura-kessa (x y z h k dt)
+(defun-fast ichigo-aura-kessa (x y z h k dt)
   "KESSA: a smoulder of dark blood wisps at the neck, wrists and ankles (never a pillar: the Kikon's BLOOD stays the tell;
 a trace in his own Kikon rush)."
   (declare (ignore y h))

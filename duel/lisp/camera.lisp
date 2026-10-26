@@ -196,34 +196,51 @@ his depth; nothing moves while he already is. Render-side; the joints are the la
 line the duel camera is on."
   (if (and a (= 1 (fighter-side (fighter a)))) (- *view-side*) *view-side*))
 
-(defun behind-camera (a b rdt snap)
-  "Place *CAM-EYE* / *CAM-AT* behind fighter A (P1), looking along *BEHIND-YAW* toward B."
-  (let* ((p (pos-of a)) (q (pos-of b)) (c *cam-anchor*)
-         (sep (sqrt (+ (expt (- (aref q 0) (aref p 0)) 2) (expt (- (aref q 2) (aref p 2)) 2))))
-         (wide (* *behind-widen* (max 0.0 (- sep 4.0))))
-         (back (* *cam-close* (+ *behind-back* wide) (if (> *punch-t* 0) 0.6 1.0)))
-         (off (deg (max *behind-side* (* *behind-close* (max 0.0 (min 1.0 (/ (- 6.0 sep) 4.0)))))))
-         (side (+ *behind-shoulder* (* back (sin off))))     ; to the right of P1 ...
-         (fx (fwd-x *behind-yaw*)) (fz (fwd-z *behind-yaw*)))
-    (setf back (* back (cos off)))                         ; ... and behind him
+;;; The landscape cameras below are DEFUN-FASTs (0 B; were ~1.6 KB a frame boxed): the same single-float operations in
+;;; the same order as the generic DEFUNs they replaced, so not a pixel moved. The generic ops they stand for: (EXPT x 2)
+;;; is powf (%POW2), SQRT / SIN / COS / EXP of a single float are sqrtf / sinf / cosf / expf (F-SQRT F-SIN ...), but
+;;; two-argument ATAN goes through double atan2 (%ATAN2-D); MIN / MAX of floats are F-MIN / F-MAX.
+(defmacro %pow2 (x) "(EXPT X 2) of a single float, as ECL computes it (powf)." `(ffi:c-inline (,x) (:float) :float "powf(#0,2.0f)" :one-liner t))
+(defmacro %atan2-d (y x) "(ATAN Y X) of single floats, as ECL computes it: atan2 in double, rounded to single."
+  `(ffi:c-inline (,y ,x) (:float :float) :float "(float)atan2((double)#0,(double)#1)" :one-liner t))
+
+(defun-fast behind-camera (a b rdt snap)
+  "Place *CAM-EYE* / *CAM-AT* behind fighter A (P1), looking along *BEHIND-YAW* toward B. 0 B."
+  (declare (single-float rdt))
+  (let* ((p (pos-of a)) (q (pos-of b)) (c *cam-anchor*) (eye *cam-eye*) (at *cam-at*)
+         (sep (f-sqrt (+ (%pow2 (- (aref q 0) (aref p 0))) (%pow2 (- (aref q 2) (aref p 2))))))
+         (wide (* (the single-float *behind-widen*) (f-max 0f0 (- sep 4f0))))
+         (back (* (the single-float *cam-close*) (+ (the single-float *behind-back*) wide) (if (> *punch-t* 0f0) 0.6f0 1f0)))
+         (off (* (f-max (the single-float *behind-side*) (* (the single-float *behind-close*) (f-max 0f0 (f-min 1f0 (/ (- 6f0 sep) 4f0)))))
+                 #.(float (/ pi 180) 1f0)))                 ; (DEG)
+         (side (+ (the single-float *behind-shoulder*) (* back (f-sin off))))     ; to the right of P1 ...
+         (fx (- (f-sin *behind-yaw*))) (fz (- (f-cos *behind-yaw*))))           ; (FWD-X / FWD-Z)
+    (declare (type f32vec p q c eye at) (single-float sep wide back off side fx fz))
+    (setf back (* back (f-cos off)))                       ; ... and behind him
     (if (or snap *cam-cut*)
         (setf (aref c 0) (aref p 0) (aref c 2) (aref p 2) *cam-cut* nil)
-        (let ((k (- 1.0 (exp (* (- *behind-rate*) rdt)))))
-          (setf (aref c 0) (f32 (+ (aref c 0) (* k (- (aref p 0) (aref c 0)))))
-                (aref c 2) (f32 (+ (aref c 2) (* k (- (aref p 2) (aref c 2))))))))
+        (let ((k (- 1f0 (f-exp (* (- (the single-float *behind-rate*)) rdt)))))
+          (declare (single-float k))
+          (setf (aref c 0) (+ (aref c 0) (* k (- (aref p 0) (aref c 0))))
+                (aref c 2) (+ (aref c 2) (* k (- (aref p 2) (aref c 2)))))))
     (let* ((ex (+ (aref c 0) (* (- back) fx) (* side (- fz))))   ; right = (-fz, fx)
            (ez (+ (aref c 2) (* (- back) fz) (* side fx)))
-           (r (hypot ex ez))
-           (k (min 1.0 (/ *cam-max-r* (max 0.01 r))))
-           (h (+ *behind-up* (* 0.33 wide) (* 0.4 (- r (* k r))))))   ; pulled in by the wall: rise instead
+           (r (f-hypot ex ez))
+           (k (f-min 1f0 (/ (the single-float *cam-max-r*) (f-max 0.01f0 r))))
+           (h (+ (the single-float *behind-up*) (* 0.33f0 wide) (* 0.4f0 (- r (* k r))))))   ; pulled in by the wall: rise instead
+      (declare (single-float ex ez r k h))
       (setf ex (* k ex) ez (* k ez))
-      (dolist (e (list a b))                             ; never inside a fighter
-        (let* ((o (pos-of e)) (dx (- ex (aref o 0))) (dz (- ez (aref o 2))) (d (hypot dx dz))
-               (min-d (+ 0.5 (body-hurt-r (model-body (model e))))))
-          (when (and (< d min-d) (> d 0.001))
-            (setf ex (+ (aref o 0) (* dx (/ min-d d))) ez (+ (aref o 2) (* dz (/ min-d d)))))))
-      (v3-set! *cam-eye* (f32 ex) (f32 h) (f32 ez))
-      (v3-set! *cam-at* (f32 (+ (aref c 0) (* *behind-look* sep fx))) 1.1f0 (f32 (+ (aref c 2) (* *behind-look* sep fz)))))))
+      (macrolet ((clear-of (e)                           ; never inside a fighter
+                   `(let* ((o (pos-of ,e)) (dx (- ex (aref o 0))) (dz (- ez (aref o 2))) (d (f-hypot dx dz))
+                           (min-d (+ 0.5f0 (the single-float (body-hurt-r (model-body (model ,e)))))))
+                      (declare (type f32vec o) (single-float dx dz d min-d))
+                      (when (and (< d min-d) (> d 0.001f0))
+                        (setf ex (+ (aref o 0) (* dx (/ min-d d))) ez (+ (aref o 2) (* dz (/ min-d d))))))))
+        (clear-of a) (clear-of b))
+      (setf (aref eye 0) ex (aref eye 1) h (aref eye 2) ez
+            (aref at 0) (+ (aref c 0) (* (the single-float *behind-look*) sep fx)) (aref at 1) 1.1f0
+            (aref at 2) (+ (aref c 2) (* (the single-float *behind-look*) sep fz))))
+    nil))
 
 (defun-fast %roll-up (up eye at roll)
   "UP := the world's up rolled ROLL degrees about the view direction EYE -> AT (a dutch angle)."
@@ -247,34 +264,46 @@ smoothing, e.g. a new round)."
         ((and a b (portrait-p))                           ; a tall screen: the portrait camera, whatever the mode
          (%portrait-camera (pos-of a) (pos-of b) (f32 rdt) (or snap *cam-cut*))
          (setf *cam-cut* nil))
-        ((and a b *view-behind*) (behind-camera a b rdt snap))
-        ((and a b)
-         (let* ((p (pos-of a)) (q (pos-of b))
-                (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2))))
-                (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (sep (hypot dx dz))
-                (ux (if (> sep 0.01) (/ dx sep) 1.0)) (uz (if (> sep 0.01) (/ dz sep) 0.0))
-                (ang (atan *view-z* *view-x*))
-                (dist (* *cam-close* (max 6.0 (+ 4.5 (* 0.85 sep))) (if (> *punch-t* 0) 0.6 1.0)))
-                (h (+ 2.5 (* 0.15 sep))) (c *cam-at*))
-           (if (or snap *cam-cut*)
-               (setf *cam-ang* (f32 ang) *cam-dist* (f32 dist) *cam-cut* nil
-                     (aref c 0) (f32 mx) (aref c 2) (f32 mz))
-               (let ((k (- 1.0 (exp (* (- *cam-orbit-rate*) rdt)))) (kd (- 1.0 (exp (* (- *cam-dist-rate*) rdt)))))
-                 (setf *cam-ang* (f32 (+ *cam-ang* (* k (angle-wrap (- ang *cam-ang*)))))
-                       *cam-dist* (f32 (+ *cam-dist* (* kd (- dist *cam-dist*))))
-                       (aref c 0) (f32 (+ (aref c 0) (* k (- mx (aref c 0)))))
-                       (aref c 2) (f32 (+ (aref c 2) (* k (- mz (aref c 2))))))))
-           (let* ((back (* 0.05 *cam-dist*))            ; 3/4: a little behind P1
-                  (ex (- (+ (aref c 0) (* *cam-dist* (cos *cam-ang*))) (* back ux)))
-                  (ez (- (+ (aref c 2) (* *cam-dist* (sin *cam-ang*))) (* back uz)))
-                  (k (min 1.0 (/ *cam-max-r* (max 0.01 (hypot ex ez))))))
-             (v3-set! *cam-eye* (f32 (* k ex)) (f32 h) (f32 (* k ez)))
-             (setf (aref c 1) 1.05f0)))))
-  (let ((e *cam-eye*) (c *cam-at*) (up (camera-up *camera*)))
+        ((and a b *view-behind*) (behind-camera a b (f32 rdt) snap))
+        ((and a b) (pair-camera a b (f32 rdt) snap)))
+  (let ((e *cam-eye*) (c *cam-at*) (cam *camera*))
     (if (and *cine-cam* (/= *dutch* 0f0))                ; a dutch shot (cinema.lisp LENS)
-        (%roll-up up e c *dutch*)
-        (v3-set! up 0f0 1f0 0f0))
-    (camera-look-at (aref e 0) (aref e 1) (aref e 2) (aref c 0) (aref c 1) (aref c 2))))
+        (%roll-up (camera-up cam) e c *dutch*)
+        (v3-set! (camera-up cam) 0f0 1f0 0f0))
+    (v3-copy! (camera-pos cam) e) (v3-copy! (camera-target cam) c)   ; (CAMERA-LOOK-AT without boxing the six floats)
+    (update-camera)))
+
+(defun-fast pair-camera (a b rdt snap)
+  "The PAIR camera: place *CAM-EYE* / *CAM-AT* on the sim's view side of A and B (*VIEW-X* *VIEW-Z*), the orbit angle,
+distance and midpoint smoothed (SNAP or *CAM-CUT*: no smoothing). 0 B but the two smoothed globals (16 B)."
+  (declare (single-float rdt))
+  (let* ((p (pos-of a)) (q (pos-of b)) (c *cam-at*)
+         (mx (* 0.5f0 (+ (aref p 0) (aref q 0)))) (mz (* 0.5f0 (+ (aref p 2) (aref q 2))))
+         (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (sep (f-hypot dx dz))
+         (ux (if (> sep 0.01f0) (/ dx sep) 1f0)) (uz (if (> sep 0.01f0) (/ dz sep) 0f0))
+         (ang (%atan2-d *view-z* *view-x*))
+         (dist (* (the single-float *cam-close*) (f-max 6f0 (+ 4.5f0 (* 0.85f0 sep))) (if (> *punch-t* 0f0) 0.6f0 1f0)))
+         (h (+ 2.5f0 (* 0.15f0 sep))))
+    (declare (type f32vec p q c) (single-float mx mz dx dz sep ux uz ang dist h))
+    (if (or snap *cam-cut*)
+        (setf *cam-ang* ang *cam-dist* dist *cam-cut* nil
+              (aref c 0) mx (aref c 2) mz)
+        (let ((k (- 1f0 (f-exp (* (- (the single-float *cam-orbit-rate*)) rdt))))
+              (kd (- 1f0 (f-exp (* (- (the single-float *cam-dist-rate*)) rdt)))))
+          (declare (single-float k kd))
+          (setf *cam-ang* (+ *cam-ang* (* k (the single-float (angle-wrap (- ang *cam-ang*)))))
+                *cam-dist* (+ *cam-dist* (* kd (- dist *cam-dist*)))
+                (aref c 0) (+ (aref c 0) (* k (- mx (aref c 0))))
+                (aref c 2) (+ (aref c 2) (* k (- mz (aref c 2)))))))
+    (let* ((cd *cam-dist*) (ca *cam-ang*) (e *cam-eye*)
+           (back (* 0.05f0 cd))                          ; 3/4: a little behind P1
+           (ex (- (+ (aref c 0) (* cd (f-cos ca))) (* back ux)))
+           (ez (- (+ (aref c 2) (* cd (f-sin ca))) (* back uz)))
+           (k (f-min 1f0 (/ (the single-float *cam-max-r*) (f-max 0.01f0 (f-hypot ex ez))))))
+      (declare (single-float cd ca back ex ez k) (type f32vec e))
+      (setf (aref e 0) (* k ex) (aref e 1) h (aref e 2) (* k ez)
+            (aref c 1) 1.05f0))
+    nil))
 
 ;;; ---------------------------------------------------------------- the menus' camera (main.lisp GAME-FRAME)
 (declaim (special *flow* *winner*))   ; (flow.lisp's)

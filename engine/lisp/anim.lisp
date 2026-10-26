@@ -343,8 +343,9 @@ A direct call compiles to %POSE-FK! (compiler macro): no optional-argument parsi
   (define-compiler-macro pose-fk! (jm pose px py pz yaw scale hunch &optional props)
     `(%pose-fk! ,jm ,pose ,px ,py ,pz ,yaw ,scale ,hunch ,props)))
 
-(defun-fast joint-point! (out jm j lx ly lz)
-  "OUT = world position of local point (lx ly lz) in joint J's frame."
+(defun-fast-inline joint-point! (out jm j lx ly lz)
+  "OUT = world position of local point (lx ly lz) in joint J's frame (a direct call expands in place: the callers' floats
+stay unboxed)."
   (declare (type f32vec out jm) (fixnum j) (single-float lx ly lz))
   (let* ((o (* j 16)))
     (declare (fixnum o))
