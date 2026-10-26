@@ -3645,3 +3645,10 @@ read), so it is dealt at combo index 1; the bind mode, L SAHARAI, the Breaker an
 `tip-now` is reset on every read (the look-only `tip-hit` is unchanged). Host check in tests/duel-rules/core.lisp; host
 10228 ALL PASS, build 0 warnings, smoke exit 0; no sim gate (the user's standing word, DUEL_RUKIA_TYBW §15). Record:
 DUEL_RUKIA_TYBW §16.4, DEVLOG §366. Playtest v166.
+
+### 25.37 The tip hint during a Step (the user, 2026-10-26)
+
+The user: 「調整修兵卍解遠距的攻擊提示，現在在 step 的過程中似乎不會啟用遠距提示？要等站定後才會有閃點與流光。我希望能改成在過程中只
+要經過尖端的範圍就會起動提示」. The hint (`*hs-tg*`: J1's chain-end glints, K1's flow down the chains, §25.26 / §25.27) was read
+only while he stood, walked, guarded or ran; a Step (`:step`) is now one of those states, so the glints and the flow show on
+any frame of the hop the opponent's distance is inside a tip band (HS-TIP-BAND), and stop when it leaves it. A look only.

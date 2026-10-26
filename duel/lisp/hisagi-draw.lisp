@@ -1200,7 +1200,8 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
         (setf (aref *hs-tipv* 0) 0f0 (aref *hs-tipv* 1) 0f0)            ; (and the chain strikes, §21.8)
         (setf (aref *hs-tg* 0)                                          ; §25.26: the chain-tip glint, free in the ranged mode
               (let ((cmd (and (= ck 0) (eq (fighter-form f) :bankai) (not (hss-bound st))
-                              (member (fighter-state f) '(:idle :walk :guard :run))
+                              (member (fighter-state f) '(:idle :walk :guard :run :step))   ; (:step since 2026-10-26: 「在過程
+                                                        ;  中只要經過尖端的範圍就會起動提示」)
                               (hs-tip-band *hs-g*))))
                 (case cmd (1 1f0) (2 2f0) (t 0f0))))
         (%hs-car! an (if (eq e *p1*) 0 1) (cdr (assoc cn *hs-spins-v*)) (cdr (assoc cn *hs-bundled-v*)))   ; (A2: the carousel)
