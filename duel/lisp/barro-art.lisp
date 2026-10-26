@@ -594,6 +594,20 @@
   (17 :snap :br-pl-brace-kick) (:a :br-pl-brace-kick (:root :f -0.12 :u -0.13))
   (21 :br-pl-brace-kick (:root :f -0.08 :u -0.13) (:arm-r :flex 58)) (24 :br-pl-brace (:root :f -0.04 :u -0.12))
   (28 :lb-kamae-pose (:root :u -0.08)) (:end :lb-stance))
+;; ... a whiffed snipe's longer recovery (the user 2026-10-26: 「請在後搖硬直也增加動畫」; *BR-SNIPE-WHIFF* 20 f past the shot's
+;; clip, started by BR-S-TICK at S + A + R when the shot touched nothing): the miss read in the body: the muzzle sags and he
+;; leans after the empty line (f4), the head turns off it and the left hand drags the barrel down (f8), the right hand works
+;; the action at his chest (f12), the stock back into the shoulder (f16), the stance
+(defstrike :br-sk-lw (4 4 12 :base :lb-stance)
+  (0 :lb-stance (:root :u -0.08))
+  (4 :lb-stance (:root :f 0.06 :u -0.16) (:spine :flex 14) (:head :flex 22) (:arm-r :flex 40 :side 12) (:elbow-r :flex 40)
+     (:arm-l :flex 30 :side 4) (:knee-r :flex 20) (:knee-l :flex 24))   ; (the miss: sagged, leaning after the line)
+  (8 :lb-stance (:root :f 0.04 :u -0.18) (:spine :flex 16) (:head :flex 18 :twist -14) (:arm-r :flex 46 :side 12)
+     (:elbow-r :flex 60) (:arm-l :flex 24 :side 4) (:elbow-l :flex 40) (:knee-r :flex 22) (:knee-l :flex 26))   ; (looks off it)
+  (12 :lb-stance (:root :u -0.14) (:spine :flex 10) (:head :flex 12 :twist -6) (:arm-r :flex 26 :side 12) (:elbow-r :flex 82)
+      (:hand-r :flex -64) (:elbow-l :flex 60) (:knee-r :flex 16) (:knee-l :flex 18))   ; (the action worked at the chest)
+  (16 :lb-kamae-pose (:root :u -0.1) (:head :flex 8))   ; (re-shouldered)
+  (:end :lb-stance))
 ;; J 槍鬥術 (R15): the gun-kata, one hand. R16 (DUEL_LILLE_V3 §20, the user 2026-10-12: 「架勢 J 的槍鬥術跟普通攻擊的 J3 幫我插入
 ;; 更多關鍵幀並放慢一些速度」): at S 10, R 14 / 14 / 16, with in-betweens through every turn (a key a frame through the spins,
 ;; ~90 deg apart), a moving hold on each wind-up, the hips leading and the rifle and the free arm trailing (overlap), and a

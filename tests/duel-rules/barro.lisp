@@ -161,6 +161,7 @@
   ;; hold 90, x1.5; 「只改狙擊」: the dash keeps 20 / 40 / 60); its level 2 / 3 copies the same whiff; his CPU's holds past each level
   (check (and (= *br-snipe-whiff* 20) (equal *br-snipe-levels* '(30 60)) (= *br-snipe-hold* 90)
               (= 42 (mv-whiff (find-move :br-s-l1))) (= 42 (mv-whiff (find-move :br-s-l1-2))) (= 42 (mv-whiff (find-move :br-s-l1-3)))
+              (= *br-snipe-whiff* (round (* 60 (clip-dur (find-clip :br-sk-lw)))))   ; (its whiff drawn: 「請在後搖硬直也增加動畫」)
               (let ((s (find-move :br-s-l1)))
                 (and (= 1 (br-w-l-level 29 s)) (= 2 (br-w-l-level 30 s)) (= 2 (br-w-l-level 59 s)) (= 3 (br-w-l-level 60 s))
                      (= 2 (br-w-l-level 30)) (= 90 (br-l-hold s)) (= *br-w-l-hold* (br-l-hold nil))))

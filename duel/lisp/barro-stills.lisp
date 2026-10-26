@@ -11,17 +11,19 @@ count: 空收 / 二連 / 四連 / 裁き / 裁き・極); 8 / 9 JILLIEL's turn i
 the owl's; 12 the owl's SP2 on its own (the volley's wind-up); 13 the base stance's SP2 HIRENKYAKU; 14 JILLIEL's SANREN;
 15 / 16 / 17 the base stance's L1 / J1 / K1 (3 m out); 18 / 19 JILLIEL's stance L1 / K1 (3 m out); 40-51 the base stance's
 L1-2 L1-3 (R15, DUEL_LILLE_V3 §19: the snipe's level 2 / 3 shots) J2 J3 K2 K3 JL1 JL2 JL3 KL1 KL2 KL3 (3 m out, started on
-their own, 3 pips; + 20 the front view); 52-56 (R15) the base stance's L, the snipe, in its charge held 15 / 22 / 32 / 43 /
-56 frames (level 1, level 2's flash, level 2, level 3's flash, level 3), the sim frozen there at once (82299 lets go: the
-release, its shot); 57 (R16, DUEL_LILLE_V3 §20) the base form's attack-state J3 銃口突 (:br-j3, its clip :br-jab) 2.2 m out;
+their own, 3 pips; + 20 the front view); 52-56 (R15) the base stance's L, the snipe, in its charge held 22 / 33 / 48 / 64 /
+84 frames (level 1, level 2's flash, level 2, level 3's flash, level 3: x1.5 with its levels, 2026-10-26; 15 / 22 / 32 / 43
+/ 56 before), the sim frozen there at once (82299 lets go: the release, its shot); 57 (R16, DUEL_LILLE_V3 §20) the base
+form's attack-state J3 銃口突 (:br-j3, its clip :br-jab) 2.2 m out; 58 / 59 (2026-10-26) a whiffed snipe's recovery
+(:br-sk-lw) at its frame 6 / 12;
 5 / 6 / 7 the base form's attack-state K1 / K2 / K3 (:br-k1 / :br-k2 / :br-k3, each started on its own, K2 / K3 from their
 link frame :enter) 2.3 m out. The awakened stances' moves: BR-ART-STANCE."
   (let* ((front (oddp (floor k 20))) (k (if front (- k 20) k)) (owl (or (<= 0 k 4) (<= 10 k 13))))
     (if front (ensure-battle :kenpachi :barro) (ensure-battle :barro :kenpachi))
     (let* ((b (if front *p2* *p1*)) (o (if front *p1* *p2*)) (g (gauges b)))
       (setf *br-keep-owl* owl)
-      (force-form b (cond ((or (<= 5 k 7) (<= 15 k 17) (<= 40 k 57)) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
-      (place *p1* *p2* (cond ((= k 57) 2.2) ((<= 5 k 7) 2.3) ((or (<= 15 k 19) (<= 40 k 56)) 3.0) (t 4.0)))
+      (force-form b (cond ((or (<= 5 k 7) (<= 15 k 17) (<= 40 k 59)) :base) ((<= 18 k 19) :jilliel) (owl :shin-kin) (t :jilliel-kin)))
+      (place *p1* *p2* (cond ((= k 57) 2.2) ((<= 5 k 7) 2.3) ((or (<= 15 k 19) (<= 40 k 56) (<= 58 k 59)) 3.0) (t 4.0)))
       (setf (gauges-reiatsu g) *reiatsu-max* (gauges-fs g) (f32 *fs-max*)
             (gauges-reishi (gauges o)) (gauges-reishi-max (gauges o)))   ; (no K.O. across a script's scenes)
       (case k
@@ -37,13 +39,19 @@ link frame :enter) 2.3 m out. The awakened stances' moves: BR-ART-STANCE."
         (18 (start-move b (find-move :br-e-l1) :sig)) (19 (start-move b (find-move :br-e-k1)))   ; (18: the awakened L dash, held as 15)
         ((40 41 42 43 44 45 46 47 48 49 50 51)
          (br-set-ammo b 3)
-         (setf (fighter-charge (fighter b)) (case k (40 30) (41 50) (t 0)))   ; (R15: the snipe's level 2 / 3 as if held)
+         (setf (fighter-charge (fighter b)) (case k (40 40) (41 70) (t 0)))   ; (2026-10-26: its levels 30 / 60)   ; (R15: the snipe's level 2 / 3 as if held)
          (start-move b (find-move (nth (- k 40) '(:br-s-l1-2 :br-s-l1-3 :br-s-j2 :br-s-j3 :br-s-k2 :br-s-k3 :br-s-jl1 :br-s-jl2
                                                   :br-s-jl3 :br-s-kl1 :br-s-kl2 :br-s-kl3)))))
         ((52 53 54 55 56)                              ; (R15: the snipe's charge held, frozen at once)
-         (let ((h (nth (- k 52) '(15 22 32 43 56))) (an (model-anim (model b))))
+         (let ((h (nth (- k 52) '(22 33 48 64 84))) (an (model-anim (model b))))
            (start-move b (find-move :br-s-l1) :sig)
            (setf (fighter-hold (fighter b)) h (anim-time an) (/ h 60f0))
+           (hitstop 100000)))
+        ((58 59)                                       ; (2026-10-26: a whiffed snipe's recovery, frozen in its clip)
+         (let ((an (model-anim (model b))))
+           (start-move b (find-move :br-s-l1) :sig)
+           (play-clip b :br-sk-lw :blend 0)
+           (setf (anim-time an) (/ (if (= k 58) 6 12) 60f0))
            (hitstop 100000)))
         (57 (start-move b (find-move :br-j3)))   ; (R16, §20: the base form's attack-state J3 銃口突, its own clip :br-jab)
         ((5 6 7) (start-move b (find-move (nth (- k 5) '(:br-k1 :br-k2 :br-k3))))))   ; (the base form's attack-state K string,

@@ -1542,3 +1542,13 @@ The user: 「請提高利捷狙擊打空時的硬質破綻，並提高蓄力的�
   step at the snipe's levels (presentation only).
 - Tests: `tests/duel-rules/barro.lisp` (the whiff 42 on the three snipe moves, the levels 29 / 30 / 59 / 60, the hold 90,
   the dash's untouched, the CPU's holds past each level, the let-go at 15 / 25 / 35 f, the charge clip covering 90 f).
+
+### 32.1 The whiff's recovery drawn (the user, 2026-10-26)
+
+The user: 「請在後搖硬直也增加動畫」. The shot clips (:br-sk-l1s, :br-sk-l1) end with the move's S + A + R; a whiff's 20 more
+frames held the last pose. Now BR-S-TICK plays `:br-sk-lw` (20 f, blend 3) at S + A + R when a snipe move touched nothing:
+the muzzle sags and he leans after the empty line (f4), the head turns off it and the left hand drags the barrel down (f8),
+the rifle brought across the chest to work the action (f12), the stock back into the shoulder (f16), the stance (f20). A
+look only (the sim never reads a clip). Stills: debug 82158 / 82159 (frames 6 / 12; 82178 / 82179 the front view, DUEL_GAMEPLAY);
+the charge stills 52-56 moved to the new levels (held 22 / 33 / 48 / 64 / 84 f; 40 / 41's charge 40 / 70). Test: the clip
+lasts `*br-snipe-whiff*` frames.

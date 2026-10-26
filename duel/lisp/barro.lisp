@@ -1364,6 +1364,9 @@ KL segment: a human's SP2 (Shift+L) is latched and, the move having hit, cancels
 (:sp2c; 「必須接在 KK 後執行」, 「SP2 接在 J 連段後面也可以」).
 His CPU makes one call there (BR-S-CPU-CALL); holding a charge (the :hold phase) it lets go as BR-AI-CHARGE-TICK says."
   (let* ((f (fighter e)) (mv (fighter-move f)) (st (br e)))
+    (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :main) (getf (mv-params mv) :charged)   ; (the snipe
+               (null (fighter-contact f)) (= (fighter-sf f) (+ (mv-s mv) (mv-a mv) (mv-r mv))))           ;  whiffed: its
+      (play-clip e :br-sk-lw :blend 3))   ; *BR-SNIPE-WHIFF* frames drawn, 2026-10-26: 「請在後搖硬直也增加動畫」; a look)
     (when (and (eq (fighter-state f) :move) mv (eq (fighter-phase f) :hold))   ; (his CPU's charge only: dream-rsi b1a1)
       (let ((b (br-tick-brain e)))
         (when b
