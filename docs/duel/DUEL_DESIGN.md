@@ -1843,3 +1843,15 @@ out the attacker does gain flash-step (KŌSEI) and chose 「攻勢整個改成�
 - Code: `tuning.lisp` (`*kosei-kind*`, the two taken rates), `rules.lisp` KOSEI-BASE, HIT-GAINS' flash-step; `combat.lisp`
   APPLY-HIT's KOSEI! call. Tests: `tests/duel-rules/core.lisp` (the KOSEI table, a K's 3rd hit at an empty gauge, taken
   15 / 4.5 × 1.5 at a combo's 6th hit).
+
+**Gates** (the three changes together, with DUEL_RUKIA_TYBW §17.12; native, 20 seeds, against a baseline at b9bc74b, the commit
+before them): every match K.O.; medians (baseline → now) YY 86.6 → 83.0, YK 71.2 → 72.6, KK 84.8 → 79.8, RY 117.0 → 114.6,
+RK 119.6 → 108.8, RR 157.6 → 168.6, IY 81.1 → 90.2, IK 102.8 → 103.1, IR 140.6 → 129.1, II 117.1 → 110.3, SY 97.0 → 92.8,
+SK 97.6 → 99.9, SR 147.5 → 142.6, SS 111.2 → 109.3, SI 108.6 → 116.6, BY 109.6 → 108.5, BK 104.6 → 106.5, BR 156.9 → 161.3,
+BI 131.4 → 140.5, BS 144.0 → 143.0, BB 154.3 → 154.9, HY 128.3 → 120.2, HK 105.0 → 103.7, HR 148.6 → 147.5, HI 144.5 →
+141.1, HS 137.9 → 138.4, HB 168.0 → 165.9, HH 169.3 → 161.3. Sixteen pairings sit under 125 s already at the baseline; the
+one the change moved out is HY, at 60 seeds 121.8 → **110.0 s**: reported to the user. (The Reiatsu change alone, 20 seeds:
+within ±11 s of the baseline, no pairing out.) ASSIST (the masher's wins, before → now): off 26 → 24 %, GUARD 1 27 → 25 %,
+GUARD 2 57 → 56 %, COMBO 69 → 68 %, BREAK 34 → 32 %, all 78 → 78 %, all with GUARD 2 97 → 97 %. G2: `tests/style-cvc-ref.txt`
+regenerated (YY `winner P2 konpaku 0-9 ticks 5325 secs 88.8`, YK `winner P2 konpaku 0-1 ticks 6130 secs 102.2`, KK unchanged
+`winner P1 konpaku 5-0 ticks 6110 secs 101.8`), the browser and the native sim identical.
