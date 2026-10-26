@@ -5136,3 +5136,10 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - 改動前就有 16 組低於 125 s（例如 YK 71.2、YY 86.6、IY 81.1）。這次被推出範圍的只有 HY：60 種子 121.8 → 110.0 s（改動前 60 種子就已經是 121.8），已回報使用者。
 - ASSIST 亂按玩家勝率：全關 26 → 24%、AUTO GUARD 1／2 27／57 → 25／56%、AUTO COMBO 69 → 68%、AUTO BREAK 34 → 32%、全開 78%、全開且 GUARD 2 97%（不變）。
 - G2 參考值重新產生（YY `winner P2 konpaku 0-9 ticks 5325 secs 88.8`、YK `winner P2 konpaku 0-1 ticks 6130 secs 102.2`、KK 不變），瀏覽器和原生模擬一致。DUEL_DESIGN「Reiatsu by move kind × combo」。
+
+## 398. HY 列為例外，其他偏短的配對維持現狀（2026-10-26）
+
+使用者：「1. 列為例外 2. 維持現狀」
+
+- HY 60 種子 110.0 s（改動前 121.8 s）列為例外，寫進 AGENTS.md 的例外清單。
+- 改動前就低於 125 s 的 16 組維持現狀，不調整。DUEL_DESIGN「Reiatsu by move kind × combo」。
