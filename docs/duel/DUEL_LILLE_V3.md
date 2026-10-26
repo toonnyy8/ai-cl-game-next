@@ -1565,4 +1565,5 @@ GUARD 1 / 2 25 / 57 %, COMBO 68 %, BREAK 32 %, all 78 %, all with GUARD 2 98 %. 
 12 / 11 / 15, BI 8 / 10 / 7, BS 8 / 5 / 9, BB 2 / 5 / 4, HB 14 / 17 / 12: sixteen of 21 rows under 20. Attributed at seed0 100 on
 the parents: b9bc74b (before today's Reiatsu change) BY 31, BK 11, BR 18, BI 11, BS 10, BB 6, HB 24; 961199d (after it, before
 §32) 22 / 6 / 11 / 13 / 5 / 8 / 18; now 17 / 13 / 12 / 8 / 8 / 2 / 14. Most rows failed already at b9bc74b (the accepted
-2026-10-15 rows were eight); both of today's changes move them within about ±7 (60-seed noise ±4). Reported to the user.
+2026-10-15 rows were eight); both of today's changes move them within about ±7 (60-seed noise ±4). Reported to the user, who
+answered 「列為例外 維持現狀」 (2026-10-26): all sixteen rows accepted, nothing retuned.
