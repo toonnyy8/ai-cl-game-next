@@ -142,14 +142,14 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 ;; L, one family that grows with the cold (the playtest fix: colder is never weaker): a disc round her, guardable
 ;; facing her (:src). -18 SHIMOBASHIRA, the frost pillars (r 2.5); -50 HYOSHIN, the ice quake (r 3.5, crumple); zero
 ;; REIDO TOKETSU (r 5.5 = the field, a 45 f freeze: a counter-hit on a Breaker's dash; it cashes the top bar)
-(defmove :ru-shimobashira :kind :sig :clip :ru-18-shimobashira :callout "SHIMOBASHIRA" :startup 12 :active 0 :recovery 22
+(defmove :ru-shimobashira :kind :sig :clip :ru-18-shimobashira :callout "SHIMOBASHIRA" :startup 12 :active 0 :recovery 32
   :on-frame ((0 rukia-hyoshin-tell) (12 rukia-shimobashira))
-  :params (:radius 2.5 :height 0.6 :dmg 60 :frost 90 :guard 12 :react :stagger))
-(defmove :ru-hyoshin :kind :sig :clip :ru-50-hyoshin :callout "HYOSHIN" :startup 14 :active 0 :recovery 22
+  :params (:radius 2.5 :height 0.6 :dmg 60 :frost 90 :guard 12 :react :stagger :stun 42 :gc-from 40))
+(defmove :ru-hyoshin :kind :sig :clip :ru-50-hyoshin :callout "HYOSHIN" :startup 14 :active 0 :recovery 32
   :on-frame ((0 rukia-hyoshin-tell) (14 rukia-hyoshin))
-  :params (:radius 3.5 :height 0.6 :dmg 85 :frost 120 :guard 16 :react :crumple))
-(defmove :ru-reido :kind :sig :clip :ru-0-reido :callout "REIDO TOKETSU" :startup 10 :active 0 :recovery 26
-  :on-frame ((10 rukia-reido)) :params (:radius 5.5 :height 2.2 :dmg 120 :stun 45 :frost 150 :guard 20))
+  :params (:radius 3.5 :height 0.6 :dmg 85 :frost 120 :guard 16 :react :crumple :stun 42 :gc-from 42))
+(defmove :ru-reido :kind :sig :clip :ru-0-reido :callout "REIDO TOKETSU" :startup 10 :active 0 :recovery 36
+  :on-frame ((10 rukia-reido)) :params (:radius 5.5 :height 2.2 :dmg 120 :stun 46 :frost 150 :guard 20 :gc-from 37))
 ;; SP1 HAKUREN colder: -50 a stab every 12 f (hold 12-48), a faster, longer, harder wave; zero no hold: the four stabs at
 ;; once and the widest, hardest wave (a half-width of 1.8 m: a side Step still clears every one)
 (defmove-copy :ru-hakuren-50 :ru-hakuren :hold (12 48)
@@ -511,7 +511,7 @@ the hit is the move's arc)."
 (defun rukia-hyoshin (e)
   "HYOSHIN f14 (and SHIMOBASHIRA's disc): the ice quake: a disc round her, the move's :react + frost."
   (rukia-disc e (move-param e :radius) (move-param e :height)
-              (make-hitwin :dmg (move-param e :dmg) :react (move-param e :react) :kb 1.0 :hs *hitstop-heavy*
+              (make-hitwin :dmg (move-param e :dmg) :react (move-param e :react) :stun (move-param e :stun) :kb 1.0 :hs *hitstop-heavy*
                            :guard (move-param e :guard) :frost (move-param e :frost) :flags '(:ice)))
   (emit :sfx :ground-crack e))
 

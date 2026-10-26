@@ -704,7 +704,7 @@ him still reeling past our recovery's end."
   (declare (ignore d))
   (let* ((f (fighter e)) (mv (fighter-move f)))
     (if (and (eq (fighter-state f) :move) (not (fighter-queued f))
-             (guard-cancel-open-p (fighter-sf f) (mv-s mv) (mv-a mv) (mv-r mv) (fighter-contact f) (mv-kind mv) (mv-whiff mv))
+             (guard-cancel-open-p (fighter-sf f) (mv-s mv) (mv-a mv) (mv-r mv) (fighter-contact f) (mv-kind mv) (mv-whiff mv) (getf (mv-params mv) :gc-from))
              (not (and (member (snap-state s) '(:stun :air :down :wakeup))
                        (> (snap-left-seen s b) (- (mv-total mv) (fighter-sf f))))))
         (why b :guard-cancel :guard-cancel)

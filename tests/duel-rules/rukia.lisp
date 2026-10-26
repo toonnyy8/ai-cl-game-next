@@ -269,7 +269,7 @@
 ;; their hits' frost, startup, reach and params, the kit keys, as on adcb94b (the parent of the Shikai's rebuild; printed
 ;; by the same expression there)
 ;; (the bands' damage x moved by the user 2026-10-24, DUEL_RUKIA_TYBW §11: -18 1.15 -> 1.1, -50 1.5 -> 1.25; the rest as adcb94b)
-(defparameter *ru-bands-pinned* (quote ((:M18 (:RU-J1 :RU-A-K1 :RU-SHIMOBASHIRA :RU-HAKUREN :RU-SHIRAFUNE :RU-BREAKER :RU-HAKKA-18) ((:RU-J1 :RU-J2 :RU-K2S NIL (0) 7 1.44) (:RU-J2 :RU-J3 :RU-A-K3 NIL (0) 7 1.4) (:RU-J3 NIL NIL NIL (0) 8 1.56) (:RU-A-K3 NIL NIL :RU-SHIMOBASHIRA (120) 21 2.4) (:RU-K2S NIL :RU-A-K3 :RU-SHIMOBASHIRA (60) 21 2.5) (:RU-A-K3 NIL NIL :RU-SHIMOBASHIRA (120) 21 2.4) (:RU-A-K1 :RU-J2S :RU-K2 :RU-SHIMOBASHIRA (90) 17 2.0) (:RU-J2S :RU-J3 NIL NIL (0) 7 1.4) (:RU-J3 NIL NIL NIL (0) 8 1.56) (:RU-K2 :RU-J3 :RU-A-K3 :RU-SHIMOBASHIRA (60) 21 2.5) (:RU-J3 NIL NIL NIL (0) 8 1.56) (:RU-A-K3 NIL NIL :RU-SHIMOBASHIRA (120) 21 2.4)) ((:RU-J1 (0) 7 1.44 NIL) (:RU-A-K1 (90) 17 2.0 NIL) (:RU-SHIMOBASHIRA NIL 12 0.0 (:RADIUS 2.5 :HEIGHT 0.6 :DMG 60 :FROST 90 :GUARD 12 :REACT :STAGGER)) (:RU-HAKUREN NIL 6 0.0 (:SPEED 12.0 :RANGE 11.0 :WIDTH 2.4 :WIDTH-PER 0.4 :DMG 70 :DMG-PER 20 :STUN 24 :FROST 120 :GUARD 12 :GUARD-PER 2)) (:RU-SHIRAFUNE (150) 16 5.0 NIL) (:RU-BREAKER (0) 8 1.35 NIL) (:RU-HAKKA-18 (120) 20 6.5 (:AURA 8 :AIM 120.0 :SPEED 0.0 :DASH-MAX 0 :DASH-TRACK 0.0 :LOOK :LANE))) T NIL 30 (:SIG 25) (:HOHO RUKIA-HOHO-COLD :TICK RUKIA-TICK :RESET RUKIA-RESET) 3.4 8.0 0.825 0.95 (:R 3.0 :AWAY 0.85 :STEP 1.0)) (:M50 (:RU-J1 :RU-A-K1-50 :RU-HYOSHIN :RU-HAKUREN-50 :RU-SHIRAFUNE-50 :RU-BREAKER :RU-HAKKA) ((:RU-J1 :RU-J2 :RU-K2S NIL (0) 7 1.5840001) (:RU-J2 :RU-J3-50 :RU-A-K3-50 NIL (0) 7 1.4520001) (:RU-J3-50 NIL NIL NIL (0) 8 1.72) (:RU-A-K3-50 NIL NIL :RU-HYOSHIN (120) 21 2.64) (:RU-K2S NIL :RU-A-K3-50 :RU-HYOSHIN (60) 21 2.75) (:RU-A-K3-50 NIL NIL :RU-HYOSHIN (120) 21 2.64) (:RU-A-K1-50 :RU-J2S :RU-K2 :RU-HYOSHIN (90) 17 2.2) (:RU-J2S :RU-J3-50 NIL NIL (0) 7 1.4520001) (:RU-J3-50 NIL NIL NIL (0) 8 1.72) (:RU-K2 :RU-J3-50 :RU-A-K3-50 :RU-HYOSHIN (60) 21 2.75) (:RU-J3-50 NIL NIL NIL (0) 8 1.72) (:RU-A-K3-50 NIL NIL :RU-HYOSHIN (120) 21 2.64)) ((:RU-J1 (0) 7 1.5840001 NIL) (:RU-A-K1-50 (90) 17 2.2 NIL) (:RU-HYOSHIN NIL 14 0.0 (:RADIUS 3.5 :HEIGHT 0.6 :DMG 85 :FROST 120 :GUARD 16 :REACT :CRUMPLE)) (:RU-HAKUREN-50 NIL 6 0.0 (:PER 12 :SPEED 14.0 :RANGE 12.0 :WIDTH 2.4 :WIDTH-PER 0.4 :DMG 80 :DMG-PER 23 :STUN 30 :FROST 120 :GUARD 12 :GUARD-PER 2)) (:RU-SHIRAFUNE-50 (150) 16 6.0 NIL) (:RU-BREAKER (0) 8 1.35 NIL) (:RU-HAKKA (120) 20 7.5 (:AURA 8 :AIM 120.0 :SPEED 0.0 :DASH-MAX 0 :DASH-TRACK 0.0 :LOOK :LANE))) T NIL 60 (:Q 6 :F 12 :SIG 36 :SP1 40 :SP2 40 :KIKON 20 :BREAKER 20 :STEP 12) (:HOHO RUKIA-HOHO-COLD :TICK RUKIA-TICK :RESET RUKIA-RESET) 2.8 6.4 0.9375 0.85 (:R 4.0 :AWAY 0.7 :STEP 0.9)) (:ZERO (:RU-J1 :RU-Z-K1 :RU-REIDO :RU-HAKUREN-0 :RU-SHIRAFUNE-0 NIL :RU-HAKKA-0) ((:RU-J1 :RU-Z-J2 :RU-K2S NIL (0) 7 1.9440001) (:RU-Z-J2 :RU-J3 :RU-Z-K3 NIL (0) 7 1.78) (:RU-J3 NIL NIL NIL (0) 8 2.106) (:RU-Z-K3 NIL NIL :RU-REIDO (150) 21 3.24) (:RU-K2S NIL :RU-Z-K3 :RU-REIDO (60) 21 3.375) (:RU-Z-K3 NIL NIL :RU-REIDO (150) 21 3.24) (:RU-Z-K1 :RU-Z-J2S :RU-K2 :RU-REIDO (90) 17 3.78) (:RU-Z-J2S :RU-J3 NIL NIL (0) 7 1.78) (:RU-J3 NIL NIL NIL (0) 8 2.106) (:RU-K2 :RU-J3 :RU-Z-K3 :RU-REIDO (60) 21 3.375) (:RU-J3 NIL NIL NIL (0) 8 2.106) (:RU-Z-K3 NIL NIL :RU-REIDO (150) 21 3.24)) ((:RU-J1 (0) 7 1.9440001 NIL) (:RU-Z-K1 (90) 17 3.78 NIL) (:RU-REIDO NIL 10 0.0 (:RADIUS 5.5 :HEIGHT 2.2 :DMG 120 :STUN 45 :FROST 150 :GUARD 20)) (:RU-HAKUREN-0 NIL 10 0.0 (:STABS 4 :SPEED 16.0 :RANGE 14.0 :WIDTH 3.6 :WIDTH-PER 0.0 :DMG 160 :DMG-PER 0 :STUN 36 :FROST 150 :GUARD 18 :GUARD-PER 0)) (:RU-SHIRAFUNE-0 (150) 16 7.5 NIL) (:RU-HAKKA-0 (120) 20 9.0 (:AURA 8 :AIM 120.0 :SPEED 0.0 :DASH-MAX 0 :DASH-TRACK 0.0 :LOOK :LANE))) T NIL 90 (:Q 20 :F 40 :SIG 100 :SP1 100 :SP2 100 :KIKON 60) (:HOHO RUKIA-HOHO-COLD :TICK RUKIA-TICK :RESET RUKIA-RESET) 0.0 0.0 1.2375 0.8 (:R 5.5 :AWAY 0.55 :STEP 0.75)))))
+(defparameter *ru-bands-pinned* (quote ((:M18 (:RU-J1 :RU-A-K1 :RU-SHIMOBASHIRA :RU-HAKUREN :RU-SHIRAFUNE :RU-BREAKER :RU-HAKKA-18) ((:RU-J1 :RU-J2 :RU-K2S NIL (0) 7 1.44) (:RU-J2 :RU-J3 :RU-A-K3 NIL (0) 7 1.4) (:RU-J3 NIL NIL NIL (0) 8 1.56) (:RU-A-K3 NIL NIL :RU-SHIMOBASHIRA (120) 21 2.4) (:RU-K2S NIL :RU-A-K3 :RU-SHIMOBASHIRA (60) 21 2.5) (:RU-A-K3 NIL NIL :RU-SHIMOBASHIRA (120) 21 2.4) (:RU-A-K1 :RU-J2S :RU-K2 :RU-SHIMOBASHIRA (90) 17 2.0) (:RU-J2S :RU-J3 NIL NIL (0) 7 1.4) (:RU-J3 NIL NIL NIL (0) 8 1.56) (:RU-K2 :RU-J3 :RU-A-K3 :RU-SHIMOBASHIRA (60) 21 2.5) (:RU-J3 NIL NIL NIL (0) 8 1.56) (:RU-A-K3 NIL NIL :RU-SHIMOBASHIRA (120) 21 2.4)) ((:RU-J1 (0) 7 1.44 NIL) (:RU-A-K1 (90) 17 2.0 NIL) (:RU-SHIMOBASHIRA NIL 12 0.0 (:RADIUS 2.5 :HEIGHT 0.6 :DMG 60 :FROST 90 :GUARD 12 :REACT :STAGGER :STUN 42 :GC-FROM 40)) (:RU-HAKUREN NIL 6 0.0 (:SPEED 12.0 :RANGE 11.0 :WIDTH 2.4 :WIDTH-PER 0.4 :DMG 70 :DMG-PER 20 :STUN 24 :FROST 120 :GUARD 12 :GUARD-PER 2)) (:RU-SHIRAFUNE (150) 16 5.0 NIL) (:RU-BREAKER (0) 8 1.35 NIL) (:RU-HAKKA-18 (120) 20 6.5 (:AURA 8 :AIM 120.0 :SPEED 0.0 :DASH-MAX 0 :DASH-TRACK 0.0 :LOOK :LANE))) T NIL 30 (:SIG 25) (:HOHO RUKIA-HOHO-COLD :TICK RUKIA-TICK :RESET RUKIA-RESET) 3.4 8.0 0.825 0.95 (:R 3.0 :AWAY 0.85 :STEP 1.0)) (:M50 (:RU-J1 :RU-A-K1-50 :RU-HYOSHIN :RU-HAKUREN-50 :RU-SHIRAFUNE-50 :RU-BREAKER :RU-HAKKA) ((:RU-J1 :RU-J2 :RU-K2S NIL (0) 7 1.5840001) (:RU-J2 :RU-J3-50 :RU-A-K3-50 NIL (0) 7 1.4520001) (:RU-J3-50 NIL NIL NIL (0) 8 1.72) (:RU-A-K3-50 NIL NIL :RU-HYOSHIN (120) 21 2.64) (:RU-K2S NIL :RU-A-K3-50 :RU-HYOSHIN (60) 21 2.75) (:RU-A-K3-50 NIL NIL :RU-HYOSHIN (120) 21 2.64) (:RU-A-K1-50 :RU-J2S :RU-K2 :RU-HYOSHIN (90) 17 2.2) (:RU-J2S :RU-J3-50 NIL NIL (0) 7 1.4520001) (:RU-J3-50 NIL NIL NIL (0) 8 1.72) (:RU-K2 :RU-J3-50 :RU-A-K3-50 :RU-HYOSHIN (60) 21 2.75) (:RU-J3-50 NIL NIL NIL (0) 8 1.72) (:RU-A-K3-50 NIL NIL :RU-HYOSHIN (120) 21 2.64)) ((:RU-J1 (0) 7 1.5840001 NIL) (:RU-A-K1-50 (90) 17 2.2 NIL) (:RU-HYOSHIN NIL 14 0.0 (:RADIUS 3.5 :HEIGHT 0.6 :DMG 85 :FROST 120 :GUARD 16 :REACT :CRUMPLE :STUN 42 :GC-FROM 42)) (:RU-HAKUREN-50 NIL 6 0.0 (:PER 12 :SPEED 14.0 :RANGE 12.0 :WIDTH 2.4 :WIDTH-PER 0.4 :DMG 80 :DMG-PER 23 :STUN 30 :FROST 120 :GUARD 12 :GUARD-PER 2)) (:RU-SHIRAFUNE-50 (150) 16 6.0 NIL) (:RU-BREAKER (0) 8 1.35 NIL) (:RU-HAKKA (120) 20 7.5 (:AURA 8 :AIM 120.0 :SPEED 0.0 :DASH-MAX 0 :DASH-TRACK 0.0 :LOOK :LANE))) T NIL 60 (:Q 6 :F 12 :SIG 36 :SP1 40 :SP2 40 :KIKON 20 :BREAKER 20 :STEP 12) (:HOHO RUKIA-HOHO-COLD :TICK RUKIA-TICK :RESET RUKIA-RESET) 2.8 6.4 0.9375 0.85 (:R 4.0 :AWAY 0.7 :STEP 0.9)) (:ZERO (:RU-J1 :RU-Z-K1 :RU-REIDO :RU-HAKUREN-0 :RU-SHIRAFUNE-0 NIL :RU-HAKKA-0) ((:RU-J1 :RU-Z-J2 :RU-K2S NIL (0) 7 1.9440001) (:RU-Z-J2 :RU-J3 :RU-Z-K3 NIL (0) 7 1.78) (:RU-J3 NIL NIL NIL (0) 8 2.106) (:RU-Z-K3 NIL NIL :RU-REIDO (150) 21 3.24) (:RU-K2S NIL :RU-Z-K3 :RU-REIDO (60) 21 3.375) (:RU-Z-K3 NIL NIL :RU-REIDO (150) 21 3.24) (:RU-Z-K1 :RU-Z-J2S :RU-K2 :RU-REIDO (90) 17 3.78) (:RU-Z-J2S :RU-J3 NIL NIL (0) 7 1.78) (:RU-J3 NIL NIL NIL (0) 8 2.106) (:RU-K2 :RU-J3 :RU-Z-K3 :RU-REIDO (60) 21 3.375) (:RU-J3 NIL NIL NIL (0) 8 2.106) (:RU-Z-K3 NIL NIL :RU-REIDO (150) 21 3.24)) ((:RU-J1 (0) 7 1.9440001 NIL) (:RU-Z-K1 (90) 17 3.78 NIL) (:RU-REIDO NIL 10 0.0 (:RADIUS 5.5 :HEIGHT 2.2 :DMG 120 :STUN 46 :FROST 150 :GUARD 20 :GC-FROM 37)) (:RU-HAKUREN-0 NIL 10 0.0 (:STABS 4 :SPEED 16.0 :RANGE 14.0 :WIDTH 3.6 :WIDTH-PER 0.0 :DMG 160 :DMG-PER 0 :STUN 36 :FROST 150 :GUARD 18 :GUARD-PER 0)) (:RU-SHIRAFUNE-0 (150) 16 7.5 NIL) (:RU-HAKKA-0 (120) 20 9.0 (:AURA 8 :AIM 120.0 :SPEED 0.0 :DASH-MAX 0 :DASH-TRACK 0.0 :LOOK :LANE))) T NIL 90 (:Q 20 :F 40 :SIG 100 :SP1 100 :SP2 100 :KIKON 60) (:HOHO RUKIA-HOHO-COLD :TICK RUKIA-TICK :RESET RUKIA-RESET) 0.0 0.0 1.2375 0.8 (:R 5.5 :AWAY 0.55 :STEP 0.75)))))
 (check (equal *ru-bands-pinned*
               (loop for form in '(:m18 :m50 :zero)
                     collect (let ((k (kit :rukia form)))
@@ -285,6 +285,23 @@
                                           when m collect (list (mv-name m) (map 'list #'hw-frost (mv-hits m)) (mv-s m) (mv-reach m) (mv-params m)))
                                     (kit-l-after-k k) (kit-l-after-j k) (kit-frost-touch k) (kit-cold k) (kit-hooks k) (kit-walk k) (kit-run k)
                                     (kit-mult k) (kit-taken k) (kit-field k))))))
+
+;; the awakened L's longer recovery (the user 2026-10-26, DUEL_RUKIA_TYBW §17.11: 「延長 L 的後搖」, +10): recovery 32 / 32 / 36
+;; (was 22 / 22 / 26), hit stun 42 / 42 / 46 (on hit +9: her 7 f J1 combos, her 17 f K1 doesn't), and the guard cancel open
+;; from move frame 40 / 42 / 37 whatever L touched (her guard 13 f after a blocked L frees him: every J1 (<= 10 f) lands,
+;; every K1 (>= 16 f) is guarded); a move without :gc-from keeps the old rule
+(let ((ls (mapcar (lambda (f) (kit-command-move (kit :rukia f) :sig)) '(:m18 :m50 :zero))))
+  (check (and (equal '(32 32 36) (mapcar #'mv-r ls))
+              (equal '(42 42 46) (mapcar (lambda (m) (getf (mv-params m) :stun)) ls))
+              (equal '(40 42 37) (mapcar (lambda (m) (getf (mv-params m) :gc-from)) ls))
+              (loop for m in ls for g = (getf (mv-params m) :gc-from)
+                    always (and (not (guard-cancel-open-p (1- g) (mv-s m) (mv-a m) (mv-r m) :block (mv-kind m) (mv-whiff m) g))
+                                (guard-cancel-open-p g (mv-s m) (mv-a m) (mv-r m) :block (mv-kind m) (mv-whiff m) g)
+                                (guard-cancel-open-p g (mv-s m) (mv-a m) (mv-r m) nil (mv-kind m) (mv-whiff m) g)
+                                (guard-cancel-open-p (+ (mv-s m) (mv-a m) (mv-r m) -1) (mv-s m) (mv-a m) (mv-r m) nil (mv-kind m) nil g)
+                                (not (guard-cancel-open-p (+ (mv-s m) (mv-a m) (mv-r m)) (mv-s m) (mv-a m) (mv-r m) nil (mv-kind m) nil g))
+                                (not (guard-cancel-open-p g (mv-s m) (mv-a m) (mv-r m) :block (mv-kind m) (mv-whiff m)))))
+              (= 16 (- 42 (hitstun :stagger))) (= 2 (- 42 (hitstun :crumple))))))   ; (over the reactions' own 26 / 40)
 
 ;; the combo band lock with overdraft (the user's decision 2026-09-28): inside a combo the band holds whatever C does; L is
 ;; refused short of its cold outside a combo, allowed on credit inside one while C > 0; once free the band re-resolves,
@@ -475,7 +492,7 @@
 (let ((b (kit :rukia :base)) (m18 (kit :rukia :m18)) (m50 (kit :rukia :m50)) (z (kit :rukia :zero)))
   ;; AI keys: the awakening rule, cooling (-50 not below half a guard gauge), bracing at zero, the stun follow-ups, the
   ;; opponent's wait
-  (check (and (equal (getf (kit-ai b) :awaken) '(:melee-share 0.6 :min-taken 150)) (equal (getf (kit-ai b) :stun-follow) '(:sp2 2.4 5.0))
+  (check (and (equal (getf (kit-ai b) :awaken) '(:melee-share 0.6 :min-taken 1800)) (equal (getf (kit-ai b) :stun-follow) '(:sp2 2.4 5.0))
               (equal (getf (kit-ai m18) :cool) '(:p 0.3 :near 3.5)) (= 50 (getf (getf (kit-ai m50) :cool) :min-gg))
               (null (getf (kit-ai z) :cool)) (getf (kit-ai z) :brace) (null (getf (kit-ai z) :zero-exit))
               (equal (getf (kit-ai z) :opp-intent) '(:zone 2 :defend 2)) (null (getf (kit-ai b) :opp-intent))))
@@ -490,5 +507,73 @@
               (null (getf (kit-ai b) :oki))
               (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
                      (list *ai-ru-burst-1* *ai-ru-burst-2* *ai-ru-burst-3* *ai-ru-zone-kido* *ai-ru-sp2-layers*))
-              (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard)))))
+              (every (lambda (d) (<= (getf *ai-ru-burst-1* d) (getf *ai-ru-burst-2* d) (getf *ai-ru-burst-3* d))) '(:easy :normal :hard))))
+  ;; cell b0a0 (round 1): the K string on a hit in every form (:string-k), no O ender on a victim who isn't red (the ender's
+  ;; payoff pick instead: RUKIA-AI-SP-ENDER), RIKUJOKORO held 14 f past SOKATSUI's 16 (the bind long enough for the O)
+  (check (and (every (lambda (k) (and (= 1.0 (getf (kit-ai k) :string-k)) (= 0.0 (getf (kit-ai k) :o-ender)))) (list b m18 m50 z))
+              (eq 'rukia-ai-sp-ender (getf (kit-ai b) :sp-ender)) (eq 'rukia-ai-reflex (getf (kit-ai b) :reflex))
+              (= 14 *ai-ru-rikujo-hold*) (= 30 (rukia-ai-sp1-hold b 5.5)) (= 1 *ai-ru-bind-bar*)
+              (equal (getf (getf (kit-ai b) :ranges) :poke) '(2.1 2.8)) (equal (getf (getf (kit-ai b) :ranges) :mid) '(3.0 5.0))
+              (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
+                     (list *ai-ru-mu-p* *ai-ru-mu-guard-p* *ai-ru-seal-o* *ai-ru-k-ender-l*))
+              (= 1.0 (getf *ai-ru-mu-p* :hard)) (= 1.0 (getf *ai-ru-seal-o* :hard))))
+  ;; her matchup tables: every zone's options are hers, their weights >= 0; the rows as shipped; Lille's :guard-on gone at the
+  ;; merge (2026-10-26, DUEL_RUKIA_TYBW §17.9: the anti-dash Hoho answers his awakened dash L, the EN / SHIN stances' L)
+  (let ((opts '(:q :f :byakurai :tsukishiro :sokatsui :rikujo :sp2 :enbu :breaker :guard :back :in :wait))
+        (zones '(:close :his-j :k :mid :far :out)))
+    (check (every (lambda (row)
+                    (every (lambda (z) (loop for (o w) on (getf row z) by #'cddr always (and (member o opts) (realp w) (>= w 0))))
+                           zones))
+                  (cons *ai-ru-mu-default* (mapcar #'rest *ai-ru-mu*))))
+    (check (every (lambda (z) (getf *ai-ru-mu-default* z)) zones))
+    (check (equal (mapcar #'first *ai-ru-mu*) '(:barro :hisagi :yamamoto)))
+    (check (and (= 0.0 (getf *ai-ru-mu-default* :breaker-p)) (notany (lambda (row) (getf (rest row) :breaker-p)) *ai-ru-mu*)))
+    (check (and (notany (lambda (row) (getf (rest row) :guard-on)) *ai-ru-mu*) (null (getf *ai-ru-mu-default* :guard-on))))
+    (check (and (eq :br-e-l1 (mv-name (kit-command-move (kit :barro :jilliel) :sig)))
+                (eq :br-oe-l1 (mv-name (kit-command-move (kit :barro :shin) :sig)))
+                (eq :br-to-en (mv-name (kit-command-move (kit :barro :jilliel-kin) :sig)))))
+    ;; cell b0a1: the measured payoffs (:poke): every neutral poke 0 by default, RIKUJOKORO 1 against Yamamoto and Lille (Lille's
+    ;; TSUKISHIRO / BYAKURAI 0.25), Lille's :no-busy and :hold-forms (his awakened stance EN: the kit forms he has)
+    (let ((dp (getf *ai-ru-mu-default* :poke)) (br (rest (assoc :barro *ai-ru-mu*))))
+      (check (and (equal dp '(:f 0.0 :byakurai 0.0 :tsukishiro 0.0 :rikujo 0.0 :sokatsui 0.0 :sp2 0.0 :breaker 0.0))
+                  (equal (getf (rest (assoc :yamamoto *ai-ru-mu*)) :poke) '(:rikujo 1.0))
+                  (equal (getf br :poke) '(:rikujo 1.0 :tsukishiro 0.25 :byakurai 0.25))
+                  (eq t (getf br :no-busy)) (equal (getf br :hold-forms) '(:jilliel :shin))
+                  (every (lambda (f) (kit :barro f)) (getf br :hold-forms))
+                  (loop for (o w) on dp by #'cddr always (and (member o opts) (zerop w)))))))
+  ;; cell b0a1 (b2a0's reactive layer, ported): the oki, the anti-step, the range punish (EASY <= NORMAL <= HARD), the plain O
+  ;; out of the neutral and the cash (no ENBU in the Shikai's :moves, *AI-RU-CASH-O* 0), the SPs out of the Shikai's :moves,
+  ;; his knockdown's frames left (:down 30 + :wakeup 30, seen at HARD's delay 8), the oki's lead in its verified window
+  (check (and (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
+                     (list *ai-ru-oki* *ai-ru-anti-step* *ai-ru-range-p* *ai-ru-sharp* *ai-ru-mu-guard-p*))
+              (= 1.0 (getf *ai-ru-anti-step* :hard)) (= 1.0 (getf *ai-ru-mu-guard-p* :hard)) (= 0.95 (getf *ai-ru-burst-3* :hard))
+              (every (lambda (d) (zerop (getf *ai-ru-cash-o* d))) '(:easy :normal :hard))
+              (notany (lambda (band) (or (getf (cddr band) :kikon) (getf (cddr band) :sp1) (getf (cddr band) :sp2)))
+                      (getf (kit-ai b) :moves))
+              (= 52 (rukia-ai-free-in :down 0 8)) (= 12 (rukia-ai-free-in :wakeup 10 8)) (null (rukia-ai-free-in :stun 3 8))
+              (<= 13 *ai-ru-oki-lead* 17) (= 331 *ai-ru-route*))))
+  ;; cell b0a2: the awakening after 1800 taken (above); his first-strike envelope at a neutral decision (EASY <= NORMAL <= HARD,
+  ;; HARD 0.95), b1a0's values by default, off against Yamamoto (:front :none); the envelope from his J1 (reach + lunge + 0.3 +
+  ;; his closing over his J1's startup and her delay)
+  (check (and (<= (getf *ai-ru-front* :easy) (getf *ai-ru-front* :normal) (getf *ai-ru-front* :hard)) (= 0.95 (getf *ai-ru-front* :hard))
+              (equal *ai-ru-front-values* '(:guard 40 :q 50 :step 25 :f 60 :sp1 55))
+              (eq :none (getf (rest (assoc :yamamoto *ai-ru-mu*)) :front)) (null (getf *ai-ru-mu-default* :front))
+              (let ((his (kit-command-move (kit :kenpachi :base) :q)))
+                (and (~= (+ (mv-reach his) (min 0.8 (mv-slide his)) 0.3) (rukia-ai-envelope 8 his 0.0))
+                     (~= (+ (mv-reach his) (min 0.8 (mv-slide his)) 0.3 (* 0.1 (+ (mv-s his) 8)))
+                         (rukia-ai-envelope 8 his 0.1))))))
+;; cell b1a2: his charged dash (a :dash L: Lille's awakened stance forms only) met with the timed Hoho at the predicted gap
+;; (it stands until its S, then slides the clamped d + 1.6 m over 8 frames), and the wait at a neutral decision against it
+(check (and (every (lambda (p) (<= (getf p :easy) (getf p :normal) (getf p :hard))) (list *ai-ru-anti-dash* *ai-ru-mu-dash*))
+            (= 1.0 (getf *ai-ru-anti-dash* :hard)) (= 1.0 (getf *ai-ru-mu-dash* :hard))
+            (= 0.0 (getf *ai-ru-anti-dash* :easy)) (= 0.0 (getf *ai-ru-mu-dash* :easy))
+            (= 3.4 *ai-ru-dash-gap*) (= 1 *ai-ru-dash-lead*)
+            (= 5.0 (rukia-ai-dash-gap 5.0 0 12 12))                       ; (standing through its S)
+            (< (abs (- (rukia-ai-dash-gap 5.0 0 12 16) (- 5.0 (* 4 (/ 6.6 8))))) 1e-4)
+            (< (abs (- (rukia-ai-dash-gap 5.0 0 12 30) (- 5.0 6.6))) 1e-4)   ; (the slide's 8 frames, then no more)
+            (< (abs (- (rukia-ai-dash-gap 0.2 0 12 13) -0.05)) 1e-4)      ; (the 2 m floor)
+            (flet ((dash-l-p (k) (let ((l (kit-command-move k :sig))) (and l (getf (mv-params l) :dash)))))
+              (and (every (lambda (f) (dash-l-p (kit :barro f))) '(:jilliel :shin))
+                   (notany (lambda (f) (dash-l-p (kit :barro f))) '(:base :jilliel-kin :shin-kin))
+                   (notany (lambda (c) (dash-l-p (kit c :base))) '(:yamamoto :kenpachi :rukia :ichigo :senjumaru :hisagi))))))
 ;;; <<< END RUKIA-CPU-TESTS

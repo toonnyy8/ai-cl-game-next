@@ -254,14 +254,18 @@ circle (0 when it is already on or outside it): the arena's room for a push (PUS
 LANDED, from its first hit frame HIT-FRAME until its recovery ends (TOTAL)."
   (and landed (>= sf hit-frame) (< sf total)))
 
-(defun guard-cancel-open-p (sf s a r contact &optional kind whiff)
+(defun guard-cancel-open-p (sf s a r contact &optional kind whiff from)
   "The guard cancel: may a move with S / A / R end in a guard at move frame SF? Any move whose own hit landed (CONTACT
 :hit); a J / K link or an O (KIND :quick / :flash / :kikon) also blocked or whiffed (2026-10-23, the user: 「收招可以用防禦
 取消」, 「收招後半」; before: a J's block only, the user 2026-10-02). From the frame *GUARD-CANCEL* of the recovery actually
-played is left (RECOVERY-FRAMES: WHIFF its whiff recovery) to its end."
-  (let* ((rec (recovery-frames r contact whiff kind)) (total (+ s a rec)))
-    (and (or (eq contact :hit) (and (member kind '(:quick :flash :kikon)) t))
-         (>= sf (- total (floor (* rec *guard-cancel*)))) (< sf total))))
+played is left (RECOVERY-FRAMES: WHIFF its whiff recovery) to its end. FROM (a hazard move's :gc-from param, Rukia's
+awakened L: 2026-10-26, the user 「L 打空（防禦也算）後…對 K1 安全（可以用防禦取消調整）」): open from move frame FROM to
+S + A + R whatever it touched."
+  (if from
+      (and (>= sf from) (< sf (+ s a r)))
+      (let* ((rec (recovery-frames r contact whiff kind)) (total (+ s a rec)))
+        (and (or (eq contact :hit) (and (member kind '(:quick :flash :kikon)) t))
+             (>= sf (- total (floor (* rec *guard-cancel*)))) (< sf total)))))
 
 ;; ---------------------------------------------------------------- the guard lock (the user 2026-09-30)
 (defun guard-locked-p (def-state was chain-left state phase sf s a r touched more)

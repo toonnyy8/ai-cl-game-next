@@ -640,7 +640,7 @@ the end (MOVE-END-FRAME)."
           do (emit :swing e (mv-kind mv)) (return))
     (when (eq (fighter-move f) mv)                        ; a hook may have started another move
       (cond ((and (zerop (fighter-lock f)) (move-commands e f vp mv sf)))
-            ((and (zerop (fighter-lock f)) (guard-cancel-open-p sf s (mv-a mv) (mv-r mv) (fighter-contact f) (mv-kind mv) (mv-whiff mv))
+            ((and (zerop (fighter-lock f)) (guard-cancel-open-p sf s (mv-a mv) (mv-r mv) (fighter-contact f) (mv-kind mv) (mv-whiff mv) (getf (mv-params mv) :gc-from))
                   (guard-held-p e vp))                  ; the guard cancel: U held late in its recovery (a hit; a J / K / O
              (clog "~a guard cancel ~a f~d" (side-name e) (mv-name mv) sf)   ;  blocked or whiffed too)
              (to-idle e)                                ; (a :guard-to / :ward form: neutral, whose U does the rest)

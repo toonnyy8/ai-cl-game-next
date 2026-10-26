@@ -948,13 +948,23 @@ slide, *AI-RU-DASH-GAP* 3.4 m, EASY 0 / NORMAL 0.3 / HARD 1.0; RUKIA-AI-MU-DASH:
 her ASSIST's AUTO GUARD too), on main's code: her §17.6 steps (`:block-hold` / `:held`), the damage x0.75 (§17.7) and the
 shared CPU's replaceable steps (DUEL_AI_V2). Integration: one file, both cells' CPU tests, re-scored on main, her gates.
 
+**As integrated (2026-10-26)**: `duel/lisp/rukia-ai.lisp` is b0a2's file with main's §17.6 steps and b1a2's anti-dash knobs and
+functions (RUKIA-AI-ANTI-DASH in the reflex after the anti-step, before the perfect Hoho; RUKIA-AI-MU-DASH after
+RUKIA-AI-MU-DECIDE; her ASSIST's AUTO GUARD tries the anti-dash first). Two overlaps: (1) b1a2's wait goes after b0a2's
+matchup decision and skips a red opponent (66 vs 67 of 80 either order); (2) b0a2's Lille `:guard-on` row (a long guard on his
+stance entry and both dash moves) is removed: with it the anti-dash Hoho fired 260 times in 40 matches but HARD won 25 of 80
+against Lille, without it 67 of 80 (b1a2 alone on main 71, b0a2 alone 22; ablations: no dash-move guard 23, no entry guard 25).
+RUKIA-AI-MU-GUARD stays, listed by no row. CPU tests: b0a2's section + b1a2's anti-dash block, Lille's `:guard-on` pinned absent.
+aieval on main (40 seeds): **0.9398** (strength 0.892, masher 1.0, signature 0.945; NORMAL share 0.477 in its 0.3-0.6 band;
+HARD vs Yamamoto 70, Kenpachi 53, Ichigo 80, Senjumaru 78, Lille 67, Hisagi 80 of 80). Her gates (with §17.11's L): DEVLOG §392.
+
 
 
 ### 17.10 Her awakened L blocked: the frames (measured, the user, 2026-10-26)
 
 The user asked 「覺醒後的 L 後搖有幾幀？」 and 「如果對手防住 L 後用 J 回擊，會在幾幀打中？」, then: 「把這套資訊記錄，如果受到覺醒露琪亞 K+L
 的連段壓制，除了 hoho 跟藍色爆氣外還能想辦法防禦等待中間的確反」. Measured in the native sim (P1 her L, P2 every opponent with
-GUARD ALL and the practice COUNTER J1; frames from her L press):
+GUARD ALL and the practice COUNTER J1; frames from her L press; before §17.11's +10 recovery):
 
 | Band | L | S / A / R (whiff / blocked R) | blocked at | he is free | she is free | gap |
 |---|---|---|---|---|---|---|
@@ -965,6 +975,7 @@ GUARD ALL and the practice COUNTER J1; frames from her L press):
 His J1 lands, from 1.0 m (1.6 m after the block push): −18 Lille f36, Kenpachi / Ichigo / Senjumaru f37, Hisagi f38,
 Yamamoto f39; −50 two frames later each; −273 Lille f34, the three f35, Hisagi f36, Yamamoto f37. So a J1 of 7 f or less is
 a true punish at −18 / −50, every J1 at −273; from 1.8 m (2.4 m after the push) only Kenpachi's lunging J1 reaches.
+(Corrected in §17.11: at −273 those J1s touch her absolute-zero ward, which stays until REIDO ends, so they do not stun her.)
 
 **Her K string + L, blocked** (K1+L, K1 K2+L, K1 K2 K3+L, all three bands): the guard lock (FIGHTER-GLOCK) holds him in
 blockstun from the first blocked K to the end of the L, no gap; both free on the same frame (−18: f79 / f120 / f173; −50 and
@@ -979,3 +990,38 @@ Yamamoto's J1 land f182 / f182 / f183; at −50 (restart f176) f183 / f184 / f18
 every J1 (the gap is for closing in or a Hoho). Guarding only, the loop goes on (and her blocked hits cool her: −18 → −50 after
 the first loop). If she restarts with J1 (7 f) instead, it is J1 against J1. The manual's tip says so.
 
+
+### 17.11 Her awakened L's longer recovery (the user, 2026-10-26)
+
+The user: 「然後幫我延長 L 的後搖，但要保證 1. L 打中後能接上 J1 2. L 打中後接 K 是不安全的 3. L 打空（防禦也算）後面對對手的 J1
+不安全，但對 K1 安全（可以用防禦取消調整） 在修改前先告訴我你的調整策略」. Offered +6 / +10 / +14 frames with the hit stun and a
+guard cancel set to keep the three rules, the user picked 「+10 幀 (Recommended)」.
+
+| Band | L | recovery | hit stun | guard cancel from (move frame) |
+|---|---|---|---|---|
+| −18 | 霜柱 `ru-shimobashira` | 22 → 32 | stagger 26 → 42 (`:stun`) | 40 |
+| −50 | 氷針 `ru-hyoshin` | 22 → 32 | crumple 40 → 42 (`:stun`) | 42 |
+| −273 | REIDO `ru-reido` | 26 → 36 | bind 45 → 46 | 37 |
+
+- **The hit stun** (`:stun` in the move's params, the disc's hit window: COMBAT's override when the reaction is the window's own)
+  keeps her on hit at +9 in every band (she is free f53 / f55 / f55, he f62 / f64 / f64): her 7 f J1 combos, her 17 f K1
+  does not (he is free 8 frames before it lands). A counter-hit gets no extra stun on these three (the override).
+- **The guard cancel**: a new `:gc-from` move param. GUARD-CANCEL-OPEN-P takes it (FROM) and, when set, is open from that move
+  frame to S + A + R whatever the move touched (a hazard move never sets its owner's contact, so the old rule never opened
+  for L). Both callers (FIGHTER's step and AI-GUARD-CANCEL) pass `(getf (mv-params mv) :gc-from)`; no other move has it, so
+  every other move keeps the old rule. The frames are set so her guard is up 13 frames after a blocked L frees him (measured:
+  he is free f30 / f32 / f28, her guard f43 / f45 / f41). Every J1 in the roster (6-10 f; Hisagi's Bankai ranged J1 14 f is the
+  one ranged exception) lands before it; every K1 (16 f or more) is guarded. Without the guard she is free f47 / f49 / f49
+  after a block: −18 / −18 / −22 (was −8 / −8 / −12).
+- **Measured** (native sim, P1 her L, P2 each of the six opponents' base forms at 1.0 / 1.8 m, his J1 or K1 pressed on his first
+  free frame): with her U held from L's start, at 1.0 m every J1 hits her and every K1 that reaches is blocked (Lille's and
+  Hisagi's base K1 never touch at that range); from 1.8 m (2.4 m after the block push) only Kenpachi's lunging J1 reaches.
+  On hit, from 1.0 m (2.0 m after the knock-back) her J1 combos, from 1.8 m (2.8 m) it is out of reach; −273's bind does not push.
+- **−273's ward**: absolute zero's passives (`:ward :freeze-touch`) stay on until REIDO ends (the cold drops her to −50 when she
+  is free). So without the guard cancel his J1 into a blocked REIDO meets her ward (no stun, and the first touch of the visit
+  freezes him); with it, the cancel ends REIDO early, she drops to −50 there and his J1 hits her. Rule 3 at −273 holds only
+  once she leaves zero; left as is, asked of the user.
+- **Her K string + L blocked** (§17.10): the guard lock still holds him to the L's end, so it stays ±0, 10 frames later (−18
+  f89 / f130 / f183, −50 and −273 f90 / f132 / f185); the loop's gap is still the restart.
+- Tests: `tests/duel-rules/rukia.lisp` (the three moves' recovery / stun / `:gc-from`, the cancel's window, the bands' pin).
+  Her CPU: AI-GUARD-CANCEL now guards out of a blocked or whiffed L too (it asks the same rule).
