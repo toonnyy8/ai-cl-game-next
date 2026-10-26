@@ -1552,3 +1552,17 @@ the rifle brought across the chest to work the action (f12), the stock back into
 look only (the sim never reads a clip). Stills: debug 82158 / 82159 (frames 6 / 12; 82178 / 82179 the front view, DUEL_GAMEPLAY);
 the charge stills 52-56 moved to the new levels (held 22 / 33 / 48 / 64 / 84 f; 40 / 41's charge 40 / 70). Test: the clip
 lasts `*br-snipe-whiff*` frames.
+
+### 32.2 Gates (2026-10-26)
+
+After §32 (native; the snipe's whiff animation is a look only): every match K.O.; 20 seeds BY 109.7, BK 108.9, BR 160.2, BI
+138.1, BS 137.7, BB 165.1, HB 157.2 s (before §32, with the Reiatsu change: 108.5 / 106.5 / 161.3 / 140.5 / 143.0 / 154.9 /
+165.9); BY / BK under 125 as before (their exception, DEVLOG §398). `--cvc` 3 PASS. ASSIST (the masher's wins): off 24 %,
+GUARD 1 / 2 25 / 57 %, COMBO 68 %, BREAK 32 %, all 78 %, all with GUARD 2 98 %. His CPU score (aieval, 40 seeds) 0.8859
+(strength 0.838, masher 1.0, signature 0.877).
+
+**Awaken A/B** (the never-awaken Lille's wins of 60; HB: him as P2), seed0 100 / 300 / 500: BY 17 / 28 / 30, BK 13 / 12 / 8, BR
+12 / 11 / 15, BI 8 / 10 / 7, BS 8 / 5 / 9, BB 2 / 5 / 4, HB 14 / 17 / 12: sixteen of 21 rows under 20. Attributed at seed0 100 on
+the parents: b9bc74b (before today's Reiatsu change) BY 31, BK 11, BR 18, BI 11, BS 10, BB 6, HB 24; 961199d (after it, before
+§32) 22 / 6 / 11 / 13 / 5 / 8 / 18; now 17 / 13 / 12 / 8 / 8 / 2 / 14. Most rows failed already at b9bc74b (the accepted
+2026-10-15 rows were eight); both of today's changes move them within about ±7 (60-seed noise ±4). Reported to the user.
