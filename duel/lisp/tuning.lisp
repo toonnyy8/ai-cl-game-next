@@ -169,8 +169,17 @@ J beats I, 防 > J > I > 防), and with the thinnest hurt radius (0.34) past the
 (defparameter *reiatsu-bar* 100.0 "One bar.")
 (defparameter *reiatsu-regen* 3.0
   "Reiatsu per second, always (5 before the flash-step gauge took Hoho and Burst off it: design v3 G.3).")
-(defparameter *reiatsu-dealt* 0.08 "Reiatsu per point of damage dealt.")
-(defparameter *reiatsu-taken* 0.10 "Reiatsu per point of damage taken.")
+(defparameter *reiatsu-kind* '(:quick 3.0 :flash 5.0 :sig 4.0 :sp 4.0 :kikon 7.0 :breaker 14.0)
+  "Reiatsu a hit pays its attacker by its move's kind (J K L SP O Breaker), x the combo bonus (COMBO-GAIN-MULT); a move's
+:reiatsu param overrides its kind's; a hazard keeps its move's at its spawn (the user 2026-10-26: 「不再按傷害，改成依據每招式
+各自的基礎值 * combo 數加成」, 「依招式種類固定值」; before: *REIATSU-DEALT* 0.08 a point dealt, whose roster average per hit was
+J 2.7 K 5.7 L 4.7 SP 5.6 O 6.9 Breaker 14.3). A hit that deals no damage pays nothing; chip and a drink pay nothing.")
+(defparameter *reiatsu-kind-other* 4.0 "... a kind not in the table (a hazard spawned outside a move, the counter strike).")
+(defparameter *reiatsu-taken* 0.10 "Reiatsu per point of damage taken, x the combo bonus (2026-10-26: 「被打方改成受傷值 x combo 加成」).")
+(defparameter *reiatsu-combo-step* 0.1
+  "The combo bonus on hit gains (dealt and taken): x(1 + this x (n - 1)) at the combo's nth hit (its HIT-DAMAGE index) ...
+(the user 2026-10-26: 「每多一下 +10%，上限 ×2」)")
+(defparameter *reiatsu-combo-max* 2.0 "... at most this (the 11th hit on).")
 (defparameter *cost-sp* 1 "Bars an SP1 / SP2 costs.")
 (defparameter *cost-sp-awakened* 2 "Bars an SP2 costs in an awakened form.")
 

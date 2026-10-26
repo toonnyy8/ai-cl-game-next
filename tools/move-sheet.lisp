@@ -96,8 +96,9 @@ free = the frame he can act. Chains (J / K links, L after a link) open at S + A;
           (round *fs-max*) *fs-regen* *fs-delay* *fs-taken* (round *fs-burst*) *burst-drain* *burst-min-hits*)
   (format t "| ORANGE | the next move within ~d f starts ~d % sooner; scaling restarts, −~d %/hit to ~d % while it runs |~%"
           *chain-window* (round (* 100 *chain-cut*)) (round (* 100 *orange-combo-decay*)) (round (* 100 *orange-combo-floor*)))
-  (format t "| Reiatsu | 3 bars of ~d, +~,1f/s, +~,2f a point dealt, +~,2f taken |~%| Combo scaling | hits 1–~d full, −~d %/hit to ~d %; SPs and :unscaled windows full |~%"
-          (round *reiatsu-bar*) *reiatsu-regen* *reiatsu-dealt* *reiatsu-taken* *combo-full-hits* (round (* 100 *combo-decay*)) (round (* 100 *combo-floor*)))
+  (format t "| Reiatsu | 3 bars of ~d, +~,1f/s; a hit pays its kind's ~{~(~a~) ~,1f~^ ~} (+~,2f a point taken), x(1 + ~,1f (n − 1)) to x~,1f at the combo's nth hit |~%| Combo scaling | hits 1–~d full, −~d %/hit to ~d %; SPs and :unscaled windows full |~%"
+          (round *reiatsu-bar*) *reiatsu-regen* *reiatsu-kind* *reiatsu-taken* *reiatsu-combo-step* *reiatsu-combo-max*
+          *combo-full-hits* (round (* 100 *combo-decay*)) (round (* 100 *combo-floor*)))
   (format t "| Ender push | out of the opener's far edge + slide + his body + ~,2f m, over ~d f |~%| Guard cancel | the last ~d % of a recovery |~%| Chain on block | the last ~d f of recovery |~%"
           *ender-push* *ender-push-frames* (round (* 100 *guard-cancel*)) *chain-lead*))
 (ext:quit 0)

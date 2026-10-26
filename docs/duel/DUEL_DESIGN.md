@@ -279,7 +279,9 @@ modes, "Burst modes" at the end) needs 70 and then drains it to 0, gaining nothi
 +33); a perfect Hoho refunds nothing (15 until 2026-10-18). Full: Hoho ×3, or Burst + Hoho. HUD: a steel-blue bar under
 REIATSU with ticks at 30 and 70; the part past 70 glows while a Burst is possible.
 
-**Reiatsu** (3 bars, 0–300): SPs only. +3/s, +0.08 per damage dealt, +0.10 per damage taken, and KŌSEI (below). SP1
+**Reiatsu** (3 bars, 0–300): SPs only. +3/s; a hit pays its attacker its move kind's base (J 3, K 5, L 4, SP 4, O 7, Breaker
+14) and its victim +0.10 per damage taken, both × the combo bonus (§ "Reiatsu by move kind × combo", 2026-10-26; before:
++0.08 per damage dealt); and KŌSEI (below). SP1
 and SP2 cost 1 bar (SP2 in an awakened form 2; a move may name its own cost).
 
 **KŌSEI 攻勢, the aggression reward** (the user's decisions 2026-09-27, [DUEL_STRINGS.md](DUEL_STRINGS.md) §5): every
@@ -1802,3 +1804,27 @@ lag: 「只擋攻擊這個選項應該只能開放 step 跟 hoho，不能移動�
   SI 119.3 -> 117.0, BY 109.4 -> 114.4, BK 116.7 -> 109.3, BR 153.7 -> 140.3, BI 160.9 -> 147.0, BS 130.5 -> 161.1, BB
   154.9 -> 158.6, HY 115.2 -> 110.3, HK 130.6 -> 110.7, HR 146.2 -> 145.5, HI 140.7 -> 152.6, HS 134.7 -> 160.9, HB 153.7
   -> 157.2, HH 206.8 -> 185.2 s; cvc regenerated (yy P2 0-3 116.3 s, yk P2 0-6 135.6 s, kk P1 6-0 160.2 s).
+
+## Reiatsu by move kind × combo (the user, 2026-10-26)
+
+The user: 「幫我修改 SP 恢復機制，不在按傷害，改成依據每招式各自的基礎值 * combo 數加成」. Asked, the user chose: the attacker
+by the move's base, the victim 「被打方改成受傷值 x combo 加成」; the bases 「依招式種類固定值」; the bonus 「每多一下 +10%，上限 ×2」;
+「所有命中都算」 (SPs and hazards too).
+
+- **Attacker**: each hit pays `*reiatsu-kind*` by its move's kind, J (`:quick`) 3, K (`:flash`) 5, L (`:sig`) 4, SP 4, O
+  (`:kikon`) 7, Breaker 14; any other kind (a hazard spawned outside a move, the counter strike) `*reiatsu-kind-other*` 4. A
+  move's `:reiatsu` param overrides its kind's (none set yet). A hazard keeps its move's base at its spawn
+  (`hazard-rbase`). The numbers are the roster's per-hit average under the old rule (`*reiatsu-dealt*` 0.08 a point, now
+  removed: J 2.7, K 5.7, L 4.7, SP 5.6, O 6.9, Breaker 14.3, the forms' multipliers in), rounded.
+- **Victim**: `*reiatsu-taken*` 0.10 a point taken, as before, now × the same bonus.
+- **The combo bonus** (`COMBO-GAIN-MULT`): ×(1 + `*reiatsu-combo-step*` 0.1 × (n − 1)), at most `*reiatsu-combo-max*` 2.0 (the
+  11th hit on), n the hit's index in the combo (HIT-DAMAGE's: it restarts with ORANGE's scaling). Before, a long combo paid
+  less per hit (the damage's combo decay); now more.
+- Which hits: every hit that deals damage (melee, hazard, SP, O, Breaker, an armoured or absorbed one, n = 1 for those two);
+  a hit with no damage pays nothing; chip and a DRINK's taken half pay the attacker nothing (the victim still gains by what
+  he takes, n = 1). ORANGE's ×1.5 still scales the attacker's part; KŌSEI, the regen, the Fighting Spirit and the
+  flash-step gains are unchanged (the Fighting Spirit and the flash-step still go by damage).
+- Code: `rules.lisp` COMBO-GAIN-MULT, HIT-REIATSU-BASE, HIT-GAINS (RBASE, N); `combat.lisp` HIT-RBASE, DEAL-DAMAGE /
+  GAIN-GAUGES (RBASE, N); `hazards.lisp` SPAWN-HAZARD (`:rbase`). Tests: `tests/duel-rules/core.lisp` (the bonus, the bases, a
+  J1 of 500 or 5 damage paying the same 3, the 6th hit ×1.5, taken ×1.5, ORANGE).
+

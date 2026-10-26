@@ -106,17 +106,27 @@ his snapshot follows (the binder's :bind-heal), so a release keeps it (B6)."
     (reiatsu-gain! e r)
     (setf (gauges-fs g) (f32 (gauge-add (gauges-fs g) (burst-fs-gain fs (gauges-burst g)) *fs-max*)))))
 
-(defun gain-gauges (e dealt taken)
-  "Reiatsu, flash-step and Fighting Spirit for dealing DEALT / taking TAKEN damage (HIT-GAINS; siphoned: SIPHON-OF)."
+(defun gain-gauges (e dealt taken &optional (rbase 0) (n 1))
+  "Reiatsu, flash-step and Fighting Spirit for dealing DEALT / taking TAKEN damage, RBASE the hit's Reiatsu at the combo's
+Nth hit (HIT-GAINS; siphoned: SIPHON-OF)."
   (let ((g (gauges e)) (to (siphon-of e)))
-    (multiple-value-bind (r fs aw sr sfs) (hit-gains dealt taken to (burst-gain-mult (gauges-burst g)))
+    (multiple-value-bind (r fs aw sr sfs) (hit-gains dealt taken to (burst-gain-mult (gauges-burst g)) rbase n)
       (pay-gauges e r fs)
       (when to (pay-gauges to sr sfs))
       (unless (gauges-awakened g)
         (setf (gauges-awaken g) (f32 (gauge-add (gauges-awaken g) aw *awaken-max*)))))))
 
-(defun deal-damage (att def dmg)
-  "DEF loses DMG Reishi (ATT dealt it; a CPU attacker's anti-stall heat resets). Reishi at 0 is an automatic Soul
+(defun hit-rbase (mv hazard base)
+  "The Reiatsu a hit of MV (or HAZARD: its move's at its spawn) with BASE damage pays its attacker before the combo bonus
+(HIT-REIATSU-BASE; no damage: none)."
+  (cond ((<= base 0) 0)
+        (hazard (hazard-rbase hazard))
+        (mv (hit-reiatsu-base (mv-kind mv) (getf (mv-params mv) :reiatsu)))
+        (t *reiatsu-kind-other*)))
+
+(defun deal-damage (att def dmg &optional (rbase 0) (n 1))
+  "DEF loses DMG Reishi (ATT dealt it; a CPU attacker's anti-stall heat resets); RBASE the hit's Reiatsu for ATT, N its
+combo index (both sides' gains x COMBO-GAIN-MULT: GAIN-GAUGES; chip, a drink: RBASE 0). Reishi at 0 is an automatic Soul
 Break, settled at the end of the step (*SOUL-BREAKS*): returns T then. In a bind (BIND-OF) the loss is grey: Reishi
 floors at 0 with no Soul Break, the nominal DMG goes to the binder's :bind-damage (the pool's drain) and to ATT's grey
 count (DEALT-REAL)."
@@ -128,8 +138,8 @@ count (DEALT-REAL)."
     (when h (funcall h bd att def dmg))
     (when b (setf (brain-heat b) 0f0))
     (incf (fighter-combo-dmg (fighter def)) dmg)
-    (gain-gauges att dmg 0)
-    (gain-gauges def 0 dmg)
+    (gain-gauges att dmg 0 rbase n)
+    (gain-gauges def 0 dmg 0 n)
     (nome-gain! att dmg 0 0)
     (nome-gain! def 0 dmg 0)
     (when (and (not bd) (soul-break-p (gauges-reishi gd)))
@@ -409,7 +419,8 @@ result (NIL = no effect)."
                      (cond ((member :ice flags) :ice) ((eq react :bind) :bind) ((member :blade flags) :flash)
                            ((member :thread flags) :quick) (hazard :fire)
                            (mv (mv-kind mv)) (t :counter)))
-               (unless (deal-damage att def dmg)          ; (a broken soul crumples in its cinematic)
+               (unless (deal-damage att def dmg (hit-rbase mv hazard base) (max 1 (- hits (fighter-combo-from fd))))   ; (a broken
+                                                        ;  soul crumples in its cinematic)
                  (if blow
                      (progn (set-reaction def react stun sx sz *stun-blow-kb*)   ; the blow-away
                             (incf *blow-aways*)
@@ -437,7 +448,7 @@ result (NIL = no effect)."
                                                         ;  :armor hook pays its own price: its :struck)
            (hitstop *hitstop-block*)
            (emit :armored def x y z)
-           (deal-damage att def (hit-damage base atk dmods 1 nil)))
+           (deal-damage att def (hit-damage base atk dmods 1 nil) (hit-rbase mv hazard base)))
           (:parried                                     ; the attacker staggers, the parry counters (its :land string)
            (hitstop *hitstop-breaker*)
            (respect att)
@@ -455,7 +466,7 @@ result (NIL = no effect)."
              (setf (fighter-stored fd) (stance-store (fighter-stored fd) dmg))
              (hitstop *hitstop-block*)
              (emit :absorbed def x y z)
-             (deal-damage att def dmg)
+             (deal-damage att def dmg (hit-rbase mv hazard base))
              (nome-gain! def 0 0 dmg)))                 ; the stance drinks what it absorbs (NOME)
           (:blocked                                     ; blockstun, chip, the guard gauge (at 0: GUARD CRUSH);
                                                         ; DRINK (NOMIHOSE's U): half the hit taken for real, half drunk;
@@ -924,7 +935,7 @@ delay counter (frozen): West never refills."
   (do-entities (e (f fighter) (g gauges))
     (let* ((kit (fighter-kit f))
            (guarding (and (or (member (fighter-state f) '(:guard :guard-hit)) (passive-p e :ward)) (not (gauges-guardless g)))))
-      (reiatsu-gain! e (rmod-x e :reiatsu-regen (reiatsu-gain 0 0 1)))   ; (DANGAI's :reiatsu-regen, :fs-regen, :gg-regen)
+      (reiatsu-gain! e (rmod-x e :reiatsu-regen (reiatsu-gain 0 1)))   ; (DANGAI's :reiatsu-regen, :fs-regen, :gg-regen)
       (if (gauges-burst g)
           (burst-step e g)                               ; a burst: the gauge drains, no regen
           (setf (gauges-fs g) (f32 (fs-regen (gauges-fs g) (gauges-fs-idle g) (rmod-x e :fs-regen *fs-regen*)))

@@ -23,11 +23,14 @@ hit comes from the owner's position; FRAGILE: it closes while it waits if the ow
 character's function (h hz event &rest args) called with :step (each step, first: T skips the generic step), :close
 (CLOSE-RIFTS closed it) and :touches (the volume test of a kind this file doesn't know); DATA: what it keeps. GROUP: a
 hit group (MAKE-HIT-GROUP) shared with other hazards: together they deal its hits, at most one of them per step. SP: its hits
-ignore the combo scaling (default: spawned while its owner plays an SP, SP-MOVE-P)."
+ignore the combo scaling (default: spawned while its owner plays an SP, SP-MOVE-P). Its hits pay the owner the Reiatsu of
+the owner's move now (HIT-RBASE; none: *REIATSU-KIND-OTHER*)."
   (spawn-entity (make-hazard :kind kind :owner owner :x (f32 x) :y (f32 y) :z (f32 z) :px (f32 x) :pz (f32 z)
                              :yaw (f32 yaw) :speed (f32 speed) :turn (f32 turn) :size (f32 size)
                              :life life :delay delay :hits-left (if hw hits 0) :hw hw :look look :src src :fragile fragile
-                             :hook hook :data data :group group :sp sp)))
+                             :hook hook :data data :group group :sp sp
+                             :rbase (f32 (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))
+                                           (if mv (hit-reiatsu-base (mv-kind mv) (getf (mv-params mv) :reiatsu)) *reiatsu-kind-other*))))))
 
 (defun spawn-look (e look &key (x (aref (pos-of e) 0)) (z (aref (pos-of e) 2)) (yaw 0.0) (size 1.0) (life 30) (delay 0)
                                fragile data)

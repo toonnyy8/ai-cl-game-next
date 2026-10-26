@@ -222,6 +222,7 @@ its volume test and its look (hazards.lisp)."
   (hook nil) (data nil)                 ; a character's own hazard: HOOK (h hz event ...) and the DATA it keeps (hazards.lisp)
   (group nil)                           ; NIL, or a hit group shared by several hazards (MAKE-HIT-GROUP): they hit once together
   (sp nil)                              ; T: spawned by its owner's SP (SP-MOVE-P): its hits ignore the combo scaling
+  (rbase 0f0 :type single-float)        ; the Reiatsu its hits pay the owner (HIT-RBASE): its owner's move's at its spawn
   (look nil))                           ; a look keyword, or a draw function symbol (HAZARD-DRAW)
 
 ;;; ---------------------------------------------------------------- small helpers every file uses

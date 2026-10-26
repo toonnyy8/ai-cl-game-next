@@ -444,7 +444,19 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
   (check (and (~= ax -4.0) (~= az 0.0) (~= bx 4.0) (~= bz 0.0))))
 
 ;;; ================================================================ gauges
-(check (and (~= (reiatsu-gain 100 0) 8.0) (~= (reiatsu-gain 0 100) 10.0) (~= (reiatsu-gain 0 0 60) 3.0)))   ; SPs only: 3 / s
+(check (and (~= (reiatsu-gain 100) 10.0) (~= (reiatsu-gain 0 60) 3.0)))   ; SPs only: 3 / s
+;; a hit's Reiatsu by its move's kind x the combo bonus, not by its damage (the user 2026-10-26: 「不再按傷害，改成依據每招式各自的
+;; 基礎值 * combo 數加成」; the taken side 「受傷值 x combo 加成」; +10 % a hit, at most x2)
+(check (and (~= 1.0 (combo-gain-mult 1)) (~= 1.0 (combo-gain-mult 0)) (~= 1.1 (combo-gain-mult 2)) (~= 1.5 (combo-gain-mult 6))
+            (~= 2.0 (combo-gain-mult 11)) (~= 2.0 (combo-gain-mult 30))
+            (equal '(3.0 5.0 4.0 4.0 7.0 14.0) (mapcar #'hit-reiatsu-base '(:quick :flash :sig :sp :kikon :breaker)))
+            (~= *reiatsu-kind-other* (hit-reiatsu-base :stance)) (~= 9.0 (hit-reiatsu-base :quick 9.0))))
+(multiple-value-bind (r fs aw) (hit-gains 500 0 nil 1.0 3.0 1)          ; J1, 500 damage or 5: the same 3
+  (multiple-value-bind (r2) (hit-gains 5 0 nil 1.0 3.0 1)
+    (multiple-value-bind (r6) (hit-gains 5 0 nil 1.0 3.0 6)              ; the combo's 6th hit: x1.5
+      (multiple-value-bind (rt) (hit-gains 0 100 nil 1.0 0 6)            ; taking 100 at its 6th hit: 10 x 1.5
+        (multiple-value-bind (ro) (hit-gains 5 0 nil *orange-gain* 3.0 1)   ; ORANGE x its gain
+          (check (and (~= r 3.0) (~= r2 3.0) (~= r6 4.5) (~= rt 15.0) (zerop fs) (plusp aw) (~= ro (* 3.0 *orange-gain*)))))))))
 (check (~= (awakening-gain 100 100 1) 18.9))                                ; x0.7 since 2026-09-30 (was 27)
 (check (and (~= *awaken-dealt* 0.035) (~= *awaken-taken* 0.049) (~= *awaken-per-konpaku* 10.5)))
 (check (and (~= (gauge-add 290.0 20.0 300.0) 300.0) (~= (gauge-add 5.0 -10.0 300.0) 0.0)))
@@ -512,8 +524,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (= (chain-startup-cut 10 0) 4) (= (chain-startup-cut 20 0) 8) (= (chain-startup-cut 2 0) 0) (= (chain-startup-cut 1 0) 0)
             (= (chain-startup-cut 3 0) 1) (= (chain-startup-cut 12 2) 4) (= *chain-window* 12)))
 (check (and (~= (burst-gain-mult :orange) 1.5) (~= (burst-gain-mult :white) 1.0) (~= (burst-gain-mult nil) 1.0)))
-(check (and (~= (nth-value 0 (hit-gains 100 0 nil 1.5)) 12.0) (~= (nth-value 2 (hit-gains 100 0 nil 1.5)) 5.25)   ; x1.5 dealt
-            (~= (nth-value 0 (hit-gains 0 100 nil 1.5)) 10.0) (~= (nth-value 0 (hit-gains 100 0 nil)) 8.0)))    ; taken untouched
+(check (and (~= (nth-value 0 (hit-gains 100 0 nil 1.5 8.0)) 12.0) (~= (nth-value 2 (hit-gains 100 0 nil 1.5)) 5.25)   ; x1.5 dealt
+            (~= (nth-value 0 (hit-gains 0 100 nil 1.5)) 10.0) (~= (nth-value 0 (hit-gains 100 0 nil 1.0 8.0)) 8.0)))    ; taken untouched
 ;; the Kikon refund: a flash-step bar (35) and a Reiatsu bar, clamped
 (check (and (equal (multiple-value-list (kikon-refund 10.0 50.0)) '(45.0 150.0))
             (equal (multiple-value-list (kikon-refund 90.0 250.0)) '(100.0 300.0))))

@@ -431,20 +431,30 @@ the victim's Reishi resets to max and both are placed by RESET-PLACEMENT."
   "Gauge G after adding N (may be negative), kept in [0, MAX]."
   (max 0.0 (min max (+ g n))))
 
-(defun reiatsu-gain (dealt taken &optional (frames 0))
-  "Reiatsu earned by dealing DEALT and taking TAKEN damage, plus FRAMES of regen."
-  (+ (* dealt *reiatsu-dealt*) (* taken *reiatsu-taken*) (* frames (/ *reiatsu-regen* 60.0))))
+(defun reiatsu-gain (taken &optional (frames 0))
+  "Reiatsu earned by taking TAKEN damage (outside a combo's bonus), plus FRAMES of regen."
+  (+ (* taken *reiatsu-taken*) (* frames (/ *reiatsu-regen* 60.0))))
+
+(defun combo-gain-mult (n)
+  "The combo bonus on a hit's Reiatsu at the combo's Nth hit (1-based): x1 .. x*REIATSU-COMBO-MAX*."
+  (min *reiatsu-combo-max* (+ 1.0 (* *reiatsu-combo-step* (1- (max 1 n))))))
+
+(defun hit-reiatsu-base (kind &optional override)
+  "Reiatsu a hit of a move of KIND pays its attacker before the combo bonus (*REIATSU-KIND*; OVERRIDE: the move's :reiatsu)."
+  (or override (getf *reiatsu-kind* kind *reiatsu-kind-other*)))
 
 (defun awakening-gain (dealt taken lost)
   "Fighting Spirit earned by dealing / taking damage and losing LOST Konpaku."
   (+ (* dealt *awaken-dealt*) (* taken *awaken-taken*) (* lost *awaken-per-konpaku*)))
 
-(defun hit-gains (dealt taken siphoned &optional (mult 1.0))
+(defun hit-gains (dealt taken siphoned &optional (mult 1.0) (rbase 0) (n 1))
   "What dealing DEALT / taking TAKEN damage pays (combat.lisp GAIN-GAUGES). Values: his Reiatsu, flash-step and Fighting
 Spirit, then the Reiatsu and flash-step of the side SIPHONED says takes his gains (the opponent's kit's :siphon hook): he
-keeps none of them, his Reiatsu and flash-step go to that side, the Fighting Spirit is lost. MULT scales the Reiatsu and
-Fighting Spirit of the DEALT part (ORANGE: BURST-GAIN-MULT)."
-  (let ((r (+ (* mult dealt *reiatsu-dealt*) (reiatsu-gain 0 taken))) (fs (* taken *fs-taken*)))
+keeps none of them, his Reiatsu and flash-step go to that side, the Fighting Spirit is lost. The Reiatsu: the hit's RBASE
+(HIT-RBASE: its move's kind, not the damage, since 2026-10-26) + TAKEN x *REIATSU-TAKEN*, both x the combo bonus at the
+combo's Nth hit (COMBO-GAIN-MULT). MULT scales the Reiatsu of RBASE and the Fighting Spirit of DEALT (ORANGE:
+BURST-GAIN-MULT)."
+  (let ((r (* (combo-gain-mult n) (+ (* mult rbase) (reiatsu-gain taken)))) (fs (* taken *fs-taken*)))
     (if siphoned
         (values 0.0 0.0 0.0 r fs)
         (values r fs (+ (* mult (awakening-gain dealt 0 0)) (awakening-gain 0 taken 0)) 0.0 0.0))))
