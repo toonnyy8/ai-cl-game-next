@@ -938,3 +938,13 @@ freeze). Open: Kenpachi (35-38 of 80; §17.6's guard bug at the freeze) and, out
 The dream (round 1's world): the adaptive policy (the skill's template) replayed 0.3577 against the floor's 0.1929 and is
 promoted for a next round. Two more cells the policy asked for (b2a1, b3a1) were not run: the user's budget, 8 cells.
 
+### 17.9 The pick (the user, 2026-10-26)
+
+Asked which CPU to ship and what to do with her rare awakening, the user picked 「b0a2 + b1a2 的反衝刺」 and 「照搜尋結果（1800
+翻盤）」: b0a2's file (its per-opponent matchup tables and payoff-weighted pokes, b1a0's first-strike envelope, the comeback
+awakening at :min-taken 1800, the anti-step J1, the K route into 白漣, the oki RIKUJOKORO → O seal, no plain O, no neutral
+Breaker) with b1a2's anti-dash (RUKIA-AI-ANTI-DASH: the perfect Hoho timed on Lille's released charged dash by its predicted
+slide, *AI-RU-DASH-GAP* 3.4 m, EASY 0 / NORMAL 0.3 / HARD 1.0; RUKIA-AI-MU-DASH: wait beyond J1 against a dash form; both in
+her ASSIST's AUTO GUARD too), on main's code: her §17.6 steps (`:block-hold` / `:held`), the damage x0.75 (§17.7) and the
+shared CPU's replaceable steps (DUEL_AI_V2). Integration: one file, both cells' CPU tests, re-scored on main, her gates.
+
