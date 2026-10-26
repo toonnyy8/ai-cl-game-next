@@ -1,0 +1,30 @@
+{
+  "worlds": [
+    "docs/research/rukia-ai-drsi/trace_pool/iter01/trace.json"
+  ],
+  "incumbent_sha1": "08ca95197098",
+  "ranking": [
+    {
+      "policy": "/home/user/ai-cl-game-test/docs/research/rukia-ai-drsi/policy/candidate_v1.py",
+      "sha1": "0188982a20b8",
+      "pareto": {
+        "auc": 0.5,
+        "parallel_penalty": 0.5690476190476191,
+        "reward": 0.3577380952380952,
+        "lambda": 0.25
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "/home/user/ai-cl-game-test/docs/research/rukia-ai-drsi/policy/current.py",
+      "sha1": "08ca95197098",
+      "pareto": {
+        "auc": 0.3178528347406514,
+        "parallel_penalty": 0.5,
+        "reward": 0.1928528347406514,
+        "lambda": 0.25
+      },
+      "non_degenerate": true
+    }
+  ]
+}

@@ -1,0 +1,345 @@
+{
+  "policy": "docs/research/rukia-ai-drsi/policy/current.py",
+  "n_worlds": 1,
+  "worlds_excluded": [],
+  "per_world": [
+    {
+      "world": "SOUL DUEL Rukia CPU AI (duel/lisp/rukia-ai.lisp: her four forms' tactics by condition), scored by tools/aieval.py --char 2 --seeds 40 at the freeze commit (opponents: the six other CPUs as they read there; DUEL_RUKIA_TYBW \u00a717):r1",
+      "excluded": false,
+      "hypervolume": 0.3178528347406514,
+      "varies": true
+    }
+  ],
+  "beta_grid": [
+    0.0,
+    0.2,
+    0.4,
+    0.6,
+    0.8,
+    1.0
+  ],
+  "sweep": [
+    {
+      "beta": 0.0,
+      "ok": true,
+      "errors": [],
+      "probes": 8,
+      "probe_fraction": 0.6666666666666666,
+      "attainment": 0.9071170084439082,
+      "diag_auc": 0.6611881785283473,
+      "parallel_penalty": 0.5,
+      "Eq1": 0.8906
+    },
+    {
+      "beta": 0.2,
+      "ok": true,
+      "errors": [],
+      "probes": 8,
+      "probe_fraction": 0.6666666666666666,
+      "attainment": 0.9071170084439082,
+      "diag_auc": 0.6611881785283473,
+      "parallel_penalty": 0.5,
+      "Eq1": 0.8906
+    },
+    {
+      "beta": 0.4,
+      "ok": true,
+      "errors": [],
+      "probes": 8,
+      "probe_fraction": 0.6666666666666666,
+      "attainment": 0.9071170084439082,
+      "diag_auc": 0.6611881785283473,
+      "parallel_penalty": 0.5,
+      "Eq1": 0.8906
+    },
+    {
+      "beta": 0.6,
+      "ok": true,
+      "errors": [],
+      "probes": 10,
+      "probe_fraction": 0.8333333333333334,
+      "attainment": 1.0,
+      "diag_auc": 0.6921491757137113,
+      "parallel_penalty": 0.5,
+      "Eq1": 0.9214
+    },
+    {
+      "beta": 0.8,
+      "ok": true,
+      "errors": [],
+      "probes": 10,
+      "probe_fraction": 0.8333333333333334,
+      "attainment": 1.0,
+      "diag_auc": 0.6921491757137113,
+      "parallel_penalty": 0.5,
+      "Eq1": 0.9214
+    },
+    {
+      "beta": 1.0,
+      "ok": true,
+      "errors": [],
+      "probes": 10,
+      "probe_fraction": 0.8333333333333334,
+      "attainment": 1.0,
+      "diag_auc": 0.6921491757137113,
+      "parallel_penalty": 0.5,
+      "Eq1": 0.9214
+    }
+  ],
+  "pareto": {
+    "auc": 0.3178528347406514,
+    "parallel_penalty": 0.5,
+    "reward": 0.1928528347406514,
+    "lambda": 0.25
+  },
+  "non_degenerate": true,
+  "failures": [],
+  "episodes": [
+    {
+      "world_cells": 12,
+      "recorded_cells": 8,
+      "baseline": 0.5898,
+      "world_best": 0.9214,
+      "ok": true,
+      "grid": [
+        4,
+        2
+      ],
+      "probes": 8,
+      "revealed": 6,
+      "rounds": 4,
+      "effective_sequential_rounds": 4.0,
+      "best": 0.8906,
+      "attainment": 0.9071170084439082,
+      "diag_auc": 0.6611881785283473,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ],
+        [
+          "b2a1",
+          "b3a1"
+        ]
+      ],
+      "beta": 0.0,
+      "world": "SOUL DUEL Rukia CPU AI (duel/lisp/rukia-ai.lisp: her four forms' tactics by condition), scored by tools/aieval.py --char 2 --seeds 40 at the freeze commit (opponents: the six other CPUs as they read there; DUEL_RUKIA_TYBW \u00a717):r1",
+      "Eq1": 0.8906
+    },
+    {
+      "world_cells": 12,
+      "recorded_cells": 8,
+      "baseline": 0.5898,
+      "world_best": 0.9214,
+      "ok": true,
+      "grid": [
+        4,
+        2
+      ],
+      "probes": 8,
+      "revealed": 6,
+      "rounds": 4,
+      "effective_sequential_rounds": 4.0,
+      "best": 0.8906,
+      "attainment": 0.9071170084439082,
+      "diag_auc": 0.6611881785283473,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ],
+        [
+          "b2a1",
+          "b3a1"
+        ]
+      ],
+      "beta": 0.2,
+      "world": "SOUL DUEL Rukia CPU AI (duel/lisp/rukia-ai.lisp: her four forms' tactics by condition), scored by tools/aieval.py --char 2 --seeds 40 at the freeze commit (opponents: the six other CPUs as they read there; DUEL_RUKIA_TYBW \u00a717):r1",
+      "Eq1": 0.8906
+    },
+    {
+      "world_cells": 12,
+      "recorded_cells": 8,
+      "baseline": 0.5898,
+      "world_best": 0.9214,
+      "ok": true,
+      "grid": [
+        4,
+        2
+      ],
+      "probes": 8,
+      "revealed": 6,
+      "rounds": 4,
+      "effective_sequential_rounds": 4.0,
+      "best": 0.8906,
+      "attainment": 0.9071170084439082,
+      "diag_auc": 0.6611881785283473,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ],
+        [
+          "b2a1",
+          "b3a1"
+        ]
+      ],
+      "beta": 0.4,
+      "world": "SOUL DUEL Rukia CPU AI (duel/lisp/rukia-ai.lisp: her four forms' tactics by condition), scored by tools/aieval.py --char 2 --seeds 40 at the freeze commit (opponents: the six other CPUs as they read there; DUEL_RUKIA_TYBW \u00a717):r1",
+      "Eq1": 0.8906
+    },
+    {
+      "world_cells": 12,
+      "recorded_cells": 8,
+      "baseline": 0.5898,
+      "world_best": 0.9214,
+      "ok": true,
+      "grid": [
+        4,
+        2
+      ],
+      "probes": 10,
+      "revealed": 8,
+      "rounds": 5,
+      "effective_sequential_rounds": 5.0,
+      "best": 0.9214,
+      "attainment": 1.0,
+      "diag_auc": 0.6921491757137113,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ],
+        [
+          "b0a2",
+          "b1a2"
+        ],
+        [
+          "b2a1",
+          "b3a1"
+        ]
+      ],
+      "beta": 0.6,
+      "world": "SOUL DUEL Rukia CPU AI (duel/lisp/rukia-ai.lisp: her four forms' tactics by condition), scored by tools/aieval.py --char 2 --seeds 40 at the freeze commit (opponents: the six other CPUs as they read there; DUEL_RUKIA_TYBW \u00a717):r1",
+      "Eq1": 0.9214
+    },
+    {
+      "world_cells": 12,
+      "recorded_cells": 8,
+      "baseline": 0.5898,
+      "world_best": 0.9214,
+      "ok": true,
+      "grid": [
+        4,
+        2
+      ],
+      "probes": 10,
+      "revealed": 8,
+      "rounds": 5,
+      "effective_sequential_rounds": 5.0,
+      "best": 0.9214,
+      "attainment": 1.0,
+      "diag_auc": 0.6921491757137113,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ],
+        [
+          "b0a2",
+          "b1a2"
+        ],
+        [
+          "b2a1",
+          "b3a1"
+        ]
+      ],
+      "beta": 0.8,
+      "world": "SOUL DUEL Rukia CPU AI (duel/lisp/rukia-ai.lisp: her four forms' tactics by condition), scored by tools/aieval.py --char 2 --seeds 40 at the freeze commit (opponents: the six other CPUs as they read there; DUEL_RUKIA_TYBW \u00a717):r1",
+      "Eq1": 0.9214
+    },
+    {
+      "world_cells": 12,
+      "recorded_cells": 8,
+      "baseline": 0.5898,
+      "world_best": 0.9214,
+      "ok": true,
+      "grid": [
+        4,
+        2
+      ],
+      "probes": 10,
+      "revealed": 8,
+      "rounds": 5,
+      "effective_sequential_rounds": 5.0,
+      "best": 0.9214,
+      "attainment": 1.0,
+      "diag_auc": 0.6921491757137113,
+      "batches": [
+        [
+          "b0a0",
+          "b1a0"
+        ],
+        [
+          "b2a0",
+          "b3a0"
+        ],
+        [
+          "b0a1",
+          "b1a1"
+        ],
+        [
+          "b0a2",
+          "b1a2"
+        ],
+        [
+          "b2a1",
+          "b3a1"
+        ]
+      ],
+      "beta": 1.0,
+      "world": "SOUL DUEL Rukia CPU AI (duel/lisp/rukia-ai.lisp: her four forms' tactics by condition), scored by tools/aieval.py --char 2 --seeds 40 at the freeze commit (opponents: the six other CPUs as they read there; DUEL_RUKIA_TYBW \u00a717):r1",
+      "Eq1": 0.9214
+    }
+  ]
+}
