@@ -958,6 +958,12 @@ RUKIA-AI-MU-GUARD stays, listed by no row. CPU tests: b0a2's section + b1a2's an
 aieval on main (40 seeds): **0.9398** (strength 0.892, masher 1.0, signature 0.945; NORMAL share 0.477 in its 0.3-0.6 band;
 HARD vs Yamamoto 70, Kenpachi 53, Ichigo 80, Senjumaru 78, Lille 67, Hisagi 80 of 80). Her gates (with §17.11's L): DEVLOG §392.
 
+**Her gates** (the CPU with §17.11's L, 2026-10-26): every match K.O.; 20 seeds RI 140.6 s, RS 147.5 s, RL 156.9 s, RH 148.6 s,
+the mirror 157.6 s; RY 117.0 s and RK 119.6 s, rerun at 60 seeds: **RY 115.9 s, RK 111.8 s**, outside the window, reported to the
+user (the exception on record: 108.5 s / 102.7 s, §17.7). Awaken A/B: all 21 rows pass (the never-awaken side 21-40 of 60;
+before, 4-18, §11.1-§11.2: the rebuilt CPU closes that). aieval 0.9386 (NORMAL share 0.479). ASSIST (the masher's wins): off
+26%, GUARD 1 / 2 27% / 57%, COMBO 69%, BREAK 34%, all 78%, all with GUARD 2 97%. `--cvc` 3 PASS.
+
 
 
 ### 17.10 Her awakened L blocked: the frames (measured, the user, 2026-10-26)
