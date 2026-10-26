@@ -66,7 +66,7 @@ build/ dist/   build outputs (ignored); build/gh-pages is the deploy worktree
 ./build.sh duel                          # SOUL DUEL -> dist/duel/   (bare ./build.sh builds only game/)
 ./build.sh examples/hello                # any dir with a MANIFEST -> dist/<name>/
 python3 -m http.server -d dist/duel 8000 # file:// cannot load wasm
-node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 8 --shot s.png   # headless Chrome; exit 1 = JS / WebGPU error
+node tools/run.mjs dist/duel --fixed-dt 16.666667 --secs 8 --shot s.png   # headless Chrome; exit 1 = JS / WebGPU error, or startup heap > --max-heap (110 MB)
 tools/pkgcheck.sh duel                   # ECL never warns about undefined / unexported / engine-redefining functions
 ```
 

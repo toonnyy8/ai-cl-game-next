@@ -658,7 +658,7 @@ YY 1.9, YK 0.5, KK 0.2 (mostly Yamamoto's Signature / Shiranui once back in his 
 | draws | 45–46 | < 600 |
 | live particles | 331 mean, 525 max | ≤ 1200 |
 | `fx-dropped` | 0 | 0 |
-| startup heap | 87.3 MB (wasm memory 153.6 MB; 2026-10-26, after the constants' #n= labels went: it was 359.1 / 458.9 MB, docs/engine/ARCHITECTURE.md "Runtime model"; 103.1 earlier) | ≤ 110 MB |
+| startup heap (`tools/run.mjs` fails over `--max-heap`, default 110, since 2026-10-26) | 87.3 MB (wasm memory 153.6 MB; 2026-10-26, after the constants' #n= labels went: it was 359.1 / 458.9 MB, docs/engine/ARCHITECTURE.md "Runtime model"; 103.1 earlier) | ≤ 110 MB |
 | frame rate | ~70 fps on this machine's SwiftShader | — |
 
 ## Host tests (no build, no browser)

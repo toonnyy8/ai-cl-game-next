@@ -11,14 +11,16 @@
 // --mobile [--dpr N]: a phone: device pixel ratio N (default 3), mobile viewport, touch emulation ((pointer: coarse)),
 //   kept through "size" steps. Touch steps: {"at":1,"touch":"start","x":100,"y":700,"id":0} (CSS px; "move", "end",
 //   "cancel" likewise; several ids = several fingers) -> Input.dispatchTouchEvent (the page sees touch pointer events).
-// Exit code 1 on JS exceptions and on WebGPU validation errors / failed pipelines (the WGSL smoke test).
+// Exit code 1 on JS exceptions and on WebGPU validation errors / failed pipelines (the WGSL smoke test), and when the
+// startup heap (the engine's `startup: heap N MB` line) is over --max-heap MB (default 110, docs/engine/ARCHITECTURE.md
+// "Runtime model": a 359 MB heap from the build's #n= constants went unnoticed until the user felt hitches, 2026-10-26).
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
 import { spawn } from 'node:child_process';
 
 const a = process.argv.slice(2), dir = path.resolve(a[0] || 'dist/game');
 const opt = (k, d) => { const i = a.indexOf(k); return i >= 0 ? a[i + 1] : d; };
 const secs = +opt('--secs', 8), shot = opt('--shot'), script = opt('--script');
-const fixed = opt('--fixed-dt') ? +opt('--fixed-dt') : 0, wallMax = +opt('--timeout', 900);
+const fixed = opt('--fixed-dt') ? +opt('--fixed-dt') : 0, wallMax = +opt('--timeout', 900), maxHeap = +opt('--max-heap', 110);
 const [W, H] = opt('--size', '1280x720').split('x').map(Number);
 const mobile = a.includes('--mobile'), dpr = +opt('--dpr', mobile ? 3 : 1);
 const metrics = (width, height) => send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile });
@@ -52,7 +54,8 @@ ws.onmessage = m => {
   if (d.id && pending.has(d.id)) { pending.get(d.id)(d.result ?? d.error); pending.delete(d.id); return; }
   const gpuErr = t => /WebGPU:|render: pipeline .* failed/.test(t) && (failed = true);
   if (d.method === 'Runtime.consoleAPICalled') { const t = d.params.args.map(x => x.value ?? x.description).join(' '); console.log(t); gpuErr(t);
-    if (t.startsWith('startup: heap')) console.log(`[run] startup done ${wall().toFixed(2)} s after navigation`); }
+    if (t.startsWith('startup: heap')) { console.log(`[run] startup done ${wall().toFixed(2)} s after navigation`);
+      const mb = parseFloat(t.slice(14)); if (mb > maxHeap) { failed = true; console.log(`[run] HEAP OVER BUDGET: ${mb} MB > ${maxHeap} MB`); } } }
   if (d.method === 'Log.entryAdded' && d.params.entry.level !== 'verbose') { console.log(`[browser ${d.params.entry.level}]`, d.params.entry.text); gpuErr(d.params.entry.text); }
   if (d.method === 'Runtime.exceptionThrown') { failed = true; console.log('EXCEPTION:', d.params.exceptionDetails.exception?.description || d.params.exceptionDetails.text); }
 };
