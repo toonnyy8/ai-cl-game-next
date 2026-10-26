@@ -653,7 +653,7 @@ YY 1.9, YK 0.5, KK 0.2 (mostly Yamamoto's Signature / Shiranui once back in his 
 
 | Measure | Value | Budget (design §14) |
 |---|---|---|
-| consed per frame | 13.2 KB mean, 17.5 KB max (before the Bankai stances 14.1 / 17.5; behind camera, VS CPU: 14.0 / 15.9; guard v3, `duel-perf.json`: 12.5 / 15.3) | ≤ 60 KB mean, ≤ 150 KB worst |
+| consed per frame | 2026-10-26, the native profiler (CPU vs CPU fight frames, landscape): 2.8–3.1 KB (was 9.5–11.6 KB before that day's render and sim consing cuts, DEVLOG §405; portrait one-hand 12.9–14.3 → 4.5–5.0 KB); earlier browser figures: 13.2 KB mean, 17.5 KB max (before the Bankai stances 14.1 / 17.5; behind camera, VS CPU: 14.0 / 15.9; guard v3, `duel-perf.json`: 12.5 / 15.3) | ≤ 60 KB mean, ≤ 150 KB worst |
 | Lisp ms per frame | sim 0.29, queue 1.49, render 0.35 | — |
 | draws | 45–46 | < 600 |
 | live particles | 331 mean, 525 max | ≤ 1200 |
