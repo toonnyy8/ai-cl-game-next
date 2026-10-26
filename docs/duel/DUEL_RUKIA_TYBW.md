@@ -948,3 +948,27 @@ slide, *AI-RU-DASH-GAP* 3.4 m, EASY 0 / NORMAL 0.3 / HARD 1.0; RUKIA-AI-MU-DASH:
 her ASSIST's AUTO GUARD too), on main's code: her §17.6 steps (`:block-hold` / `:held`), the damage x0.75 (§17.7) and the
 shared CPU's replaceable steps (DUEL_AI_V2). Integration: one file, both cells' CPU tests, re-scored on main, her gates.
 
+
+
+### 17.10 Her awakened L blocked: the frames (measured, the user, 2026-10-26)
+
+The user asked 「覺醒後的 L 後搖有幾幀？」 and 「如果對手防住 L 後用 J 回擊，會在幾幀打中？」, then: 「把這套資訊記錄，如果受到覺醒露琪亞 K+L
+的連段壓制，除了 hoho 跟藍色爆氣外還能想辦法防禦等待中間的確反」. Measured in the native sim (P1 her L, P2 every opponent with
+GUARD ALL and the practice COUNTER J1; frames from her L press):
+
+| Band | L | S / A / R (whiff / blocked R) | blocked at | he is free | she is free | gap |
+|---|---|---|---|---|---|---|
+| −18 | 霜柱 `ru-shimobashira` | 12 / 0 / 22 (28 / 22) | f12 | f29 | f37 | −8 |
+| −50 | 氷針 `ru-hyoshin` | 14 / 0 / 22 (28 / 22) | f14 | f31 | f39 | −8 |
+| −273 | REIDO `ru-reido` | 10 / 0 / 26 (32 / 26) | f10 | f27 | f39 | −12 |
+
+His J1 lands, from 1.0 m (1.6 m after the block push): −18 Lille f36, Kenpachi / Ichigo / Senjumaru f37, Hisagi f38,
+Yamamoto f39; −50 two frames later each; −273 Lille f34, the three f35, Hisagi f36, Yamamoto f37. So a J1 of 7 f or less is
+a true punish at −18 / −50, every J1 at −273; from 1.8 m (2.4 m after the push) only Kenpachi's lunging J1 reaches.
+
+**Her K string + L, blocked** (K1+L, K1 K2+L, K1 K2 K3+L, all three bands): the guard lock (FIGHTER-GLOCK) holds him in
+blockstun from the first blocked K to the end of the L, no gap; both free on the same frame (−18: f79 / f120 / f173; −50 and
+−273: f80 / f122 / f175): ±0, no punish; only BLUE breaks it (the lock lets nothing else through, Hoho included). Asked whether
+to open a punish there (release the lock on the L, or a gap between K and L), the user chose 「維持現狀，只記錄」. The manual's
+Rukia tips quote both rows.
+
