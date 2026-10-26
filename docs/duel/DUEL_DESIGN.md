@@ -280,14 +280,15 @@ modes, "Burst modes" at the end) needs 70 and then drains it to 0, gaining nothi
 REIATSU with ticks at 30 and 70; the part past 70 glows while a Burst is possible.
 
 **Reiatsu** (3 bars, 0–300): SPs only. +3/s; a hit pays its attacker its move kind's base (J 3, K 5, L 4, SP 4, O 7, Breaker
-14) and its victim +0.10 per damage taken, both × the combo bonus (§ "Reiatsu by move kind × combo", 2026-10-26; before:
+14) and its victim +0.15 per damage taken, both × the combo bonus (§ "Reiatsu by move kind × combo", 2026-10-26; before:
 +0.08 per damage dealt); and KŌSEI (below). SP1
 and SP2 cost 1 bar (SP2 in an awakened form 2; a move may name its own cost).
 
 **KŌSEI 攻勢, the aggression reward** (the user's decisions 2026-09-27, [DUEL_STRINGS.md](DUEL_STRINGS.md) §5): every
 contact of the attacker's **own melee hit window** (hit, counter, blocked by a guard / ward / DRINK, armoured,
 absorbed, a Guard Break; J / K links, the O strike, the Breaker, SP blades, West's counter) pays him **Reiatsu
-0.20 × g × m** and **flash-step 0.10 × g × m**, g = the hit's guard value, **m = 1 + 2 × (1 − his own guard gauge /
+0.20 × g × m** and **flash-step 0.10 × g × m**, g = the move kind's points × the combo bonus (since 2026-10-26, § "Reiatsu by
+move kind × combo"; before: the hit's guard value), **m = 1 + 2 × (1 − his own guard gauge /
 100)**: ×1 full … ×3 empty (`kosei-mult`, `kosei-gain`, combat.lisp `kosei!`; `*kosei-bonus*` 2.0, `*kosei-reiatsu*`,
 `*kosei-fs*`). Whiffs, parried hits, hazards and `:ranged` windows (fire, lines, the cone, the rift), Kikons and
 scorch pay nothing; neither the guard gauge nor the awakening is paid. A J J J (g 24) pays 4.8 R / 2.4 FS at a full
@@ -1828,3 +1829,17 @@ by the move's base, the victim 「被打方改成受傷值 x combo 加成」; th
   GAIN-GAUGES (RBASE, N); `hazards.lisp` SPAWN-HAZARD (`:rbase`). Tests: `tests/duel-rules/core.lisp` (the bonus, the bases, a
   J1 of 500 or 5 damage paying the same 3, the 6th hit ×1.5, taken ×1.5, ORANGE).
 
+**The flash-step and KŌSEI (the same day)**: the user: 「閃步量表也做一樣的修改，然後提高被攻擊方的恢復量」. Asked, the user pointed
+out the attacker does gain flash-step (KŌSEI) and chose 「攻勢整個改成基礎值×combo×防禦量表越空乘越多」 and, for the victim,
+「兩種都 ×1.5」.
+
+- **KŌSEI**: g, the points of a paying contact, is now `*kosei-kind*` by its move's kind, J 9, K 16, L 36, SP 27, O 20,
+  Breaker 0 (other `*kosei-kind-other*` 16; a move's `:kosei` param overrides), × the combo bonus (the hit's index in his
+  combo; a blocked or otherwise non-hit contact 1), then as before × `*kosei-reiatsu*` 0.20 / `*kosei-fs*` 0.10 × m (his
+  own guard gauge, ×1 full … ×3 empty). The table is the roster's mean guard value per hit (J 8.8, K 16.2, L 35.6, SP 27.3,
+  O 20, a Breaker's 0), rounded. Who pays (own melee windows, blocks included) is unchanged.
+- **The victim**: `*reiatsu-taken*` 0.10 → **0.15**, `*fs-taken*` 0.03 → **0.045** a point taken, the flash-step now × the
+  combo bonus too (the Reiatsu already was).
+- Code: `tuning.lisp` (`*kosei-kind*`, the two taken rates), `rules.lisp` KOSEI-BASE, HIT-GAINS' flash-step; `combat.lisp`
+  APPLY-HIT's KOSEI! call. Tests: `tests/duel-rules/core.lisp` (the KOSEI table, a K's 3rd hit at an empty gauge, taken
+  15 / 4.5 × 1.5 at a combo's 6th hit).

@@ -144,12 +144,12 @@ follow-up treats him as red: no guard cancels its reel or blocks it.")
 ;; REIDO TOKETSU (r 5.5 = the field, a 45 f freeze: a counter-hit on a Breaker's dash; it cashes the top bar)
 (defmove :ru-shimobashira :kind :sig :clip :ru-18-shimobashira :callout "SHIMOBASHIRA" :startup 12 :active 0 :recovery 32
   :on-frame ((0 rukia-hyoshin-tell) (12 rukia-shimobashira))
-  :params (:radius 2.5 :height 0.6 :dmg 60 :frost 90 :guard 12 :react :stagger :stun 42 :gc-from 40))
+  :params (:radius 2.5 :height 0.6 :dmg 60 :frost 90 :guard 12 :react :stagger :stun 42 :gc-from 40 :r-cancel (:q) :r-cancel-from 34))
 (defmove :ru-hyoshin :kind :sig :clip :ru-50-hyoshin :callout "HYOSHIN" :startup 14 :active 0 :recovery 32
   :on-frame ((0 rukia-hyoshin-tell) (14 rukia-hyoshin))
-  :params (:radius 3.5 :height 0.6 :dmg 85 :frost 120 :guard 16 :react :crumple :stun 42 :gc-from 42))
+  :params (:radius 3.5 :height 0.6 :dmg 85 :frost 120 :guard 16 :react :crumple :stun 42 :gc-from 42 :r-cancel (:q) :r-cancel-from 36))
 (defmove :ru-reido :kind :sig :clip :ru-0-reido :callout "REIDO TOKETSU" :startup 10 :active 0 :recovery 36
-  :on-frame ((10 rukia-reido)) :params (:radius 5.5 :height 2.2 :dmg 120 :stun 46 :frost 150 :guard 20 :gc-from 37))
+  :on-frame ((10 rukia-reido)) :params (:radius 5.5 :height 2.2 :dmg 120 :stun 46 :frost 150 :guard 20 :gc-from 37 :r-cancel (:q) :r-cancel-from 36))
 ;; SP1 HAKUREN colder: -50 a stab every 12 f (hold 12-48), a faster, longer, harder wave; zero no hold: the four stabs at
 ;; once and the widest, hardest wave (a half-width of 1.8 m: a side Step still clears every one)
 (defmove-copy :ru-hakuren-50 :ru-hakuren :hold (12 48)

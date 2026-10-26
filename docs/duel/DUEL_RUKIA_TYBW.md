@@ -1031,3 +1031,18 @@ guard cancel set to keep the three rules, the user picked 「+10 幀 (Recommende
   f89 / f130 / f183, −50 and −273 f90 / f132 / f185); the loop's gap is still the restart.
 - Tests: `tests/duel-rules/rukia.lisp` (the three moves' recovery / stun / `:gc-from`, the cancel's window, the bands' pin).
   Her CPU: AI-GUARD-CANCEL now guards out of a blocked or whiffed L too (it asks the same rule).
+
+### 17.12 Her awakened L on a hit: J1 cancels 10 frames sooner (the user, 2026-10-26)
+
+The user: 「把露琪亞覺醒的 L 改成打傷對手的話可以透過 J1 提早一點取消」; asked how much sooner, 「提早 10 幀 (Recommended)」.
+
+- On a hit (her disc's: a hazard never sets her contact, so APPLY-HIT now marks `fighter-hz-hit` when a hazard of hers hits),
+  J cancels her L's recovery into J1 from move frame 34 / 36 / 36 (S + A + R − 10: on a hit the old 22 / 22 / 26 recovery,
+  §17.11's +10 kept for a block or a whiff). K never cancels (rule 2 holds: her K1 still starts at +9). The kit side:
+  `:r-cancel (:q) :r-cancel-from N` in the three moves' params; MOVE-COMMANDS' `:r-cancel` clause takes `:r-cancel-from`
+  (from that frame, her contact or a hazard hit) and keeps Hisagi's rule without it (from S + A, his melee hit).
+- Measured (native sim, Kenpachi dummy, J held from L's start): J1 starts f43 / f44 / f44 instead of her free frame f53 /
+  f54 / f54 and combos (from 1.0 m; from 1.8 m the knock-back leaves him 2.8 m away at −18 / −50, beyond J1; −273's bind
+  does not push, so it combos there too); K: none, she is free f52 / f54 / f54 and he blocks.
+- Tests: `tests/duel-rules/rukia.lisp` (the three moves' `:r-cancel` / `:r-cancel-from` = S + A + R − 10, the bands' pin),
+  `tests/duel-rules/hisagi.lisp` (the moves with `:r-cancel`: Hisagi's two and Rukia's three).

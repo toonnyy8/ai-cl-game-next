@@ -351,6 +351,10 @@ spread over 60 steps in whole points, so a whole second burns exactly the rate (
   "KOSEI's multiplier at the attacker's guard gauge GG: 1 + *KOSEI-BONUS* x (1 - GG / *GG-MAX*), x1 full .. x3 empty."
   (+ 1.0 (* *kosei-bonus* (- 1.0 (/ gg *gg-max*)))))
 
+(defun kosei-base (kind &optional override)
+  "KOSEI's points for a contact of a move of KIND before the combo bonus and m (*KOSEI-KIND*; OVERRIDE: the move's :kosei)."
+  (or override (getf *kosei-kind* kind *kosei-kind-other*)))
+
 (defun kosei-gain (g gg)
   "What one paying contact of guard value G earns an attacker at guard gauge GG. Values: Reiatsu, flash-step, the
 multiplier."
@@ -452,9 +456,9 @@ the victim's Reishi resets to max and both are placed by RESET-PLACEMENT."
 Spirit, then the Reiatsu and flash-step of the side SIPHONED says takes his gains (the opponent's kit's :siphon hook): he
 keeps none of them, his Reiatsu and flash-step go to that side, the Fighting Spirit is lost. The Reiatsu: the hit's RBASE
 (HIT-RBASE: its move's kind, not the damage, since 2026-10-26) + TAKEN x *REIATSU-TAKEN*, both x the combo bonus at the
-combo's Nth hit (COMBO-GAIN-MULT). MULT scales the Reiatsu of RBASE and the Fighting Spirit of DEALT (ORANGE:
+combo's Nth hit (COMBO-GAIN-MULT); the flash-step TAKEN x *FS-TAKEN* x the same bonus. MULT scales the Reiatsu of RBASE and the Fighting Spirit of DEALT (ORANGE:
 BURST-GAIN-MULT)."
-  (let ((r (* (combo-gain-mult n) (+ (* mult rbase) (reiatsu-gain taken)))) (fs (* taken *fs-taken*)))
+  (let ((r (* (combo-gain-mult n) (+ (* mult rbase) (reiatsu-gain taken)))) (fs (* (combo-gain-mult n) taken *fs-taken*)))
     (if siphoned
         (values 0.0 0.0 0.0 r fs)
         (values r fs (+ (* mult (awakening-gain dealt 0 0)) (awakening-gain 0 taken 0)) 0.0 0.0))))

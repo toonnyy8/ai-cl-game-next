@@ -444,7 +444,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
   (check (and (~= ax -4.0) (~= az 0.0) (~= bx 4.0) (~= bz 0.0))))
 
 ;;; ================================================================ gauges
-(check (and (~= (reiatsu-gain 100) 10.0) (~= (reiatsu-gain 0 60) 3.0)))   ; SPs only: 3 / s
+(check (and (~= (reiatsu-gain 100) 15.0) (~= (reiatsu-gain 0 60) 3.0)))   ; SPs only: 3 / s
 ;; a hit's Reiatsu by its move's kind x the combo bonus, not by its damage (the user 2026-10-26: 「不再按傷害，改成依據每招式各自的
 ;; 基礎值 * combo 數加成」; the taken side 「受傷值 x combo 加成」; +10 % a hit, at most x2)
 (check (and (~= 1.0 (combo-gain-mult 1)) (~= 1.0 (combo-gain-mult 0)) (~= 1.1 (combo-gain-mult 2)) (~= 1.5 (combo-gain-mult 6))
@@ -454,9 +454,14 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (multiple-value-bind (r fs aw) (hit-gains 500 0 nil 1.0 3.0 1)          ; J1, 500 damage or 5: the same 3
   (multiple-value-bind (r2) (hit-gains 5 0 nil 1.0 3.0 1)
     (multiple-value-bind (r6) (hit-gains 5 0 nil 1.0 3.0 6)              ; the combo's 6th hit: x1.5
-      (multiple-value-bind (rt) (hit-gains 0 100 nil 1.0 0 6)            ; taking 100 at its 6th hit: 10 x 1.5
+      (multiple-value-bind (rt ft) (hit-gains 0 100 nil 1.0 0 6)         ; taking 100 at its 6th hit: 15 x 1.5, flash-step 4.5 x 1.5
         (multiple-value-bind (ro) (hit-gains 5 0 nil *orange-gain* 3.0 1)   ; ORANGE x its gain
-          (check (and (~= r 3.0) (~= r2 3.0) (~= r6 4.5) (~= rt 15.0) (zerop fs) (plusp aw) (~= ro (* 3.0 *orange-gain*)))))))))
+          (check (and (~= r 3.0) (~= r2 3.0) (~= r6 4.5) (~= rt 22.5) (~= ft 6.75) (zerop fs) (plusp aw) (~= ro (* 3.0 *orange-gain*)))))))))
+;; KOSEI by its move's kind (x the combo bonus at the call, x m), not the guard value (2026-10-26: 「攻勢整個改成基礎值×combo×防禦量表越空乘越多」)
+(check (and (equal '(9.0 16.0 36.0 27.0 20.0 0.0) (mapcar #'kosei-base '(:quick :flash :sig :sp :kikon :breaker)))
+            (~= *kosei-kind-other* (kosei-base :stance)) (~= 5.0 (kosei-base :quick 5.0))
+            (multiple-value-bind (r fs m) (kosei-gain (* (kosei-base :flash) (combo-gain-mult 3)) 0.0)   ; K, 3rd hit, empty gauge
+              (and (~= r (* 0.2 16 1.2 3)) (~= fs (* 0.1 16 1.2 3)) (~= m 3.0)))))
 (check (~= (awakening-gain 100 100 1) 18.9))                                ; x0.7 since 2026-09-30 (was 27)
 (check (and (~= *awaken-dealt* 0.035) (~= *awaken-taken* 0.049) (~= *awaken-per-konpaku* 10.5)))
 (check (and (~= (gauge-add 290.0 20.0 300.0) 300.0) (~= (gauge-add 5.0 -10.0 300.0) 0.0)))
@@ -525,12 +530,12 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (= (chain-startup-cut 3 0) 1) (= (chain-startup-cut 12 2) 4) (= *chain-window* 12)))
 (check (and (~= (burst-gain-mult :orange) 1.5) (~= (burst-gain-mult :white) 1.0) (~= (burst-gain-mult nil) 1.0)))
 (check (and (~= (nth-value 0 (hit-gains 100 0 nil 1.5 8.0)) 12.0) (~= (nth-value 2 (hit-gains 100 0 nil 1.5)) 5.25)   ; x1.5 dealt
-            (~= (nth-value 0 (hit-gains 0 100 nil 1.5)) 10.0) (~= (nth-value 0 (hit-gains 100 0 nil 1.0 8.0)) 8.0)))    ; taken untouched
+            (~= (nth-value 0 (hit-gains 0 100 nil 1.5)) 15.0) (~= (nth-value 0 (hit-gains 100 0 nil 1.0 8.0)) 8.0)))    ; taken untouched
 ;; the Kikon refund: a flash-step bar (35) and a Reiatsu bar, clamped
 (check (and (equal (multiple-value-list (kikon-refund 10.0 50.0)) '(45.0 150.0))
             (equal (multiple-value-list (kikon-refund 90.0 250.0)) '(100.0 300.0))))
 ;; the flash-step gauge (design v3 G.1): Hoho 30, Burst 70, no Reiatsu; 3 / s after 60 f; +0.03 per damage taken
-(check (and (= *fs-hoho* 30) (= *fs-burst* 70) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.03) (= *fs-max* 100)))
+(check (and (= *fs-hoho* 30) (= *fs-burst* 70) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.045) (= *fs-max* 100)))
 (check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.05) (~= (fs-regen 99.99 600) 100.0)))
 (check (~= 3.0 (- (loop with f = 0.0 for i below 60 do (setf f (fs-regen f 60)) finally (return f)) 0.0)))   ; 3 per second
 (check (~= 600 (/ *fs-hoho* (/ *fs-regen* 60.0)) 0.5))                     ; ... a Hoho from empty in 11 s (10 + the 1 s delay)

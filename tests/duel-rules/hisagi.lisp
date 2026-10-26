@@ -1039,7 +1039,8 @@
 (check (and (equal '(:q :f) (getf (mv-params (find-move :hs-r-l)) :r-cancel))
             (equal '(:q) (getf (mv-params (find-move :hs-b-sj)) :r-cancel))
             (loop for mv being the hash-values of *moves*
-                  always (or (member (mv-name mv) '(:hs-r-l :hs-b-sj)) (null (getf (mv-params mv) :r-cancel))))))
+                  always (or (member (mv-name mv) '(:hs-r-l :hs-b-sj :ru-shimobashira :ru-hyoshin :ru-reido))   ; (+ Rukia's awakened L, 2026-10-26)
+                             (null (getf (mv-params mv) :r-cancel))))))
 
 ;;; §25.5 (the user, 2026-10-18: 「卍解遠距的鎖鏈尾端除了傷害加成以外也增加 SP 恢復量的加成」): a tip hit (HS-DMG-MULT x1.3) marks his
 ;;; Reiatsu; his :hit hook pays the gain since the mark x *HS-R-TIP-SP-MULT* on top; a non-tip hit leaves no mark. §25.11

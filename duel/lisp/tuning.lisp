@@ -175,7 +175,9 @@ J beats I, 防 > J > I > 防), and with the thinnest hurt radius (0.34) past the
 各自的基礎值 * combo 數加成」, 「依招式種類固定值」; before: *REIATSU-DEALT* 0.08 a point dealt, whose roster average per hit was
 J 2.7 K 5.7 L 4.7 SP 5.6 O 6.9 Breaker 14.3). A hit that deals no damage pays nothing; chip and a drink pay nothing.")
 (defparameter *reiatsu-kind-other* 4.0 "... a kind not in the table (a hazard spawned outside a move, the counter strike).")
-(defparameter *reiatsu-taken* 0.10 "Reiatsu per point of damage taken, x the combo bonus (2026-10-26: 「被打方改成受傷值 x combo 加成」).")
+(defparameter *reiatsu-taken* 0.15
+  "Reiatsu per point of damage taken, x the combo bonus (2026-10-26: 「被打方改成受傷值 x combo 加成」; 0.10 -> 0.15 the same day:
+「提高被攻擊方的恢復量」, 「兩種都 ×1.5」).")
 (defparameter *reiatsu-combo-step* 0.1
   "The combo bonus on hit gains (dealt and taken): x(1 + this x (n - 1)) at the combo's nth hit (its HIT-DAMAGE index) ...
 (the user 2026-10-26: 「每多一下 +10%，上限 ×2」)")
@@ -188,8 +190,14 @@ J 2.7 K 5.7 L 4.7 SP 5.6 O 6.9 Breaker 14.3). A hit that deals no damage pays no
 ;;; hazard, a :ranged window or a Kikon) pays Reiatsu and flash-step, g x rate x m, g = the hit's guard value and
 ;;; m = 1 + *KOSEI-BONUS* x (1 - his own guard gauge / max): x1 at a full gauge ... x3 at an empty one.
 (defparameter *kosei-bonus* 2.0 "KOSEI: the multiplier's range above 1 (x1 full gauge .. x(1 + this) empty).")
-(defparameter *kosei-reiatsu* 0.20 "KOSEI: Reiatsu per guard point of a paying contact (x m).")
-(defparameter *kosei-fs* 0.10 "KOSEI: flash-step per guard point of a paying contact (x m).")
+(defparameter *kosei-reiatsu* 0.20 "KOSEI: Reiatsu per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m).")
+(defparameter *kosei-fs* 0.10 "KOSEI: flash-step per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m).")
+(defparameter *kosei-kind* '(:quick 9.0 :flash 16.0 :sig 36.0 :sp 27.0 :kikon 20.0 :breaker 0.0)
+  "KOSEI: a paying contact's points by its move's kind (J K L SP O Breaker), x the combo bonus (COMBO-GAIN-MULT: the combo's
+nth hit, a block 1) and x m; a move's :kosei param overrides its kind's (the user 2026-10-26: 「閃步量表也做一樣的修改」,
+「攻勢整個改成基礎值×combo×防禦量表越空乘越多」; before: the hit's guard value, whose roster mean per hit was J 8.8 K 16.2 L 35.6
+SP 27.3 O 20, a Breaker's 0).")
+(defparameter *kosei-kind-other* 16.0 "... a kind not in the table.")
 
 ;;; ---------------------------------------------------------------- flash-step gauge (design v3 G.1): Hoho, Burst
 (defparameter *fs-max* 100.0 "Flash-step gauge maximum; full at the match start, kept through Kikon resets.")
@@ -197,7 +205,9 @@ J 2.7 K 5.7 L 4.7 SP 5.6 O 6.9 Breaker 14.3). A hit that deals no damage pays no
 (defparameter *fs-burst* 70.0 "Flash-step every burst mode needs to start (the user's \"two bars\"; the drain is the cost).")
 (defparameter *fs-regen* 3.0 "Flash-step per second ...")
 (defparameter *fs-delay* 60 "... once this many frames passed since the last spend.")
-(defparameter *fs-taken* 0.03 "Flash-step per point of damage taken (a full 1300 Reishi bar = +39).")
+(defparameter *fs-taken* 0.045
+  "Flash-step per point of damage taken, x the combo bonus (a full 1300 Reishi bar = +58.5 before it); 0.03 -> 0.045 and the
+bonus (the user 2026-10-26: 「閃步量表也做一樣的修改，然後提高被攻擊方的恢復量」, 「兩種都 ×1.5」).")
 ;; (*FS-REFUND* 15, a perfect Hoho's flash-step back, removed 2026-10-18, the user: 「取消完美閃避能減少閃步量表消耗的設定」,
 ;; DUEL_DESIGN "Perfect Hoho without a refund": a perfect Hoho costs its full 30)
 

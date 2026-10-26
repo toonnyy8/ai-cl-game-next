@@ -173,7 +173,8 @@ drain delay."
       (setf (gauges-meter g) (f32 (gauge-add (gauges-meter g) amount (getf m :max)))))))
 
 (defun kosei! (att g x y z)
-  "KOSEI (docs/duel/DUEL_STRINGS.md §5): a contact of ATT's own melee hit window worth guard value G pays him Reiatsu and
+  "KOSEI (docs/duel/DUEL_STRINGS.md §5): a contact of ATT's own melee hit window worth G points (KOSEI-BASE x the combo
+bonus, since 2026-10-26; before: its guard value) pays him Reiatsu and
 flash-step, x KOSEI-MULT of his guard gauge (x1 full .. x3 empty); the :kosei event (the HUD's mote from X Y Z). Siphoned
 (SIPHON-OF), it pays the siphoning side."
   (let ((to (or (siphon-of att) att)))
@@ -373,8 +374,14 @@ result (NIL = no effect)."
         (clog "~a ~a -> ~a ~a ~d" (side-name att) (if mv (mv-name mv) (if hazard (hazard-kind hazard) :counter))
               (side-name def) res base)
         (when (eq (contact-of res) :hit) (close-rifts def))   ; a rift closes if its owner is hit before it cuts
+        (when (and hazard (eq (contact-of res) :hit)) (setf (fighter-hz-hit fa) t))   ; (his move's :r-cancel-from; ponytail:
+                                                        ;  any hazard of his counts, scope it to the spawning move if one needs)
         (when (and own (not ranged) (not (member res '(:parried :kikon))))   ; KOSEI: his own blade touched him
-          (kosei! att (or (hw-guard hw) 0) x y z))
+          (kosei! att (* (kosei-base (mv-kind mv) (getf (mv-params mv) :kosei))   ; its kind's points x the combo bonus
+                         (combo-gain-mult (if (eq (contact-of res) :hit)            ;  (this hit's index; a block 1)
+                                              (- (1+ (fighter-combo-hits fd)) (fighter-combo-from fd))
+                                              1)))
+                  x y z))
         (when (eq res :counter) (respect def) (incf (gauges-counters (gauges att))))
         (when *run-mods* (run-hit-landed! att res mv own))
         (ecase res

@@ -255,7 +255,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
     (setf (fighter-end-chase f) off-ender)
     (when *run-mods* (run-move-start! e mv))
     (setf (fighter-state f) :move (fighter-move f) mv (fighter-sf f) enter (fighter-hits f) 0
-          (fighter-contact f) nil (fighter-queued f) nil (fighter-chained f) nil (fighter-land-sf f) -1 (fighter-dmg-bonus f) 0 (fighter-crush f) nil
+          (fighter-contact f) nil (fighter-hz-hit f) nil (fighter-queued f) nil (fighter-chained f) nil (fighter-land-sf f) -1 (fighter-dmg-bonus f) 0 (fighter-crush f) nil
           (fighter-stored f) 0                           ; an interrupted stance keeps nothing
           (fighter-button f) button (fighter-hold f) 0 (fighter-perfect f) nil
           (fighter-assisted f) (fighter-assist-next f) (fighter-assist-next f) nil   ; ASSIST: pressed for him
@@ -734,9 +734,12 @@ action started."
                                              (and (cancel-open-p sf (fighter-land-sf f) (mv-total mv) (eq landed :hit))   ; hit
                                                   (try-command e f cmd button)))   ; or Guard Break (the user 2026-10-02)
                                             ((member cmd (getf (mv-params mv) :r-cancel))   ; its recovery cancelled into
-                                             (and (>= sf (+ (mv-s mv) (mv-a mv)))           ;  J1 / K1 once it hit (Hisagi's
-                                                  (eq landed :hit)                          ;  ranged L, DUEL_HISAGI §25.5 /
-                                                  (try-command e f cmd button)))))   ;  §25.8; none else)
+                                             (and (let ((from (getf (mv-params mv) :r-cancel-from)))   ;  J1 / K1 once it hit
+                                                    (if from                ; (Rukia's awakened L: from move frame FROM,
+                                                        (and (>= sf from) (or (eq landed :hit) (fighter-hz-hit f)))   ; its
+                                                        (and (>= sf (+ (mv-s mv) (mv-a mv))) (eq landed :hit))))   ; disc's
+                                                  (try-command e f cmd button)))))   ; hit; Hisagi's ranged L, DUEL_HISAGI
+                                                                                     ; §25.5 / §25.8)
                              (:sig (let ((l (kit-l-link kit name)))   ; L after a J / K link: latched like a link
                                      (if l
                                          (progn (if (kit-command-ok-p e :sig (fighter-kit f) nil l)
