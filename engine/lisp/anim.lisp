@@ -214,8 +214,11 @@ RESTART NIL, keeps playing when NAME is already the current clip."
 
 (defun-fast anim-advance (an dt)
   (declare (single-float dt))
-  (setf (anim-time an) (+ (the single-float (anim-time an)) (* dt (the single-float (anim-speed an))))
-        (anim-blend an) (f-max 0f0 (- (the single-float (anim-blend an)) dt))))
+  (setf (anim-time an) (+ (the single-float (anim-time an)) (* dt (the single-float (anim-speed an)))))
+  (let* ((bl (anim-blend an)))
+    (declare (single-float bl))
+    (unless (and (= bl 0f0) (> dt 0f0) (ffi:c-inline (bl) (:float) :bool "!signbit(#0)" :one-liner t))   ; (a +0 blend
+      (setf (anim-blend an) (f-max 0f0 (- bl dt))))))                                                   ;  stays +0: no new box)
 
 (defun-fast anim-eval (an)
   "Sample the current clip (+ crossfade) into (ANIM-POSE AN)."

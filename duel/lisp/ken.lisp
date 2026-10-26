@@ -543,7 +543,8 @@ is free, as why TAG."
                (< (snap-left s) 99) (> left 4)
                (if near (<= d (+ (ken-lunge-reach e) 0.1)) (and (> d (+ (ken-lunge-reach e) 0.1)) (< d 9.0)))
                (< (brain-react-roll b) (brain-chance b table)))
-      (let ((c (find-if (lambda (c) (let ((t0 (ken-arrive e c d))) (and t0 (< t0 (1- left))))) (ken-sp-order e))))
+      (let ((c (loop for c in (ken-sp-order e)    ; (a loop, not FIND-IF's closure: its captured E D LEFT consed every call)
+                     when (let ((t0 (ken-arrive e c d))) (and t0 (< t0 (1- left)))) return c)))
         (and c (why b tag c))))))
 
 (defun ken-sp-order (e)

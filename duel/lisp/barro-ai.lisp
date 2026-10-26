@@ -147,8 +147,22 @@ run inside moves where the reflexes don't (the old LB-AI-SEEN)."
 (defun br-ai-seen-d (e s)
   "The distance from E to the opponent as perceived (SNAP S; NIL: the real one)."
   (if s
-      (let ((p (pos-of e))) (sqrt (+ (expt (- (snap-x s) (aref p 0)) 2) (expt (- (snap-z s) (aref p 2)) 2))))
+      (sim-fast                                     ; (SQRT of two EXPT 2s as fighter.lisp's / ai.lisp's twins: bit-identical)
+        (let* ((p (pos-of e)) (sx (snap-x s)) (sz (snap-z s)))
+          (declare (type f32vec p) (single-float sx sz))
+          (let* ((v (%sqrt (+ (%expt2 (- sx (aref p 0))) (%expt2 (- sz (aref p 2)))))))
+            (declare (single-float v))
+            v)))
       (fighter-dist (fighter e))))
+(defun br-ai-yaw-off (e s)
+  "How far round his perceived feet (SNAP S) are from E's facing, in [-pi, pi): (ANGLE-WRAP (- (FACE-YAW-TO E x z) (YAW-OF E)))
+in typed floats (fighter.lisp's twins: bit-identical, one boxed result)."
+  (sim-fast
+    (let* ((p (pos-of e)) (sx (snap-x s)) (sz (snap-z s)) (yaw (yaw-of e)))
+      (declare (type f32vec p) (single-float sx sz yaw))
+      (let* ((v (%angle-wrap (- (%dir-yaw (- sx (aref p 0)) (- sz (aref p 2))) yaw))))
+        (declare (single-float v))
+        v))))
 (defun br-ai-reach (e name)
   "Move NAME's whole reach on E's opponent (BR-MOVE-REACH + his body)."
   (+ (br-move-reach (find-move name)) (body-hurt-r (model-body (model (opp-of e))))))
@@ -304,10 +318,16 @@ STEP-J was the most common opener on his idle attack-state forms).")
   "His perceived speed toward E (m / f, > 0 coming): the SNAP S and the one before it in brain B's ring."
   (let* ((ring (brain-ring b)) (n (length ring))
          (s1 (and (plusp n) (svref ring (mod (- (brain-head b) 2 (brain-delay b)) n)))) (p (pos-of e)))
-    (if (or (null s1) (null s) (< d 0.01))
-        0.0
-        (+ (* (- (snap-x s) (snap-x s1)) (/ (- (aref p 0) (snap-x s)) d))
-           (* (- (snap-z s) (snap-z s1)) (/ (- (aref p 2) (snap-z s)) d))))))
+    (cond ((or (null s1) (null s) (< d 0.01)) 0.0)
+          ((typep d 'single-float)                  ; (typed, the same operations: one boxed result)
+           (sim-fast
+             (let* ((q p) (dd d) (x (snap-x s)) (z (snap-z s)) (x1 (snap-x s1)) (z1 (snap-z s1)))
+               (declare (type f32vec q) (single-float dd x z x1 z1))
+               (let* ((v (+ (* (- x x1) (/ (- (aref q 0) x) dd)) (* (- z z1) (/ (- (aref q 2) z) dd)))))
+                 (declare (single-float v))
+                 v))))
+          (t (+ (* (- (snap-x s) (snap-x s1)) (/ (- (aref p 0) (snap-x s)) d))
+                (* (- (snap-z s) (snap-z s1)) (/ (- (aref p 2) (snap-z s)) d)))))))
 
 (defun br-ai-step-in-plan (sf delay js closing d reach)
   "Pure: his Step perceived at its frame SF (a perception DELAY ago), closing at CLOSING m / f, D metres off; our J1's startup
@@ -434,12 +454,25 @@ the planned hold (the old rule).")
 (defun br-ai-line-of (e b s &optional (k *br-ai-line-k*))
   "His perceived feet against E's facing line (the frozen aim of a charge): values PERP (signed m off it), ALONG (m ahead of
 E) and VPERP (his speed across it, signed m / f, over K steps of brain B's ring; 0 before the ring holds them)."
-  (let* ((p (pos-of e)) (yaw (yaw-of e)) (fx (fwd-x yaw)) (fz (fwd-z yaw))
-         (dx (- (snap-x s) (aref p 0))) (dz (- (snap-z s) (aref p 2)))
-         (ring (brain-ring b)) (n (length ring))
+  (let* ((ring (brain-ring b)) (n (length ring))
          (s1 (and (< (+ k 1 (brain-delay b)) n) (svref ring (mod (- (brain-head b) 1 k (brain-delay b)) n)))))
-    (values (- (* dx fz) (* dz fx)) (+ (* dx fx) (* dz fz))
-            (if s1 (/ (- (* (- (snap-x s) (snap-x s1)) fz) (* (- (snap-z s) (snap-z s1)) fx)) k) 0.0))))
+    (if (typep k 'fixnum)
+        (sim-fast                                   ; (typed, the same operations: only the three values are boxed)
+          (let* ((p (pos-of e)) (yaw (yaw-of e)) (x (snap-x s)) (z (snap-z s)) (kk k))
+            (declare (type f32vec p) (single-float yaw x z) (fixnum kk))
+            (let* ((fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (dx (- x (aref p 0))) (dz (- z (aref p 2)))
+                   (perp (- (* dx fz) (* dz fx))) (along (+ (* dx fx) (* dz fz))) (kf (float kk 1f0)))
+              (declare (single-float fx fz dx dz perp along kf))
+              (values perp along
+                      (if s1
+                          (let* ((x1 (snap-x s1)) (z1 (snap-z s1)) (v (/ (- (* (- x x1) fz) (* (- z z1) fx)) kf)))
+                            (declare (single-float x1 z1 v))
+                            v)
+                          0.0)))))
+        (let* ((p (pos-of e)) (yaw (yaw-of e)) (fx (fwd-x yaw)) (fz (fwd-z yaw))
+               (dx (- (snap-x s) (aref p 0))) (dz (- (snap-z s) (aref p 2))))
+          (values (- (* dx fz) (* dz fx)) (+ (* dx fx) (* dz fz))
+                  (if s1 (/ (- (* (- (snap-x s) (snap-x s1)) fz) (* (- (snap-z s) (snap-z s1)) fx)) k) 0.0))))))
 
 (defun br-ai-line-call (lv target perp vperp along to-hit width lo reach next-f next-reach)
   "Pure: his CPU's call on a charge this hold frame (LV the level reached, TARGET the planned one): him PERP m off the frozen
@@ -465,7 +498,7 @@ charge never turns (R18) and the idle turn (*FACE-RATE*) puts him on his line wi
 dashed away from him off a dash through him: 25 of 1 300 dash charges began with him behind).")
 (defun br-ai-facing-p (e s)
   "Does E face his perceived feet (SNAP S) within *BR-AI-FACE-MAX*?"
-  (<= (abs (angle-wrap (- (face-yaw-to e (snap-x s) (snap-z s)) (yaw-of e)))) *br-ai-face-max*))
+  (<= (abs (br-ai-yaw-off e s)) *br-ai-face-max*))
 
 (defparameter *br-ai-hoho-step-p* '(:easy 0.1 :normal 0.4 :hard 1.0)
   "His answer to a Hoho on a charge the line does not read (BR-AI-CHARGE-TICK, dream-rsi b2a0; round 2 b0a0's piece): his
@@ -549,7 +582,7 @@ charge the line does not read Steps out of his Hoho (*BR-AI-HOHO-STEP-P*, one ro
   "He reels (stun / air) farther round than *BR-AI-FACING* from Lille's facing (after the dash through him): :WAIT (the
 fighter turns to him) instead of the generic follow-up that whiffs, *BR-AI-TURN-P* of his actions (the react roll)."
   (when (and (member (snap-state s) '(:stun :air))
-             (> (abs (angle-wrap (- (face-yaw-to e (snap-x s) (snap-z s)) (yaw-of e)))) *br-ai-facing*)
+             (> (abs (br-ai-yaw-off e s)) *br-ai-facing*)
              (< (brain-react-roll b) (getf *br-ai-turn-p* (brain-difficulty b) 1.0)))
     (pace e :ai-turn)
     (why b :turn :wait)))
@@ -686,7 +719,7 @@ charged dash from afar (:far-dash, the dash's reach; its :p a table by difficult
            (cond ((eq form :base)
                   (let ((k (ai-table e :far-snipe)))
                     (when (and k (>= d (getf k :in 5.0)))
-                      (if (not (br-ai-sight-p d (angle-wrap (- (face-yaw-to e (snap-x s) (snap-z s)) (yaw-of e)))
+                      (if (not (br-ai-sight-p d (br-ai-yaw-off e s)
                                               (nth-value 2 (br-ai-line-of e b s *br-ai-sight-k*))
                                               (+ *br-ai-sight-f* (brain-delay b))))
                           (setf (brs-ai-t st) -999)   ; (b2a0: not in sight, the window waits unspent)

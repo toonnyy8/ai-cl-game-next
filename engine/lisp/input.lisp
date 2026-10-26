@@ -73,11 +73,13 @@ the vpad's BUFFER steps) and records whether the modifier is down (or goes down 
 (defun vpad-stick! (vp x y)
   "Set the stick (X right, Y up; any reals, e.g. 0 or 0.5), clamped to unit length."
   (declare (optimize (speed 3) (safety 0)))            ; safety 0: no boxed temporaries
-  (let* ((x (float x 1f0)) (y (float y 1f0)) (m2 (+ (* x x) (* y y))))
+  (let* ((x0 x) (y0 y) (x (float x0 1f0)) (y (float y0 1f0)) (m2 (+ (* x x) (* y y))))
     (declare (single-float x y m2))
-    (when (> m2 1f0)
-      (let ((m (sqrt m2))) (declare (single-float m)) (setf x (/ x m) y (/ y m))))
-    (setf (vpad-sx vp) x (vpad-sy vp) y)
+    (if (> m2 1f0)
+        (let ((m (sqrt (the (single-float 0f0) m2)))) (declare (single-float m))
+          (setf (vpad-sx vp) (/ x m) (vpad-sy vp) (/ y m)))
+        (setf (vpad-sx vp) (if (typep x0 'single-float) x0 x)   ; (a single-float kept as it is: no new box)
+              (vpad-sy vp) (if (typep y0 'single-float) y0 y)))
     vp))
 
 (defun vpad-clear! (vp)

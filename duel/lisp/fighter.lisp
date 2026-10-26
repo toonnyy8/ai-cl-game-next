@@ -19,6 +19,59 @@
   (make-hitwin :dmg *perfect-counter-damage* :react :stagger :stun *perfect-counter-stun* :hs *hitstop-heavy*)
   "The perfect Hoho's automatic counter strike.")
 
+;;; ---------------------------------------------------------------- zero-cons float twins (the sim's per-step paths)
+;;; ECL boxes every float that a generic operation or a non-inlined call returns (8 B each; docs/engine/ARCHITECTURE.md
+;;; "ECL: consing and boxing"). The hot sim paths compute in declared single-float locals under SIM-FAST instead, with these
+;;; twins of the CL / rules operations: the same IEEE operations in the same order and the same choice on ties, zeros and
+;;; NaN, so every result is bit-identical to the generic code they replace (the seeded replays, native and wasm alike).
+;;; Arguments: single-float forms (a twin binds each once, in order).
+(defmacro sim-fast (&body body)
+  "BODY at (SAFETY 0): typed float LET* locals compile to plain C (at SAFETY 1 ECL boxes their initializers)."
+  `(locally (declare (optimize (speed 3) (safety 0))) ,@body))
+(defmacro %sqrt (x)
+  "CL's SQRT of a non-negative single-float (ECL: sqrtf; F-SQRT's clamp at 0 would turn a NaN into 0)."
+  `(ffi:c-inline (,x) (:float) :float "sqrtf(#0)" :one-liner t))
+(defmacro %dir-yaw (dx dz)
+  "rules DIR-YAW of two single-floats: CL's ATAN in double, rounded to single (ECL's ecl_atan2)."
+  `(ffi:c-inline (,dx ,dz) (:float :float) :float "(float)atan2((double)(-(#0)),(double)(-(#1)))" :one-liner t))
+(defmacro %max (a b)
+  "CL's MAX of two single-floats as ECL compiles it: A unless B is NaN-free and greater (a tie keeps A)."
+  (let ((x (gensym "X")) (y (gensym "Y")))
+    `(let* ((,x ,a) (,y ,b)) (declare (single-float ,x ,y)) (if (or (/= ,y ,y) (>= ,x ,y)) ,x ,y))))
+(defmacro %min (a b)
+  "CL's MIN of two single-floats as ECL compiles it: A unless B is NaN-free and smaller (a tie keeps A)."
+  (let ((x (gensym "X")) (y (gensym "Y")))
+    `(let* ((,x ,a) (,y ,b)) (declare (single-float ,x ,y)) (if (or (/= ,y ,y) (<= ,x ,y)) ,x ,y))))
+(defmacro %floor-div (x y)
+  "The first value of FFLOOR X Y (single-floats, |X/Y| < 2^24): floorf of the single quotient (ECL's ecl_floor2; the
+integer it goes through only turns a -0.0 into 0.0, and no caller here divides a -0.0)."
+  `(ffi:c-inline ((/ ,x ,y)) (:float) :float "floorf(#0)" :one-liner t))
+(defmacro %angle-wrap (a)
+  "The engine's ANGLE-WRAP: A into [-pi, pi)."
+  (let ((v (gensym "A")))
+    `(let* ((,v ,a)) (declare (single-float ,v))
+       (- ,v (* #.(float (* 2 pi) 1f0) (%floor-div (+ ,v #.(float pi 1f0)) #.(float (* 2 pi) 1f0)))))))
+(defmacro %turn-toward (cur target step)
+  "The engine's TURN-TOWARD: CUR turned toward TARGET by at most STEP radians, the short way round."
+  (let ((c (gensym "C")) (tg (gensym "T")) (s (gensym "S")) (d (gensym "D")))
+    `(let* ((,c ,cur) (,tg ,target) (,s ,step) (,d (%angle-wrap (- ,tg ,c))))
+       (declare (single-float ,c ,tg ,s ,d))
+       (+ ,c (%max (- ,s) (%min ,s ,d))))))
+(defmacro %set-float (place value)
+  "(SETF PLACE VALUE) of a single-float VALUE into a single-float PLACE (a slot, a special), skipped when PLACE holds the same
+bits already: it keeps its box, and no new one is made. PLACE is read before it is written (keep it free of side effects)."
+  (let ((new (gensym "NEW")) (old (gensym "OLD")))
+    `(let* ((,new ,value) (,old ,place))
+       (declare (single-float ,new ,old))
+       (unless (ffi:c-inline (,new ,old) (:float :float) :bool "((#0)==(#1) && !signbit(#0)==!signbit(#1))" :one-liner t)
+         (setf ,place ,new)))))
+(defmacro %deg (d)
+  "The engine's DEG (degrees to radians) of a real D, in typed floats: one boxed result where a value is needed."
+  `(sim-fast (* (f32 ,d) #.(float (/ pi 180) 1f0))))
+(defmacro %track-step (deg-per-second)
+  "rules TRACK-STEP: degrees per second as radians per frame (the engine's DEG of /60)."
+  `(* (/ ,deg-per-second 60f0) #.(float (/ pi 180) 1f0)))
+
 ;;; ---------------------------------------------------------------- small helpers (pure reads; the kits, ai and assist use them)
 (defun hoho-ready-p (e)
   "May E Hoho now (rules HOHO-ALLOWED-P over his flash-step, Hoho lockout and burst)?"
@@ -176,14 +229,26 @@ one forearm crack per spent pip: :crack-1 .. :crack-4)."
     (values (+ (aref p 0) (* d (fwd-x yaw))) (+ (aref p 2) (* d (fwd-z yaw))))))
 
 (defun face-yaw-to (e x z)
-  "The yaw from E toward the point (X Z)."
-  (let ((p (pos-of e))) (dir-yaw (- x (aref p 0)) (- z (aref p 2)))))
+  "The yaw from E toward the point (X Z). (Single-floats: the twins, one boxed result.)"
+  (let ((p (pos-of e)))
+    (if (and (typep x 'single-float) (typep z 'single-float))
+        (sim-fast (let* ((q p) (a x) (c z) (v (%dir-yaw (- a (aref q 0)) (- c (aref q 2)))))
+                    (declare (type f32vec q) (single-float a c v))
+                    v))
+        (dir-yaw (- x (aref p 0)) (- z (aref p 2))))))
 
 (defun turn-to-opp (e f max-step)
   "Turn E toward his opponent by at most MAX-STEP radians."
   (let ((tf (transform e)))
     (when (> (fighter-dist f) 0.01)
-      (setf (transform-yaw tf) (f32 (angle-wrap (turn-toward (transform-yaw tf) (face-yaw-to e (fighter-ox f) (fighter-oz f)) max-step)))))))
+      (if (typep max-step 'single-float)
+          (sim-fast                                 ; (the zero-cons twins: bit-identical)
+            (let* ((p (pos-of e)) (s max-step) (yaw (transform-yaw tf)) (ox (fighter-ox f)) (oz (fighter-oz f)))
+              (declare (type f32vec p) (single-float s yaw ox oz))
+              (let* ((to (%dir-yaw (- ox (aref p 0)) (- oz (aref p 2)))))
+                (declare (single-float to))
+                (%set-float (transform-yaw tf) (%angle-wrap (%turn-toward yaw to s))))))
+          (setf (transform-yaw tf) (f32 (angle-wrap (turn-toward (transform-yaw tf) (face-yaw-to e (fighter-ox f) (fighter-oz f)) max-step))))))))
 
 (defun set-slide (e dist frames dx dz)
   "Slide E DIST metres over FRAMES along (DX DZ) (knockback, pushback, Step, clash)."
@@ -211,15 +276,20 @@ one forearm crack per spent pip: :crack-1 .. :crack-4)."
   "Keep the pair view on its side of the A (P1) -> B axis: of the two perpendiculars take the one
 nearest last step's, so it never swings 180 deg after a Hoho. RESET: P1 on the left (battle start,
 every Kikon reset). Screen right is SIDE x (A->B) for a right-handed look-at."
-  (let* ((p (pos-of a)) (q (pos-of b)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2)))
-         (d (hypot dx dz)))
-    (when (> d 0.01)
-      (let* ((nx (/ (- dz) d)) (nz (/ dx d))
-             (side (if (or reset (>= (+ (* nx *view-x*) (* nz *view-z*)) 0)) 1f0 -1f0)))
-        (setf *view-side* side *view-x* (f32 (* side nx)) *view-z* (f32 (* side nz))
-              *behind-yaw* (f32 (if reset
-                                    (dir-yaw dx dz)
-                                    (angle-wrap (turn-toward *behind-yaw* (dir-yaw dx dz) (track-step *behind-turn*))))))))))
+  (sim-fast                                       ; (zero-cons twins of HYPOT, DIR-YAW, TURN-TOWARD ...: bit-identical)
+    (let* ((p (pos-of a)) (q (pos-of b)) (turn (f32 *behind-turn*)))
+      (declare (type f32vec p q) (single-float turn))
+      (let* ((dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (d (%sqrt (+ (* dx dx) (* dz dz)))))
+        (declare (single-float dx dz d))
+        (when (> d 0.01)
+          (let* ((nx (/ (- dz) d)) (nz (/ dx d))
+                 (side (if (or reset (>= (+ (* nx *view-x*) (* nz *view-z*)) 0f0)) 1f0 -1f0))
+                 (yaw (%dir-yaw dx dz)))
+            (declare (single-float nx nz side yaw))
+            (setf *view-side* side)
+            (%set-float *view-x* (* side nx))
+            (%set-float *view-z* (* side nz))
+            (%set-float *behind-yaw* (if reset yaw (%angle-wrap (%turn-toward *behind-yaw* yaw (%track-step turn)))))))))))
 
 (defun stick-relative (e f)
   "E's stick as (values toward strafe) relative to his opponent: a human's stick is read through the
@@ -541,17 +611,40 @@ Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard 
               (to-idle e 4)
               (setf (fighter-guard-exit f) *guard-exit*))
             (setf (fighter-guard-t f) (if (passive-p e :ward) (min 9999 (1+ (fighter-guard-t f))) 0))
-            (let ((m (hypot to st)) (kit (fighter-kit f)))
-              (if (or (< m 0.2) (<= (kit-walk kit) 0))   ; (absolute zero: rooted where she stands)
-                  (progn (fill v 0f0) (play-clip e (kit-stance kit) :blend 6 :restart nil))
-                  (multiple-value-bind (dx dz) (world-dir e f to st)
-                    (let ((s (* (layer-speed (frost-speed (kit-walk kit) (fighter-frost f)) (fighter-layers f)) (min 1.0 m) (/ 1.0 m))))
-                      (setf (aref v 0) (f32 (* s dx)) (aref v 2) (f32 (* s dz)))
-                      (field-slow! e f v))
-                    (play-clip e (cond ((> (abs st) (abs to)) (if (> st 0) :sh-strafe-r :sh-strafe-l))
-                                       ((> to 0) :sh-walk-f) (t :sh-walk-b))
-                               :blend 6 :restart nil))))))
-      (turn-to-opp e f (deg *face-rate*)))))
+            (neutral-walk! e f v to st)))
+      (turn-to-opp e f (%deg *face-rate*)))))
+
+(defun neutral-walk! (e f v to st)
+  "NEUTRAL-STEP's walk / strafe at stick TO / ST relative to the opponent (or stand: a stick under 0.2, a walk speed of 0):
+velocity V and the clip. Single-float sticks and speed (the sim's): typed, nothing boxed (the twins: bit-identical);
+else the generic code."
+  (let* ((kit (fighter-kit f))
+         (speed (layer-speed (frost-speed (kit-walk kit) (fighter-frost f)) (fighter-layers f))))
+    (if (and (typep to 'single-float) (typep st 'single-float) (typep (kit-walk kit) 'single-float) (typep speed 'single-float))
+        (sim-fast
+          (let* ((a to) (b st) (m (%sqrt (+ (* a a) (* b b)))) (walk (kit-walk kit)))
+            (declare (single-float a b m walk))
+            (if (or (< m 0.2) (<= walk 0f0))   ; (absolute zero: rooted where she stands)
+                (progn (fill v 0f0) (play-clip e (kit-stance kit) :blend 6 :restart nil))
+                (let* ((p (pos-of e)) (vv v) (sp speed))
+                  (declare (type f32vec p vv) (single-float sp))
+                  (with-toward-strafe-dir (dx dz) (a b (aref p 0) (aref p 2) (fighter-ox f) (fighter-oz f))
+                    (let* ((s (* (* sp (%min 1.0 m)) (/ 1.0 m))))
+                      (declare (single-float s))
+                      (setf (aref vv 0) (* s dx) (aref vv 2) (* s dz))))
+                  (field-slow! e f v)
+                  (play-clip e (if (> (f-abs b) (f-abs a)) (if (> b 0f0) :sh-strafe-r :sh-strafe-l) (if (> a 0f0) :sh-walk-f :sh-walk-b))
+                             :blend 6 :restart nil)))))
+        (let ((m (hypot to st)))
+          (if (or (< m 0.2) (<= (kit-walk kit) 0))
+              (progn (fill v 0f0) (play-clip e (kit-stance kit) :blend 6 :restart nil))
+              (multiple-value-bind (dx dz) (world-dir e f to st)
+                (let ((s (* speed (min 1.0 m) (/ 1.0 m))))
+                  (setf (aref v 0) (f32 (* s dx)) (aref v 2) (f32 (* s dz)))
+                  (field-slow! e f v))
+                (play-clip e (cond ((> (abs st) (abs to)) (if (> st 0) :sh-strafe-r :sh-strafe-l))
+                                   ((> to 0) :sh-walk-f) (t :sh-walk-b))
+                           :blend 6 :restart nil)))))))
 
 (defun hold-phase-step (e f vp mv)
   "Charge / stance: hold until the button is released (min..max frames), then the move proper."
@@ -854,7 +947,7 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
          (speed (layer-speed (frost-speed (kit-run (fighter-kit f)) (fighter-frost f)) (fighter-layers f))) (sf (incf (fighter-sf f))) (free (zerop (fighter-lock f))))
     (cond ((eq (fighter-phase f) :brake)
            (let ((s (if (run-stop-p (fighter-dist f) (run-closing e f) speed) 0.0 (brake-speed speed sf))))
-             (turn-to-opp e f (deg *face-rate*))
+             (turn-to-opp e f (%deg *face-rate*))
              (if (or (<= s 0) (>= sf *run-brake*)) (to-idle e) (run-velocity e s (fighter-run-yaw f)))))
           ((and free (or (command! e f vp (if (kit-hook (fighter-kit f) :p) *run-commands-p* *run-commands*)) (u-press! e f vp)))
            (when (eq (fighter-state f) :move)
@@ -865,7 +958,7 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
            (setf (fighter-phase f) :brake (fighter-sf f) 0)
            (play-clip e (kit-stance (fighter-kit f)) :blend 6))
           (t (setf (fighter-run-yaw f) (f32 (angle-wrap (turn-toward (fighter-run-yaw f) (run-yaw e f) (track-step *run-turn*)))))
-             (turn-to-opp e f (deg *face-rate*))
+             (turn-to-opp e f (%deg *face-rate*))
              (if (run-stop-p (fighter-dist f) (run-closing e f) speed)
                  (to-idle e 4)
                  (progn (run-velocity e speed (fighter-run-yaw f))
@@ -984,7 +1077,7 @@ armour (RUN-ARMOR-P: :armor wherever he would be :neutral)."
 (defun-fast fighter-physics (e)
   "Walk / dash velocity, the slide, gravity and landing, the arena wall."
   (let* ((mo (motion e)) (p (pos-of e)) (v (motion-vel mo)) (kb (motion-kb mo)) (dt +step+)
-         (r (- *arena-radius* (body-hurt-r (model-body (model e))))))
+         (r (- (f32 *arena-radius*) (the single-float (body-hurt-r (model-body (model e)))))))   ; (typed: no boxed temp)
     (declare (type f32vec p v kb) (single-float dt r))
     (setf (aref p 0) (+ (aref p 0) (* dt (aref v 0))) (aref p 2) (+ (aref p 2) (* dt (aref v 2))))
     (when (> (the fixnum (motion-kb-left mo)) 0)
@@ -1007,13 +1100,17 @@ armour (RUN-ARMOR-P: :armor wherever he would be :neutral)."
   "Two grounded, visible fighters never overlap: push both apart equally (symmetric); not while either is in a Hoho, a
 cinematic or a :through move."
   (unless (or (member (state-of a) '(:hoho :cine)) (member (state-of b) '(:hoho :cine)) (through-move-p a) (through-move-p b))
-    (let* ((p (pos-of a)) (q (pos-of b)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2)))
-           (d (hypot dx dz))
-           (min-d (+ (body-hurt-r (model-body (model a))) (body-hurt-r (model-body (model b))))))
-      (when (and (< d min-d) (< (abs (- (aref p 1) (aref q 1))) 1.2))
-        (let* ((push (* 0.5 (- min-d d))) (ux (if (> d 1e-3) (/ dx d) 1.0)) (uz (if (> d 1e-3) (/ dz d) 0.0)))
-          (setf (aref p 0) (f32 (- (aref p 0) (* push ux))) (aref p 2) (f32 (- (aref p 2) (* push uz)))
-                (aref q 0) (f32 (+ (aref q 0) (* push ux))) (aref q 2) (f32 (+ (aref q 2) (* push uz)))))))))
+    (sim-fast                                     ; (typed: the same float operations, no boxing)
+      (let* ((p (pos-of a)) (q (pos-of b)) (ra (body-hurt-r (model-body (model a)))) (rb (body-hurt-r (model-body (model b)))))
+        (declare (type f32vec p q) (single-float ra rb))
+        (let* ((dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (d (%sqrt (+ (* dx dx) (* dz dz))))
+               (min-d (+ ra rb)))
+          (declare (single-float dx dz d min-d))
+          (when (and (< d min-d) (< (f-abs (- (aref p 1) (aref q 1))) 1.2))
+            (let* ((push (* 0.5 (- min-d d))) (ux (if (> d 1e-3) (/ dx d) 1.0)) (uz (if (> d 1e-3) (/ dz d) 0.0)))
+              (declare (single-float push ux uz))
+              (setf (aref p 0) (- (aref p 0) (* push ux)) (aref p 2) (- (aref p 2) (* push uz))
+                    (aref q 0) (+ (aref q 0) (* push ux)) (aref q 2) (+ (aref q 2) (* push uz))))))))))
 
 ;;; ---------------------------------------------------------------- the system
 (defun fighter-step (e f)
@@ -1052,8 +1149,14 @@ step: a symmetric sim), step each, then keep them apart."
     (do-entities (e (f fighter))
       (let ((o (fighter-opp f)))
         (when (entity-alive-p o)
-          (let* ((p (pos-of e)) (q (pos-of o)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))))
-            (setf (fighter-ox f) (aref q 0) (fighter-oz f) (aref q 2) (fighter-dist f) (f32 (hypot dx dz))))))
+          (sim-fast
+            (let* ((p (pos-of e)) (q (pos-of o)))
+              (declare (type f32vec p q))
+              (let* ((dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (d (%sqrt (+ (* dx dx) (* dz dz)))))
+                (declare (single-float dx dz d))
+                (%set-float (fighter-ox f) (aref q 0))
+                (%set-float (fighter-oz f) (aref q 2))
+                (%set-float (fighter-dist f) d))))))
       (if a (setf b e) (setf a e)))
     (when (and a b) (view-step a b))
     (do-entities (e (f fighter)) (unless (eq (fighter-state f) :cine) (fighter-step e f)))

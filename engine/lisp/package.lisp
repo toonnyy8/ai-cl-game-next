@@ -122,7 +122,10 @@
 (deftype f32vec () '(simple-array single-float (*)))
 
 (declaim (inline clamp lerp f32))
-(defun f32 (x) (coerce x 'single-float))
+(defun f32 (x)
+  "X as a single-float. A single-float is returned as it is: ECL compiles a bare COERCE of an untyped value to unbox and
+box again (8 B per call, e.g. every (SETF slot (F32 (generic-fn ...)))); the THE keeps the result's type for the caller."
+  (the single-float (if (typep x 'single-float) x (coerce x 'single-float))))
 (defun clamp (x lo hi) (max lo (min hi x)))
 (defun lerp (a b u) (+ a (* (- b a) u)))
 
