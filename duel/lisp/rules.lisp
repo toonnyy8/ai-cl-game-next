@@ -461,11 +461,12 @@ the victim's Reishi resets to max and both are placed by RESET-PLACEMENT."
   "Gauge G after adding N (may be negative), kept in [0, MAX]. (Single-floats, the sim's: typed, MIN / MAX as ECL compiles
 them, ties keeping the bound.)"
   (if (and (typep g 'single-float) (typep n 'single-float) (typep max 'single-float))
-      (locally (declare (optimize (speed 3) (safety 0)))
-        (let* ((s (+ (the single-float g) (the single-float n))) (mx max) (m (if (or (/= s s) (<= mx s)) mx s))
-               (v (if (or (/= m m) (>= 0.0 m)) 0.0 m)))
-          (declare (single-float s mx m v))
-          v))
+      (locally (declare (optimize (speed 3) (safety 0)))   ; (at a bound: the bound itself, unboxed)
+        (let* ((s (+ (the single-float g) (the single-float n))) (mx max))
+          (declare (single-float s mx))
+          (cond ((or (/= s s) (<= mx s)) (if (or (/= mx mx) (>= 0.0 mx)) 0.0 max))   ; MIN gave MAX
+                ((>= 0.0 s) 0.0)                                                    ; MIN gave S (no NaN)
+                (t s))))
       (max 0.0 (min max (+ g n)))))
 
 (defun reiatsu-gain (taken &optional (frames 0))
@@ -721,10 +722,10 @@ spend) reaches *FS-DELAY*, capped at *FS-MAX*. (Damage taken adds *FS-TAKEN* per
   (let ((mx *fs-max*))
     (if (and (typep fs 'single-float) (typep rate 'single-float) (typep mx 'single-float))
         (if (>= idle *fs-delay*)
-            (locally (declare (optimize (speed 3) (safety 0)))   ; (typed: MIN as ECL compiles it, a tie keeps the max)
-              (let* ((m mx) (s (+ (the single-float fs) (/ (the single-float rate) 60.0))) (v (if (or (/= s s) (<= m s)) m s)))
-                (declare (single-float m s v))
-                v))
+            (locally (declare (optimize (speed 3) (safety 0)))   ; (typed: MIN as ECL compiles it, a tie keeps the max:
+              (let* ((m mx) (s (+ (the single-float fs) (/ (the single-float rate) 60.0))))   ; the max itself, unboxed)
+                (declare (single-float m s))
+                (if (or (/= s s) (<= m s)) mx s)))
             fs)
         (if (>= idle *fs-delay*) (min mx (+ fs (/ rate 60.0))) fs))))
 
@@ -753,13 +754,12 @@ CAP: the fighter's max (*GG-MAX*; a DANGAI reward's :gg-max, combat.lisp GG-CAP)
     (if (and (typep gg 'single-float) (typep mult 'single-float) (typep cap 'single-float) (typep rg 'single-float)
              (typep rgl 'single-float) (typep bg 'single-float) (typep bm 'single-float))
         (cond ((and (not blue) (or guarding (< idle *gg-delay*))) gg)
-              (t (locally (declare (optimize (speed 3) (safety 0)))   ; (typed, the same operations; MIN as ECL compiles it)
+              (t (locally (declare (optimize (speed 3) (safety 0)))   ; (typed, the same operations; MIN as ECL compiles it:
                    (let* ((g gg) (c cap) (rate (/ (if guardless (the single-float rgl) (* (the single-float mult) (the single-float rg)))
-                                                  60.0))
-                          (s (+ g (if blue (* rate (the single-float (if guarding bg bm))) rate)))
-                          (v (if (or (/= s s) (<= c s)) c s)))
-                     (declare (single-float g c rate s v))
-                     v))))
+                                                  60.0))                                    ; a tie keeps CAP itself)
+                          (s (+ g (if blue (* rate (the single-float (if guarding bg bm))) rate))))
+                     (declare (single-float g c rate s))
+                     (if (or (/= s s) (<= c s)) cap s)))))
         (let ((rate (/ (if guardless rgl (* mult rg)) 60.0)))
           (cond (blue (min cap (+ gg (* rate (if guarding bg bm)))))
                 ((or guarding (< idle *gg-delay*)) gg)
@@ -901,10 +901,9 @@ LO <= D < HI, or NIL."
              (typep mn 'single-float))
         (locally (declare (optimize (speed 3) (safety 0)))
           (let* ((m mn) (cut (* (the single-float heat) (the single-float k)))
-                 (a (- (the single-float lo) cut)) (b (- (the single-float hi) cut))
-                 (ra (if (or (/= a a) (>= m a)) m a)) (rb (if (or (/= b b) (>= m b)) m b)))
-            (declare (single-float m cut a b ra rb))
-            (values ra rb)))
+                 (a (- (the single-float lo) cut)) (b (- (the single-float hi) cut)))
+            (declare (single-float m cut a b))
+            (values (if (or (/= a a) (>= m a)) mn a) (if (or (/= b b) (>= m b)) mn b))))   ; (a tie: the minimum itself)
         (let ((cut (* heat k)))
           (values (max mn (- lo cut)) (max mn (- hi cut)))))))
 
@@ -936,8 +935,19 @@ LO <= D < HI, or NIL."
 
 (defun ai-hoho-spare-p (fs reishi reishi-max)
   "Flash-step budgeting: may a CPU spend a Hoho on a routine dodge? It needs *FS-HOHO*, and while a
-Burst would be worth it (below *AI-BURST-LOW* of its Reishi) it keeps *FS-BURST* on top."
-  (>= fs (+ *fs-hoho* (if (< reishi (* *ai-burst-low* reishi-max)) *fs-burst* 0.0))))
+Burst would be worth it (below *AI-BURST-LOW* of its Reishi) it keeps *FS-BURST* on top. (Single-float gauges and knobs,
+fixnum Reishi, the sim's: the same compares in typed floats; exact for |Reishi| < 2^24.)"
+  (let ((h *fs-hoho*) (bl *ai-burst-low*) (fb *fs-burst*))
+    (if (and (typep fs 'single-float) (typep reishi 'fixnum) (typep reishi-max 'fixnum) (typep h 'single-float)
+             (typep bl 'single-float) (typep fb 'single-float))
+        (locally (declare (optimize (speed 3) (safety 0)))
+          (let* ((r reishi) (m reishi-max))
+            (declare (fixnum r m))
+            (let* ((rf (float r 1f0)) (mf (float m 1f0)) (lim (* (the single-float bl) mf))
+                   (need (+ (the single-float h) (if (< rf lim) (the single-float fb) 0.0))))
+              (declare (single-float rf mf lim need))
+              (>= (the single-float fs) need))))
+        (>= fs (+ h (if (< reishi (* bl reishi-max)) fb 0.0))))))
 
 ;;; ---------------------------------------------------------------- :x-axis lines (DUEL_LILLE §11.3, gap G1 / G8)
 (defun line-dist (ax az yaw a b tx tz)

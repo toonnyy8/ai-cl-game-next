@@ -436,6 +436,13 @@ and grep the function for `ecl_make_single_float`/`ecl_times`/`ecl_divide`.
   on every call. Do it in C with `long long` (the engine's `rnd01` / `sim-rnd01` are C xorshifts;
   `rnd-state` returns the 32-bit word, a bignum above 2^29, so it is not for per-frame use).
 
+* **A struct's float slot holds a box; writing a new value makes one (8 B).** Reading it is free. `F32` returns a
+  single-float as it is (a bare `COERCE` of an untyped value unboxed and boxed it again), so `(setf slot (f32 (f ...)))`
+  costs only F's own box. SOUL DUEL's sim (2026-10-26, ~2.3 KB -> ~0.5 KB a step): typed `let*` locals under `SIM-FAST`
+  with the bit-identical twins in duel/lisp/fighter.lisp (`%sqrt` `%dir-yaw` `%max` `%min` `%angle-wrap` `%turn-toward`,
+  `%set-float`: a write skipped when the bits are unchanged; ai.lisp `%expt2`), rules.lisp's typed fast paths with the
+  generic code as their fallback; a closure over a local (`find-if` / `remove-if` with a `lambda`) conses its environment
+  on every call, even when the lambda never runs: use a `loop`.
 * **An unused float binding boxes.** In a DEFUN-FAST, a `let*` variable declared single-float that a
   code path never reads is kept as a boxed object (8 B per call): `%st-guard` consed 8 B a frame for a
   per-drawing hash it did not use. Bind rarely used fields with `symbol-macrolet` (`with-stamp`,

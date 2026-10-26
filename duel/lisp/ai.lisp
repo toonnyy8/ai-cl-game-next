@@ -113,7 +113,8 @@ the volatile 2 keeps the C compiler from turning it into X*X, which powf need no
   (let* ((f (fighter o)) (p (pos-of o)) (mv (fighter-move f))
          (st (let ((st (fighter-state f)))                ; Bankai West's ward is a held guard (its time in West)
                (if (and (passive-p o :ward) (member st '(:idle :run))) :guard st))))
-    (setf (snap-x s) (aref p 0) (snap-z s) (aref p 2) (snap-state s) st (snap-sf s) (fighter-sf f) (snap-yaw s) (yaw-of o)
+    (sim-fast (let* ((q p)) (declare (type f32vec q)) (%set-float (snap-x s) (aref q 0)) (%set-float (snap-z s) (aref q 2))))
+    (setf (snap-state s) st (snap-sf s) (fighter-sf f) (snap-yaw s) (yaw-of o)
           (snap-guard-t s) (fighter-guard-t f) (snap-projectile s) (incoming-projectile-p o))
     (if (and (eq st :move) mv)
         (let ((total (move-end-frame (mv-s mv) (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f)
@@ -136,10 +137,11 @@ the volatile 2 keeps the C compiler from turning it into X*X, which powf need no
   "Is one of O's projectiles flying at his opponent within *AI-PROJECTILE-RANGE*?"
   (let ((v (fighter-opp (fighter o))) (hit nil))
     (when (entity-alive-p v)
-      (let ((q (pos-of v)) (r2 (* *ai-projectile-range* *ai-projectile-range*)))
+      (let ((q (pos-of v)))
         (do-entities (h (hz hazard))
           (when (and (eql (hazard-owner hz) o) (member (hazard-kind hz) '(:wave :fireball)) (> (hazard-hits-left hz) 0)
-                     (< (+ (expt (- (hazard-x hz) (aref q 0)) 2) (expt (- (hazard-z hz) (aref q 2)) 2)) r2))
+                     (< (+ (expt (- (hazard-x hz) (aref q 0)) 2) (expt (- (hazard-z hz) (aref q 2)) 2))
+                        (* *ai-projectile-range* *ai-projectile-range*)))   ; (squared here: no boxed float without a hazard)
             (setf hit t)))))
     hit))
 

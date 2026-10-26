@@ -57,6 +57,17 @@ integer it goes through only turns a -0.0 into 0.0, and no caller here divides a
     `(let* ((,c ,cur) (,tg ,target) (,s ,step) (,d (%angle-wrap (- ,tg ,c))))
        (declare (single-float ,c ,tg ,s ,d))
        (+ ,c (%max (- ,s) (%min ,s ,d))))))
+(defmacro %set-float (place value)
+  "(SETF PLACE VALUE) of a single-float VALUE into a single-float PLACE (a slot, a special), skipped when PLACE holds the same
+bits already: it keeps its box, and no new one is made. PLACE is read before it is written (keep it free of side effects)."
+  (let ((new (gensym "NEW")) (old (gensym "OLD")))
+    `(let* ((,new ,value) (,old ,place))
+       (declare (single-float ,new ,old))
+       (unless (ffi:c-inline (,new ,old) (:float :float) :bool "((#0)==(#1) && !signbit(#0)==!signbit(#1))" :one-liner t)
+         (setf ,place ,new)))))
+(defmacro %deg (d)
+  "The engine's DEG (degrees to radians) of a real D, in typed floats: one boxed result where a value is needed."
+  `(sim-fast (* (f32 ,d) #.(float (/ pi 180) 1f0))))
 (defmacro %track-step (deg-per-second)
   "rules TRACK-STEP: degrees per second as radians per frame (the engine's DEG of /60)."
   `(* (/ ,deg-per-second 60f0) #.(float (/ pi 180) 1f0)))
@@ -218,8 +229,13 @@ one forearm crack per spent pip: :crack-1 .. :crack-4)."
     (values (+ (aref p 0) (* d (fwd-x yaw))) (+ (aref p 2) (* d (fwd-z yaw))))))
 
 (defun face-yaw-to (e x z)
-  "The yaw from E toward the point (X Z)."
-  (let ((p (pos-of e))) (dir-yaw (- x (aref p 0)) (- z (aref p 2)))))
+  "The yaw from E toward the point (X Z). (Single-floats: the twins, one boxed result.)"
+  (let ((p (pos-of e)))
+    (if (and (typep x 'single-float) (typep z 'single-float))
+        (sim-fast (let* ((q p) (a x) (c z) (v (%dir-yaw (- a (aref q 0)) (- c (aref q 2)))))
+                    (declare (type f32vec q) (single-float a c v))
+                    v))
+        (dir-yaw (- x (aref p 0)) (- z (aref p 2))))))
 
 (defun turn-to-opp (e f max-step)
   "Turn E toward his opponent by at most MAX-STEP radians."
@@ -231,7 +247,7 @@ one forearm crack per spent pip: :crack-1 .. :crack-4)."
               (declare (type f32vec p) (single-float s yaw ox oz))
               (let* ((to (%dir-yaw (- ox (aref p 0)) (- oz (aref p 2)))))
                 (declare (single-float to))
-                (setf (transform-yaw tf) (%angle-wrap (%turn-toward yaw to s))))))
+                (%set-float (transform-yaw tf) (%angle-wrap (%turn-toward yaw to s))))))
           (setf (transform-yaw tf) (f32 (angle-wrap (turn-toward (transform-yaw tf) (face-yaw-to e (fighter-ox f) (fighter-oz f)) max-step))))))))
 
 (defun set-slide (e dist frames dx dz)
@@ -270,10 +286,10 @@ every Kikon reset). Screen right is SIDE x (A->B) for a right-handed look-at."
                  (side (if (or reset (>= (+ (* nx *view-x*) (* nz *view-z*)) 0f0)) 1f0 -1f0))
                  (yaw (%dir-yaw dx dz)))
             (declare (single-float nx nz side yaw))
-            (setf *view-side* side *view-x* (* side nx) *view-z* (* side nz)
-                  *behind-yaw* (if reset
-                                   yaw
-                                   (%angle-wrap (%turn-toward *behind-yaw* yaw (%track-step turn)))))))))))
+            (setf *view-side* side)
+            (%set-float *view-x* (* side nx))
+            (%set-float *view-z* (* side nz))
+            (%set-float *behind-yaw* (if reset yaw (%angle-wrap (%turn-toward *behind-yaw* yaw (%track-step turn)))))))))))
 
 (defun stick-relative (e f)
   "E's stick as (values toward strafe) relative to his opponent: a human's stick is read through the
@@ -596,7 +612,7 @@ Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard 
               (setf (fighter-guard-exit f) *guard-exit*))
             (setf (fighter-guard-t f) (if (passive-p e :ward) (min 9999 (1+ (fighter-guard-t f))) 0))
             (neutral-walk! e f v to st)))
-      (turn-to-opp e f (deg *face-rate*)))))
+      (turn-to-opp e f (%deg *face-rate*)))))
 
 (defun neutral-walk! (e f v to st)
   "NEUTRAL-STEP's walk / strafe at stick TO / ST relative to the opponent (or stand: a stick under 0.2, a walk speed of 0):
@@ -931,7 +947,7 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
          (speed (layer-speed (frost-speed (kit-run (fighter-kit f)) (fighter-frost f)) (fighter-layers f))) (sf (incf (fighter-sf f))) (free (zerop (fighter-lock f))))
     (cond ((eq (fighter-phase f) :brake)
            (let ((s (if (run-stop-p (fighter-dist f) (run-closing e f) speed) 0.0 (brake-speed speed sf))))
-             (turn-to-opp e f (deg *face-rate*))
+             (turn-to-opp e f (%deg *face-rate*))
              (if (or (<= s 0) (>= sf *run-brake*)) (to-idle e) (run-velocity e s (fighter-run-yaw f)))))
           ((and free (or (command! e f vp (if (kit-hook (fighter-kit f) :p) *run-commands-p* *run-commands*)) (u-press! e f vp)))
            (when (eq (fighter-state f) :move)
@@ -942,7 +958,7 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
            (setf (fighter-phase f) :brake (fighter-sf f) 0)
            (play-clip e (kit-stance (fighter-kit f)) :blend 6))
           (t (setf (fighter-run-yaw f) (f32 (angle-wrap (turn-toward (fighter-run-yaw f) (run-yaw e f) (track-step *run-turn*)))))
-             (turn-to-opp e f (deg *face-rate*))
+             (turn-to-opp e f (%deg *face-rate*))
              (if (run-stop-p (fighter-dist f) (run-closing e f) speed)
                  (to-idle e 4)
                  (progn (run-velocity e speed (fighter-run-yaw f))
@@ -1061,7 +1077,7 @@ armour (RUN-ARMOR-P: :armor wherever he would be :neutral)."
 (defun-fast fighter-physics (e)
   "Walk / dash velocity, the slide, gravity and landing, the arena wall."
   (let* ((mo (motion e)) (p (pos-of e)) (v (motion-vel mo)) (kb (motion-kb mo)) (dt +step+)
-         (r (- *arena-radius* (body-hurt-r (model-body (model e))))))
+         (r (- (f32 *arena-radius*) (the single-float (body-hurt-r (model-body (model e)))))))   ; (typed: no boxed temp)
     (declare (type f32vec p v kb) (single-float dt r))
     (setf (aref p 0) (+ (aref p 0) (* dt (aref v 0))) (aref p 2) (+ (aref p 2) (* dt (aref v 2))))
     (when (> (the fixnum (motion-kb-left mo)) 0)
@@ -1138,7 +1154,9 @@ step: a symmetric sim), step each, then keep them apart."
               (declare (type f32vec p q))
               (let* ((dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (d (%sqrt (+ (* dx dx) (* dz dz)))))
                 (declare (single-float dx dz d))
-                (setf (fighter-ox f) (aref q 0) (fighter-oz f) (aref q 2) (fighter-dist f) d))))))
+                (%set-float (fighter-ox f) (aref q 0))
+                (%set-float (fighter-oz f) (aref q 2))
+                (%set-float (fighter-dist f) d))))))
       (if a (setf b e) (setf a e)))
     (when (and a b) (view-step a b))
     (do-entities (e (f fighter)) (unless (eq (fighter-state f) :cine) (fighter-step e f)))

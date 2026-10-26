@@ -885,7 +885,8 @@ cinematic (the first Kikon's move :cine, else the first Soul Break's attacker's 
 then the reset, or the finish (a draw when both souls ran out). The hazards still out are cleared first: the reset clears them anyway,
 and frozen through the cinematic their looks would hang in its shots."
   (let* ((kk (reverse *kikons*))
-         (sb (remove-if (lambda (s) (find (cdr s) kk :key #'second)) (reverse *soul-breaks*))))
+         (sb (and *soul-breaks*                     ; (a loop, not REMOVE-IF's closure: no consing on a quiet step)
+                  (loop for s in (reverse *soul-breaks*) unless (find (cdr s) kk :key #'second) collect s))))
     (setf *kikons* nil *soul-breaks* nil)
     (when (or kk sb)
       (do-entities (e (f fighter)) (burst-end! e))   ; the reset ends every burst, before the Kikon's refund
