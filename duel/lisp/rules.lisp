@@ -47,12 +47,29 @@ right while he faces the opponent). One code path for every camera."
         (let ((ux (/ ax d)) (uz (/ az d)))
           (values (+ (* wx ux) (* wz uz)) (+ (* wx (- uz)) (* wz ux)))))))
 
+(defmacro with-toward-strafe-dir ((dx dz) (toward strafe px pz ox oz) &body body)
+  "BODY with DX DZ bound (declared single-floats) to TOWARD-STRAFE-DIR's two values, for single-float arguments in typed
+code (SAFETY 0): its operations in its order, MAX as ECL compiles it (a tie keeps 1e-4), nothing boxed. Each argument is
+evaluated once, in order."
+  (let ((to (gensym "TO")) (st (gensym "ST")) (ax (gensym "AX")) (az (gensym "AZ")) (h (gensym "H")) (d (gensym "D"))
+        (ux (gensym "UX")) (uz (gensym "UZ")) (x0 (gensym "PX")) (z0 (gensym "PZ")))
+    `(let* ((,to ,toward) (,st ,strafe) (,x0 ,px) (,z0 ,pz) (,ax (- (the single-float ,ox) ,x0)) (,az (- (the single-float ,oz) ,z0))
+            (,h (sqrt (the (single-float 0f0) (+ (* ,ax ,ax) (* ,az ,az))))) (,d (if (or (/= ,h ,h) (>= 1e-4 ,h)) 1e-4 ,h))
+            (,ux (/ ,ax ,d)) (,uz (/ ,az ,d)) (,dx (+ (* ,to ,ux) (* ,st (- ,uz)))) (,dz (+ (* ,to ,uz) (* ,st ,ux))))
+       (declare (single-float ,to ,st ,x0 ,z0 ,ax ,az ,h ,d ,ux ,uz ,dx ,dz))
+       ,@body)))
+
 (defun toward-strafe-dir (toward strafe px pz ox oz)
   "The inverse of STICK-TOWARD-STRAFE's projection: world direction (values dx dz) of moving
-TOWARD / STRAFE relative to the opponent at (OX OZ)."
-  (let* ((ax (- ox px)) (az (- oz pz)) (d (max 1e-4 (hypot ax az)))
-         (ux (/ ax d)) (uz (/ az d)))
-    (values (+ (* toward ux) (* strafe (- uz))) (+ (* toward uz) (* strafe ux)))))
+TOWARD / STRAFE relative to the opponent at (OX OZ). (Single-floats, the sim's: typed, the same operations, MAX as ECL
+compiles it; only the two values are boxed.)"
+  (if (and (typep toward 'single-float) (typep strafe 'single-float) (typep px 'single-float) (typep pz 'single-float)
+           (typep ox 'single-float) (typep oz 'single-float))
+      (locally (declare (optimize (speed 3) (safety 0)))
+        (with-toward-strafe-dir (x z) (toward strafe px pz ox oz) (values x z)))
+      (let* ((ax (- ox px)) (az (- oz pz)) (d (max 1e-4 (hypot ax az)))
+             (ux (/ ax d)) (uz (/ az d)))
+        (values (+ (* toward ux) (* strafe (- uz))) (+ (* toward uz) (* strafe ux))))))
 
 (defun in-front-p (yaw px pz ax az arc-deg)
   "Is the point (AX AZ) within the ARC-DEG wide cone in front of a fighter at (PX PZ) facing YAW?
@@ -363,8 +380,17 @@ multiplier."
 
 ;;; ================================================================ Kikon, Konpaku, time-up (§1)
 (defun red-p (reishi max-reishi)
-  "Red: Reishi below *RED-THRESHOLD* of max."
-  (< reishi (* max-reishi *red-threshold*)))
+  "Red: Reishi below *RED-THRESHOLD* of max. (Fixnum Reishi and a single-float threshold, the sim's: the same compare
+in typed floats, no boxed product; exact for |Reishi| < 2^24.)"
+  (let ((th *red-threshold*))
+    (if (and (typep reishi 'fixnum) (typep max-reishi 'fixnum) (typep th 'single-float))
+        (locally (declare (optimize (speed 3) (safety 0)))
+          (let* ((r reishi) (m max-reishi) (h th))
+            (declare (fixnum r m) (single-float h))
+            (let* ((rf (float r 1f0)) (mf (float m 1f0)) (lim (* mf h)))
+              (declare (single-float rf mf lim))
+              (< rf lim))))
+        (< reishi (* max-reishi th)))))
 
 (defun kikon-outcome (held contact follow)
   "What a Kikon rush strike that connected with CONTACT (RESOLVE-CONTACT's result) leads to. The first
@@ -432,12 +458,28 @@ the victim's Reishi resets to max and both are placed by RESET-PLACEMENT."
 
 ;;; ================================================================ gauges (§3, §5)
 (defun gauge-add (g n max)
-  "Gauge G after adding N (may be negative), kept in [0, MAX]."
-  (max 0.0 (min max (+ g n))))
+  "Gauge G after adding N (may be negative), kept in [0, MAX]. (Single-floats, the sim's: typed, MIN / MAX as ECL compiles
+them, ties keeping the bound.)"
+  (if (and (typep g 'single-float) (typep n 'single-float) (typep max 'single-float))
+      (locally (declare (optimize (speed 3) (safety 0)))
+        (let* ((s (+ (the single-float g) (the single-float n))) (mx max) (m (if (or (/= s s) (<= mx s)) mx s))
+               (v (if (or (/= m m) (>= 0.0 m)) 0.0 m)))
+          (declare (single-float s mx m v))
+          v))
+      (max 0.0 (min max (+ g n)))))
 
 (defun reiatsu-gain (taken &optional (frames 0))
-  "Reiatsu earned by taking TAKEN damage (outside a combo's bonus), plus FRAMES of regen."
-  (+ (* taken *reiatsu-taken*) (* frames (/ *reiatsu-regen* 60.0))))
+  "Reiatsu earned by taking TAKEN damage (outside a combo's bonus), plus FRAMES of regen. (Fixnum counts and single-float
+knobs, the sim's: typed, one boxed result.)"
+  (let ((k *reiatsu-taken*) (r *reiatsu-regen*))
+    (if (and (typep taken 'fixnum) (typep frames 'fixnum) (typep k 'single-float) (typep r 'single-float))
+        (locally (declare (optimize (speed 3) (safety 0)))
+          (let* ((tk taken) (fr frames))
+            (declare (fixnum tk fr))
+            (let* ((tf (float tk 1f0)) (ff (float fr 1f0)) (v (+ (* tf (the single-float k)) (* ff (/ (the single-float r) 60.0)))))
+              (declare (single-float tf ff v))
+              v)))
+        (+ (* taken k) (* frames (/ r 60.0))))))
 
 (defun combo-gain-mult (n)
   "The combo bonus on a hit's Reiatsu at the combo's Nth hit (1-based): x1 .. x*REIATSU-COMBO-MAX*."
@@ -676,7 +718,15 @@ clamped. Values: fs reiatsu."
 (defun fs-regen (fs idle &optional (rate *fs-regen*))
   "Flash-step one frame later: +RATE/s (*FS-REGEN*; a DANGAI run's :fs-regen scales it) once IDLE (frames since the last
 spend) reaches *FS-DELAY*, capped at *FS-MAX*. (Damage taken adds *FS-TAKEN* per point: combat.lisp GAIN-GAUGES.)"
-  (if (>= idle *fs-delay*) (min *fs-max* (+ fs (/ rate 60.0))) fs))
+  (let ((mx *fs-max*))
+    (if (and (typep fs 'single-float) (typep rate 'single-float) (typep mx 'single-float))
+        (if (>= idle *fs-delay*)
+            (locally (declare (optimize (speed 3) (safety 0)))   ; (typed: MIN as ECL compiles it, a tie keeps the max)
+              (let* ((m mx) (s (+ (the single-float fs) (/ (the single-float rate) 60.0))) (v (if (or (/= s s) (<= m s)) m s)))
+                (declare (single-float m s v))
+                v))
+            fs)
+        (if (>= idle *fs-delay*) (min mx (+ fs (/ rate 60.0))) fs))))
 
 ;;; ---------------------------------------------------------------- the guard gauge (design v3 G.2)
 (defun guard-value (kind adv &optional override)
@@ -699,10 +749,21 @@ drain (IDLE), then *GG-REGEN*/s (*GG-REGEN-GUARDLESS*/s while GUARDLESS), capped
 counts as guarding (combat.lisp GAUGE-SYSTEM): he refills only in East. In a BLUE burst there is no delay and the rate
 is x*BLUE-GG-MULT*, x*BLUE-GG-GUARDING* while guarding. MULT: the form's :gg-regen (Bankai East's *EAST-GG-REGEN*), not while guardless.
 CAP: the fighter's max (*GG-MAX*; a DANGAI reward's :gg-max, combat.lisp GG-CAP)."
-  (let ((rate (/ (if guardless *gg-regen-guardless* (* mult *gg-regen*)) 60.0)))
-    (cond (blue (min cap (+ gg (* rate (if guarding *blue-gg-guarding* *blue-gg-mult*)))))
-          ((or guarding (< idle *gg-delay*)) gg)
-          (t (min cap (+ gg rate))))))
+  (let ((rg *gg-regen*) (rgl *gg-regen-guardless*) (bg *blue-gg-guarding*) (bm *blue-gg-mult*))
+    (if (and (typep gg 'single-float) (typep mult 'single-float) (typep cap 'single-float) (typep rg 'single-float)
+             (typep rgl 'single-float) (typep bg 'single-float) (typep bm 'single-float))
+        (cond ((and (not blue) (or guarding (< idle *gg-delay*))) gg)
+              (t (locally (declare (optimize (speed 3) (safety 0)))   ; (typed, the same operations; MIN as ECL compiles it)
+                   (let* ((g gg) (c cap) (rate (/ (if guardless (the single-float rgl) (* (the single-float mult) (the single-float rg)))
+                                                  60.0))
+                          (s (+ g (if blue (* rate (the single-float (if guarding bg bm))) rate)))
+                          (v (if (or (/= s s) (<= c s)) c s)))
+                     (declare (single-float g c rate s v))
+                     v))))
+        (let ((rate (/ (if guardless rgl (* mult rg)) 60.0)))
+          (cond (blue (min cap (+ gg (* rate (if guarding bg bm)))))
+                ((or guarding (< idle *gg-delay*)) gg)
+                (t (min cap (+ gg rate))))))))
 
 (defun gg-idle-next (idle guarding)
   "GUARD HOLD: the refill delay counter (frames since the last drain) one frame later: frozen while GUARDING
@@ -799,7 +860,14 @@ strike) is worth at least :heavy."
 
 (defun stun-decay (stun idle)
   "STUN one frame later, IDLE frames after the last hit: -*STUN-DECAY* per second from *STUN-DELAY*, never below 0."
-  (if (>= idle *stun-delay*) (max 0.0 (- stun (/ *stun-decay* 60.0))) stun))
+  (let ((k *stun-decay*))
+    (cond ((< idle *stun-delay*) stun)
+          ((and (typep stun 'single-float) (typep k 'single-float))
+           (locally (declare (optimize (speed 3) (safety 0)))   ; (typed; MAX as ECL compiles it, a tie keeps 0.0)
+             (let* ((x (- (the single-float stun) (/ (the single-float k) 60.0))) (v (if (or (/= x x) (>= 0.0 x)) 0.0 x)))
+               (declare (single-float x v))
+               v)))
+          (t (max 0.0 (- stun (/ k 60.0)))))))
 
 (defun stun-over-p (stun tolerance) "Is STUN past TOLERANCE (the hit that did it is the blow-away)?" (> stun tolerance))
 
@@ -827,9 +895,18 @@ LO <= D < HI, or NIL."
 
 (defun heat-range (lo hi heat)
   "Preferred range (LO HI) shrunk by anti-stall HEAT: -*AI-HEAT-RANGE* m per point, never below
-*AI-MIN-RANGE*. Values: lo hi."
-  (let ((cut (* heat *ai-heat-range*)))
-    (values (max *ai-min-range* (- lo cut)) (max *ai-min-range* (- hi cut)))))
+*AI-MIN-RANGE*. Values: lo hi. (Single-floats, the sim's: typed, MAX as ECL compiles it; only the values are boxed.)"
+  (let ((k *ai-heat-range*) (mn *ai-min-range*))
+    (if (and (typep lo 'single-float) (typep hi 'single-float) (typep heat 'single-float) (typep k 'single-float)
+             (typep mn 'single-float))
+        (locally (declare (optimize (speed 3) (safety 0)))
+          (let* ((m mn) (cut (* (the single-float heat) (the single-float k)))
+                 (a (- (the single-float lo) cut)) (b (- (the single-float hi) cut))
+                 (ra (if (or (/= a a) (>= m a)) m a)) (rb (if (or (/= b b) (>= m b)) m b)))
+            (declare (single-float m cut a b ra rb))
+            (values ra rb)))
+        (let ((cut (* heat k)))
+          (values (max mn (- lo cut)) (max mn (- hi cut)))))))
 
 (defun heat-breaker-mult (heat)
   "Breaker weight factor: 2 once HEAT reaches *AI-HEAT-BREAKER*."
@@ -842,11 +919,20 @@ LO <= D < HI, or NIL."
 
 (defun ai-guard-mult (gg guardless)
   "How much of its guard chance a CPU uses at guard gauge GG: all of it at >= 50 %, half at 25-50 %,
-0.15 below, none when it can't guard (CAN-GUARD-P)."
-  (cond ((not (can-guard-p gg guardless)) 0.0)
-        ((>= gg (* 0.5 *gg-max*)) 1.0)
-        ((>= gg (* 0.25 *gg-max*)) 0.5)
-        (t 0.15)))
+0.15 below, none when it can't guard (CAN-GUARD-P). (Single-floats, the sim's: the same compares in typed floats.)"
+  (let ((mx *gg-max*))
+    (if (and (typep gg 'single-float) (typep mx 'single-float))
+        (locally (declare (optimize (speed 3) (safety 0)))
+          (let* ((g gg) (m mx))
+            (declare (single-float g m))
+            (cond ((not (can-guard-p gg guardless)) 0.0)
+                  ((>= g (* 0.5 m)) 1.0)
+                  ((>= g (* 0.25 m)) 0.5)
+                  (t 0.15))))
+        (cond ((not (can-guard-p gg guardless)) 0.0)
+              ((>= gg (* 0.5 mx)) 1.0)
+              ((>= gg (* 0.25 mx)) 0.5)
+              (t 0.15)))))
 
 (defun ai-hoho-spare-p (fs reishi reishi-max)
   "Flash-step budgeting: may a CPU spend a Hoho on a routine dodge? It needs *FS-HOHO*, and while a
@@ -884,5 +970,11 @@ is up to it) pressed *AI-REFLECT-GUARD-LEAD* before the blast, else :hoho *AI-RE
 
 (defun heat-after (heat far)
   "Heat one frame later: +*AI-HEAT-RATE* per second, twice that when FAR (beyond *AI-HEAT-FAR*).
-Dealing damage resets it to 0 (combat.lisp DEAL-DAMAGE)."
-  (+ heat (* (if far 2.0 1.0) (/ *ai-heat-rate* 60.0))))
+Dealing damage resets it to 0 (combat.lisp DEAL-DAMAGE). (Single-floats, the sim's: typed, one boxed result.)"
+  (let ((rate *ai-heat-rate*))
+    (if (and (typep heat 'single-float) (typep rate 'single-float))
+        (locally (declare (optimize (speed 3) (safety 0)))
+          (let* ((h heat) (r rate) (k (if far 2.0 1.0)) (v (+ h (* k (/ r 60.0)))))
+            (declare (single-float h r k v))
+            v))
+        (+ heat (* (if far 2.0 1.0) (/ rate 60.0))))))

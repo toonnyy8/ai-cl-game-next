@@ -85,6 +85,14 @@
 ;;;;               (e b cmd d &optional anywhere) :learn-neutral (e b s d) :learn-weights (e l d weights) :burst-chance (b color p)
 (in-package :duel)
 
+;;; (EXPT X 2) without boxing, beside fighter.lisp's zero-cons twins (here: fighter.lisp is loaded by the host tests, and the
+;;; interpreter can't take FFI:CLINES)
+(ffi:clines "static float duel_expt2(float x) { volatile float two = 2.0f; return x == 0.0f ? x * 2.0f : powf(x, two); }")
+(defmacro %expt2 (x)
+  "CL's (EXPT X 2) of a single-float as ECL computes it: X x 2 for a zero (ecl_times), else powf (X, 2.0) (ecl_expt_float;
+the volatile 2 keeps the C compiler from turning it into X*X, which powf need not equal)."
+  `(ffi:c-inline (,x) (:float) :float "duel_expt2(#0)" :one-liner t))
+
 (defstruct snap
   "What the CPU sees of its opponent at one step."
   (x 0f0 :type single-float) (z 0f0 :type single-float)
@@ -1197,14 +1205,30 @@ distance to it (the assist's learner perceives the same way: assist.lisp)."
          (cur (or (svref ring (brain-head b)) (setf (svref ring (brain-head b)) (make-snap)))))
     (snap-take! cur o)
     (let* ((s (or (svref ring (mod (- (brain-head b) (brain-delay b)) n)) cur))
-           (p (pos-of e)) (d (sqrt (+ (expt (- (snap-x s) (aref p 0)) 2) (expt (- (snap-z s) (aref p 2)) 2)))))
+           (p (pos-of e))
+           (d (sim-fast                                     ; (SQRT of two EXPT 2s, as twins: bit-identical, no boxing)
+                (let* ((sx (snap-x s)) (sz (snap-z s)) (q p))
+                  (declare (single-float sx sz) (type f32vec q))
+                  (let* ((v (%sqrt (+ (%expt2 (- sx (aref q 0))) (%expt2 (- sz (aref q 2)))))))
+                    (declare (single-float v))
+                    v)))))
       (setf (brain-head b) (mod (1+ (brain-head b)) n))
       (when (and (eq (snap-state s) :move) (eq (snap-kind s) :quick) (/= (snap-start s) (brain-jkey b)))   ; a J of his begins
         (setf (brain-jkey b) (snap-start s))
         (push *match-tick* (brain-jstarts b)))
       (when (brain-jstarts b)                               ; only the window's
-        (setf (brain-jstarts b) (delete-if (lambda (t0) (> (- *match-tick* t0) *ai-mash-window*)) (brain-jstarts b))))
+        (setf (brain-jstarts b) (drop-old-jstarts (brain-jstarts b) *match-tick* *ai-mash-window*)))
       (values s d))))
+
+(defun drop-old-jstarts (l now window)
+  "(DELETE-IF (LAMBDA (T0) (> (- NOW T0) WINDOW)) L) without its closure and scratch cons: the ticks of L within WINDOW of
+NOW, in order (L destroyed)."
+  (loop while (and l (> (- now (car l)) window)) do (setf l (cdr l)))
+  (when l
+    (let ((prev l))
+      (loop for c = (cdr prev) while c
+            do (if (> (- now (car c)) window) (setf (cdr prev) (cdr c)) (setf prev c)))))
+  l)
 
 (defun ai-mash-p (b)
   "Is he mashing J, as brain B saw him: *AI-MASH-STARTS* J starts within *AI-MASH-WINDOW* frames (the user 2026-10-02:
