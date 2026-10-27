@@ -5233,3 +5233,12 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - main 刪掉 `babylon/` 目錄。它的紀錄 `docs/babylon/`（BABYLON_PORT、BABYLON_LOOK）和 DEVLOG 裡的歷史段落留在 main，開頭註明程式碼改在 `babylon` 分支；DUEL_DESIGN、DUEL_ENDLESS、AUDIO 提到 `babylon/...` 路徑的地方也加了同樣的註記。
 - README 的資料夾表、AGENTS.md 的專案地圖與文件表、`docs/README.md` 的索引跟著更新。沒有任何建置或測試工具引用 `babylon/`，遊戲不受影響。
 - 同一天補充，使用者：「文件也一起移到 babylon 分支」：`docs/babylon/`（BABYLON_PORT、BABYLON_LOOK，加上註記的版本）提交到 `babylon` 分支（78aa053）後從 main 刪掉；AGENTS.md、README、`docs/README.md`、PLAYBOOK 的對照表和三個 skill 的參考檔改成指向 `babylon` 分支。main 上只剩 DEVLOG 的歷史段落和 DUEL_DESIGN、DUEL_ENDLESS、AUDIO 的註記。
+
+## 409. 移除與 SOUL DUEL 無關的程式與文件（2026-10-27）
+
+使用者：「請先移除與 SOUL DUEL 無關的程式」，接著「也一併移除與 SOUL DUEL 無關的文檔」、「一起移除」（連 `examples/` 與零星提及）。
+
+- 刪除 `game/`（RAVEN EDGE）、`examples/`（hello、engine-demo）、`docs/raven-edge/`、`docs/engine/WORLD.md` 與 `world-shots/`、`docs/research/ng4-notes.md`；測試 `rules-test` / `world-demo` / `audio-demo`、`tests/scripts/` 的 e2 / p3 / gen / gpu，以及 RAVEN 專用的 `tests/shots/`。
+- `build.sh` 不再預設建 `game/`，必須指定目標；`tests/style-gates.py` 移除 G1 的 `raven` / `rc`，`perf` 只剩 duel。
+- README、`docs/README.md`、AGENTS.md、`tools/pkgcheck.sh` 的相關列一併移除。`TUTORIAL.zh-TW.md` 含 SOUL DUEL 內容並被多份文件引用，先保留，其中 RAVEN / hello 段落待處理。
+- 沒改任何 Lisp 原始碼：`duel-rules-test` 10244 項全過、`pkgcheck duel` 全 0。

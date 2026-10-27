@@ -3,7 +3,7 @@
 # typo, or a deleted helper) compiles silently. This reads (doesn't compile) the engine + a target's
 # sources and reports: target symbols shadowing ENGINE internals, target DEF*s redefining ENGINE
 # exports, and functions called but defined nowhere (tools/pkgcheck.lisp). Exit status 1 if any.
-#   tools/pkgcheck.sh game   |   tools/pkgcheck.sh examples/hello   |   tools/pkgcheck.sh file.lisp...
+#   tools/pkgcheck.sh duel   |   tools/pkgcheck.sh file.lisp...
 cd "$(dirname "$0")/.."
 ECL_HOST=${ECL_HOST:-/media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl}
 m() { grep -v '^\s*\(#\|$\)' "$1/MANIFEST" | sed "s|^|$1/|" | grep 'lisp$'; }

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Build a target to wasm. The engine (engine/MANIFEST) always comes first.
-#   ./build.sh                      -> dist/game/        the game, from game/MANIFEST
 #   ./build.sh DIR                  -> dist/<basename>/  the target described by DIR/MANIFEST
 #   ./build.sh NAME a.lisp b.c ...  -> dist/NAME/        engine + the given files, in order (tests)
 # A MANIFEST lists sources relative to its own directory, in compile order. .lisp files (engine and
@@ -20,7 +19,7 @@ manifest() { grep -v '^\s*\(#\|$\)' "$1/MANIFEST" | sed "s|^|$1/|"; }   # DIR/MA
 if [ $# -gt 1 ]; then
   NAME=$1; shift; FILES=("$@"); TITLE=$NAME
 else
-  DIR=${1:-game}; DIR=${DIR%/}; NAME=$(basename "$DIR")
+  DIR=${1:?usage: ./build.sh DIR (e.g. duel)}; DIR=${DIR%/}; NAME=$(basename "$DIR")
   [ -f "$DIR/MANIFEST" ] || { echo "no $DIR/MANIFEST"; exit 1; }
   mapfile -t FILES < <(manifest "$DIR")
   TITLE=$(sed -n 's/^# *title: *//p' "$DIR/MANIFEST" | head -1); TITLE=${TITLE:-$NAME}

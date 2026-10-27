@@ -90,9 +90,6 @@ Lisp 編譯錯誤會印在終端機，完整記錄在 `build/duel/lisp.log`；�
 其他建置目標：
 
 ```sh
-./build.sh                        # RAVEN EDGE → dist/game/（見下方「同一個引擎上的其他作品」）
-./build.sh examples/hello         # 最小的範例遊戲 → dist/hello/（教材從這裡開始）
-./build.sh examples/engine-demo   # 引擎的算圖、特效、UI 展示 → dist/engine-demo/
 ./build.sh NAME a.lisp b.c        # 引擎加上指定檔案，建一個測試目標 dist/NAME/
 GAME_OPT=-O1 ./build.sh duel      # 改 Lisp 產生的 C 的最佳化等級（預設 -O2）
 EMCC_EXTRA="..." ./build.sh duel  # 額外的 emcc 連結參數
@@ -132,8 +129,6 @@ engine/      可重複使用的引擎（ENGINE 套件），不知道任何一款
   c/           engine.h（Lisp 呼叫的所有 C 函式）、main.c（啟動 ECL、GC、主迴圈）、platform.c、render.c、audio.c、rng.c
   shaders/     WGSL 著色器
   web/         共用的 HTML 外殼：向瀏覽器要 WebGPU 裝置、載入進度、錯誤畫面
-game/        RAVEN EDGE（RAVEN 套件），第一款遊戲
-examples/    hello/（最小的完整遊戲，教材的起點）、engine-demo/
 tools/       建置、無頭測試、原生模擬與各種把關工具、部署、vendor 腳本
 tests/       主機測試、瀏覽器腳本產生器、截圖與畫風檢查
 skills/      九個 Claude skill（遊戲開發流程、平衡把關、畫風、角色設計與重做、招式模組、電腦 AI、動作風格）
@@ -147,19 +142,12 @@ vendor/      wasm 版 ECL、帶 WebGPU 後端的 SDL3、Dawn 的 emdawnwebgpu
 
 ## 文件與學習路徑
 
-- **[docs/guides/TUTORIAL.zh-TW.md](docs/guides/TUTORIAL.zh-TW.md)**：從建置、逐行讀 `examples/hello` 開始，依序看幀迴圈與 GC、ECS、純函式規則、事件、算圖，再用 SOUL DUEL 學虛擬手把、角色即資料、同時結算的命中、過場導演和決定性重播，最後有練習題。
+- **[docs/guides/TUTORIAL.zh-TW.md](docs/guides/TUTORIAL.zh-TW.md)**：從建置開始，依序看幀迴圈與 GC、ECS、純函式規則、事件、算圖，再用 SOUL DUEL 學虛擬手把、角色即資料、同時結算的命中、過場導演和決定性重播，最後有練習題。
 - [docs/README.md](docs/README.md)：全部文件的索引，一行一份。
 - [docs/DEVLOG.zh-TW.md](docs/DEVLOG.zh-TW.md)：開發紀錄，每個設計決定的來由。
 - [docs/guides/PLAYBOOK.zh-TW.md](docs/guides/PLAYBOOK.zh-TW.md)、[docs/guides/CHARACTER_DESIGN.zh-TW.md](docs/guides/CHARACTER_DESIGN.zh-TW.md) 與 `skills/`：可重複使用的開發經驗。
 - [AGENTS.md](AGENTS.md)：給 AI agent 的專案總覽與工作規則。
 
-## 同一個引擎上的其他作品：RAVEN EDGE
-
-引擎最早是為了 **RAVEN EDGE** 寫的：一款玩法參考《忍者外傳 4》的 3D 動作遊戲，在下著血色雨的頂樓連砍三波敵人，最後對上頭目 ENRA。它已經完成，現在很少改動。做 SOUL DUEL 的目的之一，是用第二種類型的遊戲找出引擎的缺口並補上，再把兩款遊戲都用得到的東西收回引擎（DEVLOG 第 14 節）。
-
-![RAVEN EDGE：REN 揮刀連斬，命中處噴出血霧](tests/shots/gpu-wave-2.png)
-
-建置用 `./build.sh`（輸出到 `dist/game/`）。玩法、操作和測試方法見 [docs/raven-edge/RAVEN_EDGE.zh-TW.md](docs/raven-edge/RAVEN_EDGE.zh-TW.md)，設計與數值見 [docs/raven-edge/GAME_DESIGN.md](docs/raven-edge/GAME_DESIGN.md)。
 
 ## 需求
 
@@ -227,7 +215,7 @@ emmake make && emmake make install
 
 ## 致謝與限制
 
-建立在這些專案之上：[ECL](https://ecl.common-lisp.dev/)（Embeddable Common Lisp）、[Emscripten](https://emscripten.org/)、[SDL3](https://libsdl.org/) 與其 SDL_GPU WebGPU 後端草稿（PR #16020）、Google Dawn 的 emdawnwebgpu、Boehm GC、GMP。SOUL DUEL 是參考《BLEACH: Rebirth of Souls》的非商業同人練習作品，角色與招式名稱應使用者要求使用，素材全部由程式產生。RAVEN EDGE 的玩法結構參考 Team NINJA 的《忍者外傳 4》，但沒有使用該作的任何名稱、角色或素材。這個專案由多個 AI agent 分工完成，流程記錄在 DEVLOG 第 9 節與第 14 節。
+建立在這些專案之上：[ECL](https://ecl.common-lisp.dev/)（Embeddable Common Lisp）、[Emscripten](https://emscripten.org/)、[SDL3](https://libsdl.org/) 與其 SDL_GPU WebGPU 後端草稿（PR #16020）、Google Dawn 的 emdawnwebgpu、Boehm GC、GMP。SOUL DUEL 是參考《BLEACH: Rebirth of Souls》的非商業同人練習作品，角色與招式名稱應使用者要求使用，素材全部由程式產生。這個專案由多個 AI agent 分工完成，流程記錄在 DEVLOG 第 9 節與第 14 節。
 
 已知限制：
 

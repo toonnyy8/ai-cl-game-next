@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
 """style-gates.py — the Storm x Kubo restyle's harness (docs/style/STYLE_STORM_DESIGN.md §9: Phase 0 and the
-standing gates G1 RAVEN identity, G2 duel determinism, G3 budgets). Run from the repository root; the
+standing gates G2 duel determinism, G3 budgets). Run from the repository root; the
 dists are built with ./build.sh (a BASE dist is a copy of dist/NAME built before the change).
 
-  python3 tests/style-gates.py raven BASE NEW       G1 frozen stills: RAVEN title + a bot-played wave under
-                                                    run.mjs --fixed-dt, BASE twice (noise floor) and NEW once;
-                                                    byte / pixel identity and cons/frame (NEW within +10 %)
-  python3 tests/style-gates.py rc BASE_ROOT         G1 ECL C: RAVEN's generated C, function by function, of this
-                                                    tree vs the tree at BASE_ROOT (needs BASE_ROOT/vendor)
   python3 tests/style-gates.py cvc DIST             G2: result + hash lines of duel-cvc-{yy,yk,kk}.json vs
                                                     tests/style-cvc-ref.txt
-  python3 tests/style-gates.py perf A B game|duel   G1/G3: A B A B A B real-time runs, median frame ms; startup
+  python3 tests/style-gates.py perf A B duel        G3: A B A B A B real-time runs, median frame ms; startup
                                                     heap and first frame of each
   python3 tests/style-gates.py smoke DIST...        WGSL smoke: each dist runs 14 s with run.mjs exit 0 (no JS
                                                     exception, no WebGPU validation error, every pipeline built)
@@ -72,60 +67,6 @@ def cons(log):
     return statistics.mean(v[1:]) if len(v) > 1 else (v[0] if v else 0)
 
 
-def raven(base, new):
-    out = []
-    for tag, dist in (("base1", base), ("base2", base), ("new", new)):
-        sc = script(f"raven-{tag}", [{"at": 4.0, "shot": f"{TMP}/raven-{tag}-title.png"}, cmd(4.05, 63), cmd(4.1, 13),
-                                     cmd(4.15, 16), cmd(4.2, 18), {"at": 9.0, "shot": f"{TMP}/raven-{tag}-wave.png"}])
-        out.append((tag, run(dist, sc, 9.2, f"{TMP}/raven-{tag}.log", extra=("--timeout", "7200"))))   # (a loaded machine: no wall cut)
-    for tag, p in out: check(f"raven {tag} run", p.wait() == 0)
-    for shot in ("title", "wave"):
-        noise = px_diff(f"{TMP}/raven-base1-{shot}.png", f"{TMP}/raven-base2-{shot}.png")
-        d = px_diff(f"{TMP}/raven-base1-{shot}.png", f"{TMP}/raven-new-{shot}.png")
-        same = open(f"{TMP}/raven-base1-{shot}.png", "rb").read() == open(f"{TMP}/raven-new-{shot}.png", "rb").read()
-        check(f"G1 raven {shot} still", noise == 0 and d == 0, f"noise floor {noise} px, base vs new {d} px, bytes {'identical' if same else 'differ'}")
-    cb, cn = cons(f"{TMP}/raven-base1.log"), cons(f"{TMP}/raven-new.log")
-    check("G1 raven cons/frame", cn <= 1.1 * cb + 1, f"base {cb:.0f} B, new {cn:.0f} B")
-
-
-def c_functions(path):
-    """ECL C file -> {lisp function name: normalised body} (L/LC numbers, VV indices, labels and gensym'd
-    lambda names folded)."""
-    fns, name, body = {}, None, []
-    for line in open(path, errors="replace"):
-        m = re.match(r"/\*\s+(?:function definition|local function|closure) for (.+?)\s*\*/", line)
-        if m:
-            if name: fns.setdefault(name, []).append("".join(body))
-            name, body = m.group(1), []
-        elif line.startswith("#include"):                 # the module init (paths, hashes) follows the last function
-            if name: fns.setdefault(name, []).append("".join(body))
-            name = None
-        elif name: body.append(re.sub(r"\b(LC?|VV|T|V|v)\d+|(lambda|LAMBDA)\d+", lambda m: (m.group(1) or m.group(2)) + "#",
-                                      re.sub(r"VV\[\d+\]", "VV[#]", line)))
-    if name: fns.setdefault(name, []).append("".join(body))
-    return fns
-
-
-def rc(base_root):
-    files = []
-    for m in ("engine/MANIFEST", "game/MANIFEST"):
-        d = os.path.dirname(m)
-        files += [f"{d}/{l.strip()}" for l in open(m) if l.strip() and not l.startswith("#") and l.strip().endswith(".lisp")]
-    procs = []
-    for tag, root in (("base", base_root), ("new", ".")):
-        out = os.path.abspath(f"{TMP}/rc-{tag}")
-        procs.append(subprocess.Popen([ECL, "--norc", "--eval", "(require :cmp)", "--eval", "(setf c::*delete-files* nil)",
-                                       "--load", f"{root}/tools/build.lisp", "--", os.path.relpath(out, os.path.abspath(root))] + files,
-                                      cwd=root, stdout=open(f"{TMP}/rc-{tag}.log", "w"), stderr=subprocess.STDOUT))
-    for p in procs: check("ECL C generation", p.wait() == 0)
-    a, b = c_functions(f"{TMP}/rc-base/game-all.c"), c_functions(f"{TMP}/rc-new/game-all.c")
-    changed = sorted(k for k in a if k in b and a[k] != b[k])
-    print(f"RAVEN C: {len(a)} functions before, {len(b)} after; identical {sum(1 for k in a if k in b and a[k] == b[k])}")
-    print("  changed: " + (", ".join(changed) or "-"))
-    print("  added:   " + (", ".join(sorted(set(b) - set(a))) or "-"))
-    print("  removed: " + (", ".join(sorted(set(a) - set(b))) or "-"))
-
-
 def cvc(dist):
     ref = {}
     for l in open("tests/style-cvc-ref.txt"):
@@ -139,10 +80,7 @@ def cvc(dist):
 
 
 def perf(a, b, target):
-    if target == "game":
-        steps = [cmd(6.0, 63), cmd(6.1, 62)]          # the title (a bot-played wave varies too much in real time)
-    else:
-        steps = [cmd(9.0, 4003), cmd(9.1, 2106)]
+    steps = [cmd(9.0, 4003), cmd(9.1, 2106)]
     sc = script(f"perf-{target}", steps)
     res = {a: [], b: []}; heap = {a: [], b: []}; first = {a: [], b: []}
     for i in range(6):
@@ -378,7 +316,7 @@ def opt(k, d=None):
 if __name__ == "__main__":
     a = sys.argv[1:]
     if not a: print(__doc__); sys.exit(2)
-    {"raven": lambda: raven(a[1], a[2]), "rc": lambda: rc(a[1]), "cvc": lambda: cvc(a[1]),
+    {"cvc": lambda: cvc(a[1]),
      "perf": lambda: perf(a[1], a[2], a[3]), "smoke": lambda: smoke(a[1:]),
      "duelstill": lambda: duelstill(a[1], a[2], "--flat" in a),
      "looks": lambda: looks(a[1], a[2], int(opt("--jobs", 3)), opt("--size", "640x360"), opt("--only"), "--once" in a, "--keep-base" in a)}[a[0]]()
