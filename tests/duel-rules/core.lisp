@@ -891,6 +891,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ru-0-stance :ru-0-j1 :ru-0-j2 :ru-0-j3 :ru-0-k1 :ru-0-k2 :ru-0-k3 :ru-0-reido :ru-0-hakuren :ru-0-shirafune   ; -273's own
     :ru-0-hakka                                                                                                 ; (§13.4)
     :ic-na1 :ic-ns1 :ic-chg1 :ic-chg2 :ic-ns3   ; (the core system's long coils: NA1, the NS openers, NS2's charges, DUEL_CORE §6)
+    :ic-k-summon :ic-k-xa :ic-k-xb   ; (KESSA's NS3: the command gesture; the clones' X, ICHIGO-NS-CLONE-X plays them)
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
     :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
     :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)
@@ -938,7 +939,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                         ;; (moves started outside every kit's tables: Lille II's base snipe's level 2 / 3
                                         ;;  copies, BR-S-SNIPE-RELEASE; R16, DUEL_LILLE_V3 §20: only they play :br-sk-l1)
                                         ;;  Hisagi's MODOSHI, started by his :command hook while the sickle is out)
-                                        (remove nil (loop for m in '(:br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-k2s :hs-r-kubikake :hs-b-unwind :hs-r-sp2c
+                                        (remove nil (loop for m in '(:ic-c-xa :ic-c-xb :br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-k2s :hs-r-kubikake :hs-b-unwind :hs-r-sp2c
                                                                        :hs-b-sp1)   ; (B4c: no kit's since, its strip 83524)
                                                           collect (mv-clip-2 (find-move m))   ; (his Shikai's MODOSHI mapped)
                                                           collect (kit-move-clip (kit :hisagi :base) (mv-clip (find-move m)))))))))

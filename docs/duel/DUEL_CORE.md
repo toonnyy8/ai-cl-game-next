@@ -147,6 +147,23 @@ follow-up links keep their speed).
   SP SP SP → `IC-N2C`, `WAVE -> P2 HIT 150`.
   Gates (10 seeds): KK 148.8, IK 202.8, HK 146.3, HI 173.7, HH 164.9 s, all K.O.; the Ichigo mirror at 20 seeds 214.7 s with 19 K.O.s and one
   300 s time-out: open, the user's call (DEVLOG §421).
+- **KESSA's NS3: the clones' rush** (§425, the user: 「然後開始改動卍解的動作模組，將原本衝刺連砍的 NS 改成產生分身向前揮砍（NS[1] 先產生一個、NS[2] 在產生另一個、
+  NS[3] 兩個分身會以鏡像姿勢揮出斜劈而呈現X的斬擊），然後銜接到 SA 時本體會往前突進斬出一刀，隨後的 J 與 AS 都會跟著交出的分身一同攻擊」, 「X 劈砍時用兩手持刀，
+  就不會有鏡像的姿勢問題了」, 「卍解也要依據當前的 NS 指針來改變主立站姿」): KESSA's `:core` has its own NS3, `ic-k-n3a` → `ic-k-n3b` → `ic-k-n3c` (a command
+  gesture `:ic-k-summon`, S 18 / 14 / 14, no hit of his own). Press 1 makes a free clone at his right (0.5 m ahead, 1.1 m aside), press 2
+  one at his left, each swinging at once (the light answer, 26 x 0.7); press 3 both cut inward together, two-handed, the right one
+  `:ic-c-xa` (`:ic-k-xa`, over his right shoulder down to his left) and the left one its mirror `:ic-c-xb` (`:ic-k-xb` =
+  `defclip-mirror` of it, a new engine helper: the left / right channels swapped, the middle twist / side and the root's yaw / sideways
+  offset negated; both hands on the hilt, so the blade mirrors too), 55 x 0.7 each, knockdown, with a black X mark where they cross
+  (`ichigo-kx-look`). An attack in any of its gaps is `ic-k-sa`, his flash-step lunge (3 m, 50), alone: the clones answer no plain J that
+  starts an SA (`ichigo-tick`); every later J and every SP that is an AS, they answer with him (the heavy answer). NS3's clones stay after
+  each of their strings while his attack goes on (`ichigo-ns-clone-p`), flash back to his side before each answer (`ichigo-ns-regroup`), so
+  they cut with him wherever his lunge took him, and fade the moment his attack is over (idle while he is in no move; §426, the user:
+  「Step 不再產生分身，且結束攻擊後分身就直接消失不在留於場上」). Under the core system no Step and no Hoho makes a clone (the Hoho's would
+  fade at once); NS3 is the only source. Gates (Ichigo's pairings only, §424; 10 seeds): IK 186.7 s (Ichigo 2:8; 5:5 at §423), II 253.8, HI 191.2 s, all K.O.:
+  Ichigo's IK win rate is open (the user's call). Browser: SP SP SP → clone hits 18, 18, then the X 38 + 38; SP SP J J Shift+J → the SA 50, J2 30 with
+  the clones 35 + 35, AS2 50 with 35 + 35. KESSA's stances by pointer: `:ic-st-rush` / `:ic-tsuki` / `:ic-k-stance` (low, the slab trailing /
+  cocked high behind / hanging point-down; the slab on the shoulder at 1 read too close to 2's).
 - **The wave is a hazard**: the triangle never judges it (`core-verdicts`: a hazard's hit is a clean hit), so it beats NA / NS / AS in their
   startup at range; the counters are a side Step, a Hoho or closing in. No Kikon off a wave (`apply-hit`'s `(not hazard)`), no AS.
 - **Tells**: NA1 (`:ic-j1`) S 7 → 14 with a new coil clip `:ic-na1` (the short blade drawn far to his left and held); NS first segments S 22 / 22 / 18.

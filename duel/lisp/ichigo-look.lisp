@@ -91,6 +91,13 @@ like his Soul Break's (the user, 2026-10-27: 「第三段則是揮出跟毀魂�
   (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0)))
                    0.9 0.8 (if (ic-kessa-owner-p hz) 4 3)))
 
+(defun ichigo-kx-look (hz rdt)
+  "KESSA's NS3 X: two black crescents crossed where the clones' cuts meet (vfx-ic-crescent's 漆黒, tips tilted both ways), fading."
+  (declare (ignore rdt))
+  (let ((k (max 0.02 (- 0.95 (* 0.05 (hazard-age hz))))) (w (* 2 (hazard-size hz))))
+    (vfx-ic-crescent (hazard-x hz) 1.3 (hazard-z hz) (hazard-yaw hz) w k 0.9 4)
+    (vfx-ic-crescent (hazard-x hz) 1.3 (hazard-z hz) (hazard-yaw hz) w k -0.9 4)))
+
 (defun ichigo-flare-look (hz rdt)
   "KUSARI-TATE: the chains flaring out of his neck, wrists and ankles (the parry's tell)."
   (declare (ignore rdt))

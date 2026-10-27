@@ -92,3 +92,18 @@
   (check (= (core-charge-mult f as t nil) 1.7f0))                  ; the AS after it too
   (core-note-start! f (kit-move k :ic-j1) nil)
   (check (= (core-charge-mult f (kit-move k :ic-j1) t nil) 1f0)))  ; a fresh opener: gone
+;; KESSA's NS3: three presses (no hits of his own: the clones strike), every gap's SA his lunge; his stances by pointer (DUEL_CORE §6)
+(let ((k (kit :ichigo :kessa)))
+  (check (equal (core-segments :ic-k-n3a) '(:ic-k-n3a :ic-k-n3b :ic-k-n3c)))
+  (check (eq (kit-core-move k :ns 3) (kit-move k :ic-k-n3a)))
+  (check (every (lambda (n) (and (zerop (length (mv-hits (kit-move k n)))) (eq (mv-sa-move k (kit-move k n)) (kit-move k :ic-k-sa))))
+                '(:ic-k-n3a :ic-k-n3b :ic-k-n3c)))
+  (check (equal (getf (kit-core k) :stances) '(:ic-st-rush :ic-tsuki :ic-k-stance)))
+  (check (eq (kit-core-move (kit :ichigo :base) :ns 3) (kit-move (kit :ichigo :base) :ic-n3a))))   ; the Shikai keeps RANGETSU
+;; DEFCLIP-MIRROR: a key's right / left channels swapped, the middle's twist and the root's yaw negated
+(let* ((a (find-clip :ic-k-xa)) (b (find-clip :ic-k-xb)) (n +pose-n+) (pa (engine::clip-poses a)) (pb (engine::clip-poses b)) (k (* 3 n)))
+  (check (and (= (engine::clip-n a) (engine::clip-n b)) (= (clip-dur a) (clip-dur b))))
+  (check (and (= (aref pb (+ k (* 3 6))) (aref pa (+ k (* 3 11))))                       ; arm-r flex <- arm-l flex
+              (= (aref pb (+ k (* 3 11) 2)) (aref pa (+ k (* 3 6) 2)))                   ; arm-l side <- arm-r side
+              (= (aref pb (+ k (* 3 2) 1)) (- (aref pa (+ k (* 3 2) 1))))                ; chest twist
+              (= (aref pb (+ k +root+ 3)) (- (aref pa (+ k +root+ 3)))))))               ; root yaw

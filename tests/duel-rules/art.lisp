@@ -46,7 +46,7 @@ Shikai HAINAWA, -18's and -50's (and every clip with a frost point, *RU-FROST-PO
         (loop for form = (read in nil in) until (eq form in)
               when (consp form)
                 do (case (first form)
-                     ((defpose defclip defstrike) (eval form))
+                     ((defpose defclip defstrike defclip-mirror) (eval form))
                      (defun (when (eq (second form) 'sj-okobo-props) (eval form)))
                      (defparameter (case (second form)
                                      ((*sj-strike-reach* *hs-strike-reach*)   ; (Hisagi's thrown sickle: its drawn reach)

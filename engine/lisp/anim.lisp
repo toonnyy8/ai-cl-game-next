@@ -145,6 +145,31 @@ name or :END (= DUR), and (CLIP-MARK clip :hit) returns it in seconds. An attack
     (4 (:arm-r :flex 120)) (:hit :snap (:arm-r :flex -30)) (:recover (:arm-r :flex -40)) (:end :my-stance))"
   `(build-clip ,name ,dur ,loop ,base ',keys :fps ,fps :marks ',marks))
 
+;;; DEFCLIP-MIRROR: a clip's left-right mirror (the rig's left joints already flip twist and side, so a pose mirrors by swapping
+;;; each left / right joint's channels; the middle chain's twist and side, the root's sideways offset and yaw change sign). The
+;;; weapon stays in the right hand: mirror a clip whose two hands grip together (a two-handed cut), so the blade mirrors too.
+(defparameter *mirror-pairs* '((5 . 10) (6 . 11) (7 . 12) (8 . 13) (9 . 14) (15 . 18) (16 . 19) (17 . 20))
+  "Rig joint index pairs (right . left) that DEFCLIP-MIRROR swaps (*RIG* order: shoulder, upper / lower arm, hand, weapon; thigh, shin, foot).")
+(defun mirror-pose! (out in)
+  "OUT = pose IN mirrored left to right (OUT and IN distinct)."
+  (declare (type f32vec out in))
+  (replace out in)
+  (loop for (r . l) in *mirror-pairs* do (dotimes (c 3) (setf (aref out (+ (* 3 r) c)) (aref in (+ (* 3 l) c))
+                                                             (aref out (+ (* 3 l) c)) (aref in (+ (* 3 r) c)))))
+  (loop for j in '(0 1 2 3 4) do (setf (aref out (+ (* 3 j) 1)) (- (aref in (+ (* 3 j) 1))) (aref out (+ (* 3 j) 2)) (- (aref in (+ (* 3 j) 2)))))
+  (setf (aref out +root+) (- (aref in +root+)) (aref out (+ +root+ 3)) (- (aref in (+ +root+ 3))))
+  out)
+(defun defclip-mirror (name src)
+  "Clip NAME: clip SRC mirrored left to right, key for key (its times, snaps, marks and loop kept)."
+  (let* ((c (find-clip src)) (n (clip-n c)) (in (clip-poses c)) (out (make-f32 (length in))) (a (make-f32 +pose-n+)) (b (make-f32 +pose-n+)))
+    (dotimes (k n)
+      (replace a in :start2 (* k +pose-n+) :end2 (* (1+ k) +pose-n+))
+      (mirror-pose! b a)
+      (replace out b :start1 (* k +pose-n+)))
+    (setf (gethash name *clips*)
+          (%make-clip :name name :dur (clip-dur c) :loop (clip-loop c) :n n :times (copy-seq (clip-times c))
+                      :snaps (copy-seq (clip-snaps c)) :poses out :marks (copy-list (clip-marks c))))))
+
 ;;; DEFSTRIKE: the attack-clip form of DEFCLIP, timed by a move's startup / active / recovery frames.
 (defmacro defstrike (name (s a r &key (base :stance)) &body keys)
   "An attack clip timed to its move's frame data (60 Hz): the hit pose lands at frame S, the

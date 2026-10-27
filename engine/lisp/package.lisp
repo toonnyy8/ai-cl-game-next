@@ -77,7 +77,7 @@
    #:music-playing-p #:music-play #:music-stop #:music-intensify #:audio-stats #:audio-locked-p
    #:list-sounds #:sound-loop-p
    ;; anim.lisp: humanoid rig, pose / clip DSL, playback, forward kinematics
-   #:ji #:joint-index #:joint-mask #:+nj+ #:+pose-n+ #:+root+ #:defpose #:find-pose #:defclip #:defstrike #:find-clip
+   #:ji #:joint-index #:joint-mask #:+nj+ #:+pose-n+ #:+root+ #:defpose #:find-pose #:defclip #:defstrike #:defclip-mirror #:find-clip
    #:clip #:clip-name #:clip-dur #:clip-loop #:clip-sample! #:clip-mark #:list-clips #:build-clip #:*key-ease*
    #:anim #:make-anim #:anim-clip #:anim-time #:anim-speed #:anim-blend #:anim-blend-dur #:anim-pose #:anim-play #:anim-advance #:anim-eval
    #:pose-fk! #:make-rig-proportions #:joint-point! #:%euler!

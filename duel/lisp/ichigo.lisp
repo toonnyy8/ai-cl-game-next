@@ -186,6 +186,26 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :reach 2.4 :arc 110 :on-hit :flinch)                                   ; 影薙 KAGE-NAGI
 (defmove :ic-c-light3 :kind :quick :clip :ic-k-wrap :startup 9 :active 3 :recovery 18 :dmg 32 :guard 6
   :reach 2.8 :arc 200 :on-hit :stagger)
+;; KESSA's NS3, the clones' rush (the user, 2026-10-27: 「將原本衝刺連砍的 NS 改成產生分身向前揮砍（NS[1] 先產生一個、NS[2] 在產生另一個、
+;; NS[3] 兩個分身會以鏡像姿勢揮出斜劈而呈現X的斬擊），然後銜接到 SA 時本體會往前突進斬出一刀，隨後的 J 與 AS 都會跟著交出的分身一同攻擊」):
+;; a command gesture each press; a free clone at his right side, then at his left, each swinging forward at once (its heavy
+;; answer); the third press, both cut inward together, two-handed, the right one ↙ and the left its mirror ↘, into an X (a black X
+;; mark where they cross).
+;; The NS clones stay after their strings (ICHIGO-NS-CLONE-P) for the J / AS presses to come, and fade the moment his attack is over
+;; (ICHIGO-CLONE-STEP: idle while he is not in a move); an attack in a gap is his own flash-step lunge, alone (ICHIGO-TICK: the clones
+;; answer no press that starts an SA). No Step or Hoho makes a clone under the core system (「Step 不再產生分身」)
+(defmove :ic-k-n3a :kind :flash :clip :ic-k-summon :clip-s 14 :startup 18 :active 0 :recovery 16 :on-frame ((8 ichigo-ns-clone-a))
+  :params (:ns-next :ic-k-n3b :sa :ic-k-sa))
+(defmove :ic-k-n3b :kind :flash :clip :ic-k-summon :startup 14 :active 0 :recovery 16 :on-frame ((4 ichigo-ns-clone-b))
+  :params (:ns-next :ic-k-n3c :sa :ic-k-sa))
+(defmove :ic-k-n3c :kind :flash :clip :ic-k-summon :startup 14 :active 0 :recovery 22 :on-frame ((2 ichigo-ns-clone-x) (12 ichigo-ns-x-mark))
+  :params (:sa :ic-k-sa))
+(defmove :ic-c-xa :kind :flash :clip :ic-k-xa :startup 8 :active 3 :recovery 16 :dmg 55 :guard 12
+  :reach 2.8 :arc 120 :on-hit :knockdown)                                ; the X: the right clone's forehand ↙
+(defmove-copy :ic-c-xb :ic-c-xa :clip :ic-k-xb)                          ; ... the left clone's, its mirror ↘ (DEFCLIP-MIRROR)
+(defmove-copy :ic-k-sa :ic-sa :clip :ic-k-f1 :clip-s 18 :startup 10 :slide 3.0 :reach 2.6 :dmg 50 :on-hit :stagger
+  :on-frame ((0 ichigo-soga-vanish)))                                    ; the lunge: a flash step in, one cut
+
 ;; L, 鎖盾 KUSARI-TATE, the parry (v2 §5.3): 360 deg, its own window f2-25 (the move param :window: rules PARRY-FRAME-P),
 ;; 10 guard gauge on frame 0; from blockstun too (ICHIGO-TICK); a melee hit in the window is caught (the attacker
 ;; staggers *KESSA-PARRY-STUN*, +20 gauge) and 残月返し answers (the :land string); a ranged hit / hazard in it is
@@ -259,7 +279,8 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :awakening t :form-name "KESSA" :walk *walk-kessa* :run *run-kessa* :mult *kessa-mult* :taken *kessa-taken*
   :weapon :tensa :hide (:shikai :mark) :stance :ic-k-stance :aura ichigo-aura-kessa :cine ic-kessa-cine
   :passives (:parry-block)
-  :core (:ns (:ic-n1a :ic-n2a :ic-n3a) :as (:ic-as1 :ic-as2 :ic-as3) :sa :ic-sa :mult 1.3)
+  :core (:ns (:ic-n1a :ic-n2a :ic-k-n3a) :as (:ic-as1 :ic-as2 :ic-as3) :sa :ic-sa :mult 1.3
+         :stances (:ic-st-rush :ic-tsuki :ic-k-stance))  ; by pointer: low, the slab trailing / cocked high behind / hanging point-down
   :hooks *kessa-hooks*
   :meter (:name "BUNSHIN" :max 3 :draw ichigo-hud-meter :label ichigo-hud-label)   ; the clones' row (the gauge unused)
   :commands (:q :ic-k-j1 :f :ic-k-k1 :sig :ic-k-parry :sp1 :ic-k-hiki :sp2 :ic-k-zanzo :kikon :ic-k-kikon)
@@ -456,11 +477,45 @@ Konpaku hint (the user 2026-09-29: it followed the kit's fixed 3) and his Soul B
          (i (clone-evict (mapcar (lambda (h) (icc-born (hazard-data (hazard h)))) live)))
          (q (pos-of (opp-of e))))
     (when i (clone-fade (hazard-data (hazard (nth i live)))) (pace e :clone-evicted))
-    (spawn-hazard :fx e :x x :z z :yaw (dir-yaw (- (aref q 0) x) (- (aref q 2) z)) :size 0.5 :life 99999
-                        :look 'ichigo-clone-look :hook 'ichigo-clone-hz
-                        :data (make-icc :born *match-tick* :life *clone-life* :src src))
-    (emit :sfx :clone e)
-    (clog "~a CLONE ~a ~d" (side-name e) src (1+ (- (length live) (if i 1 0))))))
+    (let ((c (make-icc :born *match-tick* :life *clone-life* :src src)))
+      (spawn-hazard :fx e :x x :z z :yaw (dir-yaw (- (aref q 0) x) (- (aref q 2) z)) :size 0.5 :life 99999
+                          :look 'ichigo-clone-look :hook 'ichigo-clone-hz :data c)
+      (emit :sfx :clone e)
+      (clog "~a CLONE ~a ~d" (side-name e) src (1+ (- (length live) (if i 1 0))))
+      c)))
+
+;; KESSA's NS3 clones (free: the NS is the price)
+(defun ichigo-ns-clone-p (c) "Is C one of NS3's clones (it stays after a string, until its life is out)?" (member (icc-src c) '(:ns-a :ns-b)))
+(defun ichigo-ns-slot (e side)
+  "Values x z of an NS3 clone's place: at E's side, 0.5 m ahead and 1.1 m to SIDE (1 his right, -1 his left), inside the arena (they
+flank him: clear of the opponent for the camera behind him)."
+  (let* ((yaw (yaw-of e)) (fx (fwd-x yaw)) (fz (fwd-z yaw)) (p (pos-of e)))
+    (clamp-to-circle (+ (aref p 0) (* 0.5 fx) (* side 1.1 (- fz))) (+ (aref p 2) (* 0.5 fz) (* side 1.1 fx)) (- *arena-radius* 0.4))))
+(defun ichigo-ns-clone (e side src)
+  "NS3: a clone at its place (ICHIGO-NS-SLOT), swinging forward at once (the light answer: it lands before the next press's)."
+  (multiple-value-bind (x z) (ichigo-ns-slot e side)
+    (let ((c (ichigo-clone-spawn e x z src)))
+      (clone-link c :f 1)
+      c)))
+(defun ichigo-ns-regroup (e h c)
+  "An NS3 clone answering a press flashes back to its place by E first, so it cuts with him wherever his lunge took him."
+  (multiple-value-bind (x z) (ichigo-ns-slot e (if (eq (icc-src c) :ns-a) 1 -1))
+    (let ((hz (hazard h)))
+      (setf (hazard-x hz) (f32 x) (hazard-z hz) (f32 z)))))
+(defun ichigo-ns-clone-a (e) "NS3 f8: the first clone, on his right." (ichigo-ns-clone e 1 :ns-a))
+(defun ichigo-ns-clone-b (e) "NS3's second press: the second clone, on his left." (ichigo-ns-clone e -1 :ns-b))
+(defun ichigo-ns-clone-x (e)
+  "NS3's third press: both NS clones cut inward together into an X (the right one ↙, the left its mirror ↘); one gone is
+made again where it stood."
+  (dolist (pair '((:ns-a 1 :ic-c-xa) (:ns-b -1 :ic-c-xb)))
+    (destructuring-bind (src side mv) pair
+      (let ((c (loop for h in (ichigo-live-clones e) for d = (hazard-data (hazard h)) when (eq (icc-src d) src) return d)))
+        (unless c (setf c (ichigo-ns-clone e side src)))
+        (setf (icc-state c) :answer (icc-mv c) (find-move mv) (icc-link c) 3 (icc-sf c) -2 (icc-hit c) nil
+              (icc-touched c) nil (icc-queued c) nil)))))
+(defun ichigo-ns-x-mark (e)
+  "NS3's X: the black X mark where the two cuts cross (a look)."
+  (multiple-value-bind (x z) (ahead e 1.9) (spawn-look e 'ichigo-kx-look :x x :z z :yaw (yaw-of e) :size 1.4 :life 18)))
 
 (defun clone-free-p (e) "The DANGAI boss rule (DUEL_ROGUE §5): the boss's clones cost nothing (ICHIGO-BOSS)." (eq e *run-boss*))
 (defun clone-affordable-p (e)
@@ -478,11 +533,13 @@ DANGAI boss pays nothing, guardless or not (CLONE-FREE-P)."
   "KESSA's :step hook: every Step's take-off point leaves a clone, paid (CLONE-PAY!; the user 2026-09-29: no gap between
 them, the guard gauge is the limit)."
   (let ((why (let ((b (brain e))) (if (and b (eq (brain-act b) :dash)) (if (> (brain-dash b) 0) "DASH" "BACKDASH") "TAP"))))
-    (if (clone-pay! e)
+    (cond
+      (*core-on* nil)                 ; the core system: only NS3 makes clones (the user, 2026-10-27: 「Step 不再產生分身」)
+      ((clone-pay! e)
         (let ((p (pos-of e)))
           (pace e (ic-key "CLONE-STEP" why (ic-reach-key (aref p 0) (aref p 2) e)))
-          (ichigo-clone-spawn e (aref p 0) (aref p 2) :step))
-        (progn (pace e (ic-key "REFUSED-STEP" why)) (pace e :refused-gg (round (gauges-gg (gauges e))))))))
+          (ichigo-clone-spawn e (aref p 0) (aref p 2) :step)))
+      (t (pace e (ic-key "REFUSED-STEP" why)) (pace e :refused-gg (round (gauges-gg (gauges e))))))))
 
 (defun hoho-clone (e)
   "A Hoho's reappearance leaves a clone 1.6 m in front of the opponent (the line from Ichigo, behind him, through him),
@@ -519,7 +576,7 @@ link, in order, 3 links at most: the clone plays his whole string back, *CLONE-L
     (dolist (h (ichigo-clones e))
       (let ((c (hazard-data (hazard h))))
         (case (icc-state c)
-          (:idle (pace e :clone-answers) (clone-link c w 1))
+          (:idle (pace e :clone-answers) (when (ichigo-ns-clone-p c) (ichigo-ns-regroup e h c)) (clone-link c w 1))
           (:answer (when (< (+ (icc-link c) (length (icc-queued c))) 3)   ; each press one link, in order
                      (setf (icc-queued c) (append (icc-queued c) (list w))))))))))
 
@@ -552,7 +609,8 @@ string's end it fades if it touched him, else it idles where it stands."
                     (clone-link c (pop (icc-queued c)) (1+ (icc-link c))))
                    ((>= sf (+ s (mv-a mv) (mv-r mv)))
                     (unless (icc-touched c) (pace e :clone-whiff-strings))
-                    (if (eq (clone-after-string (icc-touched c) (icc-life c)) :fade)
+                    (if (and (eq (clone-after-string (icc-touched c) (icc-life c)) :fade)
+                             (not (and (ichigo-ns-clone-p c) (plusp (icc-life c)))))   ; (NS3's stay for the J / AS to come)
                         (clone-fade c)
                         (setf (icc-state c) :idle (icc-queued c) nil))))))))
 
@@ -572,7 +630,9 @@ string's end it fades if it touched him, else it idles where it stands."
       (unless (eq (icc-state c) :fade)
         (setf (hazard-yaw hz) (f32 (angle-wrap (turn-toward (hazard-yaw hz) (dir-yaw dx dz) (track-step 720.0))))))
       (ecase (icc-state c)
-        (:idle (when (<= (icc-life c) 0) (pace e :clone-expired) (clone-fade c)))
+        (:idle (cond ((<= (icc-life c) 0) (pace e :clone-expired) (clone-fade c))
+                     ((and *core-on* (not (eq (fighter-state (fighter e)) :move)))   ; his attack is over: gone (the user, 2026-10-27:
+                      (clone-fade c))))                                            ;  「結束攻擊後分身就直接消失不在留於場上」)
         (:answer (clone-answer-step e hz c))
         (:charge
          (let ((s (min (* 40.0 +step+) (max 0.0 (- d 1.0)))) (f (fighter e)))
@@ -816,9 +876,14 @@ edges they answer, the Hoho clone, the O charge), the parry from blockstun and i
                        *boss-ic-clones* *boss-ic-echoes*)))
           (unless (member state '(:stun :air :down :wakeup :cine))
             (dolist (bt '(:quick :flash))
-              (when (and (= 1 (vpad-held vp bt)) (not (vpad-modded-p vp bt))) (ichigo-press e bt))))
+              (when (and (= 1 (vpad-held vp bt))
+                         (if (vpad-modded-p vp bt)
+                             (eq (fighter-cls f) :as)                 ; the core system: an SP that is an AS: they join it
+                             (not (eq (fighter-cls f) :ns))))         ; an attack in an NS gap is the SA: his alone
+                (ichigo-press e bt))))
           (if (eq state :hoho)
-              (when (and (>= (fighter-sf f) *hoho-appear*) (not (ics-hoho-done st))) (setf (ics-hoho-done st) t) (hoho-clone e))
+              (when (and (>= (fighter-sf f) *hoho-appear*) (not (ics-hoho-done st))) (setf (ics-hoho-done st) t)
+                (unless *core-on* (hoho-clone e)))   ; (the core system: no Hoho clone either; it would fade at once, idle)
               (setf (ics-hoho-done st) nil))
           (if (and mv (eq (mv-kind mv) :kikon))
               (unless (ics-o-live st) (setf (ics-o-live st) t) (ichigo-o-press e f st))
