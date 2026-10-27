@@ -170,10 +170,24 @@ same strike again; its hit is the Kikon (KIKON-OUTCOME)."
   (let ((v (motion-vel (motion e))) (left (- (kikon-follow-wait (mv-s mv)) (fighter-hold f))))
     (fill v 0f0)
     (turn-to-opp e f (track-step 360.0))
-    (run-velocity e (kikon-follow-speed (fighter-dist f) left 22.0))
+    (run-velocity e (kikon-follow-speed (fighter-dist f) left (or (getf (mv-params mv) :follow-cap) 22.0)))   ; (a wave's: far)
     (when (<= left 0)
       (setf (fighter-hits f) 0 (fighter-contact f) nil (fighter-land-sf f) -1)
       (enter-main e f mv))))
+
+(defun core-wave-strike (att hz)
+  "The follow-up strike (its :params :kikon-strike) of the wave HZ that ATT's NS / AS segment fired (HAZARD-SP-MV), when its hit may
+be a Kikon's first strike: the hold kept since that segment (the button still down: APPLY-HIT), ATT still in it or free again
+(the user, 2026-10-28: 「我發現月牙天衝揮出去後都無法打出毀魂技」; asked how, 「打中後瞬步衝過去補一刀」). Else NIL."
+  (let* ((f (fighter att)) (from (and *core-on* hz (hazard-sp-mv hz))))
+    (and from (eq (fighter-sp-held f) t)
+         (or (and (eq (fighter-state f) :move) (eq (fighter-move f) from)) (eq (fighter-state f) :idle))
+         (gethash (getf (mv-params from) :kikon-strike) (kit-moves (fighter-kit f))))))
+
+(defun core-wave-follow! (att strike)
+  "A wave's hit held (CORE-WAVE-STRIKE): ATT flash-steps in after the knocked-back victim and STRIKE is the follow-up (phase
+:follow, set by APPLY-HIT; CORE-FOLLOW-STEP), its hit the Kikon. The SP pointer stays the wave's segment's."
+  (start-move att strike :quick))
 
 (defun core-kikon-cancel! (victim f)
   "The victim (VICTIM, fighter F) attacked while the Kikon's follow-up was coming (not red): it is cancelled, both bounce to neutral."

@@ -335,7 +335,9 @@ result (NIL = no effect)."
                 (pierce-rate (gauges-gg (gauges att)) (or (and mv (getf (mv-params mv) :pierce-mult)) 1.0))
                 0.0))
          (own (and mv (eq (fighter-move fa) mv)))
-         (rush (and mv (or (eq (mv-kind mv) :kikon) (and own (not hazard) (core-kikon-p fa mv)))))       ; the attacker is still in that move
+         (wave (and hazard (core-wave-strike att hazard)))   ; a core SP's wave: its follow-up strike (CORE-WAVE-STRIKE)
+         (rush (or (and mv (or (eq (mv-kind mv) :kikon) (and own (not hazard) (core-kikon-p fa mv))))       ; the attacker is still in that move
+                   (and wave t)))
          (fstrike (and rush own (fighter-follow fa)))   ; the dash-in's strike: the Kikon if it hits
          (res (resolve-contact def-state
                                :breaker (member :breaker flags)
@@ -360,7 +362,7 @@ result (NIL = no effect)."
          (dmods (if (and *run-mods* (run-mods-on-p def)) (run-def-mods def dmods flags) dmods))
          (x (or x (aref p 0))) (z (or z (aref p 2))) (y (+ (aref p 1) 1.1))
          (base (+ (hw-dmg hw) bonus))
-         (outcome (and rush (kikon-outcome (if (eq (mv-kind mv) :kikon) (vpad-down (pilot-vpad (pilot att)) :kikon) (and (eq (fighter-sp-held fa) t) (core-held-p att)))
+         (outcome (and rush (kikon-outcome (if (and mv (eq (mv-kind mv) :kikon)) (vpad-down (pilot-vpad (pilot att)) :kikon) (and (eq (fighter-sp-held fa) t) (core-held-p att)))
                                            res fstrike)))
          (follow (eq outcome :follow)))                 ; knocked back, then the rusher dashes in to the follow-up
     (when (eq outcome :kikon)
@@ -413,7 +415,7 @@ result (NIL = no effect)."
                                                   1 (max 1 (- hits (fighter-combo-from fd))))
                                               (and (not flat) (eq res :counter)) (eq (gauges-burst (gauges att)) :orange))))   ; :spare: never the last point
                            (if (member :spare flags) (min d (max 0 (1- (gauges-reishi (gauges def))))) d)))
-                    (stun (cond (follow (kikon-follow-stun red (mv-s mv)))
+                    (stun (cond (follow (kikon-follow-stun red (mv-s (or wave mv))))
                                 ((and (hw-stun hw) (eq react (hw-react hw))) (hw-stun hw))   ; (a bind in a combo: a flinch)
                                 (t (hitstun react (eq res :counter)))))
                     (frost (max (hw-frost hw) (kit-frost-touch (kit-of att)))))
@@ -444,8 +446,9 @@ result (NIL = no effect)."
                                 (when (> pull 0.01)                                ; reach him (the user 2026-10-02:
                                   (set-slide att pull *string-pull-frames* (- (aref p 0) sx) (- (aref p 2) sz))))))))   ; no chase)
                (when (and (eq (kit-class (fighter-kit fa) mv) :as) (not hazard)) (core-on-hit! att def mv))
-               (when (and follow own)                     ; the rush dashes in, then strikes again (KIKON-RUSH-STEP)
-                 (when (core-kikon-p fa mv) (core-set-kikon-n! att red))
+               (when (and follow wave) (core-wave-follow! att wave))   ; a wave's: he flash-steps in to its strike
+               (when (and follow (or own wave))           ; the rush dashes in, then strikes again (KIKON-RUSH-STEP)
+                 (when (or wave (core-kikon-p fa mv)) (core-set-kikon-n! att red))
                  (setf (fighter-phase fa) :follow (fighter-hold fa) 0 (fighter-follow fa) t
                        (fighter-kikon-lock fd) (if red 2 1))   ; (2026-10-24: guard only, or nothing when red; KIKON-LOCK-P)
                  (emit :kikon-follow att def)

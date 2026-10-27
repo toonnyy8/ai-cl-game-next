@@ -516,12 +516,18 @@ the string ((SA :q J2)) follows every SA (the kit's and the segments' own) with 
   (loop for n = name then (getf (mv-params (find-move n)) :ns-next) while n collect n))
 (defun core-move-names (core)
   "Every move name a kit's :core plist reaches: the three NS and the three AS sequences (every segment), the SA."
-  (append (loop for n in (getf core :ns) append (core-segments n)) (loop for n in (getf core :as) append (core-segments n))
+  (append (loop for n in (append (getf core :ns) (getf core :as))
+                append (loop for m in (core-segments n) collect m
+                             when (getf (mv-params (find-move m)) :kikon-strike) collect it))   ; (a wave's follow-up strike)
           (core-segment-sas core) (and (getf core :sa) (list (getf core :sa)))))
 (defun build-core-classes (kit)
   "Fill KIT's class table: the moves of its :q string are NA (J1 .. J3), its :core moves NS / AS / SA."
   (let ((h (kit-cls kit)) (core (kit-core kit)))
-    (flet ((tag (name cls) (let ((mv (gethash name (kit-moves kit)))) (when mv (setf (gethash mv h) cls)))))
+    (labels ((tag (name cls)
+               (let ((mv (gethash name (kit-moves kit))))
+                 (when mv
+                   (setf (gethash mv h) cls)
+                   (let ((s (getf (mv-params mv) :kikon-strike))) (when s (tag s cls)))))))   ; (its segment's class)
       (when (getf (kit-commands kit) :q) (tag (getf (kit-commands kit) :q) :na))
       (loop for (from cmd to) in (kit-strings kit) when (eq cmd :q) do (tag from :na) (tag to :na))
       (loop for n in (getf core :ns) do (dolist (m (core-segments n)) (tag m :ns)))

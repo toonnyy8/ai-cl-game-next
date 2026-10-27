@@ -106,6 +106,19 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   down at the hit. Browser check (`--mobile`, Ichigo, debug 2502 + 2393): the SP tap, a re-press 0.1 s later held 1.6 s → `IC-N1A`,
   `KIKON FOLLOW-UP`, `KIKON 68`, `IC-HEAVY-KIKON-CINE`; the tap alone → `IC-N1A`, no Kikon; taps every 0.12 s → `IC-N1A`, `IC-N1B`,
   `IC-N1C`, no Kikon. The CPU and the keyboard are unchanged (the sim gate has no touch).
+- **A wave's Kikon** (2026-10-28, the user: 「我發現月牙天衝揮出去後都無法打出毀魂技」; asked how, 「打中後瞬步衝過去補一刀」). A hazard's hit
+  was never a Kikon (`apply-hit`'s rush needed a melee hit). Now a hazard records the core NS / AS segment that fired it when that
+  segment has `:params :kikon-strike` (`hazard-sp-mv`, set in `spawn-hazard`); its hit, with the hold kept since that segment
+  (`fighter-sp-held` `t` and the button down) and the owner still in it or idle, is the Kikon's first strike (`core-wave-strike`):
+  the victim is knocked back as by any held SP, the owner starts the strike move in phase `:follow` (`core-wave-follow!`), flash-steps
+  in (`:look :flash-step`: afterimages only; `:follow-cap` 40 m/s instead of 22, so it closes from 12 m) and the strike's hit is the
+  Kikon, cancellable by an attack as every follow-up. The strikes are classed as their segment (`build-core-classes` tags a
+  segment's `:kikon-strike` with its class): Ichigo's Shikai `:ic-wave-strike` (NS2c JUJISHO) / `:ic-wave-strike-as` (AS2b), KESSA's
+  `:ic-k-wave-strike` / `-as`, the charged X of both blades (80, its swing replayed on the strike by `:clip-2`, the Getsuga glow by
+  `:charge-mult` 1.7). Browser check (debug 2502 + 2511): NS2 ×3 held at 2.2 m and at 6.8 m → `WAVE -> P2 HIT 150`,
+  `IC-WAVE-STRIKE`, `KIKON FOLLOW-UP`, `KIKON 80`, −2 Konpaku, `IC-KIKON-CINE`; J ×3 > AS2 ×2 held → `WAVE -> P2 HIT 60`,
+  `IC-WAVE-STRIKE-AS`, `KIKON 80`. Gates: Ichigo's three pairings at 10 seeds identical to the run before it (the CPU never
+  holds through a wave), G2 unchanged.
 - 「用攻擊抵銷毀魂技並彈開雙方回到中立狀態」 and 「沒必要其他手段，只留攻擊抵銷」 → the Kikon follow-up is cancelled only by an attack
   (both bounce to neutral); Hoho and Burst do not stop it. A **red** victim cannot do even that (red = the Kikon must-hit line).
 - The 1.5 s Kikon cooldown is dropped with the O key (it was a standalone key); the hold is gated by the SP landing.

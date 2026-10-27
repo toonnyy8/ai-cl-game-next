@@ -135,7 +135,8 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :params (:ns-next :ic-n2b :sa :ic-sa-g1))                                ; charge 1: the short blade
 (defmove :ic-n2b :kind :flash :clip :ic-chg2 :startup 16 :active 0 :recovery 14 :on-frame ((2 ichigo-charge-2))
   :params (:ns-next :ic-n2c :sa :ic-sa-g2))                                ; charge 2: both blades
-(defmove-copy :ic-n2c :ic-juji :kind :flash)                               ; GETSUGA JUJISHO
+(defmove-copy :ic-n2c :ic-juji :kind :flash                                ; GETSUGA JUJISHO
+  :params (:width 3.6 :speed 14.0 :range 12.0 :dmg 150 :react :knockdown :kb 2.0 :guard 22 :look ichigo-juji-look :kikon-strike :ic-wave-strike))
 ;; NS3, the rush: RANGETSU's lunge (four cuts) into TSUKI-OTOSHI's pounce. A low coil first.
 (defmove-copy :ic-n3b :ic-tsuki-k :kind :flash)
 (defmove-copy :ic-n3a :ic-tsuki-j :kind :flash :clip :ic-ns3 :startup 18 :clip-s 18 :params (:ns-next :ic-n3b)
@@ -147,7 +148,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;; 「AS1=1 AS2=2 AS3=3」); only the last one knocks down (or launches); a hold kept through any segment's hit is the Kikon
 ;; AS2: SOGA's flash-step lunge X (stagger) > SHOGA's rising cut (the launch)
 (defmove-copy :ic-as2b :ic-getsuga :kind :sp :callout "GETSUGA TENSHO" :startup 12 :clip-s 14 :on-frame ((12 ichigo-getsuga))
-  :params (:width 3.0 :speed 18.0 :range 6.0 :dmg 60 :react :launch :kb 2.5 :guard 18 :look ichigo-getsuga-look))
+  :params (:width 3.0 :speed 18.0 :range 6.0 :dmg 60 :react :launch :kb 2.5 :guard 18 :look ichigo-getsuga-look :kikon-strike :ic-wave-strike-as))
 (defmove-copy :ic-as2 :ic-soga :on-hit :stagger :dmg 50 :callout "SOGA" :params (:ns-next :ic-as2b))
 ;; AS3: KOGA's rising X > SOSEN-GIRI's turn > RAKUGA's drop (the high damage: 190 if all land)
 (defmove-copy :ic-as3c :ic-tsuki-k :kind :sp :callout "TSUKI-OTOSHI" :dmg 100 :on-hit :knockdown)
@@ -163,6 +164,11 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;; sweep, 55 (34); KOGA's X of both blades, 80; their trails (and the J2 / J3 after them) yellow-white (ICHIGO-CHARGED-BLADES)
 (defmove-copy :ic-sa-g1 :ic-sa :dmg 55 :params (:charge-mult 1.4))   ; (:charge-mult: the string after it, J2 / J3 / the AS, x1.4 / x1.7)
 (defmove-copy :ic-sa-g2 :ic-k2s :kind :quick :enter 0 :startup 10 :clip-s 14 :dmg 80 :reach 2.4 :slide 1.4 :guard 12 :params (:charge-mult 1.7))
+;; a Getsuga wave's Kikon (the user, 2026-10-28: 「我發現月牙天衝揮出去後都無法打出毀魂技」, 「打中後瞬步衝過去補一刀」): the wave hit with the
+;; SP held knocks him back, Ichigo flash-steps in (afterimages only, up to 40 m/s: from 12 m) and this X of the charged blades is the
+;; follow-up, its hit the Kikon (CORE-WAVE-STRIKE); :clip-2 replays the swing on the strike (the dash ran the clip)
+(defmove-copy :ic-wave-strike :ic-sa-g2 :clip-2 :ic-cross :params (:charge-mult 1.7 :follow-cap 40.0 :look :flash-step))
+(defmove-copy :ic-wave-strike-as :ic-wave-strike)   ; (AS2's: an AS, the triangle's class of its segment)
 
 ;;; ================================================================ 血鎖の一護 KESSA NO ICHIGO (the awakening)
 ;;; one white slab, no point and no guard: cuts only (the clones carry the range now); the J one-handed, the K two-handed
@@ -258,7 +264,10 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove-copy :ic-k-sa-g2 :ic-sa-g2 :clip :ic-k-back :clip-s 8)
 (defmove-copy :ic-k-n2a :ic-n2a :clip :ic-k-chg1 :params (:ns-next :ic-k-n2b :sa :ic-k-sa-g1))   ; the black flame's charges
 (defmove-copy :ic-k-n2b :ic-n2b :clip :ic-k-chg2 :params (:ns-next :ic-k-n2c :sa :ic-k-sa-g2))
-(defmove-copy :ic-k-n2c :ic-n2c :clip :ic-k-f3 :clip-s 21)                         ; the small 漆黒 crescent, cut down
+(defmove-copy :ic-k-n2c :ic-n2c :clip :ic-k-f3 :clip-s 21                          ; the small 漆黒 crescent, cut down
+  :params (:width 3.6 :speed 14.0 :range 12.0 :dmg 150 :react :knockdown :kb 2.0 :guard 22 :look ichigo-juji-look :kikon-strike :ic-k-wave-strike))
+(defmove-copy :ic-k-wave-strike :ic-k-sa-g2 :clip-2 :ic-k-back :params (:charge-mult 1.7 :follow-cap 40.0 :look :flash-step))   ; (its wave's Kikon)
+(defmove-copy :ic-k-wave-strike-as :ic-k-wave-strike)
 (defmove-copy :ic-k-as1 :ic-k-hiki :callout "KUSARI-BIKI" :clip :ic-k-whip :startup 12 :active 18 :recovery 20 :dmg 14 :on-hit :flinch
   :hits ((12 13) (16 17) (20 21) (25 30 :on-hit :knockdown))                       ; AS1: four lashes, his left / right in turn, the last
   :params (:melee-range 3.8 :pull 1.6 :steal-fs 10 :chain (60 -60 3.6 1.2 1.0)))   ; knocks him down (「血鎖 AS 也改成多段的鞭擊」)
@@ -267,7 +276,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;; launch); AS3, his cuts with NS3's clones joining one a press (a clone at his right, one at his left, then their X with his drop)
 (defmove-copy :ic-k-as2b :ic-k-n2c :kind :sp :callout "GETSUGA TENSHO" :startup 14 :clip-s 21 :recovery 26
   :on-frame ((6 ichigo-juji-first) (14 ichigo-juji))
-  :params (:width 3.0 :speed 18.0 :range 6.0 :dmg 60 :react :launch :kb 2.5 :guard 18 :look ichigo-juji-look))
+  :params (:width 3.0 :speed 18.0 :range 6.0 :dmg 60 :react :launch :kb 2.5 :guard 18 :look ichigo-juji-look :kikon-strike :ic-k-wave-strike-as))
 (defmove-copy :ic-k-as2 :ic-as2 :clip :ic-k-f1 :clip-s 18 :params (:ns-next :ic-k-as2b))
 (defmove-copy :ic-k-as3c :ic-k3 :kind :sp :callout "RAKUGA" :dmg 100 :on-hit :knockdown :flags nil :clip :ic-k-f3 :clip-s 21
   :on-frame ((8 ichigo-ns-clone-x) (18 ichigo-ns-x-mark)))   ; (:enter 7)

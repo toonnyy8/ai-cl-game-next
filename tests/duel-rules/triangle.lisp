@@ -125,3 +125,11 @@
     (loop for nx = (kit-next k (mv-name m) :q) while (and nx (< n 9)) do (setf m nx) (incf n))
     (check (= n 5))
     (check (member :ender (mv-flags m)))))
+;; a Getsuga wave's Kikon (2026-10-28: 「打中後瞬步衝過去補一刀」): each wave segment names a follow-up strike in its form's moves,
+;; classed as its segment (so its hit is judged as the Kikon), a flash step that can close 12 m
+(loop for (cf . segs) in '(((:ichigo :base) :ic-n2c :ic-as2b) ((:ichigo :kessa) :ic-k-n2c :ic-k-as2b))
+      do (let ((k (apply #'kit cf)))
+           (dolist (n segs)
+             (let* ((mv (kit-move k n)) (s (kit-move k (getf (mv-params mv) :kikon-strike))))
+               (check (and s (kit-class k s) (eq (kit-class k s) (kit-class k mv))
+                           (eq (getf (mv-params s) :look) :flash-step) (>= (getf (mv-params s) :follow-cap) 40.0)))))))

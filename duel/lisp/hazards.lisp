@@ -29,6 +29,8 @@ the owner's move now (HIT-RBASE; none: *REIATSU-KIND-OTHER*)."
                              :yaw (f32 yaw) :speed (f32 speed) :turn (f32 turn) :size (f32 size)
                              :life life :delay delay :hits-left (if hw hits 0) :hw hw :look look :src src :fragile fragile
                              :hook hook :data data :group group :sp sp
+                             :sp-mv (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))   ; (a wave's Kikon)
+                                      (and mv (core-kikon-p f mv) (getf (mv-params mv) :kikon-strike) mv))
                              :rbase (f32 (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))
                                            (if mv (hit-reiatsu-base (mv-kind mv) (getf (mv-params mv) :reiatsu)) *reiatsu-kind-other*))))))
 
