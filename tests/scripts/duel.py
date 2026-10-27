@@ -44,7 +44,7 @@ def key(t, k, down=True): return {"at": round(t, 2), "key": k, "down": down}
 def tap(t, k, hold=0.08): return [key(t, k), key(t + hold, k, False)]
 
 # seeded CPU vs CPU, turbo (120 steps / frame), cinematics play: reaches RESULTS in a few seconds
-for pair, base in (("yy", 3000), ("yk", 4000), ("kk", 5000)):
+for pair, base in (("ii", 3000), ("ik", 4000), ("kk", 5000)):   # (II IK KK since the core system, 2026-10-27; YY YK before)
     write(f"cvc-{pair}", [cmd(T0, 2102), cmd(T0 + 0.1, base + 7)])
 write("gate", [cmd(T0, 2113), cmd(T0 + 0.3, 2107)])
 write("probe", [cmd(T0 + 2 * i, 2315 + i) for i in range(5)])

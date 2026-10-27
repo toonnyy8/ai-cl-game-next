@@ -107,11 +107,11 @@ def run(job):
 
 
 def cvc():
-    """The native build against the browser's G2 reference: RESULTS + hash lines of seed 7 YY / YK / KK."""
+    """The native build against the browser's G2 reference: RESULTS + hash lines of seed 7 II / IK / KK (YY / YK before the core system)."""
     ref, bad = {}, 0
     for l in open(os.path.join(ROOT, 'tests/style-cvc-ref.txt')):
         if not l.startswith('#'): ref.setdefault(l[:2], []).append(l[3:].rstrip('\n'))
-    for p, c in (('yy', 3007), ('yk', 4007), ('kk', 5007)):
+    for p, c in (('ii', 3007), ('ik', 4007), ('kk', 5007)):
         r = lisp([2102, c])
         got = [l for l in r.stdout.splitlines() if re.match(r'duel (-> RESULTS winner|hash)', l)]
         ok = got == ref[p]

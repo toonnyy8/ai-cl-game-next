@@ -3,7 +3,7 @@
 standing gates G2 duel determinism, G3 budgets). Run from the repository root; the
 dists are built with ./build.sh (a BASE dist is a copy of dist/NAME built before the change).
 
-  python3 tests/style-gates.py cvc DIST             G2: result + hash lines of duel-cvc-{yy,yk,kk}.json vs
+  python3 tests/style-gates.py cvc DIST             G2: result + hash lines of duel-cvc-{ii,ik,kk}.json vs
                                                     tests/style-cvc-ref.txt
   python3 tests/style-gates.py perf A B duel        G3: A B A B A B real-time runs, median frame ms; startup
                                                     heap and first frame of each

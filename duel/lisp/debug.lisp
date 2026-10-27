@@ -2,7 +2,7 @@
 ;;;; (arguments are encoded in the integer); the first call turns the combat log and stats lines on.
 ;;;; The full command table (every range, with its arguments and the probe lines it prints) is in
 ;;;; docs/duel/DUEL_GAMEPLAY.md "Debug commands"; claim a new range THERE before using it. In brief:
-;;;;   2000-8000+s   seeded CPU vs CPU now (2000+s random pairing, 3000+ YY, 4000+ YK, 5000+ KK; 6000-8000+s the Rukia pairings)
+;;;;   2000-8000+s   seeded CPU vs CPU now (2000+s random pairing, 3000+ II, 4000+ IK, 5000+ KK (YY / YK until the core system, 2026-10-27); 6000-8000+s the Rukia pairings)
 ;;;;   2100-2109     toggles: skip cinematics, turbo, hitbox / intent overlays, CPUs off, perf log, dump, fill Reiatsu, camera
 ;;;;   2110-2119, 2125+k, 2136+i, 30000+k   the seed gates (all pairings / one pairing / one character's), their seed offset
 ;;;;   2200+k, 10000+1000k+f   force cinematic k now and hold it / stills of it at frame f
@@ -553,8 +553,8 @@ checks every such clause of DEBUG-COMMAND is listed here)."
   (cond ((<= 2000 c 2099) (start-cvc (- c 2000) nil))
         ((<= 200000 c 209999) (start-learn-gate (floor (- c 200000) 1000) (mod (floor c 100) 10) (mod (floor c 10) 10) (mod c 10)))
                                                             ; (habit h 0-9, roster c1 / c2 0-9)
-        ((<= 3000 c 3999) (start-cvc (- c 3000) '(:yamamoto :yamamoto)))
-        ((<= 4000 c 4999) (start-cvc (- c 4000) '(:yamamoto :kenpachi)))
+        ((<= 3000 c 3999) (start-cvc (- c 3000) '(:ichigo :ichigo)))
+        ((<= 4000 c 4999) (start-cvc (- c 4000) '(:ichigo :kenpachi)))
         ((<= 5000 c 5999) (start-cvc (- c 5000) '(:kenpachi :kenpachi)))
         ((<= 6000 c 6999) (start-cvc (- c 6000) '(:rukia :yamamoto)))
         ((<= 7000 c 7999) (start-cvc (- c 7000) '(:rukia :kenpachi)))

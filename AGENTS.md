@@ -85,7 +85,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 | Awaken A/B | `--pairs k --seed0 {100,300,500} --seeds 60 --cmd 39020` (39000+10a+b; the character as P2, e.g. Ichigo in SI: `39002`) | the "never awaken" side wins ≥ 20/60 on every stream |
 | ASSIST | `python3 tools/assistgate.py` | report the masher's win % per setting |
 | CPU score | `python3 tools/aieval.py --char C` (roster index 0–4) | AI work only (DUEL_AI_V2) |
-| G2 references | `python3 tests/style-gates.py cvc dist/duel` (or `simgate.py --cvc`) | identical to `tests/style-cvc-ref.txt`; on an intended change regenerate it (header note + "Before:") and update every quote of those lines |
+| G2 references | `python3 tests/style-gates.py cvc dist/duel` (or `simgate.py --cvc`; pairs II IK KK since the core system, 2026-10-27) | identical to `tests/style-cvc-ref.txt`; on an intended change regenerate it (header note + "Before:") and update every quote of those lines |
 | Looks (refactors) | `python3 tests/style-gates.py looks BASE_DIST dist/duel --jobs 4 [--keep-base]` (BASE = a copy of `dist/duel` built before the change) | 115 stills byte-identical to BASE (noise floor 0; BASE built at or after refactor round 3's merge, whose 9 accepted Senjumaru stills moved by ulps; 110 before round 3 added five portrait / thumb-ring stills, 105 before round 2 added five, 2026-10-21; 104 before Hisagi joined, 2026-10-17; 112 before the old Lille's removal, 2026-10-13); for changes that must not move a pixel |
 | Shipping build | `./build.sh duel` last | |
 
