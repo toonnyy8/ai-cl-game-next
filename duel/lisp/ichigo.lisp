@@ -133,7 +133,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove-copy :ic-as1 :ic-tsuki-k :kind :sp :callout "TSUKI-OTOSHI" :dmg 40 :on-hit :knockdown :params (:steal-fs 40 :steal-rei 100))
 (defmove-copy :ic-as2 :ic-soga :on-hit :launch :dmg 90 :callout "SOGA")
 (defmove-copy :ic-as3 :ic-k3 :kind :sp :callout "RAKUGA" :dmg 150 :on-hit :knockdown :flags nil)
-(defmove-copy :ic-sa :ic-j1 :dmg 34 :slide 0.0)
+(defmove-copy :ic-sa :ic-j1 :dmg 34 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)   ; (reach and a lunge: it must connect after an NS segment's knockback)
 
 ;;; ================================================================ 血鎖の一護 KESSA NO ICHIGO (the awakening)
 ;;; one white slab, no point and no guard: cuts only (the clones carry the range now); the J one-handed, the K two-handed

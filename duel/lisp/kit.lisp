@@ -434,7 +434,7 @@ attacks but SP1 / L go back to East), or NIL."
 (defun kit-atk-mods (kit lost &optional (pierce 1.0) form-mult)
   "The attacker plist for HIT-DAMAGE: the form's multiplier (FORM-MULT in its place when given: a move's :params
 :form-mult; x PIERCE: 1 + Bankai East's pierce k on a hit) and Cornered with LOST Konpaku."
-  (list :mult (* (or form-mult (kit-mult kit)) pierce (if (kit-core kit) (* *core-damage* (getf (kit-core kit) :mult 1.0)) 1.0)) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
+  (list :mult (* (or form-mult (kit-mult kit)) pierce (if (and *core-on* (kit-core kit)) (* *core-damage* (getf (kit-core kit) :mult 1.0)) 1.0)) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
 (defun kit-def-mods (kit)
   "The defender plist for HIT-DAMAGE: the damage the form takes (:taken)."
   (list :mult (kit-taken kit)))
@@ -462,6 +462,7 @@ through its :clip-map."
          (commands (append (getf spec :commands) (and parent (kit-commands parent))))
          (strings (append (getf spec :strings) (and (getf spec :grid) (string-grid (getf spec :grid)))
                           (and parent (kit-strings parent))))
+         (strings (append strings (core-sa-strings (or (getf spec :core) (and pspec (getf pspec :core))) commands strings)))
          ;; the child's keys come first, so they win (a keyword argument list takes the leftmost)
          (merged (list* :commands commands :strings strings
                         (append spec (strip-keys pspec '(:inherit :startup-add :reach-mult :grid)))))
@@ -498,6 +499,12 @@ through its :clip-map."
       kit)))
 
 ;;; ---------------------------------------------------------------- the core system's moves (docs/duel/DUEL_CORE.md)
+(defun core-sa-strings (core commands strings)
+  "The SA goes on like the first J does (the user 2026-10-27: 「SP -> A 後的 A 打不出連擊」): attack -> attack is a continuation, so
+the string ((SA :q J2)) follows the SA with what follows J1 on an attack."
+  (let* ((sa (getf core :sa)) (j1 (getf commands :q))
+         (j2 (loop for (from cmd to) in strings when (and (eq from j1) (eq cmd :q)) return to)))
+    (and sa j2 (list (list sa :q j2)))))
 (defun core-segments (name)
   "NAME and the NS segments after it (each move's :params :ns-next), in order."
   (loop for n = name then (getf (mv-params (find-move n)) :ns-next) while n collect n))

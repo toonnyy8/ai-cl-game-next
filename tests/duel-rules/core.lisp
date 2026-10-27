@@ -1,4 +1,5 @@
 (in-package :duel)
+(setf *core-on* nil)   ; (the checks below quote the damage numbers of before the core system's scale, 2026-10-27; TRIANGLE turns it back on)
 
 (defvar *br-tip-print* nil)   ; (t: print the awakened stances' drawn tips, *BR-W-TIPS*)
 (defvar *br-w-stretch* nil)   ; (barro-art.lisp's whips, read with the art files below)

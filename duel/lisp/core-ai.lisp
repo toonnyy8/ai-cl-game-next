@@ -50,7 +50,7 @@
          (when (eq (fighter-contact f) :hit)                  ; landed (or cancelled: it counts as a hit)
            (setf (brain-decided b) (fighter-cls-t f))
            (if (and (not (fighter-as-done f))
-                    (or (eq oc :ns) (eq cls :sa) (>= (fighter-presses f) 3) (>= (brain-r-cont b) (brain-chance b *cai-cont-p*))))
+                    (or (eq oc :ns) (>= (fighter-presses f) 3) (>= (brain-r-cont b) (brain-chance b *cai-cont-p*))))
                (cai-sp b f s 1)
                (cai-press b :quick 1))))
         (:ns

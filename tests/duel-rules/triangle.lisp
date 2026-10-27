@@ -1,5 +1,6 @@
 ;; ================================================================ the core triangle (duel/lisp/core.lisp, docs/duel/DUEL_CORE.md)
 (in-package :duel)
+(setf *core-on* t)
 ;; the note's table (判定表), attacker's view: row = the attacker's class, column = the defender's
 (dolist (r '((:na :na :hit) (:na :ns :cancel) (:na :as :cancel) (:na :sa :absorb)
              (:ns :na :cancel) (:ns :ns :hit) (:ns :as :absorb) (:ns :sa :cancel)

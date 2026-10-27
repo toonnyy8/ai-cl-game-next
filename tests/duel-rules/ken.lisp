@@ -1,4 +1,5 @@
 (in-package :duel)
+(setf *core-on* nil)   ; (these checks quote the damage numbers of before the core system's scale, 2026-10-27)
 ;;; ================================================================ Nozarashi v2: NOME, the three-cup ladder (§2.13)
 (let* ((t1 (kit :kenpachi :nozarashi)) (t2 (kit :kenpachi :ryote)) (t3 (kit :kenpachi :nomihose))
        (m (kit-meter t1)) (ladder (getf m :ladder)) (gains (kit-meter-gain t1)))
@@ -193,3 +194,5 @@
 ;; the DANGAI boss (DUEL_ROGUE §5): the base kit's :boss hook (ken-meter.lisp KEN-BOSS); the Bankai keeps the arm's tick
 (check (and (eq (kit-hook (kit :kenpachi :base) :boss) 'ken-boss) (eq (kit-hook (kit :kenpachi :bankai) :tick) 'ken-tick)
             (eq (kit-bankai-form (kit :kenpachi :nomihose)) :bankai) (kit-pips (kit :kenpachi :bankai))))
+
+(setf *core-on* t)
