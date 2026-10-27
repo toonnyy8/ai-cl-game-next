@@ -350,7 +350,8 @@ result (NIL = no effect)."
          (atk (if flat
                   '(:mult 1.0)
                   (kit-atk-mods (kit-of att) (- *konpaku-max* (gauges-konpaku (gauges att)))
-                                (let ((px (* (if (eq res :blocked) 1.0 (+ 1.0 k)) (if (and own (fighter-assisted fa)) *assist-mult* 1.0)))   ; ASSIST
+                                (let ((px (* (if (eq res :blocked) 1.0 (+ 1.0 k)) (if (and own (fighter-assisted fa)) *assist-mult* 1.0)   ; ASSIST
+                                             (core-charge-mult fa mv own hazard)))   ; a charged SA's string (core-sim.lisp)
                                       (h (kit-hook (kit-of att) :dmg-mult)))   ; a kit's distance x (Hisagi's tip / close-in)
                                   (if h (* px (funcall h att def hw mv hazard d2)) px))
                                 (and mv (getf (mv-params mv) :form-mult)))))   ; (a move's own form x: the owl's stance K / KL)

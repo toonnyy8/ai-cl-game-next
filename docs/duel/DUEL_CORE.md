@@ -131,7 +131,18 @@ follow-up links keep their speed).
   而是纏繞在刀刃上揮砍，所以每次攻擊都會留下黃白光輝的軌跡」, 「是 SA 與後續的一連串攻擊都會纏繞著月牙靈壓」): the Shikai's crescents are
   yellow-white (`vfx-ic-crescent` core 3: the REIATSU body, a white rim; the old ink body stays for nothing of the Shikai); from a charge
   through its SA and the whole string after it (J2, J3, the AS segments) the charged blades (1 the short one, 2 both) wear a yellow-white
-  wrap and every swing leaves a yellow-white comet trail (`ichigo-charged-blades`, Ichigo's :draw hook; the charged SAs throw nothing). CPU: in a charge's gap with the opponent inside 2.6 m it
+  wrap and every swing leaves a yellow-white comet trail (`ichigo-charged-blades`, Ichigo's :draw hook; the charged SAs throw nothing).
+- **KESSA (the Bankai) looks of the same NS2** (§423, the user: 「卍解對應的招式則是在大劍上積蓄黑色焰氣 / 一階的焰氣較小，二階焰氣更明顯，並且呈現不規則的
+  十字形，第三段則是揮出跟毀魂技類似、但規模較小的月牙斬痕」): the same moves (the sim is shared), drawn by the owner's form: black flame
+  on the slab (`%ic-black-flame`: a smoky band, an ink core, tongues; charge 2 larger with a ragged band across the blade, an irregular
+  cross), ink-wash trails on the string, and the third press's wave a smaller 漆黒 crescent like his Soul Break's C (`vfx-ic-crescent` core 4:
+  a black band, a black-smoke rim on a pale halo). The callout still reads GETSUGA JUJISHO.
+- **The charge powers the whole string** (§423, the user: 「月牙靈壓帶來的強化效果除了後續的 J2 J3 以外，連同插入的 SP 結尾也都會一併受到強化」): a
+  charged SA's `:params :charge-mult` (1.4 / 1.7) is armed on the fighter when it starts (`core-note-start!`, `fighter-charge-mult`), kept by
+  the string's links (an NA link or an AS started from a move), dropped by any opener, NS or `to-idle`; `core-charge-mult` multiplies every
+  hit of the string after the SA (not the SA itself, its 55 / 80 written high; not a hazard). Browser (Reishi lost, from 1300): J2 14 →
+  20 after SA1 (x1.43), AS2 22 → 31 (x1.41). Gates (10 seeds): KK 148.8, IK 185.7, II 235.2 (all K.O.: §421's time-out gone), HK 146.3,
+  HI 181.7, HH 164.9 s. CPU: in a charge's gap with the opponent inside 2.6 m it
   takes that SA on its turn roll (`*cai-turn-p*`). Browser: SP J J J → `IC-N2A`, `IC-SA-G1` 55, `IC-J2` 32, `IC-J3` 40; SP SP J → `IC-SA-G2` 80;
   SP SP SP → `IC-N2C`, `WAVE -> P2 HIT 150`.
   Gates (10 seeds): KK 148.8, IK 202.8, HK 146.3, HI 173.7, HH 164.9 s, all K.O.; the Ichigo mirror at 20 seeds 214.7 s with 19 K.O.s and one

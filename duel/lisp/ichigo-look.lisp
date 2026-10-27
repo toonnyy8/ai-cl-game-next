@@ -11,17 +11,23 @@
   "A Getsuga crescent at (x y z) (its middle), flying along YAW, W m tip to tip, its tips TILT (-1..1) up / down: an ink
 crescent bulging forward, a white rim (CORE 0), a BLOOD rim (1: KESSA's), a BLOOD core in a white rim (2: the Gran
 Rey Cero), a yellow-white glow (3: the Shikai's Getsuga, the user 2026-10-27: 「始解狀態的月牙是黃白色光輝」: the REIATSU body, a white
-rim); presence K."
+rim), pitch black (4: KESSA's, the Soul Break's 漆黒 C in small, the user 2026-10-27: a black band, a ragged black-smoke rim on a
+pale halo, flickering); presence K."
   (with-floats (x y z yaw w k tilt)
     (let* ((fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (hw (* 0.5f0 w)) (dr (drawing-no))
            (dy (* 0.3f0 w tilt)) (x0 (- x (* hw px))) (z0 (- z (* hw pz))) (x1 (+ x (* hw px))) (z1 (+ z (* hw pz)))
            (bx (+ x (* 0.5f0 w fx))) (bz (+ z (* 0.5f0 w fz))) (rw (* 0.035f0 w)) (ahead (* 0.04f0 w)))
       (declare (single-float fx fz px pz hw dr dy x0 z0 x1 z1 bx bz rw ahead))
+      (when (= (the fixnum core) 4)                          ; the pale halo behind, the smoke off its edge
+        (fx-crescent x0 (- y dy) z0 x1 (+ y dy) z1 (+ bx (* ahead fx)) y (+ bz (* ahead fz)) (* 0.24f0 w) :lens 0.1f0 (+ 330f0 dr)
+                     +pal-smoke+ (* 0.55f0 k) :push 0.06f0)
+        (fx-crescent x0 (- y dy) z0 x1 (+ y dy) z1 (+ bx (* 2.5f0 ahead fx)) y (+ bz (* 2.5f0 ahead fz)) (* 0.2f0 w) :lens 0.18f0
+                     (+ 340f0 dr) +pal-black-smoke+ (* 0.8f0 k) :push 0.08f0))
       (fx-crescent x0 (- y dy) z0 x1 (+ y dy) z1 bx y bz (* 0.15f0 w) :lens 0.06f0 (+ 300f0 dr)
                    (if (= (the fixnum core) 3) +pal-reiatsu+ +pal-ink+) k :push 0.1f0)
       (fx-crescent (+ x0 (* ahead fx)) (- y dy) (+ z0 (* ahead fz)) (+ x1 (* ahead fx)) (+ y dy) (+ z1 (* ahead fz))
                    (+ bx (* 1.5f0 ahead fx)) y (+ bz (* 1.5f0 ahead fz)) rw :lens 0.04f0 (+ 310f0 dr)
-                   (if (= (the fixnum core) 1) +pal-blood+ +pal-hit+) k :push 0.16f0)
+                   (case (the fixnum core) (1 +pal-blood+) (4 +pal-black-smoke+) (t +pal-hit+)) k :push 0.16f0)
       (when (= (the fixnum core) 2)
         (fx-crescent x0 (- y dy) z0 x1 (+ y dy) z1 (+ bx (* ahead fx)) y (+ bz (* ahead fz)) (* 0.06f0 w) :lens 0.05f0 (+ 320f0 dr)
                      +pal-blood+ k :push 0.13f0)))
@@ -65,19 +71,25 @@ rim); presence K."
   (when (<= (hazard-delay hz) 0)
     (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* 2 (hazard-size hz)) (ic-wave-k hz) 0.9 3)))
 
+(defun ic-kessa-owner-p (hz) "Was HZ thrown by KESSA (the Bankai: his Getsuga black)?"
+  (let ((e (hazard-owner hz))) (and (entity-alive-p e) (fighter e) (eq (kit-form (fighter-kit (fighter e))) :kessa))))
+
 (defun ichigo-juji-look (hz rdt)
-  "GETSUGA JUJISHO: the two crescents crossed into an X."
+  "GETSUGA JUJISHO: the two crescents crossed into an X (yellow-white); thrown by KESSA, NS2's third press is a smaller 漆黒 crescent
+like his Soul Break's (the user, 2026-10-27: 「第三段則是揮出跟毀魂技類似、但規模較小的月牙斬痕」), its tips up and down."
   (declare (ignore rdt))
   (when (<= (hazard-delay hz) 0)
     (let ((k (ic-wave-k hz)) (w (* 2 (hazard-size hz))))
-      (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k 0.8 3)
-      (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k -0.8 3))))
+      (if (ic-kessa-owner-p hz)
+          (vfx-ic-crescent (hazard-x hz) 1.4 (hazard-z hz) (hazard-yaw hz) (* 0.9 w) k 1.0 4)
+          (progn (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k 0.8 3)
+                 (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k -0.8 3))))))
 
 (defun ichigo-form-look (hz rdt)
-  "JUJISHO's first crescent forming on the long blade before the fusion."
+  "JUJISHO's first crescent forming on the long blade before the fusion (black for KESSA's)."
   (declare (ignore rdt))
   (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0)))
-                   0.9 0.8 3))
+                   0.9 0.8 (if (ic-kessa-owner-p hz) 4 3)))
 
 (defun ichigo-flare-look (hz rdt)
   "KUSARI-TATE: the chains flaring out of his neck, wrists and ankles (the parry's tell)."
@@ -341,9 +353,35 @@ crack, rubble and a shake where TIP meets it (under 0.4 m), else at the volume's
 (defvar *ic-cb* (make-f32 3) "A charged blade's base.")
 (defvar *ic-ct* (make-f32 3) "A charged blade's tip.")
 
+(defun %ic-black-flame (x0 y0 z0 x1 y1 z1 big seed fx fz)
+  "KESSA's charge (the user, 2026-10-27: 「卍解對應的招式則是在大劍上積蓄黑色焰氣 / 一階的焰氣較小，二階焰氣更明顯，並且呈現不規則的十字形」):
+black flame gathered along the slab from (x0 y0 z0) to its tip (x1 y1 z1): a smoky band, its ink core, tongues licking up off it; BIG
+(the second charge) larger, with a ragged band across the blade (facing FX FZ: toward him) into an irregular cross. SEED the drawing."
+  (let* ((fl (+ 0.8 (* 0.3 (hash01 seed 4.1f0)))) (w (* fl (if big 0.22 0.11)))
+         (mx (* 0.5 (+ x0 x1))) (my (+ 0.05 (* 0.5 (+ y0 y1)))) (mz (* 0.5 (+ z0 z1))))
+    (fx-crescent x0 y0 z0 x1 y1 z1 mx my mz w :lens 0.14f0 (+ 620f0 seed) +pal-black-smoke+ 0.85f0 :push 0.1f0)
+    (fx-crescent x0 y0 z0 x1 y1 z1 mx my mz (* 0.4 w) :lens 0.06f0 (+ 630f0 seed) +pal-ink+ 0.95f0 :push 0.14f0)
+    (dotimes (i (if big 5 3))                                   ; the tongues
+      (let* ((u (/ (+ 0.5 i) (if big 5.0 3.0))) (px (+ x0 (* u (- x1 x0)))) (py (+ y0 (* u (- y1 y0)))) (pz (+ z0 (* u (- z1 z0))))
+             (h (* (if big 0.55 0.3) (+ 0.6 (* 0.6 (hash01 (+ seed i) 7.3f0))))) (sw (* 0.15 (- (hash01 (+ seed i) 9.1f0) 0.5))))
+        (fx-crescent px py pz (+ px (* sw fz)) (+ py h) (- pz (* sw fx)) (+ px (* 2 sw fz)) (+ py (* 0.5 h)) (- pz (* 2 sw fx))
+                     (* 0.45 w) :comet 0.1f0 (+ 640f0 seed i) +pal-black-smoke+ 0.8f0 :push 0.12f0)))
+    (when big                                                   ; the band across: an irregular cross
+      (let* ((bx (- x1 x0)) (by (- y1 y0)) (bz (- z1 z0))
+             (cx (- (* by (- fz)) 0.0)) (cy (- (* bz fx) (* bx (- fz)))) (cz (- 0.0 (* by fx)))   ; blade x facing
+             (cl (max 1e-3 (sqrt (+ (* cx cx) (* cy cy) (* cz cz))))) (l (* 0.42 (sqrt (+ (* bx bx) (* by by) (* bz bz)))))
+             (u 0.62) (ox (+ x0 (* u bx))) (oy (+ y0 (* u by))) (oz (+ z0 (* u bz)))
+             (j0 (+ 0.8 (* 0.4 (hash01 seed 11.7f0)))) (j1 (+ 0.8 (* 0.4 (hash01 seed 13.9f0)))) (tw (* 0.12 (- (hash01 seed 15.1f0) 0.5))))
+        (setf cx (/ cx cl) cy (/ cy cl) cz (/ cz cl))
+        (let ((ax (- ox (* l j0 cx))) (ay (- oy (* l j0 cy) tw)) (az (- oz (* l j0 cz)))
+              (ex (+ ox (* l j1 cx))) (ey (+ oy (* l j1 cy) tw)) (ez (+ oz (* l j1 cz))))
+          (fx-crescent ax ay az ex ey ez ox (+ oy 0.06) oz (* 0.9 w) :lens 0.16f0 (+ 660f0 seed) +pal-black-smoke+ 0.85f0 :push 0.1f0)
+          (fx-crescent ax ay az ex ey ez ox (+ oy 0.06) oz (* 0.35 w) :lens 0.06f0 (+ 670f0 seed) +pal-ink+ 0.95f0 :push 0.14f0))))))
+
 (defun ichigo-charged-blades (e f m)
-  "Step side E's charge (*IC-CHARGED*: set by the move he is in) and draw its glow and trails on the posed body."
-  (let* ((side (fighter-side f)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (n (and mv (mv-name mv)))
+  "Step side E's charge (*IC-CHARGED*: set by the move he is in) and draw its glow and trails on the posed body (KESSA: the black flame
+on the slab, ink trails)."
+  (let* ((side (fighter-side f)) (kessa (eq (kit-form (fighter-kit f)) :kessa)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (n (and mv (mv-name mv)))
          (c (case n ((:ic-n2a :ic-sa-g1) 1) ((:ic-n2b :ic-sa-g2) 2)
                   ((:ic-j2 :ic-j3 :ic-as1 :ic-as2 :ic-as2b :ic-as3 :ic-as3b :ic-as3c) (svref *ic-charged* side))   ; the string the SA goes on into
                   (t 0)))
@@ -352,20 +390,23 @@ crack, rubble and a shake where TIP meets it (under 0.4 m), else at the volume's
     (setf (svref *ic-charged* side) c)
     (dotimes (b 2)
       (let ((tr (svref *ic-charge-trails* (+ (* 2 side) b))))
-        (if (and (< b c) (model-weapon m) (> (model-alpha m) 0.5))
+        (if (and (< b (if kessa (min c 1) c)) (model-weapon m) (> (model-alpha m) 0.5))   ; (KESSA: one slab)
             (let ((base *ic-cb*) (tip *ic-ct*))
-              (if (= b 0)
+              (if (and (= b 0) (not kessa))
                   (progn (joint-point! base jm (ji :weapon-l) 0f0 0f0 0f0) (joint-point! tip jm (ji :weapon-l) 0f0 -0.9f0 0f0))
                   (progn (joint-point! base jm (ji :weapon-r) 0f0 0f0 0f0)
                          (%ic-held-tip jm tip (weapon-len (find-weapon (model-weapon m))))))
               (let* ((x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2)) (x1 (aref tip 0)) (y1 (aref tip 1)) (z1 (aref tip 2))
                      (mx (* 0.5 (+ x0 x1))) (my (+ 0.06 (* 0.5 (+ y0 y1)))) (mz (* 0.5 (+ z0 z1)))
                      (fl (+ 0.85 (* 0.15 (hash01 (+ dr b) 2.3f0)))))
-                (fx-crescent x0 y0 z0 x1 y1 z1 mx my mz (* 0.09 fl) :lens 0.05f0 (+ 600f0 dr b) +pal-reiatsu+ 0.9f0 :push 0.12f0)   ; the wrap
-                (fx-crescent x0 y0 z0 x1 y1 z1 mx my mz (* 0.03 fl) :lens 0.03f0 (+ 610f0 dr b) +pal-hit+ 0.95f0 :push 0.16f0)    ; its core
+                (if kessa
+                    (%ic-black-flame x0 y0 z0 x1 y1 z1 (= c 2) (+ dr side) (fwd-x (yaw-of e)) (fwd-z (yaw-of e)))
+                    (progn
+                      (fx-crescent x0 y0 z0 x1 y1 z1 mx my mz (* 0.09 fl) :lens 0.05f0 (+ 600f0 dr b) +pal-reiatsu+ 0.9f0 :push 0.12f0)   ; the wrap
+                      (fx-crescent x0 y0 z0 x1 y1 z1 mx my mz (* 0.03 fl) :lens 0.03f0 (+ 610f0 dr b) +pal-hit+ 0.95f0 :push 0.16f0)))   ; its core
                 (if swing (trail-push tr x0 y0 z0 x1 y1 z1) (trail-decay tr))))
             (trail-decay tr))
-        (vfx-smear tr (svref *ic-charge-smears* (+ (* 2 side) b)) 1)))))
+        (vfx-smear tr (svref *ic-charge-smears* (+ (* 2 side) b)) (if kessa 2 1))))))   ; (KESSA's trail an ink wash)
 
 (defun ichigo-draw (e rdt)
   "KIT-HOOK :draw (both forms): step the Shikai's cloak spring; the crescent edge and the ground contact (§3.3)."

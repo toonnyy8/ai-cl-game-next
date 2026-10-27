@@ -153,8 +153,8 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove-copy :ic-sa :ic-j1 :clip :ic-q1 :dmg 34 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)   ; (reach and a lunge: it must connect after an NS segment's knockback)
 ;; the charged SAs (NS2's gaps): the Getsuga wrapped round the blade, not thrown (the user: 「纏繞在刀刃上揮砍」): the SA's short-blade
 ;; sweep, 55 (34); KOGA's X of both blades, 80; their trails (and the J2 / J3 after them) yellow-white (ICHIGO-CHARGED-BLADES)
-(defmove-copy :ic-sa-g1 :ic-sa :dmg 55)
-(defmove-copy :ic-sa-g2 :ic-k2s :kind :quick :enter 0 :startup 10 :clip-s 14 :dmg 80 :reach 2.4 :slide 1.4 :guard 12)
+(defmove-copy :ic-sa-g1 :ic-sa :dmg 55 :params (:charge-mult 1.4))   ; (:charge-mult: the string after it, J2 / J3 / the AS, x1.4 / x1.7)
+(defmove-copy :ic-sa-g2 :ic-k2s :kind :quick :enter 0 :startup 10 :clip-s 14 :dmg 80 :reach 2.4 :slide 1.4 :guard 12 :params (:charge-mult 1.7))
 
 ;;; ================================================================ 血鎖の一護 KESSA NO ICHIGO (the awakening)
 ;;; one white slab, no point and no guard: cuts only (the clones carry the range now); the J one-handed, the K two-handed

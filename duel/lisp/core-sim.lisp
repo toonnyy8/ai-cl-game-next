@@ -10,8 +10,16 @@
 count the attack press (an NA link and an SA are attack presses: the pointer an AS writes)."
   (let ((cls (kit-class (fighter-kit f) mv)))
     (declare (ignorable old))
-    (setf (fighter-cls f) cls (fighter-cls-t f) *match-tick* (fighter-sp-held f) (and (member cls '(:ns :as)) t))
+    (setf (fighter-cls f) cls (fighter-cls-t f) *match-tick* (fighter-sp-held f) (and (member cls '(:ns :as)) t)
+          (fighter-charge-mult f) (let ((c (getf (mv-params mv) :charge-mult)))   ; a charged SA arms it; its string keeps it
+                                    (cond (c (f32 c)) ((and old (member cls '(:na :as))) (fighter-charge-mult f)) (t 1f0))))
     (case cls ((:na :sa) (incf (fighter-presses f))))))
+
+(defun core-charge-mult (fa mv own hazard)
+  "The damage x of attacker FA's hit with MV: a charged SA's :charge-mult on the string it opened (its J2 / J3 and the AS segments
+after it; the user, 2026-10-27: 「月牙靈壓帶來的強化效果除了後續的 J2 J3 以外，連同插入的 SP 結尾也都會一併受到強化」), not on the
+charged SA itself (its own :dmg is written high) nor on a hazard."
+  (if (and own (not hazard) mv (not (getf (mv-params mv) :charge-mult))) (fighter-charge-mult fa) 1f0))
 
 (defun core-window-class (f)
   "The class of the move F is inside the startup or active frames of (where the triangle judges a hit on him), else NIL."

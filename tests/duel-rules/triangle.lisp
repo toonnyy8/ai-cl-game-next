@@ -81,3 +81,14 @@
                               (and (every (lambda (m) (eq :stagger (hw-react (svref (mv-hits (kit-move k m)) 0)))) (butlast segs))
                                    (member (hw-react (svref (mv-hits (kit-move k (car (last segs)))) 0)) '(:knockdown :launch)))))
                 (getf (kit-core k) :as))))
+;; a charged SA's x on its string (J2 / J3 / the AS), not on itself, a hazard, or a new opener (DUEL_CORE §6, 2026-10-27)
+(let* ((k (kit :ichigo :base)) (f (make-fighter :kit k)) (sa (kit-move k :ic-sa-g2)) (j2 (kit-move k :ic-j2)) (as (kit-move k :ic-as1)))
+  (core-note-start! f sa (kit-move k :ic-n2b))
+  (check (= (fighter-charge-mult f) 1.7f0))
+  (check (= (core-charge-mult f sa t nil) 1f0))                    ; the SA's own hit: its :dmg already
+  (core-note-start! f j2 sa)
+  (check (and (= (core-charge-mult f j2 t nil) 1.7f0) (= (core-charge-mult f j2 t t) 1f0)))   ; J2 charged; a hazard not
+  (core-note-start! f as j2)
+  (check (= (core-charge-mult f as t nil) 1.7f0))                  ; the AS after it too
+  (core-note-start! f (kit-move k :ic-j1) nil)
+  (check (= (core-charge-mult f (kit-move k :ic-j1) t nil) 1f0)))  ; a fresh opener: gone
