@@ -2,7 +2,7 @@
 
 Source repo: `/media/8tsp/projects/ai-cl-game-test` (CL → ECL → wasm, SDL3 GPU / WebGPU; no asset files).
 Main evidence: `docs/style/STYLE_STORM_DESIGN.md` (SD), `docs/style/STYLE_STORM_RESEARCH.md` (SR), `docs/engine/AUDIO.md`,
-`docs/babylon/BABYLON_LOOK.md` (BL), `docs/duel/DUEL_MOBILE_DESIGN.md` (MD), `docs/DEVLOG.zh-TW.md` (DL), `duel/lisp/*`, `engine/lisp/*`,
+`docs/babylon/BABYLON_LOOK.md` (BL, on the branch `babylon` since 2026-10-27), `docs/duel/DUEL_MOBILE_DESIGN.md` (MD), `docs/DEVLOG.zh-TW.md` (DL), `duel/lisp/*`, `engine/lisp/*`,
 `tools/*`, `tests/style-*`. "G" = generalizable lesson, "P" = project-specific fact or number.
 
 ## 1. Style pillars and how the style was decided

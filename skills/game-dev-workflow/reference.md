@@ -42,7 +42,7 @@ unless they start with `~/.claude` (auto-memory). "G" = generalizable, "P" = pro
   "BABYLON_PORT: …", "DUEL_STRINGS §20 / DEVLOG §81: YK 119.5 s accepted (the user, 2026-10-06)".
 - Scope caveats in the subject: "(Lisp only, the TS sim not mirrored yet)".
 - "Fix:" prefix for bugs, with the user's report named ("(the user's report)").
-- Parallel batches: "Babylon port M5 b3rukia (look batch; see docs/babylon/BABYLON_PORT.md Status)" and "Merge main into
+- Parallel batches: "Babylon port M5 b3rukia (look batch; see docs/babylon/BABYLON_PORT.md Status, on the branch `babylon` since 2026-10-27)" and "Merge main into
   babylon-<batch>" commits, each merge message stating what was reconciled and the post-merge gate.
 - Trailers: `Co-Authored-By: …` + `Claude-Session: …` on every commit (also put in subagent briefs).
 - Recommendation: keep "who decided + date + gate numbers + doc § refs" in commits; move long prose to the body.
@@ -223,7 +223,7 @@ unless they start with `~/.claude` (auto-memory). "G" = generalizable, "P" = pro
   NORMAL had to be pulled back within +0.05 of the old level.
 
 ### 4.5 The discontinued port (G lesson)
-- Babylon.js + TS port (docs/babylon/BABYLON_PORT.md): milestone table with acceptance per milestone (M1 core … M6 platform),
+- Babylon.js + TS port (docs/babylon/BABYLON_PORT.md, on the branch `babylon` since 2026-10-27): milestone table with acceptance per milestone (M1 core … M6 platform),
   "traps to copy verbatim", a parity tool (first differing line / bit dumps), ~25 commits in 2 days, ended **bit-exact**
   with the native Lisp (15 pairings × 60 seeds, 900/900) - beyond its own plan, which had said "not bit-exact".
 - Discontinued the day after M1–M6 finished (「Babylon 版已不再開發」); the next Lisp change (J floor) was already "not

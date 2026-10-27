@@ -5232,3 +5232,4 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - 從 main 59c2a66 開出 `babylon` 分支並推上遠端，`babylon/`（Babylon.js + TypeScript 移植版，2026-10-06 起停止開發，126 個檔案、約 1.9 MB）完整留在那裡。
 - main 刪掉 `babylon/` 目錄。它的紀錄 `docs/babylon/`（BABYLON_PORT、BABYLON_LOOK）和 DEVLOG 裡的歷史段落留在 main，開頭註明程式碼改在 `babylon` 分支；DUEL_DESIGN、DUEL_ENDLESS、AUDIO 提到 `babylon/...` 路徑的地方也加了同樣的註記。
 - README 的資料夾表、AGENTS.md 的專案地圖與文件表、`docs/README.md` 的索引跟著更新。沒有任何建置或測試工具引用 `babylon/`，遊戲不受影響。
+- 同一天補充，使用者：「文件也一起移到 babylon 分支」：`docs/babylon/`（BABYLON_PORT、BABYLON_LOOK，加上註記的版本）提交到 `babylon` 分支（78aa053）後從 main 刪掉；AGENTS.md、README、`docs/README.md`、PLAYBOOK 的對照表和三個 skill 的參考檔改成指向 `babylon` 分支。main 上只剩 DEVLOG 的歷史段落和 DUEL_DESIGN、DUEL_ENDLESS、AUDIO 的註記。

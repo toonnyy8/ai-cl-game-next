@@ -248,7 +248,7 @@ file paths otherwise. G = generalizable lesson, D = SOUL DUEL / RAVEN-specific d
   implicit function declarations are errors (`-Werror=implicit-function-declaration`). [DL §13.4, tools/build.lisp]
 - G: ECL calls compiled functions DIRECTLY: redefining/wrapping a function (`fdefinition`) after loading a .fas does
   not affect calls from other compiled code. Instrument by loading a script after the .fas that prints from the frame
-  loop, or rebuild. [docs/babylon/BABYLON_PORT.md parity section]
+  loop, or rebuild. [docs/babylon/BABYLON_PORT.md parity section, branch `babylon`]
 - G: `pi` is a long-float (double) in ECL: `(+ yaw pi)` into a single-float-declared fn crashed (rare branch, found
   only when a new pairing hit it). Use a single-float constant (`+pi+`). Same class: double literals/data, double ops
   between f32s, comparisons against literals read as single — all caused native/TS parity drifts. [DL §30, BABYLON_PORT]
