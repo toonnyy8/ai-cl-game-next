@@ -59,10 +59,13 @@ attack inside an NS segment is SA. Returns :NA :NS :AS :SA, :NA-CONT / :NS-CONT 
 
 (defun core-clamp-pointer (n) "N clamped to 1 .. *CORE-POINTER-MAX*." (max 1 (min *core-pointer-max* n)))
 
-(defun core-as-pointer (presses)
+(defun core-as-pointer (presses &optional by-press)
   "The pointer an AS writes: the number of attack presses since neutral (NA1 / NA2 / NA3 -> 1 / 2 / 3; the SA counts as one),
-clamped."
-  (core-clamp-pointer presses))
+clamped; with BY-PRESS (a kit's :core :as-by-press, the pointer after press 1, 2 ...) that list's entry, its last past its end
+(Ichigo's five J, the user 2026-10-28: 「J1, J2 對應指針一 / J3, J4 對應指針二 / J5 對應指針三」: (1 1 2 2 3))."
+  (if by-press
+      (nth (1- (max 1 (min (length by-press) presses))) by-press)
+      (core-clamp-pointer presses)))
 
 ;;; ---------------------------------------------------------------- the pointer's Kikon / Soul Break profiles
 (defparameter *core-kikon-max* 4 "Konpaku one Kikon takes at most (the old *KIKON-MAX-EVENT*).")

@@ -113,7 +113,19 @@ The user, 2026-10-28: 「以後每個指針的 NS 與指向他的 AS 以及對�
 NS, the AS that writes pointer n (AS n) and pointer n's Kikon (kit `:core :kikon-cines`) share one theme in look and effect. Status at the
 rule (2026-10-28): KESSA 2 (Getsuga: NS2 charges / AS2 Getsuga / 漆黒の月牙天衝) and 3 (clones: NS3 / AS3 / 千影) linked; KESSA 1 (chains:
 NS1 / AS1) has no chain Kikon yet (it plays the Soul Break's Getsuga); the Shikai's three are not linked yet; Kenpachi and Hisagi not
-reworked.
+reworked. Then (§433, the user: 「幫我為聯動製作新的動畫與動作模組」) every pointer of both forms linked:
+
+| Form | Pointer | NS | AS | Kikon cinematic (`:core :kikon-cines`) |
+|---|---|---|---|---|
+| Shikai | 1 the cleaver's weight | the cleaver overhead, the K string | AS1 RAKUGA's drop (50, steals 40 flash-step) | `ic-heavy-kikon-cine` (new) |
+| Shikai | 2 the Getsuga | two charges > JUJISHO | AS2 SOGA > a point-blank yellow-white Getsuga (6 m, 60, the launch) | `ic-kikon-cine` (the Cero Getsuga) |
+| Shikai | 3 the rush | RANGETSU > TSUKI-OTOSHI | AS3 SOSEN-GIRI > RANGETSU > TSUKI-OTOSHI | `ic-rush-kikon-cine` (new) |
+| KESSA | 1 the blood chains | three lashes | AS1 the four-lash whip | `ic-chain-kikon-cine` (new) |
+| KESSA | 2 the Getsuga | the black flame's charges > the 漆黒 crescent | AS2 SOGA in black flame > the 漆黒 crescent | `ic-kessa-getsuga-cine` (漆黒の月牙天衝) |
+| KESSA | 3 the clones | a clone a press > their X | AS3 his cuts with the clones > their X | `ic-kessa-kikon-cine` (千影) |
+
+KESSA's AS3 copies now come from the old sources (`:ic-k2s` / `:ic-j3` / `:ic-k3`), since the Shikai's AS3 changed. Debug stills of the
+cinematics: 75000 + 80 i + k (frame 3k; i 4 / 5 / 6 the new ones).
 
 ## 6. Ichigo's three NS, the tells, the stances, the clash slow motion (2026-10-27)
 

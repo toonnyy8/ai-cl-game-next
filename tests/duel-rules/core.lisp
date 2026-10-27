@@ -195,8 +195,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
         (push (mv-name m) out)))))
 (defun on-hit-adv (m &optional (i 0))
   (let ((w (svref (mv-hits m) i))) (- (or (hw-stun w) (hitstun (hw-react w))) (- (mv-total m) (hw-from w)))))
-(dolist (cf (remove-if #'trace-form-p *forms*))
-  (let* ((k (apply #'kit cf)) (links (link-moves k)) (j1 (kit-command-move k :q)) (k1 (kit-command-move k :f))
+(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (eq (first cf) :ichigo))) *forms*))   ; (Ichigo: five J since 2026-10-28,
+  (let* ((k (apply #'kit cf)) (links (link-moves k)) (j1 (kit-command-move k :q)) (k1 (kit-command-move k :f))   ;  triangle.lisp)
          (cup3 (equal cf '(:kenpachi :nomihose))) (fails0 *fails*) (a (owl-adv cf))
          (v8 (eq (first cf) :barro))   ; (Lille II: decision V8 splits his J / K off the budget, DUEL_LILLE_V2 §21: own rows)
          (hs1 (equal cf '(:hisagi :base)))   ; (Hisagi's Shikai since S2, DUEL_HISAGI §23.5: a J after a K leaps in, J2K / J3K)
@@ -892,7 +892,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ru-0-hakka                                                                                                 ; (§13.4)
     :ic-na1 :ic-ns1 :ic-chg1 :ic-chg2 :ic-ns3   ; (the core system's long coils: NA1, the NS openers, NS2's charges, DUEL_CORE §6)
     :ic-k-summon :ic-k-xa :ic-k-xb   ; (KESSA's NS3: the command gesture; the clones' X, ICHIGO-NS-CLONE-X plays them)
-    :ic-k-lash-a :ic-k-lash-b :ic-k-lash-c :ic-k-chg1 :ic-k-chg2 :ic-k-wrap :ic-k-whip   ; (KESSA's NS1 chains, NS2 charges, AS3's turn: 2026-10-28)
+    :ic-k-lash-a :ic-k-lash-b :ic-k-lash-c :ic-k-chg1 :ic-k-chg2 :ic-k-wrap :ic-k-whip :ic-k-cut   ; (KESSA's NS1 chains, NS2 charges, AS3's turn: 2026-10-28)
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
     :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
     :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)

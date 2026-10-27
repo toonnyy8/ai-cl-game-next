@@ -140,16 +140,24 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove-copy :ic-n3b :ic-tsuki-k :kind :flash)
 (defmove-copy :ic-n3a :ic-tsuki-j :kind :flash :clip :ic-ns3 :startup 18 :clip-s 18 :params (:ns-next :ic-n3b)
   :hits ((18 19) (21 22) (24 25) (27 30 :on-hit :stagger)))
-(defmove-copy :ic-as1 :ic-tsuki-k :kind :sp :callout "TSUKI-OTOSHI" :dmg 40 :on-hit :knockdown :params (:steal-fs 40))   ; (no Reiatsu: unused since the core system)
+;; the pointer's theme on its AS and its Kikon too (DUEL_CORE §5b, the user 2026-10-28: 「幫我為聯動製作新的動畫與動作模組」): 1 the
+;; cleaver's weight (AS1 RAKUGA's drop, stealing), 2 the Getsuga (AS2 SOGA > a point-blank crescent), 3 the rush (AS3 SOSEN > RANGETSU > TSUKI-OTOSHI)
+(defmove-copy :ic-as1 :ic-k3 :kind :sp :callout "RAKUGA" :dmg 50 :on-hit :knockdown :flags nil :params (:steal-fs 40))   ; (no Reiatsu: unused since the core system)
 ;; AS n has n segments, each on a fresh SP press, hit or not (the user, 2026-10-27: 「希望 AS 也能設計成不同段數的連擊」, 「每段再按 SP」,
 ;; 「AS1=1 AS2=2 AS3=3」); only the last one knocks down (or launches); a hold kept through any segment's hit is the Kikon
 ;; AS2: SOGA's flash-step lunge X (stagger) > SHOGA's rising cut (the launch)
-(defmove-copy :ic-as2b :ic-k2 :kind :sp :callout "SHOGA" :dmg 60 :on-hit :launch)
+(defmove-copy :ic-as2b :ic-getsuga :kind :sp :callout "GETSUGA TENSHO" :startup 12 :clip-s 14 :on-frame ((12 ichigo-getsuga))
+  :params (:width 3.0 :speed 18.0 :range 6.0 :dmg 60 :react :launch :kb 2.5 :guard 18 :look ichigo-getsuga-look))
 (defmove-copy :ic-as2 :ic-soga :on-hit :stagger :dmg 50 :callout "SOGA" :params (:ns-next :ic-as2b))
 ;; AS3: KOGA's rising X > SOSEN-GIRI's turn > RAKUGA's drop (the high damage: 190 if all land)
-(defmove-copy :ic-as3c :ic-k3 :kind :sp :callout "RAKUGA" :dmg 100 :on-hit :knockdown :flags nil)
-(defmove-copy :ic-as3b :ic-j3 :kind :sp :callout "SOSEN-GIRI" :dmg 45 :on-hit :stagger :flags nil :reach 2.4 :slide 1.6 :params (:ns-next :ic-as3c))
-(defmove-copy :ic-as3 :ic-k2s :kind :sp :callout "KOGA" :dmg 45 :on-hit :stagger :params (:ns-next :ic-as3b))
+(defmove-copy :ic-as3c :ic-tsuki-k :kind :sp :callout "TSUKI-OTOSHI" :dmg 100 :on-hit :knockdown)
+(defmove-copy :ic-as3b :ic-tsuki-j :kind :sp :callout "RANGETSU" :params (:ns-next :ic-as3c))                 ; four cuts, 18 each
+(defmove-copy :ic-as3 :ic-j3 :kind :sp :callout "SOSEN-GIRI" :dmg 45 :on-hit :stagger :flags nil :reach 2.4 :slide 1.6 :params (:ns-next :ic-as3b))
+;; five J since 2026-10-28 (「幫我把 J 的段數提高成五段」): J1 KOKIBA (the coil) > J2 KAESHI > J3 KAESHI-KIBA's thrust > J4 KOKIBA's sweep >
+;; J5 SOSEN-GIRI (the ender); KESSA: ITA-NAGI > KAESHI-ITA > KAGE-NAGI's long chop > KAGE-UCHI > ITA-SEN. An AS after J1-2 is AS1, J3-4
+;; AS2, J5 AS3 (:core :as-by-press (1 1 2 2 3)); the links (:strings, ahead of the grid's) only the core's NA string uses
+(defmove-copy :ic-na3 :ic-j2s :flags nil)
+(defmove-copy :ic-na4 :ic-j1 :clip :ic-q1 :startup 7 :clip-s 7 :dmg 34)
 (defmove-copy :ic-sa :ic-j1 :clip :ic-q1 :dmg 34 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)   ; (reach and a lunge: it must connect after an NS segment's knockback)
 ;; the charged SAs (NS2's gaps): the Getsuga wrapped round the blade, not thrown (the user: 「纏繞在刀刃上揮砍」): the SA's short-blade
 ;; sweep, 55 (34); KOGA's X of both blades, 80; their trails (and the J2 / J3 after them) yellow-white (ICHIGO-CHARGED-BLADES)
@@ -243,6 +251,8 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :on-hit :stagger :params (:ns-next :ic-k-n1c :chain (-70 70 3.0 0.8 1.4)))       ; 2: the backhand, rising
 (defmove :ic-k-n1c :kind :flash :clip :ic-k-lash-c :startup 18 :active 5 :recovery 26 :dmg 80 :guard 16 :reach 3.2 :arc 60
   :on-hit :crumple :params (:chain (0 0 3.2 2.8 0.1)))                              ; 3: overhead, slammed into the plaza
+(defmove-copy :ic-k-na3 :ic-k-j1 :clip :ic-k-cut :clip-s 8 :dmg 30 :reach 2.4)              ; J3 / J4 (five J, 2026-10-28)
+(defmove-copy :ic-k-na4 :ic-k-j2 :clip :ic-k-uchi :clip-s 7 :dmg 32 :reach 2.8)   ; (the drawn tip's reach)
 (defmove-copy :ic-k-sa1 :ic-sa :clip :ic-k-jab :clip-s 8)                         ; the SA: ITA-NAGI's chop
 (defmove-copy :ic-k-sa-g1 :ic-sa-g1 :clip :ic-k-jab :clip-s 8)
 (defmove-copy :ic-k-sa-g2 :ic-sa-g2 :clip :ic-k-back :clip-s 8)
@@ -259,9 +269,12 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :on-frame ((6 ichigo-juji-first) (14 ichigo-juji))
   :params (:width 3.0 :speed 18.0 :range 6.0 :dmg 60 :react :launch :kb 2.5 :guard 18 :look ichigo-juji-look))
 (defmove-copy :ic-k-as2 :ic-as2 :clip :ic-k-f1 :clip-s 18 :params (:ns-next :ic-k-as2b))
-(defmove-copy :ic-k-as3c :ic-as3c :clip :ic-k-f3 :clip-s 21 :on-frame ((8 ichigo-ns-clone-x) (18 ichigo-ns-x-mark)))   ; (:enter 7)
-(defmove-copy :ic-k-as3b :ic-as3b :clip :ic-k-wrap :clip-s 9 :on-frame ((1 ichigo-ns-clone-b)) :params (:ns-next :ic-k-as3c))
-(defmove-copy :ic-k-as3 :ic-as3 :clip :ic-k-f2 :clip-s 20 :callout "BUNSHIN" :on-frame ((7 ichigo-ns-clone-a))   ; (:enter 6)
+(defmove-copy :ic-k-as3c :ic-k3 :kind :sp :callout "RAKUGA" :dmg 100 :on-hit :knockdown :flags nil :clip :ic-k-f3 :clip-s 21
+  :on-frame ((8 ichigo-ns-clone-x) (18 ichigo-ns-x-mark)))   ; (:enter 7)
+(defmove-copy :ic-k-as3b :ic-j3 :kind :sp :callout "SOSEN-GIRI" :dmg 45 :on-hit :stagger :flags nil :reach 2.4 :slide 1.6
+  :clip :ic-k-wrap :clip-s 9 :on-frame ((1 ichigo-ns-clone-b)) :params (:ns-next :ic-k-as3c))
+(defmove-copy :ic-k-as3 :ic-k2s :kind :sp :dmg 45 :on-hit :stagger :clip :ic-k-f2 :clip-s 20 :callout "BUNSHIN"
+  :on-frame ((7 ichigo-ns-clone-a))   ; (:enter 6)
   :params (:ns-next :ic-k-as3b))
 
 (defparameter *tsuki-strings*
@@ -270,6 +283,8 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
                          (,s :tsuki-step :ic-tsuki-dash)))
           '((:ic-tsuki-dash :tsuki-back :ic-tsuki-re)))
   "The stance's follow-ups: non-button strings (KIT-NEXT) the :tick hook starts (TSUKI-STEP).")
+(defparameter *ic-strings* (append '((:ic-j2 :q :ic-na3) (:ic-na3 :q :ic-na4) (:ic-na4 :q :ic-j3)) *tsuki-strings*)
+  "The Shikai's strings: the five-J links (2026-10-28; ahead of the grid's J2 > J3), then the stance's.")
 (defparameter *ichigo-hooks* '(:tick ichigo-tick :hit ichigo-hit :struck ichigo-struck :pose ichigo-cloak-pose :draw ichigo-draw
                                :boss ichigo-boss))
 (defparameter *kessa-hooks* '(:tick ichigo-tick :step ichigo-step-clone :ok ichigo-ok :parried ichigo-catch :hit ichigo-hit
@@ -285,9 +300,11 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :grid (:ic-j1 :ic-j2 :ic-j3 :ic-k1 :ic-k2 :ic-k3 :ic-j2s :ic-k2s)
   :core (:ns (:ic-n1a :ic-n2a :ic-n3a) :as (:ic-as1 :ic-as2 :ic-as3) :sa :ic-sa
          :stances (:ic-st-heavy :ic-tsuki :ic-st-rush)           ; the idle clip by SP pointer (FIGHTER-STANCE-CLIP)
+         :kikon-cines (ic-heavy-kikon-cine ic-kikon-cine ic-rush-kikon-cine)   ; the cleaver's / the Cero Getsuga / the rush's
+         :as-by-press (1 1 2 2 3)
          :ns-range (nil (3.6 6.6) nil)                           ; the CPU shoots GETSUGA from 3.6-6.6 m under pointer 2
          :mult 1.3)                                              ; damage x (the long tells cut the pace: II 268 s at 1.0; DUEL_CORE §6)
-  :strings *tsuki-strings*
+  :strings *ic-strings*                         ; (five J ahead of the stance's follow-ups)
   :l-after-k :ic-tsuki-k2                       ; L after K1 / K2 / K3 (docs/duel/DUEL_STRINGS.md §12): the stance at f4
   :awaken-form :kessa :aura ichigo-aura-base
   :hooks *ichigo-hooks*
@@ -312,12 +329,13 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :passives (:parry-block)
   :core (:ns (:ic-k-n1a :ic-k-n2a :ic-k-n3a) :as (:ic-k-as1 :ic-k-as2 :ic-k-as3) :sa :ic-k-sa1 :mult 1.3
          :stances (:ic-k-st-chain :ic-tsuki :ic-k-stance)   ; by pointer: the blood chains round him / cocked high behind / point-down
-         :kikon-cines (nil nil ic-kessa-kikon-cine))        ; pointer 3's Kikon plays 千影 (CORE-KIKON-CINE; else the Soul Break's)
+         :kikon-cines (ic-chain-kikon-cine ic-kessa-getsuga-cine ic-kessa-kikon-cine)   ; the chains' / 漆黒の月牙天衝 / 千影 (CORE-KIKON-CINE)
+         :as-by-press (1 1 2 2 3))
   :hooks *kessa-hooks*
   :meter (:name "BUNSHIN" :max 3 :draw ichigo-hud-meter :label ichigo-hud-label)   ; the clones' row (the gauge unused)
   :commands (:q :ic-k-j1 :f :ic-k-k1 :sig :ic-k-parry :sp1 :ic-k-hiki :sp2 :ic-k-zanzo :kikon :ic-k-kikon)
   :grid (:ic-k-j1 :ic-k-j2 :ic-k-j3 :ic-k-k1 :ic-k-k2 :ic-k-k3 :ic-k-j2s :ic-k-k2s)
-  :strings ((:ic-k-parry :land :ic-k-gaeshi))
+  :strings ((:ic-k-j2 :q :ic-k-na3) (:ic-k-na3 :q :ic-k-na4) (:ic-k-na4 :q :ic-k-j3) (:ic-k-parry :land :ic-k-gaeshi))   ; (five J)
   :l-after-k nil
   ;; a mid-close brawler with posts: every back hop and Hoho posts a clone; the parry and O by the clones in its
   ;; :reflex (ICHIGO-AI-KESSA), from blockstun in the :tick hook
@@ -1263,7 +1281,7 @@ it already runs it continues to F."
     (abort-cine)
     (setf *cine-hold* nil)
     (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 3.0)
-    (force-form *p1* (if (eq name 'ic-kikon-cine) :base :kessa))
+    (force-form *p1* (if (member name '(ic-kikon-cine ic-heavy-kikon-cine ic-rush-kikon-cine)) :base :kessa))
     (when (eq name 'ic-kessa-kikon-cine) (setf (fighter-kikon-n (fighter *p1*)) 4))
     (start-cine name *p1* *p2*))
   (when *cine* (setf *cine-hold* t (cine-hold *cine*) f)))
@@ -1274,12 +1292,14 @@ KESSA dealt, taken); 74500+k the parry window's length = k (from f2); 74600+k *K
 *CLONE-LIFE* = 10k; 74800+k *CLONE-BURST-DMG* = k; 74900+k (k 0-3) P1's clones = k, 74905 log P2's combo, 74906 the
 looks' consing probe (ICHIGO-LOOK-CONS-CHECK), 74907 the HUD's (ICHIGO-HUD-CONS-CHECK); 74910+k
 *CLONE-SCALE* = k / 20 (k < 40); 74950+k *AI-IC-PARRY-P* = k / 50 (k < 40); 74990+k a pose still (*ICHIGO-POSES*), 74989
-its camera turned 90 deg; 75000 + 150 i + k stills of cinematic i (0 the Shikai
-Kikon, 1 千影, 2 the awakening, 3 the KESSA Getsuga Soul Break) held at frame 2k."
+its camera turned 90 deg; 75000 + 80 i + k stills of cinematic i (0 the Shikai
+Kikon, 1 千影, 2 the awakening, 3 the KESSA Getsuga Soul Break, 4 the Shikai's cleaver Kikon, 5 his rush Kikon, 6 KESSA's chain Kikon;
+the pointer-linked ones of 2026-10-28) held at frame 3k (150 i + 2k before)."
   (when (>= c 75000)
     (return-from ichigo-debug
-      (ichigo-cine-at (nth (min 3 (floor (- c 75000) 150)) '(ic-kikon-cine ic-kessa-kikon-cine ic-kessa-cine ic-kessa-getsuga-cine))
-                      (* 2 (mod (- c 75000) 150)))))
+      (ichigo-cine-at (nth (min 6 (floor (- c 75000) 80)) '(ic-kikon-cine ic-kessa-kikon-cine ic-kessa-cine ic-kessa-getsuga-cine
+                                                           ic-heavy-kikon-cine ic-rush-kikon-cine ic-chain-kikon-cine))
+                      (* 3 (mod (- c 75000) 80)))))
   (let ((k (mod c 100)) (b (floor (- c 74000) 100)))
     (case b
       (0 (if (>= k 80) (ichigo-ab-gate (- k 80)) (ichigo-test k)))

@@ -39,7 +39,7 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
 
 (defun core-as-start! (e f)
   "SP after an attack hit: the AS of the attack press count, writing the pointer (its style is the pointer before the write)."
-  (let* ((n (core-as-pointer (fighter-presses f))) (mv (kit-core-move (fighter-kit f) :as n)))
+  (let* ((n (core-as-pointer (fighter-presses f) (getf (kit-core (fighter-kit f)) :as-by-press))) (mv (kit-core-move (fighter-kit f) :as n)))
     (when mv
       (setf (fighter-sp-ptr f) (fighter-ptr f))
       (start-move e mv :quick)

@@ -389,8 +389,8 @@ black flame gathered along the slab from (x0 y0 z0) to its tip (x1 y1 z1): a smo
   "Step side E's charge (*IC-CHARGED*: set by the move he is in) and draw its glow and trails on the posed body (KESSA: the black flame
 on the slab, ink trails)."
   (let* ((side (fighter-side f)) (kessa (eq (kit-form (fighter-kit f)) :kessa)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (n (and mv (mv-name mv)))
-         (c (case n ((:ic-n2a :ic-sa-g1 :ic-k-n2a :ic-k-sa-g1 :ic-k-as2) 1) ((:ic-n2b :ic-sa-g2 :ic-k-n2b :ic-k-sa-g2 :ic-k-as2b) 2)   ; (KESSA's AS2:
-                  ((:ic-j2 :ic-j3 :ic-as1 :ic-as2 :ic-as2b :ic-as3 :ic-as3b :ic-as3c   ; the string the SA goes on into        ;  the Getsuga's flame)
+         (c (case n ((:ic-n2a :ic-sa-g1 :ic-k-n2a :ic-k-sa-g1 :ic-k-as2) 1) ((:ic-n2b :ic-sa-g2 :ic-k-n2b :ic-k-sa-g2 :ic-k-as2b :ic-as2 :ic-as2b) 2)   ; (KESSA's AS2:
+                  ((:ic-j2 :ic-j3 :ic-na3 :ic-na4 :ic-k-na3 :ic-k-na4 :ic-as1 :ic-as3 :ic-as3b :ic-as3c   ; the string the SA goes on into        ;  the Getsuga's flame)
                     :ic-k-j2 :ic-k-j3 :ic-k-as1 :ic-k-as3 :ic-k-as3b :ic-k-as3c)
                    (svref *ic-charged* side))
                   (t 0)))
@@ -706,13 +706,14 @@ the plaza back, violet ash drifting."
                                  0f0 0.3f0 0f0 1.2f0 0.05f0 -0.05f0 0.1f0 +pal-ash+)))))
 
 ;; the cinematics' clones and the C (draw mode: posed and drawn one after another in one buffer)
-(defun ic-body-at (x z yaw clip tm alpha &key (y 0.0))
+(defun ic-body-at (x z yaw clip tm alpha &key (y 0.0) (shikai nil))
   "A clone of KESSA at (X Y Z) facing YAW, posed at time TM of CLIP, at ALPHA: the grey-black phantom (IC-GHOST's :mist
-look) in a cinematic."
+look) in a cinematic. SHIKAI: the Shikai's two blades instead (the rush Kikon's afterimages)."
   (let ((an (svref *ic-clone-anim* 0)) (jm (svref *ic-clone-joints* 0)) (b (find-body :ichigo)))
     (anim-play an clip :blend 0 :time (f32 (max 0.0 tm)))
     (pose-fk! jm (anim-eval an) (f32 x) (f32 y) (f32 z) (f32 yaw) (body-scale b) (body-hunch b) (body-props b))
-    (draw-body b jm x y z yaw :weapon :tensa :hide (svref (hide-set '(:shikai :mark)) 0) :alpha (f32 alpha)
+    (draw-body b jm x y z yaw :weapon (if shikai :zangetsu-long :tensa)
+                              :hide (svref (hide-set (if shikai '(:kessa :mark) '(:shikai :mark))) 0) :alpha (f32 alpha)
                               :tint *ic-mist-tint* :flash 0.12 :shadow nil :rim *ic-mist-rim*)   ; darker on a cinematic's black
     (ic-mist x z (* 0.6 alpha) (+ x z))))
 
@@ -767,14 +768,14 @@ counter's small C), FLARE its halo brightened (the impact)."
 
 (defparameter *cine-clone-waves* '(4 3) "千影: waves x clones per wave before the last all-round charge (12).")
 
-(defun ic-cine-charge (vx vz ang start cf speed h0 clip)
+(defun ic-cine-charge (vx vz ang start cf speed h0 clip &optional shikai)
   "One clone of 千影's charge: from 9 m out at angle ANG (and H0 m up) at SPEED m/s from frame START, through the victim
-at (VX VZ), dissolving 1 m past him; a white slash where it passes."
+at (VX VZ), dissolving 1 m past him; a white slash where it passes. SHIKAI: a Shikai afterimage (the rush Kikon)."
   (let* ((tt (/ (- cf start) 60.0)) (r (- 9.0 (* speed tt))))
     (when (and (>= cf start) (> r -1.0))
       (let* ((x (+ vx (* r (cos ang)))) (z (+ vz (* r (sin ang)))) (y (* h0 (max 0.0 (/ r 9.0))))
              (yaw (dir-yaw (- (cos ang)) (- (sin ang)))) (a (if (< r 0.0) (* 0.5 (+ 1.0 r)) 0.5)))
-        (ic-body-at x z yaw clip (* 0.3 tt) a :y y)
+        (ic-body-at x z yaw clip (* 0.3 tt) a :y y :shikai shikai)
         (when (< (abs r) 1.2)                           ; passing through him: the ink streak and the white flash
           (fx-line (+ vx (* 1.5 (cos ang))) 1.1 (+ vz (* 1.5 (sin ang))) (- vx (* 1.5 (cos ang))) 1.0 (- vz (* 1.5 (sin ang)))
                    0.06 0.02 0.02 0.03 0.9 :mode :alpha)
@@ -855,6 +856,193 @@ points; the victim: the impact, the Konpaku; back inside the C as it burns away 
   (during (160 180) (multiple-value-bind (px pz ux uz d) (ic-line-from a v)   ; it burns away from both points inward
                       (cine-cam (+ px (* 0.8 d ux)) 2.4 (+ pz (* 0.8 d uz)) px 2.4 pz)
                       (vfx-ic-c-cut px pz ux uz d (- 0.9 (* 0.5 u)) (* 0.5 u) (- 1.0 (* 0.5 u))))))
+
+;;; the pointer-linked Kikons (DUEL_CORE §5b / §6, the user 2026-10-28: each SP pointer's NS, its AS and its Kikon share one
+;;; theme): the Shikai's pointer 1 (the cleaver's weight) and 3 (the rush), KESSA's pointer 1 (the blood chains)
+(defun vfx-ic-glow-blade (e k)
+  "The Shikai's yellow-white reiatsu gathered along E's held cleaver (the Getsuga's colour, core 3), presence K."
+  (ic-blade e)
+  (let ((b *ic-v*) (w *ic-w*))
+    (fx-line (aref b 0) (aref b 1) (aref b 2) (aref w 0) (aref w 1) (aref w 2) (+ 0.1 (* 0.2 k)) 1.0 0.86 0.45 (* 0.6 k) :mode :alpha)
+    (fx-line (aref b 0) (aref b 1) (aref b 2) (aref w 0) (aref w 1) (aref w 2) (+ 0.03 (* 0.06 k)) 1.0 0.97 0.85 k)
+    (%light (aref w 0) (aref w 1) (aref w 2) 1.0f0 0.86f0 0.45f0 5f0 (f32 (* 2.0 k)) 8)))
+
+(defun vfx-ic-split (px pz ux uz l k)
+  "RAKUGA's split: a jagged ink gash L m along the plaza from (PX PZ) along (UX UZ), a yellow-white ember in it, presence K."
+  (let ((n 14) (rx (- uz)) (rz ux))
+    (dotimes (i n)
+      (flet ((pt (j) (let ((s (* l (/ j (float n)))) (o (* 0.18 (sin (* 2.7 j)) (- 1.0 (/ j (float n))))))
+                       (values (+ px (* s ux) (* o rx)) (+ pz (* s uz) (* o rz))))))
+        (multiple-value-bind (x0 z0) (pt i)
+          (multiple-value-bind (x1 z1) (pt (1+ i))
+            (let ((w (* 0.32 (- 1.0 (* 0.8 (/ i (float n)))))))
+              (fx-line x0 0.03 z0 x1 0.03 z1 w 0.02 0.02 0.03 k :end-width (* 0.85 w) :mode :alpha)
+              (fx-line x0 0.04 z0 x1 0.04 z1 (* 0.3 w) 1.0 0.9 0.55 (* 0.9 k) :end-width (* 0.25 w)))))))))
+
+(defcine ic-heavy-kikon-cine (a v :len 180 :hold 124)
+  "落牙 RAKUGA, the Shikai's pointer-1 Kikon (the cleaver's weight, like NS1 / AS1): beat 0, the overhead cut held; a white
+card, the brush 落牙 and the hanko, silence; low in front: the cleaver raised overhead and held, yellow-white reiatsu
+gathering on it, the plaza's dust lifting; side-on and wide: the hop and the crushing drop, the plaza split ahead of
+him to the victim and beyond, the shake; on the victim as the split reaches him: the impact, the Konpaku; from behind
+Ichigo low, the gash smoking; wide."
+  (at 0 (face-each-other a v 2.6) (shot-on a 60 3.6 1.1 :look 1.1) (lens 50)
+      (cine-clip a :ic-drop :blend 2 :time (/ 23.0 60.0)) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-heavy :pitch 0.9))
+  (at 12 (card :white a) (shot-on a 30 3.2 0.7 :look 1.1 :off -0.8) (lens 44 -8) (silence 40)
+      (caption "落牙" :reading "RAKUGA" :sub "ICHIGO  KIKON" :side 1 :ink t :hanko t))
+  (at 52 (card nil) (caption-exit) (face-each-other a v 4.2) (shot-on a 50 5.0 0.5 :look 1.7) (lens 50)
+      (cine-clip a :ic-ns1 :blend 6 :time (/ 16.0 60.0) :speed 0.0) (play-sfx :awaken-rise :pitch 0.6))
+  (during (58 112) (vfx-ic-glow-blade a (min 1.0 (* 1.5 u))))
+  (during (60 112) (let ((p (pos-of a)))                       ; the plaza's dust lifting round him
+                     (when (< (rnd01) 0.6)
+                       (%t-blob (+ (aref p 0) (rnd-range -1.6f0 1.6f0)) 0.1f0 (+ (aref p 2) (rnd-range -1.6f0 1.6f0))
+                                0f0 0.6f0 0f0 0.9f0 0.06f0 -0.05f0 0.1f0 +pal-ash+))))
+  (at 84 (shake 0.08 0.4) (play-sfx :awaken-rise :pitch 0.8 :gain 0.6))
+  (at 100 (shot-on a 90 7.0 1.0 :look 1.2 :ahead 2.0) (lens 44)
+      (cine-clip a :ic-drop :blend 0 :time (/ 9.0 60.0)) (play-sfx :whoosh-heavy :pitch 0.7))
+  (at 112 (impact-frame :negative 2) (play-sfx :ground-crack) (play-sfx :explode :pitch 0.5) (shake 0.45 0.6)
+      (multiple-value-bind (px pz ux uz) (ic-line-from a v)
+        (stage-crack-add (+ px (* 1.6 ux)) (+ pz (* 1.6 uz)) 2.6)
+        (vfx-shockwave (+ px (* 1.6 ux)) (+ pz (* 1.6 uz)) 4.0 0.5 :rgb '(1.0 0.9 0.5))))
+  (at 114 (impact-frame :manga 6))
+  (during (112 180) (multiple-value-bind (px pz ux uz d) (ic-line-from a v)   ; the split running out to him and beyond
+                      (let ((l (* (+ d 6.0) (min 1.0 (/ (- cf 112) 12.0)))) (k (if (< cf 150) 0.95 (max 0.0 (- 0.95 (* 0.03 (- cf 150)))))))
+                        (vfx-ic-split (+ px (* 1.6 ux)) (+ pz (* 1.6 uz)) ux uz l k)
+                        (when (and (< cf 136) (< (rnd01) 0.7))      ; ink debris kicked up along it
+                          (let ((s (rnd-range 0f0 (f32 l))))
+                            (%t-shard (+ px (* (+ 1.6 s) ux)) 0.1f0 (+ pz (* (+ 1.6 s) uz)) (rnd-range -1f0 1f0) (rnd-range 3f0 6f0)
+                                      (rnd-range -1f0 1f0) 0.3f0 0.06f0 0f0 +pal-ink+))))))
+  (at 118 (shot-on v 150 5.0 1.0 :look 1.2) (lens 50))
+  (at 124 (impact-frame :negative 2) (cine-clip v :sh-crumple :blend 3)
+      (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (multiple-value-bind (x y z) (actor-point v 1.0) (vfx-hit x (+ y 0.3) z :heavy))
+      (impact-splash-at v 0.0 14 0.08)
+      (stage-crack-add (aref (pos-of v) 0) (aref (pos-of v) 2) 2.0)
+      (play-sfx :konpaku-shatter) (play-sfx :explode :pitch 0.6 :gain 0.6) (shake 0.3 0.4))
+  (at 126 (impact-frame :manga 12))
+  (at 142 (shot-on a 165 4.6 0.5 :look 1.0) (lens 40) (cine-clip a :ic-stance :blend 12))
+  (at 166 (shot-on a 150 7.5 2.2 :look 1.2) (lens 50)))
+
+(defparameter *cine-rush-dirs* '(0.4 3.0 5.2 1.7 4.1 0.9)
+  "連斬: the six flash-step dashes' directions through the victim (radians round him), one every 12 f from frame 22.")
+
+(defcine ic-rush-kikon-cine (a v :len 180 :hold 124)
+  "連斬 RENZAN, the Shikai's pointer-3 Kikon (the rush, like NS3 / AS3): beat 0, the last RANGETSU cut held; the plaza to
+black, the victim alone, Ichigo gone; orbiting the victim: six flash-step dashes through him from six quarters, each a
+grey Shikai afterimage, a yellow-white streak and a white slash where it passes; one white frame; side-on, the pounce
+TSUKI-OTOSHI, both blades slammed down on him; a black card, behind Ichigo low, the brush 連斬 and the hanko, the
+impact, the Konpaku; wide."
+  (at 0 (face-each-other a v 2.6) (shot-on a 60 3.8 1.1 :look 1.1) (lens 50)
+      (cine-clip a :ic-rangetsu :blend 2 :time (/ 17.0 60.0)) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :cut :pitch 0.9))
+  (at 12 (card :black v) (shot-on v 30 5.0 1.2 :look 1.2) (lens 50) (play-sfx :hoho-out) (silence 10))
+  (at 22 (lens 40))
+  (during (22 98) (let* ((q (pos-of v)) (ang (+ 0.5 (* 4.4 u))))   ; orbiting him
+                    (cine-cam (+ (aref q 0) (* 5.5 (cos ang))) 1.5 (+ (aref q 2) (* 5.5 (sin ang))) (aref q 0) 1.1 (aref q 2))))
+  (during (22 104) (let ((q (pos-of v)))
+                     (loop for ang in *cine-rush-dirs* for i from 0
+                           do (let* ((st (+ 22 (* 12 i))) (r (- 9.0 (* 40.0 (/ (- cf st) 60.0)))))
+                                (ic-cine-charge (aref q 0) (aref q 2) ang st cf 40.0 0.0 (if (evenp i) :ic-rangetsu :ic-f1) t)
+                                (when (and (>= cf st) (< r 8.0) (> r -6.0))   ; the flash step's yellow-white streak behind it
+                                  (let ((r0 (min 9.0 (+ r 6.0))) (r1 (max -6.0 r)) (k (min 0.8 (* 0.12 (+ r 6.0)))))
+                                    (fx-line (+ (aref q 0) (* r0 (cos ang))) 1.0 (+ (aref q 2) (* r0 (sin ang)))
+                                             (+ (aref q 0) (* r1 (cos ang))) 1.0 (+ (aref q 2) (* r1 (sin ang)))
+                                             0.03 1.0 0.9 0.55 k :end-width 0.12)))))))
+  (at 36 (play-sfx :cut) (cine-clip v :sh-stagger :blend 2)) (at 48 (play-sfx :cut :pitch 1.1))
+  (at 60 (play-sfx :cut :pitch 0.95) (cine-clip v :sh-flinch :blend 2)) (at 72 (play-sfx :cut :pitch 1.15))
+  (at 84 (play-sfx :cut :pitch 1.05) (cine-clip v :sh-stagger :blend 2)) (at 96 (play-sfx :cut-heavy) (shake 0.2 0.3))
+  (at 100 (card nil) (ui-flash 1 1 1 1 6.0) (silence 6))
+  (at 104 (face-each-other a v 2.4) (shot-on a 80 6.0 1.3 :look 1.4 :ahead 1.2) (lens 44)
+      (cine-clip a :ic-tsuki-otoshi :blend 0 :time (/ 6.0 60.0)) (cine-clip v :sh-stagger :blend 0) (play-sfx :whoosh-heavy))
+  (during (104 116) (vfx-ic-glow-blade a 0.9))
+  (at 116 (impact-frame :negative 2) (play-sfx :cut-heavy) (play-sfx :explode :pitch 0.6) (shake 0.35 0.5)
+      (let ((q (pos-of v))) (stage-crack-add (aref q 0) (aref q 2) 2.2) (vfx-shockwave (aref q 0) (aref q 2) 3.5 0.5 :rgb '(1.0 0.9 0.5))))
+  (at 118 (face-each-other a v 3.2) (card :black) (back-rim 56 1.0 0.86 0.45) (shot-on a 155 3.2 0.55 :look 1.3 :off -0.5)
+      (cine-clip a :ic-stance :blend 0) (cine-clip v :sh-crumple :blend 0)
+      (caption "連斬" :reading "RENZAN" :sub "ICHIGO  KIKON" :side 1 :hanko t))
+  (at 124 (impact-frame :negative 2)
+      (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (play-sfx :konpaku-shatter) (play-sfx :explode :pitch 0.6 :gain 0.6) (shake 0.3 0.4))
+  (at 126 (impact-frame :manga 12))
+  (at 166 (card nil) (caption-exit) (shot-on a 150 7.0 2.0 :look 1.4) (lens 50)))
+
+(defparameter *cine-chain-grips* '(:upper-arm-l :upper-arm-r :thigh-l :thigh-r)
+  "血鎖: where each of KESSA's four chains (*IC-CHAIN-ROOTS*' order) binds the victim.")
+
+(defun vfx-ic-chain-bind (a v reach k)
+  "KESSA's four blood chains (wrists, ankles) cast at V: each tip REACH (0..1) of the way from its root to its grip on V,
+arcing up on the way; presence K."
+  (loop for (j lx ly lz) in *ic-chain-roots* for g in *cine-chain-grips* for i from 0
+        do (let* ((r (ic-joint a (joint-index j) *ic-cb* (f32 lx) (f32 ly) (f32 lz)))
+                  (w (ic-joint v (joint-index g) *ic-ct*)) (s (min 1.0 (max 0.0 (- (* 1.2 reach) (* 0.05 i)))))
+                  (x0 (aref r 0)) (y0 (aref r 1)) (z0 (aref r 2)))
+             (when (> s 0.0)
+               (vfx-ic-chain x0 y0 z0 (+ x0 (* s (- (aref w 0) x0))) (+ y0 (* s (- (aref w 1) y0)) (* 0.9 (sin (* pi s)) (- 1.0 s)))
+                             (+ z0 (* s (- (aref w 2) z0))) (if (= i 0) k (* 0.85 k)))))))
+
+(defun vfx-ic-chain-wrap (v tm k)
+  "Two coils of blood chain round V's chest and thighs, turning with TM; presence K."
+  (let ((q (pos-of v)))
+    (dolist (hy '(1.2 0.6))
+      (dotimes (i 8)
+        (let ((a0 (+ (* 0.05 tm hy) (* i 0.785))) (a1 (+ (* 0.05 tm hy) (* (1+ i) 0.785))))
+          (vfx-ic-chain (+ (aref q 0) (* 0.42 (cos a0))) (+ hy (* 0.04 i)) (+ (aref q 2) (* 0.42 (sin a0)))
+                        (+ (aref q 0) (* 0.42 (cos a1))) (+ hy (* 0.04 (1+ i))) (+ (aref q 2) (* 0.42 (sin a1))) k))))))
+
+(defcine ic-chain-kikon-cine (a v :len 180 :hold 124)
+  "血鎖 KESSA, KESSA's pointer-1 Kikon (the blood chains, like NS1 / AS1): beat 0, the whip's slam held; a black card, a
+BLOOD back-rim, the brush 血鎖 and the hanko, his four chains (wrists, ankles) uncoiling round him; wide from behind:
+the chains lash out and bind the victim, coiled round chest and thighs; on the victim, caught; Ichigo yanks him in
+across the plaza; the slab's cut, a blood slash; the chains snap off, the impact, the Konpaku; wide, the chains back
+round him."
+  (at 0 (face-each-other a v 2.6) (shot-on a 60 3.8 1.1 :look 1.1) (lens 50)
+      (cine-clip a :ic-k-whip :blend 2 :time (/ 26.0 60.0)) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :chain-snap))
+  (at 12 (card :black a) (back-rim 40 0.82 0.06 0.11) (shot-on a 20 4.2 0.9 :look 1.1 :off 0.9) (lens 42) (silence 20)
+      (cine-clip a :ic-k-st-chain :blend 6) (play-sfx :chain-rattle :pitch 0.7)
+      (caption "血鎖" :reading "KESSA" :sub "KESSA NO ICHIGO  KIKON" :side 0 :hanko t))
+  (during (12 52) (let ((p (pos-of a)) (g (min 1.0 (* 2.0 u))))   ; the chains uncoiling round him
+                    (loop for (j lx ly lz) in *ic-chain-roots* for i from 0
+                          do (let* ((r (ic-joint a (joint-index j) *ic-cb* (f32 lx) (f32 ly) (f32 lz)))
+                                    (x0 (aref r 0)) (y0 (aref r 1)) (z0 (aref r 2)))
+                               (dotimes (k 3)
+                                 (let* ((an (+ (* 0.06 cf) (* i 1.571) (* (1+ k) 0.6))) (rr (* g (+ 0.7 (* 0.25 k))))
+                                        (x1 (+ (aref p 0) (* rr (cos an)))) (z1 (+ (aref p 2) (* rr (sin an))))
+                                        (y1 (+ 0.4 (* 0.35 (mod i 2)) (* g 0.3 k))))
+                                   (vfx-ic-chain x0 y0 z0 x1 y1 z1 0.9)
+                                   (setf x0 x1 y0 y1 z0 z1)))))))
+  (at 52 (card nil) (caption-exit) (face-each-other a v 7.0) (shot-on a 150 5.0 1.6 :look 1.1 :off 0.6) (lens 44)
+      (cine-clip a :ic-k-whip :blend 3 :time (/ 6.0 60.0)) (play-sfx :chain-rattle))
+  (during (52 66) (vfx-ic-chain-bind a v u 0.95))
+  (at 66 (play-sfx :chain-snap) (shake 0.15 0.3) (cine-clip v :sh-stagger :blend 2) (impact-frame :negative 1))
+  (during (66 108) (vfx-ic-chain-bind a v 1.0 0.95))
+  (during (70 108) (vfx-ic-chain-wrap v cf (min 0.9 (* 4.0 u))))
+  (at 72 (shot-on v 35 3.8 0.9 :look 1.1) (lens 52) (play-sfx :chain-rattle :pitch 0.8))
+  (at 88 (shot-on a 90 7.5 1.3 :look 1.1 :ahead 2.5) (lens 44)
+      (cine-clip a :ic-k-yank :blend 0 :time (/ 14.0 60.0)) (play-sfx :chain-snap :pitch 0.8) (shake 0.2 0.3))
+  (when (and step-p (< 88 cf 100)) (face-each-other a v (- 7.0 (* 0.4 (- cf 88)))))   ; reeled in, 7 m -> 2.2 m
+  (at 100 (cine-clip a :ic-k-f3 :blend 0 :time (/ 17.0 60.0)) (cine-clip v :sh-launch :blend 0)
+      (shot-on a 60 5.2 1.2 :look 1.2 :ahead 1.2) (lens 44) (impact-frame :negative 2)
+      (play-sfx :cut-heavy) (play-sfx :chain-snap) (shake 0.3 0.4))
+  (during (100 112) (let ((q (pos-of v)) (yaw (yaw-of v)) (k (- 0.95 (* 0.8 u))))   ; the slab's blood slash across him
+                      (fx-line (+ (aref q 0) (* 1.0 (fwd-z yaw))) 2.0 (- (aref q 2) (* 1.0 (fwd-x yaw)))
+                               (- (aref q 0) (* 1.0 (fwd-z yaw))) 0.3 (+ (aref q 2) (* 1.0 (fwd-x yaw))) 0.16 0.82 0.06 0.11 k :mode :alpha)
+                      (fx-line (+ (aref q 0) (* 1.0 (fwd-z yaw))) 2.0 (- (aref q 2) (* 1.0 (fwd-x yaw)))
+                               (- (aref q 0) (* 1.0 (fwd-z yaw))) 0.3 (+ (aref q 2) (* 1.0 (fwd-x yaw))) 0.04 1.0 1.0 1.0 k)))
+  (at 112 (card :black) (back-rim 40 0.82 0.06 0.11) (shot-on v 150 3.8 1.1 :look 1.1) (lens 50) (cine-clip v :sh-crumple :blend 4))
+  (at 124 (impact-frame :negative 2)
+      (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (multiple-value-bind (x y z) (actor-point v 1.0) (vfx-hit x (+ y 0.3) z :heavy))
+      (impact-splash-at v 0.0 14 0.1)
+      (play-sfx :konpaku-shatter) (play-sfx :chain-snap) (play-sfx :explode :pitch 0.6 :gain 0.6) (shake 0.3 0.4))
+  (at 126 (impact-frame :manga 12))
+  (at 150 (card nil) (shot-on a -30 6.0 1.4 :look 1.1) (lens 50) (cine-clip a :ic-k-stance :blend 10))
+  (during (150 180) (let ((p (pos-of a)) (g (min 1.0 (* 3.0 u))))   ; the chains back round him
+                      (loop for (j lx ly lz) in *ic-chain-roots* for i from 0
+                            do (let* ((r (ic-joint a (joint-index j) *ic-cb* (f32 lx) (f32 ly) (f32 lz)))
+                                      (an (+ (* 0.05 cf) (* i 1.571))) (rr (* g 0.85)))
+                                 (vfx-ic-chain (aref r 0) (aref r 1) (aref r 2) (+ (aref p 0) (* rr (cos an))) (+ 0.5 (* 0.3 (mod i 2)))
+                                               (+ (aref p 2) (* rr (sin an))) 0.8))))))
 
 (defcine ic-pose-cine (a v :len 9999 :hold 1)
   "Debug stills (ichigo.lisp ICHIGO-POSE, 74990+k): the camera on P1 at *IC-POSE-ANG* degrees."
