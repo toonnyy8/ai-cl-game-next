@@ -678,14 +678,15 @@
       (:hand-r :flex -40 :twist 0) (:arm-l :flex 10 :side 30) (:elbow-l :flex 80) (:hand-l :flex 10))
   (:end :ic-stance))
 
-;; the three rests, one per SP pointer (kit :core :stances): 1 the cleaver straight up beside the head, 2 side-on with the
+;; the three rests, one per SP pointer (kit :core :stances): 1 upright, the cleaver planted point-down in front, 2 side-on with the
 ;; cleaver cocked behind the shoulder (the old 月待 :ic-tsuki), 3 a low crouch leaning in, both blades trailing behind
-(defpose :ic-st-heavy (:base :ic-stance)
-  (:root :u -0.12) (:pelvis :twist -8) (:spine :flex 2) (:chest :twist -4) (:head :flex -6 :twist 4)
-  (:arm-r :flex 172 :side 15 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -40 :twist 0)
-  (:thigh-l :flex 34 :side 14) (:knee-l :flex 36) (:thigh-r :flex -10 :side 16) (:knee-r :flex 34))
+(defpose :ic-st-heavy (:base :ic-stance)              ; square to him, upright, the cleaver planted point-down in front
+  (:root :u -0.05) (:pelvis :twist 0) (:spine :flex 4) (:chest :twist 0) (:neck :twist 0) (:head :flex 4 :twist 0)
+  (:arm-r :flex -10 :side 48 :twist 23) (:elbow-r :flex 40) (:hand-r :flex -46 :twist 0)
+  (:arm-l :flex 8 :side 20 :twist 0) (:elbow-l :flex 24) (:hand-l :flex -10 :twist 0)
+  (:thigh-l :flex 8 :side 12) (:knee-l :flex 12) (:thigh-r :flex 8 :side 12) (:knee-r :flex 12))
 (defclip :ic-st-heavy (1.8 :loop t :base :ic-st-heavy)
-  (0) (0.9 (:root :u -0.135) (:chest :flex 3) (:elbow-r :flex 34)))
+  (0) (0.9 (:root :u -0.065) (:chest :flex 3) (:elbow-l :flex 28)))
 (defpose :ic-st-rush (:base :ic-stance)
   (:root :f 0.18 :u -0.24 :yaw -8) (:pelvis :twist 12) (:spine :flex 30) (:chest :twist 10) (:neck :twist -4) (:head :flex -22 :twist -6)
   (:arm-r :flex -40 :side 40 :twist 0) (:elbow-r :flex 20) (:hand-r :flex -70 :twist 0)

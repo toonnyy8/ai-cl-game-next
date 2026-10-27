@@ -111,7 +111,7 @@ follow-up links keep their speed).
 
 | Pointer | NS | Role | Segments (S = startup) | Stance (idle clip) |
 |---|---|---|---|---|
-| 1 | NS1 | close, heavy (the cleaver's string, 212 base if all land) | `ic-n1a` S 22 cleaver lifted overhead and held (new clip `:ic-ns1`) → `ic-n1b` (K2) → `ic-n1c` (K3) | `:ic-st-heavy`: the cleaver straight up beside the head |
+| 1 | NS1 | close, heavy (the cleaver's string, 212 base if all land) | `ic-n1a` S 22 cleaver lifted overhead and held (new clip `:ic-ns1`) → `ic-n1b` (K2) → `ic-n1c` (K3) | `:ic-st-heavy`: upright and square, the cleaver held low at his right side, point down (since §417: the first pass, the cleaver straight up, read as pointer 2's) |
 | 2 | NS2 | **long range**: GETSUGA TENSHO twice | `ic-n2a` S 22 (clip `:ic-ns2`, the cleaver cocked behind the shoulder, held), a 16 m/s, 10 m, 2.4 m wide wave, 45 → `ic-n2b` S 14, the same wave, 60. | `:ic-tsuki` (the old 月待 stance: side-on, cleaver cocked high behind the shoulder) |
 | 3 | NS3 | the rush / finisher | `ic-n3a` S 18 deep crouch held (clip `:ic-ns3`) then RANGETSU's four cuts → `ic-n3b` TSUKI-OTOSHI (the pounce, 4 m, 100) | `:ic-st-rush`: a low crouch leaning in, both blades trailing behind |
 
