@@ -38,6 +38,11 @@
 (defparameter *clone-lag* 6 "A clone's answer starts this long after the press.")
 (defparameter *clone-scale* 0.7 "A clone hit's damage x (its guard value too): every clone answers every press (the user's
 choice), so the per-hit share is the knob (the worst case, a J string with three clones, docs/duel/DUEL_ICHIGO.md v2).")
+(defparameter *clone-replay-scale* 0.1 "The core system: an NS3 clone plays back each J / AS of his after NS3 (CLONE-REPLAY-WATCH),
+its damage, guard value and effects (flash-step stolen, the chain's pull) at this x of his, times his charged Getsuga's x (the user,
+2026-10-28: 「每個分身在重現動作時的傷害與效果（像是剝奪閃步量表等等）是本體的 10%，同時也能受到蓄力月牙的加成」).")
+(defparameter *clone-replay-lags* '(:ns-a 4 :ns-b 8) "The frames each NS3 clone replays him behind, the right one's and the left
+one's (the user, 2026-10-28: 「一個慢 4f 一個慢 8f」).")
 (defparameter *clone-burst-dmg* 30 "O's strike gains this per charging clone (74800+k).")
 (defparameter *clone-konpaku* '(2 2 3 4) "The Kikon's Konpaku by the clones at the O press, 0 / 1 / 2 / 3 (the user's table).")
 ;; SP2 残像 ZANZO
@@ -387,6 +392,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   "Ichigo's state (IC): on his fighter entity, made on its first use, so a new match's fighter starts fresh."
   (hoho-done nil) (dashed nil) (o-live nil)
   (seen nil) (seen-main nil)                  ; the move the afterimage watch last saw start
+  (rseen -1 :type fixnum)                     ; the start tick of the move the clones' replay last saw (CLONE-REPLAY-WATCH)
   (hist (make-array 48 :initial-element 0f0)) (hist-i 0 :type fixnum)   ; his last 16 (x z yaw): the echoes replay them
   (rim nil) (rim-saved nil) (parry-sf -1 :type fixnum)
   (bs-key -1 :type fixnum) (bs-at -1 :type fixnum)    ; the CPU's parry from blockstun: which blockstun, pressed on which frame
@@ -406,7 +412,8 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   (state :idle) (born 0 :type fixnum) (life 0 :type fixnum) (fade 0 :type fixnum) (src nil)
   (link 0 :type fixnum) (mv nil) (sf 0 :type fixnum) (queued nil)   ; (the presses waiting for its next links)
   (hit nil)                                   ; this link's own contact (:hit / :block)
-  (touched nil))                              ; any link of this string touched him: the carried gate; spent at its end
+  (touched nil)                               ; any link of this string touched him: the carried gate; spent at its end
+  (rq nil) (rmult 1f0 :type single-float))    ; the core system's replay: his moves to play back (tick mv mult), the one's x
 (defstruct (ice (:conc-name ice-)) (mv nil) (sf 0 :type fixnum) (end 0 :type fixnum))
 
 ;;; ================================================================ helpers
@@ -515,13 +522,13 @@ L; within 4.2 m (RANGETSU's lunge + reach 4.8) TSUKI-OTOSHI on a guard (or a gau
           (dash :tsuki-step))))
 
 ;;; ================================================================ KESSA: the clones 分身
-(defun clone-p (hz) (icc-p (hazard-data hz)))
+(defun clone-p (hz) "Is HZ a clone (not one of its hits in the air, whose data is its clone too)?" (and (eq (hazard-hook hz) 'ichigo-clone-hz) (icc-p (hazard-data hz))))
 (defun ichigo-clones (e)
   "E's clone hazards (entities), oldest first."
   (let ((out nil))
     (do-entities (h (hz hazard)) (when (and (eql (hazard-owner hz) e) (clone-p hz)) (push h out)))
     (sort out #'< :key (lambda (h) (icc-born (hazard-data (hazard h)))))))
-(defun clone-live-p (c) (member (icc-state c) '(:idle :answer)))
+(defun clone-live-p (c) (member (icc-state c) '(:idle :answer :replay)))
 (defun ichigo-kikon-worth (e)
   "KESSA's :kikon-worth hook: what 千影 would take if O were pressed now (CLONE-KONPAKU of the live clones), for the red
 Konpaku hint (the user 2026-09-29: it followed the kit's fixed 3) and his Soul Break (this + 1, the user 2026-09-30)."
@@ -545,11 +552,11 @@ Konpaku hint (the user 2026-09-29: it followed the kit's fixed 3) and his Soul B
 
 ;; KESSA's NS3 clones (free: the NS is the price)
 (defun ichigo-ns-clone-p (c) "Is C one of NS3's clones (it stays after a string, until its life is out)?" (member (icc-src c) '(:ns-a :ns-b)))
-(defun ichigo-ns-slot (e side)
-  "Values x z of an NS3 clone's place: at E's side, 0.5 m ahead and 1.1 m to SIDE (1 his right, -1 his left), inside the arena (they
-flank him: clear of the opponent for the camera behind him)."
-  (let* ((yaw (yaw-of e)) (fx (fwd-x yaw)) (fz (fwd-z yaw)) (p (pos-of e)))
-    (clamp-to-circle (+ (aref p 0) (* 0.5 fx) (* side 1.1 (- fz))) (+ (aref p 2) (* 0.5 fz) (* side 1.1 fx)) (- *arena-radius* 0.4))))
+(defun ichigo-ns-slot (e side &optional (px (aref (pos-of e) 0)) (pz (aref (pos-of e) 2)) (yaw (yaw-of e)))
+  "Values x z of an NS3 clone's place: at E's side (or at PX PZ facing YAW: where he was), 0.5 m ahead and 1.1 m to SIDE (1 his right,
+-1 his left), inside the arena (they flank him: clear of the opponent for the camera behind him)."
+  (let* ((fx (fwd-x yaw)) (fz (fwd-z yaw)))
+    (clamp-to-circle (+ px (* 0.5 fx) (* side 1.1 (- fz))) (+ pz (* 0.5 fz) (* side 1.1 fx)) (- *arena-radius* 0.4))))
 (defun ichigo-ns-clone (e side src)
   "NS3: a clone at its place (ICHIGO-NS-SLOT), swinging forward at once (the light answer: it lands before the next press's)."
   (multiple-value-bind (x z) (ichigo-ns-slot e side)
@@ -673,6 +680,70 @@ string's end it fades if it touched him, else it idles where it stands."
                         (clone-fade c)
                         (setf (icc-state c) :idle (icc-queued c) nil))))))))
 
+;; the core system's replay (the user, 2026-10-28: 「請幫我設計讓卍解的分身會重現本體的行為（包含 J 與 SP）」): each J and AS he starts while
+;; NS3's clones are out is queued on each, and the clone plays it back *CLONE-REPLAY-LAGS* behind, where he was then (his history)
+;; at its side: its hits (ICHIGO-STRIKE) and its waves (CLONE-WAVE) at *CLONE-REPLAY-SCALE*; the SA stays his alone, and AS3 keeps
+;; the clones' own cuts (its X: they are its theme, not a replay)
+(defun clone-replay-watch (e f)
+  "A J or an AS of E's (not AS3, not a Kikon's dash-in strike) has just started: queue it on every live NS3 clone, with its x."
+  (let ((mv (fighter-move f)) (st (ic e)))
+    (when (and *core-on* (eq (fighter-state f) :move) mv (/= (fighter-cls-t f) (ics-rseen st)))
+      (setf (ics-rseen st) (fighter-cls-t f))
+      (when (and (member (fighter-cls f) '(:na :as)) (not (fighter-follow f))
+                 (not (member (mv-name mv) (core-segments (third (getf (kit-core (fighter-kit f)) :as))))))
+        (let ((mult (f32 (* *clone-replay-scale* (core-charge-mult f mv t nil)))))
+          (dolist (h (ichigo-live-clones e))
+            (let ((c (hazard-data (hazard h))))
+              (when (ichigo-ns-clone-p c)
+                (setf (icc-rq c) (append (icc-rq c) (list (list (fighter-cls-t f) mv mult))))))))))))
+
+(defun clone-replay-lag (c) (getf *clone-replay-lags* (icc-src c) 4))
+
+(defun clone-replay-next (c)
+  "The queued move whose time has come (its start + the clone's lag): C plays it from its frame 0 (the :enter frame his started on)."
+  (let ((q (first (icc-rq c))))
+    (when (and q (>= *match-tick* (+ (first q) (clone-replay-lag c))))
+      (pop (icc-rq c))
+      (destructuring-bind (tick mv mult) q
+        (declare (ignore tick))
+        (setf (icc-state c) :replay (icc-mv c) mv (icc-rmult c) mult (icc-sf c) (1- (mv-enter mv)) (icc-hit c) nil)
+        (clog "clone ~a replays ~a x~,2f" (icc-src c) (mv-name mv) mult)))))
+
+(defun clone-wave (e x z yaw mv mult)
+  "A clone's replay of his wave (MV's :params, as ICHIGO-WAVE) from (X Z) facing YAW, at MULT; never a Kikon's first strike."
+  (let ((p (mv-params mv)) (fx (fwd-x yaw)) (fz (fwd-z yaw)))
+    (flet ((k (key) (getf p key)))
+      (spawn-hazard :wave e :x (+ x fx) :z (+ z fz) :yaw yaw :speed (k :speed) :size (* 0.5 (k :width))
+                            :life (round (* 60 (/ (k :range) (k :speed)))) :look (k :look) :sp-mv nil
+                            :hw (make-hitwin :dmg (max 1 (round (* mult (k :dmg)))) :react (k :react) :kb (k :kb)
+                                             :hs *hitstop-heavy* :guard (* mult (k :guard)) :flags '(:blade))))
+    (emit :sfx :getsuga e)))
+
+(defun clone-replay-step (e hz c)
+  "A replaying clone, one frame: it stands where he stood its lag ago, at its side, facing the opponent, and strikes each hit window of his move and
+fires each wave of it (ICHIGO-GETSUGA / ICHIGO-JUJI on-frames) on his frames, at its x; the move over, it idles."
+  (let ((mv (icc-mv c)) (sf (incf (icc-sf c))) (mult (icc-rmult c)))
+    (multiple-value-bind (hx hzz yaw) (hist-at (ic e) (clone-replay-lag c))
+      (multiple-value-bind (x z) (ichigo-ns-slot e (if (eq (icc-src c) :ns-a) 1 -1) hx hzz yaw)
+        (let ((q (pos-of (opp-of e))))                   ; (it strikes at him from its side: the chain's line reaches him)
+          (setf yaw (dir-yaw (- (aref q 0) x) (- (aref q 2) z))))
+        (setf (hazard-x hz) (f32 x) (hazard-z hz) (f32 z) (hazard-yaw hz) (f32 yaw))
+        (loop for w across (mv-hits mv) when (= sf (hw-from w)) do (ichigo-strike e x z yaw w mult c))
+        (loop for (fr fn) in (mv-on-frame mv)
+              when (and (= sf fr) (member fn '(ichigo-getsuga ichigo-juji))) do (clone-wave e x z yaw mv mult))))
+    (when (>= sf (mv-total mv)) (setf (icc-state c) :idle))))
+
+(defun clone-replay-hit! (att def c)
+  "A replayed hit of clone C landed on DEF: the effects of his move at its x (an AS's flash-step steal, the chain's pull to it)."
+  (let* ((mv (icc-mv c)) (mult (icc-rmult c)) (pull (getf (mv-params mv) :pull)))
+    (when (eq (kit-class (kit-of att) mv) :as) (core-on-hit! att def mv mult))
+    (when (and pull (eq (mv-on-land mv) 'ichigo-pull))
+      (let ((h (find c (ichigo-clones att) :key (lambda (h) (hazard-data (hazard h))))))
+        (when h
+          (let* ((hz (hazard h)) (q (pos-of def)) (dx (- (hazard-x hz) (aref q 0))) (dz (- (hazard-z hz) (aref q 2)))
+                 (d (hypot dx dz)))
+            (when (> d pull) (set-slide def (* mult (- d pull)) 10 dx dz))))))))
+
 (defun clone-burst (e hz)
   "A charging clone bursts (ink and white, BLOOD sparks) on O's strike frame."
   (spawn-look e 'ichigo-burst-look :x (hazard-x hz) :z (hazard-z hz) :size 1.0 :life 16)
@@ -688,9 +759,11 @@ string's end it fades if it touched him, else it idles where it stands."
     (let* ((q (pos-of o)) (dx (- (aref q 0) (hazard-x hz))) (dz (- (aref q 2) (hazard-z hz))) (d (hypot dx dz)))
       (unless (eq (icc-state c) :fade)
         (setf (hazard-yaw hz) (f32 (angle-wrap (turn-toward (hazard-yaw hz) (dir-yaw dx dz) (track-step 720.0))))))
+      (when (and (icc-rq c) (member (icc-state c) '(:idle :answer :replay))) (clone-replay-next c))   ; (the core system's replay)
       (ecase (icc-state c)
+        (:replay (clone-replay-step e hz c))
         (:idle (cond ((<= (icc-life c) 0) (pace e :clone-expired) (clone-fade c))
-                     ((and *core-on* (not (eq (fighter-state (fighter e)) :move)))   ; his attack is over: gone (the user, 2026-10-27:
+                     ((and *core-on* (not (eq (fighter-state (fighter e)) :move)) (null (icc-rq c)))   ; his attack is over: gone (the user, 2026-10-27:
                       (clone-fade c))))                                            ;  「結束攻擊後分身就直接消失不在留於場上」)
         (:answer (clone-answer-step e hz c))
         (:charge
@@ -894,7 +967,7 @@ distance; the ticks in KESSA; each Kikon he lands, by form and worth."
 ;;; ================================================================ his hooks
 (defun ichigo-hit (att def res hw mv hazard ranged)
   "Both forms' :hit hook: a clone's hit tells its clone what it did (its string's gate and its fate)."
-  (declare (ignore def hw mv ranged))
+  (declare (ignore hw mv ranged))
   (when (and hazard (eq (hazard-look hazard) 'ichigo-getsuga-look) (contact-of res))
     (pace att (ic-key "GETSUGA-WAVE" (contact-of res))))
   (when (and hazard (eq (hazard-look hazard) 'ichigo-juji-look) (contact-of res))
@@ -904,6 +977,7 @@ distance; the ticks in KESSA; each Kikon he lands, by form and worth."
       (when (and (icc-p c) (contact-of res))
         (pace att (ic-key "CLONE" (contact-of res)))
         (setf (icc-hit c) (contact-of res) (icc-touched c) t)
+        (when (and (eq (icc-state c) :replay) (eq (contact-of res) :hit)) (clone-replay-hit! att def c))
         (clog "~a clone ~a" (side-name att) res)))))
 
 (defun ichigo-struck (def att res hw mv hazard ranged)
@@ -938,8 +1012,10 @@ edges they answer, the Hoho clone, the O charge), the parry from blockstun and i
               (when (and (= 1 (vpad-held vp bt))
                          (if (vpad-modded-p vp bt)
                              (eq (fighter-cls f) :as)                 ; the core system: an SP that is an AS: they join it
-                             (not (eq (fighter-cls f) :ns))))         ; an attack in an NS gap is the SA: his alone
+                             (not (eq (fighter-cls f) :ns)))          ; an attack in an NS gap is the SA: his alone
+                         (not *core-on*))                             ; (the core system: they replay him, CLONE-REPLAY-WATCH)
                 (ichigo-press e bt))))
+          (clone-replay-watch e f)
           (if (eq state :hoho)
               (when (and (>= (fighter-sf f) *hoho-appear*) (not (ics-hoho-done st))) (setf (ics-hoho-done st) t)
                 (unless *core-on* (hoho-clone e)))   ; (the core system: no Hoho clone either; it would fade at once, idle)

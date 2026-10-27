@@ -155,8 +155,16 @@ kept down to the hit (the user, 2026-10-28: 「實際在觸控時的判斷應該
 (defun core-kikon-cine (att)
   "The cinematic of ATT's Kikon by the pointer of the SP that struck (the kit's :core :kikon-cines, one per pointer; NIL: the kit's own).
 KESSA's pointer 3 plays 千影 (the user, 2026-10-28: 「指針三的毀魂技使用之前的「千影」動畫」)."
-  (let ((f (fighter att)))
-    (and *core-on* (nth (1- (max 1 (min 3 (fighter-sp-ptr f)))) (getf (kit-core (fighter-kit f)) :kikon-cines)))))
+  (core-pointer-cine att (fighter-sp-ptr (fighter att))))
+
+(defun core-pointer-cine (att ptr)
+  "Pointer PTR's Kikon cinematic in ATT's kit (:core :kikon-cines), or NIL."
+  (and *core-on* (nth (1- (max 1 (min 3 ptr))) (getf (kit-core (kit-of att)) :kikon-cines))))
+
+(defun core-soul-break-cine (att)
+  "The cinematic of ATT's Soul Break (the Reiatsu at zero): the current pointer's Kikon (the user, 2026-10-28: 「如果是血量歸零自動釋放到
+毀魂技，一樣選擇當前指針對應的毀魂技」), else the kit's (KIT-KIKON-CINE)."
+  (or (core-pointer-cine att (fighter-ptr (fighter att))) (kit-kikon-cine (kit-of att))))
 
 (defun core-set-kikon-n! (att red)
   "The Konpaku the Kikon about to follow takes: the kit's count in the style of the SP that struck (CORE-KIKON-COUNT)."
@@ -198,12 +206,12 @@ be a Kikon's first strike: the hold kept since that segment (the button still do
     (let ((p (pos-of victim)) (q (pos-of o))) (emit :clash (* 0.5 (+ (aref p 0) (aref q 0))) 1.2 (* 0.5 (+ (aref p 2) (aref q 2)))))
     (core-bounce! victim o)))
 
-(defun core-on-hit! (att def mv)
-  "What a landed hit of a core AS does besides damage (its :params): :steal-fs takes flash-step from DEF and gives it to ATT.
-(Its Reiatsu steal went with the Reiatsu gauge, 2026-10-27: no SP spends it.)"
+(defun core-on-hit! (att def mv &optional (mult 1.0))
+  "What a landed hit of a core AS does besides damage (its :params), at MULT (a KESSA clone's replay: 0.1): :steal-fs takes
+flash-step from DEF and gives it to ATT. (Its Reiatsu steal went with the Reiatsu gauge, 2026-10-27: no SP spends it.)"
   (let ((fs (getf (mv-params mv) :steal-fs)))
     (when (and fs (plusp fs))
-      (let ((take (f32 (min fs (gauges-fs (gauges def))))))
+      (let ((take (f32 (min (* mult fs) (gauges-fs (gauges def))))))
         (setf (gauges-fs (gauges def)) (f32 (- (gauges-fs (gauges def)) take)))
         (setf (gauges-fs (gauges att)) (f32 (min 100f0 (+ (gauges-fs (gauges att)) take))))))))
 

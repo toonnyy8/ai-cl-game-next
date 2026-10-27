@@ -917,7 +917,7 @@ and frozen through the cinematic their looks would hang in its shots."
         (loop for (att . def) in sb do (emit :soul-break att def))
         (clear-hazards)
         (cine-stage a v)                                ; (both set down mid-stage for its shots, given back at its end)
-        (start-cine (if kk (or (mv-cine (third (first kk))) (core-kikon-cine a) (kit-kikon-cine (kit-of a))) (kit-kikon-cine (kit-of a))) a v
+        (start-cine (if kk (or (mv-cine (third (first kk))) (core-kikon-cine a) (kit-kikon-cine (kit-of a))) (core-soul-break-cine a)) a v
                     :after (lambda () (cond ((null kos) (reset-round a v))
                                             ((rest kos) (match-over nil))
                                             (t (match-over (opp-of (first kos)))))))))))

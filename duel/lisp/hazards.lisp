@@ -17,7 +17,9 @@
 (defun spawn-hazard (kind owner &key (x 0.0) (y 0.0) (z 0.0) (yaw 0.0) (speed 0.0) (turn 0.0) (size 0.5)
                                   (life 60) (delay 0) (hits 1) hw look src fragile hook data group
                                   (sp (let ((f (and owner (fighter owner))))   ; (an SP's: its owner's move now)
-                                        (and f (fighter-move f) (sp-move-p (fighter-kit f) (fighter-move f)) t))))
+                                        (and f (fighter-move f) (sp-move-p (fighter-kit f) (fighter-move f)) t)))
+                                  (sp-mv (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))   ; (a wave's Kikon)
+                                           (and mv (core-kikon-p f mv) (getf (mv-params mv) :kikon-strike) mv))))
   "A new hazard of KIND for fighter OWNER. LIFE / DELAY in frames; HW = the HITWIN it deals (NIL = look only). SRC: its
 hit comes from the owner's position; FRAGILE: it closes while it waits if the owner is hit (CLOSE-RIFTS). HOOK: a
 character's function (h hz event &rest args) called with :step (each step, first: T skips the generic step), :close
@@ -29,8 +31,7 @@ the owner's move now (HIT-RBASE; none: *REIATSU-KIND-OTHER*)."
                              :yaw (f32 yaw) :speed (f32 speed) :turn (f32 turn) :size (f32 size)
                              :life life :delay delay :hits-left (if hw hits 0) :hw hw :look look :src src :fragile fragile
                              :hook hook :data data :group group :sp sp
-                             :sp-mv (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))   ; (a wave's Kikon)
-                                      (and mv (core-kikon-p f mv) (getf (mv-params mv) :kikon-strike) mv))
+                             :sp-mv sp-mv
                              :rbase (f32 (let* ((f (and hw owner (fighter owner))) (mv (and f (fighter-move f))))
                                            (if mv (hit-reiatsu-base (mv-kind mv) (getf (mv-params mv) :reiatsu)) *reiatsu-kind-other*))))))
 

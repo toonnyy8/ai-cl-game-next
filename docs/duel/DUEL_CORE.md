@@ -106,6 +106,11 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   down at the hit. Browser check (`--mobile`, Ichigo, debug 2502 + 2393): the SP tap, a re-press 0.1 s later held 1.6 s → `IC-N1A`,
   `KIKON FOLLOW-UP`, `KIKON 68`, `IC-HEAVY-KIKON-CINE`; the tap alone → `IC-N1A`, no Kikon; taps every 0.12 s → `IC-N1A`, `IC-N1B`,
   `IC-N1C`, no Kikon. The CPU and the keyboard are unchanged (the sim gate has no touch).
+- **The Soul Break's cinematic by the pointer** (2026-10-28, the user: 「如果是血量歸零自動釋放到毀魂技，一樣選擇當前指針對應的毀魂技」): a
+  Soul Break (the Reiatsu at zero) of a core kit plays the current pointer's Kikon cinematic (`core-soul-break-cine`: `:core
+  :kikon-cines` by `fighter-ptr`; during an AS the pointer is already the one it wrote, so it agrees with the Konpaku profile), else
+  the kit's own as before (`kit-kikon-cine`: KESSA's `:soul-break-cine` hook, the :kikon move's). Browser (2502 + 2314, NS1 ×3 three
+  times at pointer 1): `SOUL BREAK on P2: -3 konpaku`, `cine IC-HEAVY-KIKON-CINE` (was the Shikai's `IC-KIKON-CINE`).
 - **A wave's Kikon** (2026-10-28, the user: 「我發現月牙天衝揮出去後都無法打出毀魂技」; asked how, 「打中後瞬步衝過去補一刀」). A hazard's hit
   was never a Kikon (`apply-hit`'s rush needed a melee hit). Now a hazard records the core NS / AS segment that fired it when that
   segment has `:params :kikon-strike` (`hazard-sp-mv`, set in `spawn-hazard`); its hit, with the hold kept since that segment
@@ -207,7 +212,22 @@ follow-up links keep their speed).
   「Step 不再產生分身，且結束攻擊後分身就直接消失不在留於場上」). Under the core system no Step and no Hoho makes a clone (the Hoho's would
   fade at once); NS3 is the only source. Gates (Ichigo's pairings only, §424; 10 seeds): IK 186.7 s (Ichigo 2:8; 5:5 at §423), II 253.8, HI 191.2 s, all K.O.:
   Ichigo's IK win rate is open (the user's call). Browser: SP SP SP → clone hits 18, 18, then the X 38 + 38; SP SP J J Shift+J → the SA 50, J2 30 with
-  the clones 35 + 35, AS2 50 with 35 + 35. KESSA's stances by pointer: `:ic-st-rush` / `:ic-tsuki` / `:ic-k-stance` (low, the slab trailing /
+  the clones 35 + 35, AS2 50 with 35 + 35.
+  **The clones replay him** (2026-10-28, the user: 「請幫我設計讓卍解的分身會重現本體的行為（包含 J 與 SP），每個分身在重現動作時的傷害與效果
+  （像是剝奪閃步量表等等）是本體的 10%，同時也能受到蓄力月牙的加成」; asked: 「一個慢 4f 一個慢 8f」, the SA his alone, waves and the chain's
+  pull replayed too, 「應該只包含 NS3 之後接的 J 跟 AS」). The heavy / light answers to his presses are gone under the core system; each J
+  and each AS he starts while NS3's clones are out (not AS3, whose clone cuts are its own theme; not the SA; not a Kikon's dash-in
+  strike) is queued on each clone (`clone-replay-watch`, by the move's start tick) and played back `*clone-replay-lags*` behind (the
+  right clone 4, the left 8): the clone stands where he stood then (`hist-at`) at its side, faces the opponent, strikes each of the
+  move's hit windows (`ichigo-strike`) and fires each of its waves (`clone-wave`, never a Kikon's first strike: `:sp-mv nil`) at
+  `*clone-replay-scale*` 0.1 × his charged Getsuga's x (`core-charge-mult`); a landed replay hit does the move's effects at that x
+  (`clone-replay-hit!`: an AS's flash-step steal via `core-on-hit!`'s new MULT, the chain's pull toward the clone). (The charge's x
+  and the clones never meet in the current routes: the charges arm only in NS2's string, the clones live only in NS3's.) A clone's hits in the
+  air no longer count as clones (`clone-p` checks the clone's hook: they doubled the replays and filled the cap of 3). Browser
+  (74001 + 2512): NS3 ×2, the SA, J ×3, SP ×2 → each J2 / J3 / J4 / AS2 / AS2b replayed once per clone (`clone NS-A replays …
+  x0.10`), hits 3 for the body's 30, the clones' waves 6 + 6 for his 60; NS3 ×2, the SA, SP → AS1's four lashes 14 each and the
+  clones' lashes 1 each, P2's flash step 100 → 69 after three of his and one of theirs (10 + 10 + 10 + 1).
+  KESSA's stances by pointer: `:ic-st-rush` / `:ic-tsuki` / `:ic-k-stance` (low, the slab trailing /
   cocked high behind / hanging point-down; the slab on the shoulder at 1 read too close to 2's).
 - **KESSA's own core set** (§428, the user: 「要，都幫我換一換」, 「另外指針一的 NS 幫我換成使用血鎖進行近身抽打，中立站姿也改成血鎖圍繞在身邊，並且切換成指針一的 AS
   也做成血鎖的攻擊」, 「指針三的毀魂技使用之前的「千影」動畫」): KESSA's `:core` is `:ns (:ic-k-n1a :ic-k-n2a :ic-k-n3a) :as (:ic-k-as1 :ic-k-as2 :ic-k-as3)
