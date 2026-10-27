@@ -93,7 +93,9 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   `tests/cine-test.lisp`, `tests/engine-check.sh` (browser).
 - Scope: a change inside one character's files → its pairings and its A/B (Lille II: not against the old Lille, no BL
   pairing, the user 2026-10-10); shared files (combat, fighter, rules, ai,
-  tuning, kit) → all fifteen. Attribute a shift with a baseline on the parent commit (`git worktree add`).
+  tuning, kit) → all fifteen. Attribute a shift with a baseline on the parent commit (`git worktree add`). A character's rework
+  whose shared-file edits only serve that character (a hook, a move param no other kit uses) still gates only its pairings
+  (the user, 2026-10-27: 「現在只有改一護，只測他的對戰結果就好」; Ichigo: IK, II, HI; DEVLOG §424).
 - Accepted exceptions are recorded with the user's words: YK median 119.5 s (60 seeds) after the J reach change
   (2026-10-06, DUEL_STRINGS §20 / DEVLOG §81); Lille's LR 229.6 s and LI 216.2 s (60 seeds) after his trace-laying
   shot (「接受這兩組例外」, 2026-10-06, DUEL_LILLE §23.20–§23.22 / DEVLOG §108; the shot is gone since 2026-10-07, decision 41:
