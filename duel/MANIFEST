@@ -16,6 +16,7 @@
 lisp/package.lisp
 lisp/tuning.lisp
 lisp/rules.lisp
+lisp/core.lisp
 lisp/control.lisp
 lisp/learn.lisp
 lisp/sounds.lisp

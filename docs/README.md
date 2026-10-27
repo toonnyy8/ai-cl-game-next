@@ -52,6 +52,8 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_LILLE.md](duel/DUEL_LILLE.md) | 舊版利傑巴羅的設計紀錄（2026-10-06 起；2026-10-12 移出遊戲、2026-10-13 程式移除，roster 5 號保留為空位）：純遠距狙擊、萬物貫通穿防、覺醒 Jilliel 的無實體架式（英文） |
 | [DUEL_LILLE_V2.md](duel/DUEL_LILLE_V2.md) | 利傑巴羅・重製（2026-10-09 起，roster 7 號；原名 Lille II，2026-10-13 起就叫利傑；2026-10-10 起改為第三版，見 DUEL_LILLE_V3）：萬物貫通、常態狙擊架式＋狙擊量表、覺醒近戰／遠程兩模式＋軌跡實體化與回收衍生連段、保留貓頭鷹復活（英文） |
 | [DUEL_LILLE_V3.md](duel/DUEL_LILLE_V3.md) | 利傑巴羅・重製的第三版（2026-10-10 起，已實作）：Lille 全部動畫模組總覽；L 進架勢、LL 收資源／KK→JJ 加傷／JJ→KK 加回復，三種型態共用；翼、爆氣梟頭、唯一的全彈、看資源數的 SP、花 4 翼受擊不斷（英文） |
+| [DUEL_CORE.md](duel/DUEL_CORE.md) | 核心系統改版（2026-10-27）：攻擊鍵＋SP 鍵的三角相剋（NA / NS / AS / SA）、SP 指針、毀魂技性格、保留與移除的機制、決定紀錄與關卡 |
+| [DUEL_CORE_DOC.zh-TW.md](duel/DUEL_CORE_DOC.zh-TW.md) | 使用者的原始設計筆記「簡化格鬥遊戲：核心系統設計」（原文保留） |
 | [DUEL_HISAGI.md](duel/DUEL_HISAGI.md) | 檜佐木修兵（2026-10-16 起，設計中）：始解風死的鎖鏈中距離、擲鐮收回、卍解風死絞縄（英文） |
 | [DUEL_AI_V2.md](duel/DUEL_AI_V2.md) | 每個角色的 AI v2（2026-10-02，已實作）：dream-rsi 搜尋、選用的變體、各角色行動方針、NORMAL 校正、與學習型 AI 和 ASSIST 的整合、gate 結果（英文） |
 | [DUEL_LEARNING.md](duel/DUEL_LEARNING.md) | 學習型 CPU：從對戰中學玩家習慣的讀心與反制、學習 gate（英文） |

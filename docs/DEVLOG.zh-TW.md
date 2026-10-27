@@ -5242,3 +5242,11 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - `build.sh` 不再預設建 `game/`，必須指定目標；`tests/style-gates.py` 移除 G1 的 `raven` / `rc`，`perf` 只剩 duel。
 - README、`docs/README.md`、AGENTS.md、`tools/pkgcheck.sh` 的相關列一併移除。`TUTORIAL.zh-TW.md` 含 SOUL DUEL 內容並被多份文件引用，先保留，其中 RAVEN / hello 段落待處理。
 - 沒改任何 Lisp 原始碼：`duel-rules-test` 10244 項全過、`pkgcheck duel` 全 0。
+
+## 410. 核心系統改版：攻擊鍵＋SP 鍵的三角相剋（2026-10-27）
+
+使用者：「我打算以 簡化格鬥遊戲：核心系統設計.md 重新設計遊戲系統，請與我討論後再開始修改」，討論完後：「沒問題，請自行完成整個實作流程」。
+
+- 設計紀錄 `docs/duel/DUEL_CORE.md`（決定逐條引用原話）；原始筆記 `docs/duel/DUEL_CORE_DOC.zh-TW.md` 原文保留。
+- 範圍：取代現有戰鬥系統；第一批只做 Ichigo、Kenpachi、Hisagi，其餘四人暫時移出 `playable-roster`；只拿掉防禦；Hoho（含無敵幀）、Burst、覺醒、Kikon 保留，鍵位改為 J / Mod+J（SP）、Space / Mod+Space（Hoho）、P / Mod+P（覺醒）。
+- 規則：同類先打到的贏、同幀相消；轉折招（AS、SA）有霸體（第 6 幀到起手結束）；AS 結束連段並寫指針；指針 1–3 對應三種毀魂技性格。
