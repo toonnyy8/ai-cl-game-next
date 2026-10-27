@@ -640,6 +640,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 39000 c 39022) (let ((m '(nil :always :never)))
                               (setf (svref *ai-awaken-mode* 0) (nth (floor (- c 39000) 10) m)
                                     (svref *ai-awaken-mode* 1) (nth (mod (- c 39000) 10) m))))
+        ((<= 2510 c 2512) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 (the stance shots)
         ((<= 2500 c 2503)
          (setf *picks* (nth (- c 2500) '((:ichigo :kenpachi) (:kenpachi :ichigo) (:ichigo :ichigo) (:kenpachi :kenpachi)))
                *mode* :vs-cpu *match-seed* 1 *probe* nil *one-hand* (one-hand-effective-p))

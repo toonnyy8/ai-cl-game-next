@@ -96,6 +96,7 @@ and AS open: 「視同命中」); a same-class tie also ends both moves and boun
          (setf (fighter-contact fa) :hit)
          (when (< (fighter-land-sf fa) 0) (setf (fighter-land-sf fa) (fighter-sf fa)))
          (hitstop *hitstop-block*)
+         (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
          (emit :clash mx 1.2 mz)
          (clog "~a ~a x ~a: CANCEL" (side-name att) (mv-name (pending-mv h)) (side-name def))
          (when (and (eq (fighter-cls fa) (core-window-class fd)) (eq (fighter-state fd) :move))   ; a same-class tie: both to neutral
@@ -147,6 +148,7 @@ same strike again; its hit is the Kikon (KIKON-OUTCOME)."
   (let ((o (fighter-opp f)))
     (clog "~a cancels the Kikon follow-up" (side-name victim))
     (hitstop *hitstop-block*)
+    (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
     (let ((p (pos-of victim)) (q (pos-of o))) (emit :clash (* 0.5 (+ (aref p 0) (aref q 0))) 1.2 (* 0.5 (+ (aref p 2) (aref q 2)))))
     (core-bounce! victim o)))
 

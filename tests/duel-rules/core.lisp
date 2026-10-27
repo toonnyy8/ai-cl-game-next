@@ -221,11 +221,11 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                     (= 19 (mv-s k1)) (= 4 (mv-a k1)) (= (- 23 a) (mv-r k1)) (= (+ a -7) (mv-adv-block k1))
                     (zerop (mv-armor-hits k1)) (eq :stagger (hw-react (svref (mv-hits k1) 0)))))
         (progn
-    (check (and (if hr (= 14 (mv-s j1)) (<= 7 (mv-s j1) 10)) (= 3 (mv-a j1)) (= (- 12 a) (mv-r j1)) (= (+ -2 a) (mv-adv-block j1))
+    (check (and (cond (hr (= 14 (mv-s j1))) ((equal cf '(:ichigo :base)) (= 14 (mv-s j1))) (t (<= 7 (mv-s j1) 10))) (= 3 (mv-a j1)) (= (- 12 a) (mv-r j1)) (= (+ -2 a) (mv-adv-block j1))
                 (eq :flinch (hw-react (svref (mv-hits j1) 0)))))
     (check (and (<= 16 (mv-s k1) 20) (= 4 (mv-a k1)) (<= (- 20 a) (mv-r k1) 22) (= (+ a (if cup3 -4 -3)) (mv-adv-block k1))
                 (zerop (mv-armor-hits k1)) (eq :stagger (hw-react (svref (mv-hits k1) 0)))))))
-    (unless hr (check (>= (- (mv-s k1) (mv-s j1)) 7)))   ; (his ranged J1 S 14 / K1 S 16: §17.1's exception, B4c)
+    (unless (or hr (equal cf '(:ichigo :base))) (check (>= (- (mv-s k1) (mv-s j1)) 7)))   ; (Ichigo's NA1 S 14 since the core tells, DUEL_CORE §9)   ; (his ranged J1 S 14 / K1 S 16: §17.1's exception, B4c)
     (dolist (l (remove-if (lambda (l) (zerop (length (mv-hits (first l))))) links))
       (destructuring-bind (m n seq) l
         (let ((kk (eq (car (last seq)) :f)) (w (svref (mv-hits m) 0)))
@@ -890,6 +890,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ru-50-hakka :ru-50-hainawa
     :ru-0-stance :ru-0-j1 :ru-0-j2 :ru-0-j3 :ru-0-k1 :ru-0-k2 :ru-0-k3 :ru-0-reido :ru-0-hakuren :ru-0-shirafune   ; -273's own
     :ru-0-hakka                                                                                                 ; (§13.4)
+    :ic-na1 :ic-ns1 :ic-ns2 :ic-ns3   ; (the core system's long coils: NA1 and the three NS openers, DUEL_CORE §9)
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
     :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
     :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)

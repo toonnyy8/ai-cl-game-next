@@ -211,6 +211,12 @@ one forearm crack per spent pip: :crack-1 .. :crack-4)."
                (push clip *missing-clips*) (log-msg "missing clip ~s" clip))
              (let ((f (fighter e))) (if f (kit-stance (fighter-kit f)) :stance)))))
 
+(defun fighter-stance-clip (f)
+  "F's idle clip. Under the core system a kit with :core :stances rests in the stance of its SP pointer (1 / 2 / 3), so the NS to
+come can be read from afar (the user, 2026-10-27); any other kit rests in its :stance."
+  (let ((st (and *core-on* (getf (kit-core (fighter-kit f)) :stances))))
+    (if st (nth (1- (max 1 (min 3 (fighter-ptr f)))) st) (kit-stance (fighter-kit f)))))
+
 (defun play-clip (e clip &key (blend 4) (speed 1.0) (time 0.0) (restart t))
   "Start CLIP on E's model (BLEND frames of crossfade; see ANIM-PLAY); his form may play its own version of it (its kit's
 :look-clips: Lille II's awakened guard), else a body variant (BODY-CLIPS). A look: the sim never reads a clip."
@@ -310,7 +316,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
           (fighter-combo-hits f) 0 (fighter-combo-launches f) 0 (fighter-combo-air f) 0 (fighter-combo-from f) 0
           (fighter-cls f) nil (fighter-presses f) 0 (fighter-as-done f) nil)
     (halt! e)
-    (play-clip e (kit-stance (fighter-kit f)) :blend blend)))
+    (play-clip e (fighter-stance-clip f) :blend blend)))
 
 (defun callout (e text)
   (let ((f (fighter e))) (setf (fighter-callout f) text (fighter-callout-t f) *callout-frames*)))
@@ -629,7 +635,7 @@ else the generic code."
           (let* ((a to) (b st) (m (%sqrt (+ (* a a) (* b b)))) (walk (kit-walk kit)))
             (declare (single-float a b m walk))
             (if (or (< m 0.2) (<= walk 0f0))   ; (absolute zero: rooted where she stands)
-                (progn (fill v 0f0) (play-clip e (kit-stance kit) :blend 6 :restart nil))
+                (progn (fill v 0f0) (play-clip e (fighter-stance-clip f) :blend 6 :restart nil))
                 (let* ((p (pos-of e)) (vv v) (sp speed))
                   (declare (type f32vec p vv) (single-float sp))
                   (with-toward-strafe-dir (dx dz) (a b (aref p 0) (aref p 2) (fighter-ox f) (fighter-oz f))
@@ -641,7 +647,7 @@ else the generic code."
                              :blend 6 :restart nil)))))
         (let ((m (hypot to st)))
           (if (or (< m 0.2) (<= (kit-walk kit) 0))
-              (progn (fill v 0f0) (play-clip e (kit-stance kit) :blend 6 :restart nil))
+              (progn (fill v 0f0) (play-clip e (fighter-stance-clip f) :blend 6 :restart nil))
               (multiple-value-bind (dx dz) (world-dir e f to st)
                 (let ((s (* speed (min 1.0 m) (/ 1.0 m))))
                   (setf (aref v 0) (f32 (* s dx)) (aref v 2) (f32 (* s dz)))
@@ -966,7 +972,7 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
           ((and free (guard-held-p e vp) (not (passive-p e :ward))) (to-idle e 3) (neutral-step e f vp))
           ((not (and free (vpad-down vp :step)))
            (setf (fighter-phase f) :brake (fighter-sf f) 0)
-           (play-clip e (kit-stance (fighter-kit f)) :blend 6))
+           (play-clip e (fighter-stance-clip f) :blend 6))
           (t (setf (fighter-run-yaw f) (f32 (angle-wrap (turn-toward (fighter-run-yaw f) (run-yaw e f) (track-step *run-turn*)))))
              (turn-to-opp e f (%deg *face-rate*))
              (if (run-stop-p (fighter-dist f) (run-closing e f) speed)

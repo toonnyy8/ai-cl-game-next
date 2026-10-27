@@ -61,7 +61,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;;; (docs/duel/DUEL_STRINGS.md §13): J1 / J2 0.5x (the short blade, a step in; KAESHI-KIBA's thrust under the cleaver: :ic-cross-j),
 ;;; J3 0.6x (the cleaver held up in the turn), K -10 %. The clips: docs/duel/DUEL_ICHIGO_TYBW.md §3.2 (the short blade held
 ;;; forward, the cleaver resting on his shoulder between strikes)
-(defmove :ic-j1 :kind :quick :clip :ic-q1 :startup 7 :active 3 :recovery 12 :dmg 32 :adv-block -2 :guard 8
+(defmove :ic-j1 :kind :quick :clip :ic-na1 :startup 14 :active 3 :recovery 12 :dmg 32 :adv-block -2 :guard 8
   :reach 1.1 :arc 100 :on-hit :flinch :slide 0.6)                        ; KOKIBA: the short blade swept L to R
 (defmove :ic-j2 :kind :quick :clip :ic-q2 :startup 7 :active 3 :recovery 13 :dmg 32 :adv-block -2 :guard 8
   :reach 1.1 :arc 100 :on-hit :flinch)                                   ; KAESHI: a rising backhand
@@ -121,19 +121,25 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;;; Retagged from the old K string, stance branches and SPs (clips and volumes as they were; redrawn later, the user:
 ;;; 「先重組成新系統後再來重畫」). The triangle: J1 J2 J3 are the NA string; NS n is the SP from neutral under pointer n (a
 ;;; rhythm of segments, each the next on an SP press, hit or not); AS n follows NA n; the SA is the attack pressed in an NS gap.
-;;; NS1 heavy (the cleaver's K string, 212 if all land), NS2 equal (RANGETSU > TSUKI-OTOSHI), NS3 finisher (SHOGA > SOSEN).
+;;; NS1 heavy (the cleaver's K string, 212 if all land), NS2 equal (GETSUGA TENSHO x2: the long-range poke), NS3 finisher (RANGETSU > TSUKI-OTOSHI,
+;;; the rush). 2026-10-27 (the user: 「請幫我重新設計三種不同的 NS」): every first strike (NA1, NS1a / 2a / 3a) has a long held coil, every pointer its stance.
 (defmove-copy :ic-n1c :ic-k3 :flags nil :dmg 84)
 (defmove-copy :ic-n1b :ic-k2 :params (:ns-next :ic-n1c))
-(defmove-copy :ic-n1a :ic-k1 :params (:ns-next :ic-n1b))
-(defmove-copy :ic-n2b :ic-tsuki-k :kind :flash)
-(defmove-copy :ic-n2a :ic-tsuki-j :kind :flash :params (:ns-next :ic-n2b))
-(defmove-copy :ic-n3b :ic-j3 :flags nil :dmg 70 :kind :flash)
-(defmove-copy :ic-n3a :ic-k2 :enter 0 :params (:ns-next :ic-n3b))
-;; AS1 recovers: it takes flash-step and Reiatsu from him; AS2 launches; AS3 hits hardest. All end the combo in a fall.
+(defmove-copy :ic-n1a :ic-k1 :clip :ic-ns1 :startup 22 :clip-s 22 :params (:ns-next :ic-n1b))   ; (the cleaver overhead and held: the tell)
+;; NS2, GETSUGA TENSHO twice: the long-range poke (a :wave, 16 m/s over 10 m; a side Step clears it). A wave is a hazard, so the
+;; triangle never judges it: it hits whatever it finds, an NA / NS / AS in its startup included. The first crescent starts slowly.
+(defmove-copy :ic-n2b :ic-getsuga :kind :flash
+  :params (:width 2.4 :speed 16.0 :range 10.0 :dmg 60 :react :knockback :kb 2.5 :guard 18 :look ichigo-getsuga-look))
+(defmove-copy :ic-n2a :ic-getsuga :kind :flash :clip :ic-ns2 :startup 22 :clip-s 22 :recovery 30 :on-frame ((22 ichigo-getsuga))
+  :params (:width 2.4 :speed 16.0 :range 10.0 :dmg 45 :react :knockback :kb 2.5 :guard 18 :look ichigo-getsuga-look :ns-next :ic-n2b))
+;; NS3, the rush: RANGETSU's lunge (four cuts) into TSUKI-OTOSHI's pounce. A low coil first.
+(defmove-copy :ic-n3b :ic-tsuki-k :kind :flash)
+(defmove-copy :ic-n3a :ic-tsuki-j :kind :flash :clip :ic-ns3 :startup 18 :clip-s 18 :params (:ns-next :ic-n3b)
+  :hits ((18 19) (21 22) (24 25) (27 30 :on-hit :stagger)))
 (defmove-copy :ic-as1 :ic-tsuki-k :kind :sp :callout "TSUKI-OTOSHI" :dmg 40 :on-hit :knockdown :params (:steal-fs 40 :steal-rei 100))
 (defmove-copy :ic-as2 :ic-soga :on-hit :launch :dmg 90 :callout "SOGA")
 (defmove-copy :ic-as3 :ic-k3 :kind :sp :callout "RAKUGA" :dmg 150 :on-hit :knockdown :flags nil)
-(defmove-copy :ic-sa :ic-j1 :dmg 34 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)   ; (reach and a lunge: it must connect after an NS segment's knockback)
+(defmove-copy :ic-sa :ic-j1 :clip :ic-q1 :dmg 34 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)   ; (reach and a lunge: it must connect after an NS segment's knockback)
 
 ;;; ================================================================ 血鎖の一護 KESSA NO ICHIGO (the awakening)
 ;;; one white slab, no point and no guard: cuts only (the clones carry the range now); the J one-handed, the K two-handed
@@ -211,7 +217,10 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :stun-tolerance 16.0                          ; the hidden stun (DUEL_DESIGN.md): the middle (KESSA inherits it)
   :commands (:q :ic-j1 :f :ic-k1 :sig :ic-tsuki :sp1 :ic-juji :sp2 :ic-soga :breaker :ic-breaker :kikon :ic-kikon)
   :grid (:ic-j1 :ic-j2 :ic-j3 :ic-k1 :ic-k2 :ic-k3 :ic-j2s :ic-k2s)
-  :core (:ns (:ic-n1a :ic-n2a :ic-n3a) :as (:ic-as1 :ic-as2 :ic-as3) :sa :ic-sa)
+  :core (:ns (:ic-n1a :ic-n2a :ic-n3a) :as (:ic-as1 :ic-as2 :ic-as3) :sa :ic-sa
+         :stances (:ic-st-heavy :ic-tsuki :ic-st-rush)           ; the idle clip by SP pointer (FIGHTER-STANCE-CLIP)
+         :ns-range (nil (3.6 6.6) nil)                           ; the CPU shoots GETSUGA from 3.6-6.6 m under pointer 2
+         :mult 1.3)                                              ; damage x (the long tells cut the pace: II 268 s at 1.0; DUEL_CORE §6)
   :strings *tsuki-strings*
   :l-after-k :ic-tsuki-k2                       ; L after K1 / K2 / K3 (docs/duel/DUEL_STRINGS.md §12): the stance at f4
   :awaken-form :kessa :aura ichigo-aura-base
@@ -235,6 +244,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :awakening t :form-name "KESSA" :walk *walk-kessa* :run *run-kessa* :mult *kessa-mult* :taken *kessa-taken*
   :weapon :tensa :hide (:shikai :mark) :stance :ic-k-stance :aura ichigo-aura-kessa :cine ic-kessa-cine
   :passives (:parry-block)
+  :core (:ns (:ic-n1a :ic-n2a :ic-n3a) :as (:ic-as1 :ic-as2 :ic-as3) :sa :ic-sa :mult 1.3)
   :hooks *kessa-hooks*
   :meter (:name "BUNSHIN" :max 3 :draw ichigo-hud-meter :label ichigo-hud-label)   ; the clones' row (the gauge unused)
   :commands (:q :ic-k-j1 :f :ic-k-k1 :sig :ic-k-parry :sp1 :ic-k-hiki :sp2 :ic-k-zanzo :kikon :ic-k-kikon)

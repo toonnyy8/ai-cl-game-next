@@ -20,7 +20,7 @@
 (defmacro engine::f-cos (a) `(cos ,a))
 (defmacro engine::f-wrap (a) `(let ((x ,a)) (- x (* 6.2831853f0 (floor (+ x 3.14159265f0) 6.2831853f0)))))
 (load (merge-pathnames "../../engine/lisp/anim.lisp" *load-truename*))
-(defparameter *strikers* '((:ya-tsuka :weapon-r 0.14) (:ke-kick . :foot-r) (:ke-b-hook . :hand-l) (:ic-q1 :weapon-l -0.90)
+(defparameter *strikers* '((:ya-tsuka :weapon-r 0.14) (:ke-kick . :foot-r) (:ke-b-hook . :hand-l) (:ic-q1 :weapon-l -0.90) (:ic-na1 :weapon-l -0.90)
                            (:ic-q2 :weapon-l -0.90) (:ic-cross-j :weapon-l -0.90) (:ru-palm . :hand-l)
                            (:ya-ikkotsu . :hand-r) (:ke-shoulder . :shoulder-l) (:ru-hainawa . :hand-l) (:sj-saidan . :hand-r)
                            (:ke-a-q1 . :hand-l) (:ke-a-q2 . :hand-l) (:ke-a-f1 . :hand-l) (:ke-a-f2 . :hand-l) (:ke-a-spin . :foot-r)

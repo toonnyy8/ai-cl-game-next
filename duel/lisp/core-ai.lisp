@@ -17,6 +17,8 @@
 (defparameter *cai-hoho-p* '(:easy 0.05 :normal 0.12 :hard 0.25) "Hoho out of an attack coming at him (one roll per attack).")
 (defparameter *cai-cancel-p* '(:easy 0.35 :normal 0.7 :hard 0.95) "An attack to cancel the Kikon follow-up (one roll).")
 (defparameter *cai-kikon-p* '(:easy 0.1 :normal 0.2 :hard 0.35) "Hold the SP into a Kikon (one roll per SP).")
+(defparameter *cai-ranged-p* 0.5 "Per decision, while walking in from a ranged NS's band (the kit's :core :ns-range): shoot it (Ichigo's Getsuga; the user, 2026-10-27).")
+(defparameter *cai-ranged-gap* 80 "Steps to wait before the next decision after such a shot (a wave is not spammed).")
 (defparameter *cai-awaken-p* 0.02 "Awaken, per decision, once the gauge is full.")
 
 (defun cai-class-of (o s)
@@ -61,7 +63,9 @@
 
 (defun cai-neutral (e b f kit s d)
   "Free: Hoho out of an attack at him, else walk to the range and now and then start a move."
-  (let* ((vp (pilot-vpad (pilot e))) (rg (getf (kit-core kit) :range *cai-range*)) (lo (first rg)) (hi (second rg)))
+  (let* ((vp (pilot-vpad (pilot e)))
+         (nr (nth (1- (max 1 (min 3 (fighter-ptr f)))) (getf (kit-core kit) :ns-range)))   ; (near far) m of a ranged NS under this pointer (Ichigo's Getsuga)
+         (rg (getf (kit-core kit) :range *cai-range*)) (lo (first rg)) (hi (second rg)))
     (when (<= (decf (brain-strafe-t b)) 0) (funcall (ai-step e :strafe) e b))
     (cond ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-open-p e)
                 (< (brain-hoho-roll b) (brain-chance b *cai-hoho-p*)))
@@ -73,6 +77,9 @@
                (setf (brain-decide-t b) (+ (getf *cai-think* (brain-difficulty b) 22) (floor (* 12 (sim-rnd01)))))
                (cond ((> d 7.0) (ai-dash b 1 4.5))
                      ((and (gauges-awakened-ok-p e) (< (sim-rnd01) *cai-awaken-p*)) (ai-press b :awaken 1 :modded t))
+                     ((and nr (> d (+ hi 0.6)) (<= (first nr) d (second nr)) (< (sim-rnd01) *cai-ranged-p*))   ; a shot from where he would walk in
+                      (setf (brain-own-key b) -1 (brain-r-kikon b) 1f0 (brain-decide-t b) *cai-ranged-gap*)
+                      (cai-sp b f s))
                      ((<= d (+ hi 0.6))
                       (setf (brain-own-key b) -1)
                       (let ((roll (sim-rnd01)) (ns (kit-core-move kit :ns (fighter-ptr f))))

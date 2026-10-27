@@ -53,3 +53,15 @@
 (check (equal (mapcar (lambda (b) (core-soul-break-count b 3)) '(2 3 4)) '(5 5 5)))          ; the finisher style, capped at 5
 (check (= (core-kikon-count 2 2 t) (core-soul-break-count 2 2)))                             ; pointer 2: red = zero
 (check (and (core-kikon-cancel-p nil t) (not (core-kikon-cancel-p t t)) (not (core-kikon-cancel-p nil nil))))
+;; Ichigo's core moves (DUEL_CORE §9, 2026-10-27): every opening strike has a readable coil, NS2 is the ranged one, each pointer its stance
+(let ((k (kit :ichigo :base)))
+  (check (every (lambda (n) (>= (mv-s (kit-move k n)) 14)) '(:ic-j1 :ic-n1a :ic-n2a :ic-n3a)))   ; the tells (>= 14 f, 0.23 s)
+  (check (> (mv-s (kit-move k :ic-n1a)) (mv-s (kit-move k :ic-n1b))))                               ; later segments are quicker than openers
+  (check (and (eq (mv-ns-next k (kit-move k :ic-n2a)) (kit-move k :ic-n2b)) (zerop (length (mv-hits (kit-move k :ic-n2a))))
+              (>= (getf (mv-params (kit-move k :ic-n2a)) :range) 10.0)))                              ; NS2: a wave of 10 m, no melee hit
+  (check (equal (getf (kit-core k) :stances) '(:ic-st-heavy :ic-tsuki :ic-st-rush)))
+  (let ((*core-on* t) (f (make-fighter :kit k)))
+    (setf (fighter-ptr f) 1) (check (eq (fighter-stance-clip f) :ic-st-heavy))
+    (setf (fighter-ptr f) 2) (check (eq (fighter-stance-clip f) :ic-tsuki))
+    (setf (fighter-ptr f) 3) (check (eq (fighter-stance-clip f) :ic-st-rush))
+    (setf (kit-core k) nil) (check (eq (fighter-stance-clip f) (kit-stance k)))))

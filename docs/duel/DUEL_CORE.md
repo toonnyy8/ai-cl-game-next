@@ -100,6 +100,38 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
 - Anti-passive play: no new rule; measure first, act only if matches run past 210 s or time out often.
 - Order: docs → pure rules (host-tested) → Ichigo → Kenpachi, Hisagi → input / phone / HUD → CPU → gates.
 
-## 6. Status
+## 6. Ichigo's three NS, the tells, the stances, the clash slow motion (2026-10-27)
+
+User's request (verbatim): 「我接下來要從一護開始重構角色」, then 「請幫我重新設計三種不同的 NS，其中一招能透過月牙天衝達成遠距離牽制，然後在不同的 NS 下會有不同的中立站姿讓人能清楚分辨。此外 NS 跟 NA 的起手都要有足夠明顯的前搖讓人能看穿並抵消，最好抵消的瞬間要有慢動作讓人有一瞬間能思考接下來的行動」.
+
+How I read it (defaults, nothing was asked): the NS you will get is chosen by the SP pointer, so **the neutral stance follows the pointer**
+(the opponent reads which NS is coming before it starts); **the three NS are three roles**; **a cancel** (the triangle's mutual no-damage clash,
+including a cancelled Kikon follow-up) **gets a slow motion**; **only the opening strike** of an NA string or an NS needs a long tell (the
+follow-up links keep their speed).
+
+| Pointer | NS | Role | Segments (S = startup) | Stance (idle clip) |
+|---|---|---|---|---|
+| 1 | NS1 | close, heavy (the cleaver's string, 212 base if all land) | `ic-n1a` S 22 cleaver lifted overhead and held (new clip `:ic-ns1`) → `ic-n1b` (K2) → `ic-n1c` (K3) | `:ic-st-heavy`: the cleaver straight up beside the head |
+| 2 | NS2 | **long range**: GETSUGA TENSHO twice | `ic-n2a` S 22 (clip `:ic-ns2`, the cleaver cocked behind the shoulder, held), a 16 m/s, 10 m, 2.4 m wide wave, 45 → `ic-n2b` S 14, the same wave, 60. | `:ic-tsuki` (the old 月待 stance: side-on, cleaver cocked high behind the shoulder) |
+| 3 | NS3 | the rush / finisher | `ic-n3a` S 18 deep crouch held (clip `:ic-ns3`) then RANGETSU's four cuts → `ic-n3b` TSUKI-OTOSHI (the pounce, 4 m, 100) | `:ic-st-rush`: a low crouch leaning in, both blades trailing behind |
+
+- **The wave is a hazard**: the triangle never judges it (`core-verdicts`: a hazard's hit is a clean hit), so it beats NA / NS / AS in their
+  startup at range; the counters are a side Step, a Hoho or closing in. No Kikon off a wave (`apply-hit`'s `(not hazard)`), no AS.
+- **Tells**: NA1 (`:ic-j1`) S 7 → 14 with a new coil clip `:ic-na1` (the short blade drawn far to his left and held); NS first segments S 22 / 22 / 18.
+  The SA keeps S 8 and the old `:ic-q1` clip (`:clip :ic-q1`, `:clip-s 7`). A move's clip plays at `clip-s / S` speed, so a new clip is authored
+  at the new S (`clip-s` = S: speed 1).
+- **Stances**: kit `:core :stances` (one clip per pointer); `fighter-stance-clip` (fighter.lisp) replaces `(kit-stance …)` at the five idle
+  sites; a kit or a form without `:stances` (KESSA, Kenpachi, Hisagi) rests in its `:stance`. Looks: one first pass, redrawn later with the rest.
+- **Slow motion**: `*core-clash-slowmo-scale*` 0.2 for `*core-clash-slowmo-seconds*` 0.7 real seconds, started by `core-nohit!` (`:cancel`) and
+  `core-kikon-cancel!`; the same `slowmo` the perfect Hoho uses (0.25 / 0.45), so it is sim-timed and deterministic.
+- **CPU**: kit `:core :ns-range (nil (3.6 6.6) nil)`: under pointer 2, walking in from 3.6-6.6 m he shoots with `*cai-ranged-p*` 0.5 per decision,
+  then waits `*cai-ranged-gap*` 80 steps (one roll per event; the first version always shot and the matches crawled: 78 waves a match).
+- **Pace**: the long tells (more cancels, fewer landed hits) made the Ichigo mirror 261 s with two time-outs at damage x1.0; Ichigo's `:core :mult` 1.3
+  (Shikai and KESSA; Kenpachi's is 1.2) brought the 10-seed gate to KK 150.7, IK 176.9, II 213.3 (a mirror may pass 210), HK 146.3, HI 203.6, HH 164.9 s, every match K.O.'d. Ichigo still loses to Kenpachi 2:8 and Hisagi to Ichigo 2:8: open.
+- Debug: 2510+p sets P1's pointer (stance shots, DUEL_GAMEPLAY).
+- Tests: `tests/duel-rules/triangle.lisp` (+7: tells >= 14 f, NS2 a wave with no melee hit, stance by pointer); `core.lisp`'s J1 budget and the clip
+  list (`:ic-na1 :ic-ns1 :ic-ns2 :ic-ns3`), `art.lisp`'s striker table (`:ic-na1`).
+
+## 7. Status
 
 See DEVLOG §410 onward for each stage's numbers.

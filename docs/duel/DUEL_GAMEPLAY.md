@@ -214,6 +214,7 @@ encoded in the integer.
 | 24000+k … 29000+k | the strings' seed-gate knobs without a rebuild (before 2113): `*ai-o-ender*` = k / 100 (24000), NORMAL's `*ai-follow-guard-p*` = k / 100 (25000), every K2 / K3 (and copy) deals k % of its written damage (26000), `*kosei-reiatsu*` = k / 100 and `*kosei-fs*` half that (27000), `*ai-string-flash-p*` = k / 100 (28000), `*ai-sp-cancel-p*` = k / 100 (29000) |
 | 2400 | toggle god mode: each step both fighters' Reishi is raised to at least 400 |
 | 2500+k | human P1 vs an idle CPU, cinematics skipped: 0 Yamamoto vs Kenpachi, 1 Kenpachi vs Yamamoto, 2 YY, 3 KK |
+| 2510+p | P1's SP pointer = p + 1 (0 / 1 / 2: the pointer stances, DUEL_CORE §9) |
 | 2600+k | `*red-threshold*` = k % (pace the gate without a rebuild) |
 | 2386+k | Kenpachi's Bankai tests (`bankai-test` in ken.lisp, `ken-debug`, human P1 Kenpachi vs an idle Yamamoto; `duel-bankai.json`): 0 cup 3 (NOME 100), red (300) and his Konpaku capped at 4 (the entry's condition since 2026-09-28) at 3 m: P enters (the cinematic plays); 1 in the Bankai at once, 2.2 m; 2 the Bankai with 1 pip left (the burst); 3 片腕 at 2.2 m |
 | 35000+f / 36000+f | stills: the Bankai cinematic / MAPPUTATSU held at frame f (as 10000+1000k+f, k 9 / 10; 2210 starts MAPPUTATSU) |

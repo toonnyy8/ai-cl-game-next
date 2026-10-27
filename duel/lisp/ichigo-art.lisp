@@ -613,6 +613,88 @@
   (33 (:root :f 0.08 :u -0.08) (:arm-r :flex 40 :side 15) (:elbow-r :flex 130) (:hand-r :flex -25))
   (:end :ic-stance))
 
+;;; ---------------------------------------------------------------- the core system's tells and stances (DUEL_CORE §9, 2026-10-27)
+;;; The first strike of an NA string and of every NS is slow to start and starts with a held, exaggerated coil (the user:
+;;; 「起手都要有足夠明顯的前搖讓人能看穿並抵消」); each SP pointer also rests in its own stance, so the NS to come reads from afar.
+;; NA1: KOKIBA with a long coil, the short blade drawn far back to his left and held
+(defstrike :ic-na1 (14 3 12 :base :ic-stance)
+  (0)
+  (5 (:root :u -0.11 :yaw 14) (:chest :twist 20) (:neck :twist 2) (:arm-l :flex -40 :side 78 :twist -14) (:elbow-l :flex 56)
+     (:hand-l :flex -34) (:knees :flex 40))
+  (11 (:root :u -0.13 :yaw 24) (:chest :twist 32) (:arm-l :flex -52 :side 86 :twist -14) (:elbow-l :flex 48) (:hand-l :flex -42)
+      (:knees :flex 50))                                                                  ; the tell, held
+  (:s :snap :ic-q1-hit)
+  (16 (:root :yaw -14) (:chest :twist -24) (:arm-l :flex 20 :side 70) (:elbow-l :flex 108) (:hand-l :flex 30))
+  (:a (:root :yaw -15) (:chest :twist -25))
+  (23 (:root :f 0.05 :u -0.09 :yaw -4) (:chest :twist -8) (:arm-l :flex 14 :side 40 :twist -18) (:elbow-l :flex 90) (:hand-l :flex 10)
+      (:thigh-l :flex 36) (:knee-l :flex 36))
+  (:end :ic-stance))
+
+;; NS1 (pointer 1, the heavy one): the cleaver lifted straight overhead and held there, the back arched; then K1's cut
+(defstrike :ic-ns1 (22 4 20 :base :ic-stance)
+  (0)
+  (8 (:root :u -0.12) (:arm-r :flex 150 :side 20) (:elbow-r :flex 50) (:hand-r :flex -50) (:knees :flex 44) (:chest :twist -10))
+  (16 (:root :u -0.1 :yaw -10) (:arm-r :flex 176 :side 14) (:elbow-r :flex 26) (:hand-r :flex -40) (:spine :flex -10)
+      (:chest :twist -20) (:knees :flex 46))                                                  ; held overhead: the tell
+  (:s :snap :ic-f1-hit)
+  (24 (:root :yaw 16 :f 0.54) (:chest :twist 34) (:arm-r :flex 80 :side -10) (:hand-r :flex -40))
+  (:a (:root :yaw 17) (:chest :twist 35))
+  (36 (:root :f 0.25 :u -0.12 :yaw 6) (:chest :twist 10) (:neck :twist 0) (:arm-r :flex 50 :side 20 :twist -10) (:elbow-r :flex 30)
+      (:hand-r :flex -50) (:arm-l :flex 0 :side 40 :twist 0) (:elbow-l :flex 60) (:hand-l :flex 0)
+      (:thigh-r :flex 40) (:knee-r :flex 40))
+  (41 (:root :f 0.1 :u -0.08 :yaw 2) (:arm-r :flex 40 :side 15 :twist 0) (:elbow-r :flex 120) (:hand-r :flex -30))
+  (:end :ic-stance))
+
+;; NS2 (pointer 2, GETSUGA TENSHO): the cleaver cocked high behind the shoulder, the whole body coiled back, held; the fling
+(defstrike :ic-ns2 (22 0 24 :base :ic-stance)
+  (0)
+  (9 (:root :u -0.09 :yaw -16) (:spine :flex 14) (:chest :twist -30) (:neck :twist 40)
+     (:arm-r :flex 129 :side 20 :twist -34) (:elbow-r :flex 71) (:hand-r :flex -56 :twist -36) (:knees :flex 40))
+  (17 (:root :u -0.12 :yaw -22) (:chest :twist -42) (:arm-r :flex 150 :side 24) (:elbow-r :flex 60) (:knees :flex 52))   ; the tell
+  (:s :snap :ic-getsuga-hit)
+  (26 (:root :yaw 14) (:chest :twist 34) (:arm-r :flex 60 :side 30 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -60))
+  (36 (:root :f 0.2 :u -0.12 :yaw 4) (:chest :twist 10) (:arm-r :flex 50 :side 20) (:elbow-r :flex 60) (:hand-r :flex -40)
+      (:arm-l :flex 10 :side 30 :twist 0) (:elbow-l :flex 70) (:hand-l :flex 10))
+  (41 (:root :f 0.08 :u -0.08) (:arm-r :flex 40 :side 15) (:elbow-r :flex 130) (:hand-r :flex -25))
+  (:end :ic-stance))
+
+;; NS3 (pointer 3, RANGETSU): a deep crouch with both blades drawn back, held; then the lunge's four cuts (RANGETSU's poses)
+(defstrike :ic-ns3 (18 12 18 :base :ic-tsuki)
+  (0)
+  (8 (:root :f 0.1 :u -0.2) (:pelvis :twist -50) (:chest :twist -30) (:arm-l :flex -30 :side 70) (:elbow-l :flex 110)
+     (:thigh-l :flex 52) (:knee-l :flex 60) (:thigh-r :flex -20) (:knee-r :flex 50))
+  (14 (:root :f 0.22 :u -0.26) (:pelvis :twist -56) (:chest :twist -36) (:arm-l :flex -40 :side 76) (:elbow-l :flex 112)
+      (:thigh-l :flex 62) (:knee-l :flex 74))                                               ; the tell: low and coiled
+  (:s :snap :ic-rangetsu-a)
+  (21 :snap :ic-rangetsu-b)
+  (23 :ic-rangetsu-b (:arm-l :flex 60 :side -60 :twist 0) (:elbow-l :flex 40) (:hand-l :flex 40)
+      (:arm-r :flex 120 :side 40 :twist 0) (:elbow-r :flex 40))
+  (24 :snap :ic-rangetsu-c)
+  (26 :ic-rangetsu-c (:arm-r :flex 40 :side 90) (:elbow-r :flex 60) (:hand-r :flex -90) (:chest :twist -10)
+      (:arm-l :flex 50 :side -60) (:elbow-l :flex 60))
+  (27 :snap :ic-rangetsu-d)
+  (:a :ic-rangetsu-d (:root :yaw 12) (:chest :twist 34) (:arm-r :side 70) (:arm-l :side -30))
+  (38 (:root :f 0.2 :u -0.1 :yaw 4) (:pelvis :twist -20) (:chest :twist 0) (:arm-r :flex 60 :side 20 :twist 0) (:elbow-r :flex 100)
+      (:hand-r :flex -40 :twist 0) (:arm-l :flex 10 :side 30) (:elbow-l :flex 80) (:hand-l :flex 10))
+  (:end :ic-stance))
+
+;; the three rests, one per SP pointer (kit :core :stances): 1 the cleaver straight up beside the head, 2 side-on with the
+;; cleaver cocked behind the shoulder (the old 月待 :ic-tsuki), 3 a low crouch leaning in, both blades trailing behind
+(defpose :ic-st-heavy (:base :ic-stance)
+  (:root :u -0.12) (:pelvis :twist -8) (:spine :flex 2) (:chest :twist -4) (:head :flex -6 :twist 4)
+  (:arm-r :flex 172 :side 15 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -40 :twist 0)
+  (:thigh-l :flex 34 :side 14) (:knee-l :flex 36) (:thigh-r :flex -10 :side 16) (:knee-r :flex 34))
+(defclip :ic-st-heavy (1.8 :loop t :base :ic-st-heavy)
+  (0) (0.9 (:root :u -0.135) (:chest :flex 3) (:elbow-r :flex 34)))
+(defpose :ic-st-rush (:base :ic-stance)
+  (:root :f 0.18 :u -0.24 :yaw -8) (:pelvis :twist 12) (:spine :flex 30) (:chest :twist 10) (:neck :twist -4) (:head :flex -22 :twist -6)
+  (:arm-r :flex -40 :side 40 :twist 0) (:elbow-r :flex 20) (:hand-r :flex -70 :twist 0)
+  (:arm-l :flex -34 :side 30 :twist 0) (:elbow-l :flex 24) (:hand-l :flex 30 :twist 0)
+  (:thigh-l :flex 62 :side 8) (:knee-l :flex 70) (:thigh-r :flex -26 :side 10) (:knee-r :flex 34))
+(defclip :ic-st-rush (1.0 :loop t :base :ic-st-rush)
+  (0) (0.5 (:root :u -0.26) (:spine :flex 34) (:head :flex -26)))
+
+
 ;; SP1 JUJISHO (ch. 583, Ep387 / Ep394): the blades crossed low before him, the arms flung wide; the short blade sweeps
 ;; level (the first crescent, f12) while the cleaver goes up overhead; the cleaver comes down at f20
 (defpose :ic-juji-level (:base :ic-stance)
