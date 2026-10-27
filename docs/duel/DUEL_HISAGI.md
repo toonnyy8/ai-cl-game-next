@@ -3652,3 +3652,13 @@ The user: 「調整修兵卍解遠距的攻擊提示，現在在 step 的過程�
 要經過尖端的範圍就會起動提示」. The hint (`*hs-tg*`: J1's chain-end glints, K1's flow down the chains, §25.26 / §25.27) was read
 only while he stood, walked, guarded or ran; a Step (`:step`) is now one of those states, so the glints and the flow show on
 any frame of the hop the opponent's distance is inside a tip band (HS-TIP-BAND), and stop when it leaves it. A look only.
+
+### 25.38 His section in the manual (the user, 2026-10-27)
+
+The user: 「好，幫我補上檜佐木的說明書段落」 (after the README rewrite found the manual's FIGHTERS chapter without him, DEVLOG §406).
+`duel/web/manual.html` gains `#ch-hisagi` (zh-TW, the other fighters' layout): the Shikai's table, the ranged mode's table,
+the chain tip (0.5 m, x1.71, unscaled, the flow / glint cues, the Step's landing), the bind mode's table and its rules (the
+shared pool, 1 per 3 damage, grey Reishi and Konpaku, the drained and released ends, the pool to the opponent first, the
+30 f reel), the awakening, the HUD and tips; the contents list gains him, the header's count 五 -> 七. Every number read from
+`duel/lisp/hisagi.lisp` as of this date. Manual only (no sim change); built; the section rendered in headless Chrome.
+
