@@ -645,19 +645,6 @@
   (41 (:root :f 0.1 :u -0.08 :yaw 2) (:arm-r :flex 40 :side 15 :twist 0) (:elbow-r :flex 120) (:hand-r :flex -30))
   (:end :ic-stance))
 
-;; NS2 (pointer 2, GETSUGA TENSHO): the cleaver cocked high behind the shoulder, the whole body coiled back, held; the fling
-(defstrike :ic-ns2 (22 0 24 :base :ic-stance)
-  (0)
-  (9 (:root :u -0.09 :yaw -16) (:spine :flex 14) (:chest :twist -30) (:neck :twist 40)
-     (:arm-r :flex 129 :side 20 :twist -34) (:elbow-r :flex 71) (:hand-r :flex -56 :twist -36) (:knees :flex 40))
-  (17 (:root :u -0.12 :yaw -22) (:chest :twist -42) (:arm-r :flex 150 :side 24) (:elbow-r :flex 60) (:knees :flex 52))   ; the tell
-  (:s :snap :ic-getsuga-hit)
-  (26 (:root :yaw 14) (:chest :twist 34) (:arm-r :flex 60 :side 30 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -60))
-  (36 (:root :f 0.2 :u -0.12 :yaw 4) (:chest :twist 10) (:arm-r :flex 50 :side 20) (:elbow-r :flex 60) (:hand-r :flex -40)
-      (:arm-l :flex 10 :side 30 :twist 0) (:elbow-l :flex 70) (:hand-l :flex 10))
-  (41 (:root :f 0.08 :u -0.08) (:arm-r :flex 40 :side 15) (:elbow-r :flex 130) (:hand-r :flex -25))
-  (:end :ic-stance))
-
 ;; NS3 (pointer 3, RANGETSU): a deep crouch with both blades drawn back, held; then the lunge's four cuts (RANGETSU's poses)
 (defstrike :ic-ns3 (18 12 18 :base :ic-tsuki)
   (0)
@@ -724,6 +711,22 @@
   (36 (:root :f 0.15 :u -0.1) (:spine :flex 10) (:arm-r :flex 40 :side 10) (:elbow-r :flex 70) (:hand-r :flex -40)
       (:arm-l :flex 10 :side 40 :twist 0) (:elbow-l :flex 70) (:hand-l :flex 10))
   (:end :ic-stance))
+
+;; NS2's charges (the Getsuga gathering, a crescent glow on the blade: ICHIGO-CHARGE-LOOK): 1 the short blade drawn back low by his hip,
+;; the edge up, held (the tell); 2 both blades raised as JUJISHO raises them, held
+(defstrike :ic-chg1 (20 0 14 :base :ic-tsuki)
+  (0)
+  (7 (:root :u -0.12) (:chest :twist -14) (:arm-l :flex -40 :side 34 :twist -20) (:elbow-l :flex 64) (:hand-l :flex 34) (:knees :flex 44))
+  (14 (:root :u -0.14) (:chest :twist -18) (:arm-l :flex -48 :side 30 :twist -20) (:elbow-l :flex 60) (:hand-l :flex 40) (:knees :flex 50))
+  (:s (:root :u -0.14) (:chest :twist -18) (:arm-l :flex -48 :side 30 :twist -20) (:elbow-l :flex 60) (:hand-l :flex 40) (:knees :flex 50))
+  (:end :ic-tsuki))
+(defstrike :ic-chg2 (16 0 14 :base :ic-tsuki)
+  (0)
+  (6 :ic-juji-level)
+  (12 :ic-juji-level (:arm-r :flex 185) (:elbow-r :flex 50) (:arm-l :flex 0))
+  (:s :ic-juji-level (:root :u -0.12) (:arm-r :flex 188) (:arm-l :flex -10))
+  (:end :ic-tsuki))
+
 
 ;; SP2 SOGA (Ep394): the flash-step lunge (the move's 5 m slide) flown near level, the cleaver high behind, the short
 ;; blade low ahead (T13); both blades raised and brought down in a descending X (the cleaver on the 2.60 m edge), the

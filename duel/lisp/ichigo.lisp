@@ -126,12 +126,16 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove-copy :ic-n1c :ic-k3 :flags nil :dmg 84)
 (defmove-copy :ic-n1b :ic-k2 :params (:ns-next :ic-n1c))
 (defmove-copy :ic-n1a :ic-k1 :clip :ic-ns1 :startup 22 :clip-s 22 :params (:ns-next :ic-n1b))   ; (the cleaver overhead and held: the tell)
-;; NS2, GETSUGA TENSHO twice: the long-range poke (a :wave, 16 m/s over 10 m; a side Step clears it). A wave is a hazard, so the
-;; triangle never judges it: it hits whatever it finds, an NA / NS / AS in its startup included. The first crescent starts slowly.
-(defmove-copy :ic-n2b :ic-getsuga :kind :flash
-  :params (:width 2.4 :speed 16.0 :range 10.0 :dmg 60 :react :knockback :kb 2.5 :guard 18 :look ichigo-getsuga-look))
-(defmove-copy :ic-n2a :ic-getsuga :kind :flash :clip :ic-ns2 :startup 22 :clip-s 22 :recovery 30 :on-frame ((22 ichigo-getsuga))
-  :params (:width 2.4 :speed 16.0 :range 10.0 :dmg 45 :react :knockback :kb 2.5 :guard 18 :look ichigo-getsuga-look :ns-next :ic-n2b))
+;; NS2, the Getsuga's charge (the user, 2026-10-27: 「NS[1]: 一階段（短刀）續力 -> 接 SA 時短刀攻擊會帶有額外的月牙靈壓特效並提高傷害 /
+;; NS[2]: 二階段（短刀+長刀）續力 -> 接 SA 時短刀+長刀攻擊會帶有額外的月牙靈壓特效並提高傷害 / NS[3]: 月牙十字衝」): two charges and the
+;; cross. A charge hits nothing; an attack in its gap is its own SA (:params :sa): the short blade with a crescent, or both blades with
+;; the cross. The third press is GETSUGA JUJISHO, the long-range wave (3.6 m wide, 14 m/s over 12 m; a hazard: the triangle never
+;; judges it; a side Step clears it). The first charge starts slowly (the tell).
+(defmove :ic-n2a :kind :flash :clip :ic-chg1 :startup 20 :active 0 :recovery 14 :on-frame ((2 ichigo-charge-1))
+  :params (:ns-next :ic-n2b :sa :ic-sa-g1))                                ; charge 1: the short blade
+(defmove :ic-n2b :kind :flash :clip :ic-chg2 :startup 16 :active 0 :recovery 14 :on-frame ((2 ichigo-charge-2))
+  :params (:ns-next :ic-n2c :sa :ic-sa-g2))                                ; charge 2: both blades
+(defmove-copy :ic-n2c :ic-juji :kind :flash)                               ; GETSUGA JUJISHO
 ;; NS3, the rush: RANGETSU's lunge (four cuts) into TSUKI-OTOSHI's pounce. A low coil first.
 (defmove-copy :ic-n3b :ic-tsuki-k :kind :flash)
 (defmove-copy :ic-n3a :ic-tsuki-j :kind :flash :clip :ic-ns3 :startup 18 :clip-s 18 :params (:ns-next :ic-n3b)
@@ -147,6 +151,10 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove-copy :ic-as3b :ic-j3 :kind :sp :callout "SOSEN-GIRI" :dmg 45 :on-hit :stagger :flags nil :reach 2.4 :slide 1.6 :params (:ns-next :ic-as3c))
 (defmove-copy :ic-as3 :ic-k2s :kind :sp :callout "KOGA" :dmg 45 :on-hit :stagger :params (:ns-next :ic-as3b))
 (defmove-copy :ic-sa :ic-j1 :clip :ic-q1 :dmg 34 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)   ; (reach and a lunge: it must connect after an NS segment's knockback)
+;; the charged SAs (NS2's gaps): the SA's short-blade sweep with a crescent off it, 55 (34); KOGA's X of both blades with the cross, 80
+(defmove-copy :ic-sa-g1 :ic-sa :dmg 55 :on-frame ((8 ichigo-sa-crescent)))
+(defmove-copy :ic-sa-g2 :ic-k2s :kind :quick :enter 0 :startup 10 :clip-s 14 :dmg 80 :reach 2.4 :slide 1.4 :guard 12
+  :on-frame ((10 ichigo-sa-cross)))
 
 ;;; ================================================================ 血鎖の一護 KESSA NO ICHIGO (the awakening)
 ;;; one white slab, no point and no guard: cuts only (the clones carry the range now); the J one-handed, the K two-handed
@@ -347,6 +355,21 @@ LOOK; a blade's hit (:blade)."
                                              :hs *hitstop-heavy* :guard (move-param e :guard) :flags '(:blade))))))
 
 (defun ichigo-getsuga (e) "GETSUGA TENSHO's crescent leaves the long blade." (ichigo-wave e (move-param e :look)) (emit :sfx :getsuga e))
+;; NS2's charges and the charged SAs (looks only: the damage is the moves')
+(defun ichigo-charge-1 (e) "Charge 1: the Getsuga gathers on the short blade." (ichigo-charge e '((:weapon-l 0.0 -0.5 0.0))))
+(defun ichigo-charge-2 (e) "Charge 2: on both blades." (ichigo-charge e '((:weapon-l 0.0 -0.5 0.0) (:weapon-r 0.0 0.0 -0.8))))
+(defun ichigo-charge (e blades)
+  "A crescent glow riding each of BLADES ((joint lx ly lz) ...) while the charge and its SA last."
+  (spawn-look e 'ichigo-charge-look :life 60 :data blades)
+  (emit :sfx :getsuga e))
+(defun ichigo-sa-crescent (e)
+  "The charged short-blade SA: a crescent off the blade at the strike."
+  (multiple-value-bind (x z) (ahead e 1.2) (spawn-look e 'ichigo-form-look :x x :z z :yaw (yaw-of e) :size 2.8 :life 18))
+  (emit :sfx :getsuga e))
+(defun ichigo-sa-cross (e)
+  "The charged two-blade SA: the cross at the strike."
+  (multiple-value-bind (x z) (ahead e 1.2) (spawn-look e 'ichigo-juji-look :x x :z z :yaw (yaw-of e) :size 1.6 :life 18))
+  (emit :sfx :getsuga e))
 (defun ichigo-juji-first (e)
   "JUJISHO f12: the long blade's crescent forms on the edge (a look; the wave is f20's)."
   (multiple-value-bind (x z) (ahead e 1.0) (spawn-look e 'ichigo-form-look :x x :z z :yaw (yaw-of e) :size 1.8 :life 10))

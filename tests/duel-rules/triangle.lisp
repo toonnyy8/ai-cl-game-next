@@ -57,8 +57,15 @@
 (let ((k (kit :ichigo :base)))
   (check (every (lambda (n) (>= (mv-s (kit-move k n)) 14)) '(:ic-j1 :ic-n1a :ic-n2a :ic-n3a)))   ; the tells (>= 14 f, 0.23 s)
   (check (> (mv-s (kit-move k :ic-n1a)) (mv-s (kit-move k :ic-n1b))))                               ; later segments are quicker than openers
-  (check (and (eq (mv-ns-next k (kit-move k :ic-n2a)) (kit-move k :ic-n2b)) (zerop (length (mv-hits (kit-move k :ic-n2a))))
-              (>= (getf (mv-params (kit-move k :ic-n2a)) :range) 10.0)))                              ; NS2: a wave of 10 m, no melee hit
+  (check (and (equal (core-segments :ic-n2a) '(:ic-n2a :ic-n2b :ic-n2c))                       ; NS2: charge, charge, JUJISHO
+              (zerop (length (mv-hits (kit-move k :ic-n2a)))) (zerop (length (mv-hits (kit-move k :ic-n2b))))
+              (>= (getf (mv-params (kit-move k :ic-n2c)) :range) 10.0)))                              ; the long-range wave
+  ;; a charge's gap starts its own SA, classed SA, harder than the plain one, and it goes on into J2 like the SA
+  (check (and (eq (mv-sa-move k (kit-move k :ic-n2a)) (kit-move k :ic-sa-g1)) (eq (mv-sa-move k (kit-move k :ic-n2b)) (kit-move k :ic-sa-g2))
+              (null (mv-sa-move k (kit-move k :ic-n1a)))
+              (every (lambda (n) (eq (kit-class k (kit-move k n)) :sa)) '(:ic-sa :ic-sa-g1 :ic-sa-g2))
+              (< (mv-dmg (kit-move k :ic-sa)) (mv-dmg (kit-move k :ic-sa-g1)) (mv-dmg (kit-move k :ic-sa-g2)))
+              (every (lambda (n) (kit-next k n :q)) '(:ic-sa :ic-sa-g1 :ic-sa-g2))))
   (check (equal (getf (kit-core k) :stances) '(:ic-st-heavy :ic-tsuki :ic-st-rush)))
   (let ((*core-on* t) (f (make-fighter :kit k)))
     (setf (fighter-ptr f) 1) (check (eq (fighter-stance-clip f) :ic-st-heavy))

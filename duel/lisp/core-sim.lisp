@@ -66,7 +66,7 @@ T when something started."
   (let ((q (fighter-queued f)))
     (when (and (member q '(:ns :sa)) (>= sf (+ (mv-s mv) (mv-a mv))) (< sf (mv-total mv)))
       (setf (fighter-queued f) nil)
-      (let ((next (if (eq q :ns) (mv-ns-next (fighter-kit f) mv) (kit-sa-move (fighter-kit f)))))
+      (let ((next (if (eq q :ns) (mv-ns-next (fighter-kit f) mv) (or (mv-sa-move (fighter-kit f) mv) (kit-sa-move (fighter-kit f))))))
         (when next (start-move e next :quick) t)))))
 
 ;;; ---------------------------------------------------------------- judging a step's hits

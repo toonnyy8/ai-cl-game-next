@@ -58,7 +58,9 @@
         (:ns
          (when (>= (fighter-sf f) (mv-s mv))                   ; the segment is out: now is the gap to read
            (setf (brain-decided b) (fighter-cls-t f))
-           (cond ((and (eq oc :na) (kit-sa-move kit) (< (brain-r-turn b) (brain-chance b *cai-turn-p*))) (cai-press b :quick 1))
+           (cond ((and (kit-sa-move kit) (< (brain-r-turn b) (brain-chance b *cai-turn-p*))
+                       (or (eq oc :na) (and (mv-sa-move kit mv) (< (fighter-dist f) 2.6))))   ; the read, or a segment's own SA in reach
+                  (cai-press b :quick 1))
                  ((and (mv-ns-next kit mv) (< (brain-r-cont b) (brain-chance b *cai-cont-p*))) (cai-press b :quick 1 t)))))
         (:as                                                   ; the AS's next segment (AS n has n), unless he holds for the Kikon
          (when (and (>= (fighter-sf f) (mv-s mv)) (mv-ns-next kit mv))

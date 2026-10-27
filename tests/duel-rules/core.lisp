@@ -890,7 +890,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ru-50-hakka :ru-50-hainawa
     :ru-0-stance :ru-0-j1 :ru-0-j2 :ru-0-j3 :ru-0-k1 :ru-0-k2 :ru-0-k3 :ru-0-reido :ru-0-hakuren :ru-0-shirafune   ; -273's own
     :ru-0-hakka                                                                                                 ; (§13.4)
-    :ic-na1 :ic-ns1 :ic-ns2 :ic-ns3   ; (the core system's long coils: NA1 and the three NS openers, DUEL_CORE §9)
+    :ic-na1 :ic-ns1 :ic-chg1 :ic-chg2 :ic-ns3   ; (the core system's long coils: NA1, the NS openers, NS2's charges, DUEL_CORE §6)
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
     :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
     :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)

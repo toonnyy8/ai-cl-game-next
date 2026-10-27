@@ -120,8 +120,19 @@ follow-up links keep their speed).
 |---|---|---|---|---|
 | 1 | NS1 | close, heavy (the cleaver's string, 212 base if all land) | `ic-n1a` S 22 cleaver lifted overhead and held (new clip `:ic-ns1`) → `ic-n1b` (K2) → `ic-n1c` (K3) | `:ic-st-heavy`: upright and square, the cleaver held low at his right side, point down (since §417: the first pass, the cleaver straight up, read as pointer 2's) |
 | 2 | NS2 | **long range**: GETSUGA TENSHO twice | `ic-n2a` S 22 (clip `:ic-ns2`, the cleaver cocked behind the shoulder, held), a 16 m/s, 10 m, 2.4 m wide wave, 45 → `ic-n2b` S 14, the same wave, 60. | `:ic-tsuki` (the old 月待 stance: side-on, cleaver cocked high behind the shoulder) |
+| 2 (since §421) | NS2 | the Getsuga's charge | `ic-n2a` charge 1, the short blade (S 20, clip `:ic-chg1`) → `ic-n2b` charge 2, both blades (S 16, `:ic-chg2`) → `ic-n2c` GETSUGA JUJISHO (the cross wave, 3.6 m wide, 14 m/s over 12 m, 150). An attack in a charge's gap is that charge's own SA: `ic-sa-g1` (the SA's short-blade sweep + a crescent, 55) / `ic-sa-g2` (KOGA's X of both blades + the cross, 80, S 10) | as above |
 | 3 | NS3 | the rush / finisher | `ic-n3a` S 18 deep crouch held (clip `:ic-ns3`) then RANGETSU's four cuts → `ic-n3b` TSUKI-OTOSHI (the pounce, 4 m, 100) | `:ic-st-rush`: a low crouch leaning in, both blades trailing behind |
 
+- **NS2 rebuilt** (2026-10-27, the user: 「一護月牙天衝的那個 NS 幫我設計成：NS[1]: 一階段（短刀）續力 -> 接 SA 時短刀攻擊會帶有額外的月牙靈壓特效並提高傷害 /
+  NS[2]: 二階段（短刀+長刀）續力 -> 接 SA 時短刀+長刀攻擊會帶有額外的月牙靈壓特效並提高傷害 / NS[3]: 月牙十字衝」): the GETSUGA TENSHO x2 row above is
+  replaced by the row after it. System side: an NS segment's `:params :sa` names the SA its gap starts (`mv-sa-move`, `core-latch-step`;
+  `core-segment-sas` registers, classes and strings them like the kit's SA, so each goes on into J2). The charges hit nothing (the triangle
+  still judges them as NS while they run). Looks: `ichigo-charge-look` rides a crescent on each charged blade (1.4 m) while the charge or its
+  SA lasts; the charged SAs spawn a 2.8 m crescent / a 3.2 m cross at the strike. CPU: in a charge's gap with the opponent inside 2.6 m it
+  takes that SA on its turn roll (`*cai-turn-p*`). Browser: SP J J J → `IC-N2A`, `IC-SA-G1` 55, `IC-J2` 32, `IC-J3` 40; SP SP J → `IC-SA-G2` 80;
+  SP SP SP → `IC-N2C`, `WAVE -> P2 HIT 150`.
+  Gates (10 seeds): KK 148.8, IK 202.8, HK 146.3, HI 173.7, HH 164.9 s, all K.O.; the Ichigo mirror at 20 seeds 214.7 s with 19 K.O.s and one
+  300 s time-out: open, the user's call (DEVLOG §421).
 - **The wave is a hazard**: the triangle never judges it (`core-verdicts`: a hazard's hit is a clean hit), so it beats NA / NS / AS in their
   startup at range; the counters are a side Step, a Hoho or closing in. No Kikon off a wave (`apply-hit`'s `(not hazard)`), no AS.
 - **Tells**: NA1 (`:ic-j1`) S 7 → 14 with a new coil clip `:ic-na1` (the short blade drawn far to his left and held); NS first segments S 22 / 22 / 18.

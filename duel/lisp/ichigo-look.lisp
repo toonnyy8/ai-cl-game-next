@@ -77,6 +77,18 @@ Rey Cero); presence K."
   (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0)))
                    0.9 0.8 0))
 
+(defun ichigo-charge-look (hz rdt)
+  "NS2's charge: a small crescent riding each charged blade (HAZARD-DATA: (joint lx ly lz) ...), while its owner is still in the charge
+or its SA (gone the moment he is hit or the string moves on)."
+  (declare (ignore rdt))
+  (let* ((e (hazard-owner hz)) (f (and (entity-alive-p e) (fighter e))) (mv (and f (fighter-move f))))
+    (when (and mv (eq (fighter-state f) :move) (member (mv-name mv) '(:ic-n2a :ic-n2b :ic-sa-g1 :ic-sa-g2)))
+      (let ((k (* (min 1.0 (/ (1+ (hazard-age hz)) 6.0)) (+ 0.75 (* 0.15 (sin (* 0.5 (hazard-age hz))))))))
+        (dolist (b (hazard-data hz))
+          (destructuring-bind (j lx ly lz) b
+            (let ((v (ic-joint e (joint-index j) *ic-v* (f32 lx) (f32 ly) (f32 lz))))
+              (vfx-ic-crescent (aref v 0) (aref v 1) (aref v 2) (yaw-of e) 1.4 k 0.8 0))))))))
+
 (defun ichigo-flare-look (hz rdt)
   "KUSARI-TATE: the chains flaring out of his neck, wrists and ankles (the parry's tell)."
   (declare (ignore rdt))
