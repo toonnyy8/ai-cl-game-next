@@ -307,7 +307,8 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
   (let ((f (fighter e)))
     (setf (fighter-state f) :idle (fighter-sf f) 0 (fighter-phase f) nil (fighter-move f) nil
           (fighter-crush f) nil (fighter-dmg-bonus f) 0 (fighter-assist-next f) nil
-          (fighter-combo-hits f) 0 (fighter-combo-launches f) 0 (fighter-combo-air f) 0 (fighter-combo-from f) 0)
+          (fighter-combo-hits f) 0 (fighter-combo-launches f) 0 (fighter-combo-air f) 0 (fighter-combo-from f) 0
+          (fighter-cls f) nil (fighter-presses f) 0 (fighter-as-done f) nil)
     (halt! e)
     (play-clip e (kit-stance (fighter-kit f)) :blend blend)))
 
@@ -334,6 +335,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
                                      (max 1 (mv-armor-hits mv))                                          ; ARMOR (§5)
                                      (mv-armor-hits mv))
           (fighter-phase f) (cond ((member (mv-kind mv) '(:breaker :kikon)) :aura) ((mv-hold mv) :hold) (t :main)))
+    (core-note-start! f mv old)
     (halt! e)
     (play-clip e (kit-move-clip (fighter-kit f) (mv-clip mv)) :blend (mv-blend mv) :speed (mv-clip-speed mv)   ; (the
                               :time (/ (* enter (mv-clip-speed mv)) 60.0))                                   ;  form's look)
@@ -474,11 +476,13 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
       (:hoho (when (and (not (kit-rooted kit)) (hoho-ready-p e))   ; Step and Hoho
                (start-hoho e f) t))
       (:awaken (let ((free (awaken-state-p e f)))
-                 (cond ((awaken-allowed-p free (gauges-awaken g) (gauges-awakened g)) (awaken! e) t)
+                 (cond ((getf (kit-core kit) :no-awaken) nil)   ; a form not yet ported to the core system (Hisagi's Bankai)
+                       ((awaken-allowed-p free (gauges-awaken g) (gauges-awakened g)) (awaken! e) t)
                        ((and (kit-bankai-form kit) (bankai-allowed-p free (gauges-konpaku g)) (bankai-ok-p e))
                         (bankai! e) t)
                        ((let ((h (kit-hook kit :p))) (and h (funcall h e free) t))))))
       (:burst (let ((m (burst-ok-p e))) (when m (setf (fighter-burst f) m) t)))   ; applied after both stepped
+      (:sp (core-sp-start! e f))                        ; the core system: NS n from neutral (core-sim.lisp)
       (t (let* ((to (kit-drop kit cmd))
                 (kit (if to (fighter-find-kit e to) kit))
                 (mv (if (and with (not to)) with (kit-command-move kit cmd e))))   ; (E: the kit's :command hook)
@@ -505,11 +509,11 @@ awakening breaks his attack as a Burst does (REPEL!; the user 2026-09-29)."
     (or (member s '(:idle :guard :guard-hit))
         (and (member s '(:stun :air)) (zerop (fighter-lock f)) (>= (fighter-combo-hits f) *burst-min-hits*)))))
 
-(defparameter *neutral-commands* '(:kikon :awaken :hoho :burst :step :breaker :sp2 :sp1 :sig :f :q)
+(defparameter *neutral-commands* '(:awaken :hoho :burst :step :sp :q)
   "Commands from idle / walk / guard (:burst: WHITE). :kikon starts the Kikon rush at any time (whether it becomes a
 Kikon is decided when its strike connects: combat.lisp APPLY-HIT).")
 
-(defparameter *run-commands* '(:kikon :hoho :burst :step :breaker :sp2 :sp1 :sig :f :q)
+(defparameter *run-commands* '(:hoho :burst :step :sp :q)
   "Commands a run cancels into at once (neutral's, without Awaken); Step again = a new hop.")
 
 (defparameter *run-commands-p* (cons :awaken *run-commands*)
@@ -776,7 +780,9 @@ at the hit). E doesn't move, unless the arena's edge holds O (PUSH-APART). What 
   (let ((mv (fighter-move f)))
     (case (fighter-phase f)
       (:hold (hold-phase-step e f vp mv))
-      ((:aura :dash :follow) (if (eq (mv-kind mv) :kikon) (kikon-rush-step e f mv) (breaker-phase-step e f vp mv)))
+      ((:aura :dash :follow) (cond ((eq (mv-kind mv) :kikon) (kikon-rush-step e f mv))
+                                   ((eq (fighter-phase f) :follow) (core-follow-step e f mv))   ; a core SP's Kikon (core-sim.lisp)
+                                   (t (breaker-phase-step e f vp mv))))
       (t (main-phase-step e f vp mv)))))
 
 (defun rush-dash-max (f mv)
@@ -812,14 +818,17 @@ L's own checks (cooldown, cold, the kit's :ok with the link as COMBO; a refused 
 action started."
   (let ((kit (fighter-kit f)) (landed (fighter-contact f)) (name (mv-name mv)))
     (or (loop for (cmd button mod) in *commands*
-              thereis (and (member cmd '(:kikon :q :f :sp1 :sp2 :sig :hoho :burst))
+              thereis (and (member cmd '(:kikon :q :f :sp1 :sp2 :sig :hoho :burst :sp))
                            (vpad-command-pressed-p vp button mod)
                            (case cmd
+                             (:sp (core-move-sp! e f vp mv sf button))   ; AS off a landed attack, the next NS segment (core-sim.lisp)
                              (:kikon (and (member :ender (mv-flags mv))   ; the O ender: a completed string
                                           (cancel-open-p sf (fighter-land-sf f) (mv-total mv) (eq landed :hit))
                                           (try-command e f cmd button t)
                                           (progn (skip-aura e f) t)))
-                             ((:q :f) (cond ((string-link-p kit name)   ; the latch takes every J / K press
+                             ((:q :f) (cond ((eq (fighter-cls f) :ns)    ; an attack in an NS gap: the SA (core-sim.lisp)
+                                             (core-sa-start! e f vp mv sf button))
+                                            ((string-link-p kit name)   ; the latch takes every J / K press
                                              (setf (fighter-queued f) (string-latch kit name cmd (fighter-queued f)))
                                              (vpad-consume! vp button)
                                              nil)
@@ -844,8 +853,9 @@ action started."
                              (:burst (try-command e f cmd button))   ; ORANGE (BURST-OK-P: his hit landed)
                              (t (cancel-into e f kit mv sf landed cmd button)))
                            (progn (vpad-consume! vp button) t)))
+        (core-latch-step e f mv sf)                       ; a latched NS continuation / SA (core-sim.lisp)
         (let ((q (fighter-queued f)))                   ; the latched link, once the chain opens
-          (when (and q (chain-open-p sf (mv-s mv) (mv-a mv) (mv-r mv) (if (eq q :sig) landed (or landed (fighter-chained f)))))
+          (when (and q (not (member q '(:ns :sa))) (chain-open-p sf (mv-s mv) (mv-a mv) (mv-r mv) (if (eq q :sig) landed (or landed (fighter-chained f)))))
             (if (eq q :sig)                             ; L after a K link: its own checks and costs, a follow-up
                 (progn (setf (fighter-queued f) nil)
                        (when (try-command e f :sig nil nil (kit-l-link kit name))
@@ -881,9 +891,9 @@ action started."
 Guard is held). Blockstun past its end waits while the guard lock holds him (FIGHTER-GLOCK: his attacker may still
 chain); only BLUE and the awakening break it. Under a Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no Burst or
 awakening; lock 1 (not red): U cancels the reel into a guard (the follow-up's strike is then blocked)."
-  (when (and (= (fighter-kikon-lock f) 1) (eq (fighter-state f) :stun) (guard-p e vp))
-    (setf (fighter-state f) :guard (fighter-guard-t f) 0 (fighter-sf f) 0)
-    (play-clip e :sh-guard :blend 3)
+  (when (and (= (fighter-kikon-lock f) 1) (eq (fighter-state f) :stun) (vpad-command-pressed-p vp :quick nil))
+    (vpad-consume! vp :quick)                           ; the core system: an attack cancels the Kikon's follow-up (core-sim.lisp)
+    (core-kikon-cancel! e f)
     (return-from stun-step nil))
   (when (and (zerop (fighter-lock f)) (zerop (fighter-kikon-lock f))) (command! e f vp '(:burst :awaken)))
   (when (and (>= (incf (fighter-sf f)) (fighter-stun f)) (not (and (eq (fighter-state f) :guard-hit) (fighter-glock f))))

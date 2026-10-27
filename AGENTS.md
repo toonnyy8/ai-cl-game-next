@@ -111,6 +111,11 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 
 ## SOUL DUEL architecture in one screen
 
+- **The core system (2026-10-27, `docs/duel/DUEL_CORE.md`, DEVLOG §410+)** replaced the fight system: two buttons (J attack /
+  Mod+J SP; Space Step / Mod+Space Hoho; P Burst / Mod+P awaken), the NA / NS / AS / SA triangle (`core.lisp` pure + host-tested,
+  `core-sim.lisp` the sim side, `core-ai.lisp` the CPU), the SP pointer 1–3, the Kikon as a hold after an SP. Only **Kenpachi,
+  Ichigo, Hisagi** play (`*retired*` lists the other four; their code stays). A kit gets the system through `:core` in its `defkit`.
+  K / L / U / I / O are unbound. ASSIST, the learner, ENDLESS and ROGUE are frozen.
 - **Roster**: index 0 Yamamoto (`yama*.lisp`), 1 Kenpachi (`ken*`), 2 Rukia (`rukia*`), 3 Ichigo (`ichigo*`),
   4 Senjumaru (`senjumaru*`), 5 **reserved** (the old Lille's slot: retired 2026-10-12, his code removed 2026-10-13; `:lille` stays in `*roster*` for the saved data's and the gates' indices: `*retired*` / `playable-roster` in kit.lisp, simgate's `RETIRED`), 6 Lille (`barro*`, kit `:barro`, called "Lille II" before 2026-10-13; his art and cinematics also in `lille-art.lisp`; version 3: DUEL_LILLE_V3, the V2 record DUEL_LILLE_V2, the old Lille's design DUEL_LILLE), 7 **Hisagi** (`hisagi*`, kit `:hisagi`; the Shikai built in batch B2a, the Bankai in B2b: DUEL_HISAGI; debug 83000–83999). Each character = data + hooks: `defkit` forms with `:ai` plists, `defmove`s, its own CPU
   functions (`:reflex`, `:opp-reflex`, `:sp-ender`, `:sig-hold`, `:assist-guard`), cinematics; art in `<char>-art.lisp`

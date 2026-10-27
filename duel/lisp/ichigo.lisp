@@ -117,6 +117,24 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :startup 7 :active 3 :recovery 24 :dmg 70 :adv-block -14 :reach 2.6 :arc 140 :on-hit :knockback :kb 2.5 :cooldown 90
   :params (:aura 6 :aim 120.0 :speed 30.0 :dash-max 14 :dash-track 0.0 :look :flash-step :sfx :hoho-out))
 
+;;; ================================================================ the core system's moves (docs/duel/DUEL_CORE.md, 2026-10-27)
+;;; Retagged from the old K string, stance branches and SPs (clips and volumes as they were; redrawn later, the user:
+;;; 「先重組成新系統後再來重畫」). The triangle: J1 J2 J3 are the NA string; NS n is the SP from neutral under pointer n (a
+;;; rhythm of segments, each the next on an SP press, hit or not); AS n follows NA n; the SA is the attack pressed in an NS gap.
+;;; NS1 heavy (the cleaver's K string, 212 if all land), NS2 equal (RANGETSU > TSUKI-OTOSHI), NS3 finisher (SHOGA > SOSEN).
+(defmove-copy :ic-n1c :ic-k3 :flags nil :dmg 84)
+(defmove-copy :ic-n1b :ic-k2 :params (:ns-next :ic-n1c))
+(defmove-copy :ic-n1a :ic-k1 :params (:ns-next :ic-n1b))
+(defmove-copy :ic-n2b :ic-tsuki-k :kind :flash)
+(defmove-copy :ic-n2a :ic-tsuki-j :kind :flash :params (:ns-next :ic-n2b))
+(defmove-copy :ic-n3b :ic-j3 :flags nil :dmg 70 :kind :flash)
+(defmove-copy :ic-n3a :ic-k2 :enter 0 :params (:ns-next :ic-n3b))
+;; AS1 recovers: it takes flash-step and Reiatsu from him; AS2 launches; AS3 hits hardest. All end the combo in a fall.
+(defmove-copy :ic-as1 :ic-tsuki-k :kind :sp :callout "TSUKI-OTOSHI" :dmg 40 :on-hit :knockdown :params (:steal-fs 40 :steal-rei 100))
+(defmove-copy :ic-as2 :ic-soga :on-hit :launch :dmg 90 :callout "SOGA")
+(defmove-copy :ic-as3 :ic-k3 :kind :sp :callout "RAKUGA" :dmg 150 :on-hit :knockdown :flags nil)
+(defmove-copy :ic-sa :ic-j1 :dmg 34 :slide 0.0)
+
 ;;; ================================================================ 血鎖の一護 KESSA NO ICHIGO (the awakening)
 ;;; one white slab, no point and no guard: cuts only (the clones carry the range now); the J one-handed, the K two-handed
 ;;; (since the J cut, §13: J 0.6x with the slab's cuts pulled in, :ic-k-jab / :ic-k-wrap-j; the clones keep the long clips);
@@ -193,6 +211,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :stun-tolerance 16.0                          ; the hidden stun (DUEL_DESIGN.md): the middle (KESSA inherits it)
   :commands (:q :ic-j1 :f :ic-k1 :sig :ic-tsuki :sp1 :ic-juji :sp2 :ic-soga :breaker :ic-breaker :kikon :ic-kikon)
   :grid (:ic-j1 :ic-j2 :ic-j3 :ic-k1 :ic-k2 :ic-k3 :ic-j2s :ic-k2s)
+  :core (:ns (:ic-n1a :ic-n2a :ic-n3a) :as (:ic-as1 :ic-as2 :ic-as3) :sa :ic-sa)
   :strings *tsuki-strings*
   :l-after-k :ic-tsuki-k2                       ; L after K1 / K2 / K3 (docs/duel/DUEL_STRINGS.md §12): the stance at f4
   :awaken-form :kessa :aura ichigo-aura-base

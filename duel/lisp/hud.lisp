@@ -789,6 +789,16 @@ after the assist pressed for him."
                (world-to-screen v (aref p 0) (+ (aref p 1) (body-hurt-h (model-body (model e))) 0.15) (aref p 2)))
       (brush-text "HOHO!" (aref v 0) (aref v 1) (* (if (portrait-p) 0.035 0.045) h) *c-hint*))))
 
+;; The SP pointer (docs/duel/DUEL_CORE.md §3): which NS the next SP from neutral is, shown at the fighter's feet where the opponent reads it.
+(defvar *pointer-strings* (vector "[1] 2 3" "1 [2] 3" "1 2 [3]") "The pointer row per value 1 .. 3 (made once).")
+(defun hud-pointer (e h)
+  "The SP pointer of fighter E (a kit with a :core), drawn at his feet."
+  (let ((f (fighter e)) (p (pos-of e)) (v *hud-v*))
+    (when (and (kit-core (fighter-kit f)) (member (fighter-state f) '(:idle :run :step :hoho :move :stun :air :down :wakeup))
+               (world-to-screen v (aref p 0) (- (aref p 1) 0.45) (aref p 2)))
+      (brush-text (svref *pointer-strings* (1- (core-clamp-pointer (fighter-ptr f)))) (aref v 0) (aref v 1)
+                  (* (if (portrait-p) 0.026 0.032) h) *white*))))
+
 (defvar *timer-strings* (make-array 1000 :initial-element nil) "Seconds -> their string, made once.")
 
 (declaim (type f32vec *hud-v2*))
@@ -815,7 +825,7 @@ facing."
   (do-sides (e) (when (entity-alive-p e) (hud-rush-lines e)))
   (do-sides (e)                                                                   ; both panels first: the callouts
     (when (entity-alive-p e) (if (portrait-p) (hud-side-portrait e w h s) (hud-side e w h s))))
-  (do-sides (e) (when (entity-alive-p e) (hud-world e w h s) (hud-hint e h)))  ; keep clear of them
+  (do-sides (e) (when (entity-alive-p e) (hud-world e w h s) (hud-hint e h) (hud-pointer e h)))  ; keep clear of them
   (when (eq *mode* :endless) (hud-endless-tag w h s))    ; STAGE n (endless.lisp)
   (when (eq *mode* :practice)                            ; no timer: PRACTICE's tag in its place (landscape)
     (unless (portrait-p) (hud-text "PRACTICE" (floor w 2) (* 0.06 h) (* 2 s) *dim* :align :center))

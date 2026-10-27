@@ -319,6 +319,8 @@ new button."
   (push-reach nil)                      ; NIL, or the reach a K ender's push is measured from in place of K1's (ENDER-PUSH-REACH)
   (look-clips nil)                      ; plist shared clip -> clip: the form plays these generic clips (its guard) as its own
                                         ; (a look: FIGHTER.LISP PLAY-CLIP, as a body variant's :clips; Lille II's wing wall)
+  (core nil)                            ; the core system's moves (docs/duel/DUEL_CORE.md): (:ns (n1 n2 n3) :as (a1 a2 a3) :sa move)
+  (cls (make-hash-table :test 'eq))     ; MOVE -> :na :ns :as :sa (the triangle's class; built by REGISTER-KIT)
   (commands nil)                ; plist command -> move name
   (strings nil)                 ; ((from-move command to-move) ...)
   (moves (make-hash-table :test 'eq))   ; move name -> this form's MOVE
@@ -327,9 +329,11 @@ new button."
 (defvar *kits* (make-hash-table :test 'eq) "Character -> alist (form . KIT) (no consing to look one up).")
 (defvar *roster* nil "Every character with a :base kit, in the order the kit files define them (its index: the saved data's,
 the gates' pairings; the select screen plays PLAYABLE-ROSTER).")
-(defparameter *retired* '(:lille)
+(defparameter *retired* '(:lille :yamamoto :rukia :senjumaru :barro)
   "Roster slots kept for their index (the saved learning tables and records, the gates' pairing numbers) with no character:
-never on the select screen, a random or Endless opponent, or a default seed gate. :lille, index 5: the old Lille, out of the
+never on the select screen, a random or Endless opponent, or a default seed gate. Since 2026-10-27 (the core system,
+docs/duel/DUEL_CORE.md: 「先只做 2 到 3 個差異大的角色」, the user's 「妥」) also the four characters waiting to be ported to it
+(:yamamoto :rukia :senjumaru :barro: code and clips stay); only Kenpachi, Ichigo and Hisagi play. :lille, index 5: the old Lille, out of the
 game since 2026-10-12 (「幫我將舊版的 lille 從遊戲中移除」, DEVLOG §208), his code removed 2026-10-13 (「幫我移除舊版的 lille」:
 barro.lisp reserves the slot; Lille, kit :barro, is 6).")
 (defun playable-roster () "*ROSTER* without the *RETIRED* characters." (remove-if (lambda (c) (member c *retired*)) *roster*))
@@ -430,7 +434,7 @@ attacks but SP1 / L go back to East), or NIL."
 (defun kit-atk-mods (kit lost &optional (pierce 1.0) form-mult)
   "The attacker plist for HIT-DAMAGE: the form's multiplier (FORM-MULT in its place when given: a move's :params
 :form-mult; x PIERCE: 1 + Bankai East's pierce k on a hit) and Cornered with LOST Konpaku."
-  (list :mult (* (or form-mult (kit-mult kit)) pierce) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
+  (list :mult (* (or form-mult (kit-mult kit)) pierce (if (kit-core kit) (* *core-damage* (getf (kit-core kit) :mult 1.0)) 1.0)) :cornered (kit-cornered kit) :cornered-max (kit-cornered-max kit) :lost lost))
 (defun kit-def-mods (kit)
   "The defender plist for HIT-DAMAGE: the damage the form takes (:taken)."
   (list :mult (kit-taken kit)))
@@ -479,17 +483,42 @@ through its :clip-map."
                   (append (loop for (nil m) on commands by #'cddr when m collect m)   ; (a NIL command: none in this form)
                           (loop for (from nil to) in strings collect from collect to)
                           (loop for l in (list (kit-l-after-k kit) (kit-l-after-j kit))   ; (a per-link plist: its moves)
-                                append (cond ((consp l) (loop for (nil m) on l by #'cddr collect m)) ((and l (not (eq l t))) (list l)))))))
+                                append (cond ((consp l) (loop for (nil m) on l by #'cddr collect m)) ((and l (not (eq l t))) (list l))))
+                          (core-move-names (kit-core kit)))))
         (let ((mv (find-move m)) (pmv (and parent (gethash m (kit-moves parent)))))
           (setf (gethash m (kit-moves kit))
                 (cond ((or (member m own) (not pmv)) mv)
                       ((and (eql startup-add 0) (= reach-mult 1)) pmv)
                       (t (parse-move m (mv-spec mv) :startup-add startup-add :reach-mult reach-mult))))))
+      (build-core-classes kit)
       (when (and (eq form :base) (not (member character *roster*)))
         (setf *roster* (append *roster* (list character))))
       (let ((forms (remove form (gethash character *kits*) :key #'car)))
         (setf (gethash character *kits*) (acons form kit forms)))
       kit)))
+
+;;; ---------------------------------------------------------------- the core system's moves (docs/duel/DUEL_CORE.md)
+(defun core-segments (name)
+  "NAME and the NS segments after it (each move's :params :ns-next), in order."
+  (loop for n = name then (getf (mv-params (find-move n)) :ns-next) while n collect n))
+(defun core-move-names (core)
+  "Every move name a kit's :core plist reaches: the three NS sequences (every segment), the three AS, the SA."
+  (append (loop for n in (getf core :ns) append (core-segments n)) (getf core :as) (and (getf core :sa) (list (getf core :sa)))))
+(defun build-core-classes (kit)
+  "Fill KIT's class table: the moves of its :q string are NA (J1 .. J3), its :core moves NS / AS / SA."
+  (let ((h (kit-cls kit)) (core (kit-core kit)))
+    (flet ((tag (name cls) (let ((mv (gethash name (kit-moves kit)))) (when mv (setf (gethash mv h) cls)))))
+      (when (getf (kit-commands kit) :q) (tag (getf (kit-commands kit) :q) :na))
+      (loop for (from cmd to) in (kit-strings kit) when (eq cmd :q) do (tag from :na) (tag to :na))
+      (loop for n in (getf core :ns) do (dolist (m (core-segments n)) (tag m :ns)))
+      (dolist (m (getf core :as)) (tag m :as))
+      (when (getf core :sa) (tag (getf core :sa) :sa)))))
+(defun kit-class (kit mv) "The triangle class of MV in KIT (:na :ns :as :sa), or NIL." (and mv (gethash mv (kit-cls kit))))
+(defun kit-core-move (kit role n)
+  "The core move of ROLE (:ns or :as) number N (1 .. 3) of KIT, or NIL."
+  (let ((name (nth (1- n) (getf (kit-core kit) role)))) (and name (gethash name (kit-moves kit)))))
+(defun kit-sa-move (kit) "KIT's SA move, or NIL." (let ((n (getf (kit-core kit) :sa))) (and n (gethash n (kit-moves kit)))))
+(defun mv-ns-next (kit mv) "The NS segment after MV in KIT, or NIL." (let ((n (getf (mv-params mv) :ns-next))) (and n (gethash n (kit-moves kit)))))
 
 (defmacro defkit (character form &rest spec)
   "One character form as one plist. :inherit FORM takes every key of that (earlier) form; the

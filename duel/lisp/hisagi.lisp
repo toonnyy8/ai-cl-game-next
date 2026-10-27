@@ -309,6 +309,23 @@ links reach him anywhere inside *HS-R-LINK-REACH* since) lands his K3G (1-4 m) a
 (defmove :hs-shibari :kind :sp :clip :hs-shibari :callout "SHIBARI" :startup 16 :active 34 :recovery 26 :dmg 60
   :adv-block -14 :vol (:cap 0.3 4.5 1.1 0.35)
   :hits ((16 20 :on-hit :bind :stun 46) (46 50 :dmg 90 :on-hit :knockdown)))
+;; ================================================================ the core system's moves (docs/duel/DUEL_CORE.md, 2026-10-27)
+;; Retagged from the K string, TSUZURI RAIDEN and the saw (volumes and clips as they were; redrawn later). NS1 heavy (the K string:
+;; 62 + 56 + 80), NS2 equal (RAIDEN's line > the spin), NS3 finisher (the saw > the spin); AS1 recovers, AS2 launches (RAIDEN),
+;; AS3 hits hardest (the plunge); the SA is the first J.
+(defmove-copy :hs-n1c :hs-k3 :flags (:ranged))
+(defmove-copy :hs-n1b :hs-k2 :params (:melee-range 2.0 :ns-next :hs-n1c))
+(defmove-copy :hs-n1a :hs-k1 :params (:melee-range 2.0 :ns-next :hs-n1b))
+(defmove-copy :hs-n2b :hs-j3 :kind :flash :dmg 60)
+(defmove-copy :hs-n2a :hs-raiden :kind :flash :dmg 80 :on-hit :stagger :hits ((20 23)) :on-frame nil :params (:melee-range 2.0 :ns-next :hs-n2b))
+(defmove-copy :hs-n3b :hs-j3 :kind :flash :dmg 70)
+(defmove-copy :hs-n3a :hs-k2 :enter 0 :params (:melee-range 2.0 :ns-next :hs-n3b))
+(defmove-copy :hs-as1 :hs-k3 :kind :sp :callout "KUSARI-BIKI" :dmg 40 :on-hit :knockdown :flags (:ranged)
+  :params (:melee-range 2.0 :steal-fs 40 :steal-rei 100))
+(defmove-copy :hs-as2 :hs-raiden :on-hit :launch :dmg 100 :hits ((20 23)) :on-frame nil :params (:melee-range 2.0))
+(defmove-copy :hs-as3 :hs-k3 :kind :sp :callout "TSUI" :dmg 150 :on-hit :knockdown :flags (:ranged) :params (:melee-range 2.0))
+(defmove-copy :hs-sa :hs-j1 :dmg 32)
+
 ;; I: the universal Breaker, drawn as 首掛け KUBIKAKE (ch. 337 / 384); allowed while out
 (defmove :hs-breaker :kind :breaker :clip :hs-breaker :clip-2 :hs-kubikake :callout "KUBIKAKE")
 ;; O, the Kikon module 刈 KARI: aura 6 (aim 120 deg/s), no dash, the strike along a 7 m lane locked (the sickle hooks him);
@@ -367,6 +384,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :walk *hs-walk* :run *hs-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *hs-mult* :taken *hs-taken*
   :push-reach *hs-push-reach*
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)
+  :core (:ns (:hs-n1a :hs-n2a :hs-n3a) :as (:hs-as1 :hs-as2 :hs-as3) :sa :hs-sa :no-awaken t :mult 1.7)   ; (his Bankai waits for its port)
   ;; S2 (§23.5): the grid's six routes JJJ JJK JKK KKK KJJ KKJ (one switch at most): the J string close (every link
   ;; combos), the K string the chain at range; K2 NOKO / K3 TSUI follow the victim (after J1 / J2 too: the cross links, K2J
   ;; J1's own copy); a J after a K leaps in (J2K, J3K; then J2K's J3 the plain one); then the OUT graph's J string (dormant:

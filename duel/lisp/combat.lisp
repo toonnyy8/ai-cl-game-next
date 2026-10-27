@@ -334,8 +334,8 @@ result (NIL = no effect)."
          (k (if (passive-p att :pierce)                 ; Bankai East's pierce
                 (pierce-rate (gauges-gg (gauges att)) (or (and mv (getf (mv-params mv) :pierce-mult)) 1.0))
                 0.0))
-         (rush (and mv (eq (mv-kind mv) :kikon)))
-         (own (and mv (eq (fighter-move fa) mv)))       ; the attacker is still in that move
+         (own (and mv (eq (fighter-move fa) mv)))
+         (rush (and mv (or (eq (mv-kind mv) :kikon) (and own (not hazard) (core-kikon-p fa mv)))))       ; the attacker is still in that move
          (fstrike (and rush own (fighter-follow fa)))   ; the dash-in's strike: the Kikon if it hits
          (res (resolve-contact def-state
                                :breaker (member :breaker flags)
@@ -359,7 +359,8 @@ result (NIL = no effect)."
          (dmods (if (and *run-mods* (run-mods-on-p def)) (run-def-mods def dmods flags) dmods))
          (x (or x (aref p 0))) (z (or z (aref p 2))) (y (+ (aref p 1) 1.1))
          (base (+ (hw-dmg hw) bonus))
-         (outcome (and rush (kikon-outcome (vpad-down (pilot-vpad (pilot att)) :kikon) res fstrike)))
+         (outcome (and rush (kikon-outcome (if (eq (mv-kind mv) :kikon) (vpad-down (pilot-vpad (pilot att)) :kikon) (core-held-p att))
+                                           res fstrike)))
          (follow (eq outcome :follow)))                 ; knocked back, then the rusher dashes in to the follow-up
     (when (eq outcome :kikon)
       (if (rmod def :kikon-guard nil)                   ; DANGAI's :kikon-guard: the Kikon guarded, nothing lost
@@ -441,7 +442,9 @@ result (NIL = no effect)."
                               (let ((pull (- (sqrt d2) *string-pull-to*)))         ; point-blank, so the string's links
                                 (when (> pull 0.01)                                ; reach him (the user 2026-10-02:
                                   (set-slide att pull *string-pull-frames* (- (aref p 0) sx) (- (aref p 2) sz))))))))   ; no chase)
+               (when (and (eq (kit-class (fighter-kit fa) mv) :as) (not hazard)) (core-on-hit! att def mv))
                (when (and follow own)                     ; the rush dashes in, then strikes again (KIKON-RUSH-STEP)
+                 (when (core-kikon-p fa mv) (core-set-kikon-n! att red))
                  (setf (fighter-phase fa) :follow (fighter-hold fa) 0 (fighter-follow fa) t
                        (fighter-kikon-lock fd) (if red 2 1))   ; (2026-10-24: guard only, or nothing when red; KIKON-LOCK-P)
                  (emit :kikon-follow att def)
@@ -620,13 +623,17 @@ settle the souls they broke (the bind's drained check first: BIND-STEP! :hits)."
   (do-entities (e (f fighter)) (cut-hazards e f))
   (do-entities (e (f fighter)) (collect-melee e f))
   (collect-hazard-hits)
-  (let ((hits (nreverse *pending*)))
+  (let* ((hits (nreverse *pending*))
+         (verdicts (core-verdicts hits)))
     (setf *pending* nil)
     (dolist (h hits)
       (let* ((hz (pending-hazard h)) (fa (fighter (pending-att h))) (mv (pending-mv h))
-             (res (apply-hit (pending-att h) (pending-def h) (pending-hw h) (pending-sx h) (pending-sz h)
-                             :mv mv :hazard hz :def-state (pending-state h) :red (pending-red h)
-                             :bonus (pending-bonus h) :crush (pending-crush h))))
+             (verdict (pop verdicts))                    ; the core triangle's (core-sim.lisp): a cancel / absorb deals nothing
+             (res (if (eq verdict :hit)
+                      (apply-hit (pending-att h) (pending-def h) (pending-hw h) (pending-sx h) (pending-sz h)
+                                 :mv mv :hazard hz :def-state (pending-state h) :red (pending-red h)
+                                 :bonus (pending-bonus h) :crush (pending-crush h))
+                      (progn (core-nohit! h verdict) verdict))))
         (when res
           (cond (hz (hazard-connected hz))
                 ((and mv (eq mv (fighter-move fa)))   ; (an on-land hook may have started the next move)
@@ -857,10 +864,12 @@ Returns T when DEF is out of Konpaku; never in a bind (BIND-OF: grey souls, the 
   (let ((gd (gauges def)) (bound (bind-of def)))
     (multiple-value-bind (left lost ko)
         (let ((n (if soul-break (kikon-worth att) (fighter-kikon-n (fighter att)))))
-          (if (and *run-mods* (run-mods-on-p att))      ; DANGAI's counts: before the cap, past it
-              (run-konpaku-result (gauges-konpaku gd) n soul-break (rmod att (if soul-break :sb-plus :kikon-plus) 0)
-                                  (rmod att (if soul-break :sb-past :kikon-past) 0))
-              (kikon-result (gauges-konpaku gd) n soul-break)))
+          (cond ((kit-core (kit-of att))                ; the core system's counts (core.lisp): the style of the SP in play
+                 (core-konpaku-result (gauges-konpaku gd) att soul-break))
+                ((and *run-mods* (run-mods-on-p att))   ; DANGAI's counts: before the cap, past it
+                 (run-konpaku-result (gauges-konpaku gd) n soul-break (rmod att (if soul-break :sb-plus :kikon-plus) 0)
+                                     (rmod att (if soul-break :sb-past :kikon-past) 0)))
+                (t (kikon-result (gauges-konpaku gd) n soul-break))))
       (when *run-mods*
         (when (or (run-mods-on-p att) (run-mods-on-p def))
           (log-msg "duel runmod konpaku side ~d ~:[kikon~;soul-break~] lost ~d left ~d" (fighter-side (fighter def)) soul-break lost left))
@@ -904,7 +913,7 @@ and frozen through the cinematic their looks would hang in its shots."
         (loop for (att . def) in sb do (emit :soul-break att def))
         (clear-hazards)
         (cine-stage a v)                                ; (both set down mid-stage for its shots, given back at its end)
-        (start-cine (if kk (mv-cine (third (first kk))) (kit-kikon-cine (kit-of a))) a v
+        (start-cine (if kk (or (mv-cine (third (first kk))) (kit-kikon-cine (kit-of a))) (kit-kikon-cine (kit-of a))) a v
                     :after (lambda () (cond ((null kos) (reset-round a v))
                                             ((rest kos) (match-over nil))
                                             (t (match-over (opp-of (first kos)))))))))))

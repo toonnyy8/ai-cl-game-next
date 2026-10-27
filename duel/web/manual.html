@@ -286,22 +286,15 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 <thead><tr><th>動作</th><th>P1 鍵盤</th><th>P2 鍵盤</th><th>手把</th></tr></thead>
 <tbody>
 <tr><td>移動</td><td data-l="P1"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></td><td data-l="P2">方向鍵</td><td data-l="手把">左搖桿／十字鍵</td></tr>
-<tr><td>J 輕攻擊</td><td data-l="P1"><kbd>J</kbd></td><td data-l="P2">數字鍵 <kbd>1</kbd></td><td data-l="手把"><kbd>X</kbd></td></tr>
-<tr><td>K 重攻擊</td><td data-l="P1"><kbd>K</kbd></td><td data-l="P2">數字鍵 <kbd>2</kbd></td><td data-l="手把"><kbd>Y</kbd></td></tr>
-<tr><td>L 招牌技</td><td data-l="P1"><kbd>L</kbd></td><td data-l="P2">數字鍵 <kbd>3</kbd></td><td data-l="手把"><kbd>B</kbd></td></tr>
-<tr><td>U 防禦（按住）</td><td data-l="P1"><kbd>U</kbd></td><td data-l="P2">數字鍵 <kbd>4</kbd></td><td data-l="手把"><kbd>LB</kbd></td></tr>
-<tr><td>I 抓技 Breaker（按住衝得更遠）</td><td data-l="P1"><kbd>I</kbd></td><td data-l="P2">數字鍵 <kbd>5</kbd></td><td data-l="手把"><kbd>RB</kbd></td></tr>
-<tr><td>O Kikon 突進（按住＝Kikon）</td><td data-l="P1"><kbd>O</kbd></td><td data-l="P2">數字鍵 <kbd>6</kbd></td><td data-l="手把"><kbd>RT</kbd></td></tr>
+<tr><td>攻擊（J）</td><td data-l="P1"><kbd>J</kbd></td><td data-l="P2">數字鍵 <kbd>1</kbd></td><td data-l="手把"><kbd>X</kbd></td></tr>
+<tr><td>SP（功能鍵＋攻擊）</td><td data-l="P1"><kbd>Shift</kbd>+<kbd>J</kbd></td><td data-l="P2"><kbd>Enter</kbd>+<kbd>1</kbd></td><td data-l="手把"><kbd>LT</kbd>+<kbd>X</kbd></td></tr>
 <tr><td>Step（按住＝跑）</td><td data-l="P1"><kbd>Space</kbd></td><td data-l="P2">數字鍵 <kbd>0</kbd></td><td data-l="手把"><kbd>A</kbd></td></tr>
-<tr><td>靈壓修飾鍵（按住）</td><td data-l="P1">左 <kbd>Shift</kbd></td><td data-l="P2">數字鍵 <kbd>Enter</kbd></td><td data-l="手把"><kbd>LT</kbd></td></tr>
-<tr><td>SP1</td><td data-l="P1"><kbd>Shift</kbd>+<kbd>K</kbd></td><td data-l="P2"><kbd>Enter</kbd>+<kbd>2</kbd></td><td data-l="手把"><kbd>LT</kbd>+<kbd>Y</kbd></td></tr>
-<tr><td>SP2</td><td data-l="P1"><kbd>Shift</kbd>+<kbd>L</kbd></td><td data-l="P2"><kbd>Enter</kbd>+<kbd>3</kbd></td><td data-l="手把"><kbd>LT</kbd>+<kbd>B</kbd></td></tr>
-<tr><td>Hoho（瞬步繞背）</td><td data-l="P1"><kbd>Shift</kbd>+<kbd>Space</kbd></td><td data-l="P2"><kbd>Enter</kbd>+<kbd>0</kbd></td><td data-l="手把"><kbd>LT</kbd>+<kbd>A</kbd></td></tr>
-<tr><td>爆氣（白／藍／橙，依狀態自動決定）</td><td data-l="P1"><kbd>Shift</kbd>+<kbd>J</kbd></td><td data-l="P2"><kbd>Enter</kbd>+<kbd>1</kbd></td><td data-l="手把"><kbd>LT</kbd>+<kbd>X</kbd></td></tr>
-<tr><td>覺醒</td><td data-l="P1"><kbd>P</kbd></td><td data-l="P2">數字鍵 <kbd>+</kbd></td><td data-l="手把"><kbd>Back</kbd>，或 <kbd>LS</kbd>+<kbd>RS</kbd> 同按</td></tr>
+<tr><td>Hoho（瞬步繞背，功能鍵＋Step）</td><td data-l="P1"><kbd>Shift</kbd>+<kbd>Space</kbd></td><td data-l="P2"><kbd>Enter</kbd>+<kbd>0</kbd></td><td data-l="手把"><kbd>LT</kbd>+<kbd>A</kbd></td></tr>
+<tr><td>爆氣（被連段時脫出）</td><td data-l="P1"><kbd>P</kbd></td><td data-l="P2">數字鍵 <kbd>+</kbd></td><td data-l="手把"><kbd>Y</kbd>／<kbd>Back</kbd></td></tr>
+<tr><td>覺醒（功能鍵＋爆氣）</td><td data-l="P1"><kbd>Shift</kbd>+<kbd>P</kbd></td><td data-l="P2"><kbd>Enter</kbd>+<kbd>+</kbd></td><td data-l="手把"><kbd>LT</kbd>+<kbd>Y</kbd></td></tr>
 <tr><td>暫停</td><td data-l="P1"><kbd>Esc</kbd></td><td data-l="P2"><kbd>Esc</kbd></td><td data-l="手把"><kbd>Start</kbd></td></tr>
 </tbody></table>
-<p class="note">同時按下好幾個鍵時，優先順序是：Kikon → 覺醒 → Hoho → 爆氣 → Step → 抓技 → SP2 → SP1 → L → K → J。所以亂按 J+K 會出 K；按了但條件不夠（例如靈壓不足）的指令不會擋住下面的指令。</p>
+<p class="note">只有兩顆戰鬥鍵：<b>攻擊</b>和 <b>SP</b>（2026-10-27 的核心系統改版，見下方「核心規則」）。K、L、U（防禦）、I、O 已經沒有作用；Kikon 改成 SP 命中後<b>繼續按住</b>。同時按下好幾個鍵時，優先順序是：覺醒 → Hoho → 爆氣 → Step → SP → 攻擊。</p>
 
 <h3 id="touch">觸控（單手模式）</h3>
 <p>手機直拿時用一根拇指玩。預設右手：畫面右側是圓鈕，下半部的大框是手勢區。手勢區中間有一條淡淡的分隔線，邊上標著 F（上）和 Q（下）。按在圓鈕上才算按圓鈕。</p>
@@ -309,16 +302,14 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 <thead><tr><th>手勢</th><th>效果（對應鍵盤）</th></tr></thead>
 <tbody>
 <tr><td>點手勢區下半塊</td><td data-l="效果">J 輕攻擊（剛好點在線上也算下半）</td></tr>
-<tr><td>點手勢區上半塊</td><td data-l="效果">K 重攻擊。連段就是連點：JJK 是下、下、上</td></tr>
-<tr><td>按著不動約 0.12 秒</td><td data-l="效果">防禦 U（拇指放著就是在防禦）</td></tr>
+<tr><td>點手勢區上半塊</td><td data-l="效果">攻擊（上下半塊現在一樣）。連段就是連點</td></tr>
 <tr><td>拖曳</td><td data-l="效果">移動，往上是朝對手；拖遠一點就變成跑</td></tr>
 <tr><td>往上撥</td><td data-l="效果">向前衝刺（往前的 Step），手指繼續往前推就接著跑。<b>攻擊中往上撥是 Hoho</b>（不用先按住）：自己的 J／K 打中後就是 Hoho 取消。<b>對手的攻擊正好要打到你（完美 Hoho 的時機）時往上撥，會自動變成 Hoho</b>，不用先按住，就是完美 Hoho</td></tr>
 <tr><td>往下、左、右快速撥</td><td data-l="效果">Step：往下是後退、左右是側步</td></tr>
 <tr><td>先按著不動，再往上撥</td><td data-l="效果">Hoho（站著或防禦時；攻擊中直接往上撥就是 Hoho）</td></tr>
 <tr><td>被打中、硬直或浮空時往下撥</td><td data-l="效果">藍色爆氣 BURST REVERSE</td></tr>
 <tr><td>自己的招式打中對手後往下撥</td><td data-l="效果">橙色爆氣 CHAIN REVERSE</td></tr>
-<tr><td>O 圓鈕</td><td data-l="效果">Kikon 突進（按住＝Kikon；連段第三段打中後按＝O 收尾）</td></tr>
-<tr><td>L、I、SP1、SP2 圓鈕</td><td data-l="效果">招牌技、抓技、SP1、SP2</td></tr>
+<tr><td>SP 圓鈕</td><td data-l="效果">SP（按住＝SP 命中後接 Kikon）</td></tr>
 <tr><td>RV 圓鈕（O 的上方）</td><td data-l="效果">爆氣：任何模式都行（可以爆氣時才出現）。站著、走路、防禦中按是白色爆氣</td></tr>
 <tr><td>AWK 圓鈕</td><td data-l="效果">覺醒（EVOLUTION 時才出現，按住 0.3 秒）</td></tr>
 <tr><td>II 圓鈕、手機「返回」</td><td data-l="效果">暫停</td></tr>
@@ -352,6 +343,18 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 
 <!-- ================================================================ rules -->
 <h2 id="rules">核心規則 <small>RULES</small></h2>
+
+<h3 id="core">雙鍵三角：攻擊與 SP（2026-10-27 改版）</h3>
+<p>現在只有兩顆戰鬥鍵，而且<b>沒有防禦</b>。深度不在按鍵數量，而在「什麼時候出手、什麼時候換招」。目前可選的角色是更木劍八、黑崎一護、檜佐木修兵（其餘四位等移植）。</p>
+<ul>
+<li><b>NA</b>：站著按攻擊。J1→J2→J3，每一下要打中（或被抵銷）才接得下去。<b>NS</b>：站著按 SP，是一串節奏的連續技，每段再按 SP 接下一段，打不打中都能接。</li>
+<li><b>AS（中間 SP）</b>：攻擊打中後按 SP。是連段的最後一擊（對手倒地），並且<b>改寫 SP 指針</b>：接在第 1、2、3 下之後，下一次站著按 SP 就是第 1、2、3 招 NS。指針畫面上顯示在腳邊 <code>[1] 2 3</code>。三種 AS：1 搶走資源（傷害最低）、2 擊飛、3 高傷害。<b>SA</b>：NS 的段與段之間按攻擊。</li>
+<li><b>相剋</b>：攻擊對 SP 預設互相抵銷（雙方無傷、各自接續）。同類相撞先打到的贏、同一幀相消。AS 和 SA 是「轉折招」，帶霸體（第 6 幀起到出手前）：<b>AS 剋 NS，SA 剋 NA</b>；兩個轉折互撞，後出手的贏。所以勝負靠的是<b>換招的時機</b>：早換抓得到只會照打的對手，但會被立刻跟著換的對手反吃。</li>
+<li><b>Kikon（毀魂技）</b>：NS 或 AS 命中後<b>持續按住 SP</b>，對手會被擊退，接著再來一擊就是 Kikon。對手（非紅血）可以按<b>攻擊</b>抵銷它，雙方彈開回到中立；紅血時什麼都不能做。Hoho 和爆氣擋不住它。</li>
+<li><b>三種指針的 Kikon 性格</b>：1 重傷害（Kikon 少削 1 顆魂魄）、2 紅血即破魂線（對紅血目標的 Kikon 等於 Soul Break）、3 斬殺（Kikon 少削 1 顆，但 Soul Break 加削 2 顆）。</li>
+<li>Hoho（含無敵幀）、Step、爆氣（P）和覺醒（Shift+P）照舊。</li>
+</ul>
+<p class="note">下面「J／K 連段」到「爆氣」幾節寫的是改版<b>前</b>的規則（含防禦、K、L、I、O），保留作為參考，以這一節為準。</p>
 
 <h3 id="win">勝負：靈子與魂魄</h3>
 <ul>

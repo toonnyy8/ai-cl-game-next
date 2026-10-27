@@ -56,37 +56,34 @@
            (vpad-begin-step! vp)
            (dolist (a actions) (vpad-set! vp a t))
            vp)))
+  ;; the core system's table (docs/duel/DUEL_CORE.md): J / Mod+J, Space / Mod+Space, P / Mod+P
   (check (equal (command (pressed :quick)) '(:q :quick)))
-  (check (equal (command (pressed :quick :flash)) '(:f :flash)))        ; mash J+K = Flash
-  (check (equal (command (pressed :flash :sig)) '(:sig :sig)))
-  (check (equal (command (pressed :quick :step)) '(:step :step)))       ; escape first
-  (check (equal (command (pressed :breaker :sig)) '(:breaker :breaker)))
-  (check (equal (command (pressed :quick :kikon :step)) '(:kikon :kikon)))
-  (check (equal (command (pressed :awaken :step)) '(:awaken :awaken)))
-  (check (equal (command (pressed :mod :flash)) '(:sp1 :flash)))
-  (check (equal (command (pressed :mod :sig)) '(:sp2 :sig)))
+  (check (equal (command (pressed :mod :quick)) '(:sp :quick)))
+  (check (equal (command (pressed :step)) '(:step :step)))
   (check (equal (command (pressed :mod :step)) '(:hoho :step)))
-  (check (equal (command (pressed :mod :quick)) '(:burst :quick)))
-  (check (equal (command (pressed :mod :breaker)) '(:breaker :breaker)))   ; :any
-  (check (equal (command (pressed :mod :quick :sig)) '(:burst :quick)))   ; escapes before SPs
-  (check (equal (command (pressed :mod :flash :sig)) '(:sp2 :sig)))
+  (check (equal (command (pressed :awaken)) '(:burst :awaken)))
+  (check (equal (command (pressed :mod :awaken)) '(:awaken :awaken)))
+  (check (equal (command (pressed :quick :step)) '(:step :step)))       ; escape first
+  (check (equal (command (pressed :mod :quick :step)) '(:hoho :step)))
+  (check (equal (command (pressed :mod :quick :awaken)) '(:awaken :awaken)))   ; the awakening before the SP
+  (check (null (first (command (pressed :flash)))))                              ; K, L, U, I, O no longer start anything
+  (check (every (lambda (a) (null (first (command (pressed a))))) '(:sig :guard :breaker :kikon)))
   ;; the modifier is taken at press time (order within a step does not matter)
   (let ((vp (new-vpad)))
-    (vpad-begin-step! vp) (vpad-set! vp :flash t) (vpad-set! vp :mod t)
-    (check (equal (command vp) '(:sp1 :flash))))
-  (let ((vp (pressed :flash)))                                          ; Flash first, mod later
+    (vpad-begin-step! vp) (vpad-set! vp :quick t) (vpad-set! vp :mod t)
+    (check (equal (command vp) '(:sp :quick))))
+  (let ((vp (pressed :quick)))                                          ; the attack first, mod later: still an attack
     (vpad-begin-step! vp) (vpad-set! vp :mod t)
-    (check (equal (command vp) '(:f :flash))))
-  (let ((vp (pressed :mod :flash)))                                     ; mod released: still SP1
+    (check (equal (command vp) '(:q :quick))))
+  (let ((vp (pressed :mod :quick)))                                     ; mod released: still the SP
     (vpad-begin-step! vp) (vpad-set! vp :mod nil)
-    (check (equal (command vp) '(:sp1 :flash))))
-  ;; ALLOWED filters (a cancel window only takes SP / Hoho); a modified press never falls back
-  (check (null (vpad-command (pressed :quick) *commands* '(:sp1 :sp2 :hoho))))
-  (check (equal (command (pressed :quick :mod :flash) '(:sp1 :sp2 :hoho)) '(:sp1 :flash)))
-  (check (null (vpad-command (pressed :mod :flash) *commands* '(:q :f))))
-  (check (equal (command (pressed :quick :flash) '(:q)) '(:q :quick)))
-  ;; consume the button the command reports, then the next command comes up
-  (let ((vp (pressed :quick :flash)))
+    (check (equal (command vp) '(:sp :quick))))
+  ;; ALLOWED filters (a cancel window only takes the SP / Hoho); a modified press never falls back
+  (check (null (vpad-command (pressed :quick) *commands* '(:sp :hoho))))
+  (check (equal (command (pressed :quick :mod) '(:sp :hoho)) '(:sp :quick)))
+  (check (null (vpad-command (pressed :mod :quick) *commands* '(:q))))
+  ;; consume the button the command reports: nothing is left under it
+  (let ((vp (pressed :quick :step)))
     (vpad-consume! vp (second (command vp)))
     (check (equal (command vp) '(:q :quick)))))
 
@@ -112,7 +109,7 @@
        (down-p (lambda (device name) (member (list device name) held :test #'equal)))
        (vp-dev (new-vpad :reader (lambda (vp) (vpad-read! vp *p1-bindings* down-p))))
        (vp-inj (new-vpad))
-       (script '((:key :j) nil ((:key :lshift) (:key :k)) ((:key :lshift)) nil ((:pad :ls) (:pad :rs))
+       (script '((:key :j) nil ((:key :lshift) (:key :j)) ((:key :lshift)) nil ((:key :lshift) (:key :p)) nil
                  ((:key :space) (:key :w) (:key :d)) nil)))
   (dolist (frame script)
     (setf held frame)
@@ -124,37 +121,36 @@
                 (equalp (vpad-press vp-dev) (vpad-press vp-inj))
                 (equalp (vpad-modded vp-dev) (vpad-modded vp-inj))
                 (equal (command vp-dev) (command vp-inj)))))
-  ;; what the device produced: J = Q, Shift+K = SP1, LS+RS = Awaken, W+D = diagonal stick
-  (check (vpad-pressed vp-dev :awaken 3))
+  ;; what the device produced: J = Q, Shift+J = SP, Shift+P = Awaken, W+D = diagonal stick
+  (check (vpad-pressed vp-dev :awaken 4))
   (check (and (~= (vpad-sx vp-dev) 0.0) (~= (vpad-sy vp-dev) 0.0)))  ; last frame: nothing held
   (setf held '((:key :w) (:key :d)))
   (vpad-begin-step! vp-dev)
   (check (and (~= (vpad-sx vp-dev) 0.7071) (~= (vpad-sy vp-dev) 0.7071))))
-(let* ((held '((:key :kp-enter) (:key :kp-3)))                      ; P2: numpad mod + Signature
+(let* ((held '((:key :kp-enter) (:key :kp-1)))                      ; P2: numpad mod + the attack = the SP
        (vp (new-vpad :reader (lambda (vp) (vpad-read! vp *p2-bindings*
                                                        (lambda (d n) (member (list d n) held :test #'equal))
                                                        0.0 -1.0)))))
   (vpad-begin-step! vp)
-  (check (equal (command vp) '(:sp2 :sig)))
+  (check (equal (command vp) '(:sp :quick)))
   (check (~= (vpad-sy vp) -1.0)))                                     ; analog stick passes through
 ;; CONTROLS (the user, 2026-10-01): a rebind swaps (one keyboard over both players, a pad per player), changes the
 ;; live bindings the readers use, saves as codes (0 = default) and resets; the prompts follow
 (let ((pair (vector (copy-tree *p1-default-bindings*) (copy-tree *p2-default-bindings*))))
   (flet ((n (side a dev) (binding-name (svref pair side) a dev)))
-    (check (equal (key-prompt pair 0 :key :chain) "SHIFT+J  CHAIN"))
-    (check (equal (key-prompt pair 0 :pad :burst) "LT+X  BURST"))
-    (check (equal (key-prompt pair 1 :key :kikon) "HOLD KP6  KIKON"))
-    (check (rebind pair 0 :quick :key :k))                          ; J -> K: FLASH takes J
-    (check (and (eq :k (n 0 :quick :key)) (eq :j (n 0 :flash :key)) (equal (key-prompt pair 0 :key :chain) "SHIFT+K  CHAIN")))
+    (check (equal (key-prompt pair 0 :key :chain) "SHIFT+J  SP"))
+    (check (equal (key-prompt pair 0 :pad :burst) "Y  BURST"))
+    (check (equal (key-prompt pair 1 :key :kikon) "HOLD KP1  KIKON"))
+    (check (rebind pair 0 :quick :key :k))                          ; J -> K: nobody else on K, J is free
+    (check (and (eq :k (n 0 :quick :key)) (equal (key-prompt pair 0 :key :chain) "SHIFT+K  SP")))
     (check (not (rebind pair 0 :quick :key :k)))                    ; the same key: nothing
-    (check (rebind pair 0 :guard :key :up))                         ; P2's UP: P2 takes U
-    (check (and (eq :up (n 0 :guard :key)) (eq :u (n 1 :up :key))))
+    (check (rebind pair 0 :step :key :up))                          ; P2's UP: P2 takes SPACE
+    (check (and (eq :up (n 0 :step :key)) (eq :space (n 1 :up :key))))
     (check (rebind pair 1 :quick :pad :a))                          ; P2's pad: STEP takes X, P1's pad untouched
     (check (and (eq :a (n 1 :quick :pad)) (eq :x (n 1 :step :pad)) (eq :x (n 0 :quick :pad)) (eq :a (n 0 :step :pad))))
-    (check (and (= 0 (bind-code 0 :sig :key pair)) (= (1+ (position :k *bind-keys*)) (bind-code 0 :quick :key pair))
+    (check (and (= 0 (bind-code 0 :mod :key pair)) (= (1+ (position :k *bind-keys*)) (bind-code 0 :quick :key pair))
                 (eq :k (bind-from-code (bind-code 0 :quick :key pair) :key)) (null (bind-from-code 0 :key))
                 (null (bind-from-code 999 :pad))))
-    (check (member '(:pad :ls :rs) (getf (svref pair 0) :awaken) :test #'equal))   ; chords untouched
     (reset-bindings pair)
     (check (and (equal (svref pair 0) *p1-default-bindings*) (equal (svref pair 1) *p2-default-bindings*)))
     (check (every (lambda (a) (and (member (n 0 a :key) *bind-keys*) (member (n 1 a :key) *bind-keys*)
@@ -162,14 +158,13 @@
                   *bind-actions*))
     (check (and (= (length *bind-actions*) (length *bind-row-names*)) (string= "SHIFT" (bind-label :lshift))
                 (string= "KP1" (bind-label :kp-1)) (string= "D-UP" (bind-label :dpad-up)) (string= "-" (bind-label nil))))))
-;; every action has a binding for both players
-(check (loop for a across *vpad-actions* always (and (getf *p1-bindings* a) (getf *p2-bindings* a))))
+(check (loop for a in *bind-actions* always (and (getf *p1-bindings* a) (getf *p2-bindings* a))))
 
 ;; a refused top command doesn't hide the next one: both entries are pressed, walked in priority order
 (let ((vp (new-vpad)))
-  (vpad-begin-step! vp) (vpad-set! vp :kikon t) (vpad-set! vp :quick t)
+  (vpad-begin-step! vp) (vpad-set! vp :awaken t) (vpad-set! vp :quick t)
   (check (equal (loop for (cmd button mod) in *commands* when (vpad-command-pressed-p vp button mod) collect cmd)
-                '(:kikon :q))))
+                '(:burst :q))))
 ;; flush: presses forgotten, holds kept
 (let ((vp (new-vpad)))
   (vpad-begin-step! vp) (vpad-set! vp :guard t) (vpad-set! vp :quick t) (vpad-flush! vp)

@@ -21,24 +21,17 @@ step, is modified.")
 
 ;;; ---------------------------------------------------------------- commands
 (defparameter *commands*
-  '((:kikon   :kikon   :any)
-    (:awaken  :awaken  :any)
+  '((:awaken  :awaken  t)
     (:hoho    :step    t)
-    (:burst   :quick   t)
+    (:burst   :awaken  nil)
     (:step    :step    nil)
-    (:breaker :breaker :any)
-    (:sp2     :sig     t)
-    (:sp1     :flash   t)
-    (:sig     :sig     nil)
-    (:f       :flash   nil)
+    (:sp      :quick   t)
     (:q       :quick   nil))
   "Command table, HIGHEST PRIORITY FIRST: (command button mod), MOD = T needs the press modified
-(pressed with :MOD down), NIL needs it unmodified, :ANY ignores the modifier. Order: the decisive
-and rare (Kikon, Awaken) first, then escapes (Hoho, Burst, Step, like RAVEN's dodge > attacks),
-the Breaker, the modified buttons before the plain ones (a modified Flash is SP1, never F), and
-heavier before lighter (Signature > Flash > Quick), so mashing J+K gives the Flash. Fighter code
-walks it with VPAD-COMMAND-PRESSED-P (fighter.lisp COMMAND!), so a refused command doesn't hide
-the ones below it.")
+(pressed with :MOD down), NIL needs it unmodified. The core system's three keys (docs/duel/DUEL_CORE.md, the user 2026-10-27):
+J attack / Mod+J SP, Space Step / Mod+Space Hoho, P Burst / Mod+P awaken. The modified buttons come before the plain ones.
+The old K / L / U / I / O commands are gone from the table (their code stays in the frozen characters' files). Fighter code
+walks it with VPAD-COMMAND-PRESSED-P (fighter.lisp COMMAND!), so a refused command doesn't hide the ones below it.")
 
 ;;; ---------------------------------------------------------------- devices (bindings as data)
 ;;; Binding plists for VPAD-READ! (engine): action -> list of inputs, an input (device name ...) =
@@ -47,11 +40,9 @@ the ones below it.")
 (defparameter *p1-default-bindings*
   '(:up ((:key :w) (:pad :dpad-up)) :down ((:key :s) (:pad :dpad-down))
     :left ((:key :a) (:pad :dpad-left)) :right ((:key :d) (:pad :dpad-right))
-    :quick ((:key :j) (:pad :x) (:touch :quick)) :flash ((:key :k) (:pad :y) (:touch :flash))
-    :sig ((:key :l) (:pad :b) (:touch :sig)) :guard ((:key :u) (:pad :lb) (:touch :guard))
-    :breaker ((:key :i) (:pad :rb) (:touch :breaker)) :kikon ((:key :o) (:pad :rt) (:touch :kikon))
+    :quick ((:key :j) (:pad :x) (:touch :quick)) :flash nil :sig nil :guard nil :breaker nil :kikon nil
     :step ((:key :space) (:pad :a) (:touch :step)) :mod ((:key :lshift) (:pad :lt) (:touch :mod))
-    :awaken ((:key :p) (:pad :back) (:pad :ls :rs) (:touch :awaken)))
+    :awaken ((:key :p) (:pad :y) (:pad :back) (:touch :awaken)))
   "Player 1: left keyboard + pad 0 (design-v1 §2) + the ONE-HAND thumb deck ((:touch name): onehand.lisp
 TOUCH-BUTTON; its drag stick is added like pad 0's). Menus read the devices directly (flow.lisp). The defaults: the
 live *P1-BINDINGS* is a copy CONTROLS rebinds.")
@@ -59,10 +50,9 @@ live *P1-BINDINGS* is a copy CONTROLS rebinds.")
 (defparameter *p2-default-bindings*
   '(:up ((:key :up) (:pad :dpad-up)) :down ((:key :down) (:pad :dpad-down))
     :left ((:key :left) (:pad :dpad-left)) :right ((:key :right) (:pad :dpad-right))
-    :quick ((:key :kp-1) (:pad :x)) :flash ((:key :kp-2) (:pad :y)) :sig ((:key :kp-3) (:pad :b))
-    :guard ((:key :kp-4) (:pad :lb)) :breaker ((:key :kp-5) (:pad :rb)) :kikon ((:key :kp-6) (:pad :rt))
+    :quick ((:key :kp-1) (:pad :x)) :flash nil :sig nil :guard nil :breaker nil :kikon nil
     :step ((:key :kp-0) (:pad :a)) :mod ((:key :kp-enter) (:pad :lt))
-    :awaken ((:key :kp-plus) (:pad :back) (:pad :ls :rs)))
+    :awaken ((:key :kp-plus) (:pad :y) (:pad :back)))
   "Player 2: arrows + numpad + pad 1 (design-v1 §2). The defaults of *P2-BINDINGS*.")
 
 ;;; ---------------------------------------------------------------- CONTROLS: rebinding (the user, 2026-10-01)
@@ -71,11 +61,10 @@ live *P1-BINDINGS* is a copy CONTROLS rebinds.")
 (defvar *p1-bindings* (copy-tree *p1-default-bindings*) "Player 1's live bindings (CONTROLS changes them in place).")
 (defvar *p2-bindings* (copy-tree *p2-default-bindings*) "Player 2's live bindings.")
 (defvar *bind-pair* (vector *p1-bindings* *p2-bindings*) "Both players' live bindings (REBIND's PAIR).")
-(defparameter *bind-actions* '(:up :down :left :right :quick :flash :sig :guard :breaker :kikon :step :mod :awaken)
+(defparameter *bind-actions* '(:up :down :left :right :quick :step :mod :awaken)
   "The CONTROLS rows, in order (the page saves them by this index).")
 (defparameter *bind-row-names*
-  '("MOVE UP" "MOVE DOWN" "MOVE LEFT" "MOVE RIGHT" "QUICK  J" "FLASH  K" "SIGNATURE  L" "GUARD  U" "BREAKER  I"
-    "KIKON RUSH  O" "STEP  SPACE" "REIATSU  SHIFT" "AWAKEN  P")
+  '("MOVE UP" "MOVE DOWN" "MOVE LEFT" "MOVE RIGHT" "ATTACK  J" "STEP  SPACE" "FUNCTION  SHIFT" "BURST  P")
   "Each *BIND-ACTIONS* row's label (the button's name in the manual after it).")
 (defparameter *bind-keys*
   (append (loop for c across "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890" collect (intern (string c) :keyword))
@@ -147,9 +136,9 @@ player's (his own pad). Changes PAIR's plists in place; T when something changed
     (getf (or (svref *prompt-cache* i)
               (setf (svref *prompt-cache* i)
                     (flet ((n (a) (bind-label (binding-name (svref pair side) a device))))
-                      (list :chain (format nil "~a+~a  CHAIN" (n :mod) (n :quick))
-                            :burst (format nil "~a+~a  BURST" (n :mod) (n :quick))
-                            :kikon (format nil "HOLD ~a  KIKON" (n :kikon))))))
+                      (list :chain (format nil "~a+~a  SP" (n :mod) (n :quick))
+                            :burst (format nil "~a  BURST" (n :awaken))
+                            :kikon (format nil "HOLD ~a  KIKON" (n :quick))))))
           kind)))
 
 ;;; ---------------------------------------------------------------- SETTINGS (the 2026-09-28 SETTINGS screen)

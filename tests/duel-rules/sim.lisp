@@ -4,7 +4,7 @@
 ;; default off. combat / fighter / flow are loaded here over stand-in entities (a struct holding the fighter and gauges
 ;; components) with stubs for the engine's entity check, events, log and cinematics; nothing else of theirs is run.
 (load (merge-pathnames "../../engine/lisp/touch.lisp" *load-truename*))
-(dolist (f '("components" "combat" "fighter" "flow"))
+(dolist (f '("components" "combat" "core-sim" "fighter" "flow"))
   (load (merge-pathnames (format nil "../../duel/lisp/~a.lisp" f) *load-truename*)))
 (defstruct (tent (:constructor tent (f g))) f g)
 (defun fighter (e) (tent-f e))
@@ -171,12 +171,19 @@
 ;; 2026-10-24 (the user: 「只要被 O 打中，非紅血狀態就鎖定防禦以外的一切行為（此狀態可防禦取消硬直並擋下毀魂技），紅血狀態則連同
 ;; 防禦都鎖定」): the Kikon lock. Its holder (KIKON-LOCK-HOLDS-P) is the rusher's follow-up; in the reel, lock 1 (not red)
 ;; U cancels it into a guard, lock 2 (red) nothing does, and no Burst / awakening is read under either
+;; 2026-10-27 (the core system, docs/duel/DUEL_CORE.md; the user 「用攻擊抵銷毀魂技並彈開雙方回到中立狀態」, 「沒必要其他手段，只留攻擊抵銷」):
+;; in the reel, lock 1 (not red) an ATTACK cancels the follow-up (CORE-KICKON-CANCEL!: both bounce to neutral; U no longer exists),
+;; lock 2 (red) nothing does, and no Burst / awakening is read under either
 (multiple-value-bind (a b) (t-pair (kit :yamamoto :base) (kit :kenpachi :base))
-  (let* ((fa (fighter a)) (fb (fighter b)) (held nil) (og (fdefinition 'guard-p)) (oc (fdefinition 'play-clip)))
-    (setf (fdefinition 'guard-p) (lambda (e vp) (declare (ignore e vp)) held)
+  (let* ((fa (fighter a)) (fb (fighter b)) (held nil) (cancelled nil)
+         (og (fdefinition 'vpad-command-pressed-p)) (oc (fdefinition 'play-clip)) (ok (fdefinition 'core-kikon-cancel!))
+         (ov (fdefinition 'vpad-consume!)))
+    (setf (fdefinition 'vpad-command-pressed-p) (lambda (vp button mod) (declare (ignore vp button mod)) held)
+          (fdefinition 'vpad-consume!) (lambda (&rest r) (declare (ignore r)) nil)
+          (fdefinition 'core-kikon-cancel!) (lambda (e f) (declare (ignore e f)) (setf cancelled t))
           (fdefinition 'play-clip) (lambda (&rest r) (declare (ignore r)) nil))
     (unwind-protect
-         (flet ((reel (lock) (setf (fighter-state fb) :stun (fighter-stun fb) 40 (fighter-sf fb) 0 (fighter-kikon-lock fb) lock)))
+         (flet ((reel (lock) (setf (fighter-state fb) :stun (fighter-stun fb) 40 (fighter-sf fb) 0 (fighter-kikon-lock fb) lock cancelled nil)))
            (setf (fighter-state fa) :move (fighter-move fa) (kit-command-move (kit :yamamoto :base) :kikon)
                  (fighter-follow fa) t (fighter-phase fa) :follow)
            (check (kikon-lock-holds-p fb))
@@ -185,9 +192,10 @@
            (setf (fighter-contact fa) nil (fighter-follow fa) nil)
            (check (not (kikon-lock-holds-p fb)))                                    ; (not a follow-up)
            (reel 1) (setf held t) (stun-step b fb nil)
-           (check (eq :guard (fighter-state fb)))                                  ; (not red: U cancels the reel)
+           (check cancelled)                                                       ; (not red: an attack cancels the reel)
            (reel 2) (stun-step b fb nil)
-           (check (and (eq :stun (fighter-state fb)) (= 1 (fighter-sf fb))))      ; (red: nothing does)
+           (check (and (not cancelled) (eq :stun (fighter-state fb)) (= 1 (fighter-sf fb))))   ; (red: nothing does)
            (reel 1) (setf held nil) (stun-step b fb nil)
-           (check (and (eq :stun (fighter-state fb)) (= 1 (fighter-sf fb)))))    ; (no U: he reels on)
-      (setf (fdefinition 'guard-p) og (fdefinition 'play-clip) oc))))
+           (check (and (not cancelled) (eq :stun (fighter-state fb)) (= 1 (fighter-sf fb)))))   ; (no attack: he reels on)
+      (setf (fdefinition 'vpad-command-pressed-p) og (fdefinition 'vpad-consume!) ov
+            (fdefinition 'core-kikon-cancel!) ok (fdefinition 'play-clip) oc))))

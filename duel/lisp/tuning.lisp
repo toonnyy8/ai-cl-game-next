@@ -624,3 +624,8 @@ per neutral decision; one who isn't red only as a poke (the kit's :moves bands).
 
 ;;; ================================================================ §14 budgets
 (defparameter *fire-density* 1.0 "Scales every fire emitter's rate (0.5 if the perf gate fails).")
+
+;;; ---------------------------------------------------------------- the core system (docs/duel/DUEL_CORE.md, 2026-10-27)
+(defparameter *core-damage* 0.42
+  "x every hit of a fighter whose kit has a :core (KIT-ATK-MODS). The first core build ended matches in ~55 s median (Ichigo mirror 43 s,
+KI 61 s, HK 57 s; target 125-210 s): the pointer-3 Soul Break takes up to 5 of 9 Konpaku, so the Reishi (1300) is the pace. 1.0 before.")

@@ -75,6 +75,22 @@
 
 ;;; ---------------------------------------------------------------- RYOTE (cup 2): two-handed kendo, straight and long
 ;;; (their own clips, ken-art.lisp; :clip-s = the clip's authored S, so each plays at speed 1)
+;;; ================================================================ the core system's moves (docs/duel/DUEL_CORE.md, 2026-10-27)
+;;; Retagged from the K string, BUTTAGIRU and SPLIT THE METEOR (clips and volumes as they were; redrawn later). NS1 heavy (the K
+;;; string: 70 + 60 + 80), NS2 equal (BUTTAGIRU's leap > the kick), NS3 finisher (the K2 rise > the K3 drop); AS1 recovers (takes
+;;; flash-step / Reiatsu), AS2 launches (BUTTAGIRU), AS3 hits hardest (the meteor line); the SA is the first J.
+(defmove-copy :ke-n1c :ke-k3 :flags nil)
+(defmove-copy :ke-n1b :ke-k2 :params (:ns-next :ke-n1c))
+(defmove-copy :ke-n1a :ke-k1 :params (:ns-next :ke-n1b))
+(defmove-copy :ke-n2b :ke-j3 :kind :flash :dmg 60 :flags nil)
+(defmove-copy :ke-n2a :ke-buttagiru :kind :flash :dmg 90 :on-hit :stagger :params (:melee-range 2.6 :ns-next :ke-n2b))
+(defmove-copy :ke-n3b :ke-j3 :kind :flash :dmg 70 :flags nil)
+(defmove-copy :ke-n3a :ke-k2 :enter 0 :params (:ns-next :ke-n3b))
+(defmove-copy :ke-as1 :ke-k3 :kind :sp :callout "KITTE MIRO YO" :dmg 40 :on-hit :knockdown :flags nil :params (:steal-fs 40 :steal-rei 100))
+(defmove-copy :ke-as2 :ke-buttagiru :on-hit :launch :dmg 100 :on-frame nil :params (:melee-range 2.6))
+(defmove-copy :ke-as3 :ke-meteor :dmg 170 :on-hit :knockdown :on-frame nil :params (:melee-range 3.4))
+(defmove-copy :ke-sa :ke-j1 :dmg 36)
+
 (defmove :ke-r-j1 :kind :quick :clip :ke-r-q1 :clip-s 10 :startup 10 :active 3 :recovery 12 :dmg 40 :adv-block -2
   :vol (:cap 0.3 1.56 1.2 0.5) :on-hit :flinch)                      ; MEN: the straight overhead
 (defmove :ke-r-j2 :kind :quick :clip :ke-r-kote :startup 9 :active 3 :recovery 13 :dmg 38 :adv-block -2
@@ -148,6 +164,7 @@
   :commands (:q :ke-j1 :f :ke-k1 :sig :ke-stance :sp1 :ke-buttagiru :sp2 :ke-charge
              :breaker :ke-breaker :kikon :ke-kikon)
   :grid (:ke-j1 :ke-j2 :ke-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)
+  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2)
   :strings ((:ke-charge :land :ke-flurry))
   :awaken-form :nozarashi
   :hooks (:boss ken-boss)                       ; the DANGAI boss: the Bankai at FIGHT, the arm never spent (ken-meter.lisp)

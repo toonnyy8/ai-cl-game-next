@@ -104,6 +104,14 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (end-chase nil)                       ; this move started off a J / K ender's hit (or ORANGE's restart): it chases (ENDER-PUSH)
   (gc-left 0 :type fixnum)              ; frames a guard cancel still keeps attacks out (COMMAND!: its recovery's rest)
   (guard-exit 0 :type fixnum)           ; frames after letting go of a guard: only Step / Hoho, no walk (*GUARD-EXIT*)
+  ;; the core system (core.lisp, docs/duel/DUEL_CORE.md)
+  (cls nil)                             ; the triangle class of the move he is in (:na :ns :as :sa), NIL outside a classed move
+  (cls-t 0 :type fixnum)                ; *MATCH-TICK* that move started on (AS against SA: the later start wins)
+  (presses 0 :type fixnum)              ; attack presses since neutral (an AS after NA n writes the pointer n)
+  (ptr 1 :type fixnum)                  ; the SP pointer 1 .. 3: the next neutral SP is NS n (kept through resets, 1 each match)
+  (sp-ptr 1 :type fixnum)               ; the pointer the SP in play started under (its Kikon / Soul Break profile)
+  (as-done nil)                         ; this combo already used its AS
+  (cancelled nil)                       ; the move was cancelled this step (a bounce)
   (kikon-lock 0 :type fixnum)           ; a Kikon follow-up coming at him: 1 guard only (not red), 2 nothing (red); KIKON-LOCK-P
   (burst nil)                           ; the burst mode pressed this step (:white :blue :orange; applied after both stepped)
   (chain 0 :type fixnum)                ; ORANGE: frames the next move started still has its startup cut
@@ -195,6 +203,9 @@ is holding. Identity comes from the kit's :AI tables."
   (learn nil)                           ; the learning CPU (ai-learn.lisp LRN; NIL = off: nothing of it runs)
   (habit nil)                           ; debug: a scripted player's habit (scripted.lisp HABIT-FIRE)
   (jkey -1 :type fixnum) (jstarts nil)  ; his last perceived J's start; the ticks his J's started (AI-MASH-P)
+  (own-key -1 :type fixnum)            ; the core CPU (core-ai.lisp): the tick of his own move the rolls below were made for
+  (r-turn 1f0 :type single-float) (r-cont 1f0 :type single-float) (r-kikon 1f0 :type single-float)   ; ... and the rolls
+  (decided -1 :type fixnum)             ; ... the tick of his move a decision was already made for
   (off nil))                            ; debug: this CPU does nothing
 (defun brain-chance (b plist)
   "PLIST's chance (:easy :normal :hard) at brain B's difficulty (a missing key: NORMAL's, else 0)."

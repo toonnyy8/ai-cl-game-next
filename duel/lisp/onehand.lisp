@@ -178,20 +178,16 @@ AWAKEN chip is U (the user's default, DUEL_MOBILE_DESIGN §15.1)."
   (and *one-hand* *p1* (entity-alive-p *p1*) (fighter *p1*) (kit-hook (kit-of *p1*) :u) t))
 
 (defun touch-button (name)
-  "Is vpad button NAME down from the thumb deck (design §3.2 / §3.4; the 2026-09-28 remap, §15: a tap in the pad's
-low zone = J, high zone = K, an up-flick = a forward Step, the dash)?"
+  "Is vpad button NAME down from the thumb deck (design §3.2 / §3.4; the core system, 2026-10-27: a tap = the attack, the SP
+chips (3 and 4) = Mod + the attack, a down-flick while stunned = the Burst (P), the AWAKEN chip = Mod + P, a rested up-flick
+= Hoho (Mod + Step), a flick = Step)?"
   (let* ((tr *touch*) (burst *touch-burst*))
     (flet ((chip (i) (touch-chip-down-p tr i)) (pulse (b) (touch-pulse-p tr b)))
       (case name
-        (:guard (if (u-chip-p) (chip 5) (touch-resting-p tr)))
-        (:quick (or (pulse +tp-tap+) burst (chip 7)))         ; RV: a burst in any mode (the state picks it)
-        (:mod (or burst (pulse +tp-hoho+) (chip 3) (chip 4) (chip 7)))
+        (:quick (or (pulse +tp-tap+) (pulse +tp-tap-hi+) (chip 3) (chip 4)))
+        (:mod (or (pulse +tp-hoho+) (chip 3) (chip 4) (chip 5)))
         (:step (and (not burst) (or (pulse +tp-flick+) (pulse +tp-hoho+) (touch-step-held-p tr))))
-        (:flash (or (pulse +tp-tap-hi+) (chip 3)))
-        (:sig (or (chip 1) (chip 4)))
-        (:breaker (chip 2))
-        (:kikon (chip 0))
-        (:awaken (and (not (u-chip-p)) (chip 5)))))))
+        (:awaken (or burst (chip 5)))))))
 
 (defun touch-pause-p () "The pause chip was touched this frame." (and *one-hand* (touch-chip-hit-p *touch* 6)))
 

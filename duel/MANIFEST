@@ -47,9 +47,11 @@ lisp/rogue-rules.lisp
 lisp/run-mods.lisp
 lisp/fighter.lisp
 lisp/combat.lisp
+lisp/core-sim.lisp
 lisp/hazards.lisp
 lisp/scripted.lisp
 lisp/ai.lisp
+lisp/core-ai.lisp
 lisp/ai-learn.lisp
 lisp/assist.lisp
 lisp/camera.lisp

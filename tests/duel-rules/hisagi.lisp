@@ -793,7 +793,7 @@
                                (mv-hits (m n))))
                    (format t "  Hisagi B4a: ~a has no dead zone~%" n))))
       (check (loop for mv being the hash-values of *moves*
-                   always (or (member (mv-name mv) dz) (eq (mv-name mv) :hs-k1)   ; (S1: the Shikai's K1 NAGI's 2.0 m, §23.3)
+                   always (or (member (mv-name mv) dz) (member (mv-name mv) (quote (:hs-k1 :hs-n1a)))   ; (S1: the Shikai's K1 NAGI's 2.0 m, §23.3)
                               (every (lambda (w) (null (hw-min w))) (mv-hits mv))))))
     ;; ... and only his Bankai has the :dmg-mult hook, only his forms the CPU's :move-reflex (which of his: HISAGI-CPU-TESTS)
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)

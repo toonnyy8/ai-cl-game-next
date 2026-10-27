@@ -15,7 +15,7 @@ g guard gauge, ! = guardless, m the kit meter: Inferno / NOME), n the Konpaku th
     (format s "duel hash t=~d" *match-tick*)
     (dolist (e (list *p1* *p2*))
       (let ((p (pos-of e)) (g (gauges e)) (f (fighter e)))
-        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d a~d f~d g~d~:[~;!~] w~d m~d~@[ u~d~]~:[~;*~] n~d~@[ fr~d~]~@[ sl~d~]~@[ h~d~]~@[ ~a~]" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
+        (format s " | ~d ~d ~d ~d ~a ~a r~d k~d a~d f~d g~d~:[~;!~] w~d m~d~@[ u~d~]~:[~;*~] n~d~@[ fr~d~]~@[ sl~d~]~@[ h~d~]~@[ ~a~] p~d" (round (* 100 (aref p 0))) (round (* 100 (aref p 1)))
                 (round (* 100 (aref p 2))) (round (* 100 (yaw-of e))) (fighter-state f) (fighter-form f)
                 (gauges-reishi g) (gauges-konpaku g) (round (gauges-reiatsu g)) (round (gauges-fs g)) (round (gauges-gg g))
                 (gauges-guardless g) (round (gauges-awaken g))
@@ -25,7 +25,8 @@ g guard gauge, ! = guardless, m the kit meter: Inferno / NOME), n the Konpaku th
                 (fighter-kikon-n f) (and (plusp (fighter-frost f)) (fighter-frost f))           ; fr = frost left (Rukia's ice)
                 (and (plusp (fighter-layers f)) (+ (* 1000 (fighter-layers f)) (fighter-thaw f)))   ; sl = her 霜の層 on him
                 (and (brain e) (floor (brain-heat (brain e))))
-                (let ((h (kit-hook (fighter-kit f) :hash))) (and h (funcall h e))))))   ; a kit's own state (Hisagi's sickle)
+                (let ((h (kit-hook (fighter-kit f) :hash))) (and h (funcall h e)))   ; a kit's own state (Hisagi's sickle)
+                (fighter-ptr f))))   ; the core system's SP pointer (2026-10-27)
     (format s " | cd ~{~d~^.~} ~{~d~^.~} | haz ~d" (coerce (fighter-cd (fighter *p1*)) 'list) (coerce (fighter-cd (fighter *p2*)) 'list)
             (let ((n 0)) (do-entities (h hazard) (incf n)) n))))
 

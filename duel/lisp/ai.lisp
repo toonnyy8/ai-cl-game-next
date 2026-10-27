@@ -1301,6 +1301,7 @@ stays otherwise): the :wake-guard step (AI-WAKE-STEP)."
 
 (defun brain-step (e b)
   "One step of the CPU: perceive, then hold / reflex / neutral, written to the vpad."
+  (when (kit-core (fighter-kit (fighter e))) (return-from brain-step (core-brain-step e b)))   ; the core system's CPU (core-ai.lisp)
   (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))) (o (fighter-opp f)))
     (vpad-begin-step! vp)
     (multiple-value-bind (s d) (brain-perceive e b o)

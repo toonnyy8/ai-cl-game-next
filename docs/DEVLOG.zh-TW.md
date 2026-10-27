@@ -5250,3 +5250,13 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - 設計紀錄 `docs/duel/DUEL_CORE.md`（決定逐條引用原話）；原始筆記 `docs/duel/DUEL_CORE_DOC.zh-TW.md` 原文保留。
 - 範圍：取代現有戰鬥系統；第一批只做 Ichigo、Kenpachi、Hisagi，其餘四人暫時移出 `playable-roster`；只拿掉防禦；Hoho（含無敵幀）、Burst、覺醒、Kikon 保留，鍵位改為 J / Mod+J（SP）、Space / Mod+Space（Hoho）、P / Mod+P（覺醒）。
 - 規則：同類先打到的贏、同幀相消；轉折招（AS、SA）有霸體（第 6 幀到起手結束）；AS 結束連段並寫指針；指針 1–3 對應三種毀魂技性格。
+
+## 411. 核心系統上線：三角判定、指針、Kikon 按住、通用 CPU（2026-10-27）
+
+使用者：「沒問題，請自行完成整個實作流程」
+
+- 實作（DUEL_CORE §7）：`core.lisp`（純規則，主機測試 triangle.lisp）、`core-sim.lisp`（SP/AS/SA 的起手、判定裁決、Kikon 按住與抵銷、AS 的搶資源）、`core-ai.lisp`（通用 CPU：每事件擲一次骰決定換招/延續/Hoho/爆氣）；指針顯示在腳邊 `[1] 2 3`。按鍵：J / Shift+J、Space / Shift+Space、P / Shift+P；K L U I O 取消綁定；`*retired*` 加上四位等移植的角色，只剩更木、一護、檜佐木；檜佐木的卍解暫停（`:no-awaken`）。
+- 招式先用舊素材重組（一護 NS：K 連段／乱月>月落／志魂>旋；AS：搶資源／SOGA 擊飛／RAKUGA 高傷害；更木、檜佐木同樣），之後再重畫。
+- 節奏：`*core-damage*` 1.0 → 0.42（首版 55 秒中位數太短），CPU 的毀魂技按住機率 0.2（NORMAL）；各角色倍率 更木 1.2、檜佐木 1.7。20 場：KK 193.5 s、IK 187.3 s、II 198.7 s、HK 約 152–200 s、HI 約 175–200 s、HH 約 191 s（原生）；瀏覽器的 II 20 場結果與原生逐字相同（198.7 / 112.2 / 268.0 s）。
+- 已知：檜佐木對一護、更木 0:20（他的 K 連段是長距離的 :ranged 捕捉，CPU 的站位不合；先列待辦）；一護對更木 14:6。關卡「覺醒 A/B」、G2 參考行、looks 基準圖尚未重做（新系統穩定後再產生）。
+- 主機測試：規則 10767 項、控制 93 項全過；手冊與 README 的按鍵表已更新。
