@@ -1,11 +1,11 @@
-# G2 reference (style-gates.py cvc): tests/scripts/duel-cvc-PAIR.json (pairs II IK KK; YY / YK before) regenerated 2026-10-27 for the core system (the user: 「沒問題，請自行完成整個實作流程」, DUEL_CORE.md, DEVLOG §410-§421). Before: Ichigo's NS2 rebuilt as two charges and GETSUGA JUJISHO, each charge with its own SA (「NS[1]: 一階段（短刀）續力 ... NS[3]: 月牙十字衝」, DUEL_CORE §6) changed II (29 -> 28 lines) and IK (30 -> 29); KK unchanged. Before that, §420 (only the Reiatsu field); earlier sets in git history.
+# G2 reference (style-gates.py cvc): tests/scripts/duel-cvc-PAIR.json (pairs II IK KK; YY / YK before) regenerated 2026-10-27 for the core system (the user: 「沒問題，請自行完成整個實作流程」, DUEL_CORE.md, DEVLOG §410-§422). Before: the charged SAs no longer throw a look-only crescent (the Getsuga wraps the blade: 「纏繞在刀刃上揮砍」, DEVLOG §422), so only the hazard count (haz) of II / IK moved; every position, state, tick and result as before. Before that, §421's NS2; earlier sets in git history.
 ii duel hash t=600 | -28 0 475 146 IDLE BASE r1300 k9 a79 f100 g100 w6 m0 n1 h0 p1 | -205 0 449 -81 WAKEUP BASE r1119 k9 a50 f34 g100 w9 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=1200 | -588 0 666 -245 MOVE BASE r1207 k9 a172 f71 g100 w17 m0 n1 h0 p1 | -527 0 739 -78 MOVE BASE r933 k9 a132 f73 g100 w21 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=1800 | -163 0 576 290 MOVE BASE r1153 k9 a300 f2 g100 w21 m0 n1 h0 p2 | -185 0 667 -118 MOVE BASE r907 k9 a179 f98 g100 w24 m0 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=2400 | -338 0 236 5 MOVE BASE r1065 k9 a300 f70 g100 w27 m0 n1 h0 p2 | -343 0 144 -309 MOVE BASE r868 k9 a256 f21 g100 w29 m0 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=3000 | -670 10 -211 -206 AIR BASE r1017 k9 a300 f28 g100 w32 m0 n1 h0 p1 | -524 0 -132 108 MOVE BASE r773 k9 a300 f67 g100 w36 m0 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=3600 | -361 0 -655 27 STUN BASE r908 k9 a300 f67 g100 w42 m0 n1 h0 p3 | -391 0 -740 255 MOVE BASE r661 k9 a300 f36 g100 w45 m0 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=4200 | -788 0 -1100 285 MOVE BASE r690 k9 a300 f69 g100 w52 m0 n1 h0 p3 | -855 0 -1038 -80 HOHO BASE r661 k9 a300 f40 g100 w53 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
+ii duel hash t=4200 | -788 0 -1100 285 MOVE BASE r690 k9 a300 f69 g100 w52 m0 n1 h0 p3 | -855 0 -1038 -80 HOHO BASE r661 k9 a300 f40 g100 w53 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=4800 | -399 0 -1325 -163 IDLE BASE r530 k9 a300 f9 g100 w62 m0 n1 h0 p1 | -148 0 -1297 151 IDLE BASE r600 k9 a300 f36 g100 w61 m0 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=5400 | -380 0 -1275 -227 MOVE BASE r468 k9 a300 f84 g100 w70 m0 n1 h0 p1 | -266 0 -1178 87 MOVE BASE r460 k9 a300 f35 g100 w70 m0 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=6000 | -565 0 -1097 169 MOVE BASE r374 k9 a300 f13 g100 w75 m0 n1 h0 p1 | -729 0 -1076 -125 MOVE BASE r460 k9 a300 f100 g100 w74 m0 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
@@ -13,13 +13,13 @@ ii duel hash t=6600 | 87 0 -122 252 MOVE BASE r1300 k8 a300 f80 g100 w91 m0 n1 h
 ii duel hash t=7200 | 454 0 -391 -303 STUN BASE r1211 k8 a300 f46 g100 w97 m0 n1 h0 p1 | 479 0 -169 11 MOVE BASE r1300 k8 a300 f100 g100 w97 m0 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=7800 | 547 0 -331 273 MOVE BASE r906 k8 a300 f23 g100 w100 m0 n1 h0 p1 | 513 0 -253 -41 STUN BASE r1285 k8 a300 f100 g100 w100 m0 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=8400 | 606 0 31 152 CINE BASE r906 k8 a300 f100 g100 w100 m0 n1 h0 p1 | -94 0 -5 -162 CINE BASE r1300 k7 a300 f0 g100 w100 m0 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=9000 | 314 0 -381 128 STUN BASE r790 k8 a300 f100 g100 w100 m0 n1 h0 p1 | 226 0 -407 -186 MOVE BASE r1300 k7 a300 f25 g100 w100 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 2
-ii duel hash t=9600 | -191 0 -865 -109 IDLE BASE r611 k8 a300 f2 g100 w100 m0 n1 h0 p2 | 67 0 -999 205 IDLE BASE r1300 k7 a300 f68 g100 w100 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 2
-ii duel hash t=10200 | -303 0 -1232 -227 MOVE BASE r399 k8 a300 f83 g100 w100 m0 n1 h0 p1 | -242 0 -1180 87 AIR BASE r1259 k7 a300 f60 g100 w100 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 2
+ii duel hash t=9000 | 314 0 -381 128 STUN BASE r790 k8 a300 f100 g100 w100 m0 n1 h0 p1 | 226 0 -407 -186 MOVE BASE r1300 k7 a300 f25 g100 w100 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=9600 | -191 0 -865 -109 IDLE BASE r611 k8 a300 f2 g100 w100 m0 n1 h0 p2 | 67 0 -999 205 IDLE BASE r1300 k7 a300 f68 g100 w100 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=10200 | -303 0 -1232 -227 MOVE BASE r399 k8 a300 f83 g100 w100 m0 n1 h0 p1 | -242 0 -1180 87 AIR BASE r1259 k7 a300 f60 g100 w100 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=10800 | -310 0 -1066 -301 IDLE BASE r333 k8 a300 f100 g100 w100 m0 n1 h0 p1 | -297 0 -865 13 IDLE BASE r1080 k7 a300 f29 g100 w100 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=11400 | -301 0 -1419 267 CINE BASE r333 k8 a300 f100 g100 w100 m0 n1 h0 p2 | -479 0 -1185 -63 CINE KESSA r1208 k7 a300 f18 g100 w0 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 3
-ii duel hash t=12000 | -904 0 -1149 -223 WAKEUP BASE r209 k8 a300 f100 g100 w100 m0 n1 h0 p2 | -734 0 -907 61 MOVE KESSA r1300 k7 a300 f48 g100 w0 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
-ii duel hash t=12600 | -865 0 -1179 228 IDLE BASE r147 k8 a300 f100 g100 w100 m0 n1 h0 p2 | -1024 0 -1044 -87 MOVE KESSA r1218 k7 a300 f81 g100 w0 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 2
+ii duel hash t=11400 | -301 0 -1419 267 CINE BASE r333 k8 a300 f100 g100 w100 m0 n1 h0 p2 | -479 0 -1185 -63 CINE KESSA r1208 k7 a300 f18 g100 w0 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
+ii duel hash t=12000 | -904 0 -1149 -223 WAKEUP BASE r209 k8 a300 f100 g100 w100 m0 n1 h0 p2 | -734 0 -907 61 MOVE KESSA r1300 k7 a300 f48 g100 w0 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=12600 | -865 0 -1179 228 IDLE BASE r147 k8 a300 f100 g100 w100 m0 n1 h0 p2 | -1024 0 -1044 -87 MOVE KESSA r1218 k7 a300 f81 g100 w0 m0 n1 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=13200 | 16 0 44 34 CINE BASE r1300 k4 a300 f0 g100 w100 m0 n1 h0 p1 | -186 0 -521 -280 CINE KESSA r1050 k7 a300 f100 g100 w0 m0 n4 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=13800 | 92 0 451 -9 IDLE BASE r1300 k4 a300 f53 g100 w100 m0 n1 h0 p1 | 113 0 231 305 IDLE KESSA r1244 k6 a300 f58 g79 w0 m0 n4 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
 ii duel hash t=14400 | -25 0 90 -28 CINE BASE r1300 k2 a300 f100 g100 w100 m0 n1 h0 p1 | 138 0 -487 287 CINE KESSA r1184 k5 a300 f88 g99 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
@@ -28,7 +28,7 @@ ii duel hash t=15600 | -241 0 146 228 MOVE BASE r1124 k2 a300 f57 g100 w100 m0 n
 ii duel hash t=16200 | 364 0 680 193 STUN BASE r1050 k2 a300 f8 g100 w100 m0 n1 h0 p1 | 214 0 736 -121 MOVE KESSA r707 k5 a300 f38 g100 w0 m0 n2 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel -> RESULTS winner P2 konpaku 0-5 ticks 16548 secs 275.8
 ik duel hash t=600 | -296 0 -398 235 IDLE BASE r1168 k9 a170 f17 g100 w10 m0 n1 h0 p1 | -488 0 -208 -79 IDLE BASE r1189 k9 a84 f100 g100 w10 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ik duel hash t=1200 | -132 0 -526 127 IDLE BASE r1015 k9 a235 f25 g100 w21 m0 n1 h0 p2 | -212 0 -551 -178 IDLE BASE r1105 k9 a266 f88 g100 w20 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
+ik duel hash t=1200 | -132 0 -526 127 IDLE BASE r1015 k9 a235 f25 g100 w21 m0 n1 h0 p2 | -212 0 -551 -178 IDLE BASE r1105 k9 a266 f88 g100 w20 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ik duel hash t=1800 | -335 0 -829 246 MOVE BASE r1015 k9 a300 f62 g100 w27 m0 n1 h0 p1 | -446 0 -710 -75 MOVE BASE r939 k9 a300 f7 g100 w28 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ik duel hash t=2400 | -101 0 -477 68 STUN BASE r815 k9 a300 f24 g100 w38 m0 n1 h0 p1 | -197 0 -578 -259 MOVE BASE r902 k9 a300 f86 g100 w36 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
 ik duel hash t=3000 | -313 0 -310 -199 IDLE BASE r671 k9 a300 f59 g100 w48 m0 n1 h0 p1 | 2 0 -169 115 IDLE BASE r795 k9 a300 f68 g100 w47 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1

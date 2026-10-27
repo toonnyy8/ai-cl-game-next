@@ -127,8 +127,11 @@ follow-up links keep their speed).
   NS[2]: 二階段（短刀+長刀）續力 -> 接 SA 時短刀+長刀攻擊會帶有額外的月牙靈壓特效並提高傷害 / NS[3]: 月牙十字衝」): the GETSUGA TENSHO x2 row above is
   replaced by the row after it. System side: an NS segment's `:params :sa` names the SA its gap starts (`mv-sa-move`, `core-latch-step`;
   `core-segment-sas` registers, classes and strings them like the kit's SA, so each goes on into J2). The charges hit nothing (the triangle
-  still judges them as NS while they run). Looks: `ichigo-charge-look` rides a crescent on each charged blade (1.4 m) while the charge or its
-  SA lasts; the charged SAs spawn a 2.8 m crescent / a 3.2 m cross at the strike. CPU: in a charge's gap with the opponent inside 2.6 m it
+  still judges them as NS while they run). Looks (since §422, the user: 「始解狀態的月牙是黃白色光輝，而且蓄力後接續的 SA 不是要把月牙射出去，
+  而是纏繞在刀刃上揮砍，所以每次攻擊都會留下黃白光輝的軌跡」, 「是 SA 與後續的一連串攻擊都會纏繞著月牙靈壓」): the Shikai's crescents are
+  yellow-white (`vfx-ic-crescent` core 3: the REIATSU body, a white rim; the old ink body stays for nothing of the Shikai); from a charge
+  through its SA and the whole string after it (J2, J3, the AS segments) the charged blades (1 the short one, 2 both) wear a yellow-white
+  wrap and every swing leaves a yellow-white comet trail (`ichigo-charged-blades`, Ichigo's :draw hook; the charged SAs throw nothing). CPU: in a charge's gap with the opponent inside 2.6 m it
   takes that SA on its turn roll (`*cai-turn-p*`). Browser: SP J J J → `IC-N2A`, `IC-SA-G1` 55, `IC-J2` 32, `IC-J3` 40; SP SP J → `IC-SA-G2` 80;
   SP SP SP → `IC-N2C`, `WAVE -> P2 HIT 150`.
   Gates (10 seeds): KK 148.8, IK 202.8, HK 146.3, HI 173.7, HH 164.9 s, all K.O.; the Ichigo mirror at 20 seeds 214.7 s with 19 K.O.s and one

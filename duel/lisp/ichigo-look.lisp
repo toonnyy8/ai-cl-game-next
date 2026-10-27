@@ -10,13 +10,15 @@
 (defun-fast vfx-ic-crescent (x y z yaw w k tilt core)
   "A Getsuga crescent at (x y z) (its middle), flying along YAW, W m tip to tip, its tips TILT (-1..1) up / down: an ink
 crescent bulging forward, a white rim (CORE 0), a BLOOD rim (1: KESSA's), a BLOOD core in a white rim (2: the Gran
-Rey Cero); presence K."
+Rey Cero), a yellow-white glow (3: the Shikai's Getsuga, the user 2026-10-27: 「始解狀態的月牙是黃白色光輝」: the REIATSU body, a white
+rim); presence K."
   (with-floats (x y z yaw w k tilt)
     (let* ((fx (- (f-sin yaw))) (fz (- (f-cos yaw))) (px (- fz)) (pz fx) (hw (* 0.5f0 w)) (dr (drawing-no))
            (dy (* 0.3f0 w tilt)) (x0 (- x (* hw px))) (z0 (- z (* hw pz))) (x1 (+ x (* hw px))) (z1 (+ z (* hw pz)))
            (bx (+ x (* 0.5f0 w fx))) (bz (+ z (* 0.5f0 w fz))) (rw (* 0.035f0 w)) (ahead (* 0.04f0 w)))
       (declare (single-float fx fz px pz hw dr dy x0 z0 x1 z1 bx bz rw ahead))
-      (fx-crescent x0 (- y dy) z0 x1 (+ y dy) z1 bx y bz (* 0.15f0 w) :lens 0.06f0 (+ 300f0 dr) +pal-ink+ k :push 0.1f0)
+      (fx-crescent x0 (- y dy) z0 x1 (+ y dy) z1 bx y bz (* 0.15f0 w) :lens 0.06f0 (+ 300f0 dr)
+                   (if (= (the fixnum core) 3) +pal-reiatsu+ +pal-ink+) k :push 0.1f0)
       (fx-crescent (+ x0 (* ahead fx)) (- y dy) (+ z0 (* ahead fz)) (+ x1 (* ahead fx)) (+ y dy) (+ z1 (* ahead fz))
                    (+ bx (* 1.5f0 ahead fx)) y (+ bz (* 1.5f0 ahead fz)) rw :lens 0.04f0 (+ 310f0 dr)
                    (if (= (the fixnum core) 1) +pal-blood+ +pal-hit+) k :push 0.16f0)
@@ -61,33 +63,21 @@ Rey Cero); presence K."
   "GETSUGA TENSHO: the ink crescent, its white rim, as wide as its hit box."
   (declare (ignore rdt))
   (when (<= (hazard-delay hz) 0)
-    (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* 2 (hazard-size hz)) (ic-wave-k hz) 0.9 0)))
+    (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* 2 (hazard-size hz)) (ic-wave-k hz) 0.9 3)))
 
 (defun ichigo-juji-look (hz rdt)
   "GETSUGA JUJISHO: the two crescents crossed into an X."
   (declare (ignore rdt))
   (when (<= (hazard-delay hz) 0)
     (let ((k (ic-wave-k hz)) (w (* 2 (hazard-size hz))))
-      (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k 0.8 0)
-      (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k -0.8 0))))
+      (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k 0.8 3)
+      (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k -0.8 3))))
 
 (defun ichigo-form-look (hz rdt)
   "JUJISHO's first crescent forming on the long blade before the fusion."
   (declare (ignore rdt))
   (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0)))
-                   0.9 0.8 0))
-
-(defun ichigo-charge-look (hz rdt)
-  "NS2's charge: a small crescent riding each charged blade (HAZARD-DATA: (joint lx ly lz) ...), while its owner is still in the charge
-or its SA (gone the moment he is hit or the string moves on)."
-  (declare (ignore rdt))
-  (let* ((e (hazard-owner hz)) (f (and (entity-alive-p e) (fighter e))) (mv (and f (fighter-move f))))
-    (when (and mv (eq (fighter-state f) :move) (member (mv-name mv) '(:ic-n2a :ic-n2b :ic-sa-g1 :ic-sa-g2)))
-      (let ((k (* (min 1.0 (/ (1+ (hazard-age hz)) 6.0)) (+ 0.75 (* 0.15 (sin (* 0.5 (hazard-age hz))))))))
-        (dolist (b (hazard-data hz))
-          (destructuring-bind (j lx ly lz) b
-            (let ((v (ic-joint e (joint-index j) *ic-v* (f32 lx) (f32 ly) (f32 lz))))
-              (vfx-ic-crescent (aref v 0) (aref v 1) (aref v 2) (yaw-of e) 1.4 k 0.8 0))))))))
+                   0.9 0.8 3))
 
 (defun ichigo-flare-look (hz rdt)
   "KUSARI-TATE: the chains flaring out of his neck, wrists and ankles (the parry's tell)."
@@ -340,6 +330,43 @@ crack, rubble and a shake where TIP meets it (under 0.4 m), else at the volume's
           (stage-mark :crack gx gz 0.9f0) (stage-debris gx gz 4) (shake 0.06f0 0.15f0)))))
   nil)
 
+;;; NS2's charge on the blades (the user, 2026-10-27: 「蓄力後接續的 SA 不是要把月牙射出去，而是纏繞在刀刃上揮砍，所以每次攻擊都會留下黃白光輝
+;;;的軌跡」): from a charge through its SA and the J2 / J3 after it, the Getsuga wraps the charged blades (1 the short blade, 2 both) in a
+;;; yellow-white glow, and every swing of a charged blade leaves a yellow-white trail (VFX-SMEAR's REIATSU comet); 「是 SA 與後續的一連串攻擊
+;;; 都會纏繞著月牙靈壓」: the whole string after the SA (its J2 / J3, the AS segments) until it ends
+(defvar *ic-charged* (make-array 2 :initial-element 0) "Per side: the blades charged (0 none, 1 the short blade, 2 both).")
+(defvar *ic-charge-trails* (vector (make-trail) (make-trail) (make-trail) (make-trail)) "Per side x blade (short, cleaver): its trail.")
+(defvar *ic-charge-smears* (vector (make-f32 12) (make-f32 12) (make-f32 12) (make-f32 12)) "... and its held smear.")
+(declaim (type f32vec *ic-cb* *ic-ct*))
+(defvar *ic-cb* (make-f32 3) "A charged blade's base.")
+(defvar *ic-ct* (make-f32 3) "A charged blade's tip.")
+
+(defun ichigo-charged-blades (e f m)
+  "Step side E's charge (*IC-CHARGED*: set by the move he is in) and draw its glow and trails on the posed body."
+  (let* ((side (fighter-side f)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (n (and mv (mv-name mv)))
+         (c (case n ((:ic-n2a :ic-sa-g1) 1) ((:ic-n2b :ic-sa-g2) 2)
+                  ((:ic-j2 :ic-j3 :ic-as1 :ic-as2 :ic-as2b :ic-as3 :ic-as3b :ic-as3c) (svref *ic-charged* side))   ; the string the SA goes on into
+                  (t 0)))
+         (swing (and mv (eq (fighter-phase f) :main) (>= (fighter-sf f) (- (mv-s mv) 4)) (< (fighter-sf f) (+ (mv-s mv) (mv-a mv) 3))))
+         (jm (model-joints m)) (dr (drawing-no)))
+    (setf (svref *ic-charged* side) c)
+    (dotimes (b 2)
+      (let ((tr (svref *ic-charge-trails* (+ (* 2 side) b))))
+        (if (and (< b c) (model-weapon m) (> (model-alpha m) 0.5))
+            (let ((base *ic-cb*) (tip *ic-ct*))
+              (if (= b 0)
+                  (progn (joint-point! base jm (ji :weapon-l) 0f0 0f0 0f0) (joint-point! tip jm (ji :weapon-l) 0f0 -0.9f0 0f0))
+                  (progn (joint-point! base jm (ji :weapon-r) 0f0 0f0 0f0)
+                         (%ic-held-tip jm tip (weapon-len (find-weapon (model-weapon m))))))
+              (let* ((x0 (aref base 0)) (y0 (aref base 1)) (z0 (aref base 2)) (x1 (aref tip 0)) (y1 (aref tip 1)) (z1 (aref tip 2))
+                     (mx (* 0.5 (+ x0 x1))) (my (+ 0.06 (* 0.5 (+ y0 y1)))) (mz (* 0.5 (+ z0 z1)))
+                     (fl (+ 0.85 (* 0.15 (hash01 (+ dr b) 2.3f0)))))
+                (fx-crescent x0 y0 z0 x1 y1 z1 mx my mz (* 0.09 fl) :lens 0.05f0 (+ 600f0 dr b) +pal-reiatsu+ 0.9f0 :push 0.12f0)   ; the wrap
+                (fx-crescent x0 y0 z0 x1 y1 z1 mx my mz (* 0.03 fl) :lens 0.03f0 (+ 610f0 dr b) +pal-hit+ 0.95f0 :push 0.16f0)    ; its core
+                (if swing (trail-push tr x0 y0 z0 x1 y1 z1) (trail-decay tr))))
+            (trail-decay tr))
+        (vfx-smear tr (svref *ic-charge-smears* (+ (* 2 side) b)) 1)))))
+
 (defun ichigo-draw (e rdt)
   "KIT-HOOK :draw (both forms): step the Shikai's cloak spring; the crescent edge and the ground contact (§3.3)."
   (let* ((f (fighter e)) (m (model e)) (o (* 32 (fighter-side f))) (st *ic-look*)
@@ -349,6 +376,7 @@ crack, rubble and a shake where TIP meets it (under 0.4 m), else at the volume's
          (edge (and mv (assoc (mv-name mv) *ic-edge-moves*))))
     (declare (fixnum o sf prev))
     (unless kessa (%ya-hem-step st o (if (typep rdt 'single-float) rdt (f32 rdt))))   ; (F32 inline re-boxes)
+    (ichigo-charged-blades e f m)
     (when (and edge (model-weapon m) (> (model-alpha m) 0.5))
       (let ((jm (model-joints m)) (tip *ic-tip*) (tip-l *ic-tip-l*) (hits (mv-hits mv)))
         (declare (simple-vector hits))
