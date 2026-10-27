@@ -462,7 +462,9 @@ through its :clip-map."
          (commands (append (getf spec :commands) (and parent (kit-commands parent))))
          (strings (append (getf spec :strings) (and (getf spec :grid) (string-grid (getf spec :grid)))
                           (and parent (kit-strings parent))))
-         (strings (append strings (core-sa-strings (or (getf spec :core) (and pspec (getf pspec :core))) commands strings)))
+         ;; the SA's links go first: a form's own (its J2) must win over the ones it inherits (KITS-NEXT takes the first match: KESSA's
+         ;; SA went on into the Shikai's two-blade J2 / J3, the user 2026-10-28: 「畫面上看到的是始解的雙刀動作」)
+         (strings (append (core-sa-strings (or (getf spec :core) (and pspec (getf pspec :core))) commands strings) strings))
          ;; the child's keys come first, so they win (a keyword argument list takes the leftmost)
          (merged (list* :commands commands :strings strings
                         (append spec (strip-keys pspec '(:inherit :startup-add :reach-mult :grid)))))

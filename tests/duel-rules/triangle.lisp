@@ -107,3 +107,8 @@
               (= (aref pb (+ k (* 3 11) 2)) (aref pa (+ k (* 3 6) 2)))                   ; arm-l side <- arm-r side
               (= (aref pb (+ k (* 3 2) 1)) (- (aref pa (+ k (* 3 2) 1))))                ; chest twist
               (= (aref pb (+ k +root+ 3)) (- (aref pa (+ k +root+ 3)))))))               ; root yaw
+;; every form's SAs go on into its own J2 (KESSA's inherited the Shikai's; 2026-10-28)
+(dolist (cf '((:ichigo :base) (:ichigo :kessa)))
+  (let* ((k (apply #'kit cf)) (j2 (kit-next k (getf (kit-commands k) :q) :q)))
+    (check (every (lambda (n) (eq (kit-next k n :q) j2)) (append (list (getf (kit-core k) :sa)) (core-segment-sas (kit-core k)))))))
+(check (eq (kit-next (kit :ichigo :kessa) :ic-sa-g1 :q) (kit-move (kit :ichigo :kessa) :ic-k-j2)))

@@ -1,4 +1,4 @@
-# G2 reference (style-gates.py cvc): tests/scripts/duel-cvc-PAIR.json (pairs II IK KK; YY / YK before) regenerated 2026-10-27 for the core system (the user: 「沒問題，請自行完成整個實作流程」, DUEL_CORE.md, DEVLOG §410-§426). Before: KESSA's NS3 as the clones' rush, his stances by pointer, and no Step / Hoho clones, the clones gone when his attack ends (「將原本衝刺連砍的 NS 改成產生分身向前揮砍」, 「Step 不再產生分身，且結束攻擊後分身就直接消失」, DEVLOG §425-§426) changed II (34 -> 36 lines) and IK (30 -> 23); KK unchanged. Before that, §423; earlier sets in git history.
+# G2 reference (style-gates.py cvc): tests/scripts/duel-cvc-PAIR.json (pairs II IK KK; YY / YK before) regenerated 2026-10-27 for the core system (the user: 「沒問題，請自行完成整個實作流程」, DUEL_CORE.md, DEVLOG §410-§427). Before: every form's SA links put ahead of the ones it inherits (KESSA's SA went on into the Shikai's J2: 「畫面上看到的是始解的雙刀動作」, DEVLOG §427; the string order moved Kenpachi's CPU by 2 ticks too) changed II (36 -> 39 lines), IK (23 -> 31) and KK (23 lines, its end 13838 -> 13836). Before that, §425-§426; earlier sets in git history.
 ii duel hash t=600 | -28 0 475 146 IDLE BASE r1300 k9 a79 f100 g100 w6 m0 n1 h0 p1 | -205 0 449 -81 WAKEUP BASE r1119 k9 a50 f34 g100 w9 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=1200 | -588 0 666 -245 MOVE BASE r1207 k9 a172 f71 g100 w17 m0 n1 h0 p1 | -527 0 739 -78 MOVE BASE r933 k9 a132 f73 g100 w21 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=1800 | -163 0 576 290 MOVE BASE r1153 k9 a300 f2 g100 w21 m0 n1 h0 p2 | -185 0 667 -118 MOVE BASE r907 k9 a179 f98 g100 w24 m0 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
@@ -21,20 +21,23 @@ ii duel hash t=11400 | -328 0 -187 1 CINE KESSA r1017 k7 a300 f92 g100 w0 m0 n1 
 ii duel hash t=12000 | -306 0 -749 -52 IDLE KESSA r1263 k7 a300 f96 g100 w0 m0 n2 h0 p1 | -151 0 -1023 263 IDLE BASE r1018 k7 a300 f20 g100 w100 m0 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=12600 | -116 0 -1450 -223 MOVE KESSA r961 k7 a300 f33 g100 w0 m0 n2 h0 p1 | 24 0 -1340 168 STUN BASE r936 k7 a300 f22 g100 w100 m0 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ii duel hash t=13200 | -99 0 -1459 -163 STUN KESSA r814 k7 a300 f18 g100 w0 m0 n2 h0 p1 | -273 0 -1436 -144 MOVE KESSA r1189 k7 a300 f17 g100 w0 m0 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=13800 | 520 0 118 105 DOWN KESSA r1095 k5 a300 f49 g100 w0 m0 n2 h0 p1 | 298 0 -81 -228 IDLE KESSA r1300 k7 a300 f83 g100 w0 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=14400 | 56 0 60 -270 IDLE KESSA r1007 k5 a300 f87 g100 w0 m0 n2 h0 p1 | 159 0 278 44 IDLE KESSA r1085 k7 a300 f89 g100 w0 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=15000 | -631 0 58 -163 MOVE KESSA r894 k5 a300 f100 g100 w0 m0 n2 h0 p1 | -426 0 70 151 MOVE KESSA r799 k7 a300 f9 g100 w0 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=15600 | -358 0 106 -170 IDLE KESSA r894 k5 a300 f100 g100 w0 m0 n2 h0 p3 | -145 0 127 124 MOVE KESSA r477 k7 a300 f16 g100 w0 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=16200 | -145 0 -155 -239 STEP KESSA r894 k5 a300 f100 g100 w0 m0 n2 h0 p1 | 145 0 155 75 STEP KESSA r1300 k5 a300 f10 g100 w0 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=16800 | -40 0 84 -44 CINE KESSA r1300 k3 a300 f68 g100 w0 m0 n2 h0 p1 | 217 0 -458 270 CINE KESSA r1120 k5 a300 f100 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=17400 | 272 0 482 -167 MOVE KESSA r1300 k3 a300 f91 g100 w0 m0 n2 h0 p1 | 348 0 489 149 STUN KESSA r1034 k5 a300 f71 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=18000 | -82 0 46 -106 CINE KESSA r1300 k1 a300 f36 g100 w0 m0 n2 h0 p2 | 442 0 -246 208 CINE KESSA r1018 k5 a300 f39 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=18600 | -540 0 -399 -78 IDLE KESSA r1153 k1 a300 f68 g100 w0 m0 n2 h0 p1 | -398 0 -534 261 DOWN KESSA r989 k5 a300 f62 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=19200 | -773 0 -699 235 MOVE KESSA r1052 k1 a300 f0 g100 w0 m0 n2 h0 p1 | -881 0 -592 -79 STUN KESSA r857 k5 a300 f97 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=19800 | 394 0 72 139 IDLE KESSA r907 k1 a300 f62 g100 w0 m0 n2 h0 p1 | -394 0 -72 -175 IDLE KESSA r1300 k3 a300 f100 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=20400 | 554 0 77 82 IDLE KESSA r841 k1 a300 f100 g100 w0 m0 n2 h0 p1 | 587 0 -81 271 HOHO KESSA r1089 k3 a300 f21 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel hash t=21000 | 352 0 -99 -74 STUN KESSA r740 k1 a300 f2 g100 w0 m0 n2 h0 p1 | 508 0 -269 240 MOVE KESSA r878 k3 a300 f30 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ii duel -> RESULTS winner P2 konpaku 0-3 ticks 21550 secs 359.2
+ii duel hash t=13800 | 520 0 118 105 DOWN KESSA r1096 k5 a300 f49 g100 w0 m0 n2 h0 p1 | 294 0 -76 -226 IDLE KESSA r1300 k7 a300 f83 g100 w0 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=14400 | 67 0 55 -270 IDLE KESSA r1009 k5 a300 f87 g100 w0 m0 n2 h0 p1 | 170 0 273 44 IDLE KESSA r1085 k7 a300 f89 g100 w0 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=15000 | -662 0 -264 -256 IDLE KESSA r845 k5 a300 f100 g100 w0 m0 n2 h0 p1 | -399 0 136 58 IDLE KESSA r874 k7 a300 f4 g100 w0 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=15600 | 9 0 -55 -15 MOVE KESSA r845 k5 a300 f100 g100 w0 m0 n2 h0 p2 | 40 0 -258 299 STUN KESSA r1205 k5 a300 f31 g100 w0 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=16200 | -363 0 -408 -172 IDLE KESSA r677 k5 a300 f74 g100 w0 m0 n2 h0 p1 | -188 0 -382 142 IDLE KESSA r1037 k5 a300 f75 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=16800 | 92 0 155 -197 MOVE KESSA r677 k5 a300 f100 g100 w0 m0 n2 h0 p3 | 239 10 217 118 AIR KESSA r1115 k3 a300 f100 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=17400 | 614 0 432 60 MOVE KESSA r607 k5 a300 f100 g100 w0 m0 n2 h0 p1 | 489 0 303 -240 IDLE KESSA r898 k3 a300 f64 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=18000 | 286 0 804 10 MOVE KESSA r286 k5 a300 f13 g100 w0 m0 n2 h0 p1 | 262 0 558 -304 STUN KESSA r867 k3 a300 f100 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=18600 | 137 0 526 175 MOVE KESSA r286 k5 a300 f51 g100 w0 m0 n2 h0 p1 | -64 0 562 -140 MOVE KESSA r594 k3 a300 f5 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=19200 | -445 0 58 -88 WAKEUP KESSA r1263 k3 a300 f3 g100 w0 m0 n2 h0 p1 | -268 0 77 147 MOVE KESSA r559 k3 a300 f100 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=19800 | -96 0 495 -19 CINE KESSA r1131 k3 a300 f78 g100 w0 m0 n2 h0 p1 | 18 0 -94 295 CINE KESSA r1300 k1 a300 f3 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=20400 | 390 0 -396 302 HOHO KESSA r968 k3 a300 f61 g100 w0 m0 n2 h0 p1 | 377 0 -377 -54 IDLE KESSA r1300 k1 a300 f30 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
+ii duel hash t=21000 | -17 0 -425 -144 MOVE KESSA r858 k3 a300 f11 g100 w0 m0 n2 h0 p1 | 192 0 -454 171 MOVE KESSA r1006 k1 a300 f35 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=21600 | 611 0 -537 -39 MOVE KESSA r858 k3 a300 f98 g100 w0 m0 n2 h0 p3 | 640 0 -607 275 STUN KESSA r676 k1 a300 f36 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 2
+ii duel hash t=22200 | 589 0 -365 -141 MOVE KESSA r792 k3 a300 f100 g100 w0 m0 n2 h0 p3 | 770 0 -394 172 MOVE KESSA r342 k1 a300 f86 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel hash t=22800 | 1051 0 -574 305 STUN KESSA r538 k3 a300 f62 g100 w0 m0 n2 h0 p1 | 1030 0 -347 -9 MOVE KESSA r276 k1 a300 f77 g100 w0 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ii duel -> RESULTS winner P1 konpaku 3-0 ticks 23248 secs 387.5
 ik duel hash t=600 | -296 0 -398 235 IDLE BASE r1168 k9 a170 f17 g100 w10 m0 n1 h0 p1 | -488 0 -208 -79 IDLE BASE r1189 k9 a84 f100 g100 w10 m0 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ik duel hash t=1200 | -132 0 -526 127 IDLE BASE r1015 k9 a235 f25 g100 w21 m0 n1 h0 p2 | -212 0 -551 -178 IDLE BASE r1098 k9 a267 f88 g100 w20 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ik duel hash t=1800 | -335 0 -829 246 MOVE BASE r1015 k9 a300 f63 g100 w28 m0 n1 h0 p1 | -446 0 -710 -75 MOVE BASE r892 k9 a300 f7 g100 w30 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
@@ -51,13 +54,21 @@ ik duel hash t=7800 | -237 0 -1072 -258 MOVE KESSA r1154 k5 a300 f100 g100 w0 m0
 ik duel hash t=8400 | -48 0 38 -89 STUN KESSA r1121 k5 a300 f100 g100 w0 m0 n2 h0 p1 | 132 0 -110 226 MOVE BASE r1168 k7 a300 f30 g100 w100 m0 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ik duel hash t=9000 | -259 0 -106 291 MOVE KESSA r1088 k5 a300 f82 g100 w0 m0 n2 h0 p2 | -278 0 -25 -23 MOVE NOZARASHI r1300 k7 a300 f56 g100 w0 m10 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 ik duel hash t=9600 | -5 0 93 -6 CINE KESSA r1300 k4 a300 f100 g100 w0 m0 n2 h0 p2 | 10 0 -166 308 CINE NOZARASHI r1300 k7 a300 f86 g100 w0 m25 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ik duel hash t=10200 | -658 0 263 30 IDLE KESSA r1201 k4 a300 f100 g100 w0 m0 n2 h0 p3 | -708 0 81 -198 WAKEUP NOZARASHI r1080 k7 a300 f100 g100 w0 m59 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ik duel hash t=10800 | -1108 0 -539 -79 MOVE KESSA r1125 k4 a300 f88 g100 w0 m0 n2 h0 p1 | -972 0 -675 235 STUN RYOTE r908 k7 a300 f9 g100 w0 m86 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ik duel hash t=11400 | -252 0 121 1 IDLE KESSA r1046 k4 a300 f67 g100 w0 m0 n2 h0 p1 | -256 0 -334 -313 IDLE NOMIHOSE r1190 k5 a300 f70 g100 w0 m84 n3 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ik duel hash t=12000 | -551 0 -237 -102 MOVE KESSA r804 k4 a300 f6 g100 w0 m0 n2 h0 p1 | -374 0 -346 212 STUN RYOTE r1155 k5 a300 f100 g100 w0 m66 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ik duel hash t=12600 | -116 0 -186 -258 STUN KESSA r662 k4 a300 f70 g100 w0 m0 n2 h0 p1 | 58 0 93 56 MOVE RYOTE r1300 k3 a300 f4 g100 w0 m89 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ik duel hash t=13200 | 121 0 216 158 IDLE KESSA r997 k2 a300 f16 g100 w0 m0 n2 h0 p1 | -97 0 205 -156 IDLE NOMIHOSE r1300 k3 a300 f68 g100 w0 m72 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-ik duel -> RESULTS winner P2 konpaku 0-3 ticks 13710 secs 228.5
+ik duel hash t=10200 | -352 0 393 118 MOVE KESSA r1201 k4 a300 f100 g100 w0 m0 n2 h0 p3 | -430 0 361 -196 STUN RYOTE r1185 k7 a300 f74 g100 w0 m46 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
+ik duel hash t=10800 | -1170 0 568 -4 IDLE KESSA r1116 k4 a300 f14 g100 w0 m0 n2 h0 p1 | -1146 0 310 310 IDLE RYOTE r931 k7 a300 f29 g100 w0 m84 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=11400 | -724 0 376 -306 MOVE KESSA r1038 k4 a300 f33 g100 w0 m0 n2 h0 p1 | -705 0 609 8 MOVE RYOTE r676 k7 a300 f70 g100 w0 m42 n1 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=12000 | -265 0 444 100 IDLE KESSA r878 k4 a300 f36 g100 w0 m0 n2 h0 p1 | -557 0 258 -231 MOVE RYOTE r540 k7 a300 f54 g100 w0 m71 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=12600 | -282 0 329 -241 IDLE KESSA r744 k4 a300 f90 g100 w0 m0 n2 h0 p1 | -157 0 478 117 WAKEUP RYOTE r360 k7 a300 f3 g100 w0 m100 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=13200 | 175 0 11 -174 MOVE KESSA r602 k4 a300 f74 g100 w0 m0 n2 h0 p1 | 378 0 46 140 MOVE RYOTE r1300 k5 a300 f27 g100 w0 m57 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=13800 | 732 0 122 -307 MOVE KESSA r602 k4 a300 f0 g100 w0 m0 n2 h0 p1 | 751 0 328 6 MOVE RYOTE r1010 k5 a300 f24 g100 w0 m92 n1 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=14400 | 939 0 85 -153 MOVE KESSA r553 k4 a300 f47 g100 w0 m0 n2 h0 p3 | 1125 0 77 161 DOWN NOMIHOSE r684 k5 a300 f64 g100 w0 m44 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=15000 | 712 0 -378 -107 STUN KESSA r357 k4 a300 f50 g100 w0 m0 n2 h0 p2 | 908 0 -485 204 MOVE RYOTE r565 k5 a300 f66 g100 w0 m57 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=15600 | 452 0 80 -15 STUN KESSA r1118 k2 a300 f14 g100 w0 m0 n2 h0 p2 | 472 0 -55 264 MOVE RYOTE r565 k5 a300 f100 g100 w0 m74 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=16200 | 291 0 -85 -263 WAKEUP KESSA r693 k2 a300 f36 g100 w0 m0 n2 h0 p2 | 278 0 3 -15 MOVE NOMIHOSE r565 k5 a300 f100 g100 w0 m80 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
+ik duel hash t=16800 | 600 0 274 104 IDLE KESSA r502 k2 a300 f73 g100 w0 m0 n2 h0 p3 | 239 0 57 -206 HOHO RYOTE r407 k5 a300 f66 g100 w0 m63 n3 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=17400 | 339 0 38 107 MOVE KESSA r437 k2 a300 f100 g100 w0 m0 n2 h0 p1 | 262 0 -4 -207 MOVE RYOTE r1300 k3 a300 f35 g100 w0 m81 n3 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+ik duel hash t=18000 | 387 0 -130 197 MOVE KESSA r307 k2 a300 f100 g100 w0 m0 n2 h0 p1 | 311 0 -98 305 STUN NOMIHOSE r1104 k3 a300 f37 g100 w0 m86 n3 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 1
+ik duel -> RESULTS winner P2 konpaku 0-3 ticks 18643 secs 310.7
 kk duel hash t=600 | -709 0 257 -107 WAKEUP BASE r1193 k9 a153 f20 g100 w8 m0 n1 h0 p2 | -629 0 298 110 MOVE BASE r1230 k9 a55 f100 g100 w7 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 kk duel hash t=1200 | -564 0 513 71 DOWN BASE r1113 k9 a230 f70 g100 w17 m0 n1 h0 p1 | -654 0 508 -163 MOVE BASE r1087 k9 a115 f56 g100 w17 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 kk duel hash t=1800 | -64 0 145 -41 MOVE BASE r1113 k9 a300 f100 g100 w22 m0 n1 h0 p1 | -28 0 63 273 STUN BASE r1265 k8 a167 f41 g100 w35 m0 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
@@ -76,8 +87,8 @@ kk duel hash t=9000 | -34 0 -101 275 IDLE BASE r756 k9 a300 f100 g100 w100 m0 n1
 kk duel hash t=9600 | -56 0 233 42 IDLE BASE r756 k9 a300 f100 g100 w100 m0 n1 h0 p1 | -175 0 0 -273 IDLE NOZARASHI r1130 k5 a300 f35 g100 w0 m29 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 kk duel hash t=10200 | -154 0 -82 -232 MOVE BASE r501 k9 a300 f4 g100 w100 m0 n1 h0 p2 | -88 0 -20 83 AIR RYOTE r1080 k5 a300 f67 g100 w0 m55 n2 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 kk duel hash t=10800 | 295 0 -21 -31 MOVE BASE r501 k9 a300 f61 g100 w100 m0 n2 h0 p2 | 282 0 -113 -308 IDLE RYOTE r1255 k3 a300 f57 g100 w0 m66 n2 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-kk duel hash t=11400 | 148 0 45 127 CINE BASE r1300 k7 a300 f100 g100 w100 m0 n2 h0 p2 | -43 0 -13 -187 CINE RYOTE r1300 k1 a300 f100 g100 w0 m99 n2 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+kk duel hash t=11400 | 148 0 45 127 CINE BASE r1300 k7 a300 f100 g100 w100 m0 n2 h0 p2 | -43 0 -13 -187 CINE RYOTE r1300 k1 a300 f100 g100 w0 m100 n2 h0 p3 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
 kk duel hash t=12000 | 37 0 11 127 MOVE BASE r1300 k5 a300 f100 g100 w100 m0 n2 h0 p2 | -50 0 -15 -187 MOVE NOMIHOSE r1300 k1 a300 f100 g100 w0 m72 n2 h0 p2 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-kk duel hash t=12600 | 45 0 231 118 STUN BASE r1191 k5 a300 f67 g100 w100 m0 n2 h0 p2 | -132 0 150 -182 MOVE RYOTE r1098 k1 a300 f100 g100 w0 m67 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-kk duel hash t=13200 | 14 0 -402 -229 MOVE BASE r1090 k5 a300 f100 g100 w100 m0 n2 h0 p1 | 186 0 -253 86 STUN NOMIHOSE r744 k1 a300 f94 g100 w0 m84 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
-kk duel -> RESULTS winner P1 konpaku 5-0 ticks 13838 secs 230.6
+kk duel hash t=12600 | 45 0 231 118 STUN BASE r1191 k5 a300 f67 g100 w100 m0 n2 h0 p2 | -132 0 150 -185 MOVE RYOTE r1098 k1 a300 f100 g100 w0 m67 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+kk duel hash t=13200 | 14 0 -402 -229 MOVE BASE r1090 k5 a300 f100 g100 w100 m0 n2 h0 p1 | 186 0 -253 86 STUN NOMIHOSE r744 k1 a300 f94 g100 w0 m83 n2 h0 p1 | cd 0.0.0.0.0.0.0 0.0.0.0.0.0.0 | haz 0
+kk duel -> RESULTS winner P1 konpaku 5-0 ticks 13836 secs 230.6
