@@ -1,6 +1,6 @@
 # 文件索引
 
-專案總覽、快速開始和建置需求在根目錄的 [README.md](../README.md)；給 AI agent 的專案總覽與工作規則在 [AGENTS.md](../AGENTS.md)。第一次接觸這個專案，先讀 [guides/TUTORIAL.zh-TW.md](guides/TUTORIAL.zh-TW.md)。技術參考文件大多是英文，是開發時各模組之間的「合約」；中文的開發紀錄說明這些決定背後的理由。
+SOUL DUEL 的總覽、快速開始和建置需求在根目錄的 [README.md](../README.md)；給 AI agent 的專案總覽與工作規則在 [AGENTS.md](../AGENTS.md)。第一次接觸這個專案，先讀 [guides/TUTORIAL.zh-TW.md](guides/TUTORIAL.zh-TW.md)。技術參考文件大多是英文，是開發時各模組之間的「合約」；中文的開發紀錄說明這些決定背後的理由。
 
 Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`），對應 [guides/PLAYBOOK.zh-TW.md](guides/PLAYBOOK.zh-TW.md)。
 
@@ -32,6 +32,7 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 
 | 文件 | 內容 |
 |---|---|
+| [RAVEN_EDGE.zh-TW.md](raven-edge/RAVEN_EDGE.zh-TW.md) | RAVEN EDGE 的玩家向總覽（2026-10-27 從根目錄 README 移出）：遊戲內容、操作（鍵盤＋滑鼠、手把）、建置與測試、截圖（中文） |
 | [GAME_DESIGN.md](raven-edge/GAME_DESIGN.md) | RAVEN EDGE 的設計規格 v1：操作、招式幀數表、戰鬥規則、敵人、波次、HUD、美術、音效對照、動畫 |
 | [GAMEPLAY.md](raven-edge/GAMEPLAY.md) | RAVEN EDGE 玩法系統的實作說明：時間模型、實體與元件、動畫、招式定義、敵人 AI、遊戲流程、除錯指令、砍掉的項目 |
 

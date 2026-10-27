@@ -1,7 +1,7 @@
 # AGENTS.md — working on this repo
 
 Read this first. It is the map; the detail lives in the files it points to. The user-facing overview is `README.md`
-(zh-TW); the doc index is `docs/README.md`.
+(zh-TW, SOUL DUEL first); the doc index is `docs/README.md`.
 
 ## What this is
 
@@ -146,7 +146,7 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 | `docs/DEVLOG.zh-TW.md` | the decision log (numbered §, newest last), why things are the way they are |
 | `docs/guides/` | `TUTORIAL.zh-TW.md` (learning path), `PLAYBOOK.zh-TW.md` (reusable experience), `DREAM_RSI.zh-TW.md` (the AI search experience), `CHARACTER_DESIGN.zh-TW.md` (designing a fighter, from Lille: the ⚠ questions to ask first) |
 | `docs/engine/` | `ARCHITECTURE.md`, `ENGINE_API.md`, `AUDIO.md`, `WORLD.md` (+ `world-shots/`), `REFACTOR_2026-10.md` (the refactor: verdicts, determinism rules for helpers), `REFACTOR_2026-10-21.md` (round 2: splits by role, dead code, helpers), `REFACTOR_2026-10-21-R3.md` (round 3: the backlog, the HUD float paths), `REFACTOR_NEXT.md` (the backlog) |
-| `docs/raven-edge/` | `GAME_DESIGN.md`, `GAMEPLAY.md` |
+| `docs/raven-edge/` | `RAVEN_EDGE.zh-TW.md` (the player overview, moved out of the root README 2026-10-27), `GAME_DESIGN.md`, `GAMEPLAY.md` |
 | `docs/duel/` | `DUEL_DESIGN.md` (rules + move tables, the source of truth), `DUEL_GAMEPLAY.md` (build, debug commands, gates), `DUEL_STRINGS.md`, per character (`DUEL_YAMA_REWORK`, `DUEL_YAMA_TYBW` / `DUEL_ICHIGO_TYBW` (the TYBW look and motion reworks), `DUEL_NOZARASHI_V2`, `DUEL_KEN_BANKAI`, `DUEL_RUKIA` (+ `DUEL_RUKIA_TYBW`, her look / motion rework and new Shikai, in design), `DUEL_ICHIGO`, `DUEL_SENJUMARU`, `DUEL_LILLE` (the old Lille's design, removed 2026-10-13), `DUEL_LILLE_V2` (Lille, index 6: the rebuild's record), `DUEL_LILLE_V3` (his version 3, the current one; the animation inventory), `DUEL_HISAGI` (the next fighter, in design)), systems (`DUEL_AI_V2`, `DUEL_LEARNING`, `DUEL_ASSIST`, `DUEL_ENDLESS`, `DUEL_ROGUE` (the roguelite mode on ENDLESS, in design), `DUEL_MOBILE_DESIGN`) |
 | `docs/style/` | `STYLE_STORM_RESEARCH.md`, `STYLE_STORM_DESIGN.md` (the ink look, its numbers and gates) |
 | `docs/babylon/` | the discontinued port's records |
