@@ -321,7 +321,7 @@ links reach him anywhere inside *HS-R-LINK-REACH* since) lands his K3G (1-4 m) a
 (defmove-copy :hs-n3b :hs-j3 :kind :flash :dmg 70)
 (defmove-copy :hs-n3a :hs-k2 :enter 0 :params (:melee-range 2.0 :ns-next :hs-n3b))
 (defmove-copy :hs-as1 :hs-k3 :kind :sp :callout "KUSARI-BIKI" :dmg 40 :on-hit :knockdown :flags (:ranged)
-  :params (:melee-range 2.0 :steal-fs 40 :steal-rei 100))
+  :params (:melee-range 2.0 :steal-fs 40))
 (defmove-copy :hs-as2 :hs-raiden :on-hit :launch :dmg 100 :hits ((20 23)) :on-frame nil :params (:melee-range 2.0))
 (defmove-copy :hs-as3 :hs-k3 :kind :sp :callout "TSUI" :dmg 150 :on-hit :knockdown :flags (:ranged) :params (:melee-range 2.0))
 (defmove-copy :hs-sa :hs-j1 :dmg 32 :reach 2.4 :slide 1.4 :startup 9 :clip-s 8)

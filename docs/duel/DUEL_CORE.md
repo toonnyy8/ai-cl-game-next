@@ -80,6 +80,7 @@ AS after NA n writes pointer n; the next neutral SP is **NS n**.
 | 3 | finisher | −1 (min 1) | +2 (cap 5) |
 
 「可以」 for all three. The three AS (per position), 「可以」: **AS1** recovers the user's / drains the opponent's flash-step or Reiatsu, lowest
+  (Since 2026-10-27 flash-step only: the Reiatsu gauge is gone, 「原本的 SP 量表已經沒有作用，可以拿掉了」, §6.)
 damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A character may tune details, but each position keeps its job.
 
 ## 4. Kikon, Soul Break
@@ -148,6 +149,14 @@ follow-up links keep their speed).
   AS3 KOGA 45 → SOSEN-GIRI 45 (reach 2.4, a 1.6 m lunge: at 1.44 it whiffed after KOGA's push) → RAKUGA 100 (190; it was one 150).
   Browser: J J → SP SP → `IC-AS2` 50, `IC-AS2B` 60; J J J → SP SP SP → 45, 45, 100. CPU: presses the next AS segment with
   `*cai-cont-p*` unless it holds for the Kikon. Kenpachi's and Hisagi's AS stay single until their own reworks.
+- **No Reiatsu gauge** (2026-10-27, the user: 「原本的 SP 量表已經沒有作用，可以拿掉了」): no core SP spends Reiatsu (`core-sp-start!` /
+  `core-as-start!` check no cost); its last use was AS1's steal (`:steal-rei 100`), which fed nothing. The HUD's REIATSU row is not drawn for a
+  kit with `:core` (FLASH STEP and AWAKEN move up into its place, hud.lisp); `:steal-rei` is gone from `core-on-hit!` and the three AS1s
+  (they steal 40 flash-step). The gauge itself still fills in the sim (KOSEI, hits, regen) and the frozen modes still read it.
+- **No guard gauge** (the same day: 「防禦量表也一樣沒用了，可以移除」): there is no guard, so the bar under the Reishi and the KOSEI tag at
+  its end are not drawn for a `:core` kit, in the landscape and the portrait (phone) panels; the portrait's last row is then FLASH STEP +
+  AWAKEN at half width each (+ the kit meter where there is one). Shots: 1280x720 and 390x844 (DEVLOG §420). The sim still keeps the gauge
+  (KESSA's clones still spend 15 of it, unseen: left for his rework).
 - Debug: 2510+p sets P1's pointer (stance shots, DUEL_GAMEPLAY).
 - Tests: `tests/duel-rules/triangle.lisp` (+7: tells >= 14 f, NS2 a wave with no melee hit, stance by pointer); `core.lisp`'s J1 budget and the clip
   list (`:ic-na1 :ic-ns1 :ic-ns2 :ic-ns3`), `art.lisp`'s striker table (`:ic-na1`).

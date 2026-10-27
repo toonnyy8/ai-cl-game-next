@@ -86,7 +86,7 @@
 (defmove-copy :ke-n2a :ke-buttagiru :kind :flash :dmg 90 :on-hit :stagger :params (:melee-range 2.6 :ns-next :ke-n2b))
 (defmove-copy :ke-n3b :ke-j3 :kind :flash :dmg 70 :flags nil)
 (defmove-copy :ke-n3a :ke-k2 :enter 0 :params (:ns-next :ke-n3b))
-(defmove-copy :ke-as1 :ke-k3 :kind :sp :callout "KITTE MIRO YO" :dmg 40 :on-hit :knockdown :flags nil :params (:steal-fs 40 :steal-rei 100))
+(defmove-copy :ke-as1 :ke-k3 :kind :sp :callout "KITTE MIRO YO" :dmg 40 :on-hit :knockdown :flags nil :params (:steal-fs 40))
 (defmove-copy :ke-as2 :ke-buttagiru :on-hit :launch :dmg 100 :on-frame nil :params (:melee-range 2.6))
 (defmove-copy :ke-as3 :ke-meteor :dmg 170 :on-hit :knockdown :on-frame nil :params (:melee-range 3.4))
 (defmove-copy :ke-sa :ke-j1 :dmg 36 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)

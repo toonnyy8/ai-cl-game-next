@@ -445,7 +445,8 @@ an awakening, else the awakening gauge."
          (align (if right :right :left)) (y (* 0.05f0 hf)) (bh (f-max (i->f (* 7 s)) (* 0.028f0 hf)))
          (ns (max 2 s)) (tm (fx-clock)) (ls s)
          (dt (if (fx-frozen-p) 0f0 (the single-float (frame-dt))))   ; (HUD-DT)
-         (frac (the single-float (reishi-frac g))) (red (gauges-red-p g)))
+         (frac (the single-float (reishi-frac g))) (red (gauges-red-p g))
+         (core (and *core-on* (kit-core kit) t)))     ; the core system: no guard gauge, no Reiatsu (the user, 2026-10-27)
     (declare (fixnum side ns ls) (single-float wf hf m bw x edge y bh tm dt frac))
     (macrolet ((%trail! (i target rate)                   ; TRAIL-STEP!
                  `(let* ((i ,i) (target ,target) (tr (aref *trail-v* i)))
@@ -459,35 +460,38 @@ an awakening, else the awakening gauge."
       ;; Reishi + trail
       (%trail! side frac 0.35f0)
       (%hud-reishi x y bw bh frac (aref *trail-v* side) right red tm (the single-float (bind-grey-frac e)))
-      ;; the guard gauge, right under it
-      (let* ((gf (/ (the single-float (gauges-gg g)) (the single-float *gg-max*))) (ti (+ 2 side))
-             (gy (+ y bh (%fs (* 2 s)))) (gh (f-max (%fs (* 3 s)) (* 0.3f0 bh))))
-        (declare (single-float gf gy gh) (fixnum ti))
-        (%trail! ti gf 0.5f0)
-        (%hud-guard x gy bw gh gf (aref *trail-v* ti) right (gauges-guardless g) (guard-gauge-bits e f gf) tm)
-        (let ((hk (kit-hook kit :hud-guard)))            ; a form's own look of the bar (drawn over it)
-          (when hk (funcall hk e x gy bw gh right s tm))))
+      ;; the guard gauge, right under it (none under the core system: 「防禦量表也一樣沒用了，可以移除」)
+      (unless core
+        (let* ((gf (/ (the single-float (gauges-gg g)) (the single-float *gg-max*))) (ti (+ 2 side))
+               (gy (+ y bh (%fs (* 2 s)))) (gh (f-max (%fs (* 3 s)) (* 0.3f0 bh))))
+          (declare (single-float gf gy gh) (fixnum ti))
+          (%trail! ti gf 0.5f0)
+          (%hud-guard x gy bw gh gf (aref *trail-v* ti) right (gauges-guardless g) (guard-gauge-bits e f gf) tm)
+          (let ((hk (kit-hook kit :hud-guard)))            ; a form's own look of the bar (drawn over it)
+            (when hk (funcall hk e x gy bw gh right s tm)))))
       ;; KOSEI: the tag at the guard bar's inner end (on the Konpaku row, clear of the pips), the mote to the Reiatsu bars
       (let ((pr (f-max (* 4.5f0 (%fs s)) (* 0.013f0 hf))))   ; the flames' radius
         (declare (single-float pr))
-        (hud-kosei side (gauges-gg g) (if right x (+ x bw)) (+ y bh (%fs (* 16 s)) (* 0.5f0 pr))
-                   right (if right (- edge (* 0.12f0 wf)) (+ edge (* 0.12f0 wf))) (+ y bh (%fs (* 26 s))) s 8)
+        (unless core (hud-kosei side (gauges-gg g) (if right x (+ x bw)) (+ y bh (%fs (* 16 s)) (* 0.5f0 pr))
+                   right (if right (- edge (* 0.12f0 wf)) (+ edge (* 0.12f0 wf))) (+ y bh (%fs (* 26 s))) s 8))   ; (the guard gauge's)
         ;; Konpaku soul flames
         (%hud-pips x (+ y bh (%fs (* 16 s))) bw pr side (gauges-konpaku g) right red tm 3.2f0
                    (at-stake e) (bind-grey-souls e)))
-      ;; Reiatsu: 3 bars + label
+      ;; Reiatsu: 3 bars + label; none under the core system (no SP spends it: the user, 2026-10-27, 「原本的 SP 量表已經沒有作用，
+      ;; 可以拿掉了」): the flash-step and awakening rows move up into its place
       (let* ((sy (+ y bh (%fs (* 25 s)))) (sw (* 0.075f0 wf)) (sh (f-max (%fs (* 3 s)) (* 0.011f0 hf))) (gap (* 3 s))
              (row (* 11 s))
              (lx (if right (- edge (* 3f0 (+ sw (%fs gap))) (%fs (* 3 s))) (+ edge (* 3f0 (+ sw (%fs gap))) (%fs (* 3 s)))))
              (ly (- (+ sy (* 0.5f0 sh)) (* 3.5f0 (%fs s)))))
         (declare (single-float sy sw sh lx ly) (fixnum gap row))
-        (%hud-reiatsu edge sy sw sh (%fs gap) (the single-float (f32 (reiatsu-of e))) right)
-        (%hud-text "REIATSU" lx ly ls '(0.45 0.8 1 0.9) :align align)
-        (let ((tl (pool-tally (reiatsu-of e))) (tw (+ (text-width "REIATSU" ls) (* 4 s))))   ; a bind's pool past 3 bars
-          (declare (fixnum tw))
-          (when tl (%hud-text tl (if right (- lx (%fs tw)) (+ lx (%fs tw))) ly ls '(0.45 0.8 1 0.9) :align align)))
+        (unless core
+          (%hud-reiatsu edge sy sw sh (%fs gap) (the single-float (f32 (reiatsu-of e))) right)
+          (%hud-text "REIATSU" lx ly ls '(0.45 0.8 1 0.9) :align align)
+          (let ((tl (pool-tally (reiatsu-of e))) (tw (+ (text-width "REIATSU" ls) (* 4 s))))   ; a bind's pool past 3 bars
+            (declare (fixnum tw))
+            (when tl (%hud-text tl (if right (- lx (%fs tw)) (+ lx (%fs tw))) ly ls '(0.45 0.8 1 0.9) :align align))))
         ;; flash-step (Hoho, Burst), Awakening (drains during a timed awakening), the kit meter (Inferno; drains in its form)
-        (let* ((fy (+ sy (%fs row))) (ay (+ fy (%fs row))) (aw (+ (* 3f0 sw) (%fs (* 6 s))))
+        (let* ((fy (if core sy (+ sy (%fs row)))) (ay (+ fy (%fs row))) (aw (+ (* 3f0 sw) (%fs (* 6 s))))
                (ah0 (* 3 s)) (ah1 (* 0.009f0 hf)) (ah (f-max (%fs ah0) ah1)) (ty (- (* 0.5f0 ah) (* 3.5f0 (%fs s))))
                (ax (if right (- edge aw) x)) (lx (if right (- edge aw (%fs (* 6 s))) (+ edge aw (%fs (* 6 s)))))
                (hot (or (gauges-evolution g) (kit-awakening kit)))
@@ -601,6 +605,7 @@ an awakening, else the awakening gauge."
          (ry (+ y (i->f (* 7 ns)) (i->f (* 2 s)))) (bh (* 5 s)) (gy (+ ry (i->f bh) (i->f s)))
          (yb (+ gy (i->f (* 5 s)))) (bar (* 4 s))                       ; the last row: the small gauges
          (meter (svref kh 1)) (label (portrait-label g kit kh meter))
+         (core (and *core-on* (kit-core kit) t))         ; the core system: no guard gauge, no Reiatsu cells (the user, 2026-10-27)
          (rx (- (+ m bw) (if top (+ (* 17 tsc) (* 4 s)) 0))))          ; the right end of row 1 (P2: left of the timer)
     (declare (fixnum side m bw ns tsc bh bar rx) (single-float tm y dt frac ry gy yb))
     (macrolet ((%trail! (i target rate)                  ; TRAIL-STEP!
@@ -643,37 +648,41 @@ an awakening, else the awakening gauge."
                              (t '(1 0.62 0.3 0.95)))))
           (%hud-pips x0 (+ y (%fs (* 7 ns)) (* 1.5f0 (%fs s)) (* -0.85f0 r)) fw r side (gauges-konpaku g)
                      nil red tm pitch (at-stake e) (bind-grey-souls e))
-          (hud-kosei side (gauges-gg g) (%fs (- rx s)) (+ y (* 3.5f0 (%fs ns))) nil (+ (%fs m) (* 0.1f0 (%fs bw)))
-                     (+ yb (* 0.5f0 (%fs bar))) s 7)))
+          (unless core
+            (hud-kosei side (gauges-gg g) (%fs (- rx s)) (+ y (* 3.5f0 (%fs ns))) nil (+ (%fs m) (* 0.1f0 (%fs bw)))
+                       (+ yb (* 0.5f0 (%fs bar))) s 7))))
       ;; Reishi + trail, the guard gauge
       (%trail! side frac 0.35f0)
       (%hud-reishi m ry bw bh frac (aref *trail-v* side) nil red tm (the single-float (bind-grey-frac e)))
-      (let* ((gf (/ (the single-float (gauges-gg g)) (the single-float *gg-max*))) (ti (+ 2 side)))
-        (declare (single-float gf) (fixnum ti))
-        (%trail! ti gf 0.5f0)
-        (%hud-guard m gy bw (* 2 s) gf (aref *trail-v* ti) nil (gauges-guardless g) (guard-gauge-bits e f gf) tm)
-        (let ((hk (kit-hook kit :hud-guard))) (when hk (funcall hk e m gy bw (* 2 s) nil s tm))))
+      (unless core
+        (let* ((gf (/ (the single-float (gauges-gg g)) (the single-float *gg-max*))) (ti (+ 2 side)))
+          (declare (single-float gf) (fixnum ti))
+          (%trail! ti gf 0.5f0)
+          (%hud-guard m gy bw (* 2 s) gf (aref *trail-v* ti) nil (gauges-guardless g) (guard-gauge-bits e f gf) tm)
+          (let ((hk (kit-hook kit :hud-guard))) (when hk (funcall hk e m gy bw (* 2 s) nil s tm)))))
       ;; the small gauges (the last row, as long as the Reishi bar): Reiatsu cells, flash step, Awakening, the kit meter /
       ;; cooldowns
       (let* ((x0 m) (a bw) (gap (* 3 s)) (cd (and (kit-awakening kit) (kit-command-move kit :sig)
                                                   (plusp (mv-cooldown (kit-command-move kit :sig)))))
              (kitp (or (getf meter :draw) cd (and meter (not (kit-awakening kit)))))
-             (n (if kitp 4 3)) (an (- a (* (1- n) gap)))    ; a gauge's width GW = AN / N, a Reiatsu cell's (GW - 2 S) / 3:
+             (o (if core 0 1))                            ; the flash step's slot (the Reiatsu cells hold slot 0 outside the core system)
+             (n (+ (if kitp 3 2) o)) (an (- a (* (1- n) gap)))    ; a gauge's width GW = AN / N, a Reiatsu cell's (GW - 2 S) / 3:
              (gwf (%q->f an n)) (swf (%q->f (- an (* 2 s n)) (* 3 n)))   ; exact ratios, as F32 converts them (%Q->F)
              (hot (or (gauges-evolution g) (kit-awakening kit)))
              (afill (the single-float (awaken-fill g kit))))
-        (declare (fixnum x0 a gap n an) (single-float gwf swf afill))
-        (%hud-reiatsu x0 yb swf bar s (reiatsu-of e) nil)
-        (let ((tl (pool-tally (reiatsu-of e)))) (when tl (%hud-text tl (%fs (+ x0 s)) (- yb (%fs s)) s '(0.45 0.8 1 0.9))))   ; a bind's pool
-        (%hud-flash (%q->f (+ (* x0 n) an (* gap n)) n) yb gwf bar      ; (+ X0 GW GAP)
+        (declare (fixnum x0 a gap o n an) (single-float gwf swf afill))
+        (unless core
+          (%hud-reiatsu x0 yb swf bar s (reiatsu-of e) nil)
+          (let ((tl (pool-tally (reiatsu-of e)))) (when tl (%hud-text tl (%fs (+ x0 s)) (- yb (%fs s)) s '(0.45 0.8 1 0.9)))))   ; a bind's pool
+        (%hud-flash (%q->f (+ (* x0 n) (* o (+ an (* gap n)))) n) yb gwf bar      ; (+ X0 (* O (+ GW GAP)))
                     (/ (the single-float (gauges-fs g)) (the single-float *fs-max*)) nil (burst-ok-p e) (gauges-burst g) tm)
-        (%hud-thin (%q->f (+ (* x0 n) (* 2 (+ an (* gap n)))) n) yb gwf bar afill nil 1f0 (if hot 0.85f0 0.75f0) 0.3f0   ; (* 2 (+ GW GAP))
+        (%hud-thin (%q->f (+ (* x0 n) (* (+ o 1) (+ an (* gap n)))) n) yb gwf bar afill nil 1f0 (if hot 0.85f0 0.75f0) 0.3f0   ; (* 2 (+ GW GAP))
                    (if hot 0.6f0 1f0) (if hot 4f0 0f0) tm)
         (when kitp
-          (let ((kx (%q->f (+ (* x0 n) (* 3 (+ an (* gap n)))) n)))   ; (+ X0 (* 3 (+ GW GAP)))
+          (let ((kx (%q->f (+ (* x0 n) (* (+ o 2) (+ an (* gap n)))) n)))   ; (+ X0 (* (+ O 2) (+ GW GAP)))
             (declare (single-float kx))
             (cond ((getf meter :draw)                    ; its own meter: the exact ratios, as the generic code passed them
-                   (let ((gw (/ an n))) (funcall (getf meter :draw) e kit (+ x0 (* 3 (+ gw gap))) yb gw bar nil tm nil nil nil)))
+                   (let ((gw (/ an n))) (funcall (getf meter :draw) e kit (+ x0 (* (+ o 2) (+ gw gap))) yb gw bar nil tm nil nil nil)))
                   (cd (hud-cooldowns f kit kx yb gwf bar nil tm))   ; (it takes F32 of each)
                   (t (let ((burning (plusp (gauges-form-left g))))
                        (%hud-thin kx yb gwf bar

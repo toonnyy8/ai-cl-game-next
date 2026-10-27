@@ -160,16 +160,13 @@ same strike again; its hit is the Kikon (KIKON-OUTCOME)."
     (core-bounce! victim o)))
 
 (defun core-on-hit! (att def mv)
-  "What a landed hit of a core AS does besides damage (its :params): :steal-fs / :steal-rei take flash-step / Reiatsu from DEF and give it to ATT."
-  (let ((fs (getf (mv-params mv) :steal-fs)) (rei (getf (mv-params mv) :steal-rei)))
+  "What a landed hit of a core AS does besides damage (its :params): :steal-fs takes flash-step from DEF and gives it to ATT.
+(Its Reiatsu steal went with the Reiatsu gauge, 2026-10-27: no SP spends it.)"
+  (let ((fs (getf (mv-params mv) :steal-fs)))
     (when (and fs (plusp fs))
       (let ((take (f32 (min fs (gauges-fs (gauges def))))))
         (setf (gauges-fs (gauges def)) (f32 (- (gauges-fs (gauges def)) take)))
-        (setf (gauges-fs (gauges att)) (f32 (min 100f0 (+ (gauges-fs (gauges att)) take))))))
-    (when (and rei (plusp rei))
-      (let ((take (f32 (min rei (gauges-reiatsu (gauges def))))))
-        (setf (gauges-reiatsu (gauges def)) (f32 (- (gauges-reiatsu (gauges def)) take)))
-        (reiatsu-gain! att take)))))
+        (setf (gauges-fs (gauges att)) (f32 (min 100f0 (+ (gauges-fs (gauges att)) take))))))))
 
 (defun core-konpaku-result (konpaku att soul-break)
   "Konpaku left / lost / ko-p after a Kikon or a Soul Break by ATT (a fighter of a core kit): a Kikon takes what CORE-SET-KIKON-N! fixed
