@@ -506,11 +506,11 @@ the string ((SA :q J2)) follows the SA with what follows J1 on an attack."
          (j2 (loop for (from cmd to) in strings when (and (eq from j1) (eq cmd :q)) return to)))
     (and sa j2 (list (list sa :q j2)))))
 (defun core-segments (name)
-  "NAME and the NS segments after it (each move's :params :ns-next), in order."
+  "NAME and the segments after it (each move's :params :ns-next: an NS's or an AS's next segment, one SP press each), in order."
   (loop for n = name then (getf (mv-params (find-move n)) :ns-next) while n collect n))
 (defun core-move-names (core)
-  "Every move name a kit's :core plist reaches: the three NS sequences (every segment), the three AS, the SA."
-  (append (loop for n in (getf core :ns) append (core-segments n)) (getf core :as) (and (getf core :sa) (list (getf core :sa)))))
+  "Every move name a kit's :core plist reaches: the three NS and the three AS sequences (every segment), the SA."
+  (append (loop for n in (getf core :ns) append (core-segments n)) (loop for n in (getf core :as) append (core-segments n)) (and (getf core :sa) (list (getf core :sa)))))
 (defun build-core-classes (kit)
   "Fill KIT's class table: the moves of its :q string are NA (J1 .. J3), its :core moves NS / AS / SA."
   (let ((h (kit-cls kit)) (core (kit-core kit)))
@@ -518,14 +518,14 @@ the string ((SA :q J2)) follows the SA with what follows J1 on an attack."
       (when (getf (kit-commands kit) :q) (tag (getf (kit-commands kit) :q) :na))
       (loop for (from cmd to) in (kit-strings kit) when (eq cmd :q) do (tag from :na) (tag to :na))
       (loop for n in (getf core :ns) do (dolist (m (core-segments n)) (tag m :ns)))
-      (dolist (m (getf core :as)) (tag m :as))
+      (loop for n in (getf core :as) do (dolist (m (core-segments n)) (tag m :as)))
       (when (getf core :sa) (tag (getf core :sa) :sa)))))
 (defun kit-class (kit mv) "The triangle class of MV in KIT (:na :ns :as :sa), or NIL." (and mv (gethash mv (kit-cls kit))))
 (defun kit-core-move (kit role n)
   "The core move of ROLE (:ns or :as) number N (1 .. 3) of KIT, or NIL."
   (let ((name (nth (1- n) (getf (kit-core kit) role)))) (and name (gethash name (kit-moves kit)))))
 (defun kit-sa-move (kit) "KIT's SA move, or NIL." (let ((n (getf (kit-core kit) :sa))) (and n (gethash n (kit-moves kit)))))
-(defun mv-ns-next (kit mv) "The NS segment after MV in KIT, or NIL." (let ((n (getf (mv-params mv) :ns-next))) (and n (gethash n (kit-moves kit)))))
+(defun mv-ns-next (kit mv) "The NS or AS segment after MV in KIT, or NIL." (let ((n (getf (mv-params mv) :ns-next))) (and n (gethash n (kit-moves kit)))))
 
 (defmacro defkit (character form &rest spec)
   "One character form as one plist. :inherit FORM takes every key of that (earlier) form; the

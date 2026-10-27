@@ -111,6 +111,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (ptr 1 :type fixnum)                  ; the SP pointer 1 .. 3: the next neutral SP is NS n (kept through resets, 1 each match)
   (sp-ptr 1 :type fixnum)               ; the pointer the SP in play started under (its Kikon / Soul Break profile)
   (as-done nil)                         ; this combo already used its AS
+  (sp-held nil)                         ; the SP button held, never let go, since this NS / AS segment started (CORE-HOLD-STEP)
   (cancelled nil)                       ; the move was cancelled this step (a bounce)
   (kikon-lock 0 :type fixnum)           ; a Kikon follow-up coming at him: 1 guard only (not red), 2 nothing (red); KIKON-LOCK-P
   (burst nil)                           ; the burst mode pressed this step (:white :blue :orange; applied after both stepped)

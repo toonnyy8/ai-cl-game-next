@@ -87,6 +87,12 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
 - 「如果 SP 發生有效攻擊後持續按住按鍵就接入 Kikon」 → after an NS or an AS connects, holding the SP button continues into that
   move's Kikon. 「兩者都能發動毀魂技，然後具體是打出哪一招取決於指針改變前的 SP」 → the Kikon move and its profile belong to the SP
   that landed (for an AS, the pointer value **before** the AS wrote it).
+- **A hold, not a mash** (2026-10-27, the user: 「毀魂技的觸發判定有點怪異，我是要求『按住』才發動，但目前連打也會觸發」): the first build
+  read only whether the button was down on the hit frame, so a mashed SP that happened to be down counted. Now each NS / AS segment
+  starts with `fighter-sp-held` set and `core-hold-step` clears it on any step the button is up; the Kikon needs it still set at the
+  hit (`apply-hit`). A latched next segment pressed during the last one starts held only if the button is still down. Browser check
+  (Ichigo, keyboard): Shift + J held 1.6 s → `IC-N1A`, `KIKON FOLLOW-UP`, `KIKON 68`; Shift held + J tapped every 0.1 s → `IC-N1A`,
+  `IC-N1B`, `IC-N1C`, no Kikon.
 - 「用攻擊抵銷毀魂技並彈開雙方回到中立狀態」 and 「沒必要其他手段，只留攻擊抵銷」 → the Kikon follow-up is cancelled only by an attack
   (both bounce to neutral); Hoho and Burst do not stop it. A **red** victim cannot do even that (red = the Kikon must-hit line).
 - The 1.5 s Kikon cooldown is dropped with the O key (it was a standalone key); the hold is gated by the SP landing.
@@ -124,10 +130,24 @@ follow-up links keep their speed).
   sites; a kit or a form without `:stances` (KESSA, Kenpachi, Hisagi) rests in its `:stance`. Looks: one first pass, redrawn later with the rest.
 - **Slow motion**: `*core-clash-slowmo-scale*` 0.2 for `*core-clash-slowmo-seconds*` 0.7 real seconds, started by `core-nohit!` (`:cancel`) and
   `core-kikon-cancel!`; the same `slowmo` the perfect Hoho uses (0.25 / 0.45), so it is sim-timed and deterministic.
+- **Slow motion drawn smooth** (2026-10-27, the user: 「目前進入慢動作時，畫面會不自然的抖動，請幫我去除」): at 0.2 a sim frame ran every
+  fifth step, so the bodies, their clips and the waves moved in jumps while the camera and the effects ran on real time. Now each sim
+  frame first keeps every fighter's and hazard's place and yaw (`slow-snapshot`, main.lisp); while `slowmo-scale` < 1 the frame is
+  drawn between that and now by `*slow-acc*`, each clip one sim frame's share back in time, and everything is put back after the HUD
+  (`slow-draw-begin` / `slow-draw-end`). A look only: G2 identical before and after (II 29, IK 30, KK 23 lines), native == browser.
+  Check (2513 = 3 s of this slow motion, P1 walking): consecutive 60 Hz shots differ on every frame the full-speed run differs on
+  (the run.mjs shot cadence repeats one frame in three at either speed), none of the 4-in-5 still frames of a stepped sim.
 - **CPU**: kit `:core :ns-range (nil (3.6 6.6) nil)`: under pointer 2, walking in from 3.6-6.6 m he shoots with `*cai-ranged-p*` 0.5 per decision,
   then waits `*cai-ranged-gap*` 80 steps (one roll per event; the first version always shot and the matches crawled: 78 waves a match).
 - **Pace**: the long tells (more cancels, fewer landed hits) made the Ichigo mirror 261 s with two time-outs at damage x1.0; Ichigo's `:core :mult` 1.3
   (Shikai and KESSA; Kenpachi's is 1.2) brought the 10-seed gate to KK 150.7, IK 176.9, II 213.3 (a mirror may pass 210), HK 146.3, HI 203.6, HH 164.9 s, every match K.O.'d. Ichigo still loses to Kenpachi 2:8 and Hisagi to Ichigo 2:8: open.
+- **AS segments** (2026-10-27, the user: 「我希望 AS 也能設計成不同段數的連擊」; asked, answered 「每段再按 SP」 and
+  「AS1=1 AS2=2 AS3=3」): AS n has n segments, each on a fresh SP press, hit or not, through the same `:ns-next` chain as an NS
+  (`core-segments`, `build-core-classes` tags every segment AS; `core-move-sp!` takes `:as` like `:ns`). Only the last segment knocks
+  down / launches; the earlier ones stagger. Ichigo: AS1 TSUKI-OTOSHI (steals, 40, knockdown); AS2 SOGA 50 → SHOGA 60 (launch);
+  AS3 KOGA 45 → SOSEN-GIRI 45 (reach 2.4, a 1.6 m lunge: at 1.44 it whiffed after KOGA's push) → RAKUGA 100 (190; it was one 150).
+  Browser: J J → SP SP → `IC-AS2` 50, `IC-AS2B` 60; J J J → SP SP SP → 45, 45, 100. CPU: presses the next AS segment with
+  `*cai-cont-p*` unless it holds for the Kikon. Kenpachi's and Hisagi's AS stay single until their own reworks.
 - Debug: 2510+p sets P1's pointer (stance shots, DUEL_GAMEPLAY).
 - Tests: `tests/duel-rules/triangle.lisp` (+7: tells >= 14 f, NS2 a wave with no melee hit, stance by pointer); `core.lisp`'s J1 budget and the clip
   list (`:ic-na1 :ic-ns1 :ic-ns2 :ic-ns3`), `art.lisp`'s striker table (`:ic-na1`).

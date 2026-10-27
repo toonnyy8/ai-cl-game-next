@@ -10,7 +10,7 @@
 count the attack press (an NA link and an SA are attack presses: the pointer an AS writes)."
   (let ((cls (kit-class (fighter-kit f) mv)))
     (declare (ignorable old))
-    (setf (fighter-cls f) cls (fighter-cls-t f) *match-tick*)
+    (setf (fighter-cls f) cls (fighter-cls-t f) *match-tick* (fighter-sp-held f) (and (member cls '(:ns :as)) t))
     (case cls ((:na :sa) (incf (fighter-presses f))))))
 
 (defun core-window-class (f)
@@ -41,13 +41,14 @@ count the attack press (an NA link and an SA are attack presses: the pointer an 
 
 (defun core-move-sp! (e f vp mv sf button)
   "SP pressed inside move MV at frame SF (MOVE-COMMANDS): AS off a landed attack (an NA link or the SA; the hit or a cancel),
-or the next NS segment, latched until the segment's active frames are over. T when something started."
+or the next NS / AS segment (2026-10-27: AS n has n segments, 「每段再按 SP」), latched until the segment's active frames are over.
+T when something started."
   (declare (ignore sf))
   (case (fighter-cls f)
     ((:na :sa) (and (eq (fighter-contact f) :hit) (not (fighter-as-done f))
                     (cancel-open-p (fighter-sf f) (fighter-land-sf f) (mv-total mv) t)
                     (core-as-start! e f)))
-    (:ns (when (mv-ns-next (fighter-kit f) mv)
+    ((:ns :as) (when (mv-ns-next (fighter-kit f) mv)
            (setf (fighter-queued f) :ns)
            (vpad-consume! vp button))
          nil)))
@@ -120,6 +121,12 @@ and AS open: 「視同命中」); a same-class tie also ends both moves and boun
 (defun core-kikon-p (f mv)
   "Is MV (a move of F's kit) an SP that holds into the Kikon (an NS or an AS of a kit with a :core)?"
   (and mv (member (kit-class (fighter-kit f) mv) '(:ns :as)) t))
+
+(defun core-hold-step (e f)
+  "Each step inside an NS / AS segment: a let-go of the SP button clears the hold (FIGHTER-SP-HELD), so only a hold kept from
+the segment's start to its hit is a Kikon; a mashed SP that is down on the hit frame is not (the user, 2026-10-27: 「我是要求『按住』才發動，
+但目前連打也會觸發」)."
+  (when (and (fighter-sp-held f) (not (core-held-p e))) (setf (fighter-sp-held f) nil)))
 
 (defun core-held-p (att)
   "Is ATT still holding the SP button (the attack button) this step?"

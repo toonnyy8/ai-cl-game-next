@@ -359,7 +359,7 @@ result (NIL = no effect)."
          (dmods (if (and *run-mods* (run-mods-on-p def)) (run-def-mods def dmods flags) dmods))
          (x (or x (aref p 0))) (z (or z (aref p 2))) (y (+ (aref p 1) 1.1))
          (base (+ (hw-dmg hw) bonus))
-         (outcome (and rush (kikon-outcome (if (eq (mv-kind mv) :kikon) (vpad-down (pilot-vpad (pilot att)) :kikon) (core-held-p att))
+         (outcome (and rush (kikon-outcome (if (eq (mv-kind mv) :kikon) (vpad-down (pilot-vpad (pilot att)) :kikon) (and (fighter-sp-held fa) (core-held-p att)))
                                            res fstrike)))
          (follow (eq outcome :follow)))                 ; knocked back, then the rusher dashes in to the follow-up
     (when (eq outcome :kikon)

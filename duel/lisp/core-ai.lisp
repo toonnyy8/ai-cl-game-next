@@ -59,7 +59,12 @@
          (when (>= (fighter-sf f) (mv-s mv))                   ; the segment is out: now is the gap to read
            (setf (brain-decided b) (fighter-cls-t f))
            (cond ((and (eq oc :na) (kit-sa-move kit) (< (brain-r-turn b) (brain-chance b *cai-turn-p*))) (cai-press b :quick 1))
-                 ((and (mv-ns-next kit mv) (< (brain-r-cont b) (brain-chance b *cai-cont-p*))) (cai-press b :quick 1 t)))))))))
+                 ((and (mv-ns-next kit mv) (< (brain-r-cont b) (brain-chance b *cai-cont-p*))) (cai-press b :quick 1 t)))))
+        (:as                                                   ; the AS's next segment (AS n has n), unless he holds for the Kikon
+         (when (and (>= (fighter-sf f) (mv-s mv)) (mv-ns-next kit mv))
+           (setf (brain-decided b) (fighter-cls-t f))
+           (when (and (not (vpad-down (pilot-vpad (pilot e)) :quick)) (< (brain-r-cont b) (brain-chance b *cai-cont-p*)))
+             (cai-press b :quick 1 t))))))))
 
 (defun cai-neutral (e b f kit s d)
   "Free: Hoho out of an attack at him, else walk to the range and now and then start a move."

@@ -137,8 +137,15 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove-copy :ic-n3a :ic-tsuki-j :kind :flash :clip :ic-ns3 :startup 18 :clip-s 18 :params (:ns-next :ic-n3b)
   :hits ((18 19) (21 22) (24 25) (27 30 :on-hit :stagger)))
 (defmove-copy :ic-as1 :ic-tsuki-k :kind :sp :callout "TSUKI-OTOSHI" :dmg 40 :on-hit :knockdown :params (:steal-fs 40 :steal-rei 100))
-(defmove-copy :ic-as2 :ic-soga :on-hit :launch :dmg 90 :callout "SOGA")
-(defmove-copy :ic-as3 :ic-k3 :kind :sp :callout "RAKUGA" :dmg 150 :on-hit :knockdown :flags nil)
+;; AS n has n segments, each on a fresh SP press, hit or not (the user, 2026-10-27: 「希望 AS 也能設計成不同段數的連擊」, 「每段再按 SP」,
+;; 「AS1=1 AS2=2 AS3=3」); only the last one knocks down (or launches); a hold kept through any segment's hit is the Kikon
+;; AS2: SOGA's flash-step lunge X (stagger) > SHOGA's rising cut (the launch)
+(defmove-copy :ic-as2b :ic-k2 :kind :sp :callout "SHOGA" :dmg 60 :on-hit :launch)
+(defmove-copy :ic-as2 :ic-soga :on-hit :stagger :dmg 50 :callout "SOGA" :params (:ns-next :ic-as2b))
+;; AS3: KOGA's rising X > SOSEN-GIRI's turn > RAKUGA's drop (the high damage: 190 if all land)
+(defmove-copy :ic-as3c :ic-k3 :kind :sp :callout "RAKUGA" :dmg 100 :on-hit :knockdown :flags nil)
+(defmove-copy :ic-as3b :ic-j3 :kind :sp :callout "SOSEN-GIRI" :dmg 45 :on-hit :stagger :flags nil :reach 2.4 :slide 1.6 :params (:ns-next :ic-as3c))
+(defmove-copy :ic-as3 :ic-k2s :kind :sp :callout "KOGA" :dmg 45 :on-hit :stagger :params (:ns-next :ic-as3b))
 (defmove-copy :ic-sa :ic-j1 :clip :ic-q1 :dmg 34 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)   ; (reach and a lunge: it must connect after an NS segment's knockback)
 
 ;;; ================================================================ 血鎖の一護 KESSA NO ICHIGO (the awakening)

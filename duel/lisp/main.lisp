@@ -34,7 +34,7 @@ rest of the frame then waits for it)."
         ((not (time-step)) (pilot-read))                  ; hitstop: devices only
         (t (setf *slow-acc* (+ *slow-acc* (slowmo-scale nil)))
            (if (>= *slow-acc* 1.0)
-               (progn (decf *slow-acc* 1.0) (pilot-system) (sim-systems))
+               (progn (decf *slow-acc* 1.0) (slow-snapshot) (pilot-system) (sim-systems))
                (pilot-read))))
   (god-update)
   (probe-update)
@@ -54,6 +54,70 @@ match leaves the running state), or 120 steps in turbo (debug fast-forward)."
       (dotimes (i 120) (when (sim-running-p) (sim-step)))
       (run-fixed-steps rdt #'sim-step :while #'sim-running-p)))
 
+;;; ---------------------------------------------------------------- slow motion drawn smooth (a look)
+;;; In slow motion a sim frame runs only every few steps, so the bodies, their clips and the waves moved in jumps while the camera
+;;; and the effects ran on real time: the picture shook (the user, 2026-10-27: 「目前進入慢動作時，畫面會不自然的抖動，請幫我去除」).
+;;; Each sim frame first keeps where every fighter and hazard stood; while the sim is slowed, the frame is drawn between that and now
+;;; by *SLOW-ACC* (the way to the next sim frame), the clips one sim frame's share back in time, and everything is put back after
+;;; the HUD. The sim never sees the drawn values (it runs before SLOW-DRAW-BEGIN and after SLOW-DRAW-END).
+(defvar *slow-was* (make-hash-table :test 'eq) "Entity -> f32vec x y z yaw before the last sim frame (SLOW-SNAPSHOT).")
+(defvar *slow-now* (make-hash-table :test 'eq) "Entity -> f32vec x y z yaw clip-time blend the frame drew over (SLOW-DRAW-END).")
+(defvar *slow-drawn* nil "T while this frame's entities stand at drawn (interpolated) places.")
+
+(defun slow-keep (table e n)
+  "E's vector of N floats in TABLE (made once)."
+  (or (gethash e table) (setf (gethash e table) (make-f32 n))))
+
+(defun slow-snapshot ()
+  "Before a sim frame: where each fighter and hazard is (for SLOW-DRAW-BEGIN)."
+  (when (> (hash-table-count *slow-was*) 48) (clrhash *slow-was*))   ; (dead hazards' entries)
+  (flet ((keep (e x y z yaw) (let ((v (slow-keep *slow-was* e 4))) (setf (aref v 0) x (aref v 1) y (aref v 2) z (aref v 3) yaw))))
+    (do-sides (e) (let ((p (pos-of e))) (keep e (aref p 0) (aref p 1) (aref p 2) (yaw-of e))))
+    (do-entities (h (hz hazard)) (keep h (hazard-x hz) (hazard-y hz) (hazard-z hz) (hazard-yaw hz)))))
+
+(defun slow-mix (w i now a)
+  "The drawn value of slot I: from the kept W toward NOW by A (a yaw, slot 3, the short way)."
+  (f32 (+ (aref w i) (* a (if (= i 3) (angle-wrap (- now (aref w i))) (- now (aref w i)))))))
+
+(defun slow-draw-begin ()
+  "While the sim is slowed (not in a cinematic): stand each fighter / hazard between its last two sim frames, its clip as far back."
+  (setf *slow-drawn* nil)
+  (when (and (sim-running-p) (not *cine*) (< (slowmo-scale nil) 1f0))
+    (let* ((a (f32 (min 1.0 (max 0.0 *slow-acc*)))) (back (* (- 1f0 a) (/ 1f0 60f0))))
+      (do-sides (e)
+        (let ((w (gethash e *slow-was*)))
+          (when w
+            (let ((n (slow-keep *slow-now* e 6)) (p (pos-of e)) (tf (transform e)) (anim (model-anim (model e))))
+              (dotimes (i 3) (setf (aref n i) (aref p i) (aref p i) (slow-mix w i (aref p i) a)))
+              (setf (aref n 3) (transform-yaw tf) (transform-yaw tf) (slow-mix w 3 (transform-yaw tf) a)
+                    (aref n 4) (anim-time anim) (aref n 5) (anim-blend anim)
+                    (anim-time anim) (f32 (- (anim-time anim) (* back (anim-speed anim)))))
+              (when (> (anim-blend anim) 0f0)
+                (setf (anim-blend anim) (f32 (min (anim-blend-dur anim) (+ (anim-blend anim) back)))))))))
+      (do-entities (h (hz hazard))
+        (let ((w (gethash h *slow-was*)))
+          (when w
+            (let ((n (slow-keep *slow-now* h 6)))
+              (setf (aref n 0) (hazard-x hz) (aref n 1) (hazard-y hz) (aref n 2) (hazard-z hz) (aref n 3) (hazard-yaw hz)
+                    (hazard-x hz) (slow-mix w 0 (hazard-x hz) a) (hazard-y hz) (slow-mix w 1 (hazard-y hz) a)
+                    (hazard-z hz) (slow-mix w 2 (hazard-z hz) a) (hazard-yaw hz) (slow-mix w 3 (hazard-yaw hz) a))))))
+      (setf *slow-drawn* t))))
+
+(defun slow-draw-end ()
+  "Put back what SLOW-DRAW-BEGIN moved."
+  (when *slow-drawn*
+    (do-sides (e)
+      (let ((n (gethash e *slow-now*)))
+        (when (and n (gethash e *slow-was*))
+          (let ((p (pos-of e)) (anim (model-anim (model e))))
+            (dotimes (i 3) (setf (aref p i) (aref n i)))
+            (setf (transform-yaw (transform e)) (aref n 3) (anim-time anim) (aref n 4) (anim-blend anim) (aref n 5))))))
+    (do-entities (h (hz hazard))
+      (let ((n (gethash h *slow-now*)))
+        (when (and n (gethash h *slow-was*))
+          (setf (hazard-x hz) (aref n 0) (hazard-y hz) (aref n 1) (hazard-z hz) (aref n 2) (hazard-yaw hz) (aref n 3)))))
+    (setf *slow-drawn* nil)))
+
 ;;; ---------------------------------------------------------------- the frame
 (defun game-frame (rdt)
   "One frame (the engine runs it between BEGIN-FRAME and END-FRAME; RDT = real seconds). The effects run
@@ -68,6 +132,7 @@ on FDT: RDT, or 0 while paused (the fx clock, particles, stamps, shake, camera a
       (progn (setf *step-acc* 0.0)
              (unless (or *paused* (not (entity-alive-p *p1*)))       ; menus: fighters idle on real time
                (do-sides (e) (anim-advance (model-anim (model e)) (f32 rdt))))))
+  (slow-draw-begin)                                         ; slow motion: drawn between two sim frames (put back below)
   (let ((fdt (cond ((fx-frozen-p) 0.0) ((= *cine-time-scale* 1f0) rdt) (t (* rdt *cine-time-scale*)))))   ; (CINE-SLOW)
     (fx-clock-advance (f32 fdt))
     (if (member *flow* '(:intro :battle :finish))
@@ -78,7 +143,8 @@ on FDT: RDT, or 0 while paused (the fx clock, particles, stamps, shake, camera a
     (perf-mark)                                             ; "queue" = scene + HUD
     (unless *turbo* (draw-scene fdt))
     (unless (svref *no-draw* 0) (hud-draw))
-    (when *frame-probe* (frame-probe-step))))
+    (when *frame-probe* (frame-probe-step)))
+  (slow-draw-end))
 
 (defun stats-tail ()
   (if (entity-alive-p *p1*)

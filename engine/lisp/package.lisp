@@ -79,7 +79,7 @@
    ;; anim.lisp: humanoid rig, pose / clip DSL, playback, forward kinematics
    #:ji #:joint-index #:joint-mask #:+nj+ #:+pose-n+ #:+root+ #:defpose #:find-pose #:defclip #:defstrike #:find-clip
    #:clip #:clip-name #:clip-dur #:clip-loop #:clip-sample! #:clip-mark #:list-clips #:build-clip #:*key-ease*
-   #:anim #:make-anim #:anim-clip #:anim-time #:anim-speed #:anim-blend #:anim-pose #:anim-play #:anim-advance #:anim-eval
+   #:anim #:make-anim #:anim-clip #:anim-time #:anim-speed #:anim-blend #:anim-blend-dur #:anim-pose #:anim-play #:anim-advance #:anim-eval
    #:pose-fk! #:make-rig-proportions #:joint-point! #:%euler!
    ;; body.lisp: rigid-part characters (shape spec -> meshes per joint, drawing)
    #:pal-rgb #:build-parts #:draw-parts #:*part-jitter* #:*part-smooth*
