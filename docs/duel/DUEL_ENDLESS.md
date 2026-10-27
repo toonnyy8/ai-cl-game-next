@@ -246,6 +246,8 @@ online boards.
 
 ## The Babylon.js build (`babylon/`, M6c, 2026-10-04)
 
+Discontinued 2026-10-06; its code is on the branch `babylon` since 2026-10-27 (removed from `main`), where the paths below live.
+
 - **Code**: `babylon/src/sim/endless-rules.ts` (endless-rules.lisp function for function; the bag's LCG multiplies with
   `Math.imul`, exact mod 2^31), `babylon/src/sim/endless.ts` (the run: a `Run` makes each stage's `Match`, whose
   `MatchOpts.setup` hook is ENDLESS-APPLY!; the log lines above, word for word; `autoRun` = the autopilot), the screens in

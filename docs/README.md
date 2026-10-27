@@ -72,7 +72,7 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [STYLE_STORM_RESEARCH.md](style/STYLE_STORM_RESEARCH.md) | 《究極風暴》畫風解析，加上久保帶人畫風與千年血戰篇動畫的研究：角色著色、墨線、手繪式特效、鏡頭、舞台，附來源與可信度標記（英文，開頭有中文摘要） |
 | [STYLE_STORM_DESIGN.md](style/STYLE_STORM_DESIGN.md) | SOUL DUEL 改成《究極風暴》畫風的設計 v4（究極風暴技術 × 久保帶人的黑白語言）：引擎算圖改動、特效系統、各招式重新設計、奧義鏡頭、舞台、預算、分階段計畫與驗收、辯論紀錄（英文，開頭有中文摘要與待決事項） |
 
-## Babylon 移植版（`babylon/`，已停止）
+## Babylon 移植版（已停止；程式碼 2026-10-27 起只在 `babylon` 分支）
 
 | 文件 | 內容 |
 |---|---|

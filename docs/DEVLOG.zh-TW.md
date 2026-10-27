@@ -5224,3 +5224,11 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - 數字都對照 `duel/lisp/hisagi.lisp` 現在的值與 DUEL_HISAGI 最新的各節（§24.5、§25.5–§25.14、§25.23、§25.26–§25.37）。
 - 目錄加上檜佐木；開頭「五個角色」改成「七個角色」。
 - 只改說明書，不動遊戲程式；已重新建置，無頭 Chrome 開說明書展開這一節確認排版正常、沒有錯誤。
+
+## 408. Babylon 移植版移出 main（2026-10-27）
+
+使用者：「幫我將 babylon 移到額外的分支並從 main 中移除」
+
+- 從 main 59c2a66 開出 `babylon` 分支並推上遠端，`babylon/`（Babylon.js + TypeScript 移植版，2026-10-06 起停止開發，126 個檔案、約 1.9 MB）完整留在那裡。
+- main 刪掉 `babylon/` 目錄。它的紀錄 `docs/babylon/`（BABYLON_PORT、BABYLON_LOOK）和 DEVLOG 裡的歷史段落留在 main，開頭註明程式碼改在 `babylon` 分支；DUEL_DESIGN、DUEL_ENDLESS、AUDIO 提到 `babylon/...` 路徑的地方也加了同樣的註記。
+- README 的資料夾表、AGENTS.md 的專案地圖與文件表、`docs/README.md` 的索引跟著更新。沒有任何建置或測試工具引用 `babylon/`，遊戲不受影響。

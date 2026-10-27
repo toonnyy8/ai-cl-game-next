@@ -104,6 +104,8 @@ reverb tails wrap around without a seam. The loop is mono, 3.8 MB.
 
 ## SOUL DUEL on Babylon.js (`babylon/src/audio/`)
 
+Discontinued 2026-10-06; its code is on the branch `babylon` since 2026-10-27 (removed from `main`).
+
 The Babylon port plays the same bank on WebAudio, still with zero assets: `synth.ts` is this toolkit function by function
 (`au-svf!` → `svf`, …), `sounds.ts` the DEFSOUNDs of `duel/lisp/sounds.lisp`, `ichigo-art.lisp` and `senjumaru-art.lisp`
 (63 sounds, 16 MB of samples, ~1.3 s to render on a desktop), rendered in a Web Worker after load, menu clicks and the

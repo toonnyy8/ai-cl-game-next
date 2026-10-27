@@ -139,8 +139,9 @@ tests/       主機測試、瀏覽器腳本產生器、截圖與畫風檢查
 skills/      九個 Claude skill（遊戲開發流程、平衡把關、畫風、角色設計與重做、招式模組、電腦 AI、動作風格）
 docs/        文件，依主題分資料夾
 vendor/      wasm 版 ECL、帶 WebGPU 後端的 SDL3、Dawn 的 emdawnwebgpu
-babylon/     已停止的 TypeScript 移植版
 ```
+
+已停止開發的 Babylon.js + TypeScript 移植版不在 `main`，放在 `babylon` 分支（紀錄在 [docs/babylon/](docs/babylon/BABYLON_PORT.md)）。
 
 每個建置目標是一個有 `MANIFEST` 的目錄：一行一個原始檔，依序編譯；`.lisp` 檔（引擎在前）串成一個編譯單元交給 ECL，`.c` 檔在連結時交給 emcc。為什麼這樣做，見教材第 1 步。
 

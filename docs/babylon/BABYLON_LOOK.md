@@ -1,5 +1,7 @@
 # SOUL DUEL (Babylon) — the look spec for M5 B2–B5
 
+> The port's code is on the branch `babylon` since 2026-10-27 (removed from `main`; BABYLON_PORT.md).
+
 The user's M5 decisions are in BABYLON_PORT.md "M5 look". This file is Fable 5.1's review of M5-B1 (2026-10-04) turned
 into the spec of the next batches, with the user's answers folded in. Numbers are starting points; screenshots decide.
 

@@ -2,6 +2,9 @@
 
 > **Status 2026-10-06: no longer developed** (the user: 「Babylon 版已不再開發」). Frozen at the 2026-10-05 Lisp; the Lisp
 > game in `duel/` is the only live build, and Lisp changes are not mirrored here. See the last Status entry.
+>
+> **2026-10-27: the code moved off `main`** (the user: 「幫我將 babylon 移到額外的分支並從 main 中移除」). `babylon/` lives only on
+> the branch `babylon` (cut from main 59c2a66); every `babylon/...` path in these docs refers to that branch.
 
 The user's request (2026-10-04): build a Babylon.js + TypeScript version of SOUL DUEL from the duel design docs, with
 Fable 5.1 as the discussion advisor. Decisions:
