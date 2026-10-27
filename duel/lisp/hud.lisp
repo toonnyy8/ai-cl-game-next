@@ -702,7 +702,7 @@ an awakening, else the awakening gauge."
                                (if (pad-connected-p side) (getf bp :pad "BACK  BANKAI") (getf bp :key "P  BANKAI")))
                            (alpha! (or (getf bp :rgb) *c-blood*) (%palpha 4f0)))))
                 ((kikon-ready-p e)
-                 (prompt (if *one-hand* "HOLD O  KIKON" (key-prompt *bind-pair* side (if (pad-connected-p side) :pad :key) :kikon))
+                 (prompt (if *one-hand* "HOLD SP  KIKON" (key-prompt *bind-pair* side (if (pad-connected-p side) :pad :key) :kikon))
                          (alpha! *c-kikon* (%palpha 4f0))))
                 ((member (burst-ok-p e) '(:blue :orange))
                  (prompt (burst-prompt (burst-ok-p e) (cond (*one-hand* :flick) ((pad-connected-p side) :pad) (t :key)) side)

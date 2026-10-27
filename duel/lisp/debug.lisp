@@ -641,7 +641,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
                               (setf (svref *ai-awaken-mode* 0) (nth (floor (- c 39000) 10) m)
                                     (svref *ai-awaken-mode* 1) (nth (mod (- c 39000) 10) m))))
         ((<= 2500 c 2503)
-         (setf *picks* (nth (- c 2500) '((:yamamoto :kenpachi) (:kenpachi :yamamoto) (:yamamoto :yamamoto) (:kenpachi :kenpachi)))
+         (setf *picks* (nth (- c 2500) '((:ichigo :kenpachi) (:kenpachi :ichigo) (:ichigo :ichigo) (:kenpachi :kenpachi)))
                *mode* :vs-cpu *match-seed* 1 *probe* nil)
          (let ((*skip-cines* t)) (start-match))
          (setf (brain-off (brain *p2*)) t))))

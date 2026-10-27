@@ -41,12 +41,14 @@ never offers it: the deck needs portrait)."
   (one-hand-on-p (setting :one-hand) *coarse* (portrait-p)))
 
 ;;; ---------------------------------------------------------------- the deck (design §3.3)
-;;; Chip i: 0 O, 1 L, 2 I, 3 SP1, 4 SP2, 5 AWAKEN (held 300 ms), 6 pause, 7 RV (REVERSE: a burst, any mode; shown while one is possible, 2026-09-30). CSS px from the right-hand
+;;; The core system (2026-10-27, docs/duel/DUEL_CORE.md): only chips 3 (SP: Mod + the attack, held = the Kikon hold), 5 (AWAKEN: Mod + P),
+;;; 6 (pause) and 7 (RV: P, the Burst) are live; 0 O, 1 L, 2 I and 4 SP2 sit off screen (their slots stay: the touch recogniser's
+;;; chip indices). Chip i: 0 O, 1 L, 2 I, 3 SP1, 4 SP2, 5 AWAKEN (held 300 ms), 6 pause, 7 RV (REVERSE: a burst, any mode; shown while one is possible, 2026-09-30). CSS px from the right-hand
 ;;; layout at 390 x 844: x from the right edge, y from the bottom edge; the left hand mirrors x.
 ;;; The user's playtest (2026-09-27): every chip 100 px higher, and the flow pad grown to the whole thumb area
 ;;; (chips inside it win their hit circles: TOUCH-LAYOUT! tests chips first).
 (defparameter *chip-spots*
-  '((170 396 36 "O") (72 380 26 "L") (72 310 26 "I") (72 240 26 "SP1") (72 170 26 "SP2") (270 396 26 "AWK") (32 -200 22 "II")
+  '((-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (72 300 38 "SP") (-9999 9999 0 "") (270 396 26 "AWK") (32 -200 22 "II")
     (170 472 22 "RV"))
   "Per chip: x from the thumb-side edge, y from the bottom (negative: from the top), radius, label.")
 (defparameter *chip-holds* '(0 0 0 0 0 300 0 0))
@@ -184,10 +186,10 @@ chips (3 and 4) = Mod + the attack, a down-flick while stunned = the Burst (P), 
   (let* ((tr *touch*) (burst *touch-burst*))
     (flet ((chip (i) (touch-chip-down-p tr i)) (pulse (b) (touch-pulse-p tr b)))
       (case name
-        (:quick (or (pulse +tp-tap+) (pulse +tp-tap-hi+) (chip 3) (chip 4)))
-        (:mod (or (pulse +tp-hoho+) (chip 3) (chip 4) (chip 5)))
+        (:quick (or (pulse +tp-tap+) (pulse +tp-tap-hi+) (chip 3)))
+        (:mod (or (pulse +tp-hoho+) (chip 3) (chip 5)))
         (:step (and (not burst) (or (pulse +tp-flick+) (pulse +tp-hoho+) (touch-step-held-p tr))))
-        (:awaken (or burst (chip 5)))))))
+        (:awaken (or burst (chip 7) (chip 5)))))))
 
 (defun touch-pause-p () "The pause chip was touched this frame." (and *one-hand* (touch-chip-hit-p *touch* 6)))
 
@@ -233,11 +235,10 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
            (x (if left (- (aref dk 2) (* 6f0 d)) (+ (aref dk 0) (* 6f0 d)))) (al (if left :right :left))
            (fs (%hround (* 1.5f0 (i->f s)))))           ; (HUD-TEXT rounds its (* 1.5 S))
       (declare (single-float y x) (fixnum fs))
-      (%hrect (aref dk 0) y (- (aref dk 2) (aref dk 0)) (f-max 1f0 d) 1f0 1f0 1f0 0.18f0)
-      (%hud-text "F" x (- y (i->f (* 13 s))) fs '(1 1 1 0.4) :align al :shadow nil)
-      (%hud-text "Q" x (+ y (i->f (* 3 s))) fs '(1 1 1 0.4) :align al :shadow nil))
+      ;; (the core system: a tap is the attack in both halves: no tap-split line, no F / Q, 2026-10-27)
+      (when nil (%hrect (aref dk 0) y (- (aref dk 2) (aref dk 0)) (f-max 1f0 d) 1f0 1f0 1f0 0.18f0) (%hud-text "F" x y fs '(1 1 1 0.4) :align al :shadow nil)))
     (dotimes (i 8)
-      (unless (or (and (= i 5) (not evo)) (and (= i 7) (not (and *p1* (burst-ok-p *p1*)))))   ; RV: while a burst is possible
+      (unless (or (member i '(0 1 2 4)) (and (= i 5) (not evo)) (and (= i 7) (not (and *p1* (burst-ok-p *p1*)))))   ; RV: while a burst is possible
         (let ((on (touch-chip-down-p tr i)) (cx (aref dk (+ 4 (* 3 i)))) (cy (aref dk (+ 5 (* 3 i)))) (r (aref dk (+ 6 (* 3 i)))))
           (declare (single-float cx cy r))
           (%disc cx cy r 0.05 0.04 0.07 (if on 0.85 0.45))
@@ -267,12 +268,10 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
                   '(1 0.85 0.4 1) :align :center)))))
 
 (defparameter *gesture-card*
-  '(("TAP LOW HALF" "QUICK  (J)") ("TAP HIGH HALF" "FLASH  (K)  3 TAPS = STRING") ("HOLD STILL" "GUARD")
+  '(("TAP" "ATTACK  (J)  3 TAPS = STRING") ("SP (HOLD)" "SP  (SHIFT+J)  HOLD AFTER A HIT = KIKON")
     ("DRAG" "MOVE  (FAR = RUN)") ("FLICK UP" "DASH  (KEEP GOING = RUN)") ("FLICK DOWN / SIDE" "STEP BACK / SIDESTEP")
     ("HOLD, THEN FLICK UP" "HOHO")
-    ("FLICK DOWN WHEN HIT" "BURST  (AS YOUR HIT LANDS: CHAIN)") ("O / RV" "KIKON RUSH (HOLD = KIKON) / REVERSE")
-    ("L / I" "SIGNATURE / BREAKER")
-    ("SP1 / SP2" "SPECIALS") ("AWK (HOLD)" "AWAKEN") ("II / BACK" "PAUSE"))
+    ("FLICK DOWN WHEN HIT" "BURST  (OR THE RV CHIP)") ("AWK (HOLD)" "AWAKEN") ("II / BACK" "PAUSE"))
   "The static gesture card (ONE-HAND's CONTROLS).")
 
 (defun hud-gestures (w h s)
