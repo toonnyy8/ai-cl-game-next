@@ -122,7 +122,8 @@ and AS open: 「視同命中」); a same-class tie also ends both moves and boun
 
 (defun core-held-p (att)
   "Is ATT still holding the SP button (the attack button) this step?"
-  (vpad-down (pilot-vpad (pilot att)) :quick))
+  (or (vpad-down (pilot-vpad (pilot att)) :quick)
+      (and *one-hand* (eq att *p1*) (touch-resting-p *touch*))))   ; a phone: the thumb resting on the pad while the SP strikes
 
 (defun core-set-kikon-n! (att red)
   "The Konpaku the Kikon about to follow takes: the kit's count in the style of the SP that struck (CORE-KIKON-COUNT)."

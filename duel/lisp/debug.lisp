@@ -642,7 +642,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
                                     (svref *ai-awaken-mode* 1) (nth (mod (- c 39000) 10) m))))
         ((<= 2500 c 2503)
          (setf *picks* (nth (- c 2500) '((:ichigo :kenpachi) (:kenpachi :ichigo) (:ichigo :ichigo) (:kenpachi :kenpachi)))
-               *mode* :vs-cpu *match-seed* 1 *probe* nil)
+               *mode* :vs-cpu *match-seed* 1 *probe* nil *one-hand* (one-hand-effective-p))
          (let ((*skip-cines* t)) (start-match))
          (setf (brain-off (brain *p2*)) t))))
 

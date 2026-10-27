@@ -24,7 +24,7 @@
 (defvar *rogue-rank* 0 "The DANGAI run's 靈壓階 0-5 (DUEL_ROGUE §6; SELECT's RANK row).")
 (defvar *rogue-auto-pick* :first "The DANGAI autopilot's reward pick: :first :random :greedy (rogue.lisp ROGUE-AUTO-ROW).")
 (defun vs-cpu-p () "A human P1 against the CPU: VS CPU, ENDLESS or PRACTICE (the camera option, the one-hand deck)." (member *mode* '(:vs-cpu :endless :practice)))
-(defvar *picks* (list (first *roster*) (second *roster*)) "Characters of P1 and P2 (kit.lisp *ROSTER*): Yamamoto, Kenpachi.")
+(defvar *picks* (list :ichigo :kenpachi) "Characters of P1 and P2 (kit.lisp *ROSTER*): Ichigo, Kenpachi (the first two of PLAYABLE-ROSTER since the core system, 2026-10-27; Yamamoto was P1 before and is retired now: cycling from a character outside the list failed).")
 (defvar *difficulty* :normal)
 (defvar *cam-behind* t "The CAMERA setting of VS CPU / PRACTICE: BEHIND (P1's shoulder, the default) or SIDE (the pair camera).")
 (defvar *select-phase* 0 "SELECT: 0 P1 picks, 1 P2 picks, 2 difficulty.")
@@ -90,7 +90,9 @@ always behind when one-handed (the portrait camera; the setting is kept); VS PLA
           ((confirm-p) (play-sfx :confirm) *menu*))))
 
 ;;; ---------------------------------------------------------------- scenes
-(defun cycle (item list dir) (nth (mod (+ (position item list) dir) (length list)) list))
+(defun cycle (item list dir)
+  "The element DIR places after ITEM in LIST (a wrap); ITEM not in LIST (a retired character): the first."
+  (nth (mod (+ (or (position item list) (if (plusp dir) -1 0)) dir) (length list)) list))
 
 (defun spawn-pair (&key cpu1 cpu2)
   "A fresh plaza with the two picked fighters 8 m apart, facing."

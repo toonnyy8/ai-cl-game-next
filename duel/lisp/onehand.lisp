@@ -41,14 +41,15 @@ never offers it: the deck needs portrait)."
   (one-hand-on-p (setting :one-hand) *coarse* (portrait-p)))
 
 ;;; ---------------------------------------------------------------- the deck (design §3.3)
-;;; The core system (2026-10-27, docs/duel/DUEL_CORE.md): only chips 3 (SP: Mod + the attack, held = the Kikon hold), 5 (AWAKEN: Mod + P),
+;;; The core system (2026-10-27, docs/duel/DUEL_CORE.md): SP and the attack are the pad's two tap zones again (high = SP, low = the attack;
+;;; the user 「請將 SP 跟攻擊鍵改成用原本 F/Q tap-split 的形式表示」); only chips 5 (AWAKEN: Mod + P),
 ;;; 6 (pause) and 7 (RV: P, the Burst) are live; 0 O, 1 L, 2 I and 4 SP2 sit off screen (their slots stay: the touch recogniser's
 ;;; chip indices). Chip i: 0 O, 1 L, 2 I, 3 SP1, 4 SP2, 5 AWAKEN (held 300 ms), 6 pause, 7 RV (REVERSE: a burst, any mode; shown while one is possible, 2026-09-30). CSS px from the right-hand
 ;;; layout at 390 x 844: x from the right edge, y from the bottom edge; the left hand mirrors x.
 ;;; The user's playtest (2026-09-27): every chip 100 px higher, and the flow pad grown to the whole thumb area
 ;;; (chips inside it win their hit circles: TOUCH-LAYOUT! tests chips first).
 (defparameter *chip-spots*
-  '((-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (72 300 38 "SP") (-9999 9999 0 "") (270 396 26 "AWK") (32 -200 22 "II")
+  '((-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (270 396 26 "AWK") (32 -200 22 "II")
     (170 472 22 "RV"))
   "Per chip: x from the thumb-side edge, y from the bottom (negative: from the top), radius, label.")
 (defparameter *chip-holds* '(0 0 0 0 0 300 0 0))
@@ -186,8 +187,8 @@ chips (3 and 4) = Mod + the attack, a down-flick while stunned = the Burst (P), 
   (let* ((tr *touch*) (burst *touch-burst*))
     (flet ((chip (i) (touch-chip-down-p tr i)) (pulse (b) (touch-pulse-p tr b)))
       (case name
-        (:quick (or (pulse +tp-tap+) (pulse +tp-tap-hi+) (chip 3)))
-        (:mod (or (pulse +tp-hoho+) (chip 3) (chip 5)))
+        (:quick (or (pulse +tp-tap+) (pulse +tp-tap-hi+)))          ; the pad's two tap zones (the old F / Q split): low = the
+        (:mod (or (pulse +tp-hoho+) (pulse +tp-tap-hi+) (chip 5)))   ; attack, high = SP (Mod + the attack), 2026-10-27
         (:step (and (not burst) (or (pulse +tp-flick+) (pulse +tp-hoho+) (touch-step-held-p tr))))
         (:awaken (or burst (chip 7) (chip 5)))))))
 
@@ -235,8 +236,9 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
            (x (if left (- (aref dk 2) (* 6f0 d)) (+ (aref dk 0) (* 6f0 d)))) (al (if left :right :left))
            (fs (%hround (* 1.5f0 (i->f s)))))           ; (HUD-TEXT rounds its (* 1.5 S))
       (declare (single-float y x) (fixnum fs))
-      ;; (the core system: a tap is the attack in both halves: no tap-split line, no F / Q, 2026-10-27)
-      (when nil (%hrect (aref dk 0) y (- (aref dk 2) (aref dk 0)) (f-max 1f0 d) 1f0 1f0 1f0 0.18f0) (%hud-text "F" x y fs '(1 1 1 0.4) :align al :shadow nil)))
+      (%hrect (aref dk 0) y (- (aref dk 2) (aref dk 0)) (f-max 1f0 d) 1f0 1f0 1f0 0.18f0)
+      (%hud-text "SP" x (- y (i->f (* 13 s))) fs '(1 1 1 0.4) :align al :shadow nil)       ; the tap zones (the core system, 2026-10-27)
+      (%hud-text "ATK" x (+ y (i->f (* 3 s))) fs '(1 1 1 0.4) :align al :shadow nil))
     (dotimes (i 8)
       (unless (or (member i '(0 1 2 4)) (and (= i 5) (not evo)) (and (= i 7) (not (and *p1* (burst-ok-p *p1*)))))   ; RV: while a burst is possible
         (let ((on (touch-chip-down-p tr i)) (cx (aref dk (+ 4 (* 3 i)))) (cy (aref dk (+ 5 (* 3 i)))) (r (aref dk (+ 6 (* 3 i)))))
@@ -268,7 +270,8 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
                   '(1 0.85 0.4 1) :align :center)))))
 
 (defparameter *gesture-card*
-  '(("TAP" "ATTACK  (J)  3 TAPS = STRING") ("SP (HOLD)" "SP  (SHIFT+J)  HOLD AFTER A HIT = KIKON")
+  '(("TAP LOW HALF" "ATTACK  (J)  TAPS = STRING") ("TAP HIGH HALF" "SP  (SHIFT+J)")
+    ("SP, THEN HOLD STILL" "HOLD THE PAD WHILE THE SP HITS = KIKON")
     ("DRAG" "MOVE  (FAR = RUN)") ("FLICK UP" "DASH  (KEEP GOING = RUN)") ("FLICK DOWN / SIDE" "STEP BACK / SIDESTEP")
     ("HOLD, THEN FLICK UP" "HOHO")
     ("FLICK DOWN WHEN HIT" "BURST  (OR THE RV CHIP)") ("AWK (HOLD)" "AWAKEN") ("II / BACK" "PAUSE"))
