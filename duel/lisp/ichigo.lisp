@@ -233,6 +233,37 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :cooldown 90 :params (:aura 6 :aim 120.0 :speed 30.0 :dash-max 14 :dash-track 0.0 :look :flash-step :sfx :hoho-out))
 
 ;;; ================================================================ forms
+;; KESSA's own moves for the rest of the core set (the user, 2026-10-28: 「要，都幫我換一換」, 「另外指針一的 NS 幫我換成使用血鎖進行近身抽打，中立站姿
+;; 也改成血鎖圍繞在身邊，並且切換成指針一的 AS 也做成血鎖的攻擊」): no Shikai clip is played in KESSA any more. The sim of NS2 / AS2 / AS3 / the SAs is
+;; the Shikai's (copies); NS1 and AS1 are the blood chains (KESSA's left fist throws them: the :chain look, ICHIGO-CHAIN-LASH:
+;; (from-deg to-deg length from-y to-y) swept over the active frames, 0 deg = at him)
+(defmove :ic-k-n1a :kind :flash :clip :ic-k-lash-a :startup 22 :active 4 :recovery 18 :dmg 60 :guard 12 :reach 3.0 :arc 150
+  :on-hit :stagger :params (:ns-next :ic-k-n1b :chain (70 -70 3.0 1.2 1.0)))       ; 血鎖 1: a wide lash, his left to his right
+(defmove :ic-k-n1b :kind :flash :clip :ic-k-lash-b :startup 14 :active 4 :recovery 18 :dmg 55 :guard 12 :reach 3.0 :arc 150
+  :on-hit :stagger :params (:ns-next :ic-k-n1c :chain (-70 70 3.0 0.8 1.4)))       ; 2: the backhand, rising
+(defmove :ic-k-n1c :kind :flash :clip :ic-k-lash-c :startup 18 :active 5 :recovery 26 :dmg 80 :guard 16 :reach 3.2 :arc 60
+  :on-hit :crumple :params (:chain (0 0 3.2 2.8 0.1)))                              ; 3: overhead, slammed into the plaza
+(defmove-copy :ic-k-sa1 :ic-sa :clip :ic-k-jab :clip-s 8)                         ; the SA: ITA-NAGI's chop
+(defmove-copy :ic-k-sa-g1 :ic-sa-g1 :clip :ic-k-jab :clip-s 8)
+(defmove-copy :ic-k-sa-g2 :ic-sa-g2 :clip :ic-k-back :clip-s 8)
+(defmove-copy :ic-k-n2a :ic-n2a :clip :ic-k-chg1 :params (:ns-next :ic-k-n2b :sa :ic-k-sa-g1))   ; the black flame's charges
+(defmove-copy :ic-k-n2b :ic-n2b :clip :ic-k-chg2 :params (:ns-next :ic-k-n2c :sa :ic-k-sa-g2))
+(defmove-copy :ic-k-n2c :ic-n2c :clip :ic-k-f3 :clip-s 21)                         ; the small 漆黒 crescent, cut down
+(defmove-copy :ic-k-as1 :ic-k-hiki :callout "KUSARI-BIKI" :clip :ic-k-whip :startup 12 :active 18 :recovery 20 :dmg 14 :on-hit :flinch
+  :hits ((12 13) (16 17) (20 21) (25 30 :on-hit :knockdown))                       ; AS1: four lashes, his left / right in turn, the last
+  :params (:melee-range 3.8 :pull 1.6 :steal-fs 10 :chain (60 -60 3.6 1.2 1.0)))   ; knocks him down (「血鎖 AS 也改成多段的鞭擊」)
+;; AS2 the Getsuga, AS3 the clones (the user, 2026-10-28: 「幫我將指向指針二的 AS 改成給月牙天衝有關的攻擊，指向指針三的 AS 則改成與分身相關的攻擊」):
+;; AS2, SOGA's flash-step cut with the black flame on the slab (ICHIGO-CHARGED-BLADES) > the 漆黒 crescent thrown point-blank (6 m, the
+;; launch); AS3, his cuts with NS3's clones joining one a press (a clone at his right, one at his left, then their X with his drop)
+(defmove-copy :ic-k-as2b :ic-k-n2c :kind :sp :callout "GETSUGA TENSHO" :startup 14 :clip-s 21 :recovery 26
+  :on-frame ((6 ichigo-juji-first) (14 ichigo-juji))
+  :params (:width 3.0 :speed 18.0 :range 6.0 :dmg 60 :react :launch :kb 2.5 :guard 18 :look ichigo-juji-look))
+(defmove-copy :ic-k-as2 :ic-as2 :clip :ic-k-f1 :clip-s 18 :params (:ns-next :ic-k-as2b))
+(defmove-copy :ic-k-as3c :ic-as3c :clip :ic-k-f3 :clip-s 21 :on-frame ((8 ichigo-ns-clone-x) (18 ichigo-ns-x-mark)))   ; (:enter 7)
+(defmove-copy :ic-k-as3b :ic-as3b :clip :ic-k-wrap :clip-s 9 :on-frame ((1 ichigo-ns-clone-b)) :params (:ns-next :ic-k-as3c))
+(defmove-copy :ic-k-as3 :ic-as3 :clip :ic-k-f2 :clip-s 20 :callout "BUNSHIN" :on-frame ((7 ichigo-ns-clone-a))   ; (:enter 6)
+  :params (:ns-next :ic-k-as3b))
+
 (defparameter *tsuki-strings*
   (append (loop for s in '(:ic-tsuki :ic-tsuki-k2 :ic-tsuki-re)
                 append `((,s :tsuki-j :ic-tsuki-j) (,s :tsuki-k :ic-tsuki-k) (,s :tsuki-l :ic-tsuki-l)
@@ -279,8 +310,9 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :awakening t :form-name "KESSA" :walk *walk-kessa* :run *run-kessa* :mult *kessa-mult* :taken *kessa-taken*
   :weapon :tensa :hide (:shikai :mark) :stance :ic-k-stance :aura ichigo-aura-kessa :cine ic-kessa-cine
   :passives (:parry-block)
-  :core (:ns (:ic-n1a :ic-n2a :ic-k-n3a) :as (:ic-as1 :ic-as2 :ic-as3) :sa :ic-sa :mult 1.3
-         :stances (:ic-st-rush :ic-tsuki :ic-k-stance))  ; by pointer: low, the slab trailing / cocked high behind / hanging point-down
+  :core (:ns (:ic-k-n1a :ic-k-n2a :ic-k-n3a) :as (:ic-k-as1 :ic-k-as2 :ic-k-as3) :sa :ic-k-sa1 :mult 1.3
+         :stances (:ic-k-st-chain :ic-tsuki :ic-k-stance)   ; by pointer: the blood chains round him / cocked high behind / point-down
+         :kikon-cines (nil nil ic-kessa-kikon-cine))        ; pointer 3's Kikon plays 千影 (CORE-KIKON-CINE; else the Soul Break's)
   :hooks *kessa-hooks*
   :meter (:name "BUNSHIN" :max 3 :draw ichigo-hud-meter :label ichigo-hud-label)   ; the clones' row (the gauge unused)
   :commands (:q :ic-k-j1 :f :ic-k-k1 :sig :ic-k-parry :sp1 :ic-k-hiki :sp2 :ic-k-zanzo :kikon :ic-k-kikon)

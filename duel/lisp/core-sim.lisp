@@ -141,6 +141,12 @@ the segment's start to its hit is a Kikon; a mashed SP that is down on the hit f
   (or (vpad-down (pilot-vpad (pilot att)) :quick)
       (and *one-hand* (eq att *p1*) (touch-resting-p *touch*))))   ; a phone: the thumb resting on the pad while the SP strikes
 
+(defun core-kikon-cine (att)
+  "The cinematic of ATT's Kikon by the pointer of the SP that struck (the kit's :core :kikon-cines, one per pointer; NIL: the kit's own).
+KESSA's pointer 3 plays 千影 (the user, 2026-10-28: 「指針三的毀魂技使用之前的「千影」動畫」)."
+  (let ((f (fighter att)))
+    (and *core-on* (nth (1- (max 1 (min 3 (fighter-sp-ptr f)))) (getf (kit-core (fighter-kit f)) :kikon-cines)))))
+
 (defun core-set-kikon-n! (att red)
   "The Konpaku the Kikon about to follow takes: the kit's count in the style of the SP that struck (CORE-KIKON-COUNT)."
   (let ((f (fighter att)))

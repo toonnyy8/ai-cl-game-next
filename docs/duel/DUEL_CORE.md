@@ -107,6 +107,14 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
 - Anti-passive play: no new rule; measure first, act only if matches run past 210 s or time out often.
 - Order: docs → pure rules (host-tested) → Ichigo → Kenpachi, Hisagi → input / phone / HUD → CPU → gates.
 
+## 5b. Design rule: a pointer's NS, its AS and its Kikon go together
+
+The user, 2026-10-28: 「以後每個指針的 NS 與指向他的 AS 以及對應的毀魂技都要有風格與效果上的連動關係」. For every character and form, pointer n's
+NS, the AS that writes pointer n (AS n) and pointer n's Kikon (kit `:core :kikon-cines`) share one theme in look and effect. Status at the
+rule (2026-10-28): KESSA 2 (Getsuga: NS2 charges / AS2 Getsuga / 漆黒の月牙天衝) and 3 (clones: NS3 / AS3 / 千影) linked; KESSA 1 (chains:
+NS1 / AS1) has no chain Kikon yet (it plays the Soul Break's Getsuga); the Shikai's three are not linked yet; Kenpachi and Hisagi not
+reworked.
+
 ## 6. Ichigo's three NS, the tells, the stances, the clash slow motion (2026-10-27)
 
 User's request (verbatim): 「我接下來要從一護開始重構角色」, then 「請幫我重新設計三種不同的 NS，其中一招能透過月牙天衝達成遠距離牽制，然後在不同的 NS 下會有不同的中立站姿讓人能清楚分辨。此外 NS 跟 NA 的起手都要有足夠明顯的前搖讓人能看穿並抵消，最好抵消的瞬間要有慢動作讓人有一瞬間能思考接下來的行動」.
@@ -164,6 +172,25 @@ follow-up links keep their speed).
   Ichigo's IK win rate is open (the user's call). Browser: SP SP SP → clone hits 18, 18, then the X 38 + 38; SP SP J J Shift+J → the SA 50, J2 30 with
   the clones 35 + 35, AS2 50 with 35 + 35. KESSA's stances by pointer: `:ic-st-rush` / `:ic-tsuki` / `:ic-k-stance` (low, the slab trailing /
   cocked high behind / hanging point-down; the slab on the shoulder at 1 read too close to 2's).
+- **KESSA's own core set** (§428, the user: 「要，都幫我換一換」, 「另外指針一的 NS 幫我換成使用血鎖進行近身抽打，中立站姿也改成血鎖圍繞在身邊，並且切換成指針一的 AS
+  也做成血鎖的攻擊」, 「指針三的毀魂技使用之前的「千影」動畫」): KESSA's `:core` is `:ns (:ic-k-n1a :ic-k-n2a :ic-k-n3a) :as (:ic-k-as1 :ic-k-as2 :ic-k-as3)
+  :sa :ic-k-sa1`; no Shikai clip is played in KESSA (a host check). NS1 is the blood chains from his left fist: `ic-k-n1a` a wide lash (S 22,
+  60) → `ic-k-n1b` the backhand (S 14, 55) → `ic-k-n1c` overhead into the plaza (S 18, 80, crumple), reach 3.0 / 3.0 / 3.2 m; AS1 is
+  KUSARI-BIKI as a whip (§430, the user: 「血鎖 AS 也改成多段的鞭擊」: `ic-k-as1`, clip `:ic-k-whip`, four lashes in one press, 14 each, left /
+  right in turn, the last a knockdown; 10 flash-step stolen a lash). The chains come out of both wrists and both ankles (§430: 「血鎖是從手腕、
+  腳踝延伸出來的」, `*ic-chain-roots*`): the left wrist's lashes, the other three reach for the same tip, fainter; a multi-hit move sweeps once
+  per hit window. The chain is a look: a move's
+  `:params :chain (from-deg to-deg length from-y to-y)` swept over S-4 .. S+A+4 (`ichigo-chain-lash`). Pointer 1's rest `:ic-k-st-chain`,
+  a chain out of each wrist and ankle curling round him (`ichigo-chain-rest`). The SAs (`ic-k-sa1`, `ic-k-sa-g1` ITA-NAGI's chop; `ic-k-sa-g2` KAESHI-ITA), NS2
+  (`ic-k-n2a/b` new charge clips `:ic-k-chg1/2`, `ic-k-n2c` cut down with `:ic-k-f3`), AS2 (`:ic-k-f1` > `:ic-k-f2`) and AS3 (`:ic-k-f2` >
+  `:ic-k-wrap` > `:ic-k-f3`) are the Shikai's moves with KESSA's clips. Kikon cinematic by pointer: kit `:core :kikon-cines`, one per
+  pointer (`core-kikon-cine`): KESSA's pointer 3 plays 千影 (`ic-kessa-kikon-cine`), else his Soul Break's 漆黒の月牙天衝. Browser: SP SP SP →
+  `IC-K-N1A` 60, `IC-K-N1B` 55, `IC-K-N1C` 80; J SP → `IC-K-AS1` 40; under pointer 3, J and SP held → `KIKON`, `cine IC-KESSA-KIKON-CINE`.
+- **KESSA's AS2 and AS3** (§431, the user: 「幫我將指向指針二的 AS 改成給月牙天衝有關的攻擊，指向指針三的 AS 則改成與分身相關的攻擊」): AS2 = SOGA's cut with
+  the black flame on the slab (50) > the 漆黒 crescent thrown point-blank (`ic-k-as2b`: a 3 m wide wave, 18 m/s over 6 m, 60, the launch);
+  AS3 = his cuts with NS3's clones joining one a press: `ic-k-as3` (45) + the right clone, `ic-k-as3b` (45) + the left clone, `ic-k-as3c`
+  their X (38 + 38) with his drop (on-frames after the copies' `:enter` 6 / 7: at 4 / 2 they were skipped). Browser: J J SP SP → 50, WAVE 60;
+  J J J SP SP SP → 45 + 18, 45, X 38 + 38 (the X knocks him down first, so the drop's 100 whiffs).
 - **The wave is a hazard**: the triangle never judges it (`core-verdicts`: a hazard's hit is a clean hit), so it beats NA / NS / AS in their
   startup at range; the counters are a side Step, a Hoho or closing in. No Kikon off a wave (`apply-hit`'s `(not hazard)`), no AS.
 - **Tells**: NA1 (`:ic-j1`) S 7 → 14 with a new coil clip `:ic-na1` (the short blade drawn far to his left and held); NS first segments S 22 / 22 / 18.

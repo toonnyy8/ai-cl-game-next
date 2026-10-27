@@ -15,7 +15,9 @@ landed: ORANGE).")
 (defvar *deck-key* (list 0 0 0 nil nil 0 0 0 nil) "Window w, h, density, hand, one-hand, safe top / bottom, UI scale, the U chip of the
 last TOUCH-LAYOUT!.")
 (defvar *wake* nil "Wake lock requested (battle).")
-(defparameter *glyph-names* #("" "Q" "STEP" "F" "HOHO" "GUARD" "DASH" "BURST") "TOUCH-GLYPH kinds (7: the duel's Burst).")
+(defparameter *glyph-names* #("" "Q" "STEP" "F" "HOHO" "" "DASH" "BURST")
+  "TOUCH-GLYPH kinds (7: the duel's Burst). 5, the rest, is no longer named GUARD (the user, 2026-10-28: 「請將長按時是防禦的手勢偵測給移除」):
+there is no guard; the rest stays only as the hold a Hoho's up-flick starts from and the thumb an SP's Kikon keeps down.")
 (defvar *glyph-seen* -1f4 "TOUCH-GLYPH-T last logged.")
 
 ;;; page services (pf_page_get / pf_page_set, duel/web/pwa.js)
@@ -158,7 +160,8 @@ frame's finger events."
   (let ((g (touch-glyph-t *touch*)))                        ; the combat log names each recognised gesture
     (when (and *combat-log* (/= g *glyph-seen*))
       (setf *glyph-seen* g)
-      (clog "P1 gesture ~a" (svref *glyph-names* (touch-glyph *touch*))))))
+      (when (plusp (length (svref *glyph-names* (touch-glyph *touch*))))   ; (the unnamed rest: no line)
+        (clog "P1 gesture ~a" (svref *glyph-names* (touch-glyph *touch*)))))))
 
 
 (defun tap-p () "A tap ended this frame (menus)." (touch-tapped-p *touch*))
@@ -265,7 +268,7 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
                 (%arc (touch-ox tr) (touch-oy tr) r (* 3f0 d) k 0.92 0.96 1.0 (if zero (+ 0.6 (* 0.4 (hud-pulse 3.0))) 0.9)))
             (%hrect (- (touch-ox tr) d) (+ (touch-oy tr) r) (* 2f0 d) (* 3f0 d) 1f0 1f0 1f0 0.8f0))))) ; the half: bar 1 full
     (let ((age (- (* 1000f0 (elapsed-time)) (touch-glyph-t tr))))
-      (when (and (< age 300) (plusp (touch-glyph tr)))
+      (when (and (< age 300) (plusp (length (the simple-string (svref *glyph-names* (touch-glyph tr))))))   ; (the rest: no glyph)
         (hud-text (svref *glyph-names* (touch-glyph tr)) (touch-glyph-x tr) (- (touch-glyph-y tr) (* 60 d)) (* 2 s)
                   '(1 0.85 0.4 1) :align :center)))))
 

@@ -389,8 +389,10 @@ black flame gathered along the slab from (x0 y0 z0) to its tip (x1 y1 z1): a smo
   "Step side E's charge (*IC-CHARGED*: set by the move he is in) and draw its glow and trails on the posed body (KESSA: the black flame
 on the slab, ink trails)."
   (let* ((side (fighter-side f)) (kessa (eq (kit-form (fighter-kit f)) :kessa)) (mv (and (eq (fighter-state f) :move) (fighter-move f))) (n (and mv (mv-name mv)))
-         (c (case n ((:ic-n2a :ic-sa-g1) 1) ((:ic-n2b :ic-sa-g2) 2)
-                  ((:ic-j2 :ic-j3 :ic-as1 :ic-as2 :ic-as2b :ic-as3 :ic-as3b :ic-as3c) (svref *ic-charged* side))   ; the string the SA goes on into
+         (c (case n ((:ic-n2a :ic-sa-g1 :ic-k-n2a :ic-k-sa-g1 :ic-k-as2) 1) ((:ic-n2b :ic-sa-g2 :ic-k-n2b :ic-k-sa-g2 :ic-k-as2b) 2)   ; (KESSA's AS2:
+                  ((:ic-j2 :ic-j3 :ic-as1 :ic-as2 :ic-as2b :ic-as3 :ic-as3b :ic-as3c   ; the string the SA goes on into        ;  the Getsuga's flame)
+                    :ic-k-j2 :ic-k-j3 :ic-k-as1 :ic-k-as3 :ic-k-as3b :ic-k-as3c)
+                   (svref *ic-charged* side))
                   (t 0)))
          (swing (and mv (eq (fighter-phase f) :main) (>= (fighter-sf f) (- (mv-s mv) 4)) (< (fighter-sf f) (+ (mv-s mv) (mv-a mv) 3))))
          (jm (model-joints m)) (dr (drawing-no)))
@@ -415,6 +417,49 @@ on the slab, ink trails)."
             (trail-decay tr))
         (vfx-smear tr (svref *ic-charge-smears* (+ (* 2 side) b)) (if kessa 2 1))))))   ; (KESSA's trail an ink wash)
 
+;;; KESSA's blood chains (DUEL_CORE §6, 2026-10-28): a chain move's lash (its :params :chain), and pointer 1's rest, the chains
+;;; circling him (the user: 「中立站姿也改成血鎖圍繞在身邊」)
+(defparameter *ic-chain-roots* '((:hand-l 0.0 -0.06 0.0) (:hand-r 0.0 -0.06 0.0) (:foot-l 0.0 0.05 0.0) (:foot-r 0.0 0.05 0.0))
+  "Where KESSA's blood chains come out: both wrists, both ankles (the user, 2026-10-28: 「血鎖是從手腕、腳踝延伸出來的」); the first is the
+lashing one.")
+
+(defun ichigo-chain-lash (e f m)
+  "A chain move (its :params :chain (from-deg to-deg len from-y to-y)): the chain cast from the left wrist, swept from FROM to TO degrees off
+his facing (0 = at him) and drawn back, its tip from FROM-Y to TO-Y m up; the other wrist's and both ankles' chains reach for the same tip,
+fainter and a beat behind. One sweep over S-4 .. S+A+4, or one per hit window (a multi-hit lash: alternating directions)."
+  (let* ((mv (and (eq (fighter-state f) :move) (fighter-move f))) (ch (and mv (getf (mv-params mv) :chain))))
+    (when (and ch (> (model-alpha m) 0.5))
+      (destructuring-bind (a0 a1 len y0 y1) ch
+        (let* ((sf (fighter-sf f)) (p (pos-of e)) (hits (mv-hits mv)) (n (length hits)))
+          (dotimes (w (max 1 (if (> n 1) n 1)))
+            (multiple-value-bind (lo span) (if (> n 1)
+                                               (let ((hw (svref hits w))) (values (- (hw-from hw) 3) (+ (- (hw-to hw) (hw-from hw)) 6)))
+                                               (values (- (mv-s mv) 4) (+ (mv-a mv) 8)))
+              (let ((b0 (if (evenp w) a0 a1)) (b1 (if (evenp w) a1 a0)))
+                (loop for (j lx ly lz) in *ic-chain-roots* for r from 0
+                      do (let ((u (/ (- sf lo (* 2 r)) (float span))))
+                           (when (< 0.0 u 1.0)
+                             (let* ((v (ic-joint e (joint-index j) *ic-cb* (f32 lx) (f32 ly) (f32 lz)))
+                                    (ang (+ (yaw-of e) (deg (+ b0 (* u (- b1 b0))))))
+                                    (l (* len (if (= r 0) 1.0 0.8) (min 1.0 (* 4 u) (* 4 (- 1.0 u)))))
+                                    (tx (+ (aref p 0) (* l (fwd-x ang)))) (ty (+ y0 (* u (- y1 y0)))) (tz (+ (aref p 2) (* l (fwd-z ang)))))
+                               (vfx-ic-chain (aref v 0) (aref v 1) (aref v 2) tx ty tz (if (= r 0) 0.95 0.5))))))))))))))
+
+(defun ichigo-chain-rest (e f)
+  "KESSA resting under pointer 1: a blood chain out of each wrist and each ankle, curling round him and swaying (two links of arc each)."
+  (when (and *core-on* (= (fighter-ptr f) 1) (member (fighter-state f) '(:idle :guard)))
+    (let ((p (pos-of e)) (tm (fx-clock)) (w *ic-ct*))
+      (loop for (j lx ly lz) in *ic-chain-roots* for i from 0
+            do (let* ((v (ic-joint e (joint-index j) *ic-cb* (f32 lx) (f32 ly) (f32 lz)))
+                      (x0 (aref v 0)) (y0 (aref v 1)) (z0 (aref v 2))
+                      (ang (+ (* 0.8 tm) (* i 1.571))) (r 0.85) (hy (+ 0.5 (* 0.35 (mod i 2)) (* 0.15 (sin (+ (* 1.7 tm) i))))))
+                 (dotimes (k 3)
+                   (let* ((a1 (+ ang (* (1+ k) 0.6))) (x1 (+ (aref p 0) (* r (cos a1)))) (z1 (+ (aref p 2) (* r (sin a1))))
+                          (y1 (+ hy (* 0.25 k))))
+                     (setf (aref w 0) (f32 x1) (aref w 1) (f32 y1) (aref w 2) (f32 z1))
+                     (vfx-ic-chain x0 y0 z0 x1 y1 z1 0.85)
+                     (setf x0 x1 y0 y1 z0 z1))))))))
+
 (defun ichigo-draw (e rdt)
   "KIT-HOOK :draw (both forms): step the Shikai's cloak spring; the crescent edge and the ground contact (§3.3)."
   (let* ((f (fighter e)) (m (model e)) (o (* 32 (fighter-side f))) (st *ic-look*)
@@ -425,6 +470,7 @@ on the slab, ink trails)."
     (declare (fixnum o sf prev))
     (unless kessa (%ya-hem-step st o (if (typep rdt 'single-float) rdt (f32 rdt))))   ; (F32 inline re-boxes)
     (ichigo-charged-blades e f m)
+    (when kessa (ichigo-chain-lash e f m) (ichigo-chain-rest e f))
     (when (and edge (model-weapon m) (> (model-alpha m) 0.5))
       (let ((jm (model-joints m)) (tip *ic-tip*) (tip-l *ic-tip-l*) (hits (mv-hits mv)))
         (declare (simple-vector hits))

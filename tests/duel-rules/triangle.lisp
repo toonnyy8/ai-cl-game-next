@@ -98,7 +98,7 @@
   (check (eq (kit-core-move k :ns 3) (kit-move k :ic-k-n3a)))
   (check (every (lambda (n) (and (zerop (length (mv-hits (kit-move k n)))) (eq (mv-sa-move k (kit-move k n)) (kit-move k :ic-k-sa))))
                 '(:ic-k-n3a :ic-k-n3b :ic-k-n3c)))
-  (check (equal (getf (kit-core k) :stances) '(:ic-st-rush :ic-tsuki :ic-k-stance)))
+  (check (equal (getf (kit-core k) :stances) '(:ic-k-st-chain :ic-tsuki :ic-k-stance)))
   (check (eq (kit-core-move (kit :ichigo :base) :ns 3) (kit-move (kit :ichigo :base) :ic-n3a))))   ; the Shikai keeps RANGETSU
 ;; DEFCLIP-MIRROR: a key's right / left channels swapped, the middle's twist and the root's yaw negated
 (let* ((a (find-clip :ic-k-xa)) (b (find-clip :ic-k-xb)) (n +pose-n+) (pa (engine::clip-poses a)) (pb (engine::clip-poses b)) (k (* 3 n)))
@@ -111,4 +111,9 @@
 (dolist (cf '((:ichigo :base) (:ichigo :kessa)))
   (let* ((k (apply #'kit cf)) (j2 (kit-next k (getf (kit-commands k) :q) :q)))
     (check (every (lambda (n) (eq (kit-next k n :q) j2)) (append (list (getf (kit-core k) :sa)) (core-segment-sas (kit-core k)))))))
-(check (eq (kit-next (kit :ichigo :kessa) :ic-sa-g1 :q) (kit-move (kit :ichigo :kessa) :ic-k-j2)))
+(check (eq (kit-next (kit :ichigo :kessa) :ic-k-sa-g1 :q) (kit-move (kit :ichigo :kessa) :ic-k-j2)))
+;; KESSA plays no Shikai clip in the core set (2026-10-28: 「要，都幫我換一換」), and pointer 3's Kikon is 千影
+(let* ((k (kit :ichigo :kessa)) (core (kit-core k)))
+  (check (notany (lambda (n) (let ((c (mv-clip (kit-move k n)))) (and c (not (search "IC-K-" (symbol-name c))) (not (member c '(:ic-tsuki))))))
+                 (core-move-names core)))
+  (check (equal (getf core :kikon-cines) '(nil nil ic-kessa-kikon-cine))))
