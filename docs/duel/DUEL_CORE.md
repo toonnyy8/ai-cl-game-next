@@ -88,12 +88,24 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
 - 「如果 SP 發生有效攻擊後持續按住按鍵就接入 Kikon」 → after an NS or an AS connects, holding the SP button continues into that
   move's Kikon. 「兩者都能發動毀魂技，然後具體是打出哪一招取決於指針改變前的 SP」 → the Kikon move and its profile belong to the SP
   that landed (for an AS, the pointer value **before** the AS wrote it).
+- **Changed 2026-10-28** (the user: 「幫我把毀魂技的聯動改成依據目前指針指向的 NS 來決定，而不是由切換前的 NS 決定」): an AS's Kikon now
+  follows the pointer the AS **writes** (AS n → pointer n's cinematic and Konpaku profile, and the Soul Break profile while it is in
+  play), so AS n's Kikon is its own theme (§5b). An NS still uses the pointer it started under (the same value). One line:
+  `core-as-start!` sets `fighter-sp-ptr` to n, not to the old pointer. The move of the follow-up is unchanged (the AS's strike again).
 - **A hold, not a mash** (2026-10-27, the user: 「毀魂技的觸發判定有點怪異，我是要求『按住』才發動，但目前連打也會觸發」): the first build
   read only whether the button was down on the hit frame, so a mashed SP that happened to be down counted. Now each NS / AS segment
   starts with `fighter-sp-held` set and `core-hold-step` clears it on any step the button is up; the Kikon needs it still set at the
   hit (`apply-hit`). A latched next segment pressed during the last one starts held only if the button is still down. Browser check
   (Ichigo, keyboard): Shift + J held 1.6 s → `IC-N1A`, `KIKON FOLLOW-UP`, `KIKON 68`; Shift held + J tapped every 0.1 s → `IC-N1A`,
   `IC-N1B`, `IC-N1C`, no Kikon.
+- **The phone's hold: a re-press** (2026-10-28, the user: 「手機模式目前常常有毀魂技感測不到的情況……實際在觸控時的判斷應該改為『打中後是否有
+  再次點擊並長按 SP』」; asked when, 「打中前按下」). A tap fires on its lift, so the thumb was always up on the step after the SP started
+  and the hold was cleared at once (only a latched segment that began with the thumb already back down could Kikon). Now an NS / AS
+  segment of P1 in ONE-HAND starts with `fighter-sp-held` = `:rearm`; the first step a contact is on the pad (`touch-active-p`, any
+  touch, no 120 ms rest needed) makes it `t`, and from there it is the keyboard's rule: a lift clears it, and the contact must still be
+  down at the hit. Browser check (`--mobile`, Ichigo, debug 2502 + 2393): the SP tap, a re-press 0.1 s later held 1.6 s → `IC-N1A`,
+  `KIKON FOLLOW-UP`, `KIKON 68`, `IC-HEAVY-KIKON-CINE`; the tap alone → `IC-N1A`, no Kikon; taps every 0.12 s → `IC-N1A`, `IC-N1B`,
+  `IC-N1C`, no Kikon. The CPU and the keyboard are unchanged (the sim gate has no touch).
 - 「用攻擊抵銷毀魂技並彈開雙方回到中立狀態」 and 「沒必要其他手段，只留攻擊抵銷」 → the Kikon follow-up is cancelled only by an attack
   (both bounce to neutral); Hoho and Burst do not stop it. A **red** victim cannot do even that (red = the Kikon must-hit line).
 - The 1.5 s Kikon cooldown is dropped with the O key (it was a standalone key); the hold is gated by the SP landing.

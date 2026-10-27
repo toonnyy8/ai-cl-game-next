@@ -10,7 +10,8 @@
 count the attack press (an NA link and an SA are attack presses: the pointer an AS writes)."
   (let ((cls (kit-class (fighter-kit f) mv)))
     (declare (ignorable old))
-    (setf (fighter-cls f) cls (fighter-cls-t f) *match-tick* (fighter-sp-held f) (and (member cls '(:ns :as)) t)
+    (setf (fighter-cls f) cls (fighter-cls-t f) *match-tick*
+          (fighter-sp-held f) (and (member cls '(:ns :as)) (if (core-touch-p f) :rearm t))   ; a tap fired on its lift (CORE-HOLD-STEP)
           (fighter-charge-mult f) (let ((c (getf (mv-params mv) :charge-mult)))   ; a charged SA arms it; its string keeps it
                                     (cond (c (f32 c)) ((and old (member cls '(:na :as))) (fighter-charge-mult f)) (t 1f0))))
     (case cls ((:na :sa) (incf (fighter-presses f))))))
@@ -38,10 +39,12 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
       t)))
 
 (defun core-as-start! (e f)
-  "SP after an attack hit: the AS of the attack press count, writing the pointer (its style is the pointer before the write)."
+  "SP after an attack hit: the AS of the attack press count, writing the pointer. Its Kikon (cinematic, Konpaku profile) is the
+pointer it writes, AS n's own theme (the user, 2026-10-28: 「幫我把毀魂技的聯動改成依據目前指針指向的 NS 來決定，而不是由切換前的 NS 決定」;
+before: the pointer before the write)."
   (let* ((n (core-as-pointer (fighter-presses f) (getf (kit-core (fighter-kit f)) :as-by-press))) (mv (kit-core-move (fighter-kit f) :as n)))
     (when mv
-      (setf (fighter-sp-ptr f) (fighter-ptr f))
+      (setf (fighter-sp-ptr f) n)
       (start-move e mv :quick)
       (setf (fighter-ptr f) n (fighter-as-done f) t)
       (clog "~a AS~d pointer ~d" (side-name e) n n)
@@ -133,13 +136,21 @@ and AS open: 「視同命中」); a same-class tie also ends both moves and boun
 (defun core-hold-step (e f)
   "Each step inside an NS / AS segment: a let-go of the SP button clears the hold (FIGHTER-SP-HELD), so only a hold kept from
 the segment's start to its hit is a Kikon; a mashed SP that is down on the hit frame is not (the user, 2026-10-27: 「我是要求『按住』才發動，
-但目前連打也會觸發」)."
-  (when (and (fighter-sp-held f) (not (core-held-p e))) (setf (fighter-sp-held f) nil)))
+但目前連打也會觸發」). On the phone the SP is a tap, fired on the lift, so the segment starts :REARM: the hold is a new touch after it,
+kept down to the hit (the user, 2026-10-28: 「實際在觸控時的判斷應該改為『打中後是否有再次點擊並長按 SP』」, judged at the hit: 「打中前按下」)."
+  (case (fighter-sp-held f)
+    ((nil))
+    (:rearm (when (touch-active-p *touch*) (setf (fighter-sp-held f) t)))
+    (t (unless (core-held-p e) (setf (fighter-sp-held f) nil)))))
+
+(defun core-touch-p (f)
+  "Is F P1 on the phone's thumb pad (*ONE-HAND*), whose SP is a tap?"
+  (and *one-hand* *p1* (eq f (fighter *p1*))))
 
 (defun core-held-p (att)
   "Is ATT still holding the SP button (the attack button) this step?"
   (or (vpad-down (pilot-vpad (pilot att)) :quick)
-      (and *one-hand* (eq att *p1*) (touch-resting-p *touch*))))   ; a phone: the thumb resting on the pad while the SP strikes
+      (and *one-hand* (eq att *p1*) (touch-active-p *touch*))))   ; a phone: the thumb back on the pad while the SP strikes
 
 (defun core-kikon-cine (att)
   "The cinematic of ATT's Kikon by the pointer of the SP that struck (the kit's :core :kikon-cines, one per pointer; NIL: the kit's own).
