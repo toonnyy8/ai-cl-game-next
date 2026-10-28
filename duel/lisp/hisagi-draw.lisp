@@ -250,6 +250,9 @@ turned alternately, a steel glint every other one, presence K (SAG and K: litera
           (vfx-hs-chain a b 0f0 0.9f0)))))
   nil)
 
+(defparameter *hs-tsumuji-orbit* 0.55
+  "AS1 TSUMUJI's drawn sickle circles the victim this far from his centre (m; %HS-POINT code 12, §27.10): its blades
+(0.5 m round their crossing) pass through him, the disc stays outside his silhouette. A look.")
 (defun-fast %hs-point (out code jm pos fa anchor vpos)
   "OUT := one of the left sickle's points: CODE 0 the left fist (:weapon-l), 1 the thrown grip (FA[1] - the sickle's length
 along his facing FA[0], 1.1 m up: its point at FA[1]), 2 the anchor (hooked: the victim's chest when he is within
@@ -257,7 +260,9 @@ along his facing FA[0], 1.1 m up: its point at FA[1]), 2 the anchor (hooked: the
 (HS-HAND's point: the pulls' chain end), 5 the grip under the point the draw hook placed (*HS-PT*: the Shikai's windmill,
 SHIBARI's wrap); A1's (*HS-FOE-PATHS*): 6 the victim's centre (*HS-ANCHOR-UP* over his feet: HS-FOE-SEG's end), 7 / 8 3.0 /
 3.8 m over his feet, 9 the saw's wheel (0.8 m round the left fist, upright in his facing's plane, by the clip frame), 10 K1's
-sweep end (6.0 m x the charge, 40 degrees to his right, 1.0 m up)."
+sweep end (6.0 m x the charge, 40 degrees to his right, 1.0 m up), 11 HS-CORE-SEG's far end (the victim's centre, or
+*HS-CORE-CHAIN* m along the line to him), 12 AS1 TSUMUJI's orbit (§27.10): *HS-TSUMUJI-ORBIT* m round 11 in the tipped
+flat plane, a quarter turn every 4 clip frames, at each %HS-TSUMUJI-CUTS arc's head on its hit frame."
   (declare (type f32vec out jm pos fa anchor vpos) (fixnum code))
   (let* ((yaw (aref fa 0)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))))
     (declare (single-float yaw fx fz))
@@ -287,6 +292,17 @@ sweep end (6.0 m x the charge, 40 degrees to his right, 1.0 m up)."
       (10 (let* ((r (* 6f0 (aref *hs-ks* 0))) (a (- yaw 0.6981317f0)))
             (declare (single-float r a))
             (setf (aref out 0) (- (aref pos 0) (* r (f-sin a))) (aref out 1) 1.0f0 (aref out 2) (- (aref pos 2) (* r (f-cos a))))))
+      ((11 12) (let* ((dx (- (aref vpos 0) (aref pos 0))) (dz (- (aref vpos 2) (aref pos 2))) (d (f-hypot dx dz))   ; (HS-CHAIN-
+                      (cc (the single-float *hs-core-chain*)) (k (if (> d cc) (/ cc d) 1f0)))              ;  SEG-TO's far end)
+                 (declare (single-float dx dz d cc k))
+                 (setf (aref out 0) (+ (aref pos 0) (* k dx)) (aref out 1) (+ (aref vpos 1) (the single-float *hs-anchor-up*))
+                       (aref out 2) (+ (aref pos 2) (* k dz)))
+                 (when (= code 12)                                      ; (the orbit: at each cut's head on its hit frame)
+                   (let* ((r (the single-float *hs-tsumuji-orbit*)) (b (+ 4.4434609f0 (* 0.3926991f0 (- (aref *hs-fr* 0) 14f0))))
+                          (a (+ yaw b)))
+                     (declare (single-float r b a))
+                     (setf (aref out 0) (- (aref out 0) (* r (f-sin a))) (aref out 1) (+ (aref out 1) (* 0.404f0 r (f-cos b)))
+                           (aref out 2) (- (aref out 2) (* r (f-cos a))))))))
       (t (setf (aref out 0) (+ (aref pos 0) (* (the single-float *hs-hand-ahead*) fx))
                (aref out 1) (+ (aref pos 1) (the single-float *hs-hand-up*))
                (aref out 2) (+ (aref pos 2) (* (the single-float *hs-hand-ahead*) fz))))))
@@ -296,9 +312,21 @@ sweep end (6.0 m x the charge, 40 degrees to his right, 1.0 m up)."
   "M := the flying sickle's world matrix: its grip at V, turned to his facing FA[0], its blade pitched forward (SPIN 0),
 tumbling with the fx clock (SPIN 1), or spun flat about its blades' crossing (SPIN 2: the Shikai's thrown disc, the
 crossing 0.6 m short of V's point, so its far edge stays within 0.15 m of it); A1's: SPIN 3 the upright saw (its blades'
-crossing at V), 4 point down (its point at V). M4-EULER!'s layout, inline (its float
-arguments would box)."
+crossing at V), 4 point down (its point at V); §27.10: 5 AS1 TSUMUJI's flat disc (its blades' crossing at V, spun in the
+horizontal plane with its far edge tipped 22 degrees up, so from the behind camera it reads as a spinning disc, not a
+line). M4-EULER!'s layout, inline (its float arguments would box)."
   (declare (type f32vec m v fa) (fixnum spin))
+  (when (= spin 5)                                                    ; §27.10: the plane's in-plane axes P = his right
+    (let* ((fx (- (f-sin (aref fa 0)))) (fz (- (f-cos (aref fa 0))))  ;  S (fz, 0, -fx) and Q = his facing tipped up
+           (a (* -40f0 (fx-clock))) (c (f-cos a)) (s (f-sin a))         ;  (ct fx, st, ct fz); Y = c P + s Q, Z = c Q - s P,
+           (ct 0.9271839f0) (st 0.3746066f0))                           ;  X = P x Q
+      (declare (single-float fx fz a c s ct st))
+      (setf (aref m 0) (* fx st) (aref m 1) (- ct) (aref m 2) (* fz st) (aref m 3) 0f0
+            (aref m 4) (+ (* c fz) (* s ct fx)) (aref m 5) (* s st) (aref m 6) (+ (* c (- fx)) (* s ct fz)) (aref m 7) 0f0
+            (aref m 8) (- (* c ct fx) (* s fz)) (aref m 9) (* c st) (aref m 10) (- (* c ct fz) (* s (- fx))) (aref m 11) 0f0
+            (aref m 15) 1f0)
+      (dotimes (i 3) (setf (aref m (+ 12 i)) (- (aref v i) (* 0.5f0 (aref m (+ 4 i)))))))
+    (return-from %hs-place! nil))
   (when (>= spin 3)                                                   ; A1: 3 the upright saw (its crossing at V, spun
     (let* ((fx (- (f-sin (aref fa 0)))) (fz (- (f-cos (aref fa 0))))  ;  rolling forward in his facing's plane, its top
            (a (* -30f0 (fx-clock))) (c (if (= spin 3) (f-cos a) 0f0))  ;  leant 30 degrees to his left so it reads as a
@@ -462,7 +490,7 @@ fist to the sickle wound on him."
               (setf (aref v 0) (- (aref v 0) (* k (f-cos yaw))) (aref v 2) (+ (aref v 2) (* k (f-sin yaw))))))
           (%hs-place! m v fa spin)
           (draw-weapon :kazeshini m :tint tint)
-          (when (= spin 3)                                            ; (A1: the saw's spin, three ink smears trailing
+          (when (or (= spin 3) (= spin 5))                            ; (A1: the saw's spin, three ink smears trailing
             (let ((dr (drawing-no)))                                  ;  its blades round V in its plane: M's Y and Z)
               (declare (single-float dr))
               (dotimes (j 3)
@@ -707,6 +735,41 @@ light at its middle); %HS-HODEN-BURST adds the explosion on him on a hit. A look
                       (%hs-bolt-seg p q 0 100 (+ 11 (* 3 i)) 90 kk)))
                   (%light (* 0.5f0 (+ (aref a 0) (aref b 0))) (* 0.5f0 (+ (aref a 1) (aref b 1))) (* 0.5f0 (+ (aref a 2) (aref b 2)))
                           0.62f0 1f0 0.86f0 (* 4f0 s) (* 3f0 k) 8))))))))
+  nil)
+
+(declaim (type f32vec *hs-tsumuji-cut-y*))
+(defparameter *hs-tsumuji-cut-y* (coerce (mapcar #'f32 '(0.15 -0.1 0.25 -0.05)) 'f32vec)
+  "%HS-TSUMUJI-CUTS: each cut's height off the victim's centre (m), so the four read as separate passes.")
+(defun-fast %hs-tsumuji-cuts (jm pos fa anchor vpos sf)
+  "AS1 旋風 TSUMUJI's cuts (§27.10, a look): at move frame SF, for each of its four hits (f14 / 18 / 22 / 26) an 8 f flat
+slash round the victim (FX-ENVELOPE 1 2 1 4) at HS-CORE-SEG's far end (%HS-POINT code 11, where the spinning sickle
+sits): a 140 degree comet arc 0.7 m round him in the sickle's plane (flat, its far side tipped up 22 degrees as
+%HS-PLACE! spin 5's; each a quarter turn on from the last, in the sickle's turning sense, at *HS-TSUMUJI-CUT-Y*), black ink with a white edge, a white star at its head on the flash.
+JM / ANCHOR only for %HS-POINT. 0 B."
+  (declare (type f32vec jm pos fa anchor vpos) (fixnum sf))
+  (let ((c *hs-wd1*) (dr (drawing-no 24f0)))
+    (declare (type f32vec c) (single-float dr))
+    (when (and (<= 14 sf) (< sf 34))
+      (%hs-point c 11 jm pos fa anchor vpos)
+      (dotimes (i 4)
+        (let ((age (- sf (+ 14 (* 4 i)))))
+          (declare (fixnum age))
+          (when (and (<= 0 age) (< age 8))
+            (fx-envelope (s k fl ph) ((/ (i->f age) 60f0) 1 2 1 4)
+              (when (< ph 5)
+                (let* ((r (* 0.7f0 s)) (b0 (+ (* 1.5707964f0 (i->f i)) 2.0f0)) (b1 (+ b0 2.4434609f0)) (bm (* 0.5f0 (+ b0 b1)))
+                       (a0 (+ (aref fa 0) b0)) (a1 (+ (aref fa 0) b1)) (am (+ (aref fa 0) bm)) (rc (* r 1.64f0))
+                       (y (+ (aref c 1) (aref *hs-tsumuji-cut-y* i)))                 ; (tipped as the disc: the far
+                       (y0 (+ y (* 0.404f0 r (f-cos b0)))) (y1 (+ y (* 0.404f0 r (f-cos b1))))   ;  side up 22 degrees)
+                       (ym (+ y (* 0.404f0 rc (f-cos bm))))
+                       (x0 (- (aref c 0) (* r (f-sin a0)))) (z0 (- (aref c 2) (* r (f-cos a0))))
+                       (x1 (- (aref c 0) (* r (f-sin a1)))) (z1 (- (aref c 2) (* r (f-cos a1))))
+                       (xm (- (aref c 0) (* rc (f-sin am)))) (zm (- (aref c 2) (* rc (f-cos am)))) (sd (+ 1300f0 (* 7f0 (i->f i)) dr)))
+                  (declare (single-float r b0 b1 bm a0 a1 am rc y y0 y1 ym x0 z0 x1 z1 xm zm sd))
+                  (fx-crescent x0 y0 z0 x1 y1 z1 xm ym zm (* 0.11f0 s) :comet 0.03f0 sd +pal-ink+ k :push 0.25f0)
+                  (fx-crescent x0 y0 z0 x1 y1 z1 xm ym zm (* 0.04f0 s) :comet 0.02f0 (+ sd 3f0) +pal-hit+ k :push 0.3f0)
+                  (when (> fl 0.5f0)
+                    (fx-star x1 y1 z1 0.06f0 0.3f0 7 dr 0f0 0f0 0.25f0 (+ sd 5f0) +pal-hit+ 0.95f0))))))))))
   nil)
 
 ;;; ---------------------------------------------------------------- the Bankai 風死絞縄's look (DUEL_HISAGI §21.6)
@@ -1458,6 +1521,10 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
         (when (< ck 5)                                                 ; (首掛 / 綴雷電: their scripts draw them, §26.6)
           (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
         (when (> volt 0) (%hs-volt (model-joints m) (pos-of o) volt sf))   ; (§27.6: the lightning along the binding chain)
+        (when (and shikai (= ck 0) mv (eq (mv-name mv) :hs-as1))      ; (§27.10: TSUMUJI's four flat cuts round him;
+          (%hs-tsumuji-cuts (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) sf)   ;  his right rod never
+          (setf (trail-count (blade-points (blade e))) 0f0))           ;  swings: the leap's slide and landing would
+                                                                       ;  smear it into a beam, DRAW-FIGHTER's trail dropped)
         (when (and shikai mv (eq (mv-name mv) :hs-sa-hoden) (eq (fighter-contact f) :hit)   ; (§27.5: 放電's burst on him)
                    (<= (mv-s mv) sf) (< sf (+ (mv-s mv) 18)))
           (%hs-hoden-burst (model-joints (model o)) (- sf (mv-s mv))))

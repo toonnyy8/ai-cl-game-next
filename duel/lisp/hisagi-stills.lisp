@@ -16,7 +16,8 @@ HOSOKU's spin and binding, spread K2 / K3, gathered K2 SOKUDA's U and L, K3 SOKU
 stance with the noose held taut, and batch A3's (§24.3): SAHARAI's ring lash in its recovery, KOJO's heave (the held chain
 trembling) and its reap, KAIBAKU-GEKI's haul and its throw-off (the noose reeled up), and §27.5's: 刈's stance (the wound
 chain), its five strikes' hit frames, CHIKUDEN's charge down the chain, 放電's burst, 餘電 at 400 and fading at 30, and §27.6's (their own clips, the bind kept
-wound on him): CHIKUDEN's front down the chain, 放電's charge, NS3a's wrap: each must be 0."
+wound on him): CHIKUDEN's front down the chain, 放電's charge, NS3a's wrap, and §27.10's AS1 TSUMUJI (its own clip): the
+flat-spinning sickle's flight, its spin in him with the cuts, its return: each must be 0."
   (let* ((e *p1*) (f (fighter e)) (st (hs e)) (m (model e)) (an (model-anim m)) (c0 (anim-clip an)) (t0 (anim-time an))
          (state (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)) (s0 (hss-state st))
          (ct (fighter-contact f)) (p (pos-of e)) (z0 (hss-zan st)))
@@ -93,7 +94,10 @@ wound on him): CHIKUDEN's front down the chain, 放電's charge, NS3a's wrap: ea
                        (progn (setf (hss-zan st) 30) (bytes))
                        (progn (setf (hss-zan st) 0) (at :hs-n3b 15 :hs-chikuden) (bytes))   ; (§27.6: CHIKUDEN's front down
                        (progn (at :hs-sa-hoden 6 :hs-hoden) (bytes))                        ;  the chain, 放電's charge,
-                       (progn (at :hs-n3a 30 :hs-s-shibari) (bytes)))))                     ;  NS3a's wrap)
+                       (progn (at :hs-n3a 30 :hs-s-shibari) (bytes))                        ;  NS3a's wrap)
+                       (progn (at :hs-as1 8 :hs-tsumuji) (bytes))                           ; (§27.10: TSUMUJI's flight,
+                       (progn (at :hs-as1 19 :hs-tsumuji) (bytes))                          ;  the spin and two cuts,
+                       (progn (at :hs-as1 34 :hs-tsumuji) (bytes)))))                       ;  the return)
         (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (hss-state st) s0
               (fighter-contact f) ct (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm
               (hss-bound st) b0 (hss-zan st) z0)
@@ -103,14 +107,14 @@ SP1 ~d, SP2 ~d, KOSA ~d, SAHARAI's recovery ~d; the route links (A2): HOSOKU ~d,
 SOKUTEI ~d; the bind's MAKIGIRI ~d, SHIBORI ~d, SP1 ~d, KOSHU ~d, KOJO's heave ~d, its reap ~d, KAIBAKU's haul ~d, its throw-off ~d, ~
 stance ~d, UNWIND ~d; the core (§26): NA1 ~d, the bind's stance ~d, the lightning's ~d; 刈 (§27.5): stance ~d, TAN-GARI ~d, ~
 REN-GARI ~d, SEN-GARI ~d, KO-GARI ~d, KARI-AGE ~d, CHIKUDEN ~d, HODEN ~d, ZANDEN ~d, its fade ~d; 縛雷 (§27.6): CHIKUDEN's front ~d, ~
-HODEN's charge ~d, NS3a's wrap ~d"
+HODEN's charge ~d, NS3a's wrap ~d; TSUMUJI (§27.10): its flight ~d, the spin and cuts ~d, the return ~d"
                  idle out nage hiki (nth 0 a1) (nth 1 a1) (nth 2 a1) (nth 3 a1) kaza grip rin kari (nth 0 ch) (nth 1 ch) (nth 2 ch) shibari kubi bankai bind
                  (nth 0 bk) (nth 1 bk) (nth 2 bk) (nth 3 bk) (nth 4 bk) (nth 5 bk) (nth 6 bk) (nth 7 bk)
                  (nth 0 a2) (nth 1 a2) (nth 2 a2) (nth 3 a2) (nth 4 a2) (nth 5 a2) (nth 6 a2) (nth 7 a2)
                  (nth 0 bb) (nth 1 bb) (nth 2 bb) (nth 3 bb) (nth 4 bb) (nth 5 bb) (nth 6 bb) (nth 7 bb) (nth 8 bb)
                  (nth 9 bb) (nth 0 core) (nth 1 core) (nth 2 core)
                  (nth 0 kr) (nth 1 kr) (nth 2 kr) (nth 3 kr) (nth 4 kr) (nth 5 kr) (nth 6 kr) (nth 7 kr) (nth 8 kr) (nth 9 kr)
-                 (nth 10 kr) (nth 11 kr) (nth 12 kr))))))
+                 (nth 10 kr) (nth 11 kr) (nth 12 kr) (nth 13 kr) (nth 14 kr) (nth 15 kr))))))
 (defparameter *hs-tip-moves*
   '((:bankai :hs-r-j1) (:bankai :hs-r-j2) (:bankai :hs-r-j3) (:bankai :hs-r-k1) (:bankai :hs-r-k2s) (:bankai :hs-r-k3)
     (:bankai :hs-r-k2) (:bankai :hs-r-j2s) (:bankai :hs-r-k3g) (:bankai :hs-r-j3g)
@@ -164,7 +168,8 @@ far edge. A debug measurement (it conses)."
     ;; / K3 (a :seg-fn window: placed on the victim) as how far the drawn sickle sits off his feet (0 wanted)
     (setf (fighter-form f) :base (hss-bound st) nil)
     (dolist (row '((:hs-k1 0) (:hs-k1 60) (:hs-j2k 0) (:hs-j3k 0) (:hs-k2 0) (:hs-k2j 0) (:hs-k3 0)
-                   (:hs-n2a 0) (:hs-n2b 0) (:hs-n2c 0) (:hs-as2 0) (:hs-as2b 0)))   ; (§27.5: 刈's let-outs)
+                   (:hs-n2a 0) (:hs-n2b 0) (:hs-n2c 0) (:hs-as2 0) (:hs-as2b 0)   ; (§27.5: 刈's let-outs)
+                   (:hs-as1 0)))                                                     ; (§27.10: TSUMUJI on the victim)
       (destructuring-bind (name n) row
         (let* ((mv (hs-scaled name n)) (clip (mv-clip mv)) (hw (svref (mv-hits mv) 0)) (seg (hw-seg hw)) (tips nil))
           (setf (hss-charge st) n (hss-kstr st) (> n 0) (fighter-state f) :move (fighter-move f) mv (fighter-phase f) :main
@@ -182,7 +187,10 @@ far edge. A debug measurement (it conses)."
                                   (sqrt (+ (expt (- (aref v 0) (aref p 0)) 2) (expt (- (aref v 2) (aref p 2)) 2)))))
                          tips))
           (log-msg "duel hisagi tip base ~(~a~) x~,2f ~(~a~): ~{~,2f~^ ~} | ~a" name (hs-charge-scale n) clip (reverse tips)
-                   (if seg "off the victim (0 wanted)" (format nil "edge ~,2f (arc)" (aref (first (hw-vols hw)) 1)))))))
+                   (if seg (if (eq name :hs-as1)
+                               (format nil "off the victim (§27.10: its orbit, ~,2f wanted)" *hs-tsumuji-orbit*)
+                               "off the victim (0 wanted)")
+(format nil "edge ~,2f (arc)" (aref (first (hw-vols hw)) 1)))))))
     (setf (hss-charge st) 0 (hss-kstr st) nil)
     (setf (fighter-form f) :bankai (hss-bound st) nil (fighter-contact f) nil)
     (to-idle e 0)))
@@ -224,14 +232,16 @@ crawl) / 50 (its fade, gone in under a second); the match camera, the sim runnin
     (:hs-na1 :hs-j1 2.0) (:hs-st-bind nil 3.0) (:hs-st-raiden nil 3.0)   ; (§26: the Shikai's core clips, the base form)
     (:hs-st-kari nil 3.0) (:hs-kr-tan :hs-n2a 2.5) (:hs-kr-ren :hs-n2b 1.7) (:hs-kr-sen :hs-n2c 3.0)   ; (§27.5: pointer 2 刈,
     (:hs-kr-ko :hs-as2 2.4) (:hs-kr-age :hs-as2b 2.4)                                               ;  38-43; CHIKUDEN 44,
-    (:hs-chikuden :hs-n3b 2.0) (:hs-hoden :hs-sa-hoden 2.0 :wrapped))                               ;  放電 45 on a hit; §27.6's clips)
+    (:hs-chikuden :hs-n3b 2.0) (:hs-hoden :hs-sa-hoden 2.0 :wrapped)                                ;  放電 45 on a hit; §27.6's clips)
+    (:hs-tsumuji :hs-as1 4.5))                                                                      ; (§27.10: AS1 TSUMUJI, 46)
   "83500+k (DUEL_HISAGI §21.8): the Bankai's strip slots, as *HS-STRIPS* plus the form: :bankai the ranged mode, :bind a
 bind (the noose), :unwind the bind mode just ended (UNWIND's ring). Batch A2 (§24.2): 26-32 the ranged route links (K1
 HOSOKU, spread K2 / K3, gathered K2 / K3G / J2s / J3G), 33 the bind's stance, 34 its Step + J SENGEN (§25.10). The core rebuild (§26, the Shikai, no form): 35 NA1, 36 the bind's stance, 37 the lightning's. Batch A3 (§24.3): 20 SP2 KAIBAKU-GEKI's own
 clip (HIKIYOSE's, its stand-in, gone), 22 KOJO's and 6 SAHARAI's redrawn. §27.5 (the Shikai): 38 pointer 2 刈's stance, 39
 TAN-GARI, 40 REN-GARI, 41 SEN-GARI, 42 KO-GARI, 43 KARI-AGE, 44 CHIKUDEN, 45 放電 HODEN (a hit: the burst on the victim;
 views 0-1 show only him); since §27.6 44 / 45 their own clips :hs-chikuden / :hs-hoden at their S (the bind wound on the
-victim, the lightning along the chain; NOKO's / RAIDEN's clips before).")
+victim, the lightning along the chain; NOKO's / RAIDEN's clips before); §27.10: 46 AS1 TSUMUJI :hs-tsumuji (4.5 m, where its
+leap ends: the sickle thrown spinning flat into the victim, the cuts round him).")
 (defparameter *hs-strips*
   '((:hs-s-stance nil 3.0) (:hs-s-walk-f nil 3.0) (:hs-s-run nil 3.0) (:hs-s-sen :hs-j1 2.0) (:hs-s-kaeshi :hs-j2 2.0)
     (:hs-s-rin :hs-j3 2.0) (:hs-s-kaeshi-1h :hs-j2-1h 2.0 :out) (:hs-s-rin-1h :hs-j3-1h 2.0 :out) (:hs-s-nage :hs-k1 6.0)
@@ -275,7 +285,7 @@ state (:out anchored 4 m ahead on the floor, :hooked anchored in him, :wrapped S
       (destructuring-bind (clip move dist &optional sickle form) (nth *hs-strip-k* *hs-strip-tab*)
         (declare (ignore clip sickle))
         (let ((far (member move '(:hs-k1 :hs-raiden :hs-kikon :hs-k2s :hs-shibari :hs-k2 :hs-k3h :hs-modoshi :hs-k3
-                                  :hs-n2a :hs-n2c :hs-as2 :hs-as2b :hs-n3b :hs-sa-hoden)))   ; (§27.5: 刈's 2.4-3 m, 縛雷's)
+                                  :hs-n2a :hs-n2c :hs-as2 :hs-as2b :hs-n3b :hs-sa-hoden :hs-as1)))   ; (§27.5: 刈's 2.4-3 m, 縛雷's)
               (wide (and form (>= dist 4.0))))                         ; (the Bankai's long reach)
           (cond (wide (if (= (second *hs-strip-fv*) 0)
                           (shot-on a -90 12.0 1.6 :look 1.2 :ahead (min 4.6 (* 0.55 dist)))
