@@ -186,7 +186,8 @@ Counters: `*draw-count*`, `*tri-count*` (last frame).
 `*camera*` is a `camera` struct (`make-camera`): `camera-pos`, `camera-target`, `camera-up` (vec3s),
 `camera-shake` (vec3 offset added to pos and target — write it for screen shake),
 `camera-fov` (vertical radians, default 60°), `camera-shift-y` (lens shift: the image moves up this much in NDC,
-default 0 = a centred frustum; a portrait screen uses it to put the subject off-centre), `camera-near` 0.1, `camera-far` 400.
+default 0 = a centred frustum; a portrait screen uses it to put the subject off-centre), `camera-shift-x` (the same
+across: the image moves right this much in NDC, default 0; 2026-10-28, SOUL DUEL's SELECT card), `camera-near` 0.1, `camera-far` 400.
 Derived by `(update-camera)`: `camera-eye`, `camera-right`, `camera-upv`, `camera-forward`,
 `camera-view`, `camera-proj`, `camera-view-proj`, `camera-inv-view-proj`.
 `(camera-look-at px py pz tx ty tz)` sets and updates. If you write the slots directly, call
@@ -237,6 +238,11 @@ drawn after it and keeps its colors.
 and the right half shifted down by this much, split along the vertical centre line; the strips
 that uncovers are black (a "the sky is cut in two" beat, e.g. 24). 0 = the plain image. The UI is
 not split.
+`*render-transparent*` (NIL): a one-frame latch (`end-frame` clears it; set it again every frame it is wanted). T: no
+sky is drawn (the scene clears to 0,0,0,0) and the composite (`fs_comp_a`, pipeline slot 18) writes the scene's alpha,
+raised to the brightest channel where bloom or additive fx glow; it wins over `*grade-impact*`. A page whose
+WebGPU canvas is configured `alphaMode: 'premultiplied'` (SOUL DUEL's `duel/web/alpha.js`) then shows through
+around what was drawn; the game skips its own stage. NIL = the opaque composite exactly as before (alpha 1).
 
 **Screen punctuation** (docs/style/STYLE_STORM_DESIGN.md §3.6): `(grade-impact mode &key (threshold 0.4)
 (keep-sat 0.45) (keep-hue 10) (keep-hue-2 keep-hue) (ink '(0.031 0.031 0.047)) (paper '(1 1 1)))` sets `*grade-impact*` and

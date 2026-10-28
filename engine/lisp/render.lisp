@@ -69,6 +69,8 @@ file F (same directory, recursively), every // comment is removed, and so are bl
   (shake (v3 0 0 0) :type f32vec)          ; world offset added to pos and target (screen shake)
   (fov (deg 60) :type single-float)        ; vertical, radians
   (shift-y 0f0 :type single-float)         ; lens shift: the image moves up this much in NDC (2 = the frame height)
+  (shift-x 0f0 :type single-float)         ; lens shift: the image moves right this much in NDC (2 = the frame width;
+                                           ; SELECT's model in a card, DUEL_WEBUI §4, the user 2026-10-28)
   (near 0.1f0 :type single-float)
   (far 400f0 :type single-float)
   ;; derived by UPDATE-CAMERA
@@ -100,6 +102,9 @@ M4-PERSPECTIVE!; ~740 B before 2026-10-26)."
     (let ((sy (camera-shift-y cam)))                ; an off-axis frustum (G6): ndc y += SY, the view is unchanged
       (declare (single-float sy))
       (unless (= sy 0f0) (setf (m@ pr 1 2) (- sy))))
+    (let ((sx (camera-shift-x cam)))                ; the same off-axis frustum across: ndc x += SX
+      (declare (single-float sx))
+      (unless (= sx 0f0) (setf (m@ pr 0 2) (- sx))))
     (m4-mul! (camera-view-proj cam) pr v)
     (m4-invert! (camera-inv-view-proj cam) (camera-view-proj cam))
     cam))
@@ -204,11 +209,16 @@ quality ladder's two light steps do nothing there).")
 (defvar *lp* (make-f32 (* 4 +max-lights+)))
 (defvar *lc* (make-f32 (* 4 +max-lights+)))
 (defvar *fu* (make-f32 +fu-floats+) "Frame uniforms, filled by FILL-FRAME-UNIFORMS.")
-(defvar *rp* (make-f32 22) "r_frame parameters (see r_frame).")
+(defvar *rp* (make-f32 23) "r_frame parameters (see r_frame).")
 (defvar *grade-desat* 0.0 "Composite desaturation: 0 = the image unchanged, 1 = greyscale (KO / flashback grading).")
 (defvar *grade-split* 0.0
   "Composite split, window pixels: the left half of the frame is shifted up and the right half down by
 this much along the vertical centre line (the uncovered strips are black). 0 = off.")
+(defvar *render-transparent* nil
+  "T: this frame only (END-FRAME clears it), the scene keeps its alpha: no sky is drawn (the scene target clears to
+0,0,0,0) and the composite writes the scene's alpha, so a page configured premultiplied shows through around what was
+drawn (SOUL DUEL's SELECT behind the HTML menus, docs/duel/DUEL_WEBUI.md §4; the user, 2026-10-28). NIL (every other
+frame): the opaque composite exactly as before. Set it again each frame it is wanted.")
 (defvar *grade-impact* 0
   "Screen punctuation mode of the composite (docs/style/STYLE_STORM_DESIGN.md §3.6): 0 off (the plain composite,
 RAVEN's), 1 negative, 2 two-tone (ink / paper by luma), 3 manga page (two-tone keeping saturated spot
@@ -260,7 +270,8 @@ while the game pauses. The toon fx shader steps its noise on it (24 Hz ticks, F.
     (make-pipeline 14 toon-vs "vs_hull" toon-fs "fs_ink" #x333 0 1 0 3)     ; RP_HULL (DRAW-MESH :TOON mode 3)
     (make-pipeline 15 toon-vs "vs_hull" toon-fs "fs_ink" #x333 0 1 0 4)     ; RP_HULL_CW
     (make-pipeline 16 (wgsl "fx-toon.vert.wgsl") "vs_fx_toon" (wgsl "fx-toon.frag.wgsl") "fs_fx_toon" #x324 0 1 3 0) ; RP_FXT (A2C)
-    (make-pipeline 17 tri "vs_tri" (wgsl "composite-fx.frag.wgsl") "fs_comp_fx" 0 2 0 0 0)) ; RP_COMP_FX (*GRADE-IMPACT*)
+    (make-pipeline 17 tri "vs_tri" (wgsl "composite-fx.frag.wgsl") "fs_comp_fx" 0 2 0 0 0) ; RP_COMP_FX (*GRADE-IMPACT*)
+    (make-pipeline 18 tri "vs_tri" (wgsl "composite.frag.wgsl") "fs_comp_a" 0 2 0 0 0))    ; RP_COMP_A (*RENDER-TRANSPARENT*)
   (setf *msaa-samples* (ffi:c-inline () () :int "r_sample_count()" :one-liner t)
         *fx-alpha* (make-stream-buffer 9 16384)
         *fx-add* (make-stream-buffer 9 16384)
@@ -477,6 +488,7 @@ threshold (0 with MSAA's alpha-to-coverage, 0.5 without)."
           (aref p 10) (if (env-toon e) 1f0 0f0)
           (aref p 11) (f32 *grade-impact*))
     (replace p *impact-params* :start1 12)
+    (setf (aref p 22) (if *render-transparent* 1f0 0f0) *render-transparent* nil)   ; a one-frame latch
     (fill-frame-uniforms (select-lights))
     (let* ((fa *fx-alpha*) (fb *fx-add*) (ft *fx-toon*) (ui *ui-batch*)
            (n (ffi:c-inline (*fu* p *dq* *dq-n* (stream-buffer-data fa) (stream-buffer-fill fa)

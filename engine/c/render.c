@@ -7,7 +7,7 @@
 static SDL_GPUDevice *r_dev;
 /* Slots are fixed: ui.lisp creates RP_UI = 10; the toon pipelines (SOUL DUEL's restyle) are appended. */
 enum { RP_LIT, RP_LIT_CW, RP_LIT_T, RP_LIT_T_CW, RP_SKY, RP_FXA, RP_FXB, RP_BRIGHT, RP_BLUR, RP_COMP, RP_UI,
-       RP_TOON, RP_TOON_CW, RP_SKY_TOON, RP_HULL, RP_HULL_CW, RP_FXT, RP_COMP_FX, RP_N };
+       RP_TOON, RP_TOON_CW, RP_SKY_TOON, RP_HULL, RP_HULL_CW, RP_FXT, RP_COMP_FX, RP_COMP_A, RP_N };
 static SDL_GPUGraphicsPipeline *r_pipe[RP_N];
 static SDL_GPUSampler *r_linear, *r_nearest;
 static SDL_GPUTexture *r_msaa_tex, *r_depth, *r_scene, *r_half[2], *r_q[2], *r_font;
@@ -219,7 +219,8 @@ static SDL_GPURenderPass *r_fs_pass(SDL_GPUCommandBuffer *cb, SDL_GPUTexture *ds
 /* The whole frame. FU = frame uniforms; RP = [0 bloom 1 threshold 2 strength 3 vignette
    4 scene w 5 scene h 6 window w 7 window h 8 desaturate 9 split (window px) 10 toon sky
    11 impact mode (0 = RP_COMP; 1..4 = RP_COMP_FX, see composite-fx.frag.wgsl) 12 threshold 13 keep-saturation
-   14 keep-hue 15..17 ink rgb 18..20 paper rgb 21 keep-hue-2]; DQ = N draw records; FXA/FXB/FXT/UI = vertex floats.
+   14 keep-hue 15..17 ink rgb 18..20 paper rgb 21 keep-hue-2 22 transparent (no sky, RP_COMP_A: the scene's alpha out,
+   *RENDER-TRANSPARENT*; it wins over the impact mode)]; DQ = N draw records; FXA/FXB/FXT/UI = vertex floats.
    Returns the mesh draws issued, or -1 when no swapchain texture was available (frame skipped). */
 int r_frame(const float *fu, const float *rp, const float *dq, int n,
             const float *fxa, int nfa, const float *fxb, int nfb, const float *ui, int nui, const float *fxt, int nft) {
@@ -255,7 +256,7 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
   dt.texture = r_depth; dt.clear_depth = 1; dt.load_op = SDL_GPU_LOADOP_CLEAR; dt.store_op = SDL_GPU_STOREOP_DONT_CARE;
   dt.stencil_load_op = SDL_GPU_LOADOP_DONT_CARE; dt.stencil_store_op = SDL_GPU_STOREOP_DONT_CARE;
   SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(cb, &ct, 1, &dt);
-  SDL_BindGPUGraphicsPipeline(pass, r_pipe[rp[10] != 0 ? RP_SKY_TOON : RP_SKY]); SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
+  if (rp[22] == 0) { SDL_BindGPUGraphicsPipeline(pass, r_pipe[rp[10] != 0 ? RP_SKY_TOON : RP_SKY]); SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0); }   /* transparent: the clear (0,0,0,0) stays */
   r_tris = 0;
   int drawn = r_draw_queue(pass, dq, n, 0) + r_draw_queue(pass, dq, n, 1);
   r_draw_batch(pass, RP_FXT, r_fx[2], nft / 9);
@@ -273,7 +274,7 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
   }
   /* composite to the swapchain, then the UI on top in the same pass */
   SDL_GPUTexture *src[3] = { r_scene, r_half[0], r_q[1] };
-  if (rp[11] != 0) {   /* impact frame / spot-keep grade: RP_COMP_FX with 4 vec4 (the RP_COMP lane, mode + params, ink + keep-hue-2, paper) */
+  if (rp[11] != 0 && rp[22] == 0) {   /* impact frame / spot-keep grade: RP_COMP_FX with 4 vec4 (the RP_COMP lane, mode + params, ink + keep-hue-2, paper) */
     SDL_GPUColorTargetInfo sct = {0};
     sct.texture = swt; sct.load_op = SDL_GPU_LOADOP_DONT_CARE; sct.store_op = SDL_GPU_STOREOP_STORE;
     pass = SDL_BeginGPURenderPass(cb, &sct, 1, NULL);
@@ -285,7 +286,7 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
     SDL_PushGPUFragmentUniformData(cb, 0, u, sizeof u);
     SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
   } else
-    pass = r_fs_pass(cb, swt, RP_COMP, src, 3, bloom ? rp[2] : 0.0f, rp[3], rp[8], rp[7] > 0 ? rp[9] / rp[7] : 0.0f, 1);
+    pass = r_fs_pass(cb, swt, rp[22] != 0 ? RP_COMP_A : RP_COMP, src, 3, bloom ? rp[2] : 0.0f, rp[3], rp[8], rp[7] > 0 ? rp[9] / rp[7] : 0.0f, 1);
   if (nui > 0) {
     float s[4] = { rp[6], rp[7], 0, 0 }; SDL_GPUTextureSamplerBinding fb = { r_font, r_nearest }; SDL_GPUBufferBinding b = { r_uib, 0 };
     SDL_BindGPUGraphicsPipeline(pass, r_pipe[RP_UI]);
