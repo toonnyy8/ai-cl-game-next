@@ -4096,5 +4096,94 @@ The lead's brief: draw §27.10's throw and leap (the request above), no sim numb
 
 Consequences of dropping the grey (lead's reading, restated to the user): damage inside the bind is **real**, so a K.O. / Soul
 Break can happen while bound; each fighter keeps his own Reiatsu (no pool, no frozen gains, no drain); no snapshot to restore.
-Open: the entry condition (the 2-bar rule, the chain hit), the release's cost and the 30 f reel, the share per clash, a clash
-sound / cue, the CPU. Nothing is built yet.
+Follow-up answers (2026-10-29): the share per clash 「可以」 (25 %, a live knob); the 2-bar entry rule is moot (「現在沒有靈力了」: the core
+system has no Reiatsu gauge, §26.1); the release's 30 f reel is dropped (「不用」); 「請基於 repo 中的 skill 開始跟我一同規劃修兵的卍解設計」:
+the Bankai (locked with `:no-awaken t` since §26.1) is designed in the open with skills `duel-character` / `duel-move-modules` /
+`duel-motion-style`; the decisions of that talk follow in §28.1.
+Open: the whole Bankai move set (the pointer themes, the entry and release moves), a clash cue, the CPU. Nothing is built yet.
+
+### 28.1 Decisions of the planning talk (AskUserQuestion, 2026-10-29)
+
+| Question | The user's pick | Rejected |
+|---|---|---|
+| Structure | **two modes** (§17's frame): ranged mode (not bound) and bind mode (a melee set); switched by the bind's start and end | one move set with the bind as a status; the whole Bankai bound from the awakening |
+| Entry and release | **an NS starts the bind, an AS releases it** (the release is itself an attack) | AS starts / NS releases; both in NS |
+| A Kikon inside the bind | **the bind goes on** after the Kikon's reset (§17 B2's way); only the release AS ends it | the Kikon ends the bind |
+
+**Revision in the same talk (the user, 2026-10-29)**, replacing the "NS starts / AS releases" row above:
+「我要把進入跟解除捆綁都改成某招 AS，然後遠距模式請參考原版修兵的聚、散與尖端的特性進行設計。然後由於一組 AS 指針會切換到捆綁模式，因此實際上算是三個 AS 與兩組指針」;
+「因為有一個 AS 是用來切換成遠距的，因此實際上算是三個 AS 只有兩組指針」; the release: **only AS3 releases** (AS1 / AS2 are ordinary bind-mode attacks).
+Lead's reading (to confirm): **each mode has two SP pointers (two themes, each with its NS, AS n and Kikon, §5b) and three AS; AS3 is the
+mode switch** (entry in the ranged mode, release in the bind mode), writing no pointer. The ranged mode's two themes come from the old Bankai
+(§22.4): **gathered 聚** (slower, hurts more) and **spread 散** (faster, weaker) plus the **chain tip** (the outer part of a volume hits harder, §22.1 / §25.13).
+
+Answers (AskUserQuestion, 2026-10-29, second round): the reading above is right; ranged pointer **1 = 散 spread, 2 = 聚 gathered**;
+bind-mode themes: 「1+2 混合，把原本『將遠離的對手拉近』這個概念重新融合製作」 (blade cuts + chain choke, the pull-in concept fused into
+the two themes; not chosen separately); **AS3's last segment must hit** to bind (a block or a whiff: no bind).
+
+### 28.2 The draft (the lead's, for the user to react to; numbers come after the shape is agreed)
+
+| | Ranged mode (not bound) | Bind mode |
+|---|---|---|
+| Role | long reach from the chain orb; the chain tip (outer part of a volume) hits harder; spread = faster, lighter; gathered = slower, heavier (§22.4, §22.1) | close; both Reishi bars evened by each clash (§28); clashes are what the mode is about, so openers keep readable tells (S >= 14) |
+| Pointer 1 | **散 spread**: thin chains, fan / annulus sweeps; the fast, wide pointer | **鎌**: the black crescents in hand, fast cuts; its NS opener hooks the far opponent and pulls him in (the old L's pull-in, now inside the string) |
+| Pointer 2 | **聚 gathered**: the chains bundled; one slow heavy slam / spin | **絞**: the chain wound round him, the noose; slow, heavy, a choke that drags him in |
+| AS1 / AS2 | one segment (pointer 1's theme) / two segments (pointer 2's theme), knockdown only on a route's last | the same, in the bind's themes |
+| AS3 | **the switch**, three segments, writes no pointer: the binding throw 首掛 KUBIKAKE; the last segment must hit; then the bind mode | **the release** 解縛 KAIBAKU, three segments, a finisher; the last segment ends the bind (even if it whiffs?) and returns to the ranged mode |
+| Kikon | one per pointer: 散 and 聚 cinematics (new) | one per pointer: 鎌 and 絞 (new); the bind goes on after the reset |
+| Stances | four, each readable apart (the skill's stance-per-pointer rule) | |
+
+Answers on §28.2 (2026-10-29): the release AS3's last segment ends the bind **even if blocked or whiffed** (「結束」); the bind mode's NA
+is a **melee** string (「換成近戰」); the shape is right (「正確」), plus: 「遠攻模式的 J 都會受到前面是否有使用聚的影響，改變鎖鏈的攻擊方式」 —
+the ranged NA's chains change their way of striking by whether 聚 was used before (§22.4's spread / gathered J revived; the trigger asked next).
+
+The trigger (AskUserQuestion, 2026-10-29): **「看這一串連段」**: once a 聚 NS or AS segment has come out in the current combo, every later J
+of that combo is the gathered (bundle) version; the combo ending resets to spread (§22.4's route idea; the stance does not show it).
+Rejected: the SP pointer decides (pointer 2 = gathered); a timed bundle state after a 聚 hit.
+
+### 28.3 The numbers draft (the lead's, 2026-10-29; S = startup frames, damage before `:mult`, only a route's last segment knocks down)
+
+Ranged mode (`:bankai`, prefix `hs-r-`); every volume keeps §25.3's bands (J 3–6 m, the rest 2–6 m) and the chain tip (`*hs-r-tip*`
+0.5 m, `*hs-r-tip-mult*` 1.71: a knob, likely too strong with the core `:mult`, measured in batch 1). Spread / gathered: §22.4's
+「散 −3 幀×0.85／聚 +3 幀×1.3」.
+
+| | Spread (default) | Gathered (after a 聚 segment in this combo) |
+|---|---|---|
+| NA J1 | S 14 (the tell), 22, annulus 3–6 m 100° | — (J1 opens a combo, so always spread) |
+| NA J2–J4 | S 10, 19 each | S 16, 29 each, a straight bundle lash |
+| NA J5 | S 10, 26, annulus 360° | S 16, 39, a flat bundle sweep 180° |
+| SA (J in an NS gap) | 打 UCHI: a chain lash at him where he is (`hs-core-seg`), S 10, 35, stagger, then J2 on; no drag (the mode keeps its range) | the same, bundle look, 45 |
+
+| Ranged | Pointer 1 散 SPREAD | Pointer 2 聚 GATHERED |
+|---|---|---|
+| Stance | the orb's chains hanging loose round him | the chains wound into one bundle at his side |
+| NS a | 扇 ŌGI, the chains whip the ground in a fan 2–6 m 60°, S 17, 37, stagger | 束 TABA, the bundle spun and lashed on a line 2–5 m, S 22, 50, stagger |
+| NS b | 環 WA, a full turn of every chain, 2–5 m 360°, S 12, 30, stagger | 叩 TATAKI, the bundle arcs over and slams, 1–3.5 m, S 18, 57, stagger |
+| NS c | 一斉 ISSEI, every chain lashes forward, 160°, S 14, 56, knockdown | 大旋 ŌMEGURI, the bundle hauled into a 360° spin 2–6 m, S 20, 86, knockdown |
+| AS n | AS1 乱鎖 RANSA, one segment, 160°, 50, knockdown | AS2 叩 57, stagger > 地走 JIBASHIRI, the tail along a ground line 3.5–8 m, 70, knockdown |
+| Kikon | 散 (new) | 聚 (new) |
+
+AS3 首掛 KUBIKAKE (the switch): 投 NAGE, the chain on a 7 m line, S 18, 30, stagger > 巻 MAKI, wound round him, 30, stagger > 掛 KAKE,
+the noose, 40: **a hit starts the bind** (yank to 2.0 m, the bind mode); blocked / whiffed: no bind.
+
+Bind mode (`:bankai-bind`, prefix `hs-b-`); §28's clash rule (each clash: the Reishi gap −25 %).
+
+| | |
+|---|---|
+| NA | the crescents in hand: J1 弦 GEN S 14 (the tell), 32 > J2–J4 S 8, 32 > J5 双弦 SŌGEN 40, 1.5 m |
+| SA | 引寄 HIKIYOSE: frame 0 the chain drags him to 1.5 m (wherever he is: the bind has no distance limit), one cut, S 10, 40, stagger, J2 on (the old L's pull-in) |
+
+| Bind | Pointer 1 鎌 KAMA | Pointer 2 絞 SHIBORI |
+|---|---|---|
+| Stance | both crescents low and crossed | the chain looped over his shoulder, the noose in the fist |
+| NS a | 鉤寄 KAGIYOSE: the crescent's chain hooks him up to 6 m and drags him to 1.5 m, S 18, 35, stagger | 纏 MATOI: the chain wraps him, 3 m line, drags him 1 m in, S 20, 40, stagger |
+| NS b | 返鎌 KAESHI-GAMA, S 12, 45, stagger | 締 SHIME, the noose tightened, S 16, 60, stagger |
+| NS c | 十字 JŪJI, both crescents crossed, S 14, 75, knockdown | 絞首 KŌSHU, hauled over the shoulder and slammed, S 18, 95, knockdown |
+| AS n | AS1 鉤寄斬 KAGIYOSE-GIRI: hook, pull, cut, 55, knockdown | AS2 締 55, stagger > 吊 TSURI, the noose heaved up, 70, launch |
+| Kikon | 鎌 (new) | 絞 (new) |
+
+AS3 解縛 KAIBAKU (the release): 解 40, stagger > 散 40, stagger > 放 HANATSU, the chains burst off, 100, knockdown; **its last segment's end
+returns to the ranged mode, hit, blocked or whiffed**.
+
+Open after this draft: the four Kikon storyboards; the clash's cue (a sound, the two bars drawn sliding); the CPU (when to AS3, when to
+release); `:mult` per mode (Shikai 1.7, to be measured); the Breaker and Hoho as the system's.
