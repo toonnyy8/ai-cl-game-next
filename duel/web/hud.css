@@ -13,10 +13,6 @@
 #canvas { transition: filter .5s var(--ease-out); }
 body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 
-/* the hit's screen flash (one frame of paper, then gone) */
-#hud .flash { position: absolute; inset: 0; background: var(--paper); opacity: 0; mix-blend-mode: overlay; z-index: 30; display: none; }
-#hud .flash.go { display: block; animation: hd-flash .18s steps(2) 1; }   /* (only while it plays: a standing blend layer costs every frame) */
-@keyframes hd-flash { 0% { opacity: .55; } 100% { opacity: 0; } }
 
 /* ------------------------------------------------------------------ the plates (P1 left, P2 right, mirrored) */
 #hud .hudl { position: absolute; inset: 0; z-index: 10; transition: opacity .3s; }
@@ -150,8 +146,8 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
   background: radial-gradient(farthest-side at 35% 50%, rgba(11,11,16,.62), rgba(11,11,16,.32) 60%, rgba(11,11,16,0)); }
 #hud.hphone :is(.p2, .mir).plate::before { background: radial-gradient(farthest-side at 65% 50%, rgba(11,11,16,.62), rgba(11,11,16,.32) 60%, rgba(11,11,16,0)); }
 #hud.hphone .plate.p2 { top: calc(3.8 * var(--u) + var(--st)); right: calc(2.2 * var(--u)); }
-/* your own block 0.5 cm lower (the user, 2026-10-28: 「請將我方的 HUD 下移約 0.5 cm」; before: no --low) */
-#hud.hphone { --low: .5cm; }
+/* your own block lower (the user, 2026-10-28: 「請將我方的 HUD 下移約 0.5 cm」, then 「再次下移約 0.5 cm」: .5cm -> 1cm; before: no --low) */
+#hud.hphone { --low: 1cm; }
 #hud.hphone .plate.p1 { top: auto; bottom: calc(var(--deck) + 2 * var(--u) - var(--low)); left: calc(2.2 * var(--u)); }
 #hud.hphone .clock { top: calc(3.4 * var(--u) + var(--st)); left: calc(2.4 * var(--u)); transform: none; justify-items: start; }
 #hud.hphone .clock .t { font-size: calc(3.4 * var(--u)); }
@@ -182,7 +178,7 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .zl { position: absolute; z-index: 1; font: 800 calc(1.6 * var(--u))/1 var(--f-display); letter-spacing: .3em; color: rgba(238,238,234,.42);
   display: flex; gap: calc(.8 * var(--u)); align-items: baseline; }
 #hud .zl em { font: 800 calc(1.5 * var(--u))/1 var(--f-kanji); font-style: normal; letter-spacing: 0; color: rgba(238,238,234,.3); }
-#hud .zl.sp { left: 44%; top: 36%; } #hud .zl.atk { left: 8%; bottom: 16%; }
+#hud .zl.sp { left: 44%; top: 18%; } #hud .zl.atk { left: 8%; bottom: 16%; }
 #hud.left-hand .zl.sp { left: auto; right: 44%; } #hud.left-hand .zl.atk { left: auto; right: 8%; }
 #hud .divider { position: absolute; inset: 0; z-index: 1; }
 #hud .divider svg { width: 100%; height: 100%; display: block; }

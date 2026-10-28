@@ -135,8 +135,8 @@ zone during an NS / AS: 30111-30113), 爆's state bits (30104: 1 ready, 2 its ho
     (declare (single-float wf hf) (type f32vec dk dr sf))
     (macrolet ((px (x) `(%hround (/ (* 1000f0 (the single-float ,x)) wf))) (py (y) `(%hround (/ (* 1000f0 (the single-float ,y)) hf))))
       (webhud-put 30 (px (aref dr 0))) (webhud-put 31 (py (aref dr 1))) (webhud-put 32 (px (aref dr 2))) (webhud-put 33 (py (aref dr 3)))
-      (webhud-put 34 (%hround (* 1000f0 (the single-float (f32 (first *deck-split*))))))
-      (webhud-put 35 (%hround (* 1000f0 (the single-float (f32 (second *deck-split*))))))
+      (webhud-put 34 (%hround (* 1000f0 (aref *deck-split-at* 0))))
+      (webhud-put 35 (%hround (* 1000f0 (aref *deck-split-at* 1))))
       (webhud-put 36 (px (aref dk (+ 4 21)))) (webhud-put 37 (py (aref dk (+ 5 21)))) (webhud-put 38 (px (aref dk (+ 6 21))))   ; chip 7
       (webhud-put 39 (px (aref dk (+ 4 18)))) (webhud-put 40 (py (aref dk (+ 5 18)))) (webhud-put 41 (px (aref dk (+ 6 18))))   ; chip 6
       (webhud-put 42 (if left 1 0))

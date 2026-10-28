@@ -66,10 +66,16 @@ under the portrait HUD's top block), RV (170 472 22), in CSS px.")
 below (the user, 2026-10-28: 「SP 跟 ATK 沿著目前大約『覺』的位置往斜上方畫界分割」 (v2: 0.20 / 0.986), then 「分割起始點在往上一些」
 (v3: the near end 0.986 -> 0.82)). Before: the pad's level middle (the recogniser's TAP-SPLIT 0.5). One source: the recogniser
 hit-tests it (TOUCH-SPLIT!) and the page draws it (DUEL_WEBUI §7, set 30134 / 30135).")
-(defparameter *rv-lift* 18.9 "爆 moved up this many CSS px (0.5 cm at 96 px an inch; the user, 2026-10-28: 「爆氣鍵上移約 0.5 cm」). Before: 0.")
-(defparameter *pt-center-lift* 18.9
+(defparameter *rv-lift* 37.8 "爆 moved up this many CSS px (0.5 cm at 96 px an inch; the user, 2026-10-28: 「爆氣鍵上移約 0.5 cm」, then
+「爆氣鍵再次上移約 0.5 cm」: 18.9 -> 37.8). Before: 0.")
+(defparameter *deck-split-lift* '(37.8 18.9)
+  "The tap zones' line's ends moved up, CSS px: the far (upper) end, the thumb's (lower) end (the user, 2026-10-29: 「SP 與 ATK 的分割線
+下界往上 0.5 cm，上界往上 1 cm」). Before: 0 0. Applied over *DECK-SPLIT* by DECK-UPDATE into *DECK-SPLIT-AT*.")
+(declaim (type f32vec *deck-split-at*))
+(defvar *deck-split-at* (make-f32 2) "*DECK-SPLIT* less *DECK-SPLIT-LIFT* (fractions of the deck's height from its top), for the window.")
+(defparameter *pt-center-lift* 37.8
   "The portrait battle frame's centre moved up this many CSS px (the lens shift, *PCAM* [1]; the user, 2026-10-28: 「戰鬥畫面中心向上偏移約
-0.5 cm」). Before: 0.")
+0.5 cm」, then 「戰鬥畫面中心再次向上偏移約 0.5 cm」: 18.9 -> 37.8). Before: 0.")
 (defparameter *chip-holds* '(0 0 0 0 0 300 0 0) "Each chip's hold, ms (爆's is set every frame: RV-READY-P, ONEHAND-FRAME).")
 (defparameter *u-chip-holds* '(0 0 0 0 0 0 0 0) "... with the AWAKEN chip as U (U-CHIP-P): a tap.")
 
@@ -95,7 +101,7 @@ today's phones: 50 >= 34 + 16). The chips are placed in the draft's unit (*CHIP-
 (defun deck-split-ends ()
   "The tap zones' line's heights (fractions of the deck's) at its left and right edge, by *HAND* (the thumb's edge is the right
 one for the right hand)."
-  (if (eq *hand* :left) (values (second *deck-split*) (first *deck-split*)) (values (first *deck-split*) (second *deck-split*))))
+  (let ((a *deck-split-at*)) (if (eq *hand* :left) (values (aref a 1) (aref a 0)) (values (aref a 0) (aref a 1)))))
 
 (defun deck-update ()
   "Re-lay the deck when the window, the density, the hand or the mode changed (conses: not every frame).
@@ -109,6 +115,9 @@ Outside ONE-HAND there is no pad and no chip: a stray finger only makes menu tap
       (multiple-value-bind (pad chips deck) (deck-layout)
         (replace *deck* (mapcar #'f32 (append pad (reduce #'append chips))))
         (replace *deck-rect* (mapcar #'f32 deck))
+        (let ((dh (max 1f0 (/ (- (aref *deck-rect* 3) (aref *deck-rect* 1)) d))))   ; the deck's height, CSS px
+          (loop for f in *deck-split* for l in *deck-split-lift* for i from 0
+                do (setf (aref *deck-split-at* i) (f32 (max 0.0 (- f (/ l dh)))))))
         ;; the portrait frame: under P2's HUD block down to *PT-FRAME-BOTTOM* (over P1's block); the blocks' edges
         (let ((hb (/ (portrait-hud-bottom s) h)) (pt (/ (portrait-p1-top s h) h)))
           (setf (aref *band* 0) (f32 (+ hb 0.03)) (aref *band* 1) (f32 (min *pt-frame-bottom* (- pt 0.03)))
@@ -297,8 +306,8 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
     (%houtline (aref dk 0) (aref dk 1) (- (aref dk 2) (aref dk 0)) (- (aref dk 3) (aref dk 1)) 1f0 1f0 1f0 0.12f0)
     (let* ((dr *deck-rect*) (left (eq *hand* :left))     ; the tap zones' slanted line (*DECK-SPLIT*), named at the far edge
            (x0 (aref dr 0)) (x1 (aref dr 2)) (y0 (aref dr 1)) (dh (- (aref dr 3) y0))
-           (fl (if left (f32 (second *deck-split*)) (f32 (first *deck-split*))))
-           (fr (if left (f32 (first *deck-split*)) (f32 (second *deck-split*))))
+           (fl (if left (aref *deck-split-at* 1) (aref *deck-split-at* 0)))
+           (fr (if left (aref *deck-split-at* 0) (aref *deck-split-at* 1)))
            (yl (+ y0 (* fl dh))) (yr (+ y0 (* fr dh))) (y (if left yr yl)) (t2 (f-max 1f0 d))
            (x (if left (- x1 (* 6f0 d)) (+ x0 (* 6f0 d)))) (al (if left :right :left))
            (fs (%hround (* 1.5f0 (i->f s)))))           ; (HUD-TEXT rounds its (* 1.5 S))

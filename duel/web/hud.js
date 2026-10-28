@@ -64,7 +64,7 @@
   function build() {
     if (built || !document.body) return;
     built = true;
-    document.body.insertAdjacentHTML("beforeend", '<div id="hud" aria-hidden="true"><div class="flash"></div>' +
+    document.body.insertAdjacentHTML("beforeend", '<div id="hud" aria-hidden="true">' +
       '<div class="hudl">' + plateHTML("p1") + plateHTML("p2") +
       '<div class="clock"><span class="t"></span><span class="r">ROUND · 決闘</span></div>' +
       '<div class="prompt"><div class="ring"><svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15.9" pathLength="100"></circle>' +
@@ -86,10 +86,9 @@
     els.plate = [$(".plate.p1", root), $(".plate.p2", root)];
     els.call = [$(".callout.p1", root), $(".callout.p2", root)];
     els.combo = [$(".combo.p1", root), $(".combo.p2", root)];
-    els.flash = $(".flash", root); els.clock = $(".clock", root); els.prompt = $(".prompt", root);
+    els.clock = $(".clock", root); els.prompt = $(".prompt", root);
     els.deck = $(".deck", root); els.rv = $(".dbtn.rv", root); els.pb = $(".dbtn.pausebtn", root); els.fx = $(".fx", root);
     els.rows = $(".pause .rows", root); els.card = $(".card", root); els.fin = $(".fin", root);
-    els.flash.addEventListener("animationend", function () { els.flash.classList.remove("go"); });
     var strip = $(".strip", root);
     strip.addEventListener("pointerdown", function (e) { e.preventDefault(); focusGame(); });
     strip.addEventListener("pointerover", function (e) {
@@ -152,12 +151,12 @@
       for (i = 0; i < 3; i++) { tx(ss[i], sv[i][0]); ss[i].classList.toggle("on", i + 1 === n); }
       tx($(".pn", ptr), sv[n - 1][1]);
     }
-    // the combo this side deals, under its plate; each hit stamps it and flashes the screen
+    // the combo this side deals, under its plate; each hit stamps it (no screen flash: the user, 2026-10-29: 「打中對手時不要讓螢幕閃爍白光」)
     var c = els.combo[s], practice = !!(V[0] & 16);
     if (V[o + 13] !== p.cser) {
       if (p.cser !== undefined && V[o + 13] > 0) {
         $(".n", c).textContent = V[o + 10]; $(".cd", c).textContent = V[o + 11]; $(".cs", c).textContent = Math.round(V[o + 12] / 10) + "%";
-        c.classList.add("on"); if (!reduced) { restart(c, "stamp"); restart(els.flash, "go"); }
+        c.classList.add("on"); if (!reduced) { restart(c, "stamp"); }
         p.ct = performance.now(); later("c" + s, 1250);
       }
       p.cser = V[o + 13];

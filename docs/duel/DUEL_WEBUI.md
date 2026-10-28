@@ -289,3 +289,19 @@ drawn as before (the native gate, an old page: `webhud-p` NIL).
 
 Checks: duel-control 99 and touch 94 ALL PASS, pkgcheck 0 / 0 / 0, a 390x844 `--mobile` shot before / after. No sim gate (the
 user: no battle rule moved; the camera and the chips are presentation and touch spots only).
+
+### 7.7 The second nudges, the line's lift, no hit flash (the user, 2026-10-29)
+
+> 「1. 請將我方的 HUD 再次下移約 0.5 cm 2. 爆氣鍵再次上移約 0.5 cm 3. 戰鬥畫面中心再次向上偏移約 0.5 cm 4. SP 與 ATK 的分割線下界往上
+> 0.5 cm，上界往上 1 cm」「沒改戰鬥系統所以不用跑對戰測試」, then 「打中對手時不要讓螢幕閃爍白光，這種原本沒有的特效讓視覺上很不舒服」
+
+| What | Knob | Old → new |
+|---|---|---|
+| Your own plate, move name and combo count | `--low` | `.5cm` → `1cm` |
+| 爆 | `*rv-lift*` | 18.9 → 37.8 CSS px |
+| The portrait frame's centre | `*pt-center-lift*` | 18.9 → 37.8 CSS px |
+| The SP / ATK line: its upper (far) end, its lower (thumb's) end | `*deck-split-lift*` (new; DECK-UPDATE applies it over `*deck-split*` into `*deck-split-at*`, which the recogniser, the page (30134 / 30135) and the fallback deck read) | 0 0 → 37.8 18.9 CSS px up |
+| The SP label (`.zl.sp`, out of the lifted line's way) | `top` | 36 % → 18 % of the deck |
+| The hit's screen flash (`.flash`, a paper overlay for 0.18 s on each counted hit, added with the page HUD) | removed | |
+
+Checks: duel-control 99, touch 94 ALL PASS, pkgcheck 0 / 0 / 0, 390x844 `--mobile` shots (neutral, a combo). No sim gate (the user).
