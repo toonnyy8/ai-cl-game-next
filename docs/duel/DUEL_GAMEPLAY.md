@@ -217,7 +217,7 @@ encoded in the integer.
 | 2510+p | P1's SP pointer = p + 1 (0 / 1 / 2: the pointer stances, DUEL_CORE §6) |
 | 2513 | 3 s of the cancel's slow motion (`*core-clash-slowmo-scale*`): the smooth-draw check (DUEL_CORE §6) |
 | 2514 | toggle `*scene-transparent*` (DUEL_WEBUI §4): no stage, no sky, the canvas keeps the scene's alpha (the page shows around the fighters) |
-| 2515 | consing of the battle screens' per-frame Lisp path in the running battle (webhud.lisp, DUEL_WEBUI §7; claimed 2026-10-28): 100 calls each of `webhud-sync`, `webhud-side`, `webhud-prompt`, `webhud-deck`, `webhud-tag` once the values are sent: a `webhud consing (100 calls, B): sync …, side …, prompt …, deck …, tag …` line (0 B wanted) |
+| 2515 | consing of the battle screens' per-frame Lisp path in the running battle (webhud.lisp, DUEL_WEBUI §7; claimed 2026-10-28): 100 calls each of `webhud-sync`, `webhud-side`, `webhud-prompt`, `webhud-deck`, `webhud-tag` and `at-stake` once the values are sent: a `webhud consing (100 calls, B): sync …, side …, prompt …, deck …, tag …, stake …` line (0 B wanted) |
 | 2520+k | `(camera-shift-x *camera*)` = (k − 30) / 100, k 0–79 (2550 = 0, 2590 = +0.4: the image moves right); nothing else resets it but a new value (DUEL_WEBUI §4) |
 | 2600+k | `*red-threshold*` = k % (pace the gate without a rebuild) |
 | 2386+k | Kenpachi's Bankai tests (`bankai-test` in ken.lisp, `ken-debug`, human P1 Kenpachi vs an idle Yamamoto; `duel-bankai.json`): 0 cup 3 (NOME 100), red (300) and his Konpaku capped at 4 (the entry's condition since 2026-09-28) at 3 m: P enters (the cinematic plays); 1 in the Bankai at once, 2.2 m; 2 the Bankai with 1 pip left (the burst); 3 片腕 at 2.2 m |

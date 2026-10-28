@@ -5,7 +5,7 @@
 // Drawn in a rAF only when a value changed (or a timed fade ends).
 (function () {
   "use strict";
-  var V = [], S = [], queue = [], dirty = true, built = false;
+  var V = [], S = [], queue = [], dirty = true, built = false, still = false;
   for (var i = 0; i < 200; i++) V.push(-1);
   for (i = 0; i < 64; i++) S.push("");
   var reduced = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -44,6 +44,7 @@
     get: function (k) { if (k === 0) return 1; if (k === 1) return queue.length ? queue.shift() : 0; return 0; },
     set: function (k, v) { if (k >= 0 && k < 200 && V[k] !== v) { V[k] = v; dirty = true; } },
     setStr: function (k, s) { var i = k - 120; if (i >= 0 && i < 64 && S[i] !== s) { S[i] = s; dirty = true; } },
+    still: function (on) { still = !!on; if (els.fx) els.fx.innerHTML = ""; prev.ring = null; },   // (tests: the touch ink stays put for a still)
     dump: function () { return JSON.stringify({ v: V.slice(0, 43), s: S.slice(0, 12), cls: root && root.className }); }   // (tests)
   };
   function focusGame() { var c = document.getElementById("canvas"); if (c && document.activeElement !== c) c.focus({ preventScroll: true }); }
@@ -88,6 +89,7 @@
     els.flash = $(".flash", root); els.clock = $(".clock", root); els.prompt = $(".prompt", root);
     els.deck = $(".deck", root); els.rv = $(".dbtn.rv", root); els.pb = $(".dbtn.pausebtn", root); els.fx = $(".fx", root);
     els.rows = $(".pause .rows", root); els.card = $(".card", root); els.fin = $(".fin", root);
+    els.flash.addEventListener("animationend", function () { els.flash.classList.remove("go"); });
     var strip = $(".strip", root);
     strip.addEventListener("pointerdown", function (e) { e.preventDefault(); focusGame(); });
     strip.addEventListener("pointerover", function (e) {
@@ -102,6 +104,9 @@
   /* ---------------------------------------------------------------- drawing */
   var prev = {}, timers = {};
   function later(key, ms) { clearTimeout(timers[key]); timers[key] = setTimeout(function () { dirty = true; }, ms); }
+  // writes only on a change (a frame of the fight changes a few numbers: no style / layout work for the rest)
+  function tx(el, v) { v = String(v); if (el._t !== v) { el._t = v; el.textContent = v; } }
+  function st(el, k, v) { var c = el._s || (el._s = {}); if (c[k] !== v) { c[k] = v; el.style.setProperty(k, v); } }
   function restart(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
   function fighter(s) { return FIGHTERS[V[50 + 30 * s] - 1] || null; }
   function label(s) { return S[4 * s] || ""; }
@@ -123,12 +128,12 @@
     var mir = s === 1 || (s === 0 && root.classList.contains("hphone") && root.classList.contains("left-hand"));
     el.classList.toggle("mir", s === 0 && mir);
     els.call[0].classList.toggle("mir", s === 0 && mir); els.combo[0].classList.toggle("mir", s === 0 && mir);
-    $(".nm", el).textContent = nameOf(s);
-    $(".kj", el).textContent = f ? f.kj : "";
+    tx($(".nm", el), nameOf(s));
+    tx($(".kj", el), f ? f.kj : "");
     var tg = tagHTML(s); if (p.tag !== tg) { $(".htag", el).innerHTML = tg; p.tag = tg; }
     var r = Math.max(0, V[o + 1]) / 1000, ghost = $(".ghost", el);
-    ghost.style.transition = p.r !== undefined && r < p.r ? "" : "none";       // a hit: the blood ghost drains after it; a refill snaps
-    $(".fill", el).style.transform = "scaleX(" + r + ")"; ghost.style.transform = "scaleX(" + r + ")"; p.r = r;
+    if (p.r !== r) st(ghost, "transition", p.r !== undefined && r < p.r ? "" : "none");   // a hit: the blood ghost drains after it; a refill snaps
+    st($(".fill", el), "transform", "scaleX(" + r + ")"); st(ghost, "transform", "scaleX(" + r + ")"); p.r = r;
     el.classList.toggle("low", V[o + 2] === 1);
     var kon = Math.max(0, V[o + 3]), stake = Math.max(0, V[o + 4]), souls = $(".souls", el).children;
     for (var i = 0; i < 9; i++) {
@@ -137,15 +142,15 @@
     }
     p.kon = kon;
     var fs = Math.max(0, V[o + 6]) / 1000 * 3, cells = $(".fs", el).children;
-    for (i = 0; i < 3; i++) cells[i].style.setProperty("--k", Math.max(0, Math.min(1, fs - i)).toFixed(3));
-    var aw = $(".aw", el); aw.style.setProperty("--k", (Math.max(0, V[o + 7]) / 1000).toFixed(3)); aw.classList.toggle("full", V[o + 8] >= 1);
+    for (i = 0; i < 3; i++) st(cells[i], "--k", Math.max(0, Math.min(1, fs - i)).toFixed(3));
+    var aw = $(".aw", el); st(aw, "--k", (Math.max(0, V[o + 7]) / 1000).toFixed(3)); aw.classList.toggle("full", V[o + 8] >= 1);
     var awk = $(".awk", el); awk.classList.toggle("on", V[o + 8] === 1);
     var ptr = $(".hptr", el), sv = seals(s), n = V[o + 9];
     ptr.hidden = !(n > 0);
     if (n > 0) {
       var ss = ptr.querySelectorAll(".seal");
-      for (i = 0; i < 3; i++) { ss[i].textContent = sv[i][0]; ss[i].classList.toggle("on", i + 1 === n); }
-      $(".pn", ptr).textContent = sv[n - 1][1];
+      for (i = 0; i < 3; i++) { tx(ss[i], sv[i][0]); ss[i].classList.toggle("on", i + 1 === n); }
+      tx($(".pn", ptr), sv[n - 1][1]);
     }
     // the combo this side deals, under its plate; each hit stamps it and flashes the screen
     var c = els.combo[s], practice = !!(V[0] & 16);
@@ -179,7 +184,7 @@
     else if (k === 4) { what = "Awaken"; sub = (phone || !S[8] ? "HOLD 爆" : S[8]) + " · 覺醒 READY"; }
     pr.classList.toggle("on", k > 0);
     pr.classList.toggle("p-aw", k === 4); pr.classList.toggle("p-burst", k === 3);
-    if (k > 0) { $(".wt", pr).textContent = what; $("small", pr).textContent = sub; $(".hkey", pr).textContent = k === 4 ? "" : (S[8] || ""); }
+    if (k > 0) { tx($(".wt", pr), what); tx($("small", pr), sub); tx($(".hkey", pr), k === 4 ? "" : (S[8] || "")); }
     if (k === 1 && prev.pk !== 1) { pr.style.setProperty("--hold", Math.max(1, a) / 60 + "s"); pr.classList.add("hold"); restart($(".ring .fg", pr), "x"); }
     if (k !== 1) pr.classList.remove("hold");
     prev.pk = k;
@@ -190,16 +195,16 @@
     els.deck.hidden = !on; els.rv.hidden = !on; els.pb.hidden = !on;
     if (!on) return;
     var d = els.deck, x0 = V[30], y0 = V[31], x1 = V[32], y1 = V[33];
-    d.style.left = pct(x0); d.style.top = pct(y0); d.style.width = pct(x1 - x0); d.style.height = pct(y1 - y0);
-    root.style.setProperty("--deck", pct(1000 - y0));
+    st(d, "left", pct(x0)); st(d, "top", pct(y0)); st(d, "width", pct(x1 - x0)); st(d, "height", pct(y1 - y0));
+    st(root, "--deck", pct(1000 - y0));
     var far = V[34] / 10, near = V[35] / 10, yl = left ? near : far, yr = left ? far : near;   // the line's heights at the left / right edge
-    $(".zone.sp", d).style.clipPath = "polygon(0 0, 100% 0, 100% " + yr + "%, 0 " + yl + "%)";
-    $(".zone.atk", d).style.clipPath = "polygon(0 " + yl + "%, 100% " + yr + "%, 100% 100%, 0 100%)";
-    var ln = $(".divider line", d); ln.setAttribute("y1", yl); ln.setAttribute("y2", yr);
+    st($(".zone.sp", d), "clip-path", "polygon(0 0, 100% 0, 100% " + yr + "%, 0 " + yl + "%)");
+    st($(".zone.atk", d), "clip-path", "polygon(0 " + yl + "%, 100% " + yr + "%, 100% 100%, 0 100%)");
+    var ln = $(".divider line", d); if (ln._y !== yl + "," + yr) { ln._y = yl + "," + yr; ln.setAttribute("y1", yl); ln.setAttribute("y2", yr); }
     var w = innerWidth * (x1 - x0) / 1000, h = innerHeight * (y1 - y0) / 1000, g = $(".gl", d);
     var ang = Math.atan2((yr - yl) / 100 * h, w), gx = left ? w * .9 : w * .1, gy = h * (yl + (yr - yl) * (left ? .9 : .1)) / 100;
-    g.style.left = gx + "px"; g.style.top = gy + "px";
-    g.style.transform = "rotate(" + ang + "rad) translate(" + (left ? "-100%" : "0") + ", calc(-100% - 6px))";
+    st(g, "left", gx + "px"); st(g, "top", gy + "px");
+    st(g, "transform", "rotate(" + ang + "rad) translate(" + (left ? "-100%" : "0") + ", calc(-100% - 6px))");
     seat(els.rv, V[36], V[37], V[38]); seat(els.pb, V[39], V[40], V[41]);
     var b = V[4], pb = prev.rv | 0, rv = els.rv;
     rv.classList.toggle("ready", !!(b & 1)); rv.classList.toggle("pressed", !!(b & 4)); rv.classList.toggle("can", !!(b & 8));
@@ -211,12 +216,13 @@
   }
   function seat(el, cx, cy, r) {
     var px = innerWidth * r / 1000;
-    el.style.width = el.style.height = 2 * px + "px";
-    el.style.left = (innerWidth * cx / 1000 - px) + "px"; el.style.top = (innerHeight * cy / 1000 - px) + "px";
+    st(el, "width", 2 * px + "px"); st(el, "height", 2 * px + "px");
+    st(el, "left", (innerWidth * cx / 1000 - px) + "px"); st(el, "top", (innerHeight * cy / 1000 - px) + "px");
   }
   function drop(cls, x, y, ms) {
     var d = document.createElement("div"); d.className = cls; d.style.left = x + "px"; d.style.top = y + "px";
-    els.fx.appendChild(d); setTimeout(function () { d.remove(); }, ms || 900); return d;
+    if (still) { d.style.animation = "none"; d.style.opacity = ".85"; }          // (a test's still: held, not animated)
+    els.fx.appendChild(d); if (!still) setTimeout(function () { d.remove(); }, ms || 900); return d;
   }
   function word(t, x, y, cls) { drop("gname" + (cls ? " " + cls : ""), x, y).textContent = t; }
   function seal(t, cls) { var r = els.rv.getBoundingClientRect(); word(t, r.left + r.width / 2, r.top, cls); }
@@ -227,7 +233,9 @@
         var k = V[6], x = innerWidth * V[7] / 1000, y = innerHeight * V[8] / 1000, dx = innerWidth * V[9] / 1000, dy = innerHeight * V[10] / 1000;
         if (k === 1 || k === 3) { drop("ink" + (k === 3 ? " sp" : ""), x, y); word(k === 3 ? "SP" : "ATK", x, y, k === 3 ? "sp" : ""); }
         else if (k === 2 || k === 4 || k === 6) {
-          var len = Math.hypot(dx, dy) || 1, tr = drop("trail", x - dx, y - dy, 600);
+          var len = Math.hypot(dx, dy) || 1, min = innerWidth * .2;                   // (the recognised stroke is short, ~28 px:
+          if (len < min) { dx *= min / len; dy *= min / len; len = min; }            //  the brush shows a stroke of 20 % of the width)
+          var tr = drop("trail", x - dx, y - dy, 600);
           tr.style.width = len + "px"; tr.style.transform = "rotate(" + Math.atan2(dy, dx) + "rad)";
           word(k === 4 ? "HOHO" : k === 6 ? "DASH" : dy > Math.abs(dx) ? "STEP · BACK" : "STEP · SIDE", x, y);
         } else if (k === 7) word("BURST", x, y, "sp");
@@ -298,7 +306,7 @@
     root.classList.toggle("cine", !!(V[0] & 2)); root.classList.toggle("paused", !!(V[0] & 4));
     var t = V[1], clock = els.clock;
     clock.hidden = t < 0;
-    if (t >= 0) { $(".t", clock).textContent = t < 10 ? "0" + t : String(t); clock.classList.toggle("end", t <= 10); }
+    if (t >= 0) { tx($(".t", clock), t < 10 ? "0" + t : String(t)); clock.classList.toggle("end", t <= 10); }
     renderDeck();                                                  // (first: the phone's plate sits on the deck's top)
     renderPlate(0); renderPlate(1);
     renderPrompt(); renderTouch(); renderPause(); renderCard();

@@ -62,7 +62,7 @@ the finish's best combo / Kikons, human 1."
          (rmax (max 1 (the fixnum (gauges-reishi-max g)))) (reishi (gauges-reishi g))
          (fs (the single-float (gauges-fs g))) (aw (the single-float (gauges-awaken g)))
          (core (and *core-on* (kit-core kit) t)))
-    (declare (fixnum side rmax reishi) (single-float fs aw) (type (simple-array fixnum (*)) seen))
+    (declare (fixnum side rmax reishi) (single-float fs aw) (type (simple-array fixnum (*)) seen) (type gauges g))   ; (G typed: its float slots read unboxed)
     (webhud-put o (1+ (the fixnum (or (position (kit-character kit) *roster*) -1))))
     (webhud-put (+ o 1) (truncate (* 1000 (max 0 reishi)) rmax))
     (webhud-put (+ o 2) (if (gauges-red-p g) 1 0))

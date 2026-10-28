@@ -17,7 +17,7 @@ Then (2026-10-28): 「讓 service worker 也把字型存起來」 (`sw.js`: the 
 across builds); 「選角保持」 (the fighters' blob shadows and Kenpachi's aura stay drawn on the transparent SELECT).
 
 Defaults chosen: the draft's VS card is dropped (the intro cinematic is the versus moment); the pause menu, the battle HUD and the
-cinematics stay engine-drawn.
+cinematics stay engine-drawn (until §6-§7, 2026-10-28: the battle HUD, the pause and the intro / finish's text are the page's too).
 
 ## 2. Who owns what
 
@@ -129,7 +129,7 @@ Engine side, as built (2026-10-28):
   where there is no CloseWatcher (Safari, Firefox). Checked at 390x844 `--mobile`: `history.back()` on MODE -> TITLE, a tap re-arms,
   Esc (a key and a close at once) steps back once. iOS's installed app (standalone) has no Back gesture at all.
 
-## 6. The battle screens in HTML: HUD, phone controls, pause, intro / finish (the user, 2026-10-28; in design)
+## 6. The battle screens in HTML: HUD, phone controls, pause, intro / finish (the user, 2026-10-28; built: §7)
 
 The user's request (verbatim): 「幫我修改對戰與手機操作介面的 UI/UX」, with an award-tier brief (typography, whitespace, visual hierarchy,
 color, motion, micro-interaction, responsive, originality; benchmark Awwwards / Webby / FWA winners; self-review until no gap remains).
@@ -172,6 +172,8 @@ Draft v2 (the user, 2026-10-28: 「我希望手的的停止鍵做更上面，然
   manual's two rows become one.
 
 Approved (the user, 2026-10-28: 「善哉！！幫我把整套接進遊戲中」): draft v4 goes into the game, all four parts (§7, as built).
+
+Status: built 2026-10-28 (§7).
 
 ## 7. The battle screens as built (2026-10-28)
 
@@ -232,3 +234,42 @@ intro's FIGHT! word (`intro-cine`: READY > 斬 instead), and the letterbox and t
 fighter, HOHO! / AUTO, ENDLESS's tag, the big words (EVOLUTION …), the thumb's stick ring and the kits' `:deck` rings (KESSA's
 clone dots, Rukia's frost), every other cinematic's letterbox and title, the screen flashes. Without the page every one of them is
 drawn as before (the native gate, an old page: `webhud-p` NIL).
+
+### 7.4 The input changes (Lisp, the recogniser)
+
+- **The slanted line**: `touch-split!` (engine touch.lisp) sets a line over a rect (the deck), `touch-hi-at-p` tests a point
+  against it (beyond the rect the edges' heights; none set: the pad's level `tap-split` as before). `%tap!` (the tap's zone) and
+  `core-touch-sp-p` (the Kikon hold's zone) both use it. onehand.lisp `*deck-frac*` 0.37, `*deck-split*` (0.20 0.82) (the far edge,
+  the thumb's edge; mirrored for the left hand: `deck-split-ends`). Before: the pad's level middle (y 50 %). The flow pad (where a
+  gesture may start) keeps its 2026-09-27 size (460 CSS px from the bottom, ~54 % of an 844 px phone): above the deck it is all SP.
+- **爆 does both**: `touch-chip-tap-p` (a hold chip let go before its hold: a pulse, latched for one vpad read like the gestures'),
+  `touch-chip-hold!` (a chip's hold for its next press; a running press keeps its own). `onehand-frame` sets chip 7's hold to 300 ms
+  while `rv-ready-p` (`awaken-hold-ready-p`: a Mod + P would awaken or take the Bankai from this state, the form not `:no-awaken`;
+  a form's `:p` hook is left out: Kenpachi's is DANGAI's frozen card, Hisagi's FREE is in his `:no-awaken` Bankai), else 0.
+  `rv-buttons` (control.lisp): down without a hold = P (the Burst on the press); with it, Mod + P once held (the awakening), P alone
+  for the read of an early lift (the Burst). The AWAKEN chip (5) is off screen.
+- **The chips' spots** (`*chip-spots*`, in the draft's unit U = 2.36 % of the width): 止 (chip 6) 6.7 U from the thumb's edge, its
+  bottom 17 U above the deck, r 3.1 U; 爆 (chip 7) 6.7 U in, its top 22 % down the deck, r 3.7 U. Before: pause (32 px from the edge,
+  under the HUD's top block, r 22), RV (170 / 472, r 22), AWAKEN (270 / 396, r 26).
+- The engine's fallback deck (`hud-deck`) draws the same slanted line, 爆 with its REIATSU ring, no AWAKEN chip.
+
+### 7.5 Checks (2026-10-28)
+
+- Host tests ALL PASS: duel-rules 10782, touch 94 (the slanted line both hands, the chip's early lift, the hold kept through a
+  press), duel-control 99 (`rv-buttons` on the recogniser and a vpad: not ready the Burst on the press; ready a tap the Burst on the
+  lift, a 300 ms hold the awakening and no Burst on its lift; readiness lost mid-press keeps the hold), input 33, cine 18; pkgcheck
+  0 / 0 / 0; debug-ranges-check 0 errors (2515 claimed).
+- The sim did not move: `simgate.py --pairs 2,7,9,29,31,35 --seeds 10` identical to the run before the change (KK 167.2 s, IK
+  192.6, II 231.6, HK 183.8, HI 190.4, HH 295.7, the same KOs and wins); `--cvc` 3 PASS; the browser G2 (`style-gates.py cvc`)
+  identical to style-cvc-ref.txt (ii / ik / kk).
+- Consing: debug 2515 in a battle, 100 calls each: `webhud-sync` 0 B, `webhud-side` 0, `webhud-prompt` 0, `webhud-deck` 0,
+  `webhud-tag` 0, `at-stake` 0 (it was 24 B a call: `konpaku-at-stake`'s NTH-VALUE consed its value list; a MULTIPLE-VALUE-BIND now,
+  which also cuts the engine HUD's). The stats line, 60 s of real-time CPU vs CPU (`duel-perf.json`, 1440x900, SwiftShader): BASE
+  (85dc72d) cons/frame 3.4–4.7 KB, queue 1.6–2.3 ms, render 0.33–0.44 ms; with the page's screens 2.3–3.7 KB,
+  0.7–1.0 ms, 0.24–0.40 ms (the engine HUD is not drawn). The fps line on SwiftShader is noisy and lower with the page (BASE 45–93,
+  new 37–61): the DOM layer's compositing in a CPU renderer; hiding the layer mid-run did not give a clear difference. To check on a
+  real phone.
+- Shots (1440x900 and 390x844 `--mobile`, both hands): neutral, a combo (the callout and the count under the attacker), the Kikon
+  hold (the 12-frame ring prompt; the deck's hold ring), red / souls at stake / the awakening ready, 爆's hold ring filling, the
+  pause (desk and phone), the intro (P1's and P2's columns, 斬), the K.O. (2208), the touch ink (a still of the tap ripple, the
+  flick's trail and name: `gameHUD.still(true)` holds them for a test still, since the page's animations run in real time).

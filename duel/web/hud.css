@@ -14,8 +14,8 @@
 body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 
 /* the hit's screen flash (one frame of paper, then gone) */
-#hud .flash { position: absolute; inset: 0; background: var(--paper); opacity: 0; mix-blend-mode: overlay; z-index: 30; }
-#hud .flash.go { animation: hd-flash .18s steps(2) 1; }
+#hud .flash { position: absolute; inset: 0; background: var(--paper); opacity: 0; mix-blend-mode: overlay; z-index: 30; display: none; }
+#hud .flash.go { display: block; animation: hd-flash .18s steps(2) 1; }   /* (only while it plays: a standing blend layer costs every frame) */
 @keyframes hd-flash { 0% { opacity: .55; } 100% { opacity: 0; } }
 
 /* ------------------------------------------------------------------ the plates (P1 left, P2 right, mirrored) */

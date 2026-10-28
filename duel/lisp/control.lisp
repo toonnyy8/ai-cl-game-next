@@ -227,4 +227,6 @@ press starts J1 on its first free frame."
   "How many of KONPAKU flames a Kikon worth COUNT (the attacker's current form's :kikon-konpaku) would take if it landed
 now: the settle's own rule (rules.lisp KIKON-RESULT: at most *KIKON-MAX-EVENT*, at most what is left). The HP-0 Soul
 Break's + 1 is not shown."
-  (nth-value 1 (kikon-result konpaku count nil)))
+  (multiple-value-bind (left lost) (kikon-result konpaku count nil)   ; (not NTH-VALUE: ECL conses its value list, 24 B a call)
+    (declare (ignore left))
+    lost))
