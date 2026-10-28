@@ -351,11 +351,14 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 ;; pointer 3 縛雷 (§27, the bind and the lightning merged): SHIBARI's cast binds (its gap's SA 引寄 drags him in) > CHIKUDEN, the
 ;; charge along the binding chain (its gap's SA 放電 HODEN bursts him in place, closer = harder); no third segment. AS3 MATOI >
 ;; TAME > TSUZURI RAIDEN, which leaves 餘電 ZANDEN on him (HS-ZAN-HIT)
-(defmove-copy :hs-n3b :hs-k2 :callout "CHIKUDEN" :dmg 25 :on-hit :stagger :hits ((20 24 :seg-fn hs-core-seg))
+;; (§27.6, presentation only: CHIKUDEN and 放電 play their own clips at their S, the chain kept wound on him from NS3a's
+;; cast and the lightning drawn along it, HISAGI-DRAW by the move's name; CHIKUDEN's :look-as stays NOKO's: HS-TICK keeps
+;; the hashed anchor on the victim for it)
+(defmove-copy :hs-n3b :hs-k2 :clip :hs-chikuden :clip-s 20 :callout "CHIKUDEN" :dmg 25 :on-hit :stagger :hits ((20 24 :seg-fn hs-core-seg))
   :params (:melee-range 2.0 :sa :hs-sa-hoden :zan :pend :look-as :hs-k2))
 (defmove-copy :hs-n3a :hs-shibari :kind :flash :callout nil :startup 18 :active 4 :recovery 26 :clip-s 16 :dmg 40
   :hits ((18 22 :on-hit :bind :stun 40)) :params (:melee-range 2.0 :ns-next :hs-n3b :look-as :hs-shibari))
-(defmove-copy :hs-sa-hoden :hs-raiden :kind :quick :callout "HODEN" :startup 10 :clip-s 20 :dmg 60 :on-hit :stagger :flags nil
+(defmove-copy :hs-sa-hoden :hs-raiden :kind :quick :clip :hs-hoden :callout "HODEN" :startup 10 :clip-s 10 :dmg 60 :on-hit :stagger :flags nil
   :hits ((10 13 :seg-fn hs-core-seg)) :on-frame nil :params (:melee-range 2.0 :hoden t))
 (defmove-copy :hs-as3c :hs-raiden :startup 16 :clip-s 20 :dmg 110 :on-hit :knockdown :hits ((16 19)) :on-frame nil
   :params (:melee-range 2.0 :zan :set))

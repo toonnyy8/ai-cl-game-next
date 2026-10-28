@@ -169,6 +169,11 @@
     ;; §27: NS3a's gap the kit's SA (YOSE), CHIKUDEN's 放電; 放電's distance x; 餘電 set / pending / used up
     (check (and (null (getf (mv-params (m :hs-n3a)) :sa)) (eq (getf (mv-params (m :hs-n3b)) :sa) :hs-sa-hoden)
                 (eq (kit-class k (m :hs-sa-hoden)) :sa)))
+    ;; §27.6 (presentation only): CHIKUDEN / 放電 their own clips at their S (speed 1); CHIKUDEN keeps NOKO's :look-as (HS-TICK's
+    ;; hashed anchor on the victim)
+    (check (and (eq (mv-clip (m :hs-n3b)) :hs-chikuden) (eq (mv-clip (m :hs-sa-hoden)) :hs-hoden)
+                (= 1.0 (mv-clip-speed (m :hs-n3b)) (mv-clip-speed (m :hs-sa-hoden)))
+                (= 20 (mv-s (m :hs-n3b))) (= 10 (mv-s (m :hs-sa-hoden))) (eq (hs-look-name (m :hs-n3b)) :hs-k2)))
     (check (and (= (hs-hoden-x 1.0) 2.0) (= (hs-hoden-x 6.5) 1.0) (< (abs (- (hs-hoden-x 4.05) 1.5)) 1e-4) (= (hs-hoden-x 9.0) 1.0)))
     (let ((st (make-hss)))
       (hs-zan-hit st (m :hs-n3b)) (check (and (hss-zan-pend st) (zerop (hss-zan st))))

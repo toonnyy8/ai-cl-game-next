@@ -892,6 +892,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :ru-0-hakka                                                                                                 ; (§13.4)
     :ic-na1 :ic-ns1 :ic-chg1 :ic-chg2 :ic-ns3 :hs-na1   ; (the core system's long coils: NA1, the NS openers, NS2's charges, DUEL_CORE §6)
     :hs-kr-tan :hs-kr-ren :hs-kr-sen :hs-kr-ko :hs-kr-age   ; (Hisagi's pointer 2 刈, its NS and AS2: DUEL_HISAGI §27.5)
+    :hs-chikuden :hs-hoden   ; (his pointer 3 縛雷's CHIKUDEN and 放電: DUEL_HISAGI §27.6)
     :ic-k-summon :ic-k-xa :ic-k-xb   ; (KESSA's NS3: the command gesture; the clones' X, ICHIGO-NS-CLONE-X plays them)
     :ic-k-lash-a :ic-k-lash-b :ic-k-lash-c :ic-k-chg1 :ic-k-chg2 :ic-k-wrap :ic-k-whip :ic-k-cut   ; (KESSA's NS1 chains, NS2 charges, AS3's turn: 2026-10-28)
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker

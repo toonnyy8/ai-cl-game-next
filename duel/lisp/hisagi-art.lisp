@@ -428,6 +428,62 @@ down point first onto him (S 22), held in him, hauled back.")
 (defclip :hs-st-raiden (2.0 :loop t :base :hs-st-raiden)
   (0) (1.0 (:root :u -0.115) (:arm-l :flex 160) (:elbow-l :flex 18) (:arm-r :side 42)))
 
+;; §27.6 (the user, 2026-10-28: 「應該是要沿著綑綁的鎖鏈延伸電擊才對，放電也一樣是沿著最初綑綁的鎖鏈炸開電擊」): pointer 3 縛雷's two
+;; segments after the bind play his own clips (no throw, no RAIDEN beam); the chain stays wound on the victim from NS3a's
+;; cast (HISAGI-DRAW, by the move's name), the lightning drawn along it (%HS-VOLT).
+;; NS3b 蓄電 CHIKUDEN (20/4/24, entered at frame 6 as NOKO's link): from the cast's reach he hauls the binding chain in hand
+;; over hand (f6-10), then sets pointer 3's stance on it: the left fist high on the taut chain, the right rod low at his
+;; right hip (held f15-19: the charge); at S the fist jerks up on the chain (the lightning sent along it into the coil:
+;; %HS-VOLT); he holds the taut chain through the gap. The body and the right rod stand still from S-4 to S+A+3 (f16-27)
+;; and the rod stays low by his hips: the engine's swing smear on the rod over those frames (and a :flash move's stretch
+;; drawing on S) drew a yellow beam up out of a raised right hand
+(defpose :hs-chikuden-hold (:base :hs-st-raiden)
+  (:root :f 0.0 :u -0.14 :yaw -2) (:spine :flex 2) (:chest :twist -6) (:head :flex -4)
+  (:arm-l :flex 164 :side 16 :twist 0) (:elbow-l :flex 12) (:hand-l :flex -84)
+  (:arm-r :flex 16 :side 40 :twist 0) (:elbow-r :flex 14) (:hand-r :flex -110)
+  (:thigh-l :flex 36 :side 16) (:knee-l :flex 34) (:thigh-r :flex -14 :side 18) (:knee-r :flex 26))
+(defpose :hs-chikuden-hit (:base :hs-chikuden-hold)
+  (:head :flex -10) (:arm-l :flex 174 :side 18) (:elbow-l :flex 2) (:knee-l :flex 40) (:knee-r :flex 32))
+(defstrike :hs-chikuden (20 4 24 :base :hs-st-raiden)
+  (0)
+  (6 (:root :f 0.08 :u -0.1 :yaw -8) (:spine :flex 10) (:chest :twist -16)
+     (:arm-l :flex 94 :side 8 :twist 0) (:elbow-l :flex 2) (:hand-l :flex -20)
+     (:arm-r :flex 40 :side 24 :twist 0) (:elbow-r :flex 50) (:hand-r :flex -40)
+     (:thigh-l :flex 40 :side 10) (:knee-l :flex 40) (:thigh-r :flex -20 :side 12) (:knee-r :flex 16))   ; the cast's reach
+  (10 (:root :f -0.06 :u -0.12 :yaw 0) (:spine :flex -8) (:chest :twist -4)
+      (:arm-l :flex 120 :side 12) (:elbow-l :flex 60) (:hand-l :flex -40)
+      (:arm-r :flex 100 :side -6) (:elbow-r :flex 40) (:hand-r :flex -20))                                 ; hauled in
+  (15 :hs-chikuden-hold)                                                                                   ; up: the fingers on it
+  (18 :hs-chikuden-hold (:arm-l :flex 160) (:elbow-l :flex 16))                                           ; held
+  (:s :snap :hs-chikuden-hit)
+  (:a :hs-chikuden-hit)
+  (28 :hs-chikuden-hit)
+  (36 :hs-chikuden-hold)                                                                                   ; the gap: held taut
+  (:end :hs-st-raiden))
+;; 放電 HODEN (10/3/24, the SA in CHIKUDEN's gap): drawn back (f4, the tell: the fist up over his left shoulder, leant back,
+;; the right rod kept low at his hip); at S the left fist yanks the chain down to his waist (the burst runs down it and
+;; explodes on the victim: %HS-VOLT, %HS-HODEN-BURST); the body and the right rod stand still from S-4 to S+A+3 (f6-16, the
+;; swing smear: a right hand raised there drew a yellow beam), then the follow-through pitches him forward
+(defpose :hs-hoden-back (:base :hs-st-raiden)
+  (:root :f -0.08 :u -0.14 :yaw -6) (:spine :flex -10) (:chest :twist -12) (:head :flex -8)
+  (:arm-l :flex 174 :side 26 :twist 0) (:elbow-l :flex 42) (:hand-l :flex -70)
+  (:arm-r :flex 16 :side 40 :twist 0) (:elbow-r :flex 14) (:hand-r :flex -110)
+  (:thigh-l :flex 30 :side 18) (:knee-l :flex 30) (:thigh-r :flex -10 :side 20) (:knee-r :flex 30))
+(defpose :hs-hoden-hit (:base :hs-hoden-back)
+  (:head :flex 6) (:arm-l :flex 50 :side 14) (:elbow-l :flex 8) (:hand-l :flex -30)
+  (:thigh-l :flex 50 :side 18) (:knee-l :flex 50) (:thigh-r :flex -24 :side 20) (:knee-r :flex 22))
+(defstrike :hs-hoden (10 3 24 :base :hs-st-raiden)
+  (0 :hs-chikuden-hold)
+  (4 :hs-hoden-back)                                                                                       ; drawn back: the tell
+  (8 :hs-hoden-back (:arm-l :flex 178) (:elbow-l :flex 48))                                               ; held
+  (:s :snap :hs-hoden-hit)
+  (:a :hs-hoden-hit)
+  (16 :hs-hoden-hit)
+  (20 :hs-hoden-hit (:root :f 0.1 :u -0.22 :yaw 4) (:spine :flex 22) (:chest :twist 8))                  ; the follow-through
+  (28 (:root :u -0.14) (:spine :flex 8) (:arm-l :flex 90 :side 16) (:elbow-l :flex 20) (:arm-r :flex 20 :side 36)
+      (:elbow-r :flex 20))                                                                                 ; the chain let go
+  (:end :hs-st-raiden))
+
 ;;; ---------------------------------------------------------------- pointer 2 刈 KARI, the short-chain reaping (DUEL_HISAGI §27.3, §27.5)
 ;; The stance: a reaper's crouch, square and low, the head down; both fists in front of the hips, the elbows out, each sickle
 ;; reverse-gripped (the rod back along the forearm, its blades trailing past the hip: from behind they fan out on both sides

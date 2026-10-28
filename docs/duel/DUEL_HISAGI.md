@@ -3917,3 +3917,52 @@ charge, the detonation's look); 3 the 刈 cinematic.
   routes: cons/frame 2.6-3.2 KB, the same order as both fighters idle (2.56 KB: the rest of the game's frame), heap 87.7 MB flat. The sim did not move
   (`--pairs 29,31,35 --seeds 10`): HK 176.6 s (3:7), HI 213.2 s (2:8, KOs 9), HH 230.6 s (6:4), as batch 1; G2 (II IK KK) 3 PASS.
   Checked by numbers and stills, needs the user's eyes (the playtest).
+
+### 27.6 縛雷's bind kept on him, the lightning along it (presentation only, 2026-10-28)
+
+The user, after batch 2 (verbatim): 「NS3 的蓄電怎麼了會是投擲鐮刀出去，應該是要沿著綑綁的鎖鏈延伸電擊才對，放電也一樣是沿著最初綑綁的鎖鏈炸開電擊。」
+
+What was wrong: CHIKUDEN borrowed NOKO's clip and chain path (`:look-as :hs-k2`: the sickle flung out to the victim again, a
+second throw after NS3a's bind), and 放電 played RAIDEN's clip and its bolt down his own line.
+
+As built (only `:clip`, `:clip-s` and draw / art code; every sim number as it was):
+
+- The bind stays drawn. HISAGI-DRAW dispatches on the move's own name (`:hs-n3a`, `:hs-n3b`, `:hs-sa-hoden`), ahead of the
+  SHIBARI and NOKO branches: from NS3a's S through CHIKUDEN, its gap and 放電 the sickle sits wound on the victim's chest
+  (`%HS-POINT` code 5, `*HS-PT*`), the coil round him (`%HS-COIL`, lo 32), the chain taut from the right rod through the left
+  fist to it (new lo bit 32768). Whether NS3a hit or not: within the chain's 6.5 m (`*HS-CORE-CHAIN*`, new `%HS-GEO!` flag 32)
+  the cast now flies to his chest (it flew to 4.85 m along the facing), so at 6 m the chain is drawn to him the same way the
+  route's chain segments hit him (`HS-CORE-SEG`); beyond 6.5 m the old short cast stays. CHIKUDEN reels the sickle back over
+  its last 6 frames (f42-48) when no 放電 follows; 放電 burns the coil off at f24 and reels the sickle back f24-32.
+- CHIKUDEN `:hs-chikuden` (20/4/24 at its S, `:clip-s 20`, speed 1, entered at frame 6 as NOKO's link): from the cast's reach
+  he hauls the chain in (f6-10), then sets pointer 3's stance on it (the left fist high on the taut chain, the right rod low at
+  his hip, held f15-19); at S the fist jerks up on the chain. The lightning (`%HS-VOLT` mode 1): ten crawling sparks along the
+  chain (lo 16384) from his start, a bolt's front running down the chain from his fist f10-20 (a third of the chain lit behind
+  its head, a jade star at the head), and on S the coil lit (FX-ENVELOPE 1/3/4/8: jagged bolts along its three turns, a jade
+  star and light on him).
+- 放電 `:hs-hoden` (10/3/24, `:clip-s 10`): drawn back f4-8 (the fist up over his left shoulder, leant back: the tell), at S
+  the left fist yanks the chain down to his waist, a follow-through pitches him forward at f20. The lightning (`%HS-VOLT`
+  mode 2): the chain lit end to end and flickering wider f2-9, then on S the burst along it (FX-ENVELOPE 2/4/4/8: the bolt at
+  2.2x width, forks off it at seven points to alternate sides up to 0.6 m, a jade light at its middle); on a hit
+  `%HS-HODEN-BURST` explodes on him as in §27.5. RAIDEN's bolt is gone from 放電 (its clip is no longer in `*HS-BOLTS*`;
+  `%HS-HODEN-LEN!` deleted).
+- `%HS-BOLT-SEG`: HS-CINE-BOLT's look (jade shards, a white core) as a `defun-fast` with fixnum arguments (per cent of a
+  segment, width, presence), 0 B. Shapes on the fx clock's drawings and `hash01`, no RNG.
+- The engine's swing smear (`vfx-smear`, the yellow comet on the right rod from S-4 to S+A+3) and a :flash move's stretch
+  drawing on S drew a long yellow beam out of a raised right hand in the first drafts. So both clips keep the body and the
+  right rod still over S-4..S+A+3, the rod low at his hip; what is left is the small accent at the rod's tip every strike has.
+- Drawn reach = hit reach by construction: the chain is drawn to the victim's chest, where the segment hits him
+  (`HS-CORE-SEG`, within 6.5 m); no tip table entry.
+- TAME (AS3's second segment) is unchanged: it follows MATOI's cut, not a bind, and still plays NOKO's throw with §27.5's
+  charge sparks.
+- Why `:look-as` stays: CHIKUDEN's `:look-as :hs-k2` makes HS-TICK write the hashed anchor on the victim (`*HS-AT-FOE*`);
+  changing it would move a hash line. The draw no longer reads it for CHIKUDEN (the new branch comes first).
+
+Checks: host 10776 ALL PASS (+1: both clips, speed 1.0, S 20 / 10, CHIKUDEN's look name still `:hs-k2`; the two clips in
+core.lisp's clip list), cine-test 18 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0 errors (no new number: strips 83544 / 83545
+now show the new clips at 2 m; 83901 measures them plus CHIKUDEN's front, 放電's charge, NS3a's wrap: all 0 B over 10 calls;
+its non-zero entries are untouched paths, as in §27.5). In the match (83000 / 83001, 2512, Shift+J, Shift+J, J): at 2 m NS3a
+40, CHIKUDEN 25, 放電 x1.92; at 6 m NS3a whiffs, CHIKUDEN 25 along the chain, 放電 x1.10; the browser's stats line 2.7-2.9 KB
+a frame (both fighters idle: 2.56 KB, §27.5). Stills at 1280x720 and 390x844 (`--mobile`). The sim did not move
+(`--pairs 29,31,35 --seeds 10`): HK 176.6 s (3:7), HI 213.2 s (KOs 9, 2:8), HH 230.6 s (6:4); G2 (II IK KK) 3 PASS.
+Checked by numbers and stills, needs the user's eyes (the playtest).
