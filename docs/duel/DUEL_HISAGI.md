@@ -4207,3 +4207,34 @@ release); `:mult` per mode (Shikai 1.7, to be measured); the Breaker and Hoho as
 - **Kept**: §17's two forms `:bankai` / `:bankai-bind` and their clips (re-used: §22.4's spread / gathered J, the ranged K for the NS,
   the bind's melee J / K); `:mult` 1.7 in both (the Shikai's, to be measured); the generic core CPU plays both forms.
 - **Counters** in the combat log: bind start, bind end, each balance (the two Reishi before and after).
+
+### 28.5 As built (batch 1, the sim, 2026-10-29; merged 56ee169)
+
+- Unlocked: `:no-awaken` gone; Mod+P in the Shikai plays `HS-AWAKEN-CINE` into `:bankai`.
+- `:bankai` / `:bankai-bind` are core kits per §28.3 (copies of the old Bankai moves on their clips): two NS of 3, AS of 1 / 2 / 3, five J
+  `:as-by-press (1 1 2 2 3)`, `:mult` 1.7. Ranged SA 打 UCHI 35 (pointer 2's NS a / b gaps their own gathered SA 45); bind SA 引寄
+  HIKIYOSE (1.5 m on frame 0). Stances re-used: ranged `:hs-k-stance` / `:hs-k-kosa-aim`, bind `:hs-kb-stance` / `:hs-st-bind`.
+  Kikon cinematics re-used: `hs-kosa-cine` (both ranged pointers), `hs-koshu-cine` (both bind pointers).
+- Shared, default off (G2 `--cvc` II / IK / KK identical): `:core :as-writes (1 2 nil)`; `:params :no-kikon` (CORE-KIKON-P); `core-clash!`
+  (from `core-nohit!`'s `:cancel` and `core-kikon-cancel!`) firing a kit `:clash` hook once per step per pair (fighter slot `clash-t`);
+  a `:link-move` hook at the latched J / K link; `set-form` clamps the pointer to the new form's NS count; the core CPU taps an SP whose
+  AS is `:no-kikon`.
+- Hisagi: `*hs-bind-even*` 0.25 (`hs-bind-even`: each side round(gap × 0.125), total exact, clamped); the 聚 flag (a `:gather`
+  segment) swaps J2–J5 for the gathered copies (`hs-r-link-move`); AS3c KAKE's real hit arms the bind (yank to 2.0 m), the bind starts when
+  that move ends; the bind AS3c's end releases, whatever it did; a Kikon keeps the bind. Log: `KAKE: the bind armed`, `BIND START`,
+  `BIND EVEN a -> a', b -> b'`, `BIND END`.
+- §17 removed: every `:bind*` / `:p` / `:ok` / `:command` hook off both kits (BIND-OF is NIL for him: no grey, pool, frozen gain),
+  the snapshot / pool / drained / released / reel / P release / KUBIKAKE-on-SP2 / leash functions deleted. Left dead (unreachable): the
+  shared B1b skeleton (`bind-of`'s readers, the HUD grey band, `bind-drain`), the old `hs-r-*` / `hs-b-*` moves and the old Bankai CPU,
+  the DANGAI boss's KUBIKAKE rule.
+- Deviations: reaches follow the re-used clips (ŌGI 2–4.5, WA 2–6, TABA 2–4.5, TATAKI 1–4.5, ŌMEGURI 2–4.5, JIBASHIRI 2–4.5 m; ISSEI /
+  RANSA 4.5 m); ranged AS2a, AS3b / AS3c and J5 strike along the chain (6.5 / 7 m); bind KAGIYOSE along a 6 m chain, MATOI 2.6 m; NS2c's
+  gap uses the spread UCHI.
+- Checks: duel-rules 10544 ALL PASS (§17's checks replaced), control 99, cine 18, pkgcheck 0 / 0 / 0, debug ranges 0 errors; `--cvc`
+  3 PASS. Scripted smoke (`tests/scripts/duel-hisagi-bankai.json`, both sides' inputs scripted, no CPU): ranged NS1 37 / 30 / 56, NS2 50 /
+  57 / 86, NS2a > gathered SA 45 > J 29 ×3; J ×5 22 / 19 / 19 / 19 / 26 > AS3 30 / 30 / 40 → `BIND START 1300 / 1144`; in the bind
+  `P2 KE-N1A x P1: CANCEL` → `BIND EVEN 400 -> 512, P2 1300 -> 1188`; a Soul Break inside the bind K.O.s; bind AS3 40 / 40 / 100 →
+  `BIND END`, and its whiff too; a Kikon keeps the bind. No balance gates (the user's rule, AGENTS.md). Playtest Artifact version 226.
+- Open for the user: (1) one exchange can balance twice (a cancel, then another 13 f later: 400 / 1300 → 596 / 1104, the gap −44 %);
+  (2) the old bind's ×1.3 within 1.2 m (`hs-dmg-mult`) still applies, and the ranged tip ×1.71; the two Bankai kits' own damage × is 1.0
+  (the Shikai 1.15) under the core `:mult` 1.7.
