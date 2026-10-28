@@ -220,7 +220,9 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove :ic-k-n3c :kind :flash :clip :ic-k-summon :startup 14 :active 0 :recovery 22 :on-frame ((2 ichigo-ns-clone-x) (12 ichigo-ns-x-mark))
   :params (:sa :ic-k-sa))
 (defmove :ic-c-xa :kind :flash :clip :ic-k-xa :startup 8 :active 3 :recovery 16 :dmg 55 :guard 12
-  :reach 2.8 :arc 120 :on-hit :knockdown)                                ; the X: the right clone's forehand ↙
+  :reach 2.8 :arc 120 :on-hit :stagger)                                  ; the X: the right clone's forehand ↙
+                                                                         ; (a stagger, not a knockdown: the SA after it connects, the user,
+                                                                         ;  2026-10-28: 「NS3[3] 打完後對手會強制倒地導致後續的 SA 攻擊接不上」)
 (defmove-copy :ic-c-xb :ic-c-xa :clip :ic-k-xb)                          ; ... the left clone's, its mirror ↘ (DEFCLIP-MIRROR)
 (defmove-copy :ic-k-sa :ic-sa :clip :ic-k-f1 :clip-s 18 :startup 10 :slide 3.0 :reach 2.6 :dmg 50 :on-hit :stagger
   :on-frame ((0 ichigo-soga-vanish)))                                    ; the lunge: a flash step in, one cut
@@ -558,10 +560,13 @@ Konpaku hint (the user 2026-09-29: it followed the kit's fixed 3) and his Soul B
   (let* ((fx (fwd-x yaw)) (fz (fwd-z yaw)))
     (clamp-to-circle (+ px (* 0.5 fx) (* side 1.1 (- fz))) (+ pz (* 0.5 fz) (* side 1.1 fx)) (- *arena-radius* 0.4))))
 (defun ichigo-ns-clone (e side src)
-  "NS3: a clone at its place (ICHIGO-NS-SLOT), swinging forward at once (the light answer: it lands before the next press's)."
+  "NS3: a clone at its place (ICHIGO-NS-SLOT), swinging forward at once (the light answer, no *CLONE-LAG*: it lands before the next
+press's; with the lag NS3[2]'s cut came 4 frames after NS3[3] could start, so a quick third press took it for the X, the user,
+2026-10-28: 「如果點太快的話，NS3[2] 的斬擊會直接被跳過接成 NS3[3]」)."
   (multiple-value-bind (x z) (ichigo-ns-slot e side)
     (let ((c (ichigo-clone-spawn e x z src)))
       (clone-link c :f 1)
+      (setf (icc-sf c) 0)
       c)))
 (defun ichigo-ns-regroup (e h c)
   "An NS3 clone answering a press flashes back to its place by E first, so it cuts with him wherever his lunge took him."

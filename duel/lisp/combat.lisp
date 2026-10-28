@@ -448,11 +448,13 @@ result (NIL = no effect)."
                (when (and (eq (kit-class (fighter-kit fa) mv) :as) (not hazard)) (core-on-hit! att def mv))
                (when (and follow wave) (core-wave-follow! att wave))   ; a wave's: he flash-steps in to its strike
                (when (and follow (or own wave))           ; the rush dashes in, then strikes again (KIKON-RUSH-STEP)
-                 (when (or wave (core-kikon-p fa mv)) (core-set-kikon-n! att red))
+                 (setf (fighter-kikon-undo fa)            ; a core SP's: a let-go in the confirm makes this hit an ordinary
+                       (and (or wave (core-kikon-p fa mv))   ;  one (CORE-KIKON-UNDO!), its cues wait for the hitstop's end
+                            (let ((r (hw-react hw))) (list def r (or (hw-stun hw) (hitstun r (eq res :counter))) sx sz (hw-kb hw) (and wave t)))))
+                 (when (fighter-kikon-undo fa) (core-set-kikon-n! att red))
                  (setf (fighter-phase fa) :follow (fighter-hold fa) 0 (fighter-follow fa) t
                        (fighter-kikon-lock fd) (if red 2 1))   ; (2026-10-24: guard only, or nothing when red; KIKON-LOCK-P)
-                 (emit :kikon-follow att def)
-                 (emit :rush-dash att)
+                 (unless (fighter-kikon-undo fa) (core-follow-cues att def))   ; (a core SP's: CORE-FOLLOW-STEP)
                  (clog "~a KIKON FOLLOW-UP on ~a~:[~; (red)~]" (side-name att) (side-name def) red)))))
           (:armored                                     ; a move's armour (one hit spent)
            (if (and *run-mods* (eq def-state :armor) (run-armor-p def)   ; DANGAI's run armour, unless his move's own took it

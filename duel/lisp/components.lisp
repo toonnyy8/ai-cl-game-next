@@ -115,6 +115,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (charge-mult 1f0 :type single-float)  ; a charged SA's damage x on the rest of its string (J2 / J3 / the AS: CORE-CHARGE-MULT)
   (cancelled nil)                       ; the move was cancelled this step (a bounce)
   (kikon-lock 0 :type fixnum)           ; a Kikon follow-up coming at him: 1 guard only (not red), 2 nothing (red); KIKON-LOCK-P
+  (kikon-undo nil)                      ; his dash-in's hit as an ordinary one, for a let-go in the confirm (CORE-KIKON-UNDO!)
   (burst nil)                           ; the burst mode pressed this step (:white :blue :orange; applied after both stepped)
   (chain 0 :type fixnum)                ; ORANGE: frames the next move started still has its startup cut
   (invuln 0 :type fixnum)               ; frames of invulnerability left (after a Burst)

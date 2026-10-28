@@ -140,17 +140,23 @@ the segment's start to its hit is a Kikon; a mashed SP that is down on the hit f
 kept down to the hit (the user, 2026-10-28: 「實際在觸控時的判斷應該改為『打中後是否有再次點擊並長按 SP』」, judged at the hit: 「打中前按下」)."
   (case (fighter-sp-held f)
     ((nil))
-    (:rearm (when (touch-active-p *touch*) (setf (fighter-sp-held f) t)))
+    (:rearm (when (core-touch-sp-p) (setf (fighter-sp-held f) t)))
     (t (unless (core-held-p e) (setf (fighter-sp-held f) nil)))))
 
 (defun core-touch-p (f)
   "Is F P1 on the phone's thumb pad (*ONE-HAND*), whose SP is a tap?"
   (and *one-hand* *p1* (eq f (fighter *p1*))))
 
+(defun core-touch-sp-p ()
+  "Is a contact down in the pad's SP zone (above the tap split, where it went down: a tap's own test, %GESTURE-LIFT)? The attack's
+zone below is not the SP's hold (the user, 2026-10-28: 「程式的毀魂技觸控判定並沒有區分 SP 跟攻擊的差異，所以如果打完 SP 後按住攻擊的區域
+也一樣會觸發毀魂技」)."
+  (and (touch-active-p *touch*) (< (touch-oy *touch*) (touch-split-y *touch*))))
+
 (defun core-held-p (att)
   "Is ATT still holding the SP button (the attack button) this step?"
   (or (vpad-down (pilot-vpad (pilot att)) :quick)
-      (and *one-hand* (eq att *p1*) (touch-active-p *touch*))))   ; a phone: the thumb back on the pad while the SP strikes
+      (and *one-hand* (eq att *p1*) (core-touch-sp-p))))   ; a phone: the thumb back on the SP zone while the SP strikes
 
 (defun core-kikon-cine (att)
   "The cinematic of ATT's Kikon by the pointer of the SP that struck (the kit's :core :kikon-cines, one per pointer; NIL: the kit's own).
@@ -173,8 +179,13 @@ KESSA's pointer 3 plays 千影 (the user, 2026-10-28: 「指針三的毀魂技�
 
 (defun core-follow-step (e f mv)
   "The Kikon's dash-in after the struck SP (phase :follow): chase the knocked-back victim for KIKON-FOLLOW-WAIT frames, then the
-same strike again; its hit is the Kikon (KIKON-OUTCOME)."
+same strike again; its hit is the Kikon (KIKON-OUTCOME). The hold is judged on for *CORE-KIKON-CONFIRM* of these frames: a let-go
+drops it (CORE-KIKON-UNDO!)."
   (incf (fighter-hold f))
+  (when (and (<= (fighter-hold f) *core-kikon-confirm*) (not (core-held-p e)) (fighter-kikon-undo f))
+    (clog "~a lets go: no Kikon" (side-name e))
+    (return-from core-follow-step (core-kikon-undo! e f)))
+  (when (= (fighter-hold f) 1) (core-follow-cues e (fighter-opp f)))   ; still held after the hitstop: now its cues (a tap is up)
   (let ((v (motion-vel (motion e))) (left (- (kikon-follow-wait (mv-s mv)) (fighter-hold f))))
     (fill v 0f0)
     (turn-to-opp e f (track-step 360.0))
@@ -182,6 +193,22 @@ same strike again; its hit is the Kikon (KIKON-OUTCOME)."
     (when (<= left 0)
       (setf (fighter-hits f) 0 (fighter-contact f) nil (fighter-land-sf f) -1)
       (enter-main e f mv))))
+
+(defun core-follow-cues (att def)
+  "The Kikon follow-up's cues: the KIKON call-out and the dash-in's take-off (cosmetic)."
+  (emit :kikon-follow att def)
+  (emit :rush-dash att))
+
+(defun core-kikon-undo! (e f)
+  "A let-go inside the confirm (CORE-FOLLOW-STEP): the held SP's hit was an ordinary one after all (FIGHTER-KIKON-UNDO, kept by
+APPLY-HIT): the victim in that hit's own reaction, the frames he already reeled taken off, and E back in his move where it hit,
+so its string goes on (a wave's strike: E free again). A tap still down on a quick hit (AS3's SOSEN-GIRI, startup 8) is released
+in the hitstop, so this comes on the dash-in's first frame (the user, 2026-10-28: 「常態的 AS3 不知為何非常容易誤觸出毀魂技」)."
+  (destructuring-bind (def react stun sx sz kb wave) (fighter-kikon-undo f)
+    (setf (fighter-follow f) nil (fighter-kikon-undo f) nil (fighter-kikon-lock (fighter def)) 0)
+    (fill (motion-vel (motion e)) 0f0)
+    (set-reaction def react (max 1 (- stun (fighter-hold f))) sx sz kb)
+    (if wave (to-idle e 0) (setf (fighter-phase f) :main))))
 
 (defun core-wave-strike (att hz)
   "The follow-up strike (its :params :kikon-strike) of the wave HZ that ATT's NS / AS segment fired (HAZARD-SP-MV), when its hit may

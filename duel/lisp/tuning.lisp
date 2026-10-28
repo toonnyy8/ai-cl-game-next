@@ -629,6 +629,10 @@ per neutral decision; one who isn't red only as a poke (the kit's :moves bands).
 (defparameter *core-clash-slowmo-scale* 0.2 "Time scale of the slow motion on a cancel (the triangle's mutual no-damage clash): a beat to read the next move
 (the user, 2026-10-27: 「抵消的瞬間要有慢動作讓人有一瞬間能思考接下來的行動」; the perfect Hoho's is 0.25).")
 (defparameter *core-clash-slowmo-seconds* 0.7 "Real seconds of that slow motion (the last 0.1 s eases back to full speed).")
+(defparameter *core-kikon-confirm* 12
+  "Frames of a held SP's dash-in (phase :follow, after the hitstop) the button must still be down for: a let-go inside them drops
+the Kikon, both back to neutral (CORE-FOLLOW-STEP). 0 -> 12, 2026-10-28, the user: 「把毀魂技的按住判定時間拉長」 (asked which way,
+「打中後要多按住幾幀」; the frames left to me). Before, only the hit frame was judged.")
 (defparameter *core-damage* 0.42
   "x every hit of a fighter whose kit has a :core (KIT-ATK-MODS). The first core build ended matches in ~55 s median (Ichigo mirror 43 s,
 KI 61 s, HK 57 s; target 125-210 s): the pointer-3 Soul Break takes up to 5 of 9 Konpaku, so the Reishi (1300) is the pace. 1.0 before.")

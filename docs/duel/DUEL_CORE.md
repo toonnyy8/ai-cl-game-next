@@ -124,6 +124,32 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   `IC-WAVE-STRIKE`, `KIKON FOLLOW-UP`, `KIKON 80`, −2 Konpaku, `IC-KIKON-CINE`; J ×3 > AS2 ×2 held → `WAVE -> P2 HIT 60`,
   `IC-WAVE-STRIKE-AS`, `KIKON 80`. Gates: Ichigo's three pairings at 10 seeds identical to the run before it (the CPU never
   holds through a wave), G2 unchanged.
+- **The hold confirmed after the hit** (2026-10-28, the user: 「把毀魂技的按住判定時間拉長」; asked which way, 「打中後要多按住幾幀」, the
+  frames left to me). The hit frame alone decided it; now the button (the phone: the contact) must also stay down for the first
+  `*core-kikon-confirm*` = 12 frames of the dash-in (phase `:follow`, after the hit's 8-frame hitstop: 20 frames, 0.33 s, after the
+  hit). A let-go inside them drops the Kikon (`P1 lets go: no Kikon`, `core-kikon-undo!`): the hit becomes the ordinary one it would
+  have been (`apply-hit` keeps it in `fighter-kikon-undo`: the victim in the move's own reaction, stun and knockback, the frames he
+  already reeled taken off, the lock cleared) and the SP goes on in its move where it hit (phase `:main`), so a string's next segment
+  still follows; a wave's strike ends with the owner free. The follow-up's cues (the KIKON call-out, the take-off) wait for the dash-in's
+  first frame (`core-follow-cues`), so a tap released in the hitstop shows none. A wave's strike is judged the same way. The CPU, held
+  at the hit, keeps the press through the confirm (`core-brain-step`), so its Kikons are as before. Browser check (debug 2502 + 2510 +
+  2393, Shift + J held from 0.02 s, NS1a hits at +0.37 s): held 1.6 s → `KIKON 68`; let go at 0.30 s → no follow-up (as before); at
+  0.40 / 0.50 / 0.60 s → `KIKON FOLLOW-UP`, then `lets go: no Kikon`.
+- **Shikai AS3's tap** (2026-10-28, the user: 「常態的 AS3 不知為何非常容易誤觸出毀魂技」): SOSEN-GIRI (`ic-as3`) hits 8 frames after the SP
+  press that starts it, sooner than a tap is up, so a tap was "held" at the hit. The confirm above is the fix: the tap is released in
+  the 8-frame hitstop, so the dash-in's first frame undoes it and the AS goes on. Browser (2502 + 2393, J ×5 then Shift + J): held 0.15
+  / 0.25 s → `KIKON FOLLOW-UP`, `lets go` 9 frames later, then the next SP's RANGETSU 18 ×4; held 1.2 s → `KIKON 45`,
+  `IC-RUSH-KIKON-CINE`.
+- **The phone's hold in the SP zone** (2026-10-28, the user: 「程式的毀魂技觸控判定並沒有區分 SP 跟攻擊的差異，所以如果打完 SP 後按住攻擊的區域也一樣會
+  觸發毀魂技」): the re-press counted any contact on the pad. Now only one that went down above the tap split, the SP's zone, counts
+  (`core-touch-sp-p`: `touch-oy` < `touch-split-y`, a tap's own test), for the `:rearm` and for the hold. Browser (`--mobile --size
+  390x844`, 2502 + 2393): the SP tap at y 530, then held at y 530 → `KIKON 68`; held at y 697 (the attack's zone) → `IC-N1A` hit, no
+  follow-up (§436's check had held the attack's zone).
+- Gates for the four above and §6's NS3 fixes (all six pairings; G2's three CPU matches unchanged, native == browser): the confirm alone,
+  before the CPU kept its press through it, lengthened Ichigo's matches (10 seeds: IK 201.1, HI 204.1 s); with it, KK 167.2, HK 146.3,
+  HH 172.4 s (10 seeds, identical before and after the NS3 fixes), and after them IK 192.6 s (20 seeds, Ichigo 8:12), HI 196.5 s
+  (20, Ichigo 10:10), all K.O.; the Ichigo mirror 221.4 s at 60 seeds with 2 time-outs of 60 (211.3 s and 20 K.O.s at 20 seeds before
+  the NS3 fixes): open, reported to the user.
 - 「用攻擊抵銷毀魂技並彈開雙方回到中立狀態」 and 「沒必要其他手段，只留攻擊抵銷」 → the Kikon follow-up is cancelled only by an attack
   (both bounce to neutral); Hoho and Burst do not stop it. A **red** victim cannot do even that (red = the Kikon must-hit line).
 - The 1.5 s Kikon cooldown is dropped with the O key (it was a standalone key); the hold is gated by the SP landing.
@@ -213,6 +239,12 @@ follow-up links keep their speed).
   fade at once); NS3 is the only source. Gates (Ichigo's pairings only, §424; 10 seeds): IK 186.7 s (Ichigo 2:8; 5:5 at §423), II 253.8, HI 191.2 s, all K.O.:
   Ichigo's IK win rate is open (the user's call). Browser: SP SP SP → clone hits 18, 18, then the X 38 + 38; SP SP J J Shift+J → the SA 50, J2 30 with
   the clones 35 + 35, AS2 50 with 35 + 35.
+- **NS3 fixes** (2026-10-28, the user: 「如果點太快的話，NS3[2] 的斬擊會直接被跳過接成 NS3[3]」, 「NS3[3] 打完後對手會強制倒地導致後續的 SA 攻擊接不上
+  （還是說這是刻意設計的？）」; not meant). (1) A clone's swing began after `*clone-lag*` (6), so NS3[2]'s landed on its frame 18 while
+  NS3[3] can start on frame 14 and takes both clones for the X on its frame 2: a quick third press ate the cut. NS3's clones now swing
+  with no lag (`ichigo-ns-clone`), on frame 12. (2) The X (`:ic-c-xa` / `-xb`) knocked down, so the SA after it whiffed; it staggers now.
+  Browser (74001 + 2512, SP at 0 / 0.32 / 0.58 s, J at 0.75 s): before, clone hits 18 (NS-A) and none for NS-B, X 38 + 38, the SA no
+  hit; after, 18, 18, X 38 + 38, `IC-K-SA -> P2 HIT 50`.
   **The clones replay him** (2026-10-28, the user: 「請幫我設計讓卍解的分身會重現本體的行為（包含 J 與 SP），每個分身在重現動作時的傷害與效果
   （像是剝奪閃步量表等等）是本體的 10%，同時也能受到蓄力月牙的加成」; asked: 「一個慢 4f 一個慢 8f」, the SA his alone, waves and the chain's
   pull replayed too, 「應該只包含 NS3 之後接的 J 跟 AS」). The heavy / light answers to his presses are gone under the core system; each J

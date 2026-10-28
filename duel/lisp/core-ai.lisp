@@ -113,6 +113,8 @@
       (when (and (eq (brain-act b) :dash) (> (brain-press-left b) 0)
                  (if (> (brain-dash b) 0) (<= d (brain-dash-to b)) (>= d (brain-dash-to b))))
         (setf (brain-press-left b) 0 (brain-decide-t b) 1))
+      (when (and (eq (fighter-state f) :move) (eq (fighter-phase f) :follow) (eq (brain-press b) :quick) (plusp (brain-press-left b)))   ; held at the hit: on
+        (setf (brain-press-left b) (max (brain-press-left b) (- (1+ *core-kikon-confirm*) (fighter-hold f)))))   ; through the confirm
       (unless (or (brain-off b) (> (fighter-lock f) 0) (eq (fighter-state f) :cine))
         (cond ((> (brain-press-left b) 0) (decf (brain-press-left b)))
               (t (case (fighter-state f)
