@@ -3751,3 +3751,9 @@ SA (J in any NS gap): 引寄 YOSE, frame 0 the drag to 1.6 m (within 6.5 m), S 1
   the run all chained: the debug start, not the move set.)
 - Gates (10 seeds, his pairings, `--pairs 29,31,35`): HK 189.7 s (Hisagi 2:8; 146.3 before), HI 194.0 s (4:6; 204.1 at 10 seeds before),
   HH 184.7 s (172.4), every match K.O.: the quick pass. G2 (II IK KK) identical.
+- Batch 2 (the clips, a worktree, merged d50e57f; presentation only): `:hs-na1` (J1's coil, wound to his right and held f5-13, J1's hit
+  pose at S 14, in `*hs-strike-reach*` 1.7 / `*hs-grip*` / `*hs-letout*`), `:hs-st-bind` (the hawser: the chain from the left fist over
+  the left shoulder down his back, the left sickle hanging behind his side; `%hs-hawser`), `:hs-st-raiden` (the left fist high, the
+  chain taut to the right hip, jade sparks running down it; `%hs-sparks`); debug strips 83535-83537. Wired: `:hs-j1` `:clip :hs-na1
+  :clip-s 14`, `:stances (:hs-s-stance :hs-st-bind :hs-st-raiden)` (J3 `:hs-na3` and the SA keep `:hs-q1`). The three read apart from
+  the behind camera (still: the scratch `st-all.png`). His gates at 10 seeds identical to batch 1's (HK 189.7, HI 194.0, HH 184.7 s).

@@ -242,7 +242,7 @@ links reach him anywhere inside *HS-R-LINK-REACH* since) lands his K3G (1-4 m) a
 (defparameter *hs-j-reach* 1.7
   "The Shikai's J1 / J2 / J3 reach, m (the J floor *J-REACH-MIN*'s 1.4 -> 1.7, 2026-10-19, the user: 「然後幫我把始解的 J 範圍稍微
 加長」, the lead's number, §25.9; the leaps J2K / J3K are their copies; the sickles let out on their chains to it).")
-(defmove :hs-j1 :kind :quick :clip :hs-q1 :clip-s 8 :startup 14 :active 3 :recovery 12 :dmg 30 :adv-block -2 :guard 8
+(defmove :hs-j1 :kind :quick :clip :hs-na1 :clip-s 14 :startup 14 :active 3 :recovery 12 :dmg 30 :adv-block -2 :guard 8
   :reach *hs-j-reach* :arc 110 :on-hit :flinch :slide 0.3)                ; 旋 SEN
 (defmove :hs-j2 :kind :quick :clip :hs-q2 :startup 8 :active 3 :recovery 13 :dmg 30 :adv-block -2 :guard 8
   :reach *hs-j-reach* :arc 110 :on-hit :flinch)                           ; 返旋 KAESHI-SEN
@@ -320,7 +320,7 @@ links reach him anywhere inside *HS-R-LINK-REACH* since) lands his K3G (1-4 m) a
 within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiffed opener's next segment reaches, not across the stage).")
 (defparameter *hs-yose-to* 1.6 "The SA 引寄 YOSE drags the opponent to this distance on its frame 0 (m; §26.2).")
 ;; NA: five J (J1 SEN's coil S 14 > KAESHI-SEN > SEN > KAESHI-SEN > RIN); an AS after J1-2 is AS1, J3-4 AS2, J5 AS3
-(defmove-copy :hs-na3 :hs-j1 :startup 8 :clip-s 8)
+(defmove-copy :hs-na3 :hs-j1 :clip :hs-q1 :startup 8 :clip-s 8)   ; (J1's cut without the coil)
 (defmove-copy :hs-na4 :hs-j2)
 ;; pointer 1 投: NAGI's 6 m sweep > HIKI, the sickle back into him > USHIRO-NAGI, the backward swing (198); AS1 KAGI-BIKI hooks
 ;; him and drags him in, stealing flash step
@@ -354,7 +354,7 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 (defmove-copy :hs-as3 :hs-j3 :kind :sp :callout "RIN" :dmg 45 :on-hit :stagger :flags nil :reach 2.4 :slide 1.4
   :params (:ns-next :hs-as3b))
 ;; the SA 引寄 YOSE (「鎖鏈把對手拉過來再斬」): frame 0 the chain drags him to *HS-YOSE-TO*, then one cut; J2 goes on
-(defmove-copy :hs-sa :hs-j1 :dmg 40 :reach 2.4 :slide 1.4 :startup 10 :clip-s 8 :on-hit :stagger :on-frame ((0 hs-yose))
+(defmove-copy :hs-sa :hs-j1 :clip :hs-q1 :dmg 40 :reach 2.4 :slide 1.4 :startup 10 :clip-s 8 :on-hit :stagger :on-frame ((0 hs-yose))
   :params (:pull 1.6))
 
 ;; I: the universal Breaker, drawn as 首掛け KUBIKAKE (ch. 337 / 384); allowed while out
@@ -416,7 +416,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :push-reach *hs-push-reach*
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)
   :core (:ns (:hs-n1a :hs-n2a :hs-n3a) :as (:hs-as1 :hs-as2 :hs-as3) :sa :hs-sa
-         :stances (:hs-s-stance :hs-s-stance :hs-s-stance)       ; by pointer: the reveal / the hawser / the taut chain (§26.2)
+         :stances (:hs-s-stance :hs-st-bind :hs-st-raiden)       ; by pointer: the reveal / the hawser / the taut chain (§26.2)
          :kikon-cines (hs-kare-cine hs-kare-cine hs-kare-cine)   ; 刈れ / 首掛 / 綴雷電 (the last two built last, §26.3)
          :as-by-press (1 1 2 2 3)
          :ns-range ((3.6 6.2) nil nil)                           ; the CPU throws NAGI from 3.6-6.2 m under pointer 1
