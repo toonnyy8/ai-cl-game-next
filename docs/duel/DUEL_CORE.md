@@ -159,7 +159,7 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   before the CPU kept its press through it, lengthened Ichigo's matches (10 seeds: IK 201.1, HI 204.1 s); with it, KK 167.2, HK 146.3,
   HH 172.4 s (10 seeds, identical before and after the NS3 fixes), and after them IK 192.6 s (20 seeds, Ichigo 8:12), HI 196.5 s
   (20, Ichigo 10:10), all K.O.; the Ichigo mirror 221.4 s at 60 seeds with 2 time-outs of 60 (211.3 s and 20 K.O.s at 20 seeds before
-  the NS3 fixes): open, reported to the user.
+  the NS3 fixes): accepted as an exception (the user, 2026-10-28: 「列為例外」, DEVLOG §445).
 - 「用攻擊抵銷毀魂技並彈開雙方回到中立狀態」 and 「沒必要其他手段，只留攻擊抵銷」 → the Kikon follow-up is cancelled only by an attack
   (both bounce to neutral); Hoho and Burst do not stop it. A **red** victim cannot do even that (red = the Kikon must-hit line).
 - The 1.5 s Kikon cooldown is dropped with the O key (it was a standalone key); the hold is gated by the SP landing.
