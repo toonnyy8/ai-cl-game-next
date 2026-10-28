@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# setup-cloud-env.sh - recreate the ai-cl-game-test (SOUL DUEL) toolchain in a fresh Ubuntu 24.04 x86_64 cloud
+# setup-cloud-env.sh - recreate the ai-cl-game-next (SOUL DUEL) toolchain in a fresh Ubuntu 24.04 x86_64 cloud
 # container, at exactly the paths the repo's scripts hard-code (no env overrides needed):
 #   host ECL 24.5.10, 32-bit i386, no threads  -> /media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl
 #   emsdk 4.0.12                                -> /media/8tsp/projects/emsdk

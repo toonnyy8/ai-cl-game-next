@@ -2,7 +2,7 @@
 
 1 對 1 的 3D 競技場格鬥遊戲，玩法參考《BLEACH: Rebirth of Souls》，角色取自《千年血戰篇》（TYBW）。整款遊戲用 Common Lisp 寫成，先由 ECL 編成 C，再由 Emscripten 編成 WebAssembly，在瀏覽器裡執行；畫面透過 SDL3 的 SDL_GPU（WebGPU 後端）繪製。所有模型、動作、特效、字形、音效和配樂都是程式產生的，整個專案沒有任何美術或音訊素材檔。
 
-**線上試玩：<https://toonnyy8.github.io/ai-cl-game-test/>**（電腦用 Chrome／Edge；手機直拿可以單手玩，也能「加到主畫面」當 App 離線開）。完整的遊戲說明在遊戲內的 MANUAL，原始檔是 [duel/web/manual.html](duel/web/manual.html)。
+**線上試玩：<https://toonnyy8.github.io/ai-cl-game-next/>**（電腦用 Chrome／Edge；手機直拿可以單手玩，也能「加到主畫面」當 App 離線開）。完整的遊戲說明在遊戲內的 MANUAL，原始檔是 [duel/web/manual.html](duel/web/manual.html)。
 
 ![電腦對戰：卍解・西的山本（火柱「天地灰尽」）對上卍解的千手丸，上方是雙方的靈子、魂魄與量表](docs/duel/readme/fight.png)
 

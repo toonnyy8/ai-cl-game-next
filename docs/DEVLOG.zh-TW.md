@@ -5561,3 +5561,11 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - 驗證：讓一個沒看過這次對話的 subagent 只讀 skill 回答六個情境題（AS 太快導致誤觸、改 core-sim 要測哪些、中段倒地、按住規則改變後節奏變慢、舊版在哪、新角色的指針表）。都答得出來，並找出缺漏：新角色的對戰編號怎麼算、月牙的毀魂技是否也有確認、沒有「中段不能倒地」的測試、手機 40 ms、sim-balance-gates 的舊數字（15 組、G2 的 YY／YK／KK、鏡像清單、演出是否算時間），已全部補上。
 - 新增 host 測試（`tests/duel-rules/triangle.lisp`）：核心角色每個形態的 NS／AS 段，只要後面還能接（下一段或空隙的 SA），段本身和它的波都不能讓對手倒地或擊飛；KESSA 的分身 X 斬是踉蹌。+27 項，共 10799 項全過。
 - 沒有改遊戲程式，不需要建置和閘門。
+
+## 447. repo 名稱改成 ai-cl-game-next，在新 repo 開啟 Pages（2026-10-28）
+
+使用者：「改成新名稱」（問 Pages：「在 -next 開啟 Pages」）
+
+- GitHub 上有兩個 repo：`ai-cl-game-test`（舊的，Pages 開著，試玩網址 `toonnyy8.github.io/ai-cl-game-test/`）和 `ai-cl-game-next`（這裡的 origin，原本沒開 Pages）。`tools/deploy-pages.sh` 推到 origin，所以之後的部署會到 `-next`。
+- 已在 `ai-cl-game-next` 開啟 Pages（來源 gh-pages 分支），網址 `toonnyy8.github.io/ai-cl-game-next/`。目前的 gh-pages 是 10-27 05:47 的版本；要上線最新版需要另外部署（只在使用者要求時）。舊網址維持原狀，不再更新。
+- AGENTS.md 的 repo 行、README 的試玩網址、`tools/setup-cloud-env.sh` 的註解改成新名稱。歷史紀錄（DEVLOG、研究資料）裡的舊名稱保留不改。
