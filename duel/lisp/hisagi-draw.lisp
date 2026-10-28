@@ -1242,7 +1242,8 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                      (case cn (:hs-st-bind (setf lo (logior lo 2048))) (:hs-st-raiden (setf lo (logior lo 4096)))))
                    (values 0 0 0 1)))
         (setf *hs-chain-black* 1 *hs-chain-ink* (if (eq e *p1*) 0 1))  ; (black, both forms; P2 the original ink: the user, 2026-10-18)
-        (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
+        (when (< ck 5)                                                 ; (首掛 / 綴雷電: their scripts draw them, §26.6)
+          (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo)))
       (unless (or shikai (logtest cfl 2))                              ; the Bankai: the orb, its chains, the noose (§21.6)
         (setf (aref *hs-tipv* 0) 0f0 (aref *hs-tipv* 1) 0f0)            ; (and the chain strikes, §21.8)
         (setf (aref *hs-tg* 0)                                          ; §25.26: the chain-tip glint, free in the ranged mode
