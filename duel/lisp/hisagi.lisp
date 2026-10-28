@@ -337,15 +337,16 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 (defmove-copy :hs-as1 :hs-k3 :kind :sp :callout "KAGI-BIKI" :startup 24 :clip-s 22 :dmg 50 :on-hit :knockdown :flags nil
   :on-land hs-kagi-pull :hits ((24 29 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :steal-fs 40 :pull 1.6 :look-as :hs-k3))
 ;; pointer 2 刈 KARI (§27.3, 「刈 短鎖貼身收割」: the chain wound short, 1-2.5 m): TAN-GARI's stepping cross cut > REN-GARI > SEN-GARI's
-;; spin, the chain let out to a 3 m circle (180); AS2 KO-GARI > KARI-AGE, the rising reap (the launch). His J clips until batch 2's
-(defmove-copy :hs-n2c :hs-j3 :kind :flash :callout "SEN-GARI" :startup 16 :clip-s 9 :dmg 85 :reach 3.0 :arc 360 :on-hit :knockdown
+;; spin, the chain let out to a 3 m circle (180); AS2 KO-GARI > KARI-AGE, the rising reap (the launch). Their own clips since
+;; batch 2 (§27.5, presentation only), each authored at its S: hisagi-art.lisp :hs-kr-*
+(defmove-copy :hs-n2c :hs-j3 :kind :flash :clip :hs-kr-sen :callout "SEN-GARI" :startup 16 :clip-s 16 :dmg 85 :reach 3.0 :arc 360 :on-hit :knockdown
   :flags nil)
-(defmove-copy :hs-n2b :hs-j1 :kind :flash :clip :hs-q1 :callout "REN-GARI" :startup 12 :clip-s 8 :dmg 50 :on-hit :stagger
+(defmove-copy :hs-n2b :hs-j1 :kind :flash :clip :hs-kr-ren :callout "REN-GARI" :startup 12 :clip-s 12 :dmg 50 :on-hit :stagger
   :slide 0.0 :params (:ns-next :hs-n2c))
-(defmove-copy :hs-n2a :hs-j2 :kind :flash :callout "TAN-GARI" :startup 16 :clip-s 8 :dmg 45 :reach 2.5 :slide 1.0 :on-hit :stagger
+(defmove-copy :hs-n2a :hs-j2 :kind :flash :clip :hs-kr-tan :callout "TAN-GARI" :startup 16 :clip-s 16 :dmg 45 :reach 2.5 :slide 1.0 :on-hit :stagger
   :params (:ns-next :hs-n2b))
-(defmove-copy :hs-as2b :hs-j3 :kind :sp :callout "KARI-AGE" :dmg 60 :reach 2.4 :on-hit :launch :flags nil)
-(defmove-copy :hs-as2 :hs-j2 :kind :sp :callout "KO-GARI" :dmg 45 :reach 2.4 :slide 1.4 :on-hit :stagger
+(defmove-copy :hs-as2b :hs-j3 :kind :sp :clip :hs-kr-age :clip-s 9 :callout "KARI-AGE" :dmg 60 :reach 2.4 :on-hit :launch :flags nil)
+(defmove-copy :hs-as2 :hs-j2 :kind :sp :clip :hs-kr-ko :clip-s 8 :callout "KO-GARI" :dmg 45 :reach 2.4 :slide 1.4 :on-hit :stagger
   :params (:ns-next :hs-as2b))
 ;; pointer 3 縛雷 (§27, the bind and the lightning merged): SHIBARI's cast binds (its gap's SA 引寄 drags him in) > CHIKUDEN, the
 ;; charge along the binding chain (its gap's SA 放電 HODEN bursts him in place, closer = harder); no third segment. AS3 MATOI >
@@ -426,7 +427,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :push-reach *hs-push-reach*
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)
   :core (:ns (:hs-n1a :hs-n2a :hs-n3a) :as (:hs-as1 :hs-as2 :hs-as3) :sa :hs-sa
-         :stances (:hs-s-stance :hs-st-bind :hs-st-raiden)       ; by pointer: the reveal / (the hawser until 刈's own, §27.3) / the taut chain
+         :stances (:hs-s-stance :hs-st-kari :hs-st-raiden)       ; by pointer: the reveal / 刈's wound chain (§27.5) / the taut chain
          :kikon-cines (hs-kare-cine hs-kubikake-cine hs-raiden-cine)   ; 刈れ / (首掛 until 刈's, §27.3) / 綴雷電 (§26.6)
          :as-by-press (1 1 2 2 3)
          :ns-range ((3.6 6.2) nil nil)                           ; the CPU throws NAGI from 3.6-6.2 m under pointer 1

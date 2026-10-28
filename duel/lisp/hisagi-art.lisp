@@ -206,6 +206,8 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
 
 (defparameter *hs-strike-reach* '((:hs-s-nage :sickle 6.0) (:hs-s-maki :sickle 3.55) (:hs-s-kari :sickle 2.8)   ; (the Shikai's
                                   (:hs-s-sen :sickle 1.7) (:hs-na1 :sickle 1.7)   ; (§26: NA1's coil, J1's hit)
+                                  (:hs-kr-tan :sickle 2.5) (:hs-kr-ren :sickle 1.7) (:hs-kr-sen :sickle 3.0)   ; (§27.5: pointer 2
+                                  (:hs-kr-ko :sickle 2.4) (:hs-kr-age :sickle 2.4)                             ;  刈's let-outs)
                                   (:hs-s-kaeshi :sickle 1.7) (:hs-s-rin :sickle 1.7)  ;  clips, §21.4;
                                   (:hs-s-nagi :sickle 6.0) (:hs-s-tobi-kaeshi :sickle 1.7) (:hs-s-tobi-rin :sickle 1.7)   ;  A1, §24.1; §25.9: J 1.7)
                                   (:hs-k-saben :sickle 6.0) (:hs-k-kaeshi :sickle 6.0) (:hs-k-sensa :sickle 6.0)  ; (the Bankai's,
@@ -282,6 +284,16 @@ this far back through his fist (m), so he holds it just behind the blades' cross
 (defparameter *hs-letout*
   '((:hs-s-sen :r 3 8 11 18 1.7 nil nil 0)          ; J1: the right sickle let out a hand's length on its chain (§25.9)
     (:hs-na1 :r 11 14 17 24 1.7 nil nil 0)          ; NA1 (§26): the same, in the fist through the held coil
+    (:hs-kr-tan :r 13 16 19 26 2.5 1.15 (-50 10 30) 0)   ; §27.5 刈: TAN-GARI's cross cut, the right one R -> L, the left
+    (:hs-kr-tan :l 13 16 19 26 2.5 1.15 (50 -10 -30) 0)  ;  L -> R, crossed at 2.5 m on the hit frames f16-18 (inside +-55)
+    (:hs-kr-ren :l 1 5 7 11 1.2 nil 30 0.6)              ; REN-GARI: the left wheel first (the tell, no hit), then
+    (:hs-kr-ren :r 9 12 15 21 1.7 0.9 -8 0.7)            ;  the right one over and down onto him (f12-14)
+    (:hs-kr-sen :r 12 16 21 30 3.0 1.05 nil 0)           ; SEN-GARI: both flung out to the 3 m circle, on the fists'
+    (:hs-kr-sen :l 12 16 21 30 3.0 1.05 nil 0)           ;  bearings round the spin (f16-18)
+    (:hs-kr-ko :r 5 8 11 17 2.4 0.6 (-60 -15 20) 0)      ; KO-GARI: the closing scissor low at his legs, out -> in
+    (:hs-kr-ko :l 5 8 11 17 2.4 0.6 (60 15 -20) 0)       ;  (f8-10)
+    (:hs-kr-age :r 6 9 11 22 2.4 1.5 8 0.4)              ; KARI-AGE: hooked in at his chest (f9-11), reeled back up to the
+    (:hs-kr-age :l 6 9 11 22 2.4 1.5 -8 0.4)             ;  raised fists (h 1.5: on the arms' line they flew 3.5 m up, into the HUD)
     (:hs-s-kaeshi :l 3 8 11 18 1.7 nil nil 0)       ; J2: the left sickle flung out on the arm's rising line
     (:hs-s-rin :r 2 6 12 22 1.7 nil nil 0)          ; J3: both whirled out round him
     (:hs-s-rin :l 2 6 12 22 1.7 nil nil 0)
@@ -415,6 +427,122 @@ down point first onto him (S 22), held in him, hauled back.")
   (:thigh-l :flex 30 :side 18) (:knee-l :flex 28) (:thigh-r :flex -10 :side 20) (:knee-r :flex 30))
 (defclip :hs-st-raiden (2.0 :loop t :base :hs-st-raiden)
   (0) (1.0 (:root :u -0.115) (:arm-l :flex 160) (:elbow-l :flex 18) (:arm-r :side 42)))
+
+;;; ---------------------------------------------------------------- pointer 2 刈 KARI, the short-chain reaping (DUEL_HISAGI §27.3, §27.5)
+;; The stance: a reaper's crouch, square and low, the head down; both fists in front of the hips, the elbows out, each sickle
+;; reverse-gripped (the rod back along the forearm, its blades trailing past the hip: from behind they fan out on both sides
+;; toward the camera), the chain wound twice round each wrist and a short taut span between the fists (HISAGI-DRAW, lo 8192).
+;; Neither pointer 1's rod low-forward, nor the hawser over the shoulder, nor the raised fist.
+(defpose :hs-st-kari (:base :hs-s-stance)
+  (:root :u -0.16 :f 0.0 :yaw 0) (:pelvis :twist 0) (:spine :flex 16) (:chest :twist 0) (:neck :twist 0) (:head :flex -10)
+  (:arm-r :flex 10 :side 38 :twist 0) (:elbow-r :flex 96) (:hand-r :flex 104 :twist 0)
+  (:arm-l :flex 10 :side 38 :twist 0) (:elbow-l :flex 96) (:hand-l :flex 104 :twist 0)
+  (:thigh-l :flex 40 :side 20) (:knee-l :flex 46) (:thigh-r :flex 8 :side 22) (:knee-r :flex 44))
+(defclip :hs-st-kari (2.0 :loop t :base :hs-st-kari)
+  (0) (1.0 (:root :u -0.175) (:spine :flex 18) (:hand-r :flex 98) (:hand-l :flex 110)))
+;; NS2a 短刈 TAN-GARI (16/3/13, the slide 1.0): the tell, both arms crossed high before his face (an X, the blades up behind
+;; the fists), sunk on the back foot, held f5-13; snapped into a step, both sickles let out on a hand's span of chain and
+;; swept across each other at chest height: the right one right to left, the left one left to right (*HS-LETOUT*'s sweeps,
+;; crossing at 2.5 m inside the 110 degree arc); the arms end crossed low at the waist
+(defpose :hs-kr-tan-hit (:base :hs-st-kari)
+  (:root :f 0.16 :u -0.14 :yaw 0) (:spine :flex 12) (:chest :twist 0) (:head :flex -4)
+  (:arm-r :flex 100 :side 62 :twist 0) (:elbow-r :flex 6) (:hand-r :flex -90)
+  (:arm-l :flex 100 :side 62 :twist 0) (:elbow-l :flex 6) (:hand-l :flex -90)
+  (:thigh-l :flex 52 :side 10) (:knee-l :flex 40) (:thigh-r :flex -22 :side 12) (:knee-r :flex 20))
+(defstrike :hs-kr-tan (16 3 13 :base :hs-st-kari)
+  (0)
+  (5 (:root :u -0.2 :f -0.08) (:spine :flex 6) (:head :flex -2)
+     (:arm-r :flex 110 :side -20 :twist 90) (:elbow-r :flex 100) (:hand-r :flex -60)
+     (:arm-l :flex 110 :side -20 :twist 90) (:elbow-l :flex 100) (:hand-l :flex -60)
+     (:thigh-l :flex 30) (:knee-l :flex 50) (:thigh-r :flex 20) (:knee-r :flex 60))                     ; the X (the tell)
+  (13 (:root :u -0.22 :f -0.1) (:spine :flex 4)
+      (:arm-r :flex 118 :side -22 :twist 90) (:elbow-r :flex 104) (:arm-l :flex 118 :side -22 :twist 90) (:elbow-l :flex 104)
+      (:knee-l :flex 54) (:knee-r :flex 64))                                                             ; held
+  (:s :snap :hs-kr-tan-hit)
+  (:a (:root :f 0.2) (:arm-r :flex 110 :side 20) (:arm-l :flex 110 :side 20))                         ; through, crossing
+  (25 (:root :f 0.1 :u -0.16) (:spine :flex 16) (:arm-r :flex 60 :side -10) (:elbow-r :flex 30) (:hand-r :flex -60)
+      (:arm-l :flex 60 :side -10) (:elbow-l :flex 30) (:hand-l :flex -60))                             ; crossed low
+  (:end :hs-st-kari))
+;; NS2b 連刈 REN-GARI (12/3/12): the two sickles whirled in turn on short chains, each in a vertical wheel at his side: the
+;; left one first (f1-11, up over and down at 1.2 m: the tell, no hit), then the right one over and down onto him at S
+;; (1.7 m, J1's reach); the body rocks with each, twisting to the side of the wheel
+(defpose :hs-kr-ren-hit (:base :hs-st-kari)
+  (:root :f 0.1 :u -0.18 :yaw 14) (:spine :flex 22) (:chest :twist 16) (:head :flex -6)
+  (:arm-r :flex 70 :side 14 :twist 0) (:elbow-r :flex 10) (:hand-r :flex -80)
+  (:arm-l :flex -20 :side 30 :twist 0) (:elbow-l :flex 60) (:hand-l :flex 100)
+  (:thigh-l :flex 46 :side 14) (:knee-l :flex 50) (:thigh-r :flex -10 :side 18) (:knee-r :flex 34))
+(defstrike :hs-kr-ren (12 3 12 :base :hs-st-kari)
+  (0)
+  (3 (:root :u -0.14 :yaw -14) (:chest :twist -18) (:spine :flex 10)
+     (:arm-l :flex 160 :side 16 :twist 0) (:elbow-l :flex 12) (:hand-l :flex -80))                    ; the left wheel up
+  (7 (:root :u -0.2 :yaw -6) (:chest :twist -6) (:spine :flex 20)
+     (:arm-l :flex 40 :side 22) (:elbow-l :flex 20) (:hand-l :flex -70)
+     (:arm-r :flex 168 :side 20 :twist 0) (:elbow-r :flex 16) (:hand-r :flex -80))                    ; down; the right one up
+  (10 (:root :u -0.16 :yaw 0) (:arm-r :flex 150 :side 18) (:arm-l :flex -10 :side 28) (:elbow-l :flex 50) (:hand-l :flex 90))
+  (:s :snap :hs-kr-ren-hit)
+  (:a (:root :f 0.12) (:arm-r :flex 30 :side 18) (:spine :flex 26))                                 ; down through him
+  (21 (:root :u -0.17 :yaw 6) (:chest :twist 6) (:arm-r :flex 20 :side 36) (:elbow-r :flex 70) (:hand-r :flex 60))
+  (:end :hs-st-kari))
+;; NS2c 旋刈 SEN-GARI (16/3/18, arc 360, the knockdown): wound hard to his right, both arms wrapped (the right across his
+;; chest, the left behind), sunk low and held f4-12 (the tell); then a whole-body turn to his left on the left foot (a key
+;; every ~90 degrees) with both sickles let out to a 3.0 m circle round him (*HS-LETOUT*, along the fists' bearings: they
+;; follow the spin), the arms flung out level; ends square, the chains reeled back in
+(defpose :hs-kr-sen-hit (:base :hs-st-kari)
+  (:root :yaw 290 :u -0.12) (:pelvis :twist 0) (:spine :flex 8) (:chest :twist 6) (:head :flex 0)
+  (:arm-r :flex 20 :side 86 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -90)
+  (:arm-l :flex 20 :side 86 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -90)
+  (:thigh-l :flex 24 :side 10) (:knee-l :flex 30) (:thigh-r :flex 4 :side 22) (:knee-r :flex 30))
+(defstrike :hs-kr-sen (16 3 18 :base :hs-st-kari)
+  (0)
+  (4 (:root :u -0.2 :yaw -50) (:chest :twist -30) (:spine :flex 18)
+     (:arm-r :flex 70 :side -30 :twist 0) (:elbow-r :flex 90) (:hand-r :flex 100)
+     (:arm-l :flex -40 :side 30 :twist 0) (:elbow-l :flex 80) (:hand-l :flex 100) (:knees :flex 56))   ; wound right
+  (12 (:root :u -0.22 :yaw -60) (:chest :twist -36) (:spine :flex 20)
+      (:arm-r :flex 74 :side -34) (:elbow-r :flex 96) (:arm-l :flex -44 :side 32) (:knees :flex 60))   ; held: the tell
+  (13 (:root :u -0.16 :yaw 20) (:chest :twist 0) (:spine :flex 12) (:arm-r :flex 30 :side 70) (:elbow-r :flex 20)
+      (:hand-r :flex -90) (:arm-l :flex 10 :side 70) (:elbow-l :flex 20) (:hand-l :flex -90))           ; flung out
+  (14 (:root :u -0.13 :yaw 110) (:chest :twist 6) (:arms :flex 20 :side 84) (:elbows :flex 6))
+  (15 (:root :u -0.12 :yaw 200))
+  (:s :snap :hs-kr-sen-hit)
+  (:a (:root :yaw 400) (:chest :twist 12))
+  (25 (:root :yaw 380 :u -0.14) (:chest :twist 4) (:arms :flex 20 :side 50) (:elbows :flex 40))
+  (:end :hs-st-kari (:root :yaw 360)))
+;; AS2 交刈 KO-GARI (8/3/13, the slide 1.4; out of a J string, so from pointer 1's stance): the arms flung wide and low
+;; behind him (the tell), then scissored in front, the two sickles let out low (0.6 m up) and reaped across each other at
+;; his legs (*HS-LETOUT*'s sweeps: out -> in, the closing X, against TAN-GARI's opening one), a lunge
+(defpose :hs-kr-ko-hit (:base :hs-s-stance)
+  (:root :f 0.18 :u -0.22 :yaw 0) (:pelvis :twist 0) (:spine :flex 30) (:chest :twist 0) (:head :flex -12)
+  (:arm-r :flex 60 :side 30 :twist 0) (:elbow-r :flex 6) (:hand-r :flex -80)
+  (:arm-l :flex 60 :side 30 :twist 0) (:elbow-l :flex 6) (:hand-l :flex -80)
+  (:thigh-l :flex 60 :side 12) (:knee-l :flex 64) (:thigh-r :flex -24 :side 14) (:knee-r :flex 30))
+(defstrike :hs-kr-ko (8 3 13 :base :hs-s-stance)
+  (0)
+  (4 (:root :u -0.16 :f -0.04) (:spine :flex 18) (:chest :twist 0)
+     (:arm-r :flex -40 :side 64 :twist 0) (:elbow-r :flex 10) (:hand-r :flex -90)
+     (:arm-l :flex -40 :side 64 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -90) (:knees :flex 40))   ; wide and low behind
+  (:s :snap :hs-kr-ko-hit)
+  (:a (:root :f 0.22) (:arm-r :flex 74 :side -6) (:arm-l :flex 74 :side -6))                           ; crossed
+  (19 (:root :f 0.1 :u -0.16) (:spine :flex 18) (:arms :flex 20 :side 34) (:elbows :flex 80) (:hands :flex 90))
+  (:end :hs-st-kari))
+;; AS2b 刈上 KARI-AGE (9/3/18, the launch): sunk to a squat, both sickles low before his feet (the tell), then the rising
+;; reap: up onto his toes, both arms heaved from low to overhead, the two sickles let out to 2.4 m, hooked in at his chest
+;; (*HS-LETOUT*, 1.5 m up) and reeled back up to the raised fists as he is launched
+(defpose :hs-kr-age-hit (:base :hs-st-kari)
+  (:root :f 0.12 :u -0.04) (:pelvis :twist 0) (:spine :flex 2) (:chest :twist 0) (:head :flex 6)
+  (:arm-r :flex 92 :side 14 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -90)
+  (:arm-l :flex 92 :side 14 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -90)
+  (:thigh-l :flex 24 :side 8) (:knee-l :flex 14) (:thigh-r :flex -14 :side 10) (:knee-r :flex 10))
+(defstrike :hs-kr-age (9 3 18 :base :hs-st-kari)
+  (0 :hs-kr-ko-hit (:arm-r :flex 74 :side -6) (:arm-l :flex 74 :side -6))
+  (4 (:root :u -0.3 :f 0.02) (:spine :flex 40) (:head :flex -10)
+     (:arm-r :flex 30 :side 12 :twist 0) (:elbow-r :flex 6) (:hand-r :flex -10)
+     (:arm-l :flex 30 :side 12 :twist 0) (:elbow-l :flex 6) (:hand-l :flex -10)
+     (:thighs :flex 70) (:knees :flex 96))                                                              ; the squat (the blades along the floor)
+  (7 (:root :u -0.31) (:spine :flex 42) (:arms :flex 26) (:thighs :flex 72) (:knees :flex 98))           ; held
+  (:s :snap :hs-kr-age-hit)
+  (:a (:root :u 0.04) (:spine :flex -10) (:head :flex 12) (:arms :flex 160 :side 18))                  ; overhead
+  (22 (:root :u -0.1) (:spine :flex 6) (:arms :flex 90 :side 30) (:elbows :flex 50))
+  (:end :hs-st-kari))
 
 ;; J2 返旋 KAESHI-SEN (8/3/13): the hips turn back; the left sickle flung out on its chain from the left knee rising across
 ;; to over the right shoulder (the second head, let out to the volume's 1.4 m); the right rod drawn back to the shoulder
