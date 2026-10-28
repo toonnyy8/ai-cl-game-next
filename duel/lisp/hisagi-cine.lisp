@@ -11,7 +11,7 @@
 ;;; back at the end); the awakening moves no one (its AFTER sends both to idle as every awakening's does). His draw hook
 ;;; reads the running script's frame (HS-CINE-OF, %HS-CINE-LOOK!, HS-KARE-CODES), so a skipped or aborted script leaves
 ;;; nothing behind; the scripts' own looks are the DURING functions below (the whirlpool, the black wind, the coils, the
-;;; orb gathering, the giant rope, the crack, the rain of chains). Debug 83965-83977 (HISAGI-CINE-DEBUG).
+;;; orb gathering, the giant rope, the crack, the rain of chains). Debug 83965-83978 (HISAGI-CINE-DEBUG).
 
 (defun hs-cine-of (e)
   "The B5 cinematic E is the actor A of right now: 1 the awakening, 2 the Shikai Kikon 刈れ, 3 KOSA, 4 KOSHU, 5 首掛
@@ -740,4 +740,191 @@ and white silhouette flashes, the Konpaku; 5 the chain goes slack, the victim dr
       (lens 44))                                                   ; (a phone: down the line, him in front of the victim)
   (during (110 150) (hs-cine-smoke v 2))
   (at 124 (caption "綴雷電" :kanji2 "破道の十一" :reading "TSUZURI RAIDEN" :sub "KAZESHINI  KIKON" :side 1 :hanko t)))
+
+;;; ================================================================ the core Kikon 刈 KARI (pointer 2, DUEL_HISAGI §27.3, §27.8)
+;;; The user, 2026-10-28, approved the storyboard (§27.3: 「可以，照表做（推薦）」): the chain wound short, the sickles spun in
+;;; his fists; flash-step cuts round the victim, ink lines opening on him; he stops behind him, the sickles crossed, then
+;;; drawn (the Konpaku); the victim kneels, the blood flicked off: 刈. Both sickles stay in his fists (on their short
+;;; let-outs in the cuts), so HISAGI-DRAW draws them, the wound chain (its lo 8192 list has these clips) and the let-outs
+;;; as in the match: no HS-CINE-OF code. The script's own looks (the slashes, the flicked blood) are DEFUN-FAST on fixnums,
+;;; derived from the cine frame alone (a held still and a play-through agree). Debug 83978 plays it, 83970+b holds beat b.
+(defparameter *hs-kari-cuts*
+  '((26 1 2.5 :hs-kr-tan 13) (34 -1 1.7 :hs-kr-ren 9) (42 1 2.4 :hs-kr-ko 5) (50 -1 2.4 :hs-kr-age 6)
+    (58 1 3.0 :hs-kr-sen 13))
+  "刈's flash-step cuts (cine frame, the side of the shot he lands on, distance = the clip's let-out reach, so its sickle
+points land on him, the clip, its start frame = S - 3): each strike's S 3 f after the step (f29 37 45 53 61, the slashes'
+frames in %HS-KARI-CUTS); he lands side-on to the orbiting camera (HS-KARI-ORBIT's bearing -/+ 90 degrees), on
+alternate sides of the victim, so every cut crosses him.")
+(defun hs-kari-bearing (cf)
+  "刈's orbit (f25-70): the camera's bearing round the victim's facing at cine frame CF, degrees: from 70 (his front
+left) round his front to -87.5 (his right), so the slashes on his chest stay in view."
+  (- 70.0 (* 3.5 (- cf 25))))
+(defun hs-kari-orbit (v cf)
+  "刈's orbiting shot (f25-70): round the victim at HS-KARI-BEARING (Hisagi lands up to 3 m to
+his side), 1.6 m high, aimed at him (5.8 m; a phone 8.4)."
+  (setf *cine-close* nil *cine-subject* nil)
+  (let* ((q (pos-of v)) (yaw (+ (yaw-of v) (deg (hs-kari-bearing cf)))) (d (if (portrait-p) 8.4 5.8)))
+    (cine-cam (+ (aref q 0) (* d (fwd-x yaw))) 1.6 (+ (aref q 2) (* d (fwd-z yaw))) (aref q 0) 1.1 (aref q 2))))
+
+;; the spin (f0-25): the arms out wide on the long chain, yanked in to the 刈 stance at f6 (the chain wound short), then
+;; both reverse-gripped sickles twirled in the fists (the wrists' flex a key every 90 degrees, faster and faster, the
+;; left a quarter turn behind)
+(defclip :hs-cine-kr-spin (0.42 :base :hs-st-kari)
+  (0 (:root :u -0.1) (:spine :flex 8) (:arm-r :flex 30 :side 72 :twist 0) (:elbow-r :flex 12) (:hand-r :flex 10)
+     (:arm-l :flex 30 :side 72 :twist 0) (:elbow-l :flex 12) (:hand-l :flex 10))
+  (0.1 :snap :hs-st-kari)
+  (0.17 (:hand-r :flex 194)) (0.23 (:hand-r :flex 284) (:hand-l :flex 194)) (0.28 (:hand-r :flex 374) (:hand-l :flex 284))
+  (0.32 (:hand-r :flex 464) (:hand-l :flex 374) (:root :u -0.18)) (0.355 (:hand-r :flex 554) (:hand-l :flex 464))
+  (0.39 (:hand-r :flex 644) (:hand-l :flex 554)) (0.42 (:hand-r :flex 734) (:hand-l :flex 644) (:root :u -0.2)))
+;; the pass (f70-100): landed low behind him, back to back, both forearms crossed before the chest, the reverse-gripped
+;; sickles trailing past the elbows (the X), held in the silence; at f88 drawn apart, flung out and down to his sides,
+;; the blades out
+(defpose :hs-cine-kr-cross (:base :hs-st-kari)
+  (:root :u -0.3 :f 0.0) (:spine :flex 24) (:head :flex -14)
+  (:arm-r :flex 64 :side -40 :twist 0) (:elbow-r :flex 78) (:hand-r :flex 100)
+  (:arm-l :flex 64 :side -40 :twist 0) (:elbow-l :flex 78) (:hand-l :flex 100)
+  (:thigh-l :flex 62 :side 14) (:knee-l :flex 84) (:thigh-r :flex -24 :side 16) (:knee-r :flex 40))
+(defpose :hs-cine-kr-drawn (:base :hs-cine-kr-cross)
+  (:root :u -0.22) (:spine :flex 10) (:head :flex -8)
+  (:arm-r :flex 24 :side 78 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -90)
+  (:arm-l :flex 24 :side 78 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -90)
+  (:thigh-l :flex 52) (:knee-l :flex 70) (:thigh-r :flex -20) (:knee-r :flex 34))
+(defclip :hs-cine-kr-pass (0.6 :base :hs-cine-kr-cross)
+  (0) (0.26 (:root :u -0.31) (:arm-r :flex 66) (:arm-l :flex 66))
+  (0.3 :snap :hs-cine-kr-drawn) (0.42 :hs-cine-kr-drawn (:root :u -0.24) (:arm-r :flex 18) (:arm-l :flex 18))
+  (0.6 :hs-cine-kr-drawn (:root :u -0.23)))
+;; the flick (f100-150): wound up at the shoulders (f105), whipped down and out (f108: the blood flung off,
+;; %HS-KARI-FLICK), then risen slowly into the 刈 stance, the head down
+(defclip :hs-cine-kr-chiburi (0.8 :base :hs-cine-kr-drawn)
+  (0)
+  (0.08 (:root :u -0.16) (:arm-r :flex 70 :side 70) (:elbow-r :flex 60) (:hand-r :flex 40)
+        (:arm-l :flex 70 :side 70) (:elbow-l :flex 60) (:hand-l :flex 40))
+  (0.13 :snap (:root :u -0.2) (:arm-r :flex 6 :side 64) (:elbow-r :flex 2) (:hand-r :flex -110)
+        (:arm-l :flex 6 :side 64) (:elbow-l :flex 2) (:hand-l :flex -110))
+  (0.24 (:arm-r :flex 10 :side 60) (:hand-r :flex -96) (:arm-l :flex 10 :side 60) (:hand-l :flex -96))
+  (0.8 :hs-st-kari (:head :flex -2)))
+
+(defun-fast %hs-kari-cuts (vjm cf)
+  "刈's slashes on the victim (the joints VJM) at cine frame CF: one opening at each cut's S (f29 + 8 i, i 0-4) across
+his chest (0.24 m down the chest joint, on its front and its back: the cut goes through him), turned round by the
+golden angle: drawn across over 3 f, the ink rim widening over 4,
+a white core opening inside it, a spark at its end for 3 f; all flared wide f88-92 (the drawn sickles), faded f92-100.
+A look. 0 B."
+  (declare (type f32vec vjm) (fixnum cf))
+  (when (< cf 100)
+    (let ((p *hs-k0*) (q *hs-k1*) (b *hs-k2*) (j (ji :chest))
+          (fl (if (and (>= cf 88) (< cf 92)) 1f0 0f0))
+          (k (if (< cf 92) 0.95f0 (* 0.95f0 (- 1f0 (/ (i->f (- cf 92)) 8f0))))))
+      (declare (type f32vec p q b) (fixnum j) (single-float fl k))
+      (dotimes (i 5)
+        (let ((age (- cf (+ 29 (* 8 i)))))
+          (declare (fixnum age))
+          (when (>= age 0)
+            (let* ((fi (i->f i)) (fa (i->f age)) (th (+ 0.35f0 (* 2.39996f0 fi)))
+                   (ca (* 0.38f0 (f-cos th))) (sa (* 0.38f0 (f-sin th)))
+                   (cx (* 0.36f0 (- (hash01 fi 2.7f0) 0.5f0))) (cy (+ -0.24f0 (* 0.4f0 (- (hash01 fi 4.3f0) 0.5f0))))
+                   (g (f-min 1f0 (/ (+ fa 1f0) 3f0))) (w (f-min 1f0 (/ (+ fa 1f0) 4f0)))
+                   (c (f-clamp (/ (- fa 1f0) 5f0) 0f0 1f0)) (sd (+ 600f0 (* 7f0 fi))))
+              (declare (single-float fi fa th ca sa cx cy g w c sd))
+              (dotimes (s 2)                                ; (his front, -z, and through to his back)
+                (let ((zs (if (= s 0) -1f0 1f0)))
+                  (declare (single-float zs))
+                  (joint-point! p vjm j (- cx ca) (- cy sa) (* zs 0.24f0))
+                  (joint-point! q vjm j (+ (- cx ca) (* 2f0 g ca)) (+ (- cy sa) (* 2f0 g sa)) (* zs 0.24f0))
+                  (joint-point! b vjm j (- cx (* ca (- 1f0 g))) (- cy (* sa (- 1f0 g))) (* zs 0.3f0))
+                  (fx-crescent (aref p 0) (aref p 1) (aref p 2) (aref q 0) (aref q 1) (aref q 2) (aref b 0) (aref b 1) (aref b 2)
+                               (* (+ 0.09f0 (* 0.04f0 fl)) w) :lens 0.03f0 sd +pal-ink+ k :push 0.3f0)
+                  (when (> c 0f0)
+                    (fx-crescent (aref p 0) (aref p 1) (aref p 2) (aref q 0) (aref q 1) (aref q 2) (aref b 0) (aref b 1)
+                                 (aref b 2) (+ (* 0.034f0 c) (* 0.06f0 fl)) :lens 0.02f0 (+ sd 1f0) +pal-hit+ k :push 0.34f0))))
+              (when (< age 3)
+                (fx-star (aref q 0) (aref q 1) (aref q 2) 0.05f0 0.22f0 6 sd 0f0 0f0 0.08f0 (+ sd 2f0) +pal-hit+ 0.95f0
+                         :push 0.4f0))))))))
+  nil)
+
+(defun-fast %hs-kari-flick (pa pv cf)
+  "刈's blood flicked off (f108-150; PA his feet, PV the victim's behind his back, so his facing is PV -> PA): seven drops
+from each sickle (0.8 m out to each side, 0.3 m ahead, 0.6 m up) flung forward and a little out, falling under gravity
+(dark red shards along their flight), each a streak on the ground where it lands (along its flight), there to the end.
+From the cine frame alone. A look. 0 B."
+  (declare (type f32vec pa pv) (fixnum cf))
+  (when (>= cf 108)
+    (let* ((dx (- (aref pa 0) (aref pv 0))) (dz (- (aref pa 2) (aref pv 2))) (l (f-max 0.01f0 (f-hypot dx dz)))
+           (fx (/ dx l)) (fz (/ dz l)) (rx (- fz)) (rz fx) (tt (/ (i->f (- cf 108)) 60f0)))
+      (declare (single-float dx dz l fx fz rx rz tt))
+      (dotimes (s 2)
+        (let ((sg (if (= s 0) 1f0 -1f0)))
+          (declare (single-float sg))
+          (dotimes (i 7)
+            (let* ((fi (+ (i->f i) (* 10f0 (i->f s)))) (h0 (hash01 fi 7.1f0)) (h1 (hash01 fi 3.3f0)) (h2 (hash01 fi 5.9f0))
+                   (vo (* sg (+ 0.2f0 (* 0.9f0 h0)))) (vf (+ 2.0f0 (* 1.8f0 h1))) (vu (+ 0.3f0 (* 1.4f0 h2)))
+                   (ox (+ (aref pa 0) (* sg 0.8f0 rx) (* 0.3f0 fx))) (oz (+ (aref pa 2) (* sg 0.8f0 rz) (* 0.3f0 fz)))
+                   (tl (/ (+ vu (f-sqrt (+ (* vu vu) 11.76f0))) 9.8f0)) (te (f-min tt tl))
+                   (x (+ ox (* te (+ (* vo rx) (* vf fx))))) (z (+ oz (* te (+ (* vo rz) (* vf fz)))))
+                   (y (+ 0.6f0 (* vu te) (* -4.9f0 te te))) (sd (+ 640f0 fi)))
+              (declare (single-float fi h0 h1 h2 vo vf vu ox oz tl te x z y sd))
+              (let* ((ux (+ (* vo rx) (* vf fx))) (uz (+ (* vo rz) (* vf fz))) (hl (f-max 0.01f0 (f-hypot ux uz))))
+                (declare (single-float ux uz hl))
+                (if (< tt tl)
+                    (let* ((uy (- vu (* 9.8f0 tt))) (ul (f-max 0.01f0 (f-hypot ux uy uz))))
+                      (declare (single-float uy ul))
+                      (fx-shard x y z (/ ux ul) (/ uy ul) (/ uz ul) (+ 0.12f0 (* 0.08f0 h1)) 0.03f0 0.05f0 sd +pal-blood+ 0.95f0
+                                :push 0.15f0))
+                    (fx-shard x 0.02f0 z (/ ux hl) 0f0 (/ uz hl) (+ 0.16f0 (* 0.14f0 h0)) 0.032f0 0.08f0 sd +pal-blood+ 0.9f0
+                              :push 0.05f0)))))))))
+  nil)
+
+(defun hs-kari-look (a v cf)
+  "刈's looks (every frame): the slashes on the victim, the blood flicked off (from f108)."
+  (when (hs-cine-shown-p v) (%hs-kari-cuts (model-joints (model v)) cf))
+  (when (hs-cine-shown-p a) (%hs-kari-flick (pos-of a) (pos-of v) cf)))
+
+(defun hs-kari-cut (a v c i)
+  "刈's cut C (an *HS-KARI-CUTS* row, the I-th) at its step: the flash step round the victim (an afterimage where he
+was) to the clip's reach, facing him, the clip from 3 f before its S."
+  (destructuring-bind (f side d clip t0) c
+    (start-ghost a) (hs-round a v d (- (hs-kari-bearing f) (* side 90)))
+    (cine-clip a clip :blend 0 :time (/ t0 60.0))
+    (play-sfx :hoho-out :pitch (+ 0.9 (* 0.06 i)))))
+
+(defcine hs-kari-cine (a v :len 150 :hold 128)
+  "Pointer 2's Kikon 刈 KARI (§27.3): 1 low: the chain yanked short, the sickles spinning in his fists; 2 round him: five
+flash-step cuts, one on each of 刈's clips at its reach, an ink line opening on him at each; 3 behind him, back to back:
+the sickles crossed, the silence, drawn apart: the slashes flare, the Konpaku; 4 wide: the victim kneels, he flicks the
+blood off: 刈."
+  (during (0 150) (hs-kari-look a v cf))
+  ;; 1 (0-25) low, in front of him to his left, pushing in: the yank (f6), the spin
+  (at 0 (hs-cine-stage a v 2.2) (cine-clip a :hs-cine-kr-spin :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-pose v 8) (freeze 8) (impact-frame :negative 2) (play-sfx :chain-rattle) (lens 54))
+  (during (0 25) (hs-shot a 80 (- (if (portrait-p) 5.4 3.8) (* 0.4 u)) 0.3 1.0 :ahead 0.7))   ; (side-on: the victim whole)
+  (at 6 (play-sfx :chain-snap) (shake 0.1 0.15))
+  (at 12 (play-sfx :whoosh-heavy :pitch 1.3))
+  (at 17 (play-sfx :whoosh-heavy :pitch 1.5))
+  (at 21 (play-sfx :whoosh-heavy :pitch 1.7))
+  ;; 2 (25-70) orbiting the victim round his front: the cuts (steps f26 34 42 50 58, S 3 f later), side-on to the shot
+  (at 25 (lens 46))
+  (during (25 70) (hs-kari-orbit v cf))
+  (when step-p
+    (loop for c in *hs-kari-cuts* for i from 0
+          do (cond ((= cf (first c)) (hs-kari-cut a v c i))
+                   ((= cf (+ 3 (first c)))
+                    (cine-clip v (if (evenp i) :sh-flinch :sh-stagger) :blend 1) (play-sfx :cut :pitch (+ 0.9 (* 0.05 i)))
+                    (hs-cine-hit v 1.2 :cut) (shake 0.12 0.15)))))
+  ;; 3 (70-100) behind him, back to back, from in front of Hisagi: crossed, the silence; drawn (f88); the Konpaku (f90)
+  (at 70 (hs-round a v 1.7 180)                                   ; (no afterimage: it stood in the shot's foreground)
+      (let ((tf (transform a))) (setf (transform-yaw tf) (f32 (+ (transform-yaw tf) 3.1415927))))
+      (cine-clip a :hs-cine-kr-pass :blend 0) (cine-clip v :sh-stagger :blend 2) (hold-pose v 16) (play-sfx :hoho-in)
+      (silence 18)
+      (if (portrait-p) (shot-on a 28 6.6 0.8 :look 1.0 :ahead -0.6) (shot-on a 28 5.2 0.7 :look 1.0 :ahead -0.6 :off -0.5))
+      (lens 44))
+  (at 88 (impact-frame :negative 2) (play-sfx :cut-heavy) (shake 0.3 0.4) (cine-clip v :sh-stagger :blend 0))
+  (at 90 (cine-shatter v (fighter-kikon-n (fighter a))) (play-sfx :konpaku-shatter) (impact-frame :manga 10)
+      (multiple-value-bind (x y z) (actor-point v 1.2) (focus-lines 10 x y z)))
+  (at 94 (cine-clip v :sh-lose :blend 10))
+  ;; 4 (100-150) wide, from his left: the victim kneeling behind him; the flick (f108); 刈
+  (at 100 (cine-clip a :hs-cine-kr-chiburi :blend 2)
+      (if (portrait-p) (shot-on a 70 7.0 1.4 :look 0.9 :ahead -0.8) (shot-on a 70 5.4 1.1 :look 0.9 :ahead -0.8 :off -0.9))
+      (lens 42))
+  (at 108 (play-sfx :whoosh-heavy :pitch 1.4) (play-sfx :chain-snap :pitch 1.3))
+  (at 112 (caption "刈" :reading "KARI" :sub "KAZESHINI  KIKON" :side 1 :hanko t)))
 

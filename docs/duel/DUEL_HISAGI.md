@@ -3985,6 +3985,45 @@ The user's requests (verbatim): 「1. NS1 跟 NS2 接 SA 到時候不要把人�
   reported to the user, not retuned. The likely share: the generic core CPU still opens NS1 from neutral up close (now all three
   segments miss inside 3 m) and presses the SA after NS1 at 4-6 m (KIRI whiffs there), unmeasured.
 
+### 27.8 The 刈 KARI Kikon cinematic as built (batch 3, presentation only, 2026-10-28)
+
+The user: 「開始第三批」 (§27.3's batch 3, the storyboard approved there: 「可以，照表做（推薦）」).
+
+`hisagi-cine.lisp` `hs-kari-cine` (pointer 2, 150 f, appended after `hs-raiden-cine`: DEFCINE order kept); the kit's `:kikon-cines` is
+now `(hs-kare-cine hs-kari-cine hs-raiden-cine)` (首掛 `hs-kubikake-cine` stays in the file, played by no pointer; its still 83969
+kept). Both sickles stay in his fists (on their let-outs in the cuts), so HISAGI-DRAW draws them, the 刈 stance's wound chain (its
+lo 8192 list now has the three new clips: the only edit in `hisagi-draw.lisp`) and `*HS-LETOUT*` as in the match: no `HS-CINE-OF`
+code. CINE-PLACE 2.2 m (the close band).
+
+| Frames | As built |
+|---|---|
+| 0-25 | low and side-on from his left (3.8 m, pushing in 0.4 m; the phone 5.4), both whole (the victim nearer, on the frame's left, Hisagi on its right): `:hs-cine-kr-spin`, the arms out on the long chain yanked in to the 刈 stance at f6 (the chain wound short, a snap and a shake), then both reverse-gripped sickles twirled in the fists (the wrists' flex a key every 90 degrees, 630 degrees for the right, the left a quarter turn behind, faster and faster), three whooshes rising in pitch |
+| 25-70 | orbiting the victim round his front (`HS-KARI-ORBIT`: bearing 70 -> -87.5 degrees off his facing, 5.8 m, the phone 8.4, 1.6 m up): five flash steps (f26 34 42 50 58, an afterimage each), each landing side-on to the camera on alternate sides of him (bearing -/+ 90) at the clip's own let-out reach and playing 刈's clip from 3 f before its S: TAN-GARI 2.5 m, REN-GARI 1.7, KO-GARI 2.4, KARI-AGE 2.4, SEN-GARI 3.0 (`*HS-KARI-CUTS*`); on each S (f29 37 45 53 61) a cut spark, a flinch / stagger in turn, and an ink slash opening on him (`%HS-KARI-CUTS`) |
+| 70-100 | back to back: he lands 1.7 m behind him facing away (no afterimage: it stood in the foreground); from in front of Hisagi, low (5.2 m, the phone 6.6), the victim's back behind him; `:hs-cine-kr-pass`, both forearms crossed before the chest, the sickles trailing past the elbows, held in an 18 f silence with the victim's stagger held; f88 drawn apart (the negative, the heavy cut, the slashes flare); f90 the Konpaku (the manga frame, focus lines); f94 the victim sinks to his knees (`:sh-lose`) |
+| 100-150 | wide from his left (5.4 m, the phone 7.0), the victim kneeling behind him: `:hs-cine-kr-chiburi`, wound up at the shoulders (f105), the flick down and out (f108: the blood flung off the blades, `%HS-KARI-FLICK`), rising slowly into the 刈 stance; 刈 / KARI / KAZESHINI KIKON with the hanko from f112 |
+
+- The slashes (`%HS-KARI-CUTS`): five, one per cut, across his chest 0.24 m down the chest joint on its front and on its back (the cut
+  goes through him; the orbit shows his front, the pass his back), turned round by the golden angle and spread 0.36 x 0.4 m: drawn
+  across over 3 f, the ink rim (FX-CRESCENT :lens, 0.09) widening over 4, a white core opening inside it, a spark at the end for
+  3 f; all flared wider f88-92, faded f92-100.
+- The blood (`%HS-KARI-FLICK`): seven drops off each blade (0.8 m to each side, 0.3 m ahead, 0.6 m up) flung forward 2.0-3.8 m/s and
+  a little out, falling under gravity as dark red shards (`+pal-blood+`) along their flight, each a streak on the ground where it
+  lands (along its flight), there to the end. (A first draft drew the landed drops as discs: they read as red marbles.)
+- Both looks are DEFUN-FAST on fixnum / f32vec arguments (the 0 B pattern; not probed by 83901), derived from the cine frame alone (no RNG, no state): a held still
+  (83970+b) and a play-through draw the same.
+- Debug 83978 (DUEL_GAMEPLAY "Debug commands") plays it from 83969's scene (the Shikai 4 m from an idle Kenpachi); 83970+b then holds
+  beat b at `*hs-cine-beats*` (12 37 53 84 92 128): the spin, the second and fourth cuts, the crossed hold, the Konpaku, the flick.
+
+Checks: host 10781 ALL PASS, cine-test 18 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0 errors. In the match (83000, 2511, Shift+J
+held 1.6 s): `HS-N2A -> P2 KIKON 45`, `cine HS-KARI-CINE`, both IDLE after. The sim did not move (`--pairs 29,31,35 --seeds 10`,
+before and after identical, the with-the-cinematics medians too): HK 164.0 s (0:10, the cinematics 222.5), HI 197.1 s (0:10, 274.0),
+HH 278.8 s (KOs 6, 7:3, 333.5); G2 (II IK KK) 3 PASS. The browser's stats line while it plays (replayed back to back, 1280x720):
+1.29-1.50 KB a frame for the whole frame, against 6.6-8.0 KB for 首掛 and 10.2-16.6 KB for 綴雷電 measured the same way (and 2.2-2.5 KB
+with both fighters idle in the match, the sim running); the new looks follow the 0 B pattern (DEFUN-FAST on fixnum / f32vec
+arguments) but were not probed separately by 83901; the rest is the script's plain DEFUN camera and staging. Stills at 1280x720 and 390x844 (`--mobile`): nobody cut off;
+on the phone the title logs `brush: caption 刈 off the 1170x2532 screen` (its right edge 1176.9: the one-glyph hanko caption is the
+widest block, its ink splash clipped at the frame's edge, as 首掛's and 降鎖's by 2 px): BRUSH's layout, not this script. Checked by
+numbers and stills, needs the user's eyes (the playtest).
 ### 27.9 NS1b / NS1c sweep NAGI's volume, NS1c staggers (the user, 2026-10-28)
 
 The user's request (verbatim): 「1. NS1[2] 跟 NS1[3] 攻擊沒打中時直接揮到最遠的攻擊處，並且將攻擊範圍改成跟 NS1[1] 一樣的範圍。 2. NS1[3] 不將對手擊倒」.
