@@ -3793,3 +3793,76 @@ sim did not move (`--pairs 29,31,35 --seeds 10`): HK 189.7 s, HI 194.0 s, HH 184
 float math; measured on the browser's stats line), nothing outside a cinematic. On the phone 首掛's caption logs `brush: caption 首掛 off the 1170x2532 screen` by 2 px (its right edge
 1172.1), as KOSA's 降鎖 already does (the same 1172.1): the two-glyph hanko caption's box in BRUSH, not these scripts.
 
+
+## 27. Bind and lightning merged into pointer 3 (the user, 2026-10-28; in design)
+
+The user's request (verbatim): 「我想要將縛與雷融合 1. NS[1] 像縛一樣困住對手，接 SA 的時候附加拉近的效果。 2. NS[2] 沿著束縛的鎖鏈蓄積電力並
+造成小額傷害，接 SA 的時候使敵人原地炸開高額電擊傷害，且距離越近傷害越高。 3. 沒有 NS[3] 請問對應的 AS 要怎麼調整，又要有什麼特殊效果？像是下一串
+連擊附帶電擊傷害，如果又遇到炸開電擊則顯著提高傷害？」
+
+### 27.1 Decisions (AskUserQuestion, 2026-10-28)
+
+| Question | The user's pick | Rejected |
+|---|---|---|
+| Where the merged 縛雷 goes, what the freed pointer does | **「縛雷放 3，2 另設計新主題」**: pointer 3 = bind + lightning; pointer 2 gets a new theme (next round) | merged at 3, pointer 2 a pure 首掛 throw (recommended); merged at 2, pointer 3 new |
+| What 餘電 (the residual charge on the victim) adds to | **「J 與所有 NS/AS 都 +8」**: every J, NS and AS hit of Hisagi's +8 while it lasts | J hits only +8 (recommended); only the next detonation ×1.6 |
+| NS[2] hit but no detonation | **「留下餘電（推薦）」** | the charge dissipates |
+| How the detonation SA ends | **「硬直，但由於不會將對手拉近，因此只有近距離才能接上後續」**: a stagger, J2 follows as for every SA, but nothing pulls him in, so J2 (1.7 m) only reaches when close | a knockdown ending the combo (recommended) |
+
+### 27.2 The draft (numbers are the lead's, to be tuned)
+
+| Segment | What | S | Dmg | Reaction | Its SA |
+|---|---|---|---|---|---|
+| NS[1] 縛 | the chain flung on a 4.5 m line, binds him | 18 | 40 | bind 40 f | 引寄 YOSE (the drag to 1.6 m, a cut, J2 on; as now) |
+| NS[2] 蓄電 | charge along the binding chain | 14 | 25 | stagger (no knockdown: the SA must follow) | new 放電 HŌDEN: he bursts in place, 60 × the distance factor (×2.0 at <= 1.6 m, ×1.0 at 6.5 m, linear), stagger, then J2 |
+
+- AS3 (three segments): 纏 MATOI 45 stagger > 蓄 TAME 35 stagger > 綴雷電 110 knockdown, leaving 餘電.
+- 餘電: set by AS3's last segment, or by NS[2] when no detonation follows in its gap; lasts 8 s or until a detonation uses it;
+  meanwhile every J / NS / AS hit of his +8; the next detonation ×1.6 and consumes it.
+- Kikon cinematic: 綴雷電 (`hs-raiden-cine`, as built). 首掛 (`hs-kubikake-cine`) has no pointer until pointer 2's theme is chosen.
+
+### 27.3 Pointer 2 刈 KARI, the short-chain reaping (the user picked it: 「刈 短鎖貼身收割（推薦）」; rejected: 跳 the chain leap, 迴 the boomerang sickles)
+
+The three pointers now cover three bands: 1 投 far (6 m), 2 刈 close (1-2.5 m), 3 縛雷 mid (4.5 m). The table below and the storyboard
+approved: 「可以，照表做（推薦）」.
+
+| | Pointer 2 刈 KARI |
+|---|---|
+| Stance | the chain wound short round both fists, the sickles reverse-grip at the hips (new clip) |
+| NS a | 短刈 TAN-GARI, a stepping cross cut, reach 2.5 m, slide 1.0 m, S 16, 45, stagger |
+| NS b | 連刈 REN-GARI, the two sickles spinning in turn, S 12, 50, stagger |
+| NS c | 旋刈 SEN-GARI, a whole-body spin, the chain let out to a 3 m circle, S 16, 85, knockdown (180) |
+| AS2 | 交刈 KŌ-GARI 45, stagger > 刈上 KARI-AGE 60, the rising reap, launch (105) |
+| SA | 引寄 YOSE (shared; inside 2.5 m its drag barely shows) |
+| Kikon | 刈 KARI (new, ~150 f; 首掛 plays until it is built): 0-25 low, the chain shortened, the sickles start spinning in his hands; 25-70 orbiting, he circles the victim close, cut after cut, ink lines opening; 70-100 he stops behind him, the sickles crossed and drawn (the Konpaku shatters); 100-150 the victim kneels, he flicks the blood off; the caption 刈 |
+
+Pointer 3 縛雷 as §27.2 (its stance the taut chain sparking, its Kikon 綴雷電). Pointer 1 unchanged.
+
+Batches: 1 the sim (the moves, 餘電, the detonation, host tests) > playtest + his gates; 2 the clips (pointer 2's stance and cuts, NS[2]'s
+charge, the detonation's look); 3 the 刈 cinematic.
+
+### 27.4 As built (batch 1, the sim, 2026-10-28)
+
+- `hisagi.lisp`: pointer 2 刈 as copies of his J (`:hs-n2a` TAN-GARI of J2, S 16, reach 2.5, slide 1.0; `:hs-n2b` REN-GARI of J1's
+  `:hs-q1`, S 12; `:hs-n2c` SEN-GARI of RIN, S 16, reach 3.0, arc 360, knockdown; `:hs-as2` KO-GARI of J2, reach 2.4, slide 1.4 >
+  `:hs-as2b` KARI-AGE of RIN, launch). Pointer 3 縛雷: `:hs-n3a` SHIBARI's bind (the old NS2a), `:hs-n3b` CHIKUDEN (NOKO's chain to the
+  victim, `:params :sa :hs-sa-hoden :zan :pend`), the new SA `:hs-sa-hoden` (RAIDEN's clip at S 10, along `HS-CORE-SEG`, `:hoden t`);
+  AS3 MATOI 45 > TAME 35 > TSUZURI RAIDEN 110 (`:zan :set`). The old `:hs-n3c` is gone.
+- 餘電 lives on his HSS (`zan` frames, `zan-pend`, both hashed, cleared by `HS-RESET`): `HS-ZAN-HIT` (his `:hit` hook, a real hit of his
+  current move) sets / pends / uses it; `HS-ZAN-TICK` counts it down and turns a pending CHIKUDEN into 餘電 once any move but CHIKUDEN /
+  放電 (or none) is in play. The damage through a new Shikai `:dmg-mult` hook `HS-CORE-DMG-MULT`: 放電 x `HS-HODEN-X` (distance) x1.6 on
+  餘電; a J / NS / AS hit on 餘電 x (1 + 8 / its damage). Log lines `HODEN x…`, `ZANDEN +8`, `ZANDEN (no HODEN)`.
+- Knobs: `*hs-zan-frames*` 480, `*hs-zan-bonus*` 8, `*hs-zan-hoden*` 1.6, `*hs-hoden-near*` 1.6, `*hs-hoden-near-x*` 2.0.
+- Looks: until batch 2, pointer 2 shows the hawser stance and plays 首掛 as its Kikon; its cuts are the J clips, drawn at 1.7 m while
+  their volumes reach 2.4-3.0 m (the FK rule waits on batch 2's clips).
+- Tests (`triangle.lisp`): the pins rewritten for §27 (startups 20 14 16 / 16 12 16 / 18 14, 放電 10; the segment lists; every damage; the
+  reactions; NS3a's bind; the chain segments; the SAs by gap; `HS-HODEN-X` 2.0 / 1.5 / 1.0; 餘電 pend / set / used up); `hisagi.lisp`'s
+  `:dmg-mult` pin allows the Shikai's hook. Host 10765 ALL PASS; pkgcheck 0 / 0 / 0; debug ranges 0 errors.
+- Browser (83000 2 m / 83001 6 m, 2510+p): NS2 45 / 50 / 85; NS3 at 2 m 40, 25, 放電 x1.92 then J2 30; at 6 m NS3a whiffs, CHIKUDEN hits
+  along the chain, 放電 x1.10; CHIKUDEN with no 放電 -> `ZANDEN (no HODEN)`; J x5 SP x3 (45 35 110) then NS3 + J: `ZANDEN +8` on both
+  segments, 放電 x2.99 (zanden); J x4 SP SP 45 / 60 (launch). Playtest v212.
+- Gates (his pairings): HK 176.6 s at 10 seeds, all K.O., Hisagi 3:7 (the quick pass; 189.7, 2:8 before). HI 213.2 s at 10 (one time-out),
+  216.4 at 20 (2 time-outs, 2:18), **209.8 s at 60 with 2 time-outs, Hisagi 7:53** (194.0, 4:6 at 10 before). HH 230.6 at 10, 222.5 at
+  20 (1 time-out), **202.9 s at 60 with 1 time-out** (27:33). G2 (II IK KK) identical. The time-outs and the HI win rate are reported to
+  the user, not retuned (AGENTS.md); the CPU (`core-ai.lisp`) plays 縛雷's two segments with its generic rolls (the SA in a gap by
+  chance), so its share of the shift is unmeasured.

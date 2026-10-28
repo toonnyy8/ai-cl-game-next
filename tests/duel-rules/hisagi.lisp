@@ -795,12 +795,13 @@
       (check (loop for mv being the hash-values of *moves*
                    always (or (member (mv-name mv) dz) (member (mv-name mv) (quote (:hs-k1 :hs-n1a)))   ; (S1: the Shikai's K1 NAGI's 2.0 m, §23.3)
                               (every (lambda (w) (null (hw-min w))) (mv-hits mv))))))
-    ;; ... and only his Bankai has the :dmg-mult hook, only his forms the CPU's :move-reflex (which of his: HISAGI-CPU-TESTS)
+    ;; ... and only his forms have the :dmg-mult hook (the Bankai's tip, since §27 the Shikai's 放電 / 餘電), only his forms the CPU's
+    ;; :move-reflex (which of his: HISAGI-CPU-TESTS)
     (check (loop for c being the hash-keys of *kits* using (hash-value alist)
                  always (loop for (f . k) in alist
                               always (and (if (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
                                               (eq 'hs-dmg-mult (kit-hook k :dmg-mult))
-                                              (null (kit-hook k :dmg-mult)))
+                                              (eq (kit-hook k :dmg-mult) (and (eq c :hisagi) 'hs-core-dmg-mult)))
                                           (or (eq c :hisagi) (null (getf (kit-ai k) :move-reflex)))))))
     ;; the annulus (§25.3: J1 / J2 3.0-6.0 m 100 deg ahead, J3 3.0-6.0 m all round): a hurt cylinder r 0.36 at D m (ahead,
     ;; or behind); the window's dead zone first, then its volume (facing -Z)

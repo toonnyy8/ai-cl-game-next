@@ -319,6 +319,12 @@ links reach him anywhere inside *HS-R-LINK-REACH* since) lands his K3G (1-4 m) a
   "The chain's length under the core system (m): a link segment strikes the victim within it (HS-CORE-SEG), the SA drags him from
 within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiffed opener's next segment reaches, not across the stage).")
 (defparameter *hs-yose-to* 1.6 "The SA 引寄 YOSE drags the opponent to this distance on its frame 0 (m; §26.2).")
+;; §27 (the user, 2026-10-28: 「縛雷放 3」「J 與所有 NS/AS 都 +8」「留下餘電」; the numbers the lead's draft, §27.2)
+(defparameter *hs-zan-frames* 480 "餘電 ZANDEN's length (frames): set by AS3's last hit, or by NS3's CHIKUDEN with no 放電 after it.")
+(defparameter *hs-zan-bonus* 8 "餘電: added to each of his J / NS / AS hits while it lasts (HS-CORE-DMG-MULT).")
+(defparameter *hs-zan-hoden* 1.6 "餘電: the next 放電 HODEN x this, and it is used up.")
+(defparameter *hs-hoden-near* 1.6 "放電: at or inside this distance (m) its damage x *HS-HODEN-NEAR-X*; x1.0 at *HS-CORE-CHAIN*, linear between.")
+(defparameter *hs-hoden-near-x* 2.0 "放電's damage x up close (§27.2: 「距離越近傷害越高」).")
 ;; NA: five J (J1 SEN's coil S 14 > KAESHI-SEN > SEN > KAESHI-SEN > RIN); an AS after J1-2 is AS1, J3-4 AS2, J5 AS3
 (defmove-copy :hs-na3 :hs-j1 :clip :hs-q1 :startup 8 :clip-s 8)   ; (J1's cut without the coil)
 (defmove-copy :hs-na4 :hs-j2)
@@ -330,28 +336,31 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 (defmove-copy :hs-n1a :hs-k1 :startup 20 :clip-s 18 :params (:melee-range 2.0 :ns-next :hs-n1b))
 (defmove-copy :hs-as1 :hs-k3 :kind :sp :callout "KAGI-BIKI" :startup 24 :clip-s 22 :dmg 50 :on-hit :knockdown :flags nil
   :on-land hs-kagi-pull :hits ((24 29 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :steal-fs 40 :pull 1.6 :look-as :hs-k3))
-;; pointer 2 縛: SHIBARI's cast binds > SHIBORI tightens > KUBIKAKE's slam (180); AS2 MAKI > KUBIKAKE heaved up (the launch)
-(defmove-copy :hs-n2c :hs-k3 :callout "KUBIKAKE" :startup 24 :clip-s 22 :dmg 90 :on-hit :knockdown :flags nil
-  :hits ((24 29 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :look-as :hs-k3))
-(defmove-copy :hs-n2b :hs-k2 :dmg 50 :hits ((20 24 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :ns-next :hs-n2c :look-as :hs-k2))
-(defmove-copy :hs-n2a :hs-shibari :kind :flash :callout nil :startup 18 :active 4 :recovery 26 :clip-s 16 :dmg 40
-  :hits ((18 22 :on-hit :bind :stun 40)) :params (:melee-range 2.0 :ns-next :hs-n2b :look-as :hs-shibari))
-(defmove-copy :hs-as2b :hs-k3 :kind :sp :callout "KUBIKAKE" :dmg 60 :on-hit :launch :flags nil
-  :hits ((22 27 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :look-as :hs-k3))
-(defmove-copy :hs-as2 :hs-k2 :kind :sp :callout "MAKI" :dmg 45 :hits ((20 24 :seg-fn hs-core-seg))
-  :params (:melee-range 2.0 :ns-next :hs-as2b :look-as :hs-k2))
-;; pointer 3 雷: the lash (SHIBARI's cast, 4.5 m) > MATOI winds round him > TSUZURI RAIDEN down the chain (190); AS3 SEN > MATOI >
-;; RAIDEN (210, the hardest)
-(defmove-copy :hs-n3c :hs-raiden :kind :flash :startup 16 :clip-s 20 :dmg 100 :on-hit :knockdown :hits ((16 19)) :on-frame nil
-  :params (:melee-range 2.0))
-(defmove-copy :hs-n3b :hs-k2 :dmg 45 :hits ((20 24 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :ns-next :hs-n3c :look-as :hs-k2))
-(defmove-copy :hs-n3a :hs-shibari :kind :flash :callout nil :startup 18 :active 4 :recovery 26 :clip-s 16 :dmg 45
-  :hits ((18 22 :on-hit :stagger)) :params (:melee-range 2.0 :ns-next :hs-n3b :look-as :hs-shibari))
-(defmove-copy :hs-as3c :hs-raiden :startup 16 :clip-s 20 :dmg 120 :on-hit :knockdown :hits ((16 19)) :on-frame nil
-  :params (:melee-range 2.0))
-(defmove-copy :hs-as3b :hs-k2 :kind :sp :callout "MATOI" :dmg 45 :hits ((20 24 :seg-fn hs-core-seg))
+;; pointer 2 刈 KARI (§27.3, 「刈 短鎖貼身收割」: the chain wound short, 1-2.5 m): TAN-GARI's stepping cross cut > REN-GARI > SEN-GARI's
+;; spin, the chain let out to a 3 m circle (180); AS2 KO-GARI > KARI-AGE, the rising reap (the launch). His J clips until batch 2's
+(defmove-copy :hs-n2c :hs-j3 :kind :flash :callout "SEN-GARI" :startup 16 :clip-s 9 :dmg 85 :reach 3.0 :arc 360 :on-hit :knockdown
+  :flags nil)
+(defmove-copy :hs-n2b :hs-j1 :kind :flash :clip :hs-q1 :callout "REN-GARI" :startup 12 :clip-s 8 :dmg 50 :on-hit :stagger
+  :slide 0.0 :params (:ns-next :hs-n2c))
+(defmove-copy :hs-n2a :hs-j2 :kind :flash :callout "TAN-GARI" :startup 16 :clip-s 8 :dmg 45 :reach 2.5 :slide 1.0 :on-hit :stagger
+  :params (:ns-next :hs-n2b))
+(defmove-copy :hs-as2b :hs-j3 :kind :sp :callout "KARI-AGE" :dmg 60 :reach 2.4 :on-hit :launch :flags nil)
+(defmove-copy :hs-as2 :hs-j2 :kind :sp :callout "KO-GARI" :dmg 45 :reach 2.4 :slide 1.4 :on-hit :stagger
+  :params (:ns-next :hs-as2b))
+;; pointer 3 縛雷 (§27, the bind and the lightning merged): SHIBARI's cast binds (its gap's SA 引寄 drags him in) > CHIKUDEN, the
+;; charge along the binding chain (its gap's SA 放電 HODEN bursts him in place, closer = harder); no third segment. AS3 MATOI >
+;; TAME > TSUZURI RAIDEN, which leaves 餘電 ZANDEN on him (HS-ZAN-HIT)
+(defmove-copy :hs-n3b :hs-k2 :callout "CHIKUDEN" :dmg 25 :on-hit :stagger :hits ((20 24 :seg-fn hs-core-seg))
+  :params (:melee-range 2.0 :sa :hs-sa-hoden :zan :pend :look-as :hs-k2))
+(defmove-copy :hs-n3a :hs-shibari :kind :flash :callout nil :startup 18 :active 4 :recovery 26 :clip-s 16 :dmg 40
+  :hits ((18 22 :on-hit :bind :stun 40)) :params (:melee-range 2.0 :ns-next :hs-n3b :look-as :hs-shibari))
+(defmove-copy :hs-sa-hoden :hs-raiden :kind :quick :callout "HODEN" :startup 10 :clip-s 20 :dmg 60 :on-hit :stagger :flags nil
+  :hits ((10 13 :seg-fn hs-core-seg)) :on-frame nil :params (:melee-range 2.0 :hoden t))
+(defmove-copy :hs-as3c :hs-raiden :startup 16 :clip-s 20 :dmg 110 :on-hit :knockdown :hits ((16 19)) :on-frame nil
+  :params (:melee-range 2.0 :zan :set))
+(defmove-copy :hs-as3b :hs-k2 :kind :sp :callout "TAME" :dmg 35 :hits ((20 24 :seg-fn hs-core-seg))
   :params (:melee-range 2.0 :ns-next :hs-as3c :look-as :hs-k2))
-(defmove-copy :hs-as3 :hs-j3 :kind :sp :callout "RIN" :dmg 45 :on-hit :stagger :flags nil :reach 2.4 :slide 1.4
+(defmove-copy :hs-as3 :hs-j3 :kind :sp :callout "MATOI" :dmg 45 :on-hit :stagger :flags nil :reach 2.4 :slide 1.4
   :params (:ns-next :hs-as3b))
 ;; the SA 引寄 YOSE (「鎖鏈把對手拉過來再斬」): frame 0 the chain drags him to *HS-YOSE-TO*, then one cut; J2 goes on
 (defmove-copy :hs-sa :hs-j1 :clip :hs-q1 :dmg 40 :reach 2.4 :slide 1.4 :startup 10 :clip-s 8 :on-hit :stagger :on-frame ((0 hs-yose))
@@ -392,7 +401,8 @@ on the victim for the look: HS-TICK).")
 not (the art's %HS-FA-KS! / %HS-LETOUT!, host-tested against the copies)."
   (+ drawn (* line (- (hs-charge-scale n) 1.0))))
 (defparameter *hs-hooks* '(:tick hs-tick :ok hs-ok :command hs-command :hit hs-hit :struck hs-struck :reset hs-reset
-                           :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :link-ok hs-link-ok :boss hs-boss))
+                           :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :link-ok hs-link-ok :boss hs-boss
+                           :dmg-mult hs-core-dmg-mult))
 (defparameter *hs-shikai-clips* '(:hs-q1 :hs-s-sen :hs-q2 :hs-s-kaeshi :hs-spin :hs-s-rin :hs-nage :hs-s-nage
                                    :hs-hiki :hs-s-hiki :hs-maki :hs-s-maki :hs-kari :hs-s-kari :hs-hodoki :hs-s-hodoki
                                    :hs-modoshi :hs-s-modoshi :hs-kaza :hs-s-kaza :hs-raiden :hs-s-raiden
@@ -416,8 +426,8 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :push-reach *hs-push-reach*
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)
   :core (:ns (:hs-n1a :hs-n2a :hs-n3a) :as (:hs-as1 :hs-as2 :hs-as3) :sa :hs-sa
-         :stances (:hs-s-stance :hs-st-bind :hs-st-raiden)       ; by pointer: the reveal / the hawser / the taut chain (§26.2)
-         :kikon-cines (hs-kare-cine hs-kubikake-cine hs-raiden-cine)   ; 刈れ / 首掛 / 綴雷電 (§26.4, as built §26.6)
+         :stances (:hs-s-stance :hs-st-bind :hs-st-raiden)       ; by pointer: the reveal / (the hawser until 刈's own, §27.3) / the taut chain
+         :kikon-cines (hs-kare-cine hs-kubikake-cine hs-raiden-cine)   ; 刈れ / (首掛 until 刈's, §27.3) / 綴雷電 (§26.6)
          :as-by-press (1 1 2 2 3)
          :ns-range ((3.6 6.2) nil nil)                           ; the CPU throws NAGI from 3.6-6.2 m under pointer 1
          :no-awaken t :mult 1.7)                                 ; (the Bankai: its own design round, §26.1)
@@ -746,6 +756,7 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (kstr nil)                                  ; S1: the K string he is in was started by a windmill (its reach x the charge)
   (kz-let nil)                                ; S1: L was let go in this windmill (the charge stops)
   (leapt nil)                                 ; §24.4: he leapt (J2K / J3K) in the combo the victim is in now (HS-LINK-OK)
+  (zan 0 :type fixnum) (zan-pend nil)         ; §27: 餘電's frames left on his opponent; CHIKUDEN hit, its 放電 not yet known
   (tip-r nil)                                 ; §25.5: a tip hit's Reiatsu before its gains (HS-DMG-MULT), read by HS-BK-HIT
   (tip-x 0.0)                                 ; §25.11: that hit's extra gain factor (the tip's and the spread route's, - 1)
   (route-tip nil)                             ; §25.13: his last opener's (J1 / K1) contact was on the tip (its links take it)
@@ -839,6 +850,37 @@ him where he is within the chain's length."
   "The SA 引寄 YOSE's frame 0 (§26.2): the chain drags E's opponent to *HS-YOSE-TO* m, from within *HS-CORE-CHAIN*."
   (when (<= (fighter-dist (fighter e)) *hs-core-chain*) (ichigo-pull-to e *hs-yose-to* 6)))
 (defun hs-kagi-pull (e) "AS1 KAGI-BIKI's hit: the hooked victim dragged to :pull m (§26.2)." (ichigo-pull-to e (move-param e :pull) 10))
+(defun hs-hoden-x (d)
+  "放電 HODEN's distance x at D m (§27.2): *HS-HODEN-NEAR-X* inside *HS-HODEN-NEAR*, 1.0 at *HS-CORE-CHAIN*, linear between."
+  (let ((k (/ (- (min (max d *hs-hoden-near*) *hs-core-chain*) *hs-hoden-near*) (- *hs-core-chain* *hs-hoden-near*))))
+    (+ *hs-hoden-near-x* (* k (- 1.0 *hs-hoden-near-x*)))))
+(defun hs-core-dmg-mult (att def hw mv hazard d2)
+  "His Shikai's :dmg-mult hook (combat.lisp APPLY-HIT, §27): 放電 at its distance x, x*HS-ZAN-HODEN* on 餘電; while 餘電 lasts his J / NS
+/ AS hits +*HS-ZAN-BONUS* (as a x on the window's damage)."
+  (declare (ignore def d2))
+  (let ((zan (> (hss-zan (hs att)) 0)))
+    (cond ((or hazard (null mv)) 1.0)
+          ((getf (mv-params mv) :hoden)
+           (let ((x (* (hs-hoden-x (fighter-dist (fighter att))) (if zan *hs-zan-hoden* 1.0))))
+             (clog "~a HODEN x~,2f~:[~; (zanden)~]" (side-name att) x zan)
+             x))
+          ((and zan (plusp (hw-dmg hw)) (member (kit-class (fighter-kit (fighter att)) mv) '(:na :ns :as)))
+           (clog "~a ZANDEN +~d" (side-name att) *hs-zan-bonus*)
+           (+ 1.0 (/ (float *hs-zan-bonus*) (hw-dmg hw))))
+          (t 1.0))))
+(defun hs-zan-hit (st mv)
+  "A real hit of MV (HS-HIT): AS3's last segment sets 餘電, CHIKUDEN holds it pending (HS-ZAN-TICK), 放電 uses it up (§27)."
+  (case (getf (mv-params mv) :zan) (:set (setf (hss-zan st) *hs-zan-frames*)) (:pend (setf (hss-zan-pend st) t)))
+  (when (getf (mv-params mv) :hoden) (setf (hss-zan st) 0)))
+(defun hs-zan-tick (e st mv)
+  "Each step (HS-TICK): 餘電 counts down; CHIKUDEN's pending charge is 放電's (used then) or, once any other move or none is in
+play, 餘電 (「留下餘電」)."
+  (when (plusp (hss-zan st)) (decf (hss-zan st)))
+  (when (hss-zan-pend st)
+    (let ((name (and mv (mv-name mv))))
+      (cond ((eq name :hs-sa-hoden) (setf (hss-zan-pend st) nil))
+            ((not (eq name :hs-n3b)) (setf (hss-zan-pend st) nil (hss-zan st) *hs-zan-frames*)
+             (clog "~a ZANDEN (no HODEN)" (side-name e)))))))
 (defun hs-look-name (mv)
   "The move whose look MV borrows (a core copy's :params :look-as, §26), else its own name."
   (or (getf (mv-params mv) :look-as) (mv-name mv)))
@@ -872,7 +914,8 @@ him where he is within the chain's length."
 (defun hs-reset (e)
   "His :reset hook (combat.lisp RESET-ROUND: a Kikon / Soul Break reset): the sickle IN."
   (let ((st (hs e))) (setf (hss-state st) :in (hss-out-t st) 0 (hss-ret-t st) 0 (hss-anchored st) nil
-                           (hss-charge st) 0 (hss-kstr st) nil (hss-leapt st) nil)))
+                           (hss-charge st) 0 (hss-kstr st) nil (hss-leapt st) nil
+                           (hss-zan st) 0 (hss-zan-pend st) nil)))
 (defun hs-pull-to (e to frames)
   "E's chain drags his victim to TO m over FRAMES (his slide replaced; ICHIGO-PULL-TO's rule); T when it moved him."
   (let* ((v (opp-of e)) (p (pos-of e)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
@@ -975,7 +1018,8 @@ the victim's centre (§7.1); the counters."
       (when (and (hs-throw-name-p name) (eq (fighter-move (fighter att)) mv) (not (hss-anchored st)))
         (let ((q (pos-of def))) (hs-anchor! att (aref q 0) (aref q 2)))
         (pace att (if (eq (contact-of res) :hit) :throw-hit :throw-touch)))
-      (when (member name *hs-pulls*) (pace att (if (eq (contact-of res) :hit) :pull-hit :pull-touch))))))
+      (when (member name *hs-pulls*) (pace att (if (eq (contact-of res) :hit) :pull-hit :pull-touch)))
+      (when (and (eq (contact-of res) :hit) (eq (fighter-move (fighter att)) mv)) (hs-zan-hit st mv)))))
 (defun hs-struck (def att res hw mv hazard ranged)
   "His :struck hook: the windmill's counters (a ranged hit warded, a crush)."
   (declare (ignore att hw mv hazard))
@@ -1013,6 +1057,7 @@ timer (only out of his moves) and the auto-retrieve, the return's arrival; the c
               (setf (hss-state st) :in (hss-out-t st) 0)
               (clog "~a SICKLE IN (returned)" (side-name e)))))
     (setf (hss-kaza st) (and mv (member (mv-name mv) *hs-kazas*) t))
+    (hs-zan-tick e st mv)
     (when *pacing-log*
       (unless (eq (hss-state st) :in) (pace e :out-frames))
       (pace e (hs-band (fighter-dist f))))))
@@ -1021,11 +1066,12 @@ timer (only out of his moves) and the auto-retrieve, the return's arrival; the c
 pool (x10), the snapshot, the release flags, KUBIKAKE's cooldown (B4a's marks and RAKUSA's spot gone with them, B4c); S1:
 the charge, the K string's flag, L let go, the throw's charge."
   (let ((st (hs e)))
-    (format nil "s~a ~d ~d o~d r~d b~a p~d ~d/~d ~d/~d ~a~a c~d k~d~a~a~d" (case (hss-state st) (:in "I") (:out "O") (t "R"))
+    (format nil "s~a ~d ~d o~d r~d b~a p~d ~d/~d ~d/~d ~a~a c~d k~d~a~a~d z~d~a" (case (hss-state st) (:in "I") (:out "O") (t "R"))
             (round (* 100 (aref (hss-anchor st) 0))) (round (* 100 (aref (hss-anchor st) 1))) (hss-out-t st) (hss-ret-t st)
             (if (hss-bound st) 1 0) (round (* 10 (hss-pool st))) (hss-r0 st) (hss-k0 st) (hss-or0 st) (hss-ok0 st)
             (if (hss-rel st) "R" "-") (if (hss-rel-held st) "H" "-") 0
-            (hss-charge st) (if (hss-kstr st) "K" "-") (if (hss-kz-let st) "L" "-") (hss-throw-n st))))
+            (hss-charge st) (if (hss-kstr st) "K" "-") (if (hss-kz-let st) "L" "-") (hss-throw-n st)
+            (hss-zan st) (if (hss-zan-pend st) "P" "-"))))
 
 ;;; ================================================================ the Bankai: pure rules (host-tested)
 (defun hs-kubi-ready-p (reiatsu bound &optional (need *hs-kubi-reiatsu*))
