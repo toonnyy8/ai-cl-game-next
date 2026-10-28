@@ -128,3 +128,14 @@ Engine side, as built (2026-10-28):
   itself and is made again after each close; the trap entry is pushed only on a tap (`pointerup`), and re-pushed in `popstate` only
   where there is no CloseWatcher (Safari, Firefox). Checked at 390x844 `--mobile`: `history.back()` on MODE -> TITLE, a tap re-arms,
   Esc (a key and a close at once) steps back once. iOS's installed app (standalone) has no Back gesture at all.
+
+## 6. The battle screens in HTML: HUD, phone controls, pause, intro / finish (the user, 2026-10-28; in design)
+
+The user's request (verbatim): 「幫我修改對戰與手機操作介面的 UI/UX」, with an award-tier brief (typography, whitespace, visual hierarchy,
+color, motion, micro-interaction, responsive, originality; benchmark Awwwards / Webby / FWA winners; self-review until no gap remains).
+
+| Question (AskUserQuestion) | The user's pick | Rejected |
+|---|---|---|
+| How they are drawn | **「改用 HTML/CSS/SVG 疊層（推薦）」**: as the menus, Lisp publishes the values, the page draws; the engine-drawn HUD stays as the fallback (no page: the native gate, an old page) | kept engine-drawn, redesigned there |
+| Process | **「先出設計稿 Artifact（推薦）」**: an interactive draft (desktop landscape, phone portrait, both hands) first, then the integration | straight into the game |
+| Scope | **all four**: the battle HUD (Reishi, Konpaku, flash step, awaken, the timer, combo and damage, callouts, the SP pointer, input hints), the phone controls (the one-hand dial, the gesture zone, touch feedback, left / right hand), the pause menu, the intro and the finish (VS / READY, K.O., the winner's moment) | |
