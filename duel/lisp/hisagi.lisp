@@ -435,7 +435,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)
   :core (:ns (:hs-n1a :hs-n2a :hs-n3a) :as (:hs-as1 :hs-as2 :hs-as3) :sa :hs-sa-kiri   ; (YOSE: NS3a's gap, §27.7)
          :stances (:hs-s-stance :hs-st-kari :hs-st-raiden)       ; by pointer: the reveal / 刈's wound chain (§27.5) / the taut chain
-         :kikon-cines (hs-kare-cine hs-kubikake-cine hs-raiden-cine)   ; 刈れ / (首掛 until 刈's, §27.3) / 綴雷電 (§26.6)
+         :kikon-cines (hs-kare-cine hs-kari-cine hs-raiden-cine)   ; 刈れ / 刈 (§27.8; 首掛's script unused) / 綴雷電 (§26.6)
          :as-by-press (1 1 2 2 3)
          :ns-range ((3.6 6.2) nil nil)                           ; the CPU throws NAGI from 3.6-6.2 m under pointer 1
          :no-awaken t :mult 1.7)                                 ; (the Bankai: its own design round, §26.1)
