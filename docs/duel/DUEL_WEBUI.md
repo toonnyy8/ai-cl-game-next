@@ -121,3 +121,10 @@ Engine side, as built (2026-10-28):
   phone (max-width 760 px) the other cards' text (name, kanji line, the pick seal) is drawn by the `#ui-back` copy under the canvas
   instead of `#ui`, so he covers it; the focused card's own text stays over him. Shot at 390x844: Ichigo's blade reaches into
   Kenpachi's card.
+- **A phone's Back, every time** (2026-10-28, the user: 「順便幫我處理下手持模式中沒有返回上一步的選項，請修改瀏覽器的「上一頁」功能來完成此目標」):
+  the history trap (`pwa.js`, touch-first devices) already sent the browser's Back to Lisp as BACK in the menus and pause in a battle
+  (`*back-press*`), but it re-pushed its entry inside `popstate`, with no user activation; Chrome's back-button intervention marks such
+  an entry skippable, so the second Back left the page. Now a `CloseWatcher` (Chrome / Android, `typeof CloseWatcher`) takes Back
+  itself and is made again after each close; the trap entry is pushed only on a tap (`pointerup`), and re-pushed in `popstate` only
+  where there is no CloseWatcher (Safari, Firefox). Checked at 390x844 `--mobile`: `history.back()` on MODE -> TITLE, a tap re-arms,
+  Esc (a key and a close at once) steps back once. iOS's installed app (standalone) has no Back gesture at all.

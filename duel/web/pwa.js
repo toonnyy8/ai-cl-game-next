@@ -13,7 +13,8 @@
 //       press, 30002 / 30003 = SELECT's model spot; set 30000 + k = the state they draw (globalThis.gameUI.set)
 // SETTINGS rows (duel/lisp/control.lisp *SETTINGS*, same order) live in localStorage as soulduel.<name>; every access is
 // wrapped in try/catch (private mode / blocked storage: nothing saved, the defaults).
-// On a touch-first device only: the history trap (the back gesture pauses instead of leaving), fullscreen +
+// On a touch-first device only: the back gesture as BACK / pause instead of leaving (a CloseWatcher where there is one, the history
+// trap behind it), fullscreen +
 // portrait lock on the first tap (Android; iOS has no element fullscreen and runs the installed app standalone),
 // and the service worker (sw.js: the app starts offline). A desktop browser gets none of these.
 (function () {
@@ -86,11 +87,16 @@
     }
   };
   if (!coarse) return;
-  var trapped = false, firstTap = true;
-  window.addEventListener('popstate', function () { back++; history.pushState({ trap: 1 }, ''); });
+  // Back = BACK / pause (the user, 2026-10-28: 「手持模式中沒有返回上一步的選項，請修改瀏覽器的「上一頁」功能」). Chrome skips a history
+  // entry pushed without a user activation, so the old re-push in popstate let the second Back leave the page; where there is a
+  // CloseWatcher (Chrome / Android) it takes Back itself and is made again after each, and the trap entry is only pushed on a tap.
+  var trapped = false, firstTap = true, cw = typeof CloseWatcher === 'function';
+  function arm() { if (!trapped) { trapped = true; history.pushState({ trap: 1 }, ''); } }
+  window.addEventListener('popstate', function () { back++; trapped = false; if (!cw) arm(); });
+  if (cw) (function watch() { new CloseWatcher().onclose = function () { back++; watch(); }; })();
   // pointerup: a touch's pointerdown is not a user activation (HTML spec), its pointerup is
   window.addEventListener('pointerup', function () {
-    if (!trapped) { trapped = true; history.pushState({ trap: 1 }, ''); }   // after a user activation (Chrome skips it before)
+    arm();                                                    // after a user activation (Chrome skips it before)
     if (!firstTap) return;
     firstTap = false;
     var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
