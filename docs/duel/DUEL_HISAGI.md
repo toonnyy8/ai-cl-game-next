@@ -4053,7 +4053,7 @@ anchor on the victim).
 Checks: duel-rules 10783 ALL PASS (the pins: four hits, their reactions, the seg, f0's hop, `:enter` 0, 3 < 4.5 < 6); pkgcheck 0 / 0 /
 0; in the browser J1 > AS1 lands all four (16 each) with him 4.5 m off. Gate (10 seeds, Hisagi's pairings): HK 182.3 s (10 K.O.,
 Hisagi 0:10; before 183.8), HI 194.1 s (10 K.O., 0:10; before 190.4, 2:8), HH 300.0 s with 4 K.O. (before 295.7, 6 K.O.); HH at 20 seeds 293.8 s (11 K.O.), at 60 seeds 300.0 s (28 K.O., 32 time-outs, 33:26:1;
-before, §27.7: 298.9 s, 29 time-outs): reported to the user, not retuned.
+before, §27.7: 298.9 s, 29 time-outs): reported to the user, not retuned; accepted as an exception (「列為例外」, 2026-10-29, AGENTS.md, DEVLOG §467).
 
 #### 27.10.1 As built: TSUMUJI's own look (presentation only, 2026-10-29)
 
@@ -4079,3 +4079,22 @@ The lead's brief: draw §27.10's throw and leap (the request above), no sim numb
   hs-as1` 0.45 m off the victim (the orbit; <= 0.50 wanted: the capsule's 0.35 + 0.15); strip slot 46 (83546). Gate (10 seeds) line for
   line identical to a run of the base 5522c0d and to
   §27.10's: HK 182.3 s (10 K.O., 0:10), HI 194.1 s (10 K.O., 0:10), HH 300.0 s (4 K.O., 5:5); `--cvc` 3 PASS.
+
+## 28. The Bankai's bind, redesigned again: the clash evens out the Reishi (the user, 2026-10-29)
+
+> 「我想到要怎麼做修兵的卍解了，我打算將他原本灰血與平均削減靈力量表的特性改成『捆綁模式下發生攻擊抵銷時，就會使雙方的血量差逐漸平衡』」
+
+**This supersedes §17's grey protection and shared Reiatsu pool** (§17 table rows "The shared pool" / "Grey protection" /
+"Ending: drained", bookkeeping B0–B10 and B12's pool wording). Answers (AskUserQuestion, 2026-10-29):
+
+| Question | Answer |
+|---|---|
+| How the bind starts and ends | 「我會將啟動與解除手段放在 NS 與 AS 中」: entry and release become NS / AS moves of the core system, not the P press (**the user will give the moves; not designed yet**) |
+| How the gap evens | the higher Reishi falls, the lower rises, both toward the midpoint (the total is conserved) |
+| When | **each attack clash** (the triangle's mutual no-damage cancel, `core-nohit!` `:cancel`) inside the bind closes the gap **once by a fixed share** (the share is a knob, to be set; the lead's start: 25 %); "gradual" = it accumulates clash by clash |
+| What | Reishi only; Konpaku is untouched |
+
+Consequences of dropping the grey (lead's reading, restated to the user): damage inside the bind is **real**, so a K.O. / Soul
+Break can happen while bound; each fighter keeps his own Reiatsu (no pool, no frozen gains, no drain); no snapshot to restore.
+Open: the entry condition (the 2-bar rule, the chain hit), the release's cost and the 30 f reel, the share per clash, a clash
+sound / cue, the CPU. Nothing is built yet.

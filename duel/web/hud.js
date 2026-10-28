@@ -1,4 +1,4 @@
-// hud.js — SOUL DUEL's battle screens in HTML (docs/duel/DUEL_WEBUI.md §6-§7; the look of the approved draft v4). It only draws:
+// hud.js — SOUL DUEL's battle screens in HTML (docs/duel/DUEL_WEBUI.md §6-§9; the look of the approved drafts v4 and v6). It only draws:
 // Lisp (duel/lisp/webhud.lisp) publishes the battle through gamePage.set(30100 + k, v) / setStr(30100 + k, s) and owns every key,
 // pad and touch press (the touch layers here let every touch through to the canvas: Lisp's recogniser). The pause rows alone take
 // a pointer and queue commands, read by Lisp through gamePage.get(30101): 7 * 100000 + cmd * 1000 + arg (1 cursor, 2 confirm).
@@ -37,6 +37,11 @@
     "P1 KONPAKU": "P1 魂魄", "DUMMY HP": "假人靈子", "DUMMY KONPAKU": "假人魂魄" };
   var SOUL = '<svg viewBox="0 0 10 14"><path d="M5 .6C6.4 3 9.2 5.4 9.2 8.6A4.2 4.2 0 0 1 .8 8.6C.8 6.6 2.2 5.2 3 3.6 3.4 5 4 5.6 4.8 5.8 4.4 4 4.6 2.2 5 .6z"/></svg>';
   var RING = '<svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" pathLength="100"></circle></svg>';
+  // 起筆 (DUEL_WEBUI §8.2 / §9): the neck your phone Reishi flows through into the 爆 seal; the seal's ring is the awakening
+  var NECK = '<svg class="neck" viewBox="0 0 24 40" preserveAspectRatio="none"><path d="M0 12.25 C9 12.25 13 4.5 24 3 L24 37 C13 35.5 9 27.75 0 27.75 Z"/></svg>';
+  var AWRING = '<svg class="awring" viewBox="0 0 40 40"><circle class="trk" cx="20" cy="20" r="18.4" pathLength="100"></circle>' +
+    '<circle class="awg" cx="20" cy="20" r="18.4" pathLength="100"></circle><circle class="hold" cx="20" cy="20" r="15.6" pathLength="100"></circle></svg>';
+  var INF = '<svg class="inf" viewBox="0 0 66 32"><path pathLength="100" d="M33 16 C26 5 9 3 6 14 C3 25 22 29 33 16 C44 3 63 6 60 17 C57 27 40 27 33 16"/></svg>';
 
   /* ---------------------------------------------------------------- the bridge (pwa.js routes 30100-30299 here) */
   function send(cmd, arg) { if (V[0] & 4) queue.push(7 * 100000 + cmd * 1000 + (arg | 0)); }
@@ -55,7 +60,7 @@
   function plateHTML(p) {
     var souls = ""; for (var i = 0; i < 9; i++) souls += '<span class="soul">' + SOUL + '</span>';
     return '<div class="plate ' + p + '"><div class="who"><span class="nm"></span><span class="kj"></span><span class="htag"></span></div>' +
-      '<div class="reishi"><i class="ghost"></i><i class="fill"></i></div><div class="souls">' + souls + '</div>' +
+      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div>' + NECK + '</div><div class="souls">' + souls + '</div>' +
       '<div class="meters"><div class="fs"><i></i><i></i><i></i></div><div class="aw"></div><span class="awk">覺醒 READY</span></div>' +
       '<div class="hptr"><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="pn"></span></div></div>' +
       '<div class="callout ' + p + '"><span class="ck"></span><span class="cr"></span></div>' +
@@ -66,15 +71,14 @@
     built = true;
     document.body.insertAdjacentHTML("beforeend", '<div id="hud" aria-hidden="true">' +
       '<div class="hudl">' + plateHTML("p1") + plateHTML("p2") +
-      '<div class="clock"><span class="t"></span><span class="r">ROUND · 決闘</span></div>' +
+      '<div class="clock"><span class="t"></span>' + INF + '<span class="r rd"></span><span class="r rp"><i></i><b>止</b>PAUSE</span></div>' +
       '<div class="prompt"><div class="ring"><svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15.9" pathLength="100"></circle>' +
       '<circle class="fg" cx="18" cy="18" r="15.9" pathLength="100"></circle></svg><b>毀</b></div><span class="hkey"></span>' +
       '<span class="what"><span class="wt"></span><small></small></span></div></div>' +
       '<div class="deck" hidden><div class="zone sp"></div><div class="zone atk"></div><span class="zl sp">SP <em>技</em></span><span class="zl atk">ATK <em>斬</em></span>' +
       '<div class="divider"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="0" y1="20" x2="100" y2="82"></line></svg></div>' +
       '<div class="gl">FLICK ↑ DASH · ↓ ← → STEP · REST + ↑ HOHO</div></div>' +
-      '<div class="dbtn rv" hidden><b>爆</b><small>RV</small><svg class="awring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="17" pathLength="100"></circle></svg></div>' +
-      '<div class="dbtn pausebtn" hidden><b>止</b><small>II</small></div>' +
+      '<div class="dbtn rv" hidden><b>爆</b><small>RV</small>' + AWRING + '<span class="kak">覺</span></div>' +
       '<div class="fx"></div>' +
       '<div class="pause"><div class="big">止</div><div class="strip" role="menu"><div class="ey"></div><div class="rows"></div></div></div>' +
       '<div class="card"><div class="lb t"></div><div class="lb b"></div><div class="namecol"><div class="kv"></div><div class="side"><span class="rom"></span><i></i><span class="cry"></span></div></div>' +
@@ -87,7 +91,7 @@
     els.call = [$(".callout.p1", root), $(".callout.p2", root)];
     els.combo = [$(".combo.p1", root), $(".combo.p2", root)];
     els.clock = $(".clock", root); els.prompt = $(".prompt", root);
-    els.deck = $(".deck", root); els.rv = $(".dbtn.rv", root); els.pb = $(".dbtn.pausebtn", root); els.fx = $(".fx", root);
+    els.deck = $(".deck", root); els.rv = $(".dbtn.rv", root); els.fx = $(".fx", root);
     els.rows = $(".pause .rows", root); els.card = $(".card", root); els.fin = $(".fin", root);
     var strip = $(".strip", root);
     strip.addEventListener("pointerdown", function (e) { e.preventDefault(); focusGame(); });
@@ -133,7 +137,7 @@
     var r = Math.max(0, V[o + 1]) / 1000, ghost = $(".ghost", el);
     if (p.r !== r) st(ghost, "transition", p.r !== undefined && r < p.r ? "" : "none");   // a hit: the blood ghost drains after it; a refill snaps
     st($(".fill", el), "transform", "scaleX(" + r + ")"); st(ghost, "transform", "scaleX(" + r + ")"); p.r = r;
-    el.classList.toggle("low", V[o + 2] === 1);
+    el.classList.toggle("low", V[o + 2] === 1); el.classList.toggle("dead", r <= 0);
     var kon = Math.max(0, V[o + 3]), stake = Math.max(0, V[o + 4]), souls = $(".souls", el).children;
     for (var i = 0; i < 9; i++) {
       var sl = souls[i]; sl.classList.toggle("gone", i >= kon); sl.classList.toggle("stake", i < kon && i >= kon - stake);
@@ -143,6 +147,7 @@
     var fs = Math.max(0, V[o + 6]) / 1000 * 3, cells = $(".fs", el).children;
     for (i = 0; i < 3; i++) st(cells[i], "--k", Math.max(0, Math.min(1, fs - i)).toFixed(3));
     var aw = $(".aw", el); st(aw, "--k", (Math.max(0, V[o + 7]) / 1000).toFixed(3)); aw.classList.toggle("full", V[o + 8] >= 1);
+    if (s === 0) st(els.rv, "--aw", (Math.max(0, Math.min(1000, V[o + 7])) / 1000).toFixed(3));   // the seal's ring: your awakening
     var awk = $(".awk", el); awk.classList.toggle("on", V[o + 8] === 1);
     var ptr = $(".hptr", el), sv = seals(s), n = V[o + 9];
     ptr.hidden = !(n > 0);
@@ -181,6 +186,7 @@
     else if (k === 2) { var rom = S[9] || "", kan = MOVES[rom.toUpperCase()]; what = "SP · AS" + a; sub = "J HIT → " + (kan ? kan + " · " : "") + rom; }
     else if (k === 3) { what = a === 2 ? "Chain" : "Burst"; sub = a === 2 ? "ORANGE · 爆氣" : "BLUE · 爆氣"; }
     else if (k === 4) { what = "Awaken"; sub = (phone || !S[8] ? "HOLD 爆" : S[8]) + " · 覺醒 READY"; }
+    if (k === 4 && phone && !root.classList.contains("nodeck")) k = 0;   // (the phone: the 爆 seal's 覺 tab says it, DUEL_WEBUI §9)
     pr.classList.toggle("on", k > 0);
     pr.classList.toggle("p-aw", k === 4); pr.classList.toggle("p-burst", k === 3);
     if (k > 0) { tx($(".wt", pr), what); tx($("small", pr), sub); tx($(".hkey", pr), k === 4 ? "" : (S[8] || "")); }
@@ -191,8 +197,9 @@
   function pct(v) { return v / 10 + "%"; }
   function renderDeck() {
     var on = !!(V[0] & 8), left = V[42] === 1;
-    els.deck.hidden = !on; els.rv.hidden = !on; els.pb.hidden = !on;
-    if (!on) return;
+    els.deck.hidden = !on; els.rv.hidden = !on;
+    var pl = els.plate[0], ck = els.clock;
+    if (!on) { st(pl, "width", ""); st(ck, "left", ""); st(ck, "top", ""); return; }
     var d = els.deck, x0 = V[30], y0 = V[31], x1 = V[32], y1 = V[33];
     st(d, "left", pct(x0)); st(d, "top", pct(y0)); st(d, "width", pct(x1 - x0)); st(d, "height", pct(y1 - y0));
     st(root, "--deck", pct(1000 - y0));
@@ -204,7 +211,12 @@
     var ang = Math.atan2((yr - yl) / 100 * h, w), gx = left ? w * .9 : w * .1, gy = h * (yl + (yr - yl) * (left ? .9 : .1)) / 100;
     st(g, "left", gx + "px"); st(g, "top", gy + "px");
     st(g, "transform", "rotate(" + ang + "rad) translate(" + (left ? "-100%" : "0") + ", calc(-100% - 6px))");
-    seat(els.rv, V[36], V[37], V[38]); seat(els.pb, V[39], V[40], V[41]);
+    seat(els.rv, V[36], V[37], V[38]);
+    // 起筆: your plate ends where its neck runs 1.3 U under the seal (Lisp's 爆 spot), so the stroke starts at the seal's rim
+    var u = innerWidth * .0236, cx = innerWidth * V[36] / 1000, rr = innerWidth * V[38] / 1000;
+    st(pl, "width", Math.max(0, left ? innerWidth - 2.2 * u - (cx + rr - 1.3 * u) : cx - rr + 1.3 * u - 2.2 * u) + "px");
+    // the clock tab is the pause: drawn on Lisp's pause chip (chip 6, its middle; the tab 10.4 x 8.4 U)
+    st(ck, "left", (innerWidth * V[39] / 1000 - 5.2 * u) + "px"); st(ck, "top", (innerHeight * V[40] / 1000 - 4.2 * u) + "px");
     var b = V[4], pb = prev.rv | 0, rv = els.rv;
     rv.classList.toggle("ready", !!(b & 1)); rv.classList.toggle("pressed", !!(b & 4)); rv.classList.toggle("can", !!(b & 8));
     if ((b & 2) && !(pb & 2)) restart(rv, "holding"); else if (!(b & 2)) rv.classList.remove("holding");
@@ -303,9 +315,11 @@
     root.classList.toggle("left-hand", V[42] === 1 && !!(V[0] & 8));
     root.classList.toggle("nodeck", !(V[0] & 8));
     root.classList.toggle("cine", !!(V[0] & 2)); root.classList.toggle("paused", !!(V[0] & 4));
-    var t = V[1], clock = els.clock;
-    clock.hidden = t < 0;
-    if (t >= 0) { tx($(".t", clock), t < 10 ? "0" + t : String(t)); clock.classList.toggle("end", t <= 10); }
+    var t = V[1], clock = els.clock, prac = !!(V[0] & 16);
+    clock.hidden = t < 0 && !prac;                                 // PRACTICE: no timer, ∞ (the user, 2026-10-29)
+    clock.classList.toggle("inf", prac);
+    tx($(".rd", clock), prac ? "PRACTICE · 練習" : "ROUND · 決闘");
+    if (t >= 0 && !prac) { tx($(".t", clock), t < 10 ? "0" + t : String(t)); clock.classList.toggle("end", t <= 10); } else clock.classList.remove("end");
     renderDeck();                                                  // (first: the phone's plate sits on the deck's top)
     renderPlate(0); renderPlate(1);
     renderPrompt(); renderTouch(); renderPause(); renderCard();

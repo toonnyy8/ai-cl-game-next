@@ -363,3 +363,22 @@ one), so damage eats it from the far end back toward the seal and what is left a
 when low, slate at 0. The awakening ring covers 85 % of the circle with its gap facing the neck (rotated 207 deg; the left hand 27 deg).
 The seal's dark halo is gone (it separated the two); the name row keeps 9.4 U clear for the seal and its ring.
 To build: P1's phone Reishi fill anchors at the thumb's side (hud.css; the engine HUD's fallback unchanged), the neck an inline SVG.
+
+## 9. Draft v6 in the game: 起筆, the clock tab, ∞, the soul flames (the user, 2026-10-29)
+
+> 「1. 好，幫我接進遊戲 … 3. 靈魂的火焰做成動畫，然後被打掉的空缺以灰色小點表示」
+
+- **起筆** (§8.2): on the phone with the deck, your plate's row is the Reishi stroke + an inline SVG neck (2.6 x 4 U); hud.js sizes the
+  plate from Lisp's 爆 spot (30136–30138) so the neck runs 1.3 U under the seal (right hand: width = cx − r + 1.3 U − 2.2 U; left:
+  mirrored). The stroke is anchored at the seal (flipped `scaleX(-1)`; the left hand unflipped), the neck blood when low, slate at 0.
+  The seal's ring is P1's awakening (`--aw` from 30157), 85 % of the circle with its gap toward the neck (rotate 207 deg / 27 deg),
+  the 覺 tab stamped in when ready, the 0.3 s hold's inner sweep. The plate's own awakening line and READY word are hidden there.
+  Lisp unchanged for 爆 (`*rv-on-bar*` keeps it level with the bar).
+- **The clock tab = the pause**: chip 6 is `(7.4 :clock 4.6 "II")` in `*chip-spots*`: its middle 7.4 U from the window's left (either
+  hand) and `*safe-top*` + `*clock-tab-mid*` 7.4 U down, radius 4.6 U; the page draws the 10.4 x 8.4 U tab centred on it (30139 /
+  30140), the digits over `II 止 PAUSE`, a punched hole. The 止 seal is gone from the page; the pause's 止 grows out of the tab.
+  The foe's phone plate 30 → 27 U (clear of the tab).
+- **∞**: PRACTICE (30100 bit 16) shows the clock again with an ink lemniscate written in 0.9 s (desktop too: `PRACTICE · 練習`).
+- **Soul flames**: each flame flickers on its own beat (three periods 1.35 / 1.6 / 1.9 s, transform only); a spent one bursts
+  (the shatter, the flame fading after 0.15 s) and leaves a grey dot (0.38 U) where it stood.
+- Checks: touch / control host tests, pkgcheck, `--cvc` (the sim untouched), phone shots both hands (see DEVLOG §467).

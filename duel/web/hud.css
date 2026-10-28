@@ -43,18 +43,43 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .reishi .fill::after { content: ""; position: absolute; inset: 0; opacity: .35;
   background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(11,11,16,.18) 9px 10px, transparent 10px 23px); }
 #hud .plate.low .reishi .fill { background: linear-gradient(180deg, #ff6b7f, var(--blood)); animation: hd-pulse 1.1s ease-in-out infinite; }
+/* 起筆 (the user, 2026-10-29: 「起筆：血從印章流出」, DUEL_WEBUI §8.2 / §9): on the phone your stroke is drawn out of the 爆 seal. It
+   starts at the seal's rim through a neck (under the seal by 1.3 U: hud.js sizes the plate from Lisp's 爆 spot) and is anchored there,
+   so damage eats it from the far end back toward the seal. Elsewhere the row is the plain stroke. */
+#hud .rrow { display: flex; align-items: center; height: calc(1.55 * var(--u)); width: 100%; }
+#hud .rrow .reishi { flex: 1; }
+#hud .neck { display: none; }
+#hud.hphone:not(.nodeck) .plate.p1 .neck { display: block; flex: none; width: calc(2.6 * var(--u)); height: calc(4 * var(--u)); overflow: visible; }
+#hud .neck path { fill: var(--paper); transition: fill .25s; }
+#hud .plate.low .neck path { fill: var(--blood); }
+#hud .plate.dead .neck path { fill: #2c303d; }
+#hud.hphone:not(.nodeck) .plate.p1:not(.mir) .reishi { transform: scaleX(-1); }
+#hud.hphone:not(.nodeck) .plate.p1.mir .reishi { transform: none; }
+#hud.hphone:not(.nodeck) .plate.p1.mir .rrow { flex-direction: row-reverse; }
+#hud.hphone:not(.nodeck) .plate.p1.mir .neck { transform: scaleX(-1); }
+#hud.hphone:not(.nodeck) .plate.p1 :is(.aw, .awk) { display: none; }   /* the awakening is the seal's ring */
+#hud.hphone:not(.nodeck) .plate.p1 .meters { grid-template-columns: 1fr; width: 42%; }
 @keyframes hd-pulse { 50% { filter: brightness(1.35); } }
 
-/* Konpaku: nine soul flames; spent ones a hollow dashed outline, the ones a Kikon would take now outlined in blood */
+/* Konpaku: nine soul flames, each flickering on its own beat (the user, 2026-10-29: 「靈魂的火焰做成動畫，然後被打掉的空缺以灰色小點表示」);
+   a spent one bursts and leaves a small grey dot; the ones a Kikon would take now outlined in blood */
 #hud .souls { display: flex; gap: calc(.38 * var(--u)); }
 #hud :is(.p2, .mir) .souls { flex-direction: row-reverse; }
-#hud .soul { width: calc(1.05 * var(--u)); height: calc(1.45 * var(--u)); position: relative; transition: transform .3s var(--ease-snap); }
-#hud .soul svg { width: 100%; height: 100%; display: block; overflow: visible; }
+#hud .soul { width: calc(1.05 * var(--u)); height: calc(1.45 * var(--u)); position: relative; transition: transform .3s var(--ease-snap);
+  background: none; border-radius: 0; box-shadow: none; }   /* (menu.css has a global .soul: its egg would show under a spent flame) */
+#hud .soul svg { width: 100%; height: 100%; display: block; overflow: visible; transform-origin: 50% 92%; animation: hd-flame 1.6s ease-in-out infinite;
+  transition: opacity .3s .15s; }
+#hud .soul:nth-child(3n+2) svg { animation-duration: 1.9s; animation-delay: -.7s; }
+#hud .soul:nth-child(3n) svg { animation-duration: 1.35s; animation-delay: -1.1s; }
+@keyframes hd-flame { 0%, 100% { transform: none; } 30% { transform: scaleY(1.1) skewX(-5deg); } 62% { transform: scaleY(.94) skewX(4deg); } }
 #hud .soul path { fill: var(--paper); stroke: var(--ink); stroke-width: 1.2; transition: fill .25s, stroke .25s; }
 #hud .soul.stake path { fill: var(--paper); stroke: var(--blood); stroke-width: 2.4; }
 #hud .plate.low .soul.stake { animation: hd-stake 1.4s ease-in-out infinite; }   /* (blood always, as the engine's; it bobs while the Kikon is live: red) */
 @keyframes hd-stake { 50% { transform: translateY(calc(-.18 * var(--u))); } }
-#hud .soul.gone path { fill: transparent; stroke: var(--stone); stroke-dasharray: 2 2; }
+#hud .soul.gone svg { opacity: 0; visibility: hidden; animation: none; transition: opacity .3s .15s, visibility 0s .45s; }
+#hud .soul::after { content: ""; position: absolute; left: 50%; bottom: 16%; width: calc(.38 * var(--u)); height: calc(.38 * var(--u)); margin-left: calc(-.19 * var(--u));
+  border-radius: 50%; background: var(--stone); opacity: 0; transition: opacity .3s .3s; }
+#hud .soul.gone::after { opacity: .85; }
 #hud .soul.shatter { animation: hd-shatter .5s var(--ease-out) 1; }
 @keyframes hd-shatter { 0% { transform: scale(1.8) rotate(12deg); filter: drop-shadow(0 0 6px var(--blood)); } 100% { transform: none; } }
 
@@ -89,6 +114,13 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .clock.end .t { color: var(--blood); animation: hd-tick 1s steps(1) infinite; }
 @keyframes hd-tick { 50% { opacity: .55; } }
 #hud .clock .r { font: 600 calc(.62 * var(--u))/1 var(--f-mono); letter-spacing: .3em; color: var(--stone); }
+#hud .clock .rp { display: none; }
+#hud .clock .inf { display: none; width: calc(7 * var(--u)); height: calc(3.6 * var(--u)); overflow: visible; }
+#hud .clock.inf .t { display: none; } #hud .clock.inf .inf { display: block; }
+#hud .inf path { fill: none; stroke: var(--paper); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100;
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,.55)); }
+#hud .clock.inf .inf path { animation: hd-write .9s var(--ease-cut) 1 both; }
+@keyframes hd-write { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
 
 /* the combo: under the attacker's plate, a brush slash behind the count; each hit stamps it */
 #hud .combo { position: absolute; top: calc(16.4 * var(--u) + var(--st)); display: grid; gap: calc(.2 * var(--u)); opacity: 0; transform: translateX(calc(-2 * var(--u)));
@@ -146,11 +178,26 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
   background: radial-gradient(farthest-side at 35% 50%, rgba(11,11,16,.62), rgba(11,11,16,.32) 60%, rgba(11,11,16,0)); }
 #hud.hphone :is(.p2, .mir).plate::before { background: radial-gradient(farthest-side at 65% 50%, rgba(11,11,16,.62), rgba(11,11,16,.32) 60%, rgba(11,11,16,0)); }
 #hud.hphone .plate.p2 { top: calc(3.8 * var(--u) + var(--st)); right: calc(2.2 * var(--u)); }
+#hud.hphone:not(.nodeck) .plate.p2 { width: calc(27 * var(--u)); }   /* (clear of the clock tab) */
 /* your own block lower (the user, 2026-10-28: 「請將我方的 HUD 下移約 0.5 cm」, then 「再次下移約 0.5 cm」: .5cm -> 1cm; before: no --low) */
 #hud.hphone { --low: 1cm; }   /* = onehand.lisp *PLATE-LOW* (爆 sits level with this plate's bar) */
 #hud.hphone .plate.p1 { top: auto; bottom: calc(var(--deck) + 2 * var(--u) - var(--low)); left: calc(2.2 * var(--u)); }
 #hud.hphone .clock { top: calc(3.4 * var(--u) + var(--st)); left: calc(2.4 * var(--u)); transform: none; justify-items: start; }
 #hud.hphone .clock .t { font-size: calc(3.4 * var(--u)); }
+#hud.hphone .clock .inf { width: calc(6.6 * var(--u)); height: calc(3.2 * var(--u)); }
+/* the clock tab is the pause (the user, 2026-10-29: 「將暫停鍵與時間顯示結合（練習模式顯示時間為無限符號）」): a 札 at the top-left corner,
+   the digits over II 止 PAUSE, drawn on Lisp's pause chip (hud.js places it); the 止 seal over the deck is gone */
+#hud.hphone:not(.nodeck) .clock { z-index: 14; align-content: space-between; gap: calc(.8 * var(--u)); width: calc(10.4 * var(--u)); min-height: calc(8.4 * var(--u));
+  padding: calc(1.1 * var(--u)) calc(1.3 * var(--u)) calc(1 * var(--u)); background: rgba(11,11,16,.5); box-shadow: inset 0 0 0 1px rgba(238,238,234,.28);
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 86% 100%, 0 100%); transition: opacity .3s; }
+#hud.hphone:not(.nodeck) .clock::after { content: ""; position: absolute; top: calc(.75 * var(--u)); right: calc(.95 * var(--u)); width: calc(.7 * var(--u)); height: calc(.7 * var(--u));
+  border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(238,238,234,.35); }
+#hud.hphone:not(.nodeck) .clock .rd { display: none; }
+#hud.hphone:not(.nodeck) .clock .rp { display: flex; align-items: center; gap: calc(.55 * var(--u)); color: var(--steel); font: 600 calc(1 * var(--u))/1 var(--f-mono); letter-spacing: .16em; }
+#hud .clock .rp b { font: 800 calc(1.45 * var(--u))/1 var(--f-kanji); letter-spacing: 0; color: var(--paper); }
+#hud .clock .rp i { display: inline-flex; gap: calc(.24 * var(--u)); }
+#hud .clock .rp i::before, #hud .clock .rp i::after { content: ""; width: calc(.32 * var(--u)); height: calc(1.15 * var(--u)); background: var(--paper); }
+#hud.hphone.paused .clock { opacity: 0; }
 #hud.hphone .callout.p1 { top: auto; bottom: calc(var(--deck) + 15.5 * var(--u) - var(--low)); }
 #hud.hphone .combo.p1 { top: auto; bottom: calc(var(--deck) + 19 * var(--u) - var(--low)); }
 #hud.hphone .callout.p2 { top: calc(17 * var(--u) + var(--st)); }
@@ -196,13 +243,23 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .dbtn.pressed small { color: var(--ink); }
 #hud .dbtn.rv { border-color: var(--blood); }
 #hud .dbtn.rv.can { box-shadow: 0 0 calc(1.4 * var(--u)) rgba(232,30,58,.35); }
-#hud .awring { position: absolute; inset: calc(-.9 * var(--u)); width: calc(100% + 1.8 * var(--u)); height: calc(100% + 1.8 * var(--u)); transform: rotate(-90deg);
-  opacity: 0; transition: opacity .25s; }
-#hud .awring circle { fill: none; stroke: var(--reiatsu); stroke-width: 1.6; stroke-dasharray: 100; stroke-dashoffset: 0; opacity: .45; }
-#hud .dbtn.ready .awring { opacity: 1; }
-#hud .dbtn.ready { box-shadow: 0 0 calc(2.2 * var(--u)) rgba(255,216,58,.32); }
-#hud .dbtn.holding .awring circle { opacity: 1; stroke-width: 2.4; animation: hd-awfill .3s linear forwards; }
+#hud .dbtn.rv { background: var(--night, #161922); }
+#hud .dbtn.rv.pressed { background: var(--paper); }
+#hud .awring { position: absolute; inset: calc(-1.2 * var(--u)); width: calc(100% + 2.4 * var(--u)); height: calc(100% + 2.4 * var(--u)); transform: rotate(207deg); overflow: visible; }
+#hud.left-hand .awring { transform: rotate(27deg); }   /* (the gap at 9 o'clock, 3 o'clock for the left hand: where the neck enters) */
+#hud .awring circle { fill: none; }
+#hud .awring .trk { stroke: rgba(44,48,61,.9); stroke-width: 1.6; stroke-dasharray: 85 15; }
+#hud .awring .awg { stroke: var(--reiatsu); stroke-width: 1.7; stroke-dasharray: calc(var(--aw, 0) * 85) 100; transition: stroke-dasharray .4s var(--ease-out); }
+#hud .awring .hold { stroke: var(--reiatsu); stroke-width: 3; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; }
+#hud .dbtn.ready .awring .awg { stroke-width: 2.1; animation: hd-awbreath 1.6s ease-in-out infinite; }
+@keyframes hd-awbreath { 50% { filter: drop-shadow(0 0 2.5px var(--reiatsu)); } }
+#hud .dbtn.ready { box-shadow: 0 0 calc(1.6 * var(--u)) rgba(255,216,58,.2); }
+#hud .dbtn.holding .awring .hold { opacity: 1; animation: hd-awfill .3s linear forwards; }
 @keyframes hd-awfill { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+#hud .kak { position: absolute; top: calc(-2.6 * var(--u)); left: 50%; transform: translateX(-50%); font: 800 calc(1.25 * var(--u))/1 var(--f-kanji);
+  color: var(--ink); background: var(--reiatsu); padding: calc(.25 * var(--u)) calc(.35 * var(--u)); opacity: 0; }
+#hud .dbtn.ready .kak { opacity: 1; animation: hd-kak .34s var(--ease-snap) 1 both; }
+@keyframes hd-kak { 0% { opacity: 0; transform: translateX(-50%) scale(1.9) rotate(-10deg); } 100% { opacity: 1; transform: translateX(-50%) rotate(-3deg); } }
 /* touch ink (the events Lisp publishes): a ripple where the thumb landed, a brush trail on a flick, the gesture named */
 #hud .fx { position: absolute; inset: 0; z-index: 15; }
 #hud .ink { position: absolute; width: calc(16 * var(--u)); height: calc(16 * var(--u)); margin: calc(-8 * var(--u)) 0 0 calc(-8 * var(--u));
@@ -248,6 +305,8 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .strip.long .pr .en { font-size: calc(1.5 * var(--u)); }
 #hud.hphone .pause { grid-template-columns: 1fr; justify-items: start; padding-inline: calc(6 * var(--u)); align-content: center; gap: calc(2 * var(--u)); }
 #hud.hphone .pause .big { writing-mode: horizontal-tb; font-size: calc(10 * var(--u)); }
+#hud.hphone:not(.nodeck).paused .pause .big { animation: hd-fromtab .42s var(--ease-out) 1 both; transform-origin: 0 0; }   /* 止 grows out of the tab */
+@keyframes hd-fromtab { from { transform: translate(-12vw, -26vh) scale(.16); opacity: .4; } to { transform: none; opacity: 1; } }
 #hud.hphone .strip { max-width: none; width: 100%; }
 #hud.hphone .pr .en { font-size: calc(2.6 * var(--u)); }
 #hud.hphone .strip.long .pr .en { font-size: calc(2 * var(--u)); }

@@ -55,17 +55,21 @@ never offers it: the deck needs portrait)."
 ;;; CSS px): above the deck it is all SP (the line's far end extended). The page (duel/web/hud.js) draws all of it where Lisp
 ;;; publishes it (DUEL_WEBUI §7), so what is drawn is what is hit.
 (defparameter *chip-spots*
-  '((-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (6.7 :pause 3.1 "II")
+  '((-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (7.4 :clock 4.6 "II")
     (6.7 :rv 3.7 "RV"))
   "Per chip: x from the thumb-side edge, its place (y from the bottom, CSS px; :PAUSE above the player's plate, :RV in the
-deck's SP side) and radius (both in U for the placed ones), label. Before 2026-10-28: AWAKEN (270 396 26), pause (32 -200 22:
-under the portrait HUD's top block), RV (170 472 22), in CSS px.")
+deck's SP side; :CLOCK the pause on the timer's tab, x from the window's left in either hand) and radius (both in U for the placed
+ones), label. Before 2026-10-28: AWAKEN (270 396 26), pause (32 -200 22: under the portrait HUD's top block), RV (170 472 22), in CSS
+px; 2026-10-28 -> 29 the pause (6.7 :PAUSE 3.1): above your plate on the thumb's side, until the clock tab took it (DUEL_WEBUI §9).")
 (defparameter *deck-frac* 0.37 "The deck's share of the window's height, from the bottom (the battle screens' draft, DUEL_WEBUI §6).")
 (defparameter *deck-split* '(0.20 0.82)
   "The tap zones' line: its height as a fraction of the deck's at the far edge, then at the thumb's edge; SP above, the attack
 below (the user, 2026-10-28: 「SP 跟 ATK 沿著目前大約『覺』的位置往斜上方畫界分割」 (v2: 0.20 / 0.986), then 「分割起始點在往上一些」
 (v3: the near end 0.986 -> 0.82)). Before: the pad's level middle (the recogniser's TAP-SPLIT 0.5). One source: the recogniser
 hit-tests it (TOUCH-SPLIT!) and the page draws it (DUEL_WEBUI §7, set 30134 / 30135).")
+(defparameter *clock-tab-mid* 7.4
+  "The phone's clock tab's middle, U under the safe top (the tab 3.2 U down, 8.4 U tall: hud.css #hud.hphone .clock; the user,
+2026-10-29: 「將暫停鍵與時間顯示結合」, DUEL_WEBUI §8 / §9). Its pause chip (chip 6) is a circle of 4.6 U there, the page draws the tab on it.")
 (defparameter *plate-low* 37.8 "Your own phone plate's drop, CSS px: must equal duel/web/hud.css's --low (1cm; the user, 2026-10-28 / 29).")
 (defparameter *rv-on-bar* 9.12
   "爆's centre this many U over the deck's top (+ *PLATE-LOW*): level with the middle of your own plate's Reishi bar (measured in
@@ -93,6 +97,7 @@ today's phones: 50 >= 34 + 16). The chips are placed in the draft's unit (*CHIP-
               (loop for (cx cy r) in *chip-spots*
                     collect (case cy
                               (:pause (list (x (* cx u)) (px (- h dh (* (+ 17 r) u))) (px (* r u))))   ; 止: its bottom 17 U over the deck
+                              (:clock (list (px (* cx u)) (px (+ *safe-top* (* *clock-tab-mid* u))) (px (* r u))))   ; 止 on the clock tab
                               (:rv (list (x (* cx u)) (px (+ (- dt (* *rv-on-bar* u)) *plate-low*)) (px (* r u))))  ; 爆: level with your Reishi bar
                               (t (list (x cx) (px (- h cy)) (px r)))))
               (list 0 (px dt) (px w) (px h))))))
