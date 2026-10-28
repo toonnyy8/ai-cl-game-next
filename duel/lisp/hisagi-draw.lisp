@@ -355,22 +355,52 @@ A look. 0 B."
     (draw-weapon :kazeshini m :tint tint))
   nil)
 
-(defun-fast %hs-sparks (a b)
-  "Pointer 3's stance (:hs-st-raiden, DUEL_HISAGI §26): four small sparks crawling down the taut chain from B (the raised
-left rod's butt) to A, flickering on the fx clock (jade, a white crackle). A look. 0 B."
-  (declare (type f32vec a b))
+(defun-fast %hs-sparks (a b n)
+  "Pointer 3's stance (:hs-st-raiden, DUEL_HISAGI §26): N (4) small sparks crawling down the taut chain from B (the raised
+left rod's butt) to A, flickering on the fx clock (jade, a white crackle); §27.5: CHIKUDEN's / TAME's charge along the
+binding chain from his fist to the sickle on the victim (N 10: twice the size, jigged twice as far, and a jade star
+crackling round the sickle at A). A look. 0 B."
+  (declare (type f32vec a b) (fixnum n))
   (let* ((dx (- (aref a 0) (aref b 0))) (dy (- (aref a 1) (aref b 1))) (dz (- (aref a 2) (aref b 2)))
          (l (f-max 0.01f0 (f-hypot dx dy dz))) (ux (/ dx l)) (uy (/ dy l)) (uz (/ dz l))
          (nl (f-max 0.01f0 (f-hypot uy ux 0f0))) (nx (/ (- uy) nl)) (ny (/ ux nl))
-         (tm (* 1.4f0 (fx-clock))) (dr (drawing-no 24f0)))
-    (declare (single-float dx dy dz l ux uy uz nl nx ny tm dr))
-    (dotimes (i 4)
-      (let* ((s (+ tm (* 0.25f0 (i->f i)))) (u (- s (i->f (f->i s))))
-             (jig (* 0.05f0 (f-sin (+ dr (* 2.3f0 (i->f i))))))
+         (tm (* 1.4f0 (fx-clock))) (dr (drawing-no 24f0)) (du (/ 1f0 (i->f (max 1 n)))) (g (if (> n 4) 2f0 1f0)))
+    (declare (single-float dx dy dz l ux uy uz nl nx ny tm dr du g))
+    (dotimes (i n)
+      (let* ((s (+ tm (* du (i->f i)))) (u (- s (i->f (f->i s))))
+             (jig (* 0.05f0 g (f-sin (+ dr (* 2.3f0 (i->f i))))))
              (px (+ (aref b 0) (* u dx) (* jig nx))) (py (+ (aref b 1) (* u dy) (* jig ny))) (pz (+ (aref b 2) (* u dz))))
         (declare (single-float s u jig px py pz))
-        (fx-shard px py pz ux uy uz 0.16f0 0.03f0 0.1f0 (+ (i->f i) 860f0 dr) +pal-jade+ 0.95f0 :push 0.14f0)
-        (fx-shard px py pz nx ny 0f0 0.1f0 0.012f0 0.08f0 (+ (i->f i) 880f0 dr) +pal-hit+ 0.95f0 :push 0.18f0))))
+        (fx-shard px py pz ux uy uz (* 0.16f0 g) (* 0.03f0 g) 0.1f0 (+ (i->f i) 860f0 dr) +pal-jade+ 0.95f0 :push 0.14f0)
+        (fx-shard px py pz nx ny 0f0 (* 0.1f0 g) (* 0.012f0 g) 0.08f0 (+ (i->f i) 880f0 dr) +pal-hit+ 0.95f0 :push 0.18f0)))
+    (when (> n 4)
+      (fx-star (aref a 0) (aref a 1) (aref a 2) 0.08f0 0.34f0 7 dr 0f0 0f0 0.25f0 (+ 890f0 dr) +pal-jade+ 0.9f0)))
+  nil)
+
+;;; §27.5 (batch 2, presentation only): pointer 2 刈's wound chain, 放電 HODEN's burst on the victim, 餘電 ZANDEN's sparks on him
+(declaim (type f32vec *hs-wd0* *hs-wd1*))
+(defvar *hs-wd0* (make-f32 3) "%HS-WOUND / %HS-HODEN-BURST / %HS-ZAN's scratch point.")
+(defvar *hs-wd1* (make-f32 3) "Their second scratch point.")
+(defun-fast %hs-wound (jm)
+  "Pointer 2 刈 (§27.5): the chain wound twice round each wrist (the joints JM's forearms, 3.5-8 cm above the hand, 6.5 cm
+round, 12 chords a wrist, solid black links as the chain's): his stance and the 刈 strikes (lo 8192). A look. 0 B."
+  (declare (type f32vec jm))
+  (let ((p *hs-wd0*) (q *hs-wd1*))
+    (declare (type f32vec p q))
+    (dotimes (s 2)
+      (let ((j (if (= s 0) (ji :lower-arm-r) (ji :lower-arm-l))))
+        (declare (fixnum j))
+        (dotimes (i 12)
+          (let* ((a0 (* 1.0471976f0 (i->f i))) (a1 (+ a0 1.0471976f0))
+                 (y0 (- -0.19f0 (* 0.0045f0 (i->f i)))) (y1 (- y0 0.0045f0)))
+            (declare (single-float a0 a1 y0 y1))
+            (joint-point! p jm j (* 0.065f0 (f-sin a0)) y0 (* 0.065f0 (f-cos a0)))
+            (joint-point! q jm j (* 0.065f0 (f-sin a1)) y1 (* 0.065f0 (f-cos a1)))
+            (let* ((dx (- (aref q 0) (aref p 0))) (dy (- (aref q 1) (aref p 1))) (dz (- (aref q 2) (aref p 2)))
+                   (l (f-max 1f-4 (f-hypot dx dy dz))))
+              (declare (single-float dx dy dz l))
+              (%hs-black-kite (aref p 0) (aref p 1) (aref p 2) (/ dx l) (/ dy l) (/ dz l) 0.06f0
+                              (if (evenp i) 0.022f0 0.01f0))))))))
   nil)
 
 (defun-fast %hs-draw (jm pos fa anchor vpos a b n d tint lightning lo)
@@ -382,7 +412,9 @@ its butt to the right fist), 2 the left one (*HS-ML*, *HS-LO* [8-14]), 4 the cha
 to the out sickle (the thrower's hand), 64 the flat spinning disc (a flight), 8 the garrote (the slack through the victim's neck), 16 the
 pull's tail (the sim hand to the left fist), 32 SHIBARI's wrap round the victim, 128 MAKI's curl (the flight bowed 1.1 m
 out to his left midway: the left-to-right wrap); the core system's pointer stances (§26): 2048 the bind's hawser
-(%HS-HAWSER), 4096 the lightning's taut chain and its sparks (%HS-SPARKS)."
+(%HS-HAWSER), 4096 the lightning's taut chain and its sparks (%HS-SPARKS); §27.5: 8192 pointer 2 刈's chain wound round
+both wrists (%HS-WOUND; in the stance a short taut span between the fists), 16384 CHIKUDEN's / TAME's charge running
+along the chain to the sickle on the victim (%HS-SPARKS, ten)."
   (declare (type f32vec jm pos fa anchor vpos) (fixnum a b n d lightning lo))
   (let ((v *hs-v*) (w *hs-w*) (q *hs-q*) (m *hs-m*) (m2 *hs-m2*) (l *hs-lo*))
     (declare (type f32vec v w q m m2 l))
@@ -411,8 +443,10 @@ out to his left midway: the left-to-right wrap); the core system's pointer stanc
                  (setf (aref q 0) (aref vpos 0) (aref q 1) (+ (aref vpos 1) 1.45f0) (aref q 2) (aref vpos 2))
                  (vfx-hs-chain w q 0.02f0 0.9f0) (vfx-hs-chain q v 0.02f0 0.9f0))
                 ((logtest lo 3) (vfx-hs-chain w v -0.5f0 0.9f0))
-                ((logtest lo 4096) (vfx-hs-chain w v 0.03f0 0.9f0) (%hs-sparks w v))   ; (§26: taut, sparking)
-                (t (vfx-hs-chain w v -1.2f0 0.9f0)))))
+                ((logtest lo 4096) (vfx-hs-chain w v 0.03f0 0.9f0) (%hs-sparks w v 4))   ; (§26: taut, sparking)
+                ((logtest lo 8192) (vfx-hs-chain w v 0.05f0 0.9f0))        ; (§27.5: 刈's short span, fist to fist)
+                (t (vfx-hs-chain w v -1.2f0 0.9f0)))
+          (when (logtest lo 8192) (%hs-wound jm))))
         (let* ((u (f-clamp (/ (i->f n) (i->f (max 1 d))) 0f0 1f0)) (ov (logand 7 (ash lo -8)))   ; (A1: a path's spin)
                (spin (cond ((> ov 0) ov) ((and (logtest lo 64) (/= a 2) (/= b 2) (/= b 4)) 2) ((= a b) 0) (t 1))))
           (declare (single-float u) (fixnum ov spin))
@@ -449,7 +483,8 @@ out to his left midway: the left-to-right wrap); the core system's pointer stanc
               (progn (joint-point! q jm (ji :weapon-l) 0f0 0f0 0f0)
                      (vfx-hs-chain w q -0.4f0 0.9f0)
                      (cond ((> ov 0) (%hs-chain2 q v))                ; (A1's paths: taut)
-                           ((= a b) (vfx-hs-chain q v 0.12f0 0.9f0)) (t (vfx-hs-chain q v 0.04f0 0.9f0))))
+                           ((= a b) (vfx-hs-chain q v 0.12f0 0.9f0)) (t (vfx-hs-chain q v 0.04f0 0.9f0)))
+                     (when (logtest lo 16384) (%hs-sparks v q 10)))     ; (§27.5: the charge, fist -> victim)
               (if (= a b) (vfx-hs-chain w v 0.12f0 0.9f0) (vfx-hs-chain w v 0.04f0 0.9f0)))
           (when (= b 4)                                               ; the pull: the chain taut along the sim's segment
             (setf (aref v 0) (aref anchor 0) (aref v 1) (the single-float *hs-anchor-up*) (aref v 2) (aref anchor 1))
@@ -516,6 +551,79 @@ the flags (a fixnum): 1 the right let-out is out, 2 the opponent 0.5-5.5 m ahead
     (logior (if (> (aref *hs-lo* 0) 0f0) 1 0) (if (< 0.5f0 (aref g 1) 5.5f0) 2 0) (if (< (aref g 0) 1.8f0) 4 0)
             (if (< (aref *hs-fr* 0) 24f0) 8 0) (if (< (aref g 0) 2.1f0) 16 0))))
 (defun-fast %hs-left-out-p () "The left let-out is out (*HS-LO* [8] > 0): 1 / 0. 0 B." (if (> (aref *hs-lo* 8) 0f0) 1 0))
+
+(defun-fast %hs-hoden-len! (fa)
+  "放電 HODEN (§27.5): TSUZURI RAIDEN's bolt down his line (FA[2]) only as far as the victim (*HS-G* [0], 1.0-6.5 m): he
+bursts in place, the bolt does not run past him. 0 B."
+  (declare (type f32vec fa))
+  (setf (aref fa 2) (f-clamp (aref *hs-g* 0) 1f0 6.5f0))
+  nil)
+
+(defun-fast %hs-hoden-burst (vjm age)
+  "放電 HODEN's burst on the victim (§27.5, the user: 「使敵人原地炸開高額電擊傷害，且距離越近傷害越高」): AGE frames after its hit
+(18 in all: a white flash 2, the grow 4, the hold 4, the erode 8; FX-ENVELOPE), at his chest (the joints VJM): a jade star,
+eight jagged bolts out of him (three kinks each, a white core), ink flecks at their ends, a jade ring on the ground and a
+jade light; sized by the distance factor (*HS-G* [0]: x0.8 at 6.5 m .. x1.4 at <= 1.6 m, as HS-HODEN-X's x1.0 .. x2.0;
+the 餘電 part is used up by the hit, not drawn). Shapes hashed on the fx clock's drawings (no RNG). A look. 0 B."
+  (declare (type f32vec vjm) (fixnum age))
+  (let* ((p *hs-wd0*) (d (aref *hs-g* 0))
+         (cc (the single-float *hs-core-chain*)) (nr (the single-float *hs-hoden-near*))
+         (x (f-clamp (/ (- cc d) (- cc nr)) 0f0 1f0))
+         (sc (+ 0.8f0 (* 0.6f0 x))) (dr (drawing-no 24f0)))
+    (declare (type f32vec p) (single-float d cc nr x sc dr))
+    (joint-point! p vjm (ji :chest) 0f0 0f0 0f0)
+    (fx-envelope (s k fl ph) ((/ (i->f age) 60f0) 2 4 4 8)
+      (when (< ph 5)
+        (let* ((x0 (aref p 0)) (y0 (aref p 1)) (z0 (aref p 2)) (r (* s sc)))
+          (declare (single-float x0 y0 z0 r))
+          (when (> fl 0.5f0) (fx-disc x0 y0 z0 (* 0.5f0 r) 0.1f0 (+ 990f0 dr) +pal-hit+ 0.98f0))
+          (fx-star x0 y0 z0 (* 0.2f0 r) (* 0.8f0 r) 9 dr 0f0 0f0 0.2f0 (+ 950f0 dr) +pal-jade+ k)
+          (dotimes (i 8)
+            (let* ((fi (i->f i)) (a (* 6.2831855f0 (+ (* 0.125f0 fi) (* 0.08f0 (hash01 fi dr)))))
+                   (e (* 1.1f0 (- (hash01 (+ fi 3f0) dr) 0.5f0)))
+                   (ux (* (f-cos e) (f-cos a))) (uy (f-sin e)) (uz (* (f-cos e) (f-sin a)))
+                   (hl (f-max 0.01f0 (f-hypot ux uz))) (nx (/ (- uz) hl)) (nz (/ ux hl))
+                   (px x0) (py y0) (pz z0))
+              (declare (single-float fi a e ux uy uz hl nx nz px py pz))
+              (dotimes (j 3)
+                (let* ((rj (* r (+ 0.4f0 (* 0.36f0 (i->f j)))))
+                       (sj (* r 0.09f0 (if (evenp j) 1f0 -1f0) (+ 0.5f0 (hash01 (+ fi (* 7f0 (i->f j))) dr))))
+                       (qx (+ x0 (* rj ux) (* sj nx))) (qy (+ y0 (* rj uy))) (qz (+ z0 (* rj uz) (* sj nz)))
+                       (ex (- qx px)) (ey (- qy py)) (ez (- qz pz)) (el (f-max 0.01f0 (f-hypot ex ey ez)))
+                       (mx (* 0.5f0 (+ px qx))) (my (* 0.5f0 (+ py qy))) (mz (* 0.5f0 (+ pz qz))) (sd (+ 960f0 (* 3f0 fi) (i->f j) dr)))
+                  (declare (single-float rj sj qx qy qz ex ey ez el mx my mz sd))
+                  (fx-shard mx my mz (/ ex el) (/ ey el) (/ ez el) (* 1.15f0 el) 0.045f0 0.1f0 sd +pal-jade+ k :push 0.14f0)
+                  (fx-shard mx my mz (/ ex el) (/ ey el) (/ ez el) el 0.014f0 0.06f0 (+ sd 40f0) +pal-hit+ k :push 0.18f0)
+                  (setf px qx py qy pz qz)))
+              (fx-shard px py pz ux uy uz (* 0.18f0 r) 0.03f0 0.2f0 (+ 1000f0 fi dr) +pal-ink+ k :push 0.12f0)))
+          (joint-point! p vjm (ji :pelvis) 0f0 0f0 0f0)
+          (%tring (aref p 0) 0f0 (aref p 2) (* 1.3f0 r) (* 0.05f0 sc) +pal-jade+ k (+ 970f0 dr))
+          (%light x0 y0 z0 0.62f0 1f0 0.86f0 (* 4f0 sc) (* 3f0 k) 8)))))
+  nil)
+
+(defun-fast %hs-zan (vjm zan)
+  "餘電 ZANDEN (§27.5, 「下一串連擊附帶電擊傷害」): ZAN frames of the residual charge left on the victim (HSS-ZAN, 480 at most):
+seven crawling sparks on his body (the joints VJM: the chest, the upper and lower arms, the thighs), hopping to other
+joints twelve times a second, some drawings dropped (the crackle), fading out over the last 60 frames. A look. 0 B."
+  (declare (type f32vec vjm) (fixnum zan))
+  (let* ((p *hs-wd0*) (k (* 0.95f0 (f-min 1f0 (/ (i->f zan) 60f0)))) (dr (drawing-no 12f0)) (dn (f->i dr)))
+    (declare (type f32vec p) (single-float k dr) (fixnum dn))
+    (dotimes (i 7)
+      (let* ((fi (i->f i)) (h0 (hash01 fi dr)) (h1 (hash01 (+ fi 5f0) dr)) (h2 (hash01 (+ fi 9f0) dr))
+             (j (case (mod (+ (* 3 i) dn) 7)
+                  (0 (ji :chest)) (1 (ji :upper-arm-r)) (2 (ji :upper-arm-l)) (3 (ji :lower-arm-r)) (4 (ji :lower-arm-l))
+                  (5 (ji :thigh-r)) (t (ji :thigh-l)))))
+        (declare (single-float fi h0 h1 h2) (fixnum j))
+        (when (> h2 0.2f0)
+          (joint-point! p vjm j (* 0.16f0 (- h0 0.5f0)) (* -0.2f0 h1) (* 0.16f0 (- h1 0.5f0)))
+          (let* ((a (* 6.2831855f0 h0)) (vx (* 0.8f0 (f-cos a))) (vy (* 0.6f0 (- (* 2f0 h2) 1f0))) (vz (* 0.8f0 (f-sin a)))
+                 (ul (f-max 0.01f0 (f-hypot vx vy vz))) (ux (/ vx ul)) (uy (/ vy ul)) (uz (/ vz ul)))
+            (declare (single-float a vx vy vz ul ux uy uz))
+            (fx-shard (aref p 0) (aref p 1) (aref p 2) ux uy uz 0.27f0 0.045f0 0.12f0 (+ 1100f0 fi dr) +pal-jade+ k :push 0.22f0)
+            (fx-shard (+ (aref p 0) (* 0.11f0 uz)) (+ (aref p 1) 0.07f0) (- (aref p 2) (* 0.11f0 ux)) (- uz) 0.3f0 ux 0.2f0
+                      0.035f0 0.12f0 (+ 1110f0 fi dr) +pal-jade+ k :push 0.22f0)
+            (fx-shard (aref p 0) (aref p 1) (aref p 2) ux uy uz 0.22f0 0.014f0 0.06f0 (+ 1120f0 fi dr) +pal-hit+ k :push 0.26f0))))))
+  nil)
 
 ;;; ---------------------------------------------------------------- the Bankai 風死絞縄's look (DUEL_HISAGI §21.6)
 ;; Presentation only (motion-refs §4.3; `BBSHisagi_s_Bankai`, `Hisagi_s_Bankai_CFYOW`): both modes wear the Shikai's body
@@ -1192,7 +1300,8 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
             (setf (aref *hs-lo* 8) 0f0)))
       (let ((bl (and mv (assoc cn *hs-bolts*))))                        ; TSUZURI RAIDEN's bolt, every form's
         (setf (aref fa 2) (if bl (second bl) 6.5)
-              bolt (if (and bl (< (- (mv-s mv) 3) sf (+ (mv-s mv) (mv-a mv) 5))) 1 0)))
+              bolt (if (and bl (< (- (mv-s mv) 3) sf (+ (mv-s mv) (mv-a mv) 5))) 1 0))
+        (when (and bl (eq (mv-name mv) :hs-sa-hoden)) (%hs-hoden-len! fa)))   ; (§27.5: 放電's bolt stops at him)
       (multiple-value-bind (a b n d)
           (cond ((= ck 1) (values 0 0 0 1))                            ; (the awakening: the sickle in his fist)
                 ((= ck 2)                                              ; (the Shikai Kikon's throw, return, KUBIKAKE)
@@ -1220,6 +1329,8 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                    (if g
                        (destructuring-bind (f0 f1 a b sp) g
                          (setf lo (logior lo 4 (* 256 sp)))
+                         (when (and (member (mv-name mv) '(:hs-n3b :hs-as3b)) (>= sf 16))   ; (§27.5: CHIKUDEN's / TAME's
+                           (setf lo (logior lo 16384)))                                     ;  charge down the chain)
                          (values (if (and (= a 10) (eq name :hs-k2j)) 0 a) b (- sf f0) (- f1 f0)))   ; (K2J: off J1, from the fist)
                        (values 0 0 0 1))))
                 ((and mv (assoc name *hs-flights*))
@@ -1239,11 +1350,16 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                              (and (= ck 4) (eq cn :hs-kb-koshu) (logtest geo 16) (= 1 (%hs-fr-from 8))))   ; (KOSHU's)
                      (setf lo (logior lo 8)))                          ; (KUBIKAKE's, KOSHU's garrote: through his neck)
                    (when shikai                                        ; (§26: the pointer stances' chain)
-                     (case cn (:hs-st-bind (setf lo (logior lo 2048))) (:hs-st-raiden (setf lo (logior lo 4096)))))
+                     (case cn (:hs-st-bind (setf lo (logior lo 2048))) (:hs-st-raiden (setf lo (logior lo 4096)))
+                       ((:hs-st-kari :hs-kr-tan :hs-kr-ren :hs-kr-sen :hs-kr-ko :hs-kr-age) (setf lo (logior lo 8192)))))   ; (§27.5)
                    (values 0 0 0 1)))
         (setf *hs-chain-black* 1 *hs-chain-ink* (if (eq e *p1*) 0 1))  ; (black, both forms; P2 the original ink: the user, 2026-10-18)
         (when (< ck 5)                                                 ; (首掛 / 綴雷電: their scripts draw them, §26.6)
-          (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo)))
+          (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
+        (when (and shikai mv (eq (mv-name mv) :hs-sa-hoden) (eq (fighter-contact f) :hit)   ; (§27.5: 放電's burst on him)
+                   (<= (mv-s mv) sf) (< sf (+ (mv-s mv) 18)))
+          (%hs-hoden-burst (model-joints (model o)) (- sf (mv-s mv))))
+        (when (plusp (hss-zan st)) (%hs-zan (model-joints (model o)) (hss-zan st))))   ; (§27.5: 餘電 on him)
       (unless (or shikai (logtest cfl 2))                              ; the Bankai: the orb, its chains, the noose (§21.6)
         (setf (aref *hs-tipv* 0) 0f0 (aref *hs-tipv* 1) 0f0)            ; (and the chain strikes, §21.8)
         (setf (aref *hs-tg* 0)                                          ; §25.26: the chain-tip glint, free in the ranged mode

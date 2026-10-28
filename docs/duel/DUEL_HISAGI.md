@@ -3866,3 +3866,54 @@ charge, the detonation's look); 3 the 刈 cinematic.
   20 (1 time-out), **202.9 s at 60 with 1 time-out** (27:33). G2 (II IK KK) identical. The time-outs and the HI win rate are reported to
   the user, not retuned (AGENTS.md); the CPU (`core-ai.lisp`) plays 縛雷's two segments with its generic rolls (the SA in a gap by
   chance), so its share of the shift is unmeasured.
+
+### 27.5 As built (batch 2, the looks, presentation only, 2026-10-28)
+
+- Pointer 2 刈's stance `:hs-st-kari` (hisagi-art.lisp, the kit's second `:stances` entry; the hawser `:hs-st-bind` is dormant, its
+  strip 83536 kept): a reaper's crouch, square and low, the head down, both fists before the hips with the elbows out, each sickle
+  reverse-gripped (the rod back along the forearm, the blades trailing past the hips); HISAGI-DRAW's lo 8192 winds the chain twice
+  round each wrist (`%HS-WOUND`, 12 black links a wrist) and draws a short taut span between the fists. From the behind camera the
+  two blades fan out on both sides of the hips (pointer 1: one rod low-forward; pointer 3: the left fist high): read apart at
+  83000 + 2510 / 2511 / 2512.
+- The five 刈 clips, each authored at its move's S / A / R and wired by `:clip` + `:clip-s` = S (speed 1); every sim number as it was.
+  The hits past J's 1.7 m come from `*HS-LETOUT*` rows (the sickles let out on their chains), their reach in `*HS-STRIKE-REACH*`
+  (no `*HS-GRIP*` entry: the reverse grip is not J's short grip, and the let-outs carry the drawn point):
+
+  | Clip | Move | S/A/R | The motion | Let-out on the hit frames |
+  |---|---|---|---|---|
+  | `:hs-kr-tan` | NS2a 短刈 TAN-GARI | 16/3/13 | the arms crossed high before his face (an X of rods), held f5-13; a step, the cross cut | both, 2.5 m, 1.15 m up, swept across each other (R -50 > +10 > +30 deg, L mirrored), out f13-16-19-26 |
+  | `:hs-kr-ren` | NS2b 連刈 REN-GARI | 12/3/12 | the left sickle whirled over first (the tell, 1.2 m, no hit), then the right one over and down onto him | the right, 1.7 m, out f9-12-15-21 |
+  | `:hs-kr-sen` | NS2c 旋刈 SEN-GARI | 16/3/18 | wound hard right, held f4-12; a whole-body turn to his left (yaw -60 > 380, a key every ~90 deg), the arms flung level | both, 3.0 m on the fists' bearings (they follow the spin), out f12-16-21-30 |
+  | `:hs-kr-ko` | AS2 交刈 KO-GARI | 8/3/13 | from pointer 1's stance: the arms flung wide and low behind, then scissored in front, a lunge | both, 2.4 m, 0.6 m up, the closing X (R -60 > -15 > +20, L mirrored), out f5-8-11-17 |
+  | `:hs-kr-age` | AS2b 刈上 KARI-AGE | 9/3/18 | a squat, the blades along the floor (held f4-7); the rising reap onto his toes, the arms heaved overhead | both, 2.4 m, 1.5 m up (hooked in at his chest; on the arms' line they flew 3.5 m up into the HUD in the match), reeled back to the raised fists, out f6-9-11-22 |
+
+  The host FK check: the five moves joined the let-out loop in `tests/duel-rules/hisagi.lisp` (each hit window's frames covered by a
+  let-out out at the volume's edge within 0.15 m, the table's reach equal; proved by setting TAN-GARI's r to 2.0: 1 FAILED); the five
+  clips in `tests/duel-rules/core.lisp`'s clip list. In the browser 83902's `tip base` lines: TAN-GARI 2.50 2.50 2.50 | edge 2.50,
+  REN-GARI 1.70 | 1.70, SEN-GARI 3.00 | 3.00, KO-GARI 2.40 | 2.40, KARI-AGE 2.40 | 2.40.
+- 縛雷's looks (hisagi-draw.lisp, keyed on the move's own name, not the look it borrows):
+  - CHIKUDEN (and AS3's TAME, the same charge): from f16 of NOKO's path (the sickle flung to the victim) lo 16384 runs ten jade
+    sparks with a white crackle along the chain from his left fist to the sickle on the victim (`%HS-SPARKS` with N 10: twice the
+    stance's size) and a jade star crackling round the sickle.
+  - 放電 HODEN: RAIDEN's bolt down his line stops at the victim (`%HS-HODEN-LEN!`: FA[2] := his distance, 1.0-6.5 m); on a hit
+    (contact `:hit`, S to S+18) `%HS-HODEN-BURST` at his chest: an FX-ENVELOPE (flash 2, grow 4, hold 4, erode 8) of a white flash
+    disc, a jade star, eight jagged bolts out of him (three kinks each, a white core), ink flecks at their ends, a jade ring on the
+    ground and a jade light; sized x0.8 at 6.5 m .. x1.4 at <= 1.6 m (HS-HODEN-X's distance factor; 餘電's x1.6 is used up by the hit,
+    so it is not drawn).
+  - 餘電 ZANDEN: while `(hss-zan (hs e))` > 0, `%HS-ZAN` draws seven crawling jade sparks on the opponent's joints (chest, arms,
+    thighs) from Hisagi's `:draw` hook, hopping twelve times a second, some drawings dropped (the crackle), presence x(zan / 60)
+    over the last 60 frames.
+  - All shapes hashed on the fx clock's drawings (`hash01`, `drawing-no`): no RNG at all, so stills are byte-stable.
+- Debug (DUEL_GAMEPLAY "Debug commands"): strips 83538-83545 (38 the stance, 39-43 the five clips, 44 CHIKUDEN, 45 放電 on a hit;
+  the 2.4-6 m ones in the strip shot's far list); 83903 / 83904 the 餘電 scene (2.5 m from an idle Kenpachi, 480 / 50 frames);
+  83901 also measures 刈's stance, the five hit frames, CHIKUDEN, HODEN's burst, 餘電 at 400 and at 30.
+- Checks: host 10775 ALL PASS, cine-test 18 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0 errors. 83901: every new entry 0 B over 10
+  calls (刈's stance, the five hit frames, CHIKUDEN, HODEN's burst, 餘電 at 400 / 30); the Bankai route links' non-zero entries are the
+  same at 1b4df0b (untouched paths). In the match (83000 / 83001, 2511 / 2512, Shift+J): NS2 45 / 50 / 85 on their own clips; NS3 at
+  2 m 40, 25, 放電 x1.92 (the burst at full size), at 6 m CHIKUDEN along the chain, 放電 x1.10 (the burst x0.85); J x4 SP SP: KO-GARI
+  45, KARI-AGE 60 (the launch); J x5 SP x3: MATOI 45, TAME 35 (its sparks), TSUZURI RAIDEN 110 (餘電 on him); 83903 / 83904 the
+  sparks on Kenpachi and their fade; checked at 1280x720 and on the phone (390x844), no caption off the screen. (KARI-AGE's let-outs
+  first rode the arms' line: in the match they flew 3.5 m up behind the timer, so h 1.5.) The browser's stats line through those
+  routes: cons/frame 2.6-3.2 KB, the same order as both fighters idle (2.56 KB: the rest of the game's frame), heap 87.7 MB flat. The sim did not move
+  (`--pairs 29,31,35 --seeds 10`): HK 176.6 s (3:7), HI 213.2 s (2:8, KOs 9), HH 230.6 s (6:4), as batch 1; G2 (II IK KK) 3 PASS.
+  Checked by numbers and stills, needs the user's eyes (the playtest).
