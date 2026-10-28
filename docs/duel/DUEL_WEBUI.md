@@ -157,3 +157,10 @@ engine HUD switched off locally), the menus' tokens and faces:
 - **Pause**: the scene greys, a vertical 止 with a blood splash, one torn paper strip of numbered rows (EN + zh), the camera value.
 - **Intro / finish**: letterbox, the name brushed down a vertical column with its romaji and cry, HISAGI vs KENPACHI, then READY > 斬;
   決着 brushed with a blood splat, K.O., the winner with Konpaku / best combo / Kikons on an ink scrim.
+
+Draft v2 (the user, 2026-10-28: 「我希望手的的停止鍵做更上面，然後 SP 跟 ATK 沿著目前大約『覺』的位置往斜上方畫界分割」):
+- The pause seal 止 leaves the deck: on the thumb's side, above the player's own plate (37 % + 17 u up).
+- SP / ATK split by one ink diagonal from the 覺 seal up to the far edge (the deck's height 20 % at the far edge, 98.6 % at the near
+  one): SP the upper side along the dial (爆 in it, 覺 on the line's foot), ATK the lower side under the thumb; the gesture hint runs
+  along the line; the hit test is the same line (`y / h < .20 + .786 x / w`, mirrored for the left hand).
+- Left hand: the player's plate, move name and combo move to the right (mirrored like P2's), the pause seal to the left.
