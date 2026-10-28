@@ -116,3 +116,8 @@ Engine side, as built (2026-10-28):
   mode, settings, controls, SELECT's three phases with the fighter in its card, results after a seeded CPU match). Sim gates (six
   pairings, 10 seeds) identical to the run before (KK 167.2, IK 192.6, II 231.6, HK 146.3, HI 204.1, HH 172.4 s); G2's three matches
   identical natively and in the browser (the page path).
+- **A phone's SELECT, the fighter over the cards** (2026-10-28, the user: 「手持模式的選角畫面中，讓目前聚焦的人物可以放大到超出自身卡片，並且能蓋過其他
+  卡片的文字」): the portrait camera's distance 7.2 -> 4.2 m (`:select-web`), so the focused fighter stands taller than his card; on a
+  phone (max-width 760 px) the other cards' text (name, kanji line, the pick seal) is drawn by the `#ui-back` copy under the canvas
+  instead of `#ui`, so he covers it; the focused card's own text stays over him. Shot at 390x844: Ichigo's blade reaches into
+  Kenpachi's card.

@@ -378,3 +378,9 @@
 #ui:not(.ready) .press, #ui:not(.ready) .r-menu { opacity: 0; pointer-events: none; }
 #ui .set.back .lab, #ui .bind.extra .a { color: var(--stone); }
 #ui .capturing .key { border-color: var(--blood); color: var(--blood); animation: pulse 1s ease-in-out infinite; }
+/* a phone's SELECT: the focused fighter is drawn larger than his card (camera.lisp's :select-web), over the other cards' text, so
+   their text moves under the canvas (the user, 2026-10-28: 「讓目前聚焦的人物可以放大到超出自身卡片，並且能蓋過其他卡片的文字」) */
+@media (max-width: 760px) {
+  #ui .fighter:not(.focus) .body, #ui .fighter:not(.focus) .pick { visibility: hidden; }
+  #ui-back .fighter:not(.focus) .body, #ui-back .fighter:not(.focus) .pick { visibility: visible; }
+}
