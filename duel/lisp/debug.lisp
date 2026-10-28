@@ -27,6 +27,17 @@ FORM sees the iteration index as I."
 
 (defvar *probe* nil "A running frame probe: (kind name t0 attacker-free defender-free blocked).")
 
+(defun webhud-consing ()
+  "Debug 2515: the battle screens' per-frame Lisp path (webhud.lisp) in the running battle, 100 calls each once the values are
+sent (so nothing changes: the steady state of a frame): a `webhud consing` line, B (DUEL_WEBUI §7; 0 B wanted)."
+  (when (and *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*))
+    (let ((*webhud* t))                                    ; (the native gate, a page without hud.js: measured all the same)
+      (webhud-sync)
+      (log-msg "webhud consing (100 calls, B): ~a, ~a, ~a, ~a, ~a"
+               (cons-per "sync" (webhud-sync) 100) (cons-per "side" (webhud-side *p1* 50) 100)
+               (cons-per "prompt" (webhud-prompt *p1*) 100) (cons-per "deck" (webhud-deck) 100)
+               (cons-per "tag" (webhud-tag *p1* (fighter-kit (fighter *p1*))) 100)))))
+
 (defun set-probe (kind name &optional a b c)
   "Start a frame probe now: *PROBE* = (KIND NAME this tick A B C)."
   (setf *probe* (list kind name *match-tick* a b c)))
@@ -643,6 +654,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 2510 c 2512) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 (the stance shots)
         ((= c 2513) (slowmo *core-clash-slowmo-scale* 3.0))                 ; 3 s of the cancel's slow motion (the smooth-draw check)
         ((= c 2514) (setf *scene-transparent* (not *scene-transparent*)))    ; the transparent scene (DUEL_WEBUI §4)
+        ((= c 2515) (webhud-consing))                                         ; the battle screens' sync (DUEL_WEBUI §7)
         ((<= 2520 c 2599) (setf (camera-shift-x *camera*) (/ (- c 2550) 100f0)))   ; the lens shift across = (k - 30) / 100
         ((<= 2500 c 2503)
          (setf *picks* (nth (- c 2500) '((:ichigo :kenpachi) (:kenpachi :ichigo) (:ichigo :ichigo) (:kenpachi :kenpachi)))

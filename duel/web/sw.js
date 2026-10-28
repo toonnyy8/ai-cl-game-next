@@ -8,7 +8,7 @@ var VERSION = 'soulduel-@VERSION@';
 // builds, so the installed app keeps its faces offline after one online start (the user, 2026-10-28: 「讓 service worker 也把字型存起來」).
 var FONTS = 'soulduel-fonts';
 function fontHost(u) { return u.hostname === 'fonts.googleapis.com' || u.hostname === 'fonts.gstatic.com'; }
-var FILES = ['./', 'index.html', 'index.js', 'index.wasm', 'alpha.js', 'pwa.js', 'menu.js', 'menu.css', 'manifest.webmanifest', 'manual.html',
+var FILES = ['./', 'index.html', 'index.js', 'index.wasm', 'alpha.js', 'pwa.js', 'menu.js', 'menu.css', 'hud.js', 'hud.css', 'manifest.webmanifest', 'manual.html',
              'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION)

@@ -172,3 +172,63 @@ Draft v2 (the user, 2026-10-28: 「我希望手的的停止鍵做更上面，然
   manual's two rows become one.
 
 Approved (the user, 2026-10-28: 「善哉！！幫我把整套接進遊戲中」): draft v4 goes into the game, all four parts (§7, as built).
+
+## 7. The battle screens as built (2026-10-28)
+
+The user, 2026-10-28: 「善哉！！幫我把整套接進遊戲中」 (draft v4 of §6, all four parts). Same architecture as the menus (§2): Lisp
+decides and publishes, the page draws; every key, pad and touch press is Lisp's (the HUD layer is `pointer-events: none`, so the
+touches reach the SDL canvas and the recogniser); only the pause rows take a pointer, queued back as commands.
+
+### 7.1 Files
+
+- `duel/lisp/webhud.lisp` (new, after webui.lisp): `webhud-p` (get 30100, asked once), `webhud-sync` (every frame of a battle,
+  set-on-change: `webhud-put` compares a fixnum array, `webhud-put-str` compares by EQ then STRING=), `webhud-commands` (the
+  pause rows' queue, get 30101), `webhud-side` (a DEFUN-FAST per plate), `webhud-prompt`, `webhud-deck`, `webhud-pause`.
+- `duel/web/hud.js`, `hud.css` (new; head.html loads them after the menus; sw.js caches them): built on load, drawn in a rAF only
+  when a value changed or a timed fade ends; the menus' tokens and faces (menu.css `:root`); its classes avoid the menus' global
+  ones (`.hphone` `.hkey` `.crow` `.htag` `.hptr`).
+- Engine: `page-set-str` (platform.lisp, exported) → `pf_page_set_str` (platform.c, an EM_JS: `gamePage.setStr(k, UTF8ToString(s))`;
+  engine.h; the native sim's stub in tools/simgate/stubs.c): ASCII only (other characters go as `?`), a preallocated 256-byte
+  buffer, 0 B. Every kanji (names, theme glyphs, the callouts', the tags', 決着 / 時間切れ) is the page's own table.
+- `pwa.js` routes get / set / setStr 30100–30299 to `globalThis.gameHUD`.
+
+### 7.2 The protocol (gamePage get / set / setStr, the block 30100+)
+
+Set (Lisp → page), only when the value changed:
+
+| Key | Value |
+|---|---|
+| 30100 | layer bits: 1 a battle (intro / fight / finish), 2 a cinematic (the plates hidden), 4 paused, 8 the phone's deck (ONE-HAND in portrait, in the fight), 16 PRACTICE (no timer), 32 the cinematic's 2D layer is the page's (the intro, the K.O., TIME), 64 ONE-HAND turned to landscape (the pause says rotate) |
+| 30101 | the timer, seconds (−1 none: PRACTICE) |
+| 30102 / 30103 | the prompt (the first human side's): 0 none, 1 the Kikon's hold (arg: its confirm frames left, of `*core-kikon-confirm*` 12), 2 SP → AS n off a landed attack (arg n), 3 a Burst (1 BLUE, 2 ORANGE), 4 the awakening (or the Bankai) ready |
+| 30104 | 爆's bits: 1 the awakening's hold is armed (ready), 2 the hold under way, 4 pressed, 8 a burst possible |
+| 30105–30110 | the last recognised gesture: a serial, its kind (1 tap ATK, 3 tap SP, 2 flick (Step), 6 up-flick (dash), 4 Hoho, 7 a down-flick Burst; the rest is no event), x, y (‰ of the window), the stroke dx, dy (‰) |
+| 30111–30113 | the Kikon hold ring: 1 while a thumb held in the SP zone keeps an NS / AS going, its x, y (‰) |
+| 30114 | the intro's phase: 1 P1's name (frames 0–119), 2 P2's (120–224), 3 READY (225–249), 4 斬 (250: the FIGHT! beat), 0 none |
+| 30115 / 30116 | the finish: 1 K.O., 2 TIME with a winner, 3 TIME, a draw; the winner 0 / 1 / 2 draw (`*winner*`, else the K.O.'s first actor) |
+| 30117 / 30118 / 30119 | the pause: the cursor (`*menu*`), the rows' count, a serial (the rows re-sent: on opening, after `pause-do`) |
+| 30130–30133 | the deck (`*deck-rect*`: the window's lower `*deck-frac*` 37 %): x0 y0 x1 y1, ‰ |
+| 30134 / 30135 | the tap zones' line (`*deck-split*`): its height in ‰ of the deck's at the far edge (200) and at the thumb's (820) |
+| 30136–30138 / 30139–30141 | 爆 (chip 7) and 止 (chip 6): centre x, y (‰ of the window), radius (‰ of the width): the recogniser's hit circles (+ its 8 px slop) |
+| 30142 | the left hand 1 |
+| 30150 + 30 s + k | side s (0 P1, 1 P2): k 0 roster index + 1, 1 Reishi ‰, 2 red (the Kikon's must-hit line), 3 Konpaku left, 4 the souls at stake (`at-stake`), 6 flash step ‰, 7 the awakening ‰, 8 its state (0 filling, 1 ready, 2 awakened / an awakened form), 9 the SP pointer (0: no core kit), 10–13 the combo this side deals (the victim's hits, damage, the last hit's scaling ‰, a serial per counted hit: from the 2nd, PRACTICE's from the 1st), 14 the callout's serial, 15 / 16 the kit meter's value / max, 17 / 18 best combo / Kikons, 19 human 1 |
+
+Strings (setStr, ASCII): 30220 + 4 s the name label (`kit-hud`: "ICHIGO  KESSA"), + 1 the status tag (a kit's `:hud-tag` hook:
+Hisagi's KAZESHINI IN / OUT / ..., KESSA's BUNSHIN xN; else the meter's label NOME / UDE), + 2 the callout's romaji (the page's
+table gives the kanji; romaji alone when unknown); 30228 the prompt's keys (`key-prompt` :sp-keys / :p-key / :awaken-keys,
+from the bindings; none on the phone); 30229 the AS's romaji; 30230 + i the pause rows (`pause-items`; "LABEL  VALUE" splits into a
+row and its value chip); 30250 / 30251 the page-drawn cinematic title's reading and line (`bcap-reading` / `bcap-sub`: KUROSAKI
+ICHIGO, ZANGETSU).
+
+Get (page → Lisp): 30100 = 1 (hud.js loaded); 30101 the next queued pause press, `7 × 100000 + cmd × 1000 + arg` (1 the row under
+the pointer, 2 confirm; 4 / 5 left / right reserved), dropped unless the pause is up, one press a frame.
+
+### 7.3 What the engine leaves to the page (under `webhud-p`)
+
+The plates (`hud-side`, `hud-side-portrait`), the timer, PRACTICE's tag, the callouts (`hud-world`'s, the brush column `side-cap`),
+the pointer row at the feet (`hud-pointer`), the deck's outline, line, chips and gesture glyph (`hud-deck`), the pause overlay, the
+intro's FIGHT! word (`intro-cine`: READY > 斬 instead), and the letterbox and title of the intro, the K.O. and TIME
+(`webhud-cine-p`; their slice-out too: `*web-caption*`). Kept engine-drawn: the speed lines, the red soul flame over a red
+fighter, HOHO! / AUTO, ENDLESS's tag, the big words (EVOLUTION …), the thumb's stick ring and the kits' `:deck` rings (KESSA's
+clone dots, Rukia's frost), every other cinematic's letterbox and title, the screen flashes. Without the page every one of them is
+drawn as before (the native gate, an old page: `webhud-p` NIL).

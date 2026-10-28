@@ -181,7 +181,8 @@ zone during an NS / AS: 30111-30113), 爆's state bits (30104: 1 ready, 2 its ho
 (defun webhud-sync ()
   "Show the page this frame's battle (FLOW-UPDATE, after WEBUI-SYNC). Layer bits (30100): 1 a battle (intro / fight / finish), 2 a
 cinematic (the plates hidden), 4 paused, 8 the phone's deck, 16 PRACTICE (no timer), 32 the cinematic's 2D layer is the page's
-(the intro, the K.O., TIME)."
+(the intro, the K.O., TIME), 64 ONE-HAND turned to landscape (the pause asks to rotate). The title of such a cinematic: its
+reading and its line (strings 30 / 31; the kanji are the page's)."
   (when (webhud-p)
     (let* ((battle (and (battle-p) *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*) t))
            (paused (and battle *paused* (eq *flow* :battle) t))
@@ -189,10 +190,13 @@ cinematic (the plates hidden), 4 paused, 8 the phone's deck, 16 PRACTICE (no tim
       (webhud-put 0 (if battle
                         (logior 1 (if *cine* 2 0) (if paused 4 0)
                                 (if (and *one-hand* (portrait-p) (eq *flow* :battle)) 8 0)
-                                (if (eq *mode* :practice) 16 0) (if web-cine 32 0))
+                                (if (eq *mode* :practice) 16 0) (if web-cine 32 0) (if (and *one-hand* (not (portrait-p))) 64 0))
                         0))
       (when battle
-        (when (and web-cine *caption*) (setf *web-caption* *caption*))
+        (when (and web-cine *caption*)
+          (unless (eq *caption* *web-caption*)
+            (webhud-put-str 30 (bcap-reading *caption*)) (webhud-put-str 31 (bcap-sub *caption*)))
+          (setf *web-caption* *caption*))
         (webhud-put 1 (if (eq *mode* :practice) -1 (min 999 (ceiling (max 0 *timer*) 60))))
         (webhud-side *p1* 50)
         (webhud-side *p2* 80)
@@ -203,10 +207,11 @@ cinematic (the plates hidden), 4 paused, 8 the phone's deck, 16 PRACTICE (no tim
               (webhud-put 2 0)))
         (when *one-hand* (webhud-deck))
         (webhud-put 14 (webhud-intro-phase))
-        (webhud-put 15 (if (and (eq *flow* :finish) *cine*)
-                           (cond ((eq (cine-name *cine*) 'ko-cine) 1) ((member *winner* '(0 1)) 2) (t 3))
-                           0))
-        (webhud-put 16 (case *winner* (0 0) (1 1) (t 2)))
+        (let* ((c *cine*) (ko (and c (eq (cine-name c) 'ko-cine))) (tm (and c (eq (cine-name c) 'time-cine))))
+          (webhud-put 15 (cond (ko 1) ((and tm (member *winner* '(0 1))) 2) (tm 3) (t 0)))   ; 決着 K.O. / 時間切れ / a draw
+          (webhud-put 16 (cond ((member *winner* '(0 1)) *winner*)                         ; the winner: the K.O.'s first actor
+                               ((and ko (fighter (cine-a c))) (fighter-side (fighter (cine-a c))))   ; (debug 2208's has no *WINNER*)
+                               (t 2))))
         (when paused (webhud-pause)))
       (setf *web-paused* paused))))
 
