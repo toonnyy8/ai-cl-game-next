@@ -871,7 +871,9 @@ action started."
                 (progn (setf (fighter-queued f) nil)
                        (when (try-command e f :sig nil nil (kit-l-link kit name))
                          (setf (fighter-chained f) t)))
-            (let ((next (kit-next kit name q)) (pip (kit-pip-cmd-p kit q)))
+            (let ((next (let ((n (kit-next kit name q)) (h (kit-hook kit :link-move)))   ; (a kit's :link-move may swap the link:
+                          (or (and n h (funcall h e n)) n)))                                   ;  Hisagi's gathered J, DUEL_HISAGI §28.4)
+                  (pip (kit-pip-cmd-p kit q)))
               (cond ((and pip (< (gauges-meter (gauges e)) 1f0))   ; a K link with no pip left: the string ends here
                      (setf (fighter-queued f) nil)
                      nil)

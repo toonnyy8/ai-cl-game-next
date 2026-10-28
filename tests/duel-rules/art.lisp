@@ -223,7 +223,7 @@ Shikai HAINAWA, -18's and -50's (and every clip with a frost point, *RU-FROST-PO
     (loop for n from 1 to 3
           do (let ((j (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :quick)) maximize (+ (mv-reach m) (mv-slide m))))
                    (kk (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :flash)) minimize (+ (mv-reach m) (mv-slide m)))))
-               (unless (equal cf '(:hisagi :bankai))   ; (his ranged J 3-6 m, K 1-4 m: the user, 2026-10-18, 「J 的範圍改 3~6」
+               (unless (member cf '((:hisagi :bankai) (:hisagi :bankai-bind)) :test #'equal)   ; (his Bankai has no K since §28.4; before, his ranged J 3-6 m, K 1-4 m: the user, 2026-10-18, 「J 的範圍改 3~6」
                                                        ;  「K 的範圍改 1~4」, DUEL_HISAGI §25.3; K1 vs J1 since §22.4)
                  (check (or (>= (- kk j) 0.5) (format t "~a link ~d: J ~,2f K ~,2f~%" cf n j kk))))))))
 

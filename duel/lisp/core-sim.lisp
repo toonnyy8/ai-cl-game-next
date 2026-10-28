@@ -41,13 +41,17 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
 (defun core-as-start! (e f)
   "SP after an attack hit: the AS of the attack press count, writing the pointer. Its Kikon (cinematic, Konpaku profile) is the
 pointer it writes, AS n's own theme (the user, 2026-10-28: 「幫我把毀魂技的聯動改成依據目前指針指向的 NS 來決定，而不是由切換前的 NS 決定」;
-before: the pointer before the write)."
-  (let* ((n (core-as-pointer (fighter-presses f) (getf (kit-core (fighter-kit f)) :as-by-press))) (mv (kit-core-move (fighter-kit f) :as n)))
+before: the pointer before the write). A kit's :core :as-writes (one entry per AS, NIL: none) may leave the pointer as it is
+(Hisagi's Bankai, DUEL_HISAGI §28.4: AS3 is the mode switch, 「三個 AS 只有兩組指針」); its Kikon / Soul Break profile is then the
+current pointer's."
+  (let* ((writes (getf (kit-core (fighter-kit f)) :as-writes '(1 2 3)))
+         (n (core-as-pointer (fighter-presses f) (getf (kit-core (fighter-kit f)) :as-by-press))) (mv (kit-core-move (fighter-kit f) :as n))
+         (w (nth (1- n) writes)))
     (when mv
-      (setf (fighter-sp-ptr f) n)
+      (setf (fighter-sp-ptr f) (or w (fighter-ptr f)))
       (start-move e mv :quick)
-      (setf (fighter-ptr f) n (fighter-as-done f) t)
-      (clog "~a AS~d pointer ~d" (side-name e) n n)
+      (setf (fighter-ptr f) (or w (fighter-ptr f)) (fighter-as-done f) t)
+      (if w (clog "~a AS~d pointer ~d" (side-name e) n w) (clog "~a AS~d pointer kept ~d" (side-name e) n (fighter-ptr f)))
       t)))
 
 (defun core-move-sp! (e f vp mv sf button)
@@ -111,6 +115,7 @@ and AS open: 「視同命中」); a same-class tie also ends both moves and boun
          (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
          (emit :clash mx 1.2 mz)
          (clog "~a ~a x ~a: CANCEL" (side-name att) (mv-name (pending-mv h)) (side-name def))
+         (core-clash! att def)
          (when (and (eq (fighter-cls fa) (core-window-class fd)) (eq (fighter-state fd) :move))   ; a same-class tie: both to neutral
            (core-bounce! att def)))
         (:absorb
@@ -118,6 +123,16 @@ and AS open: 「視同命中」); a same-class tie also ends both moves and boun
          (hitstop *hitstop-block*)
          (emit :armored def mx 1.2 mz)
          (clog "~a ~a x ~a: ABSORBED" (side-name att) (mv-name (pending-mv h)) (side-name def)))))))
+
+(defun core-clash! (a b)
+  "A clash between A and B (攻擊抵銷: a triangle cancel, CORE-NOHIT!, or a cancelled Kikon follow-up, CORE-KIKON-CANCEL!): each
+side's kit :clash hook (x other), once a step for the pair however many cancel verdicts the step had (a same-class tie gives two;
+Hisagi's bind evens the Reishi once a clash, DUEL_HISAGI §28.4). No kit with the hook: nothing."
+  (let ((fa (fighter a)) (fb (fighter b)))
+    (unless (or (= (fighter-clash-t fa) *match-tick*) (= (fighter-clash-t fb) *match-tick*))
+      (setf (fighter-clash-t fa) *match-tick* (fighter-clash-t fb) *match-tick*)
+      (dolist (x (list a b))
+        (let ((h (kit-hook (kit-of x) :clash))) (when h (funcall h x (opp-of x))))))))
 
 (defun core-bounce! (a b)
   "A and B back to neutral, pushed apart (a cancelled tie, a cancelled Kikon follow-up)."
@@ -130,8 +145,9 @@ and AS open: 「視同命中」); a same-class tie also ends both moves and boun
 
 ;;; ---------------------------------------------------------------- the Kikon hold
 (defun core-kikon-p (f mv)
-  "Is MV (a move of F's kit) an SP that holds into the Kikon (an NS or an AS of a kit with a :core)?"
-  (and mv (member (kit-class (fighter-kit f) mv) '(:ns :as)) t))
+  "Is MV (a move of F's kit) an SP that holds into the Kikon (an NS or an AS of a kit with a :core)? Not a segment with :params
+:no-kikon (Hisagi's Bankai AS3, the mode switch: DUEL_HISAGI §28.4)."
+  (and mv (member (kit-class (fighter-kit f) mv) '(:ns :as)) (not (getf (mv-params mv) :no-kikon)) t))
 
 (defun core-hold-step (e f)
   "Each step inside an NS / AS segment: a let-go of the SP button clears the hold (FIGHTER-SP-HELD), so only a hold kept from
@@ -228,6 +244,7 @@ be a Kikon's first strike: the hold kept since that segment (the button still do
   "The victim (VICTIM, fighter F) attacked while the Kikon's follow-up was coming (not red): it is cancelled, both bounce to neutral."
   (let ((o (fighter-opp f)))
     (clog "~a cancels the Kikon follow-up" (side-name victim))
+    (core-clash! victim o)
     (hitstop *hitstop-block*)
     (slowmo *core-clash-slowmo-scale* *core-clash-slowmo-seconds*)
     (let ((p (pos-of victim)) (q (pos-of o))) (emit :clash (* 0.5 (+ (aref p 0) (aref q 0))) 1.2 (* 0.5 (+ (aref p 2) (aref q 2)))))

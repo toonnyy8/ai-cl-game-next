@@ -34,10 +34,12 @@
   (unless (= (brain-own-key b) (fighter-cls-t f))
     (setf (brain-own-key b) (fighter-cls-t f) (brain-r-turn b) (sim-rnd01) (brain-r-cont b) (sim-rnd01) (brain-r-kikon b) (sim-rnd01))))
 
-(defun cai-sp (b f s &optional (frames 1))
-  "Press SP (Mod + attack): held into a Kikon when this SP's roll says so (against a red opponent more likely), else a tap."
+(defun cai-sp (b f s &optional (frames 1) no-kikon)
+  "Press SP (Mod + attack): held into a Kikon when this SP's roll says so (against a red opponent more likely), else a tap; NO-KIKON
+(the SP about to start holds into none: Hisagi's Bankai AS3, :params :no-kikon) a tap, so its segments go on (CAI-MOVE-STEP)."
   (let* ((o (fighter-opp f)) (red (gauges-red-p (gauges o)))
-         (want (< (brain-r-kikon b) (if red (max 0.6 (brain-chance b *cai-kikon-p*)) (brain-chance b *cai-kikon-p*)))))
+         (want (and (not no-kikon)
+                    (< (brain-r-kikon b) (if red (max 0.6 (brain-chance b *cai-kikon-p*)) (brain-chance b *cai-kikon-p*))))))
     (declare (ignorable s))
     (cai-press b :quick (if want 40 frames) t)))
 
@@ -54,7 +56,8 @@
            (if (and (not (fighter-as-done f))
                     (or (eq oc :ns) (>= (fighter-presses f) (length (getf (kit-core kit) :as-by-press '(1 2 3))))   ; (the string's end)
                         (>= (brain-r-cont b) (brain-chance b *cai-cont-p*))))
-               (cai-sp b f s 1)
+               (cai-sp b f s 1 (let ((as (kit-core-move kit :as (core-as-pointer (fighter-presses f) (getf (kit-core kit) :as-by-press)))))
+                                 (and as (getf (mv-params as) :no-kikon))))
                (cai-press b :quick 1))))
         (:ns
          (when (>= (fighter-sf f) (mv-s mv))                   ; the segment is out: now is the gap to read
