@@ -332,6 +332,47 @@ arguments would box)."
               (aref m 12) (aref v 0) (aref m 13) (aref v 1) (aref m 14) (aref v 2) (aref m 15) 1f0)))
   nil)
 
+(defvar *hs-hw* (make-f32 3) "The hawser's hanging end, then the hung sickle's point (%HS-HAWSER).")
+(defun-fast %hs-hawser (jm fa w v q m tint)
+  "Pointer 2's stance (:hs-st-bind, DUEL_HISAGI §26): the chain from W (the right rod's butt) up to the left fist at his
+chest, over his left shoulder and down his back to the left sickle hanging there point down (V, Q scratch; M its matrix).
+A look. 0 B."
+  (declare (type f32vec jm fa w v q m))
+  (let* ((h *hs-hw*) (yaw (aref fa 0)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw))))
+    (declare (type f32vec h) (single-float yaw fx fz))
+    (joint-point! q jm (ji :weapon-l) 0f0 0f0 0f0)                 ; the fist at his chest
+    (vfx-hs-chain w q 0.08f0 0.9f0)
+    (joint-point! v jm (ji :shoulder-l) 0f0 0f0 0f0)
+    (setf (aref v 1) (+ (aref v 1) 0.1f0))                         ; over the shoulder
+    (vfx-hs-chain q v 0.02f0 0.9f0)
+    (setf (aref h 0) (- (aref v 0) (* 0.24f0 fx) (* -0.2f0 fz)) (aref h 1) (- (aref v 1) 0.3f0)   ; behind him and out to his left
+          (aref h 2) (- (aref v 2) (* 0.24f0 fz) (* 0.2f0 fx)))                                   ;  (outside his silhouette)
+    (vfx-hs-chain v h 0.02f0 0.9f0)                                ; down his back to the sickle's butt
+    (setf (aref h 1) (- (aref h 1) 0.97f0)                         ; (its point: the butt 0.97 m above it)
+          (aref fa 0) (+ (aref fa 0) 0.785f0))                     ; (its blades turned 45 degrees: read from behind and the side)
+    (%hs-place! m h fa 4)
+    (setf (aref fa 0) (- (aref fa 0) 0.785f0))
+    (draw-weapon :kazeshini m :tint tint))
+  nil)
+
+(defun-fast %hs-sparks (a b)
+  "Pointer 3's stance (:hs-st-raiden, DUEL_HISAGI §26): four small sparks crawling down the taut chain from B (the raised
+left rod's butt) to A, flickering on the fx clock (jade, a white crackle). A look. 0 B."
+  (declare (type f32vec a b))
+  (let* ((dx (- (aref a 0) (aref b 0))) (dy (- (aref a 1) (aref b 1))) (dz (- (aref a 2) (aref b 2)))
+         (l (f-max 0.01f0 (f-hypot dx dy dz))) (ux (/ dx l)) (uy (/ dy l)) (uz (/ dz l))
+         (nl (f-max 0.01f0 (f-hypot uy ux 0f0))) (nx (/ (- uy) nl)) (ny (/ ux nl))
+         (tm (* 1.4f0 (fx-clock))) (dr (drawing-no 24f0)))
+    (declare (single-float dx dy dz l ux uy uz nl nx ny tm dr))
+    (dotimes (i 4)
+      (let* ((s (+ tm (* 0.25f0 (i->f i)))) (u (- s (i->f (f->i s))))
+             (jig (* 0.05f0 (f-sin (+ dr (* 2.3f0 (i->f i))))))
+             (px (+ (aref b 0) (* u dx) (* jig nx))) (py (+ (aref b 1) (* u dy) (* jig ny))) (pz (+ (aref b 2) (* u dz))))
+        (declare (single-float s u jig px py pz))
+        (fx-shard px py pz ux uy uz 0.16f0 0.03f0 0.1f0 (+ (i->f i) 860f0 dr) +pal-jade+ 0.95f0 :push 0.14f0)
+        (fx-shard px py pz nx ny 0f0 0.1f0 0.012f0 0.08f0 (+ (i->f i) 880f0 dr) +pal-hit+ 0.95f0 :push 0.18f0))))
+  nil)
+
 (defun-fast %hs-draw (jm pos fa anchor vpos a b n d tint lightning lo)
   "The left sickle and the chain: in the left fist (A = B = 0: the chain slack between the fists), else at the point
 between codes A and B at N / D (%HS-POINT), its point out along his facing, the chain to it from the right fist; the
@@ -340,7 +381,8 @@ his line, 0.5 m to FA[2] (*HS-BOLTS*). LO, the Shikai's looks (bits; 0: B2a's, t
 its butt to the right fist), 2 the left one (*HS-ML*, *HS-LO* [8-14]), 4 the chain from the right rod through the left fist
 to the out sickle (the thrower's hand), 64 the flat spinning disc (a flight), 8 the garrote (the slack through the victim's neck), 16 the
 pull's tail (the sim hand to the left fist), 32 SHIBARI's wrap round the victim, 128 MAKI's curl (the flight bowed 1.1 m
-out to his left midway: the left-to-right wrap)."
+out to his left midway: the left-to-right wrap); the core system's pointer stances (§26): 2048 the bind's hawser
+(%HS-HAWSER), 4096 the lightning's taut chain and its sparks (%HS-SPARKS)."
   (declare (type f32vec jm pos fa anchor vpos) (fixnum a b n d lightning lo))
   (let ((v *hs-v*) (w *hs-w*) (q *hs-q*) (m *hs-m*) (m2 *hs-m2*) (l *hs-lo*))
     (declare (type f32vec v w q m m2 l))
@@ -350,6 +392,8 @@ out to his left midway: the left-to-right wrap)."
       (vfx-hs-chain w q 0.06f0 0.9f0)
       (replace w q))
     (if (and (= a 0) (= b 0))
+        (if (logtest lo 2048)
+            (%hs-hawser jm fa w v q m tint)
         (progn
           (if (logtest lo 2)
               (progn (draw-weapon :kazeshini *hs-ml* :tint tint)
@@ -367,7 +411,8 @@ out to his left midway: the left-to-right wrap)."
                  (setf (aref q 0) (aref vpos 0) (aref q 1) (+ (aref vpos 1) 1.45f0) (aref q 2) (aref vpos 2))
                  (vfx-hs-chain w q 0.02f0 0.9f0) (vfx-hs-chain q v 0.02f0 0.9f0))
                 ((logtest lo 3) (vfx-hs-chain w v -0.5f0 0.9f0))
-                (t (vfx-hs-chain w v -1.2f0 0.9f0))))
+                ((logtest lo 4096) (vfx-hs-chain w v 0.03f0 0.9f0) (%hs-sparks w v))   ; (§26: taut, sparking)
+                (t (vfx-hs-chain w v -1.2f0 0.9f0)))))
         (let* ((u (f-clamp (/ (i->f n) (i->f (max 1 d))) 0f0 1f0)) (ov (logand 7 (ash lo -8)))   ; (A1: a path's spin)
                (spin (cond ((> ov 0) ov) ((and (logtest lo 64) (/= a 2) (/= b 2) (/= b 4)) 2) ((= a b) 0) (t 1))))
           (declare (single-float u) (fixnum ov spin))
@@ -1193,6 +1238,8 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                              (and mv (eq cn :hs-kb-koshu) (>= sf (mv-s mv)) (logtest geo 16))
                              (and (= ck 4) (eq cn :hs-kb-koshu) (logtest geo 16) (= 1 (%hs-fr-from 8))))   ; (KOSHU's)
                      (setf lo (logior lo 8)))                          ; (KUBIKAKE's, KOSHU's garrote: through his neck)
+                   (when shikai                                        ; (§26: the pointer stances' chain)
+                     (case cn (:hs-st-bind (setf lo (logior lo 2048))) (:hs-st-raiden (setf lo (logior lo 4096)))))
                    (values 0 0 0 1)))
         (setf *hs-chain-black* 1 *hs-chain-ink* (if (eq e *p1*) 0 1))  ; (black, both forms; P2 the original ink: the user, 2026-10-18)
         (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
