@@ -330,11 +330,12 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 (defmove-copy :hs-na4 :hs-j2)
 ;; pointer 1 投: NAGI's 6 m sweep > HIKI, the sickle back into him > USHIRO-NAGI, the backward swing (198); AS1 KAGI-BIKI hooks
 ;; him and drags him in, stealing flash step. HIKI and USHIRO-NAGI miss a victim nearer than NAGI's *HS-K-DEAD* too (§27.7, the user:
-;; 「NS1[2] 跟 NS1[3] 也要設定近距離無效的範圍」)
-(defmove-copy :hs-n1c :hs-k3 :callout "USHIRO-NAGI" :startup 24 :clip-s 22 :on-hit :knockdown :flags nil :min-reach *hs-k-dead*
-  :hits ((24 29 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :look-as :hs-k3))
-(defmove-copy :hs-n1b :hs-k2 :min-reach *hs-k-dead* :hits ((20 24 :seg-fn hs-core-seg))
-  :params (:melee-range 2.0 :ns-next :hs-n1c :look-as :hs-k2))
+;; 「NS1[2] 跟 NS1[3] 也要設定近距離無效的範圍」); since §27.9 they sweep NAGI's own volume (6 m, its arc and height; no longer the
+;; chain to the victim), drawn out to its far end on a whiff (HS-N1-ANCHOR!), and USHIRO-NAGI staggers (「NS1[3] 不將對手擊倒」)
+(defmove-copy :hs-n1c :hs-k3 :callout "USHIRO-NAGI" :startup 24 :clip-s 22 :on-hit :stagger :flags (:ranged :no-close)
+  :reach 6.0 :arc *hs-k1-arc* :height (0.2 2.0) :min-reach *hs-k-dead* :hits ((24 29)) :params (:melee-range 2.0 :look-as :hs-k3))
+(defmove-copy :hs-n1b :hs-k2 :flags (:ranged :no-close) :reach 6.0 :arc *hs-k1-arc* :height (0.2 2.0) :min-reach *hs-k-dead*
+  :hits ((20 24)) :params (:melee-range 2.0 :ns-next :hs-n1c :look-as :hs-k2))
 (defmove-copy :hs-n1a :hs-k1 :startup 20 :clip-s 18 :params (:melee-range 2.0 :ns-next :hs-n1b))
 (defmove-copy :hs-as1 :hs-k3 :kind :sp :callout "KAGI-BIKI" :startup 24 :clip-s 22 :dmg 50 :on-hit :knockdown :flags nil
   :on-land hs-kagi-pull :hits ((24 29 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :steal-fs 40 :pull 1.6 :look-as :hs-k3))
@@ -889,6 +890,15 @@ play, 餘電 (「留下餘電」)."
       (cond ((eq name :hs-sa-hoden) (setf (hss-zan-pend st) nil))
             ((not (eq name :hs-n3b)) (setf (hss-zan-pend st) nil (hss-zan st) *hs-zan-frames*)
              (clog "~a ZANDEN (no HODEN)" (side-name e)))))))
+(defun hs-n1-anchor! (e mv)
+  "NS1b / NS1c's anchor (a look, §27.9): on the victim while he is inside the sweep (MV's reach, NAGI's arc, outside the dead zone),
+else NAGI's far end along E's facing (the user: 「沒打中時直接揮到最遠的攻擊處」)."
+  (let* ((p (pos-of e)) (q (pos-of (opp-of e))) (yaw (yaw-of e)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2)))
+         (d (hypot dx dz)))
+    (if (and (<= *hs-k-dead* d (mv-reach mv))
+             (>= (+ (* dx (fwd-x yaw)) (* dz (fwd-z yaw))) (* d (cos (* *hs-k1-arc* 0.5 0.017453292)))))
+        (hs-anchor! e (aref q 0) (aref q 2))
+        (multiple-value-bind (x z) (hs-anchor-point (aref p 0) (aref p 2) yaw (mv-reach mv)) (hs-anchor! e x z)))))
 (defun hs-look-name (mv)
   "The move whose look MV borrows (a core copy's :params :look-as, §26), else its own name."
   (or (getf (mv-params mv) :look-as) (mv-name mv)))
@@ -1046,7 +1056,9 @@ timer (only out of his moves) and the auto-retrieve, the return's arrival; the c
           ((and (hss-kstr st) (member (mv-name mv) *hs-k-string*) (not (eq mv (hs-scaled (mv-name mv) (hss-charge st)))))   ; its link at the charge's reach
            (setf mv (hs-scaled (mv-name mv) (hss-charge st)) (fighter-move f) mv)))
     (when (and mv (member (hs-look-name mv) *hs-at-foe*))     ; S1: K2 / K3's chain drawn to him (the look reads the anchor; §26's copies too)
-      (let ((q (pos-of (opp-of e)))) (hs-anchor! e (aref q 0) (aref q 2))))
+      (if (member (mv-name mv) '(:hs-n1b :hs-n1c))
+          (hs-n1-anchor! e mv)
+          (let ((q (pos-of (opp-of e)))) (hs-anchor! e (aref q 0) (aref q 2)))))
     (when (and mv (eq (fighter-phase f) :main) (hs-throw-name-p (mv-name mv)) (eq (hss-state st) :out)
                (not (hss-anchored st)) (= sf (+ (mv-s mv) (mv-a mv) -1)))
       (let ((p (pos-of e)))

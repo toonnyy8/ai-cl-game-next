@@ -3984,3 +3984,16 @@ The user's requests (verbatim): 「1. NS1 跟 NS2 接 SA 到時候不要把人�
   the quick pass on time. **HH 278.8 s at 10 (4 time-outs), 270.7 at 20 (8), 298.9 s at 60 with 29 time-outs of 60** (202.9, 1 before):
   reported to the user, not retuned. The likely share: the generic core CPU still opens NS1 from neutral up close (now all three
   segments miss inside 3 m) and presses the SA after NS1 at 4-6 m (KIRI whiffs there), unmeasured.
+
+### 27.9 NS1b / NS1c sweep NAGI's volume, NS1c staggers (the user, 2026-10-28)
+
+The user's request (verbatim): 「1. NS1[2] 跟 NS1[3] 攻擊沒打中時直接揮到最遠的攻擊處，並且將攻擊範圍改成跟 NS1[1] 一樣的範圍。 2. NS1[3] 不將對手擊倒」.
+
+- `:hs-n1b` HIKI and `:hs-n1c` USHIRO-NAGI: NAGI's volume (`:reach 6.0 :arc *hs-k1-arc* :height (0.2 2.0) :min-reach *hs-k-dead*`, flags
+  `(:ranged :no-close)`), their windows plain (no `HS-CORE-SEG`: they no longer strike the victim wherever he is within 6.5 m).
+- The look (HS-TICK, `HS-N1-ANCHOR!`): the chain's anchor on the victim while he is inside that sweep, else NAGI's far end (6.0 m along
+  his facing): a whiff swings out to the sweep's farthest point.
+- USHIRO-NAGI `:on-hit :stagger` (was a knockdown): pointer 1's NS ends with no knockdown; the SA KIRI can follow it.
+- Tests (`triangle.lisp`): NS1b / NS1c's volume equal to NS1a's, no seg; their reaction stagger. Host 10782 ALL PASS.
+- Gates (10 seeds): HK 183.8 s (all K.O., Hisagi 0:10), HI 190.4 s (all K.O., 2:8), HH 295.7 s with 4 time-outs (5:5): the mirror
+  still fails as §27.7's did, reported.

@@ -160,10 +160,14 @@
                                                         :hs-as1 :hs-as2 :hs-as2b :hs-as3 :hs-as3b :hs-as3c :hs-sa :hs-sa-hoden))
                   '(62 56 80 45 50 85 40 25 50 45 60 45 35 110 40 60)))
     (check (equal (mapcar #'react '(:hs-n1c :hs-n2c :hs-n3b :hs-as1 :hs-as2b :hs-as3c :hs-sa-hoden))
-                  '(:knockdown :knockdown :stagger :knockdown :launch :knockdown :stagger)))
+                  '(:stagger :knockdown :stagger :knockdown :launch :knockdown :stagger)))      ; (NS1c staggers, §27.9)
     (check (eq (react :hs-n3a) :bind))
     (check (every (lambda (n) (eq (hw-seg (svref (mv-hits (m n)) 0)) 'hs-core-seg))
-                  '(:hs-n1b :hs-n1c :hs-n3b :hs-as1 :hs-as3b :hs-sa-hoden)))                              ; along the chain, within 6.5 m
+                  '(:hs-n3b :hs-as1 :hs-as3b :hs-sa-hoden)))                                              ; along the chain, within 6.5 m
+    ;; §27.9: NS1b / NS1c sweep NAGI's own volume (no chain to the victim)
+    (check (let ((v (hw-vols (svref (mv-hits (m :hs-n1a)) 0))))
+             (every (lambda (n) (let ((w (svref (mv-hits (m n)) 0))) (and (null (hw-seg w)) (equalp (hw-vols w) v))))
+                    '(:hs-n1b :hs-n1c))))
     (check (and (equal (mv-on-frame (m :hs-sa)) '((0 hs-yose))) (eq (kit-class k (m :hs-sa)) :sa)
                 (eq (mv-on-land (m :hs-as1)) 'hs-kagi-pull) (= 40 (getf (mv-params (m :hs-as1)) :steal-fs))))
     ;; §27: NS3a's gap the kit's SA (YOSE), CHIKUDEN's 放電; 放電's distance x; 餘電 set / pending / used up
