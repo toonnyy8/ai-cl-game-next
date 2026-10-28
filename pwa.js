@@ -9,6 +9,8 @@
 //       (docs/duel/DUEL_LEARNING.md; localStorage soulduel.learn.<i>, the integers comma-separated)
 //   set 0 = battle on / off (the screen wake lock), 1 = open the manual (manual.html, this window), 10 + i = save SETTINGS row i, 30 + k = save ENDLESS slot k, 10100 + 1000 i (+ 1 + j) = the assist's learned table of CPU i (soulduel.learn.a<i>), 20000 + .. = save a CONTROLS binding (soulduel.bind.<k - 20000>),
 //       100 + 1000 i + 1 + j = table entry j (kept here), then 100 + 1000 i = n commits the first n entries (0: forget it)
+//   30000 + k = the HTML menus (menu.js, docs/duel/DUEL_WEBUI.md §3): get 30000 = 1 when they are loaded, 30001 = the next queued
+//       press, 30002 / 30003 = SELECT's model spot; set 30000 + k = the state they draw (globalThis.gameUI.set)
 // SETTINGS rows (duel/lisp/control.lisp *SETTINGS*, same order) live in localStorage as soulduel.<name>; every access is
 // wrapped in try/catch (private mode / blocked storage: nothing saved, the defaults).
 // On a touch-first device only: the history trap (the back gesture pauses instead of leaving), fullscreen +
@@ -51,6 +53,7 @@
   }
   globalThis.gamePage = {
     get: function (k) {
+      if (k >= 30000 && k < 30100) { var u = globalThis.gameUI; return u ? u.get(k - 30000) : 0; }
       if (k === 0) return coarse ? 1 : 0;
       if (k === 1) { var b = back; back = 0; return b; }
       if (k >= 10 && k < 10 + settings.length) return +(stored('soulduel.' + settings[k - 10]) || 0) | 0;
@@ -63,6 +66,7 @@
       return 0;
     },
     set: function (k, v) {
+      if (k >= 30000 && k < 30100) { if (globalThis.gameUI) globalThis.gameUI.set(k - 30000, v); return; }
       if (k === 1) location.href = 'manual.html';        // MODE's MANUAL row; the manual links back to ./
       if (k === 0 && coarse) { wakeOn = !!v; if (wakeOn) wake(); else if (lock && lock.release) { lock.release(); lock = null; } }
       if (k >= 10 && k < 10 + settings.length) store('soulduel.' + settings[k - 10], String(v));
