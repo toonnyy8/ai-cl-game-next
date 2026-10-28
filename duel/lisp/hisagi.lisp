@@ -639,7 +639,7 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
 ;;; (HS-BK-TICK); the bind AS3's last segment's end changes back, whatever it did. Inside the bind each clash (攻擊抵銷, CORE-CLASH!)
 ;;; evens the two Reishi bars by *HS-BIND-EVEN* of their gap (HS-BIND-CLASH). §17's grey damage, pool, frozen gains, snapshot, reel,
 ;;; P release, KUBIKAKE on SP2, Kenpachi's refusal and the leash are gone (no :bind hook: BIND-OF is NIL for him). The moves are copies
-;;; of the old Bankai's with their clips (§28.4: 「Kept: ... their clips (re-used)」); numbers §28.3's, damage before the core :mult.
+;;; of the old Bankai's with their clips (§28.4 keeps them); numbers §28.3's, damage before the core :mult.
 (defparameter *hs-bind-even* 0.25
   "The share of the Reishi gap one clash inside the bind closes, half from each side, the total kept (none -> 0.25, 2026-10-29,
 the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差逐漸平衡」, the lead's 25 % 「可以」; DUEL_HISAGI §28, §28.4; HS-BIND-EVEN).")
@@ -660,27 +660,29 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 ;; the SA 打 UCHI: a lash at him where he is (HS-CORE-SEG), no drag; the gathered gaps' (pointer 2's) the bundle's, 45
 (defmove-copy :hs-r-sa :hs-r-j2 :callout "UCHI" :dmg 35 :on-hit :stagger :hits ((10 13 :seg-fn hs-core-seg)))
 (defmove-copy :hs-r-sa-g :hs-r-j2s :callout "UCHI" :startup 10 :dmg 45 :on-hit :stagger :hits ((10 13 :seg-fn hs-core-seg)))
-;; pointer 1 散 SPREAD: 扇 ŌGI the fan 2-6 m 60 deg (S 17) > 環 WA the full turn 2-5 m (S 12) > 一斉 ISSEI 160 deg (S 14, knockdown);
-;; AS1 乱鎖 RANSA 160 deg, 50, knockdown
-(defmove-copy :hs-r-n1c :hs-r-k3 :callout "ISSEI" :enter 7 :dmg 56 :reach 6.0 :arc 160 :on-hit :knockdown :flags (:ranged)
+;; pointer 1 散 SPREAD: 扇 ŌGI the fan 60 deg (S 17) > 環 WA the full turn (S 12) > 一斉 ISSEI 160 deg (S 14, knockdown); AS1 乱鎖 RANSA
+;; 160 deg, 50, knockdown. Every volume at its re-used clip's drawn reach (debug 83902; where §28.3's reach can't be met the clip's is kept): ŌGI / ISSEI /
+;; RANSA 4.5 m (§28.3: 6), WA 6 m (§28.3: 5); the dead zone *HS-R-DEAD*
+(defmove-copy :hs-r-n1c :hs-r-k3 :callout "ISSEI" :enter 7 :dmg 56 :reach 4.5 :arc 160 :on-hit :knockdown :flags (:ranged)
   :hits ((21 26)) :params (:melee-range 2.0))
-(defmove-copy :hs-r-n1b :hs-r-j3 :kind :flash :callout "WA" :startup 12 :dmg 30 :reach 5.0 :arc 360 :min-reach 2.0 :on-hit :stagger
+(defmove-copy :hs-r-n1b :hs-r-j3 :kind :flash :callout "WA" :startup 12 :dmg 30 :reach 6.0 :arc 360 :min-reach 2.0 :on-hit :stagger
   :flags (:ranged) :on-land nil :hits ((12 15)) :params (:melee-range 2.0 :ns-next :hs-r-n1c))
-(defmove-copy :hs-r-n1a :hs-r-k2s :callout "OGI" :enter 4 :dmg 37 :reach 6.0 :arc 60 :min-reach 2.0 :hits ((21 25))
+(defmove-copy :hs-r-n1a :hs-r-k2s :callout "OGI" :enter 4 :dmg 37 :reach 4.5 :arc 60 :min-reach 2.0 :hits ((21 25))
   :params (:melee-range 2.0 :ns-next :hs-r-n1b))
-(defmove-copy :hs-r-as1 :hs-r-k3 :kind :sp :callout "RANSA" :dmg 50 :reach 6.0 :arc 160 :on-hit :knockdown :flags (:ranged)
+(defmove-copy :hs-r-as1 :hs-r-k3 :kind :sp :callout "RANSA" :dmg 50 :reach 4.5 :arc 160 :on-hit :knockdown :flags (:ranged)
   :hits ((21 26)) :params (:melee-range 2.0))
-;; pointer 2 聚 GATHERED (each segment sets the combo's flag, :params :gather): 束 TABA the bundle on a 2-5 m line (S 22) > 叩
-;; TATAKI the slam 1-3.5 m (S 18) > 大旋 ŌMEGURI the 360 deg spin 2-6 m (S 20, knockdown); AS2 叩 > 地走 JIBASHIRI along the ground
-;; 3.5-8 m (knockdown). AS2's 叩 strikes him along the chain (HS-CORE-SEG; NS b's 1-3.5 m would miss after a J link at 3-6 m)
-(defmove-copy :hs-r-n2c :hs-r-k3g :callout "OMEGURI" :enter 7 :dmg 86 :reach 6.0 :arc 360 :min-reach 2.0 :on-hit :knockdown
+;; pointer 2 聚 GATHERED (each segment sets the combo's flag, :params :gather): 束 TABA the bundle on a line (S 22) > 叩 TATAKI the slam
+;; (S 18) > 大旋 ŌMEGURI the 360 deg spin (S 20, knockdown); AS2 叩 > 地走 JIBASHIRI along the ground (knockdown). The clips' drawn reach
+;; (83902): all 4.5 m (§28.3: TABA 2-5, TATAKI 1-3.5, ŌMEGURI 2-6, JIBASHIRI 3.5-8; the dead zones kept, JIBASHIRI's *HS-R-DEAD*).
+;; AS2's 叩 strikes him along the chain (HS-CORE-SEG; NS b's volume could miss after a J link at 3-6 m)
+(defmove-copy :hs-r-n2c :hs-r-k3g :callout "OMEGURI" :enter 7 :dmg 86 :reach 4.5 :arc 360 :min-reach 2.0 :on-hit :knockdown
   :flags (:ranged) :hits ((27 32)) :params (:melee-range 2.0 :gather t))
-(defmove-copy :hs-r-n2b :hs-r-k2 :callout "TATAKI" :enter 9 :dmg 57 :reach 3.5 :arc 90 :min-reach 1.0 :hits ((27 31))
+(defmove-copy :hs-r-n2b :hs-r-k2 :callout "TATAKI" :enter 9 :dmg 57 :reach 4.5 :arc 90 :min-reach 1.0 :hits ((27 31))
   :params (:melee-range 2.0 :ns-next :hs-r-n2c :sa :hs-r-sa-g :gather t))
-(defmove-copy :hs-r-n2a :hs-r-k2 :callout "TABA" :enter 5 :dmg 50 :vol (:cap 0.3 5.0 1.1 0.35) :reach 5.0 :min-reach 2.0
+(defmove-copy :hs-r-n2a :hs-r-k2 :callout "TABA" :enter 5 :dmg 50 :vol (:cap 0.3 4.15 1.1 0.35) :reach 4.15 :min-reach 2.0
   :hits ((27 31)) :params (:melee-range 2.0 :ns-next :hs-r-n2b :sa :hs-r-sa-g :gather t))
-(defmove-copy :hs-r-as2b :hs-r-k2 :kind :sp :callout "JIBASHIRI" :enter 12 :dmg 70 :vol (:cap 0.3 8.0 1.1 0.35) :reach 8.0
-  :min-reach 3.5 :hits ((33 37 :on-hit :knockdown)) :params (:melee-range 2.0 :gather t))
+(defmove-copy :hs-r-as2b :hs-r-k2 :kind :sp :callout "JIBASHIRI" :enter 12 :dmg 70 :vol (:cap 0.3 4.15 1.1 0.35) :reach 4.15
+  :min-reach *hs-r-dead* :hits ((33 37 :on-hit :knockdown)) :params (:melee-range 2.0 :gather t))
 (defmove-copy :hs-r-as2 :hs-r-k2 :kind :sp :callout "TATAKI" :enter 9 :dmg 57 :hits ((27 31 :seg-fn hs-core-seg))
   :params (:melee-range 2.0 :ns-next :hs-r-as2b :gather t))
 ;; AS3 首掛 KUBIKAKE, the switch (no pointer, no Kikon): 投 NAGE the chain on a 7 m line (S 18) > 巻 MAKI wound round him > 掛 KAKE the
@@ -753,7 +755,7 @@ SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move
          :as-writes (1 2 nil) :as-by-press (1 1 2 2 3)            ; (AS3 the switch: no pointer, §28.4)
          :stances (:hs-k-stance :hs-k-kosa-aim)                  ; (re-used until the motion pass: the chains loose / the aim)
          :kikon-cines (hs-kosa-cine hs-kosa-cine)                ; (re-used: 降鎖 for both until §28's 散 / 聚 are built)
-         :ns-range ((3.0 6.0) (3.0 5.0)) :range (3.0 4.5)        ; (the CPU: it holds J1's band, the NS from their reach)
+         :range (3.0 4.5)                                        ; (the CPU walks to J1's band; its NS reach 4.5 m: no :ns-range shot)
          :mult 1.7)
   :hooks *hs-r-hooks*)
 
@@ -1206,7 +1208,7 @@ kept exactly), the lower one at most up to his own max (MAX-A / MAX-B). Values A
         (let ((m (max 0 (min m (- max-a a))))) (values (+ a m) (- b m))))))
 (defun hs-bind-clash (e o)
   "The bind mode's :clash hook (CORE-CLASH!: once a step for the pair): while E binds, his and O's Reishi even out by
-*HS-BIND-EVEN* of their gap (HS-BIND-EVEN); Konpaku untouched (§28: 「Reishi only; Konpaku is untouched」). In the mirror with
+*HS-BIND-EVEN* of their gap (HS-BIND-EVEN); Konpaku untouched (§28: Reishi only, Konpaku untouched). In the mirror with
 both bound, side 0 balances for the pair."
   (let ((st (hs e)) (os (hss o)))
     (when (and (hss-bound st) (not (and os (hss-bound os) (< (fighter-side (fighter o)) (fighter-side (fighter e))))))
@@ -1403,6 +1405,9 @@ the probe line only."
            (when (brain *p1*) (setf (brain-off (brain *p1*)) (not cpu)))
            (place *p1* *p2* dist)
            (hs-reset *p1*)
+           (let ((st (hs *p1*))) (setf (hss-bound st) nil (hss-bind-arm st) nil (hss-unbind st) nil))   ; (§28.4: a scene starts
+           (unless (eq (fighter-form (fighter *p1*)) :base)                                            ;  unbound, in the Shikai;
+             (set-form *p1* :base) (setf (gauges-awakened (gauges *p1*)) nil))                         ;  the Bankai's awaken next)
            (full-gauges! *p1*) (full-gauges! *p2*)))
     (case k
       (0 (setup :kenpachi 2.0))

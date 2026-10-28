@@ -441,12 +441,14 @@
                                       :hs-r-n1a :hs-r-n2a :hs-r-as2 :hs-r-as3 :hs-r-as3c :hs-b-n1a :hs-b-n2a :hs-b-as3 :hs-b-as3b))
                     '(:knockdown :knockdown :knockdown :knockdown :knockdown :knockdown :knockdown :launch :knockdown
                       :stagger :stagger :stagger :stagger :stagger :stagger :stagger :stagger :stagger))))
-    ;; the ranged volumes' bands (§28.3): the fan 2-6 m 60 deg, the turn 2-5 m all round, the bundle's line 2-5 m, the slam 1-3.5 m,
-    ;; the spin 2-6 m, the tail 3.5-8 m; the switch's 7 m line; the links and the SA along the chain (7 m / 6.5 m)
-    (flet ((w (n) (svref (mv-hits (m n)) 0)))
-      (check (and (~= 2.0 (hw-min (w :hs-r-n1a))) (~= 6.0 (mv-reach (m :hs-r-n1a))) (~= 2.0 (hw-min (w :hs-r-n1b))) (~= 5.0 (mv-reach (m :hs-r-n1b)))
-                  (~= 2.0 (hw-min (w :hs-r-n2a))) (~= 5.0 (mv-reach (m :hs-r-n2a))) (~= 1.0 (hw-min (w :hs-r-n2b))) (~= 3.5 (mv-reach (m :hs-r-n2b)))
-                  (~= 2.0 (hw-min (w :hs-r-n2c))) (~= 6.0 (mv-reach (m :hs-r-n2c))) (~= 3.5 (hw-min (w :hs-r-as2b))) (~= 8.0 (mv-reach (m :hs-r-as2b)))
+    ;; the ranged volumes' bands: §28.3's dead zones, the far edges at the re-used clips' drawn reach (debug 83902: 4.5 m, WA's 6 m;
+    ;; §28.3's 6 / 5 / 5 / 3.5 / 6 / 8 m wait for their own clips); the switch's 7 m line; the links and the SA along the chain
+    (flet ((w (n) (svref (mv-hits (m n)) 0)) (edge (n) (let ((v (first (hw-vols (svref (mv-hits (m n)) 0)))))
+                                                         (if (> (aref v 0) 0.5) (+ (aref v 2) (aref v 4)) (aref v 1)))))
+      (check (and (~= 2.0 (hw-min (w :hs-r-n1a))) (~= 4.5 (edge :hs-r-n1a)) (~= 2.0 (hw-min (w :hs-r-n1b))) (~= 6.0 (edge :hs-r-n1b))
+                  (~= 4.5 (edge :hs-r-n1c)) (~= 4.5 (edge :hs-r-as1))
+                  (~= 2.0 (hw-min (w :hs-r-n2a))) (~= 4.5 (edge :hs-r-n2a)) (~= 1.0 (hw-min (w :hs-r-n2b))) (~= 4.5 (edge :hs-r-n2b))
+                  (~= 2.0 (hw-min (w :hs-r-n2c))) (~= 4.5 (edge :hs-r-n2c)) (~= 2.0 (hw-min (w :hs-r-as2b))) (~= 4.5 (edge :hs-r-as2b))
                   (~= 7.0 (mv-reach (m :hs-r-as3))) (null (hw-min (w :hs-r-as3)))
                   (eq 'hs-core-seg (hw-seg (w :hs-r-sa))) (eq 'hs-core-seg (hw-seg (w :hs-r-sa-g))) (eq 'hs-core-seg (hw-seg (w :hs-r-as2)))
                   (eq 'hs-r-link-seg (hw-seg (w :hs-r-as3b))) (eq 'hs-r-link-seg (hw-seg (w :hs-r-as3c)))
@@ -524,7 +526,7 @@
         (check (and (= (gauges-reishi gh) 512) (= (gauges-reishi go) 1188)))
         (let ((*match-tick* 101)) (core-clash! o h))
         (check (and (= (gauges-reishi gh) 596) (= (gauges-reishi go) 1104) (= 1700 (+ (gauges-reishi gh) (gauges-reishi go)))))
-        ;; a Kikon's reset keeps the bind (§28.1: 「the bind goes on after the reset」)
+        ;; a Kikon's reset keeps the bind (§28.1's pick: the bind goes on after the reset)
         (hs-reset h)
         (check (hss-bound st))
         ;; the release: the bind AS3's last segment, once it ends, whatever it did (here it never touched him)

@@ -121,7 +121,11 @@ HODEN's charge ~d, NS3a's wrap ~d; TSUMUJI (§27.10): its flight ~d, the spin an
     (:bankai :hs-r-l) (:bankai :hs-r-sp1) (:bankai :hs-r-sp2) (:bankai :hs-r-kikon) (:bankai :hs-r-kubikake)
     (:bankai :hs-breaker) (:bankai-bind :hs-b-j1) (:bankai-bind :hs-b-j2) (:bankai-bind :hs-b-j3) (:bankai-bind :hs-b-k1)
     (:bankai-bind :hs-b-k2) (:bankai-bind :hs-b-k3) (:bankai-bind :hs-b-sp1) (:bankai-bind :hs-b-sp2) (:bankai-bind :hs-b-l)
-    (:bankai-bind :hs-b-kikon) (:bankai-bind :hs-b-sj))
+    (:bankai-bind :hs-b-kikon) (:bankai-bind :hs-b-sj)
+    ;; §28.4: the core Bankai's segments with their own volumes (copies on the old clips)
+    (:bankai :hs-r-n1a) (:bankai :hs-r-n1b) (:bankai :hs-r-n1c) (:bankai :hs-r-as1) (:bankai :hs-r-n2a) (:bankai :hs-r-n2b)
+    (:bankai :hs-r-n2c) (:bankai :hs-r-as2b) (:bankai :hs-r-as3) (:bankai-bind :hs-b-n1b) (:bankai-bind :hs-b-n1c)
+    (:bankai-bind :hs-b-n2a) (:bankai-bind :hs-b-n2b) (:bankai-bind :hs-b-n2c) (:bankai-bind :hs-b-as2b) (:bankai-bind :hs-b-as3c))
   "Debug 83902's moves: (form move), every Bankai move with a hit window of volumes (B4c: the ranged route links too, on
 their own clips since batch A2, §24.2).")
 (defun hisagi-tip-check ()

@@ -623,3 +623,44 @@ write("rogue", rogue_script())
 # the ENDLESS pacing check (debug 80990: every character x seeds 1-20, CONTINUE policy; 80991 for REVERT): one
 # "duel endless over" line per run, then "duel endless gate P1 c policy stay runs 20 median m ..." per character
 write("endless-gate", [cmd(T0, 80990)])
+# Hisagi's core Bankai (DUEL_HISAGI §28.4, batch 1; --fixed-dt 16.666667 --secs 57): every scene a debug setup (83011-83014,
+# 83000) and both sides' presses written out, no CPU (P2's own by 83030 his NS / 83031 his J1). A1 / A2 the ranged NS on
+# pointer 1 / 2 (2511), A3 pointer 2's gap SA then J: the gathered J2-J4; B J x5 > SP x3: AS3's KAKE binds ("BIND START" at
+# the move's end); C / C2 clashes in the bind ("BIND EVEN a -> a', b -> b'": 400 / 1300 -> 512 / 1188); D a K.O. inside the
+# bind; E the bind's J x5 > SP x3 (KAIBAKU) back to ranged ("BIND END"); F its whiff; G a Kikon inside the bind (still bound
+# after); H the real Mod+P awakening from the Shikai at pointer 3 (2512, 2311: the gauge full): the ranged mode at pointer 2.
+def hisagi_bankai_script():
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def press(t, k, down=True): ev.append(key(t, k, down))
+    def jtap(t): ev.extend(tap(t, "KeyJ", 0.05))
+    def sp(t, hold=0.05): press(t, "ShiftLeft"); ev.extend(tap(t + 0.01, "KeyJ", hold)); press(t + hold + 0.03, "ShiftLeft", False)
+    def mash(t0, t1, f, dt):
+        while t0 < t1: f(t0); t0 += dt
+    def j5_sp3(s): mash(s, s + 1.25, jtap, 0.08); mash(s + 1.3, s + 2.4, sp, 0.12)
+    def g(s): press(s, "ShiftLeft"); press(s + 0.01, "KeyJ"); press(s + 1.8, "KeyJ", False); press(s + 1.82, "ShiftLeft", False)
+    def h(s):
+        ev.extend([cmd(s - 0.2, 2512), cmd(s - 0.15, 2311)])
+        press(s, "ShiftLeft"); ev.extend(tap(s + 0.01, "KeyP", 0.06)); press(s + 0.1, "ShiftLeft", False)
+        ev.append(cmd(s + 4.5, 83900)); sp(s + 4.7)
+    t = T0
+    for label, c, dur, body in (
+            ("A1 ranged NS1", 83011, 2.5, lambda s: [sp(s), sp(s + 0.25), sp(s + 0.55)]),
+            ("A2 ranged NS2", 83011, 3.0, lambda s: [ev.append(cmd(s - 0.1, 2511)), sp(s), sp(s + 0.45), sp(s + 0.95)]),
+            ("A3 ranged NS2a SA gathered J", 83011, 3.0,
+             lambda s: [ev.append(cmd(s - 0.1, 2511)), sp(s), mash(s + 0.4, s + 1.6, jtap, 0.08)]),
+            ("B J5 AS3 bind", 83011, 4.5, j5_sp3),
+            ("B2 after the bind", 83900, 1.0, lambda s: None),
+            ("C bind clash", 83012, 2.0, lambda s: [ev.append(cmd(s, 83030)), jtap(s + 0.02)]),
+            ("C2 bind clash NS vs NA", 83012, 2.0, lambda s: [sp(s), ev.append(cmd(s + 0.02, 83031))]),
+            ("D bind KO", 83013, 6.0, jtap),
+            ("E bind AS3 release", 83012, 4.5, j5_sp3),
+            ("F bind AS3 whiff", 83014, 2.5, lambda s: [sp(s + 0.1), sp(s + 0.5), sp(s + 0.9)]),
+            ("G bind Kikon", 83012, 8.0, g),
+            ("H Mod+P awakening", 83000, 7.5, h)):
+        say(t, label); ev.extend([cmd(t, c), cmd(t + 0.02, 83900)])
+        body(t + 0.3)
+        t += dur
+        ev.append(cmd(t - 0.05, 83900))
+    return sorted(ev, key=lambda x: x["at"])
+write("hisagi-bankai", hisagi_bankai_script())
