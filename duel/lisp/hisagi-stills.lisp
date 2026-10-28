@@ -1,5 +1,5 @@
 ;;;; hisagi-stills.lisp — Hisagi's debug stills and probes: the look and tip consing checks (83901-83902), the clip strips (83500-83549,
-;;;; 83910-83964), the cinematics' stills (83965-83976), the two model sheets (83980-83994) (split out of hisagi-art.lisp
+;;;; 83910-83964), the cinematics' stills (83965-83977), the two model sheets (83980-83994) (split out of hisagi-art.lisp
 ;;;; 2026-10-21, refactor round 2). Debug scaffolding only: the sim never reads it. The PUSHNEW order onto *CHAR-DEBUG* is the dispatch
 ;;;; order; keep it.
 (in-package :duel)
@@ -263,13 +263,14 @@ the match camera, frozen); 83964 lets go."
 (pushnew '(83910 83964 hisagi-strip) *char-debug* :test #'equal)
 (pushnew '(83500 83549 hisagi-strip) *char-debug* :test #'equal)
 
-;;; ---------------------------------------------------------------- the cinematics' stills (debug 83965-83976)
+;;; ---------------------------------------------------------------- the cinematics' stills (debug 83965-83977)
 ;; 83965+c starts cinematic c from a fresh scene (0 the awakening: P1 Hisagi in his Shikai 6 m from an idle Kenpachi,
-;; AWAKEN! itself; 1 刈れ, the Shikai 4 m from him; 2 KOSA, the ranged mode 7.5 m from him; 3 KOSHU, a bind 2 m from him),
-;; played through; 83970+b restarts the last one held at its beat b's middle frame (*HS-CINE-BEATS*); 83976 lets go.
+;; AWAKEN! itself; 1 刈れ, the Shikai 4 m from him; 2 KOSA, the ranged mode 7.5 m from him; 3 KOSHU, a bind 2 m from him;
+;; 4 首掛 KUBIKAKE, the Shikai 4 m from him; 83977 is c 5, 綴雷電 TSUZURI RAIDEN, the same: DUEL_HISAGI §26.6), played
+;; through; 83970+b restarts the last one held at its beat b's middle frame (*HS-CINE-BEATS*); 83976 lets go.
 (defparameter *hs-cine-beats*
-  '((10 36 60 85 117 152) (12 40 64 94 140 168) (12 42 75 113 135) (15 50 92 122 165))
-  "Each cinematic's beats' middle frames (83970+b; as built, DUEL_HISAGI §22.7).")
+  '((10 36 60 85 117 152) (12 40 64 94 140 168) (12 42 75 113 135) (15 50 92 122 165) (10 35 66 84 125) (12 35 62 98 134))
+  "Each cinematic's beats' middle frames (83970+b; as built, DUEL_HISAGI §22.7, §26.6).")
 (defvar *hs-cine-k* 0 "The cinematic the last 83965+c picked.")
 (defun hisagi-cine-scene (c)
   "83965+C's scene and its cinematic (see above)."
@@ -279,16 +280,20 @@ the match camera, frozen); 83964 lets go."
   (setf (hss-bound (hs *p1*)) nil (gauges-awakened (gauges *p1*)) nil)
   (force-form *p1* :base)
   (hs-reset *p1*)
-  (place *p1* *p2* (case c (0 6.0) (1 4.0) (2 7.5) (t 2.0)))
+  (place *p1* *p2* (case c (0 6.0) ((1 4 5) 4.0) (2 7.5) (t 2.0)))
   (full-gauges! *p1*) (full-gauges! *p2*)
   (case c
     (0 (awaken! *p1*))
     (1 (start-cine 'hs-kare-cine *p1* *p2*))
+    (4 (start-cine 'hs-kubikake-cine *p1* *p2*))
+    (5 (start-cine 'hs-raiden-cine *p1* *p2*))
     (2 (hs-awaken-now! *p1*) (start-cine 'hs-kosa-cine *p1* *p2*))
     (t (hs-awaken-now! *p1*) (hs-bind-start! *p1*) (set-form *p1* :bankai-bind) (start-cine 'hs-koshu-cine *p1* *p2*))))
 (defun hisagi-cine-debug (c)
-  "83965-83968: cinematic c played (HISAGI-CINE-SCENE); 83970-83975: the last one held at beat b; 83976 lets go."
-  (cond ((< c 83969) (setf *hs-cine-k* (- c 83965) *cine-hold* nil) (hisagi-cine-scene *hs-cine-k*))
+  "83965-83969 / 83977: cinematic c 0-4 / 5 played (HISAGI-CINE-SCENE); 83970-83975: the last one held at beat b; 83976
+lets go."
+  (cond ((or (< c 83970) (= c 83977))
+         (setf *hs-cine-k* (if (= c 83977) 5 (- c 83965)) *cine-hold* nil) (hisagi-cine-scene *hs-cine-k*))
         ((< c 83976)
          (let ((f (nth (- c 83970) (nth *hs-cine-k* *hs-cine-beats*))))
            (when f
@@ -296,7 +301,7 @@ the match camera, frozen); 83964 lets go."
              (hisagi-cine-scene *hs-cine-k*)
              (when *cine* (setf (cine-hold *cine*) f)))))
         (t (abort-cine) (setf *cine-hold* nil))))
-(pushnew '(83965 83976 hisagi-cine-debug) *char-debug* :test #'equal)
+(pushnew '(83965 83977 hisagi-cine-debug) *char-debug* :test #'equal)
 
 ;;; ---------------------------------------------------------------- the model sheet (debug 83980-83985: stills, a look)
 ;; Him alone on a white card (CARD, as Kenpachi's black robe) in the stance, the camera a cinematic shot: the front, his

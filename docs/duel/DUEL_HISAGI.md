@@ -3751,3 +3751,38 @@ SA (J in any NS gap): 引寄 YOSE, frame 0 the drag to 1.6 m (within 6.5 m), S 1
   the run all chained: the debug start, not the move set.)
 - Gates (10 seeds, his pairings, `--pairs 29,31,35`): HK 189.7 s (Hisagi 2:8; 146.3 before), HI 194.0 s (4:6; 204.1 at 10 seeds before),
   HH 184.7 s (172.4), every match K.O.: the quick pass. G2 (II IK KK) identical.
+
+### 26.6 The Kikon cinematics as built (batch 4, presentation only, 2026-10-28)
+
+`hisagi-cine.lisp` `hs-kubikake-cine` (pointer 2, 150 f) and `hs-raiden-cine` (pointer 3, 150 f); the kit's `:kikon-cines` is now
+`(hs-kare-cine hs-kubikake-cine hs-raiden-cine)`. His left sickle was thrown: it hangs off the chain's coil on the victim, so both
+scripts draw it and its chain after both bodies are posed (`HS-CINE-OF` 5 / 6; `HISAGI-DRAW` skips its `%HS-DRAW` for them, the only
+edit in `hisagi-draw.lisp`): the coil is joint-based (`HS-CINE-COIL`: the victim's neck / chest joint, so it follows him through the
+heave), the lightning is jade shards with a white core along any segment (`HS-CINE-BOLT`, `%HS-DRAW`'s bolt look). New clips there:
+`:hs-cine-kb-haul`, `:hs-cine-rd-hold`, the victim's `:hs-cine-wound-v` / `:hs-cine-shock-v`; re-used: SHIBARI's heave (f26-46 at
+x0.64), KUBIKAKE's pin (f18 held), RAIDEN's hit pose. Glyphs 綴 電 道 掛 added to `glyphs-extra.lisp` (the same Yuji Syuku font).
+
+首掛 KUBIKAKE (CINE-PLACE 3.4 m): 0-20 low behind him (`hs-shot`, not a close-up, so the phone dollies back to the victim): the haul,
+the chain snaps taut at f8 (focus lines, the victim chokes); 20-50 side-on (`shot-pair` 5.4 m, the phone 7.5 m): two turns wound
+round the neck f20-36, the sickle tumbling at the coil's front, drawn tight f36-46; 50-80 side-on and low (6.8 m, aimed 2.4 m up,
+the sky behind): he turns his back on SHIBARI's heave, the victim hauled up from f58 over his shoulder (3.3 m up at f71); 81 the slam
+1.9 m behind him: a negative, the crack ring, the shockwave, the ink splash, the Konpaku (f83 manga page); 100-150 he kneels on him
+(KUBIKAKE's pin, the left hand at the throat, the sickle up), 首掛 / KUBIKAKE / KAZESHINI KIKON from f104.
+
+綴雷電 TSUZURI RAIDEN (CINE-PLACE 4.0 m): 0-25 orbiting the victim (4.4 m): three turns round his chest and arms f2-22, a snap on
+each; 25-45 close on his raised left fist on the taut chain, the right hand's fingers on it, jade sparks, silence; 45-90 a tracking
+shot beside the chain: the bolt runs from his fist down the chain f48-70 and round the coil f70-84, the victim's shock f70; 90-120 lit
+and paralysed: white cards with his black silhouette at f90-93, f97-100, f112-114, the Konpaku at f100; 120-150 slack: the coil
+gone, the chain run down to the sickle on the ground, he drops smoking, 綴雷電 with 破道の十一 / TSUZURI RAIDEN from f124 (the phone:
+down the line from behind him).
+
+Stills: debug 83969 (首掛) / 83977 (綴雷電), then 83970+b holds beat b at `*hs-cine-beats*` (10 35 66 84 125) / (12 35 62 98 134), at
+1280x720 and 390x844 (`--mobile`). Checked: the chain round the neck / body, the bolt along the chain, nobody cut off but the
+orbit's opening frame on the phone (Hisagi out of the tall frame while the camera circles the victim).
+
+Checks: host 10760 ALL PASS, cine-test 18 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0 errors. In the match (83000, 2511 / 2512,
+Shift+J held 1.6 s): NS2a `KIKON 40` -> `cine HS-KUBIKAKE-CINE`, NS3a `KIKON 45` -> `cine HS-RAIDEN-CINE`, both back to IDLE after. The
+sim did not move (`--pairs 29,31,35 --seeds 10`): HK 189.7 s, HI 194.0 s, HH 184.7 s, all K.O.; with the cinematics 264.1 / 263.3 /
+242.9 s (265.1 / 263.8 / 244.9 with 刈れ's 180 f on all three pointers). The looks cons ~3-8 KB a frame while they run (plain DEFUN
+float math, as the B5 scripts'), nothing outside a cinematic.
+

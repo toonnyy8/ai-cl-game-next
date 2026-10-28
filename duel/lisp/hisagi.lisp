@@ -417,7 +417,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)
   :core (:ns (:hs-n1a :hs-n2a :hs-n3a) :as (:hs-as1 :hs-as2 :hs-as3) :sa :hs-sa
          :stances (:hs-s-stance :hs-s-stance :hs-s-stance)       ; by pointer: the reveal / the hawser / the taut chain (§26.2)
-         :kikon-cines (hs-kare-cine hs-kare-cine hs-kare-cine)   ; 刈れ / 首掛 / 綴雷電 (the last two built last, §26.3)
+         :kikon-cines (hs-kare-cine hs-kubikake-cine hs-raiden-cine)   ; 刈れ / 首掛 / 綴雷電 (§26.4, as built §26.6)
          :as-by-press (1 1 2 2 3)
          :ns-range ((3.6 6.2) nil nil)                           ; the CPU throws NAGI from 3.6-6.2 m under pointer 1
          :no-awaken t :mult 1.7)                                 ; (the Bankai: its own design round, §26.1)

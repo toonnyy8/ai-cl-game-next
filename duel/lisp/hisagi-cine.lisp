@@ -11,13 +11,16 @@
 ;;; back at the end); the awakening moves no one (its AFTER sends both to idle as every awakening's does). His draw hook
 ;;; reads the running script's frame (HS-CINE-OF, %HS-CINE-LOOK!, HS-KARE-CODES), so a skipped or aborted script leaves
 ;;; nothing behind; the scripts' own looks are the DURING functions below (the whirlpool, the black wind, the coils, the
-;;; orb gathering, the giant rope, the crack, the rain of chains). Debug 83965-83976 (HISAGI-CINE-DEBUG).
+;;; orb gathering, the giant rope, the crack, the rain of chains). Debug 83965-83977 (HISAGI-CINE-DEBUG).
 
 (defun hs-cine-of (e)
-  "The B5 cinematic E is the actor A of right now: 1 the awakening, 2 the Shikai Kikon 刈れ, 3 KOSA, 4 KOSHU, else 0."
+  "The B5 cinematic E is the actor A of right now: 1 the awakening, 2 the Shikai Kikon 刈れ, 3 KOSA, 4 KOSHU, 5 首掛
+KUBIKAKE, 6 綴雷電 TSUZURI RAIDEN (the core Kikons, §26.6: their scripts draw his left sickle and its chain, HISAGI-DRAW
+leaves them out), else 0."
   (let ((c *cine*))
     (if (and c (eq (cine-a c) e))
-        (case (cine-name c) (hs-awaken-cine 1) (hs-kare-cine 2) (hs-kosa-cine 3) (hs-koshu-cine 4) (t 0))
+        (case (cine-name c) (hs-awaken-cine 1) (hs-kare-cine 2) (hs-kosa-cine 3) (hs-koshu-cine 4) (hs-kubikake-cine 5)
+          (hs-raiden-cine 6) (t 0))
         0)))
 
 (defun-fast %hs-cine-look! (code cf)
@@ -484,4 +487,255 @@ tightens on both necks: both choke (the shared pain); 5 the victim drops, the Ko
       (shot-on a 95 5.6 1.3 :look 1.4 :off -0.9) (lens 46))
   (at 152 (impact-frame :manga 12))
   (at 156 (caption "絞首" :reading "KOSHU" :sub "FUSHI NO KOJO  KIKON" :side 1 :hanko t)))
+
+;;; ================================================================ the core Kikons 首掛 / 綴雷電 (DUEL_HISAGI §26.4, §26.6)
+;;; The user, 2026-10-28, approved the storyboards (§26.4): pointer 2's 首掛 KUBIKAKE (the bind: the chain round the neck,
+;;; the heave over his shoulder, the slam, the pin) and pointer 3's 綴雷電 TSUZURI RAIDEN (the chain wound round the
+;;; victim, the lightning run down it). His left sickle was thrown: it hangs off the chain's coil on the victim, so these
+;;; scripts draw it and its chain themselves after both bodies are posed (HS-CINE-OF 5 / 6: HISAGI-DRAW leaves them out).
+;;; Debug 83969 (首掛) / 83977 (綴雷電) play them, 83970+b holds beat b (HISAGI-CINE-DEBUG).
+(declaim (type f32vec *hs-k0* *hs-k1* *hs-k2* *hs-k3*))
+(defvar *hs-k0* (make-f32 3) "The core Kikons' look: a chord's start (scratch).")
+(defvar *hs-k1* (make-f32 3) "The core Kikons' look: a coil's start (where the chain from his fist reaches it).")
+(defvar *hs-k2* (make-f32 3) "The core Kikons' look: a coil's end (the left sickle hangs there).")
+(defvar *hs-k3* (make-f32 3) "The core Kikons' look: his left fist.")
+
+(defun hs-cine-shown-p (e)
+  "Actor E is drawn this frame: not left off a card that shows the other alone (CARD's ONLY)."
+  (not (and *card-only* (not (eq e *card-only*)))))
+
+(defun hs-cine-ink (a)
+  "The chain's colour as HISAGI-DRAW's: solid black, P2's the original ink."
+  (setf *hs-chain-black* 1 *hs-chain-ink* (if (eq a *p1*) 0 1)))
+
+(defun hs-cine-fist (a)
+  "His chain between the rods with the left sickle thrown: the right rod's butt to the left fist, slack; *HS-K3* := the
+left fist."
+  (let ((jm (model-joints (model a))) (w *hs-k0*) (q *hs-k3*))
+    (joint-point! w jm (ji :weapon-r) 0f0 0f0 0.22f0)
+    (joint-point! q jm (ji :weapon-l) 0f0 0f0 0f0)
+    (vfx-hs-chain w q -0.4f0 0.9f0)))
+
+(defun hs-cine-blade (a p yaw spin)
+  "His left sickle drawn at P (an f32vec), turned to YAW, SPIN as %HS-PLACE!'s (1 tumbling, 4 point down at P)."
+  (let ((fa *hs-cfa*) (m *hs-cm*))
+    (setf (aref fa 0) (f32 yaw))
+    (%hs-place! m p fa spin)
+    (draw-weapon :kazeshini m :tint (model-tint (model a)))))
+
+(defun hs-cine-bolt (p q k0 k1 seed)
+  "TSUZURI RAIDEN's lightning (%HS-DRAW's: jade shards, a white core) from K0 to K1 (0-1) of the segment P -> Q, jagged,
+redrawn on the fx clock."
+  (let* ((dx (- (aref q 0) (aref p 0))) (dy (- (aref q 1) (aref p 1))) (dz (- (aref q 2) (aref p 2)))
+         (l (max 0.01 (sqrt (+ (* dx dx) (* dy dy) (* dz dz))))) (ux (/ dx l)) (uy (/ dy l)) (uz (/ dz l))
+         (hl (max 0.01 (sqrt (+ (* ux ux) (* uz uz))))) (sx (/ uz hl)) (sz (/ (- ux) hl))   ; (sideways, level)
+         (n (max 1 (ceiling (* (- k1 k0) l) 0.3))) (dr (drawing-no 24f0)))
+    (when (> k1 k0)
+      (dotimes (i n)
+        (let* ((s (* l (+ k0 (* (- k1 k0) (/ (+ i 0.5) n))))) (j (* 0.09 (sin (+ dr seed (* 2.3 i)))))
+               (jy (* 0.07 (cos (+ (* 1.7 dr) (* 3.1 i)))))
+               (x (f32 (+ (aref p 0) (* s ux) (* j sx)))) (y (f32 (+ (aref p 1) (* s uy) jy))) (z (f32 (+ (aref p 2) (* s uz) (* j sz))))
+               (k (f32 (+ i 800 dr seed))))
+          (fx-shard x y z (f32 ux) (f32 uy) (f32 uz) 0.42f0 0.05f0 0.12f0 k +pal-jade+ 0.95f0 :push 0.12f0)
+          (fx-shard x y z (f32 ux) (f32 uy) (f32 uz) 0.38f0 0.016f0 0.08f0 (+ k 40f0) +pal-hit+ 0.95f0 :push 0.16f0))))))
+
+(defun hs-cine-coil (jm j r ya yb turns k bolt)
+  "K (0-1) of a coil of chain wound round joint J of the joints JM from its front: radius R, from YA to YB along the
+joint's up axis, TURNS turns, 10 chords a turn (VFX-HS-CHAIN); BOLT (0-1) of it lit (HS-CINE-BOLT); *HS-K1* := its start,
+*HS-K2* := its end so far."
+  (let* ((n (max 1 (round (* 10 turns)))) (m (* k n)) (p *hs-k0*) (q *hs-k2*))
+    (flet ((pt (o u) (let ((an (+ 3.1415927 (* 6.2831855 turns u))))
+                       (joint-point! o jm j (f32 (* r (sin an))) (f32 (+ ya (* u (- yb ya)))) (f32 (* r (cos an)))))))
+      (pt *hs-k1* 0.0) (pt q 0.0)
+      (dotimes (i (ceiling m))
+        (replace p q)
+        (pt q (/ (min m (1+ i)) n))
+        (vfx-hs-chain p q 0f0 0.9f0)
+        (when (> bolt (/ i (float n))) (hs-cine-bolt p q 0.0 1.0 i))))))
+
+(defun hs-cine-sparks (p n k)
+  "N jade sparks crackling out of point P (an f32vec), redrawn on the fx clock, presence K."
+  (let ((dr (drawing-no 24f0)))
+    (dotimes (i n)
+      (let* ((a0 (+ (* 2.39996 i) (* 1.3 dr))) (e (* 0.9 (sin (+ (* 1.7 i) dr))))
+             (ux (* (cos e) (cos a0))) (uy (sin e)) (uz (* (cos e) (sin a0))) (s (+ 0.08 (* 0.05 (mod (+ i (floor dr)) 3)))))
+        (fx-shard (f32 (+ (aref p 0) (* s ux))) (f32 (+ (aref p 1) (* s uy))) (f32 (+ (aref p 2) (* s uz)))
+                  (f32 ux) (f32 uy) (f32 uz) 0.16f0 0.02f0 0.1f0 (f32 (+ i 870 dr)) +pal-jade+ (f32 k) :push 0.16f0)))
+    (%light (aref p 0) (aref p 1) (aref p 2) 0.62f0 1f0 0.86f0 4f0 (f32 (* 2.5 k)) 8)))
+
+(defun hs-cine-smoke (v n)
+  "Smoke rising off V (up to N puffs a frame, the fx particles)."
+  (let ((q (pos-of v)))
+    (dotimes (i n)
+      (when (< (rnd01) 0.5)
+        (%t-blob (+ (aref q 0) (rnd-range -0.4f0 0.4f0)) (rnd-range 0.3f0 1.3f0) (+ (aref q 2) (rnd-range -0.4f0 0.4f0))
+                 0f0 0.7f0 0f0 1.1f0 0.06f0 -0.06f0 0.1f0 +pal-black-smoke+)))))
+
+;;; ---------------------------------------------------------------- their clips (his and the victim's)
+;; 首掛: the haul: from the cast (the left arm out along the chain) yanked back, the fist by his left shoulder, the body
+;; leant back on the braced front leg
+(defpose :hs-cine-haul (:base :hs-s-stance)
+  (:root :f -0.1 :u -0.16 :yaw 12) (:pelvis :twist 0) (:spine :flex -10) (:chest :twist 20) (:head :flex 6)
+  (:arm-l :flex 52 :side 22 :twist 0) (:elbow-l :flex 118) (:hand-l :flex -30)
+  (:arm-r :flex 24 :side 24) (:elbow-r :flex 40) (:hand-r :flex -80)
+  (:thigh-l :flex 40 :side 8) (:knee-l :flex 30) (:thigh-r :flex -26 :side 12) (:knee-r :flex 26))
+(defclip :hs-cine-kb-haul (0.6 :base :hs-s-stance)
+  (0 :hs-s-nage-hit) (0.12 :snap :hs-cine-haul) (0.6 :hs-cine-haul (:root :u -0.18) (:spine :flex -12)))
+;; 綴雷電: the left fist high on the taut chain, the right hand's two fingers set on it lower down, trembling
+(defpose :hs-cine-rd-hold (:base :hs-s-stance)
+  (:root :f 0.04 :u -0.12 :yaw -6) (:pelvis :twist 0) (:spine :flex 4) (:chest :twist -14) (:head :flex -6)
+  (:arm-l :flex 150 :side 8 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -20)
+  (:arm-r :flex 112 :side -18 :twist 0) (:elbow-r :flex 50) (:hand-r :flex -10)
+  (:thigh-l :flex 36 :side 8) (:knee-l :flex 38) (:thigh-r :flex -18 :side 10) (:knee-r :flex 16))
+(defclip :hs-cine-rd-hold (0.2 :loop t :base :hs-cine-rd-hold)
+  (0) (0.1 (:arm-l :flex 152) (:root :u -0.13)))
+;; the victim wound in the chain: the arms pinned to his sides, straining; then the shock: up on his toes, the head thrown
+;; back, shaking
+(defpose :hs-cine-wound-v ()
+  (:root :u -0.04) (:spine :flex -8) (:head :flex -18)
+  (:arm-r :flex 6 :side 6 :twist 0) (:elbow-r :flex 14) (:arm-l :flex 6 :side 6 :twist 0) (:elbow-l :flex 14)
+  (:thigh-l :flex 6 :side 6) (:knee-l :flex 10) (:thigh-r :flex -6 :side 6) (:knee-r :flex 8))
+(defclip :hs-cine-wound-v (0.3 :loop t :base :hs-cine-wound-v)
+  (0) (0.15 (:spine :flex -12 :twist 8) (:head :flex -24)))
+(defclip :hs-cine-shock-v (0.1 :loop t :base :hs-cine-wound-v)
+  (0 (:root :u 0.05) (:spine :flex -22 :twist 5) (:head :flex -38) (:arms :side 12) (:elbows :flex 30))
+  (0.05 (:root :u 0.04) (:spine :flex -26 :twist -5) (:head :flex -44) (:arms :side 16) (:elbows :flex 24)))
+
+;;; ---------------------------------------------------------------- 首掛 KUBIKAKE
+(defun hs-kubi-look (a v cf)
+  "首掛's chain (every frame): two turns round the victim's neck, wound on f20-36 and drawn tight f36-46; from it to his
+left fist, slack until the snap (f8), then taut (through the heave, the slam and the pin); the left sickle hanging off
+the coil (tumbling while it winds)."
+  (hs-cine-ink a)
+  (let* ((k (cond ((< cf 20) 0.3) ((< cf 36) (+ 0.3 (* 0.7 (/ (- cf 20) 16.0)))) (t 1.0)))
+         (r (cond ((< cf 36) 0.17) ((< cf 46) (- 0.17 (* 0.085 (/ (- cf 36) 10.0)))) (t 0.085))))
+    (when (hs-cine-shown-p v)
+      (hs-cine-coil (model-joints (model v)) (ji :neck) r 0.0 0.09 2.0 k 0.0)
+      (hs-cine-blade a *hs-k2* (yaw-of v) (if (< cf 36) 1 4)))
+    (when (hs-cine-shown-p a)
+      (hs-cine-fist a)
+      (when (hs-cine-shown-p v)
+        (if (< cf 8) (vfx-hs-chain *hs-k3* *hs-k1* -0.5f0 0.9f0) (%hs-chain2 *hs-k3* *hs-k1*))))))
+
+(defun hs-kubi-arc (a v cf)
+  "The heave (step mode, f58-81): the victim hauled up off the ground 3.4 m in front of him, over his shoulder (3.3 m
+up at f71) and slammed down 1.9 m behind him (CINE-PLACE gives him his place back)."
+  (let* ((k (min 1.0 (/ (- cf 58) 23.0))) (p (pos-of a)) (q (pos-of v)) (yaw (yaw-of a))
+         (s (- 3.4 (* 5.3 k))) (h (if (< k 0.55) (/ (- k 0.55) 0.55) (/ (- k 0.55) 0.45))))
+    (setf (aref q 0) (f32 (+ (aref p 0) (* s (fwd-x yaw)))) (aref q 2) (f32 (+ (aref p 2) (* s (fwd-z yaw))))
+          (aref q 1) (f32 (* 3.3 (- 1.0 (* h h)))))))
+
+(defcine hs-kubikake-cine (a v :len 150 :hold 125)
+  "Pointer 2's Kikon 首掛 KUBIKAKE (§26.4): 1 low from behind him: the left fist hauls, the chain snaps taut over his
+shoulder; 2 wide, side-on: the chain winds twice round the victim's neck and tightens; 3 low, the sky behind: he turns
+his back and heaves the chain over his shoulder like a hawser, the victim leaves the ground; 4 the slam over his shoulder
+into the plaza: the crack ring, the ink splash, the shake, the Konpaku; 5 he kneels on him, the sickle raised, a hand at
+his throat: 首掛."
+  (during (0 150) (hs-kubi-look a v cf))
+  ;; 1 (0-20) low, from behind him: the haul, the snap (f8)
+  (at 0 (hs-cine-stage a v 3.4) (cine-clip a :hs-cine-kb-haul :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-pose v 8) (freeze 8) (impact-frame :negative 2) (play-sfx :chain-rattle) (silence 20)
+      (hs-shot a 160 2.6 0.45 1.6 :ahead 1.2) (lens 54))          ; (not a close-up: a phone dollies back to the victim)
+  (at 8 (play-sfx :chain-snap) (shake 0.12 0.2) (cine-clip v :hs-cine-choke-v :blend 1) (face-beat v :hurt 2.5)
+      (multiple-value-bind (x y z) (actor-point v 1.45) (focus-lines 8 x y z)))
+  ;; 2 (20-50) wide, side-on: two turns round his neck (f20-36), drawn tight (f36-46)
+  (at 20 (shot-pair a v 1 (if (portrait-p) 7.5 5.4) 1.5) (lens 40) (play-sfx :chain-rattle :pitch 1.2))
+  (at 28 (play-sfx :chain-rattle :pitch 1.1))
+  (at 36 (cine-clip a :hs-cine-kb-haul :blend 1 :time 0.04) (play-sfx :chain-snap :pitch 0.8) (shake 0.15 0.25)
+      (multiple-value-bind (x y z) (actor-point v 1.5) (focus-lines 10 x y z)))
+  ;; 3 (50-80) low, the sky behind: he turns his back, the chain over his shoulder; the heave (SHIBARI's clip f26-46)
+  (at 50 (cine-clip a :hs-s-shibari :blend 4 :time (/ 26.0 60.0) :speed 0.64) (hs-shot a 90 6.8 0.25 2.4 :ahead 0.6)
+      (lens 50) (play-sfx :whoosh-heavy :pitch 0.6))
+  (at 58 (cine-clip v :sh-launch :blend 3) (play-sfx :chain-snap :pitch 0.7) (play-sfx :whoosh-heavy :pitch 0.8))
+  (when (and step-p (<= 58 cf 81)) (hs-kubi-arc a v cf))
+  (at 70 (play-sfx :whoosh-heavy :pitch 1.0))
+  ;; 4 (80-100) the slam (f81): the crack ring, the ink splash, the shake, the Konpaku
+  (at 80 (cine-clip a :hs-s-shibari :blend 0 :time (/ 45.0 60.0)) (shot-on a 225 5.6 1.5 :look 0.7 :ahead -1.0) (lens 46))
+  (at 81 (cine-clip v :sh-down :blend 1) (impact-frame :negative 2) (shake 0.45 0.5)
+      (play-sfx :ground-crack) (play-sfx :land) (play-sfx :explode :pitch 0.6 :gain 0.6)
+      (let ((q (pos-of v))) (vfx-shockwave (aref q 0) (aref q 2) 3.0 0.5 :pal +pal-dust+)
+        (stage-crack-add (aref q 0) (aref q 2) 2.2) (impact-splash (aref q 0) 0.0 (aref q 2) 12 0.09))
+      (cine-shatter v (fighter-kikon-n (fighter a)) :up 0.5) (play-sfx :konpaku-shatter))
+  (at 83 (impact-frame :manga 8))
+  ;; 5 (100-150) the pin (KUBIKAKE's clip, f18 held): down on his knee, the left hand at the throat, the sickle up; 首掛
+  (at 100 (face-each-other a v 1.4) (cine-clip a :hs-s-kubikake :blend 0 :time (/ 18.0 60.0) :speed 0.0)
+      (cine-clip v :sh-down :blend 0) (impact-frame :negative 1) (play-sfx :chain-snap :pitch 0.6)
+      (shot-on a 75 4.6 1.3 :look 0.6 :ahead 0.9 :off -0.5) (lens 42))
+  (at 104 (caption "首掛" :reading "KUBIKAKE" :sub "KAZESHINI  KIKON" :side 1 :hanko t)))
+
+;;; ---------------------------------------------------------------- 綴雷電 TSUZURI RAIDEN
+(defun hs-raiden-look (a v cf)
+  "綴雷電's chain (every frame): three turns round the victim's chest and arms, wound on f2-22; from it up to his raised
+left fist, taut; the lightning from the fist down the chain (f48-70) and round the coil (f70-84), crackling there to
+f120; sparks at his fingers (f25-70); from f120 slack: the coil gone, the chain run down to the sickle on the ground."
+  (hs-cine-ink a)
+  (let ((k (min 1.0 (max 0.0 (/ (- cf 2) 20.0)))) (run (min 1.0 (max 0.0 (/ (- cf 48) 22.0))))
+        (lit (cond ((< cf 70) 0.0) ((< cf 84) (/ (- cf 70) 14.0)) ((< cf 120) 1.0) (t 0.0))))
+    (if (< cf 120)
+        (when (hs-cine-shown-p v)
+          (hs-cine-coil (model-joints (model v)) (ji :chest) 0.45 -0.48 0.12 3.0 k lit)
+          (hs-cine-blade a *hs-k2* (yaw-of v) (if (< k 1.0) 1 4))
+          (when (>= cf 70)                                         ; lit
+            (multiple-value-bind (x y z) (actor-point v 1.1)
+              (%light (f32 x) (f32 y) (f32 z) 0.62f0 1f0 0.86f0 6f0 (f32 (if (< cf 90) 3.0 (* 0.5 (mod cf 3)))) 8))))
+        (let ((q (pos-of v)) (g *hs-k1*))                         ; slack: run down to the sickle on the ground
+          (setf (aref g 0) (aref q 0) (aref g 1) 0.05f0 (aref g 2) (aref q 2))
+          (hs-cine-blade a g (yaw-of v) 4)))
+    (when (hs-cine-shown-p a)
+      (hs-cine-fist a)
+      (when (hs-cine-shown-p v)
+        (if (< cf 120) (%hs-chain2 *hs-k3* *hs-k1*) (vfx-hs-chain *hs-k3* *hs-k1* -1.0f0 0.9f0))
+        (when (< 48 cf 120) (hs-cine-bolt *hs-k3* *hs-k1* (max 0.0 (- run 0.35)) run 0)))
+      (when (< 25 cf 70) (hs-cine-sparks *hs-k3* 7 (if (< cf 48) 0.8 0.95))))))
+
+(defun hs-raiden-track (a v cf)
+  "綴雷電's tracking shot (f45-90): beside the chain, following the lightning's front from his raised hand down to the
+victim, held on him from f70."
+  (let* ((p (pos-of a)) (q (pos-of v)) (u (min 1.0 (/ (- cf 45) 25.0))) (e (* u u (- 3 (* 2 u))))
+         (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (d (max 0.5 (sqrt (+ (* dx dx) (* dz dz)))))
+         (ux (/ dx d)) (uz (/ dz d)) (s (* d (+ 0.1 (* 0.9 e)))) (tx (+ (aref p 0) (* s ux))) (tz (+ (aref p 2) (* s uz)))
+         (ty (+ 2.0 (* -0.9 e))))
+    (cine-cam (+ tx (* 3.4 (- uz)) (* -1.2 ux)) (+ ty 0.4) (+ tz (* 3.4 ux) (* -1.2 uz)) tx ty tz)))
+
+(defcine hs-raiden-cine (a v :len 150 :hold 128)
+  "Pointer 3's Kikon 綴雷電 TSUZURI RAIDEN (§26.4): 1 orbiting the victim: the chain winds three times round him; 2 close:
+his left hand high on the taut chain, two fingers of the right set on it (no incantation), sparks; 3 the lightning runs
+from his hand down the chain to the victim, the camera tracking along the chain; 4 the victim lit and paralysed, black
+and white silhouette flashes, the Konpaku; 5 the chain goes slack, the victim drops smoking: 破道の十一 綴雷電."
+  (during (0 150) (hs-raiden-look a v cf))
+  ;; 1 (0-25) orbiting him: three turns (f2-22)
+  (at 0 (hs-cine-stage a v 4.0) (cine-clip a :hs-s-raiden :blend 2 :time (/ 23.0 60.0) :speed 0.0)
+      (cine-clip v :sh-kikon-victim :blend 4) (hold-pose v 6) (impact-frame :negative 2) (play-sfx :chain-rattle) (lens 46))
+  (at 6 (cine-clip v :hs-cine-wound-v :blend 3) (play-sfx :chain-snap :pitch 1.2))
+  (at 13 (play-sfx :chain-snap :pitch 1.0))
+  (at 20 (play-sfx :chain-snap :pitch 0.85) (shake 0.1 0.2))
+  (during (0 25) (let* ((p (pos-of a)) (q (pos-of v))
+                        (ang (+ (atan (- (aref p 2) (aref q 2)) (- (aref p 0) (aref q 0))) 0.9 (* 1.9 u))))
+                   (cine-cam (+ (aref q 0) (* 4.4 (cos ang))) 1.7 (+ (aref q 2) (* 4.4 (sin ang))) (aref q 0) 1.1 (aref q 2))))
+  ;; 2 (25-45) close: the hand on the chain, the fingers, the sparks; silence
+  (at 25 (cine-clip a :hs-cine-rd-hold :blend 4) (hs-shot a 35 2.0 2.0 1.85 :ahead 0.35) (lens 44) (silence 20)
+      (play-sfx :sizzle :pitch 1.8 :gain 0.6))
+  (at 38 (play-sfx :breaker-hum :pitch 1.6 :gain 0.7))
+  ;; 3 (45-90) the lightning down the chain (f48-70), round the coil (f70-84); the camera along the chain
+  (at 45 (lens 50) (play-sfx :sizzle :pitch 1.3) (play-sfx :breaker-hum :pitch 1.2))
+  (during (45 90) (hs-raiden-track a v cf))
+  (at 70 (cine-clip v :hs-cine-shock-v :blend 1) (play-sfx :explode :pitch 1.5 :gain 0.5) (play-sfx :sizzle :pitch 0.9)
+      (shake 0.2 0.5) (face-beat v :hurt 3.0) (impact-frame :negative 1))
+  (at 80 (play-sfx :sizzle :pitch 1.1))
+  ;; 4 (90-120) lit and paralysed: the black-and-white flashes (white cards, his silhouette), the Konpaku (f100)
+  (at 90 (shot-on v 30 3.8 1.2 :look 1.2) (lens 46) (card :white v) (silhouette-black v) (impact-frame :negative 2)
+      (play-sfx :sizzle :pitch 1.6))
+  (at 93 (unsilhouette) (card nil))
+  (at 97 (card :white v) (silhouette-black v) (play-sfx :sizzle :pitch 1.4))
+  (at 100 (unsilhouette) (card nil) (impact-frame :negative 2) (cine-shatter v (fighter-kikon-n (fighter a)))
+      (play-sfx :konpaku-shatter) (play-sfx :explode :pitch 0.8 :gain 0.6) (shake 0.3 0.4))
+  (at 102 (impact-frame :manga 10))
+  (at 112 (card :white v) (silhouette-black v))
+  (at 114 (unsilhouette) (card nil))
+  ;; 5 (120-150) slack; he drops, smoking; 破道の十一 綴雷電
+  (at 120 (cine-clip v :sh-crumple :blend 2) (cine-clip a :hs-s-stance :blend 12) (play-sfx :chain-rattle :pitch 0.6)
+      (if (portrait-p) (shot-on a 150 6.8 2.0 :look 0.9 :ahead 2.0) (shot-on a 80 6.0 1.3 :look 1.0 :ahead 2.0 :off -1.2))
+      (lens 44))                                                   ; (a phone: down the line, him in front of the victim)
+  (during (110 150) (hs-cine-smoke v 2))
+  (at 124 (caption "綴雷電" :kanji2 "破道の十一" :reading "TSUZURI RAIDEN" :sub "KAZESHINI  KIKON" :side 1 :hanko t)))
 
