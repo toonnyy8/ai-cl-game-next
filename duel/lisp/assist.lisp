@@ -68,7 +68,8 @@ result, its table is saved."
   "E's assist as (guard combo break), GUARD 0 off / 1 HOLD U / 2 ALWAYS, or NIL: a human's SETTINGS, the :dumb CPU's
 *ASSIST-DEBUG*, no other CPU."
   (let ((b (brain e)))
-    (cond ((null b) (list (setting :auto-guard) (= 1 (setting :auto-combo)) (= 1 (setting :auto-break))))
+    (cond ((null b) (and (not (kit-core (kit-of e)))   ; a core kit: off (the rows hidden since the HTML menus, DUEL_WEBUI §1)
+                         (list (setting :auto-guard) (= 1 (setting :auto-combo)) (= 1 (setting :auto-break)))))
           ((and (eq (brain-habit b) :dumb) (zerop (fighter-side (fighter e)))) *assist-debug*))))   ; (P1's: the gate's)
 
 (defun parry-command (e kit)

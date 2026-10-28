@@ -4,7 +4,7 @@
 // and index.wasm always come from the same build (a network-first index.html could pair a new page with an old
 // index.js / index.wasm until the reload).
 var VERSION = 'soulduel-@VERSION@';
-var FILES = ['./', 'index.html', 'index.js', 'index.wasm', 'pwa.js', 'manifest.webmanifest', 'manual.html',
+var FILES = ['./', 'index.html', 'index.js', 'index.wasm', 'pwa.js', 'menu.js', 'menu.css', 'manifest.webmanifest', 'manual.html',
              'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION)

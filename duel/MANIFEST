@@ -62,6 +62,7 @@ lisp/ken-meter.lisp
 lisp/rukia-meter.lisp
 lisp/hud-screens.lisp
 lisp/onehand.lisp
+lisp/webui.lisp
 lisp/senjumaru.lisp
 lisp/lille-art.lisp
 lisp/lille-clips.lisp

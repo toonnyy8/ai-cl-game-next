@@ -73,12 +73,15 @@ always behind when one-handed (the portrait camera; the setting is kept); VS PLA
 
 ;;; ---------------------------------------------------------------- menu input (devices, per frame)
 (defun any-pad-pressed (b) (loop for i below 4 thereis (pad-pressed b i)))
-(defun menu-up-p () (or (key-pressed :w) (key-pressed :up) (any-pad-pressed :dpad-up)))
-(defun menu-down-p () (or (key-pressed :s) (key-pressed :down) (any-pad-pressed :dpad-down)))
-(defun menu-left-p () (or (key-pressed :a) (key-pressed :left) (any-pad-pressed :dpad-left)))
-(defun menu-right-p () (or (key-pressed :d) (key-pressed :right) (any-pad-pressed :dpad-right)))
-(defun confirm-p () (or (key-pressed :return) (key-pressed :j) (key-pressed :kp-1) (key-pressed :kp-enter) (any-pad-pressed :a)))
-(defun back-p () (or (key-pressed :escape) (key-pressed :k) (key-pressed :kp-2) (any-pad-pressed :b) *back-press*))
+(defvar *ui-press* 0 "This frame's presses from the page's HTML menus (webui.lisp WEBUI-COMMANDS), bits: 1 up 2 down 4 left 8 right 16
+confirm 32 back; cleared after FLOW-UPDATE. The menus read them as they read the keys.")
+(defun ui-press-p (bit) (logtest *ui-press* bit))
+(defun menu-up-p () (or (key-pressed :w) (key-pressed :up) (any-pad-pressed :dpad-up) (ui-press-p 1)))
+(defun menu-down-p () (or (key-pressed :s) (key-pressed :down) (any-pad-pressed :dpad-down) (ui-press-p 2)))
+(defun menu-left-p () (or (key-pressed :a) (key-pressed :left) (any-pad-pressed :dpad-left) (ui-press-p 4)))
+(defun menu-right-p () (or (key-pressed :d) (key-pressed :right) (any-pad-pressed :dpad-right) (ui-press-p 8)))
+(defun confirm-p () (or (key-pressed :return) (key-pressed :j) (key-pressed :kp-1) (key-pressed :kp-enter) (any-pad-pressed :a) (ui-press-p 16)))
+(defun back-p () (or (key-pressed :escape) (key-pressed :k) (key-pressed :kp-2) (any-pad-pressed :b) *back-press* (ui-press-p 32)))
 (defun pause-p () (or (key-pressed :escape) (any-pad-pressed :start) *back-press*))   ; + the browser's back (onehand.lisp)
 
 (defun menu-nav (n)
@@ -285,10 +288,14 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
           (and *rogue* (eq *mode* :endless) (plusp (rogue-rank-open-now)) '(:rank))
           (and (vs-cpu-p) (not *one-hand*) '(:camera))))
 
+(defun select-respawn ()
+  "SELECT: the plaza again with the picks (a pick changed)."
+  (spawn-pair) (do-sides (e) (setf (fighter-state (fighter e)) :intro)))
+
 (defun select-update ()
   "SELECT: P1 picks, then P2 / the CPU, then the CPU difficulty (either player's keys, like every menu)."
   (let ((side (min 1 *select-phase*)))
-    (flet ((respawn () (spawn-pair) (do-sides (e) (setf (fighter-state (fighter e)) :intro))))
+    (flet ((respawn () (select-respawn)))
       (case *select-phase*
         ((0 1)
          (when (or (menu-left-p) (menu-right-p) (member (tap-third) '(-1 1)))   ; a tap: left / right third
@@ -320,24 +327,30 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
               ((eq *mode* :endless) (setf *select-phase* 0))
               (t (decf *select-phase*)))))))
 
-(defparameter *mode-menu* '("VS CPU" "ENDLESS" "DANGAI" "PRACTICE" "VS PLAYER" "CPU VS CPU" "SETTINGS" "CONTROLS" "MANUAL"))
+(defparameter *mode-rows* '((:vs-cpu "VS CPU") (:practice "PRACTICE") (:vs-player "VS PLAYER") (:cpu-cpu "CPU VS CPU")
+                            (:settings "SETTINGS") (:controls "CONTROLS") (:manual "MANUAL"))
+  "MODE's rows. ENDLESS and DANGAI are hidden since the HTML menus (frozen with the core system; the user, 2026-10-28: 「隱藏」,
+DUEL_WEBUI §1): their debug commands still start them.")
+(defparameter *mode-menu* (mapcar #'second *mode-rows*))
+(defun mode-row (key) "MODE's row of KEY." (position key *mode-rows* :key #'first))
 
-(defvar *learn-reset-t* -9.0 "*FT* when RESET LEARNING was chosen (its note says so for a moment).")
+(defparameter *settings-hidden* '(:tap-split :learn :auto-guard :auto-combo :auto-break)
+  "SETTINGS rows not shown since the HTML menus (TAP SPLIT unused, the learner and ASSIST frozen with the core system; the user,
+2026-10-28: 「隱藏」, DUEL_WEBUI §1), RESET LEARNING with them. *SETTINGS* keeps its order (the page saves rows by it).")
+(defun settings-shown () "The SETTINGS rows shown, in order." (remove-if (lambda (r) (member (first r) *settings-hidden*)) *settings*))
 (defun settings-items ()
-  "The SETTINGS rows as shown (label and chosen option), then RESET LEARNING and BACK."
-  (append (loop for (key label opts) in *settings* collect (format nil "~a  ~a" label (nth (setting key) opts)))
-          '("RESET LEARNING" "BACK")))
+  "The SETTINGS rows as shown (label and chosen option), then BACK."
+  (append (loop for (key label opts) in (settings-shown) collect (format nil "~a  ~a" label (nth (setting key) opts)))
+          '("BACK")))
 (defun settings-note ()
   "The selected SETTINGS row's note (ONE-HAND MODE: whether it is in effect here)."
-  (let ((row (nth *menu* *settings*)))
-    (cond ((and (null row) (= *menu* (length *settings*)))
-           (if (< (- *ft* *learn-reset-t*) 2.0) "DONE: EVERY CPU FORGOT WHAT IT LEARNED" "THE CPUS FORGET WHAT THEY LEARNED"))
-          ((null row) "")
+  (let ((row (nth *menu* (settings-shown))))
+    (cond ((null row) "")
           ((eq (first row) :one-hand) (format nil "~a. HERE: ~:[OFF~;ON~]" (sixth row) (one-hand-effective-p)))
           (t (sixth row)))))
 (defun settings-step (i dir)
-  "Move SETTINGS row I's option by DIR (it wraps)."
-  (let ((row (nth i *settings*))) (set-setting (first row) (mod (+ (setting (first row)) dir) (length (third row))))))
+  "Move shown SETTINGS row I's option by DIR (it wraps)."
+  (let ((row (nth i (settings-shown)))) (set-setting (first row) (mod (+ (setting (first row)) dir) (length (third row))))))
 
 (defvar *bind-col* 0 "CONTROLS: the column, 0 P1 KEY, 1 P1 PAD, 2 P2 KEY, 3 P2 PAD.")
 (defvar *capture* nil "CONTROLS: waiting for the key / pad button of the selected cell.")
@@ -362,10 +375,10 @@ at once; Escape / Start cancels the wait. Then RESET DEFAULTS and BACK."
           (t (let ((i (menu-nav (+ 2 n))))
                (when (and (< *menu* n) (or (menu-left-p) (menu-right-p)))
                  (setf *bind-col* (mod (+ *bind-col* (if (menu-left-p) -1 1)) 4)) (play-sfx :select))
-               (cond ((eql i (1+ n)) (go-mode 7))
+               (cond ((eql i (1+ n)) (go-mode (mode-row :controls)))
                      ((eql i n) (reset-bindings *bind-pair*) (save-bindings) (log-msg "duel bind reset"))
                      (i (setf *capture* t)))
-               (when (back-p) (play-sfx :back) (go-mode 7)))))))
+               (when (back-p) (play-sfx :back) (go-mode (mode-row :controls))))))))
 
 (defun pause-keys ()
   "The pause menu's rows: PRACTICE's options replace RESTART; ENDLESS has RETIRE only (the run's results are one row
@@ -402,29 +415,36 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
 (defparameter *results-menu* '("REMATCH" "CHARACTER SELECT" "TITLE"))
 
 (defun flow-update (rdt)
-  "Menus, pause and screen timers (once per frame, real time)."
+  "Menus, pause and screen timers (once per frame, real time). The page's HTML menus: their pointer presses first
+(WEBUI-COMMANDS), what they show last (WEBUI-SYNC)."
   (unless *paused* (incf *ft* rdt))
+  (webui-commands)
+  (flow-screens)
+  (webui-sync)
+  (setf *ui-press* 0))
+
+(defun flow-screens ()
+  "FLOW-UPDATE's screen by screen part."
   (case *flow*
     (:title (when (and (> *ft* 0.3) (or (confirm-p) (key-pressed :space) (any-pad-pressed :start) (tap-p)))
               (play-sfx :confirm) (go-mode)))
-    (:mode (let ((i (menu-nav (length *mode-menu*))))
-             (case i
-               ((0 1 2 3 4 5) (setf *mode* (nth i '(:vs-cpu :endless :endless :practice :vs-player :cpu-cpu))   ; VS CPU /
-                                    *rogue* (= i 2)                                    ; ENDLESS / DANGAI (an ENDLESS run,
-                                    *one-hand* (and (< i 4) (one-hand-effective-p)))   ; rogue.lisp) / PRACTICE: one-handed
-                              (go-select))                                              ; when the setting is in effect
-               (6 (set-flow :settings))
-               (7 (set-flow :controls))
-               (8 (open-manual))))
+    (:mode (let* ((i (menu-nav (length *mode-rows*))) (k (and i (first (nth i *mode-rows*)))))
+             (case k
+               ((:vs-cpu :practice :vs-player :cpu-cpu)
+                (setf *mode* k *rogue* nil                                         ; VS CPU / PRACTICE: one-handed
+                      *one-hand* (and (member k '(:vs-cpu :practice)) (one-hand-effective-p) t))   ; when the setting is
+                (go-select))                                                       ; in effect
+               (:settings (set-flow :settings))
+               (:controls (set-flow :controls))
+               (:manual (open-manual))))
            (when (back-p) (play-sfx :back) (go-title)))
-    (:settings (let* ((n (length *settings*)) (i (menu-nav (+ 2 n))) (d (option-dir)))   ; confirm / a tap: the next option
-                 (cond ((eql i (1+ n)) (go-mode 6))                                      ; BACK
-                       ((eql i n) (learn-reset-all) (setf *learn-reset-t* *ft*))         ; RESET LEARNING
+    (:settings (let* ((n (length (settings-shown))) (i (menu-nav (1+ n))) (d (option-dir)))   ; confirm / a tap: the next option
+                 (cond ((eql i n) (go-mode (mode-row :settings)))                          ; BACK
                        (i (settings-step i 1))
                        ((and d (< *menu* n)) (play-sfx :select) (settings-step *menu* d))))
-               (when (back-p) (play-sfx :back) (go-mode 6)))
+               (when (back-p) (play-sfx :back) (go-mode (mode-row :settings))))
     (:controls (if (one-hand-offered-p)                  ; a phone: the gestures page
-                   (when (or (back-p) (confirm-p) (tap-p)) (play-sfx :back) (go-mode 7))
+                   (when (or (back-p) (confirm-p) (tap-p)) (play-sfx :back) (go-mode (mode-row :controls)))
                    (controls-update)))
     (:select (select-update))
     ((:intro :finish) (when (and *cine* (or (pause-p) (confirm-p) (tap-p))) (skip-cine)))

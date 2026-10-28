@@ -231,7 +231,7 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
       (ui-rect 0 0 w (* 0.09 h) '(0 0 0 1)) (ui-rect 0 (* 0.91 h) w (* 0.09 h) '(0 0 0 1))
       (when *caption* (unless (draw-bcap *caption* w h) (setf *caption* nil))))
     (when *caption-out* (unless (draw-bcap *caption-out* w h) (setf *caption-out* nil)))   ; an ended cinematic's title
-    (case *flow*
+    (case (if (webui-on-screen-p) :web *flow*)              ; the page's HTML menus draw it (webui.lisp)
       (:title (hud-title w h s))
       (:mode (ui-big-text "SOUL DUEL" (floor w 2) (* 0.2 h) (fit-scale "SOUL DUEL" (* 6 s) (* 0.8 w)) '(1 0.92 0.8 1) '(0.7 0.18 0.05 1) s)
        (hud-menu *mode-menu* (if (portrait-p) 0.52 0.42) w h s))   ; portrait: lower, toward the thumb

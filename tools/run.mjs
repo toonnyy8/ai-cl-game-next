@@ -25,7 +25,7 @@ const [W, H] = opt('--size', '1280x720').split('x').map(Number);
 const mobile = a.includes('--mobile'), dpr = +opt('--dpr', mobile ? 3 : 1);
 const metrics = (width, height) => send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile });
 const steps = script ? JSON.parse(fs.readFileSync(script, 'utf8')).sort((x, y) => x.at - y.at) : [];
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.wasm': 'application/wasm', '.data': 'application/octet-stream' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.wasm': 'application/wasm', '.data': 'application/octet-stream', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
 
 const srv = http.createServer((q, r) => {
   const f = path.join(dir, decodeURIComponent(q.url.split('?')[0]).replace(/^\/$/, '/index.html'));
