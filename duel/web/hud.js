@@ -24,7 +24,7 @@
   var PTR0 = [["一", "PTR 1"], ["二", "PTR 2"], ["三", "PTR 3"]];
   var CRY = { "KARE, KAZESHINI": "刈れ", "ZANGETSU": "斬月" };
   var MOVES = {   // a callout's romaji -> its kanji (romaji alone when unknown)
-    "TSUZURI RAIDEN": "綴雷電", "SHIBARI": "縛", "USHIRO-NAGI": "後薙", "KAGI-BIKI": "鉤引", "SEN-GARI": "旋刈", "REN-GARI": "連刈",
+    "TSUZURI RAIDEN": "綴雷電", "SHIBARI": "縛", "USHIRO-NAGI": "後薙", "TSUMUJI": "旋風", "SEN-GARI": "旋刈", "REN-GARI": "連刈",
     "TAN-GARI": "短刈", "KARI-AGE": "刈上", "KO-GARI": "交刈", "CHIKUDEN": "蓄電", "HODEN": "放電", "TAME": "蓄", "MATOI": "纏", "KIRI": "斬",
     "KUBIKAKE": "首掛", "KARE, KAZESHINI": "刈れ", "KUSARI-AME": "鎖雨", "KOJO": "絞縄", "KAIBAKU": "解縛", "KOSHU": "絞首",
     "GETSUGA TENSHO": "月牙天衝", "GETSUGA JUJISHO": "月牙十字衝", "SOGA": "双牙", "RANGETSU": "乱月", "TSUKI-OTOSHI": "月落", "MINEUCHI": "峰打ち",

@@ -158,9 +158,15 @@
     (check (equal (mapcar #'core-segments (getf core :as)) '((:hs-as1) (:hs-as2 :hs-as2b) (:hs-as3 :hs-as3b :hs-as3c))))
     (check (equal (mapcar (lambda (n) (mv-dmg (m n))) '(:hs-n1a :hs-n1b :hs-n1c :hs-n2a :hs-n2b :hs-n2c :hs-n3a :hs-n3b
                                                         :hs-as1 :hs-as2 :hs-as2b :hs-as3 :hs-as3b :hs-as3c :hs-sa :hs-sa-hoden))
-                  '(62 56 80 45 50 85 40 25 50 45 60 45 35 110 40 60)))
-    (check (equal (mapcar #'react '(:hs-n1c :hs-n2c :hs-n3b :hs-as1 :hs-as2b :hs-as3c :hs-sa-hoden))
-                  '(:stagger :knockdown :stagger :knockdown :launch :knockdown :stagger)))      ; (NS1c staggers, §27.9)
+                  '(62 56 80 45 50 85 40 25 16 45 60 45 35 110 40 60)))
+    (check (equal (mapcar #'react '(:hs-n1c :hs-n2c :hs-n3b :hs-as2b :hs-as3c :hs-sa-hoden))
+                  '(:stagger :knockdown :stagger :launch :knockdown :stagger)))      ; (NS1c staggers, §27.9)
+    ;; §27.10: AS1 TSUMUJI four cuts along the chain, only the last knocks down; the leap back to NAGI's band
+    (check (let ((hs (mv-hits (m :hs-as1))))
+             (and (= 4 (length hs)) (equal (map 'list #'hw-react hs) '(:flinch :flinch :flinch :knockdown))
+                  (every (lambda (w) (eq (hw-seg w) 'hs-core-seg)) hs)
+                  (equal (mv-on-frame (m :hs-as1)) '((0 hs-as1-hop))) (= 0 (mv-enter (m :hs-as1)))   ; (f0 runs: no :enter)
+                  (< *hs-k-dead* *hs-as1-hop-to* 6.0))))
     (check (eq (react :hs-n3a) :bind))
     (check (every (lambda (n) (eq (hw-seg (svref (mv-hits (m n)) 0)) 'hs-core-seg))
                   '(:hs-n3b :hs-as1 :hs-as3b :hs-sa-hoden)))                                              ; along the chain, within 6.5 m
@@ -169,7 +175,7 @@
              (every (lambda (n) (let ((w (svref (mv-hits (m n)) 0))) (and (null (hw-seg w)) (equalp (hw-vols w) v))))
                     '(:hs-n1b :hs-n1c))))
     (check (and (equal (mv-on-frame (m :hs-sa)) '((0 hs-yose))) (eq (kit-class k (m :hs-sa)) :sa)
-                (eq (mv-on-land (m :hs-as1)) 'hs-kagi-pull) (= 40 (getf (mv-params (m :hs-as1)) :steal-fs))))
+                (= 40 (getf (mv-params (m :hs-as1)) :steal-fs))))
     ;; §27: NS3a's gap the kit's SA (YOSE), CHIKUDEN's 放電; 放電's distance x; 餘電 set / pending / used up
     (check (and (eq (getf (mv-params (m :hs-n3a)) :sa) :hs-sa) (eq (getf (mv-params (m :hs-n3b)) :sa) :hs-sa-hoden)
                 (eq (kit-class k (m :hs-sa-hoden)) :sa)))

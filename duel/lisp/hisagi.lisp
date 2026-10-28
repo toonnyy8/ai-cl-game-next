@@ -320,6 +320,8 @@ links reach him anywhere inside *HS-R-LINK-REACH* since) lands his K3G (1-4 m) a
 within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiffed opener's next segment reaches, not across the stage).")
 (defparameter *hs-yose-to* 1.6 "The SA 引寄 YOSE drags the opponent to this distance on its frame 0 (m; §26.2).")
 ;; §27 (the user, 2026-10-28: 「縛雷放 3」「J 與所有 NS/AS 都 +8」「留下餘電」; the numbers the lead's draft, §27.2)
+(defparameter *hs-as1-hop-to* 4.5 "AS1 TSUMUJI's leap back ends this far from him (m): NAGI's band, *HS-K-DEAD* 3 to 6 m (§27.10).")
+(defparameter *hs-as1-hop-frames* 12 "... over these frames (its first cut at f14).")
 (defparameter *hs-zan-frames* 480 "餘電 ZANDEN's length (frames): set by AS3's last hit, or by NS3's CHIKUDEN with no 放電 after it.")
 (defparameter *hs-zan-bonus* 8 "餘電: added to each of his J / NS / AS hits while it lasts (HS-CORE-DMG-MULT).")
 (defparameter *hs-zan-hoden* 1.6 "餘電: the next 放電 HODEN x this, and it is used up.")
@@ -328,8 +330,10 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 ;; NA: five J (J1 SEN's coil S 14 > KAESHI-SEN > SEN > KAESHI-SEN > RIN); an AS after J1-2 is AS1, J3-4 AS2, J5 AS3
 (defmove-copy :hs-na3 :hs-j1 :clip :hs-q1 :startup 8 :clip-s 8)   ; (J1's cut without the coil)
 (defmove-copy :hs-na4 :hs-j2)
-;; pointer 1 投: NAGI's 6 m sweep > HIKI, the sickle back into him > USHIRO-NAGI, the backward swing (198); AS1 KAGI-BIKI hooks
-;; him and drags him in, stealing flash step. HIKI and USHIRO-NAGI miss a victim nearer than NAGI's *HS-K-DEAD* too (§27.7, the user:
+;; pointer 1 投: NAGI's 6 m sweep > HIKI, the sickle back into him > USHIRO-NAGI, the backward swing (198); AS1 TSUMUJI throws the
+;; sickle spinning flat round him (four cuts along the chain, the last a knockdown) while he leaps back into NAGI's band
+;; (*HS-AS1-HOP-TO*), stealing flash step (§27.10, the user, 2026-10-29: 「將修兵的 AS1 改成投擲出水平旋轉的鐮刀造成多段切割攻擊的同時，後跳到 NS1
+;; 的攻擊範圍」; before: KAGI-BIKI, one hook 50 that dragged him to 1.6 m). HIKI and USHIRO-NAGI miss a victim nearer than NAGI's *HS-K-DEAD* too (§27.7, the user:
 ;; 「NS1[2] 跟 NS1[3] 也要設定近距離無效的範圍」); since §27.9 they sweep NAGI's own volume (6 m, its arc and height; no longer the
 ;; chain to the victim), drawn out to its far end on a whiff (HS-N1-ANCHOR!), and USHIRO-NAGI staggers (「NS1[3] 不將對手擊倒」)
 (defmove-copy :hs-n1c :hs-k3 :callout "USHIRO-NAGI" :startup 24 :clip-s 22 :on-hit :stagger :flags (:ranged :no-close)
@@ -337,8 +341,11 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 (defmove-copy :hs-n1b :hs-k2 :flags (:ranged :no-close) :reach 6.0 :arc *hs-k1-arc* :height (0.2 2.0) :min-reach *hs-k-dead*
   :hits ((20 24)) :params (:melee-range 2.0 :ns-next :hs-n1c :look-as :hs-k2))
 (defmove-copy :hs-n1a :hs-k1 :startup 20 :clip-s 18 :params (:melee-range 2.0 :ns-next :hs-n1b))
-(defmove-copy :hs-as1 :hs-k3 :kind :sp :callout "KAGI-BIKI" :startup 24 :clip-s 22 :dmg 50 :on-hit :knockdown :flags nil
-  :on-land hs-kagi-pull :hits ((24 29 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :steal-fs 40 :pull 1.6 :look-as :hs-k3))
+(defmove-copy :hs-as1 :hs-k2 :kind :sp :callout "TSUMUJI" :enter 0 :startup 14 :clip-s 14 :active 16 :recovery 20 :dmg 16 :on-hit :flinch :flags nil
+  :slide 0.0 :on-frame ((0 hs-as1-hop))
+  :hits ((14 15 :seg-fn hs-core-seg) (18 19 :seg-fn hs-core-seg) (22 23 :seg-fn hs-core-seg)
+         (26 29 :seg-fn hs-core-seg :on-hit :knockdown))
+  :params (:melee-range 2.0 :steal-fs 40 :look-as :hs-k2))
 ;; pointer 2 刈 KARI (§27.3, 「刈 短鎖貼身收割」: the chain wound short, 1-2.5 m): TAN-GARI's stepping cross cut > REN-GARI > SEN-GARI's
 ;; spin, the chain let out to a 3 m circle (180); AS2 KO-GARI > KARI-AGE, the rising reap (the launch). Their own clips since
 ;; batch 2 (§27.5, presentation only), each authored at its S: hisagi-art.lisp :hs-kr-*
@@ -858,7 +865,12 @@ him where he is within the chain's length."
 (defun hs-yose (e)
   "The SA 引寄 YOSE's frame 0 (§26.2): the chain drags E's opponent to *HS-YOSE-TO* m, from within *HS-CORE-CHAIN*."
   (when (<= (fighter-dist (fighter e)) *hs-core-chain*) (ichigo-pull-to e *hs-yose-to* 6)))
-(defun hs-kagi-pull (e) "AS1 KAGI-BIKI's hit: the hooked victim dragged to :pull m (§26.2)." (ichigo-pull-to e (move-param e :pull) 10))
+(defun hs-as1-hop (e)
+  "AS1 TSUMUJI's frame 0 (§27.10): E leaps back from his opponent to *HS-AS1-HOP-TO* m (NAGI's band) over *HS-AS1-HOP-FRAMES*."
+  (let* ((p (pos-of e)) (q (pos-of (opp-of e))) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2))) (d (hypot dx dz)))
+    (when (< d *hs-as1-hop-to*)
+      (set-slide e (- *hs-as1-hop-to* d) *hs-as1-hop-frames* (if (> d 1e-3) dx (- (f-sin (yaw-of e)))) (if (> d 1e-3) dz (- (f-cos (yaw-of e)))))
+      (pace e :as1-hop))))
 (defun hs-hoden-x (d)
   "放電 HODEN's distance x at D m (§27.2): *HS-HODEN-NEAR-X* inside *HS-HODEN-NEAR*, 1.0 at *HS-CORE-CHAIN*, linear between."
   (let ((k (/ (- (min (max d *hs-hoden-near*) *hs-core-chain*) *hs-hoden-near*) (- *hs-core-chain* *hs-hoden-near*))))

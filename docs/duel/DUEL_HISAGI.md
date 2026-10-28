@@ -4036,3 +4036,19 @@ The user's request (verbatim): 「1. NS1[2] 跟 NS1[3] 攻擊沒打中時直接�
 - Tests (`triangle.lisp`): NS1b / NS1c's volume equal to NS1a's, no seg; their reaction stagger. Host 10782 ALL PASS.
 - Gates (10 seeds): HK 183.8 s (all K.O., Hisagi 0:10), HI 190.4 s (all K.O., 2:8), HH 295.7 s with 4 time-outs (5:5): the mirror
   still fails as §27.7's did, reported.
+
+### 27.10 AS1 旋風 TSUMUJI: the flat-spinning sickle, the leap back into NAGI's band (the user, 2026-10-29)
+
+> 「改完後請將修兵的 AS1 改成投擲出水平旋轉的鐮刀造成多段切割攻擊的同時，後跳到 NS1 的攻擊範圍。」
+
+| | Before (KAGI-BIKI 鉤引) | Now (TSUMUJI 旋風) |
+|---|---|---|
+| Hits | one hook, 50, knockdown, along the chain (`hs-core-seg`) | four cuts at f14 / 18 / 22 / 26, 16 each, the first three a flinch, the last a knockdown; all along the chain (`hs-core-seg`, within 6.5 m) |
+| Movement | the victim dragged to 1.6 m (`hs-kagi-pull`, removed) | he leaps back from f0 to `*hs-as1-hop-to*` 4.5 m (NAGI's band: `*hs-k-dead*` 3 to 6 m) over `*hs-as1-hop-frames*` 12 (HS-AS1-HOP, a `set-slide`); the victim stays |
+| Timing | a copy of K3 (startup 24, `:enter 6`) | a copy of K2 with `:enter 0` (K2's 6 would skip f0's hop: the §431 bug class), startup 14, active 16, recovery 20 |
+| Kept | steals 40 flash step (`:steal-fs`), the AS1 class, the pointer it writes | |
+
+Look: NOKO's (`:look-as :hs-k2`, the sickle on him along the chain) until its own clip (the flat spin, the leap back) is drawn.
+Checks: duel-rules 10783 ALL PASS (the pins: four hits, their reactions, the seg, f0's hop, `:enter` 0, 3 < 4.5 < 6); pkgcheck 0 / 0 /
+0; in the browser J1 > AS1 lands all four (16 each) with him 4.5 m off. Gate (10 seeds, Hisagi's pairings): HK 182.3 s (10 K.O.,
+Hisagi 0:10; before 183.8), HI 194.1 s (10 K.O., 0:10; before 190.4, 2:8), HH 300.0 s with 4 K.O. (before 295.7, 6 K.O.).
