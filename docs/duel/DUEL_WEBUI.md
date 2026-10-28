@@ -166,3 +166,7 @@ Draft v2 (the user, 2026-10-28: 「我希望手的的停止鍵做更上面，然
 - Left hand: the player's plate, move name and combo move to the right (mirrored like P2's), the pause seal to the left.
 - v3 (the user: 「分割起始點在往上一些」): the line's near end 98.6 % -> 82 % of the deck's height (the far end 20 % kept), now just above
   the 覺 seal; one pair of numbers (`Y0` / `Y1`) draws it and hit-tests it.
+- v4 (the user: 「把覺醒鍵整合進爆氣中，改由長按覺醒」): the 覺 seal is gone; 爆 does both. Not ready to awaken: the Burst fires on the
+  press, no wait. Ready: the seal wears a REIATSU ring, a release before 0.3 s is the Burst, a hold of 0.3 s fills the ring and awakens
+  (the old AWK chip's 0.3 s hold). For the integration: the touch layer's AWK chip folds into RV (touch.lisp / onehand.lisp), the
+  manual's two rows become one.
