@@ -1,89 +1,107 @@
-# Move modules: evidence and encoding from the new Lille (2026-10-09 → 10-13)
+# Core move modules: evidence and encoding from Ichigo's rework (2026-10-27 → 10-28)
 
-Sources: `docs/duel/DUEL_LILLE_V2.md` (V1–V9l), `docs/duel/DUEL_LILLE_V3.md` (§1 the animation inventory, §2 the base
-stance's rules B1–B6, §3 the grammar, R1–R20), `docs/DEVLOG.zh-TW.md` §156–§216, `docs/research/lille2-motion-styles/`.
-Code: `duel/lisp/barro.lisp`, `barro-art.lisp`, `lille-art.lisp` (shared art). "G" = generalizable, "P" = project-specific.
+Sources: `docs/duel/DUEL_CORE.md` (§1 scope, §2 the table, §3 the pointer, §4 Kikon / Soul Break, §5b the pointer rule, §6 Ichigo),
+the user's note `docs/duel/DUEL_CORE_DOC.zh-TW.md`, `docs/DEVLOG.zh-TW.md` §410–§445. Code: `duel/lisp/core.lisp` (pure, host-tested),
+`core-sim.lisp`, `core-ai.lisp`, `kit.lisp` (`core-segments`, `build-core-classes`, `kit-core-move`), `ichigo.lisp`, `combat.lisp`
+(`apply-hit`). "G" = generalizable, "P" = project-specific. The old grammar (Lille's stance strings, SP2, the O ender): `git show
+e55304e:skills/duel-move-modules/reference.md`.
 
-## 1. The grammar as it ended up (P → G)
+## 1. The encoding (P)
+- **The kit's `:core` plist** (`defkit`):
+  - `:ns (n1 n2 n3)`, `:as (a1 a2 a3)`: the first segment of each.
+  - `:sa`: the kit's SA.
+  - `:as-by-press (1 1 2 2 3)`: the AS by attack presses since neutral.
+  - `:stances (clip1 clip2 clip3)`: the idle clip by pointer (`fighter-stance-clip`).
+  - `:kikon-cines (c1 c2 c3)`: the Kikon cinematic by pointer, also the Soul Break's (`core-pointer-cine`).
+  - `:ns-range (nil (lo hi) nil)`: the CPU's ranged band by pointer.
+  - `:mult`: the kit's damage x (pacing).
+  - `:no-awaken`.
+- **A move's `:params`**:
+  - `:ns-next`: the next segment (NS or AS).
+  - `:sa`: this gap's own SA.
+  - `:kikon-strike`: a wave segment's follow-up.
+  - `:charge-mult`: arms the string's x.
+  - `:follow-cap` (m/s of the Kikon dash-in), `:look :flash-step`, `:steal-fs`, `:chain` (a look's lash).
+  - `:ns-next` is read by `mv-ns-next`; `:sa` by `mv-sa-move`.
+- **Classes**:
+  - `build-core-classes` tags the J string NA, every segment of `:ns` / `:as` NS / AS, the SAs SA, and a segment's `:kikon-strike`
+    its segment's class.
+  - One move gets one tag: a strike shared by an NS segment and an AS segment needs a `-as` copy (§437).
+- **Copies**: `defmove-copy` keeps the source's `:enter`; on-frames before it are skipped (KESSA's AS3 on-frames at 4 / 2 after an
+  `:enter` 6 / 7, §431).
+- **The sim side** (`core-sim.lisp`):
+  - `core-note-start!` records class, start tick, the hold (`fighter-sp-held`: `t`, or `:rearm` on the phone) and the charge x.
+  - `core-move-sp!`, `core-sa-start!` and `core-latch-step` latch presses; the latched move starts when the segment's active
+    frames end.
+  - `core-verdicts` judges a step's hits as a set.
+  - `core-follow-step` runs the Kikon's dash-in: the confirm, the undo, the cues.
 
-| Piece | Rule | Where |
-|---|---|---|
-| Attack state | the form's plain J / K strings; no resource in or out | R1 「避免同質化」 |
-| Stance | L enters (tap; from neutral or off any J / K link); base: `:br-kamae` (rooted, one fast Step, 30 f stand); awakened: the EN form by a 12 f turn | §3.2, R12 |
-| Strings | L gain (one charged press, 3 levels by hold 20 / 40 f), J refill flash step + Reiatsu, K damage | R3, R10, R15 |
-| One hit a press | 3 segments, each exactly one hit; the damage kept when hits were merged (K 28/28/42 → 46/46/66) | R7 |
-| Follow-ups | L after J3 / K3 → JL1–3 / KL1–3, each route its own clips, 1 special a segment, the string stops where it can't pay; the only 31 m hits | R3, §8.5 |
-| Links | an L link only after a hit or block; a whiffed L recovers R + 8 | R5 |
-| `:end` | J3, K3, JL3, KL3, L3 push out of their opener's reach (far edge + body + 0.3 m, `BR-S-END-PUSH`, `BR-MOVE-REACH`); every string ends back in the attack state | §15.1, R12 |
-| Enders | charge-less SP2 (`:sp2c`, off any J / K / JL / KL segment that hit); the O / Kikon ender (`BR-S-O-ENDER`, not the generic `:ender` flag, which would double the push and chase) | R3, R20 |
-| Economy | L gains, J refills, K / KL damage, SP1 *reads* the count (refund tiers), SP2 the only spend-all (+ a unit a special; alone: full charge, R +20, −30 on block), the wing armour spends 4 (the owl 2) | R1, R3 |
-| Forms | the same segment table; a clip plist and an FK reach table per form; transitions skippable in combos (R17 `:br-to-en-l`); a held L enters the charge directly (R13) | §8.5, R17 |
+## 2. The pointer rule and its table (§5b, P → G)
+- The user, 2026-10-28: 「以後每個指針的 NS 與指向他的 AS 以及對應的毀魂技都要有風格與效果上的連動關係」.
+- One table per form: pointer × (theme, stance, NS, AS, Kikon cinematic). Ichigo's is DUEL_CORE §5b.
+- **G:** state the theme first; fill every cell from it; a cell borrowed from another theme is the thing the user will ask to change
+  (KESSA's pointer 1 played the Getsuga until §428).
+- An AS's Kikon and Soul Break profile follow the pointer the AS **writes** (§435). The Soul Break at zero Reishi plays the current
+  pointer's cinematic (§439).
 
-The user's verbatim lines that set the shape: 「架式 > JJ/KK > LL 中，最後一段 LL 會依據前面 J/K 有不同的動作模組」,
-「沒有消耗資源的話就不能有遠距離攻擊」, 「高資源換取高傷害的定位設計給 SP2 佔有，並讓其單發破綻大、必須接在 KK 後」,
-「我希望段數跟操作時的點擊次數一致，這樣玩家才能輕鬆確認到底打到哪一段」.
+## 3. The Kikon hold as built (§4, §436–§444, P → G)
+- **Start of the hold:** each NS / AS segment starts `fighter-sp-held` = t if the button is down.
+  - A let-go on any step clears it (`core-hold-step`), so a mash is not a hold (§418).
+  - The phone starts `:rearm`. Since §442, only a contact that went down in the SP zone (`touch-oy` < `touch-split-y`) arms it.
+- **Judged at the hit, then confirmed:** after the hit, the button must stay down for `*core-kikon-confirm*` 12 frames of the dash-in
+  (after the hitstop, §440).
+  - A let-go inside them undoes the follow-up: the hit becomes the ordinary one it would have been (`fighter-kikon-undo`), and the move
+    goes on where it hit.
+  - The cues wait for the dash-in's first frame, so a tap released in the hitstop shows nothing.
+- **G (a hit-frame hold check misreads taps):** a move whose hit lands before a tap lifts (AS3 at 8 f) reads every tap as a hold.
+  - Fix: judge after the hitstop. Nothing in the sim moves during it, so the undo there is exact.
+- **A wave's Kikon** (§437): the hazard records its segment (`hazard-sp-mv`). Its hit, with the hold kept, starts the segment's
+  `:kikon-strike` in phase `:follow`.
+- **The CPU's hold is a press length** (`cai-sp`: 40 frames when it wants the Kikon). A rule that lengthens the hold changes the
+  CPU's Kikon count and the pace: IK 201.1 s and HI 204.1 s until the CPU held through the confirm (§440).
 
-## 2. The encoding (P)
+## 4. Carried effects (P → G)
+- **The charge** (§421, §423): a charged SA arms `:charge-mult`. NA links and AS keep it; any opener, NS or `to-idle` drops it; it
+  multiplies every hit of the string after the SA.
+- **KESSA's clones** (§425, §438):
+  - Spawned by the NS3 segments. They replay each J / AS he starts after NS3, 4 / 8 frames behind (`*clone-replay-lags*`, sim ticks,
+    since `*match-tick*` freezes in hitstop).
+  - Each replay does 10 % of the damage and effects, x the charge.
+  - The replaying clone faces the opponent: a thin capsule aimed along his yaw from 1.1 m aside missed.
+- **G:** two carried effects in two routes that never meet (the charge in NS2's string, the clones in NS3's) make a written x
+  unreachable. Say so to the user; don't silently leave dead code.
 
-- `*BR-S-SEGS*`: one row a segment, `(name kind startup hit-offsets recovery dmg react-mid react-last role extra)`,
-  extra `(:gain n)` / `(:spend t)` / `(:end t)`. Per-form timing overrides in side tables (`*BR-W-SEGS*` the awakened
-  melee, `*BR-S-KATA-SEGS*` the base gun-kata); per-form reach `*BR-W-TIPS*` (prefix → segment → metres, from FK).
-- `(br-defstance PREFIX CLIPS &key adv melee snipe l-slow)` → one `defmove` a segment (`BR-S` base, `BR-E` JILLIEL EN,
-  `BR-OE` the owl EN). CLIPS: `(:j1 (clip authored-S [charge-clip]) …)`, played at `:clip-s` = the authored S. Flags pick
-  the volume (melee capsule to the drawn tip, a 31 m `:x-axis` line for paid hits), `:hold` for charges, `:through` for
-  the dash; the f0 hook `br-s-start` (reset gains) or `br-s-spend` (pay).
-- `(br-stance-strings PREFIX SP2 &optional melee)` → the kit `:strings`: J by `:q`, K by `:f`, L chains and routes by
-  `:lchain` (a latch set in the tick `BR-S-TICK`), every J / K / JL / KL → `:sp2c`. A move the kit doesn't list cannot be
-  started by name: non-button strings are how a tick starts a move.
-- Attack-state strings: `(br-defstring ROUTE name …)` → `BR-V8-SPEC` applies a route's feel deltas (`:j` −2 f / ×0.85,
-  `:k` +2 f) and retimes with `:clip-s`. `:clip-s` is the normal retiming tool; what stays wrong is playing a *sibling
-  form's* clip sped up instead of the form's own.
-- Kits: `defkit :barro <form> :inherit …` with `:commands` (buttons → openers), `:strings`, `:clip-map`, `:look-clips`
-  (a shared generic clip replaced by the form's own: the guard → the wing wall, R19), `:hooks`, `:ai (… :stance (…))`.
-- Generic hooks this added to shared files (each default off, the other pairings byte-identical): `:armor` (kit armour),
-  `:pose` (squash-and-stretch; never scale the facing axis so reach stays honest, `BR-DEFORM`), `:look-clips`,
-  `:through`, `:charge` / `:hold` + `:release`, `:step-branch`, `FIGHTER-STEP-OPEN`, `DRAW-WEAPON :tint`.
-- Host tests (`tests/duel-rules/barro.lisp`, the BARRO sections): every link combos on a hit incl. hitstop; every segment →
-  SP2 combos; `:end` only on last segments; routes on distinct clips; clip length / `:s` / speed 1; FK tip = reach
-  ±0.15 m; `BR-K-ORDER-P` (KL > stance K > attack-state K, R14); the route rule's cases (`BR-ROUTE-J-P`).
-
-## 3. How the grammar was found (G)
-
-- **Stacked rules are the redesign signal.** V6–V9l added ~20 trace rules in 2 days (V9g: three rules stacked made one
-  dash spend 3 traces), then the user: 「主要是軌跡的手感不好，想用新玩法替代」.
-- What worked: **an animation inventory** (every clip: frames S / A / R, motion, old / current / proposed use, the
-  spares; V3 §1, 90 clips) and **a proposal distilled from the part that already worked** (the base stance's six rules,
-  V3 §2), revised three times as a private zh-TW Artifact before 「開始實作」; the old version stayed in git.
-- Restating the inventory's spare clips into new slots ("revived") made v3 cheap to draw.
-
-## 4. Wording that was misread (G)
-
-| The user wrote | First read | Meant | Cost |
+## 5. Bug classes this grammar produced (G)
+| Bug | Cause | Fix | § |
 |---|---|---|---|
-| 「架勢 > JJ / KK / LL」 | two presses | a multi-hit string (「只是簡化多段攻擊的描述方式」) | R3 rebuilt |
-| 「不是 JJ 不是 J2」 | the second J | the J string as a whole | a mid-build reroute |
-| 「動作段數最多三段」 | ≤ 3 hits a segment | one hit a press (R7 the next message) | a rebuild |
-| 「附近」 | 10° of the line | 2.5 m (V4 → V6) | a rebuild |
-| 「Step」 (V9i) | the stance Step | any Step (V9l) | a fix round |
+| NS3[2]'s cut skipped on a quick third press | the clone's swing lag 6 put its hit at f18; NS3[3] starts at f14 and retasks the clones | spawned NS clones swing at once | §443 |
+| The SA after NS3[3] whiffed | the X knocked down | a stagger; only a route's last segment knocks down | §443 |
+| AS3 tapped → Kikon | the hit at 8 f, before the tap lifts | the confirm after the hitstop + the undo | §441 |
+| The phone's Kikon worked in the check, failed in play | the check held the attack zone; any contact counted | the SP zone only; check both zones | §442 |
+| Duplicate replays, the clone cap filled | the clone's strike hazards carry its data, so they counted as clones | `clone-p` checks the hook | §438 |
+| A wave could never Kikon | `apply-hit` needed a melee hit | `hazard-sp-mv` + `:kikon-strike` | §437 |
+| A shared strike classed AS in an NS | one tag a move | a copy per class | §437 |
+| Copies' on-frames skipped | on-frames before `:enter` | on-frames ≥ `:enter` | §431 |
 
-## 5. What churned vs what held (G)
-- Held once asked: the roles (gain / refill / damage), one spend-all, the route follow-ups, one hit a press.
-- Churned by play: hits per segment (2–4 → ≤ 3 → 1), follow-up segments (2 → 3), refills (L +3 → +1 a string, J 10 / 15
-  → 3 / 5, SP1 18 / 35 / 70 → 9 / 18 / 35), the K multiplier 1.2 → 1.0 → 0.8 in one day, openers 4 m shots → melee.
-  Expose them as knobs with docstrings; don't predict them.
+## 6. Wording that was misread or nearly so (G)
+| The user wrote | Could read | Meant | Settled by |
+|---|---|---|---|
+| 「重現本體的行為（包含 J 與 SP）」 | every move incl. the next NS | only the J / AS after NS3 (「為什麼還有下一個 NS？」) | a correction mid-question |
+| 「依據目前指針指向的 NS」 | the pointer before the AS | the pointer the AS writes | §435 |
+| 「把毀魂技的按住判定時間拉長」 | a grace before / after the hit | a stricter confirm after it (「打中後要多按住幾幀」) | AskUserQuestion |
+| 「點擊觸發」 | fire on press everywhere | asked the conflicts first; chose press-in-moves only (「1」) | three options |
+| 「SP 打中後繼續按著」 on the phone | a hold kept from the tap | a re-press, judged at the hit (「打中前按下」) | AskUserQuestion |
 
-## 6. Bug classes the grammar produced (G)
-- A `:hold` move's f0 hooks never run (`START-MOVE` skips entry hooks in the hold phase): reset per-move state at S (R11).
-- A tick that starts another move during a hold phase: the release test read a NIL button and crashed (`HOLD-PHASE-STEP`,
-  R18; found only in a browser run).
-- A form switch inside a move left a latched link the new kit lacked (§7.1): switch only out of a move.
-- The generic SP cancel let SP2 follow any link (§8.4): refuse in `:ok`.
-- A zero-resource loop: L in a link reopened the stance at 0 pips → an infinite combo (V9e).
-- A 1-frame combo break: a K link's startup 15 vs J's flinch 18 + hitstop (R12): host-check links with hitstop.
-- A push measured to the capsule's end without its radius (R12).
-- Hidden aim: `:track 720` + a turn at release made the charged snipe unmissable (R18).
-
-## 7. The motion bar for modules
-Deciding the style, researching it and mapping archetypes onto the segments: `skills/duel-motion-style/` (its reference
-holds this case: the archetype table, 2–3 rounds a string, the whip / turn / key-density failures). One rule that belongs
-here: brief art batches from the segment table of the build they merge into (r5-art lost 8 clips to a sim change, §8.3).
+## 7. Process (G)
+- **A system replacement** (§410–§411):
+  - Start from the user's note.
+  - Hold a grilling session; record a scope table with verbatim answers, and a list "defaults I chose where the note is silent".
+  - Build in this order: docs → pure rules with host tests → one character → the others → input / phone / HUD → CPU → gates.
+  - Retire what doesn't fit (`*retired*`) and freeze side modes (ASSIST, the learner, ENDLESS, ROGUE); keep their code.
+- **Stacked special cases are still the redesign signal.** About 20 rules in 2 days on the old Lille's traces led to a rebuild. Write
+  an animation inventory and a proposal from the part that works (`git show e55304e:skills/duel-move-modules/reference.md` §3).
+- **Feel numbers churn; intent holds.** Expose the numbers as knobs with docstrings (old → new, date, who decided):
+  - the confirm 12 f,
+  - the replay lags 4 / 8,
+  - the replay scale 0.1,
+  - the clash slow motion 0.2 × 0.7 s.

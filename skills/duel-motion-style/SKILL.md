@@ -1,13 +1,14 @@
 ---
 name: duel-motion-style
-description: Use when deciding or changing how a fighter moves in a code-animated arena fighter like SOUL DUEL — picking a new character's or form's motion style, researching references for it (canon fights, other games' movesets, anime scenes), and planning it into per-move clips — especially when the user gives concept words or names a style (長鞭, 大刀, 陀螺, 槍鬥術, 魔物獵人, 像跳舞), says strikes 「不太明顯」「沒張力」「更大膽」, or a form plays borrowed clips.
+description: Use when deciding or changing how a fighter moves in a code-animated arena fighter like SOUL DUEL — picking a new character's or form's motion style, giving each SP pointer its theme, stance and tells, researching references (canon fights, other games' movesets, anime scenes), and planning it into per-move clips — especially when the user gives concept words or names a style (長鞭, 大刀, 血鎖, 分身, 月牙, 魔物獵人), says strikes 「不太明顯」「沒張力」「更大膽」, says two stances look alike, or a form plays borrowed clips.
 ---
 
 # Motion style: decide, research, plan, then draw
 
 ## Overview
-From Kenpachi's rework (`docs/duel/DUEL_KEN_REWORK.md` §2–§8, `docs/research/kenpachi-rework/`) and the new Lille's
-motion modules (`DUEL_LILLE_V3` §10, §13–§16, §19–§20, §24.1, `docs/research/lille2-motion-styles/`). Core principle:
+From Kenpachi's rework (`docs/duel/DUEL_KEN_REWORK.md` §2–§8, `docs/research/kenpachi-rework/`), the new Lille's motion
+modules (`DUEL_LILLE_V3` §10, §13–§16, §19–§20, §24.1, `docs/research/lille2-motion-styles/`) and Ichigo's core-system sets
+(DUEL_CORE §5b–§6, `docs/research/ichigo-rework/`: a theme, a stance and a Kikon cinematic per SP pointer). Core principle:
 **settle the style as named archetypes with the user, research them with graded sources, plan every slot in a table the
 user approves, measure the drawn reach, then draw.** Canon plus an approved plan took ~1 build round a form; invented
 styles 2–3 rounds a string. Case files and templates: `reference.md`. Clip authoring mechanics: `procedural-ink-style`;
@@ -35,6 +36,16 @@ the move grammar the clips fill: `duel-move-modules`.
    reference). Label the user's decisions as theirs, not canon. Write down gaps and how to close them.
 3. Templates: an **archetype table** `Archetype | Examples | What makes it read`, ending in "the choice"; a **motion bar
    per form** `# | Archetype | Body in one line | Grade | Slot`; an image table with "dropped" / "could not see".
+
+## Pointers: one theme, read before it starts (the core system)
+- **Each SP pointer is a theme** (DUEL_CORE §5b): its stance, its NS, the AS that writes it and its Kikon cinematic share one look
+  (KESSA: blood chains / the black Getsuga / the clones). Plan the table per form before any clip.
+- **Stances read apart at a glance**: shoot the three side by side from the behind camera (debug 2510 + p); a blade in a similar
+  place reads as the same pointer (Shikai §417, KESSA §428).
+- **Openers carry a tell** (S ≥ 14, the anticipation held: the cleaver overhead, the blade cocked behind); links keep their speed.
+  Author the clip at the move's S.
+- **A theme can ride a look on every swing** of a string (the Getsuga wrap after a charge, §422–§423): a draw hook, not new clips.
+- **Mirrored pairs**: `defclip-mirror` swaps the left / right channels; a two-handed grip keeps the blade mirrored too (KESSA's X).
 
 ## Plan (show the user before any clip)
 - An **inventory** of the form's clips (Clip | S/A/R | Motion | current use | proposed use; spares can be revived).

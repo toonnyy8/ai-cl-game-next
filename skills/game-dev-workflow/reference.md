@@ -1,6 +1,6 @@
 # D. Development workflow, collaboration and game-design principles
 
-Source repo: /media/8tsp/projects/ai-cl-game-test (RAVEN EDGE + SOUL DUEL, Lisp→wasm). Evidence paths are repo-relative
+Source repo: /media/8tsp/projects/ai-cl-game-next (SOUL DUEL, Lisp→wasm; RAVEN EDGE was removed 2026-10-27). Evidence paths are repo-relative
 unless they start with `~/.claude` (auto-memory). "G" = generalizable, "P" = project-specific.
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -260,11 +260,11 @@ unless they start with `~/.claude` (auto-memory). "G" = generalizable, "P" = pro
   EASY keeps gaps on purpose; a learning CPU reads the human's habits; success measured by a scripted "dumb player"
   (masher vs HARD 98 % → 3 %).
 - **Accessibility**:
-  - ASSIST (DUEL_ASSIST.md) from 「我打不過 AI（哭泣）」: three SETTINGS toggles (AUTO GUARD OFF/HOLD U/ALWAYS, AUTO COMBO,
+  - ASSIST (DUEL_ASSIST.md, frozen since the core system) from 「我打不過 AI（哭泣）」: three SETTINGS toggles (AUTO GUARD OFF/HOLD U/ALWAYS, AUTO COMBO,
     AUTO BREAK), "you press, the CPU chooses", a price (×0.8, never a perfect dodge) so manual play still pays, CPU-vs-CPU
     gates untouched. Measured honestly: AUTO COMBO makes play flashier, not stronger.
   - One-hand portrait phone mode (DUEL_MOBILE_DESIGN.md): right hand default, left mirror option, tap zones J/K, flicks,
-    hold = guard; PWA install; later merged into SETTINGS (ONE-HAND AUTO/ON/OFF) instead of a separate menu mode;
+    hold = guard (since the core system: the upper zone SP, the lower attack; no guard; a tap fires on the press inside a move); PWA install; later merged into SETTINGS (ONE-HAND AUTO/ON/OFF) instead of a separate menu mode;
     PERFECT HINT setting; key/pad rebinding; practice mode with infinite gauges.
   - In-game zh-TW manual; HUD prompts follow rebinding.
 - **Settings over modes**: features become SETTINGS rows (one-hand, assist, hints) rather than new menu modes.
@@ -272,8 +272,10 @@ unless they start with `~/.claude` (auto-memory). "G" = generalizable, "P" = pro
   user's intentional changes.
 
 ### 5.2 Project-specific
-- RoS mapping (Reishi/Konpaku, red at 30 %, Kikon on O, Soul Break = count + 1 cap 5, Burst modes white/blue/orange).
-- Strings: up to 3 links, J/K switch at most once (「K J 不要來回交錯」), O ender only after a hit J3/K3.
+- RoS mapping (Reishi/Konpaku, red at 30 %, Soul Break = count + 1 cap 5, Burst modes white/blue/orange).
+- The core system (2026-10-27, DUEL_CORE): two buttons (J attack / Mod+J SP), the NA / NS / AS / SA triangle, the SP pointer 1–3
+  with one theme a pointer (NS, AS, Kikon), the Kikon as a hold after an SP (confirmed 12 frames into the dash-in). The old
+  strings (J/K, the O ender) are frozen with Yamamoto, Rukia, Senjumaru and Lille: `git show e55304e:skills/game-dev-workflow/reference.md`.
 - Per-character signature resources (one resource per form, one HUD row).
 - Unskippable cinematics count toward sim time (determinism).
 

@@ -1,76 +1,58 @@
 ---
 name: duel-character-rework
-description: Use when changing an EXISTING fighter in a deterministic arena fighter like SOUL DUEL after a playtest — a move "doesn't read", a dash feels wrong, a cinematic is too fast, the ASSIST misses a link, a form looks the same as another — especially when the request is short zh-TW feedback and the user wants to discuss options before anything is changed.
+description: Use when changing an EXISTING fighter in SOUL DUEL after a playtest — a move "doesn't read", a segment gets skipped, a route stops connecting, the Kikon triggers by accident or never on the phone, a stance looks like another pointer's, a cinematic is too fast, a form plays borrowed clips — especially when the request is short zh-TW feedback, arrives as several requests in one turn, or the user wants to discuss options before anything is changed.
 ---
 
 # Reworking an existing fighter
 
 ## Overview
-Distilled from the old LILLE BARRO's 41 post-playtest decisions (DUEL_LILLE §22–§23, DEVLOG §92–§135) and today's
-Lille's V- and R-rounds (DUEL_LILLE_V2, DUEL_LILLE_V3 R3–R20, DEVLOG §156–§216) in `toonnyy8/ai-cl-game-test` (local
-`/media/8tsp/projects/ai-cl-game-test`). Core principle: **find the cause and the
-intent first, offer composable options, then make the smallest change. If it is presentation only, prove the sim is
-byte-identical; if it touches the sim, gate it against a parent baseline.** Evidence: `reference.md`; the zh-TW guide
-`docs/guides/CHARACTER_DESIGN.zh-TW.md`. A new character uses `duel-character`; a change to the move set's grammar
-(strings, stance, routes, resources) `duel-move-modules`; teaching the CPU / ASSIST a changed move `duel-character-cpu`;
-retiring, removing or renaming a character: `reference.md` §9; a strike that 「不太明顯」 or a form's whole motion style:
-`duel-motion-style`.
+Distilled from the old Lille's 41 post-playtest decisions, today's Lille's V- and R-rounds, Kenpachi's base rework, and Ichigo's rebuild on
+the core system (DUEL_CORE §6, DEVLOG §416–§445). Core principle: **find the cause and the intent first, offer composable options, then
+make the smallest change; presentation only → prove the sim byte-identical; a sim change → gate the character's pairings.** Evidence:
+`reference.md`. A new character: `duel-character`; the move grammar (NS / AS / SA, pointer, Kikon): `duel-move-modules`; the CPU taking a
+changed move: `duel-character-cpu`; a strike that 「不太明顯」 or a form's motion style: `duel-motion-style`; retiring, removing or renaming
+a character: `reference.md` §9.
 
 ## The loop
-1. **Quote the feedback verbatim**; if the user said 「先跟我討論」, change nothing until it is agreed.
-2. **Diagnose before proposing.** Reproduce in the browser (`tools/run.mjs --script`, debug setups, hash lines,
-   the combat log), by hand and with the ASSIST. State the cause in one paragraph. ("Why does J1 after the dash also
-   dash?" → the hidden link chase → decision 53.)
-3. **Restate the request as numbers or a beat table** when it is relative or about feel (「放慢 1 倍」 = 0.1×?). For a
-   cinematic, give a shot-by-shot breakdown (frames, angle/distance/height/lens, action) so the user can point at a shot.
-4. **Offer 2–4 lettered, composable directions** (AskUserQuestion, recommended first). The user often takes "all" or
-   "A + D"; add a follow-up question for the parameters (strength, length) with defaults.
-5. **Docs first**: the design § (verbatim quote, the options, the choice) and a DEVLOG §, committed before the build.
-   If the user keeps talking ("我繼續講分鏡"), append to the same § and hold the build.
+1. **Quote the feedback verbatim**; 「先跟我討論」 → change nothing until it is agreed. Several requests in one turn: one at a time, each
+   with its own docs and check.
+2. **Diagnose before proposing.** Reproduce in the browser (`tools/run.mjs --script` key or touch steps, debug setups, the combat log
+   `[tick] P1 …`), and against the build before the change when the bug is a regression. State the cause in one paragraph with frames
+   ("NS3[2]'s clone hits on f18; NS3[3] can start on f14").
+3. **Restate the request as numbers or a beat table**; a direction word (「拉長」「點擊觸發」) gets its direction asked.
+4. **Offer 2–4 lettered, composable directions** (AskUserQuestion, recommended first). Give conflicts before a sweeping change (「會有
+   什麼衝突嗎」: list every gesture a change would break).
+5. **Docs in the same pass**: the design § (verbatim quote, options, choice, knobs old → new), a DEVLOG §, the manual if players see it.
 6. **Classify the change**:
-   - **Presentation only** (clips, rig, VFX, camera, cinematic shots): `simgate --seeds 10 --summary` and `--cvc` must
-     be byte-identical to a baseline saved before the change. A cinematic's length doesn't move the gate numbers
-     either, since gate time excludes cinematics. Use `:clip-map` to give one form a different clip for a shared move.
-   - **Sim change** (frame data, distances, links, economy): run the character's pairings at 20 seeds against the
-     parent; a median outside 125–210 s → 60 seeds; still outside → report and let the user decide. Don't retune
-     other knobs.
-   - **Playtest first, gates after**: publish the playtest Artifact once host tests, pkgcheck and the build pass, then
-     run the gates; when a newer fix lands, stop the stale gate runs (by PID).
-7. **Fan out independent batches** in worktrees; brief each with the user's decisions and the identity check. At merge,
-   check shared scratch-vector slots, generic hooks and decided values (a subagent changed decision 11's gold).
-8. **Verify like a player**: host tests, `pkgcheck`, `./build.sh duel` with 0 warnings, the character's consing probe
-   (its debug range in DUEL_GAMEPLAY; Lille's 82398 `barro consing` line) against the floor its design doc records,
-   before/after contact sheets from the behind and side cameras, **both landscape (letterbox 9 %) and portrait**. Then update the playtest Artifact.
-9. **Reply** in zh-TW: what changed, the numbers, pushed or not, and what needs the user's eyes.
+   - **Presentation only** (clips, rig, VFX, camera, HUD, cinematic shots): `simgate --seeds 10 --summary` and `--cvc` byte-identical
+     to a baseline saved before. Gate time excludes cinematics.
+   - **Sim change in the character's files** (or a shared-file hook only he uses): his pairings only (Ichigo `--pairs 7,9,31`); a shared
+     rule: all six (`2,7,9,29,31,35`). 10 seeds pass at once inside 135–200 s and all K.O.; else 20; outside 125–210 → 60 → report.
+   - **Input only** (touch, the recogniser): host `touch-test`, the browser `--mobile --size 390x844`; the sim gates have no touch.
+   - **Playtest first, gates after**: publish the Artifact once host tests, pkgcheck, the build and a smoke pass; gate meanwhile.
+7. **Check the CPU** when a rule reads input timing (a hold, a press window): its press lengths change its outcomes; a gate shift
+   that the CPU explains is fixed in the CPU, not by retuning the rule (§440: IK 201 s until the CPU held through the confirm).
+8. **Verify like a player**: the positive and the negative case for every input (held / tapped, SP zone / attack zone, slow / quick
+   press), host tests, `pkgcheck`, `./build.sh duel`, stills from two cameras and both aspect ratios; then update the Artifact.
+9. **Reply** in zh-TW: the cause, what changed, the numbers, pushed or not, what needs the user's eyes or decision.
 
 ## Regressions to look for after any rule change
-- Hidden movement: Breaker-style link chase, string chase during a dash's startup (K → L measured 0.88 m vs 10 m).
-- State read too early: the ASSIST decides one step ahead and read a stale dash end (§23.36). Reset per-move state at
-  the move's start, not at its `:go` frame.
-- Order of effects: a short dash ended before the form change, so the link was decided for the old form.
-- Touch: an up-flick inside a stance-move read as a Hoho.
-- Framing: a cinematic's shots depend on the actors' distance at entry (CINE-PLACE fixes it) and on the aspect ratio.
-
-- Moves and forms: a `:hold` move's frame-0 hooks never run; a tick starting a move inside a hold phase; a form switch
-  inside a move leaving a latched link; a generic cancel (SP) reaching a move it shouldn't; a 0-resource loop; a link
-  that only breaks with hitstop counted (the list: `duel-move-modules` reference §6).
-- Hidden aim: `:track` or a turn at release on a charged shot made it unmissable (R18).
-- A new move the CPU should use: does it fire at all (the tick runs after the frame count: look at land + 1)?
+- Timing between a latched next segment and a delayed effect of the last (a lagged clone swing, a wave's spawn frame).
+- A reaction in mid-route that ends the route (a knockdown before the SA).
+- Input: a judgement on the hit frame of a fast move (taps read as holds); the phone's lift-vs-press and its two zones.
+- Hidden movement and hidden aim (chases, lunges, `:track`, the Kikon dash-in's cap).
+- Class tags: a move shared across NS / AS, a copy's on-frames before its `:enter`.
+- Hazards: anything that iterates hazards by their data struct instead of their hook.
+- State read too early (a tick runs after the frame count: look at land + 1); per-move state reset at its start.
 
 ## Feel tuning
-- Feel numbers churn (TENSHIN's distance changed 8 times). Get the unit right once (fixed speed, Step lengths), then
-  let the user tune the number by play. Prefer a live knob to another gate cycle.
-- Feel effects that scale time (slow motion) need their trigger rule settled before their numbers.
-- Model tweaks by eye: iterate on stills (front + side), and for a position or size show 3–4 candidates side by side
-  so the user picks one (reference §7).
+- Feel numbers churn. Get the unit right once, then let the user tune by play; prefer a live knob to another gate cycle.
+- Model tweaks by eye: stills (front + side), and for a size or place 3–4 candidates side by side (reference §7).
 
 ## Red flags
-- Changing a distance whose effect another hidden rule cancels. Measure the actual travel first.
-- "Looks fine" from one camera or one aspect ratio.
-- Starting the build while the user is still describing (a storyboard in several messages).
-- Patching rule on rule (~20 special cases in 2 days): propose a redesign from an animation inventory instead
-  (`duel-move-modules` reference §3).
-- A rule change while a CPU search runs (it forces a re-freeze).
-- Declaring a presentation change done without the byte-identical sim check.
-- Putting a new motion on a move without reading its hit volume: a thrust drawn on K3's 360° spin would hit behind
-  him (Kenpachi, reference §8). Check `:arc` / `:vol` before promising a slot.
+- Patching a symptom on one path while a sibling path (the wave's Kikon, the phone) shares the same judgement.
+- "It works" from a check that only tried the happy input (§436's check held the wrong zone).
+- Retuning a knob to fix pacing a CPU behaviour caused.
+- Starting the build while the user is still describing.
+- Declaring a presentation change done without the byte-identical check.
+- A new motion on a move without reading its hit volume (`:arc`, `:vol`).

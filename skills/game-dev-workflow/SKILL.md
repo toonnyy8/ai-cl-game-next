@@ -6,7 +6,7 @@ description: Use when a user asks for a game feature, rule change, character, bu
 # The game-dev change loop
 
 ## Overview
-Distilled from many sessions building `toonnyy8/ai-cl-game-test` (local `/media/8tsp/projects/ai-cl-game-test`).
+Distilled from many sessions building this repo (`toonnyy8/ai-cl-game-next`, local `/media/8tsp/projects/ai-cl-game-next`).
 Core principle: **the user's words are the spec, every decision lands in the repo docs in the same pass, and nothing
 is "done" until it is measured, committed and pushed — but never deployed unless asked.** Templates and evidence:
 `reference.md`.
@@ -30,7 +30,9 @@ is "done" until it is measured, committed and pushed — but never deployed unle
    doc § refs; scope caveats in parentheses; the session's attribution trailers. Never commit `.claude/` or scratch;
    research is committed only once moved under `docs/research/<topic>/`.
 8. **Deploy (`tools/deploy-pages.sh`) only when the user says so.** Then confirm the Pages build status and URL.
-9. **Reply in zh-TW, concise**: what changed, key numbers, what is pushed, what is pending, any decision the user must
+9. **Several requests in one message, or new ones mid-turn**: finish or park the current step, then take each in order with its
+   own docs and check; say in the reply which are done and which wait.
+10. **Reply in zh-TW, concise**: what changed, key numbers, what is pushed, what is pending, any decision the user must
    make. Report failing gates and your own mistakes plainly; label anything not checked by eye.
 
 ## Design principles the user holds (check new designs against them)
@@ -55,6 +57,7 @@ is "done" until it is measured, committed and pushed — but never deployed unle
 - "I'll update the docs later" / only in the scratchpad → write them now.
 - "The gate is a bit off, I'll nudge another knob" → report and ask.
 - "It passed natively" → did you rebuild `dist/`?
+- "The input works" from one press style → try the negative case too (a tap vs a hold, the other touch zone).
 - "They'll want it live" → deploy only on their word.
 - Building while the user is still describing (a storyboard over several messages) → append to the doc, hold the build.
 - A worker's merge silently changed a decided value or reused a shared slot → diff against the decision list.

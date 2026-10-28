@@ -6,9 +6,9 @@ description: Use when changing game rules, frame data, damage, reach, tuning kno
 # Gating a deterministic game sim
 
 ## Overview
-A balance change is done when **measured** gates pass, not when it compiles. The exemplar (SOUL DUEL in
-`toonnyy8/ai-cl-game-test`, local `/media/8tsp/projects/ai-cl-game-test`) runs a fixed-step sim with a split RNG, so a
-seed replays the same match bit for bit; every gate below relies on that. Details, numbers and evidence:
+A balance change is done when **measured** gates pass, not when it compiles. The exemplar (SOUL DUEL, this repo) runs a
+fixed-step sim with a split RNG, so a seed replays the same match bit for bit; every gate below relies on that. Since the core
+system (2026-10-27) only Kenpachi, Ichigo and Hisagi play: six pairings, KK IK II HK HI HH = `--pairs 2,7,9,29,31,35`. Details, numbers and evidence:
 `reference.md`; the project's current policy text: `docs/duel/DUEL_GAMEPLAY.md` "Gate policy".
 
 ## Implement so it can be audited
@@ -22,13 +22,12 @@ seed replays the same match bit for bit; every gate below relies on that. Detail
 (`E` = the 32-bit host ECL, in the exemplar `/media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl`.)
 | Layer | Exemplar command | Pass |
 |---|---|---|
-| Host tests | `$E --norc --load tests/<t>.lisp` for rules, control, learn, input | ALL PASS |
+| Host tests | `$E --norc --load tests/<t>.lisp`: duel-rules, duel-control, input, touch (+ cine, learn if touched) | ALL PASS |
 | Seed / pacing gate | `python3 tools/simgate.py [--pairs ..] --summary` (native, same sources) | every match K.O.; cross-pairing medians in 125–210 s; mirrors may exceed 210 |
 | Quick first pass (optional) | `--seeds 10` | passes at once only if all K.O. and the median is inside 135–200 s; else run 20 |
 | Edge rerun | `--pairs k --seeds 60` | a 20-seed median outside the window is rerun at 60 seeds; that is the verdict |
-| Awaken A/B | `--pairs k --seed0 {100,300,500} --seeds 60 --cmd 39020` | the "never awaken" side wins ≥ 20/60 on **every** stream |
-| CPU vs masher | `tools/assistgate.py` | after AI/assist changes: report the masher's win % per difficulty |
-| G2 reference | `tests/style-gates.py cvc dist/duel` | identical lines; on an intended change rewrite `tests/style-cvc-ref.txt` with a header note "after X (the user, date). Before: …" and update every place the reference line is quoted |
+| Awaken A/B | `--pairs k --seed0 {100,300,500} --seeds 60 --cmd 39020` | when awakening rules change: the "never awaken" side wins ≥ 20/60 on **every** stream |
+| G2 reference | `simgate.py --cvc` (native) or `tests/style-gates.py cvc dist/duel`; pairs II IK KK | identical lines; on an intended change rewrite `tests/style-cvc-ref.txt` with a header note "after X (the user, date). Before: …" and update every place the reference line is quoted |
 | Shipping build | `./build.sh duel` last | `dist/*/index.wasm` newer than every edited source |
 
 Match time excludes every cinematic since 2026-10-08 (`MATCH-PLAY-TICKS`, the frames the match timer ran; simgate sorts
@@ -36,8 +35,10 @@ by it and also prints the median with the cinematics). The 125–210 s window wa
 30–60 s lower (DEVLOG §134). A presentation-only change must leave `--seeds 10 --summary` and `--cvc` byte-identical
 to a baseline saved before it.
 
-Scope: a change inside one character's files → its pairings + its A/B; shared rules (combat, fighter, rules, ai,
-tuning, kit) → all pairings. Take a baseline on the parent commit (`git worktree add` → run the same gate) whenever
+Scope: a change inside one character's files, or a shared hook only he uses → his pairings (Ichigo `7,9,31`; the user,
+2026-10-27, DEVLOG §424); shared rules (combat, fighter, core-sim, core-ai, rules, tuning, kit) → all six. A touch-only change
+(the recogniser, the phone's mapping) moves no sim gate: the native sim has no touch; check it with `touch-test` and `run.mjs --mobile`.
+ASSIST (`assistgate.py`), the learner and AI v2's `aieval.py` are frozen with the old system. Take a baseline on the parent commit (`git worktree add` → run the same gate) whenever
 you need to attribute a shift.
 
 ## When a gate fails
@@ -52,6 +53,8 @@ you need to attribute a shift.
 three disjoint streams. Choose a setting by "every constraint satisfied", not by the single best number.
 
 ## CPU AI rules that keep recurring
+- A rule that reads input timing (a hold, a confirm window) changes the CPU's outcomes through its press lengths: check the CPU
+  before blaming the rule (a 12-frame Kikon confirm moved IK 191.9 → 201.1 s until the CPU held through it; then identical).
 - A reaction slower than the threat never fires → decide from what the CPU feels at once (its own state), read the
   opponent through the perception delay.
 - Roll once per event, never per step (a per-step chance is a certainty).
@@ -63,4 +66,4 @@ three disjoint streams. Choose a setting by "every constraint satisfied", not by
 
 ## Report template (design §, DEVLOG, commit)
 "Gate (native, 20 seeds): all N K.O.; cross medians a–b (list); mirrors (list); [60-seed rerun]; A/B rows (all ≥ 20);
-masher %; host tests rules/control/learn/input pass; G2: yy … yk … kk …". A change claimed inert shows bit-identical rows.
+host tests pass; G2: ii … ik … kk … identical (native == browser)". A change claimed inert shows bit-identical rows.

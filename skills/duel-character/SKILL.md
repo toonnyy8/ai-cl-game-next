@@ -1,99 +1,72 @@
 ---
 name: duel-character
-description: Use when designing and building a NEW fighter for a 3D arena fighter like SOUL DUEL (a roster character with forms, awakenings, stances, modes, a Kikon cinematic, CPU and assist routes) — from the first concept talk through rig, clips, systems, CPU and cinematics — especially when the user judges by playtest feel and wants the design intent settled before building.
+description: Use when designing and building a NEW fighter (or porting a frozen one) for SOUL DUEL's core system — a roster character with forms, three SP pointers, NS / AS / SA moves, Kikon cinematics, stances, the phone's one-thumb controls and a CPU — from the first concept talk through rig, clips, systems, CPU and cinematics, especially when the user judges by playtest feel and wants the intent settled before building.
 ---
 
 # Designing a new fighter
 
 ## Overview
-Distilled from the two Lilles in `toonnyy8/ai-cl-game-test` (local `/media/8tsp/projects/ai-cl-game-test`): the old
-LILLE BARRO (56 decisions in 3 days, 41 after playtests; removed 2026-10-13) and his rebuild, today's Lille (kit `:barro`:
-DUEL_LILLE_V2 V1–V9l, DUEL_LILLE_V3 R1–R20, 4 days, playtest v39 → v81). Core principle: **settle intent and
-units before building; let the user tune feel numbers in play; keep every art round presentation-only and prove it
-byte-identical.** The churn concentrated in feel numbers (a dash distance changed 8 times, a slow motion 6 times) and
-silhouettes; intent, once asked, rarely moved. Evidence: `reference.md`; the zh-TW guide
-`docs/guides/CHARACTER_DESIGN.zh-TW.md`; the records `docs/duel/DUEL_LILLE.md` (old), `DUEL_LILLE_V2.md` / `_V3.md`
-(new), digest `docs/research/lille-retrospective/digest.md`. Related: the move set's grammar `duel-move-modules`, the CPU
-`duel-character-cpu`, changing an existing character `duel-character-rework`, the general loop `game-dev-workflow`.
+Distilled from the old and new Lille (DUEL_LILLE / _V2 / _V3, 2026-10-06 → 10-13) and Ichigo's rebuild on the core system (DUEL_CORE §6,
+DEVLOG §416–§445). Core principle: **settle intent and units before building; let the user tune feel numbers in play; keep every art
+round presentation-only and prove it byte-identical.** Churn concentrates in feel numbers and silhouettes; intent, once asked, rarely
+moves. Evidence: `reference.md`; the zh-TW guide `docs/guides/CHARACTER_DESIGN.zh-TW.md`. The move grammar: REQUIRED `duel-move-modules`;
+the CPU `duel-character-cpu`; changing a fighter `duel-character-rework`; the loop `game-dev-workflow`. The old system's checklist (K / L
+/ stance, ASSIST routes, learner situations): `git show e55304e:skills/duel-character/SKILL.md`.
 
 ## ⚠ Confirm before building (AskUserQuestion, 2–4 options, recommended first, record the rejected ones)
 Concept
-- **Role against the whole roster**: "what does he do when caught at 2 m?" Probe with a 10-seed time-at-range run
-  before tuning. (A "pure sniper, no escape" spent 83–93 % of time under 6 m; two rule rebuilds followed.)
-- **Every form reachable in PRACTICE** (a beheading-gated revival could not be playtested).
-- **Later awakenings: same system stronger, or a new kit?** (The owl was rebuilt onto Jilliel's system.)
-- **Which existing system can this reuse** (Yamamoto's West ward, Ichigo's stance, Kenpachi's Bankai path)? Reuse is
-  quick to build, leaves the rest of the roster alone, and is already balanced by precedent.
+- **Role against Kenpachi / Ichigo / Hisagi** (the playable three): "what does he do when caught at 2 m?" Probe with a 10-seed run.
+- **Three pointer themes per form** (DUEL_CORE §5b): pointer n's stance, NS, AS n and Kikon cinematic share one theme. Name the three
+  themes first; fill the table from them.
+- **Every form reachable in PRACTICE**; later forms the same system stronger, or their own `:core`?
+- **Reuse** an existing system shape (Ichigo's charge > SA, KESSA's clones, a wave's `:kikon-strike`) before inventing one.
 
 Mechanics
-- **The move set as a segment table** (button, segments = presses, hits a segment, range, gain, spend, ending) before
-  any code: the user's 「JJ / KK > LL」 is shorthand. REQUIRED: `duel-move-modules`.
-- **Every movement move**: where it stops relative to the opponent, fixed time or fixed speed, distances in Step
-  lengths, and whether the follow-up link travels. **List every hidden movement** (Breaker chase, lunge, string chase)
-  **and hidden aim** (`:track`, a turn at release: it made a charged shot unmissable).
-- **Tap or hold** for each button, and its one-hand touch mapping (「記得確保手機模式也能做到一樣的操作」).
-- **Pacing price and every cancel route** checked adversarially (an empty swing bought a free 2 f cancel).
-- **Delayed damage**: when should it reliably land, and what should the opponent do about it?
-- **Feel effects** (slow motion, snaps): what are they for, and what triggers them (per line, per region, fresh vs
-  old)? Expose the numbers as live knobs; don't predict them.
-- **Anything that changes the gate clock** (time scale, cinematic length). Match time excludes cinematics since
-  2026-10-08.
+- **The move set as the core segment table** (`duel-move-modules`): NA string length, NS segments, AS n segments, each gap's SA, every
+  reaction (only a route's last segment knocks down).
+- **Tells**: openers S ≥ 14 with a held anticipation; links keep their speed.
+- **Every movement move**: where it stops, fixed time or speed, distances in Step lengths. List every hidden movement (lunges, chases,
+  the Kikon dash-in's `:follow-cap`) and hidden aim (`:track`).
+- **Each press: tap or hold, and the phone** (the one-thumb pad: tap on the lift in neutral, on the press inside a move; SP the upper
+  zone; flick Step, rest + up-flick Hoho). Anything held is checked with a tap and with the other zone (§442).
+- **Ranged hits are hazards**: never judged by the triangle, so they beat every class at range. What answers them (side Step, Hoho)?
+- **Pace**: the kit's `:core :mult` is the lever when tells cut the landed hits (Ichigo 1.3).
 
 Model and look
-- **Which part hits, are the arms visible**: show a hit-frame still from the default behind camera. Don't parent a
-  visible weapon to the arm chain; keep the rig's strike point invisible and draw the weapon to it.
-- **Large translucent or foreground parts must not hide the fight**; check the leg topology with a side still; decide
-  whether the modes read apart at a glance. **Body swaps need transitions** (legs folded away into a stance), and a
-  generic clip (guard, hit) may read as nothing on a non-human body: give the form its own (`:look-clips`).
-- **The motion bar**: does every strike get its own silhouette and whole-body motion? Name a reference clip set and use
-  that bar for every form. REQUIRED: `duel-motion-style` (decide the style, research it, plan the slots).
+- **Which part hits; is the weapon visible** from the behind camera. Keep the rig's strike point invisible and draw the weapon to it.
+- **A stance per pointer that reads apart at a glance** (KESSA's shoulder rest at 1 read as 2's).
+- **The motion bar**: REQUIRED `duel-motion-style`.
 
 Presentation
-- **A text storyboard first**: a beat table with frames, camera (angle / distance / height / lens) and action.
-  **Place the actors** at the start (CINE-PLACE) and check both landscape (letterbox 9 %) and portrait.
+- **A text storyboard per Kikon cinematic** (three per form): a beat table with frames and camera. Place the actors (CINE-PLACE) and
+  check landscape (letterbox 9 %) and portrait.
 
 Wording
-- **Restate relative or colloquial quantities as numbers and get a yes** (「放慢 1 倍」 meant 0.1×; "extra arms" was
-  relative; 「閃步」 meant only Hoho).
+- **Restate relative quantities as numbers and get a yes** (「放慢 1 倍」 meant 0.1×; 「拉長」 has a direction).
 
 ## Build order
-1. Concept talk (no code), canon research with graded claims, a model sheet from reference images. Agents can set up the
-   environment in parallel.
-2. Full design doc plus an adversarial review (it caught the aim-lock blocker).
-3. Batch 1: a playable version (rules, CPU reflexes, functional art at the right reach). Measure range time and wins.
-4. Playtest Artifact loop: one private URL, updated each round; **playtest first, gates after** (publish once the fast
-   checks pass, gate while the user plays). Explain causes, offer 3–4 lettered, composable directions, and label your
-   proposed numbers as proposals. If rules start stacking (~20 special cases in 2 days), stop patching: write the
-   animation inventory and a proposal from the part that works (`duel-move-modules` reference §3).
-5. Art batches, presentation only: `simgate --seeds 10 --summary` and `--cvc` byte-identical, the FK reach test
-   ±0.15 m (a cast check for moves with no hit window), 0 B/frame from the debug probe, before/after contact sheets from
-   two cameras.
-6. CPU (dream-rsi), ASSIST routes, learning situations, **only after the rules freeze** (REQUIRED: `duel-character-cpu`): the old Lille's search was re-frozen 3
-   times because the rules kept changing.
-7. Cinematics last, from the agreed storyboard.
+1. A concept talk (no code), canon research with graded claims, a model sheet.
+2. The design doc (the pointer table, the segment table) plus an adversarial review.
+3. Batch 1: the kit's `:core` with functional clips at the right reach; the generic core CPU plays it at once (`core-ai.lisp`). Measure.
+4. Playtest Artifact loop, **playtest first, gates after**. Explain causes, offer 3–4 lettered, composable directions.
+5. Art batches, presentation only: `simgate --seeds 10 --summary` and `--cvc` byte-identical, FK reach ±0.15 m, 0 B/frame.
+6. CPU tuning only after the rules freeze (`duel-character-cpu`).
+7. The Kikon cinematics last, from the agreed storyboards.
 
 ## Implementation rules
-- Two files per character (`<char>.lisp`, `<char>-art.lisp`); a rebuild may share a predecessor's art file by reference
-  (copy the sim under a new prefix, prove the old pairings identical; a copy silently loses look hooks such as
-  `:body-alpha`: diff the hook list). Shared files only get generic hooks that default off (`:lift`, `:clip-map`,
-  `:look-clips`, `:intangible`, `:armor`, `:pose`, `:through`, `:hold` + `:release`, `:step-branch`, `:assist-combo`,
-  CINE-SCALE / -SLOW / -PLACE); prove them off with the other
-  pairings byte-identical.
-- A new roster index: the `:base` defkit's load order appends it to `*roster*` (the index of saved learning tables,
-  endless records and gate pairings: never reorder, a removed character's slot stays reserved); add the name to
-  `tools/simgate.py` `ROSTER` (aieval reads it), claim a debug range in DUEL_GAMEPLAY "Debug commands", add the forms
-  to the host tests' per-form lists, and re-pin `tests/style-gates.py`'s looks seeds (the CPU-vs-CPU picks move).
-- Each form gets its own clips at its own frames. Never play a sibling form's clip sped up with `:clip-s` in place of
-  the form's own (retiming a form's own clip with `:clip-s` is normal).
-- Every new mechanic gets a CPU rule (EASY ≤ NORMAL ≤ HARD), an opponent reflex key, an ASSIST route, a learning
-  situation and use counters.
-- Pin combo arithmetic in host tests (stun + hitstop ≥ dash + link startup on every path; every segment → its ender).
-- When a gate fails, report it; don't retune other knobs. The user's play decides (exceptions quoted in AGENTS.md).
+- Files by role under one prefix (`<char>.lisp`, `-art`, `-clips`, `-cine`, `-look`, …). Shared files only get generic hooks that default
+  off; prove them off (the other pairings and G2 byte-identical).
+- Roster: the `:base` defkit appends the index to `*roster*` (never reorder; a retired slot stays). Add the name to `tools/simgate.py`
+  `ROSTER`, claim a debug range in DUEL_GAMEPLAY "Debug commands", list the forms in the host tests, re-pin the looks gate's seeds.
+- Each form plays its own clips (`:clip-s` retimes a clip; never a sibling form's clip sped up).
+- Every mechanic gets the core CPU's use (a roll per event, EASY ≤ NORMAL ≤ HARD) and a counter in the combat log.
+- Pin the combo arithmetic and the class tags in host tests (`tests/duel-rules/triangle.lisp`, the character's own file).
+- A failing gate is reported, not retuned around; exceptions go into AGENTS.md with the user's words.
 
 ## Red flags
-- "I'll pick a distance and gate it" before asking the motion model → ask the units, expose the knob.
-- A subagent "improved" a decided value (gold #B89A5A → #CDB47A) → diff the merge against the decision list.
-- Two batches claim the same shared slot (`*LB-WF*` [64]–[66]) → check scratch-vector indices at merge.
-- Shots framed only at the stills' distance or only on one aspect ratio.
-- A dream-rsi search started while rules still move.
-- Art drawn for a rule the user hasn't played (a same-day withdrawal discarded a drawn swing).
+- "I'll pick a distance and gate it" before asking the unit → ask, expose the knob.
+- A pointer cell borrowed from another theme "for now".
+- A hold checked only with a long press, or a phone check in the wrong zone.
+- A subagent "improved" a decided value → diff the merge against the decision list.
+- Shots framed only at one distance or one aspect ratio.
+- Art drawn for a rule the user hasn't played.

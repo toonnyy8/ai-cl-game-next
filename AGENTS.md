@@ -26,7 +26,7 @@ Read this first. It is the map; the detail lives in the files it points to. The 
   number is quoted.
 - **Commit and push `main` yourself at each gated milestone**, with the session's attribution trailers. Subject = the
   change, "(the user, YYYY-MM-DD)", key numbers, doc § refs.
-- **Never commit** `.claude/`, scratch files, `.refs/` (third-party reference art), `*.pyc`, or regenerable
+- **Never commit** `.claude/` (except `.claude/skills/`, the project's skill links), scratch files, `.refs/` (third-party reference art), `*.pyc`, or regenerable
   `tests/shots/` churn (see `.gitignore`). Research goes in only when it is moved under `docs/research/` (below).
 - **Deploy (`tools/deploy-pages.sh`) only when the user asks.** Pushing `main` does not deploy.
 - **Rebuild what the user runs**: after any Lisp change, finish with `./build.sh duel` (the native sim gate does not
@@ -50,7 +50,7 @@ engine/        package ENGINE; knows no game. lisp/ (package math hitvol input t
 duel/          SOUL DUEL (package DUEL): lisp/, web/ (head.html pwa.js sw.js manual.html icons), MANIFEST
 tools/         build + test + gate tools (table below)
 tests/         host Lisp tests, browser-script generators (tests/scripts/), style shot/check scripts, shots/, style-cvc-ref.txt
-skills/        nine Claude skills, symlinked into ~/.claude/skills (below)
+skills/        nine Claude skills, read by Claude Code through .claude/skills/<name> -> ../../skills/<name> (below)
 docs/          README.md (index), DEVLOG.zh-TW.md, guides/ engine/ duel/ style/ research/
 vendor/        prebuilt wasm ECL, SDL3 with the WebGPU backend (+ patch), emdawnwebgpu — never edit by hand
 build/ dist/   build outputs (ignored); build/gh-pages is the deploy worktree
@@ -156,7 +156,9 @@ dream-rsi workspace) is moved under `docs/research/<topic>/` before it is commit
 
 ## Skills and tools
 
-Skills (in `skills/`, symlinked into `~/.claude/skills/`; each `SKILL.md` is short, `reference.md` holds the evidence):
+Skills (in `skills/`, loaded as project skills through the committed links `.claude/skills/<name>` → `../../skills/<name>`, since
+2026-10-28; nothing in `~/.claude/skills/`; each `SKILL.md` is short, `reference.md` holds the evidence; rewritten for the core
+system on 2026-10-28, the old system's versions at `git show e55304e:skills/<name>/…`):
 
 | Skill | Use when |
 |---|---|
@@ -164,11 +166,11 @@ Skills (in `skills/`, symlinked into `~/.claude/skills/`; each `SKILL.md` is sho
 | `sim-balance-gates` | rules, frame data, knobs or CPU AI changed; gate numbers moved |
 | `procedural-ink-style` | looks, clips, VFX, cinematics, audio; art vs hit volume |
 | `game-dev-workflow` | any feature request: the request → docs → gates → commit loop |
-| `duel-character` | designing a NEW fighter: the ⚠ intent questions to settle before building, build order, rig / clip / system / CPU / cinematic rules (from both Lilles) |
-| `duel-character-rework` | changing an EXISTING fighter after a playtest: diagnose, options, presentation-only vs sim change, regressions, merges, framing; retiring / removing / renaming one |
-| `duel-move-modules` | designing or restructuring a move set: attack state vs stance, segmented strings (one hit a press), route follow-ups, enders, resource roles, one grammar across forms (from the new Lille) |
-| `duel-character-cpu` | one fighter's CPU / ASSIST / learner taking a new move or rule, or a style search (dream-rsi) for its CPU |
-| `duel-motion-style` | deciding a fighter's or form's motion style, researching references (canon, other games' movesets), planning it into per-move clips, measuring before drawing (from Kenpachi's rework and the new Lille) |
+| `duel-character` | designing a NEW fighter (or porting a frozen one) for the core system: the ⚠ intent questions (pointer themes, tells, holds, the phone), build order, rig / clip / CPU / cinematic rules (both Lilles, Ichigo's rebuild) |
+| `duel-character-rework` | changing an EXISTING fighter after a playtest: diagnose by frames, options, presentation / sim / input-only changes and their gates, the CPU's share of a shift, regressions, framing; retiring / removing / renaming one |
+| `duel-move-modules` | designing or restructuring a core move set: NA / NS / AS / SA, the pointer and its theme, `:core` and `:params`, the Kikon hold, waves, carried effects (charge, clones), the bug classes (from Ichigo's rebuild) |
+| `duel-character-cpu` | the generic core CPU (`core-ai.lisp`) taking a new move or rule, press lengths vs timing rules, a style search (dream-rsi) |
+| `duel-motion-style` | deciding a fighter's or form's motion style, researching references (canon, other games' movesets), a theme, stance and tell per SP pointer, planning it into per-move clips, measuring before drawing (Kenpachi, the new Lille, Ichigo) |
 
 | Tool | Purpose |
 |---|---|

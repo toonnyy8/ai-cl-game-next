@@ -6,7 +6,7 @@ description: Use when starting a new game on the Common Lisp → ECL → wasm en
 # Lisp → wasm games on the RAVEN EDGE engine
 
 ## Overview
-The exemplar is `toonnyy8/ai-cl-game-test` (local copy: `/media/8tsp/projects/ai-cl-game-test`): `engine/` (package
+The exemplar is this repo (`toonnyy8/ai-cl-game-next`, local `/media/8tsp/projects/ai-cl-game-next`): `engine/` (package
 ENGINE) plus one directory per game (`game/` RAVEN EDGE, `duel/` SOUL DUEL), `examples/hello` as the template. Core
 principle: **the engine knows no game; a game is a MANIFEST of Lisp files that calls `run-game`, and everything the
 player sees or hears is built by code at startup.** The full lesson list with evidence is in `reference.md` (read the

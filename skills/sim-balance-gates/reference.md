@@ -1,6 +1,6 @@
 # B. Deterministic simulation, balance gates, CPU AI — lessons from SOUL DUEL
 
-Source repo: /media/8tsp/projects/ai-cl-game-test (CL → ECL → wasm; `duel/` = SOUL DUEL, 3D fighter, 5 characters,
+Source repo: this repo (/media/8tsp/projects/ai-cl-game-next) (CL → ECL → wasm; `duel/` = SOUL DUEL, 3D fighter, 5 characters,
 15 CPU pairings). Paths below are repo-relative. "G" = generalizable, "S" = SOUL DUEL-specific.
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -63,11 +63,9 @@ Source repo: /media/8tsp/projects/ai-cl-game-test (CL → ECL → wasm; `duel/` 
 |---|---|---|---|---|
 | Host rules tests | `tests/duel-rules-test.lisp` (4431+ checks), `duel-control-test` (86), `learn-test` (100), `input-test` (33), `cine-test` (18) | host ECL, plain CL, no build | seconds | every change |
 | G2 bit-exact refs | `tests/style-gates.py cvc dist/duel` vs `tests/style-cvc-ref.txt`; native self-check `tools/simgate.py --cvc` | browser wasm (+native) | ~1 min | every change; refreshed on any intended sim change |
-| Seed / pacing gate | `tools/simgate.py` (15 pairings × seeds) | native, 1 core/process | 300 matches in ~14 s at -j16 | rule/AI/tuning changes |
+| Seed / pacing gate | `tools/simgate.py` (the six core pairings 2,7,9,29,31,35 × seeds) | native, 1 core/process | 300 matches in ~14 s at -j16 | rule/AI/tuning changes |
 | Awaken A/B | `simgate.py --pairs k --seed0 100 --seeds 60 --cmd 39020` | native | ~tens of s per stream | changes touching a character with an awakening |
-| Masher / assist gate | `tools/assistgate.py` | native | minutes | AI / assist / input-feel changes |
-| Learning gate | debug `200000+1000h+100c1+10c2+m` via run.lisp | native | minutes | learner / AI changes |
-| Per-char AI score | `tools/aieval.py --char i` | native | minutes | AI search |
+| Touch recogniser | `tests/touch-test.lisp` (host) + `run.mjs --mobile --size 390x844` scripts | host / browser | seconds | phone input changes (the native sim has no touch) |
 | Smoke / perf / stills | `style-gates.py smoke/perf/duelstill`, touch scripts | browser | minutes | render/build changes |
 
 ### Host rules tests — what they assert (S, but the *kinds* are G)
@@ -118,8 +116,9 @@ Source repo: /media/8tsp/projects/ai-cl-game-test (CL → ECL → wasm; `duel/` 
   rerun 20 seeds = verdict. In practice a 20-seed median just outside → **rerun at 60 seeds** (e.g. §19 YK 124.4 at 20 →
   131.3 at 60; §20 YK 120.9 → 119.5 at 60, then user acceptance). aieval uses 220 s at 20 seeds because 20-seed medians
   are ~±10 s noisy; the real 210 check runs at 60.
-- **Scope:** change confined to one character's files → its 5 pairings + its awaken A/B; shared rules (combat, fighter,
-  rules, ai, tuning, kit) → all 15.
+- **Scope (the core system, 2026-10-27):** a change confined to one character's files, or a shared hook only he uses → his
+  pairings (Ichigo 7, 9, 31; DEVLOG §424); shared rules (combat, fighter, core-sim, core-ai, rules, tuning, kit) → all six
+  (2, 7, 9, 29, 31, 35). Before the core system: 5 pairings / all 15.
 
 ### Awaken A/B (DEVLOG §27, DUEL_STRINGS §13)
 - P1 "never awaken" (debug 39020) vs opponent on its rule; **three disjoint 60-seed streams** (seed0 100/300/500 →
@@ -128,17 +127,14 @@ Source repo: /media/8tsp/projects/ai-cl-game-test (CL → ECL → wasm; `duel/` 
   been overfitted to one stream.
 - Same pattern for Kenpachi's Bankai "gamble A/B" (31000+10a+b: rule / always / never / p=1).
 
-### Masher & assist gate (DUEL_ASSIST.md, tools/assistgate.py)
-- Debug habit `:dumb` = new-player model: EASY perception (24 f), guards half the moves it sees, mashes J every 8 f
-  in J1 reach, else walks in; never Steps/Hohos/specials. P1 masher vs CPU on all 25 roster pairings × 20 seeds, per
-  assist setting k; reports P1 wins %. `--p2-dumb 1` = masher vs masher.
-- It became an AI-quality gate: first run masher beat NORMAL 98 % / HARD 72 % with no assist → CPU weakness, fixed by
-  §71–§74 (J/guard switch, anti-mash, guard-first wake-up) → 56 % / 23 %; after AI v2, 4 % vs HARD.
+### Masher & assist gate, learning gate, AI score (frozen)
+ASSIST, the learner and AI v2's per-character search are frozen with the old system (DUEL_CORE §5); their tools stay. Their
+sections: `git show e55304e:skills/sim-balance-gates/reference.md`.
 
-### Rule-change gating template (DUEL_STRINGS §17–§20 all end the same way)
-"Gate (native, 20 seeds): all 15 K.O.; cross medians a–b (list); mirrors (list); [60-seed rerun of an edge pairing];
-Awaken A/B streams (list), every row ≥ 20; masher vs HARD x %; Host tests rules N, control N, learn N, input N, all
-pass; G2: yy .. yk .. kk .. (new results)". A change that is supposed to be inert states "bit-identical" with the
+### Rule-change gating template (DUEL_CORE's gate lines all end the same way)
+"Gates (six pairings / his three; G2's three CPU matches unchanged, native == browser): KK a, HK b, HH c s (10 seeds),
+IK d s (20 seeds, Ichigo w:l), …, all K.O.; [the mirror e s at 60 seeds, n time-outs: open / accepted]". Name what moved a
+number before a fix (the CPU, a rule) and show the fix restores it. A change that is supposed to be inert states "bit-identical" with the
 evidence (§18: cross pairings and G2 bit-identical, only mirrors moved).
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -195,25 +191,15 @@ evidence (§18: cross pairings and G2 bit-identical, only mirrors moved).
 ---------------------------------------------------------------------------------------------------------------------
 ## 4. CPU AI design
 
-### Layering (duel/lisp/ai.lisp header l.1–43, `brain-step` l.697)
-- The CPU writes its fighter's **vpad exactly like a keyboard** (`vpad-set!`, `vpad-stick!`), once per step; the same
-  input pipeline as humans (buffers, latches, command checks). Generic code; identity = each kit form's `:ai` plist.
-- `brain-step` order each step: perceive (delayed snap) → heat → learner watch → state bookkeeping (respect after
-  being hit, hold guard through a blocked string) → wake-step → **priority chain**: masher habit (debug) > Burst /
-  awaken roll > ORANGE restart > J-beats-K > gap step > scripted habit (debug) > learner's planned counter > continue
-  current press > `ai-reflex` > `ai-neutral` (when idle/run).
-- `ai-reflex` (l.311): ordered cond of reactions (O ender off a completed string, Step→J, Breaker→string, guard cancel,
-  punish, anti-Breaker, anti-rush, kit `:reflex` hook ...). Returns a command keyword or nil. `why` tags each
-  decision (`STRING`, `O-ENDER`, `J-BEATS-K`...) and the combat log prints it — essential for debugging.
-- `ai-neutral` (l.518): intents APPROACH / PRESSURE / ZONE / DEFEND re-picked every `*ai-repick*` 12 f (weights from
-  the kit), walk to the intent's range, strafe; every `ai-decide-time` (`*ai-think*` + 0..40, × kit `:tempo`) →
-  `ai-decide` (l.563): Kikon on red, WHITE, pip hurry, Step-in, dash to/from range, neutral guard, attack.
-- `ai-attack` (l.606): weighted pick from the kit's **distance bands** (`:moves ((lo hi :q 4 :f 1 ...) ...)`), edited by
-  stance rules, bandit-weighted when learning; refuses J/K outside reach + 0.2.
-- **Heat** (`*ai-heat-rate*`): +1.5/s without dealing damage, ×2 when far; shrinks the preferred range, doubles the
-  Breaker weight at 8 — "this is what makes matches end" (anti-stalemate is part of the AI, not the rules).
-- Kit hooks: `:reflex`, `:opp-reflex`, `:sp-ender`, `:sig-hold`, `:assist-guard` (yama.lisp:147ff). Kits extend
-  behaviour without touching ai.lisp; shared code has no character names.
+### The core CPU (duel/lisp/core-ai.lisp, 2026-10-27)
+- The CPU writes its fighter's **vpad exactly like a keyboard**, once per step; the same input pipeline as humans (buffers,
+  latches, Mod in the same step). Generic: it plays any kit with a `:core` from the class table and the pointer.
+- `core-brain-step`: perceive → hold the press in progress (`brain-press-left`) → decide by state (`cai-neutral`, `cai-move-step`,
+  the stun's Kikon cancel). Three rolls per own move start (`cai-own-rolls`: turn, continue, Kikon), kept until the next start.
+- A hold is a press length: the Kikon is SP held 40 frames; a held press is kept through the Kikon confirm (§440). A rule that
+  changes how long a press must be down changes the CPU's outcomes: check this first when a timing rule moves the gates.
+- Kit hints only for what the table can't see: `:core :ns-range` (a ranged band) with `*cai-ranged-gap*` after each shot.
+- The old `ai.lisp` (intents, distance bands, heat, kit reflex hooks) still drives the four frozen characters.
 
 ### Difficulty = perception + probabilities
 - **Perception delay** is the main difficulty axis: snap ring buffer, `*ai-delay*` EASY 24 / NORMAL 14 / HARD 8 f.
@@ -249,44 +235,11 @@ evidence (§18: cross pairings and G2 bit-identical, only mirrors moved).
 - **A counter the opponent can see is not a counter.** Predicted-guard → Breaker read lost (404 Breakers, J'd/Hoho'd
   on sight) → removed from the assist read (DUEL_ASSIST).
 
-### Learning CPU (docs/duel/DUEL_LEARNING.md, duel/lisp/learn.lisp)
-- Player model: per situation (9: wake, knock, blocked..., close/mid/far) order-1 n-gram backed off to order 0
-  (K = 2), decay 0.97/observation, act only when n0 ≥ 1.5 and p ≥ 0.4. Counters from the RPS loop (guard→I, J→guard,
-  K/I→J, Hoho→wait+punish).
-- Bandit: discounted EXP3 on the kit's neutral weights per (form, meter third, distance bin), reward = damage balance
-  over 90 f / 150, γ 0.98, scores clamped ±ln 4 (weights ×¼..×4: the kit's shape survives).
-- p_exploit = clamp(0.35 + 0.4·form, 0.15, 0.6): reads a winning human more, a losing one less (fairness).
-- Fairness: perceives only the delayed snap, never inputs; on only for P2 vs a human with the setting on; off for
-  CvC, practice, and any debug command (`*learn-debug-off*`). Own LCG → gates unchanged.
-- Verified by a **learning gate with scripted habits** (`*habits*`: wake-J, guard-after-block, grab-happy, Hoho-happy,
-  burst-happy, masher): learner vs plain vs model-only vs bandit-only, 6 fresh runs × 30 matches per cell, win rate per
-  block of 10 matches (learns within the first match), plus reads / paid counts and counter success rates.
-- Persistence: compact integer table per CPU character in page storage, format-versioned, decoder clamps garbage
-  (round trip host-tested).
+### Learning CPU, per-character AI search, assist (frozen)
+Frozen with the old system; their lessons (bandit, scripted habits, the frozen evaluator, AUTO COMBO's tempo loss):
+`git show e55304e:skills/sim-balance-gates/reference.md` §4. The search method itself lives on in `duel-character-cpu`
+and `docs/guides/DREAM_RSI.zh-TW.md`.
 
-### Per-character AI search (docs/duel/DUEL_AI_V2.md, tools/aieval.py, docs/research/ai-v2-drsi/)
-- **Score = 0.6 strength + 0.2 masher + 0.2 signature, 0 if pacing fails** (user's choice: win rate + character colour).
-  strength = HARD win share vs the other 4 CPUs both seats; masher = HARD vs `:dumb` all 5; signature = share of damage
-  from non-J/K-link moves (regex `-[JK]\d` on move names); pacing = NORMAL, all K.O., 20-seed median ≤ 220 s.
-- Dream-RSI: per character 2 rounds × 4 variants, each cell a subagent in its own git worktree, editing **only** that
-  character's file (`:ai` plists + own hooks); no frame data/damage; every chance by difficulty; perception-only; RNG
-  only `sim-rnd01`; "nothing keyed to the evaluator"; don't edit the evaluator; rules test must pass; last measured
-  JSON is the result; shared-code needs go in proposal.md as recommendations (brief.py). Coordinator rescored every
-  cell with the fixed evaluator (step.sh / rescore.sh) — an evaluator bug was found mid-search (masher seat, 9df6ecc).
-- Integration: merge best cell per character → **NORMAL kept near shipped** (NORMAL vs NORMAL, 40 seeds, both seats,
-  each within +0.05 of the shipped share; Kenpachi 0.806 → 0.422 by zeroing per-step NORMAL rolls) → HARD vs the new
-  set reported without target → learner and assist re-integrated → full gates → G2 refreshed. Unadopted shared-code
-  recommendations kept in a table ("done? no").
-
-### Assist = the CPU driving the human's vpad (DUEL_ASSIST.md, assist.lisp)
-- `assist-system` between `brain-system` and `fighter-system`; borrows a HARD brain per side; uses the CPU's own
-  `ai-command` to press; `vpad-stamp!` re-presses a held button. Priced: assisted hits ×0.8, assisted Hoho never
-  perfect. CPUs never have it → CvC gates unaffected (native `--cvc` passes).
-- Lessons: AUTO COMBO made strings flashier, not stronger (every choice lost tempo vs restarting J); the neutral SP band
-  roll applied to every J press = 1 in 6 presses into a blocked SP2 — the CPU's per-decision rule must not be applied
-  per human press.
-
----------------------------------------------------------------------------------------------------------------------
 ## 5. Generalizable lessons (playbook candidates)
 
 ### Build order
@@ -319,8 +272,9 @@ evidence (§18: cross pairings and G2 bit-identical, only mirrors moved).
 
 ### S — SOUL DUEL specifics worth knowing (not to copy blindly)
 - Pairing index k = gate.lisp `*pairs*` order (0 YY 1 YK 2 KK 3 RY 4 RK 5 RR 6 IY 7 IK 8 IR 9 II 10 SY 11 SK 12 SR
-  13 SS 14 SI); gate commands 2125+k, seeds 30000+k0 / 31100+n; RESULTS `ticks/60 = secs`.
+  13 SS 14 SI, then each later roster member with every earlier one and its mirror: Hisagi 28–35, HK 29 HI 31 HH 35); the
+  core six: 2 7 9 29 31 35. Gate commands 2125+k, seeds 30000+k0 / 31100+n; RESULTS `ticks/60 = secs`.
 - 300 s timer, 9 Konpaku, Reishi 1300; median window 125–210 s; awaken floor 20/60 per stream.
-- Ichigo's awaken A/B has failed since the user's damage cut (open, user's call); Kenpachi's NORMAL tuned to sit on the
-  YK floor; YK accepted at 119.5 s (2026-10-06).
+- Accepted exceptions (with the user's words) live in AGENTS.md "Tests and gates"; the core era's: the Ichigo mirror 221.4 s
+  with 2 time-outs of 60 (2026-10-28, DEVLOG §445). Ichigo's damage and win rates stay the user's call.
 - Babylon TS port frozen at 2026-10-05 (no parity kept) — Lisp is the only sim of record.

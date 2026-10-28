@@ -1,63 +1,61 @@
 ---
 name: duel-move-modules
-description: Use when designing, restating or restructuring a fighter's move set in an arena fighter like SOUL DUEL — attack strings, a stance entered by a button, follow-up routes, enders, resources gained or spent per button, the same grammar across forms or awakenings — especially when the user writes shorthand like 「架勢 > JJ / KK > LL」 or asks for 「動作模組」 per route or form.
+description: Use when designing, restating or restructuring a fighter's move set under SOUL DUEL's core system — NA strings, NS segments, AS n segments, the SA in an NS gap, the SP pointer, the Kikon hold, a wave's Kikon, a charge that powers a string, clones that replay — or when the user writes shorthand like 「NS[1] … NS[3]」「AS1=1 AS2=2 AS3=3」「SP → A」, asks for 「動作模組」 per pointer or form, or a segment gets skipped, a route stops connecting, or a press reads wrong.
 ---
 
-# Move sets as modules
+# Move sets as core modules
 
 ## Overview
-From the new Lille (kit `:barro`; `docs/duel/DUEL_LILLE_V3.md` §3, §8, §12, §15.1, §25; code `duel/lisp/barro.lisp`
-`*BR-S-SEGS*`, `BR-DEFSTANCE`, `BR-STANCE-STRINGS`). Core principle: **one grammar, written once as data (a segment
-table), played by every form with its own clips; each button has one role, each resource one sink.** Evidence and the
-encoding in detail: `reference.md`. New fighter flow: `duel-character`; changing one: `duel-character-rework`; its CPU:
-`duel-character-cpu`; the clips' style and research:
-`duel-motion-style`.
+From Ichigo's rework on the core system (`docs/duel/DUEL_CORE.md` §2–§6, DEVLOG §410–§445; code `duel/lisp/core.lisp` pure,
+`core-sim.lisp`, `kit.lisp` `build-core-classes`, `ichigo.lisp`). Core principle: **one grammar for every fighter (NA / NS / AS / SA
+judged by the triangle), written as data in the kit's `:core` plist and the moves' `:params`; each pointer one theme across its NS, its AS
+and its Kikon; each segment one press.** Evidence, the encoding and the bug classes: `reference.md`. A new fighter: `duel-character`; a
+change after a playtest: `duel-character-rework`; the CPU: `duel-character-cpu`; the clips: `duel-motion-style`. The old system's grammar
+(stance > JJ / KK > LL, SP2, the O ender, Lille's segment tables) is in git: `git show e55304e:skills/duel-move-modules/SKILL.md`.
 
-## ⚠ Restate the user's notation before building
-The user's notation is shorthand. Every misreading here cost a rebuild (「JJ KK LL 都不表示只要二連擊」, 「不是 J2，是 J 連段的意思」,
-「最多三段」 → 「段數跟點擊次數一致」). Reply with a **segment table** and get a yes:
+## The grammar (DUEL_CORE §2–§3, §5b)
+| Class | Started by | Segments | Rule |
+|---|---|---|---|
+| NA | J from neutral | the J string (Ichigo: five) | each link needs a hit or a cancel |
+| NS n | SP from neutral, n = the pointer | up to 3, one SP press each, hit or not | the rhythm goes on until a press is missed |
+| AS n | SP after an attack hit | n segments (`:as-by-press`: J1-2 → AS1, J3-4 → AS2, J5 → AS3) | ends the combo; writes the pointer n; only the last segment knocks down / launches |
+| SA | J in an NS gap (after the segment's active frames) | one, then the J string goes on (`SA :q J2`) | a segment may name its own SA (`:params :sa`) |
 
-| String | Enter by | Segments (presses) | Hits a segment | Range | Gains | Spends | Ends with |
-|---|---|---|---|---|---|---|---|
+The triangle judges a hit only while the defender is in a classed move's startup or active frames; a hazard (a wave) is never judged.
+A cancel is a mutual no-damage bounce with a slow motion. **Pointer n's stance, NS, AS n and Kikon cinematic share one theme** (the user,
+2026-10-28, DUEL_CORE §5b).
 
-Then ask what the table cannot show (AskUserQuestion, recommended first):
-- **Does the follow-up's motion depend on the route?** (「最後一段 LL 會依據前面 J/K 有不同的動作模組」: JL and KL are two
-  clip sets, not one L string.)
-- **Price and empty behaviour**: per segment or per string? With nothing to pay, does the press do nothing (the string
-  stops) or play a plain move? An empty stance must never reopen itself (a 0-resource infinite combo).
-- **Which hits reach far**: only paid ones? (「沒有消耗資源的話就不能有遠距離攻擊」)
-- **Roles must not overlap** (「避免同質化」): exactly one spend-all route; one gain button, one refill button, one damage
-  button. Gains come as ratios (「2 格閃步換 1 格 SP」): ask for the ratio, derive the numbers.
-- **Tap or hold** for each button (charge levels by hold frames?), and its one-hand touch mapping.
-- **Where a string ends**: back to the attack state? Pushed out of the opener's reach? Which enders (SP2, the O ender) may
-  cancel which segments (hit only, or block too)?
-- **Each form: same timing or its own** (speed ×, melee vs shots), and are the transitions skippable inside a combo?
+## ⚠ Restate before building (a segment table, then AskUserQuestion)
+| Pointer | Theme | Stance | NS segments (S, hit, reaction) | Its SA | AS n segments | Kikon cinematic |
+|---|---|---|---|---|---|---|
+
+Then ask what the table can't show:
+- **Scope of a carried effect**: which presses it covers (「應該只包含 NS3 之後接的 J 跟 AS」, not "the next NS"). Restate "replays
+  the body's J and SP" as a list of move classes and get a yes.
+- **Which pointer an AS's Kikon uses**: the pointer it writes (since §435), not the one before.
+- **Direction of a timing change**: 「按住判定時間拉長」 could be more lenient or stricter (asked: 「打中後要多按住幾幀」). Ask which way.
+- **Hold or tap per press, and the phone**: a tap fires on the lift in neutral and on the press inside a move (§444); the SP zone
+  is the upper half; a hold is judged where?
+- **What ends a route**: every segment that something can follow must not knock down (§443).
 
 ## The recipe
-1. A plain **attack state** (J / K strings, no resource in or out) and a **stance** entered by one button.
-2. In the stance each button **opens one string with one role** (L gain, J refill, K damage). **One hit a press**, three
-   segments, named button + index (J1 J2 J3) so the player can count.
-3. **Route follow-ups** off the last segment (J3 → JL1–3, K3 → KL1–3), each route its own clips, one special a segment,
-   the string stopping at the segment it cannot pay for.
-4. **`:end` segments** (every string's last) push the victim out of that string's opener's reach (volume far edge + body
-   radius + 0.3 m) and are where enders cancel in.
-5. **One spend-all super** (SP2), cancellable only off string hits, punishable when used alone.
-6. **Encode once**: a segment table (name kind startup hit-offsets recovery dmg reactions role extra), a macro that
-   expands it per form with that form's clip plist and FK reach, a function that returns the kit's strings. A new form
-   = one macro call + a defkit; a new route = rows with a new role + a latch + clips. A new character copies the
-   pattern into its own file under its own prefix (`br-defstance` is Lille's); lift a macro into `kit.lisp` only when a
-   second character really shares it, proving the other pairings byte-identical. The character's knobs live in its own
-   file as `defparameter`s with docstrings (old → new, date, who decided); `tuning.lisp` holds the shared ones.
-7. **Pin in host tests**: every link combos on a hit *including hitstop*, every segment → SP2 combos, `:end` only on last
-   segments, the routes on distinct clips, drawn tip = reach ±0.15 m, any user-ruled order (damage KL > stance K >
-   attack K), the route / price cases.
+1. **Openers carry the tells**: NA1 and every NS first segment S ≥ 14 (Ichigo: NA1 14, NS 22 / 20 / 18), the anticipation held; links keep
+   their speed. Author the clip at the new S (`:clip-s` = S).
+2. **A stance per pointer** (`:core :stances`) so the opponent reads the next NS before it starts.
+3. **Segments chain by `:params :ns-next`**; a latched press starts the next one once the current segment's active frames are over.
+   Anything a segment spawns late (a clone's swing, a wave) must land before that earliest start.
+4. **AS n = n segments**, the last one the knockdown / launch; the AS steals / launches / hurts by pointer (1 / 2 / 3).
+5. **Waves**: a hazard beats every class at range; to let it Kikon, give its segment `:params :kikon-strike` (a strike move the owner
+   flash-steps in with, classed as its segment).
+6. **Carry-overs as fighter state set at a move's start** (`core-note-start!`): the charge × (`:charge-mult`) from the charged SA through
+   the string; the Kikon hold (`fighter-sp-held`); the SP pointer of the strike (`fighter-sp-ptr`).
+7. **Pin in host tests** (`tests/duel-rules/triangle.lisp`): every class tag, tells ≥ 14 f, each wave segment's strike (same class, cap
+   ≥ 40), stance by pointer, no shared strike across classes.
 
 ## Red flags
-- Building from 「JJ」 before the segment table got a yes.
-- Two buttons that both dump the resource for damage, or a refill that can feed itself (a free loop).
-- A follow-up drawn with the opener's clip "for now": the user reads the route by its motion.
-- `:track` 720 or a turn at release on a charged shot: hidden aim makes it unmissable (same class as hidden movement).
-- Per-move state reset in a frame-0 hook of a `:hold` move (hold moves skip their f0 hooks: reset at S).
-- A form switch inside a move (a burst ending) with a latched link the new kit lacks: switch only out of a move.
-- The generic SP cancel letting SP2 follow any link: refuse it in the move's `:ok`.
-- Art drawn for a rule the user hasn't played yet (a same-day withdrawal threw away a drawn swing).
+- One move used by an NS and an AS: the class table tags it once; make a copy per class (§437).
+- An on-frame earlier than a copy's `:enter` (it never runs, §431).
+- A mid-route segment that knocks down (the SA after it whiffs, §443).
+- A delayed effect (a lagged clone swing) later than the next segment's start: a quick press eats it (§443).
+- A hold read on the hit frame of a move faster than a tap (AS3 at 8 f): judge it after the hitstop (§440–§441).
+- Counting hazards by their data struct (a clone's strikes carry the clone's data): identify by hook (§438).

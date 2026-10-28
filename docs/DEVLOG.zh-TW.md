@@ -5546,3 +5546,16 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 使用者：「列為例外」
 
 - §443 的 NS3 修正（X 斬改成踉蹌）之後，一護鏡像 60 場中位數 221.4 s，有 2 場時間到（修正前 20 場 211.3 s 全 K.O.）。列為例外，不調整。AGENTS.md 的例外清單、DUEL_CORE §4。
+
+## 446. skill 依核心系統重寫，改成專案級路徑（2026-10-28）
+
+使用者：「然後依據本次對角色的大型修改經驗與過去的 skill 進行整合與刪改，使其能重新適配當前的系統。」（問連結：「移除舊連結，並在建構專案級路徑直接讀取內部的 skill」；舊系統內容：「刪除，留一行舊版位置」）
+
+- 發現：`~/.claude/skills` 只有 4 個連結，而且指向舊的 `ai-cl-game-test` 資料夾（2026-10-06 的版本），五個 duel skill 沒有裝上。已移除這 4 個舊連結，改在 repo 裡建 `.claude/skills/<名稱>` → `../../skills/<名稱>`（九個，提交進 git；`.gitignore` 只放行 `.claude/skills/`，AGENTS.md 的「不提交 `.claude/`」加上這個例外）。
+- 保留九個 skill 的名稱，內容依核心系統改寫：
+  - `duel-move-modules` 全部重寫：NA／NS／AS／SA、指針與主題連動、`:core` 與 `:params`、毀魂技的按住與確認、月牙的毀魂技、蓄力與分身的延續效果、這次的 bug 類型與用詞誤讀。
+  - `duel-character`、`duel-character-rework`、`duel-character-cpu` 改寫：三個指針的主題表、前搖、按住與手機（點擊 vs 按住、SP 區 vs 攻擊區）的正反兩面檢查、只測自己的對戰、時間判定的規則會透過 CPU 的按壓長度影響節奏。
+  - `sim-balance-gates`：六組對戰（2,7,9,29,31,35）、G2 是 II／IK／KK、ASSIST／學習型 CPU／AI 評分凍結、觸控改動不動模擬閘門、核心 CPU 的結構。
+  - `duel-motion-style`、`procedural-ink-style`、`game-dev-workflow`、`lisp-wasm-game`：路徑改成本 repo，補上指針站姿、鏡像斬擊、慢動作補間、一則訊息多個需求的處理。
+- 舊系統專用的內容（架勢、SP2、O 收尾、ASSIST／AUTO COMBO、學習型 CPU、利捷的段表）已刪除，各處留一行 `git show e55304e:skills/<名稱>/…` 指向舊版。
+- 沒有改程式，不需要建置和閘門。

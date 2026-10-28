@@ -1,7 +1,13 @@
-# Reworking an existing fighter: evidence from LILLE BARRO's post-playtest rounds
+# Reworking an existing fighter: evidence
 
-Source repo: `/media/8tsp/projects/ai-cl-game-test`. Evidence: `docs/duel/DUEL_LILLE.md` §22–§23 (decisions 16–56),
-`docs/DEVLOG.zh-TW.md` §92–§135, `docs/research/lille-retrospective/digest.md`. "G" = generalizable, "P" = project-specific.
+Evidence:
+- **The old Lille's post-playtest rounds:** `docs/duel/DUEL_LILLE.md` §22–§23 (decisions 16–56), DEVLOG §92–§135,
+  `docs/research/lille-retrospective/digest.md`. These were on the old fight system.
+- **Kenpachi's base rework** (§8).
+- **Ichigo's rebuild on the core system:** §10; DUEL_CORE §6, DEVLOG §416–§445.
+
+The old system's ASSIST-specific cases are at `git show e55304e:skills/duel-character-rework/reference.md`. "G" = generalizable,
+"P" = project-specific.
 
 ## 1. How the rounds ran (P → G)
 - Feedback came as short zh-TW lines after a playtest of the private Artifact, often several in a burst, and often
@@ -34,11 +40,8 @@ Source repo: `/media/8tsp/projects/ai-cl-game-test`. Evidence: `docs/duel/DUEL_L
 - 43: K → L, a latched L in a K string became a chained follow-up and the string chase pulled him forward (a 7 m back
   dash measured 0.88 m in the browser). Fix: the switch tick zeroes walk/chase every frame.
 - 52: a shorter dash changed nothing because the link chased (≤ 40 m/s): measure the actual travel.
-- §23.36: after 53 the ASSIST's TENSHIN in → J1 missed: (1) `lbs-dash-end` was stale from the last switch when the 2 f
-  cancel entered at f14 and the ASSIST (deciding one step early) read it; (2) a dash shorter than 6 f ended before the
-  form change. Fix: the pure `lb-link-frame-at` reads the dash end only after `:go`; the form changes before the link;
-  the link plan uses the switch's target form. Reproduced with AUTO COMBO forced by `localStorage soulduel.autocombo`.
-- 24: the onehand rule "an up-flick during a move is a Hoho" fired inside the stance (a move): generic `:step-branch`.
+- 24: the onehand rule "an up-flick during a move is a Hoho" fired inside a stance move: a generic `:step-branch` flag. (The same
+  class of bug: §10's phone checks.)
 
 ## 5. Merge lessons (G)
 - Two art batches both used `*LB-WF*` [64]–[66]; the owl's moved to [68]–[70] at merge (§23.37 "Merged").
@@ -78,8 +81,8 @@ Source repo: `/media/8tsp/projects/ai-cl-game-test`. Evidence: `docs/duel/DUEL_L
 - The default 4-frame strip (0, S, S+A, end) hides the anticipation; review 8 frames from the side and from the front.
 
 ## 9. Retire, remove, rename a character (the old Lille, DEVLOG §208 / §216, DUEL_LILLE_V3 §26) (G)
-- **Retire** (out of play, code kept): `*retired*` / `playable-roster` (kit.lisp), simgate's `RETIRED`; the select screen,
-  CPU-vs-CPU picks, ASSIST / aieval opponents skip him.
+- **Retire** (out of play, code kept): `*retired*` / `playable-roster` (kit.lisp), simgate's `RETIRED`; the select screen and
+  CPU-vs-CPU picks skip him. The core system retired four this way (Yamamoto, Rukia, Senjumaru, Lille; DUEL_CORE §1).
 - **Remove** (code gone): keep his **roster index reserved** (append the keyword to `*roster*` before the next defkit):
   saved learning tables, endless records and gate pairings are keyed by index. Keep the survivor's internal names (kit,
   prefix, debug range); rename only player-facing text (`:name`, brush names, the manual).
@@ -92,3 +95,27 @@ Source repo: `/media/8tsp/projects/ai-cl-game-test`. Evidence: `docs/duel/DUEL_L
   (a `--keep-base` render from an earlier session is stale): 96 / 104 identical + 8 only the name's text. A roster change
   moves the looks gate's CPU-vs-CPU draws: re-pin its seeds in the same pass (they had failed silently for a day).
 - Host checks drop with his sections (8451 → 6976); record the new count where it is quoted.
+
+## 10. Ichigo's rebuild on the core system (2026-10-27 → 10-28, DEVLOG §416–§445) (P → G)
+- **The shape of the rounds.** About 30 sections in 2 days. Feedback often came as two or three requests in one message, or as new
+  messages mid-turn. Each request got its own doc §, its own check and its own line in the reply.
+- **Diagnosis by frames.** Every fix started from a frame count:
+  - the clone's hit on f18 against the next segment's start on f14 (§443);
+  - AS3's hit on f8 against a tap's length (§441);
+  - the hitstop's 8 frames as the window where an undo is exact (§440).
+- **Run the regression on the old build.** The same script on the build before the fix shows the bug and the fix side by side (§443:
+  NS-B no hit and the SA whiffing before; 18, 18, SA 50 after).
+- **Input checks need the negative case:**
+  - §436's phone check passed while holding the attack zone, which is exactly the bug §442 found.
+  - Now every input check runs: held / tapped, the SP zone / the attack zone, a slow / quick press.
+  - Mobile runs need `--mobile --size 390x844`; without the size, touches miss the pad.
+- **A rule that reads input timing moves the pace through the CPU.**
+  - §440's 12-frame confirm alone made IK 201.1 s and HI 204.1 s.
+  - Holding the CPU's press through the confirm restored the numbers exactly (IK 191.9 s).
+- **Explain conflicts before a sweeping input change.** For 「點擊觸發」 everywhere, the reply was a table of the gestures it breaks
+  (drag, flick Step, Hoho, Burst) and three options. The user chose the narrow one (press-fire only inside a move, §444).
+- **Scope of the gates.** A change in one character's files, or a shared hook only he uses, gates his pairings only (the user,
+  2026-10-27: 「現在只有改一護，只測他的對戰結果就好」, DEVLOG §424). A shared rule gates all six.
+- **Exceptions:**
+  - The Ichigo mirror 221.4 s with 2 time-outs of 60 after the NS3 fix was accepted (「列為例外」, §445).
+  - Ichigo's win rates stay the user's call.

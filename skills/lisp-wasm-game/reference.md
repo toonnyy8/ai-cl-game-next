@@ -1,6 +1,6 @@
-# A. Engine & toolchain lessons (ai-cl-game-test: CL -> ECL -> C -> emcc -> wasm, SDL3 SDL_GPU on WebGPU)
+# A. Engine & toolchain lessons (this repo: CL -> ECL -> C -> emcc -> wasm, SDL3 SDL_GPU on WebGPU)
 
-Repo root = /media/8tsp/projects/ai-cl-game-test. Evidence tags: [ARCH] docs/engine/ARCHITECTURE.md, [API] docs/engine/ENGINE_API.md,
+Repo root = /media/8tsp/projects/ai-cl-game-next. Evidence tags: [ARCH] docs/engine/ARCHITECTURE.md, [API] docs/engine/ENGINE_API.md,
 [DL §n] docs/DEVLOG.zh-TW.md section n, [TUT n] docs/guides/TUTORIAL.zh-TW.md step n, [README], [MEM] auto-memory notes,
 file paths otherwise. G = generalizable lesson, D = SOUL DUEL / RAVEN-specific detail.
 

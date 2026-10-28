@@ -1,95 +1,96 @@
-# Designing a new fighter: evidence from LILLE BARRO (2026-10-06 → 10-08)
+# Designing a new fighter: evidence
 
-The old Lille (§1–§7 below; his code was removed 2026-10-13, his record `DUEL_LILLE.md` stays). The rebuild's lessons (today's
-Lille, kit `:barro`) are in `skills/duel-move-modules/reference.md` (the move grammar, its encoding, bug classes) and
-`skills/duel-character-cpu/SKILL.md` (his CPU); the rebuild's process notes are §8.
+Two sources:
+- **The two Lilles** (2026-10-06 → 10-13). They were built on the old fight system, and their records stay:
+  - `docs/duel/DUEL_LILLE.md`, `DUEL_LILLE_V2.md`, `DUEL_LILLE_V3.md`;
+  - `docs/research/lille-retrospective/digest.md`;
+  - DEVLOG §84–§216.
+- **Ichigo's rebuild on the core system** (2026-10-27 → 10-28): DUEL_CORE §5b–§6, DEVLOG §416–§445.
 
-Source repo: `/media/8tsp/projects/ai-cl-game-test`. Evidence: `docs/duel/DUEL_LILLE.md` (§n), `docs/DEVLOG.zh-TW.md`
-(DL§n, §84–§135), `docs/research/lille-retrospective/digest.md` (the full 56-decision timeline, rework chains and
-numbers). "G" = generalizable, "P" = project-specific. The zh-TW guide for the user: `docs/guides/CHARACTER_DESIGN.zh-TW.md`.
+The old system's parts of this file (ASSIST routes, learner situations, the stance kit encoding) are at `git show
+e55304e:skills/duel-character/reference.md`. "G" = generalizable, "P" = project-specific. The zh-TW guide for the user:
+`docs/guides/CHARACTER_DESIGN.zh-TW.md`.
 
-## 1. The numbers (P)
-- 56 numbered decisions (40 on day 1), plus about 8 unnumbered rulings. 1–15 were settled before code (10
-  AskUserQuestions with 3 options each, 4 on the design review); 16–56 came after playtests.
-- The longest chain: TENSHIN's distance, 3.5 → 8 → 10.4 → 13 → 10 → 4.5 → 5.5 → 7 m over about 13 decisions and
-  11 twenty-seed gates. Then the crossing slow motion, 6 decisions, 7 gates, 2 CPU-search re-freezes.
-- Gates: ~28 twenty-seed runs, ~12 sixty-seed reruns, 5 accepted exceptions. Host checks 4431 → 6479.
-- No balance knob was turned after batch 4: every later shift came from the user's design decisions.
+## 1. Where the churn went (P → G)
+- **The old Lille:**
+  - 56 decisions in 3 days. 1–15 were settled before code (10 AskUserQuestions); 16–56 came after playtests.
+  - The longest chain was a dash distance: 8 values in about 13 decisions and 11 twenty-seed gates.
+  - No balance knob moved after batch 4. Every later shift came from the user's design decisions.
+- **Ichigo on the core system:**
+  - 30 sections in 2 days (§416–§445).
+  - The churn: stances read apart (§417), pointer themes (§428–§434), and the Kikon hold's input semantics (§418, §436, §440–§444).
+  - The triangle's table did not move.
 
 ## 2. Rework chains and the question that would have saved each (G)
 | Chain | Why earlier versions went | Ask, and when |
 |---|---|---|
-| TENSHIN distance (§23.2–§23.34) | Feel tuning; a hidden link chase (Breaker J1/K1 rule) made the dash length meaningless (52 → 53) | Stop distance, fixed time or speed, Step lengths, does the follow-up travel; list hidden movement. Design pass, and again when a link is added |
-| TENSHIN price (30, 34, 35) | An empty swing bought the 2 f cancel | What stops spamming; adversarial pass on each cancel. Design pass |
-| Slow motion (41–47) | Trigger semantics never specified; ambiguous 「放慢 1 倍」 | Signal or reaction window; per line or per region; live knobs. Before building any feel effect |
-| Trace landing (18, 39, 41) | The 1-damage laying shot was a hidden stun-lock and gave the CPU an unfair opener | When should it hit, what does the opponent do. Design pass |
-| Base sniper (1 → 17, 21–23) | A no-escape sniper cannot hold range against rushers | "Caught at 2 m?"; a 10-seed time-at-range probe. Concept stage |
-| Jilliel's wings (19, 27, 32, 50, 56) | Arms read as wings; wings hid the fight; too stiff; strikes didn't read | Which part hits, arms visible, behind-camera still, the motion bar. Model sheet / rig stage |
-| Owl legs (20, 26) | A misread reference | Side still of the topology. Model sheet |
-| Owl system (36) | A separate kit read as another character | Same system stronger or new? Concept stage |
-| Revival (8 → 16) | PRACTICE could not reach the owl | How does a playtester reach each form? Design pass |
-| Kikon cinematic (56, 56a–c) | Framed at 6 m only; desktop letterbox | Actor placement, both aspect ratios, text storyboard. Storyboarding |
+| A dash distance (old Lille, 8 values) | feel tuning; a hidden link chase made the length meaningless | the stop point, fixed time or speed, Step lengths, hidden movement. Design pass |
+| An empty swing bought a free cancel | no price checked adversarially | what stops spamming; each cancel route. Design pass |
+| A slow motion (6 decisions) | its trigger never specified; 「放慢 1 倍」 ambiguous | trigger, per line or region, live knobs. Before any feel effect |
+| A sniper with no escape | could not hold range against rushers | "caught at 2 m?", a 10-seed probe. Concept stage |
+| Wings / legs read wrong | arms read as wings; a misread reference | which part hits, a behind-camera still, a side still. Model sheet |
+| A form PRACTICE could not reach | a beheading-gated revival | how does a playtester reach each form? Design pass |
+| Pointer 1's stance read as 2's (§417, KESSA §428) | two stances with the blade in a similar place | three stances side by side, one still each |
+| Pointer cells borrowed across themes (§428–§433) | KESSA's pointer 1 played the Getsuga | the pointer table filled from three themes. Design pass |
+| The Kikon hold on the phone (§436, §442, §444) | a tap fires on the lift; the check held the wrong zone | each press: tap / hold, zone, when judged; check the negative case |
+| A route that stopped connecting (§443) | a mid-route knockdown; a lagged effect later than the next segment | the reaction and timing of every segment that something follows |
 
 ## 3. Process patterns that worked (G)
-- Phase 0 a pure discussion; agents set up the toolchain and research meanwhile (DL§84).
-- AskUserQuestion with 3 options each; the rejected options recorded (§1).
-- A full design doc plus an adversarial review before code (§2–§16, 22 findings; the aim lock came from it).
-- Canon research with graded claims, plus a model sheet from 49 reference images (§17).
-- Playtest via a private Artifact of the whole game, one URL updated each round (DL§91); deploy only on request.
-- Explain the cause first, then 3–4 lettered, composable directions. The user often picks "all" or combines them
-  (41: C + slow motion; 50 and 56: all four).
-- Proposals labelled as the lead's; the user corrects cheaply (37, 43).
-- Text storyboards: the user's prose became beat tables, and a shot-by-shot breakdown prompted amendment 2 (§23.37).
-- Worktree fan-out by independent batch with a lead merge; the lead re-runs every gate. Merge pitfalls: the K fan
-  hitting three times (fixed at merge, §22.6), a scratch-vector slot collision (§23.37), a subagent overriding decision
-  11's gold (§21 dev. 4).
+- Phase 0 is a pure discussion. Agents set up the toolchain and the research meanwhile.
+- AskUserQuestion with 2–4 options each, the rejected options recorded.
+- A design doc plus an adversarial review before code.
+- Canon research with graded claims; a model sheet from reference images (in `.refs/`, never committed).
+- Playtest via a private Artifact of the whole game, one URL updated each round; deploy only on request.
+- Explain the cause first, then 3–4 lettered, composable directions. The user often picks "all" or combines them.
+- Proposals labelled as the lead's; the user corrects cheaply.
+- Several requests arriving in one turn (a playtest burst): take them in order, each one documented and checked.
+- Worktree fan-out by independent batch, with a lead merge. The lead re-runs every gate.
 
 ## 4. Design patterns (P → G)
-- Reuse system shapes: MUJITTAI = Yamamoto's West + `:intangible`; the stance = Ichigo's TSUKIMACHI; the revival =
-  Kenpachi's Bankai path + `:bankai-ok`; the eye = the perfect-Hoho threat test.
-- Two modes on one button: EN lays damage-less traces; L materialises them and dashes, giving lay → materialise → dash
-  → J. A flash-step economy (3 a line, refund 4 / 2, KIN → EN 10) paces it. The CPU search found the loop itself.
-- A transform chain where later forms share the system with small edges (×1.1, refund 5, +1 f).
-- The opponents' reflex keys read off his kit (`:opp-trace`, `:opp-reflect`).
+- **Reuse system shapes:**
+  - a charge that powers the string after its SA (`:charge-mult`, §421–§423);
+  - clones as a pointer theme (KESSA NS3 / AS3 / 千影);
+  - a wave's Kikon by a flash-step strike (§437).
+- **A pointer's theme carries a look through the string:**
+  - the yellow-white Getsuga wrap on every swing after a charge (§422);
+  - the black flame in KESSA (§423);
+  - the blood chains from wrists and ankles (§430).
+- **One damage lever per kit** (`:core :mult`), set by the pace gate; the user owns win rates.
 
 ## 5. Modelling notes (P → G)
-- Four bodies on the 21-joint rig; the same hurt cylinder in every form (r 0.38, h 1.8); the float is drawn only.
-- `:lift` kit key, not baked into clips (shared clips play at root 0, so he sank, decision 33); the leg floor subtracts
-  BODY-LIFT.
-- Strike point = an invisible rig hand; the visible weapon is drawn to it (Rodrigues; a 0.00000 m miss).
-- Translucency: an emissive glow × own colour instead of alpha < 1's dark phantom; glass 0.35, rim 0.6.
-- Jointed blades (3 segments): lag springs (ω 16, ζ 0.45) + a virtual strike drive; the other wings converge on a ring
-  target; tip trails via VFX-SMEAR.
-- Clip keys commented as aims (azimuth/elevation in the chest frame); FK-solved claw poses for long arms.
-- Pitfalls: stance poses move strike points (hit poses set spine, arm and elbows); spins need two keys 0.0001 f apart
-  with yaw 360° apart; the lift steps when the form changes mid-dash (hide it in keys); scaled actors need every
-  metre-authored size scaled by hand; big foreground parts loom in the behind camera.
+- One 21-joint rig and the same hurt cylinder for every form; floats and lifts are drawn only (`:lift`, never baked into clips).
+- **Strike point and weapon:** the strike point is an invisible rig hand, and the visible weapon is drawn to it.
+- **Translucency:** use an emissive glow × own colour, not alpha < 1.
+- **A mirrored pair of strikes:** use `defclip-mirror` (left / right channels swapped, twist and yaw negated). Give it a two-handed
+  grip so the blade mirrors too (§425).
+- Clip keys commented as aims; FK-solved poses for long reaches (`tools/pose-solve.py`).
+- **Pitfalls:**
+  - Stance poses move strike points.
+  - Spins need two keys 0.0001 f apart.
+  - Scaled actors need every metre-authored size scaled by hand.
 
-## 6. Systems and the CPU (P → G)
-- The X-Axis needed the generic threat test to use point-to-line distance and the real active window, for `:x-axis`
-  only, so the old pairings stayed identical (§2 G1).
-- Every new mechanic: a CPU rule per difficulty, an opponent key, an ASSIST route (`:assist-combo`), a learning
-  situation (`learn-def-kit`), counters.
-- The dream-rsi CPU: freeze the evaluator; new behaviour HARD-only so NORMAL stays bit-identical (only while the
-  baseline's NORMAL is sane: the new Lille's was broken, so it got a NORMAL band instead, `duel-character-cpu`); freeze
-  the rules first (3 re-freezes cost every cell a 3-way merge).
-- Interaction bugs to expect: touch flicks vs stances (`:step-branch`), string chase during a dash (K → L, 0.88 m vs
-  10 m), a stale dash end read by the ASSIST a step early (§23.36). Test by hand and with the ASSIST in the browser.
+## 6. The CPU for a new fighter (P → G)
+- The generic core CPU (`core-ai.lisp`) plays any kit with a `:core` at once.
+  - It rolls once per move start for turn / continue / Kikon.
+  - It holds the SP for 40 frames when it wants the Kikon.
+  - It shoots from `:core :ns-range` with a gap.
+- A kit adds only what the generic rules can't see (Ichigo's ranged band). Details: `duel-character-cpu`.
+- The first ranged CPU always shot and the matches crawled (78 waves a match). One roll per decision plus a gap fixed it (§416).
 
 ## 7. Cinematic tools (P)
-- CINE-PLACE (actors at a set gap, given back at CINE-END however it ends), CINE-SCALE (an actor drawn ×N),
-  CINE-SLOW (clips and effect time scaled; script frames run on), the white card + silhouette, a debug command to hold
-  a frame at look-clock f (the old Lille's 79200 + f is gone; today's Lille: 82200 + f, 82299 lets go). Landscape has a 9 % letterbox; portrait widens the lens (%PORTRAIT-DOLLY).
+- **Staging:**
+  - CINE-PLACE puts the actors at a set gap and gives them back at CINE-END.
+  - CINE-SCALE draws an actor ×N.
+  - CINE-SLOW scales clips and effect time while the script's frames run on.
+- **Framing:** landscape has a 9 % letterbox; portrait widens the lens (`%PORTRAIT-DOLLY`).
+- **Ichigo's per-pointer cinematics** (`:core :kikon-cines`):
+  - debug stills at 75000 + 80 i + k (frame 3k);
+  - every character's ranges are in DUEL_GAMEPLAY "Debug commands".
+- Gate time excludes cinematics (since 2026-10-08), so a cinematic's length never moves the gate.
 
-## 8. The rebuild: today's Lille (kit `:barro`, 2026-10-09 → 10-13) (P → G)
-- **Copy and diverge** (V1): the sim copied under a new prefix (`br-`), the art shared by reference, the old pairings
-  byte-identical as the proof. The copy silently lost look hooks (`:body-alpha`, `:hud-guard`, DEVLOG §182); at the old
-  one's removal his shared cinematics had to move to kept files (V3 §26).
-- 26 V-decisions in 2 days, then a third redesign of the awakening (V3) from an animation inventory, R1–R20 in 4 days;
-  playtest Artifact v39 → v81, playtest first, gates after (DEVLOG §165); stale background gates killed when a fix lands
-  (§172).
-- Same-day withdrawals: HOSHA before the build (V9b), V8's L swing after its art was drawn (V8b).
-- Exceptions: BY / BK medians under 125 s at almost every revision, accepted four times (V3 §18.3, §21.2, §22.5, §25.2):
-  ask once whether a standing band is wanted rather than re-asking each round.
-- Human-only cancels (R17's transition skip, R18's charge Step) don't move the sim gates when the CPU doesn't use them: a
-  cheap way to ship feel without re-gating (still pin them in host tests).
+## 8. Rebuilding a fighter under a new prefix (the new Lille, P → G)
+- **Copy and diverge:** the sim copied under a new prefix, the art shared by reference, the old pairings byte-identical as the proof.
+  - The copy silently lost look hooks (`:body-alpha`, `:hud-guard`). Diff the hook list.
+- **Same-day withdrawals** happen: hold the art until the rule has been played.
+- **Recurring exceptions:** ask once whether a standing band is wanted, rather than re-asking each round.
+- **Human-only cancels the CPU never uses** don't move the sim gates: a cheap way to ship feel. Still pin them in host tests.
