@@ -319,3 +319,20 @@ Checks: duel-control 99, touch 94 ALL PASS, pkgcheck 0 / 0 / 0, 390x844 `--mobil
 | The portrait frame's centre | `*pt-center-lift*` | 37.8 → 56.7 CSS px |
 
 Checks: duel-control 99, touch 94 ALL PASS, pkgcheck 0 / 0 / 0, 390x844 `--mobile` shots, both hands. No sim gate (the user).
+
+## 8. Draft v5: 爆 on your Reishi, the clock as the pause (the user, 2026-10-29; not built yet)
+
+> 「請幫我為手持模式設計將爆氣鍵與血量鍵結合的 UI，並將暫停鍵與時間顯示結合（練習模式顯示時間為無限符號），先修改 Artifact 設計稿給我看。」
+
+The draft (the same Artifact, version 5; it also catches up with §7.6–§7.8 as built: your block 1 cm lower, the line at 0 / 70 %
+of the deck on 390x844, no hit flash):
+
+- **爆 × Reishi**: the 爆 seal (7.4 U, as before) is pressed over the thumb-side end of your own Reishi stroke, overlapping it by
+  1.6 U, so the plate and the button are one object (left hand: mirrored, the seal at the stroke's left end). The seal's outer ring is
+  the awakening gauge (the plate's yellow line moves into it, filling clockwise); full, it glows and a 覺 tab lights on top. Tap =
+  Burst; ready, a 0.3 s hold = Awaken (an inner sweep). The plate's name row leaves the seal's width free. Desktop: unchanged.
+- **The clock = the pause**: on the phone the timer is a paper tab at the top-left (92 x 74 CSS px on 390x844, a cut corner),
+  the digits over `II 止 PAUSE`; a tap pauses (it inverts while pressed). The 止 seal over the deck is gone. PRACTICE shows ∞
+  (the desktop clock too, not pressable there: Esc / its key).
+- To build once approved: Lisp places 爆's spot from the plate (as §7.8 already does) and the pause chip's spot from the clock tab;
+  the page draws both there (DUEL_WEBUI §7.2's 30136–30141), `*plate-low*` / `--low` unchanged.
