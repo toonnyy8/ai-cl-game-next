@@ -336,3 +336,18 @@ of the deck on 390x844, no hit flash):
   (the desktop clock too, not pressable there: Esc / its key).
 - To build once approved: Lisp places 爆's spot from the plate (as §7.8 already does) and the pause chip's spot from the clock tab;
   the page draws both there (DUEL_WEBUI §7.2's 30136–30141), `*plate-low*` / `--low` unchanged.
+
+### 8.1 Draft v5's review loop (the user, 2026-10-29: the award-tier OBJECTIVE / CHECK / LOOP brief again)
+
+Artifact version 6. Two passes over the eight checks, each patched and re-shot (390x844 both hands, PRACTICE, the pause):
+
+| Check | Gap found | Patch |
+|---|---|---|
+| typography | the clock tab's `止 PAUSE` at 0.62 U (≈ 5.7 px), the 覺 tab at 1 U | 1.0 U mono / 1.45 U kanji; 覺 1.25 U |
+| whitespace | the foe's plate ran under the clock tab | the phone's P2 plate 30 → 27 U (a 1.6 U gap) |
+| hierarchy / color | the ready ring (2.2 stroke + a strong glow) outshone the blood cues | 1.7 → 2.1 when ready, a slow 1.6 s breath instead of a glow |
+| hierarchy | the phone's AWAKEN prompt repeated the seal's 覺 tab and sat on the split line; any prompt's ring read 毀 | no awaken prompt on the phone; the ring only for a hold (the Kikon) |
+| originality / typography | ∞ was a fallback font glyph | an ink stroke (SVG lemniscate) that writes itself in 0.9 s; the tab gets a punched hole (a 札) |
+| motion | the pause's 止 appeared from nowhere | it grows out of the tab you pressed (0.42 s from the top-left) |
+| micro-interaction | a Burst press gave no feedback on the seal; 覺 just appeared | a blood ring spills off the seal; 覺 stamps in |
+| responsive | none found (the phone mock at 2.36 cqw, the bars wrap) | |
