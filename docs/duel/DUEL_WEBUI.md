@@ -164,3 +164,5 @@ Draft v2 (the user, 2026-10-28: 「我希望手的的停止鍵做更上面，然
   one): SP the upper side along the dial (爆 in it, 覺 on the line's foot), ATK the lower side under the thumb; the gesture hint runs
   along the line; the hit test is the same line (`y / h < .20 + .786 x / w`, mirrored for the left hand).
 - Left hand: the player's plate, move name and combo move to the right (mirrored like P2's), the pause seal to the left.
+- v3 (the user: 「分割起始點在往上一些」): the line's near end 98.6 % -> 82 % of the deck's height (the far end 20 % kept), now just above
+  the 覺 seal; one pair of numbers (`Y0` / `Y1`) draws it and hit-tests it.
