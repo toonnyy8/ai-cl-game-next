@@ -170,3 +170,5 @@ Draft v2 (the user, 2026-10-28: 「我希望手的的停止鍵做更上面，然
   press, no wait. Ready: the seal wears a REIATSU ring, a release before 0.3 s is the Burst, a hold of 0.3 s fills the ring and awakens
   (the old AWK chip's 0.3 s hold). For the integration: the touch layer's AWK chip folds into RV (touch.lisp / onehand.lisp), the
   manual's two rows become one.
+
+Approved (the user, 2026-10-28: 「善哉！！幫我把整套接進遊戲中」): draft v4 goes into the game, all four parts (§7, as built).
