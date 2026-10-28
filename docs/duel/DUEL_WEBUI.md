@@ -274,3 +274,18 @@ drawn as before (the native gate, an old page: `webhud-p` NIL).
   hold (the 12-frame ring prompt; the deck's hold ring), red / souls at stake / the awakening ready, 爆's hold ring filling, the
   pause (desk and phone), the intro (P1's and P2's columns, 斬), the K.O. (2208), the touch ink (a still of the tap ripple, the
   flick's trail and name: `gameHUD.still(true)` holds them for a test still, since the page's animations run in real time).
+
+### 7.6 The phone's nudges (the user, 2026-10-28)
+
+> 「1. 請將我方的 HUD 下移約 0.5 cm 2. 爆氣鍵上移約 0.5 cm 3. 戰鬥畫面中心向上偏移約 0.5 cm」「沒改戰鬥系統所以不用跑對戰測試」
+
+0.5 cm = 18.9 CSS px (96 an inch); phone (portrait) only.
+
+| What | Knob | Old → new |
+|---|---|---|
+| Your own plate, its move name and combo count (`hud.css`, `#hud.hphone`; not under `.nodeck`) | `--low` | 0 → `.5cm` lower |
+| 爆 (chip 7's centre, the hit and the drawn seal alike; `onehand.lisp` DECK-LAYOUT) | `*rv-lift*` | 0 → 18.9 CSS px up |
+| The portrait battle frame's centre (the lens shift + `*pcam*` [1], set by DECK-UPDATE; `camera.lisp`) | `*pt-center-lift*` | 0 → 18.9 CSS px up |
+
+Checks: duel-control 99 and touch 94 ALL PASS, pkgcheck 0 / 0 / 0, a 390x844 `--mobile` shot before / after. No sim gate (the
+user: no battle rule moved; the camera and the chips are presentation and touch spots only).

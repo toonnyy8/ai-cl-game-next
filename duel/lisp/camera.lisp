@@ -45,7 +45,7 @@ view, so the gap between the fighters reads; DUEL_DESIGN §9). Only the look, li
 ;;; bisects P1 and P2 (azimuth: their centres; pitch: P1's feet and P2's head), within *PT-LEAD* (+ the side swing) of the orbit; the lens
 ;;; is shifted (G6) so that aim lands on the band's middle, with the vertical FOV that gives the band *PT-BAND-FOV*.
 (declaim (type f32vec *pcam*))
-(defvar *pcam* (make-f32 3) "Portrait camera state: [0] the orbit's lead over *BEHIND-YAW* (radians, smoothed); [1] unused; [2] the
+(defvar *pcam* (make-f32 3) "Portrait camera state: [0] the orbit's lead over *BEHIND-YAW* (radians, smoothed); [1] the lens shift's lift (NDC, DECK-UPDATE from *PT-CENTER-LIFT*); [2] the
 smoothed vertical FOV (radians).")
 (defvar *pt-lens* nil "The portrait lens is on (else the landscape one: FOV 60, no shift; LANDSCAPE-LENS).")
 (defparameter *pt-back* 9f0 "Portrait: metres behind P1 (x *CAM-CLOSE*, + *BEHIND-WIDEN* per metre past 4 m) ...")
@@ -112,7 +112,7 @@ smoothing. 0 B (state in *PCAM* / *CAM-ANCHOR*, knobs read as floats)."
                                          (f-atan2 (/ (f-sin (f-min hz 1.4f0)) (f-cos (f-min hz 1.4f0))) asp)))
                            (* 0.017453292f0 (the single-float *pt-fov-min*)) (* 0.017453292f0 (the single-float *pt-fov-max*))))
              (sm (if (or snap (not *pt-lens*)) fov (+ (aref pc 2) (* k (- fov (aref pc 2))))))
-             (sh (- 1f0 (+ (aref bd 0) (aref bd 1)))))
+             (sh (+ (- 1f0 (+ (aref bd 0) (aref bd 1))) (aref pc 1))))   ; + the lift (*PT-CENTER-LIFT*, DECK-UPDATE)
         (declare (single-float ax az bx bz d1 d2 a1 a2 da want dy aim t1 t2 pitch cp b hb hz asp fov sm sh))
         (setf (aref at 0) (+ ex (* cp (- (f-sin aim)))) (aref at 1) (- h (* 5f0 (f-sin pitch))) (aref at 2) (+ ez (* cp (- (f-cos aim))))
               (aref pc 2) sm *pt-lens* t)

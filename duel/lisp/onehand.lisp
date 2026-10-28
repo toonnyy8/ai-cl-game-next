@@ -66,6 +66,10 @@ under the portrait HUD's top block), RV (170 472 22), in CSS px.")
 below (the user, 2026-10-28: 「SP 跟 ATK 沿著目前大約『覺』的位置往斜上方畫界分割」 (v2: 0.20 / 0.986), then 「分割起始點在往上一些」
 (v3: the near end 0.986 -> 0.82)). Before: the pad's level middle (the recogniser's TAP-SPLIT 0.5). One source: the recogniser
 hit-tests it (TOUCH-SPLIT!) and the page draws it (DUEL_WEBUI §7, set 30134 / 30135).")
+(defparameter *rv-lift* 18.9 "爆 moved up this many CSS px (0.5 cm at 96 px an inch; the user, 2026-10-28: 「爆氣鍵上移約 0.5 cm」). Before: 0.")
+(defparameter *pt-center-lift* 18.9
+  "The portrait battle frame's centre moved up this many CSS px (the lens shift, *PCAM* [1]; the user, 2026-10-28: 「戰鬥畫面中心向上偏移約
+0.5 cm」). Before: 0.")
 (defparameter *chip-holds* '(0 0 0 0 0 300 0 0) "Each chip's hold, ms (爆's is set every frame: RV-READY-P, ONEHAND-FRAME).")
 (defparameter *u-chip-holds* '(0 0 0 0 0 0 0 0) "... with the AWAKEN chip as U (U-CHIP-P): a tap.")
 
@@ -80,7 +84,7 @@ today's phones: 50 >= 34 + 16). The chips are placed in the draft's unit (*CHIP-
               (loop for (cx cy r) in *chip-spots*
                     collect (case cy
                               (:pause (list (x (* cx u)) (px (- h dh (* (+ 17 r) u))) (px (* r u))))   ; 止: its bottom 17 U over the deck
-                              (:rv (list (x (* cx u)) (px (+ dt (* 0.22 dh) (* r u))) (px (* r u))))  ; 爆: its top 22 % down the deck
+                              (:rv (list (x (* cx u)) (px (- (+ dt (* 0.22 dh) (* r u)) *rv-lift*)) (px (* r u))))  ; 爆: its top 22 % down the deck, lifted
                               (t (list (x cx) (px (- h cy)) (px r)))))
               (list 0 (px dt) (px w) (px h))))))
 
@@ -108,7 +112,8 @@ Outside ONE-HAND there is no pad and no chip: a stray finger only makes menu tap
         ;; the portrait frame: under P2's HUD block down to *PT-FRAME-BOTTOM* (over P1's block); the blocks' edges
         (let ((hb (/ (portrait-hud-bottom s) h)) (pt (/ (portrait-p1-top s h) h)))
           (setf (aref *band* 0) (f32 (+ hb 0.03)) (aref *band* 1) (f32 (min *pt-frame-bottom* (- pt 0.03)))
-                (aref *band* 2) (f32 hb) (aref *band* 3) (f32 pt)))
+                (aref *band* 2) (f32 hb) (aref *band* 3) (f32 pt)
+                (aref *pcam* 1) (f32 (/ (* 2 *pt-center-lift* d) (max 1 h)))))   ; NDC spans 2 over the height
         (if *one-hand*
             (multiple-value-bind (fl fr) (deck-split-ends)
               (touch-layout! *touch* d pad chips (if u *u-chip-holds* *chip-holds*))
