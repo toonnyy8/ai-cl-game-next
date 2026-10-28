@@ -269,7 +269,7 @@ the match camera, frozen); 83964 lets go."
 ;; 4 首掛 KUBIKAKE, the Shikai 4 m from him; 83977 is c 5, 綴雷電 TSUZURI RAIDEN, the same: DUEL_HISAGI §26.6), played
 ;; through; 83970+b restarts the last one held at its beat b's middle frame (*HS-CINE-BEATS*); 83976 lets go.
 (defparameter *hs-cine-beats*
-  '((10 36 60 85 117 152) (12 40 64 94 140 168) (12 42 75 113 135) (15 50 92 122 165) (10 35 66 84 125) (12 35 62 98 134))
+  '((10 36 60 85 117 152) (12 40 64 94 140 168) (12 42 75 113 135) (15 50 92 122 165) (10 35 66 94 125) (12 35 62 98 134))
   "Each cinematic's beats' middle frames (83970+b; as built, DUEL_HISAGI §22.7, §26.6).")
 (defvar *hs-cine-k* 0 "The cinematic the last 83965+c picked.")
 (defun hisagi-cine-scene (c)

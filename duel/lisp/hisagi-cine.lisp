@@ -636,13 +636,14 @@ his throat: 首掛."
   (at 0 (hs-cine-stage a v 3.4) (cine-clip a :hs-cine-kb-haul :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
       (hold-pose v 8) (freeze 8) (impact-frame :negative 2) (play-sfx :chain-rattle) (silence 20)
       (hs-shot a 160 2.6 0.45 1.6 :ahead 1.2) (lens 54))          ; (not a close-up: a phone dollies back to the victim)
-  (at 8 (play-sfx :chain-snap) (shake 0.12 0.2) (cine-clip v :hs-cine-choke-v :blend 1) (face-beat v :hurt 2.5)
+  (at 8 (play-sfx :chain-snap) (shake 0.12 0.2) (cine-clip v :sh-flinch :blend 1) (face-beat v :hurt 2.5)
       (multiple-value-bind (x y z) (actor-point v 1.45) (focus-lines 8 x y z)))
   ;; 2 (20-50) wide, side-on: two turns round his neck (f20-36), drawn tight (f36-46)
   (at 20 (shot-pair a v 1 (if (portrait-p) 7.5 5.4) 1.5) (lens 40) (play-sfx :chain-rattle :pitch 1.2))
   (at 28 (play-sfx :chain-rattle :pitch 1.1))
   (at 36 (cine-clip a :hs-cine-kb-haul :blend 1 :time 0.04) (play-sfx :chain-snap :pitch 0.8) (shake 0.15 0.25)
       (multiple-value-bind (x y z) (actor-point v 1.5) (focus-lines 10 x y z)))
+  (at 46 (cine-clip v :hs-cine-choke-v :blend 2))                 ; (his hands up only once the coil is drawn tight)
   ;; 3 (50-80) low, the sky behind: he turns his back, the chain over his shoulder; the heave (SHIBARI's clip f26-46)
   (at 50 (cine-clip a :hs-s-shibari :blend 4 :time (/ 26.0 60.0) :speed 0.64) (hs-shot a 90 6.8 0.25 2.4 :ahead 0.6)
       (lens 50) (play-sfx :whoosh-heavy :pitch 0.6))
@@ -660,7 +661,8 @@ his throat: 首掛."
   ;; 5 (100-150) the pin (KUBIKAKE's clip, f18 held): down on his knee, the left hand at the throat, the sickle up; 首掛
   (at 100 (face-each-other a v 1.4) (cine-clip a :hs-s-kubikake :blend 0 :time (/ 18.0 60.0) :speed 0.0)
       (cine-clip v :sh-down :blend 0) (impact-frame :negative 1) (play-sfx :chain-snap :pitch 0.6)
-      (shot-on a 75 4.6 1.3 :look 0.6 :ahead 0.9 :off -0.5) (lens 42))
+      (if (portrait-p) (shot-on a 75 6.8 1.8 :look 0.6 :ahead 0.9) (shot-on a 75 4.6 1.3 :look 0.6 :ahead 0.9 :off -0.5))
+      (lens 42))                                                   ; (a phone: not a close-up, dollied back to show him)
   (at 104 (caption "首掛" :reading "KUBIKAKE" :sub "KAZESHINI  KIKON" :side 1 :hanko t)))
 
 ;;; ---------------------------------------------------------------- 綴雷電 TSUZURI RAIDEN
@@ -734,7 +736,7 @@ and white silhouette flashes, the Konpaku; 5 the chain goes slack, the victim dr
   (at 114 (unsilhouette) (card nil))
   ;; 5 (120-150) slack; he drops, smoking; 破道の十一 綴雷電
   (at 120 (cine-clip v :sh-crumple :blend 2) (cine-clip a :hs-s-stance :blend 12) (play-sfx :chain-rattle :pitch 0.6)
-      (if (portrait-p) (shot-on a 150 6.8 2.0 :look 0.9 :ahead 2.0) (shot-on a 80 6.0 1.3 :look 1.0 :ahead 2.0 :off -1.2))
+      (if (portrait-p) (shot-on a 150 6.8 2.0 :look 0.9 :ahead 2.0 :off -1.4) (shot-on a 80 6.0 1.3 :look 1.0 :ahead 2.0 :off -1.2))
       (lens 44))                                                   ; (a phone: down the line, him in front of the victim)
   (during (110 150) (hs-cine-smoke v 2))
   (at 124 (caption "綴雷電" :kanji2 "破道の十一" :reading "TSUZURI RAIDEN" :sub "KAZESHINI  KIKON" :side 1 :hanko t)))

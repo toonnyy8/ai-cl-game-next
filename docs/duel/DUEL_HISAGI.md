@@ -3763,7 +3763,7 @@ heave), the lightning is jade shards with a white core along any segment (`HS-CI
 x0.64), KUBIKAKE's pin (f18 held), RAIDEN's hit pose. Glyphs 綴 電 道 掛 added to `glyphs-extra.lisp` (the same Yuji Syuku font).
 
 首掛 KUBIKAKE (CINE-PLACE 3.4 m): 0-20 low behind him (`hs-shot`, not a close-up, so the phone dollies back to the victim): the haul,
-the chain snaps taut at f8 (focus lines, the victim chokes); 20-50 side-on (`shot-pair` 5.4 m, the phone 7.5 m): two turns wound
+the chain snaps taut at f8 (focus lines, the victim jerks; his hands go to his throat only at f46, so the coil reads); 20-50 side-on (`shot-pair` 5.4 m, the phone 7.5 m): two turns wound
 round the neck f20-36, the sickle tumbling at the coil's front, drawn tight f36-46; 50-80 side-on and low (6.8 m, aimed 2.4 m up,
 the sky behind): he turns his back on SHIBARI's heave, the victim hauled up from f58 over his shoulder (3.3 m up at f71); 81 the slam
 1.9 m behind him: a negative, the crack ring, the shockwave, the ink splash, the Konpaku (f83 manga page); 100-150 he kneels on him
@@ -3776,13 +3776,14 @@ and paralysed: white cards with his black silhouette at f90-93, f97-100, f112-11
 gone, the chain run down to the sickle on the ground, he drops smoking, 綴雷電 with 破道の十一 / TSUZURI RAIDEN from f124 (the phone:
 down the line from behind him).
 
-Stills: debug 83969 (首掛) / 83977 (綴雷電), then 83970+b holds beat b at `*hs-cine-beats*` (10 35 66 84 125) / (12 35 62 98 134), at
+Stills: debug 83969 (首掛) / 83977 (綴雷電), then 83970+b holds beat b at `*hs-cine-beats*` (10 35 66 94 125) / (12 35 62 98 134), at
 1280x720 and 390x844 (`--mobile`). Checked: the chain round the neck / body, the bolt along the chain, nobody cut off but the
 orbit's opening frame on the phone (Hisagi out of the tall frame while the camera circles the victim).
 
 Checks: host 10760 ALL PASS, cine-test 18 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0 errors. In the match (83000, 2511 / 2512,
 Shift+J held 1.6 s): NS2a `KIKON 40` -> `cine HS-KUBIKAKE-CINE`, NS3a `KIKON 45` -> `cine HS-RAIDEN-CINE`, both back to IDLE after. The
 sim did not move (`--pairs 29,31,35 --seeds 10`): HK 189.7 s, HI 194.0 s, HH 184.7 s, all K.O.; with the cinematics 264.1 / 263.3 /
-242.9 s (265.1 / 263.8 / 244.9 with 刈れ's 180 f on all three pointers). The looks cons ~3-8 KB a frame while they run (plain DEFUN
-float math, as the B5 scripts'), nothing outside a cinematic.
+242.9 s (265.1 / 263.8 / 244.9 with 刈れ's 180 f on all three pointers). The looks cons about 3-12 KB a frame while they run (plain DEFUN
+float math; measured on the browser's stats line), nothing outside a cinematic. On the phone 首掛's caption logs `brush: caption 首掛 off the 1170x2532 screen` by 2 px (its right edge
+1172.1), as KOSA's 降鎖 already does (the same 1172.1): the two-glyph hanko caption's box in BRUSH, not these scripts.
 
