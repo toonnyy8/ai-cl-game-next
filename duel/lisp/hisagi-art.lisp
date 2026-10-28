@@ -205,7 +205,8 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
   (:solid :ink 0 (mb-blade mb :length 0.66 :width 0.028 :curve 0.012 :blade-color '(0.6 0.62 0.66) :edge-color '(0.86 0.88 0.9) :hilt nil)))
 
 (defparameter *hs-strike-reach* '((:hs-s-nage :sickle 6.0) (:hs-s-maki :sickle 3.55) (:hs-s-kari :sickle 2.8)   ; (the Shikai's
-                                  (:hs-s-sen :sickle 1.7) (:hs-s-kaeshi :sickle 1.7) (:hs-s-rin :sickle 1.7)  ;  clips, §21.4;
+                                  (:hs-s-sen :sickle 1.7) (:hs-na1 :sickle 1.7)   ; (§26: NA1's coil, J1's hit)
+                                  (:hs-s-kaeshi :sickle 1.7) (:hs-s-rin :sickle 1.7)  ;  clips, §21.4;
                                   (:hs-s-nagi :sickle 6.0) (:hs-s-tobi-kaeshi :sickle 1.7) (:hs-s-tobi-rin :sickle 1.7)   ;  A1, §24.1; §25.9: J 1.7)
                                   (:hs-k-saben :sickle 6.0) (:hs-k-kaeshi :sickle 6.0) (:hs-k-sensa :sickle 6.0)  ; (the Bankai's,
                                                                                 ;  §21.8; B4a: the annuli's 4.5 / 5.0, the K placed, §22.2: the
@@ -274,12 +275,13 @@ since A1, DUEL_HISAGI §24.1, K1 NAGI's sweep too: a let-out swept across the ar
 ;;; (KARI-OTOSHI, SHIBARI, the O), canon manner (stance, intro, win). The J strings hold the right rod short, near the
 ;;; blades (*HS-GRIP*); a sickle let out on its chain (*HS-LETOUT*) is drawn with its point at the strike's volume edge on
 ;;; its hit frames, and its clip is in *HS-STRIKE-REACH* (the FK test reads that reach).
-(defparameter *hs-grip* '((:hs-s-sen 0.25) (:hs-s-kaeshi 0.25) (:hs-s-kaeshi-1h 0.25) (:hs-s-tobi-kaeshi 0.25))
+(defparameter *hs-grip* '((:hs-s-sen 0.25) (:hs-na1 0.25) (:hs-s-kaeshi 0.25) (:hs-s-kaeshi-1h 0.25) (:hs-s-tobi-kaeshi 0.25))
   "Clip -> the J strings' short grip (the user, 2026-10-17: 「握在靠刀的那端」, DUEL_HISAGI §21): the drawn right rod slid
 this far back through his fist (m), so he holds it just behind the blades' crossing; its point (the FK test's tip) is
 0.75 - this ahead of the fist, its butt 0.22 + this behind. HS-POSE eases it in and out (4 m/s); the FK test reads it.")
 (defparameter *hs-letout*
   '((:hs-s-sen :r 3 8 11 18 1.7 nil nil 0)          ; J1: the right sickle let out a hand's length on its chain (§25.9)
+    (:hs-na1 :r 11 14 17 24 1.7 nil nil 0)          ; NA1 (§26): the same, in the fist through the held coil
     (:hs-s-kaeshi :l 3 8 11 18 1.7 nil nil 0)       ; J2: the left sickle flung out on the arm's rising line
     (:hs-s-rin :r 2 6 12 22 1.7 nil nil 0)          ; J3: both whirled out round him
     (:hs-s-rin :l 2 6 12 22 1.7 nil nil 0)
@@ -372,6 +374,47 @@ down point first onto him (S 22), held in him, hauled back.")
   (:a (:root :yaw 14 :f 0.14) (:chest :twist 24) (:arm-r :flex 108 :side 84))                           ; through, R to L
   (17 (:root :u -0.07 :yaw 8 :f 0.06) (:chest :twist 12) (:arm-r :flex 80 :side 44) (:elbow-r :flex 40) (:hand-r :flex -70))
   (:end :hs-s-stance))
+
+;;; ---------------------------------------------------------------- the core system's NA1 and pointer stances (DUEL_HISAGI §26)
+;; NA1 旋 SEN (14/3/12, the core rebuild's tell, §26.2): J1's cut with a big coil reached early (f5) and held to f13 (the
+;; opponent reads it and can cancel it): wound hard to his right, the right sickle swung far back behind his right
+;; shoulder, the left hand thrust out at him (the aim), sunk low; snapped in at S 14 to J1's own hit pose and follow-through
+;; (the hit frames' geometry = :hs-s-sen's, so the drawn reach stays its 1.7 m: *HS-STRIKE-REACH*, *HS-LETOUT*, *HS-GRIP*)
+(defstrike :hs-na1 (14 3 12 :base :hs-s-stance)
+  (0)
+  (5 (:root :u -0.13 :yaw -30) (:chest :twist -40) (:spine :flex 12) (:neck :twist 30)
+     (:arm-r :flex -40 :side 84 :twist 0) (:elbow-r :flex 24) (:hand-r :flex -90)
+     (:arm-l :flex 72 :side 10 :twist 0) (:elbow-l :flex 16) (:hand-l :flex -40) (:knees :flex 40))     ; the coil
+  (11 (:root :u -0.15 :yaw -34) (:chest :twist -46) (:spine :flex 14) (:neck :twist 34)
+      (:arm-r :flex -48 :side 86 :twist 0) (:elbow-r :flex 20) (:hand-r :flex -90)
+      (:arm-l :flex 76 :side 8 :twist 0) (:elbow-l :flex 12) (:hand-l :flex -40) (:knees :flex 46))     ; held: the tell
+  (:s :snap :hs-s-sen-hit)
+  (:a (:root :yaw 14 :f 0.14) (:chest :twist 24) (:arm-r :flex 108 :side 84))                           ; through, R to L
+  (23 (:root :u -0.07 :yaw 8 :f 0.06) (:chest :twist 12) (:arm-r :flex 80 :side 44) (:elbow-r :flex 40) (:hand-r :flex -70))
+  (:end :hs-s-stance))
+
+;; pointer 2 縛 the bind (motion-refs §1.7, `336Hisagi_and_Izuru_intervene`, `337Kubikake1`): the chain thrown over his left
+;; shoulder like a hawser, the left fist clenched on it at his chest, the left sickle hanging down his back on it (HISAGI-DRAW,
+;; lo 2048), the left elbow out wide; the right fist up before his chest too, its sickle raised (both fists high: the
+;; garrote ready); the left shoulder drawn back, the weight back
+(defpose :hs-st-bind (:base :hs-s-stance)
+  (:root :u -0.09 :f -0.04 :yaw 12) (:pelvis :twist 4) (:spine :flex 4) (:chest :twist 8) (:neck :twist -12) (:head :flex 4)
+  (:arm-l :flex 24 :side 72 :twist 0) (:elbow-l :flex 146) (:hand-l :flex 10)
+  (:arm-r :flex 56 :side 18 :twist 0) (:elbow-r :flex 76) (:hand-r :flex -40)
+  (:thigh-l :flex 30 :side 12) (:knee-l :flex 26) (:thigh-r :flex -14 :side 14) (:knee-r :flex 30))
+(defclip :hs-st-bind (2.0 :loop t :base :hs-st-bind)
+  (0) (1.0 (:root :u -0.105) (:chest :flex 3) (:elbow-l :flex 140) (:elbow-r :flex 80)))
+
+;; pointer 3 雷 the lightning (Hadō #11 Tsuzuri Raiden down the chain; ch. 337 "one hand high on the taut chain"): the left
+;; fist raised high over his head, its sickle pointing up; the right one low out at his right hip; the chain between them
+;; drawn taut across his body, small sparks crawling down it (HISAGI-DRAW, lo 4096); square to him, the feet wide
+(defpose :hs-st-raiden (:base :hs-s-stance)
+  (:root :u -0.1 :f 0.02 :yaw 6) (:pelvis :twist 0) (:spine :flex 4) (:chest :twist 6) (:neck :twist -4) (:head :flex -4)
+  (:arm-l :flex 164 :side 18 :twist 0) (:elbow-l :flex 14) (:hand-l :flex -84)
+  (:arm-r :flex 14 :side 40 :twist 0) (:elbow-r :flex 12) (:hand-r :flex -110)
+  (:thigh-l :flex 30 :side 18) (:knee-l :flex 28) (:thigh-r :flex -10 :side 20) (:knee-r :flex 30))
+(defclip :hs-st-raiden (2.0 :loop t :base :hs-st-raiden)
+  (0) (1.0 (:root :u -0.115) (:arm-l :flex 160) (:elbow-l :flex 18) (:arm-r :side 42)))
 
 ;; J2 返旋 KAESHI-SEN (8/3/13): the hips turn back; the left sickle flung out on its chain from the left knee rising across
 ;; to over the right shoulder (the second head, let out to the volume's 1.4 m); the right rod drawn back to the shoulder

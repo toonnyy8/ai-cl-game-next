@@ -73,7 +73,12 @@ trembling) and its reap, KAIBAKU-GEKI's haul and its throw-off (the noose reeled
                               (progn (at :hs-b-sp2 22 :hs-kb-kaibaku) (bytes))
                               (progn (setf (fighter-state f) :idle (fighter-move f) nil (anim-clip an) (find-clip :hs-kb-stance))
                                      (bytes))                                  ; (A2: the stance, the noose held taut)
-                              (progn (setf (hss-bound st) nil) (at :hs-b-unwind 10 :hs-kb-unwind) (bytes))))))
+                              (progn (setf (hss-bound st) nil) (at :hs-b-unwind 10 :hs-kb-unwind) (bytes)))))
+             (core (progn (setf (fighter-form f) :base)                              ; (§26: NA1's grip, the pointer
+                          (list (progn (at :hs-j1 15 :hs-na1) (bytes))                ;  stances' hawser and sparks)
+                                (progn (setf (fighter-state f) :idle (fighter-move f) nil (anim-clip an) (find-clip :hs-st-bind))
+                                       (bytes))
+                                (progn (setf (anim-clip an) (find-clip :hs-st-raiden)) (bytes))))))
         (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (hss-state st) s0
               (fighter-contact f) ct (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm
               (hss-bound st) b0)
@@ -81,12 +86,12 @@ trembling) and its reap, KAIBAKU-GEKI's haul and its throw-off (the noose reeled
 windmill ~d, J1 grip ~d, J3 ~d, KARI-OTOSHI ~d, S1's charge x1.4: windmill ~d, NAGI ~d, TSUI ~d; SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d; the Bankai's clips: J3 ~d, SOKUDA ~d, KUBIKAKE ~d, SAHARAI ~d, ~
 SP1 ~d, SP2 ~d, KOSA ~d, SAHARAI's recovery ~d; the route links (A2): HOSOKU ~d, its bundle ~d, spread K2 ~d, K3 ~d, SOKUDA's L ~d, SOKUSEN ~d, SOKUBEN ~d, ~
 SOKUTEI ~d; the bind's MAKIGIRI ~d, SHIBORI ~d, SP1 ~d, KOSHU ~d, KOJO's heave ~d, its reap ~d, KAIBAKU's haul ~d, its throw-off ~d, ~
-stance ~d, UNWIND ~d"
+stance ~d, UNWIND ~d; the core (§26): NA1 ~d, the bind's stance ~d, the lightning's ~d"
                  idle out nage hiki (nth 0 a1) (nth 1 a1) (nth 2 a1) (nth 3 a1) kaza grip rin kari (nth 0 ch) (nth 1 ch) (nth 2 ch) shibari kubi bankai bind
                  (nth 0 bk) (nth 1 bk) (nth 2 bk) (nth 3 bk) (nth 4 bk) (nth 5 bk) (nth 6 bk) (nth 7 bk)
                  (nth 0 a2) (nth 1 a2) (nth 2 a2) (nth 3 a2) (nth 4 a2) (nth 5 a2) (nth 6 a2) (nth 7 a2)
                  (nth 0 bb) (nth 1 bb) (nth 2 bb) (nth 3 bb) (nth 4 bb) (nth 5 bb) (nth 6 bb) (nth 7 bb) (nth 8 bb)
-                 (nth 9 bb))))))
+                 (nth 9 bb) (nth 0 core) (nth 1 core) (nth 2 core))))))
 (defparameter *hs-tip-moves*
   '((:bankai :hs-r-j1) (:bankai :hs-r-j2) (:bankai :hs-r-j3) (:bankai :hs-r-k1) (:bankai :hs-r-k2s) (:bankai :hs-r-k3)
     (:bankai :hs-r-k2) (:bankai :hs-r-j2s) (:bankai :hs-r-k3g) (:bankai :hs-r-j3g)
@@ -182,10 +187,11 @@ far edge. A debug measurement (it conses)."
     (:hs-kb-koshu-run nil 4.0 nil :bind) (:hs-kb-koshu :hs-b-kikon 1.2 nil :bind) (:hs-kb-unwind :hs-b-unwind 2.0 nil :unwind)
     (:hs-k-hosoku :hs-r-k1 3.5 nil :bankai) (:hs-k-s-k2 :hs-r-k2s 5.0 nil :bankai) (:hs-k-s-k3 :hs-r-k3 5.0 nil :bankai)
     (:hs-k-g-k2 :hs-r-k2 5.0 nil :bankai) (:hs-k-g-k3 :hs-r-k3g 5.0 nil :bankai) (:hs-k-g-j2 :hs-r-j2s 4.0 nil :bankai)
-    (:hs-k-g-j3 :hs-r-j3g 4.0 nil :bankai) (:hs-kb-stance nil 1.5 nil :bind) (:hs-kb-sengen :hs-b-sj 2.0 nil :bind))
+    (:hs-k-g-j3 :hs-r-j3g 4.0 nil :bankai) (:hs-kb-stance nil 1.5 nil :bind) (:hs-kb-sengen :hs-b-sj 2.0 nil :bind)
+    (:hs-na1 :hs-j1 2.0) (:hs-st-bind nil 3.0) (:hs-st-raiden nil 3.0))   ; (§26: the Shikai's core clips, the base form)
   "83500+k (DUEL_HISAGI §21.8): the Bankai's strip slots, as *HS-STRIPS* plus the form: :bankai the ranged mode, :bind a
 bind (the noose), :unwind the bind mode just ended (UNWIND's ring). Batch A2 (§24.2): 26-32 the ranged route links (K1
-HOSOKU, spread K2 / K3, gathered K2 / K3G / J2s / J3G), 33 the bind's stance, 34 its Step + J SENGEN (§25.10). Batch A3 (§24.3): 20 SP2 KAIBAKU-GEKI's own
+HOSOKU, spread K2 / K3, gathered K2 / K3G / J2s / J3G), 33 the bind's stance, 34 its Step + J SENGEN (§25.10). The core rebuild (§26, the Shikai, no form): 35 NA1, 36 the bind's stance, 37 the lightning's. Batch A3 (§24.3): 20 SP2 KAIBAKU-GEKI's own
 clip (HIKIYOSE's, its stand-in, gone), 22 KOJO's and 6 SAHARAI's redrawn.")
 (defparameter *hs-strips*
   '((:hs-s-stance nil 3.0) (:hs-s-walk-f nil 3.0) (:hs-s-run nil 3.0) (:hs-s-sen :hs-j1 2.0) (:hs-s-kaeshi :hs-j2 2.0)
