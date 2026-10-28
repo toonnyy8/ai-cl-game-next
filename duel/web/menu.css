@@ -370,6 +370,7 @@
 #ui .ptrs { background: transparent; }
 #ui-back .sel-head, #ui-back .sel-foot, #ui-back .fighter .body, #ui-back .fighter .pick, #ui-back .fighter .model { visibility: hidden; }
 #ui-back #s-select { pointer-events: none; }
+#ui [hidden], #ui-back [hidden] { display: none !important; }
 /* the model's frame in the focused card (the fighter stands here) */
 #ui .fighter .stand { position: absolute; left: 0; right: 0; top: 0; pointer-events: none; }
 /* menu rows gated by Lisp's timers (the title 0.3 s, the results 2.5 s) */

@@ -266,7 +266,7 @@ write("strings", ev)
 # -> skip (Esc) -> BATTLE -> pause (Esc) -> RESUME -> pause -> CHARACTER SELECT -> back ... -> TITLE;
 # then VS CPU HARD. Expected "duel -> STATE" lines in that order.
 t = T0
-ev = tap(t, "Enter") + tap(t + 0.4, "ArrowDown") + tap(t + 0.55, "ArrowDown") + tap(t + 0.7, "ArrowDown") + tap(t + 0.85, "ArrowDown") + tap(t + 1.0, "Enter")   # VS PLAYER (row 4)
+ev = tap(t, "Enter") + tap(t + 0.4, "ArrowDown") + tap(t + 0.55, "ArrowDown") + tap(t + 1.0, "Enter")   # VS PLAYER (row 2 since the HTML menus hid ENDLESS / DANGAI, 2026-10-28)
 ev += tap(t + 1.6, "KeyD") + tap(t + 2.0, "Enter") + tap(t + 2.4, "Numpad1")      # P1 Kenpachi, P2 confirms
 ev += tap(t + 4.0, "Escape") + tap(t + 6.0, "Escape") + tap(t + 6.6, "Enter")     # skip intro, pause, resume
 ev += tap(t + 8.0, "Escape") + tap(t + 8.4, "ArrowDown") + tap(t + 8.8, "ArrowDown") + tap(t + 9.2, "Enter")  # -> select
@@ -276,8 +276,8 @@ ev += tap(t + 13.4, "KeyD") + tap(t + 14.2, "Enter")                            
 ev += [shot(t + 21, "flow-vs-cpu-hard")]
 write("flow", ev)
 
-# SETTINGS and PRACTICE by keyboard (the MODE menu since DANGAI, 2026-10-22: VS CPU / ENDLESS / DANGAI / PRACTICE / VS PLAYER /
-# CPU VS CPU / SETTINGS / CONTROLS / MANUAL). Expected, in order: duel -> SETTINGS, duel setting HAND LEFT, ... HAND RIGHT, duel setting CAMERA SIDE,
+# SETTINGS and PRACTICE by keyboard (the MODE menu since the HTML menus, 2026-10-28: VS CPU / PRACTICE / VS PLAYER / CPU VS CPU /
+# SETTINGS / CONTROLS / MANUAL; SETTINGS: ONE-HAND / HAND / SENSITIVITY / CAMERA / PERFECT HINT / BACK). Expected, in order: duel -> SETTINGS, duel setting HAND LEFT, ... HAND RIGHT, duel setting CAMERA SIDE,
 # duel camera CAMERA  SIDE (the pause menu flips it back: BEHIND), duel -> MODE, duel -> SELECT, the match seed line with
 # PRACTICE, duel -> BATTLE; J J J on the standing dummy: YA-J1 / J2 / J3 -> P2 HIT (the dump after it: P2 r1300, the
 # HP refilled); duel practice DUMMY  GUARD ALL, then J1 / J2 -> P2 BLOCKED; DUMMY  GUARD AFTER HIT: J1 -> HIT, then a J1
@@ -287,13 +287,13 @@ write("flow", ev)
 t = T0                                   # (a shot stalls the page ~0.5 s: no key within 1 s after one)
 ev = tap(t, "Enter") + [shot(t + 0.8, "practice-mode")]                           # TITLE -> MODE
 t += 2.0
-for i in range(6): ev += tap(t + 0.18 * i, "ArrowDown")                            # SETTINGS (row 6)
+for i in range(4): ev += tap(t + 0.18 * i, "ArrowDown")                            # SETTINGS (row 4)
 ev += tap(t + 1.2, "Enter") + [shot(t + 1.8, "practice-settings")]
 t += 3.0
 ev += tap(t, "ArrowDown") + tap(t + 0.3, "ArrowRight") + tap(t + 0.6, "ArrowLeft")   # HAND LEFT, back to RIGHT
-for i in range(3): ev += tap(t + 0.9 + 0.25 * i, "ArrowDown")                      # CAMERA
+for i in range(2): ev += tap(t + 0.9 + 0.25 * i, "ArrowDown")                      # CAMERA
 ev += tap(t + 1.8, "ArrowRight") + tap(t + 2.2, "Escape")                          # SIDE; back to MODE (cursor on SETTINGS)
-for i in range(3): ev += tap(t + 2.6 + 0.25 * i, "ArrowUp")                        # PRACTICE (row 3)
+for i in range(3): ev += tap(t + 2.6 + 0.25 * i, "ArrowUp")                        # PRACTICE (row 1)
 ev += tap(t + 3.6, "Enter") + tap(t + 4.1, "Enter") + tap(t + 4.6, "Enter") + tap(t + 5.1, "Enter")   # P1, P2, CPU
 ev += tap(t + 6.6, "Escape")                                                       # skip the intro
 t += 8.5

@@ -135,6 +135,7 @@ on FDT: RDT, or 0 while paused (the fx clock, particles, stamps, shake, camera a
   (slow-draw-begin)                                         ; slow motion: drawn between two sim frames (put back below)
   (let ((fdt (cond ((fx-frozen-p) 0.0) ((= *cine-time-scale* 1f0) rdt) (t (* rdt *cine-time-scale*)))))   ; (CINE-SLOW)
     (fx-clock-advance (f32 fdt))
+    (setf (camera-shift-x *camera*) 0f0)                    ; (only SELECT's web framing shifts it: MENU-CAMERA)
     (if (member *flow* '(:intro :battle :finish))
         (duel-camera *p1* *p2* fdt)
         (menu-camera))

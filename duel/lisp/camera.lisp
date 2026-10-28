@@ -311,7 +311,7 @@ distance and midpoint smoothed (SNAP or *CAM-CUT*: no smoothing). 0 B but the tw
   "Title: a slow orbit of the burning plaza; results: the winner from his front-right, on the right
 of the screen (the stats take the left third); select: both fighters from the front. Portrait: see below."
   (landscape-lens)
-  (case *flow*
+  (case (if (and (eq *flow* :select) (webui-on-screen-p)) :select-web *flow*)
     ((:title :mode :settings :controls) (let ((a (* 0.05 (elapsed-time))))
                                 (camera-look-at (* 11 (sin a)) 3.2 (* 11 (cos a)) 0 1.4 0)))
     ((:results :clear :doors :reward) (let* ((w (if (eql *winner* 1) *p2* *p1*)) (p (pos-of w)) (yaw (yaw-of w))
@@ -322,6 +322,15 @@ of the screen (the stats take the left third); select: both fighters from the fr
                            (portrait-lens 60 0.5))
                     (camera-look-at (+ (aref p 0) (* 3.6 fx) (* 2.4 rx)) 1.7 (+ (aref p 2) (* 3.6 fz) (* 2.4 rz))
                                     (+ (aref p 0) (* 0.9 rx)) 1.15 (+ (aref p 2) (* 0.9 rz))))))
+    (:select-web (let* ((e (if (plusp *select-phase*) *p2* *p1*)) (p (pos-of e)) (yaw (yaw-of e))
+                        (fx (fwd-x yaw)) (fz (fwd-z yaw))
+                        (sx (/ (max 1 (page-get 30002)) 1000.0)) (sy (/ (max 1 (page-get 30003)) 1000.0))
+                        (d (if (portrait-p) 7.2 3.9)))
+                   ;; the fighter being picked from his front, put at the focused card's model spot by the lens shift (the
+                   ;; HTML menus, DUEL_WEBUI §4: the card is drawn under and over the transparent canvas)
+                   (camera-look-at (+ (aref p 0) (* d fx)) 1.25 (+ (aref p 2) (* d fz)) (aref p 0) 0.95 (aref p 2))
+                   (setf (camera-fov *camera*) (f32 (deg 60)) (camera-shift-x *camera*) (f32 (- (* 2 sx) 1))
+                         (camera-shift-y *camera*) (f32 (- 1 (* 2 sy))) *pt-lens* t)))
     (t (let* ((p (pos-of *p1*)) (q (pos-of *p2*))
               (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))))
          (if (portrait-p)                                 ; portrait select: farther, the pair above the names

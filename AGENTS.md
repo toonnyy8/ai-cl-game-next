@@ -48,7 +48,7 @@ Read this first. It is the map; the detail lives in the files it points to. The 
 AGENTS.md  CLAUDE.md (one line: @AGENTS.md)  README.md (zh-TW overview, build requirements)  build.sh  compile_flags.txt
 engine/        package ENGINE; knows no game. lisp/ (package math hitvol input touch platform render meshgen ui audio anim
                body time fx cine ecs app), c/ (engine.h main.c platform.c render.c audio.c rng.c), shaders/ (WGSL), web/, MANIFEST
-duel/          SOUL DUEL (package DUEL): lisp/, web/ (head.html pwa.js sw.js manual.html icons), MANIFEST
+duel/          SOUL DUEL (package DUEL): lisp/, web/ (head.html alpha.js pwa.js menu.js menu.css sw.js manual.html icons; the HTML menus: DUEL_WEBUI), MANIFEST
 tools/         build + test + gate tools (table below)
 tests/         host Lisp tests, browser-script generators (tests/scripts/), style shot/check scripts, shots/, style-cvc-ref.txt
 skills/        nine Claude skills, read by Claude Code through .claude/skills/<name> -> ../../skills/<name> (below)

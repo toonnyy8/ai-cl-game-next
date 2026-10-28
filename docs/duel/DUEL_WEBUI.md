@@ -87,3 +87,29 @@ Engine side, as built (2026-10-28):
   a green body: SELECT after 2514 + 2120 shows only the two fighters (their shadows, Kenpachi's aura, three leftover ash
   flakes) on green; 2590 moves Ichigo from x ≈ 270 to ≈ 530 px. Cost when off, 60 s of real-time CPU vs CPU (4003, twelve 5 s
   stats lines each, SwiftShader): BASE render 0.40 ms / queue 1.82 ms / 78.6 fps, new 0.41 / 1.73 / 83.4 (noise).
+
+## 5. As built (2026-10-28)
+
+- **Lisp** (`duel/lisp/webui.lisp`, new; `flow.lisp`): `webui-p` (get 30000, asked once), `webui-sync` (the §3 values, set only on a
+  change: `*ui-sent*`, no consing), `webui-commands` (the queue; one press a frame, so two rights are two steps). The presses are
+  `*ui-press*` bits that `menu-up-p` … `confirm-p` / `back-p` read with the keys, so every screen's logic is the old one. `hud-draw`
+  skips a screen the page draws (`webui-on-screen-p`); the frozen ENDLESS / DANGAI screens stay engine-drawn.
+- **Frozen rows hidden** in both renderers: MODE is `*mode-rows*` (keywords: VS CPU / PRACTICE / VS PLAYER / CPU VS CPU / SETTINGS /
+  CONTROLS / MANUAL; dispatch by key, `mode-row` for the cursor on return), SETTINGS is `settings-shown` (`*settings-hidden*`;
+  `*settings*` keeps its order for the saved rows) + BACK. ASSIST's three settings are ignored for a core kit (`assist-config`): a
+  saved AUTO GUARD ALWAYS could no longer be turned off once hidden.
+- **SELECT**: `*scene-transparent*` on while the page draws SELECT; `menu-camera`'s `:select-web` frames the fighter being picked
+  (P1 in phase 0, P2 after) from his front, 3.9 m (portrait 7.2), moved to the focused card's spot by `camera-shift-x` / `-y`
+  (the page measures it: above the card's text; on a phone beside it). `main.lisp` zeroes `camera-shift-x` every frame before the
+  camera.
+- **Page** (`duel/web/menu.js`, `menu.css`, from the design draft): built on load, drawn in a rAF only when a value changed; no key
+  handling of its own (a passive keydown only picks the hint chips); pointer-down refocuses the canvas so SDL keeps the keys. Google
+  Fonts (offline: the fallbacks); `sw.js` caches `menu.js` / `menu.css` / `alpha.js`.
+- **Tests**: `tools/run.mjs` serves `.css` (and svg / png / json / webmanifest) with their types (a stylesheet as octet-stream is
+  dropped). `tests/scripts/duel.py`'s row counts (VS PLAYER row 2, SETTINGS row 4, CAMERA two below HAND): `duel-flow`,
+  `duel-practice` regenerated and checked (every `duel ->` / `duel setting` line as before). The ENDLESS / DANGAI scripts that enter
+  by the MODE row no longer reach their mode (frozen; their debug entries still work).
+- **Checks**: host tests (rules 10799, control 93), pkgcheck clean; browser shots of every screen at 1440×900 and 390×844 (title,
+  mode, settings, controls, SELECT's three phases with the fighter in its card, results after a seeded CPU match). Sim gates (six
+  pairings, 10 seeds) identical to the run before (KK 167.2, IK 192.6, II 231.6, HK 146.3, HI 204.1, HH 172.4 s); G2's three matches
+  identical natively and in the browser (the page path).

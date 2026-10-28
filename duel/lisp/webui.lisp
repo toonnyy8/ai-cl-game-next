@@ -31,17 +31,21 @@ DANGAI screens, which the engine still draws)."
 
 (defun ui-roster-ix (c) "C's roster index (0 when none)." (or (position c *roster*) 0))
 
+(declaim (special *scene-transparent*))   ; (draw.lisp's)
 (defun webui-sync ()
-  "Show the page this frame's state (FLOW-UPDATE, after the screens)."
+  "Show the page this frame's state (FLOW-UPDATE, after the screens). SELECT draws the fighters alone over the page's cards
+(the user, 2026-10-28: 「選角畫面現在會在廣場上畫出雙方的 3D 模型時，將人物以外的背景設為透明」)."
   (when (webui-p)
     (let ((scr (webui-screen)))
       (ui-put 0 scr)
+      (setf *scene-transparent* (= scr 5))
       (when (plusp scr)
         (ui-put 1 *menu*)
+        (ui-put 3 (ui-roster-ix (first *picks*))) (ui-put 4 (ui-roster-ix (second *picks*)))   ; (RESULTS' names too)
         (ui-put 11 (if (case *flow* (:title (> *ft* 0.3)) (:results (> *ft* 2.5)) (t t)) 1 0))
         (case *flow*
           (:select
-           (ui-put 2 *select-phase*) (ui-put 3 (ui-roster-ix (first *picks*))) (ui-put 4 (ui-roster-ix (second *picks*)))
+           (ui-put 2 *select-phase*)
            (ui-put 5 (or (position *difficulty* *difficulties*) 1))
            (ui-put 6 (or (position *mode* '(:vs-cpu :practice :vs-player :cpu-cpu)) 0))
            (ui-put 7 (if *cam-behind* 1 0))

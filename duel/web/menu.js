@@ -270,7 +270,7 @@
       a.classList.toggle("active", ph === 0); b.classList.toggle("active", ph === 1);
       a.classList.toggle("done", ph >= 1); b.classList.toggle("done", ph >= 2);
       var rows = rowsOf(), last = ph >= 2;
-      $("#diff", root).hidden = !(V[8] & 1); $("#camopt", root).hidden = !(V[8] & 2);
+      $("#diff", root).hidden = !last || !(V[8] & 1); $("#camopt", root).hidden = !last || !(V[8] & 2);
       $("#diff", root).classList.toggle("live", last && rows[V[1]] === 1);
       $("#camopt", root).classList.toggle("live", last && rows[V[1]] === 2);
       $$("#diff .opt", root).forEach(function (o, i) { o.classList.toggle("cur", i === V[5]); });
@@ -282,8 +282,9 @@
   function measureSpot() {
     var c = $("#ui #s-select .fighter.focus");
     if (!c) return;
-    var r = c.getBoundingClientRect(), body = $(".body", c).getBoundingClientRect();
-    var cx = r.left + r.width / 2, cy = r.top + (body.top - r.top) * 0.55;          // the empty part above the text
+    var r = c.getBoundingClientRect(), text = $(".jp", c).getBoundingClientRect();   // (.body fills the card: its first line)
+    var cx = r.left + r.width / 2, cy = r.top + (text.top - r.top) * 0.52;          // the empty part above the text
+    if (innerWidth < 761) { cx = r.left + r.width * 0.74; cy = r.top + r.height * 0.5; }   // a phone: the cards stack, beside the text
     spot[0] = Math.round(1000 * cx / innerWidth); spot[1] = Math.round(1000 * cy / innerHeight);
   }
   function renderResults() {

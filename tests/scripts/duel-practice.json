@@ -54,26 +54,6 @@
 "down": false
 },
 {
-"at": 11.72,
-"key": "ArrowDown",
-"down": true
-},
-{
-"at": 11.8,
-"key": "ArrowDown",
-"down": false
-},
-{
-"at": 11.9,
-"key": "ArrowDown",
-"down": true
-},
-{
-"at": 11.98,
-"key": "ArrowDown",
-"down": false
-},
-{
 "at": 12.2,
 "key": "Enter",
 "down": true
@@ -134,16 +114,6 @@
 },
 {
 "at": 15.23,
-"key": "ArrowDown",
-"down": false
-},
-{
-"at": 15.4,
-"key": "ArrowDown",
-"down": true
-},
-{
-"at": 15.48,
 "key": "ArrowDown",
 "down": false
 },

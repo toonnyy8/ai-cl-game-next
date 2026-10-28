@@ -5569,3 +5569,12 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - GitHub 上有兩個 repo：`ai-cl-game-test`（舊的，Pages 開著，試玩網址 `toonnyy8.github.io/ai-cl-game-test/`）和 `ai-cl-game-next`（這裡的 origin，原本沒開 Pages）。`tools/deploy-pages.sh` 推到 origin，所以之後的部署會到 `-next`。
 - 已在 `ai-cl-game-next` 開啟 Pages（來源 gh-pages 分支），網址 `toonnyy8.github.io/ai-cl-game-next/`。目前的 gh-pages 是 10-27 05:47 的版本；要上線最新版需要另外部署（只在使用者要求時）。舊網址維持原狀，不再更新。
 - AGENTS.md 的 repo 行、README 的試玩網址、`tools/setup-cloud-env.sh` 的註解改成新名稱。歷史紀錄（DEVLOG、研究資料）裡的舊名稱保留不改。
+
+## 448. 選單改用 HTML／CSS／SVG 繪製（2026-10-28）
+
+使用者：「你能否使用 js, css 與 html 跟 SVG 構築全新的 UI/UX 選單介面呢？」→（互動設計稿）→「不用，幫我接入遊戲中吧」→ 選擇：凍結的項目「隱藏」、選角「照設計稿的大卡」、背景「透出 3D 場景」、舊選單「保留為備援」→「選角畫面現在會在廣場上畫出雙方的 3D 模型時，將人物以外的背景設為透明」
+
+- 做法：Lisp 照舊管流程和所有按鍵；HTML 只負責畫（`duel/web/menu.js`、`menu.css`），滑鼠和觸控的點擊排成指令交給 Lisp。雙方用 `gamePage` 的 30000 區塊溝通（DUEL_WEBUI §3）。標題、模式、設定、操作、選角、結算六個畫面改用 HTML；暫停選單、戰鬥 HUD、演出照舊由引擎畫。沒有 HTML 選單的環境（原生模擬、舊頁面）仍由引擎畫。
+- 選角：引擎只畫人物，背景透明（subagent 在獨立 worktree 做引擎端：`camera-shift-x`、`*render-transparent*`、合成輸出 alpha、`alpha.js` 讓 canvas 用 premultiplied；115 張外觀截圖逐位元相同，G2 不變）。頁面分兩層：卡片底色和大字在 canvas 下面，文字在上面；鏡頭把正在選的角色放到展開那張卡的空白處（手機放在卡片右側）。
+- 凍結的項目在兩種選單都隱藏：模式只剩 VS CPU、PRACTICE、VS PLAYER、CPU VS CPU、SETTINGS、CONTROLS、MANUAL；設定只剩 5 項 + BACK。核心角色忽略 ASSIST 的三個設定（不然存過 ALWAYS 的人隱藏後就關不掉）。
+- 測試：`tools/run.mjs` 的伺服器補上 `.css` 的類型（之前會被瀏覽器丟掉）；`tests/scripts/duel.py` 的列數更新，`duel-flow`、`duel-practice` 重跑狀態順序都對。ENDLESS／DANGAI 的腳本從模式選單進不去了（凍結中，除錯指令還能進）。模擬閘門（六組 10 場）與上一輪逐場相同，G2 三場在原生與瀏覽器都相同。DUEL_WEBUI §5、說明書、AGENTS.md。
