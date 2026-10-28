@@ -4187,3 +4187,23 @@ returns to the ranged mode, hit, blocked or whiffed**.
 
 Open after this draft: the four Kikon storyboards; the clash's cue (a sound, the two bars drawn sliding); the CPU (when to AS3, when to
 release); `:mult` per mode (Shikai 1.7, to be measured); the Breaker and Hoho as the system's.
+
+### 28.4 Batch 1's defaults (the lead's, 2026-10-29; the user said 「開始」 on §28.3; each one can be overturned at the playtest)
+
+- **What counts as a clash**: the triangle's `:cancel` (`core-nohit!`) and the Kikon follow-up's cancel (`core-kikon-cancel!`), both
+  called 攻擊抵銷 in DUEL_CORE; **one balance per step**, however many cancel verdicts the step had (a same-class tie gives two).
+- **The balance**: gap d = Reishi(high) − Reishi(low); each moves d × `*hs-bind-even*` 0.25 / 2 toward the other (the gap shrinks by
+  25 %, the total stays), rounded so the total is kept exactly; each clamped to his own max (all kits share `*reishi-max*`).
+- **Two pointers**: the kit's `:core` lists two NS; AS3 writes no pointer (a new `:core` option, generic, default off: every other
+  kit's AS n writes n as before); the pointer stays 1 or 2.
+- **AS3 is no Kikon** (the hold does nothing on it): it is the switch. The ranged AS3's last segment **hitting** (a real hit: not a
+  cancel, block or absorb) arms the bind; the form changes to `:bankai-bind` **when that move ends** (never mid-move); the bind AS3's
+  last segment's end changes back to `:bankai`, whatever it did.
+- **「這一串連段」**: a flag set when a 聚 (pointer 2) NS or AS segment starts, cleared when Hisagi is back in neutral (no move). The
+  ranged J2–J5 read it (the gathered or spread copy). In the core grammar a gathered J is reachable through pointer 2's NS gap: the
+  SA, then J2–J5 (AS2 ends the combo).
+- **Removed**: §17's grey damage, the pool and its drain, the frozen gains, the entry snapshot, B9's reel, the P release and UNWIND,
+  KUBIKAKE on SP2, B11's refusal of Kenpachi's Bankai, the 6 m leash. Damage inside the bind is real.
+- **Kept**: §17's two forms `:bankai` / `:bankai-bind` and their clips (re-used: §22.4's spread / gathered J, the ranged K for the NS,
+  the bind's melee J / K); `:mult` 1.7 in both (the Shikai's, to be measured); the generic core CPU plays both forms.
+- **Counters** in the combat log: bind start, bind end, each balance (the two Reishi before and after).
