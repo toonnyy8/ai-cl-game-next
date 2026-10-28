@@ -145,6 +145,16 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   (`core-touch-sp-p`: `touch-oy` < `touch-split-y`, a tap's own test), for the `:rearm` and for the hold. Browser (`--mobile --size
   390x844`, 2502 + 2393): the SP tap at y 530, then held at y 530 → `KIKON 68`; held at y 697 (the attack's zone) → `IC-N1A` hit, no
   follow-up (§436's check had held the attack's zone).
+- **The phone fires on the press inside a move** (2026-10-28, the user: 「如果我將攻擊的觸發判定都修改成「點擊觸發」會有什麼衝突嗎」; told every
+  drag, flick (Step), rested up-flick (Hoho) and down-flick (Burst) starts with the same touch-down, three options offered, the user
+  chose 「1」: on the press inside his own move, on the lift in neutral). The recogniser has a game flag `touch-press-tap` (set each frame
+  by `onehand-frame` while P1 is in state `:move`) and a knob `press-ms` 40: a contact still inside the slop for 40 ms is its tap then
+  (`%tap!`, the zone where it went down), and its lift gives none (`touch-pressed`); one that leaves the slop sooner is a flick (an
+  attack's up-flick Hoho fires no attack), one lifted sooner is the usual lift tap. In neutral nothing changed. So inside a string an
+  SP pressed and kept down is its own Kikon hold (the `:rearm` turns `t` on the next step, the contact being in the SP zone), no
+  re-press. Host: `tests/touch-test.lisp` (three cases, 71 checks). Browser (`--mobile --size 390x844`, 2502 + 2393; a low tap, J1 hits,
+  then the SP zone 0.25 s later): held 1.6 s → `IC-AS1`, `KIKON FOLLOW-UP`, `KIKON 50`; tapped 30 ms / 100 ms → `IC-AS1` hit 50, no
+  follow-up; an up-flick in the attack zone → `HOHO`, no attack. The sim gates have no touch: unchanged.
 - Gates for the four above and §6's NS3 fixes (all six pairings; G2's three CPU matches unchanged, native == browser): the confirm alone,
   before the CPU kept its press through it, lengthened Ichigo's matches (10 seeds: IK 201.1, HI 204.1 s); with it, KK 167.2, HK 146.3,
   HH 172.4 s (10 seeds, identical before and after the NS3 fixes), and after them IK 192.6 s (20 seeds, Ichigo 8:12), HI 196.5 s

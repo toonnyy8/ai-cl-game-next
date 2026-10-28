@@ -50,6 +50,28 @@
   (check (touch-resting-p tr))
   (feed tr 140 '(2 0 100 700 140))
   (check (and (not (touch-resting-p tr)) (zerop (engine::touch-pend tr)))))
+;;; PRESS-TAP (the game's, inside his own move): a contact still for PRESS-MS is its tap, the lift gives none; a flick
+;;; before it is no tap; a lift before it is the usual tap
+(fresh (tr)
+  (setf (touch-press-tap tr) t)
+  (feed tr 16 '(0 0 100 700 0))
+  (check (not (pulse tr engine::+tp-tap+)))
+  (feed tr 45)
+  (check (pulse tr engine::+tp-tap+))
+  (check (touch-active-p tr))                               ; still down: the hold
+  (feed tr 300 '(2 0 100 700 300))
+  (check (zerop (engine::touch-pend tr))))
+(fresh (tr)
+  (setf (touch-press-tap tr) t)
+  (feed tr 16 '(0 0 100 640 0) '(1 0 100 612 10) '(1 0 100 590 25))   ; high zone, flicked up at once
+  (take tr)
+  (check (not (logtest (engine::touch-live tr) (logior engine::+tp-tap+ engine::+tp-tap-hi+))))
+  (feed tr 60)
+  (check (not (pulse tr engine::+tp-tap-hi+))))
+(fresh (tr)
+  (setf (touch-press-tap tr) t)
+  (feed tr 16 '(0 0 100 640 0) '(2 0 100 640 20))
+  (check (pulse tr engine::+tp-tap-hi+)))
 ;;; FLICK (down / side): fires at the crossing, Step + the stroke's direction, before any lift
 (fresh (tr)
   (feed tr 16 '(0 0 100 700 0) '(1 0 100 712 10) '(1 0 100 732 30))

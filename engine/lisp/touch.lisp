@@ -19,6 +19,7 @@
   (flick-window 120f0 :type single-float) ; ... within this many ms of leaving the slop
   (up-cone 1.73f0 :type single-float)     ; a flick is "up" (straight ahead) while |dx| <= this x |dy| (60 deg either side)
   (tap-split 0.5f0 :type single-float)    ; a tap above this fraction of the pad's height is a high tap (TOUCH-SPLIT-Y)
+  (press-ms 40f0 :type single-float)      ; TOUCH-PRESS-TAP: a contact still inside the slop this long is its tap, before the lift
   (stick-r 48f0 :type single-float)       ; px of drag for a full stick
   (run-ring 1.6f0 :type single-float)     ; stick radii: Step held (dash, run) beyond this ...
   (run-release 1.3f0 :type single-float)  ; ... released back inside this
@@ -52,6 +53,8 @@ user's playtest, 2026-09-27). (4, the up-flick waiting for its lift, went with t
   (now 0f0 :type single-float)              ; the clock TOUCH-FEED! runs to (ms, set by the caller)
   (rest-up-ok nil)                          ; the game: may a rested up-flick be a Hoho now (neutral / guard)?
   (up-hoho nil)                             ; the game: is any up-flick a Hoho now, no rest needed (while attacking)?
+  (press-tap nil)                           ; the game: does a tap fire on the press now (PRESS-MS still), not on the lift?
+  (pressed 0 :type fixnum)                  ; this contact's tap already fired on its press (the lift gives none)
   ;; the gesture contact
   (gid -1 :type fixnum) (phase 0 :type fixnum)
   (t0 0f0 :type single-float) (x 0f0 :type single-float) (y 0f0 :type single-float)
@@ -104,7 +107,8 @@ HOLDS: a list of ms each chip must be held first, default 0). Releases held chip
   (declare (fixnum slot) (single-float x y ms))
   (setf (touch-gid tr) slot (touch-phase tr) 1 (touch-t0 tr) ms (touch-x tr) x (touch-y tr) y
         (touch-ox tr) x (touch-oy tr) y (touch-ax tr) x (touch-ay tr) y (touch-px tr) x (touch-py tr) y (touch-pt tr) ms
-        (touch-tleave tr) -1f0 (touch-armed tr) 1 (touch-rested tr) 0 (touch-flick-hold tr) 0 (touch-run-hold tr) 0)
+        (touch-tleave tr) -1f0 (touch-armed tr) 1 (touch-rested tr) 0 (touch-flick-hold tr) 0 (touch-run-hold tr) 0
+        (touch-pressed tr) 0)
   nil)
 
 (defun-fast %flick (tr dx dy ms)
@@ -164,12 +168,18 @@ HOLDS: a list of ms each chip must be held first, default 0). Releases held chip
   (let ((p (touch-pad tr)))
     (+ (aref p 1) (* (%knob tr tap-split) (- (aref p 3) (aref p 1))))))
 
+(defun-fast %tap! (tr ms)
+  "The gesture contact is a tap: its zone's pulse (where it went down)."
+  (declare (single-float ms))
+  (let ((hi (< (touch-oy tr) (the single-float (touch-split-y tr)))))
+    (setf (touch-pend tr) (logior (touch-pend tr) (if hi +tp-tap-hi+ +tp-tap+)))
+    (%glyph! tr (if hi 3 1) (touch-x tr) (touch-y tr) ms)))
+
 (defun-fast %gesture-lift (tr ms)
   (declare (single-float ms))
-  (when (and (= (touch-phase tr) 1) (<= (- ms (touch-t0 tr)) (%knob tr tap-ms)))   ; never left the slop, short: a tap
-    (let ((hi (< (touch-oy tr) (the single-float (touch-split-y tr)))))            ; where it went down
-      (setf (touch-pend tr) (logior (touch-pend tr) (if hi +tp-tap-hi+ +tp-tap+)))
-      (%glyph! tr (if hi 3 1) (touch-x tr) (touch-y tr) ms)))
+  (when (and (= (touch-phase tr) 1) (= (touch-pressed tr) 0)   ; never left the slop, short, not fired on its press: a tap
+             (<= (- ms (touch-t0 tr)) (%knob tr tap-ms)))
+    (%tap! tr ms))
   (%release tr))
 
 (defun-fast %touch-clock (tr now)
@@ -178,6 +188,10 @@ TAP-MS re-anchors (re-arming the flick) and, inside the slop of the stick origin
 held chips that need a hold come on."
   (declare (single-float now))
   (when (>= (touch-gid tr) 0)
+    (when (and (touch-press-tap tr) (= (touch-phase tr) 1) (= (touch-pressed tr) 0)   ; a press-tap: still PRESS-MS inside the
+               (>= (- now (touch-t0 tr)) (%knob tr press-ms)))                         ;  slop, so no flick: its tap now
+      (setf (touch-pressed tr) 1)
+      (%tap! tr now))
     (when (and (= (touch-phase tr) 6) (> (- now (touch-tleave tr)) (%knob tr flick-window)))
       (setf (touch-phase tr) 2 (touch-armed tr) 0 (touch-rested tr) 0))
     (when (and (/= (touch-phase tr) 5) (>= (- now (touch-pt tr)) (%knob tr tap-ms)))

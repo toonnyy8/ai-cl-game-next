@@ -154,7 +154,10 @@ frame's finger events."
     (setf (touch-rest-up-ok *touch*) (and (member st '(:idle :guard)) t)   ; a rested up-flick is a Hoho from neutral / guard,
           (touch-up-hoho *touch*)                            ; any up-flick while attacking (but a stance's Step: 2026-10-06)
           (up-flick-hoho-p st (and (eq st :move) (member :step-branch (mv-flags (fighter-move (fighter *p1*)))) t)
-                           (perfect-up-p *p1* st))))   ; or when it would be a perfect Hoho (the user 2026-10-01)
+                           (perfect-up-p *p1* st))   ; or when it would be a perfect Hoho (the user 2026-10-01)
+          (touch-press-tap *touch*) (eq st :move)))   ; in his own move a tap fires on the press (still 40 ms: no flick), held on
+                                                       ; it is the Kikon's hold; in neutral, on the lift, as a drag / Step / Hoho
+                                                       ; starts there too (the user, 2026-10-28, option 1 of three: 「1」)
   (touch-poll *touch*)
   (unless (sim-running-p) (touch-take! *touch*))            ; menus / pause: no gesture pulse waits for the match
   (let ((g (touch-glyph-t *touch*)))                        ; the combat log names each recognised gesture
