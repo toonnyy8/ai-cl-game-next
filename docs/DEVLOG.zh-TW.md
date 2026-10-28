@@ -5578,3 +5578,11 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 - 選角：引擎只畫人物，背景透明（subagent 在獨立 worktree 做引擎端：`camera-shift-x`、`*render-transparent*`、合成輸出 alpha、`alpha.js` 讓 canvas 用 premultiplied；115 張外觀截圖逐位元相同，G2 不變）。頁面分兩層：卡片底色和大字在 canvas 下面，文字在上面；鏡頭把正在選的角色放到展開那張卡的空白處（手機放在卡片右側）。
 - 凍結的項目在兩種選單都隱藏：模式只剩 VS CPU、PRACTICE、VS PLAYER、CPU VS CPU、SETTINGS、CONTROLS、MANUAL；設定只剩 5 項 + BACK。核心角色忽略 ASSIST 的三個設定（不然存過 ALWAYS 的人隱藏後就關不掉）。
 - 測試：`tools/run.mjs` 的伺服器補上 `.css` 的類型（之前會被瀏覽器丟掉）；`tests/scripts/duel.py` 的列數更新，`duel-flow`、`duel-practice` 重跑狀態順序都對。ENDLESS／DANGAI 的腳本從模式選單進不去了（凍結中，除錯指令還能進）。模擬閘門（六組 10 場）與上一輪逐場相同，G2 三場在原生與瀏覽器都相同。DUEL_WEBUI §5、說明書、AGENTS.md。
+
+## 449. 字型離線快取、選角維持、部署（2026-10-28）
+
+使用者：「讓 service worker 也把字型存起來」「選角保持」「推上 gh page」
+
+- `sw.js`：選單用的 Google Fonts（CSS 和字型檔）改成先讀快取，存在獨立的 `soulduel-fonts`，換版本時不清掉；上線開過一次之後，裝成 App 的離線狀態也有原本的字型。
+- 透明選角時人物的影子和更木的靈壓光維持顯示。
+- 部署到 GitHub Pages（`toonnyy8.github.io/ai-cl-game-next/`）。DUEL_WEBUI §1。

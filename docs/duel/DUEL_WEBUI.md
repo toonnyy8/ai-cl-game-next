@@ -13,6 +13,9 @@ The user, 2026-10-28: 「你能否使用 js, css 與 html 跟 SVG 構築全新�
 | The Lisp-drawn menus | 「保留為備援」: drawn when the page has no HTML menus (the native gate, an old page) |
 | SELECT's background (mid-task) | 「選角畫面現在會在廣場上畫出雙方的 3D 模型時，將人物以外的背景設為透明」: on SELECT the canvas is transparent except the fighters |
 
+Then (2026-10-28): 「讓 service worker 也把字型存起來」 (`sw.js`: the Google Fonts CSS and files cache-first in `soulduel-fonts`, kept
+across builds); 「選角保持」 (the fighters' blob shadows and Kenpachi's aura stay drawn on the transparent SELECT).
+
 Defaults chosen: the draft's VS card is dropped (the intro cinematic is the versus moment); the pause menu, the battle HUD and the
 cinematics stay engine-drawn.
 
