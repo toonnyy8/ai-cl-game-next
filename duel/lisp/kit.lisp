@@ -620,7 +620,9 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      takes it, from a run too; T = the press taken), :p-label (e: the AWAKEN chip's
                                      label, the chip then always shown), :reset (e: a Kikon / Soul Break reset put
                                      him back, RESET-ROUND), :hash (e: a string added to his part of the state-hash
-                                     line, or NIL), the bind's :bind :bind-damage :bind-pool
+                                     line, or NIL), :link-move (e next: the MOVE a latched J / K link starts instead
+                                     of NEXT, NIL = NEXT; fighter.lisp), :clash (e other: a clash, once a step for the
+                                     pair, CORE-CLASH!), the bind's :bind :bind-damage :bind-pool
                                      :bind-heal :bind-step :bind-resolve :bind-snapshot (combat.lisp BIND-OF; Hisagi,
                                      DUEL_HISAGI §17.4)
   :clip-map (clip clip ...)          a look: the form plays a move's clip (or clip 2) as the mapped one (KIT-MOVE-CLIP:

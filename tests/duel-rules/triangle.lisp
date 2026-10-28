@@ -136,7 +136,7 @@
 ;; only a route's last segment knocks down or launches (2026-10-28, DEVLOG §443: KESSA's X knocked down and the SA after it
 ;; whiffed): every NS / AS segment that something follows (a next segment, its gap's SA) and its hit windows and wave stagger at most,
 ;; in every form of a kit with a :core; and KESSA's clone X, which NS3[3]'s SA follows
-(dolist (cf '((:ichigo :base) (:ichigo :kessa) (:kenpachi :base) (:hisagi :base)))
+(dolist (cf '((:ichigo :base) (:ichigo :kessa) (:kenpachi :base) (:hisagi :base) (:hisagi :bankai) (:hisagi :bankai-bind)))   ; (his Bankai, §28.4)
   (let* ((k (apply #'kit cf)) (core (kit-core k)))
     (dolist (n (append (getf core :ns) (getf core :as)))
       (dolist (m (core-segments n))
@@ -201,3 +201,10 @@
     (let ((x (kit-command-move k :q)) (n 1))                                                                ; five J, the last the ender
       (loop for nx = (kit-next k (mv-name x) :q) while (and nx (< n 9)) do (setf x nx) (incf n))
       (check (and (= n 5) (eq (mv-name x) :hs-j3) (member :ender (mv-flags x)))))))
+;; §28.4 (generic, off for every other kit): an AS writes its pointer unless the kit's :as-writes says none; a :no-kikon segment
+;; holds into no Kikon; only Hisagi's Bankai has :as-writes or a :no-kikon segment
+(check (loop for c being the hash-keys of *kits* using (hash-value alist)
+             always (loop for (f . k) in alist
+                          always (or (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
+                                     (and (null (getf (kit-core k) :as-writes))
+                                          (notany (lambda (n) (getf (mv-params (find-move n)) :no-kikon)) (core-move-names (kit-core k))))))))

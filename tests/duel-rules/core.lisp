@@ -180,7 +180,7 @@ string goes on at the earliest chain frame (B starts on that step, frame 0)."
                  (let ((nx (kit-next k (mv-name m) c)))
                    (when nx (walk nx (1+ n) (append seq (list c))))))))
       (walk (kit-command-move k :q) 1 '(:q))
-      (walk (kit-command-move k :f) 1 '(:f)))
+      (let ((k1 (kit-command-move k :f))) (when k1 (walk k1 1 '(:f)))))   ; (no K: Hisagi's Bankai since §28.4)
     (nreverse out)))
 (defun route (k first presses)
   "The links a string plays when every link makes contact: FIRST (:q / :f) from neutral, then per link the J / K
@@ -195,7 +195,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
         (push (mv-name m) out)))))
 (defun on-hit-adv (m &optional (i 0))
   (let ((w (svref (mv-hits m) i))) (- (or (hw-stun w) (hitstun (hw-react w))) (- (mv-total m) (hw-from w)))))
-(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (eq (first cf) :ichigo) (equal cf '(:hisagi :base)))) *forms*))   ; (Ichigo, Hisagi's Shikai: five J since 2026-10-28,
+(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (member (first cf) '(:ichigo :hisagi)))) *forms*))   ; (Ichigo, Hisagi (his Bankai since §28.4 too): five J since 2026-10-28,
   (let* ((k (apply #'kit cf)) (links (link-moves k)) (j1 (kit-command-move k :q)) (k1 (kit-command-move k :f))   ;  triangle.lisp)
          (cup3 (equal cf '(:kenpachi :nomihose))) (fails0 *fails*) (a (owl-adv cf))
          (v8 (eq (first cf) :barro))   ; (Lille II: decision V8 splits his J / K off the budget, DUEL_LILLE_V2 §21: own rows)
@@ -336,7 +336,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;; every SP ignores the combo scaling (the user 2026-10-24: 「所有角色的 SP 也都設置成不受傷害減免影響」): kind :sp, or the
 ;; form's SP1 / SP2 command of another kind (Hisagi's ranged KUBIKAKE, Lille's SHIN recall); never a J / K / L
 (check (and (sp-move-p (kit :rukia :base) (find-move :ru-shirafune-s)) (sp-move-p (kit :ichigo :kessa) (find-move :ic-k-zanzo))
-            (sp-move-p (kit :hisagi :bankai) (kit-command-move (kit :hisagi :bankai) :sp2))
             (sp-move-p (kit :barro :shin) (kit-command-move (kit :barro :shin) :sp2))
             (not (sp-move-p (kit :rukia :base) (find-move :ru-k1))) (not (sp-move-p (kit :hisagi :bankai) (find-move :hs-r-k1)))
             (not (sp-move-p (kit :rukia :base) (find-move :ru-byakurai)))))
@@ -944,7 +943,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                         ;;  copies, BR-S-SNIPE-RELEASE; R16, DUEL_LILLE_V3 §20: only they play :br-sk-l1)
                                         ;;  Hisagi's MODOSHI, started by his :command hook while the sickle is out)
                                         (remove nil (loop for m in '(:ic-c-xa :ic-c-xb :br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-k2s :hs-r-kubikake :hs-b-unwind :hs-r-sp2c
-                                                                       :hs-b-sp1)   ; (B4c: no kit's since, its strip 83524)
+                                                                       :hs-b-sp1    ; (B4c: no kit's since, its strip 83524)
+                                                                       :hs-r-l :hs-r-sp1 :hs-b-l :hs-r-k1)   ; (§28.4: the old Bankai's,
+                                                                                ;  no kit's since, their clips kept for the strips)
                                                           collect (mv-clip-2 (find-move m))   ; (his Shikai's MODOSHI mapped)
                                                           collect (kit-move-clip (kit :hisagi :base) (mv-clip (find-move m)))))))))
   (let ((extra (set-difference used *clips-5*)) (unused (set-difference *clips-5* used)))

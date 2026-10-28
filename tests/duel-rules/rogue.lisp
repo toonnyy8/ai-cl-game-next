@@ -185,7 +185,9 @@
 (check (loop for (id . eds) in *rogue-kai-edits*
              always (loop for ed in eds
                           always (loop for n in (getf ed :moves)
-                                       always (some (lambda (fk) (gethash n (kit-moves (cdr fk)))) (gethash (rogue-kai-char id) *kits*))))))
+                                       always (or (member n '(:hs-r-l :hs-r-sp1))   ; (Hisagi's old Bankai L / SP1: in no kit
+                                                                                    ;  since DUEL_HISAGI §28.4; ROGUE is frozen)
+                                               (some (lambda (fk) (gethash n (kit-moves (cdr fk)))) (gethash (rogue-kai-char id) *kits*)))))))
 (check (null (rogue-run-kits :yamamoto nil)))
 (check (null (rogue-run-kits :kenpachi '((101 . 0) (102 . 0)))))     ; the twins edit no move
 (let* ((stock (gethash :ya-tenchi (kit-moves (find-kit :yamamoto :bankai-east))))
@@ -200,8 +202,8 @@
 (let ((rk (rogue-run-kits :hisagi '((127 . 0) (129 . 0)))))
   (check (= 2 (length (mv-hits (gethash :hs-kaza (kit-moves (cdr (assoc :base rk))))))))
   (check (= 1 (length (mv-hits (find-move :hs-kaza)))))
-  (check (= 64 (hw-stun (svref (mv-hits (gethash :hs-r-sp1 (kit-moves (cdr (assoc :bankai rk))))) 0))))
-  (check (= 40 (hw-stun (svref (mv-hits (find-move :hs-r-sp1)) 0)))))
+  (check (= 64 (hw-stun (svref (mv-hits (gethash :hs-raiden (kit-moves (cdr (assoc :base rk))))) 0))))   ; (the Shikai's; the
+  (check (= 40 (hw-stun (svref (mv-hits (find-move :hs-raiden)) 0)))))                                     ;  Bankai's SP1 in no kit, §28.4)
 (let ((rk (rogue-run-kits :barro '((126 . 0)))))
   (check (= 5 (length (mv-hits (gethash :br-w-sanren (kit-moves (cdr (assoc :jilliel-kin rk))))))))
   (check (= 3 (length (mv-hits (find-move :br-w-sanren))))))

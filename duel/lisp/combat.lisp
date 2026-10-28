@@ -756,6 +756,8 @@ and spends no flash-step (the user 2026-09-30)."
     (setf (fighter-kit f) new (fighter-form f) form (gauges-burn-step g) 0
           (gauges-form-left g) (if (kit-duration new) (seconds->frames (kit-duration new)) 0)
           (gauges-form-total g) (gauges-form-left g))
+    (let ((n (length (getf (kit-core new) :ns))))       ; the core system: the pointer within the form's NS (Hisagi's Bankai has two)
+      (when (plusp n) (setf (fighter-ptr f) (min (fighter-ptr f) n))))
     (refresh-look e)
     (when (kit-enter-hook new) (funcall (kit-enter-hook new) e))
     (emit :form e form)
