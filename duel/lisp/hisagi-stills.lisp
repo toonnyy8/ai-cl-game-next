@@ -188,7 +188,8 @@ far edge. A debug measurement (it conses)."
                          tips))
           (log-msg "duel hisagi tip base ~(~a~) x~,2f ~(~a~): ~{~,2f~^ ~} | ~a" name (hs-charge-scale n) clip (reverse tips)
                    (if seg (if (eq name :hs-as1)
-                               (format nil "off the victim (§27.10: its orbit, ~,2f wanted)" *hs-tsumuji-orbit*)
+                               (format nil "off the victim (§27.10: its orbit ~,2f; <= ~,2f wanted, the capsule's r + 0.15)"
+                                       *hs-tsumuji-orbit* (+ *hs-seg-r* 0.15))
                                "off the victim (0 wanted)")
 (format nil "edge ~,2f (arc)" (aref (first (hw-vols hw)) 1)))))))
     (setf (hss-charge st) 0 (hss-kstr st) nil)

@@ -250,8 +250,9 @@ turned alternately, a steel glint every other one, presence K (SAG and K: litera
           (vfx-hs-chain a b 0f0 0.9f0)))))
   nil)
 
-(defparameter *hs-tsumuji-orbit* 0.55
-  "AS1 TSUMUJI's drawn sickle circles the victim this far from his centre (m; %HS-POINT code 12, §27.10): its blades
+(defparameter *hs-tsumuji-orbit* 0.45
+  "AS1 TSUMUJI's drawn sickle circles the victim this far from his centre (m; %HS-POINT code 12, §27.10; within 0.15 m of
+its hit, the chain's capsule of *HS-SEG-R* 0.35 m round the line to his centre): its blades
 (0.5 m round their crossing) pass through him, the disc stays outside his silhouette. A look.")
 (defun-fast %hs-point (out code jm pos fa anchor vpos)
   "OUT := one of the left sickle's points: CODE 0 the left fist (:weapon-l), 1 the thrown grip (FA[1] - the sickle's length
