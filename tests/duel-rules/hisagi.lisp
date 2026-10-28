@@ -48,7 +48,8 @@
                 (eq 'hs-chain-seg (hw-seg (svref (mv-hits (find-move :hs-k3h)) 0)))
                 (notany (lambda (n) (gethash n (kit-moves k))) '(:hs-k2s :hs-k3h))))
     ;; the §8.2 table (S1's K string): S A R dmg guard block reach
-    (dolist (row '((:hs-j1 8 3 12 30 8 -2 1.7) (:hs-j2 8 3 13 30 8 -2 1.7) (:hs-j3 9 3 18 38 12 -4 1.7)   ; (§25.9: J 1.7)
+    (dolist (row '((:hs-j1 14 3 12 30 8 -2 1.7)   ; (J1's coil S 14 since the core rebuild, DUEL_HISAGI §26)
+                    (:hs-j2 8 3 13 30 8 -2 1.7) (:hs-j3 9 3 18 38 12 -4 1.7)   ; (§25.9: J 1.7)
                    (:hs-k1 18 4 22 62 14 -3 6.0) (:hs-k2 20 4 24 56 14 -3 6.0) (:hs-k3 22 5 34 80 18 -20 6.0)))
       (destructuring-bind (name s a r dmg g adv reach) row
         (let ((x (find-move name)))
@@ -61,7 +62,7 @@
     ;; the routes (S2, §23.5): the grid's six, JJJ JJK JKK KKK KJJ KKJ (one switch at most: no JKJ, no KJK), K3 the same
     ;; move after a J as after K2, K2J J1's copy of K2; a J after a K the leap copies (J2K, then the plain J3; J3K); the OUT
     ;; graph's J string (dormant) as it was
-    (check (equal (route k :q '((:q) (:q))) '(:hs-j1 :hs-j2 :hs-j3)))
+    (check (equal (route k :q '((:q) (:q))) '(:hs-j1 :hs-j2 :hs-na3)))
     (check (equal (route k :q '((:q) (:f))) '(:hs-j1 :hs-j2 :hs-k3)))
     (check (equal (route k :q '((:f) (:f))) '(:hs-j1 :hs-k2j :hs-k3)))
     (check (equal (route k :q '((:f) (:q))) '(:hs-j1 :hs-k2j)))
@@ -231,7 +232,7 @@
                 (notany (lambda (n) (kit-l-link k n)) '(:hs-k1 :hs-k2 :hs-k2s :hs-k3 :hs-k3h))
                 (null (kit-next k :hs-kaza-j :q)) (null (kit-next k :hs-kaza-j :f)) (not (string-link-p k :hs-kaza-j))
                 (not (string-link-p k :hs-kaza)) (eq kz (kit-command-move k :sig))
-                (equal (route k :q '((:q) (:q))) '(:hs-j1 :hs-j2 :hs-j3)) (equal (route k :f '((:f) (:f))) '(:hs-k1 :hs-k2 :hs-k3))
+                (equal (route k :q '((:q) (:q))) '(:hs-j1 :hs-j2 :hs-na3)) (equal (route k :f '((:f) (:f))) '(:hs-k1 :hs-k2 :hs-k3))
                 (null (kit-l-after-j (kit :hisagi :bankai))) (null (kit-l-after-j (kit :hisagi :bankai-bind)))
                 (~= 0.3 (getf (kit-ai k) :l-after-j))))
     ;; both windmills: no cooldown (「拿掉冷卻」), the same frames, ward, tick and frame-0 reset (the neutral one charges too:
@@ -337,7 +338,6 @@
                           (eq (hw-react (svref (mv-hits x) 0)) (hw-react (svref (mv-hits y) 0)))
                           (= (hw-from (svref (mv-hits x) 0)) 14) (= (mv-adv-block x) *hs-leap-block* -6)
                           (eq 'hs-leap-tick (mv-tick x)) (null (mv-tick y))
-                          (< (mv-s (m :hs-j1)) (- (+ (mv-adv-block x) (- *quick-block-adv*))))
                           (eq (kit-l-link k c) (m :hs-kaza-j)))   ; (the bridge off them too: J links)
                      (format t "  Hisagi S2 copy ~a~%" c))))))
     (check (loop for mv being the hash-values of *moves*

@@ -145,3 +145,26 @@
             (check (not (or (member (getf p :react) '(:knockdown :launch))
                             (loop for w across (mv-hits mv) thereis (member (hw-react w) '(:knockdown :launch))))))))))))
 (check (equal (mapcar (lambda (n) (hw-react (svref (mv-hits (find-move n)) 0))) '(:ic-c-xa :ic-c-xb)) '(:stagger :stagger)))
+;; Hisagi's Shikai on the core system (DUEL_HISAGI §26, 2026-10-28): pointers 1 投 / 2 首掛 / 3 綴雷電, the segment table as approved
+;; (「可以，照這張表做」), five J, the SA YOSE's drag, AS1's hook and steal
+(let* ((k (kit :hisagi :base)) (core (kit-core k)))
+  (flet ((m (n) (kit-move k n)) (eff (n) (let ((x (kit-move k n))) (- (mv-s x) (mv-enter x))))
+         (react (n) (hw-react (svref (mv-hits (kit-move k n)) 0))))
+    (check (every (lambda (n) (>= (eff n) 14)) '(:hs-j1 :hs-n1a :hs-n2a :hs-n3a)))                         ; the tells
+    (check (equal (mapcar #'eff '(:hs-n1a :hs-n1b :hs-n1c :hs-n2a :hs-n2b :hs-n2c :hs-n3a :hs-n3b :hs-n3c)) '(20 14 16 18 14 16 18 14 16)))
+    (check (equal (mapcar #'core-segments (getf core :ns))
+                  '((:hs-n1a :hs-n1b :hs-n1c) (:hs-n2a :hs-n2b :hs-n2c) (:hs-n3a :hs-n3b :hs-n3c))))
+    (check (equal (mapcar #'core-segments (getf core :as)) '((:hs-as1) (:hs-as2 :hs-as2b) (:hs-as3 :hs-as3b :hs-as3c))))
+    (check (equal (mapcar (lambda (n) (mv-dmg (m n))) '(:hs-n1a :hs-n1b :hs-n1c :hs-n2a :hs-n2b :hs-n2c :hs-n3a :hs-n3b :hs-n3c
+                                                        :hs-as1 :hs-as2 :hs-as2b :hs-as3 :hs-as3b :hs-as3c :hs-sa))
+                  '(62 56 80 40 50 90 45 45 100 50 45 60 45 45 120 40)))
+    (check (equal (mapcar #'react '(:hs-n1c :hs-n2c :hs-n3c :hs-as1 :hs-as2b :hs-as3c)) '(:knockdown :knockdown :knockdown :knockdown :launch :knockdown)))
+    (check (eq (react :hs-n2a) :bind))
+    (check (every (lambda (n) (eq (hw-seg (svref (mv-hits (m n)) 0)) 'hs-core-seg))
+                  '(:hs-n1b :hs-n1c :hs-n2b :hs-n2c :hs-n3b :hs-as1 :hs-as2 :hs-as2b :hs-as3b)))           ; along the chain, within 6.5 m
+    (check (and (equal (mv-on-frame (m :hs-sa)) '((0 hs-yose))) (eq (kit-class k (m :hs-sa)) :sa)
+                (eq (mv-on-land (m :hs-as1)) 'hs-kagi-pull) (= 40 (getf (mv-params (m :hs-as1)) :steal-fs))))
+    (check (and (= 3 (length (getf core :stances))) (= 3 (length (getf core :kikon-cines))) (equal (getf core :as-by-press) '(1 1 2 2 3))))
+    (let ((x (kit-command-move k :q)) (n 1))                                                                ; five J, the last the ender
+      (loop for nx = (kit-next k (mv-name x) :q) while (and nx (< n 9)) do (setf x nx) (incf n))
+      (check (and (= n 5) (eq (mv-name x) :hs-j3) (member :ender (mv-flags x)))))))

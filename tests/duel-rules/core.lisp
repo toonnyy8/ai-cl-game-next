@@ -195,7 +195,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
         (push (mv-name m) out)))))
 (defun on-hit-adv (m &optional (i 0))
   (let ((w (svref (mv-hits m) i))) (- (or (hw-stun w) (hitstun (hw-react w))) (- (mv-total m) (hw-from w)))))
-(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (eq (first cf) :ichigo))) *forms*))   ; (Ichigo: five J since 2026-10-28,
+(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (eq (first cf) :ichigo) (equal cf '(:hisagi :base)))) *forms*))   ; (Ichigo, Hisagi's Shikai: five J since 2026-10-28,
   (let* ((k (apply #'kit cf)) (links (link-moves k)) (j1 (kit-command-move k :q)) (k1 (kit-command-move k :f))   ;  triangle.lisp)
          (cup3 (equal cf '(:kenpachi :nomihose))) (fails0 *fails*) (a (owl-adv cf))
          (v8 (eq (first cf) :barro))   ; (Lille II: decision V8 splits his J / K off the budget, DUEL_LILLE_V2 §21: own rows)

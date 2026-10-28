@@ -1130,7 +1130,7 @@ strikes (%HS-ORB-DRAW). Nothing while the sealed sword is in hand (the intro). I
 script's frame drives the rest (%HS-CINE-LOOK!: the awakening's Shikai look and the orb forming, KOSA's curtain hauled up,
 KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
   (let* ((f (fighter e)) (m (model e)) (st (hs e)) (mv (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (fighter-move f)))
-         (name (and mv (mv-name mv))) (sf (fighter-sf f)) (o (opp-of e)) (fa *hs-a*) (bolt 0)
+         (name (and mv (hs-look-name mv))) (sf (fighter-sf f)) (o (opp-of e)) (fa *hs-a*) (bolt 0)
          (ck (hs-cine-of e)) (cf (if (> ck 0) (cine-cf *cine*) 0)) (cfl (%hs-cine-look! ck cf))
          (shikai (or (eq (fighter-form f) :base) (logtest cfl 1))) (lo 0) (geo 0) (an (model-anim m)) (c (anim-clip an))
          (cn (and c (clip-name c))))

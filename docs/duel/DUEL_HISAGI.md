@@ -3662,3 +3662,92 @@ shared pool, 1 per 3 damage, grey Reishi and Konpaku, the drained and released e
 30 f reel), the awakening, the HUD and tips; the contents list gains him, the header's count 五 -> 七. Every number read from
 `duel/lisp/hisagi.lisp` as of this date. Manual only (no sim change); built; the section rendered in headless Chrome.
 
+
+## 26. The core-system rebuild of the Shikai (the user, 2026-10-28)
+
+The user's request (verbatim): 「幫我用新系統的邏輯重製修兵，設計方式與限制請參閱專案級的 skill」. Process: skills `duel-character`,
+`duel-move-modules` (the ⚠ questions, then the segment table, both asked). Until now his `:core` was the first retag of 2026-10-27
+(DUEL_CORE §1: the K string, RAIDEN and the saw relabelled; AS one segment each; no stances, no Kikon cinematics, NA1 S 8).
+
+### 26.1 Decisions (AskUserQuestion, 2026-10-28)
+
+| Question | The user's pick | Rejected |
+|---|---|---|
+| Scope (the Bankai's rule A pays damage from Reiatsu, a gauge the core system no longer shows or uses) | **「先做始解，卍解之後另外設計」**: this pass rebuilds the Shikai; the Bankai stays locked (`:no-awaken t`) until its own design round | both forms now; the Shikai only, the Bankai dropped |
+| The three pointer themes (DUEL_CORE §5b) | **1 投 the throw / 2 首掛 the bind / 3 綴雷電 the lightning** | 1 throw / 2 bind / 3 the short-chain reaping rush (Raiden as an effect only); 1 bind / 2 throw / 3 lightning |
+| The thrown sickle and chain | **「當作很長的近戰判定」**: long melee volumes judged by the triangle (cancellable; a hit held is a Kikon at once) | a hazard like the Getsuga (never judged; its Kikon through `:kikon-strike`) |
+| The segment table (§26.2) | **「可以，照這張表做」**: the first version re-uses his existing clips; NA1's coil and the two new stances are new clips; redrawn after the playtest | |
+| The SA in an NS gap (his NS land at 4-6 m, a plain cut whiffs there) | **「鎖鏈把對手拉過來再斬」**: 引寄 YOSE, the chain drags him to 1.6 m on frame 0, one cut, then J2 on; one SA for all three pointers | his own leap (TOBI); one SA per pointer |
+| The two new Kikon storyboards (§26.4) | **「可以」** (built last; until then pointers 2 and 3 play 刈れ) | |
+
+Kept from earlier decisions: H1 (short-chain cuts up close, best at 2-6 m, §2); the K string's 2.0 m dead zone of NAGI (§23.2, 「2.0 m（推薦）」).
+Dormant and not revived: the sickle-out state H2 (no move leaves it out since S1, §23.3).
+
+Defaults (the lead's, not asked): five J with `:as-by-press (1 1 2 2 3)` as Ichigo's; tells S >= 14 on NA1 and every NS opener, links keep
+their speed; no new hold or phone gesture (the system's own rules); a chain segment after an opener strikes along the chain to the
+victim wherever he is within the chain's 6.5 m (`hs-core-seg`), so a whiffed opener's next segment can still reach but not across the
+stage; the SA's drag only within the same 6.5 m; `:mult` 1.7 kept until measured.
+
+### 26.2 The segment table (S = startup frames; damage before `:mult`; only a route's last segment knocks down or launches)
+
+| | Pointer 1 投 the throw | Pointer 2 縛 the bind | Pointer 3 雷 the lightning |
+|---|---|---|---|
+| Stance | the reveal pose (`:hs-s-stance`: the rod low-forward) | the chain over the shoulder like a hawser, the fist at the chest (new `:hs-st-bind`) | one hand high on the taut chain, sparks (new `:hs-st-raiden`) |
+| NS a | 薙 NAGI, the chain's side sweep to 6.0 m, S 20, 62, stagger | 縛 SHIBARI, the chain flung round him on a 4.5 m line, S 18, 40, bind 40 f | 鎖鞭 KUSARI-MUCHI, a 4.0 m lash, S 18, 45, stagger |
+| NS b | 引 HIKI, the drop and pull: the sickle back into his back, S 14, 56, stagger | 絞 SHIBORI, the noose tightened, S 14, 50, stagger | 纏 MATOI, the chain wound round him, S 14, 45, stagger |
+| NS c | 後薙 USHIRO-NAGI, the backward swing, S 16, 80, knockdown (198) | 首掛 KUBIKAKE, heaved over the shoulder and slammed, S 16, 90, knockdown (180) | 綴雷電 TSUZURI RAIDEN, the lightning down the chain, S 16, 100, knockdown (190) |
+| AS n | AS1 鉤引 KAGI-BIKI: the sickle hooks him and drags him to 1.6 m, 50, knockdown, steals 40 flash-step | AS2 巻 MAKI 45, stagger > 首掛上げ KUBIKAKE-AGE, the noose heaved upward, 60, launch | AS3 旋 SEN 45 > 纏 MATOI 45 > 綴雷電 120, knockdown (210, the hardest) |
+| Kikon cinematic | 刈れ (`hs-kare-cine`, existing) | 首掛 KUBIKAKE (new, §26.4) | 綴雷電 TSUZURI RAIDEN (new, §26.4) |
+
+NA (J): J1 旋 SEN with a held coil, S 14, 30 > J2 返旋 KAESHI-SEN 30 > J3 旋 30 > J4 返旋 30 > J5 輪 RIN 38, reach 1.7 m.
+SA (J in any NS gap): 引寄 YOSE, frame 0 the drag to 1.6 m (within 6.5 m), S 10, 40, stagger; then J2 on.
+
+### 26.3 Batch plan
+
+1. The sim (hisagi.lisp): the moves above as copies of his Shikai moves with their clips, the kit's `:core` (`:stances`, `:kikon-cines`,
+   `:as-by-press`, `:ns-range` for pointer 1), host tests (`tests/duel-rules/triangle.lisp` already walks every core kit; his own checks).
+2. Clips, presentation only (a worktree): `:hs-na1` (J1's coil at S 14), `:hs-st-bind`, `:hs-st-raiden`.
+3. Playtest Artifact, then his gates (HK, HI, HH; `--pairs 29,31,35`).
+4. The two Kikon cinematics from §26.4; then the redraw of the re-used clips the playtest asks for.
+
+### 26.4 The Kikon storyboards (approved)
+
+首掛 KUBIKAKE (pointer 2, ~150 f; landscape letterbox 9 %, portrait checked):
+
+| Frames | Shot |
+|---|---|
+| 0-20 | low, from behind him: the left fist hauls, the chain snaps taut over his shoulder |
+| 20-50 | wide, side-on: the chain winds twice round the victim's neck and tightens |
+| 50-80 | he turns his back and heaves the chain over his shoulder like a hawser; the victim leaves the ground (low angle, sky behind) |
+| 80-100 | the slam over his shoulder into the plaza: the crack ring, ink splash, shake (the Konpaku shatters) |
+| 100-150 | he kneels on him, the sickle raised, a hand at the throat; the caption 首掛 |
+
+綴雷電 TSUZURI RAIDEN (pointer 3, ~150 f):
+
+| Frames | Shot |
+|---|---|
+| 0-25 | orbiting: the chain winds three times round the victim |
+| 25-45 | close: one hand high on the taut chain, two fingers on it (no incantation), sparks |
+| 45-90 | the lightning runs from his hand down the chain to the victim; the camera tracks along the chain |
+| 90-120 | the victim lit and paralysed, black-and-white silhouette flashes (the Konpaku shatters) |
+| 120-150 | the chain goes slack, the victim drops smoking; the caption 破道の十一 綴雷電 |
+
+### 26.5 As built (batch 1, the sim, 2026-10-28)
+
+- `hisagi.lisp`: the §26.2 moves as copies (`:hs-n1a` … `:hs-as3c`, `:hs-na3` / `:hs-na4`, `:hs-sa`); J1 `:hs-j1` S 8 -> 14 (its clip
+  `:hs-q1` stretched, `:clip-s 8`, until `:hs-na1` is drawn); the strings J2 > NA3 > NA4 > RIN (the old J2 > J3 link gone); the kit's
+  `:core` with `:stances`, `:kikon-cines` (刈れ for all three until §26.4's are built), `:as-by-press (1 1 2 2 3)`, `:ns-range ((3.6 6.2)
+  nil nil)`. The link segments keep their source's `:enter` (NOKO 6, TSUI 8), so their looks (`*hs-foe-paths*`, keyed on clip frames)
+  stay aligned; `HS-CORE-SEG` / `HS-R-LINK-SEG` share `HS-CHAIN-SEG-TO`; `HS-YOSE`, `HS-KAGI-PULL` reuse `ICHIGO-PULL-TO`; a copy's
+  `:params :look-as` names the old move whose chain look it borrows (`HS-LOOK-NAME`, read by `HS-TICK`'s anchor and `HISAGI-DRAW`).
+- Deviation from §26.2: pointer 3's lash is SHIBARI's cast at 4.5 m (its drawn chain), not 4.0.
+- Tests: `tests/duel-rules/triangle.lisp` +11 (the tells, the effective startups 20 14 16 / 18 14 16 / 18 14 16, the segment lists,
+  every damage, the last segments' reactions, NS2a's bind, the chain segments' `HS-CORE-SEG`, the SA's drag, AS1's hook and steal, the
+  stances / cinematics / `:as-by-press`, five J ending in RIN); the old string budget no longer walks his Shikai (as Ichigo's, five J), his
+  old pins in `hisagi.lisp`'s tests moved (J1 S 14, JJJ = J1 J2 NA3). Host 10760 ALL PASS; pkgcheck 0 / 0 / 0.
+- Browser (83000 2 m / 83001 6 m from an idle Kenpachi, 2510+p): NS1 at 6 m 62, 56, 80; NS2 40, 50, 90; NS3 45, 45, 100; NS1 + J J J →
+  `HS-SA` 40, J2 30, NA3 30; J J SP → AS1 50; J ×4 SP SP → 45, 60; J ×5 SP ×3 → 45, 45, 120; NS1a held → `KIKON 62`, `HS-KARE-CINE`; NS2a
+  held → `KIKON 40`. (The first scenario after the page's start dropped a third press in a sweep of its timing; the same timings later in
+  the run all chained: the debug start, not the move set.)
+- Gates (10 seeds, his pairings, `--pairs 29,31,35`): HK 189.7 s (Hisagi 2:8; 146.3 before), HI 194.0 s (4:6; 204.1 at 10 seeds before),
+  HH 184.7 s (172.4), every match K.O.: the quick pass. G2 (II IK KK) identical.
