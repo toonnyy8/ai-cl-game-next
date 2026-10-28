@@ -4048,8 +4048,34 @@ The user's request (verbatim): 「1. NS1[2] 跟 NS1[3] 攻擊沒打中時直接�
 | Timing | a copy of K3 (startup 24, `:enter 6`) | a copy of K2 with `:enter 0` (K2's 6 would skip f0's hop: the §431 bug class), startup 14, active 16, recovery 20 |
 | Kept | steals 40 flash step (`:steal-fs`), the AS1 class, the pointer it writes | |
 
-Look: NOKO's (`:look-as :hs-k2`, the sickle on him along the chain) until its own clip (the flat spin, the leap back) is drawn.
+Look: its own since §27.10.1 (the clip `:hs-tsumuji`, the flat spin, the leap back; `:look-as :hs-k2` kept for HS-TICK's hashed
+anchor on the victim).
 Checks: duel-rules 10783 ALL PASS (the pins: four hits, their reactions, the seg, f0's hop, `:enter` 0, 3 < 4.5 < 6); pkgcheck 0 / 0 /
 0; in the browser J1 > AS1 lands all four (16 each) with him 4.5 m off. Gate (10 seeds, Hisagi's pairings): HK 182.3 s (10 K.O.,
 Hisagi 0:10; before 183.8), HI 194.1 s (10 K.O., 0:10; before 190.4, 2:8), HH 300.0 s with 4 K.O. (before 295.7, 6 K.O.); HH at 20 seeds 293.8 s (11 K.O.), at 60 seeds 300.0 s (28 K.O., 32 time-outs, 33:26:1;
 before, §27.7: 298.9 s, 29 time-outs): reported to the user, not retuned.
+
+#### 27.10.1 As built: TSUMUJI's own look (presentation only, 2026-10-29)
+
+The lead's brief: draw §27.10's throw and leap (the request above), no sim number touched.
+
+- Clip `:hs-tsumuji` (hisagi-art.lisp, 14 / 16 / 20 at its S: `:clip-s 14`, speed 1; poses `:hs-tsumuji-hit`): a 2 f dip with the left
+  arm wound back and out at shoulder height, the sidearm release whipped flat across his front as he springs back (f5), tucked and
+  leant back at the leap's top (f8, `:root :u` 0.5; no `:root :f`: HS-AS1-HOP's slide carries him), landed and sunk by f13; from S the
+  left fist out on the taut chain, jerked in a small circle once per cut (f14 / 18 / 22 / 26); hauled back (f34), caught (f38).
+- The sickle (`*hs-foe-paths*` `:hs-tsumuji`): out of the fist at f5, flown to the victim (f5-14), circling him f14-30, reeled back
+  f30-38. `%HS-POINT` code 11 is HS-CORE-SEG's far end (the victim's centre, or 6.5 m along the line), code 12 an orbit round it
+  (`*hs-tsumuji-orbit*` 0.45 m: within 0.15 m of the hit, the chain's capsule of `*hs-seg-r*` 0.35 m round the line to his
+  centre; a quarter turn every 4 frames, at each cut's head on its hit frame); `%HS-PLACE!` spin 5 spins it
+  flat (40 rad/s on the fx clock) with its far edge tipped up 22 degrees, so from the behind camera it reads as a disc, not a line,
+  with the saw's three ink smears in its plane.
+- `%HS-TSUMUJI-CUTS` (hisagi-draw.lisp): on each hit frame an 8 f flat slash round him (FX-ENVELOPE 1 2 1 4): a 140 degree comet arc
+  0.7 m round, in the sickle's plane and turning sense, black ink with a white edge and a white star at its head.
+- HISAGI-DRAW drops DRAW-FIGHTER's right-rod trail during TSUMUJI (his right rod never swings; the leap's slide and landing inside
+  S-4..S+A+3 smeared it into a yellow beam: CHIKUDEN's §27.6 bug class).
+- Kept: `:look-as :hs-k2` (HS-TICK's hashed anchor on the victim, as CHIKUDEN's); the move's frames, hits, damage, slide and hop.
+- Checks: duel-rules 10785 ALL PASS (new pins: `:clip :hs-tsumuji` at speed 1 with NOKO's look-as; the path at code 12 on every hit
+  frame of all four windows); pkgcheck 0 / 0 / 0; 83901 TSUMUJI's flight / spin with cuts / return 0 / 0 / 0 B; 83902 `tip base
+  hs-as1` 0.45 m off the victim (the orbit; <= 0.50 wanted: the capsule's 0.35 + 0.15); strip slot 46 (83546). Gate (10 seeds) line for
+  line identical to a run of the base 5522c0d and to
+  §27.10's: HK 182.3 s (10 K.O., 0:10), HI 194.1 s (10 K.O., 0:10), HH 300.0 s (4 K.O., 5:5); `--cvc` 3 PASS.

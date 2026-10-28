@@ -325,15 +325,19 @@ A1 at F1 (it spirals out) and on to A2 at F2 (linear), A2 coming back (K1 NAGI, 
 :weapon-r joint), HISAGI-DRAW draws the left one; both the chain from the fist.")
 (defparameter *hs-foe-paths*
   '((:hs-s-noko (6 9 10 9 1) (9 16 9 9 3) (16 20 9 6 3) (20 24 6 6 3) (24 30 6 7 3) (30 38 7 7 1) (38 48 7 0 1))
-    (:hs-s-tsui (8 18 6 8 1) (18 20 8 8 1) (20 22 8 6 4) (22 32 6 6 4) (32 46 6 0 1)))
+    (:hs-s-tsui (8 18 6 8 1) (18 20 8 8 1) (20 22 8 6 4) (22 32 6 6 4) (32 46 6 0 1))
+    (:hs-tsumuji (5 14 0 12 5) (14 30 12 12 5) (30 38 12 0 5)))
   "A1 (DUEL_HISAGI §24.1): the Shikai K links placed on the victim (K2 鋸 NOKO, K3 墜 TSUI; HS-FOE-SEG): clip -> the left
 sickle's path, segments (f0 f1 a b spin): on clip frames F0 <= f < F1 it moves from point A to point B (%HS-POINT's codes:
 0 his left fist, 6 the victim's centre (HS-FOE-SEG's far end), 7 3.0 m above him, 8 3.8 m above him (the sky: the top of the match camera's frame over him), 9 the saw's
-wheel round the left fist, 10 K1's sweep end: 6.0 m x the charge, 40 degrees to his right), placed by %HS-PLACE! SPIN (1
-tumbling, 3 the upright saw, 4 point down); outside every segment it is in his fist. On every hit frame it is at 6 (the
-host checks). NOKO: reeled in off K1's sweep (off J1, K2J: from the fist), spun up on the wheel, flung along the line at
-him (S 20), the saw grinding there through A, hauled up over him, back; TSUI: hauled from him up into the sky, held, yanked
-down point first onto him (S 22), held in him, hauled back.")
+wheel round the left fist, 10 K1's sweep end: 6.0 m x the charge, 40 degrees to his right, 11 HS-CORE-SEG's far end: the
+victim's centre, or *HS-CORE-CHAIN* m along the line to him, 12 the orbit round 11, *HS-TSUMUJI-ORBIT* m), placed by
+%HS-PLACE! SPIN (1 tumbling, 3 the upright saw, 4 point down, 5 the flat spinning disc, tipped up 22 degrees); outside
+every segment it is in his fist. On every hit frame it is at 6 (12 for AS1 TSUMUJI; the host checks). NOKO: reeled in off
+K1's sweep (off J1, K2J: from the fist), spun up on the wheel, flung along the line at him (S 20), the saw grinding there
+through A, hauled up over him, back; TSUI: hauled from him up into the sky, held, yanked down point first onto him (S 22),
+held in him, hauled back; AS1 TSUMUJI (§27.10): thrown flat off the sidearm release (f5), spinning flat round him through
+the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), reeled back to the fist (f30-38).")
 
 ;; the stance (canon reveal, softened): weight on the back foot, upright; the right rod low-forward at the hip, its point
 ;; down-forward, the blades by the right shin; the left rod at the left hip, point down; the chain in one loop between
@@ -864,6 +868,47 @@ down point first onto him (S 22), held in him, hauled back.")
   (34 :hs-s-tsui-hit (:root :u -0.33) (:spine :flex 42))                                                 ; the impact hold
   (44 (:root :u -0.12) (:spine :flex 12) (:arm-l :flex 40 :side 20) (:elbow-l :flex 60) (:arm-r :flex 30 :side 20)
       (:elbow-r :flex 50) (:knees :flex 30))                                                              ; hauled back
+  (:end :hs-s-stance))
+
+;; AS1 旋風 TSUMUJI (14/16/20, §27.10; the user, 2026-10-29: 「投擲出水平旋轉的鐮刀造成多段切割攻擊的同時，後跳到 NS1 的攻擊範圍」;
+;; presentation only, the sim's HS-AS1-HOP carries him back, so no :root :f): a short dip with the left arm wound back and
+;; out at shoulder height (f2), whipped flat across his front as he springs back off both feet (the sidearm release, f5:
+;; the sickle leaves spinning flat, *HS-FOE-PATHS*), the follow-through across his chest at the top of the leap (f8,
+;; tucked, leant back), the legs reaching down (f11), landed and sunk (f13); from S the left fist held out on the taut
+;; chain, jerked in a small circle once per cut (f14 / 18 / 22 / 26) to keep the sickle spinning round the victim; the
+;; haul back to his chest (f34) and the catch (f38). The right rod stays low behind his right hip from f10 to f34 (the
+;; engine's swing smear on it: CHIKUDEN's note)
+(defpose :hs-tsumuji-hit (:base :hs-s-stance)
+  (:root :u -0.2 :yaw -6) (:pelvis :twist 0) (:spine :flex 12) (:chest :twist -10) (:head :flex 4)
+  (:arm-l :flex 84 :side 20 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -10)
+  (:arm-r :flex -24 :side 30 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -90)
+  (:thigh-l :flex 44 :side 10) (:knee-l :flex 50) (:thigh-r :flex -16 :side 12) (:knee-r :flex 36))
+(defstrike :hs-tsumuji (14 16 20 :base :hs-s-stance)
+  (0)
+  (2 (:root :u -0.22 :yaw 34) (:chest :twist 36) (:spine :flex 10) (:neck :twist -20)
+     (:arm-l :flex -60 :side 80 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -30)
+     (:arm-r :flex 20 :side 30) (:elbow-r :flex 40) (:thighs :flex 50) (:knees :flex 70))                 ; wound, the dip
+  (5 (:root :u 0.15 :yaw -10) (:chest :twist -20) (:spine :flex -8) (:neck :twist 0)
+     (:arm-l :flex 86 :side 34 :twist 0) (:elbow-l :flex 0) (:hand-l :flex -20)
+     (:arm-r :flex -30 :side 30) (:elbow-r :flex 30) (:thighs :flex 10) (:knees :flex 10))                 ; the release, sprung
+  (8 (:root :u 0.5 :yaw -20) (:chest :twist -30) (:spine :flex -12) (:head :flex 6)
+     (:arm-l :flex 108 :side -10) (:elbow-l :flex 6) (:arm-r :flex -40 :side 30) (:elbow-r :flex 30)
+     (:thighs :flex 60) (:knees :flex 90))                                                                 ; the top, tucked
+  (11 (:root :u 0.25 :yaw -12) (:chest :twist -16) (:spine :flex -4) (:arm-l :flex 84 :side 20) (:elbow-l :flex 10)
+      (:arm-r :flex -24 :side 30) (:elbow-r :flex 30) (:hand-r :flex -90) (:thighs :flex 30) (:knees :flex 30))   ; reaching down
+  (13 :hs-tsumuji-hit (:root :u -0.26) (:spine :flex 16) (:thigh-l :flex 50) (:knee-l :flex 70) (:knee-r :flex 60))   ; landed
+  (:s :snap :hs-tsumuji-hit)
+  (16 :hs-tsumuji-hit (:arm-l :flex 74 :side 32) (:elbow-l :flex 16))                                     ; the chain worked:
+  (18 :hs-tsumuji-hit (:arm-l :flex 90 :side 12))                                                         ;  a jerk a cut
+  (20 :hs-tsumuji-hit (:arm-l :flex 74 :side 32) (:elbow-l :flex 16))
+  (22 :hs-tsumuji-hit (:arm-l :flex 90 :side 12))
+  (24 :hs-tsumuji-hit (:arm-l :flex 74 :side 32) (:elbow-l :flex 16))
+  (26 :hs-tsumuji-hit (:arm-l :flex 90 :side 12))
+  (:a :hs-tsumuji-hit)
+  (34 :hs-tsumuji-hit (:root :u -0.1) (:spine :flex -6) (:chest :twist 10)
+      (:arm-l :flex 40 :side 20) (:elbow-l :flex 90) (:hand-l :flex -40))                                 ; hauled back
+  (38 (:root :u -0.07) (:spine :flex 4) (:arm-l :flex 20 :side 24) (:elbow-l :flex 60) (:arm-r :flex 0 :side 22)
+      (:elbow-r :flex 30))                                                                                ; caught
   (:end :hs-s-stance))
 
 ;; S2's leap J (KJJ's J2K, KKJ's J3K: S 14; the sim carries him in, HS-LEAP-TICK, so no :root :f): a deep crouch (the

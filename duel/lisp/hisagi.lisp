@@ -333,7 +333,8 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 ;; pointer 1 投: NAGI's 6 m sweep > HIKI, the sickle back into him > USHIRO-NAGI, the backward swing (198); AS1 TSUMUJI throws the
 ;; sickle spinning flat round him (four cuts along the chain, the last a knockdown) while he leaps back into NAGI's band
 ;; (*HS-AS1-HOP-TO*), stealing flash step (§27.10, the user, 2026-10-29: 「將修兵的 AS1 改成投擲出水平旋轉的鐮刀造成多段切割攻擊的同時，後跳到 NS1
-;; 的攻擊範圍」; before: KAGI-BIKI, one hook 50 that dragged him to 1.6 m). HIKI and USHIRO-NAGI miss a victim nearer than NAGI's *HS-K-DEAD* too (§27.7, the user:
+;; 的攻擊範圍」; before: KAGI-BIKI, one hook 50 that dragged him to 1.6 m; its own clip :hs-tsumuji, the sickle spun flat in him
+;; and the cuts drawn by HISAGI-DRAW, presentation only: :look-as stays NOKO's, HS-TICK's hashed anchor on the victim). HIKI and USHIRO-NAGI miss a victim nearer than NAGI's *HS-K-DEAD* too (§27.7, the user:
 ;; 「NS1[2] 跟 NS1[3] 也要設定近距離無效的範圍」); since §27.9 they sweep NAGI's own volume (6 m, its arc and height; no longer the
 ;; chain to the victim), drawn out to its far end on a whiff (HS-N1-ANCHOR!), and USHIRO-NAGI staggers (「NS1[3] 不將對手擊倒」)
 (defmove-copy :hs-n1c :hs-k3 :callout "USHIRO-NAGI" :startup 24 :clip-s 22 :on-hit :stagger :flags (:ranged :no-close)
@@ -341,7 +342,7 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 (defmove-copy :hs-n1b :hs-k2 :flags (:ranged :no-close) :reach 6.0 :arc *hs-k1-arc* :height (0.2 2.0) :min-reach *hs-k-dead*
   :hits ((20 24)) :params (:melee-range 2.0 :ns-next :hs-n1c :look-as :hs-k2))
 (defmove-copy :hs-n1a :hs-k1 :startup 20 :clip-s 18 :params (:melee-range 2.0 :ns-next :hs-n1b))
-(defmove-copy :hs-as1 :hs-k2 :kind :sp :callout "TSUMUJI" :enter 0 :startup 14 :clip-s 14 :active 16 :recovery 20 :dmg 16 :on-hit :flinch :flags nil
+(defmove-copy :hs-as1 :hs-k2 :kind :sp :clip :hs-tsumuji :callout "TSUMUJI" :enter 0 :startup 14 :clip-s 14 :active 16 :recovery 20 :dmg 16 :on-hit :flinch :flags nil
   :slide 0.0 :on-frame ((0 hs-as1-hop))
   :hits ((14 15 :seg-fn hs-core-seg) (18 19 :seg-fn hs-core-seg) (22 23 :seg-fn hs-core-seg)
          (26 29 :seg-fn hs-core-seg :on-hit :knockdown))
