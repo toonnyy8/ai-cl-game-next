@@ -336,7 +336,7 @@ view (camera-relative, VIEW-STEP); the CPU writes (strafe, toward) directly."
           (fighter-stored f) 0                           ; an interrupted stance keeps nothing
           (fighter-button f) button (fighter-hold f) 0 (fighter-perfect f) nil
           (fighter-assisted f) (fighter-assist-next f) (fighter-assist-next f) nil   ; ASSIST: pressed for him
-          (fighter-follow f) nil
+          (fighter-follow f) nil (fighter-hoho-hold f) nil   ; (a resumed combo's hold: HOHO-RESUME! sets it after)
           (fighter-armor-left f) (if (and *run-foe-mods* (eq (mv-kind mv) :sp) (rmod e :sp-armor nil))   ; DANGAI's FOE SP
                                      (max 1 (mv-armor-hits mv))                                          ; ARMOR (§5)
                                      (mv-armor-hits mv))
@@ -430,6 +430,10 @@ opponent (HOHO-STEP). Checks PERFECT now (one the assist pressed is never perfec
   (let ((g (gauges e)))
     (spend-fs g (rmod-x e :hoho-cost (hoho-cost (gauges-fs g) (gauges-burst g))))
     (when *run-mods* (run-post-burst! e))
+    (let ((mv (and (eq (fighter-state f) :move) (eq (fighter-contact f) :hit) (member (fighter-cls f) '(:na :sa :ns))
+                   (fighter-move f))))
+      (setf (fighter-hoho-from f) mv (fighter-hoho-cls f) (fighter-cls f) (fighter-hoho-presses f) (fighter-presses f)
+            (fighter-hoho-mult f) (fighter-charge-mult f) (fighter-hoho-left f) 0 (fighter-queued f) nil))   ; (DUEL_CORE §8)
     (setf (fighter-perfect f) (and (not (fighter-assist-next f)) (perfect-now-p e))   ; (before leaving the move: a cancel
           (fighter-assist-next f) nil                                                ; Hoho; an assisted one: never)
           (fighter-state f) :hoho (fighter-sf f) 0 (fighter-move f) nil
@@ -602,7 +606,7 @@ Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard 
                (if (or (plusp (fighter-guard-exit f)) (eq (fighter-state f) :guard))   ; guarding or just out of a guard:
                    (command! e f vp '(:awaken :burst :hoho :step))      ;  no attack (*GUARD-EXIT*, the user 2026-10-23;
                                                                         ;  the press stays buffered)
-                   (or (command! e f vp *neutral-commands*) (u-press! e f vp))))
+                   (or (hoho-resume-press! e f vp) (command! e f vp *neutral-commands*) (u-press! e f vp))))
     (let ((v (motion-vel (motion e))))
       (when (and (zerop (fighter-lock f)) (< (fighter-kikon-lock f) 2) (kit-guard-to (fighter-kit f)) (guard-held-p e vp))
         (set-form e (kit-guard-to (fighter-kit f)))
@@ -881,8 +885,9 @@ action started."
                        t)))))))))
 
 (defun cancel-into (e f kit mv sf landed cmd button)
-  "An on-hit cancel out of J / K link MV: SPs, Hoho, a :cancel Signature (L)."
-  (and (member (mv-kind mv) '(:quick :flash))
+  "An on-hit cancel out of J / K link MV: SPs, Hoho, a :cancel Signature (L). Hoho also out of any NA / SA / NS move of the core
+system (DUEL_CORE §8: it resumes the combo after)."
+  (and (or (member (mv-kind mv) '(:quick :flash)) (and (eq cmd :hoho) (member (fighter-cls f) '(:na :sa :ns))))
        (or (not (eq cmd :sig)) (let ((l (kit-command-move kit :sig))) (and l (member :cancel (mv-flags l)))))
        (cancel-open-p sf (fighter-land-sf f) (mv-total mv) (eq landed :hit))
        (try-command e f cmd button)))
@@ -903,7 +908,8 @@ awakening; lock 1 (not red): U cancels the reel into a guard (the follow-up's st
     (core-kikon-cancel! e f)
     (return-from stun-step nil))
   (when (and (zerop (fighter-lock f)) (zerop (fighter-kikon-lock f))) (command! e f vp '(:burst :awaken)))
-  (when (and (>= (incf (fighter-sf f)) (fighter-stun f)) (not (and (eq (fighter-state f) :guard-hit) (fighter-glock f))))
+  (when (and (>= (incf (fighter-sf f)) (fighter-stun f)) (not (and (eq (fighter-state f) :guard-hit) (fighter-glock f)))
+             (not (hoho-holds-p f)))
     (to-idle e)
     (when (guard-p e vp) (setf (fighter-state f) :guard (fighter-guard-t f) *guard-raise*) (play-clip e :sh-guard :blend 3))))
 
@@ -982,9 +988,50 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
                         (field-slow! e f (motion-vel (motion e)))
                         (play-clip e (run-clip e f) :blend 5 :speed (/ speed 8.0) :restart nil)))))))
 
+(defun hoho-press (vp)
+  "The first of J / SP pressed on VP this step (in *COMMANDS* priority), or NIL."
+  (loop for (cmd button mod) in *commands* when (and (member cmd '(:sp :q)) (vpad-command-pressed-p vp button mod)) return cmd))
+(defun hoho-resume! (e f cmd)
+  "Resume the combo F's Hoho cancelled (DUEL_CORE §8) with CMD (:q J / :sp SP): after an NA link / the SA, J is the string's next
+link and SP the AS of the press count; after an NS segment, SP its next segment and J that gap's SA. The press count and a charged
+SA's x carry over; the resumed move holds the victim through its startup / active (HOHO-HOLDS-P). T when a move started."
+  (let* ((mv (fighter-hoho-from f)) (kit (fighter-kit f)) (cls (fighter-hoho-cls f))
+         (next (if (eq cls :ns)
+                   (if (eq cmd :sp) (mv-ns-next kit mv) (or (mv-sa-move kit mv) (kit-sa-move kit)))
+                   (and (eq cmd :q) (kit-next kit (mv-name mv) :q))))
+         (as (and (not next) (eq cmd :sp) (not (eq cls :ns)))))
+    (setf (fighter-hoho-from f) nil (fighter-hoho-left f) 0 (fighter-queued f) nil)
+    (when (or next as)
+      (setf (fighter-cls f) cls (fighter-presses f) (fighter-hoho-presses f))
+      (when (if next (progn (start-move e next :quick) t) (core-as-start! e f))
+        (when (member (fighter-cls f) '(:na :as)) (setf (fighter-charge-mult f) (fighter-hoho-mult f)))
+        (setf (fighter-hoho-hold f) t (fighter-chained f) t)
+        (clog "~a HOHO -> ~a" (side-name e) (mv-name (fighter-move f)))
+        t))))
+(defun hoho-resume-press! (e f vp)
+  "Neutral, inside the resume window after a combo's Hoho: J / SP resumes it (HOHO-RESUME!). T when a move started."
+  (when (and (plusp (fighter-hoho-left f)) (fighter-hoho-from f) (zerop (fighter-lock f)))
+    (let ((cmd (hoho-press vp)))
+      (when (and cmd (hoho-resume! e f cmd))
+        (vpad-consume! vp (if (eq cmd :sp) (second (assoc :sp *commands*)) (second (assoc :q *commands*))))
+        t))))
+(defun hoho-holds-p (f)
+  "Does F's attacker hold F's reaction through a combo's Hoho (DUEL_CORE §8): in that Hoho, its resume window, or the resumed move's
+startup / active frames?"
+  (let* ((o (fighter-opp f)) (fo (and o (entity-alive-p o) (fighter o))))
+    (and fo
+         (or (and (fighter-hoho-from fo) (or (eq (fighter-state fo) :hoho) (plusp (fighter-hoho-left fo))))
+             (and (fighter-hoho-hold fo) (eq (fighter-state fo) :move) (eq (fighter-phase fo) :main)
+                  (let ((mv (fighter-move fo))) (and mv (< (fighter-sf fo) (+ (mv-s mv) (mv-a mv))))))))))
 (defun hoho-step (e f)
   "Vanish, reappear behind the opponent on frame *HOHO-APPEAR* facing him; a perfect Hoho swings on
-*HOHO-COUNTER-POSE* (its strike, on *HOHO-COUNTER-STRIKE*, is collected by combat.lisp like any hit)."
+*HOHO-COUNTER-POSE* (its strike, on *HOHO-COUNTER-STRIKE*, is collected by combat.lisp like any hit). Off a landed combo move
+(DUEL_CORE §8) a J / SP pressed in it is latched and resumes the combo at its end."
+  (when (fighter-hoho-from f)
+    (let* ((vp (pilot-vpad (pilot e))) (cmd (hoho-press vp)))
+      (when cmd
+        (vpad-consume! vp (second (assoc cmd *commands*)))
+        (setf (fighter-queued f) cmd))))
   (let ((sf (incf (fighter-sf f))) (o (opp-of e)))
     (setf (model-alpha (model e)) (if (< sf *hoho-appear*) (f32 (- 1.0 (/ sf (float *hoho-appear*)))) 1f0))
     (when (= sf *hoho-appear*)
@@ -996,7 +1043,11 @@ clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
       (let ((h (kit-hook (fighter-kit f) :hoho))) (when h (funcall h e))))   ; the form's own arrival (Rukia's cold)
     (when (and (= sf *hoho-counter-pose*) (fighter-perfect f))
       (play-clip e (kit-move-clip (fighter-kit f) (mv-clip (kit-command-move (fighter-kit f) :q))) :blend 0 :time 0.1))
-    (when (>= sf *hoho-frames*) (to-idle e 3))))
+    (when (>= sf *hoho-frames*)
+      (to-idle e 3)
+      (when (fighter-hoho-from f)
+        (setf (fighter-hoho-left f) *hoho-resume-frames*)
+        (let ((q (fighter-queued f))) (when q (hoho-resume! e f q)))))))
 
 (defun air-step (e f vp)
   "Airborne until landing (Burst Reverse may be pressed), then :down 30 f and :wakeup 30 f (both
@@ -1135,6 +1186,8 @@ cinematic or a :through move."
   (when (> (fighter-freeze f) 0) (decf (fighter-freeze f)) (return-from fighter-step nil))
   (when (> (fighter-lock f) 0) (decf (fighter-lock f)))
   (when (> (fighter-hoho-lock f) 0) (decf (fighter-hoho-lock f)))
+  (when (and (plusp (fighter-hoho-left f)) (not (eq (fighter-state f) :hoho)) (zerop (decf (fighter-hoho-left f))))
+    (setf (fighter-hoho-from f) nil))                   ; the resume window closed (DUEL_CORE §8)
   (when (> (fighter-gc-left f) 0) (decf (fighter-gc-left f)))
   (when (> (fighter-guard-exit f) 0) (decf (fighter-guard-exit f)))
   (when (and (plusp (fighter-kikon-lock f)) (not (kikon-lock-holds-p f))) (setf (fighter-kikon-lock f) 0))

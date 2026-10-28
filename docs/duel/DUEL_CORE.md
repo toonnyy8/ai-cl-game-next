@@ -332,3 +332,24 @@ follow-up links keep their speed).
 ## 7. Status
 
 See DEVLOG §410 onward for each stage's numbers.
+
+## 8. A Hoho off a hit continues the combo (the user, 2026-10-28)
+
+The user's request (verbatim): 「讓攻擊中接入 hoho 後會延續攻擊 combo」. Asked (AskUserQuestion): what continues — **「接下一段，並保住連段
+（推薦）」** (rejected: the combo count only, J restarting at J1; the next link only, the victim's stun not held); which attacks — **「J 與
+NS 段（推薦）」** (rejected: J only; J, NS and AS).
+
+- A Hoho cancelled out of a landed NA link, an SA or an NS segment remembers that move. During the Hoho (and for
+  `*hoho-resume-frames*` after it) J or SP goes on from it: after an NA link / the SA, J is the string's next link and SP the AS of the
+  press count; after an NS segment, SP is its next segment and J that gap's SA. The press count, the pointer and a charged SA's x carry
+  over. An AS is an ender: no resume from it.
+- The victim's reaction cannot end while the Hoho holds him: the attacker in that Hoho, in the resume window, or in the resumed move's
+  startup / active frames (as the guard lock holds a blockstun). The combo count and its damage scaling go on.
+- As built: `fighter.lisp` `START-HOHO` records the move (`fighter-hoho-from`, its class, press count, charge x), `HOHO-STEP`
+  latches J / SP and resumes at its end (`HOHO-RESUME!`), `NEUTRAL-STEP` takes a press in the window (`HOHO-RESUME-PRESS!`,
+  `*hoho-resume-frames*` 12, tuning.lisp), `STUN-STEP` holds the victim (`HOHO-HOLDS-P`); `CANCEL-INTO` lets a Hoho out of any NA / SA /
+  NS move (an NS of kind `:sp` too). Browser (Hisagi at 2 m from an idle Kenpachi): J1 > Hoho > J → `HOHO -> HS-J2`, then J3 (the HUD
+  2 HITs after J2); J pressed 0.1 s after the Hoho's end resumes; J1 > Hoho > SP → AS1 50; NS2a > Hoho > SP → NS2b, then NS2c; NS2a >
+  Hoho > J → the SA KIRI. The CPU never Hohos off a hit, so the sim gates and G2 are identical to before: KK 167.2, IK 192.6, II 231.6,
+  HK 183.8, HI 190.4, HH 295.7 s (10 seeds; HH's 4 time-outs are §27.9's, Hisagi's), cvc ii / ik / kk PASS. Teaching the CPU this is
+  left for later.

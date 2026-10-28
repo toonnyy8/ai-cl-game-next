@@ -92,6 +92,10 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (freeze-next 0 :type fixnum) (lock-next 0 :type fixnum)   ; set by the opponent during FIGHTER-SYSTEM,
                                         ; applied after both stepped (no side acts first)
   (hoho-lock 0 :type fixnum)            ; frames until the next Hoho is allowed
+  ;; a Hoho off a landed NA / SA / NS move resumes its combo (DUEL_CORE §8): that move, its class, the press count, the charge x
+  (hoho-from nil) (hoho-cls nil) (hoho-presses 0 :type fixnum) (hoho-mult 1f0 :type single-float)
+  (hoho-left 0 :type fixnum)            ; frames the resume stays open after the Hoho (*HOHO-RESUME-FRAMES*)
+  (hoho-hold nil)                       ; the resumed move: it holds the victim's reaction through its startup / active
   (guard-t 0 :type fixnum)              ; frames Guard has been held (raised at *GUARD-RAISE*)
                                         ; (Bankai West: frames in the ward, which is up at *GUARD-RAISE*)
   (warded -1 :type fixnum)              ; the tick his ward (Bankai West) last blocked a hit (the CPU's reversal)

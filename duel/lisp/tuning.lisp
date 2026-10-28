@@ -237,6 +237,10 @@ and can't guard until the gauge is full again.")
 (defparameter *hoho-frames* 24 "Hoho total frames.")
 (defparameter *hoho-iframes* '(1 14) "Hoho invulnerable frames, inclusive.")
 (defparameter *hoho-lockout* 60 "Frames between two Hohos.")
+(defparameter *hoho-resume-frames* 12
+  "After a Hoho off a landed NA / SA / NS move, J or SP within this many frames still resumes its combo (a press during the Hoho waits
+for its end); the victim's reaction is held meanwhile (DUEL_CORE §8; the user, 2026-10-28: 「讓攻擊中接入 hoho 後會延續攻擊 combo」;
+the lead's default).")
 (defparameter *perfect-lead* 12 "Perfect Hoho: an opponent hit volume active now or within this many frames (8 -> 12, the
 user 2026-10-01: a wider timing; still inside the Hoho's iframes f1-14)...")
 (defparameter *perfect-inflate* 1.0 "... overlapping our hurt cylinder grown by this (radius and height).")
