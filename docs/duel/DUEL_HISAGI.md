@@ -4051,4 +4051,5 @@ The user's request (verbatim): 「1. NS1[2] 跟 NS1[3] 攻擊沒打中時直接�
 Look: NOKO's (`:look-as :hs-k2`, the sickle on him along the chain) until its own clip (the flat spin, the leap back) is drawn.
 Checks: duel-rules 10783 ALL PASS (the pins: four hits, their reactions, the seg, f0's hop, `:enter` 0, 3 < 4.5 < 6); pkgcheck 0 / 0 /
 0; in the browser J1 > AS1 lands all four (16 each) with him 4.5 m off. Gate (10 seeds, Hisagi's pairings): HK 182.3 s (10 K.O.,
-Hisagi 0:10; before 183.8), HI 194.1 s (10 K.O., 0:10; before 190.4, 2:8), HH 300.0 s with 4 K.O. (before 295.7, 6 K.O.).
+Hisagi 0:10; before 183.8), HI 194.1 s (10 K.O., 0:10; before 190.4, 2:8), HH 300.0 s with 4 K.O. (before 295.7, 6 K.O.); HH at 20 seeds 293.8 s (11 K.O.), at 60 seeds 300.0 s (28 K.O., 32 time-outs, 33:26:1;
+before, §27.7: 298.9 s, 29 time-outs): reported to the user, not retuned.
