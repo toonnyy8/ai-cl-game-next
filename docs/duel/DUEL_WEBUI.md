@@ -263,12 +263,13 @@ drawn as before (the native gate, an old page: `webhud-p` NIL).
   192.6, II 231.6, HK 183.8, HI 190.4, HH 295.7, the same KOs and wins); `--cvc` 3 PASS; the browser G2 (`style-gates.py cvc`)
   identical to style-cvc-ref.txt (ii / ik / kk).
 - Consing: debug 2515 in a battle, 100 calls each: `webhud-sync` 0 B, `webhud-side` 0, `webhud-prompt` 0, `webhud-deck` 0,
-  `webhud-tag` 0, `at-stake` 0 (it was 24 B a call: `konpaku-at-stake`'s NTH-VALUE consed its value list; a MULTIPLE-VALUE-BIND now,
+  `webhud-tag` 0, `at-stake` 0, the deck's four `touch-button` reads 0 (`rv-buttons`' second value by MULTIPLE-VALUE-BIND) (`at-stake` was 24 B a call: `konpaku-at-stake`'s NTH-VALUE consed its value list; a MULTIPLE-VALUE-BIND now,
   which also cuts the engine HUD's). The stats line, 60 s of real-time CPU vs CPU (`duel-perf.json`, 1440x900, SwiftShader): BASE
   (85dc72d) cons/frame 3.4–4.7 KB, queue 1.6–2.3 ms, render 0.33–0.44 ms; with the page's screens 2.3–3.7 KB,
   0.7–1.0 ms, 0.24–0.40 ms (the engine HUD is not drawn). The fps line on SwiftShader is noisy and lower with the page (BASE 45–93,
-  new 37–61): the DOM layer's compositing in a CPU renderer; hiding the layer mid-run did not give a clear difference. To check on a
-  real phone.
+  new 37–61): the DOM layer's compositing in a CPU renderer; hiding the layer mid-run did not give a clear difference. G3 (`style-gates.py perf BASE dist/duel duel`, A B A B A B, 45 s
+  real-time runs): frame 33.7 → 35.1 ms median, B / A = 1.042; startup heap 87.2 MB both; first frame 5260 → 5620 ms (+7 %, under the
+  +10 % line). The SP → AS prompt checked by a dump: after HS-J1's hit, kind 2 arg 1 for its cancel window, then 3 (ORANGE).
 - Shots (1440x900 and 390x844 `--mobile`, both hands): neutral, a combo (the callout and the count under the attacker), the Kikon
   hold (the 12-frame ring prompt; the deck's hold ring), red / souls at stake / the awakening ready, 爆's hold ring filling, the
   pause (desk and phone), the intro (P1's and P2's columns, 斬), the K.O. (2208), the touch ink (a still of the tap ripple, the

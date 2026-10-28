@@ -33,11 +33,12 @@ sent (so nothing changes: the steady state of a frame): a `webhud consing` line,
   (when (and *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*))
     (let ((*webhud* t))                                    ; (the native gate, a page without hud.js: measured all the same)
       (webhud-sync)
-      (log-msg "webhud consing (100 calls, B): ~a, ~a, ~a, ~a, ~a, ~a"
+      (log-msg "webhud consing (100 calls, B): ~a, ~a, ~a, ~a, ~a, ~a, ~a"
                (cons-per "sync" (webhud-sync) 100) (cons-per "side" (webhud-side *p1* 50) 100)
                (cons-per "prompt" (webhud-prompt *p1*) 100) (cons-per "deck" (webhud-deck) 100)
                (cons-per "tag" (webhud-tag *p1* (fighter-kit (fighter *p1*))) 100)
-               (cons-per "stake" (at-stake *p1*) 100)))))
+               (cons-per "stake" (at-stake *p1*) 100)
+               (cons-per "touch" (progn (touch-button :mod) (touch-button :awaken) (touch-button :quick) (touch-button :step)) 100)))))
 
 (defun set-probe (kind name &optional a b c)
   "Start a frame probe now: *PROBE* = (KIND NAME this tick A B C)."

@@ -245,7 +245,9 @@ read on a lift before the hold (TOUCH-CHIP-TAP-P: the Burst), Mod + P once held 
         (:mod (or (pulse +tp-hoho+) (pulse +tp-tap-hi+)              ; attack, high = SP (Mod + the attack), 2026-10-27
                   (rv-buttons (chip 7) (> (aref (touch-chip-hold tr) 7) 0f0) (touch-chip-tap-p tr 7))))   ; 爆 held through its hold
         (:step (and (not burst) (or (pulse +tp-flick+) (pulse +tp-hoho+) (touch-step-held-p tr))))
-        (:awaken (or burst (nth-value 1 (rv-buttons (chip 7) (> (aref (touch-chip-hold tr) 7) 0f0) (touch-chip-tap-p tr 7)))))))))
+        (:awaken (or burst (multiple-value-bind (m a) (rv-buttons (chip 7) (> (aref (touch-chip-hold tr) 7) 0f0) (touch-chip-tap-p tr 7))
+                             (declare (ignore m))                       ; (not NTH-VALUE: it conses its value list)
+                             a)))))))
 
 (defun touch-pause-p () "The pause chip was touched this frame." (and *one-hand* (touch-chip-hit-p *touch* 6)))
 
