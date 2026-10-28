@@ -139,3 +139,21 @@ color, motion, micro-interaction, responsive, originality; benchmark Awwwards / 
 | How they are drawn | **「改用 HTML/CSS/SVG 疊層（推薦）」**: as the menus, Lisp publishes the values, the page draws; the engine-drawn HUD stays as the fallback (no page: the native gate, an old page) | kept engine-drawn, redesigned there |
 | Process | **「先出設計稿 Artifact（推薦）」**: an interactive draft (desktop landscape, phone portrait, both hands) first, then the integration | straight into the game |
 | Scope | **all four**: the battle HUD (Reishi, Konpaku, flash step, awaken, the timer, combo and damage, callouts, the SP pointer, input hints), the phone controls (the one-hand dial, the gesture zone, touch feedback, left / right hand), the pause menu, the intro and the finish (VS / READY, K.O., the winner's moment) | |
+
+Draft v1 (Artifact 「SOUL DUEL Battle Screens」, https://claude.ai/artifact/PY4irN8vNAk1eWf5XJKumq, over clean game frames captured with the
+engine HUD switched off locally), the menus' tokens and faces:
+- **Plates** hang from the top edge (P1 left, P2 right, mirrored; the phone: the foe at the top, you right above the gesture zone): the
+  name (display face) + its kanji, the character's status tag (風死 · IN HAND for KAZESHINI IN), Reishi as a torn brush stroke (a blood
+  ghost drains after the hit; under 25 % the stroke itself goes blood and pulses), nine soul flames (spent: a dashed outline; at stake: a
+  blood outline that bobs), flash step's three cells and the awaken line in REIATSU, the SP pointer as three hanko seals carved with
+  each pointer's theme glyph (Hisagi 投 / 刈 / 雷) and the live one's name.
+- **One place per job**: the move's name (kanji + romaji) and the combo (a stamped count over a blood slash, its damage and scaling)
+  only under the attacker's plate, never over the fighters. **Blood means now**: the combo, the last ten seconds, the souls at stake,
+  the Kikon hold ring.
+- **Prompts** at the bottom centre: the key and what it does now (SP · AS2 after J4; Hold SP with the 12-frame ring; Awaken ready).
+- **Phone deck**: the lower 37 % is a screentone field split by one ink line (SP over ATK), a one-line gesture hint, the dial on the
+  thumb's side as three seals 止 / 爆 / 覺 (the latter lit only when usable); every touch leaves an ink ripple, a flick a brush trail
+  with the gesture named, a held SP its Kikon ring; left / right hand mirrored.
+- **Pause**: the scene greys, a vertical 止 with a blood splash, one torn paper strip of numbered rows (EN + zh), the camera value.
+- **Intro / finish**: letterbox, the name brushed down a vertical column with its romaji and cry, HISAGI vs KENPACHI, then READY > 斬;
+  決着 brushed with a blood splat, K.O., the winner with Konpaku / best combo / Kikons on an ink scrim.
