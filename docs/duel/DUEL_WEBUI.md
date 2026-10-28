@@ -351,3 +351,15 @@ Artifact version 6. Two passes over the eight checks, each patched and re-shot (
 | motion | the pause's 止 appeared from nowhere | it grows out of the tab you pressed (0.42 s from the top-left) |
 | micro-interaction | a Burst press gave no feedback on the seal; 覺 just appeared | a blood ring spills off the seal; 覺 stamps in |
 | responsive | none found (the phone mock at 2.36 cqw, the bars wrap) | |
+
+### 8.2 Draft v6: 起筆, your Reishi drawn out of the 爆 seal (the user, 2026-10-29)
+
+> 「你現在的做法只是把覺醒鈕疊到血量的開頭上，兩個完全沒有一體感，甚是還遮蔽了一部分的血量顯示。你覺得應該要如何修正」, then the pick
+> 「起筆：血從印章流出（推薦）」 (rejected: 刀柄, the bar as a blade out of a tsuba; 膠囊, one capsule frame round both).
+
+Artifact version 7. The seal is where the brush lands; the Reishi stroke starts at its rim (no overlap: v5 hid 1.6 U of it), flaring
+through a neck (2.6 x 4 U, under the seal by 1.3 U) into it. Your phone stroke is anchored at the seal (flipped: the torn end is the far
+one), so damage eats it from the far end back toward the seal and what is left always touches it; the neck turns blood with the bar
+when low, slate at 0. The awakening ring covers 85 % of the circle with its gap facing the neck (rotated 207 deg; the left hand 27 deg).
+The seal's dark halo is gone (it separated the two); the name row keeps 9.4 U clear for the seal and its ring.
+To build: P1's phone Reishi fill anchors at the thumb's side (hud.css; the engine HUD's fallback unchanged), the neck an inline SVG.
