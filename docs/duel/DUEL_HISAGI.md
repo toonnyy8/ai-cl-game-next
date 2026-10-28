@@ -3966,3 +3966,21 @@ its non-zero entries are untouched paths, as in §27.5). In the match (83000 / 8
 a frame (both fighters idle: 2.56 KB, §27.5). Stills at 1280x720 and 390x844 (`--mobile`). The sim did not move
 (`--pairs 29,31,35 --seeds 10`): HK 176.6 s (3:7), HI 213.2 s (KOs 9, 2:8), HH 230.6 s (6:4); G2 (II IK KK) 3 PASS.
 Checked by numbers and stills, needs the user's eyes (the playtest).
+
+### 27.7 No drag after pointers 1 and 2, NS1's dead zone on all three segments (the user, 2026-10-28)
+
+The user's requests (verbatim): 「1. NS1 跟 NS2 接 SA 到時候不要把人勾過來 2. NS1[2] 跟 NS1[3] 也要設定近距離無效的範圍」.
+
+- The kit's SA is now `:hs-sa-kiri` 斬 KIRI: YOSE's cut (40, S 10, reach 2.4, slide 1.4, stagger) without its frame-0 drag. YOSE `:hs-sa`
+  stays only as NS3a 縛's gap SA (`:params :sa :hs-sa`, the user's §27 「接 SA 的時候附加拉近的效果」); CHIKUDEN's gap keeps 放電. So
+  after NS1 at 4-6 m a J whiffs (KIRI reaches 2.4 + 1.4 m), after NS2 (1-2.5 m) it lands.
+- `:hs-n1b` HIKI and `:hs-n1c` USHIRO-NAGI take NAGI's `:min-reach *hs-k-dead*` (3.0 m; their chain windows `HS-CORE-SEG` skip a victim
+  nearer, as NAGI's arc does): pointer 1's whole NS misses inside 3 m.
+- Tests (`triangle.lisp`): the kit's SA KIRI (no on-frame, class :sa, 40), no `:sa` on NS1 / NS2's segments, NS3a's YOSE; the three NS1
+  segments' `hw-min` = `*hs-k-dead*`; `hisagi.lisp`'s dead-zone list +NS1b / NS1c. Host 10781 ALL PASS; pkgcheck 0 / 0 / 0.
+- Browser (83000 / 83001, 2510+p): NS1 + J at 6 m: NAGI 62, `HS-SA-KIRI` whiffs; NS1 x3 at 2 m: all three whiff; at 6 m 62 / 56 / 80;
+  NS2 + J J at 2 m: 45, KIRI 40, J2 30; NS3 + J J at 6 m: NS3a whiffs, YOSE drags him in, 40, J2 30. Playtest v215.
+- Gates: HK 164.0 s (10 seeds, all K.O., **Hisagi 0:10**; 176.6, 3:7 before), HI 197.1 s (all K.O., **0:10**; 213.2, 2:8 before): both
+  the quick pass on time. **HH 278.8 s at 10 (4 time-outs), 270.7 at 20 (8), 298.9 s at 60 with 29 time-outs of 60** (202.9, 1 before):
+  reported to the user, not retuned. The likely share: the generic core CPU still opens NS1 from neutral up close (now all three
+  segments miss inside 3 m) and presses the SA after NS1 at 4-6 m (KIRI whiffs there), unmeasured.

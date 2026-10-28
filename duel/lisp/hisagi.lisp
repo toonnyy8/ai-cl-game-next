@@ -329,10 +329,12 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 (defmove-copy :hs-na3 :hs-j1 :clip :hs-q1 :startup 8 :clip-s 8)   ; (J1's cut without the coil)
 (defmove-copy :hs-na4 :hs-j2)
 ;; pointer 1 投: NAGI's 6 m sweep > HIKI, the sickle back into him > USHIRO-NAGI, the backward swing (198); AS1 KAGI-BIKI hooks
-;; him and drags him in, stealing flash step
-(defmove-copy :hs-n1c :hs-k3 :callout "USHIRO-NAGI" :startup 24 :clip-s 22 :on-hit :knockdown :flags nil
+;; him and drags him in, stealing flash step. HIKI and USHIRO-NAGI miss a victim nearer than NAGI's *HS-K-DEAD* too (§27.7, the user:
+;; 「NS1[2] 跟 NS1[3] 也要設定近距離無效的範圍」)
+(defmove-copy :hs-n1c :hs-k3 :callout "USHIRO-NAGI" :startup 24 :clip-s 22 :on-hit :knockdown :flags nil :min-reach *hs-k-dead*
   :hits ((24 29 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :look-as :hs-k3))
-(defmove-copy :hs-n1b :hs-k2 :hits ((20 24 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :ns-next :hs-n1c :look-as :hs-k2))
+(defmove-copy :hs-n1b :hs-k2 :min-reach *hs-k-dead* :hits ((20 24 :seg-fn hs-core-seg))
+  :params (:melee-range 2.0 :ns-next :hs-n1c :look-as :hs-k2))
 (defmove-copy :hs-n1a :hs-k1 :startup 20 :clip-s 18 :params (:melee-range 2.0 :ns-next :hs-n1b))
 (defmove-copy :hs-as1 :hs-k3 :kind :sp :callout "KAGI-BIKI" :startup 24 :clip-s 22 :dmg 50 :on-hit :knockdown :flags nil
   :on-land hs-kagi-pull :hits ((24 29 :seg-fn hs-core-seg)) :params (:melee-range 2.0 :steal-fs 40 :pull 1.6 :look-as :hs-k3))
@@ -357,7 +359,7 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
 (defmove-copy :hs-n3b :hs-k2 :clip :hs-chikuden :clip-s 20 :callout "CHIKUDEN" :dmg 25 :on-hit :stagger :hits ((20 24 :seg-fn hs-core-seg))
   :params (:melee-range 2.0 :sa :hs-sa-hoden :zan :pend :look-as :hs-k2))
 (defmove-copy :hs-n3a :hs-shibari :kind :flash :callout nil :startup 18 :active 4 :recovery 26 :clip-s 16 :dmg 40
-  :hits ((18 22 :on-hit :bind :stun 40)) :params (:melee-range 2.0 :ns-next :hs-n3b :look-as :hs-shibari))
+  :hits ((18 22 :on-hit :bind :stun 40)) :params (:melee-range 2.0 :ns-next :hs-n3b :sa :hs-sa :look-as :hs-shibari))
 (defmove-copy :hs-sa-hoden :hs-raiden :kind :quick :clip :hs-hoden :callout "HODEN" :startup 10 :clip-s 10 :dmg 60 :on-hit :stagger :flags nil
   :hits ((10 13 :seg-fn hs-core-seg)) :on-frame nil :params (:melee-range 2.0 :hoden t))
 (defmove-copy :hs-as3c :hs-raiden :startup 16 :clip-s 20 :dmg 110 :on-hit :knockdown :hits ((16 19)) :on-frame nil
@@ -366,9 +368,11 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
   :params (:melee-range 2.0 :ns-next :hs-as3c :look-as :hs-k2))
 (defmove-copy :hs-as3 :hs-j3 :kind :sp :callout "MATOI" :dmg 45 :on-hit :stagger :flags nil :reach 2.4 :slide 1.4
   :params (:ns-next :hs-as3b))
-;; the SA 引寄 YOSE (「鎖鏈把對手拉過來再斬」): frame 0 the chain drags him to *HS-YOSE-TO*, then one cut; J2 goes on
+;; the SA 引寄 YOSE (「鎖鏈把對手拉過來再斬」): frame 0 the chain drags him to *HS-YOSE-TO*, then one cut; J2 goes on. Since §27.7
+;; only NS3a 縛's gap (the user: 「NS1 跟 NS2 接 SA 到時候不要把人勾過來」); the kit's SA, every other gap's, is the plain cut KIRI
 (defmove-copy :hs-sa :hs-j1 :clip :hs-q1 :dmg 40 :reach 2.4 :slide 1.4 :startup 10 :clip-s 8 :on-hit :stagger :on-frame ((0 hs-yose))
   :params (:pull 1.6))
+(defmove-copy :hs-sa-kiri :hs-sa :callout "KIRI" :on-frame nil :params nil)
 
 ;; I: the universal Breaker, drawn as 首掛け KUBIKAKE (ch. 337 / 384); allowed while out
 (defmove :hs-breaker :kind :breaker :clip :hs-breaker :clip-2 :hs-kubikake :callout "KUBIKAKE")
@@ -429,7 +433,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :walk *hs-walk* :run *hs-run* :reishi *reishi-max* :swing-sfx :whoosh-heavy :mult *hs-mult* :taken *hs-taken*
   :push-reach *hs-push-reach*
   :commands (:q :hs-j1 :f :hs-k1 :sig :hs-kaza :sp1 :hs-raiden :sp2 :hs-shibari :breaker :hs-breaker :kikon :hs-kikon)
-  :core (:ns (:hs-n1a :hs-n2a :hs-n3a) :as (:hs-as1 :hs-as2 :hs-as3) :sa :hs-sa
+  :core (:ns (:hs-n1a :hs-n2a :hs-n3a) :as (:hs-as1 :hs-as2 :hs-as3) :sa :hs-sa-kiri   ; (YOSE: NS3a's gap, §27.7)
          :stances (:hs-s-stance :hs-st-kari :hs-st-raiden)       ; by pointer: the reveal / 刈's wound chain (§27.5) / the taut chain
          :kikon-cines (hs-kare-cine hs-kubikake-cine hs-raiden-cine)   ; 刈れ / (首掛 until 刈's, §27.3) / 綴雷電 (§26.6)
          :as-by-press (1 1 2 2 3)

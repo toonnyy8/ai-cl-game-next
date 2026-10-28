@@ -167,8 +167,13 @@
     (check (and (equal (mv-on-frame (m :hs-sa)) '((0 hs-yose))) (eq (kit-class k (m :hs-sa)) :sa)
                 (eq (mv-on-land (m :hs-as1)) 'hs-kagi-pull) (= 40 (getf (mv-params (m :hs-as1)) :steal-fs))))
     ;; §27: NS3a's gap the kit's SA (YOSE), CHIKUDEN's 放電; 放電's distance x; 餘電 set / pending / used up
-    (check (and (null (getf (mv-params (m :hs-n3a)) :sa)) (eq (getf (mv-params (m :hs-n3b)) :sa) :hs-sa-hoden)
+    (check (and (eq (getf (mv-params (m :hs-n3a)) :sa) :hs-sa) (eq (getf (mv-params (m :hs-n3b)) :sa) :hs-sa-hoden)
                 (eq (kit-class k (m :hs-sa-hoden)) :sa)))
+    ;; §27.7: the kit's SA (pointers 1 and 2) a plain cut, no drag; NS1's three segments all miss inside NAGI's dead zone
+    (check (and (eq (getf core :sa) :hs-sa-kiri) (null (mv-on-frame (m :hs-sa-kiri))) (eq (kit-class k (m :hs-sa-kiri)) :sa)
+                (= (mv-dmg (m :hs-sa-kiri)) 40)
+                (every (lambda (n) (null (getf (mv-params (m n)) :sa))) '(:hs-n1a :hs-n1b :hs-n1c :hs-n2a :hs-n2b :hs-n2c))))
+    (check (every (lambda (n) (= (hw-min (svref (mv-hits (m n)) 0)) *hs-k-dead*)) '(:hs-n1a :hs-n1b :hs-n1c)))
     ;; §27.6 (presentation only): CHIKUDEN / 放電 their own clips at their S (speed 1); CHIKUDEN keeps NOKO's :look-as (HS-TICK's
     ;; hashed anchor on the victim)
     (check (and (eq (mv-clip (m :hs-n3b)) :hs-chikuden) (eq (mv-clip (m :hs-sa-hoden)) :hs-hoden)
