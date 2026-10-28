@@ -395,15 +395,15 @@ down point first onto him (S 22), held in him, hauled back.")
 
 ;; pointer 2 縛 the bind (motion-refs §1.7, `336Hisagi_and_Izuru_intervene`, `337Kubikake1`): the chain thrown over his left
 ;; shoulder like a hawser, the left fist clenched on it at his chest, the left sickle hanging down his back on it (HISAGI-DRAW,
-;; lo 2048), the left elbow out wide; the right fist up before his chest too, its sickle raised (both fists high: the
-;; garrote ready); the left shoulder drawn back, the weight back
+;; lo 2048), the left elbow out wide; the right sickle held level behind his right hip, pointing back (neither pointer 1's
+;; low-forward rod nor pointer 3's raised one); the left shoulder drawn back, the weight back
 (defpose :hs-st-bind (:base :hs-s-stance)
   (:root :u -0.09 :f -0.04 :yaw 12) (:pelvis :twist 4) (:spine :flex 4) (:chest :twist 8) (:neck :twist -12) (:head :flex 4)
   (:arm-l :flex 24 :side 72 :twist 0) (:elbow-l :flex 146) (:hand-l :flex 10)
-  (:arm-r :flex 56 :side 18 :twist 0) (:elbow-r :flex 76) (:hand-r :flex -40)
+  (:arm-r :flex -30 :side 40 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -170)
   (:thigh-l :flex 30 :side 12) (:knee-l :flex 26) (:thigh-r :flex -14 :side 14) (:knee-r :flex 30))
 (defclip :hs-st-bind (2.0 :loop t :base :hs-st-bind)
-  (0) (1.0 (:root :u -0.105) (:chest :flex 3) (:elbow-l :flex 140) (:elbow-r :flex 80)))
+  (0) (1.0 (:root :u -0.105) (:chest :flex 3) (:elbow-l :flex 140) (:hand-r :flex -164)))
 
 ;; pointer 3 雷 the lightning (Hadō #11 Tsuzuri Raiden down the chain; ch. 337 "one hand high on the taut chain"): the left
 ;; fist raised high over his head, its sickle pointing up; the right one low out at his right hip; the chain between them
