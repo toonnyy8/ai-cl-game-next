@@ -43,7 +43,7 @@
    #:pad-count #:pad-connected-p #:pad-down #:pad-pressed #:pad-lx #:pad-ly #:pad-rx #:pad-ry #:pad-lt #:pad-rt
    ;; render.lisp: meshes, camera, look, frame, lights, fx batch
    #:wgsl #:mesh #:mesh-p #:mesh-id #:mesh-count #:make-mesh #:+vertex-floats+
-   #:camera #:*camera* #:make-camera #:camera-pos #:camera-target #:camera-up #:camera-shake #:camera-fov #:camera-shift-y
+   #:camera #:*camera* #:make-camera #:camera-pos #:camera-target #:camera-up #:camera-shake #:camera-fov #:camera-shift-y #:camera-shift-x
    #:camera-near #:camera-far #:camera-eye #:camera-right #:camera-upv #:camera-forward #:camera-view
    #:camera-proj #:camera-view-proj #:camera-inv-view-proj #:update-camera #:camera-look-at #:world-to-screen
    #:environment #:*env* #:make-environment #:env-sky-top #:env-fog-color #:env-fog-density #:env-fog-base
@@ -53,7 +53,7 @@
    #:env-vignette #:env-sun-size #:env-sun-glow #:*grade-desat* #:*grade-split*
    #:env-toon #:env-key-light #:env-toon-threshold #:env-toon-band #:env-toon-gradient #:env-toon-gradient-height
    #:env-toon-light-gain #:env-shade-value #:env-shade-saturation #:env-shade-hue #:env-shade-lift
-   #:env-cin-rim #:env-cin-width #:*grade-impact* #:*impact-params* #:grade-impact #:*fx-clock*
+   #:env-cin-rim #:env-cin-width #:*grade-impact* #:*render-transparent* #:*impact-params* #:grade-impact #:*fx-clock*
    #:*render-scale* #:*scene-scale-cap* #:*auto-render-scale* #:*render-scale-min* #:*frame-budget-ms* #:*pixel-lights* #:*perf-log*
    #:*draw-count* #:*tri-count* #:*fx-alpha* #:*fx-add* #:*fx-toon* #:*fx-dropped*
    #:stream-buffer #:stream-buffer-data #:stream-buffer-fill #:stream-buffer-stride #:stream-room-p

@@ -337,9 +337,17 @@ spot-keep mode 4, docs/style/STYLE_STORM_DESIGN.md §3.6) while the form is on. 
         (setf *form-grade* want)
         (if want (impact-frame want 0) (grade-impact 0))))))
 
+(defvar *scene-transparent* nil
+  "T: the scene is drawn without the stage (sky, plaza, ruins, its ash and marks) and the canvas keeps its alpha
+(the engine's *RENDER-TRANSPARENT*, set again each frame), so the page's layers show around the fighters: SELECT
+behind the HTML menus (docs/duel/DUEL_WEBUI.md §4; the user, 2026-10-28: 「選角畫面現在會在廣場上畫出雙方的 3D 模型時，
+將人物以外的背景設為透明」). NIL: every frame as before. The flow sets it; debug 2514 toggles it.")
+
 (defun draw-scene (rdt)
   "Queue the 3D scene. RDT = this frame's effect seconds (0 while paused: nothing moves, no particle is born)."
-  (unless (or (svref *no-draw* 2) *card*) (stage-draw rdt))   ; a card beat (cinema.lisp CARD) hides the stage
+  (if *scene-transparent*
+      (setf *render-transparent* t)                            ; no stage, no sky: only the fighters on alpha 0
+      (unless (or (svref *no-draw* 2) *card*) (stage-draw rdt)))   ; a card beat (cinema.lisp CARD) hides the stage
   (unless *cine* (setf *grade-desat* 0.0) (form-grade))   ; a cinematic's script owns the grade
   (do-sides (e)
     (when (entity-alive-p e)

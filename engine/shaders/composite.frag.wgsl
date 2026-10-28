@@ -19,3 +19,17 @@
   c = mix(c, vec3f(dot(c, vec3f(0.2126, 0.7152, 0.0722))), P.z);
   return vec4f(c, 1.0);
 }
+// RP_COMP_A (*RENDER-TRANSPARENT*, docs/duel/DUEL_WEBUI.md §4; the user, 2026-10-28): fs_comp with the scene's alpha
+// out, for a canvas configured premultiplied (no sky: the scene cleared to 0,0,0,0, its colour is premultiplied). Bloom
+// and additive fx can leave colour above that alpha; the alpha rises to the brightest channel, so the output stays a
+// valid premultiplied colour (a glow lightens the page behind it). fs_comp (alpha 1) is unchanged.
+@fragment fn fs_comp_a(i: Post) -> @location(0) vec4f {
+  let uv = vec2f(i.uv.x, i.uv.y + select(-P.w, P.w, i.uv.x < 0.5));
+  let inside = f32(uv.y >= 0.0 && uv.y <= 1.0);
+  let s = textureSample(t0, s0, uv);
+  var c = (s.rgb + (textureSample(t1, s1, uv).rgb * 0.6 + textureSample(t2, s2, uv).rgb) * P.x) * inside;
+  let q = i.uv - 0.5;
+  c *= 1.0 - P.y * dot(q, q) * 2.0;
+  c = clamp(mix(c, vec3f(dot(c, vec3f(0.2126, 0.7152, 0.0722))), P.z), vec3f(0.0), vec3f(1.0));
+  return vec4f(c, max(s.a * inside, max(c.r, max(c.g, c.b))));
+}
