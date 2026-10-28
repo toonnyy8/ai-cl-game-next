@@ -66,16 +66,19 @@ under the portrait HUD's top block), RV (170 472 22), in CSS px.")
 below (the user, 2026-10-28: 「SP 跟 ATK 沿著目前大約『覺』的位置往斜上方畫界分割」 (v2: 0.20 / 0.986), then 「分割起始點在往上一些」
 (v3: the near end 0.986 -> 0.82)). Before: the pad's level middle (the recogniser's TAP-SPLIT 0.5). One source: the recogniser
 hit-tests it (TOUCH-SPLIT!) and the page draws it (DUEL_WEBUI §7, set 30134 / 30135).")
-(defparameter *rv-lift* 37.8 "爆 moved up this many CSS px (0.5 cm at 96 px an inch; the user, 2026-10-28: 「爆氣鍵上移約 0.5 cm」, then
-「爆氣鍵再次上移約 0.5 cm」: 18.9 -> 37.8). Before: 0.")
-(defparameter *deck-split-lift* '(37.8 18.9)
+(defparameter *plate-low* 37.8 "Your own phone plate's drop, CSS px: must equal duel/web/hud.css's --low (1cm; the user, 2026-10-28 / 29).")
+(defparameter *rv-on-bar* 9.12
+  "爆's centre this many U over the deck's top (+ *PLATE-LOW*): level with the middle of your own plate's Reishi bar (measured in
+the page: the bar's middle 7.12 U over the plate's bottom, the plate 2 U over the deck; the user, 2026-10-29: 「爆氣鍵對齊血量表」).
+Before: its top 22 % down the deck, lifted *RV-LIFT* 18.9 -> 37.8 CSS px (2026-10-28 / 29).")
+(defparameter *deck-split-lift* '(75.6 37.8)
   "The tap zones' line's ends moved up, CSS px: the far (upper) end, the thumb's (lower) end (the user, 2026-10-29: 「SP 與 ATK 的分割線
-下界往上 0.5 cm，上界往上 1 cm」). Before: 0 0. Applied over *DECK-SPLIT* by DECK-UPDATE into *DECK-SPLIT-AT*.")
+下界往上 0.5 cm，上界往上 1 cm」, then 「再次將下界往上 0.5 cm，上界往上 1 cm」: 37.8 18.9 -> 75.6 37.8). Before: 0 0. Applied over *DECK-SPLIT* by DECK-UPDATE into *DECK-SPLIT-AT*.")
 (declaim (type f32vec *deck-split-at*))
 (defvar *deck-split-at* (make-f32 2) "*DECK-SPLIT* less *DECK-SPLIT-LIFT* (fractions of the deck's height from its top), for the window.")
-(defparameter *pt-center-lift* 37.8
+(defparameter *pt-center-lift* 56.7
   "The portrait battle frame's centre moved up this many CSS px (the lens shift, *PCAM* [1]; the user, 2026-10-28: 「戰鬥畫面中心向上偏移約
-0.5 cm」, then 「戰鬥畫面中心再次向上偏移約 0.5 cm」: 18.9 -> 37.8). Before: 0.")
+0.5 cm」, then 「戰鬥畫面中心再次向上偏移約 0.5 cm」: 18.9 -> 37.8, and once more on 2026-10-29: -> 56.7). Before: 0.")
 (defparameter *chip-holds* '(0 0 0 0 0 300 0 0) "Each chip's hold, ms (爆's is set every frame: RV-READY-P, ONEHAND-FRAME).")
 (defparameter *u-chip-holds* '(0 0 0 0 0 0 0 0) "... with the AWAKEN chip as U (U-CHIP-P): a tap.")
 
@@ -90,7 +93,7 @@ today's phones: 50 >= 34 + 16). The chips are placed in the draft's unit (*CHIP-
               (loop for (cx cy r) in *chip-spots*
                     collect (case cy
                               (:pause (list (x (* cx u)) (px (- h dh (* (+ 17 r) u))) (px (* r u))))   ; 止: its bottom 17 U over the deck
-                              (:rv (list (x (* cx u)) (px (- (+ dt (* 0.22 dh) (* r u)) *rv-lift*)) (px (* r u))))  ; 爆: its top 22 % down the deck, lifted
+                              (:rv (list (x (* cx u)) (px (+ (- dt (* *rv-on-bar* u)) *plate-low*)) (px (* r u))))  ; 爆: level with your Reishi bar
                               (t (list (x cx) (px (- h cy)) (px r)))))
               (list 0 (px dt) (px w) (px h))))))
 

@@ -305,3 +305,17 @@ user: no battle rule moved; the camera and the chips are presentation and touch 
 | The hit's screen flash (`.flash`, a paper overlay for 0.18 s on each counted hit, added with the page HUD) | removed | |
 
 Checks: duel-control 99, touch 94 ALL PASS, pkgcheck 0 / 0 / 0, 390x844 `--mobile` shots (neutral, a combo). No sim gate (the user).
+
+### 7.8 The opponent's count, the line again, 爆 on the bar, the centre again (the user, 2026-10-29)
+
+> 「對手的 hit 數提示請放在與我方相反方向」「1. SP 與 ATK 的分割線再次將下界往上 0.5 cm，上界往上 1 cm 2. 爆氣鍵對齊血量表」「沒改戰鬥系統所以一樣不用
+> 跑對戰測試」「戰鬥畫面中心再次向上偏移約 0.5 cm」
+
+| What | Knob | Old → new |
+|---|---|---|
+| The opponent's combo count in left-hand mode (it sat on your side once your block moved right) | `#hud.hphone.left-hand .combo.p2` | right → left (right-hand: already opposite) |
+| The SP / ATK line's lift (upper, lower end) | `*deck-split-lift*` | 37.8 18.9 → 75.6 37.8 CSS px; the upper end is clamped at the deck's top edge (on 390x844 the deck is 312 px and the far end stood 62 px down) |
+| 爆's centre | `*rv-on-bar*` 9.12 U over the deck's top + `*plate-low*` 37.8 (= `--low`) | level with your Reishi bar's middle (measured: 485.3 vs 485.6 px on 390x844); `*rv-lift*` retired |
+| The portrait frame's centre | `*pt-center-lift*` | 37.8 → 56.7 CSS px |
+
+Checks: duel-control 99, touch 94 ALL PASS, pkgcheck 0 / 0 / 0, 390x844 `--mobile` shots, both hands. No sim gate (the user).
