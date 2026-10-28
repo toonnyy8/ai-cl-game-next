@@ -41,6 +41,9 @@ Read this first. It is the map; the detail lives in the files it points to. The 
 - **Playtest first, gates after** (the user, 2026-10-10, DEVLOG §165): once a change passes the fast checks (host tests,
   pkgcheck, build, smoke), publish the playtest Artifact, then run the sim gates, so the user's playtest and the automated
   gates run at the same time; report the gates when they finish.
+- **No balance gates from now on** (the user, 2026-10-29: 「以後不用跑平衡測試」, DEVLOG §468): don't run the seed / pacing gate, the
+  awaken A/B, `aieval`, `assistgate` or `roguegate` unless the user asks. Still run the fast checks (host tests, pkgcheck, build,
+  smoke) and the G2 `--cvc` reference check, which proves a shared hook stays off for the other kits.
 
 ## Repo map
 
