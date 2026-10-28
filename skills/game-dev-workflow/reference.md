@@ -122,7 +122,7 @@ unless they start with `~/.claude` (auto-memory). "G" = generalizable, "P" = pro
 ### 2.3 DEVLOG section format (G)
 - `## N. <short zh-TW title>（YYYY-MM-DD）`; opens with `使用者：「…」` verbatim (multiple quotes chained with →).
 - Then bold-labelled bullets: **使用者的決定／選擇**, **原因／查到的原因**, **改動／做法**, **試過但拿掉**, **調整過程**,
-  **測試／結果** (15 pairings K.O., median range, A/B rows, masher %, host test counts, G2 lines), **還沒解決**.
+  **測試／結果** (the pairings' K.O.s and medians, win rates, host test counts, G2 lines; old system: A/B rows, masher %), **還沒解決**.
 - Earlier sections are long prose essays; later ones (§68+) are bullet lists: the bullets are easier to scan. Prefer them.
 - Cross-refs both ways: DEVLOG §N ↔ STRINGS §M ↔ commit subject.
 - Disagreements between parallel lines are labelled: §37 "（§36 是另一條線：…）".

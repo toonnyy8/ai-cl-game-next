@@ -34,7 +34,7 @@ Then ask what the table can't show:
   the body's J and SP" as a list of move classes and get a yes.
 - **Which pointer an AS's Kikon uses**: the pointer it writes (since §435), not the one before.
 - **Direction of a timing change**: 「按住判定時間拉長」 could be more lenient or stricter (asked: 「打中後要多按住幾幀」). Ask which way.
-- **Hold or tap per press, and the phone**: a tap fires on the lift in neutral and on the press inside a move (§444); the SP zone
+- **Hold or tap per press, and the phone**: a tap fires on the lift in neutral and on the press inside a move (still 40 ms, `press-ms`, so a flick is no press; §444); the SP zone
   is the upper half; a hold is judged where?
 - **What ends a route**: every segment that something can follow must not knock down (§443).
 
@@ -50,7 +50,7 @@ Then ask what the table can't show:
 6. **Carry-overs as fighter state set at a move's start** (`core-note-start!`): the charge × (`:charge-mult`) from the charged SA through
    the string; the Kikon hold (`fighter-sp-held`); the SP pointer of the strike (`fighter-sp-ptr`).
 7. **Pin in host tests** (`tests/duel-rules/triangle.lisp`): every class tag, tells ≥ 14 f, each wave segment's strike (same class, cap
-   ≥ 40), stance by pointer, no shared strike across classes.
+   ≥ 40), stance by pointer, no shared strike across classes, no knockdown / launch on a segment that something follows.
 
 ## Red flags
 - One move used by an NS and an AS: the class table tags it once; make a copy per class (§437).

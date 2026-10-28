@@ -5558,4 +5558,6 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
   - `sim-balance-gates`：六組對戰（2,7,9,29,31,35）、G2 是 II／IK／KK、ASSIST／學習型 CPU／AI 評分凍結、觸控改動不動模擬閘門、核心 CPU 的結構。
   - `duel-motion-style`、`procedural-ink-style`、`game-dev-workflow`、`lisp-wasm-game`：路徑改成本 repo，補上指針站姿、鏡像斬擊、慢動作補間、一則訊息多個需求的處理。
 - 舊系統專用的內容（架勢、SP2、O 收尾、ASSIST／AUTO COMBO、學習型 CPU、利捷的段表）已刪除，各處留一行 `git show e55304e:skills/<名稱>/…` 指向舊版。
-- 沒有改程式，不需要建置和閘門。
+- 驗證：讓一個沒看過這次對話的 subagent 只讀 skill 回答六個情境題（AS 太快導致誤觸、改 core-sim 要測哪些、中段倒地、按住規則改變後節奏變慢、舊版在哪、新角色的指針表）。都答得出來，並找出缺漏：新角色的對戰編號怎麼算、月牙的毀魂技是否也有確認、沒有「中段不能倒地」的測試、手機 40 ms、sim-balance-gates 的舊數字（15 組、G2 的 YY／YK／KK、鏡像清單、演出是否算時間），已全部補上。
+- 新增 host 測試（`tests/duel-rules/triangle.lisp`）：核心角色每個形態的 NS／AS 段，只要後面還能接（下一段或空隙的 SA），段本身和它的波都不能讓對手倒地或擊飛；KESSA 的分身 X 斬是踉蹌。+27 項，共 10799 項全過。
+- 沒有改遊戲程式，不需要建置和閘門。

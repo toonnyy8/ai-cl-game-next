@@ -8,7 +8,9 @@ description: Use when changing game rules, frame data, damage, reach, tuning kno
 ## Overview
 A balance change is done when **measured** gates pass, not when it compiles. The exemplar (SOUL DUEL, this repo) runs a
 fixed-step sim with a split RNG, so a seed replays the same match bit for bit; every gate below relies on that. Since the core
-system (2026-10-27) only Kenpachi, Ichigo and Hisagi play: six pairings, KK IK II HK HI HH = `--pairs 2,7,9,29,31,35`. Details, numbers and evidence:
+system (2026-10-27) only Kenpachi, Ichigo and Hisagi play: six pairings, KK IK II HK HI HH = `--pairs 2,7,9,29,31,35`. A
+new roster member appends his pairings with every earlier member and his mirror (the order in `tools/simgate.py --help` and
+gate.lisp `ROSTER-PAIRS`): count his indices from there, and his core pairings are the ones with K, I, H and himself. Details, numbers and evidence:
 `reference.md`; the project's current policy text: `docs/duel/DUEL_GAMEPLAY.md` "Gate policy".
 
 ## Implement so it can be audited

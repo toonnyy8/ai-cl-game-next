@@ -38,7 +38,7 @@ e55304e:skills/duel-move-modules/reference.md`.
 
 ## 2. The pointer rule and its table (§5b, P → G)
 - The user, 2026-10-28: 「以後每個指針的 NS 與指向他的 AS 以及對應的毀魂技都要有風格與效果上的連動關係」.
-- One table per form: pointer × (theme, stance, NS, AS, Kikon cinematic). Ichigo's is DUEL_CORE §5b.
+- One table per form: pointer × (theme, stance, NS, its SA, AS, Kikon cinematic), the SKILL's table. Ichigo's is DUEL_CORE §5b.
 - **G:** state the theme first; fill every cell from it; a cell borrowed from another theme is the thing the user will ask to change
   (KESSA's pointer 1 played the Getsuga until §428).
 - An AS's Kikon and Soul Break profile follow the pointer the AS **writes** (§435). The Soul Break at zero Reishi plays the current
@@ -56,7 +56,8 @@ e55304e:skills/duel-move-modules/reference.md`.
 - **G (a hit-frame hold check misreads taps):** a move whose hit lands before a tap lifts (AS3 at 8 f) reads every tap as a hold.
   - Fix: judge after the hitstop. Nothing in the sim moves during it, so the undo there is exact.
 - **A wave's Kikon** (§437): the hazard records its segment (`hazard-sp-mv`). Its hit, with the hold kept, starts the segment's
-  `:kikon-strike` in phase `:follow`.
+  `:kikon-strike` in phase `:follow`. It goes through the same confirm and undo; the undo leaves the owner free (he was not in
+  the strike move).
 - **The CPU's hold is a press length** (`cai-sp`: 40 frames when it wants the Kikon). A rule that lengthens the hold changes the
   CPU's Kikon count and the pace: IK 201.1 s and HI 204.1 s until the CPU held through the confirm (§440).
 

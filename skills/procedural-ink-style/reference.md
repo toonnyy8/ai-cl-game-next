@@ -305,7 +305,8 @@ Main evidence: `docs/style/STYLE_STORM_DESIGN.md` (SD), `docs/style/STYLE_STORM_
   0.6 s. The BLOOD spot colour is reserved for counters, Kikon and Breaker, so red always means "this was special".
 - Hits are monochrome by rule; colour only appears on spot events. A 1-frame white flash on the victim; heavy hits
   hold the attacker 3 f; shake scaled by damage; a Kikon gets a 6 % zoom punch (BL).
-- A Kikon-able victim gets a red soul flame over the head; "HOLD O KIKON" appears as a prompt (HUD).
+- A Kikon-able victim gets a red soul flame over the head; "HOLD O KIKON" appeared as a prompt (HUD; the old O key — under the core system the Kikon is the SP
+  held, and its call-out waits for the dash-in's first frame so a tap shows none, DUEL_CORE §4).
 - The fx clock pauses with the game, so HUD pulses and fades hold too (pause checked byte-identical).
 
 ### 4.2 Gameplay camera (P)

@@ -38,8 +38,9 @@ is "done" until it is measured, committed and pushed — but never deployed unle
 ## Design principles the user holds (check new designs against them)
 - Faithful to the source characterisation; canon claims tagged [manga]/[anime-only]/[ours].
 - A transformation changes playstyle, not power (gate: "never transform" still wins ≥ 20/60 per seed stream).
-- Rock-paper-scissors loops enforced by geometry and host tests (guard > light > grab > guard).
-- Light = short/fast, heavy = long/slow; drawn reach = hit reach.
+- Rock-paper-scissors loops enforced by rules and host tests (the core triangle NA / NS / AS / SA, DUEL_CORE §2; before it,
+  guard > light > grab > guard).
+- Readable tells on openers, a theme per SP pointer; drawn reach = hit reach.
 - Pacing is a numeric gate the user owns; deliberate nerfs stay nerfs; exceptions only with the user's acceptance.
 - No infinite pressure; reward aggression; the CPU answers mashing.
 - Accessibility as priced SETTINGS rows (assist, one-hand phone mode, hints), not new modes.

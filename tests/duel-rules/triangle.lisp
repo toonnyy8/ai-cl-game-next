@@ -133,3 +133,15 @@
              (let* ((mv (kit-move k n)) (s (kit-move k (getf (mv-params mv) :kikon-strike))))
                (check (and s (kit-class k s) (eq (kit-class k s) (kit-class k mv))
                            (eq (getf (mv-params s) :look) :flash-step) (>= (getf (mv-params s) :follow-cap) 40.0)))))))
+;; only a route's last segment knocks down or launches (2026-10-28, DEVLOG §443: KESSA's X knocked down and the SA after it
+;; whiffed): every NS / AS segment that something follows (a next segment, its gap's SA) and its hit windows and wave stagger at most,
+;; in every form of a kit with a :core; and KESSA's clone X, which NS3[3]'s SA follows
+(dolist (cf '((:ichigo :base) (:ichigo :kessa) (:kenpachi :base) (:hisagi :base)))
+  (let* ((k (apply #'kit cf)) (core (kit-core k)))
+    (dolist (n (append (getf core :ns) (getf core :as)))
+      (dolist (m (core-segments n))
+        (let* ((mv (kit-move k m)) (p (mv-params mv)))
+          (when (and mv (or (getf p :ns-next) (getf p :sa)))
+            (check (not (or (member (getf p :react) '(:knockdown :launch))
+                            (loop for w across (mv-hits mv) thereis (member (hw-react w) '(:knockdown :launch))))))))))))
+(check (equal (mapcar (lambda (n) (hw-react (svref (mv-hits (find-move n)) 0))) '(:ic-c-xa :ic-c-xb)) '(:stagger :stagger)))

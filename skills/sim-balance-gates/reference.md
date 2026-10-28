@@ -1,7 +1,7 @@
 # B. Deterministic simulation, balance gates, CPU AI — lessons from SOUL DUEL
 
-Source repo: this repo (/media/8tsp/projects/ai-cl-game-next) (CL → ECL → wasm; `duel/` = SOUL DUEL, 3D fighter, 5 characters,
-15 CPU pairings). Paths below are repo-relative. "G" = generalizable, "S" = SOUL DUEL-specific.
+Source repo: this repo (/media/8tsp/projects/ai-cl-game-next) (CL → ECL → wasm; `duel/` = SOUL DUEL, 3D fighter; since the core system
+(2026-10-27) three playable characters, six CPU pairings; the older numbers below say which era they are from). Paths below are repo-relative. "G" = generalizable, "S" = SOUL DUEL-specific.
 
 ---------------------------------------------------------------------------------------------------------------------
 ## 1. Determinism: why a seed replays the same match
@@ -61,7 +61,7 @@ Source repo: this repo (/media/8tsp/projects/ai-cl-game-next) (CL → ECL → wa
 
 | Layer | Tool | Runtime | Speed | When |
 |---|---|---|---|---|
-| Host rules tests | `tests/duel-rules-test.lisp` (4431+ checks), `duel-control-test` (86), `learn-test` (100), `input-test` (33), `cine-test` (18) | host ECL, plain CL, no build | seconds | every change |
+| Host rules tests | `tests/duel-rules-test.lisp` (10799 checks, 2026-10-28), `duel-control-test` (86), `learn-test` (100), `input-test` (33), `cine-test` (18) | host ECL, plain CL, no build | seconds | every change |
 | G2 bit-exact refs | `tests/style-gates.py cvc dist/duel` vs `tests/style-cvc-ref.txt`; native self-check `tools/simgate.py --cvc` | browser wasm (+native) | ~1 min | every change; refreshed on any intended sim change |
 | Seed / pacing gate | `tools/simgate.py` (the six core pairings 2,7,9,29,31,35 × seeds) | native, 1 core/process | 300 matches in ~14 s at -j16 | rule/AI/tuning changes |
 | Awaken A/B | `simgate.py --pairs k --seed0 100 --seeds 60 --cmd 39020` | native | ~tens of s per stream | changes touching a character with an awakening |
@@ -74,8 +74,8 @@ Source repo: this repo (/media/8tsp/projects/ai-cl-game-next) (CL → ECL → wa
 - **Frame-math replay:** `free-steps` re-implements how fighters step and asserts every move's measured block
   advantage == its table value, for every move of every form (l.135–152). Headless twin in-game: frame probes
   2315+k → `duel probe ... advantage A (table T)`.
-- **Combinatorial walks:** every string route of every form (`link-moves`, `route`): exactly the six routes JJJ..KJJ,
-  link 3 is an ender, block gaps, "J beats K" frame budget, J ≤ own J1 gap.
+- **Combinatorial walks:** every string route of every form (the old system: the six routes JJJ..KJJ; the core system: the J
+  string's length, every NS / AS segment's class, only a route's last segment knocks down, `triangle.lisp`).
 - **Art-vs-hitbox reach check** (l.1630–1700): reads each `*-art.lisp`, poses the rig with real FK at the move's hit
   frames, measures weapon tip / striker joint vs the hit volume's far edge: J within ±0.15 m; K / Breaker may fall
   short but never over by > 0.15 m; documented exceptions (`*reach-one-sided*`, 片腕 ≤ 0.6). A deliberate over-reach
@@ -87,12 +87,12 @@ Source repo: this repo (/media/8tsp/projects/ai-cl-game-next) (CL → ECL → wa
 - Shared files must contain no character names (a "name-leak grep" run with every batch; DEVLOG §29, §37).
 
 ### G2 reference regression
-- Three seeded CvC matches (seed 7: YY / YK / KK via debug 3007/4007/5007 in turbo) → all `duel hash` lines + RESULTS
+- Three seeded CvC matches (since the core system II / IK / KK, DEVLOG §412; before: YY / YK / KK at seed 7 via debug 3007/4007/5007, turbo) → all `duel hash` lines + RESULTS
   stored in `tests/style-cvc-ref.txt`, compared line for line.
 - **Contract** (DUEL_GAMEPLAY "Determinism"): any change to rules / AI / kit / tuning *changes* it; a refactor or engine
   move *must keep it* identical. So G2 doubles as "did my refactor change behaviour?".
 - **Regeneration is documented, never silent:** the `#` header of style-cvc-ref.txt is a chain of
-  "after <change> (the user, date): which of yy/yk/kk changed, new RESULTS line. Before: ..." going back ~30 changes;
+  "after <change> (the user, date): which of the three changed, new RESULTS line. Before: ..." going back ~30 changes;
   DUEL_GAMEPLAY "Reference" keeps the same history for YK; each DUEL_STRINGS § ends with "G2: yy ... yk ... kk ...".
   Partial-change notes are informative too ("yk changed, yy/kk unchanged": proves the change only touched what it should).
 - Run both: browser G2 (`style-gates.py cvc`) and native `simgate.py --cvc` (proves the native runner is still exact).
@@ -108,9 +108,9 @@ Source repo: this repo (/media/8tsp/projects/ai-cl-game-next) (CL → ECL → wa
   (memory feedback-rebuild-dist: a native-only rebuild shipped "VPAD-INDEX is undefined" to the user's phone).
 
 ### Pacing gate criteria (DUEL_GAMEPLAY "Pacing gate", memory feedback-gate-policy)
-- NORMAL CvC, turbo, cinematics included. Every match ends by **K.O.** before the 300 s timer.
+- NORMAL CvC, turbo; the match time leaves every cinematic out since 2026-10-08 (DEVLOG §134). Every match ends by **K.O.** before the 300 s timer.
 - **Median 125–210 s per pairing** (was 125–180 until Reishi 1100 → 1300, user 2026-09-26: humans play faster than CvC).
-- **Mirrors (YY KK RR II SS) exempt from the 210 ceiling** (user 2026-10-02: 「內戰的數據超時沒關係」); cross pairings must hold.
+- **Mirrors (KK II HH; before the core system YY KK RR II SS) exempt from the 210 ceiling** (user 2026-10-02: 「內戰的數據超時沒關係」); cross pairings must hold.
 - Win rates "near even" (YK within ±3 of 10/10 at first; later read as a trend, not a gate).
 - **Two stages:** 10 seeds (`31100+10`); pass at once if all K.O. and median in 135–200 s (10 s inside the window); else
   rerun 20 seeds = verdict. In practice a 20-seed median just outside → **rerun at 60 seeds** (e.g. §19 YK 124.4 at 20 →
@@ -147,7 +147,7 @@ evidence (§18: cross pairings and G2 bit-identical, only mirrors moved).
   per-character data still routes through the one knob file.
 - **Docstrings carry history:** old → new value, date, who decided, why, and the doc §. Examples:
   - `*reishi-max*` "1100 -> 1300 (guard v3, the user's decision 2026-09-26: ... the seed gate's median window moved".
-  - `*ai-o-ender*` "A pacing knob of the seed gate (DUEL_STRINGS §4, §6, §9: the design's 0.35 -> 0.15)".
+  - `*core-kikon-confirm*` "0 -> 12, 2026-10-28, the user: 「把毀魂技的按住判定時間拉長」" (old system: `*ai-o-ender*` 0.35 -> 0.15).
   - guard refill "the user: 20 -> 12; then ... (大幅減少防禦量表的恢復速度): 12 -> 5.5".
   - `*red-threshold*` notes it's a weak lever ("0.10 .. 0.30 moved the gate medians by only ~10 s").
   - "Not a tuning knob: the spec's value." marks values that must not be used as levers.
