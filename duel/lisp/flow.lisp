@@ -398,6 +398,7 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
        (format nil "~a ~a  ~d~:[~;%~]" (if (< i 2) "P1" "DUMMY") (if (evenp i) "HP" "KONPAKU") (svref *practice-rows* i) (evenp i))))))
 (defparameter *practice-option-keys* '(:dummy :counter :refill :gauges :p1-hp :p1-kon :dm-hp :dm-kon) "PRACTICE's option rows.")
 (defun pause-items () (mapcar #'pause-label (pause-keys)))
+(defvar *pause-dirty* t "A pause row's label may have changed (PAUSE-DO): the page's pause rows are sent again (webhud.lisp).")
 (defun pause-do (k dir)
   "Pause row K chosen (DIR 1), or an option row moved by left / right (DIR -1 / 1)."
   (case k
@@ -410,6 +411,7 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
      (let* ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))) (v (svref *practice-rows* i)))
        (setf (svref *practice-rows* i) (if (evenp i) (cycle v *practice-hp* dir) (konpaku-step v dir *konpaku-max*)))
        (practice-set! (if (< i 2) *p1* *p2*)))))
+  (setf *pause-dirty* t)
   (when (member k *practice-option-keys*) (log-msg "duel practice ~a" (pause-label k))))
 (defun option-dir () "Left / right this frame: -1 / 1, else NIL (an option row's value)." (cond ((menu-left-p) -1) ((menu-right-p) 1)))
 (defparameter *results-menu* '("REMATCH" "CHARACTER SELECT" "TITLE"))
@@ -419,8 +421,10 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
 (WEBUI-COMMANDS), what they show last (WEBUI-SYNC)."
   (unless *paused* (incf *ft* rdt))
   (webui-commands)
+  (webhud-commands)                                      ; (the page's battle screens: the pause rows, webhud.lisp)
   (flow-screens)
   (webui-sync)
+  (webhud-sync)
   (setf *ui-press* 0))
 
 (defun flow-screens ()

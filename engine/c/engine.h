@@ -43,6 +43,7 @@ float pf_density(void);                      /* window pixels per CSS pixel (dev
 int pf_touch_copy(float *out, int max);      /* this frame's finger events, 5 floats each (touch.lisp) */
 int pf_page_get(int k);                      /* page services (globalThis.gamePage), 0 without one */
 void pf_page_set(int k, int v);
+void pf_page_set_str(int k, const char *s);  /* a string (ASCII, NUL-terminated) to globalThis.gamePage.setStr */
 int pf_locked(void);                         /* pointer lock active */
 int pf_key_down(int scancode);
 int pf_key_pressed(int scancode);            /* went down this frame */

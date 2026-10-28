@@ -87,6 +87,15 @@ its clock to now. Call once per frame, after PLATFORM-POLL. 0 B."
   "Ask the page (a game's web shell, globalThis.gamePage.get): an integer, 0 when the page has no such service."
   (ffi:c-inline (k) (:int) :int "pf_page_get(#0)" :one-liner t))
 (defun page-set (k v) "Tell the page (globalThis.gamePage.set) K = V (integers)." (ffi:c-inline (k v) (:int :int) :void "pf_page_set(#0,#1)" :one-liner t))
+(defvar *page-str* (make-array 256 :element-type '(unsigned-byte 8) :initial-element 0) "PAGE-SET-STR's bytes.")
+(defun page-set-str (k s)
+  "Tell the page (globalThis.gamePage.setStr) K = the string S: its first 255 characters, ASCII (any other character is sent
+as ?). 0 B; a page without setStr ignores it. Call it on a change only (the page re-renders on each)."
+  (let ((b *page-str*) (n (min 255 (length s))))
+    (declare (type (simple-array (unsigned-byte 8) (*)) b) (fixnum n))
+    (dotimes (i n) (let ((c (char-code (char s i)))) (setf (aref b i) (if (< c 128) c 63))))
+    (setf (aref b n) 0)
+    (ffi:c-inline (k b) (:int :object) :void "pf_page_set_str(#0,(const char*)#1->vector.self.b8)" :one-liner t)))
 
 ;;; ---------------------------------------------------------------- gamepads
 ;;; Up to 4 open pads in stable slots 0..3: a newly connected pad takes the first free slot and keeps

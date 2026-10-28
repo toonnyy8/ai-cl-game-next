@@ -131,14 +131,17 @@ player's (his own pad). Changes PAIR's plists in place; T when something changed
   (and (plusp code) (nth (1- code) (if (eq device :key) *bind-keys* *bind-pads*))))
 
 (defun key-prompt (pair side device kind)
-  "The HUD's prompt KIND (:chain :burst :kikon) for SIDE pressing on DEVICE (:key / :pad), from his bindings (cached)."
+  "The HUD's prompt KIND (:chain :burst :kikon; the page's keys :sp-keys :p-key :awaken-keys) for SIDE pressing on DEVICE (:key / :pad), from his bindings (cached)."
   (let ((i (+ (* 2 side) (if (eq device :pad) 1 0))))
     (getf (or (svref *prompt-cache* i)
               (setf (svref *prompt-cache* i)
                     (flet ((n (a) (bind-label (binding-name (svref pair side) a device))))
                       (list :chain (format nil "~a+~a  SP" (n :mod) (n :quick))
                             :burst (format nil "~a  BURST" (n :awaken))
-                            :kikon (format nil "HOLD ~a  KIKON" (n :quick))))))
+                            :kikon (format nil "HOLD ~a  KIKON" (n :quick))
+                            :sp-keys (format nil "~a + ~a" (n :mod) (n :quick))   ; the page's prompt keys (webhud.lisp)
+                            :p-key (n :awaken)
+                            :awaken-keys (format nil "~a + ~a" (n :mod) (n :awaken))))))
           kind)))
 
 ;;; ---------------------------------------------------------------- SETTINGS (the 2026-09-28 SETTINGS screen)
@@ -183,6 +186,13 @@ attacks (his STATE :move; the user 2026-09-30: no dash there), unless his move t
 :flags has :step-branch, a stance whose Step is a follow-up: there the flick read as a Hoho that never came, the user
 2026-10-06, decision 24 of docs/duel/DUEL_LILLE.md), or whenever a Hoho now would be PERFECT (the user 2026-10-01)."
   (and (or (and (eq state :move) (not step-branch)) perfect) t))
+
+(defun rv-buttons (down hold tap)
+  "爆's vpad buttons (onehand.lisp TOUCH-BUTTON; the user, 2026-10-28: 「把覺醒鍵整合進爆氣中，改由長按覺醒」). DOWN: the chip is
+down (past its hold); HOLD: its press has the awakening's hold (300 ms, the awakening ready; NIL: none, not ready); TAP: it was
+let go before its hold (the recogniser's chip tap). Values: :MOD, :AWAKEN down. Not ready: P on the press (the Burst); ready: P alone on a quick lift (the
+Burst), Mod + P once held through the hold (the awakening)."
+  (values (and down hold t) (and (or down tap) t)))
 
 ;;; ---------------------------------------------------------------- the PRACTICE dummy (flow.lisp PRACTICE-STEP)
 (defparameter *dummy-guard-hold* 60 "PRACTICE, GUARD AFTER HIT: frames the dummy keeps its guard once it is free again.")

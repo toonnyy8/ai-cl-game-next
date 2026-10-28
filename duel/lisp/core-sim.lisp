@@ -151,7 +151,7 @@ kept down to the hit (the user, 2026-10-28: 「實際在觸控時的判斷應該
   "Is a contact down in the pad's SP zone (above the tap split, where it went down: a tap's own test, %GESTURE-LIFT)? The attack's
 zone below is not the SP's hold (the user, 2026-10-28: 「程式的毀魂技觸控判定並沒有區分 SP 跟攻擊的差異，所以如果打完 SP 後按住攻擊的區域
 也一樣會觸發毀魂技」)."
-  (and (touch-active-p *touch*) (< (touch-oy *touch*) (touch-split-y *touch*))))
+  (and (touch-active-p *touch*) (touch-hi-at-p *touch* (touch-ox *touch*) (touch-oy *touch*))))   ; (the slanted line since 2026-10-28)
 
 (defun core-held-p (att)
   "Is ATT still holding the SP button (the attack button) this step?"

@@ -225,6 +225,42 @@
                 (not (vpad-command-pressed-p vp :step t)))))
   (check (eq :hoho (up-flick :move nil))))                                      ; any other move: the Hoho (unchanged)
 
+;;; ---------------------------------------------------------------- ONE-HAND: 爆 does both (RV-BUTTONS, the user 2026-10-28)
+;; 「把覺醒鍵整合進爆氣中，改由長按覺醒」 (DUEL_WEBUI §6 v4): the chip on the recogniser, its buttons as onehand.lisp TOUCH-BUTTON reads
+;; them, into a vpad, the command per read (*COMMANDS*: Mod + P :awaken, P :burst). Not ready (no hold): the Burst on the press;
+;; ready (300 ms): a tap is the Burst on its lift, a hold the awakening (no Burst on its lift); readiness lost mid-hold keeps it.
+(flet ((rv-run (ready steps)
+         "STEPS: (ms events...) per vpad read; the commands read, one per step (NIL: none)."
+         (let ((tr (touch-layout! (make-touch) 1 '(16 600 276 794) '((300 500 30)) '(0))) (vp (new-vpad)))
+           (touch-chip-hold! tr 0 (if ready 300f0 0f0))
+           (loop for (now . events) in steps
+                 do (let ((q (engine::touch-q tr)))
+                      (loop for e in events for i from 0
+                            do (loop for v in e for j from 0 do (setf (aref q (+ (* 5 i) j)) (float v 1f0))))
+                      (setf (engine::touch-now tr) (float now 1f0))
+                      (touch-feed! tr (length events)))
+                    (touch-take! tr)
+                    (vpad-begin-step! vp)
+                    (multiple-value-bind (m a) (rv-buttons (touch-chip-down-p tr 0) (> (aref (touch-chip-hold tr) 0) 0f0)
+                                                           (touch-chip-tap-p tr 0))
+                      (vpad-set! vp :mod m) (vpad-set! vp :awaken a))
+                 collect (multiple-value-bind (c b) (vpad-command vp *commands*)   ; taken, as the fighter takes it
+                           (when c (vpad-consume! vp b))
+                           c)))))
+  (check (equal '(:burst nil nil) (rv-run nil '((16 (0 0 300 500 0)) (33) (50 (2 0 300 500 40))))))      ; not ready: on the press
+  (check (equal '(nil :burst nil) (rv-run t '((16 (0 0 300 500 0)) (133 (2 0 300 500 120)) (150)))))     ; ready, a tap: on the lift
+  (check (equal '(nil :awaken nil nil) (rv-run t '((16 (0 0 300 500 0)) (316) (333) (400 (2 0 300 500 390))))))   ; ready, held
+  (check (equal '(nil :awaken nil) (rv-run t '((16 (0 0 300 500 0)) (320) (400 (2 0 300 500 390))))))     ; (one read past the hold)
+  (check (multiple-value-bind (m a) (rv-buttons nil nil nil) (and (not m) (not a)))))
+;; readiness flips during a press: TOUCH-CHIP-HOLD! leaves the running press's hold alone (the awakening still on the hold)
+(let ((tr (touch-layout! (make-touch) 1 '(16 600 276 794) '((300 500 30)) '(0))))
+  (touch-chip-hold! tr 0 300f0)
+  (let ((q (engine::touch-q tr))) (loop for v in '(0 0 300 500 0) for j from 0 do (setf (aref q j) (float v 1f0))))
+  (setf (engine::touch-now tr) 16f0) (touch-feed! tr 1)
+  (touch-chip-hold! tr 0 0f0)                                                    ; no longer ready: ignored while held
+  (setf (engine::touch-now tr) 150f0) (touch-feed! tr 0)
+  (check (and (not (touch-chip-down-p tr 0)) (= 300 (aref (touch-chip-hold tr) 0)))))
+
 ;;; ---------------------------------------------------------------- the PRACTICE dummy's guard
 (check (every (lambda (st) (= 999 (dummy-guard-left :guard-all st 0))) '(:idle :stun :guard-hit)))
 (check (loop for d in '(:stand :cpu) always (loop for st in '(:idle :stun :guard-hit) always (zerop (dummy-guard-left d st 50)))))

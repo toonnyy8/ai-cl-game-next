@@ -107,6 +107,57 @@
   (touch-layout! tr 1 '(16 600 276 794) nil)
   (feed tr 16 '(0 0 100 660 0) '(2 0 100 660 50))
   (check (pulse tr engine::+tp-tap+)))
+;;; the SLANTED line (TOUCH-SPLIT!, the battle screens' deck, the user 2026-10-28, DUEL_WEBUI §6 v2-v3): over the rect
+;;; 0..390 x 532..844 it runs from 20 % of the height at the left edge (y 594.4) to 82 % at the right edge (y 787.84); the
+;;; left hand mirrors it (82 % left, 20 % right); outside the rect the line keeps its edge's height
+(let ((tr (new)))
+  (touch-split! tr 0 532 390 844 0.2 0.82)
+  (check (touch-hi-at-p tr 1f0 590f0))                      ; the far (left) edge: just above 594.4 is SP ...
+  (check (not (touch-hi-at-p tr 1f0 600f0)))                ; ... just below it ATK
+  (check (touch-hi-at-p tr 389f0 780f0))                    ; the thumb's (right) edge: high up to 787.8
+  (check (not (touch-hi-at-p tr 389f0 795f0)))
+  (check (touch-hi-at-p tr 195f0 690f0))                    ; the middle: 691.1
+  (check (not (touch-hi-at-p tr 195f0 692f0)))
+  (check (and (touch-hi-at-p tr -50f0 590f0) (not (touch-hi-at-p tr 500f0 795f0))))   ; beyond the rect: the edges' heights
+  (check (touch-hi-at-p tr 100f0 400f0))                    ; above the rect (the pad reaches higher): SP
+  (feed tr 16 '(0 0 250 710 0) '(2 0 250 710 50))           ; a tap below the level line (697) but above the slant (718.4)
+  (check (pulse tr engine::+tp-tap-hi+))
+  (feed tr 116 '(0 0 40 640 100) '(2 0 40 640 150))         ; a tap above the level line but under the slant's far end
+  (check (pulse tr engine::+tp-tap+))
+  (touch-split! tr 0 532 390 844 0.82 0.2)                  ; the left hand
+  (check (and (touch-hi-at-p tr 1f0 780f0) (not (touch-hi-at-p tr 389f0 600f0))))
+  (touch-split! tr 0 0 0 0 0 0)                             ; none: the pad's level line again
+  (check (and (touch-hi-at-p tr 100f0 696f0) (not (touch-hi-at-p tr 100f0 697f0)))))
+;;; a HOLD CHIP's early lift (爆 / 覺 merged, DUEL_WEBUI §6 v4): let go before its hold, a TOUCH-CHIP-TAP-P pulse for exactly
+;;; one read (never down); held past it, down and no pulse on the lift; a cancel is no tap; a chip without a hold never pulses;
+;;; TOUCH-CHIP-HOLD! changes the hold of the next press only
+(fresh (tr)                                                 ; chip 1: AWAKEN at (120 548), 300 ms
+  (feed tr 16 '(0 0 120 548 0) '(2 0 120 548 120))
+  (check (not (touch-chip-down-p tr 1)))
+  (take tr)
+  (check (touch-chip-tap-p tr 1))
+  (take tr)
+  (check (not (touch-chip-tap-p tr 1)))                     ; the next read: gone
+  (feed tr 400 '(0 1 120 548 200))
+  (feed tr 520)
+  (check (touch-chip-down-p tr 1))                          ; held 320 ms: down
+  (feed tr 540 '(2 1 120 548 530))
+  (check (not (touch-chip-tap-p (take tr) 1)))              ; its lift is no tap
+  (feed tr 600 '(0 2 120 548 560) '(3 2 120 548 600))
+  (check (not (touch-chip-tap-p (take tr) 1)))              ; a cancel neither
+  (feed tr 700 '(0 3 220 548 650) '(2 3 220 548 680))       ; chip 0 has no hold
+  (check (not (touch-chip-tap-p (take tr) 0)))
+  (feed tr 720 '(0 4 120 548 710))                          ; a press under way keeps its hold ...
+  (touch-chip-hold! tr 1 0f0)
+  (feed tr 760)
+  (check (not (touch-chip-down-p tr 1)))
+  (feed tr 780 '(2 4 120 548 770))
+  (check (touch-chip-tap-p (take tr) 1))                    ; (let go at 60 ms of its 300: a tap)
+  (touch-chip-hold! tr 1 0f0)                               ; ... the next press: down at once
+  (feed tr 800 '(0 5 120 548 790))
+  (check (touch-chip-down-p tr 1))
+  (feed tr 820 '(2 5 120 548 810))
+  (check (not (touch-chip-tap-p (take tr) 1))))
 ;;; the six J / K string routes (DUEL_STRINGS §2.1) by taps alone: one pulse per tap, one per vpad read, in order
 (dolist (route '("JJJ" "JJK" "JKK" "KKK" "KKJ" "KJJ"))
   (fresh (tr)

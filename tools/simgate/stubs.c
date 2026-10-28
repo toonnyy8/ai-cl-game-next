@@ -49,6 +49,7 @@ float pf_density(void) { return 1.0f; }
 int pf_touch_copy(float *out, int max) { (void)out; (void)max; return 0; }
 int pf_page_get(int k) { (void)k; return 0; }           /* a desktop page with nothing saved */
 void pf_page_set(int k, int v) { (void)k; (void)v; }
+void pf_page_set_str(int k, const char *s) { (void)k; (void)s; }
 int pf_locked(void) { return 0; }
 int pf_key_down(int s) { (void)s; return 0; }
 int pf_key_pressed(int s) { (void)s; return 0; }

@@ -44,33 +44,54 @@ never offers it: the deck needs portrait)."
 
 ;;; ---------------------------------------------------------------- the deck (design §3.3)
 ;;; The core system (2026-10-27, docs/duel/DUEL_CORE.md): SP and the attack are the pad's two tap zones again (high = SP, low = the attack;
-;;; the user 「請將 SP 跟攻擊鍵改成用原本 F/Q tap-split 的形式表示」); only chips 5 (AWAKEN: Mod + P),
-;;; 6 (pause) and 7 (RV: P, the Burst) are live; 0 O, 1 L, 2 I and 4 SP2 sit off screen (their slots stay: the touch recogniser's
-;;; chip indices). Chip i: 0 O, 1 L, 2 I, 3 SP1, 4 SP2, 5 AWAKEN (held 300 ms), 6 pause, 7 RV (REVERSE: a burst, any mode; shown while one is possible, 2026-09-30). CSS px from the right-hand
-;;; layout at 390 x 844: x from the right edge, y from the bottom edge; the left hand mirrors x.
-;;; The user's playtest (2026-09-27): every chip 100 px higher, and the flow pad grown to the whole thumb area
-;;; (chips inside it win their hit circles: TOUCH-LAYOUT! tests chips first).
+;;; the user 「請將 SP 跟攻擊鍵改成用原本 F/Q tap-split 的形式表示」); only chips 6 (pause) and 7 (爆 RV: P, the Burst; held 0.3 s while
+;;; the awakening is ready, Mod + P, the awakening) are live; 0 O, 1 L, 2 I, 3 SP1, 4 SP2 and 5 (the old AWAKEN chip, folded into 爆
+;;; on 2026-10-28) sit off screen (their slots stay: the touch recogniser's chip indices).
+;;; The battle screens (the user, 2026-10-28, DUEL_WEBUI §6-§7: 「善哉！！幫我把整套接進遊戲中」): the chips' spots and the tap zones'
+;;; line are the approved draft v4's, in its unit U = 2.36 % of the window's width (CSS px): the deck is the window's lower
+;;; *DECK-FRAC*; the line runs from *DECK-SPLIT*'s first height (of the deck's, at its far edge) to its second (at the thumb's edge);
+;;; 爆 sits in the SP side 3 U in from the thumb's edge, 22 % down the deck; 止 (pause) above the player's own plate, on the thumb's
+;;; side (37 % + 17 U up). The flow pad (where a gesture may start) keeps the playtest's size (2026-09-27: the whole thumb area, 460
+;;; CSS px): above the deck it is all SP (the line's far end extended). The page (duel/web/hud.js) draws all of it where Lisp
+;;; publishes it (DUEL_WEBUI §7), so what is drawn is what is hit.
 (defparameter *chip-spots*
-  '((-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (270 396 26 "AWK") (32 -200 22 "II")
-    (170 472 22 "RV"))
-  "Per chip: x from the thumb-side edge, y from the bottom (negative: from the top), radius, label.")
-(defparameter *chip-holds* '(0 0 0 0 0 300 0 0))
+  '((-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (6.7 :pause 3.1 "II")
+    (6.7 :rv 3.7 "RV"))
+  "Per chip: x from the thumb-side edge, its place (y from the bottom, CSS px; :PAUSE above the player's plate, :RV in the
+deck's SP side) and radius (both in U for the placed ones), label. Before 2026-10-28: AWAKEN (270 396 26), pause (32 -200 22:
+under the portrait HUD's top block), RV (170 472 22), in CSS px.")
+(defparameter *deck-frac* 0.37 "The deck's share of the window's height, from the bottom (the battle screens' draft, DUEL_WEBUI §6).")
+(defparameter *deck-split* '(0.20 0.82)
+  "The tap zones' line: its height as a fraction of the deck's at the far edge, then at the thumb's edge; SP above, the attack
+below (the user, 2026-10-28: 「SP 跟 ATK 沿著目前大約『覺』的位置往斜上方畫界分割」 (v2: 0.20 / 0.986), then 「分割起始點在往上一些」
+(v3: the near end 0.986 -> 0.82)). Before: the pad's level middle (the recogniser's TAP-SPLIT 0.5). One source: the recogniser
+hit-tests it (TOUCH-SPLIT!) and the page draws it (DUEL_WEBUI §7, set 30134 / 30135).")
+(defparameter *chip-holds* '(0 0 0 0 0 300 0 0) "Each chip's hold, ms (爆's is set every frame: RV-READY-P, ONEHAND-FRAME).")
 (defparameter *u-chip-holds* '(0 0 0 0 0 0 0 0) "... with the AWAKEN chip as U (U-CHIP-P): a tap.")
 
 (defun deck-layout ()
-  "Values: pad (x0 y0 x1 y1) and chips ((cx cy r) ...), window px, for the current window and *HAND*. P2 (safe-area
-insets): the pad keeps 16 CSS px over the home indicator (no change on today's phones: 50 >= 34 + 16) and a chip placed
-from the top (the pause chip) stays under the portrait HUD's top block. The chips' spots are the playtest's (§13), not
-moved by the insets: the user tuned them on the phones, insets included."
+  "Values: pad (x0 y0 x1 y1), chips ((cx cy r) ...) and the deck (x0 y0 x1 y1, *DECK-FRAC* of the window from its bottom), window
+px, for the current window and *HAND*. P2 (safe-area insets): the pad keeps 16 CSS px over the home indicator (no change on
+today's phones: 50 >= 34 + 16). The chips are placed in the draft's unit (*CHIP-SPOTS*), not moved by the insets."
   (let* ((d (pixel-density)) (w (/ (window-width) d)) (h (/ (window-height) d)) (left (eq *hand* :left))
-         (hud (/ (portrait-hud-bottom (ui-scale)) d)))
+         (u (* 0.0236 w)) (dh (* *deck-frac* h)) (dt (- h dh)))
     (flet ((x (from-right) (* d (if left from-right (- w from-right)))) (px (v) (* d v)))
       (values (list (if left (px 32) (px 16)) (px (- h 460)) (if left (px (- w 16)) (px (- w 32))) (px (- h (max 50 (+ *safe-bot* 16)))))
               (loop for (cx cy r) in *chip-spots*
-                    collect (list (x cx) (px (if (minusp cy) (max (- cy) (+ hud 10 r)) (- h cy))) (px r)))))))
+                    collect (case cy
+                              (:pause (list (x (* cx u)) (px (- h dh (* (+ 17 r) u))) (px (* r u))))   ; 止: its bottom 17 U over the deck
+                              (:rv (list (x (* cx u)) (px (+ dt (* 0.22 dh) (* r u))) (px (* r u))))  ; 爆: its top 22 % down the deck
+                              (t (list (x cx) (px (- h cy)) (px r)))))
+              (list 0 (px dt) (px w) (px h))))))
 
-(declaim (type f32vec *deck*))
+(declaim (type f32vec *deck* *deck-rect*))
 (defvar *deck* (make-f32 (+ 4 (* 3 8))) "The laid-out deck in window px: pad x0 y0 x1 y1, then cx cy r per chip.")
+(defvar *deck-rect* (make-f32 4) "The deck the tap zones' line spans (x0 y0 x1 y1, window px; DECK-LAYOUT).")
+
+(defun deck-split-ends ()
+  "The tap zones' line's heights (fractions of the deck's) at its left and right edge, by *HAND* (the thumb's edge is the right
+one for the right hand)."
+  (if (eq *hand* :left) (values (second *deck-split*) (first *deck-split*)) (values (first *deck-split*) (second *deck-split*))))
 
 (defun deck-update ()
   "Re-lay the deck when the window, the density, the hand or the mode changed (conses: not every frame).
@@ -81,15 +102,19 @@ Outside ONE-HAND there is no pad and no chip: a stray finger only makes menu tap
                  (= (sixth k) st) (= (seventh k) sb) (= (eighth k) s) (eq (ninth k) u))
       (setf (first k) w (second k) h (third k) d (fourth k) *hand* (fifth k) *one-hand* (sixth k) st (seventh k) sb (eighth k) s
             (ninth k) u *safe-top* st *safe-bot* sb)
-      (multiple-value-bind (pad chips) (deck-layout)
+      (multiple-value-bind (pad chips deck) (deck-layout)
         (replace *deck* (mapcar #'f32 (append pad (reduce #'append chips))))
+        (replace *deck-rect* (mapcar #'f32 deck))
         ;; the portrait frame: under P2's HUD block down to *PT-FRAME-BOTTOM* (over P1's block); the blocks' edges
         (let ((hb (/ (portrait-hud-bottom s) h)) (pt (/ (portrait-p1-top s h) h)))
           (setf (aref *band* 0) (f32 (+ hb 0.03)) (aref *band* 1) (f32 (min *pt-frame-bottom* (- pt 0.03)))
                 (aref *band* 2) (f32 hb) (aref *band* 3) (f32 pt)))
         (if *one-hand*
-            (touch-layout! *touch* d pad chips (if u *u-chip-holds* *chip-holds*))
-            (touch-layout! *touch* d '(0 0 -1 -1) nil)))
+            (multiple-value-bind (fl fr) (deck-split-ends)
+              (touch-layout! *touch* d pad chips (if u *u-chip-holds* *chip-holds*))
+              (apply #'touch-split! *touch* (append deck (list fl fr))))
+            (progn (touch-layout! *touch* d '(0 0 -1 -1) nil)
+                   (touch-split! *touch* 0 0 0 0 0 0))))
       ;; G7: the scene near 1.6 MP on a phone (the UI stays native)
       (setf *scene-scale-cap* (if (or *coarse* *one-hand*) (f32 (min 1.0 (sqrt (/ 1.6e6 (max 1 (* w h)))))) 1f0)))))
 
@@ -142,6 +167,27 @@ shows it (hud.lisp HUD-HINT). Free states that take a Hoho, the Hoho affordable 
          (hoho-ready-p e)
          (perfect-now-p e))))
 
+(defun awaken-hold-ready-p (e)
+  "Would a Mod + P of E do something now (TRY-COMMAND's :awaken, without calling it): the awakening (its gauge full, unused) or
+the Bankai (BANKAI-READY-P) from a state that allows it (AWAKEN-STATE-P), in a form ported to the core system. Then 爆 is a
+hold (RV-READY-P). (A form's :p hook is left out: Kenpachi's is DANGAI's frozen card, NIL outside it, and Hisagi's FREE sits in
+his Bankai, a :no-awaken form.)"
+  (let* ((f (fighter e)) (kit (fighter-kit f)) (g (gauges e)))
+    (and (not (getf (kit-core kit) :no-awaken)) (awaken-state-p e f)
+         (or (awaken-allowed-p t (gauges-awaken g) (gauges-awakened g))
+             (and (kit-bankai-form kit) (bankai-allowed-p t (gauges-konpaku g)) (bankai-ok-p e)))
+         t)))
+
+(defun rv-ready-p ()
+  "爆 (chip 7) is the awakening's hold now (the user, 2026-10-28: 「把覺醒鍵整合進爆氣中，改由長按覺醒」): not ready, the Burst
+fires on the press (no wait); ready, a lift before 300 ms is the Burst, a hold of it the awakening (TOUCH-BUTTON)."
+  (and *one-hand* *p1* (entity-alive-p *p1*) (fighter *p1*) (awaken-hold-ready-p *p1*)))
+
+(defun rv-holding-p ()
+  "爆 is pressed, its awakening hold under way (not yet the awakening): the page fills its REIATSU ring."
+  (let ((tr *touch*))
+    (and (>= (aref (touch-chip-slot tr) 7) 0) (> (aref (touch-chip-hold tr) 7) 0f0) (not (touch-chip-down-p tr 7)))))
+
 (defun onehand-frame ()
   "Every frame, before the flow: the page (back gesture, wake lock), the text floor, the deck, then this
 frame's finger events."
@@ -158,6 +204,7 @@ frame's finger events."
           (touch-press-tap *touch*) (eq st :move)))   ; in his own move a tap fires on the press (still 40 ms: no flick), held on
                                                        ; it is the Kikon's hold; in neutral, on the lift, as a drag / Step / Hoho
                                                        ; starts there too (the user, 2026-10-28, option 1 of three: 「1」)
+  (when *one-hand* (touch-chip-hold! *touch* 7 (if (rv-ready-p) 300f0 0f0)))   ; 爆: the 0.3 s hold while the awakening is ready
   (touch-poll *touch*)
   (unless (sim-running-p) (touch-take! *touch*))            ; menus / pause: no gesture pulse waits for the match
   (let ((g (touch-glyph-t *touch*)))                        ; the combat log names each recognised gesture
@@ -188,15 +235,17 @@ AWAKEN chip is U (the user's default, DUEL_MOBILE_DESIGN §15.1)."
 
 (defun touch-button (name)
   "Is vpad button NAME down from the thumb deck (design §3.2 / §3.4; the core system, 2026-10-27: a tap = the attack, the SP
-chips (3 and 4) = Mod + the attack, a down-flick while stunned = the Burst (P), the AWAKEN chip = Mod + P, a rested up-flick
-= Hoho (Mod + Step), a flick = Step)?"
+zone's tap = Mod + the attack, a down-flick while stunned = the Burst (P), a rested up-flick = Hoho (Mod + Step), a flick = Step)?
+爆 (chip 7, 2026-10-28): P on the press while the awakening is not ready; while it is (its hold 300 ms, RV-READY-P), P for one
+read on a lift before the hold (TOUCH-CHIP-TAP-P: the Burst), Mod + P once held (the awakening; the old AWAKEN chip 5's)."
   (let* ((tr *touch*) (burst *touch-burst*))
     (flet ((chip (i) (touch-chip-down-p tr i)) (pulse (b) (touch-pulse-p tr b)))
       (case name
         (:quick (or (pulse +tp-tap+) (pulse +tp-tap-hi+)))          ; the pad's two tap zones (the old F / Q split): low = the
-        (:mod (or (pulse +tp-hoho+) (pulse +tp-tap-hi+) (chip 5)))   ; attack, high = SP (Mod + the attack), 2026-10-27
+        (:mod (or (pulse +tp-hoho+) (pulse +tp-tap-hi+)              ; attack, high = SP (Mod + the attack), 2026-10-27
+                  (rv-buttons (chip 7) (> (aref (touch-chip-hold tr) 7) 0f0) (touch-chip-tap-p tr 7))))   ; 爆 held through its hold
         (:step (and (not burst) (or (pulse +tp-flick+) (pulse +tp-hoho+) (touch-step-held-p tr))))
-        (:awaken (or burst (chip 7) (chip 5)))))))
+        (:awaken (or burst (nth-value 1 (rv-buttons (chip 7) (> (aref (touch-chip-hold tr) 7) 0f0) (touch-chip-tap-p tr 7)))))))))
 
 (defun touch-pause-p () "The pause chip was touched this frame." (and *one-hand* (touch-chip-hit-p *touch* 6)))
 
@@ -226,37 +275,43 @@ chips (3 and 4) = Mod + the attack, a down-flick while stunned = the Burst (P), 
 (defparameter *chip-labels* (coerce (mapcar #'fourth *chip-spots*) 'simple-vector))
 
 (defun-fast hud-deck (s)
-  "The thumb deck: the flow pad's outline and its tap split (F above, Q below), the chips (lit while held; AWAKEN only
-at EVOLUTION or a Bankai ready, or always for a form with a :p hook, labelled by its :p-label (e); Hisagi's bind FREE: gone 2026-10-18, DUEL_HISAGI §24.5, back 2026-10-19, §25.14),
+  "The thumb deck (the engine's, when the page draws no battle screens: WEBHUD-P): the flow pad's outline and its slanted tap
+split (SP above, ATK below), the chips (lit while held; RV while a burst or the awakening is possible, its REIATSU ring while
+the awakening is: the old AWAKEN chip folded into it 2026-10-28),
 the ink ring under the thumb, and the recognised gesture's glyph at the thumb for 0.3 s (the misread teacher).
 (A DEFUN-FAST since 2026-10-26, ~2 KB a frame before: the floats unboxed, the generic code's operations.)"
   (declare (fixnum s))
-  (let* ((tr *touch*) (d (touch-dpx tr)) (dk *deck*)
-         (u (u-chip-p))                                  ; a :u form: the chip is U
+  (let* ((tr *touch*) (d (touch-dpx tr)) (dk *deck*) (web (webhud-p))   ; the page draws the deck: only the stick's ring and a form's
+         (u (u-chip-p))                                  ; a :u form: the chip is U                          ; :deck hook stay
          (pk (and *p1* (kit-hook (kit-of *p1*) :p)))      ; a :p form: the chip is its P, labelled by :p-label
-         (pl (and pk (let ((h (kit-hook (kit-of *p1*) :p-label))) (and h (funcall h *p1*)))))
-         (evo (and *p1* (or u pk (gauges-evolution (gauges *p1*)) (bankai-ready-p *p1*)))))   ; AWAKEN: EVOLUTION, or the Bankai
-    (declare (single-float d) (type f32vec dk))                                          ; ready (cup 3, red, free)
+         (pl (and pk (let ((h (kit-hook (kit-of *p1*) :p-label))) (and h (funcall h *p1*))))))
+    (declare (single-float d) (type f32vec dk))
+    (unless web
     (%houtline (aref dk 0) (aref dk 1) (- (aref dk 2) (aref dk 0)) (- (aref dk 3) (aref dk 1)) 1f0 1f0 1f0 0.12f0)
-    (let* ((y (the single-float (touch-split-y tr))) (left (eq *hand* :left))                  ; the tap zones' line, named at the far edge
-           (x (if left (- (aref dk 2) (* 6f0 d)) (+ (aref dk 0) (* 6f0 d)))) (al (if left :right :left))
+    (let* ((dr *deck-rect*) (left (eq *hand* :left))     ; the tap zones' slanted line (*DECK-SPLIT*), named at the far edge
+           (x0 (aref dr 0)) (x1 (aref dr 2)) (y0 (aref dr 1)) (dh (- (aref dr 3) y0))
+           (fl (if left (f32 (second *deck-split*)) (f32 (first *deck-split*))))
+           (fr (if left (f32 (first *deck-split*)) (f32 (second *deck-split*))))
+           (yl (+ y0 (* fl dh))) (yr (+ y0 (* fr dh))) (y (if left yr yl)) (t2 (f-max 1f0 d))
+           (x (if left (- x1 (* 6f0 d)) (+ x0 (* 6f0 d)))) (al (if left :right :left))
            (fs (%hround (* 1.5f0 (i->f s)))))           ; (HUD-TEXT rounds its (* 1.5 S))
-      (declare (single-float y x) (fixnum fs))
-      (%hrect (aref dk 0) y (- (aref dk 2) (aref dk 0)) (f-max 1f0 d) 1f0 1f0 1f0 0.18f0)
+      (declare (type f32vec dr) (single-float x0 x1 y0 dh fl fr yl yr y t2 x) (fixnum fs))
+      (%hq x0 yl x1 yr x1 (+ yr t2) x0 (+ yl t2) 1f0 1f0 1f0 0.18f0)
       (%hud-text "SP" x (- y (i->f (* 13 s))) fs '(1 1 1 0.4) :align al :shadow nil)       ; the tap zones (the core system, 2026-10-27)
       (%hud-text "ATK" x (+ y (i->f (* 3 s))) fs '(1 1 1 0.4) :align al :shadow nil))
     (dotimes (i 8)
-      (unless (or (member i '(0 1 2 4)) (and (= i 5) (not evo)) (and (= i 7) (not (and *p1* (burst-ok-p *p1*)))))   ; RV: while a burst is possible
+      (unless (or (member i '(0 1 2 4 5)) (and (= i 7) (not (and *p1* (or (burst-ok-p *p1*) (rv-ready-p))))))   ; RV: while a burst or the awakening is possible
         (let ((on (touch-chip-down-p tr i)) (cx (aref dk (+ 4 (* 3 i)))) (cy (aref dk (+ 5 (* 3 i)))) (r (aref dk (+ 6 (* 3 i)))))
           (declare (single-float cx cy r))
           (%disc cx cy r 0.05 0.04 0.07 (if on 0.85 0.45))
           (%ring cx cy r (* 2f0 d) 1.0 (if on 0.85 0.55) (if on 0.4 0.3) (if on 1.0 0.7))
+          (when (and (= i 7) (rv-ready-p)) (%ring cx cy (* 1.25f0 r) (* 2f0 d) 1.0 0.85 0.23 (if (rv-holding-p) 1.0 0.5)))   ; 爆's REIATSU ring
           (when (= i 1)                                  ; a refused L (cooling, cold, its kit's refusal): the chip flashes
             (let ((fl (- 1f0 (* 4f0 (- (fx-clock) (aref *refused-t* 0))))))
               (declare (single-float fl))
               (when (> fl 0f0) (%disc cx cy r 1.0 1.0 1.0 (* 0.7f0 fl)) (%ring cx cy (* 1.15f0 r) (* 3f0 d) 1.0 1.0 1.0 fl))))
           (%hud-text (cond ((and u (= i 5)) "U") ((and pl (= i 5)) pl) (t (svref *chip-labels* i))) cx (- cy (* 3.5f0 (i->f s))) s
-                     *c-chip* :align :center :shadow nil))))
+                     *c-chip* :align :center :shadow nil)))))
     (when (touch-active-p tr)                              ; the floating stick: an ink ring at its origin
       (%ring (touch-ox tr) (touch-oy tr) (* d 48f0) (* 2f0 d) 1.0 1.0 1.0 (if (touch-resting-p tr) 0.35 0.6))
       (let ((h (and *p1* (kit-hook (kit-of *p1*) :deck)))) (when h (funcall h *p1* (touch-ox tr) (touch-oy tr) d)))   ; a form's own ring
@@ -271,7 +326,7 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
                 (%arc (touch-ox tr) (touch-oy tr) r (* 3f0 d) k 0.92 0.96 1.0 (if zero (+ 0.6 (* 0.4 (hud-pulse 3.0))) 0.9)))
             (%hrect (- (touch-ox tr) d) (+ (touch-oy tr) r) (* 2f0 d) (* 3f0 d) 1f0 1f0 1f0 0.8f0))))) ; the half: bar 1 full
     (let ((age (- (* 1000f0 (elapsed-time)) (touch-glyph-t tr))))
-      (when (and (< age 300) (plusp (length (the simple-string (svref *glyph-names* (touch-glyph tr))))))   ; (the rest: no glyph)
+      (when (and (not web) (< age 300) (plusp (length (the simple-string (svref *glyph-names* (touch-glyph tr))))))   ; (the rest: no glyph)
         (hud-text (svref *glyph-names* (touch-glyph tr)) (touch-glyph-x tr) (- (touch-glyph-y tr) (* 60 d)) (* 2 s)
                   '(1 0.85 0.4 1) :align :center)))))
 
@@ -280,7 +335,7 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
     ("SP, THEN HOLD STILL" "HOLD THE PAD WHILE THE SP HITS = KIKON")
     ("DRAG" "MOVE  (FAR = RUN)") ("FLICK UP" "DASH  (KEEP GOING = RUN)") ("FLICK DOWN / SIDE" "STEP BACK / SIDESTEP")
     ("HOLD, THEN FLICK UP" "HOHO")
-    ("FLICK DOWN WHEN HIT" "BURST  (OR THE RV CHIP)") ("AWK (HOLD)" "AWAKEN") ("II / BACK" "PAUSE"))
+    ("FLICK DOWN WHEN HIT" "BURST  (OR THE RV CHIP)") ("RV HELD 0.3 S, WHEN READY" "AWAKEN") ("II / BACK" "PAUSE"))
   "The static gesture card (ONE-HAND's CONTROLS).")
 
 (defun hud-gestures (w h s)

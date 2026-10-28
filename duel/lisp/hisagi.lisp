@@ -411,7 +411,7 @@ not (the art's %HS-FA-KS! / %HS-LETOUT!, host-tested against the copies)."
   (+ drawn (* line (- (hs-charge-scale n) 1.0))))
 (defparameter *hs-hooks* '(:tick hs-tick :ok hs-ok :command hs-command :hit hs-hit :struck hs-struck :reset hs-reset
                            :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :link-ok hs-link-ok :boss hs-boss
-                           :dmg-mult hs-core-dmg-mult))
+                           :dmg-mult hs-core-dmg-mult :hud-tag hs-hud-tag))
 (defparameter *hs-shikai-clips* '(:hs-q1 :hs-s-sen :hs-q2 :hs-s-kaeshi :hs-spin :hs-s-rin :hs-nage :hs-s-nage
                                    :hs-hiki :hs-s-hiki :hs-maki :hs-s-maki :hs-kari :hs-s-kari :hs-hodoki :hs-s-hodoki
                                    :hs-modoshi :hs-s-modoshi :hs-kaza :hs-s-kaza :hs-raiden :hs-s-raiden

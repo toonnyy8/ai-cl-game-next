@@ -63,6 +63,7 @@ lisp/rukia-meter.lisp
 lisp/hud-screens.lisp
 lisp/onehand.lisp
 lisp/webui.lisp
+lisp/webhud.lisp
 lisp/senjumaru.lisp
 lisp/lille-art.lisp
 lisp/lille-clips.lisp

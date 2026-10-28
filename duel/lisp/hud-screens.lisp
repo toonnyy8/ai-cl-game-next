@@ -216,6 +216,7 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
               (f-max 0.5f0 (f-min 1f0 (+ 0.5f0 (* 0.5f0 (- d 2.5f0))))))
             1.0)))
 
+(declaim (special *web-caption*))                      ; (webhud.lisp's)
 (defun hud-draw ()
   "The UI of this frame, by screen."
   (let* ((w (window-width)) (h (window-height)) (s (ui-scale)) (f *ui-flash*))
@@ -227,10 +228,12 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
         (ui-rect 0 0 w h c))
       (countdown! (aref f 3) (* (aref f 4) (hud-dt))))
     (draw-screen-fx w h)                                 ; focus lines (under the HUD)
-    (when *cine*                                         ; letterbox + the cinematic's brush title
-      (ui-rect 0 0 w (* 0.09 h) '(0 0 0 1)) (ui-rect 0 (* 0.91 h) w (* 0.09 h) '(0 0 0 1))
+    (when (and *cine* (not (and (webhud-p) (webhud-cine-p *cine*))))   ; letterbox + the cinematic's brush title (the intro's, the
+      (ui-rect 0 0 w (* 0.09 h) '(0 0 0 1)) (ui-rect 0 (* 0.91 h) w (* 0.09 h) '(0 0 0 1))   ; K.O.'s, TIME's: the page's, webhud.lisp)
       (when *caption* (unless (draw-bcap *caption* w h) (setf *caption* nil))))
-    (when *caption-out* (unless (draw-bcap *caption-out* w h) (setf *caption-out* nil)))   ; an ended cinematic's title
+    (when *caption-out*                                  ; an ended cinematic's title (not one the page drew)
+      (unless (and (webhud-p) (eq *caption-out* *web-caption*))
+        (unless (draw-bcap *caption-out* w h) (setf *caption-out* nil))))
     (case (if (webui-on-screen-p) :web *flow*)              ; the page's HTML menus draw it (webui.lisp)
       (:title (hud-title w h s))
       (:mode (ui-big-text "SOUL DUEL" (floor w 2) (* 0.2 h) (fit-scale "SOUL DUEL" (* 6 s) (* 0.8 w)) '(1 0.92 0.8 1) '(0.7 0.18 0.05 1) s)
@@ -238,12 +241,13 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
       (:settings (hud-settings w h s))
       (:controls (if (one-hand-offered-p) (hud-gestures w h s) (hud-controls w h s)))
       (:select (hud-select w h s))
-      ((:battle :finish) (unless *cine* (hud-battle w h s) (when (and *one-hand* (portrait-p) (not *paused*)) (hud-deck s))))
+      ((:battle :finish) (unless *cine* (hud-battle w h s) (when (and *one-hand* (portrait-p) (not *paused*)) (hud-deck s))))   ; (the
+                                                         ; page's battle screens: what is left of them, WEBHUD-P)
       (:results (hud-results w h s))
       (:clear (hud-endless-clear w h s))
       ((:doors :reward) (hud-rogue-doors w h s)))
     (draw-words w h)
-    (when (and *paused* (eq *flow* :battle))
+    (when (and *paused* (eq *flow* :battle) (not (webhud-p)))   ; (the page draws the pause: webhud.lisp)
       (ui-rect 0 0 w h '(0 0 0 0.55))
       (if (and *one-hand* (not (portrait-p)))
           (ui-big-text "ROTATE TO PORTRAIT" (floor w 2) (* 0.3 h) (fit-scale "ROTATE TO PORTRAIT" (* 4 s) (* 0.9 w)) *white* '(0.7 0.25 0.05 1) s)

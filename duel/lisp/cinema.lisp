@@ -369,7 +369,7 @@ the intro line under it), a negative cut between them; then the pair and FIGHT!"
   (during (240 300) (shot-pair a v (camera-side) (+ 6.0 (* 2.0 u)) 2.4))
   (when step-p (intro-weapon a cf) (intro-weapon v (- cf 120)))
   (at 240 (caption-exit))
-  (at 250 (announce "FIGHT!" :color '(1 0.85 0.3 1) :secs 1.0) (play-sfx :fight)))
+  (at 250 (unless (webhud-p) (announce "FIGHT!" :color '(1 0.85 0.3 1) :secs 1.0)) (play-sfx :fight)))   ; (the page: READY > 斬)
 
 (defun intro-weapon (e frame)
   "The intro prop in hand until the kit's hand-off frame (Yamamoto's cane), then the weapon."

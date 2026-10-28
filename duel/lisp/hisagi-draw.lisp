@@ -1489,6 +1489,10 @@ the :hs-tip ring. A look."
 
 ;;; ---------------------------------------------------------------- the HUD: the sickle icon (the kit meter's :draw / :label, :deck)
 (defun hs-hud-label (g kit) "The portrait label." (declare (ignore g kit)) "KAZESHINI")
+(defun hs-hud-tag (e)
+  "His :hud-tag hook: the page's status tag (webhud.lisp, DUEL_WEBUI §7), the sickle as his meter row reads it: in hand, out,
+returning."
+  (case (hss-state (hs e)) (:in "KAZESHINI IN") (:ret "KAZESHINI ...") (t "KAZESHINI OUT")))
 (defun hs-hud-meter (e kit x y w h right tm lx ly ls)
   "His kit-meter row: the sickle icon by his Reiatsu (§8.3): lit white in hand, a dark outline OUT, half lit RETURNING; the
 label KAZESHINI IN / OUT."

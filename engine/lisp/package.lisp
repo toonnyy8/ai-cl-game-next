@@ -31,7 +31,8 @@
    #:touch-step-held-p #:touch-flick-down-p #:touch-sx #:touch-sy #:touch-chip-down-p #:touch-chip-hit-p
    #:touch-tapped-p #:touch-tap-x #:touch-tap-y #:touch-rest-up-ok #:touch-up-hoho #:touch-press-tap #:touch-spend! #:touch-flick-hold #:touch-rested
    #:touch-active-p #:touch-ox #:touch-oy #:touch-glyph #:touch-glyph-t #:touch-glyph-x #:touch-glyph-y #:touch-cfg #:touch-dpx
-   #:+tp-tap+ #:+tp-flick+ #:+tp-tap-hi+ #:+tp-hoho+ #:touch-split-y
+   #:+tp-tap+ #:+tp-flick+ #:+tp-tap-hi+ #:+tp-hoho+ #:touch-split-y #:touch-split! #:touch-hi-at-p
+   #:touch-chip-tap-p #:touch-chip-hold! #:touch-chip-hold #:touch-chip-slot #:touch-fx #:touch-fy
    #:gesture-config #:make-gesture-config #:gc-tap-ms #:gc-slop #:gc-flick-min #:gc-flick-window #:gc-up-cone #:gc-tap-split
    #:gc-stick-r #:gc-run-ring #:gc-run-release #:gc-recenter #:gc-chip-slop #:gc-menu-tap-ms
    ;; platform.lisp: window, time, input
@@ -39,7 +40,7 @@
    #:frame-dt #:raw-dt #:elapsed-time #:fps
    #:key-down #:key-pressed #:mouse-down #:mouse-pressed #:mouse-dx #:mouse-dy #:mouse-wheel
    #:pointer-locked-p #:focus-lost-p #:*pointer-lock*
-   #:pixel-density #:touch-poll #:page-get #:page-set
+   #:pixel-density #:touch-poll #:page-get #:page-set #:page-set-str
    #:pad-count #:pad-connected-p #:pad-down #:pad-pressed #:pad-lx #:pad-ly #:pad-rx #:pad-ry #:pad-lt #:pad-rt
    ;; render.lisp: meshes, camera, look, frame, lights, fx batch
    #:wgsl #:mesh #:mesh-p #:mesh-id #:mesh-count #:make-mesh #:+vertex-floats+

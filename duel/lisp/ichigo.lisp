@@ -305,7 +305,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
                                :boss ichigo-boss))
 (defparameter *kessa-hooks* '(:tick ichigo-tick :step ichigo-step-clone :ok ichigo-ok :parried ichigo-catch :hit ichigo-hit
                               :struck ichigo-struck :deck ichigo-deck :soul-break-cine ic-kessa-getsuga-cine
-                              :kikon-worth ichigo-kikon-worth :draw ichigo-draw))
+                              :kikon-worth ichigo-kikon-worth :draw ichigo-draw :hud-tag ichigo-hud-tag))
 
 (defkit :ichigo :base
   :name "ICHIGO" :body :ichigo :weapon :zangetsu-long :stance :ic-stance :hide (:kessa :mark)
@@ -1251,6 +1251,13 @@ shipped behaviour). AI-BRAIN: for a human the ASSIST's borrowed (HARD) brain (it
       (dotimes (j 4) (setf (aref v n (1+ j)) (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n t (clone-konpaku j))))))
   "ICHIGO-HUD-METER's labels, made once: [n 0] BUNSHIN xN, [n 1+j] BUNSHIN xN K KONPAKU (K = CLONE-KONPAKU j, the O
 press's flash), n 0-3.")
+(defun ichigo-hud-tag (e)
+  "KESSA's :hud-tag hook: the page's status tag (webhud.lisp, DUEL_WEBUI §7), BUNSHIN xN by his live clones (0 B: counted, the
+labels made once)."
+  (let ((n 0))                                          ; (CLONE-COUNT's count without its list: 0 B)
+    (declare (fixnum n))
+    (do-entities (h (hz hazard)) (when (and (eql (hazard-owner hz) e) (clone-p hz) (clone-live-p (hazard-data hz))) (incf n)))
+    (aref *ic-bunshin-labels* (min 3 n) 0)))
 
 (defun-fast ichigo-hud-meter (e kit x y w h right tm lx ly ls)
   "KESSA's kit-meter row: three clone pips (lit BLOOD-rimmed white per live clone, a thin arc of its life; pulsing at 3:

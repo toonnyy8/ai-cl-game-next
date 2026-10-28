@@ -3,7 +3,9 @@
 ;;;;   (make-touch)                       a recogniser; (touch-layout! tr ...) sets its flow pad and chips
 ;;;;   (touch-feed! tr n)                 process N queued events (TOUCH-Q, 5 floats each), then the clock (TOUCH-NOW)
 ;;;;   reads: TOUCH-PULSE-P (a latched tap / high tap / flick / hoho, see TOUCH-TAKE!), TOUCH-RESTING-P (guard),
-;;;;          TOUCH-STEP-HELD-P, TOUCH-SX / TOUCH-SY (the drag stick), TOUCH-CHIP-DOWN-P, TOUCH-TAPPED-P (menus)
+;;;;          TOUCH-STEP-HELD-P, TOUCH-SX / TOUCH-SY (the drag stick), TOUCH-CHIP-DOWN-P, TOUCH-CHIP-TAP-P (a hold chip
+;;;;          let go before its hold, latched like a pulse), TOUCH-TAPPED-P (menus), TOUCH-HI-AT-P (the tap zones' line:
+;;;;          the pad's level TAP-SPLIT, or a slanted line over a rect, TOUCH-SPLIT!)
 ;;;; Coordinates are window pixels; the knobs (GESTURE-CONFIG) are CSS px and ms, scaled by TOUCH-DPX.
 ;;;; A contact that starts in the flow pad is the gesture contact (the latest one wins); one that starts on a
 ;;;; chip holds that chip until it lifts; anything else only counts as a menu tap. Timing uses the events'
@@ -50,6 +52,10 @@ user's playtest, 2026-09-27). (4, the up-flick waiting for its lift, went with t
   (chip-slot (%fixs +touch-chips+ -1) :type (simple-array fixnum (*)))     ; finger holding chip i, -1 none
   (chip-t (%f32s +touch-chips+) :type (simple-array single-float (*)))     ; when it went down
   (chip-on 0 :type fixnum) (chip-hit 0 :type fixnum)                       ; bits: down now / touched this frame
+  (ctap-pend 0 :type fixnum) (ctap-live 0 :type fixnum)                    ; bits: a hold chip let go before its hold (a pulse)
+  (split (%f32s 6) :type (simple-array single-float (*)))                 ; the tap zones' line: rect x0 y0 x1 y1, its height
+                                                                           ; at the rect's left / right edge (fractions); x1 <= x0:
+                                                                           ; none (the pad's level TAP-SPLIT)
   (now 0f0 :type single-float)              ; the clock TOUCH-FEED! runs to (ms, set by the caller)
   (rest-up-ok nil)                          ; the game: may a rested up-flick be a Hoho now (neutral / guard)?
   (up-hoho nil)                             ; the game: is any up-flick a Hoho now, no rest needed (while attacking)?
@@ -168,10 +174,31 @@ HOLDS: a list of ms each chip must be held first, default 0). Releases held chip
   (let ((p (touch-pad tr)))
     (+ (aref p 1) (* (%knob tr tap-split) (- (aref p 3) (aref p 1))))))
 
+(defun touch-split! (tr x0 y0 x1 y1 fl fr)
+  "Slant TR's tap zones' line (window px, not per frame): over the rect X0 Y0 X1 Y1 it runs from FL of the rect's height at
+its left edge to FR at its right edge, extended beyond it at the same slope (clamped to the edges' heights); above it is the
+high zone. X1 <= X0: back to the pad's level TAP-SPLIT (TOUCH-SPLIT-Y)."
+  (let ((s (touch-split tr)))
+    (loop for v in (list x0 y0 x1 y1 fl fr) for i from 0 do (setf (aref s i) (float v 1f0))))
+  tr)
+
+(defun-fast touch-hi-at-p (tr x y)
+  "Is window point (X Y) in the high tap zone: above the slanted line of TOUCH-SPLIT!, or without one above TOUCH-SPLIT-Y? (A
+tap's zone is its touch-down point's: %TAP!; the game's Kikon hold asks the same of the contact's.)"
+  (declare (single-float x y))
+  (let* ((s (touch-split tr)) (x0 (aref s 0)) (x1 (aref s 2)))
+    (declare (single-float x0 x1))
+    (if (> x1 x0)
+        (let* ((y0 (aref s 1)) (h (- (aref s 3) y0)) (u (/ (- x x0) (- x1 x0)))
+               (u (if (< u 0f0) 0f0 (if (> u 1f0) 1f0 u))))
+          (declare (single-float y0 h u))
+          (< y (+ y0 (* h (+ (aref s 4) (* u (- (aref s 5) (aref s 4))))))))
+        (< y (the single-float (touch-split-y tr))))))
+
 (defun-fast %tap! (tr ms)
   "The gesture contact is a tap: its zone's pulse (where it went down)."
   (declare (single-float ms))
-  (let ((hi (< (touch-oy tr) (the single-float (touch-split-y tr)))))
+  (let ((hi (touch-hi-at-p tr (touch-ox tr) (touch-oy tr))))
     (setf (touch-pend tr) (logior (touch-pend tr) (if hi +tp-tap-hi+ +tp-tap+)))
     (%glyph! tr (if hi 3 1) (touch-x tr) (touch-y tr) ms)))
 
@@ -248,7 +275,12 @@ held chips that need a hold come on."
                           (<= (- ms (aref (touch-ft0 tr) slot)) (%knob tr menu-tap-ms)))
                  (setf (touch-tapped tr) 1 (touch-tap-x tr) x (touch-tap-y tr) y))
                (setf (aref (touch-fmoved tr) slot) 1))
-       (dotimes (i (touch-nchips tr)) (when (= slot (aref (touch-chip-slot tr) i)) (setf (aref (touch-chip-slot tr) i) -1)))
+       (dotimes (i (touch-nchips tr))
+         (when (= slot (aref (touch-chip-slot tr) i))
+           (when (and (= type 2) (> (aref (touch-chip-hold tr) i) 0f0)        ; a hold chip let go before its hold: its tap
+                      (< (- ms (aref (touch-chip-t tr) i)) (aref (touch-chip-hold tr) i)))
+             (setf (touch-ctap-pend tr) (logior (touch-ctap-pend tr) (ash 1 i))))
+           (setf (aref (touch-chip-slot tr) i) -1)))
        (when (= slot (touch-gid tr))
          (if (= type 2) (%gesture-lift tr ms) (%release tr))))
       (4 (fill (touch-fmoved tr) 1) (fill (touch-chip-slot tr) -1) (%release tr))))   ; every finger gone (focus lost)
@@ -272,9 +304,15 @@ window px), then run the clock to TOUCH-NOW (ms). Clears last frame's menu tap a
 (defun touch-take! (tr)
   "Call once at the start of each vpad read: the pending pulses become live for exactly this read (a pulse
 latched while no fixed step ran stays pending until one does)."
-  (setf (touch-live tr) (touch-pend tr) (touch-pend tr) 0)
+  (setf (touch-live tr) (touch-pend tr) (touch-pend tr) 0
+        (touch-ctap-live tr) (touch-ctap-pend tr) (touch-ctap-pend tr) 0)
   tr)
 (defun touch-pulse-p (tr bit) (logtest (touch-live tr) bit))
+(defun touch-chip-tap-p (tr i) "Chip I, one with a hold, was let go before its hold (this read's pulse, as TOUCH-PULSE-P)." (logbitp i (touch-ctap-live tr)))
+(defun touch-chip-hold! (tr i ms)
+  "Chip I needs MS held from its next press (0 B; not while it is held: that press keeps the hold it started with)."
+  (when (< (aref (touch-chip-slot tr) i) 0) (setf (aref (touch-chip-hold tr) i) (float ms 1f0)))
+  tr)
 (defun touch-spend! (tr)
   "The game took this read's flick for itself (a burst): the contact gives nothing more until it lifts, as after a Hoho
 (no stick, no Step held however far the thumb travels on)."

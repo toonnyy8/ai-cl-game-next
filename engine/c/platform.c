@@ -146,6 +146,7 @@ int pf_touch_copy(float *out, int max) {    /* x y scaled to window pixels here 
    without one, get returns 0 and set does nothing. */
 EM_JS(int, pf_page_get, (int k), { var p = globalThis.gamePage; return p && p.get ? (p.get(k) | 0) : 0; });
 EM_JS(void, pf_page_set, (int k, int v), { var p = globalThis.gamePage; if (p && p.set) p.set(k, v); });
+EM_JS(void, pf_page_set_str, (int k, const char *s), { var p = globalThis.gamePage; if (p && p.setStr) p.setStr(k, UTF8ToString(s)); });
 int pf_key_down(int sc) { return sc >= 0 && sc < SDL_SCANCODE_COUNT && pf_key[sc]; }
 int pf_key_pressed(int sc) { return sc >= 0 && sc < SDL_SCANCODE_COUNT && pf_kdown[sc]; }
 int pf_mouse_down(int b) { return b >= 0 && b < 8 && pf_mb[b]; }
