@@ -484,3 +484,12 @@ Artifact version 14: the 100 / 200 marks lose their numbers and become chords ac
 
 Artifact version 15: each chord's cut is fitted to the text it passes: the 200 chord (through 爆) stops 1.35 U from the middle,
 the 100 chord (through RV) 1.05 U (both were 1.6 U), about 0.3 U clear of the glyphs.
+
+### 10.8 Draft v7.8: the chords white (the user, 2026-10-29)
+
+> 「改成白色」
+
+Artifact version 16: the two chords are white (paper) instead of the rim's red: half-bright (`rgba(238,238,234,.45)`) under 200, full
+once armed. They are drawn like the glyph: each face of the seal (the empty part, the ink) carries its own pair, so over the empty
+seal a chord is white and inside the ink it is ink-dark (70 %), and it never vanishes on the white ink of a gauge over 200. Both
+faces are clipped to the seal's circle.
