@@ -528,3 +528,10 @@ zone begins. The dark gradient under them is unchanged.
 
 Artifact version 20: A / B's `SP 技` label (§10.10) 0.8 cm (30.2 CSS px) higher: `top: calc(44% - .8cm)` of the deck at the thumb's
 edge, still under B's stance seals and the pointer's name. C's label unchanged.
+
+### 10.13 Draft v7.13: C's SP label at A / B's place (the user, 2026-10-29)
+
+> 「C 的 SP 標示移到跟 A, B 同樣的位置」
+
+Artifact version 21: C's `SP 技` label leaves its place over the slanted bar (6 % down, 46 % across) for A / B's (§10.10, §10.12):
+5 % in from the thumb's edge, `calc(44% - .8cm)` down the deck, above C's bar there. All three drafts now share it.
