@@ -4732,7 +4732,9 @@ the X. The let-out's chain is near-straight while out (sag 0.06, as J1's), for t
 it moving. New in `*hs-letout*`: H may be a list `(h0 h1 h2)`, swept like AZ (`%hs-letout!`).
 
 **Mechanics** (0 B a frame; debug 83901's third line `look consing 4a`: J2's windup / X, J3's slither / rear, J4's whirl / fling, J5's
-twist / bore, all 0):
+twist / bore, all 0, measured with the battle up: 83902 first, then 83901 twice, the second pass read; the first build's sample-count
+factor boxed a float, 40 B per wavy chain per draw (J3 400, J5 2400 per 10 calls), fixed by declaring it; the first pass's one-off
+UCHI 1 MB / SOKUTEI 0.5 MB are the fx buffer growing once, 0 on the second pass):
 - `*hs-waves*` (hisagi-art.lisp): `(clip mask kind f0 f1 f2 f3 amp k speed)`, a lashing chain's body bent into a path; `%hs-wave-set!`
   fills `*hs-wv*` per chain, `%hs-cubic-chain` offsets each sample on the chain's outer 0.7 (from the knee) along the chain's own
   perpendicular basis (as the bundle twist), zero at the knee and **zero at the free end** (the keyed end, so the host check and 83902

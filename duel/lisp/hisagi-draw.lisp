@@ -1181,7 +1181,8 @@ cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out 
                           (f-hypot (- (aref cz (+ ob 9)) (aref cz (+ ob 6))) (- (aref cz (+ ob 10)) (aref cz (+ ob 7))) (- (aref cz (+ ob 11)) (aref cz (+ ob 8))))))))
          (wv *hs-wv*) (wk (aref wv (* 4 j))) (wa (aref wv (+ 1 (* 4 j)))) (wl (* 0.7f0 len (aref wv (+ 2 (* 4 j)))))   ; (§28.19:
          (wph (aref wv (+ 3 (* 4 j))))                                     ;  its body's path, *HS-WAVES*)
-         (kf (if (> wk 0.5f0) (f-min 2.5f0 (+ 1f0 (* 0.25f0 (let ((g (* 6.2831855f0 wa (aref wv (+ 2 (* 4 j)))))) (* g g))))) 1f0))
+         (wg (* 6.2831855f0 wa (aref wv (+ 2 (* 4 j)))))
+         (kf (if (> wk 0.5f0) (f-min 2.5f0 (+ 1f0 (* 0.25f0 wg wg))) 1f0))
          (n (min 120 (max 2 (f->i (/ (* kf len) 0.12f0)))))
          (tp (+ (* cw (aref cz (+ o 12))) (* bw (aref cz (+ ob 12))))) (wx (aref cz (+ o 13))) (jp (* 0.7853982f0 (i->f j)))
          (flow (and (= (aref *hs-tg* 0) 1f0) (or (and (< tp 0.01f0) (< bw 0.01f0)) (> bw 0.99f0))))   ; (§28.11: or down
@@ -1189,7 +1190,7 @@ cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out 
          (pu (+ 0.35f0 (* 0.65f0 (/ (* (the single-float *hs-flow-every*)
                                          (f-mod (+ (/ (fx-clock) (the single-float *hs-flow-every*)) (* 0.37f0 (i->f j))) 1f0))
                                       (the single-float *hs-flow-period*))))))   ; (past 1: resting till its next)
-    (declare (single-float bw cw len wk wa wl wph kf tp wx jp pu) (fixnum ob n) (type f32vec wv))
+    (declare (single-float bw cw len wk wa wl wph wg kf tp wx jp pu) (fixnum ob n) (type f32vec wv))
     (dotimes (i n)
       (let* ((u (/ (+ 0.5f0 (i->f i)) (i->f n))) (v (- 1f0 u))
              (a (* v v v)) (b (* 3f0 v v u)) (c (* 3f0 v u u)) (d (* u u u))
