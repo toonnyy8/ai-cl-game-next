@@ -4501,3 +4501,46 @@ AS3a 解 KAI (2.8 m) and AS3c 放 HANATSU (3.0 m) still reach; AS3b, a copy of J
   83902: 3.00 3.00 3.00 | edge 3.00; 83901 0 B; strip 83587. Smoke identical to 50627b5's (154 lines), `--cvc` 3 PASS, duel-rules 10608 ALL
   PASS, control 99, pkgcheck 0 / 0 / 0, debug ranges 0 errors.
 - duel-rules 10601 ALL PASS (+ SAN's 3.0 m edge), `--cvc` 3 PASS.
+
+### 28.14 Batch 3's storyboards: the four Bankai Kikon cinematics (the lead's, 2026-10-29; for the user's 「可以」)
+
+The user: 「先畫分鏡給我」. One cinematic per pointer (DUEL_CORE §5b: the stance, NS, AS and Kikon share a theme). Presentation only: the
+Kikon's playable strike stays the form's (`:hs-r-kikon` 降鎖's 9 m lane for both ranged pointers, `:hs-b-kikon` 絞首's dash for both bind
+pointers); only the cinematic after its hit differs by pointer. Canon used: the orb of chains overhead, the noose round both necks, the
+pain shared (notes §2.4, A via C); Brave Souls' "countless chains rain down from a sphere" (B). Names are proposals.
+
+**散 SPREAD: 鎖雨 KUSARI-AME (new, ~150 f).** The thin chains, many and fast; the tip.
+| f | Camera | Action |
+|---|---|---|
+| 0–25 | low behind him, the victim far ahead | the 散 stance: arms spread, the hanging chains round him lift and fan out like a curtain; a wind |
+| 25–55 | tilt up to the orb | the orb splits open, hundreds of thin chains unroll down out of it (a dark sky of lines) |
+| 55–100 | on the victim, then circling him | the rain: waves of chains whip down on him from every side, an ink line and a flinch each, faster and faster |
+| 100–120 | close on one chain's tip | the last chain falls alone, its tip cracks on him (the chain-tip theme, a flash); the Konpaku shatters, the manga frame |
+| 120–150 | wide, him on the left | the chains pull back up into the orb, the curtain hangs loose again; 鎖雨 / KUSARI-AME / — FUSHI NO KOJO KIKON — |
+
+**聚 GATHERED: 降鎖 KŌSA rebuilt around the bundle (~150 f).** Slow and heavy: one rope, two blows.
+| f | Camera | Action |
+|---|---|---|
+| 0–25 | low behind him | the 聚 stance: the hanging chains wound round his right arm into one bundle, his fist on it |
+| 25–60 | tilt up to the orb | the orb pours more chains down into the bundle; it swells into one giant twisted rope (today's beat 2) |
+| 60–90 | side-on to the lane | the rope swung back over him and slammed down ahead; the crack runs along the ground to the victim (地走's crack, big) |
+| 90–120 | on the victim | the second blow: the rope raised and brought down on him; a negative, the dust ring, the Konpaku shatters, the manga frame |
+| 120–150 | wide | the rope hauled back up and unwound into the curtain; 降鎖 / KOSA / — FUSHI NO KOJO KIKON — |
+
+**鎌 KAMA: 鉤刈 KAGI-GARI (new, ~150 f).** The crescents on their chains: hook, reel, cut.
+| f | Camera | Action |
+|---|---|---|
+| 0–20 | the pair side-on, the noose taut between their necks | the 鎌 stance: both crescents low and crossed |
+| 20–50 | following the thrown crescent | the right crescent flung on its chain, hooks his shoulder; hand over hand he reels him in, the victim dragged across the ground |
+| 50–85 | orbiting close | as he arrives: cut, cut, the left crescent hooks his other side; the two hooks set on both sides of him |
+| 85–110 | low in front of the victim | both chains pulled apart at once: an X of ink tears across him; a negative, the Konpaku shatters, the manga frame |
+| 110–150 | wide | the noose jerks both necks: Hisagi winces too (the shared pain), then flicks the crescents clean; 鉤刈 / KAGI-GARI |
+
+**絞 SHIBORI: 絞首 KŌSHU revised (~180 f).** Today's KŌSHU already is this theme; one beat changed.
+| f | Camera | Action |
+|---|---|---|
+| 0–30 | the pair side-on | **new**: the 絞 stance, the noose wound round his right fist; he hauls the noose hand over hand, dragging the victim to him (instead of today's six flash steps: in the bind they are already close) |
+| 30–180 | as today (§21.8's table) | behind him, the chain across his throat; the orb sinks, its chains drop and bind him standing; the crescent raised, Hisagi's own hand at his throat (the shared choke); the Konpaku shatter; 絞首 / KOSHU |
+
+Order to build: 散 and 鎌 (new), then 聚 and 絞 (edits of KŌSA / KŌSHU). Each about one subagent day; the scripted smoke (no hash
+change: presentation only) and stills per beat from the 839xx cinematic stills range.
