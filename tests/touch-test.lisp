@@ -290,5 +290,31 @@
   (feed tr 16 '(0 0 50 100 0) '(2 0 50 100 40))
   (check (and (not (pulse tr engine::+tp-tap+)) (touch-tapped-p tr))))
 
+;;; a flick's direction outlives its pulse while the game may still buffer its press (FLICK-READS reads, the vpad's buffer): a
+;;; second up-flick inside the first Step started that Step later, from a neutral stick, so it hopped back (the user, 2026-10-29:
+;;; 「連續 DASH 的話會先前跳再後跳」)
+(fresh (tr)
+  (feed tr 16 '(0 0 100 700 0) '(1 0 100 688 10) '(1 0 100 668 30) '(2 0 100 668 40))   ; an up-flick, lifted at once
+  (take tr)
+  (check (and (touch-pulse-p tr engine::+tp-flick+) (> (touch-sy tr) 0.99)))
+  (loop repeat 9 do (take tr))                                ; nine reads later the pulse is long gone ...
+  (check (and (not (touch-pulse-p tr engine::+tp-flick+)) (> (touch-sy tr) 0.99) (zerop (touch-sx tr))))   ; ... the direction is not
+  (take tr)                                                   ; the tenth read after: the buffer is over, a neutral stick
+  (check (and (zerop (touch-sy tr)) (zerop (touch-sx tr)))))
+(fresh (tr)                                                   ; a side flick keeps its side the same way
+  (feed tr 16 '(0 0 100 700 0) '(1 0 88 700 10) '(1 0 66 700 30) '(2 0 66 700 40))
+  (take tr) (take tr)
+  (check (and (< (touch-sx tr) -0.9) (zerop (touch-sy tr)))))
+(fresh (tr)                                                   ; a drag after it reads the drag, not the old flick
+  (feed tr 16 '(0 0 100 700 0) '(1 0 100 688 10) '(1 0 100 668 30) '(2 0 100 668 40))
+  (take tr)
+  (feed tr 600 '(0 0 100 700 400) '(1 0 110 700 440) '(1 0 125 700 580) '(1 0 140 700 590))
+  (take tr)
+  (check (and (> (touch-sx tr) 0.5) (< (abs (touch-sy tr)) 0.01))))
+(fresh (tr)                                                   ; a flick the game spent (a burst) leaves no direction behind
+  (feed tr 16 '(0 0 100 600 0) '(1 0 100 612 10) '(1 0 100 632 30) '(2 0 100 632 40))
+  (take tr) (engine::touch-spend! tr) (take tr)
+  (check (zerop (touch-sy tr))))
+
 (format t "~&touch-test: ~d checks, ~d failures~%" *checks* *fails*)
 (ext:quit (if (zerop *fails*) 0 1))

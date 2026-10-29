@@ -27,7 +27,9 @@
   (run-release 1.3f0 :type single-float)  ; ... released back inside this
   (recenter 2f0 :type single-float)       ; stick radii: the origin follows the thumb past this
   (chip-slop 8f0 :type single-float)      ; px added to a chip's radius for its hit circle
-  (menu-tap-ms 350f0 :type single-float)) ; menus: a lift this soon, inside the slop, is a tap
+  (menu-tap-ms 350f0 :type single-float)  ; menus: a lift this soon, inside the slop, is a tap
+  (flick-reads 10 :type fixnum))          ; reads a flick's direction stays the stick after its pulse (no drag): the game's
+                                          ;  press buffer (SOUL DUEL: *INPUT-BUFFER*), so a buffered Step goes the way it was flicked
 
 (defconstant +tp-tap+ 1) (defconstant +tp-flick+ 2) (defconstant +tp-tap-hi+ 4) (defconstant +tp-hoho+ 8)   ; tap: the low zone
 (defconstant +touch-fingers+ 10)
@@ -70,6 +72,7 @@ user's playtest, 2026-09-27). (4, the up-flick waiting for its lift, went with t
   (px 0f0 :type single-float) (py 0f0 :type single-float) (pt 0f0 :type single-float)   ; still point, since
   (flick-hold 0 :type fixnum) (run-hold 0 :type fixnum)
   (fx 0f0 :type single-float) (fy 0f0 :type single-float)          ; last flick's stroke (px, y down)
+  (flick-left 0 :type fixnum)                                       ; reads its direction is still the stick (FLICK-READS)
   ;; pulses: set by the recogniser (PEND), shown to exactly one reader call (LIVE, TOUCH-TAKE!)
   (pend 0 :type fixnum) (live 0 :type fixnum)
   ;; menus: per finger start, travel, and this frame's tap
@@ -305,7 +308,8 @@ window px), then run the clock to TOUCH-NOW (ms). Clears last frame's menu tap a
   "Call once at the start of each vpad read: the pending pulses become live for exactly this read (a pulse
 latched while no fixed step ran stays pending until one does)."
   (setf (touch-live tr) (touch-pend tr) (touch-pend tr) 0
-        (touch-ctap-live tr) (touch-ctap-pend tr) (touch-ctap-pend tr) 0)
+        (touch-ctap-live tr) (touch-ctap-pend tr) (touch-ctap-pend tr) 0
+        (touch-flick-left tr) (if (logtest (touch-live tr) +tp-flick+) (%knob tr flick-reads) (max 0 (1- (touch-flick-left tr)))))
   tr)
 (defun touch-pulse-p (tr bit) (logtest (touch-live tr) bit))
 (defun touch-chip-tap-p (tr i) "Chip I, one with a hold, was let go before its hold (this read's pulse, as TOUCH-PULSE-P)." (logbitp i (touch-ctap-live tr)))
@@ -316,7 +320,7 @@ latched while no fixed step ran stays pending until one does)."
 (defun touch-spend! (tr)
   "The game took this read's flick for itself (a burst): the contact gives nothing more until it lifts, as after a Hoho
 (no stick, no Step held however far the thumb travels on)."
-  (setf (touch-phase tr) 5 (touch-flick-hold tr) 0 (touch-run-hold tr) 0
+  (setf (touch-phase tr) 5 (touch-flick-hold tr) 0 (touch-run-hold tr) 0 (touch-flick-left tr) 0
         (touch-live tr) (logandc2 (touch-live tr) +tp-flick+))
   tr)
 (defun touch-active-p (tr) "A gesture contact is down." (>= (touch-gid tr) 0))
@@ -327,11 +331,14 @@ latched while no fixed step ran stays pending until one does)."
   "The last flick went down (within 45 degrees)."
   (let ((dx (touch-fx tr)) (dy (touch-fy tr))) (and (> dy 0f0) (>= dy (abs dx)))))
 (defun-fast touch-sx (tr)
-  "The stick, x right, -1..1 (unclamped length: VPAD-STICK! clamps); a live flick gives its direction."
+  "The stick, x right, -1..1 (unclamped length: VPAD-STICK! clamps); a live flick gives its direction, and keeps giving it
+for FLICK-READS reads after unless the thumb drags (a Step the game buffered starts the way it was flicked: a second
+up-flick inside the first Step hopped back, the user 2026-10-29)."
   (let ((r (%px tr stick-r)))
     (declare (single-float r))
     (cond ((logtest (touch-live tr) +tp-flick+) (/ (touch-fx tr) (%px tr flick-min)))
           ((= (touch-phase tr) 2) (/ (- (touch-x tr) (touch-ox tr)) r))
+          ((plusp (touch-flick-left tr)) (/ (touch-fx tr) (%px tr flick-min)))
           (t 0f0))))
 (defun-fast touch-sy (tr)
   "The stick, y up."
@@ -339,6 +346,7 @@ latched while no fixed step ran stays pending until one does)."
     (declare (single-float r))
     (cond ((logtest (touch-live tr) +tp-flick+) (/ (- (touch-fy tr)) (%px tr flick-min)))
           ((= (touch-phase tr) 2) (/ (- (touch-oy tr) (touch-y tr)) r))
+          ((plusp (touch-flick-left tr)) (/ (- (touch-fy tr)) (%px tr flick-min)))
           (t 0f0))))
 (defun touch-chip-down-p (tr i) (logbitp i (touch-chip-on tr)))
 (defun touch-chip-hit-p (tr i) "Chip I was touched this frame." (logbitp i (touch-chip-hit tr)))

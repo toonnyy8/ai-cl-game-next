@@ -33,7 +33,7 @@
    #:touch-active-p #:touch-ox #:touch-oy #:touch-glyph #:touch-glyph-t #:touch-glyph-x #:touch-glyph-y #:touch-cfg #:touch-dpx
    #:+tp-tap+ #:+tp-flick+ #:+tp-tap-hi+ #:+tp-hoho+ #:touch-split-y #:touch-split! #:touch-hi-at-p
    #:touch-chip-tap-p #:touch-chip-hold! #:touch-chip-hold #:touch-chip-slot #:touch-fx #:touch-fy
-   #:gesture-config #:make-gesture-config #:gc-tap-ms #:gc-slop #:gc-flick-min #:gc-flick-window #:gc-up-cone #:gc-tap-split
+   #:gesture-config #:make-gesture-config #:gc-tap-ms #:gc-slop #:gc-flick-min #:gc-flick-reads #:gc-flick-window #:gc-up-cone #:gc-tap-split
    #:gc-stick-r #:gc-run-ring #:gc-run-release #:gc-recenter #:gc-chip-slop #:gc-menu-tap-ms
    ;; platform.lisp: window, time, input
    #:platform-init #:platform-poll #:*max-dt* #:window-width #:window-height #:window-aspect

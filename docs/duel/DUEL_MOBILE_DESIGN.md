@@ -779,3 +779,19 @@ also true while P1 is free (`:idle` / `:guard` / `:run`), can afford a Hoho (not
 an unrested up-flick is still the dash. The keyboard / pad are unchanged. Checked (`run.mjs --mobile`, debug 2325 then
 2320: human Yamamoto 2 m from Kenpachi mashing J): a plain up-flick at t 8.70 / 8.73 s reads HOHO on tick 86, `P1 PERFECT
 HOHO` t 87, the counter hits t 119; at 8.76 / 8.79 s (J1 already hit him) DASH as before.
+
+## 19. A buffered Step keeps its flick's direction (the user, 2026-10-29)
+
+> 「但我發現連續 DASH 的話會先前跳再後跳」
+
+Cause: a flick's direction was the stick for its one read only (`touch-sx` / `touch-sy`, the live `+tp-flick+` pulse). A second
+up-flick inside the first Step (24 f) is a Step press the vpad buffers (`*input-buffer*` 10 reads); it started when the first Step
+ended, from a neutral stick, and a neutral Step goes straight back (`step-direction`). Browser, Ichigo vs Kenpachi (debug 2500),
+two up-flicks 0.3 s apart: the second DASH at frame 116, its Step at 124; before the fix he landed where he started.
+
+Fix (engine/lisp/touch.lisp): the gesture config's new `flick-reads` (default 10; SOUL DUEL sets it to `*input-buffer*` in
+`apply-settings`): `touch-take!` counts down from it after a flick's pulse, and while it runs the stick still reads the flick's
+direction, unless the thumb drags (a drag reads the drag) or the game spent the flick (`touch-spend!`, a Burst, clears it).
+After the fix the second hop goes forward too. Tests: touch-test 100 checks (4 new: an up-flick's direction for 9 reads after,
+neutral on the 10th; a side flick; a drag after it; a spent flick), duel-control 99, input 33, pkgcheck 0 / 0 / 0. Touch only:
+the native sim has no touch, so no sim gate (the user's rule for touch-only changes).
