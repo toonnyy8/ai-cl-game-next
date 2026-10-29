@@ -469,3 +469,11 @@ longer runs under them.
 §10.3's 「墨線」 meant the ink's moving dark surface wave, not the rim marks. Artifact version 13: the wave is gone (the level is
 flat; a Hoho drops it by 100 and dips the seal 0.35 U once instead of sloshing); the 100 / 200 marks are back on the far rim as in
 §10.2 (v7.3 removed them by that misreading).
+
+### 10.6 Draft v7.6: the marks as red chords (the user, 2026-10-29)
+
+> 「100 與 200 的兩道刻線去掉數字，並將刻線改成橫切到對面，跟外圈一樣的紅色線，但不要碰到中間的『爆』與 RV 字體。」
+
+Artifact version 14: the 100 / 200 marks lose their numbers and become chords across the whole seal at 1/3 and 2/3 of its height
+(clipped by the seal's circle), 1.5 px in the rim's red: dim (`rgba(232,30,58,.4)`) with the rim under 200, full blood once armed
+(a 0.5 s flash on arming); each is cut 1.6 U either side of the middle, so neither touches 爆 or RV.
