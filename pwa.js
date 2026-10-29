@@ -11,9 +11,12 @@
 //       100 + 1000 i + 1 + j = table entry j (kept here), then 100 + 1000 i = n commits the first n entries (0: forget it)
 //   30000 + k = the HTML menus (menu.js, docs/duel/DUEL_WEBUI.md §3): get 30000 = 1 when they are loaded, 30001 = the next queued
 //       press, 30002 / 30003 = SELECT's model spot; set 30000 + k = the state they draw (globalThis.gameUI.set)
+//   30100 + k = the battle screens (hud.js, DUEL_WEBUI §7): get 30100 = 1 when loaded, 30101 = the next queued pause press; set /
+//       setStr 30100 + k = what they draw (globalThis.gameHUD.set / setStr)
 // SETTINGS rows (duel/lisp/control.lisp *SETTINGS*, same order) live in localStorage as soulduel.<name>; every access is
 // wrapped in try/catch (private mode / blocked storage: nothing saved, the defaults).
-// On a touch-first device only: the history trap (the back gesture pauses instead of leaving), fullscreen +
+// On a touch-first device only: the back gesture as BACK / pause instead of leaving (a CloseWatcher where there is one, the history
+// trap behind it), fullscreen +
 // portrait lock on the first tap (Android; iOS has no element fullscreen and runs the installed app standalone),
 // and the service worker (sw.js: the app starts offline). A desktop browser gets none of these.
 (function () {
@@ -54,6 +57,7 @@
   globalThis.gamePage = {
     get: function (k) {
       if (k >= 30000 && k < 30100) { var u = globalThis.gameUI; return u ? u.get(k - 30000) : 0; }
+      if (k >= 30100 && k < 30300) { var hd = globalThis.gameHUD; return hd ? hd.get(k - 30100) : 0; }
       if (k === 0) return coarse ? 1 : 0;
       if (k === 1) { var b = back; back = 0; return b; }
       if (k >= 10 && k < 10 + settings.length) return +(stored('soulduel.' + settings[k - 10]) || 0) | 0;
@@ -65,8 +69,12 @@
       if (k >= 10100 && k < 20000) { var t = ltab('a' + (((k - 10100) / 1000) | 0)), j = (k - 10100) % 1000; return j ? (t[j - 1] | 0) : t.length; }
       return 0;
     },
+    setStr: function (k, s) {                            // strings (engine pf_page_set_str): the battle screens' (hud.js)
+      if (k >= 30100 && k < 30300 && globalThis.gameHUD) globalThis.gameHUD.setStr(k - 30100, s);
+    },
     set: function (k, v) {
       if (k >= 30000 && k < 30100) { if (globalThis.gameUI) globalThis.gameUI.set(k - 30000, v); return; }
+      if (k >= 30100 && k < 30300) { if (globalThis.gameHUD) globalThis.gameHUD.set(k - 30100, v); return; }
       if (k === 1) location.href = 'manual.html';        // MODE's MANUAL row; the manual links back to ./
       if (k === 0 && coarse) { wakeOn = !!v; if (wakeOn) wake(); else if (lock && lock.release) { lock.release(); lock = null; } }
       if (k >= 10 && k < 10 + settings.length) store('soulduel.' + settings[k - 10], String(v));
@@ -86,11 +94,16 @@
     }
   };
   if (!coarse) return;
-  var trapped = false, firstTap = true;
-  window.addEventListener('popstate', function () { back++; history.pushState({ trap: 1 }, ''); });
+  // Back = BACK / pause (the user, 2026-10-28: 「手持模式中沒有返回上一步的選項，請修改瀏覽器的「上一頁」功能」). Chrome skips a history
+  // entry pushed without a user activation, so the old re-push in popstate let the second Back leave the page; where there is a
+  // CloseWatcher (Chrome / Android) it takes Back itself and is made again after each, and the trap entry is only pushed on a tap.
+  var trapped = false, firstTap = true, cw = typeof CloseWatcher === 'function';
+  function arm() { if (!trapped) { trapped = true; history.pushState({ trap: 1 }, ''); } }
+  window.addEventListener('popstate', function () { back++; trapped = false; if (!cw) arm(); });
+  if (cw) (function watch() { new CloseWatcher().onclose = function () { back++; watch(); }; })();
   // pointerup: a touch's pointerdown is not a user activation (HTML spec), its pointerup is
   window.addEventListener('pointerup', function () {
-    if (!trapped) { trapped = true; history.pushState({ trap: 1 }, ''); }   // after a user activation (Chrome skips it before)
+    arm();                                                    // after a user activation (Chrome skips it before)
     if (!firstTap) return;
     firstTap = false;
     var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));

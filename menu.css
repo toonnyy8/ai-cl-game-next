@@ -112,6 +112,9 @@
   animation: slash .46s .5s var(--ease-cut) forwards; }
 @keyframes slash { to { transform: rotate(-5deg) scaleX(1) } }
 .wordmark span:first-child { position: relative; z-index: 1; }
+/* NEXT (the user, 2026-10-29: the name SOUL DUEL NEXT): a small blood line under DUEL, at DUEL's indent */
+.wordmark .next { display: block; font: 900 .26em/1 var(--f-display); font-style: normal; letter-spacing: .5em; color: var(--blood); padding-left: 2.4em; margin-top: .3em;
+  animation: rise .9s .24s var(--ease-out) both; }
 .t-sub { display: flex; gap: 22px; align-items: baseline; flex-wrap: wrap; font: 500 13px/1.6 var(--f-body); color: var(--steel); letter-spacing: .14em; }
 .t-sub b { font: 400 11px/1 var(--f-mono); color: var(--stone); letter-spacing: .16em; }
 .press { justify-self: start; display: inline-flex; gap: 14px; align-items: center; padding: 16px 26px 16px 20px;
@@ -378,3 +381,9 @@
 #ui:not(.ready) .press, #ui:not(.ready) .r-menu { opacity: 0; pointer-events: none; }
 #ui .set.back .lab, #ui .bind.extra .a { color: var(--stone); }
 #ui .capturing .key { border-color: var(--blood); color: var(--blood); animation: pulse 1s ease-in-out infinite; }
+/* a phone's SELECT: the focused fighter is drawn larger than his card (camera.lisp's :select-web), over the other cards' text, so
+   their text moves under the canvas (the user, 2026-10-28: 「讓目前聚焦的人物可以放大到超出自身卡片，並且能蓋過其他卡片的文字」) */
+@media (max-width: 760px) {
+  #ui .fighter:not(.focus) .body, #ui .fighter:not(.focus) .pick { visibility: hidden; }
+  #ui-back .fighter:not(.focus) .body, #ui-back .fighter:not(.focus) .pick { visibility: visible; }
+}

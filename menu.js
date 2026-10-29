@@ -104,9 +104,9 @@
     document.body.insertAdjacentHTML("beforeend", SVG_DEFS +
       '<div id="ui-back" aria-hidden="true"><div class="world"></div>' + selectHTML() + '</div>' +
       '<div id="ui"><div class="wash"></div><canvas id="ash" aria-hidden="true"></canvas>' +
-      '<header class="rail top"><div class="mark"><i></i>SOUL DUEL</div><div class="crumb"><span id="crumb-en"></span><b id="crumb-k"></b></div></header>' +
+      '<header class="rail top"><div class="mark"><i></i>SOUL DUEL NEXT</div><div class="crumb"><span id="crumb-en"></span><b id="crumb-k"></b></div></header>' +
       '<main>' +
-      '<section class="screen" id="s-title"><div class="t-left"><h1 class="wordmark" aria-label="SOUL DUEL"><span>SOUL</span><span>DUEL</span><i class="slash x" aria-hidden="true"></i></h1>' +
+      '<section class="screen" id="s-title"><div class="t-left"><h1 class="wordmark" aria-label="SOUL DUEL NEXT"><span>SOUL</span><span>DUEL</span><em class="next">NEXT</em><i class="slash x" aria-hidden="true"></i></h1>' +
       '<div class="t-sub"><span>攻擊與 SP 的三角相剋</span><span>按住 SP 接毀魂技</span></div>' +
       '<span class="press" id="press"><span class="dot"></span><span id="press-txt">PRESS J</span></span></div>' +
       '<div class="t-kanji" aria-hidden="true"><p class="big-kanji">魂</p><span class="t-vert">一対一・死神の決闘</span></div></section>' +
