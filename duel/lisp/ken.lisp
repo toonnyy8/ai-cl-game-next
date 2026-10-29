@@ -102,7 +102,7 @@
 (defmove :ke-n3a :kind :flash :clip :ke-chg1 :startup 20 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
   :params (:ns-next :ke-n3b :sa :ke-sa-c1 :aura-k 1.5))
 ;; AS n = n segments, each a fresh SP press; only the last knocks down or launches
-(defmove-copy :ke-as1 :ke-k3 :kind :sp :callout "KITTE MIRO YO" :dmg 40 :on-hit :knockdown :flags nil :params (:steal-fs 120))   ; (40 -> 120: the 0-300 gauge, 2026-10-29)
+(defmove-copy :ke-as1 :ke-k3 :kind :sp :callout "KITTE MIRO YO" :dmg 40 :on-hit :knockdown :flags nil)   ; (no flash-step steal since 2026-10-29: the user, 「不需要每個角色的 NS1 都剝奪閃步量表」)
 (defmove-copy :ke-as2b :ke-buttagiru :on-hit :launch :dmg 100 :on-frame nil :params (:melee-range 2.6))
 (defmove-copy :ke-as2 :ke-k1 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-as2b))
 (defmove-copy :ke-as3c :ke-meteor :dmg 170 :on-hit :knockdown :on-frame nil :params (:melee-range 3.4))

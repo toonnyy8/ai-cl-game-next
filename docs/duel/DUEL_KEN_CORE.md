@@ -14,7 +14,7 @@ User's request (verbatim, 2026-10-29): 「請幫我依據 skill 在新的系統�
 
 | Ptr | Theme | Stance (idle clip) | NS segments | Its SA | AS n | Kikon cinematic |
 |---|---|---|---|---|---|---|
-| 1 | the chain (連斬壓制) | `:ke-st-chain`: leaning in, the blade carried low and forward | `ke-n1a` K1 S16 70 → `ke-n1b` K2 S20 60 → `ke-n1c` K3 S20 80 (as before) | `ke-sa` (J1, 36) | AS1: `ke-as1`, the K3 drop, knockdown, steals 120 flash-step | `ken-kikon-cine` (CHARGE and its flurry) |
+| 1 | the chain (連斬壓制) | `:ke-st-chain`: leaning in, the blade carried low and forward | `ke-n1a` K1 S16 70 → `ke-n1b` K2 S20 60 → `ke-n1c` K3 S20 80 (as before) | `ke-sa` (J1, 36) | AS1: `ke-as1`, the K3 drop, knockdown (no steal) | `ken-kikon-cine` (CHARGE and its flurry) |
 | 2 | the rush (霸體硬扛與粗暴突進) | `:ke-st-rush`: hunched, the blade on the shoulder, weight on the front foot | `ke-n2a` BUTTAGIRU's leap S22 90 stagger → `ke-n2b` the kick S14 (was 8) 60; **both `:armor-hits 1`** | `ke-sa-r`: 36 × (1 + 0.3 × cancels) | AS2: `ke-as2` (K1, S16, 55 stagger) → `ke-as2b` BUTTAGIRU, 100 launch | `ken-kikon-cine` (its own later) |
 | 3 | the kamae (劍道架式續力) | `:ke-st-kamae`: upright, the blade on the centre line in both hands | `ke-n3a` S20 / `ke-n3b` S16 / `ke-n3c` S16: three charges that hit nothing (clips `:ke-chg1..3`, each higher), `:aura-k` 1.5 / 2.2 / 3.0 | `ke-sa-c1` 45 ×1.3 / `-c2` 60 ×1.6 / `-c3` 80 ×2.0 (the `:charge-mult` on the J string and the AS after it) | AS3: `ke-as3` (K1 50) → `ke-as3b` (K2 55) → `ke-as3c` the meteor 170, knockdown | `ken-sky-split-cine` |
 
@@ -49,3 +49,9 @@ NS1 ×3 → `KE-N1A` 70, `N1B` 60, `N1C` 80. NS2 with Ichigo's NS landing on f9 
 `NS2 SA x1.30`. NS3 ×1 → SA-C1 45 → J2; ×3 → SA-C3 80 → J2: Ichigo's Reishi lost 36 against 60 (the ratio 1.67 the charge ×1.3 / ×2.0 predicts).
 G2 `--cvc`: II identical (29 lines), IK 34 → 33 lines (P2 0-3, 323.8 s), KK 27 → 25 (P1 3-0, 244.9 s); `tests/style-cvc-ref.txt` regenerated. No balance gates
 (the user, 2026-10-29). Not done: the playtest Artifact, new clips for the retagged NS2 / AS segments, pointer 2's own Kikon cinematic, the CPU.
+
+## 5. Pointer 1 no longer steals flash-step (the user, 2026-10-29)
+
+「不需要每個角色的 NS1 都剝奪閃步量表，我會根據人物特色訂製不同的 NS」. The steal is a per-move param (`:steal-fs`), not a rule of the system, so each kit
+decides. Kenpachi's `ke-as1` loses `:steal-fs 120` (damage 40, knockdown as before); what pointer 1 does instead is the user's to define. Ichigo's and
+Hisagi's AS1 (`:steal-fs 120`, and the blood-chain AS1's 30) are left as they are until the user says.
