@@ -640,3 +640,12 @@ edge. A tap on 爆 is its chip as before. Control 99, touch 100, pkgcheck clean;
   on a Hollow alert), not traced from an image. Before: a pale soul ring cut by a red brush slash.
 - Deployed to GitHub Pages on request (`tools/deploy-pages.sh`). DEVLOG §509.
 
+### 12.1 The badge redrawn from the user's photo (the user, 2026-10-29)
+
+The user sent a photo of the badge: a pentagon point down, a black rim, a white face, a black angular skull (flat top, cut corners,
+two round eyes, a toothed jaw) over a black X whose bars run from the upper corners down and out past the rim, one badge with a hanging
+tab. `tools/pwa-icons.py` now draws that: a pale edge (so the black rim reads on the ink), the black rim, the white face; the X's bars
+from the face's upper corners to the middle of its far lower edges, cut by the rim, a white line down each; the skull and jaw; the tab
+on the red cord. The first take (§12: a wooden cross pattée with a bone skull) was drawn without a reference and is gone. Redeployed.
+DEVLOG §510.
+

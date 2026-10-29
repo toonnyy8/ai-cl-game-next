@@ -1,28 +1,19 @@
 #!/usr/bin/env python3
 """pwa-icons.py — draw SOUL DUEL NEXT's app icons into duel/web/ (PIL only, already used by the tests):
 icon-192.png, icon-512.png, icon-maskable-512.png (the mark inside the 80 % safe circle) and apple-touch-icon.png
-(180 px, opaque). The mark (the user, 2026-10-29: 「以代理死神證作為 icon」): the Substitute Shinigami Badge, drawn stylised: a
-dark-wood cross pattee with a pale rim, a bone skull in its middle, hung on a red cord, on the dusk ink. (Before: a pale soul ring
-cut by a red brush slash.)  python3 tools/pwa-icons.py"""
+(180 px, opaque). The mark (the user, 2026-10-29: 「以代理死神證作為 icon」, then a photo of the badge): the Substitute Shinigami
+Badge as it looks: a pentagon point down, a black rim round a white face, a black angular skull with round eyes and a toothed jaw
+over a black X, hung by its tab on a red cord, on the dusk ink. (Before: a pale soul ring cut by a red brush slash.)
+python3 tools/pwa-icons.py"""
+import math
 from PIL import Image, ImageDraw
 
-BG, RIM, WOOD, GRAIN, BONE, HOLE, CORD = ((7, 7, 12, 255), (176, 146, 98, 255), (58, 40, 30, 255), (74, 52, 38, 255),
-                                         (232, 226, 208, 255), (16, 12, 12, 255), (232, 30, 58, 255))
+BG, PAPER, BLACK, CORD = (7, 7, 12, 255), (236, 238, 240, 255), (14, 14, 18, 255), (232, 30, 58, 255)
 
 
-def cross(c, s, k):
-    """The badge's outline, scaled by K about C: four flared arms (a cross pattee), the ends cut slightly concave."""
-    cx, cy = c
-    out = []
-    for ax, ay in ((0, -1), (1, 0), (0, 1), (-1, 0)):        # each arm: root half-width .09, end half-width .19, reach .40
-        px, py = -ay, ax
-        root, end, reach, dip = .09 * s * k, .19 * s * k, .40 * s * k, .035 * s * k
-        out += [(cx + px * -root + ax * root, cy + py * -root + ay * root),
-                (cx + ax * reach + px * -end, cy + ay * reach + py * -end),
-                (cx + ax * (reach - dip), cy + ay * (reach - dip)),
-                (cx + ax * reach + px * end, cy + ay * reach + py * end),
-                (cx + px * root + ax * root, cy + py * root + ay * root)]
-    return out
+def pent(cx, cy, r):
+    """A regular pentagon, point down (its top edge flat)."""
+    return [(cx + r * math.sin(math.radians(a)), cy - r * math.cos(math.radians(a))) for a in (180 + 72 * i for i in range(5))]
 
 
 def icon(size, scale=1.0):
@@ -30,31 +21,45 @@ def icon(size, scale=1.0):
     n = size * k
     im = Image.new("RGBA", (n, n), BG)
     d = ImageDraw.Draw(im)
-    c = (n / 2, n / 2 + n * .03 * scale)
     s = n * scale
-    d.line([(c[0], 0), (c[0], c[1] - .36 * s)], fill=CORD, width=max(2, int(.03 * s)))   # the cord it hangs on
-    d.polygon(cross(c, s, 1.0), fill=RIM)
-    d.polygon(cross(c, s, .9), fill=WOOD)
-    grain = Image.new("RGBA", (n, n), (0, 0, 0, 0))   # a few grain lines across the wood, kept inside it
-    g = ImageDraw.Draw(grain)
-    for i in (-2, -1, 1, 2):
-        y = c[1] + i * .07 * s
-        g.line([(c[0] - .4 * s, y), (c[0] + .4 * s, y + .01 * s)], fill=GRAIN, width=max(1, int(.008 * s)))
+    cx, cy, R = n / 2, n / 2 + .02 * s, .44 * s
+    top = cy - R * math.cos(math.radians(36))          # the flat top edge's height
+    d.line([(cx, 0), (cx, top - .05 * s)], fill=CORD, width=max(2, int(.028 * s)))      # the cord ...
+    d.rounded_rectangle([cx - .07 * s, top - .075 * s, cx + .07 * s, top + .01 * s], radius=.015 * s, fill=PAPER)   # ... through the tab
+    d.rounded_rectangle([cx - .045 * s, top - .055 * s, cx + .045 * s, top - .02 * s], radius=.008 * s, fill=BG)
+    d.polygon(pent(cx, cy, R), fill=PAPER)             # a pale edge (the black rim would sink into the ink)
+    d.polygon(pent(cx, cy, R * .95), fill=BLACK)       # the rim
+    d.polygon(pent(cx, cy, R * .8), fill=PAPER)        # the face
+    # the X behind the skull: two black bars from the face's upper corners to the middle of its far lower edges, cut by the rim, a white
+    # line down each
+    face = pent(cx, cy, R * .8)                        # (point down: bottom, lower left, upper left, upper right, lower right)
+    u = .01 * s
+    bars = Image.new("RGBA", (n, n), (0, 0, 0, 0))
+    g = ImageDraw.Draw(bars)
+    mid = lambda p, q: ((p[0] + q[0]) / 2, (p[1] + q[1]) / 2)
+    for a, b in ((face[2], mid(face[4], face[0])), (face[3], mid(face[1], face[0]))):   # an upper corner to the far lower edge
+        a, b = (a[0] - .3 * (b[0] - a[0]), a[1] - .3 * (b[1] - a[1])), (b[0] + .3 * (b[0] - a[0]), b[1] + .3 * (b[1] - a[1]))
+        g.line([a, b], fill=BLACK, width=int(8 * u))
+        off = 1.9 * u * (1 if a[0] < cx else -1)
+        g.line([(a[0], a[1] - off), (b[0], b[1] - off)], fill=PAPER, width=max(1, int(1.1 * u)))
     mask = Image.new("L", (n, n), 0)
-    ImageDraw.Draw(mask).polygon(cross(c, s, .9), fill=255)
-    im.paste(grain, (0, 0), Image.composite(grain, Image.new("RGBA", (n, n), (0, 0, 0, 0)), mask).getchannel("A"))
-    # the skull: cranium, jaw, sockets, nose, teeth
-    r = .15 * s
-    x0, y0 = c[0], c[1] - .02 * s
-    d.ellipse([x0 - r, y0 - r, x0 + r, y0 + r * .95], fill=BONE)
-    d.rounded_rectangle([x0 - r * .62, y0 + r * .45, x0 + r * .62, y0 + r * 1.25], radius=r * .25, fill=BONE)
-    for sx in (-1, 1):
-        d.ellipse([x0 + sx * r * .42 - r * .27, y0 - r * .12, x0 + sx * r * .42 + r * .27, y0 + r * .38], fill=HOLE)
-    d.polygon([(x0, y0 + r * .42), (x0 - r * .12, y0 + r * .68), (x0 + r * .12, y0 + r * .68)], fill=HOLE)
+    ImageDraw.Draw(mask).polygon(face, fill=255)
+    im.paste(bars, (0, 0), Image.composite(bars, Image.new("RGBA", (n, n), (0, 0, 0, 0)), mask).getchannel("A"))
+    d = ImageDraw.Draw(im)
+    # the skull: an angular cranium (flat top, cut corners), round eyes, a toothed jaw
+    sy = cy - .05 * s
+    w, h = .235 * s, .155 * s
+    d.polygon([(cx - w * .62, sy - h), (cx + w * .62, sy - h), (cx + w, sy - h * .45), (cx + w, sy + h * .35),
+               (cx + w * .55, sy + h * .95), (cx - w * .55, sy + h * .95), (cx - w, sy + h * .35), (cx - w, sy - h * .45)], fill=BLACK)
+    for ex in (-1, 1):
+        er = .058 * s
+        ec = (cx + ex * .1 * s, sy + .005 * s)
+        d.ellipse([ec[0] - er, ec[1] - er, ec[0] + er, ec[1] + er], fill=PAPER)
+    jy0, jy1 = sy + h * 1.05, sy + h * 1.65             # the jaw: a black band with white tooth gaps
+    d.polygon([(cx - w * .5, jy0), (cx + w * .5, jy0), (cx + w * .38, jy1), (cx - w * .38, jy1)], fill=BLACK)
     for i in range(-2, 3):
-        tx = x0 + i * r * .22
-        d.line([(tx, y0 + r * .88), (tx, y0 + r * 1.18)], fill=HOLE, width=max(1, int(.012 * s)))
-    d.line([(x0 - r * .55, y0 + r * .88), (x0 + r * .55, y0 + r * .88)], fill=HOLE, width=max(1, int(.012 * s)))
+        tx = cx + i * w * .17
+        d.rectangle([tx - .4 * u, jy0 + .25 * (jy1 - jy0), tx + .4 * u, jy0 + .7 * (jy1 - jy0)], fill=PAPER)
     return im.resize((size, size), Image.LANCZOS)
 
 
