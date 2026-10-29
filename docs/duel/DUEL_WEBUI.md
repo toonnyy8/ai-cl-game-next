@@ -446,3 +446,10 @@ Artifact version 10.
   0.10 → 0.30, `*kikon-fs-refund*` 35 → 105, the AS steals (`:steal-fs` Kenpachi / Ichigo / Hisagi 40 → 120, KESSA's chain 10 → 30).
   Not a pure × 3: a Hoho's share 30 → 33.3 %, the Burst's threshold 70 → 66.7 % of the gauge; the shared tuning gates all pairings
   (`2,7,9,29,31,35`) and the CPU's gauge reads (`*ai-burst-low*` etc.) are checked.
+
+### 10.3 Draft v7.3: no marks in the 墨池 (the user, 2026-10-29)
+
+> 「現在就不用額外的墨線了」
+
+Artifact version 11: the two rim marks (100 / 200) are gone from the 爆 seal in both drafts; with the gauge at 0–300 the thresholds
+are its thirds, and the seal lighting (armed) at 200 says when a Burst is possible.
