@@ -453,3 +453,11 @@ Artifact version 10.
 
 Artifact version 11: the two rim marks (100 / 200) are gone from the 爆 seal in both drafts; with the gauge at 0–300 the thresholds
 are its thirds, and the seal lighting (armed) at 200 says when a Burst is possible.
+
+### 10.4 Draft v7.4: B's guard bitten in under the gap (the user, 2026-10-29)
+
+> 「靈子環下方缺口的深色環底請設計成向內凹陷，不要影響到架式印章」
+
+Artifact version 12: B's dark 木瓜 plate (r 6.5 U) is concave under the Reishi ring's gap: 4.5 U across 146–214 deg (the seals'
+inner edge is at 4.75 U), eased back to the rim by 130 / 230 deg, so the three stance seals stand on the scene and the plate no
+longer runs under them.
