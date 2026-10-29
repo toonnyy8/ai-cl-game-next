@@ -1598,16 +1598,18 @@ A3, §24.3: KAIBAKU-GEKI from its S): the noose thrown off the opponent's neck a
 (defun-fast %hs-g-look (pos fa kv code)
   "The gathered route's trails (*HS-G-LOOKS* CODE; KV the clip's bundle row, POS his feet, FA[0] his facing) at the clip frame
 *HS-FR*: 1 the SA 直刺 (f12-17): three straight speed lines along the line behind the bundle's end and its blunt head (a short
-fat kite on the end); 2 J2 上撈: the floor groove behind the dragged end (f4-19, where it lies under 0.3 m) and the vertical
-ribbon of the scoop (f19-26: the end's path 5 frames back, 0.11 m wide, tapered); 3 J3 繞身連枷: the coil round his waist
-(0.5 m round, 1.0-1.2 m up, from 35 deg to his right on round counter-clockwise, as far as the end has carried it: one turn by
-f14, held, unwound from its free end f16-19) and the curled smear (f17-26: the end's path 4 frames back, from the coil out
-into the sweep). 0 B."
+fat kite on the end); 2 J2 上撈: the floor groove behind the dragged end (f4-17, where it lies under 0.3 m) and the rising
+smear (f17-27: the end's path back to f16, from his feet out along the line and up, wide where it ran fast); 3 J3 繞身連枷:
+the coil round his waist (§28.24: 0.88 m round, the bundle's thickness, a twisted rope of two strands on a core, 1.0-1.04 m
+up, from his left rear on round counter-clockwise as far as the end has carried it: one turn by f13, held trembling f13-16,
+unwound from its free end f16-18.5) and the curled smear (f17-26: the end's path 4 frames back, from the coil out into the
+sweep, widening as it speeds up). The smears' width by the end's speed (W0 at SP m a frame or faster). 0 B."
   (declare (type f32vec pos fa kv) (fixnum code))
   (let* ((f (aref *hs-fr* 0)) (a *hs-g-a*) (b *hs-g-b*) (fr *hs-g-fr*) (yaw (aref fa 0)))
     (declare (single-float f yaw) (type f32vec a b fr))
     (macrolet ((tip (out x) `(progn (setf (aref fr 0) ,x) (%hs-lash-tip! ,out kv fr 0 8 pos fa)))
-               (ribbon (back step n w0 floor)    ; the end's path from F back over N steps of STEP frames (not before BACK)
+               (ribbon (back step n w0 floor sp)   ; the end's path from F back over N steps of STEP frames (not before BACK);
+                                                     ;  SP > 0: each step's width x its speed / SP m a frame (at most 1)
                  `(progn
                     (tip a f)
                     (dotimes (k ,n)
@@ -1617,7 +1619,8 @@ into the sweep). 0 B."
                           (tip b x)
                           (let* ((dx (- (aref a 0) (aref b 0))) (dy (if ,floor 0f0 (- (aref a 1) (aref b 1))))
                                  (dz (- (aref a 2) (aref b 2))) (l (f-hypot dx dy dz))
-                                 (w (* ,w0 (- 1f0 (/ (i->f k) (i->f ,n))))))
+                                 (w (* ,w0 (- 1f0 (/ (i->f k) (i->f ,n)))
+                                       (if (> ,sp 0f0) (f-min 1f0 (/ l (* ,step ,sp))) 1f0))))
                             (declare (single-float dx dy dz l w))
                             (when (and (> l 0.01f0) (> (aref a 4) 0.99f0) (> (aref b 4) 0.99f0)
                                        (or (not ,floor) (and (< (aref a 1) 0.3f0) (< (aref b 1) 0.3f0))))
@@ -1639,27 +1642,36 @@ into the sweep). 0 B."
                    (%hs-black-kite (+ (aref a 0) (* (- back) fx) (* off rx)) (+ (aref a 1) up) (+ (aref a 2) (* (- back) fz) (* off rz))
                                    fx 0f0 fz len (* 0.016f0 (- 1f0 (* 0.8f0 u))))))
                (%hs-black-kite (aref a 0) (aref a 1) (aref a 2) fx 0f0 fz 0.34f0 (* 0.075f0 (- 1f0 (* 0.5f0 u)))))))
-        (2 (cond ((and (>= f 4f0) (< f 19f0)) (ribbon 0f0 0.5f0 8 0.024f0 t))      ; 上撈: the groove ...
-                 ((and (>= f 19f0) (< f 26f0))                                       ;  ... the vertical ribbon
-                  (ribbon 18.5f0 0.5f0 10 (* 0.11f0 (- 1f0 (/ (- f 19f0) 7f0))) nil))))
-        (3 (let ((c (cond ((< f 3f0) 0f0) ((< f 14f0) (/ (- f 3f0) 11f0)) ((< f 16f0) 1f0)   ; 繞身連枷: the coil ...
-                          ((< f 19f0) (- 1f0 (/ (- f 16f0) 3f0))) (t 0f0))))
-             (declare (single-float c))
+        (2 (cond ((and (>= f 4f0) (< f 17f0)) (ribbon 0f0 0.5f0 8 0.024f0 t 0f0))      ; 上撈: the groove ...
+                 ((and (>= f 17f0) (< f 27f0))                                         ;  ... near to far, rising
+                  (ribbon 16f0 0.25f0 24 (* 0.18f0 (- 1f0 (/ (- f 17f0) 10f0))) nil 1.7f0))))
+        (3 (tip a f)                                                            ; 繞身連枷: the coil (§28.24) ...
+           (let* ((c (cond ((< f 7f0) 0f0) ((< f 13f0) (f-clamp (/ (- (aref a 6) 140f0) 360f0) 0f0 1f0)) ((< f 16f0) 1f0)
+                           ((< f 18.5f0) (- 1f0 (/ (- f 16f0) 2.5f0))) (t 0f0)))
+                  (tr (if (and (>= f 13f0) (< f 16f0)) (if (evenp (f->i f)) 0.02f0 -0.02f0) 0f0))   ; (the hold's tremble)
+                  (rr (+ 0.88f0 tr)))
+             (declare (single-float c tr rr))
              (when (> c 0.01f0)
-               (let ((n (max 1 (f->i (* 24f0 c)))))
+               (let ((n (max 1 (f->i (* 36f0 c)))))
                  (declare (fixnum n))
                  (dotimes (i n)
                    (let* ((d0 (* c (/ (i->f i) (i->f n)))) (d1 (* c (/ (i->f (1+ i)) (i->f n))))
-                          (a0 (+ yaw (* 0.017453292f0 (+ -35f0 (* 360f0 d0))))) (a1 (+ yaw (* 0.017453292f0 (+ -35f0 (* 360f0 d1)))))
-                          (x0 (+ (aref pos 0) (* -0.5f0 (f-sin a0)))) (z0 (+ (aref pos 2) (* -0.5f0 (f-cos a0))))
-                          (x1 (+ (aref pos 0) (* -0.5f0 (f-sin a1)))) (z1 (+ (aref pos 2) (* -0.5f0 (f-cos a1))))
-                          (y0 (+ 1.0f0 (* 0.2f0 d0))) (y1 (+ 1.0f0 (* 0.2f0 d1)))
-                          (dx (- x1 x0)) (dy (- y1 y0)) (dz (- z1 z0)) (l (f-max 1f-3 (f-hypot dx dy dz))))
-                     (declare (single-float d0 d1 a0 a1 x0 z0 x1 z1 y0 y1 dx dy dz l))
+                          (a0 (+ yaw (* 0.017453292f0 (+ 140f0 (* 360f0 d0))))) (a1 (+ yaw (* 0.017453292f0 (+ 140f0 (* 360f0 d1)))))
+                          (s0 (f-sin a0)) (c0 (f-cos a0)) (x0 (+ (aref pos 0) (* (- rr) s0))) (z0 (+ (aref pos 2) (* (- rr) c0)))
+                          (x1 (+ (aref pos 0) (* (- rr) (f-sin a1)))) (z1 (+ (aref pos 2) (* (- rr) (f-cos a1))))
+                          (y0 (+ 1.0f0 tr (* 0.04f0 d0))) (y1 (+ 1.0f0 tr (* 0.04f0 d1)))
+                          (dx (- x1 x0)) (dy (- y1 y0)) (dz (- z1 z0)) (l (f-max 1f-3 (f-hypot dx dy dz)))
+                          (ph (* 37.699112f0 (* 0.5f0 (+ d0 d1)))))                    ; (the strands' twist: 6 a turn)
+                     (declare (single-float d0 d1 a0 a1 s0 c0 x0 z0 x1 z1 y0 y1 dx dy dz l ph))
                      (%hs-black-kite (* 0.5f0 (+ x0 x1)) (* 0.5f0 (+ y0 y1)) (* 0.5f0 (+ z0 z1)) (/ dx l) (/ dy l) (/ dz l)
-                                     (* 1.2f0 l) (if (evenp i) 0.05f0 0.034f0) 0.12f0)))))
-             (when (and (>= f 17f0) (< f 26f0))                                ;  ... the curl out of it
-               (ribbon 15f0 0.25f0 16 (* 0.09f0 (- 1f0 (/ (- f 17f0) 9f0))) nil)))))))
+                                     (* 1.25f0 l) 0.06f0 0.12f0)                       ; (the core)
+                     (dotimes (k 2)                                                    ; (the two strands round it)
+                       (let* ((q (+ ph (* 3.1415927f0 (i->f k)))) (ro (* 0.045f0 (f-cos q))) (yo (* 0.045f0 (f-sin q))))
+                         (declare (single-float q ro yo))
+                         (%hs-black-kite (- (* 0.5f0 (+ x0 x1)) (* ro s0)) (+ (* 0.5f0 (+ y0 y1)) yo) (- (* 0.5f0 (+ z0 z1)) (* ro c0))
+                                         (/ dx l) (/ dy l) (/ dz l) (* 1.25f0 l) 0.03f0 0.12f0)))))))
+             (when (and (>= f 17f0) (< f 26f0))                                ;  ... the curl out of it, widening
+               (ribbon 15f0 0.125f0 32 (* 0.1f0 (- 1f0 (/ (- f 17f0) 9f0))) nil 5f0)))))))
   nil)
 
 (defun hisagi-draw (e rdt)

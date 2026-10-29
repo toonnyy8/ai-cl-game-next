@@ -1637,9 +1637,11 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
 ;;; Hands and planes: the SA both fists on a level line (a spear), J2 the right arm alone in the vertical plane ahead, J3 both arms
 ;;; flat across. (§28.15's 束鞭 SOKUBEN, 束昇 SOKUSHŌ and 束落 SOKURAKU gone: J3G / J4G off the string, §28.20.)
 ;; gathered SA 直刺 CHOKUSHI (13/3/16; 2.5-4.5 m, 90 deg): the spear: sunk and turned to his right, both fists together on the
-;; bundle at his right hip, the right drawn back, the left ahead across his belly, its blunt end at his fists (held f5-11); on S
+;; bundle at his right hip, the right drawn back, the left ahead across his belly, its blunt end at his fists; §28.24 (the 聚
+;; rhythm): drawn back slowly (f0-6, barely moving, then gathering), held coiled, trembling (f6-10), the release f11-13; on S
 ;; both arms rammed straight ahead in a lunge, the bundle shot straight out down the line at the chest, blunt end first (speed
-;; lines, %HS-G-LOOK 1); the recoil (f16-19): the bundle kicks back, the body jolted back off the lunge
+;; lines, %HS-G-LOOK 1), the lunge overshooting a frame (f14) as the blunt end jolts; the recoil (f16-19): the bundle kicks back,
+;; the body jolted back off the lunge
 (defpose :hs-k-gsa-up (:base :hs-k-stance)
   (:root :u -0.2 :f -0.12 :yaw -30) (:spine :flex 4) (:chest :twist -34) (:neck :twist 26) (:head :flex 0)
   (:arm-r :flex -40 :side 30 :twist 0) (:elbow-r :flex 80) (:hand-r :flex -40)
@@ -1653,19 +1655,26 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
 (defstrike :hs-k-g-sa (13 3 16 :base :hs-k-stance)
   (0 :hs-k-stance (:root :u -0.16 :yaw -18) (:spine :flex 14) (:chest :twist -14) (:arm-r :flex 22 :side 30)   ; (the 聚
      (:elbow-r :flex 44) (:arm-l :flex 56 :side -20) (:elbow-l :flex 96))                                     ;  stance's)
-  (5 :hs-k-gsa-up)
-  (11 :hs-k-gsa-up (:root :f -0.16 :yaw -34) (:chest :twist -38) (:arm-r :flex -46))                    ; held, drawn back
+  (2 :snap (:root :u -0.17 :yaw -21) (:chest :twist -18) (:arm-r :flex 14 :side 30))                   ; (§28.24) barely
+  (6 :snap :hs-k-gsa-up)                                                                                ;  moving, gathering
+  (7 :hs-k-gsa-up (:root :f -0.14 :u -0.22 :yaw -32) (:chest :twist -37) (:arm-r :flex -44))           ; held coiled,
+  (8 :hs-k-gsa-up (:root :f -0.15 :u -0.19 :yaw -35) (:chest :twist -36) (:arm-r :flex -47))           ;  trembling
+  (9 :hs-k-gsa-up (:root :f -0.15 :u -0.22 :yaw -33) (:chest :twist -39) (:arm-r :flex -45))
+  (10 :hs-k-gsa-up (:root :f -0.16 :yaw -34) (:chest :twist -38) (:arm-r :flex -46))                    ; drawn back
+  (11 :snap :hs-k-gsa-up (:root :f -0.1 :yaw -28) (:chest :twist -30) (:arm-r :flex -24))              ; the release
   (:s :snap :hs-k-gsa-hit)
+  (14 :hs-k-gsa-hit (:root :f 0.36) (:spine :flex 24) (:arm-r :flex 90) (:arm-l :flex 94))              ; the overshoot
   (:a :hs-k-gsa-hit (:root :f 0.3))
   (19 :hs-k-gsa-hit (:root :f 0.1 :u -0.14) (:spine :flex 6) (:arm-r :flex 72) (:elbow-r :flex 24)      ; the recoil
       (:arm-l :flex 74) (:elbow-l :flex 22))
   (24 :hs-k-gsa-hit (:root :f 0.14 :u -0.14) (:spine :flex 10) (:arm-r :flex 60) (:elbow-r :flex 40)
       (:arm-l :flex 56) (:elbow-l :flex 44))
   (:end :hs-k-stance))
-;; gathered J2 上撈 UWAZARAI (19/3/16): the scoop: out of the thrust the bundle drops on the floor ahead; sunk and bent low,
-;; turned right, his right arm hanging to the floor drags it in round to his right and on forward along the ground (a floor
-;; groove, %HS-G-LOOK 2; held deepest f17); on S his right arm swung straight up in front of him: the bundle ripped off the
-;; floor and up the vertical plane ahead (0.15 -> 2.75 m up at 4.5 m on f19-21: the vertical ribbon), up onto his toes
+;; gathered J2 上撈 UWAZARAI (19/3/16): the scoop: out of the thrust the bundle drops on the floor ahead; §28.24 (the user:
+;; 「上撈我希望呈現由近到遠向上抽起的感覺」): sinking slowly, bent low, his right arm hanging to the floor drags it in to his feet
+;; (f0-11, a floor groove, %HS-G-LOOK 2), held low, trembling (f11-16); the release f17-19: his right arm swung up in front of
+;; him, the bundle run out from his feet along the line and up (near to far, rising: the smear), cracked up at 4.5 m (1.3 ->
+;; 2.95 m up on f19-21), up onto his toes, over and sinking back slowly
 (defpose :hs-k-gj2-low (:base :hs-k-stance)
   (:root :u -0.34 :yaw -40) (:pelvis :twist -12) (:spine :flex 36) (:chest :twist -36) (:neck :twist 30) (:head :flex -4)
   (:arm-r :flex 20 :side 24 :twist 0) (:elbow-r :flex 10) (:hand-r :flex -80)
@@ -1679,19 +1688,28 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
 (defstrike :hs-k-g-j2 (19 3 16 :base :hs-k-stance)
   (0 :hs-k-gsa-hit (:root :f 0.1 :u -0.14) (:spine :flex 6) (:arm-r :flex 72) (:elbow-r :flex 24)       ; the SA's recoil
      (:arm-l :flex 74) (:elbow-l :flex 22))
-  (6 :hs-k-gj2-low)
-  (12 :hs-k-gj2-low (:root :yaw -30) (:chest :twist -26))                                               ; dragging it round
-  (17 :hs-k-gj2-low (:root :u -0.38 :yaw -16) (:chest :twist -12) (:spine :flex 40) (:arm-r :flex 4 :side 14))   ; held, deepest
-  (:s :snap :hs-k-gj2-hit)
+  (3 :snap (:root :u -0.17 :f 0.08) (:spine :flex 10) (:arm-r :flex 62))                               ; (§28.24) barely
+  (7 :snap (:root :u -0.26 :f 0.04 :yaw -12) (:spine :flex 24) (:chest :twist -10) (:arm-r :flex 36 :side 16)   ;  moving,
+     (:elbow-r :flex 14) (:thigh-r :flex 26) (:knee-r :flex 40))                                        ;  sinking
+  (11 :hs-k-gj2-low (:root :u -0.36 :yaw -20) (:chest :twist -16) (:spine :flex 38) (:arm-r :flex 10 :side 16))   ; dragged in
+  (12 :hs-k-gj2-low (:root :u -0.38 :yaw -17) (:chest :twist -13) (:spine :flex 40) (:arm-r :flex 6 :side 14))    ; held
+  (13 :hs-k-gj2-low (:root :u -0.36 :yaw -19) (:chest :twist -15) (:spine :flex 39) (:arm-r :flex 4 :side 14))    ;  low,
+  (14 :hs-k-gj2-low (:root :u -0.39 :yaw -16) (:chest :twist -12) (:spine :flex 41) (:arm-r :flex 6 :side 14))    ;  trembling
+  (15 :hs-k-gj2-low (:root :u -0.37 :yaw -18) (:chest :twist -14) (:spine :flex 40) (:arm-r :flex 4 :side 14))
+  (16 :hs-k-gj2-low (:root :u -0.38 :yaw -16) (:chest :twist -12) (:spine :flex 40) (:arm-r :flex 4 :side 14))    ; deepest
+  (17 :snap :hs-k-gj2-low (:root :u -0.33 :yaw -12) (:chest :twist -8) (:spine :flex 32) (:arm-r :flex 34 :side 12))   ; the
+  (:s :snap :hs-k-gj2-hit)                                                                              ;  release
   (20 :hs-k-gj2-hit (:arm-r :flex 150))
   (:a :hs-k-gj2-hit (:root :u 0.0) (:spine :flex -12) (:arm-r :flex 172) (:head :flex -16))             ; through, up on his toes
   (30 :hs-k-gj2-hit (:root :u -0.1) (:spine :flex -2) (:arm-r :flex 140) (:elbow-r :flex 30))
   (:end :hs-k-stance))
-;; gathered J3 繞身連枷 JŌSHIN-RENKA (19/3/21; the ender): the wrap in the windup: both arms raised clear, the bundle's end
-;; hauled in from over the top (J2's) and carried round his waist once counter-clockwise (f3-14, a key each 90 deg: the coil drawn round him, %HS-G-LOOK 3), then
-;; crouched and coiled to his right, both fists at his right knee (held f14-18); on f16-19 the coil unwinds, the end flung off
-;; behind his right; on S unwound to his left, the arms swept flat across: the flail sweep R -> L at 4.5 m (-38 / 0 / +38 deg on
-;; f19-21; the curled smear from the coil out)
+;; gathered J3 繞身連枷 JŌSHIN-RENKA (19/3/21; the ender): the wrap in the windup; §28.24 (the user: 「我想看到鎖鏈將身體圍起來
+;; 後，由慢至快加速橫掃」): both arms raised clear, the bundle's end spiralled in from over the top (J2's, slow, then gathering, f0-7)
+;; and carried once round his waist counter-clockwise from his left rear (f7-13, a key each 90 deg, each faster: the ring drawn
+;; round him, 0.88 m, %HS-G-LOOK 3), crouched and coiled to his right, both fists at his right knee, held trembling (f13-16); the
+;; release: the coil unwinds from its free end, the end swung on round behind him, the first 90 deg in 2 f, the last 92 in 1
+;; (f18-19); on S the arms swept flat across: the flail sweep R -> L at 4.5 m (-38 / 0 / +38 deg on f19-21; the curled smear
+;; from the coil out, widening with its speed), on past, fallen on the floor at his left and dragged home slowly
 (defpose :hs-k-gj3-wrap (:base :hs-k-stance)
   (:root :u -0.12 :yaw 10) (:spine :flex 6) (:chest :twist 10) (:head :flex 0)
   (:arm-r :flex 130 :side 50 :twist 0) (:elbow-r :flex 70) (:hand-r :flex -60)
@@ -1708,16 +1726,20 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:arm-l :flex -10 :side 60 :twist 0) (:elbow-l :flex 20) (:hand-l :flex -80)
   (:thigh-l :flex 36 :side 14) (:knee-l :flex 44) (:thigh-r :flex 0 :side 18) (:knee-r :flex 40))
 (defstrike :hs-k-g-j3 (19 3 21 :base :hs-k-stance)
-  (0 :hs-k-gj2-hit (:root :u -0.05) (:spine :flex -7) (:arm-r :flex 156) (:elbow-r :flex 15) (:head :flex -14))   ; J2's at its f26
-  (4 :hs-k-gj3-wrap)
-  (8 :hs-k-gj3-wrap (:root :yaw 30) (:chest :twist 20))                                                 ; the end behind his left
-  (11 :hs-k-gj3-wrap (:root :yaw -10) (:chest :twist -10))                                              ; behind his right
-  (14 :hs-k-gj3-up)
-  (18 :hs-k-gj3-up (:root :yaw -68 :u -0.32) (:chest :twist -46))                                       ; held, coiled
+  (0 :hs-k-gj2-hit (:root :u -0.09) (:spine :flex -3) (:arm-r :flex 144) (:elbow-r :flex 27) (:head :flex -11))   ; J2's at its f26
+  (2 :snap (:root :u -0.1) (:spine :flex 0) (:arm-r :flex 138))                                         ; (§28.24) barely moving
+  (6 :snap :hs-k-gj3-wrap (:root :yaw 36) (:chest :twist 24))                                           ; arms up, the end in
+  (9 :hs-k-gj3-wrap (:root :yaw 10) (:chest :twist 6))                                                  ;  round his back
+  (13 :hs-k-gj3-up (:root :yaw -64 :u -0.31) (:chest :twist -44))                                       ; coiled tight, held,
+  (14 :hs-k-gj3-up (:root :yaw -69 :u -0.33) (:chest :twist -47))                                       ;  trembling
+  (15 :hs-k-gj3-up (:root :yaw -66 :u -0.31) (:chest :twist -45))
+  (16 :hs-k-gj3-up (:root :yaw -68 :u -0.32) (:chest :twist -46))
+  (17 :snap :hs-k-gj3-up (:root :yaw -58 :u -0.3) (:chest :twist -38))                                  ; the release
   (:s :snap :hs-k-gj3-hit)
-  (20 :hs-k-gj3-hit (:root :yaw 44) (:chest :twist 34))
+  (20 :hs-k-gj3-hit (:root :yaw 48) (:chest :twist 36))                                                 ; the overshoot
   (:a :hs-k-gj3-hit (:root :yaw 62) (:chest :twist 40) (:arm-r :flex 100 :side 70))
-  (30 :hs-k-gj3-hit (:root :yaw 54 :u -0.18) (:chest :twist 34) (:arm-r :flex 96 :side 66))
+  (30 :hs-k-gj3-hit (:root :yaw 54 :u -0.18) (:chest :twist 34) (:arm-r :flex 96 :side 66))            ; heavy, slow
+  (36 :hs-k-gj3-hit (:root :yaw 36 :u -0.16) (:chest :twist 20) (:arm-r :flex 70 :side 50) (:arm-l :flex 0 :side 40))
   (:end :hs-k-stance))
 
 ;;; Batch 2a (DUEL_HISAGI §28.9 / §28.11, the user's 「可以」 on the plan): the core ranged mode's own clips, each at its move's
@@ -2530,22 +2552,34 @@ for the links).")
      (6 4.41 0.05 0 0 -2.0) (14 4.5 0.15 -10 0 -1.2) (20 4.5 0.4 -60 0 -0.4)    ;  round him at 4.5 m (a key each 90 deg)
      (25 4.5 0.6 -100 0 0) (26 4.5 0.7 -110 0 0) (27 4.5 0.8 -20 0 0.3) (28 4.5 0.8 70 0 0.3) (29 4.5 0.8 160 0 0.3)
      (30 4.5 0.8 250 0 0.3) (31 4.5 0.8 340 0 0.3) (34 4.32 0.6 380 0 0) (42 3.96 0.3 400 0 -0.4))
-    ;; batch 4b (§28.21): the gathered route SA > J2 > J3, each its own path, 4.5 m inside +-45 on its hit frames
-    (:hs-k-g-sa 256 0 1.1 0 30                      ; SA 直刺: drawn in to his fists (its blunt end), held, rammed
-     (4 0.9 0.9 -40 0 0) (8 0.6 1.05 -15 0 0) (11 0.55 1.1 -8 0 0) (12 2.2 1.12 -2 0 -0.2)   ;  straight out along the line
-     (13 4.5 1.15 0 0 -0.25) (14 4.5 1.15 0 0 -0.25) (15 4.5 1.15 0 0 -0.25)    ;  at the chest, taut (f13-15),
-     (16 3.7 1.1 0 0 0.15) (18 4.05 1.05 0 0 -0.1) (22 3.6 0.75 -6 0 -0.3))    ;  kicked back (the recoil)
-    (:hs-k-g-j2 256 0 1.0 0 36                      ; J2 上撈: fallen on the floor ahead, dragged in round to his right
-     (0 3.6 0.7 -6 0 -0.2) (4 3.2 0.05 -16 0 -0.4) (9 2.2 0.05 -70 0 -0.5)     ;  along the ground and on forward, ripped up
-     (13 2.0 0.05 -110 0 -0.5) (16 2.8 0.05 -70 0 -0.5) (18 3.9 0.08 -24 0 -0.3)   ;  off the floor in the vertical plane ahead
-     (19 4.5 0.15 -8 0 0.2) (20 4.5 1.45 -3 0 0.5) (21 4.5 2.75 2 0 0.5)        ;  (f19-21), over the top
-     (23 4.1 3.7 6 0 0.2) (28 3.2 2.4 10 0 -0.2))
-    (:hs-k-g-j3 256 0 1.1 0 40                      ; J3 繞身連枷: out of J2's (over the top, the link at its f26), hauled
-     (0 3.6 2.9 8 0 0.2)                                                         ;  in to his hip, carried once round his
-     (3 0.5 1.0 -35 0 0) (6 0.5 1.05 55 0 0) (9 0.5 1.1 145 0 0) (12 0.5 1.15 -125 0 0)   ;  waist (a key each 90 deg), held wound, flung off
-     (14 0.5 1.2 -35 0 0) (16 0.55 1.2 -40 0 0) (17 1.6 1.0 -110 0 0.2) (18 3.0 0.95 -85 0 0.3)   ;  behind his right, the
-     (19 4.5 0.9 -38 0 0.3) (20 4.5 0.9 0 0 0.3) (21 4.5 0.9 38 0 0.3)          ;  flail sweep R -> L (f19-21)
-     (22 4.4 0.85 62 0 0.2) (26 4.0 0.6 100 0 0) (32 3.0 0.3 110 0 -0.3))
+    ;; batch 4b (§28.21): the gathered route SA > J2 > J3, each its own path, 4.5 m inside +-45 on its hit frames; batch 4c
+    ;; (§28.23 / §28.24, the user: 「每個時間點的節奏都一樣快速反而表現不出『聚』的攻擊張力」): each the 聚 rhythm, a slow eased
+    ;; charge (one key 4 f or more on: smoothstep), a held coil trembling (keys a frame apart), the release in the last 2-3 f
+    ;; (linear keys a frame apart, the steps growing), the hit on S, a jolt (in h / bend, never past 4.5), a slow heavy
+    ;; follow-through (keys 4 f or more apart again)
+    (:hs-k-g-sa 256 0 1.1 0 32                      ; SA 直刺: from its rest drawn slowly back to his right hip (f0-6),
+     (6 0.55 1.0 -100 0 0)                                                       ;  held coiled, trembling (f6-10), rammed
+     (7 0.58 1.04 -97 0 0.05) (8 0.53 0.97 -102 0 0) (9 0.58 1.04 -97 0 0.05) (10 0.55 1.0 -100 0 0)   ;  out straight along
+     (11 0.57 1.03 -61 0 -0.1) (12 2.22 1.1 -7 0 -0.2) (13 4.5 1.15 0 0 -0.25)  ;  the line from his hip (f11-13: 0.4 /
+     (14 4.5 1.29 0.8 0 -0.55) (15 4.5 1.12 0 0 -0.2)                           ;  1.7 / 2.3 m), the blunt end jolting up
+     (16 3.75 1.1 0 0 0.15) (20 3.6 0.85 -3 0 -0.1) (26 3.2 0.5 -8 0 -0.3))    ;  (f14), the recoil, sagging
+    (:hs-k-g-j2 256 0 1.0 0 38                      ; J2 上撈: dropped on the floor ahead (f0-4), dragged in slowly to his
+     (0 3.6 0.85 -3 0 -0.1) (4 3.2 0.05 -6 0 -1.0) (11 1.0 0.05 -12 0 -1.5)     ;  feet (f4-11, laid along it), held trembling
+     (12 1.04 0.07 -11 0 -1.4) (13 0.97 0.05 -13 0 -1.5) (14 1.04 0.07 -11 0 -1.4) (15 0.97 0.05 -13 0 -1.5)   ;  (f11-16);
+     (16 1.0 0.05 -12 0 -1.5)                                                    ;  near to far, rising: the end run out along the
+     (17 1.8 0.12 -9 0 -0.4) (18 3.0 0.45 -5 0 0.5) (19 4.5 1.3 -2 0 0.6)       ;  line and up, the bend lifting out behind it
+     (20 4.5 2.35 0 0 0.2) (21 4.5 2.95 1 0 0.3)                                ;  (f17-19), cracked up at 4.5 m (f19-21),
+     (22 4.35 3.3 3 0 0.25) (26 3.0 2.6 8 0 0.1) (31 2.4 1.8 2 0 -0.1))        ;  over, sinking back slowly
+    (:hs-k-g-j3 256 0 1.1 0 43                      ; J3 繞身連枷: out of J2's (over the top, the link at its f26),
+     (0 3.0 2.6 8 0 0.1) (2 2.85 2.5 14 0 0.1) (4 2.2 1.9 50 0 0.05)             ;  spiralled in counter-clockwise, slow then
+     (6 1.3 1.25 105 0 0) (7 0.88 1.0 140 0 0)                                   ;  gathering (f0-7), and once round his waist
+     (9 0.88 1.0 230 0 0) (10.5 0.88 1.02 320 0 0) (11.8 0.88 1.03 410 0 0)     ;  from his left rear, faster each 90 deg (f7-13:
+     (13 0.88 1.04 500 0 0)                                                      ;  the ring, drawn by %HS-G-LOOK), drawn tight,
+     (14 0.92 1.08 502 0 0) (15 0.85 1.0 498 0 0) (16 0.88 1.04 500 0 0)        ;  held trembling (f13-16), unwound on round:
+     (17 1.15 1.0 525 0 0.1) (18 2.5 0.95 590 0 0.25) (19 4.5 0.9 682 0 0.3)    ;  the first 90 deg in 2 f, the last 92 in 1
+     (20 4.5 0.98 720 0 0.3) (21 4.5 0.9 758 0 0.3)                             ;  (f18-19), the sweep R -> L at 4.5 m (-38 / 0 /
+     (22 4.4 0.85 790 0 0.2) (26 4.1 0.5 805 0 -0.2) (34 3.6 0.08 800 0 -0.6))  ;  +38, f19-21), on past, fallen on the floor at
+                                                                                 ;  his left, dragged back home
     (:hs-k-saharai 255 0.2 0.9 0 52                 ; A3 (§24.3; §25.7: S 18): L SAHARAI, all eight wrapped in tight round
      (4 0.7 1.5 20 45 0) (8 0.6 1.4 80 45 0.1) (12 0.55 1.3 170 45 0.2)        ;  him and whirled faster and faster (the charge,
      (15 0.5 1.25 280 45 0.25) (17 0.5 1.2 380 45 0.3)                         ;  f4-17), lashed out in a ring to 3.0 m on S
@@ -2656,12 +2690,12 @@ links bound throughout): K1 綁束 binds them, the gathered links strike with th
   '((:hs-k-saben 5 12 20 0.5) (:hs-k-kaeshi 4 10 18 -0.5) (:hs-k-sensa 3 10 22 1.0) (:hs-k-saharai 2 18 32 2.0)   ; (§28.19: J2 / J5 at S 10)
     (:hs-k-raiden 7 20 30 0.5) (:hs-k-ame 8 30 50 1.0) (:hs-k-kosa 7 20 30 0.5) (:hs-k-kubikake 5 24 34 1.0)
     (:hs-k-hosoku 6 16 26 1.0) (:hs-k-s-k2 9 21 30 0.5) (:hs-k-s-k3 8 21 32 0.75) (:hs-k-g-k2 8 27 40 0.75)
-    (:hs-k-g-k3 6 27 36 1.0) (:hs-k-g-j2 6 19 28 0.5) (:hs-k-g-j3 2 19 30 1.25)   ; (§28.21: J3 with its wrap)
+    (:hs-k-g-k3 6 27 36 1.0) (:hs-k-g-j2 11 19 28 0.5) (:hs-k-g-j3 2 19 30 1.25)   ; (§28.21: J3 with its wrap; §28.24: J2 from its hold)
     (:hs-k-uchi 3 10 16 0.4) (:hs-k-ogi 9 21 30 0.5) (:hs-k-issei 8 21 32 0.75) (:hs-k-ransa 8 21 32 1.0)   ; (§28.11)
     (:hs-k-tataki 9 30 40 0.5) (:hs-k-sweep 9 30 40 -0.75) (:hs-k-jibashiri 12 36 46 0.5) (:hs-k-maki 12 27 40 1.5)
     (:hs-k-kake 8 24 34 -0.5)
     (:hs-k-na3 3 10 18 -0.5) (:hs-k-na4 3 10 18 0.5)   ; (§28.15)
-    (:hs-k-g-sa 4 13 20 0.3))   ; (§28.21)
+    (:hs-k-g-sa 6 13 20 0.3))   ; (§28.21; §28.24: from the hold)
   "The carousel's jerk (batch A2, DUEL_HISAGI §24.2; the user, 2026-10-18: §22.1's 旋鎖陣, 「遠程攻擊有效利用鎖鏈球拉動垂鏈迴轉
 對遠程進行抽打」): the ranged mode's strike clip -> (f0 f1 f2 turns): the orb (and the hanging chains round him) spun TURNS
 turns (+ counter-clockwise from above) on top of its slow turn, winding up from clip frame F0, fastest at F1 (S), done by F2.")

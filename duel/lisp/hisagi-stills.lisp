@@ -63,8 +63,8 @@ flat-spinning sickle's flight, its spin in him with the cuts, its return: each m
                        (progn (at :hs-r-k3 22 :hs-k-s-k3) (bytes))
                        (progn (at :hs-r-k2 34 :hs-k-g-k2) (bytes))
                        (progn (at :hs-r-k3g 28 :hs-k-g-k3) (bytes))
-                       (progn (at :hs-r-j2s 12 :hs-k-g-j2) (bytes))   ; (§28.21: J2's groove, J3's coil)
-                       (progn (at :hs-r-j3g 12 :hs-k-g-j3) (bytes))))
+                       (progn (at :hs-r-j2s 12 :hs-k-g-j2) (bytes))   ; (§28.21: J2's groove, J3's coil; §28.24: J2 held
+                       (progn (at :hs-r-j3g 14 :hs-k-g-j3) (bytes))))   ;  low, J3's ring held trembling)
              (bb (progn (setf (hss-bound st) t (fighter-form f) :bankai-bind)
                         (list (progn (at :hs-b-k2 21 :hs-kb-makigiri) (bytes))
                               (progn (at :hs-b-k3 23 :hs-kb-shibori) (bytes))
