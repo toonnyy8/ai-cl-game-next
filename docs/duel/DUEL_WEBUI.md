@@ -493,3 +493,15 @@ Artifact version 16: the two chords are white (paper) instead of the rim's red: 
 once armed. They are drawn like the glyph: each face of the seal (the empty part, the ink) carries its own pair, so over the empty
 seal a chord is white and inside the ink it is ink-dark (70 %), and it never vanishes on the white ink of a gauge over 200. Both
 faces are clipped to the seal's circle.
+
+### 10.9 Draft v7.9: C 界, the Reishi bar as the SP / ATK line (the user, 2026-10-29)
+
+> 「幫我新增一個 C 版，是使用血條與魂魄代替原本的 SP 與 ATK 分界線」 (after asking which of A / B the assistant prefers: B, for one
+> glance point, no palm over it and the unity; the caveats an arc's readability and the guard's size)
+
+Artifact version 17: three phones (one at a time under 700 px). **C 界** keeps A's 爆 (墨池, the gold ring, the pointer seals) and
+lays your Reishi stroke on the deck's split line itself: the bar's middle on the line (the far edge at the deck's top, the thumb's
+edge 70 % down the deck), drawn by `hypot()` / `atan2()` of the screen, so it follows any aspect; the flames, name and tag on the SP
+side above it. What is left is anchored at the far end and drains from the thumb's end; the empty track (a 1 px paper hairline over
+ink) keeps the boundary drawn at any Reishi. The old ink line is not drawn. Touch is unchanged: above the bar's middle SP, below ATK.
+The bar is read on a slant and lies where the thumb taps SP / ATK.
