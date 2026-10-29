@@ -649,10 +649,12 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 ;; combo J2-J5 are the gathered copies S 19, 29 / 39 (HS-R-LINK-MOVE). §28.10 (the user 2026-10-29: 「J2–J5 本來就該延續上一擊的範圍與
 ;; 特性」): the spread links J1's band 3-6 m 100 deg, the gathered ones the gathered SA's 2.5-4.5 m 90 deg (no chase). §28.10 (「適當的將「散」
 ;; 的威力調降，並提升「聚」的前後搖」): every 散 move's damage x0.85, every 聚 move's startup and recovery +3 (the old §22.4 route split's size)
-(defmove-copy :hs-r-na3 :hs-r-j2 :clip :hs-k-saben :clip-s 12)
-(defmove-copy :hs-r-na4 :hs-r-j2)
-(defmove-copy :hs-r-na3g :hs-r-j2s)
-(defmove-copy :hs-r-na4g :hs-r-j2s)
+;; §28.15 (the user, 2026-10-29: 「遠攻 J3、J4 還在借 J1、J2 的動作，所以 J 五連裡有兩對動作一樣」): J3 / J4 and their gathered copies on
+;; their own clips at their S (speed 1; presentation only: frames, volumes, damage as before)
+(defmove-copy :hs-r-na3 :hs-r-j2 :clip :hs-k-na3 :clip-s 10)
+(defmove-copy :hs-r-na4 :hs-r-j2 :clip :hs-k-na4 :clip-s 10)
+(defmove-copy :hs-r-na3g :hs-r-j2s :clip :hs-k-g-na3 :clip-s 19)
+(defmove-copy :hs-r-na4g :hs-r-j2s :clip :hs-k-g-na4 :clip-s 19)
 (defparameter *hs-r-core-strings*
   '((:hs-r-j1 :q :hs-r-j2) (:hs-r-j2 :q :hs-r-na3) (:hs-r-na3 :q :hs-r-na4) (:hs-r-na4 :q :hs-r-j3)
     (:hs-r-j2s :q :hs-r-na3g) (:hs-r-na3g :q :hs-r-na4g) (:hs-r-na4g :q :hs-r-j3g))

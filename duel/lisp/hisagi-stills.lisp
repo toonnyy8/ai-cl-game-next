@@ -187,6 +187,36 @@ far edge. A debug measurement (it conses)."
                    (loop for w across (mv-hits mv)                      ; (each window's: A2's gathered K2 has two)
                          collect (let ((v (first (hw-vols w)))) (if cap (+ (aref v 2) (aref v 4)) (aref v 1))))
                    (if cap "line" "arc")))))
+    ;; §28.15 (the user, 2026-10-29: 「鉤寄、鉤寄斬、纏甩出去的鐮刀是沿修兵的面向畫的」): the bind's reels with the victim
+    ;; off his facing (his yaw kept, the victim moved DEG round him at D m): how far the drawn crescent's point lies off the
+    ;; victim's feet, the worst over the hit window and the 8 f after it (0.15 wanted); MATOI (a line, not a hook) on a hit
+    ;; at 0 / 7 deg (inside its r 0.35) and whiffed at 30 deg (it stays on its line: far off him)
+    (let* ((q (pos-of *p2*)) (qx (aref q 0)) (qz (aref q 2)) (ml *hs-ml*))
+      (setf (fighter-form f) :bankai-bind (hss-bound st) t)
+      (dolist (row '((:hs-b-n1a :r 3.0 (0 30 60)) (:hs-b-n1a :r 6.0 (0 30 60)) (:hs-b-as1 :l 3.0 (0 30 60))
+                     (:hs-b-as1 :l 6.0 (0 30 60)) (:hs-b-n2a :l 2.5 (0 7 -30))))
+        (destructuring-bind (name side d degs) row
+          (let* ((mv (find-move name)) (clip (mv-clip mv)) (f0 (hw-from (svref (mv-hits mv) 0))) (offs nil))
+            (dolist (deg degs)
+              (let ((a (+ yaw (* (abs deg) (/ pi 180)))) (worst 0.0))
+                (setf (aref q 0) (f32 (- (aref p 0) (* d (sin a)))) (aref q 2) (f32 (- (aref p 2) (* d (cos a))))
+                      (fighter-state f) :move (fighter-move f) mv (fighter-phase f) :main
+                      (fighter-contact f) (if (and (eq name :hs-b-n2a) (>= deg 0)) :hit nil))
+                (loop for sf from f0 below (+ f0 8)
+                      do (setf (fighter-sf f) sf (anim-clip an) (find-clip clip) (anim-blend an) 0f0 (anim-time an) (/ sf 60f0)
+                               (aref *pose-at* 0) (aref p 0) (aref *pose-at* 1) (aref p 1) (aref *pose-at* 2) (aref p 2)
+                               (aref *pose-at* 3) yaw)
+                         (pose-fk! jm (anim-eval an) (aref p 0) (aref p 1) (aref p 2) yaw (body-scale b) (body-hunch b) (body-props b))
+                         (hs-pose e m) (hisagi-draw e 0.016)
+                         (if (eq side :r)
+                             (joint-point! v jm (ji :weapon-r) 0f0 0f0 -0.75f0)
+                             (setf (aref v 0) (+ (aref ml 12) (* 0.75 (aref ml 4))) (aref v 2) (+ (aref ml 14) (* 0.75 (aref ml 6)))))
+                         (setf worst (max worst (sqrt (+ (expt (- (aref v 0) (aref q 0)) 2) (expt (- (aref v 2) (aref q 2)) 2))))))
+                (push (format nil "~d° ~,2f" (abs deg) worst) offs)))
+            (log-msg "duel hisagi tip hook ~(~a ~a~) at ~,1f m: ~{~a~^, ~} (the drawn point off the victim's feet, f~d-~d; ~a)"
+                     name clip d (reverse offs) f0 (+ f0 7)
+                     (if (eq name :hs-b-n2a) "on a hit <= 0.15 wanted at 0 / 7 deg; the 30 deg one a whiff, on its line" "<= 0.15 wanted")))))
+      (setf (aref q 0) qx (aref q 2) qz (fighter-contact f) nil))
     ;; A1 (§24.1): the Shikai's K string and leap J: K1's sweep at x1 / x1.6 and the leaps against their arcs' r; K2 / K2J
     ;; / K3 (a :seg-fn window: placed on the victim) as how far the drawn sickle sits off his feet (0 wanted)
     (setf (fighter-form f) :base (hss-bound st) nil)
@@ -234,8 +264,8 @@ crawl) / 50 (its fade, gone in under a second); the match camera, the sim runnin
 (defun hisagi-look-cons-2a ()
   "Debug 83901's second line (batch 2a, DUEL_HISAGI §28.11): bytes consed by 10 calls of HS-POSE and HISAGI-DRAW in the ranged
 mode's 聚 stance (the bundle held) and on the core ranged clips' hit frames (UCHI and the gathered UCHI's bundle by its move,
-OGI, ISSEI, RANSA's three, TATAKI, the AS2a sweep, JIBASHIRI with its crack, MAKI round him, KAKE over the shoulder, hooked):
-each must be 0."
+OGI, ISSEI, RANSA's three, TATAKI, the AS2a sweep, JIBASHIRI with its crack, MAKI round him, KAKE over the shoulder, hooked;
+§28.15: the five J's own J3 / J4, spread and gathered): each must be 0."
   (let* ((e *p1*) (f (fighter e)) (st (hs e)) (m (model e)) (an (model-anim m)) (c0 (anim-clip an)) (t0 (anim-time an))
          (state (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)) (ct (fighter-contact f))
          (fm (fighter-form f)) (b0 (hss-bound st)) (p (pos-of e)))
@@ -251,11 +281,14 @@ each must be 0."
                      (progn (at :hs-r-as1 25 :hs-k-ransa) (bytes)) (progn (at :hs-r-n2b 31 :hs-k-tataki) (bytes))
                      (progn (at :hs-r-as2 31 :hs-k-sweep) (bytes)) (progn (at :hs-r-as2b 38 :hs-k-jibashiri) (bytes))
                      (progn (at :hs-r-as3b 29 :hs-k-maki) (bytes))
-                     (progn (at :hs-r-as3c 25 :hs-k-kake) (setf (fighter-contact f) :hit) (bytes)))))
+                     (progn (at :hs-r-as3c 25 :hs-k-kake) (setf (fighter-contact f) :hit) (bytes))
+                     (progn (setf (fighter-contact f) ct) (at :hs-r-na3 11 :hs-k-na3) (bytes))   ; (§28.15: the five J's
+                     (progn (at :hs-r-na4 11 :hs-k-na4) (bytes))                                  ;  own J3 / J4)
+                     (progn (at :hs-r-na3g 20 :hs-k-g-na3) (bytes)) (progn (at :hs-r-na4g 20 :hs-k-g-na4) (bytes)))))
         (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (fighter-contact f) ct
               (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm (hss-bound st) b0)
         (apply #'log-msg "duel hisagi look consing 2a (10 calls, B): 聚 stance ~d, UCHI ~d, gathered UCHI ~d, OGI ~d, ISSEI ~d, RANSA ~d / ~d / ~d, ~
-TATAKI ~d, AS2a ~d, JIBASHIRI ~d, MAKI ~d, KAKE ~d" r)))))
+TATAKI ~d, AS2a ~d, JIBASHIRI ~d, MAKI ~d, KAKE ~d, J3 ~d, J4 ~d, gathered J3 ~d, gathered J4 ~d" r)))))
 (defun hisagi-art-debug (c)
   (case c (83902 (hisagi-tip-check)) ((83903 83904) (hisagi-zan-scene c)) (t (hisagi-look-cons-check) (hisagi-look-cons-2a))))
 
@@ -307,11 +340,13 @@ state (:out anchored 4 m ahead on the floor, :hooked anchored in him, :wrapped S
     (:hs-k-saharai :hs-r-n1a 4.0 nil :bankai) (:hs-k-ogi :hs-r-n1b 5.0 nil :bankai) (:hs-k-issei :hs-r-n1c 5.0 nil :bankai)
     (:hs-k-ransa :hs-r-as1 5.0 nil :bankai) (:hs-k-tataki :hs-r-n2b 4.0 nil :bankai) (:hs-k-sweep :hs-r-as2 4.0 nil :bankai)
     (:hs-k-jibashiri :hs-r-as2b 4.0 nil :bankai) (:hs-k-maki :hs-r-as3b 5.0 nil :bankai) (:hs-k-kake :hs-r-as3c 5.0 nil :bankai)
-    (:hs-k-g-j2 :hs-r-j2s 4.0 nil :bankai) (:hs-k-g-j3 :hs-r-j3g 4.0 nil :bankai) (:hs-k-stance nil 3.0 nil :bankai))
+    (:hs-k-g-j2 :hs-r-j2s 4.0 nil :bankai) (:hs-k-g-j3 :hs-r-j3g 4.0 nil :bankai) (:hs-k-stance nil 3.0 nil :bankai)
+    (:hs-k-na3 :hs-r-na3 5.0 nil :bankai) (:hs-k-na4 :hs-r-na4 5.0 nil :bankai)                     ; (§28.15: 15-18, the
+    (:hs-k-g-na3 :hs-r-na3g 4.0 nil :bankai) (:hs-k-g-na4 :hs-r-na4g 4.0 nil :bankai))              ;  five J's own J3 / J4)
   "83560+k (batch 2a, DUEL_HISAGI §28.11): the core ranged mode's strip slots, as *HS-BK-STRIPS*: 0 聚 stance, 1 SA UCHI, 2 the
 gathered UCHI (the bundle), 3 NS1a WA (L SAHARAI's clip at 18/14), 4 NS1b OGI, 5 NS1c ISSEI, 6 AS1 RANSA, 7 NS2b TATAKI, 8 AS2a
 叩 (the sweep), 9 AS2b JIBASHIRI, 10 AS3b MAKI, 11 AS3c KAKE, 12 / 13 the gathered J2 / J5 at 4.5 m, 14 散 stance (for the
-pair).")
+pair); §28.15: 15 J3 SHOBEN, 16 J4 SOBEN, 17 / 18 the gathered J3 / J4 (the five J's own J3 / J4).")
 (defparameter *hs-kb-strips*
   '((:hs-kb-st-shibori nil 1.6 nil :bind) (:hs-kb-kagiyose :hs-b-n1a 4.0 nil :bind) (:hs-kb-kagiyose-giri :hs-b-as1 4.0 nil :bind)
     (:hs-kb-juji :hs-b-n1c 1.5 nil :bind) (:hs-kb-matoi :hs-b-n2a 2.0 :wrapped :bind) (:hs-kb-shime :hs-b-n2b 2.0 nil :bind)

@@ -43,10 +43,11 @@ NAGE's line at x1 (its flight grows by it: HS-SCALED-TIP), [2] *HS-CHARGE-STEP*.
   nil)
 
 (declaim (type f32vec *hs-lk*))   ; (batches 2a / 2b, §28.11: undeclared, every %HS-LK-R read boxed: the stretched links consed 1-6 KB a call)
-(defvar *hs-lk* (make-f32 3)
+(defvar *hs-lk* (make-f32 5)
   "§25.13 (the ranged route links strike the victim where he is, HS-R-LINK-SEG): [0] his distance from Hisagi's feet (m,
 capped at *HS-R-LINK-REACH*), [1] the link's drawn reach as authored (*HS-LK-REACH*), [2] 1 while a link is drawn, else 0.
-%HS-LK-R stretches the link's chain to him. A look.")
+%HS-LK-R stretches the link's chain to him. §28.15 (a bind reel, HS-KB-LK!): [3] 1 when [4] holds his bearing from
+Hisagi's feet (rad, as a yaw), which %HS-LETOUT! then aims along instead of Hisagi's facing; 0 for the ranged links. A look.")
 (defparameter *hs-lk-reach*
   '((:hs-r-k2s 5.0) (:hs-r-k3 5.0) (:hs-r-k2 5.0) (:hs-r-k3g 5.0) (:hs-r-as3b 5.0) (:hs-r-as3c 5.0))
   "The ranged moves that chase the victim (HS-R-LINK-SEG) -> the reach their clips' chains were authored to (§25.3 / §25.5:
@@ -57,14 +58,14 @@ AS3b MAKI / AS3c KAKE in (the core AS3's two chases, authored to 5.0).")
   (declare (fixnum on) (single-float rr) (type f32vec pos opos))
   (setf (aref *hs-lk* 0) (f-min (the single-float *hs-r-link-reach*)
                                 (f-hypot (- (aref opos 0) (aref pos 0)) (- (aref opos 2) (aref pos 2))))
-        (aref *hs-lk* 1) rr (aref *hs-lk* 2) (i->f on))
+        (aref *hs-lk* 1) rr (aref *hs-lk* 2) (i->f on) (aref *hs-lk* 3) 0f0)
   nil)
 (defun hs-lk! (e)
   "*HS-LK* for E this frame: on in the ranged mode's route links (their move, its main phase), off else. 0 B."
   (let* ((f (fighter e)) (o (opp-of e))
          (row (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (eq (fighter-form f) :bankai) o
                    (assoc (mv-name (fighter-move f)) *hs-lk-reach*))))
-    (if row (%hs-lk-set! 1 (second row) (pos-of e) (pos-of o)) (setf (aref *hs-lk* 2) 0f0))))
+    (if row (%hs-lk-set! 1 (second row) (pos-of e) (pos-of o)) (setf (aref *hs-lk* 2) 0f0 (aref *hs-lk* 3) 0f0))))
 (defmacro %hs-lk-r (r)
   "R (a chain end's distance from his feet, m) stretched for a route link (*HS-LK*): x (1 + (k - 1) u^2), k the victim's
 distance / the authored reach, u = R / the authored reach (<= 1): his strike point lands on the victim, the windup's near
@@ -76,18 +77,25 @@ keys barely move. R as is otherwise."
            (declare (single-float %rr %u))
            (* %r (+ 1f0 (* (- (/ (aref *hs-lk* 0) %rr) 1f0) %u %u)))))))
 
-(defun-fast %hs-kb-lk-set! (rr pos opos)
+(defun-fast %hs-kb-lk-set! (rr pos opos bear)
   "*HS-LK* := on, the authored reach RR, the distance from POS to OPOS capped at RR (batch 2b, §28.12: a bind reel's
-let-out on the victim, HS-KB-LK!). 0 B."
-  (declare (single-float rr) (type f32vec pos opos))
-  (setf (aref *hs-lk* 0) (f-min rr (f-hypot (- (aref opos 0) (aref pos 0)) (- (aref opos 2) (aref pos 2))))
-        (aref *hs-lk* 1) rr (aref *hs-lk* 2) 1f0)
+let-out on the victim, HS-KB-LK!); BEAR 1: [3] on, [4] the bearing from POS to OPOS (§28.15). 0 B."
+  (declare (single-float rr) (type f32vec pos opos) (fixnum bear))
+  (let ((dx (- (aref opos 0) (aref pos 0))) (dz (- (aref opos 2) (aref pos 2))))
+    (declare (single-float dx dz))
+    (setf (aref *hs-lk* 0) (f-min rr (f-hypot dx dz))
+          (aref *hs-lk* 1) rr (aref *hs-lk* 2) 1f0 (aref *hs-lk* 3) (i->f bear)
+          (aref *hs-lk* 4) (if (> (f-hypot dx dz) 0.05f0) (f-atan2 (- dx) (- dz)) 0f0)))
   nil)
 (defun hs-kb-lk! (e clip)
   "Batch 2b (§28.12): after HS-LK!, when CLIP is one of *HS-KB-REELS* (the bind's hooks, MATOI's wrap), *HS-LK* on for it:
-its let-out lies on the victim (his distance, at most its reach: as HS-B-HOOK-SEG's far end). Else nothing. 0 B."
+its let-out lies on the victim (his distance, at most its reach: as HS-B-HOOK-SEG's far end). §28.15: and along his
+bearing (the hooks always: HS-CHAIN-SEG-TO aims at him; a :line reel, MATOI's volume along the facing, only once its move
+touched him, a hit or a block, so a whiff stays on its line). Else nothing. 0 B."
   (let ((row (assoc clip *hs-kb-reels*)) (o (opp-of e)))
-    (when (and row o) (%hs-kb-lk-set! (second row) (pos-of e) (pos-of o)))))
+    (when (and row o)
+      (%hs-kb-lk-set! (second row) (pos-of e) (pos-of o)
+                      (if (or (null (third row)) (fighter-contact (fighter e))) 1 0)))))
 
 (defparameter *hs-letout-v*
   (loop for (clip side f0 f1 f2 f3 r h az bulge) in *hs-letout*
@@ -105,7 +113,8 @@ its let-out lies on the victim (his distance, at most its reach: as HS-B-HOOK-SE
 joint as the clip posed it (the fist; the held rod along its -Z), UPPER the shoulder (the arm's line), POS his feet, YAW
 (an f32vec [0]) his facing. OUT[O] := u (smoothstep: 0 in the fist .. 1 out at R m from his feet), OUT[O+1..3] := the fist
 (the chain's near end), OUT[O+4..6] := the sickle's butt (its far end). Its point: from the held point (u 0) to R m out
-along the fist's bearing from his feet (or AZ degrees off his facing, or a sweep's), H m up (or on the arm's line), BULGE m higher
+along the fist's bearing from his feet (or AZ degrees off his facing, or a sweep's; §28.15: off the victim's bearing
+when *HS-LK* [3] says so, a bind reel), H m up (or on the arm's line), BULGE m higher
 midway (a third of it coming back); the rod pointing away from the fist, the blades 35 degrees off flat. 0 B."
   (declare (type f32vec m jm pos yaw kv fr out) (fixnum wj upper o))
   (let* ((f (aref fr 0)) (f0 (aref kv 0)) (f1 (aref kv 1)) (f2 (aref kv 2)) (f3 (aref kv 3))
@@ -122,7 +131,7 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
                    ((< f f1) (+ (aref kv 10) (* x (- (aref kv 6) (aref kv 10)))))
                    ((< f f2) (+ (aref kv 6) (* (/ (- f f1) (f-max 1f0 (- f2 f1))) (- (aref kv 11) (aref kv 6)))))
                    (t (aref kv 11))))
-         (a (+ (aref yaw 0) (* 0.017453292f0 az)))
+         (a (+ (if (> (aref *hs-lk* 3) 0.5f0) (aref *hs-lk* 4) (aref yaw 0)) (* 0.017453292f0 az)))   ; (§28.15: a reel on his bearing)
          (bx (cond ((> (aref kv 8) 0.5f0) (- (f-sin a))) ((> rf 0.05f0) (/ dx rf)) (t (- (f-sin (aref yaw 0))))))
          (bz (cond ((> (aref kv 8) 0.5f0) (- (f-cos a))) ((> rf 0.05f0) (/ dz rf)) (t (- (f-cos (aref yaw 0))))))
          (r (%hs-lk-r (* (aref kv 4) (aref *hs-ks* 0))))   ; (S1: KARI-OTOSHI's arc at the charge, x1 elsewhere;

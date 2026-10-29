@@ -727,9 +727,9 @@
     ;; 4 f apart or more, as %HS-LASH-TIP!): their farthest end out on each hit window's frames; every one of them reaches
     ;; its hit volume's far edge within 0.15 m (the arc's r, the line's end + its r, along his facing; a chain dropped on a
     ;; line within its r), and nothing lands past it; the table holds the first window's
-    (flet ((lash-end (clip f cap)                                      ; the farthest lash end at clip frame F (NIL: none)
-             (let ((best nil))
-               (dolist (x *hs-lashes* best)
+    (flet ((lash-end (clip f cap)                                      ; the farthest lash end at clip frame F (NIL: none);
+             (let ((best nil) (wide 0))                                   ;  2nd value (§28.15): the widest rank's |az|, deg
+               (dolist (x *hs-lashes* (values best wide))
                  (destructuring-bind (c mask ds w f0 f1 &rest keys) x
                    (declare (ignore w f0 f1))
                    (when (eq c clip)
@@ -744,7 +744,7 @@
                                   (a0 (+ (fourth a) (* k (fifth a)))) (a1 (+ (fourth b) (* k (fifth b))))
                                   (az (+ a0 (* u (- (mod (+ (- a1 a0) 180) 360) 180))))
                                   (d (if cap (* r (cos (* az (/ pi 180)))) r)))
-                             (setf best (max (or best d) d))))))))))))
+                             (setf best (max (or best d) d) wide (max wide (abs (- (mod (+ az 180) 360) 180))))))))))))))
       (let ((bk-moves '(:hs-r-j1 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake
                         :hs-r-k1 :hs-r-k2s :hs-r-k3 :hs-r-k2 :hs-r-k3g                      ; (A2: the route links)
                         ;; batch 2a (DUEL_HISAGI §28.11): the core ranged mode, every segment with a volume (the five J and
@@ -758,6 +758,18 @@
                         :hs-n2a :hs-n2b :hs-n2c :hs-as2 :hs-as2b      ; (§27.5: pointer 2 刈's own clips, their let-outs)
                         :hs-b-n1c :hs-b-n2a :hs-b-n2b :hs-b-as2 :hs-b-as2b      ; (batch 2b, §28.12: the core bind's own)
                         :hs-b-as3b)))                                    ; (§28.13: SAN's own, 3.0 m)
+        ;; §28.15 (the user, 2026-10-29: 「遠攻 J3、J4 還在借 J1、J2 的動作，所以 J 五連裡有兩對動作一樣」): the five J (spread and
+        ;; gathered) each on its own clip, J3 / J4 at their S (speed 1, the :s mark on S, the length S + A + R), every lash rank
+        ;; inside the arc on the hit frames (the reach is checked below)
+        (dolist (five '((:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3) (:hs-r-j1 :hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g)))
+          (check (= 5 (length (remove-duplicates (mapcar (lambda (n) (mv-clip (m n))) five))))))
+        (dolist (n '(:hs-r-na3 :hs-r-na4 :hs-r-na3g :hs-r-na4g))
+          (let* ((mv (m n)) (cl (mv-clip mv)) (hw (svref (mv-hits mv) 0)) (half (/ (* (aref (first (hw-vols hw)) 2) 180) pi)))
+            (check (or (and (~= (mv-clip-speed mv) 1.0) (= (mv-s mv) (round (* 60 (clip-mark cl :s))))
+                            (= (+ (mv-s mv) (mv-a mv) (mv-r mv)) (round (* 60 (clip-dur (find-clip cl)))))
+                            (loop for f from (hw-from hw) below (hw-to hw) always (<= (nth-value 1 (lash-end cl f nil)) half)))
+                       (format t "  Hisagi §28.15 ~a (~a): speed ~,2f, off its S / length, or a lash outside +-~,1f~%"
+                               n cl (mv-clip-speed mv) half)))))
         (dolist (n bk-moves)
           (let* ((mv (m n)) (clip (mv-clip mv)) (own (assoc n *hs-lashes*))   ; (§28.11: a move's own lashes first, its
                  (lc (if own n clip)) (sr (and (not own) (third (assoc clip *hs-strike-reach*)))))   ;  clip's table row then moot)
