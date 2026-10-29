@@ -1658,7 +1658,7 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (30 :hs-k-gj2-hit (:root :u -0.1) (:spine :flex -2) (:arm-r :flex 140) (:elbow-r :flex 30))
   (:end :hs-k-stance))
 ;; gathered J3 繞身連枷 JŌSHIN-RENKA (19/3/21; the ender): the wrap in the windup: both arms raised clear, the bundle's end
-;; carried round his waist once counter-clockwise (f2-14, a key each 90 deg: the coil drawn round him, %HS-G-LOOK 3), then
+;; hauled in from over the top (J2's) and carried round his waist once counter-clockwise (f3-14, a key each 90 deg: the coil drawn round him, %HS-G-LOOK 3), then
 ;; crouched and coiled to his right, both fists at his right knee (held f14-18); on f16-19 the coil unwinds, the end flung off
 ;; behind his right; on S unwound to his left, the arms swept flat across: the flail sweep R -> L at 4.5 m (-38 / 0 / +38 deg on
 ;; f19-21; the curled smear from the coil out)
@@ -1678,7 +1678,7 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:arm-l :flex -10 :side 60 :twist 0) (:elbow-l :flex 20) (:hand-l :flex -80)
   (:thigh-l :flex 36 :side 14) (:knee-l :flex 44) (:thigh-r :flex 0 :side 18) (:knee-r :flex 40))
 (defstrike :hs-k-g-j3 (19 3 21 :base :hs-k-stance)
-  (0 :hs-k-gj2-hit (:root :u -0.1) (:spine :flex -2) (:arm-r :flex 140) (:elbow-r :flex 30))           ; J2's follow-through
+  (0 :hs-k-gj2-hit (:root :u -0.05) (:spine :flex -7) (:arm-r :flex 156) (:elbow-r :flex 15) (:head :flex -14))   ; J2's at its f26
   (4 :hs-k-gj3-wrap)
   (8 :hs-k-gj3-wrap (:root :yaw 30) (:chest :twist 20))                                                 ; the end behind his left
   (11 :hs-k-gj3-wrap (:root :yaw -10) (:chest :twist -10))                                              ; behind his right
@@ -2511,8 +2511,9 @@ for the links).")
      (13 2.0 0.05 -110 0 -0.5) (16 2.8 0.05 -70 0 -0.5) (18 3.9 0.08 -24 0 -0.3)   ;  off the floor in the vertical plane ahead
      (19 4.5 0.15 -8 0 0.2) (20 4.5 1.45 -3 0 0.5) (21 4.5 2.75 2 0 0.5)        ;  (f19-21), over the top
      (23 4.1 3.7 6 0 0.2) (28 3.2 2.4 10 0 -0.2))
-    (:hs-k-g-j3 256 0 1.1 0 40                      ; J3 繞身連枷: carried once round his waist (a key each 90 deg),
-     (2 0.5 1.0 -35 0 0) (5 0.5 1.05 55 0 0) (8 0.5 1.1 145 0 0) (11 0.5 1.15 -125 0 0)   ;  held wound, flung off
+    (:hs-k-g-j3 256 0 1.1 0 40                      ; J3 繞身連枷: out of J2's (over the top, the link at its f26), hauled
+     (0 3.6 2.9 8 0 0.2)                                                         ;  in to his hip, carried once round his
+     (3 0.5 1.0 -35 0 0) (6 0.5 1.05 55 0 0) (9 0.5 1.1 145 0 0) (12 0.5 1.15 -125 0 0)   ;  waist (a key each 90 deg), held wound, flung off
      (14 0.5 1.2 -35 0 0) (16 0.55 1.2 -40 0 0) (17 1.6 1.0 -110 0 0.2) (18 3.0 0.95 -85 0 0.3)   ;  behind his right, the
      (19 4.5 0.9 -38 0 0.3) (20 4.5 0.9 0 0 0.3) (21 4.5 0.9 38 0 0.3)          ;  flail sweep R -> L (f19-21)
      (22 4.4 0.85 62 0 0.2) (26 4.0 0.6 100 0 0) (32 3.0 0.3 110 0 -0.3))
