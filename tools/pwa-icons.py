@@ -3,17 +3,20 @@
 icon-192.png, icon-512.png, icon-maskable-512.png (the mark inside the 80 % safe circle) and apple-touch-icon.png
 (180 px, opaque). The mark (the user, 2026-10-29: 「以代理死神證作為 icon」, then a photo of the badge): the Substitute Shinigami
 Badge as it looks: a pentagon point down, a black rim round a white face, a black angular skull with round eyes and a toothed jaw
-over a black X, hung by its tab on a red cord, on the dusk ink. (Before: a pale soul ring cut by a red brush slash.)
+over a black X, its hanging tab on top, on the dusk ink (a little flatter than a regular pentagon; no cord). (Before: a pale soul ring cut by a red brush slash.)
 python3 tools/pwa-icons.py"""
 import math
 from PIL import Image, ImageDraw
 
-BG, PAPER, BLACK, CORD = (7, 7, 12, 255), (236, 238, 240, 255), (14, 14, 18, 255), (232, 30, 58, 255)
+BG, PAPER, BLACK = (7, 7, 12, 255), (236, 238, 240, 255), (14, 14, 18, 255)
+
+
+FLAT = .84   # the badge's height over a regular pentagon's (the user, 2026-10-29: 「稍微扁一點」)
 
 
 def pent(cx, cy, r):
-    """A regular pentagon, point down (its top edge flat)."""
-    return [(cx + r * math.sin(math.radians(a)), cy - r * math.cos(math.radians(a))) for a in (180 + 72 * i for i in range(5))]
+    """A pentagon, point down (its top edge flat), squashed to FLAT of its height."""
+    return [(cx + r * math.sin(math.radians(a)), cy - FLAT * r * math.cos(math.radians(a))) for a in (180 + 72 * i for i in range(5))]
 
 
 def icon(size, scale=1.0):
@@ -22,10 +25,9 @@ def icon(size, scale=1.0):
     im = Image.new("RGBA", (n, n), BG)
     d = ImageDraw.Draw(im)
     s = n * scale
-    cx, cy, R = n / 2, n / 2 + .02 * s, .44 * s
-    top = cy - R * math.cos(math.radians(36))          # the flat top edge's height
-    d.line([(cx, 0), (cx, top - .05 * s)], fill=CORD, width=max(2, int(.028 * s)))      # the cord ...
-    d.rounded_rectangle([cx - .07 * s, top - .075 * s, cx + .07 * s, top + .01 * s], radius=.015 * s, fill=PAPER)   # ... through the tab
+    cx, cy, R = n / 2, n / 2 + .05 * s, .46 * s
+    top = cy - FLAT * R * math.cos(math.radians(36))   # the flat top edge's height
+    d.rounded_rectangle([cx - .07 * s, top - .075 * s, cx + .07 * s, top + .01 * s], radius=.015 * s, fill=PAPER)   # the hanging tab
     d.rounded_rectangle([cx - .045 * s, top - .055 * s, cx + .045 * s, top - .02 * s], radius=.008 * s, fill=BG)
     d.polygon(pent(cx, cy, R), fill=PAPER)             # a pale edge (the black rim would sink into the ink)
     d.polygon(pent(cx, cy, R * .95), fill=BLACK)       # the rim
@@ -48,7 +50,7 @@ def icon(size, scale=1.0):
     d = ImageDraw.Draw(im)
     # the skull: an angular cranium (flat top, cut corners), round eyes, a toothed jaw
     sy = cy - .05 * s
-    w, h = .235 * s, .155 * s
+    w, h = .235 * s, .14 * s
     d.polygon([(cx - w * .62, sy - h), (cx + w * .62, sy - h), (cx + w, sy - h * .45), (cx + w, sy + h * .35),
                (cx + w * .55, sy + h * .95), (cx - w * .55, sy + h * .95), (cx - w, sy + h * .35), (cx - w, sy - h * .45)], fill=BLACK)
     for ex in (-1, 1):

@@ -649,3 +649,11 @@ from the face's upper corners to the middle of its far lower edges, cut by the r
 on the red cord. The first take (§12: a wooden cross pattée with a bone skull) was drawn without a reference and is gone. Redeployed.
 DEVLOG §510.
 
+### 12.2 Flatter, no cord (the user, 2026-10-29)
+
+> 「稍微扁一點，然後為什麼有那條紅線？」
+
+The red line was a cord the first takes hung the badge on (my addition, not on the badge): gone; the tab stays, as on the photo. The
+badge is squashed to 0.84 of a regular pentagon's height (`FLAT`), sized up a little (R .44 → .46) and centred a little lower; the skull's
+height 0.155 → 0.14. Redeployed. DEVLOG §511.
+
