@@ -211,6 +211,7 @@ Set (Lisp → page), only when the value changed:
 | 30117 / 30118 / 30119 | the pause: the cursor (`*menu*`), the rows' count, a serial (the rows re-sent: on opening, after `pause-do`) |
 | 30130–30133 | the deck (`*deck-rect*`: the window's lower `*deck-frac*` 37 %): x0 y0 x1 y1, ‰ |
 | 30134 / 30135 | the tap zones' line (`*deck-split-at*`: `*deck-split*` less `*deck-split-lift*`): its height in ‰ of the deck's at the far edge and at the thumb's (draft C, §11: 1 cm under the top, 0.82 less 2 cm) |
+| 30143 | the pad's top (the recogniser's touch area), ‰ of the height: the deck's paper is drawn up to it (§11.1) |
 | 30136–30138 / 30139–30141 | 爆 (chip 7) and 止 (chip 6): centre x, y (‰ of the window), radius (‰ of the width): the recogniser's hit circles (+ its 8 px slop) |
 | 30142 | the left hand 1 |
 | 30150 + 30 s + k | side s (0 P1, 1 P2): k 0 roster index + 1, 1 Reishi ‰, 2 red (the Kikon's must-hit line), 3 Konpaku left, 4 the souls at stake (`at-stake`), 6 flash step ‰, 7 the awakening ‰, 8 its state (0 filling, 1 ready, 2 awakened / an awakened form), 9 the SP pointer (0: no core kit), 10–13 the combo this side deals (the victim's hits, damage, the last hit's scaling ‰, a serial per counted hit: from the 2nd, PRACTICE's from the 1st), 14 the callout's serial, 15 / 16 the kit meter's value / max, 17 / 18 best combo / Kikons, 19 human 1 |
@@ -580,4 +581,16 @@ The foe's plate, the clock tab, the prompt, the pause and the landscape / two-ha
 ink, the states; the stance cluster `.rvc`), `hud.css` (界, 爆, the cluster). Checks: host tests (rules 10661, control 99, touch 100,
 input 33), pkgcheck clean, the page's Lisp path 0 B (debug 2515), smoke; shots at 390 × 844 in both hands (a full, a 60 % and a
 draining gauge, a kit without pointers). DEVLOG §504.
+
+### 11.1 The deck's paper up to the pad's top, your plate over it (the user, 2026-10-29)
+
+> 「1. 請將觸控板的視覺範圍往上延伸 2. 目前我方角色的 HUD 被壓在觸控面板下面了」
+
+- The deck's dark gradient and screentone now start at the pad's top (the recogniser's touch area, `deck-layout`'s pad: 460 CSS px over
+  the window's bottom, so 148 px over the 37 % deck at 390 × 844), not at the deck's: what is drawn is where a touch counts. Lisp
+  publishes the pad's top (30143, ‰ of the height); hud.js sets `--ext` (the gap to the deck's top) and `.deck::before` / `::after`
+  reach up by it. The zones, the labels and the line stay on the deck.
+- The deck drew over your plate (`.deck` z-index 12 over `.hudl` 10: the bar and the names were dimmed by its paper): the deck is now
+  z-index 9, under the plates; 爆 and its stance seals (14) and the touch ink (15) stay over everything.
+- Checks: the page's Lisp path 0 B (debug 2515), pkgcheck clean, shots in both hands. DEVLOG §505.
 

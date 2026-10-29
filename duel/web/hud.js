@@ -214,6 +214,7 @@
     var d = els.deck, x0 = V[30], y0 = V[31], x1 = V[32], y1 = V[33];
     st(d, "left", pct(x0)); st(d, "top", pct(y0)); st(d, "width", pct(x1 - x0)); st(d, "height", pct(y1 - y0));
     st(root, "--deck", pct(1000 - y0));
+    st(d, "--ext", Math.max(0, innerHeight * (y0 - V[43]) / 1000) + "px");   // the paper up to the pad's top (touches start there)
     var far = V[34] / 10, near = V[35] / 10, yl = left ? near : far, yr = left ? far : near;   // the line's heights at the left / right edge
     st($(".zone.sp", d), "clip-path", "polygon(0 0, 100% 0, 100% " + yr + "%, 0 " + yl + "%)");
     st($(".zone.atk", d), "clip-path", "polygon(0 " + yl + "%, 100% " + yr + "%, 100% 100%, 0 100%)");

@@ -220,11 +220,13 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud.hphone.left-hand .combo.p2 { right: auto; left: calc(2.6 * var(--u)); justify-items: start; }
 
 /* the deck: the thumb's paper where Lisp's deck is; one ink line splits SP (upper) from ATK (lower) */
-#hud .deck { position: absolute; z-index: 12; transition: opacity .3s; }
+/* (under the plates, .hudl 10: your plate lies on it, the user, 2026-10-29: 「目前我方角色的 HUD 被壓在觸控面板下面了」; its paper drawn up to
+   the pad's top, --ext, where touches start: 「請將觸控板的視覺範圍往上延伸」) */
+#hud .deck { position: absolute; z-index: 9; transition: opacity .3s; }
 #hud .deck[hidden] { display: none; }
-#hud .deck::before { content: ""; position: absolute; inset: 0;
+#hud .deck::before { content: ""; position: absolute; inset: calc(-1 * var(--ext, 0px)) 0 0;
   background: linear-gradient(180deg, rgba(11,11,16,0) 0%, rgba(11,11,16,.42) 22%, rgba(11,11,16,.58) 100%); }
-#hud .deck::after { content: ""; position: absolute; inset: 0; opacity: .5;
+#hud .deck::after { content: ""; position: absolute; inset: calc(-1 * var(--ext, 0px)) 0 0; opacity: .5;
   background-image: radial-gradient(circle, rgba(188,193,204,.18) 0 1px, transparent 1.4px); background-size: 7px 7px; }   /* (to the deck's top: draft v7.11) */
 #hud .zone { position: absolute; inset: 0; z-index: 1; transition: background .2s; }
 #hud .zone.lit { background: rgba(238,238,234,.07); }

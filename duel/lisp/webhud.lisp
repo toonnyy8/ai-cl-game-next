@@ -127,7 +127,8 @@ the Bankai ready), its arg, the key string (NIL on the phone), the AS's romaji."
 
 ;;; ---------------------------------------------------------------- the deck's geometry and events (one hand)
 (defun-fast webhud-deck ()
-  "The deck's spots in permille of the window (30130-30141: the deck rect, the line's ends, 爆 and 止), the touch feedback (the
+  "The deck's spots in permille of the window (30130-30141: the deck rect, the line's ends, 爆 and 止; 30143 the pad's top, where
+touches start), the touch feedback (the
 last recognised gesture as an event: 30105 serial, its kind, where, its stroke; the Kikon hold ring under a thumb held in the SP
 zone during an NS / AS: 30111-30113), 爆's state bits (30104: 1 ready, 2 its hold under way, 4 pressed, 8 a burst possible; your
 running burst 16 WHITE, 32 BLUE, 64 ORANGE: the ink in the seal takes its colour, draft C)."
@@ -141,6 +142,7 @@ running burst 16 WHITE, 32 BLUE, 64 ORANGE: the ink in the seal takes its colour
       (webhud-put 36 (px (aref dk (+ 4 21)))) (webhud-put 37 (py (aref dk (+ 5 21)))) (webhud-put 38 (px (aref dk (+ 6 21))))   ; chip 7
       (webhud-put 39 (px (aref dk (+ 4 18)))) (webhud-put 40 (py (aref dk (+ 5 18)))) (webhud-put 41 (px (aref dk (+ 6 18))))   ; chip 6
       (webhud-put 42 (if left 1 0))
+      (webhud-put 43 (py (aref dk 1)))                   ; the pad's top: the page draws the deck's paper up to it
       (let ((gt (touch-glyph-t tr)) (k (touch-glyph tr)))
         (declare (single-float gt) (fixnum k))
         (when (and (/= gt (aref sf 0)) (/= k 5))          ; (5, the rest: no event)
