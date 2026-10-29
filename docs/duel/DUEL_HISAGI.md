@@ -4435,3 +4435,15 @@ rod's reach in the cut not measured); open: the reels take the victim's distance
 beside him (every check here had him dead ahead; the fix, the bearing in `*hs-lk*` read by `%hs-letout!`, touches batch 2a's code);
 `hs-kb-hikigiri` and `hs-st-bind` stay (the old K1's strip, the Shikai's pointer 2 stance). Not in 2b: the Kikon cinematics, the
 clash cue, the ranged mode (batch 2a).
+
+### 28.13 The bind AS3b 散 SAN reaches 3.0 m (the user, 2026-10-29)
+
+The user: 「捆綁 AS3b 不知道為什麼達不到近距離的對手？」. Cause (the scripted smoke, scene E, distance probes every 3 f): AS3 only follows
+the fifth J, and the bind J5 雙弦 SŌGEN is an ender: its hit's generic ender push takes him from 0.81 m to 2.30 m during AS3a's startup.
+AS3a 解 KAI (2.8 m) and AS3c 放 HANATSU (3.0 m) still reach; AS3b, a copy of J5 at 1.5 m, missed every time. The options asked: SAN to
+3.0 m (picked: 「散加長到 3.0 m（推薦）」), no ender push on the bind J5, or SAN pulling him back to 1.5 m first.
+
+- `hs-b-as3b` `:reach` 1.5 → 3.0 (its 200° arc kept). Scene E now: KAI 40, SAN 40, HANATSU 100 → `BIND END 400 / 1037` (1066 before).
+  The rest of the smoke's log identical to batch 2b's (a later hash line moves by one frame of carry-over: scene E ends 8 f later).
+- Its clip (`hs-kb-sogen`, drawn 1.5 m) is redrawn to 3.0 m by batch 2b's follow-up.
+- duel-rules 10601 ALL PASS (+ SAN's 3.0 m edge), `--cvc` 3 PASS.

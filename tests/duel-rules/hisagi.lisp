@@ -456,6 +456,7 @@
                   (~= 7.0 (mv-reach (m :hs-r-as3))) (null (hw-min (w :hs-r-as3)))
                   (eq 'hs-r-link-seg (hw-seg (w :hs-r-as3b))) (eq 'hs-r-link-seg (hw-seg (w :hs-r-as3c)))
                   (eq 'hs-b-hook-seg (hw-seg (w :hs-b-n1a))) (eq 'hs-b-hook-seg (hw-seg (w :hs-b-as1)))
+                  (~= 3.0 (edge :hs-b-as3b))                                        ; (§28.13: SAN reaches J5's 2.3 m push)
                   (equal (mv-on-frame (m :hs-b-sa)) '((0 hs-b-yose))) (zerop (mv-enter (m :hs-b-sa)))
                   (eq 'hs-b-hook (mv-on-land (m :hs-b-n1a))) (eq 'hs-b-drag (mv-on-land (m :hs-b-n2a)))
                   (null (mv-on-land (m :hs-r-n1b))) (null (mv-on-frame (m :hs-r-as3))) (null (mv-on-land (m :hs-r-as3c))))))
