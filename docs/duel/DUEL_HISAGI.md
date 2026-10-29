@@ -4964,3 +4964,11 @@ SHIME / 絞 stance 80 B appear after the strips as in batch 4a / 4b's logs, unto
 (`duel-hisagi-bankai.json`, 90 s) 197 hash / log lines identical to 68aa3bc's; `--cvc` 3 PASS. No balance gates (the user's rule).
 Checked by numbers and 8-frame strips (side, front, the match camera), needs the user's eyes: J2's rising smear is a dashed line from
 the behind camera at 4 m; J3's smear at S is wide where it passes near the camera.
+
+### 28.25 The 聚 rhythm on the rest of pointer 2 (the user, 2026-10-29; batch 4d)
+
+The user, on §28.24 (the three route links): 「善哉，幫我套用」 to the offer of the same rhythm on the other 聚 attacks: NS2a 束 TABA
+(`hs-k-g-k2`, eff S 25, a line), NS2b 叩 TATAKI (`hs-k-tataki`, eff S 21, 0–3 m push), NS2c 大旋 ŌMEGURI (`hs-k-g-k3`, eff S 23, 360°),
+AS2a 叩 (`hs-k-sweep`, eff S 21, the low sweep), AS2b 地走 JIBASHIRI (`hs-k-jibashiri`, its hit at eff 24, the crack). §28.23's rule:
+slow eased charge, a held trembling coil of 3–5 f, the release in the last 2–3 f, a 1–2 f overshoot, a heavy follow-through; each
+move's path kept (what it is), only its timing and the coil changed. Presentation only.
