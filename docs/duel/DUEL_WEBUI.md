@@ -505,3 +505,11 @@ edge 70 % down the deck), drawn by `hypot()` / `atan2()` of the screen, so it fo
 side above it. What is left is anchored at the far end and drains from the thumb's end; the empty track (a 1 px paper hairline over
 ink) keeps the boundary drawn at any Reishi. The old ink line is not drawn. Touch is unchanged: above the bar's middle SP, below ATK.
 The bar is read on a slant and lies where the thumb taps SP / ATK.
+
+### 10.10 Draft v7.10: A / B's SP label at the thumb's edge (the user, 2026-10-29)
+
+> 「幫我將 A / B 的『SP 技』標示往側邊偏移」
+
+Artifact version 18: in A and B the deck's `SP 技` label moves from 40 % across / 20 % down the deck (by the fighters' feet) to the
+thumb's edge, 5 % in from it and 44 % down the deck: under 爆 (B: under the guard's gap and the stance seals), above the split line,
+which is 70 % down at that edge. The left hand mirrors it. C keeps its own place (over its slanted bar).
