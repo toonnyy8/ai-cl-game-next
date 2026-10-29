@@ -428,3 +428,21 @@ Dashes are free (v7 wrongly spent a third per Step / Dash: corrected).
 - A loses the outer three-arc ring (the cluster ~11 → ~9 U; the pointer seals move in, r 7.05 → 6.2 U); B's ring gap is left empty.
 - To build: 30156 (P1's flash-step ‰) drives the level; the armed / running state from the gauge and 30104's burst bits (ready /
   can, §7.2); no Lisp change for the gauge itself.
+
+### 10.2 Draft v7.2: the gauge 0–300, B's stance in the ring's gap (the user, 2026-10-29; the draft only)
+
+> 「幫我將閃步量表改成 0-300，並且將 hoho 消費改成 100，爆氣設為 200，其他恢復量也做對應的提昇。先改 UI」, then
+> 「將架式狀態改到靈子環下方缺口」 (B)
+
+Artifact version 10.
+- **墨池 0–300**: the ink's height = flash-step / 300; the rim's marks at the thirds, 100 (a Hoho) and 200 (every Burst), so the
+  well reads as three bars. Under 200 dim / `NO BURST · 200`; crossing 200 arms it. The draft runs the new numbers: Hoho −100, the
+  Burst's drain 54 / s (18 × 3: a full gauge still lasts 5.6 s, 200 → 0 in 3.7 s), the regen 9 / s (3 × 3) after 1 s.
+- **B's stance in the gap**: the three pointer seals (1.9 U) stand in the Reishi ring's bottom gap (135–225 deg) at r 5.7 U, 203 /
+  180 / 157 deg, read 1 → 3 left to right in both hands (not mirrored); the pointer's name under them (7.6 U down). The inner
+  caption keeps only the name and the tag; the old seals' place (r 7.75 U, lower inner side) is free.
+- **The rules, not changed yet** (「先改 UI」; the plan, everything that fills or spends the gauge × 3): `*fs-max*` 100 → 300,
+  `*fs-hoho*` 30 → 100, `*fs-burst*` 70 → 200, `*fs-regen*` 3 → 9, `*burst-drain*` 18 → 54, `*fs-taken*` 0.045 → 0.135, `*kosei-fs*`
+  0.10 → 0.30, `*kikon-fs-refund*` 35 → 105, the AS steals (`:steal-fs` Kenpachi / Ichigo / Hisagi 40 → 120, KESSA's chain 10 → 30).
+  Not a pure × 3: a Hoho's share 30 → 33.3 %, the Burst's threshold 70 → 66.7 % of the gauge; the shared tuning gates all pairings
+  (`2,7,9,29,31,35`) and the CPU's gauge reads (`*ai-burst-low*` etc.) are checked.
