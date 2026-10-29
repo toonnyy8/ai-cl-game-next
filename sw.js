@@ -3,7 +3,7 @@
 // over, and the old caches are deleted. Everything is served cache-first from ONE version, so index.html, index.js
 // and index.wasm always come from the same build (a network-first index.html could pair a new page with an old
 // index.js / index.wasm until the reload).
-var VERSION = 'soulduel-df2855fe71da';
+var VERSION = 'soulduel-ab031d38d5df';
 // The menus' Google Fonts (the CSS and its font files, cross-origin): cache-first in a cache of their own that outlives the
 // builds, so the installed app keeps its faces offline after one online start (the user, 2026-10-28: 「讓 service worker 也把字型存起來」).
 var FONTS = 'soulduel-fonts';
