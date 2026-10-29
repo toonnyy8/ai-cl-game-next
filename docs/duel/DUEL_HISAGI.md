@@ -4706,3 +4706,49 @@ thick rope; the 散 links stay thin chains. New draw paths 0 B/frame; drawn reac
 
 The user's answer: 「散可以，然後聚改成三段攻擊」: the 散 rows approved (built now, batch 4a); the 聚 rows wait on what 「三段攻擊」 means
 (asked).
+
+### 28.19 As built: the 散 J string's chain paths (batch 4a, 2026-10-29)
+
+§28.18's 散 rows (the user: 「散可以」; the 聚 rows wait, `hs-r-j2s` / `hs-r-na3g` / `hs-r-na4g` / `hs-r-j3g` untouched), **presentation
+only**: clips, `:clip-s`, art tables and draw code; no move's frames, volumes, damage or hooks. Each link its own chain path, count,
+rhythm and ink trail; every free end on the band's far edge (6.0 m) inside the 100° arc on its hit frames.
+
+| Link (S/A/R) | Clip | Body | Chain path, count, rhythm | Trail | Drawn reach on the hit frames (83902) |
+|---|---|---|---|---|---|
+| J1 旋鞭 (14/3/12) | `hs-k-saben` (kept) | the right forehand R → L at the chest | the right crescent let out, cracked flat R → L at full length; 1, a snap | the blade's flat smear | 6.00 6.00 6.00 |
+| J2 鋏鞭 HASAMI-BEN (10/3/13) | `hs-k-kaeshi` (redrawn, now at S: 10/3/13, was 11/3/13 at ×1.1) | both arms flung up wide and high, arched (held f4–8); on S slashed down and across, the wrists crossed low (the X); parted out low | **both crescents** let out from both hands (`*hs-letout*`, out f10–13), swept in from high on both sides and falling (az ∓60 → ∓25 at S → ±25 at f13, 2.0 → 1.8 → 0.5 m up): the two hand chains cross in front of him, the points meet at him on f11.5 and part; 2, a scissor | `%hs-lo-trail`: each point's last 2 frames, a tapered ink stroke; the two descending strokes make the X (`*hs-lo-trails*`) | 6.00 6.00 6.00 (az ∓25 / ∓8 / ±8, inside ±50) |
+| J3 蛇鞭 JABEN (10/3/13) | `hs-k-na3` (body redrawn) | sunk deep, bent over, the left arm reaching forward low over the floor, the body weaving (f3–8); on S the arm whipped up through to overhead as he rises | hanging chain 0 laid along the floor (bend −1.5: the knee down to ~0.7 m) and sent crawling at him (end 1.8 → 5.3 m, f2–9) with a **lateral S** travelling down it (`*hs-waves*` kind 1, 0.4 m, 0.75 waves/m); on S reared up into him from below (0.08 → 1.3 m in one frame, 1.41 m: the trail draws) with a **vertical S** along it (kind 2, 0.5 m), climbing to 2.3 m; 1, slither → strike | the rise's vertical ribbon (`%hs-trail`) | 6.00 6.00 6.00 (az 2 / 1 / 0) |
+| J4 旋投 SENTŌ (10/3/13) | `hs-k-na4` (redrawn) | the right arm up, the fist circling over his head (keys f2–8), the body still; cocked behind his head f9; on S thrown down the line onto the front foot | hanging chain 7 whirled flat over his head, **1.5 turns** (r 1.5 m, 2.8 m up, a key every frame at 77°, f2–9), the last turn ending ahead of him, flung straight at him (f9 → f10), bowed by the lag on f10–11, taut on f12; 1, wind-up → line | the whirl's disc (arcs), then a straight speed line | 6.00 6.00 6.00 (az 0) |
+| J5 旋鎖 SENSA (10/3/18; ender, its push) | `hs-k-sensa` (redrawn, now at S: 10/3/18, was 13/3/18 at ×1.3) | both fists drawn in together before his chest and wound (a crank, turned to his right, sunk, f3–8); on S both arms driven straight out along the line, lunging, held through the push (f19), pulled back | **six** hanging chains (0 1 2 5 6 7) gathered in before his chest (r 0.9–1.0 m, f3–8: the twisting rope is the tell), bored straight out to 6.0 m on S, held turning through f16, unwound; each twisted into a **helix** round the common line (kind 3: a cone 0.38 m, widest at the knee, tapering to the point, 1.1 turns/m, turning 1 rad a frame, chain j's phase 45°·j): a six-start corkscrew; ranks 0.12 f apart | six straight speed lines inside the twisted cone | 6.00 6.00 6.00 (az −1.5 … +1.5) |
+
+**The two-turn question** (the brief): two turns in J4's 10 f startup would be 90–103° a frame and the strip samples only f3 / f7 / f8 of
+the windup; **1.5 turns** at 77° a frame, a key each frame (inside the "a key every 90°" rule). The whirl lives inside J4's own startup
+(not J3's recovery: J3 can end the string).
+
+**Deviation from §28.18**: J2's two chains are the crescents' **hand chains (let-outs)**, not hanging lashes. The first build used two
+hanging chains (1 and 6) crossing; from the match camera they came down from the orb 8 m up and their ends sat 4 m to either side at
+±42°, so no X read in the still. Let-outs come from both hands as the plan says, cross between the hands, and their points' trails draw
+the X. The let-out's chain is near-straight while out (sag 0.06, as J1's), for the 3–4 frames of the sweep: the sweep and the trails keep
+it moving. New in `*hs-letout*`: H may be a list `(h0 h1 h2)`, swept like AZ (`%hs-letout!`).
+
+**Mechanics** (0 B a frame; debug 83901's third line `look consing 4a`: J2's windup / X, J3's slither / rear, J4's whirl / fling, J5's
+twist / bore, all 0):
+- `*hs-waves*` (hisagi-art.lisp): `(clip mask kind f0 f1 f2 f3 amp k speed)`, a lashing chain's body bent into a path; `%hs-wave-set!`
+  fills `*hs-wv*` per chain, `%hs-cubic-chain` offsets each sample on the chain's outer 0.7 (from the knee) along the chain's own
+  perpendicular basis (as the bundle twist), zero at the knee and **zero at the free end** (the keyed end, so the host check and 83902
+  still read the drawn reach), the kites turned along the offset curve, more kites for a wavy chain. Phase from the clip frame (stills and
+  mirrors stable).
+- `%hs-lo-trail` (hisagi-draw.lisp): a swept let-out's point over the last 2 frames, for the clips in `*hs-lo-trails*` (J2 only).
+- Removed: J2's old left let-out row, J5's two let-out rows and its swept chain (`*hs-bk-chains*`). `*hs-strike-reach*`: J5 `:chain`.
+  `*hs-spins*`: J2 (4 10 18 −0.5), J5 (3 10 22 1.0) for the new S.
+- `hs-r-j2` / `hs-r-j3` `:clip-s` 11 / 13 → 10 (speed 1; presentation only). Strip slots: J1 / J2 / J5 (`*hs-bk-strips*` 3–5) and J3 / J4
+  (`*hs-r2-strips*` 15 / 16) shot with Kenpachi at 6.0 m (was 4.0 / 5.0).
+
+**Checks**: duel-rules 10663 ALL PASS (new: J2 / J5 at speed 1 with `:s` on S and the length S + A + R; J2's two swept crescents out on
+every hit frame, inside ±50, on opposite sides at the first and crossing; every `*hs-waves*` row on chains its clip lashes, its frames
+inside the clip; `bk-moves` J2 / J3 / NA3 / NA4 on the band's edge), control 99 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0 errors.
+Debug 83902: J1–J5 `6.00 6.00 6.00 | edge 6.00`, every other line as before. The sim unchanged: the scripted smoke
+(`duel-hisagi-bankai.json`, 75 s) 154 hash / log lines identical to 1d5535b's; `--cvc` 3 PASS. Strips (8 frames, side and front) and the
+match-camera stills reviewed: J2's X reads at S+A (f13), J3's floor S from the front, J4's whirl disc and the fling, J5's twisted rope
+then the corkscrew. Checked by numbers and stills, needs the user's eyes: the crescents of J2 are small at 6 m from the behind camera; the
+vertical S of J3's rear is partly hidden behind the opponent at S.

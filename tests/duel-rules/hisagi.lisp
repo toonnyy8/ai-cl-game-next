@@ -376,7 +376,7 @@
   (let ((*package* (find-package :duel)))
     (loop for form = (read in nil in) until (eq form in)
           when (and (consp form) (eq (first form) 'defparameter)
-                    (member (second form) '(*hs-strike-reach* *hs-flights* *hs-letout* *hs-bk-chains* *hs-lashes*
+                    (member (second form) '(*hs-strike-reach* *hs-flights* *hs-letout* *hs-bk-chains* *hs-lashes* *hs-waves*
                                             *hs-foe-paths* *hs-kb-grips* *hs-kb-reels* *hs-kb-wraps*)))
             do (eval form))))
 (let* ((kr (kit :hisagi :bankai)) (kb (kit :hisagi :bankai-bind)))
@@ -603,7 +603,8 @@
                   (not (reach-p :hs-r-j1 4.0 t))   ; (3.0-6.0; §25.34's 4.0-7.0, back since §25.35)
                   (~= (aref (first (hw-vols (svref (mv-hits (m :hs-r-j1)) 0))) 2) (deg 50.0)))))
     (check (and (= 14 (mv-s (m :hs-r-j1))) (= 10 (mv-s (m :hs-r-j2))) (~= (mv-clip-speed (m :hs-r-j1)) (/ 12.0 14.0))
-                (~= (mv-clip-speed (m :hs-r-j2)) (/ 11.0 10.0)) (~= (mv-clip-speed (m :hs-r-j3)) (/ 13.0 10.0))))
+                (~= (mv-clip-speed (m :hs-r-j2)) 1.0) (~= (mv-clip-speed (m :hs-r-j3)) 1.0)))   ; (§28.19: J2 / J5 at
+                                                                                       ;  their S, was 11 / 10, 13 / 10)
     ;; §25.13 (the user, 2026-10-19: 「拿掉定位，改成後續接上的 J / K 會自動調整判定範圍」): no placement (§25.3's 3.5 m gone:
     ;; no J1 / J2 / K1 / K2 push, the functions removed); J3's ender to 6.6 m (§25.34's 7.55 back since §25.35: past J1's reach + body + 0.05, out of a
     ;; restarted J1), inside the O lane (9 m) and SP1's 9 m line
@@ -763,7 +764,28 @@
         ;; inside the arc on the hit frames (the reach is checked below)
         (dolist (five '((:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3) (:hs-r-j1 :hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g)))
           (check (= 5 (length (remove-duplicates (mapcar (lambda (n) (mv-clip (m n))) five))))))
-        (dolist (n '(:hs-r-na3 :hs-r-na4 :hs-r-na3g :hs-r-na4g))
+        ;; §28.19: a body path (*HS-WAVES*) only bends chains its clip lashes, its kind known, inside the clip
+        (dolist (w *hs-waves*)
+          (destructuring-bind (c mask kind f0 f1 f2 f3 &rest more) w
+            (declare (ignore more))
+            (check (or (and (= mask (logand mask (reduce #'logior (mapcar #'second (remove c *hs-lashes* :key #'first :test-not #'eq)))))
+                            (member kind '(1 2 3)) (<= 0 f0 f1 f2 f3 (round (* 60 (clip-dur (find-clip c))))))
+                       (format t "  Hisagi §28.19 wave ~a: mask ~a not lashed, kind ~a or frames off~%" c mask kind)))))
+        ;; §28.19: J2's two swept crescents out on every hit frame, inside the arc, crossing (opposite sides at its first)
+        (let* ((hw (svref (mv-hits (m :hs-r-j2)) 0)) (half (/ (* (aref (first (hw-vols hw)) 2) 180) pi))
+               (rows (remove :hs-k-kaeshi *hs-letout* :key #'first :test-not #'eq)))
+          (flet ((az-at (row f) (destructuring-bind (c sd f0 f1 f2 f3 r h az &rest more) row
+                                  (declare (ignore c sd f0 f3 r h more))
+                                  (+ (second az) (* (/ (- f f1) (- f2 f1)) (- (third az) (second az)))))))
+            (check (or (and (= 2 (length rows))
+                            (every (lambda (row) (and (consp (ninth row)) (consp (eighth row)) (<= (fourth row) (hw-from hw))
+                                                      (>= (fifth row) (1- (hw-to hw)))
+                                                      (loop for f from (hw-from hw) below (hw-to hw) always (<= (abs (az-at row f)) half))))
+                                   rows)
+                            (minusp (* (az-at (first rows) (hw-from hw)) (az-at (second rows) (hw-from hw))))
+                            (minusp (* (az-at (first rows) (hw-from hw)) (az-at (first rows) (1- (hw-to hw))))))
+                       (format t "  Hisagi §28.19 J2's crescents: not out, outside +-~,1f or not crossing~%" half)))))
+        (dolist (n '(:hs-r-na3 :hs-r-na4 :hs-r-na3g :hs-r-na4g :hs-r-j2 :hs-r-j3))   ; (§28.19: J2 / J5 at their S too)
           (let* ((mv (m n)) (cl (mv-clip mv)) (hw (svref (mv-hits mv) 0)) (half (/ (* (aref (first (hw-vols hw)) 2) 180) pi)))
             (check (or (and (~= (mv-clip-speed mv) 1.0) (= (mv-s mv) (round (* 60 (clip-mark cl :s))))
                             (= (+ (mv-s mv) (mv-a mv) (mv-r mv)) (round (* 60 (clip-dur (find-clip cl)))))
