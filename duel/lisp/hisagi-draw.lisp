@@ -42,6 +42,7 @@ NAGE's line at x1 (its flight grows by it: HS-SCALED-TIP), [2] *HS-CHARGE-STEP*.
   (setf (aref fa 1) (+ (aref fa 1) (* (aref *hs-ks* 1) (- (aref *hs-ks* 0) 1f0))))
   nil)
 
+(declaim (type f32vec *hs-lk*))                           ; (batch 2b: typed, so %HS-LK-R's reads and the setters don't box)
 (defvar *hs-lk* (make-f32 3)
   "§25.13 (the ranged route links strike the victim where he is, HS-R-LINK-SEG): [0] his distance from Hisagi's feet (m,
 capped at *HS-R-LINK-REACH*), [1] the link's drawn reach as authored (*HS-LK-REACH*), [2] 1 while a link is drawn, else 0.
@@ -72,6 +73,19 @@ keys barely move. R as is otherwise."
          (let* ((%rr (aref *hs-lk* 1)) (%u (f-min 1f0 (/ %r %rr))))
            (declare (single-float %rr %u))
            (* %r (+ 1f0 (* (- (/ (aref *hs-lk* 0) %rr) 1f0) %u %u)))))))
+
+(defun-fast %hs-kb-lk-set! (rr pos opos)
+  "*HS-LK* := on, the authored reach RR, the distance from POS to OPOS capped at RR (batch 2b, §28.12: a bind reel's
+let-out on the victim, HS-KB-LK!). 0 B."
+  (declare (single-float rr) (type f32vec pos opos))
+  (setf (aref *hs-lk* 0) (f-min rr (f-hypot (- (aref opos 0) (aref pos 0)) (- (aref opos 2) (aref pos 2))))
+        (aref *hs-lk* 1) rr (aref *hs-lk* 2) 1f0)
+  nil)
+(defun hs-kb-lk! (e clip)
+  "Batch 2b (§28.12): after HS-LK!, when CLIP is one of *HS-KB-REELS* (the bind's hooks, MATOI's wrap), *HS-LK* on for it:
+its let-out lies on the victim (his distance, at most its reach: as HS-B-HOOK-SEG's far end). Else nothing. 0 B."
+  (let ((row (assoc clip *hs-kb-reels*)) (o (opp-of e)))
+    (when (and row o) (%hs-kb-lk-set! (second row) (pos-of e) (pos-of o)))))
 
 (defparameter *hs-letout-v*
   (loop for (clip side f0 f1 f2 f3 r h az bulge) in *hs-letout*
@@ -157,6 +171,7 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
     (declare (type f32vec jm gv) (fixnum side o) (single-float target cur step))
     (%hs-ks! (hss-charge (hs e)))
     (hs-lk! e)                                             ; (§25.13: a route link's chain stretched to the victim)
+    (hs-kb-lk! e name)                                     ; (batch 2b: the bind's reels, onto the victim)
     (setf cur (cond ((<= step 0f0) target)                 ; (frozen effects, a still: the clip's grip at once)
                      ((< cur target) (f-min target (+ cur step))) (t (f-max target (- cur step))))
           (aref gv side) cur
@@ -410,26 +425,44 @@ crackling round the sickle at A). A look. 0 B."
 (declaim (type f32vec *hs-wd0* *hs-wd1*))
 (defvar *hs-wd0* (make-f32 3) "%HS-WOUND / %HS-HODEN-BURST / %HS-ZAN's scratch point.")
 (defvar *hs-wd1* (make-f32 3) "Their second scratch point.")
-(defun-fast %hs-wound (jm)
-  "Pointer 2 刈 (§27.5): the chain wound twice round each wrist (the joints JM's forearms, 3.5-8 cm above the hand, 6.5 cm
-round, 12 chords a wrist, solid black links as the chain's): his stance and the 刈 strikes (lo 8192). A look. 0 B."
-  (declare (type f32vec jm))
+(defun-fast %hs-wrist-coil (jm j)
+  "The chain wound twice round the wrist of forearm joint J (JM's; 3.5-8 cm above the hand, 6.5 cm round, 12 chords, solid
+black links as the chain's): §27.5's %HS-WOUND, batch 2b's 絞 stance (the right fist's). A look. 0 B."
+  (declare (type f32vec jm) (fixnum j))
   (let ((p *hs-wd0*) (q *hs-wd1*))
     (declare (type f32vec p q))
-    (dotimes (s 2)
-      (let ((j (if (= s 0) (ji :lower-arm-r) (ji :lower-arm-l))))
-        (declare (fixnum j))
-        (dotimes (i 12)
-          (let* ((a0 (* 1.0471976f0 (i->f i))) (a1 (+ a0 1.0471976f0))
-                 (y0 (- -0.19f0 (* 0.0045f0 (i->f i)))) (y1 (- y0 0.0045f0)))
-            (declare (single-float a0 a1 y0 y1))
-            (joint-point! p jm j (* 0.065f0 (f-sin a0)) y0 (* 0.065f0 (f-cos a0)))
-            (joint-point! q jm j (* 0.065f0 (f-sin a1)) y1 (* 0.065f0 (f-cos a1)))
-            (let* ((dx (- (aref q 0) (aref p 0))) (dy (- (aref q 1) (aref p 1))) (dz (- (aref q 2) (aref p 2)))
-                   (l (f-max 1f-4 (f-hypot dx dy dz))))
-              (declare (single-float dx dy dz l))
-              (%hs-black-kite (aref p 0) (aref p 1) (aref p 2) (/ dx l) (/ dy l) (/ dz l) 0.06f0
-                              (if (evenp i) 0.022f0 0.01f0))))))))
+    (dotimes (i 12)
+      (let* ((a0 (* 1.0471976f0 (i->f i))) (a1 (+ a0 1.0471976f0))
+             (y0 (- -0.19f0 (* 0.0045f0 (i->f i)))) (y1 (- y0 0.0045f0)))
+        (declare (single-float a0 a1 y0 y1))
+        (joint-point! p jm j (* 0.065f0 (f-sin a0)) y0 (* 0.065f0 (f-cos a0)))
+        (joint-point! q jm j (* 0.065f0 (f-sin a1)) y1 (* 0.065f0 (f-cos a1)))
+        (let* ((dx (- (aref q 0) (aref p 0))) (dy (- (aref q 1) (aref p 1))) (dz (- (aref q 2) (aref p 2)))
+               (l (f-max 1f-4 (f-hypot dx dy dz))))
+          (declare (single-float dx dy dz l))
+          (%hs-black-kite (aref p 0) (aref p 1) (aref p 2) (/ dx l) (/ dy l) (/ dz l) 0.06f0
+                          (if (evenp i) 0.022f0 0.01f0))))))
+  nil)
+(defun-fast %hs-wound (jm)
+  "Pointer 2 刈 (§27.5): the chain wound twice round each wrist (%HS-WRIST-COIL, the right then the left): his stance and the
+刈 strikes (lo 8192). A look. 0 B."
+  (declare (type f32vec jm))
+  (%hs-wrist-coil jm (ji :lower-arm-r))
+  (%hs-wrist-coil jm (ji :lower-arm-l))
+  nil)
+(defun-fast %hs-kb-wrap (jm vpos f0 f1)
+  "Batch 2b (§28.12, *HS-KB-WRAPS*): on clip frames F0 <= *HS-FR* < F1, the chain wound three times round the victim (VPOS his
+feet: %HS-COIL) and run taut from Hisagi's left fist (JM his joints) to its top turn, toward him. A look. 0 B."
+  (declare (type f32vec jm vpos) (fixnum f0 f1))
+  (let ((f (aref *hs-fr* 0)) (a *hs-wd0*) (b *hs-wd1*))
+    (declare (single-float f) (type f32vec a b))
+    (when (and (>= f (i->f f0)) (< f (i->f f1)))
+      (%hs-coil vpos)
+      (joint-point! a jm (ji :weapon-l) 0f0 0f0 0f0)
+      (let* ((dx (- (aref a 0) (aref vpos 0))) (dz (- (aref a 2) (aref vpos 2))) (d (f-max 0.01f0 (f-hypot dx dz))))
+        (declare (single-float dx dz d))
+        (setf (aref b 0) (+ (aref vpos 0) (* 0.42f0 (/ dx d))) (aref b 1) 1.3f0 (aref b 2) (+ (aref vpos 2) (* 0.42f0 (/ dz d)))))
+      (vfx-hs-chain a b 0f0 0.9f0)))
   nil)
 
 (defun-fast %hs-draw (jm pos fa anchor vpos a b n d tint lightning lo)
@@ -1401,7 +1434,16 @@ A3, §24.3: KAIBAKU-GEKI from its S): the noose thrown off the opponent's neck a
       (when gp                                                         ; (A2: the bind's stance; A3: KOJO, KAIBAKU)
         (joint-point! w jm (ji :weapon-l) 0f0 0f0 0f0)
         (joint-point! q ojm (ji :neck) 0f0 0.24f0 0.2f0)
-        (%hs-grip-chain w q gp)))
+        (%hs-grip-chain w q gp)
+        (when (> (length (the f32vec gp)) 2)                           ; (batch 2b, §28.12: *HS-KB-GRIPS*' FL)
+          (let ((fl (f->i (aref gp 2))))
+            (declare (fixnum fl))
+            (joint-point! w jm (ji :weapon-r) 0f0 0f0 0f0)
+            (when (logtest fl 1) (%hs-grip-chain w q gp))              ; SHIME: the right fist's chain to the noose too
+            (when (logtest fl 2)                                       ; the 絞 stance: wound on the right fist, taut
+              (setf (aref v 0) (aref c 0) (aref v 1) bot (aref v 2) (aref c 2))   ;  straight up to the orb
+              (%hs-chain2 w v)
+              (%hs-wrist-coil jm (ji :lower-arm-r)))))))
     (when (= bound 3)                                                  ; (A3: KAIBAKU-GEKI) thrown off, reeled up
       (let* ((u (f-clamp (/ (- (aref *hs-fr* 0) 18f0) 12f0) 0f0 1f0)) (k (* u u)) (rr (+ 0.085f0 (* 0.4f0 u))))   ; (its S 18)
         (declare (single-float u k rr))
@@ -1438,6 +1480,7 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
     (when (and (> (model-alpha m) 0.5) (entity-alive-p o) (eq (model-weapon m) :kazeshini))
       (%hs-ks! (hss-charge st))                                       ; (S1: the charge's x for the windmill / K string)
       (hs-lk! e)                                                      ; (§25.13: a route link's chain to the victim)
+      (hs-kb-lk! e cn)                                                ; (batch 2b: the bind's reels, onto the victim)
       (setf geo (%hs-geo! an (pos-of e) (pos-of o) fa (transform e) (if shikai 1 0) rdt))
       (when (logtest geo 1) (setf lo 1))
       (let ((kv (hs-letout-of cn :l)))
@@ -1522,6 +1565,8 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
         (when (< ck 5)                                                 ; (首掛 / 綴雷電: their scripts draw them, §26.6)
           (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
         (when (> volt 0) (%hs-volt (model-joints m) (pos-of o) volt sf))   ; (§27.6: the lightning along the binding chain)
+        (let ((wr (and mv (eq (fighter-contact f) :hit) (assoc cn *hs-kb-wraps*))))   ; (batch 2b: MATOI's chain wound round him)
+          (when wr (%hs-kb-wrap (model-joints m) (pos-of o) (second wr) (third wr))))
         (when (and shikai (= ck 0) mv (eq (mv-name mv) :hs-as1))      ; (§27.10: TSUMUJI's four flat cuts round him;
           (%hs-tsumuji-cuts (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) sf)   ;  his right rod never
           (setf (trail-count (blade-points (blade e))) 0f0))           ;  swings: the leap's slide and landing would

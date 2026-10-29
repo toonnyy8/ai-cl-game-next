@@ -4380,3 +4380,55 @@ Checks: duel-rules 10570 ALL PASS, control 99, pkgcheck 0 / 0 / 0, `--cvc` 3 PAS
 AS3 > `BIND START`; NS2a > gathered SA 45 (S 13) > J 29 ×3 at 4.5 m, every link connecting; NS1 at 4.5 m 31 / 48 (環 whiffs); NS2 at 4.5 m
 50 / 86 (叩 whiffs, 0–3 m); at 2.5 m 環 26 + the push, 叩 57 + the push. The old drawn-reach check skips J2 / J3 / J2s / J3G until batch 2
 redraws them to their bands.
+
+### 28.12 As built (batch 2b, the bind looks, 2026-10-29)
+
+The bind half of §28.9's table (the user: 「可以」), **presentation only**: every changed move changes only its `:clip` (and drops a
+stale `:clip-s`); no frame, volume, damage or hook moved. Each new clip is authored at its move's frames (speed 1, the `:s` mark on
+S, the length S + A + R; a move with `:enter` plays its clip from that frame, so its tell sits inside the frames the move really
+plays), its tell big and held, its strike drawn on the volume's far edge (the host `bk-moves` check and debug 83902 below).
+
+| Slot | Move (S / A / R) | Plays now (was) | The body | What strikes, drawn reach |
+|---|---|---|---|---|
+| 鎌 stance | — | `hs-kb-stance` (kept) | both crescents low and crossed, the left fist's chain taut to his noose | — |
+| NS1a 鉤寄 KAGIYOSE | `hs-b-n1a` 18 / 4 / 20 | **`hs-kb-kagiyose`** (`hs-kb-hikigiri`) | R2: the javelin tell (the right crescent cocked far back over his right shoulder, the left arm pointing at him, f8, held to f15); the overhand cast on S; the reel, sunk and leaning back, the right fist hauled to the hip (f26–30) | the right crescent let out onto him (`*hs-letout*` f16–18–30–36, `*hs-kb-reels*`: on the victim at his distance, at most 6.0 m = `*hs-b-hook-reach*`, as `hs-b-hook-seg`'s far end), so it follows him through `hs-b-hook`'s 8 f drag, stops on him on a block and at 6 m on a whiff |
+| NS1b 返鎌 | `hs-b-n1b` | `hs-kb-makigiri` (kept) | | 2.80 m |
+| NS1c 十字 JŪJI | `hs-b-n1c` 14 / 3 / 18 | **`hs-kb-juji`** (`hs-kb-sogen` at `:clip-s` 9) | both crescents raised high and wide (a V), leaning back (f5, held to f12); the step in on S, both slashed down across each other | both let out a hand's length (`*hs-letout*`, over the top, bulge 0.8): 1.50 m, the right swept −70 → −30 → +30°, the left mirrored, crossing in front on the hit frames (−30 / −10 / +10°, inside ±100) |
+| AS1 鉤寄斬 KAGIYOSE-GIRI | `hs-b-as1` 18 / 4 / 20 | **`hs-kb-kagiyose-giri`** (`hs-kb-hikigiri`) | apart from KAGIYOSE by hand and height: the pendulum tell (the left arm swung up, then far back low behind his left hip, sunk, f9, held to f15); the **left** crescent bowled underhand on S; the reel with the right crescent raised (f25); the right crescent's diagonal cut as he arrives (f27, a look: the hook is the hit) | the left crescent onto him (`*hs-letout*` :l f16–18–26–29, `*hs-kb-reels*` 6.0) |
+| 絞 stance | — | **`hs-kb-st-shibori`** (`hs-st-bind`, the Shikai's hawser) | sunk as 鎌, the right fist raised high over his right shoulder, the left crescent low by his left hip | the noose chain wound twice round the right wrist (`%hs-wrist-coil`) and run taut straight up to the orb's underside (`*hs-kb-grips*` flag 2, `%hs-orb-draw`); no chain in the left fist |
+| NS2a 纏 MATOI | `hs-b-n2a` 20 / 4 / 20 | **`hs-kb-matoi`** (`hs-kb-hikigiri` at `:clip-s` 18) | R4: coiled to his right, the left fist cocked at his right shoulder (f10, held to f17); the backhand whip on S; the haul, the left fist to his hip (f28–34: `hs-b-drag`'s 1 m) | the left crescent curled round from his left onto the line (`*hs-letout*` sweep 80 → 5 → −5°: 2.95 m × sin 5° = 0.26 m, inside the line's r 0.35) and onto him (`*hs-kb-reels*` 2.95 = 2.6 + 0.35); on a hit the chain wound three times round him and run taut from the left fist (`*hs-kb-wraps*` f20–32, `%hs-kb-wrap`) |
+| NS2b 締 SHIME / AS2a 締 | `hs-b-n2b` / `hs-b-as2` 20 / 4 / 24 from f4 | **`hs-kb-shime`** (`hs-kb-makigiri`, KAESHI-GAMA's) | R5: both fists gathered under his chin, one chain in each to the noose (`*hs-kb-grips*` flag 1: the right fist's too), taut and trembling from f10, held to f17; on S both ripped apart and down to his hips, the chest thrown out: the two chains open into a V from the noose | two hanging chains (curtain 0 and 7) whipped in from his flanks to close round him (`*hs-bk-chains*`: 2.80 m, ±55 → ±25°, inside ±70) |
+| NS2c 絞首 KŌSHU | `hs-b-n2c` | `hs-kb-shibori` (kept) | | 2.95 m |
+| AS2b 吊 TSURI | `hs-b-as2b` 22 / 5 / 34 from f8 | **`hs-kb-tsuri`** (`hs-kb-shibori`, KŌSHU's) | R5: turned side-on, his right shoulder to him, sunk deep, both fists up at the shoulder (f12, held to f20); on S he stands and bends forward hard, both fists yanked down before his left hip | the neck bundle's tail thrown out over his right shoulder (`*hs-bk-chains*` src 8, flag 1): hooked in the victim's neck on a hit (it rises with the launch), 3.00 m at 0° on a whiff |
+| SA 引寄, AS3 解 / 散 / 放 | | kept | | |
+
+Planes and hands (§28.9's rule): JŪJI's diagonal X (both) against SŌGEN's flat scissor (both); SHIME's fists down to the hips (no
+crescent strikes) against SŌGEN's arms forward; MATOI's left backhand curl against KAESHI-GAMA's left fling L → R and AS1's left
+underhand cast; TSURI's over-the-shoulder heave (the neck tail) against KŌSHU's raised crescent with the orb's two drops.
+
+**Draw code** (`hisagi-draw.lisp`, 0 B a frame): `hs-kb-lk!` / `%hs-kb-lk-set!` (after `hs-lk!`, in `hs-pose` and `hisagi-draw`: a
+`*hs-kb-reels*` clip's let-out on the victim through `%hs-lk-r`); `%hs-kb-wrap` (`*hs-kb-wraps*`, `%hs-coil`); `*hs-kb-grips*` takes
+an optional third number FL (1 the right fist's second chain, 2 the stance's wound fist and the chain to the orb); `%hs-wound`
+split into `%hs-wrist-coil` per wrist (the same links in the same order). `*hs-lk*` is now declaimed an f32vec: its untyped reads
+and writes boxed floats (the first 83901 run measured KAGIYOSE 960 B / 10 calls, the left reels 160), and the declaim also takes the
+ranged route links' J3 1280 B and SOKUDA 240 B (the same untyped `%hs-lk-r` reads, already there at 29c1e69) to 0.
+
+**Checks**: duel-rules 10601 ALL PASS (new: the bind kit's two stances, each segment's clip, the seven clips' speed / S / length and
+S − enter ≥ 14, the hooks' let-outs out by S onto him within `*hs-b-hook-reach*` and held ≥ 8 f past the hit (`hs-b-hook`), MATOI's
+reel = its line's far edge and its wrap from S, every let-out sweep and chain strike inside its volume on the hit frames; `bk-moves`
++ NS1c, NS2a, NS2b, AS2a, AS2b; core.lisp's clip list + the six clips, `hs-kb-hikigiri` kept for `:hs-b-k1`'s strip), control 99,
+pkgcheck 0 / 0 / 0, debug ranges 0 errors. **The sim unchanged**: the scripted smoke (`tests/scripts/duel-hisagi-bankai.json`, 75 s)
+gives the same 153 hash / log lines as 29c1e69's; `--cvc` 3 PASS. Debug 83901: every path 0 B (the 2b line: KAGIYOSE, KAGIYOSE-GIRI's
+reel and cut, JŪJI, MATOI's wrap, SHIME, TSURI hooked, the 絞 stance). Debug 83902 (3 m from Kenpachi, the real draw on each hit
+frame): JŪJI 1.50 1.50 1.50 | edge 1.50; MATOI 2.95 ×4 | 2.95 (line); SHIME and AS2a 2.80 ×4 | 2.80; TSURI 3.00 ×5 | 3.00 (KAGIYOSE
+and AS1: `:seg-fn` windows, no edge; drawn on the victim by `*hs-kb-reels*`).
+
+**Debug** (DUEL_GAMEPLAY): 83580–83589 the core bind's strips (`*hs-kb-strips*`: 0 the 絞 stance, 1 KAGIYOSE, 2 KAGIYOSE-GIRI, 3
+JŪJI, 4 MATOI on a hit, 5 SHIME, 6 TSURI on a hit; then 83940+3i+v). Stills (not committed): 8-frame strips from the side, the front
+and the match camera for all seven, and the three stances side by side from the behind camera (83012 + 2510 / 2511, the Shikai's
+hawser by strip 83536 view 2). In SHIME's and TSURI's strips frames 0 and S/3 fall before their `:enter`, frames the game never plays.
+
+For the user's eyes (checked by numbers): the 絞 stance's chain up to the orb runs near the neck bundle from the behind camera (the
+raised fist and the wound wrist carry the read); KAGIYOSE-GIRI's cut is a look after the hit (the hook does the damage);
+`hs-kb-hikigiri` and `hs-st-bind` stay (the old K1's strip, the Shikai's pointer 2 stance). Not in 2b: the Kikon cinematics, the
+clash cue, the ranged mode (batch 2a).

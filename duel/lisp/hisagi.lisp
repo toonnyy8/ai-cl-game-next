@@ -710,20 +710,21 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 ;; the SA 引寄 HIKIYOSE: frame 0 the chain drags him to *HS-B-PULL-TO* wherever he is (the bind has no distance limit), one cut
 (defmove-copy :hs-b-sa :hs-b-j1 :callout "HIKIYOSE" :startup 10 :clip-s 8 :dmg 40 :on-hit :stagger :on-frame ((0 hs-b-yose)))
 ;; pointer 1 鎌 KAMA: 鉤寄 KAGIYOSE the crescent's chain hooks him up to 6 m and drags him in (S 18) > 返鎌 KAESHI-GAMA (S 12) > 十字
-;; JŪJI both crescents crossed (S 14, knockdown); AS1 鉤寄斬 KAGIYOSE-GIRI, the hook, the pull, the cut (knockdown)
-(defmove-copy :hs-b-n1c :hs-b-j3 :kind :flash :callout "JUJI" :startup 14 :clip-s 9 :dmg 75 :on-hit :knockdown :flags nil)
+;; JŪJI both crescents crossed (S 14, knockdown); AS1 鉤寄斬 KAGIYOSE-GIRI, the hook, the pull, the cut (knockdown). Batch 2b
+;; (DUEL_HISAGI §28.9 / §28.12, a look): every bind segment but 返鎌 KAESHI-GAMA / 絞首 KŌSHU / the SA / AS3 on its own clip at its S
+(defmove-copy :hs-b-n1c :hs-b-j3 :kind :flash :clip :hs-kb-juji :callout "JUJI" :startup 14 :dmg 75 :on-hit :knockdown :flags nil)
 (defmove-copy :hs-b-n1b :hs-b-k2 :callout "KAESHI-GAMA" :enter 8 :dmg 45 :params (:ns-next :hs-b-n1c))
-(defmove-copy :hs-b-n1a :hs-b-k1 :callout "KAGIYOSE" :dmg 35 :reach *hs-b-hook-reach* :hits ((18 22 :seg-fn hs-b-hook-seg))
+(defmove-copy :hs-b-n1a :hs-b-k1 :clip :hs-kb-kagiyose :callout "KAGIYOSE" :dmg 35 :reach *hs-b-hook-reach* :hits ((18 22 :seg-fn hs-b-hook-seg))
   :on-land hs-b-hook :params (:ns-next :hs-b-n1b))
-(defmove-copy :hs-b-as1 :hs-b-k1 :kind :sp :callout "KAGIYOSE-GIRI" :dmg 55 :on-hit :knockdown :reach *hs-b-hook-reach*
+(defmove-copy :hs-b-as1 :hs-b-k1 :kind :sp :clip :hs-kb-kagiyose-giri :callout "KAGIYOSE-GIRI" :dmg 55 :on-hit :knockdown :reach *hs-b-hook-reach*
   :hits ((18 22 :seg-fn hs-b-hook-seg)) :on-land hs-b-hook)
 ;; pointer 2 絞 SHIBORI: 纏 MATOI the chain wraps him and drags him 1 m in (S 20) > 締 SHIME the noose (S 16) > 絞首 KŌSHU over the
 ;; shoulder and slammed (S 18, knockdown); AS2 締 > 吊 TSURI the noose heaved up (the launch)
 (defmove-copy :hs-b-n2c :hs-b-k3 :callout "KOSHU" :enter 4 :dmg 95 :on-hit :knockdown :flags nil)
-(defmove-copy :hs-b-n2b :hs-b-k2 :callout "SHIME" :enter 4 :dmg 60 :params (:ns-next :hs-b-n2c))
-(defmove-copy :hs-b-n2a :hs-b-k1 :callout "MATOI" :startup 20 :clip-s 18 :dmg 40 :on-land hs-b-drag :params (:ns-next :hs-b-n2b))
-(defmove-copy :hs-b-as2b :hs-b-k3 :kind :sp :callout "TSURI" :dmg 70 :on-hit :launch :flags nil)
-(defmove-copy :hs-b-as2 :hs-b-k2 :kind :sp :callout "SHIME" :enter 4 :dmg 55 :params (:ns-next :hs-b-as2b))
+(defmove-copy :hs-b-n2b :hs-b-k2 :clip :hs-kb-shime :callout "SHIME" :enter 4 :dmg 60 :params (:ns-next :hs-b-n2c))
+(defmove-copy :hs-b-n2a :hs-b-k1 :clip :hs-kb-matoi :callout "MATOI" :startup 20 :dmg 40 :on-land hs-b-drag :params (:ns-next :hs-b-n2b))
+(defmove-copy :hs-b-as2b :hs-b-k3 :kind :sp :clip :hs-kb-tsuri :callout "TSURI" :dmg 70 :on-hit :launch :flags nil)
+(defmove-copy :hs-b-as2 :hs-b-k2 :kind :sp :clip :hs-kb-shime :callout "SHIME" :enter 4 :dmg 55 :params (:ns-next :hs-b-as2b))
 ;; AS3 解縛 KAIBAKU, the release (no pointer, no Kikon): 解 > 散 > 放 HANATSU the chains burst off (knockdown); its last segment's end
 ;; returns to the ranged mode, hit, blocked or whiffed (HS-BK-TICK)
 (defmove-copy :hs-b-as3c :hs-b-sp2 :callout "HANATSU" :dmg 100 :on-hit :knockdown :kb 0.0 :cost nil :params (:no-kikon t :bind-end t))
@@ -777,7 +778,7 @@ SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move
   :strings ((:hs-b-na1 :q :hs-b-na2) (:hs-b-na2 :q :hs-b-na3) (:hs-b-na3 :q :hs-b-na4) (:hs-b-na4 :q :hs-b-na5))
   :core (:ns (:hs-b-n1a :hs-b-n2a) :as (:hs-b-as1 :hs-b-as2 :hs-b-as3) :sa :hs-b-sa
          :as-writes (1 2 nil) :as-by-press (1 1 2 2 3)
-         :stances (:hs-kb-stance :hs-st-bind)                    ; (re-used: the low crossed grip / the hawser over the shoulder)
+         :stances (:hs-kb-stance :hs-kb-st-shibori)              ; (鎌 the low crossed grip / 絞 the noose wound on the fist up to the orb: batch 2b, §28.12)
          :kikon-cines (hs-koshu-cine hs-koshu-cine)              ; (re-used: 絞首 for both until §28's 鎌 / 絞 are built)
          :mult 1.7)
   :hooks *hs-bk-hooks*)

@@ -377,7 +377,7 @@
     (loop for form = (read in nil in) until (eq form in)
           when (and (consp form) (eq (first form) 'defparameter)
                     (member (second form) '(*hs-strike-reach* *hs-flights* *hs-letout* *hs-bk-chains* *hs-lashes*
-                                            *hs-foe-paths* *hs-kb-grips*)))
+                                            *hs-foe-paths* *hs-kb-grips* *hs-kb-reels* *hs-kb-wraps*)))
             do (eval form))))
 (let* ((kr (kit :hisagi :bankai)) (kb (kit :hisagi :bankai-bind)))
   (flet ((m (n) (find-move n)))
@@ -749,7 +749,8 @@
                         :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l :hs-b-sp2   ; (A3, §24.3: SP2's own)
                         :hs-b-sj                                                         ; (§25.10: SENGEN)
                         :hs-k1 :hs-j2k :hs-j3k      ; (A1, §24.1: the Shikai's K1 sweep and leap J, their let-outs too)
-                        :hs-n2a :hs-n2b :hs-n2c :hs-as2 :hs-as2b)))   ; (§27.5: pointer 2 刈's own clips, their let-outs)
+                        :hs-n2a :hs-n2b :hs-n2c :hs-as2 :hs-as2b      ; (§27.5: pointer 2 刈's own clips, their let-outs)
+                        :hs-b-n1c :hs-b-n2a :hs-b-n2b :hs-b-as2 :hs-b-as2b)))   ; (batch 2b, §28.12: the core bind's own)
         (dolist (n bk-moves)
           (let* ((mv (m n)) (clip (mv-clip mv)) (sr (third (assoc clip *hs-strike-reach*))))
             (check (null (getf *hs-r-clip-stand-ins* clip)))                ; (its own clip, no stand-in)
@@ -788,6 +789,57 @@
                    (format t "  Hisagi A3 KAIBAKU-GEKI: its sweep leaves the arc~%")))))
     (check (let ((g (cdr (assoc :hs-kb-kojo (symbol-value '*hs-kb-grips*)))))
              (and g (= (first g) (mv-s (m :hs-b-l))) (< (second g) *hs-kojo-pull-at*))))
+    ;; batch 2b (DUEL_HISAGI §28.9 / §28.12, the user 2026-10-29: 「可以」): the core bind's own clips, each at its move's frames
+    ;; (speed 1, its :s mark on S, its length S + A + R); the 絞 stance its own (not the Shikai's hawser); the hooks' let-outs
+    ;; (a :seg-fn window: no volume above) out by S onto him within *HS-B-HOOK-REACH* (*HS-KB-REELS*) and held through
+    ;; HS-B-HOOK's 8 f drag; MATOI's onto him within its line's far edge, wound round him from S (*HS-KB-WRAPS*); every let-out
+    ;; sweep and chain strike's bearing inside its arc on the hit frames (MATOI's line: within its r at its end)
+    (let ((kb (kit :hisagi :bankai-bind)))
+      (check (equal (getf (kit-core kb) :stances) '(:hs-kb-stance :hs-kb-st-shibori)))
+      (check (equal (mapcar (lambda (n) (mv-clip (m n))) '(:hs-b-n1a :hs-b-n1b :hs-b-n1c :hs-b-as1 :hs-b-n2a :hs-b-n2b :hs-b-n2c
+                                                          :hs-b-as2 :hs-b-as2b))
+                    '(:hs-kb-kagiyose :hs-kb-makigiri :hs-kb-juji :hs-kb-kagiyose-giri :hs-kb-matoi :hs-kb-shime :hs-kb-shibori
+                      :hs-kb-shime :hs-kb-tsuri))))
+    (dolist (n '(:hs-b-n1a :hs-b-n1c :hs-b-as1 :hs-b-n2a :hs-b-n2b :hs-b-as2 :hs-b-as2b))
+      (let* ((mv (m n)) (cl (mv-clip mv)))
+        (check (or (and (~= (mv-clip-speed mv) 1.0) (= (mv-s mv) (round (* 60 (clip-mark cl :s))))
+                        (= (+ (mv-s mv) (mv-a mv) (mv-r mv)) (round (* 60 (clip-dur (find-clip cl)))))
+                        (>= (- (mv-s mv) (mv-enter mv)) 14))
+                   (format t "  Hisagi 2b ~a (~a): speed ~,2f, not on its S / length~%" n cl (mv-clip-speed mv))))))
+    (dolist (n '(:hs-b-n1a :hs-b-as1 :hs-b-n2a))
+      (let* ((mv (m n)) (cl (mv-clip mv)) (hw (svref (mv-hits mv) 0))
+             (row (find cl *hs-letout* :key #'first)) (reel (second (assoc cl *hs-kb-reels*))))
+        (destructuring-bind (c sd f0 f1 f2 f3 r &rest more) row
+          (declare (ignore c sd f3 more))
+          (check (or (and reel (~= r reel) (< f0 (mv-s mv)) (<= f1 (hw-from hw)) (>= f2 (hw-to hw))
+                          (if (hw-seg hw)
+                              (and (~= reel *hs-b-hook-reach*) (eq (mv-on-land mv) 'hs-b-hook) (>= f2 (+ (hw-from hw) 8)))
+                              (let ((vol (first (hw-vols hw))))
+                                (and (~= reel (+ (aref vol 2) (aref vol 4))) (eq (mv-on-land mv) 'hs-b-drag)
+                                     (equal (cdr (assoc cl *hs-kb-wraps*)) (list (mv-s mv) f2))))))
+                     (format t "  Hisagi 2b ~a (~a): its reel ~a, let-out ~a~%" n cl reel row))))))
+    (flet ((swept (az f f1 f2) (if (consp az) (+ (second az) (* (/ (- f f1) (- f2 f1)) (- (third az) (second az)))) az)))
+      (dolist (n '(:hs-b-n1c :hs-b-n2a))
+        (let* ((mv (m n)) (hw (svref (mv-hits mv) 0)) (vol (first (hw-vols hw))) (cap (> (aref vol 0) 0.5)))
+          (dolist (row (remove (mv-clip mv) *hs-letout* :key #'first :test-not #'eq))
+            (destructuring-bind (c sd f0 f1 f2 f3 r h az bulge) row
+              (declare (ignore c sd f0 f3 h bulge))
+              (check (or (loop for f from (hw-from hw) below (hw-to hw)
+                               always (let ((a (* (swept az f f1 f2) (/ pi 180))))
+                                        (if cap
+                                            (<= (abs (* r (sin a))) (aref vol 4))
+                                            (<= (abs a) (aref vol 2)))))
+                         (format t "  Hisagi 2b ~a: a let-out's sweep leaves its volume~%" n)))))))
+      (dolist (n '(:hs-b-n2b :hs-b-as2 :hs-b-as2b))
+        (let* ((mv (m n)) (hw (svref (mv-hits mv) 0)) (vol (first (hw-vols hw))))
+          (dolist (row (remove (mv-clip mv) *hs-bk-chains* :key #'first :test-not #'eq))
+            (destructuring-bind (c src f0 f1 f2 f3 f4 r h az0 az1 &rest more) row
+              (declare (ignore c src f0 f3 f4 r h more))
+              (check (or (loop for f from (hw-from hw) below (hw-to hw)
+                               always (<= (abs (* (+ az0 (* (min 1 (/ (- f f1) (max 1 (- f2 f1)))) (- az1 az0))) (/ pi 180)))
+                                          (aref vol 2)))
+                         (format t "  Hisagi 2b ~a: a chain strike leaves its arc~%" n))))))))
+    (check (equal (cdr (assoc :hs-kb-st-shibori (symbol-value '*hs-kb-grips*))) '(0 0 2)))
     ;; A1 (DUEL_HISAGI §24.1, the user, 2026-10-18: 「可以，照這個順序開始畫」): the Shikai's K string drawn. K1 NAGI: its
     ;; let-out out over every hit frame at r x the charge, on the charged copy's arc edge within 0.15 m at x1.0 and x1.6,
     ;; its sweep's bearing inside the arc (+- *HS-K1-ARC* / 2) on each; K2 NOKO, K2J, K3 TSUI (placed on the victim,

@@ -77,6 +77,17 @@ flat-spinning sickle's flight, its spin in him with the cuts, its return: each m
                               (progn (setf (fighter-state f) :idle (fighter-move f) nil (anim-clip an) (find-clip :hs-kb-stance))
                                      (bytes))                                  ; (A2: the stance, the noose held taut)
                               (progn (setf (hss-bound st) nil) (at :hs-b-unwind 10 :hs-kb-unwind) (bytes)))))
+             (b2 (progn (setf (hss-bound st) t (fighter-form f) :bankai-bind)    ; (batch 2b, §28.12: the core bind's own)
+                        (list (progn (at :hs-b-n1a 20 :hs-kb-kagiyose) (bytes))                 ; (the reel onto him)
+                              (progn (at :hs-b-as1 20 :hs-kb-kagiyose-giri) (bytes))
+                              (progn (at :hs-b-as1 28 :hs-kb-kagiyose-giri) (bytes))           ; (the cut)
+                              (progn (at :hs-b-n1c 15 :hs-kb-juji) (bytes))                    ; (the X: two let-outs)
+                              (progn (at :hs-b-n2a 24 :hs-kb-matoi) (setf (fighter-contact f) :hit) (bytes))   ; (the wrap)
+                              (progn (setf (fighter-contact f) ct) (at :hs-b-n2b 21 :hs-kb-shime) (bytes))     ; (two grips)
+                              (progn (at :hs-b-as2b 23 :hs-kb-tsuri) (setf (fighter-contact f) :hit) (bytes))  ; (hooked)
+                              (progn (setf (fighter-contact f) ct (fighter-state f) :idle (fighter-move f) nil
+                                           (anim-clip an) (find-clip :hs-kb-st-shibori))
+                                     (bytes)))))                                      ; (the 絞 stance: up to the orb)
              (core (progn (setf (fighter-form f) :base)                              ; (§26: NA1's grip, the pointer
                           (list (progn (at :hs-j1 15 :hs-na1) (bytes))                ;  stances' hawser and sparks)
                                 (progn (setf (fighter-state f) :idle (fighter-move f) nil (anim-clip an) (find-clip :hs-st-bind))
@@ -101,6 +112,8 @@ flat-spinning sickle's flight, its spin in him with the cuts, its return: each m
         (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (hss-state st) s0
               (fighter-contact f) ct (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm
               (hss-bound st) b0 (hss-zan st) z0)
+        (log-msg "duel hisagi look consing 2b (10 calls, B): KAGIYOSE ~d, KAGIYOSE-GIRI ~d, its cut ~d, JUJI ~d, MATOI's wrap ~d, ~
+SHIME ~d, TSURI ~d, the 絞 stance ~d" (nth 0 b2) (nth 1 b2) (nth 2 b2) (nth 3 b2) (nth 4 b2) (nth 5 b2) (nth 6 b2) (nth 7 b2))
         (log-msg "duel hisagi look consing (10 calls, B): stance ~d, out ~d, NAGI ~d, NOKO ~d, A1's wheel ~d, TSUI ~d, sky ~d, J3K ~d, ~
 windmill ~d, J1 grip ~d, J3 ~d, KARI-OTOSHI ~d, S1's charge x1.4: windmill ~d, NAGI ~d, TSUI ~d; SHIBARI ~d, KUBIKAKE ~d, Bankai ~d, bind ~d; the Bankai's clips: J3 ~d, SOKUDA ~d, KUBIKAKE ~d, SAHARAI ~d, ~
 SP1 ~d, SP2 ~d, KOSA ~d, SAHARAI's recovery ~d; the route links (A2): HOSOKU ~d, its bundle ~d, spread K2 ~d, K3 ~d, SOKUDA's L ~d, SOKUSEN ~d, SOKUBEN ~d, ~
@@ -125,7 +138,8 @@ HODEN's charge ~d, NS3a's wrap ~d; TSUMUJI (§27.10): its flight ~d, the spin an
     ;; §28.4: the core Bankai's segments with their own volumes (copies on the old clips)
     (:bankai :hs-r-n1a) (:bankai :hs-r-n1b) (:bankai :hs-r-n1c) (:bankai :hs-r-as1) (:bankai :hs-r-n2a) (:bankai :hs-r-n2b)
     (:bankai :hs-r-n2c) (:bankai :hs-r-as2b) (:bankai :hs-r-as3) (:bankai-bind :hs-b-n1b) (:bankai-bind :hs-b-n1c)
-    (:bankai-bind :hs-b-n2a) (:bankai-bind :hs-b-n2b) (:bankai-bind :hs-b-n2c) (:bankai-bind :hs-b-as2b) (:bankai-bind :hs-b-as3c))
+    (:bankai-bind :hs-b-n2a) (:bankai-bind :hs-b-n2b) (:bankai-bind :hs-b-n2c) (:bankai-bind :hs-b-as2b) (:bankai-bind :hs-b-as3c)
+    (:bankai-bind :hs-b-as2))                                           ; (batch 2b, §28.12: SHIME's AS copy, on its clip too)
   "Debug 83902's moves: (form move), every Bankai move with a hit window of volumes (B4c: the ranged route links too, on
 their own clips since batch A2, §24.2).")
 (defun hisagi-tip-check ()
@@ -258,7 +272,14 @@ leap ends: the sickle thrown spinning flat into the victim, the cuts round him).
     (:hs-s-tobi-rin :hs-j3k 1.0))                                                                       ;  slots 23-27)
   "83910+k: (clip move dist [sickle]): the clip, the move its frames are (NIL: idle), Kenpachi's distance, the sickle's
 state (:out anchored 4 m ahead on the floor, :hooked anchored in him, :wrapped SHIBARI's contact).")
-(defvar *hs-strip-k* 0 "The strip slot (83910+k, 83500+k).")
+(defparameter *hs-kb-strips*
+  '((:hs-kb-st-shibori nil 1.6 nil :bind) (:hs-kb-kagiyose :hs-b-n1a 4.0 nil :bind) (:hs-kb-kagiyose-giri :hs-b-as1 4.0 nil :bind)
+    (:hs-kb-juji :hs-b-n1c 1.5 nil :bind) (:hs-kb-matoi :hs-b-n2a 2.0 :wrapped :bind) (:hs-kb-shime :hs-b-n2b 2.0 nil :bind)
+    (:hs-kb-tsuri :hs-b-as2b 2.5 :wrapped :bind))
+  "83580+k (batch 2b, DUEL_HISAGI §28.12): the core bind's own clips' strip slots, as *HS-BK-STRIPS* (a bind on): 0 the 絞
+stance, 1 NS1a KAGIYOSE, 2 AS1 KAGIYOSE-GIRI, 3 NS1c JŪJI, 4 NS2a MATOI (on a hit: the wrap), 5 NS2b / AS2a SHIME, 6 AS2b
+TSURI (on a hit: hooked in his neck).")
+(defvar *hs-strip-k* 0 "The strip slot (83910+k, 83500+k, 83580+k).")
 (defvar *hs-strip-tab* *hs-strips* "The strip slots in use: *HS-STRIPS* (83910+k) or *HS-BK-STRIPS* (83500+k).")
 (defvar *hs-strip-fv* '(0 0) "The strip's frame and view (83940+3i+v).")
 (defun hs-strip-frames (clip)
@@ -302,7 +323,8 @@ state (:out anchored 4 m ahead on the floor, :hooked anchored in him, :wrapped S
 (defun hisagi-strip (c)
   "83910+k: the strip slot (83500+k: the Bankai's, *HS-BK-STRIPS*); 83940+3i+v: its frame i from view v (HS-STRIP-CINE; v 2
 the match camera, frozen); 83964 lets go."
-  (cond ((< c 83600) (setf *hs-strip-tab* *hs-bk-strips* *hs-strip-k* (min (- c 83500) (1- (length *hs-bk-strips*)))))
+  (cond ((<= 83580 c 83589) (setf *hs-strip-tab* *hs-kb-strips* *hs-strip-k* (min (- c 83580) (1- (length *hs-kb-strips*)))))
+        ((< c 83600) (setf *hs-strip-tab* *hs-bk-strips* *hs-strip-k* (min (- c 83500) (1- (length *hs-bk-strips*)))))
         ((< c 83940) (setf *hs-strip-tab* *hs-strips* *hs-strip-k* (min (- c 83910) (1- (length *hs-strips*)))))
         ((= c 83964) (abort-cine) (setf *cine-hold* nil *hitstop* 0))
         (t (multiple-value-bind (i v) (floor (- c 83940) 3)
@@ -323,6 +345,7 @@ the match camera, frozen); 83964 lets go."
                  (progn (hs-strip-pose *p1* *p2*) (hitstop 100000)))))))
 (pushnew '(83910 83964 hisagi-strip) *char-debug* :test #'equal)
 (pushnew '(83500 83549 hisagi-strip) *char-debug* :test #'equal)
+(pushnew '(83580 83589 hisagi-strip) *char-debug* :test #'equal)   ; (batch 2b: *HS-KB-STRIPS*)
 
 ;;; ---------------------------------------------------------------- the cinematics' stills (debug 83965-83978)
 ;; 83965+c starts cinematic c from a fresh scene (0 the awakening: P1 Hisagi in his Shikai 6 m from an idle Kenpachi,
