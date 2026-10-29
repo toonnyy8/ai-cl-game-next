@@ -604,3 +604,13 @@ draining gauge, a kit without pointers). DEVLOG §504.
 - The SP label rose with the line's thumb end, 0.5 cm (`calc(44% - .8cm)` → `calc(44% - 1.3cm)`), or it met the tag above the bar's
   thumb end. Shots in both hands; nothing else moves. DEVLOG §506.
 
+### 11.3 Once more: the line and your bar up, 爆 up (the user, 2026-10-29)
+
+> 「請再次執行以下修改：1. SP/ATK 分隔線（血量等 HUD）下界上移 0.5 cm，上界上移 1 cm 2. 爆氣鍵上移 0.75 cm」
+
+- `*deck-split-lift*` 0.0 94.5 → **37.8 113.4** CSS px: the far end 1 cm over the deck's top, the thumb's 3 cm over 0.82. DECK-UPDATE no
+  longer clamps an end at the deck's top (`(max 0.0 …)` gone): the pad reaches 148 px higher at 390 × 844, and the recogniser extends the
+  line past its ends, so a touch over the deck's top follows the line too (over it SP, under it ATK).
+- `*plate-low*` 9.45 → **-18.9** CSS px: 爆's middle 5 U + 0.5 cm over the deck's top.
+- The SP label up 0.5 cm more with the thumb's end (`calc(44% - 1.8cm)`). Control 99 and touch 100 pass; shots in both hands. DEVLOG §507.
+

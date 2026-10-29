@@ -233,7 +233,7 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .zl { position: absolute; z-index: 1; font: 800 calc(1.6 * var(--u))/1 var(--f-display); letter-spacing: .3em; color: rgba(238,238,234,.42);
   display: flex; gap: calc(.8 * var(--u)); align-items: baseline; }
 #hud .zl em { font: 800 calc(1.5 * var(--u))/1 var(--f-kanji); font-style: normal; letter-spacing: 0; color: rgba(238,238,234,.3); }
-#hud .zl.sp { right: 5%; top: calc(44% - 1.3cm); }   /* (0.5 cm up with the line's thumb end, 2026-10-29) */ #hud .zl.atk { left: 8%; bottom: 16%; }   /* (draft C: SP at the thumb's edge, under 爆) */
+#hud .zl.sp { right: 5%; top: calc(44% - 1.8cm); }   /* (up with the line's thumb end: 0.5 cm twice, 2026-10-29) */ #hud .zl.atk { left: 8%; bottom: 16%; }   /* (draft C: SP at the thumb's edge, under 爆) */
 #hud.left-hand .zl.sp { right: auto; left: 5%; } #hud.left-hand .zl.atk { left: auto; right: 8%; }
 /* the seals 爆 and 止, where Lisp's touch hit circles are (centres and radii published, DUEL_WEBUI §7) */
 #hud .dbtn { position: absolute; z-index: 14; border-radius: 50%; border: 1.5px solid rgba(238,238,234,.55); background: rgba(11,11,16,.55);

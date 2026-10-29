@@ -71,19 +71,20 @@ user, 2026-10-29: 「我選 C」): it is placed by *DECK-SPLIT-LIFT* alone, 1 cm
 (defparameter *clock-tab-mid* 7.4
   "The phone's clock tab's middle, U under the safe top (the tab 3.2 U down, 8.4 U tall: hud.css #hud.hphone .clock; the user,
 2026-10-29: 「將暫停鍵與時間顯示結合」, DUEL_WEBUI §8 / §9). Its pause chip (chip 6) is a circle of 4.6 U there, the page draws the tab on it.")
-(defparameter *plate-low* 9.45 "爆's drop under *RV-ON-BAR*, CSS px (0.25 cm: draft C's 「爆氣鍵下移 1 cm」, then 「爆氣鍵上移 0.75 cm」 (the
-user, 2026-10-29): 37.8 -> 9.45; before draft C, 2026-10-28 / 29, your own
+(defparameter *plate-low* -18.9 "爆's drop under *RV-ON-BAR*, CSS px (-0.5 cm: draft C's 「爆氣鍵下移 1 cm」, then 「爆氣鍵上移 0.75 cm」 twice (the
+user, 2026-10-29): 37.8 -> 9.45 -> -18.9; before draft C, 2026-10-28 / 29, your own
 phone plate's drop, hud.css's --low).")
 (defparameter *rv-on-bar* 5.0
   "爆's centre this many U over the deck's top (+ *PLATE-LOW*, 1 cm down): draft C's spot (the user, 2026-10-29: 「我選 C」, its
 「爆氣鍵下移 1 cm」; your plate is now the slanted bar on the line, DUEL_WEBUI §11). 9.12 -> 5.0. Before: level with the middle of your
 plate's Reishi bar (「爆氣鍵對齊血量表」, 2026-10-29); before that its top 22 % down the deck, lifted *RV-LIFT* 18.9 -> 37.8 CSS px.")
-(defparameter *deck-split-lift* '(0.0 94.5)
+(defparameter *deck-split-lift* '(37.8 113.4)
   "The tap zones' line's ends moved up, CSS px: the far (upper) end, the thumb's (lower) end (the user, 2026-10-29: 「SP 與 ATK 的分割線
 下界往上 0.5 cm，上界往上 1 cm」, then 「再次將下界往上 0.5 cm，上界往上 1 cm」: 37.8 18.9 -> 75.6 37.8); draft C (2026-10-29: 「我選 C」, its
 「下界上移 1 cm，上界下移 0.5 cm」「上界再次下移 0.5 cm」): 75.6 37.8 -> -37.8 75.6, the far end 1 cm under the deck's top (*DECK-SPLIT* 0.0),
 the thumb's end 2 cm over 0.82 (the draft's 70 % - 1 cm); then (the same day: 「SP/ATK 分隔線（血量等 HUD）下界上移 0.5 cm，上界上移 1 cm」)
--37.8 75.6 -> 0.0 94.5: the far end on the deck's top, the thumb's 2.5 cm over 0.82. Before: 0 0. Applied over *DECK-SPLIT* by DECK-UPDATE into *DECK-SPLIT-AT*.")
+-37.8 75.6 -> 0.0 94.5: the far end on the deck's top, the thumb's 2.5 cm over 0.82; once more (「請再次執行」) -> 37.8 113.4: the far
+end 1 cm over the deck's top (in the pad, unclamped since), the thumb's 3 cm over 0.82. Before: 0 0. Applied over *DECK-SPLIT* by DECK-UPDATE into *DECK-SPLIT-AT*.")
 (declaim (type f32vec *deck-split-at*))
 (defvar *deck-split-at* (make-f32 2) "*DECK-SPLIT* less *DECK-SPLIT-LIFT* (fractions of the deck's height from its top), for the window.")
 (defparameter *pt-center-lift* 56.7
@@ -131,7 +132,7 @@ Outside ONE-HAND there is no pad and no chip: a stray finger only makes menu tap
         (replace *deck-rect* (mapcar #'f32 deck))
         (let ((dh (max 1f0 (/ (- (aref *deck-rect* 3) (aref *deck-rect* 1)) d))))   ; the deck's height, CSS px
           (loop for f in *deck-split* for l in *deck-split-lift* for i from 0
-                do (setf (aref *deck-split-at* i) (f32 (max 0.0 (- f (/ l dh)))))))
+                do (setf (aref *deck-split-at* i) (f32 (- f (/ l dh))))))   ; (over the deck's top is fine: the pad reaches higher)
         ;; the portrait frame: under P2's HUD block down to *PT-FRAME-BOTTOM* (over P1's block); the blocks' edges
         (let ((hb (/ (portrait-hud-bottom s) h)) (pt (/ (portrait-p1-top s h) h)))
           (setf (aref *band* 0) (f32 (+ hb 0.03)) (aref *band* 1) (f32 (min *pt-frame-bottom* (- pt 0.03)))
