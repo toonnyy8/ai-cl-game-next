@@ -173,3 +173,34 @@ RD = docs/research/lille-retrospective/digest.md. "[G]" in the sources = the lea
   - stance poses moved the strike points, so hit poses set the spine, arm and elbows (DL §23.31).
 - **A sim change cost art**: r5-art lost 8 clips (move-modules ref §7).
 - **Known**: base K3's plank dips into the floor (V3 §24.1).
+
+## 5. Hisagi's Bankai chains (2026-10-29, DUEL_HISAGI §28.9–§28.26)
+
+**The rounds**
+- §28.9: the slot plan, 13 new clips, approved with 「可以」 → 2a / 2b. The art followed the reach (presentation only).
+- §28.15: the hooks on the bearing; J3 / J4 their own clips. They had been J1's / J2's (「J 五連裡有兩對動作一樣」).
+- §28.18 → §28.19: 「單從鎖鏈的揮舞來看完全看不出每段之間的差異」. A path table per link; 散 approved (「散可以」), built as 4a.
+- §28.20 → §28.21: 聚 cut to three links (「連同 SA 縮成三段 直刺 → 上撈 → 繞身連枷」), the sim first, then the looks (4b).
+- §28.23 → §28.24: 「上撈我希望呈現由近到遠向上抽起的感覺」, 「由慢至快加速橫掃」, 「缺少了由緩至急的續力與放出的打擊感」 → the
+  rhythm rule (4c). Then 「善哉，幫我套用」 on the other five 聚 moves (§28.25 → §28.26, 4d).
+
+**What made the paths read**
+- 散 thin chains, 聚 one thick bundle: the theme lives in the weapon's thickness too.
+- One shape per link: J2 the X, J3 the floor S, J4 the whirl and fling, J5 the six-start helix. Each has a trail of its own
+  (`%hs-lo-trail`, `%hs-trail`, `%hs-g-look`).
+- A string reads by its paths only from the match camera. Strips alone hid that J2's hanging chains never crossed in view.
+- Bending tools: `*hs-waves*` bends a hanging chain's middle (lateral S, vertical S, helix), zero at the knee and at the free end.
+  `*hs-letout*` lets a crescent out from the hand, its AZ / H a list swept over the frames.
+
+**The rhythm, as measured** (the bundle end's speed, m a frame, a scratch printout of `%hs-lash-tip!`)
+- SA: charge ≤ 0.32, hold ≤ 0.10, release **0.38 1.94 2.31**.
+- J2: hold ≤ 0.08, release **0.81 1.26 1.73**.
+- J3: charge ≤ 1.1 (it carries the end ~10 m), hold ≤ 0.12, release **0.51 2.27 5.22**.
+- TABA before / after: a 9 f drift then 5.85 in one step → hold ≤ 0.12, release **1.90 3.00 3.88**.
+- A clip played at 0.9 (`:clip-s` 27, S 30): plan in move frames and key at clip = 0.9 × move frame.
+
+**Cinematics, from storyboards**
+- 「先畫分鏡給我」: a beat table per pointer (f | camera | action), approved, then built (3a / 3b). Recorded per beat: the deviations,
+  such as the orb that "cannot open as a mesh" and is drawn as a crack of light.
+- 0 B per frame: the new looks use DEFUN-FAST on fixnums / f32vecs, derived from the cine frame alone. A first draft with FX-LINE's
+  float arguments consed 13–200 KB per 10 calls. Probe twice: the first pass grows the fx buffer once.

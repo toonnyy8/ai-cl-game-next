@@ -1,6 +1,6 @@
 ---
 name: duel-motion-style
-description: Use when deciding or changing how a fighter moves in a code-animated arena fighter like SOUL DUEL — picking a new character's or form's motion style, giving each SP pointer its theme, stance and tells, researching references (canon fights, other games' movesets, anime scenes), and planning it into per-move clips — especially when the user gives concept words or names a style (長鞭, 大刀, 血鎖, 分身, 月牙, 魔物獵人), says strikes 「不太明顯」「沒張力」「更大膽」, says two stances look alike, or a form plays borrowed clips.
+description: Use when deciding or changing how a fighter moves in a code-animated arena fighter like SOUL DUEL — picking a new character's or form's motion style, giving each SP pointer its theme, stance and tells, researching references (canon fights, other games' movesets, anime scenes), and planning it into per-move clips — especially when the user gives concept words or names a style (長鞭, 大刀, 血鎖, 分身, 月牙, 魔物獵人), says strikes 「不太明顯」「沒張力」「更大膽」, says the links of a string 「看不出差異」 or lack 「由緩至急」, says two stances look alike, or a form plays borrowed clips.
 ---
 
 # Motion style: decide, research, plan, then draw
@@ -8,7 +8,8 @@ description: Use when deciding or changing how a fighter moves in a code-animate
 ## Overview
 From Kenpachi's rework (`docs/duel/DUEL_KEN_REWORK.md` §2–§8, `docs/research/kenpachi-rework/`), the new Lille's motion
 modules (`DUEL_LILLE_V3` §10, §13–§16, §19–§20, §24.1, `docs/research/lille2-motion-styles/`) and Ichigo's core-system sets
-(DUEL_CORE §5b–§6, `docs/research/ichigo-rework/`: a theme, a stance and a Kikon cinematic per SP pointer). Core principle:
+(DUEL_CORE §5b–§6, `docs/research/ichigo-rework/`: a theme, a stance and a Kikon cinematic per SP pointer), and Hisagi's
+Bankai chains (DUEL_HISAGI §28.15–§28.26: the weapon's path, the 緩急 rhythm). Core principle:
 **settle the style as named archetypes with the user, research them with graded sources, plan every slot in a table the
 user approves, measure the drawn reach, then draw.** Canon plus an approved plan took ~1 build round a form; invented
 styles 2–3 rounds a string. Case files and templates: `reference.md`. Clip authoring mechanics: `procedural-ink-style`;
@@ -54,6 +55,32 @@ the move grammar the clips fill: `duel-move-modules`.
   `:arc` / `:vol` first** (a thrust on a 360° spin would hit behind him).
 - Get 「可以」 on the table; then build.
 
+## A flexible weapon (chains, ribbons, whips): the path reads, not the body
+- **Links read apart by the weapon's path**, its count, its rhythm and its trail, not only by the body. 「J1-J5 單從鎖鏈的揮舞來看完全
+  看不出每段之間的差異」 came when every link was one ribbon swept sideways. Plan a column per link:
+  - path: an X scissor, a floor snake rearing up, an overhead whirl then a fling, a corkscrew drill, a thrust, an uppercut, a wrap → flail;
+  - count;
+  - rhythm;
+  - its own ink trail, so the link reads in a still (§28.18–§28.19).
+- **The free end sits on the volume's far edge** on every hit frame, inside the arc. Bend the middle (waves, coils) and leave the end on
+  its key, so the reach check still reads the drawn tip.
+- **Aim what flies at the victim's bearing**, not along the facing: a hook cast while he side-stepped landed beside him. When the hit
+  volume lies along the facing, follow the bearing only once the move has touched him, so a whiff stays drawn on the sim's line (§28.15).
+- **Check from the match camera**, not only the strips: two hanging chains from an orb 8 m up crossed 4 m to either side and no X
+  read. The hand chains crossing between the hands did read (§28.19).
+
+## Rhythm: 由緩至急 (the slow charge, the sudden release)
+「每個時間點的節奏都一樣快速反而表現不出『聚』的攻擊張力」. For a heavy theme, inside the move's own frames (presentation only):
+1. **Charge**, about the first 2/3 of the startup: eased in, barely moving at first, then gathering.
+2. **A held coil** of 3–5 f that trembles (keys a frame apart, ±1–3° / ±0.04 m).
+3. **Release** in the last 2–3 f before S: the weapon covers most of its path there (a smear).
+4. **Impact** on S, then a 1–2 f overshoot and the end jolting.
+5. **Follow-through**, the recovery: slow, the weight dragging back.
+
+Key it so: keys 4 f or more apart smoothstep, keys a frame apart linear; a body `:snap` drift key, then a larger one. **Prove it by
+printing the end's speed per frame** from the real interpolation: the release's peak should stand out from the charge, e.g. J3's
+charge ≤ ~1 m a frame against its 5.2 peak (§28.23–§28.26). The orb or effect's spin starts from the hold, not through the charge.
+
 ## Draw and verify
 - Timing: the hit pose on S; a tell (squat, wind-up) inside the startup; heavier strings start later; an impact hold.
   **A key about every 90° of a spin**; accelerating keys through a heavy arc; turns with root yaw + roll, never the pelvis
@@ -70,4 +97,8 @@ the move grammar the clips fill: `duel-move-modules`.
 - A "whip" or "beam" that is a straight line for 3 frames: a lash needs a lagging, tapered ribbon.
 - A form playing a sibling's clip sped up, or borrowed upright clips on a crouched body.
 - Wrists or reach guessed from strips (Kenpachi's K1 / K2 drawn 1.6 m short).
+- A link whose frame 0 isn't the predecessor's landing pose: links start with blend 0, so the arm flashes across for a frame.
+  Key frame 0 from the frame where the scripted link actually lands (J3's = J2's f26, §28.21).
+- Every beat of a heavy string at one speed (no charge, no hold): no tension (§28.23).
+- A full 360° root yaw inside a clip: it unwinds back through the next clip's blend. Carry the weapon round him instead (§28.21).
 - Clips drawn while the move's rules still move (a sim change dropped 8 drawn clips).

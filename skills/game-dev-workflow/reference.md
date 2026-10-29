@@ -308,3 +308,12 @@ unless they start with `~/.claude` (auto-memory). "G" = generalizable, "P" = pro
    statistical pacing window, multi-stream A/B for "choice not power", scripted dumb-player gate for CPU/assist,
    affected-pairings-only + two-stage seeds, record user waivers as policy.
 7. `port-or-not` checklist (§4.5) before starting a second implementation.
+
+### 4.6 Two sessions on one checkout (2026-10-29) (G)
+- Hisagi's Bankai session and the phone-HUD session ran at once in the same tree. Both wrote DEVLOG §477–§484 at the same time. The HUD
+  session renumbered its entries to §485+, and since then the file's order is by time, not by number: the next § is the highest number
+  + 1, re-grepped right before writing.
+- The HUD session rescaled the shared flash-step gauge (0–300) and Hisagi's AS1 steal (40 → 120), regenerated `tests/style-cvc-ref.txt`
+  and published its own Artifact version. It then sent a message: build your next playtest from a `main` that has it, and keep every
+  flash-step threshold on the new scale. The reply acknowledged both and voided the old smoke baseline.
+- Per-session hygiene: stage named files only (the other session's `tests/shots/` churn sits in the tree), and commit what is yours.

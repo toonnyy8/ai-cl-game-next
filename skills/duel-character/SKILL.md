@@ -15,7 +15,8 @@ the CPU `duel-character-cpu`; changing a fighter `duel-character-rework`; the lo
 
 ## ⚠ Confirm before building (AskUserQuestion, 2–4 options, recommended first, record the rejected ones)
 Concept
-- **Role against Kenpachi / Ichigo / Hisagi** (the playable three): "what does he do when caught at 2 m?" Probe with a 10-seed run.
+- **Role against Kenpachi / Ichigo / Hisagi** (the playable three): "what does he do when caught at 2 m?" Probe with a scripted scene
+  (both sides' inputs, `tests/scripts/duel.py`), not a CPU match.
 - **Three pointer themes per form** (DUEL_CORE §5b): pointer n's stance, NS, AS n and Kikon cinematic share one theme. Name the three
   themes first; fill the table from them.
 - **Every form reachable in PRACTICE**; later forms the same system stronger, or their own `:core`?
@@ -48,8 +49,13 @@ Wording
 1. A concept talk (no code), canon research with graded claims, a model sheet.
 2. The design doc (the pointer table, the segment table) plus an adversarial review.
 3. Batch 1: the kit's `:core` with functional clips at the right reach; the generic core CPU plays it at once (`core-ai.lisp`). Measure.
-4. Playtest Artifact loop, **playtest first, gates after**. Explain causes, offer 3–4 lettered, composable directions.
-5. Art batches, presentation only: `simgate --seeds 10 --summary` and `--cvc` byte-identical, FK reach ±0.15 m, 0 B/frame.
+4. Playtest Artifact loop, **the fast checks (host tests, pkgcheck, build, smoke), then publish at once**; `--cvc` meanwhile, balance gates only when asked. Explain causes, offer 3–4 lettered, composable directions.
+5. Art batches, presentation only: the scripted smoke's hash / log lines and `--cvc` byte-identical, FK reach ±0.15 m, 0 B/frame
+   (seed gates only when asked, since 2026-10-29). Order that worked for Hisagi's Bankai (DUEL_HISAGI §28):
+   - the sim, with a reach table the user rules on;
+   - the clips and stances, one batch per mode;
+   - the Kikon cinematics from approved storyboards;
+   - the strings' paths and rhythm.
 6. CPU tuning only after the rules freeze (`duel-character-cpu`).
 7. The Kikon cinematics last, from the agreed storyboards.
 

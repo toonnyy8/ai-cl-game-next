@@ -19,8 +19,9 @@ is "done" until it is measured, committed and pushed — but never deployed unle
    wording as a number before building (「放慢 1 倍」 meant 0.1×). When the user says 「先跟我討論」, change nothing until
    it is agreed. A new or reworked fighter: REQUIRED SUB-SKILL `duel-character` / `duel-character-rework`.
 3. **Implement in the smallest place**: a character's own files before shared ones; shared files get generic hooks.
-4. **Gate it** (REQUIRED SUB-SKILL: sim-balance-gates for rules/AI; procedural-ink-style for looks). Every new mechanic
-   also gets a CPU rule, in this batch or the next.
+4. **Gate it** (REQUIRED SUB-SKILL: sim-balance-gates for rules/AI; procedural-ink-style for looks). Since 2026-10-29: no
+   balance gates unless asked; test a move with a scripted scene, never a CPU match by chance (sim-balance-gates "Since
+   2026-10-29"). Every new mechanic also gets a CPU rule, in this batch or the next.
 5. **Docs in the same pass**: the feature/design doc § (English: request quote, knobs `*name*` old → new, tests, gate
    numbers), `docs/DEVLOG.zh-TW.md` new § (`## N. 標題（YYYY-MM-DD）`, opens `使用者：「…」`, bullets: 決定／原因／改動／
    試過但拿掉／測試結果／還沒解決), the player manual (zh-TW) if players see it, every place a changed reference number
@@ -51,6 +52,14 @@ is "done" until it is measured, committed and pushed — but never deployed unle
 - Rules block in every brief: bounded waits, wait by PID, no `pgrep -f`/`pkill -f`; no push to main, no deploy; don't
   edit the evaluator; commit trailers.
 - The lead verifies every report itself (rerun tests/gates), merges, updates the doc's Status, removes the worktree.
+- Merging parallel art batches: shared table rows, cinematic scene indices, strip slots and debug sub-ranges collide even
+  inside one character's files. Claim the sub-ranges in each brief. At merge, union them and renumber the later batch.
+- **A peer session on the same checkout** (another Claude session working on, say, the HUD):
+  - the next DEVLOG § is the file's highest number + 1, re-grepped right before writing, because entries interleave;
+  - stage only your own files;
+  - build the playtest Artifact from a `main` that has the peer's commits, so you don't overwrite their version;
+  - after the peer changes the sim, regenerate your smoke / cvc baselines;
+  - tell the peer (SendMessage) when your change touches what they own.
 - Before any second implementation (a port): ask whether it replaces or runs beside the original and who keeps
   parity. If it is stopped: a banner on its doc, a Status entry, memory updated.
 

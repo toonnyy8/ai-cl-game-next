@@ -106,3 +106,25 @@ e55304e:skills/duel-move-modules/reference.md`.
   - the replay lags 4 / 8,
   - the replay scale 0.1,
   - the clash slow motion 0.2 × 0.7 s.
+
+## 8. Hisagi's Bankai on the core system (2026-10-29, DUEL_HISAGI §28, DEVLOG §470–§501) (P → G)
+- **Two modes, one form.** Ranged `:bankai` (pointer 1 散 spread, 2 聚 gathered) and bind `:bankai-bind` (1 鎌, 2 絞). The ranged AS3c
+  KAKE's real hit arms the bind, and the bind's AS3 releases it (§28.5).
+  - Each mode is a `defkit` with its own `:core`.
+  - Shared hooks added default off (`:as-writes`, `:params :no-kikon`, the `:clash` and `:link-move` kit hooks); `--cvc` stayed identical.
+  - `set-form` clamps the pointer.
+  - The HUD keys its seals by form and tag ("FUSHI NO KOJO RANGED" / "… BIND") and hides the third.
+- **A mode flag that swaps links.** A 聚 segment sets the combo's gathered flag. `hs-r-link-move` swaps the latched J link for its
+  gathered copy (`*hs-r-gather-swap*`), so one J press means two moves by state.
+- **The tip by class** (§28.7, the user's five rules). The state is per fighter (`hss-route-tip`), written by every hit, cleared in
+  neutral, and read by class in `hs-dmg-mult`. `:params :no-tip` marks a close-in push (環, 叩) that carries a tip but never earns one.
+  - **G:** a carried property is a class table, not a flag. Write it before the code.
+- **`:as-ptr`** (§28.20). `:as-by-press (1 1 2 2 3)` assumes the five J. A three-link route (SA > J2 > J3) has to say its AS per move.
+  - `core-next-as` = the move's `:as-ptr`, else the press count.
+  - Read in `core-as-start!`, the core CPU (an `:as-ptr` 3 move counts as the string's end) and the web HUD's hint: one reader for all three.
+- **Bands per mode as volumes, not chases** (§28.10). The J links take the band of the hit before them (散 3–6 m 100°, 聚 2.5–4.5 m 90°).
+  A line's tip is measured from its far edge (end + radius).
+- **Mode identity by frames and damage** (§28.10): 散 damage ×0.85, 聚 S and R +3. The +3 used up AS2a > AS2b's margin. The fix
+  lengthened the stagger (`:stun 36`) instead of shortening 聚 (§28.22).
+- **The clash balance once an exchange** (§28.6): `hss-even-a / -b` remember the two moves' `fighter-cls-t`. Two cancels between the same
+  two moves balance once; a new move from either side starts a new exchange.

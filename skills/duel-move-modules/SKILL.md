@@ -7,7 +7,8 @@ description: Use when designing, restating or restructuring a fighter's move set
 
 ## Overview
 From Ichigo's rework on the core system (`docs/duel/DUEL_CORE.md` §2–§6, DEVLOG §410–§445; code `duel/lisp/core.lisp` pure,
-`core-sim.lisp`, `kit.lisp` `build-core-classes`, `ichigo.lisp`). Core principle: **one grammar for every fighter (NA / NS / AS / SA
+`core-sim.lisp`, `kit.lisp` `build-core-classes`, `ichigo.lisp`) and Hisagi's Bankai (DUEL_HISAGI §28: two modes, a property carried by
+class, `:as-ptr`). Core principle: **one grammar for every fighter (NA / NS / AS / SA
 judged by the triangle), written as data in the kit's `:core` plist and the moves' `:params`; each pointer one theme across its NS, its AS
 and its Kikon; each segment one press.** Evidence, the encoding and the bug classes: `reference.md`. A new fighter: `duel-character`; a
 change after a playtest: `duel-character-rework`; the CPU: `duel-character-cpu`; the clips: `duel-motion-style`. The old system's grammar
@@ -51,6 +52,17 @@ Then ask what the table can't show:
    the string; the Kikon hold (`fighter-sp-held`); the SP pointer of the strike (`fighter-sp-ptr`).
 7. **Pin in host tests** (`tests/duel-rules/triangle.lisp`): every class tag, tells ≥ 14 f, each wave segment's strike (same class, cap
    ≥ 40), stance by pointer, no shared strike across classes, no knockdown / launch on a segment that something follows.
+8. **A property carried along a route** (Hisagi's chain tip ×1.71) needs a rule for each class. Ask with a table, Class | own read |
+   carried from:
+   - NS b / c carry it on if the hit before was a tip, else use their own;
+   - an AS takes the last hit's;
+   - an SA always uses its own;
+   - a J link takes the hit before it.
+   Every hit becomes the last read, a whiff leaves the read before it, and neutral clears it (§28.7).
+9. **A route shorter or longer than `:as-by-press`**: give the moves `:params :as-ptr n` (read by `core-next-as`), so the AS follows the
+   move he is in, not the press count (聚's SA > J2 > J3 → AS1 / 2 / 3, §28.20). Default off; `--cvc` proves it.
+10. **Two modes in one form** (ranged / bind) are two kits that an AS switches between. `set-form` clamps the pointer to the new kit's
+    NS count. The HUD labels each pointer by form plus tag (散 / 聚, 鎌 / 絞) and hides an unused third seal.
 
 ## Red flags
 - One move used by an NS and an AS: the class table tags it once; make a copy per class (§437).
@@ -59,3 +71,7 @@ Then ask what the table can't show:
 - A delayed effect (a lagged clone swing) later than the next segment's start: a quick press eats it (§443).
 - A hold read on the hit frame of a move faster than a tap (AS3 at 8 f): judge it after the hitstop (§440–§441).
 - Counting hazards by their data struct (a clone's strikes carry the clone's data): identify by hook (§438).
+- A clash hook that fires every step two moves overlap: key it on both moves' start ticks (`fighter-cls-t`), so it fires once an
+  exchange (「只算一次」, §28.6).
+- A frame change (+3 S / R for a mode) without re-probing its AS pairs: the combo broke silently (§28.22). See `duel-character-rework`'s
+  regressions.

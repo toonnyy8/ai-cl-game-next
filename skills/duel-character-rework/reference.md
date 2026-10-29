@@ -119,3 +119,34 @@ The old system's ASSIST-specific cases are at `git show e55304e:skills/duel-char
 - **Exceptions:**
   - The Ichigo mirror 221.4 s with 2 time-outs of 60 after the NS3 fix was accepted (「列為例外」, §445).
   - Ichigo's win rates stay the user's call.
+
+## 11. Hisagi's Bankai redesign (2026-10-29, DUEL_HISAGI §28, DEVLOG §470–§501) (P → G)
+- **The shape.** One day, about 25 sections. The order was batch 1 the sim (§28.5), then the user's rule rounds on the reach table
+  (§28.6–§28.10, §28.13, §28.20, §28.22). Batch 2 the clips and stances (2a ranged, 2b bind, in parallel worktrees). Batch 3 the four
+  Kikon cinematics, storyboards first (「先畫分鏡給我」 → 「分鏡可以」, 3a / 3b). Batch 4 the strings' looks (4a 散, 4b 聚) and the 聚 rhythm
+  (4c, 4d). Each round's plan table got a 「可以」 before its clips.
+- **The table as the decision surface.** 「請列出遠距的攻擊範圍、鏈尖判定與狀態為「聚」還是「散」」 → a table per move (S, reach, tip
+  band, mode, §28.6). The answers came as five numbered rules on that table (§28.7): bands per mode, the tip by class, the SA by the
+  state. Then 「請列出原版遠距的攻擊範圍」 for the before view. Re-print the table after each round (§28.8).
+- **Without balance gates** (since §468), each sim round ran:
+  - host tests;
+  - `--cvc`;
+  - the scripted smoke `tests/scripts/duel-hisagi-bankai.json`, with a scene per changed move (A4–A9, E, ...) and the numbers quoted
+    from its log (「WA hits 30 and pushes (3.94 m at ŌGI's start)」).
+  Each art round proved the same smoke's 154–197 hash / log lines identical to the parent's. Moving a scene's end by a few frames
+  shifts later hash lines by carry-over: say so, and re-baseline.
+- **Diagnosis by a probe in the script.** Both "it doesn't reach" (§28.13) and "it doesn't combo" (§28.22) were found by a distance /
+  state print every 2–3 f in one scene, which gave the cause in frames:
+  - the push to 2.30 m during the startup;
+  - IDLE at f167 against the hit at f170.
+  The fixes were the smallest knob that kept the user's intent: SAN's reach 1.5 → 3.0, the user's pick of three; AS2a's `:stun 36`, so
+  聚 stays slow.
+- **A baseline goes stale through a peer.** A parallel session's flash-step gauge change (0–300, AS1 `:steal-fs` 40 → 120) moved the
+  sim. Every smoke baseline before it is void: regenerate from the new `main` before the next presentation proof.
+- **Parallel art batches collide in shared tables**, even inside one character's files:
+  - `*hs-lashes*` / strip-slot rows;
+  - the cinematic debug scene index (c 7 / 8 went to the bind, so KUSARI-AME became c 9);
+  - DUEL_GAMEPLAY's debug-range line.
+  Merge by union, renumber the later batch, and apply a long doc line as the branch's delta rather than taking either side.
+- **Things noticed and offered, not done:** the bundle's pop between links, the ranged chases drawn along his facing, J2's hand-chain
+  choice. List them as open in the § and in the reply. The user picks them up or not.
