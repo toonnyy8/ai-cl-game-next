@@ -457,15 +457,19 @@ the curtain, he lowers the blade, unmoved: 降鎖."
       (caption "降鎖" :reading "KOSA" :sub "FUSHI NO KOJO  KIKON" :side 1 :hanko t)))
 
 (defcine hs-koshu-cine (a v :len 180 :hold 150)
-  "The bind's Kikon 絞首 KOSHU (§22.5): 1 he zips along the noose chain (flash steps, afterimages); 2 behind the victim:
-the chain drawn across his throat; 3 the orb sinks, chains rain onto him: bound standing; 4 he raises a blade, the noose
-tightens on both necks: both choke (the shared pain); 5 the victim drops, the Konpaku; Hisagi stays up, shaking: 絞首."
-  ;; 1 (0-30) the zip: hops along the line every 4 f, an afterimage each
-  (at 0 (hs-cine-stage a v 6.0) (cine-clip a :hs-kb-koshu-run :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
-      (hold-pose v 6) (impact-frame :negative 2) (play-sfx :hoho-out) (play-sfx :chain-snap) (lens 44))
-  (when (and step-p (<= 4 cf 24) (zerop (mod cf 4)))
-    (start-ghost a) (face-each-other a v (- 6.0 (* 5.0 (/ (- cf 4) 20.0)))) (play-sfx :hoho-out :pitch (+ 0.9 (* 0.01 cf))))
-  (during (0 30) (shot-pair a v -1 7.0 1.4))
+  "The bind's Kikon 絞首 KOSHU (§22.5; beat 1 revised, §28.14 / §28.17): 1 the 絞 stance, the noose wound on his fist: he
+hauls it hand over hand, the victim dragged to him; 2 behind the victim: the chain drawn across his throat; 3 the orb
+sinks, chains rain onto him: bound standing; 4 he raises a blade, the noose tightens on both necks: both choke (the shared
+pain); 5 the victim drops, the Konpaku; Hisagi stays up, shaking: 絞首."
+  ;; 1 (0-30) the 絞 stance; three hand-over-hand hauls (f8-29): the victim dragged in from 3.0 m to 0.75 m, to where the
+  ;; old zip left him (his place and facing at f30 as before: beat 2 puts Hisagi 0.75 m behind his back)
+  (at 0 (hs-cine-stage a v 0.75) (face-each-other v a 3.0) (cine-clip a :hs-kb-st-shibori :blend 2)
+      (cine-clip v :sh-kikon-victim :blend 4) (hold-pose v 6) (impact-frame :negative 2) (play-sfx :chain-snap) (lens 44))
+  (at 8 (cine-clip a :hs-cine-ks-haul :blend 3) (cine-clip v :sh-stagger :blend 2) (play-sfx :chain-rattle :pitch 0.7))
+  (at 15 (play-sfx :chain-rattle :pitch 0.8) (shake 0.06 0.1))
+  (at 22 (play-sfx :chain-rattle :pitch 0.9) (shake 0.06 0.1))
+  (when (and step-p (<= 8 cf 29)) (face-each-other v a (hs-kg-haul-d cf 8 3.0 0.75 3 7)))
+  (during (0 30) (shot-pair a v -1 (if (portrait-p) 9.5 7.0) 1.4))
   ;; 2 (30-70) behind the victim: the garrote (KOSHU's S at f38)
   (at 30 (hs-round a v 0.75 180) (cine-clip a :hs-kb-koshu :blend 0) (cine-clip v :hs-cine-choke-v :blend 4)
       (shot-on v 32 3.7 1.45 :look 1.4) (lens 46) (play-sfx :hoho-in) (silence 40))
@@ -927,4 +931,217 @@ blood off: 刈."
       (lens 42))
   (at 108 (play-sfx :whoosh-heavy :pitch 1.4) (play-sfx :chain-snap :pitch 1.3))
   (at 112 (caption "刈" :reading "KARI" :sub "KAZESHINI  KIKON" :side 1 :hanko t)))
+
+;;; ================================================================ the bind Kikon 鉤刈 KAGI-GARI (pointer 1 鎌, DUEL_HISAGI §28.14, §28.17)
+;;; The user, 2026-10-29, approved the storyboard (§28.14: 「分鏡可以」): the crescents on their chains: hook, reel, cut. The right
+;;; crescent cast into him (KAGIYOSE's own clip) and reeled hand over hand, the victim dragged across the ground; two cuts and
+;;; the left crescent flung into his other side; both chains ripped apart: an X of ink across him, the Konpaku; the noose
+;;; jerks both necks (he winces too), the crescents flicked clean: 鉤刈. His crescents are let out on the tables
+;;; (*HS-LETOUT*, *HS-KB-REELS*: on the victim at his distance), so HISAGI-DRAW draws them, their chains and the bind's noose
+;;; as in the match: no HS-CINE-OF code. The script's own looks (the drag marks, the slashes, the X, the flicked blood) are
+;;; DEFUN-FAST on f32vecs and the cine frame alone (a held still and a play-through agree). Debug 83997 plays it (83970+b
+;;; holds beat b); 83998 plays the bind's pointer 2 Kikon (絞首, beat 1 revised) the same way.
+(defun hs-kg-haul-d (cf c0 d0 d1 n per)
+  "A hand-over-hand haul's distance at cine frame CF: from D0 at frame C0 to D1 in N jerks of PER frames, each eased out
+(鉤刈's reel, 絞首's beat 1)."
+  (let* ((k (min (float n) (max 0.0 (/ (- cf c0) (float per))))) (i (min (1- n) (floor k))) (fr (- k i))
+         (e (- 1.0 (* (- 1.0 fr) (- 1.0 fr)))))
+    (- d0 (* (- d0 d1) (/ (+ i e) n)))))
+
+(defun hs-kg-gap (a v)
+  "The distance from A to V (m, level)."
+  (let ((p (pos-of a)) (q (pos-of v))) (hypot (- (aref q 0) (aref p 0)) (- (aref q 2) (aref p 2)))))
+
+(defun hs-kg-orbit (a v cf)
+  "鉤刈's orbit (f50-85): round the pair's midpoint from his left, a little behind him (115 degrees off his facing), to
+his left front (65), 1.5 m up (4.6 m; a phone 6.8)."
+  (setf *cine-close* nil *cine-subject* nil)
+  (let* ((p (pos-of a)) (q (pos-of v)) (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2))))
+         (yaw (+ (yaw-of a) (deg (- 115.0 (* 50.0 (/ (- cf 50) 35.0)))))) (d (if (portrait-p) 6.8 4.6)))
+    (cine-cam (+ mx (* d (fwd-x yaw))) 1.5 (+ mz (* d (fwd-z yaw))) mx 1.15 mz)))
+
+;; his clips: the right fist hauled to his hip on the chain into the victim (the cuts' and the haul's base)
+(defpose :hs-cine-kg-hold (:base :hs-kb-stance)
+  (:root :u -0.24 :f -0.04) (:spine :flex 8) (:head :flex -10)
+  (:arm-r :flex -16 :side 24 :twist 0) (:elbow-r :flex 70) (:hand-r :flex -40))
+;; the reel (f32-50): hand over hand on the right crescent's chain, leant back, one haul each 6 f (the drag's jerks)
+(defclip :hs-cine-kg-haul (0.2 :loop t :base :hs-cine-kg-hold)
+  (0 (:root :u -0.28 :f -0.06) (:spine :flex -12) (:chest :twist -10)
+     (:arm-r :flex 75 :side 8 :twist 0) (:elbow-r :flex 12) (:hand-r :flex -60)
+     (:arm-l :flex -24 :side 22 :twist 0) (:elbow-l :flex 70) (:hand-l :flex -40))
+  (0.1 (:root :u -0.3 :f -0.08) (:spine :flex -14) (:chest :twist 10)
+       (:arm-r :flex -24 :side 22 :twist 0) (:elbow-r :flex 70) (:hand-r :flex -40)
+       (:arm-l :flex 75 :side 6 :twist 0) (:elbow-l :flex 12) (:hand-l :flex -60)))
+;; the cuts (f50-85): the right fist held at his hip; the left crescent raised high over his shoulder, cut 1 down across him
+;; (f6), cut 2 rising back (f14), swung far back low behind the left hip (f18, the tell), flung underhand into his other
+;; side (f24-25), both fists hauled to the hips
+(defclip :hs-cine-kg-cuts (0.6 :base :hs-cine-kg-hold)
+  (0 (:root :u -0.18) (:spine :flex -6) (:chest :twist 24) (:arm-l :flex 160 :side 40 :twist 0) (:elbow-l :flex 40) (:hand-l :flex -30))
+  (0.1 :snap (:root :u -0.26 :f 0.06) (:spine :flex 22) (:chest :twist -26)
+       (:arm-l :flex 40 :side -30 :twist 0) (:elbow-l :flex 6) (:hand-l :flex -70))
+  (0.167 (:root :u -0.26 :f 0.06) (:spine :flex 22) (:chest :twist -30) (:arm-l :flex 20 :side -40 :twist 0) (:elbow-l :flex 6)
+         (:hand-l :flex -70))
+  (0.233 :snap (:root :u -0.22) (:spine :flex 4) (:chest :twist 28)
+         (:arm-l :flex 120 :side 56 :twist 0) (:elbow-l :flex 8) (:hand-l :flex -40))
+  (0.3 (:root :u -0.26 :yaw 20) (:spine :flex 16) (:chest :twist 40) (:arm-l :flex -60 :side 30 :twist 0) (:elbow-l :flex 10)
+       (:hand-l :flex -90))
+  (0.4 :snap (:root :u -0.22 :f 0.1 :yaw -10) (:spine :flex 18) (:chest :twist -20)
+       (:arm-l :flex 88 :side -4 :twist 0) (:elbow-l :flex 0) (:hand-l :flex -70))
+  (0.467 (:root :u -0.28 :f -0.08) (:spine :flex -14) (:arm-l :flex -20 :side 24 :twist 0) (:elbow-l :flex 70) (:hand-l :flex -40))
+  (0.6 (:root :u -0.29 :f -0.08) (:spine :flex -14) (:arm-l :flex -20 :side 24 :twist 0) (:elbow-l :flex 70) (:hand-l :flex -40)))
+;; the strain (f85-96): both chains taut, the fists gathered crossed before his chest, crouched low, trembling; ripped apart
+;; (f96): both flung out wide and down, the chest thrown out
+(defpose :hs-cine-kg-strain (:base :hs-kb-stance)
+  (:root :u -0.32 :f 0.0) (:spine :flex 26) (:head :flex -14)
+  (:arm-r :flex 62 :side -24 :twist 0) (:elbow-r :flex 108) (:hand-r :flex -40)
+  (:arm-l :flex 62 :side -24 :twist 0) (:elbow-l :flex 108) (:hand-l :flex -40)
+  (:thigh-l :flex 52 :side 14) (:knee-l :flex 72) (:thigh-r :flex 8 :side 16) (:knee-r :flex 62))
+(defclip :hs-cine-kg-strain (0.2 :loop t :base :hs-cine-kg-strain)
+  (0) (0.1 (:root :u -0.33) (:spine :flex 27) (:arm-r :flex 64) (:arm-l :flex 60)))
+(defpose :hs-cine-kg-ripped (:base :hs-cine-kg-strain)
+  (:root :u -0.34 :f 0.02) (:spine :flex -14) (:head :flex -18)
+  (:arm-r :flex -14 :side 62 :twist 0) (:elbow-r :flex 20) (:hand-r :flex -40)
+  (:arm-l :flex -14 :side 62 :twist 0) (:elbow-l :flex 20) (:hand-l :flex -40))
+(defclip :hs-cine-kg-rip (0.5 :base :hs-cine-kg-strain)
+  (0) (0.033 :snap :hs-cine-kg-ripped) (0.2 :hs-cine-kg-ripped (:root :u -0.3)) (0.5 :hs-cine-kg-ripped (:root :u -0.29)))
+;; the flick (f126-150): wound up at the shoulders, whipped down and out (f134: the blood flung off), up into the 鎌 stance
+(defclip :hs-cine-kg-flick (0.8 :base :hs-kb-stance)
+  (0 (:root :u -0.1) (:spine :flex 12))
+  (0.08 (:root :u -0.16) (:arm-r :flex 70 :side 70 :twist 0) (:elbow-r :flex 60) (:hand-r :flex 40)
+        (:arm-l :flex 70 :side 70 :twist 0) (:elbow-l :flex 60) (:hand-l :flex 40))
+  (0.13 :snap (:root :u -0.2) (:arm-r :flex 6 :side 64 :twist 0) (:elbow-r :flex 2) (:hand-r :flex -110)
+        (:arm-l :flex 6 :side 64 :twist 0) (:elbow-l :flex 2) (:hand-l :flex -110))
+  (0.24 (:root :u -0.2) (:arm-r :flex 10 :side 60 :twist 0) (:hand-r :flex -96) (:arm-l :flex 10 :side 60 :twist 0) (:hand-l :flex -96))
+  (0.8 :hs-kb-stance))
+;; 絞首's beat 1 (§28.17): the 絞 stance's wound fist and the other hand over it on the noose chain, one haul each 7 f
+(defclip :hs-cine-ks-haul (0.2333 :loop t :base :hs-kb-st-shibori)
+  (0 (:root :u -0.2) (:spine :flex -8)
+     (:arm-l :flex 70 :side -10 :twist 0) (:elbow-l :flex 100) (:hand-l :flex -30))
+  (0.1167 (:root :u -0.26) (:spine :flex 8)
+          (:arm-r :flex 60 :side 10 :twist 0) (:elbow-r :flex 100) (:hand-r :flex -30)
+          (:arm-l :flex 168 :side 14 :twist 0) (:elbow-l :flex 12) (:hand-l :flex -20)))
+
+(declaim (type f32vec *hs-kg-p*))
+(defvar *hs-kg-p* (make-f32 3) "鉤刈's flick: his feet mirrored through the victim's (%HS-KARI-FLICK's point behind him).")
+
+(defun-fast %hs-kg-marks (pa pv cf)
+  "鉤刈's drag marks (f32-110, fading from f100; PA his feet, PV the victim's): two ink streaks on the ground from the
+victim's feet back to where the hook caught him (4.5 m out), 0.15 m either side of the line. A look. 0 B."
+  (declare (type f32vec pa pv) (fixnum cf))
+  (when (and (>= cf 32) (< cf 110))
+    (let* ((dx (- (aref pv 0) (aref pa 0))) (dz (- (aref pv 2) (aref pa 2))) (d (f-max 0.01f0 (f-hypot dx dz)))
+           (ux (/ dx d)) (uz (/ dz d)) (l (- 4.5f0 d)) (c (+ d (* 0.4f0 l)))
+           (k (if (< cf 100) 0.85f0 (* 0.085f0 (i->f (- 110 cf))))))
+      (declare (single-float dx dz d ux uz l c k))
+      (when (> l 0.05f0)
+        (dotimes (s 2)
+          (let ((o (if (= s 0) 0.15f0 -0.15f0)))
+            (declare (single-float o))
+            (fx-shard (+ (aref pa 0) (* c ux) (* o (- uz))) 0.02f0 (+ (aref pa 2) (* c uz) (* o ux)) ux 0f0 uz l 0.035f0 0.04f0
+                      (+ 660f0 (i->f s)) +pal-ink+ k :push 0.05f0))))))
+  nil)
+
+(defun-fast %hs-kg-slashes (vjm cf)
+  "鉤刈's slashes on the victim (the joints VJM, his chest's front) at cine frame CF: the two cuts (f56, f64: 0.52 m) and the
+X torn across him by the two ripped chains (f96: two 1.0 m slashes at +-49 degrees, crossed on his chest), each drawn
+across over 3 f, the ink rim widening over 4, a white core opening inside it, a spark at its end for 3 f; the X flared wide
+f96-104; all faded f112-126. A look. 0 B."
+  (declare (type f32vec vjm) (fixnum cf))
+  (when (< cf 126)
+    (let ((p *hs-k0*) (q *hs-k1*) (b *hs-k2*) (j (ji :chest))
+          (fl (if (and (>= cf 96) (< cf 104)) 1f0 0f0))
+          (k (if (< cf 112) 0.95f0 (* 0.95f0 (- 1f0 (/ (i->f (- cf 112)) 14f0))))))
+      (declare (type f32vec p q b) (fixnum j) (single-float fl k))
+      (dotimes (i 4)
+        (let ((age (- cf (case i (0 56) (1 64) (t 96)))))
+          (declare (fixnum age))
+          (when (>= age 0)
+            (let* ((x (>= i 2)) (th (case i (0 -0.6f0) (1 0.5f0) (2 0.85f0) (t -0.85f0)))
+                   (hl (if x 0.5f0 0.26f0)) (ca (* hl (f-cos th))) (sa (* hl (f-sin th)))
+                   (cy (case i (0 -0.1f0) (1 -0.32f0) (t -0.22f0))) (fa (i->f age))
+                   (g (f-min 1f0 (/ (+ fa 1f0) 3f0))) (w (f-min 1f0 (/ (+ fa 1f0) 4f0)))
+                   (c (f-clamp (/ (- fa 1f0) 5f0) 0f0 1f0)) (sd (+ 680f0 (* 7f0 (i->f i))))
+                   (wd (if x (+ 0.13f0 (* 0.06f0 fl)) 0.08f0)))
+              (declare (single-float th hl ca sa cy fa g w c sd wd))
+              (joint-point! p vjm j (- ca) (- cy sa) -0.26f0)
+              (joint-point! q vjm j (+ (- ca) (* 2f0 g ca)) (+ (- cy sa) (* 2f0 g sa)) -0.26f0)
+              (joint-point! b vjm j (- (* ca (- 1f0 g))) (- cy (* sa (- 1f0 g))) -0.32f0)
+              (fx-crescent (aref p 0) (aref p 1) (aref p 2) (aref q 0) (aref q 1) (aref q 2) (aref b 0) (aref b 1) (aref b 2)
+                           (* wd w) :lens 0.03f0 sd +pal-ink+ k :push 0.3f0)
+              (when (> c 0f0)
+                (fx-crescent (aref p 0) (aref p 1) (aref p 2) (aref q 0) (aref q 1) (aref q 2) (aref b 0) (aref b 1) (aref b 2)
+                             (* wd 0.4f0 c) :lens 0.02f0 (+ sd 1f0) +pal-hit+ k :push 0.34f0))
+              (when (< age 3)
+                (fx-star (aref q 0) (aref q 1) (aref q 2) 0.05f0 (if x 0.34f0 0.22f0) 6 sd 0f0 0f0 0.08f0 (+ sd 2f0) +pal-hit+
+                         0.95f0 :push 0.4f0))))))))
+  nil)
+
+(defun-fast %hs-kg-flick (pa pv cf)
+  "鉤刈's blood flicked off both crescents (from f134; PA his feet, PV the victim's in front of him): %HS-KARI-FLICK's drops
+(its f108 on this f134), flung on toward the victim (its point behind him: PV mirrored through PA). A look. 0 B."
+  (declare (type f32vec pa pv) (fixnum cf))
+  (when (>= cf 134)
+    (let ((p *hs-kg-p*))
+      (declare (type f32vec p))
+      (dotimes (i 3) (setf (aref p i) (- (* 2f0 (aref pa i)) (aref pv i))))
+      (%hs-kari-flick pa p (- cf 26))))
+  nil)
+
+(defun hs-kg-look (a v cf)
+  "鉤刈's looks (every frame): the drag marks, the slashes and the X on the victim, the blood flicked off."
+  (%hs-kg-marks (pos-of a) (pos-of v) cf)
+  (%hs-kg-slashes (model-joints (model v)) cf)
+  (%hs-kg-flick (pos-of a) (pos-of v) cf))
+
+(defcine hs-kagi-gari-cine (a v :len 150 :hold 128)
+  "The bind's pointer 1 鎌 KAMA Kikon 鉤刈 KAGI-GARI (§28.14): 1 the pair side-on, the noose between their necks, the 鎌
+stance; 2 behind his right shoulder, down the chain: the right crescent cast into him, reeled hand over hand, the victim
+dragged across the ground; 3 orbiting close: cut, cut, the left crescent flung into his other side; 4 low before the
+victim: both chains taut, ripped apart: an X of ink torn across him, the negative, the Konpaku; 5 wide: the noose jerks
+both necks, Hisagi winces too, the crescents flicked clean: 鉤刈."
+  (during (0 150) (hs-kg-look a v cf))
+  ;; 1 (0-20) side-on, on his right (the orb's side): the 鎌 stance, 4.5 m apart (staged so the victim ends 1.4 m off,
+  ;; where Hisagi was put)
+  (at 0 (hs-cine-stage a v 1.4) (face-each-other v a 4.5) (cine-clip a :hs-kb-stance :blend 2)
+      (cine-clip v :sh-kikon-victim :blend 4) (hold-pose v 8) (freeze 8) (impact-frame :negative 2)
+      (play-sfx :chain-rattle :pitch 0.8) (silence 20) (lens 40))
+  (during (0 20) (hs-lane-shot a v (- (if (portrait-p) 10.5 7.4) (* 0.5 u)) 1.3 1.5))
+  ;; 2 (20-50) behind his right shoulder down the chain: KAGIYOSE's cast (its S on f28), the hook; hand over hand
+  ;; (f32-50, three hauls): dragged from 4.5 m to 1.4 m
+  (at 20 (cine-clip a :hs-kb-kagiyose :blend 2 :time (/ 10.0 60.0)) (lens 46) (play-sfx :chain-rattle))
+  (at 26 (play-sfx :whoosh-heavy))
+  (at 28 (cine-clip v :sh-flinch :blend 1) (play-sfx :cut) (play-sfx :chain-snap) (hs-cine-hit v 1.2 :cut)
+      (face-beat v :hurt 2.0))
+  (at 32 (cine-clip a :hs-cine-kg-haul :blend 3) (cine-clip v :sh-stagger :blend 2))
+  (when (and step-p (<= 32 cf 50)) (face-each-other v a (hs-kg-haul-d cf 32 4.5 1.4 3 6)))
+  (when (and step-p (member cf '(33 39 45)))
+    (play-sfx :chain-rattle :pitch (+ 0.8 (* 0.01 (- cf 33)))) (shake 0.08 0.1)
+    (let ((q (pos-of v))) (vfx-shockwave (aref q 0) (aref q 2) 0.9 0.3 :pal +pal-dust+)))
+  (during (20 50) (hs-shot a -158 (if (portrait-p) 6.4 4.6) 1.7 1.2 :ahead (* 0.5 (hs-kg-gap a v))))
+  ;; 3 (50-85) orbiting close: cut (f56), cut (f64), the left crescent flung into his other side (f75)
+  (at 50 (cine-clip a :hs-cine-kg-cuts :blend 2) (lens 44) (play-sfx :whoosh-heavy :pitch 1.2))
+  (during (50 85) (hs-kg-orbit a v cf))
+  (at 56 (cine-clip v :sh-flinch :blend 1) (play-sfx :cut) (hs-cine-hit v 1.25 :cut) (shake 0.1 0.15))
+  (at 64 (cine-clip v :sh-stagger :blend 1) (play-sfx :cut :pitch 1.1) (hs-cine-hit v 1.1 :cut) (shake 0.1 0.15))
+  (at 72 (play-sfx :whoosh-heavy :pitch 1.4))
+  (at 75 (cine-clip v :sh-flinch :blend 1) (play-sfx :chain-snap) (hs-cine-hit v 1.3 :cut) (face-beat v :hurt 3.0))
+  ;; 4 (85-110) low before the victim, from his left: the strain (silence), ripped apart (f96): the X, the negative, the
+  ;; ink splash; the X held clean, then the Konpaku (f104)
+  (at 85 (cine-clip a :hs-cine-kg-strain :blend 4) (cine-clip v :sh-stagger :blend 2 :time 0.1) (hold-pose v 10)
+      (hs-shot v 50 (if (portrait-p) 5.0 3.4) 0.45 1.25) (lens 56) (silence 11) (play-sfx :chain-rattle :pitch 0.6))
+  (at 96 (cine-clip a :hs-cine-kg-rip :blend 0) (cine-clip v :sh-stagger :blend 0) (impact-frame :negative 2)
+      (play-sfx :cut-heavy) (play-sfx :chain-snap :pitch 0.7) (shake 0.35 0.45)
+      (multiple-value-bind (x y z) (actor-point v 1.2) (impact-splash x y z 8 0.08)))
+  (at 104 (cine-shatter v (fighter-kikon-n (fighter a))) (play-sfx :konpaku-shatter) (impact-frame :manga 8)
+      (multiple-value-bind (x y z) (actor-point v 1.2) (focus-lines 10 x y z)))
+  (at 106 (cine-clip v :sh-lose :blend 10))
+  ;; 5 (110-150) wide from his left: the noose jerks both necks, he winces (f116); the crescents flicked clean (f134); 鉤刈
+  (at 110 (if (portrait-p) (shot-on a 75 7.4 1.6 :look 1.0 :ahead 0.7 :off -1.2) (shot-on a 75 5.6 1.3 :look 1.0 :ahead 0.7 :off -0.9))
+      (lens 42))
+  (at 116 (cine-clip a :hs-cine-shake :blend 3) (face-beat a :hurt 1.2) (face-beat v :hurt 1.2) (impact-frame :negative 1)
+      (play-sfx :chain-snap :pitch 0.6) (shake 0.2 0.4)
+      (multiple-value-bind (x y z) (actor-point a 1.5) (focus-lines 10 x y z)))
+  (at 126 (cine-clip a :hs-cine-kg-flick :blend 3))
+  (at 132 (caption "鉤刈" :reading "KAGI-GARI" :sub "FUSHI NO KOJO  KIKON" :side 1 :hanko t))
+  (at 134 (play-sfx :whoosh-heavy :pitch 1.4) (play-sfx :chain-snap :pitch 1.3)))
 

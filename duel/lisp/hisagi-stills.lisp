@@ -428,11 +428,13 @@ the match camera, frozen); 83964 lets go."
 ;; 83965+c starts cinematic c from a fresh scene (0 the awakening: P1 Hisagi in his Shikai 6 m from an idle Kenpachi,
 ;; AWAKEN! itself; 1 刈れ, the Shikai 4 m from him; 2 KOSA, the ranged mode 7.5 m from him; 3 KOSHU, a bind 2 m from him;
 ;; 4 首掛 KUBIKAKE, the Shikai 4 m from him; 83977 is c 5, 綴雷電 TSUZURI RAIDEN, the same: DUEL_HISAGI §26.6; 83978 is c 6,
-;; 刈 KARI, the same: §27.8), played
+;; 刈 KARI, the same: §27.8; 83997 / 83998 are c 7 / 8, the bind kit's pointer 1 / 2 Kikon (CORE-POINTER-CINE: 鉤刈 / 絞首) from
+;; c 3's bind scene: §28.17), played
 ;; through; 83970+b restarts the last one held at its beat b's middle frame (*HS-CINE-BEATS*); 83976 lets go.
 (defparameter *hs-cine-beats*
   '((10 36 60 85 117 152) (12 40 64 94 140 168) (12 42 75 113 135) (15 50 92 122 165) (10 35 66 94 125) (12 35 62 98 134)
-    (12 37 53 84 92 128))
+    (12 37 53 84 92 128)
+    (10 40 70 101 140) (15 50 92 122 165))                 ; (batch 3b, §28.17: c 7 鉤刈, the X at f101; c 8 絞首 as c 3)
   "Each cinematic's beats' middle frames (83970+b; as built, DUEL_HISAGI §22.7, §26.6; 刈's two cuts in its beat 2 and
 the Konpaku in its beat 3, §27.8).")
 (defvar *hs-cine-k* 0 "The cinematic the last 83965+c picked.")
@@ -453,12 +455,14 @@ the Konpaku in its beat 3, §27.8).")
     (5 (start-cine 'hs-raiden-cine *p1* *p2*))
     (6 (start-cine 'hs-kari-cine *p1* *p2*))
     (2 (hs-awaken-now! *p1*) (start-cine 'hs-kosa-cine *p1* *p2*))
-    (t (hs-awaken-now! *p1*) (hs-bind-start! *p1*) (set-form *p1* :bankai-bind) (start-cine 'hs-koshu-cine *p1* *p2*))))
+    (t (hs-awaken-now! *p1*) (hs-bind-start! *p1*) (set-form *p1* :bankai-bind)
+       (start-cine (if (member c '(7 8)) (core-pointer-cine *p1* (- c 6)) 'hs-koshu-cine) *p1* *p2*))))   ; (3b: the kit's own)
 (defun hisagi-cine-debug (c)
   "83965-83969 / 83977 / 83978: cinematic c 0-4 / 5 / 6 played (HISAGI-CINE-SCENE); 83970-83975: the last one held at beat
 b; 83976 lets go."
   (cond ((or (< c 83970) (>= c 83977))
-         (setf *hs-cine-k* (case c (83977 5) (83978 6) (t (- c 83965))) *cine-hold* nil) (hisagi-cine-scene *hs-cine-k*))
+         (setf *hs-cine-k* (case c (83977 5) (83978 6) (83997 7) (83998 8) (t (- c 83965))) *cine-hold* nil)
+         (hisagi-cine-scene *hs-cine-k*))
         ((< c 83976)
          (let ((f (nth (- c 83970) (nth *hs-cine-k* *hs-cine-beats*))))
            (when f
@@ -467,6 +471,7 @@ b; 83976 lets go."
              (when *cine* (setf (cine-hold *cine*) f)))))
         (t (abort-cine) (setf *cine-hold* nil))))
 (pushnew '(83965 83978 hisagi-cine-debug) *char-debug* :test #'equal)
+(pushnew '(83997 83998 hisagi-cine-debug) *char-debug* :test #'equal)   ; (batch 3b, §28.17: the bind kit's two Kikons)
 
 ;;; ---------------------------------------------------------------- the model sheet (debug 83980-83985: stills, a look)
 ;; Him alone on a white card (CARD, as Kenpachi's black robe) in the stance, the camera a cinematic shot: the front, his

@@ -4601,3 +4601,81 @@ Strips: `*hs-r2-strips*` 15 J3, 16 J4, 17 / 18 the gathered J3 / J4 (debug 83575
 For the user's eyes (checked by numbers): MATOI on a victim who stepped off its line now shows the crescent on its line beside him
 (the sim's whiff); the ranged chases AS3b MAKI / AS3c KAKE stretch to the victim's distance along Hisagi's facing too (the same look
 bug, through `*hs-lk-reach*`), left as they were (not asked).
+
+### 28.17 As built: the bind Kikon cinematics 鉤刈 KAGI-GARI and 絞首 KŌSHU (batch 3b, 2026-10-29)
+
+§28.14's 鎌 and 絞 tables (the user: 「分鏡可以」), **presentation only**: the Kikon's strike, its damage and the Konpaku are the
+rules'; the scripts only stage, pose and draw. The bind kit's `:core :kikon-cines` is now `(hs-kagi-gari-cine hs-koshu-cine)`
+(pointer 1 鎌, pointer 2 絞; the ranged kit's line untouched). `hs-kagi-gari-cine` is appended after `hs-kari-cine` (DEFCINE order
+kept), with its clips and looks in one block at the file's end.
+
+**鉤刈 KAGI-GARI (150 f, `hs-kagi-gari-cine`).** His crescents are let out on the tables (`*hs-letout*` rows for the new clips,
+`*hs-kb-reels*` at the hooks' 6.0 m: on the victim at his distance), so HISAGI-DRAW draws them, their chains, the 鎌 stance's
+chain to the noose and the noose itself as in the match (the bind is on): no `HS-CINE-OF` code (a code ≥ 5 would skip `%HS-DRAW`
+and hide the crescents). Staged with CINE-PLACE at 1.4 m, then the victim pushed out to 4.5 m, so the reel ends with him where
+the stage put him.
+
+| f | Camera | As built |
+|---|---|---|
+| 0–20 | side-on to the lane on his right (the orb's side), 7.4 m pushing in 0.5 (a phone 10.5), 1.3 m up, lens 40 | the 鎌 stance `:hs-kb-stance` (both crescents low, the left fist's chain taut to the noose), 4.5 m apart; the victim held 8 f, a negative, the silence |
+| 20–50 | behind his right shoulder down the chain (`hs-shot` −158°, 4.6 m, a phone 6.4), tracking the pair's midpoint as it closes, lens 46 | KAGIYOSE's own clip `:hs-kb-kagiyose` from its f10: the javelin tell, the cast on f28 (its S), the right crescent hooked in him (a cut spark, a flinch, a hurt face); from f32 `:hs-cine-kg-haul`, hand over hand (a haul each 6 f), the victim dragged from 4.5 m to 1.4 m in three eased jerks (f32–50, `HS-KG-HAUL-D`), a dust ring and a rattle each, two ink drag marks left on the ground behind him (`%HS-KG-MARKS`, to f110) |
+| 50–85 | orbiting the pair's midpoint from his left-behind (115°) to his left-front (65°), 4.6 m (a phone 6.8), 1.5 m up, lens 44 | `:hs-cine-kg-cuts`: the right fist hauled to his hip, its crescent still in him; the left crescent raised over his shoulder, cut 1 down across (f56), cut 2 rising back (f64), each an ink slash on his chest (`%HS-KG-SLASHES`), a spark, a flinch / stagger; swung far back low (the tell) and flung underhand into his other side (f75): both hooked, ±8° off the line at 1.3 m up |
+| 85–110 | low before the victim from his left (`hs-shot` on him, 50°, 3.4 m, a phone 5.0, 0.45 m up), lens 56 | `:hs-cine-kg-strain`: both fists gathered crossed before his chest, crouched, trembling, 11 f of silence, the victim's stagger held; f96 `:hs-cine-kg-rip`: both ripped out wide and down, the crescents torn out of him sideways (−8 → −80° / 8 → 80° by f101, back in the fists by f114): an X of ink across his chest (two 1.0 m slashes at ±49°, flared f96–104), the negative, the heavy cut, an ink splash; f104 the Konpaku shatter, an 8 f manga frame, focus lines; f106 he sinks to his knees |
+| 110–150 | wide from his left (75°, 5.6 m, a phone 7.4), the victim kneeling, lens 42 | f116 the noose jerks both necks: `:hs-cine-shake` (hunched, his left hand at his own throat, shaking) with a hurt face on both, a 1 f negative, a shake, focus lines on his neck; f126 `:hs-cine-kg-flick`: wound up at the shoulders, whipped down and out (f134), the blood flung off both crescents toward the victim (`%HS-KARI-FLICK`'s drops), up into the 鎌 stance; 鉤刈 / KAGI-GARI / — FUSHI NO KOJO KIKON — with the hanko from f132 |
+
+**絞首 KŌSHU (180 f), beat 1 revised.** f0–30 as built: CINE-PLACE at 0.75 m, then the victim pushed out to 3.0 m; the 絞 stance
+`:hs-kb-st-shibori` (the noose wound round his right fist, run up to the orb), from f8 `:hs-cine-ks-haul`: hand over hand over his
+head, a haul each 7 f, his left fist on a chain to the victim's noose and the wound chain to the orb (`*hs-kb-grips*` row
+`(:hs-cine-ks-haul 9999 0 2)`); the victim dragged (`:sh-stagger`) from 3.0 m to 0.75 m in three eased jerks (f8–29), a rattle each;
+the camera the pair side-on as before (7.0 m, a phone 9.5). The victim ends at the stage spot, facing Hisagi along the same line,
+so at f30 beat 2's `(hs-round a v 0.75 180)` puts Hisagi 0.75 m behind his back exactly as the old zip did (the cut covers the
+step): f30–180 unchanged.
+
+**Deviations from §28.14.**
+- 鉤刈 beat 2's camera is fixed behind his right shoulder and tracks the pair's midpoint as the victim closes; it does not fly
+  with the crescent (the cast covers 4.5 m in 2 f).
+- 鉤刈's "cut, cut" are the left crescent in his fist (its reach from 1.4 m: the slashes are drawn on the victim's chest); the
+  hooks are the let-outs. The X is the script's ink (two crescents on his chest), the crescents themselves swept out sideways.
+- The Konpaku shatter is on f104, not inside the rip's frames, so the X reads clean for 6 f before the manga frame.
+- The wince reuses KŌSHU's `:hs-cine-shake`; the victim stays kneeling through the noose jerk (a hurt face, no choke pose).
+- The noose is drawn by the bind state (`hss-bound`), not forced as KŌSHU's code 4 forces it: a bind Kikon always has it.
+- The callout: the Kikon move's HUD callout is the move's own (`:hs-b-kikon` "KOSHU", the SP segment's when a pointer's SP
+  strikes); no per-pointer Kikon callout path exists, so `hud.js` is unchanged. 鉤 is baked into `glyphs-extra.lisp` (its own
+  block; 刈 was there).
+- No green: the effects are ink, white and the blood's red.
+
+**Code.** `hisagi-cine.lisp`: `hs-kagi-gari-cine`, `HS-KG-HAUL-D` (also KŌSHU's beat 1), `HS-KG-GAP`, `HS-KG-ORBIT`, the clips
+`:hs-cine-kg-haul` / `-cuts` / `-strain` / `-rip` / `-flick` and `:hs-cine-ks-haul`, the looks `%HS-KG-MARKS`, `%HS-KG-SLASHES`,
+`%HS-KG-FLICK` (DEFUN-FAST on f32vecs and the cine frame alone: a held still and a play-through agree; the 0 B pattern, not
+probed by 83901, as 刈's). `hisagi-art.lisp`: seven `*hs-letout*` rows (after SENGEN's), four `*hs-kb-reels*` entries, one
+`*hs-kb-grips*` row.
+
+**Debug** (DUEL_GAMEPLAY "Debug commands"): 83997 / 83998 are cinematic c 7 / 8 of 83965+c, the bind kit's pointer 1 / 2 Kikon
+(`CORE-POINTER-CINE`: 鉤刈 / 絞首) from c 3's bind scene (2 m from an idle Kenpachi), played through; 83970+b then holds beat b at
+`*hs-cine-beats*` (鉤刈 10 40 70 101 140; 絞首 15 50 92 122 165), 83976 lets go. Stills (not committed): every beat held and seven
+frames of 鉤刈's play-through (f28 36 56 76 90 116 136) and three of KŌSHU's beat 1 (f8 18 28), at 1280×720 and 390×844 (`--mobile`).
+
+**Checks.** duel-rules 10651 ALL PASS (new: the bind kit's `:kikon-cines`, 鉤刈's clips on `*hs-kb-reels*` at 6.0 with let-out
+rows, KŌSHU's haul grip row), control 99, cine-test 18 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0 errors, `--cvc` 3 PASS (ii ik
+kk). The scripted smoke (`tests/scripts/duel-hisagi-bankai.json`, 75 s) against 50627b5's 154 lines: two differ, both the
+cinematic's, none the sim's:
+
+    < [   508] cine HS-KOSHU-CINE
+    < duel hash t=600 | 150 0 0 157 CINE BANKAI-BIND ... | 75 0 0 157 CINE BASE ...
+    > [   508] cine HS-KAGI-GARI-CINE
+    > duel hash t=600 | -65 0 0 -157 CINE BANKAI-BIND ... | 75 0 0 157 CINE BASE ...
+
+Scene G's Kikon lands off NS1a (pointer 1), so it now plays 鉤刈; the hash at t=600 is taken inside it (cf 92), where only P1's
+staged place differs: KŌSHU has him 0.75 m behind the victim (0.75 + 0.75 = 1.50, facing +90°), 鉤刈 1.4 m in front (0.75 − 1.40
+= −0.65, facing −90°); P2's fields and the rest of P1's are equal, and every later line is identical (CINE-SAVE gives both their
+places back, scene H starts at a fixed time, so 鉤刈's 30 f fewer never show). Scene D's Soul Break (pointer 2) plays the revised
+絞首: its t=1800 hash (cf 148) is unchanged, both staged where the old zip put them.
+
+The browser's stats line while the stills run (1280×720, held and played): 1.16–1.66 KB a frame for the whole frame, as 刈's
+1.29–1.50 (§27.8). On the phone (390×844) both actors stay in every frame (small in the wide beats); the title logs `brush: caption
+鉤刈 off the 1170x2532 screen` (its right edge 1172.1: the hanko caption's ink splash 2 px past the edge, as 首掛's, 降鎖's and 刈's:
+BRUSH's layout); 鉤刈's last wide shot sets the pair left of the caption (`:off`).
+
+For the user's eyes (checked by numbers and stills): KŌSHU's haul has both crescents raised overhead, his left fist on a chain
+to the victim's noose (a first try with only the wound chain up to the orb read as a man swinging his blades); 鉤刈's cuts are drawn
+at the fist's reach, not let out; the X shares its frames with the ink splash.
