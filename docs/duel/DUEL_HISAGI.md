@@ -4972,3 +4972,67 @@ The user, on §28.24 (the three route links): 「善哉，幫我套用」 to the
 AS2a 叩 (`hs-k-sweep`, eff S 21, the low sweep), AS2b 地走 JIBASHIRI (`hs-k-jibashiri`, its hit at eff 24, the crack). §28.23's rule:
 slow eased charge, a held trembling coil of 3–5 f, the release in the last 2–3 f, a 1–2 f overshoot, a heavy follow-through; each
 move's path kept (what it is), only its timing and the coil changed. Presentation only.
+
+### 28.26 As built: the 聚 rhythm on NS2 / AS2 (batch 4d, 2026-10-29)
+
+§28.25 on the five other 聚 attacks, **presentation only**: their clips' keys (`hs-k-g-k2`, `hs-k-tataki`, `hs-k-g-k3`, `hs-k-sweep`,
+`hs-k-jibashiri`), their bundle rows in `*hs-lashes*` and their `*hs-spins*` rows; no move's frames, volumes, damage, hooks, `:clip-s`
+or `defstrike` header changed, no new draw code. Each move's path is kept (TABA the bundle heaved up behind him and slammed over onto
+the line, TATAKI the left arm's wheel and the overhead smash right in front, ŌMEGURI hauled in, wound to his right and spun, AS2a the
+low L → R sweep, JIBASHIRI heaved overhead and driven into the floor with the crack); only the timing and the coil changed. Same means
+as §28.24: bundle keys 4 f or more apart smoothstep (the charge, the follow-through), keys a frame apart linear (the tremble, the
+release's growing steps); the body's charge a small `:snap` drift key, then a larger `:snap` one, then the coil (linear: it
+accelerates), the hold trembling by keys a frame apart (root height / yaw, spine, chest twist, the raised arm, ±1–3), the release a
+`:snap` key and `:s :snap`, an overshoot key 1–2 f after S, a long `:snap` (linear, slow) follow-through key. The smear in each
+release is the generic `%hs-trail` (the end moving over 1.2 m a frame), no new `%hs-g-look`.
+
+**Clip speed.** TABA and ŌMEGURI play their clips at 27/30 = 0.9 (`:clip-s` 27, S 30), from clip f4.5 / f6.3 (`:enter` 5 / 7): their
+phases are planned in move frames and keyed at clip = 0.9 × move frame (the hold's keys 0.9 apart, the release at clip 24.3 / 25.2
+/ 26.1 / 27). The other three are at speed 1 (clip = move frame). Phase frames below are **move frames**.
+
+| Move (eff S) | Charge | Hold (tremble) | Release | Hit, overshoot | Follow-through |
+|---|---|---|---|---|---|
+| NS2a 束 TABA (25: f5-30) | f5-22: heaved up behind him over his right shoulder (1.2 m, 1.6 m up, then 1.35 / 3.5 / -125°, then 1.55 / 4.7 / -155°), sinking, arching | f22-27, ±0.04 m / ±1° | f28-30: over the top (0.9 / 5.5 / -70), down the line (2.6 / 3.6 / -8), slammed at 4.5 | S f30; the end jolts up 0.2 m (f31), bend collapsing; the body bent 0.08 m deeper a frame or two on (clip 28.8) | lying on the line, dragged in slowly (4.42 m by clip 36, 4.1 by 46), home by clip 58; the body rising slowly to clip 50 |
+| NS2b 叩 TATAKI (21: f9-30) | f9-24: a drift (f13), wheeled down and back at his left (f18), up over his head (f21, f24: 0.7 m, 4.9 m up, behind) | f24-27 at the top, arched, ±0.04 m | f28-30: over his left (1.2 / 4.8 / 100°), down (1.9 / 3.4 / 30°), smashed at 3.0 | S f30; the end jolts up 0.2 m (f31); the squat 0.08 m deeper on f31 | lying, dragged in slowly (2.85 m f40, 2.2 m f52), home f66; risen slowly to f54 |
+| NS2c 大旋 ŌMEGURI (23: f7-30) | f7-22: the lying bundle hauled in hand over hand and round to his right (4.3 / -5° clip 10.8, 3.6 / -40° clip 15.3, 2.9 m / -92° clip 19.8), body wound to his right | f22-27, ±0.05 m / ±1.5° | f28-30: unwound out into the spin (3.3 / -78, 3.9 / -52, 4.5 / -20) | S f30; the spin through the hit window (a key each 90°, clip 27-31, 81° a move frame), on past (+32°, +20° more) | slowing, falling to the floor at his left front (3.96 m / 42° by clip 43), home clip 58; the body's yaw back slowly to clip 48 |
+| AS2a 叩 (21: f9-30) | f9-24: drawn round to his left onto the floor (1.25 / -20° f13, 1.6 / 60° f18, 2.3 m / 122° f24), sinking, wound left | f24-27 crouched, ±0.04 m / ±2° | f28-30: whipped round onto the line (2.7 / 112°, 3.6 / 82°, 4.5 / 45°) | S f30; swept 45 / 15 / -15 / -45° (f30-33), on past to -66 / -80° (f34-35, the overshoot); the body's yaw on to -42 (f35) | slowing round to -100° (f42), dragged in (3.0 m f52), home f66 |
+| AS2b 地走 JIBASHIRI (24: f12-36) | f12-28: heaved overhead (1.15 / 1.4 m up f17, 0.9 / 3.6 f23, 0.6 / 5.0 f28) | f28-33 overhead, ±0.04 m | f34 driven in at his feet (the body leads by a frame, f33), f35-36 run out along the floor (3.0, 4.5 m) with the crack (`%hs-crack` keeps its clip f34) | S f36; the end jolts up 0.15 m (f37); the kneel 0.04 m deeper (f37) | lying, dragged in slowly (4.3 m f46, 3.0 f56), home f66; risen slowly to f55 |
+
+**The bundle end's speed** (m a move frame from the frame before, the host printout of the real interpolation, `*hs-lashes*` as
+`%hs-lash-tip!`, rest before the first key; the scratch script `speed.lisp`):
+
+| Move | Before (batch 2a / A2 keys) | After |
+|---|---|---|
+| TABA | charge f7-17 0.04 0.46 0.61 0.30 0.13 0.35 0.49 0.57 0.57 0.49 0.32; a 9 f drift f18-26 0.02-0.09; f27-29 0.57 1.35 0.99; S **5.85** in one step | charge f6-22 0.02 0.12 0.20 0.22 0.18 0.08 0.15 0.44 0.59 0.61 0.48 0.19 0.15 0.35 0.42 0.36 0.15; hold f23-27 0.09 0.11 0.12 0.11 0.08; release f28-30 **1.90 3.00 3.88**; the jolt f31-32 0.20 0.30; follow-through 0.00-0.05, home 0.05-0.38 |
+| TATAKI | charge f10-26 0.52 0.88 0.45 0.59 0.67 0.76 0.72 0.72 0.72 0.32 0.70 0.70 0.32 0.13 0.29 0.29 0.13; release f27-30 0.95 1.24 **2.87** 2.38 (4 f) | charge f10-24 0.19 0.40 0.39 0.18 0.27 0.64 0.75 0.62 0.26 0.61 0.61 0.61 0.87 0.87 0.87; hold f25-27 0.10 0.16 0.11; release f28-30 **1.18 2.33 3.65**; jolt f31-32 0.20 0.25; follow-through 0.01-0.08, home 0.03-0.18 |
+| ŌMEGURI | charge f8-29 0.04-0.13, then 0.42 0.72 0.87 0.85 0.67 0.34 0.18 0.59 0.81 0.81 0.59 0.33 0.12 (dragged round at 4.5 m); S the spin 5.85 from a standstill | charge f8-22 0.06 0.10 0.11 0.09 0.04 0.28 0.65 0.74 0.60 0.24 0.34 0.79 0.90 0.71 0.29; hold f23-27 0.12 0.19 0.18 0.17 0.11; release f28-30 **0.90 1.72 2.39**, then the spin **5.85** ×4 (f31-34); f35-38 3.61 1.60 0.54 0.53 (on past, slowing); home 0.02-0.42 |
+| AS2a | charge f10-28 0.11 0.20 0.11 0.18 0.46 0.63 0.67 0.55 0.23 0.11 0.28 0.38 0.40 0.32 0.13 0.07 0.15 0.15 0.07; release f29-30 1.99 **3.19** | charge f10-24 0.08 0.18 0.18 0.08 0.19 0.47 0.60 0.53 0.23 0.14 0.37 0.51 0.55 0.46 0.19; hold f25-27 0.13 0.18 0.14; release f28-30 **0.64 1.85 2.71**; the sweep 2.33 ×3; overshoot f34-35 1.63 1.06; home 0.02-0.34 |
+| JIBASHIRI | charge f13-31 0.24 0.52 0.52 0.24 0.09 0.23 0.33 0.37 0.37 0.33 0.23 0.09 0.04 0.09 0.13 0.14 0.13 0.09 0.04; release f32-36 1.91 1.91 1.22 1.60 1.50 (5 f) | charge f13-28 0.05 0.13 0.15 0.13 0.05 0.16 0.41 0.54 0.54 0.41 0.16 0.15 0.36 0.43 0.36 0.15; hold f29-33 0.09 0.15 0.13 0.11 0.07; release f34-36 **5.06** 1.60 1.50; jolt f37-38 0.15 0.15; home 0.01-0.35 |
+
+- `*hs-spins*`: the orb's jerk from the hold, not through the slow charge: TABA / ŌMEGURI clip f19.8 (were 8 / 6), TATAKI / AS2a f24
+  (were 9), JIBASHIRI f28 (was 12); f1 / f2 / turns unchanged.
+- **ŌMEGURI's spin** (the brief's question): the charge's rotation is the drag round to his right (95°, the old wind-up, CW), so
+  its keys are 4.5 clip f apart (smoothstep); the spin itself keeps a key every 90° a clip frame (81° a move frame) through the hit
+  window, so the fast part is one key a quarter. In the strips it reads as a whirl, not as poses: the `%hs-trail` ribbon draws the
+  arc between the keys at 5.85 m a frame (match camera, clip f27 / f32). The release (0.90 / 1.72 / 2.39) grows into it.
+- Its row's r on the charge was 4.5 m throughout (dragged round at full length); it now comes in to 2.9 m (the comment's "hauled in
+  hand over hand" made literal), which keeps the charge under 0.9 m a frame. Deviation from "keep the path": the radius only.
+- **TABA's tail**: K2's old second beat (the body's `:snap` shove at clip f33 and the bundle's tail lashed on at f31-33, the old
+  `hs-r-k2`'s launch window) is gone; the bundle lies on the line and is dragged in slowly, the body rises slowly. A second accent
+  after the slam broke the heavy follow-through. The dead `hs-r-k2` / `hs-r-k3g` (no kit) still play these clips; their `:seg-fn`
+  windows are not on the drawn reach checks.
+- **JIBASHIRI's release** is one 5 m step (overhead → his feet, the body a frame ahead), then the run-out: its peak is the drive, the
+  crack's run (1.6 / 1.5) slower, so the floor contact stays at clip f34 and `%hs-crack` is unchanged.
+- TATAKI's peak charge step (0.87, the climb over his head) stays under the release's first (1.18).
+
+**Checks**: duel-rules 10661 ALL PASS (`bk-moves` on the five: each window's max drawn end equals the edge), control 99 ALL PASS,
+pkgcheck 0 / 0 / 0, debug ranges 0 errors. Debug 83902: `hs-r-n2a` 4.50 4.50 4.45 4.50 | edge 4.50 (line, az 0), `hs-r-n2b` 3.00 2.98
+3.00 2.97 | 3.00 (az 0), `hs-r-n2c` 4.50 ×5 | 4.50, `hs-r-as2` 4.50 ×4 | 4.50 (az 45 / 15 / -15 / -45), `hs-r-as2b` 4.50 4.50 4.48 4.50 |
+4.50 (az 0); the other 60 tip lines (ŌMEGURI and AS2a among them) identical to batch 4c's. 83901 (second pass) TATAKI / AS2a / JIBASHIRI / SOKUDA / SOKUSEN 0 (SHIME /
+絞 stance 80 B as before, untouched clips). The sim unchanged: the scripted smoke (`duel-hisagi-bankai.json`, 90 s) 197 hash / log
+lines identical to 68aa3bc's; `--cvc` 3 PASS. No balance gates (the user's rule). 8-frame strips (side, front, the match camera:
+83529 / 83530 the old K2 / K3G slots at 5.0 m for TABA / ŌMEGURI, 83567-83569 at 4.0 m) reviewed: the coils at clip f25 / f28 / f34
+(TATAKI arched with the bundle over him, AS2a crouched with the bundle on the floor at his left rear, ŌMEGURI wound to his right,
+JIBASHIRI overhead then driven in), the release smears on S. Checked by numbers and strips, needs the user's eyes: the default strip
+frames skip the middle of the holds (S-2 is the first release frame), and TABA's coil sits high behind him, partly hidden by the
+hanging chains from the behind camera.
