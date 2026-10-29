@@ -4907,3 +4907,60 @@ Per link:
 | SA 直刺 (13) | both fists on the bundle at the right hip, drawn slowly back, held coiled f6–10 | rammed out in 2–3 f, level, the blunt end jolting at 4.5 m; recoil |
 | J2 上撈 (19) | the bundle lying near his feet, the body sinking slowly, held low f10–15 | **near to far, rising**: the lash runs from the ground at his feet outward along the line and up, its bend travelling out like a whip's wave, the end cracking up at 4.5 m on S |
 | J3 繞身連枷 (19) | the bundle drawn round his body until it **encircles him** (a full ring at his waist, visible from the match camera), held with a tremble | unwound into the flat sweep **accelerating**: the first 90° slow, the last 90° in 1–2 f on S, the smear widening as it speeds up |
+
+### 28.24 As built: 聚's charge and release (batch 4c, 2026-10-29)
+
+§28.23 on the three 聚 links, **presentation only**: their clips' keys, their bundle rows in `*hs-lashes*`, their `*hs-spins*` rows, their
+trails in `%hs-g-look` and one 83901 sample frame; no move's frames, volumes, damage or hooks. `%hs-lash-tip!` and `%hs-curve!` (every
+lash's) untouched: the rhythm lives in the keys. The bundle's keys: a gap of 4 f or more is smoothstep (the eased charge, the slow
+follow-through), keys a frame apart are linear (the hold's tremble, the release's growing steps). The body's keys ease out per segment
+(`*key-ease*` 1), so each charge starts with a small `:snap` drift key (barely moving), then a larger one (gathering); the hold trembles by
+keys a frame apart (root height / yaw, chest twist, ±1-3); the release is a `:snap` start key and `:s :snap`. Frame 0 still equals the
+predecessor's landing frame exactly (J2's = the SA's f20, J3's = J2's f26: 0.000 m for the bundle, J3's body key recomputed from J2's
+f22-30 easing).
+
+| Link (S/A/R) | Charge | Hold (tremble) | Release | Hit, overshoot | Follow-through |
+|---|---|---|---|---|---|
+| SA 直刺 (13/3/16) | f0-6: from its rest drawn back to his right hip (0.55 m, az -100), the body sinking and turning right | f6-10, ±0.05 m | f10-13: rammed straight out along the line from his hip (polar keys on the straight line) | f13; the lunge overshoots on f14 (root f 0.36), the blunt end jolts up 0.14 m (h 1.29, bend -0.55) | f16 the recoil to 3.75 m, sagging to 3.2 m / 0.5 m up by f26, home by f32 |
+| J2 上撈 (19/3/16) | f0-4 dropped on the floor ahead (bend -1.0), f4-11 dragged in to his feet (1.0 m, laid along the floor, bend -1.5), the body sinking | f11-16, ±0.04 m | f16-19: **near to far, rising**: 1.0 → 1.8 → 3.0 → 4.5 m out, 0.05 → 0.12 → 0.45 → 1.3 m up, the bend lifted behind the end (-0.4 → 0.5 → 0.6) | f19-21 cracked up at 4.5 m (1.3 → 2.35 → 2.95 m up), over the top f22 | sinking back to 3.0 m / 2.6 m up by f26 (J3's frame 0), home by f38 |
+| J3 繞身連枷 (19/3/21) | f0-7 spiralled in counter-clockwise from J2's (slow f0-2, then gathering); f7-13 **once round his waist** from his left rear, 0.88 m, a key each 90° (gaps 2 / 1.5 / 1.3 / 1.2 f: faster each quarter) | f13-16, ±0.04 m; the ring trembles ±0.02 m | f16-19: unwound on round behind him: the first 90° in 2 f (25°, 65°), the last 92° in 1 f (f18-19) | the sweep R → L at 4.5 m, -38 / 0 / +38 on f19-21; on past to +70 (f22) | fallen on the floor at his left (f26-34), dragged back home (f34-43) |
+
+**The bundle end's speed** (m a frame, from the frame before; the host printout of the real interpolation, `*hs-lashes*` as `%hs-lash-tip!`):
+- SA: charge f1-6 0.12 0.27 0.32 0.28 0.19 0.07; hold f7-10 0.06 0.10 0.10 0.06; release f11-13 **0.38 1.94 2.31**; f14-15 0.15 0.18 (the
+  jolt); f16 0.75 (the recoil); f17-26 0.04-0.15; home 0.18-0.55.
+- J2: charge f1-11 0.14 0.31 0.31 0.14 0.12 0.32 0.43 0.47 0.43 0.31 0.12; hold f12-16 0.05 0.08 0.08 0.08 0.03; release f17-19 **0.81 1.26
+  1.73**; f20-21 1.06 0.61 (the crack, decelerating); f22-31 0.41 0.08 0.19 ... 0.11; home 0.12-0.40.
+- J3: charge f1-13 0.18 0.18 0.95 0.86 1.09 0.91 0.81 0.67 0.67 0.88 0.94 1.01 1.07; hold f14-16 0.06 0.12 0.06; release f17-19 **0.51
+  2.27 5.22**; f20-21 2.93 2.93 (the sweep); f22 2.46 (the overshoot); f23-34 0.03-0.42; home 0.26-0.97.
+- The J3 charge runs near 1 m a frame (it has to carry the end ~10 m: in from J2's over the top, then once round him); still a fifth of
+  its release's peak.
+
+**Paths and looks** (`%hs-g-look`, black ink, 0 B):
+- SA: the speed lines and the blunt head as before (f12-17).
+- J2: the floor groove behind the dragged end (f4-17); the rising smear (f17-27, was the vertical ribbon f19-26): the end's path back to
+  f16, a quarter frame a step, so it draws the arc from his feet out along the line and up; each step's width by its speed (full at
+  1.7 m a frame).
+- J3: **the ring** (was 0.5 m, one thin line): 0.88 m round at 1.0-1.04 m, the bundle's thickness (a core 0.12 m wide and two strands
+  twisted round it, 6 twists a turn), from his left rear on round as far as the end has carried it (by the end's az, f7-13), closed
+  through the hold (trembling), unwound from its free end f16-18.5. Readable from the match camera (it stands out past his hips on both
+  sides). The curled smear (f17-26): the end's path 4 f back, an eighth of a frame a step, each step's width by its speed (full at
+  5 m a frame): thin out of the coil, widening into the sweep.
+- `*hs-spins*`: the SA's orb spin from f6 (was 4), J2's from f11 (was 6): from the hold, not through the slow charge; J3's kept (2: the
+  orb turns with the wrap).
+- The fast last 90° of J3's sweep is one key (f18 → f19, linear): it reads as the smear, not as a pose: in the strips the bundle sits
+  behind him at f17-18 and is at -38° on S; the curl draws the arc between.
+
+**Deviations**: the J2 bundle still comes down from the orb above (one cubic, `%hs-curve!`): the "bend travelling out" is the bend keys
+lifting behind the end plus the smear, not a wave along the bundle (`*hs-waves*` bends hanging chains only; the bundle is the eight
+blended onto one cubic). J2's hold is f11-16, not §28.23's f10-15: a hold ending at f15 would leave a 4 f release (the rule's
+last 2-3 f). J3's "first 90° slow" is slow in angle (25°, 65°, then 92° in one frame); in metres it is 0.51 then 2.27 m a frame, the end
+running out from 1.15 to 2.5 m over the same two frames: still rising to the 5.22 peak. J3's hold has the end at his left rear, the ring closed, his fists at his right knee (the ring passes over his
+forearms at the right); the sweep then runs on round behind him (az monotonic from the spiral to the end of the sweep).
+
+**Checks**: duel-rules 10661 ALL PASS, control 99 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0 errors. Debug 83902 `hs-r-sa-g`,
+`hs-r-j2s`, `hs-r-j3g` 4.50 4.50 4.50 | edge 4.50 (az 0 / -2 0 1 / -38 0 38, inside ±45); all 63 tip lines identical to batch 4b's; 83901 (second pass)
+gathered SA / J2 / J3 0, SOKUBEN (J2 f12, the hold and the groove) 0, SOKUTEI (J3 f14, now the ring held trembling) 0 (the 2b line's
+SHIME / 絞 stance 80 B appear after the strips as in batch 4a / 4b's logs, untouched clips). The sim unchanged: the scripted smoke
+(`duel-hisagi-bankai.json`, 90 s) 197 hash / log lines identical to 68aa3bc's; `--cvc` 3 PASS. No balance gates (the user's rule).
+Checked by numbers and 8-frame strips (side, front, the match camera), needs the user's eyes: J2's rising smear is a dashed line from
+the behind camera at 4 m; J3's smear at S is wide where it passes near the camera.
