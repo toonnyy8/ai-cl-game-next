@@ -461,3 +461,11 @@ are its thirds, and the seal lighting (armed) at 200 says when a Burst is possib
 Artifact version 12: B's dark 木瓜 plate (r 6.5 U) is concave under the Reishi ring's gap: 4.5 U across 146–214 deg (the seals'
 inner edge is at 4.75 U), eased back to the rim by 130 / 230 deg, so the three stance seals stand on the scene and the plate no
 longer runs under them.
+
+### 10.5 Draft v7.5: a flat ink surface, the marks back (the user, 2026-10-29)
+
+> (on 「墨面上方那條晃動的深色波紋」) 「對對對！幫我拿掉他」
+
+§10.3's 「墨線」 meant the ink's moving dark surface wave, not the rim marks. Artifact version 13: the wave is gone (the level is
+flat; a Hoho drops it by 100 and dips the seal 0.35 U once instead of sloshing); the 100 / 200 marks are back on the far rim as in
+§10.2 (v7.3 removed them by that misreading).
