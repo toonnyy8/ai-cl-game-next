@@ -42,13 +42,16 @@ NAGE's line at x1 (its flight grows by it: HS-SCALED-TIP), [2] *HS-CHARGE-STEP*.
   (setf (aref fa 1) (+ (aref fa 1) (* (aref *hs-ks* 1) (- (aref *hs-ks* 0) 1f0))))
   nil)
 
+(declaim (type f32vec *hs-lk*))   ; (§28.11: undeclared, every %HS-LK-R read boxed: the stretched links consed 1-6 KB a call)
 (defvar *hs-lk* (make-f32 3)
   "§25.13 (the ranged route links strike the victim where he is, HS-R-LINK-SEG): [0] his distance from Hisagi's feet (m,
 capped at *HS-R-LINK-REACH*), [1] the link's drawn reach as authored (*HS-LK-REACH*), [2] 1 while a link is drawn, else 0.
 %HS-LK-R stretches the link's chain to him. A look.")
 (defparameter *hs-lk-reach*
-  '((:hs-r-j2 6.0) (:hs-r-j3 6.0) (:hs-r-k2s 5.0) (:hs-r-k3 5.0) (:hs-r-k2 5.0) (:hs-r-j2s 6.0) (:hs-r-k3g 5.0) (:hs-r-j3g 6.0))
-  "The ranged route links -> the reach their clips' chains were authored to (§25.3 / §25.5: J 6.0, K 5.0 m).")
+  '((:hs-r-k2s 5.0) (:hs-r-k3 5.0) (:hs-r-k2 5.0) (:hs-r-k3g 5.0) (:hs-r-as3b 5.0) (:hs-r-as3c 5.0))
+  "The ranged moves that chase the victim (HS-R-LINK-SEG) -> the reach their clips' chains were authored to (§25.3 / §25.5:
+J 6.0, K 5.0 m). §28.11 (batch 2a): J2 / J3 / J2s / J3G out (their chase gone since §28.10: drawn to their bands' edges),
+AS3b MAKI / AS3c KAKE in (the core AS3's two chases, authored to 5.0).")
 (defun-fast %hs-lk-set! (on rr pos opos)
   "*HS-LK* := ON (1 / 0), the authored reach RR, the distance from POS to OPOS (capped). 0 B."
   (declare (fixnum on) (single-float rr) (type f32vec pos opos))
@@ -1420,6 +1423,29 @@ A3, §24.3: KAIBAKU-GEKI from its S): the noose thrown off the opponent's neck a
   (setf *hs-chain-black* 0)
   nil)
 
+(defparameter *hs-crack-ds* (coerce (mapcar #'f32 '(0.9 1.25 1.6 1.95 2.3 2.65 3.0 3.35 3.7 4.05 4.4)) 'f32vec)
+  "AS2b JIBASHIRI's crack (§28.11): its zigzag's points, m from his feet along his facing (to its line's 4.5 m).")
+(defun-fast %hs-crack (pos fa)
+  "AS2b 地走 JIBASHIRI's crack (batch 2a, DUEL_HISAGI §28.11; a look, keyed on his clip :hs-k-jibashiri): from clip frame 34
+(the bundle driven in) a black zigzag on the floor runs out along his facing FA[0] from POS (his feet) to 4.4 m by frame 37
+(the hit, S 36, its end on the line's), held, then fades (thinner) by frame 62. 0 B."
+  (declare (type f32vec pos fa))
+  (let* ((f (aref *hs-fr* 0)) (ds *hs-crack-ds*) (yaw (aref fa 0)) (fx (- (f-sin yaw))) (fz (- (f-cos yaw)))
+         (rx (f-cos yaw)) (rz (- (f-sin yaw))) (front (+ 0.9f0 (* 1.2f0 (- f 34f0))))
+         (w (* 0.05f0 (f-clamp (/ (- 62f0 f) 14f0) 0f0 1f0))) (q *hs-q*) (px 0f0) (pz 0f0))
+    (declare (type f32vec ds q) (single-float f yaw fx fz rx rz front w px pz))
+    (when (and (>= f 34f0) (< f 62f0))
+      (dotimes (i 11)
+        (let* ((d (aref ds i)) (off (* (if (evenp i) 0.12f0 -0.12f0) (+ 0.6f0 (* 0.4f0 (hash01 (i->f i) 3.1f0)))))
+               (x (+ (aref pos 0) (* d fx) (* off rx))) (z (+ (aref pos 2) (* d fz) (* off rz))))
+          (declare (single-float d off x z))
+          (when (and (> i 0) (<= d front))
+            (let* ((dx (- x px)) (dz (- z pz)) (l (f-max 1f-3 (f-hypot dx 0f0 dz))))
+              (declare (single-float dx dz l))
+              (setf (aref q 0) (* 0.5f0 (+ x px)) (aref q 2) (* 0.5f0 (+ z pz)))
+              (%hs-black-kite (aref q 0) 0.02f0 (aref q 2) (/ dx l) 0f0 (/ dz l) (* 1.1f0 l) w 0.02f0)))
+          (setf px x pz z)))))
+  nil)
 
 (defun hisagi-draw (e rdt)
   "His :draw hook (on the posed body): the left sickle (in his fist, flying, out at the anchor, returning, let out on its
@@ -1538,12 +1564,15 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                                                         ;  中只要經過尖端的範圍就會起動提示」)
                               (hs-tip-band *hs-g*))))
                 (case cmd (1 1f0) (2 2f0) (t 0f0))))
-        (%hs-car! an (if (eq e *p1*) 0 1) (cdr (assoc cn *hs-spins-v*)) (cdr (assoc cn *hs-bundled-v*)))   ; (A2: the carousel)
+        (%hs-car! an (if (eq e *p1*) 0 1) (cdr (assoc cn *hs-spins-v*))   ; (A2: the carousel; §28.11: a move's own
+                  (cdr (or (and mv (assoc name *hs-bundled-v*)) (assoc cn *hs-bundled-v*))))   ;  bundle first, the gathered SA)
+        (when (and mv (eq cn :hs-k-jibashiri)) (%hs-crack (pos-of e) fa))   ; (§28.11: AS2b's crack along its line)
         (%hs-orb-draw (model-joints m) (pos-of e) fa (pos-of o) (model-joints (model o)) (if (eq e *p1*) 0 1)
                       (cond ((and mv (eq name :hs-b-sp2) (>= sf (mv-s mv))) 3)   ; (A3: KAIBAKU-GEKI's release)
                             ((or (hss-bound st) (logtest cfl 4)) 1) ((eq cn :hs-kb-unwind) 2) (t 0)) (model-tint m)
                       (cdr (assoc cn *hs-bk-chains-v*)) (if (and mv (eq (fighter-contact f) :hit)) 1 0)
-                      (cdr (assoc cn *hs-lashes-v*)) (and (hss-bound st) (cdr (assoc cn *hs-kb-grips-v*))))))))
+                      (cdr (or (and mv (assoc name *hs-lashes-v*)) (assoc cn *hs-lashes-v*)))   ; (§28.11: a move's own first)
+                      (and (hss-bound st) (cdr (assoc cn *hs-kb-grips-v*))))))))
 
 (defun hs-tip-fx (att def x y z &rest more)
   "His :hit-fx hook (FEEDBACK-SYSTEM, after the hit's spark; DUEL_HISAGI §25.26): a hit on the chain tip (HS-DMG-MULT's

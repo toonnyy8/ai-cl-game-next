@@ -216,9 +216,12 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
                                   (:hs-kb-sengen :sickle 2.2)                                                   ;  §25.10,
                                   (:hs-kb-makigiri :chain 2.8) (:hs-kb-shibori :chain 2.95)                     ;  the bind's)
                                   (:hs-k-hosoku :chain 4.5) (:hs-k-s-k2 :chain 4.5) (:hs-k-s-k3 :chain 4.5)    ; (A2, §24.2: the
-                                  (:hs-k-g-k2 :chain 4.5) (:hs-k-g-j2 :chain 6.0) (:hs-k-g-k3 :chain 4.5)     ;  ranged route
-                                  (:hs-k-g-j3 :chain 6.0)                                                     ;  links, *HS-LASHES*; §25.3 / §25.5: J 6, K 5; §25.34: J 7, K 5.5;
-                                                                                ;  §25.35: J 6, K 4.5)
+                                  (:hs-k-g-k2 :chain 4.5) (:hs-k-g-j2 :chain 4.5) (:hs-k-g-k3 :chain 4.5)     ;  ranged route
+                                  (:hs-k-g-j3 :chain 4.5)                                                     ;  links, *HS-LASHES*; §25.3 / §25.5: J 6, K 5; §25.34: J 7, K 5.5;
+                                                                                ;  §25.35: J 6, K 4.5; §28.11: the gathered J 4.5)
+                                  (:hs-k-uchi :chain 6.0) (:hs-k-ogi :chain 6.0) (:hs-k-issei :chain 6.0)       ; (batch 2a, §28.11:
+                                  (:hs-k-ransa :chain 6.0) (:hs-k-tataki :chain 3.0) (:hs-k-sweep :chain 4.5)   ;  the core ranged
+                                  (:hs-k-jibashiri :chain 4.5)                                                  ;  mode's own clips)
                                   (:hs-k-saharai :chain 3.0) (:hs-kb-kojo :sickle 3.0) (:hs-kb-kaibaku :sickle 3.0))   ; (A3, §24.3)
   "Clip -> what strikes, and its drawn reach (m, the hit volume's far edge: line end + radius, or the arc's): the left
 sickle thrown on its chain, drawn by HISAGI-DRAW with its point there on the hit frames (*HS-FLIGHTS*), a sickle let out
@@ -1576,6 +1579,224 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (26 :hs-k-gj3-hit (:root :yaw 66 :u -0.18) (:chest :twist 36) (:arm-r :flex 100 :side 66))
   (:end :hs-k-stance))
 
+;;; Batch 2a (DUEL_HISAGI §28.9 / §28.11, the user's 「可以」 on the plan): the core ranged mode's own clips, each at its move's
+;;; frames (the moves' :clip-s their S, speed 1; the first :enter frames never shown), the windups big and held inside the
+;;; startups (「記得動作要配合誇張而明顯的前搖」), the drawn tips on the bands' far edges (§28.7: 散 6.0 m, 聚 4.5 m; the close pushes
+;;; 3.0 m) on the hit frames (*HS-LASHES*, *HS-BK-CHAINS*). Planes and hands, so no two strikes share both: OGI the right arm
+;;; overhead (vertical), ISSEI both arms swept in from behind (level, converging), RANSA a right then a left oblique and both
+;;; arms scissored down and out, UCHI a right underhand flick (rising), TATAKI the left arm's vertical wheel at his left
+;;; (one hand; TABA is both fists over the right shoulder), the AS2a sweep the right backhand along the floor L -> R (the left
+;;; hand planted), JIBASHIRI both fists driven straight down in a kneel, MAKI both hands reeling, KAKE the heave over the
+;;; right shoulder, turned away.
+;; 聚 stance (pointer 2): sunk, turned to his right, the hanging chains bound into one bundle (*HS-BUNDLED*) run down his
+;; right side, the right fist low on it at his hip, the left crossed over gripping it higher (散's stance: upright, the arms
+;; hanging, the eight chains loose round him)
+(defpose :hs-k-st-shu (:base :hs-k-stance)
+  (:root :u -0.16 :yaw -18) (:pelvis :twist -8) (:spine :flex 14) (:chest :twist -14) (:neck :twist 14) (:head :flex 2)
+  (:arm-r :flex 22 :side 30 :twist 0) (:elbow-r :flex 44) (:hand-r :flex -60)
+  (:arm-l :flex 56 :side -20 :twist 0) (:elbow-l :flex 96) (:hand-l :flex -40)
+  (:thigh-l :flex 30 :side 10) (:knee-l :flex 36) (:thigh-r :flex -10 :side 12) (:knee-r :flex 30))
+(defclip :hs-k-st-shu (2.0 :loop t :base :hs-k-st-shu)
+  (0) (1.0 (:root :u -0.18) (:chest :twist -16) (:spine :flex 15)))
+;; SA 打 UCHI (10/3/13; spread 3-6 m 100 deg, the gathered copy 2.5-4.5 m 90 deg at S 13, the same clip at 10/13): the
+;; quick flick: the right fist dropped back low by his hip, a dip (f3-8); on S the wrist flicked up and out, the nearest
+;; hanging chain (the gathered: the bundle, keyed on the move) snapped out along the line
+(defpose :hs-k-uchi-up (:base :hs-k-stance)
+  (:root :u -0.12 :f -0.04 :yaw -14) (:spine :flex 10) (:chest :twist -22) (:neck :twist 14)
+  (:arm-r :flex -40 :side 30 :twist 0) (:elbow-r :flex 70) (:hand-r :flex -30)
+  (:arm-l :flex 30 :side 20 :twist 0) (:elbow-l :flex 50) (:hand-l :flex -60)
+  (:thigh-r :flex -16 :side 8) (:knee-r :flex 30) (:thigh-l :flex 24 :side 8) (:knee-l :flex 20))
+(defpose :hs-k-uchi-hit (:base :hs-k-stance)
+  (:root :f 0.12 :u -0.1 :yaw 10) (:spine :flex 12) (:chest :twist 16) (:head :flex 0)
+  (:arm-r :flex 76 :side 18 :twist 0) (:elbow-r :flex 6) (:hand-r :flex -110)
+  (:arm-l :flex -20 :side 26 :twist 0) (:elbow-l :flex 40) (:hand-l :flex -70)
+  (:thigh-l :flex 40 :side 8) (:knee-l :flex 36) (:thigh-r :flex -24 :side 10) (:knee-r :flex 14))
+(defstrike :hs-k-uchi (10 3 13 :base :hs-k-stance)
+  (0)
+  (4 :hs-k-uchi-up)
+  (8 :hs-k-uchi-up (:root :u -0.14 :yaw -18) (:arm-r :flex -46) (:elbow-r :flex 76))              ; held at the bottom
+  (:s :snap :hs-k-uchi-hit)
+  (:a :hs-k-uchi-hit (:arm-r :flex 98) (:hand-r :flex -80))                                        ; through, rising
+  (20 :hs-k-uchi-hit (:root :f 0.1) (:arm-r :flex 90) (:elbow-r :flex 20))
+  (:end :hs-k-stance))
+;; NS1b 扇 OGI (21/4/24, link f4; 3-6 m, 60 deg): out of WA's haul (its clip's end, f4), the whip-crack: the right arm swung up
+;; and far back over his shoulder, arched, coiled to his right, the left hand pointing (held f10-18), four hanging chains
+;; hauled up high behind him; cracked down on S over the front knee, the four whipping the ground in a 60 deg fan at 6.0 m
+(defstrike :hs-k-ogi (21 4 24 :base :hs-k-stance)
+  (0 :hs-k-stance (:root :u -0.08) (:spine :flex 2) (:elbows :flex 50))
+  (4 :hs-k-stance (:root :u -0.08) (:spine :flex 2) (:elbows :flex 50))
+  (10 :hs-k-sk2-up)
+  (18 :hs-k-sk2-up (:root :yaw -26) (:spine :flex -26) (:arm-r :flex 168 :side 38))                     ; held
+  (:s :snap :hs-k-sk2-hit)
+  (:a :hs-k-sk2-hit (:root :u -0.3) (:spine :flex 40) (:arm-r :flex 56))
+  (32 :hs-k-sk2-hit (:root :u -0.28) (:spine :flex 38) (:arm-r :flex 58))
+  (:end :hs-k-stance))
+;; NS1c 一斉 ISSEI (21/5/34, link f7; 3-6 m, 160 deg, knockdown): the curtain drawn back: both arms flung back and wide, the
+;; chest thrown out, arched, all eight hanging chains hauled back high behind him (held f11-19); on S both arms swept in and
+;; forward together, a lunge onto the front foot, the eight lashed forward in a 160 deg fan at 6.0 m, settling to the floor
+(defstrike :hs-k-issei (21 5 34 :base :hs-k-stance)
+  (0)
+  (7 :hs-k-stance (:root :u -0.04))
+  (11 :hs-k-sk3-up)
+  (19 :hs-k-sk3-up (:spine :flex -30) (:arms :flex -60 :side 70))                                       ; held
+  (:s :snap :hs-k-sk3-hit)
+  (:a :hs-k-sk3-hit (:root :u -0.28) (:spine :flex 32) (:arms :flex 80 :side 60))
+  (38 :hs-k-sk3-hit (:root :u -0.26) (:spine :flex 30) (:arms :flex 76 :side 58))
+  (:end :hs-k-stance))
+;; AS1 乱鎖 RANSA (21/5/34, f6 on; 3-6 m, 160 deg, knockdown): the tell: both arms crossed high over his head, arched back,
+;; the hanging chains hauled up overhead (held f12-19); the flurry through the hit window: the right arm's oblique lash high
+;; right to low left (S), the left's mirrored (f23), then both arms scissored down and out (f25), each its own chains at
+;; 6.0 m in turn
+(defpose :hs-k-ransa-up (:base :hs-k-stance)
+  (:root :u -0.06 :f -0.1) (:spine :flex -20) (:chest :twist 0) (:head :flex -14)
+  (:arm-r :flex 166 :side -22 :twist 0) (:elbow-r :flex 40) (:hand-r :flex -40)
+  (:arm-l :flex 166 :side -22 :twist 0) (:elbow-l :flex 40) (:hand-l :flex -40)
+  (:thigh-l :flex 20 :side 10) (:knee-l :flex 14) (:thigh-r :flex -16 :side 10) (:knee-r :flex 22))
+(defpose :hs-k-ransa-r (:base :hs-k-stance)
+  (:root :f 0.12 :u -0.14 :yaw 16) (:spine :flex 22) (:chest :twist 26) (:head :flex -4)
+  (:arm-r :flex 104 :side 44 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -90)
+  (:arm-l :flex 140 :side 8 :twist 0) (:elbow-l :flex 60) (:hand-l :flex -40)
+  (:thigh-l :flex 40 :side 8) (:knee-l :flex 40) (:thigh-r :flex -22 :side 10) (:knee-r :flex 16))
+(defpose :hs-k-ransa-l (:base :hs-k-stance)
+  (:root :f 0.14 :u -0.16 :yaw -16) (:spine :flex 24) (:chest :twist -26) (:head :flex -4)
+  (:arm-l :flex 104 :side 44 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -90)
+  (:arm-r :flex -30 :side 34 :twist 0) (:elbow-r :flex 40) (:hand-r :flex -70)
+  (:thigh-r :flex 40 :side 8) (:knee-r :flex 40) (:thigh-l :flex -22 :side 10) (:knee-l :flex 16))
+(defpose :hs-k-ransa-x (:base :hs-k-stance)
+  (:root :f 0.2 :u -0.26) (:spine :flex 32) (:chest :twist 0) (:head :flex -8)
+  (:arms :flex 62 :side 70) (:elbows :flex 2) (:hands :flex -90)
+  (:thigh-l :flex 52 :side 12) (:knee-l :flex 54) (:thigh-r :flex -28 :side 12) (:knee-r :flex 16))
+(defstrike :hs-k-ransa (21 5 34 :base :hs-k-stance)
+  (0)
+  (6 :hs-k-stance (:root :u -0.04))
+  (12 :hs-k-ransa-up)
+  (19 :hs-k-ransa-up (:spine :flex -26) (:head :flex -18) (:arm-r :flex 174) (:arm-l :flex 174))       ; held
+  (:s :snap :hs-k-ransa-r)
+  (22 :hs-k-ransa-r (:root :yaw 24) (:chest :twist 34) (:arm-r :flex 124 :side 30))                    ; through, to his left
+  (23 :snap :hs-k-ransa-l)
+  (24 :hs-k-ransa-l (:root :yaw -24) (:chest :twist -34) (:arm-l :flex 124 :side 30))
+  (25 :snap :hs-k-ransa-x)
+  (:a :hs-k-ransa-x (:root :u -0.28) (:spine :flex 36) (:arms :flex 56 :side 76))
+  (38 :hs-k-ransa-x (:root :u -0.26) (:spine :flex 34) (:arms :flex 58 :side 74))
+  (:end :hs-k-stance))
+;; NS2b 叩 TATAKI (30/10/27, link f9; 0-3 m, 90 deg, the push): the left arm's wheel at his left: the bundle swung down and back
+;; (f14), up and over his head as he rises on his toes, arched (f20-26, held), then brought over the top and smashed down
+;; right in front at 3.0 m as he drops into a deep squat (S); the right fist stays at his chest
+(defpose :hs-k-tataki-low (:base :hs-k-stance)
+  (:root :u -0.14 :yaw 30) (:spine :flex 16) (:chest :twist 24) (:neck :twist -16) (:head :flex 6)
+  (:arm-l :flex -52 :side 22 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -80)
+  (:arm-r :flex 60 :side -10 :twist 0) (:elbow-r :flex 110) (:hand-r :flex -40)
+  (:thigh-l :flex -16 :side 10) (:knee-l :flex 30) (:thigh-r :flex 30 :side 8) (:knee-r :flex 28))
+(defpose :hs-k-tataki-up (:base :hs-k-stance)
+  (:root :u 0.04 :f -0.06 :yaw 14) (:spine :flex -20) (:chest :twist 10) (:neck :twist -8) (:head :flex -16)
+  (:arm-l :flex 176 :side 12 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -40)
+  (:arm-r :flex 60 :side -10 :twist 0) (:elbow-r :flex 110) (:hand-r :flex -40)
+  (:thigh-l :flex 14 :side 8) (:knee-l :flex 6) (:thigh-r :flex -14 :side 8) (:knee-r :flex 10))
+(defpose :hs-k-tataki-hit (:base :hs-k-stance)
+  (:root :f 0.16 :u -0.42 :yaw -4) (:spine :flex 46) (:chest :twist -8) (:head :flex -10)
+  (:arm-l :flex 66 :side 6 :twist 0) (:elbow-l :flex 0) (:hand-l :flex -80)
+  (:arm-r :flex 40 :side 34 :twist 0) (:elbow-r :flex 90) (:hand-r :flex -40)
+  (:thigh-l :flex 66 :side 14) (:knee-l :flex 84) (:thigh-r :flex -8 :side 16) (:knee-r :flex 64))
+(defstrike :hs-k-tataki (30 10 27 :base :hs-k-stance)
+  (0)
+  (9 :hs-k-stance (:root :u -0.06))
+  (14 :hs-k-tataki-low)
+  (20 :hs-k-tataki-up)
+  (26 :hs-k-tataki-up (:spine :flex -26) (:head :flex -20) (:arm-l :flex 190))                          ; held at the top
+  (28 :hs-k-tataki-up (:root :u -0.04) (:spine :flex -6) (:arm-l :flex 130))                            ; over
+  (:s :snap :hs-k-tataki-hit)
+  (34 :hs-k-tataki-hit (:root :u -0.44) (:spine :flex 48) (:arm-l :flex 60))                            ; the impact hold
+  (:a :hs-k-tataki-hit (:root :u -0.42) (:spine :flex 44))
+  (52 :hs-k-stance (:root :u -0.16) (:spine :flex 14))
+  (:end :hs-k-stance))
+;; AS2a 叩 (30/10/27, f9 on; 2.5-4.5 m, 90 deg): the low backhand: wound to his left, crouched, the right fist across his body
+;; by his left knee, the left hand down to the floor (held f22-28); on S unwound to his right, the right arm swept out low
+;; and across, the bundle dragged flat along the floor L -> R through the 90 deg at 4.5 m (f30-33)
+(defpose :hs-k-sweep-up (:base :hs-k-stance)
+  (:root :u -0.34 :yaw 50) (:pelvis :twist 12) (:spine :flex 30) (:chest :twist 40) (:neck :twist -30) (:head :flex -4)
+  (:arm-r :flex 60 :side -34 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -80)
+  (:arm-l :flex 40 :side 40 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -60)
+  (:thigh-l :flex 56 :side 14) (:knee-l :flex 76) (:thigh-r :flex 4 :side 18) (:knee-r :flex 62))
+(defpose :hs-k-sweep-hit (:base :hs-k-stance)
+  (:root :u -0.3 :f 0.06 :yaw 12) (:pelvis :twist 4) (:spine :flex 28) (:chest :twist 4) (:neck :twist -6) (:head :flex -4)
+  (:arm-r :flex 112 :side 66 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -90)
+  (:arm-l :flex 30 :side 46 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -60)
+  (:thigh-l :flex 50 :side 14) (:knee-l :flex 64) (:thigh-r :flex 0 :side 18) (:knee-r :flex 56))
+(defstrike :hs-k-sweep (30 10 27 :base :hs-k-stance)
+  (0)
+  (9 :hs-k-stance (:root :u -0.06))
+  (16 :hs-k-sweep-up)
+  (28 :hs-k-sweep-up (:root :u -0.38 :yaw 56) (:chest :twist 46))                                       ; held
+  (:s :snap :hs-k-sweep-hit)
+  (33 :hs-k-sweep-hit (:root :yaw -30) (:chest :twist -30) (:arm-r :flex 30 :side 80))                  ; through, to his right
+  (:a :hs-k-sweep-hit (:root :yaw -36) (:chest :twist -34) (:arm-r :flex 20 :side 80))
+  (54 :hs-k-stance (:root :u -0.14) (:spine :flex 12))
+  (:end :hs-k-stance))
+;; AS2b 地走 JIBASHIRI (hit 36/4/27, S 30, f12 on; a line to 4.5 m, knockdown): both fists heave the bundle up over his head,
+;; risen, arched (held f24-31); driven straight down into the floor at his feet as he drops to one knee (f34), the bundle's
+;; end run out along the floor to 4.5 m (S 36) with the crack (HISAGI-DRAW's %HS-CRACK), left lying, hauled back
+(defpose :hs-k-jib-up (:base :hs-k-stance)
+  (:root :u 0.02 :f -0.06) (:spine :flex -16) (:chest :twist 0) (:head :flex -12)
+  (:arms :flex 170 :side 8) (:elbows :flex 30) (:hands :flex -40)
+  (:thigh-l :flex 16 :side 8) (:knee-l :flex 8) (:thigh-r :flex -12 :side 8) (:knee-r :flex 10))
+(defpose :hs-k-jib-hit (:base :hs-k-stance)
+  (:root :f 0.12 :u -0.52) (:spine :flex 50) (:chest :twist 0) (:head :flex -14)
+  (:arms :flex 48 :side 8) (:elbows :flex 4) (:hands :flex -90)
+  (:thigh-l :flex 80 :side 10) (:knee-l :flex 96) (:thigh-r :flex -14 :side 12) (:knee-r :flex 104))
+(defstrike :hs-k-jibashiri (36 4 27 :base :hs-k-stance)
+  (0)
+  (12 :hs-k-stance (:root :u -0.06))
+  (24 :hs-k-jib-up)
+  (31 :hs-k-jib-up (:spine :flex -22) (:arms :flex 178))                                                ; held
+  (34 :snap :hs-k-jib-hit)                                                                              ; driven in
+  (:s :hs-k-jib-hit (:root :u -0.54) (:spine :flex 52))
+  (:a :hs-k-jib-hit (:root :u -0.52) (:spine :flex 50))
+  (52 :hs-k-stance (:root :u -0.2) (:spine :flex 18))
+  (:end :hs-k-stance))
+;; AS3b 巻 MAKI (27/10/24, f12 on; the chain to him up to 7 m, HS-R-LINK-SEG): both hands reeling in front of his chest, a key
+;; every 3 f (the wind-up); the chain cast at him and spiralled round him on S (two turns rising, two strands, a key every
+;; 90 deg; *HS-LK-REACH*: drawn to where he is), held wound, let go in the recovery
+(defpose :hs-k-maki-a (:base :hs-k-stance)
+  (:root :u -0.16 :f 0.04) (:spine :flex 14) (:chest :twist -6) (:head :flex 0)
+  (:arm-r :flex 80 :side 10 :twist 0) (:elbow-r :flex 60) (:hand-r :flex -60)
+  (:arm-l :flex 50 :side 16 :twist 0) (:elbow-l :flex 104) (:hand-l :flex -30)
+  (:thigh-l :flex 36 :side 10) (:knee-l :flex 36) (:thigh-r :flex -14 :side 12) (:knee-r :flex 26))
+(defpose :hs-k-maki-b (:base :hs-k-maki-a)
+  (:chest :twist 6) (:arm-r :flex 50 :side 16) (:elbow-r :flex 104) (:arm-l :flex 80 :side 10) (:elbow-l :flex 60))
+(defstrike :hs-k-maki (27 10 24 :base :hs-k-stance)
+  (0)
+  (12 :hs-k-stance (:root :u -0.06))
+  (15 :hs-k-maki-a) (18 :hs-k-maki-b) (21 :hs-k-maki-a) (24 :hs-k-maki-b (:root :u -0.2))
+  (:s :hs-k-maki-a (:root :u -0.2 :f 0.08) (:arm-r :flex 92))
+  (30 :hs-k-maki-b (:root :u -0.2 :f 0.08))
+  (33 :hs-k-maki-a (:root :u -0.2 :f 0.08))
+  (:a :hs-k-maki-b (:root :u -0.2 :f 0.06))
+  (50 :hs-k-stance (:root :u -0.1))
+  (:end :hs-k-stance))
+;; AS3c 掛 KAKE (24/4/30, f8 on; the chain to him up to 7 m; a hit arms the bind): he turns away to his left, both fists up on
+;; the neck bundle's tail at his right shoulder (f8-22); the heave on S: his back to the opponent, bent double into it, the
+;; chain yanked taut over his right shoulder to him (hooked round his neck on a hit: *HS-BK-CHAINS* src 8), then turned back
+(defpose :hs-k-kake-grip (:base :hs-k-stance)
+  (:root :u -0.1 :yaw 60) (:spine :flex 4) (:chest :twist 40) (:neck :twist -40) (:head :flex 0)
+  (:arm-r :flex 150 :side -12 :twist 0) (:elbow-r :flex 110) (:hand-r :flex -30)
+  (:arm-l :flex 130 :side -40 :twist 0) (:elbow-l :flex 100) (:hand-l :flex -30)
+  (:thigh-l :flex 20 :side 10) (:knee-l :flex 20) (:thigh-r :flex -10 :side 10) (:knee-r :flex 16))
+(defpose :hs-k-kake-hit (:base :hs-k-stance)
+  (:root :u -0.3 :yaw 150) (:spine :flex 50) (:chest :twist 16) (:neck :twist -10) (:head :flex 10)
+  (:arm-r :flex 96 :side -4 :twist 0) (:elbow-r :flex 124) (:hand-r :flex -40)
+  (:arm-l :flex 80 :side -30 :twist 0) (:elbow-l :flex 110) (:hand-l :flex -40)
+  (:thigh-l :flex 54 :side 12) (:knee-l :flex 50) (:thigh-r :flex -20 :side 12) (:knee-r :flex 30))
+(defstrike :hs-k-kake (24 4 30 :base :hs-k-stance)
+  (0)
+  (8 :hs-k-stance (:root :u -0.06))
+  (16 :hs-k-kake-grip)
+  (22 :hs-k-kake-grip (:root :yaw 76 :u -0.14) (:spine :flex -8) (:arm-r :flex 160) (:arm-l :flex 140))   ; held, coiled
+  (:s :snap :hs-k-kake-hit)
+  (:a :hs-k-kake-hit (:root :u -0.34) (:spine :flex 56))
+  (38 :hs-k-kake-hit (:root :u -0.3 :yaw 140) (:spine :flex 48))
+  (48 :hs-k-stance (:root :u -0.14 :yaw 40) (:spine :flex 16))
+  (:end :hs-k-stance))
+
 ;;; The bind mode (§17.3; motion-refs §3.3): melee, both necks noosed to the orb
 ;; the bind's stance and walk (§22.1, batch A2: 「the crescents gripped, a low forward stance, the noose taut」): sunk low
 ;; over bent knees, leaning in, both crescents gripped up ahead of him (the right at his chest, the left low), his left
@@ -1893,7 +2114,8 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:end :hs-k-stance))
 
 (defparameter *hs-bk-chains*
-  '((:hs-k-sensa 6 2 13 16 20 28 5.9 0.8 -100 40 0.6 0)        ; J3: the hanging chain at his right swept round (§25.3: 5.9; §25.34's 6.9, back)
+  '((:hs-k-sensa 6 2 13 16 20 28 5.9 0.8 -50 40 0.6 0)         ; J3: the hanging chain at his right swept round (§25.3: 5.9; §25.34's 6.9, back;
+                                                                ;  §28.11: from -50, inside J5's 100 deg, was -100)
     ;; (B4a, §22.2: TSUISA's lance, NAGISA's reap, RAKUSA's line drops removed; B4c's route links play those clips as
     ;; stand-ins, their chains drawn by B4b)
     ;; (A3, §24.3: L SAHARAI's ring is a lash now, *HS-LASHES*)
@@ -1910,6 +2132,8 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
     (:hs-k-ame 9 0 40 44 48 58 10.9 0.05 -2 -2 0 0)
     (:hs-k-kosa 8 0 20 22 28 38 10.0 1.2 0 0 0 8)            ; O: the neck bundle whipped down the lane
     (:hs-k-kubikake 0 2 24 28 36 50 7.35 1.1 0 0 0 3)          ; P: the left front one whirled overhead, cast (hooked)
+    (:hs-k-kake 8 10 24 28 36 50 5.0 1.5 0 0 0 9)             ; §28.11 AS3c KAKE: the neck bundle's tail into his left fist, then
+                                                              ;  taut over his right shoulder to him (hooked on a hit; *HS-LK-REACH*)
     (:hs-kb-makigiri 2 6 20 24 30 40 2.8 0.95 70 -70 0 8)    ; the bind's K2: a left one flung across at the chest
     (:hs-kb-shibori 9 8 22 27 40 52 2.95 0.05 22 22 0 0)       ; K3: two dropped out of the orb, cinching
     (:hs-kb-shibori 9 8 22 27 40 52 2.95 0.05 -22 -22 0 0))
@@ -1950,16 +2174,57 @@ for the links).")
      (30 4.5 0.8 250 0 0.3) (31 4.5 0.8 340 0 0.3) (34 4.32 0.6 380 0 0) (42 3.96 0.3 400 0 -0.4))
     (:hs-k-g-j2 256 0 1.0 1 30                      ; gathered J2: the bundle cocked back by his right hip, lashed straight
      (5 1.0 1.2 -120 0 0) (13 1.5 1.5 -140 0 0.2) (15 1.2 1.6 -100 0 0)        ;  down the line at the chest, a wave along it
-     (16 6.0 1.0 0 0 0.6) (17 6.0 1.0 0 0 -0.4) (18 6.0 1.0 0 0 0.25) (20 5.8 0.9 0 0 -0.15))
+     (16 4.5 1.0 0 0 0.6) (17 4.5 1.0 0 0 -0.4) (18 4.5 1.0 0 0 0.25) (20 4.35 0.9 0 0 -0.15))   ; (§28.11: 4.5, was 6.0)
     (:hs-k-g-j3 256 0 1.0 1 36                      ; gathered J3: the bundle drawn round behind his right, swept flat
-     (5 2.0 0.9 -100 0 0) (13 2.6 0.9 -135 0 0.2) (15 2.8 0.9 -140 0 0)        ;  through the front half at 6.0 m
-     (16 6.0 0.8 -90 0 0.3) (17 6.0 0.8 0 0 0.3) (18 6.0 0.8 90 0 0.3) (20 5.6 0.7 130 0 0) (24 5.4 0.5 140 0 -0.3))
+     (5 2.0 0.9 -100 0 0) (13 2.6 0.9 -135 0 0.2) (15 2.8 0.9 -140 0 0)        ;  through the front at 4.5 m (§28.11: J5's 90 deg
+     (16 4.5 0.8 -40 0 0.3) (17 4.5 0.8 5 0 0.3) (18 4.5 0.8 50 0 0.3) (20 4.2 0.7 110 0 0) (24 4.0 0.5 130 0 -0.3))   ;  on the hit frames, was 6.0 m -90..90)
     (:hs-k-saharai 255 0.2 0.9 0 52                 ; A3 (§24.3; §25.7: S 18): L SAHARAI, all eight wrapped in tight round
      (4 0.7 1.5 20 45 0) (8 0.6 1.4 80 45 0.1) (12 0.55 1.3 170 45 0.2)        ;  him and whirled faster and faster (the charge,
      (15 0.5 1.25 280 45 0.25) (17 0.5 1.2 380 45 0.3)                         ;  f4-17), lashed out in a ring to 3.0 m on S
      (18 3.0 1.0 400 45 0.7) (19 3.0 0.95 415 45 0.5) (21 3.0 0.85 435 45 0.3) ;  (f18-21), fallen to the floor (the impact
      (22 3.0 0.7 440 45 0.1) (26 2.9 0.1 448 45 -0.4) (34 2.4 0.05 452 45 -0.6) ;  hold), dragged in along it as he hauls,
-     (42 1.6 0.4 456 45 -0.2)))                                                 ;  lifted back into the curtain by f52
+     (42 1.6 0.4 456 45 -0.2))                                                  ;  lifted back into the curtain by f52
+    ;; batch 2a (§28.11): the core ranged mode's own clips, the tips on the bands' far edges on the hit frames
+    (:hs-k-st-shu 256 0 1.1 0 9999                  ; 聚 stance: the bundle run down his right side past the fist, its end on
+     (0 0.85 0.12 -60 0 0) (9999 0.85 0.12 -60 0 0))                            ;  the floor by his right foot
+    (:hs-k-uchi 128 0 0.9 2 24                      ; SA 打: the front-right hanging chain flicked out along the line to 6.0
+     (4 1.3 0.5 -80 0 0) (8 1.0 1.4 -110 0 0.3) (9 3.0 1.5 -40 0 0.6)
+     (10 6.0 1.0 4 0 0.6) (11 6.0 0.95 2 0 -0.3) (12 6.0 0.95 0 0 0.2) (13 6.0 0.9 0 0 0) (16 5.6 0.6 0 0 -0.3))
+    (:hs-r-sa-g 256 0 1.0 2 24                      ; the gathered SA (keyed on the move, its clip UCHI's at 10/13): the
+     (4 1.0 0.6 -70 0 0) (8 0.9 1.6 -110 0 0.3) (9 2.4 1.5 -40 0 0.5)           ;  bundle flicked out to 4.5
+     (10 4.5 1.0 4 0 0.5) (11 4.5 0.95 2 0 -0.3) (12 4.5 0.9 0 0 0.2) (13 4.5 0.9 0 0 0) (16 4.2 0.6 0 0 -0.3))
+    (:hs-k-ogi 102 0.34 0.8 7 44                    ; NS1b 扇: hanging chains 1 2 5 6 hauled up behind him, over the top,
+     (10 1.5 2.8 140 27 0) (17 1.7 3.6 145 27 0.3) (19 0.6 4.6 150 27 0)        ;  whipped onto the ground in a 60 deg fan at 6.0
+     (20 3.2 3.4 30 -20 1.0) (21 6.0 0.05 30 -20 0.8) (24 6.0 0.05 30 -20 -0.6) (30 5.76 0.05 30 -20 -0.8))
+    (:hs-k-issei 255 0.45 0.85 8 52                 ; NS1c 一斉: all eight drawn back high behind him, lashed forward in a
+     (11 1.7 2.6 110 20 0) (18 2.0 3.0 112 20 0.3) (20 2.2 2.8 114 20 0)       ;  160 deg fan at 6.0 (a third of a frame apart)
+     (21 6.0 0.9 80 -22.857 0.6) (25 6.0 0.8 80 -22.857 0.2) (34 5.5 0.25 80 -22.857 -0.6))
+    (:hs-k-ransa 192 0.3 0.8 6 40                   ; AS1 乱鎖: the right two (6 7) with the right arm, high right to low left
+     (12 1.4 2.6 -120 15 0.2) (19 1.6 3.2 -130 15 0.3) (20 3.4 2.6 -60 15 0.6)
+     (21 6.0 1.4 -35 15 0.5) (22 6.0 0.5 10 15 0.3) (24 5.8 0.1 30 15 -0.4) (30 5.4 0.05 30 15 -0.7))
+    (:hs-k-ransa 6 0.3 0.8 6 42                     ;  the left two (1 2) with the left arm, mirrored (f23)
+     (12 1.4 2.6 120 -15 0.2) (19 1.6 3.2 130 -15 0.3) (22 3.4 2.6 60 -15 0.6)
+     (23 6.0 1.4 35 -15 0.5) (24 6.0 0.5 -10 -15 0.3) (26 5.8 0.1 -30 -15 -0.4) (32 5.4 0.05 -30 -15 -0.7))
+    (:hs-k-ransa 57 0.25 0.9 8 50                   ;  the other four (0 3 4 5) with both arms, a V fan (f25)
+     (12 1.6 3.4 160 -106.67 0.2) (24 1.8 3.8 160 -106.67 0.3)
+     (25 6.0 0.6 70 -46.67 0.6) (26 6.0 0.3 70 -46.67 0.2) (28 6.0 0.1 70 -46.67 -0.4) (36 5.5 0.05 70 -46.67 -0.7))
+    (:hs-k-tataki 256 0 1.0 9 64                    ; NS2b 叩: the bundle wheeled at his left, over the top, smashed at 3.0
+     (12 1.0 0.8 60 0 0) (15 1.5 0.5 150 0 0.2) (18 1.3 2.6 170 0 0.4) (22 1.0 4.6 175 0 0.5)
+     (26 0.7 5.4 170 0 0.4) (28 1.4 4.6 60 0 0.6) (29 2.4 2.4 10 0 0.6) (30 3.0 0.15 0 0 0.8)
+     (32 3.0 0.1 0 0 0.2) (34 3.0 0.1 0 0 -0.4) (40 2.9 0.05 0 0 -0.8) (52 2.2 0.05 0 0 -1.0))
+    (:hs-k-sweep 256 0 1.0 9 64                     ; AS2a 叩: the bundle drawn round to his left, swept along the floor
+     (12 1.2 0.5 -40 0 0) (18 1.6 0.3 70 0 -0.2) (24 2.0 0.2 120 0 -0.3)        ;  L -> R at 4.5 (f30-33, +45 .. -45)
+     (28 2.4 0.2 125 0 -0.3) (29 3.4 0.2 90 0 0.2) (30 4.5 0.15 45 0 0.4) (31 4.5 0.12 15 0 0.3)
+     (32 4.5 0.12 -15 0 0.3) (33 4.5 0.15 -45 0 0.2) (35 4.3 0.2 -80 0 0) (42 3.8 0.1 -100 0 -0.4) (52 3.0 0.05 -100 0 -0.6))
+    (:hs-k-jibashiri 256 0 1.0 12 66                ; AS2b 地走: the bundle heaved overhead, driven down at his feet (f34),
+     (16 1.0 2.4 -40 0 0.2) (24 0.8 4.4 -20 0 0.3) (31 0.6 5.0 -10 0 0.3)       ;  run out along the floor to 4.5 (S 36)
+     (33 1.0 1.2 0 0 0.6) (34 1.4 0.05 0 0 0) (35 3.0 0.05 0 0 -0.6) (36 4.5 0.05 0 0 -0.9)
+     (40 4.5 0.05 0 0 -1.0) (46 4.3 0.05 0 0 -1.2) (56 3.0 0.1 0 0 -0.6))
+    (:hs-k-maki 3 1.5 0.9 12 58                     ; AS3b 巻: hanging chains 0 1 cast at him (5.0 authored: *HS-LK-REACH*
+     (14 2.0 1.6 30 0 0.6) (20 3.6 1.4 10 0 0.5) (24 4.5 0.4 0 0 0.3)           ;  puts 5.0 on him), spiralled round him two
+     (25 5.0 0.5 5.7 0 0.2) (26 5.5 0.6 0 0 0.2) (27 5.0 0.7 -5.7 0 0.2) (28 4.5 0.8 0 0 0.2)   ;  turns rising (0.5 m round
+     (29 5.0 0.95 5.7 0 0.2) (30 5.5 1.1 0 0 0.2) (31 5.0 1.25 -5.7 0 0.2) (32 4.5 1.4 0 0 0.2)  ;  at 5 m), held wound
+     (33 5.0 1.4 5.7 0 0.2) (40 5.0 1.3 0 0 0.1) (46 4.6 0.9 0 0 0)))
   "The ranged route links' lashes (batch A2, DUEL_HISAGI §24.2; a look): (clip mask ds w f0 f1 key ...). MASK: the
 hanging chains used (bits 0-7, *HS-CURTAIN*; their rank in the mask spreads them) or 256 the bundle (all eight bound
 together, *HS-BUNDLED*). A key (f r h az dz bend): at clip frame F the chain of rank k has its free end R m from his feet
@@ -1978,7 +2243,9 @@ its end on the keys at the hit volume's far edge on the hit frames (*HS-STRIKE-R
       (let ((cell (assoc (first x) out)) (v (hs-lash-vec (rest x))))
         (if cell (setf (cdr cell) (append (cdr cell) (list v))) (setf out (append out (list (list (first x) v))))))))
   "*HS-LASHES* by clip: (clip f32vec ...).")
-(defparameter *hs-bundled* '((:hs-k-hosoku 21 26) (:hs-k-g-k2 -2 -1) (:hs-k-g-k3 -2 -1) (:hs-k-g-j2 -2 -1) (:hs-k-g-j3 -2 -1))
+(defparameter *hs-bundled* '((:hs-k-hosoku 21 26) (:hs-k-g-k2 -2 -1) (:hs-k-g-k3 -2 -1) (:hs-k-g-j2 -2 -1) (:hs-k-g-j3 -2 -1)
+                             (:hs-k-st-shu -2 -1) (:hs-r-sa-g -2 -1) (:hs-k-tataki -2 -1) (:hs-k-sweep -2 -1)   ; (§28.11; the
+                             (:hs-k-jibashiri -2 -1))                                                           ;  gathered SA by its move)
   "Clip -> the clip frames over which the eight hanging chains are bound into one bundle (0 -> 1; bound after; the gathered
 links bound throughout): K1 綁束 binds them, the gathered links strike with the bundle (the user, 2026-10-18: 「K1 將垂降的
 鎖鏈在身旁旋轉並捆成一束」, DUEL_HISAGI §22.4). Out of these clips the bundle comes apart into the curtain over 0.25 s.")
@@ -1990,7 +2257,10 @@ links bound throughout): K1 綁束 binds them, the gathered links strike with th
   '((:hs-k-saben 5 12 20 0.5) (:hs-k-kaeshi 5 11 19 -0.5) (:hs-k-sensa 5 13 24 1.0) (:hs-k-saharai 2 18 32 2.0)
     (:hs-k-raiden 7 20 30 0.5) (:hs-k-ame 8 30 50 1.0) (:hs-k-kosa 7 20 30 0.5) (:hs-k-kubikake 5 24 34 1.0)
     (:hs-k-hosoku 6 16 26 1.0) (:hs-k-s-k2 9 21 30 0.5) (:hs-k-s-k3 8 21 32 0.75) (:hs-k-g-k2 8 27 40 0.75)
-    (:hs-k-g-k3 6 27 36 1.0) (:hs-k-g-j2 3 16 22 0.5) (:hs-k-g-j3 4 16 22 0.75))
+    (:hs-k-g-k3 6 27 36 1.0) (:hs-k-g-j2 3 16 22 0.5) (:hs-k-g-j3 4 16 22 0.75)
+    (:hs-k-uchi 3 10 16 0.4) (:hs-k-ogi 9 21 30 0.5) (:hs-k-issei 8 21 32 0.75) (:hs-k-ransa 8 21 32 1.0)   ; (§28.11)
+    (:hs-k-tataki 9 30 40 0.5) (:hs-k-sweep 9 30 40 -0.75) (:hs-k-jibashiri 12 36 46 0.5) (:hs-k-maki 12 27 40 1.5)
+    (:hs-k-kake 8 24 34 -0.5))
   "The carousel's jerk (batch A2, DUEL_HISAGI §24.2; the user, 2026-10-18: §22.1's 旋鎖陣, 「遠程攻擊有效利用鎖鏈球拉動垂鏈迴轉
 對遠程進行抽打」): the ranged mode's strike clip -> (f0 f1 f2 turns): the orb (and the hanging chains round him) spun TURNS
 turns (+ counter-clockwise from above) on top of its slow turn, winding up from clip frame F0, fastest at F1 (S), done by F2.")
