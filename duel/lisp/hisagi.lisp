@@ -507,13 +507,13 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :min-reach *hs-r-k-dead*)                                                                                      ; 綁束 HOSOKU
 ;; spread (J1 ->): the thin hanging chains. J2 the other side's curtain (B4a's J2), K2s a fan of chains whipping the ground,
 ;; J3 the full turn (B4a's J3), K3 every chain lashed forward at once
-(defmove :hs-r-j2 :kind :quick :clip :hs-k-kaeshi :clip-s 11 :startup 10 :active 3 :recovery 13 :dmg 16 :adv-block -2 :guard 8
+(defmove :hs-r-j2 :kind :quick :clip :hs-k-kaeshi :clip-s 10 :startup 10 :active 3 :recovery 13 :dmg 16 :adv-block -2 :guard 8
   :reach *hs-r-j-reach* :arc 100 :min-reach *hs-r-j-dead* :on-hit :flinch :hits ((10 13 :stun 24)) :flags (:ranged)
   :params (:melee-range 2.0))                                                                                  ; 旋鞭 (back)
 (defmove :hs-r-k2s :kind :flash :clip :hs-k-s-k2 :clip-s 21 :enter 6 :startup 21 :active 4 :recovery 24 :dmg 37 :adv-block -3
   :guard 14 :reach *hs-r-link-reach* :on-hit :stagger :hits ((21 25 :seg-fn hs-r-link-seg)) :flags (:ranged)
   :params (:melee-range 2.0))                                                                                  ; 散鞭
-(defmove :hs-r-j3 :kind :quick :clip :hs-k-sensa :clip-s 13 :startup 10 :active 3 :recovery 18 :dmg 22 :adv-block -4 :guard 12
+(defmove :hs-r-j3 :kind :quick :clip :hs-k-sensa :clip-s 10 :startup 10 :active 3 :recovery 18 :dmg 22 :adv-block -4 :guard 12
   :reach *hs-r-j-reach* :arc 100 :min-reach *hs-r-j-dead* :on-hit :stagger :hits ((10 13)) :flags (:ender :ranged)
   :params (:melee-range 2.0) :on-land hs-r-j3-push)                                                            ; 旋鎖 SENSA
 (defmove :hs-r-k3 :kind :flash :clip :hs-k-s-k3 :clip-s 21 :enter 6 :startup 21 :active 5 :recovery 34 :dmg 56 :adv-block -20

@@ -289,8 +289,29 @@ OGI, ISSEI, RANSA's three, TATAKI, the AS2a sweep, JIBASHIRI with its crack, MAK
               (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm (hss-bound st) b0)
         (apply #'log-msg "duel hisagi look consing 2a (10 calls, B): 聚 stance ~d, UCHI ~d, gathered UCHI ~d, OGI ~d, ISSEI ~d, RANSA ~d / ~d / ~d, ~
 TATAKI ~d, AS2a ~d, JIBASHIRI ~d, MAKI ~d, KAKE ~d, J3 ~d, J4 ~d, gathered J3 ~d, gathered J4 ~d" r)))))
+(defun hisagi-look-cons-4a ()
+  "Debug 83901's third line (batch 4a, DUEL_HISAGI §28.19): bytes consed by 10 calls of HS-POSE and HISAGI-DRAW on the 散 J
+string's new chain paths, in each windup and on a hit frame: J2's scissor (its windup, the X), J3's snake (the slither's
+lateral S, the rear's vertical S), J4's whirl and its fling, J5's drill (the twisting tell, the bore): each must be 0."
+  (let* ((e *p1*) (f (fighter e)) (st (hs e)) (m (model e)) (an (model-anim m)) (c0 (anim-clip an)) (t0 (anim-time an))
+         (state (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)) (ct (fighter-contact f))
+         (fm (fighter-form f)) (b0 (hss-bound st)) (p (pos-of e)))
+    (setf (aref *pose-at* 0) (aref p 0) (aref *pose-at* 1) (aref p 1) (aref *pose-at* 2) (aref p 2) (aref *pose-at* 3) (yaw-of e)
+          (fighter-form f) :bankai (hss-bound st) nil (fighter-contact f) nil)
+    (flet ((bytes () (let ((c0 (cons-bytes))) (dotimes (i 10) (hs-pose e m) (hisagi-draw e 0.016)) (- (cons-bytes) c0)))
+           (at (name frame clip) (setf (fighter-state f) :move (fighter-move f) (find-move name) (fighter-phase f) :main
+                                       (fighter-sf f) frame (anim-clip an) (find-clip clip) (anim-time an) (/ frame 60f0))))
+      (let ((r (list (progn (at :hs-r-j2 7 :hs-k-kaeshi) (bytes)) (progn (at :hs-r-j2 11 :hs-k-kaeshi) (bytes))
+                     (progn (at :hs-r-na3 6 :hs-k-na3) (bytes)) (progn (at :hs-r-na3 11 :hs-k-na3) (bytes))
+                     (progn (at :hs-r-na4 5 :hs-k-na4) (bytes)) (progn (at :hs-r-na4 10 :hs-k-na4) (bytes))
+                     (progn (at :hs-r-j3 6 :hs-k-sensa) (bytes)) (progn (at :hs-r-j3 11 :hs-k-sensa) (bytes)))))
+        (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (fighter-contact f) ct
+              (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm (hss-bound st) b0)
+        (apply #'log-msg "duel hisagi look consing 4a (10 calls, B): J2's windup ~d, its X ~d, J3's slither ~d, its rear ~d, ~
+J4's whirl ~d, its fling ~d, J5's twist ~d, its bore ~d" r)))))
 (defun hisagi-art-debug (c)
-  (case c (83902 (hisagi-tip-check)) ((83903 83904) (hisagi-zan-scene c)) (t (hisagi-look-cons-check) (hisagi-look-cons-2a))))
+  (case c (83902 (hisagi-tip-check)) ((83903 83904) (hisagi-zan-scene c))
+    (t (hisagi-look-cons-check) (hisagi-look-cons-2a) (hisagi-look-cons-4a))))
 
 ;;; ---------------------------------------------------------------- the clip strips (debug 83910-83964, 83500-83549: stills)
 ;; 83910+k picks strip slot k (*HS-STRIPS*; 83500+k the Bankai's, *HS-BK-STRIPS*, §21.8); 83940 + 3 i + v shows its frame i of 8 (DUEL_GAMEPLAY: 0, S/3, 2S/3, S-2, S,
@@ -300,7 +321,7 @@ TATAKI ~d, AS2a ~d, JIBASHIRI ~d, MAKI ~d, KAKE ~d, J3 ~d, J4 ~d, gathered J3 ~d
 ;; on the card).
 (defparameter *hs-bk-strips*
   '((:hs-k-stance nil 3.0 nil :bankai) (:hs-k-walk-f nil 3.0 nil :bankai) (:hs-k-run nil 3.0 nil :bankai)
-    (:hs-k-saben :hs-r-j1 4.0 nil :bankai) (:hs-k-kaeshi :hs-r-j2 4.0 nil :bankai) (:hs-k-sensa :hs-r-j3 4.0 nil :bankai)
+    (:hs-k-saben :hs-r-j1 6.0 nil :bankai) (:hs-k-kaeshi :hs-r-j2 6.0 nil :bankai) (:hs-k-sensa :hs-r-j3 6.0 nil :bankai)
     (:hs-k-saharai :hs-r-l 2.5 nil :bankai) (:hs-k-raiden :hs-r-sp1 8.0 nil :bankai) (:hs-k-ame :hs-r-sp2 8.0 nil :bankai)
     (:hs-k-kosa-aim nil 8.0 nil :bankai) (:hs-k-kosa :hs-r-kikon 8.0 nil :bankai) (:hs-k-breaker nil 3.0 nil :bankai)
     (:hs-k-hammer :hs-breaker 1.0 nil :bankai) (:hs-k-kubikake :hs-r-kubikake 6.0 nil :bankai)
@@ -341,7 +362,7 @@ state (:out anchored 4 m ahead on the floor, :hooked anchored in him, :wrapped S
     (:hs-k-ransa :hs-r-as1 5.0 nil :bankai) (:hs-k-tataki :hs-r-n2b 4.0 nil :bankai) (:hs-k-sweep :hs-r-as2 4.0 nil :bankai)
     (:hs-k-jibashiri :hs-r-as2b 4.0 nil :bankai) (:hs-k-maki :hs-r-as3b 5.0 nil :bankai) (:hs-k-kake :hs-r-as3c 5.0 nil :bankai)
     (:hs-k-g-j2 :hs-r-j2s 4.0 nil :bankai) (:hs-k-g-j3 :hs-r-j3g 4.0 nil :bankai) (:hs-k-stance nil 3.0 nil :bankai)
-    (:hs-k-na3 :hs-r-na3 5.0 nil :bankai) (:hs-k-na4 :hs-r-na4 5.0 nil :bankai)                     ; (§28.15: 15-18, the
+    (:hs-k-na3 :hs-r-na3 6.0 nil :bankai) (:hs-k-na4 :hs-r-na4 6.0 nil :bankai)                     ; (§28.15: 15-18, the
     (:hs-k-g-na3 :hs-r-na3g 4.0 nil :bankai) (:hs-k-g-na4 :hs-r-na4g 4.0 nil :bankai))              ;  five J's own J3 / J4)
   "83560+k (batch 2a, DUEL_HISAGI §28.11): the core ranged mode's strip slots, as *HS-BK-STRIPS*: 0 聚 stance, 1 SA UCHI, 2 the
 gathered UCHI (the bundle), 3 NS1a WA (L SAHARAI's clip at 18/14), 4 NS1b OGI, 5 NS1c ISSEI, 6 AS1 RANSA, 7 NS2b TATAKI, 8 AS2a

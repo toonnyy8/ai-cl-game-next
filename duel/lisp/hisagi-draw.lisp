@@ -99,11 +99,13 @@ touched him, a hit or a block, so a whiff stays on its line). Else nothing. 0 B.
 
 (defparameter *hs-letout-v*
   (loop for (clip side f0 f1 f2 f3 r h az bulge) in *hs-letout*
-        for sw = (consp az) for a1 = (if sw (second az) az)
-        collect (list* clip side (coerce (mapcar #'f32 (list f0 f1 f2 f3 r (or h 0) (or a1 0) bulge (if az 1 0) (if h 1 0)
-                                                             (if sw (first az) 0) (if sw (third az) 0) (if sw 1 0)))
+        for sw = (consp az) for a1 = (if sw (second az) az) for hs = (consp h) for h1 = (if hs (second h) h)
+        collect (list* clip side (coerce (mapcar #'f32 (list f0 f1 f2 f3 r (or h1 0) (or a1 0) bulge (if az 1 0) (if h 1 0)
+                                                             (if sw (first az) 0) (if sw (third az) 0) (if sw 1 0)
+                                                             (if hs (first h) 0) (if hs (third h) 0) (if hs 1 0)))
                                          'f32vec)))
-  "*HS-LETOUT* as (clip side . f32vec): f0 f1 f2 f3 r h az bulge az-p h-p, then a sweep's a0 a2 sweep-p (az its a1).")
+  "*HS-LETOUT* as (clip side . f32vec): f0 f1 f2 f3 r h az bulge az-p h-p, then a sweep's a0 a2 sweep-p (az its a1), then
+a height sweep's h0 h2 hsweep-p (§28.19; h its h1).")
 (defun hs-letout-of (name side)
   "The let-out entry (an f32vec) of clip NAME's SIDE (:r / :l), or NIL. 0 B."
   (loop for x in *hs-letout-v* when (and (eq (first x) name) (eq (second x) side)) return (cddr x)))
@@ -138,7 +140,11 @@ midway (a third of it coming back); the rod pointing away from the fist, the bla
                                                              ;  §25.13: a route link's to the victim)
          (sh (f-hypot (- fx (aref jm (+ so 12))) (- fz (aref jm (+ so 14)))))
          (slope (f-clamp (/ (- fy (aref jm (+ so 13))) (f-max 0.05f0 sh)) -0.8f0 0.8f0))
-         (ty (if (> (aref kv 9) 0.5f0) (aref kv 5) (+ fy (* slope (- r rf)))))
+         (ty (cond ((< (aref kv 9) 0.5f0) (+ fy (* slope (- r rf))))
+                   ((< (aref kv 15) 0.5f0) (aref kv 5))
+                   ((< f f1) (+ (aref kv 13) (* x (- (aref kv 5) (aref kv 13)))))   ; (§28.19: a height sweep, as the
+                   ((< f f2) (+ (aref kv 5) (* (/ (- f f1) (f-max 1f0 (- f2 f1))) (- (aref kv 14) (aref kv 5)))))   ;  az's)
+                   (t (aref kv 14))))
          (lift (* (aref kv 7) (f-sin (* 3.1415927f0 u)) (if (>= f f2) 0.33f0 1f0)))
          (k (* 0.75f0 (- 1f0 u)))
          (qx (+ fx (* u (- (+ px (* r bx)) fx)) (* k dhx)))
@@ -232,6 +238,36 @@ lost). 0 B."
              (vtx (+ %x (* %f %ux)) (+ %y (* %f %uy)) (+ %z (* %f %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
              (vtx (- %x (* %b %ux)) (- %y (* %b %uy)) (- %z (* %b %uz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0)
              (vtx (- %x (* %w %sx)) (- %y (* %w %sy)) (- %z (* %w %sz)) 0f0 0f0 0.035f0 0.035f0 0.05f0 1f0))))))
+
+(defparameter *hs-lo-trails* '(:hs-k-kaeshi)
+  "Batch 4a (§28.19): the clips whose swept let-outs (an AZ and an H sweep, *HS-LETOUT*) leave an ink trail behind their
+points while out (%HS-LO-TRAIL): J2 鋏鞭's two crescents, crossing in an X.")
+(declaim (type f32vec *hs-lt3*))
+(defvar *hs-lt3* (make-f32 6) "%HS-LO-TRAIL's two points (scratch).")
+(defun-fast %hs-lo-trail (kv pos yaw fr)
+  "A swept let-out's trail (KV its *HS-LETOUT-V* entry with both sweeps; §28.19): its point while out (clip frames F1-F2:
+R m from his feet POS along the swept bearing off his facing YAW[0], at the swept height) over the last 2 frames before
+FR[0], a tapered black ribbon (a quarter frame a piece). 0 B."
+  (declare (type f32vec kv pos yaw fr))
+  (let* ((f (aref fr 0)) (f1 (aref kv 1)) (f2 (aref kv 2)) (r (aref kv 4)) (p *hs-lt3*))
+    (declare (single-float f f1 f2 r) (type f32vec p))
+    (when (and (> (aref kv 12) 0.5f0) (> (aref kv 15) 0.5f0) (> f (+ f1 0.25f0)) (< f (+ f2 2f0)))
+      (dotimes (k 9)
+        (let* ((g (f-clamp (- f (* 0.25f0 (i->f k))) f1 f2)) (x (/ (- g f1) (f-max 1f0 (- f2 f1))))
+               (a (+ (aref yaw 0) (* 0.017453292f0 (+ (aref kv 6) (* x (- (aref kv 11) (aref kv 6)))))))
+               (h (+ (aref kv 5) (* x (- (aref kv 14) (aref kv 5))))))
+          (declare (single-float g x a h))
+          (setf (aref p 3) (+ (aref pos 0) (* r (- (f-sin a)))) (aref p 4) h (aref p 5) (+ (aref pos 2) (* r (- (f-cos a)))))
+          (when (> k 0)
+            (let* ((dx (- (aref p 0) (aref p 3))) (dy (- (aref p 1) (aref p 4))) (dz (- (aref p 2) (aref p 5)))
+                   (l (f-hypot dx dy dz)))
+              (declare (single-float dx dy dz l))
+              (when (> l 0.01f0)
+                (%hs-black-kite (* 0.5f0 (+ (aref p 0) (aref p 3))) (* 0.5f0 (+ (aref p 1) (aref p 4)))
+                                (* 0.5f0 (+ (aref p 2) (aref p 5))) (/ dx l) (/ dy l) (/ dz l) (* 1.15f0 l)
+                                (* 0.07f0 (- 1f0 (/ (i->f k) 9f0)))))))
+          (setf (aref p 0) (aref p 3) (aref p 1) (aref p 4) (aref p 2) (aref p 5))))))
+  nil)
 
 (defun-fast vfx-hs-chain (a b sag k)
   "Kazeshini's chain from point A to point B (f32vecs), sagging SAG m at its middle (a parabola; SAG < 0: -SAG m of slack
@@ -974,6 +1010,11 @@ its taper (its lash weight) and its width x.")
 (defvar *hs-rp* (make-f32 4) "%HS-REST-POLAR!: [0] r, [1] h, [2] az (degrees off his facing), [3] the sway (m).")
 (defvar *hs-fr2* (make-f32 1) "An earlier clip frame for %HS-LASH-TIP!.")
 (defvar *hs-bundle-rest-v* (coerce (mapcar #'f32 *hs-bundle-rest*) 'f32vec) "*HS-BUNDLE-REST* as floats.")
+(declaim (type f32vec *hs-wv*))
+(defvar *hs-wv* (make-f32 (* 9 4))
+  "Batch 4a (§28.19): each chain's body path this draw (%HS-CURTAIN-DRAW from *HS-WAVES*, %HS-CUBIC-CHAIN draws it): [4j]
+its kind (0 none), [4j+1] its amplitude now (m), [4j+2] waves a metre, [4j+3] its phase (rad: the speed x the clip frame).")
+(defvar *hs-wave-lk* nil "His clip's *HS-WAVES-V* rows this draw (HISAGI-DRAW sets it, NIL after).")
 (defmacro %hs-wrap180 (x)
   "X (degrees) into -180 .. 180."
   `(let ((%a ,x)) (declare (single-float %a))
@@ -1138,14 +1179,18 @@ cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out 
                  (* bw (+ (f-hypot (- (aref cz (+ ob 3)) (aref cz ob)) (- (aref cz (+ ob 4)) (aref cz (+ ob 1))) (- (aref cz (+ ob 5)) (aref cz (+ ob 2))))
                           (f-hypot (- (aref cz (+ ob 6)) (aref cz (+ ob 3))) (- (aref cz (+ ob 7)) (aref cz (+ ob 4))) (- (aref cz (+ ob 8)) (aref cz (+ ob 5))))
                           (f-hypot (- (aref cz (+ ob 9)) (aref cz (+ ob 6))) (- (aref cz (+ ob 10)) (aref cz (+ ob 7))) (- (aref cz (+ ob 11)) (aref cz (+ ob 8))))))))
-         (n (min 120 (max 2 (f->i (/ len 0.12f0)))))
+         (wv *hs-wv*) (wk (aref wv (* 4 j))) (wa (aref wv (+ 1 (* 4 j)))) (wl (* 0.7f0 len (aref wv (+ 2 (* 4 j)))))   ; (§28.19:
+         (wph (aref wv (+ 3 (* 4 j))))                                     ;  its body's path, *HS-WAVES*)
+         (wg (* 6.2831855f0 wa (aref wv (+ 2 (* 4 j)))))
+         (kf (if (> wk 0.5f0) (f-min 2.5f0 (+ 1f0 (* 0.25f0 wg wg))) 1f0))
+         (n (min 120 (max 2 (f->i (/ (* kf len) 0.12f0)))))
          (tp (+ (* cw (aref cz (+ o 12))) (* bw (aref cz (+ ob 12))))) (wx (aref cz (+ o 13))) (jp (* 0.7853982f0 (i->f j)))
          (flow (and (= (aref *hs-tg* 0) 1f0) (or (and (< tp 0.01f0) (< bw 0.01f0)) (> bw 0.99f0))))   ; (§28.11: or down
                                                                         ;  the bundle, bound in the 聚 stance)
          (pu (+ 0.35f0 (* 0.65f0 (/ (* (the single-float *hs-flow-every*)
                                          (f-mod (+ (/ (fx-clock) (the single-float *hs-flow-every*)) (* 0.37f0 (i->f j))) 1f0))
                                       (the single-float *hs-flow-period*))))))   ; (past 1: resting till its next)
-    (declare (single-float bw cw len tp wx jp pu) (fixnum ob n))
+    (declare (single-float bw cw len wk wa wl wph wg kf tp wx jp pu) (fixnum ob n) (type f32vec wv))
     (dotimes (i n)
       (let* ((u (/ (+ 0.5f0 (i->f i)) (i->f n))) (v (- 1f0 u))
              (a (* v v v)) (b (* 3f0 v v u)) (c (* 3f0 v u u)) (d (* u u u))
@@ -1158,6 +1203,24 @@ cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out 
                                  (* dc (- (aref cz (+ ,o 9 ,k)) (aref cz (+ ,o 6 ,k)))))))
           (let* ((px (bz o 0)) (py (bz o 1)) (pz (bz o 2)) (tx (bt o 0)) (ty (bt o 1)) (tz (bt o 2)))
             (declare (single-float px py pz tx ty tz))
+            (when (> wk 0.5f0)                                             ; (§28.19: its body bent into its path, the
+              (let* ((gl (f-max 1f-4 (f-hypot tx ty tz))) (hl (f-hypot tx tz))   ;  free end and the knee left where they are)
+                     (n1x (if (> hl 1f-3) (/ (- tz) hl) 1f0)) (n1z (if (> hl 1f-3) (/ tx hl) 0f0))
+                     (n2x (/ (* ty n1z) gl)) (n2y (/ (- (* tz n1x) (* tx n1z)) gl)) (n2z (/ (- (* ty n1x)) gl))
+                     (a0 0f0) (b0 0f0) (a1 0f0) (b1 0f0))
+                (declare (single-float gl hl n1x n1z n2x n2y n2z a0 b0 a1 b1))
+                (macrolet ((wab (uu ra rb)                                 ; the offset at UU: RA along n1, RB along n2
+                             `(let* ((s (f-clamp (/ (- ,uu 0.3f0) 0.7f0) 0f0 1f0)) (ph (- (* 6.2831855f0 s wl) wph)))
+                                (declare (single-float s ph))
+                                (cond ((< wk 1.5f0) (setf ,ra (* wa (f-sin (* 3.1415927f0 s)) (f-sin ph)) ,rb 0f0))
+                                      ((< wk 2.5f0) (setf ,ra 0f0 ,rb (* wa (f-sin (* 3.1415927f0 s)) (f-sin ph))))
+                                      (t (let ((rr (* wa (f-min 1f0 (/ s 0.12f0)) (- 1f0 s))) (q (+ ph jp)))
+                                           (declare (single-float rr q))
+                                           (setf ,ra (* rr (f-cos q)) ,rb (* rr (f-sin q)))))))))
+                  (wab u a0 b0) (wab (+ u 0.01f0) a1 b1))
+                (setf px (+ px (* a0 n1x) (* b0 n2x)) py (+ py (* b0 n2y)) pz (+ pz (* a0 n1z) (* b0 n2z))
+                      tx (+ tx (* 100f0 (+ (* (- a1 a0) n1x) (* (- b1 b0) n2x)))) ty (+ ty (* 100f0 (- b1 b0) n2y))
+                      tz (+ tz (* 100f0 (+ (* (- a1 a0) n1z) (* (- b1 b0) n2z)))))))
             (when (> bw 0.001f0)                                           ; onto the bundle, twisted round it
               (let* ((bx (bz ob 0)) (by (bz ob 1)) (bzz (bz ob 2)) (gx (bt ob 0)) (gy (bt ob 1)) (gz (bt ob 2))
                      (gl (f-max 1f-4 (f-hypot gx gy gz))) (hl (f-hypot gx gz))
@@ -1222,6 +1285,26 @@ and spikes (§25.26; since §25.28 on J1's tip only: HS-R-TIP-CMD). 0 B."
              0.95f0 :push 0.3f0))
   nil)
 
+(defun-fast %hs-wave-set! (j)
+  "Batch 4a (§28.19): *HS-WV*'s slot for chain J (0-7) from the first of *HS-WAVE-LK* (his clip's *HS-WAVES-V*) that moves
+it at the clip frame *HS-FR*: its kind, its amplitude eased in / held / out, waves a metre, its phase. 0 B."
+  (declare (fixnum j))
+  (let ((f (aref *hs-fr* 0)) (wv *hs-wv*) (done nil))
+    (declare (single-float f) (type f32vec wv))
+    (dolist (x *hs-wave-lk*)
+      (let ((v x))
+        (declare (type f32vec v))
+        (when (and (not done) (< j 8) (logbitp j (f->i (aref v 0))) (>= f (aref v 2)) (< f (aref v 5)))
+          (let* ((f1 (aref v 3)) (f2 (aref v 4))
+                 (x (cond ((< f f1) (/ (- f (aref v 2)) (f-max 0.5f0 (- f1 (aref v 2)))))
+                          ((< f f2) 1f0)
+                          (t (- 1f0 (/ (- f f2) (f-max 0.5f0 (- (aref v 5) f2)))))))
+                 (e (* x x (- 3f0 (* 2f0 x)))))
+            (declare (single-float f1 f2 x e))
+            (setf done t (aref wv (* 4 j)) (aref v 1) (aref wv (+ 1 (* 4 j))) (* e (aref v 6))
+                  (aref wv (+ 2 (* 4 j))) (aref v 7) (aref wv (+ 3 (* 4 j))) (* f (aref v 8))))))))
+  nil)
+
 (defun-fast %hs-curtain-draw (pos fa c lk mask)
   "The hanging chains round him (§21.6) on the carousel, lashing and bound (batch A2, §24.2): each of the eight
 *HS-CURTAIN* chains not in MASK (a §21.8 chain strike draws that one: %HS-BK-STRIKE) from its top under the orb (C its
@@ -1236,6 +1319,8 @@ on its entry of LK (his clip's *HS-LASHES-V*: %HS-LASH-TIP!, the lag, the trail)
     (dotimes (jj 9)
       (let* ((j (if (= jj 0) 8 (1- jj))) (kv (%hs-lash-of lk j)) (o (* 14 j)))
         (declare (fixnum j o))
+        (setf (aref *hs-wv* (* 4 j)) 0f0)                                ; (§28.19: its body's path, *HS-WAVES*)
+        (when kv (%hs-wave-set! j))
         (when (or (< j 8) kv (> bw 0.001f0))
           (%hs-rest-polar! rp j)
           (let* ((a (+ yaw (* 0.017453292f0 (aref rp 2)))) (r (aref rp 0))
@@ -1623,12 +1708,17 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
         (%hs-car! an (if (eq e *p1*) 0 1) (cdr (assoc cn *hs-spins-v*))   ; (A2: the carousel; §28.11: a move's own
                   (cdr (or (and mv (assoc name *hs-bundled-v*)) (assoc cn *hs-bundled-v*))))   ;  bundle first, the gathered SA)
         (when (and mv (eq cn :hs-k-jibashiri)) (%hs-crack (pos-of e) fa))   ; (§28.11: AS2b's crack along its line)
+        (when (member cn *hs-lo-trails*)                                ; (§28.19: J2's two crescents' X)
+          (setf *hs-chain-ink* (if (eq e *p1*) 0 1))
+          (dolist (sd '(:r :l)) (let ((kv (hs-letout-of cn sd))) (when kv (%hs-lo-trail kv (pos-of e) *hs-yaw* *hs-fr*)))))
+        (setf *hs-wave-lk* (cdr (assoc cn *hs-waves-v*)))              ; (§28.19: the chains' body paths)
         (%hs-orb-draw (model-joints m) (pos-of e) fa (pos-of o) (model-joints (model o)) (if (eq e *p1*) 0 1)
                       (cond ((and mv (eq name :hs-b-sp2) (>= sf (mv-s mv))) 3)   ; (A3: KAIBAKU-GEKI's release)
                             ((or (hss-bound st) (logtest cfl 4)) 1) ((eq cn :hs-kb-unwind) 2) (t 0)) (model-tint m)
                       (cdr (assoc cn *hs-bk-chains-v*)) (if (and mv (eq (fighter-contact f) :hit)) 1 0)
                       (cdr (or (and mv (assoc name *hs-lashes-v*)) (assoc cn *hs-lashes-v*)))   ; (§28.11: a move's own first)
-                      (and (hss-bound st) (cdr (assoc cn *hs-kb-grips-v*))))))))
+                      (and (hss-bound st) (cdr (assoc cn *hs-kb-grips-v*))))
+        (setf *hs-wave-lk* nil)))))
 
 (defun hs-tip-fx (att def x y z &rest more)
   "His :hit-fx hook (FEEDBACK-SYSTEM, after the hit's spark; DUEL_HISAGI §25.26): a hit on the chain tip (HS-DMG-MULT's

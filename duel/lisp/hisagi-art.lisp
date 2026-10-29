@@ -210,7 +210,8 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
                                   (:hs-kr-ko :sickle 2.4) (:hs-kr-age :sickle 2.4)                             ;  刈's let-outs)
                                   (:hs-s-kaeshi :sickle 1.7) (:hs-s-rin :sickle 1.7)  ;  clips, §21.4;
                                   (:hs-s-nagi :sickle 6.0) (:hs-s-tobi-kaeshi :sickle 1.7) (:hs-s-tobi-rin :sickle 1.7)   ;  A1, §24.1; §25.9: J 1.7)
-                                  (:hs-k-saben :sickle 6.0) (:hs-k-kaeshi :sickle 6.0) (:hs-k-sensa :sickle 6.0)  ; (the Bankai's,
+                                  (:hs-k-saben :sickle 6.0) (:hs-k-kaeshi :sickle 6.0) (:hs-k-sensa :chain 6.0)   ; (the Bankai's,
+                                                                                ;  §28.19: J5's a lash now)
                                                                                 ;  §21.8; B4a: the annuli's 4.5 / 5.0, the K placed, §22.2: the
                                   (:hs-kb-kaeshi :sickle 1.5) (:hs-kb-hikigiri :sickle 2.95)                    ;  ranged mode,
                                   (:hs-kb-sengen :sickle 2.2)                                                   ;  §25.10,
@@ -315,9 +316,10 @@ this far back through his fist (m), so he holds it just behind the blades' cross
     (:hs-s-tobi-rin :r 8 12 17 27 1.7 nil nil 0)        ; J3K: J3's two, out from the leap's top
     (:hs-s-tobi-rin :l 8 12 17 27 1.7 nil nil 0)
     (:hs-k-saben :r 9 12 16 24 6.0 1.2 nil 0)       ; the Bankai (§21.8): J1 鎖鞭, the right crescent cracked out (§25.3: 6.0; §25.34's 7.0, back)
-    (:hs-k-kaeshi :l 8 11 15 23 6.0 1.2 nil 0)      ; J2 返鞭, the left lashed back (6.0)
-    (:hs-k-sensa :r 10 13 17 26 6.0 1.0 nil 0)      ; J3 旋鎖, both at full chain round the half turn (6.0)
-    (:hs-k-sensa :l 10 13 17 26 6.0 1.0 nil 0)
+    (:hs-k-kaeshi :r 6 10 13 21 6.0 (2.0 1.8 0.5) (-60 -25 25) 0)   ; §28.19: J2 鋏鞭, both crescents swept in from high on
+    (:hs-k-kaeshi :l 6 10 13 21 6.0 (2.0 1.8 0.5) (60 25 -25) 0)    ;  both sides and falling, crossed at him (f11.5: the X;
+                                                    ;  the hit frames f10-12 at -+25 / -+8 / +-8, inside +-50; *HS-LO-TRAILS*);
+                                                    ;  J5's two let-outs gone (its chains are the drill, *HS-LASHES*)
     (:hs-kb-kaeshi :l 5 8 11 18 1.5 nil nil 0)      ; the bind's J2 返弦, the left rising on a short chain
     (:hs-kb-hikigiri :r 15 18 23 32 2.95 1.1 0 0)   ; K1 引斬, the right hooked out along the line
     (:hs-kb-sengen :r 6 10 13 24 2.2 nil 0 0)       ; Step + J 穿弦 SENGEN (§25.10), the right hurled straight ahead
@@ -345,7 +347,8 @@ this far back through his fist (m), so he holds it just behind the blades' cross
 frame F0, is out from F1 to F2 with its point R m from his feet (horizontally), back in the fist at F3; along the fist's
 bearing from his feet (AZ NIL) or AZ degrees off his facing (+ his left); H m up (NIL: on the arm's line); BULGE m higher
 midway out (an overhead swing; a third of it coming back). AZ a list (A0 A1 A2): a sweep, the bearing A0 at F0 turning to
-A1 at F1 (it spirals out) and on to A2 at F2 (linear), A2 coming back (K1 NAGI, A1). HS-POSE moves the right one (its
+A1 at F1 (it spirals out) and on to A2 at F2 (linear), A2 coming back (K1 NAGI, A1). H a list (H0 H1 H2) the same way
+(§28.19: J2's falling X). HS-POSE moves the right one (its
 :weapon-r joint), HISAGI-DRAW draws the left one; both the chain from the fist.")
 (defparameter *hs-foe-paths*
   '((:hs-s-noko (6 9 10 9 1) (9 16 9 9 3) (16 20 9 6 3) (20 24 6 6 3) (24 30 6 7 3) (30 38 7 7 1) (38 48 7 0 1))
@@ -1199,92 +1202,119 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (21 :hs-k-saben-hit (:root :yaw 22 :u -0.1) (:chest :twist 30) (:arm-r :flex 114 :side 78) (:elbow-r :flex 12))
   (:end :hs-k-stance))
 
-;; J2 返鞭 KAESHI-BEN (11/3/13): the mirror: coiled to his left, the left arm drawn far back; lashed back left to right
+;; §28.19 (batch 4a; the user, 2026-10-29: 「『聚』跟『散』的 J1-J5 單從鎖鏈的揮舞來看完全看不出每段之間的差異，請將鎖鏈的攻擊設計
+;; 出更加多樣有特色的動畫」; §28.18's 散 rows: 「散可以」): each spread link its own chain PATH, count and rhythm (J1, the right
+;; crescent's flat crack R -> L at the chest, kept): J2 the scissor (two chains crossed in an X), J3 the floor snake (slither,
+;; rear up), J4 the overhead whirl flung straight, J5 the drill (six chains twisted into one corkscrew bored ahead). Each at
+;; its move's S (speed 1, `:clip-s` = S), frame 0 the previous link's last key, the windup held inside the startup. J2's
+;; two crescents are let out from both hands (*HS-LETOUT*, their trails *HS-LO-TRAILS*); J3-J5 strike with hanging-chain
+;; lashes (*HS-LASHES*); every free end on the band's far edge (6.0 m) inside +-50 on the hit frames; shaped by *HS-WAVES*
+;; (the snake's S, the drill's helix), each path's trail its own (%HS-TRAIL).
+;; J2 鋏鞭 HASAMI-BEN (10/3/13): out of J1's follow-through both arms flung up wide and high, arched (the scissor open, held
+;; f4-8); on S both slashed down and across, the wrists crossed low in front (the X), then parted out low to his sides:
+;; both crescents let out on their hand chains (*HS-LETOUT*), swept in from high on both sides and falling as they cross the
+;; front (1.8 -> 0.5 m up, -+25 -> +-25 deg on f10-13): two descending diagonals crossed at him on f11.5, each point's trail
+;; an ink stroke (*HS-LO-TRAILS*: the X)
 (defpose :hs-k-kaeshi-up (:base :hs-k-stance)
-  (:root :u -0.14 :f -0.06 :yaw 30) (:pelvis :twist 12) (:spine :flex -8) (:chest :twist 44) (:neck :twist -20) (:head :flex 0)
-  (:arm-l :flex -58 :side 74 :twist 0) (:elbow-l :flex 48) (:hand-l :flex -90)
-  (:arm-r :flex 50 :side 24 :twist 0) (:elbow-r :flex 70) (:hand-r :flex -60)
-  (:thigh-l :flex -24 :side 10) (:knee-l :flex 44) (:thigh-r :flex 30 :side 8) (:knee-r :flex 20))
+  (:root :u 0.02 :f -0.06) (:spine :flex -12) (:chest :twist 0) (:neck :twist 0) (:head :flex -6)
+  (:arm-r :flex 150 :side 64 :twist 0) (:elbow-r :flex 24) (:hand-r :flex -60)
+  (:arm-l :flex 150 :side 64 :twist 0) (:elbow-l :flex 24) (:hand-l :flex -60)
+  (:thigh-l :flex 10 :side 9) (:knee-l :flex 10) (:thigh-r :flex -8 :side 9) (:knee-r :flex 8))
 (defpose :hs-k-kaeshi-hit (:base :hs-k-stance)
-  (:root :f 0.16 :u -0.12 :yaw -10) (:spine :flex 14) (:chest :twist -18) (:head :flex 0)
-  (:arm-l :flex 62 :side 88 :twist 0) (:elbow-l :flex 0) (:hand-l :flex -90)
-  (:arm-r :flex -34 :side 30 :twist 0) (:elbow-r :flex 36) (:hand-r :flex -70)
-  (:thigh-r :flex 46 :side 8) (:knee-r :flex 42) (:thigh-l :flex -28 :side 10) (:knee-l :flex 14))
-(defstrike :hs-k-kaeshi (11 3 13 :base :hs-k-stance)
-  (0 :hs-k-saben-hit (:root :yaw 22 :u -0.1) (:chest :twist 30) (:arm-r :flex 114 :side 78) (:elbow-r :flex 12))
-  (5 :hs-k-kaeshi-up)
-  (9 :hs-k-kaeshi-up (:root :yaw 34) (:chest :twist 48) (:arm-l :flex -64))
+  (:root :f 0.12 :u -0.16) (:spine :flex 20) (:chest :twist 0) (:head :flex 4)
+  (:arm-r :flex 58 :side -34 :twist 0) (:elbow-r :flex 8) (:hand-r :flex -90)
+  (:arm-l :flex 50 :side -42 :twist 0) (:elbow-l :flex 8) (:hand-l :flex -90)
+  (:thigh-l :flex 40 :side 9) (:knee-l :flex 44) (:thigh-r :flex -22 :side 10) (:knee-r :flex 24))
+(defstrike :hs-k-kaeshi (10 3 13 :base :hs-k-stance)
+  (0 :hs-k-saben-hit (:root :yaw 22 :u -0.1) (:chest :twist 30) (:arm-r :flex 114 :side 78) (:elbow-r :flex 12))   ; (J1's end)
+  (4 :hs-k-kaeshi-up)
+  (8 :hs-k-kaeshi-up (:root :u 0.04) (:spine :flex -16) (:arm-r :flex 158 :side 70) (:arm-l :flex 158 :side 70))   ; held, wider
   (:s :snap :hs-k-kaeshi-hit)
-  (:a :hs-k-kaeshi-hit (:root :yaw -26) (:chest :twist -36) (:arm-l :flex 122 :side 84))
-  (20 :hs-k-kaeshi-hit (:root :yaw -22 :u -0.1) (:chest :twist -30) (:arm-l :flex 114 :side 78) (:elbow-l :flex 12))
+  (:a :hs-k-kaeshi-hit (:root :u -0.2) (:arm-r :flex 34 :side -20) (:arm-l :flex 28 :side -26))          ; through, low
+  (19 :hs-k-kaeshi-hit (:root :u -0.12) (:spine :flex 12) (:arm-r :flex 22 :side 54) (:elbow-r :flex 20)   ; parted out low
+      (:arm-l :flex 22 :side 54) (:elbow-l :flex 20))
   (:end :hs-k-stance))
 
-;; §28.15 (the user, 2026-10-29: 「遠攻 J3、J4 還在借 J1、J2 的動作，所以 J 五連裡有兩對動作一樣」): the five J's own J3 / J4, so no two
-;; J of the string share a plane and a hand set (J1 the right forehand R -> L at the chest, J2 the left L -> R, J5 both
-;; crescents round the half turn). Hanging chains as lashes (*HS-LASHES*), tips on the band's far edge, 6.0 m, inside +-50.
-;; J3 昇鞭 SHŌBEN (10/3/13): the left underhand rising lash: out of J2's follow-through he sinks, turned to his left, the left
-;; arm drawn far back low behind his left hip (held f4-8); on S the arm swung up through in front and on up over his head
-;; as he rises: the two front-left hanging chains (0 1) whipped out low and climbing through the hit frames (0.6 -> 2.0 m up)
+;; J3 蛇鞭 JABEN (10/3/13): the floor snake: out of J2's parting he sinks deep, bent over, the left arm reaching forward low
+;; over the floor, his body weaving with the chain (f3-8, held deepest on f8); on S the arm whipped up through in front and on
+;; overhead as he rises: hanging chain 0 sent along the floor at him (its end crawling 1.8 -> 5.3 m, a lateral S travelling
+;; down it, f2-9), reared up into him from below on S (0.08 -> 1.3 m up in a frame: its trail a vertical ribbon; a vertical
+;; S along it), climbing to 2.3 m through the hit frames
 (defpose :hs-k-na3-up (:base :hs-k-stance)
-  (:root :u -0.22 :f -0.06 :yaw 34) (:pelvis :twist 10) (:spine :flex 22) (:chest :twist 40) (:neck :twist -26) (:head :flex 4)
-  (:arm-l :flex -74 :side 16 :twist 0) (:elbow-l :flex 8) (:hand-l :flex -70)
-  (:arm-r :flex 40 :side 30 :twist 0) (:elbow-r :flex 70) (:hand-r :flex -60)
-  (:thigh-l :flex -20 :side 10) (:knee-l :flex 46) (:thigh-r :flex 40 :side 8) (:knee-r :flex 44))
+  (:root :u -0.28 :f 0.04 :yaw 18) (:pelvis :twist 6) (:spine :flex 34) (:chest :twist 16) (:neck :twist -10) (:head :flex -18)
+  (:arm-l :flex 38 :side 14 :twist 0) (:elbow-l :flex 8) (:hand-l :flex -40)
+  (:arm-r :flex -30 :side 34 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -70)
+  (:thigh-l :flex 52 :side 10) (:knee-l :flex 62) (:thigh-r :flex -10 :side 12) (:knee-r :flex 40))
 (defpose :hs-k-na3-hit (:base :hs-k-stance)
   (:root :f 0.12 :u -0.06 :yaw -10) (:pelvis :twist -4) (:spine :flex -4) (:chest :twist -20) (:head :flex -6)
   (:arm-l :flex 84 :side 18 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -100)
   (:arm-r :flex -30 :side 34 :twist 0) (:elbow-r :flex 40) (:hand-r :flex -70)
   (:thigh-r :flex 36 :side 8) (:knee-r :flex 30) (:thigh-l :flex -22 :side 10) (:knee-l :flex 12))
 (defstrike :hs-k-na3 (10 3 13 :base :hs-k-stance)
-  (0 :hs-k-kaeshi-hit (:root :yaw -22 :u -0.1) (:chest :twist -30) (:arm-l :flex 114 :side 78) (:elbow-l :flex 12))
-  (4 :hs-k-na3-up)
-  (8 :hs-k-na3-up (:root :u -0.26 :yaw 40) (:chest :twist 46) (:arm-l :flex -82))                      ; held, deeper
+  (0 :hs-k-kaeshi-hit (:root :u -0.12) (:spine :flex 12) (:arm-r :flex 22 :side 54) (:elbow-r :flex 20)   ; (J2's end)
+     (:arm-l :flex 22 :side 54) (:elbow-l :flex 20))
+  (3 :hs-k-na3-up)
+  (6 :hs-k-na3-up (:root :yaw 6 :f 0.08) (:chest :twist 2) (:arm-l :flex 34 :side 4))                    ; weaving
+  (8 :hs-k-na3-up (:root :u -0.32 :yaw 20) (:chest :twist 20) (:arm-l :flex 30 :side 16))                 ; held, deepest
   (:s :snap :hs-k-na3-hit)
-  (:a :hs-k-na3-hit (:root :u 0.0 :yaw -16) (:spine :flex -14) (:arm-l :flex 150 :side 22))           ; through, rising
+  (:a :hs-k-na3-hit (:root :u 0.0 :yaw -16) (:spine :flex -14) (:arm-l :flex 150 :side 22))              ; through, rising
   (20 :hs-k-na3-hit (:root :u -0.06 :yaw -12) (:spine :flex -8) (:arm-l :flex 132 :side 24) (:elbow-l :flex 20))
   (:end :hs-k-stance))
-;; J4 掃鞭 SŌBEN (10/3/13): the right high backhand L -> R: the right fist wound across to his left shoulder, the chest turned
-;; to his left, the left hand low by his hip (held f4-8); on S unwound to his right, the arm flung out flat at head height:
-;; the two front-right hanging chains (6 7) swept L -> R high across the front (+40 -> -30 deg, 1.9 -> 1.7 m up)
+
+;; J4 旋投 SENTŌ (10/3/13): the overhead whirl and the fling (motion-refs R3 -> R2): out of J3's rise the right arm goes up,
+;; the fist circling over his head (a key every 2 f), the body still beneath it, the left hand low; cocked behind his head
+;; on f9, on S thrown down the line, the weight onto the front foot: hanging chain 7 whirled flat round over his head, 1.5
+;; turns (1.5 m round, 2.8 m up, 77 deg a frame, f2-9; its trail a disc; two turns would be 103 deg a frame inside the 10 f
+;; startup, past a key every 90 deg), its last turn ending ahead of him and released straight at him (f9 -> f10: a straight
+;; speed line, bowed by the lag), taut through the hit frames (6.0 m, 1.35 -> 1.1 m up)
 (defpose :hs-k-na4-up (:base :hs-k-stance)
-  (:root :u -0.12 :yaw 40) (:pelvis :twist 12) (:spine :flex 8) (:chest :twist 46) (:neck :twist -30) (:head :flex 0)
-  (:arm-r :flex 104 :side -54 :twist 0) (:elbow-r :flex 118) (:hand-r :flex -40)
-  (:arm-l :flex -20 :side 30 :twist 0) (:elbow-l :flex 30) (:hand-l :flex -70)
-  (:thigh-l :flex 30 :side 10) (:knee-l :flex 34) (:thigh-r :flex -14 :side 12) (:knee-r :flex 26))
+  (:root :u -0.06) (:pelvis :twist -4) (:spine :flex -4) (:chest :twist -6) (:neck :twist 6) (:head :flex -10)
+  (:arm-r :flex 168 :side 14 :twist 0) (:elbow-r :flex 34) (:hand-r :flex -40)
+  (:arm-l :flex 10 :side 36 :twist 0) (:elbow-l :flex 30) (:hand-l :flex -70)
+  (:thigh-l :flex 12 :side 10) (:knee-l :flex 18) (:thigh-r :flex -10 :side 12) (:knee-r :flex 14))
 (defpose :hs-k-na4-hit (:base :hs-k-stance)
-  (:root :f 0.1 :u -0.08 :yaw -14) (:pelvis :twist -6) (:spine :flex 4) (:chest :twist -26) (:head :flex 0)
-  (:arm-r :flex 96 :side 80 :twist 0) (:elbow-r :flex 2) (:hand-r :flex -90)
-  (:arm-l :flex 20 :side 24 :twist 0) (:elbow-l :flex 60) (:hand-l :flex -60)
-  (:thigh-r :flex 34 :side 10) (:knee-r :flex 30) (:thigh-l :flex -20 :side 10) (:knee-l :flex 14))
+  (:root :f 0.18 :u -0.12 :yaw 8) (:pelvis :twist 4) (:spine :flex 18) (:chest :twist 14) (:head :flex 0)
+  (:arm-r :flex 86 :side 10 :twist 0) (:elbow-r :flex 0) (:hand-r :flex -90)
+  (:arm-l :flex -40 :side 30 :twist 0) (:elbow-l :flex 30) (:hand-l :flex -70)
+  (:thigh-l :flex 44 :side 8) (:knee-l :flex 40) (:thigh-r :flex -28 :side 10) (:knee-r :flex 14))
 (defstrike :hs-k-na4 (10 3 13 :base :hs-k-stance)
-  (0 :hs-k-na3-hit (:root :u -0.06 :yaw -12) (:spine :flex -8) (:arm-l :flex 132 :side 24) (:elbow-l :flex 20))
-  (4 :hs-k-na4-up)
-  (8 :hs-k-na4-up (:root :yaw 46) (:chest :twist 52) (:elbow-r :flex 126))                              ; held, wound tighter
+  (0 :hs-k-na3-hit (:root :u -0.06 :yaw -12) (:spine :flex -8) (:arm-l :flex 132 :side 24) (:elbow-l :flex 20))   ; (J3's end)
+  (2 :hs-k-na4-up)
+  (4 :hs-k-na4-up (:arm-r :flex 160 :side 32) (:elbow-r :flex 44))                                        ; the fist circling
+  (6 :hs-k-na4-up (:arm-r :flex 172 :side 2) (:elbow-r :flex 26))                                         ;  over his head
+  (8 :hs-k-na4-up (:arm-r :flex 162 :side 30) (:elbow-r :flex 42))
+  (9 :hs-k-na4-up (:root :yaw 14) (:chest :twist 16) (:arm-r :flex 178 :side 24) (:elbow-r :flex 78))    ; cocked
   (:s :snap :hs-k-na4-hit)
-  (:a :hs-k-na4-hit (:root :yaw -34) (:chest :twist -40) (:arm-r :flex 90 :side 104))                ; through, to his right
-  (20 :hs-k-na4-hit (:root :yaw -28 :u -0.1) (:chest :twist -34) (:arm-r :flex 70 :side 96) (:elbow-r :flex 14))
+  (:a :hs-k-na4-hit (:root :f 0.22 :u -0.16) (:spine :flex 22) (:arm-r :flex 70))                         ; through, down
+  (20 :hs-k-na4-hit (:root :f 0.12 :u -0.1) (:spine :flex 12) (:arm-r :flex 60 :side 16) (:elbow-r :flex 14))
   (:end :hs-k-stance))
 
-;; J3 旋鎖 SENSA (13/3/18, 4.4 m arc 180; ender): coiled deep to his right, crouched, both arms wound back (held f5-10); the
-;; half-turn cyclone: unwound to his left with both crescents at full chain sweeping the front half, a hanging chain at his
-;; right swept round with them (*HS-BK-CHAINS*); held facing his left, then square
+;; J5 旋鎖 SENSA (10/3/18; the ender, its push): the drill: out of J4's throw both fists drawn in together before his chest
+;; and wound (a crank: turned to his right, sunk, the fists turning over each other, f3-8, held); on S both arms driven
+;; straight out along the line together, lunging, held through the bore and the push, then pulled back: six hanging chains
+;; (0 1 2 5 6 7) gathered in before his chest and twisted round each other (*HS-WAVES*: six helices turning, a cone
+;; tapering to the point), bored straight out to 6.0 m on S (f9 -> f10: six speed lines), held turning through the hit
+;; frames and the push (f10-16), unwound back to the curtain
 (defpose :hs-k-sensa-up (:base :hs-k-stance)
-  (:root :u -0.2 :yaw -80) (:pelvis :twist -10) (:spine :flex 16) (:chest :twist -40) (:neck :twist 30) (:head :flex 0)
-  (:arm-r :flex -46 :side 76 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -90)
-  (:arm-l :flex 120 :side 64 :twist 0) (:elbow-l :flex 30) (:hand-l :flex -90)
-  (:thigh-l :flex 46 :side 10) (:knee-l :flex 56) (:thigh-r :flex 6 :side 14) (:knee-r :flex 50))
+  (:root :u -0.2 :f -0.06 :yaw -26) (:pelvis :twist -8) (:spine :flex 14) (:chest :twist -24) (:neck :twist 20) (:head :flex 0)
+  (:arm-r :flex 46 :side -10 :twist 0) (:elbow-r :flex 112) (:hand-r :flex -40)
+  (:arm-l :flex 52 :side -16 :twist 0) (:elbow-l :flex 104) (:hand-l :flex -40)
+  (:thigh-l :flex 40 :side 10) (:knee-l :flex 48) (:thigh-r :flex -8 :side 12) (:knee-r :flex 40))
 (defpose :hs-k-sensa-hit (:base :hs-k-stance)
-  (:root :u -0.1 :yaw -20) (:pelvis :twist 0) (:spine :flex 6) (:chest :twist 10) (:head :flex 0)
-  (:arm-r :flex 40 :side 86 :twist 0) (:elbow-r :flex 2) (:hand-r :flex -90)
-  (:arm-l :flex 40 :side 86 :twist 0) (:elbow-l :flex 2) (:hand-l :flex -90)
-  (:thigh-l :flex 24 :side 10) (:knee-l :flex 30) (:thigh-r :flex 4 :side 16) (:knee-r :flex 30))
-(defstrike :hs-k-sensa (13 3 18 :base :hs-k-stance)
-  (0 :hs-k-na4-hit (:root :yaw -28 :u -0.1) (:chest :twist -34) (:arm-r :flex 70 :side 96) (:elbow-r :flex 14))   ; (§28.15: J4's end)
-  (5 :hs-k-sensa-up)
-  (10 :hs-k-sensa-up (:root :yaw -88 :u -0.22) (:chest :twist -44))
+  (:root :f 0.24 :u -0.12 :yaw 0) (:pelvis :twist 0) (:spine :flex 16) (:chest :twist 0) (:head :flex 0)
+  (:arm-r :flex 88 :side -6 :twist 0) (:elbow-r :flex 0) (:hand-r :flex -90)
+  (:arm-l :flex 88 :side -6 :twist 0) (:elbow-l :flex 0) (:hand-l :flex -90)
+  (:thigh-l :flex 48 :side 8) (:knee-l :flex 42) (:thigh-r :flex -30 :side 10) (:knee-r :flex 12))
+(defstrike :hs-k-sensa (10 3 18 :base :hs-k-stance)
+  (0 :hs-k-na4-hit (:root :f 0.12 :u -0.1) (:spine :flex 12) (:arm-r :flex 60 :side 16) (:elbow-r :flex 14))   ; (J4's end)
+  (3 :hs-k-sensa-up)
+  (6 :hs-k-sensa-up (:root :yaw -32) (:chest :twist -30) (:arm-r :flex 40) (:arm-l :flex 58))            ; the crank turning
+  (8 :hs-k-sensa-up (:root :u -0.24 :yaw -36) (:chest :twist -34) (:arm-r :flex 52) (:arm-l :flex 46))   ; held, wound
   (:s :snap :hs-k-sensa-hit)
-  (:a :hs-k-sensa-hit (:root :yaw 56) (:chest :twist 24) (:arm-l :flex 70))
-  (22 :hs-k-sensa-hit (:root :yaw 84 :u -0.08) (:chest :twist 20) (:arm-r :flex 60 :side 70) (:arm-l :flex 70 :side 60))
+  (:a :hs-k-sensa-hit (:root :f 0.28))                                                                    ; the bore
+  (19 :hs-k-sensa-hit (:root :f 0.2 :u -0.1) (:arm-r :flex 80) (:arm-l :flex 80))                        ; held: the push
+  (24 :hs-k-sensa-hit (:root :f 0.08 :u -0.06) (:arm-r :flex 40 :side 14) (:elbow-r :flex 50) (:arm-l :flex 40 :side 14)
+      (:elbow-l :flex 50))
   (:end :hs-k-stance))
 
 ;; (B3b's K1 墜鎖 TSUISA, K2 薙鎖 NAGISA and K3 落鎖 RAKUSA clips: no move's since B4a's placed K and B4c's routes; deleted
@@ -2442,8 +2472,7 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:end :hs-kb-stance))
 
 (defparameter *hs-bk-chains*
-  '((:hs-k-sensa 6 2 13 16 20 28 5.9 0.8 -50 40 0.6 0)         ; J3: the hanging chain at his right swept round (§25.3: 5.9; §25.34's 6.9, back;
-                                                                ;  §28.11: from -50, inside J5's 100 deg, was -100)
+  '(;; (§28.19: J5 SENSA's swept chain gone: its six chains are the drill, *HS-LASHES*)
     ;; (B4a, §22.2: TSUISA's lance, NAGISA's reap, RAKUSA's line drops removed; B4c's route links play those clips as
     ;; stand-ins, their chains drawn by B4b)
     ;; (A3, §24.3: L SAHARAI's ring is a lash now, *HS-LASHES*)
@@ -2558,15 +2587,23 @@ for the links).")
      (25 5.0 0.5 5.7 0 0.2) (26 5.5 0.6 0 0 0.2) (27 5.0 0.7 -5.7 0 0.2) (28 4.5 0.8 0 0 0.2)   ;  turns rising (0.5 m round
      (29 5.0 0.95 5.7 0 0.2) (30 5.5 1.1 0 0 0.2) (31 5.0 1.25 -5.7 0 0.2) (32 4.5 1.4 0 0 0.2)  ;  at 5 m), held wound
      (33 5.0 1.4 5.7 0 0.2) (40 5.0 1.3 0 0 0.1) (46 4.6 0.9 0 0 0))
-    ;; §28.15: the five J's own J3 / J4 (spread 6.0 m inside +-50 on f10-12, gathered 4.5 m inside +-45 on f19-21)
-    (:hs-k-na3 3 0.34 0.8 2 24                      ; J3 昇鞭: the front-left two (0 1) drawn back low behind his left,
-     (4 1.6 0.3 120 10 0) (8 1.4 0.15 150 10 -0.1) (9 3.0 0.35 70 10 0.4)       ;  whipped out low and climbing (the left
-     (10 6.0 0.6 15 10 0.6) (11 6.0 1.3 8 10 0.3) (12 6.0 2.0 2 10 -0.2)        ;  underhand rising lash)
-     (14 5.8 2.4 0 10 -0.3) (20 5.0 1.4 0 10 -0.5))
-    (:hs-k-na4 192 0.34 0.8 2 24                    ; J4 掃鞭: the front-right two (6 7) hauled round to his left front,
-     (4 1.6 1.4 40 -10 0) (8 1.5 2.0 90 -10 0.2) (9 3.4 2.0 70 -10 0.4)         ;  swept L -> R high across the front
-     (10 6.0 1.9 40 -10 0.5) (11 6.0 1.8 5 -10 0.4) (12 6.0 1.7 -30 -10 0.3)    ;  (the right high backhand)
-     (14 5.8 1.4 -60 -10 0) (20 5.0 0.5 -70 -10 -0.4))
+    ;; §28.19 (batch 4a, the 散 J string's chain paths; the user: 「散可以」): spread 6.0 m inside +-50 on the hit frames f10-12
+    ;; (J2 鋏鞭's two chains are its crescents' let-outs, *HS-LETOUT*: from both hands)
+    (:hs-k-na3 1 0 0.8 0 24                         ; J3 蛇鞭: the front-left one (0) laid on the floor and sent crawling at
+     (2 1.8 0.05 28 0 -1.5) (4 2.6 0.05 20 0 -1.5) (6 3.5 0.05 12 0 -1.5)       ;  him (the slither, *HS-WAVES*' lateral S),
+     (8 4.5 0.05 6 0 -1.5) (9 5.3 0.08 3 0 -1.2)                                ;  reared up into him from below on S (1.2 m
+     (10 6.0 1.3 2 0 0.3) (11 6.0 1.9 1 0 0.3) (12 6.0 2.3 0 0 0.1)              ;  up in a frame: a vertical trail) and on up
+     (14 5.8 2.5 0 0 -0.2) (20 5.0 1.2 0 0 -0.5))
+    (:hs-k-na4 128 0 0.8 0 26                       ; J4 旋投: the front-right one (7) whirled flat over his head, 1.5 turns
+     (2 1.5 2.8 180 0 0.2) (3 1.5 2.85 -102.9 0 0.2) (4 1.5 2.9 -25.7 0 0.2)    ;  counter-clockwise (77 deg a frame, a key each),
+     (5 1.5 2.85 51.4 0 0.2) (6 1.5 2.8 128.6 0 0.2) (7 1.5 2.85 -154.3 0 0.2)  ;  ending ahead of him (f9), flung straight at
+     (8 1.5 2.9 -77.1 0 0.2) (9 1.6 2.8 0 0 0.2)                                 ;  him (the lag bowing it out), taut on f12
+     (10 6.0 1.35 0 0 0.6) (11 6.0 1.2 0 0 0.3) (12 6.0 1.1 0 0 0.05)
+     (14 5.7 0.9 0 0 -0.2) (20 4.6 0.3 0 0 -0.5))
+    (:hs-k-sensa 231 0.12 0.75 0 30                 ; J5 旋鎖: six (0 1 2 5 6 7) gathered before his chest, twisted (the
+     (3 1.0 1.6 -1.5 0.6 0.2) (8 0.9 1.5 -1.5 0.6 0.2) (9 3.2 1.3 -1.5 0.6 0.1) ;  drill, *HS-WAVES*' helix), bored out along the
+     (10 6.0 1.15 -1.5 0.6 0) (11 6.0 1.1 -1.5 0.6 0) (12 6.0 1.15 -1.5 0.6 0)  ;  line on S (a rank 0.12 f late), held turning
+     (16 6.0 1.05 -1.5 0.6 0) (22 4.6 0.6 -1.5 0.6 -0.3))                       ;  through the push, unwound
     (:hs-k-g-na3 256 0 1.0 3 36                     ; gathered J3 束昇: the bundle drawn back low behind his right, ripped
      (5 1.0 0.6 -60 0 0) (12 1.3 0.2 -110 0 -0.1) (17 1.4 0.15 -120 0 0)        ;  up across the line to high at his left
      (18 2.8 0.5 -60 0 0.4) (19 4.5 0.5 -30 0 0.5) (20 4.5 1.4 5 0 0.4) (21 4.5 2.3 35 0 0.2)
@@ -2593,6 +2630,22 @@ its end on the keys at the hit volume's far edge on the hit frames (*HS-STRIKE-R
       (let ((cell (assoc (first x) out)) (v (hs-lash-vec (rest x))))
         (if cell (setf (cdr cell) (append (cdr cell) (list v))) (setf out (append out (list (list (first x) v))))))))
   "*HS-LASHES* by clip: (clip f32vec ...).")
+(defparameter *hs-waves*
+  '((:hs-k-na3 1 1 0 2 8 9.5 0.4 0.75 1.1)         ; J3 蛇鞭: the slither, a lateral S travelling down the floor chain
+    (:hs-k-na3 1 2 9.5 10 13 17 0.5 0.6 0.9)       ;  the rear: a vertical S up the rising chain
+    (:hs-k-sensa 231 3 1 4 18 24 0.38 1.1 -1.0))    ; J5 旋鎖: the drill, six helices turning round its line
+  "Batch 4a (DUEL_HISAGI §28.19; a look): a lashing chain's body bent into a path, its free end left on its *HS-LASHES*
+key (the drawn reach unchanged): (clip mask kind f0 f1 f2 f3 amp k speed). MASK the hanging chains (bits 0-7); KIND 1 a
+lateral S (horizontal, across the chain), 2 a vertical S, 3 a helix (each chain its own phase, 45 deg x its index; a cone
+widest near the knee, tapering to the end); AMP m (the helix's radius), eased in from clip frame F0 to F1, held to F2,
+out by F3; K waves a metre along it; SPEED rad a frame (the S travels out along it, the helix turns). Drawn by
+%HS-CUBIC-CHAIN on the chain's outer 0.7 (from its knee, none at either end).")
+(defparameter *hs-waves-v*
+  (let ((out nil))
+    (dolist (x *hs-waves* out)
+      (let ((cell (assoc (first x) out)) (v (coerce (mapcar #'f32 (rest x)) 'f32vec)))
+        (if cell (setf (cdr cell) (append (cdr cell) (list v))) (setf out (append out (list (list (first x) v))))))))
+  "*HS-WAVES* by clip: (clip f32vec ...), each mask kind f0 f1 f2 f3 amp k speed.")
 (defparameter *hs-bundled* '((:hs-k-hosoku 21 26) (:hs-k-g-k2 -2 -1) (:hs-k-g-k3 -2 -1) (:hs-k-g-j2 -2 -1) (:hs-k-g-j3 -2 -1)
                              (:hs-k-st-shu -2 -1) (:hs-r-sa-g -2 -1) (:hs-k-tataki -2 -1) (:hs-k-sweep -2 -1)   ; (§28.11; the
                              (:hs-k-jibashiri -2 -1) (:hs-k-g-na3 -2 -1) (:hs-k-g-na4 -2 -1))   ; (§28.15)                                                           ;  gathered SA by its move)
@@ -2604,7 +2657,7 @@ links bound throughout): K1 綁束 binds them, the gathered links strike with th
 (defparameter *hs-bundle-rest* '(-35.0 1.25 0.9)
   "Where the bundle's free end hangs (degrees off his facing, m from his feet, m up): at his right front, by his right fist.")
 (defparameter *hs-spins*
-  '((:hs-k-saben 5 12 20 0.5) (:hs-k-kaeshi 5 11 19 -0.5) (:hs-k-sensa 5 13 24 1.0) (:hs-k-saharai 2 18 32 2.0)
+  '((:hs-k-saben 5 12 20 0.5) (:hs-k-kaeshi 4 10 18 -0.5) (:hs-k-sensa 3 10 22 1.0) (:hs-k-saharai 2 18 32 2.0)   ; (§28.19: J2 / J5 at S 10)
     (:hs-k-raiden 7 20 30 0.5) (:hs-k-ame 8 30 50 1.0) (:hs-k-kosa 7 20 30 0.5) (:hs-k-kubikake 5 24 34 1.0)
     (:hs-k-hosoku 6 16 26 1.0) (:hs-k-s-k2 9 21 30 0.5) (:hs-k-s-k3 8 21 32 0.75) (:hs-k-g-k2 8 27 40 0.75)
     (:hs-k-g-k3 6 27 36 1.0) (:hs-k-g-j2 3 16 22 0.5) (:hs-k-g-j3 4 16 22 0.75)
