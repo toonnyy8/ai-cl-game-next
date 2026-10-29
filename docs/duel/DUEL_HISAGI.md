@@ -4542,5 +4542,5 @@ pain shared (notes §2.4, A via C); Brave Souls' "countless chains rain down fro
 | 0–30 | the pair side-on | **new**: the 絞 stance, the noose wound round his right fist; he hauls the noose hand over hand, dragging the victim to him (instead of today's six flash steps: in the bind they are already close) |
 | 30–180 | as today (§21.8's table) | behind him, the chain across his throat; the orb sinks, its chains drop and bind him standing; the crescent raised, Hisagi's own hand at his throat (the shared choke); the Konpaku shatter; 絞首 / KOSHU |
 
-Order to build: 散 and 鎌 (new), then 聚 and 絞 (edits of KŌSA / KŌSHU). Each about one subagent day; the scripted smoke (no hash
+**Approved** (the user, 2026-10-29: 「分鏡可以」). Order to build: 散 and 鎌 (new), then 聚 and 絞 (edits of KŌSA / KŌSHU). Each about one subagent day; the scripted smoke (no hash
 change: presentation only) and stills per beat from the 839xx cinematic stills range.
