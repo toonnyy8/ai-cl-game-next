@@ -277,6 +277,7 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
         (draw-aura f (kit-aura kit) x y z (* 1.1 (body-hurt-h b)) age rdt
                    (cond ((> (model-flare m) 0f0) (+ 1.0 (* 2.0 (model-flare m))))   ; West's garb flaring (a warded hit, SHONETSU)
                          ((and (eq look :charge) (not (eq (fighter-phase f) :main))) 1.5)
+                         ((and mv (getf (mv-params mv) :aura-k)) (getf (mv-params mv) :aura-k))   ; a charge stance's reiatsu (Kenpachi NS3)
                          ((and mv (eq (mv-kind mv) :kikon) (eq (kit-aura kit) :oni)) 0.15)   ; the oni pillar smoulders in
                          (t 1.0))))                                                           ; his rush (its trail is the tell)
       (when (plusp (fighter-layers f))                     ; 霜の層 (Rukia's Shikai): the crust up his legs by layers

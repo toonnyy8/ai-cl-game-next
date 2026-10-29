@@ -75,21 +75,39 @@
 
 ;;; ---------------------------------------------------------------- RYOTE (cup 2): two-handed kendo, straight and long
 ;;; (their own clips, ken-art.lisp; :clip-s = the clip's authored S, so each plays at speed 1)
-;;; ================================================================ the core system's moves (docs/duel/DUEL_CORE.md, 2026-10-27)
-;;; Retagged from the K string, BUTTAGIRU and SPLIT THE METEOR (clips and volumes as they were; redrawn later). NS1 heavy (the K
-;;; string: 70 + 60 + 80), NS2 equal (BUTTAGIRU's leap > the kick), NS3 finisher (the K2 rise > the K3 drop); AS1 recovers (takes
-;;; flash-step / Reiatsu), AS2 launches (BUTTAGIRU), AS3 hits hardest (the meteor line); the SA is the first J.
+;;; ================================================================ the core system's moves (DUEL_KEN_CORE, 2026-10-29)
+;;; Three pointers, three themes (the user, 2026-10-29): 1 the chain (連斬壓制: the K string, one cut after another), 2 the rush (霸體硬扛與
+;;; 粗暴突進: NS2 takes one hit from its sixth frame to the end of its active frames, and every cancel it makes feeds its SA), 3 the kamae
+;;; (劍道架式續力: three charges, each raising the reiatsu and the output of the SA, the J string and the AS after it).
+;;; NS1: the K string 70 + 60 + 80; AS1: the drop (steals the flash-step).
 (defmove-copy :ke-n1c :ke-k3 :flags nil)
 (defmove-copy :ke-n1b :ke-k2 :params (:ns-next :ke-n1c))
 (defmove-copy :ke-n1a :ke-k1 :params (:ns-next :ke-n1b))
-(defmove-copy :ke-n2b :ke-j3 :kind :flash :dmg 60 :flags nil)
-(defmove-copy :ke-n2a :ke-buttagiru :kind :flash :dmg 90 :on-hit :stagger :params (:melee-range 2.6 :ns-next :ke-n2b))
-(defmove-copy :ke-n3b :ke-j3 :kind :flash :dmg 70 :flags nil)
-(defmove-copy :ke-n3a :ke-k2 :enter 0 :params (:ns-next :ke-n3b))
-(defmove-copy :ke-as1 :ke-k3 :kind :sp :callout "KITTE MIRO YO" :dmg 40 :on-hit :knockdown :flags nil :params (:steal-fs 120))   ; (40 -> 120: the 0-300 gauge, 2026-10-29)
-(defmove-copy :ke-as2 :ke-buttagiru :on-hit :launch :dmg 100 :on-frame nil :params (:melee-range 2.6))
-(defmove-copy :ke-as3 :ke-meteor :dmg 170 :on-hit :knockdown :on-frame nil :params (:melee-range 3.4))
 (defmove-copy :ke-sa :ke-j1 :dmg 36 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)
+;; NS2: BUTTAGIRU's leap > the kick; both take one hit through (:armor-hits 1, extended to the end of the active frames by KEN-ARMOR),
+;; a cancel (the triangle's, no damage) neither spends it nor is a hit: it counts (KEN-CLASH) and raises the SA of the gap (KEN-DMG-MULT)
+(defmove-copy :ke-n2b :ke-j3 :kind :flash :dmg 60 :flags nil :startup 14 :clip-s 8 :armor-hits 1
+  :params (:armor-act t :clash-count t))
+(defmove-copy :ke-n2a :ke-buttagiru :kind :flash :dmg 90 :on-hit :stagger :armor-hits 1
+  :params (:melee-range 2.6 :ns-next :ke-n2b :sa :ke-sa-r :armor-act t :clash-count t))
+(defmove-copy :ke-sa-r :ke-sa :params (:clash-scale 0.3))
+;; NS3: three charges that hit nothing; each one's SA (J pressed in its gap) arms a bigger :charge-mult on the string after it
+(defmove-copy :ke-sa-c1 :ke-sa :dmg 45 :params (:charge-mult 1.3 :aura-k 1.5))
+(defmove-copy :ke-sa-c2 :ke-sa :dmg 60 :params (:charge-mult 1.6 :aura-k 2.2))
+(defmove-copy :ke-sa-c3 :ke-sa :dmg 80 :params (:charge-mult 2.0 :aura-k 3.0))
+(defmove :ke-n3c :kind :flash :clip :ke-chg3 :startup 16 :active 0 :recovery 20 :on-frame ((2 ken-charge-sfx))
+  :params (:sa :ke-sa-c3 :aura-k 3.0))
+(defmove :ke-n3b :kind :flash :clip :ke-chg2 :startup 16 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
+  :params (:ns-next :ke-n3c :sa :ke-sa-c2 :aura-k 2.2))
+(defmove :ke-n3a :kind :flash :clip :ke-chg1 :startup 20 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
+  :params (:ns-next :ke-n3b :sa :ke-sa-c1 :aura-k 1.5))
+;; AS n = n segments, each a fresh SP press; only the last knocks down or launches
+(defmove-copy :ke-as1 :ke-k3 :kind :sp :callout "KITTE MIRO YO" :dmg 40 :on-hit :knockdown :flags nil :params (:steal-fs 120))   ; (40 -> 120: the 0-300 gauge, 2026-10-29)
+(defmove-copy :ke-as2b :ke-buttagiru :on-hit :launch :dmg 100 :on-frame nil :params (:melee-range 2.6))
+(defmove-copy :ke-as2 :ke-k1 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-as2b))
+(defmove-copy :ke-as3c :ke-meteor :dmg 170 :on-hit :knockdown :on-frame nil :params (:melee-range 3.4))
+(defmove-copy :ke-as3b :ke-k2 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-as3c))
+(defmove-copy :ke-as3 :ke-k1 :kind :sp :dmg 50 :on-hit :stagger :params (:ns-next :ke-as3b))
 
 (defmove :ke-r-j1 :kind :quick :clip :ke-r-q1 :clip-s 10 :startup 10 :active 3 :recovery 12 :dmg 40 :adv-block -2
   :vol (:cap 0.3 1.56 1.2 0.5) :on-hit :flinch)                      ; MEN: the straight overhead
@@ -164,10 +182,12 @@
   :commands (:q :ke-j1 :f :ke-k1 :sig :ke-stance :sp1 :ke-buttagiru :sp2 :ke-charge
              :breaker :ke-breaker :kikon :ke-kikon)
   :grid (:ke-j1 :ke-j2 :ke-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)
-  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2)
+  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2
+         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)          ; the idle clip by SP pointer
+         :kikon-cines (ken-kikon-cine ken-kikon-cine ken-sky-split-cine))   ; (pointer 2's own cinematic: later)
   :strings ((:ke-charge :land :ke-flurry))
   :awaken-form :nozarashi
-  :hooks (:boss ken-boss)                       ; the DANGAI boss: the Bankai at FIGHT, the arm never spent (ken-meter.lisp)
+  :hooks (:boss ken-boss :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)                       ; the DANGAI boss: the Bankai at FIGHT, the arm never spent (ken-meter.lisp)
   :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (2.0 4.0) :pressure (1.0 2.6) :zone (4.0 6.0) :defend (3.0 5.0))
        :moves ((0.0 1.3 :q 5 :f 2 :breaker 1 :sp2 1 :sig 2 nil 3)    ; J up close only (DUEL_STRINGS §13), K beyond
@@ -189,7 +209,7 @@
           :ladder ((:nozarashi 0.0 0 0.0 0.0) (:ryote *nome-drain-t2* *nome-delay* *nome-up-t2* *nome-down-t2*)
                    (:nomihose *nome-drain-t3* 0 *nome-up-t3* *nome-down-t3*)))
   :meter-gain (:dealt *nome-dealt* :taken *nome-taken* :drunk *nome-drunk*)
-  :hooks (:tick ken-tick :p ken-card-bankai)    ; the NOME ladder and (the Bankai, inheriting it) the arm: ken-meter.lisp;
+  :hooks (:tick ken-tick :p ken-card-bankai :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)    ; the NOME ladder and (the Bankai, inheriting it) the arm: ken-meter.lisp;
                                                 ; P: DANGAI's 隨時卍解 card from any cup
   :commands (:sp1 :ke-meteor :kikon :ke-kikon-n)
   ;; its own one-handed clips for the base moves and the meteor (a look: DUEL_KEN_REWORK §6.2)
@@ -975,3 +995,40 @@ GRIP-DRIFT-CHECK; the Bankai's knobs 32000+k *ARM-SELF*, 33000+k *ARM-BURST-SELF
                                   (gauges-meter-idle (gauges *p1*)) 0))))
 (dolist (r '((2380 2389 ken-debug) (2392 2392 ken-debug) (32000 34999 ken-debug) (37000 38009 ken-debug) (71000 71004 ken-debug)))
   (pushnew r *char-debug* :test #'equal))
+
+;;; ================================================================ the core system's hooks (DUEL_KEN_CORE)
+(defparameter *ken-clash-max* 5 "Cancels NS2's SA counts at most (the user, 2026-10-29: 「抵銷越多次 SA 傷害越高」; the cap is mine).")
+(defun ken-armor (e f mv)
+  "His :armor hook (fighter.lisp OWN-ARMOR-P): NS2's armour (:armor-hits 1, spent in COMBAT) lasts through the active frames, not only
+the startup (the user, 2026-10-29: 「前搖到 active 吃一發不退」)."
+  (declare (ignore e))
+  (and (getf (mv-params mv) :armor-act) (plusp (fighter-armor-left f)) (eq (fighter-phase f) :main)
+       (<= *armor-from* (fighter-sf f)) (< (fighter-sf f) (+ (mv-s mv) (mv-a mv)))))
+(defun ken-clash (x other)
+  "His :clash hook (CORE-CLASH!): a cancel while he is in an NS2 segment counts, for the SA of its gap."
+  (declare (ignore other))
+  (let* ((f (fighter x)) (mv (fighter-move f)))
+    (when (and (eq (fighter-state f) :move) mv (getf (mv-params mv) :clash-count))
+      (setf (fighter-clash-n f) (min *ken-clash-max* (1+ (fighter-clash-n f))))
+      (clog "~a NS2 cancel ~d" (side-name x) (fighter-clash-n f)))))
+(defun ken-dmg-mult (att def hw mv hazard d2)
+  "His :dmg-mult hook (combat.lisp APPLY-HIT): NS2's SA (:clash-scale) hits 1 + scale x the cancels the route made."
+  (declare (ignore def hw d2))
+  (let ((s (and mv (not hazard) (getf (mv-params mv) :clash-scale))))
+    (if s
+        (let ((x (+ 1.0 (* s (fighter-clash-n (fighter att)))))) (clog "~a NS2 SA x~,2f" (side-name att) x) x)
+        1.0)))
+(defun ken-charge-sfx (e) "NS3's charge: the kamae gathers (its sound)." (emit :sfx :whoosh-heavy e))
+
+(defun ken-core-debug (c)
+  "84000 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene, human P1 Kenpachi and an idle Ichigo P2
+2.2 m apart, both CPUs off, gauges full; on the running scene 84010 P2 starts his NS now (NS against NS: the first hit wins), 84011
+his J1 now (NA against NS: a cancel). The scripts time the presses."
+  (case c
+    (84000 (ensure-battle :kenpachi :ichigo :cpu nil)
+           (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
+           (place *p1* *p2* 2.2)
+           (full-gauges! *p1*) (full-gauges! *p2*))
+    (84010 (core-sp-start! *p2* (fighter *p2*)))
+    (84011 (force-cmd *p2* :q))))
+(pushnew '(84000 84099 ken-core-debug) *char-debug* :test #'equal)

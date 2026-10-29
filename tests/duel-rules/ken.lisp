@@ -196,3 +196,26 @@
             (eq (kit-bankai-form (kit :kenpachi :nomihose)) :bankai) (kit-pips (kit :kenpachi :bankai))))
 
 (setf *core-on* t)
+
+;;; ---- the core system's base kit (DUEL_KEN_CORE, 2026-10-29)
+(let* ((k (kit :kenpachi :base)))
+  (labels ((m (n) (gethash n (kit-moves k))) (cls (n) (kit-class k (m n))))
+    ;; classes: NS1-3 segments, AS1-3 segments, the SAs
+    (check (every (lambda (n) (eq (cls n) :ns)) '(:ke-n1a :ke-n1b :ke-n1c :ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c)))
+    (check (every (lambda (n) (eq (cls n) :as)) '(:ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c)))
+    (check (every (lambda (n) (eq (cls n) :sa)) '(:ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3)))
+    ;; the tells: every NS opener S >= 14; the stance per pointer
+    (check (every (lambda (n) (>= (mv-s (m n)) 14)) '(:ke-n1a :ke-n2a :ke-n3a)))
+    (check (equal (getf (kit-core k) :stances) '(:ke-st-chain :ke-st-rush :ke-st-kamae)))
+    ;; AS n = n segments; only the last one of a route knocks down / launches
+    (check (and (null (getf (mv-params (m :ke-as1)) :ns-next)) (eq (getf (mv-params (m :ke-as2)) :ns-next) :ke-as2b)
+                (eq (getf (mv-params (m :ke-as3)) :ns-next) :ke-as3b) (eq (getf (mv-params (m :ke-as3b)) :ns-next) :ke-as3c)))
+    (check (every (lambda (n) (eq (getf (mv-spec (m n)) :on-hit) :stagger)) '(:ke-as2 :ke-as3 :ke-as3b)))
+    ;; NS2: one armour hit on each segment, lasting through the active frames (KEN-ARMOR), its SA scales with the cancels
+    (check (and (= 1 (mv-armor-hits (m :ke-n2a))) (= 1 (mv-armor-hits (m :ke-n2b)))
+                (eq (getf (mv-params (m :ke-n2a)) :sa) :ke-sa-r) (getf (mv-params (m :ke-sa-r)) :clash-scale)))
+    ;; NS3: three charges that hit nothing, each SA arms a bigger charge x (1.3 < 1.6 < 2.0)
+    (check (every (lambda (n) (zerop (mv-a (m n)))) '(:ke-n3a :ke-n3b :ke-n3c)))
+    (check (< (getf (mv-params (m :ke-sa-c1)) :charge-mult) (getf (mv-params (m :ke-sa-c2)) :charge-mult) (getf (mv-params (m :ke-sa-c3)) :charge-mult)))
+    ;; the hooks reach every cup
+    (check (loop for (f . kk) in (gethash :kenpachi *kits*) always (and (eq 'ken-armor (kit-hook kk :armor)) (eq 'ken-clash (kit-hook kk :clash)))))))

@@ -396,7 +396,8 @@
     (check (and (eq 'hs-bind-clash (kit-hook kb :clash)) (null (kit-hook kr :clash))
                 (eq 'hs-r-link-move (kit-hook kr :link-move)) (null (kit-hook kb :link-move))
                 (loop for c being the hash-keys of *kits* using (hash-value alist)
-                      always (or (eq c :hisagi) (loop for (nil . k) in alist never (or (kit-hook k :clash) (kit-hook k :link-move)))))))
+                      always (or (eq c :hisagi) (and (eq c :kenpachi) (loop for (nil . k) in alist always (and (eq 'ken-clash (kit-hook k :clash)) (null (kit-hook k :link-move)))))   ; (Kenpachi's NS2 cancels: DUEL_KEN_CORE)
+                          (loop for (nil . k) in alist never (or (kit-hook k :clash) (kit-hook k :link-move)))))))
     (check (notany #'fboundp '(hs-bind-drained! hs-bind-released! hs-bind-reel! hs-bind-step hs-bind-resolve hs-bind-pool
                                hs-bind-damage hs-bind-heal hs-bind-snapshot hs-binding hs-p-press hs-kubi-land hs-kaibaku-go
                                hs-try-bind! hs-bk-ok hs-bk-command hs-pull-step)))
@@ -602,7 +603,7 @@
                  always (loop for (f . k) in alist
                               always (and (if (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
                                               (eq 'hs-dmg-mult (kit-hook k :dmg-mult))
-                                              (eq (kit-hook k :dmg-mult) (and (eq c :hisagi) 'hs-core-dmg-mult)))
+                                              (eq (kit-hook k :dmg-mult) (cond ((eq c :hisagi) 'hs-core-dmg-mult) ((eq c :kenpachi) 'ken-dmg-mult))))
                                           (or (eq c :hisagi) (null (getf (kit-ai k) :move-reflex)))))))
     ;; the annulus (§25.3: J1 / J2 3.0-6.0 m 100 deg ahead, J3 3.0-6.0 m all round): a hurt cylinder r 0.36 at D m (ahead,
     ;; or behind); the window's dead zone first, then its volume (facing -Z)

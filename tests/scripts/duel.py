@@ -673,3 +673,28 @@ def hisagi_bankai_script():
         ev.append(cmd(t - 0.05, 83900))
     return sorted(ev, key=lambda x: x["at"])
 write("hisagi-bankai", hisagi_bankai_script())
+
+
+def ken_core_script():
+    """Kenpachi's base kit on the core system (DUEL_KEN_CORE): control scripts, both sides' inputs, read from the combat log."""
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+    def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
+    t = T0
+    for label, ptr, body in (
+            ("N1 chain: SP x3", 2510, lambda s: [sp(s), sp(s + 0.4), sp(s + 0.8)]),
+            ("N2 rush: SP x2, no interference", 2511, lambda s: [sp(s), sp(s + 0.6)]),
+            ("N2 armour: P2's NS lands inside the startup", 2511, lambda s: [ev.append(cmd(s - 0.2, 84010)), sp(s)]),
+            ("N2 armour: P2's NS lands in the startup, then a second hit", 2511, lambda s: [ev.append(cmd(s - 0.25, 84010)), sp(s), ev.append(cmd(s + 0.12, 84011))]),
+            ("N2 cancel x1 then SA", 2511, lambda s: [sp(s), ev.append(cmd(s + 0.1, 84011)), jt(s + 0.9)]),
+            ("N3 kamae: SP, J (SA c1) , J2", 2512, lambda s: [sp(s), jt(s + 0.45), jt(s + 0.75)]),
+            ("N3 kamae: SP x3, J (SA c3), J2", 2512, lambda s: [sp(s), sp(s + 0.45), sp(s + 0.8), jt(s + 1.15), jt(s + 1.45)]),
+            ("N3 kamae: SP, J, J2, SP (AS)", 2512, lambda s: [sp(s), jt(s + 0.45), jt(s + 0.75), sp(s + 1.0)])):
+        say(t, label)
+        ev.extend([cmd(t, 84000), cmd(t + 0.05, ptr)])
+        body(t + 0.3)
+        ev.append(cmd(t + 3.6, 2107))   # the state-hash line: both Reishi after the scene
+        t += 4.0
+    return sorted(ev, key=lambda x: x["at"])
+write("ken-core", ken_core_script())
