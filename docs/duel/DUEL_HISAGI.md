@@ -4992,7 +4992,7 @@ phases are planned in move frames and keyed at clip = 0.9 × move frame (the hol
 
 | Move (eff S) | Charge | Hold (tremble) | Release | Hit, overshoot | Follow-through |
 |---|---|---|---|---|---|
-| NS2a 束 TABA (25: f5-30) | f5-22: heaved up behind him over his right shoulder (1.2 m, 1.6 m up, then 1.35 / 3.5 / -125°, then 1.55 / 4.7 / -155°), sinking, arching | f22-27, ±0.04 m / ±1° | f28-30: over the top (0.9 / 5.5 / -70), down the line (2.6 / 3.6 / -8), slammed at 4.5 | S f30; the end jolts up 0.2 m (f31), bend collapsing; the body bent 0.08 m deeper a frame or two on (clip 28.8) | lying on the line, dragged in slowly (4.42 m by clip 36, 4.1 by 46), home by clip 58; the body rising slowly to clip 50 |
+| NS2a 束 TABA (25: f5-30) | f5-22: heaved up behind him over his right shoulder (1.2 / 1.6 / -55°, then 1.35 / 3.5 / -125°, then 1.55 / 4.7 / -155°), sinking, arching | f22-27, ±0.04 m / ±1° | f28-30: over the top (0.9 / 5.5 / -70), down the line (2.6 / 3.6 / -8), slammed at 4.5 | S f30; the end jolts up 0.2 m (f31), bend collapsing; the body bent 0.08 m deeper a frame or two on (clip 28.8) | lying on the line, dragged in slowly (4.42 m by clip 36, 4.1 by 46), home by clip 58; the body rising slowly to clip 50 |
 | NS2b 叩 TATAKI (21: f9-30) | f9-24: a drift (f13), wheeled down and back at his left (f18), up over his head (f21, f24: 0.7 m, 4.9 m up, behind) | f24-27 at the top, arched, ±0.04 m | f28-30: over his left (1.2 / 4.8 / 100°), down (1.9 / 3.4 / 30°), smashed at 3.0 | S f30; the end jolts up 0.2 m (f31); the squat 0.08 m deeper on f31 | lying, dragged in slowly (2.85 m f40, 2.2 m f52), home f66; risen slowly to f54 |
 | NS2c 大旋 ŌMEGURI (23: f7-30) | f7-22: the lying bundle hauled in hand over hand and round to his right (4.3 / -5° clip 10.8, 3.6 / -40° clip 15.3, 2.9 m / -92° clip 19.8), body wound to his right | f22-27, ±0.05 m / ±1.5° | f28-30: unwound out into the spin (3.3 / -78, 3.9 / -52, 4.5 / -20) | S f30; the spin through the hit window (a key each 90°, clip 27-31, 81° a move frame), on past (+32°, +20° more) | slowing, falling to the floor at his left front (3.96 m / 42° by clip 43), home clip 58; the body's yaw back slowly to clip 48 |
 | AS2a 叩 (21: f9-30) | f9-24: drawn round to his left onto the floor (1.25 / -20° f13, 1.6 / 60° f18, 2.3 m / 122° f24), sinking, wound left | f24-27 crouched, ±0.04 m / ±2° | f28-30: whipped round onto the line (2.7 / 112°, 3.6 / 82°, 4.5 / 45°) | S f30; swept 45 / 15 / -15 / -45° (f30-33), on past to -66 / -80° (f34-35, the overshoot); the body's yaw on to -42 (f35) | slowing round to -100° (f42), dragged in (3.0 m f52), home f66 |
@@ -5016,7 +5016,9 @@ phases are planned in move frames and keyed at clip = 0.9 × move frame (the hol
   window, so the fast part is one key a quarter. In the strips it reads as a whirl, not as poses: the `%hs-trail` ribbon draws the
   arc between the keys at 5.85 m a frame (match camera, clip f27 / f32). The release (0.90 / 1.72 / 2.39) grows into it.
 - Its row's r on the charge was 4.5 m throughout (dragged round at full length); it now comes in to 2.9 m (the comment's "hauled in
-  hand over hand" made literal), which keeps the charge under 0.9 m a frame. Deviation from "keep the path": the radius only.
+  hand over hand" made literal; §28.23's coil "drawn tight"). It does not slow the charge (its peak 0.90 m a frame, the old drag's
+  0.87); it lets the release grow outward from the coil (0.90 → 1.72 → 2.39) into the 5.85 spin. Deviation from "keep the path": the
+  radius only.
 - **TABA's tail**: K2's old second beat (the body's `:snap` shove at clip f33 and the bundle's tail lashed on at f31-33, the old
   `hs-r-k2`'s launch window) is gone; the bundle lies on the line and is dragged in slowly, the body rises slowly. A second accent
   after the slam broke the heavy follow-through. The dead `hs-r-k2` / `hs-r-k3g` (no kit) still play these clips; their `:seg-fn`
