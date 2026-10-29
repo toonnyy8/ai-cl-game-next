@@ -2507,7 +2507,7 @@ him with it (§22.1, batch A2; the orb's own 0.25 of §21.6).")
 (defparameter *hs-kb-grips* '((:hs-kb-stance 9999 0) (:hs-kb-walk-f 9999 0) (:hs-kb-walk-b 9999 0) (:hs-kb-strafe-r 9999 0)
                                (:hs-kb-strafe-l 9999 0) (:hs-kb-kojo 30 9) (:hs-kb-kaibaku 18 5)
                                (:hs-kb-st-shibori 0 0 2) (:hs-kb-shime 42 10 1)   ; (batch 2b, §28.12)
-                               (:hs-cine-ks-haul 0 0 2))   ; (batch 3b, §28.17: KŌSHU's haul, the 絞 stance's wound chain)
+                               (:hs-cine-ks-haul 9999 0 2))   ; (batch 3b, §28.17: KŌSHU's haul: the 絞 stance's wound chain, the left fist on the noose)
   "The bind's clips in which his left fist holds a chain run to the opponent's noose (§22.1: 「the noose taut」): (clip F1
 FT [FL]): held to clip frame F1; slack (sagging) until FT, then taut, trembling from FT on when FT > 0 (batch A3, §24.3: L
 KOJO's heave, f9-19, held through its drag to S; SP2 KAIBAKU-GEKI's haul, thrown off on its S). FL (batch 2b, §28.12; none: 0)

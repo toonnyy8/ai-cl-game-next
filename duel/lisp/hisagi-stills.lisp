@@ -399,7 +399,7 @@ the match camera, frozen); 83964 lets go."
 (defparameter *hs-cine-beats*
   '((10 36 60 85 117 152) (12 40 64 94 140 168) (12 42 75 113 135) (15 50 92 122 165) (10 35 66 94 125) (12 35 62 98 134)
     (12 37 53 84 92 128)
-    (10 40 70 99 140) (15 50 92 122 165))                  ; (batch 3b, §28.17: c 7 鉤刈, the X at f99; c 8 絞首 as c 3)
+    (10 40 70 101 140) (15 50 92 122 165))                 ; (batch 3b, §28.17: c 7 鉤刈, the X at f101; c 8 絞首 as c 3)
   "Each cinematic's beats' middle frames (83970+b; as built, DUEL_HISAGI §22.7, §26.6; 刈's two cuts in its beat 2 and
 the Konpaku in its beat 3, §27.8).")
 (defvar *hs-cine-k* 0 "The cinematic the last 83965+c picked.")

@@ -1045,12 +1045,12 @@ victim's feet back to where the hook caught him (4.5 m out), 0.15 m either side 
   "鉤刈's slashes on the victim (the joints VJM, his chest's front) at cine frame CF: the two cuts (f56, f64: 0.52 m) and the
 X torn across him by the two ripped chains (f96: two 1.0 m slashes at +-49 degrees, crossed on his chest), each drawn
 across over 3 f, the ink rim widening over 4, a white core opening inside it, a spark at its end for 3 f; the X flared wide
-f96-102; all faded f106-120. A look. 0 B."
+f96-104; all faded f112-126. A look. 0 B."
   (declare (type f32vec vjm) (fixnum cf))
-  (when (< cf 120)
+  (when (< cf 126)
     (let ((p *hs-k0*) (q *hs-k1*) (b *hs-k2*) (j (ji :chest))
-          (fl (if (and (>= cf 96) (< cf 102)) 1f0 0f0))
-          (k (if (< cf 106) 0.95f0 (* 0.95f0 (- 1f0 (/ (i->f (- cf 106)) 14f0))))))
+          (fl (if (and (>= cf 96) (< cf 104)) 1f0 0f0))
+          (k (if (< cf 112) 0.95f0 (* 0.95f0 (- 1f0 (/ (i->f (- cf 112)) 14f0))))))
       (declare (type f32vec p q b) (fixnum j) (single-float fl k))
       (dotimes (i 4)
         (let ((age (- cf (case i (0 56) (1 64) (t 96)))))
@@ -1126,17 +1126,17 @@ both necks, Hisagi winces too, the crescents flicked clean: 鉤刈."
   (at 72 (play-sfx :whoosh-heavy :pitch 1.4))
   (at 75 (cine-clip v :sh-flinch :blend 1) (play-sfx :chain-snap) (hs-cine-hit v 1.3 :cut) (face-beat v :hurt 3.0))
   ;; 4 (85-110) low before the victim, from his left: the strain (silence), ripped apart (f96): the X, the negative, the
-  ;; ink splash; the Konpaku (f98)
+  ;; ink splash; the X held clean, then the Konpaku (f104)
   (at 85 (cine-clip a :hs-cine-kg-strain :blend 4) (cine-clip v :sh-stagger :blend 2 :time 0.1) (hold-pose v 10)
       (hs-shot v 50 (if (portrait-p) 5.0 3.4) 0.45 1.25) (lens 56) (silence 11) (play-sfx :chain-rattle :pitch 0.6))
   (at 96 (cine-clip a :hs-cine-kg-rip :blend 0) (cine-clip v :sh-stagger :blend 0) (impact-frame :negative 2)
       (play-sfx :cut-heavy) (play-sfx :chain-snap :pitch 0.7) (shake 0.35 0.45)
       (multiple-value-bind (x y z) (actor-point v 1.2) (impact-splash x y z 8 0.08)))
-  (at 98 (cine-shatter v (fighter-kikon-n (fighter a))) (play-sfx :konpaku-shatter) (impact-frame :manga 10)
+  (at 104 (cine-shatter v (fighter-kikon-n (fighter a))) (play-sfx :konpaku-shatter) (impact-frame :manga 8)
       (multiple-value-bind (x y z) (actor-point v 1.2) (focus-lines 10 x y z)))
-  (at 102 (cine-clip v :sh-lose :blend 10))
+  (at 106 (cine-clip v :sh-lose :blend 10))
   ;; 5 (110-150) wide from his left: the noose jerks both necks, he winces (f116); the crescents flicked clean (f134); 鉤刈
-  (at 110 (if (portrait-p) (shot-on a 75 7.4 1.6 :look 1.0 :ahead 0.7) (shot-on a 75 5.6 1.3 :look 1.0 :ahead 0.7 :off -0.9))
+  (at 110 (if (portrait-p) (shot-on a 75 7.4 1.6 :look 1.0 :ahead 0.7 :off -1.2) (shot-on a 75 5.6 1.3 :look 1.0 :ahead 0.7 :off -0.9))
       (lens 42))
   (at 116 (cine-clip a :hs-cine-shake :blend 3) (face-beat a :hurt 1.2) (face-beat v :hurt 1.2) (impact-frame :negative 1)
       (play-sfx :chain-snap :pitch 0.6) (shake 0.2 0.4)
