@@ -4888,3 +4888,22 @@ The user: 「遠距的 AS2a 跟 AS2b 好像無法連成 combo？」. Cause (the 
 moved both (AS2a's end and AS2b's hit) 3 f later, which used the margin up. Fix: AS2a's window `:stun 36` (stagger 26 → 36), both
 moves' frames unchanged (聚 stays slow): he is still in STUN at f167, AS2b hits him at f170 (about 7 f to spare). duel-rules 10661 ALL
 PASS (+ the pin), the scripted smoke's log identical, `--cvc` 3 PASS.
+
+### 28.23 聚's tension: slow charge, sudden release (the user, 2026-10-29; batch 4c)
+
+The user, on §28.21: 「上撈我希望呈現由近到遠向上抽起的感覺」; 「（繞身連枷）我想看到鎖鏈將身體圍起來後，由慢至快加速橫掃」; 「目前的設計都缺
+少了由緩至急的續力與放出的打擊感，每個時間點的節奏都一樣快速反而表現不出『聚』的攻擊張力。」
+
+**The 聚 rhythm** (the rule for every 聚 link; the frames, volumes and hits stay: presentation only):
+1. **Charge**, the first ~2/3 of the startup: slow and eased in (the bundle and the body barely moving, then gathering), ending in a
+   **held coil** of 3–5 f that trembles (the bundle drawn tight, the body compressed).
+2. **Release**, the last 2–3 f before S: the bundle covers most of its path in those frames (a smear), the body snapping through.
+3. **Impact**: the hit pose on S, an overshoot of 1–2 f past it, the bundle's end jolting.
+4. **Follow-through**, the recovery: slow, the heavy bundle dragging back, the body settling.
+
+Per link:
+| Link (S) | Charge | Release and path |
+|---|---|---|
+| SA 直刺 (13) | both fists on the bundle at the right hip, drawn slowly back, held coiled f6–10 | rammed out in 2–3 f, level, the blunt end jolting at 4.5 m; recoil |
+| J2 上撈 (19) | the bundle lying near his feet, the body sinking slowly, held low f10–15 | **near to far, rising**: the lash runs from the ground at his feet outward along the line and up, its bend travelling out like a whip's wave, the end cracking up at 4.5 m on S |
+| J3 繞身連枷 (19) | the bundle drawn round his body until it **encircles him** (a full ring at his waist, visible from the match camera), held with a tremble | unwound into the flat sweep **accelerating**: the first 90° slow, the last 90° in 1–2 f on S, the smear widening as it speeds up |
