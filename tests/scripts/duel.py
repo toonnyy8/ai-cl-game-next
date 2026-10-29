@@ -647,6 +647,9 @@ def hisagi_bankai_script():
     for label, c, dur, body in (
             ("A1 ranged NS1", 83011, 2.5, lambda s: [sp(s), sp(s + 0.25), sp(s + 0.55)]),
             ("A2 ranged NS2", 83011, 3.0, lambda s: [ev.append(cmd(s - 0.1, 2511)), sp(s), sp(s + 0.45), sp(s + 0.95)]),
+            ("A4 ranged NS1 WA push", 83016, 3.0, lambda s: [ev.append(cmd(s - 0.1, 2510)), sp(s), sp(s + 0.3), sp(s + 0.7), ev.append(cmd(s + 0.62, 83900))]),
+            ("A5 ranged NS1 tip carried", 83023, 3.0, lambda s: [ev.append(cmd(s - 0.1, 2510)), sp(s), sp(s + 0.3), sp(s + 0.7)]),
+            ("A6 ranged NS2 TATAKI push", 83016, 3.0, lambda s: [ev.append(cmd(s - 0.1, 2511)), sp(s), sp(s + 0.45), sp(s + 0.95), ev.append(cmd(s + 1.32, 83900))]),
             ("A3 ranged NS2a SA gathered J", 83011, 3.0,
              lambda s: [ev.append(cmd(s - 0.1, 2511)), sp(s), mash(s + 0.4, s + 1.6, jtap, 0.08)]),
             ("B J5 AS3 bind", 83011, 4.5, j5_sp3),

@@ -157,11 +157,11 @@
 },
 {
 "at": 14.5,
-"eval": "console.log('=== A3 ranged NS2a SA gathered J')"
+"eval": "console.log('=== A4 ranged NS1 WA push')"
 },
 {
 "at": 14.5,
-"eval": "Module._debug_cmd(83011)"
+"eval": "Module._debug_cmd(83016)"
 },
 {
 "at": 14.52,
@@ -169,7 +169,7 @@
 },
 {
 "at": 14.7,
-"eval": "Module._debug_cmd(2511)"
+"eval": "Module._debug_cmd(2510)"
 },
 {
 "at": 14.8,
@@ -192,163 +192,47 @@
 "down": false
 },
 {
-"at": 15.2,
+"at": 15.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 15.11,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 15.25,
+"at": 15.16,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 15.28,
+"at": 15.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 15.42,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 15.5,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 15.51,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 15.33,
+"at": 15.56,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 15.36,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 15.41,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 15.44,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 15.49,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 15.52,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 15.57,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 15.6,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 15.65,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 15.68,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 15.73,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 15.76,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 15.81,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 15.84,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 15.89,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 15.92,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 15.97,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 16.0,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 16.05,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 16.08,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 16.13,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 16.16,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 16.21,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 16.24,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 16.29,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 16.32,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 16.37,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 16.4,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 16.45,
-"key": "KeyJ",
+"at": 15.58,
+"key": "ShiftLeft",
 "down": false
 },
 {
@@ -357,1046 +241,1410 @@
 },
 {
 "at": 17.5,
-"eval": "console.log('=== B J5 AS3 bind')"
+"eval": "console.log('=== A5 ranged NS1 tip carried')"
 },
 {
 "at": 17.5,
-"eval": "Module._debug_cmd(83011)"
+"eval": "Module._debug_cmd(83023)"
 },
 {
 "at": 17.52,
 "eval": "Module._debug_cmd(83900)"
 },
 {
+"at": 17.7,
+"eval": "Module._debug_cmd(2510)"
+},
+{
 "at": 17.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 17.81,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 17.85,
+"at": 17.86,
 "key": "KeyJ",
 "down": false
 },
 {
 "at": 17.88,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 17.93,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 17.96,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.01,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.04,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.09,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.12,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.17,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.2,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.25,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.28,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.33,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.36,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.41,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.44,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.49,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.52,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.57,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.6,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.65,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.68,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.73,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.76,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.81,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.84,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.89,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 18.92,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 18.97,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 19.0,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 19.05,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 19.1,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 19.11,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 19.16,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 19.18,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 19.22,
+"at": 18.1,
 "key": "ShiftLeft",
 "down": true
 },
 {
-"at": 19.23,
+"at": 18.11,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 19.28,
+"at": 18.16,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 19.3,
+"at": 18.18,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 19.34,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 19.35,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 19.4,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 19.42,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 19.46,
+"at": 18.5,
 "key": "ShiftLeft",
 "down": true
 },
 {
-"at": 19.47,
+"at": 18.51,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 19.52,
+"at": 18.56,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 19.54,
+"at": 18.58,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 19.58,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 19.59,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 19.64,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 19.66,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 19.7,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 19.71,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 19.76,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 19.78,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 19.82,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 19.83,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 19.88,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 19.9,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 19.94,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 19.95,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 20.0,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 20.02,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 20.06,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 20.07,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 20.12,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 20.14,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 20.18,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 20.19,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 20.24,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 20.26,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 21.95,
+"at": 20.45,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 22.0,
-"eval": "console.log('=== B2 after the bind')"
+"at": 20.5,
+"eval": "console.log('=== A6 ranged NS2 TATAKI push')"
 },
 {
-"at": 22.0,
+"at": 20.5,
+"eval": "Module._debug_cmd(83016)"
+},
+{
+"at": 20.52,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 22.02,
-"eval": "Module._debug_cmd(83900)"
+"at": 20.7,
+"eval": "Module._debug_cmd(2511)"
 },
 {
-"at": 22.95,
-"eval": "Module._debug_cmd(83900)"
+"at": 20.8,
+"key": "ShiftLeft",
+"down": true
 },
 {
-"at": 23.0,
-"eval": "console.log('=== C bind clash')"
-},
-{
-"at": 23.0,
-"eval": "Module._debug_cmd(83012)"
-},
-{
-"at": 23.02,
-"eval": "Module._debug_cmd(83900)"
-},
-{
-"at": 23.3,
-"eval": "Module._debug_cmd(83030)"
-},
-{
-"at": 23.32,
+"at": 20.81,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 23.37,
+"at": 20.86,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 24.95,
+"at": 20.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 21.25,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.26,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.31,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.33,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 21.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.83,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 22.12,
 "eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 23.45,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 23.5,
+"eval": "console.log('=== A3 ranged NS2a SA gathered J')"
+},
+{
+"at": 23.5,
+"eval": "Module._debug_cmd(83011)"
+},
+{
+"at": 23.52,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 23.7,
+"eval": "Module._debug_cmd(2511)"
+},
+{
+"at": 23.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 23.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 24.2,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.25,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.28,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.33,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.36,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.41,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.44,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.49,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.52,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.57,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.6,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.65,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.68,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.73,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.84,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.89,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.92,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.97,
+"key": "KeyJ",
+"down": false
 },
 {
 "at": 25.0,
-"eval": "console.log('=== C2 bind clash NS vs NA')"
-},
-{
-"at": 25.0,
-"eval": "Module._debug_cmd(83012)"
-},
-{
-"at": 25.02,
-"eval": "Module._debug_cmd(83900)"
-},
-{
-"at": 25.3,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 25.31,
 "key": "KeyJ",
 "down": true
+},
+{
+"at": 25.05,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.08,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.13,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.16,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.21,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.24,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.29,
+"key": "KeyJ",
+"down": false
 },
 {
 "at": 25.32,
-"eval": "Module._debug_cmd(83031)"
+"key": "KeyJ",
+"down": true
 },
 {
-"at": 25.36,
+"at": 25.37,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 25.38,
+"at": 25.4,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.45,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 26.45,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 26.5,
+"eval": "console.log('=== B J5 AS3 bind')"
+},
+{
+"at": 26.5,
+"eval": "Module._debug_cmd(83011)"
+},
+{
+"at": 26.52,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 26.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 26.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 26.88,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 26.93,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 26.96,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.01,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.04,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.09,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.12,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.17,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.2,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.25,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.28,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.33,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.36,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.41,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.44,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.49,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.52,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.57,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.6,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.65,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.68,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.73,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.84,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.89,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.92,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.97,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.0,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.05,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 28.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.18,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 26.95,
-"eval": "Module._debug_cmd(83900)"
+"at": 28.22,
+"key": "ShiftLeft",
+"down": true
 },
 {
-"at": 27.0,
-"eval": "console.log('=== D bind KO')"
-},
-{
-"at": 27.0,
-"eval": "Module._debug_cmd(83013)"
-},
-{
-"at": 27.02,
-"eval": "Module._debug_cmd(83900)"
-},
-{
-"at": 27.3,
+"at": 28.23,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 27.35,
+"at": 28.28,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 32.95,
+"at": 28.3,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 28.34,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 28.35,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.4,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.42,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 28.46,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 28.47,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.52,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.54,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 28.58,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 28.59,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.64,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.66,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 28.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 28.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.78,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 28.82,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 28.83,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 28.88,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.9,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 28.94,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 28.95,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.0,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.02,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 29.06,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 29.07,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.12,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.14,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 29.18,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 29.19,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.24,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.26,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 30.95,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 33.0,
-"eval": "console.log('=== E bind AS3 release')"
+"at": 31.0,
+"eval": "console.log('=== B2 after the bind')"
 },
 {
-"at": 33.0,
+"at": 31.0,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 31.02,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 31.95,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 32.0,
+"eval": "console.log('=== C bind clash')"
+},
+{
+"at": 32.0,
 "eval": "Module._debug_cmd(83012)"
 },
 {
-"at": 33.02,
+"at": 32.02,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 33.3,
+"at": 32.3,
+"eval": "Module._debug_cmd(83030)"
+},
+{
+"at": 32.32,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 33.35,
+"at": 32.37,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 33.38,
-"key": "KeyJ",
-"down": true
+"at": 33.95,
+"eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 33.43,
-"key": "KeyJ",
-"down": false
+"at": 34.0,
+"eval": "console.log('=== C2 bind clash NS vs NA')"
 },
 {
-"at": 33.46,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 33.51,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 33.54,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 33.59,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 33.62,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 33.67,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 33.7,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 33.75,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 33.78,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 33.83,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 33.86,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 33.91,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 33.94,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 33.99,
-"key": "KeyJ",
-"down": false
+"at": 34.0,
+"eval": "Module._debug_cmd(83012)"
 },
 {
 "at": 34.02,
-"key": "KeyJ",
-"down": true
+"eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 34.07,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 34.1,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 34.15,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 34.18,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 34.23,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 34.26,
-"key": "KeyJ",
+"at": 34.3,
+"key": "ShiftLeft",
 "down": true
 },
 {
 "at": 34.31,
 "key": "KeyJ",
-"down": false
-},
-{
-"at": 34.34,
-"key": "KeyJ",
 "down": true
 },
 {
-"at": 34.39,
-"key": "KeyJ",
-"down": false
+"at": 34.32,
+"eval": "Module._debug_cmd(83031)"
 },
 {
-"at": 34.42,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 34.47,
+"at": 34.36,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 34.5,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 34.55,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 34.6,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 34.61,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 34.66,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 34.68,
+"at": 34.38,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 34.72,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 34.73,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 34.78,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 34.8,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 34.84,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 34.85,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 34.9,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 34.92,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 34.96,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 34.97,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 35.02,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 35.04,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 35.08,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 35.09,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 35.14,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 35.16,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 35.2,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 35.21,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 35.26,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 35.28,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 35.32,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 35.33,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 35.38,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 35.4,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 35.44,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 35.45,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 35.5,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 35.52,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 35.56,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 35.57,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 35.62,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 35.64,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 35.68,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 35.69,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 35.74,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 35.76,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 37.45,
+"at": 35.95,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 37.5,
-"eval": "console.log('=== F bind AS3 whiff')"
+"at": 36.0,
+"eval": "console.log('=== D bind KO')"
 },
 {
-"at": 37.5,
-"eval": "Module._debug_cmd(83014)"
+"at": 36.0,
+"eval": "Module._debug_cmd(83013)"
 },
 {
-"at": 37.52,
+"at": 36.02,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 37.9,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 37.91,
+"at": 36.3,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 37.96,
+"at": 36.35,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 37.98,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 38.3,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 38.31,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 38.36,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 38.38,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 38.7,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 38.71,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 38.76,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 38.78,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 39.95,
+"at": 41.95,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 40.0,
-"eval": "console.log('=== G bind Kikon')"
+"at": 42.0,
+"eval": "console.log('=== E bind AS3 release')"
 },
 {
-"at": 40.0,
+"at": 42.0,
 "eval": "Module._debug_cmd(83012)"
 },
 {
-"at": 40.02,
+"at": 42.02,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 40.3,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 40.31,
+"at": 42.3,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 42.1,
+"at": 42.35,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 42.12,
+"at": 42.38,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.43,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.46,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.51,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.54,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.59,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.62,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.67,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.7,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.75,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.78,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.83,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.86,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.91,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.94,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.99,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.02,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.07,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.1,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.15,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.18,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.23,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.26,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.31,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.34,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.39,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.42,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.47,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 43.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.68,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 47.95,
+"at": 43.72,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 43.73,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.78,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.8,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 43.84,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 43.85,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.9,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.92,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 43.96,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 43.97,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.02,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.04,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.08,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.09,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.14,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.16,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.2,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.21,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.26,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.28,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.32,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.33,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.38,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.4,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.44,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.45,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.5,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.52,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.56,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.57,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.62,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.64,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.68,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.69,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.74,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.76,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 46.45,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 48.0,
+"at": 46.5,
+"eval": "console.log('=== F bind AS3 whiff')"
+},
+{
+"at": 46.5,
+"eval": "Module._debug_cmd(83014)"
+},
+{
+"at": 46.52,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 46.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 46.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 46.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 46.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 47.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 47.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 47.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 47.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 47.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 47.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 47.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 47.78,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 48.95,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 49.0,
+"eval": "console.log('=== G bind Kikon')"
+},
+{
+"at": 49.0,
+"eval": "Module._debug_cmd(83012)"
+},
+{
+"at": 49.02,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 49.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 49.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 51.1,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 51.12,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 56.95,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 57.0,
 "eval": "console.log('=== H Mod+P awakening')"
 },
 {
-"at": 48.0,
+"at": 57.0,
 "eval": "Module._debug_cmd(83000)"
 },
 {
-"at": 48.02,
+"at": 57.02,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 48.1,
+"at": 57.1,
 "eval": "Module._debug_cmd(2512)"
 },
 {
-"at": 48.15,
+"at": 57.15,
 "eval": "Module._debug_cmd(2311)"
 },
 {
-"at": 48.3,
+"at": 57.3,
 "key": "ShiftLeft",
 "down": true
 },
 {
-"at": 48.31,
+"at": 57.31,
 "key": "KeyP",
 "down": true
 },
 {
-"at": 48.37,
+"at": 57.37,
 "key": "KeyP",
 "down": false
 },
 {
-"at": 48.4,
+"at": 57.4,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 52.8,
+"at": 61.8,
 "eval": "Module._debug_cmd(83900)"
 },
 {
-"at": 53.0,
+"at": 62.0,
 "key": "ShiftLeft",
 "down": true
 },
 {
-"at": 53.01,
+"at": 62.01,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 53.06,
+"at": 62.06,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 53.08,
+"at": 62.08,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 55.45,
+"at": 64.45,
 "eval": "Module._debug_cmd(83900)"
 }
 ]

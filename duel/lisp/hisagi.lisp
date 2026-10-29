@@ -657,34 +657,40 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
   "The ranged mode's five J (§28.3): spread J1 > J2 > J3 > J4 > J5, and the gathered J2-J5 a 聚 combo swaps in (HS-R-LINK-MOVE).")
 (defparameter *hs-r-gather-swap* '((:hs-r-j2 . :hs-r-j2s) (:hs-r-na3 . :hs-r-na3g) (:hs-r-na4 . :hs-r-na4g) (:hs-r-j3 . :hs-r-j3g))
   "Spread link -> its gathered copy (§28.2: 「遠攻模式的 J 都會受到前面是否有使用聚的影響」, 「看這一串連段」).")
-;; the SA 打 UCHI: a lash at him where he is (HS-CORE-SEG), no drag; the gathered gaps' (pointer 2's) the bundle's, 45
-(defmove-copy :hs-r-sa :hs-r-j2 :callout "UCHI" :dmg 35 :on-hit :stagger :hits ((10 13 :seg-fn hs-core-seg)))
-(defmove-copy :hs-r-sa-g :hs-r-j2s :callout "UCHI" :startup 10 :dmg 45 :on-hit :stagger :hits ((10 13 :seg-fn hs-core-seg)))
+;; the SA 打 UCHI by the state (§28.7, the user 2026-10-29: 「『SA 打』依據『散』或『聚』的狀態調整自己的攻擊範圍與鏈尖設定」): the
+;; spread one J1's 3-6 m 100 deg, the gathered gaps' (pointer 2's) the bundle's 2.5-4.5 m 90 deg, 45; each its own tip
+(defmove-copy :hs-r-sa :hs-r-j2 :callout "UCHI" :dmg 35 :on-hit :stagger :reach *hs-r-j-reach* :arc 100 :min-reach *hs-r-j-dead*
+  :hits ((10 13)))
+(defmove-copy :hs-r-sa-g :hs-r-j2s :callout "UCHI" :startup 10 :dmg 45 :on-hit :stagger :reach *hs-r-k-reach* :arc 90
+  :min-reach *hs-r-k-dead* :hits ((10 13)))
 ;; pointer 1 散 SPREAD: 扇 ŌGI the fan 60 deg (S 17) > 環 WA the full turn (S 12) > 一斉 ISSEI 160 deg (S 14, knockdown); AS1 乱鎖 RANSA
-;; 160 deg, 50, knockdown. Every volume at its re-used clip's drawn reach (debug 83902; where §28.3's reach can't be met the clip's is kept): ŌGI / ISSEI /
-;; RANSA 4.5 m (§28.3: 6), WA 6 m (§28.3: 5); the dead zone *HS-R-DEAD*
-(defmove-copy :hs-r-n1c :hs-r-k3 :callout "ISSEI" :enter 7 :dmg 56 :reach 4.5 :arc 160 :on-hit :knockdown :flags (:ranged)
-  :hits ((21 26)) :params (:melee-range 2.0))
-(defmove-copy :hs-r-n1b :hs-r-j3 :kind :flash :callout "WA" :startup 12 :dmg 30 :reach 6.0 :arc 360 :min-reach 2.0 :on-hit :stagger
-  :flags (:ranged) :on-land nil :hits ((12 15)) :params (:melee-range 2.0 :ns-next :hs-r-n1c))
-(defmove-copy :hs-r-n1a :hs-r-k2s :callout "OGI" :enter 4 :dmg 37 :reach 4.5 :arc 60 :min-reach 2.0 :hits ((21 25))
-  :params (:melee-range 2.0 :ns-next :hs-r-n1b))
-(defmove-copy :hs-r-as1 :hs-r-k3 :kind :sp :callout "RANSA" :dmg 50 :reach 4.5 :arc 160 :on-hit :knockdown :flags (:ranged)
-  :hits ((21 26)) :params (:melee-range 2.0))
+;; 160 deg, 50, knockdown. §28.7 (the user 2026-10-29: 「散都以 3-6 m 為基礎調整範圍」): every one J1's 3-6 m (*HS-R-J-DEAD* /
+;; *HS-R-J-REACH*), the tip 5.5-6; the re-used clips drew ŌGI / ISSEI / RANSA to 4.5 m (redrawn in the motion pass)
+(defmove-copy :hs-r-n1c :hs-r-k3 :callout "ISSEI" :enter 7 :dmg 56 :reach *hs-r-j-reach* :arc 160 :min-reach *hs-r-j-dead*
+  :on-hit :knockdown :flags (:ranged) :hits ((21 26)) :params (:melee-range 2.0))
+;; §28.8 (the user 2026-10-29: 「NS1a 與 NS1b 交換，並將『環』改成近身推開敵人用的招式」): 環 WA first, close in (0-3 m all round,
+;; no dead zone, no tip of its own; S 12 -> 14, an NS opener's tell), a hit pushes him out to *HS-R-WA-PUSH* (inside ŌGI's 3-6 m); then 扇 ŌGI
+(defmove-copy :hs-r-n1b :hs-r-k2s :callout "OGI" :enter 4 :dmg 37 :reach *hs-r-j-reach* :arc 60 :min-reach *hs-r-j-dead* :hits ((21 25))
+  :params (:melee-range 2.0 :ns-next :hs-r-n1c))
+(defmove-copy :hs-r-n1a :hs-r-j3 :kind :flash :callout "WA" :startup 14 :dmg 30 :reach 3.0 :arc 360 :on-hit :stagger :flags (:ranged)
+  :on-land hs-r-wa-push :hits ((14 17)) :params (:melee-range 2.0 :ns-next :hs-r-n1b :no-tip t))
+(defmove-copy :hs-r-as1 :hs-r-k3 :kind :sp :callout "RANSA" :dmg 50 :reach *hs-r-j-reach* :arc 160 :min-reach *hs-r-j-dead*
+  :on-hit :knockdown :flags (:ranged) :hits ((21 26)) :params (:melee-range 2.0))
 ;; pointer 2 聚 GATHERED (each segment sets the combo's flag, :params :gather): 束 TABA the bundle on a line (S 22) > 叩 TATAKI the slam
-;; (S 18) > 大旋 ŌMEGURI the 360 deg spin (S 20, knockdown); AS2 叩 > 地走 JIBASHIRI along the ground (knockdown). The clips' drawn reach
-;; (83902): all 4.5 m (§28.3: TABA 2-5, TATAKI 1-3.5, ŌMEGURI 2-6, JIBASHIRI 3.5-8; the dead zones kept, JIBASHIRI's *HS-R-DEAD*).
-;; AS2's 叩 strikes him along the chain (HS-CORE-SEG; NS b's volume could miss after a J link at 3-6 m)
-(defmove-copy :hs-r-n2c :hs-r-k3g :callout "OMEGURI" :enter 7 :dmg 86 :reach 4.5 :arc 360 :min-reach 2.0 :on-hit :knockdown
-  :flags (:ranged) :hits ((27 32)) :params (:melee-range 2.0 :gather t))
-(defmove-copy :hs-r-n2b :hs-r-k2 :callout "TATAKI" :enter 9 :dmg 57 :reach 4.5 :arc 90 :min-reach 1.0 :hits ((27 31))
-  :params (:melee-range 2.0 :ns-next :hs-r-n2c :sa :hs-r-sa-g :gather t))
-(defmove-copy :hs-r-n2a :hs-r-k2 :callout "TABA" :enter 5 :dmg 50 :vol (:cap 0.3 4.15 1.1 0.35) :reach 4.15 :min-reach 2.0
-  :hits ((27 31)) :params (:melee-range 2.0 :ns-next :hs-r-n2b :sa :hs-r-sa-g :gather t))
+;; (S 18) > 大旋 ŌMEGURI the 360 deg spin (S 20, knockdown); AS2 叩 > 地走 JIBASHIRI along the ground (knockdown). §28.7 (the user
+;; 2026-10-29: 「聚都以 2.5-4.5 m 為基礎調整範圍」): every one K1's 2.5-4.5 m (*HS-R-K-DEAD* / *HS-R-K-REACH*), the tip 4-4.5
+(defmove-copy :hs-r-n2c :hs-r-k3g :callout "OMEGURI" :enter 7 :dmg 86 :reach *hs-r-k-reach* :arc 360 :min-reach *hs-r-k-dead*
+  :on-hit :knockdown :flags (:ranged) :hits ((27 32)) :params (:melee-range 2.0 :gather t))
+;; §28.8 (the user 2026-10-29: 「NS2b 改成近身推開敵人用的招式」): 叩 TATAKI close in (0-3 m, 90 deg, no tip of its own), a hit pushes
+;; him out to *HS-R-TATAKI-PUSH* (inside ŌMEGURI's 2.5-4.5 m)
+(defmove-copy :hs-r-n2b :hs-r-k2 :callout "TATAKI" :enter 9 :dmg 57 :reach 3.0 :arc 90 :hits ((27 31)) :on-land hs-r-tataki-push
+  :params (:melee-range 2.0 :ns-next :hs-r-n2c :sa :hs-r-sa-g :gather t :no-tip t))
+(defmove-copy :hs-r-n2a :hs-r-k2 :callout "TABA" :enter 5 :dmg 50 :vol (:cap 0.3 4.15 1.1 0.35) :reach 4.15
+  :min-reach *hs-r-k-dead* :hits ((27 31)) :params (:melee-range 2.0 :ns-next :hs-r-n2b :sa :hs-r-sa-g :gather t))
 (defmove-copy :hs-r-as2b :hs-r-k2 :kind :sp :callout "JIBASHIRI" :enter 12 :dmg 70 :vol (:cap 0.3 4.15 1.1 0.35) :reach 4.15
-  :min-reach *hs-r-dead* :hits ((33 37 :on-hit :knockdown)) :params (:melee-range 2.0 :gather t))
-(defmove-copy :hs-r-as2 :hs-r-k2 :kind :sp :callout "TATAKI" :enter 9 :dmg 57 :hits ((27 31 :seg-fn hs-core-seg))
-  :params (:melee-range 2.0 :ns-next :hs-r-as2b :gather t))
+  :min-reach *hs-r-k-dead* :hits ((33 37 :on-hit :knockdown)) :params (:melee-range 2.0 :gather t))
+(defmove-copy :hs-r-as2 :hs-r-k2 :kind :sp :callout "TATAKI" :enter 9 :dmg 57 :reach *hs-r-k-reach* :arc 90 :min-reach *hs-r-k-dead*
+  :hits ((27 31)) :params (:melee-range 2.0 :ns-next :hs-r-as2b :gather t))
 ;; AS3 首掛 KUBIKAKE, the switch (no pointer, no Kikon): 投 NAGE the chain on a 7 m line (S 18) > 巻 MAKI wound round him > 掛 KAKE the
 ;; noose: a real hit arms the bind (the yank to 2.0 m, HS-BK-HIT); blocked / whiffed / cancelled: none
 (defmove-copy :hs-r-as3c :hs-r-kubikake :kind :sp :callout "KAKE" :enter 8 :whiff nil :dmg 40 :min-reach nil
@@ -833,7 +839,7 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (zan 0 :type fixnum) (zan-pend nil)         ; §27: 餘電's frames left on his opponent; CHIKUDEN hit, its 放電 not yet known
   (tip-r nil)                                 ; §25.5: a tip hit's Reiatsu before its gains (HS-DMG-MULT), read by HS-BK-HIT
   (tip-x 0.0)                                 ; §25.11: that hit's extra gain factor (the tip's and the spread route's, - 1)
-  (route-tip nil)                             ; §25.13: his last opener's (J1 / K1) contact was on the tip (its links take it)
+  (route-tip nil)                             ; §28.7: his last ranged hit of this combo was on the tip (cleared in neutral, HS-BK-TICK)
   (tip-hit nil)                               ; §25.26: his last hit was on the tip (a look: HS-TIP-FX's flash; no sim reads it)
   (tip-now nil)                               ; the hit HS-DMG-MULT just read is a ranged-mode tip hit: no combo scaling
   (throw-n 0 :type fixnum)                    ; S1: the charge of the throw out now (its chain length x it, HS-TICK)
@@ -1245,14 +1251,23 @@ balances for the pair."
   (let ((d (hypot (- (aref (pos-of e) 0) (aref (pos-of (opp-of e)) 0)) (- (aref (pos-of e) 2) (aref (pos-of (opp-of e)) 2)))))
     (when (< d to) (push-apart e (opp-of e) (- to d) frames))))
 (defun hs-r-push (e) "SAHARAI's hit: pushed to *HS-SAHARAI-HIT* m." (hs-push-to e *hs-saharai-hit* *hs-saharai-frames*) (pace e :saharai-hit))
+(defparameter *hs-r-wa-push* 4.5
+  "NS1a 環 WA's hit pushes him out to this many m (none -> 4.5, 2026-10-29, the user: 「將『環』改成近身推開敵人用的招式」, the lead's
+number: the middle of the spread band 3-6, DUEL_HISAGI §28.8).")
+(defparameter *hs-r-tataki-push* 3.5
+  "NS2b 叩 TATAKI's hit pushes him out to this many m (none -> 3.5, 2026-10-29, the user: 「NS2b 改成近身推開敵人用的招式」, the lead's
+number: the middle of the gathered band 2.5-4.5, §28.8).")
+(defun hs-r-wa-push (e) "環 WA's first real hit (:on-land): to *HS-R-WA-PUSH* m." (hs-push-to e *hs-r-wa-push* *hs-saharai-frames*))
+(defun hs-r-tataki-push (e) "NS2b 叩's first real hit (:on-land): to *HS-R-TATAKI-PUSH* m." (hs-push-to e *hs-r-tataki-push* *hs-saharai-frames*))
 (defun hs-r-j3-push (e)
   "J3 旋鎖's first real hit (:on-land, after the generic ender push, which it replaces): to *HS-R-J3-PUSH* m (§22.1)."
   (hs-push-to e *hs-r-j3-push* *ender-push-frames*) (pace e :j3-push))
 
 (defun hs-dmg-mult (att def hw mv hazard d2)
   "The Bankai's :dmg-mult hook (combat.lisp APPLY-HIT): HS-DIST-MULT for his move's hit by his form, its window's first
-volume, the victim's distance (D2 squared, from the hit's source) and his distance along ATT's facing; a ranged opener
-(J1 / K1) records its tip read for its route, a route link (links 2-3) takes it instead of its own (§25.13); and marks a
+volume, the victim's distance (D2 squared, from the hit's source) and his distance along ATT's facing; in the ranged mode
+by class (§28.7, the user 2026-10-29): an SA its own read, an AS the combo's last hit's (HSS-ROUTE-TIP), any other the last hit's
+or its own (an NS b / c carries a tip on; a J link has no volume: J1's / the SA's), each hit then the last; and marks a
 tip or a spread-route hit for its SP gain (HS-BK-HIT: §25.5, §25.11); x1.0 for L SAHARAI (unchanged, §22.1), the bind's SP2
 KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other :seg-fn window (no volume)."
   (declare (ignore hazard))
@@ -1260,21 +1275,26 @@ KAIBAKU-GEKI (its real 120, B4c), the universal Breaker, a hazard and any other 
   (if (or (null mv) (eq (mv-kind mv) :breaker) (member (mv-name mv) '(:hs-r-l :hs-b-sp2)))   ; (KAIBAKU-GEKI: its 120 exact)
       1.0
       (let* ((st (hs att)) (name (mv-name mv)) (bk (eq (fighter-form (fighter att)) :bankai))
-             (link (and bk (or (member name *hs-r-spread-links*) (member name *hs-r-gather-links*))))
-             (x (if link
-                    (if (hss-route-tip st) *hs-r-tip-mult* 1.0)
-                    (let* ((v (first (hw-vols hw))) (cap (and v (> (aref v 0) 0.5))) (yaw (yaw-of att)) (p (pos-of att))
-                           (q (pos-of def)))
-                      (hs-dist-mult (fighter-form (fighter att)) cap (and v (if cap (aref v 2) (aref v 1))) (sqrt d2)
-                                    (+ (* (- (aref q 0) (aref p 0)) (fwd-x yaw)) (* (- (aref q 2) (aref p 2)) (fwd-z yaw)))))))
+             (own (let* ((v (first (hw-vols hw))) (cap (and v (> (aref v 0) 0.5))) (yaw (yaw-of att)) (p (pos-of att))
+                         (q (pos-of def)))
+                    (if (getf (mv-params mv) :no-tip)        ; (§28.8: the close-in pushes have no tip of their own)
+                        1.0
+                        (hs-dist-mult (fighter-form (fighter att)) cap (and v (if cap (aref v 2) (aref v 1))) (sqrt d2)
+                                      (+ (* (- (aref q 0) (aref p 0)) (fwd-x yaw)) (* (- (aref q 2) (aref p 2)) (fwd-z yaw)))))))
+             (x (if bk
+                    (if (case (kit-class (fighter-kit (fighter att)) mv)
+                          (:as (hss-route-tip st))
+                          (:sa (> own 1.0))
+                          (t (or (hss-route-tip st) (> own 1.0))))
+                        *hs-r-tip-mult* 1.0)
+                    own))
              (tip (> x 1.0))
              (spread (and bk (member name '(:hs-r-j1 :hs-r-j2 :hs-r-k2s :hs-r-j3 :hs-r-k3))))
              (sx (* (cond ((and bk tip) (rmod att :hs-tip-sp *hs-r-tip-sp-mult*))   ; (DANGAI's 尖端 cards: P1's own)
                           (bk (rmod att :hs-flat-sp 1.0))
                           (t 1.0))
                     (if spread *hs-r-spread-sp-mult* 1.0))))
-        (when (and bk (member name '(:hs-r-j1 :hs-r-k1 :hs-r-sa :hs-r-sa-g))) (setf (hss-route-tip st) tip))   ; (§28.4: an SA opens
-                                                                                ;  the J2-J5 after it: no tip, it has no volume)
+        (when bk (setf (hss-route-tip st) tip))
         (setf (hss-tip-hit st) (and bk tip) (hss-tip-now st) (and bk tip))
         (setf (hss-tip-r st) (and (> sx 1.0) (gauges-reiatsu (gauges att))) (hss-tip-x st) (- sx 1.0))
         (cond ((not bk) x)                              ; DANGAI's 尖端強化 / 尖端平均 (DUEL_ROGUE §4.3): the ranged mode's
@@ -1319,7 +1339,7 @@ mid-move), the mode = the bind (a SET-FORM only out of a move and a cinematic), 
   (let* ((st (hs e)) (s (fighter-state f)) (mv (and (eq s :move) (fighter-move f))))
     (when (eq e *run-boss*) (hs-boss-step e g st))
     (setf (hss-state st) :in)                           ; (no out-of-hand state in the Bankai: the scythes come back)
-    (cond ((null mv) (setf (hss-gather st) nil))
+    (cond ((null mv) (setf (hss-gather st) nil (hss-route-tip st) nil))
           ((getf (mv-params mv) :gather) (setf (hss-gather st) t)))
     (when (and mv (getf (mv-params mv) :bind-end) (hss-bound st)) (setf (hss-unbind st) t))
     (unless (member s '(:move :cine))

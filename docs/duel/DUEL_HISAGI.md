@@ -4273,3 +4273,48 @@ The user: 「1. 只算一次 2. 先維持 3. 請列出遠距的攻擊範圍、�
 
 Found while listing (left as built, for the user): the spread SP ×1.3 reads the old move names, so the five J's J3 / J4 and pointer 1's NS / AS1
 don't earn it; the gathered J2–J5 never tip.
+
+### 28.7 The ranged bands and the tip by class (the user, 2026-10-29)
+
+The user, after the old ranged mode's reach list: 「1. 散都以 3-6 m 為基礎調整範圍 2. 聚都以 2.5-4.5 m 為基礎調整範圍 3. 『SA 打』依據『散』或『聚』的狀態
+調整自己的攻擊範圍與鏈尖設定 4. NS 的後續追擊（a, b, c）依據上一擊是否為鏈尖來決定，如果是就繼續延續鏈尖，否則就按自身設定的鏈尖判定 5. AS 本身不設定
+鏈尖，直接沿用上一擊打中時的判定」
+
+- Bands: every 散 volume J1's 3–6 m (`*hs-r-j-dead*` / `*hs-r-j-reach*`, the tip 5.5–6), every 聚 one K1's 2.5–4.5 m (`*hs-r-k-dead*` /
+  `*hs-r-k-reach*`, the tip 4–4.5; the lines TABA / JIBASHIRI end 4.15 + radius 0.35, their tip 3.65–4.15 along). AS2a 叩 and both SA
+  lost their chase (`hs-core-seg`) for these volumes: the spread SA 100°, the gathered SA 90°.
+- The tip (`hs-dmg-mult`, ranged mode, by the move's core class): an SA its own read only; an AS the combo's last hit's only; everything
+  else the last hit's or its own (an NS b / c carries a tip on; a J link has no volume, so it is J1's / the SA's). Every hit then becomes the
+  last (`hss-route-tip`, cleared in neutral by `hs-bk-tick`). A segment that whiffs leaves the read of the hit before it.
+- Kept as they were (the lead's reading): the J2–J5 links still chase along the chain to 7 m (§25.13), AS3 NAGE's 7 m line and the chases of
+  AS3b / c. An AS after a link that chased him past 4.5 / 6 m can now miss.
+- Not answered yet: the spread SP ×1.3 on the five J's J3 / J4 and pointer 1's NS / AS1 (§28.6).
+
+### 28.8 NS1a / NS1b swapped, 環 and NS2b 叩 close-in pushes (the user, 2026-10-29)
+
+The user: 「1. NS1a 與 NS1b 交換，並將『環』改成近身推開敵人用的招式 2. NS2b 改成近身推開敵人用的招式」
+
+- Pointer 1: 環 WA (NS1a) > 扇 ŌGI (NS1b) > 一斉 ISSEI. WA: 0–3 m all round, no dead zone, S 12 → 14 (an NS opener's tell, §28.2's S ≥ 14),
+  a hit pushes him to `*hs-r-wa-push*` 4.5 m (the lead's: the middle of 3–6) over 18 f.
+- Pointer 2: NS2b 叩 TATAKI 0–3 m, 90°, no dead zone, a hit pushes him to `*hs-r-tataki-push*` 3.5 m (the middle of 2.5–4.5).
+- Both have no tip of their own (`:params :no-tip`, as L SAHARAI); a carried tip still applies (§28.7).
+
+| Move | S | Reach (m) | Tip | 散 / 聚 |
+|---|---|---|---|---|
+| J1 旋鞭 | 14 | 3–6, 100° | 5.5–6 | 散 |
+| J2–J5 / gathered J2–J5 | 10 / 16 | chase to 7 | the last hit's | 散 / 聚 |
+| SA 打 / gathered SA | 10 | 3–6, 100° / 2.5–4.5, 90° | own: 5.5–6 / 4–4.5 | by the state |
+| NS1a 環 WA | 14 | 0–3, 360°, push to 4.5 | carried only | 散 |
+| NS1b 扇 ŌGI | 17 | 3–6, 60° | carried or 5.5–6 | 散 |
+| NS1c 一斉 ISSEI | 14 | 3–6, 160° | carried or 5.5–6 | 散 |
+| AS1 乱鎖 RANSA | 15 | 3–6, 160° | the last hit's | 散 |
+| NS2a 束 TABA | 22 | 2.5–4.5, a line | 3.65–4.15 along | 聚 |
+| NS2b 叩 TATAKI | 18 | 0–3, 90°, push to 3.5 | carried only | 聚 |
+| NS2c 大旋 ŌMEGURI | 20 | 2.5–4.5, 360° | carried or 4–4.5 | 聚 |
+| AS2a 叩 / AS2b 地走 | 18 / 21 | 2.5–4.5, 90° / a line | the last hit's | 聚 |
+| AS3 投 / 巻 / 掛 | 18 / 15 / 16 | 0–7 line / chase to 7 | the last hit's | neither |
+
+Checks: duel-rules 10564 ALL PASS (the bands, the pushes, the tip by class), control 99, pkgcheck 0 / 0 / 0, `--cvc` 3 PASS. Scripted smoke
+(three new scenes): A4 2.5 m: WA hits 30 and pushes (3.94 m at ŌGI's start), ŌGI 37, ISSEI 56: 1300 → 1213; A5 5.75 m: WA whiffs, ŌGI on the
+tip and ISSEI carrying it: 1300 → 1187 (A1's same two hits at 4.5 m, no tip: → 1234, ×1.71); A6 2.5 m: TABA 50, TATAKI 57 and its push
+(3.11 m at ŌMEGURI's start), ŌMEGURI 86. The re-used clips still draw ŌGI / ISSEI / RANSA / TATAKI at their old reach (the motion pass).
