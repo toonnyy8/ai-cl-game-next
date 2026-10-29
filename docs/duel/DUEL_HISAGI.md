@@ -4446,4 +4446,9 @@ AS3a 解 KAI (2.8 m) and AS3c 放 HANATSU (3.0 m) still reach; AS3b, a copy of J
 - `hs-b-as3b` `:reach` 1.5 → 3.0 (its 200° arc kept). Scene E now: KAI 40, SAN 40, HANATSU 100 → `BIND END 400 / 1037` (1066 before).
   The rest of the smoke's log identical to batch 2b's (a later hash line moves by one frame of carry-over: scene E ends 8 f later).
 - Its clip (`hs-kb-sogen`, drawn 1.5 m) is redrawn to 3.0 m by batch 2b's follow-up.
+- As built (batch 2b's follow-up, presentation only): SAN plays its own `hs-kb-san` (9 / 3 / 18, speed 1): arms crossed tight over his
+  chest, hunched (f4, held to f7), flung open up and out on S, both crescents let out to 3.0 m and scattered apart (`*hs-letout*`: the right
+  0 → −40 → −95°, the left mirrored; 40 / 58 / 77° on the hit frames, inside ±100) with two hanging chains thrown out (±40 → ±85°). Debug
+  83902: 3.00 3.00 3.00 | edge 3.00; 83901 0 B; strip 83587. Smoke identical to 50627b5's (154 lines), `--cvc` 3 PASS, duel-rules 10608 ALL
+  PASS, control 99, pkgcheck 0 / 0 / 0, debug ranges 0 errors.
 - duel-rules 10601 ALL PASS (+ SAN's 3.0 m edge), `--cvc` 3 PASS.
