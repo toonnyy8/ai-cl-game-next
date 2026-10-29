@@ -614,3 +614,13 @@ draining gauge, a kit without pointers). DEVLOG §504.
 - `*plate-low*` 9.45 → **-18.9** CSS px: 爆's middle 5 U + 0.5 cm over the deck's top.
 - The SP label up 0.5 cm more with the thumb's end (`calc(44% - 1.8cm)`). Control 99 and touch 100 pass; shots in both hands. DEVLOG §507.
 
+### 11.4 爆 under the line (the user, 2026-10-29)
+
+> 「將爆氣鍵移到分隔線下面」
+
+爆 moves to the ATK side, tied to the line: its centre `*rv-under-line*` **6.5 U** under the line's height at 爆's x (the line from
+`*deck-split*` less `*deck-split-lift*`, computed in DECK-LAYOUT), 6.7 U in from the thumb's edge as before. Its top is 2.8 U (0.7 cm at
+390 CSS px) under the line; its stance seals, gold ring and 覺 tab stay clear of your bar. It follows any later move of the line.
+`*rv-on-bar*` and `*plate-low*` are gone (their history is in the new knob's docstring). The SP label stays above the line at the thumb's
+edge. A tap on 爆 is its chip as before. Control 99, touch 100, pkgcheck clean; shots in both hands. DEVLOG §508.
+

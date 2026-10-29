@@ -71,13 +71,12 @@ user, 2026-10-29: 「我選 C」): it is placed by *DECK-SPLIT-LIFT* alone, 1 cm
 (defparameter *clock-tab-mid* 7.4
   "The phone's clock tab's middle, U under the safe top (the tab 3.2 U down, 8.4 U tall: hud.css #hud.hphone .clock; the user,
 2026-10-29: 「將暫停鍵與時間顯示結合」, DUEL_WEBUI §8 / §9). Its pause chip (chip 6) is a circle of 4.6 U there, the page draws the tab on it.")
-(defparameter *plate-low* -18.9 "爆's drop under *RV-ON-BAR*, CSS px (-0.5 cm: draft C's 「爆氣鍵下移 1 cm」, then 「爆氣鍵上移 0.75 cm」 twice (the
-user, 2026-10-29): 37.8 -> 9.45 -> -18.9; before draft C, 2026-10-28 / 29, your own
-phone plate's drop, hud.css's --low).")
-(defparameter *rv-on-bar* 5.0
-  "爆's centre this many U over the deck's top (+ *PLATE-LOW*, 1 cm down): draft C's spot (the user, 2026-10-29: 「我選 C」, its
-「爆氣鍵下移 1 cm」; your plate is now the slanted bar on the line, DUEL_WEBUI §11). 9.12 -> 5.0. Before: level with the middle of your
-plate's Reishi bar (「爆氣鍵對齊血量表」, 2026-10-29); before that its top 22 % down the deck, lifted *RV-LIFT* 18.9 -> 37.8 CSS px.")
+(defparameter *rv-under-line* 6.5
+  "爆's centre this many U under the SP / ATK line where 爆 stands (*DECK-SPLIT* less *DECK-SPLIT-LIFT*, at 爆's x): on the ATK side,
+its top 2.8 U (0.7 cm at 390 CSS px) clear of the line, its stance seals and 覺 tab too (the user, 2026-10-29: 「將爆氣鍵移到分隔線下面」,
+DUEL_WEBUI §11.4). Before: *RV-ON-BAR* 5.0 U over the deck's top less *PLATE-LOW* (37.8 -> 9.45 -> -18.9 CSS px: draft C's 「爆氣鍵下移
+1 cm」, then 「爆氣鍵上移 0.75 cm」 twice); before draft C, 9.12 U: level with the middle of your plate's Reishi bar (「爆氣鍵對齊血量表」),
+and before that its top 22 % down the deck, lifted *RV-LIFT* 18.9 -> 37.8 CSS px.")
 (defparameter *deck-split-lift* '(37.8 113.4)
   "The tap zones' line's ends moved up, CSS px: the far (upper) end, the thumb's (lower) end (the user, 2026-10-29: 「SP 與 ATK 的分割線
 下界往上 0.5 cm，上界往上 1 cm」, then 「再次將下界往上 0.5 cm，上界往上 1 cm」: 37.8 18.9 -> 75.6 37.8); draft C (2026-10-29: 「我選 C」, its
@@ -105,7 +104,11 @@ today's phones: 50 >= 34 + 16). The chips are placed in the draft's unit (*CHIP-
                     collect (case cy
                               (:pause (list (x (* cx u)) (px (- h dh (* (+ 17 r) u))) (px (* r u))))   ; 止: its bottom 17 U over the deck
                               (:clock (list (px (* cx u)) (px (+ *safe-top* (* *clock-tab-mid* u))) (px (* r u))))   ; 止 on the clock tab
-                              (:rv (list (x (* cx u)) (px (+ (- dt (* *rv-on-bar* u)) *plate-low*)) (px (* r u))))  ; 爆: draft C's spot
+                              (:rv (let ((tt (- 1 (/ (* cx u) w))))     ; 爆: under the line (its height at 爆's x, TT of the way from the far edge)
+                                     (list (x (* cx u))
+                                           (px (+ dt (* (- 1 tt) (- (* (first *deck-split*) dh) (first *deck-split-lift*)))
+                                                  (* tt (- (* (second *deck-split*) dh) (second *deck-split-lift*))) (* *rv-under-line* u)))
+                                           (px (* r u)))))
                               (t (list (x cx) (px (- h cy)) (px r)))))
               (list 0 (px dt) (px w) (px h))))))
 
