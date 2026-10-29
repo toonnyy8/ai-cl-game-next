@@ -730,7 +730,7 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 ;; returns to the ranged mode, hit, blocked or whiffed (HS-BK-TICK)
 (defmove-copy :hs-b-as3c :hs-b-sp2 :callout "HANATSU" :dmg 100 :on-hit :knockdown :kb 0.0 :cost nil :params (:no-kikon t :bind-end t))
 ;; §28.13 (the user 2026-10-29: 「散加長到 3.0 m」): SAN 1.5 -> 3.0 m, J5's ender push leaves him at 2.3 m (KAI 2.8, HANATSU 3.0)
-(defmove-copy :hs-b-as3b :hs-b-j3 :kind :sp :callout "SAN" :dmg 40 :reach 3.0 :on-hit :stagger :flags nil :params (:ns-next :hs-b-as3c :no-kikon t))
+(defmove-copy :hs-b-as3b :hs-b-j3 :kind :sp :clip :hs-kb-san :callout "SAN" :dmg 40 :reach 3.0 :on-hit :stagger :flags nil :params (:ns-next :hs-b-as3c :no-kikon t))
 (defmove-copy :hs-b-as3 :hs-b-k2 :kind :sp :callout "KAI" :dmg 40 :params (:ns-next :hs-b-as3b :no-kikon t))
 
 (defparameter *hs-r-hooks* '(:tick hs-bk-tick :hit hs-bk-hit :reset hs-reset :hash hs-hash :draw hisagi-draw :pose hs-pose

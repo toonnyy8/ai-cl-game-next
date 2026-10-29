@@ -217,6 +217,7 @@ inner 60 %), T its white edge (the outer 40 %). Segments as KE-MB-PRISM quads."
                                   (:hs-kb-makigiri :chain 2.8) (:hs-kb-shibori :chain 2.95)                     ;  the bind's)
                                   (:hs-kb-juji :sickle 1.5) (:hs-kb-matoi :sickle 2.95) (:hs-kb-shime :chain 2.8)   ; (batch 2b,
                                   (:hs-kb-tsuri :chain 3.0) (:hs-kb-kagiyose :sickle 6.0) (:hs-kb-kagiyose-giri :sickle 6.0)   ;  §28.12)
+                                  (:hs-kb-san :sickle 3.0)                                                      ; (§28.13)
                                   (:hs-k-hosoku :chain 4.5) (:hs-k-s-k2 :chain 4.5) (:hs-k-s-k3 :chain 4.5)    ; (A2, §24.2: the
                                   (:hs-k-g-k2 :chain 4.5) (:hs-k-g-j2 :chain 4.5) (:hs-k-g-k3 :chain 4.5)     ;  ranged route
                                   (:hs-k-g-j3 :chain 4.5)                                                     ;  links, *HS-LASHES*; §25.3 / §25.5: J 6, K 5; §25.34: J 7, K 5.5;
@@ -326,6 +327,8 @@ this far back through his fist (m), so he holds it just behind the blades' cross
     (:hs-kb-kagiyose-giri :l 16 18 26 29 6.0 1.1 0 0)     ; AS1, the left bowled onto him, held through the drag
     (:hs-kb-juji :r 10 14 17 24 1.5 1.0 (-70 -30 30) 0.8) ; NS1c JUJI, over and down, R -> L / L -> R crossing on the hit
     (:hs-kb-juji :l 10 14 17 24 1.5 1.0 (70 30 -30) 0.8)  ;  frames f14-16 (-30 / -10 / +10: inside +-100)
+    (:hs-kb-san :r 6 9 12 18 3.0 1.2 (-10 -40 -95) 0.5)   ; §28.13: AS3b SAN, both scattered apart across the front (the
+    (:hs-kb-san :l 6 9 12 18 3.0 1.2 (10 40 95) 0.5)      ;  hit frames f9-11 at 40 / 58 / 77 deg: inside +-100)
     (:hs-kb-matoi :l 17 20 32 38 2.95 1.1 (80 5 -5) 0.3)) ; NS2a MATOI, curled round from his left onto the line (f20-23 at
                                                         ;  5 / 4.2 / 3.3 / 2.5 deg: inside its 0.35 m at 2.95 m, +-6.8), onto him
   "Clip -> a sickle let out of the fist on its chain: (clip side f0 f1 f2 f3 r h az bulge): it leaves the fist at clip
@@ -2311,6 +2314,29 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (50 :hs-kb-stance (:root :yaw 30 :u -0.2))
   (:end :hs-kb-stance))
 
+;; AS3b 散 SAN (9/3/18, 3.0 m arc 200; DUEL_HISAGI §28.13: the release's middle beat, 解 > 散 > 放): both arms crossed tight over his
+;; chest, hunched and sunk (f4, held to f7); on S flung open up and out, both crescents let out to 3.0 m and scattered apart across
+;; the front (*HS-LETOUT*: the right 0 -> -40 -> -95, the left mirrored, rising), two hanging chains thrown out with them
+;; (*HS-BK-CHAINS*: +-40 -> +-85); neither J5 SŌGEN's flat scissor at 1.5 m nor HANATSU's one-crescent sweep
+(defpose :hs-kb-san-up (:base :hs-k-stance)
+  (:root :u -0.26 :f -0.04) (:spine :flex 30) (:chest :twist 0) (:head :flex -14)
+  (:arm-r :flex 80 :side -40 :twist 0) (:elbow-r :flex 120) (:hand-r :flex -40)
+  (:arm-l :flex 80 :side -40 :twist 0) (:elbow-l :flex 120) (:hand-l :flex -40)
+  (:thighs :flex 46 :side 12) (:knees :flex 66))
+(defpose :hs-kb-san-hit (:base :hs-k-stance)
+  (:root :u -0.06 :f 0.06) (:spine :flex -16) (:head :flex -12)
+  (:arm-r :flex 130 :side 74 :twist 0) (:elbow-r :flex 6) (:hand-r :flex -60)
+  (:arm-l :flex 130 :side 74 :twist 0) (:elbow-l :flex 6) (:hand-l :flex -60)
+  (:thigh-l :flex 30 :side 12) (:knee-l :flex 30) (:thigh-r :flex -16 :side 14) (:knee-r :flex 24))
+(defstrike :hs-kb-san (9 3 18 :base :hs-k-stance)
+  (0 :hs-kb-stance)
+  (4 :hs-kb-san-up)                                                                     ; crossed, hunched (the tell)
+  (7 :hs-kb-san-up (:root :u -0.3) (:spine :flex 34) (:elbow-r :flex 128) (:elbow-l :flex 128))   ; held, tighter
+  (:s :snap :hs-kb-san-hit)                                                             ; flung open: scattered
+  (:a :hs-kb-san-hit (:arm-r :flex 140 :side 84) (:arm-l :flex 140 :side 84))
+  (20 :hs-kb-san-hit (:root :u -0.1) (:arm-r :flex 120 :side 80) (:arm-l :flex 120 :side 80))
+  (:end :hs-kb-stance))
+
 (defparameter *hs-bk-chains*
   '((:hs-k-sensa 6 2 13 16 20 28 5.9 0.8 -50 40 0.6 0)         ; J3: the hanging chain at his right swept round (§25.3: 5.9; §25.34's 6.9, back;
                                                                 ;  §28.11: from -50, inside J5's 100 deg, was -100)
@@ -2337,6 +2363,8 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
     (:hs-kb-shibori 9 8 22 27 40 52 2.95 0.05 -22 -22 0 0)
     (:hs-kb-shime 0 6 20 23 30 40 2.8 1.3 55 25 0.5 0)          ; batch 2b (§28.12): NS2b / AS2a SHIME, two whipped in from his
     (:hs-kb-shime 7 6 20 23 30 40 2.8 1.3 -55 -25 0.5 0)        ;  flanks, closing round him (+-55 -> +-25: inside +-70)
+    (:hs-kb-san 1 3 9 12 16 26 3.0 0.9 40 85 0.4 0)            ; §28.13: AS3b SAN, two thrown out with the crescents
+    (:hs-kb-san 6 3 9 12 16 26 3.0 0.9 -40 -85 0.4 0)          ;  (+-40 -> +-85: inside +-100)
     (:hs-kb-tsuri 8 10 22 27 40 52 3.0 1.6 0 0 0.6 1))          ; AS2b TSURI: the neck bundle over his shoulder to his neck
   "The Bankai's chain strikes (DUEL_HISAGI §21.8; a look): (clip src f0 f1 f2 f3 f4 r h az0 az1 lift flags). SRC: 0-7 the
 hanging chain *HS-CURTAIN* [src] (its free end hauled up LIFT m and drawn in, taut, from clip frame F0 on, held near the
