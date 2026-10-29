@@ -526,13 +526,13 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 (defmove :hs-r-k2 :kind :flash :clip :hs-k-g-k2 :clip-s 27 :enter 6 :startup 27 :active 10 :recovery 24 :dmg 25 :adv-block -3
   :guard 18 :reach *hs-r-link-reach* :on-hit :stagger :flags (:ranged) :params (:melee-range 2.0)
   :hits ((27 31 :seg-fn hs-r-link-seg) (33 37 :dmg 32 :on-hit :launch :kb *hs-r-k2-launch-kb* :seg-fn hs-r-link-seg)))   ; 束打 SOKUDA
-(defmove :hs-r-j2s :kind :quick :clip :hs-k-g-j2 :clip-s 16 :startup 19 :active 3 :recovery 16 :dmg 29 :adv-block -2 :guard 10
+(defmove :hs-r-j2s :kind :quick :clip :hs-k-g-j2 :clip-s 19 :startup 19 :active 3 :recovery 16 :dmg 29 :adv-block -2 :guard 10
   :reach *hs-r-k-reach* :arc 90 :min-reach *hs-r-k-dead* :on-hit :flinch :hits ((19 22 :stun 24)) :flags (:ranged)
   :params (:melee-range 2.0 :as-ptr 2))                                                                        ; (§28.20: J2 > AS2)                                                                                  ; 束鞭 SOKUBEN
 (defmove :hs-r-k3g :kind :flash :clip :hs-k-g-k3 :clip-s 27 :enter 6 :startup 27 :active 5 :recovery 34 :dmg 86 :adv-block -20
   :guard 23 :reach *hs-r-link-reach* :on-hit :crumple :hits ((27 32 :seg-fn hs-r-link-seg)) :flags (:ender :ranged)
   :params (:melee-range 2.0))                                                                                  ; 束旋 SOKUSEN
-(defmove :hs-r-j3g :kind :quick :clip :hs-k-g-j3 :clip-s 16 :startup 19 :active 3 :recovery 21 :dmg 39 :adv-block -4 :guard 16
+(defmove :hs-r-j3g :kind :quick :clip :hs-k-g-j3 :clip-s 19 :startup 19 :active 3 :recovery 21 :dmg 39 :adv-block -4 :guard 16
   :reach *hs-r-k-reach* :arc 90 :min-reach *hs-r-k-dead* :on-hit :stagger :hits ((19 22)) :flags (:ender :ranged)
   :params (:melee-range 2.0 :as-ptr 3) :on-land hs-r-j3-push)                                                  ; (§28.20: J3 > AS3)                                                            ; 束薙 SOKUTEI
 (defparameter *hs-r-strings*
@@ -542,8 +542,9 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 spread (J2 / K2s, J3 / K3), K1-opened gathered (K2 / J2s, K3G / J3G).")
 (defparameter *hs-r-spread-links* '(:hs-r-j2 :hs-r-k2s :hs-r-j3 :hs-r-k3 :hs-r-na3 :hs-r-na4)
   "The spread route's links 2-3 (J1-opened); since §28.4 also the five J's J3 / J4 (they take J1's tip read).")
-(defparameter *hs-r-gather-links* '(:hs-r-k2 :hs-r-j2s :hs-r-k3g :hs-r-j3g :hs-r-na3g :hs-r-na4g)
-  "The gathered route's links 2-3 (K1-opened); since §28.4 also the gathered J3 / J4 (after a 聚 segment's SA).")
+(defparameter *hs-r-gather-links* '(:hs-r-k2 :hs-r-j2s :hs-r-k3g :hs-r-j3g)
+  "The gathered route's links 2-3 (K1-opened); since §28.4 the gathered J after a 聚 segment's SA (§28.20: J2 / J3; the J3G / J4G
+copies deleted with their clips, §28.21).")
 (defparameter *hs-r-clip-stand-ins*
   '()
   "Clip names -> the clip each plays until the art pass draws it (a look, through the Bankai's :clip-map; the art pass
@@ -650,23 +651,22 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 ;; 特性」): the spread links J1's band 3-6 m 100 deg, the gathered ones the gathered SA's 2.5-4.5 m 90 deg (no chase). §28.10 (「適當的將「散」
 ;; 的威力調降，並提升「聚」的前後搖」): every 散 move's damage x0.85, every 聚 move's startup and recovery +3 (the old §22.4 route split's size)
 ;; §28.15 (the user, 2026-10-29: 「遠攻 J3、J4 還在借 J1、J2 的動作，所以 J 五連裡有兩對動作一樣」): J3 / J4 and their gathered copies on
-;; their own clips at their S (speed 1; presentation only: frames, volumes, damage as before)
+;; their own clips at their S (speed 1; presentation only: frames, volumes, damage as before). §28.21 (batch 4b): the gathered copies
+;; NA3G / NA4G deleted (off the string since §28.20); the gathered SA / J2 / J3 on their own clips at their S (直刺 / 上撈 / 繞身連枷)
 (defmove-copy :hs-r-na3 :hs-r-j2 :clip :hs-k-na3 :clip-s 10)
 (defmove-copy :hs-r-na4 :hs-r-j2 :clip :hs-k-na4 :clip-s 10)
-(defmove-copy :hs-r-na3g :hs-r-j2s :clip :hs-k-g-na3 :clip-s 19)
-(defmove-copy :hs-r-na4g :hs-r-j2s :clip :hs-k-g-na4 :clip-s 19)
 (defparameter *hs-r-core-strings*
   '((:hs-r-j1 :q :hs-r-j2) (:hs-r-j2 :q :hs-r-na3) (:hs-r-na3 :q :hs-r-na4) (:hs-r-na4 :q :hs-r-j3)
     (:hs-r-j2s :q :hs-r-j3g))
   "The ranged mode's J (§28.3): spread J1 > J2 > J3 > J4 > J5; a 聚 combo's gathered SA > J2 > J3 (the ender) since §28.20 (the user,
-2026-10-29: 「聚的 J 連段縮成三段」「連同 SA 縮成三段」; the J2 the link HS-R-LINK-MOVE swaps in; NA3G / NA4G left unreachable).")
+2026-10-29: 「聚的 J 連段縮成三段」「連同 SA 縮成三段」; the J2 the link HS-R-LINK-MOVE swaps in; NA3G / NA4G deleted by §28.21).")
 (defparameter *hs-r-gather-swap* '((:hs-r-j2 . :hs-r-j2s))
   "Spread link -> its gathered copy (§28.2: 「遠攻模式的 J 都會受到前面是否有使用聚的影響」, 「看這一串連段」).")
 ;; the SA 打 UCHI by the state (§28.7, the user 2026-10-29: 「『SA 打』依據『散』或『聚』的狀態調整自己的攻擊範圍與鏈尖設定」): the
 ;; spread one J1's 3-6 m 100 deg, the gathered gaps' (pointer 2's) the bundle's 2.5-4.5 m 90 deg, 45; each its own tip
 (defmove-copy :hs-r-sa :hs-r-j2 :clip :hs-k-uchi :clip-s 10 :callout "UCHI" :dmg 30 :on-hit :stagger :reach *hs-r-j-reach* :arc 100 :min-reach *hs-r-j-dead*
   :hits ((10 13)))
-(defmove-copy :hs-r-sa-g :hs-r-j2s :clip :hs-k-uchi :clip-s 10 :callout "UCHI" :startup 13 :recovery 16 :dmg 45 :on-hit :stagger :reach *hs-r-k-reach* :arc 90
+(defmove-copy :hs-r-sa-g :hs-r-j2s :clip :hs-k-g-sa :clip-s 13 :callout "UCHI" :startup 13 :recovery 16 :dmg 45 :on-hit :stagger :reach *hs-r-k-reach* :arc 90
   :min-reach *hs-r-k-dead* :hits ((13 16)) :params (:melee-range 2.0 :as-ptr 1))                        ; (§28.20: SA > AS1)
 ;; pointer 1 散 SPREAD: 扇 ŌGI the fan 60 deg (S 17) > 環 WA the full turn (S 12) > 一斉 ISSEI 160 deg (S 14, knockdown); AS1 乱鎖 RANSA
 ;; 160 deg, 50, knockdown. §28.7 (the user 2026-10-29: 「散都以 3-6 m 為基礎調整範圍」): every one J1's 3-6 m (*HS-R-J-DEAD* /

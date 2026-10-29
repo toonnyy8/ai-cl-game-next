@@ -427,17 +427,17 @@
     ;; §28.3's numbers: the effective startups (S - :enter) and the damage (before :mult)
     (flet ((eff (n) (let ((x (m n))) (- (mv-s x) (mv-enter x))))
            (react (n) (let ((h (mv-hits (m n)))) (hw-react (svref h (1- (length h)))))))
-      (check (equal (mapcar #'eff '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g :hs-r-sa :hs-r-sa-g
+      (check (equal (mapcar #'eff '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-j2s :hs-r-j3g :hs-r-sa :hs-r-sa-g
                                     :hs-r-n1a :hs-r-n1b :hs-r-n1c :hs-r-n2a :hs-r-n2b :hs-r-n2c :hs-r-as3
                                     :hs-b-na1 :hs-b-na2 :hs-b-na5 :hs-b-sa :hs-b-n1a :hs-b-n1b :hs-b-n1c :hs-b-n2a :hs-b-n2b :hs-b-n2c))
-                    '(14 10 10 10 10 19 19 19 19 10 13  14 17 14 25 21 23 18  14 8 9 10 18 12 14 20 16 18)))
+                    '(14 10 10 10 10 19 19 10 13  14 17 14 25 21 23 18  14 8 9 10 18 12 14 20 16 18)))
       (check (equal (mapcar (lambda (n) (mv-dmg (m n)))
-                            '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g :hs-r-sa :hs-r-sa-g
+                            '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-j2s :hs-r-j3g :hs-r-sa :hs-r-sa-g
                               :hs-r-n1a :hs-r-n1b :hs-r-n1c :hs-r-n2a :hs-r-n2b :hs-r-n2c :hs-r-as1 :hs-r-as2 :hs-r-as2b
                               :hs-r-as3 :hs-r-as3b :hs-r-as3c
                               :hs-b-na1 :hs-b-na2 :hs-b-na3 :hs-b-na4 :hs-b-na5 :hs-b-sa :hs-b-n1a :hs-b-n1b :hs-b-n1c
                               :hs-b-n2a :hs-b-n2b :hs-b-n2c :hs-b-as1 :hs-b-as2 :hs-b-as2b :hs-b-as3 :hs-b-as3b :hs-b-as3c))
-                    '(19 16 16 16 22 29 29 29 39 30 45  26 31 48 50 57 86 43 57 70  30 30 40
+                    '(19 16 16 16 22 29 39 30 45  26 31 48 50 57 86 43 57 70  30 30 40
                       32 32 32 32 40 40 35 45 75 40 60 95 55 55 70 40 40 100)))
       (check (equal (mapcar #'react '(:hs-r-n1c :hs-r-n2c :hs-r-as1 :hs-r-as2b :hs-b-n1c :hs-b-n2c :hs-b-as1 :hs-b-as2b :hs-b-as3c
                                       :hs-r-n1a :hs-r-n2a :hs-r-as2 :hs-r-as3 :hs-r-as3c :hs-b-n1a :hs-b-n2a :hs-b-as3 :hs-b-as3b))
@@ -450,7 +450,7 @@
       (check (and (every (lambda (n) (and (~= 3.0 (hw-min (w n))) (~= 6.0 (edge n)) (null (hw-seg (w n)))))
                          '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-n1b :hs-r-n1c :hs-r-as1 :hs-r-sa))
                   (every (lambda (n) (and (~= 2.5 (hw-min (w n))) (~= 4.5 (edge n)) (null (hw-seg (w n)))))
-                         '(:hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g :hs-r-n2a :hs-r-n2c :hs-r-as2 :hs-r-as2b :hs-r-sa-g))
+                         '(:hs-r-j2s :hs-r-j3g :hs-r-n2a :hs-r-n2c :hs-r-as2 :hs-r-as2b :hs-r-sa-g))
                   (every (lambda (n) (and (null (hw-min (w n))) (~= 3.0 (edge n)) (getf (mv-params (m n)) :no-tip)))   ; (§28.8's pushes)
                          '(:hs-r-n1a :hs-r-n2b))
                   (eq 'hs-r-wa-push (mv-on-land (m :hs-r-n1a))) (eq 'hs-r-tataki-push (mv-on-land (m :hs-r-n2b)))
@@ -593,8 +593,7 @@
       (check (loop for mv being the hash-values of *moves*
                    always (or (member (mv-name mv) dz) (member (mv-name mv) (quote (:hs-k1 :hs-n1a :hs-n1b :hs-n1c)))   ; (S1: the Shikai's K1 NAGI's dead zone, §23.3; NS1's links §27.7)
                               (member (mv-name mv) '(:hs-r-n1b :hs-r-n1c :hs-r-as1 :hs-r-sa :hs-r-n2a :hs-r-n2c :hs-r-as2
-                                                     :hs-r-as2b :hs-r-sa-g :hs-r-j2 :hs-r-j3 :hs-r-na3 :hs-r-na4 :hs-r-j2s :hs-r-j3g
-                                                     :hs-r-na3g :hs-r-na4g))   ; (§28.7's bands, §28.10's J links)
+                                                     :hs-r-as2b :hs-r-sa-g :hs-r-j2 :hs-r-j3 :hs-r-na3 :hs-r-na4 :hs-r-j2s :hs-r-j3g))   ; (§28.7's bands, §28.10's J links)
                               (every (lambda (w) (null (hw-min w))) (mv-hits mv))))))
     ;; ... and only his forms have the :dmg-mult hook (the Bankai's tip, since §27 the Shikai's 放電 / 餘電), only his forms the CPU's
     ;; :move-reflex (which of his: HISAGI-CPU-TESTS)
@@ -678,7 +677,7 @@
                   do (let ((v (if (eq last t) (at d n t) (at d n)))) (check (or (~= want v) (format t "  Hisagi §28.7 tip: ~a ~,2f m wants ~,2f, got ~,2f~%" n d want v)))))
             ;; a J link takes the last hit's: J1's, the SA's
             (check (and (progn (at 5.75 :hs-r-j1) (~= 1.71 (then 3.5 :hs-r-j2))) (progn (at 4.0 :hs-r-sa t) (~= 1.0 (then 4.0 :hs-r-na3)))
-                        (progn (at 4.25 :hs-r-sa-g) (~= 1.71 (then 3.0 :hs-r-na3g)))))))
+                        (progn (at 4.25 :hs-r-sa-g) (~= 1.71 (then 3.0 :hs-r-j2s)))))))
         ;; B4c (§22.4, §22.6): B4a's marks are gone (「拿掉落點」): no mark functions, no ranged K placing anything, every
         ;; ranged J / K a hit window of its own; §25.13: the openers volumes, every route link window the chain to him
         ;; (HS-R-LINK-SEG: no dead zone, out to *HS-R-LINK-REACH*)
@@ -761,7 +760,7 @@
                         ;; batch 2a (DUEL_HISAGI §28.11): the core ranged mode, every segment with a volume (the five J and
                         ;; their gathered copies on their bands since §28.10, both SA, NS1 / NS2 a-c, AS1, AS2a / b, AS3a);
                         ;; AS3b MAKI / AS3c KAKE strike along the chain (a :seg-fn window, no volume: not checked here)
-                        :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g :hs-r-sa :hs-r-sa-g
+                        :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-j2s :hs-r-j3g :hs-r-sa :hs-r-sa-g
                         :hs-r-n1a :hs-r-n1b :hs-r-n1c :hs-r-as1 :hs-r-n2a :hs-r-n2b :hs-r-n2c :hs-r-as2 :hs-r-as2b :hs-r-as3
                         :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l :hs-b-sp2   ; (A3, §24.3: SP2's own)
                         :hs-b-sj                                                         ; (§25.10: SENGEN)
@@ -772,9 +771,13 @@
         ;; §28.15 (the user, 2026-10-29: 「遠攻 J3、J4 還在借 J1、J2 的動作，所以 J 五連裡有兩對動作一樣」): the five J (spread and
         ;; gathered) each on its own clip, J3 / J4 at their S (speed 1, the :s mark on S, the length S + A + R), every lash rank
         ;; inside the arc on the hit frames (the reach is checked below)
-        (dolist (five '((:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3) (:hs-r-j1 :hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g)))
+        (dolist (five '((:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3)))
           (check (= 5 (length (remove-duplicates (mapcar (lambda (n) (mv-clip (m n))) five))))))
-        (dolist (n '(:hs-r-na3 :hs-r-na4 :hs-r-na3g :hs-r-na4g))
+        ;; §28.21 (batch 4b, the user: 「連同 SA 縮成三段 直刺 → 上撈 → 繞身連枷」): the gathered SA > J2 > J3 each its own clip at its
+        ;; S (not the spread SA's UCHI), checked as the J3 / J4 below
+        (check (= 4 (length (remove-duplicates (mapcar (lambda (n) (mv-clip (m n))) '(:hs-r-sa :hs-r-sa-g :hs-r-j2s :hs-r-j3g))))))
+        (dolist (n '(:hs-r-na3 :hs-r-na4
+                     :hs-r-sa-g :hs-r-j2s :hs-r-j3g))   ; (§28.21)
           (let* ((mv (m n)) (cl (mv-clip mv)) (hw (svref (mv-hits mv) 0)) (half (/ (* (aref (first (hw-vols hw)) 2) 180) pi)))
             (check (or (and (~= (mv-clip-speed mv) 1.0) (= (mv-s mv) (round (* 60 (clip-mark cl :s))))
                             (= (+ (mv-s mv) (mv-a mv) (mv-r mv)) (round (* 60 (clip-dur (find-clip cl)))))
