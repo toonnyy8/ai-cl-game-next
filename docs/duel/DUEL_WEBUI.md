@@ -594,3 +594,13 @@ draining gauge, a kit without pointers). DEVLOG §504.
   z-index 9, under the plates; 爆 and its stance seals (14) and the touch ink (15) stay over everything.
 - Checks: the page's Lisp path 0 B (debug 2515), pkgcheck clean, shots in both hands. DEVLOG §505.
 
+### 11.2 The line and your bar up, 爆 up (the user, 2026-10-29)
+
+> 「1. SP/ATK 分隔線（血量等 HUD）下界上移 0.5 cm，上界上移 1 cm 2. 爆氣鍵上移 0.75 cm」
+
+- The line (and with it your Reishi bar, its flames and name, and the recogniser's split): `*deck-split-lift*` -37.8 75.6 → **0.0 94.5**
+  CSS px: the far (upper) end from 1 cm under the deck's top onto it, the thumb's (lower) end from 2 cm to 2.5 cm over 0.82.
+- 爆 (and its ring, 覺 and the stance seals around it): `*plate-low*` 37.8 → **9.45** CSS px, its middle 5 U over the deck's top + 0.25 cm.
+- The SP label rose with the line's thumb end, 0.5 cm (`calc(44% - .8cm)` → `calc(44% - 1.3cm)`), or it met the tag above the bar's
+  thumb end. Shots in both hands; nothing else moves. DEVLOG §506.
+
