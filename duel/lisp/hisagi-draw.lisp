@@ -1653,7 +1653,9 @@ label KAZESHINI IN / OUT."
 (setf (kit-meter (find-kit :hisagi :base)) (list :name "KAZESHINI" :max 1 :draw 'hs-hud-meter :label 'hs-hud-label))
 ;; (B2b: the Bankai's two modes show no sickle row: a meter of their own with no :draw, so the HUD neither inherits the
 ;; Shikai's, which overlapped the awakened forms' L COOLDOWN row, nor draws one; no sim reads it: no :start / :full-form)
-(dolist (f '(:bankai :bankai-bind)) (setf (kit-meter (find-kit :hisagi f)) (list :name "FUSHI NO KOJO" :max 1)))
+;; (§28.15: the name tells the two modes apart on the plate's tag, and the page's pointer seals by it: 散 / 聚, 鎌 / 絞)
+(setf (kit-meter (find-kit :hisagi :bankai)) (list :name "RANGED" :max 1)
+      (kit-meter (find-kit :hisagi :bankai-bind)) (list :name "BIND" :max 1))
 (defun hs-deck (e cx cy d)
   "His :deck hook (one hand): a dot above the thumb, lit while the sickle is in hand."
   (let ((r (* d 52.0)))

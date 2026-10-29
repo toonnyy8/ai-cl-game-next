@@ -19,7 +19,9 @@
          forms: { KESSA: [["鎖", "鎖 · CHAINS"], ["月", "月 · 漆黒"], ["影", "影 · 千影"]] } },
     4: { en: "Senjumaru", kj: "修多羅", full: "修多羅千手丸" },
     6: { en: "Lille", kj: "リジェ", full: "リジェ・バロ" },
-    7: { en: "Hisagi", kj: "檜佐木", full: "檜佐木修兵", ptr: [["投", "投 · NAGI"], ["刈", "刈 · KARI"], ["雷", "縛雷 · SHIBARI"]] }
+    7: { en: "Hisagi", kj: "檜佐木", full: "檜佐木修兵", ptr: [["投", "投 · NAGI"], ["刈", "刈 · KARI"], ["雷", "縛雷 · SHIBARI"]],
+         forms: { "FUSHI NO KOJO RANGED": [["散", "散 · SPREAD"], ["聚", "聚 · GATHER"]],   // the Bankai's two modes, two pointers each
+                  "FUSHI NO KOJO BIND": [["鎌", "鎌 · KAMA"], ["絞", "絞 · SHIBORI"]] } }
   };
   var PTR0 = [["一", "PTR 1"], ["二", "PTR 2"], ["三", "PTR 3"]];
   var CRY = { "KARE, KAZESHINI": "刈れ", "ZANGETSU": "斬月" };
@@ -118,7 +120,10 @@
     var f = fighter(s); if (f) return f.en;
     var l = label(s).split(/\s{2,}/)[0]; return l ? l.charAt(0) + l.slice(1).toLowerCase() : "—";
   }
-  function seals(s) { var f = fighter(s); if (!f || !f.ptr) return PTR0; return (f.forms && f.forms[formOf(s)]) || f.ptr; }
+  function seals(s) {   // by the form, or the form + its tag (Hisagi's Bankai: one form name, the mode in the tag)
+    var f = fighter(s), k = formOf(s); if (!f || !f.ptr) return PTR0;
+    return (f.forms && (f.forms[k + " " + (S[4 * s + 1] || "")] || f.forms[k])) || f.ptr;
+  }
   function tagHTML(s) {
     var t = S[4 * s + 1] || "", o = 50 + 30 * s, form = formOf(s), m;
     var out = t === "KAZESHINI IN" ? "風死 <b>·</b> in hand" : t === "KAZESHINI OUT" ? "風死 <b>·</b> thrown" : t === "KAZESHINI ..." ? "風死 <b>·</b> returning" :
@@ -153,8 +158,11 @@
     ptr.hidden = !(n > 0);
     if (n > 0) {
       var ss = ptr.querySelectorAll(".seal");
-      for (i = 0; i < 3; i++) { tx(ss[i], sv[i][0]); ss[i].classList.toggle("on", i + 1 === n); }
-      tx($(".pn", ptr), sv[n - 1][1]);
+      for (i = 0; i < 3; i++) {
+        ss[i].hidden = i >= sv.length;
+        if (i < sv.length) { tx(ss[i], sv[i][0]); ss[i].classList.toggle("on", i + 1 === n); }
+      }
+      tx($(".pn", ptr), sv[Math.min(n, sv.length) - 1][1]);
     }
     // the combo this side deals, under its plate; each hit stamps it (no screen flash: the user, 2026-10-29: 「打中對手時不要讓螢幕閃爍白光」)
     var c = els.combo[s], practice = !!(V[0] & 16);
