@@ -86,9 +86,9 @@
 (defmove-copy :ke-sa :ke-j1 :dmg 36 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)
 ;; NS2: BUTTAGIRU's leap > the kick; both take one hit through (:armor-hits 1, extended to the end of the active frames by KEN-ARMOR),
 ;; a cancel (the triangle's, no damage) neither spends it nor is a hit: it counts (KEN-CLASH) and raises the SA of the gap (KEN-DMG-MULT)
-(defmove-copy :ke-n2b :ke-j3 :kind :flash :dmg 60 :flags nil :startup 14 :clip-s 8 :armor-hits 1
+(defmove-copy :ke-n2b :ke-j3 :kind :flash :dmg 60 :flags nil :startup 14 :clip :ke-sweep :clip-s 14 :reach 2.4 :arc 140 :armor-hits 1
   :params (:armor-act t :clash-count t))
-(defmove-copy :ke-n2a :ke-buttagiru :kind :flash :dmg 90 :on-hit :stagger :armor-hits 1
+(defmove-copy :ke-n2a :ke-buttagiru :kind :flash :clip :ke-rush-a :dmg 90 :on-hit :stagger :armor-hits 1 :flags nil :on-frame nil
   :params (:melee-range 2.6 :ns-next :ke-n2b :sa :ke-sa-r :armor-act t :clash-count t))
 (defmove-copy :ke-sa-r :ke-sa :params (:clash-scale 0.3))
 ;; NS3: three charges that hit nothing; each one's SA (J pressed in its gap) arms a bigger :charge-mult on the string after it
@@ -96,15 +96,15 @@
 (defmove-copy :ke-sa-c2 :ke-sa :dmg 60 :params (:charge-mult 1.6 :aura-k 2.2))
 (defmove-copy :ke-sa-c3 :ke-sa :dmg 80 :params (:charge-mult 2.0 :aura-k 3.0))
 (defmove :ke-n3c :kind :flash :clip :ke-chg3 :startup 16 :active 0 :recovery 20 :on-frame ((2 ken-charge-sfx))
-  :params (:sa :ke-sa-c3 :aura-k 3.0))
+  :params (:sa :ke-sa-c3 :aura-k 3.0 :charge-sa t))
 (defmove :ke-n3b :kind :flash :clip :ke-chg2 :startup 16 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
-  :params (:ns-next :ke-n3c :sa :ke-sa-c2 :aura-k 2.2))
+  :params (:ns-next :ke-n3c :sa :ke-sa-c2 :aura-k 2.2 :charge-sa t))
 (defmove :ke-n3a :kind :flash :clip :ke-chg1 :startup 20 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
-  :params (:ns-next :ke-n3b :sa :ke-sa-c1 :aura-k 1.5))
+  :params (:ns-next :ke-n3b :sa :ke-sa-c1 :aura-k 1.5 :charge-sa t))
 ;; AS n = n segments, each a fresh SP press; only the last knocks down or launches
 (defmove-copy :ke-as1 :ke-k3 :kind :sp :callout "KITTE MIRO YO" :dmg 40 :on-hit :knockdown :flags nil)   ; (no flash-step steal since 2026-10-29: the user, 「不需要每個角色的 NS1 都剝奪閃步量表」)
 (defmove-copy :ke-as2b :ke-buttagiru :on-hit :launch :dmg 100 :on-frame nil :params (:melee-range 2.6))
-(defmove-copy :ke-as2 :ke-k1 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-as2b))
+(defmove-copy :ke-as2 :ke-k1 :kind :sp :clip :ke-smash :clip-s 16 :reach 1.7 :arc 100 :dmg 55 :on-hit :stagger :params (:ns-next :ke-as2b))
 (defmove-copy :ke-as3c :ke-meteor :dmg 170 :on-hit :knockdown :on-frame nil :params (:melee-range 3.4))
 (defmove-copy :ke-as3b :ke-k2 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-as3c))
 (defmove-copy :ke-as3 :ke-k1 :kind :sp :dmg 50 :on-hit :stagger :params (:ns-next :ke-as3b))
@@ -184,7 +184,7 @@
   :grid (:ke-j1 :ke-j2 :ke-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)
   :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2
          :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)          ; the idle clip by SP pointer
-         :kikon-cines (ken-kikon-cine ken-kikon-cine ken-sky-split-cine))   ; (pointer 2's own cinematic: later)
+         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))   ; (pointer 2's: DUEL_KEN_CORE §6)
   :strings ((:ke-charge :land :ke-flurry))
   :awaken-form :nozarashi
   :hooks (:boss ken-boss :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)                       ; the DANGAI boss: the Bankai at FIGHT, the arm never spent (ken-meter.lisp)
@@ -722,6 +722,29 @@ split from the side, then Kenpachi."
   (during (68 162) (let ((q (pos-of v))) (vfx-sky-split (aref q 0) (aref q 2) (yaw-of a) (/ (- cf 68) 60.0) 1.5)))
   (at 102 (shot-on v 95 7.5 1.2 :look 1.0) (lens 50) (caption-exit))
   (at 132 (shot-on a -20 5.0 0.7 :look 1.4) (lens 45)))
+
+;; pointer 2's Kikon (DUEL_KEN_CORE §6: 「新做硬扛衝撞演出」): he takes the first blow and drives through it
+(defcine ken-clash-kikon-cine (a v :len 176 :hold 100)
+  "Pointer 2's Kikon: beat 0; Kenpachi on a white card, low and dutch, the stamp 来いよ in black, silence; the shoulder charge
+drives the victim into the ground (heavy cut, a shake); a held close wide-angle push in silence; the smash through him: a
+negative, then a manga page, the Konpaku shatter and a splash; he laughs; a wide from behind."
+  (at 0 (face-each-other a v 2.2)
+      (cine-clip a :ke-rush-a :blend 2 :speed (/ 26.0 60.0)) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2))
+  (at 12 (card :white a) (shot-on a 30 3.0 0.6 :look 1.4 :off -0.8) (lens 44 -12) (silence 52)
+      (caption "来いよ" :reading "KOI YO" :sub "ORE WA TOMARANEE" :side 1 :ink t :hanko t))
+  (at 70 (card nil) (cine-slash v :heavy) (shot-on v 120 3.8 1.2) (lens 55) (play-sfx :ground-crack) (shake 0.4 0.5) (caption-exit))
+  (at 98 (hold-both a v 20) (silence 20) (lens 86))
+  (during (98 122) (shot-on a 20 (+ 1.5 (* 0.4 u)) 0.5 :look 1.45))
+  (at 122 (cine-clip a :ke-smash :blend 2 :speed 0.6)
+      (cine-slash v :heavy) (shot-pair a v (- (camera-side a)) 5.5 1.3) (lens 55)
+      (impact-frame :negative 2)
+      (cine-shatter v 3)
+      (impact-splash-at v 0.0 16 0.07)
+      (play-sfx :kikon-slash) (play-sfx :konpaku-shatter) (shake 0.3 0.35))
+  (at 124 (impact-frame :manga 12))
+  (at 134 (play-sfx :laugh))
+  (at 146 (shot-on a 160 4.2 0.8 :look 1.3) (lens 50)))
 
 (defcine ken-nozarashi-cine (a v :len 108 :hold 84)
   "NOME, NOZARASHI (§5; paced by user review 3; no eyepatch in any form, TYBW: the release is the whole first beat):

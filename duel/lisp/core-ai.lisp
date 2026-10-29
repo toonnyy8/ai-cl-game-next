@@ -63,7 +63,10 @@
         (:ns
          (when (>= (fighter-sf f) (mv-s mv))                   ; the segment is out: now is the gap to read
            (setf (brain-decided b) (fighter-cls-t f))
-           (cond ((and (kit-sa-move kit) (< (brain-r-turn b) (brain-chance b *cai-turn-p*))
+           (cond ((and (getf (mv-params mv) :charge-sa) (mv-sa-move kit mv) (< (fighter-dist f) 2.6)   ; a charge segment (Kenpachi's kamae): cash it in
+                       (or (null (mv-ns-next kit mv)) (< (brain-r-turn b) 0.5)))                       ; at the last one, else half the time
+                  (cai-press b :quick 1))
+                 ((and (kit-sa-move kit) (< (brain-r-turn b) (brain-chance b *cai-turn-p*))
                        (or (eq oc :na) (and (mv-sa-move kit mv) (< (fighter-dist f) 2.6))))   ; the read, or a segment's own SA in reach
                   (cai-press b :quick 1))
                  ((and (mv-ns-next kit mv) (< (brain-r-cont b) (brain-chance b *cai-cont-p*))) (cai-press b :quick 1 t)))))

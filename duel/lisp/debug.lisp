@@ -424,14 +424,15 @@ deals PCT % of its written damage (the seed gate's first lever, DUEL_STRINGS §6
      (start-cine (nth (- k 11) '(ru-kikon-cine ru-hakka-cine ru-awaken-cine)) *p1* *p2*))
     ((14 15) (ensure-battle :rukia :kenpachi) (place *p1* *p2* 3.0) (force-form *p1* :zero)   ; the white Rukia's face
      (start-cine (if (= k 14) 'ru-face-cine 'ru-face-bankai-cine) *p1* *p2*))
-    ((16 17 18) (senju-force-cine (- k 16))))                ; Senjumaru's (senjumaru.lisp)
+    ((16 17 18) (senju-force-cine (- k 16)))                 ; Senjumaru's (senjumaru.lisp)
+    (19 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0) (start-cine 'ken-clash-kikon-cine *p1* *p2*)))   ; Kenpachi's pointer 2 (DUEL_KEN_CORE §6)
   (setf *cine-hold* t)
   (when *cine* (setf (cine-hold *cine*) (cine-hold-frame (cine-name *cine*)))))
 
 (defparameter *cine-names* '(yama-bankai-cine ken-nozarashi-cine yama-kikon-cine yama-tenchi-cine ken-kikon-cine
                                ken-sky-split-cine soul-break-cine intro-cine ko-cine ken-bankai-cine ken-oni-kikon-cine
                                ru-kikon-cine ru-hakka-cine ru-awaken-cine ru-face-cine ru-face-bankai-cine
-                               sj-kikon-cine sj-hata-cine sj-tsuji-cine)
+                               sj-kikon-cine sj-hata-cine sj-tsuji-cine ken-clash-kikon-cine)
   "FORCE-CINE's numbering.")
 
 (defcine ru-face-cine (a v :len 60 :hold 30)

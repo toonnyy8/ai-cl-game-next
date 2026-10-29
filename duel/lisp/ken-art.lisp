@@ -1384,3 +1384,38 @@ flex and the spine / head flex shifted by these."
   (8 (:root :u 0.02) (:arm-r :flex 160 :side 20) (:elbow-r :flex 100) (:arm-l :flex 150 :side 24) (:elbow-l :flex 96) (:spine :flex -10) (:head :flex -12))
   (:s (:root :u 0.03) (:arm-r :flex 168 :side 22) (:elbow-r :flex 104) (:arm-l :flex 156 :side 26) (:elbow-l :flex 98) (:spine :flex -14) (:head :flex -16))
   (:end :ke-st-kamae))
+
+;;; ---------------------------------------------------------------- pointer 2's own strikes (DUEL_KEN_CORE §6: 蠻力肩撞與橫掃)
+;; NS2a: a low shoulder charge. The wind-up crouches and coils the chest back, the blade trailing; the strike drives the lead shoulder in
+(defstrike :ke-rush-a (22 4 26 :base :ke-st-rush)
+  (0)
+  (8 (:root :u -0.3 :f -0.06) (:knees :flex 70) (:thighs :flex 48) (:spine :flex 34) (:chest :twist -48) (:pelvis :twist -18)
+     (:arm-r :flex -30 :side 36) (:elbow-r :flex 14) (:arm-l :flex 60 :side 20) (:elbow-l :flex 60) (:head :flex -20))
+  (16 (:root :u -0.34 :f -0.1) (:chest :twist -58) (:spine :flex 38))                                              ; held, coiled
+  (:s :snap (:root :u -0.22 :f 0.62) (:spine :flex 42) (:chest :twist 52) (:pelvis :twist 24) (:arm-l :flex 82 :side 6) (:elbow-l :flex 96)
+      (:arm-r :flex -36 :side 40) (:thigh-r :flex 58) (:knee-r :flex 62) (:thigh-l :flex -14) (:knee-l :flex 36) (:head :flex -26))
+  (:a (:root :f 0.7 :u -0.24) (:chest :twist 58) (:spine :flex 46))
+  (34 (:root :f 0.64 :u -0.22) (:chest :twist 52))
+  (:end :ke-stance))
+;; NS2b: the sweep: the blade dragged low behind, then one wide flat backhand across the whole front
+(defstrike :ke-sweep (14 3 18 :base :ke-st-rush)
+  (0)
+  (6 (:root :u -0.2) (:knees :flex 50) (:spine :flex 20) (:chest :twist 62) (:pelvis :twist 30) (:arm-r :flex 10 :side 76) (:elbow-r :flex 8)
+     (:hand-r :flex -60) (:arm-l :flex 10 :side 52) (:head :twist 18))
+  (10 (:chest :twist 70) (:arm-r :side 84))                                                                          ; held, wound
+  (:s :snap (:root :u -0.16 :f 0.3) (:chest :twist -66) (:pelvis :twist -28) (:arm-r :flex 74 :side 40) (:elbow-r :flex 4)
+      (:arm-l :flex 20 :side 70) (:spine :flex 26) (:thigh-r :flex 30) (:knee-r :flex 36) (:head :twist -16))
+  (:a (:chest :twist -76) (:arm-r :side 30) (:root :f 0.36))
+  (24 (:chest :twist -70) (:root :f 0.3))
+  (:end :ke-stance))
+;; AS2a: the grab and smash: the left hand takes the head, the right pommel / fist hammers down
+(defstrike :ke-smash (16 4 20 :base :ke-st-rush)
+  (0)
+  (6 (:root :f 0.1 :u -0.12) (:spine :flex 22) (:arm-l :flex 100 :side 12) (:elbow-l :flex 24) (:hand-l :flex -20)
+     (:arm-r :flex 150 :side 24) (:elbow-r :flex 110))
+  (11 (:arm-r :flex 170 :side 20) (:elbow-r :flex 120) (:spine :flex 4) (:root :u -0.06))                           ; the fist held high
+  (:s :snap (:root :f 0.36 :u -0.28) (:spine :flex 50) (:arm-r :flex 40 :side 4) (:elbow-r :flex 20) (:arm-l :flex 96 :side 10)
+      (:elbow-l :flex 20) (:head :flex -30) (:knees :flex 56))
+  (:a (:spine :flex 56) (:root :f 0.4 :u -0.3))
+  (28 (:spine :flex 52))
+  (:end :ke-stance))

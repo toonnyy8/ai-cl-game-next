@@ -76,7 +76,7 @@ ground): up over the first 8 f of the dash (or the dash-in), down over the strik
            (* h (- 1.0 (/ (fighter-sf f) (float (mv-s mv))))))
           (t 0.0))))
 
-(defparameter *hurt-cines* '(yama-kikon-cine yama-tenchi-cine ken-kikon-cine ken-sky-split-cine ken-oni-kikon-cine soul-break-cine
+(defparameter *hurt-cines* '(yama-kikon-cine yama-tenchi-cine ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine ken-oni-kikon-cine soul-break-cine
                              ko-cine)
   "The cinematics whose victim (V) shows the hurt face; their attacker (A) shouts (every cinematic's A does but the intro's,
 TIME's and the K.O.'s winner).")

@@ -55,3 +55,18 @@ G2 `--cvc`: II identical (29 lines), IK 34 → 33 lines (P2 0-3, 323.8 s), KK 27
 「不需要每個角色的 NS1 都剝奪閃步量表，我會根據人物特色訂製不同的 NS」. The steal is a per-move param (`:steal-fs`), not a rule of the system, so each kit
 decides. Kenpachi's `ke-as1` loses `:steal-fs 120` (damage 40, knockdown as before); what pointer 1 does instead is the user's to define. Ichigo's and
 Hisagi's AS1 (`:steal-fs 120`, and the blood-chain AS1's 30) are left as they are until the user says.
+
+## 6. The second batch: base's open items (the user, 2026-10-30)
+
+「開始第二批」, asked which part; answer 「補完 base 的未完成項」. Then asked (AskUserQuestion): pointer 2's new strikes 「蠻力肩撞與橫掃」, pointer 2's Kikon
+「新做「硬扛衝撞」演出」.
+
+- **Pointer 2's strikes.** NS2a `ke-n2a` is a low shoulder charge (clip `:ke-rush-a`, S22 A4 R26 as before; the BUTTAGIRU crack and ranged flag are gone, the leap's
+  slide and volume stay); NS2b `ke-n2b` a flat backhand sweep (`:ke-sweep`, S14, **reach 0.88 → 2.4 m, arc 60 → 140**: the sweep must read wide); AS2a `ke-as2` the grab and smash
+  (`:ke-smash`, S16, reach 2.8 → 1.7 m, 55 stagger); AS2b stays BUTTAGIRU's launch. Stance poses `:ke-st-rush` as the base of all three. AS3's first segments keep K1 / K2 (pointer 3's
+  kendo slashes).
+- **Pointer 2's Kikon** `ken-clash-kikon-cine` (176 f): white card, the stamp 来いよ (KOI YO) in black, the shoulder charge drives him into the ground, a held wide-angle push, the smash through
+  him (negative, manga page, shatter, splash), the laugh. Debug 2219 (`force-cine` 19), `*cine-names*`, `*hurt-cines*`. Browser stills at frames ~20 / 90 checked.
+- **The CPU.** A charge segment (`:params :charge-sa`, NS3 a / b / c) with the opponent inside 2.6 m: the last one always cashes its SA in, the earlier ones half the time (`cai-move-step`, core-ai.lisp;
+  no other kit names the param). Not done: a CPU that picks pointer 2's NS to bait a cancel.
+- Checks: host 10899 and cine 18 pass, pkgcheck clean; the scripted scenes of §4 give the same numbers; G2 II identical, IK / KK regenerated.
