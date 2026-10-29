@@ -848,6 +848,12 @@
                                           (aref vol 2)))
                          (format t "  Hisagi 2b ~a: a chain strike leaves its arc~%" n))))))))
     (check (equal (cdr (assoc :hs-kb-st-shibori (symbol-value '*hs-kb-grips*))) '(0 0 2)))
+    ;; batch 3b (§28.17, the user's 「分鏡可以」 on §28.14): the bind's pointer 1 鎌 plays 鉤刈, pointer 2 絞 the revised 絞首; 鉤刈's
+    ;; clips hold their crescents on the victim (*HS-KB-REELS* at the hooks' 6 m), 絞首's haul keeps the 絞 stance's wound chain
+    (check (equal (getf (kit-core (kit :hisagi :bankai-bind)) :kikon-cines) '(hs-kagi-gari-cine hs-koshu-cine)))
+    (check (every (lambda (c) (and (~= 6.0 (second (assoc c *hs-kb-reels*))) (find c *hs-letout* :key #'first)))
+                  '(:hs-cine-kg-haul :hs-cine-kg-cuts :hs-cine-kg-strain :hs-cine-kg-rip)))
+    (check (equal (cdr (assoc :hs-cine-ks-haul (symbol-value '*hs-kb-grips*))) '(0 0 2)))
     ;; A1 (DUEL_HISAGI §24.1, the user, 2026-10-18: 「可以，照這個順序開始畫」): the Shikai's K string drawn. K1 NAGI: its
     ;; let-out out over every hit frame at r x the charge, on the charged copy's arc edge within 0.15 m at x1.0 and x1.6,
     ;; its sweep's bearing inside the arc (+- *HS-K1-ARC* / 2) on each; K2 NOKO, K2J, K3 TSUI (placed on the victim,

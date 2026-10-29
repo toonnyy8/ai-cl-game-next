@@ -319,6 +319,13 @@ this far back through his fist (m), so he holds it just behind the blades' cross
     (:hs-kb-kaeshi :l 5 8 11 18 1.5 nil nil 0)      ; the bind's J2 返弦, the left rising on a short chain
     (:hs-kb-hikigiri :r 15 18 23 32 2.95 1.1 0 0)   ; K1 引斬, the right hooked out along the line
     (:hs-kb-sengen :r 6 10 13 24 2.2 nil 0 0)       ; Step + J 穿弦 SENGEN (§25.10), the right hurled straight ahead
+    (:hs-cine-kg-haul :r -2 0 9999 9999 6.0 1.1 0 0)     ; batch 3b (§28.17): 鉤刈 KAGI-GARI's cinematic clips: the right hooked
+    (:hs-cine-kg-cuts :r -2 0 9999 9999 6.0 1.3 -8 0)    ;  in him through the hand-over-hand reel (KAGIYOSE's point) and the
+    (:hs-cine-kg-cuts :l 22 25 9999 9999 6.0 1.3 8 0.3)  ;  cuts, the left flung into his other side (f25), both held through
+    (:hs-cine-kg-strain :r -2 0 9999 9999 6.0 1.3 -8 0)  ;  the strain and ripped out apart (-8 -> -80 / 8 -> 80 by f5, back in
+    (:hs-cine-kg-strain :l -2 0 9999 9999 6.0 1.3 8 0)   ;  the fists by f18); on him by *HS-KB-REELS*
+    (:hs-cine-kg-rip :r -2 0 5 18 6.0 1.3 (-8 -8 -80) 0.4)
+    (:hs-cine-kg-rip :l -2 0 5 18 6.0 1.3 (8 8 80) 0.4)
     (:hs-kb-raiden :l 11 14 18 30 4.3 1.1 0 0)      ; SP1, the left down the line (the bolt along it)
     (:hs-kb-kojo :r 27 30 34 46 3.0 0.7 nil 0.6)    ; A3 (§24.3): L 絞縄 KOJO (S 30), the wide reap, flung from overhead
     (:hs-kb-kaibaku :r 15 18 22 34 3.0 1.0 (-120 -50 50) 0)   ; SP2 解縛擊 (S 18), a flat sweep R -> L at 3.0 m (the hit
@@ -2499,13 +2506,15 @@ turns (+ counter-clockwise from above) on top of its slow turn, winding up from 
 him with it (§22.1, batch A2; the orb's own 0.25 of §21.6).")
 (defparameter *hs-kb-grips* '((:hs-kb-stance 9999 0) (:hs-kb-walk-f 9999 0) (:hs-kb-walk-b 9999 0) (:hs-kb-strafe-r 9999 0)
                                (:hs-kb-strafe-l 9999 0) (:hs-kb-kojo 30 9) (:hs-kb-kaibaku 18 5)
-                               (:hs-kb-st-shibori 0 0 2) (:hs-kb-shime 42 10 1))   ; (batch 2b, §28.12)
+                               (:hs-kb-st-shibori 0 0 2) (:hs-kb-shime 42 10 1)   ; (batch 2b, §28.12)
+                               (:hs-cine-ks-haul 0 0 2))   ; (batch 3b, §28.17: KŌSHU's haul, the 絞 stance's wound chain)
   "The bind's clips in which his left fist holds a chain run to the opponent's noose (§22.1: 「the noose taut」): (clip F1
 FT [FL]): held to clip frame F1; slack (sagging) until FT, then taut, trembling from FT on when FT > 0 (batch A3, §24.3: L
 KOJO's heave, f9-19, held through its drag to S; SP2 KAIBAKU-GEKI's haul, thrown off on its S). FL (batch 2b, §28.12; none: 0)
 bits: 1 his right fist holds a second chain to the noose the same way (NS2b / AS2a SHIME's two); 2 the 絞 stance: the noose
 chain wound round his right fist and run taut straight up to the orb's underside (whatever F1).")
-(defparameter *hs-kb-reels* '((:hs-kb-kagiyose 6.0) (:hs-kb-kagiyose-giri 6.0) (:hs-kb-matoi 2.95))
+(defparameter *hs-kb-reels* '((:hs-kb-kagiyose 6.0) (:hs-kb-kagiyose-giri 6.0) (:hs-kb-matoi 2.95)
+                               (:hs-cine-kg-haul 6.0) (:hs-cine-kg-cuts 6.0) (:hs-cine-kg-strain 6.0) (:hs-cine-kg-rip 6.0))   ; (3b, §28.17)
   "Batch 2b (§28.12): the bind's clips whose let-out lands on the victim: (clip reach): while out, its point lies at his
 distance from Hisagi's feet, at most REACH (its *HS-LETOUT* r: HS-B-HOOK-SEG's *HS-B-HOOK-REACH* 6 m for the hooks, MATOI's
 line end 2.6 + its r 0.35), so it follows him through the drag, stops at him on a block and at REACH on a whiff (HS-KB-LK!).")

@@ -781,7 +781,7 @@ SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move
   :core (:ns (:hs-b-n1a :hs-b-n2a) :as (:hs-b-as1 :hs-b-as2 :hs-b-as3) :sa :hs-b-sa
          :as-writes (1 2 nil) :as-by-press (1 1 2 2 3)
          :stances (:hs-kb-stance :hs-kb-st-shibori)              ; (鎌 the low crossed grip / 絞 the noose wound on the fist up to the orb: batch 2b, §28.12)
-         :kikon-cines (hs-koshu-cine hs-koshu-cine)              ; (re-used: 絞首 for both until §28's 鎌 / 絞 are built)
+         :kikon-cines (hs-kagi-gari-cine hs-koshu-cine)          ; (鎌 鉤刈 / 絞 絞首, its beat 1 the noose hauled: batch 3b, §28.17)
          :mult 1.7)
   :hooks *hs-bk-hooks*)
 
