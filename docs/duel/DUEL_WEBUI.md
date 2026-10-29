@@ -521,3 +521,10 @@ which is 70 % down at that edge. The left hand mirrors it. C keeps its own place
 Artifact version 19, all three drafts: the deck's screentone dots (7 px grid, 18 % steel) no longer fade in over its top 40 % (a
 mask, transparent → opaque at 40 %); they run at full strength up to the deck's top edge, so the dots alone mark where the touch
 zone begins. The dark gradient under them is unchanged.
+
+### 10.12 Draft v7.12: A / B's SP label 0.8 cm up (the user, 2026-10-29)
+
+> 「『SP 技』標示往上偏移 0.8cm」
+
+Artifact version 20: A / B's `SP 技` label (§10.10) 0.8 cm (30.2 CSS px) higher: `top: calc(44% - .8cm)` of the deck at the thumb's
+edge, still under B's stance seals and the pointer's name. C's label unchanged.
