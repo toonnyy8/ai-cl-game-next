@@ -1099,7 +1099,8 @@ cubic (CZ[112..]: the eight twisted round it, 4 turns, tight below, fanning out 
                           (f-hypot (- (aref cz (+ ob 9)) (aref cz (+ ob 6))) (- (aref cz (+ ob 10)) (aref cz (+ ob 7))) (- (aref cz (+ ob 11)) (aref cz (+ ob 8))))))))
          (n (min 120 (max 2 (f->i (/ len 0.12f0)))))
          (tp (+ (* cw (aref cz (+ o 12))) (* bw (aref cz (+ ob 12))))) (wx (aref cz (+ o 13))) (jp (* 0.7853982f0 (i->f j)))
-         (flow (and (= (aref *hs-tg* 0) 1f0) (< tp 0.01f0) (< bw 0.01f0)))
+         (flow (and (= (aref *hs-tg* 0) 1f0) (or (and (< tp 0.01f0) (< bw 0.01f0)) (> bw 0.99f0))))   ; (§28.11: or down
+                                                                        ;  the bundle, bound in the 聚 stance)
          (pu (+ 0.35f0 (* 0.65f0 (/ (* (the single-float *hs-flow-every*)
                                          (f-mod (+ (/ (fx-clock) (the single-float *hs-flow-every*)) (* 0.37f0 (i->f j))) 1f0))
                                       (the single-float *hs-flow-period*))))))   ; (past 1: resting till its next)
@@ -1214,13 +1215,15 @@ on its entry of LK (his clip's *HS-LASHES-V*: %HS-LASH-TIP!, the lag, the trail)
                     (setf (aref tv 0) (f-max (aref tv 0) (aref e 5))
                           (aref tv 1) (f-max (aref tv 1) (* (aref e 5) (f-cos (* 0.017453292f0 (aref e 6)))))))
                   (%hs-curve! cz o tp e e2 pos)
-                  (%hs-trail kv rank j pos fa))
+                  (when (and (= j 8) (> bw 0.5f0) (= (aref *hs-tg* 0) 2f0)) (%hs-glint e 0))   ; (§28.11: J1's tip cue on
+                  (%hs-trail kv rank j pos fa))                                                 ;  the 聚 stance's bundle end)
                 (progn
                   (setf (aref e 0) (+ gx (aref rp 3)) (aref e 1) (aref rp 1) (aref e 2) gz (aref e 3) 0f0 (aref e 4) 0f0
                         (aref cz (+ o 13)) 1f0)
                   (when (< cl1 1f0)                                     ; (a cinematic's drop: that share of its length)
                     (dotimes (i 3) (setf (aref e i) (+ (aref tp i) (* cl1 (- (aref e i) (aref tp i)))))))
-                  (when (and (< j 8) (= (aref *hs-tg* 0) 2f0)) (%hs-glint e j))   ; (§25.28: on J1's tip)
+                  (when (and (< j 8) (< bw 0.5f0) (= (aref *hs-tg* 0) 2f0)) (%hs-glint e j))   ; (§25.28: on J1's tip;
+                                                                        ;  §28.11: not on chains bound into the bundle)
                   (%hs-curve! cz o tp e e tp)))))))
     (dotimes (j 8)
       (unless (logbitp j mask) (%hs-cubic-chain cz (* 14 j) j))))

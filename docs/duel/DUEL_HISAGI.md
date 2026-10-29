@@ -4413,6 +4413,10 @@ host-checked to ±0.15 m), new draw paths 0 B a frame.
 - **0 B**: `*hs-lk*` was never declaimed `f32vec`, so every stretched link's read boxed (base 29c1e69: spread K2 46240 B, K3 58720,
   SOKUSEN 11920, SOKUBEN / SOKUTEI 9280 per 10 calls); declaimed, all 0. Debug 83901 has a second line `look consing 2a` (the 聚 stance
   and the twelve new hit frames): all 0 (JIBASHIRI's first call shows the fx buffer growing once, 0 after).
+- **The tip cue under 聚** (§25.26–§25.28): with the eight chains bound into the stance's bundle, J1's glints floated at the empty
+  chains' rest ends and K1's flow vanished (it was gated on no bundle). Now: no glint on a bound chain, one glint on the bundle's end
+  (J1's tip); K1's flow runs down the bundle (shot from the behind camera at 5.75 / 4.25 m, debug 83023 / 83022 + 2511). The lead /
+  user can still decide the cue should look different under 聚.
 - Debug 83902 now poses each move at its clip speed (it read the clip at speed 1, so every re-timed clip measured short). Its lines,
   P1 3 m from Kenpachi, through the real draw hook: every ranged move with a volume on its edge on every hit frame (J1–J5 6.00, the gathered
   J 4.50, UCHI 6.00 / 4.50, WA 3.00, OGI / ISSEI / RANSA 6.00, TABA 4.50, TATAKI 3.00, ŌMEGURI 4.50, AS2a 4.50, JIBASHIRI 4.50, NAGE 7.35).
