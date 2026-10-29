@@ -477,3 +477,10 @@ flat; a Hoho drops it by 100 and dips the seal 0.35 U once instead of sloshing);
 Artifact version 14: the 100 / 200 marks lose their numbers and become chords across the whole seal at 1/3 and 2/3 of its height
 (clipped by the seal's circle), 1.5 px in the rim's red: dim (`rgba(232,30,58,.4)`) with the rim under 200, full blood once armed
 (a 0.5 s flash on arming); each is cut 1.6 U either side of the middle, so neither touches 爆 or RV.
+
+### 10.7 Draft v7.7: the chords closer to the glyphs (the user, 2026-10-29)
+
+> 「更貼近字體一些」
+
+Artifact version 15: each chord's cut is fitted to the text it passes: the 200 chord (through 爆) stops 1.35 U from the middle,
+the 100 chord (through RV) 1.05 U (both were 1.6 U), about 0.3 U clear of the glyphs.
