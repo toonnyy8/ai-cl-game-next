@@ -528,13 +528,13 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
   :hits ((27 31 :seg-fn hs-r-link-seg) (33 37 :dmg 32 :on-hit :launch :kb *hs-r-k2-launch-kb* :seg-fn hs-r-link-seg)))   ; 束打 SOKUDA
 (defmove :hs-r-j2s :kind :quick :clip :hs-k-g-j2 :clip-s 16 :startup 19 :active 3 :recovery 16 :dmg 29 :adv-block -2 :guard 10
   :reach *hs-r-k-reach* :arc 90 :min-reach *hs-r-k-dead* :on-hit :flinch :hits ((19 22 :stun 24)) :flags (:ranged)
-  :params (:melee-range 2.0))                                                                                  ; 束鞭 SOKUBEN
+  :params (:melee-range 2.0 :as-ptr 2))                                                                        ; (§28.20: J2 > AS2)                                                                                  ; 束鞭 SOKUBEN
 (defmove :hs-r-k3g :kind :flash :clip :hs-k-g-k3 :clip-s 27 :enter 6 :startup 27 :active 5 :recovery 34 :dmg 86 :adv-block -20
   :guard 23 :reach *hs-r-link-reach* :on-hit :crumple :hits ((27 32 :seg-fn hs-r-link-seg)) :flags (:ender :ranged)
   :params (:melee-range 2.0))                                                                                  ; 束旋 SOKUSEN
 (defmove :hs-r-j3g :kind :quick :clip :hs-k-g-j3 :clip-s 16 :startup 19 :active 3 :recovery 21 :dmg 39 :adv-block -4 :guard 16
   :reach *hs-r-k-reach* :arc 90 :min-reach *hs-r-k-dead* :on-hit :stagger :hits ((19 22)) :flags (:ender :ranged)
-  :params (:melee-range 2.0) :on-land hs-r-j3-push)                                                            ; 束薙 SOKUTEI
+  :params (:melee-range 2.0 :as-ptr 3) :on-land hs-r-j3-push)                                                  ; (§28.20: J3 > AS3)                                                            ; 束薙 SOKUTEI
 (defparameter *hs-r-strings*
   '((:hs-r-j1 :q :hs-r-j2) (:hs-r-j1 :f :hs-r-k2s) (:hs-r-j2 :q :hs-r-j3) (:hs-r-j2 :f :hs-r-k3) (:hs-r-k2s :f :hs-r-k3)
     (:hs-r-k1 :f :hs-r-k2) (:hs-r-k1 :q :hs-r-j2s) (:hs-r-k2 :f :hs-r-k3g) (:hs-r-k2 :q :hs-r-j3g) (:hs-r-j2s :q :hs-r-j3g))
@@ -657,16 +657,17 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 (defmove-copy :hs-r-na4g :hs-r-j2s :clip :hs-k-g-na4 :clip-s 19)
 (defparameter *hs-r-core-strings*
   '((:hs-r-j1 :q :hs-r-j2) (:hs-r-j2 :q :hs-r-na3) (:hs-r-na3 :q :hs-r-na4) (:hs-r-na4 :q :hs-r-j3)
-    (:hs-r-j2s :q :hs-r-na3g) (:hs-r-na3g :q :hs-r-na4g) (:hs-r-na4g :q :hs-r-j3g))
-  "The ranged mode's five J (§28.3): spread J1 > J2 > J3 > J4 > J5, and the gathered J2-J5 a 聚 combo swaps in (HS-R-LINK-MOVE).")
-(defparameter *hs-r-gather-swap* '((:hs-r-j2 . :hs-r-j2s) (:hs-r-na3 . :hs-r-na3g) (:hs-r-na4 . :hs-r-na4g) (:hs-r-j3 . :hs-r-j3g))
+    (:hs-r-j2s :q :hs-r-j3g))
+  "The ranged mode's J (§28.3): spread J1 > J2 > J3 > J4 > J5; a 聚 combo's gathered SA > J2 > J3 (the ender) since §28.20 (the user,
+2026-10-29: 「聚的 J 連段縮成三段」「連同 SA 縮成三段」; the J2 the link HS-R-LINK-MOVE swaps in; NA3G / NA4G left unreachable).")
+(defparameter *hs-r-gather-swap* '((:hs-r-j2 . :hs-r-j2s))
   "Spread link -> its gathered copy (§28.2: 「遠攻模式的 J 都會受到前面是否有使用聚的影響」, 「看這一串連段」).")
 ;; the SA 打 UCHI by the state (§28.7, the user 2026-10-29: 「『SA 打』依據『散』或『聚』的狀態調整自己的攻擊範圍與鏈尖設定」): the
 ;; spread one J1's 3-6 m 100 deg, the gathered gaps' (pointer 2's) the bundle's 2.5-4.5 m 90 deg, 45; each its own tip
 (defmove-copy :hs-r-sa :hs-r-j2 :clip :hs-k-uchi :clip-s 10 :callout "UCHI" :dmg 30 :on-hit :stagger :reach *hs-r-j-reach* :arc 100 :min-reach *hs-r-j-dead*
   :hits ((10 13)))
 (defmove-copy :hs-r-sa-g :hs-r-j2s :clip :hs-k-uchi :clip-s 10 :callout "UCHI" :startup 13 :recovery 16 :dmg 45 :on-hit :stagger :reach *hs-r-k-reach* :arc 90
-  :min-reach *hs-r-k-dead* :hits ((13 16)))
+  :min-reach *hs-r-k-dead* :hits ((13 16)) :params (:melee-range 2.0 :as-ptr 1))                        ; (§28.20: SA > AS1)
 ;; pointer 1 散 SPREAD: 扇 ŌGI the fan 60 deg (S 17) > 環 WA the full turn (S 12) > 一斉 ISSEI 160 deg (S 14, knockdown); AS1 乱鎖 RANSA
 ;; 160 deg, 50, knockdown. §28.7 (the user 2026-10-29: 「散都以 3-6 m 為基礎調整範圍」): every one J1's 3-6 m (*HS-R-J-DEAD* /
 ;; *HS-R-J-REACH*), the tip 5.5-6. Batch 2a (§28.9 / §28.11, a look): each segment its own clip at its frames (:clip-s its S, speed 1),

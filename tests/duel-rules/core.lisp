@@ -949,7 +949,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                         (remove nil (loop for m in '(:ic-c-xa :ic-c-xb :br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-k2s :hs-r-kubikake :hs-b-unwind :hs-r-sp2c
                                                                        :hs-b-sp1    ; (B4c: no kit's since, its strip 83524)
                                                                        :hs-r-l :hs-r-sp1 :hs-b-l :hs-r-k1 :hs-b-k1   ; (§28.4: the old Bankai's,
-                                                                       :hs-r-k2s :hs-r-k3)   ; (§28.11: spread K2 / K3's clips, strips 27 / 28)
+                                                                       :hs-r-k2s :hs-r-k3   ; (§28.11: spread K2 / K3's clips, strips 27 / 28)
+                                                                       :hs-r-na3g :hs-r-na4g)   ; (§28.20: off the 聚 string, their clips kept)
                                                                                 ;  no kit's since, their clips kept for the strips)
                                                           collect (mv-clip-2 (find-move m))   ; (his Shikai's MODOSHI mapped)
                                                           collect (kit-move-clip (kit :hisagi :base) (mv-clip (find-move m)))))))))

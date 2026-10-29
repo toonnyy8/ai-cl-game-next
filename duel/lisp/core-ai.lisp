@@ -55,8 +55,9 @@
            (setf (brain-decided b) (fighter-cls-t f))
            (if (and (not (fighter-as-done f))
                     (or (eq oc :ns) (>= (fighter-presses f) (length (getf (kit-core kit) :as-by-press '(1 2 3))))   ; (the string's end)
+                        (eql 3 (getf (mv-params mv) :as-ptr))                                              ; (§28.20's gathered J3)
                         (>= (brain-r-cont b) (brain-chance b *cai-cont-p*))))
-               (cai-sp b f s 1 (let ((as (kit-core-move kit :as (core-as-pointer (fighter-presses f) (getf (kit-core kit) :as-by-press)))))
+               (cai-sp b f s 1 (let ((as (kit-core-move kit :as (core-next-as f))))
                                  (and as (getf (mv-params as) :no-kikon))))
                (cai-press b :quick 1))))
         (:ns

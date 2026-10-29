@@ -469,8 +469,10 @@
                 (every (lambda (n) (getf (mv-params (m n)) :gather)) '(:hs-r-n2a :hs-r-n2b :hs-r-n2c :hs-r-as2 :hs-r-as2b))
                 (notany (lambda (n) (getf (mv-params (m n)) :gather)) '(:hs-r-n1a :hs-r-n1b :hs-r-n1c :hs-r-as1 :hs-r-as3 :hs-r-sa))
                 (eq (kit-next kr :hs-r-sa :q) (m :hs-r-j2)) (eq (kit-next kr :hs-r-sa-g :q) (m :hs-r-j2))   ; (the swap: the hook)
-                (eq (kit-next kr :hs-r-j2s :q) (m :hs-r-na3g)) (eq (kit-next kr :hs-r-na4g :q) (m :hs-r-j3g))
-                (every (lambda (n) (eq (kit-class kr (m n)) :na)) '(:hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g))
+                (eq (kit-next kr :hs-r-j2s :q) (m :hs-r-j3g)) (null (kit-next kr :hs-r-j3g :q))   ; (§28.20: SA > J2 > J3)
+                (every (lambda (n) (eq (kit-class kr (m n)) :na)) '(:hs-r-j2s :hs-r-j3g))
+                (equal '(1 2 3) (mapcar (lambda (n) (getf (mv-params (m n)) :as-ptr)) '(:hs-r-sa-g :hs-r-j2s :hs-r-j3g)))
+                (notany (lambda (n) (getf (mv-params (m n)) :as-ptr)) '(:hs-r-sa :hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3))
                 (every (lambda (n) (getf (mv-params (m n)) :bind-start)) '(:hs-r-as3c))
                 (every (lambda (n) (getf (mv-params (m n)) :bind-end)) '(:hs-b-as3c))
                 (loop for x being the hash-values of *moves*
@@ -495,7 +497,7 @@
         ;; the 聚 flag: set while a :gather segment runs, kept through the SA and its J, cleared in neutral; the J link it swaps
         (setf (fighter-state fh) :move (fighter-move fh) (m :hs-r-n2a))
         (hs-bk-tick h fh gh)
-        (check (and (hss-gather st) (eq (hs-r-link-move h (m :hs-r-j2)) (m :hs-r-j2s)) (eq (hs-r-link-move h (m :hs-r-na4)) (m :hs-r-na4g))
+        (check (and (hss-gather st) (eq (hs-r-link-move h (m :hs-r-j2)) (m :hs-r-j2s)) (null (hs-r-link-move h (m :hs-r-na4)))
                     (null (hs-r-link-move h (m :hs-r-j2s)))))
         (setf (fighter-move fh) (m :hs-r-sa-g)) (hs-bk-tick h fh gh)
         (setf (fighter-move fh) (m :hs-r-j2s)) (hs-bk-tick h fh gh)
@@ -567,7 +569,14 @@
       (setf (fighter-state (fighter a)) :idle (fighter-move (fighter a)) nil)
       (setf (fighter-presses (fighter a)) 3 (fighter-as-done (fighter a)) nil)
       (core-as-start! a (fighter a))
-      (check (and (= 2 (fighter-ptr (fighter a))) (= 2 (fighter-sp-ptr (fighter a))) (eq (fighter-move (fighter a)) (m :hs-r-as2)))))
+      (check (and (= 2 (fighter-ptr (fighter a))) (= 2 (fighter-sp-ptr (fighter a))) (eq (fighter-move (fighter a)) (m :hs-r-as2))))
+      ;; §28.20 (the user 2026-10-29: 「SA -> AS1 / J2 -> AS2 / J3 -> AS3」): the gathered route's AS by the move he is in, whatever the presses
+      (loop for (from n as) in '((:hs-r-sa-g 1 :hs-r-as1) (:hs-r-j2s 2 :hs-r-as2) (:hs-r-j3g 3 :hs-r-as3))
+            do (setf (fighter-state (fighter a)) :move (fighter-move (fighter a)) (m from) (fighter-presses (fighter a)) 1
+                     (fighter-as-done (fighter a)) nil)
+               (check (= n (core-next-as (fighter a))))
+               (core-as-start! a (fighter a))
+               (check (eq (fighter-move (fighter a)) (m as)))))
     ;; ---- B4a (DUEL_HISAGI §22.1-§22.2, the user 2026-10-18): the two modes made distinct
     ;; the dead zone: every window of every ranged-mode attack but L and the universal Breaker misses inside 2.0 m (§25.3: its J
     ;; inside 3.0, §25.3)

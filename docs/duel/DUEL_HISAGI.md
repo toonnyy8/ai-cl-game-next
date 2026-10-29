@@ -4776,3 +4776,20 @@ from 83995 / 83996 + 83970+b at 1280x720 and 390x844 (`--mobile`), plus play-thr
 close-ups meant to; on the phone both titles log `brush: caption … off the 1170x2532 screen` (right edge 1172.1, the same 2 px as
 降鎖 / 首掛 before: BRUSH's two-glyph hanko layout, not these scripts). Checked by numbers and stills, needs the user's eyes (the
 playtest).
+
+### 28.20 The 聚 route in three: SA > J2 > J3, each its own AS (the user, 2026-10-29)
+
+The user, on §28.18's 聚 rows: 「聚改成三段攻擊」; asked what that means: 「聚的 J 連段縮成三段」, then 「連同 SA 縮成三段 直刺 → 上撈 →
+繞身連枷」 and, for the AS: 「SA -> AS1 / J2 -> AS2 / J3 -> AS3」.
+
+- The gathered route is now the gathered SA (直刺, the bundle rammed out) > J2 `hs-r-j2s` (上撈, the uppercut) > J3 `hs-r-j3g` (繞身連枷, the
+  ender, its 6.6 m push): `*hs-r-core-strings*` (:hs-r-j2s :q :hs-r-j3g); `*hs-r-gather-swap*` only J2 > J2s; NA3G / NA4G are off the
+  string (left defined: their clips wait on batch 4b).
+- **The AS by the move he is in**: a new move param `:as-ptr` (SA-G 1, J2S 2, J3G 3), read by a new shared `core-next-as` (core-sim.lisp)
+  in place of the presses' count in `core-as-start!`, the core CPU's SP pick and the web HUD's next-AS hint; a move without it: the kit's
+  `:as-by-press` as before (G2 `--cvc` identical). The core CPU also treats an `:as-ptr` 3 move as the string's end. So the 聚 route
+  reaches AS3 (the bind) after its J3.
+- Checks: duel-rules 10658 ALL PASS (+ the route, the `:as-ptr` pins, each move's AS through `core-as-start!`), control 99, pkgcheck
+  0 / 0 / 0, `--cvc` 3 PASS. Scripted smoke (three new scenes, both sides scripted): A7 NS2a 50 > SA 45 > `AS1 pointer 1` 43; A8 > J2 29 >
+  `AS2 pointer 2` 57 / 70; A9 > J2 29 > J3 39 > `AS3 pointer kept 2` 30 / 30 / 40 > `BIND START`. The other scenes as before.
+- The looks (直刺 / 上撈 / 繞身連枷) are batch 4b.

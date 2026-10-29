@@ -117,7 +117,7 @@ the Bankai ready), its arg, the key string (NIL on the phone), the AS's romaji."
             ((and mv *core-on* (kit-core kit) (eq (fighter-state f) :move) (member (fighter-cls f) '(:na :sa))
                   (eq (fighter-contact f) :hit) (not (fighter-as-done f))
                   (cancel-open-p (fighter-sf f) (fighter-land-sf f) (mv-total mv) t))
-             (let* ((n (core-as-pointer (fighter-presses f) (getf (kit-core kit) :as-by-press)))
+             (let* ((n (core-next-as f))
                     (as (kit-core-move kit :as n)))
                (values 2 n (key :sp-keys) (and as (mv-callout as)))))
             ((member (burst-ok-p e) '(:blue :orange))

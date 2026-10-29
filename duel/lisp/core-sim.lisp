@@ -38,6 +38,13 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
       (start-move e mv :quick)
       t)))
 
+(defun core-next-as (f)
+  "The AS an SP pressed now would start in F's combo: the one the move he is in names (its :params :as-ptr: Hisagi's gathered
+route, DUEL_HISAGI §28.20: SA > AS1, J2 > AS2, J3 > AS3), else the attack presses' (CORE-AS-POINTER, the kit's :as-by-press)."
+  (let ((mv (fighter-move f)))
+    (or (and mv (getf (mv-params mv) :as-ptr))
+        (core-as-pointer (fighter-presses f) (getf (kit-core (fighter-kit f)) :as-by-press)))))
+
 (defun core-as-start! (e f)
   "SP after an attack hit: the AS of the attack press count, writing the pointer. Its Kikon (cinematic, Konpaku profile) is the
 pointer it writes, AS n's own theme (the user, 2026-10-28: 「幫我把毀魂技的聯動改成依據目前指針指向的 NS 來決定，而不是由切換前的 NS 決定」;
@@ -45,7 +52,7 @@ before: the pointer before the write). A kit's :core :as-writes (one entry per A
 (Hisagi's Bankai, DUEL_HISAGI §28.4: AS3 is the mode switch, 「三個 AS 只有兩組指針」); its Kikon / Soul Break profile is then the
 current pointer's."
   (let* ((writes (getf (kit-core (fighter-kit f)) :as-writes '(1 2 3)))
-         (n (core-as-pointer (fighter-presses f) (getf (kit-core (fighter-kit f)) :as-by-press))) (mv (kit-core-move (fighter-kit f) :as n))
+         (n (core-next-as f)) (mv (kit-core-move (fighter-kit f) :as n))
          (w (nth (1- n) writes)))
     (when mv
       (setf (fighter-sp-ptr f) (or w (fighter-ptr f)))
