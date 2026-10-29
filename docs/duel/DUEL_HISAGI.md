@@ -4679,3 +4679,27 @@ BRUSH's layout); 鉤刈's last wide shot sets the pair left of the caption (`:of
 For the user's eyes (checked by numbers and stills): KŌSHU's haul has both crescents raised overhead, his left fist on a chain
 to the victim's noose (a first try with only the wound chain up to the orb read as a man swinging his blades); 鉤刈's cuts are drawn
 at the fist's reach, not let out; the X shares its frames with the ink splash.
+
+### 28.18 The ranged J strings read apart by the chains themselves (the lead's plan, 2026-10-29; for the user's 「可以」)
+
+The user: 「『聚』跟『散』的 J1-J5 單從鎖鏈的揮舞來看完全看不出每段之間的差異，請將鎖鏈的攻擊設計出更加多樣有特色的動畫。」 Today every link
+is one lagging ribbon swept sideways across the front (§28.11, §28.15): the bodies differ, the chains don't. Plan: each link gets its
+own **chain path** (the shape the chain draws), its **count** and its **rhythm**, all inside the volume (散 3–6 m 100°, 聚 2.5–4.5 m 90°,
+the tip on the far edge on the hit frames). Archetypes from motion-refs §2.5 (R2 cast, R3 overhead whirl, R6 lash, R7 cyclone, rope
+dart). Presentation only (the sim byte-identical).
+
+| Link | Chain path (what reads) | Count / rhythm | Archetype |
+|---|---|---|---|
+| 散 J1 旋鞭 | one chain cracks flat R→L at chest height, the tip snapping at full length | 1, snap | R6 lash (kept) |
+| 散 J2 | two chains from both hands **cross in an X** in front of him and part again | 2, a scissor | lash pair |
+| 散 J3 | a chain **snakes along the floor** and rears up into him from below (a vertical S-wave) | 1, slither → strike | ground snake |
+| 散 J4 | a chain **whirled flat overhead** two turns, then **flung straight** at him (the meteor's release) | 1, wind-up → line | R3 → R2 |
+| 散 J5 旋鎖 (ender) | every hanging chain **twisted into a spiral drill** that bores straight ahead; the push | 5–8, a corkscrew | R7 cyclone, forward |
+| 聚 J2 束鞭 | the bundle **rammed straight out** like a spear, the end blunt, a recoil | bundle, thrust | rope dart |
+| 聚 J3 束昇 | the bundle dragged low on the ground, then **swung up in an uppercut** arc | bundle, drag → rise | heavy rising |
+| 聚 J4 束落 | the bundle raised high and **chopped straight down** (kept, the shape is distinct) | bundle, chop | R9 |
+| 聚 J5 束薙 (ender) | the bundle **wound once round his body**, then unwound into a flat **flail** sweep | bundle, wrap → release | R4 wrap → flail |
+
+Looks shared by the plan: each path leaves its own ink trail (a flat smear for sweeps, a vertical ribbon for the snake / uppercut, a
+twisted streak for the drill, a straight speed line for the thrust / fling), so a link reads even in a still. The 聚 links stay one
+thick rope; the 散 links stay thin chains. New draw paths 0 B/frame; drawn reach checked by debug 83902 and the host check.
