@@ -4880,3 +4880,11 @@ flat across.
   (`duel-hisagi-bankai.json`, 90 s) 197 hash / log lines identical to 380b6ac's; `--cvc` 3 PASS. No balance gates (the user's rule).
 - Checked by numbers and 8-frame strips (side, front, the match camera), needs the user's eyes: the coil round his waist is small
   from the behind camera; the thrust's bundle still drops from the orb high above him before it runs level.
+
+### 28.22 The ranged AS2a holds him for AS2b (the user, 2026-10-29)
+
+The user: 「遠距的 AS2a 跟 AS2b 好像無法連成 combo？」. Cause (the smoke's scene A8 with a distance / state probe every 2–3 f): AS2a 叩's hit
+(f128) staggers him 26 f + its hitstop: he is IDLE again at f167; AS2b 地走's hit lands at f170. §28.10's 聚 +3 startup / +3 recovery
+moved both (AS2a's end and AS2b's hit) 3 f later, which used the margin up. Fix: AS2a's window `:stun 36` (stagger 26 → 36), both
+moves' frames unchanged (聚 stays slow): he is still in STUN at f167, AS2b hits him at f170 (about 7 f to spare). duel-rules 10661 ALL
+PASS (+ the pin), the scripted smoke's log identical, `--cvc` 3 PASS.

@@ -456,6 +456,7 @@
                   (eq 'hs-r-wa-push (mv-on-land (m :hs-r-n1a))) (eq 'hs-r-tataki-push (mv-on-land (m :hs-r-n2b)))
                   (eq :hs-r-n1b (getf (mv-params (m :hs-r-n1a)) :ns-next)) (eq :hs-r-n1c (getf (mv-params (m :hs-r-n1b)) :ns-next))
                   (~= 7.0 (mv-reach (m :hs-r-as3))) (null (hw-min (w :hs-r-as3)))
+                  (eql 36 (hw-stun (w :hs-r-as2)))                                 ; (§28.22: AS2a holds him for AS2b)
                   (eq 'hs-r-link-seg (hw-seg (w :hs-r-as3b))) (eq 'hs-r-link-seg (hw-seg (w :hs-r-as3c)))
                   (eq 'hs-b-hook-seg (hw-seg (w :hs-b-n1a))) (eq 'hs-b-hook-seg (hw-seg (w :hs-b-as1)))
                   (~= 3.0 (edge :hs-b-as3b))                                        ; (§28.13: SAN reaches J5's 2.3 m push)

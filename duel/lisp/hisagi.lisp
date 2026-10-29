@@ -695,8 +695,10 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
   :min-reach *hs-r-k-dead* :hits ((30 34)) :params (:melee-range 2.0 :ns-next :hs-r-n2b :sa :hs-r-sa-g :gather t))
 (defmove-copy :hs-r-as2b :hs-r-k2 :clip :hs-k-jibashiri :clip-s 30 :kind :sp :callout "JIBASHIRI" :enter 12 :startup 30 :recovery 27 :dmg 70 :vol (:cap 0.3 4.15 1.1 0.35)
   :reach 4.15 :min-reach *hs-r-k-dead* :hits ((36 40 :on-hit :knockdown)) :params (:melee-range 2.0 :gather t))
+;; §28.22 (the user 2026-10-29: 「遠距的 AS2a 跟 AS2b 好像無法連成 combo？」): §28.10's +3 / +3 left him free 3 f before JIBASHIRI's hit;
+;; AS2a's stagger 26 -> 36 f (:stun), so AS2b combos (its frames unchanged)
 (defmove-copy :hs-r-as2 :hs-r-k2 :clip :hs-k-sweep :clip-s 30 :kind :sp :callout "TATAKI" :enter 9 :startup 30 :recovery 27 :dmg 57 :reach *hs-r-k-reach* :arc 90
-  :min-reach *hs-r-k-dead* :hits ((30 34)) :params (:melee-range 2.0 :ns-next :hs-r-as2b :gather t))
+  :min-reach *hs-r-k-dead* :hits ((30 34 :stun 36)) :params (:melee-range 2.0 :ns-next :hs-r-as2b :gather t))
 ;; AS3 首掛 KUBIKAKE, the switch (no pointer, no Kikon): 投 NAGE the chain on a 7 m line (S 18) > 巻 MAKI wound round him > 掛 KAKE the
 ;; noose: a real hit arms the bind (the yank to 2.0 m, HS-BK-HIT); blocked / whiffed / cancelled: none
 (defmove-copy :hs-r-as3c :hs-r-kubikake :clip :hs-k-kake :clip-s 24 :kind :sp :callout "KAKE" :enter 8 :whiff nil :dmg 40 :min-reach nil
