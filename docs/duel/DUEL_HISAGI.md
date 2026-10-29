@@ -4359,3 +4359,24 @@ the volume (FK ±0.15 m). **The art follows the reach** (presentation only: the 
 
 Count: 13 new clips, 2 redrawn reaches, 2 new stances, 1 re-map, 1 draw hook. Split in two worktrees: 2a the ranged mode, 2b the bind.
 Not in batch 2: the four Kikon cinematics (batch 3, storyboards first), the clash cue, the CPU's AS3.
+
+### 28.10 散 lighter, 聚 slower; the J links' bands; the line tips (the user, 2026-10-29)
+
+The user, on §28.9: 「1. 可以 2. 現在已經沒有 SP 量表了，幫我適當的將「散」的威力調降，並提升「聚」的前後搖，使兩者的功能定位能有明確的區隔
+3. J2–J5 本來就該延續上一擊的範圍與特性 4. 束和地走的鏈尖改成 4–4.5 m」
+
+1. §28.9's plan approved: batch 2 starts after this (its clips authored at these startups).
+2. (The SP ×1.3 bonuses are moot: the core system has no Reiatsu bar; their code is left inert.) The lead's sizes, the old §22.4 route
+   split's: **every 散 move's damage ×0.85** (rounded): J1 22 → 19, J2–J4 19 → 16, J5 26 → 22, spread SA 35 → 30, 環 30 → 26, 扇 37 → 31,
+   一斉 56 → 48, 乱鎖 50 → 43. **Every 聚 move's startup and recovery +3**: gathered J2–J4 S 16 → 19 (R 13 → 16), gathered J5 S 16 → 19
+   (R 18 → 21), gathered SA S 10 → 13 (R 13 → 16), 束 / 叩 / 叩 (AS2a) S 22 / 18 / 18 → 25 / 21 / 21 (R 24 → 27), 大旋 S 20 → 23 (R 34 → 37),
+   地走's hit 21 → 24 (R 24 → 27) (effective S). The blocked gaps of the old gathered links 15 / 14 / 15 → 18 / 17 / 18 f.
+3. **The J links take the band of the hit before them** (no chase any more): the spread J2–J5 J1's (and the spread SA's) 3–6 m 100°, the
+   gathered J2–J5 the gathered SA's 2.5–4.5 m 90°; the tip as §28.7 (the last hit's). J5's ender push to 6.6 m stays.
+4. **A line's tip from its far edge** (its end + its radius): 束 / 地走 4–4.5 m. The same rule moves the other ranged lines: the Kikon 降鎖
+   lane's tip 8.5–9 → 9.5–10 m (its capsule's r 1.0), the old SP1 / SP2 lines (not in the kit).
+
+Checks: duel-rules 10570 ALL PASS, control 99, pkgcheck 0 / 0 / 0, `--cvc` 3 PASS. Scripted smoke: J ×5 at 4.5 m 19 / 16 / 16 / 16 / 22 >
+AS3 > `BIND START`; NS2a > gathered SA 45 (S 13) > J 29 ×3 at 4.5 m, every link connecting; NS1 at 4.5 m 31 / 48 (環 whiffs); NS2 at 4.5 m
+50 / 86 (叩 whiffs, 0–3 m); at 2.5 m 環 26 + the push, 叩 57 + the push. The old drawn-reach check skips J2 / J3 / J2s / J3G until batch 2
+redraws them to their bands.

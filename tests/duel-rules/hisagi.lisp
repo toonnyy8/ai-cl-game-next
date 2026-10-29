@@ -428,14 +428,14 @@
       (check (equal (mapcar #'eff '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g :hs-r-sa :hs-r-sa-g
                                     :hs-r-n1a :hs-r-n1b :hs-r-n1c :hs-r-n2a :hs-r-n2b :hs-r-n2c :hs-r-as3
                                     :hs-b-na1 :hs-b-na2 :hs-b-na5 :hs-b-sa :hs-b-n1a :hs-b-n1b :hs-b-n1c :hs-b-n2a :hs-b-n2b :hs-b-n2c))
-                    '(14 10 10 10 10 16 16 16 16 10 10  14 17 14 22 18 20 18  14 8 9 10 18 12 14 20 16 18)))
+                    '(14 10 10 10 10 19 19 19 19 10 13  14 17 14 25 21 23 18  14 8 9 10 18 12 14 20 16 18)))
       (check (equal (mapcar (lambda (n) (mv-dmg (m n)))
                             '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g :hs-r-sa :hs-r-sa-g
                               :hs-r-n1a :hs-r-n1b :hs-r-n1c :hs-r-n2a :hs-r-n2b :hs-r-n2c :hs-r-as1 :hs-r-as2 :hs-r-as2b
                               :hs-r-as3 :hs-r-as3b :hs-r-as3c
                               :hs-b-na1 :hs-b-na2 :hs-b-na3 :hs-b-na4 :hs-b-na5 :hs-b-sa :hs-b-n1a :hs-b-n1b :hs-b-n1c
                               :hs-b-n2a :hs-b-n2b :hs-b-n2c :hs-b-as1 :hs-b-as2 :hs-b-as2b :hs-b-as3 :hs-b-as3b :hs-b-as3c))
-                    '(22 19 19 19 26 29 29 29 39 35 45  30 37 56 50 57 86 50 57 70  30 30 40
+                    '(19 16 16 16 22 29 29 29 39 30 45  26 31 48 50 57 86 43 57 70  30 30 40
                       32 32 32 32 40 40 35 45 75 40 60 95 55 55 70 40 40 100)))
       (check (equal (mapcar #'react '(:hs-r-n1c :hs-r-n2c :hs-r-as1 :hs-r-as2b :hs-b-n1c :hs-b-n2c :hs-b-as1 :hs-b-as2b :hs-b-as3c
                                       :hs-r-n1a :hs-r-n2a :hs-r-as2 :hs-r-as3 :hs-r-as3c :hs-b-n1a :hs-b-n2a :hs-b-as3 :hs-b-as3b))
@@ -446,9 +446,9 @@
     (flet ((w (n) (svref (mv-hits (m n)) 0)) (edge (n) (let ((v (first (hw-vols (svref (mv-hits (m n)) 0)))))
                                                          (if (> (aref v 0) 0.5) (+ (aref v 2) (aref v 4)) (aref v 1)))))
       (check (and (every (lambda (n) (and (~= 3.0 (hw-min (w n))) (~= 6.0 (edge n)) (null (hw-seg (w n)))))
-                         '(:hs-r-j1 :hs-r-n1b :hs-r-n1c :hs-r-as1 :hs-r-sa))
+                         '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-n1b :hs-r-n1c :hs-r-as1 :hs-r-sa))
                   (every (lambda (n) (and (~= 2.5 (hw-min (w n))) (~= 4.5 (edge n)) (null (hw-seg (w n)))))
-                         '(:hs-r-n2a :hs-r-n2c :hs-r-as2 :hs-r-as2b :hs-r-sa-g))
+                         '(:hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g :hs-r-n2a :hs-r-n2c :hs-r-as2 :hs-r-as2b :hs-r-sa-g))
                   (every (lambda (n) (and (null (hw-min (w n))) (~= 3.0 (edge n)) (getf (mv-params (m n)) :no-tip)))   ; (§28.8's pushes)
                          '(:hs-r-n1a :hs-r-n2b))
                   (eq 'hs-r-wa-push (mv-on-land (m :hs-r-n1a))) (eq 'hs-r-tataki-push (mv-on-land (m :hs-r-n2b)))
@@ -581,7 +581,8 @@
       (check (loop for mv being the hash-values of *moves*
                    always (or (member (mv-name mv) dz) (member (mv-name mv) (quote (:hs-k1 :hs-n1a :hs-n1b :hs-n1c)))   ; (S1: the Shikai's K1 NAGI's dead zone, §23.3; NS1's links §27.7)
                               (member (mv-name mv) '(:hs-r-n1b :hs-r-n1c :hs-r-as1 :hs-r-sa :hs-r-n2a :hs-r-n2c :hs-r-as2
-                                                     :hs-r-as2b :hs-r-sa-g))   ; (§28.7's bands)
+                                                     :hs-r-as2b :hs-r-sa-g :hs-r-j2 :hs-r-j3 :hs-r-na3 :hs-r-na4 :hs-r-j2s :hs-r-j3g
+                                                     :hs-r-na3g :hs-r-na4g))   ; (§28.7's bands, §28.10's J links)
                               (every (lambda (w) (null (hw-min w))) (mv-hits mv))))))
     ;; ... and only his forms have the :dmg-mult hook (the Bankai's tip, since §27 the Shikai's 放電 / 餘電), only his forms the CPU's
     ;; :move-reflex (which of his: HISAGI-CPU-TESTS)
@@ -635,18 +636,18 @@
           ;; their own distance
           (check (and (~= 1.71 (x :hs-r-j1 33.0625)) (~= 1.71 (x :hs-r-j3 1.0)) (~= 1.71 (x :hs-r-k3 1.0)) (~= 1.0 (x :hs-r-j1 29.0))
                       (~= 1.0 (x :hs-r-j3 25.0)) (~= 1.0 (x :hs-r-k2s 25.0)) (~= 1.71 (x :hs-r-k1 18.0625)) (~= 1.71 (x :hs-r-k2 1.0 1))
-                      (~= 1.71 (x :hs-r-j2s 1.0)) (~= 1.71 (x :hs-r-k3g 1.0)) (~= 1.0 (x :hs-r-k1 4.0)) (~= 1.0 (x :hs-r-j3g 36.0))
+                      (~= 1.71 (x :hs-r-j2s 1.0)) (~= 1.71 (x :hs-r-k3g 1.0)) (~= 1.0 (x :hs-r-k1 4.0)) (~= 1.0 (x :hs-r-j3g 9.0))
                       (~= 1.0 (x :hs-r-l 4.0)) (~= 1.0 (x :hs-breaker 1.0))
                       (~= 1.0 (hs-dmg-mult h o (make-hitwin) nil t 16.0))      ; (a mark: a hazard, no move)
                       (~= 1.0 (x :hs-r-sp1 16.0))))                      ; (SP1's 9 m line: 4 m along it, no tip)
-          (t-at o 0 -8.5)
-          (check (and (~= 1.71 (x :hs-r-sp1 72.25)) (~= 1.71 (x :hs-r-kubikake 49.0)) (~= 1.0 (x :hs-r-sp2 72.25 1))))
+          (t-at o 0 -9.0)                                                 ; (§28.10: a line's tip from its end + radius)
+          (check (and (~= 1.71 (x :hs-r-sp1 81.0)) (~= 1.71 (x :hs-r-kubikake 81.0)) (~= 1.0 (x :hs-r-sp2 81.0 1))))
           (t-at o 0 -4.25)                                                ; (K1's tip, the outer 0.5 m of r 4.5, §25.35)
           (check (and (~= 1.71 (x :hs-r-k1 18.0625)) (~= 1.71 (x :hs-r-k1 20.25))))
           (t-at o 0 -3.9)
           (check (and (~= 1.0 (x :hs-r-k1 15.21)) (~= 1.0 (x :hs-r-k1 12.25))))
-          (t-at o 0 -9.5)
-          (check (and (~= 1.71 (x :hs-r-sp2 90.25 1)) (~= 1.71 (x :hs-r-kikon 90.25))))
+          (t-at o 0 -10.5)
+          (check (and (~= 1.71 (x :hs-r-sp2 110.25 1)) (~= 1.71 (x :hs-r-kikon 110.25))))
           (t-at o 0 -1.0)
           (setf (fighter-form fh) :bankai-bind)
           (check (and (~= 1.3 (x :hs-b-j1 1.0)) (~= 1.3 (x :hs-b-l 1.0)) (~= 1.0 (x :hs-b-sp2 1.0)) (~= 1.0 (x :hs-b-j1 1.96)) (~= 1.0 (x :hs-breaker 1.0))))
@@ -658,6 +659,7 @@
             (loop for (want d n last) in '((1.0 2.75 :hs-r-n1a) (1.71 4.0 :hs-r-n1a t)            ; (§28.8: 環 no tip of its own)
                                            (1.71 5.75 :hs-r-n1b) (1.71 4.0 :hs-r-n1c t) (1.0 4.0 :hs-r-n1b) (1.71 5.75 :hs-r-n1c)
                                            (1.0 2.75 :hs-r-n2b) (1.71 4.25 :hs-r-n2c) (1.71 2.75 :hs-r-n2b t)
+                                           (1.71 4.25 :hs-r-n2a) (1.0 3.9 :hs-r-n2a)   ; (§28.10: the line's tip 4-4.5)
                                            (1.0 5.75 :hs-r-as1) (1.71 4.0 :hs-r-as1 t) (1.71 3.0 :hs-r-as2 t) (1.71 3.0 :hs-r-as3 t)
                                            (1.0 4.0 :hs-r-sa t) (1.71 5.75 :hs-r-sa) (1.71 4.25 :hs-r-sa-g) (1.0 3.0 :hs-r-sa-g t)
                                            (1.71 5.75 :hs-r-j1))
@@ -677,7 +679,7 @@
                                             (every (lambda (w) (and (eq 'hs-r-link-seg (hw-seg w)) (null (hw-min w))))
                                                    (mv-hits (m n)))
                                             (~= 7.0 (mv-reach (m n)))))
-                           (append *hs-r-spread-links* *hs-r-gather-links*))))
+                           '(:hs-r-k2s :hs-r-k3 :hs-r-k2 :hs-r-k3g))))   ; (§28.10: the J links the bands of the core moves)
         (t-at o 0 -5)
         (multiple-value-bind (ax ay az) (hs-r-link-seg h)
           (declare (ignore ay))
@@ -686,7 +688,7 @@
         (multiple-value-bind (ax ay az) (hs-r-link-seg h)
           (declare (ignore ay))
           (check (and (~= 0.0 ax) (~= -7.0 az))))                       ; (... and 7.0 m out when he is farther)
-        (check (and (hs-r-reaches-p (m :hs-r-j2) 0.5) (hs-r-reaches-p (m :hs-r-k3g) 7.3) (not (hs-r-reaches-p (m :hs-r-k2) 7.4))))
+        (check (and (hs-r-reaches-p (m :hs-r-k2s) 0.5) (hs-r-reaches-p (m :hs-r-k3g) 7.3) (not (hs-r-reaches-p (m :hs-r-k2) 7.4))))
         (t-at o 0 -4)
         ;; the volumes (he at the origin facing -Z, a hurt cylinder r 0.36 at D m ahead / behind / aside; §25.5: the K 2.0-5.0,
         ;; §25.3: the J 3.0-6.0): K1 all round 2.0-5.36 m; the bind's rain from his feet (B4d: no dead zone); gathered K2's two
@@ -716,7 +718,7 @@
         (check (equal (list (blocked-gap (m :hs-r-j1) (m :hs-r-j2)) (blocked-gap (m :hs-r-j2) (m :hs-r-j3))
                             (blocked-gap (m :hs-r-k1) (m :hs-r-j2s)) (blocked-gap (m :hs-r-j2s) (m :hs-r-j3g))
                             (blocked-gap (m :hs-r-k2) (m :hs-r-j3g)))
-                      '(8 8 15 14 15)))
+                      '(8 8 18 17 18)))                                  ; (§28.10: 聚 +3 / +3: 15 14 15 -> 18 17 18)
         (setf *t-moved* nil)))
     ;; the drawn reach (the Bankai's clips, DUEL_HISAGI §21.8): each of its clips in *HS-STRIKE-REACH* (the FK test above
     ;; reads that reach) is drawn to it by its let-out crescents (*HS-LETOUT*), chain strikes (*HS-BK-CHAINS*) or lashes
@@ -742,8 +744,8 @@
                                   (az (+ a0 (* u (- (mod (+ (- a1 a0) 180) 360) 180))))
                                   (d (if cap (* r (cos (* az (/ pi 180)))) r)))
                              (setf best (max (or best d) d))))))))))))
-      (let ((bk-moves '(:hs-r-j1 :hs-r-j2 :hs-r-j3 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake
-                        :hs-r-k1 :hs-r-k2s :hs-r-k3 :hs-r-k2 :hs-r-j2s :hs-r-k3g :hs-r-j3g      ; (A2: the route links)
+      (let ((bk-moves '(:hs-r-j1 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake   ; (§28.10: J2 / J3 / J2s / J3G's bands wait on
+                        :hs-r-k1 :hs-r-k2s :hs-r-k3 :hs-r-k2 :hs-r-k3g                      ;  batch 2's clips, §28.9; A2: the route links)
                         :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l :hs-b-sp2   ; (A3, §24.3: SP2's own)
                         :hs-b-sj                                                         ; (§25.10: SENGEN)
                         :hs-k1 :hs-j2k :hs-j3k      ; (A1, §24.1: the Shikai's K1 sweep and leap J, their let-outs too)
@@ -939,9 +941,9 @@
                 (not (hs-k1-punish-ok-p 6.3 40)) (not (hs-k1-punish-ok-p 4.0 18))))
     ;; ... his CPU's reach read (HS-R-AI-MOVE's picks): past the dead zone, inside the far edge + 0.36 (§25.13: a route link
     ;; reaches him anywhere out to *HS-R-LINK-REACH* + 0.36)
-    (check (and (hs-r-reaches-p (m :hs-r-k2) 5.3) (hs-r-reaches-p (m :hs-r-k2) 1.9) (hs-r-reaches-p (m :hs-r-j2s) 6.4)
-                (not (hs-r-reaches-p (m :hs-r-j2s) 7.4)) (not (hs-r-reaches-p (m :hs-r-k1) 1.9)) (hs-r-reaches-p (m :hs-r-k1) 4.8) (not (hs-r-reaches-p (m :hs-r-k1) 4.9))   ; (§25.35: K1 4.5 + 0.36)
-                (hs-r-reaches-p (m :hs-r-j3) 2.9) (hs-r-reaches-p (m :hs-r-j3) 6.3)))
+    (check (and (hs-r-reaches-p (m :hs-r-k2) 5.3) (hs-r-reaches-p (m :hs-r-k2) 1.9) (hs-r-reaches-p (m :hs-r-j2s) 4.8)
+                (not (hs-r-reaches-p (m :hs-r-j2s) 4.9)) (not (hs-r-reaches-p (m :hs-r-k1) 1.9)) (hs-r-reaches-p (m :hs-r-k1) 4.8) (not (hs-r-reaches-p (m :hs-r-k1) 4.9))   ; (§25.35: K1 4.5 + 0.36)
+                (hs-r-reaches-p (m :hs-r-j3) 3.1) (not (hs-r-reaches-p (m :hs-r-j3) 2.9)) (hs-r-reaches-p (m :hs-r-j3) 6.3)))
     ;; (§28.4: the Bankai's old :ai tables (the openers' bands, the fence's keys) are gone with its kits' :ai)
     ;; ... the SAHARAI hit's J / K cancel (HS-R-AI-MOVE, its first recovery frame) read where the push leaves him (round01
     ;; b2a0's fix, cells b1a1 / b3a1): at 2.0 m (the push still sliding him) SENTAN's K1, not L again (nothing pressed); a block or
