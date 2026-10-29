@@ -513,3 +513,11 @@ The bar is read on a slant and lies where the thumb taps SP / ATK.
 Artifact version 18: in A and B the deck's `SP 技` label moves from 40 % across / 20 % down the deck (by the fighters' feet) to the
 thumb's edge, 5 % in from it and 44 % down the deck: under 爆 (B: under the guard's gap and the stance seals), above the split line,
 which is 70 % down at that edge. The left hand mirrors it. C keeps its own place (over its slanted bar).
+
+### 10.11 Draft v7.11: the screentone up to the deck's top (the user, 2026-10-29)
+
+> 「再將網點延伸到觸控區的上界」
+
+Artifact version 19, all three drafts: the deck's screentone dots (7 px grid, 18 % steel) no longer fade in over its top 40 % (a
+mask, transparent → opaque at 40 %); they run at full strength up to the deck's top edge, so the dots alone mark where the touch
+zone begins. The dark gradient under them is unchanged.
