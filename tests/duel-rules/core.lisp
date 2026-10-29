@@ -936,6 +936,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :hs-k-hosoku :hs-k-s-k2 :hs-k-s-k3 :hs-k-g-k2 :hs-k-g-j2 :hs-k-g-k3 :hs-k-g-j3   ; the ranged route links' (A2, §24.2)
     :hs-k-uchi :hs-k-ogi :hs-k-issei :hs-k-ransa :hs-k-tataki :hs-k-sweep :hs-k-jibashiri   ; the core ranged mode's own
     :hs-k-maki :hs-k-kake                                                                  ;  (batch 2a, DUEL_HISAGI §28.11)
+    :hs-k-na3 :hs-k-na4 :hs-k-g-na3 :hs-k-g-na4                                            ; the five J's own J3 / J4 (§28.15)
     :hs-kb-stance :hs-kb-walk-f :hs-kb-walk-b :hs-kb-strafe-r :hs-kb-strafe-l))     ; the bind's stance and walk (A2)
 ;; (Jilliel's SPs and Kikon, decision 56, DUEL_LILLE §23.37: :lb-w-sanren is KIN's SANREN through his :clip-map, :lb-e-sanren
 ;; EN's own, :lb-w-kikon / :lb-w-kikon-fire the Kikon in play; :lb-w-aim and :lb-w-fire are gone)

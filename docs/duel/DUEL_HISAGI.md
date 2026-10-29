@@ -4544,3 +4544,60 @@ pain shared (notes §2.4, A via C); Brave Souls' "countless chains rain down fro
 
 **Approved** (the user, 2026-10-29: 「分鏡可以」). Order to build: 散 and 鎌 (new), then 聚 and 絞 (edits of KŌSA / KŌSHU). Each about one subagent day; the scripted smoke (no hash
 change: presentation only) and stills per beat from the 839xx cinematic stills range.
+
+### 28.15 As built: the hooks on the victim's bearing, the five J's own J3 / J4 (2026-10-29)
+
+The user: 「鉤寄、鉤寄斬、纏甩出去的鐮刀是沿修兵的面向畫的。對手在起手的 18 幀內往旁邊移動時，鐮刀會落在他旁邊（只影響畫面）。」「遠攻
+J3、J4 還在借 J1、J2 的動作，所以 J 五連裡有兩對動作一樣。」「這三項也同時處理」 (the third, the HUD pointer labels, is the lead's).
+**Presentation only**: no move's frames, volumes, damage or hooks changed; only `:clip` / `:clip-s`, art tables and draw code.
+
+**1. The reels on the victim's bearing** (§28.12's open point). `*hs-lk*` has two more slots: [3] on while [4] holds the victim's
+bearing from Hisagi's feet (`%hs-kb-lk-set!`, `atan2`); `%hs-letout!` aims a let-out along that bearing (plus its row's az) instead
+of his facing. `hs-lk!` (the ranged route links: MAKI / KAKE, the old K links) always clears [3], so they draw as before.
+`*hs-kb-reels*` rows take a third element `:line`: KAGIYOSE and KAGIYOSE-GIRI strike along `hs-chain-seg-to`, aimed at the victim,
+so they always follow him; MATOI's volume is a capsule along his facing, so its crescent follows his bearing only once the move
+touched him (a hit or a block) and a whiff stays on its line (drawn = hit). MATOI's let-out sweep `(80 5 -5)` → `(80 2 -4)`: its hit
+frames sat 5° off (0.22 m at 2.5 m), now 2 → 1.5° (inside its 0.35 m, the host sweep check).
+
+Debug 83902's new `duel hisagi tip hook` lines (the real `hs-pose` + `hisagi-draw`, his yaw kept, the victim moved round him; the
+drawn crescent point's distance from the victim's feet, worst over the hit window and the 8 f after it, ≤ 0.15 wanted):
+
+| Move, distance | 0° | 30° | 60° |
+|---|---|---|---|
+| KAGIYOSE 3.0 m | 0.00 → 0.00 | 1.55 → **0.00** | 3.00 → **0.00** |
+| KAGIYOSE 6.0 m | 0.00 → 0.00 | 3.11 → **0.00** | 6.00 → **0.00** |
+| KAGIYOSE-GIRI 3.0 m | 0.00 → 0.00 | 1.55 → **0.00** | 3.00 → **0.00** |
+| KAGIYOSE-GIRI 6.0 m | 0.00 → 0.00 | 3.11 → **0.00** | 6.00 → **0.00** |
+| MATOI 2.5 m (hit at 0 / 7°, whiff at 30°) | 0.22 → **0.09** | 7°: 0.34 → **0.09** | 30° whiff: 1.33 → 1.36 (on its line) |
+
+**2. The five J's own J3 / J4.** Each authored at its move's S (speed 1, `:clip-s` = S; the copies had inherited J2's 11 / J2s's 16),
+frame 0 the previous link's end pose, the windup held inside the startup, lashes (`*hs-lashes*`: drawn from the orb, lagging,
+tapered, a rank `ds` late) with their ends on the band's far edge on every hit frame and every rank inside the arc. Planes and hands
+in a string: spread J1 the right forehand R → L at the chest (let-out), J2 the left L → R (let-out), **J3 the left underhand rising**,
+**J4 the right high backhand L → R**, J5 both crescents round the half turn; gathered J2s the right fist's straight lash, **J3 the
+left backhand rising diagonal**, **J4 the right overhead chop**, J5 both arms' flat sweep R → L.
+
+| Move | Clip (S / A / R) | The body | What strikes, drawn reach (83902) |
+|---|---|---|---|
+| J3 `hs-r-na3` (was `hs-k-saben`, J1's) | **`hs-k-na3`** 昇鞭 SHŌBEN (10/3/13) | sunk, turned to his left, the left arm drawn far back low behind his left hip (f4–8); on S swung up through in front and on over his head as he rises | hanging chains 0 1 whipped out low and climbing: 6.0 m, 0.6 → 2.0 m up, +15 → +2° (rank 1 +10° more); 6.00 6.00 6.00, edge 6.00 |
+| J4 `hs-r-na4` (was `hs-k-kaeshi`, J2's) | **`hs-k-na4`** 掃鞭 SŌBEN (10/3/13) | the right fist wound across to his left shoulder, the chest turned left (f4–8); on S unwound, the arm flung out flat at head height to his right | chains 6 7 swept L → R high: 6.0 m, +40 → −30° (rank 1 −10°), 1.9 → 1.7 m up; 6.00 ×3, edge 6.00 |
+| gathered J3 `hs-r-na3g` (was `hs-k-g-j2`, J2s's) | **`hs-k-g-na3`** 束昇 SOKUSHŌ (19/3/16) | turned right, sunk, the left hand reached across down to the bundle by his right knee (f12–17); on S ripped up across to his upper left | the bundle 4.5 m, −30 → +5 → +35°, 0.5 → 2.3 m up; 4.50 ×3, edge 4.50 |
+| gathered J4 `hs-r-na4g` (was `hs-k-g-j2`) | **`hs-k-g-na4`** 束落 SOKURAKU (19/3/16) | the right arm raised straight up and back, risen and arched, the left hand pointing (f12–17); on S chopped down over his head into a deep squat, an impact hold | the bundle over the top, cracked down on the line: 4.5 m, −4 → 0°, 1.6 → 0.1 m up; 4.50 ×3, edge 4.50 |
+
+Tables: `*hs-strike-reach*` (6.0 / 4.5), `*hs-lashes*`, `*hs-bundled*` (the gathered two bound throughout), `*hs-spins*`. J5
+`hs-k-sensa`'s frame 0 re-keyed from J2's end pose to J4's (links start with blend 0: the left arm no longer flashes out across J5's
+first frames); its windup (f5) and hit frames unchanged. The gathered J5's frame 0 (`gk2-shove`, a squat) left: near J4G's.
+
+**Checks**: duel-rules 10654 ALL PASS (new: the five J and the gathered five each five clips; J3 / J4 and the gathered copies at speed
+1, `:s` on S, length S + A + R, every lash rank inside its arc on the hit frames (`lash-end`'s second value); `bk-moves` already had
+the four, now on their own clips; core.lisp's §5 clip list + the four), control 99 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0
+errors. The sim unchanged: the scripted smoke (`duel-hisagi-bankai.json`, 75 s) 154 hash / log lines identical to 50627b5's; `--cvc` 3
+PASS. Debug 83901: every line 0 B (the 2a line + J3, J4, gathered J3, gathered J4; the 2b line's KAGIYOSE / KAGIYOSE-GIRI / MATOI
+with the bearing). 83902: every Bankai move with a volume on its edge (the Breaker's and the bind Kikon's lines off as before).
+Strips: `*hs-r2-strips*` 15 J3, 16 J4, 17 / 18 the gathered J3 / J4 (debug 83575–83578, inside batch 2a's claimed 83560–83579),
+8 frames from the side and the front, reviewed beside J1 / J2 / J5 and J2s / J5g. The gathered J4's tell: the left arm lowered (flex 76
+→ 44) after the first strips, so the raised right arm reads alone (not JIBASHIRI's both fists overhead).
+
+For the user's eyes (checked by numbers): MATOI on a victim who stepped off its line now shows the crescent on its line beside him
+(the sim's whiff); the ranged chases AS3b MAKI / AS3c KAKE stretch to the victim's distance along Hisagi's facing too (the same look
+bug, through `*hs-lk-reach*`), left as they were (not asked).
