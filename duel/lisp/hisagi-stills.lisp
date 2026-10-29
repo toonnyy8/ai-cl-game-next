@@ -1,5 +1,5 @@
 ;;;; hisagi-stills.lisp — Hisagi's debug stills and probes: the look and tip consing checks (83901-83902), the 餘電 scene (83903-83904), the clip strips (83500-83549,
-;;;; 83910-83964), the cinematics' stills (83965-83978), the two model sheets (83980-83994) (split out of hisagi-art.lisp
+;;;; 83910-83964), the cinematics' stills (83965-83978, 83995-83996), the two model sheets (83980-83994) (split out of hisagi-art.lisp
 ;;;; 2026-10-21, refactor round 2). Debug scaffolding only: the sim never reads it. The PUSHNEW order onto *CHAR-DEBUG* is the dispatch
 ;;;; order; keep it.
 (in-package :duel)
@@ -389,17 +389,18 @@ the match camera, frozen); 83964 lets go."
 (pushnew '(83560 83579 hisagi-strip) *char-debug* :test #'equal)   ; (batch 2a, §28.11: *HS-R2-STRIPS*)
 (pushnew '(83580 83589 hisagi-strip) *char-debug* :test #'equal)   ; (batch 2b: *HS-KB-STRIPS*)
 
-;;; ---------------------------------------------------------------- the cinematics' stills (debug 83965-83978)
+;;; ---------------------------------------------------------------- the cinematics' stills (debug 83965-83978, 83995-83996)
 ;; 83965+c starts cinematic c from a fresh scene (0 the awakening: P1 Hisagi in his Shikai 6 m from an idle Kenpachi,
 ;; AWAKEN! itself; 1 刈れ, the Shikai 4 m from him; 2 KOSA, the ranged mode 7.5 m from him; 3 KOSHU, a bind 2 m from him;
 ;; 4 首掛 KUBIKAKE, the Shikai 4 m from him; 83977 is c 5, 綴雷電 TSUZURI RAIDEN, the same: DUEL_HISAGI §26.6; 83978 is c 6,
-;; 刈 KARI, the same: §27.8), played
-;; through; 83970+b restarts the last one held at its beat b's middle frame (*HS-CINE-BEATS*); 83976 lets go.
+;; 刈 KARI, the same: §27.8; 83995 is c 7, the ranged mode's 鎖雨 KUSARI-AME, as KOSA's scene, and 83996 c 2 again, the
+;; rebuilt KOSA: §28.16), played through; 83970+b restarts the last one held at its beat b's middle frame (*HS-CINE-BEATS*);
+;; 83976 lets go.
 (defparameter *hs-cine-beats*
-  '((10 36 60 85 117 152) (12 40 64 94 140 168) (12 42 75 113 135) (15 50 92 122 165) (10 35 66 94 125) (12 35 62 98 134)
-    (12 37 53 84 92 128))
+  '((10 36 60 85 117 152) (12 40 64 94 140 168) (12 42 75 106 135) (15 50 92 122 165) (10 35 66 94 125) (12 35 62 98 134)
+    (12 37 53 84 92 128) (12 40 78 107 135))
   "Each cinematic's beats' middle frames (83970+b; as built, DUEL_HISAGI §22.7, §26.6; 刈's two cuts in its beat 2 and
-the Konpaku in its beat 3, §27.8).")
+the Konpaku in its beat 3, §27.8; KOSA's rebuilt and 鎖雨's (c 7), §28.16).")
 (defvar *hs-cine-k* 0 "The cinematic the last 83965+c picked.")
 (defun hisagi-cine-scene (c)
   "83965+C's scene and its cinematic (see above)."
@@ -409,7 +410,7 @@ the Konpaku in its beat 3, §27.8).")
   (setf (hss-bound (hs *p1*)) nil (gauges-awakened (gauges *p1*)) nil)
   (force-form *p1* :base)
   (hs-reset *p1*)
-  (place *p1* *p2* (case c (0 6.0) ((1 4 5 6) 4.0) (2 7.5) (t 2.0)))
+  (place *p1* *p2* (case c (0 6.0) ((1 4 5 6) 4.0) ((2 7) 7.5) (t 2.0)))
   (full-gauges! *p1*) (full-gauges! *p2*)
   (case c
     (0 (awaken! *p1*))
@@ -418,12 +419,15 @@ the Konpaku in its beat 3, §27.8).")
     (5 (start-cine 'hs-raiden-cine *p1* *p2*))
     (6 (start-cine 'hs-kari-cine *p1* *p2*))
     (2 (hs-awaken-now! *p1*) (start-cine 'hs-kosa-cine *p1* *p2*))
+    (7 (hs-awaken-now! *p1*) (start-cine 'hs-kusari-ame-cine *p1* *p2*))
     (t (hs-awaken-now! *p1*) (hs-bind-start! *p1*) (set-form *p1* :bankai-bind) (start-cine 'hs-koshu-cine *p1* *p2*))))
 (defun hisagi-cine-debug (c)
-  "83965-83969 / 83977 / 83978: cinematic c 0-4 / 5 / 6 played (HISAGI-CINE-SCENE); 83970-83975: the last one held at beat
-b; 83976 lets go."
+  "83965-83969 / 83977 / 83978 / 83995 / 83996: cinematic c 0-4 / 5 / 6 / 7 / 2 played (HISAGI-CINE-SCENE; 83995 / 83996
+also log the ranged Kikons' looks' consing, HS-RANGED-CINE-CONS); 83970-83975: the last one held at beat b; 83976 lets go."
   (cond ((or (< c 83970) (>= c 83977))
-         (setf *hs-cine-k* (case c (83977 5) (83978 6) (t (- c 83965))) *cine-hold* nil) (hisagi-cine-scene *hs-cine-k*))
+         (setf *hs-cine-k* (case c (83977 5) (83978 6) (83995 7) (83996 2) (t (- c 83965))) *cine-hold* nil)
+         (hisagi-cine-scene *hs-cine-k*)
+         (when (> c 83994) (hs-ranged-cine-cons *hs-cine-k*)))
         ((< c 83976)
          (let ((f (nth (- c 83970) (nth *hs-cine-k* *hs-cine-beats*))))
            (when f
@@ -432,6 +436,18 @@ b; 83976 lets go."
              (when *cine* (setf (cine-hold *cine*) f)))))
         (t (abort-cine) (setf *cine-hold* nil))))
 (pushnew '(83965 83978 hisagi-cine-debug) *char-debug* :test #'equal)
+(defun hs-ranged-cine-cons (k)
+  "83995 / 83996 (§28.16): a `duel hisagi cine consing` line: bytes consed by 10 calls of 鎖雨's (K 7) or 降鎖's (K 2) looks
+(HS-KA-LOOK / HS-KS-LOOK) at a frame of each beat, each measured twice (the second: past the fx buffers' first growth);
+0 B wanted."
+  (let ((fn (if (= k 7) #'hs-ka-look #'hs-ks-look)) (out nil))
+    (dolist (f (if (= k 7) '(10 40 70 96 108 126) '(10 40 66 76 104 126)))
+      (dotimes (pass 2)
+        (let ((c0 (cons-bytes)))
+          (dotimes (i 10) (funcall fn *p1* *p2* f))
+          (when (= pass 1) (push (format nil "f~d ~d" f (- (cons-bytes) c0)) out)))))
+    (clog "duel hisagi cine consing ~a ~{~a~^ ~}" (if (= k 7) "KUSARI-AME" "KOSA") (nreverse out))))
+(pushnew '(83995 83996 hisagi-cine-debug) *char-debug* :test #'equal)   ; (§28.16)
 
 ;;; ---------------------------------------------------------------- the model sheet (debug 83980-83985: stills, a look)
 ;; Him alone on a white card (CARD, as Kenpachi's black robe) in the stance, the camera a cinematic shot: the front, his

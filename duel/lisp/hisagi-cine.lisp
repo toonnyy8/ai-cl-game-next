@@ -16,19 +16,19 @@
 (defun hs-cine-of (e)
   "The B5 cinematic E is the actor A of right now: 1 the awakening, 2 the Shikai Kikon 刈れ, 3 KOSA, 4 KOSHU, 5 首掛
 KUBIKAKE, 6 綴雷電 TSUZURI RAIDEN (the core Kikons, §26.6: their scripts draw his left sickle and its chain, HISAGI-DRAW
-leaves them out), else 0."
+leaves them out), 7 鎖雨 KUSARI-AME (§28.16), else 0."
   (let ((c *cine*))
     (if (and c (eq (cine-a c) e))
         (case (cine-name c) (hs-awaken-cine 1) (hs-kare-cine 2) (hs-kosa-cine 3) (hs-koshu-cine 4) (hs-kubikake-cine 5)
-          (hs-raiden-cine 6) (t 0))
+          (hs-raiden-cine 6) (hs-kusari-ame-cine 7) (t 0))
         0)))
 
 (defun-fast %hs-cine-look! (code cf)
   "*HS-CL* for HISAGI-DRAW at cine frame CF of B5 cinematic CODE (HS-CINE-OF; 0: the match's 1 1 1 0 0); returns the flags:
 1 the Shikai's look (the awakening before 卍解's coils: the ink chain, no orb), 2 no orb at all (the awakening to f100), 4
 the noose drawn whatever the bind (KOSHU). The awakening's orb grows f100-116, its curtain drops f114-126, the neck bundle
-comes down f118-130 and ties; KOSA's curtain is hauled up into the orb f28-44 (the rope) and drops back f120-134; KOSHU's
-orb sinks 3.4 m f70-86. 0 B."
+comes down f118-130 and ties; KOSA's curtain (the 聚 bundle) is gone into the script's rope f30-120 and drops back
+f122-136 (§28.16); KOSHU's orb sinks 3.4 m f70-86; KUSARI-AME's curtain is the script's to f136 (fanned out). 0 B."
   (declare (fixnum code cf))
   (let ((cl *hs-cl*) (f (i->f cf)))
     (declare (type f32vec cl) (single-float f))
@@ -41,8 +41,9 @@ orb sinks 3.4 m f70-86. 0 B."
                       (declare (single-float g))
                       (setf (aref cl 0) (* g g (- 3f0 (* 2f0 g))) (aref cl 1) (ramp 114f0 126f0) (aref cl 2) (ramp 118f0 130f0))
                       0))))
-        (3 (setf (aref cl 1) (if (< cf 120) (- 1f0 (ramp 28f0 44f0)) (ramp 120f0 134f0))) 0)
+        (3 (setf (aref cl 1) (cond ((< cf 30) 1f0) ((< cf 120) 0f0) (t (ramp 122f0 136f0)))) 0)
         (4 (setf (aref cl 3) (* -3.4f0 (ramp 70f0 86f0))) 4)
+        (7 (setf (aref cl 1) (if (< cf 136) 0f0 1f0)) 0)
         (t 0)))))
 
 (defun-fast %hs-fr-from (n)
@@ -201,60 +202,6 @@ held on it, then down with the chains and the bundle to him (f118-132)."
   "KOSA's tilt (f25-60): low behind him, up from his raised crescent to the orb (to f42), held there."
   (let* ((x (min 1.0 (/ (- cf 25) 17.0))) (k (* x x (- 3 (* 2 x)))))
     (hs-shot a 160 3.2 0.5 (+ 2.0 (* 5.6 k)) :right (* 1.4 k) :ahead (* -0.5 k))))
-
-(defun hs-kosa-rope (a v cf)
-  "KOSA's giant rope (f25-112): every hanging chain hauled up (the draw hook's curtain) and twisted into one rope of eight
-under the orb, lowered (f30-52); swung back over him (f60-68); whipped down to the ground 2 m ahead (f68-76); its end run
-along the ground to the victim as a wave of black (f76-90), the ground blackened behind it; on him (to f100), then hauled
-back up (f100-112)."
-  (let* ((c *hs-oc*) (top *hs-c0*) (b *hs-c1*) (p (pos-of a)) (q (pos-of v))
-         (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (d (max 0.5 (hypot dx dz))) (ux (/ dx d)) (uz (/ dz d)))
-    (setf (aref top 0) (aref c 0) (aref top 1) (- (aref c 1) (* 0.75 *hs-orb-scale*)) (aref top 2) (aref c 2))
-    (flet ((at (s y) (setf (aref b 0) (f32 (+ (aref p 0) (* s ux))) (aref b 1) (f32 y) (aref b 2) (f32 (+ (aref p 2) (* s uz)))))
-           (ease (x) (let ((x (min 1.0 (max 0.0 x)))) (* x x (- 3 (* 2 x))))))
-      (cond ((< cf 60) (let ((l (* 5.2 (ease (/ (- cf 30) 22.0)))))
-                         (setf (aref b 0) (aref top 0) (aref b 1) (f32 (- (aref top 1) l)) (aref b 2) (aref top 2))))
-            ((< cf 68) (let ((k (ease (/ (- cf 60) 8.0)))) (at (* -2.6 k) (- (aref top 1) 5.2 (* -1.6 k)))))
-            ((< cf 76) (let ((k (ease (/ (- cf 68) 8.0)))) (at (+ -2.6 (* 4.6 k)) (+ (* (- 1 k) (- (aref top 1) 3.6)) (* k 0.15)))))
-            ((< cf 90) (at (+ 2.0 (* (- d 2.0) (ease (/ (- cf 76) 14.0)))) 0.15))
-            ((< cf 100) (at d 0.5))
-            (t (let ((k (ease (/ (- cf 100) 12.0))))
-                 (setf (aref b 0) (f32 (+ (aref q 0) (* k (- (aref top 0) (aref q 0)))))
-                       (aref b 1) (f32 (+ 0.5 (* k (- (aref top 1) 0.5))))
-                       (aref b 2) (f32 (+ (aref q 2) (* k (- (aref top 2) (aref q 2)))))))))
-      (setf *hs-chain-black* 1)
-      (when (> (- (aref top 1) (aref b 1)) 0.1) (%hs-bundle top b 8 2.5f0 0.32f0 1.1f0))
-      (setf *hs-chain-black* 0)
-      (when (and (>= cf 76) (< cf 120))                  ; the wave: the ground blackened along the lane behind its end
-        (let* ((s1 (if (< cf 90) (+ 2.0 (* (- d 2.0) (ease (/ (- cf 76) 14.0)))) d))
-               (al (if (< cf 100) 0.9 (* 0.9 (- 1.0 (/ (- cf 100) 20.0))))))
-          (dotimes (i 3)
-            (let ((o (* 0.22 (- i 1))))
-              (fx-line (+ (aref p 0) (* 1.2 ux) (* o (- uz))) 0.04 (+ (aref p 2) (* 1.2 uz) (* o ux))
-                       (+ (aref p 0) (* s1 ux) (* o (- uz))) 0.04 (+ (aref p 2) (* s1 uz) (* o ux))
-                       (if (= i 1) 0.3 0.16) 0.03 0.03 0.05 al :mode :alpha :end-width 0.45)))
-          (when (< cf 92)                                ; black spray thrown up at its front
-            (dotimes (i 7)
-              (let* ((sp (* 0.9 (- i 3))) (hh (+ 0.6 (* 0.5 (mod (* i 5) 3)) (* 0.08 (mod cf 4)))))
-                (fx-line (+ (aref p 0) (* s1 ux)) 0.1 (+ (aref p 2) (* s1 uz))
-                         (+ (aref p 0) (* (- s1 0.4) ux) (* sp 0.35 (- uz))) hh (+ (aref p 2) (* (- s1 0.4) uz) (* sp 0.35 ux))
-                         0.09 0.03 0.03 0.05 0.85 :mode :alpha :end-width 0.01)))))))))
-
-(defun hs-kosa-crack (a v cf)
-  "KOSA's crack (f90-150): a jagged black line split along the ground from 1.2 m ahead of him to the victim, fading from
-f130."
-  (let* ((p (pos-of a)) (q (pos-of v)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2)))
-         (d (max 1.5 (hypot dx dz))) (ux (/ dx d)) (uz (/ dz d)) (k (if (< cf 130) 0.95 (* 0.95 (- 1.0 (/ (- cf 130) 20.0)))))
-         (n 18) (x0 0.0) (z0 0.0))
-    (dotimes (i (1+ n))
-      (let* ((s (+ 1.2 (* (- d 1.0) (/ i (float n))))) (o (* 0.16 (sin (* 2.7 i))))
-             (x (+ (aref p 0) (* s ux) (* o (- uz)))) (z (+ (aref p 2) (* s uz) (* o ux))))
-        (when (> i 0)
-          (fx-line x0 0.03 z0 x 0.03 z 0.07 0.02 0.02 0.03 k :mode :alpha)
-          (when (zerop (mod i 3))                         ; a branch every third kink
-            (fx-line x 0.03 z (+ x (* 0.5 (- uz)) (* 0.2 ux)) 0.03 (+ z (* 0.5 ux) (* 0.2 uz)) 0.04 0.02 0.02 0.03 k
-                     :mode :alpha :end-width 0.005)))
-        (setf x0 x z0 z)))))
 
 (defun hs-koshu-rain (v cf)
   "KOSHU's rain of chains (f80-150): eight black chains dropped from the sunk orb's underside (*HS-OC*) onto the victim,
@@ -425,35 +372,43 @@ half-step back, 刈れ / 風死."
       (caption "刈れ" :kanji2 "風死" :reading "KARE, KAZESHINI" :sub "KIKON" :side 1 :ink t :hanko t)))
 
 (defcine hs-kosa-cine (a v :len 150 :hold 130)
-  "The ranged mode's Kikon 降鎖 KOSA (§22.5): 1 low behind him: one crescent raised, the neck bundle hauled up off his
-back; 2 the tilt up: the orb turning, every hanging chain hauled up into one giant twisted rope; 3 side-on, a long lens:
-the rope whipped down along the lane, a wave of black down the ground to the victim; 4 on the victim: the impact, the
-ground cracked in a line, a white card with his silhouette (2 drawings), the Konpaku; 5 wide: the chains fall back into
-the curtain, he lowers the blade, unmoved: 降鎖."
-  ;; 1 (0-25) low, behind him: the windup (KOSA's clip slowed, held at its peak f17 from f38)
-  (at 0 (hs-cine-stage a v 7.0) (cine-clip a :hs-k-kosa :blend 2 :speed 0.45) (cine-clip v :sh-kikon-victim :blend 4)
+  "The ranged mode's Kikon 降鎖 KOSA, pointer 2 聚's (rebuilt round the bundle by batch 3a, DUEL_HISAGI §28.14 / §28.16; §22.5's
+until then): 1 low behind him: the 聚 stance, the chain wound up his right arm, the bundle in his fist; 2 the tilt up: the
+orb pours chains down into the bundle, it swells into one giant twisted rope; 3 side-on, a long lens: the rope swung
+back over him and slammed down ahead, the crack run along the ground to the victim; 4 on the victim: the rope raised
+and brought down on him: the negative, the dust ring, the Konpaku, the manga frame; 5 wide: the rope hauled back up into
+the orb and unwound into the curtain: 降鎖. Its looks: HS-KS-LOOK (the end of this file)."
+  (during (0 150) (hs-ks-look a v cf))
+  ;; 1 (0-25) low behind him: the 聚 stance, the chain winding up his right arm (f2-22)
+  (at 0 (hs-cine-stage a v 7.0) (cine-clip a :hs-k-st-shu :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
       (hold-pose v 10) (freeze 10) (impact-frame :negative 2) (silence 25) (play-sfx :chain-rattle :pitch 0.7)
       (shot-on a 165 3.0 0.5 :look 2.0) (lens 50))
-  (at 38 (cine-clip a :hs-k-kosa :blend 0 :time (/ 17.0 60.0) :speed 0.0))
-  ;; 2 (25-60) the tilt up: the rope gathered under the orb
+  (at 8 (play-sfx :chain-rattle :pitch 0.9))
+  (at 22 (play-sfx :chain-snap :pitch 0.8) (shake 0.1 0.15))
+  ;; 2 (25-60) the tilt up: the orb pours chains into the bundle, the rope swells (f30-54)
   (at 25 (play-sfx :chain-rattle :pitch 0.5) (lens 54))
   (during (25 60) (hs-kosa-tilt a cf))
-  (during (25 112) (setf *hs-chain-ink* (if (eq a *p1*) 0 1)) (hs-kosa-rope a v cf))
-  (at 44 (play-sfx :chain-rattle :pitch 0.4))
-  ;; 3 (60-90) side-on, a long lens: the whip (KOSA's S at f61), the wave down the lane
-  (at 58 (cine-clip a :hs-k-kosa :blend 0 :time (/ 17.0 60.0)))
-  (at 60 (hs-lane-shot a v 15.5 2.6 3.4) (lens 32) (play-sfx :whoosh-heavy :pitch 0.6))
-  (at 74 (play-sfx :chain-snap :pitch 0.6) (play-sfx :ground-crack) (shake 0.25 0.3))
-  (at 82 (play-sfx :ground-crack :pitch 0.8))
-  ;; 4 (90-120) on the victim: the impact, the crack, the white card (2 drawings), the Konpaku
-  (at 90 (shot-on v 35 3.8 0.8 :look 1.1) (lens 48) (impact-frame :negative 2) (cine-clip v :sh-crumple :blend 1)
-      (play-sfx :explode :pitch 0.7) (shake 0.4 0.5) (hs-cine-hit v 1.0 :heavy))
-  (at 92 (card :white v) (silhouette-black v) (hold-pose v 4))
-  (at 96 (unsilhouette) (card nil) (cine-shatter v (fighter-kikon-n (fighter a))) (play-sfx :konpaku-shatter))
-  (at 98 (impact-frame :manga 10))
-  (during (90 150) (hs-kosa-crack a v cf))
-  ;; 5 (120-150) wide: the curtain back, the blade lowered; 降鎖
+  (at 34 (play-sfx :chain-rattle :pitch 0.4))
+  (at 46 (play-sfx :chain-rattle :pitch 0.35) (shake 0.12 0.4))
+  ;; 3 (60-90) side-on, a long lens: swung back (f60-68), slammed down 3 m ahead (f72), the crack run to him (f72-86)
+  (at 60 (cine-clip a :hs-cine-ks-blow :blend 2) (hs-lane-shot a v 15.5 2.6 3.4) (lens 32) (play-sfx :whoosh-heavy :pitch 0.6))
+  (at 72 (play-sfx :ground-crack) (play-sfx :explode :pitch 0.6 :gain 0.5) (shake 0.35 0.4) (impact-frame :negative 1)
+      (multiple-value-bind (x z) (hs-lane-at a v 3.0)
+        (vfx-shockwave x z 2.2 0.4 :pal +pal-dust+) (impact-splash x 0.0 z 8 0.07)))
+  (at 80 (play-sfx :ground-crack :pitch 0.8))
+  (at 86 (cine-clip v :sh-stagger :blend 1) (shake 0.2 0.25))
+  ;; 4 (90-120) on the victim: the rope raised again (f92-102) and brought down on him (f104)
+  (at 90 (if (portrait-p) (shot-on v 130 8.0 1.0 :look 2.6) (shot-on v 130 6.0 1.0 :look 2.4)) (lens 48))   ; (Hisagi beyond him)
+  (at 92 (cine-clip a :hs-cine-ks-blow :blend 2) (play-sfx :whoosh-heavy :pitch 0.5))
+  (at 104 (impact-frame :negative 2) (cine-clip v :sh-crumple :blend 1) (play-sfx :explode :pitch 0.7) (play-sfx :ground-crack)
+       (shake 0.45 0.5) (hs-cine-hit v 1.0 :heavy)
+       (let ((q (pos-of v))) (vfx-shockwave (aref q 0) (aref q 2) 3.2 0.5 :pal +pal-dust+)
+         (stage-crack-add (aref q 0) (aref q 2) 2.0)))   ; (no ink splash: on this shot it stood over him)
+  (at 106 (cine-shatter v (fighter-kikon-n (fighter a))) (play-sfx :konpaku-shatter))
+  (at 108 (impact-frame :manga 10))
+  ;; 5 (120-150) wide: the rope hauled up and unwound into the curtain (f120-136); 降鎖
   (at 120 (cine-clip a :hs-k-stance :blend 14) (shot-on a 125 8.0 1.5 :look 2.4 :off -1.3) (lens 46)
+      (play-sfx :chain-rattle :pitch 0.5)
       (caption "降鎖" :reading "KOSA" :sub "FUSHI NO KOJO  KIKON" :side 1 :hanko t)))
 
 (defcine hs-koshu-cine (a v :len 180 :hold 150)
@@ -927,4 +882,486 @@ blood off: 刈."
       (lens 42))
   (at 108 (play-sfx :whoosh-heavy :pitch 1.4) (play-sfx :chain-snap :pitch 1.3))
   (at 112 (caption "刈" :reading "KARI" :sub "KAZESHINI  KIKON" :side 1 :hanko t)))
+
+;;; ================================================================ the ranged Kikons 鎖雨 KUSARI-AME / 降鎖 KOSA (DUEL_HISAGI §28.14, §28.16)
+;;; The user, 2026-10-29, approved the storyboards (§28.14: 「分鏡可以」): one Kikon cinematic per ranged pointer, the strike
+;;; staying :hs-r-kikon's lane: 散 鎖雨 KUSARI-AME (new: the curtain fanned out, the orb split open, a sky of thin chains
+;;; lashing the victim from every side, faster and faster, the last one's tip) and 聚 降鎖 KOSA (rebuilt above: the bundle
+;;; wound on his arm swells into one rope, two blows). Batch 3a. The looks are DEFUN-FAST on fixnums and f32vecs, derived
+;;; from the cine frame alone (a held still and a play-through agree; each chain's variety from HASH01), the orb read from
+;;; *HS-ORB-V* (the actor's own side, so a mirror's victim drawn after him changes nothing), the curtain's rest from
+;;; %HS-REST-POLAR!. HS-CINE-OF 7 (KUSARI-AME) / 3 (KOSA) hide the hook's curtain while these draw theirs. Debug 83995 /
+;;; 83996 play them, 83970+b holds beat b (HISAGI-CINE-DEBUG); both log a `duel hisagi cine consing` line.
+(declaim (type f32vec *hs-ka-c* *hs-ka-p* *hs-ka-q* *hs-ka-e* *hs-ka-t* *hs-ks-f* *hs-ks-r*))
+(defvar *hs-ka-c* (make-f32 4) "The ranged Kikons' look: the orb's centre, [3] its underside's height (%HS-KA-ORB!).")
+(defvar *hs-ka-p* (make-f32 3) "The ranged Kikons' look: a chain's top (scratch).")
+(defvar *hs-ka-q* (make-f32 3) "The ranged Kikons' look: a chain's knee (scratch).")
+(defvar *hs-ka-e* (make-f32 3) "The ranged Kikons' look: a chain's free end (scratch).")
+(defvar *hs-ka-t* (make-f32 3) "The ranged Kikons' look: a point on the victim (scratch).")
+(defvar *hs-ks-f* (make-f32 3) "降鎖's look: the rope's grip (his right fist).")
+(defvar *hs-ks-r* (make-f32 3) "%HS-KS-HELIX's twist (turns), its radius at the bottom and at the top (m).")
+(declaim (type (simple-array fixnum (30)) *hs-ka-hits*))
+(defparameter *hs-ka-hits*
+  (let ((v (make-array 30 :element-type 'fixnum)))
+    (dotimes (k 30 v) (setf (aref v k) (+ 58 (round (* 40 (- 1 (expt (- 1 (/ k 30.0)) 3))))))))
+  "鎖雨's 30 lashes' hit frames: f58 + 40 (1 - (1 - k/30)^3), faster and faster (4 f apart at first, the last ones on
+the same frames, f98).")
+
+(defmacro %hs-ka-ease (x)
+  "Smoothstep of X clamped to 0..1 (single floats)."
+  `(let ((%x (f-clamp ,x 0f0 1f0))) (declare (single-float %x)) (* %x %x (- 3f0 (* 2f0 %x)))))
+
+(defmacro %hs-ka-seg (x0 y0 z0 x1 y1 z1 w &optional pal k)
+  "A segment (X0 Y0 Z0) -> (X1 Y1 Z1) drawn as one camera-facing kite, half-width W at 40 % along: solid black
+(%HS-BLACK-KITE), or with PAL an FX-SHARD of that palette at presence K. Single floats in, 0 B (FX-LINE's float
+arguments box)."
+  `(let* ((%a ,x0) (%b ,y0) (%c ,z0) (%dx (- ,x1 %a)) (%dy (- ,y1 %b)) (%dz (- ,z1 %c)) (%l (f-max 1f-3 (f-hypot %dx %dy %dz))))
+     (declare (single-float %a %b %c %dx %dy %dz %l))
+     ,(if pal
+          `(fx-shard (+ %a (* 0.4f0 %dx)) (+ %b (* 0.4f0 %dy)) (+ %c (* 0.4f0 %dz)) (/ %dx %l) (/ %dy %l) (/ %dz %l) %l ,w 0.02f0
+                     (+ 950f0 %l) ,pal ,k)
+          `(%hs-black-kite (+ %a (* 0.4f0 %dx)) (+ %b (* 0.4f0 %dy)) (+ %c (* 0.4f0 %dz)) (/ %dx %l) (/ %dy %l) (/ %dz %l) %l ,w))))
+
+(defun-fast %hs-ka-orb! (side)
+  "*HS-KA-C* := the orb of the Hisagi on SIDE (0 / 1) as last drawn (*HS-ORB-V*), [3] its underside's height. 0 B."
+  (declare (fixnum side))
+  (let ((c *hs-ka-c*) (ov *hs-orb-v*) (o (* 3 side)))
+    (declare (type f32vec c ov) (fixnum o))
+    (setf (aref c 0) (aref ov o) (aref c 1) (aref ov (+ o 1)) (aref c 2) (aref ov (+ o 2))
+          (aref c 3) (- (aref ov (+ o 1)) (* 0.75f0 (the single-float *hs-orb-scale*)))))
+  nil)
+
+;;; ---------------------------------------------------------------- 鎖雨 KUSARI-AME
+(defun-fast %hs-ka-curtain (pos tr side cf)
+  "鎖雨's curtain (f0-136; HS-CINE-OF 7 hides the hook's): the eight hanging chains from their tops under the orb, their
+free ends lifted 1.7-2.0 m and flung 1.3 m further out from their rest (%HS-REST-POLAR!, the carousel's phase of SIDE)
+over f0-18, fluttering (+-9 degrees), lowered back to the rest f120-136. POS his feet, TR his transform. 0 B."
+  (declare (type f32vec pos) (fixnum side cf))
+  (when (< cf 136)
+    (%hs-ka-orb! side)
+    (let* ((c *hs-ka-c*) (rp *hs-rp*) (tp *hs-ka-p*) (e *hs-ka-e*) (cv *hs-car*)
+           (yaw (the single-float (transform-yaw tr))) (f (i->f cf))
+           (u (if (< cf 120) (%hs-ka-ease (/ f 18f0)) (- 1f0 (%hs-ka-ease (/ (- f 120f0) 16f0))))))
+      (declare (type f32vec c rp tp e cv) (single-float yaw f u))
+      (setf (aref cv 6) (+ (aref cv side) (aref cv (+ 2 side))))
+      (dotimes (j 8)
+        (%hs-rest-polar! rp j)
+        (let* ((fj (i->f j)) (a0 (+ yaw (* 0.017453292f0 (aref rp 2))))
+               (a (+ a0 (* 0.017453292f0 u 9f0 (f-sin (+ (* 0.21f0 f) fj)))))
+               (r0 (aref rp 0)) (r (+ r0 (* 1.3f0 u)))
+               (gx (+ (aref pos 0) (* r0 (- (f-sin a0))))) (gz (+ (aref pos 2) (* r0 (- (f-cos a0))))))
+          (declare (single-float fj a0 a r0 r gx gz))
+          (setf (aref tp 0) (+ (aref c 0) (* 0.6f0 (- gx (aref c 0)))) (aref tp 1) (aref c 3)
+                (aref tp 2) (+ (aref c 2) (* 0.6f0 (- gz (aref c 2))))
+                (aref e 0) (+ (aref pos 0) (* r (- (f-sin a))) (aref rp 3))
+                (aref e 1) (+ (aref rp 1) (* u (+ 1.7f0 (* 0.3f0 (f-sin (+ (* 0.33f0 f) (* 1.3f0 fj)))))))
+                (aref e 2) (+ (aref pos 2) (* r (- (f-cos a)))))
+          (%hs-chain2 tp e)))))
+  nil)
+
+(defun-fast %hs-ka-wind (pos cf)
+  "鎖雨's wind round him (POS his feet, f0-30): 18 dark streaks blown out and up in a spiral, each its own phase, gone by
+f30. 0 B."
+  (declare (type f32vec pos) (fixnum cf))
+  (let ((f (i->f cf)))
+    (declare (single-float f))
+    (dotimes (i 18)
+      (let* ((fi (i->f i)) (ph (f-mod (+ (* 0.045f0 f) (hash01 fi 6.1f0)) 1f0))
+             (an (+ (* 2.39996f0 fi) (* 1.6f0 ph))) (r (+ 0.9f0 (* 2.2f0 ph)))
+             (y (+ 0.2f0 (* 2.2f0 (hash01 fi 2.9f0)) (* 0.6f0 ph)))
+             (al (* 0.55f0 (f-sin (* 3.1415927f0 ph)) (f-clamp (/ (- 30f0 f) 8f0) 0f0 1f0))))
+        (declare (single-float fi ph an r y al))
+        (when (> al 0.05f0)
+          (%hs-ka-seg (+ (aref pos 0) (* r (f-cos an))) y (+ (aref pos 2) (* r (f-sin an)))
+                      (+ (aref pos 0) (* (+ r 0.7f0) (f-cos (+ an 0.35f0)))) (+ y 0.12f0)
+                      (+ (aref pos 2) (* (+ r 0.7f0) (f-sin (+ an 0.35f0)))) 0.03f0 +pal-ink+ al)))))
+  nil)
+
+(defun-fast %hs-ka-split (tr side cf)
+  "The orb split open (f30-134): a white crack zigzagged across its face toward the eye (f30-35, his right to his left),
+widened into a split of light, ink-rimmed (f33-39), dimming to 55 %; closed again f120-134. TR his transform. 0 B."
+  (declare (fixnum side cf))
+  (when (and (>= cf 30) (< cf 134))
+    (%hs-ka-orb! side)
+    (let* ((c *hs-ka-c*) (eye (camera-eye *camera*)) (yaw (the single-float (transform-yaw tr))) (f (i->f cf))
+           (nx (- (aref eye 0) (aref c 0))) (ny (- (aref eye 1) (aref c 1))) (nz (- (aref eye 2) (aref c 2)))
+           (nl (f-max 0.01f0 (f-hypot nx ny nz))) (rr (* 0.9f0 (the single-float *hs-orb-scale*)))
+           (ox (+ (aref c 0) (* rr (/ nx nl)))) (oy (+ (aref c 1) (* rr (/ ny nl)))) (oz (+ (aref c 2) (* rr (/ nz nl))))
+           (rx (f-cos yaw)) (rz (- (f-sin yaw)))
+           (l (* 1.25f0 (%hs-ka-ease (/ (- f 30f0) 5f0)) (- 1f0 (%hs-ka-ease (/ (- f 120f0) 14f0)))))
+           (wb (+ 0.03f0 (* 0.12f0 (%hs-ka-ease (/ (- f 33f0) 6f0)))))
+           (aw (* 0.95f0 (f-max 0.55f0 (f-clamp (- 1f0 (/ (- f 36f0) 24f0)) 0f0 1f0)))) (px 0f0) (py 0f0) (pz 0f0))
+      (declare (type f32vec c eye) (single-float yaw f nx ny nz nl rr ox oy oz rx rz l wb aw px py pz))
+      (dotimes (k 7)
+        (let* ((s (- (/ (i->f k) 3f0) 1f0)) (dy (if (evenp k) -0.08f0 0.12f0))
+               (x (+ ox (* s l rx))) (y (+ oy dy (* -0.1f0 s))) (z (+ oz (* s l rz))))
+          (declare (single-float s dy x y z))
+          (when (> k 0)
+            (%hs-ka-seg px py pz x y z (* 1.5f0 wb))
+            (%hs-ka-seg px py pz x y z wb +pal-hit+ aw))
+          (setf px x py y pz z)))))
+  nil)
+
+(defun-fast %hs-ka-strand! (i vp cf)
+  "Thin chain I (0-143) of 鎖雨's sky at cine frame CF: *HS-KA-P* := its top under the orb (*HS-KA-C*), *HS-KA-Q* := its
+knee in the sky round the victim (VP his feet: 1.6-5.8 m out by the golden angle, 5.6-8.4 m up), *HS-KA-E* := its free
+end hanging 2.4-5.8 m below the knee (to 0.5 m over the floor at most), swaying. 0 B."
+  (declare (fixnum i cf) (type f32vec vp))
+  (let* ((c *hs-ka-c*) (p *hs-ka-p*) (q *hs-ka-q*) (e *hs-ka-e*) (fi (i->f i)) (f (i->f cf))
+         (th (* 2.39996f0 fi)) (be (+ th 0.5f0))
+         (rr (+ 1.6f0 (* 4.2f0 (hash01 fi 1.3f0)))) (hh (+ 5.6f0 (* 2.8f0 (hash01 fi 2.1f0))))
+         (dd (+ 2.4f0 (* 3.4f0 (hash01 fi 3.7f0)))))
+    (declare (type f32vec c p q e) (single-float fi f th be rr hh dd))
+    (setf (aref p 0) (+ (aref c 0) (* 0.55f0 (f-cos th))) (aref p 1) (+ (aref c 3) 0.15f0)
+          (aref p 2) (+ (aref c 2) (* 0.55f0 (f-sin th)))
+          (aref q 0) (+ (aref vp 0) (* rr (f-cos be))) (aref q 1) hh (aref q 2) (+ (aref vp 2) (* rr (f-sin be)))
+          (aref e 0) (+ (aref q 0) (* 0.18f0 (f-sin (+ (* 0.09f0 f) fi)))) (aref e 1) (f-max 0.5f0 (- hh dd))
+          (aref e 2) (+ (aref q 2) (* 0.18f0 (f-cos (+ (* 0.07f0 f) (* 1.3f0 fi)))))))
+  nil)
+
+(defun-fast %hs-ka-on! (k vp q)
+  "*HS-KA-T* := where lash K lands on the victim (VP his feet): 0.22 m out from his centre toward its knee Q, 0.45-1.55 m
+up. 0 B."
+  (declare (fixnum k) (type f32vec vp q))
+  (let* ((tt *hs-ka-t*) (dx (- (aref q 0) (aref vp 0))) (dz (- (aref q 2) (aref vp 2))) (l (f-max 0.01f0 (f-hypot dx dz))))
+    (declare (type f32vec tt) (single-float dx dz l))
+    (setf (aref tt 0) (+ (aref vp 0) (* 0.22f0 (/ dx l))) (aref tt 1) (+ (aref vp 1) 0.45f0 (* 1.1f0 (hash01 (i->f k) 5.3f0)))
+          (aref tt 2) (+ (aref vp 2) (* 0.22f0 (/ dz l)))))
+  nil)
+
+(defun-fast %hs-ka-sky (vp side cf)
+  "鎖雨's sky (f34-136): 144 thin chains unrolled out of the split orb (each over 7 f from f34-48) to their knees round the
+victim and hanging from there (fine ink lines); 30 of them (strand 7k) lash him, one by one, faster and faster
+(*HS-KA-HITS*): the end whipped down onto him over the 4 f before its hit (drawn as the black chain while it lashes),
+held 2 f, recoiling to its hang by 10 f more; every chain pulled back up into the orb f120-134. VP his feet. 0 B."
+  (declare (type f32vec vp) (fixnum side cf))
+  (when (and (>= cf 34) (< cf 136))
+    (%hs-ka-orb! side)
+    (let ((p *hs-ka-p*) (q *hs-ka-q*) (e *hs-ka-e*) (tt *hs-ka-t*) (hits *hs-ka-hits*)
+          (back (%hs-ka-ease (/ (i->f (- cf 120)) 14f0))))
+      (declare (type f32vec p q e tt) (type (simple-array fixnum (30)) hits) (single-float back))
+      (dotimes (i 144)
+        (let* ((pr (f-clamp (/ (- (i->f cf) (+ 34f0 (* 14f0 (hash01 (i->f i) 4.9f0)))) 7f0) 0f0 1f0))
+               (k (mod (* i 103) 144)) (age (if (< k 30) (- cf (aref hits k)) -100)) (live 0))
+          (declare (single-float pr) (fixnum k age live))
+          (when (> pr 0f0)
+            (%hs-ka-strand! i vp cf)
+            (when (and (> age -5) (< age 13))                   ; (its lash)
+              (%hs-ka-on! k vp q)
+              (setf live 1)
+              (let ((u (cond ((<= age 0) (let ((x (/ (i->f (+ age 4)) 4f0))) (declare (single-float x)) (* x x)))
+                             ((<= age 2) 1f0)
+                             (t (- 1f0 (%hs-ka-ease (/ (i->f (- age 2)) 10f0)))))))
+                (declare (single-float u))
+                (dotimes (j 3) (setf (aref e j) (+ (aref e j) (* u (- (aref tt j) (aref e j))))))))
+            (when (> back 0f0)                                  ; (pulled back up)
+              (dotimes (j 3) (setf (aref e j) (+ (aref e j) (* back (- (aref p j) (aref e j))))
+                                   (aref q j) (+ (aref q j) (* back (- (aref p j) (aref q j)))))))
+            (if (< pr 0.5f0)
+                (let ((s (* 2f0 pr)))
+                  (declare (single-float s))
+                  (%hs-ka-seg (aref p 0) (aref p 1) (aref p 2) (+ (aref p 0) (* s (- (aref q 0) (aref p 0))))
+                              (+ (aref p 1) (* s (- (aref q 1) (aref p 1)))) (+ (aref p 2) (* s (- (aref q 2) (aref p 2)))) 0.016f0))
+                (let ((s (- (* 2f0 pr) 1f0)))
+                  (declare (single-float s))
+                  (%hs-ka-seg (aref p 0) (aref p 1) (aref p 2) (aref q 0) (aref q 1) (aref q 2) 0.016f0)
+                  (dotimes (j 3) (setf (aref e j) (+ (aref q j) (* s (- (aref e j) (aref q j))))))
+                  (if (= live 1)
+                      (%hs-chain2 q e)
+                      (%hs-ka-seg (aref q 0) (aref q 1) (aref q 2) (aref e 0) (aref e 1) (aref e 2) 0.014f0)))))))))
+  nil)
+
+(defun-fast %hs-ka-marks (vp cf)
+  "鎖雨's lashes on the victim (VP his feet): at each hit (*HS-KA-HITS*) an ink line across where it landed, level across
+the lash and tilted by turns, fading over 16 f, with a white spark for 3 f. 0 B."
+  (declare (type f32vec vp) (fixnum cf))
+  (let ((q *hs-ka-q*) (tt *hs-ka-t*) (hits *hs-ka-hits*))
+    (declare (type f32vec q tt) (type (simple-array fixnum (30)) hits))
+    (dotimes (k 30)
+      (let ((age (- cf (aref hits k))))
+        (declare (fixnum age))
+        (when (and (>= age 0) (< age 16))
+          (%hs-ka-strand! (mod (* 7 k) 144) vp cf)
+          (%hs-ka-on! k vp q)
+          (let* ((dx (- (aref q 0) (aref vp 0))) (dz (- (aref q 2) (aref vp 2))) (l (f-max 0.01f0 (f-hypot dx dz)))
+                 (px (* 0.4f0 (/ (- dz) l))) (pz (* 0.4f0 (/ dx l))) (sy (if (evenp k) 0.2f0 -0.2f0))
+                 (al (* 0.95f0 (- 1f0 (/ (i->f age) 16f0)))) (fk (i->f k)))
+            (declare (single-float dx dz l px pz sy al fk))
+            (%hs-ka-seg (- (aref tt 0) px) (- (aref tt 1) sy) (- (aref tt 2) pz) (+ (aref tt 0) px) (+ (aref tt 1) sy) (+ (aref tt 2) pz)
+                        0.05f0 +pal-ink+ al)
+            (when (< age 3)
+              (fx-star (aref tt 0) (aref tt 1) (aref tt 2) 0.04f0 0.28f0 6 (* 0.7f0 fk) 0f0 0f0 0.08f0 (+ 900f0 fk) +pal-hit+
+                       0.95f0 :push 0.4f0)))))))
+  nil)
+
+(defun-fast %hs-ka-last (ap vp cf)
+  "鎖雨's last chain (f100-134; AP his feet, VP the victim's): alone, from 8 m over the victim (1 m toward Hisagi) its
+tip falls from 4.6 m (accelerating, a pale streak behind it, the tip's glint) onto his chest 1.25 m up (f110), held in him, then
+pulled back up (f120-134). 0 B."
+  (declare (type f32vec ap vp) (fixnum cf))
+  (when (and (>= cf 100) (< cf 134))
+    (let* ((tp *hs-ka-p*) (e *hs-ka-e*) (f (i->f cf))
+           (dx (- (aref ap 0) (aref vp 0))) (dz (- (aref ap 2) (aref vp 2))) (l (f-max 0.01f0 (f-hypot dx dz)))
+           (ux (/ dx l)) (uz (/ dz l)) (hx (+ (aref vp 0) (* 0.2f0 ux))) (hz (+ (aref vp 2) (* 0.2f0 uz))))
+      (declare (type f32vec tp e) (single-float f dx dz l ux uz hx hz))
+      (setf (aref tp 0) (+ (aref vp 0) ux) (aref tp 1) 8f0 (aref tp 2) (+ (aref vp 2) uz))
+      (cond ((< cf 110) (let* ((x (/ (- f 100f0) 10f0)) (k (* x x)))
+                          (declare (single-float x k))
+                          (setf (aref e 0) (+ (aref tp 0) (* k (- hx (aref tp 0)))) (aref e 1) (- 4.6f0 (* k 3.35f0))
+                                (aref e 2) (+ (aref tp 2) (* k (- hz (aref tp 2)))))))
+            ((< cf 120) (setf (aref e 0) hx (aref e 1) 1.25f0 (aref e 2) hz))
+            (t (let ((k (%hs-ka-ease (/ (- f 120f0) 14f0))))
+                 (declare (single-float k))
+                 (setf (aref e 0) (+ hx (* k (- (aref tp 0) hx))) (aref e 1) (+ 1.25f0 (* k 6.5f0))
+                       (aref e 2) (+ hz (* k (- (aref tp 2) hz)))))))
+      (%hs-chain2 tp e)
+      (when (< cf 111)
+        (%hs-glint e 3)
+        (%hs-ka-seg (aref e 0) (aref e 1) (aref e 2) (aref e 0) (+ (aref e 1) 1.4f0) (aref e 2) 0.05f0 +pal-hit+ 0.5f0))))
+  nil)
+
+(defun hs-ka-look (a v cf)
+  "鎖雨's looks (every frame): the curtain fanned out and the wind round him, the orb split, the sky of chains and their
+lashes, the ink lines on him, the last chain."
+  (hs-cine-ink a)
+  (let ((side (if (eq a *p1*) 0 1)))
+    (when (hs-cine-shown-p a)
+      (%hs-ka-curtain (pos-of a) (transform a) side cf)
+      (when (< cf 30) (%hs-ka-wind (pos-of a) cf)))
+    (%hs-ka-split (transform a) side cf)
+    (%hs-ka-sky (pos-of v) side cf)
+    (when (hs-cine-shown-p v) (%hs-ka-marks (pos-of v) cf))
+    (%hs-ka-last (pos-of a) (pos-of v) cf))
+  (setf *hs-chain-black* 0))
+
+(defun hs-ka-orbit (v cf)
+  "鎖雨's circling shot (f55-100): round the victim from 20 to 200 degrees off his facing, 6 m out (a phone 8.4), rising
+from 1.3 to 2.7 m, aimed 1.5 m up on him: the chains come down into the frame from above."
+  (setf *cine-close* nil *cine-subject* nil)
+  (let* ((u (/ (- cf 55) 45.0)) (q (pos-of v)) (yaw (+ (yaw-of v) (deg (+ 20 (* 180 u))))) (d (if (portrait-p) 8.4 6.0)))
+    (cine-cam (+ (aref q 0) (* d (fwd-x yaw))) (+ 1.3 (* 1.4 u)) (+ (aref q 2) (* d (fwd-z yaw))) (aref q 0) 1.5 (aref q 2))))
+
+(defun hs-ka-lashes (v cf)
+  "鎖雨's lashes in step mode: on each new hit frame of *HS-KA-HITS* the victim flinches (by turns a stagger), a chain's
+snap rising in pitch, a cut every third, a small shake."
+  (let ((h *hs-ka-hits*))
+    (dotimes (k 30)
+      (when (and (= cf (aref h k)) (or (= k 0) (/= cf (aref h (1- k)))))
+        (cine-clip v (if (evenp k) :sh-flinch :sh-stagger) :blend 1)
+        (play-sfx :chain-snap :pitch (+ 0.8 (* 0.025 k)))
+        (when (zerop (mod k 3)) (play-sfx :cut :pitch (+ 0.9 (* 0.02 k))))
+        (shake 0.1 0.12)))))
+
+;; 散 stance flung wide: from the hanging arms gathered in (f5), flung out to the sides (f12), the face up to the orb and
+;; the arms risen (f33-54: the rain called), brought down and out on f60 (the rain let go), held
+(defpose :hs-cine-ka-spread (:base :hs-k-stance)
+  (:root :u -0.06) (:spine :flex -6) (:head :flex -4)
+  (:arm-r :flex 30 :side 92 :twist 0) (:elbow-r :flex 8) (:hand-r :flex -20)
+  (:arm-l :flex 30 :side 92 :twist 0) (:elbow-l :flex 8) (:hand-l :flex -20)
+  (:thigh-l :flex 14 :side 14) (:knee-l :flex 14) (:thigh-r :flex -10 :side 14) (:knee-r :flex 12))
+(defclip :hs-cine-ka-spread (2.5 :base :hs-k-stance)
+  (0)
+  (0.08 (:root :u -0.1) (:spine :flex 6) (:arms :flex 10 :side 30) (:elbows :flex 30))
+  (0.2 :snap :hs-cine-ka-spread)
+  (0.4 :hs-cine-ka-spread (:root :u -0.04))
+  (0.55 :hs-cine-ka-spread (:head :flex -34) (:spine :flex -12) (:arms :flex 50 :side 100))
+  (0.9 :hs-cine-ka-spread (:head :flex -38) (:spine :flex -14) (:arms :flex 120 :side 60))
+  (1.0 :snap :hs-cine-ka-spread (:head :flex -10) (:arms :flex 60 :side 70) (:root :u -0.12) (:spine :flex 10))
+  (2.5 :hs-cine-ka-spread (:root :u -0.1) (:spine :flex 8)))
+
+(defcine hs-kusari-ame-cine (a v :len 150 :hold 128)
+  "The ranged mode's Kikon 鎖雨 KUSARI-AME, pointer 1 散's (batch 3a, DUEL_HISAGI §28.14 / §28.16): 1 low behind him, the
+victim far ahead: the 散 stance, the arms flung wide, the hanging chains lifted and fanned out round him, a wind; 2 the
+tilt up: the orb splits open, 144 thin chains unroll out of it into the sky round the victim; 3 circling the victim:
+thirty lashes from every side, faster and faster, an ink line and a flinch each; 4 close on his chest: the last chain
+falls alone, its tip cracks on him: the flash, the Konpaku, the manga frame; 5 wide: the chains pulled back up into the
+orb, the curtain loose again: 鎖雨."
+  (during (0 150) (hs-ka-look a v cf))
+  ;; 1 (0-25) low behind him: the arms flung wide (f12), the curtain lifted and fanned out, the wind
+  (at 0 (hs-cine-stage a v 7.0) (cine-clip a :hs-cine-ka-spread :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-pose v 10) (freeze 10) (impact-frame :negative 2) (silence 25) (play-sfx :chain-rattle :pitch 0.8)
+      (shot-on a 170 3.4 0.45 :look 1.8) (lens 50))
+  (at 12 (play-sfx :whoosh-heavy :pitch 0.7) (play-sfx :chain-rattle :pitch 1.1))
+  ;; 2 (25-55) the tilt up to the orb: split open (f30-39), the thin chains unrolled (f34-55)
+  (at 25 (lens 54))
+  (during (25 55) (hs-kosa-tilt a cf))
+  (at 30 (play-sfx :chain-snap :pitch 0.5))
+  (at 34 (impact-frame :negative 1) (shake 0.2 0.4) (play-sfx :explode :pitch 0.5 :gain 0.5) (play-sfx :chain-rattle :pitch 0.6))
+  (at 44 (play-sfx :chain-rattle :pitch 0.8))
+  ;; 3 (55-100) circling the victim: the rain, 30 lashes (f58-98)
+  (at 55 (lens 46))
+  (during (55 100) (hs-ka-orbit v cf))
+  (when step-p (hs-ka-lashes v cf))
+  ;; 4 (100-120) close on his chest: the last chain alone, its tip on him (f110): the flash, the Konpaku
+  (at 100 (cine-clip v :sh-stagger :blend 4) (shot-on v 50 (if (portrait-p) 4.4 2.6) 1.0 :look 2.0) (lens 40) (silence 10)
+      (play-sfx :whoosh-heavy :pitch 1.4))
+  (at 110 (impact-frame :negative 2) (cine-clip v :sh-crumple :blend 1) (shake 0.4 0.45)
+      (play-sfx :hs-tip) (play-sfx :cut-heavy) (play-sfx :konpaku-shatter)
+      (multiple-value-bind (x y z) (actor-point v 1.25) (stamp :tip x y z) (focus-lines 10 x y z))
+      (cine-shatter v (fighter-kikon-n (fighter a))))
+  (at 112 (impact-frame :manga 10))
+  ;; 5 (120-150) wide: the chains pulled back up into the orb (f120-134), the curtain loose (f136); 鎖雨
+  (at 120 (cine-clip a :hs-k-stance :blend 14) (shot-on a 125 8.0 1.5 :look 2.4 :off -1.3) (lens 46)
+      (play-sfx :chain-rattle :pitch 0.5))
+  (at 124 (caption "鎖雨" :reading "KUSARI-AME" :sub "FUSHI NO KOJO  KIKON" :side 1 :hanko t)))
+
+;;; ---------------------------------------------------------------- 降鎖 KOSA's looks (its script above)
+(defun-fast %hs-ks-helix (top bot n)
+  "N chains twisted round each other from TOP down to BOT (f32vecs), as %HS-BUNDLE but its twist and radii read from
+*HS-KS-R* ([0] turns, [1] the radius at BOT, [2] at TOP, growing as u^3), so a rope can swell and unwind. 0 B."
+  (declare (type f32vec top bot) (fixnum n))
+  (let* ((p *hs-c0*) (q *hs-c1*) (rv *hs-ks-r*) (tw (aref rv 0)) (r0 (aref rv 1)) (r1 (aref rv 2))
+         (dx (- (aref top 0) (aref bot 0))) (dy (- (aref top 1) (aref bot 1))) (dz (- (aref top 2) (aref bot 2)))
+         (l (f-max 0.1f0 (f-hypot dx dy dz))) (ux (/ dx l)) (uy (/ dy l)) (uz (/ dz l))
+         (hl (f-hypot ux uz)) (ax (if (> hl 0.01f0) (/ uz hl) 1f0)) (az (if (> hl 0.01f0) (/ (- ux) hl) 0f0))
+         (bx (* uy az)) (by (- (* uz ax) (* ux az))) (bz (- (* uy ax))))
+    (declare (type f32vec p q rv) (single-float tw r0 r1 dx dy dz l ux uy uz hl ax az bx by bz))
+    (dotimes (c n)
+      (dotimes (i 15)
+        (let* ((u (/ (i->f i) 14f0)) (ph (+ (* 6.2831855f0 tw u) (/ (* 6.2831855f0 (i->f c)) (i->f n))))
+               (r (+ r0 (* (- r1 r0) u u u))) (cp (* r (f-cos ph))) (sp (* r (f-sin ph))))
+          (declare (single-float u ph r cp sp))
+          (setf (aref q 0) (+ (aref bot 0) (* u dx) (* cp ax) (* sp bx))
+                (aref q 1) (+ (aref bot 1) (* u dy) (* sp by))
+                (aref q 2) (+ (aref bot 2) (* u dz) (* cp az) (* sp bz)))
+          (when (> i 0) (vfx-hs-chain p q 0f0 0.9f0))
+          (replace p q)))))
+  nil)
+
+(defun-fast %hs-ks-end! (e ap vp cf)
+  "降鎖's rope end at cine frame CF (E := it; AP his feet, VP the victim's): swung in the lane's vertical plane round a
+point 1.6 m over his feet: hanging ahead (-40 degrees, 1.4 m) to f60; back over him (160, 3.4 m) by f68; slammed down
+3 m ahead (-27: on the floor) by f72, accelerating, lying there to f92; raised again (115: high over him, out to his
+reach to the victim) by f102; brought down on him (0.9 m up, 0.25 m short of his centre) f102-104, held. 0 B."
+  (declare (type f32vec e ap vp) (fixnum cf))
+  (let* ((dx (- (aref vp 0) (aref ap 0))) (dz (- (aref vp 2) (aref ap 2))) (d (f-max 0.5f0 (f-hypot dx dz)))
+         (ux (/ dx d)) (uz (/ dz d)) (f (i->f cf)) (r2 (f-hypot (- d 0.25f0) 0.7f0)) (ph 0f0) (r 3.4f0) (tg 0f0))
+    (declare (single-float dx dz d ux uz f r2 ph r tg))
+    (cond ((< cf 60) (setf ph -40f0 r 1.4f0))
+          ((< cf 68) (let ((k (%hs-ka-ease (/ (- f 60f0) 8f0)))) (declare (single-float k))
+                       (setf ph (+ -40f0 (* 200f0 k)) r (+ 1.4f0 (* 2.0f0 k)))))
+          ((< cf 72) (let ((x (/ (- f 68f0) 4f0))) (declare (single-float x)) (setf ph (- 160f0 (* 187f0 x x)))))
+          ((< cf 92) (setf ph -27f0))
+          ((< cf 102) (let ((k (%hs-ka-ease (/ (- f 92f0) 10f0)))) (declare (single-float k))
+                        (setf ph (+ -27f0 (* 142f0 k)) r (+ 3.4f0 (* (- r2 3.4f0) k)))))
+          (t (setf ph 115f0 r r2 tg (f-min 1f0 (/ (- f 101f0) 3f0)))))
+    (let* ((a (* 0.017453292f0 ph)) (h (* r (f-cos a))))
+      (declare (single-float a h))
+      (setf (aref e 0) (+ (aref ap 0) (* h ux)) (aref e 1) (f-max 0.05f0 (+ 1.6f0 (* r (f-sin a)))) (aref e 2) (+ (aref ap 2) (* h uz))))
+    (when (> tg 0f0)
+      (let ((k (* tg tg)) (tx (- (aref vp 0) (* 0.25f0 ux))) (tz (- (aref vp 2) (* 0.25f0 uz))))
+        (declare (single-float k tx tz))
+        (setf (aref e 0) (+ (aref e 0) (* k (- tx (aref e 0)))) (aref e 1) (+ (aref e 1) (* k (- 0.9f0 (aref e 1))))
+              (aref e 2) (+ (aref e 2) (* k (- tz (aref e 2))))))))
+  nil)
+
+(defun-fast %hs-ks-coil (jm cf)
+  "降鎖's chain wound up his right arm (JM his joints): the forearm from the wrist, then the upper arm, 80 links on over
+f2-22 (%HS-COIL-RUN), off again f120-133. 0 B."
+  (declare (type f32vec jm) (fixnum cf))
+  (let ((n (if (< cf 120) (min 80 (max 0 (* 4 (- cf 2)))) (max 0 (- 80 (* 6 (- cf 120)))))))
+    (declare (fixnum n))
+    (when (> n 0)
+      (%hs-coil-run jm (ji :lower-arm-r) 0.07f0 -0.235f0 -0.02f0 4.0f0 40 n)
+      (%hs-coil-run jm (ji :upper-arm-r) 0.08f0 -0.27f0 -0.04f0 3.5f0 40 (- n 40))))
+  nil)
+
+(defun-fast %hs-ks-rope (jm ap vp side cf)
+  "降鎖's giant rope (f30-136; HS-CINE-OF 3 hides the hook's bundle meanwhile): eight chains twisted from the orb's
+underside down to his right fist (JM his joints; AP his feet, VP the victim's), swelling f30-54 from the bundle's 5 cm
+to 26 cm (the orb pouring six chains spiralling down into it, f30-56), and from the fist out to its end (%HS-KS-END!)
+through a knee lagging 2 f (the swung rope's bend); hauled up into the orb f120-134 and unwound (its twist out, its
+radii opened). 0 B."
+  (declare (type f32vec jm ap vp) (fixnum side cf))
+  (when (and (>= cf 30) (< cf 136))
+    (%hs-ka-orb! side)
+    (let* ((c *hs-ka-c*) (top *hs-ka-p*) (kn *hs-ka-q*) (e *hs-ka-e*) (fs *hs-ks-f*) (rv *hs-ks-r*) (w *hs-c2*) (tt *hs-ka-t*)
+           (f (i->f cf)) (g (%hs-ka-ease (/ (- f 30f0) 24f0))) (up (%hs-ka-ease (/ (- f 120f0) 14f0))))
+      (declare (type f32vec c top kn e fs rv w tt) (single-float f g up))
+      (setf (aref top 0) (aref c 0) (aref top 1) (aref c 3) (aref top 2) (aref c 2))
+      (joint-point! fs jm (ji :weapon-r) 0f0 0f0 0f0)
+      (%hs-ks-end! kn ap vp (- cf 2))
+      (%hs-ks-end! e ap vp cf)
+      (dotimes (j 3) (setf (aref kn j) (+ (aref fs j) (* 0.5f0 (- (aref kn j) (aref fs j))))))
+      (when (> up 0f0)
+        (dotimes (j 3) (setf (aref fs j) (+ (aref fs j) (* up (- (aref top j) (aref fs j))))
+                             (aref kn j) (+ (aref kn j) (* up (- (aref top j) (aref kn j))))
+                             (aref e j) (+ (aref e j) (* up (- (aref top j) (aref e j)))))))
+      (setf (aref rv 0) (* 2.5f0 (- 1f0 up)) (aref rv 1) (+ 0.05f0 (* 0.21f0 g) (* 0.3f0 up)) (aref rv 2) (+ 0.45f0 (* 0.55f0 g) (* 0.6f0 up)))
+      (%hs-ks-helix top fs 8)                                    ; the feed: the orb down to his fist
+      (setf (aref rv 0) (* 1.0f0 (- 1f0 up)) (aref rv 1) (+ 0.05f0 (* 0.15f0 g) (* 0.3f0 up)) (aref rv 2) (+ 0.05f0 (* 0.21f0 g) (* 0.3f0 up)))
+      (%hs-ks-helix fs kn 8)                                     ; the swung part: the fist to the knee ...
+      (setf (aref rv 1) (+ 0.04f0 (* 0.13f0 g) (* 0.3f0 up)) (aref rv 2) (+ 0.05f0 (* 0.15f0 g) (* 0.3f0 up)))
+      (%hs-ks-helix kn e 8)                                      ; ... to its end
+      (when (< cf 56)                                            ; the pour
+        (dotimes (i 6)
+          (let ((age (- cf (+ 30 (* 3 i)))))
+            (declare (fixnum age))
+            (when (and (>= age 0) (< age 14))
+              (let* ((an (+ (* 1.0471976f0 (i->f i)) (* 0.12f0 f))) (s (+ 0.2f0 (* 0.5f0 (/ (i->f age) 14f0)))))
+                (declare (single-float an s))
+                (setf (aref w 0) (+ (aref c 0) (* 1.3f0 (f-cos an))) (aref w 1) (- (aref c 3) 0.1f0)
+                      (aref w 2) (+ (aref c 2) (* 1.3f0 (f-sin an))))
+                (dotimes (j 3) (setf (aref tt j) (+ (aref top j) (* s (- (aref fs j) (aref top j))))))
+                (%hs-chain2 w tt))))))))
+  nil)
+
+(defun-fast %hs-ks-crack (ap vp cf)
+  "降鎖's crack (f72-150; AP his feet, VP the victim's): a wide black zigzag split along the floor from where the rope
+struck 3 m ahead, back to 1.6 m (f72-76) and on to the victim (f72-86), a branch at every third kink; from f104 a star
+of eight cracks round his feet (the second blow); thinning out f130-150. 0 B."
+  (declare (type f32vec ap vp) (fixnum cf))
+  (when (>= cf 72)
+    (let* ((dx (- (aref vp 0) (aref ap 0))) (dz (- (aref vp 2) (aref ap 2))) (d (f-max 3.5f0 (f-hypot dx dz)))
+           (ux (/ dx d)) (uz (/ dz d)) (f (i->f cf))
+           (front (+ 3.0f0 (* (- d 3.0f0) (%hs-ka-ease (/ (- f 72f0) 14f0)))))
+           (back (- 3.0f0 (* 1.4f0 (%hs-ka-ease (/ (- f 72f0) 4f0)))))
+           (w (* 0.12f0 (f-clamp (/ (- 150f0 f) 20f0) 0f0 1f0))) (px 0f0) (pz 0f0))
+      (declare (single-float dx dz d ux uz f front back w px pz))
+      (dotimes (i 17)
+        (let* ((s (+ 1.6f0 (* (- d 1.4f0) (/ (i->f i) 16f0))))
+               (off (* (if (evenp i) 0.2f0 -0.2f0) (+ 0.5f0 (* 0.5f0 (hash01 (i->f i) 3.1f0)))))
+               (x (+ (aref ap 0) (* s ux) (* off (- uz)))) (z (+ (aref ap 2) (* s uz) (* off ux))))
+          (declare (single-float s off x z))
+          (when (and (> i 0) (<= s (+ front 0.2f0)) (>= s (- back 0.2f0)))
+            (let* ((ex (- x px)) (ez (- z pz)) (l (f-max 1f-3 (f-hypot ex ez))))
+              (declare (single-float ex ez l))
+              (%hs-black-kite (* 0.5f0 (+ x px)) 0.02f0 (* 0.5f0 (+ z pz)) (/ ex l) 0f0 (/ ez l) (* 1.1f0 l) w 0.02f0)
+              (when (= (mod i 3) 0)
+                (let ((sg (if (evenp i) 1f0 -1f0)))
+                  (declare (single-float sg))
+                  (%hs-black-kite (+ x (* sg 0.3f0 (- uz)) (* 0.15f0 ux)) 0.02f0 (+ z (* sg 0.3f0 ux) (* 0.15f0 uz))
+                                  (* sg (- uz)) 0f0 (* sg ux) 0.6f0 (* 0.5f0 w) 0.02f0)))))
+          (setf px x pz z)))
+      (when (>= cf 104)
+        (dotimes (i 8)
+          (let* ((an (+ (* 0.7853982f0 (i->f i)) (* 0.3f0 (hash01 (i->f i) 8.3f0)))) (cx (f-cos an)) (cz (f-sin an))
+                 (rr (+ 0.75f0 (* 0.35f0 (hash01 (i->f i) 9.1f0)))))
+            (declare (single-float an cx cz rr))
+            (%hs-black-kite (+ (aref vp 0) (* rr cx)) 0.02f0 (+ (aref vp 2) (* rr cz)) cx 0f0 cz 0.9f0 (* 0.6f0 w) 0.02f0))))))
+  nil)
+
+(defun hs-ks-look (a v cf)
+  "降鎖's looks (every frame): the chain wound up his arm, the giant rope, the crack."
+  (hs-cine-ink a)
+  (when (hs-cine-shown-p a)
+    (%hs-ks-coil (model-joints (model a)) cf)
+    (%hs-ks-rope (model-joints (model a)) (pos-of a) (pos-of v) (if (eq a *p1*) 0 1) cf))
+  (%hs-ks-crack (pos-of a) (pos-of v) cf)
+  (setf *hs-chain-black* 0))
+
+(defun hs-lane-at (a v s)
+  "X Z (values) of the point S m from A along the A -> V lane (a staging look)."
+  (let* ((p (pos-of a)) (q (pos-of v)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2))) (d (max 0.5 (hypot dx dz))))
+    (values (+ (aref p 0) (* s (/ dx d))) (+ (aref p 2) (* s (/ dz d))))))
+
+;; 降鎖's blow (twice: f60 and f92, 0.5 s): from the 聚 stance both fists heave the rope up and back over his head
+;; (JIBASHIRI's poses, f8), arched (f11), driven down into a kneel on f12 (the slam), held
+(defclip :hs-cine-ks-blow (0.5 :base :hs-k-st-shu)
+  (0)
+  (0.13 :hs-k-jib-up)
+  (0.18 :hs-k-jib-up (:spine :flex -22) (:arms :flex 178))
+  (0.2 :snap :hs-k-jib-hit)
+  (0.3 :hs-k-jib-hit (:root :u -0.54) (:spine :flex 52))
+  (0.5 :hs-k-jib-hit (:root :u -0.5) (:spine :flex 48)))
 

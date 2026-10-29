@@ -1590,7 +1590,7 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
                          :hs-cine-kr-spin :hs-cine-kr-pass :hs-cine-kr-chiburi) (setf lo (logior lo 8192)))))
                    (values 0 0 0 1)))
         (setf *hs-chain-black* 1 *hs-chain-ink* (if (eq e *p1*) 0 1))  ; (black, both forms; P2 the original ink: the user, 2026-10-18)
-        (when (< ck 5)                                                 ; (首掛 / 綴雷電: their scripts draw them, §26.6)
+        (unless (or (= ck 5) (= ck 6))                                 ; (首掛 / 綴雷電: their scripts draw them, §26.6)
           (%hs-draw (model-joints m) (pos-of e) fa (hss-anchor st) (pos-of o) a b n d (model-tint m) bolt lo))
         (when (> volt 0) (%hs-volt (model-joints m) (pos-of o) volt sf))   ; (§27.6: the lightning along the binding chain)
         (let ((wr (and mv (eq (fighter-contact f) :hit) (assoc cn *hs-kb-wraps*))))   ; (batch 2b: MATOI's chain wound round him)

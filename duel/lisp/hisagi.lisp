@@ -765,7 +765,7 @@ SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move
   :core (:ns (:hs-r-n1a :hs-r-n2a) :as (:hs-r-as1 :hs-r-as2 :hs-r-as3) :sa :hs-r-sa
          :as-writes (1 2 nil) :as-by-press (1 1 2 2 3)            ; (AS3 the switch: no pointer, §28.4)
          :stances (:hs-k-stance :hs-k-st-shu)                    ; (batch 2a, §28.11: the chains loose / the 聚 bundle at his right)
-         :kikon-cines (hs-kosa-cine hs-kosa-cine)                ; (re-used: 降鎖 for both until §28's 散 / 聚 are built)
+         :kikon-cines (hs-kusari-ame-cine hs-kosa-cine)          ; (batch 3a, §28.16: 散 鎖雨 / 聚 降鎖, rebuilt round the bundle)
          :range (3.0 4.5)                                        ; (the CPU walks to J1's band; its NS reach 4.5 m: no :ns-range shot)
          :mult 1.7)
   :hooks *hs-r-hooks*)
