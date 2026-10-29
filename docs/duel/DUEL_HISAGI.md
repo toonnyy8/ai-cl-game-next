@@ -4318,3 +4318,44 @@ Checks: duel-rules 10564 ALL PASS (the bands, the pushes, the tip by class), con
 (three new scenes): A4 2.5 m: WA hits 30 and pushes (3.94 m at ŌGI's start), ŌGI 37, ISSEI 56: 1300 → 1213; A5 5.75 m: WA whiffs, ŌGI on the
 tip and ISSEI carrying it: 1300 → 1187 (A1's same two hits at 4.5 m, no tip: → 1234, ×1.71); A6 2.5 m: TABA 50, TATAKI 57 and its push
 (3.11 m at ŌMEGURI's start), ŌMEGURI 86. The re-used clips still draw ŌGI / ISSEI / RANSA / TATAKI at their old reach (the motion pass).
+
+### 28.9 Batch 2's plan: the clips and the four stances (the lead's, 2026-10-29; for the user's 「可以」)
+
+The user: 「好，開始幫我執行下一步」 (after §28.8). The next step of §28.5's list is the looks: the Bankai's moves still play batch 1's
+borrowed clips, several moves share one clip, and the drawn reach no longer matches §28.7's bands. Rules (duel-motion-style): one
+theme a pointer (stance, NS, AS, Kikon), no two strikes with the same plane and hands, every opener's tell inside its S, the drawn tip on
+the volume (FK ±0.15 m). **The art follows the reach** (presentation only: the sim byte-identical, the scripted smoke's hash lines and
+`--cvc` unchanged). Sources: H a hanging chain, B the orb's bundle, R / L the crescents, Nh his hand on the noose (motion-refs §3.2–§3.3).
+
+| Slot (reach) | Now plays | Plan | Archetype / body |
+|---|---|---|---|
+| **散 stance** | `hs-k-stance` | keep | the chains hanging loose round him, the crescents point down (canon idle) |
+| NS1a 環 (0–3, 360°, push) | `hs-k-sensa` | re-map to `hs-k-saharai` (the old L, drawn r 3.0) | R4 reversed: the wrap bursts outward in a ring, arms flung open |
+| NS1b 扇 (3–6, 60°) | `hs-k-s-k2` (drawn 4.5) | redraw to 6 m | R6: a fan of hanging chains whipped forward low |
+| NS1c 一斉 (3–6, 160°) | `hs-k-s-k3` (4.5) | redraw to 6 m | R6: every hanging chain lashed forward at once |
+| AS1 乱鎖 (3–6, 160°) | `hs-k-s-k3` (= ISSEI) | new | R6 flurry: right, left, right lashes, the last one both arms |
+| SA 打 / gathered SA | `hs-k-kaeshi` / `hs-k-g-j2` (= J2 / J2s) | one new clip, the bundle by a draw hook | a quick flick of the nearest hanging chain (the bundle when 聚) |
+| **聚 stance** | `hs-k-kosa-aim` (the Kikon's aim) | new | the hanging chains wound into one bundle at his right side, the fist on it |
+| NS2a 束 (2.5–4.5 line) | `hs-k-g-k2` | keep (4.5) | the bundle arcs over and slams |
+| NS2b 叩 (0–3, 90°, push) | `hs-k-g-k2` (= TABA) | new | R9 close: the bundle swung overhead, smashed down right in front, the shock pushes him off |
+| NS2c 大旋 (2.5–4.5, 360°) | `hs-k-g-k3` | keep | the bundle hauled into a full spin |
+| AS2a 叩 (2.5–4.5, 90°) | `hs-k-g-k2` (= TABA) | new | R6 heavy: the bundle swept low L→R across the floor |
+| AS2b 地走 (2.5–4.5 line) | `hs-k-g-k2` tail (= TABA) | new | R9: the bundle driven into the floor, a crack running along the line |
+| AS3 投 NAGE (0–7 line) | `hs-k-kubikake` | keep | R3 → R2: whirled overhead, cast |
+| AS3 巻 MAKI (chase 7) | `hs-k-g-k2` (= TABA) | new | R4 on him: both hands circle, the chain spirals round him |
+| AS3 掛 KAKE (chase 7) | `hs-k-kubikake` (= NAGE) | new | R5: the chain over his shoulder, his back bent into the heave (the yank) |
+| **鎌 stance** | `hs-kb-stance` | keep | both crescents low and crossed |
+| NS1a 鉤寄 (hook to 6, drag) | `hs-kb-hikigiri` (2.6) | new | R2: the right crescent cast on its chain, hooked, reeled in |
+| NS1b 返鎌 (2.8, 140°) | `hs-kb-makigiri` | keep | the crescent swung out wide L→R |
+| NS1c 十字 (1.5, 200°) | `hs-kb-sogen` (= J5) | new | a big cross-cut, both crescents, a step in |
+| AS1 鉤寄斬 (hook to 6) | `hs-kb-hikigiri` (= KAGIYOSE) | new | the cast, the reel, then the right crescent's cut as he arrives |
+| **絞 stance** | `hs-st-bind` (= the Shikai's pointer 2) | new | the noose chain wound round the right fist, held taut up to the orb (reads apart from the Shikai hawser) |
+| NS2a 纏 (2.6 line, drag) | `hs-kb-hikigiri` (= KAGIYOSE) | new | R4: the left hand whips the chain round him, a 1 m drag |
+| NS2b 締 / AS2a 締 (2.8, 140°) | `hs-kb-makigiri` (= KAESHI-GAMA) | new (both, one strike) | R5: both fists pull the noose apart, cinching |
+| NS2c 絞首 (3.0, 120°) | `hs-kb-shibori` | keep | the canon gesture: a crescent raised, the chains cinch |
+| AS2b 吊 (3.0, launch) | `hs-kb-shibori` (= KŌSHU) | new | R5: the noose heaved up over the shoulder, lifting him |
+| bind SA 引寄 | `hs-kb-gen` (= J1) | keep for now | the drag is the move's (frame 0) |
+| bind AS3 解 / 散 / 放 | `hs-kb-makigiri` / `hs-kb-sogen` / `hs-kb-kaibaku` | keep 放, 解 / 散 later | the release |
+
+Count: 13 new clips, 2 redrawn reaches, 2 new stances, 1 re-map, 1 draw hook. Split in two worktrees: 2a the ranged mode, 2b the bind.
+Not in batch 2: the four Kikon cinematics (batch 3, storyboards first), the clash cue, the CPU's AS3.
