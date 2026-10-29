@@ -4703,3 +4703,6 @@ dart). Presentation only (the sim byte-identical).
 Looks shared by the plan: each path leaves its own ink trail (a flat smear for sweeps, a vertical ribbon for the snake / uppercut, a
 twisted streak for the drill, a straight speed line for the thrust / fling), so a link reads even in a still. The 聚 links stay one
 thick rope; the 散 links stay thin chains. New draw paths 0 B/frame; drawn reach checked by debug 83902 and the host check.
+
+The user's answer: 「散可以，然後聚改成三段攻擊」: the 散 rows approved (built now, batch 4a); the 聚 rows wait on what 「三段攻擊」 means
+(asked).
