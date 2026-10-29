@@ -411,3 +411,20 @@ over your fighter's legs (above the deck); both drafts move everything of yours 
   press. A keeps the straight bar but splits you between the bottom edge and 爆.
 - To build once picked: Lisp's 爆 spot (chip 7) moves for B only; the touch circle stays 3.7 U; the deck's line, the foe's plate and
   the clock tab are unchanged; the desktop HUD unchanged.
+
+### 10.1 Draft v7.1: 墨池, the flash-step gauge inside 爆 (the user, 2026-10-29; not built yet)
+
+> 「由於爆氣需要消耗閃步量表，那何不就直接將量表做進圓圈中呢？」
+
+Artifact version 9, both drafts. The rules as built (tuning.lisp): the gauge is 0–100, a Hoho costs `*fs-hoho*` 30, every Burst
+needs `*fs-burst*` 70 and drains it to 0 at `*burst-drain*` 18 / s, regen `*fs-regen*` 3 / s after `*fs-delay*` 60 f; plain Steps and
+Dashes are free (v7 wrongly spent a third per Step / Dash: corrected).
+
+- The gauge is the ink standing in the 爆 seal, its height = flash-step / 100 (the web HUD's three-cell split, 33.3 each, never matched
+  the 30 / 70 thresholds; the engine HUD's ticks did). Two marks on the far rim: 30 and 70.
+- Under 70 the rim and 爆 are dim; a tap shakes the seal and writes `NO BURST · 70`. Crossing 70 lights the rim and 爆 and pops the
+  seal once (armed). A running Burst drains the ink in its mode's colour (the engine's `*c-burst-white*` / `-blue*` / `-orange*`); a
+  Hoho drops it by 30 with a slosh. The 爆 glyph is drawn twice, paper over the empty part and ink over the ink.
+- A loses the outer three-arc ring (the cluster ~11 → ~9 U; the pointer seals move in, r 7.05 → 6.2 U); B's ring gap is left empty.
+- To build: 30156 (P1's flash-step ‰) drives the level; the armed / running state from the gauge and 30104's burst bits (ready /
+  can, §7.2); no Lisp change for the gauge itself.
