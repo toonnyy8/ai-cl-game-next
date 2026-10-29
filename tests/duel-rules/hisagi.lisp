@@ -400,6 +400,8 @@
     (check (notany #'fboundp '(hs-bind-drained! hs-bind-released! hs-bind-reel! hs-bind-step hs-bind-resolve hs-bind-pool
                                hs-bind-damage hs-bind-heal hs-bind-snapshot hs-binding hs-p-press hs-kubi-land hs-kaibaku-go
                                hs-try-bind! hs-bk-ok hs-bk-command hs-pull-step)))
+    ;; batch 3a (DUEL_HISAGI §28.16): the ranged pointers' own Kikon cinematics, 散 鎖雨 then 聚 降鎖
+    (check (equal (getf (kit-core kr) :kikon-cines) '(hs-kusari-ame-cine hs-kosa-cine)))
     ;; the grammar: two pointers a form, AS3 the switch (no pointer written, no Kikon), five J, the stances / cinematics per pointer
     (dolist (k (list kr kb))
       (let ((core (kit-core k)))

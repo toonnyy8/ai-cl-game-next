@@ -4706,3 +4706,73 @@ thick rope; the 散 links stay thin chains. New draw paths 0 B/frame; drawn reac
 
 The user's answer: 「散可以，然後聚改成三段攻擊」: the 散 rows approved (built now, batch 4a); the 聚 rows wait on what 「三段攻擊」 means
 (asked).
+
+### 28.16 As built: the ranged Kikon cinematics 鎖雨 KUSARI-AME and 降鎖 KŌSA (batch 3a, 2026-10-29)
+
+§28.14's two ranged tables (the user: 「分鏡可以」), presentation only: the Kikon strike (`:hs-r-kikon`'s 9 m lane, its frames, its
+Konpaku) is unchanged; only the script after its hit differs by pointer. The ranged kit's `:core :kikon-cines` is now
+`(hs-kusari-ame-cine hs-kosa-cine)` (pointer 1 散, pointer 2 聚; host-pinned in `tests/duel-rules/hisagi.lisp`). `hs-kosa-cine` keeps
+its name and its 150 f, so the form's own Kikon / Soul Break fallback (`kit-kikon-cine`) plays the rebuilt one. Both stage the victim
+7.0 m out (CINE-PLACE, given back at the end).
+
+**散 鎖雨 KUSARI-AME** (`hs-kusari-ame-cine`, 150 f, new, appended at the end of `hisagi-cine.lisp`):
+
+| Frames | As built |
+|---|---|
+| 0-25 | low behind him (170 degrees, 3.4 m, 0.45 m up), the victim small far ahead: `:hs-cine-ka-spread`, the arms gathered in (f5) and flung out to the sides (f12, a whoosh); the eight hanging chains lifted 1.7-2.0 m and flung 1.3 m further out from their rest over f0-18, fluttering ±9 degrees (`%HS-KA-CURTAIN`, drawn by the script: HS-CINE-OF 7 hides the hook's curtain to f136); 18 dark wind streaks spiralling out and up round him, gone by f30 (`%HS-KA-WIND`) |
+| 25-55 | the tilt up to the orb (KOSA's `HS-KOSA-TILT`), his face up, the arms risen: the orb splits (f30-35 a white crack zigzagged across its face toward the eye, widened and ink-rimmed f33-39, dimmed to 55 % after, `%HS-KA-SPLIT`; f34 a negative frame, a shake, a low boom); 144 thin chains unroll out of its underside (each over 7 f, starting f34-48) to knees 1.6-5.8 m round the victim and 5.6-8.4 m up, hanging 2.4-5.8 m below them (`%HS-KA-STRAND!`, `%HS-KA-SKY`: thin black kites, the dark sky of lines) |
+| 55-100 | circling the victim (`HS-KA-ORBIT`: 20 -> 200 degrees off his facing, 6 m, the phone 8.4, rising 1.3 -> 2.7 m): 30 lashes (`*HS-KA-HITS*`, f58 + 40 (1 - (1 - k/30)^3): 4 f apart at first, the last ones on the same frames, f98), strand 7k each so they come from every side (the golden angle); each end whipped down onto him over 4 f (drawn as the black chain while it lashes), held 2 f, recoiling over 10; on each new hit frame a flinch / stagger in turn, a chain snap rising in pitch, a cut every third, a small shake; an ink line across where it landed, tilted by turns, fading over 16 f, a white spark for 3 f (`%HS-KA-MARKS`); Hisagi brings his arms down on f60 (the rain let go) |
+| 100-120 | close on his chest (50 degrees, 2.6 m, the phone 4.4, aimed 2.0 m up), a 10 f silence: the last chain alone (`%HS-KA-LAST`) from 8 m over him, its tip (the chain-tip glint and a pale streak) falling from 4.6 m, accelerating, onto his chest 1.25 m up on f110: the negative, the `:tip` stamp (the white flash and the cross of light), the tip sound, the heavy cut, focus lines, the crumple, the Konpaku; f112 the manga frame |
+| 120-150 | wide (KOSA's last shot: 125 degrees, 8 m): the thin chains and the last one pulled back up into the orb (f120-134), the orb's split closing, the curtain lowered to its rest (f120-136) and handed back to the hook (f136); `:hs-k-stance`; 鎖雨 / KUSARI-AME / FUSHI NO KOJO KIKON with the hanko from f124 |
+
+**聚 降鎖 KŌSA rebuilt round the bundle** (`hs-kosa-cine`, 150 f, edited in place; its §22.5 looks `hs-kosa-rope` / `hs-kosa-crack`
+removed, `hs-kosa-tilt` / `hs-lane-shot` kept):
+
+| Frames | As built |
+|---|---|
+| 0-25 | low behind him (165 degrees, 3.0 m): the 聚 stance `:hs-k-st-shu` (the hook binds the eight into the bundle by its clip name); 80 links of chain winding up his right forearm and upper arm over f2-22 (`%HS-KS-COIL`, the awakening's coil runs), a snap at f22 |
+| 25-60 | the tilt up to the orb: the hook's bundle handed to the script's rope at f30 (HS-CINE-OF 3 now hides the curtain f30-120); the rope, eight chains twisted from the orb's underside down to his right fist, swells f30-54 from the bundle's 5 cm to 26 cm (`%HS-KS-ROPE`, `%HS-KS-HELIX`: %HS-BUNDLE with its twist and radii in an f32vec); the orb pours six chains spiralling down from its rim into it (f30-56) |
+| 60-90 | side-on, the long lens (15.5 m): `:hs-cine-ks-blow` (JIBASHIRI's poses: heaved up over his head f68, arched, driven down into a kneel on f72); the rope's free part (the fist, a knee lagging 2 f, its end: `%HS-KS-END!`) swung back over him (f60-68) and slammed down 3 m ahead (f72: the negative, a dust ring, the splash, the ground crack sound); a wide black zigzag crack (0.12 m) runs from there back to 1.6 m and on to the victim by f86, a branch at every third kink (`%HS-KS-CRACK`); f86 he staggers |
+| 90-120 | on the victim from behind his shoulder, Hisagi beyond him (130 degrees, 6 m, the phone 8, aimed 2.4 m up): the second blow, `:hs-cine-ks-blow` again from f92: the rope raised high over Hisagi (115 degrees) and out to its reach to the victim (f92-102), brought down on him f102-104: the negative, the crumple, the dust ring (3.2 m), a stage crack (no ink splash: a first draft's stood over him on this shot), a star of eight cracks round his feet; f106 the Konpaku; f108 the manga frame |
+| 120-150 | wide (125 degrees, 8 m): the rope hauled up into the orb and unwound (its twist out, its radii opened, f120-134); the arm's coil unwinds (f120-133); the curtain drops back out of the orb (f122-136); `:hs-k-stance`; 降鎖 / KOSA / FUSHI NO KOJO KIKON with the hanko from f120 |
+
+**Deviations from §28.14.**
+- 鎖雨 beat 1's 「a wind」 is 18 ink streaks round him (no sound of its own beyond the whoosh). The orb cannot open as a mesh: its
+  「splits open」 is a crack of light drawn on its face toward the camera (white kites, ink-rimmed), closed again in beat 5.
+- 鎖雨's 「hundreds of thin chains」 are 144 thin black kites (one each from the orb to its knee and on to its end); only a chain while it
+  lashes and the last one are drawn as real links (VFX-HS-CHAIN): the frame budget. The old SP2 clip `:hs-k-ame` (its chains dropped
+  along his lane) was not reused: it rains on a line, not round the victim.
+- 鎖雨 beat 1's 「low behind him」 is 170 degrees (KOSA's 165) to keep the victim in the frame between his legs; beat 5 frames both
+  (Hisagi mid-frame, the victim at the left) rather than 「him on the left」: the caption takes the right third.
+- 降鎖: the white card / silhouette of §22.5's beat 4 is gone (not in §28.14's table). The crack runs from where the first blow lands
+  (3 m), not from his feet. The rope's swing is drawn in the lane's vertical plane about a point 1.6 m over his feet; while he kneels
+  the rope still passes through his fist.
+- Hisagi's crescents: HS-CINE-OF 7 is the first code past 4 that keeps them in his hands, so HISAGI-DRAW's gate now skips %HS-DRAW only
+  for codes 5 / 6 (首掛 / 綴雷電, whose scripts draw his left sickle), not for every code >= 5 (the one edit in `hisagi-draw.lisp`).
+- The glyph 雨 was not baked: added to `glyphs-extra.lisp` (tools/glyph-bake.py's GLYPH on the same Yuji Syuku font; 綴 電 掛 re-baked
+  identical as a check).
+
+**Looks, 0 B.** Every new per-frame look is DEFUN-FAST on fixnums and f32vecs, derived from the cine frame alone (each chain's variety
+from HASH01; a held still and a play-through draw the same), the orb read from `*HS-ORB-V*` by the actor's side (the mirror's victim
+drawn after him changes nothing), the curtain's rest from %HS-REST-POLAR!. Segments are single camera-facing kites (`%HS-KA-SEG`:
+%HS-BLACK-KITE or FX-SHARD) because FX-LINE's float arguments box: a first draft with FX-LINE consed 13-200 KB per 10 calls.
+Debug 83995 / 83996 log `duel hisagi cine consing` (10 calls at a frame of each beat, measured twice): KUSARI-AME f10 0 f40 0 f70 0 f96 0
+f108 0 f126 0, KOSA f10 0 f40 0 f66 0 f76 0 f104 0 f126 0. (The probe's calls outside a frame overflow the fx buffer once, `fx-dropped`
+in the stats line; holding each beat afterwards (83970-83974, the rain's f40 / f78 / f107 redrawn every tick for 2.6 s) leaves the
+count where it was, 91664 for 鎖雨 and 91786 for KOSA in both aspects: the cinematic itself drops nothing.)
+
+**Debug.** 83995 (claimed, DUEL_GAMEPLAY "Debug commands") starts 鎖雨 from KOSA's scene (the ranged mode 7.5 m from an idle
+Kenpachi), as c 9 of HISAGI-CINE-DEBUG (c 7 / 8 went to the bind Kikons at the merge); 83996 is c 2 again, the rebuilt KOSA (83967 plays it too). 83970+b then holds beat b at
+`*hs-cine-beats*`: 鎖雨 (12 40 78 107 135), KOSA (12 42 75 106 135).
+
+**Checks.** Host: duel-rules 10649 ALL PASS, control 99 ALL PASS, cine-test 18 ALL PASS; pkgcheck 0 / 0 / 0; debug ranges 0 errors;
+`./build.sh duel` clean. The sim did not move: the scripted smoke (`duel-hisagi-bankai.json`, 75 s) gives hash and event lines identical
+to 50627b5's (154 lines, the diff empty; its 「G bind Kikon」 scene plays KOSHU); G2 `--cvc` 3 PASS. The real Kikon path, a control
+script per pointer (83016: the ranged mode 2.5 m from Kenpachi, 2510 + p, Shift+J held 1.6 s): pointer 1 `HS-R-N1A -> P2 HIT 26`,
+`KIKON FOLLOW-UP`, `KIKON on P2: -2 konpaku`, `cine HS-KUSARI-AME-CINE`; pointer 2 `HS-R-N2A -> P2 HIT 50`, `KIKON on P2: -3 konpaku`,
+`cine HS-KOSA-CINE`; both IDLE after. The whole frame conses 1.2-1.8 KB while either plays (the stats line; the script's plain
+DEFUN camera and staging, as §27.8 measured for 刈). No balance gates (the user's rule). Stills per beat
+from 83995 / 83996 + 83970+b at 1280x720 and 390x844 (`--mobile`), plus play-throughs at 17 frames each: nobody cut off but the
+close-ups meant to; on the phone both titles log `brush: caption … off the 1170x2532 screen` (right edge 1172.1, the same 2 px as
+降鎖 / 首掛 before: BRUSH's two-glyph hanko layout, not these scripts). Checked by numbers and stills, needs the user's eyes (the
+playtest).
