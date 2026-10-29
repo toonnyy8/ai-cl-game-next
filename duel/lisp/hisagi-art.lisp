@@ -1586,16 +1586,28 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:root :f 0.3 :u -0.3 :yaw 0) (:spine :flex 30) (:chest :twist 0) (:head :flex -4)
   (:arms :flex 88 :side 10) (:elbows :flex 0) (:hands :flex -90)
   (:thigh-l :flex 58 :side 10) (:knee-l :flex 50) (:thigh-r :flex -34 :side 12) (:knee-r :flex 16))
+;; §28.26 (batch 4d, the 聚 rhythm, the user: 「善哉，幫我套用」): NS2a 束 TABA plays it at 0.9 from clip f4.5 (move f5), so its
+;; keys sit at clip = 0.9 x move frame: the heave slow, barely moving then gathering (move f5-22), held coiled high behind him,
+;; trembling (move f22-27, clip 19.8-24.3), the U in its last 3 f (move f28-30), slammed on S; bent deeper a frame or two on
+;; (the overshoot), then rising slowly, heavily (K2's old second beat, the shove at f33, gone: a drag, not a second accent)
 (defstrike :hs-k-g-k2 (27 10 24 :base :hs-k-stance)
   (0 :hs-k-hosoku-bind)
-  (6 :hs-k-hosoku-bind (:root :u -0.14))
-  (16 :hs-k-gk2-up)
-  (24 :hs-k-gk2-up (:root :u -0.22 :yaw -34) (:spine :flex -26) (:arm-r :flex 170) (:arm-l :flex 160))           ; held
+  (4.5 :hs-k-hosoku-bind (:root :u -0.14))
+  (10 :snap (:root :u -0.15 :yaw -12) (:spine :flex 6) (:chest :twist -16) (:arm-r :flex 66 :side 38) (:arm-l :flex 86))   ; barely
+  (15.3 :snap :hs-k-gk2-up (:root :u -0.17 :f -0.08 :yaw -20) (:spine :flex -10) (:chest :twist -26)          ;  moving,
+        (:arm-r :flex 130) (:elbow-r :flex 80) (:arm-l :flex 124) (:elbow-l :flex 100))                       ;  gathering
+  (19.8 :snap :hs-k-gk2-up (:root :u -0.22 :yaw -34) (:spine :flex -26) (:arm-r :flex 170) (:arm-l :flex 160))   ; coiled,
+  (20.7 :hs-k-gk2-up (:root :u -0.24 :yaw -36) (:spine :flex -28) (:arm-r :flex 173) (:arm-l :flex 162))         ;  held,
+  (21.6 :hs-k-gk2-up (:root :u -0.21 :yaw -33) (:spine :flex -25) (:arm-r :flex 168) (:arm-l :flex 158))         ;  trembling
+  (22.5 :hs-k-gk2-up (:root :u -0.24 :yaw -35) (:spine :flex -28) (:arm-r :flex 172) (:arm-l :flex 162))
+  (23.4 :hs-k-gk2-up (:root :u -0.21 :yaw -33) (:spine :flex -25) (:arm-r :flex 168) (:arm-l :flex 159))
+  (24.3 :hs-k-gk2-up (:root :u -0.23 :yaw -35) (:spine :flex -27) (:arm-r :flex 171) (:arm-l :flex 161))
+  (25.2 :snap :hs-k-gk2-up (:root :u -0.18 :yaw -24) (:spine :flex -14) (:arm-r :flex 156) (:arm-l :flex 146))   ; the release
   (:s :snap :hs-k-gk2-hit)
-  (30 :hs-k-gk2-hit (:root :u -0.38) (:spine :flex 46))
-  (33 :snap :hs-k-gk2-shove)
-  (:a :hs-k-gk2-shove (:root :f 0.32))
-  (48 :hs-k-gk2-shove (:root :f 0.3 :u -0.28) (:spine :flex 28))
+  (28.8 :hs-k-gk2-hit (:root :f 0.2 :u -0.44) (:spine :flex 52) (:arms :flex 54))                              ; the overshoot
+  (31.5 :hs-k-gk2-hit (:root :u -0.39) (:spine :flex 47))
+  (:a :hs-k-gk2-hit (:root :u -0.37) (:spine :flex 44))
+  (50 :snap :hs-k-gk2-hit (:root :f 0.08 :u -0.22) (:spine :flex 24) (:arms :flex 40) (:hands :flex -86))       ; heavy, slow
   (:end :hs-k-stance))
 
 ;; gathered K3 束旋 SOKUSEN (27/5/34, link f6; the annulus 2.0-5.0 m, 360 deg, §25.5; ender): the haul: leaning back, the bundle
@@ -1617,19 +1629,30 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:arm-r :flex 30 :side 94 :twist 0) (:elbow-r :flex 2) (:hand-r :flex -90)
   (:arm-l :flex 20 :side 90 :twist 0) (:elbow-l :flex 4) (:hand-l :flex -90)
   (:thigh-l :flex 30 :side 16) (:knee-l :flex 40) (:thigh-r :flex 4 :side 18) (:knee-r :flex 38))
+;; §28.26 (batch 4d, the 聚 rhythm): NS2c 大旋 ŌMEGURI plays it at 0.9 from clip f6.3 (move f7), its keys at clip = 0.9 x move
+;; frame: the haul slow, barely moving then gathering, hand over hand (move f7-22, clip to 19.8), wound to his right, held
+;; trembling (move f22-27, clip 19.8-24.3), unwound into the spin in the last 3 f (move f28-30), the spin through the hits, on
+;; past (the overshoot), slowing, heavy
 (defstrike :hs-k-g-k3 (27 5 34 :base :hs-k-stance)
   (0 :hs-k-gk2-shove (:root :f 0.3 :u -0.28) (:spine :flex 28))
-  (6 :hs-k-gk2-shove (:root :f 0.28 :u -0.28) (:spine :flex 26))
-  (10 :hs-k-gk3-haul)
-  (15 :hs-k-gk3-haul (:arm-r :flex 70 :side 6) (:elbow-r :flex 40) (:arm-l :flex 40 :side 20) (:elbow-l :flex 100))
-  (20 :hs-k-gk3-up)
-  (26 :hs-k-gk3-up (:root :yaw -80 :u -0.32) (:chest :twist -46))                                                 ; held
+  (6.3 :hs-k-gk2-shove (:root :f 0.28 :u -0.28) (:spine :flex 26))
+  (10.8 :snap (:root :f 0.18 :u -0.26) (:spine :flex 16) (:arm-r :flex 70) (:elbow-r :flex 40))             ; barely moving
+  (15.3 :snap :hs-k-gk3-haul (:arm-r :flex 70 :side 6) (:elbow-r :flex 40) (:arm-l :flex 40 :side 20)      ; hauled hand
+         (:elbow-l :flex 100) (:root :yaw -24))                                                             ;  over hand
+  (19.8 :snap :hs-k-gk3-up (:root :yaw -80 :u -0.32) (:chest :twist -46))                                  ; wound,
+  (20.7 :hs-k-gk3-up (:root :yaw -83 :u -0.34) (:chest :twist -48))                                        ;  held,
+  (21.6 :hs-k-gk3-up (:root :yaw -79 :u -0.31) (:chest :twist -45))                                        ;  trembling
+  (22.5 :hs-k-gk3-up (:root :yaw -82 :u -0.34) (:chest :twist -48))
+  (23.4 :hs-k-gk3-up (:root :yaw -79 :u -0.31) (:chest :twist -45))
+  (24.3 :hs-k-gk3-up (:root :yaw -81 :u -0.33) (:chest :twist -47))
+  (25.2 :snap :hs-k-gk3-up (:root :yaw -64 :u -0.3) (:chest :twist -36))                                   ; the release
   (:s :snap :hs-k-gk3-hit)
   (29 :hs-k-gk3-hit (:root :yaw 60) (:chest :twist 30))
   (31 :hs-k-gk3-hit (:root :yaw 104) (:chest :twist 36) (:arm-r :side 100) (:arm-l :side 98))
-  (:a :hs-k-gk3-hit (:root :yaw 112 :u -0.22) (:chest :twist 38))
-  (44 :hs-k-gk3-hit (:root :yaw 70 :u -0.16) (:spine :flex 6) (:arm-r :flex 10 :side 60) (:arm-l :flex 10 :side 60))
-  (:end :hs-k-stance))
+  (:a :hs-k-gk3-hit (:root :yaw 116 :u -0.24) (:chest :twist 40))                                          ; the overshoot
+  (34 :hs-k-gk3-hit (:root :yaw 110 :u -0.22) (:chest :twist 38))
+  (48 :snap :hs-k-gk3-hit (:root :yaw 66 :u -0.16) (:spine :flex 6) (:arm-r :flex 10 :side 60) (:arm-l :flex 10 :side 60))   ; heavy,
+  (:end :hs-k-stance))                                                                                                        ;  slow
 
 ;;; Batch 4b (DUEL_HISAGI §28.20 / §28.21, the user, 2026-10-29: 「聚改成三段攻擊」「連同 SA 縮成三段 直刺 → 上撈 → 繞身連枷」): the
 ;;; gathered route SA > J2 > J3, each read apart by the bundle's own path (always the one thick bundle, *HS-BUNDLED*), each at its
@@ -1860,17 +1883,23 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:arm-l :flex 66 :side 6 :twist 0) (:elbow-l :flex 0) (:hand-l :flex -80)
   (:arm-r :flex 40 :side 34 :twist 0) (:elbow-r :flex 90) (:hand-r :flex -40)
   (:thigh-l :flex 66 :side 14) (:knee-l :flex 84) (:thigh-r :flex -8 :side 16) (:knee-r :flex 64))
+;; §28.26 (the 聚 rhythm): the wheel slow, barely moving then gathering (f9-24), held arched at the top trembling (f24-27), over
+;; and smashed in the last 3 f (f28-30); squatted deeper a frame on (the overshoot), risen slowly
 (defstrike :hs-k-tataki (30 10 27 :base :hs-k-stance)
   (0)
   (9 :hs-k-stance (:root :u -0.06))
-  (14 :hs-k-tataki-low)
-  (20 :hs-k-tataki-up)
-  (26 :hs-k-tataki-up (:spine :flex -26) (:head :flex -20) (:arm-l :flex 190))                          ; held at the top
-  (28 :hs-k-tataki-up (:root :u -0.04) (:spine :flex -6) (:arm-l :flex 130))                            ; over
+  (13 :snap (:root :u -0.09 :yaw 10) (:spine :flex 6) (:chest :twist 8) (:arm-l :flex -14 :side 18))         ; barely moving
+  (18 :snap :hs-k-tataki-low)                                                                               ; gathering
+  (24 :snap :hs-k-tataki-up (:spine :flex -26) (:head :flex -20) (:arm-l :flex 190))                       ; at the top,
+  (25 :hs-k-tataki-up (:root :u 0.06) (:spine :flex -28) (:head :flex -21) (:arm-l :flex 193))              ;  held arched,
+  (26 :hs-k-tataki-up (:root :u 0.03) (:spine :flex -25) (:head :flex -19) (:arm-l :flex 188))              ;  trembling
+  (27 :hs-k-tataki-up (:root :u 0.05) (:spine :flex -27) (:head :flex -20) (:arm-l :flex 191))
+  (28 :snap :hs-k-tataki-up (:root :u 0.0) (:spine :flex -14) (:arm-l :flex 162))                          ; over
   (:s :snap :hs-k-tataki-hit)
-  (34 :hs-k-tataki-hit (:root :u -0.44) (:spine :flex 48) (:arm-l :flex 60))                            ; the impact hold
+  (31 :hs-k-tataki-hit (:root :u -0.5) (:spine :flex 54) (:arm-l :flex 54))                                 ; the overshoot
+  (33 :hs-k-tataki-hit (:root :u -0.44) (:spine :flex 48) (:arm-l :flex 60))                                ; the impact hold
   (:a :hs-k-tataki-hit (:root :u -0.42) (:spine :flex 44))
-  (52 :hs-k-stance (:root :u -0.16) (:spine :flex 14))
+  (54 :snap :hs-k-stance (:root :u -0.18) (:spine :flex 16))                                                ; heavy, slow
   (:end :hs-k-stance))
 ;; AS2a 叩 (30/10/27, f9 on; 2.5-4.5 m, 90 deg): the low backhand: wound to his left, crouched, the right fist across his body
 ;; by his left knee, the left hand down to the floor (held f22-28); on S unwound to his right, the right arm swept out low
@@ -1885,15 +1914,23 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:arm-r :flex 112 :side 66 :twist 0) (:elbow-r :flex 4) (:hand-r :flex -90)
   (:arm-l :flex 30 :side 46 :twist 0) (:elbow-l :flex 10) (:hand-l :flex -60)
   (:thigh-l :flex 50 :side 14) (:knee-l :flex 64) (:thigh-r :flex 0 :side 18) (:knee-r :flex 56))
+;; §28.26 (the 聚 rhythm): wound to his left slowly, barely moving then gathering (f9-24), held crouched trembling (f24-27), the
+;; bundle whipped round onto the line in the last 3 f (f28-30), swept through, on past to his right (the overshoot), settled
 (defstrike :hs-k-sweep (30 10 27 :base :hs-k-stance)
   (0)
   (9 :hs-k-stance (:root :u -0.06))
-  (16 :hs-k-sweep-up)
-  (28 :hs-k-sweep-up (:root :u -0.38 :yaw 56) (:chest :twist 46))                                       ; held
+  (13 :snap (:root :u -0.12 :yaw 10) (:spine :flex 8) (:chest :twist 10) (:arm-r :flex 20 :side 0))         ; barely moving
+  (18 :snap :hs-k-sweep-up (:root :u -0.26 :yaw 30) (:spine :flex 20) (:chest :twist 24))                   ; gathering
+  (24 :snap :hs-k-sweep-up (:root :u -0.38 :yaw 56) (:chest :twist 46))                                     ; wound,
+  (25 :hs-k-sweep-up (:root :u -0.4 :yaw 58) (:chest :twist 48))                                            ;  held,
+  (26 :hs-k-sweep-up (:root :u -0.37 :yaw 55) (:chest :twist 45))                                           ;  trembling
+  (27 :hs-k-sweep-up (:root :u -0.39 :yaw 57) (:chest :twist 47))
+  (28 :snap :hs-k-sweep-up (:root :u -0.35 :yaw 46) (:chest :twist 36))                                     ; the release
   (:s :snap :hs-k-sweep-hit)
   (33 :hs-k-sweep-hit (:root :yaw -30) (:chest :twist -30) (:arm-r :flex 30 :side 80))                  ; through, to his right
+  (35 :hs-k-sweep-hit (:root :yaw -42) (:chest :twist -40) (:arm-r :flex 16 :side 82))                  ; the overshoot
   (:a :hs-k-sweep-hit (:root :yaw -36) (:chest :twist -34) (:arm-r :flex 20 :side 80))
-  (54 :hs-k-stance (:root :u -0.14) (:spine :flex 12))
+  (55 :snap :hs-k-stance (:root :u -0.16) (:spine :flex 14))                                            ; heavy, slow
   (:end :hs-k-stance))
 ;; AS2b 地走 JIBASHIRI (hit 36/4/27, S 30, f12 on; a line to 4.5 m, knockdown): both fists heave the bundle up over his head,
 ;; risen, arched (held f24-31); driven straight down into the floor at his feet as he drops to one knee (f34), the bundle's
@@ -1906,15 +1943,25 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:root :f 0.12 :u -0.52) (:spine :flex 50) (:chest :twist 0) (:head :flex -14)
   (:arms :flex 48 :side 8) (:elbows :flex 4) (:hands :flex -90)
   (:thigh-l :flex 80 :side 10) (:knee-l :flex 96) (:thigh-r :flex -14 :side 12) (:knee-r :flex 104))
+;; §28.26 (the 聚 rhythm): the heave slow, barely moving then gathering (f12-28), held overhead trembling (f28-33), driven in
+;; at f34 (the body leads the bundle by a frame), its end run out along the floor to S 36 with the crack; dropped deeper a frame
+;; on (the overshoot), risen slowly
 (defstrike :hs-k-jibashiri (36 4 27 :base :hs-k-stance)
   (0)
   (12 :hs-k-stance (:root :u -0.06))
-  (24 :hs-k-jib-up)
-  (31 :hs-k-jib-up (:spine :flex -22) (:arms :flex 178))                                                ; held
-  (34 :snap :hs-k-jib-hit)                                                                              ; driven in
+  (17 :snap (:root :u -0.05) (:spine :flex -2) (:head :flex 2) (:arms :flex 40 :side 10) (:elbows :flex 30))   ; barely moving
+  (23 :snap :hs-k-jib-up (:root :u -0.02) (:spine :flex -8) (:arms :flex 132) (:elbows :flex 40))             ; gathering
+  (28 :snap :hs-k-jib-up (:spine :flex -22) (:arms :flex 178))                                                ; overhead,
+  (29 :hs-k-jib-up (:root :u 0.04) (:spine :flex -24) (:arms :flex 181))                                      ;  held,
+  (30 :hs-k-jib-up (:root :u 0.01) (:spine :flex -21) (:arms :flex 176))                                      ;  trembling
+  (31 :hs-k-jib-up (:root :u 0.04) (:spine :flex -23) (:arms :flex 180))
+  (32 :hs-k-jib-up (:root :u 0.01) (:spine :flex -21) (:arms :flex 177))
+  (33 :snap :hs-k-jib-up (:root :u -0.1) (:spine :flex 8) (:arms :flex 120))                                  ; the release
+  (34 :snap :hs-k-jib-hit)                                                                                    ; driven in
   (:s :hs-k-jib-hit (:root :u -0.54) (:spine :flex 52))
+  (37 :hs-k-jib-hit (:root :u -0.58) (:spine :flex 56))                                                       ; the overshoot
   (:a :hs-k-jib-hit (:root :u -0.52) (:spine :flex 50))
-  (52 :hs-k-stance (:root :u -0.2) (:spine :flex 18))
+  (55 :snap :hs-k-stance (:root :u -0.22) (:spine :flex 20))                                                  ; heavy, slow
   (:end :hs-k-stance))
 ;; AS3b 巻 MAKI (27/10/24, f12 on; the chain to him up to 7 m, HS-R-LINK-SEG): both hands reeling in front of his chest, a key
 ;; every 3 f (the wind-up); the chain cast at him and spiralled round him on S (two turns rising, two strands, a key every
@@ -2544,14 +2591,21 @@ for the links).")
     (:hs-k-s-k3 255 0.45 0.85 7 50                  ; spread K3: all eight drawn back high behind him, lashed forward in a
      (9 1.7 2.6 110 20 0) (18 2.0 3.0 112 20 0.3) (20 2.2 2.8 114 20 0)       ;  160 deg fan (a third of a frame apart)
      (21 4.5 0.9 80 -22.857 0.6) (25 4.5 0.8 80 -22.857 0.2) (34 4.14 0.25 80 -22.857 -0.6))
-    (:hs-k-g-k2 256 0 1.0 6 58                      ; gathered K2: the bundle heaved up behind him, over: the U onto 4.5 m,
-     (9 1.2 2.2 -60 0 0) (16 1.4 4.4 -150 0 0.4) (24 1.6 4.8 -158 0 0.5)       ;  then its tail lashed flat along the ground at
-     (26 0.6 5.4 -20 0 0) (27 4.5 0.25 0 0 2.4) (30 4.5 0.2 0 0 1.4)           ;  4.5 m (the L; §25.5: K 2-5 m; §25.35: 2.5-4.5), left lying
-     (31 4.14 0.12 0 0 -0.4) (33 4.5 0.1 0 0 -1.6) (36 4.5 0.1 0 0 -1.8) (46 4.41 0.05 0 0 -2.0))   ;  flat ahead
-    (:hs-k-g-k3 256 0 1.0 5 58                      ; gathered K3: the lying bundle hauled in and round to his right, whirled
-     (6 4.41 0.05 0 0 -2.0) (14 4.5 0.15 -10 0 -1.2) (20 4.5 0.4 -60 0 -0.4)    ;  round him at 4.5 m (a key each 90 deg)
-     (25 4.5 0.6 -100 0 0) (26 4.5 0.7 -110 0 0) (27 4.5 0.8 -20 0 0.3) (28 4.5 0.8 70 0 0.3) (29 4.5 0.8 160 0 0.3)
-     (30 4.5 0.8 250 0 0.3) (31 4.5 0.8 340 0 0.3) (34 4.32 0.6 380 0 0) (42 3.96 0.3 400 0 -0.4))
+    (:hs-k-g-k2 256 0 1.0 5 58                      ; gathered K2 / NS2a TABA: the bundle heaved up behind him, over: the U
+     (10 1.2 1.6 -55 0 0) (15.3 1.35 3.5 -125 0 0.25) (19.8 1.55 4.7 -155 0 0.45)   ;  onto 4.5 m on the line (§25.35: 2.5-4.5),
+     (20.7 1.59 4.77 -156 0 0.5) (21.6 1.53 4.69 -154 0 0.42) (22.5 1.59 4.78 -156 0 0.5)   ;  left lying flat ahead. §28.26 (the 聚
+     (23.4 1.53 4.7 -154 0 0.43) (24.3 1.57 4.75 -155.5 0 0.48)                       ;  rhythm, clip = 0.9 x move f): heaved
+     (25.2 0.9 5.5 -70 0 0.2) (26.1 2.6 3.6 -8 0 1.2) (27 4.5 0.25 0 0 2.4)          ;  slowly (to clip 19.8), held trembling,
+     (27.9 4.5 0.45 0 0 0.6) (28.8 4.45 0.15 0 0 -0.6) (29.7 4.5 0.1 0 0 -1.2)       ;  the U in 3 f (1.9 / 3.0 / 3.9 m), its end
+     (36 4.42 0.08 0 0 -1.6) (46 4.1 0.05 -3 0 -1.9))                                ;  jolting up off the floor, dragged in slowly
+    (:hs-k-g-k3 256 0 1.0 5 58                      ; gathered K3 / NS2c ŌMEGURI: the lying bundle hauled in and round to his
+     (6 4.41 0.05 0 0 -2.0) (10.8 4.3 0.08 -5 0 -1.8) (15.3 3.6 0.25 -40 0 -0.9)   ;  right, whirled round him at 4.5 m (a key
+     (19.8 2.9 0.5 -92 0 -0.2)                                                      ;  each 90 deg). §28.26 (the 聚 rhythm, clip
+     (20.7 2.95 0.54 -94 0 -0.15) (21.6 2.86 0.48 -91 0 -0.22) (22.5 2.94 0.53 -94 0 -0.16)   ;  = 0.9 x move f): hauled in
+     (23.4 2.87 0.49 -91 0 -0.21) (24.3 2.9 0.52 -93 0 -0.18)                       ;  slowly, held wound to his right trembling,
+     (25.2 3.3 0.6 -78 0 0) (26.1 3.9 0.7 -52 0 0.2)                                ;  unwound out into the spin (3 f, growing),
+     (27 4.5 0.8 -20 0 0.3) (28 4.5 0.8 70 0 0.3) (29 4.5 0.8 160 0 0.3)           ;  the spin, on past, slowing
+     (30 4.5 0.8 250 0 0.3) (31 4.5 0.8 340 0 0.3) (32.4 4.45 0.72 372 0 0.2) (35 4.3 0.55 392 0 0) (43 3.96 0.3 402 0 -0.4))
     ;; batch 4b (§28.21): the gathered route SA > J2 > J3, each its own path, 4.5 m inside +-45 on its hit frames; batch 4c
     ;; (§28.23 / §28.24, the user: 「每個時間點的節奏都一樣快速反而表現不出『聚』的攻擊張力」): each the 聚 rhythm, a slow eased
     ;; charge (one key 4 f or more on: smoothstep), a held coil trembling (keys a frame apart), the release in the last 2-3 f
@@ -2607,18 +2661,28 @@ for the links).")
     (:hs-k-ransa 57 0.25 0.9 8 50                   ;  the other four (0 3 4 5) with both arms, a V fan (f25)
      (12 1.6 3.4 160 -106.67 0.2) (24 1.8 3.8 160 -106.67 0.3)
      (25 6.0 0.6 70 -46.67 0.6) (26 6.0 0.3 70 -46.67 0.2) (28 6.0 0.1 70 -46.67 -0.4) (36 5.5 0.05 70 -46.67 -0.7))
-    (:hs-k-tataki 256 0 1.0 9 64                    ; NS2b 叩: the bundle wheeled at his left, over the top, smashed at 3.0
-     (12 1.0 0.8 60 0 0) (15 1.5 0.5 150 0 0.2) (18 1.3 2.6 170 0 0.4) (22 1.0 4.6 175 0 0.5)
-     (26 0.7 5.4 170 0 0.4) (28 1.4 4.6 60 0 0.6) (29 2.4 2.4 10 0 0.6) (30 3.0 0.15 0 0 0.8)
-     (32 3.0 0.1 0 0 0.2) (34 3.0 0.1 0 0 -0.4) (40 2.9 0.05 0 0 -0.8) (52 2.2 0.05 0 0 -1.0))
-    (:hs-k-sweep 256 0 1.0 9 64                     ; AS2a 叩: the bundle drawn round to his left, swept along the floor
-     (12 1.2 0.5 -40 0 0) (18 1.6 0.3 70 0 -0.2) (24 2.0 0.2 120 0 -0.3)        ;  L -> R at 4.5 (f30-33, +45 .. -45)
-     (28 2.4 0.2 125 0 -0.3) (29 3.4 0.2 90 0 0.2) (30 4.5 0.15 45 0 0.4) (31 4.5 0.12 15 0 0.3)
-     (32 4.5 0.12 -15 0 0.3) (33 4.5 0.15 -45 0 0.2) (35 4.3 0.2 -80 0 0) (42 3.8 0.1 -100 0 -0.4) (52 3.0 0.05 -100 0 -0.6))
+    ;; §28.26 (batch 4d, the 聚 rhythm on NS2 / AS2, the user: 「善哉，幫我套用」): each a slow eased charge, a held coil
+    ;; trembling (keys a frame apart), the release in the last 2-3 f, a jolt or overshoot on the hit, a slow follow-through
+    (:hs-k-tataki 256 0 1.0 9 66                    ; NS2b 叩: the bundle wheeled at his left, over the top, smashed at 3.0:
+     (13 1.15 0.75 20 0 0.05) (18 1.1 0.5 150 0 0.2) (21 1.0 2.3 162 0 0.35)    ;  wheeled down and back, up over his head
+     (24 0.7 4.9 171 0 0.45)                                                    ;  slowly (f9-24, gathering), held
+     (25 0.75 4.98 168 0 0.5) (26 0.67 4.86 173 0 0.42) (27 0.73 4.94 170 0 0.48)   ;  trembling (f24-27),
+     (28 1.2 4.8 100 0 0.55) (29 1.9 3.4 30 0 0.6) (30 3.0 0.15 0 0 0.8)        ;  over and down in 3 f (f28-30),
+     (31 2.98 0.35 0 0 0.1) (32 3.0 0.1 0 0 -0.4) (33 2.97 0.08 0 0 -0.5)       ;  its end jolting up off the floor,
+     (40 2.85 0.05 0 0 -0.8) (52 2.2 0.05 0 0 -1.0))                            ;  dragged in slowly
+    (:hs-k-sweep 256 0 1.0 9 66                     ; AS2a 叩: the bundle drawn round to his left, swept along the floor
+     (13 1.25 0.5 -20 0 0) (18 1.6 0.3 60 0 -0.2) (24 2.3 0.2 122 0 -0.3)       ;  L -> R at 4.5 (f30-33, +45 .. -45): drawn
+     (25 2.35 0.22 125 0 -0.28) (26 2.28 0.2 121 0 -0.32) (27 2.34 0.22 124 0 -0.3)   ;  round slowly (f9-24), held trembling
+     (28 2.7 0.2 112 0 -0.1) (29 3.6 0.18 82 0 0.2) (30 4.5 0.15 45 0 0.4)      ;  (f24-27), whipped round onto the line in
+     (31 4.5 0.12 15 0 0.3) (32 4.5 0.12 -15 0 0.3) (33 4.5 0.15 -45 0 0.2)     ;  3 f (f28-30), swept, on past (the
+     (34 4.4 0.2 -66 0 0.05) (35 4.3 0.2 -80 0 0) (42 3.8 0.1 -100 0 -0.4) (52 3.0 0.05 -100 0 -0.6))   ;  overshoot), slowing
     (:hs-k-jibashiri 256 0 1.0 12 66                ; AS2b 地走: the bundle heaved overhead, driven down at his feet (f34),
-     (16 1.0 2.4 -40 0 0.2) (24 0.8 4.4 -20 0 0.3) (31 0.6 5.0 -10 0 0.3)       ;  run out along the floor to 4.5 (S 36)
-     (33 1.0 1.2 0 0 0.6) (34 1.4 0.05 0 0 0) (35 3.0 0.05 0 0 -0.6) (36 4.5 0.05 0 0 -0.9)
-     (40 4.5 0.05 0 0 -1.0) (46 4.3 0.05 0 0 -1.2) (56 3.0 0.1 0 0 -0.6))
+     (17 1.15 1.4 -36 0 0.05) (23 0.9 3.6 -24 0 0.22) (28 0.6 5.0 -10 0 0.3)    ;  run out along the floor to 4.5 (S 36):
+     (29 0.64 5.08 -12 0 0.32) (30 0.57 4.95 -9 0 0.28) (31 0.63 5.06 -11 0 0.32)   ;  heaved slowly (f12-28), held trembling
+     (32 0.58 4.97 -9 0 0.29) (33 0.6 5.04 -10 0 0.3)                           ;  (f28-33), driven in (f34) and run out
+     (34 1.4 0.05 0 0 0) (35 3.0 0.05 0 0 -0.6) (36 4.5 0.05 0 0 -0.9)         ;  (f35-36: the release), its end jolting
+     (37 4.5 0.2 0 0 -0.4) (38 4.48 0.05 0 0 -1.0) (39 4.5 0.05 0 0 -1.0)      ;  up off the floor (f37), dragged in slowly
+     (46 4.3 0.05 0 0 -1.2) (56 3.0 0.1 0 0 -0.6))
     (:hs-k-maki 3 1.5 0.9 12 58                     ; AS3b 巻: hanging chains 0 1 cast at him (5.0 authored: *HS-LK-REACH*
      (14 2.0 1.6 30 0 0.6) (20 3.6 1.4 10 0 0.5) (24 4.5 0.4 0 0 0.3)           ;  puts 5.0 on him), spiralled round him two
      (25 5.0 0.5 5.7 0 0.2) (26 5.5 0.6 0 0 0.2) (27 5.0 0.7 -5.7 0 0.2) (28 4.5 0.8 0 0 0.2)   ;  turns rising (0.5 m round
@@ -2689,10 +2753,12 @@ links bound throughout): K1 綁束 binds them, the gathered links strike with th
 (defparameter *hs-spins*
   '((:hs-k-saben 5 12 20 0.5) (:hs-k-kaeshi 4 10 18 -0.5) (:hs-k-sensa 3 10 22 1.0) (:hs-k-saharai 2 18 32 2.0)   ; (§28.19: J2 / J5 at S 10)
     (:hs-k-raiden 7 20 30 0.5) (:hs-k-ame 8 30 50 1.0) (:hs-k-kosa 7 20 30 0.5) (:hs-k-kubikake 5 24 34 1.0)
-    (:hs-k-hosoku 6 16 26 1.0) (:hs-k-s-k2 9 21 30 0.5) (:hs-k-s-k3 8 21 32 0.75) (:hs-k-g-k2 8 27 40 0.75)
-    (:hs-k-g-k3 6 27 36 1.0) (:hs-k-g-j2 11 19 28 0.5) (:hs-k-g-j3 2 19 30 1.25)   ; (§28.21: J3 with its wrap; §28.24: J2 from its hold)
+    (:hs-k-hosoku 6 16 26 1.0) (:hs-k-s-k2 9 21 30 0.5) (:hs-k-s-k3 8 21 32 0.75) (:hs-k-g-k2 19.8 27 40 0.75)
+    (:hs-k-g-k3 19.8 27 36 1.0) (:hs-k-g-j2 11 19 28 0.5) (:hs-k-g-j3 2 19 30 1.25)   ; (§28.21: J3 with its wrap; §28.24: J2 from its hold;
+                                                                                   ;  §28.26: K2 / K3G from theirs, clip f)
     (:hs-k-uchi 3 10 16 0.4) (:hs-k-ogi 9 21 30 0.5) (:hs-k-issei 8 21 32 0.75) (:hs-k-ransa 8 21 32 1.0)   ; (§28.11)
-    (:hs-k-tataki 9 30 40 0.5) (:hs-k-sweep 9 30 40 -0.75) (:hs-k-jibashiri 12 36 46 0.5) (:hs-k-maki 12 27 40 1.5)
+    (:hs-k-tataki 24 30 40 0.5) (:hs-k-sweep 24 30 40 -0.75) (:hs-k-jibashiri 28 36 46 0.5)   ; (§28.26: from the hold)
+    (:hs-k-maki 12 27 40 1.5)
     (:hs-k-kake 8 24 34 -0.5)
     (:hs-k-na3 3 10 18 -0.5) (:hs-k-na4 3 10 18 0.5)   ; (§28.15)
     (:hs-k-g-sa 6 13 20 0.3))   ; (§28.21; §28.24: from the hold)
