@@ -535,3 +535,14 @@ edge, still under B's stance seals and the pointer's name. C's label unchanged.
 
 Artifact version 21: C's `SP 技` label leaves its place over the slanted bar (6 % down, 46 % across) for A / B's (§10.10, §10.12):
 5 % in from the thumb's edge, `calc(44% - .8cm)` down the deck, above C's bar there. All three drafts now share it.
+
+### 10.14 Draft v7.14: the SP / ATK line's ends moved in (the user, 2026-10-29)
+
+> 「幫我將 SP / ATK 分割線的下界上移 1 cm，上界下移 0.5 cm」
+
+Artifact version 22: the split line's upper (far) end moves from the deck's top edge to 0.5 cm under it, its lower (thumb) end
+from 70 % down the deck to `calc(70% - 1cm)`. The deck carries both ends as `--y0: .5cm` / `--y1: calc(70% - 1cm)`; the SP / ATK
+zones' clip paths, the line (now a 2 px clip-path band instead of an SVG line, mirrored per hand), C's slanted Reishi bar (its far
+end 0.5 cm down, its rise `25.9cqh - 1.5cm`) and the draft's touch split (`isSp`, in CSS cm scaled to the phone) all read them.
+The SP label (§10.12) stays above the line at the thumb's edge in A, B and C, both hands. Draft only: the game's touch split
+(`onehand.lisp`) is unchanged until a version is chosen.
