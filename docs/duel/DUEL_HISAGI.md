@@ -4429,6 +4429,9 @@ and the match camera for all seven, and the three stances side by side from the 
 hawser by strip 83536 view 2). In SHIME's and TSURI's strips frames 0 and S/3 fall before their `:enter`, frames the game never plays.
 
 For the user's eyes (checked by numbers): the 絞 stance's chain up to the orb runs near the neck bundle from the behind camera (the
-raised fist and the wound wrist carry the read); KAGIYOSE-GIRI's cut is a look after the hit (the hook does the damage);
+raised fist and the wound wrist carry the read); KAGIYOSE-GIRI's cut is a look after the hit (the hook does the damage, the held
+rod's reach in the cut not measured); open: the reels take the victim's distance but are drawn along Hisagi's facing (az 0), while
+`hs-chain-seg-to` aims at the victim's bearing, so a victim off his facing (> ~3° at 6 m, a step in the 18 f startup) sees the crescent
+beside him (every check here had him dead ahead; the fix, the bearing in `*hs-lk*` read by `%hs-letout!`, touches batch 2a's code);
 `hs-kb-hikigiri` and `hs-st-bind` stay (the old K1's strip, the Shikai's pointer 2 stance). Not in 2b: the Kikon cinematics, the
 clash cue, the ranged mode (batch 2a).
