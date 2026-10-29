@@ -382,3 +382,32 @@ To build: P1's phone Reishi fill anchors at the thumb's side (hud.css; the engin
 - **Soul flames**: each flame flickers on its own beat (three periods 1.35 / 1.6 / 1.9 s, transform only); a spent one bursts
   (the shatter, the flame fading after 0.15 s) and leaves a grey dot (0.38 U) where it stood.
 - Checks: touch / control host tests, pkgcheck, `--cvc` (the sim untouched), phone shots both hands (see DEVLOG §467).
+
+## 10. Draft v7: A 落款 / B 鍔, clearing the phone's middle (the user, 2026-10-29; not built yet)
+
+> 「請幫我嘗試以下兩種設計，並產出對應的 Artifact 設計稿供我參考。1. 將我方的血量與魂魄放到最下面，並將閃步量表結合進爆氣鍵當中，當前架式提示
+> 也放置爆氣鍵周遭減少視覺遮蔽。2. 基於 1，但是將血量與魂魄都整合到爆氣鍵周遭。」 (with the award-tier OBJECTIVE / CHECK / LOOP brief)
+
+Artifact version 8 (the same draft; phone only, both drafts side by side, one at a time under 880 px; right / left hand; scenes
+neutral, flash step, stance, combo, hurt, danger · ready, Kikon hold; an anatomy overlay naming the parts). Why: §9's plate sits
+over your fighter's legs (above the deck); both drafts move everything of yours off the middle.
+
+- **A 落款** (rakkan, the signature at a scroll's foot): your Reishi stroke (1.3 U) and the nine flames + name + tag run along the
+  screen's bottom edge, 3.6 U over it (clear of the home indicator). The thumb's root covers that edge's thumb-side end, so the stroke
+  is anchored at the far side and damage eats it from the thumb's side (the left hand mirrored). 爆 stays where it is
+  (`*chip-spots*` chip 7). Round it: the awakening as a gold ring at 4.25 U (clockwise from the top), the flash step as three
+  110 deg arcs at 5.05 U (10 deg gaps; a Step / Dash / Hoho spends one: it flashes, drops to slate, refills); the three pointer seals
+  on an arc at 7.05 U on the seal's inner side (302 / 270 / 238 deg, the left hand mirrored), the pointer's name beside them; the 覺
+  tab on top when ready. The callout and your combo sit on the far side over the deck (6.4 / 9.6 U up).
+- **B 鍔** (tsuba): A, with the Reishi and Konpaku also on 爆: one guard (a 木瓜 four-lobed plate, r 6.5 U) centred 9.4 U from
+  the thumb's edge and 2.8 U over the deck (A's 爆: 6.7 / −5 U), so the flames stay on screen. The Reishi is a 270 deg ring (r 5.45 U,
+  1.06 U thick) from 7:30 over the top to 4:30, anchored at the far end (it drains from the thumb's side), blood ghost behind it; its
+  bottom gap holds the flash step's three 18 deg pips; the nine flames stand round the top (r 7.35 U, 290–90 deg, spent ones from the
+  thumb's side, grey dots); the gold awakening ring hugs the seal, ready = the seal's `RV` becomes 覺; the pointer seals at 7.75 U
+  (258 / 232 / 206 deg); your name, the tag and the pointer's name as a caption on the inner side. A hit on you nicks the guard (a
+  0.26 s shake; A: the bottom line).
+- Trade-offs (as told to the user): B leaves the top half to the foe and the clock and needs one glance, but an arc's length reads
+  worse than a bar's for "how much is left", and the guard (~16 U across, A's cluster ~11 U) is covered bottom-right by the thumb on a
+  press. A keeps the straight bar but splits you between the bottom edge and 爆.
+- To build once picked: Lisp's 爆 spot (chip 7) moves for B only; the touch circle stays 3.7 U; the deck's line, the foe's plate and
+  the clock tab are unchanged; the desktop HUD unchanged.
