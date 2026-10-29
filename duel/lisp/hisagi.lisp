@@ -847,6 +847,7 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (bind-arm nil)                              ; the ranged AS3's KAKE hit: the bind starts when that move ends
   (unbind nil)                                ; the bind AS3's HANATSU ran: the bind ends when that move ends
   (gather nil)                                ; a 聚 (pointer 2) segment came out in this combo: the gathered J2-J5 (HS-R-LINK-MOVE)
+  (even-a -1 :type fixnum) (even-b -1 :type fixnum)   ; the moves (their FIGHTER-CLS-T) of his and the foe's last balance (§28.6)
   (pool 0f0 :type single-float)               ; (§17's, read only by his old Bankai CPU in hisagi-ai.lisp, which no longer runs)
   (r0 0 :type fixnum) (k0 0 :type fixnum)     ; (the same)
   (or0 0 :type fixnum) (ok0 0 :type fixnum)   ; (the same)
@@ -1208,10 +1209,13 @@ kept exactly), the lower one at most up to his own max (MAX-A / MAX-B). Values A
         (let ((m (max 0 (min m (- max-a a))))) (values (+ a m) (- b m))))))
 (defun hs-bind-clash (e o)
   "The bind mode's :clash hook (CORE-CLASH!: once a step for the pair): while E binds, his and O's Reishi even out by
-*HS-BIND-EVEN* of their gap (HS-BIND-EVEN); Konpaku untouched (§28: Reishi only, Konpaku untouched). In the mirror with
-both bound, side 0 balances for the pair."
-  (let ((st (hs e)) (os (hss o)))
-    (when (and (hss-bound st) (not (and os (hss-bound os) (< (fighter-side (fighter o)) (fighter-side (fighter e))))))
+*HS-BIND-EVEN* of their gap (HS-BIND-EVEN); Konpaku untouched (§28: Reishi only, Konpaku untouched). Once an exchange: the
+same two moves clashing again balance nothing (§28.6, the user 2026-10-29: 「只算一次」). In the mirror with both bound, side 0
+balances for the pair."
+  (let ((st (hs e)) (os (hss o)) (ka (fighter-cls-t (fighter e))) (kb (fighter-cls-t (fighter o))))
+    (when (and (hss-bound st) (not (and os (hss-bound os) (< (fighter-side (fighter o)) (fighter-side (fighter e)))))
+               (not (and (= ka (hss-even-a st)) (= kb (hss-even-b st)))))
+      (setf (hss-even-a st) ka (hss-even-b st) kb)
       (let* ((g (gauges e)) (go (gauges o)) (a (gauges-reishi g)) (b (gauges-reishi go)))
         (multiple-value-bind (a2 b2) (hs-bind-even a b (gauges-reishi-max g) (gauges-reishi-max go))
           (setf (gauges-reishi g) a2 (gauges-reishi go) b2)

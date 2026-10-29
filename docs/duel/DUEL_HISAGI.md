@@ -4238,3 +4238,38 @@ release); `:mult` per mode (Shikai 1.7, to be measured); the Breaker and Hoho as
 - Open for the user: (1) one exchange can balance twice (a cancel, then another 13 f later: 400 / 1300 → 596 / 1104, the gap −44 %);
   (2) the old bind's ×1.3 within 1.2 m (`hs-dmg-mult`) still applies, and the ranged tip ×1.71; the two Bankai kits' own damage × is 1.0
   (the Shikai 1.15) under the core `:mult` 1.7.
+
+### 28.6 The user's answers to §28.5's open points, and the ranged mode's reach table (2026-10-29)
+
+The user: 「1. 只算一次 2. 先維持 3. 請列出遠距的攻擊範圍、鏈尖判定與狀態為「聚」還是「散」」
+
+1. **Once an exchange**: `hs-bind-clash` remembers the two moves (`fighter-cls-t` of each) of its last balance (`hss-even-a` / `-b`);
+   the same two moves clashing again balance nothing, a new move of either side is a new exchange. The smoke's scene C: `KE-N1A` × `HS-B-NA1`
+   cancel twice (873, 886) → one `BIND EVEN 400 -> 512, P2 1300 -> 1188` (was a second one to 596 / 1104).
+2. **Kept for now**: the bind's ×1.3 within 1.2 m, the ranged tip ×1.71, `:mult` 1.7.
+3. The ranged mode as built (centre-to-centre m, before the victim's body; damage before `:mult`). The tip (×1.71, no combo scaling,
+   Reiatsu ×1.3) is the outer `*hs-r-tip*` 0.5 m of a volume; a chain-following segment (`:seg-fn`, no volume) has no tip of its own,
+   except the J2–J5 links, which take their opener's read (J1's; an SA has no volume, so after an SA they never tip). 聚 = the segment
+   sets the combo's gathered flag (`:gather`): the J2–J5 after it are the gathered copies.
+
+| Move | S | Reach | Tip band | 散 / 聚 |
+|---|---|---|---|---|
+| J1 旋鞭 | 14 | 3–6, 100° | 5.5–6 | 散 (spread SP ×1.3) |
+| J2 / J3 / J4 / J5 (spread) | 10 | along the chain to 7 | J1's read | 散 (SP ×1.3: J2, J5 only) |
+| J2–J5 gathered (after a 聚 segment) | 16 | along the chain to 7 | none (opened by the SA) | 聚 copies |
+| SA 打 UCHI (35) / gathered SA (45, NS2a / b gaps) | 10 | along the chain to 6.5 | none | — (keeps the flag) |
+| NS1a 扇 ŌGI | 21 | 2–4.5, 60° | 4–4.5 | 散 |
+| NS1b 環 WA | 12 | 2–6, 360° | 5.5–6 | 散 |
+| NS1c 一斉 ISSEI | 21 | 0–4.5, 160° | 4–4.5 | 散 |
+| AS1 乱鎖 RANSA | 21 | 0–4.5, 160° | 4–4.5 | 散 |
+| NS2a 束 TABA | 27 | 2–4.15, a line | 3.65–4.15 along | 聚 (sets the flag) |
+| NS2b 叩 TATAKI | 27 | 1–4.5, 90° | 4–4.5 | 聚 (sets the flag) |
+| NS2c 大旋 ŌMEGURI | 27 | 2–4.5, 360° | 4–4.5 | 聚 (sets the flag) |
+| AS2a 叩 TATAKI | 27 | along the chain to 6.5 | none | 聚 |
+| AS2b 地走 JIBASHIRI | 33 | 2–4.15, a line | 3.65–4.15 along | 聚 |
+| AS3a 投 NAGE | 18 | 0–7, a line | 6.5–7 along | neither (the switch) |
+| AS3b 巻 MAKI / AS3c 掛 KAKE | 27 / 24 | along the chain to 7 | none | neither |
+| Kikon 降鎖 KOSA (re-used) | 20 | 2–9, a lane | 8.5–9 along | neither |
+
+Found while listing (left as built, for the user): the spread SP ×1.3 reads the old move names, so the five J's J3 / J4 and pointer 1's NS / AS1
+don't earn it; the gathered J2–J5 never tip.

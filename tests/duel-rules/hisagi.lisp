@@ -520,11 +520,14 @@
         (check (= (gauges-reiatsu gh) 110f0))                                           ; (no frozen gains)
         (check (and (deal-damage h o 60) (zerop (gauges-reishi go)) (equal *soul-breaks* (list (cons h o)))))
         (setf *soul-breaks* nil)
-        ;; a clash inside the bind: one balance a step, however many cancel verdicts the step had; the next step another
+        ;; a clash inside the bind: one balance a step, however many cancel verdicts the step had; the same two moves later
+        ;; nothing (§28.6: once an exchange); a new move of either side another
         (setf (gauges-reishi gh) 400 (gauges-reishi go) 1300)
         (core-clash! h o) (core-clash! o h)                                               ; (a same-class tie: two verdicts)
         (check (and (= (gauges-reishi gh) 512) (= (gauges-reishi go) 1188)))
         (let ((*match-tick* 101)) (core-clash! o h))
+        (check (and (= (gauges-reishi gh) 512) (= (gauges-reishi go) 1188)))
+        (let ((*match-tick* 102)) (setf (fighter-cls-t fh) 102) (core-clash! o h))
         (check (and (= (gauges-reishi gh) 596) (= (gauges-reishi go) 1104) (= 1700 (+ (gauges-reishi gh) (gauges-reishi go)))))
         ;; a Kikon's reset keeps the bind (§28.1's pick: the bind goes on after the reset)
         (hs-reset h)
@@ -537,8 +540,8 @@
         (setf (fighter-state fh) :idle (fighter-move fh) nil) (hs-bk-tick h fh gh)
         (check (and (not (hss-bound st)) (not (hss-unbind st)) (eq (fighter-form fh) :bankai)))
         ;; outside the bind a clash balances nothing (the ranged mode has no :clash hook; and the hook itself checks the bind)
-        (let ((*match-tick* 102)) (core-clash! h o))
-        (hs-bind-clash h o)
+        (let ((*match-tick* 103)) (setf (fighter-cls-t fh) 103) (core-clash! h o))
+        (setf (fighter-cls-t fh) 104) (hs-bind-clash h o)
         (check (and (= (gauges-reishi gh) 596) (= (gauges-reishi go) 1104)))))
     ;; the mirror, both bound: one balance a step for the pair
     (multiple-value-bind (a b) (t-pair kb kb)
