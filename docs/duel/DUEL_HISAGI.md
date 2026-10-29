@@ -4584,7 +4584,9 @@ left backhand rising diagonal**, **J4 the right overhead chop**, J5 both arms' f
 | gathered J3 `hs-r-na3g` (was `hs-k-g-j2`, J2s's) | **`hs-k-g-na3`** 束昇 SOKUSHŌ (19/3/16) | turned right, sunk, the left hand reached across down to the bundle by his right knee (f12–17); on S ripped up across to his upper left | the bundle 4.5 m, −30 → +5 → +35°, 0.5 → 2.3 m up; 4.50 ×3, edge 4.50 |
 | gathered J4 `hs-r-na4g` (was `hs-k-g-j2`) | **`hs-k-g-na4`** 束落 SOKURAKU (19/3/16) | the right arm raised straight up and back, risen and arched, the left hand pointing (f12–17); on S chopped down over his head into a deep squat, an impact hold | the bundle over the top, cracked down on the line: 4.5 m, −4 → 0°, 1.6 → 0.1 m up; 4.50 ×3, edge 4.50 |
 
-Tables: `*hs-strike-reach*` (6.0 / 4.5), `*hs-lashes*`, `*hs-bundled*` (the gathered two bound throughout), `*hs-spins*`.
+Tables: `*hs-strike-reach*` (6.0 / 4.5), `*hs-lashes*`, `*hs-bundled*` (the gathered two bound throughout), `*hs-spins*`. J5
+`hs-k-sensa`'s frame 0 re-keyed from J2's end pose to J4's (links start with blend 0: the left arm no longer flashes out across J5's
+first frames); its windup (f5) and hit frames unchanged. The gathered J5's frame 0 (`gk2-shove`, a squat) left: near J4G's.
 
 **Checks**: duel-rules 10654 ALL PASS (new: the five J and the gathered five each five clips; J3 / J4 and the gathered copies at speed
 1, `:s` on S, length S + A + R, every lash rank inside its arc on the hit frames (`lash-end`'s second value); `bk-moves` already had

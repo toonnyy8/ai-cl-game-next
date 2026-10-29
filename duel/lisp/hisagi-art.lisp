@@ -1212,28 +1212,6 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (20 :hs-k-kaeshi-hit (:root :yaw -22 :u -0.1) (:chest :twist -30) (:arm-l :flex 114 :side 78) (:elbow-l :flex 12))
   (:end :hs-k-stance))
 
-;; J3 旋鎖 SENSA (13/3/18, 4.4 m arc 180; ender): coiled deep to his right, crouched, both arms wound back (held f5-10); the
-;; half-turn cyclone: unwound to his left with both crescents at full chain sweeping the front half, a hanging chain at his
-;; right swept round with them (*HS-BK-CHAINS*); held facing his left, then square
-(defpose :hs-k-sensa-up (:base :hs-k-stance)
-  (:root :u -0.2 :yaw -80) (:pelvis :twist -10) (:spine :flex 16) (:chest :twist -40) (:neck :twist 30) (:head :flex 0)
-  (:arm-r :flex -46 :side 76 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -90)
-  (:arm-l :flex 120 :side 64 :twist 0) (:elbow-l :flex 30) (:hand-l :flex -90)
-  (:thigh-l :flex 46 :side 10) (:knee-l :flex 56) (:thigh-r :flex 6 :side 14) (:knee-r :flex 50))
-(defpose :hs-k-sensa-hit (:base :hs-k-stance)
-  (:root :u -0.1 :yaw -20) (:pelvis :twist 0) (:spine :flex 6) (:chest :twist 10) (:head :flex 0)
-  (:arm-r :flex 40 :side 86 :twist 0) (:elbow-r :flex 2) (:hand-r :flex -90)
-  (:arm-l :flex 40 :side 86 :twist 0) (:elbow-l :flex 2) (:hand-l :flex -90)
-  (:thigh-l :flex 24 :side 10) (:knee-l :flex 30) (:thigh-r :flex 4 :side 16) (:knee-r :flex 30))
-(defstrike :hs-k-sensa (13 3 18 :base :hs-k-stance)
-  (0 :hs-k-kaeshi-hit (:root :yaw -22 :u -0.1) (:chest :twist -30) (:arm-l :flex 114 :side 78) (:elbow-l :flex 12))
-  (5 :hs-k-sensa-up)
-  (10 :hs-k-sensa-up (:root :yaw -88 :u -0.22) (:chest :twist -44))
-  (:s :snap :hs-k-sensa-hit)
-  (:a :hs-k-sensa-hit (:root :yaw 56) (:chest :twist 24) (:arm-l :flex 70))
-  (22 :hs-k-sensa-hit (:root :yaw 84 :u -0.08) (:chest :twist 20) (:arm-r :flex 60 :side 70) (:arm-l :flex 70 :side 60))
-  (:end :hs-k-stance))
-
 ;; §28.15 (the user, 2026-10-29: 「遠攻 J3、J4 還在借 J1、J2 的動作，所以 J 五連裡有兩對動作一樣」): the five J's own J3 / J4, so no two
 ;; J of the string share a plane and a hand set (J1 the right forehand R -> L at the chest, J2 the left L -> R, J5 both
 ;; crescents round the half turn). Hanging chains as lashes (*HS-LASHES*), tips on the band's far edge, 6.0 m, inside +-50.
@@ -1278,6 +1256,28 @@ the four cuts (f14-29, at each %HS-TSUMUJI-CUTS arc's head on its hit frame), re
   (:s :snap :hs-k-na4-hit)
   (:a :hs-k-na4-hit (:root :yaw -34) (:chest :twist -40) (:arm-r :flex 90 :side 104))                ; through, to his right
   (20 :hs-k-na4-hit (:root :yaw -28 :u -0.1) (:chest :twist -34) (:arm-r :flex 70 :side 96) (:elbow-r :flex 14))
+  (:end :hs-k-stance))
+
+;; J3 旋鎖 SENSA (13/3/18, 4.4 m arc 180; ender): coiled deep to his right, crouched, both arms wound back (held f5-10); the
+;; half-turn cyclone: unwound to his left with both crescents at full chain sweeping the front half, a hanging chain at his
+;; right swept round with them (*HS-BK-CHAINS*); held facing his left, then square
+(defpose :hs-k-sensa-up (:base :hs-k-stance)
+  (:root :u -0.2 :yaw -80) (:pelvis :twist -10) (:spine :flex 16) (:chest :twist -40) (:neck :twist 30) (:head :flex 0)
+  (:arm-r :flex -46 :side 76 :twist 0) (:elbow-r :flex 30) (:hand-r :flex -90)
+  (:arm-l :flex 120 :side 64 :twist 0) (:elbow-l :flex 30) (:hand-l :flex -90)
+  (:thigh-l :flex 46 :side 10) (:knee-l :flex 56) (:thigh-r :flex 6 :side 14) (:knee-r :flex 50))
+(defpose :hs-k-sensa-hit (:base :hs-k-stance)
+  (:root :u -0.1 :yaw -20) (:pelvis :twist 0) (:spine :flex 6) (:chest :twist 10) (:head :flex 0)
+  (:arm-r :flex 40 :side 86 :twist 0) (:elbow-r :flex 2) (:hand-r :flex -90)
+  (:arm-l :flex 40 :side 86 :twist 0) (:elbow-l :flex 2) (:hand-l :flex -90)
+  (:thigh-l :flex 24 :side 10) (:knee-l :flex 30) (:thigh-r :flex 4 :side 16) (:knee-r :flex 30))
+(defstrike :hs-k-sensa (13 3 18 :base :hs-k-stance)
+  (0 :hs-k-na4-hit (:root :yaw -28 :u -0.1) (:chest :twist -34) (:arm-r :flex 70 :side 96) (:elbow-r :flex 14))   ; (§28.15: J4's end)
+  (5 :hs-k-sensa-up)
+  (10 :hs-k-sensa-up (:root :yaw -88 :u -0.22) (:chest :twist -44))
+  (:s :snap :hs-k-sensa-hit)
+  (:a :hs-k-sensa-hit (:root :yaw 56) (:chest :twist 24) (:arm-l :flex 70))
+  (22 :hs-k-sensa-hit (:root :yaw 84 :u -0.08) (:chest :twist 20) (:arm-r :flex 60 :side 70) (:arm-l :flex 70 :side 60))
   (:end :hs-k-stance))
 
 ;; (B3b's K1 墜鎖 TSUISA, K2 薙鎖 NAGISA and K3 落鎖 RAKUSA clips: no move's since B4a's placed K and B4c's routes; deleted
