@@ -203,14 +203,14 @@ Set (Lisp → page), only when the value changed:
 | 30100 | layer bits: 1 a battle (intro / fight / finish), 2 a cinematic (the plates hidden), 4 paused, 8 the phone's deck (ONE-HAND in portrait, in the fight), 16 PRACTICE (no timer), 32 the cinematic's 2D layer is the page's (the intro, the K.O., TIME), 64 ONE-HAND turned to landscape (the pause says rotate) |
 | 30101 | the timer, seconds (−1 none: PRACTICE) |
 | 30102 / 30103 | the prompt (the first human side's): 0 none, 1 the Kikon's hold (arg: its confirm frames left, of `*core-kikon-confirm*` 12), 2 SP → AS n off a landed attack (arg n), 3 a Burst (1 BLUE, 2 ORANGE), 4 the awakening (or the Bankai) ready |
-| 30104 | 爆's bits: 1 the awakening's hold is armed (ready), 2 the hold under way, 4 pressed, 8 a burst possible |
+| 30104 | 爆's bits: 1 the awakening's hold is armed (ready), 2 the hold under way, 4 pressed, 8 a burst possible; your running burst 16 WHITE, 32 BLUE, 64 ORANGE (since draft C, §11) |
 | 30105–30110 | the last recognised gesture: a serial, its kind (1 tap ATK, 3 tap SP, 2 flick (Step), 6 up-flick (dash), 4 Hoho, 7 a down-flick Burst; the rest is no event), x, y (‰ of the window), the stroke dx, dy (‰) |
 | 30111–30113 | the Kikon hold ring: 1 while a thumb held in the SP zone keeps an NS / AS going, its x, y (‰) |
 | 30114 | the intro's phase: 1 P1's name (frames 0–119), 2 P2's (120–224), 3 READY (225–249), 4 斬 (250: the FIGHT! beat), 0 none |
 | 30115 / 30116 | the finish: 1 K.O., 2 TIME with a winner, 3 TIME, a draw; the winner 0 / 1 / 2 draw (`*winner*`, else the K.O.'s first actor) |
 | 30117 / 30118 / 30119 | the pause: the cursor (`*menu*`), the rows' count, a serial (the rows re-sent: on opening, after `pause-do`) |
 | 30130–30133 | the deck (`*deck-rect*`: the window's lower `*deck-frac*` 37 %): x0 y0 x1 y1, ‰ |
-| 30134 / 30135 | the tap zones' line (`*deck-split*`): its height in ‰ of the deck's at the far edge (200) and at the thumb's (820) |
+| 30134 / 30135 | the tap zones' line (`*deck-split-at*`: `*deck-split*` less `*deck-split-lift*`): its height in ‰ of the deck's at the far edge and at the thumb's (draft C, §11: 1 cm under the top, 0.82 less 2 cm) |
 | 30136–30138 / 30139–30141 | 爆 (chip 7) and 止 (chip 6): centre x, y (‰ of the window), radius (‰ of the width): the recogniser's hit circles (+ its 8 px slop) |
 | 30142 | the left hand 1 |
 | 30150 + 30 s + k | side s (0 P1, 1 P2): k 0 roster index + 1, 1 Reishi ‰, 2 red (the Kikon's must-hit line), 3 Konpaku left, 4 the souls at stake (`at-stake`), 6 flash step ‰, 7 the awakening ‰, 8 its state (0 filling, 1 ready, 2 awakened / an awakened form), 9 the SP pointer (0: no core kit), 10–13 the combo this side deals (the victim's hits, damage, the last hit's scaling ‰, a serial per counted hit: from the 2nd, PRACTICE's from the 1st), 14 the callout's serial, 15 / 16 the kit meter's value / max, 17 / 18 best combo / Kikons, 19 human 1 |
@@ -555,3 +555,29 @@ Artifact version 23: `--y0` .5cm → 1cm (the line's far end 1 cm under the deck
 C's bar follows (far end 1 cm down, rise `25.9cqh - 2cm`) and so does the draft's touch split. The 爆 cluster moves 1 cm down in
 every version: A / C `top: calc(63% - 5u + 1cm)`, B `calc(63% - 2.8u + 1cm)`. In both hands 爆, its stance seals and B's guard stay
 clear of the SP label and the line.
+
+## 11. Draft C 界 in the game, the flash-step gauge 0–300 (the user, 2026-10-29)
+
+> 「我選 C，然後幫我套用新的閃步量表規則」
+
+Draft C (§10.9, as it stood at v7.15, artifact version 23) is the phone's battle screen; the rules change is DUEL_DESIGN
+"Flash-step gauge 0-300". What the phone (portrait, one hand) now draws, all where Lisp lays it out:
+
+| Part | Now | Before (draft v6 in the game, §9) |
+|---|---|---|
+| The SP / ATK line | far end 1 cm under the deck's top, thumb end 2 cm over 82 % (`*deck-split*` 0.20 0.82 → 0.0 0.82, `*deck-split-lift*` 75.6 37.8 → -37.8 75.6 CSS px); the recogniser hit-tests the same line | far end at the top (0.20 less 2 cm, clamped), thumb end 1 cm over 82 % |
+| Your plate | 界: the Reishi bar's middle on the line, the far edge to the thumb's (hud.js lays it from 30130–30135: length, angle, its far end the anchor); flames, name, kanji and tag above it on the SP side; what is left stays at the far end; the empty track keeps the line drawn (no separate line, no gesture legend) | 起筆: a level plate 1 cm under the deck's top, the stroke out of 爆 through a neck; the ink line and `FLICK ↑ DASH …` along it |
+| 爆 | its middle 5 U over the deck's top + 1 cm (`*rv-on-bar*` 9.12 → 5.0, `*plate-low*` 1 cm), 6.7 U in from the thumb's edge, r 3.7 U | level with the plate's bar |
+| Flash step | 墨池: the ink standing in 爆 by height (30156), white chords at 1/3 (a Hoho) and 2/3 (a Burst), cut 1.05 / 1.35 U each side of the middle; under 2/3 the seal is dim (rim at 40 %, 爆 grey), from 2/3 armed (rim and 爆 lit, a flash on arming); a running Burst turns the ink its mode's colour (30104 bits 16 / 32 / 64) as it drains; a Hoho dips the seal; a press under 2/3 shakes it and writes NO BURST | three cells under your bar |
+| Awakening | a gold ring hugging 爆 (r 4.25 U), clockwise from the top (the left hand counter-clockwise), the hold sweep and 覺 as before | the ring with a gap where the neck entered |
+| Stance | your three pointer seals on a circle of 6.2 U around 爆 at 304° / 270° / 236° (mirrored for the left hand), the live one inked, its name 9.4 U to the far side | three seals in your plate |
+| SP / ATK labels | SP at the thumb's edge 5 % in, `calc(44% - .8cm)` down the deck (under 爆, over the line); ATK 8 % in, 16 % up | SP 44 % across, 18 % down |
+| Your move name / combo | just over the deck: 6.4 U / 9.6 U | over your plate (15.5 / 19 U, less 1 cm) |
+| Screentone | to the deck's top edge (draft v7.11) | faded in over the top 40 % |
+
+The foe's plate, the clock tab, the prompt, the pause and the landscape / two-hand screens are unchanged. Code: `onehand.lisp`
+(`*deck-split*`, `*deck-split-lift*`, `*rv-on-bar*`), `webhud.lisp` (30104's burst bits), `hud.js` (`renderDeck`: the slanted plate, the
+ink, the states; the stance cluster `.rvc`), `hud.css` (界, 爆, the cluster). Checks: host tests (rules 10661, control 99, touch 100,
+input 33), pkgcheck clean, the page's Lisp path 0 B (debug 2515), smoke; shots at 390 × 844 in both hands (a full, a 60 % and a
+draining gauge, a kit without pointers). DEVLOG §504.
+

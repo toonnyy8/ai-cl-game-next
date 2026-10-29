@@ -346,7 +346,7 @@ within it (HS-YOSE) (the lead's default, 2026-10-28, DUEL_HISAGI §26.1: a whiff
   :slide 0.0 :on-frame ((0 hs-as1-hop))
   :hits ((14 15 :seg-fn hs-core-seg) (18 19 :seg-fn hs-core-seg) (22 23 :seg-fn hs-core-seg)
          (26 29 :seg-fn hs-core-seg :on-hit :knockdown))
-  :params (:melee-range 2.0 :steal-fs 40 :look-as :hs-k2))
+  :params (:melee-range 2.0 :steal-fs 120 :look-as :hs-k2))
 ;; pointer 2 刈 KARI (§27.3, 「刈 短鎖貼身收割」: the chain wound short, 1-2.5 m): TAN-GARI's stepping cross cut > REN-GARI > SEN-GARI's
 ;; spin, the chain let out to a 3 m circle (180); AS2 KO-GARI > KARI-AGE, the rising reap (the launch). Their own clips since
 ;; batch 2 (§27.5, presentation only), each authored at its S: hisagi-art.lisp :hs-kr-*

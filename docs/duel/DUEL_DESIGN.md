@@ -274,10 +274,11 @@ climbing back, "GUARD" when it returns). The Breaker still breaks at once (Guard
 guard value (`cut-value`, `*cut-mult*`); his J links don't (a blocked RYOTE J J J is 24, K K K 69, into
 West's ward too, ×1.1: the 2nd K K K crushes it).
 
-**Flash-step gauge** (0–100, full at the start, kept through Kikon resets): Hoho costs 30; a burst (any of the three
-modes, "Burst modes" at the end) needs 70 and then drains it to 0, gaining nothing meanwhile; +3/s once 60 f pass after the last spend, +0.03 per damage taken (a full Reishi bar is
-+33); a perfect Hoho refunds nothing (15 until 2026-10-18). Full: Hoho ×3, or Burst + Hoho. HUD: a steel-blue bar under
-REIATSU with ticks at 30 and 70; the part past 70 glows while a Burst is possible.
+**Flash-step gauge** (0–300 since 2026-10-29, "Flash-step gauge 0-300" at the end; 0–100 before; full at the start, kept
+through Kikon resets): Hoho costs 100; a burst (any of the three modes, "Burst modes" at the end) needs 200 and then drains it
+to 0, gaining nothing meanwhile; +9/s once 60 f pass after the last spend, +0.135 per damage taken × the combo bonus; a perfect
+Hoho refunds nothing (15 of 100 until 2026-10-18). Full: Hoho ×3, or Burst + Hoho. HUD: three cells (one a Hoho); on the phone
+the ink standing in the 爆 seal, white marks at 100 and 200, the seal armed (lit) from 200 (DUEL_WEBUI §11).
 
 **Reiatsu** (3 bars, 0–300): SPs only. +3/s; a hit pays its attacker its move kind's base (J 3, K 5, L 4, SP 4, O 7, Breaker
 14) and its victim +0.15 per damage taken, both × the combo bonus (§ "Reiatsu by move kind × combo", 2026-10-26; before:
@@ -287,23 +288,23 @@ and SP2 cost 1 bar (SP2 in an awakened form 2; a move may name its own cost).
 **KŌSEI 攻勢, the aggression reward** (the user's decisions 2026-09-27, [DUEL_STRINGS.md](DUEL_STRINGS.md) §5): every
 contact of the attacker's **own melee hit window** (hit, counter, blocked by a guard / ward / DRINK, armoured,
 absorbed, a Guard Break; J / K links, the O strike, the Breaker, SP blades, West's counter) pays him **Reiatsu
-0.20 × g × m** and **flash-step 0.10 × g × m**, g = the move kind's points × the combo bonus (since 2026-10-26, § "Reiatsu by
+0.20 × g × m** and **flash-step 0.30 × g × m** (0.10 on the 0–100 gauge), g = the move kind's points × the combo bonus (since 2026-10-26, § "Reiatsu by
 move kind × combo"; before: the hit's guard value), **m = 1 + 2 × (1 − his own guard gauge /
 100)**: ×1 full … ×3 empty (`kosei-mult`, `kosei-gain`, combat.lisp `kosei!`; `*kosei-bonus*` 2.0, `*kosei-reiatsu*`,
 `*kosei-fs*`). Whiffs, parried hits, hazards and `:ranged` windows (fire, lines, the cone, the rift), Kikons and
-scorch pay nothing; neither the guard gauge nor the awakening is paid. A J J J (g 24) pays 4.8 R / 2.4 FS at a full
-gauge, 14.4 / 7.2 at an empty one. HUD: at m ≥ 1.5 an ember `攻 x2.4` tag at the guard bar's inner end (on the Konpaku row); each paying
+scorch pay nothing; neither the guard gauge nor the awakening is paid. A J J J (g 24) pays 4.8 R / 7.2 FS at a full
+gauge, 14.4 / 21.6 at an empty one. HUD: at m ≥ 1.5 an ember `攻 x2.4` tag at the guard bar's inner end (on the Konpaku row); each paying
 contact sends one ember mote from the hit to the Reiatsu bars (sized by m).
 
-**Hoho** (30 flash-step): vanish and reappear 1.6 m behind the opponent facing him on f6; invulnerable
+**Hoho** (100 flash-step of 300; 30 of 100 before 2026-10-29): vanish and reappear 1.6 m behind the opponent facing him on f6; invulnerable
 f1–f14, 24 f total; not usable in blockstun / hitstun; 60 f lockout between two. It can also
 cancel any J / K link on hit (so can SP1 / SP2 and a `:cancel` L). **Perfect Hoho**: an opponent hit window (move or hazard)
 active now or within 12 f (8 until 2026-10-01, the user: a wider timing) overlaps our hurt cylinder grown by 1 m, or his Breaker dash is within
 2.7 m (his Kikon rush dash within 2.1 m). Then: "PERFECT", 0.45 s of 0.25× slow motion for both, the opponent's inputs locked 40 f,
 and the Hoho ends in an automatic counter strike on f14 (60 damage, 36 f stun).
 
-**Burst Reverse** (modifier + Quick, 70 flash-step; blue, as in RoS; since 2026-09-30 the BLUE one of three burst modes, also
-from blockstun, draining the gauge instead of spending 70: "Burst modes" at the end; the rest of this paragraph is its press): only in hitstun or airborne (launched
+**Burst Reverse** (modifier + Quick, 200 flash-step (70 of 100 before 2026-10-29); blue, as in RoS; since 2026-09-30 the BLUE one of three burst modes, also
+from blockstun, draining the gauge instead of spending 200: "Burst modes" at the end; the rest of this paragraph is its press): only in hitstun or airborne (launched
 or knocked down) after the **2nd hit** of a combo, inputs not locked (so never against a perfect
 Hoho's counter strike, which is hit 1 anyway), never during a cinematic. It is pressed in the
 victim's step but applied once both fighters have stepped (before the hits of that step are
@@ -465,7 +466,7 @@ ember rim, pulsing (the tell), and four charred skeleton arms claw out of it. **
 the feet (a disc r 1.2 m, h 0.6 m): 40 damage and **bound 60 f** (`*bind-stun*`), unguardable (guard,
 stance, armour and a parry don't stop it; iframes do). Step out of the tell (pressed f16–33) or Hoho
 (f15–35; perfect from f28); walking is too slow. It only **opens** a combo (a victim already in one takes a
-40 flinch) and **books 2 combo hits**, so a bound fighter may Burst out (70 flash-step) at once. Any hit
+40 flinch) and **books 2 combo hits**, so a bound fighter may Burst out (200 flash-step) at once. Any hit
 frees him; Yamamoto has 41 f to follow up (a J string, the cone, TENCHI on a red victim). Hazard `:bind`
 (hazards.lisp), rule `combo-step`. Against a Bankai West (a Yamamoto mirror) it goes through the ward (unguardable);
 a bound West stays West, but the ward is off while he is bound.
@@ -723,7 +724,7 @@ random number from `sim-rnd01` (seeded per match), so a seed replays the same ma
   launched / downed opponent beyond 3 m while he has ≥ 60 % Reishi (this is what fills Inferno
   into Hellfire); punish a recovering opponent in reach; an incoming Breaker or Kikon rush aura /
   dash (p 0.4 / 0.55 / 0.7 within 5 m) or a rush's follow-up: a rush while the CPU is not red (and
-  can guard) is guarded; else Hoho through the dash if it has 30 flash-step and the kit's Hoho roll passes, else J1 beyond 1.8 m, else a
+  can guard) is guarded; else Hoho through the dash if it has 100 flash-step and the kit's Hoho roll passes, else J1 beyond 1.8 m, else a
   sideways Step; the kit's reactions (Kenpachi's stance against a
   projectile, or against a Flash startup only when the stance can still come up in time), p 0.7;
   Breaker a guard held ≥ 24 f within 3 m (p 0.4; Bankai West's ward counts as a held guard, its time in West as the
@@ -742,7 +743,7 @@ random number from `sim-rnd01` (seeded per match), so a seed replays the same ma
 - **Gauges**: the guard chances (the neutral guard, the committed-move guard) are × 1.0 at guard
   gauge ≥ 50 %, × 0.5 at 25–50 %, × 0.15 below (`ai-guard-mult`), 0 when guardless; a refused guard
   becomes a sideways Step. Against a guardless opponent: PRESSURE weight +3, attack chance +0.3, the
-  Breaker weight 0. Hoho and Burst check flash-step (30 / 70); a routine Hoho keeps a Burst's 70 in
+  Breaker weight 0. Hoho and Burst check flash-step (100 / 200 of 300); a routine Hoho keeps a Burst's 200 in
   reserve while a Burst would be worth it (Reishi < 50 %, `ai-hoho-spare-p`).
 - **Guard pressure** (so the gauges matter between CPUs): a kit's `:block-string` (Bankai East 0.85,
   Kenpachi 0.8) goes on with a string the opponent blocks (one roll per link, pressed just before the
@@ -792,7 +793,7 @@ random number from `sim-rnd01` (seeded per match), so a seed replays the same ma
   DEFEND 0.1, + KŌSEI's 0.2 × (1 − its guard gauge / 100): a low gauge pays to attack), or wait. An attack is a weighted pick from the kit's table for the current distance
   band; no Q / F out of reach. After taking a reaction or blockstun the CPU stays in DEFEND 120 f.
 - **Burst**: combo'd past the 2nd hit, for at least its perception delay (EASY 24 / NORMAL 14 /
-  HARD 8 f), 70 flash-step, and worth it (`ai-burst-wanted-p`: Reishi below 50 %, or the combo's average
+  HARD 8 f), 200 flash-step, and worth it (`ai-burst-wanted-p`: Reishi below 50 %, or the combo's average
   hit so far would put it in red): one roll per combo, EASY 0.2, NORMAL 0.6, HARD 0.85.
 - **Dash**: at a neutral decision, beyond its preferred range + 2.5 m it dashes in (the kit's
   `:dash`: Kenpachi 0.8, Yamamoto 0.25, in Hellfire 0.5); closer than the range − 2.5 m it dashes
@@ -1050,12 +1051,12 @@ batch: §4, §6.1, §6.2, §12):
 | Menu press leak | first build | a cinematic's end forgets buffered presses (`vpad-flush!`) | Confirming a menu with J started a Q1 on tick 1 |
 | Stick | first build: read through the render camera | read through the sim-owned view direction | The render camera lags on real time: replays would differ |
 | Kenpachi's flurry in Nozarashi | first build: the base move | `(:ke-charge :land :ke-flurry)` string, derived like the rest | It kept base reach and timing |
-| Burst Reverse | stretch: rules only, the command did nothing | built (§4): 2 bars (now 70 flash-step), after hit 2, applied after both stepped | The user asked for it; applying it after both stepped means no side goes first |
+| Burst Reverse | stretch: rules only, the command did nothing | built (§4): 2 bars (now 200 of 300 flash-step), after hit 2, applied after both stepped | The user asked for it; applying it after both stepped means no side goes first |
 | Kikon | a button that worked only after our hit on a red opponent (in the move's cancel window or during his hitstun) and settled at once | the **Kikon rush** (§2): any time, a dash + strike; guardable unless red; the Kikon only if the strike connects on a red opponent with the button still held on the hit frame; a released button = a plain hit (so a Soul Break still ends a red opponent at 0) | The user asked for RoS's Kikon: "press, the character rushes in and strikes; only a hit with the button still held is the Kikon; guardable unless red". The rush's HUD callout is "KIKON"; the prompt says HOLD |
 | Burst invulnerability | v1: 30 f (critique: 20) | 20 f, the user neutral at once, attacker pushed 5 m over 20 f, 8 f hitstop | critique-design 1.7 |
 | Dash | design draft: "dash versions" of Q1 / F1 | hold Step: the run after the hop; any move out of it, +1 m of momentum | One rule for every move instead of two extra moves per kit |
 | Guard | infinite; only a Breaker breaks it | a **guard gauge**: guard values per move, GUARD CRUSH (40 f) at 0 and guardless until full; the Breaker still breaks and drains 35 | The user asked for it (design v3 G.2) |
-| Hoho / Burst cost | 1 / 2 Reiatsu bars; Reiatsu +5/s | a **flash-step gauge**: Hoho 30, Burst 70, +3/s after 60 f, perfect refund 15 (0 since 2026-10-18); Reiatsu pays SPs only, +3/s | The user asked for it (design v3 G.1, G.3) |
+| Hoho / Burst cost | 1 / 2 Reiatsu bars; Reiatsu +5/s | a **flash-step gauge**: Hoho 30, Burst 70, +3/s after 60 f, perfect refund 15 (0 since 2026-10-18; ×3 on a 0–300 gauge since 2026-10-29: Hoho 100, Burst 200, +9/s); Reiatsu pays SPs only, +3/s | The user asked for it (design v3 G.1, G.3) |
 | The contact rule | armour and the stance's absorb counted as the attacker's hit (strings, cancels, the flurry went on) | only a real hit is a hit (`contact-of`) | A root-cause fix (design v2 §0) |
 | Kikon (O) | one rush per character (aura 5, 16 m/s ≤ 22 f, strike 8/3/24); unguardable on a red opponent | a **module** per form (ENJO, KITA: TENCHI, CHARGE, LEAP CLEAVE; cooldown 90); the strike always guardable; a hit with O held = the Kikon on red, a guardable **follow-up** otherwise (its hit = the Kikon) | The user asked for per-character O (design v2 §B) and corrected the guard rule (red: the strike can be guarded, a hit is a guaranteed Kikon; not red: a follow-up he can guard) |
 | Camera | one pair camera for every mode | behind P1 in VS CPU (default), the pair camera elsewhere; the sim owns both views' direction | The user asked for RoS's default camera |
@@ -1084,7 +1085,7 @@ batch: §4, §6.1, §6.2, §12):
 | CPU Breaker reflex vs Bankai West | a held guard only (`:guard` state) | Bankai West's ward counts as a held guard (its time in West as the hold), and as a guard for block-string pressure | The rework's anti-turtle key (DUEL_YAMA_REWORK §5), with **the user's decision 2026-09-27** that a Breaker flips West to East |
 | Strings | Q1 → Q2 → Q3, F1 → F2, the Q2 → F branch; a whiff chained like a block (in the last 3 f); whiff R + 6 | **up to three links, each J or K, switching at most once** (JJJ JJK JKK KKK KKJ KJJ; one move per link and button, the switched link 2 a copy); **the latch** (a press any time during the link, the last allowed wins; a press of the old button after a switch is eaten); **the string gate** (a link-1 whiff never chains; after any contact every later link comes out and chases him, 2026-09-28); whiff R + 8 (J) / R + 12 (K); the §4 budget (J beats K, K3 −20); 5 new clips (SODEBI, RAKUJITSU, KENKA-GERI, KOTE, MOROTE-ZUKI) | **The user's decision 2026-09-27** (the strings design r3 §0.1, all nine answers the defaults: strings aren't just two hits, J / K mix, 「K J 不要來回交錯」). DUEL_STRINGS.md |
 | O cancel | the Kikon rush as a cancel of any landed move (Q, F, SP, Breaker) | **only off a link-3 hit** (the O ender, its aura skipped, always a combo); neutral O kept | **The user's decision 2026-09-27** (decisions 1–3, 6: keep neutral O, hit only, remove the other cancels, red = 30 %) |
-| KŌSEI | — | every contact of his own melee hit window pays Reiatsu 0.20 × g × m and flash-step 0.10 × g × m, m = 1 + 2 × (1 − guard gauge / 100) | **The user's request and decisions 2026-09-27** (reward aggression, more at a low guard gauge; Reiatsu and flash-step only, blocked hits count, projectiles and hazards don't) |
+| KŌSEI | — | every contact of his own melee hit window pays Reiatsu 0.20 × g × m and flash-step 0.10 × g × m (0.30 on the 0–300 gauge, 2026-10-29), m = 1 + 2 × (1 − guard gauge / 100) | **The user's request and decisions 2026-09-27** (reward aggression, more at a low guard gauge; Reiatsu and flash-step only, blocked hits count, projectiles and hazards don't) |
 | Strings' pacing | — | K2 / K3 at 80 % of the design's damage, the CPU's string K 0.3, O ender 0.15, SP cancel 0.3 (one roll), J beats K felt at once | The seed gate (DUEL_STRINGS §9, §10): as designed the medians fell to 107 / 119 / 122 s, under the 125 s floor |
 | Soul Break | the form's count + 1 (per-event cap 4), the generic `soul-break-cine` | the **attacker's current form's** count + 1, **cap 5 for Soul Breaks only** (a Kikon stays at 4), and the **attacker's Kikon cinematic** (`kit-kikon-cine`) | **The user's decisions 2026-09-27** (with the research report's answers) |
 | Kenpachi's second awakening | none: one awakening per match | **the Bankai** from cup 3 (P with ≤ 4 of his own Konpaku; it was red + P): Konpaku → 1, Reishi → full, the arm UDE (4 pips, 60 each, a crack per 300 f), then **片腕** for the rest of the match (§6.2, DUEL_KEN_BANKAI.md) | **The user's decisions 2026-09-27** (the one exception to the one-awakening rule, the entry, 4 pips, the red reiatsu, 片腕 at reach ×0.7) **and 2026-09-28** (Konpaku → 1, Reishi → full, the bite now, Yachiru a silhouette, 片腕 stays the oni, the CPU enters only as a finisher weighing its own Konpaku; the entry at ≤ 4 Konpaku instead of red) |
@@ -1347,7 +1348,7 @@ the Kikon refund.
 
 ### Which mode (rules `burst-mode`, combat `burst-mode-of`)
 
-Inputs not locked (`fighter-lock` 0), not in a cinematic, no burst already running, flash-step ≥ `*fs-burst*` **70**
+Inputs not locked (`fighter-lock` 0), not in a cinematic, no burst already running, flash-step ≥ `*fs-burst*` **200** (of 300; 70 of 100 before 2026-10-29)
 (the user's "two bars", every mode; the user's decision 2026-09-30: no lower floor for WHITE / ORANGE):
 
 | State at the press | Mode |
@@ -1361,11 +1362,11 @@ A projectile / hazard hit never opens ORANGE (like KOSEI, only the fighter's own
 
 ### Cost, drain, end
 
-- **Nothing is spent up front** (the user's default 2026-09-30); the drain is the cost: `*burst-drain*` **18** flash-step
-  per second from the press. Started at 70 it lasts 3.9 s, at 100 5.6 s.
+- **Nothing is spent up front** (the user's default 2026-09-30); the drain is the cost: `*burst-drain*` **54** flash-step
+  per second from the press (18 on the 0–100 gauge). Started at 200 it lasts 3.7 s, at 300 5.6 s.
 - During a burst the flash-step gauge **gains nothing**: no regen, no damage-taken gain, no KOSEI flash-step (no perfect-
   Hoho refund at all since 2026-10-18), nothing a siphon would pay (`pay-gauges`, rules `burst-fs-gain`).
-- **Hoho below one bar:** during a burst a Hoho needs only flash-step > 0 (not `*fs-hoho*` 30); it spends 30 or what is
+- **Hoho below one bar:** during a burst a Hoho needs only flash-step > 0 (not `*fs-hoho*` 100); it spends 100 or what is
   left (rules `hoho-cost`), so a Hoho at 12 empties the gauge and ends the burst. The Hoho lockout still applies.
 - The burst **ends** when the gauge reaches 0 (the regen delay `*fs-delay*` restarts then), or at a Kikon / Soul Break
   (the round reset ends both fighters' bursts, before the refund below).
@@ -1384,7 +1385,7 @@ extension, so the blow-away ends any loop.
 ### Kikon refund
 
 Every **Kikon** that connects (the rush's strike confirmed as the Kikon; not a Soul Break) gives its user one bar of
-flash-step, `*kikon-fs-refund*` **35** (half of the burst's two bars, so two Kikons pay for a burst), and one Reiatsu bar
+flash-step, `*kikon-fs-refund*` **105** of 300 (35 of 100 before 2026-10-29; about half a burst's 200, so two Kikons pay for one), and one Reiatsu bar
 (`*kikon-reiatsu-refund*` 100), each clamped to its max. It lands after the burst ends (the Kikon's reset ends bursts
 first), so it is never lost to the "no gains during a burst" rule.
 
@@ -1856,3 +1857,36 @@ within ±11 s of the baseline, no pairing out.) ASSIST (the masher's wins, befor
 GUARD 2 57 → 56 %, COMBO 69 → 68 %, BREAK 34 → 32 %, all 78 → 78 %, all with GUARD 2 97 → 97 %. G2: `tests/style-cvc-ref.txt`
 regenerated (YY `winner P2 konpaku 0-9 ticks 5325 secs 88.8`, YK `winner P2 konpaku 0-1 ticks 6130 secs 102.2`, KK unchanged
 `winner P1 konpaku 5-0 ticks 6110 secs 101.8`), the browser and the native sim identical.
+
+## Flash-step gauge 0-300 (the user, 2026-10-29)
+
+The user: 「幫我將閃步量表改成 0-300，並且將 hoho 消費改成 100，爆氣設為 200，其他恢復量也做對應的提昇。先改 UI」 (drawn first in
+the battle-screen drafts, DUEL_WEBUI §10.2), then 「我選 C，然後幫我套用新的閃步量表規則」. The gauge and every gain and drain ×3; the
+two costs as asked, so a Hoho is a third of the gauge (was 0.3) and a burst two thirds (was 0.7):
+
+| Knob | Before | Now |
+|---|---|---|
+| `*fs-max*` | 100 | **300** |
+| `*fs-hoho*` | 30 | **100** |
+| `*fs-burst*` | 70 | **200** |
+| `*fs-regen*` (after `*fs-delay*` 60 f, unchanged) | 3 / s | **9 / s** (a Hoho from empty in 12.1 s, was 11) |
+| `*burst-drain*` | 18 / s | **54 / s** (a full gauge still 5.6 s; from 200 3.7 s, was 3.9 from 70) |
+| `*fs-taken*` (× the combo bonus) | 0.045 a point | **0.135** |
+| `*kosei-fs*` | 0.10 | **0.30** |
+| `*kikon-fs-refund*` (a Kikon / Soul Break) | 35 | **105** |
+| AS1 `:steal-fs` (Kenpachi, Ichigo, Hisagi) | 40 | **120** |
+| KESSA AS1 `:steal-fs` (a lash) | 10 | **30** |
+| `*tsuki-dash-fs*` (Ichigo's old stance dash, frozen) | 10 | **30** |
+
+Fractions of the max (a move's or a DANGAI reward's `:fs` × `*fs-max*`, the awakening's regen length `*fs-max*` / `*burst-drain*`,
+the HUDs' bars and marks) follow by themselves. `core-on-hit!`'s steal capped the thief at a literal 100: now `*fs-max*`. The retired
+kits' own numbers (Senjumaru's field 15 / s, Lille's 20 at his still, Rukia's thresholds) are left as they were. Steps and Dashes still
+cost nothing.
+
+Tests: `tests/duel-rules/core.lisp` (the knobs, the regen 9 / s, a Hoho from empty, the drain from 200 / 300, the Kikon refund, Hoho /
+Burst thresholds, KOSEI 7.2 / 21.6, the taken gain 20.25, the CPU's Hoho budget), `triangle.lisp` (Hisagi's AS1 steal 120), `hisagi.lisp`
+(his CPU's read of a Hoho at 100), `barro.lisp` (Lille's burst at 200): 10661 checks pass; control 99, touch 100, input 33, pkgcheck clean.
+No balance gates (the user, 2026-10-29, DEVLOG §468). G2 (`tests/style-cvc-ref.txt`) regenerated: II `winner P1 konpaku 5-0 ticks 17542
+secs 292.4` (29 lines), IK `winner P1 konpaku 2-0 ticks 20137 secs 335.6` (34, was 23), KK `winner P2 konpaku 0-2 ticks 16119 secs 268.6`
+(27, was 23). DEVLOG §504.
+

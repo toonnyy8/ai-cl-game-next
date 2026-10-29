@@ -319,10 +319,10 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
   (check (= 6 (- (+ (- (mv-total q1) *chain-lead*) (mv-s q2)) (nth-value 1 (free-steps q1))))))
 (check (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-j1)) (/ 7.0 9.0)))  ; hit pose on the later hit frame
 (check (~= (mv-clip-speed (mv :kenpachi :base :ke-j1)) 1.0))
-;; KOSEI (§5): x1 at a full guard gauge, x3 empty, x2 half; a JJJ (g 24) pays 4.8 R / 2.4 FS full, 14.4 / 7.2 empty
+;; KOSEI (§5): x1 at a full guard gauge, x3 empty, x2 half; a JJJ (g 24) pays 4.8 R / 7.2 FS full, 14.4 / 21.6 empty (FS x3, 2026-10-29)
 (check (and (~= (kosei-mult 100.0) 1.0) (~= (kosei-mult 0.0) 3.0) (~= (kosei-mult 50.0) 2.0) (~= *kosei-bonus* 2.0)))
-(multiple-value-bind (r fs m) (kosei-gain 24 100.0) (check (and (~= r 4.8) (~= fs 2.4) (~= m 1.0))))
-(multiple-value-bind (r fs m) (kosei-gain 24 0.0) (check (and (~= r 14.4) (~= fs 7.2) (~= m 3.0))))
+(multiple-value-bind (r fs m) (kosei-gain 24 100.0) (check (and (~= r 4.8) (~= fs 7.2) (~= m 1.0))))
+(multiple-value-bind (r fs m) (kosei-gain 24 0.0) (check (and (~= r 14.4) (~= fs 21.6) (~= m 3.0))))
 (check (= 24 (loop for n in '(:ke-j1 :ke-j2 :ke-j3) sum (hw-guard (svref (mv-hits (mv :kenpachi :base n)) 0)))))
 (check (= (move-end-frame 9 3 12 18 nil nil) 30))                      ; whiff: R + 6
 (check (and (= (move-end-frame 9 3 12 18 :block nil) 24) (= (move-end-frame 2 1 20 26 nil t) 23)))
@@ -454,21 +454,21 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (multiple-value-bind (r fs aw) (hit-gains 500 0 nil 1.0 3.0 1)          ; J1, 500 damage or 5: the same 3
   (multiple-value-bind (r2) (hit-gains 5 0 nil 1.0 3.0 1)
     (multiple-value-bind (r6) (hit-gains 5 0 nil 1.0 3.0 6)              ; the combo's 6th hit: x1.5
-      (multiple-value-bind (rt ft) (hit-gains 0 100 nil 1.0 0 6)         ; taking 100 at its 6th hit: 15 x 1.5, flash-step 4.5 x 1.5
+      (multiple-value-bind (rt ft) (hit-gains 0 100 nil 1.0 0 6)         ; taking 100 at its 6th hit: 15 x 1.5, flash-step 13.5 x 1.5
         (multiple-value-bind (ro) (hit-gains 5 0 nil *orange-gain* 3.0 1)   ; ORANGE x its gain
-          (check (and (~= r 3.0) (~= r2 3.0) (~= r6 4.5) (~= rt 22.5) (~= ft 6.75) (zerop fs) (plusp aw) (~= ro (* 3.0 *orange-gain*)))))))))
+          (check (and (~= r 3.0) (~= r2 3.0) (~= r6 4.5) (~= rt 22.5) (~= ft 20.25) (zerop fs) (plusp aw) (~= ro (* 3.0 *orange-gain*)))))))))
 ;; KOSEI by its move's kind (x the combo bonus at the call, x m), not the guard value (2026-10-26: 「攻勢整個改成基礎值×combo×防禦量表越空乘越多」)
 (check (and (equal '(9.0 16.0 36.0 27.0 20.0 0.0) (mapcar #'kosei-base '(:quick :flash :sig :sp :kikon :breaker)))
             (~= *kosei-kind-other* (kosei-base :stance)) (~= 5.0 (kosei-base :quick 5.0))
             (multiple-value-bind (r fs m) (kosei-gain (* (kosei-base :flash) (combo-gain-mult 3)) 0.0)   ; K, 3rd hit, empty gauge
-              (and (~= r (* 0.2 16 1.2 3)) (~= fs (* 0.1 16 1.2 3)) (~= m 3.0)))))
+              (and (~= r (* 0.2 16 1.2 3)) (~= fs (* 0.3 16 1.2 3)) (~= m 3.0)))))
 (check (~= (awakening-gain 100 100 1) 18.9))                                ; x0.7 since 2026-09-30 (was 27)
 (check (and (~= *awaken-dealt* 0.035) (~= *awaken-taken* 0.049) (~= *awaken-per-konpaku* 10.5)))
 (check (and (~= (gauge-add 290.0 20.0 300.0) 300.0) (~= (gauge-add 5.0 -10.0 300.0) 0.0)))
 (check (equal (multiple-value-list (spend-bars 150.0 1)) '(50.0 t)))
 (check (equal (multiple-value-list (spend-bars 50.0 1)) '(50.0 nil)))
-(check (and (hoho-allowed-p nil 30.0 0) (not (hoho-allowed-p t 100.0 0))          ; flash-step 30
-            (not (hoho-allowed-p nil 100.0 10)) (not (hoho-allowed-p nil 29.0 0))))
+(check (and (hoho-allowed-p nil 100.0 0) (not (hoho-allowed-p t 300.0 0))          ; flash-step 100 (of 300)
+            (not (hoho-allowed-p nil 300.0 10)) (not (hoho-allowed-p nil 99.0 0))))
 (check (and (awaken-allowed-p t 100.0 nil) (not (awaken-allowed-p t 100.0 t)) (not (awaken-allowed-p nil 100.0 nil))
             (not (awaken-allowed-p t 99.0 nil))))
 ;; the burst modes (docs/duel/DUEL_DESIGN.md "Burst modes", the user 2026-09-30): the state picks the mode
@@ -478,18 +478,18 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (eq (burst-mode :idle nil 0 nil) :white) (eq (burst-mode :guard nil 0 nil) :white) (eq (burst-mode :run nil 0 nil) :white)
             (null (burst-mode :step nil 0 nil)) (null (burst-mode :hoho nil 0 nil)) (null (burst-mode :down nil 5 nil))
             (null (burst-mode :cine nil 0 nil)) (null (burst-mode :idle t 0 nil)) (null (burst-mode :stun t 5 nil))))   ; locked
-(check (and (burst-allowed-p :white 70.0 nil) (burst-allowed-p :orange 70.0 nil) (burst-allowed-p :blue 100.0 nil)   ; 70 for every mode
-            (not (burst-allowed-p :white 69.9 nil)) (not (burst-allowed-p :blue 69.0 nil)) (not (burst-allowed-p :orange 60.0 nil))
-            (not (burst-allowed-p nil 100.0 nil)) (not (burst-allowed-p :white 100.0 :blue))))   ; no mode / one running
-;; the drain: 18 / s, to 0 then it ends; from 70 3.9 s, from 100 5.6 s
-(check (and (= *burst-drain* 18) (~= (burst-drain 50.0) (- 50.0 0.3)) (~= (burst-drain 0.1) 0.0)))
+(check (and (burst-allowed-p :white 200.0 nil) (burst-allowed-p :orange 200.0 nil) (burst-allowed-p :blue 300.0 nil)   ; 200 for every mode
+            (not (burst-allowed-p :white 199.9 nil)) (not (burst-allowed-p :blue 199.0 nil)) (not (burst-allowed-p :orange 170.0 nil))
+            (not (burst-allowed-p nil 300.0 nil)) (not (burst-allowed-p :white 300.0 :blue))))   ; no mode / one running
+;; the drain: 54 / s, to 0 then it ends; from 200 3.7 s, from 300 5.6 s
+(check (and (= *burst-drain* 54) (~= (burst-drain 50.0) (- 50.0 0.9)) (~= (burst-drain 0.1) 0.0)))
 (flet ((frames (fs) (loop for n from 1 do (setf fs (burst-drain fs)) when (<= fs 0.0) return n)))
-  (check (and (<= 232 (frames 70.0) 234) (<= 332 (frames 100.0) 334))))
+  (check (and (<= 221 (frames 200.0) 223) (<= 332 (frames 300.0) 334))))
 ;; no flash-step gain during a burst; Hoho below one bar spends what is left
 (check (and (~= (burst-fs-gain 12.0 nil) 12.0) (~= (burst-fs-gain 12.0 :white) 0.0) (~= (burst-fs-gain 15.0 :orange) 0.0)))
 (check (and (hoho-allowed-p nil 12.0 0 :white) (hoho-allowed-p nil 0.1 0 :blue) (not (hoho-allowed-p nil 0.0 0 :blue))
             (not (hoho-allowed-p nil 12.0 0)) (not (hoho-allowed-p nil 12.0 5 :white)) (not (hoho-allowed-p t 50.0 0 :white))))
-(check (and (~= (hoho-cost 12.0 :white) 12.0) (~= (hoho-cost 80.0 :white) 30.0) (~= (hoho-cost 80.0 nil) 30.0)))
+(check (and (~= (hoho-cost 12.0 :white) 12.0) (~= (hoho-cost 180.0 :white) 100.0) (~= (hoho-cost 180.0 nil) 100.0)))
 ;; WHITE: Reishi +12 / s in whole points (60 f pay exactly 12), no guard-gauge boost (gg-regen has no WHITE input)
 (check (and (= 70 (loop for n from 1 to 60 sum (burst-heal n *white-reishi*))) (= 66 (loop for n from 1 to 333 sum (burst-heal n 12.0)))
             (= 1 (burst-heal 5 12.0)) (= 0 (burst-heal 4 12.0))))
@@ -531,14 +531,14 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (~= (burst-gain-mult :orange) 1.5) (~= (burst-gain-mult :white) 1.0) (~= (burst-gain-mult nil) 1.0)))
 (check (and (~= (nth-value 0 (hit-gains 100 0 nil 1.5 8.0)) 12.0) (~= (nth-value 2 (hit-gains 100 0 nil 1.5)) 5.25)   ; x1.5 dealt
             (~= (nth-value 0 (hit-gains 0 100 nil 1.5)) 15.0) (~= (nth-value 0 (hit-gains 100 0 nil 1.0 8.0)) 8.0)))    ; taken untouched
-;; the Kikon refund: a flash-step bar (35) and a Reiatsu bar, clamped
-(check (and (equal (multiple-value-list (kikon-refund 10.0 50.0)) '(45.0 150.0))
-            (equal (multiple-value-list (kikon-refund 90.0 250.0)) '(100.0 300.0))))
-;; the flash-step gauge (design v3 G.1): Hoho 30, Burst 70, no Reiatsu; 3 / s after 60 f; +0.03 per damage taken
-(check (and (= *fs-hoho* 30) (= *fs-burst* 70) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.045) (= *fs-max* 100)))
-(check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.05) (~= (fs-regen 99.99 600) 100.0)))
-(check (~= 3.0 (- (loop with f = 0.0 for i below 60 do (setf f (fs-regen f 60)) finally (return f)) 0.0)))   ; 3 per second
-(check (~= 600 (/ *fs-hoho* (/ *fs-regen* 60.0)) 0.5))                     ; ... a Hoho from empty in 11 s (10 + the 1 s delay)
+;; the Kikon refund: a flash-step bar (105 of 300, 2026-10-29) and a Reiatsu bar, clamped
+(check (and (equal (multiple-value-list (kikon-refund 10.0 50.0)) '(115.0 150.0))
+            (equal (multiple-value-list (kikon-refund 250.0 250.0)) '(300.0 300.0))))
+;; the flash-step gauge (design v3 G.1; 0-300 since 2026-10-29): Hoho 100, Burst 200, no Reiatsu; 9 / s after 60 f; +0.135 per damage taken
+(check (and (= *fs-hoho* 100) (= *fs-burst* 200) (not (boundp '*fs-refund*)) (~= *fs-taken* 0.135) (= *fs-max* 300)))   ; (the 0-300 gauge, 2026-10-29)
+(check (and (~= (fs-regen 50.0 59) 50.0) (~= (fs-regen 50.0 60) 50.15) (~= (fs-regen 299.99 600) 300.0)))
+(check (~= 9.0 (- (loop with f = 0.0 for i below 60 do (setf f (fs-regen f 60)) finally (return f)) 0.0)))   ; 9 per second
+(check (~= 667 (/ *fs-hoho* (/ *fs-regen* 60.0)) 0.5))                     ; ... a Hoho from empty in 12.1 s (11.1 + the 1 s delay)
 ;; the guard gauge (G.2): values by kind, +4 for an ender, overrides; the drain, the crush, the regen, guardless
 (check (and (= (guard-value :quick -2) 8) (= (guard-value :quick -12) 12) (= (guard-value :flash -4) 14)
             (= (guard-value :flash -14) 18) (= (guard-value :sig -6) 18) (= (guard-value :sig -14) 22)
@@ -595,7 +595,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;; the CPU's guard: all at >= 50 %, half at 25-50 %, 0.15 below, none guardless; flash-step budgeting
 (check (and (~= (ai-guard-mult 50.0 nil) 1.0) (~= (ai-guard-mult 30.0 nil) 0.5) (~= (ai-guard-mult 10.0 nil) 0.15)
             (~= (ai-guard-mult 100.0 t) 0.0) (~= (ai-guard-mult 0.0 nil) 0.0)))
-(check (and (ai-hoho-spare-p 30.0 1000 1100) (not (ai-hoho-spare-p 90.0 400 1100)) (ai-hoho-spare-p 100.0 400 1100)))
+(check (and (ai-hoho-spare-p 100.0 1000 1100) (not (ai-hoho-spare-p 290.0 400 1100)) (ai-hoho-spare-p 300.0 400 1100)))
 (check (= *reishi-max* 1300))                                               ; guard v3, the user's decision 2026-09-26
 ;; the CPU's Burst: below half its Reishi, or the next hit would put it in red (30 % of 1100 = 330)
 (check (and (ai-burst-wanted-p 540 1100 10) (not (ai-burst-wanted-p 600 1100 10))

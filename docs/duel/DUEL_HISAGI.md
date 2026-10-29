@@ -3696,7 +3696,7 @@ stage; the SA's drag only within the same 6.5 m; `:mult` 1.7 kept until measured
 | NS a | 薙 NAGI, the chain's side sweep to 6.0 m, S 20, 62, stagger | 縛 SHIBARI, the chain flung round him on a 4.5 m line, S 18, 40, bind 40 f | 鎖鞭 KUSARI-MUCHI, a 4.0 m lash, S 18, 45, stagger |
 | NS b | 引 HIKI, the drop and pull: the sickle back into his back, S 14, 56, stagger | 絞 SHIBORI, the noose tightened, S 14, 50, stagger | 纏 MATOI, the chain wound round him, S 14, 45, stagger |
 | NS c | 後薙 USHIRO-NAGI, the backward swing, S 16, 80, knockdown (198) | 首掛 KUBIKAKE, heaved over the shoulder and slammed, S 16, 90, knockdown (180) | 綴雷電 TSUZURI RAIDEN, the lightning down the chain, S 16, 100, knockdown (190) |
-| AS n | AS1 鉤引 KAGI-BIKI: the sickle hooks him and drags him to 1.6 m, 50, knockdown, steals 40 flash-step | AS2 巻 MAKI 45, stagger > 首掛上げ KUBIKAKE-AGE, the noose heaved upward, 60, launch | AS3 旋 SEN 45 > 纏 MATOI 45 > 綴雷電 120, knockdown (210, the hardest) |
+| AS n | AS1 鉤引 KAGI-BIKI: the sickle hooks him and drags him to 1.6 m, 50, knockdown, steals 120 flash-step (40 of 100 before 2026-10-29) | AS2 巻 MAKI 45, stagger > 首掛上げ KUBIKAKE-AGE, the noose heaved upward, 60, launch | AS3 旋 SEN 45 > 纏 MATOI 45 > 綴雷電 120, knockdown (210, the hardest) |
 | Kikon cinematic | 刈れ (`hs-kare-cine`, existing) | 首掛 KUBIKAKE (new, §26.4) | 綴雷電 TSUZURI RAIDEN (new, §26.4) |
 
 NA (J): J1 旋 SEN with a held coil, S 14, 30 > J2 返旋 KAESHI-SEN 30 > J3 旋 30 > J4 返旋 30 > J5 輪 RIN 38, reach 1.7 m.
@@ -4046,7 +4046,7 @@ The user's request (verbatim): 「1. NS1[2] 跟 NS1[3] 攻擊沒打中時直接�
 | Hits | one hook, 50, knockdown, along the chain (`hs-core-seg`) | four cuts at f14 / 18 / 22 / 26, 16 each, the first three a flinch, the last a knockdown; all along the chain (`hs-core-seg`, within 6.5 m) |
 | Movement | the victim dragged to 1.6 m (`hs-kagi-pull`, removed) | he leaps back from f0 to `*hs-as1-hop-to*` 4.5 m (NAGI's band: `*hs-k-dead*` 3 to 6 m) over `*hs-as1-hop-frames*` 12 (HS-AS1-HOP, a `set-slide`); the victim stays |
 | Timing | a copy of K3 (startup 24, `:enter 6`) | a copy of K2 with `:enter 0` (K2's 6 would skip f0's hop: the §431 bug class), startup 14, active 16, recovery 20 |
-| Kept | steals 40 flash step (`:steal-fs`), the AS1 class, the pointer it writes | |
+| Kept | steals 40 flash step (`:steal-fs`; 120 on the 0–300 gauge since 2026-10-29), the AS1 class, the pointer it writes | |
 
 Look: its own since §27.10.1 (the clip `:hs-tsumuji`, the flat spin, the leap back; `:look-as :hs-k2` kept for HS-TICK's hashed
 anchor on the victim).

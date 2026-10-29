@@ -175,7 +175,7 @@
              (every (lambda (n) (let ((w (svref (mv-hits (m n)) 0))) (and (null (hw-seg w)) (equalp (hw-vols w) v))))
                     '(:hs-n1b :hs-n1c))))
     (check (and (equal (mv-on-frame (m :hs-sa)) '((0 hs-yose))) (eq (kit-class k (m :hs-sa)) :sa)
-                (= 40 (getf (mv-params (m :hs-as1)) :steal-fs))))
+                (= 120 (getf (mv-params (m :hs-as1)) :steal-fs))))
     ;; §27: NS3a's gap the kit's SA (YOSE), CHIKUDEN's 放電; 放電's distance x; 餘電 set / pending / used up
     (check (and (eq (getf (mv-params (m :hs-n3a)) :sa) :hs-sa) (eq (getf (mv-params (m :hs-n3b)) :sa) :hs-sa-hoden)
                 (eq (kit-class k (m :hs-sa-hoden)) :sa)))

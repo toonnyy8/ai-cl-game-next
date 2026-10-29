@@ -25,7 +25,7 @@
 (defparameter *tsuki-up* 6 "The stance's frame where it is up: the follow-ups fire from here.")
 (defparameter *tsuki-tap* 30 "Frames the stance holds past its f6 on a tap of L ...")
 (defparameter *tsuki-max* 60 "... and at most while L is held; then R 14.")
-(defparameter *tsuki-dash-fs* 10.0 "TSUKIWATARI's flash-step price (once per stance).")
+(defparameter *tsuki-dash-fs* 30.0 "TSUKIWATARI's flash-step price (once per stance; 10 -> 30 with the 0-300 gauge, 2026-10-29).")
 ;; KESSA's parry 鎖盾 KUSARI-TATE (L)
 (defparameter *kessa-parry-cost* 10.0 "The parry's guard-gauge price on its frame 0 (refused below it or guardless) ...")
 (defparameter *kessa-parry-catch* 20.0 "... a catch refunds this (net +10; 74600+k) ...")
@@ -148,7 +148,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :hits ((18 19) (21 22) (24 25) (27 30 :on-hit :stagger)))
 ;; the pointer's theme on its AS and its Kikon too (DUEL_CORE §5b, the user 2026-10-28: 「幫我為聯動製作新的動畫與動作模組」): 1 the
 ;; cleaver's weight (AS1 RAKUGA's drop, stealing), 2 the Getsuga (AS2 SOGA > a point-blank crescent), 3 the rush (AS3 SOSEN > RANGETSU > TSUKI-OTOSHI)
-(defmove-copy :ic-as1 :ic-k3 :kind :sp :callout "RAKUGA" :dmg 50 :on-hit :knockdown :flags nil :params (:steal-fs 40))   ; (no Reiatsu: unused since the core system)
+(defmove-copy :ic-as1 :ic-k3 :kind :sp :callout "RAKUGA" :dmg 50 :on-hit :knockdown :flags nil :params (:steal-fs 120))   ; (no Reiatsu: unused since the core system)
 ;; AS n has n segments, each on a fresh SP press, hit or not (the user, 2026-10-27: 「希望 AS 也能設計成不同段數的連擊」, 「每段再按 SP」,
 ;; 「AS1=1 AS2=2 AS3=3」); only the last one knocks down (or launches); a hold kept through any segment's hit is the Kikon
 ;; AS2: SOGA's flash-step lunge X (stagger) > SHOGA's rising cut (the launch)
@@ -277,7 +277,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove-copy :ic-k-wave-strike-as :ic-k-wave-strike)
 (defmove-copy :ic-k-as1 :ic-k-hiki :callout "KUSARI-BIKI" :clip :ic-k-whip :startup 12 :active 18 :recovery 20 :dmg 14 :on-hit :flinch
   :hits ((12 13) (16 17) (20 21) (25 30 :on-hit :knockdown))                       ; AS1: four lashes, his left / right in turn, the last
-  :params (:melee-range 3.8 :pull 1.6 :steal-fs 10 :chain (60 -60 3.6 1.2 1.0)))   ; knocks him down (「血鎖 AS 也改成多段的鞭擊」)
+  :params (:melee-range 3.8 :pull 1.6 :steal-fs 30 :chain (60 -60 3.6 1.2 1.0)))   ; knocks him down (「血鎖 AS 也改成多段的鞭擊」)
 ;; AS2 the Getsuga, AS3 the clones (the user, 2026-10-28: 「幫我將指向指針二的 AS 改成給月牙天衝有關的攻擊，指向指針三的 AS 則改成與分身相關的攻擊」):
 ;; AS2, SOGA's flash-step cut with the black flame on the slab (ICHIGO-CHARGED-BLADES) > the 漆黒 crescent thrown point-blank (6 m, the
 ;; launch); AS3, his cuts with NS3's clones joining one a press (a clone at his right, one at his left, then their X with his drop)

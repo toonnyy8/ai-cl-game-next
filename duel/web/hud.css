@@ -43,22 +43,26 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .reishi .fill::after { content: ""; position: absolute; inset: 0; opacity: .35;
   background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(11,11,16,.18) 9px 10px, transparent 10px 23px); }
 #hud .plate.low .reishi .fill { background: linear-gradient(180deg, #ff6b7f, var(--blood)); animation: hd-pulse 1.1s ease-in-out infinite; }
-/* 起筆 (the user, 2026-10-29: 「起筆：血從印章流出」, DUEL_WEBUI §8.2 / §9): on the phone your stroke is drawn out of the 爆 seal. It
-   starts at the seal's rim through a neck (under the seal by 1.3 U: hud.js sizes the plate from Lisp's 爆 spot) and is anchored there,
-   so damage eats it from the far end back toward the seal. Elsewhere the row is the plain stroke. */
 #hud .rrow { display: flex; align-items: center; height: calc(1.55 * var(--u)); width: 100%; }
 #hud .rrow .reishi { flex: 1; }
-#hud .neck { display: none; }
-#hud.hphone:not(.nodeck) .plate.p1 .neck { display: block; flex: none; width: calc(2.6 * var(--u)); height: calc(4 * var(--u)); overflow: visible; }
-#hud .neck path { fill: var(--paper); transition: fill .25s; }
-#hud .plate.low .neck path { fill: var(--blood); }
-#hud .plate.dead .neck path { fill: #2c303d; }
-#hud.hphone:not(.nodeck) .plate.p1:not(.mir) .reishi { transform: scaleX(-1); }
-#hud.hphone:not(.nodeck) .plate.p1.mir .reishi { transform: none; }
-#hud.hphone:not(.nodeck) .plate.p1.mir .rrow { flex-direction: row-reverse; }
-#hud.hphone:not(.nodeck) .plate.p1.mir .neck { transform: scaleX(-1); }
-#hud.hphone:not(.nodeck) .plate.p1 :is(.aw, .awk) { display: none; }   /* the awakening is the seal's ring */
-#hud.hphone:not(.nodeck) .plate.p1 .meters { grid-template-columns: 1fr; width: 42%; }
+/* 界 (draft C, the user, 2026-10-29: 「我選 C」, DUEL_WEBUI §11): on the phone your plate IS the deck's SP / ATK line, the bar's middle
+   on it from the far edge to the thumb's (hud.js lays it from Lisp's line), its flames, name and tag on the SP side above it; what is
+   left stays at the far end (the thumb covers the near one); the empty track keeps the line drawn at 0. Flash step: the ink in 爆;
+   the awakening: 爆's ring; the stance: three seals around 爆. */
+#hud.hphone:not(.nodeck) .plate.p1 { top: auto; right: auto; grid-template-columns: auto 1fr; grid-template-areas: "s w" "b b"; align-items: end;
+  column-gap: calc(1.1 * var(--u)); row-gap: calc(.55 * var(--u)); padding-inline: calc(1.4 * var(--u)); }
+#hud.hphone:not(.nodeck) .plate.p1.mir { grid-template-columns: 1fr auto; grid-template-areas: "w s" "b b"; }
+#hud.hphone:not(.nodeck) .plate.p1::before { content: none; }
+#hud.hphone:not(.nodeck) .plate.p1 .souls { grid-area: s; padding-inline-start: calc(.4 * var(--u)); }
+#hud.hphone:not(.nodeck) .plate.p1.mir .souls { padding-inline: 0 calc(.4 * var(--u)); }
+#hud.hphone:not(.nodeck) .plate.p1 .who { grid-area: w; }
+#hud.hphone:not(.nodeck) .plate.p1 .who .nm { font-size: calc(1.75 * var(--u)); line-height: .8; }
+#hud.hphone:not(.nodeck) .plate.p1 .who .kj { font-size: calc(1 * var(--u)); }
+#hud.hphone:not(.nodeck) .plate.p1 .who .htag { margin-inline: calc(.3 * var(--u)) 0; }
+#hud.hphone:not(.nodeck) .plate.p1.mir .who .htag { margin-inline: 0 calc(.3 * var(--u)); }
+#hud.hphone:not(.nodeck) .plate.p1 .rrow { grid-area: b; height: calc(1.3 * var(--u)); }
+#hud.hphone:not(.nodeck) .plate.p1 .reishi { height: calc(1.3 * var(--u)); box-shadow: inset 0 0 0 1px rgba(238,238,234,.42); background: rgba(11,11,16,.55); }
+#hud.hphone:not(.nodeck) .plate.p1 :is(.meters, .hptr) { display: none; }
 @keyframes hd-pulse { 50% { filter: brightness(1.35); } }
 
 /* Konpaku: nine soul flames, each flickering on its own beat (the user, 2026-10-29: 「靈魂的火焰做成動畫，然後被打掉的空缺以灰色小點表示」);
@@ -179,9 +183,8 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud.hphone :is(.p2, .mir).plate::before { background: radial-gradient(farthest-side at 65% 50%, rgba(11,11,16,.62), rgba(11,11,16,.32) 60%, rgba(11,11,16,0)); }
 #hud.hphone .plate.p2 { top: calc(3.8 * var(--u) + var(--st)); right: calc(2.2 * var(--u)); }
 #hud.hphone:not(.nodeck) .plate.p2 { width: calc(27 * var(--u)); }   /* (clear of the clock tab) */
-/* your own block lower (the user, 2026-10-28: 「請將我方的 HUD 下移約 0.5 cm」, then 「再次下移約 0.5 cm」: .5cm -> 1cm; before: no --low) */
-#hud.hphone { --low: 1cm; }   /* = onehand.lisp *PLATE-LOW* (爆 sits level with this plate's bar) */
-#hud.hphone .plate.p1 { top: auto; bottom: calc(var(--deck) + 2 * var(--u) - var(--low)); left: calc(2.2 * var(--u)); }
+/* (no deck: your plate over the bottom edge; with the deck it is the line, 界 above; its 1 cm drop, --low, went with draft C) */
+#hud.hphone .plate.p1 { top: auto; bottom: calc(var(--deck) + 2 * var(--u)); left: calc(2.2 * var(--u)); }
 #hud.hphone .clock { top: calc(3.4 * var(--u) + var(--st)); left: calc(2.4 * var(--u)); transform: none; justify-items: start; }
 #hud.hphone .clock .t { font-size: calc(3.4 * var(--u)); }
 #hud.hphone .clock .inf { width: calc(6.6 * var(--u)); height: calc(3.2 * var(--u)); }
@@ -198,15 +201,17 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .clock .rp i { display: inline-flex; gap: calc(.24 * var(--u)); }
 #hud .clock .rp i::before, #hud .clock .rp i::after { content: ""; width: calc(.32 * var(--u)); height: calc(1.15 * var(--u)); background: var(--paper); }
 #hud.hphone.paused .clock { opacity: 0; }
-#hud.hphone .callout.p1 { top: auto; bottom: calc(var(--deck) + 15.5 * var(--u) - var(--low)); }
-#hud.hphone .combo.p1 { top: auto; bottom: calc(var(--deck) + 19 * var(--u) - var(--low)); }
+#hud.hphone .callout.p1 { top: auto; bottom: calc(var(--deck) + 6.4 * var(--u)); }   /* (draft C: just over the deck, off the fighters' feet) */
+#hud.hphone .combo.p1 { top: auto; bottom: calc(var(--deck) + 9.6 * var(--u)); }
+#hud.hphone.nodeck .callout.p1 { bottom: calc(var(--deck) + 15.5 * var(--u)); }
+#hud.hphone.nodeck .combo.p1 { bottom: calc(var(--deck) + 19 * var(--u)); }
 #hud.hphone .callout.p2 { top: calc(17 * var(--u) + var(--st)); }
 #hud.hphone .combo.p2 { top: calc(20.5 * var(--u) + var(--st)); }
 #hud.hphone .prompt { bottom: calc(var(--deck) * .84); z-index: 13; }
 #hud.hphone .seal { width: calc(2.2 * var(--u)); height: calc(2.2 * var(--u)); font-size: calc(1.3 * var(--u)); }
 #hud.hphone .hkey { display: none; }
 #hud.hphone.nodeck .prompt { bottom: calc(8 * var(--u)); }
-#hud.hphone.nodeck .plate.p1, #hud.hphone.nodeck .callout.p1, #hud.hphone.nodeck .combo.p1 { --deck: 4%; --low: 0px; }
+#hud.hphone.nodeck .plate.p1, #hud.hphone.nodeck .callout.p1, #hud.hphone.nodeck .combo.p1 { --deck: 4%; }
 /* left hand: your own plate, move name and combo to the right; the pause seal to the left (Lisp places it) */
 #hud.hphone.left-hand .plate.p1 { left: auto; right: calc(2.2 * var(--u)); }
 #hud.hphone.left-hand .callout.p1 { left: auto; right: calc(2.6 * var(--u)); flex-direction: row-reverse; }
@@ -220,19 +225,14 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .deck::before { content: ""; position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(11,11,16,0) 0%, rgba(11,11,16,.42) 22%, rgba(11,11,16,.58) 100%); }
 #hud .deck::after { content: ""; position: absolute; inset: 0; opacity: .5;
-  background-image: radial-gradient(circle, rgba(188,193,204,.18) 0 1px, transparent 1.4px); background-size: 7px 7px;
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 40%); mask-image: linear-gradient(180deg, transparent, #000 40%); }
+  background-image: radial-gradient(circle, rgba(188,193,204,.18) 0 1px, transparent 1.4px); background-size: 7px 7px; }   /* (to the deck's top: draft v7.11) */
 #hud .zone { position: absolute; inset: 0; z-index: 1; transition: background .2s; }
 #hud .zone.lit { background: rgba(238,238,234,.07); }
 #hud .zl { position: absolute; z-index: 1; font: 800 calc(1.6 * var(--u))/1 var(--f-display); letter-spacing: .3em; color: rgba(238,238,234,.42);
   display: flex; gap: calc(.8 * var(--u)); align-items: baseline; }
 #hud .zl em { font: 800 calc(1.5 * var(--u))/1 var(--f-kanji); font-style: normal; letter-spacing: 0; color: rgba(238,238,234,.3); }
-#hud .zl.sp { left: 44%; top: 18%; } #hud .zl.atk { left: 8%; bottom: 16%; }
-#hud.left-hand .zl.sp { left: auto; right: 44%; } #hud.left-hand .zl.atk { left: auto; right: 8%; }
-#hud .divider { position: absolute; inset: 0; z-index: 1; }
-#hud .divider svg { width: 100%; height: 100%; display: block; }
-#hud .divider line { stroke: rgba(238,238,234,.38); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linecap: round; }
-#hud .gl { position: absolute; z-index: 1; font: 600 calc(.75 * var(--u))/1 var(--f-mono); letter-spacing: .1em; color: rgba(188,193,204,.6); white-space: nowrap; transform-origin: 0 0; }
+#hud .zl.sp { right: 5%; top: calc(44% - .8cm); } #hud .zl.atk { left: 8%; bottom: 16%; }   /* (draft C: SP at the thumb's edge, under 爆) */
+#hud.left-hand .zl.sp { right: auto; left: 5%; } #hud.left-hand .zl.atk { left: auto; right: 8%; }
 /* the seals 爆 and 止, where Lisp's touch hit circles are (centres and radii published, DUEL_WEBUI §7) */
 #hud .dbtn { position: absolute; z-index: 14; border-radius: 50%; border: 1.5px solid rgba(238,238,234,.55); background: rgba(11,11,16,.55);
   display: grid; place-items: center; align-content: center; gap: 2px; transition: transform .15s var(--ease-snap), background .15s, border-color .2s, box-shadow .25s, opacity .3s; }
@@ -241,25 +241,65 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .dbtn small { font: 600 calc(.85 * var(--u))/1 var(--f-mono); letter-spacing: .12em; color: var(--steel); }
 #hud .dbtn.pressed { transform: scale(.9); background: var(--paper); color: var(--ink); }
 #hud .dbtn.pressed small { color: var(--ink); }
-#hud .dbtn.rv { border-color: var(--blood); }
-#hud .dbtn.rv.can { box-shadow: 0 0 calc(1.4 * var(--u)) rgba(232,30,58,.35); }
-#hud .dbtn.rv { background: var(--night, #161922); }
-#hud .dbtn.rv.pressed { background: var(--paper); }
-#hud .awring { position: absolute; inset: calc(-1.2 * var(--u)); width: calc(100% + 2.4 * var(--u)); height: calc(100% + 2.4 * var(--u)); transform: rotate(207deg); overflow: visible; }
-#hud.left-hand .awring { transform: rotate(27deg); }   /* (the gap at 9 o'clock, 3 o'clock for the left hand: where the neck enters) */
+/* 爆 (draft C): the flash-step gauge is the ink standing in the seal (--lv, hud.js), white chords at a Hoho's third and a Burst's two
+   thirds (paper over the empty seal, ink inside the ink); from two thirds the rim and 爆 light: armed. A running Burst drains it in its
+   mode's colour (--bc); a Hoho drops it a third and dips the seal; a press under two thirds shakes it (NO BURST). */
+#hud .dbtn.rv { border-color: rgba(232,30,58,.4); background: var(--night, #161922); z-index: 14; }
+#hud .dbtn.rv.armed { border-color: var(--blood); box-shadow: 0 0 0 1px rgba(232,30,58,.35); }
+#hud .dbtn.rv.armed.can { box-shadow: 0 0 calc(1.4 * var(--u)) rgba(232,30,58,.35); }
+#hud .dbtn.rv.pressed { background: var(--night, #161922); }
+#hud .dbtn.rv .well { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
+#hud .dbtn.rv .face { display: grid; place-items: center; align-content: center; gap: 2px; }
+#hud .dbtn.rv > .face { position: absolute; inset: 0; z-index: 2; border-radius: 50%; overflow: hidden; clip-path: inset(0 0 var(--lv, 100%) 0); transition: clip-path .45s var(--ease-out); }
+#hud .dbtn.rv > .face b { color: var(--stone); transition: color .25s; }
+#hud .dbtn.rv.armed > .face b { color: var(--paper); }
+#hud .dbtn.rv > .face small { color: var(--steel); }
+#hud .dbtn.rv .lvl { position: absolute; left: 0; right: 0; bottom: 0; height: var(--lv, 100%); overflow: hidden; z-index: 1;
+  background: linear-gradient(180deg, #8f96a6, #5d6474); transition: height .45s var(--ease-out), background .3s; }
+#hud .dbtn.rv .lvl .face { position: absolute; left: 0; bottom: 0; width: 100%; height: calc(var(--dd, 7.4vw) - 3px); color: var(--ink); }
+#hud .dbtn.rv .lvl .face small { color: var(--ink); }
+#hud .dbtn.rv.armed .lvl { background: linear-gradient(180deg, #ffffff, #c9cbcf); }
+#hud .dbtn.rv.bursting .lvl { background: var(--bc); box-shadow: 0 0 calc(1.2 * var(--u)) var(--bc); }
+#hud .tick { position: absolute; z-index: 3; left: 0; right: 0; height: 1.5px; --tc: rgba(238,238,234,.45);
+  background: linear-gradient(90deg, var(--tc) 0 calc(50% - var(--g) * var(--u)), transparent 0 calc(50% + var(--g) * var(--u)), var(--tc) 0); }
+#hud .tick.t1 { bottom: 33.333%; --g: 1.05; } #hud .tick.t2 { bottom: 66.667%; --g: 1.35; }   /* (clear of RV / 爆 by 0.3 U) */
+#hud .dbtn.rv.armed .tick { --tc: var(--paper); }
+#hud .dbtn.rv .lvl .tick { --tc: rgba(11,11,16,.7); }
+#hud .dbtn.rv.arm { animation: hd-arm .42s var(--ease-snap) 1; }
+@keyframes hd-arm { 0% { scale: 1; } 40% { scale: 1.1; box-shadow: 0 0 0 3px var(--blood); } 100% { scale: 1; } }
+#hud .dbtn.rv.deny { animation: hd-deny .3s var(--ease-out) 1; }
+@keyframes hd-deny { 0%, 100% { translate: 0 0; } 25% { translate: calc(-.4 * var(--u)) 0; } 60% { translate: calc(.3 * var(--u)) 0; } }
+#hud .dbtn.rv.slosh { animation: hd-dip .32s var(--ease-out) 1; }
+@keyframes hd-dip { 0% { translate: 0 0; } 40% { translate: 0 calc(.35 * var(--u)); } 100% { translate: 0 0; } }
+/* the awakening: a gold ring hugging the seal, clockwise from the top (the left hand: counter-clockwise) */
+#hud .awring { position: absolute; z-index: 3; inset: calc(-.92 * var(--u)); width: calc(100% + 1.84 * var(--u)); height: calc(100% + 1.84 * var(--u)); transform: rotate(-90deg); overflow: visible; }
+#hud.left-hand .awring { transform: scaleX(-1) rotate(-90deg); }
 #hud .awring circle { fill: none; }
-#hud .awring .trk { stroke: rgba(44,48,61,.9); stroke-width: 1.6; stroke-dasharray: 85 15; }
-#hud .awring .awg { stroke: var(--reiatsu); stroke-width: 1.7; stroke-dasharray: calc(var(--aw, 0) * 85) 100; transition: stroke-dasharray .4s var(--ease-out); }
+#hud .awring .trk { stroke: rgba(44,48,61,.95); stroke-width: 1.5; }
+#hud .awring .awg { stroke: var(--reiatsu); stroke-width: 1.65; stroke-dasharray: calc(var(--aw, 0) * 100) 100; transition: stroke-dasharray .4s var(--ease-out); }
 #hud .awring .hold { stroke: var(--reiatsu); stroke-width: 3; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; }
 #hud .dbtn.ready .awring .awg { stroke-width: 2.1; animation: hd-awbreath 1.6s ease-in-out infinite; }
 @keyframes hd-awbreath { 50% { filter: drop-shadow(0 0 2.5px var(--reiatsu)); } }
 #hud .dbtn.ready { box-shadow: 0 0 calc(1.6 * var(--u)) rgba(255,216,58,.2); }
 #hud .dbtn.holding .awring .hold { opacity: 1; animation: hd-awfill .3s linear forwards; }
 @keyframes hd-awfill { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
-#hud .kak { position: absolute; top: calc(-2.6 * var(--u)); left: 50%; transform: translateX(-50%); font: 800 calc(1.25 * var(--u))/1 var(--f-kanji);
+#hud .kak { position: absolute; z-index: 3; top: calc(-2.6 * var(--u)); left: 50%; transform: translateX(-50%); font: 800 calc(1.25 * var(--u))/1 var(--f-kanji);
   color: var(--ink); background: var(--reiatsu); padding: calc(.25 * var(--u)) calc(.35 * var(--u)); opacity: 0; }
 #hud .dbtn.ready .kak { opacity: 1; animation: hd-kak .34s var(--ease-snap) 1 both; }
 @keyframes hd-kak { 0% { opacity: 0; transform: translateX(-50%) scale(1.9) rotate(-10deg); } 100% { opacity: 1; transform: translateX(-50%) rotate(-3deg); } }
+/* the stance (draft C): your three pointer seals on a circle of 6.2 U around 爆's middle, on the far side (hud.js seats the 0 x 0 box
+   there; the left hand mirrors it), the live one inked, its name beyond them */
+#hud .rvc { position: absolute; width: 0; height: 0; z-index: 14; --m: 1; transition: opacity .3s; }
+#hud .rvc[hidden] { display: none; }
+#hud.left-hand .rvc { --m: -1; }
+#hud.cine .rvc, #hud.paused .rvc { opacity: 0; }
+#hud .rvc .hptr:not([hidden]) { display: block; margin: 0; }
+#hud .rvc .seal, #hud .rvc .seal.on { position: absolute; left: 0; top: 0; background: rgba(11,11,16,.42);
+  transform: translate(-50%, -50%) rotate(calc(var(--a) * var(--m) * 1deg)) translateY(calc(-6.2 * var(--u))) rotate(calc(var(--a) * var(--m) * -1deg)); }
+#hud .rvc .seal.on { background: var(--paper); rotate: -4deg; scale: 1.1; }
+#hud .rvc .pn { position: absolute; top: calc(-.45 * var(--u)); right: calc(9.4 * var(--u)); margin: 0; font-size: calc(.78 * var(--u)); letter-spacing: .14em;
+  text-shadow: 0 1px 0 rgba(0,0,0,.8); }
+#hud.left-hand .rvc .pn { right: auto; left: calc(9.4 * var(--u)); }
 /* touch ink (the events Lisp publishes): a ripple where the thumb landed, a brush trail on a flick, the gesture named */
 #hud .fx { position: absolute; inset: 0; z-index: 15; }
 #hud .ink { position: absolute; width: calc(16 * var(--u)); height: calc(16 * var(--u)); margin: calc(-8 * var(--u)) 0 0 calc(-8 * var(--u));

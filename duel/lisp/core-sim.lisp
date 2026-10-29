@@ -264,7 +264,7 @@ flash-step from DEF and gives it to ATT. (Its Reiatsu steal went with the Reiats
     (when (and fs (plusp fs))
       (let ((take (f32 (min (* mult fs) (gauges-fs (gauges def))))))
         (setf (gauges-fs (gauges def)) (f32 (- (gauges-fs (gauges def)) take)))
-        (setf (gauges-fs (gauges att)) (f32 (min 100f0 (+ (gauges-fs (gauges att)) take))))))))
+        (setf (gauges-fs (gauges att)) (f32 (min *fs-max* (+ (gauges-fs (gauges att)) take))))))))
 
 (defun core-konpaku-result (konpaku att soul-break)
   "Konpaku left / lost / ko-p after a Kikon or a Soul Break by ATT (a fighter of a core kit): a Kikon takes what CORE-SET-KIKON-N! fixed

@@ -183,7 +183,7 @@ reworked. Then (§433, the user: 「幫我為聯動製作新的動畫與動作�
 
 | Form | Pointer | NS | AS | Kikon cinematic (`:core :kikon-cines`) |
 |---|---|---|---|---|
-| Shikai | 1 the cleaver's weight | the cleaver overhead, the K string | AS1 RAKUGA's drop (50, steals 40 flash-step) | `ic-heavy-kikon-cine` (new) |
+| Shikai | 1 the cleaver's weight | the cleaver overhead, the K string | AS1 RAKUGA's drop (50, steals 120 flash-step; 40 of 100 before 2026-10-29) | `ic-heavy-kikon-cine` (new) |
 | Shikai | 2 the Getsuga | two charges > JUJISHO | AS2 SOGA > a point-blank yellow-white Getsuga (6 m, 60, the launch) | `ic-kikon-cine` (the Cero Getsuga) |
 | Shikai | 3 the rush | RANGETSU > TSUKI-OTOSHI | AS3 SOSEN-GIRI > RANGETSU > TSUKI-OTOSHI | `ic-rush-kikon-cine` (new) |
 | KESSA | 1 the blood chains | three lashes | AS1 the four-lash whip | `ic-chain-kikon-cine` (new) |
@@ -276,7 +276,7 @@ follow-up links keep their speed).
   :sa :ic-k-sa1`; no Shikai clip is played in KESSA (a host check). NS1 is the blood chains from his left fist: `ic-k-n1a` a wide lash (S 22,
   60) → `ic-k-n1b` the backhand (S 14, 55) → `ic-k-n1c` overhead into the plaza (S 18, 80, crumple), reach 3.0 / 3.0 / 3.2 m; AS1 is
   KUSARI-BIKI as a whip (§430, the user: 「血鎖 AS 也改成多段的鞭擊」: `ic-k-as1`, clip `:ic-k-whip`, four lashes in one press, 14 each, left /
-  right in turn, the last a knockdown; 10 flash-step stolen a lash). The chains come out of both wrists and both ankles (§430: 「血鎖是從手腕、
+  right in turn, the last a knockdown; 30 flash-step stolen a lash, 10 on the 0–100 gauge). The chains come out of both wrists and both ankles (§430: 「血鎖是從手腕、
   腳踝延伸出來的」, `*ic-chain-roots*`): the left wrist's lashes, the other three reach for the same tip, fainter; a multi-hit move sweeps once
   per hit window. The chain is a look: a move's
   `:params :chain (from-deg to-deg length from-y to-y)` swept over S-4 .. S+A+4 (`ichigo-chain-lash`). Pointer 1's rest `:ic-k-st-chain`,
@@ -320,7 +320,7 @@ follow-up links keep their speed).
 - **No Reiatsu gauge** (2026-10-27, the user: 「原本的 SP 量表已經沒有作用，可以拿掉了」): no core SP spends Reiatsu (`core-sp-start!` /
   `core-as-start!` check no cost); its last use was AS1's steal (`:steal-rei 100`), which fed nothing. The HUD's REIATSU row is not drawn for a
   kit with `:core` (FLASH STEP and AWAKEN move up into its place, hud.lisp); `:steal-rei` is gone from `core-on-hit!` and the three AS1s
-  (they steal 40 flash-step). The gauge itself still fills in the sim (KOSEI, hits, regen) and the frozen modes still read it.
+  (they steal 120 flash-step since the 0–300 gauge, 2026-10-29; 40 before). The gauge itself still fills in the sim (KOSEI, hits, regen) and the frozen modes still read it.
 - **No guard gauge** (the same day: 「防禦量表也一樣沒用了，可以移除」): there is no guard, so the bar under the Reishi and the KOSEI tag at
   its end are not drawn for a `:core` kit, in the landscape and the portrait (phone) panels; the portrait's last row is then FLASH STEP +
   AWAKEN at half width each (+ the kit meter where there is one). Shots: 1280x720 and 390x844 (DEVLOG §420). The sim still keeps the gauge

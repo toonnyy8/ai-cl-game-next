@@ -191,7 +191,8 @@ J 2.7 K 5.7 L 4.7 SP 5.6 O 6.9 Breaker 14.3). A hit that deals no damage pays no
 ;;; m = 1 + *KOSEI-BONUS* x (1 - his own guard gauge / max): x1 at a full gauge ... x3 at an empty one.
 (defparameter *kosei-bonus* 2.0 "KOSEI: the multiplier's range above 1 (x1 full gauge .. x(1 + this) empty).")
 (defparameter *kosei-reiatsu* 0.20 "KOSEI: Reiatsu per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m).")
-(defparameter *kosei-fs* 0.10 "KOSEI: flash-step per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m).")
+(defparameter *kosei-fs* 0.30 "KOSEI: flash-step per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m); 0.10 -> 0.30 with the
+0-300 gauge (*FS-MAX*).")
 (defparameter *kosei-kind* '(:quick 9.0 :flash 16.0 :sig 36.0 :sp 27.0 :kikon 20.0 :breaker 0.0)
   "KOSEI: a paying contact's points by its move's kind (J K L SP O Breaker), x the combo bonus (COMBO-GAIN-MULT: the combo's
 nth hit, a block 1) and x m; a move's :kosei param overrides its kind's (the user 2026-10-26: 「閃步量表也做一樣的修改」,
@@ -200,13 +201,16 @@ SP 27.3 O 20, a Breaker's 0).")
 (defparameter *kosei-kind-other* 16.0 "... a kind not in the table.")
 
 ;;; ---------------------------------------------------------------- flash-step gauge (design v3 G.1): Hoho, Burst
-(defparameter *fs-max* 100.0 "Flash-step gauge maximum; full at the match start, kept through Kikon resets.")
-(defparameter *fs-hoho* 30.0 "Flash-step a Hoho costs.")
-(defparameter *fs-burst* 70.0 "Flash-step every burst mode needs to start (the user's \"two bars\"; the drain is the cost).")
-(defparameter *fs-regen* 3.0 "Flash-step per second ...")
+;; (the gauge x3, the user 2026-10-29: 「幫我將閃步量表改成 0-300，並且將 hoho 消費改成 100，爆氣設為 200，其他恢復量也做對應的提昇」; DUEL_DESIGN "Flash-step gauge 0-300", DEVLOG §504: the max, every gain and the drain x3,
+;; the Hoho 30 -> 100 and the burst 70 -> 200 as asked, so a Hoho is 1/3 of the gauge (was 0.3) and a burst 2/3 (was 0.7))
+(defparameter *fs-max* 300.0 "Flash-step gauge maximum (100 -> 300); full at the match start, kept through Kikon resets.")
+(defparameter *fs-hoho* 100.0 "Flash-step a Hoho costs (30 -> 100).")
+(defparameter *fs-burst* 200.0 "Flash-step every burst mode needs to start (70 -> 200: two of the HUD's three cells; the drain is the cost).")
+(defparameter *fs-regen* 9.0 "Flash-step per second (3 -> 9) ...")
 (defparameter *fs-delay* 60 "... once this many frames passed since the last spend.")
-(defparameter *fs-taken* 0.045
-  "Flash-step per point of damage taken, x the combo bonus (a full 1300 Reishi bar = +58.5 before it); 0.03 -> 0.045 and the
+(defparameter *fs-taken* 0.135
+  "Flash-step per point of damage taken, x the combo bonus (a full 1300 Reishi bar = +175.5 before it); 0.045 -> 0.135 with the
+0-300 gauge (2026-10-29); 0.03 -> 0.045 and the
 bonus (the user 2026-10-26: 「閃步量表也做一樣的修改，然後提高被攻擊方的恢復量」, 「兩種都 ×1.5」).")
 ;; (*FS-REFUND* 15, a perfect Hoho's flash-step back, removed 2026-10-18, the user: 「取消完美閃避能減少閃步量表消耗的設定」,
 ;; DUEL_DESIGN "Perfect Hoho without a refund": a perfect Hoho costs its full 30)
@@ -328,7 +332,7 @@ a combo (critique-design 1.7: not from hit 1).")
 (defparameter *burst-hitstop* 8 "Global hitstop of a Burst.")
 ;; the three burst modes (docs/duel/DUEL_DESIGN.md "Burst modes", the user 2026-09-30): the state at the press picks WHITE /
 ;; BLUE / ORANGE; every one needs *FS-BURST*, spends nothing up front and drains the flash-step gauge to 0
-(defparameter *burst-drain* 18.0 "Flash-step per second a running burst drains (100 -> 0 in 5.6 s, 70 in 3.9 s).")
+(defparameter *burst-drain* 54.0 "Flash-step per second a running burst drains (18 -> 54 with the 0-300 gauge: 300 -> 0 in 5.6 s, 200 in 3.7 s).")
 (defparameter *white-reishi* 70.0 "WHITE (and the awakening's regen): Reishi regenerated per second (integer points; 12 -> 24 -> 70, the user
 2026-09-30: a full-length run, 5.55 s, restores ~30 % of 1300).")
 (defparameter *white-reiatsu* 15.0 "WHITE: Reiatsu per second on top of *REIATSU-REGEN*.")
@@ -338,7 +342,8 @@ a combo (critique-design 1.7: not from hit 1).")
 (defparameter *chain-window* 12 "ORANGE: frames after the cancel in which the next move started has its startup cut ...")
 (defparameter *chain-cut* 0.4 "... by this fraction (at least 1 f of startup left).")
 (defparameter *orange-gain* 1.5 "ORANGE: Reiatsu from hits dealt and KOSEI, awakening from hits dealt, x this.")
-(defparameter *kikon-fs-refund* 35.0 "A Kikon that connects (or a Soul Break: the user 2026-09-30) gives its user this flash-step (one of the burst's two bars) ...")
+(defparameter *kikon-fs-refund* 105.0 "A Kikon that connects (or a Soul Break: the user 2026-09-30) gives its user this flash-step (35 -> 105 with the
+0-300 gauge) ...")
 (defparameter *kikon-reiatsu-refund* 100.0 "... and this Reiatsu (one bar); after any burst ended.")
 
 ;;; ================================================================ §4 damage multipliers

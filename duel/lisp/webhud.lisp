@@ -129,7 +129,8 @@ the Bankai ready), its arg, the key string (NIL on the phone), the AS's romaji."
 (defun-fast webhud-deck ()
   "The deck's spots in permille of the window (30130-30141: the deck rect, the line's ends, 爆 and 止), the touch feedback (the
 last recognised gesture as an event: 30105 serial, its kind, where, its stroke; the Kikon hold ring under a thumb held in the SP
-zone during an NS / AS: 30111-30113), 爆's state bits (30104: 1 ready, 2 its hold under way, 4 pressed, 8 a burst possible)."
+zone during an NS / AS: 30111-30113), 爆's state bits (30104: 1 ready, 2 its hold under way, 4 pressed, 8 a burst possible; your
+running burst 16 WHITE, 32 BLUE, 64 ORANGE: the ink in the seal takes its colour, draft C)."
   (let* ((wf (i->f (max 1 (the fixnum (window-width))))) (hf (i->f (max 1 (the fixnum (window-height)))))
          (dk *deck*) (dr *deck-rect*) (tr *touch*) (sf *web-seen-f*) (left (eq *hand* :left)))
     (declare (single-float wf hf) (type f32vec dk dr sf))
@@ -153,7 +154,8 @@ zone during an NS / AS: 30111-30113), 爆's state bits (30104: 1 ready, 2 its ho
         (webhud-put 11 (if ring 1 0))
         (when ring (webhud-put 12 (px (touch-ox tr))) (webhud-put 13 (py (touch-oy tr))))))
     (webhud-put 4 (logior (if (rv-ready-p) 1 0) (if (rv-holding-p) 2 0) (if (>= (aref (touch-chip-slot tr) 7) 0) 4 0)
-                          (if (and *p1* (entity-alive-p *p1*) (burst-ok-p *p1*)) 8 0)))
+                          (if (and *p1* (entity-alive-p *p1*) (burst-ok-p *p1*)) 8 0)
+                          (case (and *p1* (entity-alive-p *p1*) (gauges-burst (gauges *p1*))) (:white 16) (:blue 32) (:orange 64) (t 0))))
     nil))
 
 ;;; ---------------------------------------------------------------- the pause rows, the intro, the finish

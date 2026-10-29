@@ -62,22 +62,26 @@ deck's SP side; :CLOCK the pause on the timer's tab, x from the window's left in
 ones), label. Before 2026-10-28: AWAKEN (270 396 26), pause (32 -200 22: under the portrait HUD's top block), RV (170 472 22), in CSS
 px; 2026-10-28 -> 29 the pause (6.7 :PAUSE 3.1): above your plate on the thumb's side, until the clock tab took it (DUEL_WEBUI §9).")
 (defparameter *deck-frac* 0.37 "The deck's share of the window's height, from the bottom (the battle screens' draft, DUEL_WEBUI §6).")
-(defparameter *deck-split* '(0.20 0.82)
+(defparameter *deck-split* '(0.0 0.82)
   "The tap zones' line: its height as a fraction of the deck's at the far edge, then at the thumb's edge; SP above, the attack
 below (the user, 2026-10-28: 「SP 跟 ATK 沿著目前大約『覺』的位置往斜上方畫界分割」 (v2: 0.20 / 0.986), then 「分割起始點在往上一些」
 (v3: the near end 0.986 -> 0.82)). Before: the pad's level middle (the recogniser's TAP-SPLIT 0.5). One source: the recogniser
-hit-tests it (TOUCH-SPLIT!) and the page draws it (DUEL_WEBUI §7, set 30134 / 30135).")
+hit-tests it (TOUCH-SPLIT!) and the page draws it (DUEL_WEBUI §7, set 30134 / 30135). The far end 0.20 -> 0.0 with draft C (the
+user, 2026-10-29: 「我選 C」): it is placed by *DECK-SPLIT-LIFT* alone, 1 cm under the deck's top on every phone.")
 (defparameter *clock-tab-mid* 7.4
   "The phone's clock tab's middle, U under the safe top (the tab 3.2 U down, 8.4 U tall: hud.css #hud.hphone .clock; the user,
 2026-10-29: 「將暫停鍵與時間顯示結合」, DUEL_WEBUI §8 / §9). Its pause chip (chip 6) is a circle of 4.6 U there, the page draws the tab on it.")
-(defparameter *plate-low* 37.8 "Your own phone plate's drop, CSS px: must equal duel/web/hud.css's --low (1cm; the user, 2026-10-28 / 29).")
-(defparameter *rv-on-bar* 9.12
-  "爆's centre this many U over the deck's top (+ *PLATE-LOW*): level with the middle of your own plate's Reishi bar (measured in
-the page: the bar's middle 7.12 U over the plate's bottom, the plate 2 U over the deck; the user, 2026-10-29: 「爆氣鍵對齊血量表」).
-Before: its top 22 % down the deck, lifted *RV-LIFT* 18.9 -> 37.8 CSS px (2026-10-28 / 29).")
-(defparameter *deck-split-lift* '(75.6 37.8)
+(defparameter *plate-low* 37.8 "爆's drop under *RV-ON-BAR*, CSS px (1 cm: draft C's 「爆氣鍵下移 1 cm」; before draft C, 2026-10-28 / 29, your own
+phone plate's drop, hud.css's --low).")
+(defparameter *rv-on-bar* 5.0
+  "爆's centre this many U over the deck's top (+ *PLATE-LOW*, 1 cm down): draft C's spot (the user, 2026-10-29: 「我選 C」, its
+「爆氣鍵下移 1 cm」; your plate is now the slanted bar on the line, DUEL_WEBUI §11). 9.12 -> 5.0. Before: level with the middle of your
+plate's Reishi bar (「爆氣鍵對齊血量表」, 2026-10-29); before that its top 22 % down the deck, lifted *RV-LIFT* 18.9 -> 37.8 CSS px.")
+(defparameter *deck-split-lift* '(-37.8 75.6)
   "The tap zones' line's ends moved up, CSS px: the far (upper) end, the thumb's (lower) end (the user, 2026-10-29: 「SP 與 ATK 的分割線
-下界往上 0.5 cm，上界往上 1 cm」, then 「再次將下界往上 0.5 cm，上界往上 1 cm」: 37.8 18.9 -> 75.6 37.8). Before: 0 0. Applied over *DECK-SPLIT* by DECK-UPDATE into *DECK-SPLIT-AT*.")
+下界往上 0.5 cm，上界往上 1 cm」, then 「再次將下界往上 0.5 cm，上界往上 1 cm」: 37.8 18.9 -> 75.6 37.8); draft C (2026-10-29: 「我選 C」, its
+「下界上移 1 cm，上界下移 0.5 cm」「上界再次下移 0.5 cm」): 75.6 37.8 -> -37.8 75.6, the far end 1 cm under the deck's top (*DECK-SPLIT* 0.0),
+the thumb's end 2 cm over 0.82 (the draft's 70 % - 1 cm). Before: 0 0. Applied over *DECK-SPLIT* by DECK-UPDATE into *DECK-SPLIT-AT*.")
 (declaim (type f32vec *deck-split-at*))
 (defvar *deck-split-at* (make-f32 2) "*DECK-SPLIT* less *DECK-SPLIT-LIFT* (fractions of the deck's height from its top), for the window.")
 (defparameter *pt-center-lift* 56.7
@@ -98,7 +102,7 @@ today's phones: 50 >= 34 + 16). The chips are placed in the draft's unit (*CHIP-
                     collect (case cy
                               (:pause (list (x (* cx u)) (px (- h dh (* (+ 17 r) u))) (px (* r u))))   ; 止: its bottom 17 U over the deck
                               (:clock (list (px (* cx u)) (px (+ *safe-top* (* *clock-tab-mid* u))) (px (* r u))))   ; 止 on the clock tab
-                              (:rv (list (x (* cx u)) (px (+ (- dt (* *rv-on-bar* u)) *plate-low*)) (px (* r u))))  ; 爆: level with your Reishi bar
+                              (:rv (list (x (* cx u)) (px (+ (- dt (* *rv-on-bar* u)) *plate-low*)) (px (* r u))))  ; 爆: draft C's spot
                               (t (list (x cx) (px (- h cy)) (px r)))))
               (list 0 (px dt) (px w) (px h))))))
 

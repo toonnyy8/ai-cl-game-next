@@ -1146,9 +1146,9 @@
                 (eq :sp1 (hs-plan-next '(:j :leap :sp) :hs-k2 2 t 1)) (eq :f (hs-plan-next '(:j :leap :sp) :hs-k2 2 t 0))
                 (eq :sig (hs-plan-next '(:j :leap :k3) :hs-j1 0 nil 0)) (null (hs-plan-next '(:j :leap :k3) :hs-j2 0 nil 0))))
     ;; ... HS-HOHO-READY-P (as he sees him: free, his flash-step at a Hoho's on the HUD, no Hoho of his just seen)
-    (check (and (hs-hoho-ready-p :idle 100.0 999) (hs-hoho-ready-p :run 30.0 37) (hs-hoho-ready-p :guard 50.0 999)
-                (not (hs-hoho-ready-p :idle 29.0 999)) (not (hs-hoho-ready-p :idle 100.0 36))
-                (not (hs-hoho-ready-p :stun 100.0 999)) (not (hs-hoho-ready-p :move 100.0 999))))))
+    (check (and (hs-hoho-ready-p :idle 300.0 999) (hs-hoho-ready-p :run 100.0 37) (hs-hoho-ready-p :guard 150.0 999)
+                (not (hs-hoho-ready-p :idle 99.0 999)) (not (hs-hoho-ready-p :idle 300.0 36))
+                (not (hs-hoho-ready-p :stun 300.0 999)) (not (hs-hoho-ready-p :move 300.0 999))))))
 ;; b1a0's ranged fence (merged into cell b3a0's Bankai) and round01 cell b1a0's route styles: their mix and the pure reads
 (flet ((mono (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
        (ordered-p (p) (<= (getf p :easy) (getf p :normal) (getf p :hard))))

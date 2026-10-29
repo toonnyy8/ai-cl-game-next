@@ -39,8 +39,10 @@
     "P1 KONPAKU": "P1 魂魄", "DUMMY HP": "假人靈子", "DUMMY KONPAKU": "假人魂魄" };
   var SOUL = '<svg viewBox="0 0 10 14"><path d="M5 .6C6.4 3 9.2 5.4 9.2 8.6A4.2 4.2 0 0 1 .8 8.6C.8 6.6 2.2 5.2 3 3.6 3.4 5 4 5.6 4.8 5.8 4.4 4 4.6 2.2 5 .6z"/></svg>';
   var RING = '<svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" pathLength="100"></circle></svg>';
-  // 起筆 (DUEL_WEBUI §8.2 / §9): the neck your phone Reishi flows through into the 爆 seal; the seal's ring is the awakening
-  var NECK = '<svg class="neck" viewBox="0 0 24 40" preserveAspectRatio="none"><path d="M0 12.25 C9 12.25 13 4.5 24 3 L24 37 C13 35.5 9 27.75 0 27.75 Z"/></svg>';
+  // the 爆 seal (draft C, DUEL_WEBUI §11): its ring is your awakening; the flash-step gauge is the ink standing in it, marked at a
+  // Hoho's 1/3 and a Burst's 2/3 (*FS-HOHO* / *FS-BURST* of *FS-MAX*: 100 / 200 of 300)
+  var FS_BURST = 2 / 3, FS_HOHO = 1 / 3;
+  var FACE = '<span class="face"><b>爆</b><small>RV</small><i class="tick t1"></i><i class="tick t2"></i></span>';
   var AWRING = '<svg class="awring" viewBox="0 0 40 40"><circle class="trk" cx="20" cy="20" r="18.4" pathLength="100"></circle>' +
     '<circle class="awg" cx="20" cy="20" r="18.4" pathLength="100"></circle><circle class="hold" cx="20" cy="20" r="15.6" pathLength="100"></circle></svg>';
   var INF = '<svg class="inf" viewBox="0 0 66 32"><path pathLength="100" d="M33 16 C26 5 9 3 6 14 C3 25 22 29 33 16 C44 3 63 6 60 17 C57 27 40 27 33 16"/></svg>';
@@ -62,7 +64,7 @@
   function plateHTML(p) {
     var souls = ""; for (var i = 0; i < 9; i++) souls += '<span class="soul">' + SOUL + '</span>';
     return '<div class="plate ' + p + '"><div class="who"><span class="nm"></span><span class="kj"></span><span class="htag"></span></div>' +
-      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div>' + NECK + '</div><div class="souls">' + souls + '</div>' +
+      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="souls">' + souls + '</div>' +
       '<div class="meters"><div class="fs"><i></i><i></i><i></i></div><div class="aw"></div><span class="awk">覺醒 READY</span></div>' +
       '<div class="hptr"><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="pn"></span></div></div>' +
       '<div class="callout ' + p + '"><span class="ck"></span><span class="cr"></span></div>' +
@@ -78,9 +80,10 @@
       '<circle class="fg" cx="18" cy="18" r="15.9" pathLength="100"></circle></svg><b>毀</b></div><span class="hkey"></span>' +
       '<span class="what"><span class="wt"></span><small></small></span></div></div>' +
       '<div class="deck" hidden><div class="zone sp"></div><div class="zone atk"></div><span class="zl sp">SP <em>技</em></span><span class="zl atk">ATK <em>斬</em></span>' +
-      '<div class="divider"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="0" y1="20" x2="100" y2="82"></line></svg></div>' +
-      '<div class="gl">FLICK ↑ DASH · ↓ ← → STEP · REST + ↑ HOHO</div></div>' +
-      '<div class="dbtn rv" hidden><b>爆</b><small>RV</small>' + AWRING + '<span class="kak">覺</span></div>' +
+      '</div>' +
+      '<div class="rvc" hidden><div class="hptr">' + '<span class="seal" style="--a:304"></span><span class="seal" style="--a:270"></span><span class="seal" style="--a:236"></span>' +
+      '<span class="pn"></span></div></div>' +
+      '<div class="dbtn rv" hidden><span class="well"><span class="lvl">' + FACE + '</span></span>' + FACE + AWRING + '<span class="kak">覺</span></div>' +
       '<div class="fx"></div>' +
       '<div class="pause"><div class="big">止</div><div class="strip" role="menu"><div class="ey"></div><div class="rows"></div></div></div>' +
       '<div class="card"><div class="lb t"></div><div class="lb b"></div><div class="namecol"><div class="kv"></div><div class="side"><span class="rom"></span><i></i><span class="cry"></span></div></div>' +
@@ -93,7 +96,7 @@
     els.call = [$(".callout.p1", root), $(".callout.p2", root)];
     els.combo = [$(".combo.p1", root), $(".combo.p2", root)];
     els.clock = $(".clock", root); els.prompt = $(".prompt", root);
-    els.deck = $(".deck", root); els.rv = $(".dbtn.rv", root); els.fx = $(".fx", root);
+    els.deck = $(".deck", root); els.rv = $(".dbtn.rv", root); els.rvc = $(".rvc", root); els.fx = $(".fx", root);
     els.rows = $(".pause .rows", root); els.card = $(".card", root); els.fin = $(".fin", root);
     var strip = $(".strip", root);
     strip.addEventListener("pointerdown", function (e) { e.preventDefault(); focusGame(); });
@@ -154,7 +157,7 @@
     var aw = $(".aw", el); st(aw, "--k", (Math.max(0, V[o + 7]) / 1000).toFixed(3)); aw.classList.toggle("full", V[o + 8] >= 1);
     if (s === 0) st(els.rv, "--aw", (Math.max(0, Math.min(1000, V[o + 7])) / 1000).toFixed(3));   // the seal's ring: your awakening
     var awk = $(".awk", el); awk.classList.toggle("on", V[o + 8] === 1);
-    var ptr = $(".hptr", el), sv = seals(s), n = V[o + 9];
+    var ptr = $(".hptr", s === 0 && !els.rvc.hidden ? els.rvc : el), sv = seals(s), n = V[o + 9];   // (the phone: your stance around 爆)
     ptr.hidden = !(n > 0);
     if (n > 0) {
       var ss = ptr.querySelectorAll(".seal");
@@ -205,37 +208,49 @@
   function pct(v) { return v / 10 + "%"; }
   function renderDeck() {
     var on = !!(V[0] & 8), left = V[42] === 1;
-    els.deck.hidden = !on; els.rv.hidden = !on;
+    els.deck.hidden = !on; els.rv.hidden = !on; els.rvc.hidden = !on;
     var pl = els.plate[0], ck = els.clock;
-    if (!on) { st(pl, "width", ""); st(ck, "left", ""); st(ck, "top", ""); return; }
+    if (!on) { ["left", "bottom", "width", "rotate", "transform-origin"].forEach(function (k) { st(pl, k, ""); }); st(ck, "left", ""); st(ck, "top", ""); return; }
     var d = els.deck, x0 = V[30], y0 = V[31], x1 = V[32], y1 = V[33];
     st(d, "left", pct(x0)); st(d, "top", pct(y0)); st(d, "width", pct(x1 - x0)); st(d, "height", pct(y1 - y0));
     st(root, "--deck", pct(1000 - y0));
     var far = V[34] / 10, near = V[35] / 10, yl = left ? near : far, yr = left ? far : near;   // the line's heights at the left / right edge
     st($(".zone.sp", d), "clip-path", "polygon(0 0, 100% 0, 100% " + yr + "%, 0 " + yl + "%)");
     st($(".zone.atk", d), "clip-path", "polygon(0 " + yl + "%, 100% " + yr + "%, 100% 100%, 0 100%)");
-    var ln = $(".divider line", d); if (ln._y !== yl + "," + yr) { ln._y = yl + "," + yr; ln.setAttribute("y1", yl); ln.setAttribute("y2", yr); }
-    var w = innerWidth * (x1 - x0) / 1000, h = innerHeight * (y1 - y0) / 1000, g = $(".gl", d);
-    var ang = Math.atan2((yr - yl) / 100 * h, w), gx = left ? w * .9 : w * .1, gy = h * (yl + (yr - yl) * (left ? .9 : .1)) / 100;
-    st(g, "left", gx + "px"); st(g, "top", gy + "px");
-    st(g, "transform", "rotate(" + ang + "rad) translate(" + (left ? "-100%" : "0") + ", calc(-100% - 6px))");
+    // draft C 界 (DUEL_WEBUI §11): your plate IS the line, the bar's middle on it from the far edge to the thumb's, its flames and name
+    // on the SP side; what is left stays at the far end (the thumb covers the near one)
+    var u = innerWidth * .0236, w = innerWidth * (x1 - x0) / 1000, h = innerHeight * (y1 - y0) / 1000;
+    var rise = (near - far) / 100 * h, len = Math.hypot(w, rise), ang = Math.atan2(rise, w);
+    var fy = innerHeight * y0 / 1000 + h * far / 100, fx = innerWidth * (left ? x1 : x0) / 1000;
+    st(pl, "left", (left ? fx - len : fx) + "px"); st(pl, "width", len + "px");
+    st(pl, "bottom", (innerHeight - fy - .65 * u) + "px");
+    st(pl, "transform-origin", (left ? "100%" : "0") + " calc(100% - " + .65 * u + "px)"); st(pl, "rotate", (left ? -ang : ang) + "rad");
     seat(els.rv, V[36], V[37], V[38]);
-    // 起筆: your plate ends where its neck runs 1.3 U under the seal (Lisp's 爆 spot), so the stroke starts at the seal's rim
-    var u = innerWidth * .0236, cx = innerWidth * V[36] / 1000, rr = innerWidth * V[38] / 1000;
-    st(pl, "width", Math.max(0, left ? innerWidth - 2.2 * u - (cx + rr - 1.3 * u) : cx - rr + 1.3 * u - 2.2 * u) + "px");
+    st(els.rvc, "left", innerWidth * V[36] / 1000 + "px"); st(els.rvc, "top", innerHeight * V[37] / 1000 + "px");
     // the clock tab is the pause: drawn on Lisp's pause chip (chip 6, its middle; the tab 10.4 x 8.4 U)
     st(ck, "left", (innerWidth * V[39] / 1000 - 5.2 * u) + "px"); st(ck, "top", (innerHeight * V[40] / 1000 - 4.2 * u) + "px");
     var b = V[4], pb = prev.rv | 0, rv = els.rv;
     rv.classList.toggle("ready", !!(b & 1)); rv.classList.toggle("pressed", !!(b & 4)); rv.classList.toggle("can", !!(b & 8));
+    // 墨池: the flash step is the ink in the seal; at a Burst's 2/3 the seal arms, a running Burst drains it in its mode's colour
+    var fs = Math.max(0, Math.min(1000, V[56])) / 1000, mode = b & 112, armed = !mode && fs >= FS_BURST - .0005;
+    st(rv, "--lv", (fs * 100).toFixed(1) + "%");
+    rv.classList.toggle("armed", armed); rv.classList.toggle("bursting", !!mode);
+    if (mode) st(rv, "--bc", mode & 16 ? "#f2f5ff" : mode & 32 ? "#66a8ff" : "#ff942e");   // (the engine's WHITE / BLUE / ORANGE)
+    if (!reduced && prev.fs !== undefined) {
+      if (armed && !prev.armed) restart(rv, "arm");
+      if (!mode && fs < prev.fs - FS_HOHO * .75) restart(rv, "slosh");                     // a Hoho: the ink drops a third, the seal dips
+    }
+    prev.fs = fs; prev.armed = armed;
+    function press() { if (mode) return; if (fs >= FS_BURST - .0005) seal("BURST", "sp"); else { restart(rv, "deny"); seal("NO BURST", ""); } }
     if ((b & 2) && !(pb & 2)) restart(rv, "holding"); else if (!(b & 2)) rv.classList.remove("holding");
-    if ((b & 4) && !(pb & 4) && !(b & 1)) seal("BURST", "sp");                                   // not ready: the Burst on the press
-    if ((pb & 2) && !(b & 2) && (b & 4)) seal("覺醒 AWAKEN", "aw");                              // held through: the awakening
-    if ((pb & 2) && !(b & 2) && !(b & 4)) seal("BURST", "sp");                                   // let go before it: the Burst
+    if ((b & 4) && !(pb & 4) && !(b & 1)) press();                                          // not ready: the Burst on the press
+    if ((pb & 2) && !(b & 2) && (b & 4)) seal("覺醒 AWAKEN", "aw");                          // held through: the awakening
+    if ((pb & 2) && !(b & 2) && !(b & 4)) press();                                          // let go before it: the Burst
     prev.rv = b;
   }
   function seat(el, cx, cy, r) {
     var px = innerWidth * r / 1000;
-    st(el, "width", 2 * px + "px"); st(el, "height", 2 * px + "px");
+    st(el, "width", 2 * px + "px"); st(el, "height", 2 * px + "px"); st(el, "--dd", 2 * px + "px");
     st(el, "left", (innerWidth * cx / 1000 - px) + "px"); st(el, "top", (innerHeight * cy / 1000 - px) + "px");
   }
   function drop(cls, x, y, ms) {
