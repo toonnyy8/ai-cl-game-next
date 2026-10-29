@@ -546,3 +546,12 @@ zones' clip paths, the line (now a 2 px clip-path band instead of an SVG line, m
 end 0.5 cm down, its rise `25.9cqh - 1.5cm`) and the draft's touch split (`isSp`, in CSS cm scaled to the phone) all read them.
 The SP label (§10.12) stays above the line at the thumb's edge in A, B and C, both hands. Draft only: the game's touch split
 (`onehand.lisp`) is unchanged until a version is chosen.
+
+### 10.15 Draft v7.15: the line's far end 1 cm down, 爆 1 cm down (the user, 2026-10-29)
+
+> 「上界再次下移 0.5 cm，爆氣鍵下移 1 cm」
+
+Artifact version 23: `--y0` .5cm → 1cm (the line's far end 1 cm under the deck's top; the thumb end stays at `calc(70% - 1cm)`);
+C's bar follows (far end 1 cm down, rise `25.9cqh - 2cm`) and so does the draft's touch split. The 爆 cluster moves 1 cm down in
+every version: A / C `top: calc(63% - 5u + 1cm)`, B `calc(63% - 2.8u + 1cm)`. In both hands 爆, its stance seals and B's guard stay
+clear of the SP label and the line.
