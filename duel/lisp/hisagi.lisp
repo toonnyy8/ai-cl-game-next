@@ -661,22 +661,23 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
   "Spread link -> its gathered copy (§28.2: 「遠攻模式的 J 都會受到前面是否有使用聚的影響」, 「看這一串連段」).")
 ;; the SA 打 UCHI by the state (§28.7, the user 2026-10-29: 「『SA 打』依據『散』或『聚』的狀態調整自己的攻擊範圍與鏈尖設定」): the
 ;; spread one J1's 3-6 m 100 deg, the gathered gaps' (pointer 2's) the bundle's 2.5-4.5 m 90 deg, 45; each its own tip
-(defmove-copy :hs-r-sa :hs-r-j2 :callout "UCHI" :dmg 30 :on-hit :stagger :reach *hs-r-j-reach* :arc 100 :min-reach *hs-r-j-dead*
+(defmove-copy :hs-r-sa :hs-r-j2 :clip :hs-k-uchi :clip-s 10 :callout "UCHI" :dmg 30 :on-hit :stagger :reach *hs-r-j-reach* :arc 100 :min-reach *hs-r-j-dead*
   :hits ((10 13)))
-(defmove-copy :hs-r-sa-g :hs-r-j2s :callout "UCHI" :startup 13 :recovery 16 :dmg 45 :on-hit :stagger :reach *hs-r-k-reach* :arc 90
+(defmove-copy :hs-r-sa-g :hs-r-j2s :clip :hs-k-uchi :clip-s 10 :callout "UCHI" :startup 13 :recovery 16 :dmg 45 :on-hit :stagger :reach *hs-r-k-reach* :arc 90
   :min-reach *hs-r-k-dead* :hits ((13 16)))
 ;; pointer 1 散 SPREAD: 扇 ŌGI the fan 60 deg (S 17) > 環 WA the full turn (S 12) > 一斉 ISSEI 160 deg (S 14, knockdown); AS1 乱鎖 RANSA
 ;; 160 deg, 50, knockdown. §28.7 (the user 2026-10-29: 「散都以 3-6 m 為基礎調整範圍」): every one J1's 3-6 m (*HS-R-J-DEAD* /
-;; *HS-R-J-REACH*), the tip 5.5-6; the re-used clips drew ŌGI / ISSEI / RANSA to 4.5 m (redrawn in the motion pass)
-(defmove-copy :hs-r-n1c :hs-r-k3 :callout "ISSEI" :enter 7 :dmg 48 :reach *hs-r-j-reach* :arc 160 :min-reach *hs-r-j-dead*
+;; *HS-R-J-REACH*), the tip 5.5-6. Batch 2a (§28.9 / §28.11, a look): each segment its own clip at its frames (:clip-s its S, speed 1),
+;; drawn to its band's far edge (hisagi-art.lisp's ranged clips; WA the old L SAHARAI's ring, 3.0 m)
+(defmove-copy :hs-r-n1c :hs-r-k3 :clip :hs-k-issei :clip-s 21 :callout "ISSEI" :enter 7 :dmg 48 :reach *hs-r-j-reach* :arc 160 :min-reach *hs-r-j-dead*
   :on-hit :knockdown :flags (:ranged) :hits ((21 26)) :params (:melee-range 2.0))
 ;; §28.8 (the user 2026-10-29: 「NS1a 與 NS1b 交換，並將『環』改成近身推開敵人用的招式」): 環 WA first, close in (0-3 m all round,
 ;; no dead zone, no tip of its own; S 12 -> 14, an NS opener's tell), a hit pushes him out to *HS-R-WA-PUSH* (inside ŌGI's 3-6 m); then 扇 ŌGI
-(defmove-copy :hs-r-n1b :hs-r-k2s :callout "OGI" :enter 4 :dmg 31 :reach *hs-r-j-reach* :arc 60 :min-reach *hs-r-j-dead* :hits ((21 25))
+(defmove-copy :hs-r-n1b :hs-r-k2s :clip :hs-k-ogi :clip-s 21 :callout "OGI" :enter 4 :dmg 31 :reach *hs-r-j-reach* :arc 60 :min-reach *hs-r-j-dead* :hits ((21 25))
   :params (:melee-range 2.0 :ns-next :hs-r-n1c))
-(defmove-copy :hs-r-n1a :hs-r-j3 :kind :flash :callout "WA" :startup 14 :dmg 26 :reach 3.0 :arc 360 :min-reach nil :on-hit :stagger :flags (:ranged)
+(defmove-copy :hs-r-n1a :hs-r-j3 :clip :hs-k-saharai :clip-s 18 :kind :flash :callout "WA" :startup 14 :dmg 26 :reach 3.0 :arc 360 :min-reach nil :on-hit :stagger :flags (:ranged)
   :on-land hs-r-wa-push :hits ((14 17)) :params (:melee-range 2.0 :ns-next :hs-r-n1b :no-tip t))
-(defmove-copy :hs-r-as1 :hs-r-k3 :kind :sp :callout "RANSA" :dmg 43 :reach *hs-r-j-reach* :arc 160 :min-reach *hs-r-j-dead*
+(defmove-copy :hs-r-as1 :hs-r-k3 :clip :hs-k-ransa :clip-s 21 :kind :sp :callout "RANSA" :dmg 43 :reach *hs-r-j-reach* :arc 160 :min-reach *hs-r-j-dead*
   :on-hit :knockdown :flags (:ranged) :hits ((21 26)) :params (:melee-range 2.0))
 ;; pointer 2 聚 GATHERED (each segment sets the combo's flag, :params :gather): 束 TABA the bundle on a line (S 22) > 叩 TATAKI the slam
 ;; (S 18) > 大旋 ŌMEGURI the 360 deg spin (S 20, knockdown); AS2 叩 > 地走 JIBASHIRI along the ground (knockdown). §28.7 (the user
@@ -685,19 +686,19 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
   :min-reach *hs-r-k-dead* :on-hit :knockdown :flags (:ranged) :hits ((30 35)) :params (:melee-range 2.0 :gather t))
 ;; §28.8 (the user 2026-10-29: 「NS2b 改成近身推開敵人用的招式」): 叩 TATAKI close in (0-3 m, 90 deg, no tip of its own), a hit pushes
 ;; him out to *HS-R-TATAKI-PUSH* (inside ŌMEGURI's 2.5-4.5 m)
-(defmove-copy :hs-r-n2b :hs-r-k2 :callout "TATAKI" :enter 9 :startup 30 :recovery 27 :dmg 57 :reach 3.0 :arc 90 :hits ((30 34)) :on-land hs-r-tataki-push
+(defmove-copy :hs-r-n2b :hs-r-k2 :clip :hs-k-tataki :clip-s 30 :callout "TATAKI" :enter 9 :startup 30 :recovery 27 :dmg 57 :reach 3.0 :arc 90 :hits ((30 34)) :on-land hs-r-tataki-push
   :params (:melee-range 2.0 :ns-next :hs-r-n2c :sa :hs-r-sa-g :gather t :no-tip t))
 (defmove-copy :hs-r-n2a :hs-r-k2 :callout "TABA" :enter 5 :startup 30 :recovery 27 :dmg 50 :vol (:cap 0.3 4.15 1.1 0.35) :reach 4.15
   :min-reach *hs-r-k-dead* :hits ((30 34)) :params (:melee-range 2.0 :ns-next :hs-r-n2b :sa :hs-r-sa-g :gather t))
-(defmove-copy :hs-r-as2b :hs-r-k2 :kind :sp :callout "JIBASHIRI" :enter 12 :startup 30 :recovery 27 :dmg 70 :vol (:cap 0.3 4.15 1.1 0.35)
+(defmove-copy :hs-r-as2b :hs-r-k2 :clip :hs-k-jibashiri :clip-s 30 :kind :sp :callout "JIBASHIRI" :enter 12 :startup 30 :recovery 27 :dmg 70 :vol (:cap 0.3 4.15 1.1 0.35)
   :reach 4.15 :min-reach *hs-r-k-dead* :hits ((36 40 :on-hit :knockdown)) :params (:melee-range 2.0 :gather t))
-(defmove-copy :hs-r-as2 :hs-r-k2 :kind :sp :callout "TATAKI" :enter 9 :startup 30 :recovery 27 :dmg 57 :reach *hs-r-k-reach* :arc 90
+(defmove-copy :hs-r-as2 :hs-r-k2 :clip :hs-k-sweep :clip-s 30 :kind :sp :callout "TATAKI" :enter 9 :startup 30 :recovery 27 :dmg 57 :reach *hs-r-k-reach* :arc 90
   :min-reach *hs-r-k-dead* :hits ((30 34)) :params (:melee-range 2.0 :ns-next :hs-r-as2b :gather t))
 ;; AS3 首掛 KUBIKAKE, the switch (no pointer, no Kikon): 投 NAGE the chain on a 7 m line (S 18) > 巻 MAKI wound round him > 掛 KAKE the
 ;; noose: a real hit arms the bind (the yank to 2.0 m, HS-BK-HIT); blocked / whiffed / cancelled: none
-(defmove-copy :hs-r-as3c :hs-r-kubikake :kind :sp :callout "KAKE" :enter 8 :whiff nil :dmg 40 :min-reach nil
+(defmove-copy :hs-r-as3c :hs-r-kubikake :clip :hs-k-kake :clip-s 24 :kind :sp :callout "KAKE" :enter 8 :whiff nil :dmg 40 :min-reach nil
   :hits ((24 28 :seg-fn hs-r-link-seg :stun 30)) :params (:melee-range 2.0 :no-kikon t :bind-start t))
-(defmove-copy :hs-r-as3b :hs-r-k2 :kind :sp :callout "MAKI" :enter 12 :dmg 30 :hits ((27 31 :seg-fn hs-r-link-seg))
+(defmove-copy :hs-r-as3b :hs-r-k2 :clip :hs-k-maki :clip-s 27 :kind :sp :callout "MAKI" :enter 12 :dmg 30 :hits ((27 31 :seg-fn hs-r-link-seg))
   :params (:melee-range 2.0 :ns-next :hs-r-as3c :no-kikon t))
 (defmove-copy :hs-r-as3 :hs-r-kubikake :kind :sp :callout "NAGE" :startup 18 :clip-s 24 :whiff nil :dmg 30 :min-reach nil
   :hits ((18 22 :stun 30)) :params (:melee-range 2.0 :ns-next :hs-r-as3b :no-kikon t))
@@ -763,7 +764,7 @@ SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move
   :strings *hs-r-core-strings*
   :core (:ns (:hs-r-n1a :hs-r-n2a) :as (:hs-r-as1 :hs-r-as2 :hs-r-as3) :sa :hs-r-sa
          :as-writes (1 2 nil) :as-by-press (1 1 2 2 3)            ; (AS3 the switch: no pointer, §28.4)
-         :stances (:hs-k-stance :hs-k-kosa-aim)                  ; (re-used until the motion pass: the chains loose / the aim)
+         :stances (:hs-k-stance :hs-k-st-shu)                    ; (batch 2a, §28.11: the chains loose / the 聚 bundle at his right)
          :kikon-cines (hs-kosa-cine hs-kosa-cine)                ; (re-used: 降鎖 for both until §28's 散 / 聚 are built)
          :range (3.0 4.5)                                        ; (the CPU walks to J1's band; its NS reach 4.5 m: no :ns-range shot)
          :mult 1.7)

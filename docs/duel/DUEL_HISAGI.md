@@ -4381,6 +4381,55 @@ AS3 > `BIND START`; NS2a > gathered SA 45 (S 13) > J 29 ×3 at 4.5 m, every link
 50 / 86 (叩 whiffs, 0–3 m); at 2.5 m 環 26 + the push, 叩 57 + the push. The old drawn-reach check skips J2 / J3 / J2s / J3G until batch 2
 redraws them to their bands.
 
+### 28.11 As built (batch 2a, the ranged looks, 2026-10-29)
+
+§28.9's ranged rows (the user's 「可以」, §28.10 item 1), presentation only: each move's `:clip` / `:clip-s` and the draw-side tables
+changed; no frame, volume, damage or hook. Every new clip is authored at its move's S (`:clip-s` = S, speed 1; its first `:enter`
+frames never shown), the windup held inside the startup, the drawn tip on the band's far edge on every hit frame (FK / lash keys,
+host-checked to ±0.15 m), new draw paths 0 B a frame.
+
+| Move | Clip (S / A / R) | What strikes, drawn reach on the hit frames |
+|---|---|---|
+| 散 stance | `hs-k-stance` (kept) | the eight chains loose round him |
+| 聚 stance | **`hs-k-st-shu`** (loop), in `:core :stances` for pointer 2 (was `hs-k-kosa-aim`) | sunk, turned right, the eight bound into the bundle (`*hs-bundled*`) run down his right side past the right fist, the left hand crossed over it |
+| SA 打 UCHI | **`hs-k-uchi`** (10/3/13) | the right fist's underhand flick (rising plane), the front-right hanging chain out to **6.0** (bearing 0–4°) |
+| gathered SA | `hs-k-uchi` at 10/13 | the same flick; the bundle by a lash entry keyed on the move `:hs-r-sa-g` (and its `*hs-bundled*` row), **4.5** |
+| NS1a 環 WA | `hs-k-saharai` (the old L, 18/4/32) at 18/14 | the ring of all eight at **3.0**, 360° |
+| NS1b 扇 OGI | **`hs-k-ogi`** (21/4/24) | the right arm overhead and down (vertical), chains 1 2 5 6 whipped onto the floor in a 60° fan at **6.0** (±30°) |
+| NS1c 一斉 ISSEI | **`hs-k-issei`** (21/5/34) | both arms swept in from behind (level, converging), all eight in a 160° fan at **6.0** (±80°) |
+| AS1 乱鎖 RANSA | **`hs-k-ransa`** (21/5/34) | the tell: both arms crossed overhead; the right oblique (S, chains 6 7), the left (f23, chains 1 2), both arms scissored down and out (f25, chains 0 3 4 5): one group at **6.0** on every hit frame (-35° / +10° / +35° / -10° / +70°) |
+| NS2b 叩 TATAKI | **`hs-k-tataki`** (30/10/27) | the left arm's vertical wheel at his left (one hand; TABA is both fists over the right shoulder), the bundle over the top and smashed down at **3.0**, a deep squat |
+| AS2a 叩 | **`hs-k-sweep`** (30/10/27) | the right backhand low along the floor L → R, the left hand planted, the bundle at **4.5** from +45° to -45° on f30–33 |
+| AS2b 地走 JIBASHIRI | **`hs-k-jibashiri`** (36/4/27, the hit at 36, S 30) | both fists heave the bundle overhead, drive it down in a kneel (f34), its end run along the floor to **4.5** (the line's 4.15 + 0.35); a black zigzag crack along the line, f34–62 (`%hs-crack`, HISAGI-DRAW keyed on the clip) |
+| AS3b 巻 MAKI | **`hs-k-maki`** (27/10/24) | both hands reeling (a key every 3 f); chains 0 1 cast at him and spiralled round him two turns rising (authored at 5.0 m, stretched to where he stands by `*hs-lk-reach*`) |
+| AS3c 掛 KAKE | **`hs-k-kake`** (24/4/30) | turned away, both fists at the right shoulder; the heave on S, back bent: the neck bundle's tail taut over his right shoulder to him (`*hs-bk-chains*` src 8, hooked round his neck on a hit; stretched to him) |
+| gathered J2–J4 | `hs-k-g-j2` (rekeyed) | the bundle's straight lash at **4.5** (was 6.0) |
+| gathered J5 | `hs-k-g-j3` (rekeyed) | the flat sweep at **4.5**, -40° / -2° / +36° on its hit frames (was 6.0, -90 … +90) |
+| spread J2–J5 | kept (`hs-k-kaeshi` / `hs-k-saben` / `hs-k-sensa`) | already at 6.0; J5's swept chain now from -50° (was -100°, outside its 100°) |
+| TABA, ŌMEGURI, NAGE, J1 | kept | |
+
+- **Stale chase stretch removed**: `*hs-lk-reach*` (hisagi-draw.lisp) still listed J2 / J3 / J2s / J3G, so since §28.10 their chains were
+  drawn onto the opponent wherever he stood (past 6 / 4.5 m on a whiff). They are out; AS3b / AS3c, the two real chases, are in.
+- **0 B**: `*hs-lk*` was never declaimed `f32vec`, so every stretched link's read boxed (base 29c1e69: spread K2 46240 B, K3 58720,
+  SOKUSEN 11920, SOKUBEN / SOKUTEI 9280 per 10 calls); declaimed, all 0. Debug 83901 has a second line `look consing 2a` (the 聚 stance
+  and the twelve new hit frames): all 0 (JIBASHIRI's first call shows the fx buffer growing once, 0 after).
+- **The tip cue under 聚** (§25.26–§25.28): with the eight chains bound into the stance's bundle, J1's glints floated at the empty
+  chains' rest ends and K1's flow vanished (it was gated on no bundle). Now: no glint on a bound chain, one glint on the bundle's end
+  (J1's tip); K1's flow runs down the bundle (shot from the behind camera at 5.75 / 4.25 m, debug 83023 / 83022 + 2511). The lead /
+  user can still decide the cue should look different under 聚.
+- Debug 83902 now poses each move at its clip speed (it read the clip at speed 1, so every re-timed clip measured short). Its lines,
+  P1 3 m from Kenpachi, through the real draw hook: every ranged move with a volume on its edge on every hit frame (J1–J5 6.00, the gathered
+  J 4.50, UCHI 6.00 / 4.50, WA 3.00, OGI / ISSEI / RANSA 6.00, TABA 4.50, TATAKI 3.00, ŌMEGURI 4.50, AS2a 4.50, JIBASHIRI 4.50, NAGE 7.35).
+- Host check (tests/duel-rules/hisagi.lisp, the Bankai's drawn reach): J2 / J3 / J2s / J3G back in, plus NA3 / NA4 / their gathered
+  copies, both SA, NS1 / NS2 a–c, AS1, AS2a / b, AS3a; a move's own lash entry is read before its clip's. MAKI / KAKE are `:seg-fn`
+  windows (no volume): neither the host check nor 83902 measures them; their chains are drawn to the victim by the stretch.
+  `hs-k-s-k2` / `hs-k-s-k3` are left as they were (4.5), played only by the dead moves `hs-r-k2s` / `hs-r-k3` (seg windows, strips 27 / 28).
+- Strips: debug **83560–83579** (claimed, DUEL_GAMEPLAY), `*hs-r2-strips*` 0–14 (the 聚 stance … the 散 stance), then 83940+3i+v.
+- Checks: duel-rules 10610 ALL PASS, control 99 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0 errors, `--cvc` 3 PASS; the scripted
+  smoke (`duel-hisagi-bankai.json`) hash and event lines identical to 29c1e69's. No balance gates (the user's rule).
+- Checked by numbers, needs the user's eyes: the 聚 / 散 stances from the behind camera read apart (crouched with one thick bundle in
+  front of him vs upright in the curtain); TATAKI's wheel and KAKE's turn are small in the wide strips.
+
 ### 28.12 As built (batch 2b, the bind looks, 2026-10-29)
 
 The bind half of §28.9's table (the user: 「可以」), **presentation only**: every changed move changes only its `:clip` (and drops a

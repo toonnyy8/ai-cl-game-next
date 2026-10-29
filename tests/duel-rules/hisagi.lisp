@@ -745,15 +745,21 @@
                                   (az (+ a0 (* u (- (mod (+ (- a1 a0) 180) 360) 180))))
                                   (d (if cap (* r (cos (* az (/ pi 180)))) r)))
                              (setf best (max (or best d) d))))))))))))
-      (let ((bk-moves '(:hs-r-j1 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake   ; (§28.10: J2 / J3 / J2s / J3G's bands wait on
-                        :hs-r-k1 :hs-r-k2s :hs-r-k3 :hs-r-k2 :hs-r-k3g                      ;  batch 2's clips, §28.9; A2: the route links)
+      (let ((bk-moves '(:hs-r-j1 :hs-r-l :hs-r-sp1 :hs-r-sp2 :hs-r-kubikake
+                        :hs-r-k1 :hs-r-k2s :hs-r-k3 :hs-r-k2 :hs-r-k3g                      ; (A2: the route links)
+                        ;; batch 2a (DUEL_HISAGI §28.11): the core ranged mode, every segment with a volume (the five J and
+                        ;; their gathered copies on their bands since §28.10, both SA, NS1 / NS2 a-c, AS1, AS2a / b, AS3a);
+                        ;; AS3b MAKI / AS3c KAKE strike along the chain (a :seg-fn window, no volume: not checked here)
+                        :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-j2s :hs-r-na3g :hs-r-na4g :hs-r-j3g :hs-r-sa :hs-r-sa-g
+                        :hs-r-n1a :hs-r-n1b :hs-r-n1c :hs-r-as1 :hs-r-n2a :hs-r-n2b :hs-r-n2c :hs-r-as2 :hs-r-as2b :hs-r-as3
                         :hs-b-j2 :hs-b-k1 :hs-b-k2 :hs-b-k3 :hs-b-sp1 :hs-b-l :hs-b-sp2   ; (A3, §24.3: SP2's own)
                         :hs-b-sj                                                         ; (§25.10: SENGEN)
                         :hs-k1 :hs-j2k :hs-j3k      ; (A1, §24.1: the Shikai's K1 sweep and leap J, their let-outs too)
                         :hs-n2a :hs-n2b :hs-n2c :hs-as2 :hs-as2b      ; (§27.5: pointer 2 刈's own clips, their let-outs)
                         :hs-b-n1c :hs-b-n2a :hs-b-n2b :hs-b-as2 :hs-b-as2b)))   ; (batch 2b, §28.12: the core bind's own)
         (dolist (n bk-moves)
-          (let* ((mv (m n)) (clip (mv-clip mv)) (sr (third (assoc clip *hs-strike-reach*))))
+          (let* ((mv (m n)) (clip (mv-clip mv)) (own (assoc n *hs-lashes*))   ; (§28.11: a move's own lashes first, its
+                 (lc (if own n clip)) (sr (and (not own) (third (assoc clip *hs-strike-reach*)))))   ;  clip's table row then moot)
             (check (null (getf *hs-r-clip-stand-ins* clip)))                ; (its own clip, no stand-in)
             (loop for hw across (mv-hits mv) for wi from 0
                   when (hw-vols hw)                                       ; (KOJO's yank: a :seg-fn window, §25.7)
@@ -765,7 +771,7 @@
                                           (loop for (c nil nil f1 nil f3 nil r) in *hs-bk-chains*
                                                 when (and (eq c clip) (<= f1 c1) (> f3 c0)) collect r)
                                           (remove nil (loop for f from (hw-from hw) below (hw-to hw)
-                                                            collect (lash-end clip (* sp f) cap)))))
+                                                            collect (lash-end lc (* sp f) cap)))))
                             (art (and ends (reduce #'max ends))))
                        (check (or (and art (<= (abs (- art edge)) 0.15) (or (null sr) (> wi 0) (~= sr art)))
                                   (format t "~a ~a (window ~d): the volume ends ~,2f m, the drawn end ~a, the table ~a~%"
