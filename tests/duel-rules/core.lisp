@@ -936,7 +936,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :hs-k-hosoku :hs-k-s-k2 :hs-k-s-k3 :hs-k-g-k2 :hs-k-g-j2 :hs-k-g-k3 :hs-k-g-j3   ; the ranged route links' (A2, §24.2)
     :hs-k-uchi :hs-k-ogi :hs-k-issei :hs-k-ransa :hs-k-tataki :hs-k-sweep :hs-k-jibashiri   ; the core ranged mode's own
     :hs-k-maki :hs-k-kake                                                                  ;  (batch 2a, DUEL_HISAGI §28.11)
-    :hs-k-na3 :hs-k-na4 :hs-k-g-na3 :hs-k-g-na4                                            ; the five J's own J3 / J4 (§28.15)
+    :hs-k-na3 :hs-k-na4                                                                    ; the five J's own J3 / J4 (§28.15)
+    :hs-k-g-sa                                                                             ; the gathered SA's own (§28.21)
     :hs-kb-stance :hs-kb-walk-f :hs-kb-walk-b :hs-kb-strafe-r :hs-kb-strafe-l))     ; the bind's stance and walk (A2)
 ;; (Jilliel's SPs and Kikon, decision 56, DUEL_LILLE §23.37: :lb-w-sanren is KIN's SANREN through his :clip-map, :lb-e-sanren
 ;; EN's own, :lb-w-kikon / :lb-w-kikon-fire the Kikon in play; :lb-w-aim and :lb-w-fire are gone)
@@ -949,8 +950,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                         (remove nil (loop for m in '(:ic-c-xa :ic-c-xb :br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-k2s :hs-r-kubikake :hs-b-unwind :hs-r-sp2c
                                                                        :hs-b-sp1    ; (B4c: no kit's since, its strip 83524)
                                                                        :hs-r-l :hs-r-sp1 :hs-b-l :hs-r-k1 :hs-b-k1   ; (§28.4: the old Bankai's,
-                                                                       :hs-r-k2s :hs-r-k3   ; (§28.11: spread K2 / K3's clips, strips 27 / 28)
-                                                                       :hs-r-na3g :hs-r-na4g)   ; (§28.20: off the 聚 string, their clips kept)
+                                                                       :hs-r-k2s :hs-r-k3)   ; (§28.11: spread K2 / K3's clips, strips 27 / 28)
                                                                                 ;  no kit's since, their clips kept for the strips)
                                                           collect (mv-clip-2 (find-move m))   ; (his Shikai's MODOSHI mapped)
                                                           collect (kit-move-clip (kit :hisagi :base) (mv-clip (find-move m)))))))))

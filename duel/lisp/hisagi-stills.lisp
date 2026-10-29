@@ -63,8 +63,8 @@ flat-spinning sickle's flight, its spin in him with the cuts, its return: each m
                        (progn (at :hs-r-k3 22 :hs-k-s-k3) (bytes))
                        (progn (at :hs-r-k2 34 :hs-k-g-k2) (bytes))
                        (progn (at :hs-r-k3g 28 :hs-k-g-k3) (bytes))
-                       (progn (at :hs-r-j2s 16 :hs-k-g-j2) (bytes))
-                       (progn (at :hs-r-j3g 17 :hs-k-g-j3) (bytes))))
+                       (progn (at :hs-r-j2s 12 :hs-k-g-j2) (bytes))   ; (§28.21: J2's groove, J3's coil)
+                       (progn (at :hs-r-j3g 12 :hs-k-g-j3) (bytes))))
              (bb (progn (setf (hss-bound st) t (fighter-form f) :bankai-bind)
                         (list (progn (at :hs-b-k2 21 :hs-kb-makigiri) (bytes))
                               (progn (at :hs-b-k3 23 :hs-kb-shibori) (bytes))
@@ -140,7 +140,7 @@ HODEN's charge ~d, NS3a's wrap ~d; TSUMUJI (§27.10): its flight ~d, the spin an
     ;; §28.4: the core Bankai's segments with their own volumes (copies on the old clips)
     (:bankai :hs-r-n1a) (:bankai :hs-r-n1b) (:bankai :hs-r-n1c) (:bankai :hs-r-as1) (:bankai :hs-r-n2a) (:bankai :hs-r-n2b)
     (:bankai :hs-r-n2c) (:bankai :hs-r-as2b) (:bankai :hs-r-as3)
-    (:bankai :hs-r-na3) (:bankai :hs-r-na4) (:bankai :hs-r-na3g) (:bankai :hs-r-na4g) (:bankai :hs-r-sa) (:bankai :hs-r-sa-g)   ; (§28.11)
+    (:bankai :hs-r-na3) (:bankai :hs-r-na4) (:bankai :hs-r-sa) (:bankai :hs-r-sa-g)   ; (§28.11; §28.21: NA3G / NA4G deleted)
     (:bankai :hs-r-as2) (:bankai-bind :hs-b-n1b) (:bankai-bind :hs-b-n1c)
     (:bankai-bind :hs-b-n2a) (:bankai-bind :hs-b-n2b) (:bankai-bind :hs-b-n2c) (:bankai-bind :hs-b-as2b) (:bankai-bind :hs-b-as3c)
     (:bankai-bind :hs-b-as2) (:bankai-bind :hs-b-as3b))                                           ; (batch 2b, §28.12: SHIME's AS copy, on its clip too)
@@ -263,9 +263,9 @@ crawl) / 50 (its fade, gone in under a second); the match camera, the sim runnin
 (pushnew '(83901 83904 hisagi-art-debug) *char-debug* :test #'equal)
 (defun hisagi-look-cons-2a ()
   "Debug 83901's second line (batch 2a, DUEL_HISAGI §28.11): bytes consed by 10 calls of HS-POSE and HISAGI-DRAW in the ranged
-mode's 聚 stance (the bundle held) and on the core ranged clips' hit frames (UCHI and the gathered UCHI's bundle by its move,
+mode's 聚 stance (the bundle held) and on the core ranged clips' hit frames (UCHI and the gathered SA, §28.21's own clip,
 OGI, ISSEI, RANSA's three, TATAKI, the AS2a sweep, JIBASHIRI with its crack, MAKI round him, KAKE over the shoulder, hooked;
-§28.15: the five J's own J3 / J4, spread and gathered): each must be 0."
+§28.15: the five J's own J3 / J4; §28.21: the gathered J2's ribbon, J3's curl): each must be 0."
   (let* ((e *p1*) (f (fighter e)) (st (hs e)) (m (model e)) (an (model-anim m)) (c0 (anim-clip an)) (t0 (anim-time an))
          (state (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)) (ct (fighter-contact f))
          (fm (fighter-form f)) (b0 (hss-bound st)) (p (pos-of e)))
@@ -275,7 +275,7 @@ OGI, ISSEI, RANSA's three, TATAKI, the AS2a sweep, JIBASHIRI with its crack, MAK
            (at (name frame clip) (setf (fighter-state f) :move (fighter-move f) (find-move name) (fighter-phase f) :main
                                        (fighter-sf f) frame (anim-clip an) (find-clip clip) (anim-time an) (/ frame 60f0))))
       (let ((r (list (progn (setf (fighter-state f) :idle (fighter-move f) nil (anim-clip an) (find-clip :hs-k-st-shu)) (bytes))
-                     (progn (at :hs-r-sa 11 :hs-k-uchi) (bytes)) (progn (at :hs-r-sa-g 11 :hs-k-uchi) (bytes))
+                     (progn (at :hs-r-sa 11 :hs-k-uchi) (bytes)) (progn (at :hs-r-sa-g 14 :hs-k-g-sa) (bytes))
                      (progn (at :hs-r-n1b 22 :hs-k-ogi) (bytes)) (progn (at :hs-r-n1c 22 :hs-k-issei) (bytes))
                      (progn (at :hs-r-as1 21 :hs-k-ransa) (bytes)) (progn (at :hs-r-as1 23 :hs-k-ransa) (bytes))
                      (progn (at :hs-r-as1 25 :hs-k-ransa) (bytes)) (progn (at :hs-r-n2b 31 :hs-k-tataki) (bytes))
@@ -284,11 +284,11 @@ OGI, ISSEI, RANSA's three, TATAKI, the AS2a sweep, JIBASHIRI with its crack, MAK
                      (progn (at :hs-r-as3c 25 :hs-k-kake) (setf (fighter-contact f) :hit) (bytes))
                      (progn (setf (fighter-contact f) ct) (at :hs-r-na3 11 :hs-k-na3) (bytes))   ; (§28.15: the five J's
                      (progn (at :hs-r-na4 11 :hs-k-na4) (bytes))                                  ;  own J3 / J4)
-                     (progn (at :hs-r-na3g 20 :hs-k-g-na3) (bytes)) (progn (at :hs-r-na4g 20 :hs-k-g-na4) (bytes)))))
+                     (progn (at :hs-r-j2s 21 :hs-k-g-j2) (bytes)) (progn (at :hs-r-j3g 20 :hs-k-g-j3) (bytes)))))   ; (§28.21)
         (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (fighter-contact f) ct
               (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm (hss-bound st) b0)
-        (apply #'log-msg "duel hisagi look consing 2a (10 calls, B): 聚 stance ~d, UCHI ~d, gathered UCHI ~d, OGI ~d, ISSEI ~d, RANSA ~d / ~d / ~d, ~
-TATAKI ~d, AS2a ~d, JIBASHIRI ~d, MAKI ~d, KAKE ~d, J3 ~d, J4 ~d, gathered J3 ~d, gathered J4 ~d" r)))))
+        (apply #'log-msg "duel hisagi look consing 2a (10 calls, B): 聚 stance ~d, UCHI ~d, gathered SA ~d, OGI ~d, ISSEI ~d, RANSA ~d / ~d / ~d, ~
+TATAKI ~d, AS2a ~d, JIBASHIRI ~d, MAKI ~d, KAKE ~d, J3 ~d, J4 ~d, gathered J2 ~d, gathered J3 ~d" r)))))
 (defun hisagi-look-cons-4a ()
   "Debug 83901's third line (batch 4a, DUEL_HISAGI §28.19): bytes consed by 10 calls of HS-POSE and HISAGI-DRAW on the 散 J
 string's new chain paths, in each windup and on a hit frame: J2's scissor (its windup, the X), J3's snake (the slither's
@@ -357,17 +357,16 @@ leap ends: the sickle thrown spinning flat into the victim, the cuts round him).
   "83910+k: (clip move dist [sickle]): the clip, the move its frames are (NIL: idle), Kenpachi's distance, the sickle's
 state (:out anchored 4 m ahead on the floor, :hooked anchored in him, :wrapped SHIBARI's contact).")
 (defparameter *hs-r2-strips*
-  '((:hs-k-st-shu nil 3.0 nil :bankai) (:hs-k-uchi :hs-r-sa 5.0 nil :bankai) (:hs-k-uchi :hs-r-sa-g 4.0 nil :bankai)
+  '((:hs-k-st-shu nil 3.0 nil :bankai) (:hs-k-uchi :hs-r-sa 5.0 nil :bankai) (:hs-k-g-sa :hs-r-sa-g 4.0 nil :bankai)
     (:hs-k-saharai :hs-r-n1a 4.0 nil :bankai) (:hs-k-ogi :hs-r-n1b 5.0 nil :bankai) (:hs-k-issei :hs-r-n1c 5.0 nil :bankai)
     (:hs-k-ransa :hs-r-as1 5.0 nil :bankai) (:hs-k-tataki :hs-r-n2b 4.0 nil :bankai) (:hs-k-sweep :hs-r-as2 4.0 nil :bankai)
     (:hs-k-jibashiri :hs-r-as2b 4.0 nil :bankai) (:hs-k-maki :hs-r-as3b 5.0 nil :bankai) (:hs-k-kake :hs-r-as3c 5.0 nil :bankai)
     (:hs-k-g-j2 :hs-r-j2s 4.0 nil :bankai) (:hs-k-g-j3 :hs-r-j3g 4.0 nil :bankai) (:hs-k-stance nil 3.0 nil :bankai)
-    (:hs-k-na3 :hs-r-na3 6.0 nil :bankai) (:hs-k-na4 :hs-r-na4 6.0 nil :bankai)                     ; (§28.15: 15-18, the
-    (:hs-k-g-na3 :hs-r-na3g 4.0 nil :bankai) (:hs-k-g-na4 :hs-r-na4g 4.0 nil :bankai))              ;  five J's own J3 / J4)
+    (:hs-k-na3 :hs-r-na3 6.0 nil :bankai) (:hs-k-na4 :hs-r-na4 6.0 nil :bankai))                    ; (§28.15: 15-16)
   "83560+k (batch 2a, DUEL_HISAGI §28.11): the core ranged mode's strip slots, as *HS-BK-STRIPS*: 0 聚 stance, 1 SA UCHI, 2 the
-gathered UCHI (the bundle), 3 NS1a WA (L SAHARAI's clip at 18/14), 4 NS1b OGI, 5 NS1c ISSEI, 6 AS1 RANSA, 7 NS2b TATAKI, 8 AS2a
-叩 (the sweep), 9 AS2b JIBASHIRI, 10 AS3b MAKI, 11 AS3c KAKE, 12 / 13 the gathered J2 / J5 at 4.5 m, 14 散 stance (for the
-pair); §28.15: 15 J3 SHOBEN, 16 J4 SOBEN, 17 / 18 the gathered J3 / J4 (the five J's own J3 / J4).")
+gathered SA (§28.21: its own clip, 直刺 CHOKUSHI; UCHI's with the bundle before), 3 NS1a WA (L SAHARAI's clip at 18/14), 4 NS1b OGI, 5 NS1c ISSEI, 6 AS1 RANSA, 7 NS2b TATAKI, 8 AS2a
+叩 (the sweep), 9 AS2b JIBASHIRI, 10 AS3b MAKI, 11 AS3c KAKE, 12 / 13 the gathered J2 / J5 at 4.5 m (§28.21: J2 上撈 / J3 繞身連枷), 14 散 stance (for the
+pair); §28.15: 15 J3 SHOBEN, 16 J4 SOBEN (17 / 18 the gathered J3 / J4 until §28.21 deleted them).")
 (defparameter *hs-kb-strips*
   '((:hs-kb-st-shibori nil 1.6 nil :bind) (:hs-kb-kagiyose :hs-b-n1a 4.0 nil :bind) (:hs-kb-kagiyose-giri :hs-b-as1 4.0 nil :bind)
     (:hs-kb-juji :hs-b-n1c 1.5 nil :bind) (:hs-kb-matoi :hs-b-n2a 2.0 :wrapped :bind) (:hs-kb-shime :hs-b-n2b 2.0 nil :bind)

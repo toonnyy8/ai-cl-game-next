@@ -1584,6 +1584,83 @@ A3, §24.3: KAIBAKU-GEKI from its S): the noose thrown off the opponent's neck a
               (%hs-black-kite (aref q 0) 0.02f0 (aref q 2) (/ dx l) 0f0 (/ dz l) (* 1.1f0 l) w 0.02f0)))
           (setf px x pz z)))))
   nil)
+;;; Batch 4b (DUEL_HISAGI §28.21): the gathered route's own trails, so each link reads by its path even in a still (the user,
+;;; 2026-10-29: 「單從鎖鏈的揮舞來看完全看不出每段之間的差異」): the SA's straight speed lines and the bundle's blunt head, J2's floor
+;;; groove and vertical ribbon, J3's coil round his waist and the curled smear out of it. Black ink only (P2's ink links through
+;;; %HS-BLACK-KITE). Keyed on his clip (*HS-G-LOOKS*), its bundle row of *HS-LASHES-V*. A look, 0 B a frame.
+(defparameter *hs-g-looks* '((:hs-k-g-sa . 1) (:hs-k-g-j2 . 2) (:hs-k-g-j3 . 3))
+  "Batch 4b (§28.21): the gathered route's clips -> their trail (%HS-G-LOOK): 1 直刺's speed lines, 2 上撈's groove and ribbon,
+3 繞身連枷's coil and curl.")
+(declaim (type f32vec *hs-g-a* *hs-g-b* *hs-g-fr*))
+(defvar *hs-g-a* (make-f32 8) "%HS-G-LOOK's bundle end (as *HS-LT*).")
+(defvar *hs-g-b* (make-f32 8) "%HS-G-LOOK's bundle end at an earlier frame.")
+(defvar *hs-g-fr* (make-f32 1) "%HS-G-LOOK's sample frame.")
+(defun-fast %hs-g-look (pos fa kv code)
+  "The gathered route's trails (*HS-G-LOOKS* CODE; KV the clip's bundle row, POS his feet, FA[0] his facing) at the clip frame
+*HS-FR*: 1 the SA 直刺 (f12-17): three straight speed lines along the line behind the bundle's end and its blunt head (a short
+fat kite on the end); 2 J2 上撈: the floor groove behind the dragged end (f4-19, where it lies under 0.3 m) and the vertical
+ribbon of the scoop (f19-26: the end's path 5 frames back, 0.11 m wide, tapered); 3 J3 繞身連枷: the coil round his waist
+(0.5 m round, 1.0-1.2 m up, from 35 deg to his right on round counter-clockwise, as far as the end has carried it: one turn by
+f14, held, unwound from its free end f16-19) and the curled smear (f17-26: the end's path 4 frames back, from the coil out
+into the sweep). 0 B."
+  (declare (type f32vec pos fa kv) (fixnum code))
+  (let* ((f (aref *hs-fr* 0)) (a *hs-g-a*) (b *hs-g-b*) (fr *hs-g-fr*) (yaw (aref fa 0)))
+    (declare (single-float f yaw) (type f32vec a b fr))
+    (macrolet ((tip (out x) `(progn (setf (aref fr 0) ,x) (%hs-lash-tip! ,out kv fr 0 8 pos fa)))
+               (ribbon (back step n w0 floor)    ; the end's path from F back over N steps of STEP frames (not before BACK)
+                 `(progn
+                    (tip a f)
+                    (dotimes (k ,n)
+                      (let ((x (- f (* ,step (i->f (1+ k))))))
+                        (declare (single-float x))
+                        (when (>= x ,back)
+                          (tip b x)
+                          (let* ((dx (- (aref a 0) (aref b 0))) (dy (if ,floor 0f0 (- (aref a 1) (aref b 1))))
+                                 (dz (- (aref a 2) (aref b 2))) (l (f-hypot dx dy dz))
+                                 (w (* ,w0 (- 1f0 (/ (i->f k) (i->f ,n))))))
+                            (declare (single-float dx dy dz l w))
+                            (when (and (> l 0.01f0) (> (aref a 4) 0.99f0) (> (aref b 4) 0.99f0)
+                                       (or (not ,floor) (and (< (aref a 1) 0.3f0) (< (aref b 1) 0.3f0))))
+                              (%hs-black-kite (* 0.5f0 (+ (aref a 0) (aref b 0)))
+                                              (if ,floor 0.02f0 (f-max 0.03f0 (* 0.5f0 (+ (aref a 1) (aref b 1)))))
+                                              (* 0.5f0 (+ (aref a 2) (aref b 2))) (/ dx l) (/ dy l) (/ dz l) (* 1.15f0 l) w
+                                              (if ,floor 0.02f0 0.1f0))))
+                          (dotimes (i 3) (setf (aref a i) (aref b i))) (setf (aref a 4) (aref b 4))))))))
+      (case code
+        (1 (when (and (>= f 12f0) (< f 17f0))                            ; 直刺: the speed lines, the blunt head
+             (tip a f)
+             (let* ((u (f-clamp (/ (- f 13f0) 4f0) 0f0 1f0)) (az (+ yaw (* 0.017453292f0 (aref a 6))))
+                    (fx (- (f-sin az))) (fz (- (f-cos az))) (rx (f-cos az)) (rz (- (f-sin az))))
+               (declare (single-float u az fx fz rx rz))
+               (dotimes (k 3)
+                 (let* ((off (case k (0 -0.24f0) (1 0.2f0) (t 0.04f0))) (up (case k (0 0.1f0) (1 -0.08f0) (t 0.22f0)))
+                        (len (- 1.9f0 (* 0.45f0 (i->f k)))) (back (+ 0.5f0 (* 0.5f0 len) (* 0.25f0 (i->f k)))))
+                   (declare (single-float off up len back))
+                   (%hs-black-kite (+ (aref a 0) (* (- back) fx) (* off rx)) (+ (aref a 1) up) (+ (aref a 2) (* (- back) fz) (* off rz))
+                                   fx 0f0 fz len (* 0.016f0 (- 1f0 (* 0.8f0 u))))))
+               (%hs-black-kite (aref a 0) (aref a 1) (aref a 2) fx 0f0 fz 0.34f0 (* 0.075f0 (- 1f0 (* 0.5f0 u)))))))
+        (2 (cond ((and (>= f 4f0) (< f 19f0)) (ribbon 0f0 0.5f0 8 0.024f0 t))      ; 上撈: the groove ...
+                 ((and (>= f 19f0) (< f 26f0))                                       ;  ... the vertical ribbon
+                  (ribbon 18.5f0 0.5f0 10 (* 0.11f0 (- 1f0 (/ (- f 19f0) 7f0))) nil))))
+        (3 (let ((c (cond ((< f 3f0) 0f0) ((< f 14f0) (/ (- f 3f0) 11f0)) ((< f 16f0) 1f0)   ; 繞身連枷: the coil ...
+                          ((< f 19f0) (- 1f0 (/ (- f 16f0) 3f0))) (t 0f0))))
+             (declare (single-float c))
+             (when (> c 0.01f0)
+               (let ((n (max 1 (f->i (* 24f0 c)))))
+                 (declare (fixnum n))
+                 (dotimes (i n)
+                   (let* ((d0 (* c (/ (i->f i) (i->f n)))) (d1 (* c (/ (i->f (1+ i)) (i->f n))))
+                          (a0 (+ yaw (* 0.017453292f0 (+ -35f0 (* 360f0 d0))))) (a1 (+ yaw (* 0.017453292f0 (+ -35f0 (* 360f0 d1)))))
+                          (x0 (+ (aref pos 0) (* -0.5f0 (f-sin a0)))) (z0 (+ (aref pos 2) (* -0.5f0 (f-cos a0))))
+                          (x1 (+ (aref pos 0) (* -0.5f0 (f-sin a1)))) (z1 (+ (aref pos 2) (* -0.5f0 (f-cos a1))))
+                          (y0 (+ 1.0f0 (* 0.2f0 d0))) (y1 (+ 1.0f0 (* 0.2f0 d1)))
+                          (dx (- x1 x0)) (dy (- y1 y0)) (dz (- z1 z0)) (l (f-max 1f-3 (f-hypot dx dy dz))))
+                     (declare (single-float d0 d1 a0 a1 x0 z0 x1 z1 y0 y1 dx dy dz l))
+                     (%hs-black-kite (* 0.5f0 (+ x0 x1)) (* 0.5f0 (+ y0 y1)) (* 0.5f0 (+ z0 z1)) (/ dx l) (/ dy l) (/ dz l)
+                                     (* 1.2f0 l) (if (evenp i) 0.05f0 0.034f0) 0.12f0)))))
+             (when (and (>= f 17f0) (< f 26f0))                                ;  ... the curl out of it
+               (ribbon 15f0 0.25f0 16 (* 0.09f0 (- 1f0 (/ (- f 17f0) 9f0))) nil)))))))
+  nil)
 
 (defun hisagi-draw (e rdt)
   "His :draw hook (on the posed body): the left sickle (in his fist, flying, out at the anchor, returning, let out on its
@@ -1712,6 +1789,8 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
           (setf *hs-chain-ink* (if (eq e *p1*) 0 1))
           (dolist (sd '(:r :l)) (let ((kv (hs-letout-of cn sd))) (when kv (%hs-lo-trail kv (pos-of e) *hs-yaw* *hs-fr*)))))
         (setf *hs-wave-lk* (cdr (assoc cn *hs-waves-v*)))              ; (§28.19: the chains' body paths)
+        (let ((gl (and mv (cdr (assoc cn *hs-g-looks*)))))                ; (§28.21: the gathered route's trails)
+          (when gl (%hs-g-look (pos-of e) fa (the f32vec (second (assoc cn *hs-lashes-v*))) gl)))
         (%hs-orb-draw (model-joints m) (pos-of e) fa (pos-of o) (model-joints (model o)) (if (eq e *p1*) 0 1)
                       (cond ((and mv (eq name :hs-b-sp2) (>= sf (mv-s mv))) 3)   ; (A3: KAIBAKU-GEKI's release)
                             ((or (hss-bound st) (logtest cfl 4)) 1) ((eq cn :hs-kb-unwind) 2) (t 0)) (model-tint m)

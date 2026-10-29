@@ -4841,3 +4841,42 @@ Debug 83902: J1–J5 `6.00 6.00 6.00 | edge 6.00`, every other line as before. T
 match-camera stills reviewed: J2's X reads at S+A (f13), J3's floor S from the front, J4's whirl disc and the fling, J5's twisted rope
 then the corkscrew. Checked by numbers and stills, needs the user's eyes: the crescents of J2 are small at 6 m from the behind camera; the
 vertical S of J3's rear is partly hidden behind the opponent at S.
+
+### 28.21 As built: the 聚 route's looks, 直刺 / 上撈 / 繞身連枷 (batch 4b, 2026-10-29)
+
+The user: 「『聚』跟『散』的 J1-J5 單從鎖鏈的揮舞來看完全看不出每段之間的差異，請將鎖鏈的攻擊設計出更加多樣有特色的動畫。」, then
+「聚改成三段攻擊」「連同 SA 縮成三段 直刺 → 上撈 → 繞身連枷」 (§28.20 built the sim). **Presentation only**: `:clip` / `:clip-s`, art
+tables and draw code changed, and the two unreachable moves deleted; no reachable move's frames, volumes, damage or hooks.
+
+Each link reads apart by the bundle's path (always the one thick bundle, `*hs-bundled*` throughout), each authored at its move's S
+(speed 1), each with its own ink trail drawn by a new `%hs-g-look` (hisagi-draw.lisp, keyed on the clip by `*hs-g-looks*`, black ink,
+0 B a frame). Hands and planes: the SA both fists on a level line, J2 the right arm alone in the vertical plane ahead, J3 both arms
+flat across.
+
+| Link | Move, clip (S / A / R) | The body | The bundle's path | Its trail | Drawn reach on the hit frames (83902) |
+|---|---|---|---|---|---|
+| SA 直刺 CHOKUSHI | `hs-r-sa-g`, **`hs-k-g-sa`** (13/3/16; was `hs-k-uchi` at 10/13 with a move-keyed bundle row) | from the 聚 stance, sunk and turned right, both fists together on the bundle at his right hip (held f5-11); on S both arms rammed straight ahead in a lunge; the recoil f16-19 | drawn in to his fists (0.55 m, az -8, f11), shot straight out along the line at chest height (2.2 m at f12, 4.5 m at f13), taut and level f13-15, kicked back to 3.7 m on f16 (the recoil) | three straight speed lines behind its end along the line and a fat short kite on the end (the blunt head), f12-16 | 4.50 4.50 4.50, az 0 (edge 4.50) |
+| J2 上撈 UWAZARAI | `hs-r-j2s`, **`hs-k-g-j2`** redrawn (19/3/16; was the straight lash at 16/3/13, `:clip-s` 16 -> 19) | out of the SA's recoil, bent low and turned right, the right arm hanging to the floor (held deepest f17); on S the right arm swung straight up in front, up on his toes | fallen on the floor ahead (f4), dragged in round to his right along the ground (-110 deg at f13), on forward (f16-18), ripped off the floor up the vertical plane ahead: 0.15 / 1.45 / 2.75 m up on f19-21, over the top by f23 | a floor groove behind the dragged end (f4-18) and the vertical ribbon of the scoop (the end's path 5 f back, 0.11 m wide, f19-25) | 4.50 4.50 4.50, az -8 / -3 / +2 (edge 4.50) |
+| J3 繞身連枷 JŌSHIN-RENKA (the ender) | `hs-r-j3g`, **`hs-k-g-j3`** redrawn (19/3/21; was the flat sweep at 16/3/18, `:clip-s` 16 -> 19) | both arms raised clear while the bundle winds round him (f4-11), then crouched and coiled to his right, both fists at his right knee (held f14-18); on S unwound to his left, the arms swept flat across | the wrap lives in the windup (S 19): from J2's over the top (its frame 0 = J2's at f26, where the scripted link lands) hauled in to his hip (f3), its end carried once round his waist counter-clockwise at 0.5 m, 1.0 -> 1.2 m up (a key each 90 deg, f3-14), held, unwound off his right (f16-18), then the flail sweep R -> L at 4.5 m: -38 / 0 / +38 deg on f19-21 | the coil drawn round his waist as far as the end has carried it (one turn by f14, unwinding f16-19) and the curled smear (the end's path 4 f back, f17-25: from the coil out into the sweep) | 4.50 4.50 4.50, az -38 / 0 / +38 (edge 4.50) |
+
+- **Deleted**: the moves `hs-r-na3g` / `hs-r-na4g` (off the string since §28.20), their clips `hs-k-g-na3` 束昇 / `hs-k-g-na4` 束落 and
+  their poses, their `*hs-strike-reach*` / `*hs-lashes*` / `*hs-bundled*` / `*hs-spins*` rows, `*hs-r-gather-links*`' two, their
+  83902 rows (`*hs-tip-moves*`), their strip slots (`*hs-r2-strips*` 17 / 18; the list ends at 16 now), the move-keyed `:hs-r-sa-g`
+  lash and bundle rows (the SA has its own clip), the old J2's straight-lash poses (`gj2-up`; `gj2-hit` is now the uppercut's) and the clip exemption in
+  tests/duel-rules/core.lisp. `hs-k-g-j2` / `hs-k-g-j3` stay (redrawn in place, the names already J2 / J3's).
+- **Strips** `*hs-r2-strips*` (83560+k): 2 the gathered SA (now `hs-k-g-sa`), 12 J2, 13 J3; `*hs-bk-strips*` 31 / 32 play the
+  redrawn J2 / J3. 83901's lines: the first's `SOKUBEN` / `SOKUTEI` now J2 at f12 (the groove) and J3 at f12 (the coil); the 2a line's
+  `gathered SA` at f14 (the speed lines), `gathered J2` at f21 (the ribbon), `gathered J3` at f20 (the curl): all 0 B.
+- **Frame 0 = the link's landing** (links start with blend 0): J2's frame 0 is the SA's at its f20 (body and bundle), J3's is J2's at
+  its f26 (the smoke's A9: SA > J2 at sf 20, J2 > J3 at sf 26). The SA itself starts from the bundle's rest (out of TABA / TATAKI,
+  whose bundle lies ahead at ~4.4 m: a small pop there, left).
+- Deviations from §28.18's plan (its 聚 rows were for the five-link string): the uppercut uses the right arm (not §28.15's left
+  backhand); his body does not spin a full turn in the wrap (a root yaw of 360 would unwind back through the next clip's blend), the
+  bundle's end carries round him while he turns ±30-40 deg with it; the bundle stays one cubic from the orb, so the thrust reads
+  straight over its last ~2 m (with the speed lines) and bows down from the orb above that.
+- **Checks**: duel-rules 10655 ALL PASS (the gathered SA / J2 / J3 at speed 1, `:s` on S, length S + A + R, inside ±45 on the hit
+  frames, four clips apart from the spread SA's; `bk-moves` on their edges), control 99 ALL PASS, pkgcheck 0 / 0 / 0, debug ranges 0
+  errors, debug 83901 every line 0 B, 83902 every Bankai move on its edge. The sim unchanged: the scripted smoke
+  (`duel-hisagi-bankai.json`, 90 s) 197 hash / log lines identical to 380b6ac's; `--cvc` 3 PASS. No balance gates (the user's rule).
+- Checked by numbers and 8-frame strips (side, front, the match camera), needs the user's eyes: the coil round his waist is small
+  from the behind camera; the thrust's bundle still drops from the orb high above him before it runs level.
