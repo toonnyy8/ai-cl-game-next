@@ -112,6 +112,9 @@
   animation: slash .46s .5s var(--ease-cut) forwards; }
 @keyframes slash { to { transform: rotate(-5deg) scaleX(1) } }
 .wordmark span:first-child { position: relative; z-index: 1; }
+/* NEXT (the user, 2026-10-29: the name SOUL DUEL NEXT): a small blood line under DUEL, at DUEL's indent */
+.wordmark .next { display: block; font: 900 .26em/1 var(--f-display); font-style: normal; letter-spacing: .5em; color: var(--blood); padding-left: 2.4em; margin-top: .3em;
+  animation: rise .9s .24s var(--ease-out) both; }
 .t-sub { display: flex; gap: 22px; align-items: baseline; flex-wrap: wrap; font: 500 13px/1.6 var(--f-body); color: var(--steel); letter-spacing: .14em; }
 .t-sub b { font: 400 11px/1 var(--f-mono); color: var(--stone); letter-spacing: .16em; }
 .press { justify-self: start; display: inline-flex; gap: 14px; align-items: center; padding: 16px 26px 16px 20px;

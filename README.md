@@ -1,4 +1,6 @@
-# SOUL DUEL
+# SOUL DUEL NEXT
+
+（2026-10-29 起改名，之前叫 SOUL DUEL；程式碼和文件裡的 SOUL DUEL 指的是同一款遊戲。）
 
 1 對 1 的 3D 競技場格鬥遊戲，玩法參考《BLEACH: Rebirth of Souls》，角色取自《千年血戰篇》（TYBW）。整款遊戲用 Common Lisp 寫成，先由 ECL 編成 C，再由 Emscripten 編成 WebAssembly，在瀏覽器裡執行；畫面透過 SDL3 的 SDL_GPU（WebGPU 後端）繪製。所有模型、動作、特效、字形、音效和配樂都是程式產生的，整個專案沒有任何美術或音訊素材檔。
 

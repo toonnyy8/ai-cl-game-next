@@ -624,3 +624,19 @@ draining gauge, a kit without pointers). DEVLOG §504.
 `*rv-on-bar*` and `*plate-low*` are gone (their history is in the new knob's docstring). The SP label stays above the line at the thumb's
 edge. A tap on 爆 is its chip as before. Control 99, touch 100, pkgcheck clean; shots in both hands. DEVLOG §508.
 
+## 12. The name SOUL DUEL NEXT and the badge icon (the user, 2026-10-29)
+
+> 「幫我修改名稱與 icon 後推上 gh page」; asked, the user answered the name 「SOUL DUEL NEXT」 and the icon 「以代理死神證作為 icon」.
+
+- **The name** players see: the page title and the loading logo (`duel/MANIFEST`'s `# title:`), the installed app (`manifest.webmanifest`
+  `name` and `short_name`, `head.html`'s `apple-mobile-web-app-title`), the window title (`main.lisp`), the menus' rail mark and the title
+  screen's wordmark (SOUL / DUEL and a small blood `NEXT` line at DUEL's indent, `menu.js` / `menu.css`), the engine's fallback title and
+  mode screens (`hud-screens.lisp`, fitted to the width), the manual (title, header, credits: 「2026-10-29 前叫 SOUL DUEL」), the README.
+  The code, the docs and the saved data keep the name SOUL DUEL (`soulduel.*` storage keys, the service worker's cache names), so a player's
+  settings and learning tables carry over. `short_name` is the full 14 characters; a home screen may cut it.
+- **The icon** (`tools/pwa-icons.py`, the four PNGs): the Substitute Shinigami Badge (代行証), drawn stylised: a dark-wood cross pattée with
+  a pale rim and a few grain lines, a bone skull in its middle (dark sockets, nose, teeth), hung on a red cord from the top edge, on the
+  dusk ink; the maskable one inside the 80 % safe circle. Drawn from the canon's description (a wooden pass with a skull whose eyes light
+  on a Hollow alert), not traced from an image. Before: a pale soul ring cut by a red brush slash.
+- Deployed to GitHub Pages on request (`tools/deploy-pages.sh`). DEVLOG §509.
+

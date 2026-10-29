@@ -1,4 +1,4 @@
-# title: SOUL DUEL
+# title: SOUL DUEL NEXT
 # SOUL DUEL sources in compile order, relative to this directory (the engine's come first, see
 # engine/MANIFEST). Order matters: macros, structs, components and special variables before their
 # users. tuning / rules / control / learn / kit are plain CL (host-tested); yama / ken / rukia / ichigo are the characters

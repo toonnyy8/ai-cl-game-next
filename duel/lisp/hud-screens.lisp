@@ -55,7 +55,7 @@ while it waits for a key), then RESET DEFAULTS and BACK; the fixed combinations 
     (ui-text help (floor w 2) (- h (* 20 s)) :scale (fit-scale help s (* 0.94 w)) :align :center :color *dim* :shadow t)))
 
 (defun hud-title (w h s)
-  (ui-big-text "SOUL DUEL" (floor w 2) (* 0.34 h) (* 9 s) '(1 0.92 0.8 1) '(0.7 0.18 0.05 1) s)
+  (ui-big-text "SOUL DUEL NEXT" (floor w 2) (* 0.34 h) (fit-scale "SOUL DUEL NEXT" (* 9 s) (* 0.9 w)) '(1 0.92 0.8 1) '(0.7 0.18 0.05 1) s)
   (when (portrait-p)                                    ; portrait: the credit on two lines
     (when (< (mod (fx-clock) 1.2) 0.8)
       (ui-text "TAP TO START" (floor w 2) (* 0.68 h) :scale (* 2 s) :align :center :color *white* :shadow t))
@@ -236,7 +236,7 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
         (unless (draw-bcap *caption-out* w h) (setf *caption-out* nil))))
     (case (if (webui-on-screen-p) :web *flow*)              ; the page's HTML menus draw it (webui.lisp)
       (:title (hud-title w h s))
-      (:mode (ui-big-text "SOUL DUEL" (floor w 2) (* 0.2 h) (fit-scale "SOUL DUEL" (* 6 s) (* 0.8 w)) '(1 0.92 0.8 1) '(0.7 0.18 0.05 1) s)
+      (:mode (ui-big-text "SOUL DUEL NEXT" (floor w 2) (* 0.2 h) (fit-scale "SOUL DUEL NEXT" (* 6 s) (* 0.8 w)) '(1 0.92 0.8 1) '(0.7 0.18 0.05 1) s)
        (hud-menu *mode-menu* (if (portrait-p) 0.52 0.42) w h s))   ; portrait: lower, toward the thumb
       (:settings (hud-settings w h s))
       (:controls (if (one-hand-offered-p) (hud-gestures w h s) (hud-controls w h s)))
