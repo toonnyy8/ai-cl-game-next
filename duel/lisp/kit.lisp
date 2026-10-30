@@ -515,8 +515,9 @@ the string ((SA :q J2)) follows every SA (the kit's and the segments' own) with 
   "NAME and the segments after it (each move's :params :ns-next: an NS's or an AS's next segment, one SP press each), in order."
   (loop for n = name then (getf (mv-params (find-move n)) :ns-next) while n collect n))
 (defun core-move-names (core)
-  "Every move name a kit's :core plist reaches: the three NS and the three AS sequences (every segment), the SA."
-  (append (loop for n in (append (getf core :ns) (getf core :as))
+  "Every move name a kit's :core plist reaches: the three NS and the three AS sequences (every segment), the SA, and the moves of
+:ALSO (not in the grammar: kept in the table so a form that inherits this one derives them, Kenpachi's KATATE for RYOTE)."
+  (append (getf core :also) (loop for n in (append (getf core :ns) (getf core :as))
                 append (loop for m in (core-segments n) collect m
                              when (getf (mv-params (find-move m)) :kikon-strike) collect it))   ; (a wave's follow-up strike)
           (core-segment-sas core) (and (getf core :sa) (list (getf core :sa)))))

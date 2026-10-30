@@ -86,7 +86,7 @@
 (defmove-copy :ke-sa :ke-j1 :dmg 36 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)
 ;; NS2: BUTTAGIRU's leap > the kick; both take one hit through (:armor-hits 1, extended to the end of the active frames by KEN-ARMOR),
 ;; a cancel (the triangle's, no damage) neither spends it nor is a hit: it counts (KEN-CLASH) and raises the SA of the gap (KEN-DMG-MULT)
-(defmove-copy :ke-n2b :ke-j3 :kind :flash :dmg 60 :flags nil :startup 14 :clip :ke-sweep :clip-s 14 :reach 2.4 :arc 140 :armor-hits 1
+(defmove-copy :ke-n2b :ke-j3 :kind :flash :dmg 60 :flags nil :startup 14 :clip :ke-sweep :clip-s 14 :reach 2.4 :arc 140 :armor-hits 1 :slide 2.0
   :params (:armor-act t :clash-count t))
 (defmove-copy :ke-n2a :ke-buttagiru :kind :flash :clip :ke-rush-a :dmg 90 :on-hit :stagger :armor-hits 1 :flags nil :on-frame nil
   :params (:melee-range 2.6 :ns-next :ke-n2b :sa :ke-sa-r :armor-act t :clash-count t))
@@ -108,6 +108,25 @@
 (defmove-copy :ke-as3c :ke-meteor :dmg 170 :on-hit :knockdown :on-frame nil :params (:melee-range 3.4))
 (defmove-copy :ke-as3b :ke-k2 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-as3c))
 (defmove-copy :ke-as3 :ke-k1 :kind :sp :dmg 50 :on-hit :stagger :params (:ns-next :ke-as3b))
+
+;;; ---------------------------------------------------------------- KATATE (cup 1) on the core system (DUEL_KEN_KATATE, 2026-10-30)
+;;; The same three pointer themes as the base form, but his free left hand is the second weapon (the user, 2026-10-30: 「重砍 + 空著的左手出拳」):
+;;; pointer 1's SA is a left jab, pointer 2's NS2b a left-hand clamp and slam, pointer 3's charges end in the jab and, held one-handed, are
+;;; weaker (x1.2 / 1.4 / 1.6) but each takes one hit through (「蓄力的倍率改為低、但不被打斷」). New moves play as written (no +2 / x1.3).
+(defmove-copy :ke-kt-sa :ke-sa :clip :ke-kt-jab :clip-s 7 :startup 7 :dmg 30 :reach 1.7 :arc 70 :slide 0.5)
+(defmove-copy :ke-kt-sa-r :ke-kt-sa :params (:clash-scale 0.3))
+(defmove-copy :ke-kt-sa-c1 :ke-kt-sa :dmg 40 :params (:charge-mult 1.2 :aura-k 1.5))
+(defmove-copy :ke-kt-sa-c2 :ke-kt-sa :dmg 55 :params (:charge-mult 1.4 :aura-k 2.2))
+(defmove-copy :ke-kt-sa-c3 :ke-kt-sa :dmg 70 :params (:charge-mult 1.6 :aura-k 3.0))
+(defmove-copy :ke-kt-n2b :ke-n2b :clip :ke-kt-slam :clip-s 14 :startup 14 :reach 1.8 :arc 90 :slide 2.0)   ; (the lunge closes the gap NS2a's stagger opened: it whiffed without)
+(defmove-copy :ke-kt-n2a :ke-n2a :startup 24
+  :params (:melee-range 2.6 :ns-next :ke-kt-n2b :sa :ke-kt-sa-r :armor-act t :clash-count t))
+(defmove :ke-kt-n3c :kind :flash :clip :ke-kt-chg3 :startup 16 :active 0 :recovery 20 :armor-hits 1 :on-frame ((2 ken-charge-sfx))
+  :params (:sa :ke-kt-sa-c3 :aura-k 3.0 :charge-sa t))
+(defmove :ke-kt-n3b :kind :flash :clip :ke-kt-chg2 :startup 16 :active 0 :recovery 14 :armor-hits 1 :on-frame ((2 ken-charge-sfx))
+  :params (:ns-next :ke-kt-n3c :sa :ke-kt-sa-c2 :aura-k 2.2 :charge-sa t))
+(defmove :ke-kt-n3a :kind :flash :clip :ke-kt-chg1 :startup 20 :active 0 :recovery 14 :armor-hits 1 :on-frame ((2 ken-charge-sfx))
+  :params (:ns-next :ke-kt-n3b :sa :ke-kt-sa-c1 :aura-k 1.5 :charge-sa t))
 
 (defmove :ke-r-j1 :kind :quick :clip :ke-r-q1 :clip-s 10 :startup 10 :active 3 :recovery 12 :dmg 40 :adv-block -2
   :vol (:cap 0.3 1.56 1.2 0.5) :on-hit :flinch)                      ; MEN: the straight overhead
@@ -212,6 +231,12 @@
   :hooks (:tick ken-tick :p ken-card-bankai :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)    ; the NOME ladder and (the Bankai, inheriting it) the arm: ken-meter.lisp;
                                                 ; P: DANGAI's 隨時卍解 card from any cup
   :commands (:sp1 :ke-meteor :kikon :ke-kikon-n)
+  ;; KATATE's own core set (DUEL_KEN_KATATE): :also keeps the base form's core moves in its table, so RYOTE (whose :core is the base's
+  ;; again, until its own batch) derives them as before
+  :core (:ns (:ke-n1a :ke-kt-n2a :ke-kt-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-kt-sa :mult 1.2
+         :stances (:ke-kt-st-chain :ke-kt-st-rush :ke-kt-st-kamae)
+         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine)
+         :also (:ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3))
   ;; its own one-handed clips for the base moves and the meteor (a look: DUEL_KEN_REWORK §6.2)
   :clip-map (:ke-q1 :ke-k-q1 :ke-q2 :ke-k-q2 :ke-f1 :ke-k-f1 :ke-f2 :ke-k-f2 :ke-q3 :ke-k-spin :ke-meteor :ke-k-meteor)
   ;; toys with his opponent (a Kikon only 0.25 per decision until the last minute: it is worth 2 here; the O ender on
@@ -233,6 +258,9 @@
   :passives (:projectile-cut :cut) :stance :ke-r-stance :aura :nozarashi :enter-hook ken-ryote-enter
   :clip-map nil                                     ; (not cup 1's: RYOTE plays the clips as written)
   :commands (:q :ke-r-j1 :f :ke-r-k1 :sp1 :ke-meteor :kikon :ke-kikon-n)   ; (the cup-1 moves as written: not re-derived)
+  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2           ; (the base form's, until RYOTE's batch)
+         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)
+         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))
   :grid (:ke-r-j1 :ke-r-j2 :ke-r-j3 :ke-r-k1 :ke-r-k2 :ke-r-k3 :ke-r-j2s :ke-r-k2s)
   ;; after the 2x NOME drain (docs/duel/DUEL_NOZARASHI_V2.md, "The CPU after the faster drain"): no DEFEND intent, no idle
   ;; option at range, a neutral guard 0.1 (a guard against a committed move stays 0.35), a dash from 0.5 m outside his
@@ -1044,14 +1072,15 @@ the startup (the user, 2026-10-29: 「前搖到 active 吃一發不退」)."
 (defun ken-charge-sfx (e) "NS3's charge: the kamae gathers (its sound)." (emit :sfx :whoosh-heavy e))
 
 (defun ken-core-debug (c)
-  "84000 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene, human P1 Kenpachi and an idle Ichigo P2
+  "84000 / 84001 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene (84001: Kenpachi in KATATE), human P1 Kenpachi and an idle Ichigo P2
 2.2 m apart, both CPUs off, gauges full; on the running scene 84010 P2 starts his NS now (NS against NS: the first hit wins), 84011
 his J1 now (NA against NS: a cancel). The scripts time the presses."
   (case c
-    (84000 (ensure-battle :kenpachi :ichigo :cpu nil)
+    ((84000 84001) (ensure-battle :kenpachi :ichigo :cpu nil)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
            (place *p1* *p2* 2.2)
-           (full-gauges! *p1*) (full-gauges! *p2*))
+           (full-gauges! *p1*) (full-gauges! *p2*)
+           (when (= c 84001) (force-form *p1* :nozarashi)))        ; 84001: the same, in KATATE
     (84010 (core-sp-start! *p2* (fighter *p2*)))
     (84011 (force-cmd *p2* :q))))
 (pushnew '(84000 84099 ken-core-debug) *char-debug* :test #'equal)

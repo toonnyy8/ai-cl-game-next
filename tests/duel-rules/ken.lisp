@@ -219,3 +219,23 @@
     (check (< (getf (mv-params (m :ke-sa-c1)) :charge-mult) (getf (mv-params (m :ke-sa-c2)) :charge-mult) (getf (mv-params (m :ke-sa-c3)) :charge-mult)))
     ;; the hooks reach every cup
     (check (loop for (f . kk) in (gethash :kenpachi *kits*) always (and (eq 'ken-armor (kit-hook kk :armor)) (eq 'ken-clash (kit-hook kk :clash)))))))
+
+;;; ---- KATATE on the core system (DUEL_KEN_KATATE, 2026-10-30): the free left hand
+(let* ((k (kit :kenpachi :nozarashi)) (r (kit :kenpachi :ryote)) (n (kit :kenpachi :nomihose)))
+  (labels ((m (n) (gethash n (kit-moves k))) (cls (n) (kit-class k (m n))))
+    (check (every (lambda (x) (eq (cls x) :ns)) '(:ke-n1a :ke-n1b :ke-n1c :ke-kt-n2a :ke-kt-n2b :ke-kt-n3a :ke-kt-n3b :ke-kt-n3c)))
+    (check (every (lambda (x) (eq (cls x) :sa)) '(:ke-kt-sa :ke-kt-sa-r :ke-kt-sa-c1 :ke-kt-sa-c2 :ke-kt-sa-c3)))
+    (check (every (lambda (x) (eq (cls x) :as)) '(:ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c)))
+    (check (equal (getf (kit-core k) :stances) '(:ke-kt-st-chain :ke-kt-st-rush :ke-kt-st-kamae)))
+    ;; tells: every NS opener S >= 14
+    (check (every (lambda (x) (>= (mv-s (m x)) 14)) '(:ke-n1a :ke-kt-n2a :ke-kt-n3a)))
+    ;; NS2: the clamp is segment b, both take one hit; NS3: each charge takes one hit through, the multipliers lower than the base's
+    (check (and (eq (getf (mv-params (m :ke-kt-n2a)) :ns-next) :ke-kt-n2b) (= 1 (mv-armor-hits (m :ke-kt-n2a))) (= 1 (mv-armor-hits (m :ke-kt-n2b)))))
+    (check (every (lambda (x) (and (zerop (mv-a (m x))) (= 1 (mv-armor-hits (m x))))) '(:ke-kt-n3a :ke-kt-n3b :ke-kt-n3c)))
+    (check (equal (mapcar (lambda (x) (getf (mv-params (m x)) :charge-mult)) '(:ke-kt-sa-c1 :ke-kt-sa-c2 :ke-kt-sa-c3)) '(1.2 1.4 1.6)))
+    ;; the base form's moves stay in his table (RYOTE derives them from it), and RYOTE / NOMIHOSE keep the base's core
+    (check (every #'m '(:ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3))))
+  (check (and (eq (getf (kit-core r) :sa) :ke-sa) (equal (getf (kit-core r) :ns) '(:ke-n1a :ke-n2a :ke-n3a))
+              (equal (getf (kit-core n) :stances) '(:ke-st-chain :ke-st-rush :ke-st-kamae))))
+  ;; RYOTE's reach on the base core moves is the same as before KATATE got its own set (x1.4 of the written one)
+  (check (= (mv-reach (gethash :ke-n2b (kit-moves r))) (* 1.4 (mv-reach (find-move :ke-n2b))))))
