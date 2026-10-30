@@ -64,7 +64,7 @@
   function plateHTML(p) {
     var souls = ""; for (var i = 0; i < 9; i++) souls += '<span class="soul">' + SOUL + '</span>';
     return '<div class="plate ' + p + '"><div class="who"><span class="nm"></span><span class="kj"></span><span class="htag"></span></div>' +
-      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="kit" hidden></div><div class="souls">' + souls + '</div>' +
+      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="srow"><div class="souls">' + souls + '</div><div class="kit" hidden></div></div>' +
       '<div class="meters"><div class="fs"><i></i><i></i><i></i></div><div class="aw"></div><span class="awk">覺醒 READY</span></div>' +
       '<div class="hptr"><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="pn"></span></div></div>' +
       '<div class="callout ' + p + '"><span class="ck"></span><span class="cr"></span></div>' +
@@ -144,7 +144,7 @@
     if (p.kit !== kind) {
       p.kit = kind; k.hidden = !kind; k.className = "kit" + (kind ? " " + kind : "");
       k.innerHTML = kind === "nome" ? '<span class="kn">呑</span><div class="nb"><i class="cp" style="--x:0%;--m:0">' + CUP + '</i><i class="cp" style="--x:40%;--m:-.75">' + CUP +
-          '</i><i class="cp" style="--x:100%;--m:-1.5">' + CUP + '</i><div class="bar"><i class="bf"></i><i class="tk" style="--x:25%"></i><i class="tk up" style="--x:40%"></i>' +
+          '</i><i class="cp" style="--x:100%;--m:-1.5">' + CUP + '</i><div class="nbar"><i class="bf"></i><i class="tk" style="--x:25%"></i><i class="tk up" style="--x:40%"></i>' +
           '<i class="tk" style="--x:50%"></i></div></div><b class="kv"></b>' :
         kind === "ude" ? '<span class="kn">腕</span><span class="pips"><span class="pp"><i></i><u></u></span><span class="pp"><i></i><u></u></span>' +
           '<span class="pp"><i></i><u></u></span><span class="pp"><i></i><u></u></span></span>' : "";

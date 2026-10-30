@@ -676,3 +676,12 @@ their graphic widgets lived only in the old canvas HUD (`ken-meter.lisp`), which
   the value and max are 15 / 16 as before. The thresholds are in `hud.js` (`NOME_AT`, `NOME_FLOOR`; tuning.lisp's `*nome-*` of `*nome-max*`).
 - Ichigo's BUNSHIN count and Hisagi's sickle state keep their tag text; they can move into the strip on request.
 - Code: `webhud.lisp` (two puts), `hud.js` (`renderKit`), `hud.css` (`.kit`). DEVLOG §516.
+
+### 13.1 Beside the soul flames; on the phone under the bar, half its width (the user, 2026-10-30)
+
+> 「一般大型頁面下的特殊量表與「魂魄、閃步、覺醒」量表併排 / 手持模式下則不要超過血量表一半，並放置在與魂魄對應的血量表下方」
+
+- **Wide screens** (desktop, a portrait phone without the one-hand deck): the strip sits in the soul flames' row (`.srow`: flames, then the strip filling the rest of the plate's width; P2 mirrored), above the flash-step / awakening gauges, so the special meter, Konpaku, flash step and awakening read as one block under the bar. Before (§13): a row of its own under the bar.
+- **The phone's one-hand deck** (the plate is the SP / ATK line): the strip hangs from the plate under the Reishi bar (`position: absolute; top: 100%`, so the bar keeps its place on the line), on the side the soul flames are (right for the left hand), at most half the bar's width (`50%` less the plate's padding). Before (§13): between the name row and the bar.
+- Fix: the bar's class was `.bar`, which the page's loading-screen CSS also styles (420 px wide); renamed `.nbar`.
+- Checked in shots on a wide window and a 390 x 844 portrait window (the wide layout); the one-hand layout could not be forced in headless Chrome (the page resets the classes), so it is read from the CSS only: needs a look on the phone. DEVLOG §517.
