@@ -214,7 +214,7 @@ Set (Lisp → page), only when the value changed:
 | 30143 | the pad's top (the recogniser's touch area), ‰ of the height: the deck's paper is drawn up to it (§11.1) |
 | 30136–30138 / 30139–30141 | 爆 (chip 7) and 止 (chip 6): centre x, y (‰ of the window), radius (‰ of the width): the recogniser's hit circles (+ its 8 px slop) |
 | 30142 | the left hand 1 |
-| 30150 + 30 s + k | side s (0 P1, 1 P2): k 0 roster index + 1, 1 Reishi ‰, 2 red (the Kikon's must-hit line), 3 Konpaku left, 4 the souls at stake (`at-stake`), 6 flash step ‰, 7 the awakening ‰, 8 its state (0 filling, 1 ready, 2 awakened / an awakened form), 9 the SP pointer (0: no core kit), 10–13 the combo this side deals (the victim's hits, damage, the last hit's scaling ‰, a serial per counted hit: from the 2nd, PRACTICE's from the 1st), 14 the callout's serial, 15 / 16 the kit meter's value / max, 17 / 18 best combo / Kikons, 19 human 1 |
+| 30150 + 30 s + k | side s (0 P1, 1 P2): k 0 roster index + 1, 1 Reishi ‰, 2 red (the Kikon's must-hit line), 3 Konpaku left, 4 the souls at stake (`at-stake`), 6 flash step ‰, 7 the awakening ‰, 8 its state (0 filling, 1 ready, 2 awakened / an awakened form), 9 the SP pointer (0: no core kit), 10–13 the combo this side deals (the victim's hits, damage, the last hit's scaling ‰, a serial per counted hit: from the 2nd, PRACTICE's from the 1st), 14 the callout's serial, 15 / 16 the kit meter's value / max, 17 / 18 best combo / Kikons, 19 human 1, 20 the NOME cup (the ladder's rung 0–2), 21 the arm pip's crack clock left ‰ (0 outside the Bankai) |
 
 Strings (setStr, ASCII): 30220 + 4 s the name label (`kit-hud`: "ICHIGO  KESSA"), + 1 the status tag (a kit's `:hud-tag` hook:
 Hisagi's KAZESHINI IN / OUT / ..., KESSA's BUNSHIN xN; else the meter's label NOME / UDE), + 2 the callout's romaji (the page's
@@ -657,3 +657,22 @@ The red line was a cord the first takes hung the badge on (my addition, not on t
 badge is squashed to 0.84 of a regular pentagon's height (`FLAT`), sized up a little (R .44 → .46) and centred a little lower; the skull's
 height 0.155 → 0.14. Redeployed. DEVLOG §511.
 
+
+## 13. The kit meters as a strip under the Reishi bar (the user, 2026-10-30)
+
+> 「覺醒三杯（片手 / 雙手 / 飲み干し）的重設計。在開始之前我希望你能將三杯、臂之類的計量表重新以圖形化表示與血條放在一起」
+
+Before: Kenpachi's NOME (the three cups) and UDE (the Bankai's arm) were a line of text in the plate's tag (`呑 nome 40`, `腕 ude 3`);
+their graphic widgets lived only in the old canvas HUD (`ken-meter.lisp`), which the HTML battle screen replaced.
+
+- **Where**: a `.kit` strip right under the Reishi bar (same width; on the phone, in the plate between the name row and the bar, so the bar
+  keeps its place on the SP / ATK line). Hidden for a kit with no such meter. Mirrored for P2 and the left hand.
+- **NOME**: three sake-cup icons on a thin yellow bar at the places the cups begin (cup 1 at 0, cup 2 at 40, cup 3 at the full 100), the
+  cups up to the current one lit (cup 3 with a glow); marks on the bar: cup 2's entry bright, the two floors (25, 50) dim, where it drops
+  a cup back; within a tenth over the current cup's floor the fill pulses; the value at the end.
+- **UDE**: four blood claw pips, a spent one dark with a white crack line; under the next pip to crack a paper line drains over the crack
+  clock (`*arm-crack*`), the pip pulsing in the clock's last 20 %.
+- **Protocol**: two new slots, 30150 + 30 s + 20 (the NOME cup, from the kit's `:ladder` and the form) and + 21 (the crack clock left ‰);
+  the value and max are 15 / 16 as before. The thresholds are in `hud.js` (`NOME_AT`, `NOME_FLOOR`; tuning.lisp's `*nome-*` of `*nome-max*`).
+- Ichigo's BUNSHIN count and Hisagi's sickle state keep their tag text; they can move into the strip on request.
+- Code: `webhud.lisp` (two puts), `hud.js` (`renderKit`), `hud.css` (`.kit`). DEVLOG §516.

@@ -49,9 +49,10 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
    on it from the far edge to the thumb's (hud.js lays it from Lisp's line), its flames, name and tag on the SP side above it; what is
    left stays at the far end (the thumb covers the near one); the empty track keeps the line drawn at 0. Flash step: the ink in 爆;
    the awakening: 爆's ring; the stance: three seals around 爆. */
-#hud.hphone:not(.nodeck) .plate.p1 { top: auto; right: auto; grid-template-columns: auto 1fr; grid-template-areas: "s w" "b b"; align-items: end;
+#hud.hphone:not(.nodeck) .plate.p1 { top: auto; right: auto; grid-template-columns: auto 1fr; grid-template-areas: "s w" "k k" "b b"; align-items: end;
   column-gap: calc(1.1 * var(--u)); row-gap: calc(.55 * var(--u)); padding-inline: calc(1.4 * var(--u)); }
-#hud.hphone:not(.nodeck) .plate.p1.mir { grid-template-columns: 1fr auto; grid-template-areas: "w s" "b b"; }
+#hud.hphone:not(.nodeck) .plate.p1.mir { grid-template-columns: 1fr auto; grid-template-areas: "w s" "k k" "b b"; }
+#hud.hphone:not(.nodeck) .plate.p1 .kit { grid-area: k; }
 #hud.hphone:not(.nodeck) .plate.p1::before { content: none; }
 #hud.hphone:not(.nodeck) .plate.p1 .souls { grid-area: s; padding-inline-start: calc(.4 * var(--u)); }
 #hud.hphone:not(.nodeck) .plate.p1.mir .souls { padding-inline: 0 calc(.4 * var(--u)); }
@@ -64,6 +65,39 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud.hphone:not(.nodeck) .plate.p1 .reishi { height: calc(1.3 * var(--u)); box-shadow: inset 0 0 0 1px rgba(238,238,234,.42); background: rgba(11,11,16,.55); }
 #hud.hphone:not(.nodeck) .plate.p1 :is(.meters, .hptr) { display: none; }
 @keyframes hd-pulse { 50% { filter: brightness(1.35); } }
+
+/* Kenpachi's kit meters, a strip under the Reishi bar (the user, 2026-10-30: 「將三杯、臂之類的計量表以圖形化表示，與血條放在一起」,
+   DUEL_WEBUI §13): NOME = three sake cups on a bar (lit up to the current cup; the bar's marks: cup 2's entry bright, the two floors dim),
+   UDE = four claw pips with the crack clock under the next one */
+#hud .kit { display: flex; align-items: center; gap: calc(.7 * var(--u)); width: 100%; }
+#hud .kit[hidden] { display: none; }
+#hud :is(.p2, .mir) .kit { direction: rtl; }
+#hud .kit .kn { font: 800 calc(1.15 * var(--u))/1 var(--f-kanji); letter-spacing: 0; text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+#hud .kit.nome .kn { color: var(--reiatsu); }
+#hud .kit.ude .kn { color: var(--blood); }
+#hud .kit .kv { font: 600 calc(.8 * var(--u))/1 var(--f-mono); color: var(--reiatsu); min-width: 2.4em; direction: ltr; text-align: center; }
+#hud .nb { position: relative; flex: 1; height: calc(2.2 * var(--u)); }
+#hud .nb .cp { position: absolute; top: 0; width: calc(1.5 * var(--u)); height: calc(1.1 * var(--u)); inset-inline-start: var(--x); margin-inline-start: calc(var(--m) * 1.5 * var(--u)); }
+#hud .nb .cp svg { width: 100%; height: 100%; display: block; overflow: visible; }
+#hud .nb .cp path { fill: rgba(11,11,16,.55); stroke: var(--stone); stroke-width: 1; transition: fill .25s, stroke .25s; }
+#hud .nb .cp.on path { fill: var(--reiatsu); stroke: var(--ink); }
+#hud .nb .cp.on:last-of-type path { filter: drop-shadow(0 0 calc(.4 * var(--u)) var(--reiatsu)); }
+#hud .nb .bar { position: absolute; inset-inline: 0; bottom: 0; height: calc(.7 * var(--u)); background: #2c303d; box-shadow: inset 0 0 0 1px rgba(238,238,234,.12); }
+#hud .nb .bf { position: absolute; inset-block: 0; inset-inline-start: 0; width: calc(var(--k, 0) * 100%); background: linear-gradient(180deg, #ffe97a, #e0a21a);
+  transition: width .15s var(--ease-out); }
+#hud .nb .bf.near { animation: hd-pulse .7s ease-in-out infinite; }
+#hud .nb .tk { position: absolute; inset-block: calc(-.25 * var(--u)); width: 1px; inset-inline-start: var(--x); background: var(--stone); }
+#hud .nb .tk.up { background: var(--paper); }
+#hud .kit .pips { display: flex; gap: calc(.45 * var(--u)); }
+#hud .pp { position: relative; width: calc(2.4 * var(--u)); height: calc(1.5 * var(--u)); }
+#hud .pp i { position: absolute; inset: 0; clip-path: polygon(24% 0, 100% 0, 76% 100%, 0 100%); background: #0d0d12;
+  transition: background .25s; }
+#hud .pp i::after { content: ""; position: absolute; left: 52%; top: 12%; width: 1px; height: 78%; background: var(--paper); transform: skewX(-24deg); opacity: .8; transition: opacity .25s; }
+#hud .pp.lit i { background: linear-gradient(180deg, #ff4b63, var(--blood) 60%, #8d0f20); }
+#hud .pp.lit i::after { opacity: 0; }
+#hud .pp u { position: absolute; inset-inline-start: 6%; bottom: calc(-.4 * var(--u)); height: calc(.25 * var(--u)); width: 0; background: var(--paper); text-decoration: none; }
+#hud .pp.nx u { width: calc(var(--ck, 1) * 88%); transition: width .2s linear; }
+#hud .kit.hurry .pp.nx i { animation: hd-pulse .45s ease-in-out infinite; }
 
 /* Konpaku: nine soul flames, each flickering on its own beat (the user, 2026-10-29: 「靈魂的火焰做成動畫，然後被打掉的空缺以灰色小點表示」);
    a spent one bursts and leaves a small grey dot; the ones a Kikon would take now outlined in blood */

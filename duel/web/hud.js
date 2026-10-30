@@ -64,7 +64,7 @@
   function plateHTML(p) {
     var souls = ""; for (var i = 0; i < 9; i++) souls += '<span class="soul">' + SOUL + '</span>';
     return '<div class="plate ' + p + '"><div class="who"><span class="nm"></span><span class="kj"></span><span class="htag"></span></div>' +
-      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="souls">' + souls + '</div>' +
+      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="kit" hidden></div><div class="souls">' + souls + '</div>' +
       '<div class="meters"><div class="fs"><i></i><i></i><i></i></div><div class="aw"></div><span class="awk">覺醒 READY</span></div>' +
       '<div class="hptr"><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="pn"></span></div></div>' +
       '<div class="callout ' + p + '"><span class="ck"></span><span class="cr"></span></div>' +
@@ -131,8 +131,37 @@
     var t = S[4 * s + 1] || "", o = 50 + 30 * s, form = formOf(s), m;
     var out = t === "KAZESHINI IN" ? "風死 <b>·</b> in hand" : t === "KAZESHINI OUT" ? "風死 <b>·</b> thrown" : t === "KAZESHINI ..." ? "風死 <b>·</b> returning" :
       (m = /^BUNSHIN x(\d)/.exec(t)) ? "分身 <b>·</b> ×" + m[1] :
-      t === "NOME" ? "<em>呑</em> nome <b>" + V[o + 15] + "</b>" : t === "UDE" ? "<em>腕</em> ude <b>" + V[o + 15] + "</b>" : t.toLowerCase();
+      t === "NOME" || t === "UDE" ? "" : t.toLowerCase();   // (NOME / UDE: the strip under the bar, DUEL_WEBUI §13)
     return (form ? form.toLowerCase() + (out ? " <b>·</b> " : "") : "") + out;
+  }
+  // Kenpachi's kit meters as a strip under the Reishi bar (DUEL_WEBUI §13): NOME is three sake cups on a bar (cup 2 at 40, cup 3 at the
+  // full 100, floors 25 / 50 where it drops a cup back: tuning.lisp *NOME-UP-T2* / *NOME-DOWN-T2* / *NOME-DOWN-T3* of *NOME-MAX*), UDE
+  // four claw pips of the Bankai's arm with the crack clock under the next one
+  var CUP = '<svg viewBox="0 0 14 10"><path d="M1 1h12l-1.4 5.4C11.2 8.2 9.4 9.4 7 9.4S2.8 8.2 2.4 6.4z"/></svg>';
+  var NOME_AT = [0, .4, 1], NOME_FLOOR = [0, .25, .5];
+  function renderKit(el, s, o, p) {
+    var t = S[4 * s + 1] || "", kind = t === "NOME" ? "nome" : t === "UDE" ? "ude" : "", k = $(".kit", el);
+    if (p.kit !== kind) {
+      p.kit = kind; k.hidden = !kind; k.className = "kit" + (kind ? " " + kind : "");
+      k.innerHTML = kind === "nome" ? '<span class="kn">呑</span><div class="nb"><i class="cp" style="--x:0%;--m:0">' + CUP + '</i><i class="cp" style="--x:40%;--m:-.75">' + CUP +
+          '</i><i class="cp" style="--x:100%;--m:-1.5">' + CUP + '</i><div class="bar"><i class="bf"></i><i class="tk" style="--x:25%"></i><i class="tk up" style="--x:40%"></i>' +
+          '<i class="tk" style="--x:50%"></i></div></div><b class="kv"></b>' :
+        kind === "ude" ? '<span class="kn">腕</span><span class="pips"><span class="pp"><i></i><u></u></span><span class="pp"><i></i><u></u></span>' +
+          '<span class="pp"><i></i><u></u></span><span class="pp"><i></i><u></u></span></span>' : "";
+    }
+    if (!kind) return;
+    var v = Math.max(0, V[o + 15]), mx = Math.max(1, V[o + 16]), i;
+    if (kind === "nome") {
+      var f = Math.min(1, v / mx), rung = Math.max(0, Math.min(2, V[o + 20])), cps = k.querySelectorAll(".cp");
+      st($(".bf", k), "--k", f.toFixed(3)); tx($(".kv", k), v);
+      for (i = 0; i < 3; i++) cps[i].classList.toggle("on", i <= rung);
+      $(".bf", k).classList.toggle("near", rung > 0 && f < NOME_FLOOR[rung] + .1);   // within a tenth of the drop: it pulses
+    } else {
+      var n = Math.round(v), pp = k.querySelectorAll(".pp");
+      st(k, "--ck", (Math.max(0, V[o + 21]) / 1000).toFixed(3));
+      for (i = 0; i < 4; i++) { pp[i].classList.toggle("lit", i < n); pp[i].classList.toggle("nx", i === n - 1); }
+      k.classList.toggle("hurry", n > 0 && V[o + 21] < 200);
+    }
   }
   function renderPlate(s) {
     var el = els.plate[s], o = 50 + 30 * s, f = fighter(s), p = prev["p" + s] || (prev["p" + s] = {});
@@ -142,6 +171,7 @@
     tx($(".nm", el), nameOf(s));
     tx($(".kj", el), f ? f.kj : "");
     var tg = tagHTML(s); if (p.tag !== tg) { $(".htag", el).innerHTML = tg; p.tag = tg; }
+    renderKit(el, s, o, p);
     var r = Math.max(0, V[o + 1]) / 1000, ghost = $(".ghost", el);
     if (p.r !== r) st(ghost, "transition", p.r !== undefined && r < p.r ? "" : "none");   // a hit: the blood ghost drains after it; a refill snaps
     st($(".fill", el), "transform", "scaleX(" + r + ")"); st(ghost, "transform", "scaleX(" + r + ")"); p.r = r;
