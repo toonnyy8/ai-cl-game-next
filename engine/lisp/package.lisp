@@ -74,7 +74,7 @@
    #:au-normalize! #:au-mix! #:au-svf! #:au-onepole! #:au-drive! #:au-delay! #:au-reverb! #:au-fold
    #:au-noise #:au-fnoise #:au-whoosh #:au-ping! #:au-partials! #:au-thump! #:au-taiko! #:au-gong!
    #:au-shaku! #:au-saws! #:defsound #:*audio-debug*
-   #:play-sfx #:play-sfx-at #:sfx-at #:start-loop #:stop-loop #:set-loop-gain #:set-music-volume #:set-sfx-volume
+   #:play-sfx #:play-sfx-at #:sfx-at #:start-loop #:stop-loop #:set-loop-gain #:set-master-volume #:set-music-volume #:set-sfx-volume
    #:music-playing-p #:music-play #:music-stop #:music-intensify #:audio-stats #:audio-locked-p
    #:list-sounds #:sound-loop-p
    ;; anim.lisp: humanoid rig, pose / clip DSL, playback, forward kinematics

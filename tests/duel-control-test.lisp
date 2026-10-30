@@ -172,11 +172,13 @@
 
 ;;; ---------------------------------------------------------------- SETTINGS and the merged VS CPU (2026-09-28)
 ;; the defaults are the old behaviour: AUTO, RIGHT, the recogniser's tap-split 0.5 and flick-min 28, BEHIND
-(check (equal (map 'list (lambda (row) (nth (fourth row) (third row))) *settings*) '("AUTO" "RIGHT" "50%" "3" "BEHIND" "ON" "OFF" "OFF" "OFF" "OFF")))   ; PERFECT HINT off by default (2026-10-01)
+(check (equal (map 'list (lambda (row) (nth (fourth row) (third row))) *settings*) '("AUTO" "RIGHT" "50%" "3" "BEHIND" "ON" "OFF" "OFF" "OFF" "OFF" "5")))   ; PERFECT HINT off by default (2026-10-01)
 (check (and (= (setting-value :tap-split) 0.5) (= (setting-value :flick) 28) (equal (setting-value :camera) "BEHIND")))
 ;; every row: VALUES (when given) match the options one to one; 3-5 SENSITIVITY steps
 (check (loop for row in *settings* always (or (null (fifth row)) (= (length (fifth row)) (length (third row))))))
 (check (<= 3 (length (third (assoc :flick *settings*))) 5))
+(check (and (= (setting-value :volume) 1.0) (= (first (fifth (assoc :volume *settings*))) 0.0)   ; VOLUME: full by default, 0 mutes, rising
+            (apply #'< (fifth (assoc :volume *settings*)))))
 ;; the page value: option index + 1; 0 (never saved, blocked storage) or out of range -> the default
 (check (and (= (setting-from-page :hand 2) 1) (= (setting-from-page :hand 1) 0) (= (setting-from-page :hand 0) 0)
             (= (setting-from-page :hand 3) 0) (= (setting-from-page :hand -1) 0) (= (setting-from-page :tap-split 0) 2)

@@ -15,7 +15,7 @@
     { en: "Practice", zh: "練習", k: "稽古", seal: "稽", text: "和假人練習：暫停選單裡可以讓假人反擊、無限量表。練 NS 的節奏和毀魂技的按住時機。", meta: ["1 PLAYER", "DUMMY"] },
     { en: "VS Player", zh: "雙人對戰", k: "決闘", seal: "闘", text: "兩個人在同一台電腦上對戰：一人用鍵盤，一人用手把，或兩支手把。", meta: ["2 PLAYERS", "KEYBOARD / PAD"] },
     { en: "CPU vs CPU", zh: "觀戰", k: "観戦", seal: "観", text: "看兩個電腦對打，觀察三角相剋：哪一招會被抵銷，哪一招能吃掉對方。", meta: ["SPECTATE"] },
-    { en: "Settings", zh: "設定", k: "設定", seal: "設", text: "單手模式、慣用手、滑動靈敏度、鏡頭與 Hoho 提示。", meta: ["5 OPTIONS"] },
+    { en: "Settings", zh: "設定", k: "設定", seal: "設", text: "單手模式、慣用手、滑動靈敏度、鏡頭、Hoho 提示與音量。", meta: ["6 OPTIONS"] },
     { en: "Controls", zh: "操作", k: "操作", seal: "操", text: "鍵盤與手把的按鍵，可以重新綁定；手機上是單手手勢的說明。", meta: ["KEYBOARD", "PAD", "TOUCH"] },
     { en: "Manual", zh: "說明書", k: "指南", seal: "書", text: "完整的遊戲說明（在這個視窗打開，說明書的返回連結會回到這裡）。", meta: ["MANUAL"] }
   ];
@@ -33,7 +33,8 @@
     { en: "Hand", opts: ["Right", "Left"], help: "拇指操作區在哪一側。手機上的選單也會換到那一側。" },
     { en: "Sensitivity", opts: ["1", "2", "3", "4", "5"], drops: true, help: "越高，越短的滑動就算 Step。預設 3（28 CSS px）。" },
     { en: "Camera", opts: ["Behind", "Side"], help: "VS CPU 與練習、雙手操作時的鏡頭。" },
-    { en: "Perfect hint", opts: ["Off", "On"], help: "現在 Hoho 會是完美閃避時，頭上出現 HOHO!。" }
+    { en: "Perfect hint", opts: ["Off", "On"], help: "現在 Hoho 會是完美閃避時，頭上出現 HOHO!。" },
+    { en: "Volume", opts: ["0", "1", "2", "3", "4", "5"], drops: true, help: "音樂和音效的總音量。0 是靜音，預設 5（最大聲）。" }
   ];
   var BINDS = [["Move up", "移動"], ["Move down", "移動"], ["Move left", "移動"], ["Move right", "移動"],
                ["Attack", "加 Shift 是 SP"], ["Step", "加 Shift 是 Hoho"], ["Function", "功能鍵"], ["Burst", "加 Shift 是覺醒"]];
@@ -119,7 +120,7 @@
           (s.drops ? '<span class="drops">' + s.opts.map(function (o, j) { return '<i data-j="' + j + '" style="height:' + (10 + j * 4) + 'px"></i>'; }).join("") + '</span>'
                    : s.opts.map(function (o, j) { return '<span class="opt" data-j="' + j + '">' + o + '</span>'; }).join("")) +
           '<span class="arrow" data-d="1">▶</span></span><span class="help">' + s.help + '</span></div>';
-      }).join("") + '<div class="set back" data-i="5"><span class="lab">Back</span><span class="choices"></span></div></div></section>' +
+      }).join("") + '<div class="set back" data-i="' + SETTINGS.length + '"><span class="lab">Back</span><span class="choices"></span></div></div></section>' +
       '<section class="screen" id="s-controls"><div class="side-title"><span class="k">操作</span><h1>Controls</h1><p id="ctl-p">兩顆戰鬥鍵：攻擊 J，加上功能鍵 Shift 就是 SP。沒有防禦；深度在出手和換招的時機。選一列再按新的鍵即可改綁定。</p></div>' +
       '<div class="ctl-body"><div id="ctl-keys"><div class="tabs" id="ctl-tabs">' + COLS.map(function (c, i) { return '<span class="opt" data-col="' + i + '">' + c + '</span>'; }).join("") + '</div>' +
       '<svg class="kbd" viewBox="0 0 640 196" id="kbd" aria-label="Keyboard map"></svg>' +
@@ -162,7 +163,7 @@
       if ((el = t.closest("#mode-list .row, #r-menu .row"))) { send(1, +el.dataset.i); send(2); return; }
       if ((el = t.closest(".set"))) {
         var i = +el.dataset.i, a = t.closest(".arrow"), o = t.closest("[data-j]");
-        if (i === 5) { send(1, 5); send(2); }
+        if (i === SETTINGS.length) { send(1, i); send(2); }
         else if (a) { send(1, i); send(+a.dataset.d < 0 ? 4 : 5); }
         else if (o) send(7, i * 10 + (+o.dataset.j));
         else send(1, i);
@@ -209,7 +210,7 @@
   function renderSettings() {
     var sets = $$(".set"); setFocus(sets, V[1]);
     sets.forEach(function (el, i) {
-      if (i >= 5) return;
+      if (i >= SETTINGS.length) return;
       var v = V[40 + i];
       $$(".opt", el).forEach(function (o, j) { o.classList.toggle("cur", j === v); });
       $$(".drops i", el).forEach(function (d, j) { d.classList.toggle("on", j <= v); d.classList.toggle("cur", j === v); });

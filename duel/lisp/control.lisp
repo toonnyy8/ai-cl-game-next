@@ -158,9 +158,11 @@ player's (his own pad). Changes PAIR's plists in place; T when something changed
     (:hint "PERFECT HINT" ("OFF" "ON") 0 nil "HOHO! OVER YOU WHEN A HOHO NOW IS PERFECT")   ; the user 2026-10-01
     (:auto-guard "AUTO GUARD" ("OFF" "HOLD U" "ALWAYS") 0 nil "A HIT COMING: PARRY OR HOHO FOR YOU (NEVER PERFECT, x0.8)")
     (:auto-combo "AUTO COMBO" ("OFF" "ON") 0 nil "J AFTER A HIT: THE CPU PICKS THE NEXT MOVE (x0.8)")
-    (:auto-break "AUTO BREAK" ("OFF" "ON") 0 nil "J INTO A LONG GUARD: A BREAKER (x0.8)"))   ; ASSIST, the user 2026-10-01
+    (:auto-break "AUTO BREAK" ("OFF" "ON") 0 nil "J INTO A LONG GUARD: A BREAKER (x0.8)")   ; ASSIST, the user 2026-10-01
+    (:volume "VOLUME" ("0" "1" "2" "3" "4" "5") 5 (0.0 0.1 0.25 0.45 0.7 1.0) "MUSIC AND SOUND, 0 = MUTE"))   ; the user, 2026-10-30
   "SETTINGS rows: (key label option-labels default-index values note). VALUES (else the labels) are what the options
-mean: TAP SPLIT the recogniser's tap-split, SENSITIVITY its flick-min in CSS px (28 = the design's §3.8 default).")
+mean: TAP SPLIT the recogniser's tap-split, SENSITIVITY its flick-min in CSS px (28 = the design's §3.8 default), VOLUME the
+master gain (steps by ear, louder at the top; 5 = 1.0, the level before the row).")
 
 (defvar *setting-ix* (coerce (mapcar #'fourth *settings*) 'simple-vector) "Each row's chosen option index.")
 

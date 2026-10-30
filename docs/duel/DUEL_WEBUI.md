@@ -685,3 +685,18 @@ their graphic widgets lived only in the old canvas HUD (`ken-meter.lisp`), which
 - **The phone's one-hand deck** (the plate is the SP / ATK line): the strip hangs from the plate under the Reishi bar (`position: absolute; top: 100%`, so the bar keeps its place on the line), on the side the soul flames are (right for the left hand), at most half the bar's width (`50%` less the plate's padding). Before (§13): between the name row and the bar.
 - Fix: the bar's class was `.bar`, which the page's loading-screen CSS also styles (420 px wide); renamed `.nbar`.
 - Checked in shots on a wide window and a 390 x 844 portrait window (the wide layout); the one-hand layout could not be forced in headless Chrome (the page resets the classes), so it is read from the CSS only: needs a look on the phone. DEVLOG §517.
+
+## 14. VOLUME in SETTINGS (the user, 2026-10-30)
+
+> 「幫我為遊戲新增音量調節功能」
+
+- **The row**: `VOLUME` 0–5, shown as six rising drops (as SENSITIVITY), after PERFECT HINT; default 5. It is the mixer's master gain
+  (`set-master-volume`, the engine's bus 0, applied after the sfx / music buses), so the cinematics' own bus gains (the silence beat, the
+  ducked music) stay as they were under it. Steps by ear: 0 / 0.1 / 0.25 / 0.45 / 0.7 / 1.0; 0 mutes; 5 is the level before the row.
+- **Saved** like the other rows: `*settings*` row 10 (appended, so the saved rows keep their indices), page slot 20, localStorage
+  `soulduel.volume` (option index + 1).
+- Not in the pause menu; music and sound effects share the one row (a split into MUSIC / SFX needs only a second row on a user gain per
+  bus, on request).
+- Code: `engine/lisp/audio.lisp` (`set-master-volume`), `control.lisp` (the row), `onehand.lisp` (`apply-settings`), `pwa.js` (the name),
+  `menu.js` (the row; BACK's index now follows the row count). Tests: duel-control 101 checks (the default 1.0, 0 mutes, rising).
+  Checked in shots at 1280 x 720 and 390 x 844: a saved 2 loads as option 1, a click on 3 saves "4". DEVLOG §520.
