@@ -142,6 +142,34 @@
   :vol (:cap 0.3 3.9 1.2 0.55) :on-hit :crumple :flags (:ender))      ; KABUTO-WARI: the helm splitter
 (defmove-copy :ke-r-j2s :ke-r-j2)
 (defmove-copy :ke-r-k2s :ke-r-k2)
+;;; ---------------------------------------------------------------- RYOTE (cup 2) on the core system (DUEL_KEN_RYOTE, 2026-10-30)
+;;; The kendo set as the pointers' moves (the user, 2026-10-30: 「劈道正統：直線、長觸及、一擊重」, pointer 3 「倍率高、但沒有霸體」): 1 the K string
+;;; DO > MOROTE-ZUKI > KABUTO-WARI with KOTE as its SA, 2 a thrust that takes a hit through, then DO, 3 jodan charges x1.4 / 1.8 / 2.4 that a hit breaks.
+;;; New moves play as written (RYOTE's own x1.4 reach and +3 startup are not applied twice).
+(defmove-copy :ke-r-n1c :ke-r-k3 :flags nil)
+(defmove-copy :ke-r-n1b :ke-r-k2 :params (:ns-next :ke-r-n1c))
+(defmove-copy :ke-r-n1a :ke-r-k1 :params (:ns-next :ke-r-n1b))
+(defmove-copy :ke-r-sa :ke-r-j2 :dmg 40 :reach 2.4 :arc 80 :slide 1.4)   ; (KOTE as the gap's SA lunges to the opponent the NS pushed away: it whiffed at 1.44 m)
+(defmove-copy :ke-r-sa-r :ke-r-sa :params (:clash-scale 0.3))
+(defmove-copy :ke-r-sa-c1 :ke-r-sa :dmg 45 :params (:charge-mult 1.4 :aura-k 1.5))
+(defmove-copy :ke-r-sa-c2 :ke-r-sa :dmg 60 :params (:charge-mult 1.8 :aura-k 2.2))
+(defmove-copy :ke-r-sa-c3 :ke-r-sa :dmg 80 :params (:charge-mult 2.4 :aura-k 3.0))
+(defmove-copy :ke-r-n2b :ke-r-k1 :dmg 75 :armor-hits 1 :params (:armor-act t :clash-count t))
+(defmove-copy :ke-r-n2a :ke-r-k2 :dmg 85 :slide 3.0 :armor-hits 1
+  :params (:ns-next :ke-r-n2b :sa :ke-r-sa-r :armor-act t :clash-count t))
+(defmove :ke-r-n3c :kind :flash :clip :ke-chg3 :startup 16 :active 0 :recovery 20 :on-frame ((2 ken-charge-sfx))
+  :params (:sa :ke-r-sa-c3 :aura-k 3.0 :charge-sa t))
+(defmove :ke-r-n3b :kind :flash :clip :ke-chg2 :startup 16 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
+  :params (:ns-next :ke-r-n3c :sa :ke-r-sa-c2 :aura-k 2.2 :charge-sa t))
+(defmove :ke-r-n3a :kind :flash :clip :ke-chg1 :startup 20 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
+  :params (:ns-next :ke-r-n3b :sa :ke-r-sa-c1 :aura-k 1.5 :charge-sa t))
+(defmove-copy :ke-r-as1 :ke-r-k3 :kind :sp :callout "KABUTO-WARI" :dmg 70 :on-hit :knockdown :flags nil)
+(defmove-copy :ke-r-as2b :ke-r-k2 :kind :sp :dmg 100 :on-hit :launch :flags nil)
+(defmove-copy :ke-r-as2 :ke-r-k1 :kind :sp :dmg 60 :on-hit :stagger :params (:ns-next :ke-r-as2b))
+(defmove-copy :ke-r-as3c :ke-as3c :dmg 190 :params (:melee-range 3.9))
+(defmove-copy :ke-r-as3b :ke-r-k2 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-r-as3c))
+(defmove-copy :ke-r-as3 :ke-r-j1 :kind :sp :dmg 50 :on-hit :stagger :params (:ns-next :ke-r-as3b))
+
 ;;; ---------------------------------------------------------------- NOMIHOSE (cup 3)
 ;; K: KUKAN-GIRI, the space cut: its blade leaves a rift in the air (f20) that cuts again *RIFT-DELAY* frames
 ;; later (KEN-RIFT: a :rift hazard, closed if he is hit before it cuts)
@@ -258,9 +286,12 @@
   :passives (:projectile-cut :cut) :stance :ke-r-stance :aura :nozarashi :enter-hook ken-ryote-enter
   :clip-map nil                                     ; (not cup 1's: RYOTE plays the clips as written)
   :commands (:q :ke-r-j1 :f :ke-r-k1 :sp1 :ke-meteor :kikon :ke-kikon-n)   ; (the cup-1 moves as written: not re-derived)
-  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2           ; (the base form's, until RYOTE's batch)
-         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)
-         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))
+  ;; RYOTE's own core set (DUEL_KEN_RYOTE); :also keeps the base form's moves in his table, so NOMIHOSE (whose :core is the base's again,
+  ;; until its batch) derives them from his as it did
+  :core (:ns (:ke-r-n1a :ke-r-n2a :ke-r-n3a) :as (:ke-r-as1 :ke-r-as2 :ke-r-as3) :sa :ke-r-sa :mult 1.2
+         :stances (:ke-r-st-chain :ke-r-st-rush :ke-r-st-kamae)
+         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine)
+         :also (:ke-n1a :ke-n1b :ke-n1c :ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3 :ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c))
   :grid (:ke-r-j1 :ke-r-j2 :ke-r-j3 :ke-r-k1 :ke-r-k2 :ke-r-k3 :ke-r-j2s :ke-r-k2s)
   ;; after the 2x NOME drain (docs/duel/DUEL_NOZARASHI_V2.md, "The CPU after the faster drain"): no DEFEND intent, no idle
   ;; option at range, a neutral guard 0.1 (a guard against a committed move stays 0.35), a dash from 0.5 m outside his
@@ -286,6 +317,9 @@
   :clip-map (:ke-r-q1 :ke-x-q1 :ke-r-kote :ke-x-kote :ke-r-q3 :ke-x-q3 :ke-n-f1 :ke-x-f1 :ke-r-tsuki :ke-x-tsuki
              :ke-r-f2 :ke-x-f2 :ke-meteor :ke-x-meteor)
   :commands (:f :ke-n-f1 :sp1 :ke-meteor-n)
+  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2           ; (the base form's, until its own batch)
+         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)
+         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))
   :strings ((:ke-n-f1 :f :ke-r-k2) (:ke-n-f1 :q :ke-r-j2s))   ; KUKAN-GIRI is cup 3's K1
   ;; the cup drains 20/s: never idle at range (a dash from 0.3 m outside, no wait option), decide 1.7x as often
   ;; (:tempo 0.6, :attack +0.2), no respect, drink (U) a committed move 0.7 of the time (the drunk half feeds NOME), and
@@ -1076,11 +1110,13 @@ the startup (the user, 2026-10-29: 「前搖到 active 吃一發不退」)."
 2.2 m apart, both CPUs off, gauges full; on the running scene 84010 P2 starts his NS now (NS against NS: the first hit wins), 84011
 his J1 now (NA against NS: a cancel). The scripts time the presses."
   (case c
-    ((84000 84001) (ensure-battle :kenpachi :ichigo :cpu nil)
+    ((84000 84001 84002) (ensure-battle :kenpachi :ichigo :cpu nil)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
            (place *p1* *p2* 2.2)
            (full-gauges! *p1*) (full-gauges! *p2*)
-           (when (= c 84001) (force-form *p1* :nozarashi)))        ; 84001: the same, in KATATE
+           (case c                                                  ; 84001: the same, in KATATE; 84002: in RYOTE (NOME 70)
+             (84001 (force-form *p1* :nozarashi))
+             (84002 (force-form *p1* :ryote) (setf (gauges-meter (gauges *p1*)) (f32 70.0)))))
     (84010 (core-sp-start! *p2* (fighter *p2*)))
     (84011 (force-cmd *p2* :q))))
 (pushnew '(84000 84099 ken-core-debug) *char-debug* :test #'equal)

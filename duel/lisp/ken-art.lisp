@@ -1474,3 +1474,28 @@ flex and the spine / head flex shifted by these."
   (8 (:root :u 0.02) (:arm-l :flex 158 :side 24) (:elbow-l :flex 100) (:arm-r :flex 62) (:spine :flex -10) (:head :flex -12))
   (:s (:root :u 0.03) (:arm-l :flex 166 :side 26) (:elbow-l :flex 104) (:arm-r :flex 66) (:spine :flex -14) (:head :flex -16))
   (:end :ke-kt-st-kamae))
+
+;;; ---------------------------------------------------------------- RYOTE's stances (DUEL_KEN_RYOTE): the kendo kamae by pointer
+;;; Each on the jodan rest (:ke-r-stance) so the opponent reads the next NS: 1 chudan (the blade level at his throat), 2 hasso (the blade
+;;; cocked back by the shoulder, leaning in), 3 jodan (the blade high over the brow, upright).
+(defpose :ke-r-st-chain (:base :ke-r-stance)
+  (:root :f 0.06 :u -0.08) (:spine :flex 10) (:head :flex -8)
+  (:arm-r :flex 70 :side 14 :twist -5) (:elbow-r :flex 80) (:hand-r :flex -40)
+  (:arm-l :flex 82 :side 30 :twist 41) (:elbow-l :flex 52)
+  (:thigh-l :flex 30 :side 8) (:knee-l :flex 36) (:thigh-r :flex -14 :side 12) (:knee-r :flex 24))
+(defclip :ke-r-st-chain (1.6 :loop t :base :ke-r-st-chain)
+  (0) (0.8 (:chest :flex 3) (:root :u -0.09)))
+(defpose :ke-r-st-rush (:base :ke-r-stance)
+  (:root :f 0.1 :u -0.14) (:spine :flex 20) (:head :flex -16)
+  (:arm-r :flex 124 :side 24 :twist -5) (:elbow-r :flex 112) (:hand-r :flex -50)
+  (:arm-l :flex 126 :side 40 :twist 41) (:elbow-l :flex 60)
+  (:thigh-l :flex 42 :side 8) (:knee-l :flex 50) (:thigh-r :flex -20 :side 14) (:knee-r :flex 28))
+(defclip :ke-r-st-rush (1.4 :loop t :base :ke-r-st-rush)
+  (0) (0.7 (:chest :flex 4) (:root :u -0.15)))
+(defpose :ke-r-st-kamae (:base :ke-r-stance)
+  (:root :u -0.03) (:spine :flex -4) (:head :flex 2)
+  (:arm-r :flex 150 :side 18 :twist -5) (:elbow-r :flex 100) (:hand-r :flex -60)
+  (:arm-l :flex 152 :side 34 :twist 41) (:elbow-l :flex 62)
+  (:thigh-l :flex 18 :side 8) (:knee-l :flex 22) (:thigh-r :flex -8 :side 10) (:knee-r :flex 14))
+(defclip :ke-r-st-kamae (2.0 :loop t :base :ke-r-st-kamae)
+  (0) (1.0 (:chest :flex 2) (:root :u -0.04)))

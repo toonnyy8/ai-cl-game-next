@@ -1,0 +1,472 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== RY N1 chain: SP x3')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(84002)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(2510)"
+},
+{
+"at": 9.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 9.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.78,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 10.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 12.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 13.0,
+"eval": "console.log('=== RY N1 chain: SP, J (SA jab), J2')"
+},
+{
+"at": 13.0,
+"eval": "Module._debug_cmd(84002)"
+},
+{
+"at": 13.05,
+"eval": "Module._debug_cmd(2510)"
+},
+{
+"at": 13.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 13.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 13.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 13.75,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.8,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.05,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.1,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 17.0,
+"eval": "console.log('=== RY N2 rush: SP x2 (shoulder, clamp)')"
+},
+{
+"at": 17.0,
+"eval": "Module._debug_cmd(84002)"
+},
+{
+"at": 17.05,
+"eval": "Module._debug_cmd(2511)"
+},
+{
+"at": 17.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 17.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 18.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 18.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 18.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 18.08,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 20.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 21.0,
+"eval": "console.log('=== RY N2 armour: P2's NS lands in the startup')"
+},
+{
+"at": 21.0,
+"eval": "Module._debug_cmd(84002)"
+},
+{
+"at": 21.05,
+"eval": "Module._debug_cmd(2511)"
+},
+{
+"at": 21.1,
+"eval": "Module._debug_cmd(84010)"
+},
+{
+"at": 21.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 24.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 25.0,
+"eval": "console.log('=== RY N2 cancel x1 then SA')"
+},
+{
+"at": 25.0,
+"eval": "Module._debug_cmd(84002)"
+},
+{
+"at": 25.05,
+"eval": "Module._debug_cmd(2511)"
+},
+{
+"at": 25.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 25.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 25.4,
+"eval": "Module._debug_cmd(84011)"
+},
+{
+"at": 26.2,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 26.25,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 29.0,
+"eval": "console.log('=== RY N3 kamae: SP, J (SA c1), J2')"
+},
+{
+"at": 29.0,
+"eval": "Module._debug_cmd(84002)"
+},
+{
+"at": 29.05,
+"eval": "Module._debug_cmd(2512)"
+},
+{
+"at": 29.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 29.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 29.75,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.8,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 30.05,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 30.1,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 32.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 33.0,
+"eval": "console.log('=== RY N3 kamae: SP x3, J (SA c3), J2')"
+},
+{
+"at": 33.0,
+"eval": "Module._debug_cmd(84002)"
+},
+{
+"at": 33.05,
+"eval": "Module._debug_cmd(2512)"
+},
+{
+"at": 33.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 33.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 33.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 33.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.83,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 34.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 34.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 34.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 34.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 34.45,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 34.5,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 34.75,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 34.8,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 36.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 37.0,
+"eval": "console.log('=== RY N3 armour: P2's NS lands in a charge')"
+},
+{
+"at": 37.0,
+"eval": "Module._debug_cmd(84002)"
+},
+{
+"at": 37.05,
+"eval": "Module._debug_cmd(2512)"
+},
+{
+"at": 37.25,
+"eval": "Module._debug_cmd(84010)"
+},
+{
+"at": 37.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 37.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 37.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 37.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 40.6,
+"eval": "Module._debug_cmd(2107)"
+}
+]

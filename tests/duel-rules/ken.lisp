@@ -235,7 +235,28 @@
     (check (equal (mapcar (lambda (x) (getf (mv-params (m x)) :charge-mult)) '(:ke-kt-sa-c1 :ke-kt-sa-c2 :ke-kt-sa-c3)) '(1.2 1.4 1.6)))
     ;; the base form's moves stay in his table (RYOTE derives them from it), and RYOTE / NOMIHOSE keep the base's core
     (check (every #'m '(:ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3))))
-  (check (and (eq (getf (kit-core r) :sa) :ke-sa) (equal (getf (kit-core r) :ns) '(:ke-n1a :ke-n2a :ke-n3a))
+  (check (and (eq (getf (kit-core n) :sa) :ke-sa) (equal (getf (kit-core n) :ns) '(:ke-n1a :ke-n2a :ke-n3a))
               (equal (getf (kit-core n) :stances) '(:ke-st-chain :ke-st-rush :ke-st-kamae))))
   ;; RYOTE's reach on the base core moves is the same as before KATATE got its own set (x1.4 of the written one)
   (check (= (mv-reach (gethash :ke-n2b (kit-moves r))) (* 1.4 (mv-reach (find-move :ke-n2b))))))
+
+;;; ---- RYOTE on the core system (DUEL_KEN_RYOTE, 2026-10-30): the kendo set
+(let* ((r (kit :kenpachi :ryote)) (n (kit :kenpachi :nomihose)))
+  (labels ((m (x) (gethash x (kit-moves r))) (cls (x) (kit-class r (m x))))
+    (check (every (lambda (x) (eq (cls x) :ns)) '(:ke-r-n1a :ke-r-n1b :ke-r-n1c :ke-r-n2a :ke-r-n2b :ke-r-n3a :ke-r-n3b :ke-r-n3c)))
+    (check (every (lambda (x) (eq (cls x) :sa)) '(:ke-r-sa :ke-r-sa-r :ke-r-sa-c1 :ke-r-sa-c2 :ke-r-sa-c3)))
+    (check (every (lambda (x) (eq (cls x) :as)) '(:ke-r-as1 :ke-r-as2 :ke-r-as2b :ke-r-as3 :ke-r-as3b :ke-r-as3c)))
+    (check (equal (getf (kit-core r) :stances) '(:ke-r-st-chain :ke-r-st-rush :ke-r-st-kamae)))
+    (check (every (lambda (x) (>= (mv-s (m x)) 14)) '(:ke-r-n1a :ke-r-n2a :ke-r-n3a)))
+    ;; NS2 takes a hit through on both segments; NS3's charges take none and the x is higher than the base's (1.3 / 1.6 / 2.0)
+    (check (and (= 1 (mv-armor-hits (m :ke-r-n2a))) (= 1 (mv-armor-hits (m :ke-r-n2b))) (getf (mv-params (m :ke-r-n2a)) :armor-act)))
+    (check (every (lambda (x) (and (zerop (mv-a (m x))) (zerop (mv-armor-hits (m x))))) '(:ke-r-n3a :ke-r-n3b :ke-r-n3c)))
+    (check (equal (mapcar (lambda (x) (getf (mv-params (m x)) :charge-mult)) '(:ke-r-sa-c1 :ke-r-sa-c2 :ke-r-sa-c3)) '(1.4 1.8 2.4)))
+    ;; AS n = n segments, only the last knocks down / launches
+    (check (and (null (getf (mv-params (m :ke-r-as1)) :ns-next)) (eq (getf (mv-params (m :ke-r-as2)) :ns-next) :ke-r-as2b)
+                (eq (getf (mv-params (m :ke-r-as3)) :ns-next) :ke-r-as3b) (eq (getf (mv-params (m :ke-r-as3b)) :ns-next) :ke-r-as3c)))
+    (check (every (lambda (x) (eq (getf (mv-spec (m x)) :on-hit) :stagger)) '(:ke-r-as2 :ke-r-as3 :ke-r-as3b)))
+    ;; the base form's moves stay in his table (NOMIHOSE derives them from it)
+    (check (every #'m '(:ke-n1a :ke-n1b :ke-n1c :ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c)))
+    ;; NOMIHOSE keeps the base core, derived from RYOTE's version as before
+    (check (and (eq (getf (kit-core n) :sa) :ke-sa) (eq (gethash :ke-n2b (kit-moves n)) (m :ke-n2b))))))

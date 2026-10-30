@@ -700,8 +700,8 @@ def ken_core_script():
 write("ken-core", ken_core_script())
 
 
-def ken_katate_script():
-    """KATATE on the core system (DUEL_KEN_KATATE): scene 84001 (Kenpachi forced into KATATE), the same presses as ken_core_script."""
+def ken_katate_script(scene=84001, tag="KT"):
+    """A cup on the core system (DUEL_KEN_KATATE / DUEL_KEN_RYOTE): scene 84001 (Kenpachi forced into KATATE) or 84002 (RYOTE), the same presses as ken_core_script."""
     ev = []
     def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
     def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
@@ -716,10 +716,11 @@ def ken_katate_script():
             ("KT N3 kamae: SP, J (SA c1), J2", 2512, lambda s: [sp(s), jt(s + 0.45), jt(s + 0.75)]),
             ("KT N3 kamae: SP x3, J (SA c3), J2", 2512, lambda s: [sp(s), sp(s + 0.45), sp(s + 0.8), jt(s + 1.15), jt(s + 1.45)]),
             ("KT N3 armour: P2's NS lands in a charge", 2512, lambda s: [ev.append(cmd(s - 0.05, 84010)), sp(s)])):
-        say(t, label)
-        ev.extend([cmd(t, 84001), cmd(t + 0.05, ptr)])
+        say(t, label.replace("KT", tag, 1))
+        ev.extend([cmd(t, scene), cmd(t + 0.05, ptr)])
         body(t + 0.3)
         ev.append(cmd(t + 3.6, 2107))
         t += 4.0
     return sorted(ev, key=lambda x: x["at"])
 write("ken-katate", ken_katate_script())
+write("ken-ryote", ken_katate_script(84002, "RY"))
