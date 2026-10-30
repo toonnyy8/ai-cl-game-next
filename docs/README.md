@@ -58,6 +58,7 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_KEN_CORE.md](duel/DUEL_KEN_CORE.md) | 劍八常態在核心系統上的重新設計（2026-10-29）：三指針主題、NS2 霸體與抵銷計數、NS3 續力架式（英文） |
 | [DUEL_KEN_KATATE.md](duel/DUEL_KEN_KATATE.md) | 劍八第一杯片手（KATATE）的核心系統重設計（2026-10-30）：空著的左手出拳、抓摔、不被打斷的架式蓄力（英文） |
 | [DUEL_KEN_RYOTE.md](duel/DUEL_KEN_RYOTE.md) | 劍八第二杯雙手（RYOTE）的核心系統重設計（2026-10-30）：劈道正統的 NS / SA / AS、高倍率但沒有霸體的上段蓄力（英文） |
+| [DUEL_KEN_NOMIHOSE.md](duel/DUEL_KEN_NOMIHOSE.md) | 劍八第三杯飲み干し（NOMIHOSE）的核心系統重設計（2026-10-30）：瘋狂失控、KUKAN-GIRI 收進 NS2、AS2 結尾的飲酒、快拔刀 BATTOU（英文） |
 | [DUEL_AI_V2.md](duel/DUEL_AI_V2.md) | 每個角色的 AI v2（2026-10-02，已實作）：dream-rsi 搜尋、選用的變體、各角色行動方針、NORMAL 校正、與學習型 AI 和 ASSIST 的整合、gate 結果（英文） |
 | [DUEL_LEARNING.md](duel/DUEL_LEARNING.md) | 學習型 CPU：從對戰中學玩家習慣的讀心與反制、學習 gate（英文） |
 | [DUEL_ASSIST.md](duel/DUEL_ASSIST.md) | ASSIST：AUTO GUARD／AUTO COMBO／AUTO BREAK 輔助模式與它的代價、assistgate（英文） |

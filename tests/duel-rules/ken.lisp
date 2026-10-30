@@ -235,8 +235,8 @@
     (check (equal (mapcar (lambda (x) (getf (mv-params (m x)) :charge-mult)) '(:ke-kt-sa-c1 :ke-kt-sa-c2 :ke-kt-sa-c3)) '(1.2 1.4 1.6)))
     ;; the base form's moves stay in his table (RYOTE derives them from it), and RYOTE / NOMIHOSE keep the base's core
     (check (every #'m '(:ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3))))
-  (check (and (eq (getf (kit-core n) :sa) :ke-sa) (equal (getf (kit-core n) :ns) '(:ke-n1a :ke-n2a :ke-n3a))
-              (equal (getf (kit-core n) :stances) '(:ke-st-chain :ke-st-rush :ke-st-kamae))))
+  (check (and (eq (getf (kit-core (kit :kenpachi :bankai)) :sa) :ke-sa) (equal (getf (kit-core (kit :kenpachi :bankai)) :ns) '(:ke-n1a :ke-n2a :ke-n3a))
+              (equal (getf (kit-core (kit :kenpachi :bankai)) :stances) '(:ke-st-chain :ke-st-rush :ke-st-kamae))))
   ;; RYOTE's reach on the base core moves is the same as before KATATE got its own set (x1.4 of the written one)
   (check (= (mv-reach (gethash :ke-n2b (kit-moves r))) (* 1.4 (mv-reach (find-move :ke-n2b))))))
 
@@ -258,5 +258,20 @@
     (check (every (lambda (x) (eq (getf (mv-spec (m x)) :on-hit) :stagger)) '(:ke-r-as2 :ke-r-as3 :ke-r-as3b)))
     ;; the base form's moves stay in his table (NOMIHOSE derives them from it)
     (check (every #'m '(:ke-n1a :ke-n1b :ke-n1c :ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c)))
-    ;; NOMIHOSE keeps the base core, derived from RYOTE's version as before
-    (check (and (eq (getf (kit-core n) :sa) :ke-sa) (eq (gethash :ke-n2b (kit-moves n)) (m :ke-n2b))))))
+    ;; the Bankai keeps the base core, derived from RYOTE's version as before
+    (check (let ((b (kit :kenpachi :bankai))) (and (eq (getf (kit-core b) :sa) :ke-sa) (gethash :ke-n2b (kit-moves b)))))))
+
+;;; ---- NOMIHOSE on the core system (DUEL_KEN_NOMIHOSE, 2026-10-30): no guard, every segment hit-through, KUKAN-GIRI + the drink inside
+(let ((n (kit :kenpachi :nomihose)))
+  (labels ((m (x) (gethash x (kit-moves n))) (cls (x) (kit-class n (m x))))
+    (check (every (lambda (x) (eq (cls x) :ns)) '(:ke-m-n1a :ke-m-n1b :ke-m-n1c :ke-m-n2a :ke-m-n2b :ke-m-n3a)))
+    (check (every (lambda (x) (eq (cls x) :sa)) '(:ke-m-sa :ke-m-sa-r)))
+    (check (every (lambda (x) (eq (cls x) :as)) '(:ke-m-as1 :ke-m-as2 :ke-m-as2b :ke-m-as3 :ke-m-as3b :ke-m-as3c)))
+    (check (every (lambda (x) (>= (mv-s (m x)) 14)) '(:ke-m-n1a :ke-m-n2a :ke-m-n3a)))
+    (check (every (lambda (x) (= 1 (mv-armor-hits (m x)))) '(:ke-m-n1a :ke-m-n1b :ke-m-n1c :ke-m-n2a :ke-m-n2b :ke-m-n3a :ke-m-as2b)))
+    ;; KUKAN-GIRI is NS2a: the rift's numbers and its frame hook come with the copy; NS3 is one segment
+    (check (and (eq (getf (mv-params (m :ke-m-n2a)) :ns-next) :ke-m-n2b) (= 50 (getf (mv-params (m :ke-m-n2a)) :rift-dmg))
+                (null (getf (mv-params (m :ke-m-n3a)) :ns-next))))
+    ;; the drink is AS2's last segment, which launches
+    (check (and (eq (getf (mv-spec (m :ke-m-as2b)) :on-hit) :launch) (assoc 7 (mv-on-frame (m :ke-m-as2b)))))
+    (check (equal (getf (kit-core n) :ns) '(:ke-m-n1a :ke-m-n2a :ke-m-n3a)))))

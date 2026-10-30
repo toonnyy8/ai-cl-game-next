@@ -404,6 +404,7 @@ window: the user 2026-10-01; was f4-15) ...")
 ;;; Nozarashi v2, NOME (呑め): the three-cup ladder (docs/duel/DUEL_NOZARASHI_V2.md). The meter is the kit meter
 ;;; (GAUGES-METER); a rung is a kit form, changed only while he is free (ken-meter.lisp KEN-NOME-STEP)
 (defparameter *nome-max* 100.0 "The NOME gauge.")
+(defparameter *nome-gulp* 20.0 "NOMIHOSE's AS2 finisher (the drink, ken-gulp): NOME gained on its first frame, capped at the gauge (new 2026-10-30, the user: 「AS2 結尾自動飲，回 NOME」, DUEL_KEN_NOMIHOSE).")
 (defparameter *nome-awaken* 10.0 "NOME at the awakening (cup 1).")
 (defparameter *nome-dealt* 0.08 "NOME per point of damage he deals ...")
 (defparameter *nome-taken* 0.12 "... per point he loses (a drink's taken half too, the stance's absorbed points) ...")

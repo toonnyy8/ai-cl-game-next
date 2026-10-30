@@ -182,6 +182,25 @@
 (defmove :ke-meteor-n :kind :sp :clip :ke-meteor :callout "NOMIHOSE" :startup 26 :active 4 :recovery 30 :dmg 390
   :adv-block -16 :vol (:cap 0.3 12.0 0.5 0.5) :on-hit :knockdown :kb 3.0 :flags (:ranged)
   :on-frame ((0 ken-drink-dry) (26 ken-meteor-cut)) :params (:crush-range 6.0 :melee-range 3.9))   ; blade <= cup 3's MEN 3.9 m
+;;; NOMIHOSE (cup 3) on the core system (DUEL_KEN_NOMIHOSE, 2026-10-30): no guard, no waiting, every segment takes one hit through (the user, 2026-10-30:
+;;; 「瘋狂失控：快、重、不防守」); pointer 2's NS2a is KUKAN-GIRI and its AS2 ends in the drink (「收進核心」), pointer 3 is one fast heavy draw cut
+;;; (「不蓄力：快拔刀，一擊超重，有霸體」). New moves play as written (the form's x1.2 only).
+(defmove-copy :ke-m-sa :ke-r-sa :dmg 50 :reach 2.6 :slide 1.6)
+(defmove-copy :ke-m-sa-r :ke-m-sa :params (:clash-scale 0.3))
+(defmove-copy :ke-m-n1c :ke-r-k3 :flags nil :dmg 100 :armor-hits 1)
+(defmove-copy :ke-m-n1b :ke-r-k2 :dmg 75 :armor-hits 1 :params (:ns-next :ke-m-n1c))
+(defmove-copy :ke-m-n1a :ke-r-k1 :dmg 95 :armor-hits 1 :params (:ns-next :ke-m-n1b :sa :ke-m-sa))
+(defmove-copy :ke-m-n2b :ke-r-k1 :dmg 90 :armor-hits 1 :params (:armor-act t :clash-count t))
+(defmove-copy :ke-m-n2a :ke-n-f1 :dmg 90 :slide 3.0 :armor-hits 1                ; KUKAN-GIRI: the rift keeps its numbers
+  :params (:ns-next :ke-m-n2b :sa :ke-m-sa-r :armor-act t :clash-count t
+           :rift-dmg 50 :rift-guard 12 :rift-chip 0.2 :rift-vol (:cap 1.0 4.4 1.4 0.5)))
+(defmove-copy :ke-m-n3a :ke-r-k1 :callout "BATTOU" :clip-s 14 :startup 14 :recovery 32 :dmg 140 :armor-hits 1 :params (:armor-act t :sa :ke-m-sa))
+(defmove-copy :ke-m-as1 :ke-r-k3 :kind :sp :callout "KABUTO-WARI" :dmg 80 :on-hit :knockdown :flags nil)
+(defmove-copy :ke-m-as2b :ke-r-k2 :kind :sp :dmg 110 :on-hit :launch :flags nil :armor-hits 1 :on-frame ((7 ken-gulp)))   ; (the drink: on the clip's :enter frame, an earlier one never runs; the drink: NOME back up, a hit taken through)
+(defmove-copy :ke-m-as2 :ke-r-k1 :kind :sp :dmg 65 :on-hit :stagger :params (:ns-next :ke-m-as2b))
+(defmove-copy :ke-m-as3c :ke-r-as3c :dmg 210)
+(defmove-copy :ke-m-as3b :ke-r-k2 :kind :sp :dmg 60 :on-hit :stagger :params (:ns-next :ke-m-as3c))
+(defmove-copy :ke-m-as3 :ke-r-j1 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-m-as3b))
 
 ;;; ================================================================ Bankai (卍解) and 片腕 KATAUDE (docs/duel/DUEL_KEN_BANKAI.md)
 ;;; The oni: the broken cleaver hacks, a fist, one gouge, one drop, the teeth, the shield-and-all cut, the punch and the
@@ -317,9 +336,11 @@
   :clip-map (:ke-r-q1 :ke-x-q1 :ke-r-kote :ke-x-kote :ke-r-q3 :ke-x-q3 :ke-n-f1 :ke-x-f1 :ke-r-tsuki :ke-x-tsuki
              :ke-r-f2 :ke-x-f2 :ke-meteor :ke-x-meteor)
   :commands (:f :ke-n-f1 :sp1 :ke-meteor-n)
-  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2           ; (the base form's, until its own batch)
-         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)
-         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))
+  ;; its own core set (DUEL_KEN_NOMIHOSE); the stances are RYOTE's (cup 3's own poses are not drawn); :also keeps the base moves for the Bankai
+  :core (:ns (:ke-m-n1a :ke-m-n2a :ke-m-n3a) :as (:ke-m-as1 :ke-m-as2 :ke-m-as3) :sa :ke-m-sa :mult 1.2
+         :stances (:ke-r-st-chain :ke-r-st-rush :ke-r-st-kamae)
+         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine)
+         :also (:ke-n1a :ke-n1b :ke-n1c :ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3 :ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c))
   :strings ((:ke-n-f1 :f :ke-r-k2) (:ke-n-f1 :q :ke-r-j2s))   ; KUKAN-GIRI is cup 3's K1
   ;; the cup drains 20/s: never idle at range (a dash from 0.3 m outside, no wait option), decide 1.7x as often
   ;; (:tempo 0.6, :attack +0.2), no respect, drink (U) a committed move 0.7 of the time (the drunk half feeds NOME), and
@@ -345,6 +366,9 @@
 (defkit :kenpachi :bankai :inherit :nomihose
   :awakening t :mult *bankai-ken-mult* :form-name "BANKAI" :kikon-konpaku 4 :blade-chip *nomihose-chip*
   :bankai-form nil :passives (:projectile-cut :drink)
+  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2           ; (the base form's: the Bankai is not reworked yet)
+         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)
+         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))
   :drink-clip :ke-drink :face nil                    ; (not cup 3's drink, nor its standing grin)
   ;; its own strikes for the moves it borrows (a look, DUEL_KEN_REWORK §8)
   :clip-map (:ke-q1 :ke-b-q1 :ke-q2 :ke-b-q2 :ke-f1 :ke-b-f1 :ke-f2 :ke-b-f2 :ke-r-f2 :ke-b-f3 :ke-meteor :ke-b-split
@@ -409,6 +433,13 @@ rung change that doesn't wait for him to be free), so the cut and an O after it 
   (setf (gauges-meter (gauges e)) 0f0)
   (clog "~a CASH-OUT" (side-name e))
   (set-form e :nozarashi))
+
+(defun ken-gulp (e)
+  "NOMIHOSE's AS2 finisher, its first frame: the drink, NOME back up by *NOME-GULP* (the cup holds)."
+  (let ((g (gauges e)))
+    (setf (gauges-meter g) (min *nome-max* (+ (gauges-meter g) *nome-gulp*)))
+    (clog "~a GULP" (side-name e))
+    (emit :sfx :laugh e)))
 
 (defun ken-ryote-enter (e)
   "Cup 2: the left hand closes on the handle (a look: the stance clip), a yellow ring."
@@ -1110,13 +1141,14 @@ the startup (the user, 2026-10-29: 「前搖到 active 吃一發不退」)."
 2.2 m apart, both CPUs off, gauges full; on the running scene 84010 P2 starts his NS now (NS against NS: the first hit wins), 84011
 his J1 now (NA against NS: a cancel). The scripts time the presses."
   (case c
-    ((84000 84001 84002) (ensure-battle :kenpachi :ichigo :cpu nil)
+    ((84000 84001 84002 84003) (ensure-battle :kenpachi :ichigo :cpu nil)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
            (place *p1* *p2* 2.2)
            (full-gauges! *p1*) (full-gauges! *p2*)
            (case c                                                  ; 84001: the same, in KATATE; 84002: in RYOTE (NOME 70)
              (84001 (force-form *p1* :nozarashi))
-             (84002 (force-form *p1* :ryote) (setf (gauges-meter (gauges *p1*)) (f32 70.0)))))
+             (84002 (force-form *p1* :ryote) (setf (gauges-meter (gauges *p1*)) (f32 70.0)))
+             (84003 (force-form *p1* :nomihose) (setf (gauges-meter (gauges *p1*)) (f32 100.0)))))
     (84010 (core-sp-start! *p2* (fighter *p2*)))
     (84011 (force-cmd *p2* :q))))
 (pushnew '(84000 84099 ken-core-debug) *char-debug* :test #'equal)

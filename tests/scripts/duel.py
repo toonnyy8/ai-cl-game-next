@@ -715,7 +715,10 @@ def ken_katate_script(scene=84001, tag="KT"):
             ("KT N2 cancel x1 then SA", 2511, lambda s: [sp(s), ev.append(cmd(s + 0.1, 84011)), jt(s + 0.9)]),
             ("KT N3 kamae: SP, J (SA c1), J2", 2512, lambda s: [sp(s), jt(s + 0.45), jt(s + 0.75)]),
             ("KT N3 kamae: SP x3, J (SA c3), J2", 2512, lambda s: [sp(s), sp(s + 0.45), sp(s + 0.8), jt(s + 1.15), jt(s + 1.45)]),
-            ("KT N3 armour: P2's NS lands in a charge", 2512, lambda s: [ev.append(cmd(s - 0.05, 84010)), sp(s)])):
+            ("KT N3 armour: P2's NS lands in a charge", 2512, lambda s: [ev.append(cmd(s - 0.05, 84010)), sp(s)])) + (
+            (("KT N3 single heavy cut (cup 3): SP", 2512, lambda s: [sp(s)]),
+             ("KT AS2 drink: J, J2, SP, SP", 2511, lambda s: [jt(s), jt(s + 0.3), sp(s + 0.65), sp(s + 1.3)]),
+             ("KT AS3 meteor: SP, J, J2, J3, SP x3", 2512, lambda s: [sp(s), jt(s + 0.9), jt(s + 1.2), jt(s + 1.5), sp(s + 1.8), sp(s + 2.3), sp(s + 2.8)])) if scene == 84003 else ()):
         say(t, label.replace("KT", tag, 1))
         ev.extend([cmd(t, scene), cmd(t + 0.05, ptr)])
         body(t + 0.3)
@@ -724,3 +727,4 @@ def ken_katate_script(scene=84001, tag="KT"):
     return sorted(ev, key=lambda x: x["at"])
 write("ken-katate", ken_katate_script())
 write("ken-ryote", ken_katate_script(84002, "RY"))
+write("ken-nomihose", ken_katate_script(84003, "NM"))
