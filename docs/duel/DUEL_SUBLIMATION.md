@@ -157,3 +157,10 @@ the whole target route, left = previous / right = next, cyclic.
 - **HUD**: the pointer slot shows the temporary pointer. The phone uses the joystick's left / right + the SP tap.
 - **Debug**: 86107 KESSA with DRIVE 20, 86108 Shikai with SUBLIMATION 60 (86105: KESSA DRIVE 60).
 - **Checks**: host tests 11295; pkgcheck; scripted `duel-drive-switch.json`: D+SP in KESSA's NS1 gap -> NS2 (pointer 1 -> 2), A+SP -> NS3 (1 -> 3), a second D+SP is the plain next segment, no stick the plain next segment, Shikai SUBLIMATION 60 switches, DRIVE 20 refused.
+
+### 17.1 The charge carries over, and NS3's clones replay a temporary route (the user, 2026-11-01)
+
+User: 「如果確認真的沒生效就改，然後分身也要重現其他 NS 的動作」 (after the scripted check: NS2 > NS3 gave the plain SA, the clones x0.10).
+- **Charge**: a switch out of an NS2 segment keeps its charged SA (`fighter-csa`) for the next SA of the route, so NS2 > NS3 > J is the charged SA (x1.4 / x1.7) and the string after it carries the x (cleared by an SA, an AS or neutral).
+- **Clones**: while a temporary route is on, NS3's live clones also play its NS segments (`clone-replay-watch`, x0.1; NS3's own segments excluded: they are the clones' theme). Before only his J / AS were replayed.
+- **Checks**: scripted: ptr 2, SP, D+SP, J, J2 -> `IC-K-SA-G1`, `clone replays IC-K-J2 x0.14` (before: `IC-K-SA`, x0.10); ptr 3, SP, D+SP -> `clone NS-A replays IC-K-N1A x0.10`; the NS3 > NS2 case as before.

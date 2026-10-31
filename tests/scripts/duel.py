@@ -768,6 +768,7 @@ def drive_switch_script():
     ev = []
     def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
     def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+    def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
     def sw(t, k): ev.append(key(t - 0.05, k)); sp(t); ev.append(key(t + 0.15, k, False))
     t = T0
     for label, setup, body in (
@@ -776,6 +777,11 @@ def drive_switch_script():
             ("DS twice: SP, D+SP, D+SP (second refused)", 86105, lambda s: [sp(s), sw(s + 0.3, "KeyD"), sw(s + 0.9, "KeyD")]),
             ("DS no stick: SP, SP (plain next segment)", 86105, lambda s: [sp(s), sp(s + 0.3)]),
             ("DS sublimation 60 (Shikai): SP, D+SP", 86108, lambda s: [sp(s), sw(s + 0.3, "KeyD")]),
+            ("DS charge base: ptr 2, SP, J (charged SA), J2, J3", 86105, lambda s: [ev.append(cmd(s - 0.2, 2511)), sp(s), jt(s + 0.45), jt(s + 0.75), jt(s + 1.05)]),
+            ("DS charge via switch: ptr 3, SP, A+SP (NS2a), J (SA), J2, J3", 86105, lambda s: [ev.append(cmd(s - 0.2, 2512)), sp(s), sw(s + 0.3, "KeyA"), jt(s + 0.85), jt(s + 1.15), jt(s + 1.45)]),
+            ("DS clones via switch: ptr 1, SP, D+SP... (ptr 2 -> D -> 3), J, J2", 86105, lambda s: [ev.append(cmd(s - 0.2, 2511)), sp(s), sw(s + 0.3, "KeyD"), jt(s + 0.85), jt(s + 1.15)]),
+            ("DS NS2 > NS3 keeps the charge: ptr 2, SP, D+SP, J (charged SA), J2", 86105, lambda s: [ev.append(cmd(s - 0.2, 2511)), sp(s), sw(s + 0.3, "KeyD"), jt(s + 0.85), jt(s + 1.15)]),
+            ("DS NS3 > NS1: clones replay the cuts: ptr 3, SP, D+SP", 86105, lambda s: [ev.append(cmd(s - 0.2, 2512)), sp(s), sw(s + 0.3, "KeyD")]),
             ("DS drive 20: SP, D+SP (refused)", 86107, lambda s: [sp(s), sw(s + 0.3, "KeyD")])):
         say(t, label)
         ev.extend([cmd(t, setup), cmd(t + 3.0, 2107)])

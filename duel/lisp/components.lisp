@@ -115,6 +115,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (ptr 1 :type fixnum)                  ; the SP pointer 1 .. 3: the next neutral SP is NS n (kept through resets, 1 each match)
   (sp-ptr 1 :type fixnum)               ; the pointer the SP in play started under (its Kikon / Soul Break profile)
   (tmp 0 :type fixnum)                  ; the temporary pointer of an NS route switched into with DRIVE (0: none; DUEL_SUBLIMATION §17)
+  (csa nil)                             ; the charged SA a switch carries over (the segment's own, kept for the next SA)
   (sw 0 :type fixnum)                   ; the pointer a latched switch (queued :sw) goes to
   (as-done nil)                         ; this combo already used its AS
   (sp-held nil)                         ; the SP button held, never let go, since this NS / AS segment started (CORE-HOLD-STEP)
