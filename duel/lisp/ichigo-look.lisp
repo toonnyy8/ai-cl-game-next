@@ -81,15 +81,16 @@ like his Soul Break's (the user, 2026-10-27: 「第三段則是揮出跟毀魂�
   (when (<= (hazard-delay hz) 0)
     (let ((k (ic-wave-k hz)) (w (* 2 (hazard-size hz))))
       (if (ic-kessa-owner-p hz)
-          (vfx-ic-crescent (hazard-x hz) 1.4 (hazard-z hz) (hazard-yaw hz) (* 0.9 w) k 1.0 4)
+          (ic-getsuga-flame (hazard-x hz) 1.4 (hazard-z hz) (hazard-yaw hz) (* 0.45 w) k (/ (hazard-age hz) 60.0))   ; KESSA's: flame sheets (2026-10-31)
           (progn (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k 0.8 3)
                  (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k -0.8 3))))))
 
 (defun ichigo-form-look (hz rdt)
   "JUJISHO's first crescent forming on the long blade before the fusion (black for KESSA's)."
   (declare (ignore rdt))
-  (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0)))
-                   0.9 0.8 (if (ic-kessa-owner-p hz) 4 3)))
+  (if (ic-kessa-owner-p hz)
+      (ic-getsuga-flame (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* 0.45 (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0))) 0.8 (/ (hazard-age hz) 60.0))
+      (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0))) 0.9 0.8 3)))
 
 (defun ichigo-kx-look (hz rdt)
   "KESSA's NS3 X: two black crescents crossed where the clones' cuts meet (vfx-ic-crescent's 漆黒, tips tilted both ways), fading."
@@ -1114,13 +1115,35 @@ beside it; K presence, TM the phase."
           (%tongue (f32 (+ px (* 0.03 r fx))) (f32 py) (f32 (+ pz (* 0.03 r fz))) (f32 (* 0.8 ax)) (f32 (* 0.8 ay)) (f32 (* 0.8 az))
                    (f32 (* 0.45 w)) +pal-blue+ (f32 (* 0.8 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.3 sway)) :segs 8 :wob 0.02))))))
 
+(defun ic-flame-sheets (cx cy cz yaw r span k tm n)
+  "N wide flat flame ribbons (sheets) along the same arc as IC-FLAME-TONGUES, each flowing back and curling at the tips, broad at the
+base and narrowing to a point, a blue-violet sheet riding on every other black one (the user, 2026-10-31: 「片狀絲帶的焰氣特效」)."
+  (let ((fx (fwd-x yaw)) (fz (fwd-z yaw)) (pi* 3.14159))
+    (dotimes (i n)
+      (let* ((u (/ (+ i 0.5) n)) (a (* span (- u 0.5))) (ca (cos a)) (sa (sin a)) (sg (if (< a 0.0) -1.0 1.0))
+             (env (sin (* pi* u)))
+             (px (+ cx (* r ca fx))) (py (+ cy (* r sa))) (pz (+ cz (* r ca fz)))
+             (len (* r (+ 0.9 (* 1.7 env)) (+ 0.9 (* 0.1 (sin (+ (* 4.0 tm) (* 1.9 i)))))))
+             (cur (* 0.9 (- 1.0 env)))
+             (ax (* len (+ (* -0.9 fx) (* cur sg (- sa) fx)))) (ay (* len (* cur sg ca))) (az (* len (+ (* -0.9 fz) (* cur sg (- sa) fz))))
+             (w (* r (+ 0.14 (* 0.3 env)))) (sway (* 0.14 len)) (ph (+ (* 3.0 tm) (* 1.3 i))) (sd (+ (* 2.0 i) (drawing-no))))
+        (%tongue (f32 px) (f32 py) (f32 pz) (f32 ax) (f32 ay) (f32 az) (f32 w) +pal-black-smoke+ (f32 (* 0.95 k)) (f32 sd) (f32 ph) (f32 sway) :segs 12 :wob 0.0)
+        (when (evenp i)
+          (%tongue (f32 (+ px (* 0.04 r fx))) (f32 py) (f32 (+ pz (* 0.04 r fz))) (f32 (* 0.85 ax)) (f32 (* 0.85 ay)) (f32 (* 0.85 az))
+                   (f32 (* 0.4 w)) +pal-blue+ (f32 (* 0.7 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.2 sway)) :segs 10 :wob 0.0))))))
+
+(defun ic-getsuga-flame (cx cy cz yaw r k tm)
+  "KESSA's Getsuga crescent as flame: nine flat ribbons and a finer row of tongues between them."
+  (ic-flame-sheets cx cy cz yaw r 3.2 k tm 9)
+  (ic-flame-tongues cx cy cz yaw r 3.2 (* 0.8 k) tm 20))
+
 (defun ic-flame-preview (e cf)
   "The preview's Getsuga at frame CF of its loop (90 f): gathering on the blade (to f14), thrown (f14-24), flying on and thinning out."
   (let* ((p (pos-of e)) (yaw (yaw-of e)) (fx (fwd-x yaw)) (fz (fwd-z yaw))
          (g (max 0.0 (- cf 14.0))) (k (* (min 1.0 (/ g 6.0)) (- 1.0 (min 1.0 (/ (max 0.0 (- cf 62.0)) 24.0)))))
          (r (+ 0.5 (min 0.9 (* 0.05 g)))) (d (+ 0.9 (min 1.7 (* 0.06 g)))))
     (when (> k 0.01)
-      (ic-flame-tongues (+ (aref p 0) (* d fx)) 1.35 (+ (aref p 2) (* d fz)) yaw r 3.4 k (/ cf 60.0) 46)
+      (ic-getsuga-flame (+ (aref p 0) (* d fx)) 1.35 (+ (aref p 2) (* d fz)) yaw r k (/ cf 60.0))
       (%light (f32 (+ (aref p 0) (* d fx))) 1.35f0 (f32 (+ (aref p 2) (* d fz))) 0.45f0 0.25f0 0.9f0 5f0 (f32 (* 1.5 k)) 8))))
 
 (defcine ic-flame-cine (a v :len 9999 :hold 1)
