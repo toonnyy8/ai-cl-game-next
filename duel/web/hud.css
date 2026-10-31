@@ -138,6 +138,12 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud :is(.p2, .mir) .aw::after { transform-origin: right; }
 #hud .aw.full::after { animation: hd-aw 1s ease-in-out infinite; box-shadow: 0 0 calc(.8 * var(--u)) var(--reiatsu); }
 @keyframes hd-aw { 50% { filter: brightness(1.5); } }
+/* SUBLIMATION (pink) piles up over the full awakening bar; after the awakening the bar is emptied and SPIRIT DRIVE (red) fills it from 0 (DUEL_SUBLIMATION §6) */
+#hud .aw::before { content: ""; position: absolute; inset: 0; z-index: 1; background: #ff7ab8; transform-origin: left; transform: scaleX(var(--s, 0)); transition: transform .4s var(--ease-out); opacity: 0; }
+#hud :is(.p2, .mir) .aw::before { transform-origin: right; }
+#hud .aw[data-m="1"]::before { opacity: 1; }
+#hud .aw:is([data-m="2"], [data-m="3"])::after { background: #e0353b; }
+#hud .aw[data-m="3"]::after { animation: hd-aw 1s ease-in-out infinite; box-shadow: 0 0 calc(.8 * var(--u)) #e0353b; }
 #hud .awk { font: 800 calc(.8 * var(--u))/1 var(--f-display); letter-spacing: .2em; color: var(--reiatsu); opacity: 0; transition: opacity .3s; white-space: nowrap; direction: ltr; }
 #hud .awk.on { opacity: 1; }
 

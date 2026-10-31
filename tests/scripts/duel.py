@@ -728,3 +728,30 @@ def ken_katate_script(scene=84001, tag="KT"):
 write("ken-katate", ken_katate_script())
 write("ken-ryote", ken_katate_script(84002, "RY"))
 write("ken-nomihose", ken_katate_script(84003, "NM"))
+
+
+def sublimation_script():
+    """SUBLIMATION / SPIRIT DRIVE (DUEL_SUBLIMATION): J1 damage and taken at 0 / 100 % SUBLIMATION and at DRIVE 100 with s 0.4, the real
+    awakening's freeze, the Bankai's entry needing a full DRIVE (debug 84020+k / 84040+k / 84060 / 84070 on the 84000 scene)."""
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
+    def awaken(t): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyP", 0.05)); ev.append(key(t + 0.1, "ShiftLeft", False))
+    t = T0
+    for label, scene, setup, body in (
+            ("SB J1 at sub 0", 84000, 84020, lambda s: [jt(s)]),
+            ("SB J1 at sub 100", 84000, 84030, lambda s: [jt(s)]),
+            ("SB J1 at drive 100, s 0.4 (frac 0.7)", 84000, 84050, lambda s: [jt(s)]),
+            ("SB taken at sub 0: P2 J1", 84000, 84020, lambda s: [ev.append(cmd(s, 84011))]),
+            ("SB taken at sub 100: P2 J1", 84000, 84030, lambda s: [ev.append(cmd(s, 84011))]),
+            ("SB real awakening at sub 50 -> s 0.5, frac 0.25", 84000, 84060, lambda s: []),
+            ("SB bankai refused at drive 50", 84003, 84045, lambda s: [awaken(s)]),
+            ("SB bankai allowed at drive 100", 84003, 84050, lambda s: [awaken(s)])):
+        say(t, label)
+        ev.extend([cmd(t, scene), cmd(t + 0.05, setup)])
+        body(t + 0.3)
+        ev.append(cmd(t + 1.6, 84070))
+        ev.append(cmd(t + 1.7, 2107))
+        t += 2.2
+    return sorted(ev, key=lambda x: x["at"])
+write("sublimation", sublimation_script())

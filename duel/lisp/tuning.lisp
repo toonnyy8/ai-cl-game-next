@@ -266,6 +266,19 @@ user 2026-10-01: a wider timing; still inside the Hoho's iframes f1-14)...")
 (defparameter *awaken-heal* 0.20 "Every awakening heals this fraction of max Reishi at once (the user 2026-09-30; before it only
 Nozarashi healed, 150).")
 
+;;; SUBLIMATION / SPIRIT DRIVE (docs/duel/DUEL_SUBLIMATION.md; the user, 2026-10-31): the awakening gauge's second and third stage.
+;; A full awakening gauge keeps filling a second gauge, SUBLIMATION (same sources, x1.0, no decay); its fraction s of B (the four
+;; boosts below at a full gauge) is the fighter's bonus. The awakening freezes it at *SUB-KEEP* x s; SPIRIT DRIVE then fills the same
+;; way and adds up to *DRIVE-ADD* x B (full B as the base: the user's answer). A full DRIVE opens Kenpachi's Bankai.
+(defparameter *sub-max* 100.0 "SUBLIMATION gauge maximum (the awakening gauge's overflow fills it).")
+(defparameter *drive-max* 100.0 "SPIRIT DRIVE gauge maximum (after the awakening).")
+(defparameter *sub-dmg* 0.20 "Damage dealt x (1 + this x the bonus fraction).")
+(defparameter *sub-taken* 0.20 "Damage taken x (1 - this x the bonus fraction).")
+(defparameter *sub-speed* 0.10 "Walk / run speed x (1 + this x the bonus fraction).")
+(defparameter *sub-fs* 0.30 "Flash-step gauge gained from hits x (1 + this x the bonus fraction) (the Reiatsu gauge is gone: DUEL_CORE §6).")
+(defparameter *sub-keep* 0.5 "The share of the pre-awakening SUBLIMATION fraction the awakening keeps.")
+(defparameter *drive-add* 0.5 "What a full SPIRIT DRIVE adds on top, as a share of B (not of the kept fraction).")
+
 ;;; ---------------------------------------------------------------- hit reactions, combos, hitstop
 (defparameter *reaction-frames*
   '(:flinch 18 :stagger 26 :knockback 30 :launch 0 :knockdown 0 :guard-break 50 :crumple 40
@@ -433,8 +446,9 @@ window: the user 2026-10-01; was f4-15) ...")
 ;;; spends a pip per heavy command; at 0 the arm bursts (then 片腕 for the rest of the match)
 (defparameter *bankai-ken-mult* 1.2 "Damage x in Kenpachi's Bankai.")
 (defparameter *bankai-konpaku* 4
-  "Kenpachi may enter his Bankai (P in cup 3) with at most this many of his own Konpaku left (the user's decision
-2026-09-28, replacing the red-Reishi condition).")
+  "Was: Kenpachi may enter his Bankai (P in cup 3) with at most this many of his own Konpaku left (the user's decision
+2026-09-28, replacing the red-Reishi condition). Since 2026-10-31 the entry is a full SPIRIT DRIVE (DUEL_SUBLIMATION §3); this is
+only the debug scene's cap.")
 (defparameter *arm-pips* 4 "The arm meter UDE: pips at the Bankai's entry (the 4th spent: the arm bursts).")
 (defparameter *arm-crack* 300 "A pip cracks by itself after this many frames without a spend (paused while locked): <= 20 s of Bankai.")
 (defparameter *arm-self* 60

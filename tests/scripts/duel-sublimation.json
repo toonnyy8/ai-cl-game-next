@@ -1,0 +1,240 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== SB J1 at sub 0')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(84000)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(84020)"
+},
+{
+"at": 9.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.6,
+"eval": "Module._debug_cmd(84070)"
+},
+{
+"at": 10.7,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 11.2,
+"eval": "console.log('=== SB J1 at sub 100')"
+},
+{
+"at": 11.2,
+"eval": "Module._debug_cmd(84000)"
+},
+{
+"at": 11.25,
+"eval": "Module._debug_cmd(84030)"
+},
+{
+"at": 11.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 12.8,
+"eval": "Module._debug_cmd(84070)"
+},
+{
+"at": 12.9,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 13.4,
+"eval": "console.log('=== SB J1 at drive 100, s 0.4 (frac 0.7)')"
+},
+{
+"at": 13.4,
+"eval": "Module._debug_cmd(84000)"
+},
+{
+"at": 13.45,
+"eval": "Module._debug_cmd(84050)"
+},
+{
+"at": 13.7,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.75,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.0,
+"eval": "Module._debug_cmd(84070)"
+},
+{
+"at": 15.1,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 15.6,
+"eval": "console.log('=== SB taken at sub 0: P2 J1')"
+},
+{
+"at": 15.6,
+"eval": "Module._debug_cmd(84000)"
+},
+{
+"at": 15.65,
+"eval": "Module._debug_cmd(84020)"
+},
+{
+"at": 15.9,
+"eval": "Module._debug_cmd(84011)"
+},
+{
+"at": 17.2,
+"eval": "Module._debug_cmd(84070)"
+},
+{
+"at": 17.3,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 17.8,
+"eval": "console.log('=== SB taken at sub 100: P2 J1')"
+},
+{
+"at": 17.8,
+"eval": "Module._debug_cmd(84000)"
+},
+{
+"at": 17.85,
+"eval": "Module._debug_cmd(84030)"
+},
+{
+"at": 18.1,
+"eval": "Module._debug_cmd(84011)"
+},
+{
+"at": 19.4,
+"eval": "Module._debug_cmd(84070)"
+},
+{
+"at": 19.5,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 20.0,
+"eval": "console.log('=== SB real awakening at sub 50 -> s 0.5, frac 0.25')"
+},
+{
+"at": 20.0,
+"eval": "Module._debug_cmd(84000)"
+},
+{
+"at": 20.05,
+"eval": "Module._debug_cmd(84060)"
+},
+{
+"at": 21.6,
+"eval": "Module._debug_cmd(84070)"
+},
+{
+"at": 21.7,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 22.2,
+"eval": "console.log('=== SB bankai refused at drive 50')"
+},
+{
+"at": 22.2,
+"eval": "Module._debug_cmd(84003)"
+},
+{
+"at": 22.25,
+"eval": "Module._debug_cmd(84045)"
+},
+{
+"at": 22.5,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 22.51,
+"key": "KeyP",
+"down": true
+},
+{
+"at": 22.56,
+"key": "KeyP",
+"down": false
+},
+{
+"at": 22.6,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 23.8,
+"eval": "Module._debug_cmd(84070)"
+},
+{
+"at": 23.9,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 24.4,
+"eval": "console.log('=== SB bankai allowed at drive 100')"
+},
+{
+"at": 24.4,
+"eval": "Module._debug_cmd(84003)"
+},
+{
+"at": 24.45,
+"eval": "Module._debug_cmd(84050)"
+},
+{
+"at": 24.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 24.71,
+"key": "KeyP",
+"down": true
+},
+{
+"at": 24.76,
+"key": "KeyP",
+"down": false
+},
+{
+"at": 24.8,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 26.0,
+"eval": "Module._debug_cmd(84070)"
+},
+{
+"at": 26.1,
+"eval": "Module._debug_cmd(2107)"
+}
+]

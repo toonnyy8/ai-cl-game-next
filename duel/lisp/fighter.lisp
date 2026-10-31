@@ -488,7 +488,7 @@ starts its own move or refuses with the cue (T when it took the press; Hisagi's 
       (:awaken (let ((free (awaken-state-p e f)))
                  (cond ((getf (kit-core kit) :no-awaken) nil)   ; a form not yet ported to the core system (Hisagi's Bankai)
                        ((awaken-allowed-p free (gauges-awaken g) (gauges-awakened g)) (awaken! e) t)
-                       ((and (kit-bankai-form kit) (bankai-allowed-p free (gauges-konpaku g)) (bankai-ok-p e))
+                       ((and (kit-bankai-form kit) (bankai-allowed-p free (drive-full-p e)) (bankai-ok-p e))
                         (bankai! e) t)
                        ((let ((h (kit-hook kit :p))) (and h (funcall h e free) t))))))
       (:burst (let ((m (burst-ok-p e))) (when m (setf (fighter-burst f) m) t)))   ; applied after both stepped
@@ -633,7 +633,7 @@ Kikon lock (FIGHTER-KIKON-LOCK, 2026-10-24) no command and no walk: 1 the guard 
 velocity V and the clip. Single-float sticks and speed (the sim's): typed, nothing boxed (the twins: bit-identical);
 else the generic code."
   (let* ((kit (fighter-kit f))
-         (speed (layer-speed (frost-speed (kit-walk kit) (fighter-frost f)) (fighter-layers f))))
+         (speed (* (sub-speed-mult e) (layer-speed (frost-speed (kit-walk kit) (fighter-frost f)) (fighter-layers f)))))
     (if (and (typep to 'single-float) (typep st 'single-float) (typep (kit-walk kit) 'single-float) (typep speed 'single-float))
         (sim-fast
           (let* ((a to) (b st) (m (%sqrt (+ (* a a) (* b b)))) (walk (kit-walk kit)))
@@ -969,7 +969,7 @@ direction relative to the opponent (neutral = at him), the heading turning at *R
 *RUN-STOP* from him (RUN-STOP-P). He faces the opponent throughout (as in neutral, *FACE-RATE*), so the
 clip follows the heading: forward run, side slide or back-skate (RUN-CLIP)."
   (let* ((v (motion-vel (motion e))) (vx (aref v 0)) (vz (aref v 2))
-         (speed (layer-speed (frost-speed (kit-run (fighter-kit f)) (fighter-frost f)) (fighter-layers f))) (sf (incf (fighter-sf f))) (free (zerop (fighter-lock f))))
+         (speed (* (sub-speed-mult e) (layer-speed (frost-speed (kit-run (fighter-kit f)) (fighter-frost f)) (fighter-layers f)))) (sf (incf (fighter-sf f))) (free (zerop (fighter-lock f))))
     (cond ((eq (fighter-phase f) :brake)
            (let ((s (if (run-stop-p (fighter-dist f) (run-closing e f) speed) 0.0 (brake-speed speed sf))))
              (turn-to-opp e f (%deg *face-rate*))

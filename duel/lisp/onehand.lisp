@@ -209,7 +209,7 @@ his Bankai, a :no-awaken form.)"
   (let* ((f (fighter e)) (kit (fighter-kit f)) (g (gauges e)))
     (and (not (getf (kit-core kit) :no-awaken)) (awaken-state-p e f)
          (or (awaken-allowed-p t (gauges-awaken g) (gauges-awakened g))
-             (and (kit-bankai-form kit) (bankai-allowed-p t (gauges-konpaku g)) (bankai-ok-p e)))
+             (and (kit-bankai-form kit) (bankai-allowed-p t (drive-full-p e)) (bankai-ok-p e)))
          t)))
 
 (defun rv-ready-p ()

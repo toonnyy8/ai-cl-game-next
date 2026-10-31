@@ -538,12 +538,33 @@ cinematic stops the timer). The user, 2026-10-08: 「毀魂技演出不計入對
   "Display value of a gauge that drains as a timer (Inferno in Hellfire, Awakening in a timed awakening)."
   (if (<= total-frames 0) 0.0 (* max (/ (float frames-left) total-frames))))
 
-(defun bankai-allowed-p (free konpaku)
+(defun sub-frac (awakened sub sub-s drive)
+  "The SUBLIMATION / SPIRIT DRIVE bonus fraction 0..1 (of B, *SUB-DMG* etc. at 1.0): before the awakening SUB / *SUB-MAX*; after it
+*SUB-KEEP* x SUB-S (the fraction frozen at the awakening) + *DRIVE-ADD* x DRIVE / *DRIVE-MAX*."
+  (if awakened
+      (+ (* *sub-keep* sub-s) (* *drive-add* (/ drive *drive-max*)))
+      (/ sub *sub-max*)))
+
+(defun awaken-overflow (awakened aw sub drive x)
+  "The three gauges after X more awakening: before the awakening AW fills to *AWAKEN-MAX*, the overflow (and X once full) goes to SUB;
+after it X goes to DRIVE. Values: aw sub drive."
+  (if awakened
+      (values aw sub (gauge-add drive x *drive-max*))
+      (let ((n (+ aw x)))
+        (if (> n *awaken-max*)
+            (values *awaken-max* (gauge-add sub (- n *awaken-max*) *sub-max*) drive)
+            (values n sub drive)))))
+
+(defun sub-taken-mods (dmods frac)
+  "DMODS (the defender plist) with its :mult x (1 - *SUB-TAKEN* x FRAC)."
+  (if (zerop frac) dmods (list* :mult (* (getf dmods :mult 1.0) (- 1.0 (* *sub-taken* frac))) dmods)))
+
+(defun bankai-allowed-p (free drive-full)
   "Kenpachi's Bankai (docs/duel/DUEL_KEN_BANKAI.md §1.1): P in a form with :bankai-form (cup 3), FREE as for the first
 awakening (fighter.lisp AWAKEN-STATE-P: idle, guard, blockstun, a combo reaction past the Burst's hit; DRINK included;
-the user 2026-10-09, DUEL_KEN_REWORK §7) with at most *BANKAI-KONPAKU* of his own KONPAKU left (the user's decision
-2026-09-28; it was: red). No gauge; once a match by construction (no later form has :bankai-form)."
-  (and free (<= konpaku *bankai-konpaku*) t))
+the user 2026-10-09, DUEL_KEN_REWORK §7) with his SPIRIT DRIVE full (DRIVE-FULL; the user 2026-10-31, DUEL_SUBLIMATION §3; it was
+at most *BANKAI-KONPAKU* of his own Konpaku, 2026-09-28). Once a match by construction (no later form has :bankai-form)."
+  (and free drive-full t))
 
 ;;; ---------------------------------------------------------------- the arm meter UDE (Kenpachi's Bankai)
 (defun pip-spend (pips)

@@ -158,6 +158,9 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (guardless nil)                       ; the guard gauge hit 0: no guard until it is full again
   (awaken 0f0 :type single-float)       ; Fighting Spirit 0..100
   (awakened nil)                        ; the awakening of this match is used
+  (sub 0f0 :type single-float)          ; SUBLIMATION 0..100: fills while the awakening gauge is full and unused
+  (sub-s 0f0 :type single-float)        ; its fraction 0..1 frozen at the awakening (kept x *SUB-KEEP*)
+  (drive 0f0 :type single-float)        ; SPIRIT DRIVE 0..100: fills once awakened
   (evolution nil)                       ; EVOLUTION was announced
   (meter 0f0 :type single-float)        ; the kit meter (Inferno, NOME)
   (meter-idle 0 :type fixnum)           ; frames since NOME last grew (RYOTE's drain waits for it)

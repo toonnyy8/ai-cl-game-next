@@ -574,7 +574,7 @@ into a K / L / SP's perfect lead."
   "The Bankai leaves him 1 Konpaku: at HARD (*KEN-AI-BANKAI-STRICT*) only as a finisher or with little to lose: <= 2 of his
 own left, 3 with him at <= 4, 4 with him at <= 2; else this cup-3 stay's roll is spent (ai.lisp AI-BANKAI-P skips it). NIL."
   (let* ((kit (kit-of e)) (k (gauges-konpaku (gauges e))) (ko (gauges-konpaku (gauges (opp-of e)))))
-    (when (and (kit-bankai-form kit) (not (brain-bankai-rolled b)) (bankai-allowed-p t k)
+    (when (and (kit-bankai-form kit) (not (brain-bankai-rolled b)) (bankai-allowed-p t (drive-full-p e))
                (not (or (<= k 2) (and (<= k 3) (<= ko 4)) (and (<= k 4) (<= ko 2))))
                (brain-roll b *ken-ai-bankai-strict*))
       (setf (brain-bankai-rolled b) t))
@@ -996,7 +996,8 @@ with 1 pip, 2.2 m: the 4th strike, then the burst; 3 片腕 at 2.2 m."
   (full-gauges! *p1* 100f0)
   (let ((g (gauges *p1*)))
     (setf (gauges-reishi g) 300 (gauges-arm-pending g) nil
-          (gauges-konpaku g) (min (gauges-konpaku g) *bankai-konpaku*)))   ; the entry: <= 4 Konpaku (2026-09-28)
+          (gauges-konpaku g) (min (gauges-konpaku g) *bankai-konpaku*)   ; (<= 4 Konpaku: the scene's, the entry was so until 2026-10-31)
+          (gauges-awakened g) t (gauges-drive g) *drive-max*))     ; the entry: SPIRIT DRIVE full (2026-10-31)
   (setf (gauges-reishi (gauges *p2*)) (gauges-reishi-max (gauges *p2*)))
   (case k
     ((1 2) (let ((*skip-cines* t)) (bankai! *p1*))
@@ -1145,10 +1146,25 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
            (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
            (place *p1* *p2* 2.2)
            (full-gauges! *p1*) (full-gauges! *p2*)
+           (let ((g (gauges *p1*))) (setf (gauges-awakened g) nil (gauges-awaken g) 0f0 (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0))
            (case c                                                  ; 84001: the same, in KATATE; 84002: in RYOTE (NOME 70)
              (84001 (force-form *p1* :nozarashi))
              (84002 (force-form *p1* :ryote) (setf (gauges-meter (gauges *p1*)) (f32 70.0)))
              (84003 (force-form *p1* :nomihose) (setf (gauges-meter (gauges *p1*)) (f32 100.0)))))
     (84010 (core-sp-start! *p2* (fighter *p2*)))
-    (84011 (force-cmd *p2* :q))))
+    (84011 (force-cmd *p2* :q))
+    (t (let ((g (gauges *p1*)))                                    ; DUEL_SUBLIMATION §7, on the running 84000 scene (P1's gauges)
+         (cond ((<= 84020 c 84030)                                 ; 84020+k: the awakening gauge full, SUBLIMATION at 10k %
+                (setf (gauges-awakened g) nil (gauges-awaken g) *awaken-max* (gauges-sub g) (f32 (* 10 (- c 84020)))))
+               ((<= 84040 c 84050)                                ; 84040+k: awakened with s = 0.4 frozen, SPIRIT DRIVE at 10k %
+                (setf (gauges-awakened g) t (gauges-awaken g) 0f0 (gauges-sub-s g) 0.4f0 (gauges-drive g) (f32 (* 10 (- c 84040)))))
+               ((= c 84060)                                       ; the real awakening with SUBLIMATION at 50 %
+                (setf (gauges-awakened g) nil (gauges-awaken g) *awaken-max* (gauges-sub g) 50f0)
+                (awaken! *p1*))
+               ((= c 84070)                                       ; a probe line: both sides' stage and bonus
+                (dolist (e (list *p1* *p2*))
+                  (let ((g (gauges e)))
+                    (log-msg "duel sub ~a awakened ~a awaken ~,1f sub ~,1f s ~,2f drive ~,1f frac ~,3f fs ~,1f speed x~,3f"
+                             (side-name e) (and (gauges-awakened g) t) (gauges-awaken g) (gauges-sub g) (gauges-sub-s g)
+                             (gauges-drive g) (sub-of e) (gauges-fs g) (sub-speed-mult e))))))))))
 (pushnew '(84000 84099 ken-core-debug) *char-debug* :test #'equal)

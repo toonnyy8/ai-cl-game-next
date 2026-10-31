@@ -100,11 +100,29 @@ his snapshot follows (the binder's :bind-heal), so a release keeps it (B6)."
 (GAUGES-GREY: dealt inside a bind; the binder's end clears it when the grey turns real, a release leaves it out)."
   (let ((g (gauges e))) (- (gauges-dealt g) (gauges-grey g))))
 
+(defun awaken-fill! (g x)
+  "X more awakening for G's owner: the awakening gauge, then SUBLIMATION, or SPIRIT DRIVE once awakened (AWAKEN-OVERFLOW)."
+  (multiple-value-bind (aw sub drive) (awaken-overflow (gauges-awakened g) (gauges-awaken g) (gauges-sub g) (gauges-drive g) x)
+    (setf (gauges-awaken g) (f32 aw) (gauges-sub g) (f32 sub) (gauges-drive g) (f32 drive))))
+
+(defun sub-of (e)
+  "E's SUBLIMATION / SPIRIT DRIVE bonus fraction 0..1 (SUB-FRAC)."
+  (let ((g (gauges e))) (sub-frac (gauges-awakened g) (gauges-sub g) (gauges-sub-s g) (gauges-drive g))))
+
+(defun sub-speed-mult (e)
+  "Walk / run speed x (1 + *SUB-SPEED* x SUB-OF)."
+  (+ 1.0 (* *sub-speed* (sub-of e))))
+
+(defun drive-full-p (e)
+  "Is E's SPIRIT DRIVE full (awakened, the gauge at *DRIVE-MAX*)? Opens Kenpachi's Bankai."
+  (let ((g (gauges e))) (and (gauges-awakened g) (>= (gauges-drive g) *drive-max*))))
+
 (defun pay-gauges (e r fs)
-  "E gains R Reiatsu (REIATSU-GAIN!) and FS flash-step (each kept at its max; no flash-step during a burst: BURST-FS-GAIN)."
+  "E gains R Reiatsu (REIATSU-GAIN!) and FS flash-step (each kept at its max; no flash-step during a burst: BURST-FS-GAIN; the
+flash-step x (1 + *SUB-FS* x SUB-OF))."
   (let ((g (gauges e)))
     (reiatsu-gain! e r)
-    (setf (gauges-fs g) (f32 (gauge-add (gauges-fs g) (burst-fs-gain fs (gauges-burst g)) *fs-max*)))))
+    (setf (gauges-fs g) (f32 (gauge-add (gauges-fs g) (* (burst-fs-gain fs (gauges-burst g)) (+ 1.0 (* *sub-fs* (sub-of e)))) *fs-max*)))))
 
 (defun gain-gauges (e dealt taken &optional (rbase 0) (n 1))
   "Reiatsu, flash-step and Fighting Spirit for dealing DEALT / taking TAKEN damage, RBASE the hit's Reiatsu at the combo's
@@ -113,8 +131,7 @@ Nth hit (HIT-GAINS; siphoned: SIPHON-OF)."
     (multiple-value-bind (r fs aw sr sfs) (hit-gains dealt taken to (burst-gain-mult (gauges-burst g)) rbase n)
       (pay-gauges e r fs)
       (when to (pay-gauges to sr sfs))
-      (unless (gauges-awakened g)
-        (setf (gauges-awaken g) (f32 (gauge-add (gauges-awaken g) aw *awaken-max*)))))))
+      (awaken-fill! g aw))))
 
 (defun hit-rbase (mv hazard base)
   "The Reiatsu a hit of MV (or HAZARD: its move's at its spawn) with BASE damage pays its attacker before the combo bonus
@@ -353,11 +370,12 @@ result (NIL = no effect)."
                   '(:mult 1.0)
                   (kit-atk-mods (kit-of att) (- *konpaku-max* (gauges-konpaku (gauges att)))
                                 (let ((px (* (if (eq res :blocked) 1.0 (+ 1.0 k)) (if (and own (fighter-assisted fa)) *assist-mult* 1.0)   ; ASSIST
-                                             (core-charge-mult fa mv own hazard)))   ; a charged SA's string (core-sim.lisp)
+                                             (core-charge-mult fa mv own hazard)
+                                             (+ 1.0 (* *sub-dmg* (sub-of att)))))   ; a charged SA's string (core-sim.lisp); SUBLIMATION / DRIVE
                                       (h (kit-hook (kit-of att) :dmg-mult)))   ; a kit's distance x (Hisagi's tip / close-in)
                                   (if h (* px (funcall h att def hw mv hazard d2)) px))
                                 (and mv (getf (mv-params mv) :form-mult)))))   ; (a move's own form x: the owl's stance K / KL)
-         (dmods (if (or optic flat) '(:mult 1.0) (kit-def-mods (kit-of def))))   ; (a ranged hit through Rukia's ward: x1.0 taken)
+         (dmods (if (or optic flat) '(:mult 1.0) (sub-taken-mods (kit-def-mods (kit-of def)) (sub-of def))))   ; (a ranged hit through Rukia's ward: x1.0 taken)
          (atk (if (and *run-mods* (run-mods-on-p att)) (run-atk-mods att atk mv hazard) atk))     ; DANGAI's run table
          (dmods (if (and *run-mods* (run-mods-on-p def)) (run-def-mods def dmods flags) dmods))
          (x (or x (aref p 0))) (z (or z (aref p 2))) (y (+ (aref p 1) 1.1))
@@ -729,8 +747,7 @@ move's recovery, the next move started within *CHAIN-WINDOW* f has its startup c
 gauge G."
   (heal! e (burst-heal n *white-reishi*))
   (reiatsu-gain! e (/ *white-reiatsu* 60.0))
-  (unless (gauges-awakened g)
-    (setf (gauges-awaken g) (f32 (gauge-add (gauges-awaken g) (/ *white-awaken* 60.0) *awaken-max*)))))
+  (awaken-fill! g (/ *white-awaken* 60.0)))
 
 (defun burst-step (e g)
   "A running burst, one frame: the flash-step drains (BURST-DRAIN), WHITE's regen (WHITE-REGEN!); at 0 it ends."
@@ -769,6 +786,7 @@ form's :cine if it has one (both fighters idle after it). The guard gauge is lef
   (let* ((g (gauges e)) (o (opp-of e)))
     (repel! e)                                          ; the moment breaks his attack, as a Burst (the user 2026-09-29)
     (start-awake-regen! g)                              ; then WHITE's regen for a full burst's time (the user 2026-09-30)
+    (setf (gauges-sub-s g) (f32 (/ (gauges-sub g) *sub-max*)))   ; SUBLIMATION freezes (kept x *SUB-KEEP*), SPIRIT DRIVE takes over
     (setf (gauges-awakened g) t (gauges-awaken g) 0f0 (gauges-evolution g) nil)
     (set-form e (kit-awaken-form (kit-of e)))
     (let ((st (getf (kit-meter (kit-of e)) :start)))    ; NOME starts at 10
@@ -847,7 +865,7 @@ Konpaku and Reishi, which a release would half undo; DUEL_HISAGI §17.3 B11)."
 kit's :bankai-ok: BANKAI-OK-P)? (The HUD's P BANKAI prompt, the phone's AWAKEN chip.)"
   (let ((f (fighter e)))
     (and (kit-bankai-form (fighter-kit f))
-         (bankai-allowed-p (awaken-state-p e f) (gauges-konpaku (gauges e)))
+         (bankai-allowed-p (awaken-state-p e f) (drive-full-p e))
          (bankai-ok-p e))))
 
 (defun kikon-worth (e)
@@ -886,8 +904,8 @@ Returns T when DEF is out of Konpaku; never in a bind (BIND-OF: grey souls, the 
         (when (plusp lost) (run-armor-give! def :armor-on-soul-loss)))
       (setf (gauges-konpaku gd) left (gauges-reishi gd) (gauges-reishi-max gd))
       (let ((h (kit-hook (kit-of def) :settled))) (when h (funcall h def lost left)))
-      (unless (or (gauges-awakened gd) (siphon-of def))
-        (setf (gauges-awaken gd) (f32 (gauge-add (gauges-awaken gd) (awakening-gain 0 0 lost) *awaken-max*))))
+      (unless (siphon-of def)
+        (awaken-fill! gd (awakening-gain 0 0 lost)))
       (incf (gauges-kikons (gauges att)))
       (emit :konpaku def lost)
       (clog "~a ~a on ~a: -~d konpaku, ~d left (~a)" (side-name att) (if soul-break "SOUL BREAK" "KIKON") (side-name def) lost left

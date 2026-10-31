@@ -785,7 +785,7 @@ HOHO-OK GUARD-K Q: pure reads of this step's state, as AI-REFLEX's own)."
 (def-reflex-step ai-bankai
   "the Bankai (cup 3, red, free: the kit's :bankai), before the cash-out; free as for the first awakening (AWAKEN-STATE-P, the user 2026-10-09; it was idle / guard only)"
   (let ((bk (ai-table e :bankai)))
-    (and bk (kit-bankai-form kit) (bankai-allowed-p (awaken-state-p e f) (gauges-konpaku g))
+    (and bk (kit-bankai-form kit) (bankai-allowed-p (awaken-state-p e f) (drive-full-p e))
          (let ((ok (kit-bankai-ok kit))) (or (null ok) (funcall ok e)))   ; (the kit's own rule, if any: :bankai-ok)
          (not (bind-of e))                                                ; (never in a bind: BANKAI-OK-P refuses it)
          (ai-bankai-p e b bk)))
