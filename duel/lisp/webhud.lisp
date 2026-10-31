@@ -75,7 +75,7 @@ the finish's best combo / Kikons, human 1."
     (webhud-put (+ o 8) (cond ((or (gauges-awakened g) (kit-awakening kit)) 2)
                               ((and (not (getf (kit-core kit) :no-awaken)) (>= aw (the single-float *awaken-max*))) 1)
                               (t 0)))
-    (webhud-put (+ o 9) (if core (core-clamp-pointer (fighter-ptr f)) 0))
+    (webhud-put (+ o 9) (if core (core-clamp-pointer (if (plusp (fighter-tmp f)) (fighter-tmp f) (fighter-ptr f))) 0))   ; (a DRIVE switch shows its pointer)
     (webhud-put (+ o 24) (let ((m 0))                  ; the sealed pointers (a bit each: DUEL_SUBLIMATION §9)
                            (declare (fixnum m))
                            (when core (loop for n from 2 to 4 when (core-pointer-locked-p f n) do (setf m (logior m (ash 1 (1- n))))))

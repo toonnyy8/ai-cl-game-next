@@ -142,3 +142,18 @@ User: 「抱歉，我還是想要將一護的系統調回原本沒有封印的�
 - **Kept**: SPIRIT DRIVE itself (§1-§8: the gauges, SUBLIMATION's pink and DRIVE's red, the +20 / -20 / +10 / +30 boosts, Kenpachi's Bankai at a full DRIVE, the labels, the phone's ring), KESSA's skin and red wisps (§10), the clean crescent (§11.4), the J clips' body chain (§13), the practice row P1 AWAKEN (§15), the generic parts of the core (`:locks` / `core-pointer-locked-p` / the four-pointer `*core-pointer-max*` and the AS cap by the kit's AS count: no kit uses them now), the debug scenes 86100+.
 - **Left in the code, used by nothing**: the moves `ic-k-h1..h5`, `ic-k-hs-as2` / `-b`, `ic-k-rz-a/b`, `ic-k-as4` / `-b`, `ic-k-na6`, the clips `:ic-k-st-haste` / `:ic-k-pass`, `ic-haste-kikon-cine`, `ichigo-renzan*`, `ichigo-haste-dash` (the record of §9 / §12 / §14: the rhythm, the strikes at the victim, the held pose), so they can be put back from here or from the commits 927aafe .. bbeee33.
 - **Checks**: host tests 11294 pass (the Ichigo pins back to the old tables, new pins: no locks, `(1 1 2 2 3)`, no `:link-ok`), pkgcheck, build; scripted: the Shikai's J x5 + SP is AS3 (pointer 3) with the gauge empty, KESSA J x3 + SP AS2 (pointer 2), J x5 + SP AS3. G2 `--cvc` returned to the lines of §522's SUBLIMATION commit (II 30 lines, IK 25, KK 17); `tests/style-cvc-ref.txt` regenerated. The scene script `duel-ichigo-pointers.json` is deleted (it tested the removed tables).
+
+## 17. Temporary pointer switch with SUBLIMATION / SPIRIT DRIVE (the user, 2026-11-01)
+
+User: 「我想嘗試在 DRIVE 全滿時追加新系統：在 NS 攻擊可以通過左右鍵/左滑右滑臨時切換指針並改成使用對應的 NS 攻擊，當 NS 攻擊結束就會切回來，且在臨時切換下不能再度切換。」
+Answers: SP moves lock movement so no input conflict; 「在 NS 每下打完後都能切」; the cost 「可以，我挺中意這個設定的」 (0.25 B each); all three
+characters; 「既然要消耗 DRIVE，那就不需要 DRIVE 滿了」; 「SUBLIMATION 也一樣能透過消耗量表發動」; AskUserQuestion: 0.25 B, the target's segment 1,
+the whole target route, left = previous / right = next, cyclic.
+- **Rule** (`core-switch-target`, `core-latch-step`, core-sim.lisp): in an NS segment's gap, the stick left / right (relative to the opponent, |strafe| > 0.5) + SP
+  latches `:sw`; once the segment's active frames are over, the previous / next pointer's NS from segment 1 starts (`fighter-sp-ptr` = it, so its Kikon is that
+  pointer's). `fighter-ptr` is never changed, so the pointer is back by itself; `fighter-tmp` marks the route and blocks a second switch until the route ends
+  (an SA / AS / neutral clears it). Not from neutral (a held stick would spend it by accident).
+- **Cost / condition**: `*drive-switch*` 0.25 x the gauge max; SPIRIT DRIVE after the awakening, SUBLIMATION before it; at least that much left. A human only (`(not (brain e))`: the CPU never, so `--cvc` is untouched).
+- **HUD**: the pointer slot shows the temporary pointer. The phone uses the joystick's left / right + the SP tap.
+- **Debug**: 86107 KESSA with DRIVE 20, 86108 Shikai with SUBLIMATION 60 (86105: KESSA DRIVE 60).
+- **Checks**: host tests 11295; pkgcheck; scripted `duel-drive-switch.json`: D+SP in KESSA's NS1 gap -> NS2 (pointer 1 -> 2), A+SP -> NS3 (1 -> 3), a second D+SP is the plain next segment, no stick the plain next segment, Shikai SUBLIMATION 60 switches, DRIVE 20 refused.

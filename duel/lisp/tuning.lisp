@@ -277,6 +277,9 @@ Nozarashi healed, 150).")
 (defparameter *sub-speed* 0.10 "Walk / run speed x (1 + this x the bonus fraction).")
 (defparameter *sub-fs* 0.30 "Flash-step gauge gained from hits x (1 + this x the bonus fraction) (the Reiatsu gauge is gone: DUEL_CORE §6).")
 (defparameter *sub-keep* 0.5 "The share of the pre-awakening SUBLIMATION fraction the awakening keeps.")
+(defparameter *drive-switch* 0.25
+  "The share of the full SPIRIT DRIVE one temporary pointer switch costs (an NS gap's stick left / right + SP, DUEL_SUBLIMATION §17;
+the user, 2026-11-01: 「可以，我挺中意這個設定的」, 「既然要消耗 DRIVE，那就不需要 DRIVE 滿了」): 0.25 B, so it needs at least that much left.")
 (defparameter *drive-add* 0.5 "What a full SPIRIT DRIVE adds on top, as a share of B (not of the kept fraction).")
 
 ;;; ---------------------------------------------------------------- hit reactions, combos, hitstop

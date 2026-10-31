@@ -762,3 +762,25 @@ def sublimation_script():
     return sorted(ev, key=lambda x: x["at"])
 write("sublimation", sublimation_script())
 
+def drive_switch_script():
+    """The temporary pointer switch (DUEL_SUBLIMATION §17): KESSA with DRIVE 60 (debug 86105): SP, then D (right) / A (left) held + SP in the gap;
+    a second switch inside the temporary route (refused); DRIVE 20 (< 25: refused)."""
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+    def sw(t, k): ev.append(key(t - 0.05, k)); sp(t); ev.append(key(t + 0.15, k, False))
+    t = T0
+    for label, setup, body in (
+            ("DS right: SP, D+SP", 86105, lambda s: [sp(s), sw(s + 0.3, "KeyD")]),
+            ("DS left: SP, A+SP", 86105, lambda s: [sp(s), sw(s + 0.3, "KeyA")]),
+            ("DS twice: SP, D+SP, D+SP (second refused)", 86105, lambda s: [sp(s), sw(s + 0.3, "KeyD"), sw(s + 0.9, "KeyD")]),
+            ("DS no stick: SP, SP (plain next segment)", 86105, lambda s: [sp(s), sp(s + 0.3)]),
+            ("DS sublimation 60 (Shikai): SP, D+SP", 86108, lambda s: [sp(s), sw(s + 0.3, "KeyD")]),
+            ("DS drive 20: SP, D+SP (refused)", 86107, lambda s: [sp(s), sw(s + 0.3, "KeyD")])):
+        say(t, label)
+        ev.extend([cmd(t, setup), cmd(t + 3.0, 2107)])
+        body(t + 0.3)
+        t += 3.5
+    return sorted(ev, key=lambda x: x["at"])
+write("drive-switch", drive_switch_script())
+

@@ -2,6 +2,7 @@
 ;;; ================================================================ SUBLIMATION / SPIRIT DRIVE (DUEL_SUBLIMATION, the user 2026-10-31)
 ;; the knobs
 (check (and (~= *sub-dmg* 0.20) (~= *sub-taken* 0.20) (~= *sub-speed* 0.10) (~= *sub-fs* 0.30) (~= *sub-keep* 0.5) (~= *drive-add* 0.5)))
+(check (~= *drive-switch* 0.25))   ; the temporary pointer switch costs 0.25 B (DUEL_SUBLIMATION §17)
 ;; fill: the awakening gauge first, its overflow into SUBLIMATION, DRIVE once awakened
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 50.0 0.0 0.0 20.0) (and (~= aw 70.0) (~= sub 0.0) (~= dr 0.0))))
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 90.0 0.0 0.0 25.0) (and (~= aw 100.0) (~= sub 15.0) (~= dr 0.0))))

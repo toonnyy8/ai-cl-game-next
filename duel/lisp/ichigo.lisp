@@ -1437,16 +1437,16 @@ off, gauges full); 86102 / 86103: KESSA with SPIRIT DRIVE empty / full; 86104 / 
 the gauge full and SUBLIMATION 60, KESSA with DRIVE 60, KESSA with DRIVE full; 86110 the 超速連斬 Kikon cinematic at frame 40 (a still), 86120 P2's J1
 now (the scripts time the presses)."
   (case c
-    ((86100 86101 86102 86103 86104 86105 86106)
+    ((86100 86101 86102 86103 86104 86105 86106 86107 86108)
      (ensure-battle :ichigo :kenpachi :cpu nil)
      (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
-     (force-form *p1* (if (member c '(86100 86101 86104)) :base :kessa))
-     (place *p1* *p2* (if (member c '(86100 86101 86104)) 2.2 1.4)) (full-gauges! *p1*) (full-gauges! *p2*)   ; (KESSA's J reaches 1.56 m)
+     (force-form *p1* (if (member c '(86100 86101 86104 86108)) :base :kessa))
+     (place *p1* *p2* (if (member c '(86100 86101 86104 86108)) 2.2 1.4)) (full-gauges! *p1*) (full-gauges! *p2*)   ; (KESSA's J reaches 1.56 m)
      (let ((g (gauges *p1*)))
-       (setf (gauges-awakened g) (member c '(86102 86103 86105 86106)) (gauges-awaken g) (if (member c '(86101 86104)) *awaken-max* 0f0)
-             (gauges-sub g) (if (= c 86104) 60f0 0f0) (gauges-sub-s g) 0f0
-             (gauges-drive g) (case c (86103 *drive-max*) (86106 *drive-max*) (86105 60f0) (t 0f0))))
-     (when (>= c 86104) (setf *one-hand* (one-hand-effective-p))))                ; (86104-86106: the phone's deck, run with --mobile --size 390x844)
+       (setf (gauges-awakened g) (member c '(86102 86103 86105 86106 86107)) (gauges-awaken g) (if (member c '(86101 86104 86108)) *awaken-max* 0f0)
+             (gauges-sub g) (if (member c '(86104 86108)) 60f0 0f0) (gauges-sub-s g) 0f0
+             (gauges-drive g) (case c (86103 *drive-max*) (86106 *drive-max*) (86105 60f0) (86107 20f0) (t 0f0))))
+     (when (<= 86104 c 86106) (setf *one-hand* (one-hand-effective-p))))                ; (86104-86106: the phone's deck, run with --mobile --size 390x844)
     (86110 (ichigo-cine-at 'ic-haste-kikon-cine 40))
     (86130 (abort-cine) (setf *cine-hold* nil)                      ; the Getsuga flame preview (ichigo-look.lisp IC-FLAME-CINE), running
            (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 9.0) (force-form *p1* :kessa)

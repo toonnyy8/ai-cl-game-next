@@ -866,7 +866,7 @@ action started."
         (core-hold-step e f)                              ; a let-go ends the Kikon hold (core-sim.lisp)
         (core-latch-step e f mv sf)                       ; a latched NS / AS continuation, the SA (core-sim.lisp)
         (let ((q (fighter-queued f)))                   ; the latched link, once the chain opens
-          (when (and q (not (member q '(:ns :sa))) (chain-open-p sf (mv-s mv) (mv-a mv) (mv-r mv) (if (eq q :sig) landed (or landed (fighter-chained f)))))
+          (when (and q (not (member q '(:ns :sa :sw))) (chain-open-p sf (mv-s mv) (mv-a mv) (mv-r mv) (if (eq q :sig) landed (or landed (fighter-chained f)))))
             (if (eq q :sig)                             ; L after a K link: its own checks and costs, a follow-up
                 (progn (setf (fighter-queued f) nil)
                        (when (try-command e f :sig nil nil (kit-l-link kit name))

@@ -14,6 +14,7 @@ count the attack press (an NA link and an SA are attack presses: the pointer an 
           (fighter-sp-held f) (and (member cls '(:ns :as)) (if (core-touch-p f) :rearm t))   ; a tap fired on its lift (CORE-HOLD-STEP)
           (fighter-charge-mult f) (let ((c (getf (mv-params mv) :charge-mult)))   ; a charged SA arms it; its string keeps it
                                     (cond (c (f32 c)) ((and old (member cls '(:na :as))) (fighter-charge-mult f)) (t 1f0))))
+    (unless (eq cls :ns) (setf (fighter-tmp f) 0))   ; a temporary pointer lasts the NS route (DUEL_SUBLIMATION §17)
     (when (and (eq cls :ns) (not (eq (kit-class (fighter-kit f) old) :ns))) (setf (fighter-clash-n f) 0))   ; a fresh NS route counts its cancels from 0
     (case cls ((:na :sa) (incf (fighter-presses f))))))
 
@@ -35,7 +36,7 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
   "SP from a free state: NS under the pointer (the next segment pointer's style). T when it started."
   (let ((mv (kit-core-move (fighter-kit f) :ns (fighter-ptr f))))
     (when mv
-      (setf (fighter-sp-ptr f) (fighter-ptr f))
+      (setf (fighter-sp-ptr f) (fighter-ptr f) (fighter-tmp f) 0)
       (start-move e mv :quick)
       t)))
 
@@ -84,10 +85,28 @@ T when something started."
     ((:na :sa) (and (eq (fighter-contact f) :hit) (not (fighter-as-done f))
                     (cancel-open-p (fighter-sf f) (fighter-land-sf f) (mv-total mv) t)
                     (core-as-start! e f)))
-    ((:ns :as) (when (mv-ns-next (fighter-kit f) mv)
-           (setf (fighter-queued f) :ns)
-           (vpad-consume! vp button))
+;; stick left / right + SP in an NS gap (a human, awakened, DRIVE >= *DRIVE-SWITCH*, not already switched): the first segment of
+    ;; the previous / next pointer's NS, latched like a next segment (DUEL_SUBLIMATION §17)
+    ((:ns :as) (let ((to (and (eq (fighter-cls f) :ns) (core-switch-target e f))))
+           (cond (to (setf (fighter-queued f) :sw (fighter-sw f) to)
+                     (vpad-consume! vp button))
+                 ((mv-ns-next (fighter-kit f) mv)
+                  (setf (fighter-queued f) :ns)
+                  (vpad-consume! vp button))))
          nil)))
+
+(defun core-switch-target (e f)
+  "The pointer a stick left (previous) / right (next, cyclic) + SP in an NS gap switches to, or NIL: the CPU never, once a route, gauge
+under *DRIVE-SWITCH* x B, or no other pointer (DUEL_SUBLIMATION §17)."
+  (let* ((g (gauges e)) (n (length (getf (kit-core (fighter-kit f)) :ns))))
+    (when (and (not (brain e)) (zerop (fighter-tmp f)) (> n 1)
+               (if (gauges-awakened g)                  ; SPIRIT DRIVE after the awakening, SUBLIMATION before it
+                   (>= (gauges-drive g) (* *drive-max* *drive-switch*))
+                   (>= (gauges-sub g) (* *sub-max* *drive-switch*))))
+      (let ((st (nth-value 1 (stick-relative e f))))
+        (when (> (abs st) 0.5f0)
+          (let ((to (1+ (mod (+ (1- (fighter-ptr f)) (if (> st 0f0) 1 -1)) n))))
+            (and (/= to (fighter-ptr f)) (kit-core-move (fighter-kit f) :ns to) to)))))))
 
 (defun core-sa-start! (e f vp mv sf button)
   "An attack pressed inside an NS segment (MOVE-COMMANDS): latch the SA (it starts when the segment's active frames are over)."
@@ -100,8 +119,16 @@ T when something started."
 (defun core-latch-step (e f mv sf)
   "A latched NS continuation or SA starts once the segment's active frames are over (MOVE-COMMANDS). T when it started."
   (let ((q (fighter-queued f)))
-    (when (and (member q '(:ns :sa)) (>= sf (+ (mv-s mv) (mv-a mv))) (< sf (mv-total mv)))
+    (when (and (member q '(:ns :sa :sw)) (>= sf (+ (mv-s mv) (mv-a mv))) (< sf (mv-total mv)))
       (setf (fighter-queued f) nil)
+      (when (eq q :sw)                                  ; the temporary pointer: its NS route from segment 1, DRIVE paid
+        (let ((to (fighter-sw f)) (g (gauges e)))
+          (if (gauges-awakened g) (decf (gauges-drive g) (* *drive-max* *drive-switch*)) (decf (gauges-sub g) (* *sub-max* *drive-switch*)))
+          (setf (fighter-sp-ptr f) to)
+          (start-move e (kit-core-move (fighter-kit f) :ns to) :quick)
+          (setf (fighter-tmp f) to)                     ; (after START-MOVE, which clears it for a non-NS)
+          (clog "~a NS pointer ~d -> ~d (DRIVE)" (side-name e) (fighter-ptr f) to)
+          (return-from core-latch-step t)))
       (let ((next (if (eq q :ns) (mv-ns-next (fighter-kit f) mv) (or (mv-sa-move (fighter-kit f) mv) (kit-sa-move (fighter-kit f))))))
         (when next (start-move e next :quick) t)))))
 
