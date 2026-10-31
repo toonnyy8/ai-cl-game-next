@@ -35,7 +35,7 @@
     "TATE-GOTO": "盾ごと", "NAGURI-TOBASHI": "殴り飛ばし", "MAPPUTATSU": "真っ二つ"
   };
   var PAUSE = { "RESUME": "繼續", "RESTART": "重來", "RETIRE": "放棄", "CHARACTER SELECT": "換角色", "TITLE": "回到標題", "CAMERA": "鏡頭",
-    "RESET POSITION": "回到起點", "DUMMY": "假人", "COUNTER": "假人反擊", "HP REFILL": "回血", "GAUGES": "量表", "P1 HP": "P1 靈子",
+    "RESET POSITION": "回到起點", "DUMMY": "假人", "COUNTER": "假人反擊", "HP REFILL": "回血", "GAUGES": "量表", "P1 AWAKEN": "P1 覺醒", "P1 HP": "P1 靈子",
     "P1 KONPAKU": "P1 魂魄", "DUMMY HP": "假人靈子", "DUMMY KONPAKU": "假人魂魄" };
   var SOUL = '<svg viewBox="0 0 10 14"><path d="M5 .6C6.4 3 9.2 5.4 9.2 8.6A4.2 4.2 0 0 1 .8 8.6C.8 6.6 2.2 5.2 3 3.6 3.4 5 4 5.6 4.8 5.8 4.4 4 4.6 2.2 5 .6z"/></svg>';
   var RING = '<svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" pathLength="100"></circle></svg>';

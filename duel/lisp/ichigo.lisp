@@ -305,8 +305,8 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :params (:ns-next :ic-k-h4 :sa :ic-k-sa1))
 (defmove :ic-k-h4 :kind :quick :clip :ic-k-f2 :clip-s 20 :startup 6 :active 3 :recovery 6 :dmg 25 :guard 8 :reach 2.4 :arc 120 :on-hit :stagger
   :params (:ns-next :ic-k-h5 :sa :ic-k-sa1))
-(defmove :ic-k-h5 :kind :quick :clip :ic-k-f1 :clip-s 18 :startup 3 :active 3 :recovery 20 :dmg 40 :guard 10 :reach 2.6 :arc 120 :on-hit :stagger
-  :params (:sa :ic-k-sa1))                                                ; 超速 5: the fastest, the stagger
+(defmove :ic-k-h5 :kind :quick :clip :ic-k-f1 :clip-s 18 :startup 3 :active 3 :recovery 42 :dmg 40 :guard 10 :reach 2.6 :arc 120 :on-hit :launch
+  )                                                                       ; 超速 5: the fastest cut, a launch (no SA gap after it: nothing follows a launch), a long recovery
 ;; the cuts' MOTION speeds up with them (the user, 2026-10-31: 「斬擊的動作模組也要加快」): the clips play at authored S / startup: x0.82 (f1, 22 f), 1.18 (f2, 17),
 ;; 1.75 (f3, 12), 3.3 (f2, 6), 6 (f1, 3): each cut's swing quicker than the one before (the first is the slow tell)
 ;; AS2: NUKI-GIRI, the dash through him (a cut on the way, 60) > KAGE-RENZAN, three cuts from behind him (25 each, the last a knockdown)

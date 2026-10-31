@@ -311,13 +311,13 @@ t += 5.0
 ev += tap(t, "Escape")                                                             # GAUGES -> INFINITE, CAMERA -> BEHIND
 for i in range(5): ev += tap(t + 0.4 + 0.25 * i, "ArrowDown")   # (row 5 since COUNTER, 2026-10-25)
 ev += tap(t + 1.6, "Enter")
-for i in range(7): ev += tap(t + 2.0 + 0.2 * i, "ArrowDown")                      # CAMERA (row 12)
+for i in range(8): ev += tap(t + 2.0 + 0.2 * i, "ArrowDown")                      # CAMERA (row 13 since P1 AWAKEN)
 ev += tap(t + 3.6, "Enter") + tap(t + 4.1, "Escape") + [cmd(t + 5.0, 2107)]
 t += 5.5
 # the HP / KONPAKU rows (the user's request 2026-09-28): P1 HP 100 -> 50 %, P1 KONPAKU 9 -> 4, DUMMY HP -> 25 %,
 # DUMMY KONPAKU 9 -> 8; the dump: P1 r650 k4 (INFINITE holds his Reishi at his row), P2 r325 k8
 ev += tap(t, "Escape")
-for i in range(6): ev += tap(t + 0.4 + 0.2 * i, "ArrowDown")                       # P1 HP (row 6)
+for i in range(7): ev += tap(t + 0.4 + 0.2 * i, "ArrowDown")                       # P1 HP (row 7 since P1 AWAKEN, 2026-10-31)
 ev += tap(t + 1.6, "ArrowRight") + tap(t + 1.8, "ArrowRight") + tap(t + 2.1, "ArrowDown")
 for i in range(5): ev += tap(t + 2.4 + 0.2 * i, "ArrowLeft")                       # P1 KONPAKU 4
 ev += tap(t + 3.6, "ArrowDown")
@@ -328,6 +328,12 @@ t += 7.5
 ev += [cmd(t, 2393)] + tap(t + 0.5, "KeyJ", 0.05) + [cmd(t + 2.5, 2107)]            # a hit, then refilled to 25 %
 t += 3.0
 ev += tap(t, "Escape") + tap(t + 0.4, "ArrowDown") + tap(t + 0.8, "Enter") + [cmd(t + 2.0, 2107)]   # RESET POSITION: the rows again
+t += 3.0
+# P1 AWAKEN (2026-10-31): the row after GAUGES, right x3 -> SUBLIMATION 50 (the gauge full, SUBLIMATION 50), then x1 -> SUBLIMATION FULL; the log lines say it
+ev += tap(t, "Escape")
+for i in range(6): ev += tap(t + 0.4 + 0.2 * i, "ArrowDown")                       # P1 AWAKEN (row 6)
+for i in range(3): ev += tap(t + 1.8 + 0.25 * i, "ArrowRight")
+ev += tap(t + 2.8, "ArrowRight") + [shot(t + 3.2, "practice-pause-awaken")] + tap(t + 4.2, "Escape") + [cmd(t + 4.6, 2107)]
 write("practice", ev)
 
 # 60 s of real-time CPU vs CPU for the stats lines (cons/frame, ms sim / queue / render, fx-dropped)

@@ -240,6 +240,28 @@ full) / NORMAL.")
   "PRACTICE's P1 HP (%), P1 KONPAKU, DUMMY HP (%), DUMMY KONPAKU: what RESET POSITION and the refills restore (full by
 default: the rows only change what \"full\" means). Indexed by side * 2 (+ 1 for the Konpaku).")
 
+;; PRACTICE's P1 AWAKEN (the user, 2026-10-31: 「練習模式的數值調控增加覺醒量表等級」): the stage of P1's awakening gauge, SUBLIMATION and SPIRIT DRIVE
+(defparameter *practice-aw-levels*
+  '(("0" :gauge 0) ("50" :gauge 50) ("FULL" :gauge 100) ("SUBLIMATION 50" :sub 50) ("SUBLIMATION FULL" :sub 100) ("DRIVE 50" :drive 50) ("DRIVE FULL" :drive 100))
+  "(label kind value): :gauge the awakening gauge at VALUE (%); :sub the gauge full and SUBLIMATION at VALUE; :drive SPIRIT DRIVE at VALUE once he is awakened
+(awaken him with the gauge full first: it is set full until he is).")
+(defvar *practice-aw* 0 "The index of PRACTICE's P1 AWAKEN row in *PRACTICE-AW-LEVELS*.")
+(defvar *practice-aw-done* t "Has the current level been applied to P1 (a :drive level waits until he is awakened)?")
+(defun practice-aw-apply! ()
+  "P1's awakening gauge, SUBLIMATION and SPIRIT DRIVE to the P1 AWAKEN row (a row changed, RESET POSITION). A fighter already awakened keeps the gauge as it is
+for the pre-awakening levels; a :drive level takes effect as soon as he is awakened."
+  (destructuring-bind (label kind v) (nth *practice-aw* *practice-aw-levels*)
+    (declare (ignore label))
+    (let ((g (gauges *p1*)))
+      (case kind
+        (:gauge (unless (gauges-awakened g) (setf (gauges-awaken g) (f32 (* v 0.01 *awaken-max*)) (gauges-sub g) 0f0)) (setf *practice-aw-done* t))
+        (:sub (unless (gauges-awakened g) (setf (gauges-awaken g) *awaken-max* (gauges-sub g) (f32 (* v 0.01 *sub-max*)))) (setf *practice-aw-done* t))
+        (:drive (if (gauges-awakened g)
+                    (setf (gauges-drive g) (f32 (* v 0.01 *drive-max*)) *practice-aw-done* t)
+                    (progn (setf (gauges-awaken g) *awaken-max*) (setf *practice-aw-done* nil)))))
+      (log-msg "duel practice awaken level ~a: awaken ~,0f sub ~,0f drive ~,0f awakened ~a" (first (nth *practice-aw* *practice-aw-levels*))
+               (gauges-awaken g) (gauges-sub g) (gauges-drive g) (and (gauges-awakened g) t)))))
+
 (defun practice-hp (e) "E's Reishi at its practice HP row." (practice-reishi (gauges-reishi-max (gauges e)) (svref *practice-rows* (* 2 (fighter-side (fighter e))))))
 (defun practice-set! (e)
   "E's Reishi and Konpaku to its practice rows (a row changed, RESET POSITION, a K.O.)."
@@ -263,6 +285,7 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
     (setf (gauges-konpaku g) (svref *practice-rows* 3))
     (when (and *hp-refill* (not (member (fighter-state f) '(:stun :air :down :wakeup :guard-hit))))
       (setf (gauges-reishi g) (practice-hp *p2*))))
+  (unless *practice-aw-done* (practice-aw-apply!))        ; a :drive level, once he is awakened
   (when *gauges-inf*
     (let ((g (gauges *p1*)))
       (setf (gauges-reishi g) (practice-hp *p1*)
@@ -277,7 +300,7 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
   (clear-words)
   (spawn-pair :cpu2 t)
   (practice-dummy!)
-  (practice-set! *p1*) (practice-set! *p2*)
+  (practice-set! *p1*) (practice-set! *p2*) (practice-aw-apply!)
   (log-msg "duel practice reset")
   (begin-battle))
 
@@ -383,7 +406,7 @@ at once; Escape / Start cancels the wait. Then RESET DEFAULTS and BACK."
 (defun pause-keys ()
   "The pause menu's rows: PRACTICE's options replace RESTART; ENDLESS has RETIRE only (the run's results are one row
 away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA toggle."
-  (append (case *mode* (:practice '(:resume :reset :dummy :counter :refill :gauges :p1-hp :p1-kon :dm-hp :dm-kon))
+  (append (case *mode* (:practice '(:resume :reset :dummy :counter :refill :gauges :p1-aw :p1-hp :p1-kon :dm-hp :dm-kon))
                 (:endless '(:resume :retire)) (t '(:resume :restart)))
           (unless (eq *mode* :endless) '(:select :title))
           (when (and (vs-cpu-p) (not *one-hand*)) '(:camera))))
@@ -393,10 +416,11 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
     (:reset "RESET POSITION") (:dummy (format nil "DUMMY  ~a" (cdr (assoc *dummy* *dummies*))))
     (:counter (if *dummy-counter* "COUNTER  J1" "COUNTER  OFF"))
     (:refill (if *hp-refill* "HP REFILL  AUTO" "HP REFILL  OFF")) (:gauges (if *gauges-inf* "GAUGES  INFINITE" "GAUGES  NORMAL"))
+    (:p1-aw (format nil "P1 AWAKEN  ~a" (first (nth *practice-aw* *practice-aw-levels*))))
     ((:p1-hp :p1-kon :dm-hp :dm-kon)
      (let ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))))
        (format nil "~a ~a  ~d~:[~;%~]" (if (< i 2) "P1" "DUMMY") (if (evenp i) "HP" "KONPAKU") (svref *practice-rows* i) (evenp i))))))
-(defparameter *practice-option-keys* '(:dummy :counter :refill :gauges :p1-hp :p1-kon :dm-hp :dm-kon) "PRACTICE's option rows.")
+(defparameter *practice-option-keys* '(:dummy :counter :refill :gauges :p1-aw :p1-hp :p1-kon :dm-hp :dm-kon) "PRACTICE's option rows.")
 (defun pause-items () (mapcar #'pause-label (pause-keys)))
 (defvar *pause-dirty* t "A pause row's label may have changed (PAUSE-DO): the page's pause rows are sent again (webhud.lisp).")
 (defun pause-do (k dir)
@@ -407,6 +431,7 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
     (:dummy (setf *dummy* (cycle *dummy* (mapcar #'car *dummies*) dir)) (practice-dummy!))
     (:counter (setf *dummy-counter* (not *dummy-counter*)))
     (:refill (setf *hp-refill* (not *hp-refill*))) (:gauges (setf *gauges-inf* (not *gauges-inf*)))
+    (:p1-aw (setf *practice-aw* (mod (+ *practice-aw* (if (and dir (minusp dir)) -1 1)) (length *practice-aw-levels*))) (practice-aw-apply!))
     ((:p1-hp :p1-kon :dm-hp :dm-kon)                      ; the new value in force at once
      (let* ((i (position k '(:p1-hp :p1-kon :dm-hp :dm-kon))) (v (svref *practice-rows* i)))
        (setf (svref *practice-rows* i) (if (evenp i) (cycle v *practice-hp* dir) (konpaku-step v dir *konpaku-max*)))

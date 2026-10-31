@@ -562,6 +562,16 @@
 "down": false
 },
 {
+"at": 40.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 40.08,
+"key": "ArrowDown",
+"down": false
+},
+{
 "at": 40.2,
 "key": "Enter",
 "down": true
@@ -652,6 +662,16 @@
 },
 {
 "at": 43.58,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 43.7,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 43.78,
 "key": "ArrowDown",
 "down": false
 },
@@ -863,6 +883,134 @@
 },
 {
 "at": 54.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 55.6,
+"key": "Escape",
+"down": true
+},
+{
+"at": 55.68,
+"key": "Escape",
+"down": false
+},
+{
+"at": 56.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 56.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 56.2,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 56.28,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 56.4,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 56.48,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 56.6,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 56.68,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 56.8,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 56.88,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 57.0,
+"key": "ArrowDown",
+"down": true
+},
+{
+"at": 57.08,
+"key": "ArrowDown",
+"down": false
+},
+{
+"at": 57.4,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 57.48,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 57.65,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 57.73,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 57.9,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 57.98,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 58.4,
+"key": "ArrowRight",
+"down": true
+},
+{
+"at": 58.48,
+"key": "ArrowRight",
+"down": false
+},
+{
+"at": 58.8,
+"shot": "tests/shots/duel-practice-pause-awaken.png"
+},
+{
+"at": 59.8,
+"key": "Escape",
+"down": true
+},
+{
+"at": 59.88,
+"key": "Escape",
+"down": false
+},
+{
+"at": 60.2,
 "eval": "Module._debug_cmd(2107)"
 }
 ]
