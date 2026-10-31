@@ -1159,15 +1159,15 @@ base and narrowing to a point, a blood-red sheet riding on every black one and a
              (w (* r (+ 0.14 (* 0.3 env)))) (sway (* 0.14 len)) (ph (+ (* 3.0 tm) (* 1.3 i))) (sd (+ (* 2.0 i) (drawing-no))))
         (%tongue (f32 px) (f32 py) (f32 pz) (f32 ax) (f32 ay) (f32 az) (f32 w) +pal-black-smoke+ (f32 (* 0.95 k)) (f32 sd) (f32 ph) (f32 sway) :segs 12 :wob 0.0)
         (%tongue (f32 (+ px (* 0.04 r fx))) (f32 py) (f32 (+ pz (* 0.04 r fz))) (f32 (* 0.85 ax)) (f32 (* 0.85 ay)) (f32 (* 0.85 az))
-                 (f32 (* 0.45 w)) +pal-blood+ (f32 (* 0.85 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.2 sway)) :segs 10 :wob 0.0)
+                 (f32 (* 0.8 w)) +pal-blood+ (f32 (* 0.85 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.2 sway)) :segs 10 :wob 0.0)
         (when (zerop (mod i 3))
           (%tongue (f32 (+ px (* 0.06 r fx))) (f32 py) (f32 (+ pz (* 0.06 r fz))) (f32 (* 0.7 ax)) (f32 (* 0.7 ay)) (f32 (* 0.7 az))
-                   (f32 (* 0.18 w)) +pal-ember+ (f32 (* 0.8 k)) (f32 (+ sd 90.0)) (f32 (+ ph 2.0)) (f32 (* 1.1 sway)) :segs 8 :wob 0.0))))))
+                   (f32 (* 0.3 w)) +pal-ember+ (f32 (* 0.8 k)) (f32 (+ sd 90.0)) (f32 (+ ph 2.0)) (f32 (* 1.1 sway)) :segs 8 :wob 0.0))))))
 
 (defun ic-getsuga-flame (cx cy cz yaw r k tm)
-  "KESSA's Getsuga crescent as flame: nine flat ribbons and a finer row of tongues between them."
-  (ic-flame-sheets cx cy cz yaw r 3.2 k tm 9)
-  (ic-flame-tongues cx cy cz yaw r 3.2 (* 0.8 k) tm 20))
+  "KESSA's Getsuga crescent as flame: nine broad flat ribbons and nothing finer (the thin tongues read as strands of hair: the user,
+2026-10-31: 「月牙本身不要有像髮絲的焰氣」)."
+  (ic-flame-sheets cx cy cz yaw r 3.2 k tm 9))
 
 (defun ic-flame-preview (e cf)
   "The preview's Getsuga at frame CF of its loop (90 f): gathering on the blade (to f14), thrown (f14-24), flying on and thinning out."

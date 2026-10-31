@@ -85,3 +85,7 @@ KESSA's Getsuga crescent after the charges (NS2 / NS4's third press and AS4's la
 ### 11.2 The swing's trail, and red-black (the user, 2026-10-31: 「連揮刀拖尾也要，然後卍解的月牙顏色是紅黑色不是藍黑色的」)
 
 `ichigo-swing-trail` (ichigo-look.lisp, from `ichigo-draw`, KESSA only): while he swings `*ic-trail-moves*` (the cuts after the black-flame charges `ic-k-n2c` / `ic-k-as2b`, the charged SAs `ic-k-sa-g1` / `-g2`, the wave's follow-up strikes), three flame ribbons stream back off the slab (from points at 45 / 72 / 99 % of hand .. tip) against the tip's step, a black one and a thinner blood-red one each, the longer the nearer the tip; the step is kept per side per tick (`*ic-trail*`: ICHIGO-DRAW runs more than once a frame). The Getsuga's colour: the rim sheets and tongues are blood red (`+pal-blood+`) on every black one, with an ember core on every third, not the blue-violet of the first preview. Art only (G2 `--cvc` unchanged). Seen in NS4's cut; the trail itself is faint in a still (it scales with the tip's speed). Open: its strength, the Shikai's Getsuga swing.
+
+### 11.3 No hair-like strands (the user, 2026-10-31: 「月牙本身不要有像髮絲的焰氣」)
+
+`ic-getsuga-flame` is the nine broad sheets only: the row of thin tongues (`ic-flame-tongues`, which read as strands of hair) is gone from the crescent (the function stays, used by nothing now); the blood-red rim sheet on each black one is 0.8 of its width (it was 0.45, a thin red thread), the ember core 0.3 (0.18). Art only (G2 `--cvc` unchanged). The swing trail's ribbons (§11.2) are unchanged.
