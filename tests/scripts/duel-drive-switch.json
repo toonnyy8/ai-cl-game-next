@@ -773,11 +773,11 @@
 },
 {
 "at": 47.5,
-"eval": "console.log('=== DS drive 20: SP, D+SP (refused)')"
+"eval": "console.log('=== DS sublimation 60 never full (Shikai): SP, D+SP (refused)')"
 },
 {
 "at": 47.5,
-"eval": "Module._debug_cmd(86107)"
+"eval": "Module._debug_cmd(86109)"
 },
 {
 "at": 47.8,
@@ -831,6 +831,68 @@
 },
 {
 "at": 50.5,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 51.0,
+"eval": "console.log('=== DS drive 20: SP, D+SP (refused)')"
+},
+{
+"at": 51.0,
+"eval": "Module._debug_cmd(86107)"
+},
+{
+"at": 51.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 51.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 51.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 51.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 51.55,
+"key": "KeyD",
+"down": true
+},
+{
+"at": 51.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 51.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 51.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 51.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 51.75,
+"key": "KeyD",
+"down": false
+},
+{
+"at": 54.0,
 "eval": "Module._debug_cmd(2107)"
 }
 ]

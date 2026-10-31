@@ -102,7 +102,7 @@ T when something started."
     (and (not (brain e)) (zerop (fighter-tmp f)) (> (length (getf (kit-core (fighter-kit f)) :ns)) 1)
          (if (gauges-awakened g)
              (>= (gauges-drive g) (* *drive-max* *drive-switch*))
-             (>= (gauges-sub g) (* *sub-max* *drive-switch*))))))
+             (and (gauges-sub-full g) (>= (gauges-sub g) (* *sub-max* *drive-switch*)))))))   ; (before the awakening: once SUBLIMATION was full; only it is spent)
 
 (defun core-switch-target (e f)
   "The pointer a stick left (previous) / right (next, cyclic) + SP in an NS gap switches to, or NIL: the CPU never, once a route, gauge

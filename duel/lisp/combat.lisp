@@ -103,6 +103,7 @@ his snapshot follows (the binder's :bind-heal), so a release keeps it (B6)."
 (defun awaken-fill! (g x)
   "X more awakening for G's owner: the awakening gauge, then SUBLIMATION, or SPIRIT DRIVE once awakened (AWAKEN-OVERFLOW)."
   (multiple-value-bind (aw sub drive) (awaken-overflow (gauges-awakened g) (gauges-awaken g) (gauges-sub g) (gauges-drive g) x)
+    (when (>= sub *sub-max*) (setf (gauges-sub-full g) t))
     (setf (gauges-awaken g) (f32 aw) (gauges-sub g) (f32 sub) (gauges-drive g) (f32 drive))))
 
 (defun sub-of (e)

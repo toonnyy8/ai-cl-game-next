@@ -173,3 +173,12 @@ User: 「他們的動作都只是不同的 J1 為什麼還有特製動作？」 
 
 User: 「我目前手持模式沒辦法使出切換 NS」 (one thumb cannot hold a direction and tap SP), then 「直接將滑動識別為切換+NSa」.
 In the one-hand deck a sideways flick (|dx| > 1.73 |dy|, the recogniser's up-cone) while P1 is in an NS segment and `core-switch-ready-p` holds is read as the SP press with the flick's direction as the stick (`switch-flick-p`, onehand.lisp `touch-button`: :quick + :mod down, :step suppressed): right = the next pointer, left = the previous, its NSa starts after the segment's active frames, the same cost and rules as §17. Without the gauge (or outside an NS) the flick stays a Step. Scripted (`duel-drive-switch-phone.json`, --mobile --size 390x844, debug 86105 / 86107): SP tap then flick right -> `NS pointer 1 -> 2`, flick left -> `1 -> 3`, DRIVE 20 -> no switch.
+
+### 17.4 Pointer shown back in neutral; the practice's infinite gauges (the user, 2026-11-01)
+
+- 「臨時指針切換後的印章顯示問題，再切換後如果回到中立狀態沒有再次攻擊就不會切回來」: `fighter-tmp` was only cleared by the next move, so the HUD kept the temporary pointer in neutral. `to-idle` now clears `tmp` / `csa`, and the HUD shows `tmp` only while he is in a move.
+- 「練習模式如果將 gauges 設定成無限，那 sublimation 跟 drive 也應該要是無限」: GAUGES INFINITE (flow.lisp `practice-step`) also keeps SUBLIMATION full (before the awakening; `sub-full` set) and SPIRIT DRIVE full (after it).
+
+### 17.5 Before the awakening: SUBLIMATION must have been full once (the user, 2026-11-01)
+
+User: 「然後讓 sublimation 全滿過的話，覺醒前也開放使用切換系統，且扣除量表時不會扣到覺醒量表」. `gauges-sub-full` latches when SUBLIMATION reaches its maximum (`awaken-fill!`; the practice rows set it at SUBLIMATION FULL / INFINITE); before the awakening the switch needs that latch and 0.25 B of SUBLIMATION left, and pays only SUBLIMATION (the awakening gauge stays full). After the awakening it is SPIRIT DRIVE >= 0.25 B as before. (Before: any SUBLIMATION >= 0.25 B opened it.) Scripted: Shikai SUBLIMATION 60 with the latch (debug 86108) switches; the same without it (86109) does not; DRIVE 20 does not.
