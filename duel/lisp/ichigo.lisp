@@ -224,7 +224,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
                                                                          ; (a stagger, not a knockdown: the SA after it connects, the user,
                                                                          ;  2026-10-28: 「NS3[3] 打完後對手會強制倒地導致後續的 SA 攻擊接不上」)
 (defmove-copy :ic-c-xb :ic-c-xa :clip :ic-k-xb)                          ; ... the left clone's, its mirror ↘ (DEFCLIP-MIRROR)
-(defmove-copy :ic-k-sa :ic-sa :clip :ic-k-f1 :clip-s 18 :startup 10 :slide 3.0 :reach 2.6 :dmg 50 :on-hit :stagger
+(defmove-copy :ic-k-sa :ic-sa :clip :ic-k-jab :clip-s 8 :startup 10 :slide 3.0 :reach 2.6 :dmg 50 :on-hit :stagger
   :on-frame ((0 ichigo-soga-vanish)))                                    ; the lunge: a flash step in, one cut
 
 ;; L, 鎖盾 KUSARI-TATE, the parry (v2 §5.3): 360 deg, its own window f2-25 (the move param :window: rules PARRY-FRAME-P),

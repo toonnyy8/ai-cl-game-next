@@ -782,6 +782,7 @@ def drive_switch_script():
             ("DS clones via switch: ptr 1, SP, D+SP... (ptr 2 -> D -> 3), J, J2", 86105, lambda s: [ev.append(cmd(s - 0.2, 2511)), sp(s), sw(s + 0.3, "KeyD"), jt(s + 0.85), jt(s + 1.15)]),
             ("DS NS2 > NS3 keeps the charge: ptr 2, SP, D+SP, J (charged SA), J2", 86105, lambda s: [ev.append(cmd(s - 0.2, 2511)), sp(s), sw(s + 0.3, "KeyD"), jt(s + 0.85), jt(s + 1.15)]),
             ("DS NS3 > NS1: clones replay the cuts: ptr 3, SP, D+SP", 86105, lambda s: [ev.append(cmd(s - 0.2, 2512)), sp(s), sw(s + 0.3, "KeyD")]),
+            ("DS plain SA: ptr 1, SP, J (the SA is J1's motion)", 86105, lambda s: [sp(s), jt(s + 0.45)]),
             ("DS drive 20: SP, D+SP (refused)", 86107, lambda s: [sp(s), sw(s + 0.3, "KeyD")])):
         say(t, label)
         ev.extend([cmd(t, setup), cmd(t + 3.0, 2107)])

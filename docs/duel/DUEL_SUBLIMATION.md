@@ -164,3 +164,7 @@ User: 「如果確認真的沒生效就改，然後分身也要重現其他 NS �
 - **Charge**: a switch out of an NS2 segment keeps its charged SA (`fighter-csa`) for the next SA of the route, so NS2 > NS3 > J is the charged SA (x1.4 / x1.7) and the string after it carries the x (cleared by an SA, an AS or neutral).
 - **Clones**: while a temporary route is on, NS3's live clones also play its NS segments (`clone-replay-watch`, x0.1; NS3's own segments excluded: they are the clones' theme). Before only his J / AS were replayed.
 - **Checks**: scripted: ptr 2, SP, D+SP, J, J2 -> `IC-K-SA-G1`, `clone replays IC-K-J2 x0.14` (before: `IC-K-SA`, x0.10); ptr 3, SP, D+SP -> `clone NS-A replays IC-K-N1A x0.10`; the NS3 > NS2 case as before.
+
+### 17.2 KESSA's SA uses J1's motion (the user, 2026-11-01)
+
+User: 「他們的動作都只是不同的 J1 為什麼還有特製動作？」 -> 「做法一」. KESSA's plain SA `ic-k-sa` played its own `:ic-k-f1` (a lunge); the charged SAs already played J1's `:ic-k-jab` / J2's `:ic-k-back`. Now `ic-k-sa` plays `:ic-k-jab` (`:clip-s 8`) like the charged one; its numbers (S 10, slide 3.0 m, reach 2.6, 50, stagger) are unchanged, so the lunge is the move's `:slide`, not a clip. The Shikai's SA was not touched. Scripted: ptr 1 SP, J -> `IC-K-SA` hits 50 (f+10).
