@@ -518,22 +518,42 @@
 "down": false
 },
 {
-"at": 43.45,
+"at": 43.35,
 "key": "ShiftLeft",
 "down": true
 },
 {
-"at": 43.46,
+"at": 43.36,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 43.51,
+"at": 43.41,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 43.53,
+"at": 43.43,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 43.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 43.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.78,
 "key": "ShiftLeft",
 "down": false
 },
@@ -558,42 +578,22 @@
 "down": false
 },
 {
-"at": 44.4,
+"at": 44.15,
 "key": "ShiftLeft",
 "down": true
 },
 {
-"at": 44.41,
+"at": 44.16,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 44.46,
+"at": 44.21,
 "key": "KeyJ",
 "down": false
 },
 {
-"at": 44.48,
-"key": "ShiftLeft",
-"down": false
-},
-{
-"at": 44.8,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 44.81,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 44.86,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 44.88,
+"at": 44.23,
 "key": "ShiftLeft",
 "down": false
 },

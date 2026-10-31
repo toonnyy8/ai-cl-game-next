@@ -773,7 +773,7 @@ def ichigo_pointers_script():
             ("IC kessa drive 0: J x5, SP (AS3)", 86102, 0, lambda s: [js(s, 5), sp(s + 1.5)]),
             ("IC kessa drive 0: J x6 (J6 refused)", 86102, 0, lambda s: [js(s, 6)]),
             ("IC kessa drive full: J x6, SP (AS4)", 86103, 0, lambda s: [js(s, 6), sp(s + 1.85)]),
-            ("IC kessa NS2 five cuts", 86102, 2511, lambda s: [sp(s), sp(s + 0.55), sp(s + 1.05), sp(s + 1.5), sp(s + 1.9)]),
+            ("IC kessa NS2 five cuts", 86102, 2511, lambda s: [sp(s), sp(s + 0.45), sp(s + 0.8), sp(s + 1.05), sp(s + 1.25)]),
             ("IC kessa J1 J2 J3 SP (AS2: dash through, three cuts)", 86102, 0, lambda s: [js(s, 3), sp(s + 0.95), sp(s + 1.3)]),
             ("IC kessa drive full: pointer 4 NS", 86103, 2513, lambda s: [sp(s), sp(s + 0.5), sp(s + 1.0)]),
             ("IC kessa drive full: J x6 SP SP SP SP (AS4 four segments)", 86103, 0, lambda s: [js(s, 6), sp(s + 1.85), sp(s + 2.15), sp(s + 2.45), sp(s + 2.75)])):

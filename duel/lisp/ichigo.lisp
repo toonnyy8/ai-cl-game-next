@@ -297,15 +297,15 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;; (slow-to-fast five cuts, the dash through him); the Getsuga is pointer 4 (NS4 = the old NS2, AS4 = two charges > SOGA > the crescent),
 ;; sealed until SPIRIT DRIVE is full, as is the sixth J.
 (defmove-copy :ic-k-na6 :ic-k-j1 :clip :ic-k-f1 :clip-s 18 :startup 12 :active 4 :recovery 20 :dmg 55 :reach 2.8 :slide 2.0 :on-hit :stagger :flags (:ender))
-(defmove :ic-k-h1 :kind :quick :clip :ic-k-f1 :clip-s 18 :startup 24 :active 3 :recovery 18 :dmg 20 :guard 8 :reach 2.4 :arc 120 :on-hit :flinch
+(defmove :ic-k-h1 :kind :quick :clip :ic-k-f1 :clip-s 18 :startup 22 :active 3 :recovery 14 :dmg 20 :guard 8 :reach 2.4 :arc 120 :on-hit :flinch
   :params (:ns-next :ic-k-h2 :sa :ic-k-sa1))                              ; 超速 1: the slowest, the tell
-(defmove :ic-k-h2 :kind :quick :clip :ic-k-f2 :clip-s 20 :startup 20 :active 3 :recovery 14 :dmg 20 :guard 8 :reach 2.4 :arc 120 :on-hit :flinch
+(defmove :ic-k-h2 :kind :quick :clip :ic-k-f2 :clip-s 20 :startup 15 :active 3 :recovery 11 :dmg 20 :guard 8 :reach 2.4 :arc 120 :on-hit :flinch
   :params (:ns-next :ic-k-h3 :sa :ic-k-sa1))
-(defmove :ic-k-h3 :kind :quick :clip :ic-k-cut :clip-s 8 :startup 16 :active 3 :recovery 12 :dmg 25 :guard 8 :reach 2.4 :arc 120 :on-hit :flinch
+(defmove :ic-k-h3 :kind :quick :clip :ic-k-cut :clip-s 8 :startup 11 :active 3 :recovery 9 :dmg 25 :guard 8 :reach 2.4 :arc 120 :on-hit :flinch
   :params (:ns-next :ic-k-h4 :sa :ic-k-sa1))
-(defmove :ic-k-h4 :kind :quick :clip :ic-k-back :clip-s 8 :startup 12 :active 3 :recovery 10 :dmg 25 :guard 8 :reach 2.4 :arc 120 :on-hit :flinch
+(defmove :ic-k-h4 :kind :quick :clip :ic-k-back :clip-s 8 :startup 8 :active 3 :recovery 8 :dmg 25 :guard 8 :reach 2.4 :arc 120 :on-hit :flinch
   :params (:ns-next :ic-k-h5 :sa :ic-k-sa1))
-(defmove :ic-k-h5 :kind :quick :clip :ic-k-uchi :clip-s 7 :startup 8 :active 3 :recovery 22 :dmg 40 :guard 10 :reach 2.6 :arc 120 :on-hit :stagger
+(defmove :ic-k-h5 :kind :quick :clip :ic-k-uchi :clip-s 7 :startup 6 :active 3 :recovery 20 :dmg 40 :guard 10 :reach 2.6 :arc 120 :on-hit :stagger
   :params (:sa :ic-k-sa1))                                                ; 超速 5: the fastest, the stagger
 ;; AS2: NUKI-GIRI, the dash through him (a cut on the way, 60) > KAGE-RENZAN, three cuts from behind him (25 each, the last a knockdown)
 (defmove :ic-k-hs-as2 :kind :sp :clip :ic-k-f1 :clip-s 18 :startup 4 :active 6 :recovery 10 :dmg 60 :guard 12 :reach 2.6 :arc 120 :on-hit :stagger
@@ -406,9 +406,9 @@ awakening gauge full, sealed with the Getsuga's pointer 3 (the user, 2026-10-31:
     (:ic-j3 (let ((g (gauges e))) (or (gauges-awakened g) (>= (gauges-awaken g) *awaken-max*))))
     (t t)))
 (defun ichigo-haste-dash (e)
-  "NUKI-GIRI's f0: facing him, a dash 2 m past him over 14 frames (the move is :through: no body push), as Lille's awakened L."
-  (let* ((f (fighter e)) (d (min 8.0 (+ (fighter-dist f) 2.0))) (yaw (yaw-of e)))
-    (set-slide e d 14 (fwd-x yaw) (fwd-z yaw))
+  "NUKI-GIRI's f0: facing him, a dash 0.8 m past him over 12 frames (it was 2 m over 14: too far, the user 2026-10-31) (the move is :through: no body push), as Lille's awakened L."
+  (let* ((f (fighter e)) (d (min 6.0 (+ (fighter-dist f) 0.8))) (yaw (yaw-of e)))
+    (set-slide e d 12 (fwd-x yaw) (fwd-z yaw))
     (emit :sfx :whoosh-heavy e)))
 (defun ichigo-renzan (e hwmove n)
   "KAGE-RENZAN's Nth cut (1-3): a strike with HWMOVE's hit window thrown from where he stands (he keeps the pose he passed through in,

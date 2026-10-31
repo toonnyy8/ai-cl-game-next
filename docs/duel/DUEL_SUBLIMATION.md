@@ -101,3 +101,8 @@ KESSA's Getsuga crescent (`ichigo-juji-look`, `ichigo-form-look`) is `vfx-ic-cre
 - **The phone's gauges** (「手持模式的 SUBLIMATION 跟 SPIRIT DRIVE 顯示有問題」): the phone has no awakening bar, only the 爆 seal's ring: it now carries SUBLIMATION in pink over the awakening ring (`.sbg`, `--sb`) and SPIRIT DRIVE in red (breathing when full), from `els.rv`'s `data-m`. Debug 86104 / 86105 / 86106 set the deck's scenes (Shikai with the gauge full and SUBLIMATION 60, KESSA with DRIVE 60, DRIVE full; run with `--mobile --size 390x844`). Seen in stills (the pink ring, the red ring). The ring has no label; the ring's text is not drawn.
 - **The neck flames** (「脖子的焰氣不動時請向四方擴散，不要只往上」): six tongues round the neck, turning slowly, spreading on every side while he stands still (`still` = 1 - speed / 2), a little up; moving, they trail back against him. The limbs' tongues are as before. Seen from behind: flames to both sides of the neck.
 - **Clip inventory**: `:ic-k-pass` added to `*clips-5*` (tests/duel-rules/core.lisp).
+
+### 12.1 AS2a's dash shortened, NS2's rhythm faster (the user, 2026-10-31: 「AS2a 跑太遠了」「NS2 的加速節奏要再更快」)
+
+- **NUKI-GIRI** (`ichigo-haste-dash`): the dash goes 0.8 m past him over 12 f (it was 2 m over 14, capped 8 m; now capped 6 m).
+- **超速連斬 NS2** (`ic-k-h1..h5`): startup 22 / 15 / 11 / 8 / 6 f (was 24 / 20 / 16 / 12 / 8), recovery 14 / 11 / 9 / 8 / 20 (was 18 / 14 / 12 / 10 / 22); damage unchanged (20 / 20 / 25 / 25 / 40). Scripted scene: all five cuts in 90 f of presses (it was 122), the hits 22 / 18 / 15 / 13 f apart. The first stays above the 14 f tell rule. The scene's presses were retimed (`ichigo_pointers_script`). G2 `--cvc` unchanged (the CPU does not use it).
