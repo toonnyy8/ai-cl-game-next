@@ -464,18 +464,28 @@ fainter and a beat behind. One sweep over S-4 .. S+A+4, or one per hit window (a
   "Where KESSA's red flames hang: both wrists, both ankles and the neck (the user, 2026-10-31: 「手腕腳踝跟頸部圍繞的是飄盪的紅色燄氣」).")
 
 (defun ichigo-red-wisps (e)
-  "Red flame drifting round KESSA's wrists, ankles and neck: at each root three smooth toon tongues (blood red, an ember core beside
-each), rising and leaning against his motion, swaying with their own phases."
-  (let ((tm (fx-clock)) (v (motion-vel (motion e))))
+  "Red flame drifting round KESSA's wrists, ankles and neck: at each root smooth toon tongues (blood red, an ember core beside each),
+swaying with their own phases. The limbs' rise and lean against his motion; the neck's, while he stands still, spread out on every side
+(six tongues round the neck, turning slowly, only a little up; the user, 2026-10-31: 「脖子的焰氣不動時請向四方擴散，不要只往上」) and trail
+back against his motion as he moves."
+  (let* ((tm (fx-clock)) (v (motion-vel (motion e))) (spd (sqrt (+ (* (aref v 0) (aref v 0)) (* (aref v 2) (aref v 2)))))
+         (still (max 0.0 (- 1.0 (* 0.5 spd)))))
     (loop for (j lx ly lz) in *ic-wisp-roots* for i from 0
           do (let* ((r (ic-joint e (joint-index j) *ic-cb* (f32 lx) (f32 ly) (f32 lz)))
-                    (x0 (aref r 0)) (y0 (aref r 1)) (z0 (aref r 2)))
-               (dotimes (k 3)
-                 (let* ((ph (+ (* 2.4 tm) (* 1.9 i) (* 2.1 k))) (len (* 0.5 (+ 0.85 (* 0.25 (sin (* 1.3 ph))))))
-                        (lean (+ (* -0.08 (aref v 0)) (* 0.12 (cos (* 2.1 k))))) (lean-z (+ (* -0.08 (aref v 2)) (* 0.12 (sin (* 2.1 k)))))
+                    (x0 (aref r 0)) (y0 (aref r 1)) (z0 (aref r 2)) (neck (eq j :neck)) (n (if neck 6 3)))
+               (dotimes (k n)
+                 (let* ((ph (+ (* 2.4 tm) (* 1.9 i) (* 2.1 k))) (len (* (if neck 0.42 0.5) (+ 0.85 (* 0.25 (sin (* 1.3 ph))))))
+                        (ang (+ (* 6.2832 (/ k (float n))) (* 0.25 tm)))
+                        (lean (if neck
+                                  (+ (* still 0.4 (cos ang)) (* -0.1 (aref v 0)))
+                                  (+ (* -0.08 (aref v 0)) (* 0.12 (cos (* 2.1 k))))))
+                        (lean-z (if neck
+                                    (+ (* still 0.4 (sin ang)) (* -0.1 (aref v 2)))
+                                    (+ (* -0.08 (aref v 2)) (* 0.12 (sin (* 2.1 k))))))
+                        (rise (if neck (* len (+ 0.3 (* 0.7 (- 1.0 still)))) len))
                         (sd (+ i (* 3 k) (drawing-no))))
-                   (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 lean) (f32 len) (f32 lean-z) 0.06f0 +pal-blood+ 0.95f0 (f32 sd) (f32 ph) 0.08f0 :segs 6 :wob 0.04)
-                   (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 (* 0.8 lean)) (f32 (* 0.7 len)) (f32 (* 0.8 lean-z)) 0.03f0 +pal-ember+ 0.9f0
+                   (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 lean) (f32 rise) (f32 lean-z) 0.06f0 +pal-blood+ 0.95f0 (f32 sd) (f32 ph) 0.08f0 :segs 6 :wob 0.04)
+                   (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 (* 0.8 lean)) (f32 (* 0.7 rise)) (f32 (* 0.8 lean-z)) 0.03f0 +pal-ember+ 0.9f0
                             (f32 (+ sd 40.0)) (f32 (+ ph 0.7)) 0.05f0 :segs 5 :wob 0.04)))))))
 
 ;;; the swing's trail (the user, 2026-10-31: 「連揮刀拖尾也要」): while KESSA swings the Getsuga's cuts, flame sheets stream off the slab behind its tip
@@ -506,6 +516,21 @@ ribbons from points along the blade (hand .. tip) streaming back against it, lon
                      (f32 sd) (f32 ph) 0.12f0 :segs 10 :wob 0.0)
             (%tongue (f32 px) (f32 py) (f32 pz) (f32 (* 0.85 c vx)) (f32 (+ (* 0.85 c vy) 0.12)) (f32 (* 0.85 c vz)) (f32 (* 0.09 u)) +pal-blood+ (f32 (* 0.9 k))
                      (f32 (+ sd 30.0)) (f32 (+ ph 1.0)) 0.14f0 :segs 8 :wob 0.0)))))))
+
+(defun ichigo-renzan-look (hz rdt)
+  "One of KAGE-RENZAN's cuts bursting on the opponent's body: a black-red slash and a white core across him at the angle of its number
+(HAZARD-DATA 1-3), a flash, fading over its few frames."
+  (declare (ignore rdt))
+  (let* ((n (hazard-data hz)) (age (hazard-age hz)) (k (max 0.0 (- 1.0 (/ age 9.0)))) (th (nth (1- (max 1 (min 3 n))) '(0.7 -0.8 1.5)))
+         (x (hazard-x hz)) (z (hazard-z hz)) (c (cos th)) (s (sin th)) (rx 1.0) (rz 0.0) (y 1.1))
+    (let ((o (hazard-owner hz)))
+      (when (and (entity-alive-p o) (fighter o))                       ; the slash plane faces the attacker's side
+        (let* ((p (pos-of o)) (dx (- (aref p 0) x)) (dz (- (aref p 2) z)) (l (max 0.01 (sqrt (+ (* dx dx) (* dz dz))))))
+          (setf rx (/ (- dz) l) rz (/ dx l)))))
+    (let ((ax (+ x (* rx 1.5 c))) (ay (+ y (* 1.5 s))) (az (+ z (* rz 1.5 c))) (bx (- x (* rx 1.5 c))) (by (- y (* 1.5 s))) (bz (- z (* rz 1.5 c))))
+      (fx-line ax ay az bx by bz (* 0.34 k) 0.55 0.04 0.05 (* 0.9 k) :mode :alpha :end-width 0.0)
+      (fx-line ax ay az bx by bz (* 0.1 k) 1.0 0.92 0.85 k :end-width 0.0)
+      (%light (f32 x) (f32 y) (f32 z) 1.0f0 0.3f0 0.2f0 4f0 (f32 (* 1.8 k)) 6))))
 
 (defun ichigo-draw (e rdt)
   "KIT-HOOK :draw (both forms): step the Shikai's cloak spring; the crescent edge and the ground contact (§3.3)."

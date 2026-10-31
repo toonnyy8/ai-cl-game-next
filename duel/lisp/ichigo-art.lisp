@@ -1242,3 +1242,11 @@
 
 ;; KESSA's skin (the user, 2026-10-31: 「血鎖一護的膚色更貼近紅棕色」): a reddish brown, the rest of the body as the Shikai's
 (body-variant :ichigo-kessa :ichigo :palette '((:skin #xA9583F)))
+
+;; KAGE-RENZAN's held pose (the user, 2026-10-31): the pose he passed through the opponent in, a low lunge forward, the slab swept out behind him
+(defpose :ic-k-pass (:base :ic-k-stance)
+  (:root :f 0.22 :u -0.3 :yaw 0) (:pelvis :twist -10) (:spine :flex 36) (:chest :twist -18) (:neck :twist 4) (:head :flex -16 :twist 8)
+  (:arm-r :flex 62 :side 52 :twist 23) (:elbow-r :flex 8) (:hand-r :flex -46)
+  (:arm-l :flex -44 :side 30) (:elbow-l :flex 20) (:hand-l :flex 24)
+  (:thigh-l :flex 66 :side 8) (:knee-l :flex 70) (:thigh-r :flex -34 :side 10) (:knee-r :flex 28))
+(defclip :ic-k-pass (1.0 :loop t :base :ic-k-pass) (0))

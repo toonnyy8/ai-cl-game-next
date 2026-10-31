@@ -767,7 +767,7 @@ def ichigo_pointers_script():
     def js(t, n, gap=0.32): [jt(t + gap * i) for i in range(n)]
     t = T0
     for label, scene, ptr, body in (
-            ("IC base gauge 0: J x5, SP (AS3 sealed -> AS2 rush)", 86100, 0, lambda s: [js(s, 5), sp(s + 1.5)]),
+            ("IC base gauge 0: J x5 (J5 sealed), then SP (AS2 rush)", 86100, 0, lambda s: [js(s, 5), sp(s + 1.15)]),
             ("IC base gauge full: J x5, SP (AS3 Getsuga)", 86101, 0, lambda s: [js(s, 5), sp(s + 1.5)]),
             ("IC base gauge full: pointer 3 NS (Getsuga charges)", 86101, 2512, lambda s: [sp(s), sp(s + 0.5), sp(s + 1.0)]),
             ("IC kessa drive 0: J x5, SP (AS3)", 86102, 0, lambda s: [js(s, 5), sp(s + 1.5)]),

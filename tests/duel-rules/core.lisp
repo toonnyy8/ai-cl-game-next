@@ -897,7 +897,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     :hs-tsumuji              ; (his AS1 旋風 TSUMUJI: DUEL_HISAGI §27.10)
     :hs-kb-kagiyose :hs-kb-kagiyose-giri :hs-kb-juji :hs-kb-matoi :hs-kb-shime :hs-kb-tsuri :hs-kb-san   ; (the core bind's own: DUEL_HISAGI §28.12)
     :ic-k-summon :ic-k-xa :ic-k-xb   ; (KESSA's NS3: the command gesture; the clones' X, ICHIGO-NS-CLONE-X plays them)
-    :ic-k-lash-a :ic-k-lash-b :ic-k-lash-c :ic-k-chg1 :ic-k-chg2 :ic-k-wrap :ic-k-whip :ic-k-cut   ; (KESSA's NS1 chains, NS2 charges, AS3's turn: 2026-10-28)
+    :ic-k-lash-a :ic-k-lash-b :ic-k-lash-c :ic-k-chg1 :ic-k-chg2 :ic-k-wrap :ic-k-whip :ic-k-cut :ic-k-pass   ; (KESSA's NS1 chains, NS2 charges, AS3's turn: 2026-10-28; :ic-k-pass, KAGE-RENZAN's held pose: 2026-10-31)
     :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
     :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
     :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)

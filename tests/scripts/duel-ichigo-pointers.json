@@ -1,7 +1,7 @@
 [
 {
 "at": 9.0,
-"eval": "console.log('=== IC base gauge 0: J x5, SP (AS3 sealed -> AS2 rush)')"
+"eval": "console.log('=== IC base gauge 0: J x5 (J5 sealed), then SP (AS2 rush)')"
 },
 {
 "at": 9.0,
@@ -48,6 +48,26 @@
 "down": false
 },
 {
+"at": 10.45,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.46,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.51,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.53,
+"key": "ShiftLeft",
+"down": false
+},
+{
 "at": 10.58,
 "key": "KeyJ",
 "down": true
@@ -55,26 +75,6 @@
 {
 "at": 10.63,
 "key": "KeyJ",
-"down": false
-},
-{
-"at": 10.8,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 10.81,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 10.86,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 10.88,
-"key": "ShiftLeft",
 "down": false
 },
 {

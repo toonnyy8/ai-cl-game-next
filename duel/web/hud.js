@@ -44,7 +44,7 @@
   var FS_BURST = 2 / 3, FS_HOHO = 1 / 3;
   var FACE = '<span class="face"><b>爆</b><small>RV</small><i class="tick t1"></i><i class="tick t2"></i></span>';
   var AWRING = '<svg class="awring" viewBox="0 0 40 40"><circle class="trk" cx="20" cy="20" r="18.4" pathLength="100"></circle>' +
-    '<circle class="awg" cx="20" cy="20" r="18.4" pathLength="100"></circle><circle class="hold" cx="20" cy="20" r="15.6" pathLength="100"></circle></svg>';
+    '<circle class="awg" cx="20" cy="20" r="18.4" pathLength="100"></circle><circle class="sbg" cx="20" cy="20" r="18.4" pathLength="100"></circle><circle class="hold" cx="20" cy="20" r="15.6" pathLength="100"></circle></svg>';
   var INF = '<svg class="inf" viewBox="0 0 66 32"><path pathLength="100" d="M33 16 C26 5 9 3 6 14 C3 25 22 29 33 16 C44 3 63 6 60 17 C57 27 40 27 33 16"/></svg>';
 
   /* ---------------------------------------------------------------- the bridge (pwa.js routes 30100-30299 here) */
@@ -185,7 +185,8 @@
     var fs = Math.max(0, V[o + 6]) / 1000 * 3, cells = $(".fs", el).children;
     for (i = 0; i < 3; i++) st(cells[i], "--k", Math.max(0, Math.min(1, fs - i)).toFixed(3));
     var aw = $(".aw", el); st(aw, "--k", (Math.max(0, V[o + 7]) / 1000).toFixed(3)); aw.classList.toggle("full", V[o + 8] >= 1); st(aw, "--s", (Math.max(0, V[o + 22]) / 1000).toFixed(3)); aw.dataset.m = V[o + 23];   // SUBLIMATION / SPIRIT DRIVE: the line under it
-    if (s === 0) st(els.rv, "--aw", (Math.max(0, Math.min(1000, V[o + 7])) / 1000).toFixed(3));   // the seal's ring: your awakening
+    if (s === 0) { st(els.rv, "--aw", (Math.max(0, Math.min(1000, V[o + 7])) / 1000).toFixed(3));   // the seal's ring: your awakening
+      st(els.rv, "--sb", (Math.max(0, V[o + 22]) / 1000).toFixed(3)); els.rv.dataset.m = V[o + 23]; }   // SUBLIMATION pink over it, SPIRIT DRIVE red
     var awk = $(".awk", el), am = V[o + 23]; awk.classList.toggle("on", V[o + 8] === 1 || am > 0); awk.dataset.m = am;   // 覺醒 READY / SUBLIMATION / DRIVE (MAX)
     tx(awk, am === 1 ? "SUBLIMATION" : am === 2 ? "SPIRIT DRIVE" : am === 3 ? "DRIVE MAX" : "覺醒 READY");
     var ptr = $(".hptr", s === 0 && !els.rvc.hidden ? els.rvc : el), sv = seals(s), n = V[o + 9];   // (the phone: your stance around 爆)

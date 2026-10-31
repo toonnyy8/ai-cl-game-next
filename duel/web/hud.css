@@ -329,6 +329,10 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .awring circle { fill: none; }
 #hud .awring .trk { stroke: rgba(44,48,61,.95); stroke-width: 1.5; }
 #hud .awring .awg { stroke: var(--reiatsu); stroke-width: 1.65; stroke-dasharray: calc(var(--aw, 0) * 100) 100; transition: stroke-dasharray .4s var(--ease-out); }
+#hud .awring .sbg { stroke: #ff7ab8; stroke-width: 1.9; stroke-dasharray: calc(var(--sb, 0) * 100) 100; opacity: 0; transition: stroke-dasharray .4s var(--ease-out); }
+#hud .dbtn[data-m="1"] .awring .sbg { opacity: 1; }
+#hud .dbtn:is([data-m="2"], [data-m="3"]) .awring .awg { stroke: #e0353b; }
+#hud .dbtn[data-m="3"] .awring .awg { stroke-width: 2.1; animation: hd-awbreath 1.6s ease-in-out infinite; }
 #hud .awring .hold { stroke: var(--reiatsu); stroke-width: 3; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; }
 #hud .dbtn.ready .awring .awg { stroke-width: 2.1; animation: hd-awbreath 1.6s ease-in-out infinite; }
 @keyframes hd-awbreath { 50% { filter: drop-shadow(0 0 2.5px var(--reiatsu)); } }

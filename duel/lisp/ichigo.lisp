@@ -310,8 +310,12 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;; AS2: NUKI-GIRI, the dash through him (a cut on the way, 60) > KAGE-RENZAN, three cuts from behind him (25 each, the last a knockdown)
 (defmove :ic-k-hs-as2 :kind :sp :clip :ic-k-f1 :clip-s 18 :startup 4 :active 6 :recovery 10 :dmg 60 :guard 12 :reach 2.6 :arc 120 :on-hit :stagger
   :flags (:through) :callout "NUKI-GIRI" :on-frame ((0 ichigo-haste-dash)) :params (:ns-next :ic-k-hs-as2b))
-(defmove :ic-k-hs-as2b :kind :sp :clip :ic-k-wrap :clip-s 9 :startup 8 :active 14 :recovery 18 :dmg 25 :guard 8 :reach 2.6 :arc 200 :on-hit :flinch
-  :callout "KAGE-RENZAN" :on-frame ((0 ichigo-haste-turn)) :hits ((8 9) (14 15) (20 21 :on-hit :knockdown)))
+(defmove :ic-k-hs-as2b :kind :sp :clip :ic-k-pass :startup 8 :active 0 :recovery 30 :guard 8
+  :callout "KAGE-RENZAN" :on-frame ((8 ichigo-renzan-1) (14 ichigo-renzan-2) (20 ichigo-renzan-3)))
+;; (the user, 2026-10-31: 「卍解 AS2b 請固定住當時穿過對手的姿勢，然後在對手身上爆開連斬」: he holds the pose he passed through in, never turning; the three cuts
+;; are strikes of his hit windows below, thrown from where he stands at the victim (ICHIGO-STRIKE), their slashes burst on the victim's body)
+(defmove :ic-k-rz-a :kind :quick :clip :ic-k-cut :clip-s 8 :startup 8 :active 3 :recovery 12 :dmg 25 :guard 8 :reach 3.4 :arc 360 :on-hit :flinch)
+(defmove-copy :ic-k-rz-b :ic-k-rz-a :on-hit :knockdown)
 ;; AS4: the black flame's two charges > SOGA > the 漆黒 crescent (the old AS2 behind them)
 (defmove-copy :ic-k-as4 :ic-k-n2a :kind :sp :callout "KOKUEN" :startup 14 :params (:ns-next :ic-k-as4b))
 (defmove-copy :ic-k-as4b :ic-k-n2b :kind :sp :callout "KOKUEN" :startup 12 :params (:ns-next :ic-k-as2))
@@ -324,7 +328,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   "The stance's follow-ups: non-button strings (KIT-NEXT) the :tick hook starts (TSUKI-STEP).")
 (defparameter *ic-strings* (append '((:ic-j2 :q :ic-na3) (:ic-na3 :q :ic-na4) (:ic-na4 :q :ic-j3)) *tsuki-strings*)
   "The Shikai's strings: the five-J links (2026-10-28; ahead of the grid's J2 > J3), then the stance's.")
-(defparameter *ichigo-hooks* '(:tick ichigo-tick :hit ichigo-hit :struck ichigo-struck :pose ichigo-cloak-pose :draw ichigo-draw
+(defparameter *ichigo-hooks* '(:tick ichigo-tick :link-ok ichigo-link-ok :hit ichigo-hit :struck ichigo-struck :pose ichigo-cloak-pose :draw ichigo-draw
                                :boss ichigo-boss))
 (defparameter *kessa-hooks* '(:tick ichigo-tick :step ichigo-step-clone :ok ichigo-ok :link-ok ichigo-link-ok :parried ichigo-catch :hit ichigo-hit
                               :struck ichigo-struck :deck ichigo-deck :soul-break-cine ic-kessa-getsuga-cine
@@ -395,16 +399,27 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 
 ;;; ================================================================ pure rules (host-tested: tests/duel-rules-test.lisp)
 (defun ichigo-link-ok (e next)
-  "A latched J link of KESSA: the sixth J (:ic-k-na6) only with SPIRIT DRIVE full (DUEL_SUBLIMATION §9)."
-  (or (not (eq (mv-name next) :ic-k-na6)) (drive-full-p e)))
+  "A latched J link: KESSA's sixth J (:ic-k-na6) only with SPIRIT DRIVE full; the Shikai's fifth (:ic-j3, J5: it opens AS3) only with the
+awakening gauge full, sealed with the Getsuga's pointer 3 (the user, 2026-10-31: 「始解封印月牙時請連同 J5 一起封印」; DUEL_SUBLIMATION §9)."
+  (case (mv-name next)
+    (:ic-k-na6 (drive-full-p e))
+    (:ic-j3 (let ((g (gauges e))) (or (gauges-awakened g) (>= (gauges-awaken g) *awaken-max*))))
+    (t t)))
 (defun ichigo-haste-dash (e)
   "NUKI-GIRI's f0: facing him, a dash 2 m past him over 14 frames (the move is :through: no body push), as Lille's awakened L."
   (let* ((f (fighter e)) (d (min 8.0 (+ (fighter-dist f) 2.0))) (yaw (yaw-of e)))
     (set-slide e d 14 (fwd-x yaw) (fwd-z yaw))
     (emit :sfx :whoosh-heavy e)))
-(defun ichigo-haste-turn (e)
-  "KAGE-RENZAN's f0: he turns back onto the opponent (he came out behind him)."
-  (turn-to-opp e (fighter e) 360.0))
+(defun ichigo-renzan (e hwmove n)
+  "KAGE-RENZAN's Nth cut (1-3): a strike with HWMOVE's hit window thrown from where he stands (he keeps the pose he passed through in,
+facing away) at the opponent, and a slash bursting on the opponent's body."
+  (let* ((p (pos-of e)) (q (pos-of (opp-of e))))
+    (ichigo-strike e (aref p 0) (aref p 2) (dir-yaw (- (aref q 0) (aref p 0)) (- (aref q 2) (aref p 2))) (svref (mv-hits (find-move hwmove)) 0) 1.0 :renzan)
+    (spawn-look e 'ichigo-renzan-look :x (aref q 0) :z (aref q 2) :life 9 :data n)
+    (emit :sfx :whoosh-heavy e)))
+(defun ichigo-renzan-1 (e) (ichigo-renzan e :ic-k-rz-a 1))
+(defun ichigo-renzan-2 (e) (ichigo-renzan e :ic-k-rz-a 2))
+(defun ichigo-renzan-3 (e) (ichigo-renzan e :ic-k-rz-b 3))
 (defun clone-konpaku (n) "The Kikon's Konpaku with N clones at the O press (*CLONE-KONPAKU*)." (nth (max 0 (min 3 n)) *clone-konpaku*))
 (defun clone-move (weight link)
   "The clone's move for the answer WEIGHT (:q a J press: the heavy; :f a K press: the light) at LINK (3: the ender's)."
@@ -1421,17 +1436,20 @@ it already runs it continues to F."
 
 (defun ichigo-sub-debug (c)
   "86100 / 86101 (DUEL_SUBLIMATION §9): human P1 Ichigo in his Shikai, awakening gauge empty / full, 2.2 m from an idle Kenpachi (both CPUs
-off, gauges full); 86102 / 86103: KESSA with SPIRIT DRIVE empty / full; 86110 the 超速連斬 Kikon cinematic at frame 40 (a still), 86120 P2's J1
+off, gauges full); 86102 / 86103: KESSA with SPIRIT DRIVE empty / full; 86104 / 86105 / 86106 the same on the phone's deck: the Shikai with
+the gauge full and SUBLIMATION 60, KESSA with DRIVE 60, KESSA with DRIVE full; 86110 the 超速連斬 Kikon cinematic at frame 40 (a still), 86120 P2's J1
 now (the scripts time the presses)."
   (case c
-    ((86100 86101 86102 86103)
+    ((86100 86101 86102 86103 86104 86105 86106)
      (ensure-battle :ichigo :kenpachi :cpu nil)
      (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
-     (force-form *p1* (if (< c 86102) :base :kessa))
-     (place *p1* *p2* (if (< c 86102) 2.2 1.4)) (full-gauges! *p1*) (full-gauges! *p2*)   ; (KESSA's J reaches 1.56 m)
+     (force-form *p1* (if (member c '(86100 86101 86104)) :base :kessa))
+     (place *p1* *p2* (if (member c '(86100 86101 86104)) 2.2 1.4)) (full-gauges! *p1*) (full-gauges! *p2*)   ; (KESSA's J reaches 1.56 m)
      (let ((g (gauges *p1*)))
-       (setf (gauges-awakened g) (>= c 86102) (gauges-awaken g) (if (= c 86101) *awaken-max* 0f0) (gauges-sub g) 0f0 (gauges-sub-s g) 0f0
-             (gauges-drive g) (if (= c 86103) *drive-max* 0f0))))
+       (setf (gauges-awakened g) (member c '(86102 86103 86105 86106)) (gauges-awaken g) (if (member c '(86101 86104)) *awaken-max* 0f0)
+             (gauges-sub g) (if (= c 86104) 60f0 0f0) (gauges-sub-s g) 0f0
+             (gauges-drive g) (case c (86103 *drive-max*) (86106 *drive-max*) (86105 60f0) (t 0f0))))
+     (when (>= c 86104) (setf *one-hand* (one-hand-effective-p))))                ; (86104-86106: the phone's deck, run with --mobile --size 390x844)
     (86110 (ichigo-cine-at 'ic-haste-kikon-cine 40))
     (86130 (abort-cine) (setf *cine-hold* nil)                      ; the Getsuga flame preview (ichigo-look.lisp IC-FLAME-CINE), running
            (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 9.0) (force-form *p1* :kessa)
