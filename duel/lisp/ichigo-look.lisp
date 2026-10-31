@@ -81,16 +81,15 @@ like his Soul Break's (the user, 2026-10-27: 「第三段則是揮出跟毀魂�
   (when (<= (hazard-delay hz) 0)
     (let ((k (ic-wave-k hz)) (w (* 2 (hazard-size hz))))
       (if (ic-kessa-owner-p hz)
-          (ic-getsuga-flame (hazard-x hz) 1.4 (hazard-z hz) (hazard-yaw hz) (* 0.45 w) k (/ (hazard-age hz) 60.0))   ; KESSA's: flame sheets (2026-10-31)
+          (vfx-ic-crescent (hazard-x hz) 1.4 (hazard-z hz) (hazard-yaw hz) (* 0.9 w) k 1.0 4)   ; (KESSA's: the clean 漆黒 crescent; the flame sheets were tried and dropped, 2026-10-31)
           (progn (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k 0.8 3)
                  (vfx-ic-crescent (hazard-x hz) 1.1 (hazard-z hz) (hazard-yaw hz) w k -0.8 3))))))
 
 (defun ichigo-form-look (hz rdt)
   "JUJISHO's first crescent forming on the long blade before the fusion (black for KESSA's)."
   (declare (ignore rdt))
-  (if (ic-kessa-owner-p hz)
-      (ic-getsuga-flame (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* 0.45 (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0))) 0.8 (/ (hazard-age hz) 60.0))
-      (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0))) 0.9 0.8 3)))
+  (vfx-ic-crescent (hazard-x hz) 1.2 (hazard-z hz) (hazard-yaw hz) (* (hazard-size hz) (min 1.0 (/ (hazard-age hz) 4.0)))
+                   0.9 0.8 (if (ic-kessa-owner-p hz) 4 3)))
 
 (defun ichigo-kx-look (hz rdt)
   "KESSA's NS3 X: two black crescents crossed where the clones' cuts meet (vfx-ic-crescent's 漆黒, tips tilted both ways), fading."

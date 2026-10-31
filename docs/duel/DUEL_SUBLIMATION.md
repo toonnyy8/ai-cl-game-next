@@ -89,3 +89,7 @@ KESSA's Getsuga crescent after the charges (NS2 / NS4's third press and AS4's la
 ### 11.3 No hair-like strands (the user, 2026-10-31: 「月牙本身不要有像髮絲的焰氣」)
 
 `ic-getsuga-flame` is the nine broad sheets only: the row of thin tongues (`ic-flame-tongues`, which read as strands of hair) is gone from the crescent (the function stays, used by nothing now); the blood-red rim sheet on each black one is 0.8 of its width (it was 0.45, a thin red thread), the ember core 0.3 (0.18). Art only (G2 `--cvc` unchanged). The swing trail's ribbons (§11.2) are unchanged.
+
+### 11.4 The crescent back to its clean look (the user, 2026-10-31: 「月牙還是原本乾淨的樣子就好」)
+
+KESSA's Getsuga crescent (`ichigo-juji-look`, `ichigo-form-look`) is `vfx-ic-crescent` again, as before §11.1. Kept: the swing's trail (§11.2: the ribbons off the slab, `ichigo-swing-trail`), KESSA's skin and red wisps (§10). Left in the code, used by nothing in play: `ic-getsuga-flame`, `ic-flame-sheets`, `ic-flame-tongues` and the preview cinematic (debug 86130). Art only: G2 `--cvc` unchanged.
