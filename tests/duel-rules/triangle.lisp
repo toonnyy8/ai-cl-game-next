@@ -125,7 +125,7 @@
   (let* ((k (apply #'kit cf)) (m (kit-command-move k :q)) (n 1))
     (loop for nx = (kit-next k (mv-name m) :q) while (and nx (< n 9)) do (setf m nx) (incf n))
     (check (= n (if (eq (second cf) :kessa) 6 5)))   ; (KESSA's sixth J, gated by SPIRIT DRIVE: ichigo-link-ok)
-    (check (member :ender (mv-flags m)))))
+    (check (or (member :ender (mv-flags m)) (eq (second cf) :kessa)))))   ; (KESSA's sixth J is no ender since 2026-10-31: AS4 follows it at close range)
 ;; a Getsuga wave's Kikon (2026-10-28: 「打中後瞬步衝過去補一刀」): each wave segment names a follow-up strike in its form's moves,
 ;; classed as its segment (so its hit is judged as the Kikon), a flash step that can close 12 m
 (loop for (cf . segs) in '(((:ichigo :base) :ic-n2c :ic-as2b) ((:ichigo :kessa) :ic-k-n2c :ic-k-as2b))

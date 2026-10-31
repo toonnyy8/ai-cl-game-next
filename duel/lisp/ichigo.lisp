@@ -296,7 +296,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 ;;; SPIRIT DRIVE's unlocks and pointer 2's new theme (the user, 2026-10-31, DUEL_SUBLIMATION §9): KESSA's pointer 2 is the 超速連斬
 ;; (slow-to-fast five cuts, the dash through him); the Getsuga is pointer 4 (NS4 = the old NS2, AS4 = two charges > SOGA > the crescent),
 ;; sealed until SPIRIT DRIVE is full, as is the sixth J.
-(defmove-copy :ic-k-na6 :ic-k-j1 :clip :ic-k-f1 :clip-s 18 :startup 12 :active 4 :recovery 20 :dmg 55 :reach 2.8 :slide 2.0 :on-hit :stagger :flags (:ender))
+(defmove-copy :ic-k-na6 :ic-k-j1 :clip :ic-k-f1 :clip-s 18 :startup 12 :active 4 :recovery 20 :dmg 55 :reach 2.8 :slide 2.0 :on-hit :stagger)
 (defmove :ic-k-h1 :kind :quick :clip :ic-k-f1 :clip-s 18 :startup 22 :active 3 :recovery 12 :dmg 20 :guard 8 :reach 2.4 :arc 120 :on-hit :stagger
   :params (:ns-next :ic-k-h2 :sa :ic-k-sa1))                              ; 超速 1: the slowest, the tell
 (defmove :ic-k-h2 :kind :quick :clip :ic-k-f2 :clip-s 20 :startup 17 :active 3 :recovery 10 :dmg 20 :guard 8 :reach 2.4 :arc 120 :on-hit :stagger
@@ -319,8 +319,12 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove :ic-k-rz-a :kind :quick :clip :ic-k-cut :clip-s 8 :startup 8 :active 3 :recovery 12 :dmg 25 :guard 8 :reach 3.4 :arc 360 :on-hit :flinch)
 (defmove-copy :ic-k-rz-b :ic-k-rz-a :on-hit :knockdown)
 ;; AS4: the black flame's two charges > SOGA > the 漆黒 crescent (the old AS2 behind them)
-(defmove-copy :ic-k-as4 :ic-k-n2a :kind :sp :callout "KOKUEN" :startup 14 :params (:ns-next :ic-k-as4b))
-(defmove-copy :ic-k-as4b :ic-k-n2b :kind :sp :callout "KOKUEN" :startup 12 :params (:ns-next :ic-k-as2))
+;; (the user, 2026-10-31: 「從 J6 接續到 AS4 時連擊串不起來」: the two charges hit nothing, so the SOGA came ~50 f after J6's hit, past its stagger: they are
+;; black-flame cuts now, each a 15 stagger, so J6's hit, the two cuts, SOGA and the crescent chain; J6 no longer pushes him off (not an :ender))
+(defmove-copy :ic-k-as4 :ic-k-n2a :kind :sp :callout "KOKUEN" :startup 8 :active 3 :recovery 8 :dmg 15 :guard 8 :reach 2.8 :arc 130 :on-hit :stagger
+  :params (:ns-next :ic-k-as4b))
+(defmove-copy :ic-k-as4b :ic-k-n2b :kind :sp :callout "KOKUEN" :startup 7 :active 3 :recovery 8 :dmg 15 :guard 8 :reach 2.8 :arc 130 :on-hit :stagger
+  :params (:ns-next :ic-k-as2))
 
 (defparameter *tsuki-strings*
   (append (loop for s in '(:ic-tsuki :ic-tsuki-k2 :ic-tsuki-re)
@@ -376,7 +380,7 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :core (:ns (:ic-k-n1a :ic-k-h1 :ic-k-n3a :ic-k-n2a) :as (:ic-k-as1 :ic-k-hs-as2 :ic-k-as3 :ic-k-as4) :sa :ic-k-sa1 :mult 1.3
          :stances (:ic-k-st-chain :ic-k-st-haste :ic-k-stance :ic-tsuki)   ; by pointer: the blood chains round him / low and leaning / point-down / cocked high behind
          :kikon-cines (ic-chain-kikon-cine ic-haste-kikon-cine ic-kessa-kikon-cine ic-kessa-getsuga-cine)   ; the chains' / 超速連斬 / 千影 / 漆黒の月牙天衝 (CORE-KIKON-CINE)
-         :as-by-press (1 1 2 2 3 4) :as-writes (1 2 3 4)
+         :as-by-press (1 2 2 3 3 4) :as-writes (1 2 3 4)
          :locks ((4 . :drive-full)))                         ; the Getsuga is pointer 4, sealed until SPIRIT DRIVE is full (2026-10-31)
   :hooks *kessa-hooks*
   :meter (:name "BUNSHIN" :max 3 :draw ichigo-hud-meter :label ichigo-hud-label)   ; the clones' row (the gauge unused)

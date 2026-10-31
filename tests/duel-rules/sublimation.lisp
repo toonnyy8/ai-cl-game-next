@@ -34,3 +34,11 @@
   (check (eq (kit-next k :ic-k-j3 :q) (kit-move k :ic-k-na6)))
   (check (equal (getf (kit-core k) :locks) '((4 . :drive-full))))
   (check (equal (getf (kit-core b) :locks) '((3 . :awaken-full)))))
+
+;; KESSA's press table (the user 2026-10-31: 1 2 2 3 3 4): J1 > AS1, J2-J3 > AS2, J4-J5 > AS3, J6 > AS4
+(check (equal (getf (kit-core (kit :ichigo :kessa)) :as-by-press) '(1 2 2 3 3 4)))
+(check (equal (mapcar (lambda (n) (core-as-pointer n '(1 2 2 3 3 4))) '(1 2 3 4 5 6)) '(1 2 2 3 3 4)))
+;; AS4: all four segments hit (the two charges are cuts since 2026-10-31), only the last launches
+(let ((k (kit :ichigo :kessa)))
+  (check (every (lambda (n) (plusp (length (mv-hits (kit-move k n))))) '(:ic-k-as4 :ic-k-as4b :ic-k-as2)))   ; (the fourth, the crescent, is a wave: a hazard's hit)
+  (check (not (member :ender (mv-flags (kit-move k :ic-k-na6))))))
