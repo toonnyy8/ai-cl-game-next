@@ -464,23 +464,19 @@ fainter and a beat behind. One sweep over S-4 .. S+A+4, or one per hit window (a
   "Where KESSA's red flames hang: both wrists, both ankles and the neck (the user, 2026-10-31: 「手腕腳踝跟頸部圍繞的是飄盪的紅色燄氣」).")
 
 (defun ichigo-red-wisps (e)
-  "Red flame drifting round KESSA's wrists, ankles and neck: at each root three tongues of three links, each link swaying a little more
-than the one before and narrowing to a point, rising and leaning against his motion; a deep red body, a hot orange-yellow core."
+  "Red flame drifting round KESSA's wrists, ankles and neck: at each root three smooth toon tongues (blood red, an ember core beside
+each), rising and leaning against his motion, swaying with their own phases."
   (let ((tm (fx-clock)) (v (motion-vel (motion e))))
     (loop for (j lx ly lz) in *ic-wisp-roots* for i from 0
           do (let* ((r (ic-joint e (joint-index j) *ic-cb* (f32 lx) (f32 ly) (f32 lz)))
                     (x0 (aref r 0)) (y0 (aref r 1)) (z0 (aref r 2)))
                (dotimes (k 3)
-                 (let ((x x0) (y y0) (z z0) (ph (+ (* 2.7 tm) (* 1.9 i) (* 2.1 k))))
-                   (dotimes (s 3)
-                     (let* ((u (/ (1+ s) 3.0)) (len (* 0.34 (+ 0.8 (* 0.3 (sin (+ ph (* 2.0 s)))))))
-                            (sway (* 0.16 u (sin (+ ph (* 1.3 s)))))
-                            (nx (+ x (* sway (cos (* 1.7 k))) (* -0.05 (aref v 0)))) (ny (+ y len))
-                            (nz (+ z (* sway (sin (* 1.7 k))) (* -0.05 (aref v 2))))
-                            (w (* 0.17 (- 1.0 (* 0.75 u)))) (a (- 0.95 (* 0.25 u))))
-                       (fx-line x y z nx ny nz w 0.9 0.08 0.05 a :end-width (* 0.4 w) :mode :alpha)
-                       (fx-line x y z nx ny nz (* 0.45 w) 1.0 0.7 0.25 a :end-width 0.0)
-                       (setf x nx y ny z nz)))))))))
+                 (let* ((ph (+ (* 2.4 tm) (* 1.9 i) (* 2.1 k))) (len (* 0.5 (+ 0.85 (* 0.25 (sin (* 1.3 ph))))))
+                        (lean (+ (* -0.08 (aref v 0)) (* 0.12 (cos (* 2.1 k))))) (lean-z (+ (* -0.08 (aref v 2)) (* 0.12 (sin (* 2.1 k)))))
+                        (sd (+ i (* 3 k) (drawing-no))))
+                   (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 lean) (f32 len) (f32 lean-z) 0.06f0 +pal-blood+ 0.95f0 (f32 sd) (f32 ph) 0.08f0 :segs 6 :wob 0.04)
+                   (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 (* 0.8 lean)) (f32 (* 0.7 len)) (f32 (* 0.8 lean-z)) 0.03f0 +pal-ember+ 0.9f0
+                            (f32 (+ sd 40.0)) (f32 (+ ph 0.7)) 0.05f0 :segs 5 :wob 0.04)))))))
 
 (defun ichigo-draw (e rdt)
   "KIT-HOOK :draw (both forms): step the Shikai's cloak spring; the crescent edge and the ground contact (§3.3)."
@@ -1095,6 +1091,43 @@ round him."
                                       (an (+ (* 0.05 cf) (* i 1.571))) (rr (* g 0.85)))
                                  (vfx-ic-chain (aref r 0) (aref r 1) (aref r 2) (+ (aref p 0) (* rr (cos an))) (+ 0.5 (* 0.3 (mod i 2)))
                                                (+ (aref p 2) (* rr (sin an))) 0.8))))))
+
+;;; ---------------------------------------------------------------- the Getsuga's flame: a PREVIEW (the user, 2026-10-31: 「調整月牙天衝的特效設計，變成更加自然滑順的燄氣
+;;; 效果。請在實作進遊戲前先以純粹的角色模組展現給我確認」): the crescent is a row of smooth flame tongues (the engine's toon ribbons, as the
+;;; fire of Senjumaru / Lille), black with a violet-blue rim, flowing back off the arc and curling at the tips like the reference's
+;;; torn ribbons; nothing in the game calls it (only the cinematic below, debug 86130)
+(defun ic-flame-tongues (cx cy cz yaw r span k tm n)
+  "N flame tongues along an arc of radius R, SPAN radians, in the vertical plane of YAW centred on (CX CY CZ) (its convex side
+forward): each flows back (and curls along the arc toward its tip), longest at the middle, a black body, a violet-blue rim tongue
+beside it; K presence, TM the phase."
+  (let ((fx (fwd-x yaw)) (fz (fwd-z yaw)) (pi* 3.14159))
+    (dotimes (i n)
+      (let* ((u (/ (+ i 0.5) n)) (a (* span (- u 0.5))) (ca (cos a)) (sa (sin a)) (sg (if (< a 0.0) -1.0 1.0))
+             (env (sin (* pi* u)))
+             (px (+ cx (* r ca fx))) (py (+ cy (* r sa))) (pz (+ cz (* r ca fz)))
+             (len (* r (+ 0.45 (* 1.15 env)) (+ 0.85 (* 0.15 (sin (+ (* 5.0 tm) (* 1.3 i)))))))
+             (cur (* 0.8 (- 1.0 env)))                       ; the tips curl along the arc
+             (ax (* len (+ (* -0.9 fx) (* cur sg (- sa) fx)))) (ay (* len (* cur sg ca))) (az (* len (+ (* -0.9 fz) (* cur sg (- sa) fz))))
+             (w (* r (+ 0.035 (* 0.1 env)))) (sway (* 0.1 len)) (ph (+ (* 4.0 tm) (* 1.7 i))) (sd (+ (* 1.0 i) (drawing-no))))
+        (%tongue (f32 px) (f32 py) (f32 pz) (f32 ax) (f32 ay) (f32 az) (f32 w) +pal-black-smoke+ (f32 (* 0.95 k)) (f32 sd) (f32 ph) (f32 sway) :segs 10 :wob 0.02)
+        (when (evenp i)
+          (%tongue (f32 (+ px (* 0.03 r fx))) (f32 py) (f32 (+ pz (* 0.03 r fz))) (f32 (* 0.8 ax)) (f32 (* 0.8 ay)) (f32 (* 0.8 az))
+                   (f32 (* 0.45 w)) +pal-blue+ (f32 (* 0.8 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.3 sway)) :segs 8 :wob 0.02))))))
+
+(defun ic-flame-preview (e cf)
+  "The preview's Getsuga at frame CF of its loop (90 f): gathering on the blade (to f14), thrown (f14-24), flying on and thinning out."
+  (let* ((p (pos-of e)) (yaw (yaw-of e)) (fx (fwd-x yaw)) (fz (fwd-z yaw))
+         (g (max 0.0 (- cf 14.0))) (k (* (min 1.0 (/ g 6.0)) (- 1.0 (min 1.0 (/ (max 0.0 (- cf 62.0)) 24.0)))))
+         (r (+ 0.5 (min 0.9 (* 0.05 g)))) (d (+ 0.9 (min 1.7 (* 0.06 g)))))
+    (when (> k 0.01)
+      (ic-flame-tongues (+ (aref p 0) (* d fx)) 1.35 (+ (aref p 2) (* d fz)) yaw r 3.4 k (/ cf 60.0) 46)
+      (%light (f32 (+ (aref p 0) (* d fx))) 1.35f0 (f32 (+ (aref p 2) (* d fz))) 0.45f0 0.25f0 0.9f0 5f0 (f32 (* 1.5 k)) 8))))
+
+(defcine ic-flame-cine (a v :len 9999 :hold 1)
+  "The Getsuga flame preview (debug 86130): KESSA alone on a white card, side-on, his swing (K1's clip) at 1x, the flame loop on it."
+  (at 0 (card :white) (face-each-other a v 9.0) (shot-on a 90 9.0 1.4 :look 1.2) (lens 42)
+      (cine-clip a :ic-k-f1 :blend 0) (cine-clip v :sh-kikon-victim :blend 0))
+  (during (0 9999) (ic-flame-preview a (mod cf 90))))
 
 (defcine ic-pose-cine (a v :len 9999 :hold 1)
   "Debug stills (ichigo.lisp ICHIGO-POSE, 74990+k): the camera on P1 at *IC-POSE-ANG* degrees."

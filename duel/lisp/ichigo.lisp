@@ -1433,6 +1433,9 @@ now (the scripts time the presses)."
        (setf (gauges-awakened g) (>= c 86102) (gauges-awaken g) (if (= c 86101) *awaken-max* 0f0) (gauges-sub g) 0f0 (gauges-sub-s g) 0f0
              (gauges-drive g) (if (= c 86103) *drive-max* 0f0))))
     (86110 (ichigo-cine-at 'ic-haste-kikon-cine 40))
+    (86130 (abort-cine) (setf *cine-hold* nil)                      ; the Getsuga flame preview (ichigo-look.lisp IC-FLAME-CINE), running
+           (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 9.0) (force-form *p1* :kessa)
+           (start-cine 'ic-flame-cine *p1* *p2*))
     (86120 (force-cmd *p2* :q))))
 (pushnew '(86100 86199 ichigo-sub-debug) *char-debug* :test #'equal)
 
