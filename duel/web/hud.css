@@ -146,6 +146,10 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .aw[data-m="3"]::after { animation: hd-aw 1s ease-in-out infinite; box-shadow: 0 0 calc(.8 * var(--u)) #e0353b; }
 #hud .awk { font: 800 calc(.8 * var(--u))/1 var(--f-display); letter-spacing: .2em; color: var(--reiatsu); opacity: 0; transition: opacity .3s; white-space: nowrap; direction: ltr; }
 #hud .awk.on { opacity: 1; }
+#hud .meters { position: relative; }
+#hud .awk { position: absolute; inset-inline-start: 100%; margin-inline-start: calc(.7 * var(--u)); }   /* (a long label must not shrink the bars) */
+#hud .awk[data-m="1"] { color: #ff7ab8; }
+#hud .awk:is([data-m="2"], [data-m="3"]) { color: #ff4b5c; }
 
 /* the SP pointer: three hanko seals, each its pointer's theme glyph; the live one inked in, its name */
 #hud .hptr { display: flex; gap: calc(.35 * var(--u)); align-items: center; margin-top: calc(.25 * var(--u)); }

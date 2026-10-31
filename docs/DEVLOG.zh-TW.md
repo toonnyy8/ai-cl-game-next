@@ -6232,3 +6232,7 @@ J／K 縮短、受擊值、分身消耗三批合併後，照新的測試規則�
 ## 525. 桌面 HUD 改回原本的樣子（2026-10-31）
 
 使用者：「改回原本的樣子」。§524 的 ROS 版面整個撤回（hud.css／hud.js／webhud.lisp 回到 fe75fda），昇華粉色、DRIVE 紅色的覺醒條與卍解不扣魂魄保留。ROS 版留在 b54a8d4。
+
+## 526. 覺醒條加 SUBLIMATION／DRIVE 字樣（2026-10-31）
+
+使用者：「加「SUBLIMATION」「DRIVE」字樣」。覺醒條旁的標籤：粉色累積時寫 SUBLIMATION（粉字）、DRIVE 填充時寫 SPIRIT DRIVE、全滿 DRIVE MAX（紅字），都沒有時照舊「覺醒 READY」。標籤改成絕對定位，長字不會把量表擠短。見 DUEL_SUBLIMATION。

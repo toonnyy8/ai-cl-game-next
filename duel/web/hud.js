@@ -186,7 +186,8 @@
     for (i = 0; i < 3; i++) st(cells[i], "--k", Math.max(0, Math.min(1, fs - i)).toFixed(3));
     var aw = $(".aw", el); st(aw, "--k", (Math.max(0, V[o + 7]) / 1000).toFixed(3)); aw.classList.toggle("full", V[o + 8] >= 1); st(aw, "--s", (Math.max(0, V[o + 22]) / 1000).toFixed(3)); aw.dataset.m = V[o + 23];   // SUBLIMATION / SPIRIT DRIVE: the line under it
     if (s === 0) st(els.rv, "--aw", (Math.max(0, Math.min(1000, V[o + 7])) / 1000).toFixed(3));   // the seal's ring: your awakening
-    var awk = $(".awk", el); awk.classList.toggle("on", V[o + 8] === 1);
+    var awk = $(".awk", el), am = V[o + 23]; awk.classList.toggle("on", V[o + 8] === 1 || am > 0); awk.dataset.m = am;   // 覺醒 READY / SUBLIMATION / DRIVE (MAX)
+    tx(awk, am === 1 ? "SUBLIMATION" : am === 2 ? "SPIRIT DRIVE" : am === 3 ? "DRIVE MAX" : "覺醒 READY");
     var ptr = $(".hptr", s === 0 && !els.rvc.hidden ? els.rvc : el), sv = seals(s), n = V[o + 9];   // (the phone: your stance around 爆)
     ptr.hidden = !(n > 0);
     if (n > 0) {
