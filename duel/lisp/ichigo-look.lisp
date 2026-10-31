@@ -136,7 +136,7 @@ like his Soul Break's (the user, 2026-10-27: 「第三段則是揮出跟毀魂�
 clone): a grey-black phantom with no clear outline (drawn twice, the second copy drifting a few cm, the dull rim) and mist
 rising off it; else pale (an echo)."
   (let* ((o (hazard-owner hz)) (side (if (and (entity-alive-p o) (fighter o)) (fighter-side (fighter o)) 0))
-         (an (svref *ic-clone-anim* side)) (jm (svref *ic-clone-joints* side)) (b (find-body :ichigo))
+         (an (svref *ic-clone-anim* side)) (jm (svref *ic-clone-joints* side)) (b (find-body :ichigo-kessa))
          (x (hazard-x hz)) (z (hazard-z hz)) (yaw (hazard-yaw hz)) (hide (svref (hide-set '(:shikai :mark)) 0)))
     (anim-play an clip :blend 0 :time (f32 (max 0.0 tm)))
     (flet ((copy (x z a)
@@ -460,6 +460,28 @@ fainter and a beat behind. One sweep over S-4 .. S+A+4, or one per hit window (a
                      (vfx-ic-chain x0 y0 z0 x1 y1 z1 0.85)
                      (setf x0 x1 y0 y1 z0 z1))))))))
 
+(defparameter *ic-wisp-roots* '((:hand-l 0.0 -0.06 0.0) (:hand-r 0.0 -0.06 0.0) (:foot-l 0.0 0.05 0.0) (:foot-r 0.0 0.05 0.0) (:neck 0.0 0.07 0.0))
+  "Where KESSA's red flames hang: both wrists, both ankles and the neck (the user, 2026-10-31: 「手腕腳踝跟頸部圍繞的是飄盪的紅色燄氣」).")
+
+(defun ichigo-red-wisps (e)
+  "Red flame drifting round KESSA's wrists, ankles and neck: at each root three tongues of three links, each link swaying a little more
+than the one before and narrowing to a point, rising and leaning against his motion; a deep red body, a hot orange-yellow core."
+  (let ((tm (fx-clock)) (v (motion-vel (motion e))))
+    (loop for (j lx ly lz) in *ic-wisp-roots* for i from 0
+          do (let* ((r (ic-joint e (joint-index j) *ic-cb* (f32 lx) (f32 ly) (f32 lz)))
+                    (x0 (aref r 0)) (y0 (aref r 1)) (z0 (aref r 2)))
+               (dotimes (k 3)
+                 (let ((x x0) (y y0) (z z0) (ph (+ (* 2.7 tm) (* 1.9 i) (* 2.1 k))))
+                   (dotimes (s 3)
+                     (let* ((u (/ (1+ s) 3.0)) (len (* 0.34 (+ 0.8 (* 0.3 (sin (+ ph (* 2.0 s)))))))
+                            (sway (* 0.16 u (sin (+ ph (* 1.3 s)))))
+                            (nx (+ x (* sway (cos (* 1.7 k))) (* -0.05 (aref v 0)))) (ny (+ y len))
+                            (nz (+ z (* sway (sin (* 1.7 k))) (* -0.05 (aref v 2))))
+                            (w (* 0.17 (- 1.0 (* 0.75 u)))) (a (- 0.95 (* 0.25 u))))
+                       (fx-line x y z nx ny nz w 0.9 0.08 0.05 a :end-width (* 0.4 w) :mode :alpha)
+                       (fx-line x y z nx ny nz (* 0.45 w) 1.0 0.7 0.25 a :end-width 0.0)
+                       (setf x nx y ny z nz)))))))))
+
 (defun ichigo-draw (e rdt)
   "KIT-HOOK :draw (both forms): step the Shikai's cloak spring; the crescent edge and the ground contact (§3.3)."
   (let* ((f (fighter e)) (m (model e)) (o (* 32 (fighter-side f))) (st *ic-look*)
@@ -470,7 +492,8 @@ fainter and a beat behind. One sweep over S-4 .. S+A+4, or one per hit window (a
     (declare (fixnum o sf prev))
     (unless kessa (%ya-hem-step st o (if (typep rdt 'single-float) rdt (f32 rdt))))   ; (F32 inline re-boxes)
     (ichigo-charged-blades e f m)
-    (when kessa (ichigo-chain-lash e f m) (ichigo-chain-rest e f))
+    (when kessa (ichigo-chain-lash e f m) (ichigo-chain-rest e f)
+      (when (> (model-alpha m) 0.5) (ichigo-red-wisps e)))
     (when (and edge (model-weapon m) (> (model-alpha m) 0.5))
       (let ((jm (model-joints m)) (tip *ic-tip*) (tip-l *ic-tip-l*) (hits (mv-hits mv)))
         (declare (simple-vector hits))
@@ -709,7 +732,7 @@ the plaza back, violet ash drifting."
 (defun ic-body-at (x z yaw clip tm alpha &key (y 0.0) (shikai nil))
   "A clone of KESSA at (X Y Z) facing YAW, posed at time TM of CLIP, at ALPHA: the grey-black phantom (IC-GHOST's :mist
 look) in a cinematic. SHIKAI: the Shikai's two blades instead (the rush Kikon's afterimages)."
-  (let ((an (svref *ic-clone-anim* 0)) (jm (svref *ic-clone-joints* 0)) (b (find-body :ichigo)))
+  (let ((an (svref *ic-clone-anim* 0)) (jm (svref *ic-clone-joints* 0)) (b (find-body (if shikai :ichigo :ichigo-kessa))))
     (anim-play an clip :blend 0 :time (f32 (max 0.0 tm)))
     (pose-fk! jm (anim-eval an) (f32 x) (f32 y) (f32 z) (f32 yaw) (body-scale b) (body-hunch b) (body-props b))
     (draw-body b jm x y z yaw :weapon (if shikai :zangetsu-long :tensa)

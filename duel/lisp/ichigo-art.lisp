@@ -1239,3 +1239,6 @@
   (:s (:root :u -0.1) (:spine :flex -8) (:arm-r :flex 176 :side 10) (:elbow-r :flex 20) (:hand-r :flex -36)
       (:arm-l :flex 168 :side -14) (:elbow-l :flex 24) (:hand-l :flex -36))
   (:end :ic-k-stance))
+
+;; KESSA's skin (the user, 2026-10-31: 「血鎖一護的膚色更貼近紅棕色」): a reddish brown, the rest of the body as the Shikai's
+(body-variant :ichigo-kessa :ichigo :palette '((:skin #xA9583F)))
