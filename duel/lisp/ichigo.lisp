@@ -334,9 +334,9 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   "The stance's follow-ups: non-button strings (KIT-NEXT) the :tick hook starts (TSUKI-STEP).")
 (defparameter *ic-strings* (append '((:ic-j2 :q :ic-na3) (:ic-na3 :q :ic-na4) (:ic-na4 :q :ic-j3)) *tsuki-strings*)
   "The Shikai's strings: the five-J links (2026-10-28; ahead of the grid's J2 > J3), then the stance's.")
-(defparameter *ichigo-hooks* '(:tick ichigo-tick :link-ok ichigo-link-ok :hit ichigo-hit :struck ichigo-struck :pose ichigo-cloak-pose :draw ichigo-draw
+(defparameter *ichigo-hooks* '(:tick ichigo-tick :hit ichigo-hit :struck ichigo-struck :pose ichigo-cloak-pose :draw ichigo-draw
                                :boss ichigo-boss))
-(defparameter *kessa-hooks* '(:tick ichigo-tick :step ichigo-step-clone :ok ichigo-ok :link-ok ichigo-link-ok :parried ichigo-catch :hit ichigo-hit
+(defparameter *kessa-hooks* '(:tick ichigo-tick :step ichigo-step-clone :ok ichigo-ok :parried ichigo-catch :hit ichigo-hit
                               :struck ichigo-struck :deck ichigo-deck :soul-break-cine ic-kessa-getsuga-cine
                               :kikon-worth ichigo-kikon-worth :draw ichigo-draw :hud-tag ichigo-hud-tag))
 
@@ -347,12 +347,11 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :stun-tolerance 16.0                          ; the hidden stun (DUEL_DESIGN.md): the middle (KESSA inherits it)
   :commands (:q :ic-j1 :f :ic-k1 :sig :ic-tsuki :sp1 :ic-juji :sp2 :ic-soga :breaker :ic-breaker :kikon :ic-kikon)
   :grid (:ic-j1 :ic-j2 :ic-j3 :ic-k1 :ic-k2 :ic-k3 :ic-j2s :ic-k2s)
-  :core (:ns (:ic-n1a :ic-n3a :ic-n2a) :as (:ic-as1 :ic-as3 :ic-as2) :sa :ic-sa
-         :stances (:ic-st-heavy :ic-st-rush :ic-tsuki)           ; the idle clip by SP pointer (FIGHTER-STANCE-CLIP)
-         :kikon-cines (ic-heavy-kikon-cine ic-rush-kikon-cine ic-kikon-cine)   ; the cleaver's / the rush's / the Cero Getsuga
+  :core (:ns (:ic-n1a :ic-n2a :ic-n3a) :as (:ic-as1 :ic-as2 :ic-as3) :sa :ic-sa
+         :stances (:ic-st-heavy :ic-tsuki :ic-st-rush)           ; the idle clip by SP pointer (FIGHTER-STANCE-CLIP)
+         :kikon-cines (ic-heavy-kikon-cine ic-kikon-cine ic-rush-kikon-cine)   ; the cleaver's / the Cero Getsuga / the rush's
          :as-by-press (1 1 2 2 3)
-         :locks ((3 . :awaken-full))                             ; the Getsuga is pointer 3, sealed until the awakening gauge is full (2026-10-31)
-         :ns-range (nil nil (3.6 6.6))                           ; the CPU shoots GETSUGA from 3.6-6.6 m under pointer 3
+         :ns-range (nil (3.6 6.6) nil)                           ; the CPU shoots GETSUGA from 3.6-6.6 m under pointer 2 (the seals of 2026-10-31 were taken out again, DUEL_SUBLIMATION §16)
          :mult 1.3)                                              ; damage x (the long tells cut the pace: II 268 s at 1.0; DUEL_CORE §6)
   :strings *ic-strings*                         ; (five J ahead of the stance's follow-ups)
   :l-after-k :ic-tsuki-k2                       ; L after K1 / K2 / K3 (docs/duel/DUEL_STRINGS.md §12): the stance at f4
@@ -377,16 +376,15 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
   :body :ichigo-kessa :awakening t :form-name "KESSA" :walk *walk-kessa* :run *run-kessa* :mult *kessa-mult* :taken *kessa-taken*
   :weapon :tensa :hide (:shikai :mark) :stance :ic-k-stance :aura ichigo-aura-kessa :cine ic-kessa-cine
   :passives (:parry-block)
-  :core (:ns (:ic-k-n1a :ic-k-h1 :ic-k-n3a :ic-k-n2a) :as (:ic-k-as1 :ic-k-hs-as2 :ic-k-as3 :ic-k-as4) :sa :ic-k-sa1 :mult 1.3
-         :stances (:ic-k-st-chain :ic-k-st-haste :ic-k-stance :ic-tsuki)   ; by pointer: the blood chains round him / low and leaning / point-down / cocked high behind
-         :kikon-cines (ic-chain-kikon-cine ic-haste-kikon-cine ic-kessa-kikon-cine ic-kessa-getsuga-cine)   ; the chains' / 超速連斬 / 千影 / 漆黒の月牙天衝 (CORE-KIKON-CINE)
-         :as-by-press (1 2 2 3 3 4) :as-writes (1 2 3 4)
-         :locks ((4 . :drive-full)))                         ; the Getsuga is pointer 4, sealed until SPIRIT DRIVE is full (2026-10-31)
+  :core (:ns (:ic-k-n1a :ic-k-n2a :ic-k-n3a) :as (:ic-k-as1 :ic-k-as2 :ic-k-as3) :sa :ic-k-sa1 :mult 1.3
+         :stances (:ic-k-st-chain :ic-tsuki :ic-k-stance)   ; by pointer: the blood chains round him / cocked high behind / point-down
+         :kikon-cines (ic-chain-kikon-cine ic-kessa-getsuga-cine ic-kessa-kikon-cine)   ; the chains' / 漆黒の月牙天衝 / 千影 (CORE-KIKON-CINE)
+         :as-by-press (1 1 2 2 3))   ; (the 超速連斬 pointer, pointer 4, J6 and the seals of 2026-10-31 were taken out again: DUEL_SUBLIMATION §16)
   :hooks *kessa-hooks*
   :meter (:name "BUNSHIN" :max 3 :draw ichigo-hud-meter :label ichigo-hud-label)   ; the clones' row (the gauge unused)
   :commands (:q :ic-k-j1 :f :ic-k-k1 :sig :ic-k-parry :sp1 :ic-k-hiki :sp2 :ic-k-zanzo :kikon :ic-k-kikon)
   :grid (:ic-k-j1 :ic-k-j2 :ic-k-j3 :ic-k-k1 :ic-k-k2 :ic-k-k3 :ic-k-j2s :ic-k-k2s)
-  :strings ((:ic-k-j2 :q :ic-k-na3) (:ic-k-na3 :q :ic-k-na4) (:ic-k-na4 :q :ic-k-j3) (:ic-k-j3 :q :ic-k-na6) (:ic-k-parry :land :ic-k-gaeshi))   ; (five J; the sixth with SPIRIT DRIVE full: ICHIGO-LINK-OK)
+  :strings ((:ic-k-j2 :q :ic-k-na3) (:ic-k-na3 :q :ic-k-na4) (:ic-k-na4 :q :ic-k-j3) (:ic-k-parry :land :ic-k-gaeshi))   ; (five J)
   :l-after-k nil
   ;; a mid-close brawler with posts: every back hop and Hoho posts a clone; the parry and O by the clones in its
   ;; :reflex (ICHIGO-AI-KESSA), from blockstun in the :tick hook
@@ -404,13 +402,6 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
        :sp-ender ichigo-ai-ender))
 
 ;;; ================================================================ pure rules (host-tested: tests/duel-rules-test.lisp)
-(defun ichigo-link-ok (e next)
-  "A latched J link: KESSA's sixth J (:ic-k-na6) only with SPIRIT DRIVE full; the Shikai's fifth (:ic-j3, J5: it opens AS3) only with the
-awakening gauge full, sealed with the Getsuga's pointer 3 (the user, 2026-10-31: 「始解封印月牙時請連同 J5 一起封印」; DUEL_SUBLIMATION §9)."
-  (case (mv-name next)
-    (:ic-k-na6 (drive-full-p e))
-    (:ic-j3 (let ((g (gauges e))) (or (gauges-awakened g) (>= (gauges-awaken g) *awaken-max*))))
-    (t t)))
 (defun ichigo-haste-dash (e)
   "NUKI-GIRI's f0: facing him, a dash 0.8 m past him over 12 frames (it was 2 m over 14: too far, the user 2026-10-31) (the move is :through: no body push), as Lille's awakened L."
   (let* ((f (fighter e)) (d (min 6.0 (+ (fighter-dist f) 0.8))) (yaw (yaw-of e)))

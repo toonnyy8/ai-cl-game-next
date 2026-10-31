@@ -20,25 +20,13 @@
 (check (= 96 (hit-damage 100 (list :mult (* 1.0 (+ 1.0 (* *sub-dmg* 1.0)))) (sub-taken-mods '(:mult 1.0) 1.0) 1 nil)))
 ;; Kenpachi's Bankai: DRIVE full opens it, whatever his Konpaku
 (check (and (bankai-allowed-p t t) (not (bankai-allowed-p t nil)) (not (bankai-allowed-p nil t))))
-;; Ichigo's pointers (the user 2026-10-31, DUEL_SUBLIMATION §9): the Shikai's pointer 3 is the Getsuga, sealed until the awakening gauge
-;; is full; KESSA's pointer 2 is 超速連斬 (NS2 five cuts 22 / 17 / 12 / 6 / 3 f, AS2 two segments), pointer 4 the Getsuga sealed until
-;; SPIRIT DRIVE is full (NS4 = three segments, AS4 = four), the sixth J gated by ichigo-link-ok
-(let* ((b (kit :ichigo :base)) (k (kit :ichigo :kessa)) (fb (make-fighter :kit b)) (fk (make-fighter :kit k)))
-  (check (equal (core-segments :ic-k-h1) '(:ic-k-h1 :ic-k-h2 :ic-k-h3 :ic-k-h4 :ic-k-h5)))
-  (check (equal (mapcar (lambda (n) (mv-s (kit-move k n))) '(:ic-k-h1 :ic-k-h2 :ic-k-h3 :ic-k-h4 :ic-k-h5)) '(22 17 12 6 3)))
-  (check (equal (mapcar (lambda (n) (mv-dmg (kit-move k n))) '(:ic-k-h1 :ic-k-h2 :ic-k-h3 :ic-k-h4 :ic-k-h5)) '(20 20 25 25 40)))
-  (check (equal (mapcar (lambda (n) (length (core-segments n))) (getf (kit-core k) :as)) '(1 2 3 4)))
-  (check (equal (core-segments :ic-k-n2a) '(:ic-k-n2a :ic-k-n2b :ic-k-n2c)))
-  (check (equal (mapcar (lambda (n) (kit-class k (kit-move k n))) '(:ic-k-h1 :ic-k-h5 :ic-k-hs-as2 :ic-k-hs-as2b :ic-k-as4 :ic-k-as2b)) '(:ns :ns :as :as :as :as)))
-  (check (member :through (mv-flags (kit-move k :ic-k-hs-as2))))
-  (check (eq (kit-next k :ic-k-j3 :q) (kit-move k :ic-k-na6)))
-  (check (equal (getf (kit-core k) :locks) '((4 . :drive-full))))
-  (check (equal (getf (kit-core b) :locks) '((3 . :awaken-full)))))
-
-;; KESSA's press table (the user 2026-10-31: 1 2 2 3 3 4): J1 > AS1, J2-J3 > AS2, J4-J5 > AS3, J6 > AS4
-(check (equal (getf (kit-core (kit :ichigo :kessa)) :as-by-press) '(1 2 2 3 3 4)))
-(check (equal (mapcar (lambda (n) (core-as-pointer n '(1 2 2 3 3 4))) '(1 2 3 4 5 6)) '(1 2 2 3 3 4)))
-;; AS4: all four segments hit (the two charges are cuts since 2026-10-31), only the last launches
-(let ((k (kit :ichigo :kessa)))
-  (check (every (lambda (n) (plusp (length (mv-hits (kit-move k n))))) '(:ic-k-as4 :ic-k-as4b :ic-k-as2)))   ; (the fourth, the crescent, is a wave: a hazard's hit)
-  (check (not (member :ender (mv-flags (kit-move k :ic-k-na6))))))
+;; Ichigo's pointers: the seals, pointer 4 and the 超速連斬 of 2026-10-31 were taken out again (DUEL_SUBLIMATION §16): the original tables
+(let ((b (kit :ichigo :base)) (k (kit :ichigo :kessa)))
+  (check (and (null (getf (kit-core b) :locks)) (null (getf (kit-core k) :locks))))
+  (check (equal (getf (kit-core b) :as-by-press) '(1 1 2 2 3)))
+  (check (equal (getf (kit-core k) :as-by-press) '(1 1 2 2 3)))
+  (check (and (= 3 (length (getf (kit-core k) :ns))) (= 3 (length (getf (kit-core k) :as)))))
+  (check (eq (kit-core-move k :ns 2) (kit-move k :ic-k-n2a)))
+  (check (null (kit-hook b :link-ok)))
+  (check (null (kit-hook k :link-ok)))
+  (check (null (kit-next k :ic-k-j3 :q))))

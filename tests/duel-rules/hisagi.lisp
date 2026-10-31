@@ -941,7 +941,7 @@
   (check (and (eq 'hs-link-ok (kit-hook k :link-ok)) (equal *hs-leaps* '(:hs-j2k :hs-j3k))
               (~= 3.0 *hs-k-dead*) (~= 2.5 *hs-bridge-kb*)
               (~= 2.5 (hw-kb (svref (mv-hits (find-move :hs-kaza-j)) 0))) (~= 1.5 (hw-kb (svref (mv-hits (find-move :hs-kaza)) 0)))
-              (notany (lambda (cf) (and (not (eq (first cf) :hisagi)) (not (eq (first cf) :ichigo)) (kit-hook (apply #'kit cf) :link-ok))) *forms*)))   ; (KESSA's sixth J, 2026-10-31)
+              (notany (lambda (cf) (and (not (eq (first cf) :hisagi)) (kit-hook (apply #'kit cf) :link-ok))) *forms*)))
   (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))
     (let ((st (hs a)))
       (setf (hss-leapt st) nil)
