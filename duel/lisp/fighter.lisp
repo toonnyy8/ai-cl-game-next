@@ -215,7 +215,7 @@ one forearm crack per spent pip: :crack-1 .. :crack-4)."
   "F's idle clip. Under the core system a kit with :core :stances rests in the stance of its SP pointer (1 / 2 / 3), so the NS to
 come can be read from afar (the user, 2026-10-27); any other kit rests in its :stance."
   (let ((st (and *core-on* (getf (kit-core (fighter-kit f)) :stances))))
-    (if st (nth (1- (max 1 (min 3 (fighter-ptr f)))) st) (kit-stance (fighter-kit f)))))
+    (if st (nth (1- (max 1 (min (length st) (fighter-ptr f)))) st) (kit-stance (fighter-kit f)))))
 
 (defun play-clip (e clip &key (blend 4) (speed 1.0) (time 0.0) (restart t))
   "Start CLIP on E's model (BLEND frames of crossfade; see ANIM-PLAY); his form may play its own version of it (its kit's

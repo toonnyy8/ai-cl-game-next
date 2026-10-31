@@ -755,3 +755,33 @@ def sublimation_script():
         t += 2.2
     return sorted(ev, key=lambda x: x["at"])
 write("sublimation", sublimation_script())
+
+
+def ichigo_pointers_script():
+    """Ichigo's pointers (DUEL_SUBLIMATION §9): the Shikai's pointer 3 (the Getsuga) sealed until the awakening gauge is full, KESSA's
+    pointer 2 (超速連斬: NS2 five cuts, AS2) and pointer 4 (the Getsuga, SPIRIT DRIVE), the sixth J; debug 86100-86103 scenes."""
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+    def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
+    def js(t, n, gap=0.32): [jt(t + gap * i) for i in range(n)]
+    t = T0
+    for label, scene, ptr, body in (
+            ("IC base gauge 0: J x5, SP (AS3 sealed -> AS2 rush)", 86100, 0, lambda s: [js(s, 5), sp(s + 1.5)]),
+            ("IC base gauge full: J x5, SP (AS3 Getsuga)", 86101, 0, lambda s: [js(s, 5), sp(s + 1.5)]),
+            ("IC base gauge full: pointer 3 NS (Getsuga charges)", 86101, 2512, lambda s: [sp(s), sp(s + 0.5), sp(s + 1.0)]),
+            ("IC kessa drive 0: J x5, SP (AS3)", 86102, 0, lambda s: [js(s, 5), sp(s + 1.5)]),
+            ("IC kessa drive 0: J x6 (J6 refused)", 86102, 0, lambda s: [js(s, 6)]),
+            ("IC kessa drive full: J x6, SP (AS4)", 86103, 0, lambda s: [js(s, 6), sp(s + 1.85)]),
+            ("IC kessa NS2 five cuts", 86102, 2511, lambda s: [sp(s), sp(s + 0.55), sp(s + 1.05), sp(s + 1.5), sp(s + 1.9)]),
+            ("IC kessa J1 J2 J3 SP (AS2: dash through, three cuts)", 86102, 0, lambda s: [js(s, 3), sp(s + 0.95), sp(s + 1.3)]),
+            ("IC kessa drive full: pointer 4 NS", 86103, 2513, lambda s: [sp(s), sp(s + 0.5), sp(s + 1.0)]),
+            ("IC kessa drive full: J x6 SP SP SP SP (AS4 four segments)", 86103, 0, lambda s: [js(s, 6), sp(s + 1.85), sp(s + 2.15), sp(s + 2.45), sp(s + 2.75)])):
+        say(t, label)
+        ev.append(cmd(t, scene))
+        if ptr: ev.append(cmd(t + 0.05, ptr))
+        body(t + 0.3)
+        ev.append(cmd(t + 5.2, 2107))
+        t += 5.6
+    return sorted([e for e in ev if e], key=lambda x: x["at"])
+write("ichigo-pointers", ichigo_pointers_script())

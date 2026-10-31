@@ -15,8 +15,8 @@
     0: { en: "Yamamoto", kj: "山本", full: "山本元柳斎重國" },
     1: { en: "Kenpachi", kj: "更木", full: "更木剣八", ptr: [["一", "PTR 1"], ["二", "PTR 2"], ["三", "PTR 3"]] },
     2: { en: "Rukia", kj: "朽木", full: "朽木ルキア" },
-    3: { en: "Ichigo", kj: "黒崎", full: "黒崎一護", ptr: [["重", "重 · CLEAVER"], ["月", "月 · GETSUGA"], ["亂", "亂 · RANGETSU"]],
-         forms: { KESSA: [["鎖", "鎖 · CHAINS"], ["月", "月 · 漆黒"], ["影", "影 · 千影"]] } },
+    3: { en: "Ichigo", kj: "黒崎", full: "黒崎一護", ptr: [["重", "重 · CLEAVER"], ["亂", "亂 · RANGETSU"], ["月", "月 · GETSUGA"]],
+         forms: { KESSA: [["鎖", "鎖 · CHAINS"], ["速", "速 · 超速連斬"], ["影", "影 · 千影"], ["月", "月 · 漆黒"]] } },
     4: { en: "Senjumaru", kj: "修多羅", full: "修多羅千手丸" },
     6: { en: "Lille", kj: "リジェ", full: "リジェ・バロ" },
     7: { en: "Hisagi", kj: "檜佐木", full: "檜佐木修兵", ptr: [["投", "投 · NAGI"], ["刈", "刈 · KARI"], ["雷", "縛雷 · SHIBARI"]],
@@ -66,7 +66,7 @@
     return '<div class="plate ' + p + '"><div class="who"><span class="nm"></span><span class="kj"></span><span class="htag"></span></div>' +
       '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="srow"><div class="souls">' + souls + '</div><div class="kit" hidden></div></div>' +
       '<div class="meters"><div class="fs"><i></i><i></i><i></i></div><div class="aw"></div><span class="awk">覺醒 READY</span></div>' +
-      '<div class="hptr"><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="pn"></span></div></div>' +
+      '<div class="hptr"><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="pn"></span></div></div>' +
       '<div class="callout ' + p + '"><span class="ck"></span><span class="cr"></span></div>' +
       '<div class="combo ' + p + '"><div class="crow"><span class="n"></span><span class="h">HITS</span></div><span class="d">DMG <b class="cd"></b> · SCALE <b class="cs"></b></span></div>';
   }
@@ -81,7 +81,7 @@
       '<span class="what"><span class="wt"></span><small></small></span></div></div>' +
       '<div class="deck" hidden><div class="zone sp"></div><div class="zone atk"></div><span class="zl sp">SP <em>技</em></span><span class="zl atk">ATK <em>斬</em></span>' +
       '</div>' +
-      '<div class="rvc" hidden><div class="hptr">' + '<span class="seal" style="--a:304"></span><span class="seal" style="--a:270"></span><span class="seal" style="--a:236"></span>' +
+      '<div class="rvc" hidden><div class="hptr">' + '<span class="seal" style="--a:304"></span><span class="seal" style="--a:270"></span><span class="seal" style="--a:236"></span><span class="seal" style="--a:202"></span>' +
       '<span class="pn"></span></div></div>' +
       '<div class="dbtn rv" hidden><span class="well"><span class="lvl">' + FACE + '</span></span>' + FACE + AWRING + '<span class="kak">覺</span></div>' +
       '<div class="fx"></div>' +
@@ -192,9 +192,9 @@
     ptr.hidden = !(n > 0);
     if (n > 0) {
       var ss = ptr.querySelectorAll(".seal");
-      for (i = 0; i < 3; i++) {
+      for (i = 0; i < 4; i++) {
         ss[i].hidden = i >= sv.length;
-        if (i < sv.length) { tx(ss[i], sv[i][0]); ss[i].classList.toggle("on", i + 1 === n); }
+        if (i < sv.length) { tx(ss[i], sv[i][0]); ss[i].classList.toggle("on", i + 1 === n); ss[i].classList.toggle("lock", ((V[o + 24] >> i) & 1) === 1); }   // a sealed pointer (DUEL_SUBLIMATION §9)
       }
       tx($(".pn", ptr), sv[Math.min(n, sv.length) - 1][1]);
     }

@@ -22,8 +22,8 @@
   var FIGHTERS = {   // roster index (kit.lisp *ROSTER*) -> card
     1: { en: "Kenpachi", jp: "更木剣八", emb: "剣", tag: "吃招換招、越打越強的血戰狂人。靈壓是黃色的，所有型態都一樣。",
          ptr: [["Heavy", "AS1 搶走對手的瞬步"], ["Launch", "AS2 把人擊飛"], ["Finisher", "AS3 高傷害"]] },
-    3: { en: "Ichigo", jp: "黒崎一護", emb: "月", tag: "雙刀近身猛攻。三個指針各一個主題，卍解後換成血鎖、黑色月牙和分身。",
-         ptr: [["The cleaver", "大刀之重 · 落牙"], ["Getsuga", "月牙蓄力 · 十字衝"], ["The rush", "亂月 → 月落"]] },
+    3: { en: "Ichigo", jp: "黒崎一護", emb: "月", tag: "雙刀近身猛攻。三個指針各一個主題，月牙天衝在指針三，覺醒量表沒滿時封印；卍解後換成血鎖、超速連斬和分身，月牙天衝移到指針四，SPIRIT DRIVE 全滿才開。",
+         ptr: [["The cleaver", "大刀之重 · 落牙"], ["The rush", "亂月 → 月落"], ["Getsuga", "月牙蓄力 · 十字衝（覺醒量表滿才開）"]] },
     7: { en: "Hisagi", jp: "檜佐木修兵", emb: "風", tag: "鎖鏈連著兩把鐮刀的中距離全能型；卍解後垂鏈遠距抽打，鎖住對手就換成近身捆綁戰。",
          ptr: [["Heavy", "AS1 搶走對手的瞬步"], ["Launch", "AS2 把人擊飛"], ["Finisher", "AS3 高傷害"]] }
   };

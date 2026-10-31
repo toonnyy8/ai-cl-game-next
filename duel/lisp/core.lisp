@@ -55,7 +55,7 @@ attack inside an NS segment is SA. Returns :NA :NS :AS :SA, :NA-CONT / :NS-CONT 
   "The CONTEXT a move of CLASS leaves (CORE-PRESS-CLASS's first argument)."
   (ecase class ((:na :na-cont) :na) ((:ns :ns-cont) :ns) (:sa :sa) (:as :as)))
 
-(defparameter *core-pointer-max* 3 "The pointer runs 1 .. this: the NA link an AS followed.")
+(defparameter *core-pointer-max* 4 "The pointer runs 1 .. this: the NA link an AS followed (a kit with four :core :as entries, KESSA, has a fourth: SPIRIT DRIVE's, DUEL_SUBLIMATION §9).")
 
 (defun core-clamp-pointer (n) "N clamped to 1 .. *CORE-POINTER-MAX*." (max 1 (min *core-pointer-max* n)))
 
@@ -77,7 +77,7 @@ heavy-damage style, one less (at least 1). 2: red and zero are the same line: ag
 Break would (BASE + 1). 3: the finisher style, one less."
   (ecase (core-clamp-pointer pointer)
     (1 (min *core-kikon-max* (max 1 (1- base))))
-    (2 (if red (min *core-soul-break-max* (1+ base)) (min *core-kikon-max* base)))
+    ((2 4) (if red (min *core-soul-break-max* (1+ base)) (min *core-kikon-max* base)))
     (3 (min *core-kikon-max* (max 1 (1- base))))))
 
 (defun core-soul-break-count (base pointer)

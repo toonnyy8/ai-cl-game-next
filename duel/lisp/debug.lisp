@@ -654,7 +654,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((<= 39000 c 39022) (let ((m '(nil :always :never)))
                               (setf (svref *ai-awaken-mode* 0) (nth (floor (- c 39000) 10) m)
                                     (svref *ai-awaken-mode* 1) (nth (mod (- c 39000) 10) m))))
-        ((<= 2510 c 2512) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 (the stance shots)
+        ((<= 2510 c 2513) (setf (fighter-ptr (fighter *p1*)) (- c 2509)))   ; P1's SP pointer 1 / 2 / 3 / 4 (the stance shots)
         ((= c 2513) (slowmo *core-clash-slowmo-scale* 3.0))                 ; 3 s of the cancel's slow motion (the smooth-draw check)
         ((= c 2514) (setf *scene-transparent* (not *scene-transparent*)))    ; the transparent scene (DUEL_WEBUI §4)
         ((= c 2515) (webhud-consing))                                         ; the battle screens' sync (DUEL_WEBUI §7)

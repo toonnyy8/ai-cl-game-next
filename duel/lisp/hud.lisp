@@ -799,7 +799,7 @@ after the assist pressed for him."
       (brush-text "HOHO!" (aref v 0) (aref v 1) (* (if (portrait-p) 0.035 0.045) h) *c-hint*))))
 
 ;; The SP pointer (docs/duel/DUEL_CORE.md §3): which NS the next SP from neutral is, shown at the fighter's feet where the opponent reads it.
-(defvar *pointer-strings* (vector "[1] 2 3" "1 [2] 3" "1 2 [3]") "The pointer row per value 1 .. 3 (made once).")
+(defvar *pointer-strings* (vector "[1] 2 3" "1 [2] 3" "1 2 [3]" "1 2 3 [4]") "The pointer row per value 1 .. 4 (made once).")
 (defun hud-pointer (e h)
   "The SP pointer of fighter E (a kit with a :core), drawn at his feet."
   (let ((f (fighter e)) (p (pos-of e)) (v *hud-v*))

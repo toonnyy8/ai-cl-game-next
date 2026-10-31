@@ -79,7 +79,7 @@
 (defun cai-neutral (e b f kit s d)
   "Free: Hoho out of an attack at him, else walk to the range and now and then start a move."
   (let* ((vp (pilot-vpad (pilot e)))
-         (nr (nth (1- (max 1 (min 3 (fighter-ptr f)))) (getf (kit-core kit) :ns-range)))   ; (near far) m of a ranged NS under this pointer (Ichigo's Getsuga)
+         (nr (nth (1- (max 1 (min *core-pointer-max* (fighter-ptr f)))) (getf (kit-core kit) :ns-range)))   ; (near far) m of a ranged NS under this pointer (Ichigo's Getsuga)
          (rg (getf (kit-core kit) :range *cai-range*)) (lo (first rg)) (hi (second rg)))
     (when (<= (decf (brain-strafe-t b)) 0) (funcall (ai-step e :strafe) e b))
     (cond ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-open-p e)

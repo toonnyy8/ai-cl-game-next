@@ -42,9 +42,22 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
 (defun core-next-as (f)
   "The AS an SP pressed now would start in F's combo: the one the move he is in names (its :params :as-ptr: Hisagi's gathered
 route, DUEL_HISAGI §28.20: SA > AS1, J2 > AS2, J3 > AS3), else the attack presses' (CORE-AS-POINTER, the kit's :as-by-press)."
-  (let ((mv (fighter-move f)))
-    (or (and mv (getf (mv-params mv) :as-ptr))
-        (core-as-pointer (fighter-presses f) (getf (kit-core (fighter-kit f)) :as-by-press)))))
+  (let* ((mv (fighter-move f)) (core (kit-core (fighter-kit f)))
+         (n (or (and mv (getf (mv-params mv) :as-ptr))
+                (core-as-pointer (fighter-presses f) (getf core :as-by-press)))))
+    (setf n (min n (max 1 (length (getf core :as)))))                  ; (no AS of that number in this kit: the last it has)
+    (loop while (and (> n 1) (core-pointer-locked-p f n)) do (decf n))   ; (a sealed pointer: the one below it)
+    n))
+
+(defun core-pointer-locked-p (f n)
+  "Is pointer N sealed for fighter F (a kit's :core :locks, an alist pointer . rule)? :awaken-full: until the awakening gauge is full
+(the Shikai's Getsuga, DUEL_SUBLIMATION §9); :drive-full: until SPIRIT DRIVE is full (KESSA's)."
+  (let ((rule (cdr (assoc n (getf (kit-core (fighter-kit f)) :locks)))))
+    (and rule
+         (let ((g (gauges (if (zerop (fighter-side f)) *p1* *p2*))))
+           (ecase rule
+             (:awaken-full (not (or (gauges-awakened g) (>= (gauges-awaken g) *awaken-max*))))
+             (:drive-full (not (and (gauges-awakened g) (>= (gauges-drive g) *drive-max*)))))))))
 
 (defun core-as-start! (e f)
   "SP after an attack hit: the AS of the attack press count, writing the pointer. Its Kikon (cinematic, Konpaku profile) is the
@@ -189,7 +202,7 @@ KESSA's pointer 3 plays 千影 (the user, 2026-10-28: 「指針三的毀魂技�
 
 (defun core-pointer-cine (att ptr)
   "Pointer PTR's Kikon cinematic in ATT's kit (:core :kikon-cines), or NIL."
-  (and *core-on* (nth (1- (max 1 (min 3 ptr))) (getf (kit-core (kit-of att)) :kikon-cines))))
+  (and *core-on* (nth (1- (max 1 (min *core-pointer-max* ptr))) (getf (kit-core (kit-of att)) :kikon-cines))))
 
 (defun core-soul-break-cine (att)
   "The cinematic of ATT's Soul Break (the Reiatsu at zero): the current pointer's Kikon (the user, 2026-10-28: 「如果是血量歸零自動釋放到

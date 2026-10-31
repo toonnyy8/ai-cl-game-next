@@ -1,0 +1,914 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== IC base gauge 0: J x5, SP (AS3 sealed -> AS2 rush)')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(86100)"
+},
+{
+"at": 9.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.62,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.67,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.94,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.99,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.26,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.31,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.58,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.63,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.2,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 14.6,
+"eval": "console.log('=== IC base gauge full: J x5, SP (AS3 Getsuga)')"
+},
+{
+"at": 14.6,
+"eval": "Module._debug_cmd(86101)"
+},
+{
+"at": 14.9,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.95,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.22,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.27,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.54,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.59,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 15.86,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 15.91,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.18,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.23,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 16.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 19.8,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 20.2,
+"eval": "console.log('=== IC base gauge full: pointer 3 NS (Getsuga charges)')"
+},
+{
+"at": 20.2,
+"eval": "Module._debug_cmd(86101)"
+},
+{
+"at": 20.25,
+"eval": "Module._debug_cmd(2512)"
+},
+{
+"at": 20.5,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 20.51,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 20.56,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 20.58,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 21.0,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.01,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.06,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.08,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 21.5,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.51,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.56,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.58,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 25.4,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 25.8,
+"eval": "console.log('=== IC kessa drive 0: J x5, SP (AS3)')"
+},
+{
+"at": 25.8,
+"eval": "Module._debug_cmd(86102)"
+},
+{
+"at": 26.1,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 26.15,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 26.42,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 26.47,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 26.74,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 26.79,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.06,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.11,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.38,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.43,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 27.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 27.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 27.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 31.0,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 31.4,
+"eval": "console.log('=== IC kessa drive 0: J x6 (J6 refused)')"
+},
+{
+"at": 31.4,
+"eval": "Module._debug_cmd(86102)"
+},
+{
+"at": 31.7,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 31.75,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 32.02,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 32.07,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 32.34,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 32.39,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 32.66,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 32.71,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 32.98,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.03,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 36.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 37.0,
+"eval": "console.log('=== IC kessa drive full: J x6, SP (AS4)')"
+},
+{
+"at": 37.0,
+"eval": "Module._debug_cmd(86103)"
+},
+{
+"at": 37.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 37.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 37.62,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 37.67,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 37.94,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 37.99,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 38.26,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 38.31,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 38.58,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 38.63,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 38.9,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 38.95,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 39.15,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 39.16,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 39.21,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 39.23,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 42.2,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 42.6,
+"eval": "console.log('=== IC kessa NS2 five cuts')"
+},
+{
+"at": 42.6,
+"eval": "Module._debug_cmd(86102)"
+},
+{
+"at": 42.65,
+"eval": "Module._debug_cmd(2511)"
+},
+{
+"at": 42.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 42.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 43.45,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 43.46,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 43.51,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 43.53,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 43.95,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 43.96,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.01,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.03,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 44.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 44.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 44.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 47.8,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 48.2,
+"eval": "console.log('=== IC kessa J1 J2 J3 SP (AS2: dash through, three cuts)')"
+},
+{
+"at": 48.2,
+"eval": "Module._debug_cmd(86102)"
+},
+{
+"at": 48.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 48.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 48.82,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 48.87,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.14,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.19,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.45,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 49.46,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.51,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.53,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 49.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 49.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 53.4,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 53.8,
+"eval": "console.log('=== IC kessa drive full: pointer 4 NS')"
+},
+{
+"at": 53.8,
+"eval": "Module._debug_cmd(86103)"
+},
+{
+"at": 53.85,
+"eval": "Module._debug_cmd(2513)"
+},
+{
+"at": 54.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 54.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 54.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 54.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 54.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 54.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 54.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 54.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 55.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 55.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 55.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 55.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 59.0,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 59.4,
+"eval": "console.log('=== IC kessa drive full: J x6 SP SP SP SP (AS4 four segments)')"
+},
+{
+"at": 59.4,
+"eval": "Module._debug_cmd(86103)"
+},
+{
+"at": 59.7,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 59.75,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 60.02,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 60.07,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 60.34,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 60.39,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 60.66,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 60.71,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 60.98,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 61.03,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 61.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 61.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 61.55,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 61.56,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 61.61,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 61.63,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 61.85,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 61.86,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 61.91,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 61.93,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 62.15,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 62.16,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 62.21,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 62.23,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 62.45,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 62.46,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 62.51,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 62.53,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 64.6,
+"eval": "Module._debug_cmd(2107)"
+}
+]

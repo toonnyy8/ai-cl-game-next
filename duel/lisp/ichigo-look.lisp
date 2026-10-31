@@ -814,6 +814,35 @@ three, then twelve at once; one white frame; behind Ichigo, low, facing away, th
   (at 126 (impact-frame :manga 12))
   (at 176 (card nil) (caption-exit) (shot-on a 150 7.0 2.0 :look 1.4) (lens 50)))
 
+(defcine ic-haste-kikon-cine (a v :len 160 :hold 110)
+  "超速連斬 CHOSOKU RENZAN, KESSA's pointer-2 Kikon (DUEL_SUBLIMATION §9): beat 0, the strike held; the plaza drops to black, the
+victim alone, Ichigo gone; white streaks from every angle cross him faster and faster; one white frame; behind Ichigo, low,
+facing away, the victim collapsed beyond: the brush 超速連斬, the hanko, the impact, the Konpaku; wide, the ink settling."
+  (at 0 (face-each-other a v 2.6) (shot-on a 60 3.8 1.1 :look 1.1) (lens 50)
+      (cine-clip a :ic-k-f1 :blend 2 :time (/ 14.0 60.0)) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :clone :pitch 0.8))
+  (at 12 (card :black v) (shot-on v 30 5.0 1.2 :look 1.2) (lens 45) (play-sfx :hoho-out) (silence 14))
+  (during (24 96) (let ((q (pos-of v)) (ang (+ 0.5 (* 4.0 u))))   ; a slow orbit while the streaks fly
+                    (cine-cam (+ (aref q 0) (* 4.6 (cos ang))) 1.5 (+ (aref q 2) (* 4.6 (sin ang))) (aref q 0) 1.1 (aref q 2))))
+  (during (24 100) (let ((q (pos-of v)))                          ; a streak every second frame, quicker toward the end, each fading over five
+                     (dotimes (back 5)
+                       (let* ((k (- cf back)) (th (* 2.399963 k)) (dy (* 0.7 (sin (* 1.3 k)))) (fade (- 1.0 (* 0.2 back))))
+                         (when (zerop (mod k 2))
+                           (fx-line (+ (aref q 0) (* 1.9 (cos th))) (+ 1.1 dy) (+ (aref q 2) (* 1.9 (sin th)))
+                                    (- (aref q 0) (* 1.9 (cos th))) (- 1.1 dy) (- (aref q 2) (* 1.9 (sin th)))
+                                    0.03 1.0 1.0 1.0 fade))))))
+  (at 30 (play-sfx :cut)) (at 44 (play-sfx :cut :pitch 1.1)) (at 56 (play-sfx :cut :pitch 0.95)) (at 66 (play-sfx :cut :pitch 1.15))
+  (at 74 (play-sfx :cut :pitch 1.2)) (at 80 (play-sfx :cut-heavy) (shake 0.2 0.3))
+  (at 96 (card nil) (ui-flash 1 1 1 1 6.0) (silence 10) (lens 50))
+  (at 106 (face-each-other a v 3.2) (card :black) (back-rim 56 0.82 0.06 0.11) (shot-on a 155 3.2 0.55 :look 1.3 :off -0.5)
+      (cine-clip a :ic-k-stance :blend 0) (cine-clip v :sh-crumple :blend 0)
+      (caption "超速連斬" :reading "CHOSOKU RENZAN" :sub "KESSA NO ICHIGO  KIKON" :side 1 :hanko t))
+  (at 110 (impact-frame :negative 2)
+      (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (play-sfx :konpaku-shatter) (play-sfx :explode :pitch 0.6 :gain 0.6) (shake 0.3 0.4))
+  (at 112 (impact-frame :manga 12))
+  (at 148 (card nil) (caption-exit) (shot-on a 150 7.0 2.0 :look 1.4) (lens 50)))
+
 (defcine ic-kessa-getsuga-cine (a v :len 180 :hold 124)
   "漆黒の月牙天衝, KESSA's Soul Break (v2 §5.4): beat 0, the blow held, silence; low and close: the slab overhead, a black
 glow gathering on it; a black card, the brush 月牙天衝 / 漆黒; wide and side-on: one top-down cut whose trail keeps going

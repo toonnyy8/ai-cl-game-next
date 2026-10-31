@@ -41,7 +41,7 @@
 (check (null (core-press-class :as :sp t)))
 (check (eq (core-class-after :na-cont) :na))
 ;; the pointer
-(check (equal (mapcar #'core-as-pointer '(0 1 2 3 4)) '(1 1 2 3 3)))
+(check (equal (mapcar #'core-as-pointer '(0 1 2 3 4 5)) '(1 1 2 3 4 4)))   ; (four pointers since 2026-10-31: CORE-NEXT-AS caps it by the kit's AS count)
 ;; the Kikon / Soul Break profiles (base worth 2, 3, 4)
 (check (equal (mapcar (lambda (b) (core-kikon-count b 1 nil)) '(2 3 4)) '(1 2 3)))
 (check (equal (mapcar (lambda (b) (core-kikon-count b 1 t)) '(2 3 4)) '(1 2 3)))
@@ -66,16 +66,16 @@
               (every (lambda (n) (eq (kit-class k (kit-move k n)) :sa)) '(:ic-sa :ic-sa-g1 :ic-sa-g2))
               (< (mv-dmg (kit-move k :ic-sa)) (mv-dmg (kit-move k :ic-sa-g1)) (mv-dmg (kit-move k :ic-sa-g2)))
               (every (lambda (n) (kit-next k n :q)) '(:ic-sa :ic-sa-g1 :ic-sa-g2))))
-  (check (equal (getf (kit-core k) :stances) '(:ic-st-heavy :ic-tsuki :ic-st-rush)))
+  (check (equal (getf (kit-core k) :stances) '(:ic-st-heavy :ic-st-rush :ic-tsuki)))   ; (the Getsuga is pointer 3 since 2026-10-31)
   (let ((*core-on* t) (f (make-fighter :kit k)))
     (setf (fighter-ptr f) 1) (check (eq (fighter-stance-clip f) :ic-st-heavy))
-    (setf (fighter-ptr f) 2) (check (eq (fighter-stance-clip f) :ic-tsuki))
-    (setf (fighter-ptr f) 3) (check (eq (fighter-stance-clip f) :ic-st-rush))
+    (setf (fighter-ptr f) 2) (check (eq (fighter-stance-clip f) :ic-st-rush))
+    (setf (fighter-ptr f) 3) (check (eq (fighter-stance-clip f) :ic-tsuki))
     (let ((core (kit-core k)))                                     ; (no :stances: the kit's own :stance; restored)
       (setf (kit-core k) nil) (check (eq (fighter-stance-clip f) (kit-stance k))) (setf (kit-core k) core))))
 ;; AS n has n segments, all of class AS; only the last knocks down / launches (DUEL_CORE §6, 2026-10-27)
 (let ((k (kit :ichigo :base)))
-  (check (equal (mapcar (lambda (n) (length (core-segments n))) (getf (kit-core k) :as)) '(1 2 3)))
+  (check (equal (mapcar (lambda (n) (length (core-segments n))) (getf (kit-core k) :as)) '(1 3 2)))   ; (the rush's three segments are AS2's since 2026-10-31)
   (check (every (lambda (n) (every (lambda (m) (eq (kit-class k (kit-move k m)) :as)) (core-segments n))) (getf (kit-core k) :as)))
   (check (every (lambda (n) (let ((segs (core-segments n)))
                               (and (every (lambda (m) (not (member (hw-react (svref (mv-hits (kit-move k m)) 0)) '(:knockdown :launch :crumple)))) (butlast segs))
@@ -99,8 +99,9 @@
   (check (eq (kit-core-move k :ns 3) (kit-move k :ic-k-n3a)))
   (check (every (lambda (n) (and (zerop (length (mv-hits (kit-move k n)))) (eq (mv-sa-move k (kit-move k n)) (kit-move k :ic-k-sa))))
                 '(:ic-k-n3a :ic-k-n3b :ic-k-n3c)))
-  (check (equal (getf (kit-core k) :stances) '(:ic-k-st-chain :ic-tsuki :ic-k-stance)))
-  (check (eq (kit-core-move (kit :ichigo :base) :ns 3) (kit-move (kit :ichigo :base) :ic-n3a))))   ; the Shikai keeps RANGETSU
+  (check (equal (getf (kit-core k) :stances) '(:ic-k-st-chain :ic-k-st-haste :ic-k-stance :ic-tsuki)))
+  (check (eq (kit-core-move (kit :ichigo :base) :ns 2) (kit-move (kit :ichigo :base) :ic-n3a)))   ; the Shikai: RANGETSU is pointer 2,
+  (check (eq (kit-core-move (kit :ichigo :base) :ns 3) (kit-move (kit :ichigo :base) :ic-n2a))))  ; the Getsuga pointer 3 (2026-10-31)
 ;; DEFCLIP-MIRROR: a key's right / left channels swapped, the middle's twist and the root's yaw negated
 (let* ((a (find-clip :ic-k-xa)) (b (find-clip :ic-k-xb)) (n +pose-n+) (pa (engine::clip-poses a)) (pb (engine::clip-poses b)) (k (* 3 n)))
   (check (and (= (engine::clip-n a) (engine::clip-n b)) (= (clip-dur a) (clip-dur b))))
@@ -117,13 +118,13 @@
 (let* ((k (kit :ichigo :kessa)) (core (kit-core k)))
   (check (notany (lambda (n) (let ((c (mv-clip (kit-move k n)))) (and c (not (search "IC-K-" (symbol-name c))) (not (member c '(:ic-tsuki))))))
                  (core-move-names core)))
-  (check (equal (getf core :kikon-cines) '(ic-chain-kikon-cine ic-kessa-getsuga-cine ic-kessa-kikon-cine))))
+  (check (equal (getf core :kikon-cines) '(ic-chain-kikon-cine ic-haste-kikon-cine ic-kessa-kikon-cine ic-kessa-getsuga-cine))))
 ;; five J (2026-10-28): J1-2 -> AS1, J3-4 -> AS2, J5 -> AS3; the strings J1 > J2 > J3 > J4 > J5 in both forms
 (check (equal (mapcar (lambda (n) (core-as-pointer n '(1 1 2 2 3))) '(0 1 2 3 4 5 6)) '(1 1 1 2 2 3 3)))
 (dolist (cf '((:ichigo :base) (:ichigo :kessa)))
   (let* ((k (apply #'kit cf)) (m (kit-command-move k :q)) (n 1))
     (loop for nx = (kit-next k (mv-name m) :q) while (and nx (< n 9)) do (setf m nx) (incf n))
-    (check (= n 5))
+    (check (= n (if (eq (second cf) :kessa) 6 5)))   ; (KESSA's sixth J, gated by SPIRIT DRIVE: ichigo-link-ok)
     (check (member :ender (mv-flags m)))))
 ;; a Getsuga wave's Kikon (2026-10-28: 「打中後瞬步衝過去補一刀」): each wave segment names a follow-up strike in its form's moves,
 ;; classed as its segment (so its hit is judged as the Kikon), a flash step that can close 12 m
@@ -205,6 +206,6 @@
 ;; holds into no Kikon; only Hisagi's Bankai has :as-writes or a :no-kikon segment
 (check (loop for c being the hash-keys of *kits* using (hash-value alist)
              always (loop for (f . k) in alist
-                          always (or (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
+                          always (or (and (eq c :hisagi) (member f '(:bankai :bankai-bind))) (and (eq c :ichigo) (eq f :kessa))
                                      (and (null (getf (kit-core k) :as-writes))
                                           (notany (lambda (n) (getf (mv-params (find-move n)) :no-kikon)) (core-move-names (kit-core k))))))))

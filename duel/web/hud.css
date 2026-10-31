@@ -157,6 +157,7 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .hptr[hidden], #hud .seal[hidden] { display: none; }
 #hud .seal { width: calc(1.75 * var(--u)); height: calc(1.75 * var(--u)); display: grid; place-items: center; border: 1px solid #4a4f5e;
   font: 800 calc(1.05 * var(--u))/1 var(--f-kanji); color: var(--stone); transition: all .25s var(--ease-out); }
+#hud .seal.lock { opacity: .35; border-style: dashed; }
 #hud .seal.on { background: var(--paper); color: var(--ink); border-color: var(--paper); transform: rotate(-4deg) scale(1.08); }
 #hud .hptr .pn { font: 600 calc(.7 * var(--u))/1 var(--f-mono); letter-spacing: .16em; color: var(--steel); text-transform: uppercase; margin-inline: calc(.5 * var(--u)); white-space: nowrap; }
 
