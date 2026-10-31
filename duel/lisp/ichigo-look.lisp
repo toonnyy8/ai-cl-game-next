@@ -479,6 +479,35 @@ each), rising and leaning against his motion, swaying with their own phases."
                    (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 (* 0.8 lean)) (f32 (* 0.7 len)) (f32 (* 0.8 lean-z)) 0.03f0 +pal-ember+ 0.9f0
                             (f32 (+ sd 40.0)) (f32 (+ ph 0.7)) 0.05f0 :segs 5 :wob 0.04)))))))
 
+;;; the swing's trail (the user, 2026-10-31: 「連揮刀拖尾也要」): while KESSA swings the Getsuga's cuts, flame sheets stream off the slab behind its tip
+(defparameter *ic-trail-moves* '(:ic-k-n2c :ic-k-as2b :ic-k-sa-g1 :ic-k-sa-g2 :ic-k-wave-strike :ic-k-wave-strike-as)
+  "KESSA's charged-Getsuga swings that trail flame (the cuts after the black-flame charges, their SAs and the wave's follow-up).")
+(declaim (type f32vec *ic-trail*))
+(defvar *ic-trail* (make-f32 16) "Per side (8 floats): the slab tip's last point (3), its step (3), the tick it was taken (1).")
+
+(defun ichigo-swing-trail (e f m sf)
+  "Flame sheets off the slab's tip: the tip's step since the last tick (kept per side: ICHIGO-DRAW runs more than once a frame), three
+ribbons from points along the blade (hand .. tip) streaming back against it, longer the nearer the tip."
+  (let* ((o (* 8 (fighter-side f))) (tr *ic-trail*) (tip *ic-tip*) (tick (aref tr (+ o 6))))
+    (%ic-held-tip (model-joints m) tip (weapon-len (find-weapon (model-weapon m))))
+    (unless (= tick *match-tick*)
+      (if (and (>= sf 1) (< (- *match-tick* tick) 3))
+          (setf (aref tr (+ o 3)) (- (aref tip 0) (aref tr o)) (aref tr (+ o 4)) (- (aref tip 1) (aref tr (+ o 1)))
+                (aref tr (+ o 5)) (- (aref tip 2) (aref tr (+ o 2))))
+          (setf (aref tr (+ o 3)) 0f0 (aref tr (+ o 4)) 0f0 (aref tr (+ o 5)) 0f0))
+      (setf (aref tr o) (aref tip 0) (aref tr (+ o 1)) (aref tip 1) (aref tr (+ o 2)) (aref tip 2) (aref tr (+ o 6)) (f32 *match-tick*)))
+    (let* ((vx (aref tr (+ o 3))) (vy (aref tr (+ o 4))) (vz (aref tr (+ o 5))) (sp (sqrt (+ (* vx vx) (* vy vy) (* vz vz))))
+           (hand (ic-joint e (joint-index :hand-r) *ic-cb* 0f0 -0.06f0 0f0)) (hx (aref hand 0)) (hy (aref hand 1)) (hz (aref hand 2))
+           (tm (fx-clock)) (k (min 0.95 (* 3.0 sp))))
+      (when (> sp 0.02)
+        (dotimes (j 3)
+          (let* ((u (+ 0.45 (* 0.27 j))) (px (+ hx (* u (- (aref tip 0) hx)))) (py (+ hy (* u (- (aref tip 1) hy)))) (pz (+ hz (* u (- (aref tip 2) hz))))
+                 (c (* -9.0 u)) (ph (+ (* 3.0 tm) (* 1.7 j))) (sd (+ j (drawing-no))))
+            (%tongue (f32 px) (f32 py) (f32 pz) (f32 (* c vx)) (f32 (+ (* c vy) 0.1)) (f32 (* c vz)) (f32 (* 0.2 u)) +pal-black-smoke+ (f32 (* 0.95 k))
+                     (f32 sd) (f32 ph) 0.12f0 :segs 10 :wob 0.0)
+            (%tongue (f32 px) (f32 py) (f32 pz) (f32 (* 0.85 c vx)) (f32 (+ (* 0.85 c vy) 0.12)) (f32 (* 0.85 c vz)) (f32 (* 0.09 u)) +pal-blood+ (f32 (* 0.9 k))
+                     (f32 (+ sd 30.0)) (f32 (+ ph 1.0)) 0.14f0 :segs 8 :wob 0.0)))))))
+
 (defun ichigo-draw (e rdt)
   "KIT-HOOK :draw (both forms): step the Shikai's cloak spring; the crescent edge and the ground contact (§3.3)."
   (let* ((f (fighter e)) (m (model e)) (o (* 32 (fighter-side f))) (st *ic-look*)
@@ -490,7 +519,8 @@ each), rising and leaning against his motion, swaying with their own phases."
     (unless kessa (%ya-hem-step st o (if (typep rdt 'single-float) rdt (f32 rdt))))   ; (F32 inline re-boxes)
     (ichigo-charged-blades e f m)
     (when kessa (ichigo-chain-lash e f m) (ichigo-chain-rest e f)
-      (when (> (model-alpha m) 0.5) (ichigo-red-wisps e)))
+      (when (> (model-alpha m) 0.5) (ichigo-red-wisps e)
+        (when (and mv (model-weapon m) (member (mv-name mv) *ic-trail-moves*)) (ichigo-swing-trail e f m sf))))
     (when (and edge (model-weapon m) (> (model-alpha m) 0.5))
       (let ((jm (model-joints m)) (tip *ic-tip*) (tip-l *ic-tip-l*) (hits (mv-hits mv)))
         (declare (simple-vector hits))
@@ -1113,11 +1143,11 @@ beside it; K presence, TM the phase."
         (%tongue (f32 px) (f32 py) (f32 pz) (f32 ax) (f32 ay) (f32 az) (f32 w) +pal-black-smoke+ (f32 (* 0.95 k)) (f32 sd) (f32 ph) (f32 sway) :segs 10 :wob 0.02)
         (when (evenp i)
           (%tongue (f32 (+ px (* 0.03 r fx))) (f32 py) (f32 (+ pz (* 0.03 r fz))) (f32 (* 0.8 ax)) (f32 (* 0.8 ay)) (f32 (* 0.8 az))
-                   (f32 (* 0.45 w)) +pal-blue+ (f32 (* 0.8 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.3 sway)) :segs 8 :wob 0.02))))))
+                   (f32 (* 0.45 w)) +pal-blood+ (f32 (* 0.8 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.3 sway)) :segs 8 :wob 0.02))))))
 
 (defun ic-flame-sheets (cx cy cz yaw r span k tm n)
   "N wide flat flame ribbons (sheets) along the same arc as IC-FLAME-TONGUES, each flowing back and curling at the tips, broad at the
-base and narrowing to a point, a blue-violet sheet riding on every other black one (the user, 2026-10-31: 「片狀絲帶的焰氣特效」)."
+base and narrowing to a point, a blood-red sheet riding on every black one and an ember core on every third (red-black, the user, 2026-10-31: 「卍解的月牙顏色是紅黑色不是藍黑色的」; 「片狀絲帶的焰氣特效」)."
   (let ((fx (fwd-x yaw)) (fz (fwd-z yaw)) (pi* 3.14159))
     (dotimes (i n)
       (let* ((u (/ (+ i 0.5) n)) (a (* span (- u 0.5))) (ca (cos a)) (sa (sin a)) (sg (if (< a 0.0) -1.0 1.0))
@@ -1128,9 +1158,11 @@ base and narrowing to a point, a blue-violet sheet riding on every other black o
              (ax (* len (+ (* -0.9 fx) (* cur sg (- sa) fx)))) (ay (* len (* cur sg ca))) (az (* len (+ (* -0.9 fz) (* cur sg (- sa) fz))))
              (w (* r (+ 0.14 (* 0.3 env)))) (sway (* 0.14 len)) (ph (+ (* 3.0 tm) (* 1.3 i))) (sd (+ (* 2.0 i) (drawing-no))))
         (%tongue (f32 px) (f32 py) (f32 pz) (f32 ax) (f32 ay) (f32 az) (f32 w) +pal-black-smoke+ (f32 (* 0.95 k)) (f32 sd) (f32 ph) (f32 sway) :segs 12 :wob 0.0)
-        (when (evenp i)
-          (%tongue (f32 (+ px (* 0.04 r fx))) (f32 py) (f32 (+ pz (* 0.04 r fz))) (f32 (* 0.85 ax)) (f32 (* 0.85 ay)) (f32 (* 0.85 az))
-                   (f32 (* 0.4 w)) +pal-blue+ (f32 (* 0.7 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.2 sway)) :segs 10 :wob 0.0))))))
+        (%tongue (f32 (+ px (* 0.04 r fx))) (f32 py) (f32 (+ pz (* 0.04 r fz))) (f32 (* 0.85 ax)) (f32 (* 0.85 ay)) (f32 (* 0.85 az))
+                 (f32 (* 0.45 w)) +pal-blood+ (f32 (* 0.85 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.2 sway)) :segs 10 :wob 0.0)
+        (when (zerop (mod i 3))
+          (%tongue (f32 (+ px (* 0.06 r fx))) (f32 py) (f32 (+ pz (* 0.06 r fz))) (f32 (* 0.7 ax)) (f32 (* 0.7 ay)) (f32 (* 0.7 az))
+                   (f32 (* 0.18 w)) +pal-ember+ (f32 (* 0.8 k)) (f32 (+ sd 90.0)) (f32 (+ ph 2.0)) (f32 (* 1.1 sway)) :segs 8 :wob 0.0))))))
 
 (defun ic-getsuga-flame (cx cy cz yaw r k tm)
   "KESSA's Getsuga crescent as flame: nine flat ribbons and a finer row of tongues between them."
