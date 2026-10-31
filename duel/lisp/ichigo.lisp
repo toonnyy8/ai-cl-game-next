@@ -1456,7 +1456,13 @@ now (the scripts time the presses)."
     (86130 (abort-cine) (setf *cine-hold* nil)                      ; the Getsuga flame preview (ichigo-look.lisp IC-FLAME-CINE), running
            (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 9.0) (force-form *p1* :kessa)
            (start-cine 'ic-flame-cine *p1* *p2*))
-    (86120 (force-cmd *p2* :q))))
+    (86120 (force-cmd *p2* :q))
+    (t (cond ((<= 86140 c 86189)                                     ; the clip stills: 86140+f holds frame f (0-49) of the clip chosen by 86190+n
+              (abort-cine) (setf *cine-hold* nil *ic-clip-t* (- c 86140))
+              (ensure-battle :ichigo :kenpachi) (place *p1* *p2* 9.0) (force-form *p1* :kessa)
+              (start-cine 'ic-clip-cine *p1* *p2*))
+             ((<= 86190 c 86199)                                     ; 86190+n: the clip n of (jab back wrap-j cut uchi f1 f2 f3)
+              (setf *ic-clip-test* (nth (- c 86190) '(:ic-k-jab :ic-k-back :ic-k-wrap-j :ic-k-cut :ic-k-uchi :ic-k-f1 :ic-k-f2 :ic-k-f3))))))))
 (pushnew '(86100 86199 ichigo-sub-debug) *char-debug* :test #'equal)
 
 (defun ichigo-debug (c)

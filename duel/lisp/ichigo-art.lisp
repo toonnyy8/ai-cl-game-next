@@ -855,13 +855,18 @@
   (:thigh-r :flex 34 :side 4) (:knee-r :flex 38) (:thigh-l :flex -20) (:knee-l :flex 18))
 (defstrike :ic-k-jab (8 3 12 :base :ic-k-stance)
   (0)
-  (3 (:root :u -0.1 :yaw 14) (:pelvis :twist 24) (:spine :flex 2) (:chest :twist 30) (:neck :twist -18) (:knees :flex 22)
-     (:arm-r :flex 158 :side 58 :twist -84) (:elbow-r :flex 30) (:hand-r :twist 7 :flex -126)            ; over the left shoulder
+  (3 (:root :u -0.13 :f -0.06 :yaw 20) (:pelvis :twist 30) (:spine :flex 0) (:chest :twist 40) (:neck :twist -22) (:knees :flex 30)   ; loaded: weight on the back leg, the
+     (:thigh-l :flex -26) (:knee-l :flex 30) (:thigh-r :flex 18) (:knee-r :flex 14)                                                    ; torso wound far, the slab cocked
+     (:arm-r :flex 150 :side 58 :twist -84) (:elbow-r :flex 66) (:hand-r :twist 7 :flex -92)             ; over the left shoulder, the elbow folded, the wrist level
      (:arm-l :flex 24 :side 30) (:elbow-l :flex 40))
-  (6 (:root :u -0.11) (:arm-r :flex 166 :side 10 :twist -81) (:elbow-r :flex 10) (:hand-r :twist -20 :flex -79))   ; up, left
+  (6 (:root :u -0.12 :f 0.0 :yaw 8) (:pelvis :twist 8) (:chest :twist 42) (:arm-r :flex 166 :side 26 :twist -82) (:elbow-r :flex 50) (:hand-r :twist -14 :flex -70)   ; the hips lead: unwound
+     (:thigh-r :flex 26) (:knee-r :flex 28) (:thigh-l :flex -22))                                                          ; while the chest and arm still wait
+  (7 (:root :u -0.13 :f 0.1 :yaw -2) (:pelvis :twist -12) (:chest :twist 14) (:arm-r :flex 156 :side 32 :twist -83) (:elbow-r :flex 30) (:hand-r :twist -18 :flex -90)   ; the chest follows, the elbow opens
+     (:thigh-r :flex 32) (:knee-r :flex 34))
   (:s :snap :ic-k-jab-hit)
   (:a (:chest :twist -18) (:arm-r :flex 125 :side 57) (:elbow-r :flex 7) (:hand-r :twist -81))                ; down-right
-  (14 (:root :u -0.14) (:chest :twist -24) (:arm-r :flex 21 :side 9 :twist -22) (:elbow-r :flex 86) (:hand-r :twist -36 :flex -139))
+  (11 (:root :u -0.13 :f 0.04) (:chest :twist -26) (:arm-r :flex 70 :side 30 :twist -50) (:elbow-r :flex 50) (:hand-r :twist -50 :flex -100))   ; carried through, the wrist loose
+  (14 (:root :u -0.14) (:chest :twist -24) (:arm-r :flex 21 :side 9 :twist -22) (:elbow-r :flex 86) (:hand-r :twist -36 :flex -95))
   (18 (:root :f -0.03 :u -0.07 :yaw -3) (:spine :flex 6) (:chest :twist -8) (:thigh-r :flex 14) (:knee-r :flex 18)    ; settle
       (:arm-r :flex 0 :side 28 :twist 10) (:elbow-r :flex 50) (:hand-r :twist 0 :flex -55))
   (:end :ic-k-stance))
@@ -871,9 +876,13 @@
   (:thigh-r :flex 44) (:knee-r :flex 46) (:thigh-l :flex -26) (:knee-l :flex 14))
 (defstrike :ic-k-cut (8 3 12 :base :ic-k-stance)
   (0)
-  (3 (:root :u -0.1 :yaw 14) (:pelvis :twist 24) (:spine :flex 2) (:chest :twist 30) (:neck :twist -18) (:knees :flex 22)
-     (:arm-r :flex 158 :side 58 :twist -84) (:elbow-r :flex 30) (:hand-r :twist 7 :flex -126) (:arm-l :flex 24 :side 30) (:elbow-l :flex 40))
-  (6 (:root :u -0.11 :f 0.1) (:arm-r :flex 166 :side 10 :twist -81) (:elbow-r :flex 10) (:hand-r :twist -20 :flex -79))
+  (3 (:root :u -0.13 :f -0.06 :yaw 20) (:pelvis :twist 30) (:spine :flex 0) (:chest :twist 40) (:neck :twist -22) (:knees :flex 30)
+     (:thigh-l :flex -26) (:knee-l :flex 30) (:thigh-r :flex 18) (:knee-r :flex 14)
+     (:arm-r :flex 150 :side 58 :twist -84) (:elbow-r :flex 66) (:hand-r :twist 7 :flex -92) (:arm-l :flex 24 :side 30) (:elbow-l :flex 40))
+  (6 (:root :u -0.12 :f 0.1 :yaw 8) (:pelvis :twist 8) (:chest :twist 42) (:arm-r :flex 166 :side 26 :twist -82) (:elbow-r :flex 50) (:hand-r :twist -14 :flex -70)
+     (:thigh-r :flex 26) (:knee-r :flex 28) (:thigh-l :flex -22))
+  (7 (:root :u -0.13 :f 0.2 :yaw -2) (:pelvis :twist -12) (:chest :twist 14) (:arm-r :flex 156 :side 32 :twist -83) (:elbow-r :flex 30) (:hand-r :twist -18 :flex -90)
+     (:thigh-r :flex 36) (:knee-r :flex 38))
   (:s :snap :ic-k-cut-hit)
   (:a (:chest :twist -18) (:arm-r :flex 63 :side 23 :twist -6) (:elbow-r :flex 37) (:hand-r :twist -20 :flex -136))
   (14 (:root :f 0.24 :u -0.15) (:chest :twist -24) (:arm-r :flex 21 :side 9 :twist -22) (:elbow-r :flex 86) (:hand-r :twist -36 :flex -139))
@@ -890,13 +899,17 @@
   (:thigh-r :flex 30) (:knee-r :flex 34) (:thigh-l :flex -18) (:knee-l :flex 16))
 (defstrike :ic-k-back (8 3 13 :base :ic-k-stance)
   (0)
-  (3 (:root :u -0.12 :yaw -10) (:pelvis :twist 28) (:spine :flex 14) (:chest :twist 34) (:neck :twist -20) (:knees :flex 26)
-     (:arm-r :flex 32 :side -9 :twist 67) (:elbow-r :flex 46) (:hand-r :twist 40 :flex -89))           ; low across, to his left
-  (6 (:arm-r :flex 29 :side 6 :twist 44) (:elbow-r :flex 43) (:hand-r :twist 18 :flex -77))           ; the flat turned, rising
+  (3 (:root :u -0.15 :f -0.04 :yaw -14) (:pelvis :twist 36) (:spine :flex 14) (:chest :twist 46) (:neck :twist -24) (:knees :flex 32)   ; loaded low: hips and
+     (:thigh-r :flex 22) (:knee-r :flex 30) (:thigh-l :flex -24) (:knee-l :flex 14)                                                   ; torso wound to his left
+     (:arm-r :flex 28 :side -14 :twist 67) (:elbow-r :flex 62) (:hand-r :twist 40 :flex -68))           ; low across, to his left, the elbow folded
+  (6 (:root :u -0.14 :f 0.02 :yaw -4) (:pelvis :twist 10) (:chest :twist 48) (:arm-r :flex 28 :side -4 :twist 52) (:elbow-r :flex 54) (:hand-r :twist 24 :flex -62)   ; the hips lead
+     (:thigh-r :flex 28) (:knee-r :flex 30))
+  (7 (:root :u -0.12 :f 0.08 :yaw 4) (:pelvis :twist -8) (:chest :twist 20) (:arm-r :flex 25 :side 12 :twist 40) (:elbow-r :flex 44) (:hand-r :twist 10 :flex -60))     ; the chest follows, the arm drags
   (:s :snap :ic-k-back-hit)
   (:a (:root :u -0.06) (:chest :twist -26) (:arm-r :flex 22 :side 46 :twist -26) (:elbow-r :flex 97) (:hand-r :twist -45 :flex -85))
+  (11 (:root :u -0.05) (:chest :twist -28) (:arm-r :flex 24 :side 66 :twist -46) (:elbow-r :flex 96) (:hand-r :twist -40 :flex -96))   ; rising, the shoulder lifting it
   (15 (:root :u -0.04) (:spine :flex 0) (:chest :twist -30) (:arm-r :flex 26 :side 85 :twist -66) (:elbow-r :flex 93)   ; high right
-      (:hand-r :twist -36 :flex -116))
+      (:hand-r :twist -36 :flex -84))
   (19 (:root :u -0.07) (:spine :flex 4) (:chest :twist -10) (:thigh-r :flex 14) (:knee-r :flex 18)                     ; settle
       (:arm-r :flex 0 :side 30 :twist 10) (:elbow-r :flex 52) (:hand-r :twist 0 :flex -55))
   (:end :ic-k-stance))

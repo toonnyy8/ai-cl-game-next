@@ -1178,6 +1178,13 @@ base and narrowing to a point, a blood-red sheet riding on every black one and a
       (cine-clip a :ic-k-f1 :blend 0) (cine-clip v :sh-kikon-victim :blend 0))
   (during (0 9999) (ic-flame-preview a (mod cf 90))))
 
+(defvar *ic-clip-test* :ic-k-jab "The clip the clip-frame stills play (debug 86140+).")
+(defvar *ic-clip-t* 0 "The frame of that clip they hold.")
+(defcine ic-clip-cine (a v :len 9999 :hold 1)
+  "Debug stills (ichigo.lisp ICHIGO-SUB-DEBUG, 86140+): KESSA alone on a white card at *IC-POSE-ANG* degrees, the clip *IC-CLIP-TEST* held at frame *IC-CLIP-T*."
+  (at 0 (card :white) (face-each-other a v 9.0) (shot-on a *ic-pose-ang* 4.2 1.1 :look 1.0) (lens 42)
+      (cine-clip a *ic-clip-test* :blend 0 :time (/ *ic-clip-t* 60.0) :speed 0.0) (cine-clip v :sh-kikon-victim :blend 0)))
+
 (defcine ic-pose-cine (a v :len 9999 :hold 1)
   "Debug stills (ichigo.lisp ICHIGO-POSE, 74990+k): the camera on P1 at *IC-POSE-ANG* degrees."
   (at 0 (shot-on a *ic-pose-ang* 3.6 1.1 :look 1.0) (lens 42)))
