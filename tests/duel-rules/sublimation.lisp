@@ -21,11 +21,11 @@
 ;; Kenpachi's Bankai: DRIVE full opens it, whatever his Konpaku
 (check (and (bankai-allowed-p t t) (not (bankai-allowed-p t nil)) (not (bankai-allowed-p nil t))))
 ;; Ichigo's pointers (the user 2026-10-31, DUEL_SUBLIMATION §9): the Shikai's pointer 3 is the Getsuga, sealed until the awakening gauge
-;; is full; KESSA's pointer 2 is 超速連斬 (NS2 five cuts 22 / 15 / 11 / 8 / 6 f, AS2 two segments), pointer 4 the Getsuga sealed until
+;; is full; KESSA's pointer 2 is 超速連斬 (NS2 five cuts 22 / 17 / 12 / 6 / 3 f, AS2 two segments), pointer 4 the Getsuga sealed until
 ;; SPIRIT DRIVE is full (NS4 = three segments, AS4 = four), the sixth J gated by ichigo-link-ok
 (let* ((b (kit :ichigo :base)) (k (kit :ichigo :kessa)) (fb (make-fighter :kit b)) (fk (make-fighter :kit k)))
   (check (equal (core-segments :ic-k-h1) '(:ic-k-h1 :ic-k-h2 :ic-k-h3 :ic-k-h4 :ic-k-h5)))
-  (check (equal (mapcar (lambda (n) (mv-s (kit-move k n))) '(:ic-k-h1 :ic-k-h2 :ic-k-h3 :ic-k-h4 :ic-k-h5)) '(22 15 11 8 6)))
+  (check (equal (mapcar (lambda (n) (mv-s (kit-move k n))) '(:ic-k-h1 :ic-k-h2 :ic-k-h3 :ic-k-h4 :ic-k-h5)) '(22 17 12 6 3)))
   (check (equal (mapcar (lambda (n) (mv-dmg (kit-move k n))) '(:ic-k-h1 :ic-k-h2 :ic-k-h3 :ic-k-h4 :ic-k-h5)) '(20 20 25 25 40)))
   (check (equal (mapcar (lambda (n) (length (core-segments n))) (getf (kit-core k) :as)) '(1 2 3 4)))
   (check (equal (core-segments :ic-k-n2a) '(:ic-k-n2a :ic-k-n2b :ic-k-n2c)))

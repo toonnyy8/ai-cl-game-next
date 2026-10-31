@@ -106,3 +106,8 @@ KESSA's Getsuga crescent (`ichigo-juji-look`, `ichigo-form-look`) is `vfx-ic-cre
 
 - **NUKI-GIRI** (`ichigo-haste-dash`): the dash goes 0.8 m past him over 12 f (it was 2 m over 14, capped 8 m; now capped 6 m).
 - **超速連斬 NS2** (`ic-k-h1..h5`): startup 22 / 15 / 11 / 8 / 6 f (was 24 / 20 / 16 / 12 / 8), recovery 14 / 11 / 9 / 8 / 20 (was 18 / 14 / 12 / 10 / 22); damage unchanged (20 / 20 / 25 / 25 / 40). Scripted scene: all five cuts in 90 f of presses (it was 122), the hits 22 / 18 / 15 / 13 f apart. The first stays above the 14 f tell rule. The scene's presses were retimed (`ichigo_pointers_script`). G2 `--cvc` unchanged (the CPU does not use it).
+
+### 12.2 NS2 must connect, and the speed-up grows (the user, 2026-10-31: 「NS2a 跟 NS2b 接不起來」「NS2 的修改要求不是整體變快，是越後面的加速要提升更多」)
+
+- **Why NS2a > NS2b did not connect**: the cuts were flinches (18 f of stun) and the next cut landed 23 f (before 27 f) after the last: the victim was free for the gap. Now the cuts are `:stagger` (26 f; the fifth too), and the gaps are shorter than that.
+- **The rhythm** (not "all faster", but each step quicker than the one before): startup 22 / 17 / 12 / 6 / 3 f (steps -5 / -5 / -6 / -3, the last at the floor), recovery 12 / 10 / 8 / 6 / 20; damage 20 / 20 / 25 / 25 / 40. Measured hit to hit in the scripted scene: 25, 19, 13, 10 f (the first cut's hit at f22). All five connect (the scene's presses retimed: 0 / 0.5 / 0.85 / 1.15 / 1.35 s). G2 `--cvc` unchanged. Not seen: the stun of the victim frame by frame (the log shows the five hits, not the combo's HUD).
