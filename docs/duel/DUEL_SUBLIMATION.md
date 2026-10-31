@@ -168,3 +168,8 @@ User: 「如果確認真的沒生效就改，然後分身也要重現其他 NS �
 ### 17.2 KESSA's SA uses J1's motion (the user, 2026-11-01)
 
 User: 「他們的動作都只是不同的 J1 為什麼還有特製動作？」 -> 「做法一」. KESSA's plain SA `ic-k-sa` played its own `:ic-k-f1` (a lunge); the charged SAs already played J1's `:ic-k-jab` / J2's `:ic-k-back`. Now `ic-k-sa` plays `:ic-k-jab` (`:clip-s 8`) like the charged one; its numbers (S 10, slide 3.0 m, reach 2.6, 50, stagger) are unchanged, so the lunge is the move's `:slide`, not a clip. The Shikai's SA was not touched. Scripted: ptr 1 SP, J -> `IC-K-SA` hits 50 (f+10).
+
+### 17.3 The thumb's switch: a sideways flick in an NS gap (the user, 2026-11-01)
+
+User: 「我目前手持模式沒辦法使出切換 NS」 (one thumb cannot hold a direction and tap SP), then 「直接將滑動識別為切換+NSa」.
+In the one-hand deck a sideways flick (|dx| > 1.73 |dy|, the recogniser's up-cone) while P1 is in an NS segment and `core-switch-ready-p` holds is read as the SP press with the flick's direction as the stick (`switch-flick-p`, onehand.lisp `touch-button`: :quick + :mod down, :step suppressed): right = the next pointer, left = the previous, its NSa starts after the segment's active frames, the same cost and rules as §17. Without the gauge (or outside an NS) the flick stays a Step. Scripted (`duel-drive-switch-phone.json`, --mobile --size 390x844, debug 86105 / 86107): SP tap then flick right -> `NS pointer 1 -> 2`, flick left -> `1 -> 3`, DRIVE 20 -> no switch.

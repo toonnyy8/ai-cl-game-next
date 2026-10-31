@@ -95,14 +95,20 @@ T when something started."
                   (vpad-consume! vp button))))
          nil)))
 
+(defun core-switch-ready-p (e f)
+  "Can E switch pointer now (DUEL_SUBLIMATION §17): a human, not already switched, a second pointer, and DRIVE (awakened) or SUBLIMATION
+(before) of at least *DRIVE-SWITCH* x its maximum."
+  (let ((g (gauges e)))
+    (and (not (brain e)) (zerop (fighter-tmp f)) (> (length (getf (kit-core (fighter-kit f)) :ns)) 1)
+         (if (gauges-awakened g)
+             (>= (gauges-drive g) (* *drive-max* *drive-switch*))
+             (>= (gauges-sub g) (* *sub-max* *drive-switch*))))))
+
 (defun core-switch-target (e f)
   "The pointer a stick left (previous) / right (next, cyclic) + SP in an NS gap switches to, or NIL: the CPU never, once a route, gauge
 under *DRIVE-SWITCH* x B, or no other pointer (DUEL_SUBLIMATION §17)."
-  (let* ((g (gauges e)) (n (length (getf (kit-core (fighter-kit f)) :ns))))
-    (when (and (not (brain e)) (zerop (fighter-tmp f)) (> n 1)
-               (if (gauges-awakened g)                  ; SPIRIT DRIVE after the awakening, SUBLIMATION before it
-                   (>= (gauges-drive g) (* *drive-max* *drive-switch*))
-                   (>= (gauges-sub g) (* *sub-max* *drive-switch*))))
+  (let* ((n (length (getf (kit-core (fighter-kit f)) :ns))))
+    (when (core-switch-ready-p e f)
       (let ((st (nth-value 1 (stick-relative e f))))
         (when (> (abs st) 0.5f0)
           (let ((to (1+ (mod (+ (1- (fighter-ptr f)) (if (> st 0f0) 1 -1)) n))))

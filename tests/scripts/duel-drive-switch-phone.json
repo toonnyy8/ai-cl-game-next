@@ -1,0 +1,146 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== DP right flick: SP tap, flick right')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(86105)"
+},
+{
+"at": 9.3,
+"touch": "start",
+"x": 195,
+"y": 520
+},
+{
+"at": 9.35,
+"touch": "end",
+"x": 195,
+"y": 520
+},
+{
+"at": 9.6,
+"touch": "start",
+"x": 150,
+"y": 600
+},
+{
+"at": 9.63,
+"touch": "move",
+"x": 205,
+"y": 600
+},
+{
+"at": 9.66,
+"touch": "move",
+"x": 260,
+"y": 600
+},
+{
+"at": 9.72,
+"touch": "end",
+"x": 260,
+"y": 600
+},
+{
+"at": 12.0,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 12.5,
+"eval": "console.log('=== DP left flick: SP tap, flick left')"
+},
+{
+"at": 12.5,
+"eval": "Module._debug_cmd(86105)"
+},
+{
+"at": 12.8,
+"touch": "start",
+"x": 195,
+"y": 520
+},
+{
+"at": 12.85,
+"touch": "end",
+"x": 195,
+"y": 520
+},
+{
+"at": 13.1,
+"touch": "start",
+"x": 260,
+"y": 600
+},
+{
+"at": 13.13,
+"touch": "move",
+"x": 205,
+"y": 600
+},
+{
+"at": 13.16,
+"touch": "move",
+"x": 150,
+"y": 600
+},
+{
+"at": 13.22,
+"touch": "end",
+"x": 150,
+"y": 600
+},
+{
+"at": 15.5,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 16.0,
+"eval": "console.log('=== DP no DRIVE: SP tap, flick right (a Step)')"
+},
+{
+"at": 16.0,
+"eval": "Module._debug_cmd(86107)"
+},
+{
+"at": 16.3,
+"touch": "start",
+"x": 195,
+"y": 520
+},
+{
+"at": 16.35,
+"touch": "end",
+"x": 195,
+"y": 520
+},
+{
+"at": 16.6,
+"touch": "start",
+"x": 150,
+"y": 600
+},
+{
+"at": 16.63,
+"touch": "move",
+"x": 205,
+"y": 600
+},
+{
+"at": 16.66,
+"touch": "move",
+"x": 260,
+"y": 600
+},
+{
+"at": 16.72,
+"touch": "end",
+"x": 260,
+"y": 600
+},
+{
+"at": 19.0,
+"eval": "Module._debug_cmd(2107)"
+}
+]

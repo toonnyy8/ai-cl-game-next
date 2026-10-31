@@ -791,3 +791,23 @@ def drive_switch_script():
     return sorted(ev, key=lambda x: x["at"])
 write("drive-switch", drive_switch_script())
 
+def drive_switch_phone_script():
+    """The thumb's switch (DUEL_SUBLIMATION §17.3; --mobile --size 390x844): KESSA with DRIVE 60 (debug 86105): an SP tap in the upper pad, then a
+    sideways flick (right / left) in the NS gap = the pointer switch; a flick with no DRIVE (86107) stays a Step."""
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def tap(t, x, y): return [{"at": round(t, 2), "touch": "start", "x": x, "y": y}, {"at": round(t + 0.05, 2), "touch": "end", "x": x, "y": y}]
+    def flick(t, x0, x1, y=600): return [{"at": round(t, 2), "touch": "start", "x": x0, "y": y}, {"at": round(t + 0.03, 2), "touch": "move", "x": (x0 + x1) // 2, "y": y},
+                                         {"at": round(t + 0.06, 2), "touch": "move", "x": x1, "y": y}, {"at": round(t + 0.12, 2), "touch": "end", "x": x1, "y": y}]
+    t = T0
+    for label, setup, body in (
+            ("DP right flick: SP tap, flick right", 86105, lambda s: [*tap(s, 195, 520), *flick(s + 0.3, 150, 260)]),
+            ("DP left flick: SP tap, flick left", 86105, lambda s: [*tap(s, 195, 520), *flick(s + 0.3, 260, 150)]),
+            ("DP no DRIVE: SP tap, flick right (a Step)", 86107, lambda s: [*tap(s, 195, 520), *flick(s + 0.3, 150, 260)])):
+        say(t, label)
+        ev.extend([cmd(t, setup), cmd(t + 3.0, 2107)])
+        ev.extend(body(t + 0.3))
+        t += 3.5
+    return sorted(ev, key=lambda x: x["at"])
+write("drive-switch-phone", drive_switch_phone_script())
+

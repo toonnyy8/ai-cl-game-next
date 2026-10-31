@@ -267,6 +267,14 @@ frame's finger events."
 AWAKEN chip is U (the user's default, DUEL_MOBILE_DESIGN §15.1)."
   (and *one-hand* *p1* (entity-alive-p *p1*) (fighter *p1*) (kit-hook (kit-of *p1*) :u) t))
 
+(defun switch-flick-p ()
+  "Is the live flick a sideways one in an NS gap that can switch the pointer (DUEL_SUBLIMATION §17)? Then it is the SP press (Mod + the
+attack) with the flick's direction as the stick, not a Step: the thumb's version of the stick left / right + SP."
+  (let ((tr *touch*))
+    (and *one-hand* *p1* (entity-alive-p *p1*) (touch-pulse-p tr +tp-flick+)
+         (> (abs (touch-fx tr)) (* 1.73f0 (abs (touch-fy tr))))
+         (let ((f (fighter *p1*))) (and f (eq (fighter-cls f) :ns) (eq (fighter-state f) :move) (core-switch-ready-p *p1* f))))))
+
 (defun touch-button (name)
   "Is vpad button NAME down from the thumb deck (design §3.2 / §3.4; the core system, 2026-10-27: a tap = the attack, the SP
 zone's tap = Mod + the attack, a down-flick while stunned = the Burst (P), a rested up-flick = Hoho (Mod + Step), a flick = Step)?
@@ -275,10 +283,10 @@ read on a lift before the hold (TOUCH-CHIP-TAP-P: the Burst), Mod + P once held 
   (let* ((tr *touch*) (burst *touch-burst*))
     (flet ((chip (i) (touch-chip-down-p tr i)) (pulse (b) (touch-pulse-p tr b)))
       (case name
-        (:quick (or (pulse +tp-tap+) (pulse +tp-tap-hi+)))          ; the pad's two tap zones (the old F / Q split): low = the
-        (:mod (or (pulse +tp-hoho+) (pulse +tp-tap-hi+)              ; attack, high = SP (Mod + the attack), 2026-10-27
+        (:quick (or (pulse +tp-tap+) (pulse +tp-tap-hi+) (switch-flick-p)))          ; the pad's two tap zones (the old F / Q split): low = the
+        (:mod (or (pulse +tp-hoho+) (pulse +tp-tap-hi+) (switch-flick-p)            ; attack, high = SP (Mod + the attack), 2026-10-27
                   (rv-buttons (chip 7) (> (aref (touch-chip-hold tr) 7) 0f0) (touch-chip-tap-p tr 7))))   ; 爆 held through its hold
-        (:step (and (not burst) (or (pulse +tp-flick+) (pulse +tp-hoho+) (touch-step-held-p tr))))
+        (:step (and (not burst) (not (switch-flick-p)) (or (pulse +tp-flick+) (pulse +tp-hoho+) (touch-step-held-p tr))))
         (:awaken (or burst (multiple-value-bind (m a) (rv-buttons (chip 7) (> (aref (touch-chip-hold tr) 7) 0f0) (touch-chip-tap-p tr 7))
                              (declare (ignore m))                       ; (not NTH-VALUE: it conses its value list)
                              a)))))))
