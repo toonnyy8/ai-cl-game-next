@@ -542,7 +542,7 @@ dash starts = guard-crushing (the Breaker property)."
 (defparameter *ken-ai-lunge-punish* '(:easy 0.0 :normal 0.3 :hard 0.9) "... J1 from its lunge's reach on a punish.")
 (defparameter *ken-ai-lunge* '(:easy 0.0 :normal 0.0 :hard 0.06) "... J1 from its lunge's reach in neutral (per step).")
 (defparameter *ken-ai-walk-in* '(:easy 0.0 :normal 0.005 :hard 0.8) "... walk into J1's range (per step).")
-(defparameter *ken-ai-bankai-strict* '(:easy 0.0 :normal 0.0 :hard 1.0) "... the Bankai only as a finisher (HARD: a rule).")
+(defparameter *ken-ai-bankai-strict* '(:easy 0.0 :normal 0.0 :hard 0.0) "... the Bankai only as a finisher (HARD: a rule; off since 2026-10-31: the Bankai no longer costs Konpaku, DUEL_SUBLIMATION §3).")
 (defparameter *ken-ai-sp2-ender* '(:easy 0.0 :normal 0.1 :hard 0.6) "... else the SP2 ender (the charge) off it.")
 (defparameter *ken-ai-far-punish* '(:easy 0.0 :normal 0.2 :hard 0.9) "... beyond J1's lunge: the charge / leap / K1 on a punish.")
 (defparameter *ken-ai-first-strike* '(:easy 0.0 :normal 0.002 :hard 0.35) "... J1 / K1 timed to his closing speed vs a masher.")

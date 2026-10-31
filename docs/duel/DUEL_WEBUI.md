@@ -700,3 +700,7 @@ their graphic widgets lived only in the old canvas HUD (`ken-meter.lisp`), which
 - Code: `engine/lisp/audio.lisp` (`set-master-volume`), `control.lisp` (the row), `onehand.lisp` (`apply-settings`), `pwa.js` (the name),
   `menu.js` (the row; BACK's index now follows the row count). Tests: duel-control 101 checks (the default 1.0, 0 mutes, rising).
   Checked in shots at 1280 x 720 and 390 x 844: a saved 2 loads as option 1, a click on 3 saves "4". DEVLOG §520.
+
+## 15. The desktop plate after BLEACH Rebirth of Souls (the user, 2026-10-31)
+
+「幫我參考 bleach ROS 的附圖設計 HUD」; 「照圖重排」, the souls as 「大數字跟旁邊的九個格子」, the phone 「維持現在的直向排法，只換造型與配色」. Built in hud.js / hud.css under `#hud:not(.hphone)`: a big soul number (`.scount`) at each plate's inner end, nine slanted cells (`.soul`, the flames kept on the phone), the guard gauge `.ggr` under the Reishi bar (new slots 24 ‰ and 25 broken, webhud.lisp), the awakening bar with its EVOLUTION label (`.meters`, pink SUBLIMATION and red DRIVE: DUEL_SUBLIMATION §6), `.fsb` (the flash step, FLASH STEP label) and the kit meter fixed to the bottom corners. Details and the screen's mapping: DUEL_SUBLIMATION §8.

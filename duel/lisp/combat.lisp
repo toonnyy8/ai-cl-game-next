@@ -803,11 +803,11 @@ form's :cine if it has one (both fighters idle after it). The guard gauge is lef
 ;;; ---------------------------------------------------------------- Kenpachi's Bankai: the arm meter (docs/duel/DUEL_KEN_BANKAI.md)
 (defun bankai! (e &optional (form (kit-bankai-form (kit-of e))))
   "The Bankai (P in cup 3, red, free: rules BANKAI-ALLOWED-P): the kit's :bankai-form, its arm meter full (the kit meter
-holds the pips, the crack clock at 0), his OWN Konpaku set to 1 and his Reishi refilled (the user's decisions
-2026-09-28: all his remaining souls for one full bar fought with the Bankai); the guard gauge, Reiatsu and flash-step as
+holds the pips, the crack clock at 0), his Reishi refilled and, since 2026-10-31, his Konpaku KEPT (the user: 「改成不扣」; before: set to 1, the decisions of
+2026-09-28: all his remaining souls for one full bar); the guard gauge, Reiatsu and flash-step as
 they are; then the form's :cine (both fighters idle after it). FORM: the target (DANGAI's 隨時卍解 card names it from a cup
 without one, and keeps his Konpaku: ken-meter.lisp KEN-CARD-BANKAI, DUEL_ROGUE §4.3)."
-  (let* ((g (gauges e)) (o (opp-of e)) (keep (rmod e :any-bankai nil))   ; (DANGAI's 隨時卍解: his Konpaku kept)
+  (let* ((g (gauges e)) (o (opp-of e)) (keep t)   ; his Konpaku kept (the user 2026-10-31: 「改成不扣」, DUEL_SUBLIMATION §3; DANGAI's 隨時卍解 always did)
          (lost (if keep 0 (- (gauges-konpaku g) 1))))
     (repel! e)                                          ; the second awakening breaks his attack too
     (start-awake-regen! g)
@@ -819,7 +819,7 @@ without one, and keeps his Konpaku: ken-meter.lisp KEN-CARD-BANKAI, DUEL_ROGUE �
     (refresh-look e)
     (when (plusp lost) (emit :konpaku e lost))
     (emit :bankai e)
-    (clog "~a BANKAI (konpaku -> 1, -~d)" (side-name e) lost)
+    (clog "~a BANKAI (konpaku kept, -~d)" (side-name e) lost)
     (if (kit-cine (kit-of e))
         (start-cine (kit-cine (kit-of e)) e o :after (lambda () (to-idle e 0) (to-idle o 0)))
         (to-idle e 0))))

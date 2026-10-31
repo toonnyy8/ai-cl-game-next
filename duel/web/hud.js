@@ -64,8 +64,9 @@
   function plateHTML(p) {
     var souls = ""; for (var i = 0; i < 9; i++) souls += '<span class="soul">' + SOUL + '</span>';
     return '<div class="plate ' + p + '"><div class="who"><span class="nm"></span><span class="kj"></span><span class="htag"></span></div>' +
-      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="srow"><div class="souls">' + souls + '</div><div class="kit" hidden></div></div>' +
-      '<div class="meters"><div class="fs"><i></i><i></i><i></i></div><div class="aw"></div><span class="awk">覺醒 READY</span></div>' +
+      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="ggr"><i></i></div><div class="srow"><div class="souls">' + souls + '</div><div class="kit" hidden></div></div>' +
+      '<div class="scount"><b class="sn">9</b><span>魂魄</span></div>' +
+      '<div class="meters"><div class="aw"></div><span class="awk">EVOLUTION</span></div><div class="fsb"><span class="fl">FLASH STEP</span><div class="fs"><i></i><i></i><i></i></div></div>' +
       '<div class="hptr"><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="pn"></span></div></div>' +
       '<div class="callout ' + p + '"><span class="ck"></span><span class="cr"></span></div>' +
       '<div class="combo ' + p + '"><div class="crow"><span class="n"></span><span class="h">HITS</span></div><span class="d">DMG <b class="cd"></b> · SCALE <b class="cs"></b></span></div>';
@@ -181,7 +182,8 @@
       var sl = souls[i]; sl.classList.toggle("gone", i >= kon); sl.classList.toggle("stake", i < kon && i >= kon - stake);
       if (p.kon !== undefined && i >= kon && i < p.kon && !reduced) restart(sl, "shatter");
     }
-    p.kon = kon;
+    p.kon = kon; tx($(".sn", el), String(kon));
+    var gg = $(".ggr", el); st(gg, "--k", (Math.max(0, V[o + 24]) / 1000).toFixed(3)); gg.classList.toggle("broken", V[o + 25] === 1);   // the guard gauge (ROS: under the Reishi bar)
     var fs = Math.max(0, V[o + 6]) / 1000 * 3, cells = $(".fs", el).children;
     for (i = 0; i < 3; i++) st(cells[i], "--k", Math.max(0, Math.min(1, fs - i)).toFixed(3));
     var aw = $(".aw", el); st(aw, "--k", (Math.max(0, V[o + 7]) / 1000).toFixed(3)); aw.classList.toggle("full", V[o + 8] >= 1); st(aw, "--s", (Math.max(0, V[o + 22]) / 1000).toFixed(3)); aw.dataset.m = V[o + 23];   // SUBLIMATION / SPIRIT DRIVE: the line under it

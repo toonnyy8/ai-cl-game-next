@@ -76,6 +76,8 @@ the finish's best combo / Kikons, human 1."
                               ((and (not (getf (kit-core kit) :no-awaken)) (>= aw (the single-float *awaken-max*))) 1)
                               (t 0)))
     (webhud-put (+ o 9) (if core (core-clamp-pointer (fighter-ptr f)) 0))
+    (webhud-put (+ o 24) (%hround (/ (* 1000f0 (the single-float (gauges-gg g))) (the single-float *gg-max*))))   ; the guard gauge ‰, 25 its break
+    (webhud-put (+ o 25) (if (gauges-guardless g) 1 0))
     (let ((sub (the single-float (gauges-sub g))) (dr (the single-float (gauges-drive g))))   ; the bar's second stage: 1 SUBLIMATION (pink), 2 / 3 DRIVE (red, full)
       (declare (single-float sub dr))
       (webhud-put (+ o 22) (if (gauges-awakened g) 0 (%hround (/ (* 1000f0 sub) (the single-float *sub-max*)))))

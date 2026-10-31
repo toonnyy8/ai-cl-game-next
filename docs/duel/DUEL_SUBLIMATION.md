@@ -22,13 +22,13 @@ Then, mid-build: 「不用下面第二條量表，SUBLIMATION 直接在原量表
 - **Boosts at fraction 1** (`*sub-dmg*` 0.20, `*sub-taken*` 0.20, `*sub-speed*` 0.10, `*sub-fs*` 0.30): damage dealt x(1 + 0.2 f) (in `apply-hit`'s attacker multiplier; a `:flat` window ignores it), damage taken x(1 - 0.2 f) (`sub-taken-mods`), walk and run speed x(1 + 0.1 f) (`sub-speed-mult`), flash-step gained from hits x(1 + 0.3 f) (`pay-gauges`; AS1's steal and Hoho are not "gain from hits").
 - Every kit, the CPU too; the gauges live in `gauges` (`sub`, `sub-s`, `drive`), reset with the match. A `:no-awaken` form (Hisagi's Bankai) never awakens, so only the pre-awakening part exists for it unless its kit is already awakened.
 
-## 2. Open points (to ask)
+## 2. Open points
 
-Ichigo and Hisagi have no re-awakening yet; `drive-full-p` is the flag a kit can read. The CPU does not wait for SUBLIMATION on purpose (its awakening roll is unchanged).
+Ichigo and Hisagi have no re-awakening (the user); `drive-full-p` is the flag a kit can read if one ever does. The CPU does not wait for SUBLIMATION on purpose (its awakening roll is unchanged).
 
 ## 3. Kenpachi's Bankai
 
-`bankai-allowed-p (free drive-full)`: P in cup 3, free as for the awakening, **with a full SPIRIT DRIVE** (it was: at most 4 of his Konpaku, DUEL_KEN_BANKAI §1.1). The entry still sets his Konpaku to 1, so from 9 souls he now pays 8: a trade the CPU's `ken-bankai-gate` keeps filtering by its Konpaku rules (HARD only as a finisher or with little to lose). Callers: `fighter.lisp` (P), `combat.lisp` `bankai-ready-p`, `onehand.lisp`, `ai.lisp` `ai-bankai`, `ken.lisp` `ken-bankai-gate`.
+`bankai-allowed-p (free drive-full)`: P in cup 3, free as for the awakening, **with a full SPIRIT DRIVE** (it was: at most 4 of his Konpaku, DUEL_KEN_BANKAI §1.1). Asked whether the entry still costs souls (it set his Konpaku to 1, so 9 souls paid 8), the user: 「改成不扣」 (2026-10-31). `bankai!` keeps his Konpaku; the CPU's finisher-only HARD filter (`*ken-ai-bankai-strict*`) is set to 0 for every difficulty, since there is nothing to save. Ichigo and Hisagi have no re-awakening (the user, 2026-10-31: 「他們沒有再覺醒」): nothing to port. Callers: `fighter.lisp` (P), `combat.lisp` `bankai-ready-p`, `onehand.lisp`, `ai.lisp` `ai-bankai`, `ken.lisp` `ken-bankai-gate`.
 
 ## 4. Knobs
 
@@ -36,12 +36,16 @@ Ichigo and Hisagi have no re-awakening yet; `drive-full-p` is the flag a kit can
 
 ## 5. Not done
 
-Ichigo's and Hisagi's re-awakenings; the CPU timing its awakening around SUBLIMATION; the manual's tutorial text beyond the awakening section; the learner / ASSIST / ENDLESS / ROGUE (frozen) were not touched.
+The CPU timing its awakening around SUBLIMATION; the manual's tutorial text beyond the awakening section; the learner / ASSIST / ENDLESS / ROGUE (frozen) were not touched.
 
 ## 6. HUD (webhud slots 22 / 23, `hud.js`, `hud.css`)
 
-No second bar. The awakening bar full, SUBLIMATION piles **pink** on top of it from the left (right on P2). On the awakening the bar is emptied and SPIRIT DRIVE fills it **red** from 0, glowing when full (slot 7 is the DRIVE ‰ once awakened). The seal ring on the phone follows slot 7. Only colour tells the stages apart; a label is open.
+No second bar. The awakening bar full, SUBLIMATION piles **pink** on top of it from the left (right on P2). On the awakening the bar is emptied and SPIRIT DRIVE fills it **red** from 0, glowing when full (slot 7 is the DRIVE ‰ once awakened). The seal ring on the phone follows slot 7. The awakening bar's label reads EVOLUTION when ready (§8).
 
 ## 7. Checks (2026-10-31)
 
 Host tests (`tests/duel-rules/sublimation.lisp`, 11 286 checks all pass in the suite: the fill and the overflow, `sub-frac` at s 1 / 0.4 / 0, the taken multiplier, 100 x 1.2 x 0.8 = 96, the Bankai rule; the two old Bankai checks rewritten), pkgcheck clean, the build. Scripted scene `tests/scripts/duel-sublimation.json` (debug 84020–84070 on the 84000 / 84003 scenes): the attacker's multiplier 0.504 at SUBLIMATION 0, 0.6048 at 100 (x1.2) and 0.57456 at s 0.4 + DRIVE 100 (f 0.7); the taken multiplier 1.0 -> 0.8; the real awakening at SUBLIMATION 50 freezes s 0.5 (f 0.25) and empties the awakening gauge; speed x1.10 at f 1; in cup 3 awakened, P with DRIVE 52 does nothing, with DRIVE 100 the form becomes BANKAI (Konpaku 9 -> 1). G2 `--cvc` moved in all three pairs (the CPU waits at a full gauge now and then): II 29 -> 30 lines (P1 4-0, 296.6 s), IK 18 -> 25 (P2 0-5, 245.1 s), KK 19 -> 17 (P2 0-4, 172.1 s); `tests/style-cvc-ref.txt` regenerated. No balance gates (the user, 2026-10-29): the long II / IK times are not judged.
+
+## 8. Konpaku and the HUD after BLEACH Rebirth of Souls (the user, 2026-10-31)
+
+「改成不扣」: see §3. 「幫我參考 bleach ROS 的附圖設計 HUD」, asked and answered: how far 「照圖重排」; the souls 「魂魄是由大數字跟旁邊的九個格子組成的」; the phone 「手機維持現在的直向排法，只換造型與配色」. Desktop (not `hphone`), DUEL_WEBUI §15: the Reishi bar from the edge, the soul count a big italic number at its inner end with 魂魄 beside it and nine slanted cells under the bar's inner end (spent cells grey, the Kikon's stake blood), the guard gauge (cyan, blood when broken) under the bar, the awakening as a small bar with EVOLUTION at the outer end (SUBLIMATION pink over it, DRIVE red), the flash step (the REVERSE gauge) and the kit meter at the bottom corners. Slots 24 / 25 are the guard gauge ‰ and its break. Portraits are not drawn (the screen has none behind the bars). The phone keeps its plates (flames, the flash step beside the awakening bar when there is no deck).
