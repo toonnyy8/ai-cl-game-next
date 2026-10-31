@@ -115,3 +115,7 @@ KESSA's Getsuga crescent (`ichigo-juji-look`, `ichigo-form-look`) is `vfx-ic-cre
 ### 12.3 The cuts' motion speeds up too (the user, 2026-10-31: 「不只起手跟後搖，還有斬擊的動作模組也要加快」)
 
 The first rhythm only moved the startup and recovery frames; the clips played at their authored speed only where it happened to fit (the third cut's `:ic-k-cut` (authored S 8) even played at 0.67 of it, slower). Now each cut's clip plays at authored S / startup, and the clips are chosen so that speed climbs: cut 1 `:ic-k-f1` (authored 18) over 22 f = x0.82 (the slow tell), cut 2 `:ic-k-f2` (20) over 17 = x1.18, cut 3 `:ic-k-f3` (21) over 12 = x1.75, cut 4 `:ic-k-f2` over 6 = x3.3, cut 5 `:ic-k-f1` over 3 = x6 (a blur: the whole swing, active and follow-through included, plays at the same x). Frames, damage and hits unchanged (the same five hits; G2 `--cvc` unchanged). Not seen frame by frame: the last cuts at x3-x6 are very fast, a still of them would help; soften if they read as a snap.
+
+### 12.4 The swing trail removed (the user, 2026-10-31: 「幫我將揮刀拖尾移除」)
+
+§11.2's `ichigo-swing-trail` (the flame ribbons off the slab, `*ic-trail-moves*`, `*ic-trail*`) is deleted from ichigo-look.lisp and no longer called from `ichigo-draw`. Kept: KESSA's skin and red wisps (§10), the clean crescent (§11.4). Art only: G2 `--cvc` unchanged.

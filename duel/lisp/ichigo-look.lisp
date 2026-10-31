@@ -488,35 +488,6 @@ back against his motion as he moves."
                    (%tongue (f32 x0) (f32 y0) (f32 z0) (f32 (* 0.8 lean)) (f32 (* 0.7 rise)) (f32 (* 0.8 lean-z)) 0.03f0 +pal-ember+ 0.9f0
                             (f32 (+ sd 40.0)) (f32 (+ ph 0.7)) 0.05f0 :segs 5 :wob 0.04)))))))
 
-;;; the swing's trail (the user, 2026-10-31: 「連揮刀拖尾也要」): while KESSA swings the Getsuga's cuts, flame sheets stream off the slab behind its tip
-(defparameter *ic-trail-moves* '(:ic-k-n2c :ic-k-as2b :ic-k-sa-g1 :ic-k-sa-g2 :ic-k-wave-strike :ic-k-wave-strike-as)
-  "KESSA's charged-Getsuga swings that trail flame (the cuts after the black-flame charges, their SAs and the wave's follow-up).")
-(declaim (type f32vec *ic-trail*))
-(defvar *ic-trail* (make-f32 16) "Per side (8 floats): the slab tip's last point (3), its step (3), the tick it was taken (1).")
-
-(defun ichigo-swing-trail (e f m sf)
-  "Flame sheets off the slab's tip: the tip's step since the last tick (kept per side: ICHIGO-DRAW runs more than once a frame), three
-ribbons from points along the blade (hand .. tip) streaming back against it, longer the nearer the tip."
-  (let* ((o (* 8 (fighter-side f))) (tr *ic-trail*) (tip *ic-tip*) (tick (aref tr (+ o 6))))
-    (%ic-held-tip (model-joints m) tip (weapon-len (find-weapon (model-weapon m))))
-    (unless (= tick *match-tick*)
-      (if (and (>= sf 1) (< (- *match-tick* tick) 3))
-          (setf (aref tr (+ o 3)) (- (aref tip 0) (aref tr o)) (aref tr (+ o 4)) (- (aref tip 1) (aref tr (+ o 1)))
-                (aref tr (+ o 5)) (- (aref tip 2) (aref tr (+ o 2))))
-          (setf (aref tr (+ o 3)) 0f0 (aref tr (+ o 4)) 0f0 (aref tr (+ o 5)) 0f0))
-      (setf (aref tr o) (aref tip 0) (aref tr (+ o 1)) (aref tip 1) (aref tr (+ o 2)) (aref tip 2) (aref tr (+ o 6)) (f32 *match-tick*)))
-    (let* ((vx (aref tr (+ o 3))) (vy (aref tr (+ o 4))) (vz (aref tr (+ o 5))) (sp (sqrt (+ (* vx vx) (* vy vy) (* vz vz))))
-           (hand (ic-joint e (joint-index :hand-r) *ic-cb* 0f0 -0.06f0 0f0)) (hx (aref hand 0)) (hy (aref hand 1)) (hz (aref hand 2))
-           (tm (fx-clock)) (k (min 0.95 (* 3.0 sp))))
-      (when (> sp 0.02)
-        (dotimes (j 3)
-          (let* ((u (+ 0.45 (* 0.27 j))) (px (+ hx (* u (- (aref tip 0) hx)))) (py (+ hy (* u (- (aref tip 1) hy)))) (pz (+ hz (* u (- (aref tip 2) hz))))
-                 (c (* -9.0 u)) (ph (+ (* 3.0 tm) (* 1.7 j))) (sd (+ j (drawing-no))))
-            (%tongue (f32 px) (f32 py) (f32 pz) (f32 (* c vx)) (f32 (+ (* c vy) 0.1)) (f32 (* c vz)) (f32 (* 0.2 u)) +pal-black-smoke+ (f32 (* 0.95 k))
-                     (f32 sd) (f32 ph) 0.12f0 :segs 10 :wob 0.0)
-            (%tongue (f32 px) (f32 py) (f32 pz) (f32 (* 0.85 c vx)) (f32 (+ (* 0.85 c vy) 0.12)) (f32 (* 0.85 c vz)) (f32 (* 0.09 u)) +pal-blood+ (f32 (* 0.9 k))
-                     (f32 (+ sd 30.0)) (f32 (+ ph 1.0)) 0.14f0 :segs 8 :wob 0.0)))))))
-
 (defun ichigo-renzan-look (hz rdt)
   "One of KAGE-RENZAN's cuts bursting on the opponent's body: a black-red slash and a white core across him at the angle of its number
 (HAZARD-DATA 1-3), a flash, fading over its few frames."
@@ -543,8 +514,7 @@ ribbons from points along the blade (hand .. tip) streaming back against it, lon
     (unless kessa (%ya-hem-step st o (if (typep rdt 'single-float) rdt (f32 rdt))))   ; (F32 inline re-boxes)
     (ichigo-charged-blades e f m)
     (when kessa (ichigo-chain-lash e f m) (ichigo-chain-rest e f)
-      (when (> (model-alpha m) 0.5) (ichigo-red-wisps e)
-        (when (and mv (model-weapon m) (member (mv-name mv) *ic-trail-moves*)) (ichigo-swing-trail e f m sf))))
+      (when (> (model-alpha m) 0.5) (ichigo-red-wisps e)))
     (when (and edge (model-weapon m) (> (model-alpha m) 0.5))
       (let ((jm (model-joints m)) (tip *ic-tip*) (tip-l *ic-tip-l*) (hits (mv-hits mv)))
         (declare (simple-vector hits))
