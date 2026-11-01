@@ -1,6 +1,6 @@
 # 1b. How heavy blades and one-armed fighting move: references for Kenpachi's forms
 
-> Verified 2026-11-02 (`verify.md`: KEEP 208, FIX 7, DROP 1). The FIX / DROP items are applied in this copy.
+> Verified 2026-11-02 (`verify.md`: KEEP 208, FIX 7, DROP 1; the rows it did not reach are listed there). The FIX / DROP items are applied in this copy.
 
 Scope: greatsword / montante / ōdachi, the one-hand cleaver or axe with a working free hand, fighting with one arm, how
 animators and game designers sell weight, and swing biomechanics. Bleach canon, Bleach games and per-move frame tables

@@ -1,6 +1,6 @@
 # Topic 2: how games turn Kenpachi's weapon types into movesets, with frame data
 
-> Verified 2026-11-02 (`verify.md`: KEEP 208, FIX 7, DROP 1). The FIX / DROP items are applied in this copy.
+> Verified 2026-11-02 (`verify.md`: KEEP 208, FIX 7, DROP 1; the rows it did not reach are listed there). The FIX / DROP items are applied in this copy.
 
 Collected 2026-11-02 for the Kenpachi move-module redesign (SOUL DUEL, 60 Hz). BLEACH Rebirth of Souls, Brave Souls and
 Soul Resonance are left out (they're in `docs/research/kenpachi-rework/motion-refs.md` §2), and so is the Bleach canon.

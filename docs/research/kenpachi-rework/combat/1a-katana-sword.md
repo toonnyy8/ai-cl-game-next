@@ -1,6 +1,6 @@
 # 1a. How the katana and the sword move: real martial arts and the screen (for Kenpachi's move modules)
 
-> Verified 2026-11-02 (`verify.md`: KEEP 208, FIX 7, DROP 1). The FIX / DROP items are applied in this copy.
+> Verified 2026-11-02 (`verify.md`: KEEP 208, FIX 7, DROP 1; the rows it did not reach are listed there). The FIX / DROP items are applied in this copy.
 
 Scope: one-handed sword use (iai one-hand cuts, the kodachi, the messer, the sabre, Musashi's one-hand doctrine), two-handed
 katana (kendo, kamae, koryū such as Jigen-ryū, the Liechtenauer longsword), the phases and tells of a cut, measured timings,

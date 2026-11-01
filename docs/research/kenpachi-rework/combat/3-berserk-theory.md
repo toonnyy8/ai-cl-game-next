@@ -1,6 +1,6 @@
 # Kenpachi rework research, topic 3: berserker, rage and armour mechanics, and fighting-game design theory
 
-> Verified 2026-11-02 (`verify.md`: KEEP 208, FIX 7, DROP 1). The FIX / DROP items are applied in this copy.
+> Verified 2026-11-02 (`verify.md`: KEEP 208, FIX 7, DROP 1; the rows it did not reach are listed there). The FIX / DROP items are applied in this copy.
 
 Scope: mechanics from other games and design theory, ranked against the user's two pain points: 「形態之間差異不夠」 (the forms don't differ enough) and 「操作或節奏不順」 (the controls or the cadence feel off). Not covered here: Rebirth of Souls, Brave Souls, Soul Resonance and the Bleach canon (see motion-refs.md §2), and per-move frame tables (another researcher has those).
 
