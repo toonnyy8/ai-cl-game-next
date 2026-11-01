@@ -46,6 +46,12 @@ Read this first. It is the map; the detail lives in the files it points to. The 
   smoke) and the G2 `--cvc` reference check, which proves a shared hook stays off for the other kits.
 - **Test a move with a written control script** (the user, 2026-10-29: 「以後要測什麼招式就直接寫好指定的控制腳本，如非必要就不再依賴 CPU 賭機率」):
   `tools/run.mjs --script` key steps or a debug setup that drives both sides' inputs, never a CPU match hoping the move comes up.
+- **Find where to change with the graph first** (the user, 2026-11-01, DEVLOG §550): when a request is vague or touches several
+  places, start with `graphify query "<question>"` (the graph in `graphify-out/`, ignored by git) for the files, docs and debug
+  ranges involved, then confirm in the code with grep / Read before editing; an exact symbol name goes straight to grep. The graph
+  is a snapshot of `duel/` + `engine/` code (AST) and `docs/duel`, `docs/engine`, `docs/guides` (semantic; not DEVLOG, tests,
+  `docs/research`): after a commit run `/graphify --update` (code is AST only, free; a changed doc costs a subagent), or the
+  post-commit hook (`graphify hook install`, the user installs it) keeps the code side current.
 
 ## Repo map
 

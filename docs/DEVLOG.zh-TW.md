@@ -6335,3 +6335,7 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
 
 使用者：「透過切換系統可以組合出更多有趣的連動技能……卍解也能直接用 NS1a 控制距離再切換成 NS2 的聚拉高輸出。」、「幫我紀錄並用腳本測試」。新增 debug 83600+d（始解，SUBLIMATION 60）／83700+d（卍解遠程，DRIVE 60），腳本 `duel-switch-routes.json`。結果：全部路線都接得上；始解 6 m 時 NS3a（射程 4.5 m）揮空但 SA 引寄仍拉到 0.9 m（132），4.5 m 時 172、NS1a+NS1b 再切 228；NS3b+放電在 6 m 為 147、NS1 兩段後再切 203（NS1 打滿 198）；卍解 環→切聚 TABA→TATAKI（揮空，射程 3 m）→OMEGURI 162，接聚 SA 150（散 NS1 打滿 105）。未改任何數值。見 DUEL_SUBLIMATION §17.7。
 
+## 550. 修改功能前先用 graphify 找位置（2026-11-01）
+
+使用者：「你未來修改功能的時候能透過 /graphify 找尋修改位置嗎」、「好」。AGENTS.md 加入固定做法：需求模糊或牽涉多處時先 `graphify query` 找相關檔案、文件與 debug 範圍，再用 grep／Read 確認才動手；精確符號直接 grep。圖是快照（`duel/`、`engine/` 程式 AST；`docs/duel`、`docs/engine`、`docs/guides` 語意），提交後跑 `/graphify --update` 或裝 post-commit hook（`graphify hook install`，自動模式擋下安裝，由使用者執行）。本次也存了 manifest，之後的 `--update` 只處理改過的檔案。
+
