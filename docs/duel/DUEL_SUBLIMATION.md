@@ -17,7 +17,7 @@ Then, mid-build: 「不用下面第二條量表，SUBLIMATION 直接在原量表
 
 ## 1. Rules (all fighters, `rules.lisp` pure, `combat.lisp`)
 
-- **Fill**: the awakening gauge's sources (damage dealt / taken, Konpaku lost, WHITE's regen) at x1.0. Before the awakening they fill the awakening gauge, and what is above `*awaken-max*` (and everything once it is full) fills **SUBLIMATION** (0–`*sub-max*` 100). After it, the same sources fill **SPIRIT DRIVE** (0–`*drive-max*` 100). Neither decays. (`awaken-overflow`, `awaken-fill!`.) Not awakening is therefore a choice: a full gauge keeps paying.
+- **Fill** (since 2026-11-01 only attacking fills SUBLIMATION / DRIVE: §18; as first built:): the awakening gauge's sources (damage dealt / taken, Konpaku lost, WHITE's regen) at x1.0. Before the awakening they fill the awakening gauge, and what is above `*awaken-max*` (and everything once it is full) fills **SUBLIMATION** (0–`*sub-max*` 100). After it, the same sources fill **SPIRIT DRIVE** (0–`*drive-max*` 100). Neither decays. (`awaken-overflow`, `awaken-fill!`.) Not awakening is therefore a choice: a full gauge keeps paying.
 - **Bonus fraction** (`sub-frac`, of B): before the awakening `sub / 100`; after it `*sub-keep*` 0.5 x s + `*drive-add*` 0.5 x `drive / 100`, s = the SUBLIMATION fraction frozen at `awaken!`. So the awakening keeps half of what was piled up, and a full DRIVE adds half of a **full** B whatever s was (the user's answer), at most (0.5 s + 0.5) B.
 - **Boosts at fraction 1** (`*sub-dmg*` 0.20, `*sub-taken*` 0.20, `*sub-speed*` 0.10, `*sub-fs*` 0.30): damage dealt x(1 + 0.2 f) (in `apply-hit`'s attacker multiplier; a `:flat` window ignores it), damage taken x(1 - 0.2 f) (`sub-taken-mods`), walk and run speed x(1 + 0.1 f) (`sub-speed-mult`), flash-step gained from hits x(1 + 0.3 f) (`pay-gauges`; AS1's steal and Hoho are not "gain from hits").
 - Every kit, the CPU too; the gauges live in `gauges` (`sub`, `sub-s`, `drive`), reset with the match. A `:no-awaken` form (Hisagi's Bankai) never awakens, so only the pre-awakening part exists for it unless its kit is already awakened.
@@ -32,7 +32,7 @@ Ichigo and Hisagi have no re-awakening (the user); `drive-full-p` is the flag a 
 
 ## 4. Knobs
 
-`*sub-max*` 100, `*drive-max*` 100, `*sub-dmg*` 0.20, `*sub-taken*` 0.20, `*sub-speed*` 0.10, `*sub-fs*` 0.30, `*sub-keep*` 0.5, `*drive-add*` 0.5 (tuning.lisp). `*bankai-konpaku*` is now only the debug scene's cap.
+`*sub-max*` 100, `*drive-max*` 100, `*sub-attack-mult*` 3.0 (§18), `*sub-dmg*` 0.20, `*sub-taken*` 0.20, `*sub-speed*` 0.10, `*sub-fs*` 0.30, `*sub-keep*` 0.5, `*drive-add*` 0.5 (tuning.lisp). `*bankai-konpaku*` is now only the debug scene's cap.
 
 ## 5. Not done
 
@@ -209,3 +209,16 @@ User: 「透過切換系統可以組合出更多有趣的連動技能，像一�
 
 Every route connects. Two whiffs follow from the reaches, not from the switch: NS3a SHIBARI (4.5 m) against a victim NS1 left at 6 m, and the Bankai's TATAKI (0-3 m) against one WA pushed to 4.5 m. Nothing was changed.
 
+
+## 18. SUBLIMATION and DRIVE filled by attacking (the user, 2026-11-01)
+
+User: 「進入 SUBLIMATION 跟 DRIVE 後，改成以『進攻』作為提昇量表的手段」. Asked (AskUserQuestion), answered: what counts 「傷害 + 讓對手失去魂魄 + 爆氣都加，橙色爆氣造成傷害時回覆量提昇」; the rate 「×3（約 950 點滿）」.
+
+- **The awakening gauge** keeps its four sources (damage dealt / taken, Konpaku lost, WHITE's regen) unchanged.
+- **Once it is full (SUBLIMATION) and after the awakening (DRIVE)**, only attacking fills (`awaken-overflow`'s new XS, `sub-attack-gain`):
+  - damage dealt (the real damage, not the move's base) at `*awaken-dealt*` 0.035 x `*sub-attack-mult*` **3.0** = 0.105 a point, about 950 damage to fill; ORANGE multiplies it by `*orange-gain*` 1.5;
+  - Konpaku taken from the opponent: `*awaken-per-konpaku*` 10.5 each to the **attacker** (a Kikon or a Soul Break; the loser's awakening gauge still gets its 10.5);
+  - a WHITE Burst's regen, 1.4 a second as before.
+- Taking damage and losing Konpaku no longer fill them. The awakening gauge's overflow past 100 is dropped (it went to SUBLIMATION before).
+- Knob: `*sub-attack-mult*` 3.0 (tuning.lisp). The Konpaku and WHITE rates stay x1.0 (the ×3 answer was asked about damage).
+- **Checks**: host tests 11298 pass (`tests/duel-rules/sublimation.lisp`: the fill rewritten for X / XS, `sub-attack-gain` 100 dmg 10.5, ORANGE 15.75, 2 Konpaku 21, about 952 damage to fill); pkgcheck clean; build. Scripted `tests/scripts/duel-sublimation.json` (two new scenes at DRIVE 50): Kenpachi's J1 (35 base, about 14 real) at SUBLIMATION 0 -> 1.5; Ichigo's J1 on him at SUBLIMATION 0 -> 0 (before: it rose); at DRIVE 50 his J1 -> 51.6, Ichigo's J1 on him -> 50.0. G2 `--cvc` moved in all three pairs: II 30 -> 31 lines (P1 5-0, 311.0 s), IK 25 -> 18 (P2 0-4, 174.5 s), KK 17 lines changed (P2 0-4, 172.1 s); `tests/style-cvc-ref.txt` regenerated. No balance gates.

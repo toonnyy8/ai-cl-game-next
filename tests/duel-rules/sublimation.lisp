@@ -3,13 +3,18 @@
 ;; the knobs
 (check (and (~= *sub-dmg* 0.20) (~= *sub-taken* 0.20) (~= *sub-speed* 0.10) (~= *sub-fs* 0.30) (~= *sub-keep* 0.5) (~= *drive-add* 0.5)))
 (check (~= *drive-switch* 0.25))   ; the temporary pointer switch costs 0.25 B (DUEL_SUBLIMATION §17)
-;; fill: the awakening gauge first, its overflow into SUBLIMATION, DRIVE once awakened
-(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 50.0 0.0 0.0 20.0) (and (~= aw 70.0) (~= sub 0.0) (~= dr 0.0))))
-(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 90.0 0.0 0.0 25.0) (and (~= aw 100.0) (~= sub 15.0) (~= dr 0.0))))
-(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 30.0 0.0 10.0) (and (~= aw 100.0) (~= sub 40.0) (~= dr 0.0))))
-(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 95.0 0.0 10.0) (declare (ignore aw)) (and (~= sub 100.0) (~= dr 0.0))))
-(check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 0.0 12.0) (and (~= aw 0.0) (~= sub 0.0) (~= dr 12.0))))
-(check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 95.0 12.0) (declare (ignore aw sub)) (~= dr 100.0)))
+;; fill (DUEL_SUBLIMATION §18): the awakening gauge by every source (X), then SUBLIMATION / DRIVE by attacking only (XS)
+(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 50.0 0.0 0.0 20.0 5.0) (and (~= aw 70.0) (~= sub 0.0) (~= dr 0.0))))
+(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 90.0 0.0 0.0 25.0 25.0) (and (~= aw 100.0) (~= sub 0.0) (~= dr 0.0))))   ; the overflow is dropped
+(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 30.0 0.0 10.0 0.0) (and (~= aw 100.0) (~= sub 30.0) (~= dr 0.0))))  ; taken: nothing
+(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 30.0 0.0 10.0 6.0) (and (~= aw 100.0) (~= sub 36.0) (~= dr 0.0))))
+(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 95.0 0.0 10.0 10.0) (declare (ignore aw)) (and (~= sub 100.0) (~= dr 0.0))))
+(check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 0.0 12.0 0.0) (and (~= aw 0.0) (~= sub 0.0) (~= dr 0.0))))
+(check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 0.0 12.0 12.0) (and (~= aw 0.0) (~= sub 0.0) (~= dr 12.0))))
+(check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 95.0 12.0 12.0) (declare (ignore aw sub)) (~= dr 100.0)))
+;; attacking: 0.035 x 3 per point (about 950 to fill), ORANGE x1.5 on top, 10.5 per Konpaku taken
+(check (and (~= *sub-attack-mult* 3.0) (~= (sub-attack-gain 100 0 1.0) 10.5) (~= (sub-attack-gain 100 0 *orange-gain*) 15.75)
+            (~= (sub-attack-gain 0 2 1.0) 21.0) (< 950 (/ 100.0 (sub-attack-gain 1 0 1.0)) 953)))
 ;; the bonus fraction: SUB / 100 before, 0.5 x s + 0.5 x DRIVE / 100 after (full B as DRIVE's base)
 (check (and (~= (sub-frac nil 0.0 0.0 0.0) 0.0) (~= (sub-frac nil 60.0 0.0 0.0) 0.6) (~= (sub-frac nil 100.0 0.0 0.0) 1.0)))
 (check (and (~= (sub-frac t 0.0 1.0 0.0) 0.5) (~= (sub-frac t 0.0 1.0 100.0) 1.0) (~= (sub-frac t 0.0 0.4 100.0) 0.7)

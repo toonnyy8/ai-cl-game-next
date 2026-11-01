@@ -738,7 +738,7 @@ write("ken-nomihose", ken_katate_script(84003, "NM"))
 
 def sublimation_script():
     """SUBLIMATION / SPIRIT DRIVE (DUEL_SUBLIMATION): J1 damage and taken at 0 / 100 % SUBLIMATION and at DRIVE 100 with s 0.4, the real
-    awakening's freeze, the Bankai's entry needing a full DRIVE (debug 84020+k / 84040+k / 84060 / 84070 on the 84000 scene)."""
+    awakening's freeze, the Bankai's entry needing a full DRIVE; since §18 only attacking fills SUBLIMATION / DRIVE (debug 84020+k / 84040+k / 84060 / 84070 on the 84000 scene)."""
     ev = []
     def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
     def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
@@ -750,6 +750,8 @@ def sublimation_script():
             ("SB J1 at drive 100, s 0.4 (frac 0.7)", 84000, 84050, lambda s: [jt(s)]),
             ("SB taken at sub 0: P2 J1", 84000, 84020, lambda s: [ev.append(cmd(s, 84011))]),
             ("SB taken at sub 100: P2 J1", 84000, 84030, lambda s: [ev.append(cmd(s, 84011))]),
+            ("SB J1 at drive 50: DRIVE fills by attacking (x3, DUEL_SUBLIMATION §18)", 84000, 84045, lambda s: [jt(s)]),
+            ("SB taken at drive 50: P2 J1 (DRIVE stays)", 84000, 84045, lambda s: [ev.append(cmd(s, 84011))]),
             ("SB real awakening at sub 50 -> s 0.5, frac 0.25", 84000, 84060, lambda s: []),
             ("SB bankai refused at drive 50", 84003, 84045, lambda s: [awaken(s)]),
             ("SB bankai allowed at drive 100", 84003, 84050, lambda s: [awaken(s)])):

@@ -270,7 +270,11 @@ Nozarashi healed, 150).")
 ;; A full awakening gauge keeps filling a second gauge, SUBLIMATION (same sources, x1.0, no decay); its fraction s of B (the four
 ;; boosts below at a full gauge) is the fighter's bonus. The awakening freezes it at *SUB-KEEP* x s; SPIRIT DRIVE then fills the same
 ;; way and adds up to *DRIVE-ADD* x B (full B as the base: the user's answer). A full DRIVE opens Kenpachi's Bankai.
-(defparameter *sub-max* 100.0 "SUBLIMATION gauge maximum (the awakening gauge's overflow fills it).")
+;; Since 2026-11-01 (DUEL_SUBLIMATION §18) only attacking fills SUBLIMATION and DRIVE: damage dealt, Konpaku taken, a WHITE Burst.
+(defparameter *sub-max* 100.0 "SUBLIMATION gauge maximum (filled by attacking once the awakening gauge is full).")
+(defparameter *sub-attack-mult* 3.0
+  "SUBLIMATION / SPIRIT DRIVE per point of damage dealt = *AWAKEN-DEALT* x this (x ORANGE's gain): 0.105, about 950 damage to fill (the
+user, 2026-11-01: 「×3（約 950 點滿）」, DUEL_SUBLIMATION §18; before, x1.0 of every awakening source, damage taken and lost Konpaku included).")
 (defparameter *drive-max* 100.0 "SPIRIT DRIVE gauge maximum (after the awakening).")
 (defparameter *sub-dmg* 0.20 "Damage dealt x (1 + this x the bonus fraction).")
 (defparameter *sub-taken* 0.20 "Damage taken x (1 - this x the bonus fraction).")

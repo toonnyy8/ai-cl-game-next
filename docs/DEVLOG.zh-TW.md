@@ -6339,3 +6339,7 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
 
 使用者：「你未來修改功能的時候能透過 /graphify 找尋修改位置嗎」、「好」。AGENTS.md 加入固定做法：需求模糊或牽涉多處時先 `graphify query` 找相關檔案、文件與 debug 範圍，再用 grep／Read 確認才動手；精確符號直接 grep。圖是快照（`duel/`、`engine/` 程式 AST；`docs/duel`、`docs/engine`、`docs/guides` 語意），提交後跑 `/graphify --update` 或裝 post-commit hook（`graphify hook install`，自動模式擋下安裝，由使用者執行）。本次也存了 manifest，之後的 `--update` 只處理改過的檔案。
 
+
+## 551. SUBLIMATION／DRIVE 改由進攻累積（2026-11-01）
+
+使用者：「進入 SUBLIMATION 跟 DRIVE 後，改成以『進攻』作為提昇量表的手段」。問答：來源「傷害 + 讓對手失去魂魄 + 爆氣都加，橙色爆氣造成傷害時回覆量提昇」，倍率「×3（約 950 點滿）」。覺醒量表照舊四種來源；量表滿了以後（SUBLIMATION）和覺醒後（DRIVE）只由進攻累積：造成的實際傷害每點 0.035×3 = 0.105（約 950 點填滿，橙色爆氣再 ×1.5）、讓對手失去魂魄每顆 10.5 給攻擊方、白色爆氣的回復每秒 1.4。受傷與失去魂魄不再累積；覺醒量表超過 100 的溢出不再轉進 SUBLIMATION。新參數 `*sub-attack-mult*` 3.0。主機測試 11298 通過；腳本 `duel-sublimation.json` 新增 DRIVE 50 兩場：劍八 J1 打中 DRIVE 50→51.6、被一護 J1 打中維持 50.0；SUBLIMATION 0 被打中也維持 0。G2 `--cvc` 三組都變動（II 31 行 311.0 s、IK 18 行 174.5 s、KK 17 行內容改變），已重產參考檔。見 DUEL_SUBLIMATION §18。

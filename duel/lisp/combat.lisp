@@ -100,9 +100,10 @@ his snapshot follows (the binder's :bind-heal), so a release keeps it (B6)."
 (GAUGES-GREY: dealt inside a bind; the binder's end clears it when the grey turns real, a release leaves it out)."
   (let ((g (gauges e))) (- (gauges-dealt g) (gauges-grey g))))
 
-(defun awaken-fill! (g x)
-  "X more awakening for G's owner: the awakening gauge, then SUBLIMATION, or SPIRIT DRIVE once awakened (AWAKEN-OVERFLOW)."
-  (multiple-value-bind (aw sub drive) (awaken-overflow (gauges-awakened g) (gauges-awaken g) (gauges-sub g) (gauges-drive g) x)
+(defun awaken-fill! (g x &optional (xs 0.0))
+  "X more awakening for G's owner (XS of it from attacking): the awakening gauge by X, then SUBLIMATION, or SPIRIT DRIVE once awakened,
+by XS only (AWAKEN-OVERFLOW)."
+  (multiple-value-bind (aw sub drive) (awaken-overflow (gauges-awakened g) (gauges-awaken g) (gauges-sub g) (gauges-drive g) x xs)
     (setf (gauges-awaken g) (f32 aw) (gauges-sub g) (f32 sub) (gauges-drive g) (f32 drive))))
 
 (defun sub-of (e)
@@ -131,7 +132,7 @@ Nth hit (HIT-GAINS; siphoned: SIPHON-OF)."
     (multiple-value-bind (r fs aw sr sfs) (hit-gains dealt taken to (burst-gain-mult (gauges-burst g)) rbase n)
       (pay-gauges e r fs)
       (when to (pay-gauges to sr sfs))
-      (awaken-fill! g aw))))
+      (awaken-fill! g aw (if to 0.0 (sub-attack-gain dealt 0 (burst-gain-mult (gauges-burst g))))))))
 
 (defun hit-rbase (mv hazard base)
   "The Reiatsu a hit of MV (or HAZARD: its move's at its spawn) with BASE damage pays its attacker before the combo bonus
@@ -747,7 +748,7 @@ move's recovery, the next move started within *CHAIN-WINDOW* f has its startup c
 gauge G."
   (heal! e (burst-heal n *white-reishi*))
   (reiatsu-gain! e (/ *white-reiatsu* 60.0))
-  (awaken-fill! g (/ *white-awaken* 60.0)))
+  (awaken-fill! g (/ *white-awaken* 60.0) (/ *white-awaken* 60.0)))   ; a Burst counts as attacking (DUEL_SUBLIMATION §18)
 
 (defun burst-step (e g)
   "A running burst, one frame: the flash-step drains (BURST-DRAIN), WHITE's regen (WHITE-REGEN!); at 0 it ends."
@@ -906,6 +907,8 @@ Returns T when DEF is out of Konpaku; never in a bind (BIND-OF: grey souls, the 
       (let ((h (kit-hook (kit-of def) :settled))) (when h (funcall h def lost left)))
       (unless (siphon-of def)
         (awaken-fill! gd (awakening-gain 0 0 lost)))
+      (unless (siphon-of att)   ; the Konpaku he took fills the attacker's SUBLIMATION / DRIVE (DUEL_SUBLIMATION §18)
+        (awaken-fill! (gauges att) 0.0 (sub-attack-gain 0 lost 1.0)))
       (incf (gauges-kikons (gauges att)))
       (emit :konpaku def lost)
       (clog "~a ~a on ~a: -~d konpaku, ~d left (~a)" (side-name att) (if soul-break "SOUL BREAK" "KIKON") (side-name def) lost left

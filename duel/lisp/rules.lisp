@@ -545,15 +545,18 @@ cinematic stops the timer). The user, 2026-10-08: 「毀魂技演出不計入對
       (+ (* *sub-keep* sub-s) (* *drive-add* (/ drive *drive-max*)))
       (/ sub *sub-max*)))
 
-(defun awaken-overflow (awakened aw sub drive x)
-  "The three gauges after X more awakening: before the awakening AW fills to *AWAKEN-MAX*, the overflow (and X once full) goes to SUB;
-after it X goes to DRIVE. Values: aw sub drive."
-  (if awakened
-      (values aw sub (gauge-add drive x *drive-max*))
-      (let ((n (+ aw x)))
-        (if (> n *awaken-max*)
-            (values *awaken-max* (gauge-add sub (- n *awaken-max*) *sub-max*) drive)
-            (values n sub drive)))))
+(defun awaken-overflow (awakened aw sub drive x xs)
+  "The three gauges after X more awakening (every source) and XS of it from attacking (SUB-ATTACK-GAIN): before the awakening AW fills to
+*AWAKEN-MAX* by X; once AW is full only XS fills SUB, and after the awakening only XS fills DRIVE (the user, 2026-11-01: 「進入 SUBLIMATION
+跟 DRIVE 後，改成以『進攻』作為提昇量表的手段」, DUEL_SUBLIMATION §18; X's overflow past *AWAKEN-MAX* is dropped). Values: aw sub drive."
+  (cond (awakened (values aw sub (gauge-add drive xs *drive-max*)))
+        ((>= aw *awaken-max*) (values aw (gauge-add sub xs *sub-max*) drive))
+        (t (values (min *awaken-max* (+ aw x)) sub drive))))
+
+(defun sub-attack-gain (dealt lost mult)
+  "SUBLIMATION / SPIRIT DRIVE from attacking: DEALT damage at *AWAKEN-DEALT* x *SUB-ATTACK-MULT* x MULT (ORANGE's BURST-GAIN-MULT) + LOST
+Konpaku taken from the opponent at *AWAKEN-PER-KONPAKU* (DUEL_SUBLIMATION §18)."
+  (+ (* dealt *awaken-dealt* *sub-attack-mult* mult) (* lost *awaken-per-konpaku*)))
 
 (defun sub-taken-mods (dmods frac)
   "DMODS (the defender plist) with its :mult x (1 - *SUB-TAKEN* x FRAC)."
