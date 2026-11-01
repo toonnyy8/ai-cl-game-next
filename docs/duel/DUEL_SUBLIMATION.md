@@ -32,7 +32,7 @@ Ichigo and Hisagi have no re-awakening (the user); `drive-full-p` is the flag a 
 
 ## 4. Knobs
 
-`*sub-max*` 100, `*drive-max*` 100, `*sub-attack-mult*` 3.0 (§18), `*sub-dmg*` 0.20, `*sub-taken*` 0.20, `*sub-speed*` 0.10, `*sub-fs*` 0.30, `*sub-keep*` 0.5, `*drive-add*` 0.5 (tuning.lisp). `*bankai-konpaku*` is now only the debug scene's cap.
+`*sub-max*` 100, `*drive-max*` 100, `*sub-attack-mult*` 1.5 (§18, §18.1), `*sub-dmg*` 0.20, `*sub-taken*` 0.20, `*sub-speed*` 0.10, `*sub-fs*` 0.30, `*sub-keep*` 0.5, `*drive-add*` 0.5 (tuning.lisp). `*bankai-konpaku*` is now only the debug scene's cap.
 
 ## 5. Not done
 
@@ -216,9 +216,13 @@ User: 「進入 SUBLIMATION 跟 DRIVE 後，改成以『進攻』作為提昇量
 
 - **The awakening gauge** keeps its four sources (damage dealt / taken, Konpaku lost, WHITE's regen) unchanged.
 - **Once it is full (SUBLIMATION) and after the awakening (DRIVE)**, only attacking fills (`awaken-overflow`'s new XS, `sub-attack-gain`):
-  - damage dealt (the real damage, not the move's base) at `*awaken-dealt*` 0.035 x `*sub-attack-mult*` **3.0** = 0.105 a point, about 950 damage to fill; ORANGE multiplies it by `*orange-gain*` 1.5;
+  - damage dealt (the real damage, not the move's base) at `*awaken-dealt*` 0.035 x `*sub-attack-mult*` **1.5** = 0.0525 a point, about 1905 damage to fill (3.0 / 0.105 / about 950 until §18.1); ORANGE multiplies it by `*orange-gain*` 1.5;
   - Konpaku taken from the opponent: `*awaken-per-konpaku*` 10.5 each to the **attacker** (a Kikon or a Soul Break; the loser's awakening gauge still gets its 10.5);
   - a WHITE Burst's regen, 1.4 a second as before.
 - Taking damage and losing Konpaku no longer fill them. The awakening gauge's overflow past 100 is dropped (it went to SUBLIMATION before).
-- Knob: `*sub-attack-mult*` 3.0 (tuning.lisp). The Konpaku and WHITE rates stay x1.0 (the ×3 answer was asked about damage).
+- Knob: `*sub-attack-mult*` 1.5 (3.0 until §18.1; tuning.lisp). The Konpaku and WHITE rates stay x1.0 (the ×3 answer was asked about damage).
 - **Checks**: host tests 11298 pass (`tests/duel-rules/sublimation.lisp`: the fill rewritten for X / XS, `sub-attack-gain` 100 dmg 10.5, ORANGE 15.75, 2 Konpaku 21, about 952 damage to fill); pkgcheck clean; build. Scripted `tests/scripts/duel-sublimation.json` (two new scenes at DRIVE 50): Kenpachi's J1 (35 base, about 14 real) at SUBLIMATION 0 -> 1.5; Ichigo's J1 on him at SUBLIMATION 0 -> 0 (before: it rose); at DRIVE 50 his J1 -> 51.6, Ichigo's J1 on him -> 50.0. G2 `--cvc` moved in all three pairs: II 30 -> 31 lines (P1 5-0, 311.0 s), IK 25 -> 18 (P2 0-4, 174.5 s), KK 17 lines changed (P2 0-4, 172.1 s); `tests/style-cvc-ref.txt` regenerated. No balance gates.
+
+### 18.1 The attack rate x1.5 (the user, 2026-11-01: 「幫我將 3 倍改成 1.5 倍」)
+
+`*sub-attack-mult*` 3.0 -> **1.5**: damage dealt fills SUBLIMATION / DRIVE at 0.035 x 1.5 = 0.0525 a point, about 1905 real damage to fill (ORANGE x1.5 on top: 0.07875). The Konpaku (10.5 to the attacker) and WHITE (1.4 a second) rates are unchanged. Checks: host tests 11298 pass (the pins 5.25 / 7.875 / about 1905); pkgcheck, build; scripted `duel-sublimation.json`: Kenpachi's J1 at SUBLIMATION 0 -> 0.7 (1.5 at x3), at DRIVE 50 -> 50.8 (51.6); taken still 0 / 50.0. G2 `--cvc` moved: II 31 -> 28 lines (P1 3-0, 279.9 s), IK 18 lines changed (P2 0-5, 182.4 s), KK 17 lines changed (P2 0-4, 172.1 s); `tests/style-cvc-ref.txt` regenerated. No balance gates.

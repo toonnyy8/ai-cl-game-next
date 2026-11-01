@@ -139,7 +139,7 @@
 },
 {
 "at": 20.0,
-"eval": "console.log('=== SB J1 at drive 50: DRIVE fills by attacking (x3, DUEL_SUBLIMATION \u00a718)')"
+"eval": "console.log('=== SB J1 at drive 50: DRIVE fills by attacking (DUEL_SUBLIMATION \u00a718)')"
 },
 {
 "at": 20.0,

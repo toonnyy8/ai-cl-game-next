@@ -272,9 +272,9 @@ Nozarashi healed, 150).")
 ;; way and adds up to *DRIVE-ADD* x B (full B as the base: the user's answer). A full DRIVE opens Kenpachi's Bankai.
 ;; Since 2026-11-01 (DUEL_SUBLIMATION §18) only attacking fills SUBLIMATION and DRIVE: damage dealt, Konpaku taken, a WHITE Burst.
 (defparameter *sub-max* 100.0 "SUBLIMATION gauge maximum (filled by attacking once the awakening gauge is full).")
-(defparameter *sub-attack-mult* 3.0
-  "SUBLIMATION / SPIRIT DRIVE per point of damage dealt = *AWAKEN-DEALT* x this (x ORANGE's gain): 0.105, about 950 damage to fill (the
-user, 2026-11-01: 「×3（約 950 點滿）」, DUEL_SUBLIMATION §18; before, x1.0 of every awakening source, damage taken and lost Konpaku included).")
+(defparameter *sub-attack-mult* 1.5
+  "SUBLIMATION / SPIRIT DRIVE per point of damage dealt = *AWAKEN-DEALT* x this (x ORANGE's gain): 0.0525, about 1905 damage to fill (the
+user, 2026-11-01: 「幫我將 3 倍改成 1.5 倍」, DUEL_SUBLIMATION §18.1; 3.0 (0.105, about 950) from 「×3（約 950 點滿）」 the same day, §18; before, x1.0 of every awakening source, damage taken and lost Konpaku included).")
 (defparameter *drive-max* 100.0 "SPIRIT DRIVE gauge maximum (after the awakening).")
 (defparameter *sub-dmg* 0.20 "Damage dealt x (1 + this x the bonus fraction).")
 (defparameter *sub-taken* 0.20 "Damage taken x (1 - this x the bonus fraction).")

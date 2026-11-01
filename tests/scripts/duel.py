@@ -750,7 +750,7 @@ def sublimation_script():
             ("SB J1 at drive 100, s 0.4 (frac 0.7)", 84000, 84050, lambda s: [jt(s)]),
             ("SB taken at sub 0: P2 J1", 84000, 84020, lambda s: [ev.append(cmd(s, 84011))]),
             ("SB taken at sub 100: P2 J1", 84000, 84030, lambda s: [ev.append(cmd(s, 84011))]),
-            ("SB J1 at drive 50: DRIVE fills by attacking (x3, DUEL_SUBLIMATION §18)", 84000, 84045, lambda s: [jt(s)]),
+            ("SB J1 at drive 50: DRIVE fills by attacking (DUEL_SUBLIMATION §18)", 84000, 84045, lambda s: [jt(s)]),
             ("SB taken at drive 50: P2 J1 (DRIVE stays)", 84000, 84045, lambda s: [ev.append(cmd(s, 84011))]),
             ("SB real awakening at sub 50 -> s 0.5, frac 0.25", 84000, 84060, lambda s: []),
             ("SB bankai refused at drive 50", 84003, 84045, lambda s: [awaken(s)]),
