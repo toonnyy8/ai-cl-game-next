@@ -164,7 +164,7 @@ the defaults)."
 (defun apply-settings ()
   "Put the SETTINGS in force: HAND, the recogniser's tap split and flick distance, the CAMERA option, the VOLUME."
   (let ((cfg (touch-cfg *touch*)))
-    (setf *hand* (if (= 1 (setting :hand)) :left :right)
+    (setf *hand* (if (= 0 (setting :hand)) :left :right)
           (gc-tap-split cfg) (f32 (setting-value :tap-split))
           (gc-flick-min cfg) (f32 (setting-value :flick))
           (gc-flick-reads cfg) *input-buffer*))   ; a flick's direction lasts as long as its buffered Step press

@@ -30,7 +30,7 @@
   var CARDS = [1, 3, 7], DIFFS = ["Easy", "Normal", "Hard"];
   var SETTINGS = [   // control.lisp *SETTINGS* as shown (flow.lisp SETTINGS-SHOWN), then BACK
     { en: "One-hand", opts: ["Auto", "On", "Off"], help: "AUTO：用觸控手機直拿時自動切成單手模式。" },
-    { en: "Hand", opts: ["Right", "Left"], help: "拇指操作區在哪一側。手機上的選單也會換到那一側。" },
+    { en: "Hand", opts: ["Left", "Right"], help: "拇指操作區在哪一側。手機上的選單也會換到那一側。" },
     { en: "Sensitivity", opts: ["1", "2", "3", "4", "5"], drops: true, help: "越高，越短的滑動就算 Step。預設 3（28 CSS px）。" },
     { en: "Camera", opts: ["Behind", "Side"], help: "VS CPU 與練習、雙手操作時的鏡頭。" },
     { en: "Perfect hint", opts: ["Off", "On"], help: "現在 Hoho 會是完美閃避時，頭上出現 HOHO!。" },

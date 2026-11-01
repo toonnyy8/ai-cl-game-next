@@ -69,7 +69,7 @@ defaults). These defaults were chosen for the user, who can revise them:
 | Row | Options (default first in bold) | localStorage key | Effect |
 |---|---|---|---|
 | ONE-HAND | **AUTO** / ON / OFF | `soulduel.onehand` | AUTO: one-handed on a touch-first device held in portrait (the old preselection). ON: wherever one-hand is offered (a portrait window or a touch-first device; never a landscape desktop). OFF: never. The note under the rows says whether it is in effect here |
-| HAND | **RIGHT** / LEFT | `soulduel.hand` (the key HAND already used) | the thumb deck's side |
+| HAND | LEFT / **RIGHT** (LEFT on the left: the user, 2026-11-02, DEVLOG §553; RIGHT / LEFT before) | `soulduel.handlr` (`soulduel.hand`, RIGHT 1 / LEFT 2, is carried over swapped once) | the thumb deck's side |
 | TAP SPLIT | 40 % / 45 % / **50 %** / 55 % / 60 % | `soulduel.split` | the recogniser's `tap-split`: the pad's top part whose taps are K |
 | SENSITIVITY | 1 / 2 / **3** / 4 / 5 | `soulduel.flick` | the recogniser's `flick-min`: 40 / 34 / **28** / 23 / 18 CSS px (higher = a shorter flick) |
 | CAMERA | **BEHIND** / SIDE | `soulduel.camera` | VS CPU / PRACTICE with two hands (one hand always uses the portrait behind camera; the setting is kept); also on the pause menu and the select screen, which save it too |

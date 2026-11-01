@@ -686,12 +686,12 @@ duel -> RESULTS winner P2 konpaku 0-9 ticks 5474 secs 91.2
 
 選單直接點選項；選角畫面點左邊三分之一換上一個、右邊三分之一換下一個、中間確定。對戰中把手機轉成橫的會暫停並顯示 ROTATE TO PORTRAIT。
 
-**SETTINGS（設定）**：每一列點一下（或按左右鍵）就換到下一個值，立刻生效，也會存在瀏覽器裡（`localStorage` 的 `soulduel.onehand`、`soulduel.hand`、`soulduel.split`、`soulduel.flick`、`soulduel.camera`；無痕模式存不了就用預設值）。
+**SETTINGS（設定）**：每一列點一下（或按左右鍵）就換到下一個值，立刻生效，也會存在瀏覽器裡（`localStorage` 的 `soulduel.onehand`、`soulduel.handlr`、`soulduel.split`、`soulduel.flick`、`soulduel.camera`；無痕模式存不了就用預設值）。
 
 | 設定 | 值（粗體是預設） | 意思 |
 |---|---|---|
 | ONE-HAND | **AUTO**／ON／OFF | 見上面 |
-| HAND | **RIGHT**／LEFT | 按鈕區在哪一邊 |
+| HAND | LEFT／**RIGHT** | 按鈕區在哪一邊 |
 | TAP SPLIT | 40%／45%／**50%**／55%／60% | 手勢區上方多少比例算 K（點下去是 K 的區塊）；覺得 K 太容易誤觸就調小 |
 | SENSITIVITY | 1～5，預設 **3** | 撥動要劃多遠才算撥：1 是 40 px、3 是 28 px、5 是 18 px；數字越大越短就觸發 |
 | CAMERA | **BEHIND**／SIDE | 兩手操作 VS CPU／PRACTICE 的鏡頭（暫停選單也能切）；單手時一律用直拿的背後鏡頭 |

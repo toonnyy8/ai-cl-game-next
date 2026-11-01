@@ -6347,3 +6347,7 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
 ## 552. 進攻累積倍率改為 1.5 倍（2026-11-01）
 
 使用者：「幫我將 3 倍改成 1.5 倍」。`*sub-attack-mult*` 3.0 → 1.5：造成傷害每點 0.0525，約 1905 點實際傷害填滿 SUBLIMATION／DRIVE（橙色爆氣再 ×1.5）；魂魄每顆 10.5、白色爆氣每秒 1.4 不變。腳本：劍八 J1 在 SUBLIMATION 0 → 0.7、DRIVE 50 → 50.8（×3 時為 1.5／51.6）。主機測試 11298 通過；G2 `--cvc` 變動（II 28 行 279.9 s、IK 18 行 182.4 s、KK 17 行），已重產參考檔。見 DUEL_SUBLIMATION §18.1。
+
+## 553. 慣用手設定改為 LEFT 在左、RIGHT 在右（2026-11-02）
+
+使用者：「設定中手持模式的慣用手設定中 LEFT 應該要放左邊，RIGHT 要放右邊」。HAND 的選項順序 RIGHT／LEFT → **LEFT／RIGHT**（`control.lisp *settings*`，預設仍是 RIGHT，索引 0 → 1；`onehand.lisp apply-settings` 索引 0 = 左手；網頁設定 `menu.js` 同步）。存檔是「選項索引 + 1」，直接換順序會讓已存的左右對調，所以改存 `soulduel.handlr`，第一次載入時把舊的 `soulduel.hand`（RIGHT 1／LEFT 2）對調後搬過去（`pwa.js`）。主機測試 duel-control-test 100、touch-test 100 通過。說明書、TUTORIAL、DUEL_GAMEPLAY、DUEL_MOBILE_DESIGN 的 HAND 列同步。

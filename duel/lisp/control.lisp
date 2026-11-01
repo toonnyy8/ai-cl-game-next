@@ -150,7 +150,7 @@ player's (his own pad). Changes PAIR's plists in place; T when something changed
 ;;; saved or storage blocked -> the default). The page names the rows in this order.
 (defparameter *settings*
   '((:one-hand "ONE-HAND" ("AUTO" "ON" "OFF") 0 nil "AUTO: ON FOR A TOUCH PHONE HELD UPRIGHT")
-    (:hand "HAND" ("RIGHT" "LEFT") 0 nil "THE THUMB DECK'S SIDE")
+    (:hand "HAND" ("LEFT" "RIGHT") 1 nil "THE THUMB DECK'S SIDE")   ; LEFT on the left (the user, 2026-11-02; RIGHT LEFT before)
     (:tap-split "TAP SPLIT" ("40%" "45%" "50%" "55%" "60%") 2 (0.4 0.45 0.5 0.55 0.6) "UNUSED: A TAP IS THE ATTACK EVERYWHERE")
     (:flick "SENSITIVITY" ("1" "2" "3" "4" "5") 2 (40 34 28 23 18) "HIGHER: A SHORTER FLICK")
     (:camera "CAMERA" ("BEHIND" "SIDE") 0 nil "VS CPU AND PRACTICE, TWO HANDS")

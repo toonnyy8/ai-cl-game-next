@@ -685,14 +685,14 @@ setting), the portrait camera and HUD (they follow the window, as before), no CA
 and the back gesture. The CONTROLS screen still shows the gesture card wherever one-hand is offered.
 
 **SETTINGS** (`*settings*`, data; drawn by `hud-settings` in both orientations, rows are tap targets): ONE-HAND
-(AUTO / ON / OFF), HAND (RIGHT / LEFT), TAP SPLIT (40 / 45 / **50** / 55 / 60 %: the recogniser's `tap-split`), SENSITIVITY
+(AUTO / ON / OFF), HAND (LEFT / RIGHT since 2026-11-02, DEVLOG §553; RIGHT / LEFT before), TAP SPLIT (40 / 45 / **50** / 55 / 60 %: the recogniser's `tap-split`), SENSITIVITY
 (1–5 = `flick-min` 40 / 34 / **28** / 23 / 18 CSS px), CAMERA (BEHIND / SIDE), BACK. Confirm, left / right or a tap changes a
 row; each change is in force at once (`apply-settings`: `*hand*`, the `gesture-config`, the camera) and saved. The note
 line under the rows explains the selected row; for ONE-HAND it says whether it is in effect here. No sound row: the
 engine exposes only the music bus gain.
 
 **Storage** (`duel/web/pwa.js`): page get / set 10 + i = row i (option index + 1; 0 = never saved) in localStorage
-`soulduel.onehand`, `soulduel.hand` (the key HAND used before, same values), `soulduel.split`, `soulduel.flick`,
+`soulduel.onehand`, `soulduel.handlr` (since 2026-11-02: `soulduel.hand`, the key HAND used before with RIGHT 1 / LEFT 2, is carried over swapped once), `soulduel.split`, `soulduel.flick`,
 `soulduel.camera`. Every access is in try/catch; a missing, private or blocked storage gives 0 and the defaults. The page
 services 2 (get HAND) and 1 (set HAND) are replaced by these.
 

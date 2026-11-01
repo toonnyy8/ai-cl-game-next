@@ -180,8 +180,8 @@
 (check (and (= (setting-value :volume) 1.0) (= (first (fifth (assoc :volume *settings*))) 0.0)   ; VOLUME: full by default, 0 mutes, rising
             (apply #'< (fifth (assoc :volume *settings*)))))
 ;; the page value: option index + 1; 0 (never saved, blocked storage) or out of range -> the default
-(check (and (= (setting-from-page :hand 2) 1) (= (setting-from-page :hand 1) 0) (= (setting-from-page :hand 0) 0)
-            (= (setting-from-page :hand 3) 0) (= (setting-from-page :hand -1) 0) (= (setting-from-page :tap-split 0) 2)
+(check (and (= (setting-from-page :hand 2) 1) (= (setting-from-page :hand 1) 0) (= (setting-from-page :hand 0) 1)   ; LEFT RIGHT, default RIGHT (2026-11-02)
+            (= (setting-from-page :hand 3) 1) (= (setting-from-page :hand -1) 1) (= (setting-from-page :tap-split 0) 2)
             (= (setting-from-page :tap-split 5) 4) (= (setting-from-page :tap-split 6) 2)))
 ;; ONE-HAND MODE: AUTO = a touch-first device held in portrait (the old preselection); ON only where it is offered
 ;; (coarse or portrait: a landscape desktop never); OFF never. VS CPU and PRACTICE take the deck exactly then.
@@ -190,8 +190,8 @@
                                   collect (one-hand-on-p choice coarse portrait)))
               '((t nil nil nil) (t t t nil) (nil nil nil nil))))
 (let ((old (copy-seq *setting-ix*)))                     ; SETTING-VALUE follows the chosen index
-  (setf (svref *setting-ix* (setting-pos :flick)) 4 (svref *setting-ix* (setting-pos :hand)) 1)
-  (check (and (= (setting-value :flick) 18) (= (setting :hand) 1) (equal (setting-value :hand) "LEFT")))
+  (setf (svref *setting-ix* (setting-pos :flick)) 4 (svref *setting-ix* (setting-pos :hand)) 0)
+  (check (and (= (setting-value :flick) 18) (= (setting :hand) 0) (equal (setting-value :hand) "LEFT")))
   (setf *setting-ix* old))
 
 ;;; ---------------------------------------------------------------- ONE-HAND: what an up-flick is (UP-FLICK-HOHO-P)

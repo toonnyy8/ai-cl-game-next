@@ -22,9 +22,12 @@
 (function () {
   var coarse = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
   var back = 0, wakeOn = false, lock = null;
-  var settings = ['onehand', 'hand', 'split', 'flick', 'camera', 'learn', 'hint', 'autoguard', 'autocombo', 'autobreak', 'volume'];   // soulduel.hand predates SETTINGS (same values)
+  var settings = ['onehand', 'handlr', 'split', 'flick', 'camera', 'learn', 'hint', 'autoguard', 'autocombo', 'autobreak', 'volume'];   // soulduel.handlr: HAND as LEFT RIGHT (2026-11-02)
   function stored(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: not saved */ } }
+  if (stored('soulduel.handlr') === null) {              // soulduel.hand saved RIGHT 1, LEFT 2: carried over swapped, once
+    var oh = stored('soulduel.hand'); if (oh === '1' || oh === '2') store('soulduel.handlr', oh === '1' ? '2' : '1');
+  }
   var learn = {};                                        // roster index -> the learning CPU's table (integers)
   function ltab(i) {
     if (!learn[i]) { var s = stored('soulduel.learn.' + i); learn[i] = s ? s.split(',').map(Number) : []; }
