@@ -70,3 +70,31 @@ Hisagi's AS1 (`:steal-fs 120`, and the blood-chain AS1's 30) are left as they ar
 - **The CPU.** A charge segment (`:params :charge-sa`, NS3 a / b / c) with the opponent inside 2.6 m: the last one always cashes its SA in, the earlier ones half the time (`cai-move-step`, core-ai.lisp;
   no other kit names the param). Not done: a CPU that picks pointer 2's NS to bait a cancel.
 - Checks: host 10899 and cine 18 pass, pkgcheck clean; the scripted scenes of §4 give the same numbers; G2 II identical, IK / KK regenerated.
+
+## 7. The redesign of every form (the user, 2026-11-02)
+
+「我要重新設計劍八的模組與戰鬥邏輯了」. The research first (`docs/research/kenpachi-rework/combat-refs.md`, DEVLOG §555), then asked
+(AskUserQuestion), answered:
+
+| Question | Answer (verbatim) |
+|---|---|
+| The pointer themes across the forms (the research favours a verb per form; the cups were 「同主題、各杯換個性」, DUEL_KEN_KATATE) | 「各形態重新定義指針」: every form defines its own three pointers (theme, stance, NS, AS, Kikon), replacing 「同主題、各杯換個性」. Pointer-theme linkage (DUEL_CORE §5b) still holds inside each form. |
+| The first batch | 「節奏：前搖分級與打擊停頓」: a startup tier and a hitstop per form (combat-refs §3 C1–C5) |
+
+### 7.1 The cadence today (host dump of the kits, 2026-11-02)
+
+S = startup frames; hitstop by kind (`kit.lisp` `parse-move`): J / SA 4 f (`*hitstop-light*`), every NS / AS hit 8 f (`*hitstop-heavy*`);
+no Kenpachi move sets its own `:hs`.
+
+| Form | J1 S | NS1 a → b → c | NS2 a → b | NS3 (charges) | AS2 | AS3 | SA S |
+|---|---|---|---|---|---|---|---|
+| base | 7 | 16 → 20 → 20 | 22 → 14 | 20 → 16 → 16 | 16 → 22 | 16 → 20 → 26 | 8 |
+| KATATE (+2) | 9 | 18 → 22 → 22 | 24 → 14 | 20 → 16 → 16 | 18 → 24 | 18 → 22 → 28 | 7 |
+| RYOTE | 10 | 19 → 21 → 21 | 21 → 19 | 20 → 16 → 16 | 19 → 21 | 10 → 21 → 26 | 9 |
+| NOMIHOSE | 10 | 19 → 21 → 21 | 20 → 19 | 14 (BATTOU, one segment) | 19 → 21 | 10 → 21 → 26 | 9 |
+| Bankai (base `:core`) | 8 | 19 → 23 → 23 | 25 → 17 | 23 → 19 → 19 | 19 → 25 | 19 → 23 → 29 | 11 |
+| KATAUDE (base `:core`) | 7 | 16 → 20 → 20 | 22 → 14 | 20 → 16 → 16 | 16 → 22 | 16 → 20 → 26 | 8 |
+
+Read against the research: the NS1 strings and the AS enders get **slower** after the opener (由急至緩), the opposite of C1
+(only the opener needs the tell); the forms differ by a flat +2 / +3 startup, and their hits all freeze 4 / 8 f (C3, C4). The sim
+does not step during a hitstop (`main.lisp` `time-step`, a global freeze), so link windows already count from its end (C5 holds).
