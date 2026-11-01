@@ -320,6 +320,8 @@ new button."
   (look-clips nil)                      ; plist shared clip -> clip: the form plays these generic clips (its guard) as its own
                                         ; (a look: FIGHTER.LISP PLAY-CLIP, as a body variant's :clips; Lille II's wing wall)
   (core nil)                            ; the core system's moves (docs/duel/DUEL_CORE.md): (:ns (n1 n2 n3) :as (a1 a2 a3) :sa move)
+  (open-s nil)                          ; NIL, or the startup of every NS first segment that hits (the form's tier: KIT-CADENCE)
+  (hs-dmg nil)                          ; NIL, or (base per min max): every hit's hitstop from its damage (HS-BY-DAMAGE)
   (cls (make-hash-table :test 'eq))     ; MOVE -> :na :ns :as :sa (the triangle's class; built by REGISTER-KIT)
   (commands nil)                ; plist command -> move name
   (strings nil)                 ; ((from-move command to-move) ...)
@@ -455,6 +457,54 @@ through its :clip-map."
 (defun strip-keys (plist keys) "PLIST without the entries of KEYS (a fresh list)."
   (loop for (k v) on plist by #'cddr unless (member k keys) append (list k v)))
 
+;;; A form's cadence (Kenpachi, the user 2026-11-02: 「節奏：前搖分級與打擊停頓」, DUEL_KEN_CORE §7.2): :open-s, the startup tier of its
+;;; NS openers, and :hs-dmg, the hitstop by damage. Applied to the form's own move table after the derivation.
+(defvar *cadence-moves* (make-hash-table :test 'equal)
+  "Copies made by KIT-CADENCE, keyed by (move s) / (move :hs), so a move two forms share stays one move.")
+;; ponytail: the :hs key ignores the spec, since one character uses :hs-dmg; key it by the spec if a second one does
+
+(defun hs-by-damage (dmg spec)
+  "The hitstop of a hit of DMG under :hs-dmg SPEC (base zero per lo hi): base + (dmg - zero) / per, rounded, within lo .. hi."
+  (destructuring-bind (base zero per lo hi) spec
+    (max lo (min hi (round (+ base (/ (- dmg zero) per)))))))
+
+(defun move-hs-by-damage (mv spec)
+  "MV with each damaging hit's hitstop from its damage (HS-BY-DAMAGE)."
+  (or (gethash (list mv :hs) *cadence-moves*)
+      (let ((m (copy-move mv)))
+        (setf (mv-hits m) (map 'simple-vector (lambda (h) (if (plusp (hw-dmg h))
+                                                              (let ((c (copy-hitwin h))) (setf (hw-hs c) (hs-by-damage (hw-dmg h) spec)) c)
+                                                              h))
+                               (mv-hits mv)))
+        (setf (gethash (list m :hs) *cadence-moves*) m (gethash (list mv :hs) *cadence-moves*) m))))
+
+(defun move-with-startup (mv s)
+  "MV starting on frame S: frames inside the startup (early hooks, :enter) scale with it, like its clip; the hits and every
+later frame shift by the difference."
+  (or (gethash (list mv s) *cadence-moves*)
+      (let* ((s0 (mv-s mv)) (d (- s s0)) (m (copy-move mv)))
+        (flet ((at (f) (if (<= f s0) (round (* f s) s0) (+ f d))))
+          (setf (mv-s m) s
+                (mv-hits m) (map 'simple-vector (lambda (h) (let ((c (copy-hitwin h)))
+                                                              (setf (hw-from c) (at (hw-from h)) (hw-to c) (at (hw-to h)))
+                                                              c))
+                                 (mv-hits mv))
+                (mv-on-frame m) (loop for (f hook) in (mv-on-frame mv) collect (list (at f) hook))
+                (mv-enter m) (if (plusp (mv-enter mv)) (at (mv-enter mv)) 0)
+                (mv-clip-speed m) (/ (* (mv-clip-speed mv) s0) (float s))))
+        (setf (gethash (list mv s) *cadence-moves*) m))))
+
+(defun kit-cadence (kit)
+  "KIT's :hs-dmg on every move it holds, then its :open-s on each NS first segment that hits (a charge keeps its length)."
+  (let ((open (kit-open-s kit)) (hs (kit-hs-dmg kit)) (moves (kit-moves kit)))
+    (when hs
+      (maphash (lambda (k mv) (setf (gethash k moves) (move-hs-by-damage mv hs))) moves))
+    (when open
+      (dolist (n (getf (kit-core kit) :ns))
+        (let ((mv (gethash n moves)))
+          (when (and mv (plusp (length (mv-hits mv))) (/= (mv-s mv) open))
+            (setf (gethash n moves) (move-with-startup mv open))))))))
+
 (defun register-kit (character form spec)
   (let* ((spec (resolve-tuning spec))
          (parent (and (getf spec :inherit) (find-kit character (getf spec :inherit))))
@@ -493,6 +543,7 @@ through its :clip-map."
                 (cond ((or (member m own) (not pmv)) mv)
                       ((and (eql startup-add 0) (= reach-mult 1)) pmv)
                       (t (parse-move m (mv-spec mv) :startup-add startup-add :reach-mult reach-mult))))))
+      (kit-cadence kit)
       (build-core-classes kit)
       (when (and (eq form :base) (not (member character *roster*)))
         (setf *roster* (append *roster* (list character))))

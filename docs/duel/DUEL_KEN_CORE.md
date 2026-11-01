@@ -98,3 +98,49 @@ no Kenpachi move sets its own `:hs`.
 Read against the research: the NS1 strings and the AS enders get **slower** after the opener (由急至緩), the opposite of C1
 (only the opener needs the tell); the forms differ by a flat +2 / +3 startup, and their hits all freeze 4 / 8 f (C3, C4). The sim
 does not step during a hitstop (`main.lisp` `time-step`, a global freeze), so link windows already count from its end (C5 holds).
+
+### 7.2 Batch 1: the startup tier and the hitstop by damage (the user, 2026-11-02)
+
+Asked (AskUserQuestion), answered (verbatim):
+
+| Question | Answer |
+|---|---|
+| The segments' cadence (today the later segments are slower) | 「依據每段的主題與武器決定」: no blanket slow-to-fast rule; each segment's startup is set with its form's new pointers (later batches) |
+| The NS openers' startup tier | 「以武器重量分級為主，再來依據攻勢猛烈程度以及是否雙手持械決定。武器重量以武士刀最輕，卍解的片手斧次之，始解的大刀最為沉重。」 |
+| Which way two hands and a fiercer form move it | 「兩者都變快」 (two hands -3; fiercer, up to -3) |
+| KATAUDE and NOMIHOSE in the tiers | 「取消掉片腕的狀態，飲干算雙手持」 (KATAUDE's removal: §7.3) |
+| The numbers | 「可以」: weight bases katana 14 / one-hand axe 18 / cleaver 22, floor 14 |
+| The hitstop | 「依傷害大小縮放」, formula 「4 + (傷害−30)/10，4–14 f」: from the move's base damage, rounded, Kenpachi only |
+
+| Form | Weapon (base) | Two hands | Fierce | NS opener S (was) |
+|---|---|---|---|---|
+| base | katana 14 | — | 0 | **14** (NS1a 16, NS2a 22) |
+| KATATE | cleaver 22 | — | 0 | **22** (18, 24) |
+| RYOTE | cleaver 22 | -3 | 0 | **19** (19, 21) |
+| NOMIHOSE | cleaver 22 | -3 | -3 | **16** (19, 20, BATTOU 14) |
+| Bankai | one-hand axe 18 | — | -2 | **16** (19, 25) |
+
+Hitstop = round(4 + (damage − 30) / 10) within 4–14 f on every damaging hit of every form (was 4 for a J / SA, 8 for the rest):
+J1 35 → 4, NS 60 → 7, 70 → 8, 90 → 10, charged SA 80 → 9, AS2's launch 100 → 11, BATTOU 140 → 14, the meteor 170 → 14, AS1's drop
+40 → 5 (lighter than before), KUKAN-GIRI's rift 50 → 6.
+
+- **Code.** Two generic kit keys (`kit.lisp`, nil for every other kit): `:open-s` (KIT-CADENCE → MOVE-WITH-STARTUP: each NS first segment
+  that hits starts on frame S; frames inside the old startup, i.e. its early hooks and `:enter`, scale with it as its clip does, and
+  the hits and later frames shift; the clip speed follows so it still lands on S; a charge segment keeps its length) and `:hs-dmg`
+  (MOVE-HS-BY-DAMAGE, HS-BY-DAMAGE). Copies are shared through `*cadence-moves*`, so a move two forms hold stays one move. Knobs
+  `*ken-open-base*` / `-katate*` / `-ryote*` / `-nomihose*` / `-bankai*` and `*ken-hs-dmg*` (tuning.lisp). The rift's own hit
+  window uses the same formula.
+- The later segments, AS, SA and J keep their startups (the user: each segment by its theme, later). KATATE's NS1 is now 22 → 22 → 22.
+- The sim freezes during a hitstop, so the longer hitstops move no link window (C5).
+- **Checks.** Host tests 11305 all pass (new pins: the formula, each form's `:open-s` and openers, a charge's length kept, a shifted
+  opener's window and clip speed, Ichigo's kit without the keys); pkgcheck clean; the build; the playtest Artifact v278. Scripted scenes
+  `duel-ken-{core,katate,ryote,nomihose}.json` against a baseline build of the parent commit: every route connects as before; the
+  timed exchanges moved with the faster openers and longer cancel hitstops (base / NOMIHOSE NS2 now take two cancels before the SA,
+  ×1.60; NOMIHOSE's BATTOU at S16 now meets P2's NS as a cancel instead of hitting first). The "N2 cancel x1 then SA" scene's J went
+  0.9 → 0.5 s after the SP, since RYOTE's NS2a (S 21 → 19) left P2's J1 to punish its recovery at 0.9 s; it now shows the cancel and
+  the SA in all three cups. G2 `--cvc`: II identical (28 lines), IK 18 → 26 lines (P2 0-7, 258.5 s), KK 17 → 22 (P1 3-0, 215.7 s);
+  `tests/style-cvc-ref.txt` regenerated. No balance gates (the user, 2026-10-29).
+
+### 7.3 KATAUDE (open)
+
+「取消掉片腕的狀態」 (2026-11-02). Not done yet: what the Bankai's arm break leads to instead is asked separately (DEVLOG §557).

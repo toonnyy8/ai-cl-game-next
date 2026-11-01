@@ -718,7 +718,7 @@ def ken_katate_script(scene=84001, tag="KT"):
             ("KT N1 chain: SP, J (SA jab), J2", 2510, lambda s: [sp(s), jt(s + 0.45), jt(s + 0.75)]),
             ("KT N2 rush: SP x2 (shoulder, clamp)", 2511, lambda s: [sp(s), sp(s + 0.7)]),
             ("KT N2 armour: P2's NS lands in the startup", 2511, lambda s: [ev.append(cmd(s - 0.2, 84010)), sp(s)]),
-            ("KT N2 cancel x1 then SA", 2511, lambda s: [sp(s), ev.append(cmd(s + 0.1, 84011)), jt(s + 0.9)]),
+            ("KT N2 cancel x1 then SA", 2511, lambda s: [sp(s), ev.append(cmd(s + 0.1, 84011)), jt(s + 0.5)]),
             ("KT N3 kamae: SP, J (SA c1), J2", 2512, lambda s: [sp(s), jt(s + 0.45), jt(s + 0.75)]),
             ("KT N3 kamae: SP x3, J (SA c3), J2", 2512, lambda s: [sp(s), sp(s + 0.45), sp(s + 0.8), jt(s + 1.15), jt(s + 1.45)]),
             ("KT N3 armour: P2's NS lands in a charge", 2512, lambda s: [ev.append(cmd(s - 0.05, 84010)), sp(s)])) + (

@@ -421,6 +421,17 @@ window: the user 2026-10-01; was f4-15) ...")
 (defparameter *nozarashi-startup* 2 "Nozarashi KATATE (cup 1): extra startup frames of the inherited moves (3 before: F1->F2 was a 0 gap).")
 (defparameter *ryote-reach* 1.4 "RYOTE (cup 2): reach x of the base moves it doesn't list.")
 (defparameter *ryote-startup* 3 "RYOTE (cup 2): extra startup frames of the base moves it doesn't list.")
+;;; Kenpachi's cadence by form (the user, 2026-11-02, DUEL_KEN_CORE §7.2): the startup of every NS first segment that hits
+;;; (kit :open-s) = the weapon's weight (the katana lightest, the Bankai's one-hand axe next, the Shikai's cleaver heaviest:
+;;; base 14 / 18 / 22), faster for two hands (-3) and for a fiercer form (up to -3), never under 14.
+(defparameter *ken-open-base* 14 "Kenpachi base (the katana, one hand): NS opener startup. Was 16 (NS1a) / 22 (NS2a).")
+(defparameter *ken-open-katate* 22 "KATATE (the cleaver, one hand): NS opener startup. Was 18 / 24.")
+(defparameter *ken-open-ryote* 19 "RYOTE (the cleaver, two hands -3): NS opener startup. Was 19 / 21.")
+(defparameter *ken-open-nomihose* 16 "NOMIHOSE (the cleaver, two hands -3, fiercest -3): NS opener startup. Was 19 / 20 / 14 (BATTOU).")
+(defparameter *ken-open-bankai* 16 "The Bankai (the one-hand axe 18, fierce -2): NS opener startup. Was 19 / 25.")
+(defparameter *ken-hs-dmg* '(4 30 10 4 14)
+  "Kenpachi's hitstop by damage (kit :hs-dmg, base zero per lo hi): 4 + (damage - 30) / 10 rounded, 4 .. 14 frames (the user,
+2026-11-02: 「依傷害大小縮放」). Was 4 for a J / SA, 8 for every other hit.")
 ;;; Nozarashi v2, NOME (呑め): the three-cup ladder (docs/duel/DUEL_NOZARASHI_V2.md). The meter is the kit meter
 ;;; (GAUGES-METER); a rung is a kit form, changed only while he is free (ken-meter.lisp KEN-NOME-STEP)
 (defparameter *nome-max* 100.0 "The NOME gauge.")

@@ -245,6 +245,7 @@
   :cornered *cornered-per-konpaku* :cornered-max *cornered-max* :reset-reiatsu *reset-reiatsu-bonus*
   :absorb-sfx :laugh
   :stun-tolerance 26.0                          ; the hidden stun (DUEL_DESIGN.md): he takes the most before he flies
+  :open-s *ken-open-base* :hs-dmg *ken-hs-dmg*  ; the cadence by form (DUEL_KEN_CORE §7.2; every form inherits :hs-dmg)
   :commands (:q :ke-j1 :f :ke-k1 :sig :ke-stance :sp1 :ke-buttagiru :sp2 :ke-charge
              :breaker :ke-breaker :kikon :ke-kikon)
   :grid (:ke-j1 :ke-j2 :ke-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)
@@ -267,7 +268,7 @@
 
 (defkit :kenpachi :nozarashi :inherit :base    ; cup 1, KATATE: one hand, as the awakening leaves him
   :awakening t :mult *nozarashi-mult* :startup-add *nozarashi-startup* :reach-mult *nozarashi-reach*
-  :passives (:projectile-cut) :form-name "KATATE" :kikon-konpaku 2
+  :passives (:projectile-cut) :form-name "KATATE" :kikon-konpaku 2 :open-s *ken-open-katate*
   :endless-form :nozarashi                      ; ENDLESS: every cup (and the Bankai, inheriting it) stays as cup 1, NOME 10
   :weapon :nozarashi :stance :ke-n-stance :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
@@ -301,7 +302,7 @@
        :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
 
 (defkit :kenpachi :ryote :inherit :nozarashi       ; cup 2, RYOTE (NOME >= 40): two-handed kendo, the cut
-  :mult *ryote-mult* :startup-add *ryote-startup* :reach-mult *ryote-reach* :form-name "RYOTE" :kikon-konpaku 3
+  :mult *ryote-mult* :startup-add *ryote-startup* :reach-mult *ryote-reach* :form-name "RYOTE" :kikon-konpaku 3 :open-s *ken-open-ryote*
   :passives (:projectile-cut :cut) :stance :ke-r-stance :aura :nozarashi :enter-hook ken-ryote-enter
   :clip-map nil                                     ; (not cup 1's: RYOTE plays the clips as written)
   :commands (:q :ke-r-j1 :f :ke-r-k1 :sp1 :ke-meteor :kikon :ke-kikon-n)   ; (the cup-1 moves as written: not re-derived)
@@ -328,7 +329,7 @@
        :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
 
 (defkit :kenpachi :nomihose :inherit :ryote        ; cup 3, NOMIHOSE (NOME = 100): no guard, U drinks; RYOTE's moves
-  :mult *nomihose-mult* :form-name "NOMIHOSE" :kikon-konpaku 4 :blade-chip *nomihose-chip* :bankai-form :bankai
+  :mult *nomihose-mult* :form-name "NOMIHOSE" :kikon-konpaku 4 :blade-chip *nomihose-chip* :bankai-form :bankai :open-s *ken-open-nomihose*
   :passives (:projectile-cut :cut :drink) :aura :nomihose :drink-clip :ke-x-drink :enter-hook ken-nomihose-enter
   ;; its own set (a look, DUEL_KEN_REWORK §6.2: 「三杯也改用一套自己的獨立動作」): RYOTE's moves on cup 3's clips
   :stance :ke-x-stance :body :kenpachi-nomi              ; (the hair lifted: a body variant, the same rig)
@@ -364,7 +365,7 @@
 ;;; the Bankai (P in cup 3, red, free: combat.lisp BANKAI!): his Konpaku -> 1, his Reishi -> full (the user's decisions
 ;;; 2026-09-28); ×1.2; U is still DRINK; every heavy command spends a pip of the arm (UDE, the kit meter)
 (defkit :kenpachi :bankai :inherit :nomihose
-  :awakening t :mult *bankai-ken-mult* :form-name "BANKAI" :kikon-konpaku 4 :blade-chip *nomihose-chip*
+  :awakening t :mult *bankai-ken-mult* :form-name "BANKAI" :kikon-konpaku 4 :blade-chip *nomihose-chip* :open-s *ken-open-bankai*
   :bankai-form nil :passives (:projectile-cut :drink)
   :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2           ; (the base form's: the Bankai is not reworked yet)
          :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)
@@ -422,7 +423,7 @@
 frames later (a 2 f window): hazard :rift, hazards.lisp; it closes if he is hit before it cuts."
   (let ((p (pos-of e)))
     (spawn-hazard :rift e :x (aref p 0) :z (aref p 2) :yaw (yaw-of e) :size 4.4 :delay (1+ *rift-delay*) :life 2
-                          :hw (make-hitwin :dmg (move-param e :rift-dmg) :react :stagger :kb 1.0 :hs *hitstop-heavy*
+                          :hw (make-hitwin :dmg (move-param e :rift-dmg) :react :stagger :kb 1.0 :hs (hs-by-damage (move-param e :rift-dmg) *ken-hs-dmg*)
                                            :chip (move-param e :rift-chip) :guard (move-param e :rift-guard)
                                            :vols (let ((v (move-param e :rift-vol))) (list (make-vol (first v) (rest v)))))))
   (emit :sfx :rift-open e))

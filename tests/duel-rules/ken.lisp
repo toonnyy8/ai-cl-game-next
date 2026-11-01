@@ -58,9 +58,11 @@
   (check (and (eq (kit-move t3 :ke-r-j3) (kit-move t2 :ke-r-j3)) (= 10 (mv-s (kit-move t3 :ke-r-j3)))
               (= 21 (mv-s (kit-move t3 :ke-r-k3))) (eq (kit-move t3 :ke-r-j2) (kit-move t2 :ke-r-j2))
               (~= (mv-reach (kit-move t2 :ke-r-j2)) 1.44) (~= (mv-reach (kit-move t2 :ke-r-j3)) 1.52)))
-  (check (and (eq (kit-move t2 :ke-meteor) (find-move :ke-meteor)) (eq (kit-move t2 :ke-kikon-n) (find-move :ke-kikon-n))
-              (eq (kit-command-move t3 :kikon) (find-move :ke-kikon-n))
-              (eq (kit-move (kit :yamamoto :hellfire) :ya-j1) (find-move :ya-j1))))
+  ;; as written (not re-derived): the same frames and reach; since the cadence (DUEL_KEN_CORE §7.2) a copy with its own hitstop
+  (flet ((written (mv name) (let ((w (find-move name))) (and (= (mv-s mv) (mv-s w)) (= (mv-r mv) (mv-r w)) (= (mv-reach mv) (mv-reach w))))))
+    (check (and (written (kit-move t2 :ke-meteor) :ke-meteor) (written (kit-move t2 :ke-kikon-n) :ke-kikon-n)
+                (written (kit-command-move t3 :kikon) :ke-kikon-n)
+                (eq (kit-move (kit :yamamoto :hellfire) :ya-j1) (find-move :ya-j1)))))
   (check (and (= 10 (mv-s (kit-move t1 :ke-stance))) (= 11 (mv-s (kit-move t2 :ke-stance))) (= 11 (mv-s (kit-move t3 :ke-stance)))))
   ;; 9. the links: every J / K pair of every form combos (the string budget above); cup 3's K1 KUKAN-GIRI -> K2 too
   (check (< (hit-gap (kit-move t3 :ke-n-f1) (kit-next t3 :ke-n-f1 :f)) 0))
@@ -275,3 +277,22 @@
     ;; the drink is AS2's last segment, which launches
     (check (and (eq (getf (mv-spec (m :ke-m-as2b)) :on-hit) :launch) (assoc 7 (mv-on-frame (m :ke-m-as2b)))))
     (check (equal (getf (kit-core n) :ns) '(:ke-m-n1a :ke-m-n2a :ke-m-n3a)))))
+
+;;; the cadence by form (the user, 2026-11-02, DUEL_KEN_CORE §7.2): the NS openers' startup tier, the hitstop by damage
+(check (and (= 4 (hs-by-damage 35 *ken-hs-dmg*)) (= 7 (hs-by-damage 60 *ken-hs-dmg*)) (= 8 (hs-by-damage 70 *ken-hs-dmg*))
+            (= 9 (hs-by-damage 80 *ken-hs-dmg*)) (= 10 (hs-by-damage 90 *ken-hs-dmg*)) (= 14 (hs-by-damage 140 *ken-hs-dmg*))
+            (= 14 (hs-by-damage 210 *ken-hs-dmg*)) (= 4 (hs-by-damage 0 *ken-hs-dmg*))))
+(check (equal (mapcar (lambda (f) (kit-open-s (kit :kenpachi f))) '(:base :nozarashi :ryote :nomihose :bankai)) '(14 22 19 16 16)))
+(check (every (lambda (fm) (destructuring-bind (f s . names) fm
+                             (every (lambda (n) (= s (mv-s (mv :kenpachi f n)))) names)))
+              '((:base 14 :ke-n1a :ke-n2a) (:nozarashi 22 :ke-n1a :ke-kt-n2a) (:ryote 19 :ke-r-n1a :ke-r-n2a)
+                (:nomihose 16 :ke-m-n1a :ke-m-n2a :ke-m-n3a) (:bankai 16 :ke-n1a :ke-n2a))))
+;; a charge keeps its length; a shifted opener hits on its new S (its window moved, its clip sped up to match)
+(check (and (= 20 (mv-s (mv :kenpachi :base :ke-n3a))) (= 20 (mv-s (mv :kenpachi :nozarashi :ke-kt-n3a)))))
+(let ((old (find-move :ke-n2a)) (new (mv :kenpachi :base :ke-n2a)))
+  (check (and (= 22 (mv-s old)) (= 14 (hw-from (aref (mv-hits new) 0))) (= (mv-a old) (mv-a new)) (= (mv-r old) (mv-r new))
+              (~= (* (mv-clip-speed new) 14) (* (mv-clip-speed old) 22)))))
+;; every Kenpachi hit freezes by its damage; another character keeps the kind's (Ichigo's J1 4)
+(check (and (= 14 (hw-hs (aref (mv-hits (mv :kenpachi :nomihose :ke-m-n3a)) 0))) (= 4 (hw-hs (aref (mv-hits (mv :kenpachi :base :ke-j1)) 0)))
+            (= 11 (hw-hs (aref (mv-hits (mv :kenpachi :base :ke-as2b)) 0)))
+            (null (kit-hs-dmg (kit :ichigo :base))) (null (kit-open-s (kit :ichigo :base)))))

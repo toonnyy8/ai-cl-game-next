@@ -852,7 +852,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (= (mv-s (mv :kenpachi :nozarashi :ke-breaker)) 10))
 (check (~= (aref (first (hw-vols (svref (mv-hits (mv :kenpachi :nozarashi :ke-charge)) 0))) 2) (* 1.4 1.3)))
 (check (= (mv-s (mv :kenpachi :nozarashi :ke-meteor)) 26))
-(check (eq (mv :kenpachi :nozarashi :ke-meteor) (find-move :ke-meteor)))
+(check (let ((m (mv :kenpachi :nozarashi :ke-meteor)) (w (find-move :ke-meteor))) (and (= (mv-s m) (mv-s w)) (= (mv-reach m) (mv-reach w)))))   ; as written (a cadence copy: its own hitstop)
 (check (eq (kit-next (kit :kenpachi :nozarashi) :ke-j1 :q) (mv :kenpachi :nozarashi :ke-j2)))
 ;; clip names: exactly the §5 contract, and every §5 clip is used
 (defparameter *clips-5*
