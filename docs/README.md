@@ -88,7 +88,7 @@ Babylon.js + TypeScript 移植版 2026-10-06 起不再開發；它的程式碼�
 | [ai-v2-drsi/](research/ai-v2-drsi/) | AI v2 的 dream-rsi 工作區：五個角色的 baseline、兩輪 cell（brief、proposal、lisp、分數）、policy 與 trace，加上 coordinator 腳本（`brief.py`、`step.sh`、`rescore.sh`） |
 | [lille-retrospective/digest.md](research/lille-retrospective/digest.md) | 利傑巴羅的設計回顧摘要：56 個決定的時間線、10 條重工鏈與各自該先問的問題、做對的流程／設計／技術模式、建模與系統筆記、數字（英文，2026-10-08） |
 | [roguelike/digest.md](research/roguelike/digest.md) | roguelike／roguelite 設計要點彙整（核心支柱、關卡路線、獎勵與 build、meta 進度、格鬥遊戲先例、陷阱），以及對應到 ENDLESS 的 12 個選項，附來源（英文，2026-10-22） |
-| [kenpachi-rework/](research/kenpachi-rework/) | 劍八重做的研究：`canon-looks.md` 各型態的原作外觀與建模清單，`motion-refs.md` 各場戰鬥的打法、遊戲參考與三個型態的招式動作清單（英文，附來源與可信度，2026-10-08） |
+| [kenpachi-rework/](research/kenpachi-rework/) | 劍八重做的研究：`canon-looks.md` 各型態的原作外觀與建模清單，`motion-refs.md` 各場戰鬥的打法、遊戲參考與三個型態的招式動作清單（英文，附來源與可信度，2026-10-08）；`combat-refs.md` 戰鬥模組的參考研究：各武器的動作分析、狂戰士與霸體機制、格鬥設計理論、原作節拍轉模組，證據在 `combat/`（英文，已逐頁核對，2026-11-02） |
 | [yamamoto-rework/](research/yamamoto-rework/) | 山本總隊長（千年血戰篇）重做的研究：`canon-looks.md` 各狀態的原作外觀與建模清單，`motion-refs.md` 各場戰鬥的打法、RoS 等遊戲參考、原型表與各型態的招式動作清單（英文，附來源與 A～D 等級，2026-10-13） |
 | [ichigo-rework/](research/ichigo-rework/) | 黑崎一護（千年血戰篇）重做的研究：`canon-looks.md` 原作外觀（短刀正手握、TYBW 服裝），`canon-motion.md` 各場戰鬥的打法，`style-refs.md` 其他遊戲與動漫的大劍／雙刀風格、原型表、演出技巧與動作清單（英文，附來源與 A～D 等級，2026-10-14） |
 | [lille-ai-drsi/](research/lille-ai-drsi/) | 利傑巴羅自適應 AI 的 dream-rsi 工作區（DUEL_LILLE §24）：凍結的 baseline（lille.lisp、proposal、40／80 場分數、NORMAL 漂移參考值）、drsi 設定與 policy，加上 coordinator 腳本（`brief.py`、`step.sh`、`rescore.sh`）；見其 README |
