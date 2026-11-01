@@ -182,3 +182,7 @@ In the one-hand deck a sideways flick (|dx| > 1.73 |dy|, the recogniser's up-con
 ### 17.5 Before the awakening: SUBLIMATION must have been full once (the user, 2026-11-01)
 
 User: 「然後讓 sublimation 全滿過的話，覺醒前也開放使用切換系統，且扣除量表時不會扣到覺醒量表」. `gauges-sub-full` latches when SUBLIMATION reaches its maximum (`awaken-fill!`; the practice rows set it at SUBLIMATION FULL / INFINITE); before the awakening the switch needs that latch and 0.25 B of SUBLIMATION left, and pays only SUBLIMATION (the awakening gauge stays full). After the awakening it is SPIRIT DRIVE >= 0.25 B as before. (Before: any SUBLIMATION >= 0.25 B opened it.) Scripted: Shikai SUBLIMATION 60 with the latch (debug 86108) switches; the same without it (86109) does not; DRIVE 20 does not.
+
+### 17.6 Back to any 25% (the user, 2026-11-01)
+
+User: 「幫我改回只要有 25% 就能使用」. Reverses §17.5's condition: before the awakening the switch needs only SUBLIMATION >= 0.25 B (still paid from SUBLIMATION alone, the awakening gauge untouched). `gauges-sub-full` and its setters (`awaken-fill!`, the practice rows, debug 86108) are removed; debug 86109 (the "never full" refusal scene) is gone. Scripted: Shikai SUBLIMATION 60 (86108) switches; DRIVE 20 (86107) does not.

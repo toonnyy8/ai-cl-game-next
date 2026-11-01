@@ -6326,3 +6326,7 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
 ## 547. 臨時指針：回中立清掉；練習無限量表含昇華／DRIVE；覺醒前需昇華滿過（2026-11-01）
 
 使用者：「臨時指針切換後的印章顯示問題，再切換後如果回到中立狀態沒有再次攻擊就不會切回來」、「練習模式如果將 gauges 設定成無限，那 sublimation 跟 drive 也應該要是無限」、「讓 sublimation 全滿過的話，覺醒前也開放使用切換系統，且扣除量表時不會扣到覺醒量表」。`to-idle` 清臨時指針，HUD 只在招式中顯示它；無限量表連 SUBLIMATION／DRIVE 補滿；覺醒前切換需 SUBLIMATION 曾滿（`sub-full` 閂鎖）並只扣 SUBLIMATION。見 DUEL_SUBLIMATION §17.4–§17.5。
+
+## 548. 覺醒前切換改回只要 25%（2026-11-01）
+
+使用者：「幫我改回只要有 25% 就能使用」。移除 §547 的「昇華曾滿過」閂鎖（`gauges-sub-full` 及其設定處、debug 86109）：覺醒前只要 SUBLIMATION ≥ 0.25 B 就能切換，仍只扣 SUBLIMATION。見 DUEL_SUBLIMATION §17.6。

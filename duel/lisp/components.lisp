@@ -162,7 +162,6 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (awaken 0f0 :type single-float)       ; Fighting Spirit 0..100
   (awakened nil)                        ; the awakening of this match is used
   (sub 0f0 :type single-float)          ; SUBLIMATION 0..100: fills while the awakening gauge is full and unused
-  (sub-full nil)                        ; SUBLIMATION has been full once: the pointer switch opens before the awakening (DUEL_SUBLIMATION §17.5)
   (sub-s 0f0 :type single-float)        ; its fraction 0..1 frozen at the awakening (kept x *SUB-KEEP*)
   (drive 0f0 :type single-float)        ; SPIRIT DRIVE 0..100: fills once awakened
   (evolution nil)                       ; EVOLUTION was announced

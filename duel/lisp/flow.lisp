@@ -255,7 +255,7 @@ for the pre-awakening levels; a :drive level takes effect as soon as he is awake
     (let ((g (gauges *p1*)))
       (case kind
         (:gauge (unless (gauges-awakened g) (setf (gauges-awaken g) (f32 (* v 0.01 *awaken-max*)) (gauges-sub g) 0f0)) (setf *practice-aw-done* t))
-        (:sub (unless (gauges-awakened g) (setf (gauges-awaken g) *awaken-max* (gauges-sub g) (f32 (* v 0.01 *sub-max*)) (gauges-sub-full g) (>= v 100))) (setf *practice-aw-done* t))
+        (:sub (unless (gauges-awakened g) (setf (gauges-awaken g) *awaken-max* (gauges-sub g) (f32 (* v 0.01 *sub-max*)))) (setf *practice-aw-done* t))
         (:drive (if (gauges-awakened g)
                     (setf (gauges-drive g) (f32 (* v 0.01 *drive-max*)) *practice-aw-done* t)
                     (progn (setf (gauges-awaken g) *awaken-max*) (setf *practice-aw-done* nil)))))
@@ -293,7 +293,7 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
       (unless (gauges-burst g) (setf (gauges-fs g) *fs-max*))   ; a burst burns it down first (the user 2026-09-30)
       (if (gauges-awakened g)
           (setf (gauges-drive g) *drive-max*)               ; SUBLIMATION / SPIRIT DRIVE too (DUEL_SUBLIMATION §17.4)
-          (setf (gauges-awaken g) *awaken-max* (gauges-sub g) *sub-max* (gauges-sub-full g) t)))))
+          (setf (gauges-awaken g) *awaken-max* (gauges-sub g) *sub-max*)))))
 
 (defun practice-reset ()
   "RESET POSITION: a fresh pair at the start (full resources, first forms), straight into the fight (no intro)."
