@@ -271,7 +271,8 @@ opponent's Reishi is under this fraction (red is 0.30), so the O that comes (the
 (defmove-copy :ic-k-sa-g2 :ic-sa-g2 :clip :ic-k-back :clip-s 8)
 (defmove-copy :ic-k-n2a :ic-n2a :clip :ic-k-chg1 :params (:ns-next :ic-k-n2b :sa :ic-k-sa-g1))   ; the black flame's charges
 (defmove-copy :ic-k-n2b :ic-n2b :clip :ic-k-chg2 :params (:ns-next :ic-k-n2c :sa :ic-k-sa-g2))
-(defmove-copy :ic-k-n2c :ic-n2c :clip :ic-k-f3 :clip-s 21                          ; the small 漆黒 crescent, cut down
+(defmove-copy :ic-k-n2c :ic-n2c :clip :ic-k-f3 :clip-s 21 :callout "GETSUGA TENSHO"  ; the small 漆黒 crescent, cut down (月牙天衝, not
+  ;; JUJISHO: the user, 2026-11-02, 「一護卍解的 NS2c 是月牙天衝而不是月牙十字衝」; DUEL_SUBLIMATION §19)
   :params (:width 3.6 :speed 14.0 :range 12.0 :dmg 150 :react :knockdown :kb 2.0 :guard 22 :look ichigo-juji-look :kikon-strike :ic-k-wave-strike))
 (defmove-copy :ic-k-wave-strike :ic-k-sa-g2 :clip-2 :ic-k-back :params (:charge-mult 1.7 :follow-cap 40.0 :look :flash-step))   ; (its wave's Kikon)
 (defmove-copy :ic-k-wave-strike-as :ic-k-wave-strike)

@@ -6351,3 +6351,7 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
 ## 553. 慣用手設定改為 LEFT 在左、RIGHT 在右（2026-11-02）
 
 使用者：「設定中手持模式的慣用手設定中 LEFT 應該要放左邊，RIGHT 要放右邊」。HAND 的選項順序 RIGHT／LEFT → **LEFT／RIGHT**（`control.lisp *settings*`，預設仍是 RIGHT，索引 0 → 1；`onehand.lisp apply-settings` 索引 0 = 左手；網頁設定 `menu.js` 同步）。存檔是「選項索引 + 1」，直接換順序會讓已存的左右對調，所以改存 `soulduel.handlr`，第一次載入時把舊的 `soulduel.hand`（RIGHT 1／LEFT 2）對調後搬過去（`pwa.js`）。主機測試 duel-control-test 100、touch-test 100 通過。說明書、TUTORIAL、DUEL_GAMEPLAY、DUEL_MOBILE_DESIGN 的 HAND 列同步。
+
+## 554. 一護卍解 NS2c 改名為月牙天衝（2026-11-02）
+
+使用者：「還有一護卍解的 NS2c 是月牙天衝而不是月牙十字衝，能跟我說下 NS2 的當前設定嗎」、「好，如你所說處理名字就行」。KESSA 的 NS2c（`:ic-k-n2c`）從始解的月牙十字衝複製而來，喊名沿用了「GETSUGA JUJISHO」；外觀早已是一道較小的漆黑月牙。喊名改為「GETSUGA TENSHO」，數值不變，程式裡與始解共用的 `juji` 名稱不動。見 DUEL_SUBLIMATION §19。

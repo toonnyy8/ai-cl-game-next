@@ -33,6 +33,7 @@
   (check (equal (getf (kit-core k) :as-by-press) '(1 1 2 2 3)))
   (check (and (= 3 (length (getf (kit-core k) :ns))) (= 3 (length (getf (kit-core k) :as)))))
   (check (eq (kit-core-move k :ns 2) (kit-move k :ic-k-n2a)))
+  (check (equal (mv-callout (kit-move k :ic-k-n2c)) "GETSUGA TENSHO"))   ; KESSA's NS2c is the Getsuga, not JUJISHO (§19)
   (check (null (kit-hook b :link-ok)))
   (check (null (kit-hook k :link-ok)))
   (check (null (kit-next k :ic-k-j3 :q))))

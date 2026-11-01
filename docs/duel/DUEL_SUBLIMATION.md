@@ -226,3 +226,7 @@ User: 「進入 SUBLIMATION 跟 DRIVE 後，改成以『進攻』作為提昇量
 ### 18.1 The attack rate x1.5 (the user, 2026-11-01: 「幫我將 3 倍改成 1.5 倍」)
 
 `*sub-attack-mult*` 3.0 -> **1.5**: damage dealt fills SUBLIMATION / DRIVE at 0.035 x 1.5 = 0.0525 a point, about 1905 real damage to fill (ORANGE x1.5 on top: 0.07875). The Konpaku (10.5 to the attacker) and WHITE (1.4 a second) rates are unchanged. Checks: host tests 11298 pass (the pins 5.25 / 7.875 / about 1905); pkgcheck, build; scripted `duel-sublimation.json`: Kenpachi's J1 at SUBLIMATION 0 -> 0.7 (1.5 at x3), at DRIVE 50 -> 50.8 (51.6); taken still 0 / 50.0. G2 `--cvc` moved: II 31 -> 28 lines (P1 3-0, 279.9 s), IK 18 lines changed (P2 0-5, 182.4 s), KK 17 lines changed (P2 0-4, 172.1 s); `tests/style-cvc-ref.txt` regenerated. No balance gates.
+
+## 19. KESSA's NS2c named GETSUGA TENSHO (the user, 2026-11-02)
+
+User: 「還有一護卍解的 NS2c 是月牙天衝而不是月牙十字衝，能跟我說下 NS2 的當前設定嗎」; shown the table (NS2a charge 1: S 20 / R 14, its SA 55 and the string x1.4; NS2b charge 2: 16 / 14, its SA 80 and x1.7; NS2c the wave: S 20 / R 26, 150, knockdown, 3.6 m wide, 14 m/s over 12 m, guard 22; x0.95 KESSA), then 「好，如你所說處理名字就行」. `:ic-k-n2c` was copied from the Shikai's JUJISHO with its callout; it is drawn as one small 漆黒 crescent already. Its callout is now **GETSUGA TENSHO** (as KESSA's AS2b). Numbers unchanged; the code's `juji` names (`ichigo-juji-look`, `ichigo-juji`) stay, shared with the Shikai. A callout is a displayed string only (G2 `--cvc` identical; host tests 11299 pass with the callout pinned in `sublimation.lisp`).
