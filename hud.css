@@ -52,6 +52,10 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud.hphone:not(.nodeck) .plate.p1 { top: auto; right: auto; grid-template-columns: auto 1fr; grid-template-areas: "s w" "b b"; align-items: end;
   column-gap: calc(1.1 * var(--u)); row-gap: calc(.55 * var(--u)); padding-inline: calc(1.4 * var(--u)); }
 #hud.hphone:not(.nodeck) .plate.p1.mir { grid-template-columns: 1fr auto; grid-template-areas: "w s" "b b"; }
+/* the phone (the user, 2026-10-30: 「手持模式下則不要超過血量表一半，並放置在與魂魄對應的血量表下方」): the kit strip under the bar on the
+   souls' side, at most half the bar, hung from the plate so the bar keeps its place on the line */
+#hud.hphone:not(.nodeck) .plate.p1 .srow { display: contents; }
+#hud.hphone:not(.nodeck) .plate.p1 .kit { position: absolute; top: calc(100% + .35 * var(--u)); inset-inline-start: calc(1.4 * var(--u)); width: calc(50% - 1.4 * var(--u)); }
 #hud.hphone:not(.nodeck) .plate.p1::before { content: none; }
 #hud.hphone:not(.nodeck) .plate.p1 .souls { grid-area: s; padding-inline-start: calc(.4 * var(--u)); }
 #hud.hphone:not(.nodeck) .plate.p1.mir .souls { padding-inline: 0 calc(.4 * var(--u)); }
@@ -64,6 +68,41 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud.hphone:not(.nodeck) .plate.p1 .reishi { height: calc(1.3 * var(--u)); box-shadow: inset 0 0 0 1px rgba(238,238,234,.42); background: rgba(11,11,16,.55); }
 #hud.hphone:not(.nodeck) .plate.p1 :is(.meters, .hptr) { display: none; }
 @keyframes hd-pulse { 50% { filter: brightness(1.35); } }
+
+/* Kenpachi's kit meters, a strip under the Reishi bar (the user, 2026-10-30: 「將三杯、臂之類的計量表以圖形化表示，與血條放在一起」,
+   DUEL_WEBUI §13): NOME = three sake cups on a bar (lit up to the current cup; the bar's marks: cup 2's entry bright, the two floors dim),
+   UDE = four claw pips with the crack clock under the next one */
+#hud .srow { display: flex; align-items: center; gap: calc(1 * var(--u)); width: 100%; }   /* (the user, 2026-10-30: 「一般大型頁面下的特殊量表與魂魄、閃步、覺醒量表併排」: beside the soul flames) */
+#hud :is(.p2, .mir) .srow { flex-direction: row-reverse; }
+#hud .kit { display: flex; align-items: center; gap: calc(.7 * var(--u)); flex: 1; min-width: 0; }
+#hud .kit[hidden] { display: none; }
+#hud :is(.p2, .mir) .kit { direction: rtl; }
+#hud .kit .kn { font: 800 calc(1.15 * var(--u))/1 var(--f-kanji); letter-spacing: 0; text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+#hud .kit.nome .kn { color: var(--reiatsu); }
+#hud .kit.ude .kn { color: var(--blood); }
+#hud .kit .kv { font: 600 calc(.8 * var(--u))/1 var(--f-mono); color: var(--reiatsu); min-width: 2.4em; direction: ltr; text-align: center; }
+#hud .nb { position: relative; flex: 1; height: calc(2.2 * var(--u)); }
+#hud .nb .cp { position: absolute; top: 0; width: calc(1.5 * var(--u)); height: calc(1.1 * var(--u)); inset-inline-start: var(--x); margin-inline-start: calc(var(--m) * 1.5 * var(--u)); }
+#hud .nb .cp svg { width: 100%; height: 100%; display: block; overflow: visible; }
+#hud .nb .cp path { fill: rgba(11,11,16,.55); stroke: var(--stone); stroke-width: 1; transition: fill .25s, stroke .25s; }
+#hud .nb .cp.on path { fill: var(--reiatsu); stroke: var(--ink); }
+#hud .nb .cp.on:last-of-type path { filter: drop-shadow(0 0 calc(.4 * var(--u)) var(--reiatsu)); }
+#hud .nb .nbar { position: absolute; inset-inline: 0; bottom: 0; height: calc(.7 * var(--u)); background: #2c303d; box-shadow: inset 0 0 0 1px rgba(238,238,234,.12); }
+#hud .nb .bf { position: absolute; inset-block: 0; inset-inline-start: 0; width: calc(var(--k, 0) * 100%); background: linear-gradient(180deg, #ffe97a, #e0a21a);
+  transition: width .15s var(--ease-out); }
+#hud .nb .bf.near { animation: hd-pulse .7s ease-in-out infinite; }
+#hud .nb .tk { position: absolute; inset-block: calc(-.25 * var(--u)); width: 1px; inset-inline-start: var(--x); background: var(--stone); }
+#hud .nb .tk.up { background: var(--paper); }
+#hud .kit .pips { display: flex; gap: calc(.45 * var(--u)); }
+#hud .pp { position: relative; width: calc(2.4 * var(--u)); height: calc(1.5 * var(--u)); }
+#hud .pp i { position: absolute; inset: 0; clip-path: polygon(24% 0, 100% 0, 76% 100%, 0 100%); background: #0d0d12;
+  transition: background .25s; }
+#hud .pp i::after { content: ""; position: absolute; left: 52%; top: 12%; width: 1px; height: 78%; background: var(--paper); transform: skewX(-24deg); opacity: .8; transition: opacity .25s; }
+#hud .pp.lit i { background: linear-gradient(180deg, #ff4b63, var(--blood) 60%, #8d0f20); }
+#hud .pp.lit i::after { opacity: 0; }
+#hud .pp u { position: absolute; inset-inline-start: 6%; bottom: calc(-.4 * var(--u)); height: calc(.25 * var(--u)); width: 0; background: var(--paper); text-decoration: none; }
+#hud .pp.nx u { width: calc(var(--ck, 1) * 88%); transition: width .2s linear; }
+#hud .kit.hurry .pp.nx i { animation: hd-pulse .45s ease-in-out infinite; }
 
 /* Konpaku: nine soul flames, each flickering on its own beat (the user, 2026-10-29: 「靈魂的火焰做成動畫，然後被打掉的空缺以灰色小點表示」);
    a spent one bursts and leaves a small grey dot; the ones a Kikon would take now outlined in blood */
@@ -99,8 +138,18 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud :is(.p2, .mir) .aw::after { transform-origin: right; }
 #hud .aw.full::after { animation: hd-aw 1s ease-in-out infinite; box-shadow: 0 0 calc(.8 * var(--u)) var(--reiatsu); }
 @keyframes hd-aw { 50% { filter: brightness(1.5); } }
+/* SUBLIMATION (pink) piles up over the full awakening bar; after the awakening the bar is emptied and SPIRIT DRIVE (red) fills it from 0 (DUEL_SUBLIMATION §6) */
+#hud .aw::before { content: ""; position: absolute; inset: 0; z-index: 1; background: #ff7ab8; transform-origin: left; transform: scaleX(var(--s, 0)); transition: transform .4s var(--ease-out); opacity: 0; }
+#hud :is(.p2, .mir) .aw::before { transform-origin: right; }
+#hud .aw[data-m="1"]::before { opacity: 1; }
+#hud .aw:is([data-m="2"], [data-m="3"])::after { background: #e0353b; }
+#hud .aw[data-m="3"]::after { animation: hd-aw 1s ease-in-out infinite; box-shadow: 0 0 calc(.8 * var(--u)) #e0353b; }
 #hud .awk { font: 800 calc(.8 * var(--u))/1 var(--f-display); letter-spacing: .2em; color: var(--reiatsu); opacity: 0; transition: opacity .3s; white-space: nowrap; direction: ltr; }
 #hud .awk.on { opacity: 1; }
+#hud .meters { position: relative; }
+#hud .awk { position: absolute; inset-inline-start: 100%; margin-inline-start: calc(.7 * var(--u)); }   /* (a long label must not shrink the bars) */
+#hud .awk[data-m="1"] { color: #ff7ab8; }
+#hud .awk:is([data-m="2"], [data-m="3"]) { color: #ff4b5c; }
 
 /* the SP pointer: three hanko seals, each its pointer's theme glyph; the live one inked in, its name */
 #hud .hptr { display: flex; gap: calc(.35 * var(--u)); align-items: center; margin-top: calc(.25 * var(--u)); }
@@ -108,6 +157,7 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .hptr[hidden], #hud .seal[hidden] { display: none; }
 #hud .seal { width: calc(1.75 * var(--u)); height: calc(1.75 * var(--u)); display: grid; place-items: center; border: 1px solid #4a4f5e;
   font: 800 calc(1.05 * var(--u))/1 var(--f-kanji); color: var(--stone); transition: all .25s var(--ease-out); }
+#hud .seal.lock { opacity: .35; border-style: dashed; }
 #hud .seal.on { background: var(--paper); color: var(--ink); border-color: var(--paper); transform: rotate(-4deg) scale(1.08); }
 #hud .hptr .pn { font: 600 calc(.7 * var(--u))/1 var(--f-mono); letter-spacing: .16em; color: var(--steel); text-transform: uppercase; margin-inline: calc(.5 * var(--u)); white-space: nowrap; }
 
@@ -279,6 +329,10 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .awring circle { fill: none; }
 #hud .awring .trk { stroke: rgba(44,48,61,.95); stroke-width: 1.5; }
 #hud .awring .awg { stroke: var(--reiatsu); stroke-width: 1.65; stroke-dasharray: calc(var(--aw, 0) * 100) 100; transition: stroke-dasharray .4s var(--ease-out); }
+#hud .awring .sbg { stroke: #ff7ab8; stroke-width: 1.9; stroke-dasharray: calc(var(--sb, 0) * 100) 100; opacity: 0; transition: stroke-dasharray .4s var(--ease-out); }
+#hud .dbtn[data-m="1"] .awring .sbg { opacity: 1; }
+#hud .dbtn:is([data-m="2"], [data-m="3"]) .awring .awg { stroke: #e0353b; }
+#hud .dbtn[data-m="3"] .awring .awg { stroke-width: 2.1; animation: hd-awbreath 1.6s ease-in-out infinite; }
 #hud .awring .hold { stroke: var(--reiatsu); stroke-width: 3; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; }
 #hud .dbtn.ready .awring .awg { stroke-width: 2.1; animation: hd-awbreath 1.6s ease-in-out infinite; }
 @keyframes hd-awbreath { 50% { filter: drop-shadow(0 0 2.5px var(--reiatsu)); } }

@@ -35,7 +35,7 @@
     "TATE-GOTO": "盾ごと", "NAGURI-TOBASHI": "殴り飛ばし", "MAPPUTATSU": "真っ二つ"
   };
   var PAUSE = { "RESUME": "繼續", "RESTART": "重來", "RETIRE": "放棄", "CHARACTER SELECT": "換角色", "TITLE": "回到標題", "CAMERA": "鏡頭",
-    "RESET POSITION": "回到起點", "DUMMY": "假人", "COUNTER": "假人反擊", "HP REFILL": "回血", "GAUGES": "量表", "P1 HP": "P1 靈子",
+    "RESET POSITION": "回到起點", "DUMMY": "假人", "COUNTER": "假人反擊", "HP REFILL": "回血", "GAUGES": "量表", "P1 AWAKEN": "P1 覺醒", "P1 HP": "P1 靈子",
     "P1 KONPAKU": "P1 魂魄", "DUMMY HP": "假人靈子", "DUMMY KONPAKU": "假人魂魄" };
   var SOUL = '<svg viewBox="0 0 10 14"><path d="M5 .6C6.4 3 9.2 5.4 9.2 8.6A4.2 4.2 0 0 1 .8 8.6C.8 6.6 2.2 5.2 3 3.6 3.4 5 4 5.6 4.8 5.8 4.4 4 4.6 2.2 5 .6z"/></svg>';
   var RING = '<svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" pathLength="100"></circle></svg>';
@@ -44,7 +44,7 @@
   var FS_BURST = 2 / 3, FS_HOHO = 1 / 3;
   var FACE = '<span class="face"><b>爆</b><small>RV</small><i class="tick t1"></i><i class="tick t2"></i></span>';
   var AWRING = '<svg class="awring" viewBox="0 0 40 40"><circle class="trk" cx="20" cy="20" r="18.4" pathLength="100"></circle>' +
-    '<circle class="awg" cx="20" cy="20" r="18.4" pathLength="100"></circle><circle class="hold" cx="20" cy="20" r="15.6" pathLength="100"></circle></svg>';
+    '<circle class="awg" cx="20" cy="20" r="18.4" pathLength="100"></circle><circle class="sbg" cx="20" cy="20" r="18.4" pathLength="100"></circle><circle class="hold" cx="20" cy="20" r="15.6" pathLength="100"></circle></svg>';
   var INF = '<svg class="inf" viewBox="0 0 66 32"><path pathLength="100" d="M33 16 C26 5 9 3 6 14 C3 25 22 29 33 16 C44 3 63 6 60 17 C57 27 40 27 33 16"/></svg>';
 
   /* ---------------------------------------------------------------- the bridge (pwa.js routes 30100-30299 here) */
@@ -64,9 +64,9 @@
   function plateHTML(p) {
     var souls = ""; for (var i = 0; i < 9; i++) souls += '<span class="soul">' + SOUL + '</span>';
     return '<div class="plate ' + p + '"><div class="who"><span class="nm"></span><span class="kj"></span><span class="htag"></span></div>' +
-      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="souls">' + souls + '</div>' +
+      '<div class="rrow"><div class="reishi"><i class="ghost"></i><i class="fill"></i></div></div><div class="srow"><div class="souls">' + souls + '</div><div class="kit" hidden></div></div>' +
       '<div class="meters"><div class="fs"><i></i><i></i><i></i></div><div class="aw"></div><span class="awk">覺醒 READY</span></div>' +
-      '<div class="hptr"><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="pn"></span></div></div>' +
+      '<div class="hptr"><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="seal"></span><span class="pn"></span></div></div>' +
       '<div class="callout ' + p + '"><span class="ck"></span><span class="cr"></span></div>' +
       '<div class="combo ' + p + '"><div class="crow"><span class="n"></span><span class="h">HITS</span></div><span class="d">DMG <b class="cd"></b> · SCALE <b class="cs"></b></span></div>';
   }
@@ -81,7 +81,7 @@
       '<span class="what"><span class="wt"></span><small></small></span></div></div>' +
       '<div class="deck" hidden><div class="zone sp"></div><div class="zone atk"></div><span class="zl sp">SP <em>技</em></span><span class="zl atk">ATK <em>斬</em></span>' +
       '</div>' +
-      '<div class="rvc" hidden><div class="hptr">' + '<span class="seal" style="--a:304"></span><span class="seal" style="--a:270"></span><span class="seal" style="--a:236"></span>' +
+      '<div class="rvc" hidden><div class="hptr">' + '<span class="seal" style="--a:304"></span><span class="seal" style="--a:270"></span><span class="seal" style="--a:236"></span><span class="seal" style="--a:202"></span>' +
       '<span class="pn"></span></div></div>' +
       '<div class="dbtn rv" hidden><span class="well"><span class="lvl">' + FACE + '</span></span>' + FACE + AWRING + '<span class="kak">覺</span></div>' +
       '<div class="fx"></div>' +
@@ -131,8 +131,37 @@
     var t = S[4 * s + 1] || "", o = 50 + 30 * s, form = formOf(s), m;
     var out = t === "KAZESHINI IN" ? "風死 <b>·</b> in hand" : t === "KAZESHINI OUT" ? "風死 <b>·</b> thrown" : t === "KAZESHINI ..." ? "風死 <b>·</b> returning" :
       (m = /^BUNSHIN x(\d)/.exec(t)) ? "分身 <b>·</b> ×" + m[1] :
-      t === "NOME" ? "<em>呑</em> nome <b>" + V[o + 15] + "</b>" : t === "UDE" ? "<em>腕</em> ude <b>" + V[o + 15] + "</b>" : t.toLowerCase();
+      t === "NOME" || t === "UDE" ? "" : t.toLowerCase();   // (NOME / UDE: the strip under the bar, DUEL_WEBUI §13)
     return (form ? form.toLowerCase() + (out ? " <b>·</b> " : "") : "") + out;
+  }
+  // Kenpachi's kit meters as a strip under the Reishi bar (DUEL_WEBUI §13): NOME is three sake cups on a bar (cup 2 at 40, cup 3 at the
+  // full 100, floors 25 / 50 where it drops a cup back: tuning.lisp *NOME-UP-T2* / *NOME-DOWN-T2* / *NOME-DOWN-T3* of *NOME-MAX*), UDE
+  // four claw pips of the Bankai's arm with the crack clock under the next one
+  var CUP = '<svg viewBox="0 0 14 10"><path d="M1 1h12l-1.4 5.4C11.2 8.2 9.4 9.4 7 9.4S2.8 8.2 2.4 6.4z"/></svg>';
+  var NOME_AT = [0, .4, 1], NOME_FLOOR = [0, .25, .5];
+  function renderKit(el, s, o, p) {
+    var t = S[4 * s + 1] || "", kind = t === "NOME" ? "nome" : t === "UDE" ? "ude" : "", k = $(".kit", el);
+    if (p.kit !== kind) {
+      p.kit = kind; k.hidden = !kind; k.className = "kit" + (kind ? " " + kind : "");
+      k.innerHTML = kind === "nome" ? '<span class="kn">呑</span><div class="nb"><i class="cp" style="--x:0%;--m:0">' + CUP + '</i><i class="cp" style="--x:40%;--m:-.75">' + CUP +
+          '</i><i class="cp" style="--x:100%;--m:-1.5">' + CUP + '</i><div class="nbar"><i class="bf"></i><i class="tk" style="--x:25%"></i><i class="tk up" style="--x:40%"></i>' +
+          '<i class="tk" style="--x:50%"></i></div></div><b class="kv"></b>' :
+        kind === "ude" ? '<span class="kn">腕</span><span class="pips"><span class="pp"><i></i><u></u></span><span class="pp"><i></i><u></u></span>' +
+          '<span class="pp"><i></i><u></u></span><span class="pp"><i></i><u></u></span></span>' : "";
+    }
+    if (!kind) return;
+    var v = Math.max(0, V[o + 15]), mx = Math.max(1, V[o + 16]), i;
+    if (kind === "nome") {
+      var f = Math.min(1, v / mx), rung = Math.max(0, Math.min(2, V[o + 20])), cps = k.querySelectorAll(".cp");
+      st($(".bf", k), "--k", f.toFixed(3)); tx($(".kv", k), v);
+      for (i = 0; i < 3; i++) cps[i].classList.toggle("on", i <= rung);
+      $(".bf", k).classList.toggle("near", rung > 0 && f < NOME_FLOOR[rung] + .1);   // within a tenth of the drop: it pulses
+    } else {
+      var n = Math.round(v), pp = k.querySelectorAll(".pp");
+      st(k, "--ck", (Math.max(0, V[o + 21]) / 1000).toFixed(3));
+      for (i = 0; i < 4; i++) { pp[i].classList.toggle("lit", i < n); pp[i].classList.toggle("nx", i === n - 1); }
+      k.classList.toggle("hurry", n > 0 && V[o + 21] < 200);
+    }
   }
   function renderPlate(s) {
     var el = els.plate[s], o = 50 + 30 * s, f = fighter(s), p = prev["p" + s] || (prev["p" + s] = {});
@@ -142,6 +171,7 @@
     tx($(".nm", el), nameOf(s));
     tx($(".kj", el), f ? f.kj : "");
     var tg = tagHTML(s); if (p.tag !== tg) { $(".htag", el).innerHTML = tg; p.tag = tg; }
+    renderKit(el, s, o, p);
     var r = Math.max(0, V[o + 1]) / 1000, ghost = $(".ghost", el);
     if (p.r !== r) st(ghost, "transition", p.r !== undefined && r < p.r ? "" : "none");   // a hit: the blood ghost drains after it; a refill snaps
     st($(".fill", el), "transform", "scaleX(" + r + ")"); st(ghost, "transform", "scaleX(" + r + ")"); p.r = r;
@@ -154,16 +184,18 @@
     p.kon = kon;
     var fs = Math.max(0, V[o + 6]) / 1000 * 3, cells = $(".fs", el).children;
     for (i = 0; i < 3; i++) st(cells[i], "--k", Math.max(0, Math.min(1, fs - i)).toFixed(3));
-    var aw = $(".aw", el); st(aw, "--k", (Math.max(0, V[o + 7]) / 1000).toFixed(3)); aw.classList.toggle("full", V[o + 8] >= 1);
-    if (s === 0) st(els.rv, "--aw", (Math.max(0, Math.min(1000, V[o + 7])) / 1000).toFixed(3));   // the seal's ring: your awakening
-    var awk = $(".awk", el); awk.classList.toggle("on", V[o + 8] === 1);
+    var aw = $(".aw", el); st(aw, "--k", (Math.max(0, V[o + 7]) / 1000).toFixed(3)); aw.classList.toggle("full", V[o + 8] >= 1); st(aw, "--s", (Math.max(0, V[o + 22]) / 1000).toFixed(3)); aw.dataset.m = V[o + 23];   // SUBLIMATION / SPIRIT DRIVE: the line under it
+    if (s === 0) { st(els.rv, "--aw", (Math.max(0, Math.min(1000, V[o + 7])) / 1000).toFixed(3));   // the seal's ring: your awakening
+      st(els.rv, "--sb", (Math.max(0, V[o + 22]) / 1000).toFixed(3)); els.rv.dataset.m = V[o + 23]; }   // SUBLIMATION pink over it, SPIRIT DRIVE red
+    var awk = $(".awk", el), am = V[o + 23]; awk.classList.toggle("on", V[o + 8] === 1 || am > 0); awk.dataset.m = am;   // 覺醒 READY / SUBLIMATION / DRIVE (MAX)
+    tx(awk, am === 1 ? "SUBLIMATION" : am === 2 ? "SPIRIT DRIVE" : am === 3 ? "DRIVE MAX" : "覺醒 READY");
     var ptr = $(".hptr", s === 0 && !els.rvc.hidden ? els.rvc : el), sv = seals(s), n = V[o + 9];   // (the phone: your stance around 爆)
     ptr.hidden = !(n > 0);
     if (n > 0) {
       var ss = ptr.querySelectorAll(".seal");
-      for (i = 0; i < 3; i++) {
+      for (i = 0; i < 4; i++) {
         ss[i].hidden = i >= sv.length;
-        if (i < sv.length) { tx(ss[i], sv[i][0]); ss[i].classList.toggle("on", i + 1 === n); }
+        if (i < sv.length) { tx(ss[i], sv[i][0]); ss[i].classList.toggle("on", i + 1 === n); ss[i].classList.toggle("lock", ((V[o + 24] >> i) & 1) === 1); }   // a sealed pointer (DUEL_SUBLIMATION §9)
       }
       tx($(".pn", ptr), sv[Math.min(n, sv.length) - 1][1]);
     }
