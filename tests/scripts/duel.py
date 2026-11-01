@@ -791,6 +791,37 @@ def drive_switch_script():
     return sorted(ev, key=lambda x: x["at"])
 write("drive-switch", drive_switch_script())
 
+def switch_routes_script():
+    """The switch routes the user named (DUEL_SUBLIMATION §17.7): Hisagi's Shikai with SUBLIMATION 60 (debug 83600+d, d / 10 m from an idle
+    Kenpachi): NS1 at range, then A (left: pointer 3) + SP for NS3a, J for its SA 引寄 or SP for NS3b and J for its SA 放電; the Bankai's
+    ranged mode with DRIVE 60 (83700+d): NS1a 環 WA, then D + SP for 聚 NS2a and its route. 83099 logs the distance (`| d`)."""
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+    def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
+    def sw(t, k): ev.append(key(t - 0.05, k)); sp(t); ev.append(key(t + 0.15, k, False))
+    def d(t): ev.append(cmd(t, 83099))
+    t = T0
+    for label, setup, body in (
+            ("SR shikai 6.0 m: NS1a, A+SP (NS3a), J (SA YOSE), J2", 83660, lambda s: [sp(s), sw(s + 0.3, "KeyA"), jt(s + 0.8), jt(s + 1.3)]),
+            ("SR shikai 4.5 m: NS1a, A+SP (NS3a), J (SA YOSE), J2", 83645, lambda s: [sp(s), sw(s + 0.3, "KeyA"), jt(s + 0.8), jt(s + 1.3)]),
+            ("SR shikai 4.5 m: NS1a, NS1b, A+SP (NS3a), J (SA YOSE), J2", 83645, lambda s: [sp(s), sp(s + 0.3), sw(s + 0.7, "KeyA"), jt(s + 1.2), jt(s + 1.7)]),
+            ("SR shikai 6.0 m: NS1a, A+SP (NS3a), SP (NS3b), J (SA HODEN)", 83660, lambda s: [sp(s), sw(s + 0.3, "KeyA"), sp(s + 0.8), jt(s + 1.3)]),
+            ("SR shikai 4.5 m: NS1a, A+SP (NS3a), SP (NS3b), J (SA HODEN)", 83645, lambda s: [sp(s), sw(s + 0.3, "KeyA"), sp(s + 0.8), jt(s + 1.3)]),
+            ("SR shikai 6.0 m: NS1a, NS1b, A+SP (NS3a), SP (NS3b), J (SA HODEN)", 83660, lambda s: [sp(s), sp(s + 0.3), sw(s + 0.7, "KeyA"), sp(s + 1.2), jt(s + 1.7)]),
+            ("SR shikai 6.0 m: NS1a, NS1b, NS1c, A+SP (after the last segment)", 83660, lambda s: [sp(s), sp(s + 0.3), sp(s + 0.75), sw(s + 1.2, "KeyA")]),
+            ("SR shikai 6.0 m base: NS1a, NS1b, NS1c", 83660, lambda s: [sp(s), sp(s + 0.3), sp(s + 0.75)]),
+            ("SR bankai 2.5 m base: NS1a WA, NS1b OGI, NS1c ISSEI", 83725, lambda s: [sp(s), sp(s + 0.15), sp(s + 0.7)]),
+            ("SR bankai 2.5 m: NS1a WA, D+SP (NS2a TABA), SP (TATAKI), SP (OMEGURI)", 83725, lambda s: [sp(s), sw(s + 0.15, "KeyD"), sp(s + 0.75), sp(s + 1.45)]),
+            ("SR bankai 2.5 m: NS1a WA, D+SP (NS2a TABA), J (gathered SA), J2", 83725, lambda s: [sp(s), sw(s + 0.15, "KeyD"), jt(s + 0.75), jt(s + 1.3)])):
+        say(t, label)
+        ev.extend([cmd(t, setup), cmd(t + 3.5, 2107)])
+        body(t + 0.3)
+        for k in range(1, 8): d(t + 0.3 + 0.4 * k)
+        t += 4.0
+    return sorted(ev, key=lambda x: x["at"])
+write("switch-routes", switch_routes_script())
+
 def drive_switch_phone_script():
     """The thumb's switch (DUEL_SUBLIMATION §17.3; --mobile --size 390x844): KESSA with DRIVE 60 (debug 86105): an SP tap in the upper pad, then a
     sideways flick (right / left) in the NS gap = the pointer switch; a flick with no DRIVE (86107) stays a Step."""

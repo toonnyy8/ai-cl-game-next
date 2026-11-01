@@ -186,3 +186,26 @@ User: 「然後讓 sublimation 全滿過的話，覺醒前也開放使用切換�
 ### 17.6 Back to any 25% (the user, 2026-11-01)
 
 User: 「幫我改回只要有 25% 就能使用」. Reverses §17.5's condition: before the awakening the switch needs only SUBLIMATION >= 0.25 B (still paid from SUBLIMATION alone, the awakening gauge untouched). `gauges-sub-full` and its setters (`awaken-fill!`, the practice rows, debug 86108) are removed; debug 86109 (the "never full" refusal scene) is gone. Scripted: Shikai SUBLIMATION 60 (86108) switches; DRIVE 20 (86107) does not.
+
+### 17.7 Routes the switch opens (the user, 2026-11-01)
+
+User: 「透過切換系統可以組合出更多有趣的連動技能，像一護就能將分身與月牙蓄力結合。而修兵始解能在 NS1 打完遠程後用 NS3a+SA 拉到近身攻擊，或是使用 NS3b + SA 補足遠程傷害，卍解也能直接用 NS1a 控制距離再切換成 NS2 的聚拉高輸出。」, then 「幫我紀錄並用腳本測試」. These are the intended routes. Script `tests/scripts/duel-switch-routes.json` (Hisagi; debug 83600+d Shikai with SUBLIMATION 60, 83700+d the Bankai's ranged mode with DRIVE 60, d / 10 m from an idle Kenpachi; 83099 logs the distance) and `duel-drive-switch.json` (Ichigo, debug 86105). Damage as logged:
+
+| Route | Start | Hits (damage) | Total | Note |
+|---|---|---|---|---|
+| Ichigo KESSA ptr 3: NS3a, A+SP (NS2a), J, J2, J3 | 1.4 m | NS3a 18 + clone, NS2a (clone replays x0.10), SA-G1 55, J2 30 + clone 4, J3 30 + clone 4 | | clones and the charge together (§17.1) |
+| Ichigo KESSA ptr 2: NS2a, D+SP (NS3a), J, J2 | 1.4 m | the charged SA x1.4, the clone's J2 replay x0.14 | | §17.1 |
+| Shikai: NS1a, A+SP (NS3a), J (SA 引寄), J2 | 6.0 m | 62, NS3a whiffs, 40, 30 | 132 | SHIBARI reaches 4.5 m; 引寄 still drags him to 0.9 m |
+| Shikai: same | 4.5 m | 62, 40, 40, 30 | 172 | |
+| Shikai: NS1a, NS1b, A+SP (NS3a), J, J2 | 4.5 m | 62, 56, 40, 40, 30 | 228 | |
+| Shikai: NS1a, A+SP (NS3a), SP (NS3b), J (SA 放電) | 6.0 m | 62, NS3a whiffs, 25, 60 | 147 | stays at 6 m |
+| Shikai: same | 4.5 m | 62, 40, 25, 60 | 187 | |
+| Shikai: NS1a, NS1b, A+SP (NS3a), SP (NS3b), J (SA 放電) | 6.0 m | 62, 56, NS3a whiffs, 25, 60 | 203 | |
+| Shikai: NS1a, NS1b, NS1c, A+SP | 6.0 m | 62, 56, 80, NS3a starts (whiffs) | | a switch after the last segment works too |
+| Shikai base: NS1a, NS1b, NS1c | 6.0 m | 62, 56, 80 | 198 | |
+| Bankai base: WA, OGI, ISSEI | 2.5 m | 26, 31, 48 | 105 | WA pushes him to 4.5 m |
+| Bankai: WA, D+SP (NS2a TABA), SP (TATAKI), SP (OMEGURI) | 2.5 m | 26, 50, TATAKI whiffs, 86 | 162 | TATAKI reaches 3 m; he stays at 4.5 m |
+| Bankai: WA, D+SP (TABA), J (the gathered SA), J2 | 2.5 m | 26, 50, 45, 29 | 150 | |
+
+Every route connects. Two whiffs follow from the reaches, not from the switch: NS3a SHIBARI (4.5 m) against a victim NS1 left at 6 m, and the Bankai's TATAKI (0-3 m) against one WA pushed to 4.5 m. Nothing was changed.
+

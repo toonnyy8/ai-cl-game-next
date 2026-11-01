@@ -1496,6 +1496,15 @@ lines."
         ((< c 83300) (setf (kit-taken (find-kit :hisagi :base)) (+ 0.5 (/ (- c 83200) 100.0))))
         ((< c 83400) (setf (kit-mult (find-kit :hisagi :bankai)) (+ 0.5 (/ (- c 83300) 100.0))))
         ((< c 83500) (setf (kit-taken (find-kit :hisagi :bankai)) (+ 0.5 (/ (- c 83400) 100.0))))
+        ((< c 83800)              ; the switch routes (DUEL_SUBLIMATION §17.7): 83600+d the Shikai with SUBLIMATION 60, 83700+d the Bankai's
+                                  ; ranged mode with DRIVE 60; d / 10 m from an idle Kenpachi, pointer 1
+         (hisagi-test 1) (place *p1* *p2* (* 0.1 (mod (- c 83600) 100)))
+         (let ((g (gauges *p1*)))
+           (if (< c 83700)
+               (setf (gauges-awaken g) *awaken-max* (gauges-sub g) 60f0)
+               (progn (hs-awaken-now! *p1*) (setf (gauges-drive g) 60f0))))
+         (setf (fighter-ptr (fighter *p1*)) 1)
+         (hisagi-probe-line (format nil "switch ~d" c)))
         ((= c 83900) (hisagi-probe-line "probe"))
         (t (log-msg "duel hisagi: no debug command ~d" c))))
 (pushnew '(83000 83999 hisagi-debug) *char-debug* :test #'equal)
