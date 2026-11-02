@@ -375,7 +375,7 @@
   :clip-map (:ke-q1 :ke-b-q1 :ke-q2 :ke-b-q2 :ke-f1 :ke-b-f1 :ke-f2 :ke-b-f2 :ke-r-f2 :ke-b-f3 :ke-meteor :ke-b-split
              :ke-stance-cut :ke-b-cut)
   :meter (:name "UDE" :max *arm-pips* :start *arm-pips* :draw ken-hud-meter :label ken-hud-label) :meter-gain nil
-  :pips (:n *arm-pips* :to :kataude :cmds (:f :sig :sp1 :sp2 :breaker :kikon))
+  :pips (:n *arm-pips* :to nil :cmds (:f :sig :sp1 :sp2 :breaker :kikon))   ; the burst keeps the Bankai: no KATAUDE (the user 2026-11-02: 「取消掉片腕的狀態」)
   :body :kenpachi-oni :weapon :ke-broken :stance :ke-b-stance :aura :oni :hide (:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4)
   :run-clips (:ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l)
   :cine ken-bankai-cine :enter-hook nil :swing-sfx :whoosh-cleaver

@@ -143,4 +143,11 @@ J1 35 → 4, NS 60 → 7, 70 → 8, 90 → 10, charged SA 80 → 9, AS2's launch
 
 ### 7.3 KATAUDE (open)
 
-「取消掉片腕的狀態」 (2026-11-02). Not done yet: what the Bankai's arm break leads to instead is asked separately (DEVLOG §557).
+「取消掉片腕的狀態」 (2026-11-02, DEVLOG §558).
+
+Asked (AskUserQuestion) what the arm's burst leads to instead: 「只拿掉片腕，其他先不動」. The Bankai's `:pips :to` KATAUDE → **NIL**:
+`arm-burst!` (combat.lisp) keeps the form when `:to` is NIL; the burst itself stays (120 burnt, the 40 f crumple, the callout), then he
+fights on in the Bankai with no pips (a pip command is refused, as at 0 before). The arm meter, its cost and the burst's aftermath are
+redesigned with the Bankai's pointers. The `:kataude` kit, its art and its debug scenes (2389, the HUD review) stay in code, unreachable
+in play, until that batch. Scene `tests/scripts/duel-ken-armburst.json` (debug 2388, the Bankai with 1 pip): `[300] UDE cracked, 0 left`,
+`[301] ARM BURST r1180`, no form line, then J is `KE-B-J1 -> P2 HIT 38` (the Bankai's). Manual, TUTORIAL and DUEL_DESIGN updated.

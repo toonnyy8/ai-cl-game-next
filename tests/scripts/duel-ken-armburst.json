@@ -1,0 +1,20 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== arm burst at 1 pip: the last pip cracks, he stays BANKAI')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(2388)"
+},
+{
+"at": 16.0,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.05,
+"key": "KeyJ",
+"down": false
+}
+]

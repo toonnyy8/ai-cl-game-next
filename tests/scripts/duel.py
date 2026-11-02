@@ -736,6 +736,15 @@ write("ken-ryote", ken_katate_script(84002, "RY"))
 write("ken-nomihose", ken_katate_script(84003, "NM"))
 
 
+def ken_armburst_script():
+    """The Bankai's arm burst keeps the Bankai (no KATAUDE since 2026-11-02: 「取消掉片腕的狀態」, DUEL_KEN_CORE §7.3): debug 2388 (the
+    Bankai with 1 pip), the last pip cracks after *ARM-CRACK* 300 f, ARM BURST, then J is still the Bankai's KE-B-J1."""
+    ev = [{"at": T0, "eval": "console.log('=== arm burst at 1 pip: the last pip cracks, he stays BANKAI')"}, cmd(T0, 2388)]
+    ev += tap(T0 + 7.0, "KeyJ", 0.05)
+    return ev
+write("ken-armburst", ken_armburst_script())
+
+
 def sublimation_script():
     """SUBLIMATION / SPIRIT DRIVE (DUEL_SUBLIMATION): J1 damage and taken at 0 / 100 % SUBLIMATION and at DRIVE 100 with s 0.4, the real
     awakening's freeze, the Bankai's entry needing a full DRIVE; since §18 only attacking fills SUBLIMATION / DRIVE (debug 84020+k / 84040+k / 84060 / 84070 on the 84000 scene)."""

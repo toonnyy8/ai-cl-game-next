@@ -642,7 +642,7 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      the CPU's Bankai reflex, ai.lisp, consults it too)
   :pips (:n :cmds (cmd ...) :to FORM)  the arm meter (the kit meter holds the pips): each command in :cmds (and every
                                      latched K link) spends one on its frame 0 (refused at 0); at 0 the arm bursts to
-                                     FORM (ken-meter.lisp KEN-ARM-STEP)
+                                     FORM, or stays in the form when FORM is NIL (ken-meter.lisp KEN-ARM-STEP)
   :crush-hook SYMBOL                 a broken ward calls it instead of dropping to :drop-to (Rukia's CRACK)
   :rooted T                          no Step / Hoho / run, no move slide or string chase   :reset-form FORM  the form
                                      after a Kikon reset
