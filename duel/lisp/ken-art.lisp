@@ -348,7 +348,7 @@
 ;; (the reach) do not move. Drawn only.
 (defparameter *ke-noz-k-cap* 1.1 "The widening factor at the cap's end (DUEL_KEN_V3 §7.4–§7.6, 2026-11-03: 1.1 -> 0.88 -> 1.1, back: 「抱歉，回到縮減前的版本」).")
 
-(defparameter *ke-noz-mid* 1.2 "The widening at the head's middle on top of KE-NOZ-K, falling to 1 at the point's end and the cap's foot (DUEL_KEN_V3 §7.7, 2026-11-03: 1.0 -> 1.2).")
+(defparameter *ke-noz-mid* 1.1 "The widening at the head's middle on top of KE-NOZ-K, falling to 1 at the point's end and the cap's foot (DUEL_KEN_V3 §7.7, 2026-11-03: 1.0 -> 1.2 -> 1.1, 「改成 1.1 倍」).")
 (defparameter *ke-noz-k-end* 1.425 "Where the taper reaches *KE-NOZ-K-CAP*, y along the head: the cap's foot (DUEL_KEN_V3 §7.5–§7.6, 2026-11-03: 1.425 -> 0.72 -> 1.425, back).")
 
 (defun ke-noz-k (y)
