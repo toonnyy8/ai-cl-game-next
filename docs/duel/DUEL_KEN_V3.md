@@ -250,3 +250,12 @@ haft (already 1.3) sags too.
 「從 5 開始的刀身結構逆時針轉 5 度，並向下移動 0.05 m」: `with-ke-tilt` turns the head 5 degrees clockwise net (was 10) about the same
 joint (0.4, 0.08) and then moves it 0.05 m away from the edge; the bar and the haft stay. Checks for §7.1–§7.2: host tests 11331, pkgcheck,
 the build, G2 `--cvc` identical (II 28, IK 26, KK 22 lines), stills (debug 84001).
+
+### 7.3 The pale band deeper, the head 1.5 times (the user, 2026-11-03)
+
+「將 7 在刀上的佔比加寬，並將刀身放大 1.5 倍」 (7 = the edge's pale band). `*ke-noz-band*` 1.0 → 1.5 (mine; the band's depth into the
+blade, now about half its width); `*ke-noz-scale*` 1.0 → 1.5: `with-ke-tilt` scales the whole head (the point to the cap and the tassel,
+thickness too) about the bar's joint. The drawn far end moves from about 1.67 m to 2.31 m past the grip (overall about 3.24 m); the weapon's
+`:length` stays 1.62, so the sim's reach and the FK reach test do not see it (drawn only): **open**, whether V3's Shikai moves take their
+reach from the new blade. The Bankai's broken cleaver shares `with-ke-tilt`, so it grows too. Checks: host tests 11331, pkgcheck, the
+build, G2 `--cvc` identical, stills (debug 84001).

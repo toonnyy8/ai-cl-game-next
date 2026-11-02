@@ -330,13 +330,16 @@
   "Run BODY (Nozarashi's head and what rides on it) turned 10 degrees about the black bar's joint with the head, (y z) =
 (0.4 0.08): the far end down toward the haft line, seen with the haft on the left and the edge up (the user 2026-10-09:
 「以黑色斜槓跟刀身的連接點為基準，將刀身順時針轉 10 度」); the bar and the haft stay. Since 2026-11-03 (「從 5 開始的刀身結構
-逆時針轉 5 度，並向下移動 0.05 m」, DUEL_KEN_V3 §7.2): 5 degrees net, and 0.05 m down (away from the edge)."
-  `(mb-at (,mb :y 0.4 :z 0.03 :pitch -0.08726646)
+逆時針轉 5 度，並向下移動 0.05 m」, DUEL_KEN_V3 §7.2): 5 degrees net, and 0.05 m down (away from the edge); and scaled
+*KE-NOZ-SCALE* about the joint (「將刀身放大 1.5 倍」, §7.3)."
+  `(mb-at (,mb :y 0.4 :z 0.03 :pitch -0.08726646 :s *ke-noz-scale*)
      (mb-at (,mb :y -0.4 :z -0.08) ,@body)))
 
 ;; Nozarashi's haft (the user 2026-11-03: 「1 加長」, no figure given: mine, knobs): 1.3 times, lengthened downward (0.76 -> 0.99 m,
 ;; the Bankai's own figure), and the sag at the butt
 (defparameter *ke-noz-haft* 1.3 "Nozarashi's haft length / the first 0.76 m (DUEL_KEN_V3 §7.1, 2026-11-03: 1.0 -> 1.3).")
+(defparameter *ke-noz-scale* 1.5 "Nozarashi's head (from the point to the cap and tassel) scaled about the bar's joint (DUEL_KEN_V3 §7.3, 2026-11-03: 1.0 -> 1.5); drawn only, the weapon's :length (the reach the sim and the FK test use) stays 1.62.")
+(defparameter *ke-noz-band* 1.5 "The edge's pale band depth into the blade (DUEL_KEN_V3 §7.3, 2026-11-03: 1.0 -> 1.5, about half the blade's width).")
 (defparameter *ke-haft-sag* 0.06 "How far the haft's butt end sags away from the edge, m (DUEL_KEN_V3 §7.1, 2026-11-03: 0 -> 0.06).")
 
 ;; the head widened toward the edge (the user 2026-11-03, DUEL_KEN_V3 §7: 「請從 5 開始將刀加寬，從刀尖到護套的加寬程度分別約
@@ -381,6 +384,7 @@
           for k from 0
           while y1
           do (mbc mb (if (evenp k) #xE2E4E8 #x9EA0A8))
+             (setf d0 (* d0 *ke-noz-band*) d1 (* d1 *ke-noz-band*))   ; (deeper into the blade, §7.3)
              (prism (list (list y0 z0) (list y1 z1) (list (+ y1 (* 0.4 d1)) (- z1 d1)) (list (+ y0 (* 0.4 d0)) (- z0 d0)))
                     -0.023 0.023 t))
     (mbc mb #x1C1C20)                                    ; chips bitten out of the edge
