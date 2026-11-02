@@ -118,3 +118,47 @@ Asked, answered (verbatim):
 | The Shikai's two grips | 「我等等附上參考圖片討論架式」: open, the user brings reference pictures. |
 
 The other numbers in §4 stand as my knobs until the playtest.
+
+## 5. The Shikai's two stances and the user's corrections (the user, 2026-11-02)
+
+Corrections to §4 (verbatim, each answering a line of my reply):
+
+| My line | The user |
+|---|---|
+| the burst: segments 1 + the old L, damage × (1 + 0.2 L) | 「爆發的 AS 是完全重製的新動作」: the burst AS is its own new move, not the pointer's AS with more segments. |
+| at L3 the J string gains J6, J7 | 「始解的 J 原始只有 J1~J3，解放後多出 J4~J7」: the Shikai's J string is J1–J3; the unlock adds J4–J7. |
+| the planted sword moves to the sealed form's AS2 | 「不要插地了」: no planted sword anywhere. |
+| L0: NS and AS one segment each | 「不一定只有一段」: the segment counts per level are designed per pointer. |
+
+The stances (verbatim; pictures in the git-ignored `.refs/kenpachi-v3/`: a statue with the cleaver slung diagonally, the hilt low in
+his right hand; a manga panel with the blade's back on his shoulder, the hilt forward):
+
+> * 指針 1 斜扛大刀，身體半蹲前傾，呈現衝刺預備。整體攻擊手段是配合突進、迴旋斬擊與單手舞劍展現出充滿張力又凶悍戰鬥風格
+> * 指針 2 一種將刀背扛在單肩上，刀柄對準前方，輕鬆站立。NS 第一段會將刀柄後收後向前敲擊，第二段些微下沉刀柄後用力上翹撞擊對手，第三段開始會用兩手握住上翹的刀柄並以大刀/特大劍的動作用力揮舞
+
+### 5.1 Draft segment table (mine, for the user's approval)
+
+Pointer 1 「突進迴旋」: the cleaver slung diagonally, the hilt low in the right hand, half-crouched, leaning forward (the dash tell: the crouch
+deepens). Pointer 2 「扛肩柄擊」: the blade's back on the right shoulder, the hilt pointing at him, standing easy (the tell: the hilt drawn back).
+
+| | Pointer 1 | Pointer 2 |
+|---|---|---|
+| NS at L0 | a the lunge cut (from the sling, a 3 m dash, a rising diagonal) → b the spin-through sweep | a the hilt drawn back, jabbed forward → b the hilt sunk, flicked up into him → c both hands on the raised hilt, the great-sword overhead cut |
+| + L1 | c the reverse spin (the other side) | d the great-sword flat sweep |
+| + L2 | d the one-hand sword dance (two quick figure-eight cuts) | e the turning great-sword cut |
+| + L3 | e the spinning leap, cutting down | (none: L3 opens the J string instead) |
+| AS (keeps the pointer) | J1–J2 + SP: the lunge cut → the spin; one more spin per L | J3 + SP: the hilt jab → both hands, the overhead cut; one more great-sword swing per L |
+| Burst AS (switches; its own move, 1 segment, §5.2) | from pointer 2 (J1–J2 + SP): 「斬返」 the blade shrugged off the shoulder into one huge diagonal cut that drags round into the sling (pointer 1's stance) | from pointer 1 (J3 + SP): 「突進一閃」 one dash-through spin cut, the blade swung back onto the shoulder |
+| Special AS | the full wheel (a spinning tornado) | the meteor cut (leaps, cuts down, canon §1.7) |
+| Kikon | dashes through him, spins back | the hilt launches him, both hands cut him down |
+| Bankai from it | the maw (claw forward, the blade trailing) | the self-destroying arm (overhead, TATE-GOTO) |
+
+### 5.2 Asked, answered (verbatim)
+
+| Question | Answer |
+|---|---|
+| How J4–J7 open | 「最高階一次開放」: all four at L3, the special J string: SP after J4–J6 = the special AS, after J7 = the Bankai; L0–L2 have J1–J3 only. |
+| How the burst AS grows with L | 「固定動作、提高傷害，只有 1~2 段呈現簡短而強悍的一擊必殺風格，並通過調整特效來呈現不同階段的視覺表現。」: a fixed motion of 1–2 segments, a short one-blow-kill style; L raises only its damage, and the VFX shows the level. |
+
+So the burst rows above are one segment each. Knobs (mine): damage 100 / 150 / 200 / 260 at L0–L3; the VFX by L: none / a Reiatsu spark /
+the yellow Reiatsu column / the skull aura (his canon Reiatsu skull).
