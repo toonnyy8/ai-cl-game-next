@@ -14,8 +14,7 @@
 (defun kit (c f) (find-kit c f))
 (defun mv (c f name) (kit-move (kit c f) name))
 (defparameter *forms* '((:yamamoto :base) (:yamamoto :hellfire) (:yamamoto :bankai-east) (:yamamoto :bankai-west)
-                        (:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :ryote) (:kenpachi :nomihose)
-                        (:kenpachi :bankai) (:kenpachi :kataude)
+                        (:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :bankai)   ; (the cups and KATAUDE went 2026-11-03)
                         (:rukia :base) (:rukia :m18) (:rukia :m50) (:rukia :zero) (:ichigo :base) (:ichigo :kessa)
                         (:senjumaru :base) (:senjumaru :tsuji1) (:senjumaru :tsuji2) (:senjumaru :tsuji3) (:senjumaru :tsuji4)
                         (:senjumaru :tsuji5) (:senjumaru :tsuji6)
@@ -66,9 +65,9 @@ window? The hit-based string checks skip it (its own block below checks its fram
 (check (and (ranged-hit-p t nil nil 0.0) (not (ranged-hit-p nil nil nil 100.0)) (ranged-hit-p nil '(:ranged) nil 1.0)
             (not (ranged-hit-p nil '(:ranged) 3.4 (* 3.4 3.4))) (ranged-hit-p nil '(:ranged) 3.4 (* 3.5 3.5))))
 (flet ((mr (name) (getf (mv-params (find-move name)) :melee-range)))
-  (check (and (~= (mr :ke-meteor) 3.4) (~= (mr :ke-meteor-n) 3.9) (~= (mr :ke-buttagiru) 2.6) (~= (mr :ya-nadegiri) 2.4)
+  (check (and (~= (mr :ke-meteor) 3.4) (~= (mr :ke-buttagiru) 2.6) (~= (mr :ya-nadegiri) 2.4)
               (null (mr :ya-kyoku)) (null (mr :ya-taimatsu))
-              (= 1 (length (mv-hits (find-move :ke-meteor-n)))) (= 1 (length (mv-hits (find-move :ke-meteor)))))))
+              (= 1 (length (mv-hits (find-move :ke-meteor)))))))   ; (NOMIHOSE's cash-out went with the cups)
 ;; the contact rule: only a real hit is a hit for the attacker (armour, absorb, parry, block are :block)
 (check (every (lambda (r) (eq (contact-of r) :hit)) '(:hit :counter :guard-break :stance-break :kikon)))
 (check (every (lambda (r) (eq (contact-of r) :block)) '(:blocked :armored :absorbed :parried)))
@@ -195,7 +194,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
         (push (mv-name m) out)))))
 (defun on-hit-adv (m &optional (i 0))
   (let ((w (svref (mv-hits m) i))) (- (or (hw-stun w) (hitstun (hw-react w))) (- (mv-total m) (hw-from w)))))
-(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (member (first cf) '(:ichigo :hisagi)))) *forms*))   ; (Ichigo, Hisagi (his Bankai since §28.4 too): five J since 2026-10-28,
+(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (member (first cf) '(:ichigo :hisagi)) (equal cf '(:kenpachi :nozarashi)))) *forms*))   ; (Ichigo, Hisagi (his Bankai since §28.4 too): five J since 2026-10-28,
   (let* ((k (apply #'kit cf)) (links (link-moves k)) (j1 (kit-command-move k :q)) (k1 (kit-command-move k :f))   ;  triangle.lisp)
          (cup3 (equal cf '(:kenpachi :nomihose))) (fails0 *fails*) (a (owl-adv cf))
          (v8 (eq (first cf) :barro))   ; (Lille II: decision V8 splits his J / K off the budget, DUEL_LILLE_V2 §21: own rows)
@@ -287,8 +286,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (check (< (+ (- (mv-total m) (hw-from (svref (mv-hits m) 0)) (mv-r m)) dash (mv-s o))
                       (hitstun (hw-react (svref (mv-hits m) 0)))))))))
     (unless (= fails0 *fails*) (format t "  string budget fails in ~s~%" cf))))
-;; route resolution (the latch, §2.1 / §2.3), Yamamoto Shikai and Kenpachi RYOTE
-(let ((y (kit :yamamoto :base)) (r (kit :kenpachi :ryote)))
+;; route resolution (the latch, §2.1 / §2.3), Yamamoto Shikai (Kenpachi RYOTE's rows went with the cups, 2026-11-03)
+(let ((y (kit :yamamoto :base)))
   (check (equal (route y :q '((:q) (:q))) '(:ya-j1 :ya-j2 :ya-j3)))
   (check (equal (route y :q '((:q) (:f))) '(:ya-j1 :ya-j2 :ya-k3)))
   (check (equal (route y :q '((:f) (:f))) '(:ya-j1 :ya-k2s :ya-k3)))
@@ -300,14 +299,12 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
   (check (equal (route y :q '((:q :f) (:f :q))) '(:ya-j1 :ya-k2s :ya-k3)))   ; the last allowed press wins; the eaten J
   (check (equal (route y :q '((:q) (:q) (:q))) '(:ya-j1 :ya-j2 :ya-j3)))   ; link 3 latches nothing: no link 4
   (check (equal (route y :q '(() (:q))) '(:ya-j1)))                       ; nothing pressed: it stops at link 1
-  (check (equal (route r :f '((:q) (:q))) '(:ke-r-k1 :ke-r-j2s :ke-r-j3)))
-  (check (equal (route (kit :kenpachi :nomihose) :f '((:f) (:f))) '(:ke-n-f1 :ke-r-k2 :ke-r-k3)))   ; KUKAN-GIRI is cup 3's K1
   (check (and (eq (string-latch y :ya-k2s :q :f) :f) (eq (string-latch y :ya-k2s :q nil) nil)
               (eq (string-latch y :ya-j1 :f :q) :f) (not (string-link-p y :ya-j3)) (not (string-link-p y :ya-sig)))))
-;; KATATE (+2) keeps S_eff 14: :enter grows with the startup (J1 9, K1 18, K2 22 from 8); the design's examples
+;; the Shikai derives nothing since V3 (startup +0, reach x1.0, DUEL_KEN_V3 §9): the base moves it inherits are the base's (KATATE's +2 / x1.3
+;; went with the cups, 2026-11-03)
 (let ((t1 (kit :kenpachi :nozarashi)))
-  (check (and (= 9 (mv-s (kit-move t1 :ke-j1))) (= 18 (mv-s (kit-move t1 :ke-k1))) (= 22 (mv-s (kit-move t1 :ke-k2)))
-              (= 8 (mv-enter (kit-move t1 :ke-k2))) (= 8 (mv-enter (kit-move t1 :ke-k3))) (= 10 (mv-s (kit-move t1 :ke-j3))))))
+  (check (and (= 7 (mv-s (kit-move t1 :ke-j1))) (= 16 (mv-s (kit-move t1 :ke-k1))) (= 6 (mv-enter (kit-move t1 :ke-k2))))))
 ;; the route damage of Kenpachi base on hit (§3.5, before multipliers; the combo scaling starts at hit 4; K2 / K3 at 80 %
 ;; of the design's, §9): JJJ 112, KKK 210 (the design's 245), KJJ 147; the O ender as hit 4 x0.9 = 63
 (flet ((dmg (&rest names) (loop for n in names for i from 1 sum (hit-damage (mv-dmg (mv :kenpachi :base n)) nil nil i nil))))
@@ -317,7 +314,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (let ((q1 (mv :yamamoto :base :ya-j1)) (q2 (mv :yamamoto :base :ya-j2)))
   (check (= 23 (nth-value 1 (free-steps q1))))
   (check (= 6 (- (+ (- (mv-total q1) *chain-lead*) (mv-s q2)) (nth-value 1 (free-steps q1))))))
-(check (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-j1)) (/ 7.0 9.0)))  ; hit pose on the later hit frame
+(check (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-s-j1)) (/ 7.0 9.0)))  ; hit pose on the later hit frame (a clip authored at 7)
 (check (~= (mv-clip-speed (mv :kenpachi :base :ke-j1)) 1.0))
 ;; KOSEI (§5): x1 at a full guard gauge, x3 empty, x2 half; a JJJ (g 24) pays 4.8 R / 7.2 FS full, 14.4 / 21.6 empty (FS x3, 2026-10-29)
 (check (and (~= (kosei-mult 100.0) 1.0) (~= (kosei-mult 0.0) 3.0) (~= (kosei-mult 50.0) 2.0) (~= *kosei-bonus* 2.0)))
@@ -359,9 +356,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (= (hit-damage 1 nil nil 12 nil) 1))                             ; a hit always does 1
 (check (= (hit-damage 0 '(:mult 2.0) nil 1 t) 0))
 (check (= (hit-damage 100 (kit-atk-mods (kit :yamamoto :bankai-east) 4) nil 1 nil) 100))     ; East x1.0 (the rework)
-(check (and (= (hit-damage 100 (kit-atk-mods (kit :kenpachi :nozarashi) 4) nil 1 nil) 120)   ; KATATE x1.0 x Cornered 1.20
-            (= (hit-damage 100 (kit-atk-mods (kit :kenpachi :ryote) 4) nil 1 nil) 138)      ; RYOTE 1.15 x 1.20
-            (= (hit-damage 100 (kit-atk-mods (kit :kenpachi :nomihose) 5) nil 1 nil) 150))) ; worst case 1.2 x 1.25
+(check (= (hit-damage 100 (kit-atk-mods (kit :kenpachi :nozarashi) 4) nil 1 nil) 120))   ; the Shikai x1.0 x Cornered 1.20
 (check (= (chip-damage 110 *chip-fire* 500) 13))
 (check (and (= (chip-damage 110 0.12 5) 4) (= (chip-damage 110 0.12 1) 0)))   ; chip never kills
 (check (= (chip-damage 110 nil 500) 0))                                  ; no chip by default
@@ -752,10 +747,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     (:ya-w-parry 2 24 20 0 nil) (:ya-w-counter 6 3 24 150 -12)
     (:ke-j1 7 3 12 35 -2) (:ke-j2 7 3 13 35 -2) (:ke-j3 8 3 18 42 -4) (:ke-k1 16 4 20 70 -3)
     (:ke-k2 20 4 24 60 -3) (:ke-k3 20 5 34 80 -20) (:ke-stance 8 4 24 100 -14) (:ke-buttagiru 22 4 26 180 -14)
-    (:ke-charge 14 ? ? 25 -16) (:ke-breaker 8 4 18 150 :guard-break) (:ke-meteor 26 4 30 240 ?)
-    ;; RYOTE's kendo strings (DUEL_STRINGS §3.4), NOMIHOSE's space cut and cash-out (DUEL_NOZARASHI_V2 §2.3)
-    (:ke-r-j1 10 3 12 40 -2) (:ke-r-j2 9 3 13 38 -2) (:ke-r-j3 10 3 18 48 -4) (:ke-r-k1 19 4 20 85 -3)
-    (:ke-r-k2 21 4 24 68 -3) (:ke-r-k3 21 5 34 92 -20) (:ke-n-f1 20 4 22 90 -4) (:ke-meteor-n 26 4 30 390 -16)))
+    (:ke-charge 14 ? ? 25 -16) (:ke-breaker 8 4 18 150 :guard-break) (:ke-meteor 26 4 30 240 ?)))   ; (RYOTE's / NOMIHOSE's rows went with the cups)
 (dolist (row *table*)
   (destructuring-bind (name s a r dmg adv) row
     (let ((m (find-move name)))
@@ -800,7 +792,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (= (kit-command-cost (kit :kenpachi :nozarashi) :sp2) 2) (= (kit-command-cost (kit :kenpachi :base) :q) 0)))
 ;; forms: multipliers, inheritance, the Hellfire / Bankai swaps
 (check (and (~= (kit-mult (kit :yamamoto :hellfire)) 1.3) (~= (kit-mult (kit :yamamoto :bankai-east)) 1.0)
-            (~= (kit-mult (kit :kenpachi :nozarashi)) 1.0) (~= (kit-mult (kit :kenpachi :ryote)) 1.15) (~= (kit-mult (kit :kenpachi :nomihose)) 1.2) (~= (kit-mult (kit :kenpachi :base)) 1.0)))
+            (~= (kit-mult (kit :kenpachi :nozarashi)) 1.0) (~= (kit-mult (kit :kenpachi :base)) 1.0)))
 (check (eq (mv-name (kit-command-move (kit :yamamoto :hellfire) :sp2)) :ya-nadegiri))
 (check (eq (mv-name (kit-command-move (kit :yamamoto :hellfire) :sp1)) :ya-shiranui))  ; inherited
 (check (eq (mv-name (kit-command-move (kit :yamamoto :bankai-east) :kikon)) :ya-tenchi))
@@ -843,104 +835,95 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (not (member :ward (kit-passives (kit :yamamoto :bankai-east))))))
 (check (and (~= (kit-walk (kit :yamamoto :base)) 3.2) (~= (kit-walk (kit :kenpachi :nozarashi)) 4.4)))
 (check (~= (kit-reset-reiatsu (kit :kenpachi :base)) 10.0))
-;; Nozarashi: derived by the kit, not copied (startup +3, reach x1.4), own moves as written
-(let ((base (mv :kenpachi :base :ke-j1)) (noz (mv :kenpachi :nozarashi :ke-j1)))
-  (check (and (= (mv-s base) 7) (= (mv-s noz) 9) (= (mv-r noz) 12) (= (mv-dmg noz) 35)
-              (~= (mv-reach noz) (* 1.4 1.3)) (= (hw-from (svref (mv-hits noz) 0)) 9)
-              (~= (aref (first (hw-vols (svref (mv-hits noz) 0))) 1) (* 1.4 1.3)))))
-(check (= (mv-s (mv :kenpachi :nozarashi :ke-stance)) 10))
-(check (= (mv-s (mv :kenpachi :nozarashi :ke-breaker)) 10))
-(check (~= (aref (first (hw-vols (svref (mv-hits (mv :kenpachi :nozarashi :ke-charge)) 0))) 2) (* 1.4 1.3)))
-(check (= (mv-s (mv :kenpachi :nozarashi :ke-meteor)) 26))
-(check (let ((m (mv :kenpachi :nozarashi :ke-meteor)) (w (find-move :ke-meteor))) (and (= (mv-s m) (mv-s w)) (= (mv-reach m) (mv-reach w)))))   ; as written (a cadence copy: its own hitstop)
-(check (eq (kit-next (kit :kenpachi :nozarashi) :ke-j1 :q) (mv :kenpachi :nozarashi :ke-j2)))
+;; the Shikai's own J string (DUEL_KEN_V3 §9)
+(check (eq (kit-next (kit :kenpachi :nozarashi) :ke-s-j1 :q) (mv :kenpachi :nozarashi :ke-s-j2)))
 ;; clip names: exactly the §5 contract, and every §5 clip is used
 (defparameter *clips-5*
-  '(:ya-stance :ya-q1 :ya-q2 :ya-f1 :ya-f2 :ya-f3 :ya-sig :ya-shiranui :ya-shiranui-throw :ya-taimatsu
-    :ya-nadegiri :ya-breaker :ya-ikkotsu :ya-intro :ya-win :ya-hellfire :ya-bankai :ya-kyoku
-    :ya-kaka :sh-run :ya-enjo :ke-n-leap ; the O modules (TENCHI runs in :sh-run, CHARGE in :ke-charge)
-    :ya-shonetsu :ya-w-parry :ya-w-counter   ; the Bankai stances
-    :ya-e-stance :ya-e-q1 :ya-e-q2 :ya-e-q3 :ya-e-f1 :ya-e-f2 :ya-e-kyokko :ya-e-tenchi   ; East's own (DUEL_YAMA_TYBW §3.2)
-    :ya-tsuka :ya-e-drop :ke-kick :ke-r-kote :ke-r-tsuki   ; the strings' new clips (DUEL_STRINGS §3)
-    :ke-stance :ke-q1 :ke-q2 :ke-q3 :ke-f1 :ke-f2 :ke-stance-hold :ke-stance-cut :ke-buttagiru :ke-charge
-    :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
-    :ke-n-stance :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
-    :ke-kt-jab :ke-kt-slam :ke-kt-chg1 :ke-kt-chg2 :ke-kt-chg3   ; KATATE (DUEL_KEN_KATATE)
-    ; NS3's charges (DUEL_KEN_CORE)
-    :sh-skate-b :sh-slide-r :sh-slide-l :ke-run :ke-skate-b :ke-slide-r :ke-slide-l   ; the runs (facing the opponent)
-    :ke-r-stance :ke-drink     ; the cups
-    :ke-r-q1 :ke-r-q3 :ke-r-f1 :ke-r-f2 :ke-n-f1     ; RYOTE's kendo set and KUKAN-GIRI (their own clips since Phase 5)
-    :ke-b-stance :ke-b-fist :ke-b-bite                ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12)
-    :ke-b-hook :ic-cross-j :ic-k-jab :ic-k-wrap-j     ; the J cut's close J links (DUEL_STRINGS §13)
-    :ke-b-leap :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l   ; its feral pass (2026-09-28; also 片腕)
-    :ru-intro :ru-win :ru-q2 :ru-spin :ru-thrust :ru-drop :ru-stab :ru-hakuren
-    :ru-breaker :ru-hainawa :ru-palm :ru-flower   ; Rukia (the shared moves' clips a form's table still names unmapped;
-    ;; every form plays its own since -273's, DUEL_RUKIA_TYBW §13.4: :ru-q1 / :ru-ring are Senjumaru's Divine Soldier's
-    ;; (*SHINPEI-COMBO*), :ru-hakka the 白霞罸 cinematic's, the :ru-shirafune / :ru-cold-stance clips are gone (the moves'
-    ;; names stay, every form maps them))
-    :ru-s-stance :ru-s-walk-f :ru-s-walk-b :ru-s-strafe-r :ru-s-strafe-l :ru-s-run :ru-s-j1 :ru-s-j2 :ru-s-j3   ; the Shikai's
-    :ru-s-k1 :ru-s-k2 :ru-s-k3 :ru-s-shirafune :ru-s-enbu-run :ru-s-enbu :ru-s-breaker :ru-s-hainawa   ; own (§13.3; the old
-                                                                        ;  :ru-stance clip retired with zero's own, §13.4)
-    :ru-s-shimochiri :ru-s-setsuen :ru-s-sojin :ru-s-hyoreki :ru-s-tsurara :ru-s-hakuren   ; the new Shikai's bursts and kido
-    :ru-s-byakurai :ru-s-tsukishiro :ru-s-kido :ru-s-sokatsui :ru-s-rikujo :ru-s-rikujo-cast   ; (DUEL_RUKIA_TYBW §13.3)
-    :ru-18-stance :ru-18-walk-f :ru-18-walk-b :ru-18-strafe-r :ru-18-strafe-l :ru-18-run :ru-18-j1 :ru-18-j2 :ru-18-j3   ; -18's own
-    :ru-18-k1 :ru-18-k2 :ru-18-k3 :ru-18-shimobashira :ru-18-hakuren-hold :ru-18-hakuren :ru-18-shirafune   ; (§13.4)
-    :ru-18-hakka :ru-18-hainawa
-    :ru-50-stance :ru-50-walk-f :ru-50-walk-b :ru-50-strafe-r :ru-50-strafe-l :ru-50-run :ru-50-j1 :ru-50-j2 :ru-50-j3   ; -50's own
-    :ru-50-k1 :ru-50-k2 :ru-50-k3 :ru-50-hyoshin :ru-50-hakuren-hold :ru-50-hakuren :ru-50-shirafune   ; (§13.4)
-    :ru-50-hakka :ru-50-hainawa
-    :ru-0-stance :ru-0-j1 :ru-0-j2 :ru-0-j3 :ru-0-k1 :ru-0-k2 :ru-0-k3 :ru-0-reido :ru-0-hakuren :ru-0-shirafune   ; -273's own
-    :ru-0-hakka                                                                                                 ; (§13.4)
-    :ic-na1 :ic-ns1 :ic-chg1 :ic-chg2 :ic-ns3 :hs-na1   ; (the core system's long coils: NA1, the NS openers, NS2's charges, DUEL_CORE §6)
-    :hs-kr-tan :hs-kr-ren :hs-kr-sen :hs-kr-ko :hs-kr-age   ; (Hisagi's pointer 2 刈, its NS and AS2: DUEL_HISAGI §27.5)
-    :hs-chikuden :hs-hoden   ; (his pointer 3 縛雷's CHIKUDEN and 放電: DUEL_HISAGI §27.6)
-    :hs-tsumuji              ; (his AS1 旋風 TSUMUJI: DUEL_HISAGI §27.10)
-    :hs-kb-kagiyose :hs-kb-kagiyose-giri :hs-kb-juji :hs-kb-matoi :hs-kb-shime :hs-kb-tsuri :hs-kb-san   ; (the core bind's own: DUEL_HISAGI §28.12)
-    :ic-k-summon :ic-k-xa :ic-k-xb   ; (KESSA's NS3: the command gesture; the clones' X, ICHIGO-NS-CLONE-X plays them)
-    :ic-k-lash-a :ic-k-lash-b :ic-k-lash-c :ic-k-chg1 :ic-k-chg2 :ic-k-wrap :ic-k-whip :ic-k-cut   ; (KESSA's NS1 chains, NS2 charges, AS3's turn: 2026-10-28)
-    :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
-    :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo   ; Ichigo (DUEL_ICHIGO §10, v2)
-    :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x   ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)
-    :ic-k-f1 :ic-k-f2 :ic-k-f3 :ic-k-gaeshi :ic-k-uchi   ; KESSA's own K, counter and O strike (DUEL_ICHIGO_TYBW §3.2)
-    :sj-stance :sj-q1 :sj-q2 :sj-spin :sj-f1 :sj-f2 :sj-drop :sj-yank :sj-summon :sj-kasa :sj-breaker :sj-saidan :sj-intro
-    :sj-win :sj-loom-stance :sj-weave :sj-unravel :sj-tanmono :sj-makitori :sj-snip   ; Senjumaru (:sj-awaken is the cine's)
-    :lb-stance :lb-intro :lb-win :lb-q1 :lb-q2 :lb-aim :lb-fire :lb-sanren :lb-hiren :lb-breaker :lb-butt   ; Lille's shared
-    :lb-w-stance :lb-w-q1 :lb-w-q2 :lb-w-q3 :lb-w-f1 :lb-w-f2 :lb-w-f3 :lb-w-sanren :lb-w-kikon :lb-w-kikon-fire   ;  art (the
-    :lb-w-nijushi :lb-w-breaker :lb-w-ram :lb-o-stance :lb-o-q1 :lb-o-q2 :lb-o-q3 :lb-o-f1 :lb-o-f2 :lb-o-f3 :lb-o-chop   ;  old
-    :lb-o-trompete :lb-o-breaker :lb-o-stamp :lb-kamae :lb-k-dash :lb-oe-stance   ;  Lille's, DUEL_LILLE §12, §22, §23)
-    :br-f1 :br-f2 :br-f3                          ; the base form's attack-state K string (the user 2026-10-12: bold)
-    :br-sk-l1 :br-sk-l1s :br-sk-lc :br-jab :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3   ; the base stance's strings
-    :br-sk-jl1 :br-sk-jl2 :br-sk-jl3 :br-sk-kl1 :br-sk-kl2 :br-sk-kl3   ; and its follow-ups (DUEL_LILLE_V3 §8.3, §8.5; :lb-snap unused again)
-    :br-en-l1 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3   ; the awakened stance EN's openers,
-    :br-en-lc :br-oen-lc                          ; (R10, DUEL_LILLE_V3 §15: the L charge's pose while held)
-    :br-oen-l1 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3   ; JILLIEL's and the owl's (§8)
-    :br-e-jf1 :br-e-jf2 :br-e-jf3 :br-e-kf1 :br-e-kf2 :br-e-kf3 :br-oe-jf1 :br-oe-jf2 :br-oe-jf3 :br-oe-kf1 :br-oe-kf2 :br-oe-kf3
-                                                  ; their L L follow-ups, by route (§8.5; V8's swings :br-e-swing / :br-oe-swing spare again)
-    :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en   ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
-    :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en   ; ... and the owl's (the backstep gone, v3 R3)
-    :br-w-guard :br-w-guard-hit :br-o-guard :br-o-guard-hit :br-oe-guard :br-oe-guard-hit   ; his wing wall (the awakened guard)
-    :ke-k-q1 :ke-k-q2 :ke-k-f1 :ke-k-f2 :ke-k-spin :ke-k-meteor   ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2)
-    :ke-x-stance :ke-x-q1 :ke-x-kote :ke-x-q3 :ke-x-f1 :ke-x-tsuki :ke-x-f2 :ke-x-meteor :ke-x-drink
-    :ke-b-q1 :ke-b-q2 :ke-b-f1 :ke-b-f2 :ke-b-f3 :ke-b-split :ke-b-cut   ; the Bankai's own (§8)
-    :ke-a-stance :ke-a-q1 :ke-a-q2 :ke-a-f1 :ke-a-f2 :ke-a-spin :ke-a-haymaker :ke-a-stomp :ke-a-flurry   ; KATAUDE's (§8)
-    :hs-intro :hs-win                                                  ; Hisagi's B2a intro / win (the Bankai's forms)
-    :hs-s-stance :hs-s-intro :hs-s-win :hs-s-walk-f :hs-s-walk-b :hs-s-strafe-r :hs-s-strafe-l   ; the Shikai's own
-    :hs-s-run :hs-s-skate-b :hs-s-slide-r :hs-s-slide-l :hs-s-sen :hs-s-kaeshi :hs-s-rin :hs-s-kaeshi-1h :hs-s-rin-1h   ; (§21.4)
-    :hs-s-maki :hs-s-modoshi :hs-s-kaza :hs-s-raiden :hs-s-shibari   ; (S1, §23.3: :hs-s-kari no move's since; MAKI dormant;
-    :hs-s-nagi :hs-s-noko :hs-s-tsui :hs-s-tobi-kaeshi :hs-s-tobi-rin   ;  A1, §24.1: the K string's and the leap J's own, so
-                                                                        ;  :hs-s-nage, :hs-s-hiki, :hs-s-hodoki no move's)
-    :hs-s-breaker :hs-s-kubikake :hs-s-kari-aim :hs-s-kari-o
-    :hs-k-stance :hs-k-walk-f :hs-k-walk-b :hs-k-strafe-r :hs-k-strafe-l :hs-k-run :hs-k-skate-b :hs-k-slide-r   ; the Bankai's
-    :hs-k-slide-l :hs-k-saben :hs-k-kaeshi :hs-k-sensa :hs-k-saharai                                         ;  own (§21.8):
-    :hs-k-raiden :hs-k-ame :hs-k-kosa-aim :hs-k-kosa :hs-k-breaker :hs-k-hammer :hs-k-kubikake   ;  the ranged mode,
-    :hs-kb-gen :hs-kb-kaeshi :hs-kb-sogen :hs-kb-hikigiri :hs-kb-makigiri :hs-kb-shibori :hs-kb-kaibaku    ;  the bind
-    :hs-kb-raiden :hs-kb-kojo :hs-kb-koshu-run :hs-kb-koshu :hs-kb-unwind
-    :hs-k-hosoku :hs-k-s-k2 :hs-k-s-k3 :hs-k-g-k2 :hs-k-g-j2 :hs-k-g-k3 :hs-k-g-j3   ; the ranged route links' (A2, §24.2)
-    :hs-k-uchi :hs-k-ogi :hs-k-issei :hs-k-ransa :hs-k-tataki :hs-k-sweep :hs-k-jibashiri   ; the core ranged mode's own
-    :hs-k-maki :hs-k-kake                                                                  ;  (batch 2a, DUEL_HISAGI §28.11)
-    :hs-k-na3 :hs-k-na4                                                                    ; the five J's own J3 / J4 (§28.15)
-    :hs-k-g-sa                                                                             ; the gathered SA's own (§28.21)
-    :hs-kb-stance :hs-kb-walk-f :hs-kb-walk-b :hs-kb-strafe-r :hs-kb-strafe-l))     ; the bind's stance and walk (A2)
+ '(:ya-stance :ya-q1 :ya-q2 :ya-f1 :ya-f2 :ya-f3 :ya-sig :ya-shiranui :ya-shiranui-throw :ya-taimatsu
+ :ya-nadegiri :ya-breaker :ya-ikkotsu :ya-intro :ya-win :ya-hellfire :ya-bankai :ya-kyoku
+ :ya-kaka :sh-run :ya-enjo :ke-n-leap ; the O modules (TENCHI runs in :sh-run, CHARGE in :ke-charge)
+ :ya-shonetsu :ya-w-parry :ya-w-counter ; the Bankai stances
+ :ya-e-stance :ya-e-q1 :ya-e-q2 :ya-e-q3 :ya-e-f1 :ya-e-f2 :ya-e-kyokko :ya-e-tenchi ; East's own (DUEL_YAMA_TYBW §3.2)
+ :ya-tsuka :ya-e-drop :ke-kick ; the strings' new clips (DUEL_STRINGS §3)
+ :ke-stance :ke-q1 :ke-q2 :ke-q3 :ke-f1 :ke-f2 :ke-stance-hold :ke-stance-cut :ke-buttagiru :ke-charge
+ :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
+ :ke-n-stance :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
+ :ke-kt-jab ; KATATE (DUEL_KEN_KATATE)
+ ; NS3's charges (DUEL_KEN_CORE)
+ :sh-skate-b :sh-slide-r :sh-slide-l :ke-run :ke-skate-b :ke-slide-r :ke-slide-l ; the runs (facing the opponent)
+ :ke-drink ; the cups
+ :ke-r-f2 ; RYOTE's kendo set and KUKAN-GIRI (their own clips since Phase 5)
+ :ke-b-stance :ke-b-fist :ke-b-bite ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12)
+ :ke-b-hook :ic-cross-j :ic-k-jab :ic-k-wrap-j ; the J cut's close J links (DUEL_STRINGS §13)
+ :ke-b-leap :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l ; its feral pass (2026-09-28; also 片腕)
+ :ru-intro :ru-win :ru-q2 :ru-spin :ru-thrust :ru-drop :ru-stab :ru-hakuren
+ :ru-breaker :ru-hainawa :ru-palm :ru-flower ; Rukia (the shared moves' clips a form's table still names unmapped;
+ ;; every form plays its own since -273's, DUEL_RUKIA_TYBW §13.4: :ru-q1 / :ru-ring are Senjumaru's Divine Soldier's
+ ;; (*SHINPEI-COMBO*), :ru-hakka the 白霞罸 cinematic's, the :ru-shirafune / :ru-cold-stance clips are gone (the moves'
+ ;; names stay, every form maps them))
+ :ru-s-stance :ru-s-walk-f :ru-s-walk-b :ru-s-strafe-r :ru-s-strafe-l :ru-s-run :ru-s-j1 :ru-s-j2 :ru-s-j3 ; the Shikai's
+ :ru-s-k1 :ru-s-k2 :ru-s-k3 :ru-s-shirafune :ru-s-enbu-run :ru-s-enbu :ru-s-breaker :ru-s-hainawa ; own (§13.3; the old
+ ; :ru-stance clip retired with zero's own, §13.4)
+ :ru-s-shimochiri :ru-s-setsuen :ru-s-sojin :ru-s-hyoreki :ru-s-tsurara :ru-s-hakuren ; the new Shikai's bursts and kido
+ :ru-s-byakurai :ru-s-tsukishiro :ru-s-kido :ru-s-sokatsui :ru-s-rikujo :ru-s-rikujo-cast ; (DUEL_RUKIA_TYBW §13.3)
+ :ru-18-stance :ru-18-walk-f :ru-18-walk-b :ru-18-strafe-r :ru-18-strafe-l :ru-18-run :ru-18-j1 :ru-18-j2 :ru-18-j3 ; -18's own
+ :ru-18-k1 :ru-18-k2 :ru-18-k3 :ru-18-shimobashira :ru-18-hakuren-hold :ru-18-hakuren :ru-18-shirafune ; (§13.4)
+ :ru-18-hakka :ru-18-hainawa
+ :ru-50-stance :ru-50-walk-f :ru-50-walk-b :ru-50-strafe-r :ru-50-strafe-l :ru-50-run :ru-50-j1 :ru-50-j2 :ru-50-j3 ; -50's own
+ :ru-50-k1 :ru-50-k2 :ru-50-k3 :ru-50-hyoshin :ru-50-hakuren-hold :ru-50-hakuren :ru-50-shirafune ; (§13.4)
+ :ru-50-hakka :ru-50-hainawa
+ :ru-0-stance :ru-0-j1 :ru-0-j2 :ru-0-j3 :ru-0-k1 :ru-0-k2 :ru-0-k3 :ru-0-reido :ru-0-hakuren :ru-0-shirafune ; -273's own
+ :ru-0-hakka ; (§13.4)
+ :ic-na1 :ic-ns1 :ic-chg1 :ic-chg2 :ic-ns3 :hs-na1 ; (the core system's long coils: NA1, the NS openers, NS2's charges, DUEL_CORE §6)
+ :hs-kr-tan :hs-kr-ren :hs-kr-sen :hs-kr-ko :hs-kr-age ; (Hisagi's pointer 2 刈, its NS and AS2: DUEL_HISAGI §27.5)
+ :hs-chikuden :hs-hoden ; (his pointer 3 縛雷's CHIKUDEN and 放電: DUEL_HISAGI §27.6)
+ :hs-tsumuji ; (his AS1 旋風 TSUMUJI: DUEL_HISAGI §27.10)
+ :hs-kb-kagiyose :hs-kb-kagiyose-giri :hs-kb-juji :hs-kb-matoi :hs-kb-shime :hs-kb-tsuri :hs-kb-san ; (the core bind's own: DUEL_HISAGI §28.12)
+ :ic-k-summon :ic-k-xa :ic-k-xb ; (KESSA's NS3: the command gesture; the clones' X, ICHIGO-NS-CLONE-X plays them)
+ :ic-k-lash-a :ic-k-lash-b :ic-k-lash-c :ic-k-chg1 :ic-k-chg2 :ic-k-wrap :ic-k-whip :ic-k-cut ; (KESSA's NS1 chains, NS2 charges, AS3's turn: 2026-10-28)
+ :ic-stance :ic-intro :ic-win :ic-q1 :ic-q2 :ic-spin :ic-f1 :ic-f2 :ic-drop :ic-cross :ic-getsuga :ic-juji :ic-breaker
+ :ic-mine :ic-k-stance :ic-k-back :ic-k-parry :ic-k-yank :ic-k-zanzo ; Ichigo (DUEL_ICHIGO §10, v2)
+ :ic-tsuki :ic-rangetsu :ic-tsuki-otoshi :ic-soga :ic-juji-x ; (SOGA's and the JUJI rush's own, DUEL_ICHIGO_TYBW §3.2)
+ :ic-k-f1 :ic-k-f2 :ic-k-f3 :ic-k-gaeshi :ic-k-uchi ; KESSA's own K, counter and O strike (DUEL_ICHIGO_TYBW §3.2)
+ :sj-stance :sj-q1 :sj-q2 :sj-spin :sj-f1 :sj-f2 :sj-drop :sj-yank :sj-summon :sj-kasa :sj-breaker :sj-saidan :sj-intro
+ :sj-win :sj-loom-stance :sj-weave :sj-unravel :sj-tanmono :sj-makitori :sj-snip ; Senjumaru (:sj-awaken is the cine's)
+ :lb-stance :lb-intro :lb-win :lb-q1 :lb-q2 :lb-aim :lb-fire :lb-sanren :lb-hiren :lb-breaker :lb-butt ; Lille's shared
+ :lb-w-stance :lb-w-q1 :lb-w-q2 :lb-w-q3 :lb-w-f1 :lb-w-f2 :lb-w-f3 :lb-w-sanren :lb-w-kikon :lb-w-kikon-fire ; art (the
+ :lb-w-nijushi :lb-w-breaker :lb-w-ram :lb-o-stance :lb-o-q1 :lb-o-q2 :lb-o-q3 :lb-o-f1 :lb-o-f2 :lb-o-f3 :lb-o-chop ; old
+ :lb-o-trompete :lb-o-breaker :lb-o-stamp :lb-kamae :lb-k-dash :lb-oe-stance ; Lille's, DUEL_LILLE §12, §22, §23)
+ :br-f1 :br-f2 :br-f3 ; the base form's attack-state K string (the user 2026-10-12: bold)
+ :br-sk-l1 :br-sk-l1s :br-sk-lc :br-jab :br-sk-j1 :br-sk-j2 :br-sk-j3 :br-sk-k1 :br-sk-k2 :br-sk-k3 ; the base stance's strings
+ :br-sk-jl1 :br-sk-jl2 :br-sk-jl3 :br-sk-kl1 :br-sk-kl2 :br-sk-kl3 ; and its follow-ups (DUEL_LILLE_V3 §8.3, §8.5; :lb-snap unused again)
+ :br-en-l1 :br-en-j1 :br-en-j2 :br-en-j3 :br-en-k1 :br-en-k2 :br-en-k3 ; the awakened stance EN's openers,
+ :br-en-lc :br-oen-lc ; (R10, DUEL_LILLE_V3 §15: the L charge's pose while held)
+ :br-oen-l1 :br-oen-j1 :br-oen-j2 :br-oen-j3 :br-oen-k1 :br-oen-k2 :br-oen-k3 ; JILLIEL's and the owl's (§8)
+ :br-e-jf1 :br-e-jf2 :br-e-jf3 :br-e-kf1 :br-e-kf2 :br-e-kf3 :br-oe-jf1 :br-oe-jf2 :br-oe-jf3 :br-oe-kf1 :br-oe-kf2 :br-oe-kf3
+ ; their L L follow-ups, by route (§8.5; V8's swings :br-e-swing / :br-oe-swing spare again)
+ :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
+ :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en ; ... and the owl's (the backstep gone, v3 R3)
+ :br-w-guard :br-w-guard-hit :br-o-guard :br-o-guard-hit :br-oe-guard :br-oe-guard-hit ; his wing wall (the awakened guard)
+ :ke-k-q1 :ke-k-q2 :ke-k-f1 :ke-k-f2 :ke-k-spin :ke-k-meteor ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2)
+            
+ :ke-b-q1 :ke-b-q2 :ke-b-f1 :ke-b-f2 :ke-b-f3 :ke-b-split :ke-b-cut ; the Bankai's own (§8)
+ ; KATAUDE's (§8)
+ :hs-intro :hs-win ; Hisagi's B2a intro / win (the Bankai's forms)
+ :hs-s-stance :hs-s-intro :hs-s-win :hs-s-walk-f :hs-s-walk-b :hs-s-strafe-r :hs-s-strafe-l ; the Shikai's own
+ :hs-s-run :hs-s-skate-b :hs-s-slide-r :hs-s-slide-l :hs-s-sen :hs-s-kaeshi :hs-s-rin :hs-s-kaeshi-1h :hs-s-rin-1h ; (§21.4)
+ :hs-s-maki :hs-s-modoshi :hs-s-kaza :hs-s-raiden :hs-s-shibari ; (S1, §23.3: :hs-s-kari no move's since; MAKI dormant;
+ :hs-s-nagi :hs-s-noko :hs-s-tsui :hs-s-tobi-kaeshi :hs-s-tobi-rin ; A1, §24.1: the K string's and the leap J's own, so
+ ; :hs-s-nage, :hs-s-hiki, :hs-s-hodoki no move's)
+ :hs-s-breaker :hs-s-kubikake :hs-s-kari-aim :hs-s-kari-o
+ :hs-k-stance :hs-k-walk-f :hs-k-walk-b :hs-k-strafe-r :hs-k-strafe-l :hs-k-run :hs-k-skate-b :hs-k-slide-r ; the Bankai's
+ :hs-k-slide-l :hs-k-saben :hs-k-kaeshi :hs-k-sensa :hs-k-saharai ; own (§21.8):
+ :hs-k-raiden :hs-k-ame :hs-k-kosa-aim :hs-k-kosa :hs-k-breaker :hs-k-hammer :hs-k-kubikake ; the ranged mode,
+ :hs-kb-gen :hs-kb-kaeshi :hs-kb-sogen :hs-kb-hikigiri :hs-kb-makigiri :hs-kb-shibori :hs-kb-kaibaku ; the bind
+ :hs-kb-raiden :hs-kb-kojo :hs-kb-koshu-run :hs-kb-koshu :hs-kb-unwind
+ :hs-k-hosoku :hs-k-s-k2 :hs-k-s-k3 :hs-k-g-k2 :hs-k-g-j2 :hs-k-g-k3 :hs-k-g-j3 ; the ranged route links' (A2, §24.2)
+ :hs-k-uchi :hs-k-ogi :hs-k-issei :hs-k-ransa :hs-k-tataki :hs-k-sweep :hs-k-jibashiri ; the core ranged mode's own
+ :hs-k-maki :hs-k-kake ; (batch 2a, DUEL_HISAGI §28.11)
+ :hs-k-na3 :hs-k-na4 ; the five J's own J3 / J4 (§28.15)
+ :hs-k-g-sa ; the gathered SA's own (§28.21)
+ :hs-kb-stance :hs-kb-walk-f :hs-kb-walk-b :hs-kb-strafe-r :hs-kb-strafe-l))     ; the bind's stance and walk (A2)
 ;; (Jilliel's SPs and Kikon, decision 56, DUEL_LILLE §23.37: :lb-w-sanren is KIN's SANREN through his :clip-map, :lb-e-sanren
 ;; EN's own, :lb-w-kikon / :lb-w-kikon-fire the Kikon in play; :lb-w-aim and :lb-w-fire are gone)
 ;; (the Kikon cinematics' own clips, :ya-kikon :ya-tenchi :ke-kikon :ke-kikon-n, are played by their
@@ -961,7 +944,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     (check (and (null extra) (null unused)))))
 ;; phase 2: art names, roster, form looks, the flurry, hazard hits
 (check (equal (mapcar #'kit-weapon (mapcar (lambda (cf) (apply #'kit cf)) *forms*))
-              '(:ryujin-jakka :ryujin-jakka :zanka :zanka :ken-katana :nozarashi :nozarashi :nozarashi :ke-broken nil
+              '(:ryujin-jakka :ryujin-jakka :zanka :zanka :ken-katana :nozarashi :ke-broken
                 :sode-no-shirayuki :sode-no-shirayuki :ru-rime :ru-ice :zangetsu-long :tensa
                 :shigarami :shigarami :shigarami :shigarami :shigarami :shigarami :shigarami
                 :diagramm nil nil nil nil :kazeshini :kazeshini :kazeshini)))     ; (+ Lille II's five forms, DUEL_LILLE_V3: MUJITTAI gone; Hisagi)

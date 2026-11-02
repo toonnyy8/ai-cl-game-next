@@ -80,7 +80,7 @@ KATAUDE (0-4), rung changes 1->2 (5), 2->3 (6), 3->2 (7), 2->1 (8), 3->1 (9: the
     (dolist (e (list *p1* *p2*))
       (let* ((f (fighter e)) (a (svref *cup-acc* (fighter-side f)))
              (c (and (eq (fighter-character f) :kenpachi)
-                     (position (fighter-form f) '(:nozarashi :ryote :nomihose :bankai :kataude))))
+                     (position (fighter-form f) '(:nozarashi :ryote :nomihose :bankai :kataude))))   ; (since 2026-11-03 only :nozarashi / :bankai occur)
              (last (aref a 14)))
         (when c
           (incf (aref a c))

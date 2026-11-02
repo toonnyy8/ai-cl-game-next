@@ -1,8 +1,7 @@
-;;;; ken.lisp — ZARAKI KENPACHI (TYBW), design-v1 §5.2: his moves (DEFMOVE) and his forms (DEFKIT): :base and
-;;;; his permanent awakening Nozarashi, three cups of the NOME ladder (docs/duel/DUEL_NOZARASHI_V2.md): :nozarashi
-;;;; (KATATE, one hand), :ryote (two hands) and :nomihose (drink it dry). Inherited moves are DERIVED by the kit
-;;;; (KATATE startup +2 / reach x1.3, RYOTE +3 / x1.4; damage via :mult), never copied here; NOMIHOSE derives
-;;;; nothing: it plays RYOTE's. He wears no eyepatch in any form (the user's decision; canon TYBW keeps a strapless patch).
+;;;; ken.lisp — ZARAKI KENPACHI (TYBW), design-v1 §5.2: his moves (DEFMOVE) and his forms (DEFKIT): :base (the sealed katana),
+;;;; :nozarashi (the Shikai since V3, DUEL_KEN_V3: two pointers by grip and the unlock level L; the cups KATATE / RYOTE / NOMIHOSE and
+;;;; KATAUDE went 2026-11-03) and :bankai (the old Bankai until its own V3 batch). He wears no eyepatch in any form (the user's decision;
+;;;; canon TYBW keeps a strapless patch).
 ;;;; Clip names are the art contract (ken-art.lisp). Below the data: his hook functions and his
 ;;;; cinematics (DEFCINE).
 (in-package :duel)
@@ -109,98 +108,67 @@
 (defmove-copy :ke-as3b :ke-k2 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-as3c))
 (defmove-copy :ke-as3 :ke-k1 :kind :sp :dmg 50 :on-hit :stagger :params (:ns-next :ke-as3b))
 
-;;; ---------------------------------------------------------------- KATATE (cup 1) on the core system (DUEL_KEN_KATATE, 2026-10-30)
-;;; The same three pointer themes as the base form, but his free left hand is the second weapon (the user, 2026-10-30: 「重砍 + 空著的左手出拳」):
-;;; pointer 1's SA is a left jab, pointer 2's NS2b a left-hand clamp and slam, pointer 3's charges end in the jab and, held one-handed, are
-;;; weaker (x1.2 / 1.4 / 1.6) but each takes one hit through (「蓄力的倍率改為低、但不被打斷」). New moves play as written (no +2 / x1.3).
-(defmove-copy :ke-kt-sa :ke-sa :clip :ke-kt-jab :clip-s 7 :startup 7 :dmg 30 :reach 1.7 :arc 70 :slide 0.5)
-(defmove-copy :ke-kt-sa-r :ke-kt-sa :params (:clash-scale 0.3))
-(defmove-copy :ke-kt-sa-c1 :ke-kt-sa :dmg 40 :params (:charge-mult 1.2 :aura-k 1.5))
-(defmove-copy :ke-kt-sa-c2 :ke-kt-sa :dmg 55 :params (:charge-mult 1.4 :aura-k 2.2))
-(defmove-copy :ke-kt-sa-c3 :ke-kt-sa :dmg 70 :params (:charge-mult 1.6 :aura-k 3.0))
-(defmove-copy :ke-kt-n2b :ke-n2b :clip :ke-kt-slam :clip-s 14 :startup 14 :reach 1.8 :arc 90 :slide 2.0)   ; (the lunge closes the gap NS2a's stagger opened: it whiffed without)
-(defmove-copy :ke-kt-n2a :ke-n2a :startup 24
-  :params (:melee-range 2.6 :ns-next :ke-kt-n2b :sa :ke-kt-sa-r :armor-act t :clash-count t))
-(defmove :ke-kt-n3c :kind :flash :clip :ke-kt-chg3 :startup 16 :active 0 :recovery 20 :armor-hits 1 :on-frame ((2 ken-charge-sfx))
-  :params (:sa :ke-kt-sa-c3 :aura-k 3.0 :charge-sa t))
-(defmove :ke-kt-n3b :kind :flash :clip :ke-kt-chg2 :startup 16 :active 0 :recovery 14 :armor-hits 1 :on-frame ((2 ken-charge-sfx))
-  :params (:ns-next :ke-kt-n3c :sa :ke-kt-sa-c2 :aura-k 2.2 :charge-sa t))
-(defmove :ke-kt-n3a :kind :flash :clip :ke-kt-chg1 :startup 20 :active 0 :recovery 14 :armor-hits 1 :on-frame ((2 ken-charge-sfx))
-  :params (:ns-next :ke-kt-n3b :sa :ke-kt-sa-c1 :aura-k 1.5 :charge-sa t))
-
-(defmove :ke-r-j1 :kind :quick :clip :ke-r-q1 :clip-s 10 :startup 10 :active 3 :recovery 12 :dmg 40 :adv-block -2
-  :vol (:cap 0.3 1.56 1.2 0.5) :on-hit :flinch)                      ; MEN: the straight overhead
-(defmove :ke-r-j2 :kind :quick :clip :ke-r-kote :startup 9 :active 3 :recovery 13 :dmg 38 :adv-block -2
-  :reach 1.44 :arc 60 :on-hit :flinch)                               ; KOTE: the small wrist snap
-(defmove :ke-r-j3 :kind :quick :clip :ke-r-q3 :clip-s 14 :startup 10 :active 3 :recovery 18 :dmg 48 :adv-block -4
-  :reach 1.52 :arc 140 :on-hit :stagger :flags (:ender))             ; KESA: the diagonal
-(defmove :ke-r-k1 :kind :flash :clip :ke-r-f1 :clip-s 19 :startup 19 :active 4 :recovery 20 :dmg 85 :adv-block -3
-  :reach 3.9 :arc 160 :on-hit :stagger)                              ; DO: the wide body cut
-(defmove :ke-r-k2 :kind :flash :clip :ke-r-tsuki :enter 7 :startup 21 :active 4 :recovery 24 :dmg 68 :adv-block -3
-  :vol (:cap 0.3 4.0 1.2 0.5) :on-hit :stagger)                      ; MOROTE-ZUKI: both hands drive it straight out
-(defmove :ke-r-k3 :kind :flash :clip :ke-r-f2 :clip-s 21 :enter 7 :startup 21 :active 5 :recovery 34 :dmg 92 :adv-block -20
-  :vol (:cap 0.3 3.9 1.2 0.55) :on-hit :crumple :flags (:ender))      ; KABUTO-WARI: the helm splitter
-(defmove-copy :ke-r-j2s :ke-r-j2)
-(defmove-copy :ke-r-k2s :ke-r-k2)
-;;; ---------------------------------------------------------------- RYOTE (cup 2) on the core system (DUEL_KEN_RYOTE, 2026-10-30)
-;;; The kendo set as the pointers' moves (the user, 2026-10-30: 「劈道正統：直線、長觸及、一擊重」, pointer 3 「倍率高、但沒有霸體」): 1 the K string
-;;; DO > MOROTE-ZUKI > KABUTO-WARI with KOTE as its SA, 2 a thrust that takes a hit through, then DO, 3 jodan charges x1.4 / 1.8 / 2.4 that a hit breaks.
-;;; New moves play as written (RYOTE's own x1.4 reach and +3 startup are not applied twice).
-(defmove-copy :ke-r-n1c :ke-r-k3 :flags nil)
-(defmove-copy :ke-r-n1b :ke-r-k2 :params (:ns-next :ke-r-n1c))
-(defmove-copy :ke-r-n1a :ke-r-k1 :params (:ns-next :ke-r-n1b))
-(defmove-copy :ke-r-sa :ke-r-j2 :dmg 40 :reach 2.4 :arc 80 :slide 1.4)   ; (KOTE as the gap's SA lunges to the opponent the NS pushed away: it whiffed at 1.44 m)
-(defmove-copy :ke-r-sa-r :ke-r-sa :params (:clash-scale 0.3))
-(defmove-copy :ke-r-sa-c1 :ke-r-sa :dmg 45 :params (:charge-mult 1.4 :aura-k 1.5))
-(defmove-copy :ke-r-sa-c2 :ke-r-sa :dmg 60 :params (:charge-mult 1.8 :aura-k 2.2))
-(defmove-copy :ke-r-sa-c3 :ke-r-sa :dmg 80 :params (:charge-mult 2.4 :aura-k 3.0))
-(defmove-copy :ke-r-n2b :ke-r-k1 :dmg 75 :armor-hits 1 :params (:armor-act t :clash-count t))
-(defmove-copy :ke-r-n2a :ke-r-k2 :dmg 85 :slide 3.0 :armor-hits 1
-  :params (:ns-next :ke-r-n2b :sa :ke-r-sa-r :armor-act t :clash-count t))
-(defmove :ke-r-n3c :kind :flash :clip :ke-chg3 :startup 16 :active 0 :recovery 20 :on-frame ((2 ken-charge-sfx))
-  :params (:sa :ke-r-sa-c3 :aura-k 3.0 :charge-sa t))
-(defmove :ke-r-n3b :kind :flash :clip :ke-chg2 :startup 16 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
-  :params (:ns-next :ke-r-n3c :sa :ke-r-sa-c2 :aura-k 2.2 :charge-sa t))
-(defmove :ke-r-n3a :kind :flash :clip :ke-chg1 :startup 20 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
-  :params (:ns-next :ke-r-n3b :sa :ke-r-sa-c1 :aura-k 1.5 :charge-sa t))
-(defmove-copy :ke-r-as1 :ke-r-k3 :kind :sp :callout "KABUTO-WARI" :dmg 70 :on-hit :knockdown :flags nil)
-(defmove-copy :ke-r-as2b :ke-r-k2 :kind :sp :dmg 100 :on-hit :launch :flags nil)
-(defmove-copy :ke-r-as2 :ke-r-k1 :kind :sp :dmg 60 :on-hit :stagger :params (:ns-next :ke-r-as2b))
-(defmove-copy :ke-r-as3c :ke-as3c :dmg 190 :params (:melee-range 3.9))
-(defmove-copy :ke-r-as3b :ke-r-k2 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-r-as3c))
-(defmove-copy :ke-r-as3 :ke-r-j1 :kind :sp :dmg 50 :on-hit :stagger :params (:ns-next :ke-r-as3b))
-
-;;; ---------------------------------------------------------------- NOMIHOSE (cup 3)
-;; K: KUKAN-GIRI, the space cut: its blade leaves a rift in the air (f20) that cuts again *RIFT-DELAY* frames
-;; later (KEN-RIFT: a :rift hazard, closed if he is hit before it cuts)
-(defmove :ke-n-f1 :kind :flash :clip :ke-n-f1 :clip-s 20 :callout "KUKAN-GIRI" :startup 20 :active 4 :recovery 22 :dmg 90
-  :adv-block -4 :reach 3.9 :arc 150 :on-hit :stagger :on-frame ((20 ken-rift))
-  :params (:rift-dmg 50 :rift-guard 12 :rift-chip 0.2 :rift-vol (:cap 1.0 4.4 1.4 0.5)))
-;; Shift+K: NOMIHOSE, Split the Meteor with the whole cup: on its first frame NOME is 0 and he is back in cup 1
-;; (KEN-DRINK-DRY), so it resolves at KATATE's x1.0 and an O after it is KATATE's 2-Konpaku Kikon (no O ender: not a string). 390; within
-;; 6 m it breaks guard (:crush-range), beyond it is blockable (guard 22)
-(defmove :ke-meteor-n :kind :sp :clip :ke-meteor :callout "NOMIHOSE" :startup 26 :active 4 :recovery 30 :dmg 390
-  :adv-block -16 :vol (:cap 0.3 12.0 0.5 0.5) :on-hit :knockdown :kb 3.0 :flags (:ranged)
-  :on-frame ((0 ken-drink-dry) (26 ken-meteor-cut)) :params (:crush-range 6.0 :melee-range 3.9))   ; blade <= cup 3's MEN 3.9 m
-;;; NOMIHOSE (cup 3) on the core system (DUEL_KEN_NOMIHOSE, 2026-10-30): no guard, no waiting, every segment takes one hit through (the user, 2026-10-30:
-;;; 「瘋狂失控：快、重、不防守」); pointer 2's NS2a is KUKAN-GIRI and its AS2 ends in the drink (「收進核心」), pointer 3 is one fast heavy draw cut
-;;; (「不蓄力：快拔刀，一擊超重，有霸體」). New moves play as written (the form's x1.2 only).
-(defmove-copy :ke-m-sa :ke-r-sa :dmg 50 :reach 2.6 :slide 1.6)
-(defmove-copy :ke-m-sa-r :ke-m-sa :params (:clash-scale 0.3))
-(defmove-copy :ke-m-n1c :ke-r-k3 :flags nil :dmg 100 :armor-hits 1)
-(defmove-copy :ke-m-n1b :ke-r-k2 :dmg 75 :armor-hits 1 :params (:ns-next :ke-m-n1c))
-(defmove-copy :ke-m-n1a :ke-r-k1 :dmg 95 :armor-hits 1 :params (:ns-next :ke-m-n1b :sa :ke-m-sa))
-(defmove-copy :ke-m-n2b :ke-r-k1 :dmg 90 :armor-hits 1 :params (:armor-act t :clash-count t))
-(defmove-copy :ke-m-n2a :ke-n-f1 :dmg 90 :slide 3.0 :armor-hits 1                ; KUKAN-GIRI: the rift keeps its numbers
-  :params (:ns-next :ke-m-n2b :sa :ke-m-sa-r :armor-act t :clash-count t
-           :rift-dmg 50 :rift-guard 12 :rift-chip 0.2 :rift-vol (:cap 1.0 4.4 1.4 0.5)))
-(defmove-copy :ke-m-n3a :ke-r-k1 :callout "BATTOU" :clip-s 14 :startup 14 :recovery 32 :dmg 140 :armor-hits 1 :params (:armor-act t :sa :ke-m-sa))
-(defmove-copy :ke-m-as1 :ke-r-k3 :kind :sp :callout "KABUTO-WARI" :dmg 80 :on-hit :knockdown :flags nil)
-(defmove-copy :ke-m-as2b :ke-r-k2 :kind :sp :dmg 110 :on-hit :launch :flags nil :armor-hits 1 :on-frame ((7 ken-gulp)))   ; (the drink: on the clip's :enter frame, an earlier one never runs; the drink: NOME back up, a hit taken through)
-(defmove-copy :ke-m-as2 :ke-r-k1 :kind :sp :dmg 65 :on-hit :stagger :params (:ns-next :ke-m-as2b))
-(defmove-copy :ke-m-as3c :ke-r-as3c :dmg 210)
-(defmove-copy :ke-m-as3b :ke-r-k2 :kind :sp :dmg 60 :on-hit :stagger :params (:ns-next :ke-m-as3c))
-(defmove-copy :ke-m-as3 :ke-r-j1 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-m-as3b))
+;;; ---------------------------------------------------------------- the Shikai, Nozarashi (DUEL_KEN_V3 §3-§9, 2026-11-03)
+;;; Two pointers by grip: 1 the cleaver slung, half-crouched: the lunge, the spins, the one-hand dance; 2 the blade's back on the shoulder,
+;;; the hilt forward: the hilt jab and flick, then both hands on the raised hilt, the great-sword swings. A segment's :params :lv is the
+;;; unlock level L it needs (read at the route's start: CORE-SNAP-LV!, KEN-LV); :lv-up marks a same-pointer AS (its first clean hit raises
+;;; L, as an NS route's does: KEN-HIT); the bursts (:burst, the damage by the old L: KEN-DMG-MULT) and the special ASs are picked by
+;;; KEN-AS-PICK; J4-J7 (:lv 3) only at L3 (KEN-LINK-OK). Every figure §9's table (the user: 「可以，照這份做」; knobs until the playtest);
+;;; the clips are borrowed (:clip-s their authored startup) until the art round, so the drawn reach says nothing yet.
+(defmove :ke-s-j1 :kind :quick :clip :ke-k-q1 :clip-s 7 :startup 9 :active 3 :recovery 12 :dmg 40 :adv-block -2
+  :reach 2.4 :arc 100 :on-hit :flinch :slide 0.8)
+(defmove :ke-s-j2 :kind :quick :clip :ke-k-q2 :clip-s 7 :startup 9 :active 3 :recovery 13 :dmg 40 :adv-block -2
+  :reach 2.4 :arc 100 :on-hit :flinch)
+(defmove :ke-s-j3 :kind :quick :clip :ke-k-spin :clip-s 11 :startup 11 :active 4 :recovery 18 :dmg 55 :adv-block -4
+  :reach 3.65 :arc 140 :on-hit :stagger)                               ; (no :ender: J4 follows it at L3; reach: the drawn blade, §7.8:
+                                                                       ;  the borrowed arm-locked spin reaches 3.77 m, FK)
+(defmove-copy :ke-s-j4 :ke-s-j1 :dmg 45 :slide 0.0 :params (:lv 3 :special-as t))   ; the special string (L3): SP after J4-J6 = the
+(defmove-copy :ke-s-j5 :ke-s-j2 :dmg 45 :params (:lv 3 :special-as t))               ; pointer's special AS, after J7 = the Bankai
+(defmove-copy :ke-s-j6 :ke-s-j1 :startup 10 :dmg 50 :slide 0.0 :params (:lv 3 :special-as t))
+(defmove-copy :ke-s-j7 :ke-s-j3 :startup 12 :dmg 70 :params (:lv 3 :bankai-as t))
+(defmove-copy :ke-s-sa :ke-s-j1 :startup 8 :dmg 40 :reach 2.2 :slide 1.4)          ; the one-hand cut in an NS gap
+;; pointer 1 「突進迴旋」: the lunge cut (L0), the spin-through sweep (L1), the reverse spin (L2), the sword dance and the spinning leap (L3)
+(defmove :ke-s-n1e :kind :flash :clip :ke-k-meteor :clip-s 26 :callout nil :startup 14 :active 4 :recovery 24 :dmg 100 :adv-block -6
+  :reach 2.8 :arc 100 :on-hit :crumple :slide 2.0 :params (:lv 3))
+(defmove :ke-s-n1d :kind :flash :clip :ke-k-q2 :clip-s 7 :startup 10 :active 8 :recovery 16 :adv-block -4 :reach 2.4 :arc 100
+  :hits ((10 12 :dmg 35 :on-hit :flinch) (16 18 :dmg 35 :on-hit :stagger)) :params (:lv 3 :ns-next :ke-s-n1e))
+(defmove :ke-s-n1c :kind :flash :clip :ke-k-spin :clip-s 11 :startup 12 :active 4 :recovery 20 :dmg 65 :adv-block -4
+  :reach 2.8 :arc 360 :on-hit :stagger :params (:lv 2 :ns-next :ke-s-n1d))
+(defmove :ke-s-n1b :kind :flash :clip :ke-k-spin :clip-s 11 :startup 12 :active 4 :recovery 20 :dmg 60 :adv-block -4
+  :reach 2.8 :arc 360 :on-hit :stagger :params (:lv 1 :ns-next :ke-s-n1c))
+(defmove :ke-s-n1a :kind :flash :clip :ke-k-f1 :clip-s 16 :callout "TOSSHIN" :startup 16 :active 4 :recovery 22 :dmg 70 :adv-block -4
+  :reach 2.6 :arc 100 :on-hit :stagger :slide 3.0 :params (:ns-next :ke-s-n1b))
+;; pointer 2 「扛肩柄擊」: the hilt jab and flick (L0), both hands, the overhead (L1), the sweep (L2), the turning cut (L3)
+(defmove :ke-s-n2e :kind :flash :clip :ke-r-f2 :clip-s 21 :startup 18 :active 5 :recovery 28 :dmg 140 :adv-block -8
+  :reach 3.0 :arc 120 :on-hit :crumple :params (:lv 3))
+(defmove :ke-s-n2d :kind :flash :clip :ke-sweep :clip-s 14 :startup 14 :active 4 :recovery 20 :dmg 100 :adv-block -4
+  :reach 2.8 :arc 140 :on-hit :stagger :params (:lv 2 :ns-next :ke-s-n2e))
+(defmove :ke-s-n2c :kind :flash :clip :ke-k-f2 :clip-s 20 :startup 16 :active 5 :recovery 24 :dmg 110 :adv-block -6
+  :reach 2.8 :arc 90 :on-hit :crumple :params (:lv 1 :ns-next :ke-s-n2d))
+(defmove :ke-s-n2b :kind :flash :clip :ke-kt-jab :clip-s 7 :startup 10 :active 3 :recovery 16 :dmg 50 :adv-block -4
+  :reach 1.2 :arc 80 :on-hit :stagger :slide 0.6 :params (:ns-next :ke-s-n2c))
+(defmove :ke-s-n2a :kind :flash :clip :ke-kt-jab :clip-s 7 :callout "TSUKA-UCHI" :startup 14 :active 3 :recovery 16 :dmg 45 :adv-block -4
+  :reach 1.4 :arc 70 :on-hit :stagger :slide 1.0 :params (:ns-next :ke-s-n2b))   ; (the hilt's short reach: a step in, the scripted
+                                                                                  ;  2.2 m scene whiffed it without one)
+;; the ASs that keep the pointer (:lv-up): one segment more per L; the last at L3 knocks down
+(defmove-copy :ke-s-as1d :ke-s-n1e :kind :sp :dmg 110 :on-hit :knockdown :params (:lv 3 :lv-up t))
+(defmove-copy :ke-s-as1c :ke-s-n1c :kind :sp :params (:lv 2 :lv-up t :ns-next :ke-s-as1d))
+(defmove-copy :ke-s-as1b :ke-s-n1b :kind :sp :params (:lv 1 :lv-up t :ns-next :ke-s-as1c))
+(defmove-copy :ke-s-as1 :ke-s-n1a :kind :sp :startup 14 :params (:lv-up t :ns-next :ke-s-as1b))
+(defmove-copy :ke-s-as2d :ke-s-n2e :kind :sp :dmg 150 :on-hit :knockdown :params (:lv 3 :lv-up t))
+(defmove-copy :ke-s-as2c :ke-s-n2d :kind :sp :params (:lv 2 :lv-up t :ns-next :ke-s-as2d))
+(defmove-copy :ke-s-as2b :ke-s-n2c :kind :sp :on-hit :stagger :params (:lv 1 :lv-up t :ns-next :ke-s-as2c))
+(defmove-copy :ke-s-as2 :ke-s-n2a :kind :sp :startup 12 :dmg 50 :params (:lv-up t :ns-next :ke-s-as2b))
+;; the bursts (an AS that writes the other pointer, §5.2: 「固定動作、提高傷害，只有 1~2 段」): one blow, 100 / 150 / 200 / 260 by the old L
+(defmove :ke-s-burst1 :kind :sp :clip :ke-k-f2 :clip-s 20 :callout "ZANGAESHI" :startup 14 :active 5 :recovery 26 :dmg 100 :adv-block -8
+  :reach 2.8 :arc 120 :on-hit :knockdown :params (:burst (100 150 200 260)))     ; to pointer 1: off the shoulder, into the sling
+(defmove :ke-s-burst2 :kind :sp :clip :ke-k-f1 :clip-s 16 :callout "TOSSHIN-ISSEN" :startup 12 :active 5 :recovery 26 :dmg 100 :adv-block -8
+  :reach 2.6 :arc 100 :on-hit :knockdown :slide 3.5 :params (:burst (100 150 200 260)))   ; to pointer 2: through him, onto the shoulder
+;; the special ASs (SP after J4-J6 at L3)
+(defmove :ke-s-sp1 :kind :sp :clip :ke-k-spin :clip-s 11 :callout "DAISHARIN" :startup 12 :active 14 :recovery 26 :adv-block -10
+  :reach 3.0 :arc 360 :hits ((12 14 :dmg 60 :on-hit :stagger) (18 20 :dmg 60 :on-hit :stagger) (24 26 :dmg 120 :on-hit :launch)))
+(defmove :ke-s-sp2 :kind :sp :clip :ke-k-meteor :clip-s 26 :callout "INSEKI-GIRI" :startup 20 :active 4 :recovery 30 :dmg 260 :adv-block -12
+  :reach 3.0 :arc 90 :on-hit :knockdown :slide 3.0)
 
 ;;; ================================================================ Bankai (卍解) and 片腕 KATAUDE (docs/duel/DUEL_KEN_BANKAI.md)
 ;;; The oni: the broken cleaver hacks, a fist, one gouge, one drop, the teeth, the shield-and-all cut, the punch and the
@@ -259,8 +227,6 @@
 (defmove-copy :ke-b-as3b :ke-b-punch :callout nil :startup 12 :dmg 60 :on-hit :stagger :kb 1.0 :slide 2.0   ; (the lunge: AS3a's push left him out of 2.0 m)
   :params (:ns-next :ke-b-as3c))
 (defmove-copy :ke-b-as3 :ke-b-k1 :kind :sp :callout nil :startup 16 :dmg 55 :on-hit :stagger :params (:ns-next :ke-b-as3b))
-;; 片腕: the base moves at reach x0.7 (the kit derives them); the kick is a leg: as written, under its own name
-(defmove-copy :ke-a-j3 :ke-j3)
 
 ;;; ================================================================ forms
 (defkit :kenpachi :base
@@ -291,29 +257,24 @@
        :react (:projectile :sig :flash-startup :sig) :block-string 0.8
        :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))   ; a blocked string goes on (guard pressure)
 
-(defkit :kenpachi :nozarashi :inherit :base    ; cup 1, KATATE: one hand, as the awakening leaves him
-  :awakening t :mult *nozarashi-mult* :startup-add *nozarashi-startup* :reach-mult *nozarashi-reach*
-  :passives (:projectile-cut) :form-name "KATATE" :kikon-konpaku 2 :open-s *ken-open-katate*
-  :endless-form :nozarashi                      ; ENDLESS: every cup (and the Bankai, inheriting it) stays as cup 1, NOME 10
+(defkit :kenpachi :nozarashi :inherit :base    ; the Shikai (DUEL_KEN_V3 §3-§9): two pointers by grip, the unlock level L (the kit meter)
+  :awakening t :mult *nozarashi-mult* :startup-add 0 :reach-mult 1.0 :open-s nil   ; (as written: §9's figures; the base's cadence off)
+  :passives (:projectile-cut) :form-name "SHIKAI" :kikon-konpaku 2
+  :endless-form :nozarashi                      ; ENDLESS (frozen): the Shikai
   :weapon :nozarashi :stance :ke-n-stance :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
-  :meter (:name "NOME" :max *nome-max* :start *nome-awaken* :draw ken-hud-meter :label ken-hud-label   ; (ken-meter.lisp)
-          :ladder ((:nozarashi 0.0 0 0.0 0.0) (:ryote *nome-drain-t2* *nome-delay* *nome-up-t2* *nome-down-t2*)
-                   (:nomihose *nome-drain-t3* 0 *nome-up-t3* *nome-down-t3*)))
-  :meter-gain (:dealt *nome-dealt* :taken *nome-taken* :drunk *nome-drunk*)
-  :hooks (:tick ken-tick :p ken-card-bankai :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)    ; the NOME ladder and (the Bankai, inheriting it) the arm: ken-meter.lisp;
-                                                ; P: DANGAI's 隨時卍解 card from any cup
-  :commands (:sp1 :ke-meteor :kikon :ke-kikon-n)
-  ;; KATATE's own core set (DUEL_KEN_KATATE): :also keeps the base form's core moves in its table, so RYOTE (whose :core is the base's
-  ;; again, until its own batch) derives them as before
-  :core (:ns (:ke-n1a :ke-kt-n2a :ke-kt-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-kt-sa :mult 1.2
-         :stances (:ke-kt-st-chain :ke-kt-st-rush :ke-kt-st-kamae)
-         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine)
-         :also (:ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3))
-  ;; its own one-handed clips for the base moves and the meteor (a look: DUEL_KEN_REWORK §6.2)
-  :clip-map (:ke-q1 :ke-k-q1 :ke-q2 :ke-k-q2 :ke-f1 :ke-k-f1 :ke-f2 :ke-k-f2 :ke-q3 :ke-k-spin :ke-meteor :ke-k-meteor)
-  ;; toys with his opponent (a Kikon only 0.25 per decision until the last minute: it is worth 2 here; the O ender on
-  ;; one who isn't red per cup, :o-ender, docs/duel/DUEL_STRINGS.md §4)
+  :meter (:name "KAIHO" :max 3 :start 0 :lv t :draw ken-hud-meter :label ken-hud-label) :meter-gain nil   ; L 0-3 (KEN-HIT raises it)
+  :hooks (:p ken-card-bankai :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult
+          :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok)   ; (P: DANGAI's 隨時卍解 card, frozen)
+  :commands (:q :ke-s-j1 :f nil :sig nil :sp1 nil :sp2 nil :kikon :ke-kikon-n)   ; (the core system: J and SP only; the Breaker the base's)
+  :strings ((:ke-s-j1 :q :ke-s-j2) (:ke-s-j2 :q :ke-s-j3) (:ke-s-j3 :q :ke-s-j4) (:ke-s-j4 :q :ke-s-j5) (:ke-s-j5 :q :ke-s-j6)
+            (:ke-s-j6 :q :ke-s-j7))                                      ; (J4-J7: L3, KEN-LINK-OK)
+  ;; AS: J1-J2 + SP pointer 1's, J3+ pointer 2's (§5.2 「看 J 打幾段」); KEN-AS-PICK turns one that writes the other pointer into the burst
+  ;; (:as entries 3 / 4) and J4-J6 / J7 into the special AS (5 / 6) / the Bankai
+  :core (:ns (:ke-s-n1a :ke-s-n2a) :as (:ke-s-as1 :ke-s-as2 :ke-s-burst1 :ke-s-burst2 :ke-s-sp1 :ke-s-sp2) :sa :ke-s-sa :mult 1.2
+         :as-by-press (1 1 2)
+         :stances (:ke-kt-st-chain :ke-kt-st-rush)                       ; (placeholders until the art round)
+         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine))
   :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (2.0 4.0) :pressure (1.2 3.0) :zone (4.0 6.0) :defend (3.0 5.0))
        :moves ((0.0 1.6 :q 5 :f 2 :sig 3 :breaker 1 :sp2 1 nil 3)
@@ -321,75 +282,16 @@
                (3.4 4.2 :f 1 :sp1 2 :step 1 nil 2)
                (4.2 6.0 :sp1 4 :sp2 2 nil 1)
                (6.0 99.0 :step 1 :kikon 1 nil 1))
-       ;; (:kikon-range 5 m in every cup: LEAP CLEAVE's direction is locked at take-off, and from 9 m it mostly whiffed)
        :guard 0.35 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 0.8 :kikon-range 5.0 :kikon-p 0.25 :o-ender 0.25
        :react (:projectile :sig :flash-startup :sig) :block-string 0.8
        :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
 
-(defkit :kenpachi :ryote :inherit :nozarashi       ; cup 2, RYOTE (NOME >= 40): two-handed kendo, the cut
-  :mult *ryote-mult* :startup-add *ryote-startup* :reach-mult *ryote-reach* :form-name "RYOTE" :kikon-konpaku 3 :open-s *ken-open-ryote*
-  :passives (:projectile-cut :cut) :stance :ke-r-stance :aura :nozarashi :enter-hook ken-ryote-enter
-  :clip-map nil                                     ; (not cup 1's: RYOTE plays the clips as written)
-  :commands (:q :ke-r-j1 :f :ke-r-k1 :sp1 :ke-meteor :kikon :ke-kikon-n)   ; (the cup-1 moves as written: not re-derived)
-  ;; RYOTE's own core set (DUEL_KEN_RYOTE); :also keeps the base form's moves in his table, so NOMIHOSE (whose :core is the base's again,
-  ;; until its batch) derives them from his as it did
-  :core (:ns (:ke-r-n1a :ke-r-n2a :ke-r-n3a) :as (:ke-r-as1 :ke-r-as2 :ke-r-as3) :sa :ke-r-sa :mult 1.2
-         :stances (:ke-r-st-chain :ke-r-st-rush :ke-r-st-kamae)
-         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine)
-         :also (:ke-n1a :ke-n1b :ke-n1c :ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3 :ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c))
-  :grid (:ke-r-j1 :ke-r-j2 :ke-r-j3 :ke-r-k1 :ke-r-k2 :ke-r-k3 :ke-r-j2s :ke-r-k2s)
-  ;; after the 2x NOME drain (docs/duel/DUEL_NOZARASHI_V2.md, "The CPU after the faster drain"): no DEFEND intent, no idle
-  ;; option at range, a neutral guard 0.1 (a guard against a committed move stays 0.35), a dash from 0.5 m outside his
-  ;; range, 30 f of respect after a hit instead of 120, and a blocked string goes on 0.95 of the time
-  :ai (:intents (:approach 2 :pressure 6 :zone 0 :defend 0)
-       :ranges (:approach (2.0 4.5) :pressure (1.2 3.2) :zone (4.0 6.0) :defend (3.0 5.0))
-       :moves ((0.0 1.7 :q 5 :f 3 :sig 1 :breaker 1 nil 1)
-               (1.7 3.4 :f 5 :sig 1 :breaker 1 nil 1)
-               (3.4 4.2 :f 2 :sp1 2 :step 1 nil 1)
-               (4.2 6.0 :sp1 4 :sp2 2 :step 1)
-               (6.0 99.0 :step 1 :kikon 1))
-       :guard 0.35 :neutral-guard 0.1 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 1.0 :dash-gap 0.5 :kikon-range 5.0
-       :kikon-p 0.5 :o-ender 0.35 :respect 30
-       :react (:projectile :sig :flash-startup :sig) :block-string 0.95
-       :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
-
-(defkit :kenpachi :nomihose :inherit :ryote        ; cup 3, NOMIHOSE (NOME = 100): no guard, U drinks; RYOTE's moves
-  :mult *nomihose-mult* :form-name "NOMIHOSE" :kikon-konpaku 4 :blade-chip *nomihose-chip* :bankai-form :bankai :open-s *ken-open-nomihose*
-  :passives (:projectile-cut :cut :drink) :aura :nomihose :drink-clip :ke-x-drink :enter-hook ken-nomihose-enter
-  ;; its own set (a look, DUEL_KEN_REWORK §6.2: 「三杯也改用一套自己的獨立動作」): RYOTE's moves on cup 3's clips
-  :stance :ke-x-stance :body :kenpachi-nomi              ; (the hair lifted: a body variant, the same rig)
-  :face :shout                                            ; the maniac grin the whole cup (§6.2, 2026-10-21: 「兩件都做」)
-  :clip-map (:ke-r-q1 :ke-x-q1 :ke-r-kote :ke-x-kote :ke-r-q3 :ke-x-q3 :ke-n-f1 :ke-x-f1 :ke-r-tsuki :ke-x-tsuki
-             :ke-r-f2 :ke-x-f2 :ke-meteor :ke-x-meteor)
-  :commands (:f :ke-n-f1 :sp1 :ke-meteor-n)
-  ;; its own core set (DUEL_KEN_NOMIHOSE); the stances are RYOTE's (cup 3's own poses are not drawn); :also keeps the base moves for the Bankai
-  :core (:ns (:ke-m-n1a :ke-m-n2a :ke-m-n3a) :as (:ke-m-as1 :ke-m-as2 :ke-m-as3) :sa :ke-m-sa :mult 1.2
-         :stances (:ke-r-st-chain :ke-r-st-rush :ke-r-st-kamae)
-         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine)
-         :also (:ke-n1a :ke-n1b :ke-n1c :ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3 :ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c))
-  :strings ((:ke-n-f1 :f :ke-r-k2) (:ke-n-f1 :q :ke-r-j2s))   ; KUKAN-GIRI is cup 3's K1
-  ;; the cup drains 20/s: never idle at range (a dash from 0.3 m outside, no wait option), decide 1.7x as often
-  ;; (:tempo 0.6, :attack +0.2), no respect, drink (U) a committed move 0.7 of the time (the drunk half feeds NOME), and
-  ;; the near cash-out only once NOME < 55 (just before the drop to cup 2, which keeps 50)
-  :ai (:intents (:approach 3 :pressure 7 :zone 0 :defend 0)
-       :ranges (:approach (2.0 4.5) :pressure (1.2 3.2) :zone (4.0 6.0) :defend (3.0 5.0))
-       :moves ((0.0 1.7 :q 4 :f 4 :breaker 1 nil 1)
-               (1.7 3.4 :f 5 :breaker 1 nil 1)
-               (3.4 6.0 :f 2 :step 2)
-               (6.0 99.0 :step 1 :kikon 1))
-       :guard 0.7 :neutral-guard 0.1 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 1.0 :dash-gap 0.3 :kikon-range 5.0
-       :kikon-p 0.9 :o-ender 0.6 :tempo 0.6 :attack 0.2 :respect 0
-       :cashout (:punish 30 :near 6.0 :below 55.0)
-       ;; the Bankai as a finisher, weighing his own Konpaku (entry leaves him 1): nothing to lose (the opponent's next
-       ;; Soul Break would take them all anyway), or the opponent near the end (Reishi <= :opp-below, Konpaku <=
-       ;; :opp-konpaku) while he has <= :own-konpaku left; one roll per cup-3 stay (ai.lisp AI-BANKAI-P)
-       :bankai (:p 0.9 :opp-below 0.6 :opp-konpaku 4 :own-konpaku 4)
-       :react (:projectile :sig :flash-startup :sig) :block-string 0.85
-       :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
-
-;;; the Bankai (P in cup 3, red, free: combat.lisp BANKAI!): his Konpaku -> 1, his Reishi -> full (the user's decisions
-;;; 2026-09-28); ×1.2; U is still DRINK; every heavy command spends a pip of the arm (UDE, the kit meter)
-(defkit :kenpachi :bankai :inherit :nomihose
+;;; the Bankai (since V3: SP after the Shikai's J7, KEN-AS-PICK; combat.lisp BANKAI!): his Reishi -> full; ×1.2; every heavy command
+;;; spends a pip of the arm (UDE, the kit meter). Until the Bankai batch (DUEL_KEN_V3 §8) the old Bankai, now on the base form (the
+;;; cups it inherited are gone): what it took from them is written here
+(defkit :kenpachi :bankai :inherit :base
+  :hooks (:tick ken-tick :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)   ; (the arm: ken-meter.lisp)
+  :endless-form :nozarashi :enter-clips (:ke-release :ke-nome) :respect-callout "OMOSHIREE!"
   :awakening t :mult *bankai-ken-mult* :form-name "BANKAI" :kikon-konpaku 4 :blade-chip *nomihose-chip* :open-s *ken-open-bankai*
   :bankai-form nil :passives (:projectile-cut :drink)
   :core (:ns (:ke-b-n1a :ke-b-n2a :ke-b-n3a) :as (:ke-b-as1 :ke-b-as2 :ke-b-as3) :sa :ke-b-sa1 :mult 1.2   ; its own (DUEL_KEN_CORE §8)
@@ -420,66 +322,11 @@
        :string-k 0.6 :pip-hurry 90 :block-string 0.85 :opp-intent (:zone 2 :defend 2)
        :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
 
-;;; 片腕 KATAUDE (the arm burst): the rest of the match. The base moves at reach x0.7 (the ruined arm can't extend); the
-;;; kick, the Breaker and O (CHARGE) as written; x1.0; U is a guard again; Kikon 3 (the universal awakened count)
-(defkit :kenpachi :kataude :inherit :base
-  :awakening t :form-name "KATAUDE" :kikon-konpaku 3 :mult 1.0 :reach-mult *kataude-reach* :endless-form :nozarashi
-  :body :kenpachi-oni :weapon nil :aura nil :hide (:haori :crack-1 :crack-2 :crack-3 :crack-4) :swing-sfx :whoosh-cleaver
-  :stance :ke-a-stance :run-clips (:ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l)   ; still the oni (the feral pass)
-  ;; bare-handed, as canon (the user 2026-10-09: 「改成空手（照原作）」, DUEL_KEN_REWORK §8): no blade (:weapon nil), the left
-  ;; fist, a grab and the legs on the base moves (a look: their frames and volumes as before)
-  :clip-map (:ke-q1 :ke-a-q1 :ke-q2 :ke-a-q2 :ke-f1 :ke-a-f1 :ke-f2 :ke-a-f2 :ke-q3 :ke-a-spin :ke-stance-cut :ke-a-haymaker
-             :ke-buttagiru :ke-a-stomp :ke-flurry :ke-a-flurry)
-  :commands (:breaker :ke-breaker :kikon :ke-kikon)
-  :grid (:ke-j1 :ke-j2 :ke-a-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)
-  :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
-       :ranges (:approach (1.5 3.0) :pressure (0.9 1.8) :zone (4.0 6.0) :defend (3.0 5.0))
-       :moves ((0.0 1.1 :q 5 :f 2 :sig 2 :breaker 1 :sp2 1 nil 3)
-               (1.1 2.0 :f 4 :sig 2 :breaker 1 :sp2 1 nil 3)
-               (2.0 4.0 :f 1 :sp1 2 :step 1 nil 2)
-               (4.0 6.0 :sp2 2 nil 1)
-               (6.0 99.0 :step 1 :kikon 1 nil 1))
-       :guard 0.35 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 2 :dash 0.9 :kikon-range 9.0 :kikon-p 0.5 :o-ender 0.25
-       :react (:projectile :sig :flash-startup :sig) :block-string 0.8
-       :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
-
 ;;; ================================================================ hooks (called through the data's symbols)
-(defun ken-rift (e)
-  "KUKAN-GIRI f20: the blade's chord stays in the air as a rift, fixed in the world, that cuts *RIFT-DELAY*
-frames later (a 2 f window): hazard :rift, hazards.lisp; it closes if he is hit before it cuts."
-  (let ((p (pos-of e)))
-    (spawn-hazard :rift e :x (aref p 0) :z (aref p 2) :yaw (yaw-of e) :size 4.4 :delay (1+ *rift-delay*) :life 2
-                          :hw (make-hitwin :dmg (move-param e :rift-dmg) :react :stagger :kb 1.0 :hs (hs-by-damage (move-param e :rift-dmg) *ken-hs-dmg*)
-                                           :chip (move-param e :rift-chip) :guard (move-param e :rift-guard)
-                                           :vols (let ((v (move-param e :rift-vol))) (list (make-vol (first v) (rest v)))))))
-  (emit :sfx :rift-open e))
 
-(defun ken-drink-dry (e)
-  "NOMIHOSE (Shift+K in cup 3), its first frame: the whole cup is drunk at once: NOME 0 and cup 1 now (the one
-rung change that doesn't wait for him to be free), so the cut and an O after it resolve in KATATE."
-  (setf (gauges-meter (gauges e)) 0f0)
-  (clog "~a CASH-OUT" (side-name e))
-  (set-form e :nozarashi))
 
-(defun ken-gulp (e)
-  "NOMIHOSE's AS2 finisher, its first frame: the drink, NOME back up by *NOME-GULP* (the cup holds)."
-  (let ((g (gauges e)))
-    (setf (gauges-meter g) (min *nome-max* (+ (gauges-meter g) *nome-gulp*)))
-    (clog "~a GULP" (side-name e))
-    (emit :sfx :laugh e)))
 
-(defun ken-ryote-enter (e)
-  "Cup 2: the left hand closes on the handle (a look: the stance clip), a yellow ring."
-  (let ((p (pos-of e))) (vfx-shockwave (aref p 0) (aref p 2) 2.5 0.35 :rgb '(1.0 0.85 0.25))))
 
-(defun ken-nomihose-enter (e)
-  "Cup 3: the yellow pillar (a full one on the first cup 3 of a match, then a half-height flare: MODEL-T3 counts them, a
-look), 2 rings, a 1 f negative frame and a 12 f manga page (feedback :rung)."
-  (let ((p (pos-of e)) (m (model e)))
-    (incf (model-t3 m))
-    (vfx-awaken-burst (aref p 0) 1.0 (aref p 2) (if (> (model-t3 m) 1) :nozarashi-half :nozarashi))
-    (vfx-shockwave (aref p 0) (aref p 2) 5.0 0.5 :rgb '(1.0 0.9 0.3))
-    (vfx-shockwave (aref p 0) (aref p 2) 3.0 0.35 :rgb '(1.0 1.0 0.9))))
 
 (defun ken-stance-release (e)
   "The stance is released: the cut deals 100 + stored and crushes guard at stored >= 150."
@@ -708,7 +555,7 @@ is free, as why TAG."
   "The punish SPs to try, best first: the line cut (SP1, one bar, 240 / 260) when the form's SP1 is one (not the leap, not
 NOMIHOSE's cash-out), then the charge (SP2, two bars, ~185); else the charge, then SP1 (the leap: KEN-ARRIVE's own model)."
   (let ((sp (kit-command-move (kit-of e) :sp1)))
-    (if (and sp (< (mv-slide sp) 2.0) (not (eq (mv-name sp) :ke-meteor-n)))
+    (if (and sp (< (mv-slide sp) 2.0) t)
         '(:sp1 :sp2)
         '(:sp2 :sp1))))
 
@@ -779,7 +626,7 @@ damage, before the O ender (63) or the charge (two bars, ~185); not NOMIHOSE's c
 *KEN-AI-SP1-ENDER*."
   (let* ((mv (fighter-move (fighter e))) (hw (and mv (plusp (length (mv-hits mv))) (svref (mv-hits mv) 0)))
          (sp (kit-command-move kit :sp1)))
-    (and hw sp (< (+ (mv-s sp) 2) (getf *reaction-frames* (hw-react hw) 0)) (not (eq (mv-name sp) :ke-meteor-n))
+    (and hw sp (< (+ (mv-s sp) 2) (getf *reaction-frames* (hw-react hw) 0)) t
          (not (ai-sb-finish-p e)) (kit-command-ok-p e :sp1 kit)
          (brain-roll b *ken-ai-sp1-ender*))))
 
@@ -986,39 +833,13 @@ Kenpachi laughing, head back."
 ;;; ================================================================ debug (KEN-DEBUG through *CHAR-DEBUG*; out of debug.lisp 2026-10-21)
 (declaim (special *probe*))   ; (debug.lisp's)
 
-(defparameter *nome-tests*
-  ;; k: P1 P1-form P2 P2-form distance P1-NOME
-  '((:kenpachi :nozarashi :yamamoto :base 4.0 38.0) (:kenpachi :nomihose :yamamoto :bankai-east 2.0 100.0)
-    (:kenpachi :nomihose :yamamoto :base 3.0 100.0) (:kenpachi :nomihose :yamamoto :base 3.0 100.0)
-    (:kenpachi :nomihose :yamamoto :base 4.0 100.0) (:yamamoto :bankai-west :kenpachi :ryote 2.5 0.0)))
-
-(defun nome-test (k)
-  "Nozarashi v2 test 2380+K (*NOME-TESTS*): human P1, P2's CPU off; the script presses the keys. 0 runs the :nome
-probe (the ladder), 1 the :drink probe (P2 mashes Quick), 2 / 4 hold P2's guard, 4 makes P2 red, 5 the :cut probe
-(P2, RYOTE, presses K K into West's held U)."
-  (destructuring-bind (c1 f1 c2 f2 d m) (nth k *nome-tests*)
-    (setf *probe* nil)                                   ; (a probe still running from the test before)
-    (ensure-battle c1 c2)
-    (force-form *p1* f1) (force-form *p2* f2)
-    (place *p1* *p2* d)
-    (dolist (e (list *p1* *p2*)) (full-gauges! e 0f0))   ; (the meters are set right below)
-    (setf (gauges-meter (gauges *p1*)) (f32 m) (gauges-meter (gauges *p2*)) (if (= k 5) 70f0 0f0))
-    (when (= k 4) (setf (gauges-reishi (gauges *p2*)) 200))
-    (let ((b (brain *p2*)))
-      (hold-guard! b (if (member k '(2 4)) 999 0)))
-    (case k
-      (0 (set-probe :nome nil))
-      (1 (set-probe :drink :quick))
-      (5 (set-probe :cut :flash)))))
-
 (defun bankai-test (k)
-  "Kenpachi's Bankai tests 2386+K (docs/duel/DUEL_KEN_BANKAI.md; human P1 Kenpachi, P2 an idle Yamamoto CPU; the script presses
-the keys; his Konpaku at most *BANKAI-KONPAKU*, the entry's condition): 0 cup 3 (NOME 100), red (300), 3 m: P enters
-the Bankai (its cinematic); 1 in the Bankai at once (no cinematic), 2.2 m: KKK, a whiffed K, JJJ ...; 2 in the Bankai
-with 1 pip, 2.2 m: the 4th strike, then the burst; 3 片腕 at 2.2 m."
+  "Kenpachi's Bankai tests 2387+K (docs/duel/DUEL_KEN_BANKAI.md; human P1 Kenpachi, P2 an idle Yamamoto CPU; the script presses
+the keys): 1 in the Bankai at once (no cinematic), 2.2 m: KKK, a whiffed K, JJJ ...; 2 in the Bankai with 1 pip, 2.2 m: the 4th strike,
+then the burst. (0, the cup-3 entry, and 3, 片腕, went with the cups and KATAUDE: DUEL_KEN_V3 §8.)"
   (setf *probe* nil)
   (ensure-battle :kenpachi :yamamoto)
-  (force-form *p1* :nomihose)
+  (force-form *p1* :nozarashi)
   (place *p1* *p2* (if (zerop k) 3.0 2.2))
   (full-gauges! *p1* 100f0)
   (let ((g (gauges *p1*)))
@@ -1029,8 +850,7 @@ with 1 pip, 2.2 m: the 4th strike, then the burst; 3 片腕 at 2.2 m."
   (case k
     ((1 2) (let ((*skip-cines* t)) (bankai! *p1*))
      (when (= k 2) (setf (gauges-meter (gauges *p1*)) 1f0) (refresh-look *p1*))
-     (place *p1* *p2* 2.2))
-    (3 (force-form *p1* :kataude) (setf (gauges-reishi (gauges *p1*)) 900))))
+     (place *p1* *p2* 2.2))))
 
 (defparameter *grip-torso*
   '((:chest 0.105 -0.005 0.236 0.165 0.154) (:spine 0.11 -0.005 0.208 0.125 0.143) (:pelvis 0.0 0.0 0.165 0.09 0.127))
@@ -1119,25 +939,22 @@ torso max …'. Returns the below-the-shoulders min (m)."
       (log-msg "grip front: below the shoulders min ~d mm" (round (* 1000 lo))))))
 
 (defun ken-debug (c)
-  "His debug commands (docs/duel/DUEL_GAMEPLAY.md \"Debug commands\"): 2380+k NOME-TEST k, 2386+k BANKAI-TEST k, 2392
-GRIP-DRIFT-CHECK; the Bankai's knobs 32000+k *ARM-SELF*, 33000+k *ARM-BURST-SELF*, 34000+k *ARM-CRACK*, 37000+k the entry's
-:p = k / 100, 38000+k its :own-konpaku = k; 71000 his reiatsu opaque / see-through, 71001+k cup k+1 (4: the Bankai) stills."
-  (cond ((<= 2380 c 2385) (nome-test (- c 2380)))
-        ((<= 2386 c 2389) (bankai-test (- c 2386)))
+  "His debug commands (docs/duel/DUEL_GAMEPLAY.md \"Debug commands\"): 2387 / 2388 BANKAI-TEST 1 / 2, 2392 GRIP-DRIFT-CHECK; the Bankai's
+knobs 32000+k *ARM-SELF*, 33000+k *ARM-BURST-SELF*, 34000+k *ARM-CRACK*; 71000 his reiatsu opaque / see-through, 71001 the Shikai, 71004
+the Bankai stills. (NOME-TEST 2380-2385, the cup-3 entry 2386, 片腕 2389 and the CPU's cup-3 Bankai knobs 37000 / 38000 went with the cups,
+DUEL_KEN_V3 §8.)"
+  (cond ((<= 2387 c 2388) (bankai-test (- c 2386)))
         ((= c 2392) (grip-drift-check))
         ((<= 32000 c 32999) (setf *arm-self* (- c 32000)))
         ((<= 33000 c 33999) (setf *arm-burst-self* (- c 33000)))
         ((<= 34000 c 34999) (setf *arm-crack* (- c 34000)))
-        ((<= 37000 c 37100) (setf (getf (getf (kit-ai (find-kit :kenpachi :nomihose)) :bankai) :p) (/ (- c 37000) 100.0)))
-        ((<= 38000 c 38009) (setf (getf (getf (kit-ai (find-kit :kenpachi :nomihose)) :bankai) :own-konpaku) (- c 38000)))
         ((= c 71000) (setf *reiatsu-glass*                      ; review stills: Kenpachi's reiatsu opaque / see-through
                            (if (zerop (getf *reiatsu-glass* :nomihose)) '(:reiatsu 3 :nozarashi 3 :nomihose 2 :oni 2 :oni-ink 3)
                                '(:reiatsu 0 :nozarashi 0 :nomihose 0 :oni 0 :oni-ink 0))))
-        ((<= 71001 c 71004) (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0)   ; his cups 1-3 (4: the Bankai)
-                            (force-form *p1* (nth (- c 71001) '(:nozarashi :ryote :nomihose :bankai)))
-                            (setf (gauges-meter (gauges *p1*)) (f32 (nth (- c 71001) '(20 70 100 4)))   ; NOME holds the cup
-                                  (gauges-meter-idle (gauges *p1*)) 0))))
-(dolist (r '((2380 2389 ken-debug) (2392 2392 ken-debug) (32000 34999 ken-debug) (37000 38009 ken-debug) (71000 71004 ken-debug)))
+        ((member c '(71001 71004)) (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0)   ; the Shikai / the Bankai
+                                   (force-form *p1* (if (= c 71001) :nozarashi :bankai))
+                                   (setf (gauges-meter (gauges *p1*)) (f32 (if (= c 71001) 0 4)) (gauges-meter-idle (gauges *p1*)) 0))))
+(dolist (r '((2387 2388 ken-debug) (2392 2392 ken-debug) (32000 34999 ken-debug) (71000 71004 ken-debug)))
   (pushnew r *char-debug* :test #'equal))
 
 ;;; ================================================================ the core system's hooks (DUEL_KEN_CORE)
@@ -1156,28 +973,73 @@ the startup (the user, 2026-10-29: 「前搖到 active 吃一發不退」)."
       (setf (fighter-clash-n f) (min *ken-clash-max* (1+ (fighter-clash-n f))))
       (clog "~a NS2 cancel ~d" (side-name x) (fighter-clash-n f)))))
 (defun ken-dmg-mult (att def hw mv hazard d2)
-  "His :dmg-mult hook (combat.lisp APPLY-HIT): NS2's SA (:clash-scale) hits 1 + scale x the cancels the route made."
-  (declare (ignore def hw d2))
-  (let ((s (and mv (not hazard) (getf (mv-params mv) :clash-scale))))
-    (if s
-        (let ((x (+ 1.0 (* s (fighter-clash-n (fighter att)))))) (clog "~a NS2 SA x~,2f" (side-name att) x) x)
-        1.0)))
+  "His :dmg-mult hook (combat.lisp APPLY-HIT): NS2's SA (:clash-scale) hits 1 + scale x the cancels the route made; the Shikai's burst
+(:params :burst, one damage per old L: DUEL_KEN_V3 §5.2) hits that damage (the L read at its start, FIGHTER-LV-CAP)."
+  (declare (ignore def d2))
+  (let ((s (and mv (not hazard) (getf (mv-params mv) :clash-scale)))
+        (b (and mv (not hazard) (getf (mv-params mv) :burst))))
+    (cond (s (let ((x (+ 1.0 (* s (fighter-clash-n (fighter att)))))) (clog "~a NS2 SA x~,2f" (side-name att) x) x))
+          ((and b (plusp (hw-dmg hw)))
+           (let ((d (nth (max 0 (min (1- (length b)) (fighter-lv-cap (fighter att)))) b)))
+             (clog "~a BURST ~d (L~d)" (side-name att) d (fighter-lv-cap (fighter att)))
+             (/ d (float (hw-dmg hw)))))
+          (t 1.0))))
+
+;;; ---------------------------------------------------------------- the Shikai's unlock (DUEL_KEN_V3 §3-§5)
+(defparameter *ken-lv-max* 3 "The Shikai's top unlock level L (DUEL_KEN_V3 §4 S1, 2026-11-03: mine, a knob).")
+
+(defun ken-lv (e)
+  "His Shikai's :lv hook (CORE-SNAP-LV!): the unlock level L, held in the kit meter (0 at the awakening: its :start)."
+  (round (gauges-meter (gauges e))))
+
+(defun ken-link-ok (e next)
+  "His Shikai's :link-ok hook (fighter.lisp, a J link as it starts): J4-J7 (:params :lv 3) only at L3 (§5.2 「最高階一次開放」)."
+  (<= (getf (mv-params next) :lv 0) (ken-lv e)))
+
+(defun ken-hit (att def res hw mv hazard ranged)
+  "His Shikai's :hit hook (combat.lisp APPLY-HIT): the first clean hit (「打中才算」: not a block, a cancel or an armour) of an NS route,
+the temporary switch's included, or of an AS that keeps the pointer (:params :lv-up) raises L by one, up to *KEN-LV-MAX* (§4 S2)."
+  (declare (ignore def hw ranged))
+  (let ((f (fighter att)))
+    (when (and mv (not hazard) (member res '(:hit :counter)) (not (fighter-lv-got f))
+               (or (eq (fighter-cls f) :ns) (getf (mv-params mv) :lv-up)))
+      (setf (fighter-lv-got f) t)
+      (let ((g (gauges att)))
+        (when (< (ken-lv att) *ken-lv-max*)
+          (setf (gauges-meter g) (f32 (1+ (ken-lv att))))
+          (clog "~a L~d" (side-name att) (ken-lv att)))))))
+
+(defun ken-as-pick (e f n)
+  "His Shikai's :as-pick hook (CORE-AS-START!, N the AS of the press count): SP after J7 = the Bankai (:params :bankai-as), after J4-J6 =
+the pointer's special AS (:special-as; the pointer kept); an AS that writes the other pointer = the burst to it (its own move; the old L is
+the route's level, the damage KEN-DMG-MULT's), L back to 0 (§4 S5, §5.2); else NIL: the pointer's AS, its segments by L."
+  (let* ((mv (fighter-move f)) (p (and mv (mv-params mv))) (cur (fighter-ptr f))
+         (as (getf (kit-core (fighter-kit f)) :as)))
+    (flet ((nth-as (i) (gethash (nth i as) (kit-moves (fighter-kit f)))))
+      (cond ((getf p :bankai-as)
+             (clog "~a BANKAI from pointer ~d" (side-name e) cur)
+             (bankai! e :bankai)
+             :taken)
+            ((getf p :special-as) (values (nth-as (+ 3 cur)) nil))
+            ((/= n cur)
+             (setf (gauges-meter (gauges e)) 0f0)
+             (clog "~a BURST to pointer ~d (L~d)" (side-name e) n (fighter-lv-cap f))
+             (values (nth-as (1+ n)) n))))))
 (defun ken-charge-sfx (e) "NS3's charge: the kamae gathers (its sound)." (emit :sfx :whoosh-heavy e))
 
 (defun ken-core-debug (c)
-  "84000 / 84001 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene (84001: Kenpachi in KATATE; 84002 RYOTE, 84003 NOMIHOSE, 84004 the Bankai, 84080+k its arm at k pips), human P1 Kenpachi and an idle Ichigo P2
+  "84000 / 84001 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene (84001: Kenpachi in the Shikai,
+awakened, L 0, DUEL_KEN_V3; 84004 the Bankai, 84080+k its arm at k pips; 84090+k the Shikai's L = k), human P1 Kenpachi and an idle Ichigo P2
 2.2 m apart, both CPUs off, gauges full; on the running scene 84010 P2 starts his NS now (NS against NS: the first hit wins), 84011
 his J1 now (NA against NS: a cancel). The scripts time the presses."
   (case c
-    ((84000 84001 84002 84003 84004) (ensure-battle :kenpachi :ichigo :cpu nil)
+    ((84000 84001 84004) (ensure-battle :kenpachi :ichigo :cpu nil)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
            (place *p1* *p2* 2.2)
            (full-gauges! *p1*) (full-gauges! *p2*)
            (let ((g (gauges *p1*))) (setf (gauges-awakened g) nil (gauges-awaken g) 0f0 (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0))
-           (case c                                                  ; 84001: the same, in KATATE; 84002: in RYOTE (NOME 70)
-             (84001 (force-form *p1* :nozarashi))
-             (84002 (force-form *p1* :ryote) (setf (gauges-meter (gauges *p1*)) (f32 70.0)))
-             (84003 (force-form *p1* :nomihose) (setf (gauges-meter (gauges *p1*)) (f32 100.0)))
+           (case c                                                  ; 84001: the same, in the Shikai (awakened, L 0)
+             (84001 (force-form *p1* :nozarashi) (setf (gauges-awakened (gauges *p1*)) t (gauges-meter (gauges *p1*)) 0f0))
              (84004 (force-form *p1* :bankai)                      ; 84004: the Bankai (DUEL_KEN_CORE §8), the arm full
               (setf (gauges-meter (gauges *p1*)) (f32 *arm-pips*) (gauges-arm-pending (gauges *p1*)) nil) (refresh-look *p1*))))
     (84010 (core-sp-start! *p2* (fighter *p2*)))
@@ -1187,6 +1049,8 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
                 (setf (gauges-awakened g) nil (gauges-awaken g) *awaken-max* (gauges-sub g) (f32 (* 10 (- c 84020)))))
                ((<= 84040 c 84050)                                ; 84040+k: awakened with s = 0.4 frozen, SPIRIT DRIVE at 10k %
                 (setf (gauges-awakened g) t (gauges-awaken g) 0f0 (gauges-sub-s g) 0.4f0 (gauges-drive g) (f32 (* 10 (- c 84040)))))
+               ((<= 84090 c 84093)                                ; 84090+k: the Shikai's unlock level L = k (DUEL_KEN_V3 §4)
+                (setf (gauges-meter g) (f32 (- c 84090))))
                ((<= 84080 c 84084)                                ; 84080+k: the Bankai's arm at k pips (DUEL_KEN_CORE §8)
                 (setf (gauges-meter g) (f32 (- c 84080)) (gauges-arm-pending g) nil) (refresh-look *p1*))
                ((= c 84060)                                       ; the real awakening with SUBLIMATION at 50 %

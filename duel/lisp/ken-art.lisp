@@ -417,7 +417,8 @@
         (let ((y (- -0.67 drop)))
           (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))))
 
-(defweapon :nozarashi (:length 1.62 :base 0.2)         ; the haft below the grip, the head above it
+(defweapon :nozarashi (:length 2.3 :base 0.2)          ; the haft below the grip, the head above it; :length the drawn far end since
+                                                        ; V3 (1.62 -> 2.3, the head x1.5: DUEL_KEN_V3 §7.8, the reach follows it)
   (:solid (ke-mb-noz-head mb 1.62 *ke-noz-haft*)
           (with-ke-tilt (mb)                             ; the cap and the tassel ride on the turned head
           (mbc mb #x9C9478)                              ; the khaki cap over the far end, its stepped foot

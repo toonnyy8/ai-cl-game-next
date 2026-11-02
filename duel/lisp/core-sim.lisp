@@ -45,6 +45,16 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
     (dotimes (i (getf (mv-params mv) :pips 0)) (arm-spend! e mv))
     t))
 
+(defun core-snap-lv! (e f)
+  "A new NS route or AS starts: its unlock level is the kit's :lv hook now (Kenpachi's Shikai, DUEL_KEN_V3 §4: its segments' :params :lv;
+a level gained in the route opens segments from the next route on), and nothing of it has raised the level yet. No hook: 99 (no cap)."
+  (let ((h (kit-hook (fighter-kit f) :lv)))
+    (setf (fighter-lv-cap f) (if h (funcall h e) 99) (fighter-lv-got f) nil)))
+
+(defun core-seg-ok-p (f mv)
+  "Is segment MV open in F's route (its :params :lv at most the level read at the route's start, CORE-SNAP-LV!)? A move without one: T."
+  (<= (getf (mv-params mv) :lv 0) (fighter-lv-cap f)))
+
 (defun core-sp-start! (e f)
   "SP from a free state: NS under the pointer (the next segment pointer's style). T when it took the press (started, or refused
 for want of a pip: the press is eaten, not retried every frame)."
@@ -52,6 +62,7 @@ for want of a pip: the press is eaten, not retried every frame)."
     (when mv
       (if (core-pips-ok-p e mv)
           (progn (setf (fighter-sp-ptr f) (fighter-ptr f) (fighter-tmp f) 0 (fighter-csa f) nil)
+                 (core-snap-lv! e f)
                  (core-start! e mv))
           t))))
 
@@ -80,16 +91,21 @@ route, DUEL_HISAGI §28.20: SA > AS1, J2 > AS2, J3 > AS3), else the attack press
 pointer it writes, AS n's own theme (the user, 2026-10-28: 「幫我把毀魂技的聯動改成依據目前指針指向的 NS 來決定，而不是由切換前的 NS 決定」;
 before: the pointer before the write). A kit's :core :as-writes (one entry per AS, NIL: none) may leave the pointer as it is
 (Hisagi's Bankai, DUEL_HISAGI §28.4: AS3 is the mode switch, 「三個 AS 只有兩組指針」); its Kikon / Soul Break profile is then the
-current pointer's."
+current pointer's. A kit's :as-pick hook (E F N) may name another move and the pointer it writes (NIL: kept), or :TAKEN (it did the press
+itself), else NIL (Kenpachi's Shikai: the burst, the special AS, the Bankai; DUEL_KEN_V3 §4)."
+  (core-snap-lv! e f)
   (let* ((writes (getf (kit-core (fighter-kit f)) :as-writes '(1 2 3)))
-         (n (core-next-as f)) (mv (kit-core-move (fighter-kit f) :as n))
-         (w (nth (1- n) writes)))
-    (when (and mv (core-pips-ok-p e mv))
-      (setf (fighter-sp-ptr f) (or w (fighter-ptr f)))
-      (core-start! e mv)
-      (setf (fighter-ptr f) (or w (fighter-ptr f)) (fighter-as-done f) t)
-      (if w (clog "~a AS~d pointer ~d" (side-name e) n w) (clog "~a AS~d pointer kept ~d" (side-name e) n (fighter-ptr f)))
-      t)))
+         (n (core-next-as f)) (h (kit-hook (fighter-kit f) :as-pick)))
+    (multiple-value-bind (pm pw) (and h (funcall h e f n))
+      (when (eq pm :taken) (setf (fighter-as-done f) t) (return-from core-as-start! t))
+      (let ((mv (or pm (kit-core-move (fighter-kit f) :as n)))
+            (w (if pm pw (nth (1- n) writes))))
+        (when (and mv (core-pips-ok-p e mv))
+          (setf (fighter-sp-ptr f) (or w (fighter-ptr f)))
+          (core-start! e mv)
+          (setf (fighter-ptr f) (or w (fighter-ptr f)) (fighter-as-done f) t)
+          (if w (clog "~a AS~d pointer ~d" (side-name e) n w) (clog "~a AS~d pointer kept ~d" (side-name e) n (fighter-ptr f)))
+          t)))))
 
 (defun core-move-sp! (e f vp mv sf button)
   "SP pressed inside move MV at frame SF (MOVE-COMMANDS): AS off a landed attack (an NA link or the SA; the hit or a cancel),
@@ -105,7 +121,7 @@ T when something started."
     ((:ns :as) (let ((to (and (eq (fighter-cls f) :ns) (core-switch-target e f))))
            (cond (to (setf (fighter-queued f) :sw (fighter-sw f) to)
                      (vpad-consume! vp button))
-                 ((mv-ns-next (fighter-kit f) mv)
+                 ((let ((nx (mv-ns-next (fighter-kit f) mv))) (and nx (core-seg-ok-p f nx)))   ; (a segment above the route's level: none)
                   (setf (fighter-queued f) :ns)
                   (vpad-consume! vp button))))
          nil)))
@@ -153,7 +169,7 @@ under *DRIVE-SWITCH* x B, or no other pointer (DUEL_SUBLIMATION §17)."
           (clog "~a NS pointer ~d -> ~d (DRIVE)" (side-name e) (fighter-ptr f) to)
           (return-from core-latch-step t)))
       (let ((next (if (eq q :ns) (mv-ns-next (fighter-kit f) mv) (or (fighter-csa f) (mv-sa-move (fighter-kit f) mv) (kit-sa-move (fighter-kit f))))))
-        (when next (core-start! e next))))))
+        (when (and next (or (not (eq q :ns)) (core-seg-ok-p f next))) (core-start! e next))))))
 
 ;;; ---------------------------------------------------------------- judging a step's hits
 (defun core-verdicts (hits)

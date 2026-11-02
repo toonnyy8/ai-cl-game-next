@@ -1,268 +1,228 @@
 [
 {
 "at": 9.0,
-"eval": "Module._debug_cmd(2386)"
-},
-{
-"at": 10.0,
-"key": "KeyP",
-"down": true
-},
-{
-"at": 10.08,
-"key": "KeyP",
-"down": false
-},
-{
-"at": 14.0,
-"eval": "Module._debug_cmd(2107)"
-},
-{
-"at": 14.5,
 "eval": "Module._debug_cmd(2109)"
 },
 {
-"at": 14.6,
+"at": 9.1,
 "eval": "Module._debug_cmd(2387)"
 },
 {
-"at": 15.7,
+"at": 10.2,
 "shot": "tests/shots/duel-ken-bankai-stance.png"
+},
+{
+"at": 10.6,
+"key": "KeyK",
+"down": true
+},
+{
+"at": 10.68,
+"key": "KeyK",
+"down": false
+},
+{
+"at": 10.95,
+"key": "KeyK",
+"down": true
+},
+{
+"at": 11.03,
+"key": "KeyK",
+"down": false
+},
+{
+"at": 11.3,
+"key": "KeyK",
+"down": true
+},
+{
+"at": 11.38,
+"key": "KeyK",
+"down": false
+},
+{
+"at": 13.15,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 13.45,
+"eval": "Module._debug_cmd(2387)"
+},
+{
+"at": 13.95,
+"key": "KeyL",
+"down": true
+},
+{
+"at": 14.03,
+"key": "KeyL",
+"down": false
+},
+{
+"at": 14.12,
+"shot": "tests/shots/duel-ken-bankai-bite.png"
+},
+{
+"at": 14.3,
+"shot": "tests/shots/duel-ken-bankai-bite-b.png"
+},
+{
+"at": 15.45,
+"eval": "Module._debug_cmd(2387)"
+},
+{
+"at": 15.5,
+"eval": "Module._debug_cmd(2108)"
+},
+{
+"at": 15.95,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 16.0,
+"key": "KeyK",
+"down": true
 },
 {
 "at": 16.1,
 "key": "KeyK",
-"down": true
-},
-{
-"at": 16.18,
-"key": "KeyK",
 "down": false
 },
 {
-"at": 16.45,
-"key": "KeyK",
-"down": true
-},
-{
-"at": 16.53,
-"key": "KeyK",
-"down": false
-},
-{
-"at": 16.8,
-"key": "KeyK",
-"down": true
-},
-{
-"at": 16.88,
-"key": "KeyK",
-"down": false
-},
-{
-"at": 18.65,
-"eval": "Module._debug_cmd(2107)"
-},
-{
-"at": 18.95,
-"eval": "Module._debug_cmd(2387)"
-},
-{
-"at": 19.45,
-"key": "KeyL",
-"down": true
-},
-{
-"at": 19.53,
-"key": "KeyL",
-"down": false
-},
-{
-"at": 19.62,
-"shot": "tests/shots/duel-ken-bankai-bite.png"
-},
-{
-"at": 19.8,
-"shot": "tests/shots/duel-ken-bankai-bite-b.png"
-},
-{
-"at": 20.95,
-"eval": "Module._debug_cmd(2387)"
-},
-{
-"at": 21.0,
-"eval": "Module._debug_cmd(2108)"
-},
-{
-"at": 21.45,
-"key": "ShiftLeft",
-"down": true
-},
-{
-"at": 21.5,
-"key": "KeyK",
-"down": true
-},
-{
-"at": 21.6,
-"key": "KeyK",
-"down": false
-},
-{
-"at": 21.65,
+"at": 16.15,
 "key": "ShiftLeft",
 "down": false
 },
 {
-"at": 21.92,
+"at": 16.42,
 "shot": "tests/shots/duel-ken-bankai-split.png"
 },
 {
-"at": 22.1,
+"at": 16.6,
 "shot": "tests/shots/duel-ken-bankai-split-b.png"
 },
 {
-"at": 23.45,
+"at": 17.95,
 "eval": "Module._debug_cmd(2388)"
 },
 {
-"at": 23.95,
+"at": 18.45,
 "key": "KeyK",
 "down": true
 },
 {
-"at": 24.03,
+"at": 18.53,
 "key": "KeyK",
 "down": false
 },
 {
-"at": 24.67,
+"at": 19.17,
 "shot": "tests/shots/duel-ken-bankai-burst.png"
 },
 {
-"at": 24.8,
+"at": 19.3,
 "shot": "tests/shots/duel-ken-bankai-burst-b.png"
 },
 {
-"at": 25.15,
+"at": 19.65,
 "shot": "tests/shots/duel-ken-bankai-burst-c.png"
 },
 {
-"at": 26.45,
-"eval": "Module._debug_cmd(2389)"
-},
-{
-"at": 27.45,
-"shot": "tests/shots/duel-ken-bankai-kataude.png"
-},
-{
-"at": 27.65,
-"key": "KeyJ",
-"down": true
-},
-{
-"at": 27.73,
-"key": "KeyJ",
-"down": false
-},
-{
-"at": 27.78,
-"shot": "tests/shots/duel-ken-bankai-kataude-j.png"
-},
-{
-"at": 28.95,
+"at": 20.95,
 "eval": "Module._debug_cmd(2109)"
 },
 {
-"at": 29.25,
+"at": 21.25,
 "eval": "Module._debug_cmd(35006)"
 },
 {
-"at": 30.55,
+"at": 22.55,
 "shot": "tests/shots/duel-ken-bankai-cine-006.png"
 },
 {
-"at": 30.65,
+"at": 22.65,
 "eval": "Module._debug_cmd(35026)"
 },
 {
-"at": 31.33,
+"at": 23.33,
 "shot": "tests/shots/duel-ken-bankai-cine-026.png"
 },
 {
-"at": 31.43,
+"at": 23.43,
 "eval": "Module._debug_cmd(35064)"
 },
 {
-"at": 32.42,
+"at": 24.42,
 "shot": "tests/shots/duel-ken-bankai-cine-064.png"
 },
 {
-"at": 32.52,
+"at": 24.52,
 "eval": "Module._debug_cmd(35092)"
 },
 {
-"at": 33.33,
+"at": 25.33,
 "shot": "tests/shots/duel-ken-bankai-cine-092.png"
 },
 {
-"at": 33.43,
+"at": 25.43,
 "eval": "Module._debug_cmd(35130)"
 },
 {
-"at": 34.42,
+"at": 26.42,
 "shot": "tests/shots/duel-ken-bankai-cine-130.png"
 },
 {
-"at": 34.52,
+"at": 26.52,
 "eval": "Module._debug_cmd(35176)"
 },
 {
-"at": 35.63,
+"at": 27.63,
 "shot": "tests/shots/duel-ken-bankai-cine-176.png"
 },
 {
-"at": 36.23,
+"at": 28.23,
 "eval": "Module._debug_cmd(36008)"
 },
 {
-"at": 37.57,
+"at": 29.57,
 "shot": "tests/shots/duel-ken-bankai-kikon-008.png"
 },
 {
-"at": 37.67,
+"at": 29.67,
 "eval": "Module._debug_cmd(36040)"
 },
 {
-"at": 38.55,
+"at": 30.55,
 "shot": "tests/shots/duel-ken-bankai-kikon-040.png"
 },
 {
-"at": 38.65,
+"at": 30.65,
 "eval": "Module._debug_cmd(36074)"
 },
 {
-"at": 39.57,
+"at": 31.57,
 "shot": "tests/shots/duel-ken-bankai-kikon-074.png"
 },
 {
-"at": 39.67,
+"at": 31.67,
 "eval": "Module._debug_cmd(36110)"
 },
 {
-"at": 40.62,
+"at": 32.62,
 "shot": "tests/shots/duel-ken-bankai-kikon-110.png"
 },
 {
-"at": 40.72,
+"at": 32.72,
 "eval": "Module._debug_cmd(36150)"
 },
 {
-"at": 41.73,
+"at": 33.73,
 "shot": "tests/shots/duel-ken-bankai-kikon-150.png"
 },
 {
-"at": 42.33,
+"at": 34.33,
 "eval": "Module._debug_cmd(2107)"
 }
 ]

@@ -11,7 +11,7 @@
               (equal (kit-passives west) '(:ward :scorch)) (null (kit-guard-to west))
               (eq (kit-drop-to west) :bankai-east) (equal (kit-keep west) '(:sig :sp1))))
   (check (and (kit-awakening west) (null (kit-duration west)) (eq (kit-awaken-form (kit :yamamoto :base)) :bankai-east)
-              (null (kit-guard-to (kit :yamamoto :base))) (null (kit-drop-to (kit :kenpachi :nomihose)))))
+              (null (kit-guard-to (kit :yamamoto :base))) (null (kit-drop-to (kit :kenpachi :nozarashi)))))
   (check (and (eq (mv-name (kit-command-move east :sp1)) :ya-kyoku) (eq (mv-name (kit-command-move west :sp1)) :ya-w-parry)
               (eq (mv-name (kit-command-move east :sig)) :ya-e-kyokko) (eq (mv-name (kit-command-move west :sig)) :ya-w-shonetsu)))
   ;; East <-> West (fighter.lisp KIT-DROP): in West J, K, O, I, Shift+L drop to East first (East's own move starts),
@@ -68,13 +68,11 @@
     (flet ((hits (v x z) (vol-hit-p v 0f0 0f0 0f0 0f0 -1f0 (float x 1f0) 0f0 (float z 1f0) 0.36f0 1.65f0 0f0)))
       (check (and (hits (first (hw-vols co)) 0 -8.5) (hits (first (hw-vols co)) 2.0 -8.5) (not (hits (first (hw-vols co)) 3.0 -8.5))
                   (not (hits (first (hw-vols co)) 0 -9.6)) (hits (first (hw-vols bl)) 0 -2.0) (not (hits (first (hw-vols bl)) 0 -3.2))))))
-  ;; the ward vs Kenpachi: his base J J J blocked = 24 x*WARD-MULT* 1.1 = 26.4: the 4th string crushes a full
-  ;; gauge; RYOTE's K K K (the cut) 69 x 1.1 = 75.9: the 2nd
+  ;; the ward vs Kenpachi: his base J J J blocked = 24 x*WARD-MULT* 1.1 = 26.4: the 4th string crushes a full gauge (RYOTE's cut row
+  ;; went with the cups, 2026-11-03)
   (flet ((gv (k name) (hw-guard (svref (mv-hits (kit-move k name)) 0))))
-    (let ((qs (* *ward-mult* (+ (gv (kit :kenpachi :base) :ke-j1) (gv (kit :kenpachi :base) :ke-j2) (gv (kit :kenpachi :base) :ke-j3))))
-          (kk (* *ward-mult* (+ (cut-value (gv (kit :kenpachi :ryote) :ke-r-k1) :flash) (cut-value (gv (kit :kenpachi :ryote) :ke-r-k2) :flash)
-                                (cut-value (gv (kit :kenpachi :ryote) :ke-r-k3) :flash)))))
-      (check (and (< (* 3 qs) *gg-max*) (>= (* 4 qs) *gg-max*) (< kk *gg-max*) (>= (* 2 kk) *gg-max*)))))
+    (let ((qs (* *ward-mult* (+ (gv (kit :kenpachi :base) :ke-j1) (gv (kit :kenpachi :base) :ke-j2) (gv (kit :kenpachi :base) :ke-j3)))))
+      (check (and (< (* 3 qs) *gg-max*) (>= (* 4 qs) *gg-max*)))))
   ;; GOKUI GAESHI: the parry catches a melee hit on f2-25 (24 f = its active frames; Ichigo's window, 2026-10-01), not a hazard, not an
   ;; unguardable one; a Breaker breaks it; parried = a block for the attacker (no string, no Kikon); the counter
   ;; (150, knockback) lands inside the parried attacker's stagger: guaranteed

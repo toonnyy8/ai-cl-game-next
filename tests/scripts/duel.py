@@ -209,33 +209,7 @@ ev += [cmd(t, 2378), key(t + 1.9, "KeyD"), key(t + 1.95, "Space"), key(t + 2.05,
        shot(t + 2.6, "stance-south-step"), cmd(t + 8.0, 2107)]
 write("stances", ev)
 
-# Nozarashi v2 (the NOME ladder) and West's ward by keyboard (debug 2380+k: human P1, P2's CPU off; the side
-# camera). Expected log lines:
-#   0 the ladder: "duel probe nome t=... m.. FORM" every 30 steps: m 38 -> 50 (form RYOTE from m >= 40), ... 100
-#     (NOMIHOSE), then draining 10/s: under 50 RYOTE, 1.5/s after 180 f (guard v3): under 25 NOZARASHI ("P1 form ..." lines too)
-#   1 DRINK (cup 3, U held; Bankai East mashes Quick): "P2 YA-E-Q1 -> P1 BLOCKED 34" then "P1 DRINK 17 (+17 drunk)"
-#     plus the pierce's chip (x0.5 at a full gauge: 17), the probe's "m" rising and "gg" falling, "P1 GUARD CRUSH (drinking)"
-#   2 K into a guard: "P1 KE-N-F1 -> P2 BLOCKED 90", then 20 f later "P1 RIFT -> P2 BLOCKED 50"
-#   3 K K on a standing Yamamoto: "KE-N-F1 -> P2 HIT 90", "RIFT -> P2 HIT 50", "KE-R-F2 -> P2 HIT 110" (x1.2 = 300)
-#   4 the cash-out: "P1 move KE-METEOR-N", "P1 CASH-OUT", "P1 form NOZARASHI", "KE-METEOR-N -> P2 GUARD-BREAK 390",
-#     then O: "P1 move KE-KIKON-N", "KIKON FOLLOW-UP on P2 (red)", "KIKON on P2: -2 konpaku" (cup 1: 2)
-#   5 West's ward under RYOTE's K K: "P2 KE-R-F1 -> P1 BLOCKED 85", the probe's "P1 gg" falls 53 per string (the cut x1.1),
-#     GUARD CRUSH on the 2nd and "P1 form BANKAI-EAST"
-# Shots: tests/shots/duel-nome-*.png (drink, rift, rift-cut, cashout)
-t = T0
-ev = [cmd(t - 0.5, 2109), cmd(t, 2380), cmd(t + 30.5, 2107)]
-t += 31.0
-ev += [cmd(t, 2381), key(t + 0.1, "KeyU"), shot(t + 2.0, "nome-drink"), key(t + 14.0, "KeyU", False), cmd(t + 14.5, 2107)]
-t += 15.0
-ev += [cmd(t, 2382)] + tap(t + 0.5, "KeyK") + [shot(t + 0.9, "nome-rift"), shot(t + 1.18, "nome-rift-cut"), cmd(t + 2.5, 2107)]
-t += 3.0
-ev += [cmd(t, 2383)] + tap(t + 0.5, "KeyK") + tap(t + 0.85, "KeyK") + [cmd(t + 3.0, 2107)]
-t += 3.5
-ev += [cmd(t, 2384), key(t + 0.5, "ShiftLeft"), key(t + 0.55, "KeyK"), key(t + 0.65, "KeyK", False), key(t + 0.7, "ShiftLeft", False),
-       shot(t + 1.0, "nome-cashout"), key(t + 1.05, "KeyO"), key(t + 4.0, "KeyO", False), cmd(t + 9.0, 2107)]
-t += 10.0
-ev += [cmd(t, 2385), cmd(t + 15.5, 2107)]
-write("nome", ev)
+# (Nozarashi v2's NOME ladder script, duel-nome.json, went with the cups, 2026-11-03: DUEL_KEN_V3 §8)
 
 # The J / K strings and the O ender (docs/duel/DUEL_STRINGS.md; debug 2394+k: human P1 2.2 m from an idle Kenpachi, k 0 Shikai,
 # 1 Bankai East, 2 Kenpachi, 3 RYOTE). Expected log lines: P1 move YA-J1 YA-J2 YA-J3, then YA-KIKON (O-ENDER) -> P2 HIT
@@ -379,7 +353,7 @@ write("shots", ev)
 # Shots: tests/shots/duel-ken-bankai-*.png (the stance, the bite, TATE-GOTO, the burst, 片腕, the cinematics' key frames).
 def bshot(t, n): return {"at": round(t, 2), "shot": f"tests/shots/duel-ken-bankai-{n}.png"}
 t = T0
-ev = [cmd(t, 2386)]; ev += tap(t + 1.0, "KeyP"); ev += [cmd(t + 5.0, 2107)]; t += 5.5   # P: the Bankai (its cinematic plays)
+ev = []   # (the cup-3 entry 2386 and 片腕 2389 went with the cups and KATAUDE, 2026-11-03)
 ev += [cmd(t, 2109), cmd(t + 0.1, 2387), bshot(t + 1.2, "stance")]; t += 1.6             # the side camera from here
 for k in ("KeyK", "KeyK", "KeyK"): ev += tap(t, k); t += 0.35                            # KKK: three pips
 t += 1.5; ev += [cmd(t, 2107)]; t += 0.3
@@ -389,7 +363,6 @@ ev += [key(t + 0.5, "ShiftLeft"), key(t + 0.55, "KeyK"), key(t + 0.65, "KeyK", F
 ev += [bshot(t + 0.55 + 0.42, "split"), bshot(t + 0.55 + 0.6, "split-b")]; t += 2.5
 ev += [cmd(t, 2388)]; ev += tap(t + 0.5, "KeyK")                                          # the last pip: the burst after it
 ev += [bshot(t + 0.5 + 0.72, "burst"), bshot(t + 0.5 + 0.85, "burst-b"), bshot(t + 0.5 + 1.2, "burst-c")]; t += 3.0
-ev += [cmd(t, 2389), bshot(t + 1.0, "kataude")]; ev += tap(t + 1.2, "KeyJ"); ev += [bshot(t + 1.2 + 0.13, "kataude-j")]; t += 2.5
 ev += [cmd(t, 2109)]; t += 0.3
 last = 0
 for k, frames in ((35000, (6, 26, 64, 92, 130, 176)), (36000, (8, 40, 74, 110, 150))):
@@ -706,34 +679,47 @@ def ken_core_script():
 write("ken-core", ken_core_script())
 
 
-def ken_katate_script(scene=84001, tag="KT"):
-    """A cup on the core system (DUEL_KEN_KATATE / DUEL_KEN_RYOTE): scene 84001 (Kenpachi forced into KATATE) or 84002 (RYOTE), the same presses as ken_core_script."""
+def ken_shikai_script():
+    """The V3 Shikai (DUEL_KEN_V3 §3-§9): scene 84001 (the Shikai, awakened, L 0, an idle Ichigo 2.2 m), 2510+p the pointer, 84090+k the unlock
+    level L; read the combat log: the segments a route plays at each L, "P1 Ln" when a route lands, the burst ("BURST to pointer n (Lk)",
+    "BURST d"), J4 refused below L3, the special AS (J4-J6 + SP), the Bankai (J7 + SP), the temporary switch keeping L (84046: DRIVE 60),
+    the awakening starting at L 0 (scene 84000 + 84020, Shift+P)."""
     ev = []
     def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
-    def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+    def sp(t, hold=0.05, stick=None):
+        if stick: ev.append(key(t - 0.02, stick))
+        ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+        if stick: ev.append(key(t + hold + 0.05, stick, False))
     def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
+    def js(t, n): [jt(t + 0.32 * i) for i in range(n)]
+    def awaken(t): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyP", 0.05)); ev.append(key(t + 0.1, "ShiftLeft", False))
     t = T0
-    for label, ptr, body in (
-            ("KT N1 chain: SP x3", 2510, lambda s: [sp(s), sp(s + 0.4), sp(s + 0.8)]),
-            ("KT N1 chain: SP, J (SA jab), J2", 2510, lambda s: [sp(s), jt(s + 0.45), jt(s + 0.75)]),
-            ("KT N2 rush: SP x2 (shoulder, clamp)", 2511, lambda s: [sp(s), sp(s + 0.7)]),
-            ("KT N2 armour: P2's NS lands in the startup", 2511, lambda s: [ev.append(cmd(s - 0.2, 84010)), sp(s)]),
-            ("KT N2 cancel x1 then SA", 2511, lambda s: [sp(s), ev.append(cmd(s + 0.1, 84011)), jt(s + 0.5)]),
-            ("KT N3 kamae: SP, J (SA c1), J2", 2512, lambda s: [sp(s), jt(s + 0.45), jt(s + 0.75)]),
-            ("KT N3 kamae: SP x3, J (SA c3), J2", 2512, lambda s: [sp(s), sp(s + 0.45), sp(s + 0.8), jt(s + 1.15), jt(s + 1.45)]),
-            ("KT N3 armour: P2's NS lands in a charge", 2512, lambda s: [ev.append(cmd(s - 0.05, 84010)), sp(s)])) + (
-            (("KT N3 single heavy cut (cup 3): SP", 2512, lambda s: [sp(s)]),
-             ("KT AS2 drink: J, J2, SP, SP", 2511, lambda s: [jt(s), jt(s + 0.3), sp(s + 0.65), sp(s + 1.3)]),
-             ("KT AS3 meteor: SP, J, J2, J3, SP x3", 2512, lambda s: [sp(s), jt(s + 0.9), jt(s + 1.2), jt(s + 1.5), sp(s + 1.8), sp(s + 2.3), sp(s + 2.8)])) if scene == 84003 else ()):
-        say(t, label.replace("KT", tag, 1))
-        ev.extend([cmd(t, scene), cmd(t + 0.05, ptr)])
-        body(t + 0.3)
-        ev.append(cmd(t + 3.6, 2107))
-        t += 4.0
+    for label, scene, setup, body, dur in (
+            ("SH P1 L0: SP x3 (only the lunge; L0 -> 1)", 84001, (2510, 84090), lambda s: [sp(s), sp(s + 0.5), sp(s + 1.0)], 4.0),
+            ("SH P1 L1: SP x3 (lunge, spin; L1 -> 2)", 84001, (2510, 84091), lambda s: [sp(s), sp(s + 0.5), sp(s + 1.0)], 4.0),
+            ("SH P1 L2: SP x4 (lunge, spin, reverse spin; L2 -> 3)", 84001, (2510, 84092), lambda s: [sp(s + 0.45 * i) for i in range(4)], 4.0),
+            ("SH P1 L3: SP x5 (all five)", 84001, (2510, 84093), lambda s: [sp(s + 0.45 * i) for i in range(5)], 5.0),
+            ("SH P2 L0: SP x3 (jab, flick only)", 84001, (2511, 84090), lambda s: [sp(s), sp(s + 0.35), sp(s + 0.7)], 4.0),
+            ("SH P2 L3: SP x5 (all five)", 84001, (2511, 84093), lambda s: [sp(s + 0.35 * i) for i in range(5)], 5.0),
+            ("SH AS1 keeps P1 at L2: J, SP x3 (3 segments; L2 -> 3)", 84001, (2510, 84092), lambda s: [jt(s), sp(s + 0.3), sp(s + 0.75), sp(s + 1.2)], 4.0),
+            ("SH burst to P2 at L2: J J J, SP (TOSSHIN-ISSEN 200; P2, L0)", 84001, (2510, 84092), lambda s: [js(s, 3), sp(s + 1.0)], 4.0),
+            ("SH burst to P1 at L3: J, SP (ZANGAESHI 260; P1, L0)", 84001, (2511, 84093), lambda s: [jt(s), sp(s + 0.3)], 4.0),
+            ("SH burst to P2 at L0: J J J, SP (100)", 84001, (2510, 84090), lambda s: [js(s, 3), sp(s + 1.0)], 4.0),
+            ("SH J4 refused at L2: J x5", 84001, (2510, 84092), lambda s: [js(s, 5)], 4.0),
+            ("SH special AS P1 at L3: J x4, SP (DAISHARIN 60+60+120)", 84001, (2510, 84093), lambda s: [js(s, 4), sp(s + 1.35)], 4.5),
+            ("SH special AS P2 at L3: J x6, SP (INSEKI-GIRI 260)", 84001, (2511, 84093), lambda s: [js(s, 6), sp(s + 2.0)], 5.0),
+            ("SH Bankai at L3: J x7, SP (BANKAI from pointer 1)", 84001, (2510, 84093), lambda s: [js(s, 7), sp(s + 2.3)], 8.0),
+            ("SH temporary switch at L1: SP, D+SP, SP x2 (P2's route at L1; no reset)", 84001, (2510, 84091, 84046),
+             lambda s: [sp(s), sp(s + 0.5, stick="KeyD"), sp(s + 1.0), sp(s + 1.5)], 4.0),
+            ("SH the awakening starts at L0: Shift+P, then SP x3 (only the lunge)", 84000, (84020,), lambda s: [awaken(s), sp(s + 4.5), sp(s + 5.0), sp(s + 5.5)], 8.0)):
+        say(t, label)
+        ev.append(cmd(t, scene))
+        for i, c in enumerate(setup): ev.append(cmd(t + 0.05 * (i + 1), c))
+        body(t + 0.4)
+        ev.append(cmd(t + dur - 0.4, 2107))
+        t += dur
     return sorted(ev, key=lambda x: x["at"])
-write("ken-katate", ken_katate_script())
-write("ken-ryote", ken_katate_script(84002, "RY"))
-write("ken-nomihose", ken_katate_script(84003, "NM"))
+write("ken-shikai", ken_shikai_script())
 
 
 def ken_armburst_script():
@@ -795,9 +781,7 @@ def sublimation_script():
             ("SB taken at sub 100: P2 J1", 84000, 84030, lambda s: [ev.append(cmd(s, 84011))]),
             ("SB J1 at drive 50: DRIVE fills by attacking (DUEL_SUBLIMATION §18)", 84000, 84045, lambda s: [jt(s)]),
             ("SB taken at drive 50: P2 J1 (DRIVE stays)", 84000, 84045, lambda s: [ev.append(cmd(s, 84011))]),
-            ("SB real awakening at sub 50 -> s 0.5, frac 0.25", 84000, 84060, lambda s: []),
-            ("SB bankai refused at drive 50", 84003, 84045, lambda s: [awaken(s)]),
-            ("SB bankai allowed at drive 100", 84003, 84050, lambda s: [awaken(s)])):
+            ("SB real awakening at sub 50 -> s 0.5, frac 0.25", 84000, 84060, lambda s: [])):   # (the cup-3 Bankai rows went with the cups)
         say(t, label)
         ev.extend([cmd(t, scene), cmd(t + 0.05, setup)])
         body(t + 0.3)

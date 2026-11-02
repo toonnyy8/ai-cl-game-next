@@ -434,13 +434,13 @@
                              (and (eq :base (getf r :form)) (null (getf r :awakened)) (= *awaken-max* (getf r :awaken))
                                   (zerop (getf r :meter)))))
               (remove-if-not (lambda (cf) (kit-awakening (apply #'kit cf))) *forms*)))
-;; stay: Yamamoto East / West -> East; every Kenpachi awakened form -> cup 1 at NOME 10 (the user's decision 2026-09-29:
-;; no cup kept); Rukia's bands -> -18 at cold 0
+;; stay: Yamamoto East / West -> East; every Kenpachi awakened form -> the Shikai at L 0 (cup 1 at NOME 10 until the cups went,
+;; 2026-11-03); Rukia's bands -> -18 at cold 0
 (check (every (lambda (f) (eq :bankai-east (getf (carry :yamamoto f :stay) :form))) '(:bankai-east :bankai-west)))
 (check (every (lambda (f) (let ((r (carry :kenpachi f :stay)))
-                            (and (eq :nozarashi (getf r :form)) (= *nome-awaken* (getf r :meter)) (getf r :awakened)
+                            (and (eq :nozarashi (getf r :form)) (= 0 (getf r :meter)) (getf r :awakened)
                                  (zerop (getf r :awaken)))))
-              '(:nozarashi :ryote :nomihose :bankai :kataude)))
+              '(:nozarashi :bankai)))
 (check (every (lambda (f) (let ((r (carry :rukia f :stay))) (and (eq :m18 (getf r :form)) (zerop (getf r :meter)))))
               '(:m18 :m50 :zero)))
 (check (eq :base (getf (carry :kenpachi :base :stay) :form)))

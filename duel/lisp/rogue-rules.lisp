@@ -221,7 +221,7 @@ as :twin, and taking it swaps them. The settled pairs (Kenpachi's, Hisagi's); th
     (112 (:moves (:ya-tenchi) :armor-hits 1))
     (113 (:moves (:ya-e-kyokko) :cooldown 40))
     (114 (:moves (:ya-w-shonetsu) :params (:hits 3) :cooldown 90))
-    (115 (:moves (:ke-meteor) :armor-hits 1))
+    (115 (:moves (:ke-s-sp2) :armor-hits 1))   ; (the Shikai's meteor cut since V3; the old SP1 meteor left with KATATE)
     (116 (:moves (:ke-kikon-n :ke-b-kikon) :armor-hits 1))
     (117 (:moves (:ru-tsukishiro) :params (:delay 14 :tell (11 20))))
     (118 (:kit :m18 :cold (:sig 0)))

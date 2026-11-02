@@ -135,7 +135,7 @@ gauge is full again (60 f + 7.1 s)."
     (:yamamoto :bankai-west :kenpachi :base 2.0) (:yamamoto :bankai-east :kenpachi :base 2.0)
     (:yamamoto :bankai-east :kenpachi :base 6.0) (:yamamoto :bankai-west :kenpachi :base 2.5)
     (:yamamoto :bankai-east :kenpachi :base 3.0) (:kenpachi :base :yamamoto :bankai-east 5.0)
-    (:kenpachi :base :yamamoto :bankai-east 5.0) (:yamamoto :bankai-west :kenpachi :nomihose 4.8)))
+    (:kenpachi :base :yamamoto :bankai-east 5.0) (:yamamoto :bankai-west :kenpachi :nozarashi 4.8)))   ; (cup 3 until the cups went, 2026-11-03)
 
 (defun stance-test (k)
   "Bankai stance test 2370+K (*STANCE-TESTS*: the pair, forms, distance): human P1, P2's CPU off. 1, 2 and 9 run
@@ -159,8 +159,8 @@ gauge at 40); 7 / 8 make P2 cast South at once; 9: P2 is a cup-3 Kenpachi (NOME 
 (defparameter *hud-review*
   ;; P1 (character form meter) P2 (character form meter) low-gauge: the portrait HUD's last row in every form (stills)
   '(((:yamamoto :base 60) (:kenpachi :base 0) nil) ((:yamamoto :hellfire 0) (:kenpachi :nozarashi 20) t)
-    ((:yamamoto :bankai-east 0) (:kenpachi :ryote 70) nil) ((:yamamoto :bankai-west 0) (:kenpachi :nomihose 100) t)
-    ((:kenpachi :bankai 3) (:yamamoto :base 100) nil) ((:kenpachi :kataude 0) (:rukia :base 0) t)
+    ((:yamamoto :bankai-east 0) (:kenpachi :nozarashi 2) nil) ((:yamamoto :bankai-west 0) (:kenpachi :nozarashi 3) t)   ; (the cups' rows: the Shikai's L)
+    ((:kenpachi :bankai 3) (:yamamoto :base 100) nil) ((:kenpachi :bankai 0) (:rukia :base 0) t)   ; (KATAUDE's row: the Bankai, no pip)
     ((:rukia :base 0) (:rukia :m18 60) nil) ((:rukia :m50 150) (:rukia :zero 200) t) ((:rukia :m18 30) (:kenpachi :base 0) :evo)))
 
 (defun hud-review (k)
@@ -221,12 +221,6 @@ presses (J down every other step: the switched-off brain still writes its held b
                            (start-move *p2* (kit-command-move (kit-of *p2*) :f))
                            (setf (fighter-sf (fighter *p2*)) 10))
                          (when (> dt 1200) (setf *probe* nil))))
-          (:nome (let ((g (gauges *p1*)))                       ; the ladder: NOME up in steps, then left to drain
-                   (when (and (< dt 400) (zerop (mod dt 45)))   ; (a gain: RYOTE's drain waits again)
-                     (setf (gauges-meter g) (f32 (min 100.0 (+ (gauges-meter g) 12.0))) (gauges-meter-idle g) 0))
-                   (when (zerop (mod dt 30))
-                     (log-msg "duel probe nome t=~d m~d ~a" dt (round (gauges-meter g)) (fighter-form (fighter *p1*))))
-                   (when (> dt 1800) (setf *probe* nil))))
           ((:drink :cut)                                         ; P2 presses Quick (drink) / Flash (cut) every other step
            (let ((b (brain *p2*)) (g1 (gauges *p1*)))
              (setf (brain-press b) (if (eq kind :drink) :quick :flash) (brain-press-mod b) nil
@@ -311,7 +305,7 @@ and of a run-time string."
       (let ((c2 (cons-bytes)))
         (dotimes (i 100) (%hud-cd 10f0 50f0 150f0 6f0 0.4f0 0f0 nil 1f0 0.5f0 0.2f0) (%hud-cd 10f0 50f0 150f0 6f0 1f0 0.7f0 t 1f0 0.5f0 0.2f0))
         (let ((c3 (cons-bytes)))
-          (dotimes (i 100) (%hud-nome 10f0 70f0 300f0 6f0 0.55f0 nil 1 0.25f0 1f0) (%hud-nome 10f0 70f0 300f0 6f0 0.3f0 t 2 0.5f0 1f0))
+          (dotimes (i 100) (%hud-lv 10f0 70f0 300f0 6f0 1 3 nil) (%hud-lv 10f0 70f0 300f0 6f0 3 3 t))   ; (NOME's bar went with the cups: the Shikai's L)
           (let ((c4 (cons-bytes)))
             (dotimes (i 100) (%hud-arm 10f0 90f0 300f0 6f0 3 100 nil 1f0) (%hud-arm 10f0 90f0 300f0 6f0 1 260 t 1f0))
             (log-msg "hud consing: 100 x 2 guard bars ~d B, 100 x 2 flash-step bars ~d B, 100 x 2 cooldown bars ~d B, 100 x 2 NOME bars ~d B, 100 x 2 UDE bars ~d B"
@@ -376,10 +370,9 @@ and of a run-time string."
 
 (defun string-test (k)
   "2394+k: human P1 in form K (Yamamoto Shikai, Bankai East, Kenpachi base, RYOTE) 2.2 m from an idle Kenpachi."
-  (destructuring-bind (c form) (nth k '((:yamamoto :base) (:yamamoto :bankai-east) (:kenpachi :base) (:kenpachi :ryote)))
+  (destructuring-bind (c form) (nth k '((:yamamoto :base) (:yamamoto :bankai-east) (:kenpachi :base) (:kenpachi :nozarashi)))
     (ensure-battle c :kenpachi)
     (unless (eq (fighter-form (fighter *p1*)) form) (force-form *p1* form))
-    (when (eq form :ryote) (setf (gauges-meter (gauges *p1*)) 60f0))   ; NOME keeps him in cup 2 (KEN-NOME-STEP)
     (when (eq form :bankai-east) (setf (gauges-gg (gauges *p1*)) 30f0))   ; a low gauge: KOSEI x2.4 (the HUD tag)
     (place *p1* *p2* 2.2)))
 
@@ -477,13 +470,13 @@ when K already runs, it continues to F."
           (stage-crack-add (aref p 0) (aref p 2) 3.0) (stage-crack-add (+ (aref p 0) 3.5) (- (aref p 2) 2.0) 2.2)))
     (13 (ensure-battle :kenpachi :yamamoto) (force-form *p1* :nozarashi))
     (14 (setf (gauges-reishi (gauges *p2*)) 200))
-    (15 (ensure-battle :kenpachi :yamamoto) (force-form *p1* :ryote) (setf (gauges-meter (gauges *p1*)) 70f0))
-    (16 (ensure-battle :kenpachi :yamamoto) (force-form *p1* :nomihose) (setf (gauges-meter (gauges *p1*)) 100f0))
+    (15 (ensure-battle :kenpachi :yamamoto) (force-form *p1* :nozarashi) (setf (gauges-meter (gauges *p1*)) 3f0))   ; (cup 2 until 2026-11-03: the Shikai at L3)
+    (16 (ensure-battle :kenpachi :yamamoto) (force-form *p1* :bankai))   ; (cup 3 until 2026-11-03: the Bankai)
     (62 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 4.5) (force-cmd *p1* :sp2))
     (63 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 5.0) (force-form *p1* :hellfire) (force-cmd *p1* :sp2))
     (64 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 6.0) (force-cmd *p1* :breaker))
-    (65 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 4.0) (force-form *p1* :nomihose)
-        (setf (gauges-meter (gauges *p1*)) 100f0) (emit :rung *p1* t))
+    (65 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 4.0) (force-form *p1* :nozarashi)   ; (cup 3's pillar until 2026-11-03)
+        (emit :rung *p1* t))
     (66 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 4.0)            ; looks only: the marks and chips
         (let ((q (pos-of *p2*)))
           (stage-mark :scorch (aref q 0) (+ (aref q 2) 0.6) 1.0)

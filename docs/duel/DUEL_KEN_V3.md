@@ -337,3 +337,38 @@ Asked, answered: the table 「可以，照這份做」 (approved; every figure a
 「然後劍八的封印跟常態應該是要穿著長袖的死霸裝配上短袖的白色羽織，卍解才剩下變成短袖的死霸裝」; asked which the Shikai wears:
 「和封印一樣」. The sealed form and the Shikai: a long-sleeved shihakushō under a short-sleeved white haori; the Bankai: a short-sleeved
 shihakushō, no haori. Built with the Shikai's art round.
+
+## 11. Built: the Shikai's sim and the removals (2026-11-03)
+
+The first batch of §8's order (the Shikai), the sim with borrowed clips; the art round (two stances, the clips, the sword-wind VFX by L,
+the costume of §10, the special ASs' and the Kikon's cinematics) comes next.
+
+- **Removed**: the kits `:ryote`, `:nomihose`, `:kataude` and their moves (KATATE's `ke-kt-*`, RYOTE's `ke-r-*`, NOMIHOSE's `ke-m-*`,
+  KUKAN-GIRI, the cash-out, 片腕's J3), NOME (the meter ladder, `ken-nome-step`, `%hud-nome`, the hooks `ken-drink-dry`, `ken-gulp`,
+  `ken-ryote-enter`, `ken-nomihose-enter`, `ken-rift`), the cup-3 Bankai by P (no form has `:bankai-form`), their debug scenes (2380-2386,
+  2389, 37000 / 38000, 71002 / 71003, 84002 / 84003) and scripts (`duel-nome`, `duel-ken-katate / ryote / nomihose`). Left for the Bankai
+  batch: the arm (`:pips`, `ken-arm-step`, `arm-spend!`, `arm-burst!`, `core-pips-ok-p`); left as dead code: the pure NOME helpers in
+  rules.lisp (`nome-gain`, `meter-drain`, `ladder-rung`), `nome-gain!` and the cups' clips in ken-art.lisp (taken off the clip contract).
+  The Bankai now inherits the base form, its hooks written out (`:tick ken-tick` …).
+- **The Shikai** (`ken.lisp`, §9's moves `ke-s-*`): `:inherit :base` with everything its own (`:startup-add 0 :reach-mult 1.0 :open-s nil`,
+  `:commands (:q :ke-s-j1 :f nil :sig nil :sp1 nil :sp2 nil …)`, the J string by `:strings`), the meter KAIHO (`:max 3 :start 0 :lv t`,
+  three yellow pips, `%hud-lv`), the hooks `:lv ken-lv`, `:as-pick ken-as-pick`, `:hit ken-hit`, `:link-ok ken-link-ok`.
+- **Generic (core-sim.lisp, off without the hooks)**: `core-snap-lv!` reads a kit's `:lv` hook at an NS route's or an AS's start into
+  `fighter-lv-cap` (default 99) and clears `fighter-lv-got`; `core-seg-ok-p` refuses a segment whose `:params :lv` is above it, in the latch
+  (`core-move-sp!`) and in the start (`core-latch-step`); the temporary switch starts its route without a snapshot, so it keeps the level.
+  `core-as-start!` asks a kit's `:as-pick` hook for another move and the pointer it writes, or `:taken`.
+- **Reach**: `defweapon :nozarashi :length` 1.62 → 2.3 (§7.8); the FK reach check then measured the borrowed spin (J3, J7) at 3.77 m:
+  their reach 2.4 → 3.65. The hilt jab got a 1.0 m step-in and the flick 0.6 m (the scripted 2.2 m scene whiffed them).
+- **Checks**: host tests 9831 all pass (1500 fewer: the cups' and KATAUDE's checks went; a new Shikai block: classes, levels, the special /
+  Bankai tags, :lv-up, bursts, §9's S and damage, no mid-route knockdown, the hooks only on the Shikai, the J string), control 100, touch
+  100, pkgcheck clean (`debug-ranges-check.py`'s one overlap, 2510-2513 vs 2513, as before), the build. Scripted `duel-ken-shikai.json`
+  (16 scenes, combat log): P1 at L0 / 1 / 2 / 3 plays 1 / 2 / 3 / 5 segments (70, 60, 65, 35 + 35, 100) and each landed route raises L
+  (L0 → 1 → 2 → 3); P2 at L0 the jab and the flick (45, 50), at L3 all five (45, 50, 110, 100, 140); AS1 at L2: 3 segments, L → 3; the
+  burst to P2 at L2 hits 200 (`BURST to pointer 2 (L2)`), to P1 at L3 260, at L0 100, the pointer written and L 0; J4 refused at L2 (the
+  string stops at J3); J1-J4 + SP at L3 = DAISHARIN 60 / 60 / 120, J1-J6 + SP at P2 = INSEKI-GIRI 260 (`pointer kept`); J1-J7 + SP =
+  `BANKAI from pointer 1`, the Bankai's cinematic; the temporary switch at L1 (DRIVE 60): P1's lunge, then P2's route n2a / n2b / n2c (L1's
+  segments), L stays (the route already counted); the awakening starts at L 0. Not scripted: a guarded route giving +0 (no P2 guard in the
+  core scenes). Playtest Artifact v290.
+- **G2** `--cvc`: II identical (28 lines: the new hooks are off for the other kits); IK 26 → 29 lines (P2 0-5, 286.2 s), KK 22 → 30 (P2 0-4,
+  300.7 s): the CPU Kenpachi awakens into the new Shikai; `tests/style-cvc-ref.txt` regenerated. No balance gates.
+- **The CPU**: the generic core CPU (it does not aim for L, the bursts or the special string).

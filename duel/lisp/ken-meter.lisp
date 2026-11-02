@@ -1,5 +1,5 @@
-;;;; ken-meter.lisp — Kenpachi's two kit meters, each one's sim step and its HUD widgets: Nozarashi's NOME, the cup ladder
-;;;; (docs/duel/DUEL_NOZARASHI_V2.md: KEN-NOME-STEP, %HUD-NOME) and the Bankai's arm UDE (docs/duel/DUEL_KEN_BANKAI.md §7:
+;;;; ken-meter.lisp — Kenpachi's two kit meters and their HUD widgets: the Shikai's unlock level L (DUEL_KEN_V3 §4: %HUD-LV; the
+;;;; NOME cup ladder went with the cups, 2026-11-03) and the Bankai's arm UDE (docs/duel/DUEL_KEN_BANKAI.md §7:
 ;;;; KEN-ARM-STEP, %HUD-ARM, HUD-ARM-LABEL). Reached only through his kit (ken.lisp): the :tick hook KEN-TICK (combat.lisp
 ;;;; GAUGE-SYSTEM) and the meter's :draw KEN-HUD-METER / :label KEN-HUD-LABEL (hud.lisp's panel and portrait row). The arm's
 ;;;; spend / burst (ARM-SPEND! ARM-BURST!) and NOME's gain (NOME-GAIN!) stay in combat.lisp: the hit path calls them.
@@ -8,8 +8,7 @@
 (in-package :duel)
 
 (defun ken-tick (e f g)
-  "His :tick hook (GAUGE-SYSTEM, every step, after the form timers): the arm meter in a form with :pips (the Bankai), then
-the NOME ladder in a form whose meter has a :ladder (the three cups). KIT is read once, before either step."
+  "His :tick hook (GAUGE-SYSTEM, every step, after the form timers): the arm meter in a form with :pips (the Bankai)."
   (let ((kit (fighter-kit f)))
     (when (kit-pips kit)
       (if (or (eq e *run-boss*) (rmod e :no-arm nil))   ; the DANGAI boss / the 無手臂限制 card: no pip owed, no crack clock
@@ -18,8 +17,7 @@ the NOME ladder in a form whose meter has a :ladder (the three cups). KIT is rea
                    (log-msg "duel boss kenpachi t~d ~(~a~) ude ~d konpaku ~d" *match-tick* (fighter-form f)
                             (round (gauges-meter g)) (gauges-konpaku g))))
           (ken-arm-step e f g)))
-    (let ((m (kit-meter kit)))
-      (when (getf m :ladder) (ken-nome-step e f g m)))))
+    nil))
 
 (defun ken-boss (e)
   "His base kit's :boss hook (rogue.lisp ROGUE-STAGE-START, after the ramp's KATATE): the Bankai at FIGHT, its arm full
@@ -41,7 +39,7 @@ card (:any-bankai, DUEL_ROGUE §4.3, the user 2026-10-22: 「卍解隨時可開�
 awakened in any cup, the Bankai at any Konpaku (BANKAI! keeps his Konpaku, refills his Reishi). Once a stage by
 construction: after the Bankai comes KATAUDE, never a cup again. T when it took the press."
   (when (and free (rmod e :any-bankai nil) (gauges-awakened (gauges e))
-             (member (fighter-form (fighter e)) '(:nozarashi :ryote :nomihose)) (not (bind-of e)))
+             (eq (fighter-form (fighter e)) :nozarashi) (not (bind-of e)))
     (log-msg "duel runmod any-bankai from ~(~a~) konpaku ~d" (fighter-form (fighter e)) (gauges-konpaku (gauges e)))
     (bankai! e :bankai)
     t))
@@ -70,43 +68,18 @@ last pip went, the pending burst fires when BURST-DUE-P says."
             (emit :arm-crack e n)
             (clog "~a UDE cracked, ~d left" (side-name e) n))))))
 
-(defun ken-nome-step (e f g m)
-  "A meter with a :ladder (Nozarashi's NOME, meter M): only while he is free (idle, walk, guard, run: never under
-a string), the rung NOME asks for (LADDER-RUNG, several steps at once), which is his form; then the rung's drain
-(METER-DRAIN; the rung is read before the drain, so a gain to exactly 100 is cup 3 on the first free frame)."
-  (let* ((ladder (getf m :ladder)) (i (or (position (fighter-form f) ladder :key #'first) 0)))
-    (when (member (fighter-state f) '(:idle :guard :run))
-      (let ((j (ladder-rung (gauges-meter g) i ladder)))
-        (unless (= i j)
-          (set-form e (first (nth j ladder)))
-          (emit :rung e (> j i))
-          (setf i j))))
-    (let ((r (nth i ladder)))
-      (setf (gauges-meter g) (f32 (meter-drain (gauges-meter g) (second r) (third r) (gauges-meter-idle g)))
-            (gauges-meter-idle g) (min 9999 (1+ (gauges-meter-idle g)))))))
-
-(defun-fast %hud-nome (x y w h fill right rung floor tm)
-  "Nozarashi's NOME bar: dark back, the REIATSU yellow FILL (pulsing while within 10 of the current cup's FLOOR,
-where it would drop a cup), bright marks at a cup's entry (40, 100), dim floor ticks (25, 50), and three cup pips
-inside the frame, RUNG + 1 of them lit."
-  (declare (single-float x y w h fill floor tm) (fixnum rung))
-  (let* ((near (and (> floor 0f0) (< fill (+ floor 0.1f0))))
-         (a (if near (+ 0.55f0 (* 0.45f0 (%pulse tm 5.0))) 1f0)))
-    (declare (single-float a))
-    (%hrect x y w h 0.05f0 0.04f0 0.07f0 0.75f0)
-    (%hbar x y w h fill right 1f0 0.88f0 0.3f0 a 0.9f0 0.62f0 0.1f0 a)
-    (macrolet ((tick (v r g b al) `(let ((k (/ (the single-float (f32 ,v)) (the single-float (f32 *nome-max*)))))
-                                     (declare (single-float k))
-                                     (%hrect (if right (+ x (* w (- 1f0 k))) (+ x (* w k))) (- y 2f0) 1f0 (+ h 4f0) ,r ,g ,b ,al))))
-      (tick *nome-up-t2* 1f0 1f0 0.9f0 0.95f0)
-      (tick *nome-down-t2* 0.6f0 0.6f0 0.55f0 0.6f0)
-      (tick *nome-down-t3* 0.6f0 0.6f0 0.55f0 0.6f0))
-    (dotimes (i 3)                                        ; the cups, from the bar's inner end
-      (let* ((ps (f-max 2f0 (* 0.6f0 h))) (px (+ x (* 1.5f0 ps (i->f i)) 1f0)) (px (if right (- (+ x w) (- px x) ps) px)))
-        (declare (single-float ps px))
-        (if (<= i rung)
-            (%hrect px (+ y (* 0.2f0 h)) ps ps 1f0 1f0 0.95f0 1f0)
-            (%hrect px (+ y (* 0.2f0 h)) ps ps 0.3f0 0.3f0 0.28f0 0.8f0))))
+(defun-fast %hud-lv (x y w h lv mx right)
+  "The Shikai's unlock level (DUEL_KEN_V3 §4) in the W x H slot at (X Y): MX square pips from the slot's inner end (RIGHT: mirrored), LV lit
+REIATSU yellow."
+  (declare (single-float x y w h) (fixnum lv mx))
+  (let ((ps (f-max 3f0 (* 1.6f0 h))))
+    (declare (single-float ps))
+    (dotimes (i mx)
+      (let* ((px (+ x (* 1.5f0 ps (i->f i)))) (px (if right (- (+ x w) (- px x) ps) px)))
+        (declare (single-float px))
+        (if (< i lv)
+            (%hrect px (- y (* 0.3f0 h)) ps ps 1f0 0.85f0 0.3f0 1f0)
+            (%hrect px (- y (* 0.3f0 h)) ps ps 0.3f0 0.3f0 0.28f0 0.8f0))))
     nil))
 
 (defun-fast %hud-arm (x y w h pips idle right tm)
@@ -145,12 +118,9 @@ pip to crack a thin line draining over the *ARM-CRACK* clock (IDLE frames of it 
 ladder (yellow) in a form with a :ladder, the arm UDE (BLOOD pips) in one with :pips; its label at (LX LY), scale LS
 (LX NIL: the portrait row, no label)."
   (let ((meter (kit-meter kit)) (g (gauges e)))
-    (cond ((getf meter :ladder)
-           (let* ((ladder (getf meter :ladder)) (rung (or (position (kit-form kit) ladder :key #'first) 0))
-                  (mx (getf meter :max)))
-             (%hud-nome (f32 x) (f32 y) (f32 w) (f32 h) (f32 (/ (gauges-meter g) mx)) right rung
-                        (f32 (/ (fifth (nth rung ladder)) mx)) tm)
-             (when lx (hud-text (getf meter :name) lx ly ls '(1 0.85 0.3 0.95) :align (if right :right :left)))))
+    (cond ((getf meter :lv)                              ; the Shikai's unlock level L (DUEL_KEN_V3 §4): yellow pips
+           (%hud-lv (f32 x) (f32 y) (f32 w) (f32 h) (round (gauges-meter g)) (getf meter :max) right)
+           (when lx (hud-text (getf meter :name) lx ly ls '(1 0.85 0.3 0.95) :align (if right :right :left))))
           ((kit-pips kit)
            (%hud-arm (f32 x) (f32 y) (f32 w) (f32 h) (round (gauges-meter g)) (gauges-meter-idle g) right tm)   ; (no crack: idle stays 0)
            (when lx (hud-arm-label lx ly ls right))))))
