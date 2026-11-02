@@ -236,3 +236,17 @@ y 0.3 → 0.086 at 1.62) by K = 1.3 at the point's end (y −0.183), falling lin
 (0.56 → 0.616 m), its groove and its foot follow at 1.1; the bar, the haft and the blade's length do not move (drawn only). The point's
 underside rises with it (the notch under it grows). The Bankai's broken cleaver shares the head (`ke-mb-noz-head`), so it widens too.
 Checks: host tests 11331, pkgcheck, the build, G2 `--cvc` identical (II 28, IK 26, KK 22 lines); stills from both cameras (debug 84001).
+
+### 7.1 The haft longer and curved (the user, 2026-11-03)
+
+「1 加長並做出些微弧度向下彎」 (1 = the haft), no figures given; mine, as knobs in `ken-art.lisp`: `*ke-noz-haft*` 1.0 → 1.3 (0.76 → 0.99 m,
+lengthened toward the butt, the Bankai's figure), `*ke-haft-sag*` 0 → 0.06 m: the haft bends away from the edge, z = −0.06 (u / len)², u
+the distance below its top, drawn as 8 straight pieces; the wraps and the butt follow the curve. The left fist's grip clips (RYOTE's set)
+still aim at the straight axis: the gap is at most about 0.03 m at the far grip; those clips are to be redrawn in V3 anyway. The Bankai's
+haft (already 1.3) sags too.
+
+### 7.2 The head turned back 5 degrees and lowered (the user, 2026-11-03)
+
+「從 5 開始的刀身結構逆時針轉 5 度，並向下移動 0.05 m」: `with-ke-tilt` turns the head 5 degrees clockwise net (was 10) about the same
+joint (0.4, 0.08) and then moves it 0.05 m away from the edge; the bar and the haft stay. Checks for §7.1–§7.2: host tests 11331, pkgcheck,
+the build, G2 `--cvc` identical (II 28, IK 26, KK 22 lines), stills (debug 84001).

@@ -329,9 +329,15 @@
 (defmacro with-ke-tilt ((mb) &body body)
   "Run BODY (Nozarashi's head and what rides on it) turned 10 degrees about the black bar's joint with the head, (y z) =
 (0.4 0.08): the far end down toward the haft line, seen with the haft on the left and the edge up (the user 2026-10-09:
-「以黑色斜槓跟刀身的連接點為基準，將刀身順時針轉 10 度」); the bar and the haft stay."
-  `(mb-at (,mb :y 0.4 :z 0.08 :pitch -0.17453292)
+「以黑色斜槓跟刀身的連接點為基準，將刀身順時針轉 10 度」); the bar and the haft stay. Since 2026-11-03 (「從 5 開始的刀身結構
+逆時針轉 5 度，並向下移動 0.05 m」, DUEL_KEN_V3 §7.2): 5 degrees net, and 0.05 m down (away from the edge)."
+  `(mb-at (,mb :y 0.4 :z 0.03 :pitch -0.08726646)
      (mb-at (,mb :y -0.4 :z -0.08) ,@body)))
+
+;; Nozarashi's haft (the user 2026-11-03: 「1 加長」, no figure given: mine, knobs): 1.3 times, lengthened downward (0.76 -> 0.99 m,
+;; the Bankai's own figure), and the sag at the butt
+(defparameter *ke-noz-haft* 1.3 "Nozarashi's haft length / the first 0.76 m (DUEL_KEN_V3 §7.1, 2026-11-03: 1.0 -> 1.3).")
+(defparameter *ke-haft-sag* 0.06 "How far the haft's butt end sags away from the edge, m (DUEL_KEN_V3 §7.1, 2026-11-03: 0 -> 0.06).")
 
 ;; the head widened toward the edge (the user 2026-11-03, DUEL_KEN_V3 §7: 「請從 5 開始將刀加寬，從刀尖到護套的加寬程度分別約
 ;; 由 1.3 到 1.1 倍」): z pushed away from the spine line by K, 1.3 at the point's end (y -0.183) down to 1.1 at the cap's foot
@@ -381,16 +387,25 @@
     (loop for (y z) in '((0.22 0.415) (0.65 0.562) (1.0 0.594) (1.3 0.603))
           when (< y (- end 0.05))
             do (mb-at (mb :y y :z (ke-noz-widen y z) :roll 0.6) (mb-box mb 0.05 0.03 0.03))))
+    ;; the haft sags away from the edge toward the butt (the user 2026-11-03, DUEL_KEN_V3 §7.1: 「1 加長並做出些微弧度向下彎」):
+    ;; z = -*KE-HAFT-SAG* x (u / len)^2, u the distance below its top (0.08), drawn as 8 straight pieces along that curve
     (let* ((len (* 0.76 haft)) (drop (- len 0.76)))
-      (mbc mb #xECECE8)                                  ; the long white-wrapped haft
-      (mb-at (mb :y (- 0.08 (* 0.5 len))) (mb-box mb 0.05 len 0.05))   ; (it stops short of the head: the bar joins them)
-      (mbc mb #x6A6A70)
-      (loop for i below (round (* 8 haft)) do (mb-at (mb :y (- 0.03 (* i 0.085)) :roll 0.6) (mb-box mb 0.054 0.006 0.054)))
-      (mbc mb #x16161A)                                  ; the black butt
-      (mb-at (mb :y (- -0.67 drop)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))
+      (flet ((sag (y) (let ((u (/ (- 0.08 y) len))) (- (* *ke-haft-sag* u u))))
+             (tilt (y) (atan (/ (* 2 *ke-haft-sag* (- 0.08 y)) (* len len)))))
+        (mbc mb #xECECE8)                                ; the long white-wrapped haft
+        (loop with n = 8 for i below n                   ; (it stops short of the head: the bar joins them)
+              for y = (- 0.08 (* (+ i 0.5) (/ len n)))
+              do (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-box mb 0.05 (* 1.02 (/ len n) (/ 1 (cos (tilt y)))) 0.05)))
+        (mbc mb #x6A6A70)
+        (loop for i below (round (* 8 haft))
+              for y = (- 0.03 (* i 0.085))
+              do (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-at (mb :roll 0.6) (mb-box mb 0.054 0.006 0.054))))
+        (mbc mb #x16161A)                                ; the black butt
+        (let ((y (- -0.67 drop)))
+          (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))))
 
 (defweapon :nozarashi (:length 1.62 :base 0.2)         ; the haft below the grip, the head above it
-  (:solid (ke-mb-noz-head mb 1.62)
+  (:solid (ke-mb-noz-head mb 1.62 *ke-noz-haft*)
           (with-ke-tilt (mb)                             ; the cap and the tassel ride on the turned head
           (mbc mb #x9C9478)                              ; the khaki cap over the far end, its stepped foot
           (mb-at (mb :y 1.525 :z (ke-noz-widen 1.525 0.348)) (mb-bevel-box mb 0.07 0.2 0.616 0.012))   ; (x 1.1 with the head)
