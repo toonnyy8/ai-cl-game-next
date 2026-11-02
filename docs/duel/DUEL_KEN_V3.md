@@ -276,3 +276,9 @@ identical, stills (debug 84001).
 
 「抱歉，回到縮減前的版本」: §7.4–§7.5 undone by their knobs (`*ke-noz-k-cap*` back to 1.1, `*ke-noz-k-end*` back to 1.425, the cap's foot);
 the blade is §7.3's again (the still matches). Checks: host tests 11331, pkgcheck, the build, G2 `--cvc` identical.
+
+### 7.7 The middle 1.2 times wider (the user, 2026-11-03)
+
+「將中段加寬 1.2 倍」: `ke-noz-k` times a sine bump, `*ke-noz-mid*` 1.0 → 1.2 halfway between the point's end (y −0.183) and the cap's foot
+(1.425), falling smoothly to 1 at both (the point and the cap unchanged). Checks: host tests 11331, pkgcheck, the build, G2 `--cvc`
+identical, stills (debug 84001).
