@@ -162,3 +162,33 @@ deepens). Pointer 2 「扛肩柄擊」: the blade's back on the right shoulder, 
 
 So the burst rows above are one segment each. Knobs (mine): damage 100 / 150 / 200 / 260 at L0–L3; the VFX by L: none / a Reiatsu spark /
 the yellow Reiatsu column / the skull aura (his canon Reiatsu skull).
+
+### 5.3 Corrections (the user, 2026-11-02, verbatim) and the revised table
+
+| My line | The user |
+|---|---|
+| the burst's VFX by L: none / a spark / the Reiatsu column / the skull | 「特效請用於增強斬擊演出，包含揮砍時引出的劍風等等」: the VFX strengthens the cut itself (the trail, the sword wind it throws), not an aura. |
+| pointer 2: L0 three segments | 「L0 只有柄擊、上翹」 |
+| pointer 1: L0 two segments | 「L0 只有突進斬」 |
+| the Bankai variants (the maw / the self-destroying arm) | 「卍解請延續原本指針的風格」: each Bankai carries on its Shikai pointer's style. |
+
+The VFX by L (all cuts of the Shikai and the burst; drawn only, the hit volumes do not grow): L0 the plain ink trail; L1 a longer, wider
+trail and wind streaks off the edge; L2 a wind crescent thrown along the cut and a dust line on the floor; L3 a gale that tears the floor
+and shakes the camera.
+
+| | Pointer 1 突進迴旋 | Pointer 2 扛肩柄擊 |
+|---|---|---|
+| NS L0 | a the lunge cut | a the hilt jab → b the hilt flick up |
+| + L1 | b the spin-through sweep | c both hands, the great-sword overhead cut |
+| + L2 | c the reverse spin | d the great-sword flat sweep |
+| + L3 | d the one-hand sword dance, e the spinning leap cut | e the turning great-sword cut |
+
+Draft Bankai (one pointer each, the J string J1–J5, SP after J5 = the special AS; every NS segment / AS costs 40 Reiatsu, floor 1):
+
+| | Bankai from pointer 1 「狂嵐」 | Bankai from pointer 2 「斬壞」 |
+|---|---|---|
+| Stance | lower, wilder: the axe-cleaver in one hand trailing, the free hand clawing the floor | the axe-cleaver on the shoulder, the haft at him, still standing easy |
+| NS (fixed, no L) | a the lunge cut → b the spin → c the reverse spin → d the sword dance, faster than the Shikai's | a the haft jab → b the haft flick → c both hands, the overhead chop → d the flat sweep, heavier |
+| AS (press count) | AS1 lunge → spin; AS2 + the dance; AS3 + the spinning leap cut | AS1 haft → chop; AS2 + the sweep; AS3 + the turning chop |
+| Special AS | 「千切」: a storm of spins ending in a dash through him | TATE-GOTO, the vertical split (canon §1.9) |
+| Kikon | the dash-through tornado | the split (for now the old `ken-sky-split-cine`) |
