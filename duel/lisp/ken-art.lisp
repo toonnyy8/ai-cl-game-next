@@ -344,11 +344,14 @@
 
 ;; the head widened toward the edge (the user 2026-11-03, DUEL_KEN_V3 §7: 「請從 5 開始將刀加寬，從刀尖到護套的加寬程度分別約
 ;; 由 1.3 到 1.1 倍」): z pushed away from the spine line by K, 1.3 at the point's end (y -0.183) down to 1.1 at the cap's foot
-;; (y 1.425), linear, then held; the spine line (0.07 at y 0.3, 0.086 at 1.62) stays, so the bar's joint and the blade's length
+;; (y 1.425), linear, then held (1.1 -> 0.88 there since §7.4); the spine line (0.07 at y 0.3, 0.086 at 1.62) stays, so the bar's joint and the blade's length
 ;; (the reach) do not move. Drawn only.
+(defparameter *ke-noz-k-cap* 0.88 "The widening factor at the cap's end (DUEL_KEN_V3 §7.4, 2026-11-03: 1.1 -> 0.88, 「護套那端縮短寬度成約 0.8 倍」).")
+
 (defun ke-noz-k (y)
-  "The widening factor at Y along Nozarashi's head."
-  (max 1.1 (min 1.3 (+ 1.3 (* (- y -0.183) (/ -0.2 (- 1.425 -0.183)))))))
+  "The widening factor at Y along Nozarashi's head: 1.3 at the point's end, linear to *KE-NOZ-K-CAP* at the cap's foot, held."
+  (let ((k (+ 1.3 (* (- y -0.183) (/ (- *ke-noz-k-cap* 1.3) (- 1.425 -0.183))))))
+    (max (min 1.3 *ke-noz-k-cap*) (min (max 1.3 *ke-noz-k-cap*) k))))
 
 (defun ke-noz-widen (y z)
   "Z on Nozarashi's head at Y, widened about the spine line by KE-NOZ-K."
@@ -412,10 +415,10 @@
   (:solid (ke-mb-noz-head mb 1.62 *ke-noz-haft*)
           (with-ke-tilt (mb)                             ; the cap and the tassel ride on the turned head
           (mbc mb #x9C9478)                              ; the khaki cap over the far end, its stepped foot
-          (mb-at (mb :y 1.525 :z (ke-noz-widen 1.525 0.348)) (mb-bevel-box mb 0.07 0.2 0.616 0.012))   ; (x 1.1 with the head)
+          (mb-at (mb :y 1.525 :z (ke-noz-widen 1.525 0.348)) (mb-bevel-box mb 0.07 0.2 (* 0.56 (ke-noz-k 1.525)) 0.012))   ; (with the head)
           (mb-at (mb :y 1.39 :z (ke-noz-widen 1.39 0.14)) (mb-bevel-box mb 0.06 0.09 0.13 0.01))
           (mbc mb #x6E6852)                              ; its groove
-          (mb-at (mb :y 1.455 :z (ke-noz-widen 1.455 0.36)) (mb-box mb 0.074 0.018 0.506))
+          (mb-at (mb :y 1.455 :z (ke-noz-widen 1.455 0.36)) (mb-box mb 0.074 0.018 (* 0.46 (ke-noz-k 1.455))))
           (mbc mb #x2F4A35)                              ; the tassel (candidate B, the user 2026-10-09: 「調整始解的流蘇成 B
           (mb-at (mb :y 1.54 :z 0.06) (mb-box mb 0.035 0.06 0.045))   ; 選項」): a dark green knot at the cap's
           ;; (spine corner) the strands: each a cone whose point sits in the knot, its base fanning out away from the blade

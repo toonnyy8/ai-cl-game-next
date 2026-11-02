@@ -259,3 +259,9 @@ thickness too) about the bar's joint. The drawn far end moves from about 1.67 m 
 `:length` stays 1.62, so the sim's reach and the FK reach test do not see it (drawn only): **open**, whether V3's Shikai moves take their
 reach from the new blade. The Bankai's broken cleaver shares `with-ke-tilt`, so it grows too. Checks: host tests 11331, pkgcheck, the
 build, G2 `--cvc` identical, stills (debug 84001).
+
+### 7.4 The cap's end narrower (the user, 2026-11-03)
+
+「幫我將護套那端縮短寬度成約 0.8 倍」: the widening factor at the cap's end `*ke-noz-k-cap*` 1.1 → 0.88 (0.8 of it), still 1.3 at the
+point and linear between, so the blade tapers toward the cap; the cap (0.56 × K) and its groove follow. Checks: host tests 11331,
+pkgcheck, the build, G2 `--cvc` identical, stills (debug 84001).
