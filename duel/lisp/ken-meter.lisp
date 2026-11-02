@@ -60,7 +60,9 @@ last pip went, the pending burst fires when BURST-DUE-P says."
   (let ((pend (gauges-arm-pending g)))
     (if pend
         (when (burst-due-p pend (fighter-move f) (fighter-state f)) (arm-burst! e))
-        (multiple-value-bind (n idle cracked) (pip-step (round (gauges-meter g)) (gauges-meter-idle g) (plusp (fighter-lock f)))
+        (multiple-value-bind (n idle cracked) (if (getf (kit-pips (fighter-kit f)) :crack t)   ; (:crack NIL: no crack clock, §8)
+                                                  (pip-step (round (gauges-meter g)) (gauges-meter-idle g) (plusp (fighter-lock f)))
+                                                  (values (round (gauges-meter g)) 0 nil))
           (setf (gauges-meter g) (f32 n) (gauges-meter-idle g) idle)
           (when cracked
             (when (zerop n) (setf (gauges-arm-pending g) (or (current-move f) :none)))
@@ -150,7 +152,7 @@ ladder (yellow) in a form with a :ladder, the arm UDE (BLOOD pips) in one with :
                         (f32 (/ (fifth (nth rung ladder)) mx)) tm)
              (when lx (hud-text (getf meter :name) lx ly ls '(1 0.85 0.3 0.95) :align (if right :right :left)))))
           ((kit-pips kit)
-           (%hud-arm (f32 x) (f32 y) (f32 w) (f32 h) (round (gauges-meter g)) (gauges-meter-idle g) right tm)
+           (%hud-arm (f32 x) (f32 y) (f32 w) (f32 h) (round (gauges-meter g)) (gauges-meter-idle g) right tm)   ; (no crack: idle stays 0)
            (when lx (hud-arm-label lx ly ls right))))))
 
 (defun ken-hud-label (g kit)

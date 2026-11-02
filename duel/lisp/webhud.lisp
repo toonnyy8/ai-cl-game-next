@@ -111,9 +111,9 @@ the finish's best combo / Kikons, human 1."
       ;; Kenpachi's strip (DUEL_WEBUI §13): the cup (the NOME ladder's rung) and the arm pip's crack clock left, ‰
       (let ((ladder (getf meter :ladder)))
         (webhud-put (+ o 20) (if ladder (or (position (kit-form kit) ladder :key #'first) 0) 0)))
-      (webhud-put (+ o 21) (if (kit-pips kit)
+      (webhud-put (+ o 21) (if (and (kit-pips kit) (getf (kit-pips kit) :crack t))   ; (-1: no crack clock, Kenpachi's Bankai since 2026-11-02)
                                (truncate (* 1000 (max 0 (- (the fixnum *arm-crack*) (gauges-meter-idle g)))) (the fixnum *arm-crack*))
-                               0)))
+                               (if (kit-pips kit) -1 0))))
     (webhud-put (+ o 17) (gauges-best-combo g))
     (webhud-put (+ o 18) (gauges-kikons g))
     (webhud-put (+ o 19) (if (cpu-p e) 0 1))

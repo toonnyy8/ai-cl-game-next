@@ -1,0 +1,726 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== BK N1 maw: SP x3 (claw, bite, rip)')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(2510)"
+},
+{
+"at": 9.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 9.75,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.76,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.81,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.83,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 10.15,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.16,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.21,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.23,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 12.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 13.0,
+"eval": "console.log('=== BK N1 maw: SP, J (SA hook), J2')"
+},
+{
+"at": 13.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 13.05,
+"eval": "Module._debug_cmd(2510)"
+},
+{
+"at": 13.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 13.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 13.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 13.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.1,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.15,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 17.0,
+"eval": "console.log('=== BK N2 cleaver: SP x2 (leap cut, flat hammer)')"
+},
+{
+"at": 17.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 17.05,
+"eval": "Module._debug_cmd(2511)"
+},
+{
+"at": 17.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 17.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 17.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 17.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 17.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 17.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 20.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 21.0,
+"eval": "console.log('=== BK N2 cleaver: SP, J (SA hack)')"
+},
+{
+"at": 21.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 21.05,
+"eval": "Module._debug_cmd(2511)"
+},
+{
+"at": 21.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 21.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 21.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 21.85,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 21.9,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 25.0,
+"eval": "console.log('=== BK N3 arm: SP x3 at 4 pips (burns 3)')"
+},
+{
+"at": 25.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 25.05,
+"eval": "Module._debug_cmd(2512)"
+},
+{
+"at": 25.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 25.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 25.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 25.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 25.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 26.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 26.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 26.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 26.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 28.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 29.0,
+"eval": "console.log('=== BK N3 arm: SP x3 at 1 pip (NS3a, then refused; the burst)')"
+},
+{
+"at": 29.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 29.05,
+"eval": "Module._debug_cmd(2512)"
+},
+{
+"at": 29.2,
+"eval": "Module._debug_cmd(84081)"
+},
+{
+"at": 29.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 29.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 29.9,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 29.91,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 29.96,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 29.98,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 30.4,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 30.41,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 30.46,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 30.48,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 32.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 33.0,
+"eval": "console.log('=== BK N3 arm: SP at 0 pips (refused)')"
+},
+{
+"at": 33.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 33.05,
+"eval": "Module._debug_cmd(2512)"
+},
+{
+"at": 33.2,
+"eval": "Module._debug_cmd(84080)"
+},
+{
+"at": 33.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 33.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 33.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 33.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 36.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 37.0,
+"eval": "console.log('=== BK AS1: J, SP (bites the arm off)')"
+},
+{
+"at": 37.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 37.05,
+"eval": "Module._debug_cmd(2510)"
+},
+{
+"at": 37.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 37.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 37.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 37.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 37.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 37.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 40.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 41.0,
+"eval": "console.log('=== BK AS2: J, J2, SP, SP (chin punch, leap chop)')"
+},
+{
+"at": 41.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 41.05,
+"eval": "Module._debug_cmd(2510)"
+},
+{
+"at": 41.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 41.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 41.6,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 41.65,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 41.95,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 41.96,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.01,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.03,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 42.55,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 42.56,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 42.61,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 42.63,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 44.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 45.0,
+"eval": "console.log('=== BK Kikon: J, SP held (the Kikon of AS1 burns a pip)')"
+},
+{
+"at": 45.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 45.05,
+"eval": "Module._debug_cmd(2510)"
+},
+{
+"at": 45.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 45.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 45.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 45.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 47.21,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 47.23,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 48.6,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 49.0,
+"eval": "console.log('=== BK AS3: SP, J, J2, J3, SP x3 (leap cut, chin punch, TATE-GOTO burns 1)')"
+},
+{
+"at": 49.0,
+"eval": "Module._debug_cmd(84004)"
+},
+{
+"at": 49.05,
+"eval": "Module._debug_cmd(2510)"
+},
+{
+"at": 49.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 49.31,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 49.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 49.38,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 50.2,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 50.25,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 50.5,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 50.55,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 50.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 50.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 51.15,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 51.16,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 51.21,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 51.23,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 51.7,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 51.71,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 51.76,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 51.78,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 52.25,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 52.26,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 52.31,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 52.33,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 52.6,
+"eval": "Module._debug_cmd(2107)"
+}
+]

@@ -32,13 +32,28 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
          (fighter-cls f))))
 
 ;;; ---------------------------------------------------------------- starting moves
+(defun core-pips-ok-p (e mv)
+  "Can E pay MV's :params :pips (pips of the kit's arm meter: Kenpachi's Bankai pointer 3, DUEL_KEN_CORE §8)? A move without one: T."
+  (let ((n (getf (mv-params mv) :pips)))
+    (or (null n) (>= (round (gauges-meter (gauges e))) n)
+        (progn (emit :refused e :sp) (clog "~a refused ~a: no pip" (side-name e) (mv-name mv)) nil))))
+
+(defun core-start! (e mv)
+  "Start core move MV (CORE-PIPS-OK-P first) and pay its pips (ARM-SPEND!, one each). T when it started."
+  (when (core-pips-ok-p e mv)
+    (start-move e mv :quick)
+    (dotimes (i (getf (mv-params mv) :pips 0)) (arm-spend! e mv))
+    t))
+
 (defun core-sp-start! (e f)
-  "SP from a free state: NS under the pointer (the next segment pointer's style). T when it started."
+  "SP from a free state: NS under the pointer (the next segment pointer's style). T when it took the press (started, or refused
+for want of a pip: the press is eaten, not retried every frame)."
   (let ((mv (kit-core-move (fighter-kit f) :ns (fighter-ptr f))))
     (when mv
-      (setf (fighter-sp-ptr f) (fighter-ptr f) (fighter-tmp f) 0 (fighter-csa f) nil)
-      (start-move e mv :quick)
-      t)))
+      (if (core-pips-ok-p e mv)
+          (progn (setf (fighter-sp-ptr f) (fighter-ptr f) (fighter-tmp f) 0 (fighter-csa f) nil)
+                 (core-start! e mv))
+          t))))
 
 (defun core-next-as (f)
   "The AS an SP pressed now would start in F's combo: the one the move he is in names (its :params :as-ptr: Hisagi's gathered
@@ -69,9 +84,9 @@ current pointer's."
   (let* ((writes (getf (kit-core (fighter-kit f)) :as-writes '(1 2 3)))
          (n (core-next-as f)) (mv (kit-core-move (fighter-kit f) :as n))
          (w (nth (1- n) writes)))
-    (when mv
+    (when (and mv (core-pips-ok-p e mv))
       (setf (fighter-sp-ptr f) (or w (fighter-ptr f)))
-      (start-move e mv :quick)
+      (core-start! e mv)
       (setf (fighter-ptr f) (or w (fighter-ptr f)) (fighter-as-done f) t)
       (if w (clog "~a AS~d pointer ~d" (side-name e) n w) (clog "~a AS~d pointer kept ~d" (side-name e) n (fighter-ptr f)))
       t)))
@@ -138,7 +153,7 @@ under *DRIVE-SWITCH* x B, or no other pointer (DUEL_SUBLIMATION §17)."
           (clog "~a NS pointer ~d -> ~d (DRIVE)" (side-name e) (fighter-ptr f) to)
           (return-from core-latch-step t)))
       (let ((next (if (eq q :ns) (mv-ns-next (fighter-kit f) mv) (or (fighter-csa f) (mv-sa-move (fighter-kit f) mv) (kit-sa-move (fighter-kit f))))))
-        (when next (start-move e next :quick) t)))))
+        (when next (core-start! e next))))))
 
 ;;; ---------------------------------------------------------------- judging a step's hits
 (defun core-verdicts (hits)
@@ -264,6 +279,7 @@ drops it (CORE-KIKON-UNDO!)."
     (run-velocity e (kikon-follow-speed (fighter-dist f) left (or (getf (mv-params mv) :follow-cap) 22.0)))   ; (a wave's: far)
     (when (<= left 0)
       (setf (fighter-hits f) 0 (fighter-contact f) nil (fighter-land-sf f) -1)
+      (when (kit-pips (fighter-kit f)) (arm-spend! e mv))   ; the Kikon's strike burns a pip of the arm (none left: it strikes anyway; §8)
       (enter-main e f mv))))
 
 (defun core-follow-cues (att def)

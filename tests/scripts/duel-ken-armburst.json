@@ -1,19 +1,47 @@
 [
 {
 "at": 9.0,
-"eval": "console.log('=== arm burst at 1 pip: the last pip cracks, he stays BANKAI')"
+"eval": "console.log('=== arm burst: NS3a burns the last pip, he stays BANKAI')"
 },
 {
 "at": 9.0,
-"eval": "Module._debug_cmd(2388)"
+"eval": "Module._debug_cmd(84004)"
 },
 {
-"at": 16.0,
+"at": 9.05,
+"eval": "Module._debug_cmd(84081)"
+},
+{
+"at": 9.1,
+"eval": "Module._debug_cmd(2512)"
+},
+{
+"at": 9.3,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.31,
 "key": "KeyJ",
 "down": true
 },
 {
-"at": 16.05,
+"at": 9.36,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.39,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 12.0,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 12.05,
 "key": "KeyJ",
 "down": false
 }

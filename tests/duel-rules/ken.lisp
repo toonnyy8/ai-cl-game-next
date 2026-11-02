@@ -237,8 +237,8 @@
     (check (equal (mapcar (lambda (x) (getf (mv-params (m x)) :charge-mult)) '(:ke-kt-sa-c1 :ke-kt-sa-c2 :ke-kt-sa-c3)) '(1.2 1.4 1.6)))
     ;; the base form's moves stay in his table (RYOTE derives them from it), and RYOTE / NOMIHOSE keep the base's core
     (check (every #'m '(:ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3))))
-  (check (and (eq (getf (kit-core (kit :kenpachi :bankai)) :sa) :ke-sa) (equal (getf (kit-core (kit :kenpachi :bankai)) :ns) '(:ke-n1a :ke-n2a :ke-n3a))
-              (equal (getf (kit-core (kit :kenpachi :bankai)) :stances) '(:ke-st-chain :ke-st-rush :ke-st-kamae))))
+  (check (and (eq (getf (kit-core (kit :kenpachi :bankai)) :sa) :ke-b-sa1) (equal (getf (kit-core (kit :kenpachi :bankai)) :ns) '(:ke-b-n1a :ke-b-n2a :ke-b-n3a))
+              (equal (getf (kit-core (kit :kenpachi :bankai)) :as) '(:ke-b-as1 :ke-b-as2 :ke-b-as3))))   ; (its own since DUEL_KEN_CORE §8)
   ;; RYOTE's reach on the base core moves is the same as before KATATE got its own set (x1.4 of the written one)
   (check (= (mv-reach (gethash :ke-n2b (kit-moves r))) (* 1.4 (mv-reach (find-move :ke-n2b))))))
 
@@ -260,8 +260,35 @@
     (check (every (lambda (x) (eq (getf (mv-spec (m x)) :on-hit) :stagger)) '(:ke-r-as2 :ke-r-as3 :ke-r-as3b)))
     ;; the base form's moves stay in his table (NOMIHOSE derives them from it)
     (check (every #'m '(:ke-n1a :ke-n1b :ke-n1c :ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c :ke-sa :ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c)))
-    ;; the Bankai keeps the base core, derived from RYOTE's version as before
-    (check (let ((b (kit :kenpachi :bankai))) (and (eq (getf (kit-core b) :sa) :ke-sa) (gethash :ke-n2b (kit-moves b)))))))
+    ;; the Bankai has its own core since DUEL_KEN_CORE §8
+    (check (eq (getf (kit-core (kit :kenpachi :bankai)) :sa) :ke-b-sa1))))
+
+;;; ---- the Bankai on the core system (DUEL_KEN_CORE §8, 2026-11-02): 1 the maw, 2 the broken cleaver, 3 the arm that burns
+(let ((b (kit :kenpachi :bankai)))
+  (labels ((m (x) (gethash x (kit-moves b))) (cls (x) (kit-class b (m x))) (p (x k) (getf (mv-params (m x)) k)))
+    (check (every (lambda (x) (eq (cls x) :ns)) '(:ke-b-n1a :ke-b-n1b :ke-b-n1c :ke-b-n2a :ke-b-n2b :ke-b-n3a :ke-b-n3b :ke-b-n3c)))
+    (check (every (lambda (x) (eq (cls x) :as)) '(:ke-b-as1 :ke-b-as2 :ke-b-as2b :ke-b-as3 :ke-b-as3b :ke-b-as3c)))
+    (check (every (lambda (x) (eq (cls x) :sa)) '(:ke-b-sa1 :ke-b-sa2 :ke-b-sa3)))
+    ;; the chains, each pointer's SA, the openers' tier 16
+    (check (and (eq (p :ke-b-n1a :ns-next) :ke-b-n1b) (eq (p :ke-b-n1b :ns-next) :ke-b-n1c) (eq (p :ke-b-n2a :ns-next) :ke-b-n2b)
+                (eq (p :ke-b-n3a :ns-next) :ke-b-n3b) (eq (p :ke-b-n3b :ns-next) :ke-b-n3c) (eq (p :ke-b-as2 :ns-next) :ke-b-as2b)
+                (eq (p :ke-b-as3 :ns-next) :ke-b-as3b) (eq (p :ke-b-as3b :ns-next) :ke-b-as3c)
+                (eq (p :ke-b-n1a :sa) :ke-b-sa1) (eq (p :ke-b-n2a :sa) :ke-b-sa2) (eq (p :ke-b-n3a :sa) :ke-b-sa3)))
+    (check (every (lambda (x) (= 16 (mv-s (m x)))) '(:ke-b-n1a :ke-b-n2a :ke-b-n3a)))
+    (check (equal (mapcar (lambda (x) (mv-s (m x))) '(:ke-b-n1b :ke-b-n1c :ke-b-n2b :ke-b-n3b :ke-b-n3c)) '(12 14 18 14 20)))
+    ;; the arm: pointer 3's segments and AS3's last burn one pip each, nothing else; no crack clock, no KATAUDE
+    (check (equal (loop for x in '(:ke-b-n1a :ke-b-n1b :ke-b-n1c :ke-b-n2a :ke-b-n2b :ke-b-n3a :ke-b-n3b :ke-b-n3c
+                                   :ke-b-as1 :ke-b-as2 :ke-b-as2b :ke-b-as3 :ke-b-as3b :ke-b-as3c)
+                        collect (or (p x :pips) 0))
+                  '(0 0 0 0 0 1 1 1 0 0 0 0 0 1)))
+    (check (and (null (getf (kit-pips b) :crack t)) (null (getf (kit-pips b) :to))))
+    ;; no NS segment knocks down or launches (the SA can follow any, §443); each AS's last segment does
+    (check (notany (lambda (x) (member (getf (mv-spec (m x)) :on-hit) '(:knockdown :launch)))
+                   '(:ke-b-n1a :ke-b-n1b :ke-b-n1c :ke-b-n2a :ke-b-n2b :ke-b-n3a :ke-b-n3b :ke-b-n3c :ke-b-as2 :ke-b-as3 :ke-b-as3b)))
+    (check (equal (mapcar (lambda (x) (getf (mv-spec (m x)) :on-hit)) '(:ke-b-as1 :ke-b-as2b :ke-b-as3c)) '(:knockdown :launch :knockdown)))
+    (check (equal (mapcar (lambda (x) (mv-dmg (m x))) '(:ke-b-n1a :ke-b-n1b :ke-b-n1c :ke-b-n2a :ke-b-n2b :ke-b-n3a :ke-b-n3b :ke-b-n3c
+                                                        :ke-b-as1 :ke-b-as2 :ke-b-as2b :ke-b-as3 :ke-b-as3b :ke-b-as3c :ke-b-sa1 :ke-b-sa2 :ke-b-sa3))
+                  '(70 90 100 90 100 130 150 220 120 60 110 55 60 200 40 45 50)))))
 
 ;;; ---- NOMIHOSE on the core system (DUEL_KEN_NOMIHOSE, 2026-10-30): no guard, every segment hit-through, KUKAN-GIRI + the drink inside
 (let ((n (kit :kenpachi :nomihose)))
@@ -286,7 +313,7 @@
 (check (every (lambda (fm) (destructuring-bind (f s . names) fm
                              (every (lambda (n) (= s (mv-s (mv :kenpachi f n)))) names)))
               '((:base 14 :ke-n1a :ke-n2a) (:nozarashi 22 :ke-n1a :ke-kt-n2a) (:ryote 19 :ke-r-n1a :ke-r-n2a)
-                (:nomihose 16 :ke-m-n1a :ke-m-n2a :ke-m-n3a) (:bankai 16 :ke-n1a :ke-n2a))))
+                (:nomihose 16 :ke-m-n1a :ke-m-n2a :ke-m-n3a) (:bankai 16 :ke-b-n1a :ke-b-n2a :ke-b-n3a))))
 ;; a charge keeps its length; a shifted opener hits on its new S (its window moved, its clip sped up to match)
 (check (and (= 20 (mv-s (mv :kenpachi :base :ke-n3a))) (= 20 (mv-s (mv :kenpachi :nozarashi :ke-kt-n3a)))))
 (let ((old (find-move :ke-n2a)) (new (mv :kenpachi :base :ke-n2a)))

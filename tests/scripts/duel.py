@@ -737,12 +737,46 @@ write("ken-nomihose", ken_katate_script(84003, "NM"))
 
 
 def ken_armburst_script():
-    """The Bankai's arm burst keeps the Bankai (no KATAUDE since 2026-11-02: 「取消掉片腕的狀態」, DUEL_KEN_CORE §7.3): debug 2388 (the
-    Bankai with 1 pip), the last pip cracks after *ARM-CRACK* 300 f, ARM BURST, then J is still the Bankai's KE-B-J1."""
-    ev = [{"at": T0, "eval": "console.log('=== arm burst at 1 pip: the last pip cracks, he stays BANKAI')"}, cmd(T0, 2388)]
-    ev += tap(T0 + 7.0, "KeyJ", 0.05)
+    """The Bankai's arm burst keeps the Bankai (no KATAUDE since 2026-11-02: 「取消掉片腕的狀態」, DUEL_KEN_CORE §7.3): scene 84004 with the arm
+    at 1 pip (84081), pointer 3 (2512): SP burns the last pip on NS3a (no crack clock since §8), ARM BURST, then J is still the Bankai's KE-B-J1."""
+    ev = [{"at": T0, "eval": "console.log('=== arm burst: NS3a burns the last pip, he stays BANKAI')"}, cmd(T0, 84004), cmd(T0 + 0.05, 84081),
+          cmd(T0 + 0.1, 2512), key(T0 + 0.3, "ShiftLeft")]
+    ev += tap(T0 + 0.31, "KeyJ", 0.05); ev.append(key(T0 + 0.39, "ShiftLeft", False))
+    ev += tap(T0 + 3.0, "KeyJ", 0.05)
     return ev
 write("ken-armburst", ken_armburst_script())
+
+
+def ken_bankai_script():
+    """The Bankai on the core system (DUEL_KEN_CORE §8): scene 84004 (the Bankai, the arm full, an idle Ichigo 2.2 m), pointer 2510+p; each
+    pointer's NS, its SA, the three AS (AS3 in canon's order); pointer 3's pips: 84080+k sets the arm to k pips (3 burn 3, 1 lets only NS3a
+    start, 0 refuses it); the arm's last pip burnt bursts it and he stays in the Bankai."""
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+    def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
+    def pips(t, k): ev.append(cmd(t, 84080 + k))
+    t = T0
+    for label, ptr, body in (
+            ("BK N1 maw: SP x3 (claw, bite, rip)", 2510, lambda s: [sp(s), sp(s + 0.45), sp(s + 0.85)]),
+            ("BK N1 maw: SP, J (SA hook), J2", 2510, lambda s: [sp(s), jt(s + 0.5), jt(s + 0.8)]),
+            ("BK N2 cleaver: SP x2 (leap cut, flat hammer)", 2511, lambda s: [sp(s), sp(s + 0.6)]),
+            ("BK N2 cleaver: SP, J (SA hack)", 2511, lambda s: [sp(s), jt(s + 0.55)]),
+            ("BK N3 arm: SP x3 at 4 pips (burns 3)", 2512, lambda s: [sp(s), sp(s + 0.6), sp(s + 1.1)]),
+            ("BK N3 arm: SP x3 at 1 pip (NS3a, then refused; the burst)", 2512, lambda s: [pips(s - 0.1, 1), sp(s), sp(s + 0.6), sp(s + 1.1)]),
+            ("BK N3 arm: SP at 0 pips (refused)", 2512, lambda s: [pips(s - 0.1, 0), sp(s)]),
+            ("BK AS1: J, SP (bites the arm off)", 2510, lambda s: [jt(s), sp(s + 0.3)]),
+            ("BK AS2: J, J2, SP, SP (chin punch, leap chop)", 2510, lambda s: [jt(s), jt(s + 0.3), sp(s + 0.65), sp(s + 1.25)]),
+            ("BK Kikon: J, SP held (the Kikon of AS1 burns a pip)", 2510, lambda s: [jt(s), sp(s + 0.3, hold=1.6)]),
+            ("BK AS3: SP, J, J2, J3, SP x3 (leap cut, chin punch, TATE-GOTO burns 1)", 2510,
+             lambda s: [sp(s), jt(s + 0.9), jt(s + 1.2), jt(s + 1.5), sp(s + 1.85), sp(s + 2.4), sp(s + 2.95)])):
+        say(t, label)
+        ev.extend([cmd(t, 84004), cmd(t + 0.05, ptr)])
+        body(t + 0.3)
+        ev.append(cmd(t + 3.6, 2107))
+        t += 4.0
+    return sorted(ev, key=lambda x: x["at"])
+write("ken-bankai", ken_bankai_script())
 
 
 def sublimation_script():

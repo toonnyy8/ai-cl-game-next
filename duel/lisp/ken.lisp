@@ -234,6 +234,31 @@
   :adv-block -16 :reach 2.0 :arc 90 :on-hit :knockback :kb 6.0 :guard 22 :flags (:rend))
 ;; O, MAPPUTATSU: LEAP CLEAVE with the Bankai's Kikon cinematic (the Gerard cleaved in two)
 (defmove-copy :ke-b-kikon :ke-kikon-n :clip :ke-b-leap :callout "MAPPUTATSU" :cine ken-oni-kikon-cine)   ; (the oni's leap: art only)
+;;; The Bankai on the core system (the user, 2026-11-02, DUEL_KEN_CORE §8: 「A 加 B 的自毀之臂」, the arm 「大招的燃料」): pointer 1 the
+;;; maw (撓咬: claw, bite, rip), pointer 2 the broken cleaver as a one-hand axe (斷刀劈砍: leap cut, flat-side hammer), pointer 3 the
+;;; self-destroying arm (自毀之臂: every segment burns a pip, :params :pips, CORE-PIPS-OK-P; none left: it doesn't start); AS3 in canon's
+;;; order (ch. 670: the leap cut, the chin punch, the vertical split). An NS segment the SA can follow crumples, never knocks down (§443).
+;;; Clips: the Bankai's existing ones as placeholders until the art round (the claw = the hook, the stances = :ke-b-stance).
+(defmove-copy :ke-b-sa1 :ke-b-j3 :dmg 40 :startup 8 :clip-s 9 :flags nil :slide 0.8)                  ; the left hook
+(defmove-copy :ke-b-n1c :ke-b-bite :kind :flash :callout nil :startup 14 :dmg 100 :on-hit :crumple :flags (:rend))   ; the rip
+(defmove-copy :ke-b-n1b :ke-b-bite :kind :flash :startup 12 :dmg 90 :on-hit :stagger :params (:ns-next :ke-b-n1c))   ; KAMICHIGIRI
+(defmove-copy :ke-b-n1a :ke-b-j3 :kind :flash :callout "TSUKAMI" :startup 16 :clip-s 9 :dmg 70 :reach 2.2 :arc 90 :slide 1.5
+  :on-hit :stagger :flags (:rend) :params (:ns-next :ke-b-n1b :sa :ke-b-sa1))                        ; the claw lunge
+(defmove-copy :ke-b-as1 :ke-b-bite :kind :sp :callout "KUICHIGIRI" :dmg 120 :on-hit :knockdown :flags (:unguardable :rend))   ; bites the arm off
+(defmove-copy :ke-b-sa2 :ke-b-j1 :dmg 45 :startup 8)                                                  ; a short hack
+(defmove-copy :ke-b-n2b :ke-b-k3 :startup 18 :dmg 100 :on-hit :crumple :flags (:rend))                ; the flat-side hammer
+(defmove-copy :ke-b-n2a :ke-b-k1 :callout "TOBIGIRI" :startup 16 :dmg 90 :slide 3.0 :on-hit :stagger
+  :params (:ns-next :ke-b-n2b :sa :ke-b-sa2))                                                          ; the leap cut
+(defmove-copy :ke-b-as2b :ke-b-k1 :kind :sp :startup 18 :dmg 110 :on-hit :launch)                    ; the leap chop up
+(defmove-copy :ke-b-as2 :ke-b-punch :callout "NAGURI-TOBASHI" :startup 12 :dmg 60 :on-hit :stagger :kb 1.0 :params (:ns-next :ke-b-as2b))
+(defmove-copy :ke-b-sa3 :ke-b-j2 :dmg 50 :startup 8)                                                  ; the broken blade's sweep
+(defmove-copy :ke-b-n3c :ke-b-split :kind :flash :startup 20 :dmg 220 :on-hit :crumple :kb 1.0 :on-frame nil :params (:melee-range 3.2 :pips 1))
+(defmove-copy :ke-b-n3b :ke-b-k1 :callout nil :startup 14 :dmg 150 :on-hit :crumple :params (:pips 1 :ns-next :ke-b-n3c))
+(defmove-copy :ke-b-n3a :ke-b-k2 :callout "UDE-KUDAKI" :startup 16 :dmg 130 :on-hit :stagger :params (:pips 1 :ns-next :ke-b-n3b :sa :ke-b-sa3))
+(defmove-copy :ke-b-as3c :ke-b-split :dmg 200 :on-frame nil :params (:melee-range 3.2 :pips 1))      ; TATE-GOTO
+(defmove-copy :ke-b-as3b :ke-b-punch :callout nil :startup 12 :dmg 60 :on-hit :stagger :kb 1.0 :slide 2.0   ; (the lunge: AS3a's push left him out of 2.0 m)
+  :params (:ns-next :ke-b-as3c))
+(defmove-copy :ke-b-as3 :ke-b-k1 :kind :sp :callout nil :startup 16 :dmg 55 :on-hit :stagger :params (:ns-next :ke-b-as3b))
 ;; 片腕: the base moves at reach x0.7 (the kit derives them); the kick is a leg: as written, under its own name
 (defmove-copy :ke-a-j3 :ke-j3)
 
@@ -367,15 +392,16 @@
 (defkit :kenpachi :bankai :inherit :nomihose
   :awakening t :mult *bankai-ken-mult* :form-name "BANKAI" :kikon-konpaku 4 :blade-chip *nomihose-chip* :open-s *ken-open-bankai*
   :bankai-form nil :passives (:projectile-cut :drink)
-  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2           ; (the base form's: the Bankai is not reworked yet)
-         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)
-         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))
-  :drink-clip :ke-drink :face nil                    ; (not cup 3's drink, nor its standing grin)
+  :core (:ns (:ke-b-n1a :ke-b-n2a :ke-b-n3a) :as (:ke-b-as1 :ke-b-as2 :ke-b-as3) :sa :ke-b-sa1 :mult 1.2   ; its own (DUEL_KEN_CORE §8)
+         :stances (:ke-b-stance :ke-b-stance :ke-b-stance)                     ; (placeholders until the art round)
+         :kikon-cines (ken-oni-kikon-cine ken-oni-kikon-cine ken-sky-split-cine))   ; (the bite's and the split's own later)
+  :drink-clip :ke-drink :face nil                   ; (not cup 3's drink, nor its standing grin)
   ;; its own strikes for the moves it borrows (a look, DUEL_KEN_REWORK §8)
   :clip-map (:ke-q1 :ke-b-q1 :ke-q2 :ke-b-q2 :ke-f1 :ke-b-f1 :ke-f2 :ke-b-f2 :ke-r-f2 :ke-b-f3 :ke-meteor :ke-b-split
              :ke-stance-cut :ke-b-cut)
   :meter (:name "UDE" :max *arm-pips* :start *arm-pips* :draw ken-hud-meter :label ken-hud-label) :meter-gain nil
-  :pips (:n *arm-pips* :to nil :cmds (:f :sig :sp1 :sp2 :breaker :kikon))   ; the burst keeps the Bankai: no KATAUDE (the user 2026-11-02: 「取消掉片腕的狀態」)
+  :pips (:n *arm-pips* :to nil :crack nil :cmds (:f :sig :sp1 :sp2 :breaker :kikon))   ; the burst keeps the Bankai: no KATAUDE (the user 2026-11-02: 「取消掉片腕的狀態」);
+                                                                                   ; no crack clock: the arm is the big moves' fuel (「拿掉」, §8)
   :body :kenpachi-oni :weapon :ke-broken :stance :ke-b-stance :aura :oni :hide (:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4)
   :run-clips (:ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l)
   :cine ken-bankai-cine :enter-hook nil :swing-sfx :whoosh-cleaver
@@ -1139,11 +1165,11 @@ the startup (the user, 2026-10-29: 「前搖到 active 吃一發不退」)."
 (defun ken-charge-sfx (e) "NS3's charge: the kamae gathers (its sound)." (emit :sfx :whoosh-heavy e))
 
 (defun ken-core-debug (c)
-  "84000 / 84001 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene (84001: Kenpachi in KATATE), human P1 Kenpachi and an idle Ichigo P2
+  "84000 / 84001 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene (84001: Kenpachi in KATATE; 84002 RYOTE, 84003 NOMIHOSE, 84004 the Bankai, 84080+k its arm at k pips), human P1 Kenpachi and an idle Ichigo P2
 2.2 m apart, both CPUs off, gauges full; on the running scene 84010 P2 starts his NS now (NS against NS: the first hit wins), 84011
 his J1 now (NA against NS: a cancel). The scripts time the presses."
   (case c
-    ((84000 84001 84002 84003) (ensure-battle :kenpachi :ichigo :cpu nil)
+    ((84000 84001 84002 84003 84004) (ensure-battle :kenpachi :ichigo :cpu nil)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
            (place *p1* *p2* 2.2)
            (full-gauges! *p1*) (full-gauges! *p2*)
@@ -1151,7 +1177,9 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
            (case c                                                  ; 84001: the same, in KATATE; 84002: in RYOTE (NOME 70)
              (84001 (force-form *p1* :nozarashi))
              (84002 (force-form *p1* :ryote) (setf (gauges-meter (gauges *p1*)) (f32 70.0)))
-             (84003 (force-form *p1* :nomihose) (setf (gauges-meter (gauges *p1*)) (f32 100.0)))))
+             (84003 (force-form *p1* :nomihose) (setf (gauges-meter (gauges *p1*)) (f32 100.0)))
+             (84004 (force-form *p1* :bankai)                      ; 84004: the Bankai (DUEL_KEN_CORE §8), the arm full
+              (setf (gauges-meter (gauges *p1*)) (f32 *arm-pips*) (gauges-arm-pending (gauges *p1*)) nil) (refresh-look *p1*))))
     (84010 (core-sp-start! *p2* (fighter *p2*)))
     (84011 (force-cmd *p2* :q))
     (t (let ((g (gauges *p1*)))                                    ; DUEL_SUBLIMATION §7, on the running 84000 scene (P1's gauges)
@@ -1159,6 +1187,8 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
                 (setf (gauges-awakened g) nil (gauges-awaken g) *awaken-max* (gauges-sub g) (f32 (* 10 (- c 84020)))))
                ((<= 84040 c 84050)                                ; 84040+k: awakened with s = 0.4 frozen, SPIRIT DRIVE at 10k %
                 (setf (gauges-awakened g) t (gauges-awaken g) 0f0 (gauges-sub-s g) 0.4f0 (gauges-drive g) (f32 (* 10 (- c 84040)))))
+               ((<= 84080 c 84084)                                ; 84080+k: the Bankai's arm at k pips (DUEL_KEN_CORE §8)
+                (setf (gauges-meter g) (f32 (- c 84080)) (gauges-arm-pending g) nil) (refresh-look *p1*))
                ((= c 84060)                                       ; the real awakening with SUBLIMATION at 50 %
                 (setf (gauges-awakened g) nil (gauges-awaken g) *awaken-max* (gauges-sub g) 50f0)
                 (awaken! *p1*))

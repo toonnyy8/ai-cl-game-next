@@ -151,3 +151,41 @@ fights on in the Bankai with no pips (a pip command is refused, as at 0 before).
 redesigned with the Bankai's pointers. The `:kataude` kit, its art and its debug scenes (2389, the HUD review) stay in code, unreachable
 in play, until that batch. Scene `tests/scripts/duel-ken-armburst.json` (debug 2388, the Bankai with 1 pip): `[300] UDE cracked, 0 left`,
 `[301] ARM BURST r1180`, no form line, then J is `KE-B-J1 -> P2 HIT 38` (the Bankai's). Manual, TUTORIAL and DUEL_DESIGN updated.
+
+## 8. The Bankai on the core system (the user, 2026-11-02)
+
+The first form of the redesign (「卍解」, asked which form first). Asked (AskUserQuestion), answered (verbatim):
+
+| Question | Answer |
+|---|---|
+| The three pointers' themes: A canon's beats (the maw / the broken cleaver / the roar and the split), B the research's berserker mechanics (a beast flurry / an armoured trade / the self-destroying arm), or A + B's arm | 「A 加 B 的自毀之臂」: 1 the maw, 2 the broken cleaver, 3 the self-destroying arm |
+| The arm 「腕」's role | 「大招的燃料」: the big segments burn its pips; the last one gone, it bursts |
+| The segment table (below) | 「可以」 |
+| The crack clock (a pip every 5 s) | 「拿掉」 |
+| The three Kikon cinematics | 「先沿用，後續新做」 |
+
+| Ptr | Theme | NS (S, damage, reaction) | Its SA | AS n | Kikon (for now) |
+|---|---|---|---|---|---|
+| 1 | the maw 撓咬 | `ke-b-n1a` the claw lunge TSUKAMI S16 70 stagger, 1.5 m → `ke-b-n1b` KAMICHIGIRI S12 90 stagger, unguardable → `ke-b-n1c` the rip S14 100 crumple | `ke-b-sa1` the left hook 40 | AS1 `ke-b-as1` KUICHIGIRI (bites the arm off) 120 knockdown | `ken-oni-kikon-cine` |
+| 2 | the broken cleaver 斷刀劈砍 | `ke-b-n2a` the leap cut TOBIGIRI S16 90 stagger, 3 m → `ke-b-n2b` the flat-side hammer S18 100 crumple | `ke-b-sa2` a hack 45 | AS2 `ke-b-as2` NAGURI-TOBASHI 60 stagger → `ke-b-as2b` the leap chop 110 launch | `ken-oni-kikon-cine` |
+| 3 | the self-destroying arm 自毀之臂 | `ke-b-n3a` UDE-KUDAKI S16 130 stagger → `ke-b-n3b` S14 150 crumple → `ke-b-n3c` TATE-GOTO S20 220 crumple, **1 pip each** | `ke-b-sa3` the sweep 50 | AS3 (canon ch. 670's order) `ke-b-as3` the leap cut 55 → `ke-b-as3b` the chin punch 60 (lunge 2.0 m) → `ke-b-as3c` TATE-GOTO 200 knockdown, **1 pip** | `ken-sky-split-cine` |
+
+- **Deviation from the approved table**: NS1c and NS3c crumple instead of knocking down, since the SA can follow any NS segment (the
+  §443 red flag: a knockdown there makes the SA whiff).
+- **The arm.** A core move's `:params :pips` (generic, core-sim.lisp `core-pips-ok-p` / `core-start!`): it starts only when the arm holds
+  that many pips and burns them on its first frame (ARM-SPEND!, 60 Reishi each, never below 1); refused, the SP press is eaten once
+  (`P1 refused KE-B-N3A: no pip`), not retried. The Kikon's strike burns one more when there is one (it strikes anyway at 0). The last pip
+  gone: the burst (120, the 40 f crumple), and he stays in the Bankai (§7.3). No crack clock: the kit's `:pips :crack nil` (ken-meter.lisp
+  skips PIP-STEP; the web HUD gets -1 for the clock, no `hurry` pulse).
+- **Clips** are placeholders (the claw = the left hook, the rip = the bite, the stances all `:ke-b-stance`): the art round is next, with
+  the two new Kikon cinematics after the playtest.
+- **Debug** 84004 (the Bankai, the arm full, an idle Ichigo 2.2 m), 84080+k (the arm at k pips). **The CPU** uses the generic core CPU; it
+  does not know the pips (a refused press is only lost).
+- **Checks.** Host tests 11331 all pass (the Bankai block: classes, chains, SAs, startups 16 / 12 / 14 / 16 / 18 / 16 / 14 / 20, the pips
+  0 0 0 0 0 1 1 1 0 0 0 0 0 1, no knockdown on an NS segment, the AS enders, the damage); pkgcheck clean (`debug-ranges-check.py` reports
+  one overlap, 2510-2513 vs 2513, that was there before this change); the build; the playtest Artifact v280. Scene
+  `tests/scripts/duel-ken-bankai.json` (combat log): NS1 70 → 90 → 100; SA1 40 → J2 38; NS2 90 → 100; SA2 45; NS3 at 4 pips 130 → 150 → 220
+  (UDE 3 → 2 → 1 left); at 1 pip NS3a 130 (0 left), NS3b refused, ARM BURST, still the Bankai; at 0 pips refused once; AS1 120; AS2 60 → 110;
+  AS3 55 → 60 → 200 (UDE -1); the Kikon off AS1 (held SP) burns one (3 left) and plays the oni cinematic. Found by the scene: AS3b's punch
+  (2.0 m) whiffed after AS3a's push: lunge 2.0 m added. `duel-ken-armburst.json` now burns the last pip on NS3a (the crack clock is gone).
+  G2 `--cvc` identical in all three pairs (no CPU match reaches the Bankai).

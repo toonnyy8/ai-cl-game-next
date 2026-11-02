@@ -160,7 +160,7 @@
       var n = Math.round(v), pp = k.querySelectorAll(".pp");
       st(k, "--ck", (Math.max(0, V[o + 21]) / 1000).toFixed(3));
       for (i = 0; i < 4; i++) { pp[i].classList.toggle("lit", i < n); pp[i].classList.toggle("nx", i === n - 1); }
-      k.classList.toggle("hurry", n > 0 && V[o + 21] < 200);
+      k.classList.toggle("hurry", n > 0 && V[o + 21] >= 0 && V[o + 21] < 200);   // (-1: no crack clock)
     }
   }
   function renderPlate(s) {
