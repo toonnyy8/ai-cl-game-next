@@ -192,3 +192,22 @@ Draft Bankai (one pointer each, the J string J1–J5, SP after J5 = the special 
 | AS (press count) | AS1 lunge → spin; AS2 + the dance; AS3 + the spinning leap cut | AS1 haft → chop; AS2 + the sweep; AS3 + the turning chop |
 | Special AS | 「千切」: a storm of spins ending in a dash through him | TATE-GOTO, the vertical split (canon §1.9) |
 | Kikon | the dash-through tornado | the split (for now the old `ken-sky-split-cine`) |
+
+### 5.4 The Bankai's stances and 「千切」 (the user, 2026-11-02, verbatim)
+
+> 「千切」→ 改成類似惡魔獵人中維吉爾的次元斬，並且在最後嘶吼並爆開空間，Kikon 也用類似的演出（只是更加華麗符合大絕的演出）
+> 卍解使用這兩種站姿，並且不再使用刀柄攻擊
+
+Pictures (`.refs/kenpachi-v3/`, two prize figures of the red, horned Bankai with the long-hafted cleaver): `bankai-p2-shoulder-figure.png`
+the haft over the right shoulder, the cleaver head behind, a wide low stance → the Bankai from pointer 2; `bankai-p1-low-figure.png` crouched
+like a beast, both arms out, the long blade held low and trailing in the right hand → the Bankai from pointer 1.
+
+| | Bankai from pointer 1 「狂嵐」 | Bankai from pointer 2 「斬壞」 |
+|---|---|---|
+| Stance | the low beast crouch, arms out, the blade trailing low in the right hand | the haft on the right shoulder, the head behind, a wide low stance |
+| NS (fixed) | a the lunge cut → b the spin → c the reverse spin → d the sword dance, faster than the Shikai's | a the shoulder drop, overhead chop → b the dragged rising chop → c both hands, the flat sweep → d the turning chop (no haft strikes) |
+| AS (press count) | AS1 lunge → spin; AS2 + the dance; AS3 + the spinning leap cut | AS1 the overhead chop → the rising chop; AS2 + the sweep; AS3 + the turning chop |
+| Special AS | 「千切」: a space-cutting draw (after Vergil's Judgement Cut in Devil May Cry): one blurred swing, then cuts open in the air round him, then he roars and the space bursts | TATE-GOTO (canon §1.9) |
+| Kikon | the same idea as the finisher's cinematic: more cuts, the space shattering round him, the roar | the split (for now `ken-sky-split-cine`) |
+
+The space cuts hit where he stands (after J5 he is close), so the sim stays a melee hit; the cuts in the air and the burst are drawn only.
