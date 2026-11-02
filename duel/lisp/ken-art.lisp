@@ -348,9 +348,11 @@
 ;; (the reach) do not move. Drawn only.
 (defparameter *ke-noz-k-cap* 0.88 "The widening factor at the cap's end (DUEL_KEN_V3 §7.4, 2026-11-03: 1.1 -> 0.88, 「護套那端縮短寬度成約 0.8 倍」).")
 
+(defparameter *ke-noz-k-end* 0.72 "Where the taper reaches *KE-NOZ-K-CAP*, y along the head (DUEL_KEN_V3 §7.5, 2026-11-03: 1.425, the cap's foot -> 0.72, the head's middle: 「收窄到中間處就結束」).")
+
 (defun ke-noz-k (y)
-  "The widening factor at Y along Nozarashi's head: 1.3 at the point's end, linear to *KE-NOZ-K-CAP* at the cap's foot, held."
-  (let ((k (+ 1.3 (* (- y -0.183) (/ (- *ke-noz-k-cap* 1.3) (- 1.425 -0.183))))))
+  "The widening factor at Y along Nozarashi's head: 1.3 at the point's end, linear to *KE-NOZ-K-CAP* at *KE-NOZ-K-END*, held."
+  (let ((k (+ 1.3 (* (- y -0.183) (/ (- *ke-noz-k-cap* 1.3) (- *ke-noz-k-end* -0.183))))))
     (max (min 1.3 *ke-noz-k-cap*) (min (max 1.3 *ke-noz-k-cap*) k))))
 
 (defun ke-noz-widen (y z)

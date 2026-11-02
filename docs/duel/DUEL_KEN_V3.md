@@ -265,3 +265,9 @@ build, G2 `--cvc` identical, stills (debug 84001).
 「幫我將護套那端縮短寬度成約 0.8 倍」: the widening factor at the cap's end `*ke-noz-k-cap*` 1.1 → 0.88 (0.8 of it), still 1.3 at the
 point and linear between, so the blade tapers toward the cap; the cap (0.56 × K) and its groove follow. Checks: host tests 11331,
 pkgcheck, the build, G2 `--cvc` identical, stills (debug 84001).
+
+### 7.5 The taper ends at the middle (the user, 2026-11-03)
+
+「收窄到中間處就結束」: `*ke-noz-k-end*` 1.425 (the cap's foot) → 0.72 (the head's middle, between the point's end −0.183 and the far end
+1.62): K falls 1.3 → 0.88 over the first half and holds 0.88 to the cap. Checks: host tests 11331, pkgcheck, the build, G2 `--cvc`
+identical, stills (debug 84001).
