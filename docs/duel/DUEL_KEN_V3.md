@@ -296,3 +296,44 @@ moves' volumes are sized to it (the host FK reach test, ±0.15 m, then checks th
 Asked (sim of all forms first / one form to the end / the Shikai's sim alone first): 「一個形態做到完」: one form at a time, sim and art
 together: the Shikai first (with the removals it needs: NOME and the cups, the arm, KATAUDE, the cup-3 Bankai), then the Bankai, then
 the sealed form. Each batch: a control script per route, host tests, the build, the playtest Artifact; the CPU stays the generic one.
+
+## 9. The Shikai's frame table (draft, mine, knobs; for the user's approval)
+
+S = startup frames, dmg before the kit's ×, reach in m past his centre (the new blade, about 2.3 m past the grip, §7.8), "lv" = the
+unlock level L a segment needs. Hitstop by damage stays the kit's `:hs-dmg` (4 + (dmg − 30) / 10, 4–14 f). No mid-route knockdown (the SA
+may follow any NS segment, §443): NS segments stagger or crumple; an AS's last segment at L3 knocks down.
+
+| Move | lv | S | dmg | reaction | reach / travel |
+|---|---|---|---|---|---|
+| J1 / J2 / J3 | — | 9 / 9 / 11 | 40 / 40 / 55 | flinch / flinch / stagger | 2.4 |
+| J4 / J5 / J6 / J7 (L3 only: the special string) | 3 | 9 / 9 / 10 / 12 | 45 / 45 / 50 / 70 | flinch ×3 / stagger | 2.4 |
+| SA (one-hand cut) | — | 8 | 40 | flinch | 2.2 |
+| P1 NS a the lunge cut | 0 | 16 | 70 | stagger | 2.6, dash 3.0 |
+| P1 NS b the spin-through sweep | 1 | 12 | 60 | stagger | 2.8, all round |
+| P1 NS c the reverse spin | 2 | 12 | 65 | stagger | 2.8, all round |
+| P1 NS d the sword dance | 3 | 10 | 35 + 35 | flinch, stagger | 2.4 |
+| P1 NS e the spinning leap cut | 3 | 14 | 100 | crumple | 2.8, leap 2.0 |
+| P2 NS a the hilt jab | 0 | 14 | 45 | stagger | 1.4 (the hilt) |
+| P2 NS b the hilt flick up | 0 | 10 | 50 | stagger | 1.2 |
+| P2 NS c both hands, the overhead | 1 | 16 | 110 | crumple | 2.8 |
+| P2 NS d the great-sword sweep | 2 | 14 | 100 | stagger | 2.8 |
+| P2 NS e the turning cut | 3 | 18 | 140 | crumple | 3.0 |
+| AS1 (keeps P1; J1–J2 + SP) | 0 / 1 / 2 / 3 | 14 / 12 / 12 / 14 | 70 / 60 / 65 / 110 | stagger ×3, knockdown | P1's a, b, c, e |
+| AS2 (keeps P2; J3 + SP) | 0 / 1 / 2 / 3 | 12 / 16 / 14 / 18 | 50 / 110 / 100 / 150 | stagger ×3, knockdown | P2's a, c, d, e |
+| Burst to P1 「斬返」 (from P2, J1–J2 + SP) | — | 14 | 100 / 150 / 200 / 260 by the old L | knockdown | 2.8 |
+| Burst to P2 「突進一閃」 (from P1, J3 + SP) | — | 12 | 100 / 150 / 200 / 260 by the old L | knockdown | 2.6, dash 3.5 through |
+| P1 special AS (J4–J6 + SP) the full wheel | 3 | 12 | 60 + 60 + 120 | launch | 3.0, all round |
+| P2 special AS (J4–J6 + SP) the meteor cut | 3 | 20 | 260 | knockdown | 3.0, leap 3.0 |
+| J7 + SP | 3 | — | — | — | the Bankai (until the Bankai batch: the current Bankai kit) |
+
+Build notes: copies (`defmove-copy`) override `:min-reach`, `:as-ptr`, `:pips` explicitly; the old KATATE / RYOTE / NOMIHOSE kits go in
+a commit right after the Shikai works and before `:length` 1.62 → 2.3; until the art round the clips are borrowed, so the FK reach check
+says nothing about the new moves yet.
+
+Asked, answered: the table 「可以，照這份做」 (approved; every figure a knob until the playtest).
+
+## 10. Costume by form (the user, 2026-11-03)
+
+「然後劍八的封印跟常態應該是要穿著長袖的死霸裝配上短袖的白色羽織，卍解才剩下變成短袖的死霸裝」; asked which the Shikai wears:
+「和封印一樣」. The sealed form and the Shikai: a long-sleeved shihakushō under a short-sleeved white haori; the Bankai: a short-sleeved
+shihakushō, no haori. Built with the Shikai's art round.
