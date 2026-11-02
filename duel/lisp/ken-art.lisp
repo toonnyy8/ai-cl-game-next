@@ -333,11 +333,25 @@
   `(mb-at (,mb :y 0.4 :z 0.08 :pitch -0.17453292)
      (mb-at (,mb :y -0.4 :z -0.08) ,@body)))
 
+;; the head widened toward the edge (the user 2026-11-03, DUEL_KEN_V3 §7: 「請從 5 開始將刀加寬，從刀尖到護套的加寬程度分別約
+;; 由 1.3 到 1.1 倍」): z pushed away from the spine line by K, 1.3 at the point's end (y -0.183) down to 1.1 at the cap's foot
+;; (y 1.425), linear, then held; the spine line (0.07 at y 0.3, 0.086 at 1.62) stays, so the bar's joint and the blade's length
+;; (the reach) do not move. Drawn only.
+(defun ke-noz-k (y)
+  "The widening factor at Y along Nozarashi's head."
+  (max 1.1 (min 1.3 (+ 1.3 (* (- y -0.183) (/ -0.2 (- 1.425 -0.183)))))))
+
+(defun ke-noz-widen (y z)
+  "Z on Nozarashi's head at Y, widened about the spine line by KE-NOZ-K."
+  (let ((s (+ 0.07 (* (- y 0.3) (/ 0.016 1.32)))))
+    (+ s (* (- z s) (ke-noz-k y)))))
+
 ;; Nozarashi's head up to END along the blade (1.62: whole; the Bankai's broken cleaver cuts it short): the black bar; the
-;; body, the point, the pale band and its chips (turned: WITH-KE-TILT), each profile clipped at the plane y = END; then the haft and the butt
+;; body, the point, the pale band and its chips (turned: WITH-KE-TILT, widened: KE-NOZ-WIDEN), each profile clipped at the plane
+;; y = END; then the haft and the butt
 (defun ke-mb-noz-head (mb end &optional (haft 1.0))
   "Nozarashi's head cut at END up the blade; the haft HAFT times its length, lengthened downward (the top kept at 0.08)."
-  (flet ((prism (profile x0 x1)
+  (flet ((prism (profile x0 x1 &optional wide)
            (let ((pts (loop with out = nil
                             for ((y0 z0) (y1 z1)) on (append profile (list (first profile)))
                             while y1
@@ -345,6 +359,7 @@
                                (when (or (and (< y0 end) (> y1 end)) (and (> y0 end) (< y1 end)))
                                  (push (list end (+ z0 (* (- z1 z0) (/ (- end y0) (- y1 y0))))) out))
                             finally (return (nreverse out)))))
+             (when wide (setf pts (loop for (y z) in pts collect (list y (ke-noz-widen y z)))))
              (when (>= (length pts) 3) (ke-mb-prism mb pts x0 x1)))))
     (mbc mb #x1C1C20)
     (prism '((0.07 -0.025) (0.4 0.045) (0.4 0.115) (0.07 0.025)) -0.022 0.022)   ; the black slanted bar: haft to head
@@ -352,8 +367,8 @@
     ;; the body, then the point (two convex prisms)
     (prism '((0.3 0.07) (1.62 0.086) (1.62 0.611) (1.426 0.605) (1.069 0.596) (0.771 0.575) (0.532 0.545)
              (0.323 0.462) (0.174 0.387))
-           -0.021 0.021)
-    (prism '((0.174 0.387) (-0.034 0.283) (-0.183 0.209) (0.01 0.185) (0.26 0.17)) -0.018 0.018)   ; (its back on the body's)
+           -0.021 0.021 t)
+    (prism '((0.174 0.387) (-0.034 0.283) (-0.183 0.209) (0.01 0.185) (0.26 0.17)) -0.018 0.018 t)   ; (its back on the body's)
     ;; the edge's pale band, both faces: light and grey stripes, the inner line ragged (each stripe its own depth)
     (loop for ((y0 z0 d0) (y1 z1 d1)) on '((-0.183 0.209 0.02) (-0.034 0.283 0.06) (0.115 0.358 0.107) (0.323 0.462 0.133)
                                             (0.532 0.545 0.16) (0.771 0.575 0.14) (1.069 0.596 0.167) (1.426 0.605 0.147))
@@ -361,11 +376,11 @@
           while y1
           do (mbc mb (if (evenp k) #xE2E4E8 #x9EA0A8))
              (prism (list (list y0 z0) (list y1 z1) (list (+ y1 (* 0.4 d1)) (- z1 d1)) (list (+ y0 (* 0.4 d0)) (- z0 d0)))
-                    -0.023 0.023))
+                    -0.023 0.023 t))
     (mbc mb #x1C1C20)                                    ; chips bitten out of the edge
     (loop for (y z) in '((0.22 0.415) (0.65 0.562) (1.0 0.594) (1.3 0.603))
           when (< y (- end 0.05))
-            do (mb-at (mb :y y :z z :roll 0.6) (mb-box mb 0.05 0.03 0.03))))
+            do (mb-at (mb :y y :z (ke-noz-widen y z) :roll 0.6) (mb-box mb 0.05 0.03 0.03))))
     (let* ((len (* 0.76 haft)) (drop (- len 0.76)))
       (mbc mb #xECECE8)                                  ; the long white-wrapped haft
       (mb-at (mb :y (- 0.08 (* 0.5 len))) (mb-box mb 0.05 len 0.05))   ; (it stops short of the head: the bar joins them)
@@ -378,10 +393,10 @@
   (:solid (ke-mb-noz-head mb 1.62)
           (with-ke-tilt (mb)                             ; the cap and the tassel ride on the turned head
           (mbc mb #x9C9478)                              ; the khaki cap over the far end, its stepped foot
-          (mb-at (mb :y 1.525 :z 0.348) (mb-bevel-box mb 0.07 0.2 0.56 0.012))
-          (mb-at (mb :y 1.39 :z 0.14) (mb-bevel-box mb 0.06 0.09 0.13 0.01))
+          (mb-at (mb :y 1.525 :z (ke-noz-widen 1.525 0.348)) (mb-bevel-box mb 0.07 0.2 0.616 0.012))   ; (x 1.1 with the head)
+          (mb-at (mb :y 1.39 :z (ke-noz-widen 1.39 0.14)) (mb-bevel-box mb 0.06 0.09 0.13 0.01))
           (mbc mb #x6E6852)                              ; its groove
-          (mb-at (mb :y 1.455 :z 0.36) (mb-box mb 0.074 0.018 0.46))
+          (mb-at (mb :y 1.455 :z (ke-noz-widen 1.455 0.36)) (mb-box mb 0.074 0.018 0.506))
           (mbc mb #x2F4A35)                              ; the tassel (candidate B, the user 2026-10-09: 「調整始解的流蘇成 B
           (mb-at (mb :y 1.54 :z 0.06) (mb-box mb 0.035 0.06 0.045))   ; 選項」): a dark green knot at the cap's
           ;; (spine corner) the strands: each a cone whose point sits in the knot, its base fanning out away from the blade

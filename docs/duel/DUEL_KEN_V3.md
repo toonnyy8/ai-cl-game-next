@@ -227,3 +227,12 @@ gap, three pointers. No unlock, no planted sword. The VFX rule of §5.3 does not
 | 3 | two hands, chūdan (canon vs Nnoitra); tell: the stillness, the tip on his eyes | read and punish | a the tame (a held stance) → b the thrust → c the men cut | the kote cut | AS3: the thrust → the kote → the thrust through the guard (canon §1.2) | RYŌDAN: the left hand on the pommel, the one downward cut (canon §1.4) |
 
 The user on §6: 「可以」 (approved), then the Shikai blade first: a labelled side view of the current Nozarashi (from `ke-mb-noz-head` / `defweapon :nozarashi`) to discuss its shape.
+
+## 7. Nozarashi's blade widened (the user, 2026-11-03)
+
+「請從 5 開始將刀加寬，從刀尖到護套的加寬程度分別約由 1.3 到 1.1 倍」 (5 = the point on my labelled side view). `ken-art.lisp`
+`ke-noz-k` / `ke-noz-widen`: every point of the head (the body, the point, the pale band, the chips) moves away from the spine line (z 0.07 at
+y 0.3 → 0.086 at 1.62) by K = 1.3 at the point's end (y −0.183), falling linearly to 1.1 at the cap's foot (y 1.425), held after; the cap
+(0.56 → 0.616 m), its groove and its foot follow at 1.1; the bar, the haft and the blade's length do not move (drawn only). The point's
+underside rises with it (the notch under it grows). The Bankai's broken cleaver shares the head (`ke-mb-noz-head`), so it widens too.
+Checks: host tests 11331, pkgcheck, the build, G2 `--cvc` identical (II 28, IK 26, KK 22 lines); stills from both cameras (debug 84001).
