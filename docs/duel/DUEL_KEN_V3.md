@@ -290,3 +290,9 @@ Then 「改成 1.1 倍」: `*ke-noz-mid*` 1.2 → 1.1. Checks: host tests 11331,
 「定案」: the Nozarashi blade of §7.1–§7.3 + §7.7 (middle 1.1) is final. 「對，跟著新刀身走」: V3's Shikai moves take their reach from the
 drawn blade: when they are built, `defweapon :nozarashi`'s `:length` goes from 1.62 to the drawn far end (about 2.3 m past the grip) and the
 moves' volumes are sized to it (the host FK reach test, ±0.15 m, then checks them). Until then the old KATATE moves keep 1.62.
+
+## 8. Build order (the user, 2026-11-03)
+
+Asked (sim of all forms first / one form to the end / the Shikai's sim alone first): 「一個形態做到完」: one form at a time, sim and art
+together: the Shikai first (with the removals it needs: NOME and the cups, the arm, KATAUDE, the cup-3 Bankai), then the Bankai, then
+the sealed form. Each batch: a control script per route, host tests, the build, the playtest Artifact; the CPU stays the generic one.
