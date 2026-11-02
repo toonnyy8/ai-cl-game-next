@@ -56,6 +56,7 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_CORE_DOC.zh-TW.md](duel/DUEL_CORE_DOC.zh-TW.md) | 使用者的原始設計筆記「簡化格鬥遊戲：核心系統設計」（原文保留） |
 | [DUEL_HISAGI.md](duel/DUEL_HISAGI.md) | 檜佐木修兵（2026-10-16 起，設計中）：始解風死的鎖鏈中距離、擲鐮收回、卍解風死絞縄（英文） |
 | [DUEL_KEN_CORE.md](duel/DUEL_KEN_CORE.md) | 劍八常態在核心系統上的重新設計（2026-10-29）：三指針主題、NS2 霸體與抵銷計數、NS3 續力架式（英文） |
+| [DUEL_KEN_V3.md](duel/DUEL_KEN_V3.md) | 劍八從零重新設計（2026-11-02，設計中）：封印／始解／卍解三形態依武器分，指針依握法與刀位分，整體總表（英文） |
 | [DUEL_KEN_KATATE.md](duel/DUEL_KEN_KATATE.md) | 劍八第一杯片手（KATATE）的核心系統重設計（2026-10-30）：空著的左手出拳、抓摔、不被打斷的架式蓄力（英文） |
 | [DUEL_KEN_RYOTE.md](duel/DUEL_KEN_RYOTE.md) | 劍八第二杯雙手（RYOTE）的核心系統重設計（2026-10-30）：劈道正統的 NS / SA / AS、高倍率但沒有霸體的上段蓄力（英文） |
 | [DUEL_SUBLIMATION.md](duel/DUEL_SUBLIMATION.md) | 共用的新系統：昇華 SUBLIMATION（覺醒條滿後的粉色第二階）與 SPIRIT DRIVE（覺醒後的紅色量表）、全角色性能加成、劍八卍解改成 DRIVE 滿才能按（2026-10-31，英文） |
