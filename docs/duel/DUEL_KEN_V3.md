@@ -284,3 +284,9 @@ the blade is §7.3's again (the still matches). Checks: host tests 11331, pkgche
 identical, stills (debug 84001).
 
 Then 「改成 1.1 倍」: `*ke-noz-mid*` 1.2 → 1.1. Checks: host tests 11331, pkgcheck, the build, G2 `--cvc` identical.
+
+### 7.8 The blade final; the reach follows it (the user, 2026-11-03)
+
+「定案」: the Nozarashi blade of §7.1–§7.3 + §7.7 (middle 1.1) is final. 「對，跟著新刀身走」: V3's Shikai moves take their reach from the
+drawn blade: when they are built, `defweapon :nozarashi`'s `:length` goes from 1.62 to the drawn far end (about 2.3 m past the grip) and the
+moves' volumes are sized to it (the host FK reach test, ±0.15 m, then checks them). Until then the old KATATE moves keep 1.62.
