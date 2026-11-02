@@ -344,11 +344,11 @@
 
 ;; the head widened toward the edge (the user 2026-11-03, DUEL_KEN_V3 §7: 「請從 5 開始將刀加寬，從刀尖到護套的加寬程度分別約
 ;; 由 1.3 到 1.1 倍」): z pushed away from the spine line by K, 1.3 at the point's end (y -0.183) down to 1.1 at the cap's foot
-;; (y 1.425), linear, then held (1.1 -> 0.88 there since §7.4); the spine line (0.07 at y 0.3, 0.086 at 1.62) stays, so the bar's joint and the blade's length
+;; (y 1.425), linear, then held (§7.4–§7.5 tried 0.88 there, §7.6 back to 1.1); the spine line (0.07 at y 0.3, 0.086 at 1.62) stays, so the bar's joint and the blade's length
 ;; (the reach) do not move. Drawn only.
-(defparameter *ke-noz-k-cap* 0.88 "The widening factor at the cap's end (DUEL_KEN_V3 §7.4, 2026-11-03: 1.1 -> 0.88, 「護套那端縮短寬度成約 0.8 倍」).")
+(defparameter *ke-noz-k-cap* 1.1 "The widening factor at the cap's end (DUEL_KEN_V3 §7.4–§7.6, 2026-11-03: 1.1 -> 0.88 -> 1.1, back: 「抱歉，回到縮減前的版本」).")
 
-(defparameter *ke-noz-k-end* 0.72 "Where the taper reaches *KE-NOZ-K-CAP*, y along the head (DUEL_KEN_V3 §7.5, 2026-11-03: 1.425, the cap's foot -> 0.72, the head's middle: 「收窄到中間處就結束」).")
+(defparameter *ke-noz-k-end* 1.425 "Where the taper reaches *KE-NOZ-K-CAP*, y along the head: the cap's foot (DUEL_KEN_V3 §7.5–§7.6, 2026-11-03: 1.425 -> 0.72 -> 1.425, back).")
 
 (defun ke-noz-k (y)
   "The widening factor at Y along Nozarashi's head: 1.3 at the point's end, linear to *KE-NOZ-K-CAP* at *KE-NOZ-K-END*, held."

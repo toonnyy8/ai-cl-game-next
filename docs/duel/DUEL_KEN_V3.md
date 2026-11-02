@@ -271,3 +271,8 @@ pkgcheck, the build, G2 `--cvc` identical, stills (debug 84001).
 「收窄到中間處就結束」: `*ke-noz-k-end*` 1.425 (the cap's foot) → 0.72 (the head's middle, between the point's end −0.183 and the far end
 1.62): K falls 1.3 → 0.88 over the first half and holds 0.88 to the cap. Checks: host tests 11331, pkgcheck, the build, G2 `--cvc`
 identical, stills (debug 84001).
+
+### 7.6 Back to §7.3's width (the user, 2026-11-03)
+
+「抱歉，回到縮減前的版本」: §7.4–§7.5 undone by their knobs (`*ke-noz-k-cap*` back to 1.1, `*ke-noz-k-end*` back to 1.425, the cap's foot);
+the blade is §7.3's again (the still matches). Checks: host tests 11331, pkgcheck, the build, G2 `--cvc` identical.
