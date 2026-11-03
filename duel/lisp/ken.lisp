@@ -120,8 +120,9 @@
 (defmove :ke-s-j2 :kind :quick :clip :ke-k-q2 :clip-s 7 :startup 9 :active 3 :recovery 13 :dmg 40 :adv-block -2
   :reach 2.4 :arc 100 :on-hit :flinch)
 (defmove :ke-s-j3 :kind :quick :clip :ke-k-spin :clip-s 11 :startup 11 :active 4 :recovery 18 :dmg 55 :adv-block -4
-  :reach 3.65 :arc 140 :on-hit :stagger)                               ; (no :ender: J4 follows it at L3; reach: the drawn blade, §7.8:
-                                                                       ;  the borrowed arm-locked spin reaches 3.77 m, FK)
+  :reach 3.85 :arc 140 :on-hit :stagger)                               ; (no :ender: J4 follows it at L3; reach: the drawn blade, §7.8:
+                                                                       ;  the borrowed arm-locked spin reaches 3.77 m, FK; 4.00 m
+                                                                       ;  with the lower grip, §12: 3.65 -> 3.85)
 (defmove-copy :ke-s-j4 :ke-s-j1 :dmg 45 :slide 0.0 :params (:lv 3 :special-as t))   ; the special string (L3): SP after J4-J6 = the
 (defmove-copy :ke-s-j5 :ke-s-j2 :dmg 45 :params (:lv 3 :special-as t))               ; pointer's special AS, after J7 = the Bankai
 (defmove-copy :ke-s-j6 :ke-s-j1 :startup 10 :dmg 50 :slide 0.0 :params (:lv 3 :special-as t))
@@ -145,7 +146,7 @@
   :reach 2.8 :arc 140 :on-hit :stagger :params (:lv 2 :ns-next :ke-s-n2e))
 (defmove :ke-s-n2c :kind :flash :clip :ke-k-f2 :clip-s 20 :startup 16 :active 5 :recovery 24 :dmg 110 :adv-block -6
   :reach 2.8 :arc 90 :on-hit :crumple :params (:lv 1 :ns-next :ke-s-n2d))
-(defmove :ke-s-n2b :kind :flash :clip :ke-kt-jab :clip-s 7 :startup 10 :active 3 :recovery 16 :dmg 50 :adv-block -4
+(defmove :ke-s-n2b :kind :flash :clip :ke-s-flick :clip-s 10 :startup 10 :active 3 :recovery 16 :dmg 50 :adv-block -4
   :reach 1.2 :arc 80 :on-hit :stagger :slide 0.6 :params (:ns-next :ke-s-n2c))
 (defmove :ke-s-n2a :kind :flash :clip :ke-kt-jab :clip-s 7 :callout "TSUKA-UCHI" :startup 14 :active 3 :recovery 16 :dmg 45 :adv-block -4
   :reach 1.4 :arc 70 :on-hit :stagger :slide 1.0 :params (:ns-next :ke-s-n2b))   ; (the hilt's short reach: a step in, the scripted

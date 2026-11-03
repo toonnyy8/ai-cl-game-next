@@ -372,3 +372,24 @@ the costume of §10, the special ASs' and the Kikon's cinematics) comes next.
 - **G2** `--cvc`: II identical (28 lines: the new hooks are off for the other kits); IK 26 → 29 lines (P2 0-5, 286.2 s), KK 22 → 30 (P2 0-4,
   300.7 s): the CPU Kenpachi awakens into the new Shikai; `tests/style-cvc-ref.txt` regenerated. No balance gates.
 - **The CPU**: the generic core CPU (it does not aim for L, the bursts or the special string).
+
+## 12. After the first playtest: the flick's own clip, the grip, the camera (the user, 2026-11-03)
+
+Requests, verbatim:
+1. 「我看不出 柄擊 與 上翹 的動作差異」. Cause: both segments (`ke-s-n2a`, `ke-s-n2b`) played the borrowed left jab `:ke-kt-jab`.
+   The flick now has its own clip `:ke-s-flick` (S 10 = the move's startup, A 3, R 16): the right hand sinks, the butt down
+   (f6–f8 held), then the arm swings up and the white haft sweeps up through his front while the blade dips behind him. The jab keeps the
+   borrowed clip until the art round. Presentation only.
+2. 「請將鏡頭改成兩個角色越接近時，拍攝角度就越接近側面」: the behind camera's swing is now a blend, from `*behind-side*` 30° at 6 m and
+   farther to `*behind-close*` 90° (was 40°, and the larger of the two) at 2 m; the portrait camera the same (`*pt-close*` 15 → 90).
+   Only the look: the stick still follows the sim's `*behind-yaw*` (W = toward the opponent, on screen rightward when side-on).
+   DUEL_DESIGN §9.
+3. 「始解握住刀柄的位置應該要在介於靠近白色上緣 1/5~2/5 的位置」: read as the white haft's top (the blade end, y 0.08). The right hand
+   held it 0.08 m below the top (1/12 of the 0.99 m haft); now `*ke-noz-grip*` 0.3 (the middle of 1/5–2/5): the weapon slides 0.22 m
+   up the hand (`ke-noz-grip-y`), `defweapon :nozarashi` `:length` 2.3 → 2.52, `:base` 0.2 → 0.42. The left hand's GRIP-LEFT! still
+   finds the haft (0.14–0.62 m below the grip; 0.69 m of haft is below it now). The reach follows the drawn blade (§7.8): only the
+   borrowed spin's J3 / J7 drew past their volume (4.00 m against 3.65), reach 3.65 → 3.85; every other Shikai move's volume already
+   covers its tip. The Bankai's broken cleaver keeps its grip (the request named the Shikai).
+
+Checks: host tests 9831 ALL PASS (the clip list takes `:ke-s-flick`), control 100, touch 100, pkgcheck clean, the Shikai script's 16
+scenes log the same hits and L as §11, G2 identical to the reference (II, IK 29 lines 286.2 s, KK 30 lines 300.7 s). Playtest Artifact v292.

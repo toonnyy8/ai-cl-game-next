@@ -417,9 +417,16 @@
         (let ((y (- -0.67 drop)))
           (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))))
 
-(defweapon :nozarashi (:length 2.3 :base 0.2)          ; the haft below the grip, the head above it; :length the drawn far end since
-                                                        ; V3 (1.62 -> 2.3, the head x1.5: DUEL_KEN_V3 §7.8, the reach follows it)
-  (:solid (ke-mb-noz-head mb 1.62 *ke-noz-haft*)
+;; where the right hand holds the haft (the user 2026-11-03: 「始解握住刀柄的位置應該要在介於靠近白色上緣 1/5~2/5 的位置」,
+;; DUEL_KEN_V3 §12): a fraction of the white haft from its top (0.08, the bar's end); the whole weapon slides up the hand that far
+(defparameter *ke-noz-grip* 0.3 "Nozarashi's grip: the fraction of the white haft below its top where the right hand holds (DUEL_KEN_V3 §12, 2026-11-03: 0.08 -> 0.3, the middle of 1/5-2/5).")
+(defun ke-noz-grip-y () "How far the weapon slides out of the hand for *KE-NOZ-GRIP*, m (0.22)." (- (* *ke-noz-grip* 0.76 *ke-noz-haft*) 0.08))
+
+(defweapon :nozarashi (:length 2.52 :base 0.42)         ; the haft below the grip, the head above it; :length the drawn far end
+                                                        ; (1.62 -> 2.3, the head x1.5: DUEL_KEN_V3 §7.8; -> 2.52, + KE-NOZ-GRIP-Y
+                                                        ; 0.22, §12; literal: the host FK test reads it unevaluated), the reach follows it
+  (:solid (mb-at (mb :y (ke-noz-grip-y))
+          (ke-mb-noz-head mb 1.62 *ke-noz-haft*)
           (with-ke-tilt (mb)                             ; the cap and the tassel ride on the turned head
           (mbc mb #x9C9478)                              ; the khaki cap over the far end, its stepped foot
           (mb-at (mb :y 1.525 :z (ke-noz-widen 1.525 0.348)) (mb-bevel-box mb 0.07 0.2 (* 0.56 (ke-noz-k 1.525)) 0.012))   ; (with the head)
@@ -434,7 +441,7 @@
                 do (let* ((n (sqrt (+ (* ax ax) (* ay ay) 1.0))) (ux (/ (- ax) n)) (uy (/ (- ay) n)) (uz (/ 1.0 n)) (h 0.42))
                      (mb-at (mb :x (* -0.5 h ux) :y (- 1.51 (* 0.5 h uy)) :z (- 0.04 (* 0.5 h uz))
                                             :pitch (atan uz uy) :roll (asin (- ux)))
-                       (mb-cone mb 0.026 h :segments 4)))))))
+                       (mb-cone mb 0.026 h :segments 4))))))))
 
 ;; the Bankai's broken cleaver (DUEL_KEN_REWORK §8; the user 2026-10-09: 「卍解刀身直接沿用始解刀身，然後將我打 X 的地方移除
 ;;變成斷刀」): Nozarashi's own head, haft and colours, snapped at 0.9 m up the blade: the cap, the tassel and the far
@@ -1492,6 +1499,17 @@ flex and the spine / head flex shifted by these."
   (:s :snap (:root :f 0.22 :u -0.06) (:chest :twist -22) (:pelvis :twist -10) (:arm-l :flex 82 :side 6) (:elbow-l :flex 4) (:hand-l :flex -20)
       (:thigh-r :flex 30) (:knee-r :flex 30))
   (:a (:root :f 0.28) (:chest :twist -26) (:arm-l :flex 86))
+  (:end :ke-k-rest))
+;; the V3 Shikai's P2 L0 second segment (DUEL_KEN_V3 §12; the user 2026-11-03: 「我看不出 柄擊 與 上翹 的動作差異」, both played the
+;; left jab above): the hilt flicked up, the right hand sunk low and the butt swung up through his front, the body rising with it
+(defstrike :ke-s-flick (10 3 16 :base :ke-k-rest)
+  (0)
+  (6 (:root :u -0.16 :f 0.04) (:knees :flex 44) (:spine :flex 22) (:chest :twist 24) (:head :flex -10)
+     (:arm-r :flex 4 :side 18) (:elbow-r :flex 112) (:hand-r :flex 20) (:arm-l :flex 20 :side 30))           ; sunk, the butt down
+  (8 (:root :u -0.17) (:chest :twist 27) (:arm-r :flex 0))                                                    ; held
+  (:s :snap (:root :u 0.04 :f 0.3) (:knees :flex 10) (:spine :flex -8) (:chest :twist -22) (:pelvis :twist -10) (:head :flex 8)
+      (:arm-r :flex 100 :side 22) (:elbow-r :flex 104) (:hand-r :flex 34) (:arm-l :flex 10 :side 40))         ; the butt swept up
+  (:a (:root :u 0.06 :f 0.34) (:arm-r :flex 108))                                                             ; (the blade dips behind)
   (:end :ke-k-rest))
 ;; NS2b: the clamp and slam: the left hand takes the head and drives it down
 (defstrike :ke-kt-slam (14 3 18 :base :ke-k-rest)

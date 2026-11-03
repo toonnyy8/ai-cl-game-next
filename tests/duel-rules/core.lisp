@@ -849,6 +849,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
  :ke-n-stance :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
  :ke-kt-jab ; KATATE (DUEL_KEN_KATATE)
+ :ke-s-flick ; the V3 Shikai's hilt flick (DUEL_KEN_V3 §12)
  ; NS3's charges (DUEL_KEN_CORE)
  :sh-skate-b :sh-slide-r :sh-slide-l :ke-run :ke-skate-b :ke-slide-r :ke-slide-l ; the runs (facing the opponent)
  :ke-drink ; the cups
