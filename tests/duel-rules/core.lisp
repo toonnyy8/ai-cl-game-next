@@ -851,6 +851,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ke-s-flick ; the V3 Shikai's hilt flick (DUEL_KEN_V3 §12)
  :ke-s-cut1 :ke-s-cut2 :ke-s-cut3 :ke-s-cut4 :ke-s-cut5 :ke-s-cut6 :ke-s-cut7 :ke-s-cut-sa ; the V3 Shikai's J string and SA (§15)
  :ke-s-jab :ke-s-p2c :ke-s-p2d :ke-s-p2e :ke-s-zangaeshi :ke-s-meteor ; its pointer-2 clips (DUEL_KEN_V3 §15)
+ :ke-s-p1a :ke-s-p1b :ke-s-p1c :ke-s-p1d :ke-s-p1e :ke-s-issen :ke-s-wheel ; the V3 Shikai's pointer-1 clips (DUEL_KEN_V3 §15)
  ; NS3's charges (DUEL_KEN_CORE)
  :sh-skate-b :sh-slide-r :sh-slide-l :ke-run :ke-skate-b :ke-slide-r :ke-slide-l ; the runs (facing the opponent)
  :ke-drink ; the cups
@@ -903,7 +904,6 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
  :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en ; ... and the owl's (the backstep gone, v3 R3)
  :br-w-guard :br-w-guard-hit :br-o-guard :br-o-guard-hit :br-oe-guard :br-oe-guard-hit ; his wing wall (the awakened guard)
- :ke-k-q2 :ke-k-f1 :ke-k-spin :ke-k-meteor ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2; :ke-k-q1 / :ke-k-f2 no move's since §15)
             
  :ke-b-q1 :ke-b-q2 :ke-b-f1 :ke-b-f2 :ke-b-f3 :ke-b-split :ke-b-cut ; the Bankai's own (§8)
  ; KATAUDE's (§8)
