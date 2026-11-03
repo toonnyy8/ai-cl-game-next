@@ -169,14 +169,27 @@
          (:box 0.006 0.04 0.004 :at (-0.034 0.21 0.034) :rot (0 -48 16) :c :fold)
          (:box 0.006 0.14 0.004 :at (0.035 -0.02 -0.136) :rot (0 -8 3) :c :fold)
          (:box 0.006 0.11 0.004 :at (-0.045 -0.05 -0.136) :rot (0 -8 -4) :c :fold))
-  (:shoulder-r (:sphere 0.09 :at (0.06 -0.03 0) :c :skin)
+;; the arms (DUEL_KEN_V3 §10, the user 2026-11-03: 「劍八的封印跟常態應該是要穿著長袖的死霸裝配上短袖的白色羽織，卍解才剩下變成短袖的
+;; 死霸裝」): the shihakushō's black sleeves, wide, to the wrist (the forearm's :sleeve-long, which the Bankai hides: short sleeves), and
+;; the white haori's short sleeve over the upper arm (:haori), its hem cut in teeth like the haori's; the skin arm stays under them
+  (:shoulder-r (:sphere 0.09 :at (0.06 -0.03 0) :c :black)
                (:box 0.1 0.04 0.27 :at (-0.01 0.05 0) :rot (0 0 -10) :c :white :tag :haori))
-  (:shoulder-l (:sphere 0.09 :at (-0.06 -0.03 0) :c :skin)
+  (:shoulder-l (:sphere 0.09 :at (-0.06 -0.03 0) :c :black)
                (:box 0.1 0.04 0.27 :at (0.01 0.05 0) :rot (0 0 10) :c :white :tag :haori))
-  (:upper-arm-r (:cyl 0.05 0.3 :top 0.056 :seg 8 :at (0 -0.15 0) :c :skin) (:sphere 0.05 :at (0 -0.13 0.028) :c :skin-d))
-  (:upper-arm-l (:cyl 0.05 0.3 :top 0.056 :seg 8 :at (0 -0.15 0) :c :skin) (:sphere 0.05 :at (0 -0.13 0.028) :c :skin-d))
-  (:lower-arm-r (:cyl 0.036 0.27 :top 0.048 :seg 8 :at (0 -0.125 0) :c :skin) (:sphere 0.045 :at (0 0 0) :c :skin))
-  (:lower-arm-l (:cyl 0.036 0.27 :top 0.048 :seg 8 :at (0 -0.125 0) :c :skin) (:sphere 0.045 :at (0 0 0) :c :skin))
+  (:upper-arm-r (:cyl 0.05 0.3 :top 0.056 :seg 8 :at (0 -0.15 0) :c :skin)
+                (:cyl 0.074 0.3 :top 0.078 :seg 8 :at (0 -0.15 0) :c :black)                         ; the black sleeve
+                (:cyl 0.1 0.2 :top 0.092 :seg 8 :at (0 -0.08 0) :c :white :tag :haori)              ; the haori's short sleeve
+                (:box 0.05 0.05 0.02 :at (0.06 -0.19 0.06) :rot (0 45 45) :c :white :tag :haori)    ; its teeth
+                (:box 0.05 0.05 0.02 :at (-0.06 -0.2 -0.06) :rot (0 45 45) :c :white :tag :haori))
+  (:upper-arm-l (:cyl 0.05 0.3 :top 0.056 :seg 8 :at (0 -0.15 0) :c :skin)
+                (:cyl 0.074 0.3 :top 0.078 :seg 8 :at (0 -0.15 0) :c :black)
+                (:cyl 0.1 0.2 :top 0.092 :seg 8 :at (0 -0.08 0) :c :white :tag :haori)
+                (:box 0.05 0.05 0.02 :at (-0.06 -0.19 0.06) :rot (0 -45 -45) :c :white :tag :haori)
+                (:box 0.05 0.05 0.02 :at (0.06 -0.2 -0.06) :rot (0 -45 -45) :c :white :tag :haori))
+  (:lower-arm-r (:cyl 0.036 0.27 :top 0.048 :seg 8 :at (0 -0.125 0) :c :skin) (:sphere 0.045 :at (0 0 0) :c :skin)
+                (:cyl 0.088 0.25 :top 0.07 :seg 8 :at (0 -0.115 0) :c :black :tag :sleeve-long))      ; the wide sleeve, flaring
+  (:lower-arm-l (:cyl 0.036 0.27 :top 0.048 :seg 8 :at (0 -0.125 0) :c :skin) (:sphere 0.045 :at (0 0 0) :c :skin)
+                (:cyl 0.088 0.25 :top 0.07 :seg 8 :at (0 -0.115 0) :c :black :tag :sleeve-long))
   (:hand-r (:bevel 0.075 0.1 0.08 0.02 :at (0 -0.045 0) :c :skin))
   (:hand-l (:bevel 0.075 0.1 0.08 0.02 :at (0 -0.045 0) :c :skin))
   (:thigh-r (:cyl 0.092 0.46 :top 0.088 :seg 10 :at (0 -0.22 0) :c :black))
@@ -1500,6 +1513,24 @@ flex and the spine / head flex shifted by these."
       (:thigh-r :flex 30) (:knee-r :flex 30))
   (:a (:root :f 0.28) (:chest :twist -26) (:arm-l :flex 86))
   (:end :ke-k-rest))
+;; the V3 Shikai's two stances (DUEL_KEN_V3 §5, §14; the user's pictures in .refs/kenpachi-v3/): pointer 1 the statue: the cleaver
+;; slung, the hilt low at his right hip, the butt out to his right, the blade up behind his head toward his left, half-crouched and
+;; leaning in, the left arm out (「斜扛大刀，身體半蹲前傾，呈現衝刺預備」; the right arm solved by FK for the grip at (0.34 0.98 0.18)
+;; and the blade along (-0.51 0.77 -0.38), r u f); pointer 2 the manga panel: the blade's back on the right shoulder, the hilt at him,
+;; standing easy (「將刀背扛在單肩上，刀柄對準前方，輕鬆站立」; KATATE's shoulder rest, upright)
+(defpose :ke-s-st-1 (:base :ke-k-rest)
+  (:root :u -0.18 :f 0.04) (:pelvis :twist 12) (:spine :flex 22) (:chest :twist -10) (:head :flex -16 :twist -8)
+  (:arm-r :flex -30 :side 12 :twist 0) (:elbow-r :flex 92) (:hand-r :flex 70 :twist 20 :side 0)
+  (:arm-l :flex 34 :side 52 :twist 0) (:elbow-l :flex 36) (:hand-l :flex -10)
+  (:thigh-l :flex 44 :side 14) (:knee-l :flex 58) (:thigh-r :flex -12 :side 18) (:knee-r :flex 38))
+(defclip :ke-s-st-1 (1.2 :loop t :base :ke-s-st-1)
+  (0) (0.6 (:root :u -0.2 :f 0.05) (:spine :flex 24) (:arm-l :side 55)))                 ; coiled, breathing low
+(defpose :ke-s-st-2 (:base :ke-k-rest)
+  (:root :u -0.02) (:pelvis :twist 8) (:spine :flex 0) (:chest :twist -4) (:head :flex 2)
+  (:arm-l :flex 4 :side 16) (:elbow-l :flex 14) (:hand-l :flex 0)
+  (:thigh-l :flex 8 :side 6) (:knee-l :flex 8) (:thigh-r :flex -4 :side 8) (:knee-r :flex 6))
+(defclip :ke-s-st-2 (2.4 :loop t :base :ke-s-st-2)
+  (0) (1.2 (:chest :flex 2) (:root :u -0.03)))                                           ; easy
 ;; the V3 Shikai's P2 L0 second segment (DUEL_KEN_V3 §12; the user 2026-11-03: 「我看不出 柄擊 與 上翹 的動作差異」, both played the
 ;; left jab above): the hilt flicked up, the right hand sunk low and the butt swung up through his front, the body rising with it
 (defstrike :ke-s-flick (10 3 16 :base :ke-k-rest)

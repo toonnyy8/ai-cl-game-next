@@ -409,3 +409,26 @@ cancelled or whiffed NS / AS still gives nothing; a level gained opens segments 
 Checks: the Shikai script's new scene (P1 at L0: SP, J, J, SP = NS1a → SA → J2 → AS1, one combo): `P1 L1` once, at the lunge; the old
 rule gave L2 at AS1. The other 16 scenes log as in §11 (the temporary switch's L3 now comes on NS2c, the victim having recovered before
 it). Host tests 9831 ALL PASS, control 100, touch 100, pkgcheck clean, G2 identical. Playtest Artifact v297.
+
+## 14. The Shikai's art round, part 1: the two stances and the sleeves (2026-11-03)
+
+「請開始下一批」 (the art round of §11: the stances, each move's clip, the sword wind by L, the costume, the special ASs' and the Kikons'
+cinematics). Split in four parts, each with its own playtest Artifact: 1 the stances and the costume, 2 every move's own clip, 3 the
+sword wind by L, 4 the cinematics.
+
+Part 1 (presentation only):
+- **Pointer 1 `:ke-s-st-1`** (after the statue, `.refs/kenpachi-v3/shikai-p1-slung-statue.png`): half-crouched and leaning in, the left
+  arm out, the hilt low at his right hip (the grip at r 0.34, u 0.98, f 0.18 m), the butt out to his right below it, the blade up
+  behind his head toward his left (along r −0.51, u 0.77, f −0.38; the tip about 3.1 m up, 0.33 m behind his head where it passes). The
+  right arm was solved by FK on the host (arm flex −30, side 12; elbow 92; hand flex 70, twist 20). The loop breathes lower (the dash
+  tell).
+- **Pointer 2 `:ke-s-st-2`** (after the manga panel): KATATE's shoulder rest upright and easy: the blade's back on the right shoulder,
+  the white haft pointing at him.
+- The kit's `:stance` and `:core :stances` take them (the borrowed `:ke-kt-st-chain` / `:ke-kt-st-rush` are no longer used by the Shikai).
+- **Costume (§10)**: the shihakushō's long black sleeves (a wide flared sleeve over the forearm, `:sleeve-long`; the shoulders black) and
+  the white haori's short sleeve over the upper arm with two teeth at its hem (`:haori`). The Bankai's kit hides `:sleeve-long` with
+  `:haori`: short black sleeves (its own look comes with the Bankai batch).
+
+Checks: host tests 9831 ALL PASS (the clip list: `:ke-s-st-1` for `:ke-n-stance`), pkgcheck clean, the build, G2 identical (a first run's
+KK started 15.9 s late under load and missed its script; the rerun passed), stills from the behind and the side cameras (84001 + 2510 / 2511,
+2109). Playtest Artifact v298.

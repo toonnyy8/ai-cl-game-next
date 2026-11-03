@@ -262,7 +262,7 @@
   :awakening t :mult *nozarashi-mult* :startup-add 0 :reach-mult 1.0 :open-s nil   ; (as written: §9's figures; the base's cadence off)
   :passives (:projectile-cut) :form-name "SHIKAI" :kikon-konpaku 2
   :endless-form :nozarashi                      ; ENDLESS (frozen): the Shikai
-  :weapon :nozarashi :stance :ke-n-stance :aura :reiatsu :swing-sfx :whoosh-cleaver
+  :weapon :nozarashi :stance :ke-s-st-1 :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
   :meter (:name "KAIHO" :max 3 :start 0 :lv t :draw ken-hud-meter :label ken-hud-label) :meter-gain nil   ; L 0-3 (KEN-HIT raises it)
   :hooks (:p ken-card-bankai :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult
@@ -274,7 +274,7 @@
   ;; (:as entries 3 / 4) and J4-J6 / J7 into the special AS (5 / 6) / the Bankai
   :core (:ns (:ke-s-n1a :ke-s-n2a) :as (:ke-s-as1 :ke-s-as2 :ke-s-burst1 :ke-s-burst2 :ke-s-sp1 :ke-s-sp2) :sa :ke-s-sa :mult 1.2
          :as-by-press (1 1 2)
-         :stances (:ke-kt-st-chain :ke-kt-st-rush)                       ; (placeholders until the art round)
+         :stances (:ke-s-st-1 :ke-s-st-2)                               ; the slung hilt low / the shoulder (§14)
          :kikon-cines (ken-kikon-cine ken-clash-kikon-cine))
   :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (2.0 4.0) :pressure (1.2 3.0) :zone (4.0 6.0) :defend (3.0 5.0))
@@ -305,7 +305,7 @@
   :meter (:name "UDE" :max *arm-pips* :start *arm-pips* :draw ken-hud-meter :label ken-hud-label) :meter-gain nil
   :pips (:n *arm-pips* :to nil :crack nil :cmds (:f :sig :sp1 :sp2 :breaker :kikon))   ; the burst keeps the Bankai: no KATAUDE (the user 2026-11-02: 「取消掉片腕的狀態」);
                                                                                    ; no crack clock: the arm is the big moves' fuel (「拿掉」, §8)
-  :body :kenpachi-oni :weapon :ke-broken :stance :ke-b-stance :aura :oni :hide (:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4)
+  :body :kenpachi-oni :weapon :ke-broken :stance :ke-b-stance :aura :oni :hide (:haori :sleeve-long :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4)
   :run-clips (:ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l)
   :cine ken-bankai-cine :enter-hook nil :swing-sfx :whoosh-cleaver
   :commands (:q :ke-b-j1 :f :ke-b-k1 :sig :ke-b-bite :sp1 :ke-b-split :sp2 :ke-charge :breaker :ke-breaker :kikon :ke-b-kikon)

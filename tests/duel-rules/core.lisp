@@ -847,7 +847,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ya-tsuka :ya-e-drop :ke-kick ; the strings' new clips (DUEL_STRINGS §3)
  :ke-stance :ke-q1 :ke-q2 :ke-q3 :ke-f1 :ke-f2 :ke-stance-hold :ke-stance-cut :ke-buttagiru :ke-charge
  :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
- :ke-n-stance :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
+ :ke-s-st-1 :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
  :ke-kt-jab ; KATATE (DUEL_KEN_KATATE)
  :ke-s-flick ; the V3 Shikai's hilt flick (DUEL_KEN_V3 §12)
  ; NS3's charges (DUEL_KEN_CORE)
