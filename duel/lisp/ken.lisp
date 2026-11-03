@@ -115,19 +115,19 @@
 ;;; L, as an NS route's does: KEN-HIT); the bursts (:burst, the damage by the old L: KEN-DMG-MULT) and the special ASs are picked by
 ;;; KEN-AS-PICK; J4-J7 (:lv 3) only at L3 (KEN-LINK-OK). Every figure §9's table (the user: 「可以，照這份做」; knobs until the playtest);
 ;;; the clips are borrowed (:clip-s their authored startup) until the art round, so the drawn reach says nothing yet.
-(defmove :ke-s-j1 :kind :quick :clip :ke-k-q1 :clip-s 7 :startup 9 :active 3 :recovery 12 :dmg 40 :adv-block -2
+(defmove :ke-s-j1 :kind :quick :clip :ke-s-cut1 :clip-s 9 :startup 9 :active 3 :recovery 12 :dmg 40 :adv-block -2
   :reach 2.4 :arc 100 :on-hit :flinch :slide 0.8)
-(defmove :ke-s-j2 :kind :quick :clip :ke-k-q2 :clip-s 7 :startup 9 :active 3 :recovery 13 :dmg 40 :adv-block -2
+(defmove :ke-s-j2 :kind :quick :clip :ke-s-cut2 :clip-s 9 :startup 9 :active 3 :recovery 13 :dmg 40 :adv-block -2
   :reach 2.4 :arc 100 :on-hit :flinch)
-(defmove :ke-s-j3 :kind :quick :clip :ke-k-spin :clip-s 11 :startup 11 :active 4 :recovery 18 :dmg 55 :adv-block -4
+(defmove :ke-s-j3 :kind :quick :clip :ke-s-cut3 :clip-s 11 :startup 11 :active 4 :recovery 18 :dmg 55 :adv-block -4
   :reach 3.85 :arc 140 :on-hit :stagger)                               ; (no :ender: J4 follows it at L3; reach: the drawn blade, §7.8:
                                                                        ;  the borrowed arm-locked spin reaches 3.77 m, FK; 4.00 m
                                                                        ;  with the lower grip, §12: 3.65 -> 3.85)
-(defmove-copy :ke-s-j4 :ke-s-j1 :dmg 45 :slide 0.0 :params (:lv 3 :special-as t))   ; the special string (L3): SP after J4-J6 = the
-(defmove-copy :ke-s-j5 :ke-s-j2 :dmg 45 :params (:lv 3 :special-as t))               ; pointer's special AS, after J7 = the Bankai
-(defmove-copy :ke-s-j6 :ke-s-j1 :startup 10 :dmg 50 :slide 0.0 :params (:lv 3 :special-as t))
-(defmove-copy :ke-s-j7 :ke-s-j3 :startup 12 :dmg 70 :params (:lv 3 :bankai-as t))
-(defmove-copy :ke-s-sa :ke-s-j1 :startup 8 :dmg 40 :reach 2.2 :slide 1.4)          ; the one-hand cut in an NS gap
+(defmove-copy :ke-s-j4 :ke-s-j1 :clip :ke-s-cut4 :clip-s 9 :dmg 45 :slide 0.0 :params (:lv 3 :special-as t))   ; the special string (L3): SP after J4-J6 = the
+(defmove-copy :ke-s-j5 :ke-s-j2 :clip :ke-s-cut5 :clip-s 9 :dmg 45 :params (:lv 3 :special-as t))               ; pointer's special AS, after J7 = the Bankai
+(defmove-copy :ke-s-j6 :ke-s-j1 :clip :ke-s-cut6 :clip-s 10 :startup 10 :dmg 50 :slide 0.0 :params (:lv 3 :special-as t))
+(defmove-copy :ke-s-j7 :ke-s-j3 :clip :ke-s-cut7 :clip-s 12 :startup 12 :dmg 70 :params (:lv 3 :bankai-as t))
+(defmove-copy :ke-s-sa :ke-s-j1 :clip :ke-s-cut-sa :clip-s 8 :startup 8 :dmg 40 :reach 2.2 :slide 1.4)          ; the one-hand cut in an NS gap
 ;; pointer 1 「突進迴旋」: the lunge cut (L0), the spin-through sweep (L1), the reverse spin (L2), the sword dance and the spinning leap (L3)
 (defmove :ke-s-n1e :kind :flash :clip :ke-k-meteor :clip-s 26 :callout nil :startup 14 :active 4 :recovery 24 :dmg 100 :adv-block -6
   :reach 2.8 :arc 100 :on-hit :crumple :slide 2.0 :params (:lv 3))
