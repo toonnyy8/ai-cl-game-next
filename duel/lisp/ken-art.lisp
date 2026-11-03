@@ -169,27 +169,27 @@
          (:box 0.006 0.04 0.004 :at (-0.034 0.21 0.034) :rot (0 -48 16) :c :fold)
          (:box 0.006 0.14 0.004 :at (0.035 -0.02 -0.136) :rot (0 -8 3) :c :fold)
          (:box 0.006 0.11 0.004 :at (-0.045 -0.05 -0.136) :rot (0 -8 -4) :c :fold))
-;; the arms (DUEL_KEN_V3 §10, the user 2026-11-03: 「劍八的封印跟常態應該是要穿著長袖的死霸裝配上短袖的白色羽織，卍解才剩下變成短袖的
-;; 死霸裝」): the shihakushō's black sleeves, wide, to the wrist (the forearm's :sleeve-long, which the Bankai hides: short sleeves), and
-;; the white haori's short sleeve over the upper arm (:haori), its hem cut in teeth like the haori's; the skin arm stays under them
+;; the arms (DUEL_KEN_V3 §10, §17; the user 2026-11-03: 「劍八的封印跟常態應該是要穿著長袖的死霸裝配上短袖的白色羽織，卍解才剩下變成短袖的
+;; 死霸裝」, then 「劍八是無袖羽織，而不是你製作的短袖羽織，然後長袖的死霸裝是像一護的那種寬鬆袖口設計。此外，目前手彎曲的時候手肘會透過衣服」):
+;; the haori sleeveless (only its shoulder over the black), the shihakushō's black sleeves to the wrist widening into a loose square
+;; cuff like Ichigo's (the forearm's :sleeve-long, which the Bankai hides: short sleeves), a black ball at the elbow so a bent arm
+;; shows cloth, not skin, between the two sleeve pieces; the skin arm stays under them
   (:shoulder-r (:sphere 0.09 :at (0.06 -0.03 0) :c :black)
                (:box 0.1 0.04 0.27 :at (-0.01 0.05 0) :rot (0 0 -10) :c :white :tag :haori))
   (:shoulder-l (:sphere 0.09 :at (-0.06 -0.03 0) :c :black)
                (:box 0.1 0.04 0.27 :at (0.01 0.05 0) :rot (0 0 10) :c :white :tag :haori))
   (:upper-arm-r (:cyl 0.05 0.3 :top 0.056 :seg 8 :at (0 -0.15 0) :c :skin)
-                (:cyl 0.074 0.3 :top 0.078 :seg 8 :at (0 -0.15 0) :c :black)                         ; the black sleeve
-                (:cyl 0.1 0.2 :top 0.092 :seg 8 :at (0 -0.08 0) :c :white :tag :haori)              ; the haori's short sleeve
-                (:box 0.05 0.05 0.02 :at (0.06 -0.19 0.06) :rot (0 45 45) :c :white :tag :haori)    ; its teeth
-                (:box 0.05 0.05 0.02 :at (-0.06 -0.2 -0.06) :rot (0 45 45) :c :white :tag :haori))
+                (:cyl 0.08 0.3 :top 0.084 :seg 8 :at (0 -0.15 0) :c :black))                         ; the black sleeve
   (:upper-arm-l (:cyl 0.05 0.3 :top 0.056 :seg 8 :at (0 -0.15 0) :c :skin)
-                (:cyl 0.074 0.3 :top 0.078 :seg 8 :at (0 -0.15 0) :c :black)
-                (:cyl 0.1 0.2 :top 0.092 :seg 8 :at (0 -0.08 0) :c :white :tag :haori)
-                (:box 0.05 0.05 0.02 :at (-0.06 -0.19 0.06) :rot (0 -45 -45) :c :white :tag :haori)
-                (:box 0.05 0.05 0.02 :at (0.06 -0.2 -0.06) :rot (0 -45 -45) :c :white :tag :haori))
+                (:cyl 0.08 0.3 :top 0.084 :seg 8 :at (0 -0.15 0) :c :black))
   (:lower-arm-r (:cyl 0.036 0.27 :top 0.048 :seg 8 :at (0 -0.125 0) :c :skin) (:sphere 0.045 :at (0 0 0) :c :skin)
-                (:cyl 0.088 0.25 :top 0.07 :seg 8 :at (0 -0.115 0) :c :black :tag :sleeve-long))      ; the wide sleeve, flaring
+                (:sphere 0.082 :at (0 0 0) :c :black :tag :sleeve-long)                               ; the elbow, covered
+                (:cyl 0.1 0.17 :top 0.08 :seg 8 :at (0 -0.085 0) :c :black :tag :sleeve-long)         ; the sleeve, widening ...
+                (:box 0.21 0.07 0.22 :at (0 -0.2 0) :rot (0 0 -8) :c :black :tag :sleeve-long))      ; ... into the loose cuff
   (:lower-arm-l (:cyl 0.036 0.27 :top 0.048 :seg 8 :at (0 -0.125 0) :c :skin) (:sphere 0.045 :at (0 0 0) :c :skin)
-                (:cyl 0.088 0.25 :top 0.07 :seg 8 :at (0 -0.115 0) :c :black :tag :sleeve-long))
+                (:sphere 0.082 :at (0 0 0) :c :black :tag :sleeve-long)
+                (:cyl 0.1 0.17 :top 0.08 :seg 8 :at (0 -0.085 0) :c :black :tag :sleeve-long)
+                (:box 0.21 0.07 0.22 :at (0 -0.2 0) :rot (0 0 8) :c :black :tag :sleeve-long))
   (:hand-r (:bevel 0.075 0.1 0.08 0.02 :at (0 -0.045 0) :c :skin))
   (:hand-l (:bevel 0.075 0.1 0.08 0.02 :at (0 -0.045 0) :c :skin))
   (:thigh-r (:cyl 0.092 0.46 :top 0.088 :seg 10 :at (0 -0.22 0) :c :black))
@@ -1515,12 +1515,14 @@ flex and the spine / head flex shifted by these."
   (:end :ke-k-rest))
 ;; the V3 Shikai's two stances (DUEL_KEN_V3 §5, §14; the user's pictures in .refs/kenpachi-v3/): pointer 1 the statue: the cleaver
 ;; slung, the hilt low at his right hip, the butt out to his right, the blade up behind his head toward his left, half-crouched and
-;; leaning in, the left arm out (「斜扛大刀，身體半蹲前傾，呈現衝刺預備」; the right arm solved by FK for the grip at (0.34 0.98 0.18)
-;; and the blade along (-0.51 0.77 -0.38), r u f); pointer 2 the manga panel: the blade's back on the right shoulder, the hilt at him,
+;; leaning in, the left arm out (「斜扛大刀，身體半蹲前傾，呈現衝刺預備」; the right arm solved by FK for the grip at (0.42 1.0 0.12)
+;; and the blade along (-0.48 0.70 -0.53), r u f: behind his back, the spine 0.3 m behind the shoulders and the flat clear of the
+;; head; before, (0.34 0.98 0.18) along (-0.51 0.77 -0.38) ran the haft through his right chest and the flat through his head, the
+;; user 2026-11-03: 「刀都劈開自己了」, DUEL_KEN_V3 §17); pointer 2 the manga panel: the blade's back on the right shoulder, the hilt at him,
 ;; standing easy (「將刀背扛在單肩上，刀柄對準前方，輕鬆站立」; KATATE's shoulder rest, upright)
 (defpose :ke-s-st-1 (:base :ke-k-rest)
   (:root :u -0.18 :f 0.04) (:pelvis :twist 12) (:spine :flex 22) (:chest :twist -10) (:head :flex -16 :twist -8)
-  (:arm-r :flex -30 :side 12 :twist 0) (:elbow-r :flex 92) (:hand-r :flex 70 :twist 20 :side 0)
+  (:arm-r :flex -34 :side 16 :twist -7) (:elbow-r :flex 84) (:hand-r :flex 95 :twist 8 :side -1)
   (:arm-l :flex 34 :side 52 :twist 0) (:elbow-l :flex 36) (:hand-l :flex -10)
   (:thigh-l :flex 44 :side 14) (:knee-l :flex 58) (:thigh-r :flex -12 :side 18) (:knee-r :flex 38))
 (defclip :ke-s-st-1 (1.2 :loop t :base :ke-s-st-1)
@@ -1558,25 +1560,27 @@ flex and the spine / head flex shifted by these."
   (:a (:root :f 0.14) (:chest :twist 24) (:arm-r :flex 41))
   (26 (:root :f 0.08 :u -0.05) (:chest :twist 10) (:pelvis :twist -4) (:spine :flex 4))
   (:end :ke-s-st-2))
-;; NS2c: both hands on the hilt, raised over the head (the blade hanging down his back), the front foot lifted and held,
-;; then one great overhead cut down onto him (the tip ends on the floor 2.8 m out)
+;; NS2c: both hands on the hilt, square to him (no twist), raised over the head with the blade hanging down his back, the front foot
+;; lifted and held, then one great overhead cut straight down onto him (the tip ends on the floor 2.9 m out); the arms solved by FK
+;; (grip, blade and edge targets, the blade's flat kept out of the body: DUEL_KEN_V3 §17, the user 2026-11-03: 「應該是要雙手握刀、正對對手
+;; 向下劈斬」)
 (defstrike :ke-s-p2c (16 5 24 :base :ke-s-st-2)
   (0)
-  (7 (:root :u 0.05 :f -0.08) (:spine :flex -14) (:chest :twist 1) (:pelvis :twist 0) (:head :flex -15)
-     (:arm-r :flex 103 :side 18 :twist 1) (:elbow-r :flex 90) (:hand-r :flex 1 :twist 3 :side 0) (:arm-l :flex 37 :side -147 :twist -23) (:elbow-l :flex 11))
-  (12 (:root :u 0.08 :f -0.1) (:spine :flex -18) (:thigh-l :flex 58 :side 6) (:knee-l :flex 80)
-      (:arm-r :flex 106 :side 19 :twist 1) (:elbow-r :flex 85) (:hand-r :flex 7 :twist 5 :side -1) (:arm-l :flex 36 :side -150 :twist -24) (:elbow-l :flex 9))
-  (14 (:root :u 0.075) (:spine :flex -17) (:hand-r :flex 5))                                                      ; held, trembling
-  (15 :snap (:root :u 0.0 :f 0.04) (:spine :flex 0) (:head :flex -12) (:arm-r :flex 137 :side 16 :twist -1) (:elbow-r :flex 68)
-      (:hand-r :flex -155 :twist -12 :side 2) (:arm-l :flex -3 :side -120 :twist -30) (:elbow-l :flex 0))           ; (over the head)
-  (:s :snap (:root :u -0.08 :f 0.02) (:spine :flex 8) (:head :flex -6) (:chest :twist 0) (:pelvis :twist 0)
+  (7 (:root :u 0.04 :f -0.06) (:pelvis :twist 0) (:chest :twist 0) (:spine :flex -10) (:head :flex -10)
+     (:arm-r :flex 80 :side 11 :twist 0) (:elbow-r :flex 148) (:hand-r :flex -84 :twist -7 :side 1) (:arm-l :flex 120 :side 94 :twist 0) (:elbow-l :flex 34))
+  (12 (:root :u 0.08 :f -0.1) (:spine :flex -16) (:head :flex -12) (:thigh-l :flex 58 :side 6) (:knee-l :flex 80)
+      (:arm-r :flex 83 :side 10 :twist 0) (:elbow-r :flex 142) (:hand-r :flex -47 :twist 1 :side 4) (:arm-l :flex 120 :side 74 :twist -5) (:elbow-l :flex 31))
+  (14 (:root :u 0.075) (:spine :flex -15) (:hand-r :flex -44))                                                    ; held, trembling
+  (15 :snap (:root :u 0.02 :f 0.02) (:spine :flex -4) (:head :flex -12) (:thigh-l :flex 52 :side 6) (:knee-l :flex 60)
+      (:arm-r :flex 96 :side 16 :twist 1) (:elbow-r :flex 109) (:hand-r :flex -127 :twist -10 :side 6) (:arm-l :flex 130 :side 91 :twist 2) (:elbow-l :flex 48))   ; (overhead)
+  (:s :snap (:root :u -0.08 :f 0.06) (:spine :flex 16) (:head :flex -14)
       (:thigh-l :flex 44 :side 6) (:knee-l :flex 40) (:thigh-r :flex -26 :side 8) (:knee-r :flex 12)
-      (:arm-r :flex 110 :side 10 :twist 20) (:elbow-r :flex 50) (:hand-r :flex -180 :twist 20 :side 0) (:arm-l :flex 13 :side -138 :twist -30) (:elbow-l :flex 0))
-  (:a (:root :u -0.16 :f 0.06) (:spine :flex 20) (:head :flex -12) (:thigh-l :flex 50) (:knee-l :flex 52) (:thigh-r :flex -25) (:knee-r :flex 24)
-      (:arm-r :flex 90 :side 0 :twist 20) (:elbow-r :flex 80) (:arm-l :flex -4 :side -126 :twist -24) (:elbow-l :flex 30))
-  (32 (:root :u -0.15 :f 0.05) (:spine :flex 18))                                                                 ; buried, held
-  (39 (:root :u -0.06 :f 0.04) (:spine :flex 8) (:head :flex -2) (:thigh-l :flex 20) (:knee-l :flex 20) (:thigh-r :flex -8) (:knee-r :flex 10)
-      (:arm-r :flex 36 :side 0 :twist -3) (:elbow-r :flex 126) (:hand-r :flex -48 :twist -2 :side 0) (:arm-l :flex 34 :side -68 :twist -16) (:elbow-l :flex 14))
+      (:arm-r :flex 35 :side 3 :twist 10) (:elbow-r :flex 133) (:hand-r :flex -171 :twist -7 :side 7) (:arm-l :flex 153 :side 91 :twist 1) (:elbow-l :flex 68))
+  (:a (:root :u -0.18 :f 0.08) (:spine :flex 30) (:head :flex -20) (:thigh-l :flex 54 :side 6) (:knee-l :flex 58) (:thigh-r :flex -28 :side 8) (:knee-r :flex 26)
+      (:arm-r :flex 15 :side -2 :twist 8) (:elbow-r :flex 111) (:hand-r :flex -121 :twist -5 :side 1) (:arm-l :flex 150 :side 100 :twist 11) (:elbow-l :flex 71))
+  (32 (:root :u -0.17 :f 0.08) (:spine :flex 28))                                                                 ; buried, held
+  (39 (:root :u -0.06 :f 0.04) (:spine :flex 8) (:head :flex -4) (:thigh-l :flex 20) (:knee-l :flex 20) (:thigh-r :flex -8) (:knee-r :flex 10)
+      (:arm-r :flex 50 :side 5 :twist 4) (:elbow-r :flex 125) (:hand-r :flex -90 :twist -4 :side 0) (:arm-l :flex 120 :side 85 :twist 4) (:elbow-l :flex 50))
   (:end :ke-s-st-2))
 ;; NS2d: off the shoulder to his right, both hands low by the right hip, coiled, then one wide flat mow right to left
 (defstrike :ke-s-p2d (14 4 20 :base :ke-s-st-2)
@@ -1644,7 +1648,7 @@ flex and the spine / head flex shifted by these."
       (:arm-r :flex 11 :side -44 :twist 0) (:elbow-r :flex 6) (:hand-r :flex -127 :twist 5 :side -1))             ; dragged round, low behind
   (38 (:root :u -0.18 :f 0.08 :yaw 0) (:pelvis :twist 14) (:spine :flex 22) (:chest :twist -4) (:head :flex -14 :twist -6)
       (:thigh-l :flex 44 :side 14) (:knee-l :flex 58) (:thigh-r :flex -12 :side 18) (:knee-r :flex 38)
-      (:arm-r :flex -32 :side 1 :twist 9) (:elbow-r :flex 92) (:hand-r :flex 90 :twist 49 :side 3) (:arm-l :flex 34 :side 52) (:elbow-l :flex 36))   ; up his back
+      (:arm-r :flex -34 :side 16 :twist -7) (:elbow-r :flex 84) (:hand-r :flex 95 :twist 8 :side -1) (:arm-l :flex 34 :side 52) (:elbow-l :flex 36))   ; up his back (the sling, §17)
   (:end :ke-s-st-1))
 ;; the special AS INSEKI-GIRI: both hands, a crouch, the leap with the hilt raised (the blade down his back), arched at the top,
 ;; then down like a falling meteor, the tip into the floor 3 m out

@@ -336,7 +336,8 @@ Asked, answered: the table 「可以，照這份做」 (approved; every figure a
 
 「然後劍八的封印跟常態應該是要穿著長袖的死霸裝配上短袖的白色羽織，卍解才剩下變成短袖的死霸裝」; asked which the Shikai wears:
 「和封印一樣」. The sealed form and the Shikai: a long-sleeved shihakushō under a short-sleeved white haori; the Bankai: a short-sleeved
-shihakushō, no haori. Built with the Shikai's art round.
+shihakushō, no haori. Built with the Shikai's art round. Corrected in §17: the haori is sleeveless, the long sleeves end in a loose
+cuff like Ichigo's.
 
 ## 11. Built: the Shikai's sim and the removals (2026-11-03)
 
@@ -476,4 +477,35 @@ wider crescent, a floor crack under the far point, rubble and a camera shake (0.
 crescents read in the stills; the L1 streaks are faint (to be judged in play).
 
 Checks for §15–§16: host tests 9831 ALL PASS, pkgcheck clean, the build, G2 identical, the Shikai script's log identical. Playtest
-Artifact v299.
+Artifact v300 (v299 before the last rebuild after a comment edit).
+
+## 17. Playtest fixes: the sleeveless haori, NS2c's two-handed chop, pointer 1's sling out of the body (2026-11-03)
+
+The user:
+1. 「劍八是無袖羽織，而不是你製作的短袖羽織，然後長袖的死霸裝是像一護的那種寬鬆袖口設計。此外，目前手彎曲的時候手肘會透過衣服。」
+2. 「NS2c 的下劈姿勢也太奇怪了，應該是要雙手握刀、正對對手向下劈斬。」
+3. 「指針一的站姿你自己用三視圖比對一下，不覺得刀都劈開自己了嗎？如果嚴重程度不高，我也可以接受穿模，但這種情況有點太過頭了。」
+
+Presentation only (the Shikai script's 88 HIT / L / BURST lines identical, G2 identical):
+- **Costume** (`ken-art.lisp`'s arms): the haori's short sleeve and its teeth removed (sleeveless: the white shoulder pieces stay);
+  the black upper sleeve 0.074–0.078 → 0.08–0.084; the forearm's long sleeve now widens from 0.08 at the elbow to 0.1 and ends in a
+  loose square cuff 0.21 × 0.22 at the wrist (Ichigo's cuff shape, black, no lining); a black ball 0.082 at the elbow fills the gap
+  between the two sleeve pieces when the arm bends (before, the skin elbow 0.045 showed there). The cuff and the ball are
+  `:sleeve-long`, so the Bankai still shows short sleeves and a bare forearm.
+- **NS2c `:ke-s-p2c`** re-keyed (S/A/R 16/5/24 kept): square to him (pelvis and chest twist 0 throughout), both hands on the hilt
+  (GRIP-LEFT!), raised over his head with the blade back (f7–f14, the front foot lifted and held), vertical overhead on f15, then the
+  chop straight down the centre line: at S the grip 1.4 m up, 0.4 m out, the blade 22° below level (the drawn tip 2.96 m vs the 2.8 m
+  volume, inside the art test's +0.15); on A the tip on the floor 2.9 m out; held to f32, recovered by f39. Both arms solved on the host
+  (grip, blade and edge targets; the left fist on the haft 0.35 m behind the grip; the blade's flat kept out of the body).
+- **Pointer 1 `:ke-s-st-1`**: three views of the FK body (front, side, top: a torso capsule, the head, the blade's spine and flat)
+  showed the old sling ran the haft through his right chest (the spine 0.06 m in front of the chest's back face) and the flat through
+  his head. The right arm re-solved for the grip at (0.42, 1.0, 0.12) with the blade along (−0.48, 0.70, −0.53) (r u f): the spine
+  passes 0.3 m behind the shoulders, the clearance to the torso ellipse +0.47 of its radius (was −0.12). Arm flex −30 → −34, side 12 →
+  16, twist 0 → −7; elbow 92 → 84; hand flex 70 → 95, twist 20 → 8, side 0 → −1. The hand stays near its old angles, so the pointer-1
+  clips' first keys blend in without a wrist roll; turning the edge backward instead (fully clear) needs the hand rolled ~180°, which
+  would spin the blade at the start of every pointer-1 move. ZANGAESHI's landing key takes the same arm. Left: the crown's hair spikes
+  graze the blade's edge from his left side (the turntable stills, `tests/duel-view.lisp` 1000103 + 3000+d).
+
+Checks: host tests 9831 ALL PASS (the art FK test included), pkgcheck clean, the build, the Shikai script's log identical, G2
+identical; stills from the viewer's turntable (stance 1 at six angles, NS2c's eight frames from three). Playtest Artifact v301.
+
