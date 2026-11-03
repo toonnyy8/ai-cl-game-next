@@ -848,12 +848,11 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ke-stance :ke-q1 :ke-q2 :ke-q3 :ke-f1 :ke-f2 :ke-stance-hold :ke-stance-cut :ke-buttagiru :ke-charge
  :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
  :ke-s-st-1 :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
- :ke-kt-jab ; KATATE (DUEL_KEN_KATATE)
  :ke-s-flick ; the V3 Shikai's hilt flick (DUEL_KEN_V3 §12)
+ :ke-s-jab :ke-s-p2c :ke-s-p2d :ke-s-p2e :ke-s-zangaeshi :ke-s-meteor ; its pointer-2 clips (DUEL_KEN_V3 §15)
  ; NS3's charges (DUEL_KEN_CORE)
  :sh-skate-b :sh-slide-r :sh-slide-l :ke-run :ke-skate-b :ke-slide-r :ke-slide-l ; the runs (facing the opponent)
  :ke-drink ; the cups
- :ke-r-f2 ; RYOTE's kendo set and KUKAN-GIRI (their own clips since Phase 5)
  :ke-b-stance :ke-b-fist :ke-b-bite ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12)
  :ke-b-hook :ic-cross-j :ic-k-jab :ic-k-wrap-j ; the J cut's close J links (DUEL_STRINGS §13)
  :ke-b-leap :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l ; its feral pass (2026-09-28; also 片腕)
@@ -903,7 +902,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
  :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en ; ... and the owl's (the backstep gone, v3 R3)
  :br-w-guard :br-w-guard-hit :br-o-guard :br-o-guard-hit :br-oe-guard :br-oe-guard-hit ; his wing wall (the awakened guard)
- :ke-k-q1 :ke-k-q2 :ke-k-f1 :ke-k-f2 :ke-k-spin :ke-k-meteor ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2)
+ :ke-k-q1 :ke-k-q2 :ke-k-f1 :ke-k-spin :ke-k-meteor ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2)
             
  :ke-b-q1 :ke-b-q2 :ke-b-f1 :ke-b-f2 :ke-b-f3 :ke-b-split :ke-b-cut ; the Bankai's own (§8)
  ; KATAUDE's (§8)
