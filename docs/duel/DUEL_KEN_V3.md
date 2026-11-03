@@ -432,3 +432,48 @@ Part 1 (presentation only):
 Checks: host tests 9831 ALL PASS (the clip list: `:ke-s-st-1` for `:ke-n-stance`), pkgcheck clean, the build, G2 identical (a first run's
 KK started 15.9 s late under load and missed its script; the rerun passed), stills from the behind and the side cameras (84001 + 2510 / 2511,
 2109). Playtest Artifact v298.
+
+## 15. Art round, part 2: every move's own clip (2026-11-03)
+
+Built by three agents in parallel worktrees (pointer 1, pointer 2, the J string), merged; presentation only: in each clip `:clip-s` = the
+move's startup (speed 1), and the Shikai script's combat log (94 HIT / L / BURST / BANKAI lines) is identical before and after.
+Each hit pose was solved by host FK against its volume (the tip within about 0.4 m short of the far edge or up to 0.1 m past it; the
+host art test checks the J links, the probe the rest). Rhythm 由緩至急 on every opener (an eased charge, a held trembling coil, the
+release in the last 2–3 f); no full root turn inside a clip (spins carry the cleaver round with the root and chest up to ~130°).
+
+| Clip | Move | The motion |
+|---|---|---|
+| `:ke-s-cut1` | J1 | the hilt flung over the right shoulder, then a diagonal high right → low left on a lunge |
+| `:ke-s-cut2` | J2 | coiled low left, the backhand rising low left → high right |
+| `:ke-s-cut3` | J3 | dragged flat behind, the arm locked, one flat chest-high cleave across on a long lunge (tip 3.88 m) |
+| `:ke-s-cut4`–`7` | J4–J7 (L3) | an overhead drop biting the floor; a floor-drag ripped up the centre; a shoulder-rammed flat hack; the huge overhead slam into the floor |
+| `:ke-s-cut-sa` | SA | the hilt across to his left, a flat backhand flicked out as he steps in |
+| `:ke-s-p1a` | P1 a TOSSHIN | the crouch sinks and holds (the tell), the cleaver drags low behind and rips up hip → over the left shoulder |
+| `:ke-s-p1b` / `p1c` | P1 b / c | a forehand spin mowing the floor right → left; the other way and height: a rising backhand onto the toes |
+| `:ke-s-p1d` | P1 d | the figure eight: two steep one-hand cuts, down left (f10), looped, down right (f16) |
+| `:ke-s-p1e` | P1 e | deep crouch, a spring, one flat whirl overhead, chopped down landing |
+| `:ke-s-issen` | burst to P2 | a low draw, one slanted backhand flash, the blade lifted onto the shoulder (ends in the shoulder stance) |
+| `:ke-s-wheel` | DAISHARIN | the cleaver whirled flat overhead three times (f12, f18, f24), the third climbing into the launch |
+| `:ke-s-jab` | P2 a TSUKA-UCHI | the hilt drawn back along the shoulder, held, shoved straight out (the butt 1.42 m) |
+| `:ke-s-flick` | P2 b | (§12) |
+| `:ke-s-p2c` / `p2d` / `p2e` | P2 c / d / e | both hands: the overhead to the floor; off the shoulder, a flat mow; the back turned, a round descending cut |
+| `:ke-s-zangaeshi` | burst to P1 | one hand: heaved off the shoulder, one big diagonal, dragged round low and up his back (ends in the sling) |
+| `:ke-s-meteor` | INSEKI-GIRI | crouch, leap with the hilt raised, arched, the falling cut |
+
+The two-handed clips (`p2c`, `p2d`, `p2e`, `meteor`) are in `*grip-clips*`. No longer played by any kit: `:ke-kt-jab`, `:ke-k-q1`,
+`:ke-k-q2`, `:ke-k-f1`, `:ke-k-f2`, `:ke-k-spin`, `:ke-k-meteor`, `:ke-r-f2` (their defstrikes stay for now). Known flaws: P2 d's left
+fist floats up to 0.18 m off the haft through its carry; the L3 AS route as1c → as1d pops one frame (P1 e's frame 0 is P1 d's landing);
+some tips dip into the floor (J1 0.2 m at the hit; J4 / J7 bite it on purpose). `tests/duel-view.lisp` draws the KE-S- clips with
+Nozarashi.
+
+## 16. Art round, part 3: the sword wind by L (2026-11-03)
+
+`duel/lisp/ken-look.lisp`, the Shikai kit's `:draw` hook (drawn only; the hit volumes do not grow): on every hit window of the move he
+is in, at the level it shows (L now; a burst's the route's, since L went to 0 as it started): L0 the plain smear; L1 three white
+streaks peeling off behind the tip, longer by L; L2 + a wind crescent (a white lens with an ink rim) whose chord is the cut itself,
+thrown along the tip's bearing from 0.6 to 1.6 times the volume's far point over 10 f, and a dust line along the floor; L3 + a second,
+wider crescent, a floor crack under the far point, rubble and a camera shake (0.1 m, 0.22 s). Knob: `*ke-wind-life*` 10 f. The
+crescents read in the stills; the L1 streaks are faint (to be judged in play).
+
+Checks for §15–§16: host tests 9831 ALL PASS, pkgcheck clean, the build, G2 identical, the Shikai script's log identical. Playtest
+Artifact v299.

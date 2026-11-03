@@ -114,7 +114,7 @@
 ;;; unlock level L it needs (read at the route's start: CORE-SNAP-LV!, KEN-LV); :lv-up marks a same-pointer AS (its first clean hit raises
 ;;; L, as an NS route's does: KEN-HIT); the bursts (:burst, the damage by the old L: KEN-DMG-MULT) and the special ASs are picked by
 ;;; KEN-AS-PICK; J4-J7 (:lv 3) only at L3 (KEN-LINK-OK). Every figure §9's table (the user: 「可以，照這份做」; knobs until the playtest);
-;;; the clips are borrowed (:clip-s their authored startup) until the art round, so the drawn reach says nothing yet.
+;;; every move has its own clip since the art round (DUEL_KEN_V3 §15; :clip-s = the startup: speed 1).
 (defmove :ke-s-j1 :kind :quick :clip :ke-s-cut1 :clip-s 9 :startup 9 :active 3 :recovery 12 :dmg 40 :adv-block -2
   :reach 2.4 :arc 100 :on-hit :flinch :slide 0.8)
 (defmove :ke-s-j2 :kind :quick :clip :ke-s-cut2 :clip-s 9 :startup 9 :active 3 :recovery 13 :dmg 40 :adv-block -2
