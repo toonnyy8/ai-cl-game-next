@@ -140,15 +140,15 @@
 (defmove :ke-s-n1a :kind :flash :clip :ke-k-f1 :clip-s 16 :callout "TOSSHIN" :startup 16 :active 4 :recovery 22 :dmg 70 :adv-block -4
   :reach 2.6 :arc 100 :on-hit :stagger :slide 3.0 :params (:ns-next :ke-s-n1b))
 ;; pointer 2 「扛肩柄擊」: the hilt jab and flick (L0), both hands, the overhead (L1), the sweep (L2), the turning cut (L3)
-(defmove :ke-s-n2e :kind :flash :clip :ke-r-f2 :clip-s 21 :startup 18 :active 5 :recovery 28 :dmg 140 :adv-block -8
+(defmove :ke-s-n2e :kind :flash :clip :ke-s-p2e :clip-s 18 :startup 18 :active 5 :recovery 28 :dmg 140 :adv-block -8
   :reach 3.0 :arc 120 :on-hit :crumple :params (:lv 3))
-(defmove :ke-s-n2d :kind :flash :clip :ke-sweep :clip-s 14 :startup 14 :active 4 :recovery 20 :dmg 100 :adv-block -4
+(defmove :ke-s-n2d :kind :flash :clip :ke-s-p2d :clip-s 14 :startup 14 :active 4 :recovery 20 :dmg 100 :adv-block -4
   :reach 2.8 :arc 140 :on-hit :stagger :params (:lv 2 :ns-next :ke-s-n2e))
-(defmove :ke-s-n2c :kind :flash :clip :ke-k-f2 :clip-s 20 :startup 16 :active 5 :recovery 24 :dmg 110 :adv-block -6
+(defmove :ke-s-n2c :kind :flash :clip :ke-s-p2c :clip-s 16 :startup 16 :active 5 :recovery 24 :dmg 110 :adv-block -6
   :reach 2.8 :arc 90 :on-hit :crumple :params (:lv 1 :ns-next :ke-s-n2d))
 (defmove :ke-s-n2b :kind :flash :clip :ke-s-flick :clip-s 10 :startup 10 :active 3 :recovery 16 :dmg 50 :adv-block -4
   :reach 1.2 :arc 80 :on-hit :stagger :slide 0.6 :params (:ns-next :ke-s-n2c))
-(defmove :ke-s-n2a :kind :flash :clip :ke-kt-jab :clip-s 7 :callout "TSUKA-UCHI" :startup 14 :active 3 :recovery 16 :dmg 45 :adv-block -4
+(defmove :ke-s-n2a :kind :flash :clip :ke-s-jab :clip-s 14 :callout "TSUKA-UCHI" :startup 14 :active 3 :recovery 16 :dmg 45 :adv-block -4
   :reach 1.4 :arc 70 :on-hit :stagger :slide 1.0 :params (:ns-next :ke-s-n2b))   ; (the hilt's short reach: a step in, the scripted
                                                                                   ;  2.2 m scene whiffed it without one)
 ;; the ASs that keep the pointer (:lv-up): one segment more per L; the last at L3 knocks down
@@ -161,14 +161,14 @@
 (defmove-copy :ke-s-as2b :ke-s-n2c :kind :sp :on-hit :stagger :params (:lv 1 :lv-up t :ns-next :ke-s-as2c))
 (defmove-copy :ke-s-as2 :ke-s-n2a :kind :sp :startup 12 :dmg 50 :params (:lv-up t :ns-next :ke-s-as2b))
 ;; the bursts (an AS that writes the other pointer, §5.2: 「固定動作、提高傷害，只有 1~2 段」): one blow, 100 / 150 / 200 / 260 by the old L
-(defmove :ke-s-burst1 :kind :sp :clip :ke-k-f2 :clip-s 20 :callout "ZANGAESHI" :startup 14 :active 5 :recovery 26 :dmg 100 :adv-block -8
+(defmove :ke-s-burst1 :kind :sp :clip :ke-s-zangaeshi :clip-s 14 :callout "ZANGAESHI" :startup 14 :active 5 :recovery 26 :dmg 100 :adv-block -8
   :reach 2.8 :arc 120 :on-hit :knockdown :params (:burst (100 150 200 260)))     ; to pointer 1: off the shoulder, into the sling
 (defmove :ke-s-burst2 :kind :sp :clip :ke-k-f1 :clip-s 16 :callout "TOSSHIN-ISSEN" :startup 12 :active 5 :recovery 26 :dmg 100 :adv-block -8
   :reach 2.6 :arc 100 :on-hit :knockdown :slide 3.5 :params (:burst (100 150 200 260)))   ; to pointer 2: through him, onto the shoulder
 ;; the special ASs (SP after J4-J6 at L3)
 (defmove :ke-s-sp1 :kind :sp :clip :ke-k-spin :clip-s 11 :callout "DAISHARIN" :startup 12 :active 14 :recovery 26 :adv-block -10
   :reach 3.0 :arc 360 :hits ((12 14 :dmg 60 :on-hit :stagger) (18 20 :dmg 60 :on-hit :stagger) (24 26 :dmg 120 :on-hit :launch)))
-(defmove :ke-s-sp2 :kind :sp :clip :ke-k-meteor :clip-s 26 :callout "INSEKI-GIRI" :startup 20 :active 4 :recovery 30 :dmg 260 :adv-block -12
+(defmove :ke-s-sp2 :kind :sp :clip :ke-s-meteor :clip-s 20 :callout "INSEKI-GIRI" :startup 20 :active 4 :recovery 30 :dmg 260 :adv-block -12
   :reach 3.0 :arc 90 :on-hit :knockdown :slide 3.0)
 
 ;;; ================================================================ Bankai (卍解) and 片腕 KATAUDE (docs/duel/DUEL_KEN_BANKAI.md)
