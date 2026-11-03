@@ -1542,6 +1542,218 @@ flex and the spine / head flex shifted by these."
       (:arm-r :flex 100 :side 22) (:elbow-r :flex 104) (:hand-r :flex 34) (:arm-l :flex 10 :side 40))         ; the butt swept up
   (:a (:root :u 0.06 :f 0.34) (:arm-r :flex 108))                                                             ; (the blade dips behind)
   (:end :ke-k-rest))
+;; the V3 Shikai's pointer-1 clips (DUEL_KEN_V3 §15): 「突進迴旋」 from the sling (:ke-s-st-1), each at its move's S / A / R (:clip-s = the
+;; startup). The rhythm 由緩至急: an eased charge, a held coil that trembles (keys a frame apart), the release in the last 2-3 f, the
+;; impact on S, a slow drag back. No full root turn inside a clip: a spin is the root and chest turned up to ~130 deg with the cleaver
+;; carried round him by the arm (a key every frame through the fast part), a whirl the right arm's twist overhead. The arm keys were
+;; solved by FK on the host for the tip on the hit volume (the blade reaches 2.7 m past the fist at his scale, so every hit slants it
+;; 30-45 deg off level: a level blade would pass the volume's far edge).
+;; NS1a TOSSHIN the lunge cut (S16 A4 R22; the sim slides him 3.0 m through the startup): the crouch sinks and holds (the tell), then
+;; driving low, the cleaver drops off his back, drags low behind his right hip, swings through low and rips up in a rising diagonal,
+;; right hip to over his left shoulder (the tip ends near the sling)
+(defstrike :ke-s-p1a (16 4 22 :base :ke-s-st-1)
+  (0)
+  (4 (:root :u -0.27 :f 0.06) (:spine :flex 29) (:head :flex -20) (:chest :twist -13) (:pelvis :twist 14)
+     (:thigh-l :flex 54) (:knee-l :flex 74) (:knee-r :flex 50) (:arm-l :flex 46 :side 42) (:elbow-l :flex 32))
+  (8 (:root :u -0.32 :f 0.08) (:spine :flex 33) (:chest :twist -16) (:pelvis :twist 16) (:thigh-l :flex 60) (:knee-l :flex 82)
+     (:knee-r :flex 58) (:arm-l :flex 58 :side 30))                                                              ; sunk: the tell
+  (9 :snap (:root :u -0.31) (:spine :flex 32))
+  (10 :snap (:root :u -0.33) (:spine :flex 34))
+  (11 :snap (:root :u -0.32) (:spine :flex 33))                                                                ; held, trembling
+  (12 :snap (:root :u -0.31 :f 0.09 :yaw 0) (:pelvis :twist 20.5) (:spine :flex 33.5 :side 0) (:chest :twist -20.5) (:head :flex -20 :twist 1) (:thigh-l :flex 61 :side 12) (:knee-l :flex 76) (:thigh-r :flex -20 :side 16) (:knee-r :flex 49) (:arm-l :flex 59 :side 25) (:elbow-l :flex 31)
+     (:arm-r :flex 6 :side 53 :twist 75) (:elbow-r :flex 72) (:hand-r :flex 94 :twist 50 :side 13))
+  (13 :snap (:root :u -0.3 :f 0.1 :yaw 0) (:pelvis :twist 25) (:spine :flex 34 :side 0) (:chest :twist -25) (:head :flex -20 :twist 10) (:thigh-l :flex 62 :side 10) (:knee-l :flex 70) (:thigh-r :flex -28 :side 14) (:knee-r :flex 40) (:arm-l :flex 60 :side 20) (:elbow-l :flex 30)
+     (:arm-r :flex 0 :side 33 :twist 82) (:elbow-r :flex 24) (:hand-r :flex 41 :twist 104 :side 36))
+  (14 :snap (:root :u -0.29 :f 0.15 :yaw 0) (:pelvis :twist 16.5) (:spine :flex 32 :side 0) (:chest :twist -12.5) (:head :flex -18 :twist 5) (:thigh-l :flex 62 :side 10) (:knee-l :flex 68) (:thigh-r :flex -30 :side 14) (:knee-r :flex 35) (:arm-l :flex 52.5 :side 27.5) (:elbow-l :flex 27.5)
+     (:arm-r :flex -16 :side -21 :twist -20) (:elbow-r :flex 2) (:hand-r :flex -20 :twist -54 :side 32))
+  (15 :snap (:root :u -0.27 :f 0.2 :yaw 0) (:pelvis :twist 8) (:spine :flex 30 :side 0) (:chest :twist 0) (:head :flex -16 :twist 0) (:thigh-l :flex 62 :side 10) (:knee-l :flex 66) (:thigh-r :flex -32 :side 14) (:knee-r :flex 30) (:arm-l :flex 45 :side 35) (:elbow-l :flex 25)
+     (:arm-r :flex -6 :side -9 :twist -7) (:elbow-r :flex 12) (:hand-r :flex 1 :twist -34 :side 29))
+  (16 :snap (:root :u -0.24 :f 0.28 :yaw 0) (:pelvis :twist -10) (:spine :flex 26 :side 0) (:chest :twist 25) (:head :flex -14 :twist -10) (:thigh-l :flex 60 :side 10) (:knee-l :flex 62) (:thigh-r :flex -34 :side 14) (:knee-r :flex 22) (:arm-l :flex 30 :side 50) (:elbow-l :flex 20)
+     (:arm-r :flex -17 :side 0 :twist 33) (:elbow-r :flex 23) (:hand-r :flex 42 :twist -17 :side 20))
+  (17 :snap (:root :u -0.22 :f 0.29 :yaw 0) (:pelvis :twist -12) (:spine :flex 23 :side 0) (:chest :twist 28.25) (:head :flex -15 :twist -11) (:thigh-l :flex 59.5 :side 10) (:knee-l :flex 61) (:thigh-r :flex -34 :side 14) (:knee-r :flex 21.5) (:arm-l :flex 25 :side 52.5) (:elbow-l :flex 18.75)
+     (:arm-r :flex -14 :side 13 :twist 54) (:elbow-r :flex 73) (:hand-r :flex 0 :twist -6 :side 25))
+  (18 (:root :u -0.2 :f 0.3 :yaw 0) (:pelvis :twist -14) (:spine :flex 20 :side 0) (:chest :twist 31.5) (:head :flex -16 :twist -12) (:thigh-l :flex 59 :side 10) (:knee-l :flex 60) (:thigh-r :flex -34 :side 14) (:knee-r :flex 21) (:arm-l :flex 20 :side 55) (:elbow-l :flex 17.5)
+     (:arm-r :flex 5 :side -7 :twist 61) (:elbow-r :flex 67) (:hand-r :flex -16 :twist -3 :side 9))
+  (20 (:root :u -0.16 :f 0.32 :yaw 0) (:pelvis :twist -18) (:spine :flex 14 :side 0) (:chest :twist 38) (:head :flex -18 :twist -14) (:thigh-l :flex 58 :side 10) (:knee-l :flex 58) (:thigh-r :flex -34 :side 14) (:knee-r :flex 20) (:arm-l :flex 10 :side 60) (:elbow-l :flex 15)
+     (:arm-r :flex 11 :side -39 :twist 36) (:elbow-r :flex 69) (:hand-r :flex -50 :twist 12 :side -29))
+  (30 (:root :u -0.18 :f 0.26) (:spine :flex 16) (:chest :twist 30))
+  (:end :ke-s-st-1))
+;; NS1b the spin-through sweep (S12 A4 R20, 360 deg): wound to his right, the cleaver out low behind; turning left, the blade slanted
+;; down off the cocked wrist mows the floor through his right, his front, his left and on behind (a forehand, right to left, low)
+(defstrike :ke-s-p1b (12 4 20 :base :ke-s-st-1)
+  (0 (:root :u -0.16 :f 0.32 :yaw 0)   ; NS1a's S+A pose (a link starts there, blend 0)
+     (:pelvis :twist -18) (:spine :flex 14 :side 0) (:chest :twist 38) (:head :flex -18 :twist -14) (:thigh-l :flex 58 :side 10) (:knee-l :flex 58) (:thigh-r :flex -34 :side 14) (:knee-r :flex 20) (:arm-l :flex 10 :side 60) (:elbow-l :flex 15) (:arm-r :flex 11 :side -39 :twist 36) (:elbow-r :flex 69) (:hand-r :flex -50 :twist 12 :side -29))
+  (6 (:root :u -0.22 :f 0 :yaw -45) (:pelvis :twist 20) (:spine :flex 24 :side 0) (:chest :twist -30) (:head :flex -14 :twist 40) (:thigh-l :flex 40 :side 14) (:knee-l :flex 55) (:thigh-r :flex -10 :side 18) (:knee-r :flex 45) (:arm-l :flex 50 :side 30) (:elbow-l :flex 30)
+     (:arm-r :flex -18 :side -12 :twist 48) (:elbow-r :flex 73) (:hand-r :flex 97 :twist -34 :side -26))
+  (8 :snap (:root :yaw -47 :u -0.23))
+  (9 :snap (:root :yaw -46 :u -0.22))                                                                          ; held
+  (10 :snap (:root :u -0.17 :f 0.1 :yaw -8.33) (:pelvis :twist 6.67) (:spine :flex 21.33 :side 5.33) (:chest :twist -3.33) (:head :flex -14 :twist 6.67) (:thigh-l :flex 46.67 :side 14) (:knee-l :flex 51.67) (:thigh-r :flex -20 :side 18) (:knee-r :flex 35) (:arm-l :flex 36.67 :side 56.67) (:elbow-l :flex 23.33)
+     (:arm-r :flex -19 :side -23 :twist 19) (:elbow-r :flex 69) (:hand-r :flex 95 :twist -46 :side -27))
+  (11 :snap (:root :u -0.16 :f 0.12 :yaw 0.83) (:pelvis :twist 3.33) (:spine :flex 20.67 :side 6.67) (:chest :twist 3.33) (:head :flex -14 :twist -1.67) (:thigh-l :flex 48.33 :side 14) (:knee-l :flex 50.83) (:thigh-r :flex -22.5 :side 18) (:knee-r :flex 32.5) (:arm-l :flex 33.33 :side 63.33) (:elbow-l :flex 21.67)
+     (:arm-r :flex -11 :side -13 :twist 49) (:elbow-r :flex 65) (:hand-r :flex 91 :twist -47 :side -26))
+  (12 :snap (:root :u -0.15 :f 0.15 :yaw 10) (:pelvis :twist 0) (:spine :flex 20 :side 8) (:chest :twist 10) (:head :flex -14 :twist -10) (:thigh-l :flex 50 :side 14) (:knee-l :flex 50) (:thigh-r :flex -25 :side 18) (:knee-r :flex 30) (:arm-l :flex 30 :side 70) (:elbow-l :flex 20)
+     (:arm-r :flex -5 :side -12 :twist 74) (:elbow-r :flex 63) (:hand-r :flex 87 :twist -49 :side -30))
+  (13 :snap (:root :u -0.15 :f 0.17 :yaw 27.5) (:pelvis :twist -3.75) (:spine :flex 19.5 :side 8.5) (:chest :twist 15) (:head :flex -13.5 :twist -22.5) (:thigh-l :flex 49.5 :side 14) (:knee-l :flex 49) (:thigh-r :flex -25.75 :side 18) (:knee-r :flex 29.5) (:arm-l :flex 28.75 :side 71.25) (:elbow-l :flex 20)
+     (:arm-r :flex -7 :side -8 :twist 86) (:elbow-r :flex 70) (:hand-r :flex 74 :twist -59 :side -32))
+  (14 :snap (:root :u -0.15 :f 0.18 :yaw 45) (:pelvis :twist -7.5) (:spine :flex 19 :side 9) (:chest :twist 20) (:head :flex -13 :twist -35) (:thigh-l :flex 49 :side 14) (:knee-l :flex 48) (:thigh-r :flex -26.5 :side 18) (:knee-r :flex 29) (:arm-l :flex 27.5 :side 72.5) (:elbow-l :flex 20)
+     (:arm-r :flex -16 :side -16 :twist 89) (:elbow-r :flex 68) (:hand-r :flex 40 :twist -71 :side -33))
+  (15 :snap (:root :u -0.14 :f 0.2 :yaw 62.5) (:pelvis :twist -11.25) (:spine :flex 18.5 :side 9.5) (:chest :twist 25) (:head :flex -12.5 :twist -47.5) (:thigh-l :flex 48.5 :side 14) (:knee-l :flex 47) (:thigh-r :flex -27.25 :side 18) (:knee-r :flex 28.5) (:arm-l :flex 26.25 :side 73.75) (:elbow-l :flex 20)
+     (:arm-r :flex -22 :side -15 :twist 89) (:elbow-r :flex 64) (:hand-r :flex 5 :twist -73 :side -37))
+  (16 :snap (:root :u -0.14 :f 0.22 :yaw 80) (:pelvis :twist -15) (:spine :flex 18 :side 10) (:chest :twist 30) (:head :flex -12 :twist -60) (:thigh-l :flex 48 :side 14) (:knee-l :flex 46) (:thigh-r :flex -28 :side 18) (:knee-r :flex 28) (:arm-l :flex 25 :side 75) (:elbow-l :flex 20)
+     (:arm-r :flex -20 :side 7 :twist 87) (:elbow-r :flex 72) (:hand-r :flex -39 :twist -56 :side -32))
+  (24 (:root :yaw 70 :u -0.16) (:spine :flex 20))
+  (:end :ke-s-st-1))
+;; NS1c the reverse spin (S12 A4 R20, 360 deg): the other way and the other height: coiled left and low, the fist at his left knee, the
+;; blade trailing low; a backhand that rises as he turns right, up onto his toes, the tip climbing from the floor to over his head
+(defstrike :ke-s-p1c (12 4 20 :base :ke-s-st-1)
+  (0 (:root :u -0.14 :f 0.22 :yaw 80)   ; NS1b's S+A pose (a link starts there, blend 0)
+     (:pelvis :twist -15) (:spine :flex 18 :side 10) (:chest :twist 30) (:head :flex -12 :twist -60) (:thigh-l :flex 48 :side 14) (:knee-l :flex 46) (:thigh-r :flex -28 :side 18) (:knee-r :flex 28) (:arm-l :flex 25 :side 75) (:elbow-l :flex 20) (:arm-r :flex -20 :side 7 :twist 87) (:elbow-r :flex 72) (:hand-r :flex -39 :twist -56 :side -32))
+  (6 (:root :u -0.32 :f 0.0 :yaw 45) (:pelvis :twist -10) (:spine :flex 30 :side 0) (:chest :twist 30) (:head :flex -12 :twist -40)
+     (:thigh-l :flex 55 :side 14) (:knee-l :flex 70) (:thigh-r :flex -15 :side 18) (:knee-r :flex 55) (:arm-l :flex 20 :side 40) (:elbow-l :flex 40)
+     (:arm-r :flex -3 :side -1 :twist 35) (:elbow-r :flex 45) (:hand-r :flex -61 :twist 43 :side 9))           ; coiled low, left
+  (8 :snap (:root :yaw 47 :u -0.33))
+  (9 :snap (:root :yaw 46 :u -0.32))                                                                           ; held
+  (10.5 :snap (:root :u -0.25 :f 0.08 :yaw 20) (:pelvis :twist -5) (:spine :flex 24 :side -4) (:chest :twist 15) (:head :twist -20)
+        (:thigh-l :flex 50) (:knee-l :flex 55) (:thigh-r :flex -20) (:knee-r :flex 40) (:arm-l :flex 18 :side 55) (:elbow-l :flex 30)
+        (:arm-r :flex -8 :side -42 :twist -28) (:elbow-r :flex 7) (:hand-r :flex -54 :twist 33 :side -33))       ; low at his left
+  (:s :snap (:root :u -0.12 :f 0.15 :yaw 0) (:pelvis :twist 0) (:spine :flex 16 :side -10) (:chest :twist 0) (:head :twist 0)
+      (:thigh-l :flex 45) (:knee-l :flex 45) (:thigh-r :flex -25) (:knee-r :flex 25) (:arm-l :flex 15 :side 65) (:elbow-l :flex 20)
+      (:arm-r :flex 0 :side -40 :twist -30) (:elbow-r :flex 71) (:hand-r :flex -42 :twist 53 :side -23))         ; rising through
+  (14 :snap (:root :u 0.0 :f 0.2 :yaw -40) (:pelvis :twist 10) (:spine :flex 10 :side -12) (:chest :twist -20) (:head :flex -16 :twist 30)
+      (:thigh-l :flex 35) (:knee-l :flex 30) (:knee-r :flex 15) (:arm-l :side 70)
+      (:arm-r :flex 17 :side -42 :twist -59) (:elbow-r :flex 72) (:hand-r :flex -27 :twist 46 :side -31))        ; his right, high
+  (:a (:root :u 0.06 :f 0.22 :yaw -75) (:pelvis :twist 15) (:spine :flex 6 :side -14) (:chest :twist -30) (:head :flex -18 :twist 50)
+      (:thigh-l :flex 30) (:knee-l :flex 25) (:thigh-r :flex -22) (:knee-r :flex 12) (:arm-l :side 75)
+      (:arm-r :flex 41 :side -25 :twist -72) (:elbow-r :flex 66) (:hand-r :flex -23 :twist 45 :side -34))        ; on his toes, flung up
+  (24 (:root :yaw -65 :u 0.02) (:spine :flex 10))
+  (:end :ke-s-st-1))
+;; NS1d the one-hand sword dance (S10 A8 R16; hits f10-12, f16-18): the fist cocked out right, the blade up behind; a figure eight,
+;; two steep cuts that each end at the floor: up over his right and down to his left (f10), back and up his left side, over and down
+;; to his right (f16)
+(defstrike :ke-s-p1d (10 8 16 :base :ke-s-st-1)
+  (0 (:root :u 0.06 :f 0.22 :yaw -75)   ; NS1c's S+A pose (a link starts there, blend 0)
+     (:pelvis :twist 15) (:spine :flex 6 :side -14) (:chest :twist -30) (:head :flex -18 :twist 50) (:thigh-l :flex 30 :side 14) (:knee-l :flex 25) (:thigh-r :flex -22 :side 18) (:knee-r :flex 12) (:arm-l :flex 15 :side 75) (:elbow-l :flex 20) (:arm-r :flex 41 :side -25 :twist -72) (:elbow-r :flex 66) (:hand-r :flex -23 :twist 45 :side -34))
+  (4 (:root :u -0.12 :f 0.05 :yaw -10) (:pelvis :twist 15) (:spine :flex 14 :side 0) (:chest :twist -25) (:head :flex -10 :twist 15) (:thigh-l :flex 40 :side 14) (:knee-l :flex 50) (:thigh-r :flex -14 :side 18) (:knee-r :flex 32) (:arm-l :flex 40 :side 45) (:elbow-l :flex 50)
+     (:arm-r :flex -16 :side 51 :twist -45) (:elbow-r :flex 68) (:hand-r :flex 92 :twist -61 :side -30))
+  (6 :snap (:root :u -0.13) (:chest :twist -27))
+  (7 :snap (:root :u -0.12) (:chest :twist -26))                                                              ; held
+  (8 :snap (:root :u -0.15 :f 0.08 :yaw -5) (:pelvis :twist 8.33) (:spine :flex 18 :side 0) (:chest :twist -10.67) (:head :flex -11.33 :twist 6.67) (:thigh-l :flex 44 :side 14) (:knee-l :flex 52) (:thigh-r :flex -17.33 :side 18) (:knee-r :flex 31.33) (:arm-l :flex 36.67 :side 50) (:elbow-l :flex 43.33)
+     (:arm-r :flex -16 :side 49 :twist -7) (:elbow-r :flex 1) (:hand-r :flex 91 :twist -60 :side -4))
+  (9 :snap (:root :u -0.17 :f 0.12 :yaw 0) (:pelvis :twist 1.67) (:spine :flex 22 :side 0) (:chest :twist 4.67) (:head :flex -12.67 :twist -1.67) (:thigh-l :flex 48 :side 14) (:knee-l :flex 54) (:thigh-r :flex -20.67 :side 18) (:knee-r :flex 30.67) (:arm-l :flex 33.33 :side 55) (:elbow-l :flex 36.67)
+     (:arm-r :flex -22 :side 34 :twist 8) (:elbow-r :flex -2) (:hand-r :flex 87 :twist -29 :side -5))
+  (10 :snap (:root :u -0.2 :f 0.15 :yaw 5) (:pelvis :twist -5) (:spine :flex 26 :side 0) (:chest :twist 20) (:head :flex -14 :twist -10) (:thigh-l :flex 52 :side 14) (:knee-l :flex 56) (:thigh-r :flex -24 :side 18) (:knee-r :flex 30) (:arm-l :flex 30 :side 60) (:elbow-l :flex 30)
+     (:arm-r :flex -23 :side 25 :twist 49) (:elbow-r :flex -4) (:hand-r :flex 50 :twist -20 :side -15))
+  (11 :snap (:root :u -0.21 :f 0.16 :yaw 7.5) (:pelvis :twist -7.5) (:spine :flex 28 :side 2) (:chest :twist 24) (:head :flex -15 :twist -12.5) (:thigh-l :flex 53 :side 14) (:knee-l :flex 58) (:thigh-r :flex -25 :side 18) (:knee-r :flex 30) (:arm-l :flex 27.5 :side 62.5) (:elbow-l :flex 27.5)
+     (:arm-r :flex -15 :side 15 :twist 65) (:elbow-r :flex 3) (:hand-r :flex 43 :twist -17 :side -32))
+  (12 :snap (:root :u -0.22 :f 0.18 :yaw 10) (:pelvis :twist -10) (:spine :flex 30 :side 4) (:chest :twist 28) (:head :flex -16 :twist -15) (:thigh-l :flex 54 :side 14) (:knee-l :flex 60) (:thigh-r :flex -26 :side 18) (:knee-r :flex 30) (:arm-l :flex 25 :side 65) (:elbow-l :flex 25)
+     (:arm-r :flex -9 :side 4 :twist 77) (:elbow-r :flex -3) (:hand-r :flex 43 :twist -26 :side -29))
+  (13 :snap (:root :u -0.19 :f 0.18 :yaw 5) (:pelvis :twist -5) (:spine :flex 24 :side 2) (:chest :twist 19) (:head :flex -14 :twist -7.5) (:thigh-l :flex 52 :side 14) (:knee-l :flex 56) (:thigh-r :flex -25 :side 18) (:knee-r :flex 29) (:arm-l :flex 30 :side 60) (:elbow-l :flex 32.5)
+     (:arm-r :flex 3 :side 16 :twist 82) (:elbow-r :flex 1) (:hand-r :flex 15 :twist 23 :side -11))
+  (14 :snap (:root :u -0.16 :f 0.18 :yaw 0) (:pelvis :twist 0) (:spine :flex 18 :side 0) (:chest :twist 10) (:head :flex -12 :twist 0) (:thigh-l :flex 50 :side 14) (:knee-l :flex 52) (:thigh-r :flex -24 :side 18) (:knee-r :flex 28) (:arm-l :flex 35 :side 55) (:elbow-l :flex 40)
+     (:arm-r :flex 175 :side 101 :twist 14) (:elbow-r :flex 73) (:hand-r :flex 14 :twist -96 :side -31))
+  (15 :snap (:root :u -0.18 :f 0.2 :yaw -2.5) (:pelvis :twist 2.5) (:spine :flex 22 :side 0) (:chest :twist -2.5) (:head :flex -13 :twist 5) (:thigh-l :flex 52 :side 14) (:knee-l :flex 54) (:thigh-r :flex -25 :side 18) (:knee-r :flex 29) (:arm-l :flex 32.5 :side 57.5) (:elbow-l :flex 35)
+     (:arm-r :flex 174 :side 105 :twist 29) (:elbow-r :flex 72) (:hand-r :flex -29 :twist -102 :side 10))
+  (16 :snap (:root :u -0.2 :f 0.22 :yaw -5) (:pelvis :twist 5) (:spine :flex 26 :side 0) (:chest :twist -15) (:head :flex -14 :twist 10) (:thigh-l :flex 54 :side 14) (:knee-l :flex 56) (:thigh-r :flex -26 :side 18) (:knee-r :flex 30) (:arm-l :flex 30 :side 60) (:elbow-l :flex 30)
+     (:arm-r :flex -27 :side -31 :twist 53) (:elbow-r :flex 4) (:hand-r :flex 64 :twist -19 :side -30))
+  (17 :snap (:root :u -0.21 :f 0.23 :yaw -8.5) (:pelvis :twist 8.5) (:spine :flex 28 :side -2) (:chest :twist -20) (:head :flex -15 :twist 14) (:thigh-l :flex 55 :side 14) (:knee-l :flex 58) (:thigh-r :flex -27 :side 18) (:knee-r :flex 30) (:arm-l :flex 27.5 :side 62.5) (:elbow-l :flex 27.5)
+     (:arm-r :flex -22 :side -36 :twist 38) (:elbow-r :flex -1) (:hand-r :flex 65 :twist -20 :side -27))
+  (18 :snap (:root :u -0.22 :f 0.24 :yaw -12) (:pelvis :twist 12) (:spine :flex 30 :side -4) (:chest :twist -25) (:head :flex -16 :twist 18) (:thigh-l :flex 56 :side 14) (:knee-l :flex 60) (:thigh-r :flex -28 :side 18) (:knee-r :flex 30) (:arm-l :flex 25 :side 65) (:elbow-l :flex 25)
+     (:arm-r :flex -20 :side -38 :twist 29) (:elbow-r :flex -1) (:hand-r :flex 65 :twist -21 :side -25))
+  (22 (:root :u -0.21 :f 0.22) (:spine :flex 28))
+  (:end :ke-s-st-1))
+;; NS1e the spinning leap cut (S14 A4 R24; the sim carries him 2.0 m): a deep crouch (held), he springs and the cleaver goes up and
+;; whirls once flat round over his head at the top of the leap (the arm's twist; behind, left, front, right, behind), then over the
+;; top and down on him as he lands in a deep crouch (crumple)
+(defstrike :ke-s-p1e (14 4 24 :base :ke-s-st-1)
+  (0 (:root :u -0.22 :f 0.24 :yaw -12)   ; NS1d's S+A pose (a link starts there, blend 0)
+     (:pelvis :twist 12) (:spine :flex 30 :side -4) (:chest :twist -25) (:head :flex -16 :twist 18) (:thigh-l :flex 56 :side 14) (:knee-l :flex 60) (:thigh-r :flex -28 :side 18) (:knee-r :flex 30) (:arm-l :flex 25 :side 65) (:elbow-l :flex 25) (:arm-r :flex -20 :side -38 :twist 29) (:elbow-r :flex -1) (:hand-r :flex 65 :twist -21 :side -25))
+  (3 (:root :u -0.38 :f 0.0 :yaw 10) (:pelvis :twist 15) (:spine :flex 36) (:chest :twist -15) (:head :flex -24 :twist -5)
+     (:thigh-l :flex 70) (:knee-l :flex 95) (:thigh-r :flex -5) (:knee-r :flex 80) (:arm-l :flex 40 :side 40) (:elbow-l :flex 30)
+     (:arm-r :flex -20) (:elbow-r :flex 95))                                                                    ; crouched, still slung
+  (4 :snap (:root :u -0.4) (:spine :flex 37))
+  (5 :snap (:root :u -0.39) (:spine :flex 36))                                                                 ; held
+  (7 (:root :u 0.3 :f 0.12 :yaw 20) (:pelvis :twist 10) (:spine :flex -12 :side 12) (:chest :twist 0) (:head :flex -16 :twist -15)
+     (:thigh-l :flex 40) (:knee-l :flex 50) (:thigh-r :flex 10) (:knee-r :flex 40) (:arm-l :flex 70 :side 80) (:elbow-l :flex 20)
+     (:arm-r :flex 160 :side -12 :twist -90) (:elbow-r :flex 52) (:hand-r :flex -25 :twist 0 :side 0))           ; sprung, up at his right
+  (8.5 :snap (:root :u 0.55 :f 0.18 :yaw 5) (:spine :flex -15 :side 15) (:head :twist 0) (:thigh-l :flex 70) (:knee-l :flex 100)
+       (:thigh-r :flex 50) (:knee-r :flex 100) (:arm-r :flex 165 :side -15 :twist 0) (:elbow-r :flex 50))       ; behind
+  (10 :snap (:root :u 0.7 :f 0.22 :yaw -10) (:arm-r :twist 90))                                                ; left
+  (11 :snap (:root :u 0.78 :yaw -20) (:arm-r :twist 180) (:thigh-l :flex 75) (:knee-l :flex 110) (:thigh-r :flex 60) (:knee-r :flex 110))   ; front
+  (12 :snap (:root :u 0.8 :f 0.25 :yaw -30) (:pelvis :twist 15) (:head :flex -24 :twist 15) (:arm-r :twist 270))   ; right
+  (12.5 :snap (:root :u 0.78) (:arm-r :twist 360))                                                             ; behind
+  (12.501 (:arm-r :twist 0))                                                                                    ; (the same pose)
+  (13 :snap (:root :u 0.3 :f 0.32 :yaw -10) (:pelvis :twist 5) (:spine :flex 10 :side 0) (:chest :twist 0) (:head :flex -26 :twist 5) (:thigh-l :flex 76 :side 14) (:knee-l :flex 95) (:thigh-r :flex 30 :side 18) (:knee-r :flex 95) (:arm-l :flex 20 :side 60) (:elbow-l :flex 20)
+     (:arm-r :flex -17 :side 85 :twist 21) (:elbow-r :flex 71) (:hand-r :flex 58 :twist -83 :side 29))
+  (14 :snap (:root :u -0.32 :f 0.4 :yaw 10) (:pelvis :twist -5) (:spine :flex 40 :side 0) (:chest :twist 10) (:head :flex -30 :twist -5) (:thigh-l :flex 75 :side 14) (:knee-l :flex 85) (:thigh-r :flex -10 :side 18) (:knee-r :flex 70) (:arm-l :flex -20 :side 50) (:elbow-l :flex 15)
+     (:arm-r :flex -34 :side 61 :twist -5) (:elbow-r :flex -11) (:hand-r :flex 42 :twist -33 :side 32))
+  (15 :snap (:root :u -0.33 :f 0.4 :yaw 10.5) (:pelvis :twist -5.25) (:spine :flex 41 :side 0) (:chest :twist 10.5) (:head :flex -30.5 :twist -5) (:thigh-l :flex 75.75 :side 14) (:knee-l :flex 86.25) (:thigh-r :flex -10 :side 18) (:knee-r :flex 71) (:arm-l :flex -21.25 :side 50) (:elbow-l :flex 15)
+     (:arm-r :flex -33 :side 47 :twist -13) (:elbow-r :flex -7) (:hand-r :flex 44 :twist -29 :side 31))
+  (18 (:root :u -0.36 :f 0.42 :yaw 12) (:pelvis :twist -6) (:spine :flex 44 :side 0) (:chest :twist 12) (:head :flex -32 :twist -5) (:thigh-l :flex 78 :side 14) (:knee-l :flex 90) (:thigh-r :flex -10 :side 18) (:knee-r :flex 74) (:arm-l :flex -25 :side 50) (:elbow-l :flex 15)
+     (:arm-r :flex -34 :side 25 :twist -22) (:elbow-r :flex -7) (:hand-r :flex 53 :twist -27 :side 30))
+  (30 (:root :u -0.32 :f 0.38) (:spine :flex 40))
+  (:end :ke-s-st-1))
+;; TOSSHIN-ISSEN, the burst to pointer 2 (S12 A5 R26; the sim carries him 3.5 m, through him): one short drop, the fist at his left knee
+;; and the cleaver trailing low on his left (a draw), then one flat-slanted backhand flash left to right as he passes, turned away with
+;; it; then the arm lifts the blade up from behind his right side onto the right shoulder: pointer 2's stance (:ke-s-st-2)
+(defstrike :ke-s-issen (12 5 26 :base :ke-s-st-1)
+  (0)
+  (4 (:root :u -0.36 :f 0.05 :yaw 20) (:pelvis :twist 15) (:spine :flex 36 :side 0) (:chest :twist 35) (:head :flex -22 :twist -45)
+     (:thigh-l :flex 65 :side 12) (:knee-l :flex 85) (:thigh-r :flex -25 :side 16) (:knee-r :flex 60) (:arm-l :flex 50 :side 20) (:elbow-l :flex 40)
+     (:arm-r :flex 13 :side -17 :twist 63) (:elbow-r :flex -2) (:hand-r :flex -28 :twist -5 :side -27))         ; the draw, low
+  (7 :snap (:root :u -0.37) (:chest :twist 37))
+  (8 :snap (:root :u -0.36) (:chest :twist 36))                                                                ; held
+  (10 :snap (:root :u -0.34 :f 0.15 :yaw 10) (:pelvis :twist 10) (:spine :flex 34 :side 0) (:chest :twist 25) (:head :flex -20 :twist -30) (:thigh-l :flex 66 :side 12) (:knee-l :flex 80) (:thigh-r :flex -30 :side 16) (:knee-r :flex 50) (:arm-l :flex 40 :side 35) (:elbow-l :flex 30)
+     (:arm-r :flex -11 :side -40 :twist 35) (:elbow-r :flex 11) (:hand-r :flex 2 :twist -11 :side -24))
+  (11 :snap (:root :u -0.32 :f 0.22 :yaw 0) (:pelvis :twist 5) (:spine :flex 32 :side -2) (:chest :twist 12.5) (:head :flex -19 :twist -15) (:thigh-l :flex 66 :side 12) (:knee-l :flex 78) (:thigh-r :flex -32 :side 16) (:knee-r :flex 45) (:arm-l :flex 32.5 :side 47.5) (:elbow-l :flex 25)
+     (:arm-r :flex -20 :side -35 :twist 13) (:elbow-r :flex -2) (:hand-r :flex 22 :twist 14 :side -25))
+  (12 :snap (:root :u -0.3 :f 0.3 :yaw -10) (:pelvis :twist 0) (:spine :flex 30 :side -4) (:chest :twist 0) (:head :flex -18 :twist 0) (:thigh-l :flex 66 :side 12) (:knee-l :flex 76) (:thigh-r :flex -34 :side 16) (:knee-r :flex 40) (:arm-l :flex 25 :side 60) (:elbow-l :flex 20)
+     (:arm-r :flex -26 :side -30 :twist 15) (:elbow-r :flex -3) (:hand-r :flex 45 :twist -1 :side -13))
+  (13 :snap (:root :u -0.29 :f 0.32 :yaw -27.5) (:pelvis :twist -5) (:spine :flex 29 :side -6) (:chest :twist -12.5) (:head :flex -17 :twist 20) (:thigh-l :flex 65 :side 12) (:knee-l :flex 74) (:thigh-r :flex -34 :side 16) (:knee-r :flex 38) (:arm-l :flex 22.5 :side 65) (:elbow-l :flex 20)
+     (:arm-r :flex -25 :side -18 :twist 23) (:elbow-r :flex -2) (:hand-r :flex 42 :twist 3 :side -22))
+  (14 :snap (:root :u -0.28 :f 0.35 :yaw -45) (:pelvis :twist -10) (:spine :flex 28 :side -8) (:chest :twist -25) (:head :flex -16 :twist 40) (:thigh-l :flex 64 :side 12) (:knee-l :flex 72) (:thigh-r :flex -34 :side 16) (:knee-r :flex 36) (:arm-l :flex 20 :side 70) (:elbow-l :flex 20)
+     (:arm-r :flex -22 :side -7 :twist 30) (:elbow-r :flex -2) (:hand-r :flex 36 :twist 1 :side -17))
+  (15 :snap (:root :u -0.27 :f 0.36 :yaw -62.5) (:pelvis :twist -12.5) (:spine :flex 27 :side -9) (:chest :twist -27.5) (:head :flex -16 :twist 50) (:thigh-l :flex 63 :side 12) (:knee-l :flex 71) (:thigh-r :flex -33 :side 16) (:knee-r :flex 35) (:arm-l :flex 20 :side 72.5) (:elbow-l :flex 20)
+     (:arm-r :flex -24 :side 3 :twist 22) (:elbow-r :flex -2) (:hand-r :flex 39 :twist 8 :side -24))
+  (16 (:root :u -0.26 :f 0.38 :yaw -80) (:pelvis :twist -15) (:spine :flex 26 :side -10) (:chest :twist -30) (:head :flex -16 :twist 60) (:thigh-l :flex 62 :side 12) (:knee-l :flex 70) (:thigh-r :flex -32 :side 16) (:knee-r :flex 34) (:arm-l :flex 20 :side 75) (:elbow-l :flex 20)
+     (:arm-r :flex -22 :side 4 :twist -4) (:elbow-r :flex -2) (:hand-r :flex 35 :twist 2 :side -6))
+  (:a (:root :yaw -84))
+  (25 (:root :u -0.16 :f 0.3 :yaw -45) (:pelvis :twist -8) (:spine :flex 14 :side -6) (:chest :twist -15) (:head :flex -12 :twist 30)
+      (:thigh-l :flex 50) (:knee-l :flex 56) (:thigh-r :flex -28) (:knee-r :flex 30) (:arm-l :flex 20 :side 50) (:elbow-l :flex 30)
+      (:arm-r :flex 44 :side -27 :twist 4) (:elbow-r :flex 73) (:hand-r :flex -5 :twist -9 :side 26))            ; lifted up behind
+  (34 :ke-s-st-2 (:root :f 0.12 :yaw -8) (:arm-r :flex 40) (:elbow-r :flex 104))                              ; onto the shoulder
+  (:end :ke-s-st-2))
+;; DAISHARIN the full wheel, pointer 1's special AS (S12 A14 R26; hits f12-14, f18-20, f24-26 launching; 360 deg): the cleaver lifted
+;; off the back and whirled flat round him over his head (the right arm up, its twist carrying the blade: back f9, left, front at
+;; f12 / 18 / 24, right; three turns, faster after the first), the body rising through it, the third turn climbing as he springs onto
+;; his toes (the launch); slowed, then lowered into the sling. (At f31 the arm's twist drops 1080 deg between two keys 0.001 f apart:
+;; the same pose, so the recovery doesn't unwind three turns.)
+(defstrike :ke-s-wheel (12 14 26 :base :ke-s-st-1)
+  (0)
+  (4 (:root :u -0.24) (:spine :flex 10 :side 6) (:chest :twist 0) (:head :flex -14 :twist 0) (:arm-l :flex 50 :side 70) (:elbow-l :flex 20)
+     (:arm-r :flex 90 :side 10 :twist -120) (:elbow-r :flex 70) (:hand-r :flex 0 :twist 0 :side 0)
+     (:thigh-l :flex 50) (:knee-l :flex 70) (:knee-r :flex 52))                                                ; lifted off the back
+  (7 (:root :u -0.26) (:spine :flex -12 :side 12) (:arm-l :flex 70 :side 80)
+     (:arm-r :flex 165 :side -15 :twist -90) (:elbow-r :flex 50) (:hand-r :flex -25))                         ; overhead, at his right
+  (9 :snap (:arm-r :twist 0) (:spine :flex -15 :side 15))                                                     ; behind
+  (10.5 :snap (:arm-r :twist 90))                                                                              ; left
+  (:s :snap (:root :u -0.16) (:arm-r :twist 180) (:thigh-l :flex 46) (:knee-l :flex 60) (:knee-r :flex 46))   ; front: cut 1
+  (13.5 :snap (:arm-r :twist 270))
+  (15 :snap (:arm-r :twist 360) (:root :yaw -8))
+  (16.5 :snap (:arm-r :twist 450))
+  (18 :snap (:root :u -0.08 :yaw 0) (:arm-r :twist 540) (:thigh-l :flex 40) (:knee-l :flex 48) (:knee-r :flex 38))   ; cut 2
+  (19.5 :snap (:arm-r :twist 630))
+  (21 :snap (:arm-r :twist 720) (:root :yaw -8))
+  (22.5 :snap (:root :u 0.05 :yaw -4) (:arm-r :twist 810) (:hand-r :flex -35) (:thigh-l :flex 34) (:knee-l :flex 36) (:knee-r :flex 26))
+  (24 :snap (:root :u 0.18 :yaw 0) (:arm-r :twist 900) (:hand-r :flex -45) (:spine :flex -18))                ; cut 3, climbing
+  (25.5 :snap (:root :u 0.28) (:arm-r :twist 990) (:hand-r :flex -55) (:thigh-l :flex 40) (:knee-l :flex 60) (:thigh-r :flex 20) (:knee-r :flex 60))
+  (:a :snap (:root :u 0.3) (:arm-r :twist 1020) (:spine :flex -20))                                           ; sprung
+  (28 :snap (:root :u 0.3) (:arm-r :twist 1110) (:hand-r :flex -60))
+  (31 (:root :u 0.06) (:arm-r :twist 1170) (:hand-r :flex -40) (:spine :flex -6 :side 8)
+      (:thigh-l :flex 48) (:knee-l :flex 62) (:thigh-r :flex -12) (:knee-r :flex 44))                         ; down, slowed
+  (31.001 (:arm-r :twist 90))                                                                                  ; (the same pose)
+  (40 (:root :u -0.16) (:spine :flex 18 :side 0) (:arm-l :flex 40 :side 55) (:elbow-l :flex 34)
+      (:arm-r :flex 40 :side 10 :twist 30) (:elbow-r :flex 85) (:hand-r :flex 40 :twist 15))                   ; lowered
+  (:end :ke-s-st-1))
 ;; NS2b: the clamp and slam: the left hand takes the head and drives it down
 (defstrike :ke-kt-slam (14 3 18 :base :ke-k-rest)
   (0)

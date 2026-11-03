@@ -75,7 +75,7 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
           ((eq name :ya-ikkotsu) '((:yamamoto nil nil)))
           ((prefix-p name "YA-") '((:yamamoto :ryujin-jakka nil)))
           ((prefix-p name "KE-X-") '((:kenpachi-nomi :nozarashi nil)))   ; (cup 3's set and lifted hair, DUEL_KEN_REWORK §6.2)
-          ((or (member name awake-ke) (prefix-p name "KE-K-") (member name '(:ke-r-kote :ke-r-tsuki)))
+          ((or (member name awake-ke) (prefix-p name "KE-K-") (prefix-p name "KE-S-") (member name '(:ke-r-kote :ke-r-tsuki)))   ; (the V3 Shikai's: DUEL_KEN_V3)
            '((:kenpachi :nozarashi nil)))     ; (cup 1's own clips, DUEL_KEN_REWORK §6.2)
           ((prefix-p name "KE-B-") '((:kenpachi-oni :ke-broken (:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4))))
           ((prefix-p name "KE-A-") '((:kenpachi-oni nil (:haori :crack-1 :crack-2 :crack-3 :crack-4))))   ; KATAUDE: bare-handed
