@@ -509,3 +509,50 @@ Presentation only (the Shikai script's 88 HIT / L / BURST lines identical, G2 id
 Checks: host tests 9831 ALL PASS (the art FK test included), pkgcheck clean, the build, the Shikai script's log identical, G2
 identical; stills from the viewer's turntable (stance 1 at six angles, NS2c's eight frames from three). Playtest Artifact v301.
 
+
+## 18. Pointer 1's stance rebuilt step by step from pointer 2's; the sleeves cut to the elbow (2026-11-03 – 2026-11-04)
+
+The user, on a statue photo of the Shikai: 「你再跟我好好形容一遍這個站姿長什麼樣子？」, then 「很好，請以此觀察結果進行修改。另外，劍八的寬鬆長袖實際的
+長度也只比手肘稍長一些，目前的袖長過長了。」. A first statue pose (the haft across the back from the right hip to above the left
+shoulder, the flat facing the opponent) was dropped mid-way: 「我們先把站姿調好再做其他事情」, 「我們用指針二的副本開始修改，讓他變成我期望的指針一
+站姿」. The stance is now built one instruction at a time on a copy of pointer 2's:
+
+1. 「身體前傾，腿部呈現半蹲姿態」: spine flex 0 → 22, head −16 (the eyes kept on him), root u −0.02 → −0.18, thighs l 42 / r 14, knees
+   l 64 / r 58 (both feet on the floor by FK, 0.05 m as before); the idle breathes low (root u −0.2, spine 24).
+2. 「改成握住刀柄 1/2 處，手臂從面向前方改成向外轉動 45°」: the hand, the hilt and the blade turned 45° out about the right shoulder (FK:
+   the grip (0.20, 1.27, 0.58) → (0.50, 1.27, 0.54) r u f; arm flex 24, side 29, twist −44; elbow 99; hand flex 27, twist −4, side −4).
+   The half-way grip was the stance's only (the user chose 「只有指針 1 架式」 over moving every Shikai grip, which would lengthen the
+   drawn reach 0.2 m), drawn by a `:pose` hook sliding the weapon 0.2 m out along its blade; undone in step 7.
+3. 「兩個指針的刀身以刀刃為尖端、刀脊為中心向外偏轉 15°」, then 「再向外偏轉 5°」 twice: both stances roll the weapon 0 → 15° → 20° → 25° about
+   its spine, the edge out (`(:weapon-r :side 25)`, the roll about the blade's own axis; a positive roll moves the edge away from the chest in both).
+4. 「繼續修改指針 1，請將左肩往前傾斜，右肩後拉使大刀與人物面向的方向呈現 90°」: the upper body turned 56° to his right (spine twist
+   0 → −26, chest −4 → −30; the left shoulder 0.36 m ahead of the right, was 0.03 behind), the arm and blade with it: the blade at 90.3° to
+   his facing (was 130°, FK); the head turned back 45° (head twist 0 → 45) so he still faces the opponent.
+5. 「身體再更往前傾，下盤配合些微下蹲，右膝打開、右腳往外跨一小步。左手幫我調整合適的姿勢」: spine flex 22 → 32; root u −0.18 → −0.24
+   (left thigh 42 → 50, knee 64 → 74); the right foot 0.14 m further out, on the floor, the knee opened 0.06 m outside it (FK: thigh
+   flex −5, side 52, twist −67; knee 64), the ankle levelling the sole with the toes 30° out (foot flex −55, twist 47, side −22; it
+   tilted 57° without); the head −29 / 42 to keep the same view; the left arm (my pick) hanging loose ahead of the left knee, a little
+   out, the elbow soft (arm flex −16, side 50, twist −5; elbow 56); the idle breathes at root u −0.26, spine 34.
+6. 「右膝太開了，往前收一點」: the right knee 0.1 m forward and 0.05 m in, over the foot instead of 0.06 m outside it, the foot where it
+   was (thigh flex −5 → 7, side 52 → 45, twist −67 → −45; knee 64 → 65; the ankle re-levelled: foot flex −34, twist 26, side −29).
+7. 「刀柄握回原本 0.3 處，並製作比較圖給我看」: the stance holds the haft at `*ke-noz-grip*` 0.3 like every move; the slide hook and its
+   state removed (the Shikai kit has no `:pose` hook again). The blade sits 0.2 m further toward the hand along its own axis: the
+   nearest point to the head's centre 0.16 m (the head's radius about 0.14: a graze at the back of the head), 0.27 m to the torso axis.
+
+Pointer 1 approved (「指針 1 沒問題了」). Pointer 2, 「我發現指針 2 的刀柄似乎沉入肩膀中了？」: the spine where the haft meets the head (0.35 m up
+from the grip) sat 0.05 m into the haori's shoulder (with the haft's thickness; the same before the roll, so `:ke-k-rest`'s old rest).
+The hand lifted 0.06 m with the blade's direction kept (FK: arm flex 35 → 43, side 25 → 26, twist 0 → −4; elbow 110 → 109; hand flex
+25 → 18, twist 0 → −2, side 0 → −3): the haft 0.01 m over the haori. Pointer 2's moves key from the old rest kept as `:ke-s-shoulder`
+(their first keys reset to it, their frame 0 and ends the new stance), as pointer 1's from `:ke-s-sling`.
+
+The moves are untouched: the old sling is kept as `:ke-s-sling`, and every pointer-1 clip and landed pose keys from it. The five clips
+that start from the stance (p1a, ISSEN, DAISHARIN, cut1, the SA) take `(0 :ke-s-st-1)` and reset to `:ke-s-sling` on their next key;
+pointer 2's six clips unroll the blade on their first key (`(:weapon-r :side 0)`); their ends land in the new stances. ZANGAESHI's
+landing key (f38) takes the new stance. Left for the stance's end: the start / end blends of the pointer-1 clips are re-checked
+(blade spin per frame, clipping) once the stance is settled.
+
+The sleeves: the loose sleeve ends a little below the elbow, the forearm bare: the sleeve tube 0.17 → 0.07 m, the cuff from 0.2 → 0.09 m
+down the 0.27 m forearm (both arms; the Bankai still hides them).
+
+Checks: host tests 9831 ALL PASS, pkgcheck clean, the build; viewer turntables of both stances (four angles) and in-game shots (the
+behind and side cameras, an SP press sliding the hand back). Playtest Artifact v303.

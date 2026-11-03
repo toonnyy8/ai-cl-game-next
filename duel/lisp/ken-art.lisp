@@ -173,7 +173,9 @@
 ;; 死霸裝」, then 「劍八是無袖羽織，而不是你製作的短袖羽織，然後長袖的死霸裝是像一護的那種寬鬆袖口設計。此外，目前手彎曲的時候手肘會透過衣服」):
 ;; the haori sleeveless (only its shoulder over the black), the shihakushō's black sleeves to the wrist widening into a loose square
 ;; cuff like Ichigo's (the forearm's :sleeve-long, which the Bankai hides: short sleeves), a black ball at the elbow so a bent arm
-;; shows cloth, not skin, between the two sleeve pieces; the skin arm stays under them
+;; shows cloth, not skin, between the two sleeve pieces; the skin arm stays under them. The loose sleeve ends a little below the
+;; elbow, the forearm bare (「劍八的寬鬆長袖實際的長度也只比手肘稍長一些，目前的袖長過長了」, DUEL_KEN_V3 §18: the cuff 0.2 -> 0.09 m down
+;; the forearm, 0.27 long)
   (:shoulder-r (:sphere 0.09 :at (0.06 -0.03 0) :c :black)
                (:box 0.1 0.04 0.27 :at (-0.01 0.05 0) :rot (0 0 -10) :c :white :tag :haori))
   (:shoulder-l (:sphere 0.09 :at (-0.06 -0.03 0) :c :black)
@@ -184,12 +186,12 @@
                 (:cyl 0.08 0.3 :top 0.084 :seg 8 :at (0 -0.15 0) :c :black))
   (:lower-arm-r (:cyl 0.036 0.27 :top 0.048 :seg 8 :at (0 -0.125 0) :c :skin) (:sphere 0.045 :at (0 0 0) :c :skin)
                 (:sphere 0.082 :at (0 0 0) :c :black :tag :sleeve-long)                               ; the elbow, covered
-                (:cyl 0.1 0.17 :top 0.08 :seg 8 :at (0 -0.085 0) :c :black :tag :sleeve-long)         ; the sleeve, widening ...
-                (:box 0.21 0.07 0.22 :at (0 -0.2 0) :rot (0 0 -8) :c :black :tag :sleeve-long))      ; ... into the loose cuff
+                (:cyl 0.1 0.07 :top 0.085 :seg 8 :at (0 -0.035 0) :c :black :tag :sleeve-long)       ; the sleeve, widening ...
+                (:box 0.21 0.05 0.22 :at (0 -0.09 0) :rot (0 0 -8) :c :black :tag :sleeve-long))     ; ... into the loose cuff
   (:lower-arm-l (:cyl 0.036 0.27 :top 0.048 :seg 8 :at (0 -0.125 0) :c :skin) (:sphere 0.045 :at (0 0 0) :c :skin)
                 (:sphere 0.082 :at (0 0 0) :c :black :tag :sleeve-long)
-                (:cyl 0.1 0.17 :top 0.08 :seg 8 :at (0 -0.085 0) :c :black :tag :sleeve-long)
-                (:box 0.21 0.07 0.22 :at (0 -0.2 0) :rot (0 0 8) :c :black :tag :sleeve-long))
+                (:cyl 0.1 0.07 :top 0.085 :seg 8 :at (0 -0.035 0) :c :black :tag :sleeve-long)
+                (:box 0.21 0.05 0.22 :at (0 -0.09 0) :rot (0 0 8) :c :black :tag :sleeve-long))
   (:hand-r (:bevel 0.075 0.1 0.08 0.02 :at (0 -0.045 0) :c :skin))
   (:hand-l (:bevel 0.075 0.1 0.08 0.02 :at (0 -0.045 0) :c :skin))
   (:thigh-r (:cyl 0.092 0.46 :top 0.088 :seg 10 :at (0 -0.22 0) :c :black))
@@ -1520,17 +1522,44 @@ flex and the spine / head flex shifted by these."
 ;; head; before, (0.34 0.98 0.18) along (-0.51 0.77 -0.38) ran the haft through his right chest and the flat through his head, the
 ;; user 2026-11-03: 「刀都劈開自己了」, DUEL_KEN_V3 §17); pointer 2 the manga panel: the blade's back on the right shoulder, the hilt at him,
 ;; standing easy (「將刀背扛在單肩上，刀柄對準前方，輕鬆站立」; KATATE's shoulder rest, upright)
-(defpose :ke-s-st-1 (:base :ke-k-rest)
+(defpose :ke-s-sling (:base :ke-k-rest)       ; (the old stance: pointer 1's moves key from it, §18)
   (:root :u -0.18 :f 0.04) (:pelvis :twist 12) (:spine :flex 22) (:chest :twist -10) (:head :flex -16 :twist -8)
   (:arm-r :flex -34 :side 16 :twist -7) (:elbow-r :flex 84) (:hand-r :flex 95 :twist 8 :side -1)
   (:arm-l :flex 34 :side 52 :twist 0) (:elbow-l :flex 36) (:hand-l :flex -10)
   (:thigh-l :flex 44 :side 14) (:knee-l :flex 58) (:thigh-r :flex -12 :side 18) (:knee-r :flex 38))
+;; the stance itself, re-posed to the statue (the user 2026-11-03, after 「你再跟我好好形容一遍這個站姿長什麼樣子？」 and 「很好，請以此觀察
+;;結果進行修改」, DUEL_KEN_V3 §18), restarted from a copy of pointer 2's (「我們用指針二的副本開始修改，讓他變成我期望的指針一站姿」):
+;; pointer 2's shoulder rest written out in full (:ke-k-rest's arms included), changed step by step: 1. leaning in, half
+;; crouched (「身體前傾，腿部呈現半蹲姿態」: the spine 0 -> 22, the head -16 to keep the eyes on him, the hips 0.18 m lower, both
+;; knees bent 58-64, the feet kept on the floor); 2. 「改成握住刀柄 1/2 處，手臂從面向前方改成向外轉動 45°」: the hand, the hilt and the blade
+;; turned 45 degrees out about the shoulder (the hilt to his front right, the blade back over his left; solved by FK: the grip
+;; (0.20 1.27 0.58) -> (0.50 1.27 0.54) r u f; the half-way grip undone in step 7); 3. 「兩個指針的刀身以刀刃為尖端、刀脊為中心向外偏轉 15°」, then 「再向外偏轉 5°」 twice: the weapon rolled 25 degrees about its
+;; spine, the edge out (:weapon-r :side, the roll about the blade's own axis; the moves key from the sling, unrolled); 4. 「繼續修改
+;; 指針 1，請將左肩往前傾斜，右肩後拉使大刀與人物面向的方向呈現 90°」: the chest turned 56 degrees to his right (spine twist -26, chest -4 ->
+;; -30), the left shoulder 0.36 m ahead of the right, the blade at 90 degrees to his facing (was 130, FK), the head turned back 45 to
+;; face the opponent; 5. 「身體再更往前傾，下盤配合些微下蹲，右膝打開、右腳往外跨一小步。左手幫我調整合適的姿勢」: the spine 22 -> 32, the hips
+;; 0.06 m lower (the left knee 64 -> 74), the right foot 0.14 m further out on the floor with the knee opened outside it (FK), the head
+;; -29 / 42 to keep the same view, the right ankle levelling the sole (the toes 30 degrees out); the left arm hanging loose ahead of
+;; the left knee, a little out, the elbow soft (56); 6. 「右膝太開了，往前收一點」: the right knee 0.1 m forward and 0.05 in (now over
+;; the foot, not outside it), the foot where it was; 7. 「刀柄握回原本 0.3 處」: the stance holds the haft where every move does
+;; (*KE-NOZ-GRIP*), the slide of step 2 removed
+(defpose :ke-s-st-1 (:base :ke-k-rest)
+  (:root :u -0.24 :f 0.04) (:pelvis :twist 8) (:spine :flex 32 :twist -26) (:chest :twist -30) (:head :flex -29 :twist 42)
+  (:arm-r :flex 24 :side 29 :twist -44) (:elbow-r :flex 99) (:hand-r :flex 27 :twist -4 :side -4) (:weapon-r :side 25)
+  (:arm-l :flex -16 :side 50 :twist -5) (:elbow-l :flex 56) (:hand-l :flex 0)
+  (:thigh-l :flex 50 :side 10) (:knee-l :flex 74) (:thigh-r :flex 7 :side 45 :twist -45) (:knee-r :flex 65)
+  (:foot-r :flex -34 :twist 26 :side -29))                                               ; (the sole flat, the toes 30 out)
 (defclip :ke-s-st-1 (1.2 :loop t :base :ke-s-st-1)
-  (0) (0.6 (:root :u -0.2 :f 0.05) (:spine :flex 24) (:arm-l :side 55)))                 ; coiled, breathing low
-(defpose :ke-s-st-2 (:base :ke-k-rest)
+  (0) (0.6 (:root :u -0.26 :f 0.05) (:spine :flex 34)))                                 ; coiled, breathing low
+;; pointer 2's moves key from the old shoulder rest (:ke-s-shoulder); the stance itself: the blade rolled 25 degrees out about its
+;; spine too (the user 2026-11-04, DUEL_KEN_V3 §18), and the hand lifted 0.06 m, the blade's direction kept, so the haft rests on the
+;; haori's shoulder (0.01 m over it) instead of 0.05 m into it (「我發現指針 2 的刀柄似乎沉入肩膀中了？」, §18; the arm by FK)
+(defpose :ke-s-shoulder (:base :ke-k-rest)
   (:root :u -0.02) (:pelvis :twist 8) (:spine :flex 0) (:chest :twist -4) (:head :flex 2)
   (:arm-l :flex 4 :side 16) (:elbow-l :flex 14) (:hand-l :flex 0)
   (:thigh-l :flex 8 :side 6) (:knee-l :flex 8) (:thigh-r :flex -4 :side 8) (:knee-r :flex 6))
+(defpose :ke-s-st-2 (:base :ke-s-shoulder)
+  (:arm-r :flex 43 :side 26 :twist -4) (:elbow-r :flex 109) (:hand-r :flex 18 :twist -2 :side -3) (:weapon-r :side 25))
 (defclip :ke-s-st-2 (2.4 :loop t :base :ke-s-st-2)
   (0) (1.2 (:chest :flex 2) (:root :u -0.03)))                                           ; easy
 ;; the V3 Shikai's P2 L0 second segment (DUEL_KEN_V3 §12; the user 2026-11-03: 「我看不出 柄擊 與 上翹 的動作差異」, both played the
@@ -1547,9 +1576,9 @@ flex and the spine / head flex shifted by these."
 ;; the V3 Shikai's pointer-2 clips (DUEL_KEN_V3 §15)
 ;; NS2a TSUKA-UCHI: the right hand draws the hilt back along the shoulder (the butt 0.3 m in), held, then shoves it straight out,
 ;; the butt end at his face (1.4 m), the blade riding the shoulder all the way (the flick, unlike it, sinks and swings it up)
-(defstrike :ke-s-jab (14 3 16 :base :ke-s-st-2)
-  (0)
-  (6 (:root :f -0.06 :u -0.08) (:pelvis :twist 16) (:chest :twist -22) (:spine :flex -4) (:head :flex -4) (:knees :flex 20)
+(defstrike :ke-s-jab (14 3 16 :base :ke-s-shoulder)
+  (0 :ke-s-st-2)
+  (6 :ke-s-shoulder (:root :f -0.06 :u -0.08) (:pelvis :twist 16) (:chest :twist -22) (:spine :flex -4) (:head :flex -4) (:knees :flex 20)
      (:arm-r :flex 22 :side -27 :twist 0) (:elbow-r :flex 140) (:hand-r :flex 5 :twist 0 :side 0)
      (:arm-l :flex 50 :side 24) (:elbow-l :flex 60) (:hand-l :flex -10))
   (11 (:root :f -0.08 :u -0.09) (:pelvis :twist 18) (:chest :twist -25) (:elbow-r :flex 142))
@@ -1564,9 +1593,9 @@ flex and the spine / head flex shifted by these."
 ;; lifted and held, then one great overhead cut straight down onto him (the tip ends on the floor 2.9 m out); the arms solved by FK
 ;; (grip, blade and edge targets, the blade's flat kept out of the body: DUEL_KEN_V3 §17, the user 2026-11-03: 「應該是要雙手握刀、正對對手
 ;; 向下劈斬」)
-(defstrike :ke-s-p2c (16 5 24 :base :ke-s-st-2)
-  (0)
-  (7 (:root :u 0.04 :f -0.06) (:pelvis :twist 0) (:chest :twist 0) (:spine :flex -10) (:head :flex -10)
+(defstrike :ke-s-p2c (16 5 24 :base :ke-s-shoulder)
+  (0 :ke-s-st-2)
+  (7 :ke-s-shoulder (:root :u 0.04 :f -0.06) (:pelvis :twist 0) (:chest :twist 0) (:spine :flex -10) (:head :flex -10)
      (:arm-r :flex 80 :side 11 :twist 0) (:elbow-r :flex 148) (:hand-r :flex -84 :twist -7 :side 1) (:arm-l :flex 120 :side 94 :twist 0) (:elbow-l :flex 34))
   (12 (:root :u 0.08 :f -0.1) (:spine :flex -16) (:head :flex -12) (:thigh-l :flex 58 :side 6) (:knee-l :flex 80)
       (:arm-r :flex 83 :side 10 :twist 0) (:elbow-r :flex 142) (:hand-r :flex -47 :twist 1 :side 4) (:arm-l :flex 120 :side 74 :twist -5) (:elbow-l :flex 31))
@@ -1583,9 +1612,9 @@ flex and the spine / head flex shifted by these."
       (:arm-r :flex 50 :side 5 :twist 4) (:elbow-r :flex 125) (:hand-r :flex -90 :twist -4 :side 0) (:arm-l :flex 120 :side 85 :twist 4) (:elbow-l :flex 50))
   (:end :ke-s-st-2))
 ;; NS2d: off the shoulder to his right, both hands low by the right hip, coiled, then one wide flat mow right to left
-(defstrike :ke-s-p2d (14 4 20 :base :ke-s-st-2)
-  (0)
-  (3 (:root :u -0.09 :f -0.02 :yaw -8) (:pelvis :twist 21) (:spine :flex 6) (:chest :twist -37) (:head :flex -3 :twist 14) (:knee-r :flex 31) (:knee-l :flex 34)
+(defstrike :ke-s-p2d (14 4 20 :base :ke-s-shoulder)
+  (0 :ke-s-st-2)
+  (3 :ke-s-shoulder (:root :u -0.09 :f -0.02 :yaw -8) (:pelvis :twist 21) (:spine :flex 6) (:chest :twist -37) (:head :flex -3 :twist 14) (:knee-r :flex 31) (:knee-l :flex 34)
      (:arm-r :flex 21 :side 4 :twist -19) (:elbow-r :flex 115) (:hand-r :flex -36 :twist -56 :side 7) (:arm-l :flex 46 :side -55 :twist 20) (:elbow-l :flex 9))
   (6 (:root :u -0.12 :f -0.05 :yaw -16) (:pelvis :twist 25) (:chest :twist -52) (:spine :flex 8) (:head :flex -2 :twist 35) (:knees :flex 40)
      (:arm-r :flex -3 :side 24 :twist -16) (:elbow-r :flex 82) (:hand-r :flex -173 :twist -61 :side 8) (:arm-l :flex 25 :side -53 :twist 9) (:elbow-l :flex 20))
@@ -1608,9 +1637,9 @@ flex and the spine / head flex shifted by these."
   (:end :ke-s-st-2))
 ;; NS2e: he turns his back into it (yaw -100, the blade cocked high over the right shoulder, held), then unwinds round into one
 ;; descending cut, straight ahead at the hit and dragged low to his left (the body carried 80 deg, never round)
-(defstrike :ke-s-p2e (18 5 28 :base :ke-s-st-2)
-  (0)
-  (6 (:root :yaw -50 :u -0.04) (:pelvis :twist 20) (:chest :twist -30) (:spine :flex -4) (:head :twist 40) (:knees :flex 24)
+(defstrike :ke-s-p2e (18 5 28 :base :ke-s-shoulder)
+  (0 :ke-s-st-2)
+  (6 :ke-s-shoulder (:root :yaw -50 :u -0.04) (:pelvis :twist 20) (:chest :twist -30) (:spine :flex -4) (:head :twist 40) (:knees :flex 24)
      (:arm-r :flex 102 :side 6 :twist -4) (:elbow-r :flex 101) (:hand-r :flex -112 :twist -23 :side 3) (:arm-l :flex -3 :side -100 :twist 8) (:elbow-l :flex 88))
   (13 (:root :yaw -100 :u -0.08 :f -0.05) (:pelvis :twist 25) (:chest :twist -42) (:spine :flex -8) (:head :twist 70 :flex -6) (:knees :flex 34)
       (:arm-r :flex 131 :side 4 :twist -3) (:elbow-r :flex 55) (:hand-r :flex -134 :twist -16 :side 2) (:arm-l :flex -25 :side -111 :twist 22) (:elbow-l :flex 81))
@@ -1629,10 +1658,10 @@ flex and the spine / head flex shifted by these."
       (:arm-r :flex 36 :side 0 :twist -3) (:elbow-r :flex 126) (:hand-r :flex -48 :twist -2 :side 0) (:arm-l :flex 34 :side -68 :twist -16) (:elbow-l :flex 14))
   (:end :ke-s-st-2))
 ;; the burst to pointer 1, ZANGAESHI (one hand): the shoulder heaves the blade up off it, cocked high over the right shoulder, then one
-;; huge diagonal down to his left that drags him round, the blade carried low behind and swung up his back into the sling (:ke-s-st-1)
-(defstrike :ke-s-zangaeshi (14 5 26 :base :ke-s-st-2)
-  (0)
-  (5 (:root :u 0.03 :yaw -20) (:pelvis :twist 14) (:chest :twist -24) (:spine :flex -8) (:head :flex -6 :twist 15)
+;; huge diagonal down to his left that drags him round, the blade carried low behind and swung up his back into the stance (:ke-s-st-1)
+(defstrike :ke-s-zangaeshi (14 5 26 :base :ke-s-shoulder)
+  (0 :ke-s-st-2)
+  (5 :ke-s-shoulder (:root :u 0.03 :yaw -20) (:pelvis :twist 14) (:chest :twist -24) (:spine :flex -8) (:head :flex -6 :twist 15)
      (:arm-r :flex 64 :side -10 :twist 0) (:elbow-r :flex 121) (:hand-r :flex -65 :twist -4 :side 0) (:arm-l :flex 50 :side 30) (:elbow-l :flex 30))
   (10 (:root :u 0.0 :f -0.06 :yaw -38) (:pelvis :twist 22) (:chest :twist -36) (:spine :flex -12) (:head :twist 25)
       (:arm-r :flex 101 :side -5 :twist 0) (:elbow-r :flex 89) (:hand-r :flex -99 :twist -9 :side 0) (:arm-l :flex 80 :side 24) (:elbow-l :flex 12))
@@ -1646,15 +1675,15 @@ flex and the spine / head flex shifted by these."
       (:arm-r :flex 20 :side -40 :twist -60) (:elbow-r :flex 85) (:hand-r :flex -180 :twist 30))
   (30 (:root :f 0.3 :u -0.2 :yaw 10) (:pelvis :twist -28) (:chest :twist 55) (:spine :flex 26)
       (:arm-r :flex 11 :side -44 :twist 0) (:elbow-r :flex 6) (:hand-r :flex -127 :twist 5 :side -1))             ; dragged round, low behind
-  (38 (:root :u -0.18 :f 0.08 :yaw 0) (:pelvis :twist 14) (:spine :flex 22) (:chest :twist -4) (:head :flex -14 :twist -6)
-      (:thigh-l :flex 44 :side 14) (:knee-l :flex 58) (:thigh-r :flex -12 :side 18) (:knee-r :flex 38)
-      (:arm-r :flex -34 :side 16 :twist -7) (:elbow-r :flex 84) (:hand-r :flex 95 :twist 8 :side -1) (:arm-l :flex 34 :side 52) (:elbow-l :flex 36))   ; up his back (the sling, §17)
+  (38 (:root :u -0.24 :f 0.08 :yaw 0) (:pelvis :twist 8) (:spine :flex 32 :twist -26) (:chest :twist -30) (:head :flex -29 :twist 42)
+      (:thigh-l :flex 50 :side 10) (:knee-l :flex 74) (:thigh-r :flex 7 :side 45 :twist -45) (:knee-r :flex 65) (:foot-r :flex -34 :twist 26 :side -29)
+      (:arm-r :flex 24 :side 29 :twist -44) (:elbow-r :flex 99) (:hand-r :flex 27 :twist -4 :side -4) (:weapon-r :side 25) (:arm-l :flex -16 :side 50 :twist -5) (:elbow-l :flex 56))   ; into the stance (§18)
   (:end :ke-s-st-1))
 ;; the special AS INSEKI-GIRI: both hands, a crouch, the leap with the hilt raised (the blade down his back), arched at the top,
 ;; then down like a falling meteor, the tip into the floor 3 m out
-(defstrike :ke-s-meteor (20 4 30 :base :ke-s-st-2)
-  (0)
-  (6 (:root :u -0.3) (:knees :flex 80) (:thighs :flex 60) (:spine :flex 28) (:head :flex -14)
+(defstrike :ke-s-meteor (20 4 30 :base :ke-s-shoulder)
+  (0 :ke-s-st-2)
+  (6 :ke-s-shoulder (:root :u -0.3) (:knees :flex 80) (:thighs :flex 60) (:spine :flex 28) (:head :flex -14)
      (:arm-r :flex 51 :side 22 :twist 0) (:elbow-r :flex 142) (:hand-r :flex 3 :twist 11 :side 0) (:arm-l :flex 46 :side -116 :twist 0) (:elbow-l :flex -4))
   (9 (:root :u 0.15) (:thighs :flex 40) (:knees :flex 50) (:spine :flex 4) (:head :flex -18)
      (:arm-r :flex 66 :side 20 :twist 0) (:elbow-r :flex 125) (:hand-r :flex -4 :twist 9 :side 0) (:arm-l :flex 48 :side -119 :twist 0) (:elbow-l :flex 0))
@@ -1682,9 +1711,9 @@ flex and the spine / head flex shifted by these."
 ;; NS1a TOSSHIN the lunge cut (S16 A4 R22; the sim slides him 3.0 m through the startup): the crouch sinks and holds (the tell), then
 ;; driving low, the cleaver drops off his back, drags low behind his right hip, swings through low and rips up in a rising diagonal,
 ;; right hip to over his left shoulder (the tip ends near the sling)
-(defstrike :ke-s-p1a (16 4 22 :base :ke-s-st-1)
-  (0)
-  (4 (:root :u -0.27 :f 0.06) (:spine :flex 29) (:head :flex -20) (:chest :twist -13) (:pelvis :twist 14)
+(defstrike :ke-s-p1a (16 4 22 :base :ke-s-sling)
+  (0 :ke-s-st-1)
+  (4 :ke-s-sling (:root :u -0.27 :f 0.06) (:spine :flex 29) (:head :flex -20) (:chest :twist -13) (:pelvis :twist 14)
      (:thigh-l :flex 54) (:knee-l :flex 74) (:knee-r :flex 50) (:arm-l :flex 46 :side 42) (:elbow-l :flex 32))
   (8 (:root :u -0.32 :f 0.08) (:spine :flex 33) (:chest :twist -16) (:pelvis :twist 16) (:thigh-l :flex 60) (:knee-l :flex 82)
      (:knee-r :flex 58) (:arm-l :flex 58 :side 30))                                                              ; sunk: the tell
@@ -1711,7 +1740,7 @@ flex and the spine / head flex shifted by these."
   (:end :ke-s-st-1))
 ;; NS1b the spin-through sweep (S12 A4 R20, 360 deg): wound to his right, the cleaver out low behind; turning left, the blade slanted
 ;; down off the cocked wrist mows the floor through his right, his front, his left and on behind (a forehand, right to left, low)
-(defstrike :ke-s-p1b (12 4 20 :base :ke-s-st-1)
+(defstrike :ke-s-p1b (12 4 20 :base :ke-s-sling)
   (0 (:root :u -0.16 :f 0.32 :yaw 0)   ; NS1a's S+A pose (a link starts there, blend 0)
      (:pelvis :twist -18) (:spine :flex 14 :side 0) (:chest :twist 38) (:head :flex -18 :twist -14) (:thigh-l :flex 58 :side 10) (:knee-l :flex 58) (:thigh-r :flex -34 :side 14) (:knee-r :flex 20) (:arm-l :flex 10 :side 60) (:elbow-l :flex 15) (:arm-r :flex 11 :side -39 :twist 36) (:elbow-r :flex 69) (:hand-r :flex -50 :twist 12 :side -29))
   (6 (:root :u -0.22 :f 0 :yaw -45) (:pelvis :twist 20) (:spine :flex 24 :side 0) (:chest :twist -30) (:head :flex -14 :twist 40) (:thigh-l :flex 40 :side 14) (:knee-l :flex 55) (:thigh-r :flex -10 :side 18) (:knee-r :flex 45) (:arm-l :flex 50 :side 30) (:elbow-l :flex 30)
@@ -1736,7 +1765,7 @@ flex and the spine / head flex shifted by these."
   (:end :ke-s-st-1))
 ;; NS1c the reverse spin (S12 A4 R20, 360 deg): the other way and the other height: coiled left and low, the fist at his left knee, the
 ;; blade trailing low; a backhand that rises as he turns right, up onto his toes, the tip climbing from the floor to over his head
-(defstrike :ke-s-p1c (12 4 20 :base :ke-s-st-1)
+(defstrike :ke-s-p1c (12 4 20 :base :ke-s-sling)
   (0 (:root :u -0.14 :f 0.22 :yaw 80)   ; NS1b's S+A pose (a link starts there, blend 0)
      (:pelvis :twist -15) (:spine :flex 18 :side 10) (:chest :twist 30) (:head :flex -12 :twist -60) (:thigh-l :flex 48 :side 14) (:knee-l :flex 46) (:thigh-r :flex -28 :side 18) (:knee-r :flex 28) (:arm-l :flex 25 :side 75) (:elbow-l :flex 20) (:arm-r :flex -20 :side 7 :twist 87) (:elbow-r :flex 72) (:hand-r :flex -39 :twist -56 :side -32))
   (6 (:root :u -0.32 :f 0.0 :yaw 45) (:pelvis :twist -10) (:spine :flex 30 :side 0) (:chest :twist 30) (:head :flex -12 :twist -40)
@@ -1761,7 +1790,7 @@ flex and the spine / head flex shifted by these."
 ;; NS1d the one-hand sword dance (S10 A8 R16; hits f10-12, f16-18): the fist cocked out right, the blade up behind; a figure eight,
 ;; two steep cuts that each end at the floor: up over his right and down to his left (f10), back and up his left side, over and down
 ;; to his right (f16)
-(defstrike :ke-s-p1d (10 8 16 :base :ke-s-st-1)
+(defstrike :ke-s-p1d (10 8 16 :base :ke-s-sling)
   (0 (:root :u 0.06 :f 0.22 :yaw -75)   ; NS1c's S+A pose (a link starts there, blend 0)
      (:pelvis :twist 15) (:spine :flex 6 :side -14) (:chest :twist -30) (:head :flex -18 :twist 50) (:thigh-l :flex 30 :side 14) (:knee-l :flex 25) (:thigh-r :flex -22 :side 18) (:knee-r :flex 12) (:arm-l :flex 15 :side 75) (:elbow-l :flex 20) (:arm-r :flex 41 :side -25 :twist -72) (:elbow-r :flex 66) (:hand-r :flex -23 :twist 45 :side -34))
   (4 (:root :u -0.12 :f 0.05 :yaw -10) (:pelvis :twist 15) (:spine :flex 14 :side 0) (:chest :twist -25) (:head :flex -10 :twist 15) (:thigh-l :flex 40 :side 14) (:knee-l :flex 50) (:thigh-r :flex -14 :side 18) (:knee-r :flex 32) (:arm-l :flex 40 :side 45) (:elbow-l :flex 50)
@@ -1795,7 +1824,7 @@ flex and the spine / head flex shifted by these."
 ;; NS1e the spinning leap cut (S14 A4 R24; the sim carries him 2.0 m): a deep crouch (held), he springs and the cleaver goes up and
 ;; whirls once flat round over his head at the top of the leap (the arm's twist; behind, left, front, right, behind), then over the
 ;; top and down on him as he lands in a deep crouch (crumple)
-(defstrike :ke-s-p1e (14 4 24 :base :ke-s-st-1)
+(defstrike :ke-s-p1e (14 4 24 :base :ke-s-sling)
   (0 (:root :u -0.22 :f 0.24 :yaw -12)   ; NS1d's S+A pose (a link starts there, blend 0)
      (:pelvis :twist 12) (:spine :flex 30 :side -4) (:chest :twist -25) (:head :flex -16 :twist 18) (:thigh-l :flex 56 :side 14) (:knee-l :flex 60) (:thigh-r :flex -28 :side 18) (:knee-r :flex 30) (:arm-l :flex 25 :side 65) (:elbow-l :flex 25) (:arm-r :flex -20 :side -38 :twist 29) (:elbow-r :flex -1) (:hand-r :flex 65 :twist -21 :side -25))
   (3 (:root :u -0.38 :f 0.0 :yaw 10) (:pelvis :twist 15) (:spine :flex 36) (:chest :twist -15) (:head :flex -24 :twist -5)
@@ -1826,9 +1855,9 @@ flex and the spine / head flex shifted by these."
 ;; TOSSHIN-ISSEN, the burst to pointer 2 (S12 A5 R26; the sim carries him 3.5 m, through him): one short drop, the fist at his left knee
 ;; and the cleaver trailing low on his left (a draw), then one flat-slanted backhand flash left to right as he passes, turned away with
 ;; it; then the arm lifts the blade up from behind his right side onto the right shoulder: pointer 2's stance (:ke-s-st-2)
-(defstrike :ke-s-issen (12 5 26 :base :ke-s-st-1)
-  (0)
-  (4 (:root :u -0.36 :f 0.05 :yaw 20) (:pelvis :twist 15) (:spine :flex 36 :side 0) (:chest :twist 35) (:head :flex -22 :twist -45)
+(defstrike :ke-s-issen (12 5 26 :base :ke-s-sling)
+  (0 :ke-s-st-1)
+  (4 :ke-s-sling (:root :u -0.36 :f 0.05 :yaw 20) (:pelvis :twist 15) (:spine :flex 36 :side 0) (:chest :twist 35) (:head :flex -22 :twist -45)
      (:thigh-l :flex 65 :side 12) (:knee-l :flex 85) (:thigh-r :flex -25 :side 16) (:knee-r :flex 60) (:arm-l :flex 50 :side 20) (:elbow-l :flex 40)
      (:arm-r :flex 13 :side -17 :twist 63) (:elbow-r :flex -2) (:hand-r :flex -28 :twist -5 :side -27))         ; the draw, low
   (7 :snap (:root :u -0.37) (:chest :twist 37))
@@ -1858,9 +1887,9 @@ flex and the spine / head flex shifted by these."
 ;; f12 / 18 / 24, right; three turns, faster after the first), the body rising through it, the third turn climbing as he springs onto
 ;; his toes (the launch); slowed, then lowered into the sling. (At f31 the arm's twist drops 1080 deg between two keys 0.001 f apart:
 ;; the same pose, so the recovery doesn't unwind three turns.)
-(defstrike :ke-s-wheel (12 14 26 :base :ke-s-st-1)
-  (0)
-  (4 (:root :u -0.24) (:spine :flex 10 :side 6) (:chest :twist 0) (:head :flex -14 :twist 0) (:arm-l :flex 50 :side 70) (:elbow-l :flex 20)
+(defstrike :ke-s-wheel (12 14 26 :base :ke-s-sling)
+  (0 :ke-s-st-1)
+  (4 :ke-s-sling (:root :u -0.24) (:spine :flex 10 :side 6) (:chest :twist 0) (:head :flex -14 :twist 0) (:arm-l :flex 50 :side 70) (:elbow-l :flex 20)
      (:arm-r :flex 90 :side 10 :twist -120) (:elbow-r :flex 70) (:hand-r :flex 0 :twist 0 :side 0)
      (:thigh-l :flex 50) (:knee-l :flex 70) (:knee-r :flex 52))                                                ; lifted off the back
   (7 (:root :u -0.26) (:spine :flex -12 :side 12) (:arm-l :flex 70 :side 80)
@@ -1916,15 +1945,15 @@ flex and the spine / head flex shifted by these."
 ;;; blend, so each link's frame 0 is the pose its predecessor lands in (:ke-s-cutN-a, held a few frames). Hit poses solved by FK on the
 ;;; host: the 2.52 m blade against the 2.4 m volume reads only steep (the hand high and the tip at the far edge low, or the hand low and
 ;;; the tip high), so the 2.4 m links cut on diagonals; the follow-through turns the chest (the tip's radial stays put).
-(defpose :ke-s-cut1-a (:base :ke-s-st-1)                ; J1 landed: down and across to his left, the chest turned after it
+(defpose :ke-s-cut1-a (:base :ke-s-sling)               ; J1 landed: down and across to his left, the chest turned after it
   (:root :u -0.16 :f 0.3) (:pelvis :twist -12) (:spine :flex 32 :side 0) (:chest :twist 45) (:head :flex -12 :twist -10)
   (:arm-r :flex 122 :side -5 :twist 0) (:elbow-r :flex 90) (:hand-r :flex 108 :twist 10 :side 4) (:arm-l :flex -25 :side 50) (:elbow-l :flex 20)
   (:thigh-r :flex 48 :side 10) (:knee-r :flex 50) (:thigh-l :flex -16 :side 10) (:knee-l :flex 26))
 ;; J1: the diagonal off the sling: the hilt flung up over the right shoulder, then down from high right to low left as the right
 ;; foot lunges
-(defstrike :ke-s-cut1 (9 3 12 :base :ke-s-st-1)
-  (0)
-  (3 (:root :u -0.2 :f -0.02) (:pelvis :twist 20) (:spine :flex 16) (:chest :twist -28) (:head :twist 8)
+(defstrike :ke-s-cut1 (9 3 12 :base :ke-s-sling)
+  (0 :ke-s-st-1)
+  (3 :ke-s-sling (:root :u -0.2 :f -0.02) (:pelvis :twist 20) (:spine :flex 16) (:chest :twist -28) (:head :twist 8)
      (:arm-r :flex 105 :side 40 :twist 0) (:elbow-r :flex 105) (:hand-r :flex -20 :twist -10 :side 0) (:arm-l :flex 40 :side 45) (:elbow-l :flex 40))
   (6 (:root :u -0.16 :f -0.06) (:pelvis :twist 26) (:spine :flex 8) (:chest :twist -44) (:arm-r :flex 165 :side 48) (:elbow-r :flex 80)
      (:hand-r :flex -35 :twist -15))
@@ -1937,13 +1966,13 @@ flex and the spine / head flex shifted by these."
   (:a :ke-s-cut1-a)
   (16 (:root :u -0.15 :f 0.27) (:spine :flex 30) (:chest :twist 42))
   (:end :ke-s-st-1))
-(defpose :ke-s-cut2-a (:base :ke-s-st-1)                ; J2 landed: the blade up and out to his right, the hips unwound
+(defpose :ke-s-cut2-a (:base :ke-s-sling)               ; J2 landed: the blade up and out to his right, the hips unwound
   (:root :u -0.06 :f 0.24) (:pelvis :twist 18) (:spine :flex 6 :side -8) (:chest :twist -42) (:head :flex -10 :twist 12)
   (:arm-r :flex 70 :side 10 :twist 0) (:elbow-r :flex 8) (:hand-r :flex 30 :twist 13 :side 0) (:arm-l :flex 30 :side 80) (:elbow-l :flex 10)
   (:thigh-l :flex 40 :side 10) (:knee-l :flex 40) (:thigh-r :flex -12 :side 14) (:knee-r :flex 22))
 ;; J2: the backhand rising cut: coiled low on the left, the blade trailing behind him, then up from low left to high right, the free
 ;; hand flung out
-(defstrike :ke-s-cut2 (9 3 13 :base :ke-s-st-1)
+(defstrike :ke-s-cut2 (9 3 13 :base :ke-s-sling)
   (0 :ke-s-cut1-a)
   (3 (:root :u -0.22 :f 0.22) (:pelvis :twist -20) (:spine :flex 26 :side 8) (:chest :twist 58) (:head :flex -10 :twist -12)
      (:arm-r :flex 20 :side -50 :twist 0) (:elbow-r :flex 30) (:hand-r :flex 216 :twist -2 :side 2) (:arm-l :flex 10 :side 40) (:elbow-l :flex 30)
@@ -1955,13 +1984,13 @@ flex and the spine / head flex shifted by these."
   (:a :ke-s-cut2-a)
   (17 (:root :f 0.22) (:chest :twist -38) (:arm-r :flex 66))
   (:end :ke-s-st-1))
-(defpose :ke-s-cut3-a (:base :ke-s-st-1)                ; J3 landed: swept round to his left, the arm still locked out
+(defpose :ke-s-cut3-a (:base :ke-s-sling)               ; J3 landed: swept round to his left, the arm still locked out
   (:root :u -0.14 :f 0.4 :yaw 22) (:pelvis :twist -25) (:spine :flex 20 :side 0) (:chest :twist 55) (:head :flex -6 :twist -20)
   (:arm-r :flex 96 :side -20 :twist 0) (:elbow-r :flex 8) (:hand-r :flex -92 :twist 3 :side 0) (:arm-l :flex -10 :side 70) (:elbow-l :flex 15)
   (:thigh-r :flex 55 :side 8) (:knee-r :flex 58) (:thigh-l :flex -25 :side 10) (:knee-l :flex 22))
 ;; J3: the big flat cleave that ends the string: dragged back out to his right, the arm locked, then one flat sweep across at chest
 ;; height on a long lunge; the weight carries him round after it
-(defstrike :ke-s-cut3 (11 4 18 :base :ke-s-st-1)
+(defstrike :ke-s-cut3 (11 4 18 :base :ke-s-sling)
   (0 :ke-s-cut2-a)
   (2 (:root :u -0.12 :f 0.15) (:pelvis :twist 22) (:spine :flex 10 :side 0) (:chest :twist -35)
      (:arm-r :flex 80 :side 50 :twist 0) (:elbow-r :flex 12) (:hand-r :flex -7 :twist -105 :side 33))          ; tipped back
@@ -1976,12 +2005,12 @@ flex and the spine / head flex shifted by these."
   (:a :ke-s-cut3-a)
   (22 (:root :yaw 26 :f 0.36) (:chest :twist 58))
   (:end :ke-s-st-1))
-(defpose :ke-s-cut4-a (:base :ke-s-st-1)                ; J4 landed: crouched over the blade, bitten into the floor ahead
+(defpose :ke-s-cut4-a (:base :ke-s-sling)               ; J4 landed: crouched over the blade, bitten into the floor ahead
   (:root :u -0.3 :f 0.22) (:pelvis :twist 0) (:spine :flex 44 :side 0) (:chest :twist 0) (:head :flex -24 :twist 0)
   (:arm-r :flex 160 :side 14 :twist 2) (:elbow-r :flex 92) (:hand-r :flex 97 :twist 7 :side 0) (:arm-l :flex -25 :side 45) (:elbow-l :flex 25)
   (:thigh-r :flex 48 :side 10) (:knee-r :flex 68) (:thigh-l :flex 32 :side 12) (:knee-l :flex 60))
 ;; J4 (the special string, L3): the downward chop: heaved straight up overhead, up on the toes, then dropped through the centre line
-(defstrike :ke-s-cut4 (9 3 12 :base :ke-s-st-1)
+(defstrike :ke-s-cut4 (9 3 12 :base :ke-s-sling)
   (0 :ke-s-cut3-a)
   (3 (:root :u -0.04 :f 0.3 :yaw 0) (:pelvis :twist 0) (:spine :flex -6 :side 0) (:chest :twist 0) (:head :flex -16 :twist 0)
      (:arm-r :flex 185 :side 15 :twist 0) (:elbow-r :flex 70) (:hand-r :flex -30 :twist 0 :side 0) (:arm-l :flex 110 :side 35) (:elbow-l :flex 30)
@@ -1994,13 +2023,13 @@ flex and the spine / head flex shifted by these."
   (:a :ke-s-cut4-a)
   (15 (:root :u -0.29) (:spine :flex 42))
   (:end :ke-s-st-1))
-(defpose :ke-s-cut5-a (:base :ke-s-st-1)                ; J5 landed: risen onto the front foot, the blade up over his head
+(defpose :ke-s-cut5-a (:base :ke-s-sling)               ; J5 landed: risen onto the front foot, the blade up over his head
   (:root :u 0.0 :f 0.45) (:pelvis :twist 20) (:spine :flex -12 :side 0) (:chest :twist -20) (:head :flex -20 :twist 0)
   (:arm-r :flex 112 :side 2 :twist 0) (:elbow-r :flex 85) (:hand-r :flex -97 :twist -12 :side 0) (:arm-l :flex 0 :side 85) (:elbow-l :flex 10)
   (:thigh-l :flex 45 :side 8) (:knee-l :flex 30) (:thigh-r :flex -30 :side 12) (:knee-r :flex 10))
 ;; J5: the rising backhand with a step: the blade dragged along the floor ahead to his left, then the left foot strides in and it
 ;; rips straight up the centre
-(defstrike :ke-s-cut5 (9 3 13 :base :ke-s-st-1)
+(defstrike :ke-s-cut5 (9 3 13 :base :ke-s-sling)
   (0 :ke-s-cut4-a)
   (2 (:root :u -0.31 :f 0.21) (:pelvis :twist -10) (:spine :flex 40 :side 3) (:chest :twist 18)
      (:arm-r :flex 95 :side -15 :twist 0) (:elbow-r :flex 55) (:hand-r :flex 213 :twist 3 :side -19))           ; dragged left on the floor
@@ -2014,12 +2043,12 @@ flex and the spine / head flex shifted by these."
   (:a :ke-s-cut5-a)
   (16 (:root :u -0.02) (:spine :flex -10))
   (:end :ke-s-st-1))
-(defpose :ke-s-cut6-a (:base :ke-s-st-1)                ; J6 landed: the shoulder through, the blade gone on round to his left
+(defpose :ke-s-cut6-a (:base :ke-s-sling)               ; J6 landed: the shoulder through, the blade gone on round to his left
   (:root :u -0.16 :f 0.35 :yaw 14) (:pelvis :twist -15) (:spine :flex 24 :side 8) (:chest :twist 40) (:head :flex -10 :twist -16)
   (:arm-r :flex -55 :side 50 :twist 0) (:elbow-r :flex 30) (:hand-r :flex 70 :twist 3 :side 0) (:arm-l :flex 20 :side 25) (:elbow-l :flex 70)
   (:thigh-r :flex 45 :side 10) (:knee-r :flex 48) (:thigh-l :flex -15 :side 10) (:knee-l :flex 25))
 ;; J6: the shoulder-driven hack: the blade dropped flat behind the right shoulder, then the shoulder rams in and hacks it round flat
-(defstrike :ke-s-cut6 (10 3 12 :base :ke-s-st-1)
+(defstrike :ke-s-cut6 (10 3 12 :base :ke-s-sling)
   (0 :ke-s-cut5-a)
   (4 (:root :u -0.16 :f 0.1) (:pelvis :twist 20) (:spine :flex 10 :side -6) (:chest :twist -45) (:head :flex -8 :twist 16)
      (:arm-r :flex 30 :side 95 :twist 0) (:elbow-r :flex 110) (:hand-r :flex 94 :twist 5 :side 5) (:arm-l :flex 40 :side 30) (:elbow-l :flex 60)
@@ -2031,13 +2060,13 @@ flex and the spine / head flex shifted by these."
   (:a :ke-s-cut6-a)
   (16 (:root :yaw 12) (:chest :twist 36))
   (:end :ke-s-st-1))
-(defpose :ke-s-cut7-a (:base :ke-s-st-1)                ; J7 landed: folded over the blade, buried in the floor
+(defpose :ke-s-cut7-a (:base :ke-s-sling)               ; J7 landed: folded over the blade, buried in the floor
   (:root :u -0.44 :f 0.52) (:pelvis :twist 0) (:spine :flex 60 :side 0) (:chest :twist 0) (:head :flex -34 :twist 0)
   (:arm-r :flex 77 :side 42 :twist 1) (:elbow-r :flex 74) (:hand-r :flex -115 :twist -25 :side 0) (:arm-l :flex -35 :side 55) (:elbow-l :flex 20)
   (:thigh-r :flex 72 :side 10) (:knee-r :flex 95) (:thigh-l :flex 30 :side 12) (:knee-l :flex 85))
 ;; J7: the slam that builds into the Bankai: heaved up over his head with both arms flung high, risen on the toes, held, then the
 ;; whole body dropped after it into the floor
-(defstrike :ke-s-cut7 (12 4 18 :base :ke-s-st-1)
+(defstrike :ke-s-cut7 (12 4 18 :base :ke-s-sling)
   (0 :ke-s-cut6-a)
   (5 (:root :u 0.08 :f 0.2 :yaw 0) (:pelvis :twist 0) (:spine :flex -18 :side 0) (:chest :twist 0) (:head :flex -25 :twist 0)
      (:arm-r :flex 200 :side 20 :twist 0) (:elbow-r :flex 60) (:hand-r :flex -40 :twist 0 :side 0) (:arm-l :flex 150 :side 40) (:elbow-l :flex 20)
@@ -2050,15 +2079,15 @@ flex and the spine / head flex shifted by these."
   (:a :ke-s-cut7-a)
   (22 (:root :u -0.43) (:spine :flex 58))
   (:end :ke-s-st-1))
-(defpose :ke-s-cut-sa-a (:base :ke-s-st-1)              ; the SA landed: the wrist snapped through, the blade out to his right
+(defpose :ke-s-cut-sa-a (:base :ke-s-sling)             ; the SA landed: the wrist snapped through, the blade out to his right
   (:root :u -0.08 :f 0.2) (:pelvis :twist -10) (:spine :flex 16 :side 4) (:chest :twist -40) (:head :flex -8 :twist -6)
   (:arm-r :flex -55 :side -47 :twist 11) (:elbow-r :flex 43) (:hand-r :flex 60 :twist -48 :side 0) (:arm-l :flex 0 :side 70) (:elbow-l :flex 20)
   (:thigh-r :flex 42 :side 10) (:knee-r :flex 44) (:thigh-l :flex -18 :side 10) (:knee-l :flex 22))
 ;; the SA (one hand in an NS gap): the quick snap: the hilt drawn across to his left shoulder, then a flat backhand flicked out to the
 ;; right as he steps in
-(defstrike :ke-s-cut-sa (8 3 12 :base :ke-s-st-1)
-  (0)
-  (3 (:root :u -0.18 :f 0.05) (:pelvis :twist 25) (:spine :flex 20 :side 4) (:chest :twist 45) (:head :flex -10 :twist -10)
+(defstrike :ke-s-cut-sa (8 3 12 :base :ke-s-sling)
+  (0 :ke-s-st-1)
+  (3 :ke-s-sling (:root :u -0.18 :f 0.05) (:pelvis :twist 25) (:spine :flex 20 :side 4) (:chest :twist 45) (:head :flex -10 :twist -10)
      (:arm-r :flex 40 :side -60 :twist 0) (:elbow-r :flex 90) (:hand-r :flex -7 :twist 153 :side -34) (:arm-l :flex 20 :side 40) (:elbow-l :flex 30))
   (7 (:root :u -0.19) (:chest :twist 48))                                                                         ; drawn, held
   (:s :snap (:root :u -0.1 :f 0.14) (:pelvis :twist 15) (:spine :flex 14 :side -4) (:chest :twist -25) (:head :flex -8 :twist 10)
