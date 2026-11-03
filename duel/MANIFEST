@@ -59,6 +59,7 @@ lisp/feedback.lisp
 lisp/flow.lisp
 lisp/hud.lisp
 lisp/ken-meter.lisp
+lisp/ken-look.lisp
 lisp/rukia-meter.lisp
 lisp/hud-screens.lisp
 lisp/onehand.lisp
