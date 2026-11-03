@@ -545,6 +545,15 @@ The hand lifted 0.06 m with the blade's direction kept (FK: arm flex 35 → 43, 
 25 → 18, twist 0 → −2, side 0 → −3): the haft 0.01 m over the haori. Pointer 2's moves key from the old rest kept as `:ke-s-shoulder`
 (their first keys reset to it, their frame 0 and ends the new stance), as pointer 1's from `:ke-s-sling`.
 
+Finishing pointer 1 (「沒問題了，請幫我修改並繼續完成下個步驟的動畫」):
+- The head graze: the whole weapon pushed 0.07 m off the back of his head (the nearest point 0.16 → 0.22 m from the head's centre, no
+  clipping; the blade 86.6° to his facing, was 90.3; arm flex 22, side 34, twist −52; elbow 98; hand flex 26, twist −10, side −6).
+- The blends into and out of the stances, checked by FK per frame against ff4f055 (before the stance work) for all 21 clips of the
+  two pointers: the clipping is lower or equal everywhere (the stance's own graze gone; pointer 2 no longer sinks into the shoulder)
+  and pointer 2's are as smooth or smoother. Pointer 1's recoveries turn the blade further (up to 37° a frame over 9–12 frames, as
+  before) since its stance is further from the moves' poses. ISSEN's start (4 frames, the draw) still twirls the blade (up to 100° a
+  frame; 78° before): a mid key cannot help, since at the mid body the arm cannot reach the mid blade (30° off), so it stays.
+
 The moves are untouched: the old sling is kept as `:ke-s-sling`, and every pointer-1 clip and landed pose keys from it. The five clips
 that start from the stance (p1a, ISSEN, DAISHARIN, cut1, the SA) take `(0 :ke-s-st-1)` and reset to `:ke-s-sling` on their next key;
 pointer 2's six clips unroll the blade on their first key (`(:weapon-r :side 0)`); their ends land in the new stances. ZANGAESHI's

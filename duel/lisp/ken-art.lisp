@@ -1542,10 +1542,11 @@ flex and the spine / head flex shifted by these."
 ;; -29 / 42 to keep the same view, the right ankle levelling the sole (the toes 30 degrees out); the left arm hanging loose ahead of
 ;; the left knee, a little out, the elbow soft (56); 6. 「右膝太開了，往前收一點」: the right knee 0.1 m forward and 0.05 in (now over
 ;; the foot, not outside it), the foot where it was; 7. 「刀柄握回原本 0.3 處」: the stance holds the haft where every move does
-;; (*KE-NOZ-GRIP*), the slide of step 2 removed
+;; (*KE-NOZ-GRIP*), the slide of step 2 removed; then the whole weapon pushed 0.07 m off the back of his head (the nearest point 0.16
+;; -> 0.22 m from the head's centre: no graze; the blade 86.6 degrees to his facing; the arm by FK)
 (defpose :ke-s-st-1 (:base :ke-k-rest)
   (:root :u -0.24 :f 0.04) (:pelvis :twist 8) (:spine :flex 32 :twist -26) (:chest :twist -30) (:head :flex -29 :twist 42)
-  (:arm-r :flex 24 :side 29 :twist -44) (:elbow-r :flex 99) (:hand-r :flex 27 :twist -4 :side -4) (:weapon-r :side 25)
+  (:arm-r :flex 22 :side 34 :twist -52) (:elbow-r :flex 98) (:hand-r :flex 26 :twist -10 :side -6) (:weapon-r :side 25)
   (:arm-l :flex -16 :side 50 :twist -5) (:elbow-l :flex 56) (:hand-l :flex 0)
   (:thigh-l :flex 50 :side 10) (:knee-l :flex 74) (:thigh-r :flex 7 :side 45 :twist -45) (:knee-r :flex 65)
   (:foot-r :flex -34 :twist 26 :side -29))                                               ; (the sole flat, the toes 30 out)
@@ -1677,7 +1678,7 @@ flex and the spine / head flex shifted by these."
       (:arm-r :flex 11 :side -44 :twist 0) (:elbow-r :flex 6) (:hand-r :flex -127 :twist 5 :side -1))             ; dragged round, low behind
   (38 (:root :u -0.24 :f 0.08 :yaw 0) (:pelvis :twist 8) (:spine :flex 32 :twist -26) (:chest :twist -30) (:head :flex -29 :twist 42)
       (:thigh-l :flex 50 :side 10) (:knee-l :flex 74) (:thigh-r :flex 7 :side 45 :twist -45) (:knee-r :flex 65) (:foot-r :flex -34 :twist 26 :side -29)
-      (:arm-r :flex 24 :side 29 :twist -44) (:elbow-r :flex 99) (:hand-r :flex 27 :twist -4 :side -4) (:weapon-r :side 25) (:arm-l :flex -16 :side 50 :twist -5) (:elbow-l :flex 56))   ; into the stance (§18)
+      (:arm-r :flex 22 :side 34 :twist -52) (:elbow-r :flex 98) (:hand-r :flex 26 :twist -10 :side -6) (:weapon-r :side 25) (:arm-l :flex -16 :side 50 :twist -5) (:elbow-l :flex 56))   ; into the stance (§18)
   (:end :ke-s-st-1))
 ;; the special AS INSEKI-GIRI: both hands, a crouch, the leap with the hilt raised (the blade down his back), arched at the top,
 ;; then down like a falling meteor, the tip into the floor 3 m out
