@@ -29,9 +29,10 @@
 (defparameter *behind-shoulder* 0.9 "... and this far to his right (over the shoulder) ...")
 (defparameter *behind-widen* 0.2 "... backing off this much (and rising a third of it) per metre of separation beyond 4 m.")
 (defparameter *behind-look* 0.6 "It looks this fraction of the way to P2, 1.1 m up.")
-(defparameter *behind-close* 90.0
+(defparameter *behind-close* 75.0
   "Up close the eye swings round to P1's right, from *BEHIND-SIDE* at 6 m to this many degrees at 2 m, linear (40 -> 90, max
--> blend, the user 2026-11-03: 「請將鏡頭改成兩個角色越接近時，拍攝角度就越接近側面」: at 2 m a full side view; DUEL_DESIGN §9).
+-> blend, the user 2026-11-03: 「請將鏡頭改成兩個角色越接近時，拍攝角度就越接近側面」; then 90 -> 75: 「改成最多轉到 75 的度」;
+DUEL_DESIGN §9).
 Only the look; steering keeps the sim's *BEHIND-YAW*.")
 (defparameter *behind-side* 30.0
   "At every distance the eye stands at least this many degrees round to P1's right (0 -> 30, the user 2026-10-24: a more side-on
@@ -52,8 +53,8 @@ smoothed vertical FOV (radians).")
 (defparameter *pt-back* 9f0 "Portrait: metres behind P1 (x *CAM-CLOSE*, + *BEHIND-WIDEN* per metre past 4 m) ...")
 (defparameter *pt-up* 2f0 "... this high ...")
 (defparameter *pt-shoulder* 0.5f0 "... this far to his right.")
-(defparameter *pt-close* 90f0 "Up close the orbit swings to P1's right, from *PT-SIDE* at 6 m to this many degrees at 2 m (15 -> 90, max -> blend,
-the user 2026-11-03, with the landscape *BEHIND-CLOSE*: the closer, the more side-on).")
+(defparameter *pt-close* 75f0 "Up close the orbit swings to P1's right, from *PT-SIDE* at 6 m to this many degrees at 2 m (15 -> 90 -> 75, max -> blend,
+the user 2026-11-03, with the landscape *BEHIND-CLOSE*: the closer, the more side-on, at most 75).")
 (defparameter *pt-side* 30f0 "... and at every distance at least this many (0 -> 30, the user 2026-10-24: one hand follows the landscape
 *BEHIND-SIDE*; DUEL_MOBILE_DESIGN §4.1).")
 (defparameter *pt-lead* 20f0 "Degrees the orbit may lead the sim yaw toward P2 (the catch-up), and the aim may leave the orbit.")
