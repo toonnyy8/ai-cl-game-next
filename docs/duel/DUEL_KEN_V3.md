@@ -565,3 +565,31 @@ down the 0.27 m forearm (both arms; the Bankai still hides them).
 
 Checks: host tests 9831 ALL PASS, pkgcheck clean, the build; viewer turntables of both stances (four angles) and in-game shots (the
 behind and side cameras, an SP press sliding the hand back). Playtest Artifact v303.
+
+## 19. Art round, part 4: the special ASs' looks and the two Kikon cinematics (2026-11-04)
+
+「沒問題了，請幫我修改並繼續完成下個步驟的動畫」: part 4 of §14 (presentation only; `ken-look.lisp`):
+- **DAISHARIN** (`:ke-s-sp1`, the full wheel, §5.1 「a spinning tornado」): `%ke-tornado`, a funnel of white wind arcs round him from
+  frame 4 to 40 (four rings of three arcs, 0.3 m up at r 1.1 to 2.7 m at r 2.3, each ring turning faster than the one below) and a
+  dust ring dragged round on the floor, faded in over the wind-up and out over the recovery; on top of §16's sword wind.
+- **INSEKI-GIRI** (`:ke-s-sp2`, the meteor cut): a yellow-white tail 1.8 m behind the falling blade (frames 15–21), then on the hit
+  window's first frame the floor cratered under the volume's far point (`ke-meteor-impact`: a 2.4 m crack patch, a yellow ring 4.5 m,
+  10 rubble chips, a shake).
+- **The Kikon cinematics**, one per pointer (the Shikai kit's `:core :kikon-cines`; before, the old base and pointer-2 cinematics):
+  - pointer 1 **回天斬 KAITENZAN** (`ken-s-kikon1-cine`, 突進迴旋, 170 f): the stance held, a white card with the brush title; side-on the
+    crouch deepening (`:ke-s-p1a`'s startup slowed); the dash 6.4 m through him along the line (ISSEN's clip, a yellow-white streak,
+    a heavy cut as he passes); from behind the victim, Kenpachi skidding on; he turns and spins back through him in the wind funnel
+    (the wheel's clip), the heavy cut on f104, the Konpaku on f112 (a negative, a manga page); he laughs; wide.
+  - pointer 2 **墜天斬 TSUITENZAN** (`ken-s-kikon2-cine`, 扛肩柄擊, 168 f): the shoulder rest held, the white card; the hilt sunk and
+    flicked up into him (`:ke-s-flick`): he goes up tumbling to 3.6 m and hangs; from below, Kenpachi leaps after him (INSEKI-GIRI's
+    clip, 2.6 m up), side-on at their height; the cut down on f104, both falling, the floor cratered under him on f110 (the meteor's
+    impact), the Konpaku; he laughs; wide.
+  The titles use the brush glyphs already baked (回 天 斬 墜): new kana / kanji need `tools/glyph-bake.py` (a first draft 斬り抜け /
+  叩き斬る drew only 斬 / き斬る). Debug 84094 / 84095 play them from the 84001 scene (DUEL_GAMEPLAY "Debug commands").
+
+Checks: host tests 9831 ALL PASS, pkgcheck clean, the build. G2: IK and KK moved, since their Shikai Kikons now run 170 / 168 f (the
+borrowed ones 192 / 176) and move the actors; with the old lengths put back for a check IK was identical and KK differed only on its
+t=6000 hash line, sampled inside the cinematic (P1's place), so the reference was regenerated (II unchanged 28 lines; IK 29 lines,
+P2 0-5, 285.5 s; KK 30 lines, P2 0-4, 298.7 s). Both cinematics shot at eleven frames each, DAISHARIN and INSEKI-GIRI scripted
+(84001 + L3, J ×4 / ×6 + SP) and shot at seven frames each. The manual's Shikai table: the stances as built, the special ASs' looks,
+the Kikon row.

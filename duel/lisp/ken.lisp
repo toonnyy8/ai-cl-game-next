@@ -276,7 +276,7 @@
   :core (:ns (:ke-s-n1a :ke-s-n2a) :as (:ke-s-as1 :ke-s-as2 :ke-s-burst1 :ke-s-burst2 :ke-s-sp1 :ke-s-sp2) :sa :ke-s-sa :mult 1.2
          :as-by-press (1 1 2)
          :stances (:ke-s-st-1 :ke-s-st-2)                               ; the slung hilt low / the shoulder (§14)
-         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine))
+         :kikon-cines (ken-s-kikon1-cine ken-s-kikon2-cine))   ; KAITENZAN / TSUITENZAN (ken-look.lisp, DUEL_KEN_V3 §19)
   :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (2.0 4.0) :pressure (1.2 3.0) :zone (4.0 6.0) :defend (3.0 5.0))
        :moves ((0.0 1.6 :q 5 :f 2 :sig 3 :breaker 1 :sp2 1 nil 3)
@@ -1047,6 +1047,8 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
              (84001 (force-form *p1* :nozarashi) (setf (gauges-awakened (gauges *p1*)) t (gauges-meter (gauges *p1*)) 0f0))
              (84004 (force-form *p1* :bankai)                      ; 84004: the Bankai (DUEL_KEN_CORE §8), the arm full
               (setf (gauges-meter (gauges *p1*)) (f32 *arm-pips*) (gauges-arm-pending (gauges *p1*)) nil) (refresh-look *p1*))))
+    ((84094 84095) (ken-core-debug 84001) (place *p1* *p2* 3.0)   ; the Shikai's pointer 1 / 2 Kikon cinematic, played (DUEL_KEN_V3 §19)
+     (setf *cine-hold* nil) (start-cine (if (= c 84094) 'ken-s-kikon1-cine 'ken-s-kikon2-cine) *p1* *p2*))
     (84010 (core-sp-start! *p2* (fighter *p2*)))
     (84011 (force-cmd *p2* :q))
     (t (let ((g (gauges *p1*)))                                    ; DUEL_SUBLIMATION §7, on the running 84000 scene (P1's gauges)

@@ -100,6 +100,7 @@ route's)."
           (declare (simple-vector hits))
           (%ic-held-tip jm tip (weapon-len (find-weapon (model-weapon m))))
           (%ic-track st o (+ o 3) tip)
+          (ken-special-look e st o mv sf prev tip)
           (when (> lv 0)
             (dotimes (i (length hits))
               (let* ((hw (svref hits i)) (from (hw-from hw)) (to (hw-to hw)) (v (first (hw-vols hw))))
@@ -107,3 +108,151 @@ route's)."
                 (when (and v (<= (- from 2) sf) (< sf (+ to *ke-wind-life*)))
                   (%ke-wind st (+ o 3) v (pos-of e) (yaw-of e) tip sf from to lv
                             (if (and (< prev from) (<= from sf)) 1 0)))))))))))
+
+;;; ---------------------------------------------------------------- the special ASs' looks (DUEL_KEN_V3 §19)
+;;; DAISHARIN (pointer 1, the full wheel): a tornado of white wind arcs round him while the cleaver whirls, a funnel widening
+;;; upward and turning with the cuts, a dust ring on the floor; INSEKI-GIRI (pointer 2, the meteor cut): a yellow-white tail
+;;; behind the falling blade, then the floor cratered under the far point (cracks, a yellow ring, rubble, a shake).
+(defun-fast %ke-tornado (px pz tm k seed)
+  "The wind funnel round (PX PZ) at TM frames into it (its turning), presence K: four rings of three arcs from 0.3 m up (r 1.1) to
+2.7 m (r 2.3), each ring turning faster than the one below; a dust ring on the floor."
+  (declare (single-float px pz tm k seed))
+  (dotimes (lv 4)
+    (let* ((fl (i->f lv)) (y (+ 0.3f0 (* 0.8f0 fl))) (r (+ 1.1f0 (* 0.4f0 fl))) (spin (* tm (+ 0.32f0 (* 0.06f0 fl)))))
+      (declare (single-float fl y r spin))
+      (dotimes (i 3)
+        (let* ((a0 (+ spin (* 2.0944f0 (i->f i)) (* 0.7f0 fl))) (a1 (+ a0 1.6f0)) (am (+ a0 0.8f0)) (rb (* 1.22f0 r)))
+          (declare (single-float a0 a1 am rb))
+          (fx-crescent (+ px (* r (f-cos a0))) (+ y (* 0.12f0 (f-sin a0))) (+ pz (* r (f-sin a0)))
+                       (+ px (* r (f-cos a1))) (+ y 0.1f0) (+ pz (* r (f-sin a1)))
+                       (+ px (* rb (f-cos am))) (+ y 0.18f0) (+ pz (* rb (f-sin am)))
+                       (* (+ 0.05f0 (* 0.025f0 fl)) k) :lens 0.05f0 (+ seed (* 3f0 fl) (i->f i)) +pal-hit+ (* k (- 0.95f0 (* 0.12f0 fl)))
+                       :push 0.1f0)))))
+  (dotimes (i 4)                                                   ; the dust ring dragged round on the floor
+    (let* ((a0 (+ (* 0.4f0 tm) (* 1.5708f0 (i->f i)))) (a1 (+ a0 1.2f0)) (am (+ a0 0.6f0)))
+      (declare (single-float a0 a1 am))
+      (fx-crescent (+ px (* 1.6f0 (f-cos a0))) 0.05f0 (+ pz (* 1.6f0 (f-sin a0))) (+ px (* 1.6f0 (f-cos a1))) 0.05f0 (+ pz (* 1.6f0 (f-sin a1)))
+                   (+ px (* 1.9f0 (f-cos am))) 0.1f0 (+ pz (* 1.9f0 (f-sin am))) (* 0.16f0 k) :lens 0.1f0 (+ seed 20f0 (i->f i)) +pal-dust+
+                   (* 0.8f0 k) :push 0.05f0)))
+  nil)
+
+(defun-fast %ke-meteor-tail (st d tip k)
+  "INSEKI-GIRI's falling blade: a yellow-white tail 1.8 m back from the held TIP against its cut direction ST[D..], an ink edge
+under it; presence K."
+  (declare (type f32vec st tip) (fixnum d) (single-float k))
+  (let* ((x (aref tip 0)) (y (aref tip 1)) (z (aref tip 2)) (l 1.8f0)
+         (x0 (- x (* l (aref st d)))) (y0 (- y (* l (aref st (+ d 1))))) (z0 (- z (* l (aref st (+ d 2))))))
+    (declare (single-float x y z l x0 y0 z0))
+    (fx-line x0 y0 z0 x y z 0.02f0 0.05f0 0.04f0 0.06f0 (* 0.7f0 k) :mode :alpha :end-width 0.5f0)
+    (fx-line x0 y0 z0 x y z 0.01f0 1.0f0 0.86f0 0.45f0 (* 0.8f0 k) :end-width 0.36f0)
+    (fx-line x0 y0 z0 x y z 0.005f0 1.0f0 0.97f0 0.85f0 k :end-width 0.14f0))
+  nil)
+
+(defun ke-meteor-impact (x z)
+  "INSEKI-GIRI lands at (X Z): the floor cratered, a yellow ring, rubble, a shake (once, on the hit window's first frame)."
+  (stage-crack-add x z 2.4)
+  (vfx-shockwave x z 4.5 0.5 :rgb '(1.0 0.9 0.5))
+  (stage-debris x z 10 1.2)
+  (shake 0.35 0.45))
+
+(defun-fast ken-special-look (e st o mv sf prev tip)
+  "KEN-DRAW's special ASs (E in move MV at frame SF, PREV the frame at the last draw; the held TIP tracked in ST at O)."
+  (declare (type f32vec st tip) (fixnum o sf prev))
+  (let ((p (pos-of e)) (name (mv-name mv)))
+    (declare (type f32vec p))
+    (case name
+      (:ke-s-sp1 (when (<= 4 sf 40)                                ; DAISHARIN: in over the wind-up, out over the recovery
+                   (%ke-tornado (aref p 0) (aref p 2) (i->f sf)
+                                (* (f-min 1f0 (/ (i->f (- sf 3)) 8f0)) (f-min 1f0 (/ (i->f (- 41 sf)) 10f0))) (+ 600f0 (drawing-no)))))
+      (:ke-s-sp2 (when (<= 15 sf 21) (%ke-meteor-tail st (+ o 3) tip (f-min 1f0 (/ (i->f (- sf 14)) 3f0))))
+                 (when (and (< prev 20) (<= 20 sf))                   ; (the hit window opens at 20)
+                   (let ((v (first (hw-vols (svref (mv-hits mv) 0)))) (far *ke-far*))
+                     (if (and v (%ic-far v p (yaw-of e) tip far))
+                         (ke-meteor-impact (aref far 0) (aref far 2))
+                         (ke-meteor-impact (aref tip 0) (aref tip 2))))))))
+  nil)
+
+;;; ---------------------------------------------------------------- the Shikai's Kikon cinematics (DUEL_KEN_V3 §19)
+;;; One per pointer, its theme (§5.1): pointer 1 突進迴旋 dashes through him and spins back; pointer 2 扛肩柄擊: the hilt launches
+;;; him, both hands cut him down.
+(declaim (type f32vec *ke-kk*))
+(defvar *ke-kk* (make-f32 4) "The Kikon cinematics' line: [0..1] the victim's x z, [2..3] the unit from him toward Kenpachi's side.")
+(defun ke-kk-line (a v)
+  "Keep the line V -> A for the cinematic's moves (its frame 0)."
+  (let* ((p (pos-of a)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2))) (d (max 0.01 (hypot dx dz))))
+    (setf (aref *ke-kk* 0) (aref q 0) (aref *ke-kk* 1) (aref q 2) (aref *ke-kk* 2) (f32 (/ dx d)) (aref *ke-kk* 3) (f32 (/ dz d)))))
+(defun ke-kk-at (e s &optional (y 0.0))
+  "Put E S metres from the victim along the line (S < 0: past him), Y up."
+  (let ((p (pos-of e)) (k *ke-kk*))
+    (setf (aref p 0) (+ (aref k 0) (* s (aref k 2))) (aref p 1) (f32 y) (aref p 2) (+ (aref k 1) (* s (aref k 3))))))
+(defun ke-kk-streak (s0 s1 k)
+  "A white and yellow streak along the line from S0 to S1 at 1.0 m, presence K."
+  (let* ((l *ke-kk*) (x0 (+ (aref l 0) (* s0 (aref l 2)))) (z0 (+ (aref l 1) (* s0 (aref l 3))))
+         (x1 (+ (aref l 0) (* s1 (aref l 2)))) (z1 (+ (aref l 1) (* s1 (aref l 3)))))
+    (fx-line x0 1.0 z0 x1 1.0 z1 0.02 1.0 0.86 0.45 (* 0.6 k) :end-width 0.22)
+    (fx-line x0 1.0 z0 x1 1.0 z1 0.01 1.0 0.97 0.9 k :end-width 0.08)))
+
+(defcine ken-s-kikon1-cine (a v :len 170 :hold 112)
+  "回天斬 KAITENZAN, the Shikai's pointer-1 Kikon (突進迴旋): beat 0, the stance held; a white card, low and dutch, the brush
+回天斬 and the hanko, silence; side-on, the crouch deepening; the dash through him (a streak, a heavy cut as he passes), from
+behind him Kenpachi skidding on, his back turned; he turns and spins back through him in the wind funnel, the heavy cut: a
+negative, a manga page, the Konpaku; he laughs, his back to him; wide."
+  (at 0 (cine-place a v 3.2) (ke-kk-line a v) (shot-on a 50 3.6 1.0 :look 1.1) (lens 50)
+      (cine-clip a :ke-s-st-1 :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-cleaver))
+  (at 12 (card :white a) (shot-on a 25 3.0 0.5 :look 1.2 :off -0.8) (lens 44 -10) (silence 40)
+      (caption "回天斬" :reading "KAITENZAN" :sub "KENPACHI  KIKON" :side 1 :ink t :hanko t))
+  (at 52 (card nil) (caption-exit) (shot-pair a v 1 7.0 1.0) (lens 46)
+      (cine-clip a :ke-s-p1a :blend 4 :speed 0.5) (play-sfx :awaken-rise :pitch 0.6))
+  (at 76 (cine-clip a :ke-s-issen :blend 0 :time (/ 8.0 60.0)) (play-sfx :whoosh-cleaver))
+  (during (76 90) (ke-kk-at a (- 3.2 (* 6.4 (min 1.0 (* 1.2 u))))))   ; through him
+  (during (76 100) (ke-kk-streak 3.2 (max -3.2 (- 3.2 (* 6.4 (min 1.0 (* 2.0 u))))) (- 1.0 u)))
+  (at 82 (cine-slash v :heavy) (cine-clip v :sh-stagger :blend 2) (impact-frame :negative 2) (shake 0.2 0.3))
+  (at 90 (shot-on v 170 5.5 1.3 :look 1.1 :ahead -1.5) (lens 50))
+  (at 98 (face-each-other a v) (cine-clip a :ke-s-wheel :blend 2 :time (/ 6.0 60.0)) (play-sfx :whoosh-cleaver :pitch 0.8)
+      (shot-pair a v -1 7.5 1.4) (lens 46))
+  (during (98 112) (ke-kk-at a (+ -3.2 (* 5.2 u))))                 ; spun back through him
+  (during (98 116) (let ((p (pos-of a))) (%ke-tornado (aref p 0) (aref p 2) (f32 (* 1.5 (- cf 98))) 0.9f0 (+ 640f0 (drawing-no)))))
+  (at 104 (cine-slash v :heavy) (play-sfx :cut-heavy))
+  (at 112 (impact-frame :negative 2) (cine-clip v :sh-crumple :blend 3)
+      (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (impact-splash-at v 0.0 16 0.07)
+      (play-sfx :kikon-slash) (play-sfx :konpaku-shatter) (shake 0.35 0.45))
+  (at 114 (impact-frame :manga 12))
+  (at 124 (play-sfx :laugh) (cine-clip a :ke-s-st-1 :blend 10))
+  (at 138 (shot-on a 160 6.0 1.6 :look 1.2) (lens 50)))
+
+(defcine ken-s-kikon2-cine (a v :len 168 :hold 110)
+  "墜天斬 TSUITENZAN, the Shikai's pointer-2 Kikon (扛肩柄擊): beat 0, the shoulder rest held; a white card, low and dutch, the
+brush 墜天斬 and the hanko, silence; the hilt sunk and flicked up into him: he goes up tumbling; from below, Kenpachi leaps after
+him, arched over him with both hands on the hilt; the cut down: they fall together, the floor cratered under him (a negative, a
+manga page, the Konpaku); he laughs; wide."
+  (at 0 (cine-place a v 2.0) (ke-kk-line a v) (shot-on a 50 3.4 1.0 :look 1.2) (lens 50)
+      (cine-clip a :ke-s-st-2 :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-cleaver))
+  (at 12 (card :white a) (shot-on a 25 3.0 0.6 :look 1.3 :off -0.8) (lens 44 -10) (silence 40)
+      (caption "墜天斬" :reading "TSUITENZAN" :sub "KENPACHI  KIKON" :side 1 :ink t :hanko t))
+  (at 52 (card nil) (caption-exit) (shot-on a 70 3.4 0.7 :look 1.2) (lens 46)
+      (cine-clip a :ke-s-flick :blend 3 :speed 0.6))
+  (at 69 (cine-slash v :heavy) (cine-clip v :sh-launch :blend 2) (impact-frame :negative 2) (play-sfx :cut-heavy) (shake 0.25 0.3))
+  (during (69 104) (ke-kk-at v 0.0 (* 3.6 (- 1.0 (expt (- 1.0 (min 1.0 (/ u 0.55))) 2)))))   ; up, hung at the top
+  (during (104 110) (ke-kk-at v 0.0 (* 3.6 (- 1.0 u))))                                     ; cut down
+  (at 80 (cine-clip a :ke-s-meteor :blend 2 :time (/ 6.0 60.0) :speed 0.7) (play-sfx :whoosh-heavy :pitch 0.8))
+  (during (80 96) (let* ((q (pos-of v)) (l *ke-kk*))                                         ; from below: up at him
+                    (cine-cam (+ (aref l 0) (* 4.2 (aref l 2)) (* 2.0 (aref l 3))) 0.4 (+ (aref l 1) (* 4.2 (aref l 3)) (* -2.0 (aref l 2)))
+                              (aref q 0) (+ (aref q 1) 0.8) (aref q 2))))
+  (during (88 104) (ke-kk-at a 1.0 (* 2.6 (- 1.0 (expt (- 1.0 u) 2)))))                     ; the leap after him
+  (during (104 110) (ke-kk-at a (- 1.0 (* 0.6 u)) (* 2.6 (- 1.0 u))))                       ; and down with him
+  (during (96 112) (let* ((p (pos-of a)) (q (pos-of v)) (l *ke-kk*)                       ; side-on at their height
+                           (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))) (my (* 0.5 (+ (aref p 1) (aref q 1)))))
+                      (cine-cam (+ mx (* 8.0 (aref l 3))) (+ my 1.2) (- mz (* 8.0 (aref l 2))) mx (+ my 1.0) mz)))
+  (at 96 (lens 44))
+  (at 104 (cine-slash v :heavy) (impact-frame :negative 2) (focus-lines 16) (play-sfx :kikon-slash))
+  (at 110 (cine-clip v :sh-down :blend 2)
+      (let ((q (pos-of v))) (ke-meteor-impact (aref q 0) (aref q 2)))
+      (cine-shatter v (fighter-kikon-n (fighter a)) :up 0.4 :dy 0.1)
+      (impact-splash-at v 0.0 16 0.08)
+      (play-sfx :ground-crack) (play-sfx :explode :pitch 0.5) (play-sfx :konpaku-shatter) (shake 0.45 0.6))
+  (at 112 (impact-frame :manga 12))
+  (at 126 (play-sfx :laugh) (cine-clip a :ke-s-st-2 :blend 12))
+  (at 140 (shot-on a 150 6.5 1.8 :look 1.2) (lens 50)))
