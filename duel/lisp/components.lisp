@@ -125,7 +125,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (clash-n 0 :type fixnum)              ; cancels (clashes) since this NS route began: Kenpachi's NS2 feeds its SA (ken-dmg-mult)
   (lv-cap 99 :type fixnum)              ; the unlock level of this NS route / AS, read at its start (a kit's :lv hook; a segment's :params :lv
                                         ;  needs it: CORE-SEG-OK-P; Kenpachi's Shikai, DUEL_KEN_V3 §4)
-  (lv-got nil)                          ; this route / AS already raised the level (his :hit hook, once a route)
+  (lv-got nil)                          ; this combo already raised the level (his :hit hook, once a combo)
   (kikon-lock 0 :type fixnum)           ; a Kikon follow-up coming at him: 1 guard only (not red), 2 nothing (red); KIKON-LOCK-P
   (kikon-undo nil)                      ; his dash-in's hit as an ordinary one, for a let-go in the confirm (CORE-KIKON-UNDO!)
   (burst nil)                           ; the burst mode pressed this step (:white :blue :orange; applied after both stepped)

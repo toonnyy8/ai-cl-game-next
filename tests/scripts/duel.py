@@ -705,6 +705,8 @@ def ken_shikai_script():
             ("SH burst to P2 at L2: J J J, SP (TOSSHIN-ISSEN 200; P2, L0)", 84001, (2510, 84092), lambda s: [js(s, 3), sp(s + 1.0)], 4.0),
             ("SH burst to P1 at L3: J, SP (ZANGAESHI 260; P1, L0)", 84001, (2511, 84093), lambda s: [jt(s), sp(s + 0.3)], 4.0),
             ("SH burst to P2 at L0: J J J, SP (100)", 84001, (2510, 84090), lambda s: [js(s, 3), sp(s + 1.0)], 4.0),
+            ("SH one combo, NS + SA + J + AS at L0: SP, J, J, SP (+1 once: L0 -> 1)", 84001, (2510, 84090),
+             lambda s: [sp(s), jt(s + 0.5), jt(s + 0.8), sp(s + 1.1)], 4.0),
             ("SH J4 refused at L2: J x5", 84001, (2510, 84092), lambda s: [js(s, 5)], 4.0),
             ("SH special AS P1 at L3: J x4, SP (DAISHARIN 60+60+120)", 84001, (2510, 84093), lambda s: [js(s, 4), sp(s + 1.35)], 4.5),
             ("SH special AS P2 at L3: J x6, SP (INSEKI-GIRI 260)", 84001, (2511, 84093), lambda s: [js(s, 6), sp(s + 2.0)], 5.0),

@@ -998,10 +998,13 @@ the startup (the user, 2026-10-29: 「前搖到 active 吃一發不退」)."
   (<= (getf (mv-params next) :lv 0) (ken-lv e)))
 
 (defun ken-hit (att def res hw mv hazard ranged)
-  "His Shikai's :hit hook (combat.lisp APPLY-HIT): the first clean hit (「打中才算」: not a block, a cancel or an armour) of an NS route,
-the temporary switch's included, or of an AS that keeps the pointer (:params :lv-up) raises L by one, up to *KEN-LV-MAX* (§4 S2)."
-  (declare (ignore def hw ranged))
+  "His Shikai's :hit hook (combat.lisp APPLY-HIT): the first clean hit (「打中才算」: not a block, a cancel or an armour) of an NS segment,
+the temporary switch's included, or of an AS that keeps the pointer (:params :lv-up) raises L by one, up to *KEN-LV-MAX* (§4 S2); once a
+combo (the victim's: his first hit starts a new one; the user 2026-11-03: 「一整套攻擊」中有用上一段 NS 或 AS 才解放一階段, §13)."
+  (declare (ignore hw ranged))
   (let ((f (fighter att)))
+    (when (and (member res '(:hit :counter)) (<= (fighter-combo-hits (fighter def)) 1))
+      (setf (fighter-lv-got f) nil))                   ; a new combo
     (when (and mv (not hazard) (member res '(:hit :counter)) (not (fighter-lv-got f))
                (or (eq (fighter-cls f) :ns) (getf (mv-params mv) :lv-up)))
       (setf (fighter-lv-got f) t)

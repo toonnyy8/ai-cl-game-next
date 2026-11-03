@@ -69,7 +69,7 @@ Asked, answered (verbatim):
 | # | Rule | Knob (mine) |
 |---|---|---|
 | S1 | L runs 0 → 3 and belongs to the current pointer; a match, the awakening and a return from the Bankai start it at 0 | max 3 |
-| S2 | +1 L for each NS route or same-pointer AS that lands at least one unguarded hit (once per route, not per hit); guarded / cancelled / whiffed: +0 | 1 per route |
+| S2 | +1 L for each NS route or same-pointer AS that lands at least one unguarded hit (once per route, not per hit); guarded / cancelled / whiffed: +0. **Since §13: once per combo** | 1 per route → 1 per combo |
 | S3 | Segments by L: NS 1 + L (cap 3), AS 1 + L (cap 3) | L0 1/1, L1 2/2, L2+ 3/3 |
 | S4 | Which pointer an AS writes: the core's press count (J1–J2 + SP → pointer 1's AS, J3+ + SP → pointer 2's AS) | `:as-by-press` |
 | S5 | An AS that writes the **other** pointer is the burst: its segments 1 + the old L, damage × (1 + 0.2 L); then L = 0 on the new pointer | ×1.0 / 1.2 / 1.4 / 1.6 |
@@ -395,3 +395,17 @@ Requests, verbatim:
 
 Checks: host tests 9831 ALL PASS (the clip list takes `:ke-s-flick`), control 100, touch 100, pkgcheck clean, the Shikai script's 16
 scenes log the same hits and L as §11, G2 identical to the reference (II, IK 29 lines 286.2 s, KK 30 lines 300.7 s). Playtest Artifact v292.
+
+## 13. L once per combo (the user, 2026-11-03)
+
+「現在是用過一段 NS 或 AS 就解放一階段，但我希望是「一整套攻擊」中有用上一段 NS 或 AS 才解放一階段」
+
+S2 was once per route: an NS route that landed and an AS later in the same combo each gave +1. Now **one combo** (the victim's: from his
+first hit to his return to neutral, the HUD's combo count) that lands at least one NS segment (the temporary switch's included) or a
+same-pointer AS gives +1, however many routes it holds. `ken-hit` clears `fighter-lv-got` on the combo's first hit (the victim's
+`combo-hits` ≤ 1 after the hit, any move); `core-snap-lv!` no longer clears it at a route's start (it only snaps the level). A guarded,
+cancelled or whiffed NS / AS still gives nothing; a level gained opens segments from the next route on, as before.
+
+Checks: the Shikai script's new scene (P1 at L0: SP, J, J, SP = NS1a → SA → J2 → AS1, one combo): `P1 L1` once, at the lunge; the old
+rule gave L2 at AS1. The other 16 scenes log as in §11 (the temporary switch's L3 now comes on NS2c, the victim having recovered before
+it). Host tests 9831 ALL PASS, control 100, touch 100, pkgcheck clean, G2 identical. Playtest Artifact v297.

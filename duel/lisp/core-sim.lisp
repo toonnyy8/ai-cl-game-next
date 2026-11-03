@@ -47,9 +47,10 @@ charged SA itself (its own :dmg is written high) nor on a hazard."
 
 (defun core-snap-lv! (e f)
   "A new NS route or AS starts: its unlock level is the kit's :lv hook now (Kenpachi's Shikai, DUEL_KEN_V3 §4: its segments' :params :lv;
-a level gained in the route opens segments from the next route on), and nothing of it has raised the level yet. No hook: 99 (no cap)."
+a level gained in the route opens segments from the next route on). No hook: 99 (no cap). (FIGHTER-LV-GOT is the kit's own: Kenpachi's
+:hit hook clears it on a combo's first hit, once a combo since 2026-11-03.)"
   (let ((h (kit-hook (fighter-kit f) :lv)))
-    (setf (fighter-lv-cap f) (if h (funcall h e) 99) (fighter-lv-got f) nil)))
+    (setf (fighter-lv-cap f) (if h (funcall h e) 99))))
 
 (defun core-seg-ok-p (f mv)
   "Is segment MV open in F's route (its :params :lv at most the level read at the route's start, CORE-SNAP-LV!)? A move without one: T."
