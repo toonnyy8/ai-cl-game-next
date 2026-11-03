@@ -382,7 +382,8 @@ Requests, verbatim:
    borrowed clip until the art round. Presentation only.
 2. 「請將鏡頭改成兩個角色越接近時，拍攝角度就越接近側面」: the behind camera's swing is now a blend, from `*behind-side*` 30° at 6 m and
    farther to `*behind-close*` 90° (was 40°, and the larger of the two) at 2 m; the portrait camera the same (`*pt-close*` 15 → 90).
-   After the playtest 90 → 75 for both (「改成最多轉到 75 的度」, DEVLOG §563).
+   After the playtest 90 → 75 for both (「改成最多轉到 75 的度」, DEVLOG §563), then 70 with the swing starting at 12 m instead of 6
+   (`*behind-blend-far*`; 「改成 70 度，然後增加鏡頭轉換的緩沖距離到 12 m」, DEVLOG §564).
    Only the look: the stick still follows the sim's `*behind-yaw*` (W = toward the opponent, on screen rightward when side-on).
    DUEL_DESIGN §9.
 3. 「始解握住刀柄的位置應該要在介於靠近白色上緣 1/5~2/5 的位置」: read as the white haft's top (the blade end, y 0.08). The right hand
