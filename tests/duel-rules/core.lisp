@@ -314,7 +314,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (let ((q1 (mv :yamamoto :base :ya-j1)) (q2 (mv :yamamoto :base :ya-j2)))
   (check (= 23 (nth-value 1 (free-steps q1))))
   (check (= 6 (- (+ (- (mv-total q1) *chain-lead*) (mv-s q2)) (nth-value 1 (free-steps q1))))))
-(check (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-s-j1)) (/ 7.0 9.0)))  ; hit pose on the later hit frame (a clip authored at 7)
+(check (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-s-j1)) 1.0))  ; its own clip, authored at its startup 9 (DUEL_KEN_V3 §15)
 (check (~= (mv-clip-speed (mv :kenpachi :base :ke-j1)) 1.0))
 ;; KOSEI (§5): x1 at a full guard gauge, x3 empty, x2 half; a JJJ (g 24) pays 4.8 R / 7.2 FS full, 14.4 / 21.6 empty (FS x3, 2026-10-29)
 (check (and (~= (kosei-mult 100.0) 1.0) (~= (kosei-mult 0.0) 3.0) (~= (kosei-mult 50.0) 2.0) (~= *kosei-bonus* 2.0)))
@@ -850,6 +850,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ke-s-st-1 :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
  :ke-kt-jab ; KATATE (DUEL_KEN_KATATE)
  :ke-s-flick ; the V3 Shikai's hilt flick (DUEL_KEN_V3 §12)
+ :ke-s-cut1 :ke-s-cut2 :ke-s-cut3 :ke-s-cut4 :ke-s-cut5 :ke-s-cut6 :ke-s-cut7 :ke-s-cut-sa ; the V3 Shikai's J string and SA (§15)
  ; NS3's charges (DUEL_KEN_CORE)
  :sh-skate-b :sh-slide-r :sh-slide-l :ke-run :ke-skate-b :ke-slide-r :ke-slide-l ; the runs (facing the opponent)
  :ke-drink ; the cups
@@ -903,7 +904,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :br-recall :br-rc0 :br-rc1 :br-rc2 :br-rc3 :br-rc4 :br-to-en ; Lille II's own (the art batch, DUEL_LILLE_V2 §12) ...
  :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en ; ... and the owl's (the backstep gone, v3 R3)
  :br-w-guard :br-w-guard-hit :br-o-guard :br-o-guard-hit :br-oe-guard :br-oe-guard-hit ; his wing wall (the awakened guard)
- :ke-k-q1 :ke-k-q2 :ke-k-f1 :ke-k-f2 :ke-k-spin :ke-k-meteor ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2)
+ :ke-k-q2 :ke-k-f1 :ke-k-f2 :ke-k-spin :ke-k-meteor ; Kenpachi's cup 1 and cup 3 sets (DUEL_KEN_REWORK §6.2; :ke-k-q1 no move's since §15)
             
  :ke-b-q1 :ke-b-q2 :ke-b-f1 :ke-b-f2 :ke-b-f3 :ke-b-split :ke-b-cut ; the Bankai's own (§8)
  ; KATAUDE's (§8)
