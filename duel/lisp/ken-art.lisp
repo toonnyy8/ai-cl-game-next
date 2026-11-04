@@ -470,8 +470,11 @@ the same day: 「幫我將刀柄加長 1.3 倍」, longer downward: 0.99 -> 1.28
 (defparameter *ke-bk-grip* 0.5 "Where the right hand holds its haft: the fraction of the white haft below its top (0.08), as *KE-NOZ-GRIP* (2026-11-04, the
 user: 「角色持握 0.5 的位置」; 0 before: the hand at the haft's top).")
 (defun ke-bk-grip-y () "How far the broken cleaver slides out of the hand for *KE-BK-GRIP*, m (0.56)." (- (* *ke-bk-grip* 0.76 *ke-bk-haft*) 0.08))
-(defparameter *ke-bk-scale* 0.675 "Its head scaled about the bar's joint (copy of *KE-NOZ-SCALE*, 2026-11-04; 1.5 -> 0.45, x0.3, the user the same day:
-「刀身縮小至 0.3 倍」; -> 0.675, x1.5: 「刀身放大 1.5 倍」); the black bar and the haft keep their size.")
+(defparameter *ke-bk-size* 0.9 "The whole broken cleaver (haft, bar, head) scaled about the hand (2026-11-04, the user: 「整體縮小成 0.8 倍，刀身額外再
+縮小成 0.8 倍」, then 「兩個倍率都從 0.8 改成 0.9」; 1 before).")
+(defparameter *ke-bk-scale* 0.6075 "Its head scaled about the bar's joint (copy of *KE-NOZ-SCALE*, 2026-11-04; 1.5 -> 0.45, x0.3, the user the same day:
+「刀身縮小至 0.3 倍」; -> 0.675, x1.5: 「刀身放大 1.5 倍」; -> 0.54, x0.8: 「刀身額外再縮小成 0.8 倍」, on top of *KE-BK-SIZE*; -> 0.6075, x0.9: 「兩個倍率都從 0.8 改成 0.9」); the black bar
+and the haft keep their size.")
 (defparameter *ke-bk-bar* 0.75 "The black slanted bar's length (haft to head) / Nozarashi's 0.34 m, its slant kept, the head moved down with its
 joint (2026-11-04, the user: 「斜槓連接處縮短成 0.75」; 1 before).")
 (defun ke-bk-joint-y () "The bar's joint with the head, y (0.4 at *KE-BK-BAR* 1)." (+ 0.07 (* 0.33 *ke-bk-bar*)))
@@ -551,15 +554,15 @@ parallel edge at y 0.174; below that (the point's side) pulled toward the edge l
         (let ((y (- -0.67 drop)))
           (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))))
 
-(defweapon :ke-broken (:length 1.22 :base 0.7)           ; :length the drawn far end (the break 0.65 up the head frame + KE-BK-GRIP-Y 0.56;
-                                                        ; 0.9 before, which no longer matched the x1.5 head since 11-03; literal: the
-                                                        ; host FK test reads it unevaluated), :base the head's foot (the trail's start)
-  (:solid (mb-at (mb :y (ke-bk-grip-y))                  ; held halfway down the haft (§23)
+(defweapon :ke-broken (:length 1.06 :base 0.63)         ; :length the drawn far end ((the break 0.62 up the head frame + KE-BK-GRIP-Y 0.56)
+                                                        ; x *KE-BK-SIZE* 0.9; literal: the host FK test reads it unevaluated), :base
+                                                        ; the head's foot (the trail's start)
+  (:solid (mb-at (mb :s *ke-bk-size*) (mb-at (mb :y (ke-bk-grip-y))   ; all of it x0.9 about the hand (§25), held halfway down the haft (§23)
           (ke-mb-bk-head mb 0.9 *ke-bk-haft*)            ; the haft 1.69 times Nozarashi's first, longer below (0.76 -> 1.28 m)
           (with-ke-bk-tilt (mb)
             (mbc mb #x1C1C20)                            ; the square break, chipped
             (loop for (z r) in '((0.13 0.5) (0.3 -0.4) (0.46 0.7))
-                  do (mb-at (mb :y 0.9 :z z :roll r) (mb-box mb 0.05 0.045 0.05)))))))
+                  do (mb-at (mb :y 0.9 :z z :roll r) (mb-box mb 0.05 0.045 0.05))))))))
 
 ;;; ---------------------------------------------------------------- poses
 (defpose :ke-stance ()

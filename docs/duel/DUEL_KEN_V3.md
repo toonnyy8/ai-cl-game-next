@@ -708,3 +708,13 @@ PASS, pkgcheck clean. (G2 ran once after the first two steps, identical, before 
 The user: 「抱歉是我沒說清楚，刀尖依舊輕微下彎，刀刃則改成與刀柄平行」: 「跟刀柄平行」 meant the edge, not the point. `*ke-bk-hook*` 0 → 0.5
 (the point 0.12 m below the edge line, in the head's frame); the edge and the spine stay parallel to the haft (`*ke-bk-pitch*` 0, the
 spine flat). Nozarashi byte-identical, host tests 9831 ALL PASS, pkgcheck clean. Playtest v317.
+
+## 25. The Bankai cleaver scaled down (2026-11-04)
+
+The user: 「整體縮小成 0.8 倍，刀身額外再縮小成 0.8 倍」, then 「兩個倍率都從 0.8 改成 0.9」.
+- `*ke-bk-size*` 0.9 (new): the whole cleaver (haft, bar, head) scaled about the hand, so the grip stays put;
+- the head `*ke-bk-scale*` 0.675 → 0.6075 (×0.9 more, on top of the size);
+- `:length` 1.22 → 1.06 (the break 0.62 up the head frame + the grip slide 0.56, ×0.9), `:base` 0.7 → 0.63.
+The placeholder Bankai J1 / J2 reaches go back to 1.28 (from §23's 1.48 / §24's 1.44): the drawn far end is near its old 0.9 again
+and the Bankai is checked one-sided (the art not past the volume + 0.15), passed at 1.28 with the 0.8 and 0.9 sizes. Nozarashi
+byte-identical; host tests 9831 ALL PASS, pkgcheck clean (no match tests at this stage). Playtest v318.
