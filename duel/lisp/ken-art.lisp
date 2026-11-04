@@ -1433,6 +1433,334 @@ parallel edge at y 0.174; below that (the point's side) pulled toward the edge l
   (27 (:root :u -0.37) (:spine :flex 56))
   (:end :ke-b-zh-stance))
 (pushnew :ke-zh-cut5 *grip-clips*)                      ; (J5 two-handed: the left fist on the handle, GRIP-LEFT!)
+;;; 狂嵐's NS a-d and the AS finisher (DUEL_KEN_V3 §29): planes the J string doesn't use. a the tell (crouched, the head trailing
+;;; on the floor behind his right, held), the rising cut low right -> high left on the 3 m lunge; b one full turn to his right,
+;;; the arm straight out, a flat circle at the shoulder; c crouched, one full turn to his left at the knees; d the haft spun
+;;; flat over his head like a propeller, then the cross: overhead right steep down to his left, high left down to his right;
+;;; the finisher a leap, one turn in the air, the vertical chop down the centre on landing. Arms by FK; frame 0 of b / c / d
+;;; is the segment before's landing (an NS links on as soon as its active frames end); a and the finisher blend in (:blend 3).
+;;; The full turns (root yaw, the wrist's twist) are rewound 0.001 s after, the same orientation.
+(defpose :ke-kr-na-c (:base :ke-b-kr-stance)            ; NS a's tell: squatted, the head on the floor behind his right
+  (:root :u -0.4 :f -0.06) (:pelvis :twist 20) (:spine :flex 50 :side 0) (:chest :flex 8 :twist -34) (:head :flex -46 :twist 10)
+  (:arm-r :flex 23 :side 26 :twist 30) (:elbow-r :flex 0) (:hand-r :flex 79 :twist 94 :side 38)
+  (:arm-l :flex 50 :side 40 :twist 0) (:elbow-l :flex 60) (:hand-l :flex 50)
+  (:thigh-l :flex 70 :side 30) (:knee-l :flex 104) (:thigh-r :flex 20 :side 40) (:knee-r :flex 80))
+(defpose :ke-kr-na-h (:base :ke-b-kr-stance)            ; its hit: rising through the front to his left, lunged
+  (:root :u -0.22 :f 0.4) (:pelvis :twist -14) (:spine :flex 18 :side 0) (:chest :flex 0 :twist 30) (:head :flex -12 :twist -8)
+  (:arm-r :flex 30 :side -43 :twist -14) (:elbow-r :flex 70) (:hand-r :flex 184 :twist 91 :side 35)
+  (:arm-l :flex -30 :side 50 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-r :flex 55 :side 18) (:knee-r :flex 60) (:thigh-l :flex -20 :side 25) (:knee-l :flex 30))
+(defpose :ke-kr-na-a (:base :ke-b-kr-stance)            ; landed: the head up high to his left
+  (:root :u -0.23 :f 0.42) (:pelvis :twist -18) (:spine :flex 4 :side 6) (:chest :flex 0 :twist 48) (:head :flex -10 :twist -12)
+  (:arm-r :flex 141 :side 70 :twist 0) (:elbow-r :flex 56) (:hand-r :flex 259 :twist -39 :side 0)
+  (:arm-l :flex -30 :side 60 :twist 0) (:elbow-l :flex 15) (:hand-l :flex 10)
+  (:thigh-r :flex 55 :side 18) (:knee-r :flex 55) (:thigh-l :flex -20 :side 25) (:knee-l :flex 28))
+(defpose :ke-kr-nb-w (:base :ke-b-kr-stance)            ; NS b wound: turned to his left, the arm across, the head back
+  (:root :u -0.3 :f 0.1 :yaw 30) (:pelvis :twist -16) (:spine :flex 16 :side 0) (:chest :flex 0 :twist 40) (:head :flex -14 :twist -20)
+  (:arm-r :flex 16 :side -43 :twist 19) (:elbow-r :flex 100) (:hand-r :flex -172 :twist 40 :side 17)
+  (:arm-l :flex 10 :side 40 :twist 0) (:elbow-l :flex 40) (:hand-l :flex 10)
+  (:thigh-l :flex 40 :side 30) (:knee-l :flex 60) (:thigh-r :flex 30 :side 34) (:knee-r :flex 60))
+(defpose :ke-kr-nb-s (:base :ke-b-kr-stance)            ; the spin: the arm straight out at the shoulder, the blade on from it
+  (:root :u -0.2 :f 0.06) (:pelvis :twist 0) (:spine :flex 12 :side -4) (:chest :flex 0 :twist -10) (:head :flex -12 :twist 0)
+  (:arm-r :flex -21 :side 94 :twist -6) (:elbow-r :flex 81) (:hand-r :flex -123 :twist 1 :side 3)
+  (:arm-l :flex 30 :side 75 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-l :flex 30 :side 30) (:knee-l :flex 50) (:thigh-r :flex 30 :side 30) (:knee-r :flex 50))
+(defpose :ke-kr-nb-a (:base :ke-kr-nb-s)                ; landed: round, settling
+  (:root :u -0.22) (:spine :flex 16) (:chest :twist -24))
+(defpose :ke-kr-nc-w (:base :ke-b-kr-stance)            ; NS c wound: dropped, turned to his right, the head low behind
+  (:root :u -0.44 :f 0.04 :yaw -30) (:pelvis :twist 18) (:spine :flex 40 :side 0) (:chest :flex 6 :twist -40) (:head :flex -36 :twist 14)
+  (:arm-r :flex 37 :side 20 :twist -11) (:elbow-r :flex 10) (:hand-r :flex -114 :twist -30 :side 6)
+  (:arm-l :flex 40 :side 40 :twist 0) (:elbow-l :flex 50) (:hand-l :flex 30)
+  (:thigh-l :flex 70 :side 30) (:knee-l :flex 100) (:thigh-r :flex 20 :side 42) (:knee-r :flex 64))
+(defpose :ke-kr-nc-s (:base :ke-b-kr-stance)            ; the low spin: squatted, the blade out at the knees
+  (:root :u -0.44 :f 0.06) (:pelvis :twist 0) (:spine :flex 42 :side 4) (:chest :flex 6 :twist 0) (:head :flex -38 :twist 0)
+  (:arm-r :flex 4 :side 51 :twist 4) (:elbow-r :flex 25) (:hand-r :flex -238 :twist -93 :side -32)
+  (:arm-l :flex 20 :side 60 :twist 0) (:elbow-l :flex 40) (:hand-l :flex 30)
+  (:thigh-l :flex 74 :side 32) (:knee-l :flex 104) (:thigh-r :flex 20 :side 46) (:knee-r :flex 62))
+(defpose :ke-kr-nc-a (:base :ke-kr-nc-s)                ; landed: carried on round to his left
+  (:root :yaw 16) (:chest :twist 20))
+(defpose :ke-kr-nd-p (:base :ke-b-kr-stance)            ; NS d's propeller: risen, the arm up, the blade flat over his head
+  (:root :u -0.2 :f 0.1) (:pelvis :twist 0) (:spine :flex 0 :side 0) (:chest :flex 0 :twist 0) (:head :flex -14 :twist 0)
+  (:arm-r :flex 165 :side 10 :twist 0) (:elbow-r :flex 10) (:hand-r :flex 0 :twist 0 :side 0)
+  (:arm-l :flex 20 :side 70 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-l :flex 30 :side 26) (:knee-l :flex 40) (:thigh-r :flex 20 :side 28) (:knee-r :flex 40))
+(defpose :ke-kr-nd-c1 (:base :ke-b-kr-stance)           ; the cross, cocked: overhead right, the head up behind
+  (:root :u -0.16 :f 0.1) (:pelvis :twist 16) (:spine :flex 4 :side 0) (:chest :flex 0 :twist -26) (:head :flex -14 :twist 8)
+  (:arm-r :flex 143 :side -3 :twist -4) (:elbow-r :flex 92) (:hand-r :flex -94 :twist -22 :side 1)
+  (:arm-l :flex 40 :side 40 :twist 0) (:elbow-l :flex 40) (:hand-l :flex 10)
+  (:thigh-l :flex 30 :side 26) (:knee-l :flex 40) (:thigh-r :flex 20 :side 28) (:knee-r :flex 40))
+(defpose :ke-kr-nd-d1 (:base :ke-b-kr-stance)           ; the first cut's hit: steep down through the front to his left
+  (:root :u -0.24 :f 0.34) (:pelvis :twist -6) (:spine :flex 26 :side 0) (:chest :flex 0 :twist 16) (:head :flex -14 :twist -4)
+  (:arm-r :flex 43 :side -17 :twist 12) (:elbow-r :flex 139) (:hand-r :flex -172 :twist -1 :side 4)
+  (:arm-l :flex -10 :side 55 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-r :flex 50 :side 20) (:knee-r :flex 55) (:thigh-l :flex -15 :side 25) (:knee-l :flex 30))
+(defpose :ke-kr-nd-c2 (:base :ke-b-kr-stance)           ; re-cocked: the backhand up over his left shoulder
+  (:root :u -0.2 :f 0.3) (:pelvis :twist -14) (:spine :flex 8 :side 4) (:chest :flex 0 :twist 30) (:head :flex -12 :twist -10)
+  (:arm-r :flex 172 :side 49 :twist 23) (:elbow-r :flex 35) (:hand-r :flex -85 :twist -18 :side 2)
+  (:arm-l :flex -10 :side 60 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-r :flex 50 :side 20) (:knee-r :flex 55) (:thigh-l :flex -15 :side 25) (:knee-l :flex 30))
+(defpose :ke-kr-nd-d2 (:base :ke-b-kr-stance)           ; the second cut's hit: down through the front to his right, the left foot in
+  (:root :u -0.26 :f 0.38) (:pelvis :twist 6) (:spine :flex 28 :side 0) (:chest :flex 0 :twist -14) (:head :flex -14 :twist 4)
+  (:arm-r :flex 45 :side 18 :twist 6) (:elbow-r :flex 147) (:hand-r :flex -179 :twist -13 :side 2)
+  (:arm-l :flex 10 :side 60 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-l :flex 50 :side 20) (:knee-l :flex 55) (:thigh-r :flex -15 :side 25) (:knee-r :flex 30))
+(defpose :ke-kr-nd-a (:base :ke-b-kr-stance)            ; landed: the head low out to his right
+  (:root :u -0.3 :f 0.4) (:pelvis :twist 10) (:spine :flex 36 :side 0) (:chest :flex 0 :twist -30) (:head :flex -18 :twist 8)
+  (:arm-r :flex 16 :side 7 :twist 0) (:elbow-r :flex 48) (:hand-r :flex -77 :twist -9 :side 0)
+  (:arm-l :flex 10 :side 60 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-l :flex 50 :side 20) (:knee-l :flex 55) (:thigh-r :flex -15 :side 25) (:knee-r :flex 30))
+(defpose :ke-kr-fin-up (:base :ke-b-kr-stance)          ; the finisher in the air: tucked, the head up behind his head
+  (:root :u 0.2 :f 0.1) (:pelvis :twist 0) (:spine :flex -10 :side 0) (:chest :flex 0 :twist -6) (:head :flex -10 :twist 0)
+  (:arm-r :flex 141 :side 10 :twist 1) (:elbow-r :flex 74) (:hand-r :flex -71 :twist -17 :side 1)
+  (:arm-l :flex 60 :side 50 :twist 0) (:elbow-l :flex 40) (:hand-l :flex 10)
+  (:thigh-l :flex 80 :side 20) (:knee-l :flex 110) (:thigh-r :flex 60 :side 20) (:knee-r :flex 110))
+(defpose :ke-kr-fin-h (:base :ke-b-kr-stance)           ; its hit: landed, chopped straight down the centre
+  (:root :u -0.3 :f 0.4) (:pelvis :twist 0) (:spine :flex 36 :side 0) (:chest :flex 0 :twist 0) (:head :flex -22 :twist 0)
+  (:arm-r :flex 59 :side 7 :twist 7) (:elbow-r :flex 150) (:hand-r :flex -193 :twist -8 :side 8)
+  (:arm-l :flex -20 :side 50 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-r :flex 60 :side 18) (:knee-r :flex 72) (:thigh-l :flex -18 :side 25) (:knee-l :flex 34))
+(defpose :ke-kr-fin-a (:base :ke-b-kr-stance)           ; landed: folded over the head on the floor ahead
+  (:root :u -0.4 :f 0.44) (:pelvis :twist 0) (:spine :flex 50 :side 0) (:chest :flex 0 :twist 0) (:head :flex -28 :twist 0)
+  (:arm-r :flex 29 :side -39 :twist -1) (:elbow-r :flex 102) (:hand-r :flex -121 :twist 19 :side 0)
+  (:arm-l :flex -30 :side 50 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-r :flex 70 :side 18) (:knee-r :flex 90) (:thigh-l :flex -18 :side 25) (:knee-l :flex 44))
+(defstrike :ke-kr-ns-a (14 4 20 :base :ke-b-kr-stance)
+  (0 :ke-b-kr-stance)
+  (2 (:root :u -0.38 :f -0.02) (:spine :flex 36) (:chest :twist -22)
+     (:arm-r :flex -11 :side 92 :twist 34) (:elbow-r :flex 130) (:hand-r :flex -17 :twist 92 :side -18))   ; the head lowered behind
+  (4 :ke-kr-na-c)                                                                                  ; dropped into the tell
+  (12 (:root :u -0.42 :f -0.08) (:chest :twist -37) (:arm-r :flex 21))                             ; held
+  (:s :snap :ke-kr-na-h)
+  (17 (:root :f 0.42) (:chest :twist 38))
+  (:a :ke-kr-na-a)
+  (18.001 (:hand-r :flex -101))                                                                    ; (the same orientation)
+  (28 (:root :u -0.18) (:chest :twist 50))
+  (:end :ke-b-kr-stance))
+(defstrike :ke-kr-ns-b (10 4 18 :base :ke-b-kr-stance)
+  (0 :ke-kr-na-a (:hand-r :flex -101))
+  (3 :ke-kr-nb-w)                                                                                  ; wound to his left
+  (4 (:root :yaw -5) (:arm-r :flex 22 :side 99 :twist -7) (:elbow-r :flex 121) (:hand-r :flex -167 :twist -10 :side 2))   ; out in front
+  (5 :snap :ke-kr-nb-s (:root :yaw -50))                                                          ; out, turning right: a key every 90 deg
+  (7 :snap (:root :yaw -140))
+  (9 :snap (:root :yaw -230))
+  (:s :snap (:root :yaw -275))
+  (12 :snap (:root :yaw -320))
+  (:a :snap (:root :yaw -360))
+  (14.001 (:root :yaw 0))                                                                          ; (the same facing)
+  (20 :ke-kr-nb-a)
+  (:end :ke-b-kr-stance))
+(defstrike :ke-kr-ns-c (10 4 18 :base :ke-b-kr-stance)
+  (0 :ke-kr-nb-a)
+  (3 :ke-kr-nc-w)                                                                                  ; dropped, wound to his right
+  (5 :snap :ke-kr-nc-s (:root :yaw 50))                                                           ; turning left at the knees
+  (7 :snap (:root :yaw 140))
+  (9 :snap (:root :yaw 230))
+  (:s :snap (:root :yaw 275))
+  (12 :snap (:root :yaw 320))
+  (:a :snap (:root :yaw 360))
+  (14.001 (:root :yaw 0))                                                                          ; (the same facing)
+  (20 :ke-kr-nc-a)
+  (20.001 (:hand-r :flex 122))                                                                     ; (the same orientation)
+  (:end :ke-b-kr-stance))
+(defstrike :ke-kr-ns-d (8 8 14 :base :ke-b-kr-stance)
+  (0 :ke-kr-nc-a (:hand-r :flex 122))
+  (2 :ke-kr-nd-p)                                                                                 ; risen, the arm up: the propeller
+  (3 :snap (:hand-r :twist 90))
+  (4 :snap (:hand-r :twist 180))
+  (5 :snap (:hand-r :twist 270))
+  (6 :snap (:hand-r :twist 360))
+  (6.001 (:hand-r :twist 0))                                                                       ; (the same orientation)
+  (7 :ke-kr-nd-c1)                                                                                 ; cocked overhead right
+  (:s :snap :ke-kr-nd-d1)                                                                          ; the first cut (hits 8-10)
+  (10 :ke-kr-a1)                                                                                   ; down to his left
+  (12 :ke-kr-nd-c2)                                                                                ; the backhand re-cocked
+  (13 :snap :ke-kr-nd-d2)                                                                          ; the second (hits 13-15)
+  (:a :ke-kr-nd-a)
+  (24 (:root :u -0.28) (:chest :twist -36))
+  (:end :ke-b-kr-stance))
+(defstrike :ke-kr-fin (12 4 22 :base :ke-b-kr-stance)
+  (0 :ke-b-kr-stance)
+  (2 (:root :u -0.38 :f -0.02) (:spine :flex 36) (:chest :twist -22)
+     (:arm-r :flex -11 :side 92 :twist 34) (:elbow-r :flex 130) (:hand-r :flex -17 :twist 92 :side -18))
+  (3 :ke-kr-na-c)                                                                                  ; squatted to leap
+  (5 :snap :ke-kr-fin-up (:root :u 0.05))                                                         ; off the floor, turning left
+  (7 :snap (:root :yaw 90 :u 0.2))
+  (9 :snap (:root :yaw 180 :u 0.28))
+  (10 :snap (:root :yaw 270 :u 0.25))
+  (11 :snap (:root :yaw 330 :u 0.15))
+  (:s :snap :ke-kr-fin-h (:root :yaw 360))                                                        ; landed: the chop
+  (12.001 (:root :yaw 0))                                                                          ; (the same facing)
+  (14 (:root :u -0.34 :f 0.42) (:spine :flex 46))                                                  ; the jolt
+  (:a :ke-kr-fin-a)
+  (28 (:root :u -0.39) (:spine :flex 48))
+  (:end :ke-b-kr-stance))
+;;; 斬壞's NS a-d and the AS finisher (DUEL_KEN_V3 §29), each 由緩至急 as the J string (a charge barely moving, the coil :snap,
+;;; a trembling hold, the release in the last 2 frames, an overshoot, the weight dragging back). a the head carried on the
+;;; right shoulder, squatted; a hop and the one-hand slam, the body falling after it; b the head dragged back along the
+;;; floor to his feet, then straight up the centre; c both hands, wound far to his right, the flat sweep at the chest
+;;; through to his left; d one full turn to his right (the charge), the backhand raised over his left shoulder, the heavy
+;;; diagonal down to his right; the finisher both hands, wound low behind his left with the head on the floor, the whole
+;;; body rising through to his right. c and the finisher two-handed (GRIP-LEFT!).
+(defpose :ke-zh-na-c (:base :ke-b-zh-stance)            ; NS a coiled: squatted, the head on the right shoulder
+  (:root :u -0.5 :f 0.0) (:pelvis :twist 14) (:spine :flex 40 :side 0) (:chest :flex 10 :twist -20) (:head :flex -44 :twist 6)
+  (:arm-r :flex 26 :side -16 :twist -10) (:elbow-r :flex 152) (:hand-r :flex 22 :twist -30 :side 0)
+  (:arm-l :flex 30 :side 60 :twist 0) (:elbow-l :flex 60) (:hand-l :flex 50)
+  (:thigh-r :flex 50 :side 32) (:knee-r :flex 100) (:thigh-l :flex 60 :side 30) (:knee-l :flex 104))
+(defpose :ke-zh-na-u (:base :ke-b-zh-stance)            ; the hop: risen off the floor, hoisted overhead
+  (:root :u -0.06 :f 0.24) (:pelvis :twist 4) (:spine :flex -12 :side 0) (:chest :flex 0 :twist -8) (:head :flex -12 :twist 0)
+  (:arm-r :flex 144 :side 7 :twist 0) (:elbow-r :flex 62) (:hand-r :flex -70 :twist -12 :side 0)
+  (:arm-l :flex 60 :side 60 :twist 0) (:elbow-l :flex 30) (:hand-l :flex 30)
+  (:thigh-r :flex 50 :side 20) (:knee-r :flex 80) (:thigh-l :flex 10 :side 22) (:knee-l :flex 40))
+(defpose :ke-zh-na-h (:base :ke-b-zh-stance)            ; its hit: slammed down ahead, one hand, falling forward
+  (:root :u -0.28 :f 0.48) (:pelvis :twist 0) (:spine :flex 50 :side 0) (:chest :flex 0 :twist 4) (:head :flex -30 :twist 0)
+  (:arm-r :flex 52 :side 4 :twist 4) (:elbow-r :flex 150) (:hand-r :flex -179 :twist -7 :side 3)
+  (:arm-l :flex -30 :side 50 :twist 0) (:elbow-l :flex 25) (:hand-l :flex 40)
+  (:thigh-r :flex 62 :side 18) (:knee-r :flex 80) (:thigh-l :flex -20 :side 24) (:knee-l :flex 36))
+(defpose :ke-zh-na-a (:base :ke-b-zh-stance)            ; landed: folded over, the head in the floor ahead
+  (:root :u -0.38 :f 0.52) (:pelvis :twist 0) (:spine :flex 62 :side 0) (:chest :flex 4 :twist 4) (:head :flex -36 :twist 0)
+  (:arm-r :flex 32 :side -40 :twist -2) (:elbow-r :flex 115) (:hand-r :flex -122 :twist 24 :side 0)
+  (:arm-l :flex -40 :side 50 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 40)
+  (:thigh-r :flex 72 :side 16) (:knee-r :flex 98) (:thigh-l :flex -20 :side 22) (:knee-l :flex 42))
+(defpose :ke-zh-nb-c (:base :ke-b-zh-stance)            ; NS b coiled: the head dragged back to his feet, squatted over it
+  (:root :u -0.47 :f 0.25) (:pelvis :twist 8) (:spine :flex 56 :side 0) (:chest :flex 10 :twist -6) (:head :flex -46 :twist 0)
+  (:arm-r :flex 15 :side -15 :twist 0) (:elbow-r :flex 110) (:hand-r :flex -82 :twist 12 :side 1)
+  (:arm-l :flex 30 :side 60 :twist 0) (:elbow-l :flex 60) (:hand-l :flex 50)
+  (:thigh-r :flex 50 :side 32) (:knee-r :flex 100) (:thigh-l :flex 60 :side 30) (:knee-l :flex 104))
+(defpose :ke-zh-nb-h (:base :ke-b-zh-stance)            ; its hit: straight up the centre
+  (:root :u -0.29 :f 0.4) (:pelvis :twist 0) (:spine :flex 12 :side 0) (:chest :flex 0 :twist -4) (:head :flex -16 :twist 0)
+  (:arm-r :flex 71 :side 102 :twist 18) (:elbow-r :flex 85) (:hand-r :flex -192 :twist -42 :side -26)
+  (:arm-l :flex -20 :side 60 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 40)
+  (:thigh-r :flex 50 :side 22) (:knee-r :flex 60) (:thigh-l :flex -14 :side 28) (:knee-l :flex 34))
+(defpose :ke-zh-nb-a (:base :ke-b-zh-stance)            ; landed: the head straight up over him
+  (:root :u -0.3 :f 0.42) (:pelvis :twist 0) (:spine :flex -6 :side 0) (:chest :flex 0 :twist -4) (:head :flex -10 :twist 0)
+  (:arm-r :flex 142 :side 7 :twist 0) (:elbow-r :flex 88) (:hand-r :flex -129 :twist -5 :side 0)
+  (:arm-l :flex -20 :side 60 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 40)
+  (:thigh-r :flex 50 :side 22) (:knee-r :flex 56) (:thigh-l :flex -14 :side 28) (:knee-l :flex 30))
+(defpose :ke-zh-nc-c (:base :ke-b-zh-stance)            ; NS c coiled: both hands, wound far to his right at the chest
+  (:root :u -0.4 :f 0.06 :yaw -24) (:pelvis :twist 20) (:spine :flex 30 :side -4) (:chest :flex 6 :twist -50) (:head :flex -34 :twist 20)
+  (:arm-r :flex 5 :side -18 :twist 4) (:elbow-r :flex 135) (:hand-r :flex -21 :twist -91 :side -6)
+  (:arm-l :flex 76 :side 88 :twist 0) (:elbow-l :flex 116) (:hand-l :flex 20)
+  (:thigh-r :flex 30 :side 34) (:knee-r :flex 76) (:thigh-l :flex 56 :side 30) (:knee-l :flex 90))
+(defpose :ke-zh-nc-h (:base :ke-b-zh-stance)            ; its hit: flat through the front at the chest
+  (:root :u -0.3 :f 0.46) (:pelvis :twist -10) (:spine :flex 28 :side 0) (:chest :flex 0 :twist 16) (:head :flex -22 :twist -6)
+  (:arm-r :flex 25 :side -43 :twist 10) (:elbow-r :flex 114) (:hand-r :flex -143 :twist 35 :side 22)
+  (:arm-l :flex 145 :side 110 :twist 0) (:elbow-l :flex 54) (:hand-l :flex 20)
+  (:thigh-r :flex 56 :side 20) (:knee-r :flex 66) (:thigh-l :flex -16 :side 28) (:knee-l :flex 34))
+(defpose :ke-zh-nc-a (:base :ke-b-zh-stance)            ; landed: swept on round to his left
+  (:root :u -0.32 :f 0.46 :yaw 20) (:pelvis :twist -22) (:spine :flex 26 :side 4) (:chest :flex 0 :twist 50) (:head :flex -20 :twist -16)
+  (:arm-r :flex 122 :side 101 :twist 9) (:elbow-r :flex 65) (:hand-r :flex -120 :twist -13 :side -5)
+  (:arm-l :flex 112 :side 105 :twist 0) (:elbow-l :flex 87) (:hand-l :flex 20)
+  (:thigh-r :flex 56 :side 20) (:knee-r :flex 66) (:thigh-l :flex -16 :side 28) (:knee-l :flex 34))
+(defpose :ke-zh-nd-c (:base :ke-b-zh-stance)            ; NS d coiled: the backhand raised high over his left shoulder
+  (:root :u -0.3 :f 0.1) (:pelvis :twist -14) (:spine :flex 10 :side 6) (:chest :flex 0 :twist 34) (:head :flex -16 :twist -14)
+  (:arm-r :flex 171 :side 52 :twist 23) (:elbow-r :flex 22) (:hand-r :flex -81 :twist -12 :side 4)
+  (:arm-l :flex 30 :side 60 :twist 0) (:elbow-l :flex 40) (:hand-l :flex 40)
+  (:thigh-r :flex 30 :side 30) (:knee-r :flex 60) (:thigh-l :flex 40 :side 26) (:knee-l :flex 64))
+(defpose :ke-zh-nd-h (:base :ke-b-zh-stance)            ; its hit: the diagonal down through the front to his right, the left foot in
+  (:root :u -0.34 :f 0.48) (:pelvis :twist 10) (:spine :flex 34 :side 0) (:chest :flex 0 :twist -16) (:head :flex -24 :twist 6)
+  (:arm-r :flex 60 :side 22 :twist -2) (:elbow-r :flex 133) (:hand-r :flex -184 :twist -10 :side -2)
+  (:arm-l :flex 10 :side 70 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 40)
+  (:thigh-l :flex 56 :side 20) (:knee-l :flex 70) (:thigh-r :flex -16 :side 28) (:knee-r :flex 34))
+(defpose :ke-zh-nd-a (:base :ke-b-zh-stance)            ; landed: folded, the head low out to his right
+  (:root :u -0.4 :f 0.5) (:pelvis :twist 16) (:spine :flex 48 :side 0) (:chest :flex 4 :twist -34) (:head :flex -30 :twist 10)
+  (:arm-r :flex 23 :side 9 :twist 0) (:elbow-r :flex 28) (:hand-r :flex -56 :twist -9 :side 0)
+  (:arm-l :flex 10 :side 70 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 40)
+  (:thigh-l :flex 60 :side 20) (:knee-l :flex 80) (:thigh-r :flex -16 :side 28) (:knee-r :flex 38))
+(defpose :ke-zh-fin-c (:base :ke-b-zh-stance)           ; the finisher coiled: both hands low behind his left, the head on the floor
+  (:root :u -0.43 :f 0.0 :yaw 30) (:pelvis :twist -20) (:spine :flex 44 :side 6) (:chest :flex 8 :twist 50) (:head :flex -40 :twist -18)
+  (:arm-r :flex 28 :side -41 :twist 27) (:elbow-r :flex 37) (:hand-r :flex 228 :twist -13 :side -15)
+  (:arm-l :flex 0 :side -75 :twist 0) (:elbow-l :flex 79) (:hand-l :flex 20)
+  (:thigh-r :flex 56 :side 30) (:knee-r :flex 100) (:thigh-l :flex 30 :side 36) (:knee-l :flex 76))
+(defpose :ke-zh-fin-w (:base :ke-b-zh-stance)           ; its charge: the head dragged round the front on the floor
+  (:root :u -0.42 :f 0.02 :yaw 15) (:pelvis :twist -5) (:spine :flex 42 :side 2) (:chest :flex 8 :twist 20) (:head :flex -40 :twist -6)
+  (:arm-r :flex 36 :side -42 :twist -22) (:elbow-r :flex 115) (:hand-r :flex 216 :twist 35 :side 15)
+  (:arm-l :flex 30 :side 40 :twist 0) (:elbow-l :flex 60) (:hand-l :flex 20)
+  (:thigh-r :flex 40 :side 32) (:knee-r :flex 90) (:thigh-l :flex 44 :side 32) (:knee-l :flex 90))
+(defpose :ke-zh-fin-h (:base :ke-b-zh-stance)           ; its hit: the whole body rising through the front to his right
+  (:root :u -0.22 :f 0.5) (:pelvis :twist 12) (:spine :flex 16 :side -6) (:chest :flex 0 :twist -20) (:head :flex -16 :twist 8)
+  (:arm-r :flex 87 :side 99 :twist 1) (:elbow-r :flex 66) (:hand-r :flex 162 :twist -32 :side -9)
+  (:arm-l :flex 1 :side -32 :twist 0) (:elbow-l :flex 93) (:hand-l :flex 20)
+  (:thigh-l :flex 52 :side 22) (:knee-l :flex 60) (:thigh-r :flex -14 :side 28) (:knee-r :flex 32))
+(defpose :ke-zh-fin-a (:base :ke-b-zh-stance)           ; landed: risen high, the head up over his right
+  (:root :u -0.14 :f 0.5) (:pelvis :twist 18) (:spine :flex -6 :side -12) (:chest :flex 0 :twist -40) (:head :flex -10 :twist 12)
+  (:arm-r :flex 152 :side -33 :twist 0) (:elbow-r :flex 55) (:hand-r :flex 247 :twist -2 :side 0)
+  (:arm-l :flex 141 :side 60 :twist 0) (:elbow-l :flex 47) (:hand-l :flex 20)
+  (:thigh-l :flex 30 :side 22) (:knee-l :flex 30) (:thigh-r :flex -14 :side 28) (:knee-r :flex 20))
+(defstrike :ke-zh-ns-a (16 5 24 :base :ke-b-zh-stance)
+  (0 :ke-b-zh-stance)
+  (2 (:root :u -0.36) (:chest :twist -8) (:arm-r :flex 0))                                         ; the charge: barely moving
+  (6 :snap (:root :u -0.42) (:arm-r :flex -20 :side 31 :twist -14) (:elbow-r :flex 119) (:hand-r :flex 40 :twist -79 :side 9))   ; up his right side
+  (10 :snap :ke-zh-na-c)                                                                           ; gathering: onto the shoulder
+  (11 (:root :u -0.51) (:chest :twist -21))                                                        ; held, trembling
+  (12 (:root :u -0.5) (:chest :twist -20))
+  (13 (:root :u -0.52) (:chest :twist -22))
+  (14 :snap :ke-zh-na-u)                                                                           ; the hop, hoisted
+  (:s :snap :ke-zh-na-h)                                                                           ; the slam
+  (18 (:root :u -0.36) (:spine :flex 58))                                                          ; falling after it
+  (:a :ke-zh-na-a)
+  (32 (:root :u -0.37) (:spine :flex 60))
+  (38 (:root :u -0.32 :f 0.45) (:spine :flex 50) (:chest :twist -6) (:thigh-l :flex 20 :side 24) (:knee-l :flex 60)
+      (:arm-r :flex -13 :side 31 :twist 0) (:elbow-r :flex 92) (:hand-r :flex -78 :twist -31 :side 0))   ; dragged out to his right
+
+  (:end :ke-b-zh-stance))
+(defstrike :ke-zh-ns-b (12 4 20 :base :ke-b-zh-stance)
+  (0 :ke-zh-na-a)
+  (2 (:root :u -0.33 :f 0.48) (:spine :flex 61) (:thigh-l :flex 10 :side 24) (:knee-l :flex 60))     ; the charge: the drag starts
+  (8 :snap :ke-zh-nb-c)                                                                            ; dragged back to his feet
+  (9 (:root :u -0.48) (:spine :flex 57))                                                           ; held, trembling
+  (10 (:root :u -0.47) (:spine :flex 55))
+  (:s :snap :ke-zh-nb-h)                                                                           ; the release: straight up
+  (13 (:root :u -0.22) (:spine :flex 6))                                                           ; past it
+  (:a :ke-zh-nb-a)
+  (26 (:root :u -0.28))
+  (29 (:arm-r :flex 23 :side 9 :twist 0) (:elbow-r :flex 28) (:hand-r :flex -56 :twist -9 :side 0))   ; dragged out to his right
+
+  (:end :ke-b-zh-stance))
+(defstrike :ke-zh-ns-c (14 4 20 :base :ke-b-zh-stance)
+  (0 :ke-zh-nb-a)
+  (2 (:root :u -0.31) (:chest :twist -10) (:arm-r :side 20))                                        ; the charge: barely moving
+  (10 :snap :ke-zh-nc-c)                                                                           ; gathering: wound to his right
+  (11 (:root :u -0.41 :yaw -25) (:chest :twist -52))                                               ; held, trembling
+  (12 (:root :u -0.4 :yaw -24) (:chest :twist -51))
+  (:s :snap :ke-zh-nc-h)                                                                           ; the release: the sweep
+  (15 (:root :f 0.47) (:chest :twist 28))                                                          ; past it
+  (:a :ke-zh-nc-a)
+  (28 (:root :yaw 22) (:chest :twist 54))
+  (31 (:arm-r :flex 23 :side 9 :twist 0) (:elbow-r :flex 28) (:hand-r :flex -56 :twist -9 :side 0))   ; dragged out to his right
+
+  (:end :ke-b-zh-stance))
+(defstrike :ke-zh-ns-d (16 5 26 :base :ke-b-zh-stance)
+  (0 :ke-zh-nc-a)
+  (4 (:root :yaw 0) (:chest :twist 44))                                                            ; the charge: the turn starts
+  (8 :snap :ke-zh-nd-c (:root :yaw -90))                                                           ; turning right, raised: a key every 90-100 deg
+  (11 :snap (:root :yaw -190))
+  (13 :snap (:root :yaw -290))
+  (14 (:root :yaw -297 :u -0.32))                                                                  ; held, trembling
+  (15 (:root :yaw -300 :u -0.31))
+  (:s :snap :ke-zh-nd-h (:root :yaw -360))                                                         ; the release: the diagonal
+  (16.001 (:root :yaw 0))                                                                          ; (the same facing)
+  (18 (:root :u -0.38) (:spine :flex 42))                                                          ; the jolt
+  (:a :ke-zh-nd-a)
+  (34 (:root :u -0.39) (:spine :flex 50))
+  (:end :ke-b-zh-stance))
+(defstrike :ke-zh-fin (16 5 26 :base :ke-b-zh-stance)
+  (0 :ke-b-zh-stance)
+  (3 (:root :u -0.37 :yaw 4) (:chest :twist 4))                                                    ; the charge: barely moving
+  (5 :snap (:root :yaw 8 :u -0.38) (:arm-r :flex 28 :side 61 :twist 21) (:elbow-r :flex 45) (:hand-r :flex 89 :twist -94 :side -36))
+  (7 :snap :ke-zh-fin-w)                                                                           ; the head dragged round the front
+  (11 :snap :ke-zh-fin-c)                                                                          ; gathering: wound low behind his left
+  (12 (:root :u -0.44 :yaw 31) (:chest :twist 52))                                                 ; held, trembling
+  (13 (:root :u -0.43 :yaw 30) (:chest :twist 51))
+  (14 (:root :u -0.44 :yaw 31) (:chest :twist 52))
+  (:s :snap :ke-zh-fin-h)                                                                          ; the release, 2 frames
+  (17 (:root :u -0.16) (:chest :twist -28) (:arm-r :flex 101 :side -39 :twist -1) (:elbow-r :flex 102) (:hand-r :flex 232 :twist 14 :side -1))   ; past it
+  (:a :ke-zh-fin-a)
+  (34 (:root :u -0.16))
+  (39 (:root :u -0.24 :f 0.4) (:spine :flex 20) (:chest :twist -24)
+      (:arm-r :flex -9 :side 47 :twist 0) (:elbow-r :flex 82) (:hand-r :flex 264 :twist -14 :side 0))   ; down to his right
+  (:end :ke-b-zh-stance))
+(pushnew :ke-zh-ns-c *grip-clips*)                      ; (NS c and the finisher two-handed: GRIP-LEFT!)
+(pushnew :ke-zh-fin *grip-clips*)
 ;; guard: crouched lower still behind the raised left forearm, the broken blade turned flat across the body
 (defpose :ke-b-guard (:base :ke-b-stance)
   (:root :u -0.34) (:spine :flex 34) (:chest :flex 12 :twist -18) (:head :flex -44)

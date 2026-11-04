@@ -858,3 +858,46 @@ the front (duelview 1000000+1000i+k), and both strings scripted on the idle Ichi
 every link hits (狂嵐 40 / 40 / 45 / 45 / 65, 斬壞 50 / 55 / 55 / 60 / 85). No match tests at this stage (DEVLOG §576).
 The manual's Bankai entry names the new moves.
 
+
+## 29. The Bankai's art round, part 3: NS a–d and the AS finishers (2026-11-04)
+
+The plan table (proposed after §28), approved by the user: 「可以」. Each one is a plane the J string doesn't use.
+
+| | 狂嵐 | 斬壞 |
+|---|---|---|
+| NS a | the lunge cut: the tell (crouched, the head trailing on the floor behind his right, held), the 3 m lunge, low right → high left | the shoulder-drop chop: the head carried on the right shoulder, squatted to charge, a hop, one hand slamming it down, the body falling after it |
+| NS b | the spin: one full turn to his right, the arm straight out, a flat circle at the shoulder | the dragged rise: the head dragged back along the floor to his feet, then straight up the centre line |
+| NS c | the reverse spin: crouched, one full turn to his left at the knees | both hands, wound far to his right, the flat sweep at the chest, right → left |
+| NS d | the sword dance: the haft spun flat over his head like a propeller, then the cross (two hits): overhead right steep down to his left, high left down to his right | the turning chop: one full turn to his right, the backhand raised over his left shoulder, the heavy diagonal down to his right |
+| finisher | a leap, one turn in the air, the vertical chop down the centre on landing (knockdown) | both hands, from low behind his left, the whole body rising through to his right (knockdown); its own clip, no longer NS d's |
+
+Built as ten clips (`ken-art.lisp`: `:ke-kr-ns-a`–`d`, `:ke-kr-fin`, `:ke-zh-ns-a`–`d`, `:ke-zh-fin`), each at its move's S
+(`:clip-s` = S). Only the moves' `:clip`, `:clip-s` and `:blend` changed (presentation; the sim never reads them):
+
+- **Frame 0**: NS b / c / d's is the segment before's landing pose (an NS links on as soon as its active frames end, so
+  b follows only a, c only b, d only c). NS a and the finisher have several predecessors (neutral; the J1–J4 landings for the
+  AS; a / b / c's for the finisher), so they get `:blend 3` (a 3-frame crossfade in `start-move`), and the AS copies
+  inherit it.
+- **The full turns** (狂嵐 b / c, the finisher's turn in the air, 斬壞 d; NS d's propeller on the wrist's twist): a key
+  every 90° or so, rewound on a key 0.001 s later with the same orientation, as in §28.
+- **Two-handed**: 斬壞's NS c and finisher (`*grip-clips*`, GRIP-LEFT!).
+- **由緩至急 (斬壞)**: as the J string (§28): a small first key, the coil keyed :snap, a held tremble of 2–3 frames, the
+  release in the last 2 frames, a frame past the hit, the head dragged back out to his right in the recovery. NS d's turn is
+  its charge, accelerating keys (90° in 4 f → 100° in 2 f).
+- **Waypoints**: where an interpolation put the blade under the floor or through his body (狂嵐 b's wind-up, a's drop into
+  the tell, 斬壞 a's lift onto the shoulder, the finisher's charge round the front and its follow-through), a key solved by FK
+  in between.
+
+The tip on the active frames (m, FK, the match's ease; NS d both hit windows):
+
+| | NS a | NS b | NS c | NS d | finisher | volume |
+|---|---|---|---|---|---|---|
+| 狂嵐 | 1.85–1.86 | 1.93 (the circle) | 1.87 (the circle) | 1.58–1.85 / 1.65–1.88 | 1.86–1.91 | 1.8 m (b / c 1.9 m, 360°) |
+| 斬壞 | 1.91–1.97 | 1.85–1.93 on its hit frames | 1.96–2.03 | 2.03–2.06 | 2.03 on its hit frame | 1.9 m (c / d / finisher 2.0 m) |
+
+Checked: host tests 9874 ALL PASS (the ten clips in the §5 clip list; the reach test reads ease 0, every active frame
+within +0.15 m of the volume); pkgcheck clean; the strips from the side and 33° off the front (duelview); scripted on the
+idle Ichigo (84004 / 84005): NS a → b → c → d and the AS after J1–J4 in both Bankai, every segment hits (狂嵐 NS 80 / 70 /
+70 / 40 + 40, the finisher 110; 斬壞 NS 100 / 90 / 100 / 130, the finisher 150). No match tests at this stage (DEVLOG §576).
+Left as is: a few recovery frames where the heavy head drags up to 0.2 m into the floor, and 斬壞 b's rise passing close
+to his face. The manual's Bankai entry names the new moves.

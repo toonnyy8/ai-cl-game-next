@@ -297,7 +297,8 @@
 ;;; the NS's a, b, c, the last the finisher, knocking down); SP after J5 = the special AS (千切 CHIGIRI / TATE-GOTO), whose end takes him back
 ;;; to the Shikai on that pointer, L 0, -1 Konpaku unless it is his last (KEN-BK-TICK). Every NS / AS segment burns *KEN-BK-COST* of his
 ;;; Reishi, never below 1 (KEN-BK-COST). The user's answers: 「4 段（照表）」「只有一種 AS」「各自一串」 (§26.1). Clips: the Shikai's borrowed
-;;; until the art round (:clip-s their own S); J1-J5 their own since the art round (§28: 1.8 / 1.9 m, drawn by FK).
+;;; until the art round (:clip-s their own S); J1-J5 their own since the art round (§28: 1.8 / 1.9 m, drawn by FK), NS a-d and the
+;;; finishers since §29 (:clip-s = S; a and the finisher :blend 3, entered from neutral or after a J or an NS segment).
 (defparameter *ken-bk-cost* 40 "Reishi each Bankai NS / AS segment burns from him, never below 1 (DUEL_KEN_V3 §4 B2, §26: 「卍解每次使用 NS 與 AS 都會對自己
 造成傷害，最多扣至剩 1 點血量」; 40 mine, about 3 % of 1300).")
 ;; 狂嵐 KYORAN (from pointer 1)
@@ -312,15 +313,15 @@
 (defmove :ke-kr-j5 :kind :quick :clip :ke-kr-cut5 :clip-s 10 :startup 10 :active 4 :recovery 18 :dmg 65 :adv-block -4
   :reach 1.8 :arc 100 :on-hit :stagger :params (:as-ptr 5))
 (defmove-copy :ke-kr-sa :ke-kr-j1 :startup 8 :params (:as-ptr 1))                                ; the cut in an NS gap
-(defmove :ke-kr-nd :kind :flash :clip :ke-s-p1d :clip-s 10 :startup 8 :active 8 :recovery 14 :adv-block -4 :reach 1.8 :arc 100
+(defmove :ke-kr-nd :kind :flash :clip :ke-kr-ns-d :clip-s 8 :startup 8 :active 8 :recovery 14 :adv-block -4 :reach 1.8 :arc 100
   :hits ((8 10 :dmg 40 :on-hit :flinch) (13 15 :dmg 40 :on-hit :crumple)) :on-frame ((0 ken-bk-cost)))   ; the sword dance
-(defmove :ke-kr-nc :kind :flash :clip :ke-s-p1c :clip-s 12 :startup 10 :active 4 :recovery 18 :dmg 70 :adv-block -4
+(defmove :ke-kr-nc :kind :flash :clip :ke-kr-ns-c :clip-s 10 :startup 10 :active 4 :recovery 18 :dmg 70 :adv-block -4
   :reach 1.9 :arc 360 :on-hit :stagger :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-kr-nd))      ; the reverse spin
-(defmove :ke-kr-nb :kind :flash :clip :ke-s-p1b :clip-s 12 :startup 10 :active 4 :recovery 18 :dmg 70 :adv-block -4
+(defmove :ke-kr-nb :kind :flash :clip :ke-kr-ns-b :clip-s 10 :startup 10 :active 4 :recovery 18 :dmg 70 :adv-block -4
   :reach 1.9 :arc 360 :on-hit :stagger :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-kr-nc))      ; the spin
-(defmove :ke-kr-na :kind :flash :clip :ke-s-p1a :clip-s 16 :callout "KYORAN" :startup 14 :active 4 :recovery 20 :dmg 80 :adv-block -4
+(defmove :ke-kr-na :kind :flash :clip :ke-kr-ns-a :clip-s 14 :blend 3 :callout "KYORAN" :startup 14 :active 4 :recovery 20 :dmg 80 :adv-block -4
   :reach 1.8 :arc 100 :on-hit :stagger :slide 3.0 :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-kr-nb))   ; the lunge cut
-(defmove :ke-kr-fin :kind :sp :clip :ke-s-p1e :clip-s 14 :startup 12 :active 4 :recovery 22 :dmg 110 :adv-block -6
+(defmove :ke-kr-fin :kind :sp :clip :ke-kr-fin :clip-s 12 :blend 3 :startup 12 :active 4 :recovery 22 :dmg 110 :adv-block -6
   :reach 1.8 :arc 100 :on-hit :knockdown :slide 2.0 :on-frame ((0 ken-bk-cost)))                       ; the AS's last: the spinning leap cut
 (defmove-copy :ke-kr-as1 :ke-kr-fin :callout "KYORAN")                                                 ; AS after J1: the finisher alone
 (defmove-copy :ke-kr-as2 :ke-kr-na :kind :sp :startup 12 :params (:ns-next :ke-kr-fin))                ; after J2: a, the finisher
@@ -343,15 +344,15 @@
 (defmove :ke-zh-j5 :kind :quick :clip :ke-zh-cut5 :clip-s 13 :startup 13 :active 4 :recovery 20 :dmg 85 :adv-block -4
   :reach 1.9 :arc 100 :on-hit :stagger :on-frame ((13 ken-bk-slam)) :params (:as-ptr 5))
 (defmove-copy :ke-zh-sa :ke-zh-j1 :params (:as-ptr 1))
-(defmove :ke-zh-nd :kind :flash :clip :ke-s-p2e :clip-s 18 :startup 16 :active 5 :recovery 26 :dmg 130 :adv-block -6
+(defmove :ke-zh-nd :kind :flash :clip :ke-zh-ns-d :clip-s 16 :startup 16 :active 5 :recovery 26 :dmg 130 :adv-block -6
   :reach 2.0 :arc 120 :on-hit :crumple :on-frame ((0 ken-bk-cost)))                                    ; the turning chop
-(defmove :ke-zh-nc :kind :flash :clip :ke-s-p2d :clip-s 14 :startup 14 :active 4 :recovery 20 :dmg 100 :adv-block -4
+(defmove :ke-zh-nc :kind :flash :clip :ke-zh-ns-c :clip-s 14 :startup 14 :active 4 :recovery 20 :dmg 100 :adv-block -4
   :reach 2.0 :arc 180 :on-hit :stagger :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-zh-nd))      ; both hands, the flat sweep
-(defmove :ke-zh-nb :kind :flash :clip :ke-s-p1c :clip-s 12 :startup 12 :active 4 :recovery 20 :dmg 90 :adv-block -4
+(defmove :ke-zh-nb :kind :flash :clip :ke-zh-ns-b :clip-s 12 :startup 12 :active 4 :recovery 20 :dmg 90 :adv-block -4
   :reach 1.9 :arc 140 :on-hit :stagger :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-zh-nc))      ; the dragged rising chop
-(defmove :ke-zh-na :kind :flash :clip :ke-s-p2c :clip-s 16 :callout "ZANKAI" :startup 16 :active 5 :recovery 24 :dmg 100 :adv-block -6
+(defmove :ke-zh-na :kind :flash :clip :ke-zh-ns-a :clip-s 16 :blend 3 :callout "ZANKAI" :startup 16 :active 5 :recovery 24 :dmg 100 :adv-block -6
   :reach 1.9 :arc 90 :on-hit :crumple :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-zh-nb))       ; the shoulder-drop overhead chop
-(defmove :ke-zh-fin :kind :sp :clip :ke-s-p2e :clip-s 18 :startup 16 :active 5 :recovery 26 :dmg 150 :adv-block -8
+(defmove :ke-zh-fin :kind :sp :clip :ke-zh-fin :clip-s 16 :blend 3 :startup 16 :active 5 :recovery 26 :dmg 150 :adv-block -8
   :reach 2.0 :arc 120 :on-hit :knockdown :on-frame ((0 ken-bk-cost)))                                  ; the AS's last: the turning chop
 (defmove-copy :ke-zh-as1 :ke-zh-fin :callout "ZANKAI")
 (defmove-copy :ke-zh-as2 :ke-zh-na :kind :sp :startup 12 :params (:ns-next :ke-zh-fin))
