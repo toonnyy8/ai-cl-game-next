@@ -764,3 +764,25 @@ last its finisher (狂嵐 the spinning leap cut 110, 斬壞 the turning chop 150
 | dmg | 40 / 40 / 45 / 45 / 65 | 50 / 55 / 55 / 60 / 85 |
 | reaction | flinch ×4, stagger | flinch ×4, stagger |
 | reach | 1.8 | 1.9 |
+
+### 26.2 The Bankai's sim built (2026-11-04)
+
+`ken.lisp`: the placeholder `:bankai` (DUEL_KEN_CORE §8's three pointers) replaced by two kits from one macro `def-ken-bankai`:
+`:bankai` 狂嵐 KYORAN (moves `:ke-kr-*`) and `:bankai-2` 斬壞 ZANKAI (`:ke-zh-*`). `ken-as-pick`: J7 + SP enters the Bankai of the current
+pointer. Each kit: J1–J5 (`:strings`), each J link's `:params :as-ptr` 1–5 names the AS (the core's `core-next-as`), `:core :as` the five
+entries (AS1 = the finisher alone, AS2 = a → finisher, AS3 = a → b → finisher, AS4 = a → b → c → finisher, the special), `:as-writes`
+(1 1 1 1 1), one NS (a → b → c → d), the SA a J1 copy. Every NS / AS segment's frame 0 `ken-bk-cost` (`*ken-bk-cost*` 40 Reishi, `burn`:
+never below 1); the special's `ken-bk-special` (the cost and `fighter-bk-out`); the kits' `:tick` `ken-bk-tick`: once he is out of the
+move (and any Kikon cinematic), −1 Konpaku unless it is his last, the Shikai on the pointer he came from, L 0. No arm, no meter (the old
+moves and clips stay in the files for the art round and the cleanup). Borrowed clips (the Shikai's) until the art round: 狂嵐's J5 and 斬壞's
+J3 / J5 draw their arm-out cuts 2.3 m, so their reach is 2.2 until their own clips (the host FK test, one-sided for the Bankai).
+Stances `:ke-b-stance`, Kikon cinematics `ken-oni-kikon-cine` / `ken-sky-split-cine` for now. Debug 84004 / 84005: the 84000 scene in
+狂嵐 / 斬壞.
+
+Checks (no match tests at this stage): host tests 9874 ALL PASS (the old Bankai's checks rewritten: per kit the classes, the chains 1 / 2 /
+3 / 4 / 4 / 1, S and damage, no NS knockdown, the cost and the way back on frame 0; the old Bankai's clips out of the clip list), pkgcheck
+clean, the build. Scripts (P1 vs an idle Ichigo): 84004 / 84005 SP ×4 → NS a–d, four costs (1300 → 1140); J1 J2 J3 + SP ×3 → AS3, three
+segments, the finisher knocks down; J1–J5 + SP → the special (300 / 320), then `form NOZARASHI`, `BANKAI ends: Shikai pointer 1` / `2`,
+Konpaku 9 → 8. From the Shikai (84001, pointer 2510 / 2511, L3): J1–J7 + SP → `BANKAI from pointer 1` → `form BANKAI` / `BANKAI-2`, the
+Bankai cinematic; J1–J5 + SP held → the special's Kikon (−3 Konpaku), its cinematic, then back to the Shikai. The manual's Bankai entry
+rewritten. Playtest v319. Next: the art round (both kits' own clips, stances, the 千切 look, the two Kikon cinematics).

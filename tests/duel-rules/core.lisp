@@ -14,7 +14,8 @@
 (defun kit (c f) (find-kit c f))
 (defun mv (c f name) (kit-move (kit c f) name))
 (defparameter *forms* '((:yamamoto :base) (:yamamoto :hellfire) (:yamamoto :bankai-east) (:yamamoto :bankai-west)
-                        (:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :bankai)   ; (the cups and KATAUDE went 2026-11-03)
+                        (:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)   ; (the cups and KATAUDE went 2026-11-03;
+                                                                                                ;  V3's two Bankai, DUEL_KEN_V3 §26)
                         (:rukia :base) (:rukia :m18) (:rukia :m50) (:rukia :zero) (:ichigo :base) (:ichigo :kessa)
                         (:senjumaru :base) (:senjumaru :tsuji1) (:senjumaru :tsuji2) (:senjumaru :tsuji3) (:senjumaru :tsuji4)
                         (:senjumaru :tsuji5) (:senjumaru :tsuji6)
@@ -194,7 +195,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
         (push (mv-name m) out)))))
 (defun on-hit-adv (m &optional (i 0))
   (let ((w (svref (mv-hits m) i))) (- (or (hw-stun w) (hitstun (hw-react w))) (- (mv-total m) (hw-from w)))))
-(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (member (first cf) '(:ichigo :hisagi)) (equal cf '(:kenpachi :nozarashi)))) *forms*))   ; (Ichigo, Hisagi (his Bankai since §28.4 too): five J since 2026-10-28,
+(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (member (first cf) '(:ichigo :hisagi)) (member cf '((:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)) :test #'equal))) *forms*))   ; (Kenpachi V3: his own J strings)   ; (Ichigo, Hisagi (his Bankai since §28.4 too): five J since 2026-10-28,
   (let* ((k (apply #'kit cf)) (links (link-moves k)) (j1 (kit-command-move k :q)) (k1 (kit-command-move k :f))   ;  triangle.lisp)
          (cup3 (equal cf '(:kenpachi :nomihose))) (fails0 *fails*) (a (owl-adv cf))
          (v8 (eq (first cf) :barro))   ; (Lille II: decision V8 splits his J / K off the budget, DUEL_LILLE_V2 §21: own rows)
@@ -854,9 +855,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ke-s-p1a :ke-s-p1b :ke-s-p1c :ke-s-p1d :ke-s-p1e :ke-s-issen :ke-s-wheel ; the V3 Shikai's pointer-1 clips (DUEL_KEN_V3 §15)
  ; NS3's charges (DUEL_KEN_CORE)
  :sh-skate-b :sh-slide-r :sh-slide-l :ke-run :ke-skate-b :ke-slide-r :ke-slide-l ; the runs (facing the opponent)
- :ke-drink ; the cups
- :ke-b-stance :ke-b-fist :ke-b-bite ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12)
- :ke-b-hook :ic-cross-j :ic-k-jab :ic-k-wrap-j ; the J cut's close J links (DUEL_STRINGS §13)
+ ; (the cups' :ke-drink and the old Bankai's own strikes left every kit with V3's Bankai, DUEL_KEN_V3 §26)
+ :ke-b-stance ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12)
+ :ic-cross-j :ic-k-jab :ic-k-wrap-j ; the J cut's close J links (DUEL_STRINGS §13)
  :ke-b-leap :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l ; its feral pass (2026-09-28; also 片腕)
  :ru-intro :ru-win :ru-q2 :ru-spin :ru-thrust :ru-drop :ru-stab :ru-hakuren
  :ru-breaker :ru-hainawa :ru-palm :ru-flower ; Rukia (the shared moves' clips a form's table still names unmapped;
@@ -905,7 +906,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :br-o-recall :br-o-rc0 :br-o-rc1 :br-o-rc2 :br-o-rc3 :br-o-rc4 :br-o-to-en ; ... and the owl's (the backstep gone, v3 R3)
  :br-w-guard :br-w-guard-hit :br-o-guard :br-o-guard-hit :br-oe-guard :br-oe-guard-hit ; his wing wall (the awakened guard)
             
- :ke-b-q1 :ke-b-q2 :ke-b-f1 :ke-b-f2 :ke-b-f3 :ke-b-split :ke-b-cut ; the Bankai's own (§8)
+ ; the Bankai's own (§8)
  ; KATAUDE's (§8)
  :hs-intro :hs-win ; Hisagi's B2a intro / win (the Bankai's forms)
  :hs-s-stance :hs-s-intro :hs-s-win :hs-s-walk-f :hs-s-walk-b :hs-s-strafe-r :hs-s-strafe-l ; the Shikai's own
@@ -945,7 +946,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     (check (and (null extra) (null unused)))))
 ;; phase 2: art names, roster, form looks, the flurry, hazard hits
 (check (equal (mapcar #'kit-weapon (mapcar (lambda (cf) (apply #'kit cf)) *forms*))
-              '(:ryujin-jakka :ryujin-jakka :zanka :zanka :ken-katana :nozarashi :ke-broken
+              '(:ryujin-jakka :ryujin-jakka :zanka :zanka :ken-katana :nozarashi :ke-broken :ke-broken
                 :sode-no-shirayuki :sode-no-shirayuki :ru-rime :ru-ice :zangetsu-long :tensa
                 :shigarami :shigarami :shigarami :shigarami :shigarami :shigarami :shigarami
                 :diagramm nil nil nil nil :kazeshini :kazeshini :kazeshini)))     ; (+ Lille II's five forms, DUEL_LILLE_V3: MUJITTAI gone; Hisagi)

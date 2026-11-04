@@ -206,5 +206,6 @@
 (check (loop for c being the hash-keys of *kits* using (hash-value alist)
              always (loop for (f . k) in alist
                           always (or (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
+                                     (and (eq c :kenpachi) (member f '(:bankai :bankai-2)))   ; (V3's Bankai: one pointer, every AS keeps it, §26)
                                      (and (null (getf (kit-core k) :as-writes))
                                           (notany (lambda (n) (getf (mv-params (find-move n)) :no-kikon)) (core-move-names (kit-core k))))))))

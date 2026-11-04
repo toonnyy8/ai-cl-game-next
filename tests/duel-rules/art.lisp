@@ -36,7 +36,7 @@ hand (the sleeve's frost sheet, the flower off the palm laid on the plaza).")
 (defparameter *two-sided* '(:ru-s-hainawa :ru-18-hainawa :ru-50-hainawa)
   "Clips whose striking point must reach the edge both ways although their move may fall short (a K, a Breaker): Rukia's
 Shikai HAINAWA, -18's and -50's (and every clip with a frost point, *RU-FROST-POINTS*).")
-(defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai)))   ; (Yamamoto's East / West: their own clips,
+(defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)))   ; (Yamamoto's East / West: their own clips,
                                        ; both ways since DUEL_YAMA_TYBW §3.3; Rukia's zero since its own, DUEL_RUKIA_TYBW §13.4)
 (let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0) (grips nil) (frost nil) (seen nil))
   (dolist (art '("yama-art" "ken-art" "rukia-art" "ichigo-art" "senjumaru-art" "lille-art" "lille-clips" "lille-draw" "lille-cine"
@@ -223,7 +223,8 @@ Shikai HAINAWA, -18's and -50's (and every clip with a frost point, *RU-FROST-PO
     (loop for n from 1 to 3
           do (let ((j (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :quick)) maximize (+ (mv-reach m) (mv-slide m))))
                    (kk (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :flash)) minimize (+ (mv-reach m) (mv-slide m)))))
-               (unless (member cf '((:hisagi :bankai) (:hisagi :bankai-bind)) :test #'equal)   ; (his Bankai has no K since §28.4; before, his ranged J 3-6 m, K 1-4 m: the user, 2026-10-18, 「J 的範圍改 3~6」
+               (unless (member cf '((:hisagi :bankai) (:hisagi :bankai-bind) (:kenpachi :bankai) (:kenpachi :bankai-2)) :test #'equal)   ; (+ Kenpachi V3's Bankai: no K, §26)
+                  ; (his Bankai has no K since §28.4; before, his ranged J 3-6 m, K 1-4 m: the user, 2026-10-18, 「J 的範圍改 3~6」
                                                        ;  「K 的範圍改 1~4」, DUEL_HISAGI §25.3; K1 vs J1 since §22.4)
                  (check (or (>= (- kk j) 0.5) (format t "~a link ~d: J ~,2f K ~,2f~%" cf n j kk))))))))
 

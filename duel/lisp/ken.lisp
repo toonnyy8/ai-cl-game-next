@@ -290,43 +290,134 @@
        :react (:projectile :sig :flash-startup :sig) :block-string 0.8
        :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
 
-;;; the Bankai (since V3: SP after the Shikai's J7, KEN-AS-PICK; combat.lisp BANKAI!): his Reishi -> full; ×1.2; every heavy command
-;;; spends a pip of the arm (UDE, the kit meter). Until the Bankai batch (DUEL_KEN_V3 §8) the old Bankai, now on the base form (the
-;;; cups it inherited are gone): what it took from them is written here
-(defkit :kenpachi :bankai :inherit :base
-  :hooks (:tick ken-tick :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)   ; (the arm: ken-meter.lisp)
-  :endless-form :nozarashi :enter-clips (:ke-release :ke-nome) :respect-callout "OMOSHIREE!"
-  :awakening t :mult *bankai-ken-mult* :form-name "BANKAI" :kikon-konpaku 4 :blade-chip *nomihose-chip* :open-s *ken-open-bankai*
-  :bankai-form nil :passives (:projectile-cut :drink)
-  :core (:ns (:ke-b-n1a :ke-b-n2a :ke-b-n3a) :as (:ke-b-as1 :ke-b-as2 :ke-b-as3) :sa :ke-b-sa1 :mult 1.2   ; its own (DUEL_KEN_CORE §8)
-         :stances (:ke-b-stance :ke-b-stance :ke-b-stance)                     ; (placeholders until the art round)
-         :kikon-cines (ken-oni-kikon-cine ken-oni-kikon-cine ken-sky-split-cine))   ; (the bite's and the split's own later)
-  :drink-clip :ke-drink :face nil                   ; (not cup 3's drink, nor its standing grin)
-  ;; its own strikes for the moves it borrows (a look, DUEL_KEN_REWORK §8)
-  :clip-map (:ke-q1 :ke-b-q1 :ke-q2 :ke-b-q2 :ke-f1 :ke-b-f1 :ke-f2 :ke-b-f2 :ke-r-f2 :ke-b-f3 :ke-meteor :ke-b-split
-             :ke-stance-cut :ke-b-cut)
-  :meter (:name "UDE" :max *arm-pips* :start *arm-pips* :draw ken-hud-meter :label ken-hud-label) :meter-gain nil
-  :pips (:n *arm-pips* :to nil :crack nil :cmds (:f :sig :sp1 :sp2 :breaker :kikon))   ; the burst keeps the Bankai: no KATAUDE (the user 2026-11-02: 「取消掉片腕的狀態」);
-                                                                                   ; no crack clock: the arm is the big moves' fuel (「拿掉」, §8)
-  :body :kenpachi-oni :weapon :ke-broken :stance :ke-b-stance :aura :oni :hide (:haori :sleeve-long :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4)
-  :run-clips (:ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l)
-  :cine ken-bankai-cine :enter-hook nil :swing-sfx :whoosh-cleaver
-  :commands (:q :ke-b-j1 :f :ke-b-k1 :sig :ke-b-bite :sp1 :ke-b-split :sp2 :ke-charge :breaker :ke-breaker :kikon :ke-b-kikon)
-  :grid (:ke-b-j1 :ke-b-j2 :ke-b-j3 :ke-b-k1 :ke-b-k2 :ke-b-k3 :ke-b-j2s :ke-b-k2s)
-  :strings ((:ke-charge :land :ke-b-punch))
-  ;; all in: pressure, K links 0.6 (:string-k), the pips spent before they crack (:pip-hurry), the bite up close only;
-  ;; a CPU facing him backs off and waits the arm out (:opp-intent)
-  :ai (:intents (:approach 3 :pressure 7 :zone 0 :defend 0)
-       :ranges (:approach (2.0 4.5) :pressure (1.2 3.0) :zone (4.0 6.0) :defend (3.0 5.0))
-       :moves ((0.0 1.5 :q 3 :f 3 :sig 3 :breaker 1 nil 1)
-               (1.5 3.4 :f 5 :breaker 1 nil 1)
-               (3.4 6.0 :sp1 3 :sp2 2 :step 1 nil 1)
-               (6.0 99.0 :kikon 1 :step 1 nil 1))
-       :guard 0.2 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 2 :dash 1.0 :kikon-range 10.6 :kikon-p 0.9 :o-ender 0.8
-       :string-k 0.6 :pip-hurry 90 :block-string 0.85 :opp-intent (:zone 2 :defend 2)
-       :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
+;;; ---------------------------------------------------------------- the two Bankai (DUEL_KEN_V3 §26, 2026-11-04)
+;;; SP after the Shikai's J7 (KEN-AS-PICK, combat.lisp BANKAI!): the Bankai of the pointer he was on: 狂嵐 KYORAN from pointer 1 (fast,
+;;; one hand: the lunge, the spins, the dance), 斬壞 ZANKAI from pointer 2 (heavy: the dropped chop, the dragged chop, the sweep, the turning
+;;; chop). One pointer each, its own J1-J5; SP after Jn (n 1-4) = the one AS with n segments (its J link's :as-ptr names it: the first n - 1
+;;; the NS's a, b, c, the last the finisher, knocking down); SP after J5 = the special AS (千切 CHIGIRI / TATE-GOTO), whose end takes him back
+;;; to the Shikai on that pointer, L 0, -1 Konpaku unless it is his last (KEN-BK-TICK). Every NS / AS segment burns *KEN-BK-COST* of his
+;;; Reishi, never below 1 (KEN-BK-COST). The user's answers: 「4 段（照表）」「只有一種 AS」「各自一串」 (§26.1). Clips: the Shikai's borrowed
+;;; until the art round (:clip-s their own S; the borrowed arm-out cuts of J5 / 斬壞's J3 draw 2.3 m: reach 2.2 until their own clips).
+(defparameter *ken-bk-cost* 40 "Reishi each Bankai NS / AS segment burns from him, never below 1 (DUEL_KEN_V3 §4 B2, §26: 「卍解每次使用 NS 與 AS 都會對自己
+造成傷害，最多扣至剩 1 點血量」; 40 mine, about 3 % of 1300).")
+;; 狂嵐 KYORAN (from pointer 1)
+(defmove :ke-kr-j1 :kind :quick :clip :ke-s-cut1 :clip-s 9 :startup 7 :active 3 :recovery 11 :dmg 40 :adv-block -2
+  :reach 1.8 :arc 100 :on-hit :flinch :slide 0.8 :params (:as-ptr 1))
+(defmove :ke-kr-j2 :kind :quick :clip :ke-s-cut2 :clip-s 9 :startup 7 :active 3 :recovery 12 :dmg 40 :adv-block -2
+  :reach 1.8 :arc 100 :on-hit :flinch :params (:as-ptr 2))
+(defmove :ke-kr-j3 :kind :quick :clip :ke-s-cut4 :clip-s 9 :startup 8 :active 3 :recovery 12 :dmg 45 :adv-block -2
+  :reach 1.8 :arc 100 :on-hit :flinch :params (:as-ptr 3))
+(defmove :ke-kr-j4 :kind :quick :clip :ke-s-cut5 :clip-s 9 :startup 8 :active 3 :recovery 13 :dmg 45 :adv-block -2
+  :reach 1.8 :arc 100 :on-hit :flinch :params (:as-ptr 4))
+(defmove :ke-kr-j5 :kind :quick :clip :ke-s-cut7 :clip-s 12 :startup 10 :active 4 :recovery 18 :dmg 65 :adv-block -4
+  :reach 2.2 :arc 100 :on-hit :stagger :params (:as-ptr 5))
+(defmove-copy :ke-kr-sa :ke-kr-j1 :startup 8 :params (:as-ptr 1))                                ; the cut in an NS gap
+(defmove :ke-kr-nd :kind :flash :clip :ke-s-p1d :clip-s 10 :startup 8 :active 8 :recovery 14 :adv-block -4 :reach 1.8 :arc 100
+  :hits ((8 10 :dmg 40 :on-hit :flinch) (13 15 :dmg 40 :on-hit :crumple)) :on-frame ((0 ken-bk-cost)))   ; the sword dance
+(defmove :ke-kr-nc :kind :flash :clip :ke-s-p1c :clip-s 12 :startup 10 :active 4 :recovery 18 :dmg 70 :adv-block -4
+  :reach 1.9 :arc 360 :on-hit :stagger :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-kr-nd))      ; the reverse spin
+(defmove :ke-kr-nb :kind :flash :clip :ke-s-p1b :clip-s 12 :startup 10 :active 4 :recovery 18 :dmg 70 :adv-block -4
+  :reach 1.9 :arc 360 :on-hit :stagger :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-kr-nc))      ; the spin
+(defmove :ke-kr-na :kind :flash :clip :ke-s-p1a :clip-s 16 :callout "KYORAN" :startup 14 :active 4 :recovery 20 :dmg 80 :adv-block -4
+  :reach 1.8 :arc 100 :on-hit :stagger :slide 3.0 :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-kr-nb))   ; the lunge cut
+(defmove :ke-kr-fin :kind :sp :clip :ke-s-p1e :clip-s 14 :startup 12 :active 4 :recovery 22 :dmg 110 :adv-block -6
+  :reach 1.8 :arc 100 :on-hit :knockdown :slide 2.0 :on-frame ((0 ken-bk-cost)))                       ; the AS's last: the spinning leap cut
+(defmove-copy :ke-kr-as1 :ke-kr-fin :callout "KYORAN")                                                 ; AS after J1: the finisher alone
+(defmove-copy :ke-kr-as2 :ke-kr-na :kind :sp :startup 12 :params (:ns-next :ke-kr-fin))                ; after J2: a, the finisher
+(defmove-copy :ke-kr-as3b :ke-kr-nb :kind :sp :params (:ns-next :ke-kr-fin))
+(defmove-copy :ke-kr-as3 :ke-kr-na :kind :sp :startup 12 :params (:ns-next :ke-kr-as3b))               ; after J3: a, b, the finisher
+(defmove-copy :ke-kr-as4c :ke-kr-nc :kind :sp :params (:ns-next :ke-kr-fin))
+(defmove-copy :ke-kr-as4b :ke-kr-nb :kind :sp :params (:ns-next :ke-kr-as4c))
+(defmove-copy :ke-kr-as4 :ke-kr-na :kind :sp :startup 12 :params (:ns-next :ke-kr-as4b))               ; after J4: a, b, c, the finisher
+(defmove :ke-kr-sp :kind :sp :clip :ke-s-wheel :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 30 :dmg 300 :adv-block -10
+  :reach 2.4 :arc 360 :on-hit :knockdown :on-frame ((0 ken-bk-special)))                              ; 千切, the space-cutting draw (§5.4)
+;; 斬壞 ZANKAI (from pointer 2)
+(defmove :ke-zh-j1 :kind :quick :clip :ke-s-cut1 :clip-s 9 :startup 9 :active 3 :recovery 12 :dmg 50 :adv-block -2
+  :reach 1.9 :arc 100 :on-hit :flinch :slide 0.6 :params (:as-ptr 1))
+(defmove :ke-zh-j2 :kind :quick :clip :ke-s-cut2 :clip-s 9 :startup 10 :active 3 :recovery 13 :dmg 55 :adv-block -2
+  :reach 1.9 :arc 100 :on-hit :flinch :params (:as-ptr 2))
+(defmove :ke-zh-j3 :kind :quick :clip :ke-s-cut3 :clip-s 11 :startup 10 :active 4 :recovery 16 :dmg 55 :adv-block -3
+  :reach 2.2 :arc 140 :on-hit :flinch :params (:as-ptr 3))
+(defmove :ke-zh-j4 :kind :quick :clip :ke-s-cut6 :clip-s 10 :startup 11 :active 3 :recovery 16 :dmg 60 :adv-block -3
+  :reach 1.9 :arc 100 :on-hit :flinch :params (:as-ptr 4))
+(defmove :ke-zh-j5 :kind :quick :clip :ke-s-cut7 :clip-s 12 :startup 13 :active 4 :recovery 20 :dmg 85 :adv-block -4
+  :reach 2.2 :arc 100 :on-hit :stagger :params (:as-ptr 5))
+(defmove-copy :ke-zh-sa :ke-zh-j1 :params (:as-ptr 1))
+(defmove :ke-zh-nd :kind :flash :clip :ke-s-p2e :clip-s 18 :startup 16 :active 5 :recovery 26 :dmg 130 :adv-block -6
+  :reach 2.0 :arc 120 :on-hit :crumple :on-frame ((0 ken-bk-cost)))                                    ; the turning chop
+(defmove :ke-zh-nc :kind :flash :clip :ke-s-p2d :clip-s 14 :startup 14 :active 4 :recovery 20 :dmg 100 :adv-block -4
+  :reach 2.0 :arc 180 :on-hit :stagger :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-zh-nd))      ; both hands, the flat sweep
+(defmove :ke-zh-nb :kind :flash :clip :ke-s-p1c :clip-s 12 :startup 12 :active 4 :recovery 20 :dmg 90 :adv-block -4
+  :reach 1.9 :arc 140 :on-hit :stagger :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-zh-nc))      ; the dragged rising chop
+(defmove :ke-zh-na :kind :flash :clip :ke-s-p2c :clip-s 16 :callout "ZANKAI" :startup 16 :active 5 :recovery 24 :dmg 100 :adv-block -6
+  :reach 1.9 :arc 90 :on-hit :crumple :on-frame ((0 ken-bk-cost)) :params (:ns-next :ke-zh-nb))       ; the shoulder-drop overhead chop
+(defmove :ke-zh-fin :kind :sp :clip :ke-s-p2e :clip-s 18 :startup 16 :active 5 :recovery 26 :dmg 150 :adv-block -8
+  :reach 2.0 :arc 120 :on-hit :knockdown :on-frame ((0 ken-bk-cost)))                                  ; the AS's last: the turning chop
+(defmove-copy :ke-zh-as1 :ke-zh-fin :callout "ZANKAI")
+(defmove-copy :ke-zh-as2 :ke-zh-na :kind :sp :startup 12 :params (:ns-next :ke-zh-fin))
+(defmove-copy :ke-zh-as3b :ke-zh-nb :kind :sp :params (:ns-next :ke-zh-fin))
+(defmove-copy :ke-zh-as3 :ke-zh-na :kind :sp :startup 12 :params (:ns-next :ke-zh-as3b))
+(defmove-copy :ke-zh-as4c :ke-zh-nc :kind :sp :params (:ns-next :ke-zh-fin))
+(defmove-copy :ke-zh-as4b :ke-zh-nb :kind :sp :params (:ns-next :ke-zh-as4c))
+(defmove-copy :ke-zh-as4 :ke-zh-na :kind :sp :startup 12 :params (:ns-next :ke-zh-as4b))
+(defmove :ke-zh-sp :kind :sp :clip :ke-s-meteor :clip-s 20 :callout "TATE-GOTO" :startup 20 :active 4 :recovery 30 :dmg 320 :adv-block -12
+  :reach 2.4 :arc 90 :on-hit :knockdown :on-frame ((0 ken-bk-special)))                                ; TATE-GOTO (canon ch. 670)
+
+;;; the Bankai kits: the oni's body and the broken cleaver, ×*BANKAI-KEN-MULT*; no meter, no arm (the arm's pips went with V3)
+(defmacro def-ken-bankai (form &key name ns as sa strings stance kikon-cine)
+  "One of his two Bankai kits (DUEL_KEN_V3 §26): one pointer, its own J string, NS, five AS entries (Jn + SP, n 1-5) and Kikon."
+  `(defkit :kenpachi ,form :inherit :base
+     :hooks (:tick ken-bk-tick :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)
+     :endless-form :nozarashi :enter-clips (:ke-release :ke-nome) :respect-callout "OMOSHIREE!"
+     :awakening t :mult *bankai-ken-mult* :form-name ,name :kikon-konpaku 4 :open-s nil
+     :bankai-form nil :passives (:projectile-cut)
+     :body :kenpachi-oni :weapon :ke-broken :stance ,stance :aura :oni
+     :hide (:haori :sleeve-long :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4)
+     :run-clips (:ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l)
+     :cine ken-bankai-cine :enter-hook nil :swing-sfx :whoosh-cleaver
+     :commands (:q ,(first (first strings)) :f nil :sig nil :sp1 nil :sp2 nil :kikon :ke-b-kikon)
+     :strings ,strings
+     :core (:ns (,ns) :as ,as :sa ,sa :mult 1.2 :as-writes (1 1 1 1 1)
+            :stances (,stance) :kikon-cines (,kikon-cine))
+     :ai (:intents (:approach 3 :pressure 6 :zone 0 :defend 0)
+          :ranges (:approach (1.8 3.6) :pressure (1.0 2.4) :zone (4.0 6.0) :defend (3.0 5.0))
+          :moves ((0.0 1.6 :q 5 :breaker 1 nil 2) (1.6 3.4 :breaker 1 :step 1 nil 2) (3.4 99.0 :step 1 nil 1))
+          :guard 0.2 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 1.0 :kikon-range 5.0 :kikon-p 0.4 :o-ender 0.3
+          :block-string 0.85
+          :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold)))
+(def-ken-bankai :bankai :name "KYORAN" :ns :ke-kr-na :sa :ke-kr-sa :stance :ke-b-stance :kikon-cine ken-oni-kikon-cine
+  :as (:ke-kr-as1 :ke-kr-as2 :ke-kr-as3 :ke-kr-as4 :ke-kr-sp)
+  :strings ((:ke-kr-j1 :q :ke-kr-j2) (:ke-kr-j2 :q :ke-kr-j3) (:ke-kr-j3 :q :ke-kr-j4) (:ke-kr-j4 :q :ke-kr-j5)))
+(def-ken-bankai :bankai-2 :name "ZANKAI" :ns :ke-zh-na :sa :ke-zh-sa :stance :ke-b-stance :kikon-cine ken-sky-split-cine
+  :as (:ke-zh-as1 :ke-zh-as2 :ke-zh-as3 :ke-zh-as4 :ke-zh-sp)
+  :strings ((:ke-zh-j1 :q :ke-zh-j2) (:ke-zh-j2 :q :ke-zh-j3) (:ke-zh-j3 :q :ke-zh-j4) (:ke-zh-j4 :q :ke-zh-j5)))
 
 ;;; ================================================================ hooks (called through the data's symbols)
+
+(defun ken-bk-cost (e)
+  "A Bankai NS / AS segment's frame 0: *KEN-BK-COST* of his Reishi burnt, never below 1 (DUEL_KEN_V3 §26)."
+  (let ((g (gauges e)))
+    (setf (gauges-reishi g) (burn (gauges-reishi g) *ken-bk-cost*))
+    (clog "~a bankai cost ~d, reishi ~d" (side-name e) *ken-bk-cost* (gauges-reishi g))))
+
+(defun ken-bk-special (e)
+  "The special AS's frame 0 (千切 / TATE-GOTO): its cost, and the way back to the Shikai once it is over (KEN-BK-TICK)."
+  (ken-bk-cost e)
+  (setf (fighter-bk-out (fighter e)) t))
+
+(defun ken-bk-tick (e f g)
+  "The Bankai kits' :tick (GAUGE-SYSTEM): the special AS over (he is out of it, past any Kikon and its cinematic), back to the Shikai on
+the pointer he came from (狂嵐 1, 斬壞 2), L 0, -1 Konpaku unless it is his last (§4: 「照樣放出、不扣魂」; DUEL_KEN_V3 §4 B3, §26)."
+  (when (and (fighter-bk-out f) (not (member (fighter-state f) '(:move :cine))))
+    (let ((from (if (eq (fighter-form f) :bankai-2) 2 1)))
+      (setf (fighter-bk-out f) nil)
+      (when (> (gauges-konpaku g) 1)
+        (decf (gauges-konpaku g))
+        (emit :konpaku e 1))
+      (set-form e :nozarashi)
+      (setf (fighter-ptr f) from (gauges-meter g) 0f0)
+      (when (eq (fighter-state f) :idle) (to-idle e 0))
+      (clog "~a BANKAI ends: Shikai pointer ~d, konpaku ~d" (side-name e) from (gauges-konpaku g)))))
 
 
 
@@ -1025,7 +1116,7 @@ the route's level, the damage KEN-DMG-MULT's), L back to 0 (§4 S5, §5.2); else
     (flet ((nth-as (i) (gethash (nth i as) (kit-moves (fighter-kit f)))))
       (cond ((getf p :bankai-as)
              (clog "~a BANKAI from pointer ~d" (side-name e) cur)
-             (bankai! e :bankai)
+             (bankai! e (if (= cur 2) :bankai-2 :bankai))   ; (the Bankai of the pointer he is on: 狂嵐 / 斬壞, §26)
              :taken)
             ((getf p :special-as) (values (nth-as (+ 3 cur)) nil))
             ((/= n cur)
@@ -1036,19 +1127,19 @@ the route's level, the damage KEN-DMG-MULT's), L back to 0 (§4 S5, §5.2); else
 
 (defun ken-core-debug (c)
   "84000 / 84001 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene (84001: Kenpachi in the Shikai,
-awakened, L 0, DUEL_KEN_V3; 84004 the Bankai, 84080+k its arm at k pips; 84090+k the Shikai's L = k), human P1 Kenpachi and an idle Ichigo P2
+awakened, L 0, DUEL_KEN_V3; 84004 / 84005 V3's Bankai 狂嵐 / 斬壞, §26; 84090+k the Shikai's L = k), human P1 Kenpachi and an idle Ichigo P2
 2.2 m apart, both CPUs off, gauges full; on the running scene 84010 P2 starts his NS now (NS against NS: the first hit wins), 84011
 his J1 now (NA against NS: a cancel). The scripts time the presses."
   (case c
-    ((84000 84001 84004) (ensure-battle :kenpachi :ichigo :cpu nil)
+    ((84000 84001 84004 84005) (ensure-battle :kenpachi :ichigo :cpu nil)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) t))
            (place *p1* *p2* 2.2)
            (full-gauges! *p1*) (full-gauges! *p2*)
            (let ((g (gauges *p1*))) (setf (gauges-awakened g) nil (gauges-awaken g) 0f0 (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0))
            (case c                                                  ; 84001: the same, in the Shikai (awakened, L 0)
              (84001 (force-form *p1* :nozarashi) (setf (gauges-awakened (gauges *p1*)) t (gauges-meter (gauges *p1*)) 0f0))
-             (84004 (force-form *p1* :bankai)                      ; 84004: the Bankai (DUEL_KEN_CORE §8), the arm full
-              (setf (gauges-meter (gauges *p1*)) (f32 *arm-pips*) (gauges-arm-pending (gauges *p1*)) nil) (refresh-look *p1*))))
+             ((84004 84005) (force-form *p1* (if (= c 84004) :bankai :bankai-2))   ; 84004 / 84005: V3's Bankai from pointer 1 / 2 (§26)
+              (setf (gauges-awakened (gauges *p1*)) t) (refresh-look *p1*))))
     ((84094 84095) (ken-core-debug 84001) (place *p1* *p2* 3.0)   ; the Shikai's pointer 1 / 2 Kikon cinematic, played (DUEL_KEN_V3 §19)
      (setf *cine-hold* nil) (start-cine (if (= c 84094) 'ken-s-kikon1-cine 'ken-s-kikon2-cine) *p1* *p2*))
     (84010 (core-sp-start! *p2* (fighter *p2*)))
