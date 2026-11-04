@@ -1612,7 +1612,9 @@ flex and the spine / head flex shifted by these."
   (39 (:root :u -0.06 :f 0.04) (:spine :flex 8) (:head :flex -4) (:thigh-l :flex 20) (:knee-l :flex 20) (:thigh-r :flex -8) (:knee-r :flex 10)
       (:arm-r :flex 50 :side 5 :twist 4) (:elbow-r :flex 125) (:hand-r :flex -90 :twist -4 :side 0) (:arm-l :flex 120 :side 85 :twist 4) (:elbow-l :flex 50))
   (:end :ke-s-st-2))
-;; NS2d: off the shoulder to his right, both hands low by the right hip, coiled, then one wide flat mow right to left
+;; NS2d: off the shoulder to his right, both hands low by the right hip, coiled, then one wide flat mow right to left (the right arm
+;; turned in 16 and bent 7-12 from the hit through the carry so the haft stays in the left arm's reach: the fist was up to 0.185 m
+;; off it, §21)
 (defstrike :ke-s-p2d (14 4 20 :base :ke-s-shoulder)
   (0 :ke-s-st-2)
   (3 :ke-s-shoulder (:root :u -0.09 :f -0.02 :yaw -8) (:pelvis :twist 21) (:spine :flex 6) (:chest :twist -37) (:head :flex -3 :twist 14) (:knee-r :flex 31) (:knee-l :flex 34)
@@ -1627,10 +1629,10 @@ flex and the spine / head flex shifted by these."
       (:arm-r :flex -10 :side -20 :twist 30) (:elbow-r :flex 110) (:hand-r :flex -60 :twist -60 :side 0))         ; (out flat to his right)
   (:s :snap (:root :f 0.12 :u -0.16 :yaw -10) (:pelvis :twist -15) (:chest :twist 0) (:spine :flex 12) (:head :flex 0 :twist -10)
       (:thigh-l :flex 52 :side 8) (:knee-l :flex 50) (:thigh-r :flex -28 :side 12) (:knee-r :flex 22)
-      (:arm-r :flex 20 :side -20 :twist -60) (:elbow-r :flex 85) (:hand-r :flex -180 :twist 60 :side 0) (:arm-l :flex -9 :side -58 :twist 35) (:elbow-l :flex 22))
-  (:a (:root :f 0.18 :u -0.18 :yaw 0) (:pelvis :twist -25) (:chest :twist 60) (:spine :flex 14) (:head :twist -30)
+      (:arm-r :flex 15 :side -36 :twist -65) (:elbow-r :flex 92) (:hand-r :flex -180 :twist 60 :side 0) (:arm-l :flex -9 :side -58 :twist 35) (:elbow-l :flex 22))
+  (:a (:root :f 0.18 :u -0.18 :yaw 0) (:pelvis :twist -18) (:chest :twist 57) (:spine :flex 14) (:head :twist -30)
       (:thigh-l :flex 55) (:knee-l :flex 54) (:thigh-r :flex -30) (:knee-r :flex 24)
-      (:arm-r :flex 20 :side 0 :twist -60) (:elbow-r :flex 60) (:arm-l :flex -4 :side -61 :twist 42) (:elbow-l :flex 19))
+      (:arm-r :flex 5 :side -37 :twist -78) (:elbow-r :flex 72) (:arm-l :flex -4 :side -61 :twist 42) (:elbow-l :flex 19))
   (28 (:root :f 0.16 :u -0.16) (:chest :twist 66) (:spine :flex 13))                                              ; carried round
   (33 (:root :u -0.06 :f 0.04) (:pelvis :twist 0) (:chest :twist 4) (:spine :flex 8) (:head :flex -2 :twist 0)
       (:thigh-l :flex 20) (:knee-l :flex 20) (:thigh-r :flex -8) (:knee-r :flex 10)
@@ -1858,6 +1860,17 @@ flex and the spine / head flex shifted by these."
 ;; it; then the arm lifts the blade up from behind his right side onto the right shoulder: pointer 2's stance (:ke-s-st-2)
 (defstrike :ke-s-issen (12 5 26 :base :ke-s-sling)
   (0 :ke-s-st-1)
+  ;; f1-f3: the draw out of the stance solved for the most even turn of the blade (its edge turns 119 in 4 frames: up to 53 a frame,
+  ;; 100 before as the channels ran straight; the blade itself up to 34, 80 before; §21)
+  (1 :ke-s-sling (:root :u -0.27 :f 0.043 :yaw 5) (:pelvis :twist 10) (:spine :flex 33 :side 0 :twist -20) (:chest :twist -14) (:head :flex -27 :twist 20)
+     (:thigh-l :flex 54 :side 10) (:knee-l :flex 77) (:thigh-r :flex -1 :side 38 :twist -34) (:knee-r :flex 64) (:foot-r :flex -26 :twist 20 :side -22) (:arm-l :flex 0 :side 42 :twist -4) (:elbow-l :flex 52) (:hand-l :flex -2)
+     (:arm-r :flex 20 :side 69 :twist -21) (:elbow-r :flex 73) (:hand-r :flex 12 :twist 7 :side 7) (:weapon-r :side 19))
+  (2 :ke-s-sling (:root :u -0.3 :f 0.045 :yaw 10) (:pelvis :twist 12) (:spine :flex 34 :side 0 :twist -13) (:chest :twist 2) (:head :flex -26 :twist -2)
+     (:thigh-l :flex 58 :side 11) (:knee-l :flex 80) (:thigh-r :flex -9 :side 30 :twist -22) (:knee-r :flex 62) (:foot-r :flex -17 :twist 13 :side -14) (:arm-l :flex 17 :side 35 :twist -2) (:elbow-l :flex 48) (:hand-l :flex -5)
+     (:arm-r :flex 16 :side 62 :twist 6) (:elbow-r :flex 50) (:hand-r :flex -1 :twist 24 :side 0) (:weapon-r :side 12))
+  (3 :ke-s-sling (:root :u -0.33 :f 0.048 :yaw 15) (:pelvis :twist 13) (:spine :flex 35 :side 0 :twist -6) (:chest :twist 19) (:head :flex -24 :twist -23)
+     (:thigh-l :flex 61 :side 12) (:knee-l :flex 82) (:thigh-r :flex -17 :side 23 :twist -11) (:knee-r :flex 61) (:foot-r :flex -8 :twist 6 :side -7) (:arm-l :flex 34 :side 28 :twist -1) (:elbow-l :flex 44) (:hand-l :flex -8)
+     (:arm-r :flex 11 :side 36 :twist 50) (:elbow-r :flex 23) (:hand-r :flex -14 :twist 10 :side -2) (:weapon-r :side 6))
   (4 :ke-s-sling (:root :u -0.36 :f 0.05 :yaw 20) (:pelvis :twist 15) (:spine :flex 36 :side 0) (:chest :twist 35) (:head :flex -22 :twist -45)
      (:thigh-l :flex 65 :side 12) (:knee-l :flex 85) (:thigh-r :flex -25 :side 16) (:knee-r :flex 60) (:arm-l :flex 50 :side 20) (:elbow-l :flex 40)
      (:arm-r :flex 13 :side -17 :twist 63) (:elbow-r :flex -2) (:hand-r :flex -28 :twist -5 :side -27))         ; the draw, low

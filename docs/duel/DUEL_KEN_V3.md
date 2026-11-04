@@ -636,3 +636,24 @@ The user: 「斬下去的瞬間速度加快，讓演出更有魄力」. Before, 
 Length unchanged (290 f). Shot at eleven frames f156-f182. Host tests 9831 ALL PASS (run for §20, unchanged since: presentation only), G2 identical (II, IK, KK).
 
 Approved as is (the user, 2026-11-04: 「目前這樣就好」).
+
+## 21. The known flaws fixed (2026-11-04)
+
+The user: 「幫我處理舊問題」 (the four left in §15, §16 and §18).
+- **P2 d's left fist off the haft** (up to 0.185 m from the hit to the end of the carry, f14-28): the haft was past the left arm's reach
+  (GRIP-LEFT!'s IK clamps at 0.999 of the arm). Solved by FK for the smallest change that brings it in reach with the blade where it
+  hits: at S the right arm `:flex 20 :side -20 :twist -60` → `15 / -36 / -65`, elbow 85 → 92; at S+A the pelvis −25 → −18, chest 60 →
+  57, the arm `20 / 0 / -60` → `5 / -37 / -78`, elbow 60 → 72 (the carry key 28 inherits it). The fist reaches the haft on every
+  frame now (the target 0.01 m inside the reach); the tip moves at most 0.11 m in the hit frames.
+- **The L3 AS route's pop as1c → as1d**: `:ke-s-as1d` plays NS1e's clip, whose frame 0 is NS1d's landing, but the AS comes from NS1c.
+  `:blend 3` on the AS copy crossfades from NS1c's end over 3 frames (presentation: the sim never reads the blend).
+- **The faint L1 streaks**: each streak is wider (0.06 → 0.08 m at L1, +0.03 a level, was +0.03 from 0.06) over an ink rim 1.6×
+  as wide, and lingers 6 frames after the window (3 before), fading over 5. To be judged in play.
+- **ISSEN's draw twirl** (f0-4 from the stance): three keys at f1-f3, the body on the straight line between the stance and the draw,
+  the right arm solved for the most even turn of the blade (the summed squares of each frame's blade and edge turn). The blade turns
+  at most 33° a frame (80 before), the edge 53° (100 before; it turns 119° over the 4 frames, so ~30 is the floor); the swing after it
+  runs ~40° a frame. §18's "a mid key cannot help" was about matching a target blade, not an even turn.
+
+Also the phone's Kikon confirm (DUEL_CORE §4, 「目前手持模式很容易誤觸毀魂技，請延長啟動觸發的判定」). Checks: host tests 9831 ALL PASS,
+touch-test 100, pkgcheck clean, the build, G2 identical; the scripted routes (L1 J ×3, L3 J + SP ×4 to AS1D, L2 SP ×4 to N2D) shot.
+Playtest v314.

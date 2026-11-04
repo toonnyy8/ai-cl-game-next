@@ -135,6 +135,13 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   at the hit, keeps the press through the confirm (`core-brain-step`), so its Kikons are as before. Browser check (debug 2502 + 2510 +
   2393, Shift + J held from 0.02 s, NS1a hits at +0.37 s): held 1.6 s → `KIKON 68`; let go at 0.30 s → no follow-up (as before); at
   0.40 / 0.50 / 0.60 s → `KIKON FOLLOW-UP`, then `lets go: no Kikon`.
+- **The phone's confirm: the whole dash-in** (2026-11-04, the user: 「目前手持模式很容易誤觸毀魂技，請延長啟動觸發的判定」): the phone's hold
+  starts with any new contact in the SP zone, so a thumb resting there through the 12-frame confirm still slipped into Kikons. Now
+  ONE-HAND's P1 is judged on the whole dash-in (`*core-kikon-confirm-touch*` :dash, `core-confirm-frames`: KIKON-FOLLOW-WAIT = 41 − S,
+  19–27 frames), so the contact must stay down 27–35 frames (0.45–0.58 s) after the hit instead of 20 (0.33 s); the HUD's hold ring
+  counts the same frames. Keyboard, pad and the CPU unchanged (12). Browser (`--mobile --size 390x844`, KK 2503 + 2393, an SP tap then
+  a re-press held): 0.35 s and 0.55 s → `lets go: no Kikon` (0.55 s was a Kikon before), 0.75 s and 1.6 s → `KIKON 70`. Host tests
+  9831, touch-test 100 pass, G2 identical.
 - **Shikai AS3's tap** (2026-10-28, the user: 「常態的 AS3 不知為何非常容易誤觸出毀魂技」): SOSEN-GIRI (`ic-as3`) hits 8 frames after the SP
   press that starts it, sooner than a tap is up, so a tap was "held" at the hit. The confirm above is the fix: the tap is released in
   the 8-frame hitstop, so the dash-in's first frame undoes it and the AS goes on. Browser (2502 + 2393, J ×5 then Shift + J): held 0.15

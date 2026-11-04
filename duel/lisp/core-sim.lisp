@@ -281,12 +281,19 @@ KESSA's pointer 3 plays 千影 (the user, 2026-10-28: 「指針三的毀魂技�
   (let ((f (fighter att)))
     (setf (fighter-kikon-n f) (core-kikon-count (kit-kikon-konpaku (fighter-kit f)) (fighter-sp-ptr f) red))))
 
+(defun core-confirm-frames (f mv)
+  "Frames of F's dash-in (phase :follow) after his held SP MV's hit that the hold is judged on: *CORE-KIKON-CONFIRM*, on the phone
+*CORE-KIKON-CONFIRM-TOUCH* (:DASH = all of KIKON-FOLLOW-WAIT)."
+  (if (core-touch-p f)
+      (let ((c *core-kikon-confirm-touch*)) (if (eq c :dash) (kikon-follow-wait (mv-s mv)) c))
+      *core-kikon-confirm*))
+
 (defun core-follow-step (e f mv)
   "The Kikon's dash-in after the struck SP (phase :follow): chase the knocked-back victim for KIKON-FOLLOW-WAIT frames, then the
-same strike again; its hit is the Kikon (KIKON-OUTCOME). The hold is judged on for *CORE-KIKON-CONFIRM* of these frames: a let-go
-drops it (CORE-KIKON-UNDO!)."
+same strike again; its hit is the Kikon (KIKON-OUTCOME). The hold is judged on for CORE-CONFIRM-FRAMES of these frames (the phone:
+all of them): a let-go drops it (CORE-KIKON-UNDO!)."
   (incf (fighter-hold f))
-  (when (and (<= (fighter-hold f) *core-kikon-confirm*) (not (core-held-p e)) (fighter-kikon-undo f))
+  (when (and (<= (fighter-hold f) (core-confirm-frames f mv)) (not (core-held-p e)) (fighter-kikon-undo f))
     (clog "~a lets go: no Kikon" (side-name e))
     (return-from core-follow-step (core-kikon-undo! e f)))
   (when (= (fighter-hold f) 1) (core-follow-cues e (fighter-opp f)))   ; still held after the hitstop: now its cues (a tap is up)

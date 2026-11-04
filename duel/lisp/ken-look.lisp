@@ -15,8 +15,8 @@
 (defparameter *ke-wind-life* 10 "Frames the wind crescent flies after its hit window opens (and the streaks linger after it closes).")
 
 (defun-fast-inline %ke-streaks (st d tip px pz lv k)
-  "L1+: three thin white streaks peeling off behind TIP against its cut direction ST[D..], fanned out from his centre (PX PZ), longer
-by LV; K presence."
+  "L1+: three white streaks over an ink rim (0.08 m wide at L1, +0.03 a level; §21: 0.06 and no rim read faint) peeling off behind
+TIP against its cut direction ST[D..], fanned out from his centre (PX PZ), longer by LV; K presence."
   (declare (type f32vec st tip) (fixnum d lv) (single-float px pz k))
   (let* ((x (aref tip 0)) (y (aref tip 1)) (z (aref tip 2)) (dx (aref st d)) (dy (aref st (+ d 1))) (dz (aref st (+ d 2)))
          (rx (- x px)) (rz (- z pz)) (rl (f-max 0.05f0 (f-hypot rx rz))) (ux (/ rx rl)) (uz (/ rz rl))
@@ -28,7 +28,9 @@ by LV; K presence."
              (x1 (+ x (* out ux))) (y1 (+ y (* (- 0.1f0 (* 0.1f0 fj)) 1f0))) (z1 (+ z (* out uz))))
         (declare (single-float fj out l x0 y0 z0 x1 y1 z1))
         (fx-crescent x0 y0 z0 x1 y1 z1 (+ (* 0.5f0 (+ x0 x1)) (* 0.12f0 ux)) (* 0.5f0 (+ y0 y1)) (+ (* 0.5f0 (+ z0 z1)) (* 0.12f0 uz))
-                     (* 0.03f0 (i->f (+ 1 lv))) :lens 0.04f0 (+ 410f0 fj dr) +pal-hit+ (* k (- 1f0 (* 0.2f0 fj))) :push 0.12f0))))
+                     (* 1.6f0 (+ 0.05f0 (* 0.03f0 (i->f lv)))) :lens 0.04f0 (+ 420f0 fj dr) +pal-ink+ (* 0.6f0 k (- 1f0 (* 0.2f0 fj))) :push 0.08f0)
+        (fx-crescent x0 y0 z0 x1 y1 z1 (+ (* 0.5f0 (+ x0 x1)) (* 0.12f0 ux)) (* 0.5f0 (+ y0 y1)) (+ (* 0.5f0 (+ z0 z1)) (* 0.12f0 uz))
+                     (+ 0.05f0 (* 0.03f0 (i->f lv))) :lens 0.04f0 (+ 410f0 fj dr) +pal-hit+ (* k (- 1f0 (* 0.2f0 fj))) :push 0.12f0))))
   nil)
 
 (defun-fast-inline %ke-crescent (st d tip far px pz t0 w k seed)
@@ -73,7 +75,8 @@ LV (1-3); ONCE 1 on the frame the window opens (the floor's crack, the rubble, t
       (let* ((k (if (< sf (+ to 1)) 1f0 (f-max 0f0 (/ (i->f (- (+ to life) sf)) (i->f life)))))
              (t0 (f-clamp (/ (i->f (- sf from)) (i->f life)) 0f0 1f0)) (dr (drawing-no)))
         (declare (single-float k t0 dr))
-        (when (< sf (+ to 4)) (%ke-streaks st d tip px pz lv (* 0.9f0 (f-min 1f0 (/ (i->f (- sf (- from 3))) 3f0)))))
+        (when (< sf (+ to 7)) (%ke-streaks st d tip px pz lv (* 0.95f0 (f-min 1f0 (/ (i->f (- sf (- from 3))) 3f0))   ; (in over 3 f, out
+                                                         (f-min 1f0 (/ (i->f (- (+ to 7) sf)) 5f0)))))       ;  over 5 after it)
         (when (and (>= lv 2) (>= sf from))
           (let ((kc (* 0.95f0 (- 1f0 (* t0 t0)))))
             (declare (single-float kc))

@@ -152,7 +152,9 @@
   :reach 1.4 :arc 70 :on-hit :stagger :slide 1.0 :params (:ns-next :ke-s-n2b))   ; (the hilt's short reach: a step in, the scripted
                                                                                   ;  2.2 m scene whiffed it without one)
 ;; the ASs that keep the pointer (:lv-up): one segment more per L; the last at L3 knocks down
-(defmove-copy :ke-s-as1d :ke-s-n1e :kind :sp :dmg 110 :on-hit :knockdown :params (:lv 3 :lv-up t))
+(defmove-copy :ke-s-as1d :ke-s-n1e :kind :sp :dmg 110 :on-hit :knockdown :blend 3 :params (:lv 3 :lv-up t))   ; (blend 3: its clip
+                                                                                                          ;  starts on NS1d's landing, the AS
+                                                                                                          ;  comes from NS1c: no pop, §21)
 (defmove-copy :ke-s-as1c :ke-s-n1c :kind :sp :params (:lv 2 :lv-up t :ns-next :ke-s-as1d))
 (defmove-copy :ke-s-as1b :ke-s-n1b :kind :sp :params (:lv 1 :lv-up t :ns-next :ke-s-as1c))
 (defmove-copy :ke-s-as1 :ke-s-n1a :kind :sp :startup 14 :params (:lv-up t :ns-next :ke-s-as1b))

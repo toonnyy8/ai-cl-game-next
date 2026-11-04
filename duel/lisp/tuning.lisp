@@ -675,6 +675,10 @@ per neutral decision; one who isn't red only as a poke (the kit's :moves bands).
   "Frames of a held SP's dash-in (phase :follow, after the hitstop) the button must still be down for: a let-go inside them drops
 the Kikon, both back to neutral (CORE-FOLLOW-STEP). 0 -> 12, 2026-10-28, the user: 「把毀魂技的按住判定時間拉長」 (asked which way,
 「打中後要多按住幾幀」; the frames left to me). Before, only the hit frame was judged.")
+(defparameter *core-kikon-confirm-touch* :dash
+  "The phone's confirm (ONE-HAND's P1): :DASH = the whole dash-in, to the frame the follow-up strike starts (KIKON-FOLLOW-WAIT of
+the SP's startup: 41 - S, 19-27 frames), so a hold must stay down 27-35 frames (0.45-0.58 s) after the hit, not 20 (0.33 s); or a
+frame count. 12 -> :dash, 2026-11-04, the user: 「目前手持模式很容易誤觸毀魂技，請延長啟動觸發的判定」 (DUEL_CORE §4).")
 (defparameter *core-damage* 0.42
   "x every hit of a fighter whose kit has a :core (KIT-ATK-MODS). The first core build ended matches in ~55 s median (Ichigo mirror 43 s,
 KI 61 s, HK 57 s; target 125-210 s): the pointer-3 Soul Break takes up to 5 of 9 Konpaku, so the Reishi (1300) is the pace. 1.0 before.")
