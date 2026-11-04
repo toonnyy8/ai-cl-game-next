@@ -990,3 +990,23 @@ crescents 3 / 4.6 / 3 m tall, 1.3 m apart, BLOOD with a white core and bowed for
 floor in 10 frames and thinning out; behind it the floor splits 16 m (the `:meteor` line cut, Nozarashi's: the gash, the light sheet,
 the ground heaving out on both sides, rocks), scars every 2.5 m to 14 m, the Kikon slash under the crack. Drawn only: the hit
 stays its 2.4 m volume. The rift (§30.2) still cuts on 34.
+
+## 31. The Bankai's hits: the Shikai's crispness (2026-11-04)
+
+「卍解整體的打擊感與音效的爽快程度都不如始解，遊玩手感有一種悶悶、不夠俐落的感覺」. Compared: (1) the Shikai's :draw hook (ken-look.lisp
+KEN-DRAW) throws the sword wind on every hit window by its L (streaks; a crescent and a dust line at L2; a second crescent, the floor
+cracked, rubble, a shake at L3), the Bankai had none; (2) the hitstop by damage (`*ken-hs-dmg*`) runs longer on the Bankai's heavier
+hits (斬壞's NS 10–14 f, the finishers 12–14, against the Shikai's J 5–7 and NS 8); (3) the oni pillar stood round him through
+every swing; the sounds were the same set. Asked (four options); the user took the wind, a sound layer and the pillar (not the
+hitstop):
+
+- **The sword wind**: the Bankai kits get `:draw ken-draw`; in a Bankai form it draws at L3 always, the rims BLOOD
+  (`*ke-wind-rim*`, the Shikai's INK) under the white, the two special AS left to their own looks (§30).
+- **A crisp layer** (`:hit-fx ken-bk-hit-fx`, a sound): every Bankai hit adds the space cut's slash (`:rift-cut`, 0.55) over the
+  usual cut; a heavy one (80+ or not a J) also a low boom (`:awaken-boom`, 0.4).
+- **The pillar off the swings** (draw.lisp `oni-aura-k`): the oni aura eases to `*oni-k-attack*` = 0.2 while he strikes (a J, an
+  NS / AS segment, an SP in its main phase) and back to 1 after (about 10 / s, real time: no pop).
+
+All presentation: the sim never reads them. Checked: host tests 9876 ALL PASS, pkgcheck clean, the build without a new warning;
+shots of 狂嵐 J1–J3 and 斬壞 J1–J2 on the idle Ichigo (84004 / 84005): the red-rimmed crescents, the cracks and rubble, the pillar
+low through the swings. The sound needs the user's ears.

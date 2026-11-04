@@ -13,6 +13,8 @@
 (defvar *ke-tip* (make-f32 3) "KEN-DRAW's held tip.")
 (defvar *ke-far* (make-f32 5) "The hit volume's far point (%IC-FAR's layout; [3] / [4] unused).")
 (defparameter *ke-wind-life* 10 "Frames the wind crescent flies after its hit window opens (and the streaks linger after it closes).")
+(declaim (type single-float *ke-wind-rim*))
+(defvar *ke-wind-rim* +pal-ink+ "The wind's rim palette: the Shikai's INK, the Bankai's BLOOD (KEN-DRAW, DUEL_KEN_V3 §31).")
 
 (defun-fast-inline %ke-streaks (st d tip px pz lv k)
   "L1+: three white streaks over an ink rim (0.08 m wide at L1, +0.03 a level; §21: 0.06 and no rim read faint) peeling off behind
@@ -28,7 +30,7 @@ TIP against its cut direction ST[D..], fanned out from his centre (PX PZ), longe
              (x1 (+ x (* out ux))) (y1 (+ y (* (- 0.1f0 (* 0.1f0 fj)) 1f0))) (z1 (+ z (* out uz))))
         (declare (single-float fj out l x0 y0 z0 x1 y1 z1))
         (fx-crescent x0 y0 z0 x1 y1 z1 (+ (* 0.5f0 (+ x0 x1)) (* 0.12f0 ux)) (* 0.5f0 (+ y0 y1)) (+ (* 0.5f0 (+ z0 z1)) (* 0.12f0 uz))
-                     (* 1.6f0 (+ 0.05f0 (* 0.03f0 (i->f lv)))) :lens 0.04f0 (+ 420f0 fj dr) +pal-ink+ (* 0.6f0 k (- 1f0 (* 0.2f0 fj))) :push 0.08f0)
+                     (* 1.6f0 (+ 0.05f0 (* 0.03f0 (i->f lv)))) :lens 0.04f0 (+ 420f0 fj dr) *ke-wind-rim* (* 0.6f0 k (- 1f0 (* 0.2f0 fj))) :push 0.08f0)
         (fx-crescent x0 y0 z0 x1 y1 z1 (+ (* 0.5f0 (+ x0 x1)) (* 0.12f0 ux)) (* 0.5f0 (+ y0 y1)) (+ (* 0.5f0 (+ z0 z1)) (* 0.12f0 uz))
                      (+ 0.05f0 (* 0.03f0 (i->f lv))) :lens 0.04f0 (+ 410f0 fj dr) +pal-hit+ (* k (- 1f0 (* 0.2f0 fj))) :push 0.12f0))))
   nil)
@@ -51,7 +53,7 @@ flight: the blade's path flying on. A white lens W thick with an ink rim behind 
            (x1 (+ cx (* h ax))) (y1 (f-max 0.1f0 (+ cy (* h ay)))) (z1 (+ cz (* h az))))
       (declare (single-float h b x0 y0 z0 x1 y1 z1))
       (fx-crescent (- x0 (* 0.08f0 ux)) y0 (- z0 (* 0.08f0 uz)) (- x1 (* 0.08f0 ux)) y1 (- z1 (* 0.08f0 uz))
-                   (+ cx (* (- b 0.08f0) ux)) cy (+ cz (* (- b 0.08f0) uz)) (* 1.35f0 w) :lens 0.05f0 seed +pal-ink+ (* 0.85f0 k) :push 0.08f0)   ; (the rim)
+                   (+ cx (* (- b 0.08f0) ux)) cy (+ cz (* (- b 0.08f0) uz)) (* 1.35f0 w) :lens 0.05f0 seed *ke-wind-rim* (* 0.85f0 k) :push 0.08f0)   ; (the rim)
       (fx-crescent x0 y0 z0 x1 y1 z1 (+ cx (* b ux)) cy (+ cz (* b uz)) w :lens 0.05f0 (+ seed 7f0) +pal-hit+ k :push 0.14f0)))
   nil)
 
@@ -89,15 +91,19 @@ LV (1-3); ONCE 1 on the frame the window opens (the floor's crack, the rubble, t
   nil)
 
 (defun ken-draw (e rdt)
-  "KIT-HOOK :draw (the Shikai): the sword wind on each hit window of the move he is in, by the level it shows (L now; a burst's the
-route's)."
+  "KIT-HOOK :draw (the Shikai and the Bankai): the sword wind on each hit window of the move he is in, by the level it shows (L now; a
+burst's the route's); the Bankai's always at L3's with a BLOOD rim, its special AS left to their own looks (DUEL_KEN_V3 §31; the user,
+2026-11-04: 「卍解整體的打擊感與音效的爽快程度都不如始解」)."
   (declare (ignore rdt))
   (let* ((f (fighter e)) (m (model e)) (o (* 16 (fighter-side f))) (st *ke-look*)
-         (mv (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (fighter-move f)))
-         (sf (if mv (fighter-sf f) -1)) (prev (%ic-frame st (+ o 6) sf)))
+         (bk (member (fighter-form f) '(:bankai :bankai-2)))
+         (mv (and (eq (fighter-state f) :move) (eq (fighter-phase f) :main) (fighter-move f)
+                  (not (and bk (member (mv-name (fighter-move f)) '(:ke-kr-sp :ke-zh-sp)))) (fighter-move f)))
+         (sf (if mv (fighter-sf f) -1)) (prev (%ic-frame st (+ o 6) sf))
+         (*ke-wind-rim* (if bk +pal-blood+ +pal-ink+)))
     (declare (fixnum o sf prev))
     (when (and mv (model-weapon m) (> (model-alpha m) 0.5))
-      (let ((lv (min 3 (if (getf (mv-params mv) :burst) (fighter-lv-cap f) (ken-lv e)))))
+      (let ((lv (if bk 3 (min 3 (if (getf (mv-params mv) :burst) (fighter-lv-cap f) (ken-lv e))))))
         (declare (fixnum lv))
         (let ((jm (model-joints m)) (tip *ke-tip*) (hits (mv-hits mv)))
           (declare (simple-vector hits))

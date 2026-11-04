@@ -279,6 +279,7 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
                          ((and (eq look :charge) (not (eq (fighter-phase f) :main))) 1.5)
                          ((and mv (getf (mv-params mv) :aura-k)) (getf (mv-params mv) :aura-k))   ; a charge stance's reiatsu (Kenpachi NS3)
                          ((and mv (eq (mv-kind mv) :kikon) (eq (kit-aura kit) :oni)) 0.15)   ; the oni pillar smoulders in
+                         ((eq (kit-aura kit) :oni) (oni-aura-k f (and mv (eq (fighter-phase f) :main) (member (mv-kind mv) '(:quick :flash :sp))) rdt))
                          (t 1.0))))                                                           ; his rush (its trail is the tell)
       (when (plusp (fighter-layers f))                     ; 霜の層 (Rukia's Shikai): the crust up his legs by layers
         (vfx-ru-layers x z (body-hurt-h b) (fighter-layers f) rdt))
@@ -303,6 +304,15 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
                  (or (not (eq (fighter-phase f) :main)) (< (fighter-sf f) (mv-s mv))))
         (vfx-aura x y z (body-hurt-h b) :kikon age rdt :k 1.0)))
     (unless (and mv (eq (mv-kind mv) :breaker)) (stop-hum e))))
+
+(declaim (type f32vec *oni-k*))
+(defvar *oni-k* (fill (make-f32 2) 1f0) "Per side: the oni pillar's presence now (ONI-AURA-K).")
+(defparameter *oni-k-attack* 0.2 "The oni pillar's presence while he strikes (DUEL_KEN_V3 §31; the user, 2026-11-04: 「出招時靈壓柱變淡」).")
+(defun oni-aura-k (f attacking rdt)
+  "The oni aura's presence for fighter F (cosmetic, real time): eased toward *ONI-K-ATTACK* while ATTACKING (a J, NS / AS segment or SP
+past its dash), back to 1 after, at about 10 per second, so the pillar fades off his swings without popping."
+  (let* ((i (fighter-side f)) (k (aref *oni-k* i)) (want (if attacking *oni-k-attack* 1.0)))
+    (setf (aref *oni-k* i) (f32 (+ k (* (- want k) (min 1.0 (* 10.0 rdt))))))))
 
 (defun-fast %aura-ms (i)
   "Milliseconds of fx clock since side I's aura changed (a fixnum: no boxed float in DRAW-AURA's steady state)."

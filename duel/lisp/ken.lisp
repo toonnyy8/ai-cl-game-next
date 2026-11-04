@@ -371,7 +371,7 @@
 (defmacro def-ken-bankai (form &key name ns as sa strings stance kikon-cine)
   "One of his two Bankai kits (DUEL_KEN_V3 §26): one pointer, its own J string, NS, five AS entries (Jn + SP, n 1-5) and Kikon."
   `(defkit :kenpachi ,form :inherit :base
-     :hooks (:tick ken-bk-tick :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)
+     :hooks (:tick ken-bk-tick :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult :draw ken-draw :hit-fx ken-bk-hit-fx)   ; (§31)
      :endless-form :nozarashi :enter-clips (:ke-release :ke-nome) :respect-callout "OMOSHIREE!"
      :awakening t :mult *bankai-ken-mult* :form-name ,name :kikon-konpaku 4 :open-s nil
      :bankai-form nil :passives (:projectile-cut)
@@ -437,6 +437,13 @@ KEN-TATEGOTO-CUT), the sword wave racing 16 m down the floor and the floor split
 frame too: :dmg-at, DELAY-HIT)."
   (hitstop *ken-tategoto-stop*)
   (emit :ken-bk-burst e :tategoto-cut))
+
+(defun ken-bk-hit-fx (att def x y z hs counter dmg kind)
+  "The Bankai kits' :hit-fx hook (FEEDBACK-SYSTEM, after the hit's spark; DUEL_KEN_V3 §31, a sound): a bright ring over every hit (the
+space cut's slash), a low boom under a heavy one (a strike of 80 or more, or not a J)."
+  (declare (ignore att def hs counter))
+  (sfx-at :rift-cut x y z :gain 0.55)
+  (when (or (>= dmg 80) (not (eq kind :quick))) (sfx-at :awaken-boom x y z :gain 0.4)))
 
 (defun ken-bk-tick (e f g)
   "The Bankai kits' :tick (GAUGE-SYSTEM): the special AS over (he is out of it, past any Kikon and its cinematic), back to the Shikai on
