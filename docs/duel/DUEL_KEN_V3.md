@@ -718,3 +718,49 @@ The user: 「整體縮小成 0.8 倍，刀身額外再縮小成 0.8 倍」, then
 The placeholder Bankai J1 / J2 reaches go back to 1.28 (from §23's 1.48 / §24's 1.44): the drawn far end is near its old 0.9 again
 and the Bankai is checked one-sided (the art not past the volume + 0.15), passed at 1.28 with the 0.8 and 0.9 sizes. Nozarashi
 byte-identical; host tests 9831 ALL PASS, pkgcheck clean (no match tests at this stage). Playtest v318.
+
+## 26. The Bankai batch: the frame table (draft, mine, knobs; for the user's approval)
+
+The user: 「定案，可以開始下一步了」 (the cleaver of §22–§25 final). The styles are §5.4's (approved); the rules B1–B3 (§4). The weapon:
+the long haft held halfway, the head 1.06 m past the grip, so a cut reaches about 1.8 m past his centre (the arm 0.7 + the cleaver).
+Two kits replace the placeholder `:bankai` (DUEL_KEN_CORE §8's three pointers): one per Shikai pointer it is entered from, each with one
+pointer, its own stance, NS, AS and special AS, its own Kikon cinematic. Damage before the kit's ×1.2; hitstop by damage as the Shikai.
+
+| Move | S | dmg | reaction | reach / travel |
+|---|---|---|---|---|
+| J1–J5 (one string for both, the axe) | 8 / 8 / 9 / 9 / 11 | 45 / 45 / 50 / 50 / 70 | flinch ×4, stagger | 1.8 |
+| 狂嵐 (from P1) NS a the lunge cut | 14 | 80 | stagger | 1.8, dash 3.0 |
+| b the spin | 10 | 70 | stagger | 1.9, all round |
+| c the reverse spin | 10 | 70 | stagger | 1.9, all round |
+| d the sword dance | 8 | 40 + 40 | flinch, crumple | 1.8 |
+| AS: the segments of a → b → (d) → the spinning leap cut, the last one knocks down | 12 | as the segments, the last 110 | knockdown | |
+| special AS 千切 (SP after J5; the space-cutting draw, §5.4) | 12 | 300 | knockdown, the Kikon hold works | 2.4 at his place (the cuts in the air drawn only) |
+| 斬壞 (from P2) NS a the shoulder-drop overhead chop | 16 | 100 | crumple | 1.9 |
+| b the dragged rising chop | 12 | 90 | stagger | 1.9 |
+| c both hands, the flat sweep | 14 | 100 | stagger | 2.0, 180° |
+| d the turning chop | 16 | 130 | crumple | 2.0 |
+| AS: the segments of a → b → (c) → d, the last one knocks down | 12 | as the segments, the last 150 | knockdown | |
+| special AS TATE-GOTO (SP after J5; canon ch. 670) | 20 | 320 | knockdown, the Kikon hold works | 2.4 |
+
+Rules: every NS segment and AS segment costs him 40 Reiatsu, never below 1 (B2); the special AS: −1 Konpaku (none on his last, §4), then
+back to the Shikai on the pointer he came from, L 0 (B3); no other way out of the Bankai. No mid-route knockdown (an SA may follow any NS
+segment). Kikon cinematics: 狂嵐 the space shattering round him and the roar (the 千切 idea, §5.4); 斬壞 a new split of its own (the sealed
+form's pointer 3 keeps `ken-sky-split-cine`, so TATE-GOTO's Kikon is not the same white line). The CPU: the generic core one.
+
+### 26.1 Asked, answered (verbatim) and the table revised
+
+| Question | Answer |
+|---|---|
+| NS segments (§5.4's table had four, B1 said three) | 「4 段（照表）」: a → b → c → d for both. |
+| The AS, now that SP after J5 is the special AS (the core's J1–2 → AS1, J3–4 → AS2, J5 → AS3) | 「只有一種 AS」: SP after J1–J4 is the one AS, its segments as many as the J links landed; after J5 the special AS. |
+| One J string for both Bankai or one each | 「各自一串」: 狂嵐's quick one-hand flourishes, 斬壞's heavy dragged chops. |
+
+So each Bankai: J1–J5 of its own; NS a → b → c → d; the AS after Jn (n 1–4) = n segments, the first n − 1 NS a, b, c's cuts and the
+last its finisher (狂嵐 the spinning leap cut 110, 斬壞 the turning chop 150, knockdown); SP after J5 = the special AS.
+
+| | 狂嵐 (from P1) J1–J5 | 斬壞 (from P2) J1–J5 |
+|---|---|---|
+| S | 7 / 7 / 8 / 8 / 10 | 9 / 10 / 10 / 11 / 13 |
+| dmg | 40 / 40 / 45 / 45 / 65 | 50 / 55 / 55 / 60 / 85 |
+| reaction | flinch ×4, stagger | flinch ×4, stagger |
+| reach | 1.8 | 1.9 |
