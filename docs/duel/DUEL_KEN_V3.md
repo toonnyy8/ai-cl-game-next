@@ -623,3 +623,14 @@ meteor comes from in a 1v1 (A: the victim falls back wrapped as one; B: a meteor
 - Presentation only (`ken-look.lisp`; the in-game INSEKI-GIRI clip untouched, the cinematic plays it slowed). Debug 84095 plays it; its
   `:hold` frame is the cut (168). Checks: host tests 9831 ALL PASS, pkgcheck clean, the build, 22 frames shot (f60-f270, every 6-10
   frames through the middle). G2: II and IK identical; KK: every hash line identical, only its RESULTS line moved 17924 -> 18046 ticks (298.7 -> 300.8 s, P2 0-4: the 122 f of the one TSUITENZAN it plays), so the reference was regenerated.
+
+### 20.1 The cut at full speed (2026-11-04)
+
+The user: 「斬下去的瞬間速度加快，讓演出更有魄力」. Before, INSEKI-GIRI's clip ran at 0.3 through the swing, so the blade took about
+10 frames from the arch (key 17, f158) to the hit (S, f168), and slow motion started on the hit frame. Now:
+- held arched: the clip restarts at key 13 at 0.25 on f150 (key 17 by f166, the arch barely moving);
+- the swing at full speed: on f165 the clip jumps to key 17 at speed 1 (blend 0), S on f168; the blade covers its arc in 1-2 frames,
+  a gold smear of the arc growing over f165-168 (`ke-kk-cut`), the lens punched wide (62°, dutch 10) and a whoosh;
+- the hit: a 3-frame negative, focus lines 24, the shake 0.3 → 0.55, an extra low explosion; a hit-stop f168-174 (`cine-slow 0`),
+  then the slow motion ×0.25 to f196 as before.
+Length unchanged (290 f). Shot at eleven frames f156-f182. Host tests 9831 ALL PASS (run for §20, unchanged since: presentation only), G2 identical (II, IK, KK).

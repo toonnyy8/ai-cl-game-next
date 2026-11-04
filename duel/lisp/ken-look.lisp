@@ -244,7 +244,7 @@ blow, the halves falling apart; the user, 2026-11-04: 「不是真的要劈開�
 reads: beat 0, the shoulder rest held; a white card, low and dutch, the brush 墜天斬 and the hanko, silence; the hilt sunk slowly
 and flicked up into him: he goes up tumbling, seen from below; Kenpachi crouches and leaps skyward after him (wide), arched over
 him with both hands on the hilt, held, his reiatsu flaring; the one cut down through him: a negative, focus lines, slow motion
-seen down the line, the arc of the cut splitting into two halves that peel apart to either side; they fall, his tail like a
+seen down the line (the swing itself 3 frames at full speed, a 6-frame hit-stop), the arc of the cut splitting into two halves that peel apart to either side; they fall, his tail like a
 meteor's; the floor cratered under him and the halves landing on both sides (a manga page, the Konpaku); he laughs; wide."
   (at 0 (cine-place a v 2.0) (ke-kk-line a v) (shot-on a 50 3.4 1.0 :look 1.2) (lens 50)
       (cine-clip a :ke-s-st-2 :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
@@ -261,8 +261,12 @@ meteor's; the floor cratered under him and the halves landing on both sides (a m
                      (cine-cam (+ (aref l 0) (* 4.2 (aref l 2)) (* 3.2 (aref l 3))) 0.4 (+ (aref l 1) (* 4.2 (aref l 3)) (* -3.2 (aref l 2)))
                                (aref q 0) (+ (aref q 1) 0.8) (aref q 2))))
   (at 79 (lens 50))
-  ;; Kenpachi: INSEKI-GIRI's clip at 0.3: the crouch (its key 6) at f122, the leap (9) f132, arched (13-17) f145-158, the cut (S 20) f168
+  ;; Kenpachi: INSEKI-GIRI's clip at 0.3: the crouch (its key 6) at f122, the leap (9) f132, arched (13) f145; held arched at 0.25
+  ;; to f165, then the cut at full speed (the user: 「斬下去的瞬間速度加快，讓演出更有魄力」): 17 -> S 20 in 3 frames, S on f168
   (at 102 (cine-clip a :ke-s-meteor :blend 6 :speed 0.3))
+  (at 150 (cine-clip a :ke-s-meteor :blend 4 :time (/ 13.0 60.0) :speed 0.25))
+  (at 165 (cine-clip a :ke-s-meteor :blend 0 :time (/ 17.0 60.0)) (lens 62 10) (play-sfx :whoosh-cleaver :pitch 0.8))
+  (during (165 168) (ke-kk-cut (+ 0.3 (* 0.7 u)) 0.0 0.0 (+ 690.0 (drawing-no))))           ; the smear of the swing
   (at 122 (play-sfx :whoosh-heavy :pitch 0.7))
   (during (122 152) (ke-kk-at a (- 2.0 (* 0.9 u)) (* 5.8 (- 1.0 (expt (- 1.0 u) 2)))))     ; the leap skyward
   (during (152 196) (ke-kk-at a 1.1 (+ 5.8 (* 0.1 u))))                                      ; arched over him, the cut, held
@@ -280,9 +284,10 @@ meteor's; the floor cratered under him and the halves landing on both sides (a m
   (during (148 170) (let ((p (pos-of a)))                                                   ; his reiatsu flaring
                       (fx-billboard (aref p 0) (+ (aref p 1) 1.6) (aref p 2) (* 1.6 (min 1.0 (* 2.0 u))) 1.0 0.85 0.3
                                     (* 0.5 (- 1.0 (* u u))))))
-  (at 168 (cine-slash v :heavy) (impact-frame :negative 2) (focus-lines 20) (cine-slow 0.25)
-      (play-sfx :kikon-slash) (play-sfx :cut-heavy) (shake 0.3 0.4)
+  (at 168 (cine-slash v :heavy) (impact-frame :negative 3) (focus-lines 24) (cine-slow 0)       ; a hit-stop ...
+      (play-sfx :kikon-slash) (play-sfx :cut-heavy) (play-sfx :explode :pitch 0.7) (shake 0.55 0.6)
       (lens 40))
+  (at 174 (cine-slow 0.25))                                                                     ; ... then slow motion
   (during (168 196) (let ((l *ke-kk*))                                                      ; down the line: the halves part
                       (cine-cam (+ (aref l 0) (* -10.0 (aref l 2))) 3.6 (+ (aref l 1) (* -10.0 (aref l 3)))
                                 (+ (aref l 0) (* 0.5 (aref l 2))) 5.0 (+ (aref l 1) (* 0.5 (aref l 3))))))
