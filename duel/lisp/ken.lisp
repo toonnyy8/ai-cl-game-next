@@ -168,6 +168,12 @@
 (defmove :ke-s-burst2 :kind :sp :clip :ke-s-issen :clip-s 12 :callout "TOSSHIN-ISSEN" :startup 12 :active 5 :recovery 26 :dmg 100 :adv-block -8
   :reach 2.6 :arc 100 :on-hit :knockdown :slide 3.5 :params (:burst (100 150 200 260)))   ; to pointer 2: through him, onto the shoulder
 ;; the special ASs (SP after J4-J6 at L3)
+;; the Bankai's burst AS (DUEL_KEN_V3 §32; the user, 2026-11-05: 「卍解的瞬間不再接入特寫，改成引爆大量靈壓並將對手彈飛的特殊 AS」): SP after J7;
+;; he gathers, the reiatsu detonates round him on 12 (3.2 m all round, the victim blown 5 m away), the Bankai of his pointer on 15 (no
+;; cinematic; nothing restored, §26.3); no Kikon off it
+(defmove :ke-s-bankai :kind :sp :clip :ke-s-bankai :clip-s 12 :blend 3 :callout "BANKAI" :startup 12 :active 3 :recovery 24 :dmg 100
+  :adv-block -10 :reach 3.2 :arc 360 :on-hit :knockdown :kb 5.0 :params (:no-kikon t)
+  :on-frame ((12 ken-bankai-burst) (15 ken-bankai-enter)))
 (defmove :ke-s-sp1 :kind :sp :clip :ke-s-wheel :clip-s 12 :callout "DAISHARIN" :startup 12 :active 14 :recovery 26 :adv-block -10
   :reach 3.0 :arc 360 :hits ((12 14 :dmg 60 :on-hit :stagger) (18 20 :dmg 60 :on-hit :stagger) (24 26 :dmg 120 :on-hit :launch)))
 (defmove :ke-s-sp2 :kind :sp :clip :ke-s-meteor :clip-s 20 :callout "INSEKI-GIRI" :startup 20 :active 4 :recovery 30 :dmg 260 :adv-block -12
@@ -275,7 +281,7 @@
             (:ke-s-j6 :q :ke-s-j7))                                      ; (J4-J7: L3, KEN-LINK-OK)
   ;; AS: J1-J2 + SP pointer 1's, J3+ pointer 2's (§5.2 「看 J 打幾段」); KEN-AS-PICK turns one that writes the other pointer into the burst
   ;; (:as entries 3 / 4) and J4-J6 / J7 into the special AS (5 / 6) / the Bankai
-  :core (:ns (:ke-s-n1a :ke-s-n2a) :as (:ke-s-as1 :ke-s-as2 :ke-s-burst1 :ke-s-burst2 :ke-s-sp1 :ke-s-sp2) :sa :ke-s-sa :mult 1.2
+  :core (:ns (:ke-s-n1a :ke-s-n2a) :as (:ke-s-as1 :ke-s-as2 :ke-s-burst1 :ke-s-burst2 :ke-s-sp1 :ke-s-sp2 :ke-s-bankai) :sa :ke-s-sa :mult 1.2
          :as-by-press (1 1 2)
          :stances (:ke-s-st-1 :ke-s-st-2)                               ; the slung hilt low / the shoulder (§14)
          :kikon-cines (ken-s-kikon1-cine ken-s-kikon2-cine))   ; KAITENZAN / TSUITENZAN (ken-look.lisp, DUEL_KEN_V3 §19)
@@ -437,6 +443,14 @@ KEN-TATEGOTO-CUT), the sword wave racing 16 m down the floor and the floor split
 frame too: :dmg-at, DELAY-HIT)."
   (hitstop *ken-tategoto-stop*)
   (emit :ken-bk-burst e :tategoto-cut))
+
+(defun ken-bankai-burst (e) "The Bankai's burst AS detonates (§32, a look): the reiatsu bursting off him." (emit :ken-bk-burst e :bankai))
+(defun ken-bankai-enter (e)
+  "The Bankai's burst AS, 3 frames after the detonation (§32): the Bankai of the pointer he is on (狂嵐 / 斬壞, §26), no cinematic, nothing
+restored (§26.3)."
+  (let ((cur (fighter-ptr (fighter e))))
+    (clog "~a BANKAI from pointer ~d" (side-name e) cur)
+    (bankai! e (if (= cur 2) :bankai-2 :bankai) nil nil)))
 
 (defun ken-bk-hit-fx (att def x y z hs counter dmg kind)
   "The Bankai kits' :hit-fx hook (FEEDBACK-SYSTEM, after the hit's spark; DUEL_KEN_V3 §31, a sound): a bright ring over every hit (the
@@ -1160,11 +1174,7 @@ the route's level, the damage KEN-DMG-MULT's), L back to 0 (§4 S5, §5.2); else
   (let* ((mv (fighter-move f)) (p (and mv (mv-params mv))) (cur (fighter-ptr f))
          (as (getf (kit-core (fighter-kit f)) :as)))
     (flet ((nth-as (i) (gethash (nth i as) (kit-moves (fighter-kit f)))))
-      (cond ((getf p :bankai-as)
-             (clog "~a BANKAI from pointer ~d" (side-name e) cur)
-             (bankai! e (if (= cur 2) :bankai-2 :bankai) nil)   ; (the Bankai of the pointer he is on: 狂嵐 / 斬壞, §26; a special
-                                                                ;  form, not an awakening: nothing restored, §26.3)
-             :taken)
+      (cond ((getf p :bankai-as) (values (nth-as 6) nil))   ; the Bankai's burst AS (§32): the reiatsu detonating, then the form
             ((getf p :special-as) (values (nth-as (+ 3 cur)) nil))
             ((/= n cur)
              (setf (gauges-meter (gauges e)) 0f0)

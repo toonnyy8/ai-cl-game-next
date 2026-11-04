@@ -219,6 +219,9 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
     (:ken-bk-burst (e kind)      ; Kenpachi's special AS: 千切's cuts bursting round him / TATE-GOTO's split (DUEL_KEN_V3 §30)
       (let ((p (pos-of e)) (yaw (yaw-of e)))
         (case kind
+          (:bankai (vfx-ken-bk-burst (aref p 0) (aref p 2) :chigiri)   ; (§32)
+                   (vfx-shockwave (aref p 0) (aref p 2) 7.0 0.6 :pal +pal-blood+) (impact-frame :red 6)
+                   (sfx-on :awaken-boom e) (sfx-on :oni-roar e) (sfx-on :explode e :gain 0.7) (shake 0.45 0.6))
           (:chigiri-draw (impact-frame :negative 1) (sfx-on :rift-open e))   ; (§30.3: each beat its own grade)
           (:chigiri-still (impact-frame :manga *chigiri-still-frames*))      ; ink and paper but the red, through the still charge
           (:chigiri-quake (sfx-on :awaken-rise e) (sfx-on :rift-open e :gain 1.2) (shake 0.15 0.12))

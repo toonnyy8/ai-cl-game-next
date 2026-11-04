@@ -829,14 +829,15 @@ form's :cine if it has one (both fighters idle after it). The guard gauge is lef
         (to-idle e 0))))
 
 ;;; ---------------------------------------------------------------- Kenpachi's Bankai: the arm meter (docs/duel/DUEL_KEN_BANKAI.md)
-(defun bankai! (e &optional (form (kit-bankai-form (kit-of e))) (restore t))
+(defun bankai! (e &optional (form (kit-bankai-form (kit-of e))) (restore t) (cine t))
   "The Bankai (P in cup 3, red, free: rules BANKAI-ALLOWED-P): the kit's :bankai-form, its arm meter full (the kit meter
 holds the pips, the crack clock at 0), his Reishi refilled and, since 2026-10-31, his Konpaku KEPT (the user: 「改成不扣」; before: set to 1, the decisions of
 2026-09-28: all his remaining souls for one full bar); the guard gauge, Reiatsu and flash-step as
 they are; then the form's :cine (both fighters idle after it). FORM: the target (DANGAI's 隨時卍解 card names it from a cup
 without one, and keeps his Konpaku: ken-meter.lisp KEN-CARD-BANKAI, DUEL_ROGUE §4.3). RESTORE NIL (Kenpachi V3's Bankai off the Shikai's
 J7, a special form, not an awakening: the user, 2026-11-04, 「進入卍解不回復狀態，劍八的卍解算特殊形態，不計入覺醒」, DUEL_KEN_V3 §26.3): no
-awakening regen and no Reishi refill."
+awakening regen and no Reishi refill. CINE NIL: no cinematic, straight to idle in the form (Kenpachi V3's Bankai burst AS: the user,
+2026-11-05, 「卍解的瞬間不再接入特寫」, DUEL_KEN_V3 §32)."
   (let* ((g (gauges e)) (o (opp-of e)) (keep t)   ; his Konpaku kept (the user 2026-10-31: 「改成不扣」, DUEL_SUBLIMATION §3; DANGAI's 隨時卍解 always did)
          (lost (if keep 0 (- (gauges-konpaku g) 1))))
     (repel! e)                                          ; the second awakening breaks his attack too
@@ -851,7 +852,7 @@ awakening regen and no Reishi refill."
     (when (plusp lost) (emit :konpaku e lost))
     (emit :bankai e)
     (clog "~a BANKAI (konpaku kept, -~d)" (side-name e) lost)
-    (if (kit-cine (kit-of e))
+    (if (and cine (kit-cine (kit-of e)))
         (start-cine (kit-cine (kit-of e)) e o :after (lambda () (to-idle e 0) (to-idle o 0)))
         (to-idle e 0))))
 

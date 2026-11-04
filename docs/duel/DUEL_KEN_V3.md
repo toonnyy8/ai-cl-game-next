@@ -1010,3 +1010,24 @@ hitstop):
 All presentation: the sim never reads them. Checked: host tests 9876 ALL PASS, pkgcheck clean, the build without a new warning;
 shots of 狂嵐 J1–J3 and 斬壞 J1–J2 on the idle Ichigo (84004 / 84005): the red-rimmed crescents, the cracks and rubble, the pillar
 low through the swings. The sound needs the user's ears.
+
+## 32. The Bankai entered by a burst AS, no cinematic (2026-11-05)
+
+「卍解的瞬間不再接入特寫，改成引爆大量靈壓並將對手彈飛的特殊 AS」. SP after J7 (the Shikai's `:bankai-as`) no longer starts the Bankai with
+its cinematic (`ken-bankai-cine`); KEN-AS-PICK starts `:ke-s-bankai`, the Shikai's seventh AS entry (`:core :as`):
+
+| | S/A/R | hit | |
+|---|---|---|---|
+| `:ke-s-bankai` "BANKAI" | 12/3/24 (`:blend 3`) | 100, 3.2 m all round, knockdown, knockback 5 m | `:no-kikon` |
+
+- The clip (`:ke-s-bankai`): gathered low, the left arm across, the head down, trembling; on 12 the back arched, the head thrown back,
+  both arms flung wide.
+- On 12 (`ken-bankai-burst`, a look: `:ken-bk-burst :bankai`): the reiatsu bursting off him: 千切's burst shards and ring, a 7 m BLOOD
+  shockwave, a red-and-ink frame for 6 frames, the awakening's boom, the roar, an explosion, a shake.
+- On 15 (`ken-bankai-enter`): `bankai!` with RESTORE NIL (§26.3) and the new CINE NIL: the Bankai of his pointer (狂嵐 / 斬壞), straight
+  to its stance; the entry push (`repel!`, §27.1) on top of the hit's knockback.
+- No Kikon off it (`:no-kikon`; the host check that pins `:no-kikon` now allows the Shikai's burst AS alone).
+
+Checked: host tests 9880 ALL PASS, pkgcheck clean, the build without a new warning; scripted (84001 + 84093: the Shikai at L3, J ×7
+then SP): `KE-S-BANKAI` hits on tick 181, `BANKAI from pointer 1` / `form BANKAI` on 195, no cinematic; the shots show the gather, the
+red frame, the ring and the shards. No match tests at this stage.

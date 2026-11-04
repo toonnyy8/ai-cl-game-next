@@ -860,6 +860,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ke-kr-cut1 :ke-kr-cut2 :ke-kr-cut3 :ke-kr-cut4 :ke-kr-cut5 :ke-zh-cut1 :ke-zh-cut2 :ke-zh-cut3 :ke-zh-cut4 :ke-zh-cut5 ; their J1-J5 (§28)
  :ke-kr-ns-a :ke-kr-ns-b :ke-kr-ns-c :ke-kr-ns-d :ke-kr-fin :ke-zh-ns-a :ke-zh-ns-b :ke-zh-ns-c :ke-zh-ns-d :ke-zh-fin ; NS a-d, the finishers (§29)
  :ke-kr-chigiri :ke-zh-tategoto ; the special AS (§30)
+ :ke-s-bankai ; the Bankai's burst AS (§32)
  :ic-cross-j :ic-k-jab :ic-k-wrap-j ; the J cut's close J links (DUEL_STRINGS §13)
  :ke-b-leap :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l ; its feral pass (2026-09-28; also 片腕)
  :ru-intro :ru-win :ru-q2 :ru-spin :ru-thrust :ru-drop :ru-stab :ru-hakuren

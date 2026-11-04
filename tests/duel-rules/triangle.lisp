@@ -207,5 +207,9 @@
              always (loop for (f . k) in alist
                           always (or (and (eq c :hisagi) (member f '(:bankai :bankai-bind)))
                                      (and (eq c :kenpachi) (member f '(:bankai :bankai-2)))   ; (V3's Bankai: one pointer, every AS keeps it, §26)
+                                     (and (eq c :kenpachi) (eq f :nozarashi) (null (getf (kit-core k) :as-writes))   ; (its Bankai
+                                          (equal (remove-if-not (lambda (n) (getf (mv-params (find-move n)) :no-kikon))  ;  burst AS
+                                                                (core-move-names (kit-core k)))                         ;  alone, §32)
+                                                 '(:ke-s-bankai)))
                                      (and (null (getf (kit-core k) :as-writes))
                                           (notany (lambda (n) (getf (mv-params (find-move n)) :no-kikon)) (core-move-names (kit-core k))))))))

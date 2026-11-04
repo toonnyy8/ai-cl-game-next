@@ -3008,3 +3008,15 @@ flex and the spine / head flex shifted by these."
   (:thigh-l :flex 18 :side 8) (:knee-l :flex 22) (:thigh-r :flex -8 :side 10) (:knee-r :flex 14))
 (defclip :ke-r-st-kamae (2.0 :loop t :base :ke-r-st-kamae)
   (0) (1.0 (:chest :flex 2) (:root :u -0.04)))
+;; the Bankai's burst AS (DUEL_KEN_V3 §32): gathered low, the left arm across, the head down, trembling; on 12 the reiatsu bursts: the back
+;; arched, the head thrown back, both arms flung wide (the form changes on 15: the Bankai's stance takes over)
+(defstrike :ke-s-bankai (12 3 24 :base :ke-s-st-1)
+  (0 :ke-s-st-1)
+  (7 (:root :u -0.42) (:spine :flex 46) (:chest :flex 10) (:head :flex 22) (:arm-l :flex 40 :side -20) (:elbow-l :flex 120))   ; gathered
+  (9 (:root :u -0.44) (:spine :flex 48))                                                                                       ; trembling
+  (10 (:root :u -0.41) (:spine :flex 45))
+  (11 (:root :u -0.45) (:spine :flex 49))
+  (:s :snap (:root :u -0.12) (:spine :flex -20) (:chest :flex -6) (:head :flex -50)                                             ; it bursts
+      (:arm-l :flex 100 :side 90) (:elbow-l :flex 10) (:arm-r :flex 90 :side 80) (:elbow-r :flex 10))
+  (20 (:root :u -0.16) (:spine :flex -16) (:head :flex -44))
+  (:end :ke-s-st-1))
