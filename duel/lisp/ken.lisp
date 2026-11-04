@@ -330,9 +330,10 @@
 (defmove-copy :ke-kr-as4c :ke-kr-nc :kind :sp :params (:ns-next :ke-kr-fin))
 (defmove-copy :ke-kr-as4b :ke-kr-nb :kind :sp :params (:ns-next :ke-kr-as4c))
 (defmove-copy :ke-kr-as4 :ke-kr-na :kind :sp :startup 12 :params (:ns-next :ke-kr-as4b))               ; after J4: a, b, c, the finisher
-(defmove :ke-kr-sp :kind :sp :clip :ke-kr-chigiri :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 30 :dmg 300 :adv-block -10
-  :reach 2.4 :arc 360 :on-hit :knockdown :params (:dmg-at 26)                                          ; 千切, the space-cutting draw (§5.4):
-  :on-frame ((0 ken-bk-special) (12 ken-chigiri-open) (22 ken-chigiri-roar) (26 ken-chigiri-burst)))   ;  the damage on the burst (§30)
+(defmove :ke-kr-sp :kind :sp :clip :ke-kr-chigiri :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 44 :dmg 300 :adv-block -10
+  :reach 2.4 :arc 360 :on-hit :knockdown :params (:dmg-at 38)                                          ; 千切, the space-cutting draw (§5.4):
+  :on-frame ((0 ken-bk-special) (12 ken-chigiri-open) (15 ken-chigiri-wave) (21 ken-chigiri-wave) (27 ken-chigiri-wave)
+             (38 ken-chigiri-burst)))                                                                  ;  the damage on the burst (§30.1)
 ;; 斬壞 ZANKAI (from pointer 2)
 (defmove :ke-zh-j1 :kind :quick :clip :ke-zh-cut1 :clip-s 9 :startup 9 :active 3 :recovery 12 :dmg 50 :adv-block -2
   :reach 1.9 :arc 100 :on-hit :flinch :slide 0.6 :params (:as-ptr 1))
@@ -363,7 +364,8 @@
 (defmove-copy :ke-zh-as4b :ke-zh-nb :kind :sp :params (:ns-next :ke-zh-as4c))
 (defmove-copy :ke-zh-as4 :ke-zh-na :kind :sp :startup 12 :params (:ns-next :ke-zh-as4b))
 (defmove :ke-zh-sp :kind :sp :clip :ke-zh-tategoto :clip-s 20 :callout "TATE-GOTO" :startup 20 :active 4 :recovery 30 :dmg 320 :adv-block -12
-  :reach 2.4 :arc 90 :on-hit :knockdown :on-frame ((0 ken-bk-special) (20 ken-tategoto-split)))         ; TATE-GOTO (canon ch. 670)
+  :reach 2.4 :arc 90 :on-hit :knockdown :params (:dmg-at 34)                                           ; TATE-GOTO (canon ch. 670): the
+  :on-frame ((0 ken-bk-special) (20 ken-tategoto-split) (34 ken-tategoto-cut)))                       ;  damage as its rift cuts (§30.2)
 
 ;;; the Bankai kits: the oni's body and the broken cleaver, ×*BANKAI-KEN-MULT*; no meter, no arm (the arm's pips went with V3)
 (defmacro def-ken-bankai (form &key name ns as sa strings stance kikon-cine)
@@ -407,21 +409,31 @@
   (ken-bk-cost e)
   (setf (fighter-bk-out (fighter e)) t))
 
+(defparameter *ken-chigiri-stop* 8 "Frames 千切's burst freezes the fight (HITSTOP; DUEL_KEN_V3 §30.1, mine: the beat's weight).")
 (defun ken-chigiri-open (e)
-  "千切's draw (DUEL_KEN_V3 §30, a look): the cuts opening round him (KEN-CHIGIRI-LOOK), the rift's shimmer."
-  (spawn-look e 'ken-chigiri-look :life 20)
-  (emit :sfx :rift-open e))
-(defun ken-chigiri-roar (e) "千切: he roars (a look)." (emit :sfx :oni-roar e))
+  "千切's draw (DUEL_KEN_V3 §30, a look): the look that opens the cuts round him (KEN-CHIGIRI-LOOK)."
+  (spawn-look e 'ken-chigiri-look :life 32))
+(defun ken-chigiri-wave (e) "千切: a wave of three cuts opens while he gathers (a look: the shimmer, a tremor)." (emit :ken-bk-burst e :chigiri-wave))
 (defun ken-chigiri-burst (e)
-  "千切: the cuts burst, the space shattering (a look; the damage lands on this frame too: :dmg-at, DELAY-HIT)."
+  "千切: the roar and the cuts bursting, the space shattering, frozen *KEN-CHIGIRI-STOP* frames (§30.1; the damage lands on this
+frame too: :dmg-at, DELAY-HIT)."
+  (hitstop *ken-chigiri-stop*)
   (emit :ken-bk-burst e :chigiri))
 (defun ken-tategoto-split (e)
-  "TATE-GOTO's chop lands (§30, a look): the space split from the sky 2.2 m before him, the floor cracked 6 m, chips thrown up."
+  "TATE-GOTO's chop lands (§30, a look): the space split from the sky 2.2 m before him (its rift: KEN-TATEGOTO-LOOK, cutting on 34:
+KEN-TATEGOTO-CUT), the floor cracked 6 m, chips thrown up."
   (let ((p (pos-of e)) (yaw (yaw-of e)))
-    (spawn-look e 'ken-tategoto-look :x (+ (aref p 0) (* 2.2 (fwd-x yaw))) :z (+ (aref p 2) (* 2.2 (fwd-z yaw))) :life 32)
+    (spawn-look e 'ken-tategoto-look :x (+ (aref p 0) (* 2.2 (fwd-x yaw))) :z (+ (aref p 2) (* 2.2 (fwd-z yaw))) :life (+ *tategoto-cut* 2))
     (spawn-ground-line e 6.0 50 :crack)
     (ground-scar p yaw '(1.9 3.4 4.9) 0.8)
     (emit :ken-bk-burst e :tategoto)))
+
+(defparameter *ken-tategoto-stop* 10 "Frames TATE-GOTO's rift cutting freezes the fight (HITSTOP; DUEL_KEN_V3 §30.2, mine).")
+(defun ken-tategoto-cut (e)
+  "TATE-GOTO's rift cuts (§30.2, after KUKAN-GIRI): frozen *KEN-TATEGOTO-STOP* frames, the hit, the ink gash (the damage lands on this
+frame too: :dmg-at, DELAY-HIT)."
+  (hitstop *ken-tategoto-stop*)
+  (emit :ken-bk-burst e :tategoto-cut))
 
 (defun ken-bk-tick (e f g)
   "The Bankai kits' :tick (GAUGE-SYSTEM): the special AS over (he is out of it, past any Kikon and its cinematic), back to the Shikai on

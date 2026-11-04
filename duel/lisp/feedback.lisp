@@ -12,7 +12,7 @@
 ;;;;   (:launch e) (:land e)
 ;;;;   (:konpaku victim lost) (:kikon att victim) (:soul-break att victim)  (:awaken e) (:form e form)
 ;;;;   (:evolution e) (:hellfire e)  (:skeleton-rise x z)  (:sfx key e)  (:reset)
-;;;;   (:ken-bk-burst e kind)   Kenpachi's special AS bursting (:chigiri / :tategoto)
+;;;;   (:ken-bk-burst e kind)   Kenpachi's special AS: 千切's waves and burst (:chigiri-wave / :chigiri), TATE-GOTO's split
 ;;;;   (:rung e up-p) (:drink att def x y z) (:rift-cut owner x z hx hz yaw) (:rift-close x z)   Nozarashi's NOME ladder
 ;;;;   (:bankai e) (:arm-spend e left) (:arm-crack e left) (:arm-burst e)   Kenpachi's Bankai: the arm meter
 (in-package :duel)
@@ -218,11 +218,15 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
     (:rift-close (x z) (vfx-smoke-puffs x 1.15 z 1))
     (:ken-bk-burst (e kind)      ; Kenpachi's special AS: 千切's cuts bursting round him / TATE-GOTO's split (DUEL_KEN_V3 §30)
       (let ((p (pos-of e)) (yaw (yaw-of e)))
-        (if (eq kind :chigiri)
-            (progn (vfx-ken-bk-burst (aref p 0) (aref p 2) kind)
-                   (sfx-on :konpaku-shatter e) (sfx-on :rift-cut e) (shake 0.3 0.4))
+        (case kind
+          (:chigiri-wave (sfx-on :rift-open e) (shake 0.05 0.25))
+          (:chigiri (vfx-ken-bk-burst (aref p 0) (aref p 2) kind)
+                    (sfx-on :oni-roar e) (sfx-on :konpaku-shatter e) (sfx-on :rift-cut e) (shake 0.35 0.5))
+          (:tategoto-cut (vfx-ken-tategoto-cut (+ (aref p 0) (* 2.2 (fwd-x yaw))) (+ (aref p 2) (* 2.2 (fwd-z yaw))))
+                         (sfx-on :rift-cut e) (sfx-on :kikon-slash e :gain 0.8) (shake 0.35 0.45))
+          (t
             (progn (vfx-ken-bk-burst (+ (aref p 0) (* 2.2 (fwd-x yaw))) (+ (aref p 2) (* 2.2 (fwd-z yaw))) kind)
-                   (sfx-on :ground-crack e) (sfx-on :rift-cut e) (shake 0.25 0.35)))))
+                   (sfx-on :ground-crack e) (sfx-on :rift-open e) (shake 0.2 0.3))))))
     (:bankai _ nil)                                        ; the cinematic says it
     ((:arm-spend :arm-crack) args                             ; a pip: a BLOOD crack flash along the forearm, a bone creak
      (let ((e (first args)) (v *fb-v*))                  ; (a crack by the clock: dimmer, an ink puff)

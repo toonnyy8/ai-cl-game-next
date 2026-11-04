@@ -257,14 +257,17 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud.hphone.nodeck .combo.p1 { bottom: calc(var(--deck) + 19 * var(--u)); }
 #hud.hphone .callout.p2 { top: calc(17 * var(--u) + var(--st)); }
 #hud.hphone .combo.p2 { top: calc(20.5 * var(--u) + var(--st)); }
-#hud.hphone .prompt { bottom: calc(var(--deck) * .84); z-index: 13; }
+#hud.hphone .prompt { bottom: calc(var(--deck) + 3 * var(--u)); left: auto; right: calc(2.6 * var(--u)); transform: translateY(calc(1 * var(--u))); z-index: 13; }
+#hud.hphone .prompt.on { transform: none; }   /* (over the deck, off your HP bar on its slant, across from the move name and the hits: the user,
+   2026-11-04: 「目前手持模式點擊時的攻擊提示會卡在血條上看不清內容，應該要將其往上移」) */
 #hud.hphone .seal { width: calc(2.2 * var(--u)); height: calc(2.2 * var(--u)); font-size: calc(1.3 * var(--u)); }
 #hud.hphone .hkey { display: none; }
-#hud.hphone.nodeck .prompt { bottom: calc(8 * var(--u)); }
+#hud.hphone.nodeck .prompt { bottom: calc(4% + 28 * var(--u)); }
 #hud.hphone.nodeck .plate.p1, #hud.hphone.nodeck .callout.p1, #hud.hphone.nodeck .combo.p1 { --deck: 4%; }
 /* left hand: your own plate, move name and combo to the right; the pause seal to the left (Lisp places it) */
 #hud.hphone.left-hand .plate.p1 { left: auto; right: calc(2.2 * var(--u)); }
 #hud.hphone.left-hand .callout.p1 { left: auto; right: calc(2.6 * var(--u)); flex-direction: row-reverse; }
+#hud.hphone.left-hand .prompt { right: auto; left: calc(2.6 * var(--u)); }
 #hud.hphone.left-hand .combo.p1 { left: auto; right: calc(2.6 * var(--u)); justify-items: end; }
 /* ... and the opponent's combo to the other side from yours (the user, 2026-10-29: 「對手的 hit 數提示請放在與我方相反方向」) */
 #hud.hphone.left-hand .combo.p2 { right: auto; left: calc(2.6 * var(--u)); justify-items: start; }

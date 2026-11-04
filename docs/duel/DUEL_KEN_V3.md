@@ -931,3 +931,38 @@ Checked: host tests 9876 ALL PASS (the special's frame-0 hook and its `:dmg-at` 
 clean, the strips (duelview 56 / 152), and scripted on the idle Ichigo (84004 / 84005, J ×5 then SP): 千切 hits on tick 125 and its
 damage lands on tick 153 (frame 26 past the hitstop), TATE-GOTO hits, both end the Bankai as before; the in-match shots show the
 ring, the slits, the burst, the split and the crack. No match tests at this stage (DEVLOG §576).
+
+### 30.1 千切 in three beats (2026-11-04)
+
+「千切爆開的段落感不足，導致整個演出缺乏張力」. Measured: the draw to the burst was 14 frames, the nine slits opened one a frame
+(0.15 s), the roar and the burst 4 frames apart, the burst a 3-frame flare with no freeze: one blur. Asked (a four-beat plan,
+the move 46 → 64 f); the user: 「我希望是 一閃->低頭蓄力（是對手卡在硬直）->大吼+爆開」. Now (`:ke-kr-chigiri` 12/4/44, recovery
+30 → 44):
+
+1. **一閃** (12): as before (the hit judged here; the ring frozen through its hitstop).
+2. **低頭蓄力** (16–37): through to his left, then hunched with the head down and the blade hanging low out to his right
+   (`:ke-kr-ch-g`), trembling harder and harder; the slits open in three waves of three (look ages 3 / 9 / 15, move frames 15 / 21 /
+   27, `*chigiri-waves*`, each `:chigiri-wave`: the rift's shimmer and a tremor) and grow brighter, wider and shakier through the
+   charge. The victim is held in his stagger the whole time (DELAY-HIT).
+3. **大吼＋爆開** (38): snapped up into the roar, the cuts burst (`:oni-roar` with the glass and rift sounds, the shards, the
+   ring), the fight frozen `*ken-chigiri-stop*` = 8 frames (mine: the beat's weight), and the damage and knockdown land
+   (`:dmg-at` 26 → 38). Held to 48, back to the stance by 60.
+
+Scripted (84004, J ×5 then SP): the hit on tick 125, the damage on tick 165.
+
+### 30.2 TATE-GOTO after KUKAN-GIRI (2026-11-04)
+
+「縱斷的演出我希望你參考原版三杯的空間斬，那招的魄力與打擊感做的非常好」. The old NOMIHOSE's KUKAN-GIRI (removed with the cups in
+§11; `git show 39839e0^:duel/lisp/ken.lisp`, `ken-rift`): its blade's chord stayed in the air as a rift, a thin trembling slit (the
+tell), and 20 frames later cut in 2 frames: a wide white lens, the ink gash left hanging (`:gash`), the heavy hit with its
+hitstop, the rift-cut sound, a shake. TATE-GOTO now goes the same way (mine, after the reference):
+
+- the chop on 20: the hit judged (its flash and hitstop), the white chord of the split for 2 frames, the floor cracked;
+- 22–33: the split held from the sky to the floor 2.2 m before him, a thin BLOOD lens with a white core trembling on twos; the
+  victim held (DELAY-HIT, `:dmg-at 34`);
+- 34: it cuts: a wide white lens over a BLOOD one for 2 frames, the heavy hit, KUKAN-GIRI's ink gash stood up 5.5 m, shards, the
+  rift-cut sound with the Kikon slash under it, a shake, the fight frozen `*ken-tategoto-stop*` = 10 frames; the damage and the
+  knockdown land; he wrenches the head in the floor (the clip's jolt on 34).
+
+Scripted (84005, J ×5 then SP): the hit on tick 152, the damage on tick 180. Host tests 9876 ALL PASS (each special's `:dmg-at`
+pinned: 38 / 34), pkgcheck clean, the build without a new warning.

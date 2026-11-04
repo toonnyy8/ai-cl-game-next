@@ -704,3 +704,11 @@ their graphic widgets lived only in the old canvas HUD (`ken-meter.lisp`), which
 ## 15. The desktop plate after BLEACH Rebirth of Souls: built, then reverted (the user, 2026-10-31)
 
 「幫我參考 bleach ROS 的附圖設計 HUD」 was built (a big soul number and nine cells, the guard gauge, EVOLUTION, the flash step and the kit meter at the bottom corners), then 「改回原本的樣子」: reverted to the plates of §7 / §13 (b54a8d4 has the ROS version; `git show b54a8d4 -- duel/web/hud.css`). The pink SUBLIMATION / red DRIVE on the awakening bar stay (DUEL_SUBLIMATION §6).
+
+## 16. The phone's prompt over the deck (the user, 2026-11-04)
+
+「目前手持模式點擊時的攻擊提示會卡在血條上看不清內容，應該要將其往上移」: the prompt (`.prompt`, "SP · AS1 / J HIT → …", "Hold SP",
+"Chain") sat at 0.84 of the deck's height, centred, so on the one-hand layout it lay on your HP bar, which runs on the deck's slant.
+Now on the phone (`#hud.hphone`) it stands just over the deck (`bottom: var(--deck) + 3u`), on the side away from the move name
+and the hits: the right, or the left with `.left-hand`; without the deck it sits over your plate (`4% + 28u`). CSS only
+(`hud.css`). Checked in a 390 x 844 shot (one-hand, 2325 + 2393, J hit): "SP · AS1" clear of the bar. DEVLOG §588.
