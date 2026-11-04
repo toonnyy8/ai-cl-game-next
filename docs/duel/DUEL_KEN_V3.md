@@ -684,3 +684,21 @@ The host FK test then drew the placeholder Bankai's J1 TATAKI-GIRI (`:ke-b-j1`, 
 redesign) 0.2 m past its volume (1.60 vs 1.40 m, ±0.15): its `:reach` 1.28 → 1.48 (the reach follows the drawn weapon). Nozarashi's
 stills byte-identical (0 pixels); the broken cleaver's two faces and the Bankai turntable shot before / after. Host tests 9831 ALL
 PASS, pkgcheck clean, G2 identical (no reference match plays the Bankai's J1). Playtest v315.
+
+## 24. The Bankai cleaver reshaped: a bigger head on a shorter bar, the blade parallel to the haft (2026-11-04)
+
+The user, in a row: 「刀身放大 1.5 倍，斜槓連接處縮短成 0.75」, 「修改刀身形狀，使刀刃與刀脊平行」, 「減少刀尖下彎的程度」, 「幫我改成跟刀柄平行」,
+and 「在此階段先不要跑對戰測試」 (no match tests, G2 included, at this stage; the host tests, pkgcheck and the build still run).
+- The head `*ke-bk-scale*` 0.45 → 0.675 (×1.5).
+- The black slanted bar `*ke-bk-bar*` 0.75 (new): its length 0.33 → 0.25 m along its slant, the head's joint moved down with it
+  (`ke-bk-joint-y` / `-z`: 0.4 / 0.08 → 0.3175 / 0.06).
+- The edge parallel to the spine: `*ke-bk-width*` 0.64 (new; the width the copied Nozarashi taper reached at the break, 0.32 at the
+  foot); Nozarashi's widening (`*ke-bk-k-cap*`, `-mid`, `-k-end`, `ke-bk-k`, `ke-bk-widen`) dropped from the copy. The beak (the point
+  at the blade's foot) scaled out from the spine to meet the new edge (`ke-bk-beak`; a first try had put its back corner on the edge
+  line, a dark wedge under the hook).
+- The point's droop below the edge line `*ke-bk-hook*` 1 → 0.5 → 0 (0.24 m → 0.12 → along the edge line).
+- Parallel to the haft: the head's 5° turn `*ke-bk-pitch*` −0.0873 → 0 and the spine flat (`ke-bk-spine` 0.07; it rose 0.016 m).
+- `:length` 1.2 → 1.22 (the break 0.66 above the hand). The host FK test drew the placeholder Bankai J2 NAGI-HARAI (`:ke-b-j2`,
+  and its copy J2S) 0.16 m past its volume: `:reach` 1.28 → 1.44.
+Nozarashi's still byte-identical after each step; the cleaver's faces and the Bankai turntable shot at each. Host tests 9831 ALL
+PASS, pkgcheck clean. (G2 ran once after the first two steps, identical, before 「先不要跑對戰測試」.) Playtest v316.

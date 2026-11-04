@@ -470,33 +470,39 @@ the same day: 「幫我將刀柄加長 1.3 倍」, longer downward: 0.99 -> 1.28
 (defparameter *ke-bk-grip* 0.5 "Where the right hand holds its haft: the fraction of the white haft below its top (0.08), as *KE-NOZ-GRIP* (2026-11-04, the
 user: 「角色持握 0.5 的位置」; 0 before: the hand at the haft's top).")
 (defun ke-bk-grip-y () "How far the broken cleaver slides out of the hand for *KE-BK-GRIP*, m (0.56)." (- (* *ke-bk-grip* 0.76 *ke-bk-haft*) 0.08))
-(defparameter *ke-bk-scale* 0.45 "Its head scaled about the bar's joint (copy of *KE-NOZ-SCALE*, 2026-11-04; 1.5 -> 0.45, x0.3, the user the same day:
-「刀身縮小至 0.3 倍」); the black bar and the haft keep their size.")
+(defparameter *ke-bk-scale* 0.675 "Its head scaled about the bar's joint (copy of *KE-NOZ-SCALE*, 2026-11-04; 1.5 -> 0.45, x0.3, the user the same day:
+「刀身縮小至 0.3 倍」; -> 0.675, x1.5: 「刀身放大 1.5 倍」); the black bar and the haft keep their size.")
+(defparameter *ke-bk-bar* 0.75 "The black slanted bar's length (haft to head) / Nozarashi's 0.34 m, its slant kept, the head moved down with its
+joint (2026-11-04, the user: 「斜槓連接處縮短成 0.75」; 1 before).")
+(defun ke-bk-joint-y () "The bar's joint with the head, y (0.4 at *KE-BK-BAR* 1)." (+ 0.07 (* 0.33 *ke-bk-bar*)))
+(defun ke-bk-joint-z () "... and z (0.08 at 1)." (* 0.08 *ke-bk-bar*))
 (defparameter *ke-bk-band* 1.5 "Its edge band depth (copy of *KE-NOZ-BAND*, 2026-11-04).")
 (defparameter *ke-bk-sag* 0.06 "Its haft's sag at the butt, m (copy of *KE-HAFT-SAG*, 2026-11-04).")
-(defparameter *ke-bk-k-cap* 1.1 "Its widening at the cap's end (copy of *KE-NOZ-K-CAP*, 2026-11-04).")
-(defparameter *ke-bk-mid* 1.1 "Its widening at the head's middle (copy of *KE-NOZ-MID*, 2026-11-04).")
-(defparameter *ke-bk-k-end* 1.425 "Where its taper ends, y along the head (copy of *KE-NOZ-K-END*, 2026-11-04).")
+(defparameter *ke-bk-width* 0.64 "The broken cleaver's edge stands this far from its spine all along, parallel (2026-11-04, the user: 「修改刀身形狀，使刀刃
+與刀脊平行」: the width it had at the break, where the copied Nozarashi taper had widened it from 0.32 at the foot; *KE-BK-K-CAP* /
+-MID / -K-END and its widening gone).")
 (defmacro with-ke-bk-tilt ((mb) &body body)
-  "WITH-KE-TILT for the broken cleaver: BODY turned 5 degrees about the bar's joint, 0.05 m down, scaled *KE-BK-SCALE*."
-  `(mb-at (,mb :y 0.4 :z 0.03 :pitch -0.08726646 :s *ke-bk-scale*)
+  "WITH-KE-TILT for the broken cleaver: BODY turned *KE-BK-PITCH* about the bar's joint, 0.05 m down, scaled *KE-BK-SCALE*; the joint
+where the *KE-BK-BAR* bar ends."
+  `(mb-at (,mb :y (ke-bk-joint-y) :z (- (ke-bk-joint-z) 0.05) :pitch *ke-bk-pitch* :s *ke-bk-scale*)
      (mb-at (,mb :y -0.4 :z -0.08) ,@body)))
 
-(defun ke-bk-k (y)
-  "KE-NOZ-K for the broken cleaver: its widening at Y, 1.3 at the point's end to *KE-BK-K-CAP* at *KE-BK-K-END*, the middle *KE-BK-MID*."
-  (let ((k (+ 1.3 (* (- y -0.183) (/ (- *ke-bk-k-cap* 1.3) (- *ke-bk-k-end* -0.183))))))
-    (* (max (min 1.3 *ke-bk-k-cap*) (min (max 1.3 *ke-bk-k-cap*) k))
-       (let ((u (max 0.0 (min 1.0 (/ (- y -0.183) (- 1.425 -0.183))))))
-         (+ 1.0 (* (- *ke-bk-mid* 1.0) (sin (* 3.1415927 u))))))))
-
-(defun ke-bk-widen (y z)
-  "Z on the broken cleaver's head at Y, widened about the spine line by KE-BK-K."
-  (let ((s (+ 0.07 (* (- y 0.3) (/ 0.016 1.32)))))
-    (+ s (* (- z s) (ke-bk-k y)))))
+(defun ke-bk-spine (y) "The spine line's z at Y on the broken cleaver's head: 0.07, straight (Nozarashi's rose 0.016 over its 1.32 m; flat since
+2026-11-04, parallel to the haft)." (declare (ignore y)) 0.07)
+(defparameter *ke-bk-hook* 0.0 "How far the beak's point droops below the edge line, x its scaled droop (2026-11-04, the user: 「減少刀尖下彎的程度」; 1 before:
+0.24 m at the point -> 0.12; then 「幫我改成跟刀柄平行」: 0, the point along the edge line).")
+(defparameter *ke-bk-pitch* 0.0 "The head's turn about the bar's joint, radians (Nozarashi's -0.0873, 5 degrees, copied; 0 the same day, 「幫我改成跟刀柄平行」:
+the edge, the spine and the point parallel to the haft).")
+(defun ke-bk-edge (y) "The parallel edge's z at Y (*KE-BK-WIDTH* out from the spine)." (+ (ke-bk-spine y) *ke-bk-width*))
+(defun ke-bk-beak (y z)
+  "Z of a point (Y Z) of Nozarashi's beak (the point at the blade's foot) on the broken cleaver: scaled out from the spine to meet the
+parallel edge at y 0.174; below that (the point's side) pulled toward the edge line, *KE-BK-HOOK* of its droop left."
+  (let ((zs (+ (ke-bk-spine y) (* (- z (ke-bk-spine y)) (/ *ke-bk-width* (- 0.387 (ke-bk-spine 0.174)))))))
+    (if (< y 0.174) (- (ke-bk-edge y) (* (- (ke-bk-edge y) zs) *ke-bk-hook*)) zs)))
 
 (defun ke-mb-bk-head (mb end &optional (haft 1.0))
   "KE-MB-NOZ-HEAD for the broken cleaver: the head cut at END up the blade, the haft HAFT times 0.76 m, longer downward."
-  (flet ((prism (profile x0 x1 &optional wide)
+  (flet ((prism (profile x0 x1)
            (let ((pts (loop with out = nil
                             for ((y0 z0) (y1 z1)) on (append profile (list (first profile)))
                             while y1
@@ -504,16 +510,17 @@ user: 「角色持握 0.5 的位置」; 0 before: the hand at the haft's top).")
                                (when (or (and (< y0 end) (> y1 end)) (and (> y0 end) (< y1 end)))
                                  (push (list end (+ z0 (* (- z1 z0) (/ (- end y0) (- y1 y0))))) out))
                             finally (return (nreverse out)))))
-             (when wide (setf pts (loop for (y z) in pts collect (list y (ke-bk-widen y z)))))
              (when (>= (length pts) 3) (ke-mb-prism mb pts x0 x1)))))
     (mbc mb #x1C1C20)
-    (prism '((0.07 -0.025) (0.4 0.045) (0.4 0.115) (0.07 0.025)) -0.022 0.022)   ; the black slanted bar: haft to head
+    (let ((y (ke-bk-joint-y)) (z (ke-bk-joint-z)))       ; the black slanted bar: haft to head, *KE-BK-BAR* long
+      (prism (list '(0.07 -0.025) (list y (- z 0.035)) (list y (+ z 0.035)) '(0.07 0.025)) -0.022 0.022))
     (with-ke-bk-tilt (mb)                                   ; the head, turned about the bar's joint
     ;; the body, then the point (two convex prisms)
-    (prism '((0.3 0.07) (1.62 0.086) (1.62 0.611) (1.426 0.605) (1.069 0.596) (0.771 0.575) (0.532 0.545)
-             (0.323 0.462) (0.174 0.387))
-           -0.021 0.021 t)
-    (prism '((0.174 0.387) (-0.034 0.283) (-0.183 0.209) (0.01 0.185) (0.26 0.17)) -0.018 0.018 t)   ; (its back on the body's)
+    (prism (list (list 0.3 (ke-bk-spine 0.3)) (list 1.62 (ke-bk-spine 1.62)) (list 1.62 (ke-bk-edge 1.62)) (list 0.174 (ke-bk-edge 0.174)))
+           -0.021 0.021)                                ; (the body: spine and edge parallel)
+    (prism (mapcar (lambda (p) (list (first p) (ke-bk-beak (first p) (second p))))
+                   '((0.174 0.387) (-0.034 0.283) (-0.183 0.209) (0.01 0.185) (0.26 0.17)))
+           -0.018 0.018)                                ; (the beak, its back on the body's)
     ;; the edge's pale band, both faces: light and grey stripes, the inner line ragged (each stripe its own depth)
     (loop for ((y0 z0 d0) (y1 z1 d1)) on '((-0.183 0.209 0.02) (-0.034 0.283 0.06) (0.115 0.358 0.107) (0.323 0.462 0.133)
                                             (0.532 0.545 0.16) (0.771 0.575 0.14) (1.069 0.596 0.167) (1.426 0.605 0.147))
@@ -521,12 +528,13 @@ user: 「角色持握 0.5 的位置」; 0 before: the hand at the haft's top).")
           while y1
           do (mbc mb (if (evenp k) #xE2E4E8 #x9EA0A8))
              (setf d0 (* d0 *ke-bk-band*) d1 (* d1 *ke-bk-band*))   ; (deeper into the blade, §7.3)
+             (setf z0 (if (< y0 0.174) (ke-bk-beak y0 z0) (ke-bk-edge y0)) z1 (if (< y1 0.174) (ke-bk-beak y1 z1) (ke-bk-edge y1)))   ; (on the edge)
              (prism (list (list y0 z0) (list y1 z1) (list (+ y1 (* 0.4 d1)) (- z1 d1)) (list (+ y0 (* 0.4 d0)) (- z0 d0)))
-                    -0.023 0.023 t))
+                    -0.023 0.023))
     (mbc mb #x1C1C20)                                    ; chips bitten out of the edge
     (loop for (y z) in '((0.22 0.415) (0.65 0.562) (1.0 0.594) (1.3 0.603))
           when (< y (- end 0.05))
-            do (mb-at (mb :y y :z (ke-bk-widen y z) :roll 0.6) (mb-box mb 0.05 0.03 0.03))))
+            do (mb-at (mb :y y :z (ke-bk-edge y) :roll 0.6) (mb-box mb 0.05 0.03 0.03))))
     ;; the haft sags away from the edge toward the butt: z = -*KE-BK-SAG* x (u / len)^2, 8 straight pieces
     (let* ((len (* 0.76 haft)) (drop (- len 0.76)))
       (flet ((sag (y) (let ((u (/ (- 0.08 y) len))) (- (* *ke-bk-sag* u u))))
@@ -543,7 +551,7 @@ user: 「角色持握 0.5 的位置」; 0 before: the hand at the haft's top).")
         (let ((y (- -0.67 drop)))
           (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))))
 
-(defweapon :ke-broken (:length 1.2 :base 0.7)           ; :length the drawn far end (the break 0.64 up the head frame + KE-BK-GRIP-Y 0.56;
+(defweapon :ke-broken (:length 1.22 :base 0.7)           ; :length the drawn far end (the break 0.65 up the head frame + KE-BK-GRIP-Y 0.56;
                                                         ; 0.9 before, which no longer matched the x1.5 head since 11-03; literal: the
                                                         ; host FK test reads it unevaluated), :base the head's foot (the trail's start)
   (:solid (mb-at (mb :y (ke-bk-grip-y))                  ; held halfway down the haft (§23)

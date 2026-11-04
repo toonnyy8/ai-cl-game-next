@@ -181,7 +181,8 @@
   :reach 1.48 :arc 100 :on-hit :flinch :slide 1.0)                  ; TATAKI-GIRI: hacked down, lunging like a beast (1.28 -> 1.48,
                                                                     ;  2026-11-04: the cleaver held mid-haft draws 0.2 m further, DUEL_KEN_V3 §23)
 (defmove :ke-b-j2 :kind :quick :clip :ke-q2 :clip-s 7 :startup 8 :active 3 :recovery 13 :dmg 38 :adv-block -2
-  :reach 1.28 :arc 100 :on-hit :flinch)                              ; NAGI-HARAI: the backhand sweep
+  :reach 1.44 :arc 100 :on-hit :flinch)                              ; NAGI-HARAI: the backhand sweep (1.28 -> 1.44, 2026-11-04: the
+                                                                    ;  bigger head on the long haft draws further, DUEL_KEN_V3 §24)
 (defmove :ke-b-j3 :kind :quick :clip :ke-b-hook :startup 9 :active 3 :recovery 18 :dmg 50 :adv-block -4
   :reach 0.8 :arc 60 :on-hit :stagger :slide 0.6 :flags (:ender))    ; GENKOTSU: a left hook to the face
 (defmove :ke-b-k1 :kind :flash :clip :ke-f1 :clip-s 16 :startup 17 :active 4 :recovery 20 :dmg 120 :adv-block -3
