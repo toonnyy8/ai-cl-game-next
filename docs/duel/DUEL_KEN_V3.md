@@ -702,3 +702,9 @@ and 「在此階段先不要跑對戰測試」 (no match tests, G2 included, at 
   and its copy J2S) 0.16 m past its volume: `:reach` 1.28 → 1.44.
 Nozarashi's still byte-identical after each step; the cleaver's faces and the Bankai turntable shot at each. Host tests 9831 ALL
 PASS, pkgcheck clean. (G2 ran once after the first two steps, identical, before 「先不要跑對戰測試」.) Playtest v316.
+
+### 24.1 The point droops slightly again (2026-11-04)
+
+The user: 「抱歉是我沒說清楚，刀尖依舊輕微下彎，刀刃則改成與刀柄平行」: 「跟刀柄平行」 meant the edge, not the point. `*ke-bk-hook*` 0 → 0.5
+(the point 0.12 m below the edge line, in the head's frame); the edge and the spine stay parallel to the haft (`*ke-bk-pitch*` 0, the
+spine flat). Nozarashi byte-identical, host tests 9831 ALL PASS, pkgcheck clean. Playtest v317.

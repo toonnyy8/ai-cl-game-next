@@ -489,10 +489,10 @@ where the *KE-BK-BAR* bar ends."
 
 (defun ke-bk-spine (y) "The spine line's z at Y on the broken cleaver's head: 0.07, straight (Nozarashi's rose 0.016 over its 1.32 m; flat since
 2026-11-04, parallel to the haft)." (declare (ignore y)) 0.07)
-(defparameter *ke-bk-hook* 0.0 "How far the beak's point droops below the edge line, x its scaled droop (2026-11-04, the user: 「減少刀尖下彎的程度」; 1 before:
-0.24 m at the point -> 0.12; then 「幫我改成跟刀柄平行」: 0, the point along the edge line).")
-(defparameter *ke-bk-pitch* 0.0 "The head's turn about the bar's joint, radians (Nozarashi's -0.0873, 5 degrees, copied; 0 the same day, 「幫我改成跟刀柄平行」:
-the edge, the spine and the point parallel to the haft).")
+(defparameter *ke-bk-hook* 0.5 "How far the beak's point droops below the edge line, x its scaled droop (2026-11-04, the user: 「減少刀尖下彎的程度」; 1 before:
+0.24 m at the point -> 0.12; 0 a moment for 「幫我改成跟刀柄平行」, which meant the edge: 「刀尖依舊輕微下彎，刀刃則改成與刀柄平行」, back to 0.5).")
+(defparameter *ke-bk-pitch* 0.0 "The head's turn about the bar's joint, radians (Nozarashi's -0.0873, 5 degrees, copied; 0 the same day, 「刀刃則改成與刀柄平行」:
+the edge and the spine parallel to the haft).")
 (defun ke-bk-edge (y) "The parallel edge's z at Y (*KE-BK-WIDTH* out from the spine)." (+ (ke-bk-spine y) *ke-bk-width*))
 (defun ke-bk-beak (y z)
   "Z of a point (Y Z) of Nozarashi's beak (the point at the blade's foot) on the broken cleaver: scaled out from the spine to meet the
