@@ -813,3 +813,9 @@ The arms by FK (the right arm solved for the grip, the blade's direction and its
 cinematic's last shot plays the kit's own stance. Both read apart from the match camera (84004 / 84005). Host tests 9874 ALL PASS
 (the clip list: the two new stances in, `:ke-b-stance` out of it, kept for the old clips' bases), pkgcheck clean. The duelview's
 scene 6 shows both side by side.
+
+### 27.1 The awakening's name colour and push kept (2026-11-04)
+
+Asked after §26.3 whether 「不計入覺醒」 also drops the two things the Bankai still shares with an awakening (its form name in the
+awakening's orange on the HUD, and the push that throws the opponent off on entry). The user: 「這兩項保留」. Both stay; only the
+restore is gone (§26.3).
