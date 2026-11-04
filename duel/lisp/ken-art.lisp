@@ -465,8 +465,13 @@
 ;; Its own builder since 2026-11-04 (the user: 「請先確保改動卍解不會影響到始解武器造型」, DUEL_KEN_V3 §22): a copy of Nozarashi's
 ;; (WITH-KE-TILT, KE-NOZ-K / -WIDEN, KE-MB-NOZ-HEAD) with its own knobs *KE-BK-*, at the values it had that day, so a change to the
 ;; Bankai's cleaver never moves the Shikai's and the reverse (until then it shared them, and took the Shikai's §7 reshaping).
-(defparameter *ke-bk-haft* 1.3 "The broken cleaver's haft / 0.76 m (its own copy of *KE-NOZ-HAFT*, 2026-11-04).")
-(defparameter *ke-bk-scale* 1.5 "Its head scaled about the bar's joint (copy of *KE-NOZ-SCALE*, 2026-11-04).")
+(defparameter *ke-bk-haft* 1.69 "The broken cleaver's haft / 0.76 m (its own copy of *KE-NOZ-HAFT*, 2026-11-04; 1.3 -> 1.69, x1.3, the user
+the same day: 「幫我將刀柄加長 1.3 倍」, longer downward: 0.99 -> 1.28 m).")
+(defparameter *ke-bk-grip* 0.5 "Where the right hand holds its haft: the fraction of the white haft below its top (0.08), as *KE-NOZ-GRIP* (2026-11-04, the
+user: 「角色持握 0.5 的位置」; 0 before: the hand at the haft's top).")
+(defun ke-bk-grip-y () "How far the broken cleaver slides out of the hand for *KE-BK-GRIP*, m (0.56)." (- (* *ke-bk-grip* 0.76 *ke-bk-haft*) 0.08))
+(defparameter *ke-bk-scale* 0.45 "Its head scaled about the bar's joint (copy of *KE-NOZ-SCALE*, 2026-11-04; 1.5 -> 0.45, x0.3, the user the same day:
+「刀身縮小至 0.3 倍」); the black bar and the haft keep their size.")
 (defparameter *ke-bk-band* 1.5 "Its edge band depth (copy of *KE-NOZ-BAND*, 2026-11-04).")
 (defparameter *ke-bk-sag* 0.06 "Its haft's sag at the butt, m (copy of *KE-HAFT-SAG*, 2026-11-04).")
 (defparameter *ke-bk-k-cap* 1.1 "Its widening at the cap's end (copy of *KE-NOZ-K-CAP*, 2026-11-04).")
@@ -538,12 +543,15 @@
         (let ((y (- -0.67 drop)))
           (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))))
 
-(defweapon :ke-broken (:length 0.9 :base 0.2)
-  (:solid (ke-mb-bk-head mb 0.9 *ke-bk-haft*)            ; the haft 1.3 times Nozarashi's first, longer below (0.76 -> 0.99 m)
+(defweapon :ke-broken (:length 1.2 :base 0.7)           ; :length the drawn far end (the break 0.64 up the head frame + KE-BK-GRIP-Y 0.56;
+                                                        ; 0.9 before, which no longer matched the x1.5 head since 11-03; literal: the
+                                                        ; host FK test reads it unevaluated), :base the head's foot (the trail's start)
+  (:solid (mb-at (mb :y (ke-bk-grip-y))                  ; held halfway down the haft (§23)
+          (ke-mb-bk-head mb 0.9 *ke-bk-haft*)            ; the haft 1.69 times Nozarashi's first, longer below (0.76 -> 1.28 m)
           (with-ke-bk-tilt (mb)
             (mbc mb #x1C1C20)                            ; the square break, chipped
             (loop for (z r) in '((0.13 0.5) (0.3 -0.4) (0.46 0.7))
-                  do (mb-at (mb :y 0.9 :z z :roll r) (mb-box mb 0.05 0.045 0.05))))))
+                  do (mb-at (mb :y 0.9 :z z :roll r) (mb-box mb 0.05 0.045 0.05)))))))
 
 ;;; ---------------------------------------------------------------- poses
 (defpose :ke-stance ()

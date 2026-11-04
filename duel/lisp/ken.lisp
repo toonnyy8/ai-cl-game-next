@@ -178,7 +178,8 @@
 ;;; split. Every K link, L, SP1, SP2, I and O spends a pip of the arm (UDE); the K links and the specials :rend (armour
 ;;; and his mirror's stance don't stop them). Frame data: the DUEL_STRINGS §2.1 budget (J 8 / 8 / 9, K1 17, K2 / K3 S_eff 14).
 (defmove :ke-b-j1 :kind :quick :clip :ke-q1 :clip-s 7 :startup 8 :active 3 :recovery 12 :dmg 38 :adv-block -2
-  :reach 1.28 :arc 100 :on-hit :flinch :slide 1.0)                  ; TATAKI-GIRI: hacked down, lunging like a beast
+  :reach 1.48 :arc 100 :on-hit :flinch :slide 1.0)                  ; TATAKI-GIRI: hacked down, lunging like a beast (1.28 -> 1.48,
+                                                                    ;  2026-11-04: the cleaver held mid-haft draws 0.2 m further, DUEL_KEN_V3 §23)
 (defmove :ke-b-j2 :kind :quick :clip :ke-q2 :clip-s 7 :startup 8 :active 3 :recovery 13 :dmg 38 :adv-block -2
   :reach 1.28 :arc 100 :on-hit :flinch)                              ; NAGI-HARAI: the backhand sweep
 (defmove :ke-b-j3 :kind :quick :clip :ke-b-hook :startup 9 :active 3 :recovery 18 :dmg 50 :adv-block -4

@@ -670,3 +670,17 @@ the Shikai. Now it has a copy of its own (`ke-mb-bk-head`, `with-ke-bk-tilt`, `k
 values of that day); nothing in Nozarashi's code reads them, nor the copy Nozarashi's. Proof: the viewer's stills of Nozarashi (4101),
 the broken cleaver's two faces (4102 / 4112) and the Bankai turntable (2006, 0/90/180/270) are byte-identical to the build before the
 split (0 pixels differ). Host tests 9831 ALL PASS, pkgcheck clean, the build. Next: the user's changes to the cleaver.
+
+## 23. The Bankai cleaver: a long haft held halfway, a small head (2026-11-04)
+
+The user: 「幫我將刀柄加長 1.3 倍，角色持握 0.5 的位置，然後刀身縮小至 0.3 倍」. Knobs (ken-art.lisp, the Bankai's own since §22):
+- the haft `*ke-bk-haft*` 1.3 → 1.69 (×1.3, longer downward: 0.99 → 1.28 m);
+- the grip `*ke-bk-grip*` 0.5 (new, as Nozarashi's `*ke-noz-grip*`): the hand halfway down the white haft, the weapon slid 0.56 m
+  out of the hand (`ke-bk-grip-y`), so 0.56 m of haft shows below the fist and the head sits 0.64 m above it;
+- the head `*ke-bk-scale*` 1.5 → 0.45 (×0.3) about the bar's joint; the black bar and the haft keep their size.
+- `defweapon :ke-broken` `:length` 0.9 → 1.2 (the drawn far end: the break 0.64 up the head frame + 0.56; 0.9 had not followed the
+  ×1.5 head since 11-03), `:base` 0.2 → 0.7 (the head's foot, where the trail starts).
+The host FK test then drew the placeholder Bankai's J1 TATAKI-GIRI (`:ke-b-j1`, the old Bankai kit still in play until the
+redesign) 0.2 m past its volume (1.60 vs 1.40 m, ±0.15): its `:reach` 1.28 → 1.48 (the reach follows the drawn weapon). Nozarashi's
+stills byte-identical (0 pixels); the broken cleaver's two faces and the Bankai turntable shot before / after. Host tests 9831 ALL
+PASS, pkgcheck clean, G2 identical (no reference match plays the Bankai's J1). Playtest v315.
