@@ -1855,29 +1855,35 @@ opening all at once within 2.4 m of him (a white core in a BLOOD lens, each its 
 charge, then for the last *CHIGIRI-QUAKE* frames shaking hard and growing; at *CHIGIRI-BURST* all of them flare wide white for 3
 frames and are gone (the burst's shards and ring: VFX-KEN-BK-BURST)."
   (declare (ignore rdt))
-  (let* ((age (hazard-age hz)) (x (hazard-x hz)) (z (hazard-z hz)) (dr (drawing-no)))
+  (let* ((age (hazard-age hz)) (x (hazard-x hz)) (z (hazard-z hz)))
     (when (< age 3)                                     ; the draw: a ring of four smears at 1.35 m
       (dotimes (i 4)
         (let* ((a0 (* i 1.5708)) (a1 (+ a0 1.5708)) (am (+ a0 0.785)) (r 2.0))
           (fx-crescent (f32 (+ x (* r (cos a0)))) 1.35f0 (f32 (+ z (* r (sin a0)))) (f32 (+ x (* r (cos a1)))) 1.35f0 (f32 (+ z (* r (sin a1))))
                        (f32 (+ x (* 1.45 r (cos am)))) 1.35f0 (f32 (+ z (* 1.45 r (sin am)))) (f32 (- 0.16 (* 0.05 age))) :lens 0.06f0 (f32 (+ 40 i))
                        +pal-hit+ 0.95f0 :push 0.2f0))))
-    (when (< age (+ *chigiri-burst* 3))
-      (dotimes (i *chigiri-cuts*)
-        (when (>= age 2)
-          (let* ((a (* 6.2832 (hash01 (f32 i) 1.7f0))) (d (+ 0.7 (* 1.7 (hash01 (f32 i) 2.9f0))))
-                 (y (+ 0.5 (* 1.8 (hash01 (f32 i) 4.3f0)))) (b (* 6.2832 (hash01 (f32 i) 5.1f0)))
-                 (tilt (- (* 1.6 (hash01 (f32 i) 6.7f0)) 0.8)) (l (+ 0.55 (* 0.5 (hash01 (f32 i) 8.3f0))))
+    (ken-chigiri-cuts x z age *chigiri-cuts* 1.0 0.0 *chigiri-burst* *chigiri-quake* 3)
+    nil))
+(defun ken-chigiri-cuts (x z age n spread stagger burst quake flare)
+  "N of 千切's slits round (x z) at AGE frames (KEN-CHIGIRI-LOOK; its Kikon KEN-KR-KIKON-CINE, a bigger SPREAD): cut i opens at 2 + i x
+STAGGER, within (0.7 .. 2.4) x SPREAD m, 0.5 .. 0.5 + 1.8 x SPREAD m up (a white core in a BLOOD lens, each its own tilt), barely
+trembling until QUAKE frames before BURST, then shaking hard and growing; at BURST all flare wide white for FLARE frames and are gone."
+  (when (< age (+ burst flare))
+    (let ((dr (drawing-no)))
+      (dotimes (i n)
+        (when (>= age (+ 2 (* i stagger)))
+          (let* ((a (* 6.2832 (hash01 (f32 i) 1.7f0))) (d (* spread (+ 0.7 (* 1.7 (hash01 (f32 i) 2.9f0)))))
+                 (y (+ 0.5 (* spread 1.8 (hash01 (f32 i) 4.3f0)))) (b (* 6.2832 (hash01 (f32 i) 5.1f0)))
+                 (tilt (- (* 1.6 (hash01 (f32 i) 6.7f0)) 0.8)) (l (* spread (+ 0.55 (* 0.5 (hash01 (f32 i) 8.3f0)))))
                  (cx (+ x (* d (cos a)))) (cz (+ z (* d (sin a))))
                  (dx (* l (cos b) (cos tilt))) (dz (* l (sin b) (cos tilt))) (dy (* l (sin tilt)))
-                 (g (min 1.0 (/ (max 0 (- age (- *chigiri-burst* *chigiri-quake*))) (float *chigiri-quake*))))   ; still, then the quake
-                 (tr (* (+ 0.008 (* 0.09 g)) (- (hash01 dr (f32 i)) 0.5)))
-                 (burst (>= age *chigiri-burst*)))
+                 (g (min 1.0 (/ (max 0 (- age (- burst quake))) (float quake))))   ; still, then the quake
+                 (tr (* spread (+ 0.008 (* 0.09 g)) (- (hash01 dr (f32 i)) 0.5)))
+                 (burst-p (>= age burst)))
             (fx-crescent (f32 (- cx dx)) (f32 (+ tr (- y dy))) (f32 (- cz dz)) (f32 (+ cx dx)) (f32 (+ tr y dy)) (f32 (+ cz dz))
-                         (f32 cx) (f32 (+ tr y)) (f32 cz) (if burst 0.3f0 (f32 (+ 0.06 (* 0.06 g)))) :lens 0.06f0 (f32 (+ 20 i)) +pal-blood+ 0.95f0 :push 0.2f0)
+                         (f32 cx) (f32 (+ tr y)) (f32 cz) (if burst-p 0.3f0 (f32 (+ 0.06 (* 0.06 g)))) :lens 0.06f0 (f32 (+ 20 i)) +pal-blood+ 0.95f0 :push 0.2f0)
             (fx-crescent (f32 (- cx dx)) (f32 (+ tr (- y dy))) (f32 (- cz dz)) (f32 (+ cx dx)) (f32 (+ tr y dy)) (f32 (+ cz dz))
-                         (f32 cx) (f32 (+ tr y)) (f32 cz) (if burst 0.18f0 (f32 (+ 0.015 (* 0.035 g)))) :lens 0.04f0 (f32 (+ 30 i)) +pal-hit+ 0.98f0 :push 0.24f0)))))
-    nil))
+                         (f32 cx) (f32 (+ tr y)) (f32 cz) (if burst-p 0.18f0 (f32 (+ 0.015 (* 0.035 g)))) :lens 0.04f0 (f32 (+ 30 i)) +pal-hit+ 0.98f0 :push 0.24f0)))))))
 (defparameter *tategoto-cut* 14 "TATE-GOTO's rift: the look's age (frames after the chop) it cuts on: move frame 34, its :dmg-at (§30.2).")
 (defun ken-tategoto-look (hz rdt)
   "TATE-GOTO's rift (a look hazard at the cut, before him), after KUKAN-GIRI's (the old NOMIHOSE's space cut; the user, 2026-11-04:
@@ -1899,12 +1905,16 @@ frames (the ink gash that stays, the hit and the shards: the :tategoto-cut feedb
     nil))
 (defparameter *tategoto-wave-len* 16.0 "Metres TATE-GOTO's sword wave runs along the floor from the chop, the floor split behind it (§30.4).")
 (defun ken-tategoto-wave (hz rdt)
-  "TATE-GOTO's sword wave (a look hazard at his feet, along his facing; the user, 2026-11-04: 「縱斷怎麼沒有劈開地板的大範圍劍氣？」): a
-wide wall of three upright crescents, BLOOD with a white core, bowed forward, racing *TATEGOTO-WAVE-LEN* m along the floor over
-10 frames and thinning out; the floor's split behind it is the :meteor line (KEN-TATEGOTO-SPLIT)."
+  "TATE-GOTO's sword wave (a look hazard at his feet, along his facing; the user, 2026-11-04: 「縱斷怎麼沒有劈開地板的大範圍劍氣？」):
+KEN-TATEGOTO-WAVE-AT over *TATEGOTO-WAVE-LEN* m; the floor's split behind it is the :meteor line (KEN-TATEGOTO-SPLIT)."
   (declare (ignore rdt))
-  (let* ((age (hazard-age hz)) (u (min 1.0 (/ age 10.0))) (yaw (hazard-yaw hz)) (fx (fwd-x yaw)) (fz (fwd-z yaw))
-         (d (+ 0.8 (* *tategoto-wave-len* u))) (w (* 0.4 (- 1.0 (* 0.6 u)))) (cx (+ (hazard-x hz) (* d fx))) (cz (+ (hazard-z hz) (* d fz))))
+  (ken-tategoto-wave-at (hazard-x hz) (hazard-z hz) (hazard-yaw hz) (hazard-age hz) *tategoto-wave-len*)
+  nil)
+(defun ken-tategoto-wave-at (x0 z0 yaw age len)
+  "The sword wave from (X0 Z0) along YAW at AGE frames (TATE-GOTO's look; its Kikon KEN-ZH-KIKON-CINE): a wide wall of three upright
+crescents, BLOOD with a white core, bowed forward, racing LEN m along the floor over 10 frames and thinning out."
+  (let* ((u (min 1.0 (/ age 10.0))) (fx (fwd-x yaw)) (fz (fwd-z yaw))
+         (d (+ 0.8 (* len u))) (w (* 0.4 (- 1.0 (* 0.6 u)))) (cx (+ x0 (* d fx))) (cz (+ z0 (* d fz))))
     (when (< age 13)
       (loop for off in '(-1.3 0.0 1.3) for h in '(3.0 4.6 3.0) for sd from 71
             do (let ((x (+ cx (* off fz))) (z (- cz (* off fx))))

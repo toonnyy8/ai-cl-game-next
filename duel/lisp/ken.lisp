@@ -395,10 +395,10 @@
           :guard 0.2 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 1.0 :kikon-range 5.0 :kikon-p 0.4 :o-ender 0.3
           :block-string 0.85
           :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold)))
-(def-ken-bankai :bankai :name "KYORAN" :ns :ke-kr-na :sa :ke-kr-sa :stance :ke-b-kr-stance :kikon-cine ken-oni-kikon-cine
+(def-ken-bankai :bankai :name "KYORAN" :ns :ke-kr-na :sa :ke-kr-sa :stance :ke-b-kr-stance :kikon-cine ken-kr-kikon-cine
   :as (:ke-kr-as1 :ke-kr-as2 :ke-kr-as3 :ke-kr-as4 :ke-kr-sp)
   :strings ((:ke-kr-j1 :q :ke-kr-j2) (:ke-kr-j2 :q :ke-kr-j3) (:ke-kr-j3 :q :ke-kr-j4) (:ke-kr-j4 :q :ke-kr-j5)))
-(def-ken-bankai :bankai-2 :name "ZANKAI" :ns :ke-zh-na :sa :ke-zh-sa :stance :ke-b-zh-stance :kikon-cine ken-sky-split-cine
+(def-ken-bankai :bankai-2 :name "ZANKAI" :ns :ke-zh-na :sa :ke-zh-sa :stance :ke-b-zh-stance :kikon-cine ken-zh-kikon-cine
   :as (:ke-zh-as1 :ke-zh-as2 :ke-zh-as3 :ke-zh-as4 :ke-zh-sp)
   :strings ((:ke-zh-j1 :q :ke-zh-j2) (:ke-zh-j2 :q :ke-zh-j3) (:ke-zh-j3 :q :ke-zh-j4) (:ke-zh-j4 :q :ke-zh-j5)))
 
@@ -985,6 +985,195 @@ Kenpachi laughing, head back."
   (at 102 (shot-on v 95 7.5 1.2 :look 1.0) (lens 50) (caption-exit))
   (at 132 (shot-on a 60 4.6 0.7 :look 1.4) (lens 45) (face-beat a :shout 1.0 t) (play-sfx :laugh :pitch 0.8)))
 
+;;; ---------------------------------------------------------------- V3's Bankai Kikon (DUEL_KEN_V3 §33; the user, 2026-11-05: 「可以開始做了」)
+;;; Each Bankai's Kikon (and its Soul Break: CORE-SOUL-BREAK-CINE) on its special AS's theme: 狂嵐 千切 grown (more cuts, the screen
+;;; shattering like glass, the roar), 斬壞 TATE-GOTO grown (the rift from the top of the screen to the bottom held, then cut, the floor split).
+(declaim (special *ke-kk*))   ; (ken-look.lisp's: the Kikon line, KE-KK-LINE)
+(declaim (type f32vec *ke-ui-c0* *ke-ui-c1* *ke-ui-c2*))
+(defvar *ke-ui-c0* (make-f32 4)) (defvar *ke-ui-c1* (make-f32 4)) (defvar *ke-ui-c2* (make-f32 4))
+(defparameter *ke-glass-rays* 14 "The rays of 狂嵐's Kikon glass shatter (KE-GLASS).")
+(defparameter *ke-glass-rings* '(0.0 0.11 0.27 0.8) "... and its rings, fractions of the screen's longer side from the centre.")
+
+(defun ke-ui-seg (x0 y0 x1 y1 w c)
+  "A UI stroke from (x0 y0) to (x1 y1), W px wide, colour C."
+  (let* ((dx (- x1 x0)) (dy (- y1 y0)) (l (max 0.001 (sqrt (+ (* dx dx) (* dy dy)))))
+         (nx (* 0.5 w (/ (- dy) l))) (ny (* 0.5 w (/ dx l))))
+    (%ui-poly4 (+ x0 nx) (+ y0 ny) (+ x1 nx) (+ y1 ny) (- x1 nx) (- y1 ny) (- x0 nx) (- y0 ny) c c)))
+
+(defun ke-glass-pt (i k w h)
+  "Values: the screen point of the glass's ray I on ring K (the screen centre for K 0), each jittered by its own hash."
+  (let* ((n *ke-glass-rays*) (i (mod i n))
+         (a (+ (* i (/ 6.2832 n)) (* 0.32 (- (hash01 (f32 i) 3.3f0) 0.5))))
+         (r (* (max w h) (nth k *ke-glass-rings*) (+ 1.0 (* 0.3 (- (hash01 (f32 i) (f32 (+ 11 k))) 0.5))))))
+    (values (+ (* 0.5 w) (* r (cos a))) (+ (* 0.45 h) (* r (sin a))))))
+
+(defun ke-glass (age)
+  "狂嵐's Kikon burst (KEN-KR-KIKON-CINE), in UI space (the engine cannot break the rendered image): AGE < 8 frames, the screen cracked from
+its centre, *KE-GLASS-RAYS* rays and two rings in ink with a white core; then the pieces between them fly out and fall, their edges inked,
+a faint white glaze, gone by 40."
+  (let* ((w (window-width)) (h (window-height)) (ui (ui-scale)) (n *ke-glass-rays*)
+         (ink *ke-ui-c0*) (wh *ke-ui-c1*) (glaze *ke-ui-c2*))
+    (if (< age 8)
+        (progn
+          (%ui-col ink 0.03 0.03 0.047 1) (%ui-col wh 1 1 0.97 1)
+          (dotimes (i n)
+            (dotimes (k 3)
+              (multiple-value-bind (x0 y0) (ke-glass-pt i k w h)
+                (multiple-value-bind (x1 y1) (ke-glass-pt i (1+ k) w h)
+                  (ke-ui-seg x0 y0 x1 y1 (* ui 7) ink) (ke-ui-seg x0 y0 x1 y1 (* ui 2.5) wh))
+                (when (< 0 k)                                ; the rings
+                  (multiple-value-bind (x1 y1) (ke-glass-pt (1+ i) k w h)
+                    (ke-ui-seg x0 y0 x1 y1 (* ui 6) ink) (ke-ui-seg x0 y0 x1 y1 (* ui 2) wh)))))))
+        (let* ((u (min 1.0 (/ (- age 8) 32.0))) (tt (/ (- age 8) 60.0)) (o (- 1.0 u)))
+          (when (< u 1.0)
+            (%ui-col ink 0.03 0.03 0.047 o) (%ui-col wh 1 1 0.97 o) (%ui-col glaze 1 1 1 (* 0.3 o))
+            (dotimes (i n)
+              (dotimes (k 3)
+                (multiple-value-bind (ax ay) (ke-glass-pt i k w h)
+                  (multiple-value-bind (bx by) (ke-glass-pt (1+ i) k w h)
+                    (multiple-value-bind (cx cy) (ke-glass-pt (1+ i) (1+ k) w h)
+                      (multiple-value-bind (dx dy) (ke-glass-pt i (1+ k) w h)
+                        (let* ((mx (* 0.25 (+ ax bx cx dx))) (my (* 0.25 (+ ay by cy dy)))
+                               (ox (- mx (* 0.5 w))) (oy (- my (* 0.45 h))) (ol (max 1.0 (sqrt (+ (* ox ox) (* oy oy)))))
+                               (sp (* (max w h) (+ 0.35 (* 0.4 (hash01 (f32 i) (f32 (+ 21 k)))))))
+                               (tx (* sp tt (/ ox ol))) (ty (+ (* sp tt (/ oy ol)) (* 1.4 h tt tt)))
+                               (s (- 1.0 (* 0.35 u))))
+                          (flet ((px (x) (+ mx tx (* s (- x mx)))) (py (y) (+ my ty (* s (- y my)))))
+                            (%ui-poly4 (px ax) (py ay) (px bx) (py by) (px cx) (py cy) (px dx) (py dy) glaze glaze)
+                            (ke-ui-seg (px ax) (py ay) (px bx) (py by) (* ui 5) ink) (ke-ui-seg (px bx) (py by) (px cx) (py cy) (* ui 5) ink)
+                            (ke-ui-seg (px cx) (py cy) (px dx) (py dy) (* ui 5) ink) (ke-ui-seg (px dx) (py dy) (px ax) (py ay) (* ui 5) ink)
+                            (ke-ui-seg (px ax) (py ay) (px dx) (py dy) (* ui 1.5) wh)))))))))))))
+  nil)
+
+(defun ke-rift-band (x z age cut)
+  "斬壞's Kikon rift (KEN-ZH-KIKON-CINE), in UI space so it always runs from the top of the screen to the bottom, through ground point (x z),
+AGE frames after the chop: until CUT a thin BLOOD band with a white core and ink borders trembling on twos and slowly widening; from CUT a
+wide white flare narrowing over 10 frames while the screen halves shear apart (*GRADE-SPLIT*, 18 frames); then its ink scar, gone by
+CUT + 50."
+  (let* ((s *sky-scr*) (w (window-width)) (h (window-height)) (ui (ui-scale)) (dr (drawing-no))
+         (sx (if (world-to-screen s (f32 x) 1f0 (f32 z)) (aref s 0) (* 0.5 w)))
+         (ink *ke-ui-c0*) (red *ke-ui-c1*) (wh *ke-ui-c2*) (v (- age cut)))
+    (setf *grade-split* (f32 (if (< -1 v 18) (* 0.04 h (max 0.0 (min 1.0 (/ (+ v 1) 2.0) (/ (- 18 v) 4.0)))) 0.0)))
+    (cond ((< v 0)                                      ; held, trembling
+           (let* ((bw (* ui (+ 11 (* 4 (hash01 dr 9f0)) (* 10 (/ age (float cut)))))) (cx (+ sx (* ui 4 (- (hash01 dr 5f0) 0.5)))))
+             (ui-rect (- cx (* 0.5 bw) (* 2.5 ui)) 0 (+ bw (* 5 ui)) h (%ui-col ink 0.03 0.03 0.047 1))
+             (ui-rect (- cx (* 0.5 bw)) 0 bw h (%ui-col red 0.816 0.063 0.11 1))
+             (ui-rect (- cx (* 0.15 bw)) 0 (* 0.3 bw) h (%ui-col wh 1 1 0.97 1))))
+          ((< v 10)                                     ; it cuts
+           (let ((bw (* ui (+ 8 (* 90 (- 1.0 (/ v 10.0)))))))
+             (ui-rect (- sx (* 0.5 bw) (* 4 ui)) 0 (+ bw (* 8 ui)) h (%ui-col ink 0.03 0.03 0.047 1))
+             (ui-rect (- sx (* 0.5 bw)) 0 bw h (%ui-col wh 1 1 0.97 1))))
+          ((< v 50)                                     ; the scar
+           (ui-rect (- sx (* 2 ui)) 0 (* 4 ui) h (%ui-col ink 0.03 0.03 0.047 (- 1.0 (/ (- v 10) 40.0)))))))
+  nil)
+
+(defun ke-kk-cam (s hc sl hl)
+  "The camera on the Kikon line (*KE-KK*, KE-KK-LINE): at S m from the victim's mark toward Kenpachi's side, HC high, looking at SL m along it,
+HL high (S < 0: past him). The rift and the shear stay on the screen's centre line."
+  (setf *cine-subject* nil *cine-close* nil)
+  (let ((l *ke-kk*))
+    (cine-cam (+ (aref l 0) (* s (aref l 2))) hc (+ (aref l 1) (* s (aref l 3)))
+              (+ (aref l 0) (* sl (aref l 2))) hl (+ (aref l 1) (* sl (aref l 3))))))
+
+(defun ke-zh-chips (a)
+  "Floor chips floating up round fighter A while 斬壞's head is hauled out of the floor (KEN-ZH-KIKON-CINE, every other step)."
+  (let ((p (pos-of a)))
+    (dotimes (i 2)
+      (let ((ang (rnd-range 0f0 6.2832f0)) (r (rnd-range 0.4f0 2.2f0)))
+        (declare (single-float ang r))
+        (%t-shard (+ (aref p 0) (* r (f-cos ang))) 0.1f0 (+ (aref p 2) (* r (f-sin ang))) 0f0 (rnd-range 0.8f0 1.6f0) 0f0
+                  (rnd-range 0.7f0 1.0f0) (rnd-range 0.06f0 0.14f0) 0.6f0 +pal-dust+)))))
+
+(defcine ken-kr-kikon-cine (a v :len 180 :hold 100)
+  "狂嵐 KYORAN's Kikon 千切・極 (DUEL_KEN_V3 §33): 千切 grown. Beat 0; the black card, a BLOOD back-rim, the oni gathering into the iai under
+千切 / 狂嵐 and the hanko, silence; side-on, the iai held, trembling; the draw: a white flash, the cut on the victim; the world ink and paper but
+the red while the camera circles him half way round and two dozen cuts open in the air round him and the lens, Kenpachi still, head down,
+in silence; close on the face: the head thrown back, the roar, the cuts shaking; the burst: red and ink held 8 frames, the screen
+shattering like glass, the shards and rings, the Konpaku; he is blown 7 m away and lands; Kenpachi laughs; wide."
+  (at 0 (face-each-other a v 2.0) (ke-kk-line a v) (setf *aura-off* a)
+      (cine-clip a :ke-kr-chigiri :blend 2 :speed 0.05) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 1) (play-sfx :whoosh-cleaver))
+  (at 12 (card :black a) (back-rim 18 0.82 0.06 0.11) (shot-on a 60 4.2 0.7 :look 1.5 :ahead 1.0 :off 0.8) (lens 46 8) (silence 26)
+      (cine-clip a :ke-kr-chigiri :blend 4 :speed (/ 8.0 18.0))                 ; the gathering, into the iai (its key 8) by f30
+      (caption "千切" :kanji2 "狂嵐" :reading "CHIGIRI" :sub "KYORAN" :side 0 :hanko t))
+  (at 30 (card nil) (shot-on a 85 3.4 1.0 :look 1.2) (lens 50)                    ; side-on: the iai held, trembling (keys 8-11)
+      (cine-clip a :ke-kr-chigiri :blend 0 :time (/ 8.0 60.0) :speed 0.3))
+  (at 40 (cine-clip a :ke-kr-chigiri :blend 0 :time (/ 11.0 60.0))               ; the draw: S on f41
+      (impact-frame :negative 1) (ui-flash 1 1 1 0.8 6.0) (cine-slash v :heavy) (cine-clip v :sh-stagger :blend 1)
+      (play-sfx :whoosh-cleaver) (play-sfx :kikon-slash) (shake 0.2 0.25) (focus-lines 6))
+  (at 42 (cine-grade :manga))                                                     ; ink and paper but the red, to the roar
+  (at 46 (silence 42))
+  (at 52 (cine-clip a :ke-kr-chigiri :blend 0 :time (/ 22.0 60.0) :speed (/ 12.0 38.0)))   ; head down, still: keys 22-34 over f52-90
+  (during (40 90) (shot-on v (+ 30 (* 170 u)) (- 4.6 (* 0.8 u)) (+ 1.3 (* 0.5 u)) :look 1.3) (lens 50 (* 6 u)))   ; half way round him
+  (during (40 112) (ken-chigiri-cuts (aref *ke-kk* 0) (aref *ke-kk* 1) (- cf 40) 24 1.6 1.4 60 10 8))
+  (at 90 (cine-grade nil) (impact-frame :negative 1) (card :black a) (back-rim 10 0.82 0.06 0.11)   ; the roar alone on the card
+      (shot-on a -40 1.8 0.6 :look 1.25 :ahead 0.4) (lens 62 8) (face-beat a :shout 1.2 t)
+      (cine-clip a :ke-kr-chigiri :blend 0 :time (/ 34.0 60.0) :speed 0.6)       ; the last six keys shaking, over f90-100
+      (play-sfx :oni-roar) (play-sfx :laugh :pitch 0.6))
+  (when (and step-p (<= 90 cf 99)) (shake (* 0.03 (- cf 88)) 0.1))               ; the tremor swelling into the burst
+  (at 100 (card nil) (impact-frame :red 8) (hold-both a v 8) (caption-exit)
+      (cine-clip a :ke-kr-chigiri :blend 0 :time (/ 40.0 60.0))                  ; the roar (ch-r)
+      (shot-on v 90 7.5 1.5 :look 1.2) (lens 55)
+      (let ((q (pos-of v)))
+        (vfx-ken-bk-burst (aref q 0) (aref q 2) :chigiri) (vfx-ken-bk-burst (aref q 0) (aref q 2) :chigiri)
+        (vfx-shockwave (aref q 0) (aref q 2) 9.0 0.7 :pal +pal-blood+) (vfx-shockwave (aref q 0) (aref q 2) 5.0 0.5 :pal +pal-ink+))
+      (cine-shatter v (fighter-kikon-n (fighter a)))
+      (impact-splash-at v 1.0 16 0.09)
+      (play-sfx :rift-cut) (play-sfx :explode) (play-sfx :kikon-slash) (play-sfx :konpaku-shatter) (play-sfx :awaken-boom)
+      (shake 0.6 0.6))
+  (during (100 140) (ke-glass (- cf 100)))
+  (at 108 (cine-clip v :sh-launch :blend 1) (shot-pair a v 1 10.0 1.8) (lens 50))
+  (during (108 130) (ke-kk-at v (* -7.0 (- 1.0 (expt (- 1.0 u) 2))) (* 1.6 (sin (* 3.1416 u)))))   ; blown away
+  (at 130 (ke-kk-at v -7.0) (cine-clip v :sh-down :blend 2)
+      (let ((q (pos-of v))) (vfx-shockwave (aref q 0) (aref q 2) 2.5 0.4 :pal +pal-dust+))
+      (play-sfx :ground-crack) (shake 0.2 0.25))
+  (at 136 (shot-on a 30 4.4 0.9 :look 1.4) (lens 46) (face-beat a :shout 1.4 t) (play-sfx :laugh :pitch 0.8))
+  (at 156 (shot-on a 160 7.0 1.8 :look 1.2) (lens 50)))
+
+(defcine ken-zh-kikon-cine (a v :len 180 :hold 96)
+  "斬壞 ZANKAI's Kikon 盾ごと・極 (DUEL_KEN_V3 §33): TATE-GOTO grown, after KUKAN-GIRI (the space cut held, then cut). Beat 0; the black card, a
+BLOOD back-rim, the oni under 盾ごと / 斬壞 and the hanko, silence; low, looking up: both hands haul the head out of the floor overhead, slow
+then fast, chips floating up; up with him into the leap; the chop: a white flash held 6 frames; down the cut from behind him: one rift from the
+top of the screen to the bottom through the victim, the sword wave racing 30 m down the floor and the floor splitting to the edge; reversed,
+from behind the victim, the rift trembling; it cuts: the screen halves shear apart, red and ink held 8 frames, the ink gash, the shards, the
+Konpaku; he is blown 7 m away; from the side, Kenpachi wrenches the head out of the floor; he laughs."
+  (at 0 (face-each-other a v 2.4) (ke-kk-line a v) (setf *aura-off* a)
+      (cine-clip a :ke-zh-tategoto :blend 2 :speed 0.05) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 1) (play-sfx :whoosh-cleaver))
+  (at 12 (card :black a) (back-rim 24 0.82 0.06 0.11) (shot-on a 60 4.2 0.7 :look 1.6 :ahead 1.3 :off 0.8) (lens 46 8) (silence 38)
+      (caption "盾ごと" :kanji2 "斬壞" :reading "TATE-GOTO" :sub "ZANKAI" :side 0 :hanko t))
+  (at 36 (card nil) (shot-on a 110 3.4 0.25 :look 1.8) (lens 72 -6)               ; low, up at him: the head hauled overhead
+      (cine-clip a :ke-zh-tategoto :blend 2 :time (/ 3.0 60.0) :speed (/ 11.0 14.0)))   ; keys 3-14 over f36-50, its own slow-to-fast
+  (when (and step-p (<= 36 cf 54) (evenp cf)) (ke-zh-chips a))
+  (at 50 (cine-clip a :ke-zh-tategoto :blend 0 :time (/ 14.0 60.0)))             ; held trembling, the leap (18), the chop S on f56
+  (at 52 (play-sfx :whoosh-heavy :pitch 0.7))
+  (during (50 56) (shot-on a 110 4.2 (+ 0.4 (* 2.4 u)) :look (+ 1.6 (* 1.6 u))) (lens 60))
+  (at 56 (impact-frame :negative 2) (ui-flash 1 1 1 0.7 12.0) (hold-both a v 6) (focus-lines 20)
+      (cine-slash v :heavy) (cine-clip v :sh-stagger :blend 1) (lens 55)
+      (play-sfx :kikon-slash) (play-sfx :ground-crack) (play-sfx :whoosh-cleaver :pitch 0.7) (shake 0.45 0.5))
+  (at 62 (cine-clip a :ke-zh-tategoto :blend 0 :time (/ 20.0 60.0) :speed (/ 13.0 34.0)))   ; landed, head down: keys 20-33 over f62-96
+  (during (56 76) (ke-kk-cam 10.0 5.6 -6.0 1.0))                                 ; down the cut from behind him
+  (during (76 96) (ke-kk-cam -5.5 1.4 3.0 2.0))                                  ; reversed: from behind the victim
+  (during (96 104) (ke-kk-cam 10.0 5.6 -6.0 1.0))                                ; the cut, down the line again (the shear)
+  (during (56 160) (ke-rift-band (aref *ke-kk* 0) (aref *ke-kk* 1) (- cf 56) 40))
+  (during (62 76) (let ((p (pos-of a))) (ken-tategoto-wave-at (aref p 0) (aref p 2) (yaw-of a) (- cf 62) 30.0)))
+  (during (60 180) (let* ((p (pos-of a)) (yaw (yaw-of a)) (fx (fwd-x yaw)) (fz (fwd-z yaw)))   ; the floor split to the edge
+                     (vfx-line-cut (+ (aref p 0) (* 0.8 fx)) (+ (aref p 2) (* 0.8 fz)) (+ (aref p 0) (* 30.0 fx)) (+ (aref p 2) (* 30.0 fz))
+                                   (/ (- cf 60) 60.0) 1.5 :meteor)))
+  (at 96 (impact-frame :red 8) (hold-both a v 8) (caption-exit)
+      (vfx-ken-tategoto-cut (aref *ke-kk* 0) (aref *ke-kk* 1)) (vfx-ken-bk-burst (aref *ke-kk* 0) (aref *ke-kk* 1) :chigiri)
+      (cine-shatter v (fighter-kikon-n (fighter a)))
+      (play-sfx :rift-cut) (play-sfx :explode) (play-sfx :kikon-slash) (play-sfx :konpaku-shatter) (play-sfx :cut-heavy)
+      (shake 0.6 0.6))
+  (at 104 (cine-clip v :sh-launch :blend 1) (shot-pair a v 1 11.0 1.6) (lens 50)
+      (cine-clip a :ke-zh-tategoto :blend 2 :time (/ 33.0 60.0) :speed 0.5))     ; the wrench (34), the head out, back to the stance
+  (during (104 126) (ke-kk-at v (* -7.0 (- 1.0 (expt (- 1.0 u) 2))) (* 1.4 (sin (* 3.1416 u)))))
+  (at 126 (ke-kk-at v -7.0) (cine-clip v :sh-down :blend 2)
+      (let ((q (pos-of v))) (vfx-shockwave (aref q 0) (aref q 2) 2.5 0.4 :pal +pal-dust+))
+      (play-sfx :ground-crack) (shake 0.2 0.25))
+  (at 140 (shot-on a 40 4.6 0.9 :look 1.4) (lens 46) (face-beat a :shout 1.4 t) (play-sfx :laugh :pitch 0.8))
+  (at 160 (shot-on a 160 7.0 1.8 :look 1.2) (lens 50)))
+
 ;;; ================================================================ debug (KEN-DEBUG through *CHAR-DEBUG*; out of debug.lisp 2026-10-21)
 (declaim (special *probe*))   ; (debug.lisp's)
 
@@ -1199,6 +1388,9 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
               (setf (gauges-awakened (gauges *p1*)) t) (refresh-look *p1*))))
     ((84094 84095) (ken-core-debug 84001) (place *p1* *p2* 3.0)   ; the Shikai's pointer 1 / 2 Kikon cinematic, played (DUEL_KEN_V3 §19)
      (setf *cine-hold* nil) (start-cine (if (= c 84094) 'ken-s-kikon1-cine 'ken-s-kikon2-cine) *p1* *p2*))
+    ((84096 84097) (ken-core-debug (if (= c 84096) 84004 84005)) (place *p1* *p2* 3.0)   ; the Bankai's Kikon 狂嵐 / 斬壞, played (§33)
+     (setf *cine-hold* nil (fighter-kikon-n (fighter *p1*)) 4) (cine-stage *p1* *p2*)
+     (start-cine (if (= c 84096) 'ken-kr-kikon-cine 'ken-zh-kikon-cine) *p1* *p2*))
     (84010 (core-sp-start! *p2* (fighter *p2*)))
     (84011 (force-cmd *p2* :q))
     (t (let ((g (gauges *p1*)))                                    ; DUEL_SUBLIMATION §7, on the running 84000 scene (P1's gauges)

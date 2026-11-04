@@ -1048,3 +1048,52 @@ charge, the burst); when the damage lands (`delay-hit-hook`), if he is still in 
 confirm on top: the hold outlasted one); else the ordinary knockdown. TATE-GOTO (`:dmg-at 34`) goes the same way at its rift's cut.
 Scripted: 千切 held 1.6 s: the hit on 125, `delayed hit … (Kikon hold)` and `KIKON FOLLOW-UP` on 167, `KIKON` on 216; let go at 0.5 s:
 the ordinary knockdown on 167 + hitstop; TATE-GOTO held: the follow-up on its cut (1020), the Kikon on 1071. Host tests 9880 ALL PASS.
+
+## 33. The Bankai's Kikon cinematics (2026-11-05)
+
+The art round's step 5: each Bankai gets its own Kikon cinematic on its special AS's theme (DUEL_CORE §5b), replacing the borrowed ones
+(狂嵐 played the old Bankai's MAPPUTATSU, `ken-oni-kikon-cine`; 斬壞 the Shikai's sky split, `ken-sky-split-cine`). The plan below was shown
+first; the user: 「可以開始做了」. Both are the kit's `:core :kikon-cines`, so each also plays as that Bankai's Soul Break
+(`core-soul-break-cine`: the current pointer's). 180 frames each (3 s); presentation only.
+
+**狂嵐 `ken-kr-kikon-cine` 千切・極** (千切 grown: more cuts, the space shattering, the roar)
+
+| Frames | Shot | What happens |
+|---|---|---|
+| 0–12 | beat 0 | a negative frame, the poses held |
+| 12–30 | black card | the oni silhouetted, a BLOOD back-rim, the stamp 千切 / 狂嵐 (CHIGIRI / KYORAN) and the hanko, silence |
+| 30–40 | side-on | the iai held, trembling (`:ke-kr-chigiri` keys 8–11) |
+| 40 | white flash | the draw (S on 41), the cut on the victim |
+| 42–90 | half way round the victim | ink and paper but the red (`cine-grade :manga`); 24 cuts open round him one after another within 3.8 m, round the lens too (`ken-chigiri-cuts`, 千切's own drawing at spread 1.6); Kenpachi still, head down; silence |
+| 90–100 | black card, close, low | colour back, the oni alone with a BLOOD rim: the head thrown back, the roar; the cuts shaking, the screen shaking more and more |
+| 100 | the burst | red and ink held 8 frames; the screen cracked like glass from its centre (`ke-glass`), the pieces flying out and falling; two 千切 bursts, a 9 m BLOOD ring, the Konpaku |
+| 108–130 | wide | the victim blown 7 m away, landing |
+| 136–180 | Kenpachi | he laughs, head back; wide from behind |
+
+**斬壞 `ken-zh-kikon-cine` 盾ごと・極** (TATE-GOTO grown, after KUKAN-GIRI: the rift held, then cut)
+
+| Frames | Shot | What happens |
+|---|---|---|
+| 0–12 | beat 0 | a negative frame, the poses held |
+| 12–36 | black card | the oni silhouetted, a BLOOD back-rim, the stamp 盾ごと / 斬壞 (TATE-GOTO / ZANKAI) and the hanko, silence |
+| 36–50 | low, looking up | both hands haul the head out of the floor overhead, slow then fast (`:ke-zh-tategoto` keys 3–14), chips floating up |
+| 50–56 | up with him | held, trembling, the leap |
+| 56 | white flash, held 6 frames | the chop straight down |
+| 56–76 | down the cut from behind and above him | one rift from the top of the screen to the bottom through the victim (`ke-rift-band`, UI space), trembling and widening; the sword wave racing 30 m down the floor (`ken-tategoto-wave-at`), the floor splitting to the edge |
+| 76–96 | reversed, from behind the victim | the rift trembling before him |
+| 96 | the cut | the screen halves shear apart (`*grade-split*`), the rift flaring white; red and ink held 8 frames; the ink gash, the shards, the Konpaku |
+| 104–126 | side-on, wide | the victim blown 7 m away; Kenpachi wrenches the head out of the floor, back to his stance |
+| 140–180 | Kenpachi | he laughs, head back; wide from behind |
+
+- The rift and the glass are drawn in UI space: the engine can't break the rendered image, so the background buildings are not cut in two;
+  the band runs over them from the top of the screen to the bottom, and on the cut the composite's split shears the two halves.
+- 千切's look and TATE-GOTO's wave became functions of their age (`ken-chigiri-cuts`, `ken-tategoto-wave-at`): the move's look hazard and
+  the cinematic (whose hazards are cleared and whose sim is frozen) draw the same thing; the move's looks are unchanged (spread 1.0, no
+  stagger, a 3-frame flare).
+- The captions needed four new brush glyphs, 狂 嵐 壞 ご (`glyphs-extra.lisp`, `tools/glyph-bake.py`'s GLYPH on Yuji Syuku).
+- Debug 84096 / 84097: the 84004 / 84005 scene 3 m apart, then the cinematic played through (4 Konpaku shattering).
+- `ken-oni-kikon-cine` stays (debug 2210 / 36000+f, the old O command's `:ke-b-kikon`, DANGAI's tables); dead-code cleanup later.
+
+Checked: host tests 9880 ALL PASS, pkgcheck clean, the build without a new warning; scripted: 84004 J ×5 then SP held 1.8 s, the Kikon on
+tick 216 and `cine KEN-KR-KIKON-CINE`; 84005 the same, the Kikon on 231 and `cine KEN-ZH-KIKON-CINE`; 16-frame timelines of both from the
+landscape and the phone (390×844). The sound needs the user's ears. No match tests at this stage.
