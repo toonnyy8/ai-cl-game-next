@@ -222,37 +222,88 @@ negative, a manga page, the Konpaku; he laughs, his back to him; wide."
   (at 124 (play-sfx :laugh) (cine-clip a :ke-s-st-1 :blend 10))
   (at 138 (shot-on a 160 6.0 1.6 :look 1.2) (lens 50)))
 
-(defcine ken-s-kikon2-cine (a v :len 168 :hold 110)
-  "墜天斬 TSUITENZAN, the Shikai's pointer-2 Kikon (扛肩柄擊): beat 0, the shoulder rest held; a white card, low and dutch, the
-brush 墜天斬 and the hanko, silence; the hilt sunk and flicked up into him: he goes up tumbling; from below, Kenpachi leaps after
-him, arched over him with both hands on the hilt; the cut down: they fall together, the floor cratered under him (a negative, a
-manga page, the Konpaku); he laughs; wide."
+(defun ke-kk-cut (k off drop seed)
+  "TSUITENZAN's cut (after ch. 577's meteor cleave, its style only): the arc in the vertical plane of the line, from 8 m over
+Kenpachi's side down through the victim to the floor past him, OFF metres to the side (a half of the split air peeling away),
+DROP metres down, presence K; a white core over a yellow body."
+  (let* ((l *ke-kk*) (ox (* off (aref l 3))) (oz (* off (- (aref l 2)))) (y1 (max 0.05 (- 0.1 drop)))
+         (x0 (+ (aref l 0) (* 1.4 (aref l 2)) ox)) (z0 (+ (aref l 1) (* 1.4 (aref l 3)) oz))
+         (x1 (+ (aref l 0) (* -1.2 (aref l 2)) ox)) (z1 (+ (aref l 1) (* -1.2 (aref l 3)) oz))
+         (bx (+ (aref l 0) (* -0.4 (aref l 2)) ox)) (bz (+ (aref l 1) (* -0.4 (aref l 3)) oz)))
+    (fx-crescent x0 (- 8.0 drop) z0 x1 y1 z1 bx (- 6.4 drop) bz (* 0.55 k) :lens 0.06 seed +pal-gold+ k :push 0.2)
+    (fx-crescent x0 (- 8.0 drop) z0 x1 y1 z1 bx (- 6.4 drop) bz (* 0.25 k) :lens 0.05 (+ seed 7.0) +pal-hit+ k :push 0.3)))
+(defun ke-kk-tail (e k)
+  "Kenpachi falling with the cut like a meteor: a yellow-white tail 3 m up from E's head, presence K."
+  (let* ((p (pos-of e)) (x (aref p 0)) (y (+ (aref p 1) 1.8)) (z (aref p 2)))
+    (fx-line x (+ y 3.0) z x y z 0.02 1.0 0.86 0.45 (* 0.7 k) :end-width 0.5)
+    (fx-line x (+ y 3.0) z x y z 0.01 1.0 0.97 0.85 k :end-width 0.2)))
+
+(defcine ken-s-kikon2-cine (a v :len 290 :hold 168)
+  "墜天斬 TSUITENZAN, the Shikai's pointer-2 Kikon (扛肩柄擊), in the style of ch. 577's meteor cleave (the leap skyward, one
+blow, the halves falling apart; the user, 2026-11-04: 「不是真的要劈開隕石，只是要用那招的風格而已」), paced slow so each beat
+reads: beat 0, the shoulder rest held; a white card, low and dutch, the brush 墜天斬 and the hanko, silence; the hilt sunk slowly
+and flicked up into him: he goes up tumbling, seen from below; Kenpachi crouches and leaps skyward after him (wide), arched over
+him with both hands on the hilt, held, his reiatsu flaring; the one cut down through him: a negative, focus lines, slow motion
+seen down the line, the arc of the cut splitting into two halves that peel apart to either side; they fall, his tail like a
+meteor's; the floor cratered under him and the halves landing on both sides (a manga page, the Konpaku); he laughs; wide."
   (at 0 (cine-place a v 2.0) (ke-kk-line a v) (shot-on a 50 3.4 1.0 :look 1.2) (lens 50)
       (cine-clip a :ke-s-st-2 :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
       (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-cleaver))
   (at 12 (card :white a) (shot-on a 25 3.0 0.6 :look 1.3 :off -0.8) (lens 44 -10) (silence 40)
       (caption "墜天斬" :reading "TSUITENZAN" :sub "KENPACHI  KIKON" :side 1 :ink t :hanko t))
   (at 52 (card nil) (caption-exit) (shot-on a 70 3.4 0.7 :look 1.2) (lens 46)
-      (cine-clip a :ke-s-flick :blend 3 :speed 0.6))
-  (at 69 (cine-slash v :heavy) (cine-clip v :sh-launch :blend 2) (impact-frame :negative 2) (play-sfx :cut-heavy) (shake 0.25 0.3))
-  (during (69 104) (ke-kk-at v 0.0 (* 3.6 (- 1.0 (expt (- 1.0 (min 1.0 (/ u 0.55))) 2)))))   ; up, hung at the top
-  (during (104 110) (ke-kk-at v 0.0 (* 3.6 (- 1.0 u))))                                     ; cut down
-  (at 80 (cine-clip a :ke-s-meteor :blend 2 :time (/ 6.0 60.0) :speed 0.7) (play-sfx :whoosh-heavy :pitch 0.8))
-  (during (80 96) (let* ((q (pos-of v)) (l *ke-kk*))                                         ; from below: up at him
-                    (cine-cam (+ (aref l 0) (* 4.2 (aref l 2)) (* 2.0 (aref l 3))) 0.4 (+ (aref l 1) (* 4.2 (aref l 3)) (* -2.0 (aref l 2)))
-                              (aref q 0) (+ (aref q 1) 0.8) (aref q 2))))
-  (during (88 104) (ke-kk-at a 1.0 (* 2.6 (- 1.0 (expt (- 1.0 u) 2)))))                     ; the leap after him
-  (during (104 110) (ke-kk-at a (- 1.0 (* 0.6 u)) (* 2.6 (- 1.0 u))))                       ; and down with him
-  (during (96 112) (let* ((p (pos-of a)) (q (pos-of v)) (l *ke-kk*)                       ; side-on at their height
+      (cine-clip a :ke-s-flick :blend 3 :speed 0.4))                ; (its hit at clip frame 10: f77)
+  (at 77 (cine-slash v :heavy) (cine-clip v :sh-launch :blend 2) (impact-frame :negative 2) (play-sfx :cut-heavy) (shake 0.25 0.3))
+  (during (77 125) (ke-kk-at v 0.0 (* 5.0 (- 1.0 (expt (- 1.0 u) 2)))))                    ; up ...
+  (during (125 196) (ke-kk-at v 0.0 (+ 5.0 (* 0.2 (min 1.0 (/ u 0.6))))))                 ; ... hung at the top
+  (during (196 228) (ke-kk-at v 0.0 (* 5.2 (- 1.0 (* u u)))))                              ; cut down
+  (during (79 122) (let* ((q (pos-of v)) (l *ke-kk*))                                       ; from below: up at him
+                     (cine-cam (+ (aref l 0) (* 4.2 (aref l 2)) (* 3.2 (aref l 3))) 0.4 (+ (aref l 1) (* 4.2 (aref l 3)) (* -3.2 (aref l 2)))
+                               (aref q 0) (+ (aref q 1) 0.8) (aref q 2))))
+  (at 79 (lens 50))
+  ;; Kenpachi: INSEKI-GIRI's clip at 0.3: the crouch (its key 6) at f122, the leap (9) f132, arched (13-17) f145-158, the cut (S 20) f168
+  (at 102 (cine-clip a :ke-s-meteor :blend 6 :speed 0.3))
+  (at 122 (play-sfx :whoosh-heavy :pitch 0.7))
+  (during (122 152) (ke-kk-at a (- 2.0 (* 0.9 u)) (* 5.8 (- 1.0 (expt (- 1.0 u) 2)))))     ; the leap skyward
+  (during (152 196) (ke-kk-at a 1.1 (+ 5.8 (* 0.1 u))))                                      ; arched over him, the cut, held
+  (during (196 228) (ke-kk-at a (- 1.1 (* 0.3 u)) (* 5.9 (- 1.0 (* u u)))))                 ; and down with him
+  (during (122 152) (let* ((p (pos-of a)) (q (pos-of v)) (l *ke-kk*)                       ; wide side-on: up after him
+                            (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2))))
+                            (my (+ 1.0 (* 0.5 (+ (aref p 1) (aref q 1))))))
+                       (cine-cam (+ mx (* 11.0 (aref l 3))) (+ 0.4 my) (- mz (* 11.0 (aref l 2))) mx (+ 0.8 my) mz)))
+  (at 122 (lens 46))
+  (during (152 168) (let* ((p (pos-of a)) (l *ke-kk*))                                    ; low and close: arched against the sky
+                      (cine-cam (+ (aref p 0) (* 2.8 (aref l 3)) (* 1.2 (aref l 2))) (- (aref p 1) 0.4)
+                                (+ (aref p 2) (* -2.8 (aref l 2)) (* 1.2 (aref l 3)))
+                                (aref p 0) (+ (aref p 1) 1.7) (aref p 2))))
+  (at 152 (lens 52 6) (play-sfx :awaken-rise :pitch 0.7))
+  (during (148 170) (let ((p (pos-of a)))                                                   ; his reiatsu flaring
+                      (fx-billboard (aref p 0) (+ (aref p 1) 1.6) (aref p 2) (* 1.6 (min 1.0 (* 2.0 u))) 1.0 0.85 0.3
+                                    (* 0.5 (- 1.0 (* u u))))))
+  (at 168 (cine-slash v :heavy) (impact-frame :negative 2) (focus-lines 20) (cine-slow 0.25)
+      (play-sfx :kikon-slash) (play-sfx :cut-heavy) (shake 0.3 0.4)
+      (lens 40))
+  (during (168 196) (let ((l *ke-kk*))                                                      ; down the line: the halves part
+                      (cine-cam (+ (aref l 0) (* -10.0 (aref l 2))) 3.6 (+ (aref l 1) (* -10.0 (aref l 3)))
+                                (+ (aref l 0) (* 0.5 (aref l 2))) 5.0 (+ (aref l 1) (* 0.5 (aref l 3))))))
+  (during (168 176) (ke-kk-cut (- 1.0 (* 0.3 u)) 0.0 0.0 (+ 700.0 (drawing-no))))           ; the cut whole ...
+  (during (172 228) (let ((d (* 2.4 (sqrt u))) (dr (* 6.0 (expt (max 0.0 (/ (- u 0.4) 0.6)) 2))) (k (- 1.0 (* 0.5 u))))
+                      (ke-kk-cut k d dr (+ 710.0 (drawing-no)))                          ; ... split, peeling apart, then falling
+                      (ke-kk-cut k (- d) dr (+ 720.0 (drawing-no)))))
+  (at 196 (cine-slow 1) (lens 44) (cine-clip a :ke-s-meteor :blend 4 :time (/ 24.0 60.0) :speed 0.5))
+  (during (196 228) (let* ((p (pos-of a)) (q (pos-of v)) (l *ke-kk*)                       ; side-on at their height
                            (mx (* 0.5 (+ (aref p 0) (aref q 0)))) (mz (* 0.5 (+ (aref p 2) (aref q 2)))) (my (* 0.5 (+ (aref p 1) (aref q 1)))))
-                      (cine-cam (+ mx (* 8.0 (aref l 3))) (+ my 1.2) (- mz (* 8.0 (aref l 2))) mx (+ my 1.0) mz)))
-  (at 96 (lens 44))
-  (at 104 (cine-slash v :heavy) (impact-frame :negative 2) (focus-lines 16) (play-sfx :kikon-slash))
-  (at 110 (cine-clip v :sh-down :blend 2)
-      (let ((q (pos-of v))) (ke-meteor-impact (aref q 0) (aref q 2)))
+                      (cine-cam (+ mx (* 9.0 (aref l 3))) (+ my 1.2) (- mz (* 9.0 (aref l 2))) mx (+ my 1.0) mz)))
+  (during (196 228) (ke-kk-tail a (- 1.0 (* 0.4 u))))
+  (at 228 (cine-clip v :sh-down :blend 2) (cine-clip a :ke-s-meteor :blend 2 :time (/ 38.0 60.0))
+      (let ((q (pos-of v)) (l *ke-kk*))
+        (ke-meteor-impact (aref q 0) (aref q 2))
+        (dolist (sd '(2.4 -2.4))                                                            ; the halves land on both sides
+          (let ((x (+ (aref l 0) (* -0.6 (aref l 2)) (* sd (aref l 3)))) (z (+ (aref l 1) (* -0.6 (aref l 3)) (* sd (- (aref l 2))))))
+            (stage-crack-add x z 1.4) (stage-debris x z 6 1.0))))
       (cine-shatter v (fighter-kikon-n (fighter a)) :up 0.4 :dy 0.1)
       (impact-splash-at v 0.0 16 0.08)
-      (play-sfx :ground-crack) (play-sfx :explode :pitch 0.5) (play-sfx :konpaku-shatter) (shake 0.45 0.6))
-  (at 112 (impact-frame :manga 12))
-  (at 126 (play-sfx :laugh) (cine-clip a :ke-s-st-2 :blend 12))
-  (at 140 (shot-on a 150 6.5 1.8 :look 1.2) (lens 50)))
+      (play-sfx :ground-crack) (play-sfx :explode :pitch 0.5) (play-sfx :konpaku-shatter) (shake 0.5 0.7))
+  (at 230 (impact-frame :manga 12))
+  (at 246 (play-sfx :laugh) (cine-clip a :ke-s-st-2 :blend 12))
+  (at 260 (shot-on a 150 6.5 1.8 :look 1.2) (lens 50)))

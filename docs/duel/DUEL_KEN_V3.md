@@ -580,7 +580,7 @@ behind and side cameras, an SP press sliding the hand back). Playtest Artifact v
     crouch deepening (`:ke-s-p1a`'s startup slowed); the dash 6.4 m through him along the line (ISSEN's clip, a yellow-white streak,
     a heavy cut as he passes); from behind the victim, Kenpachi skidding on; he turns and spins back through him in the wind funnel
     (the wheel's clip), the heavy cut on f104, the Konpaku on f112 (a negative, a manga page); he laughs; wide.
-  - pointer 2 **墜天斬 TSUITENZAN** (`ken-s-kikon2-cine`, 扛肩柄擊, 168 f): the shoulder rest held, the white card; the hilt sunk and
+  - pointer 2 **墜天斬 TSUITENZAN** (`ken-s-kikon2-cine`, 扛肩柄擊, 168 f; rebuilt slower in §20, 290 f): the shoulder rest held, the white card; the hilt sunk and
     flicked up into him (`:ke-s-flick`): he goes up tumbling to 3.6 m and hangs; from below, Kenpachi leaps after him (INSEKI-GIRI's
     clip, 2.6 m up), side-on at their height; the cut down on f104, both falling, the floor cratered under him on f110 (the meteor's
     impact), the Konpaku; he laughs; wide.
@@ -593,3 +593,33 @@ t=6000 hash line, sampled inside the cinematic (P1's place), so the reference wa
 P2 0-5, 285.5 s; KK 30 lines, P2 0-4, 298.7 s). Both cinematics shot at eleven frames each, DAISHARIN and INSEKI-GIRI scripted
 (84001 + L3, J ×4 / ×6 + SP) and shot at seven frames each. The manual's Shikai table: the stances as built, the special ASs' looks,
 the Kikon row.
+
+## 20. TSUITENZAN in the style of the meteor cleave, slowed (2026-11-04)
+
+The user, on the playtest of §19: 「墜天斬的動畫請使用原作中劍八將隕石劈開的那招，而且目前的演出太快，讓人無法看清中間過程」. Asked where the
+meteor comes from in a 1v1 (A: the victim falls back wrapped as one; B: a meteor of his reiatsu), the user: 「不是真的要劈開隕石，只是要用那招的
+風格而已」: no meteor, the cut's style.
+
+- Canon (grade C, chapter summaries of ch. 576-577 "Blade", TYBW episode 20 "I Am the Edge"; to check against the pages): Gremmy drops a
+  meteor on the Seireitei; Kenpachi leaps skyward, releases Nozarashi and splits it through its core with one blow; the halves break
+  apart and fall across the city. Taken: the leap skyward, the one blow from above, the two halves falling to either side.
+- Not taken: the white sky-split line (`vfx-sky-split`): the sealed form's pointer-3 Kikon and the Bankai's MAPPUTATSU already use it.
+  This cut is its own look in the world: a yellow-white arc (`ke-kk-cut`, a gold lens crescent under a white one) in the line's vertical
+  plane, from 8 m up on Kenpachi's side through the victim to the floor past him.
+- Pacing: the middle went from about 0.7 s (launch f69 → floor f110, the cut itself 6 f) to 2.5 s (f77 → f228), length 168 → 290 f:
+
+| Beat | Before | After |
+|---|---|---|
+| hilt flick (`:ke-s-flick`) | speed 0.6, hit f69 | speed 0.4, hit f77 |
+| victim up | to 3.6 m by f88 | to 5.0 m by f125, hangs to f196 (5.2 m), seen from below |
+| the leap | f88-104, 2.6 m | INSEKI-GIRI's clip at 0.3: crouch f122, leap f122-152 to 5.8 m (wide side-on) |
+| arched over him | - | f145-168, held, his reiatsu flaring (low and close, against the sky) |
+| the cut | f104 | f168: a negative, focus lines, slow motion ×0.25 to f196, shot down the line |
+| the split | - | the arc whole f168-176, then two halves peel 2.4 m apart to either side and fall (f172-228) |
+| the fall | f104-110 | f196-228, side-on, a yellow-white tail over Kenpachi |
+| landing | f110 | f228: the crater under him (`ke-meteor-impact`) and the halves' two craters 2.4 m to either side, the Konpaku |
+| laugh / wide | f126 / f140 | f246 / f260 |
+
+- Presentation only (`ken-look.lisp`; the in-game INSEKI-GIRI clip untouched, the cinematic plays it slowed). Debug 84095 plays it; its
+  `:hold` frame is the cut (168). Checks: host tests 9831 ALL PASS, pkgcheck clean, the build, 22 frames shot (f60-f270, every 6-10
+  frames through the middle). G2: II and IK identical; KK: every hash line identical, only its RESULTS line moved 17924 -> 18046 ticks (298.7 -> 300.8 s, P2 0-4: the 122 f of the one TSUITENZAN it plays), so the reference was regenerated.
