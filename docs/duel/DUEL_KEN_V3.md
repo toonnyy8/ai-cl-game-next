@@ -659,3 +659,14 @@ touch-test 100, pkgcheck clean, the build, G2 identical; the scripted routes (L1
 Playtest v314.
 
 Approved (the user, 2026-11-04: 「非常好」).
+
+## 22. The Bankai: its own weapon builder (2026-11-04)
+
+The user: 「開始卍解設計，然後我先調整卍解的武器造型」, then 「請先確保改動卍解不會影響到始解武器造型」. The broken cleaver `:ke-broken`
+was built by Nozarashi's own builder (`ke-mb-noz-head`, `with-ke-tilt`, `ke-noz-k` / `ke-noz-widen`) and knobs (`*ke-noz-scale*`,
+`-band`, `-k-cap`, `-mid`, `-k-end`, `*ke-haft-sag*`), so it took every Shikai reshaping of §7 and any Bankai change would have moved
+the Shikai. Now it has a copy of its own (`ke-mb-bk-head`, `with-ke-bk-tilt`, `ke-bk-k` / `ke-bk-widen`, knobs `*ke-bk-haft*`
+1.3, `*ke-bk-scale*` 1.5, `*ke-bk-band*` 1.5, `*ke-bk-sag*` 0.06, `*ke-bk-k-cap*` 1.1, `*ke-bk-mid*` 1.1, `*ke-bk-k-end*` 1.425: the
+values of that day); nothing in Nozarashi's code reads them, nor the copy Nozarashi's. Proof: the viewer's stills of Nozarashi (4101),
+the broken cleaver's two faces (4102 / 4112) and the Bankai turntable (2006, 0/90/180/270) are byte-identical to the build before the
+split (0 pixels differ). Host tests 9831 ALL PASS, pkgcheck clean, the build. Next: the user's changes to the cleaver.

@@ -461,10 +461,86 @@
 ;; the Bankai's broken cleaver (DUEL_KEN_REWORK §8; the user 2026-10-09: 「卍解刀身直接沿用始解刀身，然後將我打 X 的地方移除
 ;;變成斷刀」): Nozarashi's own head, haft and colours, snapped at 0.9 m up the blade: the cap, the tassel and the far
 ;; 0.72 m gone, the end cut square and chipped; its haft 1.3 times as long, lengthened downward (the user: 「將刀柄向下
-;; 伸長，使其變成原本的 1.3 倍」)
+;; 伸長，使其變成原本的 1.3 倍」).
+;; Its own builder since 2026-11-04 (the user: 「請先確保改動卍解不會影響到始解武器造型」, DUEL_KEN_V3 §22): a copy of Nozarashi's
+;; (WITH-KE-TILT, KE-NOZ-K / -WIDEN, KE-MB-NOZ-HEAD) with its own knobs *KE-BK-*, at the values it had that day, so a change to the
+;; Bankai's cleaver never moves the Shikai's and the reverse (until then it shared them, and took the Shikai's §7 reshaping).
+(defparameter *ke-bk-haft* 1.3 "The broken cleaver's haft / 0.76 m (its own copy of *KE-NOZ-HAFT*, 2026-11-04).")
+(defparameter *ke-bk-scale* 1.5 "Its head scaled about the bar's joint (copy of *KE-NOZ-SCALE*, 2026-11-04).")
+(defparameter *ke-bk-band* 1.5 "Its edge band depth (copy of *KE-NOZ-BAND*, 2026-11-04).")
+(defparameter *ke-bk-sag* 0.06 "Its haft's sag at the butt, m (copy of *KE-HAFT-SAG*, 2026-11-04).")
+(defparameter *ke-bk-k-cap* 1.1 "Its widening at the cap's end (copy of *KE-NOZ-K-CAP*, 2026-11-04).")
+(defparameter *ke-bk-mid* 1.1 "Its widening at the head's middle (copy of *KE-NOZ-MID*, 2026-11-04).")
+(defparameter *ke-bk-k-end* 1.425 "Where its taper ends, y along the head (copy of *KE-NOZ-K-END*, 2026-11-04).")
+(defmacro with-ke-bk-tilt ((mb) &body body)
+  "WITH-KE-TILT for the broken cleaver: BODY turned 5 degrees about the bar's joint, 0.05 m down, scaled *KE-BK-SCALE*."
+  `(mb-at (,mb :y 0.4 :z 0.03 :pitch -0.08726646 :s *ke-bk-scale*)
+     (mb-at (,mb :y -0.4 :z -0.08) ,@body)))
+
+(defun ke-bk-k (y)
+  "KE-NOZ-K for the broken cleaver: its widening at Y, 1.3 at the point's end to *KE-BK-K-CAP* at *KE-BK-K-END*, the middle *KE-BK-MID*."
+  (let ((k (+ 1.3 (* (- y -0.183) (/ (- *ke-bk-k-cap* 1.3) (- *ke-bk-k-end* -0.183))))))
+    (* (max (min 1.3 *ke-bk-k-cap*) (min (max 1.3 *ke-bk-k-cap*) k))
+       (let ((u (max 0.0 (min 1.0 (/ (- y -0.183) (- 1.425 -0.183))))))
+         (+ 1.0 (* (- *ke-bk-mid* 1.0) (sin (* 3.1415927 u))))))))
+
+(defun ke-bk-widen (y z)
+  "Z on the broken cleaver's head at Y, widened about the spine line by KE-BK-K."
+  (let ((s (+ 0.07 (* (- y 0.3) (/ 0.016 1.32)))))
+    (+ s (* (- z s) (ke-bk-k y)))))
+
+(defun ke-mb-bk-head (mb end &optional (haft 1.0))
+  "KE-MB-NOZ-HEAD for the broken cleaver: the head cut at END up the blade, the haft HAFT times 0.76 m, longer downward."
+  (flet ((prism (profile x0 x1 &optional wide)
+           (let ((pts (loop with out = nil
+                            for ((y0 z0) (y1 z1)) on (append profile (list (first profile)))
+                            while y1
+                            do (when (<= y0 end) (push (list y0 z0) out))
+                               (when (or (and (< y0 end) (> y1 end)) (and (> y0 end) (< y1 end)))
+                                 (push (list end (+ z0 (* (- z1 z0) (/ (- end y0) (- y1 y0))))) out))
+                            finally (return (nreverse out)))))
+             (when wide (setf pts (loop for (y z) in pts collect (list y (ke-bk-widen y z)))))
+             (when (>= (length pts) 3) (ke-mb-prism mb pts x0 x1)))))
+    (mbc mb #x1C1C20)
+    (prism '((0.07 -0.025) (0.4 0.045) (0.4 0.115) (0.07 0.025)) -0.022 0.022)   ; the black slanted bar: haft to head
+    (with-ke-bk-tilt (mb)                                   ; the head, turned about the bar's joint
+    ;; the body, then the point (two convex prisms)
+    (prism '((0.3 0.07) (1.62 0.086) (1.62 0.611) (1.426 0.605) (1.069 0.596) (0.771 0.575) (0.532 0.545)
+             (0.323 0.462) (0.174 0.387))
+           -0.021 0.021 t)
+    (prism '((0.174 0.387) (-0.034 0.283) (-0.183 0.209) (0.01 0.185) (0.26 0.17)) -0.018 0.018 t)   ; (its back on the body's)
+    ;; the edge's pale band, both faces: light and grey stripes, the inner line ragged (each stripe its own depth)
+    (loop for ((y0 z0 d0) (y1 z1 d1)) on '((-0.183 0.209 0.02) (-0.034 0.283 0.06) (0.115 0.358 0.107) (0.323 0.462 0.133)
+                                            (0.532 0.545 0.16) (0.771 0.575 0.14) (1.069 0.596 0.167) (1.426 0.605 0.147))
+          for k from 0
+          while y1
+          do (mbc mb (if (evenp k) #xE2E4E8 #x9EA0A8))
+             (setf d0 (* d0 *ke-bk-band*) d1 (* d1 *ke-bk-band*))   ; (deeper into the blade, §7.3)
+             (prism (list (list y0 z0) (list y1 z1) (list (+ y1 (* 0.4 d1)) (- z1 d1)) (list (+ y0 (* 0.4 d0)) (- z0 d0)))
+                    -0.023 0.023 t))
+    (mbc mb #x1C1C20)                                    ; chips bitten out of the edge
+    (loop for (y z) in '((0.22 0.415) (0.65 0.562) (1.0 0.594) (1.3 0.603))
+          when (< y (- end 0.05))
+            do (mb-at (mb :y y :z (ke-bk-widen y z) :roll 0.6) (mb-box mb 0.05 0.03 0.03))))
+    ;; the haft sags away from the edge toward the butt: z = -*KE-BK-SAG* x (u / len)^2, 8 straight pieces
+    (let* ((len (* 0.76 haft)) (drop (- len 0.76)))
+      (flet ((sag (y) (let ((u (/ (- 0.08 y) len))) (- (* *ke-bk-sag* u u))))
+             (tilt (y) (atan (/ (* 2 *ke-bk-sag* (- 0.08 y)) (* len len)))))
+        (mbc mb #xECECE8)                                ; the long white-wrapped haft
+        (loop with n = 8 for i below n                   ; (it stops short of the head: the bar joins them)
+              for y = (- 0.08 (* (+ i 0.5) (/ len n)))
+              do (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-box mb 0.05 (* 1.02 (/ len n) (/ 1 (cos (tilt y)))) 0.05)))
+        (mbc mb #x6A6A70)
+        (loop for i below (round (* 8 haft))
+              for y = (- 0.03 (* i 0.085))
+              do (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-at (mb :roll 0.6) (mb-box mb 0.054 0.006 0.054))))
+        (mbc mb #x16161A)                                ; the black butt
+        (let ((y (- -0.67 drop)))
+          (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))))
+
 (defweapon :ke-broken (:length 0.9 :base 0.2)
-  (:solid (ke-mb-noz-head mb 0.9 1.3)                    ; the haft 1.3 times Nozarashi's, longer below (0.76 -> 0.99 m)
-          (with-ke-tilt (mb)
+  (:solid (ke-mb-bk-head mb 0.9 *ke-bk-haft*)            ; the haft 1.3 times Nozarashi's first, longer below (0.76 -> 0.99 m)
+          (with-ke-bk-tilt (mb)
             (mbc mb #x1C1C20)                            ; the square break, chipped
             (loop for (z r) in '((0.13 0.5) (0.3 -0.4) (0.46 0.7))
                   do (mb-at (mb :y 0.9 :z z :roll r) (mb-box mb 0.05 0.045 0.05))))))
