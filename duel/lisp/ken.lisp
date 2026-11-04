@@ -336,10 +336,10 @@
 (defmove-copy :ke-kr-as4c :ke-kr-nc :kind :sp :params (:ns-next :ke-kr-fin))
 (defmove-copy :ke-kr-as4b :ke-kr-nb :kind :sp :params (:ns-next :ke-kr-as4c))
 (defmove-copy :ke-kr-as4 :ke-kr-na :kind :sp :startup 12 :params (:ns-next :ke-kr-as4b))               ; after J4: a, b, c, the finisher
-(defmove :ke-kr-sp :kind :sp :clip :ke-kr-chigiri :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 68 :dmg 300 :adv-block -10
-  :reach 2.4 :arc 360 :on-hit :knockdown :params (:dmg-at 64)                                          ; 千切, the space-cutting draw (§5.4):
-  :on-frame ((0 ken-bk-special) (12 ken-chigiri-open) (16 ken-chigiri-still) (58 ken-chigiri-quake)
-             (64 ken-chigiri-burst)))                                                                  ;  the damage on the burst (§30.3)
+(defmove :ke-kr-sp :kind :sp :clip :ke-kr-chigiri :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 44 :dmg 300 :adv-block -10
+  :reach 2.4 :arc 360 :on-hit :knockdown :params (:dmg-at 40)                                          ; 千切, the space-cutting draw (§5.4):
+  :on-frame ((0 ken-bk-special) (12 ken-chigiri-open) (16 ken-chigiri-still) (34 ken-chigiri-quake)
+             (40 ken-chigiri-burst)))                                                                  ;  the damage on the burst (§30.5)
 ;; 斬壞 ZANKAI (from pointer 2)
 (defmove :ke-zh-j1 :kind :quick :clip :ke-zh-cut1 :clip-s 9 :startup 9 :active 3 :recovery 12 :dmg 50 :adv-block -2
   :reach 1.9 :arc 100 :on-hit :flinch :slide 0.6 :params (:as-ptr 1))

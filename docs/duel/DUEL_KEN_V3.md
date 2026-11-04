@@ -1031,3 +1031,9 @@ its cinematic (`ken-bankai-cine`); KEN-AS-PICK starts `:ke-s-bankai`, the Shikai
 Checked: host tests 9880 ALL PASS, pkgcheck clean, the build without a new warning; scripted (84001 + 84093: the Shikai at L3, J ×7
 then SP): `KE-S-BANKAI` hits on tick 181, `BANKAI from pointer 1` / `form BANKAI` on 195, no cinematic; the shots show the gather, the
 red frame, the ring and the shards. No match tests at this stage.
+
+### 30.5 千切's charge 16–40 (2026-11-05)
+
+The user (on §30.3's charge, 16–64): 「續力改成 16~40f」. The still charge now runs frames 16–40 (0.4 s): `*chigiri-still-frames*` 48 → 24, the
+quake 58–63 → 34–39, the roar and the burst 64 → 40 (`:dmg-at` 64 → 40, `*chigiri-burst*` 52 → 28), held to 50, the recovery 68 → 44 (the
+move 84 → 60 frames). Scripted (84004): the hit on tick 125, the damage on tick 167. Host tests 9880 ALL PASS.

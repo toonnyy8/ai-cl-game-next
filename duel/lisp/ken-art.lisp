@@ -1788,7 +1788,7 @@ parallel edge at y 0.174; below that (the point's side) pulled toward the edge l
   (:arm-r :flex -16 :side 61 :twist 0) (:elbow-r :flex 83) (:hand-r :flex 263 :twist -26 :side 0)
   (:arm-l :flex 60 :side 20 :twist 0) (:elbow-l :flex 110) (:hand-l :flex 0)
   (:thigh-l :flex 60 :side 34) (:knee-l :flex 96) (:thigh-r :flex 50 :side 38) (:knee-r :flex 90))
-(defstrike :ke-kr-chigiri (12 4 68 :base :ke-b-kr-stance)
+(defstrike :ke-kr-chigiri (12 4 44 :base :ke-b-kr-stance)
   (0 :ke-kr-a5)
   (3 (:root :u -0.34 :f 0.3) (:chest :twist 10) (:arm-r :flex 40))                                ; gathering
   (8 :ke-kr-ch-c)                                                                                  ; the iai
@@ -1800,17 +1800,17 @@ parallel edge at y 0.174; below that (the point's side) pulled toward the edge l
   (14.001 (:root :yaw 80))                                                                         ; (the same facing)
   (16 :ke-kr-ch-f)                                                                                 ; through to his left
   (22 :ke-kr-ch-g)                                                                                 ; 2 the head down: still
-  (40 (:root :u -0.43) (:head :flex 27))                                                           ; (barely a breath)
-  (57 (:root :u -0.43) (:spine :flex 53) (:head :flex 28))
-  (58 (:root :u -0.39) (:chest :twist 5) (:head :flex 21))                                         ; the last 6 frames: shaking
-  (59 (:root :u -0.47) (:chest :twist -5) (:head :flex 32) (:spine :flex 56))
-  (60 (:root :u -0.38) (:chest :twist 6) (:head :flex 20))
-  (61 (:root :u -0.48) (:chest :twist -6) (:head :flex 33) (:spine :flex 57))
-  (62 (:root :u -0.37) (:chest :twist 7) (:head :flex 19))
-  (63 (:root :u -0.49) (:chest :twist -7) (:head :flex 34) (:spine :flex 58))
-  (64 :snap :ke-kr-ch-r)                                                                           ; 3 the roar and the burst
-  (74 (:root :u -0.21) (:spine :flex -22) (:head :flex -54))                                       ; held
-  (74.001 (:hand-r :flex -127))                                                                    ; (the same orientation)
+  (28 (:root :u -0.43) (:head :flex 27))                                                           ; (barely a breath)
+  (33 (:root :u -0.43) (:spine :flex 53) (:head :flex 28))
+  (34 (:root :u -0.39) (:chest :twist 5) (:head :flex 21))                                         ; the last 6 frames: shaking
+  (35 (:root :u -0.47) (:chest :twist -5) (:head :flex 32) (:spine :flex 56))
+  (36 (:root :u -0.38) (:chest :twist 6) (:head :flex 20))
+  (37 (:root :u -0.48) (:chest :twist -6) (:head :flex 33) (:spine :flex 57))
+  (38 (:root :u -0.37) (:chest :twist 7) (:head :flex 19))
+  (39 (:root :u -0.49) (:chest :twist -7) (:head :flex 34) (:spine :flex 58))
+  (40 :snap :ke-kr-ch-r)                                                                           ; 3 the roar and the burst
+  (50 (:root :u -0.21) (:spine :flex -22) (:head :flex -54))                                       ; held
+  (50.001 (:hand-r :flex -127))                                                                    ; (the same orientation)
   (:end :ke-b-kr-stance))
 (defpose :ke-zh-tg-c (:base :ke-b-zh-stance)            ; TATE-GOTO coiled: both hands overhead, the head hanging down his back
   (:root :u -0.41 :f 0.05) (:pelvis :twist 0) (:spine :flex -12 :side 0) (:chest :flex 0 :twist 0) (:head :flex -20 :twist 0)
@@ -1847,8 +1847,8 @@ parallel edge at y 0.174; below that (the point's side) pulled toward the edge l
 (pushnew :ke-zh-tategoto *grip-clips*)                  ; (two-handed: GRIP-LEFT!)
 (defparameter *chigiri-cuts* 9 "千切's cuts opening in the air round him, all at once just after the draw (KEN-CHIGIRI-LOOK).")
 (defparameter *chigiri-quake* 6 "Frames before the burst the cuts (and he) start shaking hard (§30.3: still until then).")
-(defparameter *chigiri-still-frames* 48 "Frames of the charge's ink-and-paper-but-red grade (:manga), move frame 16 to the burst on 64 (§30.3).")
-(defparameter *chigiri-burst* 52 "The look's age (frames after the draw) the cuts burst on: move frame 64, its :dmg-at (DUEL_KEN_V3 §30.3).")
+(defparameter *chigiri-still-frames* 24 "Frames of the charge's ink-and-paper-but-red grade (:manga), move frame 16 to the burst on 40 (§30.5).")
+(defparameter *chigiri-burst* 28 "The look's age (frames after the draw) the cuts burst on: move frame 40, its :dmg-at (DUEL_KEN_V3 §30.5).")
 (defun ken-chigiri-look (hz rdt)
   "千切's look (a look hazard spawned at the draw, at his feet): the draw's white ring for 3 frames; then *CHIGIRI-CUTS* thin slits
 opening all at once within 2.4 m of him (a white core in a BLOOD lens, each its own tilt), barely trembling through the still
