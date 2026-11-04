@@ -786,3 +786,11 @@ segments, the finisher knocks down; J1–J5 + SP → the special (300 / 320), th
 Konpaku 9 → 8. From the Shikai (84001, pointer 2510 / 2511, L3): J1–J7 + SP → `BANKAI from pointer 1` → `form BANKAI` / `BANKAI-2`, the
 Bankai cinematic; J1–J5 + SP held → the special's Kikon (−3 Konpaku), its cinematic, then back to the Shikai. The manual's Bankai entry
 rewritten. Playtest v319. Next: the art round (both kits' own clips, stances, the 千切 look, the two Kikon cinematics).
+
+### 26.3 Nothing restored on entry: a special form, not an awakening (2026-11-04)
+
+The user: 「進入卍解不回復狀態，劍八的卍解算特殊形態，不計入覺醒」. `bankai!` takes a third argument RESTORE (default T, the old P-key and
+DANGAI paths unchanged); `ken-as-pick` (J7 + SP) passes NIL: no awakening regen (`start-awake-regen!`) and no Reishi refill. His
+Konpaku, Reiatsu, flash-step and guard gauge were already kept. Script (84001, pointer 1, L3, Ichigo's J1 twice on him, then J1–J7 + SP):
+Reishi 1236 at the entry stays (1266 at t=600 with his ordinary regen; before, it refilled to 1300). Host tests 9874 ALL PASS. The manual
+says it. Playtest v320.

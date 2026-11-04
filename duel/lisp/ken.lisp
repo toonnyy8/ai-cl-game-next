@@ -1116,7 +1116,8 @@ the route's level, the damage KEN-DMG-MULT's), L back to 0 (§4 S5, §5.2); else
     (flet ((nth-as (i) (gethash (nth i as) (kit-moves (fighter-kit f)))))
       (cond ((getf p :bankai-as)
              (clog "~a BANKAI from pointer ~d" (side-name e) cur)
-             (bankai! e (if (= cur 2) :bankai-2 :bankai))   ; (the Bankai of the pointer he is on: 狂嵐 / 斬壞, §26)
+             (bankai! e (if (= cur 2) :bankai-2 :bankai) nil)   ; (the Bankai of the pointer he is on: 狂嵐 / 斬壞, §26; a special
+                                                                ;  form, not an awakening: nothing restored, §26.3)
              :taken)
             ((getf p :special-as) (values (nth-as (+ 3 cur)) nil))
             ((/= n cur)
