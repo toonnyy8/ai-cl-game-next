@@ -330,10 +330,10 @@
 (defmove-copy :ke-kr-as4c :ke-kr-nc :kind :sp :params (:ns-next :ke-kr-fin))
 (defmove-copy :ke-kr-as4b :ke-kr-nb :kind :sp :params (:ns-next :ke-kr-as4c))
 (defmove-copy :ke-kr-as4 :ke-kr-na :kind :sp :startup 12 :params (:ns-next :ke-kr-as4b))               ; after J4: a, b, c, the finisher
-(defmove :ke-kr-sp :kind :sp :clip :ke-kr-chigiri :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 44 :dmg 300 :adv-block -10
-  :reach 2.4 :arc 360 :on-hit :knockdown :params (:dmg-at 38)                                          ; 千切, the space-cutting draw (§5.4):
-  :on-frame ((0 ken-bk-special) (12 ken-chigiri-open) (15 ken-chigiri-wave) (21 ken-chigiri-wave) (27 ken-chigiri-wave)
-             (38 ken-chigiri-burst)))                                                                  ;  the damage on the burst (§30.1)
+(defmove :ke-kr-sp :kind :sp :clip :ke-kr-chigiri :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 68 :dmg 300 :adv-block -10
+  :reach 2.4 :arc 360 :on-hit :knockdown :params (:dmg-at 64)                                          ; 千切, the space-cutting draw (§5.4):
+  :on-frame ((0 ken-bk-special) (12 ken-chigiri-open) (16 ken-chigiri-still) (58 ken-chigiri-quake)
+             (64 ken-chigiri-burst)))                                                                  ;  the damage on the burst (§30.3)
 ;; 斬壞 ZANKAI (from pointer 2)
 (defmove :ke-zh-j1 :kind :quick :clip :ke-zh-cut1 :clip-s 9 :startup 9 :active 3 :recovery 12 :dmg 50 :adv-block -2
   :reach 1.9 :arc 100 :on-hit :flinch :slide 0.6 :params (:as-ptr 1))
@@ -411,9 +411,11 @@
 
 (defparameter *ken-chigiri-stop* 8 "Frames 千切's burst freezes the fight (HITSTOP; DUEL_KEN_V3 §30.1, mine: the beat's weight).")
 (defun ken-chigiri-open (e)
-  "千切's draw (DUEL_KEN_V3 §30, a look): the look that opens the cuts round him (KEN-CHIGIRI-LOOK)."
-  (spawn-look e 'ken-chigiri-look :life 32))
-(defun ken-chigiri-wave (e) "千切: a wave of three cuts opens while he gathers (a look: the shimmer, a tremor)." (emit :ken-bk-burst e :chigiri-wave))
+  "千切's draw (DUEL_KEN_V3 §30.3, a look): the cuts opening round him (KEN-CHIGIRI-LOOK), a negative frame, the rift's shimmer."
+  (spawn-look e 'ken-chigiri-look :life (+ *chigiri-burst* 4))
+  (emit :ken-bk-burst e :chigiri-draw))
+(defun ken-chigiri-still (e) "千切's still charge (a look): the world grey but the red, silent." (emit :ken-bk-burst e :chigiri-still))
+(defun ken-chigiri-quake (e) "千切's last frames before the burst (a look): the swell, the tremor." (emit :ken-bk-burst e :chigiri-quake))
 (defun ken-chigiri-burst (e)
   "千切: the roar and the cuts bursting, the space shattering, frozen *KEN-CHIGIRI-STOP* frames (§30.1; the damage lands on this
 frame too: :dmg-at, DELAY-HIT)."
@@ -421,11 +423,12 @@ frame too: :dmg-at, DELAY-HIT)."
   (emit :ken-bk-burst e :chigiri))
 (defun ken-tategoto-split (e)
   "TATE-GOTO's chop lands (§30, a look): the space split from the sky 2.2 m before him (its rift: KEN-TATEGOTO-LOOK, cutting on 34:
-KEN-TATEGOTO-CUT), the floor cracked 6 m, chips thrown up."
+KEN-TATEGOTO-CUT), the sword wave racing 16 m down the floor and the floor split behind it (§30.4), chips thrown up."
   (let ((p (pos-of e)) (yaw (yaw-of e)))
     (spawn-look e 'ken-tategoto-look :x (+ (aref p 0) (* 2.2 (fwd-x yaw))) :z (+ (aref p 2) (* 2.2 (fwd-z yaw))) :life (+ *tategoto-cut* 2))
-    (spawn-ground-line e 6.0 50 :crack)
-    (ground-scar p yaw '(1.9 3.4 4.9) 0.8)
+    (spawn-look e 'ken-tategoto-wave :yaw yaw :life 14)                       ; the sword wave down the floor (§30.4)
+    (spawn-ground-line e *tategoto-wave-len* 70 :meteor)                       ; the floor split behind it
+    (ground-scar p yaw '(1.9 4.0 6.5 9.0 11.5 14.0) 0.9)
     (emit :ken-bk-burst e :tategoto)))
 
 (defparameter *ken-tategoto-stop* 10 "Frames TATE-GOTO's rift cutting freezes the fight (HITSTOP; DUEL_KEN_V3 §30.2, mine).")

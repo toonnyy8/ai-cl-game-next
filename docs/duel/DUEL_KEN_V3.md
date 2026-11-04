@@ -966,3 +966,27 @@ hitstop, the rift-cut sound, a shake. TATE-GOTO now goes the same way (mine, aft
 
 Scripted (84005, J ×5 then SP): the hit on tick 152, the damage on tick 180. Host tests 9876 ALL PASS (each special's `:dmg-at`
 pinned: 38 / 34), pkgcheck clean, the build without a new warning.
+
+### 30.3 千切: still harder beats (2026-11-04)
+
+「千切的段落感還是不夠強烈」. The three beats of §30.1 told apart only by the motion and the cuts, and the cuts kept growing through the
+charge: one long crescendo, no hard turn. Asked (layered options); the user picked 「拉長蓄力」「每拍換畫面色調」「蓄力時「靜」」 (not the
+black card). Now (`:ke-kr-chigiri` 12/4/68, recovery 44 → 68, the damage 38 → 64):
+
+- **每拍換畫面色調** (feedback `:ken-bk-burst`): the draw a negative frame (`:chigiri-draw`); the charge ink and paper but the red
+  (`impact-frame :manga`, `*chigiri-still-frames*` = 48, frames 16–64; the Bankai's own grey-but-red `:spot` grade looked the same
+  as play, so not that); the burst red and ink for 10 frames (`:red`), then the colour back at once.
+- **靜**: all nine cuts open at once just after the draw; through the charge he barely moves (the head down, a breath) and nothing
+  sounds; the cuts tremble ±0.4 cm. The last `*chigiri-quake*` = 6 frames (58–63) he shakes hard (a key a frame), the cuts jitter
+  ±4.5 cm and grow, and the sound swells (`:awaken-rise` with the rift's shimmer, a tremor: `:chigiri-quake`).
+- **拉長蓄力**: the charge 0.43 → 0.8 s (frames 16–64), the burst on 64 frozen 8 frames as before.
+
+Scripted (84004): the hit on tick 425, the damage on tick 491; the shots show the four grades in turn.
+
+### 30.4 TATE-GOTO's sword wave down the floor (2026-11-04)
+
+「縱斷怎麼沒有劈開地板的大範圍劍氣？」: the chop now also sends a sword wave (`ken-tategoto-wave`, a look): a wall of three upright
+crescents 3 / 4.6 / 3 m tall, 1.3 m apart, BLOOD with a white core and bowed forward, racing `*tategoto-wave-len*` = 16 m along the
+floor in 10 frames and thinning out; behind it the floor splits 16 m (the `:meteor` line cut, Nozarashi's: the gash, the light sheet,
+the ground heaving out on both sides, rocks), scars every 2.5 m to 14 m, the Kikon slash under the crack. Drawn only: the hit
+stays its 2.4 m volume. The rift (§30.2) still cuts on 34.

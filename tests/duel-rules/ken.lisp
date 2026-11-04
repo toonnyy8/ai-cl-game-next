@@ -100,7 +100,7 @@
         ;; the cost on every NS / AS segment's frame 0, the way back on the special's
         (check (every (lambda (x) (equal (mv-on-frame (m x)) '((0 ken-bk-cost)))) '("NA" "NB" "NC" "ND" "AS2" "AS3B" "AS4C" "FIN" "AS1")))
         (check (equal (first (mv-on-frame (m "SP"))) '(0 ken-bk-special)))   ; (then its looks, §30)
-        (check (eql (getf (mv-params (m "SP")) :dmg-at) (if (eq form :bankai) 38 34)))   ; 千切's damage on the burst (§30)
+        (check (eql (getf (mv-params (m "SP")) :dmg-at) (if (eq form :bankai) 64 34)))   ; 千切's damage on the burst (§30)
         (check (notany (lambda (h) (kit-hook k h)) '(:lv :as-pick :hit :link-ok)))))))
 (check (= 40 *ken-bk-cost*))
 
