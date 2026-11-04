@@ -143,23 +143,34 @@ Nth hit (HIT-GAINS; siphoned: SIPHON-OF)."
         (t *reiatsu-kind-other*)))
 
 (defparameter *delay-hit-hold* 6 "Frames past a :dmg-at hit's own frame the victim's hold lasts (DELAY-HIT), so he reels into it.")
-(defun delay-hit (att def dmg rbase n react stun sx sz kb later)
+(defun delay-hit (att def dmg rbase n react stun sx sz kb later mv red)
   "A hit whose damage and reaction come LATER frames after it (a move's :params :dmg-at, its move frame: 千切's cuts bursting,
 DUEL_KEN_V3 §30; the user, 2026-11-04: 「命中判定給 12f，但實際扣血留到斬痕爆開」): DEF held where he stands (a stagger, no push)
 until then, a look-only hazard (:fx) of ATT carrying the rest (DELAY-HIT-HOOK; cleared with every hazard by a reset)."
   (let ((later (max 1 later)))
     (set-reaction def :stagger (+ later *delay-hit-hold*) sx sz 0.0)
     (spawn-hazard :fx att :x sx :z sz :life (1+ later) :delay later :hook 'delay-hit-hook
-                          :data (list def dmg rbase n react stun sx sz kb))))
+                          :data (list def dmg rbase n react stun sx sz kb mv red))))
 (defun delay-hit-hook (h hz event &rest args)
-  "A DELAY-HIT's hazard: on the step its delay runs out, DEF takes the damage and the hit's own reaction."
+  "A DELAY-HIT's hazard: on the step its delay runs out, DEF takes the damage and the hit's own reaction; or, the attacker still in MV
+with its SP held since the segment began (a core SP's Kikon hold), the Kikon's knockback and his dash-in start now, not at the hit
+(the user, 2026-11-05: 「千切的毀魂技彈飛與接續必須要等到傷害爆開後才開始運作」, DUEL_KEN_V3 §30.6): the hold already outlasted any confirm."
   (declare (ignore h args))
   (when (and (eq event :step) (= (hazard-delay hz) 1))   ; (the generic step counts it to 0 after this)
-    (destructuring-bind (def dmg rbase n react stun sx sz kb) (hazard-data hz)
-      (when (entity-alive-p def)
-        (clog "~a delayed hit on ~a ~d" (side-name (hazard-owner hz)) (side-name def) dmg)
-        (unless (deal-damage (hazard-owner hz) def dmg rbase n)
-          (set-reaction def react stun sx sz kb)))))
+    (destructuring-bind (def dmg rbase n react stun sx sz kb mv red) (hazard-data hz)
+      (let* ((att (hazard-owner hz)) (fa (fighter att))
+             (kikon (and *core-on* (eq (fighter-state fa) :move) (eq (fighter-move fa) mv) (core-kikon-p fa mv)
+                         (eq (fighter-sp-held fa) t) (core-held-p att))))
+        (when (entity-alive-p def)
+          (clog "~a delayed hit on ~a ~d~:[~; (Kikon hold)~]" (side-name att) (side-name def) dmg kikon)
+          (unless (deal-damage att def dmg rbase n)
+            (if kikon
+                (progn (set-reaction def :stagger (kikon-follow-stun red (mv-s mv)) sx sz *kikon-follow-kb*)
+                       (core-set-kikon-n! att red)
+                       (setf (fighter-kikon-undo fa) nil (fighter-phase fa) :follow (fighter-hold fa) 0 (fighter-follow fa) t
+                             (fighter-kikon-lock (fighter def)) (if red 2 1))
+                       (clog "~a KIKON FOLLOW-UP on ~a~:[~; (red)~]" (side-name att) (side-name def) red))
+                (set-reaction def react stun sx sz kb)))))))
   nil)
 
 (defun deal-damage (att def dmg &optional (rbase 0) (n 1))
@@ -403,7 +414,8 @@ result (NIL = no effect)."
          (base (+ (hw-dmg hw) bonus))
          (outcome (and rush (kikon-outcome (if (and mv (eq (mv-kind mv) :kikon)) (vpad-down (pilot-vpad (pilot att)) :kikon) (and (eq (fighter-sp-held fa) t) (core-held-p att)))
                                            res fstrike)))
-         (follow (eq outcome :follow)))                 ; knocked back, then the rusher dashes in to the follow-up
+         (follow (and (eq outcome :follow)               ; knocked back, then the rusher dashes in to the follow-up (a :dmg-at
+                      (not (and own (not hazard) mv (getf (mv-params mv) :dmg-at) (not fstrike))))))   ; hit: once its damage lands, DELAY-HIT)
     (when (eq outcome :kikon)
       (if (rmod def :kikon-guard nil)                   ; DANGAI's :kikon-guard: the Kikon guarded, nothing lost
           (setf res :kikon-guarded)
@@ -471,7 +483,7 @@ result (NIL = no effect)."
                            (mv (mv-kind mv)) (t :counter)))
                (if (and own (not hazard) (not follow) (getf (mv-params mv) :dmg-at))   ; a :dmg-at move (千切): the hit holds him,
                    (delay-hit att def dmg (hit-rbase mv hazard base) (max 1 (- hits (fighter-combo-from fd)))   ;  the damage and its
-                              react stun sx sz (hw-kb hw) (- (getf (mv-params mv) :dmg-at) (fighter-sf fa)))  ;  reaction later
+                              react stun sx sz (hw-kb hw) (- (getf (mv-params mv) :dmg-at) (fighter-sf fa)) mv red)  ;  reaction later
                (unless (deal-damage att def dmg (hit-rbase mv hazard base) (max 1 (- hits (fighter-combo-from fd))))   ; (a broken
                                                         ;  soul crumples in its cinematic)
                  (if blow

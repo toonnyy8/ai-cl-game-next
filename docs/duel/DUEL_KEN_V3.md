@@ -1037,3 +1037,14 @@ red frame, the ring and the shards. No match tests at this stage.
 The user (on §30.3's charge, 16–64): 「續力改成 16~40f」. The still charge now runs frames 16–40 (0.4 s): `*chigiri-still-frames*` 48 → 24, the
 quake 58–63 → 34–39, the roar and the burst 64 → 40 (`:dmg-at` 64 → 40, `*chigiri-burst*` 52 → 28), held to 50, the recovery 68 → 44 (the
 move 84 → 60 frames). Scripted (84004): the hit on tick 125, the damage on tick 167. Host tests 9880 ALL PASS.
+
+### 30.6 The Kikon off a delayed hit starts at the burst (2026-11-05)
+
+「然後千切的毀魂技彈飛與接續必須要等到傷害爆開後才開始運作」. Before, an SP held at 千切's hit on 12 took the Kikon's path at once (its damage
+dealt, the 2.5 m knockback and the dash-in after the 12-frame confirm), the burst never mattered. Now, for a move with `:dmg-at`
+(`apply-hit`: no `:follow` outcome on its own hit, only on the Kikon strike), the hit goes the delayed way (the victim held, the
+charge, the burst); when the damage lands (`delay-hit-hook`), if he is still in the move with the SP held since the segment began
+(`fighter-sp-held` T and the button down), the victim is knocked into the Kikon's reel (2.5 m) and the dash-in starts there (no
+confirm on top: the hold outlasted one); else the ordinary knockdown. TATE-GOTO (`:dmg-at 34`) goes the same way at its rift's cut.
+Scripted: 千切 held 1.6 s: the hit on 125, `delayed hit … (Kikon hold)` and `KIKON FOLLOW-UP` on 167, `KIKON` on 216; let go at 0.5 s:
+the ordinary knockdown on 167 + hitstop; TATE-GOTO held: the follow-up on its cut (1020), the Kikon on 1071. Host tests 9880 ALL PASS.
