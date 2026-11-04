@@ -1761,6 +1761,128 @@ parallel edge at y 0.174; below that (the point's side) pulled toward the edge l
   (:end :ke-b-zh-stance))
 (pushnew :ke-zh-ns-c *grip-clips*)                      ; (NS c and the finisher two-handed: GRIP-LEFT!)
 (pushnew :ke-zh-fin *grip-clips*)
+;;; The two special AS (DUEL_KEN_V3 §30), after J5 (frame 0 its landing). 千切 CHIGIRI (狂嵐): the iai (drawn back to his right
+;;; hip, squatted, held), the draw (one turn to his left in 2 frames, the arm flung out: the hit on 12), through to his left,
+;;; risen into the roar (arched back, the head thrown back, the arms flung wide) while the cuts open round him (KEN-CHIGIRI-LOOK),
+;;; the burst on 26, where the damage lands (:dmg-at, DELAY-HIT). TATE-GOTO (斬壞, two-handed): the head hoisted out of the floor
+;;; and overhead (由緩至急: barely moving, then gathering, squatted and trembling), the leap, the chop straight down the centre on 20,
+;;; the head pressed into the floor; the space split from the sky down before him (KEN-TATEGOTO-LOOK) and the floor 6 m.
+(defpose :ke-kr-ch-c (:base :ke-b-kr-stance)            ; 千切's iai: drawn back to his right hip, squatted, the left hand out
+  (:root :u -0.46 :f 0.05 :yaw -20) (:pelvis :twist 25) (:spine :flex 40 :side 0) (:chest :flex 8 :twist -45) (:head :flex -40 :twist 14)
+  (:arm-r :flex 18 :side -5 :twist -31) (:elbow-r :flex 0) (:hand-r :flex 94 :twist -93 :side -31)
+  (:arm-l :flex 60 :side 20 :twist 0) (:elbow-l :flex 30) (:hand-l :flex 10)
+  (:thigh-l :flex 70 :side 30) (:knee-l :flex 104) (:thigh-r :flex 25 :side 42) (:knee-r :flex 80))
+(defpose :ke-kr-ch-f (:base :ke-b-kr-stance)            ; through to his left, the blade level behind
+  (:root :u -0.3 :f 0.12 :yaw 60) (:pelvis :twist -16) (:spine :flex 16 :side 0) (:chest :flex 0 :twist 45) (:head :flex -14 :twist -14)
+  (:arm-r :flex 160 :side 99 :twist 5) (:elbow-r :flex 0) (:hand-r :flex 296 :twist 0 :side 2)
+  (:arm-l :flex 20 :side 70 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-l :flex 40 :side 30) (:knee-l :flex 60) (:thigh-r :flex 30 :side 34) (:knee-r :flex 60))
+(defpose :ke-kr-ch-r (:base :ke-b-kr-stance)            ; the roar: arched back, the head thrown back, the arms flung wide
+  (:root :u -0.22 :f 0.1) (:pelvis :twist 0) (:spine :flex -18 :side 0) (:chest :flex -6 :twist 0) (:head :flex -50 :twist 0)
+  (:arm-r :flex -6 :side 62 :twist 0) (:elbow-r :flex 35) (:hand-r :flex 233 :twist 34 :side 0)
+  (:arm-l :flex 90 :side 80 :twist 0) (:elbow-l :flex 20) (:hand-l :flex 10)
+  (:thigh-l :flex 30 :side 34) (:knee-l :flex 44) (:thigh-r :flex 30 :side 34) (:knee-r :flex 44))
+(defstrike :ke-kr-chigiri (12 4 30 :base :ke-b-kr-stance)
+  (0 :ke-kr-a5)
+  (3 (:root :u -0.34 :f 0.3) (:chest :twist 10) (:arm-r :flex 40))                                ; gathering
+  (8 :ke-kr-ch-c)                                                                                  ; the iai
+  (10 (:root :u -0.47) (:chest :twist -47))                                                        ; held, trembling
+  (11 (:root :u -0.46) (:chest :twist -46))
+  (:s :snap :ke-kr-nb-s (:root :u -0.28 :f 0.1 :yaw 80) (:hand-r :flex 237))                       ; the draw: one turn in 2 frames
+  (13 :snap (:root :yaw 260))
+  (14 :snap (:root :yaw 440))
+  (14.001 (:root :yaw 80))                                                                         ; (the same facing)
+  (16 :ke-kr-ch-f)                                                                                 ; through to his left
+  (20 (:root :u -0.27 :yaw 40) (:chest :twist 36))
+  (23 :ke-kr-ch-r)                                                                                 ; the roar
+  (27 (:root :u -0.21) (:spine :flex -22) (:head :flex -54))                                       ; the burst, held
+  (34 (:root :u -0.22) (:spine :flex -16) (:head :flex -46))
+  (34.001 (:hand-r :flex -127))                                                                    ; (the same orientation)
+  (:end :ke-b-kr-stance))
+(defpose :ke-zh-tg-c (:base :ke-b-zh-stance)            ; TATE-GOTO coiled: both hands overhead, the head hanging down his back
+  (:root :u -0.41 :f 0.05) (:pelvis :twist 0) (:spine :flex -12 :side 0) (:chest :flex 0 :twist 0) (:head :flex -20 :twist 0)
+  (:arm-r :flex 165 :side 12 :twist -2) (:elbow-r :flex 6) (:hand-r :flex 27 :twist 4 :side 4)
+  (:arm-l :flex 149 :side 25 :twist 0) (:elbow-l :flex 0) (:hand-l :flex 20)
+  (:thigh-r :flex 60 :side 26) (:knee-r :flex 100) (:thigh-l :flex 60 :side 26) (:knee-l :flex 100))
+(defpose :ke-zh-tg-h (:base :ke-b-zh-stance)            ; its hit: landed, chopped straight down the centre
+  (:root :u -0.3 :f 0.6) (:pelvis :twist 0) (:spine :flex 50 :side 0) (:chest :flex 0 :twist 0) (:head :flex -30 :twist 0)
+  (:arm-r :flex 37 :side -2 :twist 12) (:elbow-r :flex 148) (:hand-r :flex -158 :twist -8 :side 2)
+  (:arm-l :flex 162 :side 108 :twist 0) (:elbow-l :flex 53) (:hand-l :flex 20)
+  (:thigh-r :flex 66 :side 16) (:knee-r :flex 86) (:thigh-l :flex -20 :side 22) (:knee-l :flex 36))
+(defpose :ke-zh-tg-a (:base :ke-b-zh-stance)            ; landed: the head pressed into the floor ahead
+  (:root :u -0.36 :f 0.62) (:pelvis :twist 0) (:spine :flex 58 :side 0) (:chest :flex 0 :twist 0) (:head :flex -34 :twist 0)
+  (:arm-r :flex 16 :side -23 :twist 1) (:elbow-r :flex 102) (:hand-r :flex -101 :twist 14 :side 0)
+  (:arm-l :flex 152 :side 127 :twist 0) (:elbow-l :flex 31) (:hand-l :flex 20)
+  (:thigh-r :flex 70 :side 16) (:knee-r :flex 94) (:thigh-l :flex -20 :side 22) (:knee-l :flex 40))
+(defstrike :ke-zh-tategoto (20 4 30 :base :ke-b-zh-stance)
+  (0 :ke-zh-a5)
+  (3 (:root :u -0.32) (:spine :flex 56))                                                           ; the charge: barely moving
+  (14 :snap :ke-zh-tg-c)                                                                           ; hoisted out of the floor, overhead
+  (15 (:root :u -0.42) (:spine :flex -13))                                                         ; held, trembling
+  (16 (:root :u -0.41) (:spine :flex -12))
+  (17 (:root :u -0.42) (:spine :flex -14))
+  (18 :snap (:root :u 0.05 :f 0.25) (:spine :flex -16) (:thigh-r :flex 40) (:knee-r :flex 60) (:thigh-l :flex 30) (:knee-l :flex 50))   ; the leap
+  (19 (:root :u 0.12 :f 0.4) (:spine :flex -8))                                                    ; the top
+  (:s :snap :ke-zh-tg-h)                                                                           ; straight down the centre
+  (21 (:root :u -0.36) (:spine :flex 56))                                                          ; the jolt
+  (:a :ke-zh-tg-a)
+  (40 (:root :u -0.35) (:spine :flex 58))
+  (:end :ke-b-zh-stance))
+(pushnew :ke-zh-tategoto *grip-clips*)                  ; (two-handed: GRIP-LEFT!)
+(defparameter *chigiri-cuts* 9 "千切's cuts opening in the air round him, one a frame after the draw (KEN-CHIGIRI-LOOK).")
+(defparameter *chigiri-burst* 14 "The look's age (frames after the draw) the cuts burst on: move frame 26, its :dmg-at.")
+(defun ken-chigiri-look (hz rdt)
+  "千切's look (a look hazard spawned at the draw, at his feet): the draw's white ring for 3 frames; then *CHIGIRI-CUTS* thin slits
+opening one a frame within 2.4 m of him (a white core in a BLOOD lens, trembling on twos, each its own tilt); at *CHIGIRI-BURST*
+all of them flare wide white for 3 frames and are gone (the burst's shards and ring: VFX-KEN-BK-BURST)."
+  (declare (ignore rdt))
+  (let* ((age (hazard-age hz)) (x (hazard-x hz)) (z (hazard-z hz)) (dr (drawing-no)))
+    (when (< age 3)                                     ; the draw: a ring of four smears at 1.35 m
+      (dotimes (i 4)
+        (let* ((a0 (* i 1.5708)) (a1 (+ a0 1.5708)) (am (+ a0 0.785)) (r 2.0))
+          (fx-crescent (f32 (+ x (* r (cos a0)))) 1.35f0 (f32 (+ z (* r (sin a0)))) (f32 (+ x (* r (cos a1)))) 1.35f0 (f32 (+ z (* r (sin a1))))
+                       (f32 (+ x (* 1.45 r (cos am)))) 1.35f0 (f32 (+ z (* 1.45 r (sin am)))) (f32 (- 0.16 (* 0.05 age))) :lens 0.06f0 (f32 (+ 40 i))
+                       +pal-hit+ 0.95f0 :push 0.2f0))))
+    (when (< age (+ *chigiri-burst* 3))
+      (dotimes (i *chigiri-cuts*)
+        (when (>= age (1+ i))
+          (let* ((a (* 6.2832 (hash01 (f32 i) 1.7f0))) (d (+ 0.7 (* 1.7 (hash01 (f32 i) 2.9f0))))
+                 (y (+ 0.5 (* 1.8 (hash01 (f32 i) 4.3f0)))) (b (* 6.2832 (hash01 (f32 i) 5.1f0)))
+                 (tilt (- (* 1.6 (hash01 (f32 i) 6.7f0)) 0.8)) (l (+ 0.55 (* 0.5 (hash01 (f32 i) 8.3f0))))
+                 (cx (+ x (* d (cos a)))) (cz (+ z (* d (sin a))))
+                 (dx (* l (cos b) (cos tilt))) (dz (* l (sin b) (cos tilt))) (dy (* l (sin tilt)))
+                 (tr (* 0.02 (- (hash01 dr (f32 i)) 0.5)))
+                 (burst (>= age *chigiri-burst*)))
+            (fx-crescent (f32 (- cx dx)) (f32 (+ tr (- y dy))) (f32 (- cz dz)) (f32 (+ cx dx)) (f32 (+ tr y dy)) (f32 (+ cz dz))
+                         (f32 cx) (f32 (+ tr y)) (f32 cz) (if burst 0.42f0 0.07f0) :lens 0.06f0 (f32 (+ 20 i)) +pal-blood+ 0.95f0 :push 0.2f0)
+            (fx-crescent (f32 (- cx dx)) (f32 (+ tr (- y dy))) (f32 (- cz dz)) (f32 (+ cx dx)) (f32 (+ tr y dy)) (f32 (+ cz dz))
+                         (f32 cx) (f32 (+ tr y)) (f32 cz) (if burst 0.26f0 0.02f0) :lens 0.04f0 (f32 (+ 30 i)) +pal-hit+ 0.98f0 :push 0.24f0)))))
+    nil))
+(defun ken-tategoto-look (hz rdt)
+  "TATE-GOTO's look (a look hazard at the cut, before him): the space split from the sky to the floor, a vertical lens 7 m tall:
+wide and white for 3 frames, then a BLOOD slit with a white core narrowing shut over the rest of its life."
+  (declare (ignore rdt))
+  (let* ((age (hazard-age hz)) (life (hazard-life hz)) (x (hazard-x hz)) (z (hazard-z hz))
+         (k (max 0.0 (- 1.0 (/ (max 0 (- age 3)) (float (max 1 (- life 3)))))))
+         (w (if (< age 3) 0.2 (* 0.09 k))))
+    (when (> w 0.005)
+      (fx-crescent (f32 x) 7.0f0 (f32 z) (f32 x) 0.0f0 (f32 z) (f32 x) 3.5f0 (f32 z) (f32 w) :lens 0.05f0 61f0
+                   (if (< age 3) +pal-hit+ +pal-blood+) 0.95f0 :push 0.3f0)
+      (fx-crescent (f32 x) 7.0f0 (f32 z) (f32 x) 0.0f0 (f32 z) (f32 x) 3.5f0 (f32 z) (f32 (* 0.35 w)) :lens 0.03f0 62f0 +pal-hit+ 0.98f0 :push 0.34f0))
+    nil))
+(defun vfx-ken-bk-burst (x z kind)
+  "The special AS's burst (feedback :ken-bk-burst): 千切 (KIND :chigiri) the space shattering round (x z): white and BLOOD shards
+flung out, a white ring, a light; TATE-GOTO (:tategoto) the split's flash: shards along the cut, a DUST ring."
+  (with-floats (x z)
+    (let ((n (if (eq kind :chigiri) 28 12)))
+      (dotimes (i n)
+        (let* ((a (rnd-range 0f0 6.2832f0)) (sp (rnd-range 3f0 7f0)) (r (rnd-range 0.6f0 2.4f0)))
+          (declare (single-float a sp r))
+          (%t-shard (+ x (* r (f-cos a))) (rnd-range 0.4f0 2.4f0) (+ z (* r (f-sin a))) (* sp (f-cos a)) (rnd-range 0.5f0 4f0) (* sp (f-sin a))
+                    (rnd-range 0.5f0 0.9f0) (rnd-range 0.12f0 0.26f0) 7f0 (if (zerop (mod i 3)) +pal-blood+ +pal-hit+))))
+      (vfx-shockwave x z (if (eq kind :chigiri) 4.5 3.0) 0.5 :pal (if (eq kind :chigiri) +pal-hit+ +pal-dust+))
+      (flash-light x 1.4 z 1.0 0.95 0.9))
+    nil))
 ;; guard: crouched lower still behind the raised left forearm, the broken blade turned flat across the body
 (defpose :ke-b-guard (:base :ke-b-stance)
   (:root :u -0.34) (:spine :flex 34) (:chest :flex 12 :twist -18) (:head :flex -44)

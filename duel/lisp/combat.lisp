@@ -142,6 +142,26 @@ Nth hit (HIT-GAINS; siphoned: SIPHON-OF)."
         (mv (hit-reiatsu-base (mv-kind mv) (getf (mv-params mv) :reiatsu)))
         (t *reiatsu-kind-other*)))
 
+(defparameter *delay-hit-hold* 6 "Frames past a :dmg-at hit's own frame the victim's hold lasts (DELAY-HIT), so he reels into it.")
+(defun delay-hit (att def dmg rbase n react stun sx sz kb later)
+  "A hit whose damage and reaction come LATER frames after it (a move's :params :dmg-at, its move frame: 千切's cuts bursting,
+DUEL_KEN_V3 §30; the user, 2026-11-04: 「命中判定給 12f，但實際扣血留到斬痕爆開」): DEF held where he stands (a stagger, no push)
+until then, a look-only hazard (:fx) of ATT carrying the rest (DELAY-HIT-HOOK; cleared with every hazard by a reset)."
+  (let ((later (max 1 later)))
+    (set-reaction def :stagger (+ later *delay-hit-hold*) sx sz 0.0)
+    (spawn-hazard :fx att :x sx :z sz :life (1+ later) :delay later :hook 'delay-hit-hook
+                          :data (list def dmg rbase n react stun sx sz kb))))
+(defun delay-hit-hook (h hz event &rest args)
+  "A DELAY-HIT's hazard: on the step its delay runs out, DEF takes the damage and the hit's own reaction."
+  (declare (ignore h args))
+  (when (and (eq event :step) (= (hazard-delay hz) 1))   ; (the generic step counts it to 0 after this)
+    (destructuring-bind (def dmg rbase n react stun sx sz kb) (hazard-data hz)
+      (when (entity-alive-p def)
+        (clog "~a delayed hit on ~a ~d" (side-name (hazard-owner hz)) (side-name def) dmg)
+        (unless (deal-damage (hazard-owner hz) def dmg rbase n)
+          (set-reaction def react stun sx sz kb)))))
+  nil)
+
 (defun deal-damage (att def dmg &optional (rbase 0) (n 1))
   "DEF loses DMG Reishi (ATT dealt it; a CPU attacker's anti-stall heat resets); RBASE the hit's Reiatsu for ATT, N its
 combo index (both sides' gains x COMBO-GAIN-MULT: GAIN-GAUGES; chip, a drink: RBASE 0). Reishi at 0 is an automatic Soul
@@ -449,6 +469,9 @@ result (NIL = no effect)."
                      (cond ((member :ice flags) :ice) ((eq react :bind) :bind) ((member :blade flags) :flash)
                            ((member :thread flags) :quick) (hazard :fire)
                            (mv (mv-kind mv)) (t :counter)))
+               (if (and own (not hazard) (not follow) (getf (mv-params mv) :dmg-at))   ; a :dmg-at move (千切): the hit holds him,
+                   (delay-hit att def dmg (hit-rbase mv hazard base) (max 1 (- hits (fighter-combo-from fd)))   ;  the damage and its
+                              react stun sx sz (hw-kb hw) (- (getf (mv-params mv) :dmg-at) (fighter-sf fa)))  ;  reaction later
                (unless (deal-damage att def dmg (hit-rbase mv hazard base) (max 1 (- hits (fighter-combo-from fd))))   ; (a broken
                                                         ;  soul crumples in its cinematic)
                  (if blow
@@ -466,7 +489,7 @@ result (NIL = no effect)."
                                        (string-opener-p (kit-of att) mv att))         ; the attacker dashes in to (not :no-close)
                               (let ((pull (- (sqrt d2) *string-pull-to*)))         ; point-blank, so the string's links
                                 (when (> pull 0.01)                                ; reach him (the user 2026-10-02:
-                                  (set-slide att pull *string-pull-frames* (- (aref p 0) sx) (- (aref p 2) sz))))))))   ; no chase)
+                                  (set-slide att pull *string-pull-frames* (- (aref p 0) sx) (- (aref p 2) sz)))))))))   ; no chase)
                (when (and (eq (kit-class (fighter-kit fa) mv) :as) (not hazard)) (core-on-hit! att def mv))
                (when (and follow wave) (core-wave-follow! att wave))   ; a wave's: he flash-steps in to its strike
                (when (and follow (or own wave))           ; the rush dashes in, then strikes again (KIKON-RUSH-STEP)

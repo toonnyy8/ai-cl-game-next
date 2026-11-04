@@ -330,8 +330,9 @@
 (defmove-copy :ke-kr-as4c :ke-kr-nc :kind :sp :params (:ns-next :ke-kr-fin))
 (defmove-copy :ke-kr-as4b :ke-kr-nb :kind :sp :params (:ns-next :ke-kr-as4c))
 (defmove-copy :ke-kr-as4 :ke-kr-na :kind :sp :startup 12 :params (:ns-next :ke-kr-as4b))               ; after J4: a, b, c, the finisher
-(defmove :ke-kr-sp :kind :sp :clip :ke-s-wheel :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 30 :dmg 300 :adv-block -10
-  :reach 2.4 :arc 360 :on-hit :knockdown :on-frame ((0 ken-bk-special)))                              ; 千切, the space-cutting draw (§5.4)
+(defmove :ke-kr-sp :kind :sp :clip :ke-kr-chigiri :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 30 :dmg 300 :adv-block -10
+  :reach 2.4 :arc 360 :on-hit :knockdown :params (:dmg-at 26)                                          ; 千切, the space-cutting draw (§5.4):
+  :on-frame ((0 ken-bk-special) (12 ken-chigiri-open) (22 ken-chigiri-roar) (26 ken-chigiri-burst)))   ;  the damage on the burst (§30)
 ;; 斬壞 ZANKAI (from pointer 2)
 (defmove :ke-zh-j1 :kind :quick :clip :ke-zh-cut1 :clip-s 9 :startup 9 :active 3 :recovery 12 :dmg 50 :adv-block -2
   :reach 1.9 :arc 100 :on-hit :flinch :slide 0.6 :params (:as-ptr 1))
@@ -361,8 +362,8 @@
 (defmove-copy :ke-zh-as4c :ke-zh-nc :kind :sp :params (:ns-next :ke-zh-fin))
 (defmove-copy :ke-zh-as4b :ke-zh-nb :kind :sp :params (:ns-next :ke-zh-as4c))
 (defmove-copy :ke-zh-as4 :ke-zh-na :kind :sp :startup 12 :params (:ns-next :ke-zh-as4b))
-(defmove :ke-zh-sp :kind :sp :clip :ke-s-meteor :clip-s 20 :callout "TATE-GOTO" :startup 20 :active 4 :recovery 30 :dmg 320 :adv-block -12
-  :reach 2.4 :arc 90 :on-hit :knockdown :on-frame ((0 ken-bk-special)))                                ; TATE-GOTO (canon ch. 670)
+(defmove :ke-zh-sp :kind :sp :clip :ke-zh-tategoto :clip-s 20 :callout "TATE-GOTO" :startup 20 :active 4 :recovery 30 :dmg 320 :adv-block -12
+  :reach 2.4 :arc 90 :on-hit :knockdown :on-frame ((0 ken-bk-special) (20 ken-tategoto-split)))         ; TATE-GOTO (canon ch. 670)
 
 ;;; the Bankai kits: the oni's body and the broken cleaver, ×*BANKAI-KEN-MULT*; no meter, no arm (the arm's pips went with V3)
 (defmacro def-ken-bankai (form &key name ns as sa strings stance kikon-cine)
@@ -405,6 +406,22 @@
   "The special AS's frame 0 (千切 / TATE-GOTO): its cost, and the way back to the Shikai once it is over (KEN-BK-TICK)."
   (ken-bk-cost e)
   (setf (fighter-bk-out (fighter e)) t))
+
+(defun ken-chigiri-open (e)
+  "千切's draw (DUEL_KEN_V3 §30, a look): the cuts opening round him (KEN-CHIGIRI-LOOK), the rift's shimmer."
+  (spawn-look e 'ken-chigiri-look :life 20)
+  (emit :sfx :rift-open e))
+(defun ken-chigiri-roar (e) "千切: he roars (a look)." (emit :sfx :oni-roar e))
+(defun ken-chigiri-burst (e)
+  "千切: the cuts burst, the space shattering (a look; the damage lands on this frame too: :dmg-at, DELAY-HIT)."
+  (emit :ken-bk-burst e :chigiri))
+(defun ken-tategoto-split (e)
+  "TATE-GOTO's chop lands (§30, a look): the space split from the sky 2.2 m before him, the floor cracked 6 m, chips thrown up."
+  (let ((p (pos-of e)) (yaw (yaw-of e)))
+    (spawn-look e 'ken-tategoto-look :x (+ (aref p 0) (* 2.2 (fwd-x yaw))) :z (+ (aref p 2) (* 2.2 (fwd-z yaw))) :life 32)
+    (spawn-ground-line e 6.0 50 :crack)
+    (ground-scar p yaw '(1.9 3.4 4.9) 0.8)
+    (emit :ken-bk-burst e :tategoto)))
 
 (defun ken-bk-tick (e f g)
   "The Bankai kits' :tick (GAUGE-SYSTEM): the special AS over (he is out of it, past any Kikon and its cinematic), back to the Shikai on

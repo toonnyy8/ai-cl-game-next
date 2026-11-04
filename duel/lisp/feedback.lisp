@@ -12,6 +12,7 @@
 ;;;;   (:launch e) (:land e)
 ;;;;   (:konpaku victim lost) (:kikon att victim) (:soul-break att victim)  (:awaken e) (:form e form)
 ;;;;   (:evolution e) (:hellfire e)  (:skeleton-rise x z)  (:sfx key e)  (:reset)
+;;;;   (:ken-bk-burst e kind)   Kenpachi's special AS bursting (:chigiri / :tategoto)
 ;;;;   (:rung e up-p) (:drink att def x y z) (:rift-cut owner x z hx hz yaw) (:rift-close x z)   Nozarashi's NOME ladder
 ;;;;   (:bankai e) (:arm-spend e left) (:arm-crack e left) (:arm-burst e)   Kenpachi's Bankai: the arm meter
 (in-package :duel)
@@ -215,6 +216,13 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
       (vfx-hit x 1.15 z :heavy) (vfx-rift-gash hx hz (fwd-x yaw) (fwd-z yaw))
       (sfx-at :rift-cut x 1.15 z) (shake 0.08 0.15))
     (:rift-close (x z) (vfx-smoke-puffs x 1.15 z 1))
+    (:ken-bk-burst (e kind)      ; Kenpachi's special AS: 千切's cuts bursting round him / TATE-GOTO's split (DUEL_KEN_V3 §30)
+      (let ((p (pos-of e)) (yaw (yaw-of e)))
+        (if (eq kind :chigiri)
+            (progn (vfx-ken-bk-burst (aref p 0) (aref p 2) kind)
+                   (sfx-on :konpaku-shatter e) (sfx-on :rift-cut e) (shake 0.3 0.4))
+            (progn (vfx-ken-bk-burst (+ (aref p 0) (* 2.2 (fwd-x yaw))) (+ (aref p 2) (* 2.2 (fwd-z yaw))) kind)
+                   (sfx-on :ground-crack e) (sfx-on :rift-cut e) (shake 0.25 0.35)))))
     (:bankai _ nil)                                        ; the cinematic says it
     ((:arm-spend :arm-crack) args                             ; a pip: a BLOOD crack flash along the forearm, a bone creak
      (let ((e (first args)) (v *fb-v*))                  ; (a crack by the clock: dimmer, an ink puff)

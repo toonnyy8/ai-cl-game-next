@@ -901,3 +901,33 @@ idle Ichigo (84004 / 84005): NS a → b → c → d and the AS after J1–J4 in 
 70 / 40 + 40, the finisher 110; 斬壞 NS 100 / 90 / 100 / 130, the finisher 150). No match tests at this stage (DEVLOG §576).
 Left as is: a few recovery frames where the heavy head drags up to 0.2 m into the floor, and 斬壞 b's rise passing close
 to his face. The manual's Bankai entry names the new moves.
+
+## 30. The Bankai's art round, part 4: 千切's look and TATE-GOTO's (2026-11-04)
+
+The plan (proposed after §29; the frames, the cuts and the split as drawn below) and the one question it left: when does 千切's
+damage land? The user: 「命中判定給 12f，但實際扣血留到斬痕爆開」.
+
+- **The delayed hit** (`combat.lisp` `delay-hit`, a move's `:params :dmg-at F`, its move frame; only `:ke-kr-sp`, 26): the hit is
+  judged on its own frame as before (12–15: the triangle, the guard, the combo count, the Kikon hold), but the damage and the
+  hit's reaction (the knockdown) wait until frame F. Until then the victim is held where he stands (a stagger of the wait + 6
+  frames, no push); a look-only hazard of the attacker (`:fx`, `delay-hit-hook`) carries the damage and deals it on the step its
+  delay runs out (`P1 delayed hit on P2 N`), so a hitstop freezes both alike and every reset clears it. A Kikon (the hold
+  confirmed) is unchanged: its first strike's damage is dealt at once. Every other move: no `:dmg-at`, the old path.
+- **千切 CHIGIRI** (`:ke-kr-chigiri`, 12/4/30; frame 0 J5's landing): gathering, the iai (drawn back to his right hip, squatted,
+  the left hand out, held trembling 8–11), the draw on 12 (the arm flung out, one turn to his left in 2 frames), through to his
+  left, risen into the roar (22–34: the back arched, the head thrown back, the arms flung wide). The look (`ken-chigiri-look`,
+  spawned on 12): the draw's white ring (frozen through the hit's hitstop), then 9 thin slits opening one a frame within 2.4 m of
+  him (a white core in a BLOOD lens, each its own tilt, trembling); `:oni-roar` on 22; on 26 they flare wide white and burst
+  (`:ken-bk-burst :chigiri`: white and BLOOD shards, a 4.5 m white ring, a light, the glass and rift sounds, a shake) and the
+  damage lands.
+- **TATE-GOTO** (`:ke-zh-tategoto`, 20/4/30, two-handed; frame 0 J5's landing): 由緩至急: barely moving, the head hoisted out of
+  the floor and overhead (3–14), squatted trembling (14–17), the leap (18–19), the chop straight down the centre on 20, the head
+  pressed into the floor. The look on 20 (`ken-tategoto-split`): the space split from the sky to the floor 2.2 m before him
+  (`ken-tategoto-look`: a 7 m vertical lens, white for 3 frames, then a BLOOD slit narrowing shut over half a second), the floor
+  cracked 6 m with scars at 1.9 / 3.4 / 4.9 m, chips, a DUST ring (`:ken-bk-burst :tategoto`).
+- The tip on the active frames (FK): 千切 1.54–1.95 m, TATE-GOTO 1.93–2.11 m, against the 2.4 m volumes (one-sided).
+
+Checked: host tests 9876 ALL PASS (the special's frame-0 hook and its `:dmg-at` pinned, the two clips in the §5 list), pkgcheck
+clean, the strips (duelview 56 / 152), and scripted on the idle Ichigo (84004 / 84005, J ×5 then SP): 千切 hits on tick 125 and its
+damage lands on tick 153 (frame 26 past the hitstop), TATE-GOTO hits, both end the Bankai as before; the in-match shots show the
+ring, the slits, the burst, the split and the crack. No match tests at this stage (DEVLOG §576).
