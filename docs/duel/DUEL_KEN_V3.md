@@ -634,3 +634,5 @@ The user: 「斬下去的瞬間速度加快，讓演出更有魄力」. Before, 
 - the hit: a 3-frame negative, focus lines 24, the shake 0.3 → 0.55, an extra low explosion; a hit-stop f168-174 (`cine-slow 0`),
   then the slow motion ×0.25 to f196 as before.
 Length unchanged (290 f). Shot at eleven frames f156-f182. Host tests 9831 ALL PASS (run for §20, unchanged since: presentation only), G2 identical (II, IK, KK).
+
+Approved as is (the user, 2026-11-04: 「目前這樣就好」).
