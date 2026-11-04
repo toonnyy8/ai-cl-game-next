@@ -674,7 +674,9 @@ per neutral decision; one who isn't red only as a poke (the kit's :moves bands).
 (defparameter *core-kikon-confirm* 12
   "Frames of a held SP's dash-in (phase :follow, after the hitstop) the button must still be down for: a let-go inside them drops
 the Kikon, both back to neutral (CORE-FOLLOW-STEP). 0 -> 12, 2026-10-28, the user: 「把毀魂技的按住判定時間拉長」 (asked which way,
-「打中後要多按住幾幀」; the frames left to me). Before, only the hit frame was judged.")
+「打中後要多按住幾幀」; the frames left to me). Before, only the hit frame was judged. Since 2026-11-04 the hit stays an ordinary one
+for these frames, the Kikon's knockback and dash-in start once they pass (CORE-KIKON-DEFER; the user: 「就算沒觸發毀魂技有時候也會將對手彈開」,
+asked: 「確認後才擊退」).")
 (defparameter *core-kikon-confirm-touch* :dash
   "The phone's confirm (ONE-HAND's P1): :DASH = the whole dash-in, to the frame the follow-up strike starts (KIKON-FOLLOW-WAIT of
 the SP's startup: 41 - S, 19-27 frames), so a hold must stay down 27-35 frames (0.45-0.58 s) after the hit, not 20 (0.33 s); or a

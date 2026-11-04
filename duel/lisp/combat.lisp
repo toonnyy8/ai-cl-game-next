@@ -456,7 +456,10 @@ result (NIL = no effect)."
                             (incf *blow-aways*)
                             (clog "~a BLOWN AWAY by ~a (stun tolerance ~,1f, combo hit ~d)" (side-name def) (side-name att)
                                   (stun-tolerance-of (kit-of def)) hits))
-                     (progn (set-reaction def react stun sx sz (if follow *kikon-follow-kb* (hw-kb hw)))
+                     (progn (if (and follow (or own wave) (or wave (core-kikon-p fa mv)) (plusp *core-kikon-confirm*))
+                                (set-reaction def (hw-react hw) (or (hw-stun hw) (hitstun (hw-react hw) (eq res :counter))) sx sz (hw-kb hw))
+                                (set-reaction def react stun sx sz (if follow *kikon-follow-kb* (hw-kb hw))))   ; (a core SP held: an
+                                                        ; ordinary hit until the hold is confirmed, CORE-KIKON-KNOCK!)
                             (when (and own (not hazard) (member :ender (mv-flags mv)) (member (mv-kind mv) '(:quick :flash)))
                               (ender-push att def mv))                       ; J3 / K3: out of J1 / K1's reach at once
                             (when (and own (not hazard) (not (fighter-chained fa))   ; a string's opener (J1 / K1) hit:
@@ -469,7 +472,8 @@ result (NIL = no effect)."
                (when (and follow (or own wave))           ; the rush dashes in, then strikes again (KIKON-RUSH-STEP)
                  (setf (fighter-kikon-undo fa)            ; a core SP's: a let-go in the confirm makes this hit an ordinary
                        (and (or wave (core-kikon-p fa mv))   ;  one (CORE-KIKON-UNDO!), its cues wait for the hitstop's end
-                            (let ((r (hw-react hw))) (list def r (or (hw-stun hw) (hitstun r (eq res :counter))) sx sz (hw-kb hw) (and wave t)))))
+                            (let ((r (hw-react hw))) (list def r (or (hw-stun hw) (hitstun r (eq res :counter))) sx sz (hw-kb hw) (and wave t)
+                                                           react stun))))   ; (the Kikon's reel, for CORE-KIKON-KNOCK!)
                  (when (fighter-kikon-undo fa) (core-set-kikon-n! att red))
                  (setf (fighter-phase fa) :follow (fighter-hold fa) 0 (fighter-follow fa) t
                        (fighter-kikon-lock fd) (if red 2 1))   ; (2026-10-24: guard only, or nothing when red; KIKON-LOCK-P)

@@ -288,23 +288,40 @@ KESSA's pointer 3 plays 千影 (the user, 2026-10-28: 「指針三的毀魂技�
       (let ((c *core-kikon-confirm-touch*)) (if (eq c :dash) (kikon-follow-wait (mv-s mv)) c))
       *core-kikon-confirm*))
 
+(defun core-kikon-defer (f)
+  "Frames after the hitstop a core SP's held hit waits as an ordinary one before the Kikon's knockback and dash-in start
+(*CORE-KIKON-CONFIRM*; 0 for an old-style rush): a let-go inside them leaves nothing pushed (the user, 2026-11-04: 「就算沒觸發毀魂技
+有時候也會將對手彈開」, asked: 「確認後才擊退」)."
+  (if (fighter-kikon-undo f) *core-kikon-confirm* 0))
+
 (defun core-follow-step (e f mv)
-  "The Kikon's dash-in after the struck SP (phase :follow): chase the knocked-back victim for KIKON-FOLLOW-WAIT frames, then the
-same strike again; its hit is the Kikon (KIKON-OUTCOME). The hold is judged on for CORE-CONFIRM-FRAMES of these frames (the phone:
-all of them): a let-go drops it (CORE-KIKON-UNDO!)."
+  "The Kikon's dash-in after the struck SP (phase :follow): for CORE-KIKON-DEFER frames he stands, the victim in the hit's own
+reaction; still held then, the victim is knocked back (CORE-KIKON-KNOCK!) and he chases him for KIKON-FOLLOW-WAIT frames, then the
+same strike again; its hit is the Kikon (KIKON-OUTCOME). The hold is judged on for CORE-CONFIRM-FRAMES (the phone: the whole dash):
+a let-go drops it (CORE-KIKON-UNDO!)."
   (incf (fighter-hold f))
   (when (and (<= (fighter-hold f) (core-confirm-frames f mv)) (not (core-held-p e)) (fighter-kikon-undo f))
     (clog "~a lets go: no Kikon" (side-name e))
     (return-from core-follow-step (core-kikon-undo! e f)))
-  (when (= (fighter-hold f) 1) (core-follow-cues e (fighter-opp f)))   ; still held after the hitstop: now its cues (a tap is up)
-  (let ((v (motion-vel (motion e))) (left (- (kikon-follow-wait (mv-s mv)) (fighter-hold f))))
-    (fill v 0f0)
-    (turn-to-opp e f (track-step 360.0))
-    (run-velocity e (kikon-follow-speed (fighter-dist f) left (or (getf (mv-params mv) :follow-cap) 22.0)))   ; (a wave's: far)
-    (when (<= left 0)
-      (setf (fighter-hits f) 0 (fighter-contact f) nil (fighter-land-sf f) -1)
-      (when (kit-pips (fighter-kit f)) (arm-spend! e mv))   ; the Kikon's strike burns a pip of the arm (none left: it strikes anyway; §8)
-      (enter-main e f mv))))
+  (let ((d (core-kikon-defer f)))
+    (cond ((zerop d) (when (= (fighter-hold f) 1) (core-follow-cues e (fighter-opp f))))   ; (a tap is up after the hitstop)
+          ((= (fighter-hold f) d) (core-kikon-knock! e f)))
+    (let ((v (motion-vel (motion e))) (left (- (+ (kikon-follow-wait (mv-s mv)) d) (fighter-hold f))))
+      (fill v 0f0)
+      (turn-to-opp e f (track-step 360.0))
+      (when (>= (fighter-hold f) d)                     ; (standing until the hold is confirmed)
+        (run-velocity e (kikon-follow-speed (fighter-dist f) left (or (getf (mv-params mv) :follow-cap) 22.0))))   ; (a wave's: far)
+      (when (<= left 0)
+        (setf (fighter-hits f) 0 (fighter-contact f) nil (fighter-land-sf f) -1)
+        (when (kit-pips (fighter-kit f)) (arm-spend! e mv))   ; the Kikon's strike burns a pip of the arm (none left: it strikes anyway; §8)
+        (enter-main e f mv)))))
+
+(defun core-kikon-knock! (e f)
+  "The hold confirmed (CORE-KIKON-DEFER): the victim knocked back into the Kikon's reel, the dash-in's cues."
+  (destructuring-bind (def r ostun sx sz kb wave kreact kstun) (fighter-kikon-undo f)
+    (declare (ignore r ostun kb wave))
+    (set-reaction def kreact kstun sx sz *kikon-follow-kb*)
+    (core-follow-cues e def)))
 
 (defun core-follow-cues (att def)
   "The Kikon follow-up's cues: the KIKON call-out and the dash-in's take-off (cosmetic)."
@@ -313,13 +330,16 @@ all of them): a let-go drops it (CORE-KIKON-UNDO!)."
 
 (defun core-kikon-undo! (e f)
   "A let-go inside the confirm (CORE-FOLLOW-STEP): the held SP's hit was an ordinary one after all (FIGHTER-KIKON-UNDO, kept by
-APPLY-HIT): the victim in that hit's own reaction, the frames he already reeled taken off, and E back in his move where it hit,
-so its string goes on (a wave's strike: E free again). A tap still down on a quick hit (AS3's SOSEN-GIRI, startup 8) is released
-in the hitstop, so this comes on the dash-in's first frame (the user, 2026-10-28: 「常態的 AS3 不知為何非常容易誤觸出毀魂技」)."
-  (destructuring-bind (def react stun sx sz kb wave) (fighter-kikon-undo f)
-    (setf (fighter-follow f) nil (fighter-kikon-undo f) nil (fighter-kikon-lock (fighter def)) 0)
-    (fill (motion-vel (motion e)) 0f0)
-    (set-reaction def react (max 1 (- stun (fighter-hold f))) sx sz kb)
+APPLY-HIT): the victim in that hit's own reaction (inside CORE-KIKON-DEFER he never left it; after it, the phone's late let-go,
+set back with the frames he already reeled taken off), and E back in his move where it hit, so its string goes on (a wave's
+strike: E free again). A tap still down on a quick hit (AS3's SOSEN-GIRI, startup 8) is released in the hitstop, so this comes on
+the dash-in's first frame (the user, 2026-10-28: 「常態的 AS3 不知為何非常容易誤觸出毀魂技」)."
+  (destructuring-bind (def react stun sx sz kb wave &rest kikon) (fighter-kikon-undo f)
+    (declare (ignore kikon))
+    (let ((knocked (> (fighter-hold f) (core-kikon-defer f))))
+      (setf (fighter-follow f) nil (fighter-kikon-undo f) nil (fighter-kikon-lock (fighter def)) 0)
+      (fill (motion-vel (motion e)) 0f0)
+      (when knocked (set-reaction def react (max 1 (- stun (fighter-hold f))) sx sz kb)))
     (if wave (to-idle e 0) (setf (fighter-phase f) :main))))
 
 (defun core-wave-strike (att hz)

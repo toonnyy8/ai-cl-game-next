@@ -142,6 +142,17 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   counts the same frames. Keyboard, pad and the CPU unchanged (12). Browser (`--mobile --size 390x844`, KK 2503 + 2393, an SP tap then
   a re-press held): 0.35 s and 0.55 s → `lets go: no Kikon` (0.55 s was a Kikon before), 0.75 s and 1.6 s → `KIKON 70`. Host tests
   9831, touch-test 100 pass, G2 identical.
+- **The knockback waits for the confirm** (2026-11-04, the user: 「目前會有個問題是就算沒觸發毀魂技有時候也會將對手彈開」; asked, 「確認後才擊退」):
+  an SP still down at its hit knocked the victim 2.5 m back (`*kikon-follow-kb*`) on the hit frame and the dash-in started, so a
+  let-go inside the 12-frame confirm turned it back into an ordinary hit with the victim already slid away (scripted: 狂嵐 NS a held
+  0.3 s, Ichigo ~2 m off; tapped 0.08 s, he stays in reach). Now a core SP's held hit (`apply-hit`) puts the victim in the move's own
+  reaction, stun and knockback; the striker stands for `core-kikon-defer` = `*core-kikon-confirm*` frames after the hitstop; still
+  held then, `core-kikon-knock!` gives the Kikon's reel (`kikon-follow-stun`) and the 2.5 m knockback and the cues, and the dash-in
+  runs its `kikon-follow-wait` from there (so a Kikon's follow-up lands 12 frames, 0.2 s, later than before). A let-go inside the
+  defer leaves the victim as he is (`core-kikon-undo!` sets him back only after it: the phone's later let-go, its confirm being the
+  whole dash). An old-style rush (`:kikon` moves) and `*core-kikon-confirm*` 0 are unchanged. Scripted (84004 / 84005, Shift + J held):
+  0.3 / 0.36 s → `lets go: no Kikon`, the victim where the tap leaves him; 0.6 s (狂嵐) / 0.9 s (斬壞) → `KIKON`, 62 frames after the
+  hit (50 before). A shared rule (every core kit, the CPU holds through the confirm): G2 not run at this stage (DEVLOG §576).
 - **Shikai AS3's tap** (2026-10-28, the user: 「常態的 AS3 不知為何非常容易誤觸出毀魂技」): SOSEN-GIRI (`ic-as3`) hits 8 frames after the SP
   press that starts it, sooner than a tap is up, so a tap was "held" at the hit. The confirm above is the fix: the tap is released in
   the 8-frame hitstop, so the dash-in's first frame undoes it and the AS goes on. Browser (2502 + 2393, J ×5 then Shift + J): held 0.15
