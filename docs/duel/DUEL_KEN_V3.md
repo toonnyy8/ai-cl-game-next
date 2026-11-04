@@ -819,3 +819,42 @@ scene 6 shows both side by side.
 Asked after §26.3 whether 「不計入覺醒」 also drops the two things the Bankai still shares with an awakening (its form name in the
 awakening's orange on the HUD, and the push that throws the opponent off on entry). The user: 「這兩項保留」. Both stay; only the
 restore is gone (§26.3).
+
+## 28. The Bankai's art round, part 2: each Bankai's J1–J5 (2026-11-04)
+
+The plan table (proposed after §27.1), approved by the user: 「可以」.
+
+| | 狂嵐 (fast, one hand, the haft flourished) | 斬壞 (heavy, dragged, slow charge, sudden release) |
+|---|---|---|
+| J1 | off the shoulder, high right → low left | dragged off the floor, low right → high left |
+| J2 | the backhand rising, low left → high right | from J1's top, hoisted overhead, chopped down the centre |
+| J3 | the haft twirled once in the hand, then flat at the waist, right → left | the head dragged flat along the floor, right → left |
+| J4 | dropped into a crouch, the backhand at the shins, left → right | the backhand dragged up, low left → high right |
+| J5 | one full turn to his left, the big diagonal down | both hands, wound up over the right shoulder (the head hanging down his back), slammed into the floor (a crack) |
+
+Built as ten clips (`ken-art.lisp`: `:ke-kr-cut1`–`5`, `:ke-zh-cut1`–`5`, each authored at its move's S, so `:clip-s` = S;
+each link's frame 0 is the pose the one before lands in, `:ke-kr-aN` / `:ke-zh-aN`). Every hit, coil and landing arm solved by
+FK (the grip, the blade's direction, its edge; the head kept out of the body; the feet on the floor). The tip on the active
+frames:
+
+| | J1 | J2 | J3 | J4 | J5 | volume |
+|---|---|---|---|---|---|---|
+| 狂嵐 | 1.73–1.89 | 1.71–1.89 | 1.71–1.89 | 1.84–1.90 | 1.77–1.87 | 1.8 m |
+| 斬壞 | 1.93–1.95 | 1.89–1.98 | 1.69–1.94 | 1.95–1.98 | 1.87–1.96 | 1.9 m (J3's 140°) |
+
+So the borrowed clips' reach 2.2 (狂嵐 J5, 斬壞 J3 / J5, §26.2) goes back to 1.8 / 1.9. Details:
+
+- **A full turn without unwinding**: 狂嵐's J3 twirl (the wrist's side 1 → 361°, a key every 90°, out in front of him: the
+  flex axis put the head through his face) and J5's turn (the root's yaw 0 → 360° on the hit frame) are rewound on a key
+  0.001 s later with the same orientation, so nothing spins back through the next key or the next clip.
+- **由緩至急 (斬壞)**: a small first key, the coil keyed :snap (linear: the match's ease-out made the charge's first frames
+  fast), held 1–2 frames trembling, the release in the last 2 frames, a frame past the hit, the weight dragging back. The
+  tip per frame (m): J1 charge ≤ 1.4 / release 2.4, J2 1.2 / 2.2, J3 0.6 / 1.3, J4 0.2 / 1.6, J5 0.6 / 2.7.
+- **斬壞 J5**: two-handed (`*grip-clips*`, GRIP-LEFT! holds the left fist on the handle); on its hit frame
+  `ken-bk-slam` (a look): a 2.4 m ground crack, a scar 1.9 m ahead, the crack sound.
+
+Checked: host tests 9874 ALL PASS (the ten clips in the §5 clip list), pkgcheck clean, the strips from the side and 33° off
+the front (duelview 1000000+1000i+k), and both strings scripted on the idle Ichigo (84004 / 84005, J pressed five times):
+every link hits (狂嵐 40 / 40 / 45 / 45 / 65, 斬壞 50 / 55 / 55 / 60 / 85). No match tests at this stage (DEVLOG §576).
+The manual's Bankai entry names the new moves.
+

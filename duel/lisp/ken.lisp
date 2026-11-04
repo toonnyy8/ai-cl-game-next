@@ -297,20 +297,20 @@
 ;;; the NS's a, b, c, the last the finisher, knocking down); SP after J5 = the special AS (千切 CHIGIRI / TATE-GOTO), whose end takes him back
 ;;; to the Shikai on that pointer, L 0, -1 Konpaku unless it is his last (KEN-BK-TICK). Every NS / AS segment burns *KEN-BK-COST* of his
 ;;; Reishi, never below 1 (KEN-BK-COST). The user's answers: 「4 段（照表）」「只有一種 AS」「各自一串」 (§26.1). Clips: the Shikai's borrowed
-;;; until the art round (:clip-s their own S; the borrowed arm-out cuts of J5 / 斬壞's J3 draw 2.3 m: reach 2.2 until their own clips).
+;;; until the art round (:clip-s their own S); J1-J5 their own since the art round (§28: 1.8 / 1.9 m, drawn by FK).
 (defparameter *ken-bk-cost* 40 "Reishi each Bankai NS / AS segment burns from him, never below 1 (DUEL_KEN_V3 §4 B2, §26: 「卍解每次使用 NS 與 AS 都會對自己
 造成傷害，最多扣至剩 1 點血量」; 40 mine, about 3 % of 1300).")
 ;; 狂嵐 KYORAN (from pointer 1)
-(defmove :ke-kr-j1 :kind :quick :clip :ke-s-cut1 :clip-s 9 :startup 7 :active 3 :recovery 11 :dmg 40 :adv-block -2
+(defmove :ke-kr-j1 :kind :quick :clip :ke-kr-cut1 :clip-s 7 :startup 7 :active 3 :recovery 11 :dmg 40 :adv-block -2
   :reach 1.8 :arc 100 :on-hit :flinch :slide 0.8 :params (:as-ptr 1))
-(defmove :ke-kr-j2 :kind :quick :clip :ke-s-cut2 :clip-s 9 :startup 7 :active 3 :recovery 12 :dmg 40 :adv-block -2
+(defmove :ke-kr-j2 :kind :quick :clip :ke-kr-cut2 :clip-s 7 :startup 7 :active 3 :recovery 12 :dmg 40 :adv-block -2
   :reach 1.8 :arc 100 :on-hit :flinch :params (:as-ptr 2))
-(defmove :ke-kr-j3 :kind :quick :clip :ke-s-cut4 :clip-s 9 :startup 8 :active 3 :recovery 12 :dmg 45 :adv-block -2
+(defmove :ke-kr-j3 :kind :quick :clip :ke-kr-cut3 :clip-s 8 :startup 8 :active 3 :recovery 12 :dmg 45 :adv-block -2
   :reach 1.8 :arc 100 :on-hit :flinch :params (:as-ptr 3))
-(defmove :ke-kr-j4 :kind :quick :clip :ke-s-cut5 :clip-s 9 :startup 8 :active 3 :recovery 13 :dmg 45 :adv-block -2
+(defmove :ke-kr-j4 :kind :quick :clip :ke-kr-cut4 :clip-s 8 :startup 8 :active 3 :recovery 13 :dmg 45 :adv-block -2
   :reach 1.8 :arc 100 :on-hit :flinch :params (:as-ptr 4))
-(defmove :ke-kr-j5 :kind :quick :clip :ke-s-cut7 :clip-s 12 :startup 10 :active 4 :recovery 18 :dmg 65 :adv-block -4
-  :reach 2.2 :arc 100 :on-hit :stagger :params (:as-ptr 5))
+(defmove :ke-kr-j5 :kind :quick :clip :ke-kr-cut5 :clip-s 10 :startup 10 :active 4 :recovery 18 :dmg 65 :adv-block -4
+  :reach 1.8 :arc 100 :on-hit :stagger :params (:as-ptr 5))
 (defmove-copy :ke-kr-sa :ke-kr-j1 :startup 8 :params (:as-ptr 1))                                ; the cut in an NS gap
 (defmove :ke-kr-nd :kind :flash :clip :ke-s-p1d :clip-s 10 :startup 8 :active 8 :recovery 14 :adv-block -4 :reach 1.8 :arc 100
   :hits ((8 10 :dmg 40 :on-hit :flinch) (13 15 :dmg 40 :on-hit :crumple)) :on-frame ((0 ken-bk-cost)))   ; the sword dance
@@ -332,16 +332,16 @@
 (defmove :ke-kr-sp :kind :sp :clip :ke-s-wheel :clip-s 12 :callout "CHIGIRI" :startup 12 :active 4 :recovery 30 :dmg 300 :adv-block -10
   :reach 2.4 :arc 360 :on-hit :knockdown :on-frame ((0 ken-bk-special)))                              ; 千切, the space-cutting draw (§5.4)
 ;; 斬壞 ZANKAI (from pointer 2)
-(defmove :ke-zh-j1 :kind :quick :clip :ke-s-cut1 :clip-s 9 :startup 9 :active 3 :recovery 12 :dmg 50 :adv-block -2
+(defmove :ke-zh-j1 :kind :quick :clip :ke-zh-cut1 :clip-s 9 :startup 9 :active 3 :recovery 12 :dmg 50 :adv-block -2
   :reach 1.9 :arc 100 :on-hit :flinch :slide 0.6 :params (:as-ptr 1))
-(defmove :ke-zh-j2 :kind :quick :clip :ke-s-cut2 :clip-s 9 :startup 10 :active 3 :recovery 13 :dmg 55 :adv-block -2
+(defmove :ke-zh-j2 :kind :quick :clip :ke-zh-cut2 :clip-s 10 :startup 10 :active 3 :recovery 13 :dmg 55 :adv-block -2
   :reach 1.9 :arc 100 :on-hit :flinch :params (:as-ptr 2))
-(defmove :ke-zh-j3 :kind :quick :clip :ke-s-cut3 :clip-s 11 :startup 10 :active 4 :recovery 16 :dmg 55 :adv-block -3
-  :reach 2.2 :arc 140 :on-hit :flinch :params (:as-ptr 3))
-(defmove :ke-zh-j4 :kind :quick :clip :ke-s-cut6 :clip-s 10 :startup 11 :active 3 :recovery 16 :dmg 60 :adv-block -3
+(defmove :ke-zh-j3 :kind :quick :clip :ke-zh-cut3 :clip-s 10 :startup 10 :active 4 :recovery 16 :dmg 55 :adv-block -3
+  :reach 1.9 :arc 140 :on-hit :flinch :params (:as-ptr 3))
+(defmove :ke-zh-j4 :kind :quick :clip :ke-zh-cut4 :clip-s 11 :startup 11 :active 3 :recovery 16 :dmg 60 :adv-block -3
   :reach 1.9 :arc 100 :on-hit :flinch :params (:as-ptr 4))
-(defmove :ke-zh-j5 :kind :quick :clip :ke-s-cut7 :clip-s 12 :startup 13 :active 4 :recovery 20 :dmg 85 :adv-block -4
-  :reach 2.2 :arc 100 :on-hit :stagger :params (:as-ptr 5))
+(defmove :ke-zh-j5 :kind :quick :clip :ke-zh-cut5 :clip-s 13 :startup 13 :active 4 :recovery 20 :dmg 85 :adv-block -4
+  :reach 1.9 :arc 100 :on-hit :stagger :on-frame ((13 ken-bk-slam)) :params (:as-ptr 5))
 (defmove-copy :ke-zh-sa :ke-zh-j1 :params (:as-ptr 1))
 (defmove :ke-zh-nd :kind :flash :clip :ke-s-p2e :clip-s 18 :startup 16 :active 5 :recovery 26 :dmg 130 :adv-block -6
   :reach 2.0 :arc 120 :on-hit :crumple :on-frame ((0 ken-bk-cost)))                                    ; the turning chop
@@ -436,6 +436,12 @@ the pointer he came from (狂嵐 1, 斬壞 2), L 0, -1 Konpaku unless it is his 
   (let ((p (pos-of e)))
     (spawn-ground-line e 3.5 50 :crack)
     (ground-scar p (yaw-of e) '(1.2 2.8) 0.9))
+  (emit :sfx :ground-crack e))
+
+(defun ken-bk-slam (e)
+  "斬壞's J5 lands (DUEL_KEN_V3 §28): a short crack ahead where the head bit in (a look)."
+  (spawn-ground-line e 2.4 40 :crack)
+  (ground-scar (pos-of e) (yaw-of e) '(1.9) 0.7)
   (emit :sfx :ground-crack e))
 
 (defun ground-scar (p yaw ds r)
