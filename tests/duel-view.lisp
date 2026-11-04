@@ -121,7 +121,9 @@ or the other (the weapon reviews, DUEL_KEN_REWORK §6.1); NIL: none")
                              collect (let ((a (make-actor body weapon clip :x (+ (* 1.3 col) (* 4.2 row) -3.4) :yaw pi)))
                                        (setf (actor-face a) face) a))))
           (6 (setf *v-label* "KENPACHI BANKAI (THE ONI)")
-           (list (make-actor :kenpachi-oni :ke-broken :ke-b-stance :x 0.0 :yaw pi
+           (list (make-actor :kenpachi-oni :ke-broken :ke-b-kr-stance :x -1.1 :yaw pi       ; 狂嵐 / 斬壞 (DUEL_KEN_V3 §27)
+                             :hide '(:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4))
+                 (make-actor :kenpachi-oni :ke-broken :ke-b-zh-stance :x 1.1 :yaw pi
                              :hide '(:haori :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4))))
           (8 (setf *v-label* "YAMAMOTO HELLFIRE (BARED TO THE WAIST)")
            (list (make-actor :yamamoto-bare :ryujin-jakka :ya-stance :x -1.1 :yaw pi :hide '(:haori :kosode))

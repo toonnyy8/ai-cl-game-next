@@ -209,7 +209,7 @@
 ;;; maw (撓咬: claw, bite, rip), pointer 2 the broken cleaver as a one-hand axe (斷刀劈砍: leap cut, flat-side hammer), pointer 3 the
 ;;; self-destroying arm (自毀之臂: every segment burns a pip, :params :pips, CORE-PIPS-OK-P; none left: it doesn't start); AS3 in canon's
 ;;; order (ch. 670: the leap cut, the chin punch, the vertical split). An NS segment the SA can follow crumples, never knocks down (§443).
-;;; Clips: the Bankai's existing ones as placeholders until the art round (the claw = the hook, the stances = :ke-b-stance).
+;;; Clips: the Bankai's existing ones as placeholders until the art round (the claw = the hook, the stances their own since DUEL_KEN_V3 §27).
 (defmove-copy :ke-b-sa1 :ke-b-j3 :dmg 40 :startup 8 :clip-s 9 :flags nil :slide 0.8)                  ; the left hook
 (defmove-copy :ke-b-n1c :ke-b-bite :kind :flash :callout nil :startup 14 :dmg 100 :on-hit :crumple :flags (:rend))   ; the rip
 (defmove-copy :ke-b-n1b :ke-b-bite :kind :flash :startup 12 :dmg 90 :on-hit :stagger :params (:ns-next :ke-b-n1c))   ; KAMICHIGIRI
@@ -385,10 +385,10 @@
           :guard 0.2 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 1.0 :kikon-range 5.0 :kikon-p 0.4 :o-ender 0.3
           :block-string 0.85
           :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold)))
-(def-ken-bankai :bankai :name "KYORAN" :ns :ke-kr-na :sa :ke-kr-sa :stance :ke-b-stance :kikon-cine ken-oni-kikon-cine
+(def-ken-bankai :bankai :name "KYORAN" :ns :ke-kr-na :sa :ke-kr-sa :stance :ke-b-kr-stance :kikon-cine ken-oni-kikon-cine
   :as (:ke-kr-as1 :ke-kr-as2 :ke-kr-as3 :ke-kr-as4 :ke-kr-sp)
   :strings ((:ke-kr-j1 :q :ke-kr-j2) (:ke-kr-j2 :q :ke-kr-j3) (:ke-kr-j3 :q :ke-kr-j4) (:ke-kr-j4 :q :ke-kr-j5)))
-(def-ken-bankai :bankai-2 :name "ZANKAI" :ns :ke-zh-na :sa :ke-zh-sa :stance :ke-b-stance :kikon-cine ken-sky-split-cine
+(def-ken-bankai :bankai-2 :name "ZANKAI" :ns :ke-zh-na :sa :ke-zh-sa :stance :ke-b-zh-stance :kikon-cine ken-sky-split-cine
   :as (:ke-zh-as1 :ke-zh-as2 :ke-zh-as3 :ke-zh-as4 :ke-zh-sp)
   :strings ((:ke-zh-j1 :q :ke-zh-j2) (:ke-zh-j2 :q :ke-zh-j3) (:ke-zh-j3 :q :ke-zh-j4) (:ke-zh-j4 :q :ke-zh-j5)))
 
@@ -898,7 +898,7 @@ the pillar on ones. The rules are already settled (his Konpaku 1, Reishi full): 
   (at 60 (impact-frame :manga 12))
   (at 78 (shot-on a 14 1.05 1.5 :look 1.58) (lens 80 -8) (silence 20) (face-beat a :shout 0.6))
   (at 108 (card :black a) (back-rim 58 0.82 0.06 0.11) (shot-on a 20 4.4 0.8 :look 1.3 :off 0.9) (lens 42)
-      (cine-clip a :ke-b-stance :blend 8)
+      (cine-clip a (kit-stance (kit-of a)) :blend 8)   ; (狂嵐 / 斬壞's own, DUEL_KEN_V3 §27)
       (caption "卍解" :reading "BANKAI" :side 0 :hanko t))
   (at 166 (card nil) (shot-on a 165 5.6 1.7 :look 1.4) (lens 50) (caption-exit))
   (during (58 186) (let ((p (pos-of a)))                ; the pillar: full from the burst, on ones in the wide

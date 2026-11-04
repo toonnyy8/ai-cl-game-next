@@ -856,7 +856,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  ; NS3's charges (DUEL_KEN_CORE)
  :sh-skate-b :sh-slide-r :sh-slide-l :ke-run :ke-skate-b :ke-slide-r :ke-slide-l ; the runs (facing the opponent)
  ; (the cups' :ke-drink and the old Bankai's own strikes left every kit with V3's Bankai, DUEL_KEN_V3 §26)
- :ke-b-stance ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12)
+ :ke-b-kr-stance :ke-b-zh-stance ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12; V3's two, DUEL_KEN_V3 §27)
  :ic-cross-j :ic-k-jab :ic-k-wrap-j ; the J cut's close J links (DUEL_STRINGS §13)
  :ke-b-leap :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l ; its feral pass (2026-09-28; also 片腕)
  :ru-intro :ru-win :ru-q2 :ru-spin :ru-thrust :ru-drop :ru-stab :ru-hakuren

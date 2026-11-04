@@ -794,3 +794,22 @@ DANGAI paths unchanged); `ken-as-pick` (J7 + SP) passes NIL: no awakening regen 
 Konpaku, Reiatsu, flash-step and guard gauge were already kept. Script (84001, pointer 1, L3, Ichigo's J1 twice on him, then J1–J7 + SP):
 Reishi 1236 at the entry stays (1266 at t=600 with his ordinary regen; before, it refilled to 1300). Host tests 9874 ALL PASS. The manual
 says it. Playtest v320.
+
+## 27. The Bankai's art round, part 1: the two stances (2026-11-04)
+
+The user: 「按照你說的階段逐步完成美術設計」 (the order proposed after §26.3: the two stances → each Bankai's J1–J5 → NS a–d and the
+finishers → 千切's look → the two Kikon cinematics). Part 1, from §5.4's figures (`.refs/kenpachi-v3/`), replacing the borrowed
+`:ke-b-stance`:
+
+| | 狂嵐 `:ke-b-kr-stance` (from P1, `bankai-p2-shoulder-figure.png`) | 斬壞 `:ke-b-zh-stance` (from P2, `bankai-p1-low-figure.png`) |
+|---|---|---|
+| Legs | splayed wide and deep (thighs 40–48 / side 36–38, knees 78–82, hips 0.36 m down, the feet on the floor) | the beast crouch (the old oni's: the left leg forward and deep, the right back) |
+| Body | hunched a little (spine 22), the head up at him | rounded over (spine 38, chest 14), the head thrust low |
+| Right hand | the haft on the right shoulder, the grip (0.34 1.34 0.31) r u f, the head up behind his left (its far end 1.86 m high), the edge up, the butt out to his front right | out wide at the hip, the grip (0.61 0.86 0.14), the head trailing low out ahead of his right foot (0.18 m off the floor), the edge forward, the butt up behind the right shoulder |
+| Left hand | the claw hanging by the left knee | out wide, the claw open |
+| Idle | the shoulders rolling, 1.0 s | heaving, 0.8 s |
+
+The arms by FK (the right arm solved for the grip, the blade's direction and its edge, the head kept out of the body); the Bankai
+cinematic's last shot plays the kit's own stance. Both read apart from the match camera (84004 / 84005). Host tests 9874 ALL PASS
+(the clip list: the two new stances in, `:ke-b-stance` out of it, kept for the old clips' bases), pkgcheck clean. The duelview's
+scene 6 shows both side by side.

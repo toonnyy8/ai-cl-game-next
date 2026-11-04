@@ -1161,6 +1161,25 @@ parallel edge at y 0.174; below that (the point's side) pulled toward the edge l
 (defclip :ke-b-stance (0.8 :loop t :base :ke-b-stance)
   (0) (0.4 (:chest :flex 24) (:spine :flex 38) (:root :u -0.33) (:head :flex -62) (:hand-l :flex 60) (:elbow-l :flex 70)
            (:hand-r :flex -96)))
+;; the V3 Bankai's two stances (DUEL_KEN_V3 §27; the user's figures in .refs/kenpachi-v3/, §5.4): 狂嵐 (from pointer 1) the long haft
+;; on the right shoulder, the head up behind his left, legs splayed wide and deep, the left claw hanging by the knee
+;; (bankai-p2-shoulder-figure.png; the arm by FK: the grip (0.34 1.34 0.31) r u f, the head up to 1.86 m behind him, the edge up);
+;; 斬壞 (from pointer 2) the beast crouch, both arms out wide, the head trailing low out to his right, the butt up behind the
+;; right shoulder (bankai-p1-low-figure.png; the grip (0.61 0.86 0.14), the edge forward)
+(defpose :ke-b-kr-stance (:base :ke-stance)
+  (:root :u -0.36 :f 0.02) (:pelvis :twist 6) (:spine :flex 22 :twist 0) (:chest :flex 6 :twist -8) (:neck :flex 4) (:head :flex -30 :twist 4)
+  (:arm-r :flex 92 :side -32 :twist 1) (:elbow-r :flex 151) (:hand-r :flex -52 :twist 30 :side -4)
+  (:arm-l :flex 6 :side 34 :twist 0) (:elbow-l :flex 36) (:hand-l :flex 50)
+  (:thigh-l :flex 48 :side 36) (:knee-l :flex 82) (:thigh-r :flex 40 :side 38) (:knee-r :flex 78))
+(defclip :ke-b-kr-stance (1.0 :loop t :base :ke-b-kr-stance)
+  (0) (0.5 (:root :u -0.38) (:chest :flex 9) (:hand-l :flex 60)))                      ; the shoulders rolling, the claw flexing
+(defpose :ke-b-zh-stance (:base :ke-stance)
+  (:root :u -0.34 :f 0.04) (:pelvis :twist 10) (:spine :flex 38) (:chest :flex 14 :twist -6) (:neck :flex 8) (:head :flex -56 :twist -4)
+  (:arm-r :flex -16 :side 55 :twist 30) (:elbow-r :flex 61) (:hand-r :flex 132 :twist -94 :side -41)
+  (:arm-l :flex 24 :side 66 :twist 0) (:elbow-l :flex 64) (:hand-l :flex 50)
+  (:thigh-r :flex 20 :side 30) (:knee-r :flex 70) (:thigh-l :flex 56 :side 26) (:knee-l :flex 84))
+(defclip :ke-b-zh-stance (0.8 :loop t :base :ke-b-zh-stance)
+  (0) (0.4 (:chest :flex 22) (:spine :flex 36) (:root :u -0.37) (:head :flex -60) (:hand-l :flex 62) (:elbow-l :flex 72)))   ; heaving
 ;; guard: crouched lower still behind the raised left forearm, the broken blade turned flat across the body
 (defpose :ke-b-guard (:base :ke-b-stance)
   (:root :u -0.34) (:spine :flex 34) (:chest :flex 12 :twist -18) (:head :flex -44)
