@@ -294,7 +294,7 @@
   :core (:ns (:ke-z-n1a :ke-z-n2a :ke-z-n3a) :as (:ke-z-as1 :ke-z-as2 :ke-z-as3) :sa :ke-z-sa1 :mult 1.2
          :as-by-press (1 1 2 2 3)
          :stances (:ke-z-st-1 :ke-z-st-2 :ke-z-st-3)             ; the drag / the shoulder / chūdan (DUEL_KEN_V3 §36)
-         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))   ; (borrowed until the art round, §35.1)
+         :kikon-cines (ken-z-kikon1-cine ken-z-kikon2-cine ken-z-kikon3-cine))   ; 鈴 / 斬ってみろよ / 両断 (§39)
   :strings ((:ke-z-j1 :q :ke-z-j2) (:ke-z-j2 :q :ke-z-j3) (:ke-z-j3 :q :ke-z-j4) (:ke-z-j4 :q :ke-z-j5)
             (:ke-z-n3a :land :ke-z-n3b)                             ; the tame's catch answers with the thrust (combat.lisp :parried)
             (:ke-charge :land :ke-flurry))
@@ -1219,6 +1219,140 @@ Konpaku; he is blown 7 m away; from the side, Kenpachi wrenches the head out of 
   (at 140 (shot-on a 40 4.6 0.9 :look 1.4) (lens 46) (face-beat a :shout 1.4 t) (play-sfx :laugh :pitch 0.8))
   (at 160 (shot-on a 160 7.0 1.8 :look 1.2) (lens 50)))
 
+;;; ---------------------------------------------------------------- the sealed form's Kikon (DUEL_KEN_V3 §39; the user, 2026-11-05: 「同意」)
+;;; One per pointer, its theme: 1 the drag (鈴: gone, the bells behind you, the cut up from the floor), 2 the shoulder (斬ってみろよ: he takes
+;;; the cut on his open chest, laughs, cuts back), 3 chūdan (両断: aimed, raised, held, one cut that splits the floor and him).
+(defun ke-kk-yaw (e ang)
+  "Turn E to the line's direction (*KE-KK*: toward Kenpachi's side) plus ANG degrees."
+  (setf (transform-yaw (transform e)) (f32 (+ (dir-yaw (aref *ke-kk* 2) (aref *ke-kk* 3)) (deg ang)))))
+(defun ke-z-dust (e n)
+  "N dust puffs kicked out round E's feet."
+  (let ((p (pos-of e)))
+    (dotimes (i n)
+      (let ((ang (rnd-range 0f0 6.2832f0)) (sp (rnd-range 0.8f0 2.2f0)))
+        (declare (single-float ang sp))
+        (%t-blob (+ (aref p 0) (rnd-range -0.3f0 0.3f0)) 0.15f0 (+ (aref p 2) (rnd-range -0.3f0 0.3f0))
+                 (* sp (f-cos ang)) (rnd-range 0.2f0 0.9f0) (* sp (f-sin ang))
+                 (rnd-range 0.6f0 1.1f0) (rnd-range 0.18f0 0.32f0) -0.2f0 0.4f0 +pal-dust+)))))
+(defun ke-z-blood (e n)
+  "N drops of blood out of E's chest, forward and up."
+  (let* ((p (pos-of e)) (yaw (yaw-of e)) (fx (fwd-x yaw)) (fz (fwd-z yaw)))
+    (dotimes (i n)
+      (let ((sp (rnd-range 1.5f0 3.5f0)))
+        (declare (single-float sp))
+        (%t-blob (+ (aref p 0) (* 0.25 fx)) 1.35f0 (+ (aref p 2) (* 0.25 fz))
+                 (* sp (+ fx (rnd-range -0.5f0 0.5f0))) (rnd-range 0.5f0 2.5f0) (* sp (+ fz (rnd-range -0.5f0 0.5f0)))
+                 (rnd-range 0.4f0 0.7f0) (rnd-range 0.03f0 0.07f0) 9f0 0.3f0 +pal-blood+)))))
+
+(defcine ken-z-kikon1-cine (a v :len 196 :hold 104)
+  "鈴 RIN, the sealed pointer-1 Kikon (the drag): beat 0, the drag stance held; a white card, low and dutch, the brush 鈴 and the hanko,
+silence; both side-on, then he is gone, only the dust where he stood; the victim looks round, left, right; the bells behind him, the
+camera over his shoulder turning back; Kenpachi is there, the tip on the floor; the cut up from the floor through him: a negative,
+focus lines, a manga page, the Konpaku; he flies; Kenpachi laughs; wide."
+  (at 0 (cine-place a v 3.0) (ke-kk-line a v) (shot-on a 50 3.6 1.0 :look 1.1) (lens 50) (setf *aura-off* a)   ; (no aura: he can vanish)
+      (cine-clip a :ke-z-st-1 :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-cleaver))
+  (at 12 (card :white a) (shot-on a 25 3.0 0.5 :look 1.2 :off -0.8) (lens 44 -10) (silence 40)
+      (caption "鈴" :reading "RIN" :sub "KENPACHI  KIKON" :side 1 :ink t :hanko t))
+  (at 52 (card nil) (caption-exit) (shot-pair a v 1 7.0 1.0) (lens 46))
+  (at 62 (ke-z-dust a 10) (cine-scale a 0.001) (play-sfx :whoosh-heavy :pitch 1.3)   ; gone
+      (let ((p (pos-of a))) (vfx-shockwave (aref p 0) (aref p 2) 1.6 0.4 :pal +pal-dust+)))
+  (when (and step-p (<= 64 cf 76) (evenp cf)) (ke-z-dust a 2))                       ; (the dust hangs where he stood)
+  (at 78 (ke-kk-at a -1.6) (ke-kk-yaw a 0)                                            ; (behind him, unseen)
+      (ke-kk-cam 3.4 1.4 0.0 1.3) (lens 50))                                           ; the victim, face on
+  (during (78 108) (ke-kk-yaw v (* 55 (sin (* 6.2832 (min 1.0 (* 1.15 u)))))))        ; he looks left, right
+  (at 108 (play-sfx :ken-bells) (silence 30))
+  (during (108 122) (let* ((l *ke-kk*) (q (pos-of v)) (px (aref l 3)) (pz (- (aref l 2))) (k (* u u (- 3 (* 2 u)))))   ; over his shoulder, turning back
+                      (ke-kk-yaw v (* 120 k))
+                      (cine-cam (+ (aref q 0) (* 1.3 (aref l 2)) (* 1.5 px)) 1.8 (+ (aref q 1) (* 1.3 (aref l 3)) (* 1.5 pz))
+                                (+ (aref q 0) (* (- 1.0 (* 2.6 k)) (aref l 2))) (- 1.6 (* 0.4 k)) (+ (aref q 1) (* (- 1.0 (* 2.6 k)) (aref l 3))))))
+  (at 114 (cine-scale a 1) (cine-clip a :ke-z-st-1 :blend 0))                         ; there
+  (at 122 (shot-pair a v 1 5.2 0.6) (lens 50))                                         ; side-on, low: the tip on the floor behind him
+  (at 128 (cine-clip a :ke-z-as1 :blend 2 :speed 0.75) (play-sfx :whoosh-cleaver :pitch 0.8))   ; (its S, clip frame 12: f144)
+  (at 144 (cine-slash v :heavy) (cine-clip v :sh-launch :blend 1) (impact-frame :negative 2) (focus-lines 14)
+      (cine-shatter v (fighter-kikon-n (fighter a)) :up 1.0 :dy 0.1)
+      (impact-splash-at v 1.0 16 0.08)
+      (play-sfx :kikon-slash) (play-sfx :konpaku-shatter) (shake 0.35 0.45))
+  (at 146 (impact-frame :manga 12))
+  (during (144 172) (ke-kk-at v (* 3.4 (- 1.0 (expt (- 1.0 u) 2))) (* 2.6 (sin (* 3.1416 u)))))   ; up and away from him
+  (at 172 (ke-kk-at v 3.4) (cine-clip v :sh-down :blend 2) (ke-z-dust v 6) (play-sfx :ground-crack) (shake 0.15 0.2))
+  (at 174 (shot-on a 30 4.2 0.9 :look 1.4) (lens 46) (face-beat a :shout 1.2 t) (play-sfx :laugh)
+      (cine-clip a :ke-z-st-1 :blend 12))
+  (at 186 (shot-on a 160 6.0 1.6 :look 1.2) (lens 50)))
+
+(defcine ken-z-kikon2-cine (a v :len 206 :hold 100)
+  "斬ってみろよ KITTE MIRO YO, the sealed pointer-2 Kikon (the shoulder): beat 0, the shoulder rest held; a white card, low and dutch, the
+brush 斬ってみろよ and the hanko, silence; face on, he flings both arms wide, the chest open; the victim cuts him across the chest, the
+blood out, he does not move; close: he looks down at the wound, in silence; low and wide-angle on the face: the head thrown back, the
+laugh; both hands up and the drop straight down through him: a negative, focus lines, a manga page, the floor cracked, the Konpaku;
+he laughs; wide."
+  (at 0 (cine-place a v 1.9) (ke-kk-line a v) (shot-on a 50 3.4 1.0 :look 1.2) (lens 50)
+      (cine-clip a :ke-z-st-2 :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-cleaver))
+  (at 12 (card :white a) (shot-on a 25 3.0 0.6 :look 1.3 :off -0.8) (lens 44 -10) (silence 40)
+      (caption "みろよ" :kanji2 "斬って" :reading "KITTE MIRO YO" :sub "KENPACHI  KIKON" :side 1 :ink t :hanko t))
+  (at 52 (card nil) (caption-exit) (shot-on a 50 3.0 1.1 :look 1.3) (lens 46)
+      (cine-clip a :ke-z-open :blend 10) (play-sfx :laugh :pitch 0.7))
+  (at 74 (shot-pair a v 1 4.6 1.2) (lens 50)
+      (let ((mv (kit-command-move (kit-of v) :q)))                                     ; the victim's own J1, its hit on f84
+        (when mv
+          (let ((cs (mv-clip-speed mv)))
+            (cine-clip v (kit-move-clip (kit-of v) (mv-clip mv)) :blend 2 :speed cs
+                       :time (/ (max 0.0 (- (* (mv-s mv) cs) (* 10 cs))) 60.0))))))
+  (at 84 (multiple-value-bind (x y z) (actor-point a 1.35) (vfx-hit x y z :heavy))
+      (setf (model-flash (model a)) 0.1) (ke-z-blood a 12)
+      (impact-frame :negative 2) (play-sfx :cut-heavy) (shake 0.2 0.25))
+  (when (and step-p (<= 86 cf 104) (evenp cf)) (ke-z-blood a (if (< cf 94) 4 2)))
+  (at 92 (cine-clip v :sh-kikon-victim :blend 8) (ke-kk-at v -1.2) (shot-on a 20 1.7 1.35 :look 1.4) (lens 56) (silence 30))   ; (he backs off)
+  (at 98 (cine-clip a :ke-z-wound :blend 10))
+  (at 122 (shot-on a 20 1.6 1.0 :look 1.8) (lens 80 -8) (face-beat a :shout 1.4 t)   ; the laugh
+      (play-sfx :laugh) (shake 0.12 0.3))                                             ; (from the head-down pose: the open one's chin is up already)
+  (at 140 (ke-kk-at v 0.0) (shot-pair a v -1 5.4 0.8) (lens 50)
+      (cine-clip a :ke-z-p2a :blend 3 :time (/ 3.0 60.0) :speed 0.8))                 ; up and held (keys 7-14), its S on f156
+  (at 152 (play-sfx :whoosh-cleaver :pitch 0.7))
+  (at 156 (cine-slash v :heavy) (cine-clip v :sh-crumple :blend 1) (impact-frame :negative 2) (focus-lines 14)
+      (let ((q (pos-of v))) (stage-crack-add (aref q 0) (aref q 2) 1.4) (stage-debris (aref q 0) (aref q 2) 6 1.0)
+        (vfx-shockwave (aref q 0) (aref q 2) 4.0 0.5 :pal +pal-dust+))
+      (cine-shatter v (fighter-kikon-n (fighter a)) :up 0.8 :dy 0.1)
+      (impact-splash-at v 0.8 16 0.08)
+      (play-sfx :kikon-slash) (play-sfx :ground-crack) (play-sfx :konpaku-shatter) (shake 0.45 0.5))
+  (at 158 (impact-frame :manga 12))
+  (at 176 (shot-on a 35 4.2 0.9 :look 1.4) (lens 46) (face-beat a :shout 1.2 t) (play-sfx :laugh :pitch 0.8)
+      (cine-clip a :ke-z-st-2 :blend 14))
+  (at 192 (shot-on a 160 6.0 1.6 :look 1.2) (lens 50)))
+
+(defcine ken-z-kikon3-cine (a v :len 204 :hold 100)
+  "両断 RYODAN, the sealed pointer-3 Kikon (chūdan): beat 0, chūdan held; a black card, a pale back-rim, the brush 両断 and the hanko,
+silence; close along the blade, the tip settling on him; low, up at him: both fists raised over the head; held still, a slow push, in
+silence; the cut: a negative, a white flash, down the cut from behind him the floor splitting 30 m to the edge and the line of light
+through the victim, the screen shearing apart, the Konpaku; from behind the victim, the split running past; he falls; Kenpachi in his
+zanshin, a short laugh; wide."
+  (at 0 (cine-place a v 3.0) (ke-kk-line a v) (shot-on a 50 3.6 1.0 :look 1.2) (lens 50)
+      (cine-clip a :ke-z-st-3 :blend 2) (cine-clip v :sh-kikon-victim :blend 4)
+      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-cleaver))
+  (at 12 (card :black a) (back-rim 40) (shot-on a 60 4.2 0.7 :look 1.5 :ahead 1.0 :off 0.8) (lens 46 8) (silence 40)
+      (caption "両断" :reading "RYODAN" :sub "KENPACHI  KIKON" :side 0 :hanko t))
+  (at 52 (card nil) (caption-exit) (shot-on a 70 1.6 1.4 :look 1.4 :ahead 0.6) (lens 60)    ; along the blade
+      (cine-clip a :ke-z-tame :blend 6 :speed 0.45))
+  (at 78 (shot-on a -80 3.4 0.4 :look 1.8) (lens 52)                                   ; low, up at him: raised
+      (cine-clip a :ke-z-men :blend 10 :time (/ 6.0 60.0) :speed 0.3) (play-sfx :awaken-rise :pitch 0.6))
+  (at 98 (cine-clip a :ke-z-men :blend 4 :time (/ 12.0 60.0) :speed 0.01) (silence 22))   ; held still
+  (during (98 120) (shot-on a 25 (- 3.0 (* 0.8 u)) 1.6 :look 1.7) (lens 58))
+  (at 120 (cine-clip a :ke-z-men :blend 0 :time (/ 12.0 60.0)) (play-sfx :whoosh-cleaver :pitch 0.8))   ; the cut, S on f122
+  (at 122 (impact-frame :negative 2) (ui-flash 1 1 1 0.5 12.0) (hold-both a v 4) (focus-lines 20)
+      (cine-slash v :heavy) (cine-clip v :sh-stagger :blend 1)
+      (cine-shatter v (fighter-kikon-n (fighter a)))
+      (impact-splash-at v 1.0 16 0.08)
+      (play-sfx :kikon-slash) (play-sfx :ground-crack) (play-sfx :rift-cut) (play-sfx :konpaku-shatter) (shake 0.5 0.55))
+  (at 122 (ke-kk-cam 10.0 5.6 -6.0 1.0) (lens 55))                                  ; down the cut from behind him
+  (during (122 204) (let ((q (pos-of v))) (vfx-sky-split (aref q 0) (aref q 2) (yaw-of a) (/ (- cf 122) 60.0) 1.4)))
+  (during (124 204) (let* ((p (pos-of a)) (yaw (yaw-of a)) (fx (fwd-x yaw)) (fz (fwd-z yaw)))   ; the floor split to the edge
+                      (vfx-line-cut (+ (aref p 0) (* 1.2 fx)) (+ (aref p 2) (* 1.2 fz)) (+ (aref p 0) (* 30.0 fx)) (+ (aref p 2) (* 30.0 fz))
+                                    (/ (- cf 124) 60.0) 1.4 :meteor)))
+  (at 146 (ke-kk-cam -5.5 1.4 3.0 1.6) (cine-clip v :sh-crumple :blend 3))            ; from behind him: he falls
+  (at 168 (shot-on a 30 4.4 1.0 :look 1.4) (lens 46) (cine-clip a :ke-z-st-3 :blend 16) (play-sfx :laugh :pitch 0.9))
+  (at 188 (shot-on a 160 6.0 1.6 :look 1.2) (lens 50)))
+
 ;;; ================================================================ debug (KEN-DEBUG through *CHAR-DEBUG*; out of debug.lisp 2026-10-21)
 (declaim (special *probe*))   ; (debug.lisp's)
 
@@ -1418,7 +1552,7 @@ the route's level, the damage KEN-DMG-MULT's), L back to 0 (§4 S5, §5.2); else
 
 (defun ken-core-debug (c)
   "84000 / 84001 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene (84001: Kenpachi in the Shikai,
-awakened, L 0, DUEL_KEN_V3; 84004 / 84005 V3's Bankai 狂嵐 / 斬壞, §26; 84090+k the Shikai's L = k), human P1 Kenpachi and an idle Ichigo P2
+awakened, L 0, DUEL_KEN_V3; 84004 / 84005 V3's Bankai 狂嵐 / 斬壞, §26; 84090+k the Shikai's L = k; 84006-84008 the sealed Kikon cinematics, §39), human P1 Kenpachi and an idle Ichigo P2
 2.2 m apart, both CPUs off, gauges full; on the running scene 84010 P2 starts his NS now (NS against NS: the first hit wins), 84011
 his J1 now (NA against NS: a cancel). The scripts time the presses."
   (case c
@@ -1436,6 +1570,9 @@ his J1 now (NA against NS: a cancel). The scripts time the presses."
     ((84096 84097) (ken-core-debug (if (= c 84096) 84004 84005)) (place *p1* *p2* 3.0)   ; the Bankai's Kikon 狂嵐 / 斬壞, played (§33)
      (setf *cine-hold* nil (fighter-kikon-n (fighter *p1*)) 4) (cine-stage *p1* *p2*)
      (start-cine (if (= c 84096) 'ken-kr-kikon-cine 'ken-zh-kikon-cine) *p1* *p2*))
+    ((84006 84007 84008) (ken-core-debug 84000) (place *p1* *p2* 3.0)   ; the sealed form's Kikon 鈴 / 斬ってみろよ / 両断, played (§39)
+     (setf *cine-hold* nil (fighter-kikon-n (fighter *p1*)) 3) (cine-stage *p1* *p2*)
+     (start-cine (case c (84006 'ken-z-kikon1-cine) (84007 'ken-z-kikon2-cine) (t 'ken-z-kikon3-cine)) *p1* *p2*))
     (84010 (core-sp-start! *p2* (fighter *p2*)))
     (84011 (force-cmd *p2* :q))
     (t (let ((g (gauges *p1*)))                                    ; DUEL_SUBLIMATION §7, on the running 84000 scene (P1's gauges)

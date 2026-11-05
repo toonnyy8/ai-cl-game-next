@@ -49,6 +49,7 @@
 ;;;;   :rift-cut         the rift cutting (a bright slash, no reverse swell)
 ;;;;   :tier-up          a cup up the NOME ladder (a drum hit under a rising sweep)
 ;;;;   :bell             temple bell stinger (round start, Kikon available)
+;;;;   :ken-bells        small bells jingling (Kenpachi's sealed pointer-1 Kikon: he is behind you)
 ;;;;   :fight            "FIGHT!" taiko hits + gong
 ;;;;   :ko               K.O. stinger
 ;;;;   :select           menu cursor move
@@ -411,6 +412,12 @@
                   :glide 0.998)
     (au-mix! b (au-fnoise 0.05 :lp 1200 :decay 0.01) 0.0 0.4)
     b))
+
+(defsound :ken-bells (:peak 0.7)
+  (let ((b (au-buf 1.0)))
+    (dolist (at '(0.0 0.06 0.15 0.29))                    ; four shakes
+      (au-partials! b at '((2637 0.5 0.3) (3951 0.35 0.22) (5274 0.25 0.16) (6646 0.15 0.1))))
+    (au-reverb! b 0.25)))
 
 (defsound :fight (:peak 0.95)
   (let ((b (au-buf 1.5)))

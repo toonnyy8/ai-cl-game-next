@@ -153,6 +153,10 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   whole dash). An old-style rush (`:kikon` moves) and `*core-kikon-confirm*` 0 are unchanged. Scripted (84004 / 84005, Shift + J held):
   0.3 / 0.36 s → `lets go: no Kikon`, the victim where the tap leaves him; 0.6 s (狂嵐) / 0.9 s (斬壞) → `KIKON`, 62 frames after the
   hit (50 before). A shared rule (every core kit, the CPU holds through the confirm): G2 not run at this stage (DEVLOG §576).
+  Since 2026-11-05 (DUEL_KEN_V3 §39) a held SP's **knockdown / launch** waits on his feet instead: in the air he landed and was down,
+  unhittable, before the follow-up strike, so the Kikon of a one-segment knockdown AS (the sealed AS1, AS2's launch, 狂嵐's AS1) never
+  landed. `apply-hit` gives a stagger for `*core-kikon-confirm*` + `*kikon-air-hold*` (4) frames, no knockback; a let-go inside the
+  confirm gives the knockdown / launch then (`core-kikon-undo!`).
 - **Shikai AS3's tap** (2026-10-28, the user: 「常態的 AS3 不知為何非常容易誤觸出毀魂技」): SOSEN-GIRI (`ic-as3`) hits 8 frames after the SP
   press that starts it, sooner than a tap is up, so a tap was "held" at the hit. The confirm above is the fix: the tap is released in
   the 8-frame hitstop, so the dash-in's first frame undoes it and the AS goes on. Browser (2502 + 2393, J ×5 then Shift + J): held 0.15

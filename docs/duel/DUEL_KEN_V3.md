@@ -1250,3 +1250,36 @@ NS1c gets a flat key before its hit and AS2b sinks less; what remains is at most
 tests 9887 ALL PASS (the clips in the list; the old base clips `:ke-chg1` / `:ke-sweep` / `:ke-smash` kept by their old moves),
 pkgcheck clean, the build; `duel-ken-sealed.json` gives the same combat lines as before; strips 33° off the front. Next: the three Kikon
 cinematics, then the HUD seals, then G2.
+
+## 39. The sealed form's Kikon cinematics (2026-11-05)
+
+The art round's step 4: each sealed pointer gets its own Kikon cinematic on its theme (DUEL_CORE §5b), replacing the borrowed ones (the
+old base `ken-kikon-cine`, `ken-clash-kikon-cine`, `ken-sky-split-cine`, kept for their old moves until the cleanup). The storyboard was shown
+first; the user: 「同意」. They are the base kit's `:core :kikon-cines`, so each also plays as the sealed form's Soul Break
+(`core-soul-break-cine`). Presentation only, except the fix below.
+
+| Pointer | Cinematic | Frames | What happens |
+|---|---|---|---|
+| 1 the drag | `ken-z-kikon1-cine` 鈴 RIN | 196 | beat 0; a white card, low and dutch, the brush 鈴 and the hanko, silence; both side-on, then he is gone (drawn at scale 0, no aura), only dust where he stood; face on, the victim looks left, right; the bells (`:ken-bells`, a new sound) behind him, the camera over his shoulder turning back; Kenpachi is there, the tip on the floor; side-on, low: `:ke-z-as1`'s drag-up through him from behind (S on 144): a negative, focus lines, a manga page, the Konpaku; he flies 3.4 m; Kenpachi laughs; wide |
+| 2 the shoulder | `ken-z-kikon2-cine` 斬ってみろよ KITTE MIRO YO | 206 | beat 0; a white card, the brush 斬って / みろよ and the hanko, silence; he flings both arms wide, the chest open (`:ke-z-open`, a new cinematic pose); the victim's own J1 cuts him across the chest (its hit on 84), the blood out (`ke-z-blood`), he does not move; close: he looks down at the wound (`:ke-z-wound`), in silence; low and wide-angle: the head thrown back, the laugh; both hands up and `:ke-z-p2a`'s drop through him (S on 156): a negative, focus lines, a manga page, the floor cracked, the Konpaku; he laughs; wide |
+| 3 chūdan | `ken-z-kikon3-cine` 両断 RYODAN | 204 | beat 0; a black card, a pale back-rim, the brush 両断 and the hanko, silence; side-on along the blade, `:ke-z-tame` slowed (the tip settling); low, up at him: `:ke-z-men`'s raise, then held still with a slow push, in silence; the cut (S on 122): a negative, a light white flash, down the cut from behind him the line of light through the victim (`vfx-sky-split`, the screen shearing) and the floor splitting 30 m to the edge (`vfx-line-cut :meteor`), the Konpaku; from behind the victim, he falls; Kenpachi in his zanshin, a short laugh; wide |
+
+- The captions needed three new brush glyphs, 鈴 両 断 (`glyphs-extra.lisp`, `tools/glyph-bake.py`'s GLYPH on Yuji Syuku); 斬 っ て み ろ よ
+  were there.
+- Debug 84006 / 84007 / 84008: the 84000 scene 3 m apart, then the cinematic played through (3 Konpaku shattering).
+- **Fix: the Kikon of a knockdown / launch AS never landed.** Scripted, the sealed AS1 (one segment, a knockdown) and AS2's launch logged
+  `KIKON FOLLOW-UP` but no Kikon: since the knockback waits for the confirm (2026-11-04, DUEL_CORE §6), a held SP's hit puts the victim in
+  the move's own reaction for the 12-frame confirm, so a knockdown sent him into the air, he landed and was down (unhittable,
+  `set-reaction` refuses a downed fighter) before the follow-up strike came. Now (`apply-hit`) a held SP's knockdown / launch holds him on
+  his feet in a stagger for the confirm + `*kikon-air-hold*` (4) frames, with no knockback; confirmed, the Kikon's knock goes on as before;
+  a let-go inside the confirm gives the knockdown / launch then (`core-kikon-undo!`). Shared code (combat.lisp, core-sim.lisp): it also
+  revives 狂嵐's AS1 Kikon in the Bankai script, which had the same silent miss. Scripted: `duel-ken-sealed.json` Kikon 1 → `KIKON 90` and
+  `cine KEN-Z-KIKON1-CINE` on 2531, Kikon 2 → `KIKON 100` and `cine KEN-Z-KIKON2-CINE` on 3000 (both missing before); the rest of the
+  script unchanged; `duel-ken-bankai.json` → `KE-KR-AS1 -> P2 KIKON 110` and `cine KEN-KR-KIKON-CINE` on 2275 (missing before).
+  The G2 reference will move with it (run once with the sealed form's end, as agreed).
+
+Checked: host tests 9888 ALL PASS (the kit's three cinematics pinned), pkgcheck clean, the build without a new warning; 16–17-frame
+timelines of each cinematic from the landscape screen (shots fixed after the first pass: the aura hidden while he is gone, the camera kept
+out of the victim's body, the laugh's close-up clear of his own arm and the victim's sword, the head kept in frame, the flash and the
+hit-stop shortened so the shear shows). The sound needs the user's ears. Next: the HUD seals, then G2.
+

@@ -492,7 +492,9 @@ result (NIL = no effect)."
                             (clog "~a BLOWN AWAY by ~a (stun tolerance ~,1f, combo hit ~d)" (side-name def) (side-name att)
                                   (stun-tolerance-of (kit-of def)) hits))
                      (progn (if (and follow (or own wave) (or wave (core-kikon-p fa mv)) (plusp *core-kikon-confirm*))
-                                (set-reaction def (hw-react hw) (or (hw-stun hw) (hitstun (hw-react hw) (eq res :counter))) sx sz (hw-kb hw))
+                                (if (member (hw-react hw) '(:knockdown :launch))   ; a knockdown / launch waits for the confirm on his
+                                    (set-reaction def :stagger (+ *core-kikon-confirm* *kikon-air-hold*) sx sz 0.0)   ; feet (down by the
+                                    (set-reaction def (hw-react hw) (or (hw-stun hw) (hitstun (hw-react hw) (eq res :counter))) sx sz (hw-kb hw)))   ; strike: no Kikon, DUEL_KEN_V3 §39)
                                 (set-reaction def react stun sx sz (if follow *kikon-follow-kb* (hw-kb hw))))   ; (a core SP held: an
                                                         ; ordinary hit until the hold is confirmed, CORE-KIKON-KNOCK!)
                             (when (and own (not hazard) (member :ender (mv-flags mv)) (member (mv-kind mv) '(:quick :flash)))

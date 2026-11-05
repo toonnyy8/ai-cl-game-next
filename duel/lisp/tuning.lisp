@@ -677,6 +677,10 @@ the Kikon, both back to neutral (CORE-FOLLOW-STEP). 0 -> 12, 2026-10-28, the use
 「打中後要多按住幾幀」; the frames left to me). Before, only the hit frame was judged. Since 2026-11-04 the hit stays an ordinary one
 for these frames, the Kikon's knockback and dash-in start once they pass (CORE-KIKON-DEFER; the user: 「就算沒觸發毀魂技有時候也會將對手彈開」,
 asked: 「確認後才擊退」).")
+(defparameter *kikon-air-hold* 4
+  "Frames past *CORE-KIKON-CONFIRM* that a held SP's knockdown / launch keeps the victim on his feet in a stagger instead (APPLY-HIT),
+so the Kikon's strike can still reach him (in the air he lands and is down, unhittable, before it); a let-go inside the confirm gives
+the knockdown then (CORE-KIKON-UNDO!). New 2026-11-05 (DUEL_KEN_V3 §39: the sealed AS1 / AS2's Kikon never landed).")
 (defparameter *core-kikon-confirm-touch* :dash
   "The phone's confirm (ONE-HAND's P1): :DASH = the whole dash-in, to the frame the follow-up strike starts (KIKON-FOLLOW-WAIT of
 the SP's startup: 41 - S, 19-27 frames), so a hold must stay down 27-35 frames (0.45-0.58 s) after the hit, not 20 (0.33 s); or a

@@ -2622,6 +2622,16 @@ flex and the spine / head flex shifted by these."
   (:a (:root :f 0.64))
   (26 (:root :f 0.4 :u -0.2))
   (:end :ke-z-st-3))
+;; pointer 2's Kikon (KEN-Z-KIKON2-CINE, DUEL_KEN_V3 §39), cinematic only: the arms flung wide, the chest pushed out ("cut me"), the katana
+;; held out low to his right; then the head dropped to look at the wound
+(defpose :ke-z-open (:base :ke-z-st-2)
+  (:root :u -0.02 :f 0.04) (:spine :flex -10) (:chest :flex -14 :twist 0) (:neck :flex -6) (:head :flex -16 :twist 0)
+  (:arm-r :flex 18 :side 78 :twist 10) (:elbow-r :flex 14) (:hand-r :flex -40 :twist 0 :side 0)
+  (:arm-l :flex 18 :side 82 :twist -5) (:elbow-l :flex 14) (:hand-l :flex 10))
+(defclip :ke-z-open (1.6 :loop t :base :ke-z-open)        ; the chest heaving
+  (0) (0.8 (:chest :flex -17) (:root :u 0.0)))
+(defclip :ke-z-wound (1.6 :loop t :base :ke-z-open)       ; looking down at the cut on his chest
+  (0 (:neck :flex 16) (:head :flex 30 :twist -8)) (0.8 (:neck :flex 18) (:head :flex 32 :twist -8) (:chest :flex -12)))
 ;; NS3's three charges (the kendo kamae gathering reiatsu, each higher than the last; they hit nothing)
 (defstrike :ke-chg1 (20 0 14 :base :ke-st-kamae)
   (0)

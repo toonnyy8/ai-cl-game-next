@@ -337,7 +337,8 @@ strike: E free again). A tap still down on a quick hit (AS3's SOSEN-GIRI, startu
 the dash-in's first frame (the user, 2026-10-28: 「常態的 AS3 不知為何非常容易誤觸出毀魂技」)."
   (destructuring-bind (def react stun sx sz kb wave &rest kikon) (fighter-kikon-undo f)
     (declare (ignore kikon))
-    (let ((knocked (> (fighter-hold f) (core-kikon-defer f))))
+    (let ((knocked (or (> (fighter-hold f) (core-kikon-defer f))
+                       (member react '(:knockdown :launch)))))   ; (held on his feet through the confirm: APPLY-HIT)
       (setf (fighter-follow f) nil (fighter-kikon-undo f) nil (fighter-kikon-lock (fighter def)) 0)
       (fill (motion-vel (motion e)) 0f0)
       (when knocked (set-reaction def react (max 1 (- stun (fighter-hold f))) sx sz kb)))
