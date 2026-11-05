@@ -157,6 +157,8 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   unhittable, before the follow-up strike, so the Kikon of a one-segment knockdown AS (the sealed AS1, AS2's launch, 狂嵐's AS1) never
   landed. `apply-hit` gives a stagger for `*core-kikon-confirm*` + `*kikon-air-hold*` (4) frames, no knockback; a let-go inside the
   confirm gives the knockdown / launch then (`core-kikon-undo!`).
+  G2 for both (run 2026-11-05 after the sealed form, DUEL_KEN_V3 §42): each moved all three pairs, II included (Ichigo's Kikons go
+  through the same path): II 279.9 -> 365.5 s after the confirm wait, -> 399.2 s (P2 0-1) after the stagger.
 - **Shikai AS3's tap** (2026-10-28, the user: 「常態的 AS3 不知為何非常容易誤觸出毀魂技」): SOSEN-GIRI (`ic-as3`) hits 8 frames after the SP
   press that starts it, sooner than a tap is up, so a tap was "held" at the hit. The confirm above is the fix: the tap is released in
   the 8-frame hitstop, so the dash-in's first frame undoes it and the AS goes on. Browser (2502 + 2393, J ×5 then Shift + J): held 0.15

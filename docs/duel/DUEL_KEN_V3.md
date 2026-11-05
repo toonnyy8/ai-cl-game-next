@@ -1311,3 +1311,20 @@ Shikai, which has two pointers, showed a third seal it can never use. Now each s
 
 Presentation only (the page and the manual; no Lisp changed). Stills from the landscape and the phone (390×844): 84000 with 2510 / 2511 /
 2512 lights 拖 / 肩 / 構, 84001 with 2510 / 2511 lights 旋 / 墜 with two seals.
+
+## 42. G2 after the sealed form (2026-11-05)
+
+The user: 「跑」 (G2 once now that the sealed form is done, as agreed: 「等完成後再統一開始 G2」). G2 had not run since the Bankai
+began. All three pairs moved, II included. Each commit since the last reference, run natively (`simgate.py --cvc` in a worktree):
+
+| Commit | II | IK | KK |
+|---|---|---|---|
+| reference (7b20d40) through 2f8d4f6 | 28 lines, P1 3-0, 279.9 s | 29, P2 0-5, 285.5 s | 30, P2 0-4, 300.8 s |
+| dbe5149 the Kikon's knockback waits the confirm (DUEL_CORE §4) | 37, P2 0-3, 365.5 s | 34, P2 0-3, 342.4 s | 24, P1 6-0, 234.0 s |
+| 5ed9498 the Bankai and the sealed form's sim | unchanged | 38, P2 0-4, 380.2 s | 29, P2 0-4, 291.5 s |
+| 60484df a held knockdown / launch waits on his feet (§39) | 40, P2 0-1, 399.2 s | 42, P2 0-3, 419.4 s | 30, P1 1-0, 294.6 s |
+| HEAD 824c8ac (presentation only after 60484df) | = 60484df | = | = |
+
+II moves because both Kikon fixes are core rules that Ichigo's Kikons use too (the CPU holds through the confirm). The browser run
+equals the native one at 60484df. `tests/style-cvc-ref.txt` regenerated (header note, "Before:"); native `--cvc` passes on it.
+No balance gates (II and IK now run 399 / 419 s in this one seed-7 match; not a pacing verdict).
