@@ -176,13 +176,14 @@ under *DRIVE-SWITCH* x B, or no other pointer (DUEL_SUBLIMATION §17)."
 (defun core-verdicts (hits)
   "The triangle's verdict on each pending hit of this step, all judged against the states they were collected in (so a pair of
 simultaneous hits is seen as a pair): a list of :hit / :cancel / :absorb in HITS' order. A hazard's hit, a hit of a move with no
-class, or on a defender outside a classed window is a clean hit."
+class, or on a defender outside a classed window is a clean hit; a hit on a defender in a parry's window (:parry) skips the
+triangle, so the parry catches it (COMBAT :parried)."
   (loop for h in hits
         collect (let* ((mv (pending-mv h)) (att (pending-att h)) (def (pending-def h))
                        (fa (fighter att)) (fd (fighter def))
                        (ca (and mv (not (pending-hazard h)) (eq mv (fighter-move fa)) (fighter-cls fa)))
                        (cd (core-window-class fd)))
-                  (if (and ca cd)
+                  (if (and ca cd (not (eq (pending-state h) :parry)))   ; a parry's window catches first (Kenpachi's tame, DUEL_KEN_V3 §35.1)
                       (core-verdict ca cd
                                     :simul (loop for h2 in hits thereis (and (eq (pending-att h2) def) (eq (pending-def h2) att)
                                                                              (pending-mv h2) (not (pending-hazard h2))))

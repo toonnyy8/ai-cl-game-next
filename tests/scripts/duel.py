@@ -767,6 +767,37 @@ def ken_bankai_script():
 write("ken-bankai", ken_bankai_script())
 
 
+def ken_sealed_script():
+    """V3's sealed form (DUEL_KEN_V3 §35): scene 84000 (the sealed katana, an idle Ichigo 2.2 m), pointer 2510+p; each pointer's NS and its SA,
+    pointer 2's armour against Ichigo's NS (84010), pointer 3's tame catching his J1 (84011) and the thrust answering, the three AS."""
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+    def jt(t): ev.extend(tap(t, "KeyJ", 0.05))
+    t = T0
+    for label, ptr, body in (
+            ("Z N1 drag: SP x3 (drag-up, back-hand, sweep)", 2510, lambda s: [sp(s), sp(s + 0.5), sp(s + 0.95)]),
+            ("Z N1 drag: SP, J (SA shove)", 2510, lambda s: [sp(s), jt(s + 0.5)]),
+            ("Z N2 shoulder: SP x2 (two drops)", 2511, lambda s: [sp(s), sp(s + 0.6)]),
+            ("Z N2 shoulder: Ichigo NS, SP (the drop takes his hit)", 2511, lambda s: [ev.append(cmd(s, 84010)), sp(s + 0.2)]),
+            ("Z N3 chudan: SP x3 (tame, thrust, men)", 2512, lambda s: [sp(s), sp(s + 0.3), sp(s + 0.75)]),
+            ("Z N3 chudan: SP, Ichigo J1 (the tame catches it, the thrust)", 2512, lambda s: [sp(s), ev.append(cmd(s + 0.05, 84011))]),
+            ("Z N3 chudan: SP, J (SA kote)", 2512, lambda s: [sp(s), jt(s + 0.3)]),
+            ("Z AS1: J1 J2 SP (drag-up, knockdown)", 2510, lambda s: [jt(s), jt(s + 0.3), sp(s + 0.6)]),
+            ("Z AS2: J1 J2 J3 SP SP (overhead, rising cut launch)", 2510, lambda s: [jt(s), jt(s + 0.3), jt(s + 0.6), sp(s + 0.9), sp(s + 1.4)]),
+            ("Z AS3: J1-J5 SP x3 (thrust, kote, the thrust through the guard)", 2510,
+             lambda s: [jt(s), jt(s + 0.3), jt(s + 0.6), jt(s + 0.9), jt(s + 1.2), sp(s + 1.55), sp(s + 2.05), sp(s + 2.5)]),
+            ("Z Kikon 1: J1 J2 SP held (the Kikon of AS1)", 2510, lambda s: [jt(s), jt(s + 0.3), sp(s + 0.6, hold=1.6)]),
+            ("Z Kikon 2: J1 J2 J3 SP SP held (the Kikon of AS2)", 2510, lambda s: [jt(s), jt(s + 0.3), jt(s + 0.6), sp(s + 0.9), sp(s + 1.4, hold=1.6)])):
+        say(t, label)
+        ev.extend([cmd(t, 84000), cmd(t + 0.05, ptr)])
+        body(t + 0.3)
+        ev.append(cmd(t + 3.6, 2107))
+        t += 4.0 if "Kikon" not in label else 7.0   # (the Kikon's cinematic plays through)
+    return sorted(ev, key=lambda x: x["at"])
+write("ken-sealed", ken_sealed_script())
+
+
 def sublimation_script():
     """SUBLIMATION / SPIRIT DRIVE (DUEL_SUBLIMATION): J1 damage and taken at 0 / 100 % SUBLIMATION and at DRIVE 100 with s 0.4, the real
     awakening's freeze, the Bankai's entry needing a full DRIVE; since §18 only attacking fills SUBLIMATION / DRIVE (debug 84020+k / 84040+k / 84060 / 84070 on the 84000 scene)."""

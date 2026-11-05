@@ -36,7 +36,7 @@ hand (the sleeve's frost sheet, the flower off the palm laid on the plaza).")
 (defparameter *two-sided* '(:ru-s-hainawa :ru-18-hainawa :ru-50-hainawa)
   "Clips whose striking point must reach the edge both ways although their move may fall short (a K, a Breaker): Rukia's
 Shikai HAINAWA, -18's and -50's (and every clip with a frost point, *RU-FROST-POINTS*).")
-(defparameter *reach-one-sided* '((:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)))   ; (Yamamoto's East / West: their own clips,
+(defparameter *reach-one-sided* '((:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)))   ; (Yamamoto's East / West: their own clips,
                                        ; both ways since DUEL_YAMA_TYBW §3.3; Rukia's zero since its own, DUEL_RUKIA_TYBW §13.4)
 (let ((bodies nil) (weapons nil) (strike nil) (points nil) (butt 0.0) (grips nil) (frost nil) (seen nil))
   (dolist (art '("yama-art" "ken-art" "rukia-art" "ichigo-art" "senjumaru-art" "lille-art" "lille-clips" "lille-draw" "lille-cine"
@@ -218,7 +218,7 @@ Shikai HAINAWA, -18's and -50's (and every clip with a frost point, *RU-FROST-PO
 ;; J is short, K long (the user, 2026-09-29, docs/duel/DUEL_STRINGS.md §13): in every form every K link reaches at least 0.5 m further
 ;; than any J link at the same position of the string (its reach + its lunge, :slide: Yamamoto's East K step in since
 ;; DUEL_YAMA_TYBW §3.3); 片腕's short K against the J floor (2026-10-06) excepted
-(dolist (cf (remove-if (lambda (cf) (or (equal cf '(:kenpachi :nozarashi)) (and (eq (first cf) :barro) (trace-form-p cf)))) *forms*))   ; (the V3 Shikai: J only)
+(dolist (cf (remove-if (lambda (cf) (or (member cf '((:kenpachi :base) (:kenpachi :nozarashi)) :test #'equal) (and (eq (first cf) :barro) (trace-form-p cf)))) *forms*))   ; (the V3 Shikai: J only)
   (let ((lm (link-moves (apply #'kit cf))))   ; (Lille II's stance EN: hitscan lines, DUEL_LILLE_V3 R2)
     (loop for n from 1 to 3
           do (let ((j (loop for (m k) in lm when (and (= k n) (eq (mv-kind m) :quick)) maximize (+ (mv-reach m) (mv-slide m))))

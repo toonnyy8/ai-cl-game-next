@@ -108,6 +108,47 @@
 (defmove-copy :ke-as3b :ke-k2 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-as3c))
 (defmove-copy :ke-as3 :ke-k1 :kind :sp :dmg 50 :on-hit :stagger :params (:ns-next :ke-as3b))
 
+;;; ================================================================ V3's sealed form (DUEL_KEN_V3 §6 / §35, 2026-11-05): the katana, three pointers
+;;; by grip: 1 the drag (rising cuts, pressure), 2 the shoulder (each segment takes one hit, KEN-ARMOR), 3 chūdan (the tame catches a melee hit,
+;;; :parry, and the thrust answers it: the kit's :land string). J1-J5, AS n by press (the core's 1 1 2 2 3), one SA a pointer.
+;;; Borrowed clips (the old base's) until the art round.
+(defmove :ke-z-j1 :kind :quick :clip :ke-q1 :clip-s 7 :startup 6 :active 3 :recovery 12 :dmg 35 :adv-block -2
+  :reach 1.8 :arc 100 :on-hit :flinch :slide 0.6)
+(defmove-copy :ke-z-j2 :ke-z-j1 :clip :ke-q2 :slide 0.0)
+(defmove-copy :ke-z-j3 :ke-z-j1 :startup 7 :dmg 40)
+(defmove-copy :ke-z-j4 :ke-z-j1 :clip :ke-q2 :startup 8 :recovery 13 :dmg 45 :slide 0.0)
+(defmove :ke-z-j5 :kind :quick :clip :ke-q1 :clip-s 7 :startup 10 :active 4 :recovery 18 :dmg 55 :adv-block -4
+  :reach 1.8 :arc 120 :on-hit :stagger :slide 0.8)
+;; pointer 1, the drag: the drag-up cut, the back-hand chop, the flat sweep; the free-hand shove
+(defmove :ke-z-sa1 :kind :quick :clip :ke-kick :clip-s 8 :startup 8 :active 3 :recovery 14 :dmg 30 :adv-block -2
+  :reach 1.0 :arc 80 :on-hit :stagger :kb 1.5)
+(defmove :ke-z-n1c :kind :flash :clip :ke-sweep :clip-s 14 :startup 12 :active 4 :recovery 20 :dmg 70 :adv-block -4
+  :reach 1.9 :arc 180 :on-hit :crumple :params (:sa :ke-z-sa1))
+(defmove :ke-z-n1b :kind :flash :clip :ke-q2 :clip-s 7 :startup 10 :active 3 :recovery 18 :dmg 55 :adv-block -4
+  :reach 1.8 :arc 110 :on-hit :stagger :params (:ns-next :ke-z-n1c :sa :ke-z-sa1))
+(defmove :ke-z-n1a :kind :flash :clip :ke-f2 :clip-s 20 :callout "KIRIAGE" :startup 14 :active 4 :recovery 20 :dmg 65 :adv-block -4
+  :reach 1.9 :arc 100 :on-hit :stagger :slide 1.2 :params (:ns-next :ke-z-n1b :sa :ke-z-sa1))
+(defmove-copy :ke-z-as1 :ke-z-n1a :kind :sp :callout "KITTE MIRO YO" :startup 12 :dmg 90 :on-hit :knockdown :params nil)
+;; pointer 2, the shoulder: two drops, each through one hit from frame 6 to the end of its active frames; the forearm shove
+(defmove-copy :ke-z-sa2 :ke-z-sa1 :dmg 35 :kb 1.0)
+(defmove :ke-z-n2b :kind :flash :clip :ke-f1 :clip-s 16 :startup 14 :active 4 :recovery 22 :dmg 95 :adv-block -4
+  :reach 1.8 :arc 110 :on-hit :stagger :slide 0.6 :armor-hits 1 :params (:armor-act t :sa :ke-z-sa2))
+(defmove :ke-z-n2a :kind :flash :clip :ke-smash :clip-s 16 :callout "KATAGIRI" :startup 16 :active 4 :recovery 22 :dmg 85 :adv-block -4
+  :reach 1.8 :arc 100 :on-hit :crumple :slide 1.0 :armor-hits 1 :params (:armor-act t :ns-next :ke-z-n2b :sa :ke-z-sa2))
+(defmove-copy :ke-z-as2b :ke-z-n1a :kind :sp :callout nil :startup 12 :dmg 100 :on-hit :launch :slide 0.6 :params nil)   ; the rising cut
+(defmove-copy :ke-z-as2 :ke-z-n2a :kind :sp :callout nil :startup 14 :dmg 60 :on-hit :stagger :armor-hits 0 :params (:ns-next :ke-z-as2b))
+;; pointer 3, chūdan: the tame (a counter: a melee hit in f2-28 is caught, the thrust starts at once), the thrust, the men cut; the kote cut
+(defmove-copy :ke-z-sa3 :ke-z-j1 :startup 7 :dmg 40 :slide 0.4)
+(defmove :ke-z-n3c :kind :flash :clip :ke-smash :clip-s 16 :callout "MEN" :startup 14 :active 4 :recovery 20 :dmg 95 :adv-block -4
+  :reach 1.9 :arc 70 :on-hit :crumple :params (:sa :ke-z-sa3))
+(defmove :ke-z-n3b :kind :flash :clip :ke-f1 :clip-s 16 :callout "TSUKI" :startup 12 :active 4 :recovery 20 :dmg 70 :adv-block -4
+  :reach 2.3 :arc 30 :on-hit :stagger :slide 1.5 :params (:ns-next :ke-z-n3c :sa :ke-z-sa3))
+(defmove :ke-z-n3a :kind :flash :clip :ke-chg1 :clip-s 20 :callout "TAME" :startup 14 :active 0 :recovery 16 :flags (:parry)
+  :params (:window (2 28) :ns-next :ke-z-n3b :sa :ke-z-sa3))
+(defmove-copy :ke-z-as3c :ke-z-n3b :kind :sp :callout nil :startup 14 :dmg 140 :on-hit :knockdown :flags (:guard-crush) :params nil)
+(defmove-copy :ke-z-as3b :ke-z-sa3 :kind :sp :startup 10 :dmg 50 :on-hit :stagger :params (:ns-next :ke-z-as3c))   ; the kote
+(defmove-copy :ke-z-as3 :ke-z-n3b :kind :sp :callout nil :dmg 50 :params (:ns-next :ke-z-as3b))
+
 ;;; ---------------------------------------------------------------- the Shikai, Nozarashi (DUEL_KEN_V3 §3-§9, 2026-11-03)
 ;;; Two pointers by grip: 1 the cleaver slung, half-crouched: the lunge, the spins, the one-hand dance; 2 the blade's back on the shoulder,
 ;;; the hilt forward: the hilt jab and flick, then both hands on the raised hilt, the great-sword swings. A segment's :params :lv is the
@@ -245,14 +286,18 @@
   :cornered *cornered-per-konpaku* :cornered-max *cornered-max* :reset-reiatsu *reset-reiatsu-bonus*
   :absorb-sfx :laugh
   :stun-tolerance 26.0                          ; the hidden stun (DUEL_DESIGN.md): he takes the most before he flies
-  :open-s *ken-open-base* :hs-dmg *ken-hs-dmg*  ; the cadence by form (DUEL_KEN_CORE §7.2; every form inherits :hs-dmg)
-  :commands (:q :ke-j1 :f :ke-k1 :sig :ke-stance :sp1 :ke-buttagiru :sp2 :ke-charge
+  :open-s nil :hs-dmg *ken-hs-dmg*             ; V3's sealed form as written (§35); every form inherits :hs-dmg
+  :commands (:q :ke-z-j1 :f :ke-k1 :sig :ke-stance :sp1 :ke-buttagiru :sp2 :ke-charge
              :breaker :ke-breaker :kikon :ke-kikon)
-  :grid (:ke-j1 :ke-j2 :ke-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)
-  :core (:ns (:ke-n1a :ke-n2a :ke-n3a) :as (:ke-as1 :ke-as2 :ke-as3) :sa :ke-sa :mult 1.2
-         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)          ; the idle clip by SP pointer
-         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))   ; (pointer 2's: DUEL_KEN_CORE §6)
-  :strings ((:ke-charge :land :ke-flurry))
+  :grid (:ke-j1 :ke-j2 :ke-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)   ; (the old J / K grid: unreachable now, kept for the cleanup)
+  ;; V3's sealed form (DUEL_KEN_V3 §6 / §35): J1-J5, three pointers by grip (the drag / the shoulder / chūdan), AS n by press
+  :core (:ns (:ke-z-n1a :ke-z-n2a :ke-z-n3a) :as (:ke-z-as1 :ke-z-as2 :ke-z-as3) :sa :ke-z-sa1 :mult 1.2
+         :as-by-press (1 1 2 2 3)
+         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)          ; the idle clip by SP pointer (borrowed until the art round)
+         :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))   ; (borrowed until the art round, §35.1)
+  :strings ((:ke-z-j1 :q :ke-z-j2) (:ke-z-j2 :q :ke-z-j3) (:ke-z-j3 :q :ke-z-j4) (:ke-z-j4 :q :ke-z-j5)
+            (:ke-z-n3a :land :ke-z-n3b)                             ; the tame's catch answers with the thrust (combat.lisp :parried)
+            (:ke-charge :land :ke-flurry))
   :awaken-form :nozarashi
   :hooks (:boss ken-boss :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)                       ; the DANGAI boss: the Bankai at FIGHT, the arm never spent (ken-meter.lisp)
   :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)

@@ -195,7 +195,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
         (push (mv-name m) out)))))
 (defun on-hit-adv (m &optional (i 0))
   (let ((w (svref (mv-hits m) i))) (- (or (hw-stun w) (hitstun (hw-react w))) (- (mv-total m) (hw-from w)))))
-(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (member (first cf) '(:ichigo :hisagi)) (member cf '((:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)) :test #'equal))) *forms*))   ; (Kenpachi V3: his own J strings)   ; (Ichigo, Hisagi (his Bankai since §28.4 too): five J since 2026-10-28,
+(dolist (cf (remove-if (lambda (cf) (or (trace-form-p cf) (member (first cf) '(:ichigo :hisagi)) (member cf '((:kenpachi :base) (:kenpachi :nozarashi) (:kenpachi :bankai) (:kenpachi :bankai-2)) :test #'equal))) *forms*))   ; (Kenpachi V3: his own J strings)   ; (Ichigo, Hisagi (his Bankai since §28.4 too): five J since 2026-10-28,
   (let* ((k (apply #'kit cf)) (links (link-moves k)) (j1 (kit-command-move k :q)) (k1 (kit-command-move k :f))   ;  triangle.lisp)
          (cup3 (equal cf '(:kenpachi :nomihose))) (fails0 *fails*) (a (owl-adv cf))
          (v8 (eq (first cf) :barro))   ; (Lille II: decision V8 splits his J / K off the budget, DUEL_LILLE_V2 §21: own rows)
@@ -941,7 +941,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                         (remove nil (loop for m in '(:ic-c-xa :ic-c-xb :br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-k2s :hs-r-kubikake :hs-b-unwind :hs-r-sp2c
                                                                        :hs-b-sp1    ; (B4c: no kit's since, its strip 83524)
                                                                        :hs-r-l :hs-r-sp1 :hs-b-l :hs-r-k1 :hs-b-k1   ; (§28.4: the old Bankai's,
-                                                                       :hs-r-k2s :hs-r-k3)   ; (§28.11: spread K2 / K3's clips, strips 27 / 28)
+                                                                       :hs-r-k2s :hs-r-k3   ; (§28.11: spread K2 / K3's clips, strips 27 / 28)
+                                                                       :ke-as3c :ke-n3b :ke-n3c :ke-n2a)   ; (Kenpachi's old base NS / AS,
+                                                                                ;  no kit's since V3's sealed form, DUEL_KEN_V3 §35: the cleanup)
                                                                                 ;  no kit's since, their clips kept for the strips)
                                                           collect (mv-clip-2 (find-move m))   ; (his Shikai's MODOSHI mapped)
                                                           collect (kit-move-clip (kit :hisagi :base) (mv-clip (find-move m)))))))))

@@ -1105,3 +1105,75 @@ page HUD (`duel/web/hud.js` `FIGHTERS`) had no entry for its form names, so it f
 never usable. Now `forms` gives each Bankai one seal: KYORAN `狂` (狂嵐 · KYORAN), ZANKAI `壞` (斬壞 · ZANKAI); the sealed form and the
 Shikai keep 一 二 三. Presentation only (the page; no Lisp changed). Checked by stills from the landscape and the phone (390×844): 84004
 狂 alone, 84005 壞 alone, 84001 the Shikai's three. The manual says it.
+
+## 35. The sealed form's frame table (draft, mine, knobs; for the user's approval)
+
+The user: 「直接開始做封印，等完成後再統一開始 G2」: the sealed form now (§8's order: the Shikai, the Bankai, then the sealed form), no
+G2 until it is done; then G2 once (IK and KK play the sealed form, so `tests/style-cvc-ref.txt` will be regenerated). §6's themes
+stand (「可以」); this is their frames. The katana is the lightest weapon (§1), so the quickest startups. Reach from the katana (1.08 m +
+the arm 0.7). Hitstop by damage stays the base's `:hs-dmg`; the kit's `:core :mult` 1.2. The core grammar: J1–J5, `:as-by-press`
+(1 1 2 2 3), AS n = n segments, only the last knocks down or launches, no NS segment knocks down, one SA per pointer, each NS a
+S ≥ 14 (the tell).
+
+| Move | S | dmg | reaction | reach / travel |
+|---|---|---|---|---|
+| J1–J5 (one-hand slashes, the kick-free street string) | 6 / 6 / 7 / 8 / 10 | 35 / 35 / 40 / 45 / 55 | flinch ×4, stagger | 1.8 |
+| P1 NS a the drag-up cut (the tip scrapes forward) | 14 | 65 | stagger | 1.9, lunge 1.2 |
+| P1 NS b the back-hand chop | 10 | 55 | stagger | 1.8 |
+| P1 NS c the flat sweep | 12 | 70 | crumple | 1.9, 180° |
+| P1 SA the free-hand shove | 8 | 30 | stagger, kb 1.5 | 1.0 |
+| AS1 the drag-up cut | 12 | 90 | knockdown | 1.9 |
+| P2 NS a the shoulder drop, overhead | 16 | 85 | crumple | 1.8 |
+| P2 NS b the second drop | 14 | 95 | stagger | 1.8 |
+| (P2: both take one hit from frame 6 to the end of the active frames: `ken-armor`, `:armor-hits 1`, `:armor-act`) | | | | |
+| P2 SA the forearm shove | 8 | 35 | stagger | 1.0 |
+| AS2 the overhead → the rising cut | 14 / 12 | 60 / 100 | stagger, launch | 1.8 |
+| P3 NS a the tame (held chūdan) | 14 | — | (open, below) | — |
+| P3 NS b the thrust | 12 | 70 | stagger | 2.3, lunge 1.5 |
+| P3 NS c the men cut | 14 | 95 | crumple | 1.9 |
+| P3 SA the kote cut | 7 | 40 | flinch | 1.8 |
+| AS3 the thrust → the kote → the thrust through the guard | 12 / 10 / 14 | 50 / 50 / 140 | stagger ×2, knockdown (the last `:guard-crush`) | 2.3 / 1.8 / 2.3 |
+
+Removed with it (DUEL_KEN_CORE §1–§2's base mechanics): NS2's cancels feeding its SA (`ken-clash`, `:clash-count`, `:clash-scale`) and
+NS3's three charges with `:charge-mult` (unless the tame becomes a charge, below). The new moves get their own prefix (`:ke-z-*`); the
+old base moves stay as copy parents for DANGAI, the Shikai and the Bankai until the cleanup. Proof that the Shikai and the Bankai did not
+move: their scripted runs (84001, 84004, 84005) give the same hash / log lines before and after. The host tests' old KEN_CORE checks
+(the armour, the cancel count, the charges) are rewritten for this table. Until the art round the clips are borrowed (the FK reach
+test one-sided, as the Bankai's was); then the art round in the Bankai's order: the three stances, J1–J5, NS / AS, the Kikon
+cinematics.
+
+Open (asked): what NS3a's tame does; the three Kikon cinematics (§6 lists RYŌDAN for pointer 3, §26 said the sealed pointer 3 keeps
+`ken-sky-split-cine`).
+
+### 35.1 Asked, answered (verbatim)
+
+| Question | Answer |
+|---|---|
+| What NS3a's tame (the held chūdan) does, under 「read and punish」 | 「反擊架（推薦）」: a counter stance. A melee hit that lands on him inside its window (f2–28) is caught (no damage, the attacker staggers, `:parry`) and the thrust (NS3b) starts at once; without a hit, SP goes on to the thrust as usual. The catch comes before the triangle (an NA on the tame's startup would otherwise only cancel). |
+| The three Kikon cinematics (§6 lists RYŌDAN for pointer 3, §26 kept `ken-sky-split-cine`) | 「三段都新做（推薦）」: all three new, as §6 (pointer 1 the bells and the rising cut from behind, pointer 2 the cut taken on the chest, the laugh, the cut back, pointer 3 RYŌDAN). The sim batch borrows the three current ones; the art round replaces them. |
+
+The rest of §35's table stands as my knobs (no objection).
+
+### 35.2 The sealed form's sim built (2026-11-05)
+
+`ken.lisp`: new moves `:ke-z-*` (§35's table: J1–J5, NS 1 a–c / 2 a–b / 3 a–c, the SAs `:ke-z-sa1..3` by each segment's `:params :sa`,
+AS1 / AS2 + b / AS3 + b + c), the base kit's `:commands :q` → `:ke-z-j1`, `:strings` the J string and `(:ke-z-n3a :land :ke-z-n3b)`,
+`:core` the new NS / AS / SA with `:as-by-press (1 1 2 2 3)` (without it the press count picked AS n+1), `:open-s` nil (as written). Kept
+for the cleanup: the old J / K `:grid` (unreachable now; the old strings tests and the Shikai / Bankai's inherited strings stay as
+they were), the old base moves (copy parents), the hooks (`ken-clash` / `ken-dmg-mult` act only on `:clash-count` / `:clash-scale`,
+which no new move has). Pointer 2's drops step in 1.0 / 0.6 m (at the scene's 2.2 m they whiffed without). The tame: `:flags (:parry)`,
+`:params :window (2 28)`; `core-sim.lisp` `core-verdicts`: a hit on a defender in a parry's window skips the triangle (an NA on the
+tame's startup only cancelled before), so the parry catches it (`:parried`: the attacker staggers, the kit's `:land` string starts the
+thrust). Shared change; the only parry moves elsewhere are Ichigo's KESSA `:ic-k-parry` and Yamamoto's West, both on unbound / retired
+paths. Stances and Kikon cinematics borrowed (`:ke-st-chain / -rush / -kamae`, the three old cines). The HUD seals stay 一 二 三.
+
+Checks (no match tests at this stage): host tests 9887 ALL PASS (the old KEN_CORE base block rewritten: classes, §35's S and damage,
+the SA by pointer, chains 1 / 2 / 3 and NS 3 / 2 / 3, no NS knockdown, the AS finishers, pointer 2's armour, the tame's parry and its
+`:land`, no cancel count or charge; the base out of the old grid and J / K reach checks, into the one-sided FK reach list; the old
+NS / AS clips listed as kept), pkgcheck clean, the build without a new warning. Proof the other forms did not move: the scripted
+`duel-ken-shikai.json` and `duel-ken-bankai.json` give the same hash and combat lines as before the change (only cosmetic particle
+counts differ). The new script `duel-ken-sealed.json` (84000, an idle Ichigo 2.2 m): pointer 1 SP ×3 65 / 55 / 70, SP J the shove 30;
+pointer 2 SP ×2 85 / 95, against Ichigo's NS (84010) `IC-N1A -> P1 ARMORED` then the drop hits; pointer 3 SP ×3 the tame, the thrust 70,
+the men 95; SP then Ichigo's J1 (84011) `IC-J1 -> P1 PARRIED` and the thrust starts on the same tick, 70; SP J the kote 40; J1 J2 SP
+AS1 90, down; J1–J3 SP SP AS2 60 + 100, in the air; J1–J5 SP ×3 AS3 50 / 50 / 140; J + SP held after AS1 / AS2: `KIKON FOLLOW-UP`.
+Next: the art round (the three stances, J1–J5, NS / AS, the three Kikon cinematics, the HUD seals), then G2 once.

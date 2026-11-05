@@ -48,28 +48,47 @@
 
 (setf *core-on* t)
 
-;;; ---- the core system's base kit (DUEL_KEN_CORE, 2026-10-29)
+;;; ---- V3's sealed form (DUEL_KEN_V3 §6 / §35, 2026-11-05): J1-J5, three pointers by grip, AS n = n segments, one SA a pointer
 (let* ((k (kit :kenpachi :base)))
-  (labels ((m (n) (gethash n (kit-moves k))) (cls (n) (kit-class k (m n))))
-    ;; classes: NS1-3 segments, AS1-3 segments, the SAs
-    (check (every (lambda (n) (eq (cls n) :ns)) '(:ke-n1a :ke-n1b :ke-n1c :ke-n2a :ke-n2b :ke-n3a :ke-n3b :ke-n3c)))
-    (check (every (lambda (n) (eq (cls n) :as)) '(:ke-as1 :ke-as2 :ke-as2b :ke-as3 :ke-as3b :ke-as3c)))
-    (check (every (lambda (n) (eq (cls n) :sa)) '(:ke-sa :ke-sa-r :ke-sa-c1 :ke-sa-c2 :ke-sa-c3)))
-    ;; the tells: every NS opener S >= 14; the stance per pointer
-    (check (every (lambda (n) (>= (mv-s (m n)) 14)) '(:ke-n1a :ke-n2a :ke-n3a)))
+  (labels ((m (n) (gethash n (kit-moves k))) (cls (n) (kit-class k (m n))) (p (n key) (getf (mv-params (m n)) key)))
+    (check (every (lambda (n) (eq (cls n) :na)) '(:ke-z-j1 :ke-z-j2 :ke-z-j3 :ke-z-j4 :ke-z-j5)))
+    (check (every (lambda (n) (eq (cls n) :ns)) '(:ke-z-n1a :ke-z-n1b :ke-z-n1c :ke-z-n2a :ke-z-n2b :ke-z-n3a :ke-z-n3b :ke-z-n3c)))
+    (check (every (lambda (n) (eq (cls n) :as)) '(:ke-z-as1 :ke-z-as2 :ke-z-as2b :ke-z-as3 :ke-z-as3b :ke-z-as3c)))
+    (check (every (lambda (n) (eq (cls n) :sa)) '(:ke-z-sa1 :ke-z-sa2 :ke-z-sa3)))
+    ;; §35's frames
+    (check (equal (mapcar (lambda (n) (mv-s (m n))) '(:ke-z-j1 :ke-z-j2 :ke-z-j3 :ke-z-j4 :ke-z-j5)) '(6 6 7 8 10)))
+    (check (equal (mapcar (lambda (n) (mv-dmg (m n))) '(:ke-z-j1 :ke-z-j2 :ke-z-j3 :ke-z-j4 :ke-z-j5)) '(35 35 40 45 55)))
+    (check (equal (mapcar (lambda (n) (mv-s (m n))) '(:ke-z-n1a :ke-z-n1b :ke-z-n1c :ke-z-n2a :ke-z-n2b :ke-z-n3a :ke-z-n3b :ke-z-n3c))
+                  '(14 10 12 16 14 14 12 14)))
+    (check (equal (mapcar (lambda (n) (mv-dmg (m n))) '(:ke-z-n1a :ke-z-n1b :ke-z-n1c :ke-z-n2a :ke-z-n2b :ke-z-n3b :ke-z-n3c :ke-z-as1 :ke-z-as2b :ke-z-as3c))
+                  '(65 55 70 85 95 70 95 90 100 140)))
+    (check (and (null (kit-open-s k)) (equal (getf (kit-core k) :as-by-press) '(1 1 2 2 3))))                                          ; (as written: the old startup tier is off)
+    ;; the tells: every NS opener S >= 14; the stance per pointer; the SA of each pointer's gaps
+    (check (every (lambda (n) (>= (mv-s (m n)) 14)) '(:ke-z-n1a :ke-z-n2a :ke-z-n3a)))
     (check (equal (getf (kit-core k) :stances) '(:ke-st-chain :ke-st-rush :ke-st-kamae)))
-    ;; AS n = n segments; only the last one of a route knocks down / launches
-    (check (and (null (getf (mv-params (m :ke-as1)) :ns-next)) (eq (getf (mv-params (m :ke-as2)) :ns-next) :ke-as2b)
-                (eq (getf (mv-params (m :ke-as3)) :ns-next) :ke-as3b) (eq (getf (mv-params (m :ke-as3b)) :ns-next) :ke-as3c)))
-    (check (every (lambda (n) (eq (getf (mv-spec (m n)) :on-hit) :stagger)) '(:ke-as2 :ke-as3 :ke-as3b)))
-    ;; NS2: one armour hit on each segment, lasting through the active frames (KEN-ARMOR), its SA scales with the cancels
-    (check (and (= 1 (mv-armor-hits (m :ke-n2a))) (= 1 (mv-armor-hits (m :ke-n2b)))
-                (eq (getf (mv-params (m :ke-n2a)) :sa) :ke-sa-r) (getf (mv-params (m :ke-sa-r)) :clash-scale)))
-    ;; NS3: three charges that hit nothing, each SA arms a bigger charge x (1.3 < 1.6 < 2.0)
-    (check (every (lambda (n) (zerop (mv-a (m n)))) '(:ke-n3a :ke-n3b :ke-n3c)))
-    (check (< (getf (mv-params (m :ke-sa-c1)) :charge-mult) (getf (mv-params (m :ke-sa-c2)) :charge-mult) (getf (mv-params (m :ke-sa-c3)) :charge-mult)))
-    ;; the hooks reach every cup
+    (check (and (every (lambda (n) (eq (p n :sa) :ke-z-sa1)) '(:ke-z-n1a :ke-z-n1b :ke-z-n1c))
+                (every (lambda (n) (eq (p n :sa) :ke-z-sa2)) '(:ke-z-n2a :ke-z-n2b))
+                (every (lambda (n) (eq (p n :sa) :ke-z-sa3)) '(:ke-z-n3a :ke-z-n3b :ke-z-n3c))))
+    ;; AS n = n segments, NS routes 3 / 2 / 3; only the last AS segment knocks down / launches, no NS segment does
+    (flet ((chain (x) (loop for y = x then (p y :ns-next) while y count t)))
+      (check (equal (mapcar #'chain '(:ke-z-as1 :ke-z-as2 :ke-z-as3 :ke-z-n1a :ke-z-n2a :ke-z-n3a)) '(1 2 3 3 2 3))))
+    (check (notany (lambda (n) (member (getf (mv-spec (m n)) :on-hit) '(:knockdown :launch)))
+                   '(:ke-z-n1a :ke-z-n1b :ke-z-n1c :ke-z-n2a :ke-z-n2b :ke-z-n3b :ke-z-n3c :ke-z-as2 :ke-z-as3 :ke-z-as3b)))
+    (check (equal (mapcar (lambda (n) (getf (mv-spec (m n)) :on-hit)) '(:ke-z-as1 :ke-z-as2b :ke-z-as3c)) '(:knockdown :launch :knockdown)))
+    (check (member :guard-crush (mv-flags (m :ke-z-as3c))))
+    ;; pointer 2: one armour hit on each drop, through the active frames (KEN-ARMOR); not on its AS
+    (check (and (= 1 (mv-armor-hits (m :ke-z-n2a))) (= 1 (mv-armor-hits (m :ke-z-n2b))) (p :ke-z-n2a :armor-act) (p :ke-z-n2b :armor-act)
+                (= 0 (mv-armor-hits (m :ke-z-as2)))))
+    ;; pointer 3: the tame hits nothing, catches a melee hit in f2-28 and answers with the thrust
+    (check (and (zerop (mv-a (m :ke-z-n3a))) (member :parry (mv-flags (m :ke-z-n3a))) (equal (p :ke-z-n3a :window) '(2 28))
+                (eq (mv-name (kit-next k :ke-z-n3a :land)) :ke-z-n3b)))
+    ;; the old base mechanics gone from the sealed form: no cancel count, no charges
+    (check (loop for n being the hash-keys of (kit-cls k)
+                 never (or (getf (mv-params n) :clash-count) (getf (mv-params n) :charge-mult))))
+    ;; the hooks reach every form
     (check (loop for (f . kk) in (gethash :kenpachi *kits*) always (and (eq 'ken-armor (kit-hook kk :armor)) (eq 'ken-clash (kit-hook kk :clash)))))))
+;; the parry catches before the triangle: a hit on a defender in a parry's window is not judged (CORE-VERDICTS)
+(check (equal (core-verdict :na :ns) :cancel))
 
 ;;; ---- V3's two Bankai (DUEL_KEN_V3 §26, 2026-11-04): one pointer each, J1-J5 of its own, NS a-d, the one AS of n segments after Jn
 ;;; (n 1-4, the J link's :as-ptr), the special AS after J5; every NS / AS segment burns *KEN-BK-COST* (KEN-BK-COST), the special AS takes
@@ -108,18 +127,13 @@
 (check (and (= 4 (hs-by-damage 35 *ken-hs-dmg*)) (= 7 (hs-by-damage 60 *ken-hs-dmg*)) (= 8 (hs-by-damage 70 *ken-hs-dmg*))
             (= 9 (hs-by-damage 80 *ken-hs-dmg*)) (= 10 (hs-by-damage 90 *ken-hs-dmg*)) (= 14 (hs-by-damage 140 *ken-hs-dmg*))
             (= 14 (hs-by-damage 210 *ken-hs-dmg*)) (= 4 (hs-by-damage 0 *ken-hs-dmg*))))
-(check (equal (mapcar (lambda (f) (kit-open-s (kit :kenpachi f))) '(:base :nozarashi :bankai :bankai-2)) '(14 nil nil nil)))   ; (V3's forms as written, §9 / §26)
+(check (equal (mapcar (lambda (f) (kit-open-s (kit :kenpachi f))) '(:base :nozarashi :bankai :bankai-2)) '(nil nil nil nil)))   ; (V3's forms as written, §9 / §26 / §35)
 (check (every (lambda (fm) (destructuring-bind (f s . names) fm
                              (every (lambda (n) (= s (mv-s (mv :kenpachi f n)))) names)))
-              '((:base 14 :ke-n1a :ke-n2a) (:nozarashi 16 :ke-s-n1a) (:nozarashi 14 :ke-s-n2a) (:bankai 14 :ke-kr-na) (:bankai-2 16 :ke-zh-na))))
-;; a charge keeps its length; a shifted opener hits on its new S (its window moved, its clip sped up to match)
-(check (= 20 (mv-s (mv :kenpachi :base :ke-n3a))))
-(let ((old (find-move :ke-n2a)) (new (mv :kenpachi :base :ke-n2a)))
-  (check (and (= 22 (mv-s old)) (= 14 (hw-from (aref (mv-hits new) 0))) (= (mv-a old) (mv-a new)) (= (mv-r old) (mv-r new))
-              (~= (* (mv-clip-speed new) 14) (* (mv-clip-speed old) 22)))))
+              '((:base 14 :ke-z-n1a) (:base 16 :ke-z-n2a) (:nozarashi 16 :ke-s-n1a) (:nozarashi 14 :ke-s-n2a) (:bankai 14 :ke-kr-na) (:bankai-2 16 :ke-zh-na))))
 ;; every Kenpachi hit freezes by its damage; another character keeps the kind's (Ichigo's J1 4)
-(check (and (= 14 (hw-hs (aref (mv-hits (mv :kenpachi :nozarashi :ke-s-n2e)) 0))) (= 4 (hw-hs (aref (mv-hits (mv :kenpachi :base :ke-j1)) 0)))
-            (= 11 (hw-hs (aref (mv-hits (mv :kenpachi :base :ke-as2b)) 0)))
+(check (and (= 14 (hw-hs (aref (mv-hits (mv :kenpachi :nozarashi :ke-s-n2e)) 0))) (= 4 (hw-hs (aref (mv-hits (mv :kenpachi :base :ke-z-j1)) 0)))
+            (= 11 (hw-hs (aref (mv-hits (mv :kenpachi :base :ke-z-as2b)) 0)))
             (null (kit-hs-dmg (kit :ichigo :base))) (null (kit-open-s (kit :ichigo :base)))))
 
 ;;; ---- the Shikai V3 (DUEL_KEN_V3 §3-§9, 2026-11-03): two pointers by grip, the unlock level L, the bursts, the special string
