@@ -7,17 +7,6 @@
 ;;;; docs/engine/REFACTOR_NEXT.md).
 (in-package :duel)
 
-(defun ken-tick (e f g)
-  "His :tick hook (GAUGE-SYSTEM, every step, after the form timers): the arm meter in a form with :pips (the Bankai)."
-  (let ((kit (fighter-kit f)))
-    (when (kit-pips kit)
-      (if (or (eq e *run-boss*) (rmod e :no-arm nil))   ; the DANGAI boss / the 無手臂限制 card: no pip owed, no crack clock
-          (progn (setf (gauges-arm-owed g) nil)
-                 (when (and (eq e *run-boss*) (zerop (mod *match-tick* 600)))
-                   (log-msg "duel boss kenpachi t~d ~(~a~) ude ~d konpaku ~d" *match-tick* (fighter-form f)
-                            (round (gauges-meter g)) (gauges-konpaku g))))
-          (ken-arm-step e f g)))
-    nil))
 
 (defun ken-boss (e)
   "His base kit's :boss hook (rogue.lisp ROGUE-STAGE-START, after the ramp's KATATE): the Bankai at FIGHT, its arm full
@@ -44,29 +33,6 @@ construction: after the Bankai comes KATAUDE, never a cup again. T when it took 
     (bankai! e :bankai)
     t))
 
-(defun ken-arm-step (e f g)
-  "The arm meter per step (a form with :pips): the pip a finished J / K string owes is charged (rules STRING-PIP-DUE-P);
-the crack clock (rules PIP-STEP: paused while locked) cracks a pip every *ARM-CRACK* frames without a spend; once the
-last pip went, the pending burst fires when BURST-DUE-P says."
-  (let ((mv (current-move f)) (pend (gauges-arm-pending g)))
-    (when (string-pip-due-p (gauges-arm-owed g) (fighter-state f) (and mv (mv-kind mv)))
-      (setf (gauges-arm-owed g) nil)
-      (arm-spend! e mv))                                ; (a cancel out of the string: the burst waits for it too)
-    ;; the last pip's move goes on as a chain (a latched link, SP2's punch, the O ender): the burst waits for the chain
-    (when (and (typep pend 'move) mv (not (eq mv pend)) (move-follows-p (fighter-kit f) pend mv))
-      (setf (gauges-arm-pending g) mv)))
-  (let ((pend (gauges-arm-pending g)))
-    (if pend
-        (when (burst-due-p pend (fighter-move f) (fighter-state f)) (arm-burst! e))
-        (multiple-value-bind (n idle cracked) (if (getf (kit-pips (fighter-kit f)) :crack t)   ; (:crack NIL: no crack clock, §8)
-                                                  (pip-step (round (gauges-meter g)) (gauges-meter-idle g) (plusp (fighter-lock f)))
-                                                  (values (round (gauges-meter g)) 0 nil))
-          (setf (gauges-meter g) (f32 n) (gauges-meter-idle g) idle)
-          (when cracked
-            (when (zerop n) (setf (gauges-arm-pending g) (or (current-move f) :none)))
-            (refresh-look e)
-            (emit :arm-crack e n)
-            (clog "~a UDE cracked, ~d left" (side-name e) n))))))
 
 (defun-fast %hud-lv (x y w h lv mx right)
   "The Shikai's unlock level (DUEL_KEN_V3 §4) in the W x H slot at (X Y): MX square pips from the slot's inner end (RIGHT: mirrored), LV lit

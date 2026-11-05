@@ -19,13 +19,13 @@ import colorsys, json, os, re, subprocess, sys
 import numpy as np
 from PIL import Image
 
-LENS = {"yama-kikon-cine": 186, "yama-tenchi-cine": 168, "yama-bankai-cine": 138, "ken-kikon-cine": 192,
-        "ken-sky-split-cine": 162, "ken-nozarashi-cine": 108, "soul-break-cine": 96, "intro-cine": 300, "ko-cine": 150,
+LENS = {"yama-kikon-cine": 186, "yama-tenchi-cine": 168, "yama-bankai-cine": 138,
+        "ken-nozarashi-cine": 108, "soul-break-cine": 96, "intro-cine": 300, "ko-cine": 150,
         "time-cine": 120}   # replay-relevant. Original 108 96 72 114 90 72; user review 3 slowed the Kikons and awakenings
                             # ~1.45x, then held the caption close-ups of the Kikons and the Bankai +30 f (2026-09-26)
-CARD_MIN = {"yama-kikon-cine": 58, "yama-tenchi-cine": 56, "yama-bankai-cine": 58, "ken-kikon-cine": 58,
-            "ken-sky-split-cine": 56}   # the caption close-up (card) shot, held +30 f at user review 3
-KIKONS = ["yama-kikon-cine", "yama-tenchi-cine", "ken-kikon-cine", "ken-sky-split-cine"]
+CARD_MIN = {"yama-kikon-cine": 58, "yama-tenchi-cine": 56, "yama-bankai-cine": 58}   # the caption close-up (card) shot, held +30 f at user review 3
+# (Kenpachi's ken-kikon-cine / ken-sky-split-cine went 2026-11-05, DUEL_KEN_V3 §43)
+KIKONS = ["yama-kikon-cine", "yama-tenchi-cine"]
 fails = []
 
 

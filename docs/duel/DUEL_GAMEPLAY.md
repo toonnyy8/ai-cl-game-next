@@ -186,7 +186,7 @@ encoded in the integer.
 | 2109 | toggle the CAMERA option (BEHIND / SIDE; the behind camera is VS CPU's): `duel camera …` line |
 | 2110+p | the seed gate: seeds 1–20 of pairing p (0 YY, 1 YK, 2 KK; 3 = 2113: every pairing of the playable roster, `*pairs*` without the retired, 28 since Hisagi joined) back to back, turbo, cinematics on, combat log off; then `duel gate …` lines |
 | 2120+k | toggle drawing part k off (0 HUD, 1 fighters, 2 stage, 3 hazards + cinematic looks): perf bisection |
-| 2200+k | force cinematic k now and hold it at its hold frame: 0 Bankai, 1 Nozarashi, 2 Jokaku Enjo, 3 Tenchi Kaijin, 4 Kenpachi's Kikon, 5 sky split, 6 Soul Break, 7 intro, 8 K.O. |
+| 2200+k | force cinematic k now and hold it at its hold frame: 0 Bankai, 1 Nozarashi, 2 Jokaku Enjo, 3 Tenchi Kaijin, 6 Soul Break, 7 intro, 8 K.O. (4 / 5 / 10 / 19, Kenpachi's old Kikons, removed 2026-11-05, DUEL_KEN_V3 §43: they do nothing) |
 | 2209 | a K.O. of P2 (Yamamoto vs Kenpachi): the K.O. cinematic, then the results screen (the 勝 card) |
 | 10000+1000k+f | stills: cinematic k (as 2200+k) held at frame f with the effects frozen there (impact frames, particles, stamps); a later command for the same k continues it to its new f (`tests/style-4-shots.py`) |
 | 2300+k | force a special now: 0 Hellfire + Ennetsu, 1 full Shiranui, 2 fire wave, 3 South (the bind) on Kenpachi 5 m away, 4 KYOKUJITSUJIN (the down-cut) at 6 m, 5 Split the Meteor, 6 Guard Break, 7 perfect Hoho, 8 Kenpachi's stance, 9 Buttagiru, 10 Kenpachi's SP2 flurry, 11 EVOLUTION for both, 12 Bankai (East) form, 13 Nozarashi form (cup 1), 14 P2 red (Reishi 200), 15 Nozarashi cup 2 (RYOTE, NOME 70), 16 cup 3 (NOMIHOSE, NOME 100) |
@@ -221,7 +221,7 @@ encoded in the integer.
 | 2520+k | `(camera-shift-x *camera*)` = (k − 30) / 100, k 0–79 (2550 = 0, 2590 = +0.4: the image moves right); nothing else resets it but a new value (DUEL_WEBUI §4) |
 | 2600+k | `*red-threshold*` = k % (pace the gate without a rebuild) |
 | 2387 / 2388 | Kenpachi's Bankai tests (`bankai-test` in ken.lisp, `ken-debug`, human P1 Kenpachi vs an idle Yamamoto; `duel-bankai.json`): 2387 in the Bankai at once, 2.2 m; 2388 the Bankai with 1 pip left (the burst). (2386, the cup-3 entry, and 2389, 片腕, retired 2026-11-03 with the cups and KATAUDE.) |
-| 35000+f / 36000+f | stills: the Bankai cinematic / MAPPUTATSU held at frame f (as 10000+1000k+f, k 9 / 10; 2210 starts MAPPUTATSU) |
+| 35000+f | stills: the Bankai cinematic held at frame f (as 10000+1000k+f, k 9; 36000+f / 2210, MAPPUTATSU, removed 2026-11-05, DUEL_KEN_V3 §43) |
 | 30000+k / 31101–31199 / 31000+10a+b | the seed gate's seeds k+1 .. k+N; N = 31100+n: n seeds per pairing (the default 20, the quick pass 10); the CPUs' Bankai entry, P1 a / P2 b (0 the kit's rule, 1 always, 2 never, 3 the rule with p 1: the gamble A/B) |
 | 6000+s / 7000+s / 8000+s | Rukia (DUEL_RUKIA.md): seeded CPU vs CPU RY / RK / RR at seed s (P1 Rukia) |
 | 2118 / 2119 / 2124 | the seed gate of her pairings (RY RK RR; 2113 plays every pairing) / RY and RK only / 2118 with the combat log (the pacing log: zero windows and their exits, freeze-touches, Tsukishiro casts) |
@@ -446,13 +446,13 @@ the 125–210 window); otherwise it is rerun with the full 20 (31120, or no knob
 gates and the awaken A/B streams run on the host-native sim gate** (`tools/simgate.py`, below; built 2026-09-29, DEVLOG
 §38); the browser keeps G2 (`style-gates.py cvc`, the bit-exact references), smoke, duelstill and the touch scripts.
 
-**The looks gate (`style-gates.py looks BASE NEW`, for refactors that must not change a pixel).** 115 fixed stills of (110 before refactor round 3 added the portrait meters and thumb rings `ichigo-clones`, `deck-ichigo`, `senju-hank2`, `senju-stitches`, `deck-senju` to `mobile`; 105 before refactor round 2 added `kyoku`, `south`, `rukia-hakka-132`, `senju-hank2`, `ichigo-clones`, 2026-10-21)
+**The looks gate (`style-gates.py looks BASE NEW`, for refactors that must not change a pixel).** 113 fixed stills of (115 before Kenpachi's old Kikon cinematic `ken-kikon` left with its two stills, 2026-11-05, DUEL_KEN_V3 §43; 110 before refactor round 3 added the portrait meters and thumb rings `ichigo-clones`, `deck-ichigo`, `senju-hank2`, `senju-stitches`, `deck-senju` to `mobile`; 105 before refactor round 2 added `kyoku`, `south`, `rukia-hakka-132`, `senju-hank2`, `ichigo-clones`, 2026-10-21)
 SOUL DUEL from `run.mjs --fixed-dt` at 640x360 (390x844 for the portrait ones), 15 scripts generated in Python (nothing
 committed): title, MODE / SETTINGS / CONTROLS, the select screen with all seven fighters; four CPU-vs-CPU matches (debug
 2000+seed: Yamamoto-Senjumaru, Hisagi-Yamamoto, Ichigo-Rukia, Lille-Kenpachi (re-pinned 2026-10-17 for Hisagi, seeds 1 / 3 / 7 / 25;
 before: Rukia-Ichigo, Kenpachi-Senjumaru, seeds 1 / 72 / 33 / 44, 2026-10-13); the intro, the first frame, then turbo
 jumps of 240 / 960 / 1920 / 3600 ticks each followed by live frames, plus the pause menu); the Kikon and awakening /
-form-change cinematics at their key frames (Yamamoto's Kikon and Bankai, Kenpachi's Kikon, Nozarashi and Bankai, K.O. and
+form-change cinematics at their key frames (Yamamoto's Kikon and Bankai, Kenpachi's Nozarashi and Bankai, K.O. and
 RESULTS, Rukia's Kikon / awakening / 白霞罸, Ichigo's, Senjumaru's and Lille's awakenings); the HUD in every form (2430+k,
 landscape and portrait), sword smears, the Bankai's cracks and impact stamps, Rukia's ice, Senjumaru's bolts of cloth /
 stitches / umbrella / drapes; ENDLESS; the portrait touch layout with its RESULTS. They are

@@ -396,7 +396,7 @@
     (check (and (eq 'hs-bind-clash (kit-hook kb :clash)) (null (kit-hook kr :clash))
                 (eq 'hs-r-link-move (kit-hook kr :link-move)) (null (kit-hook kb :link-move))
                 (loop for c being the hash-keys of *kits* using (hash-value alist)
-                      always (or (eq c :hisagi) (and (eq c :kenpachi) (loop for (nil . k) in alist always (and (eq 'ken-clash (kit-hook k :clash)) (null (kit-hook k :link-move)))))   ; (Kenpachi's NS2 cancels: DUEL_KEN_CORE)
+                      always (or (eq c :hisagi)   ; (Kenpachi's NS2 cancel hook went 2026-11-05, DUEL_KEN_V3 §43)
                           (loop for (nil . k) in alist never (or (kit-hook k :clash) (kit-hook k :link-move)))))))
     (check (notany #'fboundp '(hs-bind-drained! hs-bind-released! hs-bind-reel! hs-bind-step hs-bind-resolve hs-bind-pool
                                hs-bind-damage hs-bind-heal hs-bind-snapshot hs-binding hs-p-press hs-kubi-land hs-kaibaku-go

@@ -222,7 +222,7 @@ as :twin, and taking it swaps them. The settled pairs (Kenpachi's, Hisagi's); th
     (113 (:moves (:ya-e-kyokko) :cooldown 40))
     (114 (:moves (:ya-w-shonetsu) :params (:hits 3) :cooldown 90))
     (115 (:moves (:ke-s-sp2) :armor-hits 1))   ; (the Shikai's meteor cut since V3; the old SP1 meteor left with KATATE)
-    (116 (:moves (:ke-kikon-n :ke-b-kikon) :armor-hits 1))
+    (116 (:moves (:ke-kikon-n :ke-b-kikon) :armor-hits 1))   ; (inert: the O rushes went 2026-11-05, DUEL_KEN_V3 §43; DANGAI frozen)
     (117 (:moves (:ru-tsukishiro) :params (:delay 14 :tell (11 20))))
     (118 (:kit :m18 :cold (:sig 0)))
     (119 (:moves (:ru-shirafune-s :ru-shirafune :ru-shirafune-50 :ru-shirafune-0) :armor-hits 1))   ; (the Shikai's copy since 2026-10-24)

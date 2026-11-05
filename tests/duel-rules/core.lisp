@@ -66,9 +66,8 @@ window? The hit-based string checks skip it (its own block below checks its fram
 (check (and (ranged-hit-p t nil nil 0.0) (not (ranged-hit-p nil nil nil 100.0)) (ranged-hit-p nil '(:ranged) nil 1.0)
             (not (ranged-hit-p nil '(:ranged) 3.4 (* 3.4 3.4))) (ranged-hit-p nil '(:ranged) 3.4 (* 3.5 3.5))))
 (flet ((mr (name) (getf (mv-params (find-move name)) :melee-range)))
-  (check (and (~= (mr :ke-meteor) 3.4) (~= (mr :ke-buttagiru) 2.6) (~= (mr :ya-nadegiri) 2.4)
-              (null (mr :ya-kyoku)) (null (mr :ya-taimatsu))
-              (= 1 (length (mv-hits (find-move :ke-meteor)))))))   ; (NOMIHOSE's cash-out went with the cups)
+  (check (and (~= (mr :ke-buttagiru) 2.6) (~= (mr :ya-nadegiri) 2.4)        ; (the old meteor's 3.4 went 2026-11-05, DUEL_KEN_V3 §43)
+              (null (mr :ya-kyoku)) (null (mr :ya-taimatsu)))))
 ;; the contact rule: only a real hit is a hit for the attacker (armour, absorb, parry, block are :block)
 (check (every (lambda (r) (eq (contact-of r) :hit)) '(:hit :counter :guard-break :stance-break :kikon)))
 (check (every (lambda (r) (eq (contact-of r) :block)) '(:blocked :armored :absorbed :parried)))
@@ -279,8 +278,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                   links))
     ;; the O ender always combos off a link-3 hit: the module's dash from the ender's reach to *KIKON-TRIGGER* + its
     ;; strike's startup inside the ender's stagger / crumple
-    (let* ((o (kit-command-move k :kikon)) (pa (mv-params o)))
-      (dolist (l links)
+    (let* ((o (kit-command-move k :kikon)) (pa (and o (mv-params o))))   ; (Kenpachi has no O rush since 2026-11-05)
+      (dolist (l (and o links))
         (when (= 3 (second l))
           (let* ((m (first l)) (dash (if (zerop (getf pa :dash-max)) 0
                                         (ceiling (* 60 (/ (max 0.0 (- (mv-reach m) *kikon-trigger*)) (getf pa :speed)))))))
@@ -399,9 +398,10 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
             (eq (resolve-contact :parry :unguardable (kikon-follow-unguardable-p t)) :hit)
             (null (resolve-contact :invuln :unguardable (kikon-follow-unguardable-p t)))))
 (dolist (cf *forms*)
-  (let ((s (mv-s (kit-command-move (apply #'kit cf) :kikon))))
-    (check (= (kikon-follow-stun nil s) (kikon-follow-stun t s)))                                   ; (2026-10-24: both reel)
-    (check (> (kikon-follow-stun t s) (+ (kikon-follow-wait s) s)))))                              ; still reeling as it lands
+  (let ((s (let ((o (kit-command-move (apply #'kit cf) :kikon))) (and o (mv-s o)))))             ; (none: Kenpachi's, 2026-11-05)
+    (when s
+      (check (= (kikon-follow-stun nil s) (kikon-follow-stun t s)))                                 ; (2026-10-24: both reel)
+      (check (> (kikon-follow-stun t s) (+ (kikon-follow-wait s) s))))))                            ; still reeling as it lands
 ;; the dash-in's speed: it reaches the trigger range exactly as the wait runs out, never over the module's cap
 (check (and (~= (kikon-follow-speed 4.6 10 99.0) 18.0) (~= (kikon-follow-speed 4.6 10 12.0) 12.0)
             (~= (kikon-follow-speed 1.0 10 99.0) 0.0) (~= (kikon-follow-speed 4.6 0 99.0) 99.0)))
@@ -748,7 +748,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
     (:ya-w-parry 2 24 20 0 nil) (:ya-w-counter 6 3 24 150 -12)
     (:ke-j1 7 3 12 35 -2) (:ke-j2 7 3 13 35 -2) (:ke-j3 8 3 18 42 -4) (:ke-k1 16 4 20 70 -3)
     (:ke-k2 20 4 24 60 -3) (:ke-k3 20 5 34 80 -20) (:ke-stance 8 4 24 100 -14) (:ke-buttagiru 22 4 26 180 -14)
-    (:ke-charge 14 ? ? 25 -16) (:ke-breaker 8 4 18 150 :guard-break) (:ke-meteor 26 4 30 240 ?)))   ; (RYOTE's / NOMIHOSE's rows went with the cups)
+    (:ke-charge 14 ? ? 25 -16) (:ke-breaker 8 4 18 150 :guard-break)))   ; (RYOTE's / NOMIHOSE's rows went with the cups, the meteor 2026-11-05)
 (dolist (row *table*)
   (destructuring-bind (name s a r dmg adv) row
     (let ((m (find-move name)))
@@ -802,15 +802,16 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 ;; reach beyond the trigger
 (dolist (cf *forms*)
   (let ((m (kit-command-move (apply #'kit cf) :kikon)))
-    (check (and (eq (mv-kind m) :kikon) (mv-cine m) (= 1 (length (mv-hits m))) (<= (mv-adv-block m) -12)
+    (check (or (and (null m) (eq (first cf) :kenpachi))          ; (Kenpachi: no O rush since 2026-11-05, DUEL_KEN_V3 §43)
+               (and (eq (mv-kind m) :kikon) (mv-cine m) (= 1 (length (mv-hits m))) (<= (mv-adv-block m) -12)
                 (> (mv-reach m) *kikon-trigger*) (plusp (mv-dmg m))
                 (<= (+ *kikon-trigger* *block-pushback*) (min (mv-reach (mv :yamamoto :base :ya-k1))
-                                                              (mv-reach (mv :kenpachi :base :ke-k1))))))))
+                                                              (mv-reach (mv :kenpachi :base :ke-k1)))))))))
 ;; the O modules (design v2 §B): cooldown 90, a melee strike with its cinematic, reach and press -> hit,
 ;; aura >= 5 (>= 8 for a locked dash), armour <= 1 hit; the melee ones strike from *KIKON-TRIGGER* (a
 ;; blocked strike stays punishable); ENJO has no dash (a lane, locked)
-(defparameter *modules* '((:yamamoto :base :ya-kikon 9.0 26) (:yamamoto :bankai-east :ya-tenchi 10.0 30) (:yamamoto :bankai-west :ya-tenchi 10.0 30)
-                          (:kenpachi :base :ke-kikon 9.4 50) (:kenpachi :nozarashi :ke-kikon-n 10.6 49)))
+(defparameter *modules* '((:yamamoto :base :ya-kikon 9.0 26) (:yamamoto :bankai-east :ya-tenchi 10.0 30) (:yamamoto :bankai-west :ya-tenchi 10.0 30)))
+                          ; (Kenpachi's CHARGE and LEAP CLEAVE went 2026-11-05, DUEL_KEN_V3 §43)
 (dolist (row *modules*)
   (destructuring-bind (c f name reach press) row
     (let* ((m (mv c f name)) (p (mv-params m)))
@@ -820,12 +821,9 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                     (or (plusp (pa :dash-track)) (zerop (pa :dash-max)) (>= (pa :aura) 8))))
         (check (~= reach (max (mv-reach m) (kikon-rush-reach (pa :speed) (pa :dash-max))) 0.01))
         (check (= press (+ (pa :aura) (pa :dash-max) (mv-s m))))))))
-(check (and (= (mv-armor-hits (find-move :ke-kikon)) 1) (zerop (mv-armor-hits (find-move :ya-tenchi)))))
-(check (and (~= 0.0 (mv-track (find-move :ya-kikon))) (~= 0.0 (getf (mv-params (find-move :ya-tenchi)) :dash-track))
-            (~= 0.0 (getf (mv-params (find-move :ke-kikon-n)) :dash-track)) (~= 150.0 (getf (mv-params (find-move :ke-kikon)) :dash-track))))
-(check (~= 160 (/ (* 2 (aref (first (hw-vols (svref (mv-hits (find-move :ke-kikon-n)) 0))) 2)) (deg 1))))   ; the widest strike
-(check (and (~= (mv-clip-speed (mv :kenpachi :nozarashi :ke-kikon-n)) (/ 8.0 11.0)) (~= (mv-clip-speed (mv :kenpachi :base :ke-kikon)) (/ 8.0 9.0))
-            (~= (mv-clip-speed (mv :yamamoto :bankai-east :ya-tenchi)) 1.0)))    ; clips reach their hit pose on frame S
+(check (zerop (mv-armor-hits (find-move :ya-tenchi))))
+(check (and (~= 0.0 (mv-track (find-move :ya-kikon))) (~= 0.0 (getf (mv-params (find-move :ya-tenchi)) :dash-track))))
+(check (~= (mv-clip-speed (mv :yamamoto :bankai-east :ya-tenchi)) 1.0))    ; clips reach their hit pose on frame S
                                                                                  ; (TENCHI's own clip since DUEL_YAMA_TYBW §3.2)
 ;; cooldowns: every command slot of the fighter's CD vector
 (check (= 7 (length *kit-commands*)))
@@ -842,29 +840,29 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (defparameter *clips-5*
  '(:ya-stance :ya-q1 :ya-q2 :ya-f1 :ya-f2 :ya-f3 :ya-sig :ya-shiranui :ya-shiranui-throw :ya-taimatsu
  :ya-nadegiri :ya-breaker :ya-ikkotsu :ya-intro :ya-win :ya-hellfire :ya-bankai :ya-kyoku
- :ya-kaka :sh-run :ya-enjo :ke-n-leap ; the O modules (TENCHI runs in :sh-run, CHARGE in :ke-charge)
+ :ya-kaka :sh-run :ya-enjo ; the O modules (TENCHI runs in :sh-run)
  :ya-shonetsu :ya-w-parry :ya-w-counter ; the Bankai stances
  :ya-e-stance :ya-e-q1 :ya-e-q2 :ya-e-q3 :ya-e-f1 :ya-e-f2 :ya-e-kyokko :ya-e-tenchi ; East's own (DUEL_YAMA_TYBW §3.2)
  :ya-tsuka :ya-e-drop :ke-kick ; the strings' new clips (DUEL_STRINGS §3)
  :ke-stance :ke-q1 :ke-q2 :ke-q3 :ke-f1 :ke-f2 :ke-stance-hold :ke-stance-cut :ke-buttagiru :ke-charge
- :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
- :ke-s-st-1 :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
+ :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome
+ :ke-s-st-1
  :ke-s-flick ; the V3 Shikai's hilt flick (DUEL_KEN_V3 §12)
  :ke-z-cut1 :ke-z-cut2 :ke-z-cut3 :ke-z-cut4 :ke-z-cut5
  :ke-z-p1a :ke-z-p1b :ke-z-p1c :ke-z-shove :ke-z-as1 :ke-z-p2a :ke-z-p2b :ke-z-ram :ke-z-scoop :ke-z-tame :ke-z-tsuki :ke-z-men :ke-z-kote :ke-z-tsuki2 ; V3 sealed J1-J5 (DUEL_KEN_V3 §37; the stances are kit stances, not listed)
  :ke-s-cut1 :ke-s-cut2 :ke-s-cut3 :ke-s-cut4 :ke-s-cut5 :ke-s-cut6 :ke-s-cut7 :ke-s-cut-sa ; the V3 Shikai's J string and SA (§15)
  :ke-s-jab :ke-s-p2c :ke-s-p2d :ke-s-p2e :ke-s-zangaeshi :ke-s-meteor ; its pointer-2 clips (DUEL_KEN_V3 §15)
  :ke-s-p1a :ke-s-p1b :ke-s-p1c :ke-s-p1d :ke-s-p1e :ke-s-issen :ke-s-wheel ; the V3 Shikai's pointer-1 clips (DUEL_KEN_V3 §15)
- ; NS3's charges (DUEL_KEN_CORE)
  :sh-skate-b :sh-slide-r :sh-slide-l :ke-run :ke-skate-b :ke-slide-r :ke-slide-l ; the runs (facing the opponent)
- ; (the cups' :ke-drink and the old Bankai's own strikes left every kit with V3's Bankai, DUEL_KEN_V3 §26)
+ ; (the cups' :ke-drink and the old Bankai's own strikes left every kit with V3's Bankai, DUEL_KEN_V3 §26; the old core set's, the O
+ ;  rushes' and the meteor's clips went 2026-11-05, §43)
  :ke-b-kr-stance :ke-b-zh-stance ; the Bankai (docs/duel/DUEL_KEN_BANKAI.md §12; V3's two, DUEL_KEN_V3 §27)
  :ke-kr-cut1 :ke-kr-cut2 :ke-kr-cut3 :ke-kr-cut4 :ke-kr-cut5 :ke-zh-cut1 :ke-zh-cut2 :ke-zh-cut3 :ke-zh-cut4 :ke-zh-cut5 ; their J1-J5 (§28)
  :ke-kr-ns-a :ke-kr-ns-b :ke-kr-ns-c :ke-kr-ns-d :ke-kr-fin :ke-zh-ns-a :ke-zh-ns-b :ke-zh-ns-c :ke-zh-ns-d :ke-zh-fin ; NS a-d, the finishers (§29)
  :ke-kr-chigiri :ke-zh-tategoto ; the special AS (§30)
  :ke-s-bankai ; the Bankai's burst AS (§32)
  :ic-cross-j :ic-k-jab :ic-k-wrap-j ; the J cut's close J links (DUEL_STRINGS §13)
- :ke-b-leap :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l ; its feral pass (2026-09-28; also 片腕)
+ :ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l ; its feral pass (2026-09-28; also 片腕)
  :ru-intro :ru-win :ru-q2 :ru-spin :ru-thrust :ru-drop :ru-stab :ru-hakuren
  :ru-breaker :ru-hainawa :ru-palm :ru-flower ; Rukia (the shared moves' clips a form's table still names unmapped;
  ;; every form plays its own since -273's, DUEL_RUKIA_TYBW §13.4: :ru-q1 / :ru-ring are Senjumaru's Divine Soldier's
@@ -934,7 +932,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :hs-kb-stance :hs-kb-walk-f :hs-kb-walk-b :hs-kb-strafe-r :hs-kb-strafe-l))     ; the bind's stance and walk (A2)
 ;; (Jilliel's SPs and Kikon, decision 56, DUEL_LILLE §23.37: :lb-w-sanren is KIN's SANREN through his :clip-map, :lb-e-sanren
 ;; EN's own, :lb-w-kikon / :lb-w-kikon-fire the Kikon in play; :lb-w-aim and :lb-w-fire are gone)
-;; (the Kikon cinematics' own clips, :ya-kikon :ya-tenchi :ke-kikon :ke-kikon-n, are played by their
+;; (the Kikon cinematics' own clips, :ya-kikon :ya-tenchi, are played by their
 ;; DEFCINEs, which the host stubs; KESSA's clones play :ic-k-cut / :ic-k-wrap, ICHIGO-CLONE-STEP)
 (let ((used (remove-duplicates (append (loop for cf in *forms* append (kit-clips (apply #'kit cf)))
                                         ;; (moves started outside every kit's tables: Lille II's base snipe's level 2 / 3
@@ -943,9 +941,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                         (remove nil (loop for m in '(:ic-c-xa :ic-c-xb :br-s-l1-2 :br-s-l1-3 :hs-modoshi :hs-k2s :hs-r-kubikake :hs-b-unwind :hs-r-sp2c
                                                                        :hs-b-sp1    ; (B4c: no kit's since, its strip 83524)
                                                                        :hs-r-l :hs-r-sp1 :hs-b-l :hs-r-k1 :hs-b-k1   ; (§28.4: the old Bankai's,
-                                                                       :hs-r-k2s :hs-r-k3   ; (§28.11: spread K2 / K3's clips, strips 27 / 28)
-                                                                       :ke-as3c :ke-n3b :ke-n3c :ke-n2a :ke-n3a :ke-n2b :ke-as2)   ; (Kenpachi's old base NS / AS,
-                                                                                ;  no kit's since V3's sealed form, DUEL_KEN_V3 §35: the cleanup)
+                                                                       :hs-r-k2s :hs-r-k3)  ; (§28.11: spread K2 / K3's clips, strips 27 / 28;
                                                                                 ;  no kit's since, their clips kept for the strips)
                                                           collect (mv-clip-2 (find-move m))   ; (his Shikai's MODOSHI mapped)
                                                           collect (kit-move-clip (kit :hisagi :base) (mv-clip (find-move m)))))))))

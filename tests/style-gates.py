@@ -123,7 +123,7 @@ LOOKS_WINDOWS = ((2, (0.1,)), (8, (0.1, 0.4)), (16, (0.1,)), (30, (0.1,)))   # (
 # others a character's own range (75300 + k: Ichigo's awakening at frame 2k; 82300 + k: Lille's at frame 10k)
 LOOKS_CINES = {
     "cine-yama": [("yama-kikon", 12000, (20, 112)), ("yama-bankai", 10000, (30, 74, 128)), ("ko", 18000, (12, 60))],
-    "cine-ken": [("ken-kikon", 14000, (20, 80)), ("ken-nozarashi", 11000, (26, 96)), ("ken-bankai", 35000, (30, 80, 120))],
+    "cine-ken": [("ken-nozarashi", 11000, (26, 96)), ("ken-bankai", 35000, (30, 80, 120))],   # (ken-kikon's two went with it, 2026-11-05)
     "cine-rukia": [("rukia-kikon", 40000, (60, 112)), ("rukia-awaken", 42000, (20, 60, 110)), ("rukia-hakka", 41000, (60, 120, 132))],
     "cine-ichigo": [("ichigo-awaken", 75300, (10, 30, 55))],
     "cine-senju": [("senju-awaken", 78000, (30, 90, 150))],

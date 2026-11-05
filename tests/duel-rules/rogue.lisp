@@ -185,8 +185,9 @@
 (check (loop for (id . eds) in *rogue-kai-edits*
              always (loop for ed in eds
                           always (loop for n in (getf ed :moves)
-                                       always (or (member n '(:hs-r-l :hs-r-sp1))   ; (Hisagi's old Bankai L / SP1: in no kit
-                                                                                    ;  since DUEL_HISAGI §28.4; ROGUE is frozen)
+                                       always (or (member n '(:hs-r-l :hs-r-sp1    ; (Hisagi's old Bankai L / SP1: in no kit
+                                                              :ke-kikon-n :ke-b-kikon))   ;  since DUEL_HISAGI §28.4; Kenpachi's O rushes
+                                                                                    ;  since DUEL_KEN_V3 §43; ROGUE is frozen)
                                                (some (lambda (fk) (gethash n (kit-moves (cdr fk)))) (gethash (rogue-kai-char id) *kits*)))))))
 (check (null (rogue-run-kits :yamamoto nil)))
 (check (null (rogue-run-kits :kenpachi '((101 . 0) (102 . 0)))))     ; the twins edit no move

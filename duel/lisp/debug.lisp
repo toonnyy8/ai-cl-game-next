@@ -403,30 +403,26 @@ deals PCT % of its written damage (the seed gate's first lever, DUEL_STRINGS §6
     (2 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (start-cine 'yama-kikon-cine *p1* *p2*))
     (3 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (force-form *p1* :bankai-east)
        (start-cine 'yama-tenchi-cine *p1* *p2*))
-    (4 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0) (start-cine 'ken-kikon-cine *p1* *p2*))
-    (5 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0) (force-form *p1* :nozarashi)
-       (start-cine 'ken-sky-split-cine *p1* *p2*))
     (6 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0) (start-cine 'soul-break-cine *p1* *p2*))
     (7 (start-match))
     (8 (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (start-cine 'ko-cine *p1* *p2*))
-    ((9 10) (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* (if (= k 9) 5.0 3.0)) (force-form *p1* :bankai)
+    (9 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 5.0) (force-form *p1* :bankai)
      (setf (gauges-meter (gauges *p1*)) (f32 *arm-pips*)) (refresh-look *p1*)
-     (start-cine (if (= k 9) 'ken-bankai-cine 'ken-oni-kikon-cine) *p1* *p2*))
+     (start-cine 'ken-bankai-cine *p1* *p2*))
     ((11 12 13) (ensure-battle :rukia :kenpachi) (place *p1* *p2* (if (= k 13) 5.0 3.0))   ; Rukia's (docs/duel/DUEL_RUKIA.md §5, §6)
      (force-form *p1* (if (= k 11) :base :m18))
      (start-cine (nth (- k 11) '(ru-kikon-cine ru-hakka-cine ru-awaken-cine)) *p1* *p2*))
     ((14 15) (ensure-battle :rukia :kenpachi) (place *p1* *p2* 3.0) (force-form *p1* :zero)   ; the white Rukia's face
      (start-cine (if (= k 14) 'ru-face-cine 'ru-face-bankai-cine) *p1* *p2*))
-    ((16 17 18) (senju-force-cine (- k 16)))                 ; Senjumaru's (senjumaru.lisp)
-    (19 (ensure-battle :kenpachi :yamamoto) (place *p1* *p2* 3.0) (start-cine 'ken-clash-kikon-cine *p1* *p2*)))   ; Kenpachi's pointer 2 (DUEL_KEN_CORE §6)
+    ((16 17 18) (senju-force-cine (- k 16))))                ; Senjumaru's (senjumaru.lisp); 4 / 5 / 10 / 19 Kenpachi's old Kikons, gone 2026-11-05
   (setf *cine-hold* t)
   (when *cine* (setf (cine-hold *cine*) (cine-hold-frame (cine-name *cine*)))))
 
-(defparameter *cine-names* '(yama-bankai-cine ken-nozarashi-cine yama-kikon-cine yama-tenchi-cine ken-kikon-cine
-                               ken-sky-split-cine soul-break-cine intro-cine ko-cine ken-bankai-cine ken-oni-kikon-cine
+(defparameter *cine-names* '(yama-bankai-cine ken-nozarashi-cine yama-kikon-cine yama-tenchi-cine nil
+                               nil soul-break-cine intro-cine ko-cine ken-bankai-cine nil
                                ru-kikon-cine ru-hakka-cine ru-awaken-cine ru-face-cine ru-face-bankai-cine
-                               sj-kikon-cine sj-hata-cine sj-tsuji-cine ken-clash-kikon-cine)
-  "FORCE-CINE's numbering.")
+                               sj-kikon-cine sj-hata-cine sj-tsuji-cine nil)
+  "FORCE-CINE's numbering (the NILs: Kenpachi's old Kikon cinematics, removed 2026-11-05, DUEL_KEN_V3 §43; the numbers kept).")
 
 (defcine ru-face-cine (a v :len 60 :hold 30)
   "Debug stills (69000+f): close on the white Rukia's face (absolute zero): the brows and the ice keyline."
@@ -549,7 +545,7 @@ starts: *RUN-MODS-TEST*); 99 clears it. A plain VS CPU / CPU VS CPU match then r
 (defun cine-still-command-p (c)
   "The cinematic-still commands (FORCE-CINE / CINE-AT): a held cinematic stays held for them (tests/debug-ranges-check.py
 checks every such clause of DEBUG-COMMAND is listed here)."
-  (or (<= 2200 c 2299) (<= 10000 c 19999) (<= 35000 c 36999) (<= 40000 c 42999) (<= 69000 c 70999)))
+  (or (<= 2200 c 2299) (<= 10000 c 19999) (<= 35000 c 35999) (<= 40000 c 42999) (<= 69000 c 70999)))
 
 (defun debug-command (c)
   "Module._debug_cmd(C): see the file header."
@@ -591,7 +587,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2209) (setf *cine-hold* nil) (ensure-battle :yamamoto :kenpachi) (place *p1* *p2* 3.0) (match-over *p1*))
         ((<= 2200 c 2299) (force-cine (- c 2200)))
         ((<= 10000 c 19999) (cine-at (floor (- c 10000) 1000) (mod c 1000)))
-        ((<= 35000 c 36999) (cine-at (+ 9 (floor (- c 35000) 1000)) (mod c 1000)))
+        ((<= 35000 c 35999) (cine-at (+ 9 (floor (- c 35000) 1000)) (mod c 1000)))
         ((<= 40000 c 42999) (cine-at (+ 11 (floor (- c 40000) 1000)) (mod c 1000)))
         ((<= 69000 c 70999) (cine-at (+ 14 (floor (- c 69000) 1000)) (mod c 1000)))   ; the white Rukia's face
         ((<= 2315 c 2318) (probe-block (nth (- c 2315) '(:ya-j1 :ya-k3 :ya-j3 :ya-taimatsu))))

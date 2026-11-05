@@ -1,12 +1,13 @@
 ;;;; ken.lisp — ZARAKI KENPACHI (TYBW), design-v1 §5.2: his moves (DEFMOVE) and his forms (DEFKIT): :base (the sealed katana),
 ;;;; :nozarashi (the Shikai since V3, DUEL_KEN_V3: two pointers by grip and the unlock level L; the cups KATATE / RYOTE / NOMIHOSE and
-;;;; KATAUDE went 2026-11-03) and :bankai (the old Bankai until its own V3 batch). He wears no eyepatch in any form (the user's decision;
+;;;; KATAUDE went 2026-11-03) and the two Bankai :bankai (狂嵐 KYORAN) / :bankai-2 (斬壞 ZANKAI). He wears no eyepatch in any form (the user's decision;
 ;;;; canon TYBW keeps a strapless patch).
 ;;;; Clip names are the art contract (ken-art.lisp). Below the data: his hook functions and his
 ;;;; cinematics (DEFCINE).
 (in-package :duel)
 
 ;;; ================================================================ base
+;;; (the old system's J / K grid and commands, kept as every core kit keeps them: unreachable in a core match, DUEL_KEN_V3 §43)
 ;;; the J / K strings (docs/duel/DUEL_STRINGS.md §3.3): no school, a street fighter with a sword who kicks. The grid as
 ;;; Yamamoto's (yama.lisp): up to three links, switching J / K at most once (the reach since the J cut, DUEL_STRINGS §13: J 0.4x; J1 / J2 1.4 since §20,
 ;;; K nearly as long as before: his long swings); every K at link 2 / 3 at S_eff 14, at 80 % of
@@ -50,63 +51,6 @@
   :reach 2.2 :arc 120 :on-hit :flinch
   :hits ((10 11) (16 17) (22 23) (28 29) (40 41 :dmg 60 :on-hit :launch)))
 (defmove :ke-breaker :kind :breaker :clip :ke-breaker :clip-2 :ke-shoulder :callout "SHOULDER CHARGE")
-;; O, the Kikon rush module CHARGE: 5 f of aura, then a charge at 13 m/s for at most 36 f that keeps
-;; turning at him (150 deg/s) and eats one hit on its armour (a Breaker or a second hit stops it), then
-;; the stance's huge cross-body cut: 9.4 m, <= 50 f. A hit with O held: the Kikon on a red opponent,
-;; else the follow-up (KIKON-OUTCOME). -14 on block. Cooldown 90.
-(defmove :ke-kikon :kind :kikon :clip :ke-charge :clip-2 :ke-stance-cut :clip-s 8 :cine ken-kikon-cine
-  :startup 9 :active 3 :recovery 24 :dmg 70 :adv-block -14 :reach 2.4 :arc 110 :on-hit :knockback :kb 2.5
-  :armor-hits 1 :cooldown 90
-  :params (:aura 5 :aim 120.0 :speed 13.0 :dash-max 36 :dash-track 150.0 :look :charge :sfx :laugh))
-
-;;; ================================================================ Nozarashi
-(defmove :ke-meteor :kind :sp :clip :ke-meteor :callout "SPLIT THE METEOR"
-  :startup 26 :active 4 :recovery 30 :dmg 240 :adv-block -16
-  :vol (:cap 0.3 12.0 0.5 0.5) :on-hit :knockdown :kb 3.0 :flags (:ranged) :on-frame ((26 ken-meteor-cut))
-  :params (:melee-range 3.4))                          ; the cleaver within 3.4 m (KATATE's Q reach until the J cut), the line beyond: ranged
-;; O in Nozarashi, LEAP CLEAVE (his own move: not derived): 8 f of crouch, then a leap at 18 m/s for at
-;; most 30 f, the direction locked at take-off (the height is a look, :lift), then the widest cleave,
-;; 3.08 m over 160 deg, and a gash where it lands: 10.6 m, <= 49 f. Cooldown 90.
-(defmove :ke-kikon-n :kind :kikon :clip :ke-n-leap :clip-2 :ke-stance-cut :clip-s 8 :callout "SKY SPLIT" :cine ken-sky-split-cine
-  :startup 11 :active 3 :recovery 24 :dmg 70 :adv-block -14 :reach 3.08 :arc 160 :on-hit :knockback :kb 2.5 :cooldown 90
-  :on-frame ((11 ken-leap-cleave))
-  :params (:aura 8 :aim 120.0 :speed 18.0 :dash-max 30 :dash-track 0.0 :look :leap :lift 1.6 :sfx :whoosh-cleaver))
-
-;;; ---------------------------------------------------------------- RYOTE (cup 2): two-handed kendo, straight and long
-;;; (their own clips, ken-art.lisp; :clip-s = the clip's authored S, so each plays at speed 1)
-;;; ================================================================ the core system's moves (DUEL_KEN_CORE, 2026-10-29)
-;;; Three pointers, three themes (the user, 2026-10-29): 1 the chain (連斬壓制: the K string, one cut after another), 2 the rush (霸體硬扛與
-;;; 粗暴突進: NS2 takes one hit from its sixth frame to the end of its active frames, and every cancel it makes feeds its SA), 3 the kamae
-;;; (劍道架式續力: three charges, each raising the reiatsu and the output of the SA, the J string and the AS after it).
-;;; NS1: the K string 70 + 60 + 80; AS1: the drop (steals the flash-step).
-(defmove-copy :ke-n1c :ke-k3 :flags nil)
-(defmove-copy :ke-n1b :ke-k2 :params (:ns-next :ke-n1c))
-(defmove-copy :ke-n1a :ke-k1 :params (:ns-next :ke-n1b))
-(defmove-copy :ke-sa :ke-j1 :dmg 36 :reach 2.4 :slide 1.4 :startup 8 :clip-s 7)
-;; NS2: BUTTAGIRU's leap > the kick; both take one hit through (:armor-hits 1, extended to the end of the active frames by KEN-ARMOR),
-;; a cancel (the triangle's, no damage) neither spends it nor is a hit: it counts (KEN-CLASH) and raises the SA of the gap (KEN-DMG-MULT)
-(defmove-copy :ke-n2b :ke-j3 :kind :flash :dmg 60 :flags nil :startup 14 :clip :ke-sweep :clip-s 14 :reach 2.4 :arc 140 :armor-hits 1 :slide 2.0
-  :params (:armor-act t :clash-count t))
-(defmove-copy :ke-n2a :ke-buttagiru :kind :flash :clip :ke-rush-a :dmg 90 :on-hit :stagger :armor-hits 1 :flags nil :on-frame nil
-  :params (:melee-range 2.6 :ns-next :ke-n2b :sa :ke-sa-r :armor-act t :clash-count t))
-(defmove-copy :ke-sa-r :ke-sa :params (:clash-scale 0.3))
-;; NS3: three charges that hit nothing; each one's SA (J pressed in its gap) arms a bigger :charge-mult on the string after it
-(defmove-copy :ke-sa-c1 :ke-sa :dmg 45 :params (:charge-mult 1.3 :aura-k 1.5))
-(defmove-copy :ke-sa-c2 :ke-sa :dmg 60 :params (:charge-mult 1.6 :aura-k 2.2))
-(defmove-copy :ke-sa-c3 :ke-sa :dmg 80 :params (:charge-mult 2.0 :aura-k 3.0))
-(defmove :ke-n3c :kind :flash :clip :ke-chg3 :startup 16 :active 0 :recovery 20 :on-frame ((2 ken-charge-sfx))
-  :params (:sa :ke-sa-c3 :aura-k 3.0 :charge-sa t))
-(defmove :ke-n3b :kind :flash :clip :ke-chg2 :startup 16 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
-  :params (:ns-next :ke-n3c :sa :ke-sa-c2 :aura-k 2.2 :charge-sa t))
-(defmove :ke-n3a :kind :flash :clip :ke-chg1 :startup 20 :active 0 :recovery 14 :on-frame ((2 ken-charge-sfx))
-  :params (:ns-next :ke-n3b :sa :ke-sa-c1 :aura-k 1.5 :charge-sa t))
-;; AS n = n segments, each a fresh SP press; only the last knocks down or launches
-(defmove-copy :ke-as1 :ke-k3 :kind :sp :callout "KITTE MIRO YO" :dmg 40 :on-hit :knockdown :flags nil)   ; (no flash-step steal since 2026-10-29: the user, 「不需要每個角色的 NS1 都剝奪閃步量表」)
-(defmove-copy :ke-as2b :ke-buttagiru :on-hit :launch :dmg 100 :on-frame nil :params (:melee-range 2.6))
-(defmove-copy :ke-as2 :ke-k1 :kind :sp :clip :ke-smash :clip-s 16 :reach 1.7 :arc 100 :dmg 55 :on-hit :stagger :params (:ns-next :ke-as2b))
-(defmove-copy :ke-as3c :ke-meteor :dmg 170 :on-hit :knockdown :on-frame nil :params (:melee-range 3.4))
-(defmove-copy :ke-as3b :ke-k2 :kind :sp :dmg 55 :on-hit :stagger :params (:ns-next :ke-as3c))
-(defmove-copy :ke-as3 :ke-k1 :kind :sp :dmg 50 :on-hit :stagger :params (:ns-next :ke-as3b))
 
 ;;; ================================================================ V3's sealed form (DUEL_KEN_V3 §6 / §35, 2026-11-05): the katana, three pointers
 ;;; by grip: 1 the drag (rising cuts, pressure), 2 the shoulder (each segment takes one hit, KEN-ARMOR), 3 chūdan (the tame catches a melee hit,
@@ -220,64 +164,6 @@
 (defmove :ke-s-sp2 :kind :sp :clip :ke-s-meteor :clip-s 20 :callout "INSEKI-GIRI" :startup 20 :active 4 :recovery 30 :dmg 260 :adv-block -12
   :reach 3.0 :arc 90 :on-hit :knockdown :slide 3.0)
 
-;;; ================================================================ Bankai (卍解) and 片腕 KATAUDE (docs/duel/DUEL_KEN_BANKAI.md)
-;;; The oni: the broken cleaver hacks, a fist, one gouge, one drop, the teeth, the shield-and-all cut, the punch and the
-;;; split. Every K link, L, SP1, SP2, I and O spends a pip of the arm (UDE); the K links and the specials :rend (armour
-;;; and his mirror's stance don't stop them). Frame data: the DUEL_STRINGS §2.1 budget (J 8 / 8 / 9, K1 17, K2 / K3 S_eff 14).
-(defmove :ke-b-j1 :kind :quick :clip :ke-q1 :clip-s 7 :startup 8 :active 3 :recovery 12 :dmg 38 :adv-block -2
-  :reach 1.28 :arc 100 :on-hit :flinch :slide 1.0)                  ; TATAKI-GIRI: hacked down, lunging like a beast
-(defmove :ke-b-j2 :kind :quick :clip :ke-q2 :clip-s 7 :startup 8 :active 3 :recovery 13 :dmg 38 :adv-block -2
-  :reach 1.28 :arc 100 :on-hit :flinch)                              ; NAGI-HARAI: the backhand sweep
-(defmove :ke-b-j3 :kind :quick :clip :ke-b-hook :startup 9 :active 3 :recovery 18 :dmg 50 :adv-block -4
-  :reach 0.8 :arc 60 :on-hit :stagger :slide 0.6 :flags (:ender))    ; GENKOTSU: a left hook to the face
-(defmove :ke-b-k1 :kind :flash :clip :ke-f1 :clip-s 16 :startup 17 :active 4 :recovery 20 :dmg 120 :adv-block -3
-  :reach 3.4 :arc 120 :on-hit :stagger :guard 28 :flags (:rend))     ; ONATA: the hatchet chop
-(defmove :ke-b-k2 :kind :flash :clip :ke-f2 :enter 6 :startup 20 :active 4 :recovery 24 :dmg 100 :adv-block -3
-  :reach 3.0 :arc 90 :on-hit :stagger :guard 28 :flags (:rend))      ; EGURI-AGE: gouging up from the floor
-(defmove :ke-b-k3 :kind :flash :clip :ke-r-f2 :clip-s 21 :enter 7 :startup 21 :active 5 :recovery 34 :dmg 150 :adv-block -20
-  :vol (:cap 0.3 3.7 1.2 0.55) :on-hit :crumple :guard 36 :flags (:ender :rend))   ; TATAKI-OTOSHI: the drop
-(defmove-copy :ke-b-j2s :ke-b-j2)
-(defmove-copy :ke-b-k2s :ke-b-k2)
-;; L, KAMICHIGIRI: a short lunge, the left hand clamps, the teeth: nothing guards it (guard, DRINK, the ward, a parry, a
-;; stance, armour); Step / Hoho iframes dodge it. +9 on hit: his J1 combos after it (knob: R 28 -> 30)
-(defmove :ke-b-bite :kind :sig :clip :ke-b-bite :callout "KAMICHIGIRI" :startup 10 :active 3 :recovery 28 :dmg 120
-  :reach 1.5 :arc 60 :slide 0.8 :on-hit :crumple :flags (:grab :unguardable :rend))
-;; Shift+K, TATE-GOTO: through guard and arm together: the whole 6 m line guard-crushes (a Guard Break)
-(defmove :ke-b-split :kind :sp :clip :ke-meteor :clip-s 26 :callout "TATE-GOTO" :startup 24 :active 4 :recovery 30 :dmg 260
-  :adv-block -16 :vol (:cap 0.3 6.0 0.5 0.5) :on-hit :knockdown :kb 3.0 :flags (:ranged :guard-crush :rend)
-  :on-frame ((24 ken-tate-goto)) :params (:melee-range 3.2))
-;; Shift+L's follow-up, NAGURI-TOBASHI: the charge connects, then a left straight into the chest, 6 m (not a command: the
-;; kit's (:ke-charge :land :ke-b-punch) string, which KEN-FLURRY starts)
-(defmove :ke-b-punch :kind :sp :clip :ke-b-fist :clip-s 9 :callout "NAGURI-TOBASHI" :startup 6 :active 3 :recovery 30 :dmg 150
-  :adv-block -16 :reach 2.0 :arc 90 :on-hit :knockback :kb 6.0 :guard 22 :flags (:rend))
-;; O, MAPPUTATSU: LEAP CLEAVE with the Bankai's Kikon cinematic (the Gerard cleaved in two)
-(defmove-copy :ke-b-kikon :ke-kikon-n :clip :ke-b-leap :callout "MAPPUTATSU" :cine ken-oni-kikon-cine)   ; (the oni's leap: art only)
-;;; The Bankai on the core system (the user, 2026-11-02, DUEL_KEN_CORE §8: 「A 加 B 的自毀之臂」, the arm 「大招的燃料」): pointer 1 the
-;;; maw (撓咬: claw, bite, rip), pointer 2 the broken cleaver as a one-hand axe (斷刀劈砍: leap cut, flat-side hammer), pointer 3 the
-;;; self-destroying arm (自毀之臂: every segment burns a pip, :params :pips, CORE-PIPS-OK-P; none left: it doesn't start); AS3 in canon's
-;;; order (ch. 670: the leap cut, the chin punch, the vertical split). An NS segment the SA can follow crumples, never knocks down (§443).
-;;; Clips: the Bankai's existing ones as placeholders until the art round (the claw = the hook, the stances their own since DUEL_KEN_V3 §27).
-(defmove-copy :ke-b-sa1 :ke-b-j3 :dmg 40 :startup 8 :clip-s 9 :flags nil :slide 0.8)                  ; the left hook
-(defmove-copy :ke-b-n1c :ke-b-bite :kind :flash :callout nil :startup 14 :dmg 100 :on-hit :crumple :flags (:rend))   ; the rip
-(defmove-copy :ke-b-n1b :ke-b-bite :kind :flash :startup 12 :dmg 90 :on-hit :stagger :params (:ns-next :ke-b-n1c))   ; KAMICHIGIRI
-(defmove-copy :ke-b-n1a :ke-b-j3 :kind :flash :callout "TSUKAMI" :startup 16 :clip-s 9 :dmg 70 :reach 2.2 :arc 90 :slide 1.5
-  :on-hit :stagger :flags (:rend) :params (:ns-next :ke-b-n1b :sa :ke-b-sa1))                        ; the claw lunge
-(defmove-copy :ke-b-as1 :ke-b-bite :kind :sp :callout "KUICHIGIRI" :dmg 120 :on-hit :knockdown :flags (:unguardable :rend))   ; bites the arm off
-(defmove-copy :ke-b-sa2 :ke-b-j1 :dmg 45 :startup 8)                                                  ; a short hack
-(defmove-copy :ke-b-n2b :ke-b-k3 :startup 18 :dmg 100 :on-hit :crumple :flags (:rend))                ; the flat-side hammer
-(defmove-copy :ke-b-n2a :ke-b-k1 :callout "TOBIGIRI" :startup 16 :dmg 90 :slide 3.0 :on-hit :stagger
-  :params (:ns-next :ke-b-n2b :sa :ke-b-sa2))                                                          ; the leap cut
-(defmove-copy :ke-b-as2b :ke-b-k1 :kind :sp :startup 18 :dmg 110 :on-hit :launch)                    ; the leap chop up
-(defmove-copy :ke-b-as2 :ke-b-punch :callout "NAGURI-TOBASHI" :startup 12 :dmg 60 :on-hit :stagger :kb 1.0 :params (:ns-next :ke-b-as2b))
-(defmove-copy :ke-b-sa3 :ke-b-j2 :dmg 50 :startup 8)                                                  ; the broken blade's sweep
-(defmove-copy :ke-b-n3c :ke-b-split :kind :flash :startup 20 :dmg 220 :on-hit :crumple :kb 1.0 :on-frame nil :params (:melee-range 3.2 :pips 1))
-(defmove-copy :ke-b-n3b :ke-b-k1 :callout nil :startup 14 :dmg 150 :on-hit :crumple :params (:pips 1 :ns-next :ke-b-n3c))
-(defmove-copy :ke-b-n3a :ke-b-k2 :callout "UDE-KUDAKI" :startup 16 :dmg 130 :on-hit :stagger :params (:pips 1 :ns-next :ke-b-n3b :sa :ke-b-sa3))
-(defmove-copy :ke-b-as3c :ke-b-split :dmg 200 :on-frame nil :params (:melee-range 3.2 :pips 1))      ; TATE-GOTO
-(defmove-copy :ke-b-as3b :ke-b-punch :callout nil :startup 12 :dmg 60 :on-hit :stagger :kb 1.0 :slide 2.0   ; (the lunge: AS3a's push left him out of 2.0 m)
-  :params (:ns-next :ke-b-as3c))
-(defmove-copy :ke-b-as3 :ke-b-k1 :kind :sp :callout nil :startup 16 :dmg 55 :on-hit :stagger :params (:ns-next :ke-b-as3b))
-
 ;;; ================================================================ forms
 (defkit :kenpachi :base
   :name "KENPACHI" :body :kenpachi :weapon :ken-katana :stance :ke-stance
@@ -288,8 +174,8 @@
   :stun-tolerance 26.0                          ; the hidden stun (DUEL_DESIGN.md): he takes the most before he flies
   :open-s nil :hs-dmg *ken-hs-dmg*             ; V3's sealed form as written (§35); every form inherits :hs-dmg
   :commands (:q :ke-z-j1 :f :ke-k1 :sig :ke-stance :sp1 :ke-buttagiru :sp2 :ke-charge
-             :breaker :ke-breaker :kikon :ke-kikon)
-  :grid (:ke-j1 :ke-j2 :ke-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)   ; (the old J / K grid: unreachable now, kept for the cleanup)
+             :breaker :ke-breaker :kikon nil)   ; (no O rush since 2026-11-05: DUEL_KEN_V3 §43)
+  :grid (:ke-j1 :ke-j2 :ke-j3 :ke-k1 :ke-k2 :ke-k3 :ke-j2s :ke-k2s)   ; (the old J / K grid: unreachable in a core match, kept as every core kit keeps it)
   ;; V3's sealed form (DUEL_KEN_V3 §6 / §35): J1-J5, three pointers by grip (the drag / the shoulder / chūdan), AS n by press
   :core (:ns (:ke-z-n1a :ke-z-n2a :ke-z-n3a) :as (:ke-z-as1 :ke-z-as2 :ke-z-as3) :sa :ke-z-sa1 :mult 1.2
          :as-by-press (1 1 2 2 3)
@@ -299,7 +185,7 @@
             (:ke-z-n3a :land :ke-z-n3b)                             ; the tame's catch answers with the thrust (combat.lisp :parried)
             (:ke-charge :land :ke-flurry))
   :awaken-form :nozarashi
-  :hooks (:boss ken-boss :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult)                       ; the DANGAI boss: the Bankai at FIGHT, the arm never spent (ken-meter.lisp)
+  :hooks (:boss ken-boss :armor ken-armor :dmg-mult ken-dmg-mult)                       ; the DANGAI boss: the Bankai at FIGHT, the arm never spent (ken-meter.lisp)
   :ai (:intents (:approach 2 :pressure 4 :zone 0 :defend 1)
        :ranges (:approach (2.0 4.0) :pressure (1.0 2.6) :zone (4.0 6.0) :defend (3.0 5.0))
        :moves ((0.0 1.3 :q 5 :f 2 :breaker 1 :sp2 1 :sig 2 nil 3)    ; J up close only (DUEL_STRINGS §13), K beyond
@@ -318,10 +204,10 @@
   :weapon :nozarashi :stance :ke-s-st-1 :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
   :meter (:name "KAIHO" :max 3 :start 0 :lv t :draw ken-hud-meter :label ken-hud-label) :meter-gain nil   ; L 0-3 (KEN-HIT raises it)
-  :hooks (:p ken-card-bankai :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult
+  :hooks (:p ken-card-bankai :armor ken-armor :dmg-mult ken-dmg-mult
           :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok :draw ken-draw)   ; (P: DANGAI's 隨時卍解 card, frozen;
                                                                                               ;  :draw the sword wind by L, ken-look.lisp)
-  :commands (:q :ke-s-j1 :f nil :sig nil :sp1 nil :sp2 nil :kikon :ke-kikon-n)   ; (the core system: J and SP only; the Breaker the base's)
+  :commands (:q :ke-s-j1 :f nil :sig nil :sp1 nil :sp2 nil)   ; (the core system: J and SP only; the Breaker the base's)
   :strings ((:ke-s-j1 :q :ke-s-j2) (:ke-s-j2 :q :ke-s-j3) (:ke-s-j3 :q :ke-s-j4) (:ke-s-j4 :q :ke-s-j5) (:ke-s-j5 :q :ke-s-j6)
             (:ke-s-j6 :q :ke-s-j7))                                      ; (J4-J7: L3, KEN-LINK-OK)
   ;; AS: J1-J2 + SP pointer 1's, J3+ pointer 2's (§5.2 「看 J 打幾段」); KEN-AS-PICK turns one that writes the other pointer into the burst
@@ -422,7 +308,7 @@
 (defmacro def-ken-bankai (form &key name ns as sa strings stance kikon-cine)
   "One of his two Bankai kits (DUEL_KEN_V3 §26): one pointer, its own J string, NS, five AS entries (Jn + SP, n 1-5) and Kikon."
   `(defkit :kenpachi ,form :inherit :base
-     :hooks (:tick ken-bk-tick :armor ken-armor :clash ken-clash :dmg-mult ken-dmg-mult :draw ken-draw :hit-fx ken-bk-hit-fx)   ; (§31)
+     :hooks (:tick ken-bk-tick :armor ken-armor :dmg-mult ken-dmg-mult :draw ken-draw :hit-fx ken-bk-hit-fx)   ; (§31)
      :endless-form :nozarashi :enter-clips (:ke-release :ke-nome) :respect-callout "OMOSHIREE!"
      :awakening t :mult *bankai-ken-mult* :form-name ,name :kikon-konpaku 4 :open-s nil
      :bankai-form nil :passives (:projectile-cut)
@@ -430,7 +316,7 @@
      :hide (:haori :sleeve-long :arm-wreck :crack-1 :crack-2 :crack-3 :crack-4)
      :run-clips (:ke-b-run :ke-b-skate-b :ke-b-slide-r :ke-b-slide-l)
      :cine ken-bankai-cine :enter-hook nil :swing-sfx :whoosh-cleaver
-     :commands (:q ,(first (first strings)) :f nil :sig nil :sp1 nil :sp2 nil :kikon :ke-b-kikon)
+     :commands (:q ,(first (first strings)) :f nil :sig nil :sp1 nil :sp2 nil)
      :strings ,strings
      :core (:ns (,ns) :as ,as :sa ,sa :mult 1.2 :as-writes (1 1 1 1 1)
             :stances (,stance) :kikon-cines (,kikon-cine))
@@ -567,24 +453,8 @@ dash starts = guard-crushing (the Breaker property)."
     (start-move e (kit-next (kit-of e) :ke-charge :land))
     (setf (fighter-contact (fighter e)) :hit (fighter-land-sf (fighter e)) 0)))
 
-(defun ken-leap-cleave (e)
-  "LEAP CLEAVE lands: a short gash split into the ground ahead (a look)."
-  (spawn-ground-line e 3.0 45 :meteor)
-  (emit :sfx :ground-crack e))
 
-(defun ken-meteor-cut (e)
-  "Split the Meteor: the cleave splits the ground 12 m ahead (a look)."
-  (let ((p (pos-of e)))
-    (spawn-ground-line e 12.0 60 :meteor)
-    (ground-scar p (yaw-of e) '(2.0 5.0 8.0 11.0) 1.2))
-  (emit :sfx :ground-crack e))
 
-(defun ken-tate-goto (e)
-  "TATE-GOTO: the cut goes through guard and arm and splits the ground 6 m ahead (a look)."
-  (let ((p (pos-of e)))
-    (spawn-ground-line e 6.0 50 :meteor)
-    (ground-scar p (yaw-of e) '(1.5 3.5 5.5) 1.0))
-  (emit :sfx :ground-crack e))
 
 ;;; ================================================================ the CPU (his forms' :ai :reflex / :sp-ender / :sig-hold)
 ;;; AI v2 (docs/duel/DUEL_AI_V2.md; docs/research/ai-v2-drsi/kenpachi): the generic CPU (ai.lisp) plus his own answers, each
@@ -841,77 +711,11 @@ damage, before the O ender (63) or the charge (two bars, ~185); not NOMIHOSE's c
 ;;; ================================================================ cinematics
 ;;; The grammar of every cinematic is in cinema.lisp (docs/style/STYLE_STORM_DESIGN.md §5); Kenpachi (black robe, black
 ;;; hair) goes on the white card.
-(defcine ken-kikon-cine (a v :len 192 :hold 112)
-  "Base Kikon (paced by user review 3): beat 0; Kenpachi on a white card, low and dutch under the 呑め、野晒 stamp in
-black (his release words), silence; two reckless cuts from two sides, laughing; before the last a held close
-wide-angle push in silence; the last cut through the victim: a negative, then a manga page (the blood and the yellow
-stay), the Konpaku shatter and a splash; he laughs; a wide from behind."
-  (at 0 (face-each-other a v 2.0)
-      (cine-clip a :ke-kikon :blend 2 :speed (/ 72.0 142.0))   ; its old timing, slowed to the new beats (cine-clip v :sh-kikon-victim :blend 4)
-      (hold-both a v 12) (impact-frame :negative 2))
-  (at 12 (card :white a) (shot-on a 30 3.0 0.6 :look 1.4 :off -0.8) (lens 44 -12) (silence 52)
-      (caption "呑め、野晒" :reading "NOME, NOZARASHI" :sub "MOTTO TANOSHIMASETE KURE YO!" :side 1 :ink t :hanko t))
-  (at 70 (card nil) (cine-slash v :cut) (shot-on v 120 3.8 1.2) (lens 55) (play-sfx :laugh))
-  (at 98 (cine-slash v :cut) (shot-on v -110 3.6 1.0) (caption-exit))
-  (at 122 (hold-both a v 20) (silence 20) (lens 86))
-  (during (122 142) (shot-on a 20 (+ 1.5 (* 0.4 u)) 0.5 :look 1.45))   ; a slow pull, not cuts
-  (at 142 (cine-slash v :heavy) (shot-pair a v (- (camera-side a)) 5.5 1.3) (lens 55)
-      (impact-frame :negative 2)
-      (cine-shatter v 3)
-      (impact-splash-at v 0.0 16 0.07)
-      (play-sfx :kikon-slash) (play-sfx :konpaku-shatter) (shake 0.3 0.35))
-  (at 144 (impact-frame :manga 12))
-  (at 152 (play-sfx :laugh))
-  (at 162 (shot-on a 160 4.2 0.8 :look 1.3) (lens 50)))
-
 (defun cine-slash (v kind)
   "A cinematic cut landing on V: sparks, sound, flash."
   (multiple-value-bind (x y z) (actor-point v 1.2) (vfx-hit x y z kind))
   (play-sfx (if (eq kind :heavy) :cut-heavy :cut))
   (setf (model-flash (model v)) 0.1))
-
-(defcine ken-sky-split-cine (a v :len 162 :hold 40)
-  "Nozarashi Kikon (§4.2 sky split; paced by user review 3): beat 0; a long black card, Kenpachi silhouetted with a
-yellow back-rim under the 呑め、野晒 stamp, silence; the cleave: a negative, then a manga page, the line of light (white,
-ink borders) splits the sky, focus lines, poses held 12 f, the screen halves shear apart; down the cut, then the ground
-split from the side, then Kenpachi."
-  (at 0 (face-each-other a v 2.6)
-      (cine-clip a :ke-kikon-n :blend 2 :speed (/ 25.0 68.0)) (cine-clip v :sh-kikon-victim :blend 4)
-      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-cleaver))
-  (at 12 (card :black a) (back-rim 56 1.0 0.85 0.23) (shot-on a 60 4.2 0.7 :look 1.6 :ahead 1.3 :off 0.8) (lens 46 8) (silence 56)
-      (caption "呑め、野晒" :reading "NOME, NOZARASHI" :sub "SKY SPLIT" :side 0 :hanko t))
-  (at 68 (card nil) (cine-slash v :heavy) (play-sfx :kikon-slash) (play-sfx :ground-crack) (shake 0.4 0.5)
-      (impact-frame :negative 2) (hold-both a v 12) (focus-lines 30)
-      (shot-on a 180 10.0 3.6 :look 1.2 :ahead 5.0) (lens 60)     ; down the cut: it splits the screen at its centre
-      (cine-shatter v 3))
-  (at 70 (impact-frame :manga 12))
-  ;; (the ground split is part of the look, on the cine clock: a sim hazard would freeze with the sim)
-  (during (68 162) (let ((q (pos-of v))) (vfx-sky-split (aref q 0) (aref q 2) (yaw-of a) (/ (- cf 68) 60.0) 1.5)))
-  (at 102 (shot-on v 95 7.5 1.2 :look 1.0) (lens 50) (caption-exit))
-  (at 132 (shot-on a -20 5.0 0.7 :look 1.4) (lens 45)))
-
-;; pointer 2's Kikon (DUEL_KEN_CORE §6: 「新做硬扛衝撞演出」): he takes the first blow and drives through it
-(defcine ken-clash-kikon-cine (a v :len 176 :hold 100)
-  "Pointer 2's Kikon: beat 0; Kenpachi on a white card, low and dutch, the stamp 来いよ in black, silence; the shoulder charge
-drives the victim into the ground (heavy cut, a shake); a held close wide-angle push in silence; the smash through him: a
-negative, then a manga page, the Konpaku shatter and a splash; he laughs; a wide from behind."
-  (at 0 (face-each-other a v 2.2)
-      (cine-clip a :ke-rush-a :blend 2 :speed (/ 26.0 60.0)) (cine-clip v :sh-kikon-victim :blend 4)
-      (hold-both a v 12) (impact-frame :negative 2))
-  (at 12 (card :white a) (shot-on a 30 3.0 0.6 :look 1.4 :off -0.8) (lens 44 -12) (silence 52)
-      (caption "来いよ" :reading "KOI YO" :sub "ORE WA TOMARANEE" :side 1 :ink t :hanko t))
-  (at 70 (card nil) (cine-slash v :heavy) (shot-on v 120 3.8 1.2) (lens 55) (play-sfx :ground-crack) (shake 0.4 0.5) (caption-exit))
-  (at 98 (hold-both a v 20) (silence 20) (lens 86))
-  (during (98 122) (shot-on a 20 (+ 1.5 (* 0.4 u)) 0.5 :look 1.45))
-  (at 122 (cine-clip a :ke-smash :blend 2 :speed 0.6)
-      (cine-slash v :heavy) (shot-pair a v (- (camera-side a)) 5.5 1.3) (lens 55)
-      (impact-frame :negative 2)
-      (cine-shatter v 3)
-      (impact-splash-at v 0.0 16 0.07)
-      (play-sfx :kikon-slash) (play-sfx :konpaku-shatter) (shake 0.3 0.35))
-  (at 124 (impact-frame :manga 12))
-  (at 134 (play-sfx :laugh))
-  (at 146 (shot-on a 160 4.2 0.8 :look 1.3) (lens 50)))
 
 (defcine ken-nozarashi-cine (a v :len 108 :hold 84)
   "NOME, NOZARASHI (§5; paced by user review 3; no eyepatch in any form, TYBW: the release is the whole first beat):
@@ -1008,27 +812,6 @@ the pillar on ones. The rules are already settled (his Konpaku 1, Reishi full): 
   (at 166 (card nil) (shot-on a 165 5.6 1.7 :look 1.4) (lens 50) (caption-exit))
   (during (58 186) (let ((p (pos-of a)))                ; the pillar: full from the burst, on ones in the wide
                      (vfx-aura (aref p 0) 0.0 (aref p 2) 2.4 :oni (/ cf 60.0) (cine-dt) :k (if (< cf 78) 1.0 0.8)))))
-
-(defcine ken-oni-kikon-cine (a v :len 162 :hold 40)
-  "The Bankai's Kikon MAPPUTATSU (also its Soul Break cinematic, the user's decision 2026-09-27): the sky split re-cut in the
-oni's colours: beat 0; the black card, a BLOOD back-rim, the oni silhouetted with the broken cleaver raised under 卍解 /
-MAPPUTATSU and the hanko, silence; one vertical cut: a negative, then a manga page, the white line splitting the victim
-and the screen, the halves shearing apart (ch. 669: the Vollständig Gerard cut in two); the split from the side, ash;
-Kenpachi laughing, head back."
-  (at 0 (face-each-other a v 2.6) (setf *aura-off* a)      ; (the pillar smoulders out: the cut reads)
-      (cine-clip a :ke-b-kikon :blend 2 :speed (/ 25.0 68.0)) (cine-clip v :sh-kikon-victim :blend 4)
-      (hold-both a v 12) (impact-frame :negative 2) (play-sfx :whoosh-cleaver))
-  (at 12 (card :black a) (back-rim 56 0.82 0.06 0.11) (shot-on a 60 4.2 0.7 :look 1.6 :ahead 1.3 :off 0.8) (lens 46 8)
-      (silence 56) (caption "卍解" :reading "BANKAI" :sub "MAPPUTATSU" :side 0 :hanko t))
-  (at 68 (card nil) (cine-slash v :heavy) (play-sfx :kikon-slash) (play-sfx :ground-crack) (shake 0.45 0.5)
-      (impact-frame :negative 2) (hold-both a v 12) (focus-lines 30)
-      (shot-on v 0 5.5 1.3 :look 1.1) (lens 55)                  ; face on: the line splits him and the screen
-      (cine-shatter v 3)
-      (impact-splash-at v 1.0 16 0.08))
-  (at 70 (impact-frame :manga 12))
-  (during (68 162) (let ((q (pos-of v))) (vfx-sky-split (aref q 0) (aref q 2) (yaw-of a) (/ (- cf 68) 60.0) 1.5)))
-  (at 102 (shot-on v 95 7.5 1.2 :look 1.0) (lens 50) (caption-exit))
-  (at 132 (shot-on a 60 4.6 0.7 :look 1.4) (lens 45) (face-beat a :shout 1.0 t) (play-sfx :laugh :pitch 0.8)))
 
 ;;; ---------------------------------------------------------------- V3's Bankai Kikon (DUEL_KEN_V3 §33; the user, 2026-11-05: 「可以開始做了」)
 ;;; Each Bankai's Kikon (and its Soul Break: CORE-SOUL-BREAK-CINE) on its special AS's theme: 狂嵐 千切 grown (more cuts, the screen
@@ -1481,28 +1264,18 @@ DUEL_KEN_V3 §8.)"
   (pushnew r *char-debug* :test #'equal))
 
 ;;; ================================================================ the core system's hooks (DUEL_KEN_CORE)
-(defparameter *ken-clash-max* 5 "Cancels NS2's SA counts at most (the user, 2026-10-29: 「抵銷越多次 SA 傷害越高」; the cap is mine).")
 (defun ken-armor (e f mv)
   "His :armor hook (fighter.lisp OWN-ARMOR-P): NS2's armour (:armor-hits 1, spent in COMBAT) lasts through the active frames, not only
 the startup (the user, 2026-10-29: 「前搖到 active 吃一發不退」)."
   (declare (ignore e))
   (and (getf (mv-params mv) :armor-act) (plusp (fighter-armor-left f)) (eq (fighter-phase f) :main)
        (<= *armor-from* (fighter-sf f)) (< (fighter-sf f) (+ (mv-s mv) (mv-a mv)))))
-(defun ken-clash (x other)
-  "His :clash hook (CORE-CLASH!): a cancel while he is in an NS2 segment counts, for the SA of its gap."
-  (declare (ignore other))
-  (let* ((f (fighter x)) (mv (fighter-move f)))
-    (when (and (eq (fighter-state f) :move) mv (getf (mv-params mv) :clash-count))
-      (setf (fighter-clash-n f) (min *ken-clash-max* (1+ (fighter-clash-n f))))
-      (clog "~a NS2 cancel ~d" (side-name x) (fighter-clash-n f)))))
 (defun ken-dmg-mult (att def hw mv hazard d2)
-  "His :dmg-mult hook (combat.lisp APPLY-HIT): NS2's SA (:clash-scale) hits 1 + scale x the cancels the route made; the Shikai's burst
-(:params :burst, one damage per old L: DUEL_KEN_V3 §5.2) hits that damage (the L read at its start, FIGHTER-LV-CAP)."
+  "His :dmg-mult hook (combat.lisp APPLY-HIT): the Shikai's burst (:params :burst, one damage per old L: DUEL_KEN_V3 §5.2) hits that
+damage (the L read at its start, FIGHTER-LV-CAP). (The old NS2 SA's :clash-scale and its :clash hook KEN-CLASH went 2026-11-05, §43.)"
   (declare (ignore def d2))
-  (let ((s (and mv (not hazard) (getf (mv-params mv) :clash-scale)))
-        (b (and mv (not hazard) (getf (mv-params mv) :burst))))
-    (cond (s (let ((x (+ 1.0 (* s (fighter-clash-n (fighter att)))))) (clog "~a NS2 SA x~,2f" (side-name att) x) x))
-          ((and b (plusp (hw-dmg hw)))
+  (let ((b (and mv (not hazard) (getf (mv-params mv) :burst))))
+    (cond ((and b (plusp (hw-dmg hw)))
            (let ((d (nth (max 0 (min (1- (length b)) (fighter-lv-cap (fighter att)))) b)))
              (clog "~a BURST ~d (L~d)" (side-name att) d (fighter-lv-cap (fighter att)))
              (/ d (float (hw-dmg hw)))))
@@ -1548,7 +1321,6 @@ the route's level, the damage KEN-DMG-MULT's), L back to 0 (§4 S5, §5.2); else
              (setf (gauges-meter (gauges e)) 0f0)
              (clog "~a BURST to pointer ~d (L~d)" (side-name e) n (fighter-lv-cap f))
              (values (nth-as (1+ n)) n))))))
-(defun ken-charge-sfx (e) "NS3's charge: the kamae gathers (its sound)." (emit :sfx :whoosh-heavy e))
 
 (defun ken-core-debug (c)
   "84000 / 84001 / 84010 / 84011 (DUEL_KEN_CORE, DUEL_GAMEPLAY \"Debug commands\"): 84000 the scene (84001: Kenpachi in the Shikai,

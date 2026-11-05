@@ -1092,7 +1092,7 @@ first; the user: 「可以開始做了」. Both are the kit's `:core :kikon-cine
   stagger, a 3-frame flare).
 - The captions needed four new brush glyphs, 狂 嵐 壞 ご (`glyphs-extra.lisp`, `tools/glyph-bake.py`'s GLYPH on Yuji Syuku).
 - Debug 84096 / 84097: the 84004 / 84005 scene 3 m apart, then the cinematic played through (4 Konpaku shattering).
-- `ken-oni-kikon-cine` stays (debug 2210 / 36000+f, the old O command's `:ke-b-kikon`, DANGAI's tables); dead-code cleanup later.
+- `ken-oni-kikon-cine` stays (debug 2210 / 36000+f, the old O command's `:ke-b-kikon`, DANGAI's tables); dead-code cleanup later (removed 2026-11-05, §43).
 
 Checked: host tests 9880 ALL PASS, pkgcheck clean, the build without a new warning; scripted: 84004 J ×5 then SP held 1.8 s, the Kikon on
 tick 216 and `cine KEN-KR-KIKON-CINE`; 84005 the same, the Kikon on 231 and `cine KEN-ZH-KIKON-CINE`; 16-frame timelines of both from the
@@ -1136,7 +1136,7 @@ S ≥ 14 (the tell).
 
 Removed with it (DUEL_KEN_CORE §1–§2's base mechanics): NS2's cancels feeding its SA (`ken-clash`, `:clash-count`, `:clash-scale`) and
 NS3's three charges with `:charge-mult` (unless the tame becomes a charge, below). The new moves get their own prefix (`:ke-z-*`); the
-old base moves stay as copy parents for DANGAI, the Shikai and the Bankai until the cleanup. Proof that the Shikai and the Bankai did not
+old base moves stay as copy parents for DANGAI, the Shikai and the Bankai until the cleanup (done 2026-11-05, §43: the copy parents in use stay). Proof that the Shikai and the Bankai did not
 move: their scripted runs (84001, 84004, 84005) give the same hash / log lines before and after. The host tests' old KEN_CORE checks
 (the armour, the cancel count, the charges) are rewritten for this table. Until the art round the clips are borrowed (the FK reach
 test one-sided, as the Bankai's was); then the art round in the Bankai's order: the three stances, J1–J5, NS / AS, the Kikon
@@ -1254,7 +1254,7 @@ cinematics, then the HUD seals, then G2.
 ## 39. The sealed form's Kikon cinematics (2026-11-05)
 
 The art round's step 4: each sealed pointer gets its own Kikon cinematic on its theme (DUEL_CORE §5b), replacing the borrowed ones (the
-old base `ken-kikon-cine`, `ken-clash-kikon-cine`, `ken-sky-split-cine`, kept for their old moves until the cleanup). The storyboard was shown
+old base `ken-kikon-cine`, `ken-clash-kikon-cine`, `ken-sky-split-cine`, kept for their old moves until the cleanup; removed 2026-11-05, §43). The storyboard was shown
 first; the user: 「同意」. They are the base kit's `:core :kikon-cines`, so each also plays as the sealed form's Soul Break
 (`core-soul-break-cine`). Presentation only, except the fix below.
 
@@ -1328,3 +1328,33 @@ began. All three pairs moved, II included. Each commit since the last reference,
 II moves because both Kikon fixes are core rules that Ichigo's Kikons use too (the CPU holds through the confirm). The browser run
 equals the native one at 60484df. `tests/style-cvc-ref.txt` regenerated (header note, "Before:"); native `--cvc` passes on it.
 No balance gates (II and IK now run 399 / 419 s in this one seed-7 match; not a pacing verdict).
+
+## 43. Dead-code cleanup after the sealed form (2026-11-05)
+
+The user: 「好，接著處理」 (the cleanup kept for later in §35–§39: the old base moves, their clips and cinematics,
+`ken-oni-kikon-cine`). A reachability scan of `ken*.lisp` (roots: the kits, every other duel / engine file, tools and tests; a
+`*grip-clips*` entry is no use) found what nothing reaches in a core match; removed:
+
+| Kind | Removed | What |
+|---|---|---|
+| `defmove` / `defmove-copy` | 15 / 36 | the old Kikon commands `:ke-kikon` / `-n` / `:ke-b-kikon`; the old core blocks (`:ke-n1a..c`, `:ke-sa*`, `:ke-n2*`, `:ke-n3*`, `:ke-as*`, Bankai `:ke-b-sa*` / `-n*` / `-as*`); the old Bankai J / K strings, the O rushes (`:ke-b-punch` / `-bite` / `-split`), `:ke-meteor` |
+| `defstrike` / `defclip` / `defpose` | 50 / 17 / 12 | their clips and poses; the cups RYOTE / KATAUDE / NOMIHOSE; `ke-a-*`, `ke-b-*` strikes; three `*grip-clips*` entries |
+| `defcine` | 4 | `ken-kikon-cine`, `ken-sky-split-cine`, `ken-clash-kikon-cine`, `ken-oni-kikon-cine` |
+| `defun` / `defparameter` | 7 / 1 | `ken-leap-cleave`, `ken-charge-sfx`, `ken-meteor-cut`, `ken-tate-goto`, `ken-clash` + `*ken-clash-max*`, `ken-tick`, `ken-arm-step`; `ken-dmg-mult` keeps only the burst branch |
+
+`duel/lisp`: 6 files, +25 / −1034 lines. The kits lose `:clash ken-clash` and the base `:kikon` command (`:kikon nil`, as Rukia's
+removed command); the Shikai's and the Bankai's `:commands` keep only `:q`. Debug: 2204 / 2205 / 2210 / 2219 and 36000+f do nothing
+now (`*cine-names*` keeps its numbering with NILs; 35000–35999 stays, Kenpachi's Bankai). `rogue-rules.lisp`'s row 116 (the O rush) is
+inert (DANGAI frozen); the frozen-mode test exempts `:ke-kikon-n` / `:ke-b-kikon` as it does Hisagi's.
+
+Kept: the old system's `:grid`, `:commands` and `:ai` scaffold (every core kit keeps it, Ichigo's included; unreachable in a core
+match), the copy parents the Shikai / Bankai / DANGAI still use, `ken-bankai-cine` (DANGAI only), the shared `fighter-clash-n` field
+and the core's `:charge-mult` (other kits), the old style-5 / 6 review scripts (stale, not run).
+
+Proof (no sim change intended): host tests 9843 checks ALL PASS (45 checks on the removed moves went with them), `pkgcheck` clean,
+`./build.sh duel` with the two allowed warnings, `cine-test` 18 PASS, `duel-control-test` 100 PASS; G2 browser and native `--cvc`
+identical to §42's reference; the per-form script (84000 × 3 pointers, 84001 × 2, 84004, 84005; the routes as-kikon / ns / ns-sa /
+j3-as-tap) gives a log identical to the build before (508 lines). The looks gate (113 stills, `ken-kikon`'s two left the scenario) is not
+conclusive on this machine: the first run, under load, timed out frames (92 stills noisy between the two BASE runs); of the stills
+with a noise floor 0 only Rukia's 8 cinematic stills differed, and they are byte-identical in a rerun of `cine-rukia` alone; a second
+full run hung past its 90-minute timeout. `tests/debug-ranges-check.py` reports an overlap 2510–2513 / 2513 that predates this change.

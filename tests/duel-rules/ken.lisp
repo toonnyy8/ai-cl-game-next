@@ -3,8 +3,8 @@
 ;;; ================================================================ the Kikon counts, the ranged hits (what stayed of the cups' block; the
 ;;; cups KATATE / RYOTE / NOMIHOSE and their NOME went 2026-11-03, DUEL_KEN_V3 §8)
 (flet ((rw (name i) (member :ranged (hw-flags (svref (mv-hits (find-move name)) i)))))
-  (check (and (rw :ke-meteor 0) (rw :ke-buttagiru 0) (rw :ya-kyoku 1) (rw :ya-taimatsu 0) (rw :ya-nadegiri 0)
-              (not (rw :ya-kyoku 0)) (not (rw :ke-kikon-n 0)) (not (rw :ya-kikon 0)))))
+  (check (and (rw :ke-buttagiru 0) (rw :ya-kyoku 1) (rw :ya-taimatsu 0) (rw :ya-nadegiri 0)   ; (the meteor and LEAP CLEAVE went 2026-11-05)
+              (not (rw :ya-kyoku 0)) (not (rw :ya-kikon 0)))))
 (check (and (= 2 (kit-kikon-konpaku (kit :kenpachi :nozarashi))) (= 2 (kit-kikon-konpaku (kit :kenpachi :base)))
             (= 3 (kit-kikon-konpaku (kit :yamamoto :bankai-east))) (= 2 (kit-kikon-konpaku (kit :yamamoto :hellfire)))))
 (check (and (= 2 (nth-value 1 (kikon-result 9 2 nil))) (= 3 (nth-value 1 (kikon-result 9 2 t)))
@@ -12,7 +12,7 @@
             (= 4 (nth-value 1 (kikon-result 9 4 nil))) (= 5 (nth-value 1 (kikon-result 9 4 t)))
             (= 4 (nth-value 1 (kikon-result 9 5 nil))) (= 5 (nth-value 1 (kikon-result 9 5 t)))
             (= 5 *soul-break-max-event*) (= 4 *kikon-max-event*)))
-(check (and (eq 'ken-kikon-cine (kit-kikon-cine (kit :kenpachi :base))) (eq 'ken-sky-split-cine (kit-kikon-cine (kit :kenpachi :nozarashi)))
+(check (and (loop for (nil . k) in (gethash :kenpachi *kits*) always (eq 'soul-break-cine (kit-kikon-cine k)))   ; (no O rush since 2026-11-05: his
             (eq 'yama-kikon-cine (kit-kikon-cine (kit :yamamoto :base))) (eq 'yama-tenchi-cine (kit-kikon-cine (kit :yamamoto :bankai-east)))))
 
 ;;; ================================================================ Kenpachi's Bankai and 片腕 (docs/duel/DUEL_KEN_BANKAI.md, the user's decisions 2026-09-28)
@@ -39,7 +39,8 @@
     (let ((k (apply #'kit cf)))
       (let ((br (kit-command-move k :breaker)))        ; (Rukia's rooted zero has none)
         (check (or (null br) (> (+ (mv-reach br) 0.34) *breaker-trigger*))))   ; (with the thinnest hurt radius)
-      (check (> (mv-reach (kit-command-move k :kikon)) (+ *kikon-trigger* 0.3))))))
+      (let ((o (kit-command-move k :kikon)))          ; (Kenpachi has none since 2026-11-05)
+        (check (or (null o) (> (mv-reach o) (+ *kikon-trigger* 0.3))))))))
 
 
 ;; the DANGAI boss (DUEL_ROGUE §5): the base kit's :boss hook (ken-meter.lisp KEN-BOSS); the Bankai keeps the arm's tick
@@ -87,7 +88,7 @@
     (check (loop for n being the hash-keys of (kit-cls k)
                  never (or (getf (mv-params n) :clash-count) (getf (mv-params n) :charge-mult))))
     ;; the hooks reach every form
-    (check (loop for (f . kk) in (gethash :kenpachi *kits*) always (and (eq 'ken-armor (kit-hook kk :armor)) (eq 'ken-clash (kit-hook kk :clash)))))))
+    (check (loop for (f . kk) in (gethash :kenpachi *kits*) always (and (eq 'ken-armor (kit-hook kk :armor)) (null (kit-hook kk :clash)))))))
 ;; the parry catches before the triangle: a hit on a defender in a parry's window is not judged (CORE-VERDICTS)
 (check (equal (core-verdict :na :ns) :cancel))
 
