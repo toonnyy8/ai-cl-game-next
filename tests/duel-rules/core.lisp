@@ -850,6 +850,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
  :ke-s-st-1 :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
  :ke-s-flick ; the V3 Shikai's hilt flick (DUEL_KEN_V3 §12)
+ :ke-z-cut1 :ke-z-cut2 :ke-z-cut3 :ke-z-cut4 :ke-z-cut5 ; V3 sealed J1-J5 (DUEL_KEN_V3 §37; the stances are kit stances, not listed)
  :ke-s-cut1 :ke-s-cut2 :ke-s-cut3 :ke-s-cut4 :ke-s-cut5 :ke-s-cut6 :ke-s-cut7 :ke-s-cut-sa ; the V3 Shikai's J string and SA (§15)
  :ke-s-jab :ke-s-p2c :ke-s-p2d :ke-s-p2e :ke-s-zangaeshi :ke-s-meteor ; its pointer-2 clips (DUEL_KEN_V3 §15)
  :ke-s-p1a :ke-s-p1b :ke-s-p1c :ke-s-p1d :ke-s-p1e :ke-s-issen :ke-s-wheel ; the V3 Shikai's pointer-1 clips (DUEL_KEN_V3 §15)

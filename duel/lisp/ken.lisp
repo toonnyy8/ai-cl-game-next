@@ -112,12 +112,12 @@
 ;;; by grip: 1 the drag (rising cuts, pressure), 2 the shoulder (each segment takes one hit, KEN-ARMOR), 3 chūdan (the tame catches a melee hit,
 ;;; :parry, and the thrust answers it: the kit's :land string). J1-J5, AS n by press (the core's 1 1 2 2 3), one SA a pointer.
 ;;; Borrowed clips (the old base's) until the art round.
-(defmove :ke-z-j1 :kind :quick :clip :ke-q1 :clip-s 7 :startup 6 :active 3 :recovery 12 :dmg 35 :adv-block -2
+(defmove :ke-z-j1 :kind :quick :clip :ke-z-cut1 :clip-s 6 :startup 6 :active 3 :recovery 12 :dmg 35 :adv-block -2
   :reach 1.8 :arc 100 :on-hit :flinch :slide 0.6)
-(defmove-copy :ke-z-j2 :ke-z-j1 :clip :ke-q2 :slide 0.0)
-(defmove-copy :ke-z-j3 :ke-z-j1 :startup 7 :dmg 40)
-(defmove-copy :ke-z-j4 :ke-z-j1 :clip :ke-q2 :startup 8 :recovery 13 :dmg 45 :slide 0.0)
-(defmove :ke-z-j5 :kind :quick :clip :ke-q1 :clip-s 7 :startup 10 :active 4 :recovery 18 :dmg 55 :adv-block -4
+(defmove-copy :ke-z-j2 :ke-z-j1 :clip :ke-z-cut2 :slide 0.0)
+(defmove-copy :ke-z-j3 :ke-z-j1 :clip :ke-z-cut3 :clip-s 7 :startup 7 :dmg 40)
+(defmove-copy :ke-z-j4 :ke-z-j1 :clip :ke-z-cut4 :clip-s 8 :startup 8 :recovery 13 :dmg 45 :slide 0.0)
+(defmove :ke-z-j5 :kind :quick :clip :ke-z-cut5 :clip-s 10 :startup 10 :active 4 :recovery 18 :dmg 55 :adv-block -4
   :reach 1.8 :arc 120 :on-hit :stagger :slide 0.8)
 ;; pointer 1, the drag: the drag-up cut, the back-hand chop, the flat sweep; the free-hand shove
 (defmove :ke-z-sa1 :kind :quick :clip :ke-kick :clip-s 8 :startup 8 :active 3 :recovery 14 :dmg 30 :adv-block -2

@@ -1180,8 +1180,8 @@ the men 95; SP then Ichigo's J1 (84011) `IC-J1 -> P1 PARRIED` and the thrust sta
 AS1 90, down; J1–J3 SP SP AS2 60 + 100, in the air; J1–J5 SP ×3 AS3 50 / 50 / 140; J + SP held after AS1 / AS2 / AS3: `KIKON FOLLOW-UP`.
 Edge checks (a scratch script): after a catch the route goes on (the thrust, then SP the men 95, or J the kote 40); SP held through the
 tame (1.2 s) and Ichigo's J1: the catch, the thrust hits 70 with the SP still held, so its Kikon follows (`KIKON FOLLOW-UP`, then the
-Kikon −1 Konpaku and the borrowed `ken-sky-split-cine`): the counter-thrust is an ordinary NS segment for the hold. **Open**, asked:
-whether a counter-thrust may take the Kikon this way.
+Kikon −1 Konpaku and the borrowed `ken-sky-split-cine`): the counter-thrust is an ordinary NS segment for the hold. Asked whether a
+counter-thrust may take the Kikon this way: 「可以」 (2026-11-05): kept.
 Next: the art round (the three stances, J1–J5, NS / AS, the three Kikon cinematics, the HUD seals), then G2 once.
 
 ## 36. The sealed form's art round, part 1: the three stances (2026-11-05)
@@ -1201,3 +1201,21 @@ From the match camera (behind him, the opponent ahead to the right) the three re
 / pointed at him. Pointer 2's open arm is on his far side from that camera, hidden by his head (first tried wide at shoulder height:
 hidden too); it shows from the side and the front. The tip stays above the floor through the idle (0.01–0.03 m). Stills: the behind
 camera, the side, the phone (390×844). Host tests 9887 ALL PASS, pkgcheck clean, the build. Next: J1–J5.
+
+## 37. The sealed form's art round, part 2: J1–J5 (2026-11-05)
+
+The plan (asked; the user: 「同意」): one arc a link, one hand for J1–J4, both for J5; small wrist-and-arm cuts (the NS are the
+whole-body ones): J1 S6 the lazy diagonal, high right → low left; J2 S6 the backhand flat at the chest, left → right; J3 S7 the rising
+cut, low left → high right; J4 S8 the one-hand overhead chop with a stamp; J5 S10 both hands, the big flat turn at the waist, right →
+left. The tip at about the 1.8 m volume's edge on each hit frame. Each link's frame 0 is the pose its predecessor lands in.
+
+
+Built (presentation only): `ken-art.lisp` `:ke-z-cut1..5` with their landed poses `:ke-z-cut1-a..5-a`; the J moves' `:clip` → them
+(`:clip-s` = S, so each plays at speed 1). Key poses solved by FK on the host (grip and blade line; the drawn lunge kept to 0.15–0.27 m,
+larger lunges left the grip against the body and folded the arm). The tip on each hit frame (m from his feet): J1 1.75 (low left),
+J2 1.71 (flat right), J3 1.77 (rising right), J4 1.86 (overhead, straight down), J5 1.82 (flat left, both fists, the left on the pommel
+within 0.02 m). Rhythm: the anticipation held 2–4 f, the release on the hit frame (J5 gets a flat key the frame before it: from the
+coil the wrist would otherwise have swung the blade over his head). Each link's frame 0 is its predecessor's landed pose. Known: J5's
+first frame dips the tip 0.06 m under the floor out of J4's landed pose. Checks: host tests 9887 ALL PASS (the five clips in the clip
+list), pkgcheck clean, the build; `duel-ken-sealed.json` gives the same combat lines as before; 8-frame strips (the viewer, the front
+and 33° off it) and an in-match sequence. Next: NS / AS.
