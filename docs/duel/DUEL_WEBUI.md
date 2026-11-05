@@ -685,6 +685,7 @@ their graphic widgets lived only in the old canvas HUD (`ken-meter.lisp`), which
 - **The phone's one-hand deck** (the plate is the SP / ATK line): the strip hangs from the plate under the Reishi bar (`position: absolute; top: 100%`, so the bar keeps its place on the line), on the side the soul flames are (right for the left hand), at most half the bar's width (`50%` less the plate's padding). Before (§13): between the name row and the bar.
 - Fix: the bar's class was `.bar`, which the page's loading-screen CSS also styles (420 px wide); renamed `.nbar`.
 - Checked in shots on a wide window and a 390 x 844 portrait window (the wide layout); the one-hand layout could not be forced in headless Chrome (the page resets the classes), so it is read from the CSS only: needs a look on the phone. DEVLOG §517.
+- Since 2026-11-06 a third kind, `kaiho`: Kenpachi's Shikai's unlock level L as 解 and three yellow pips, `L0`–`L2` or a pulsing `MAX` (DUEL_KEN_V3 §44).
 
 ## 14. VOLUME in SETTINGS (the user, 2026-10-30)
 

@@ -80,6 +80,9 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .kit .kn { font: 800 calc(1.15 * var(--u))/1 var(--f-kanji); letter-spacing: 0; text-shadow: 0 1px 0 rgba(0,0,0,.6); }
 #hud .kit.nome .kn { color: var(--reiatsu); }
 #hud .kit.ude .kn { color: var(--blood); }
+#hud .kit.kaiho .kn { color: var(--reiatsu); }
+#hud .kit.kaiho .pp.lit i { background: linear-gradient(180deg, #ffe97a, var(--reiatsu) 60%, #e0a21a); }
+#hud .kit.kaiho.max .pp i, #hud .kit.kaiho.max .kv { animation: hd-pulse .8s ease-in-out infinite; }
 #hud .kit .kv { font: 600 calc(.8 * var(--u))/1 var(--f-mono); color: var(--reiatsu); min-width: 2.4em; direction: ltr; text-align: center; }
 #hud .nb { position: relative; flex: 1; height: calc(2.2 * var(--u)); }
 #hud .nb .cp { position: absolute; top: 0; width: calc(1.5 * var(--u)); height: calc(1.1 * var(--u)); inset-inline-start: var(--x); margin-inline-start: calc(var(--m) * 1.5 * var(--u)); }

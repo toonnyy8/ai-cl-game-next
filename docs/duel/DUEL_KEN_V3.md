@@ -1358,3 +1358,12 @@ j3-as-tap) gives a log identical to the build before (508 lines). The looks gate
 conclusive on this machine: the first run, under load, timed out frames (92 stills noisy between the two BASE runs); of the stills
 with a noise floor 0 only Rukia's 8 cinematic stills differed, and they are byte-identical in a rerun of `cine-rukia` alone; a second
 full run hung past its 90-minute timeout. `tests/debug-ranges-check.py` reports an overlap 2510–2513 / 2513 that predates this change.
+
+## 44. The Shikai's stage on the page HUD (2026-11-06)
+
+The user: 「幫我為劍八的始解添加目前的階段提示」. The stage is the unlock level L (0–3, the kit meter KAIHO, §4 / §13). The game's own
+HUD drew it (`%hud-lv`, three yellow pips), but the page HUD (DUEL_WEBUI, the one players see) only knew the old strips NOME and UDE,
+so KAIHO showed only as the lowercase tag `kaiho` and no level. Now `duel/web/hud.js` `renderKit` has a third kind: 解 (Reiatsu yellow)
+and three pips, lit up to L, with `L0` / `L1` / `L2` beside them, and at L3 `MAX` with the pips pulsing (the special J string J4–J7
+is open). The tag `kaiho` is hidden as NOME / UDE are. Page only: the sim and `webhud.lisp` unchanged (slots 15 / 16 already carried L
+and 3). Checked in shots at L0–L3 (84001, then 84090+k) wide (1280×720) and portrait (390×844). Manual updated.
