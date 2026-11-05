@@ -1097,3 +1097,11 @@ first; the user: 「可以開始做了」. Both are the kit's `:core :kikon-cine
 Checked: host tests 9880 ALL PASS, pkgcheck clean, the build without a new warning; scripted: 84004 J ×5 then SP held 1.8 s, the Kikon on
 tick 216 and `cine KEN-KR-KIKON-CINE`; 84005 the same, the Kikon on 231 and `cine KEN-ZH-KIKON-CINE`; 16-frame timelines of both from the
 landscape and the phone (390×844). The sound needs the user's ears. No match tests at this stage.
+
+## 34. The Bankai's HUD: one pointer seal (2026-11-05)
+
+The user: 「好 下一步」 (the step after §33: the HUD's three pointer seals for the one-pointer Bankai). Each Bankai kit has one NS, but the
+page HUD (`duel/web/hud.js` `FIGHTERS`) had no entry for its form names, so it fell back to Kenpachi's three seals 一 二 三, two of them
+never usable. Now `forms` gives each Bankai one seal: KYORAN `狂` (狂嵐 · KYORAN), ZANKAI `壞` (斬壞 · ZANKAI); the sealed form and the
+Shikai keep 一 二 三. Presentation only (the page; no Lisp changed). Checked by stills from the landscape and the phone (390×844): 84004
+狂 alone, 84005 壞 alone, 84001 the Shikai's three. The manual says it.

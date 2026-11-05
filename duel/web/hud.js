@@ -13,7 +13,8 @@
   /* ---------------------------------------------------------------- the game's own data (kanji: the page's, DUEL_WEBUI §7) */
   var FIGHTERS = {   // roster index (kit.lisp *ROSTER*) -> name, kanji, the intro's column, the pointer seals (theme glyph, name)
     0: { en: "Yamamoto", kj: "山本", full: "山本元柳斎重國" },
-    1: { en: "Kenpachi", kj: "更木", full: "更木剣八", ptr: [["一", "PTR 1"], ["二", "PTR 2"], ["三", "PTR 3"]] },
+    1: { en: "Kenpachi", kj: "更木", full: "更木剣八", ptr: [["一", "PTR 1"], ["二", "PTR 2"], ["三", "PTR 3"]],
+         forms: { KYORAN: [["狂", "狂嵐 · KYORAN"]], ZANKAI: [["壞", "斬壞 · ZANKAI"]] } },   // each Bankai: one pointer, one seal
     2: { en: "Rukia", kj: "朽木", full: "朽木ルキア" },
     3: { en: "Ichigo", kj: "黒崎", full: "黒崎一護", ptr: [["重", "重 · CLEAVER"], ["月", "月 · GETSUGA"], ["亂", "亂 · RANGETSU"]],
          forms: { KESSA: [["鎖", "鎖 · CHAINS"], ["月", "月 · 漆黒"], ["影", "影 · 千影"]] } },
