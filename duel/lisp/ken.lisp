@@ -293,7 +293,7 @@
   ;; V3's sealed form (DUEL_KEN_V3 §6 / §35): J1-J5, three pointers by grip (the drag / the shoulder / chūdan), AS n by press
   :core (:ns (:ke-z-n1a :ke-z-n2a :ke-z-n3a) :as (:ke-z-as1 :ke-z-as2 :ke-z-as3) :sa :ke-z-sa1 :mult 1.2
          :as-by-press (1 1 2 2 3)
-         :stances (:ke-st-chain :ke-st-rush :ke-st-kamae)          ; the idle clip by SP pointer (borrowed until the art round)
+         :stances (:ke-z-st-1 :ke-z-st-2 :ke-z-st-3)             ; the drag / the shoulder / chūdan (DUEL_KEN_V3 §36)
          :kikon-cines (ken-kikon-cine ken-clash-kikon-cine ken-sky-split-cine))   ; (borrowed until the art round, §35.1)
   :strings ((:ke-z-j1 :q :ke-z-j2) (:ke-z-j2 :q :ke-z-j3) (:ke-z-j3 :q :ke-z-j4) (:ke-z-j4 :q :ke-z-j5)
             (:ke-z-n3a :land :ke-z-n3b)                             ; the tame's catch answers with the thrust (combat.lisp :parried)

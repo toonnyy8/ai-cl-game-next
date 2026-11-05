@@ -1183,3 +1183,21 @@ tame (1.2 s) and Ichigo's J1: the catch, the thrust hits 70 with the SP still he
 Kikon −1 Konpaku and the borrowed `ken-sky-split-cine`): the counter-thrust is an ordinary NS segment for the hold. **Open**, asked:
 whether a counter-thrust may take the Kikon this way.
 Next: the art round (the three stances, J1–J5, NS / AS, the three Kikon cinematics, the HUD seals), then G2 once.
+
+## 36. The sealed form's art round, part 1: the three stances (2026-11-05)
+
+The user: 「開始美術」, then on the plan table 「可以，照這樣做（推薦）」. The borrowed `:ke-st-chain / -rush / -kamae` (the blade
+levelled at him / on the shoulder, hunched / nearly upright by his head) did not match §6's grips. New poses and idles in
+`ken-art.lisp`, the kit's `:core :stances` → `(:ke-z-st-1 :ke-z-st-2 :ke-z-st-3)`; presentation only. The right arm solved by FK
+for the grip and the blade's line, the left for its target (grip / tip, m right / up / forward of his feet):
+
+| Ptr | Stance | Grip → tip | Idle |
+|---|---|---|---|
+| 1 the drag | slouched (spine 20), the head tilted, the katana hanging from the right fist, the tip on the floor outside and behind the right foot | (0.48 0.95 −0.02) → (0.67 0.01 −0.67) | 1.6 s: the slouch sways, the tip scrapes 0.11 m |
+| 2 the shoulder | upright, the weight back, the chin up; the back of the blade on the right shoulder, the tip behind; the left arm flung up and wide (the hand at (−0.79 1.75 0.04)) | (0.20 1.40 0.30) → (0.33 1.75 −0.80) | 1.4 s: the shoulders roll |
+| 3 chūdan | upright, the right foot forward, both fists on the hilt at the centre (the left on the pommel), the tip at his eyes | (0.08 1.14 0.51) → (0.02 1.54 1.59) | 2.0 s: still, only the breath |
+
+From the match camera (behind him, the opponent ahead to the right) the three read apart by the blade: down to the floor / on the shoulder
+/ pointed at him. Pointer 2's open arm is on his far side from that camera, hidden by his head (first tried wide at shoulder height:
+hidden too); it shows from the side and the front. The tip stays above the floor through the idle (0.01–0.03 m). Stills: the behind
+camera, the side, the phone (390×844). Host tests 9887 ALL PASS, pkgcheck clean, the build. Next: J1–J5.

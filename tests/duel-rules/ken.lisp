@@ -65,7 +65,7 @@
     (check (and (null (kit-open-s k)) (equal (getf (kit-core k) :as-by-press) '(1 1 2 2 3))))                                          ; (as written: the old startup tier is off)
     ;; the tells: every NS opener S >= 14; the stance per pointer; the SA of each pointer's gaps
     (check (every (lambda (n) (>= (mv-s (m n)) 14)) '(:ke-z-n1a :ke-z-n2a :ke-z-n3a)))
-    (check (equal (getf (kit-core k) :stances) '(:ke-st-chain :ke-st-rush :ke-st-kamae)))
+    (check (equal (getf (kit-core k) :stances) '(:ke-z-st-1 :ke-z-st-2 :ke-z-st-3)))
     (check (and (every (lambda (n) (eq (p n :sa) :ke-z-sa1)) '(:ke-z-n1a :ke-z-n1b :ke-z-n1c))
                 (every (lambda (n) (eq (p n :sa) :ke-z-sa2)) '(:ke-z-n2a :ke-z-n2b))
                 (every (lambda (n) (eq (p n :sa) :ke-z-sa3)) '(:ke-z-n3a :ke-z-n3b :ke-z-n3c))))
