@@ -1297,3 +1297,17 @@ The user: 「幫我修改站姿，指針一不再駝背，指針二的刀背穿�
   above the ball's centre, 0.21 m from the head.
 - The clips that start from or return to these stances follow them; the floor scan of the tip is as before (at most 0.09 m under, NS1b's
   landing). Host tests 9888 ALL PASS, the build; `duel-ken-sealed.json` gives the same lines; stills from behind and the side.
+
+## 41. The sealed form's and the Shikai's pointer seals (2026-11-05)
+
+The user: 「幫我處理封印跟始解的印章」. The page HUD (`duel/web/hud.js` `FIGHTERS`) gave both forms Kenpachi's plain 一 二 三, and the
+Shikai, which has two pointers, showed a third seal it can never use. Now each seal carries its pointer's theme glyph (the glyphs mine):
+
+| Form | Seals |
+|---|---|
+| sealed (`ptr`, no form name) | 拖 `拖 · DRAG` (the drag), 肩 `肩 · SHOULDER` (the shoulder), 構 `構 · CHUDAN` (chūdan) |
+| Shikai (`forms.SHIKAI`) | 旋 `旋 · KAITEN` (突進迴旋), 墜 `墜 · TSUITEN` (扛肩柄擊, the meteor cleave); the third seal hidden |
+| Bankai (§34, unchanged) | KYORAN 狂, ZANKAI 壞 |
+
+Presentation only (the page and the manual; no Lisp changed). Stills from the landscape and the phone (390×844): 84000 with 2510 / 2511 /
+2512 lights 拖 / 肩 / 構, 84001 with 2510 / 2511 lights 旋 / 墜 with two seals.
