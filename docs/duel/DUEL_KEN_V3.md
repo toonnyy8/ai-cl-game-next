@@ -1283,3 +1283,17 @@ timelines of each cinematic from the landscape screen (shots fixed after the fir
 out of the victim's body, the laugh's close-up clear of his own arm and the victim's sword, the head kept in frame, the flash and the
 hit-stop shortened so the shear shows). The sound needs the user's ears. Next: the HUD seals, then G2.
 
+
+## 40. The sealed stances 1 and 2 adjusted (2026-11-05)
+
+The user: 「幫我修改站姿，指針一不再駝背，指針二的刀背穿模卡進肩膀了。」 Presentation only (`ken-art.lisp`, arms re-solved by FK on the host):
+
+- **Pointer 1, the drag: upright.** Spine 20° → 4°, neck 6° → 0°, head 8° → 0° forward (the lazy tilt to the side kept), root 0.06 → 0.02 m
+  down; the idle sway's spine 22° → 6°. The arm hangs straight (`:arm-r :flex -11 :side 13 :twist 55`, `:hand-r :flex -90 :twist 11
+  :side -11`): grip (0.47 0.98 -0.08), the tip still on the floor outside and behind the right foot (0.58 0.00 -0.69).
+- **Pointer 2, the shoulder: the blade's back on top of the shoulder.** Measured, the blade's line passed 0.07 m under the centre of the
+  right shoulder's ball (through it). The grip goes up 0.10 m and the blade tilts up more (`:arm-r :flex -14 :side 28 :twist -2`,
+  `:elbow-r :flex 129`, `:hand-r :flex 15 :twist -5 :side 0`): grip (0.21 1.50 0.30), tip (0.28 2.13 -0.66); the line now runs 0.10 m
+  above the ball's centre, 0.21 m from the head.
+- The clips that start from or return to these stances follow them; the floor scan of the tip is as before (at most 0.09 m under, NS1b's
+  landing). Host tests 9888 ALL PASS, the build; `duel-ken-sealed.json` gives the same lines; stills from behind and the side.

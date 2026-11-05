@@ -2319,19 +2319,19 @@ flex and the spine / head flex shifted by these."
   (0) (1.0 (:chest :flex 2) (:root :u -0.05)))
 ;;; V3's sealed form, its three stances by grip (DUEL_KEN_V3 §6 / §36); the arms solved by FK for the grip and the blade's line
 ;;; (grip / tip in m, right / up / forward of his feet): 1 the drag, slouched, the katana hanging from the right fist, its tip on the
-;;; floor outside and behind the right foot (0.48 0.95 -0.02 / 0.67 0.01 -0.67); 2 the shoulder, upright, weight back, chin up, the back
-;;; of the blade on the right shoulder (0.21 1.40 0.30 / 0.32 1.76 -0.79), the left arm flung wide, the chest open ("cut me"); 3 chūdan,
+;;; floor outside and behind the right foot (0.47 0.98 -0.08 / 0.58 0.00 -0.69; upright since §40); 2 the shoulder, upright, weight back, chin
+;;; up, the back of the blade on top of the right shoulder (0.21 1.50 0.30 / 0.28 2.13 -0.66; 0.1 m over the shoulder's ball since §40), the left arm flung wide, the chest open ("cut me"); 3 chūdan,
 ;;; the right foot forward, both fists on the hilt at the centre, the tip at his eyes (0.08 1.14 0.50 / 0.03 1.52 1.59)
-(defpose :ke-z-st-1 (:base :ke-stance)
-  (:root :u -0.06) (:spine :flex 20) (:chest :twist -6) (:neck :flex 6) (:head :flex 8 :side 10 :twist -6)
-  (:arm-r :flex 0 :side 14 :twist 52) (:elbow-r :flex 0) (:hand-r :flex -90 :twist 10 :side -10)
+(defpose :ke-z-st-1 (:base :ke-stance)   ; (upright since 2026-11-05: 「指針一不再駝背」, §40)
+  (:root :u -0.02) (:spine :flex 4) (:chest :twist -6) (:neck :flex 0) (:head :flex 0 :side 10 :twist -6)
+  (:arm-r :flex -11 :side 13 :twist 55) (:elbow-r :flex 0) (:hand-r :flex -90 :twist 11 :side -11)
   (:arm-l :flex 4 :side 14) (:elbow-l :flex 16) (:hand-l :flex 10)
   (:thigh-l :flex 22 :side 8) (:knee-l :flex 30) (:thigh-r :flex -10 :side 12) (:knee-r :flex 22))
 (defclip :ke-z-st-1 (1.6 :loop t :base :ke-z-st-1)       ; the slouch sways, the tip scrapes a little
-  (0) (0.8 (:root :u -0.08 :r 0.03) (:spine :flex 22) (:head :side 12) (:arm-r :side 16)))
+  (0) (0.8 (:root :u -0.03 :r 0.03) (:spine :flex 6) (:head :side 12) (:arm-r :side 15)))
 (defpose :ke-z-st-2 (:base :ke-stance)
   (:root :u -0.02 :f -0.04) (:spine :flex -6) (:chest :flex -6 :twist 8) (:neck :flex -4) (:head :flex -12 :twist -6)
-  (:arm-r :flex -20 :side 16 :twist -1) (:elbow-r :flex 115) (:hand-r :flex 51 :twist 4 :side 5)
+  (:arm-r :flex -14 :side 28 :twist -2) (:elbow-r :flex 129) (:hand-r :flex 15 :twist -5 :side 0)   ; (the blade's back on top of the shoulder, §40)
   (:arm-l :flex 39 :side 100 :twist -5) (:elbow-l :flex 25) (:hand-l :flex 10)   ; (flung up and wide: from behind, above his shoulder)
   (:thigh-l :flex 16 :side 10) (:knee-l :flex 14) (:thigh-r :flex -14 :side 14) (:knee-r :flex 10))
 (defclip :ke-z-st-2 (1.4 :loop t :base :ke-z-st-2)       ; the shoulders roll under the blade
