@@ -850,7 +850,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
  :ke-flurry :ke-breaker :ke-shoulder :ke-intro :ke-win :ke-release :ke-nome :ke-meteor
  :ke-s-st-1 :ke-chg1 :ke-chg2 :ke-chg3 :ke-rush-a :ke-sweep :ke-smash
  :ke-s-flick ; the V3 Shikai's hilt flick (DUEL_KEN_V3 §12)
- :ke-z-cut1 :ke-z-cut2 :ke-z-cut3 :ke-z-cut4 :ke-z-cut5 ; V3 sealed J1-J5 (DUEL_KEN_V3 §37; the stances are kit stances, not listed)
+ :ke-z-cut1 :ke-z-cut2 :ke-z-cut3 :ke-z-cut4 :ke-z-cut5
+ :ke-z-p1a :ke-z-p1b :ke-z-p1c :ke-z-shove :ke-z-as1 :ke-z-p2a :ke-z-p2b :ke-z-ram :ke-z-scoop :ke-z-tame :ke-z-tsuki :ke-z-men :ke-z-kote :ke-z-tsuki2 ; V3 sealed J1-J5 (DUEL_KEN_V3 §37; the stances are kit stances, not listed)
  :ke-s-cut1 :ke-s-cut2 :ke-s-cut3 :ke-s-cut4 :ke-s-cut5 :ke-s-cut6 :ke-s-cut7 :ke-s-cut-sa ; the V3 Shikai's J string and SA (§15)
  :ke-s-jab :ke-s-p2c :ke-s-p2d :ke-s-p2e :ke-s-zangaeshi :ke-s-meteor ; its pointer-2 clips (DUEL_KEN_V3 §15)
  :ke-s-p1a :ke-s-p1b :ke-s-p1c :ke-s-p1d :ke-s-p1e :ke-s-issen :ke-s-wheel ; the V3 Shikai's pointer-1 clips (DUEL_KEN_V3 §15)
@@ -943,7 +944,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
                                                                        :hs-b-sp1    ; (B4c: no kit's since, its strip 83524)
                                                                        :hs-r-l :hs-r-sp1 :hs-b-l :hs-r-k1 :hs-b-k1   ; (§28.4: the old Bankai's,
                                                                        :hs-r-k2s :hs-r-k3   ; (§28.11: spread K2 / K3's clips, strips 27 / 28)
-                                                                       :ke-as3c :ke-n3b :ke-n3c :ke-n2a)   ; (Kenpachi's old base NS / AS,
+                                                                       :ke-as3c :ke-n3b :ke-n3c :ke-n2a :ke-n3a :ke-n2b :ke-as2)   ; (Kenpachi's old base NS / AS,
                                                                                 ;  no kit's since V3's sealed form, DUEL_KEN_V3 §35: the cleanup)
                                                                                 ;  no kit's since, their clips kept for the strips)
                                                           collect (mv-clip-2 (find-move m))   ; (his Shikai's MODOSHI mapped)

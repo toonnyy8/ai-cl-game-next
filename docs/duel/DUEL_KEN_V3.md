@@ -1219,3 +1219,34 @@ coil the wrist would otherwise have swung the blade over his head). Each link's 
 first frame dips the tip 0.06 m under the floor out of J4's landed pose. Checks: host tests 9887 ALL PASS (the five clips in the clip
 list), pkgcheck clean, the build; `duel-ken-sealed.json` gives the same combat lines as before; 8-frame strips (the viewer, the front
 and 33° off it) and an in-match sequence. Next: NS / AS.
+
+## 38. The sealed form's art round, part 3: NS / SA / AS (2026-11-05)
+
+The plan (the user: 「請繼續」): the whole body behind each NS (J is the wrist and arm), no NS sharing a J's arc and hand set, pointer 2 and
+3 two-handed, an AS reusing its NS's clip where it can. Built (presentation only), `ken-art.lisp`, each segment's frame 0 the pose its
+predecessor lands in (`:ke-z-pNx-a`), key poses solved by FK on the host:
+
+| Move | Clip | What it does | Tip on S (m) / volume |
+|---|---|---|---|
+| NS1a (S14) | `:ke-z-p1a` | the tip scraping forward two steps, then up from the floor at his right back to high left | 2.02 / 1.9 |
+| NS1b (S10) | `:ke-z-p1b` | from high left drawn back over, down across to low right (backhand) | 1.86 / 1.8 |
+| NS1c (S12) | `:ke-z-p1c` | down in a crouch, the blade back at his right knee, then round at knee height to the left (one hand; J5 is both, at the waist) | 1.95 / 1.9 |
+| SA1 (S8) | `:ke-z-shove` | the left palm driven in, the katana left hanging | — / 1.0 |
+| AS1 (S12) | `:ke-z-as1` | NS1a's drag-up, quicker, the finish up on his toes | 2.02 / 1.9 |
+| NS2a (S16) | `:ke-z-p2a` | the shoulder rolls, the blade lifted off it as the left fist joins, held trembling, then all of him straight down | 1.88 / 1.8 |
+| NS2b (S14) | `:ke-z-p2b` | heaved back onto the right shoulder, then a two-handed diagonal down to the left | 1.91 / 1.8 |
+| SA2 (S8) | `:ke-z-ram` | the blade kept on the shoulder, the right shoulder and forearm driven in | — / 1.0 |
+| AS2 (S14 / S12) | `:ke-z-p2a`, `:ke-z-scoop` | NS2a's drop, then sunk and both hands scoop the blade straight up through him (the launch) | 1.88 / 1.9 |
+| NS3a tame (S14) | `:ke-z-tame` | chūdan held, sunk a little, the tip trembling | — |
+| NS3b thrust (S12) | `:ke-z-tsuki` | drawn back to the chest, both arms driven out on a deep lunge | 2.37 / 2.3 |
+| NS3c men (S14) | `:ke-z-men` | both fists up over the head, held, the stamp and the straight cut, stopped at head height | 1.96 / 1.9 |
+| SA3 kote (S7) | `:ke-z-kote` | a small lift, then a quick cut to wrist height | 1.88 / 1.8 |
+| AS3 (S12 / S10 / S14) | `:ke-z-tsuki`, `:ke-z-kote`, `:ke-z-tsuki2` | the thrust, the kote, then drawn far back and the deepest lunge, the arms fully out | 2.34 / 2.3 |
+
+Two fixes found by a per-frame scan of the tip's height: the large drawn lunges (0.4–0.5 m) left the two-handed cuts' grips against the
+body and the elbows folded (now 0.17–0.24 m), and the returns to the drag stance swung the hanging tip 0.2–0.35 m under the floor (in
+J1–J5 too): a key 4 frames before each end holds the stance with the wrist cocked, the relax keys lift it (values searched on the host),
+NS1c gets a flat key before its hit and AS2b sinks less; what remains is at most 0.08 m (NS1b's landing, J4's return). Checks: host
+tests 9887 ALL PASS (the clips in the list; the old base clips `:ke-chg1` / `:ke-sweep` / `:ke-smash` kept by their old moves),
+pkgcheck clean, the build; `duel-ken-sealed.json` gives the same combat lines as before; strips 33° off the front. Next: the three Kikon
+cinematics, then the HUD seals, then G2.

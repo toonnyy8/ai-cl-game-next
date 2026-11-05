@@ -111,7 +111,7 @@
 ;;; ================================================================ V3's sealed form (DUEL_KEN_V3 §6 / §35, 2026-11-05): the katana, three pointers
 ;;; by grip: 1 the drag (rising cuts, pressure), 2 the shoulder (each segment takes one hit, KEN-ARMOR), 3 chūdan (the tame catches a melee hit,
 ;;; :parry, and the thrust answers it: the kit's :land string). J1-J5, AS n by press (the core's 1 1 2 2 3), one SA a pointer.
-;;; Borrowed clips (the old base's) until the art round.
+;;; Their own clips since the art round (DUEL_KEN_V3 §36-§38).
 (defmove :ke-z-j1 :kind :quick :clip :ke-z-cut1 :clip-s 6 :startup 6 :active 3 :recovery 12 :dmg 35 :adv-block -2
   :reach 1.8 :arc 100 :on-hit :flinch :slide 0.6)
 (defmove-copy :ke-z-j2 :ke-z-j1 :clip :ke-z-cut2 :slide 0.0)
@@ -120,32 +120,32 @@
 (defmove :ke-z-j5 :kind :quick :clip :ke-z-cut5 :clip-s 10 :startup 10 :active 4 :recovery 18 :dmg 55 :adv-block -4
   :reach 1.8 :arc 120 :on-hit :stagger :slide 0.8)
 ;; pointer 1, the drag: the drag-up cut, the back-hand chop, the flat sweep; the free-hand shove
-(defmove :ke-z-sa1 :kind :quick :clip :ke-kick :clip-s 8 :startup 8 :active 3 :recovery 14 :dmg 30 :adv-block -2
+(defmove :ke-z-sa1 :kind :quick :clip :ke-z-shove :clip-s 8 :startup 8 :active 3 :recovery 14 :dmg 30 :adv-block -2
   :reach 1.0 :arc 80 :on-hit :stagger :kb 1.5)
-(defmove :ke-z-n1c :kind :flash :clip :ke-sweep :clip-s 14 :startup 12 :active 4 :recovery 20 :dmg 70 :adv-block -4
+(defmove :ke-z-n1c :kind :flash :clip :ke-z-p1c :clip-s 12 :startup 12 :active 4 :recovery 20 :dmg 70 :adv-block -4
   :reach 1.9 :arc 180 :on-hit :crumple :params (:sa :ke-z-sa1))
-(defmove :ke-z-n1b :kind :flash :clip :ke-q2 :clip-s 7 :startup 10 :active 3 :recovery 18 :dmg 55 :adv-block -4
+(defmove :ke-z-n1b :kind :flash :clip :ke-z-p1b :clip-s 10 :startup 10 :active 3 :recovery 18 :dmg 55 :adv-block -4
   :reach 1.8 :arc 110 :on-hit :stagger :params (:ns-next :ke-z-n1c :sa :ke-z-sa1))
-(defmove :ke-z-n1a :kind :flash :clip :ke-f2 :clip-s 20 :callout "KIRIAGE" :startup 14 :active 4 :recovery 20 :dmg 65 :adv-block -4
+(defmove :ke-z-n1a :kind :flash :clip :ke-z-p1a :clip-s 14 :callout "KIRIAGE" :startup 14 :active 4 :recovery 20 :dmg 65 :adv-block -4
   :reach 1.9 :arc 100 :on-hit :stagger :slide 1.2 :params (:ns-next :ke-z-n1b :sa :ke-z-sa1))
-(defmove-copy :ke-z-as1 :ke-z-n1a :kind :sp :callout "KITTE MIRO YO" :startup 12 :dmg 90 :on-hit :knockdown :params nil)
+(defmove-copy :ke-z-as1 :ke-z-n1a :kind :sp :clip :ke-z-as1 :clip-s 12 :callout "KITTE MIRO YO" :startup 12 :dmg 90 :on-hit :knockdown :params nil)
 ;; pointer 2, the shoulder: two drops, each through one hit from frame 6 to the end of its active frames; the forearm shove
-(defmove-copy :ke-z-sa2 :ke-z-sa1 :dmg 35 :kb 1.0)
-(defmove :ke-z-n2b :kind :flash :clip :ke-f1 :clip-s 16 :startup 14 :active 4 :recovery 22 :dmg 95 :adv-block -4
+(defmove-copy :ke-z-sa2 :ke-z-sa1 :clip :ke-z-ram :dmg 35 :kb 1.0)
+(defmove :ke-z-n2b :kind :flash :clip :ke-z-p2b :clip-s 14 :startup 14 :active 4 :recovery 22 :dmg 95 :adv-block -4
   :reach 1.8 :arc 110 :on-hit :stagger :slide 0.6 :armor-hits 1 :params (:armor-act t :sa :ke-z-sa2))
-(defmove :ke-z-n2a :kind :flash :clip :ke-smash :clip-s 16 :callout "KATAGIRI" :startup 16 :active 4 :recovery 22 :dmg 85 :adv-block -4
+(defmove :ke-z-n2a :kind :flash :clip :ke-z-p2a :clip-s 16 :callout "KATAGIRI" :startup 16 :active 4 :recovery 22 :dmg 85 :adv-block -4
   :reach 1.8 :arc 100 :on-hit :crumple :slide 1.0 :armor-hits 1 :params (:armor-act t :ns-next :ke-z-n2b :sa :ke-z-sa2))
-(defmove-copy :ke-z-as2b :ke-z-n1a :kind :sp :callout nil :startup 12 :dmg 100 :on-hit :launch :slide 0.6 :params nil)   ; the rising cut
+(defmove-copy :ke-z-as2b :ke-z-n1a :kind :sp :clip :ke-z-scoop :clip-s 12 :callout nil :startup 12 :dmg 100 :on-hit :launch :slide 0.6 :params nil)   ; the rising cut
 (defmove-copy :ke-z-as2 :ke-z-n2a :kind :sp :callout nil :startup 14 :dmg 60 :on-hit :stagger :armor-hits 0 :params (:ns-next :ke-z-as2b))
 ;; pointer 3, chūdan: the tame (a counter: a melee hit in f2-28 is caught, the thrust starts at once), the thrust, the men cut; the kote cut
-(defmove-copy :ke-z-sa3 :ke-z-j1 :startup 7 :dmg 40 :slide 0.4)
-(defmove :ke-z-n3c :kind :flash :clip :ke-smash :clip-s 16 :callout "MEN" :startup 14 :active 4 :recovery 20 :dmg 95 :adv-block -4
+(defmove-copy :ke-z-sa3 :ke-z-j1 :clip :ke-z-kote :clip-s 7 :startup 7 :dmg 40 :slide 0.4)
+(defmove :ke-z-n3c :kind :flash :clip :ke-z-men :clip-s 14 :callout "MEN" :startup 14 :active 4 :recovery 20 :dmg 95 :adv-block -4
   :reach 1.9 :arc 70 :on-hit :crumple :params (:sa :ke-z-sa3))
-(defmove :ke-z-n3b :kind :flash :clip :ke-f1 :clip-s 16 :callout "TSUKI" :startup 12 :active 4 :recovery 20 :dmg 70 :adv-block -4
+(defmove :ke-z-n3b :kind :flash :clip :ke-z-tsuki :clip-s 12 :callout "TSUKI" :startup 12 :active 4 :recovery 20 :dmg 70 :adv-block -4
   :reach 2.3 :arc 30 :on-hit :stagger :slide 1.5 :params (:ns-next :ke-z-n3c :sa :ke-z-sa3))
-(defmove :ke-z-n3a :kind :flash :clip :ke-chg1 :clip-s 20 :callout "TAME" :startup 14 :active 0 :recovery 16 :flags (:parry)
+(defmove :ke-z-n3a :kind :flash :clip :ke-z-tame :clip-s 14 :callout "TAME" :startup 14 :active 0 :recovery 16 :flags (:parry)
   :params (:window (2 28) :ns-next :ke-z-n3b :sa :ke-z-sa3))
-(defmove-copy :ke-z-as3c :ke-z-n3b :kind :sp :callout nil :startup 14 :dmg 140 :on-hit :knockdown :flags (:guard-crush) :params nil)
+(defmove-copy :ke-z-as3c :ke-z-n3b :kind :sp :clip :ke-z-tsuki2 :clip-s 14 :callout nil :startup 14 :dmg 140 :on-hit :knockdown :flags (:guard-crush) :params nil)
 (defmove-copy :ke-z-as3b :ke-z-sa3 :kind :sp :startup 10 :dmg 50 :on-hit :stagger :params (:ns-next :ke-z-as3c))   ; the kote
 (defmove-copy :ke-z-as3 :ke-z-n3b :kind :sp :callout nil :dmg 50 :params (:ns-next :ke-z-as3b))
 
