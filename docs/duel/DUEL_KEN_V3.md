@@ -1165,7 +1165,9 @@ which no new move has). Pointer 2's drops step in 1.0 / 0.6 m (at the scene's 2.
 `:params :window (2 28)`; `core-sim.lisp` `core-verdicts`: a hit on a defender in a parry's window skips the triangle (an NA on the
 tame's startup only cancelled before), so the parry catches it (`:parried`: the attacker staggers, the kit's `:land` string starts the
 thrust). Shared change; the only parry moves elsewhere are Ichigo's KESSA `:ic-k-parry` and Yamamoto's West, both on unbound / retired
-paths. Stances and Kikon cinematics borrowed (`:ke-st-chain / -rush / -kamae`, the three old cines). The HUD seals stay 一 二 三.
+paths (checked: a core kit's CPU is `core-brain-step`, which presses only J / SP, so KESSA's `:sig` parry never starts in a core match;
+the final G2 should not move II for this). AS3c's `:guard-crush` is dormant in a core match (no guard key; only the practice dummy's
+GUARD settings guard), so the manual does not promise it. Stances and Kikon cinematics borrowed (`:ke-st-chain / -rush / -kamae`, the three old cines). The HUD seals stay 一 二 三.
 
 Checks (no match tests at this stage): host tests 9887 ALL PASS (the old KEN_CORE base block rewritten: classes, §35's S and damage,
 the SA by pointer, chains 1 / 2 / 3 and NS 3 / 2 / 3, no NS knockdown, the AS finishers, pointer 2's armour, the tame's parry and its
@@ -1175,5 +1177,9 @@ NS / AS clips listed as kept), pkgcheck clean, the build without a new warning. 
 counts differ). The new script `duel-ken-sealed.json` (84000, an idle Ichigo 2.2 m): pointer 1 SP ×3 65 / 55 / 70, SP J the shove 30;
 pointer 2 SP ×2 85 / 95, against Ichigo's NS (84010) `IC-N1A -> P1 ARMORED` then the drop hits; pointer 3 SP ×3 the tame, the thrust 70,
 the men 95; SP then Ichigo's J1 (84011) `IC-J1 -> P1 PARRIED` and the thrust starts on the same tick, 70; SP J the kote 40; J1 J2 SP
-AS1 90, down; J1–J3 SP SP AS2 60 + 100, in the air; J1–J5 SP ×3 AS3 50 / 50 / 140; J + SP held after AS1 / AS2: `KIKON FOLLOW-UP`.
+AS1 90, down; J1–J3 SP SP AS2 60 + 100, in the air; J1–J5 SP ×3 AS3 50 / 50 / 140; J + SP held after AS1 / AS2 / AS3: `KIKON FOLLOW-UP`.
+Edge checks (a scratch script): after a catch the route goes on (the thrust, then SP the men 95, or J the kote 40); SP held through the
+tame (1.2 s) and Ichigo's J1: the catch, the thrust hits 70 with the SP still held, so its Kikon follows (`KIKON FOLLOW-UP`, then the
+Kikon −1 Konpaku and the borrowed `ken-sky-split-cine`): the counter-thrust is an ordinary NS segment for the hold. **Open**, asked:
+whether a counter-thrust may take the Kikon this way.
 Next: the art round (the three stances, J1–J5, NS / AS, the three Kikon cinematics, the HUD seals), then G2 once.
