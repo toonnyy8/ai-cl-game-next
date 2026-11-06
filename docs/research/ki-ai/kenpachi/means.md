@@ -19,7 +19,7 @@ Every line cites `trials.lisp` entries (results in `catalogue.md`). dmg = Reishi
 | | Hoho late (f55): through the wave | F17 |
 | | not: the sealed NS1 a from 3.6 m stands short (1.9 + 1.2 m) and eats the wave | F25 |
 | **KESSA clones** (NS3, Step / Hoho posts) | the tame does **not** catch a clone's hit (a hazard). NS-first (F20) and the J1 race (F21) work on KESSA as on the Shikai; the clones are otherwise not trialled | F23 |
-| Wakes up after a knockdown | a meaty J1 on his first free frame loops J1 J2 AS1 (64 a loop, +56 each time; gap 0 when J1 starts 29 f after Kenpachi can move); after J1–J5 AS3 a Step and J1 J2 AS1 (235 in all); after the BANKAI AS (6.13 m, +77) Hoho or two Steps and a KYORAN string (278 in all) | K1, K3, D43, D45; 12 f late he acts first (K2); too early whiffs (D47) |
+| Wakes up after a knockdown | a meaty J1 on his first free frame loops J1 J2 AS1 (64 a loop, +56 each time; gap 0 when J1 starts 29 f after Kenpachi can move); after J1–J5 AS3 a Step and J1 J2 AS1 (235 in all); after the BANKAI AS (6.13 m, +77) Hoho or two Steps and a KYORAN string (278 in all) | K1, K3, D43, D45. On the meaty his wake-up SP or J never comes out (K5, K6); 12 f late he can act (K2): his wake-up NS1a cancels J1 J2 but AS1 still lands (K7, 100), his J1 loses the race (K8); too early whiffs (D47). His Burst out of the combo is not trialled |
 
 ## Which form, which route
 
