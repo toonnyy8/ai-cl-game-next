@@ -40,7 +40,7 @@ Direction hint: {direction}
 - HISTORY_DIR = {hist}
 - BASELINE_DIR = {TOP}/{side}/baseline  (the round's starting style file, proposal.md, score.json)
 - The opponent this round: {TOP}/{other}/champion/cpu-ki-{other}.lisp (the other side's best so far; the coordinator rescores with it)
-- NODE_DIR (yours) = {node}  — RELATIVE TO YOUR OWN WORKTREE ROOT
+{('- Round 1 history was scored by the FIRST freeze, against the other side v0: its numbers are not on this round scale. Since the second freeze (DUEL_MATCHUP_AI 9) a K.O. by Kenpachi special AS counts for the Bankai theme, and his own Bankai segment cost no longer reads as a hit. BASELINE_DIR holds this side champion, re-measured against the other side champion.' + chr(10)) if rnd >= 2 else ''}- NODE_DIR (yours) = {node}  — RELATIVE TO YOUR OWN WORKTREE ROOT
 - EVAL_COMMAND (in your worktree root): python3 tools/matchup-eval.py --side {side} --seeds 40 -j 4
 
 You work in your own git worktree checked out at the freeze commit {FREEZE} (the evaluator and every rule are fixed there). First:
