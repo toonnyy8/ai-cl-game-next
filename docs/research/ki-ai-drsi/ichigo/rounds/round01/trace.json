@@ -2,7 +2,40 @@
   "baseline_score": 0.5781,
   "beta": null,
   "branch_count": 4,
-  "cells": {},
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.95 sig 0.4466 normal 0.0375 x1.0 themes spacing 0.274 whiff 0.415 ptr3 0.585 kessa 0.512",
+      "score": 0.648
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9625 sig 0.4554 normal 0.075 x1.0 themes spacing 0.188 whiff 0.629 ptr3 0.504 kessa 0.5",
+      "score": 0.6583
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.975 sig 0.5418 normal 0.0625 x1.0 themes spacing 0.227 whiff 0.287 ptr3 0.953 kessa 0.7",
+      "score": 0.7151
+    },
+    "b3_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.975 sig 0.4879 normal 0.0625 x1.0 themes spacing 0.17 whiff 0.324 ptr3 0.783 kessa 0.675",
+      "score": 0.6827
+    }
+  },
   "directions": {},
   "grid_plan": {
     "clamp_reasons": [],
@@ -19,10 +52,10 @@
   },
   "max_parallelism": 4,
   "pending_batch": [
-    "b0_a0",
-    "b1_a0",
-    "b2_a0",
-    "b3_a0"
+    "b0_a1",
+    "b1_a1",
+    "b2_a1",
+    "b3_a1"
   ],
   "policy_file": "rounds/round01/policy.py",
   "refine_count": 1,

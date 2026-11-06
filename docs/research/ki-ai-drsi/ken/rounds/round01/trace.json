@@ -2,7 +2,32 @@
   "baseline_score": 0.3505,
   "beta": null,
   "branch_count": 4,
-  "cells": {},
+  "cells": {
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.6875 sig 0.6346 normal 0.9375 x1.0 themes brawl 0.561 shikai 0.853 bankai 0.708 antiwave 0.417",
+      "score": 0.6558
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.275 sig 0.6423 normal 0.9625 x1.0 themes brawl 0.568 shikai 0.782 bankai 0.747 antiwave 0.472",
+      "score": 0.4954
+    },
+    "b3_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.125 sig 0.6009 normal 0.9375 x1.0 themes brawl 0.567 shikai 0.757 bankai 0.33 antiwave 0.75",
+      "score": 0.4106
+    }
+  },
   "directions": {},
   "grid_plan": {
     "clamp_reasons": [],
@@ -19,10 +44,7 @@
   },
   "max_parallelism": 4,
   "pending_batch": [
-    "b0_a0",
-    "b1_a0",
-    "b2_a0",
-    "b3_a0"
+    "b0_a0"
   ],
   "policy_file": "rounds/round01/policy.py",
   "refine_count": 1,
