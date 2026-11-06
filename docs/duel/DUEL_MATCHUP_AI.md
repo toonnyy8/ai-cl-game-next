@@ -177,3 +177,26 @@ How each situation is detected (frozen with the evaluator):
 |---|---|---|---|---|---|---|
 | Kenpachi | 76/80 | 0.950 | 0.326 | brawl 0.66 (3472/5241), shikai 0 (0/65), bankai 0 (0/157), antiwave 0.64 (9/14) | 0.9625 (band 0.86–1.0) | 0.576 |
 | Ichigo | 4/80 | 0.050 | 0.084 | spacing 0.02 (60/3011), whiff 0.22 (548/2511), ptr3 0.10 (88/901), kessa 0 (0/80) | 0.0375 (band 0–0.14) | 0.070 |
+
+## 7. Step 4: the two style CPUs, v0 (2026-11-06)
+
+Two agents, one file each: `duel/lisp/cpu-ki-ken.lisp` (`ken-ki-style`, knobs `*kk-…*`) and `duel/lisp/cpu-ki-ichigo.lisp`
+(`ichigo-ki-style`, knobs `*iks-…*`). Each rolls once per event, reads the opponent through the perceived SNAP and the distance, writes a
+combat-log line per style action (`kk …` / `Px ki-style …`), and keeps NORMAL's chances small. Ichigo's reads the opponent's form
+directly (`fighter-form`) to choose its distance tables: a visible fact, the one exception to the SNAP rule.
+
+**A bug in §5's hook, fixed:** `cai-style-fn` read `fighter-opp` (an entity) as a fighter, so the first registered style crashed on its
+first step. §5's proof could not see it, since nothing was registered then. Both agents found it; the fix is one line.
+
+| Against | Kenpachi's style | Ichigo's style |
+|---|---|---|
+| the other's generic CPU, 20 seeds a seat (the agents) | HARD 40/40, NORMAL 38/40 (generic 37 / 38) | HARD 39/40, NORMAL 3/40 (generic 3 / 2) |
+| **each other, the evaluator, 40 a seat** | HARD 10/80; **score 0.351** (str 0.125, sig 0.501: brawl 0.57, shikai 0.77, bankai 0.31, antiwave 0.36); NORMAL 0.96 | HARD 70/80; **score 0.578** (str 0.875, sig 0.380: spacing 0.20, whiff 0.31, ptr3 0.56, kessa 0.46); NORMAL 0.11 |
+
+- Kenpachi's style now enters the Bankai (18 a seat in 20 HARD matches) and leaves it by the special AS (13–16); his Shikai reaches L3
+  and lands J4–J7 and the special AS. His anti-Getsuga mostly closes in; the timed cut / late Hoho fire rarely.
+- Ichigo's style punishes his whiffs (J 0.93, NS 0.78 first-hit), lunges at 4–5 m, shoots from ≥ 7.5 m, steers strings to AS3 and holds
+  Kikons only on red. Her default hover (3.7–4.2 m) sits outside the evaluator's whiff radius (3.6 m, the approved table), so most of her
+  punishes don't count for that theme; the search may move the knobs. One time-out in 40 HARD matches (KI seed 8).
+- Checks: host 9843 ALL PASS, pkgcheck clean, `./build.sh duel` with the allowed warning, native `--cvc` II and KK identical, **IK moves by
+  design** (30 lines vs 42, P2 0-3 at 298.6 s). IK's reference waits for the search's final pick (regenerated then).
