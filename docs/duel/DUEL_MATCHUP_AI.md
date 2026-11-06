@@ -27,10 +27,10 @@ What these mean, as I will build them:
   scored against different opponents still compare policies fairly. What is lost is a common scale across rounds: a round-2
   score does not mean the same as a round-1 score.
 - **Masher**: dropped. A button-masher is not part of this pairing.
-- **Seeds** (the user asked 「一定要用 40 場重量一次嗎？」, 2026-11-06): no. One native process plays 10 KI matches in 3.7 s,
-  load included, and only one pairing is scored, so seeds are nearly free. I take **100 seeds a seat**: 200 HARD + 200
-  NORMAL matches, about 20 s at -j 8. The win share's error at p ≈ 0.9 falls from about ±0.03 (40 a seat) to about ±0.02.
-  Cells and the coordinator's rescore use the same fixed seeds 1–100.
+- **Seeds** (the user asked 「一定要用 40 場重量一次嗎？」, 2026-11-06): not required. One native process plays 10 KI matches in
+  3.7 s, load included, and only one pairing is scored. I proposed 100 seeds a seat (about ±0.02 on a win share near 0.9);
+  the user: 「不用這麼多，雜訊 ±0.03 已經很小了」. So **40 seeds a seat**: 80 HARD + 80 NORMAL matches, about ±0.03, seconds
+  at -j 8. Cells and the coordinator's rescore use the same fixed seeds 1–40.
 
 ## 2. Baseline: the generic CPU in KI (2026-11-06, HEAD 382ab86)
 
