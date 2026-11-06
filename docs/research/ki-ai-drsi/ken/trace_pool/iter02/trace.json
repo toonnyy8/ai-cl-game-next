@@ -1,0 +1,88 @@
+{
+  "baseline_score": 0.8334,
+  "beta": 0.4,
+  "branch_count": 4,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 1.0 sig 0.8688 normal 0.9375 x1.0 themes brawl 0.874 shikai 0.851 bankai 0.75 antiwave 1.0",
+      "score": 0.9213
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 1.0 sig 0.6424 normal 0.9375 x1.0 themes brawl 0.892 shikai 0.857 bankai 0.82 antiwave 0.0",
+      "score": 0.7855
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.8009 normal 0.9125 x1.0 themes brawl 0.681 shikai 0.913 bankai 0.86 antiwave 0.75",
+      "score": 0.8755
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 1.0 sig 0.8685 normal 0.925 x1.0 themes brawl 0.874 shikai 0.836 bankai 0.764 antiwave 1.0",
+      "score": 0.9211
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.7914 normal 0.9125 x1.0 themes brawl 0.681 shikai 0.924 bankai 0.811 antiwave 0.75",
+      "score": 0.8698
+    },
+    "b3_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.925 sig 0.8616 normal 0.9125 x1.0 themes brawl 0.679 shikai 0.944 bankai 0.823 antiwave 1.0",
+      "score": 0.887
+    },
+    "b3_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9625 sig 0.8403 normal 0.9625 x1.0 themes brawl 0.762 shikai 0.841 bankai 0.758 antiwave 1.0",
+      "score": 0.8892
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+      "refine_count": 1
+    },
+    "fallback_reason": null,
+    "out_of_support": false,
+    "requested": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+      "refine_count": 1
+    },
+    "source": "policy"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [],
+  "policy_file": "rounds/round02/policy.py",
+  "refine_count": 1,
+  "round_index": 2,
+  "task": "SOUL DUEL KI matchup: Kenpachi's style CPU against Ichigo (duel/lisp/cpu-ki-ken.lisp), scored by tools/matchup-eval.py --side ken --seeds 40 at the freeze, the opponent Ichigo's champion of the round (DUEL_MATCHUP_AI \u00a77-\u00a78)"
+}

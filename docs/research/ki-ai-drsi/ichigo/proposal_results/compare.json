@@ -1,18 +1,19 @@
 {
   "worlds": [
-    "docs/research/ki-ai-drsi/ichigo/trace_pool/iter01/trace.json"
+    "docs/research/ki-ai-drsi/ichigo/trace_pool/iter01/trace.json",
+    "docs/research/ki-ai-drsi/ichigo/trace_pool/iter02/trace.json"
   ],
-  "incumbent_sha1": "8a836b9057c4",
+  "incumbent_sha1": "0443aa796ab0",
   "ranking": [
     {
       "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/ki-ai-drsi/policies/topk.py",
       "sha1": "0443aa796ab0",
       "pareto": {
-        "auc": 0.375,
-        "parallel_penalty": 0.3038095238095238,
+        "auc": 0.3263455538221529,
+        "parallel_penalty": 0.310952380952381,
         "parallelism_weight": 0.05,
-        "reward": 0.3598095238095238,
-        "n_traces_scored": 1,
+        "reward": 0.3107979347745339,
+        "n_traces_scored": 2,
         "per_trace": [
           {
             "name": "r01",
@@ -28,6 +29,75 @@
               }
             ],
             "varies": true
+          },
+          {
+            "name": "r02",
+            "run_best": 0.8333,
+            "n_evaluated": 7,
+            "auc": 0.27769110764430577,
+            "parallel_penalty": 0.3180952380952381,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 5.0,
+                "attain": 0.9438377535101403
+              },
+              {
+                "beta": 0.25,
+                "total_budget": 6.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/ki-ai-drsi/ichigo/policy/current.py",
+      "sha1": "0443aa796ab0",
+      "pareto": {
+        "auc": 0.3263455538221529,
+        "parallel_penalty": 0.310952380952381,
+        "parallelism_weight": 0.05,
+        "reward": 0.3107979347745339,
+        "n_traces_scored": 2,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.7828,
+            "n_evaluated": 8,
+            "auc": 0.375,
+            "parallel_penalty": 0.3038095238095238,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 5.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          },
+          {
+            "name": "r02",
+            "run_best": 0.8333,
+            "n_evaluated": 7,
+            "auc": 0.27769110764430577,
+            "parallel_penalty": 0.3180952380952381,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 5.0,
+                "attain": 0.9438377535101403
+              },
+              {
+                "beta": 0.25,
+                "total_budget": 6.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
           }
         ]
       },
@@ -37,11 +107,11 @@
       "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/ki-ai-drsi/policies/spread.py",
       "sha1": "3f18481612f7",
       "pareto": {
-        "auc": 0.375,
-        "parallel_penalty": 0.33380952380952383,
+        "auc": 0.3263455538221529,
+        "parallel_penalty": 0.3421428571428572,
         "parallelism_weight": 0.05,
-        "reward": 0.3583095238095238,
-        "n_traces_scored": 1,
+        "reward": 0.30923841096501004,
+        "n_traces_scored": 2,
         "per_trace": [
           {
             "name": "r01",
@@ -57,6 +127,26 @@
               }
             ],
             "varies": true
+          },
+          {
+            "name": "r02",
+            "run_best": 0.8333,
+            "n_evaluated": 7,
+            "auc": 0.27769110764430577,
+            "parallel_penalty": 0.3504761904761905,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 5.0,
+                "attain": 0.9438377535101403
+              },
+              {
+                "beta": 0.5,
+                "total_budget": 6.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
           }
         ]
       },
@@ -66,11 +156,11 @@
       "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/ki-ai-drsi/policies/frontier.py",
       "sha1": "8a3d26b06ed8",
       "pareto": {
-        "auc": 0.25,
-        "parallel_penalty": 0.2833333333333333,
+        "auc": 0.19642857142857142,
+        "parallel_penalty": 0.2988095238095238,
         "parallelism_weight": 0.05,
-        "reward": 0.23583333333333334,
-        "n_traces_scored": 1,
+        "reward": 0.18148809523809523,
+        "n_traces_scored": 2,
         "per_trace": [
           {
             "name": "r01",
@@ -86,39 +176,25 @@
               }
             ],
             "varies": true
+          },
+          {
+            "name": "r02",
+            "run_best": 0.8333,
+            "n_evaluated": 7,
+            "auc": 0.14285714285714285,
+            "parallel_penalty": 0.3142857142857143,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 6.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
           }
         ]
       },
       "non_degenerate": true
-    },
-    {
-      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/ki-ai-drsi/ichigo/policy/current.py",
-      "sha1": "8a836b9057c4",
-      "pareto": {
-        "auc": 0.0,
-        "parallel_penalty": 0.25,
-        "parallelism_weight": 0.05,
-        "reward": -0.0125,
-        "n_traces_scored": 1,
-        "per_trace": [
-          {
-            "name": "r01",
-            "run_best": 0.7828,
-            "n_evaluated": 8,
-            "auc": 0.0,
-            "parallel_penalty": 0.25,
-            "front": [
-              {
-                "beta": 0.0,
-                "total_budget": 8.0,
-                "attain": 1.0
-              }
-            ],
-            "varies": false
-          }
-        ]
-      },
-      "non_degenerate": false
     }
   ],
   "disqualified": []

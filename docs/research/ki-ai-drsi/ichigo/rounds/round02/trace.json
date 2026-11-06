@@ -2,7 +2,64 @@
   "baseline_score": 0.2877,
   "beta": 0.4,
   "branch_count": 4,
-  "cells": {},
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.2375 sig 0.5336 normal 0.1125 x1.0 themes spacing 0.171 whiff 0.677 ptr3 0.986 kessa 0.3",
+      "score": 0.4151
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.6627 normal 0.1 x1.0 themes spacing 0.106 whiff 0.663 ptr3 0.982 kessa 0.9",
+      "score": 0.7926
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.725 sig 0.4901 normal 0.075 x1.0 themes spacing 0.057 whiff 0.807 ptr3 0.957 kessa 0.139",
+      "score": 0.584
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 1.0 sig 0.7222 normal 0.075 x1.0 themes spacing 0.058 whiff 0.957 ptr3 1.0 kessa 0.873",
+      "score": 0.8333
+    },
+    "b2_a0": {
+      "error": "the agent was stopped before its first evaluation finished (native build still compiling); nothing delivered",
+      "fail_class": "resource",
+      "n_total": null,
+      "n_valid": null,
+      "note": "nothing scorable",
+      "score": 0.0
+    },
+    "b3_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.8125 sig 0.6502 normal 0.1 x1.0 themes spacing 0.155 whiff 0.711 ptr3 0.986 kessa 0.75",
+      "score": 0.7151
+    },
+    "b3_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9625 sig 0.6692 normal 0.1 x1.0 themes spacing 0.148 whiff 0.71 ptr3 0.944 kessa 0.875",
+      "score": 0.7865
+    }
+  },
   "directions": {},
   "grid_plan": {
     "clamp_reasons": [],
@@ -23,12 +80,7 @@
     "source": "policy"
   },
   "max_parallelism": 4,
-  "pending_batch": [
-    "b0_a0",
-    "b1_a0",
-    "b2_a0",
-    "b3_a0"
-  ],
+  "pending_batch": [],
   "policy_file": "rounds/round02/policy.py",
   "refine_count": 1,
   "round_index": 2,

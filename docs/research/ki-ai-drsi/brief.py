@@ -49,7 +49,10 @@ You work in your own git worktree checked out at the freeze commit {FREEZE} (the
 then `touch` both files (the native build goes by mtime).
 
 # Step 1. Read the complete history first
-Read every proposal.md under the sibling attempts, HISTORY_DIR and BASELINE_DIR in full, each with its score.rescored.json (the
+(Context budget: a round-2 cell ran out of context reading every file whole. Read each proposal's summary, mechanism and measurement
+sections and its score.rescored.json first; read whole files only for the cells your direction builds on; grep the style files rather
+than reading them end to end. Keep your own proposal.md under about 150 lines.)
+Read every proposal.md under the sibling attempts, HISTORY_DIR and BASELINE_DIR, each with its score.rescored.json (the
 coordinator's re-measure: THE number) and score.json. Trust the measured result over what a proposal claims. For each past attempt
 note the mechanism and how it did; for a failure, work out whether the idea was flawed or let down by a bug or a parameter (locate the
 bug in the code before retrying). Don't converge on small tweaks of one mechanism with flattening returns: prefer a structurally
