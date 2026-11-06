@@ -186,3 +186,21 @@
 (:name "S4 J1-J3 at pointer 3, his Reishi 40 (the kill by a J)" :p1 :ichigo :ptr 3 :dist 1.6 :fs 300 :p2-reishi 40 :script ((:quick 1) (:quick 1 :on :hit) (:quick 1 :on :hit)) :frames 200)
 (:name "S5 KESSA J1-J3 at pointer 3, his Reishi 40" :p1 :ichigo :form :kessa :ptr 3 :dist 1.6 :fs 300 :p2-reishi 40 :script ((:quick 1) (:quick 1 :on :hit) (:quick 1 :on :hit)) :frames 200)
 (:name "S6 KESSA J1-J3 at pointer 1, his Reishi 40" :p1 :ichigo :form :kessa :ptr 1 :dist 1.6 :fs 300 :p2-reishi 40 :script ((:quick 1) (:quick 1 :on :hit) (:quick 1 :on :hit)) :frames 200)
+
+;; T. the answers of means 2-3 against an opponent who turns too: his AS after his J's cancel; his SA in his NS gap
+(:name "T1 NS1a vs his J1 (f8) > his AS1 (f15)" :p1 :ichigo :ptr 1 :dist 2.4 :fs 300 :script ((:quick 1 :modded t)) :p2-press ((8 :quick 1) (15 :quick 1 t)) :frames 120)
+(:name "T2 NS1a vs his J1 (f8) > his AS1 (f20)" :p1 :ichigo :ptr 1 :dist 2.4 :fs 300 :script ((:quick 1 :modded t)) :p2-press ((8 :quick 1) (20 :quick 1 t)) :frames 120)
+(:name "T3 NS1a vs his J1 (f8) > his AS1 (f30)" :p1 :ichigo :ptr 1 :dist 2.4 :fs 300 :script ((:quick 1 :modded t)) :p2-press ((8 :quick 1) (30 :quick 1 t)) :frames 120)
+(:name "T4 NS1a vs his J1 (f8) > his AS1 (f15), her SA at f12" :p1 :ichigo :ptr 1 :dist 2.4 :fs 300 :script ((:quick 1 :modded t) (:quick 1 :wait 12)) :p2-press ((8 :quick 1) (15 :quick 1 t)) :frames 120)
+(:name "T5 NS1a vs his J1 (f8) > his J2 (f15)" :p1 :ichigo :ptr 1 :dist 2.4 :fs 300 :script ((:quick 1 :modded t) (:quick 1 :wait 12)) :p2-press ((8 :quick 1) (15 :quick 1)) :frames 120)
+(:name "T6 J1 into his NS1a > his SA (f20) > her AS1" :p1 :ichigo :dist 2.0 :fs 300 :script ((:quick 1 :wait 4) (:quick 1 :modded t :on :hit)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (20 :quick 1)) :frames 130)
+(:name "T7 J1 into his NS1a > his SA (f28) > her AS1" :p1 :ichigo :dist 2.0 :fs 300 :script ((:quick 1 :wait 4) (:quick 1 :modded t :on :hit)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (28 :quick 1)) :frames 130)
+(:name "T8 J1 into his NS1a > his SA (f36) > her AS1" :p1 :ichigo :dist 2.0 :fs 300 :script ((:quick 1 :wait 4) (:quick 1 :modded t :on :hit)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (36 :quick 1)) :frames 130)
+(:name "T9 J1 into his NS1a > his SA (f44) > her AS1" :p1 :ichigo :dist 2.0 :fs 300 :script ((:quick 1 :wait 4) (:quick 1 :modded t :on :hit)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (44 :quick 1)) :frames 130)
+(:name "T10 J1 into his NS1a > his NS1b (f20)" :p1 :ichigo :dist 2.0 :fs 300 :script ((:quick 1 :wait 4) (:quick 1 :modded t :on :hit)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (20 :quick 1 t)) :frames 130)
+;; ... the two turns (her AS, his SA) against each other: the later start wins
+(:name "T11 J1 into his NS1a > her AS1 at once (f15) > his SA (f28)" :p1 :ichigo :dist 2.0 :fs 300 :script ((:quick 1 :wait 4) (:quick 1 :modded t :wait 10)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (28 :quick 1)) :frames 130)
+(:name "T12 J1 into his NS1a > his SA (f20) > her AS1 later (f24)" :p1 :ichigo :dist 2.0 :fs 300 :script ((:quick 1 :wait 4) (:quick 1 :modded t :wait 19)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (20 :quick 1)) :frames 130)
+(:name "T13 NS1a vs his J1 (f8) > his AS1 (f20) > her SA (f30)" :p1 :ichigo :ptr 1 :dist 2.4 :fs 300 :script ((:quick 1 :modded t) (:quick 1 :wait 29)) :p2-press ((8 :quick 1) (20 :quick 1 t)) :frames 120)
+(:name "T14 NS1a at 3.4 m catches his walk-in (his J1 at f28 never starts), SA" :p1 :ichigo :ptr 1 :dist 3.4 :fs 300 :script ((:quick 1 :modded t) (:quick 1 :wait 26)) :p2-press ((0 :walk 20 nil 1) (28 :quick 1)) :frames 110)
+(:name "T15 NS1a at 3.4 m catches his walk-in" :p1 :ichigo :ptr 1 :dist 3.4 :fs 300 :script ((:quick 1 :modded t)) :p2-press ((0 :walk 20 nil 1) (28 :quick 1)) :frames 110)

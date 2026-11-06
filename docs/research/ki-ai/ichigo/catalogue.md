@@ -4,7 +4,7 @@
 Every trial ran in the native sim. P1 is Ichigo pressing only its script. P2 is Kenpachi: his sealed form (`:base`) unless the
 trial says Shikai (`:nozarashi`). He stands still unless `:p2-press` makes him act.
 
-All 147 trials are deterministic: two runs gave the same table.
+All 162 trials are deterministic: repeated runs gave the same table.
 
 **Columns**
 - **dmg**: Reishi he lost, after scaling. The sim's damage against sealed Kenpachi is about 0.53 x the kit's base (J1 32 → 17,
@@ -77,10 +77,22 @@ All 147 trials are deterministic: two runs gave the same table.
 ### The triangle against him (`:p2-press`)
 
 - **M7**: J1 against his J1 on the same frame, 1.6 m. **His J1 wins**: S6 against S14.
-- **M8 / M9**: his J1 (f8) into her NS1a cancels: NA against NS, no damage, both go on. Her NS1a then lands (44), and her SA follows (66).
-- **M10**: his J1 into NS1a's gap, then her SA. The SA beats his NA (66).
-- **M11**: her J1 into his NS1a cancels, then her AS1 lands (54). **M12**: the same through his armoured NS2a: both cancel, and the
-  AS1 lands (33).
+- **M8 / M9**: his J1 (f8) into her NS1a cancels: NA against NS, no damage, both go on. If he stops there, her NS1a lands (44)
+  and her SA follows (66).
+- **But he can turn (T1–T4, T13)**: his AS1 pressed after that cancel (f15 / f20 / f30) absorbs her NS1a and lands (90 base,
+  knockdown) every time.
+  - Her SA can't come in time: NS1a's gap opens after f26.
+  - Only if he goes on with a plain J2 does her SA win (T5, 34).
+  - The generic CPU always turns here: it presses the AS when it sees an NS after its link landed or cancelled.
+- **M10** does not isolate SA against his NA: her NS1a hit him first.
+- **M11 / M12**: her J1 into his NS1a (or his armoured NS2a) cancels, then her J1 lands and her AS1 follows (54 / 33). Only when
+  he does nothing in his NS gap.
+- **His SA in his NS gap (T6, T7)**, pressed at f20 / f28, absorbs her J1 and hits her (30). Her J1 never lands, so her chain never
+  opens: an AS press then starts nothing (T11, T12).
+  - Only a late SA (f36, f44) loses to her J1 > AS1 (T8, T9).
+  - His NS1b continuation loses to her AS1 (T10).
+  - The generic CPU takes that SA on its turn roll (`*cai-turn-p*` 0.8 HARD) when it sees an NA.
+- **T14 / T15**: her NS1a at 3.4 m catches his walk-in (36; then the SA, 54).
 - **M13**: her NS2 charge at 2.0 m. His J1 cancels it and his AS1 lands (**90 base, knockdown**). **M14**: his NS1a simply hits
   the charge (65). Charging near him is punished; the generic CPU does exactly this, since it turns to the AS on seeing an NS.
 - **M15**: NS2abc at 6.6 m. He runs in at f0 (Step held) and his NS1a hits before the wave leaves.
@@ -127,6 +139,8 @@ His whiff recovery is R + 6 + 8 (`*whiff-extra*` + `*whiff-add*`): J1 28, NS1a 4
 
 ### Refuted or limited (kept in the file as proofs, not as means)
 
+- **M8–M12 as answers to his moves**: they hold only if he takes no turn himself. His AS after his J's cancel (T1–T4, T13) and
+  his SA in his NS gap (T6, T7, T11, T12) beat them.
 - **M21**: NS3a at f10 against his NS1a whiff. Her lunge runs into his active frames and his NS1a hits her. Wait until f18 (M26).
 - **M24**: J1 against his J1 whiff at 3.2 m. Out of her J1's reach.
 - **L3**: the awakening pressed inside the J string does nothing. Only from neutral (L1).
@@ -306,3 +320,18 @@ Each costs 100 flash step (−84 with the regen).
 | S4 J1-J3 at pointer 3, his Reishi 40 (the kill by a J) | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -5 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32 |
 | S5 KESSA J1-J3 at pointer 3, his Reishi 40 | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -5 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30 |
 | S6 KESSA J1-J3 at pointer 1, his Reishi 40 | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -4 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30 |
+| T1 NS1a vs his J1 (f8) > his AS1 (f15) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  5771] P2 KE-Z-AS1 HIT 90 |
+| T2 NS1a vs his J1 (f8) > his AS1 (f20) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  5892] P2 KE-Z-AS1 HIT 90 |
+| T3 NS1a vs his J1 (f8) > his AS1 (f30) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  6014] P2 KE-Z-AS1 HIT 90 |
+| T4 NS1a vs his J1 (f8) > his AS1 (f15), her SA at f12 | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  6131] P2 KE-Z-AS1 HIT 90 |
+| T5 NS1a vs his J1 (f8) > his J2 (f15) | 18 | 1 | 1 | — | ? | 0.85 | +0 | +0 | 0 / 0 | +0 | IC-SA HIT 34 |
+| T6 J1 into his NS1a > his SA (f20) > her AS1 | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [  6368] P2 KE-Z-SA1 HIT 30 |
+| T7 J1 into his NS1a > his SA (f28) > her AS1 | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [  6498] P2 KE-Z-SA1 HIT 30 |
+| T8 J1 into his NS1a > his SA (f36) > her AS1 | 44 | 2 | 2 | 0 | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 |
+| T9 J1 into his NS1a > his SA (f44) > her AS1 | 44 | 2 | 2 | 0 | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 |
+| T10 J1 into his NS1a > his NS1b (f20) | 27 | 1 | 1 | — | ? | 1.89 | +0 | +0 | 0 / 0 | +0 | IC-AS1 HIT 50 |
+| T11 J1 into his NS1a > her AS1 at once (f15) > his SA (f28) | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [  7018] P2 KE-Z-SA1 HIT 30 |
+| T12 J1 into his NS1a > his SA (f20) > her AS1 later (f24) | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [  7148] P2 KE-Z-SA1 HIT 30 |
+| T13 NS1a vs his J1 (f8) > his AS1 (f20) > her SA (f30) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  7282] P2 KE-Z-AS1 HIT 90 |
+| T14 NS1a at 3.4 m catches his walk-in (his J1 at f28 never starts), SA | 54 | 2 | 2 | 0 | 3 | 0.87 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 |
+| T15 NS1a at 3.4 m catches his walk-in | 36 | 1 | 1 | — | 2 | 1.92 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
