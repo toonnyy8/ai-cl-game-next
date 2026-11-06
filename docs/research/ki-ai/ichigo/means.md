@@ -21,30 +21,22 @@
   - 10 ended in a wave hit;
   - 5 in an SA.
 
-## The means, strongest first
+## The means, robust first
 
-1. **Own the 4–5 m band with NS3a (RANGETSU's lunge).** Needs pointer 3.
-   - Her NS3a hits from 5.0 m (R5).
-   - His sealed reach: NS1a 3.3 m (R11; misses at 3.6, M4), NS3b 3.6 m (M6; misses at 4.0, R13), J1 2.4 m (M1; misses at 2.7, R10).
-   - From 4.6 m: NS3a SA J2–J5 AS3abc, 197, knockdown, +46 at 1.8 m (R25). Or AS2ab, 128, +69 at 4.3 m (R24).
-   - The cleaver owns no band: her NS1a reaches 3.0–3.4 m (B3 / R1), the same as his NS1a.
-   - Against his Shikai the band is gone: his NS1a (slide 3.0) reaches 4.6 m (R15).
+Robust: they hold against an opponent who keeps acting (U-series, T-series).
 
-2. **Punish his whiffs.** A whiff recovers R + 14: J1 28, NS1a 40, NS2a 42 frames after the active frames.
-   - His J string whiffing at 3.2 m: NS1a at f2–f4, 37 (M23, M29), or NS3a at f8, 38 (M28).
-   - His NS1a whiffing at 3.6 m: NS3a at f18 converts to **197** (M26, M27).
-   - His NS2a whiffing at 4.0 m: NS1a at f6, or NS3a at f20 (M22, M30).
-   - Her NS1a at 3.4 m also catches his walk-in (T14 / T15).
-   - **Refuted**: NS3a at f10 runs into his active frames (M21). J1 can't reach a 3.2 m whiff (M24).
+1. **Punish his J whiffs.** A whiffed J can't chain: `chain-open-p` needs contact, so his J2 pressed after a whiffed J1 starts
+   nothing (U12). His J1's whiff recovery is 28 frames after its active frames (R + 6 + 8).
+   - His J string whiffing at 3.2 m: NS1a at f2–f4, 37 (M23, M29, U12), or NS3a at f8, 38 (M28).
+   - **Refuted**: J1 can't reach a 3.2 m whiff (M24).
 
-3. **Finish a Reishi bar at pointer 3.** A Soul Break while pointer 3 is in play takes **5** Konpaku. At pointer 1 or 2 it takes 3
-   (Shikai) or 4 (KESSA).
+2. **Finish a Reishi bar at pointer 3** (a rule, not a read). A Soul Break while pointer 3 is in play takes **5** Konpaku. At
+   pointer 1 or 2 it takes 3 (Shikai) or 4 (KESSA).
    - Proof: the kill inside AS3, −5 (S1); a J kill at pointer 3, −5 (S4, S5); at pointer 1, −3 (S3); inside AS2, −3 (S2).
    - Every J5 + SP route writes pointer 3 and keeps it until the next AS (A12, B8, C8, D5, R25).
    - Two pointer-3 Soul Breaks are a K.O. from 9. The pointer survives Kikon and Soul Break resets (DUEL_CORE §2, default 6).
-   - Pointer 3 also gives NS3a, means 1. The two combine.
 
-4. **The Getsuga (JUJISHO, 82 dmg, knockdown, +55..+88) only where it can't be beaten.** Needs pointer 2.
+3. **The Getsuga (JUJISHO, 82 dmg, knockdown, +55..+88) only where it can't be beaten.** Needs pointer 2.
    - Charging at 2 m loses: his J1 cancels the charge and his AS1 lands, 90 base (M13); his NS1a hits it (M14).
    - From 6.6 m it loses to a run-in (M15). From 7.5 m on it lands first: R17, R18, M16 (10 m), C4, C5 (13 m).
    - Against a walk-in it lands from 3.6–6.6 m (R19, R20, R28).
@@ -53,7 +45,7 @@
      - AS2b's wave can't be escaped: he is still in hitstun, so a Hoho pressed then does nothing (R21).
      - J1–J4 AS2ab: 127, launch, +69 (A10).
 
-5. **Hold for a Kikon when he is red, not before.**
+4. **Hold for a Kikon when he is red, not before.**
    - Not red, his attack cancels the follow-up: NS1a's Kikon (E12) and the wave's Kikon (E15) both drop to 0 Konpaku.
    - The generic CPU cancels with `*cai-cancel-p*` 0.95 at HARD (0.7 NORMAL). In the diagnostic run, 16 of 113 non-red follow-ups
      landed.
@@ -61,9 +53,33 @@
    - Pointer 2 against red takes the Soul Break's count: J1–J3 AS2a held = **−3** in the Shikai (E14), 4 in KESSA (the sheet's table).
    - Pointer 1 and 3 Kikons take 1 (E1, E9, E10), 2 in KESSA (K13, K16).
 
-6. **Never open with J against his J.** His sealed J1 is S6 against her S14 (the 14-frame coil). On the same frame his J1 wins (M7).
+Conditional: each holds only in the case named.
 
-7. **The triangle answers work only against a non-reader** (the generic Kenpachi CPU reads).
+5. **The 4–5 m band with NS3a (RANGETSU's lunge).** Needs pointer 3.
+   - Her NS3a hits from 5.0 m (R5).
+   - His sealed reach: NS1a 3.3 m (R11; misses at 3.6, M4), NS3b 3.6 m (M6; misses at 4.0, R13), J1 2.4 m (M1; misses at 2.7, R10).
+   - From 4.6 m: NS3a SA J2–J5 AS3abc, 197, knockdown, +46 at 1.8 m (R25). Or AS2ab, 128, +69 at 4.3 m (R24).
+   - **It holds while he walks or stands** (unclassed: a clean hit). The generic CPU only walks at that range: it starts moves
+     within 3.6 m.
+   - It also beats a J1 he has out (U1, U2, U5).
+   - **It loses** to his AS read after that J1's cancel (U3, 90 on her). Against his NS1a it cancels to nothing (U4).
+   - Against his Shikai the band is gone: his NS1a (slide 3.0) reaches 4.6 m (R15).
+   - The cleaver owns no band: her NS1a reaches 3.0–3.4 m (B3 / R1), the same as his NS1a.
+
+6. **Punish his NS whiffs, only if he stops.** A whiffed NS recovers 40 (NS1a) / 42 (NS2a) frames, but an NS segment goes on with a
+   fresh SP, hit or not. The generic CPU presses the next one at `*cai-cont-p*` 0.85 (HARD).
+   - **He stops**:
+     - his NS1a whiffing at 3.6 m, her NS3a at f18 converts to **197** (M26, M27);
+     - his NS2a at 4.0 m, her NS1a at f6 or NS3a at f20 (M22, M30);
+     - an SA instead of the next segment also loses to her NS3a (U9).
+   - **He goes on**:
+     - NS1b hits her NS3a at f18 (U6, U8); waiting until f32 lands it (U7);
+     - NS2b hits her NS3a (U11); her NS1a at f6 only meets his armour (U10).
+   - **Refuted**: NS3a at f10 runs into his NS1a's active frames (M21).
+
+7. **Never open with J against his J.** His sealed J1 is S6 against her S14 (the 14-frame coil). On the same frame his J1 wins (M7).
+
+8. **The triangle answers work only against a non-reader** (the generic Kenpachi CPU reads).
    - **Her NS against his J (M8 / M9)**: his J1 cancels her NS1a. If he stops, her NS1a lands (44) and her SA follows (66).
      - But his AS after the cancel absorbs her NS1a and lands 90, knockdown (T1–T4, T13). Her SA can't come in time.
      - Only his plain J2 loses to her SA (T5).
@@ -75,14 +91,14 @@
      - Only his late SA (f36+, T8 / T9) or his NS1b continuation (T10) loses.
      - The generic CPU takes that SA on `*cai-turn-p*` 0.8 (HARD) when it sees an NA.
    - **So at 1.7–3.6 m, where both CPUs fight, Ichigo's slower openers (J1 S14, NS1a S22, the charges) lose the read.** Her
-     answers to that are ranges he can't reach (means 1, 4) and his whiffs (means 2).
+     answers to that are his J whiffs (means 1) and ranges he can't reach or doesn't act in (means 3, 5).
 
-8. **The best damage is the charged string, but only off a safe start.** Needs pointer 2.
+9. **The best damage is the charged string, but only off a safe start.** Needs pointer 2.
    - NS2a NS2b SA-g2 J2–J5 AS3abc: 365 (C8); 428 against his Shikai (H2); 342 in KESSA (K8).
    - It needs about 36 frames of charges (NS2a 20, NS2b 16) at ≤ 2.4 m before the SA-g2 starts. His J1 > AS1 punishes that (M13).
    - At most a read after a knockdown. Not measured against an acting opponent.
 
-9. **KESSA**: the same means, plus 20 % Reishi healed on entry and Kikon base 3.
+10. **KESSA**: the same means, plus 20 % Reishi healed on entry and Kikon base 3.
    - NS1 (the chains) reaches 3.4 m and ends +9 (K5, R8).
    - NS3a's SA lunges from 4.2 m and ends +11 (R27).
    - AS2 routes end at +79, 4.8 m (K3, K6).
@@ -100,9 +116,12 @@ button.
 | 2 | NS2 (charges > JUJISHO) | the wave at ≥ 7.5 m (R17 / R18), a red Kikon of 3 (E14) | **anything inside ~3.6 m**: the charges are punished (M13, M14) | AS2: J3 / J4 + SP (A9, A10, B7, D4) |
 | 3 | NS3 (RANGETSU's lunge, to 5.0 m) | the 4–5 m band (R5, R25), whiff punishes (M26–M30), the 5-Konpaku Soul Break (S1, S4) | his Shikai's 4.6 m NS1a (R15) | AS3: J5 + SP (A12, B8, C8, D5) |
 
+- **The match starts at pointer 1** (DUEL_CORE §2, default 6). The first pointer 3 comes from a close-range conversion (J1–J5 +
+  SP, or NS1a SA … J5 + SP), the range where she loses the read (means 8). Off a J whiff punish (means 1) or the NS1a whiff
+  punish at pointer 1, the string can run to J5 + SP.
 - After any AS2 route Ichigo is at pointer 2. Inside 3.6 m her next NS is then the charge, the losing case. The point-blank wave
   is worth that only when the next exchange happens at range.
-- Pointer 3 serves means 1, 2 and 3 at once: **the strongest state against the sealed form.**
+- Pointer 3 serves means 2, 5 and 6 at once: **the strongest state against the sealed form.**
 
 ## What the generic CPU (`duel/lisp/core-ai.lisp`) can never reach today
 

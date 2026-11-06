@@ -204,3 +204,17 @@
 (:name "T13 NS1a vs his J1 (f8) > his AS1 (f20) > her SA (f30)" :p1 :ichigo :ptr 1 :dist 2.4 :fs 300 :script ((:quick 1 :modded t) (:quick 1 :wait 29)) :p2-press ((8 :quick 1) (20 :quick 1 t)) :frames 120)
 (:name "T14 NS1a at 3.4 m catches his walk-in (his J1 at f28 never starts), SA" :p1 :ichigo :ptr 1 :dist 3.4 :fs 300 :script ((:quick 1 :modded t) (:quick 1 :wait 26)) :p2-press ((0 :walk 20 nil 1) (28 :quick 1)) :frames 110)
 (:name "T15 NS1a at 3.4 m catches his walk-in" :p1 :ichigo :ptr 1 :dist 3.4 :fs 300 :script ((:quick 1 :modded t)) :p2-press ((0 :walk 20 nil 1) (28 :quick 1)) :frames 110)
+
+;; U. means 1-2 against an opponent who keeps acting: NS3a from 4.6 m into his J1 / NS1a; the NS whiff punishes with his next segment
+(:name "U1 NS3a from 4.6 m, his J1 at f8" :p1 :ichigo :ptr 3 :dist 4.6 :fs 300 :script ((:quick 1 :modded t)) :p2-press ((8 :quick 1)) :frames 110)
+(:name "U2 NS3a from 4.6 m, his J1 at f12" :p1 :ichigo :ptr 3 :dist 4.6 :fs 300 :script ((:quick 1 :modded t)) :p2-press ((12 :quick 1)) :frames 110)
+(:name "U3 NS3a from 4.6 m, his J1 at f12 > AS1 at f20" :p1 :ichigo :ptr 3 :dist 4.6 :fs 300 :script ((:quick 1 :modded t)) :p2-press ((12 :quick 1) (20 :quick 1 t)) :frames 120)
+(:name "U4 NS3a from 4.6 m, his NS1a at f4" :p1 :ichigo :ptr 3 :dist 4.6 :fs 300 :script ((:quick 1 :modded t)) :p2-ptr 1 :p2-press ((4 :quick 1 t)) :frames 110)
+(:name "U5 NS3a from 4.6 m, his J1 at f16" :p1 :ichigo :ptr 3 :dist 4.6 :fs 300 :script ((:quick 1 :modded t)) :p2-press ((16 :quick 1)) :frames 110)
+(:name "U6 his NS1a > NS1b whiff at 3.6 m, her NS3a at f18" :p1 :ichigo :ptr 3 :dist 3.6 :fs 300 :script ((:quick 1 :modded t :wait 18)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (14 :quick 1 t)) :frames 120)
+(:name "U7 his NS1a > NS1b whiff at 3.6 m, her NS3a at f32" :p1 :ichigo :ptr 3 :dist 3.6 :fs 300 :script ((:quick 1 :modded t :wait 32)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (14 :quick 1 t)) :frames 130)
+(:name "U8 his NS1a > NS1b > NS1c at 3.6 m, her NS3a at f18" :p1 :ichigo :ptr 3 :dist 3.6 :fs 300 :script ((:quick 1 :modded t :wait 18)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (14 :quick 1 t) (26 :quick 1 t)) :frames 130)
+(:name "U9 his NS1a > SA at 3.6 m, her NS3a at f18" :p1 :ichigo :ptr 3 :dist 3.6 :fs 300 :script ((:quick 1 :modded t :wait 18)) :p2-ptr 1 :p2-press ((0 :quick 1 t) (20 :quick 1)) :frames 120)
+(:name "U10 his NS2a > NS2b at 4.0 m, her NS1a at f6" :p1 :ichigo :ptr 1 :dist 4.0 :fs 300 :script ((:quick 1 :modded t :wait 6)) :p2-ptr 2 :p2-press ((0 :quick 1 t) (16 :quick 1 t)) :frames 120)
+(:name "U11 his NS2a > NS2b at 4.0 m, her NS3a at f20" :p1 :ichigo :ptr 3 :dist 4.0 :fs 300 :script ((:quick 1 :modded t :wait 20)) :p2-ptr 2 :p2-press ((0 :quick 1 t) (16 :quick 1 t)) :frames 120)
+(:name "U12 his J1 whiff at 3.2 m > his J2 press, her NS1a at f2" :p1 :ichigo :ptr 1 :dist 3.2 :fs 300 :script ((:quick 1 :modded t :wait 2)) :p2-press ((0 :quick 1) (10 :quick 1) (16 :quick 1 t)) :frames 100)

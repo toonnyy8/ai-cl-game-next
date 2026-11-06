@@ -4,7 +4,7 @@
 Every trial ran in the native sim. P1 is Ichigo pressing only its script. P2 is Kenpachi: his sealed form (`:base`) unless the
 trial says Shikai (`:nozarashi`). He stands still unless `:p2-press` makes him act.
 
-All 162 trials are deterministic: repeated runs gave the same table.
+All 174 trials are deterministic: two full runs gave byte-identical tables.
 
 **Columns**
 - **dmg**: Reishi he lost, after scaling. The sim's damage against sealed Kenpachi is about 0.53 x the kit's base (J1 32 → 17,
@@ -102,6 +102,18 @@ All 162 trials are deterministic: repeated runs gave the same table.
 - **M17 / M18**: his armoured NS2a on the wave. `WAVE ARMORED`: the damage counts (97), with no knockdown, so he goes on.
   **M19**: his Hoho goes through the wave (0).
 - **M25**: his J1 AS1 held. Her J press in the follow-up cancels his Kikon (she is not red).
+
+### Means 1–2 against an opponent who keeps acting (U1–U12)
+
+- **NS3a from 4.6 m into his J1**, at f8 / f12 / f16: his J1 cancels her first cut, and her later cuts still land (38 / 30 / 10)
+  (U1, U2, U5).
+- **With his AS read after that cancel**, his AS1 absorbs all her cuts and lands 90 (U3).
+- **Into his NS1a at f4**: both cancel, nothing lands (U4).
+- **His NS whiff with the next segment pressed**:
+  - NS1a > NS1b: her NS3a at f18 is hit by NS1b, 55 (U6); NS1c follows, 70 (U8). Waiting until f32 lands it (U7).
+  - NS2a > NS2b: her NS1a at f6 hits armoured NS2a (36, no reaction) (U10); her NS3a at f20 is hit by NS2b, 95 (U11).
+  - His NS1a > his SA (whiffing at 3.6 m): her NS3a lands (U9).
+- **His J whiff can't chain** (no contact, `chain-open-p`): a J2 pressed after a whiffed J1 starts nothing, and her NS1a lands (U12).
 
 ### The range band (centre to centre, a standing target)
 
@@ -335,3 +347,15 @@ Each costs 100 flash step (−84 with the regen).
 | T13 NS1a vs his J1 (f8) > his AS1 (f20) > her SA (f30) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  7282] P2 KE-Z-AS1 HIT 90 |
 | T14 NS1a at 3.4 m catches his walk-in (his J1 at f28 never starts), SA | 54 | 2 | 2 | 0 | 3 | 0.87 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 |
 | T15 NS1a at 3.4 m catches his walk-in | 36 | 1 | 1 | — | 2 | 1.92 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
+| U1 NS3a from 4.6 m, his J1 at f8 | 38 | 4 | 4 | 0 0 0 | 5 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
+| U2 NS3a from 4.6 m, his J1 at f12 | 30 | 3 | 3 | 0 0 | 5 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
+| U3 NS3a from 4.6 m, his J1 at f12 > AS1 at f20 | 0 | 0 | 0 | — | ? | 1.93 | +0 | +0 | 0 / 0 | +0 | [  7846] P2 KE-Z-AS1 HIT 90 |
+| U4 NS3a from 4.6 m, his NS1a at f4 | 0 | 0 | 0 | — | ? | 5.22 | +0 | +0 | 0 / 0 | +0 |  |
+| U5 NS3a from 4.6 m, his J1 at f16 | 10 | 1 | 1 | — | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18 |
+| U6 his NS1a > NS1b whiff at 3.6 m, her NS3a at f18 | 0 | 0 | 0 | — | ? | 1.15 | +0 | +0 | 0 / 0 | +0 | [  8148] P2 KE-Z-N1B HIT 55 |
+| U7 his NS1a > NS1b whiff at 3.6 m, her NS3a at f32 | 38 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
+| U8 his NS1a > NS1b > NS1c at 3.6 m, her NS3a at f18 | 0 | 0 | 0 | — | ? | 1.15 | +0 | +0 | 0 / 0 | +0 | [  8398] P2 KE-Z-N1B HIT 55; [  8419] P2 KE-Z-N1C HIT 70 |
+| U9 his NS1a > SA at 3.6 m, her NS3a at f18 | 35 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
+| U10 his NS2a > NS2b at 4.0 m, her NS1a at f6 | 36 | 1 | 0 | — | 22 | 2.51 | +0 | +0 | 0 / 0 | +0 | IC-N1A ARMORED 68 |
+| U11 his NS2a > NS2b at 4.0 m, her NS3a at f20 | 0 | 0 | 0 | — | ? | 0.95 | +0 | +0 | 0 / 0 | +0 | [  8774] P2 KE-Z-N2B HIT 95 |
+| U12 his J1 whiff at 3.2 m > his J2 press, her NS1a at f2 | 36 | 1 | 1 | — | 2 | 2.70 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
