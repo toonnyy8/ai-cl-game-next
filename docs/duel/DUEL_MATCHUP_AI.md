@@ -30,7 +30,10 @@ What these mean, as I will build them:
 - **Seeds** (the user asked 「一定要用 40 場重量一次嗎？」, 2026-11-06): not required. One native process plays 10 KI matches in
   3.7 s, load included, and only one pairing is scored. I proposed 100 seeds a seat (about ±0.02 on a win share near 0.9);
   the user: 「不用這麼多，雜訊 ±0.03 已經很小了」. So **40 seeds a seat**: 80 HARD + 80 NORMAL matches, about ±0.03, seconds
-  at -j 8. Cells and the coordinator's rescore use the same fixed seeds 1–40.
+  at -j 8. Then 「10~20 場不夠嗎？」: the win share's 1σ at p ≈ 0.9 is ±0.07 / ±0.05 / ±0.03 at 10 / 20 / 40 a seat (×0.4 in
+  the score: ±0.027 / ±0.019 / ±0.013; near p = 0.5: ±0.11 / ±0.08 / ±0.06), and variants often differ by 0.02–0.05
+  (DREAM_RSI §5.4). My proposal, 「好，按你的建議來」: **a cell compares its own variants at 20 seeds a seat; the coordinator's
+  rescore, the dream-rsi record and the final pick use 40** (fixed seeds 1–20 / 1–40).
 
 ## 2. Baseline: the generic CPU in KI (2026-11-06, HEAD 382ab86)
 
