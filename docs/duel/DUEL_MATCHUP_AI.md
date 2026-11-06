@@ -104,3 +104,47 @@ Two agents, one a side, in `docs/research/ki-ai/<side>/`: `sheet.lisp` (a host g
   - no whiff punish, no pointer steering;
   - the Kikon held into a 0.95 cancel when he is not red;
   - it charges NS2 inside 3.6 m, into his AS read: 18 of 37 charges were hit in the diagnostic.
+
+## 4. Step 3: the styles and the signature (the user, 2026-11-06)
+
+Asked with AskUserQuestion (multi-select, the search mixes the chosen styles by chance). The user chose all four on both sides:
+
+| Side | Style | What it is |
+|---|---|---|
+| Kenpachi | 封印肉搏 (sealed brawl) | stay sealed: the J1 race (S6, 1.8 m against her S14), NS1a over every NS she starts, the pointer 3 tame as a read, the meaty J1 wake-up loop (64 a loop) |
+| | 解放攀升 (the Shikai climb) | build L to 3 on purpose (three lunges, or L2's NS2 a–d SA J2 J3 AS2, 251, ending at L3), then J4–J7 and the special AS (INSEKI-GIRI 174–198, DAISHARIN 166–190 + launch); avoid the burst that resets L |
+| | 卍解爆發 (the Bankai cash-out) | at L3 J1–J7 + SP into a Bankai (145, him 6 m away, +77), chase into KYORAN / ZANKAI strings (278–461), back by the special AS (CHIGIRI / TATE-GOTO). Needs the CPU's Bankai exit fixed |
+| | 破月牙 (anti-Getsuga) | close the wave's charges with Hoho / Step + NS1, cut the wave with the Shikai / Bankai J1, Hoho late through it; fills his empty 3.6–6.6 m |
+| Ichigo | 間合い管理 (spacing) | no exchange at 1.7–3.6 m; NS3a's lunge at 4–5 m (only she reaches; up to 197), the Getsuga from ≥ 7.5 m or point-blank inside AS2 |
+| | 揮空反擊 (whiff punish) | wait near 3.2 m for his whiff (a whiffed J can't chain, 28 f recovery) and punish with NS1a / NS3a; his NS whiff when he stops (NS3a → 197) |
+| | 指針三狩魂 (pointer 3) | run strings to J5 + SP to hold pointer 3: a Soul Break there takes 5 Konpaku, not 3; hold a Kikon only when he is red |
+| | KESSA 強攻 | enter KESSA early (20 % Reishi back): the chains' NS1 to 3.4 m, +9; NS3a's SA from 4.2 m; AS2 routes end +79 at 4.8 m |
+
+**The signature.** With four styles a side, the union of their moves is nearly every move, so a damage share would start near full. The
+user: 「四種主題不用完全均衡，但請讓 CPU 能在需要的時候有效利用對應的工具」. So the signature is **how often the right tool works when its
+situation comes up**, averaged over the four themes. Approved as drawn (「可以，照這張表」):
+
+| Side | Theme | Situation (one count each) | Success |
+|---|---|---|---|
+| Kenpachi | 封印肉搏 | sealed, both inside 3.6 m, an exchange starts | the first hit of the exchange is his |
+| | 解放攀升 | each stay in the Shikai | he reaches L3 and lands J4–J7 or a special AS |
+| | 卍解爆發 | each time he is at L3 | he enters a Bankai and leaves it by the special AS (not by his Reishi running out) |
+| | 破月牙 | Ichigo starts a Getsuga at 3.6–6.6 m | the wave does not hit him, and he hits her before her next move |
+| Ichigo | 間合い管理 | the distance is 4–5 m or ≥ 7.5 m | she lands a hit from that distance (NS3a or the Getsuga) |
+| | 揮空反擊 | he whiffs inside 3.6 m | she hits him during his recovery |
+| | 指針三狩魂 | his Reishi bar breaks / she holds a Kikon | pointer 3 at the break (−5) / he is red when she holds |
+| | KESSA 強攻 | her awakening gauge is full | she enters KESSA, and deals ≥ what she takes while in it |
+
+A theme's score = successes / situations; a theme whose situation never came up scores 0; the signature = the mean of the four. The
+situations are detected by a frozen observer in `tools/simgate/` that reads the sim's state each step, never by the CPU's own code.
+
+## 5. Where the matchup CPU lives (2026-11-06)
+
+- `core-ai.lisp` `*cai-styles*` (own character → opponent → function), registered by `cai-defstyle` from the style's own file. In
+  `core-brain-step`, a registered style runs first on every step the CPU is free to press (no press held, not locked) and returns T when it
+  decided; NIL leaves the step to the generic CPU. No entry: the generic CPU unchanged.
+- The brain's new slot `style` holds the style's own state.
+- `gate.lisp` `*step-hook*`: a tool's per-step observer, NIL in play (the evaluator's situation detector).
+- Proof that this changes nothing: host tests 9843 ALL PASS, pkgcheck clean, native `--cvc` II / IK / KK identical.
+- The style files: `duel/lisp/cpu-ki-ken.lisp` (Kenpachi against Ichigo), `duel/lisp/cpu-ki-ichigo.lisp` (Ichigo against Kenpachi), after
+  `core-ai.lisp` in the MANIFEST. Once they register, IK's G2 reference moves by design; II and KK must stay identical.

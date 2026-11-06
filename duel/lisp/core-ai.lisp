@@ -21,6 +21,17 @@
 (defparameter *cai-ranged-gap* 80 "Steps to wait before the next decision after such a shot (a wave is not spammed).")
 (defparameter *cai-awaken-p* 0.02 "Awaken, per decision, once the gauge is full.")
 
+;;; Matchup style CPUs (DUEL_MATCHUP_AI, the user 2026-11-06): a style function for one character against one opponent runs before
+;;; the generic decision on every step the CPU is free to press; it returns T when it decided this step (pressed, or chose to wait),
+;;; NIL to leave the step to the generic CPU. No entry: the generic CPU as before (every other pairing).
+(defparameter *cai-styles* nil "(own-character (opp-character fn ...) ...): a matchup's style function, FN (e b f kit s d) -> T if it decided.")
+(defun cai-defstyle (own opp fn)
+  "Register FN as OWN's style against OPP (a load-time call in the style's file)."
+  (setf (getf (getf *cai-styles* own) opp) fn))
+(defun cai-style-fn (f)
+  "F's style function against his opponent, or NIL (no consing: plists)."
+  (and *cai-styles* (getf (getf *cai-styles* (kit-character (fighter-kit f))) (kit-character (fighter-kit (fighter-opp f))))))
+
 (defun cai-class-of (o s)
   "The triangle class of the move the perceived SNAP S shows fighter O in (:na :ns :as :sa), or NIL."
   (and (eq (snap-state s) :move) (snap-move s) (kit-class (kit-of o) (snap-move s))))
@@ -124,6 +135,7 @@
         (setf (brain-press-left b) (max (brain-press-left b) (- (1+ *core-kikon-confirm*) (fighter-hold f)))))   ; through the confirm
       (unless (or (brain-off b) (> (fighter-lock f) 0) (eq (fighter-state f) :cine))
         (cond ((> (brain-press-left b) 0) (decf (brain-press-left b)))
+              ((let ((st (cai-style-fn f))) (and st (funcall st e b f kit s d))))   ; a matchup style decided (DUEL_MATCHUP_AI)
               (t (case (fighter-state f)
                    ((:idle :run) (cai-neutral e b f kit s d))
                    (:move (cai-move-step e b f kit s))

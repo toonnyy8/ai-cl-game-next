@@ -225,6 +225,7 @@ is holding. Identity comes from the kit's :AI tables."
   (own-key -1 :type fixnum)            ; the core CPU (core-ai.lisp): the tick of his own move the rolls below were made for
   (r-turn 1f0 :type single-float) (r-cont 1f0 :type single-float) (r-kikon 1f0 :type single-float)   ; ... and the rolls
   (decided -1 :type fixnum)             ; ... the tick of his move a decision was already made for
+  (style nil)                           ; a matchup style CPU's own state (core-ai.lisp *CAI-STYLES*, DUEL_MATCHUP_AI); NIL until it runs
   (off nil))                            ; debug: this CPU does nothing
 (defun brain-chance (b plist)
   "PLIST's chance (:easy :normal :hard) at brain B's difficulty (a missing key: NORMAL's, else 0)."

@@ -102,8 +102,10 @@ KATAUDE (0-4), rung changes 1->2 (5), 2->3 (6), 3->2 (7), 2->1 (8), 3->1 (9: the
                  (coerce (subseq a 0 5) 'list) (aref a 5) (aref a 6) (aref a 7) (aref a 8) (aref a 9)
                  (aref a 10) (aref a 11) (aref a 12) (aref a 13))))))
 
+(defvar *step-hook* nil "A tool's per-step observer (tools/simgate's matchup evaluator, DUEL_MATCHUP_AI): a function of no arguments, NIL in play.")
 (defun hash-log ()
   (when *pacing-log* (band-acc-step) (cup-acc-step))   ; (the gate's lines only: off in play)
+  (when *step-hook* (funcall *step-hook*))             ; (reads the state only; never set by the game)
   (when (and (eq *flow* :battle) (plusp *match-tick*) (zerop (mod *match-tick* 600)))
     (log-msg "~a" (state-hash-line)))
   (when (and *gate-log* (eq *flow* :battle) (plusp *match-tick*) (zerop (mod *match-tick* 60)))   ; pace.py reads these
