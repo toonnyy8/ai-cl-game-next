@@ -148,3 +148,32 @@ situations are detected by a frozen observer in `tools/simgate/` that reads the 
 - Proof that this changes nothing: host tests 9843 ALL PASS, pkgcheck clean, native `--cvc` II / IK / KK identical.
 - The style files: `duel/lisp/cpu-ki-ken.lisp` (Kenpachi against Ichigo), `duel/lisp/cpu-ki-ichigo.lisp` (Ichigo against Kenpachi), after
   `core-ai.lisp` in the MANIFEST. Once they register, IK's G2 reference moves by design; II and KK must stay identical.
+
+## 6. The evaluator and its baseline (2026-11-06)
+
+`tools/matchup-eval.py --side ken|ichigo [--seeds 40]` (§1, §4), with the observer `tools/simgate/situ.lisp` run by
+`tools/simgate/run-situ.lisp`. The observer hangs on `*step-hook*`, reads the state each step and prints a line as each situation
+closes. Ichigo's pointer-3 theme comes from the combat log: her SOUL BREAK lines (ok at −5 Konpaku) and KIKON FOLLOW-UP lines (ok when
+"(red)"). The NORMAL band runs against the other side's **generic** CPU (`SITU_GENERIC` unregisters its style), so one side's band
+does not move when the other side's style changes from round to round. The band = the generic-vs-generic NORMAL share ± 0.10, the
+factor falling to 0 another 0.15 out.
+
+How each situation is detected (frozen with the evaluator):
+
+| Theme | Opens | Closes / success |
+|---|---|---|
+| brawl | sealed, ≤ 3.6 m, either side starts a classed move, both free, no hit this step | the first Reishi drop within 120 steps: ok if only Ichigo's; no hit: not counted |
+| shikai | Kenpachi enters the Shikai | he leaves it or the match ends: ok if ke-s-j4…j7 / ke-s-sp1 / sp2 hit during the stay |
+| bankai | his L rises to 3 | ok when a Bankai entered after it ends back in the Shikai (only the special AS does that, `ken-bk-tick`); open at the match end: fail |
+| antiwave | Ichigo starts ic-n2a / ic-k-n2a at 3.6–6.6 m | she starts a move outside the NS2 route, or 200 steps: ok if he hit her and her wave (a hazard of hers, or the wave segment) never hit him |
+| spacing | the distance enters 4–5 m or ≥ 7.5 m, both free | ok if she hits him with a move started at ≥ 4 m or a wave; fail 90 steps after leaving the band |
+| whiff | his classed move started inside 3.6 m passes its active frames with no contact | ok if she hits him before that move ends (+4 steps) |
+| ptr3 | her SOUL BREAK / her KIKON FOLLOW-UP (combat log) | ok at −5 Konpaku / "(red)" |
+| kessa | her awakening gauge fills (not in KESSA) | at the match end: ok if she entered KESSA and dealt ≥ what she took there |
+
+**Baseline**: generic vs generic, 40 seeds a seat, at bcf196a plus the evaluator.
+
+| Side | HARD | Strength | Signature | Themes (ok / situations) | NORMAL | Score |
+|---|---|---|---|---|---|---|
+| Kenpachi | 76/80 | 0.950 | 0.326 | brawl 0.66 (3472/5241), shikai 0 (0/65), bankai 0 (0/157), antiwave 0.64 (9/14) | 0.9625 (band 0.86–1.0) | 0.576 |
+| Ichigo | 4/80 | 0.050 | 0.084 | spacing 0.02 (60/3011), whiff 0.22 (548/2511), ptr3 0.10 (88/901), kessa 0 (0/80) | 0.0375 (band 0–0.14) | 0.070 |
