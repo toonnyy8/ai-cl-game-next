@@ -23,8 +23,8 @@ def main():
                        cwd=simgate.ROOT, capture_output=True, text=True, env=dict(os.environ, LD_PRELOAD=simgate.MUSLM))
     if r.returncode:
         sys.exit((r.stdout + r.stderr)[-3000:] + f'\n[combo-trial] exited {r.returncode}')
-    print('| Trial | dmg | hits | combo | gaps | adv | dist | Reiatsu | FS | layers / chill | log |')
-    print('|---|---|---|---|---|---|---|---|---|---|---|')
+    print('| Trial | dmg | hits | combo | gaps | adv | dist | Reiatsu | FS | layers / chill | log | more |')
+    print('|---|---|---|---|---|---|---|---|---|---|---|---|')
     log = []
     for line in r.stdout.splitlines():
         if 'trial begin' in line:
@@ -34,7 +34,7 @@ def main():
             kv = {x.split(' ', 1)[0]: x.split(' ', 1)[1] if ' ' in x else '' for x in f[1:]}
             hits = [re.sub(r'^\[\s*\d+\] P1 ', '', l).replace(' -> P2', '') for l in log if re.search(r'\] P1 \S+ -> P2 ', l)]
             print(f"| {f[0]} | {kv['dmg']} | {kv['hits']} | {kv['combo']} | {kv['gaps'] or '—'} | {kv['adv']} | {kv['dist']} | "
-                  f"{kv['reiatsu']} | {kv['fs']} | {kv['layers'].replace(' chill ', ' / ')} | {'; '.join(hits)} |")
+                  f"{kv['reiatsu']} | {kv['fs']} | {kv['layers'].replace(' chill ', ' / ')} | {'; '.join(hits)} | {kv.get('more', '')} |")
             if show:
                 print('\n'.join('    ' + l for l in log))
         elif re.match(r'\[\s*\d+\] ', line.split('duel ', 1)[-1]) or line.startswith('['):
