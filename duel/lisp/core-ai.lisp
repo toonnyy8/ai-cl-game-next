@@ -30,7 +30,7 @@
   (setf (getf (getf *cai-styles* own) opp) fn))
 (defun cai-style-fn (f)
   "F's style function against his opponent, or NIL (no consing: plists)."
-  (and *cai-styles* (getf (getf *cai-styles* (kit-character (fighter-kit f))) (kit-character (fighter-kit (fighter (fighter-opp f)))))))
+  (and *cai-styles* (getf (getf *cai-styles* (kit-character (fighter-kit f))) (kit-character (fighter-kit (fighter (fighter-opp f)))))))   ; (FIGHTER-OPP is his entity)
 
 (defun cai-class-of (o s)
   "The triangle class of the move the perceived SNAP S shows fighter O in (:na :ns :as :sa), or NIL."
