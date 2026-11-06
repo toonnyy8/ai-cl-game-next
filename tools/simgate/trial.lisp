@@ -11,6 +11,9 @@
 ;;;; acting, through the real input path). A core kit's P1 (its BRAIN-STEP goes to CORE-BRAIN-STEP, which never reads the :trial
 ;;;; habit) is driven here: its brain off, TRIAL-STEP called once per sim frame (the vpad is still written from the brain's press).
 ;;;; :p2-reishi X his Reishi (red under 30 %). The end line also gives his Konpaku change.
+;;;; :p2-at ((sim-frame :j|:sp [frames]) ...): P2 presses J / SP (held FRAMES, default 1) on that SIM frame of the trial (from 0; hitstop /
+;;;; slow-motion frames don't count; Kenpachi's file). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
+;;;; gauges (they carried over). The end line's "more": P1's own Reishi change, both Konpaku changes (P1/P2), P1's form, pointer, kit meter.
 (defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
 (load (first cl-user::*sg-args*) :verbose nil)
 (in-package :duel)
@@ -44,13 +47,16 @@ from that act)."
 (defun trial-run (tr)
   (destructuring-bind (&key name (p1 :rukia) (form :base) (p2 :kenpachi) (p2-form :base) (dist 2.0) (layers 0) (chill 0)
                          (dummy :stand) (frames 150) script (bars 3) (fs 100) (meter 0.0)
-                         ptr p2-ptr awaken p2-press p2-reishi) tr
+                         ptr p2-ptr awaken p2-press p2-reishi p2-at) tr
     (ensure-battle p1 p2 :cpu t)
     (force-form *p1* form) (force-form *p2* p2-form)
     (dolist (e (list *p1* *p2*)) (setf (gauges-awakened (gauges e)) (kit-awakening (kit-of e))))   ; (an earlier trial's awakened form stays set)
     (place *p1* *p2* dist)
     (when *cine* (skip-cine))
-    (dolist (e (list *p1* *p2*)) (burst-end! e) (full-gauges! e 0f0) (setf (gauges-konpaku (gauges e)) *konpaku-max*))
+    (setf *timer* 36000)                                ; (no time-up mid-file: one match carries every trial)
+    (dolist (e (list *p1* *p2*)) (burst-end! e) (full-gauges! e 0f0) (setf (gauges-konpaku (gauges e)) *konpaku-max*)
+      (let ((g (gauges e)))                             ; (SUBLIMATION / DRIVE scale the damage: none carried from the last trial)
+        (setf (gauges-sub g) 0f0 (gauges-sub-s g) 0f0 (gauges-drive g) 0f0 (gauges-awaken g) 0f0)))
     (setf (gauges-meter (gauges *p1*)) (f32 meter))   ; (her kit meter: Rukia's cold, which picks her band)
     (setf (gauges-reiatsu (gauges *p1*)) (f32 (* bars *reiatsu-bar*)) (gauges-fs (gauges *p1*)) (f32 fs))
     (when ptr (setf (fighter-ptr (fighter *p1*)) ptr))
@@ -68,7 +74,8 @@ from that act)."
     (log-msg "trial begin ~a" name)
     (let* ((g1 (gauges *p1*)) (g2 (gauges *p2*)) (r0 (gauges-reishi g2)) (ra0 (gauges-reiatsu g1)) (fs0 (gauges-fs g1))
            (k0 (gauges-konpaku g2)) (core1 (kit-core (kit-of *p1*))) (b1 (brain *p1*)) (b2 (brain *p2*))
-           (prev r0) (hits 0) (cmax 0) (gaps nil) (run2 0) (last-hit nil) (free1 nil) (free2 nil))
+           (prev r0) (hits 0) (cmax 0) (gaps nil) (run2 0) (last-hit nil) (free1 nil) (free2 nil)
+           (s0 (gauges-reishi g1)) (k1 (gauges-konpaku g1)) (vp2 (pilot-vpad (pilot *p2*))) (tick2 -1) (simf 0))
       (dotimes (i frames)
         (when core1 (trial-core-drive *p1* b1))
         (dolist (p p2-press)
@@ -76,6 +83,12 @@ from that act)."
             (when (= i at)
               (ai-press b2 btn n :modded md :act (if st :dash :hold))
               (when st (setf (brain-dash b2) (f32 st) (brain-dash-to b2) (if (plusp st) -1f0 99f0))))))
+        (when (and p2-at (/= tick2 (vpad-tick vp2)))     ; (:p2-at: once per sim frame, by his vpad clock)
+          (setf tick2 (vpad-tick vp2))
+          (when (plusp (brain-press-left b2)) (decf (brain-press-left b2)))
+          (dolist (a p2-at)
+            (when (= (first a) simf) (ai-press b2 :quick (or (third a) 1) :modded (eq (second a) :sp) :act :hold)))
+          (incf simf))
         (engine::%frame)
         (when (and p2-press (trial-sim-frame-p *p2* 1) (plusp (brain-press-left b2))) (decf (brain-press-left b2)))   ; (his brain is off)
         (let ((r (gauges-reishi g2)) (c (fighter-combo-hits (fighter *p2*))))
@@ -88,12 +101,14 @@ from that act)."
             (if (trial-free-p *p1*) (unless free1 (setf free1 i)) (setf free1 nil))
             (if (trial-free-p *p2*) (unless free2 (setf free2 i)) (setf free2 nil)))))
       (let* ((p (pos-of *p1*)) (q (pos-of *p2*)) (f2 (fighter *p2*)))
-        (log-msg "trial end ~a | dmg ~d | hits ~d | combo ~d | gaps ~{~d~^ ~} | last hit f~a | free P1 f~a P2 f~a | adv ~a | dist ~,2f | reiatsu ~@d | fs ~@d | layers ~d chill ~d | p1 ~(~a~) p2 ~(~a~) | konpaku ~@d"
+        (log-msg "trial end ~a | dmg ~d | hits ~d | combo ~d | gaps ~{~d~^ ~} | last hit f~a | free P1 f~a P2 f~a | adv ~a | dist ~,2f | reiatsu ~@d | fs ~@d | layers ~d chill ~d | p1 ~(~a~) p2 ~(~a~) | konpaku ~@d | more self ~@d konpaku ~@d/~@d form ~(~a~) ptr ~d meter ~d"
                  name (round (- r0 (gauges-reishi g2))) hits cmax (rest (reverse gaps)) last-hit free1 free2
                  (if (and free1 free2) (- free2 free1) "?")
                  (sqrt (+ (expt (- (aref q 0) (aref p 0)) 2) (expt (- (aref q 2) (aref p 2)) 2)))
                  (round (- (gauges-reiatsu g1) ra0)) (round (- (gauges-fs g1) fs0)) (fighter-layers f2) (fighter-chill f2)
-                 (fighter-state (fighter *p1*)) (fighter-state f2) (- (gauges-konpaku g2) k0))))
+                 (fighter-state (fighter *p1*)) (fighter-state f2) (- (gauges-konpaku g2) k0)
+                 (round (- (gauges-reishi g1) s0)) (- (gauges-konpaku g1) k1) (- (gauges-konpaku g2) k0)
+                 (fighter-form (fighter *p1*)) (fighter-ptr (fighter *p1*)) (round (gauges-meter g1)))))
     (trial-reset nil) (setf (brain-habit (brain *p1*)) nil (brain-off (brain *p1*)) t)))
 
 (with-open-file (in (second cl-user::*sg-args*))

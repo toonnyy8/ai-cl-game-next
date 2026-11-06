@@ -183,179 +183,181 @@ Each costs 100 flash step (−84 with the regen).
 
 ## All trials
 
-| Trial | dmg | hits | combo | gaps | adv | dist | Reiatsu | FS | layers / chill | Konpaku | log |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| A1 J1 | 17 | 1 | 1 | — | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32 |
-| A2 J1 J2 | 34 | 2 | 2 | 0 | 2 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32 |
-| A3 J1-J3 | 51 | 3 | 3 | 0 0 | 2 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32 |
-| A4 J1-J4 | 67 | 4 | 4 | 0 0 0 | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34 |
-| A5 J1-J5 | 82 | 5 | 5 | 0 0 0 0 | 5 | 2.50 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40 |
-| A6 J1 AS1 (flash step 150: the steal) | 44 | 2 | 2 | 0 | 41 | 1.83 | +0 | +149 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 |
-| A7 J1 J2 AS1 | 61 | 3 | 3 | 0 0 | 41 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-AS1 HIT 50 |
-| A8 J1-J3 AS2a | 78 | 4 | 4 | 0 0 0 | -4 | 3.33 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50 |
-| A9 J1-J3 AS2a AS2b | 111 | 5 | 5 | 0 0 0 0 | 69 | 4.27 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 |
-| A10 J1-J4 AS2a AS2b | 127 | 6 | 6 | 0 0 0 0 0 | 69 | 4.27 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-AS2 HIT 50; WAVE HIT 60 |
-| A11 J1-J5 AS3a | 107 | 6 | 6 | 0 0 0 0 0 | 5 | 1.90 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45 |
-| A12 J1-J5 AS3a-c | 202 | 11 | 11 | 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 |
-| A13 J1 at 2.4 m | 17 | 1 | 1 | — | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32 |
-| B1 NS1a | 37 | 1 | 1 | — | 2 | 2.40 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
-| B2 NS1a-c | 116 | 3 | 3 | 0 0 | 1 | 1.41 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1C HIT 84 |
-| B3 NS1a-c at 3.0 m | 116 | 3 | 3 | 0 0 | 1 | 2.01 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1C HIT 84 |
-| B4 NS1a SA | 56 | 2 | 2 | 0 | 3 | 1.18 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 |
-| B5 NS1a SA AS1 | 83 | 3 | 3 | 0 0 | 41 | 1.95 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34; IC-AS1 HIT 50 |
-| B6 NS1a SA J2 AS1 | 100 | 4 | 4 | 0 0 0 | 41 | 1.95 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34; IC-J2 HIT 32; IC-AS1 HIT 50 |
-| B7 NS1a SA J2 J3 AS2ab | 148 | 6 | 6 | 0 0 0 0 0 | 69 | 4.34 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 |
-| B8 NS1a SA J2-J5 AS3abc | 233 | 12 | 12 | 0 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 |
-| B9 NS1a NS1b SA J2 J3 AS2ab | 176 | 7 | 7 | 0 0 0 0 0 0 | 69 | 4.34 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 |
-| B10 NS1a-c SA (after the crumple) | 132 | 4 | 4 | 0 0 0 | 3 | 0.88 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1C HIT 84; IC-SA HIT 34 |
-| C1 NS2abc at 2.4 m | 82 | 1 | 1 | — | 55 | 3.60 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| C2 NS2abc at 4 m | 82 | 1 | 1 | — | 62 | 5.20 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| C3 NS2abc at 6.6 m | 82 | 1 | 1 | — | 73 | 7.80 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| C4 NS2abc at 10 m | 82 | 1 | 1 | — | 88 | 11.20 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| C5 NS2abc at 13 m | 82 | 1 | 1 | — | 88 | 14.20 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| C6 NS2a SA-g1 J2 J3 AS2ab (x1.4) | 149 | 5 | 5 | 0 0 0 0 | 70 | 4.53 | +0 | +0 | 0 / 0 | +0 | IC-SA-G1 HIT 55; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 |
-| C7 NS2ab SA-g2 J2 J3 AS2ab (x1.7) | 183 | 5 | 5 | 0 0 0 0 | 69 | 4.32 | +0 | +0 | 0 / 0 | +0 | IC-SA-G2 HIT 80; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 |
-| C8 NS2ab SA-g2 J2-J5 AS3abc (x1.7) | 365 | 11 | 11 | 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-SA-G2 HIT 80; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 |
-| C9 NS2ab SA-g2 AS1 (x1.7) | 95 | 2 | 2 | 0 | 41 | 1.88 | +0 | +0 | 0 / 0 | +0 | IC-SA-G2 HIT 80; IC-AS1 HIT 50 |
-| C10 NS2a SA-g1 at 3.5 m (the lunge) | 32 | 1 | 1 | — | 3 | 2.28 | +0 | +0 | 0 / 0 | +0 | IC-SA-G1 HIT 55 |
-| D1 NS3a at 3.0 m | 39 | 4 | 4 | 0 0 0 | 5 | 0.87 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| D2 NS3ab at 3.0 m | 80 | 5 | 5 | 0 0 0 0 | 6 | 0.87 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3B HIT 100 |
-| D3 NS3ab at 4.2 m | 83 | 5 | 5 | 0 0 0 0 | 6 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3B HIT 100 |
-| D4 NS3a SA J2 J3 AS2ab | 140 | 9 | 9 | 0 0 0 0 0 0 0 0 | 69 | 4.31 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 |
-| D5 NS3a SA J2-J5 AS3abc | 217 | 15 | 15 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 |
-| D6 NS3ab SA (after the crumple) | 97 | 6 | 6 | 0 0 0 0 0 | 3 | 0.87 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3B HIT 100; IC-SA HIT 34 |
-| E1 NS1a held (ptr 1) | 0 | 1 | 1 | — | -115 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-N1A HIT 68; IC-N1A KIKON 68 |
-| E2 NS1a held 40 | 0 | 1 | 1 | — | 0 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-N1A HIT 68; IC-N1A KIKON 68 |
-| E3 NS1a NS1b held | 0 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1B KIKON 60 |
-| E4 J1 AS1 held (ptr 1 written) | 0 | 2 | 2 | 0 | -115 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-J1 HIT 32; IC-AS1 HIT 50; IC-AS1 KIKON 50 |
-| E5 J1-J3 AS2a held | 0 | 4 | 4 | 0 0 0 | -83 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; IC-AS2 KIKON 50 |
-| E6 J1-J3 AS2a AS2b held (the wave's Kikon) | 0 | 5 | 5 | 0 0 0 0 | -83 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60; IC-WAVE-STRIKE-AS KIKON 80 |
-| E7 NS2abc held at 6.6 m (JUJISHO's Kikon) | 0 | 1 | 1 | — | -83 | 8.00 | +0 | +0 | 0 / 0 | -2 | WAVE HIT 150; IC-WAVE-STRIKE KIKON 80 |
-| E8 NS2abc held at 10 m | 0 | 1 | 1 | — | 0 | 8.00 | +0 | +0 | 0 / 0 | -2 | WAVE HIT 150; IC-WAVE-STRIKE KIKON 80 |
-| E9 NS3a held (ptr 3) | 0 | 1 | 1 | — | -117 | 5.73 | +0 | +0 | 0 / 0 | -1 | IC-N3A HIT 18; IC-N3A KIKON 18 |
-| E10 J1-J5 AS3a held | 0 | 6 | 6 | 0 0 0 0 0 | -117 | 5.73 | +0 | +0 | 0 / 0 | -1 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3 KIKON 45 |
-| E11 J1-J5 AS3abc, AS3c held | 0 | 7 | 7 | 0 0 0 0 0 0 | -117 | 5.73 | +0 | +0 | 0 / 0 | -1 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B KIKON 18 |
-| E12 NS1a held, he attacks in the follow-up | 45 | 1 | 1 | — | 0 | 6.81 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
-| E13 NS1a held, he is red and attacks | -1000 | 1 | 1 | — | -115 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-N1A HIT 68; IC-N1A KIKON 68 |
-| E14 J1-J3 AS2a held, red (ptr 2: red = zero) | -1000 | 4 | 4 | 0 0 0 | -83 | 8.00 | +0 | +0 | 0 / 0 | -3 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; IC-AS2 KIKON 50 |
-| E15 NS2abc held at 6.6 m, he attacks | 98 | 1 | 1 | — | 70 | 8.67 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| F1 J1 Hoho J2 J3 | 63 | 3 | 3 | 0 0 | 2 | 1.60 | +0 | -84 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32 |
-| F2 NS1a Hoho NS1b | 84 | 2 | 2 | 0 | -2 | 1.60 | +0 | -84 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60 |
-| F3 J1 Hoho AS1 | 54 | 2 | 2 | 0 | 41 | 1.91 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 |
-| G1 J1-J3 / guard | 0 | 0 | 0 | — | -16 | 2.24 | +0 | +0 | 0 / 0 | +0 | IC-J1 BLOCKED 32; IC-J2 BLOCKED 32 |
-| G2 NS1a / guard | 0 | 0 | 0 | — | -9 | 3.00 | +0 | +0 | 0 / 0 | +0 | IC-N1A BLOCKED 68 |
-| H1 J1-J5 AS3abc / Shikai | 243 | 11 | 11 | 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 |
-| H2 NS2ab SA-g2 J2-J5 AS3abc / Shikai | 428 | 11 | 11 | 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-SA-G2 HIT 80; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 |
-| H3 NS2abc at 6.6 m / Shikai | 98 | 1 | 1 | — | 73 | 7.80 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| H4 NS1a-c / Shikai | 139 | 3 | 3 | 0 0 | 1 | 1.41 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1C HIT 84 |
-| K1 KESSA J1-J5 | 77 | 5 | 5 | 0 0 0 0 | 5 | 2.06 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-NA4 HIT 32; IC-K-J3 HIT 40 |
-| K2 KESSA J1 AS1 (the whip) | 44 | 5 | 5 | 0 0 0 0 | 55 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-AS1 HIT 14; IC-K-AS1 HIT 14; IC-K-AS1 HIT 14; IC-K-AS1 HIT 14 |
-| K3 KESSA J1-J3 AS2ab | 105 | 5 | 5 | 0 0 0 0 | 79 | 4.83 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-AS2 HIT 50; WAVE HIT 60 |
-| K4 KESSA J1-J5 AS3abc (clones) | 193 | 10 | 12 | 0 0 0 0 0 0 0 0 0 | 41 | 1.86 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-NA4 HIT 32; IC-K-J3 HIT 40; IC-HIT HIT 18; IC-K-AS3 HIT 45; IC-K-AS3B HIT 45; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38; IC-K-AS3C HIT 100 |
-| K5 KESSA NS1a-c (chains) at 2.8 m | 104 | 3 | 3 | 0 0 | 9 | 2.80 | +0 | +0 | 0 / 0 | +0 | IC-K-N1A HIT 60; IC-K-N1B HIT 55; IC-K-N1C HIT 80 |
-| K6 KESSA NS1a SA J2 J3 AS2ab | 139 | 6 | 6 | 0 0 0 0 0 | 79 | 4.83 | +0 | +0 | 0 / 0 | +0 | IC-K-N1A HIT 60; IC-K-SA1 HIT 34; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-AS2 HIT 50; WAVE HIT 60 |
-| K7 KESSA NS2abc at 6.6 m | 81 | 1 | 1 | — | 73 | 7.80 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| K8 KESSA NS2ab SA-g2 J2-J5 AS3abc (x1.7) | 342 | 10 | 12 | 0 0 0 0 0 0 0 0 0 | 41 | 1.86 | +0 | +0 | 0 / 0 | +0 | IC-K-SA-G2 HIT 80; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-NA4 HIT 32; IC-K-J3 HIT 40; IC-HIT HIT 18; IC-K-AS3 HIT 45; IC-K-AS3B HIT 45; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38; IC-K-AS3C HIT 100 |
-| K9 KESSA NS3abc (the clones' X) at 1.8 m | 59 | 3 | 4 | 0 0 | 1 | 1.80 | +0 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38 |
-| K10 KESSA NS3abc SA J2 J3 AS2ab (replays) | 163 | 14 | 16 | 0 0 0 0 0 0 0 0 0 0 0 0 0 | 65 | 5.04 | +0 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38; IC-K-SA HIT 50; IC-K-J2 HIT 30; IC-HIT HIT 3; IC-K-NA3 HIT 30; IC-HIT HIT 3; IC-HIT HIT 3; IC-K-AS2 HIT 50; IC-HIT HIT 5; IC-HIT HIT 5; WAVE HIT 60; WAVE HIT 6; WAVE HIT 6 |
-| K11 KESSA NS3ab SA J2-J5 AS3abc (replays) | 204 | 19 | 21 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 41 | 1.86 | +0 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-HIT HIT 18; IC-K-SA HIT 50; IC-K-J2 HIT 30; IC-HIT HIT 3; IC-K-NA3 HIT 30; IC-HIT HIT 3; IC-HIT HIT 3; IC-K-NA4 HIT 32; IC-HIT HIT 3; IC-HIT HIT 3; IC-K-J3 HIT 40; IC-HIT HIT 4; IC-HIT HIT 4; IC-HIT HIT 18; IC-K-AS3 HIT 45; IC-K-AS3B HIT 45; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38; IC-K-AS3C HIT 100 |
-| K12 KESSA NS3a SA at 3.5 m (the lunge) | 28 | 1 | 1 | — | 11 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 |
-| K13 KESSA NS1a held (ptr 1) | 0 | 1 | 1 | — | -113 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-K-N1A HIT 60; IC-K-N1A KIKON 60 |
-| K14 KESSA J1-J3 AS2a AS2b held (the wave's Kikon) | 0 | 5 | 5 | 0 0 0 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -3 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-AS2 HIT 50; WAVE HIT 60; IC-K-WAVE-STRIKE-AS KIKON 80 |
-| K15 KESSA NS2abc held at 6.6 m | 0 | 1 | 1 | — | -83 | 8.00 | +0 | +0 | 0 / 0 | -3 | WAVE HIT 150; IC-K-WAVE-STRIKE KIKON 80 |
-| K16 KESSA J1-J5 AS3a held (ptr 3: 千影) | 0 | 8 | 8 | 0 0 0 0 0 0 0 | -83 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-NA4 HIT 32; IC-K-J3 HIT 40; IC-HIT HIT 18; IC-K-AS3 HIT 45; IC-HIT HIT 18; IC-K-AS3 KIKON 45 |
-| K17 KESSA J1 AS1 held (the whip's Kikon) | 0 | 2 | 2 | 0 | -113 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-K-J1 HIT 30; IC-K-AS1 HIT 14; IC-K-AS1 KIKON 14 |
-| L1 awaken (gauge 100) then J1-J3 | 57 | 3 | 3 | 0 0 | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30 |
-| L2 awaken (gauge 50: refused) | 0 | 0 | 0 | — | ? | 1.60 | +0 | +0 | 0 / 0 | +0 |  |
-| L3 J1 J2, awaken in the string (100) | 63 | 3 | 2 | 0 13 | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-J1 HIT 32 |
-| M1 his J1 at 2.4 m | 0 | 0 | 0 | — | ? | 0.83 | +0 | +0 | 0 / 0 | +0 | [ 17776] P2 KE-Z-J1 HIT 35 |
-| M2 his J1 at 3.0 m | 0 | 0 | 0 | — | ? | 2.50 | +0 | +0 | 0 / 0 | +0 |  |
-| M3 his NS1a at 3.0 m | 0 | 0 | 0 | — | ? | 1.89 | +0 | +0 | 0 / 0 | +0 | [ 17904] P2 KE-Z-N1A HIT 65 |
-| M4 his NS1a at 3.6 m | 0 | 0 | 0 | — | ? | 2.49 | +0 | +0 | 0 / 0 | +0 |  |
-| M5 his NS2a at 3.6 m | 0 | 0 | 0 | — | ? | 2.66 | +0 | +0 | 0 / 0 | +0 |  |
-| M6 his NS3a-b at 3.6 m | 0 | 0 | 0 | — | ? | 2.22 | +0 | +0 | 0 / 0 | +0 | [ 18132] P2 KE-Z-N3B HIT 70 |
-| M7 J1 vs his J1, same frame, 1.6 m | 0 | 0 | 0 | — | ? | 0.83 | +0 | +0 | 0 / 0 | +0 | [ 18196] P2 KE-Z-J1 HIT 35 |
-| M8 NS1a vs his J1 (f8), 2.4 m | 44 | 1 | 1 | — | 2 | 1.90 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
-| M9 NS1a vs his J1 (f8), then the SA | 66 | 2 | 2 | 0 | 3 | 0.85 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 |
-| M10 NS1a, his J1 in its gap (f30), SA | 66 | 2 | 2 | 0 | 3 | 0.95 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 |
-| M11 J1 into his NS1a, then AS1 | 54 | 2 | 2 | 0 | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 |
-| M12 J1 into his NS2a (armoured), then AS1 | 33 | 1 | 1 | — | ? | 1.91 | +0 | +0 | 0 / 0 | +0 | IC-AS1 HIT 50 |
-| M13 NS2a at 2.0 m, his J1 (f6) > AS1 (f20) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [ 18907] P2 KE-Z-AS1 HIT 90 |
-| M14 NS2a at 2.0 m, his NS1a (f2) | 0 | 0 | 0 | — | ? | 0.89 | +0 | +0 | 0 / 0 | +0 | [ 18996] P2 KE-Z-N1A HIT 65 |
-| M15 NS2abc at 6.6 m, he runs in at f0 | 0 | 0 | 0 | — | ? | 0.83 | +0 | +0 | 0 / 0 | +0 | [ 19164] P2 KE-Z-N1A HIT 65 |
-| M16 NS2abc at 10 m, he runs in at f0 | 97 | 1 | 1 | — | 54 | 3.33 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| M17 NS2abc at 6.6 m, his armoured NS2a on the wave (f64) | 97 | 1 | 0 | — | 44 | 5.66 | +0 | +0 | 0 / 0 | +0 | WAVE ARMORED 150 |
-| M18 NS2abc at 6.6 m, his armoured NS2a on the wave (f68) | 97 | 1 | 0 | — | 48 | 5.66 | +0 | +0 | 0 / 0 | +0 | WAVE ARMORED 150 |
-| M19 NS2abc at 6.6 m, his Hoho on the wave (f70) | 0 | 0 | 0 | — | ? | 1.60 | +0 | +0 | 0 / 0 | +0 |  |
-| M20 his NS1a whiffs at 3.6 m, her NS1a at once | 44 | 1 | 1 | — | 2 | 2.49 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
-| M21 his NS1a whiffs at 3.6 m, her NS3a at f10 | 0 | 0 | 0 | — | ? | 1.95 | +0 | +0 | 0 / 0 | +0 | [ 20084] P2 KE-Z-N1A HIT 65 |
-| M22 his NS2a whiffs at 4.0 m, her NS1a at f6 | 44 | 1 | 1 | — | ? | 3.06 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
-| M23 his J1-J3 whiff at 3.2 m, her NS1a at f4 | 37 | 1 | 1 | — | 2 | 2.70 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
-| M24 his J1 whiffs at 3.2 m, her J1 at f6 | 0 | 0 | 0 | — | ? | 2.14 | +0 | +0 | 0 / 0 | +0 |  |
-| M25 his J1 AS1 held, her J in the follow-up | 0 | 0 | 0 | — | ? | 5.60 | +0 | +0 | 0 / 0 | +0 | [   196] P2 KE-Z-J1 HIT 35; [   213] P2 KE-Z-AS1 HIT 90 |
-| R1 NS1a at 3.4 m | 0 | 0 | 0 | — | ? | 3.40 | +0 | +0 | 0 / 0 | +0 |  |
-| R2 NS1a at 3.6 m | 0 | 0 | 0 | — | ? | 3.60 | +0 | +0 | 0 / 0 | +0 |  |
-| R3 NS1a at 3.8 m | 0 | 0 | 0 | — | ? | 3.80 | +0 | +0 | 0 / 0 | +0 |  |
-| R4 NS3a at 4.6 m | 38 | 4 | 4 | 0 0 0 | 5 | 2.33 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| R5 NS3a at 5.0 m | 38 | 4 | 4 | 0 0 0 | 5 | 2.73 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| R6 J1 at 2.6 m | 0 | 0 | 0 | — | ? | 2.04 | +0 | +0 | 0 / 0 | +0 |  |
-| R7 J1 at 2.8 m | 0 | 0 | 0 | — | ? | 2.24 | +0 | +0 | 0 / 0 | +0 |  |
-| R8 KESSA NS1a at 3.4 m | 31 | 1 | 1 | — | 4 | 3.40 | +0 | +0 | 0 / 0 | +0 | IC-K-N1A HIT 60 |
-| R9 KESSA NS1a at 3.8 m | 0 | 0 | 0 | — | ? | 3.80 | +0 | +0 | 0 / 0 | +0 |  |
-| R10 his J1 at 2.7 m | 0 | 0 | 0 | — | ? | 2.20 | +0 | +0 | 0 / 0 | +0 |  |
-| R11 his NS1a at 3.3 m | 0 | 0 | 0 | — | ? | 2.19 | +0 | +0 | 0 / 0 | +0 | [  1074] P2 KE-Z-N1A HIT 65 |
-| R12 his NS2a at 3.2 m | 0 | 0 | 0 | — | ? | 2.26 | +0 | +0 | 0 / 0 | +0 |  |
-| R13 his NS3a-b at 4.0 m | 0 | 0 | 0 | — | ? | 2.63 | +0 | +0 | 0 / 0 | +0 | [  1232] P2 KE-Z-N3B HIT 70 |
-| R14 his Shikai NS1a at 4.0 m | 0 | 0 | 0 | — | ? | 1.19 | +0 | +0 | 0 / 0 | +0 | [  1306] P2 KE-S-N1A HIT 70 |
-| R15 his Shikai NS1a at 4.6 m | 0 | 0 | 0 | — | ? | 1.79 | +0 | +0 | 0 / 0 | +0 | [  1376] P2 KE-S-N1A HIT 70 |
-| R16 his Shikai J1 at 3.0 m | 0 | 0 | 0 | — | ? | 0.83 | +0 | +0 | 0 / 0 | +0 | [  1439] P2 KE-S-J1 HIT 40 |
-| R17 NS2abc at 7.5 m, he runs in at f0 | 82 | 1 | 1 | — | 54 | 0.83 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| R18 NS2abc at 8.5 m, he runs in at f0 | 82 | 1 | 1 | — | 54 | 0.83 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| R19 NS2abc at 6.6 m, he walks in, NS1a at f40 | 82 | 1 | 1 | — | 56 | 3.75 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| R20 NS2abc at 6.6 m, he walks in, NS1a at f50 | 82 | 1 | 1 | — | 55 | 3.53 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| R21 J1-J3 AS2ab, his Hoho pressed at f60 (in hitstun) | 111 | 5 | 5 | 0 0 0 0 | 69 | 4.27 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 |
-| R22 NS3a at 5.4 m | 0 | 0 | 0 | — | ? | 3.13 | +0 | +0 | 0 / 0 | +0 |  |
-| R23 NS3a at 5.8 m | 0 | 0 | 0 | — | ? | 3.53 | +0 | +0 | 0 / 0 | +0 |  |
-| R24 NS3a SA J2 J3 AS2ab from 4.6 m | 128 | 9 | 9 | 0 0 0 0 0 0 0 0 | 69 | 4.27 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 |
-| R25 NS3a SA J2-J5 AS3abc from 4.6 m | 197 | 15 | 15 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 |
-| R26 his NS3a-b at 4.6 m, her NS3a at f30 | 0 | 0 | 0 | — | ? | 2.56 | +0 | +0 | 0 / 0 | +0 | [  3235] P2 KE-Z-N3B HIT 70 |
-| R27 KESSA NS3a SA at 4.2 m | 26 | 1 | 1 | — | 11 | 1.50 | +0 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 |
-| R28 NS2abc at 3.6 m, he walks in, J1 at f10 | 82 | 1 | 1 | — | 55 | 3.57 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 |
-| M26 his NS1a whiffs at 3.6 m, her NS3a at f18 | 38 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| M27 his NS1a whiffs at 3.6 m, her NS3a at f18 > SA J2-J5 AS3abc | 197 | 15 | 15 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 |
-| M28 his J1 whiffs at 3.2 m, her NS3a at f8 | 38 | 4 | 4 | 0 0 0 | 5 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| M29 his J1 whiffs at 3.2 m, her NS1a at f2 | 37 | 1 | 1 | — | 2 | 2.70 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
-| M30 his NS2a whiffs at 4.0 m, her NS3a at f20 | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| S1 J1-J5 AS3abc, his Reishi 150 (the kill in the AS3) | -1150 | 10 | 10 | 0 0 0 0 0 0 0 0 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -5 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 |
-| S2 J1-J4 AS2ab, his Reishi 110 (the kill in the AS2) | -1190 | 5 | 5 | 0 0 0 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -3 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-AS2 HIT 50; WAVE HIT 60 |
-| S3 J1-J3 at pointer 1, his Reishi 40 (the kill by a J) | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -3 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32 |
-| S4 J1-J3 at pointer 3, his Reishi 40 (the kill by a J) | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -5 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32 |
-| S5 KESSA J1-J3 at pointer 3, his Reishi 40 | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -5 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30 |
-| S6 KESSA J1-J3 at pointer 1, his Reishi 40 | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -4 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30 |
-| T1 NS1a vs his J1 (f8) > his AS1 (f15) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  5771] P2 KE-Z-AS1 HIT 90 |
-| T2 NS1a vs his J1 (f8) > his AS1 (f20) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  5892] P2 KE-Z-AS1 HIT 90 |
-| T3 NS1a vs his J1 (f8) > his AS1 (f30) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  6014] P2 KE-Z-AS1 HIT 90 |
-| T4 NS1a vs his J1 (f8) > his AS1 (f15), her SA at f12 | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  6131] P2 KE-Z-AS1 HIT 90 |
-| T5 NS1a vs his J1 (f8) > his J2 (f15) | 18 | 1 | 1 | — | ? | 0.85 | +0 | +0 | 0 / 0 | +0 | IC-SA HIT 34 |
-| T6 J1 into his NS1a > his SA (f20) > her AS1 | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [  6368] P2 KE-Z-SA1 HIT 30 |
-| T7 J1 into his NS1a > his SA (f28) > her AS1 | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [  6498] P2 KE-Z-SA1 HIT 30 |
-| T8 J1 into his NS1a > his SA (f36) > her AS1 | 44 | 2 | 2 | 0 | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 |
-| T9 J1 into his NS1a > his SA (f44) > her AS1 | 44 | 2 | 2 | 0 | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 |
-| T10 J1 into his NS1a > his NS1b (f20) | 27 | 1 | 1 | — | ? | 1.89 | +0 | +0 | 0 / 0 | +0 | IC-AS1 HIT 50 |
-| T11 J1 into his NS1a > her AS1 at once (f15) > his SA (f28) | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [  7018] P2 KE-Z-SA1 HIT 30 |
-| T12 J1 into his NS1a > his SA (f20) > her AS1 later (f24) | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [  7148] P2 KE-Z-SA1 HIT 30 |
-| T13 NS1a vs his J1 (f8) > his AS1 (f20) > her SA (f30) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [  7282] P2 KE-Z-AS1 HIT 90 |
-| T14 NS1a at 3.4 m catches his walk-in (his J1 at f28 never starts), SA | 54 | 2 | 2 | 0 | 3 | 0.87 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 |
-| T15 NS1a at 3.4 m catches his walk-in | 36 | 1 | 1 | — | 2 | 1.92 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
-| U1 NS3a from 4.6 m, his J1 at f8 | 38 | 4 | 4 | 0 0 0 | 5 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| U2 NS3a from 4.6 m, his J1 at f12 | 30 | 3 | 3 | 0 0 | 5 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| U3 NS3a from 4.6 m, his J1 at f12 > AS1 at f20 | 0 | 0 | 0 | — | ? | 1.93 | +0 | +0 | 0 / 0 | +0 | [  7846] P2 KE-Z-AS1 HIT 90 |
-| U4 NS3a from 4.6 m, his NS1a at f4 | 0 | 0 | 0 | — | ? | 5.22 | +0 | +0 | 0 / 0 | +0 |  |
-| U5 NS3a from 4.6 m, his J1 at f16 | 10 | 1 | 1 | — | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18 |
-| U6 his NS1a > NS1b whiff at 3.6 m, her NS3a at f18 | 0 | 0 | 0 | — | ? | 1.15 | +0 | +0 | 0 / 0 | +0 | [  8148] P2 KE-Z-N1B HIT 55 |
-| U7 his NS1a > NS1b whiff at 3.6 m, her NS3a at f32 | 38 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| U8 his NS1a > NS1b > NS1c at 3.6 m, her NS3a at f18 | 0 | 0 | 0 | — | ? | 1.15 | +0 | +0 | 0 / 0 | +0 | [  8398] P2 KE-Z-N1B HIT 55; [  8419] P2 KE-Z-N1C HIT 70 |
-| U9 his NS1a > SA at 3.6 m, her NS3a at f18 | 35 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 |
-| U10 his NS2a > NS2b at 4.0 m, her NS1a at f6 | 36 | 1 | 0 | — | 22 | 2.51 | +0 | +0 | 0 / 0 | +0 | IC-N1A ARMORED 68 |
-| U11 his NS2a > NS2b at 4.0 m, her NS3a at f20 | 0 | 0 | 0 | — | ? | 0.95 | +0 | +0 | 0 / 0 | +0 | [  8774] P2 KE-Z-N2B HIT 95 |
-| U12 his J1 whiff at 3.2 m > his J2 press, her NS1a at f2 | 36 | 1 | 1 | — | 2 | 2.70 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 |
+Re-run with the merged trial tooling (2026-11-06, the lead). The merge resets SUBLIMATION / DRIVE / the awakening gauge each trial (they carried over and read 3–10 % high), so 45 of 174 rows deal less than in the Findings above (e.g. C8 365 -> 360, D5 217 -> 197); gaps, adv and distances are unchanged. **This table is the reference; the Findings' damage figures are a few percent high.**
+
+| Trial | dmg | hits | combo | gaps | adv | dist | Reiatsu | FS | layers / chill | Konpaku | log | more |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| A1 J1 | 17 | 1 | 1 | — | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| A2 J1 J2 | 34 | 2 | 2 | 0 | 2 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| A3 J1-J3 | 51 | 3 | 3 | 0 0 | 2 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| A4 J1-J4 | 67 | 4 | 4 | 0 0 0 | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| A5 J1-J5 | 82 | 5 | 5 | 0 0 0 0 | 5 | 2.50 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| A6 J1 AS1 (flash step 150: the steal) | 44 | 2 | 2 | 0 | 41 | 1.83 | +0 | +149 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| A7 J1 J2 AS1 | 61 | 3 | 3 | 0 0 | 41 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| A8 J1-J3 AS2a | 78 | 4 | 4 | 0 0 0 | -4 | 3.33 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| A9 J1-J3 AS2a AS2b | 111 | 5 | 5 | 0 0 0 0 | 69 | 4.27 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| A10 J1-J4 AS2a AS2b | 127 | 6 | 6 | 0 0 0 0 0 | 69 | 4.27 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| A11 J1-J5 AS3a | 107 | 6 | 6 | 0 0 0 0 0 | 5 | 1.90 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| A12 J1-J5 AS3a-c | 202 | 11 | 11 | 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| A13 J1 at 2.4 m | 17 | 1 | 1 | — | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| B1 NS1a | 37 | 1 | 1 | — | 2 | 2.40 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| B2 NS1a-c | 116 | 3 | 3 | 0 0 | 1 | 1.41 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1C HIT 84 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| B3 NS1a-c at 3.0 m | 116 | 3 | 3 | 0 0 | 1 | 2.01 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1C HIT 84 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| B4 NS1a SA | 56 | 2 | 2 | 0 | 3 | 1.18 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| B5 NS1a SA AS1 | 83 | 3 | 3 | 0 0 | 41 | 1.95 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34; IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| B6 NS1a SA J2 AS1 | 100 | 4 | 4 | 0 0 0 | 41 | 1.95 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34; IC-J2 HIT 32; IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| B7 NS1a SA J2 J3 AS2ab | 148 | 6 | 6 | 0 0 0 0 0 | 69 | 4.34 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| B8 NS1a SA J2-J5 AS3abc | 233 | 12 | 12 | 0 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| B9 NS1a NS1b SA J2 J3 AS2ab | 176 | 7 | 7 | 0 0 0 0 0 0 | 69 | 4.34 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| B10 NS1a-c SA (after the crumple) | 132 | 4 | 4 | 0 0 0 | 3 | 0.88 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1C HIT 84; IC-SA HIT 34 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| C1 NS2abc at 2.4 m | 82 | 1 | 1 | — | 55 | 3.60 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| C2 NS2abc at 4 m | 82 | 1 | 1 | — | 62 | 5.20 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| C3 NS2abc at 6.6 m | 82 | 1 | 1 | — | 73 | 7.80 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| C4 NS2abc at 10 m | 82 | 1 | 1 | — | 88 | 11.20 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| C5 NS2abc at 13 m | 82 | 1 | 1 | — | 88 | 14.20 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| C6 NS2a SA-g1 J2 J3 AS2ab (x1.4) | 149 | 5 | 5 | 0 0 0 0 | 70 | 4.53 | +0 | +0 | 0 / 0 | +0 | IC-SA-G1 HIT 55; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| C7 NS2ab SA-g2 J2 J3 AS2ab (x1.7) | 183 | 5 | 5 | 0 0 0 0 | 69 | 4.32 | +0 | +0 | 0 / 0 | +0 | IC-SA-G2 HIT 80; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| C8 NS2ab SA-g2 J2-J5 AS3abc (x1.7) | 360 | 11 | 11 | 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-SA-G2 HIT 80; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| C9 NS2ab SA-g2 AS1 (x1.7) | 90 | 2 | 2 | 0 | 41 | 1.88 | +0 | +0 | 0 / 0 | +0 | IC-SA-G2 HIT 80; IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| C10 NS2a SA-g1 at 3.5 m (the lunge) | 30 | 1 | 1 | — | 3 | 2.28 | +0 | +0 | 0 / 0 | +0 | IC-SA-G1 HIT 55 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| D1 NS3a at 3.0 m | 38 | 4 | 4 | 0 0 0 | 5 | 0.87 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| D2 NS3ab at 3.0 m | 76 | 5 | 5 | 0 0 0 0 | 6 | 0.87 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3B HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| D3 NS3ab at 4.2 m | 76 | 5 | 5 | 0 0 0 0 | 6 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3B HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| D4 NS3a SA J2 J3 AS2ab | 128 | 9 | 9 | 0 0 0 0 0 0 0 0 | 69 | 4.31 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| D5 NS3a SA J2-J5 AS3abc | 197 | 15 | 15 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| D6 NS3ab SA (after the crumple) | 86 | 6 | 6 | 0 0 0 0 0 | 3 | 0.87 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3B HIT 100; IC-SA HIT 34 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| E1 NS1a held (ptr 1) | 0 | 1 | 1 | — | -115 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-N1A HIT 68; IC-N1A KIKON 68 | self +0 konpaku +0/-1 form base ptr 1 meter 0 |
+| E2 NS1a held 40 | 0 | 1 | 1 | — | 0 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-N1A HIT 68; IC-N1A KIKON 68 | self +0 konpaku +0/-1 form base ptr 1 meter 0 |
+| E3 NS1a NS1b held | 0 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1B KIKON 60 | self +0 konpaku +0/-1 form base ptr 1 meter 0 |
+| E4 J1 AS1 held (ptr 1 written) | 0 | 2 | 2 | 0 | -115 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-J1 HIT 32; IC-AS1 HIT 50; IC-AS1 KIKON 50 | self +0 konpaku +0/-1 form base ptr 1 meter 0 |
+| E5 J1-J3 AS2a held | 0 | 4 | 4 | 0 0 0 | -83 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; IC-AS2 KIKON 50 | self +0 konpaku +0/-2 form base ptr 2 meter 0 |
+| E6 J1-J3 AS2a AS2b held (the wave's Kikon) | 0 | 5 | 5 | 0 0 0 0 | -83 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60; IC-WAVE-STRIKE-AS KIKON 80 | self +0 konpaku +0/-2 form base ptr 2 meter 0 |
+| E7 NS2abc held at 6.6 m (JUJISHO's Kikon) | 0 | 1 | 1 | — | -83 | 8.00 | +0 | +0 | 0 / 0 | -2 | WAVE HIT 150; IC-WAVE-STRIKE KIKON 80 | self +0 konpaku +0/-2 form base ptr 2 meter 0 |
+| E8 NS2abc held at 10 m | 0 | 1 | 1 | — | 0 | 8.00 | +0 | +0 | 0 / 0 | -2 | WAVE HIT 150; IC-WAVE-STRIKE KIKON 80 | self +0 konpaku +0/-2 form base ptr 2 meter 0 |
+| E9 NS3a held (ptr 3) | 0 | 1 | 1 | — | -117 | 5.73 | +0 | +0 | 0 / 0 | -1 | IC-N3A HIT 18; IC-N3A KIKON 18 | self +0 konpaku +0/-1 form base ptr 3 meter 0 |
+| E10 J1-J5 AS3a held | 0 | 6 | 6 | 0 0 0 0 0 | -117 | 5.73 | +0 | +0 | 0 / 0 | -1 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3 KIKON 45 | self +0 konpaku +0/-1 form base ptr 3 meter 0 |
+| E11 J1-J5 AS3abc, AS3c held | 0 | 7 | 7 | 0 0 0 0 0 0 | -117 | 5.73 | +0 | +0 | 0 / 0 | -1 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B KIKON 18 | self +0 konpaku +0/-1 form base ptr 3 meter 0 |
+| E12 NS1a held, he attacks in the follow-up | 37 | 1 | 1 | — | 0 | 6.81 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| E13 NS1a held, he is red and attacks | -1000 | 1 | 1 | — | -115 | 8.00 | +0 | +0 | 0 / 0 | -1 | IC-N1A HIT 68; IC-N1A KIKON 68 | self +0 konpaku +0/-1 form base ptr 1 meter 0 |
+| E14 J1-J3 AS2a held, red (ptr 2: red = zero) | -1000 | 4 | 4 | 0 0 0 | -83 | 8.00 | +0 | +0 | 0 / 0 | -3 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; IC-AS2 KIKON 50 | self +0 konpaku +0/-3 form base ptr 2 meter 0 |
+| E15 NS2abc held at 6.6 m, he attacks | 82 | 1 | 1 | — | 70 | 8.67 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| F1 J1 Hoho J2 J3 | 51 | 3 | 3 | 0 0 | 2 | 1.60 | +0 | -86 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| F2 NS1a Hoho NS1b | 70 | 2 | 2 | 0 | -2 | 1.60 | +0 | -86 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| F3 J1 Hoho AS1 | 44 | 2 | 2 | 0 | 41 | 1.91 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| G1 J1-J3 / guard | 0 | 0 | 0 | — | -16 | 2.24 | +0 | +0 | 0 / 0 | +0 | IC-J1 BLOCKED 32; IC-J2 BLOCKED 32 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| G2 NS1a / guard | 0 | 0 | 0 | — | -9 | 3.00 | +0 | +0 | 0 / 0 | +0 | IC-N1A BLOCKED 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| H1 J1-J5 AS3abc / Shikai | 202 | 11 | 11 | 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| H2 NS2ab SA-g2 J2-J5 AS3abc / Shikai | 360 | 11 | 11 | 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-SA-G2 HIT 80; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| H3 NS2abc at 6.6 m / Shikai | 82 | 1 | 1 | — | 73 | 7.80 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| H4 NS1a-c / Shikai | 116 | 3 | 3 | 0 0 | 1 | 1.41 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-N1B HIT 60; IC-N1C HIT 84 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| K1 KESSA J1-J5 | 77 | 5 | 5 | 0 0 0 0 | 5 | 2.06 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-NA4 HIT 32; IC-K-J3 HIT 40 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 |
+| K2 KESSA J1 AS1 (the whip) | 44 | 5 | 5 | 0 0 0 0 | 55 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-AS1 HIT 14; IC-K-AS1 HIT 14; IC-K-AS1 HIT 14; IC-K-AS1 HIT 14 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 |
+| K3 KESSA J1-J3 AS2ab | 105 | 5 | 5 | 0 0 0 0 | 79 | 4.83 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form kessa ptr 2 meter 0 |
+| K4 KESSA J1-J5 AS3abc (clones) | 190 | 10 | 12 | 0 0 0 0 0 0 0 0 0 | 41 | 1.86 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-NA4 HIT 32; IC-K-J3 HIT 40; IC-HIT HIT 18; IC-K-AS3 HIT 45; IC-K-AS3B HIT 45; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38; IC-K-AS3C HIT 100 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 |
+| K5 KESSA NS1a-c (chains) at 2.8 m | 102 | 3 | 3 | 0 0 | 9 | 2.80 | +0 | +0 | 0 / 0 | +0 | IC-K-N1A HIT 60; IC-K-N1B HIT 55; IC-K-N1C HIT 80 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 |
+| K6 KESSA NS1a SA J2 J3 AS2ab | 135 | 6 | 6 | 0 0 0 0 0 | 79 | 4.83 | +0 | +0 | 0 / 0 | +0 | IC-K-N1A HIT 60; IC-K-SA1 HIT 34; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form kessa ptr 2 meter 0 |
+| K7 KESSA NS2abc at 6.6 m | 78 | 1 | 1 | — | 73 | 7.80 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form kessa ptr 2 meter 0 |
+| K8 KESSA NS2ab SA-g2 J2-J5 AS3abc (x1.7) | 328 | 10 | 12 | 0 0 0 0 0 0 0 0 0 | 41 | 1.86 | +0 | +0 | 0 / 0 | +0 | IC-K-SA-G2 HIT 80; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-NA4 HIT 32; IC-K-J3 HIT 40; IC-HIT HIT 18; IC-K-AS3 HIT 45; IC-K-AS3B HIT 45; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38; IC-K-AS3C HIT 100 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 |
+| K9 KESSA NS3abc (the clones' X) at 1.8 m | 55 | 3 | 4 | 0 0 | 1 | 1.80 | +0 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 |
+| K10 KESSA NS3abc SA J2 J3 AS2ab (replays) | 154 | 14 | 16 | 0 0 0 0 0 0 0 0 0 0 0 0 0 | 65 | 5.04 | +0 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38; IC-K-SA HIT 50; IC-K-J2 HIT 30; IC-HIT HIT 3; IC-K-NA3 HIT 30; IC-HIT HIT 3; IC-HIT HIT 3; IC-K-AS2 HIT 50; IC-HIT HIT 5; IC-HIT HIT 5; WAVE HIT 60; WAVE HIT 6; WAVE HIT 6 | self +0 konpaku +0/+0 form kessa ptr 2 meter 0 |
+| K11 KESSA NS3ab SA J2-J5 AS3abc (replays) | 190 | 19 | 21 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 41 | 1.86 | +0 | +0 | 0 / 0 | +0 | IC-HIT HIT 18; IC-HIT HIT 18; IC-K-SA HIT 50; IC-K-J2 HIT 30; IC-HIT HIT 3; IC-K-NA3 HIT 30; IC-HIT HIT 3; IC-HIT HIT 3; IC-K-NA4 HIT 32; IC-HIT HIT 3; IC-HIT HIT 3; IC-K-J3 HIT 40; IC-HIT HIT 4; IC-HIT HIT 4; IC-HIT HIT 18; IC-K-AS3 HIT 45; IC-K-AS3B HIT 45; IC-HIT HIT 18; IC-HIT HIT 38; IC-HIT HIT 38; IC-K-AS3C HIT 100 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 |
+| K12 KESSA NS3a SA at 3.5 m (the lunge) | 26 | 1 | 1 | — | 11 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 |
+| K13 KESSA NS1a held (ptr 1) | 0 | 1 | 1 | — | -113 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-K-N1A HIT 60; IC-K-N1A KIKON 60 | self +0 konpaku +0/-2 form kessa ptr 1 meter 0 |
+| K14 KESSA J1-J3 AS2a AS2b held (the wave's Kikon) | 0 | 5 | 5 | 0 0 0 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -3 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-AS2 HIT 50; WAVE HIT 60; IC-K-WAVE-STRIKE-AS KIKON 80 | self +0 konpaku +0/-3 form kessa ptr 2 meter 0 |
+| K15 KESSA NS2abc held at 6.6 m | 0 | 1 | 1 | — | -83 | 8.00 | +0 | +0 | 0 / 0 | -3 | WAVE HIT 150; IC-K-WAVE-STRIKE KIKON 80 | self +0 konpaku +0/-3 form kessa ptr 2 meter 0 |
+| K16 KESSA J1-J5 AS3a held (ptr 3: 千影) | 0 | 8 | 8 | 0 0 0 0 0 0 0 | -83 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30; IC-K-NA4 HIT 32; IC-K-J3 HIT 40; IC-HIT HIT 18; IC-K-AS3 HIT 45; IC-HIT HIT 18; IC-K-AS3 KIKON 45 | self +0 konpaku +0/-2 form kessa ptr 3 meter 0 |
+| K17 KESSA J1 AS1 held (the whip's Kikon) | 0 | 2 | 2 | 0 | -113 | 8.00 | +0 | +0 | 0 / 0 | -2 | IC-K-J1 HIT 30; IC-K-AS1 HIT 14; IC-K-AS1 KIKON 14 | self +0 konpaku +0/-2 form kessa ptr 1 meter 0 |
+| L1 awaken (gauge 100) then J1-J3 | 48 | 3 | 3 | 0 0 | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 |
+| L2 awaken (gauge 50: refused) | 0 | 0 | 0 | — | ? | 1.60 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| L3 J1 J2, awaken in the string (100) | 53 | 3 | 2 | 0 13 | 3 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-J1 HIT 32 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M1 his J1 at 2.4 m | 0 | 0 | 0 | — | ? | 0.83 | +0 | +0 | 0 / 0 | +0 | [ 17776] P2 KE-Z-J1 HIT 35 | self -14 konpaku +0/+0 form base ptr 1 meter 0 |
+| M2 his J1 at 3.0 m | 0 | 0 | 0 | — | ? | 2.50 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M3 his NS1a at 3.0 m | 0 | 0 | 0 | — | ? | 1.89 | +0 | +0 | 0 / 0 | +0 | [ 17904] P2 KE-Z-N1A HIT 65 | self -26 konpaku +0/+0 form base ptr 1 meter 0 |
+| M4 his NS1a at 3.6 m | 0 | 0 | 0 | — | ? | 2.49 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M5 his NS2a at 3.6 m | 0 | 0 | 0 | — | ? | 2.66 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M6 his NS3a-b at 3.6 m | 0 | 0 | 0 | — | ? | 2.22 | +0 | +0 | 0 / 0 | +0 | [ 18132] P2 KE-Z-N3B HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 |
+| M7 J1 vs his J1, same frame, 1.6 m | 0 | 0 | 0 | — | ? | 0.83 | +0 | +0 | 0 / 0 | +0 | [ 18196] P2 KE-Z-J1 HIT 35 | self -14 konpaku +0/+0 form base ptr 1 meter 0 |
+| M8 NS1a vs his J1 (f8), 2.4 m | 37 | 1 | 1 | — | 2 | 1.90 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M9 NS1a vs his J1 (f8), then the SA | 56 | 2 | 2 | 0 | 3 | 0.85 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M10 NS1a, his J1 in its gap (f30), SA | 56 | 2 | 2 | 0 | 3 | 0.95 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M11 J1 into his NS1a, then AS1 | 44 | 2 | 2 | 0 | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M12 J1 into his NS2a (armoured), then AS1 | 27 | 1 | 1 | — | ? | 1.91 | +0 | +0 | 0 / 0 | +0 | IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M13 NS2a at 2.0 m, his J1 (f6) > AS1 (f20) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [ 18907] P2 KE-Z-AS1 HIT 90 | self -36 konpaku +0/+0 form base ptr 2 meter 0 |
+| M14 NS2a at 2.0 m, his NS1a (f2) | 0 | 0 | 0 | — | ? | 0.89 | +0 | +0 | 0 / 0 | +0 | [ 18996] P2 KE-Z-N1A HIT 65 | self -26 konpaku +0/+0 form base ptr 2 meter 0 |
+| M15 NS2abc at 6.6 m, he runs in at f0 | 0 | 0 | 0 | — | ? | 0.83 | +0 | +0 | 0 / 0 | +0 | [ 19164] P2 KE-Z-N1A HIT 65 | self -26 konpaku +0/+0 form base ptr 2 meter 0 |
+| M16 NS2abc at 10 m, he runs in at f0 | 82 | 1 | 1 | — | 54 | 3.37 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| M17 NS2abc at 6.6 m, his armoured NS2a on the wave (f64) | 82 | 1 | 0 | — | 44 | 5.66 | +0 | +0 | 0 / 0 | +0 | WAVE ARMORED 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| M18 NS2abc at 6.6 m, his armoured NS2a on the wave (f68) | 82 | 1 | 0 | — | 48 | 5.66 | +0 | +0 | 0 / 0 | +0 | WAVE ARMORED 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| M19 NS2abc at 6.6 m, his Hoho on the wave (f70) | 0 | 0 | 0 | — | ? | 1.60 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| M20 his NS1a whiffs at 3.6 m, her NS1a at once | 37 | 1 | 1 | — | 2 | 2.49 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M21 his NS1a whiffs at 3.6 m, her NS3a at f10 | 0 | 0 | 0 | — | ? | 1.95 | +0 | +0 | 0 / 0 | +0 | [ 20084] P2 KE-Z-N1A HIT 65 | self -26 konpaku +0/+0 form base ptr 3 meter 0 |
+| M22 his NS2a whiffs at 4.0 m, her NS1a at f6 | 37 | 1 | 1 | — | 2 | 3.06 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M23 his J1-J3 whiff at 3.2 m, her NS1a at f4 | 37 | 1 | 1 | — | 2 | 2.70 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M24 his J1 whiffs at 3.2 m, her J1 at f6 | 0 | 0 | 0 | — | ? | 2.14 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M25 his J1 AS1 held, her J in the follow-up | 0 | 0 | 0 | — | ? | 5.60 | +0 | +0 | 0 / 0 | +0 | [ 20486] P2 KE-Z-J1 HIT 35; [ 20503] P2 KE-Z-AS1 HIT 90 | self -50 konpaku +0/+0 form base ptr 1 meter 0 |
+| R1 NS1a at 3.4 m | 0 | 0 | 0 | — | ? | 3.40 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| R2 NS1a at 3.6 m | 0 | 0 | 0 | — | ? | 3.60 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| R3 NS1a at 3.8 m | 0 | 0 | 0 | — | ? | 3.80 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| R4 NS3a at 4.6 m | 38 | 4 | 4 | 0 0 0 | 5 | 2.33 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| R5 NS3a at 5.0 m | 38 | 4 | 4 | 0 0 0 | 5 | 2.73 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| R6 J1 at 2.6 m | 0 | 0 | 0 | — | ? | 2.04 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| R7 J1 at 2.8 m | 0 | 0 | 0 | — | ? | 2.24 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| R8 KESSA NS1a at 3.4 m | 31 | 1 | 1 | — | 4 | 3.40 | +0 | +0 | 0 / 0 | +0 | IC-K-N1A HIT 60 | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 |
+| R9 KESSA NS1a at 3.8 m | 0 | 0 | 0 | — | ? | 3.80 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form kessa ptr 1 meter 0 |
+| R10 his J1 at 2.7 m | 0 | 0 | 0 | — | ? | 2.20 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| R11 his NS1a at 3.3 m | 0 | 0 | 0 | — | ? | 2.19 | +0 | +0 | 0 / 0 | +0 | [ 21364] P2 KE-Z-N1A HIT 65 | self -26 konpaku +0/+0 form base ptr 1 meter 0 |
+| R12 his NS2a at 3.2 m | 0 | 0 | 0 | — | ? | 2.26 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| R13 his NS3a-b at 4.0 m | 0 | 0 | 0 | — | ? | 2.63 | +0 | +0 | 0 / 0 | +0 | [ 21522] P2 KE-Z-N3B HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 |
+| R14 his Shikai NS1a at 4.0 m | 0 | 0 | 0 | — | ? | 1.19 | +0 | +0 | 0 / 0 | +0 | [ 21596] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 |
+| R15 his Shikai NS1a at 4.6 m | 0 | 0 | 0 | — | ? | 1.79 | +0 | +0 | 0 / 0 | +0 | [ 21666] P2 KE-S-N1A HIT 70 | self -28 konpaku +0/+0 form base ptr 1 meter 0 |
+| R16 his Shikai J1 at 3.0 m | 0 | 0 | 0 | — | ? | 0.83 | +0 | +0 | 0 / 0 | +0 | [ 21729] P2 KE-S-J1 HIT 40 | self -16 konpaku +0/+0 form base ptr 1 meter 0 |
+| R17 NS2abc at 7.5 m, he runs in at f0 | 82 | 1 | 1 | — | 54 | 0.83 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| R18 NS2abc at 8.5 m, he runs in at f0 | 82 | 1 | 1 | — | 54 | 0.83 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| R19 NS2abc at 6.6 m, he walks in, NS1a at f40 | 82 | 1 | 1 | — | 56 | 3.75 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| R20 NS2abc at 6.6 m, he walks in, NS1a at f50 | 82 | 1 | 1 | — | 55 | 3.53 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| R21 J1-J3 AS2ab, his Hoho pressed at f60 (in hitstun) | 111 | 5 | 5 | 0 0 0 0 | 69 | 4.27 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| R22 NS3a at 5.4 m | 0 | 0 | 0 | — | ? | 3.13 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| R23 NS3a at 5.8 m | 0 | 0 | 0 | — | ? | 3.53 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| R24 NS3a SA J2 J3 AS2ab from 4.6 m | 128 | 9 | 9 | 0 0 0 0 0 0 0 0 | 69 | 4.27 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| R25 NS3a SA J2-J5 AS3abc from 4.6 m | 197 | 15 | 15 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| R26 his NS3a-b at 4.6 m, her NS3a at f30 | 0 | 0 | 0 | — | ? | 2.56 | +0 | +0 | 0 / 0 | +0 | [ 23525] P2 KE-Z-N3B HIT 70 | self -28 konpaku +0/+0 form base ptr 3 meter 0 |
+| R27 KESSA NS3a SA at 4.2 m | 26 | 1 | 1 | — | 11 | 1.50 | +0 | +0 | 0 / 0 | +0 | IC-K-SA HIT 50 | self +0 konpaku +0/+0 form kessa ptr 3 meter 0 |
+| R28 NS2abc at 3.6 m, he walks in, J1 at f10 | 82 | 1 | 1 | — | 55 | 3.57 | +0 | +0 | 0 / 0 | +0 | WAVE HIT 150 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| M26 his NS1a whiffs at 3.6 m, her NS3a at f18 | 38 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| M27 his NS1a whiffs at 3.6 m, her NS3a at f18 > SA J2-J5 AS3abc | 197 | 15 | 15 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 46 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-SA HIT 34; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| M28 his J1 whiffs at 3.2 m, her NS3a at f8 | 38 | 4 | 4 | 0 0 0 | 5 | 0.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| M29 his J1 whiffs at 3.2 m, her NS1a at f2 | 37 | 1 | 1 | — | 2 | 2.70 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| M30 his NS2a whiffs at 4.0 m, her NS3a at f20 | 38 | 4 | 4 | 0 0 0 | 5 | 0.93 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| S1 J1-J5 AS3abc, his Reishi 150 (the kill in the AS3) | -1150 | 10 | 10 | 0 0 0 0 0 0 0 0 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -5 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-J3 HIT 40; IC-AS3 HIT 45; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3B HIT 18; IC-AS3C HIT 100 | self +0 konpaku +0/-5 form base ptr 3 meter 0 |
+| S2 J1-J4 AS2ab, his Reishi 110 (the kill in the AS2) | -1190 | 5 | 5 | 0 0 0 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -3 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32; IC-NA4 HIT 34; IC-AS2 HIT 50; WAVE HIT 60 | self +0 konpaku +0/-3 form base ptr 2 meter 0 |
+| S3 J1-J3 at pointer 1, his Reishi 40 (the kill by a J) | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -3 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32 | self +0 konpaku +0/-3 form base ptr 1 meter 0 |
+| S4 J1-J3 at pointer 3, his Reishi 40 (the kill by a J) | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -5 | IC-J1 HIT 32; IC-J2 HIT 32; IC-NA3 HIT 32 | self +0 konpaku +0/-5 form base ptr 3 meter 0 |
+| S5 KESSA J1-J3 at pointer 3, his Reishi 40 | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -5 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30 | self +0 konpaku +0/-5 form kessa ptr 3 meter 0 |
+| S6 KESSA J1-J3 at pointer 1, his Reishi 40 | -1260 | 2 | 2 | 0 | 0 | 8.00 | +0 | +0 | 0 / 0 | -4 | IC-K-J1 HIT 30; IC-K-J2 HIT 30; IC-K-NA3 HIT 30 | self +0 konpaku +0/-4 form kessa ptr 1 meter 0 |
+| T1 NS1a vs his J1 (f8) > his AS1 (f15) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [ 26061] P2 KE-Z-AS1 HIT 90 | self -36 konpaku +0/+0 form base ptr 1 meter 0 |
+| T2 NS1a vs his J1 (f8) > his AS1 (f20) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [ 26181] P2 KE-Z-AS1 HIT 90 | self -36 konpaku +0/+0 form base ptr 1 meter 0 |
+| T3 NS1a vs his J1 (f8) > his AS1 (f30) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [ 26304] P2 KE-Z-AS1 HIT 90 | self -36 konpaku +0/+0 form base ptr 1 meter 0 |
+| T4 NS1a vs his J1 (f8) > his AS1 (f15), her SA at f12 | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [ 26421] P2 KE-Z-AS1 HIT 90 | self -36 konpaku +0/+0 form base ptr 1 meter 0 |
+| T5 NS1a vs his J1 (f8) > his J2 (f15) | 19 | 1 | 1 | — | ? | 0.85 | +0 | +0 | 0 / 0 | +0 | IC-SA HIT 34 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| T6 J1 into his NS1a > his SA (f20) > her AS1 | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [ 26658] P2 KE-Z-SA1 HIT 30 | self -12 konpaku +0/+0 form base ptr 1 meter 0 |
+| T7 J1 into his NS1a > his SA (f28) > her AS1 | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [ 26788] P2 KE-Z-SA1 HIT 30 | self -12 konpaku +0/+0 form base ptr 1 meter 0 |
+| T8 J1 into his NS1a > his SA (f36) > her AS1 | 44 | 2 | 2 | 0 | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| T9 J1 into his NS1a > his SA (f44) > her AS1 | 44 | 2 | 2 | 0 | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-J1 HIT 32; IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| T10 J1 into his NS1a > his NS1b (f20) | 27 | 1 | 1 | — | ? | 1.89 | +0 | +0 | 0 / 0 | +0 | IC-AS1 HIT 50 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| T11 J1 into his NS1a > her AS1 at once (f15) > his SA (f28) | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [ 27308] P2 KE-Z-SA1 HIT 30 | self -12 konpaku +0/+0 form base ptr 1 meter 0 |
+| T12 J1 into his NS1a > his SA (f20) > her AS1 later (f24) | 0 | 0 | 0 | — | ? | 2.39 | +0 | +0 | 0 / 0 | +0 | [ 27438] P2 KE-Z-SA1 HIT 30 | self -12 konpaku +0/+0 form base ptr 1 meter 0 |
+| T13 NS1a vs his J1 (f8) > his AS1 (f20) > her SA (f30) | 0 | 0 | 0 | — | ? | 1.90 | +0 | +0 | 0 / 0 | +0 | [ 27572] P2 KE-Z-AS1 HIT 90 | self -36 konpaku +0/+0 form base ptr 1 meter 0 |
+| T14 NS1a at 3.4 m catches his walk-in (his J1 at f28 never starts), SA | 56 | 2 | 2 | 0 | 3 | 0.88 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68; IC-SA HIT 34 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| T15 NS1a at 3.4 m catches his walk-in | 37 | 1 | 1 | — | 2 | 1.93 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| U1 NS3a from 4.6 m, his J1 at f8 | 38 | 4 | 4 | 0 0 0 | 5 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| U2 NS3a from 4.6 m, his J1 at f12 | 30 | 3 | 3 | 0 0 | 5 | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| U3 NS3a from 4.6 m, his J1 at f12 > AS1 at f20 | 0 | 0 | 0 | — | ? | 1.93 | +0 | +0 | 0 / 0 | +0 | [ 28136] P2 KE-Z-AS1 HIT 90 | self -36 konpaku +0/+0 form base ptr 3 meter 0 |
+| U4 NS3a from 4.6 m, his NS1a at f4 | 0 | 0 | 0 | — | ? | 5.22 | +0 | +0 | 0 / 0 | +0 |  | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| U5 NS3a from 4.6 m, his J1 at f16 | 10 | 1 | 1 | — | ? | 1.83 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| U6 his NS1a > NS1b whiff at 3.6 m, her NS3a at f18 | 0 | 0 | 0 | — | ? | 1.15 | +0 | +0 | 0 / 0 | +0 | [ 28438] P2 KE-Z-N1B HIT 55 | self -22 konpaku +0/+0 form base ptr 3 meter 0 |
+| U7 his NS1a > NS1b whiff at 3.6 m, her NS3a at f32 | 38 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| U8 his NS1a > NS1b > NS1c at 3.6 m, her NS3a at f18 | 0 | 0 | 0 | — | ? | 1.15 | +0 | +0 | 0 / 0 | +0 | [ 28688] P2 KE-Z-N1B HIT 55; [ 28709] P2 KE-Z-N1C HIT 70 | self -50 konpaku +0/+0 form base ptr 3 meter 0 |
+| U9 his NS1a > SA at 3.6 m, her NS3a at f18 | 38 | 4 | 4 | 0 0 0 | 5 | 0.89 | +0 | +0 | 0 / 0 | +0 | IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18; IC-N3A HIT 18 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| U10 his NS2a > NS2b at 4.0 m, her NS1a at f6 | 37 | 1 | 0 | — | 22 | 2.51 | +0 | +0 | 0 / 0 | +0 | IC-N1A ARMORED 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| U11 his NS2a > NS2b at 4.0 m, her NS3a at f20 | 0 | 0 | 0 | — | ? | 0.95 | +0 | +0 | 0 / 0 | +0 | [ 29064] P2 KE-Z-N2B HIT 95 | self -38 konpaku +0/+0 form base ptr 3 meter 0 |
+| U12 his J1 whiff at 3.2 m > his J2 press, her NS1a at f2 | 37 | 1 | 1 | — | 2 | 2.70 | +0 | +0 | 0 / 0 | +0 | IC-N1A HIT 68 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |

@@ -53,4 +53,54 @@ Kenpachi wins 37 of 40 at HARD and 38 of 40 at NORMAL. Over 20 HARD matches (bot
 
 The bursts (KE-S-BURST1 / 2) do occur, 54 hits in those matches. His damage comes from the sealed form's NS1 / AS1 / the
 J string and the Shikai's NS1. Ichigo deals about 28 % of his hits in KESSA (520 of 1883), with 25 Getsuga waves in 20
-matches and no Kikon.
+matches. ~~and no Kikon~~: corrected in §3.
+
+## 3. Steps 1–2: data sheets and catalogues (2026-11-06)
+
+Two agents, one a side, in `docs/research/ki-ai/<side>/`: `sheet.lisp` (a host generator over the kits' `:core`) and its tables,
+`trials.lisp` + `catalogue.md` (each entry played in the native sim by `tools/combo-trial.py`, P2 the other character), `means.md`
+(the means against this opponent, each with its trials, and what the generic CPU can never reach).
+
+| Side | Trials | Kept as refutations | Forms |
+|---|---|---|---|
+| Kenpachi | 153 | 6 | sealed, Shikai L0–L3, KYORAN, ZANKAI |
+| Ichigo | 174 | 3 (+ range probes that miss by design) | Shikai (three pointers), KESSA |
+
+**The trial tooling fixed** (`tools/simgate/trial.lisp`, `tools/combo-trial.py`; no game code):
+- A core kit's P1 was never driven by its script. `brain-step` hands a core kit to `core-brain-step` before the `:trial` habit is read,
+  so the generic CPU played every core trial. Now a core P1's brain is off and `trial-core-drive` calls `trial-step` once per sim frame.
+- Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening gauges. They carried over and read 3–10 % high.
+- New optional keys: `:ptr` / `:p2-ptr`, `:awaken`, `:p2-reishi`, `:p2-press` (P2 acting through his vpad, by trial frame), `:p2-at`
+  (P2's J / SP by sim frame). The end line adds `konpaku` and `more` (P1's own Reishi, both Konpaku, form / pointer / kit meter).
+- Rukia's 54 Shikai trials still run. Both KI files re-run after the merge: Kenpachi's are identical but for three held Kikons'
+  end adv / dist; Ichigo's 45 rows deal a few % less (the gauge reset), and the re-run is the reference.
+
+**Corrections to §2:**
+- Ichigo does land Kikons. A 10-seed HARD diagnostic counted 126 follow-ups: 97 cancelled, 29 landed (13 of 13 on a red Kenpachi).
+  The landed line reads `-> P1 KIKON n`, which aieval's hit regex (`-> P[12] (HIT|COUNTER)`) skips. The evaluator must count it.
+- Kenpachi's stun tolerance 26 is inert: `*stun-blow-away*` is NIL since 2026-10-10.
+
+**What the matchup turns on** (numbers: dealt damage; trial names in the catalogues):
+- Up close (1.7–3.6 m) the triangle is Kenpachi's. His sealed J1 is S6 / 1.8 m against her S14; his NS1a (S14) beats every NS she
+  starts from neutral; his CPU's reads (AS after a cancel, SA in his NS gap) beat both of her answers (Ichigo T1–T13).
+- Ichigo's openings: his J whiffs (a whiffed J can't chain; NS1a / NS3a punish at 3.2 m), the 4–5 m band where only her NS3a reaches,
+  the Getsuga from 7.5 m on (or point-blank inside AS2), a Kikon held only when he is red, and **pointer 3: a Soul Break there takes
+  5 Konpaku instead of 3**.
+- Kenpachi's openings beyond the sealed brawl: the Getsuga's charges are NS windows he can close with Hoho / Step + NS1; the Shikai /
+  Bankai J1 cuts the wave; a meaty J1 wake-up loop (64 a loop); the Shikai's L2 route (251, ends at L3); the Bankai entry and
+  KYORAN / ZANKAI strings (278–461).
+
+**What the generic CPU can never reach** (why the matchup CPU needs code, not only weights):
+- Kenpachi:
+  - J4–J7, the special AS and the Bankai: `cai-move-step` forces an SP once the presses reach `:as-by-press`'s length, `(1 1 2)` in
+    the Shikai, so J4 is never pressed;
+  - his forced J3 + SP at pointer 1 is a burst that resets L;
+  - **a CPU in a Bankai could never leave it**: the Bankai kits have no `:as-by-press`, so `(1 2 3)` forces the AS at J3, and J5 + SP,
+    the only exit, never comes while each segment burns 40 Reishi. Hidden today only because the CPU never enters a Bankai;
+  - no answer at 3.6–6.6 m: no `:ns-range`, so he walks into the Getsuga.
+- Ichigo:
+  - no Hoho off a hit, no Kikon off a later segment (so no wave Kikon), no NS3a from 4–5 m (moves start only within 3.6 m);
+  - no Getsuga from 7.5 m or more (it dashes in past 7 m);
+  - no whiff punish, no pointer steering;
+  - the Kikon held into a 0.95 cancel when he is not red;
+  - it charges NS2 inside 3.6 m, into his AS read: 18 of 37 charges were hit in the diagnostic.
