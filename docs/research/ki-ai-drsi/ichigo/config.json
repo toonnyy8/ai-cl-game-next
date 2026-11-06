@@ -1,0 +1,16 @@
+{
+  "baseline_score": 0.5781,
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "branches": 4,
+  "eval_command": "python3 tools/matchup-eval.py --side ichigo --seeds 40 -j 4",
+  "lambda": 0.05,
+  "refines": 1,
+  "task": "SOUL DUEL KI matchup: Ichigo's style CPU against Kenpachi (duel/lisp/cpu-ki-ichigo.lisp), scored by tools/matchup-eval.py --side ichigo --seeds 40 at the freeze, the opponent Kenpachi's champion of the round (DUEL_MATCHUP_AI \u00a77-\u00a78)",
+  "workers": 4
+}

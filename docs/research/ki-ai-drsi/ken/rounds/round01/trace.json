@@ -1,0 +1,31 @@
+{
+  "baseline_score": 0.3505,
+  "beta": null,
+  "branch_count": 4,
+  "cells": {},
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 1
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [
+    "b0_a0",
+    "b1_a0",
+    "b2_a0",
+    "b3_a0"
+  ],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 1,
+  "round_index": 1,
+  "task": "SOUL DUEL KI matchup: Kenpachi's style CPU against Ichigo (duel/lisp/cpu-ki-ken.lisp), scored by tools/matchup-eval.py --side ken --seeds 40 at the freeze, the opponent Ichigo's champion of the round (DUEL_MATCHUP_AI \u00a77-\u00a78)"
+}

@@ -200,3 +200,12 @@ first step. §5's proof could not see it, since nothing was registered then. Bot
   punishes don't count for that theme; the search may move the knobs. One time-out in 40 HARD matches (KI seed 8).
 - Checks: host 9843 ALL PASS, pkgcheck clean, `./build.sh duel` with the allowed warning, native `--cvc` II and KK identical, **IK moves by
   design** (30 lines vs 42, P2 0-3 at 298.6 s). IK's reference waits for the search's final pick (regenerated then).
+
+## 8. The search (dream-rsi, from 2026-11-06)
+
+Workspaces `docs/research/ki-ai-drsi/{ken,ichigo}/` (README there), the freeze 989aaab (the evaluator and both v0 files).
+- Round 1's opponent for each side is the other side's v0, its best version at the time (§1's "round 1: the generic CPU" was written
+  before the v0s existed; v0 is the other side's best, which is what 「每輪換上對方最佳版」 asks).
+- Baselines: Kenpachi 0.3505, Ichigo 0.5781 (§7). Grid 4 branches × 2 attempts a side, W = 4, λ 0.05 (the skill's default).
+- What a cell may change: only its side's style file. Knobs, and how the four approved styles are carried out (thresholds, the mix,
+  route choice, timing, a located bug), not new styles. §369 says the search "only tunes weights"; the styles stay the user's.
