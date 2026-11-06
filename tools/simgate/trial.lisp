@@ -8,9 +8,10 @@
 ;;;;           :script ((button frames &key modded wait on) ...) :bars N :fs N :meter X): the presses in order (scripted.lisp TRIAL-STEP)
 ;;;; A core kit's P1 (a :core: its CPU is CORE-BRAIN-STEP, which never reaches the :trial habit): its brain stays off and TRIAL-STEP is
 ;;;; called here before each sim frame (a frame that only froze, hitstop / slow motion, does not count; a :walk / :stick press is
-;;;; written as the brain's :dash act, the stick its BRAIN-DASH). Optional keys (absent: as before): :ptr N P1's SP pointer, :p2-ptr N P2's, :p2-at ((sim-frame :j|:sp [frames]) ...) P2
-;;;; presses J / SP (held FRAMES, default 1) on that sim frame of the trial (counted from 0), through his vpad. The end line's "more": P1's own Reishi change, both Konpaku changes (P1/P2),
-;;;; P1's form, pointer and kit meter at the end.
+;;;; written as the brain's :dash act, the stick its BRAIN-DASH). Optional keys (absent: as before): :ptr N P1's SP pointer, :p2-ptr N
+;;;; P2's, :p2-at ((sim-frame :j|:sp [frames]) ...) P2 presses J / SP (held FRAMES, default 1) on that sim frame of the trial (from 0),
+;;;; through his vpad. Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening gauges (the awakened flag by
+;;;; the form). The end line's "more": P1's own Reishi change, both Konpaku changes (P1/P2), P1's form, pointer and kit meter at the end.
 (defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
 (load (first cl-user::*sg-args*) :verbose nil)
 (in-package :duel)

@@ -1,3 +1,102 @@
+# Kenpachi vs Ichigo: the catalogue (step 2, sim-verified; 2026-11-06)
+
+`python3 tools/combo-trial.py docs/research/ki-ai/kenpachi/trials.lisp` (HEAD d2a5555 + this branch's `tools/simgate/trial.lisp`): each
+trial played in the native sim, P1 Kenpachi pressing only its script, P2 Ichigo (Shikai; KESSA where named) standing, holding a guard
+(`:dummy :guard`) or pressing his own J / SP on set frames (`:p2-at`). Full gauges, 9 Konpaku each, no SUBLIMATION / DRIVE bonus. Columns
+(as `catalogue-shikai.md` of Rukia): **dmg** Reishi he lost (after every multiplier: about 0.40 × base on his Shikai, see `sheet.md`);
+**gaps** per hit after the first, the frames he could act before it (0 = a true combo); **adv** after the last hit or block (his first free
+frame − Kenpachi's; a knockdown counts his wake-up; ? = someone not free when the trial ended); **dist** at the end; **more**: Kenpachi's
+own Reishi change (the Bankai's cost, Ichigo's hits), Konpaku change Kenpachi / Ichigo, Kenpachi's form, pointer and L at the end.
+149 trials, all in `trials.lisp`; the raw table (the tool's output) is at the end.
+
+## Findings
+
+**Best hit-confirmed routes per form** (every gap 0 unless noted; on his Shikai; × 1.25 on KESSA, H1–H5)
+
+| Form | Route | Start | dmg | ends | notes |
+|---|---|---|---|---|---|
+| Sealed | J1–J5 AS3 (3 seg) | 1.6 m | **171** | knockdown **+56**, 1.83 m, pointer 3 | A7; KESSA 215 (H1) |
+| Sealed | NS1 a b c, SA, J2–J5, AS3 | 2.0 m | **214** | +56, pointer 3 | L1: the SA reopens the J string |
+| Sealed | NS2 a b, SA, J2 J3, AS2 (2 seg) | 2.0 m | 173 | launch **+77**, pointer 2 | L2 |
+| Sealed | J1–J4 AS2 / J1–J3 AS2 | 1.6 m | 123 / 108 | launch +77 | A6, A5 |
+| Sealed | NS1 a b c SA AS1 / NS2 a b SA AS1 | 2.0 m | 122 / 122 | +56, pointer 1 | B5, B8 |
+| Sealed | J1 J2 AS1 → walk → J1 at his first free frame → J1 J2 AS1 … | 1.6 m | **64 a loop** | +56 again, gap 0 | K1 (J1 29 f after he is free to walk); 12 f late he can act first (K2) |
+| Sealed | J1–J5 AS3 → Step → J1 J2 AS1 | 1.6 m | 235 | +56 | K3 (gap 0 on the wake-up) |
+| Shikai L0 | J1–J3 burst to pointer 2 (TOSSHIN-ISSEN 100) | 2.0 m | 94 | knockdown +49 | D5; L stays 0 |
+| Shikai L2 | NS2 a b c d, SA, J2 J3, AS2 (3 seg) | 1.4 m | **251** | **+2**, 0.9 m, L → 3 | L5: the Shikai's best without L3 |
+| Shikai L2 | J1–J3 AS2 (3 seg) | 2.0 m | 160 | +2, L → 3 | D29 |
+| Shikai L3 | J1–J3 AS2 (4 seg) | 2.0 m | **221** | knockdown +47 | D33 |
+| Shikai L3 | J1–J6 INSEKI-GIRI / J1–J4 INSEKI-GIRI | 2.0 m | 198 / 174 | +46, L kept | D40, D39; KESSA 219 (H3) |
+| Shikai L3 | J1–J6 DAISHARIN / J1–J4 DAISHARIN | 2.0 m | 190 / 166 | launch **+73**, L kept | D38, D37 |
+| Shikai L3 | NS2 a SA J2–J4 + SP = INSEKI-GIRI | 1.4 m | 187 | +46 | L3 |
+| Shikai L3 | J1–J3 burst to pointer 2 (260 base) | 2.0 m | 159 | +49, L → 0 | D34; the burst by L: 94 / 115 / 135 / 159 total at L0–L3 (D5, D23, D27, D34) |
+| Shikai L3 → Bankai | J1–J7 + SP (BANKAI 100, 3.2 m round) | 2.0 m | 145 | **+77, 6.13 m** | D41 / D42; then Hoho in, KYORAN J1 J2 AS on his wake-up: **278** (D43, D45) |
+| KYORAN | J1–J5 CHIGIRI | 1.6 m | 247 | +60, back to the Shikai pointer 1 L0, Kenpachi −1 Konpaku | E6; KESSA 309 (H4) |
+| KYORAN | J1–J4 AS (4 seg) | 1.6 m | 240 | +54 | E5, self −160 |
+| ZANKAI | NS a b c d, SA, J2–J4, AS (4 seg) | 2.0 m | **461** | +49 | L6, **self −320** |
+| ZANKAI | J1–J4 AS (4 seg) / J1–J5 TATE-GOTO | 1.6 m | 319 / 288 | +49 / +60 (back to the Shikai pointer 2) | E24 (self −160), E25 (self −40, −1 Konpaku); KESSA TATE-GOTO 358 (H5) |
+
+**Kikon** (dmg 0: the Kikon's reset refills his Reishi; the Konpaku column is what counts): sealed AS1 −1 (C1), AS2b −2 (C2), AS3b −1 (C3),
+NS1a from neutral −1 (C4), NS2a −2 (C5), the tame's thrust −1 (C6); Shikai AS1 −1, AS2 −2, the lunge from 5 m −1, the burst to pointer 2
+−2, DAISHARIN −1, INSEKI-GIRI −2 (D50–D55); the BANKAI AS takes none (D56); KYORAN's AS −3 (E11), CHIGIRI −3 (E7), TATE-GOTO −3 (E26; −1 to
+Kenpachi for the special). The cheapest 2-Konpaku Kikon: the sealed pointer 2 NS a held from neutral (C5).
+
+**The L routes**: L0 → L3 takes three combos; the shortest are three neutral lunges (D12: 84 total, each its own combo) or lunge / AS1
+combos (D13). One combo gives one level however many NS / AS it holds (D10). An L2 route that lands an NS or AS ends at L3 (D24, D25, D26,
+D29, L5). The burst resets L (D5, D23, D27, D34: L 0 after).
+
+**What leaves him plus, far or with a knockdown**
+
+| Ends | Routes (adv) |
+|---|---|
+| knockdown / launch, big plus | sealed AS1 +56 (A3, A4, B4, B5, B7, B8, B10, K1), AS2 launch +77 (A5, A6, L2), AS3 +56 (A7, L1); Shikai bursts +49 (D5, D8, D23, D27, D28, D34, D35), AS1 4 seg +52 (D32), AS2 4 seg +47 (D33), DAISHARIN launch +73 (D37, D38), INSEKI-GIRI +46 (D39, D40, L3); BANKAI +77 at 6.13 m (D41, D42); KYORAN AS +54, ZANKAI AS +49 (E2–E5, E21–E24, E9, E28, L6); CHIGIRI / TATE-GOTO +60, back in the Shikai (E6, E25) |
+| plus without a knockdown | KYORAN NS d +23 (E8), sealed NS1 c / the men cut crumple +16 (B2, B9, F3, F7–F9, F11–F13, F20, F24), Shikai L3 NS1 e +12 (D30), Shikai NS2 c +11 (D22), ZANKAI NS d +9 (E27), the sealed SA +9 at 2.4 m (B3, F4), Shikai NS2 a b +7 (D6, D9, F26), L3 NS2 e +7 (D31); every J string +2 to +4 (A1, A2, D3, D36, E1, E20) |
+| even / small | Shikai NS1 lunge and its L0–L2 routes 0 to +2 (D1, D2, D4, D10–D13, D20, D21, D24–D26, D29), sealed NS2 b 0 (B6), the sealed AS2a alone 0 (A8), Shikai L2 → L3 route L5 +2 |
+| far | the BANKAI AS 6.13 m (D41); a Kikon resets to 8 m (C*, D5x, E7, E11, E26); the sealed SA 2.4 m (B3) |
+
+**Against Ichigo acting** (`:p2-at`; his references F0a–F0c: the Getsuga route — SP at 0, 10, 30: charge 20 f, charge 16 f, the JUJISHO wave —
+hits at **f70 at 5 m for 82** on the idle Kenpachi; NS1 a b c at 2.5 m 116; the NS3 rush 76)
+
+| His move | Kenpachi's answer | Result | Trial |
+|---|---|---|---|
+| J1 (Shikai, S14, 1.1 m) | J1 (S6, 1.8 m) on the same frame | his J1 never lands, 14, +3 | F1; Shikai J1 the same (F27) |
+| KESSA J1 (S8, 1.56 m) | J1 | his never lands, 18 | F21 |
+| NS1 a (S22) | J1 (NA cancels NS, both go on), J2 cancels his hit, then **AS1 hits him inside his NS** | 36, +56 | F2 |
+| NS1 a | sealed NS1 a (S14: NS against NS, the first hit wins) | 76, +16, his never lands | F3 |
+| NS1 a | pointer 2 NS a (armour): his hit absorbed, the drop lands | 34, +14, **Kenpachi −37** | F5 |
+| J1 | pointer 2 NS a | NA cancels it: nothing lands either way | F6 (refutes "armour beats his J") |
+| J1 J2 | NS1 a then SA (the SA's super armour absorbs his J) | 12, +9 | F4 |
+| J1 / NS1 a / NS3 rush | pointer 3 tame (parry 2–28) → thrust → men | 66, +16 each | F7, F8, F9 |
+| KESSA NS3 (clones) | pointer 3 tame | **the clones' hits are not caught**: Kenpachi −18 | F23 (refuted) |
+| NS3 rush at 3 m | NS1 a | 76, +16 | F24 |
+| KESSA NS1 lash (S22, 3.0 m) at 2.5 m | NS1 a | 96, +16 | F20 |
+| Getsuga route at 5 m | Hoho at f0, then NS1 a b c (his charges are NS windows: NS beats them) | 76, +16, no wave | F11; KESSA 96 (F22) |
+| | Step in, NS1 a b c / walk 24 f, NS1 a b c | 76, +16 | F12, F13 |
+| | Hoho, J1 (cancels a charge) J2 AS1 | 36, +56 | F10 |
+| | Shikai NS1 lunge at once (2.6 + 3.0 m) | 28, 0 | F15; from 6.6 m: Step, lunge (F16) |
+| | KYORAN Hoho, NS lunge | 39 | F18 |
+| | Shikai / KYORAN **J1 cuts the wave** (`:projectile-cut`) pressed f49–f57 | wave gone, Kenpachi unhurt | F28, F29, F32; at f61 too late (F30); the sealed J cannot (F31) |
+| | Hoho late (f55) | through the wave, unhurt (lands 1.6 m from him) | F17 |
+| Getsuga route at 6.6 m | Hoho, NS1 a | 26 | F14 |
+| Getsuga route at 3.6 m | sealed NS1 a at once | **whiffs** (3.1 m reach with the slide); the wave hits, −82 | F25 (refuted) |
+
+**Against the practice dummy's guard** (information: the core CPU never presses guard): J1 −4 (G1); J1–J5 −11, J4 whiffs on the block push
+(G2); NS1 a b c −10 (G3); the tame line −10 (G4); the Shikai lunge −10 (G5).
+
+**Dropped or refuted by the sim** (kept in the file as evidence where useful)
+- "AS3's last segment takes the Kikon": the held press of C3 landed on AS3b (the Kikon came off b); retitled, not a separate route.
+- "After J1–J5 AS3, NS1 a on his wake-up": AS3 writes pointer 3, so the next SP is the tame (no hit on a passive dummy, K4); replaced by
+  Step → J1 J2 AS1 (K3).
+- "A J1 on his wake-up right after walking in": too early, it whiffs (first runs of K1 / D43); the meaty timings are K1 (+29 after he is
+  free to move) and D43 / D45 (after the Bankai entry). D47 keeps the early J1 as the refutation.
+- "Pointer 2's armour beats his J" (F6), "the tame catches KESSA's clones" (F23), "the sealed NS1a punishes the Getsuga from 3.6 m"
+  (F25), "the sealed J cuts the wave" (F31): refuted.
+- A Shikai J3 to cut the wave (J1 at f41, J2, J3): J1 whiffed and the string stopped, the wave hit: dropped (not in the file).
+- Not trialled: the temporary pointer switch (`core-switch-ready-p` refuses a fighter with a brain, so the trial player cannot), a red victim's
+  Kikon (the trial starts at full Reishi), Ichigo's Burst out of a combo, KESSA's Step / Hoho clones.
+- Earlier runs of this file read 3–10 % high: SUBLIMATION / DRIVE carried over from trial to trial (trial.lisp now resets them).
+
+## All trials
 | Trial | dmg | hits | combo | gaps | adv | dist | Reiatsu | FS | layers / chill | log | more |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | A1 J1 | 14 | 1 | 1 | — | 3 | 0.83 | +0 | +5 | 0 / 0 | KE-Z-J1 HIT 35 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
@@ -5,8 +104,8 @@
 | A3 J1 AS1 | 50 | 2 | 2 | 0 | 56 | 1.83 | +0 | +32 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | A4 J1 J2 AS1 | 64 | 3 | 3 | 0 0 | 56 | 1.83 | +0 | +35 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | A5 J1-J3 AS2 (2 seg) | 108 | 5 | 5 | 0 0 0 0 | 77 | 1.83 | +0 | +56 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-AS2 HIT 60; KE-Z-AS2B HIT 100 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
-| A6 J1-J4 AS2 (2 seg) | 123 | 6 | 6 | 0 0 0 0 0 | ? | 1.83 | +0 | +60 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-AS2 HIT 60; KE-Z-AS2B HIT 100 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
-| A7 J1-J5 AS3 (3 seg) | 171 | 8 | 8 | 0 0 0 0 0 0 0 | ? | 1.83 | +0 | +80 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-J5 HIT 55; KE-Z-AS3 HIT 50; KE-Z-AS3B HIT 50; KE-Z-AS3C HIT 140 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| A6 J1-J4 AS2 (2 seg) | 123 | 6 | 6 | 0 0 0 0 0 | 77 | 1.83 | +0 | +78 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-AS2 HIT 60; KE-Z-AS2B HIT 100 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| A7 J1-J5 AS3 (3 seg) | 171 | 8 | 8 | 0 0 0 0 0 0 0 | 56 | 1.83 | +0 | +95 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-J5 HIT 55; KE-Z-AS3 HIT 50; KE-Z-AS3B HIT 50; KE-Z-AS3C HIT 140 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
 | A8 J1-J3 AS2a only | 68 | 4 | 4 | 0 0 0 | 0 | 0.83 | +0 | +43 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-AS2 HIT 60 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
 | B1 P1 NS a | 26 | 1 | 1 | — | 2 | 0.89 | +0 | +19 | 0 / 0 | KE-Z-N1A HIT 65 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | B2 P1 NS a b c | 76 | 3 | 3 | 0 0 | 16 | 0.89 | +0 | +37 | 0 / 0 | KE-Z-N1A HIT 65; KE-Z-N1B HIT 55; KE-Z-N1C HIT 70 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
@@ -57,14 +156,14 @@
 | D34 L3 P1 J1-J3 burst to P2 (260) | 159 | 4 | 4 | 0 0 0 | 49 | 1.83 | +0 | +42 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-BURST2 HIT 100 | self +0 konpaku +0/+0 form nozarashi ptr 2 meter 0 |
 | D35 L3 P2 J1 J2 burst to P1 (260) | 137 | 3 | 3 | 0 0 | 49 | 1.83 | +0 | +39 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-BURST1 HIT 100 | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 0 |
 | D36 L3 J1-J7 | 104 | 7 | 7 | 0 0 0 0 0 0 | 4 | 0.83 | +0 | +51 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-J7 HIT 70 | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 3 |
-| D37 L3 P1 J1-J4 special AS (DAISHARIN) | 166 | 7 | 7 | 0 0 0 0 0 0 | ? | 1.83 | +0 | +75 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-SP1 HIT 60; KE-S-SP1 HIT 60; KE-S-SP1 HIT 120 | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 3 |
-| D38 L3 P1 J1-J6 special AS (DAISHARIN) | 190 | 9 | 9 | 0 0 0 0 0 0 0 0 | ? | 1.83 | +0 | +89 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-SP1 HIT 60; KE-S-SP1 HIT 60; KE-S-SP1 HIT 120 | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 3 |
+| D37 L3 P1 J1-J4 special AS (DAISHARIN) | 166 | 7 | 7 | 0 0 0 0 0 0 | 73 | 1.83 | +0 | +90 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-SP1 HIT 60; KE-S-SP1 HIT 60; KE-S-SP1 HIT 120 | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 3 |
+| D38 L3 P1 J1-J6 special AS (DAISHARIN) | 190 | 9 | 9 | 0 0 0 0 0 0 0 0 | 73 | 1.83 | +0 | +101 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-SP1 HIT 60; KE-S-SP1 HIT 60; KE-S-SP1 HIT 120 | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 3 |
 | D39 L3 P2 J1-J4 special AS (INSEKI-GIRI) | 174 | 5 | 5 | 0 0 0 0 | 46 | 1.83 | +0 | +51 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-SP2 HIT 260 | self +0 konpaku +0/+0 form nozarashi ptr 2 meter 3 |
 | D40 L3 P2 J1-J6 special AS (INSEKI-GIRI) | 198 | 7 | 7 | 0 0 0 0 0 0 | 46 | 1.83 | +0 | +62 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-SP2 HIT 260 | self +0 konpaku +0/+0 form nozarashi ptr 2 meter 3 |
 | D41 L3 P1 J1-J7 SP: BANKAI (KYORAN) | 145 | 8 | 8 | 0 0 0 0 0 0 0 | 77 | 6.13 | +0 | +70 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-J7 HIT 70; KE-S-BANKAI HIT 100 | self +0 konpaku +0/+0 form bankai ptr 1 meter 3 |
 | D42 L3 P2 J1-J7 SP: BANKAI (ZANKAI) | 145 | 8 | 8 | 0 0 0 0 0 0 0 | 77 | 6.13 | +0 | +70 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-J7 HIT 70; KE-S-BANKAI HIT 100 | self +0 konpaku +0/+0 form bankai-2 ptr 1 meter 3 |
-| D43 L3 P1 BANKAI, Hoho in, KYORAN J1 J2 AS (2 seg) on his wake-up | 278 | 12 | 8 | 0 0 0 0 0 0 0 6 0 0 0 | 54 | 1.83 | +0 | +15 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-J7 HIT 70; KE-S-BANKAI HIT 100; KE-KR-J1 HIT 40; KE-KR-J2 HIT 40; KE-KR-AS2 HIT 80; KE-KR-FIN HIT 110 | self -80 konpaku +0/+0 form bankai ptr 1 meter 3 |
-| D45 L3 P1 BANKAI, Step in x2, KYORAN J1 J2 AS (2 seg) on his wake-up | 278 | 12 | 8 | 0 0 0 0 0 0 0 1 0 0 0 | 54 | 1.83 | +0 | +124 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-J7 HIT 70; KE-S-BANKAI HIT 100; KE-KR-J1 HIT 40; KE-KR-J2 HIT 40; KE-KR-AS2 HIT 80; KE-KR-FIN HIT 110 | self -80 konpaku +0/+0 form bankai ptr 1 meter 3 |
+| D43 L3 P1 BANKAI, Hoho in, KYORAN J1 J2 AS (2 seg) on his wake-up | 278 | 12 | 8 | 0 0 0 0 0 0 0 0 0 0 0 | 54 | 1.83 | +0 | +15 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-J7 HIT 70; KE-S-BANKAI HIT 100; KE-KR-J1 HIT 40; KE-KR-J2 HIT 40; KE-KR-AS2 HIT 80; KE-KR-FIN HIT 110 | self -80 konpaku +0/+0 form bankai ptr 1 meter 3 |
+| D45 L3 P1 BANKAI, Step in x2, KYORAN J1 J2 AS (2 seg) on his wake-up | 278 | 12 | 8 | 0 0 0 0 0 0 0 0 0 0 0 | 54 | 1.83 | +0 | +124 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-J7 HIT 70; KE-S-BANKAI HIT 100; KE-KR-J1 HIT 40; KE-KR-J2 HIT 40; KE-KR-AS2 HIT 80; KE-KR-FIN HIT 110 | self -80 konpaku +0/+0 form bankai ptr 1 meter 3 |
 | D46 L3 P1 BANKAI, Hoho in, KYORAN NS lunge on his wake-up | 184 | 9 | 8 | 0 0 0 0 0 0 0 3 | 2 | 0.83 | +0 | -3 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-J7 HIT 70; KE-S-BANKAI HIT 100; KE-KR-NA HIT 80 | self -40 konpaku +0/+0 form bankai ptr 1 meter 3 |
 | D47 L3 P1 BANKAI, Hoho, J1 too early (+66: his wake-up invulnerable) | 145 | 8 | 8 | 0 0 0 0 0 0 0 | -26 | 0.96 | +0 | -18 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-J5 HIT 45; KE-S-J6 HIT 50; KE-S-J7 HIT 70; KE-S-BANKAI HIT 100 | self +0 konpaku +0/+0 form bankai ptr 1 meter 3 |
 | D44 L3 J1-J3 (L3 string stops? J4 needs L3) | 54 | 3 | 3 | 0 0 | 4 | 0.83 | +0 | +29 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55 | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 2 |
@@ -103,11 +202,11 @@
 | F3 his NS1a vs my NS1a (S14 vs S22) | 76 | 3 | 3 | 0 0 | 16 | 0.89 | +0 | +43 | 0 / 0 | KE-Z-N1A HIT 65; KE-Z-N1B HIT 55; KE-Z-N1C HIT 70 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | F4 his J1 J2 vs my NS1a SA (the SA absorbs his NA) | 12 | 1 | 1 | — | 9 | 2.43 | +0 | +21 | 0 / 0 | KE-Z-SA1 HIT 30 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | F5 his NS1a vs my P2 NS a (armour) | 34 | 1 | 1 | — | 14 | 1.06 | +0 | +30 | 0 / 0 | KE-Z-N2A HIT 85 | self -37 konpaku +0/+0 form base ptr 2 meter 0 |
-| F6 his J1 vs my P2 NS a (NA cancels it) | 0 | 0 | 0 | — | ? | 0.93 | +0 | +17 | 0 / 0 |  | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
+| F6 his J1 vs my P2 NS a (NA cancels it) | 0 | 0 | 0 | — | ? | 0.93 | +0 | +42 | 0 / 0 |  | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
 | F7 his J1 vs my P3 tame (parry -> thrust -> men) | 66 | 2 | 2 | 0 | 16 | 1.07 | +0 | +33 | 0 / 0 | KE-Z-N3B HIT 70; KE-Z-N3C HIT 95 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
 | F8 his NS1a vs my P3 tame (parry) | 66 | 2 | 2 | 0 | 16 | 1.33 | +0 | +33 | 0 / 0 | KE-Z-N3B HIT 70; KE-Z-N3C HIT 95 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
 | F9 his NS3 rush vs my P3 tame (parry) | 66 | 2 | 2 | 0 | 16 | 1.12 | +0 | +33 | 0 / 0 | KE-Z-N3B HIT 70; KE-Z-N3C HIT 95 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
-| F10 Getsuga 5 m: Hoho f0, J1 J2 AS1 | 36 | 1 | 1 | — | ? | 1.90 | +0 | -82 | 0 / 0 | KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| F10 Getsuga 5 m: Hoho f0, J1 J2 AS1 | 36 | 1 | 1 | — | 56 | 1.90 | +0 | -64 | 0 / 0 | KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | F11 Getsuga 5 m: Hoho f0, NS1 a b c | 76 | 3 | 3 | 0 0 | 16 | 0.91 | +0 | -66 | 0 / 0 | KE-Z-N1A HIT 65; KE-Z-N1B HIT 55; KE-Z-N1C HIT 70 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | F12 Getsuga 5 m: Step in f0, NS1 a | 76 | 3 | 3 | 0 0 | 16 | 1.39 | +0 | +43 | 0 / 0 | KE-Z-N1A HIT 65; KE-Z-N1B HIT 55; KE-Z-N1C HIT 70 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | F13 Getsuga 5 m: walk 24, NS1 a b c | 76 | 3 | 3 | 0 0 | 16 | 2.13 | +0 | +43 | 0 / 0 | KE-Z-N1A HIT 65; KE-Z-N1B HIT 55; KE-Z-N1C HIT 70 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
@@ -116,6 +215,11 @@
 | F16 Getsuga 6.6 m: Shikai Step in, NS1 lunge | 28 | 1 | 1 | — | 0 | 1.29 | +0 | +28 | 0 / 0 | KE-S-N1A HIT 70 | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 1 |
 | F17 Getsuga 5 m: Hoho late (f55) through the wave | 0 | 0 | 0 | — | ? | 1.60 | +0 | -85 | 0 / 0 |  | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | F18 Getsuga 5 m: KYORAN NS lunge f0 | 39 | 1 | 1 | — | 2 | 0.83 | +0 | -82 | 0 / 0 | KE-KR-NA HIT 80 | self -40 konpaku +0/+0 form bankai ptr 1 meter 0 |
+| F28 Getsuga 5 m: Shikai J1 cuts the wave (J1 at f49, :projectile-cut) | 0 | 0 | 0 | — | ? | 4.29 | +0 | +21 | 0 / 0 |  | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 0 |
+| F29 Getsuga 5 m: Shikai J1 cuts the wave (J1 at f57) | 0 | 0 | 0 | — | ? | 4.29 | +0 | +21 | 0 / 0 |  | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 0 |
+| F30 Getsuga 5 m: Shikai J1 too late (f61), the wave hits | 0 | 0 | 0 | — | ? | 5.67 | +0 | +31 | 0 / 0 |  | self -82 konpaku +0/+0 form nozarashi ptr 1 meter 0 |
+| F31 Getsuga 5 m: sealed J1 at f57 (no :projectile-cut), the wave hits | 0 | 0 | 0 | — | ? | 5.70 | +0 | +31 | 0 / 0 |  | self -82 konpaku +0/+0 form base ptr 1 meter 0 |
+| F32 Getsuga 5 m: KYORAN J1 cuts the wave (f57) | 0 | 0 | 0 | — | ? | 4.31 | +0 | +21 | 0 / 0 |  | self +0 konpaku +0/+0 form bankai ptr 1 meter 0 |
 | F20 KESSA NS1 lash 2.5 m vs my NS1a | 96 | 3 | 3 | 0 0 | 16 | 1.39 | +0 | +43 | 0 / 0 | KE-Z-N1A HIT 65; KE-Z-N1B HIT 55; KE-Z-N1C HIT 70 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | F21 KESSA J1 vs my J1 1.4 m | 18 | 1 | 1 | — | 3 | 0.83 | +0 | +17 | 0 / 0 | KE-Z-J1 HIT 35 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | F22 KESSA Getsuga 5 m: Hoho, NS1 a b c | 96 | 3 | 3 | 0 0 | 16 | 0.91 | +0 | -66 | 0 / 0 | KE-Z-N1A HIT 65; KE-Z-N1B HIT 55; KE-Z-N1C HIT 70 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
@@ -125,14 +229,14 @@
 | G3 P1 NS a b c / guard | 0 | 0 | 0 | — | -10 | 2.69 | +0 | +37 | 0 / 0 | KE-Z-N1A BLOCKED 65; KE-Z-N1B BLOCKED 55; KE-Z-N1C BLOCKED 70 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | G4 P3 NS tame thrust men / guard | 0 | 0 | 0 | — | -10 | 2.08 | +0 | +36 | 0 / 0 | KE-Z-N3B BLOCKED 70; KE-Z-N3C BLOCKED 95 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
 | G5 Shikai L0 P1 NS lunge / guard | 0 | 0 | 0 | — | -10 | 1.43 | +0 | +22 | 0 / 0 | KE-S-N1A BLOCKED 70 | self +0 konpaku +0/+0 form nozarashi ptr 1 meter 0 |
-| H1 KESSA: sealed J1-J5 AS3 | 215 | 8 | 8 | 0 0 0 0 0 0 0 | ? | 1.83 | +0 | +80 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-J5 HIT 55; KE-Z-AS3 HIT 50; KE-Z-AS3B HIT 50; KE-Z-AS3C HIT 140 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
+| H1 KESSA: sealed J1-J5 AS3 | 215 | 8 | 8 | 0 0 0 0 0 0 0 | 56 | 1.83 | +0 | +95 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-J5 HIT 55; KE-Z-AS3 HIT 50; KE-Z-AS3B HIT 50; KE-Z-AS3C HIT 140 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
 | H2 KESSA: sealed P1 NS a b c SA AS1 | 154 | 5 | 5 | 0 0 0 0 | 56 | 2.04 | +0 | +61 | 0 / 0 | KE-Z-N1A HIT 65; KE-Z-N1B HIT 55; KE-Z-N1C HIT 70; KE-Z-SA1 HIT 30; KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | H3 KESSA: Shikai L3 P2 J1-J4 INSEKI-GIRI | 219 | 5 | 5 | 0 0 0 0 | 46 | 1.83 | +0 | +51 | 0 / 0 | KE-S-J1 HIT 40; KE-S-J2 HIT 40; KE-S-J3 HIT 55; KE-S-J4 HIT 45; KE-S-SP2 HIT 260 | self +0 konpaku +0/+0 form nozarashi ptr 2 meter 3 |
 | H4 KESSA: KYORAN J1-J5 CHIGIRI | 309 | 6 | 6 | 0 0 0 0 0 | 60 | 1.83 | +0 | +60 | 0 / 0 | KE-KR-J1 HIT 40; KE-KR-J2 HIT 40; KE-KR-J3 HIT 45; KE-KR-J4 HIT 45; KE-KR-J5 HIT 65; KE-KR-SP HIT 300 | self -40 konpaku -1/+0 form nozarashi ptr 1 meter 0 |
 | H5 KESSA: ZANKAI J1-J5 TATE-GOTO | 358 | 6 | 6 | 0 0 0 0 0 | 60 | 1.83 | +0 | +59 | 0 / 0 | KE-ZH-J1 HIT 50; KE-ZH-J2 HIT 55; KE-ZH-J3 HIT 55; KE-ZH-J4 HIT 60; KE-ZH-J5 HIT 85; KE-ZH-SP HIT 320 | self -40 konpaku -1/+0 form nozarashi ptr 2 meter 0 |
-| K1 J1 J2 AS1 (KD), walk in, J1 J2 AS1 (J1 at free+45) | 128 | 6 | 3 | 0 0 16 0 0 | 56 | 1.83 | +0 | +79 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90; KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
-| K2 J1 J2 AS1 (KD), walk in, J1 J2 AS1 (J1 at free+51) | 128 | 6 | 3 | 0 0 22 0 0 | 56 | 1.83 | +0 | +79 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90; KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
-| K3 J1-J5 AS3 (KD), Step in, J1 J2 AS1 | 235 | 11 | 8 | 0 0 0 0 0 0 0 1 0 0 | 56 | 1.83 | +0 | +123 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-J5 HIT 55; KE-Z-AS3 HIT 50; KE-Z-AS3B HIT 50; KE-Z-AS3C HIT 140; KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| K1 J1 J2 AS1 (KD), walk in, J1 J2 AS1 (J1 at free+29: meaty, gap 0) | 128 | 6 | 3 | 0 0 0 0 0 | 56 | 1.83 | +0 | +79 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90; KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| K2 J1 J2 AS1 (KD), walk in, J1 J2 AS1 (J1 at free+41: he has 12 f) | 128 | 6 | 3 | 0 0 12 0 0 | 56 | 1.83 | +0 | +79 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90; KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
+| K3 J1-J5 AS3 (KD), Step in, J1 J2 AS1 | 235 | 11 | 8 | 0 0 0 0 0 0 0 0 0 0 | 56 | 1.83 | +0 | +123 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-J5 HIT 55; KE-Z-AS3 HIT 50; KE-Z-AS3B HIT 50; KE-Z-AS3C HIT 140; KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-AS1 HIT 90 | self +0 konpaku +0/+0 form base ptr 1 meter 0 |
 | K4 J1-J5 AS3 (KD): pointer 3 now, Step in, tame on his wake-up | 199 | 9 | 8 | 0 0 0 0 0 0 0 16 | 2 | 0.83 | +0 | +114 | 0 / 0 | KE-Z-J1 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-J5 HIT 55; KE-Z-AS3 HIT 50; KE-Z-AS3B HIT 50; KE-Z-AS3C HIT 140; KE-Z-N3B HIT 70 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
 | L1 P1 NS a b c SA J2-J5 AS3 (3 seg) | 214 | 11 | 11 | 0 0 0 0 0 0 0 0 0 0 | 56 | 1.90 | +0 | +119 | 0 / 0 | KE-Z-N1A HIT 65; KE-Z-N1B HIT 55; KE-Z-N1C HIT 70; KE-Z-SA1 HIT 30; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-J4 HIT 45; KE-Z-J5 HIT 55; KE-Z-AS3 HIT 50; KE-Z-AS3B HIT 50; KE-Z-AS3C HIT 140 | self +0 konpaku +0/+0 form base ptr 3 meter 0 |
 | L2 P2 NS a b SA J2 J3 AS2 (2 seg) | 173 | 7 | 7 | 0 0 0 0 0 0 | 77 | 1.92 | +0 | +83 | 0 / 0 | KE-Z-N2A HIT 85; KE-Z-N2B HIT 95; KE-Z-SA2 HIT 35; KE-Z-J2 HIT 35; KE-Z-J3 HIT 40; KE-Z-AS2 HIT 60; KE-Z-AS2B HIT 100 | self +0 konpaku +0/+0 form base ptr 2 meter 0 |
