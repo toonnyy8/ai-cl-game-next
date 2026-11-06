@@ -209,3 +209,29 @@ Workspaces `docs/research/ki-ai-drsi/{ken,ichigo}/` (README there), the freeze 9
 - Baselines: Kenpachi 0.3505, Ichigo 0.5781 (§7). Grid 4 branches × 2 attempts a side, W = 4, λ 0.05 (the skill's default).
 - What a cell may change: only its side's style file. Knobs, and how the four approved styles are carried out (thresholds, the mix,
   route choice, timing, a located bug), not new styles. §369 says the search "only tunes weights"; the styles stay the user's.
+
+## 9. Round 1 and the evaluator's second freeze (2026-11-06 – 11-07)
+
+Round 1, 8 cells a side, every cell rescored (the rescores reproduced each cell's own line exactly):
+
+| Side | b0 a0 / a1 | b1 a0 / a1 | b2 a0 / a1 | b3 a0 / a1 | Champion |
+|---|---|---|---|---|---|
+| Kenpachi (baseline 0.3505) | 0.654 / 0.811 | 0.656 / 0.835 | 0.495 / 0.871 | 0.411 / **0.876** | b3_a1: the disciplined sealed brawl (moves only where they reach, Hoho / back Step through her lunge and clones, a Hoho kept in reserve), the climb and the Bankai cycle, the far-Getsuga answers (Hoho behind her, the cut, a forward Step through the wave) |
+| Ichigo (baseline 0.5781) | 0.648 / 0.665 | 0.658 / 0.775 | 0.715 / **0.783** | 0.683 / 0.724 | b2_a1: the whiff confirm (punish a whiff seen in the SNAP), KESSA kept at pointer 3, the Konpaku-aware finisher (a red AS2 Kikon or the AS3 Soul Break for 5) |
+
+- Reads beyond the SNAP that I accepted, HUD facts of the same class as `gauges-red-p` (which the generic CPU already reads): his /
+  her Konpaku pips (Ichigo's finisher), her red bar (Kenpachi's Kikon gate), the opponent's form (Ichigo's distance tables).
+- The champions against each other (40 a seat): **Kenpachi 74/80 at HARD, 0.808; Ichigo 0.292.**
+- Dreaming: three policy candidates (`docs/research/ki-ai-drsi/policies/`: topk, spread, frontier) compared on each side's one world;
+  **topk** (open the four roots, then refine the top ceil(1 + 3 β) branches by anchor) won on both (reward 0.360 / 0.347 against the
+  baseline policy's −0.0125) and was promoted. The grid stays 4 × 2 (the user's budget).
+
+**The evaluator, re-frozen** before round 2 (both changes in `tools/simgate/situ.lisp`):
+- The user, asked whether a K.O. by Kenpachi's special AS should count for 卍解爆發 (most failures were him winning inside the Bankai
+  with the way-back move itself): **「算成功」**. A Bankai entered after an L3 now succeeds once its special AS (ke-kr-sp / ke-zh-sp)
+  starts and the match ends during it, as well as when he is back in the Shikai.
+- A bug fixed: his Bankai segments' own 40-Reishi cost read as a hit on him. It made antiwave fail when it was his best outcome, and gave
+  Ichigo's spacing / whiff false successes. A Reishi drop on the step a Bankai segment starts now discounts `*ken-bk-cost*`.
+- Round 2 starts from the champions (each side's `baseline/` = its champion), not from v0: the opponent changed, so v0 is no longer the
+  round's reference. The skill's protocol starts every round from the initial program; with co-evolution that would discard the
+  round's opponent-specific work.

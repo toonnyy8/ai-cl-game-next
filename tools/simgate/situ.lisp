@@ -27,7 +27,7 @@
   (let ((k (ss-ken st)) (i (ss-ich st)))
     (when k
       (when (ss-stay st) (situ-say k :shikai (ss-stay-ok st)))
-      (dolist (c (ss-l3s st)) (declare (ignore c)) (situ-say k :bankai nil))
+      (dolist (c (ss-l3s st)) (situ-say k :bankai (eq (car c) :out)))   ; (:out: his special AS ended the match, §9)
       (when (ss-aw st) (situ-say k :antiwave (and (ss-aw-hit st) (not (ss-aw-wave st))))))
     (when i
       (when (ss-sp st) (situ-say i :spacing nil))
@@ -60,9 +60,12 @@
     (let* ((ke (ss-ken st)) (ie (ss-ich st)) (kf (fighter ke)) (if* (fighter ie)) (kg (gauges ke)) (ig (gauges ie))
            (d (situ-dist ke ie))
            (rk (gauges-reishi kg)) (ri (gauges-reishi ig))
-           (ken-hurt (< rk (ss-rk st))) (ich-hurt (< ri (ss-ri st)))      ; a Reishi drop this step (a refill after a break is a rise)
            (kmv (situ-mv kf)) (imv (situ-mv if*))
            (k-new (and (fighter-cls kf) (/= (fighter-cls-t kf) (ss-ken-cls st))))
+           ;; a Reishi drop this step (a refill after a break is a rise); his own Bankai segment cost (*KEN-BK-COST* on a segment's
+           ;; start, ken-bk-cost) is not a hit on him (2026-11-07, DUEL_MATCHUP_AI §9)
+           (self-cost (if (and k-new (member (fighter-form kf) '(:bankai :bankai-2))) *ken-bk-cost* 0))
+           (ken-hurt (< (+ rk self-cost) (ss-rk st))) (ich-hurt (< ri (ss-ri st)))
            (i-new (and (fighter-cls if*) (/= (fighter-cls-t if*) (ss-ich-cls st))))
            (form (fighter-form kf)) (lv (if (eq form :nozarashi) (round (gauges-meter kg)) 0)))
       (when k-new (setf (ss-ken-cls st) (fighter-cls-t kf)))
@@ -82,8 +85,10 @@
       (when (and (eq form :nozarashi) (>= lv 3) (< (ss-lv st) 3)) (push (cons :wait nil) (ss-l3s st)))
       (when (and (member form '(:bankai :bankai-2)) (eq (ss-form st) :nozarashi))
         (dolist (c (ss-l3s st)) (when (eq (car c) :wait) (setf (car c) :in))))
+      (when (member kmv '(:ke-kr-sp :ke-zh-sp))                      ; his special AS started: the way back (a K.O. by it counts, §9)
+        (dolist (c (ss-l3s st)) (when (eq (car c) :in) (setf (car c) :out))))
       (when (and (eq form :nozarashi) (member (ss-form st) '(:bankai :bankai-2)))
-        (setf (ss-l3s st) (remove-if (lambda (c) (when (eq (car c) :in) (situ-say ke :bankai t) t)) (ss-l3s st))))
+        (setf (ss-l3s st) (remove-if (lambda (c) (when (member (car c) '(:in :out)) (situ-say ke :bankai t) t)) (ss-l3s st))))
       ;; ---- 破月牙: Ichigo starts his Getsuga route (NS2a) at 3.6-6.6 m; ok = the wave never hit, and Kenpachi hit him before his next move
       (when (ss-aw st)
         (when (and ken-hurt (or (situ-wave-p ie) (situ-name-in imv '("IC-N2C" "IC-K-N2C" "IC-AS2B" "IC-K-AS2B" "IC-WAVE"))))

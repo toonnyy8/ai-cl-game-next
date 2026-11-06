@@ -3,6 +3,22 @@
   "beta": null,
   "branch_count": 4,
   "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.6625 sig 0.6477 normal 0.95 x1.0 themes brawl 0.706 shikai 0.841 bankai 0.711 antiwave 0.333",
+      "score": 0.6536
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.85 sig 0.7847 normal 0.925 x1.0 themes brawl 0.793 shikai 0.879 bankai 0.718 antiwave 0.75",
+      "score": 0.8108
+    },
     "b1_a0": {
       "error": null,
       "fail_class": "ok",
@@ -10,6 +26,14 @@
       "n_valid": null,
       "note": "str 0.6875 sig 0.6346 normal 0.9375 x1.0 themes brawl 0.561 shikai 0.853 bankai 0.708 antiwave 0.417",
       "score": 0.6558
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.875 sig 0.8082 normal 0.9375 x1.0 themes brawl 0.695 shikai 0.889 bankai 0.649 antiwave 1.0",
+      "score": 0.8349
     },
     "b2_a0": {
       "error": null,
@@ -19,6 +43,14 @@
       "note": "str 0.275 sig 0.6423 normal 0.9625 x1.0 themes brawl 0.568 shikai 0.782 bankai 0.747 antiwave 0.472",
       "score": 0.4954
     },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.7937 normal 0.9125 x1.0 themes brawl 0.812 shikai 0.901 bankai 0.605 antiwave 0.857",
+      "score": 0.8712
+    },
     "b3_a0": {
       "error": null,
       "fail_class": "ok",
@@ -26,6 +58,14 @@
       "n_valid": null,
       "note": "str 0.125 sig 0.6009 normal 0.9375 x1.0 themes brawl 0.567 shikai 0.757 bankai 0.33 antiwave 0.75",
       "score": 0.4106
+    },
+    "b3_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.8022 normal 0.9125 x1.0 themes brawl 0.812 shikai 0.907 bankai 0.615 antiwave 0.875",
+      "score": 0.8763
     }
   },
   "directions": {},
@@ -43,9 +83,7 @@
     "source": "fallback"
   },
   "max_parallelism": 4,
-  "pending_batch": [
-    "b0_a0"
-  ],
+  "pending_batch": [],
   "policy_file": "rounds/round01/policy.py",
   "refine_count": 1,
   "round_index": 1,
