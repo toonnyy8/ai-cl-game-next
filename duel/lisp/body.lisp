@@ -179,19 +179,39 @@ of *BODY-INK*'s default (a cloth part drawn as a weapon: Rukia's black hakama go
 
 (defvar *shadow-mesh* nil "The ink shadow: a flat unit disc (24 sides) at the origin, built by BODIES-INIT.")
 
+(defun weapon-built (wp) "WP, its meshes built first if they aren't yet (a retired kit's: RETIRED-ART)." (unless (weapon-meshes wp) (build-weapon wp)) wp)
+(defun body-built (b) "B, its meshes built first if they aren't yet (a retired kit's: RETIRED-ART)." (unless (svref (body-parts b) 0) (build-body b)) b)
+
+(defun retired-art ()
+  "The bodies and weapons (names) that only the *RETIRED* characters' kits name (:body, :weapon, :intro-weapon): startup skips
+them and the first draw builds them (WEAPON-BUILT, BODY-BUILT), since no player meets them (2026-11-07: about half the 21
+bodies, ~0.5 s of the startup). Anything not named by a kit (a cinematic's body, a variant's base) is still built at startup."
+  (let (keep retired)
+    (maphash (lambda (c forms)
+               (dolist (f forms)
+                 (let ((k (cdr f)))
+                   (dolist (x (list (kit-body k) (kit-weapon k) (car (kit-intro-weapon k))))
+                     (when (keywordp x) (if (member c *retired*) (push x retired) (push x keep)))))))
+             *kits*)
+    (set-difference retired keep)))
+
 (defun bodies-init ()
-  "Startup (:load) step: build the meshes of every registered weapon and the shadow disc (the bodies:
-BODY-LOAD-STEPS)."
+  "Startup (:load) step: the shadow disc (the weapons: WEAPON-LOAD-STEPS, the bodies: BODY-LOAD-STEPS)."
   (setf *shadow-mesh* (build-mesh (mb :color (hexc #x14151C))
                         (mb-poly-out mb (loop for k below 24 collect (let ((a (* 2 pi (/ k 24)))) (v3 (cos a) 0 (sin a))))
-                                     :center '(0 -1 0))))
-  (maphash (lambda (k w) (declare (ignore k)) (unless (weapon-meshes w) (build-weapon w))) *weapons*))
+                                     :center '(0 -1 0)))))
+
+(defun weapon-load-steps ()
+  "Startup (:load) steps, one per registered weapon not in RETIRED-ART (one step for all of them was 0.3 s in one frame)."
+  (let ((skip (retired-art)) steps)
+    (maphash (lambda (k w) (unless (member k skip) (push (lambda () (weapon-built w)) steps))) *weapons*)
+    (nreverse steps)))
 
 (defun body-load-steps ()
-  "Startup (:load) steps, one per registered body: build its meshes and ink hulls (one step each, so the
-collector runs between them: the hull build allocates a few MB of scratch)."
-  (loop for b being the hash-values of *bodies*
-        collect (let ((b b)) (lambda () (unless (svref (body-parts b) 0) (build-body b))))))
+  "Startup (:load) steps, one per registered body not in RETIRED-ART: build its meshes and ink hulls."
+  (let ((skip (retired-art)) steps)
+    (maphash (lambda (k b) (unless (member k skip) (push (lambda () (body-built b)) steps))) *bodies*)
+    (nreverse steps)))
 
 ;;; ---------------------------------------------------------------- drawing
 (declaim (type f32vec *dm* *dm2* *weapon-m* *toon-body* *toon-ground* *shadow-m*))
@@ -208,7 +228,7 @@ collector runs between them: the hull build allocates a few MB of scratch)."
   "Draw weapon KEY with world matrix M (the weapon frame: grip origin, blade +Y), toon-shaded with the
 feet height of the last DRAW-BODY (0 for a planted weapon). TINT (optional): the body's tint (a prop drawn as part of the
 body, e.g. Lille II's legs in the mirror match's P2 *MIRROR-TINT*) on its untinted parts; NIL as before."
-  (dolist (part (weapon-meshes (find-weapon key)))
+  (dolist (part (weapon-meshes (weapon-built (find-weapon key))))
     (if (svref part 1)
         (draw-mesh (svref part 0) m :tint (svref part 1) :emissive (+ (svref part 2) emissive) :alpha alpha :toon *toon-body*)
         (draw-mesh (svref part 0) m :flash flash :alpha alpha :emissive emissive :rim rim :tint tint :toon *toon-body*)))
@@ -243,6 +263,7 @@ body, e.g. Lille II's legs in the mirror match's P2 *MIRROR-TINT*) on its untint
   (let* ((dm *dm*) (rim (or rim (body-rim body))) (hide (or hide (face-hide face))))
     (declare (type f32vec dm))
     (setf (aref *toon-body* 1) (f32 y))
+    (body-built body)
     (draw-parts (body-parts body) (body-extras body) joints :hidden hidden :hide hide
                 :tint tint :flash flash :emissive emissive :alpha alpha :rim rim :toon *toon-body*
                 :hulls (body-hulls body) :ink-tint tint)

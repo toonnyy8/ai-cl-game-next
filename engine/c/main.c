@@ -15,13 +15,27 @@ static int init_done = 0;
    disabled while Lisp runs and only collected here, between frames, when the
    stack holds no Lisp pointers. Budget = bytes consed before a collection. */
 #define GC_BUDGET (24u << 20)
+/* Startup steps collect once this much is consed (and after the last step), not after every step: 97 full
+   collections of the growing heap took ~1 s of a 5.7 s startup (2026-11-07). */
+#define STARTUP_GC_BUDGET (8u << 20)
+#define STARTUP_FRAME_MS 25.0
 
 static void collect(void) { GC_enable(); GC_gcollect(); GC_disable(); }
+
+/* Startup timing, logged once when startup is done (the "startup:" line). */
+static double t_main, t_module, t_lisp, t_gc, t_first;
+static int n_steps;
 
 /* EM_JS, not EM_ASM: frame() uses setjmp (ECL_CATCH_ALL), which clang can't mix with EM_ASM. */
 EM_JS(void, m_stopped, (void), { if (Module.engineFatal) Module.engineFatal('the main loop stopped unexpectedly'); });
 EM_JS(void, m_heap_log, (int heap), {
   console.log('startup: heap ' + (heap / 1048576).toFixed(1) + ' MB, wasm memory ' + (HEAP8.length / 1048576).toFixed(1) + ' MB');
+});
+EM_JS(void, m_gc_log, (double ms), { console.log('gc: ' + ms.toFixed(1) + ' ms'); });
+EM_JS(int, m_gpu_ready, (void), { return Module['preinitializedWebGPUDevice'] ? 1 : 0; });
+EM_JS(void, m_time_log, (double main_at, double module, int steps, double lisp, double gc, double wall), {
+  console.log('startup: main() at ' + main_at.toFixed(0) + ' ms, module init ' + module.toFixed(0) + ' ms, ' + steps
+              + ' steps: lisp ' + lisp.toFixed(0) + ' ms, gc ' + gc.toFixed(0) + ' ms, wall ' + wall.toFixed(0) + ' ms');
 });
 
 /* Loading progress and fatal errors go to the page (engine/web/shell.html hooks; plain console otherwise). */
@@ -48,19 +62,31 @@ static void frame(void)
   cl_env_ptr env = ecl_process_env();
   int ok = 0;
   if (!init_done) {
-    /* startup runs one %INIT-STEP per frame (page stays responsive, loading bar
-       advances) with a full collection after each, so meshgen / synthesis garbage
-       never piles up: peak heap stays near the live set. 1 = more, 0 = done, 2 = failed. */
-    int r = 2;
-    ECL_CATCH_ALL_BEGIN(env) {
-      cl_object v = cl_funcall(1, init_sym);
-      r = ECL_FIXNUMP(v) ? ecl_fixnum(v) : 2;
-    } ECL_CATCH_ALL_END;
-    collect();
+    /* startup runs %INIT-STEPs a frame at a time (page stays responsive, loading bar
+       advances), collecting whenever STARTUP_GC_BUDGET is consed, so meshgen / synthesis
+       garbage never piles up: peak heap stays near the live set. 1 = more, 0 = done, 2 = failed. */
+    int r = 1;
+    double start = emscripten_get_now(), t0, t1;
+    if (!n_steps && !m_gpu_ready()) return;   /* the page's device request (shell.html) is still pending */
+    if (!n_steps) t_first = start;
+    /* Several steps a frame while they fit in STARTUP_FRAME_MS: one a frame left ~0.7 s of a 5.2 s startup waiting for
+       the next frame after short steps (2026-11-07). */
+    while (r == 1 && (t0 = emscripten_get_now()) - start < STARTUP_FRAME_MS) {
+      r = 2;
+      ECL_CATCH_ALL_BEGIN(env) {
+        cl_object v = cl_funcall(1, init_sym);
+        r = ECL_FIXNUMP(v) ? ecl_fixnum(v) : 2;
+      } ECL_CATCH_ALL_END;
+      t1 = emscripten_get_now();
+      if (r != 1 || GC_get_bytes_since_gc() > STARTUP_GC_BUDGET) collect();
+      t_lisp += t1 - t0; t_gc += emscripten_get_now() - t1;
+      n_steps++;
+    }
     if (r == 2) { emscripten_cancel_main_loop(); return; }
     if (r == 0) {
       init_done = 1;
       m_heap_log((int)GC_get_heap_size());
+      m_time_log(t_main, t_module, n_steps, t_lisp, t_gc, emscripten_get_now() - t_first);
     }
     return;
   }
@@ -68,15 +94,21 @@ static void frame(void)
     ok = cl_funcall(1, frame_sym) != ECL_NIL;
   } ECL_CATCH_ALL_END;
   if (!ok) { m_stopped(); emscripten_cancel_main_loop(); return; }
-  if (GC_get_bytes_since_gc() > GC_BUDGET) collect();
+  if (GC_get_bytes_since_gc() > GC_BUDGET) {
+    double t = emscripten_get_now();
+    collect();
+    m_gc_log(emscripten_get_now() - t);
+  }
 }
 
 int main(int argc, char **argv)
 {
+  t_main = emscripten_get_now();
   cl_boot(argc, argv);
   GC_disable();
   ecl_init_module(NULL, init_game);
   collect();                           /* module load garbage (~67 MB) before anything else */
+  t_module = emscripten_get_now() - t_main;
   frame_sym = ecl_make_symbol("%FRAME", "ENGINE");
   init_sym = ecl_make_symbol("%INIT-STEP", "ENGINE");
   ecl_register_root(&frame_sym);

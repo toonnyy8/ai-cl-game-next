@@ -7,10 +7,10 @@
 ;;;;             :debug #'debug-command    ; optional: Module._debug_cmd(n) from the page / test scripts
 ;;;;             :stats #'stats-tail)      ; optional: returns a string appended to the "stats:" log line
 ;;;;
-;;;; engine/c/main.c then calls %INIT-STEP once per browser frame until startup is done, and %FRAME
-;;;; every frame after that. Startup steps: ENGINE-INIT (window, GPU, UI) → the :LOAD functions →
-;;;; open the audio device → one step per DEFSOUND → :START. main.c collects garbage between steps,
-;;;; so meshgen / synthesis temporaries never pile up, and the page's loading bar advances.
+;;;; engine/c/main.c then calls %INIT-STEP until startup is done (as many as fit in 25 ms of a browser frame, from
+;;;; the frame the page's GPU device exists), and %FRAME every frame after that. Startup steps: ENGINE-INIT (window, GPU,
+;;;; UI) → the :LOAD functions → open the audio device → one step per DEFSOUND → :START. main.c collects garbage
+;;;; between steps once 8 MB are consed, so meshgen / synthesis temporaries never pile up, and the loading bar advances.
 ;;;; A frame: PLATFORM-POLL → BEGIN-FRAME → queued debug commands → :FRAME → END-FRAME.
 ;;;; Errors are caught here and shown on the page; the main loop then stops. (Keep HANDLER-CASE rare:
 ;;;; each one is a setjmp, see docs/engine/ARCHITECTURE.md. The others guard audio startup in audio.lisp.)
@@ -105,10 +105,17 @@ the frame time there into sim / queue / render."
       (let ((m *perf-marks*) (t2 (now-ms)))
         (case *perf-n* (0 (setf (aref m 0) t0 (aref m 1) t0)) (1 (setf (aref m 1) (aref m 0))))
         (end-frame)
-        (setf (aref *perf* 0) (+ (aref *perf* 0) (f32 (- (aref m 1) (aref m 0))))
-              (aref *perf* 1) (+ (aref *perf* 1) (f32 (- t2 (aref m 1))))
-              (aref *perf* 2) (+ (aref *perf* 2) (f32 (- (now-ms) t2))))))
-    (when *stats-log* (log-stats rdt c0))
+        (let ((t3 (now-ms)))
+          (setf (aref *perf* 0) (+ (aref *perf* 0) (f32 (- (aref m 1) (aref m 0))))
+                (aref *perf* 1) (+ (aref *perf* 1) (f32 (- t2 (aref m 1))))
+                (aref *perf* 2) (+ (aref *perf* 2) (f32 (- t3 t2))))
+          (when (and *stats-log* (> (- t3 t0) 12d0))   ; a frame that alone eats most of a 60 Hz frame: where it went
+            (log-msg "slow frame: ~,1f ms (sim ~,1f queue ~,1f render ~,1f) cons ~d B~@[ | ~a~]" (- t3 t0) (- (aref m 1) (aref m 0))
+                     (- t2 (aref m 1)) (- t3 t2) (- (cons-bytes) c0) (and (app-stats app) (funcall (app-stats app))))))))
+    (when *stats-log*
+      (log-stats rdt c0)
+      (when (> (raw-dt) 0.025)                          ; a late frame whose own CPU time was small: the cost was the browser's
+        (log-msg "late frame: ~,1f ms since the last~@[ | ~a~]" (* 1000 (raw-dt)) (and (app-stats app) (funcall (app-stats app))))))
     t))
 
 (defun %frame ()

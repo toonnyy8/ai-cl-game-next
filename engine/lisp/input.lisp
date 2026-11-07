@@ -63,15 +63,21 @@ was ~12 % of a headless match (the 2026-11-07 profile, DEVLOG §621)."
 (defun vpad-set! (vp action down)
   "Button ACTION is DOWN (generalized boolean) this step. Going down stamps a press (buffered for
 the vpad's BUFFER steps) and records whether the modifier is down (or goes down in the same step)."
-  (let ((i (vpad-index vp action)) (d (vpad-downs vp)) (m (vpad-mod-index vp)))
+  ;; The slots' own types, declared: the inlined readers return untyped objects, so AREF was generic. Safety 0, as a checked
+  ;; THE / typed binding is a full cl_typep; here, not in the LET, whose bindings sit outside its declarations (DEVLOG §622).
+  ;; The arrays are the constructor's (one length), I is VPAD-INDEX's (an unknown action still errors).
+  (declare (optimize (speed 3) (safety 0)))
+  (let ((i (vpad-index vp action)) (d (vpad-downs vp)) (m (vpad-mod-index vp))
+        (pr (vpad-press vp)) (md (vpad-modded vp)) (tk (vpad-tick vp)))
+    (declare (type (simple-array fixnum (*)) d pr md) (fixnum i m tk))
     (cond ((and down (zerop (aref d i)))
            (setf (aref d i) 1
-                 (aref (vpad-since vp) i) (vpad-tick vp)
-                 (aref (vpad-press vp) i) (vpad-tick vp)
-                 (aref (vpad-modded vp) i) (if (>= m 0) (aref d m) 0))
+                 (aref (the (simple-array fixnum (*)) (vpad-since vp)) i) tk
+                 (aref pr i) tk
+                 (aref md i) (if (>= m 0) (aref d m) 0))
            (when (= i m)                                   ; the modifier now: presses of this step count too
              (dotimes (j (length d))
-               (when (= (aref (vpad-press vp) j) (vpad-tick vp)) (setf (aref (vpad-modded vp) j) 1)))))
+               (when (= (aref pr j) tk) (setf (aref md j) 1)))))
           ((and (not down) (= 1 (aref d i)))
            (setf (aref d i) 0)))
     down))
@@ -100,21 +106,27 @@ during it must not fire, a guard still held stays up)."
   (fill (vpad-press vp) +no-press+)
   vp)
 
-(defun vpad-down (vp action) "Is ACTION held now?" (= 1 (aref (vpad-downs vp) (vpad-index vp action))))
+(defun vpad-down (vp action) "Is ACTION held now?" (declare (optimize (speed 3) (safety 0))) (= 1 (aref (the (simple-array fixnum (*)) (vpad-downs vp)) (vpad-index vp action))))
 
 (defun vpad-held (vp action)
   "Steps ACTION has been held (1 on the step it went down), 0 if up."
+  (declare (optimize (speed 3) (safety 0)))
   (let ((i (vpad-index vp action)))
-    (if (= 1 (aref (vpad-downs vp) i)) (1+ (- (vpad-tick vp) (aref (vpad-since vp) i))) 0)))
+    (if (= 1 (aref (the (simple-array fixnum (*)) (vpad-downs vp)) i))
+        (1+ (- (the fixnum (vpad-tick vp)) (aref (the (simple-array fixnum (*)) (vpad-since vp)) i)))
+        0)))
 
 (defun vpad-pressed (vp action &optional within)
   "Was ACTION pressed within the last WITHIN steps (default the vpad's BUFFER; this step
 included) and not consumed?"
-  (< (- (vpad-tick vp) (aref (vpad-press vp) (vpad-index vp action))) (or within (vpad-buffer vp))))
+  (declare (optimize (speed 3) (safety 0)))
+  (< (- (the fixnum (vpad-tick vp)) (aref (the (simple-array fixnum (*)) (vpad-press vp)) (vpad-index vp action)))
+     (or within (vpad-buffer vp))))
 
 (defun vpad-modded-p (vp action)
   "Was ACTION's buffered press made with the modifier held?"
-  (= 1 (aref (vpad-modded vp) (vpad-index vp action))))
+  (declare (optimize (speed 3) (safety 0)))
+  (= 1 (aref (the (simple-array fixnum (*)) (vpad-modded vp)) (vpad-index vp action))))
 
 (defun vpad-stamp! (vp action &optional modded)
   "Press ACTION this step (buffered, MODDED or not), whether or not it is held already: a press made for the player

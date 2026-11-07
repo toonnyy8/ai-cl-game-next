@@ -326,7 +326,7 @@
 (defun vfx-start () (stage-env) (scene 0))
 
 (run-game :title "SOUL DUEL VFX"
-          :load (append (list #'bodies-init) (body-load-steps) (list #'stage-init))
+          :load (append (list #'bodies-init) (weapon-load-steps) (body-load-steps) (list #'stage-init))
           :start #'vfx-start
           :frame #'vfx-frame
           :debug #'vfx-debug

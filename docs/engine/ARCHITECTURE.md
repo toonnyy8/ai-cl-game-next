@@ -305,6 +305,32 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
   5.69 -> 1.87 s of simulation (x3.0), every hash / gate / pacing line identical, G2 identical (native and browser). The looks gate
   could not prove the stills: 88 of 113 differed between its two BASE runs; of the 25 that did not, 19 were byte-identical and 6
   differed, and those 6 are run-to-run noise too (two runs of the same new build differ on all four ENDLESS stills).
+* Headless speed, round 2 (2026-11-07, DEVLOG §622): 1.87 -> ~1.45 s, every line identical.
+  * `entity-alive-p` has a compiler macro (ecs.lisp) that expands it to one C expression. ECL compiles `(ash e -8)` (any negative
+    shift) as `cl_ash`, and range-typed `+` / `*` as generic calls, at the duel files' (safety 2). The inline-declaimed function
+    was still called out of line from the other files. A `define-compiler-macro` must sit in an `eval-when` to apply to the rest
+    of its own file.
+  * A checked `the` or typed binding at safety >= 1 is a full `cl_typep` on the type spec, slower than the generic code it
+    saves. Where the type is guaranteed (the vpad readers), declare `(optimize (safety 0))` **at the function level**: a LET's
+    declarations do not cover its own init forms.
+  * `kit-of`, `state-of` and `kit-hook` are inline.
+* Startup (2026-11-07, DEVLOG §622): 5.6–6.0 s -> 3.5–3.9 s on the desktop (headless Chrome, RTX 4090); startup heap
+  88.9 -> 74.6 MB. The `startup: main() at …` line splits it into the time before main(), module init, and the steps' Lisp, GC
+  and wall time. The changes:
+  * main.c runs startup steps until 25 ms of the frame are used (it ran one a frame, idle after short ones). It collects every
+    8 MB consed instead of after every step (97 full collections took ~1 s).
+  * main() no longer waits for the GPU device. shell.html dropped the `webgpu` run dependency, and the first step waits in
+    main.c, so ECL's boot and module init (~0.5 s) overlap the browser's device creation (1.5–2 s headless).
+  * The loader compiles the wasm while it streams in (`compileStreaming` on a byte-counting copy of the body).
+  * Bodies and weapons that only the retired kits name are built on their first draw (`retired-art`, body.lisp).
+  * Sound synthesis (~0.9 s, two music loops 0.4 s of it) and the kept bodies (~0.9 s) are the rest.
+* Frame hitches: with `*stats-log*` on (any debug command) a `slow frame:` line reports a frame whose CPU time passed 12 ms,
+  split into sim / queue / render. A `late frame:` line reports one that came > 25 ms after the last. main.c logs `gc: N ms`
+  per collection. Measured 2026-11-07:
+  * The first battle frame and the first hit (10–13 ms of sim) are V8's lazy wasm compilation: the spikes go with
+    `--js-flags=--no-wasm-lazy-compilation`.
+  * The intro's 50–70 ms frame and the first AS's ~40 ms frame are the HTML HUD's layout: they go with the HUD hidden.
+    Preloading every font face and a warm layout at load did not help.
 
 ## Module map (in MANIFEST order)
 

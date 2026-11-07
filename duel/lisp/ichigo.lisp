@@ -452,7 +452,11 @@ facing away) at the opponent, and a slash bursting on the opponent's body."
 (defun ic (e)
   "E's state (his ICS component, attached on the first call: a new fighter entity, a new match, gets a fresh one)."
   (or (ics e) (let ((st (make-ics))) (add-component e st) st)))
-(defun ic-key (&rest parts) (intern (format nil "~{~a~^-~}" parts) :keyword))
+(defvar *ic-keys* (make-hash-table :test 'equal) "IC-KEY's results by PARTS (the pacing log's keys are a few dozen).")
+(defun ic-key (&rest parts)
+  "The pacing log's keyword PARTS joined by -; cached (FORMAT + INTERN on every logged event was ~1 % of a gate, 2026-11-07)."
+  (or (gethash parts *ic-keys*)
+      (setf (gethash (copy-list parts) *ic-keys*) (intern (format nil "~{~a~^-~}" parts) :keyword))))
 (defun ic-reach-key (x z e)
   "The pacing log's reach bucket of a point (X Z) to E's opponent: IN (<= 2.4 m, a light's), MID (<= 3.0, a heavy's), OUT."
   (let* ((q (pos-of (opp-of e))) (d (sqrt (+ (expt (- (aref q 0) x) 2) (expt (- (aref q 2) z) 2)))))

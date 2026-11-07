@@ -163,7 +163,7 @@ on FDT: RDT, or 0 while paused (the fx clock, particles, stamps, shake, camera a
   (go-title))
 
 (run-game :title "SOUL DUEL NEXT"
-          :load (append (list #'bodies-init) (body-load-steps) (list #'stage-init #'brush-init))
+          :load (append (list #'bodies-init) (weapon-load-steps) (body-load-steps) (list #'stage-init #'brush-init))
           :start #'start-game
           :frame #'game-frame
           :debug #'debug-command

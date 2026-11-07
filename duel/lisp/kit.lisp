@@ -416,6 +416,7 @@ hits and its hazards' ignore the combo scaling (the user 2026-10-24: 「所有�
   "The reach a string ender MV's push is measured from (fighter.lisp ENDER-PUSH): a K ender's the kit's :push-reach when
 it has one, else OPENER's far edge (J1's after J3, K1's after K3: MOVE-EDGE)."
   (or (and (not (eq (mv-kind mv) :quick)) (kit-push-reach kit)) (move-edge opener)))
+(declaim (inline kit-hook))
 (defun kit-hook (kit point)
   "The character file's function for hook POINT in KIT (its :hooks plist), or NIL: the generic code calls it where the
 point is (docs/duel/DUEL_DESIGN.md \"Character code layout\")."

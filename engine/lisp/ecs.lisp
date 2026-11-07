@@ -71,6 +71,16 @@ simple-bit-vector's AREF was a call (ecl_aref_bv) on every component getter and 
               (let ((s (handle-slot e)))
                 (and (= 1 (aref *used* s)) (= (aref *generation* s) (ash e -8))))))))
 
+;;; Compiled callers get ENTITY-ALIVE-P as one C expression: ECL 24.5 compiles the (ASH E -8) above as a cl_ash call and the
+;;; compare as ecl_number_equalp at the duel files' (safety 2), ~5 % of a headless match (2026-11-07). The same test: a
+;;; fixnum >= 0 whose slot is used and whose generation is E >> 8 (= ASH E -8 for E >= 0). Interpreted code (the host tests)
+;;; keeps the function above.
+(eval-when (:compile-toplevel :load-toplevel :execute)   ; (without it ECL applies it only after this file)
+  (define-compiler-macro entity-alive-p (e)
+    `(ffi:c-inline (,e *used* *generation*) (:object :object :object) :bool
+                   "({cl_object _e=(#0); cl_fixnum _s; ECL_FIXNUMP(_e) && ecl_fixnum(_e)>=0 && (_s=ecl_fixnum(_e)&255, (#1)->vector.self.fix[_s]==1 && (#2)->vector.self.fix[_s]==(ecl_fixnum(_e)>>8));})"
+                   :one-liner t)))
+
 (defun %component (e index)
   (and (entity-alive-p e) (svref (svref *stores* index) (handle-slot e))))
 

@@ -316,7 +316,7 @@ fingertips ~,3f m (~,2f of height), hips ~,3f m (legs ~,2f of height), neck gap 
     (ui-text *v-label* (* 10 s) (* 10 s) :scale s :shadow t)))
 
 (run-game :title "SOUL DUEL VIEW"
-          :load (append (list #'bodies-init) (body-load-steps) (list #'stage-init))
+          :load (append (list #'bodies-init) (weapon-load-steps) (body-load-steps) (list #'stage-init))
           :start #'view-start
           :frame #'view-frame
           :debug #'view-debug)

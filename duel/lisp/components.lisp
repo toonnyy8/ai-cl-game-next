@@ -260,6 +260,7 @@ its volume test and its look (hazards.lisp)."
 
 ;;; ---------------------------------------------------------------- small helpers every file uses
 (defun opp-of (e) (fighter-opp (fighter e)))
+(declaim (inline kit-of state-of))                     ; (a call each before: ~2.5 % of a headless match, §622)
 (defun kit-of (e) (fighter-kit (fighter e)))
 (defun state-of (e) (fighter-state (fighter e)))
 (defun side-name (e) (if (zerop (fighter-side (fighter e))) "P1" "P2"))
