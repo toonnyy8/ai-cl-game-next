@@ -39,7 +39,8 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud :is(.p2, .mir) .reishi { transform: scaleX(-1); }
 #hud .reishi i { position: absolute; inset: 0; transform-origin: left center; }
 #hud .reishi .ghost { background: var(--blood); transition: transform .55s .38s var(--ease-cut); }
-#hud .reishi .fill { background: linear-gradient(180deg, #ffffff 0%, var(--paper) 45%, #c9cbcf 100%); transition: transform .12s var(--ease-out); }
+/* the fill is cut by clip-path, not scaled, so its grid lines stay put as the Reishi drops (the user, 2026-11-07, DEVLOG §618) */
+#hud .reishi .fill { background: linear-gradient(180deg, #ffffff 0%, var(--paper) 45%, #c9cbcf 100%); transition: clip-path .12s var(--ease-out); }
 #hud .reishi .fill::after { content: ""; position: absolute; inset: 0; opacity: .35;
   background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(11,11,16,.18) 9px 10px, transparent 10px 23px); }
 #hud .plate.low .reishi .fill { background: linear-gradient(180deg, #ff6b7f, var(--blood)); animation: hd-pulse 1.1s ease-in-out infinite; }

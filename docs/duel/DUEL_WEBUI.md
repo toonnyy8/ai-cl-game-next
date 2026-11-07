@@ -713,3 +713,14 @@ their graphic widgets lived only in the old canvas HUD (`ken-meter.lisp`), which
 Now on the phone (`#hud.hphone`) it stands just over the deck (`bottom: var(--deck) + 3u`), on the side away from the move name
 and the hits: the right, or the left with `.left-hand`; without the deck it sits over your plate (`4% + 28u`). CSS only
 (`hud.css`). Checked in a 390 x 844 shot (one-hand, 2325 + 2393, J hit): "SP · AS1" clear of the bar. DEVLOG §588.
+
+## 17. The Reishi bar's grid lines stay put (the user, 2026-11-07)
+
+User: 「我發現血量表上的格線不不是固定位置，而是隨血量減少而收縮」.
+
+- Cause: the fill (`.reishi .fill`) was shortened with `transform: scaleX(r)`, and its grid texture (`.fill::after`, a line every 23 px)
+  scaled with it.
+- Fix: hud.js cuts the fill with `clip-path: inset(0 (1 - r) x 100% 0 0)` instead, and hud.css transitions `clip-path` over the same
+  .12 s. The fill keeps its full width, so the lines stay at their columns. The blood ghost still scales (it has no texture).
+- Checked in the browser: the full bar's lines at x 1191 / 1214 / 1237 (1280 x 720), and P2 at 200 Reishi shows its red fill's lines
+  at the same three columns.

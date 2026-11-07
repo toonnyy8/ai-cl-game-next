@@ -183,7 +183,8 @@
     renderKit(el, s, o, p);
     var r = Math.max(0, V[o + 1]) / 1000, ghost = $(".ghost", el);
     if (p.r !== r) st(ghost, "transition", p.r !== undefined && r < p.r ? "" : "none");   // a hit: the blood ghost drains after it; a refill snaps
-    st($(".fill", el), "transform", "scaleX(" + r + ")"); st(ghost, "transform", "scaleX(" + r + ")"); p.r = r;
+    st($(".fill", el), "clip-path", "inset(0 " + (100 - 100 * r) + "% 0 0)");   // (cut, not scaled: the grid stays put, DEVLOG §618)
+    st(ghost, "transform", "scaleX(" + r + ")"); p.r = r;
     el.classList.toggle("low", V[o + 2] === 1); el.classList.toggle("dead", r <= 0);
     var kon = Math.max(0, V[o + 3]), stake = Math.max(0, V[o + 4]), souls = $(".souls", el).children;
     for (var i = 0; i < 9; i++) {

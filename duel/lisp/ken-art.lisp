@@ -469,6 +469,8 @@
 the same day: 「幫我將刀柄加長 1.3 倍」, longer downward: 0.99 -> 1.28 m).")
 (defparameter *ke-bk-grip* 0.5 "Where the right hand holds its haft: the fraction of the white haft below its top (0.08), as *KE-NOZ-GRIP* (2026-11-04, the
 user: 「角色持握 0.5 的位置」; 0 before: the hand at the haft's top).")
+(defparameter *ke-bk-haft-w* 0.8 "The broken cleaver's haft thickness (its white boxes, the wrap seams, the black butt; not its length) x this:
+1 -> 0.8 (the user, 2026-11-07: 「幫我將劍八卍解的刀柄變細成 0.8 倍」, DEVLOG §619): 5 -> 4 cm.")
 (defun ke-bk-grip-y () "How far the broken cleaver slides out of the hand for *KE-BK-GRIP*, m (0.56)." (- (* *ke-bk-grip* 0.76 *ke-bk-haft*) 0.08))
 (defparameter *ke-bk-size* 0.9 "The whole broken cleaver (haft, bar, head) scaled about the hand (2026-11-04, the user: 「整體縮小成 0.8 倍，刀身額外再
 縮小成 0.8 倍」, then 「兩個倍率都從 0.8 改成 0.9」; 1 before).")
@@ -545,14 +547,14 @@ parallel edge at y 0.174; below that (the point's side) pulled toward the edge l
         (mbc mb #xECECE8)                                ; the long white-wrapped haft
         (loop with n = 8 for i below n                   ; (it stops short of the head: the bar joins them)
               for y = (- 0.08 (* (+ i 0.5) (/ len n)))
-              do (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-box mb 0.05 (* 1.02 (/ len n) (/ 1 (cos (tilt y)))) 0.05)))
+              do (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (let ((w (* 0.05 *ke-bk-haft-w*))) (mb-box mb w (* 1.02 (/ len n) (/ 1 (cos (tilt y)))) w))))
         (mbc mb #x6A6A70)
         (loop for i below (round (* 8 haft))
               for y = (- 0.03 (* i 0.085))
-              do (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-at (mb :roll 0.6) (mb-box mb 0.054 0.006 0.054))))
+              do (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-at (mb :roll 0.6) (mb-box mb (* 0.054 *ke-bk-haft-w*) 0.006 (* 0.054 *ke-bk-haft-w*)))))
         (mbc mb #x16161A)                                ; the black butt
         (let ((y (- -0.67 drop)))
-          (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-bevel-box mb 0.058 0.06 0.058 0.008)))))))
+          (mb-at (mb :y y :z (sag y) :pitch (tilt y)) (mb-bevel-box mb (* 0.058 *ke-bk-haft-w*) 0.06 (* 0.058 *ke-bk-haft-w*) 0.008)))))))
 
 (defweapon :ke-broken (:length 1.06 :base 0.63)         ; :length the drawn far end ((the break 0.62 up the head frame + KE-BK-GRIP-Y 0.56)
                                                         ; x *KE-BK-SIZE* 0.9; literal: the host FK test reads it unevaluated), :base

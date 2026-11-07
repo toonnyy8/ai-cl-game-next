@@ -1367,3 +1367,12 @@ so KAIHO showed only as the lowercase tag `kaiho` and no level. Now `duel/web/hu
 and three pips, lit up to L, with `L0` / `L1` / `L2` beside them, and at L3 `MAX` with the pips pulsing (the special J string J4–J7
 is open). The tag `kaiho` is hidden as NOME / UDE are. Page only: the sim and `webhud.lisp` unchanged (slots 15 / 16 already carried L
 and 3). Checked in shots at L0–L3 (84001, then 84090+k) wide (1280×720) and portrait (390×844). Manual updated.
+
+## 45. The Bankai's haft thinner, x0.8 (the user, 2026-11-07)
+
+User: 「幫我將劍八卍解的刀柄變細成 0.8 倍」.
+
+- The new knob `*ke-bk-haft-w*` 1 -> **0.8** (ken-art.lisp) scales the broken cleaver's haft across, not along: the white boxes go
+  5 -> 4 cm, the wrap seams 5.4 -> 4.3 cm, the black butt 5.8 -> 4.6 cm. Its length (*KE-BK-HAFT* 1.69), the grip, the black bar and the
+  head are unchanged, as is Nozarashi (the Shikai has its own builder since §22).
+- Presentation only: the drawn reach (the head's far end) does not move.
