@@ -2,7 +2,64 @@
   "baseline_score": 0.8104,
   "beta": 0.4,
   "branch_count": 4,
-  "cells": {},
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.7396 normal 0.075 x1.0 themes spacing 0.253 whiff 0.891 ptr3 0.99 kessa 0.825",
+      "score": 0.8387
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 1.0 sig 0.769 normal 0.075 x1.0 themes spacing 0.242 whiff 0.951 ptr3 0.995 kessa 0.887",
+      "score": 0.8614
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.7428 normal 0.075 x1.0 themes spacing 0.078 whiff 0.981 ptr3 1.0 kessa 0.912",
+      "score": 0.8407
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.7537 normal 0.075 x1.0 themes spacing 0.075 whiff 0.982 ptr3 0.995 kessa 0.963",
+      "score": 0.8472
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 1.0 sig 0.7528 normal 0.075 x1.0 themes spacing 0.071 whiff 0.983 ptr3 0.995 kessa 0.963",
+      "score": 0.8517
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.7546 normal 0.075 x1.0 themes spacing 0.115 whiff 0.966 ptr3 1.0 kessa 0.938",
+      "score": 0.8477
+    },
+    "b3_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.975 sig 0.7404 normal 0.075 x1.0 themes spacing 0.084 whiff 0.97 ptr3 0.986 kessa 0.922",
+      "score": 0.8343
+    }
+  },
   "directions": {},
   "grid_plan": {
     "clamp_reasons": [],
@@ -23,12 +80,7 @@
     "source": "policy"
   },
   "max_parallelism": 4,
-  "pending_batch": [
-    "b0_a0",
-    "b1_a0",
-    "b2_a0",
-    "b3_a0"
-  ],
+  "pending_batch": [],
   "policy_file": "rounds/round03/policy.py",
   "refine_count": 1,
   "round_index": 3,

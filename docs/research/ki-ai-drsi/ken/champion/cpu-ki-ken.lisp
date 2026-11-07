@@ -116,7 +116,13 @@ confirm J1 landed: 35 of the baseline's 213 failed exchanges (20 seeds a seat), 
 (defparameter *kk-meaty-lead* 0
   "The meaty J1 is pressed when her perceived frames to her first free one are J1's startup + this (0: J1's first active frame on it;
 K1 gap 0, K2 12 frames late she acts, D47 too early whiffs on her invulnerable wake-up).")
-(defparameter *kk-meaty-near* 1.4 "The meaty chase walks in to this distance (m) and waits (the sealed J reaches 1.8 m).")
+(defparameter *kk-meaty-near* 2.4 "The meaty chase walks in to this distance (m) and waits (the sealed J reaches 1.8 m + a 0.6 slide). 1.4 -> 2.4 with *KK-MEATY-MIN*, b0_a0 r3.")
+(defparameter *kk-meaty-min* 2.25
+  "The meaty chase backs off to this distance (m) while she is down (while *KK-MEATY-BACK* frames remain): her champion Hohos at once on
+her first free frame within 2.2 m (her *IKS-WAKE-HOHO-NEAR*, HARD 0.9): perfect, his J1 lands but he is locked 40 frames, and her
+follow-up J1 started the loop on him (round 3 v4 logs). From 2.25-2.4 m his J1 (1.8 + a 0.6 slide) still meets her first free frame.
+0 (none) -> 2.25 with *KK-MEATY-NEAR* 1.4 -> 2.4, 2026-11-07, cell b0_a0 (round 3).")
+(defparameter *kk-meaty-back* 16 "The meaty chase backs off only while more than this many frames remain to her first free one (he stands still after, her view is 8 frames old).")
 (defparameter *kk-chase-hoho* 4.5 "The meaty chase Hohos in from beyond this (m) while she is still down (the Bankai entry leaves her 6.13 m away).")
 (defparameter *kk-awaken-p* '(:easy 0.0 :normal 0.0 :hard 1.0)
   "解放攀升's door: one roll per match, the first free step his awakening gauge is seen full (sealed): yes = awaken on that step (and
@@ -205,6 +211,67 @@ the wave closing at 14 m/s and his hop at about 12 m/s meet on about frame 4 and
 *KK-WAVE-MIX*'s :step. Before it a sealed Kenpachi without a Hoho had no answer and dashed into the wave (28 of the 37 full waves that
 hit him in 80 HARD matches at b3_a1's v4). New, b3_a1 2026-11-06.")
 
+(defparameter *kk-ns-safe-p* '(:easy 0.0 :normal 0.0 :hard 1.0)
+  "封印肉搏 / 解放攀升 against her timed Hoho (KK-NS-OPEN-P): per approach (KK-PICK's roll) and per decision of KK-DECIDE's (the climb's
+lunge, the Bankai NS), start a neutral NS only while she cannot Hoho it: seen in her own move with more frames left than its startup,
+or in her Hoho's lockout (*HOHO-LOCKOUT*) to its first active frame. Else J1 where it reaches, else walk. Her champion (round 2 b1_a1)
+Hohos his perceived attack when its first active frame is 1-6 frames off as she sees it (8 frames late): every move with startup 9 or
+more. Against round 3's baseline file, 20 seeds a seat HARD: 146 of 180 sealed NS1a and 202 of 304 Shikai lunges were followed by her
+perfect Hoho (counter 60, his lock 40, her follow-up: 126k of her 271k). His sealed J1 (S6) is seen after its hit and never timed.
+New 2026-11-07, cell b0_a0 (round 3).")
+(defparameter *kk-pf-p* '(:easy 0.0 :normal 0.0 :hard 1.0)
+  "封印肉搏's follow-up after his own perfect Hoho (KK-PF-STEP; one roll per such Hoho): her inputs lock 40 frames (*PERFECT-LOCK*),
+so J1 at once where it reaches, else walk in, within *KK-PF-WINDOW*. His wake-up Hoho onto her meaty J1 is perfect, but her J1 lands
+on that frame and cancels his counter: the generic CPU then waited, and the 40 locked frames went by (round 3 v1 logs). New
+2026-11-07, cell b0_a0 (round 3).")
+(defparameter *kk-wake-hoho-p* '(:easy 0.0 :normal 0.0 :hard 1.0)
+  "His wake-up (one roll per wake-up): on his first free step, her seen within *KK-WAKE-HOHO-NEAR*, Hoho at once (her own IKS-WAKE,
+turned on her meaty J1: it lands on that frame, but the Hoho is perfect, she is locked 40 frames, and KK-PF-STEP's J1 follows). Her
+KESSA J1 (S8) meaty is seen too late for KK-READ (her move start is perceived as his first free frame passes): in v5's logs her
+meaty-J1 loop on his Shikai ran unanswered, AS3C after AS3C. New 2026-11-07, cell b0_a0 (round 3).")
+(defparameter *kk-wake-hoho-near* 2.4 "His wake-up Hoho: she is seen within this distance (m) (her meaty waits at 1.4 m, her KESSA J1 reaches 1.56 m).")
+(defparameter *kk-hoho-blind* 8
+  "*KK-NS-SAFE-P*: a move whose startup is at most this is never timed by her Hoho (her HARD perception delay is 8 frames, and her
+window opens 1 frame before its first active one as she sees it): the sealed J1 (6), KYORAN's J1-J4 (7-8). New 2026-11-07, b0_a0 r3.")
+(defparameter *kk-pf-window* 40 "封印肉搏's follow-up: frames from his perfect Hoho's start in which he presses J1 (her lock is 40).")
+
+(defparameter *kk-step-in-p* '(:easy 0.0 :normal 0.0 :hard 1.0)
+  "封印肉搏's way in without an NS (KK-PICK, one roll per approach; sealed, with *KK-NS-SAFE-P*'s roll): out of J1's reach within
+*KK-STEP-IN-BAND*, a Step toward her (2.5 m, free, invulnerable frames 3-9; no attack, so her timed Hoho has nothing to read), then J1
+out of the Step's J cancel where it reaches (KK-STEP-J). With the NS gated he walked into her 3.7-4.2 m hover, she backed off, and the
+first exchange of a match came after 100 s (round 3 v2 logs). New 2026-11-07, cell b0_a0 (round 3).")
+(defparameter *kk-hoho-lockout* 84
+  "KK-NS-OPEN-P: frames from her seen Hoho's start to her next one (the engine's lock is *HOHO-FRAMES* 24 + *HOHO-LOCKOUT* 60, set at
+the Hoho's start). The parent (b0_a0 r3) read only her :hoho state against *HOHO-LOCKOUT* 60: 24 frames short, and nothing once she had
+reappeared, though her Hoho stays shut ~60 frames more (its own proposal's open item). Kept per Hoho in KKS-HL. From b3_a0 r3; b0_a1 r3.")
+(defparameter *kk-hend-p* '(:easy 0.0 :normal 0.0 :hard 1.0)
+  "Her Hoho seen (a perfect one locks him and leaves this unfired): J1 timed so its hit lands on her first free frame after it (the
+Hoho's start + *HOHO-FRAMES*), where she reappears 1.6 m behind him with her next Hoho shut. One roll per her Hoho. From b3_a0 r3 (84
+of 91 landed there); b0_a1 r3.")
+(defparameter *kk-hend-lead* 0 "*KK-HEND-P*: J1's hit lands this many frames after her Hoho's last frame.")
+(defparameter *kk-cine-wait* '(:easy nil :normal nil :hard t)
+  "封印肉搏 after a cinematic (read from his own side: the style did not run for over *KK-CINE-GAP* ticks: her KESSA awakening, his own awakening, a Kikon, the
+Bankai): no style decision for his perception delay (BRAIN-DELAY), so he acts on a SNAP taken after the cinematic. The cinematic moves
+both fighters, and his first free step still saw her where she stood before it: in the parent's logs (HARD, 20 seeds a seat) her KESSA
+awakening during his meaty was followed, on the cinematic's last frame, by `kk pick J1 at 1.8` with her really at ~2.4 m (her own view
+said 2.4): the sealed J1 whiffed and her whiff confirm J1 opened her combo, 7 of the 40 brawl exchanges lost. He holds still instead
+(the generic CPU, which reads the same stale SNAP, is not handed the step either). New, b0_a1 r3.")
+(defparameter *kk-cine-gap* 60
+  "*KK-CINE-WAIT*: a gap of more than this many ticks since the style last ran is a cinematic (the brain is not stepped through one;
+his longest lock otherwise, the perfect lock, is 40). b0_a1 r3.")
+(defparameter *kk-repel-wait* 20
+  "*KK-CINE-WAIT*'s other case: his own move cut short (his state :idle right after :move, before the move's last frame: her Burst
+Reverse or her awakening, REPEL!, which ends his move, makes her invulnerable *BURST-INVULN* 20 frames and slides him 5 m away over
+*BURST-PUSH-FRAMES* 20): no style decision for this many frames. In v3's logs (HARD, 20 seeds a seat) 76 of the sealed form's 111
+KK-PICK J1s came 11 frames after her Burst, at a perceived 1.5 m: 9 of the 111 hit, 21 were punished. b0_a1 r3.")
+(defparameter *kk-face-max* 60.0
+  "封印肉搏's follow-ups (KK-PF-STEP after his perfect Hoho, the Hoho-end J1): J1 only while he faces her within this many degrees, else
+he stands (the idle auto-turn is 18 deg/frame) and presses once turned. His Hoho puts him behind her and her meaty J1, landing on the
+Hoho's frame, leaves him in 36 frames of hitstun without turning: the J1 (arc 100 deg, 6 deg/frame of tracking in its 6-9 frames of
+startup) then swung past her. In the parent's logs every pf J1 came 37-38 frames after the perfect, and 19 of 82 whiffed into her
+confirm J1 (the sealed J1: 6 of 10). Rule, HARD only (*KK-PF-P* is 0 below). New, b0_a1 r3.")
+(defparameter *kk-step-in-band* '(2.2 4.4) "封印肉搏's Step in: the perceived distances (m) it starts from (J1 reaches 2.4 m, the hop 2.5).")
+
 ;;; ---------------------------------------------------------------- the style's state (BRAIN-STYLE; a new match's brain starts NIL)
 (defstruct (kks (:constructor make-kks ()))
   (ev -2 :type fixnum)          ; her move start the brawl read was rolled for
@@ -220,6 +287,13 @@ hit him in 80 HARD matches at b3_a1's v4). New, b3_a1 2026-11-06.")
   (sa-key -1 :type fixnum)      ; the NS segment (its CLS-T) the L3 SA roll was made for (b1_a0)
   (aw nil)                      ; the match's awaken roll: NIL unmade, :go, :no (b1_a0)
   (appr nil) (reach nil) (hin nil) ; an approach is on (KK-PICK); its reach roll; its Hoho-in roll (unspent)
+  (safe nil) (sin nil)          ; this approach's *KK-NS-SAFE-P* roll; its Step-in roll (unspent) (b0_a0 r3)
+  (pf -999 :type fixnum) (pfr nil) ; the start tick of his last perfect Hoho; its follow-up roll said yes (b0_a0 r3)
+  (mine :idle)                  ; his own state at his last step (his wake-up's end: b0_a0 r3)
+  (pfw nil)                     ; his FIGHTER-PERFECT at his last step
+  (fresh -1 :type fixnum)
+  (msf 0 :type fixnum) (mend 0 :type fixnum) ; his own move's frame at his last step and its length (a cut move: *KK-REPEL-WAIT*)       ; no decision before this tick: a cinematic just ended (*KK-CINE-WAIT*; b0_a1 r3)
+  (hl -999 :type fixnum)        ; the tick her last seen Hoho's lockout ends (its start + *KK-HOHO-LOCKOUT*) (b0_a1 r3, from b3_a0 r3)
   (tick 0 :type fixnum))        ; *MATCH-TICK* at his last free step (a lower one: a new match, the state starts over)
 
 (defun kk-route-p (s)
@@ -277,6 +351,13 @@ route (the answer's roll)."
       (setf (kks-meaty st) (brain-roll b *kk-meaty-p*))
       (when (kks-meaty st) (clog "~a kk meaty armed" (side-name e))))
     (unless (member ss '(:air :down :wakeup)) (setf (kks-meaty st) nil))
+    (when (eq ss :hoho)                                         ; her Hoho seen: its start = now - delay - her frame (b3_a0 r3)
+      (let ((h0 (- *match-tick* (brain-delay b) (snap-sf s))) (q (kit-command-move kit :q)))
+        (when (> (+ h0 *kk-hoho-lockout*) (kks-hl st))         ; (a new one)
+          (setf (kks-hl st) (+ h0 *kk-hoho-lockout*))
+          (when (and q (null (kks-plan st)) (brain-roll b *kk-hend-p*))
+            (setf (kks-plan st) :hend (kks-at st) (+ h0 *hoho-frames* *kk-hend-lead* (- (mv-s q))))
+            (clog "~a kk hoho-end plan at ~d" (side-name e) (kks-at st))))))
     (setf (kks-was st) ss)
     (when (kk-route-p s)
       (when (and (> (- (snap-start s) (kks-gw st)) 45)            ; (45: a new route, not its next segment, 21 / 17 frames on)
@@ -355,6 +436,16 @@ T when it decided."
                         (t (ai-press b :step 1) (kk-stick e 1)))   ; (:step: the hop toward her, through the wave)
                       (and plan t))))))
       (:chase (kk-chase-step e b f kit s d st))
+      (:stepin (setf (kks-plan st) nil) nil)
+      (:hend                                                    ; J1 onto her Hoho's end (*KK-HEND-P*; b3_a0 r3)
+       (cond ((not (member (snap-state s) '(:hoho :idle :run))) (setf (kks-plan st) nil) nil)
+             ((< *match-tick* (kks-at st)) (kk-stick e 0) t)
+             ((and (not (kk-facing-p e s)) (<= *match-tick* (+ (kks-at st) 2))) (kk-stick e 0) t)   ; (turn first: b0_a1 r3)
+             (t (setf (kks-plan st) nil)
+                (when (and (<= *match-tick* (+ (kks-at st) 2)) (<= d (kk-reach kit f :j)))
+                  (setf (brain-own-key b) -1)
+                  (clog "~a kk hoho-end J1 at ~,1f" (side-name e) d)
+                  (cai-press b :quick 1) (kk-stick e 0) t))))                    ; (the Step is over: KK-STEP-J pressed J1 or he is nearer)
       (:sdodge                                                  ; back Step through her move as its hit comes (KK-READ)
        (cond ((not (eq (snap-state s) :move)) (setf (kks-plan st) nil) nil)
              ((< *match-tick* (kks-at st)) (kk-stick e 0) t)
@@ -372,7 +463,7 @@ T when it decided."
   "破月牙 :chase after the Step through the wave: J1 pressed 2 frames before the Step's J cancel (*STEP-J-CANCEL* 12; the latch starts
 it there) when she is in its reach, instead of waiting out the Step's 24 frames (one sample: his J1 came out 1 frame after her next
 move started, the situation lost). Once per Step (its one frame). T when it pressed. b3_a1, 2026-11-06."
-  (when (and (eq (kks-plan st) :chase) (= (fighter-sf f) (- *step-j-cancel* 2)) (<= d (kk-reach kit f :j)))
+  (when (and (member (kks-plan st) '(:chase :stepin)) (= (fighter-sf f) (- *step-j-cancel* 2)) (<= d (kk-reach kit f :j)))
     (setf (kks-plan st) nil (brain-own-key b) -1)
     (clog "~a kk step J1 at ~,1f" (side-name e) d)
     (cai-press b :quick 1)
@@ -394,6 +485,7 @@ move started, the situation lost). Once per Step (its one frame). T when it pres
            (kk-stick e 0))
           ((and (> d *kk-chase-hoho*) (> left 30) (hoho-open-p e)) (kk-hoho b))
           ((> d *kk-meaty-near*) (kk-stick e 1))
+          ((and (< d *kk-meaty-min*) (> left *kk-meaty-back*)) (kk-stick e -1))   ; (out of her wake-up Hoho's reach: b0_a0 r3)
           (t (kk-stick e 0)))
     t))
 
@@ -416,13 +508,17 @@ Shikai, or no answer fits) while her move can reach him: Hoho through it (*KK-DO
                             (cond ((and (= ptr 3) (<= 3 left 27) (not (kk-route-p s))) (cai-sp b f s) :tame)                  ; the tame catches it (F7-F9)
                                   ((and (> left (mv-s q)) (<= d (+ (mv-reach q) (mv-slide q)))) (cai-press b :quick 1) :j1)   ; J1 first (F1, F2)
                                   ((and (= ptr 1) (eq cls :ns) (> left 14)) (cai-sp b f s) :ns1a))))))   ; NS1a first (F3)
-            (when (and (not how) (not (kk-route-p s)))
+            (when (and (not how) (not (kk-route-p s)) (>= left 0))   ; (her hit already past as seen: no dodge; b0_a0 r3)
               (cond ((hoho-open-p e)
                      (when (brain-roll b *kk-dodge-p*)
-                       (setf (kks-plan st) :dodge (kks-at st) (+ *match-tick* (max 0 (- left *kk-dodge-lead*))) how :dodge)))
+                       (if (<= 0 left *kk-dodge-lead*)        ; (due now: pressed on this step, not the next; b0_a0 r3)
+                           (progn (clog "~a kk dodge now at ~,1f" (side-name e) d) (kk-hoho b) (setf how :dodge))
+                           (setf (kks-plan st) :dodge (kks-at st) (+ *match-tick* (max 0 (- left *kk-dodge-lead*))) how :dodge))))
                     ((and (<= d *kk-step-max*) (brain-roll b *kk-step-p*))   ; (no Hoho open: the back Step)
                      (let ((sl (if clone (- left (- (snap-s s) *kk-clone-strike*)) left)))
-                       (setf (kks-plan st) :sdodge (kks-at st) (+ *match-tick* (max 0 (- sl *kk-step-lead*))) how :sdodge)))))
+                       (if (<= 0 sl *kk-step-lead*)
+                           (progn (clog "~a kk step-dodge now at ~,1f" (side-name e) d) (ai-press b :step 1) (setf how :sdodge))
+                           (setf (kks-plan st) :sdodge (kks-at st) (+ *match-tick* (max 0 (- sl *kk-step-lead*))) how :sdodge))))))
             (when how
               (clog "~a kk read ~a ~a left ~d at ~,1f" (side-name e) how cls left d)
               (kk-stick e 0)
@@ -430,23 +526,57 @@ Shikai, or no answer fits) while her move can reach him: Hoho through it (*KK-DO
 
 (defun kk-decide (e b f s d st)
   "A neutral decision the generic CPU would make this step, taken by the style when a roll says so. T when it decided."
-  (let ((form (fighter-form f)) (vp-free (member (fighter-state f) '(:idle :run))))
+  (let* ((form (fighter-form f)) (vp-free (member (fighter-state f) '(:idle :run)))
+         (ns (kit-core-move (fighter-kit f) :ns (fighter-ptr f)))
+         (q (kit-command-move (fighter-kit f) :q)) (safe (brain-roll b *kk-ns-safe-p*))
+         (ns-ok (or (null ns) (not safe) (kk-ns-open-p b s st ns)))   ; (b0_a0 r3: not into her timed Hoho)
+         (j-ok (or (null q) (not safe) (kk-ns-open-p b s st q))))
     (when vp-free
       (case form
         (:nozarashi
          (let ((lv (ken-lv e)))
-           (cond ((and (kks-climb st) (< lv *ken-lv-max*) (= (fighter-ptr f) 1)
+           (cond ((and ns-ok (kks-climb st) (< lv *ken-lv-max*) (= (fighter-ptr f) 1)
                        (<= (first *kk-lunge-band*) d (second *kk-lunge-band*)) (brain-roll b *kk-lunge-p*))
                   (setf (brain-own-key b) -1 (brain-r-kikon b) (sim-rnd01))
                   (cai-sp b f s) t)
-                 ((and (>= lv *ken-lv-max*) (or (kks-climb st) (kks-bankai st)) (<= d *kk-l3-range*))   ; at L3 with a plan: the J string
+                 ((and (>= lv *ken-lv-max*) (or (kks-climb st) (kks-bankai st)) (<= d *kk-l3-range*)   ; at L3 with a plan: the J string
+                       j-ok)
                   (setf (brain-own-key b) -1)
                   (cai-press b :quick 1) t))))
         ((:bankai :bankai-2)
          (let ((spare (> (reishi-frac (gauges e)) (+ *kk-bk-floor* *kk-bk-ns-spare*))))
-           (cond ((and spare (<= d *kk-bk-ns-range*) (brain-roll b *kk-bk-ns-p*))
+           (cond ((and ns-ok spare (<= d *kk-bk-ns-range*) (brain-roll b *kk-bk-ns-p*))
                   (setf (brain-own-key b) -1 (brain-r-kikon b) (sim-rnd01))
                   (cai-sp b f s) t))))))))   ; (else KK-PICK: J1 in reach, a Hoho or a walk in; no generic NS at 40 a segment)
+
+(defun kk-ns-open-p (b s st mv)
+  "May his move MV start now without her timed Hoho on it (*KK-NS-SAFE-P*)? Its startup is within *KK-HOHO-BLIND* (seen after its
+hit), or she is seen in her own move with more frames left than its startup, down, or in a Hoho whose lockout lasts to its first
+active frame (KKS-HL, *KK-HOHO-LOCKOUT*: also after she reappears; b0_a1 r3)."
+  (if (<= (mv-s mv) *kk-hoho-blind*)
+      t
+      (or (>= (- (kks-hl st) *match-tick*) (mv-s mv))
+          (case (snap-state s)
+            (:move (> (- (snap-left s) (brain-delay b)) (mv-s mv)))
+            ((:air :down :stun) t)
+            (t nil)))))
+
+(defun kk-facing-p (e s)
+  "Does he face her (her perceived position) within *KK-FACE-MAX* degrees?"
+  (<= (abs (angle-wrap (f32 (- (face-yaw-to e (snap-x s) (snap-z s)) (yaw-of e))))) (deg *kk-face-max*)))
+
+(defun kk-pf-step (e b f kit s d st)
+  "封印肉搏's follow-up after his own perfect Hoho (*KK-PF-P*): J1 where it reaches, else walk in, inside *KK-PF-WINDOW*. T when it
+decided."
+  (when (kks-pfr st)
+    (let ((q (kit-command-move kit :q)))
+      (cond ((or (null q) (> (- *match-tick* (kks-pf st)) *kk-pf-window*)) (setf (kks-pfr st) nil) nil)
+            ((not (kk-facing-p e s)) (kk-stick e 0) t)             ; (turn first: b0_a1 r3)
+            ((<= d (+ (mv-reach q) (mv-slide q)))
+             (setf (kks-pfr st) nil (brain-own-key b) -1)
+             (clog "~a kk pf J1 at ~,1f" (side-name e) d)
+             (cai-press b :quick 1) (kk-stick e 0) t)
+            (t (kk-stick e 1) t)))))
 
 (defun kk-reach-of (mv)
   "MV's reach + slide less *KK-REACH-MARGIN* (m): the farthest it starts from; 0 for a move that reaches nothing (the tame)."
@@ -462,22 +592,32 @@ zone or is no longer free. T / :walk when decided, NIL: the generic CPU decides.
         (setf (kks-appr st) nil)
         (progn
           (unless (kks-appr st)
-            (setf (kks-appr st) t (kks-reach st) (or bk (brain-roll b *kk-reach-p*)) (kks-hin st) (brain-roll b *kk-hoho-in-p*)))
+            (setf (kks-appr st) t (kks-reach st) (or bk (brain-roll b *kk-reach-p*)) (kks-hin st) (brain-roll b *kk-hoho-in-p*)
+                  (kks-safe st) (brain-roll b *kk-ns-safe-p*) (kks-sin st) (brain-roll b *kk-step-in-p*)))
           (if (not (kks-reach st))
               (setf (kks-appr st) nil)                         ; (this decision is the generic CPU's)
               (let* ((ns (kit-core-move kit :ns (fighter-ptr f))) (q (kit-command-move kit :q))
                      (v (min 0.0 (ken-closing e b s d)))       ; her perceived speed away (m/f, <= 0): only ever stricter
-                     (can-j (and q (<= (- d (* v (+ (brain-delay b) (mv-s q)))) (kk-reach-of q))))
-                     (can-n (and ns (not bk) (<= (- d (* v (+ (brain-delay b) (mv-s ns)))) (kk-reach-of ns)))))   ; (a Bankai NS: KK-DECIDE's roll)
+                     (can-j (and q (<= (- d (* v (+ (brain-delay b) (mv-s q)))) (kk-reach-of q))
+                                 (or (not (kks-safe st)) (kk-ns-open-p b s st q))))   ; (the Shikai J1 is S9: b0_a0 r3)
+                     (can-n (and ns (not bk) (<= (- d (* v (+ (brain-delay b) (mv-s ns)))) (kk-reach-of ns))   ; (a Bankai NS: KK-DECIDE's roll)
+                                 (or (not (kks-safe st)) (kk-ns-open-p b s st ns)))))   ; (not into her timed Hoho: b0_a0 r3)
                 (cond ((and can-n (or (not can-j) (< (sim-rnd01) (if (> d 1.7) *cai-ns-far* *cai-ns-near*))))
                        (setf (brain-own-key b) -1 (brain-r-kikon b) (sim-rnd01) (kks-appr st) nil)
+                       (clog "~a kk pick NS at ~,1f" (side-name e) d)
                        (cai-sp b f s) t)
-                      (can-j (setf (brain-own-key b) -1 (kks-appr st) nil) (cai-press b :quick 1) t)
+                      (can-j (setf (brain-own-key b) -1 (kks-appr st) nil) (clog "~a kk pick J1 at ~,1f" (side-name e) d)
+                             (cai-press b :quick 1) t)
                       ((and (kks-hin st) (not (eq (fighter-form f) :nozarashi)) (<= d *kk-hoho-in-max*) (hoho-open-p e)
                             (>= (gauges-fs (gauges e)) *kk-hin-fs*))      ; (one Hoho kept in reserve: b0_a1)
                        (setf (kks-hin st) nil)                 ; (one Hoho an approach)
                        (clog "~a kk hoho-in at ~,1f" (side-name e) d)
                        (kk-hoho b) :walk)                      ; (behind her, 1.6 m: the next decision comes as he is free)
+                      ((and (kks-sin st) (kks-safe st) (eq (fighter-form f) :base)
+                            (<= (first *kk-step-in-band*) d (second *kk-step-in-band*)))
+                       (setf (kks-sin st) nil (kks-plan st) :stepin)   ; (KK-STEP-J presses J1 out of the cancel)
+                       (clog "~a kk step-in at ~,1f" (side-name e) d)
+                       (ai-press b :step 1) (kk-stick e 1) :walk)
                       (t (kk-stick e 1) :walk))))))))
 
 (defun kk-neutral (e b f kit s d st)
@@ -491,6 +631,7 @@ zone or is no longer free. T / :walk when decided, NIL: the generic CPU decides.
          (ai-press b :awaken 1 :modded t) t)
         ((kks-plan st) (kk-wave-step e b f kit s d st))
         ((kks-meaty st) (kk-meaty-step e b f kit s d st))
+        ((kk-pf-step e b f kit s d st))
         ((kk-read e b f kit s d st))
         ((<= (brain-decide-t b) 1)                              ; the generic CPU decides this step: the style may take it
          (let ((how (or (and (not (kks-appr st)) (kk-decide e b f s d st)) (kk-pick e b f kit s d st))))   ; (no re-rolls on a retry)
@@ -628,10 +769,34 @@ the SP's knockdown (the meaty loop's start)."
   "Kenpachi's style against Ichigo (DUEL_MATCHUP_AI §4): T when it decided this step, NIL for the generic core CPU."
   (let ((st (brain-style b)))
     (when (or (null st) (< *match-tick* (kks-tick st))) (setf st (make-kks) (brain-style b) st))
+    (when (and (> (- *match-tick* (kks-tick st)) *kk-cine-gap*) (brain-chance b *kk-cine-wait*))   ; (a cinematic just ended: b0_a1 r3)
+      (setf (kks-fresh st) (+ *match-tick* (brain-delay b))))
+    (let ((mv (fighter-move f)))                              ; (his move cut short: a repel; b0_a1 r3)
+      (if (and (eq (fighter-state f) :move) mv)
+          (setf (kks-msf st) (fighter-sf f) (kks-mend st) (+ (mv-s mv) (mv-a mv) (mv-r mv)))
+          (progn
+            (when (and (eq (kks-mine st) :move) (member (fighter-state f) '(:idle :run)) (< (kks-msf st) (- (kks-mend st) 2))
+                       (brain-chance b *kk-cine-wait*))
+              (setf (kks-fresh st) (max (kks-fresh st) (+ *match-tick* *kk-repel-wait*))))
+            (setf (kks-mend st) 0))))
     (setf (kks-tick st) *match-tick*)
     (kk-track e b f kit s d st)
+    (when (and (< *match-tick* (kks-fresh st)) (member (fighter-state f) '(:idle :run)))
+      (kk-stick e 0)
+      (return-from ken-ki-style t))
     (let ((state (fighter-state f)))
+      (let ((p (fighter-perfect f)))                          ; (his new perfect Hoho: the flag stays until his next move, even when
+        (when (and p (not (kks-pfw st)))                       ;  her meaty J1 lands on the Hoho's frame; one roll)
+          (setf (kks-pf st) *match-tick* (kks-pfr st) (brain-roll b *kk-pf-p*)))
+        (setf (kks-pfw st) p))
       (unless (member state '(:idle :run)) (setf (kks-appr st) nil))
+      (when (and (eq (kks-mine st) :wakeup) (member state '(:idle :run)) (<= d *kk-wake-hoho-near*) (hoho-open-p e)
+                 (not (eq (snap-state s) :hoho)) (brain-roll b *kk-wake-hoho-p*))
+        (setf (kks-mine st) state)
+        (clog "~a kk wake-hoho at ~,1f" (side-name e) d)
+        (kk-hoho b)
+        (return-from ken-ki-style t))
+      (setf (kks-mine st) state)
       (when (and (eq state :step) (kk-step-j e b f kit d st)) (return-from ken-ki-style t))
       (when (member state '(:idle :run :move))
         (or (if (eq state :move) (or (kk-l3-sa e b f kit d st) (kk-move e b f s st) (kk-link e b f kit s d) (kk-as-on e b f kit)

@@ -96,5 +96,7 @@ Babylon.js + TypeScript 移植版 2026-10-06 起不再開發；它的程式碼�
 | [lille-ai-drsi/](research/lille-ai-drsi/) | 利傑巴羅自適應 AI 的 dream-rsi 工作區（DUEL_LILLE §24）：凍結的 baseline（lille.lisp、proposal、40／80 場分數、NORMAL 漂移參考值）、drsi 設定與 policy，加上 coordinator 腳本（`brief.py`、`step.sh`、`rescore.sh`）；見其 README |
 | [lille2-ai-drsi/](research/lille2-ai-drsi/) | Lille II 風格化 AI 的 dream-rsi 工作區（DUEL_LILLE_V3 §22）：兩輪 16 格、合併版、coordinator 腳本；見其 README |
 | [hisagi-ai-drsi/](research/hisagi-ai-drsi/) | 檜佐木風格化 AI 的 dream-rsi 工作區（DUEL_HISAGI §25）：凍結的 baseline、drsi 設定與 policy、coordinator 腳本（`brief.py`、`step.sh`、`rescore.sh`、`splice-tests.py`）；見其 README |
+| [ki-ai/](research/ki-ai/) | 劍八 vs 一護對戰組合 CPU 的第 1、2 步：兩人的幀數資料表（生成腳本）、原生模擬驗證的連段目錄、對這個對手的手段（DUEL_MATCHUP_AI §3） |
+| [ki-ai-drsi/](research/ki-ai-drsi/) | 劍八 vs 一護風格 CPU 的 dream-rsi 工作區，雙方各一個：三輪的 cell、冠軍、策略、coordinator 腳本（DUEL_MATCHUP_AI §8–§11）；見其 README |
 | [hisagi/notes.md](research/hisagi/notes.md) | 檜佐木修兵的原作研究：始解風死的形狀與用法、小說裡的卍解風死絞縄、外觀、RoS 與 Brave Souls 的招式（英文，附來源與 A～D 等級，2026-10-16） |
 | [hisagi/motion-refs.md](research/hisagi/motion-refs.md) | 檜佐木的動作風格研究：原作各場戰鬥的神態、混沌之刃／鎖鐮術／繩鏢／RoS 四種參考、始解與卍解每個招式格位的動作提案、定裝照的造型細節（英文，附來源與 A～D 等級，2026-10-17） |

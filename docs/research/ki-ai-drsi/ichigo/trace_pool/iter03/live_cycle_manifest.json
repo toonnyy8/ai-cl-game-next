@@ -1,0 +1,55 @@
+{
+  "completed_by_policy": true,
+  "cycle": 2,
+  "explore": {
+    "batch_sizes": [
+      4,
+      3
+    ],
+    "best_score": 0.8614,
+    "decision_rounds": 2,
+    "effective_sequential_rounds": 2,
+    "max_refine": 1,
+    "max_width": 4,
+    "max_workers": 4,
+    "probe_budget": 7
+  },
+  "grid_plan": {
+    "actual": {
+      "decision_rounds": 2,
+      "effective_sequential_rounds": 2,
+      "max_attempt_selected": 1,
+      "opened_branch_count": 4,
+      "probe_count": 7
+    },
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+      "refine_count": 1
+    },
+    "fallback_reason": null,
+    "out_of_support": false,
+    "requested": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+      "refine_count": 1
+    },
+    "source": "policy"
+  },
+  "policy": {
+    "beta_default": 0.4,
+    "config": {
+      "beta": 0.4
+    },
+    "name": "ki_topk",
+    "sha256": "ffd7c92cacbe64ededd13975dba239693c52a36ccf5fcd38b91c6dc56ddcad2c",
+    "source": "/media/8tsp/projects/ai-cl-game-next/docs/research/ki-ai-drsi/ichigo/rounds/round03/policy.py"
+  },
+  "recorded_at": "2026-11-07T04:50:49.253283+00:00",
+  "round_index": 3,
+  "schema_version": 2,
+  "workspace": "/media/8tsp/projects/ai-cl-game-next/docs/research/ki-ai-drsi/ichigo"
+}

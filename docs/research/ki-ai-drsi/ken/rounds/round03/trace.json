@@ -2,7 +2,64 @@
   "baseline_score": 0.2872,
   "beta": 0.4,
   "branch_count": 4,
-  "cells": {},
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.8875 sig 0.7236 normal 0.9875 x1.0 themes brawl 0.849 shikai 0.672 bankai 0.707 antiwave 0.667",
+      "score": 0.7892
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.9875 sig 0.8102 normal 0.9875 x1.0 themes brawl 0.954 shikai 0.647 bankai 0.83 antiwave 0.0",
+      "score": 0.8811
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.85 sig 0.8133 normal 0.9375 x1.0 themes brawl 0.94 shikai 0.719 bankai 0.781 antiwave 0.0",
+      "score": 0.828
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.8625 sig 0.7975 normal 0.9375 x1.0 themes brawl 0.937 shikai 0.688 bankai 0.768 antiwave 0.0",
+      "score": 0.8235
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 0.875 sig 0.6036 normal 0.9375 x1.0 themes brawl 0.771 shikai 0.44 bankai 0.6 antiwave 0.0",
+      "score": 0.7122
+    },
+    "b3_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 1.0 sig 0.7682 normal 0.9375 x1.0 themes brawl 0.931 shikai 0.646 bankai 0.727 antiwave 0.0",
+      "score": 0.8609
+    },
+    "b3_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "str 1.0 sig 0.7682 normal 0.9375 x1.0 themes brawl 0.931 shikai 0.646 bankai 0.727 antiwave 0.0",
+      "score": 0.8609
+    }
+  },
   "directions": {},
   "grid_plan": {
     "clamp_reasons": [],
@@ -23,12 +80,7 @@
     "source": "policy"
   },
   "max_parallelism": 4,
-  "pending_batch": [
-    "b0_a0",
-    "b1_a0",
-    "b2_a0",
-    "b3_a0"
-  ],
+  "pending_batch": [],
   "policy_file": "rounds/round03/policy.py",
   "refine_count": 1,
   "round_index": 3,

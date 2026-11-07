@@ -258,3 +258,48 @@ as a resource failure (the briefs since ask for summaries first and proposals un
   b1_a1 0.8339, b0_a1 0.7929, b3_a1 0.7873. Champions: Kenpachi b0_a0, Ichigo b1_a1.
 - **The champions against each other: Ichigo 77/80 at HARD, 0.810; Kenpachi 0.287.** The lead has swung each round (v0: Ichigo; round 1:
   Kenpachi; round 2: Ichigo): each side's best is tuned against the other's previous best. Round 3 (the last) starts from these.
+
+## 11. Round 3 and the final pair (2026-11-07)
+
+Round 3 from the round-2 champions (baselines Kenpachi 0.2872, Ichigo 0.8104), 7 cells a side.
+
+| Side | b0 a0 / a1 | b1 a0 / a1 | b2 a0 | b3 a0 / a1 | Final |
+|---|---|---|---|---|---|
+| Kenpachi | 0.789 / **0.881** | 0.828 / 0.824 | 0.712 | 0.861 / 0.861 | b0_a1 |
+| Ichigo | 0.839 / **0.861** | 0.841 / 0.847 | 0.852 / 0.848 | 0.834 | b0_a1 |
+
+- **Kenpachi's final (b0_a1)**: against her timed perfect Hoho he never starts a move she can see in time (sealed J1, S6; out of reach a Step
+  in and J1 from its cancel; NS1a only while her Hoho is spent); the meaty from just outside her wake-up Hoho's 2.2 m; his own wake-up Hoho
+  and J1 through her 40 locked frames after his perfect Hoho; a J1 timed to her Hoho's last frame; stale-SNAP waits (8 f after any
+  cinematic, her 20 invulnerable frames after a Burst cuts his move), turning to face her before the follow-up. The climb, the Bankai cycle and
+  the far-Getsuga answers from rounds 1–2 stay.
+- **Ichigo's final (b0_a1)**: the bait hover at 2.3–2.7 m (inside his NS1a's start, outside his J1) into her timed perfect Hoho, the counter,
+  the J string and AS3; when his Hoho is shut for 90+ frames, a dash out to ~6.5 m and a pointer-3 lunge he can't back-Step; the whole Hoho
+  kit, KESSA kept at pointer 3, the Konpaku-aware finisher, the meaty on his wake-up.
+- Reads beyond the SNAP accepted in this round, HUD facts like §9's: his flash-step gauge and Burst (Ichigo's "his Hoho is shut"). The 84-frame
+  Hoho lockout Kenpachi reads is a game rule, read from the SNAP (her Hoho seen), not her gauge.
+- A side note from round 3 (Ichigo b1_a1), not fixed: the perfect Hoho's automatic COUNTER is no classed move, so `situ.lisp` credits it with
+  her last classed move's start distance; a counter after a 4 m lunge can count as a spacing ok. No cell exploited it.
+
+**The final pair against each other** (40 seeds a seat, the evaluator; recorded, no target, DREAM_RSI §5.3):
+
+| | HARD | Score | Signature themes | NORMAL |
+|---|---|---|---|---|
+| Kenpachi | 55/80 | 0.697 | brawl 0.66, shikai 0.65, bankai 0.80, antiwave excluded (0/0) | 0.9875 |
+| Ichigo | 25/80 | 0.461 | spacing 0.18, whiff 0.66, ptr3 1.00, kessa 0.40 | 0.075 |
+
+Pacing (`aieval`'s runner, 40 a seat): HARD KI 29–11, IK 14–26 (Kenpachi 55 of 80), every match a K.O., no time-out, medians 158.5 / 142.6 s;
+NORMAL KI 36–4, IK 5–35, 79 of 80 K.O.s (one time-out), medians 198.9 / 194.9 s. Round 3's Kenpachi b2_a0 won mostly by sealed 300 s
+time-outs against her round-2 champion; the final pair has none.
+
+The lead swung every round (v0 Ichigo 70/80; round 1 Kenpachi 74/80; round 2 Ichigo 77/80; final Kenpachi 55/80): each side's best is tuned
+against the other's previous best, so the final pair is closer than any round's champion against its own opponent.
+
+**Shipped**: both files in `duel/lisp/`. Host 9843 ALL PASS, pkgcheck clean, `./build.sh duel` (the allowed warning), G2 II and KK identical,
+**IK regenerated** (27 lines, P2 0-5, 270.1 s, browser = native; before 42 lines, P2 0-3, 419.4 s). The manual's CPU VS CPU row mentions the
+matchup CPUs.
+
+**The search in numbers**: 3 rounds, 45 cells dispatched (8 + 7 + 7 a side, plus the two v0 agents), 44 delivered; every rescore reproduced its
+cell's own 40-seed line. Dreaming: the topk policy (refine the top ceil(1 + 3 β) branches) replaced the baseline policy after round 1 and kept
+winning the compare (replay reward 0.29 / 0.30 on three worlds, the baseline policy −0.01); it saved one cell a side per round. The gains came
+from the cells' diagnoses (located bugs, stale-SNAP timing, perfect-Hoho windows), as in DREAM_RSI §6, more than from the replay.

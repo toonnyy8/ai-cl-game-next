@@ -1,6 +1,6 @@
 {
   "policy": "docs/research/ki-ai-drsi/ichigo/policy/current.py",
-  "n_worlds": 1,
+  "n_worlds": 3,
   "max_parallelism": 4,
   "beta_grid": [
     0.0,
@@ -10,32 +10,72 @@
     1.0
   ],
   "pareto": {
-    "auc": 0.0,
-    "parallel_penalty": 0.25,
+    "auc": 0.3117293465163928,
+    "parallel_penalty": 0.3133333333333333,
     "parallelism_weight": 0.05,
-    "reward": -0.0125,
-    "n_traces_scored": 1,
+    "reward": 0.2960626798497261,
+    "n_traces_scored": 3,
     "per_trace": [
       {
         "name": "r01",
         "run_best": 0.7828,
         "n_evaluated": 8,
-        "auc": 0.0,
-        "parallel_penalty": 0.25,
+        "auc": 0.375,
+        "parallel_penalty": 0.3038095238095238,
         "front": [
           {
             "beta": 0.0,
-            "total_budget": 8.0,
+            "total_budget": 5.0,
             "attain": 1.0
           }
         ],
-        "varies": false
+        "varies": true
+      },
+      {
+        "name": "r02",
+        "run_best": 0.8333,
+        "n_evaluated": 7,
+        "auc": 0.27769110764430577,
+        "parallel_penalty": 0.3180952380952381,
+        "front": [
+          {
+            "beta": 0.0,
+            "total_budget": 5.0,
+            "attain": 0.9438377535101403
+          },
+          {
+            "beta": 0.25,
+            "total_budget": 6.0,
+            "attain": 1.0
+          }
+        ],
+        "varies": true
+      },
+      {
+        "name": "r03",
+        "run_best": 0.8614,
+        "n_evaluated": 7,
+        "auc": 0.28249693190487246,
+        "parallel_penalty": 0.3180952380952381,
+        "front": [
+          {
+            "beta": 0.0,
+            "total_budget": 5.0,
+            "attain": 0.9887392616670536
+          },
+          {
+            "beta": 0.5,
+            "total_budget": 7.0,
+            "attain": 1.0
+          }
+        ],
+        "varies": true
       }
     ]
   },
   "qualified": true,
   "disqualified_reason": null,
-  "non_degenerate": false,
+  "non_degenerate": true,
   "grid": [
     {
       "beta": 0.0,
@@ -46,26 +86,31 @@
           "n_evaluated": 8,
           "beta": 0.0,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 1,
-              "reason": "fallback grid",
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
           "status": "ok",
           "best": 0.7828,
-          "total_budget": 8,
+          "total_budget": 5,
           "decision_rounds": 2,
           "effective_sequential_rounds": 2,
           "batch_sizes": [
             4,
-            4
+            1
           ],
           "events": [
             {
@@ -119,38 +164,213 @@
                 "legal": 4
               },
               "batch": [
-                "b0_a1",
-                "b1_a1",
-                "b2_a1",
-                "b3_a1"
+                "b2_a1"
               ],
               "outcomes": [
-                {
-                  "cell": "b0_a1",
-                  "score": 0.6652,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.017199999999999993
-                },
-                {
-                  "cell": "b1_a1",
-                  "score": 0.7754,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.11709999999999998
-                },
                 {
                   "cell": "b2_a1",
                   "score": 0.7828,
                   "fail_class": "ok",
                   "delta_vs_parent": 0.0677000000000001
-                },
-                {
-                  "cell": "b3_a1",
-                  "score": 0.7241,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.04139999999999999
                 }
               ],
               "best_after": 0.7828
+            }
+          ]
+        },
+        {
+          "name": "r02",
+          "run_best": 0.8333,
+          "n_evaluated": 7,
+          "beta": 0.0,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.7865,
+          "total_budget": 5,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            1
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.4151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.584,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.0,
+                  "fail_class": "resource",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.7151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.7151
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.7151,
+                "legal": 3
+              },
+              "batch": [
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b3_a1",
+                  "score": 0.7865,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.07140000000000002
+                }
+              ],
+              "best_after": 0.7865
+            }
+          ]
+        },
+        {
+          "name": "r03",
+          "run_best": 0.8614,
+          "n_evaluated": 7,
+          "beta": 0.0,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.8517,
+          "total_budget": 5,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            1
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.8387,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.8407,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.8517,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.8343,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.8517
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.8517,
+                "legal": 3
+              },
+              "batch": [
+                "b2_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b2_a1",
+                  "score": 0.8477,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0040000000000000036
+                }
+              ],
+              "best_after": 0.8517
             }
           ]
         }
@@ -166,26 +386,31 @@
           "n_evaluated": 8,
           "beta": 0.25,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 1,
-              "reason": "fallback grid",
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
           "status": "ok",
           "best": 0.7828,
-          "total_budget": 8,
+          "total_budget": 6,
           "decision_rounds": 2,
           "effective_sequential_rounds": 2,
           "batch_sizes": [
             4,
-            4
+            2
           ],
           "events": [
             {
@@ -239,24 +464,10 @@
                 "legal": 4
               },
               "batch": [
-                "b0_a1",
-                "b1_a1",
                 "b2_a1",
                 "b3_a1"
               ],
               "outcomes": [
-                {
-                  "cell": "b0_a1",
-                  "score": 0.6652,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.017199999999999993
-                },
-                {
-                  "cell": "b1_a1",
-                  "score": 0.7754,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.11709999999999998
-                },
                 {
                   "cell": "b2_a1",
                   "score": 0.7828,
@@ -271,6 +482,216 @@
                 }
               ],
               "best_after": 0.7828
+            }
+          ]
+        },
+        {
+          "name": "r02",
+          "run_best": 0.8333,
+          "n_evaluated": 7,
+          "beta": 0.25,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.8333,
+          "total_budget": 6,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            2
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.4151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.584,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.0,
+                  "fail_class": "resource",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.7151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.7151
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.7151,
+                "legal": 3
+              },
+              "batch": [
+                "b1_a1",
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b1_a1",
+                  "score": 0.8333,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.24930000000000008
+                },
+                {
+                  "cell": "b3_a1",
+                  "score": 0.7865,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.07140000000000002
+                }
+              ],
+              "best_after": 0.8333
+            }
+          ]
+        },
+        {
+          "name": "r03",
+          "run_best": 0.8614,
+          "n_evaluated": 7,
+          "beta": 0.25,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.8517,
+          "total_budget": 6,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            2
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.8387,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.8407,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.8517,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.8343,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.8517
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.8517,
+                "legal": 3
+              },
+              "batch": [
+                "b1_a1",
+                "b2_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b1_a1",
+                  "score": 0.8472,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.00649999999999995
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.8477,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0040000000000000036
+                }
+              ],
+              "best_after": 0.8517
             }
           ]
         }
@@ -286,26 +707,31 @@
           "n_evaluated": 8,
           "beta": 0.5,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 1,
-              "reason": "fallback grid",
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
           "status": "ok",
           "best": 0.7828,
-          "total_budget": 8,
+          "total_budget": 7,
           "decision_rounds": 2,
           "effective_sequential_rounds": 2,
           "batch_sizes": [
             4,
-            4
+            3
           ],
           "events": [
             {
@@ -359,18 +785,11 @@
                 "legal": 4
               },
               "batch": [
-                "b0_a1",
                 "b1_a1",
                 "b2_a1",
                 "b3_a1"
               ],
               "outcomes": [
-                {
-                  "cell": "b0_a1",
-                  "score": 0.6652,
-                  "fail_class": "ok",
-                  "delta_vs_parent": 0.017199999999999993
-                },
                 {
                   "cell": "b1_a1",
                   "score": 0.7754,
@@ -391,6 +810,230 @@
                 }
               ],
               "best_after": 0.7828
+            }
+          ]
+        },
+        {
+          "name": "r02",
+          "run_best": 0.8333,
+          "n_evaluated": 7,
+          "beta": 0.5,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.8333,
+          "total_budget": 7,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            3
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.4151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.584,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.0,
+                  "fail_class": "resource",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.7151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.7151
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.7151,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.7926,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.37749999999999995
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.8333,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.24930000000000008
+                },
+                {
+                  "cell": "b3_a1",
+                  "score": 0.7865,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.07140000000000002
+                }
+              ],
+              "best_after": 0.8333
+            }
+          ]
+        },
+        {
+          "name": "r03",
+          "run_best": 0.8614,
+          "n_evaluated": 7,
+          "beta": 0.5,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.8614,
+          "total_budget": 7,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            3
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.8387,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.8407,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.8517,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.8343,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.8517
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.8517,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.8614,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.022700000000000053
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.8472,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.00649999999999995
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.8477,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0040000000000000036
+                }
+              ],
+              "best_after": 0.8614
             }
           ]
         }
@@ -406,15 +1049,20 @@
           "n_evaluated": 8,
           "beta": 0.75,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 1,
-              "reason": "fallback grid",
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
@@ -513,6 +1161,230 @@
               "best_after": 0.7828
             }
           ]
+        },
+        {
+          "name": "r02",
+          "run_best": 0.8333,
+          "n_evaluated": 7,
+          "beta": 0.75,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.8333,
+          "total_budget": 7,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            3
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.4151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.584,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.0,
+                  "fail_class": "resource",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.7151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.7151
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.7151,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.7926,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.37749999999999995
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.8333,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.24930000000000008
+                },
+                {
+                  "cell": "b3_a1",
+                  "score": 0.7865,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.07140000000000002
+                }
+              ],
+              "best_after": 0.8333
+            }
+          ]
+        },
+        {
+          "name": "r03",
+          "run_best": 0.8614,
+          "n_evaluated": 7,
+          "beta": 0.75,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.8614,
+          "total_budget": 7,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            3
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.8387,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.8407,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.8517,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.8343,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.8517
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.8517,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.8614,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.022700000000000053
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.8472,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.00649999999999995
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.8477,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0040000000000000036
+                }
+              ],
+              "best_after": 0.8614
+            }
+          ]
         }
       ],
       "status": "ok"
@@ -526,15 +1398,20 @@
           "n_evaluated": 8,
           "beta": 1.0,
           "grid_plan": {
-            "source": "fallback",
-            "requested": null,
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
             "effective": {
               "branch_count": 4,
               "refine_count": 1,
-              "reason": "fallback grid",
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
               "confidence": null
             },
-            "fallback_reason": "planner_returned_none",
+            "fallback_reason": null,
             "clamp_reasons": [],
             "out_of_support": false
           },
@@ -631,6 +1508,230 @@
                 }
               ],
               "best_after": 0.7828
+            }
+          ]
+        },
+        {
+          "name": "r02",
+          "run_best": 0.8333,
+          "n_evaluated": 7,
+          "beta": 1.0,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.8333,
+          "total_budget": 7,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            3
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.4151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.584,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.0,
+                  "fail_class": "resource",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.7151,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.7151
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.7151,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.7926,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.37749999999999995
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.8333,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.24930000000000008
+                },
+                {
+                  "cell": "b3_a1",
+                  "score": 0.7865,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.07140000000000002
+                }
+              ],
+              "best_after": 0.8333
+            }
+          ]
+        },
+        {
+          "name": "r03",
+          "run_best": 0.8614,
+          "n_evaluated": 7,
+          "beta": 1.0,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 1,
+              "reason": "the user's budget: 4 branches x 2 attempts a round (DUEL_MATCHUP_AI \u00a71)",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.8614,
+          "total_budget": 7,
+          "decision_rounds": 2,
+          "effective_sequential_rounds": 2,
+          "batch_sizes": [
+            4,
+            3
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.8387,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.8407,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.8517,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.8343,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.8517
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.8517,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.8614,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.022700000000000053
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.8472,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.00649999999999995
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.8477,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0040000000000000036
+                }
+              ],
+              "best_after": 0.8614
             }
           ]
         }

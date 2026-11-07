@@ -31,6 +31,15 @@
 ;;;; 64 f and after any perfect Hoho, the wake-up Hoho against his meaty J1 (IKS-WAKE), b3_a1's read floor in KESSA, b0_a0's far
 ;;;; k-lunge for :space in KESSA pointer 3; the awakening neutral again, no breaker. New here: pointer 2 against his released forms waits
 ;;;; for his whiff instead of shooting the Getsuga into his lunge (*IKS-P2-WAIT*), and the meaty J1 on his wake-up (IKS-MEATY).
+;;;; Round 3, b0_a0 (間合い管理 first): the shut-gauge lunge (IKS-GAP, *IKS-GAP-P*). His dodge picks the Hoho only if it is open as he
+;;;; perceives her start, else the back Step only within 5.0 m; so while his Hoho is shut (his flash-step on the HUD, or his Hoho seen
+;;;; within its lockout) she dashes out to 6.5 m, stands, and as he walks in lunges (NS3a, KESSA NS3a + SA) once his read of it comes
+;;;; beyond 5.0 m and it still reaches him walking in (her SNAP is 8 frames old: his read comes 2 x 8 frames of his walk short of what
+;;;; she sees). No dash while his move is live.
+;;;; Round 3, b0_a1: the shut-gauge lunge made to fire. The dash-out only on a shut that lasts (*IKS-GAP-DASH-NEED*), not into his
+;;;; Shikai lunge in KESSA (*IKS-GAP-DASH-HIS-FORMS*), and the lunge on her next free frame once she stands (*IKS-GAP-DASH-DT*: the
+;;;; generic cadence let him walk through the band); the NS punish only within reach (*IKS-PUNISH-NS-REACH*); under b2_a0's bait hover
+;;;; (*IKS-BAIT-HOVER*) with its k-SA dodge-stop and perceived reach, and b3_a0's k-SA floor.
 (in-package :duel)
 
 (defparameter *iks-mix* '(:easy (:generic 1.0)
@@ -45,6 +54,10 @@ near the shipped CPU (its win share is the evaluator's NORMAL band); HARD is whe
 NS1a 3.3 / 3.6, NS3b 3.6 / 4.0; Shikai J1 3.0, NS1a 4.6: catalogue's range band). Another form: :nozarashi's.")
 (defparameter *iks-punish-reach* '(3.4 0.0 5.0)
   "Her punisher's reach (m) by pointer against his J whiff: NS1a 3.4 (M29 at 3.2), none under 2 (a charge), NS3a 5.0 (R5).")
+(defparameter *iks-punish-ns-reach* t
+  "The whiff punish against his NS presses only within her punisher's reach (*IKS-PUNISH-REACH*), as against his J; else it waits
+while his move lasts. Round 3 b0_a1: 24 of 28 NS punishes came at 6.6-7.0 m once *IKS-NS-WAIT* ran out (his NS started far, his slide
+never brought him in), whiffed into NS-STOP and ate his Shikai lunge or his dodge.")
 (defparameter *iks-confirm-p* '(:easy 0.0 :normal 0.1 :hard 0.95)
   "In a style mode: punish a whiff SEEN (his perceived move past its active frames with no contact, not a parry), once per his move
 start, with the fastest punisher that reaches and lands inside his perceived recovery (*IKS-PUNISHERS*). Catches the whiffs the
@@ -70,6 +83,18 @@ in first when the frames still fit (pointer 1's NS1a against his NS1a / J1 whiff
 (defparameter *iks-hover-p1* '(:base (3.4 3.8) :nozarashi (4.9 5.3))
   "The :whiff / :space hover band (m) under pointer 1: her J-whiff punisher (NS1a) reaches only 3.4 m (*IKS-PUNISH-REACH*), so v0's
 3.7-4.2 never let her punish his J whiff; 3.4-3.8 stays past his sealed NS1a (3.3 m). b0_a0 2026-11-06: new (v0 used *IKS-HOVER*).")
+(defparameter *iks-bait-hover* '(:base (2.3 2.7) :nozarashi nil)
+  "The hover band (m) by his form for the episodes of *IKS-BAIT-MODES* (NIL: *IKS-HOVER* / *IKS-HOVER-P1*): inside the distance his
+sealed neutral starts its NS1a from (KK-REACH: 2.6 m) and just out of his J1's (1.9 m), so he commits to the NS1a (S14: seen 6 f before
+its hit, inside the timed Hoho's lead window), which the timed Hoho turns into a perfect Hoho's counter, the follow-up's J string and
+AS3. Round 3, b2_a0's bait hover (0.8517 rescored: the 3.4-4.2 m stand-off ended), grafted by b0_a1 under the shut-gauge lunge, which
+still takes the step first while his Hoho is shut.")
+(defparameter *iks-bait-modes* '(:easy nil :normal nil :hard (:whiff :ptr3 :kessa))
+  "By difficulty, the style modes that hover at *IKS-BAIT-HOVER* (round 3, b2_a0). :space keeps *IKS-HOVER*.")
+(defun iks-hover-band (b o mode table)
+  "The hover band (lo hi) for this episode's MODE against O's form: *IKS-BAIT-HOVER* for *IKS-BAIT-MODES*, else TABLE's."
+  (or (and (member mode (brain-chance b *iks-bait-modes*)) (iks-form-get *iks-bait-hover* o))
+      (iks-form-get table o)))
 (defparameter *iks-lunge-band* '(:base (4.0 5.0) :nozarashi (4.8 5.0))
   "Pointer 3: NS3a's lunge from this band (m) when he is not attacking (R5 / R25: only her NS3a reaches 4–5 m sealed; his Shikai
 NS1a reaches 4.6, R15).")
@@ -164,6 +189,16 @@ modes 0.5632 against :space only 0.7271 (20 seeds a seat). HARD only.")
 (defparameter *iks-k-sa-reach* 5.7
   "KESSA NS3a's SA is pressed in its gap while the distance is under this (m): the SA's 2.6 m arc + 3.0 m slide lands from 5.6 m
 (trial X5.6). Was 4.6 (round 2, b0_a0; kept by b3_a0).")
+(defparameter *iks-k-sa-perceived* t
+  "The k-lunge's SA reach tests (*IKS-K-SA-REACH*, *IKS-K-SA-MIN*) read the perceived distance the style is given, not her true
+FIGHTER-DIST (the rule: the opponent only through the SNAP and that distance). Round 3, b2_a0's fix, grafted by b0_a1.")
+(defparameter *iks-k-sa-dodge-stop* t
+  "KESSA pointer 3: the k-lunge's SA is not pressed while his perceived state is a Hoho or a Step (his dodge of the NS3a: KK-READ's
+Hoho puts him 1.6 m behind her, the back Step 2.5 m away); the NS3a ends there and the neutral's timed Hoho takes over (round 3, b2_a0's
+located bug: 21 SAs after a dodge, his hit first 8 times, hers 2). Grafted by b0_a1: the shut-gauge lunge's KESSA form is this k-lunge.")
+(defparameter *iks-k-sa-min* 2.0
+  "KESSA NS3a's SA (the k-lunge) is pressed only from this distance (m) on: under it he has Hohoed through her clone and the SA lunges
+past him (round 3, b3_a0: SAs under 2.0 m, first hit hers 15 / his 15 / none 31; from 2.0 m on 26 / 9). Grafted by b0_a1.")
 (defparameter *iks-lead-vmax* 0.07
   "IKS-PROJ: the perceived distance's change a step is clamped to this (m; a walk is 0.06-0.07 a step) before it is projected over
 her perception delay.")
@@ -240,6 +275,52 @@ it), as his KK-MEATY-STEP.")
 working source: KESSA pointer 3 held 31 of the 35 spacing successes before the meaty, 20 seeds a seat).")
 (defparameter *iks-meaty-far* 3.0 "The meaty is rolled only when he goes down within this distance (m); farther, the style plays on.")
 (defparameter *iks-hoho-j-reach* 1.5 "The follow-up: J1 from within this (m), walking in first (b3_a1).")
+(defparameter *iks-gap-p* '(:easy 0.0 :normal 0.0 :hard 0.9)
+  "間合い管理, the shut-gauge lunge (round 3, b0_a0): one roll per neutral episode (any style mode, both forms, pointer 3). While his Hoho
+is shut (IKS-HIS-HOHO-SHUT-P: his flash-step gauge, drawn on the HUD as GAUGES-RED-P's bar is, under one Hoho outside a Burst, or his
+Hoho seen within its lockout) she dashes out to *IKS-GAP-WAIT*, stands, and as he walks in lunges once his read of it comes beyond his
+back Step (IKS-GAP). His dodge (KK-READ) picks its answer as he perceives her start: the Hoho only if it is open then, else the back
+Step only within *KK-STEP-MAX* 5.0 m; beyond it, with the Hoho shut, her lunge has no answer. The located cause of the sealed lunge's
+losses (round 2 b1_a0: 12 hers / 52 his first hits, his Hoho / back Step through it). NORMAL 0: NORMAL stays the shipped CPU.")
+(defparameter *iks-gap-band* '(:base (5.25 5.1 18) :kessa (5.25 5.6 28))
+  "The shut-gauge lunge by her form: (lo hi hit-frame). Seen walking in C a step, she starts when his read distance (her perceived D
+less 2 C x delay: his position as he perceives her start, against her position at that start) is over LO (his back Step answers
+within 5.0: at 5.03 his reads came at 5.0, so 5.25) and the true distance (D less C x delay) within HI, her reach against a standing
+target, plus his approach over HIT-FRAME (he walks into the lunge). Sealed NS3a hits from 5.1 m, misses at 5.2 (trials S5.1 / S5.2,
+round 3), first hit f18; KESSA NS3a + its SA lands to 5.6 (round 2 b0_a0's X5.6), the SA's hit about f28.")
+(defparameter *iks-gap-cmin* 0.05
+  "The shut-gauge lunge starts only while he is seen walking in at least this fast (m a step, IKS-CLOSING): her SNAP is 8 frames old,
+and a walk he began inside those frames reads as standing (round 3, b0_a0's first try: lunges from a perceived 5.05-5.1 m met his read
+at 3.8-3.9 m, his back Step). Seen walking in, he keeps walking into the lunge after his read.")
+(defparameter *iks-gap-wait* 6.5
+  "The shut-gauge lunge: she backs off to this distance (m, perceived) and stands, so his walk-in is seen before he reaches the band
+(seen walking in at 0.07 m a step, the band is a perceived 6.15-6.9 m sealed, 6.15-8.1 in KESSA).")
+(defparameter *iks-gap-dash-over* 0.3
+  "The shut-gauge lunge backs off by a dash to *IKS-GAP-WAIT* plus this (m): a walk back never opens the gap, he follows at her pace
+(round 3 b0_a0's second try: 150 frames at a perceived 3.6-3.9 m, him walking in behind her).")
+(defparameter *iks-gap-max* 150
+  "The shut-gauge lunge: frames of one neutral episode it may spend backing off and waiting (no stalling: then the patient play).")
+(defparameter *iks-gap-fs* 96.0
+  "His Hoho counts as shut while his flash-step is under this (a Hoho costs *FS-HOHO* 100; he refills 9 a second, about 3 over the
+frames until he perceives her start).")
+(defparameter *iks-gap-lockout* 48
+  "His Hoho counts as shut this many frames from the start of his last Hoho seen (*HOHO-LOCKOUT* 60 less his perception delay 8 and a
+margin).")
+(defparameter *iks-gap-dash-need* 90
+  "The shut-gauge lunge dashes out only while his Hoho stays shut at least this many more frames (IKS-HIS-SHUT-LEFT: his flash-step's
+climb back to *IKS-GAP-FS* at *FS-REGEN*, or his lockout's end); the lunge itself still fires on any shut. Round 3 b0_a1: of 161 spacing
+situations with a dash, 122 saw no lunge (15 ok); most dashes came at a flash-step of 91-95 (reopened within 0.3 s) or on the lockout
+alone (48 f, shorter than the dash), and the dash carried her across 4-5 m for nothing.")
+(defparameter *iks-gap-dash-dt* 1
+  "Frames before the next own decision after the shut-gauge lunge's dash-out (NIL: the generic cadence, *CAI-THINK* + up to 12). The
+lunge is the same plan's next press: with the generic cadence (22-34 frames at HARD, counted only once she stands) he walked through
+the 0.55 m lunge band (8 frames at his 0.07 m a step) before she could press, she found him inside it and dashed out again (round 3
+b0_a1: 417 dash-outs and 105 lunges in 40 HARD matches, runs of three dashes at a perceived 6.3 m). The lunge still waits until she
+stands (FIGHTER-STATE :idle): out of her own dash-out's run its carry is away from him.")
+(defparameter *iks-gap-dash-his-forms* '(:base (:base :nozarashi :bankai :bankai-2) :kessa (:base :bankai :bankai-2))
+  "By her form, his forms the shut-gauge lunge dashes out against. His Shikai lunge KE-S-N1A (2.6 + 3.0 m slide) catches the dash's step
+from 5.6 m; in KESSA that damage is the KESSA ledger's (round 3 b0_a1, paired 20 seeds a seat: dashing against his Shikai in both forms
+spacing 0.237, kessa 0.725; in neither 0.170, 0.925).")
 
 (defstruct (ikst (:constructor make-ikst ()))
   "Ichigo's KI style state (BRAIN-STYLE)."
@@ -261,7 +342,9 @@ working source: KESSA pointer 3 held 31 of the 35 spacing successes before the m
   (hoho-t -1 :type fixnum)              ; the tick of her last timed Hoho (-1: none, or its follow-up done)
   (mode-mv :generic)                    ; the mode of the episode her move in progress started from
   (last-d 0f0)                          ; the perceived distance at the previous call (IKS-PROJ)
-  (down nil) (meaty nil))               ; his knockdown seen (its roll made); the meaty roll's result (T: go)
+  (down nil) (meaty nil)                ; his knockdown seen (its roll made); the meaty roll's result (T: go)
+  (gap nil) (gap-t 0 :type fixnum)      ; this episode's shut-gauge lunge roll: NIL unmade, :go, :no; frames spent on it
+  (his-hoho -999 :type fixnum))         ; the start tick of his last Hoho seen (IKS-HIS-HOHO-SHUT-P)
 
 (defun iks-pick (plist r)
   "The key of weight plist PLIST that roll R in [0,1) falls on (weights normalised)."
@@ -346,7 +429,8 @@ J, after *IKS-NS-WAIT* against an NS. One roll per his move start. T when presse
           (when (and (eq (ikst-punish st) :go)
                      (if (eq oc :na)
                          (<= d (nth (1- (fighter-ptr f)) *iks-punish-reach*))   ; (his J's whiff: only within her punisher's reach)
-                         (>= (- *match-tick* (snap-start s)) (brain-chance b *iks-ns-wait*))))   ; (his NS's slide brings him in: M20)
+                         (and (>= (- *match-tick* (snap-start s)) (brain-chance b *iks-ns-wait*))   ; (his NS's slide brings him in: M20)
+                              (or (not *iks-punish-ns-reach*) (<= d (nth (1- (fighter-ptr f)) *iks-punish-reach*))))))
             (setf (ikst-punish st) :done)
             (iks-sp e b f st (if (eq oc :na) :punish-j :punish-ns) d (and (= (fighter-ptr f) 3) :lunge))))
         (iks-confirm e b f st s d oc))))
@@ -418,6 +502,55 @@ pressed (b3_a1's IKS-KESSA-HOHO)."
 Only perceived distances are used (b0_a0)."
   (let ((v (max (- *iks-lead-vmax*) (min *iks-lead-vmax* (- d (ikst-last-d st))))))
     (+ d (* v (brain-delay b)))))
+
+(defun iks-his-hoho-shut-p (o st)
+  "Is opponent O's Hoho shut: his flash-step (HUD) under *IKS-GAP-FS*, or his last Hoho seen started within *IKS-GAP-LOCKOUT*?"
+  (let ((g (gauges o)))
+    (or (and (< (gauges-fs g) *iks-gap-fs*) (not (gauges-burst g)))   ; (a Burst's end gives the gauge back: B0 BURST END, then his Hoho)
+        (< (- *match-tick* (ikst-his-hoho st)) *iks-gap-lockout*))))
+
+(defun iks-his-shut-left (o st)
+  "Frames his Hoho stays shut (IKS-HIS-HOHO-SHUT-P) at the least: the longer of his flash-step's climb to *IKS-GAP-FS* (0 in a Burst)
+and his lockout's rest."
+  (let ((g (gauges o)))
+    (max (if (gauges-burst g) 0 (/ (- *iks-gap-fs* (gauges-fs g)) (/ *fs-regen* 60.0)))
+         (- *iks-gap-lockout* (- *match-tick* (ikst-his-hoho st))))))
+
+(defun iks-closing (e b d)
+  "His perceived approach speed (m a step, toward her: positive), from the SNAP she sees now and the one a step older (both from her
+brain's ring, so a held press in between does not blank it), measured from her own position now (her own walk is not in it), clamped
+to -0.1..0.12."
+  (let* ((ring (brain-ring b)) (n (length ring)) (q (svref ring (mod (- (brain-head b) (brain-delay b) 2) n))) (p (pos-of e)))
+    (and q (< (+ (brain-delay b) 2) n)
+         (max -0.1 (min 0.12 (- (sqrt (+ (expt (- (snap-x q) (aref p 0)) 2) (expt (- (snap-z q) (aref p 2)) 2))) d))))))
+
+(defun iks-gap (e b f st s d vp)
+  "The shut-gauge lunge (*IKS-GAP-P*): at pointer 3, his Hoho shut, the episode's roll said yes, for *IKS-GAP-MAX* frames. Her perceived D
+is to his position BRAIN-DELAY steps ago; seen walking in C a step (*IKS-GAP-CMIN*), the true distance is D - C*delay and his read of
+her start (another delay later) D - 2C*delay. So: back off to *IKS-GAP-WAIT* and stand; as he walks in, NS3a (KESSA: NS3a then its SA)
+once his read comes beyond his back Step and the lunge still reaches him walking in (*IKS-GAP-BAND*). T when decided."
+  (when (and (= (fighter-ptr f) 3) (iks-his-hoho-shut-p (fighter-opp f) st)
+             (progn (unless (ikst-gap st) (setf (ikst-gap st) (if (brain-roll b *iks-gap-p*) :go :no) (ikst-gap-t st) 0))
+                    (eq (ikst-gap st) :go))
+             (<= (incf (ikst-gap-t st)) *iks-gap-max*))
+    (let* ((kessa (eq (fighter-form f) :kessa)) (c0 (iks-closing e b d)) (c (or c0 0.0)) (dl (brain-delay b))
+           (walking (and c0 (>= c *iks-gap-cmin*))))
+      (destructuring-bind (lo hi hitf) (getf *iks-gap-band* (if kessa :kessa :base))
+        (let ((plo (+ lo (* 2 c dl))) (phi (+ hi (* c (+ hitf dl)))))
+          (cond ((and walking (member (snap-state s) '(:idle :run)) (< plo d) (<= d phi) (<= (ikst-dt st) 0)
+                      (eq (fighter-state f) :idle))            ; (not out of her own dash-out's run: its carry is away from him)
+                 (iks-sp e b f st :gap-lunge d (if kessa :k-lunge :lunge)))
+                ((eq (snap-state s) :move) nil)                ; (his move live: no dash, the Hoho / punish / confirm keep it)
+                ((< d (if walking plo *iks-gap-wait*))         ; (he follows a walk back at her pace: dash out, then stand)
+                 (when (or (>= d *iks-gap-wait*)               ; (a shut about to reopen, or his form's lunge on the step: no dash,
+                           (and (>= (iks-his-shut-left (fighter-opp f) st) *iks-gap-dash-need*)   ;  the patient play keeps the step)
+                                (member (fighter-form (fighter (fighter-opp f)))
+                                        (getf *iks-gap-dash-his-forms* (if kessa :kessa :base)))))
+                   (iks-log e st :gap-dash d)
+                   (ai-dash b -1 (+ *iks-gap-wait* *iks-gap-dash-over*))
+                   (when *iks-gap-dash-dt* (setf (ikst-dt st) *iks-gap-dash-dt*))   ; (the lunge is this plan's own next press)
+                   t))
+                (t t)))))))                                   ; (out there: stand and let him come)
 
 (defun iks-wake (e b f st d)
   "Her first free frame after a wake-up with him near (*IKS-WAKE-HOHO-NEAR*): the Hoho (one roll per wake-up, b3_a0). T when pressed."
@@ -499,10 +632,11 @@ decides."
        (ai-press b :awaken 1 :modded t)
        t)
       ((= ptr 2) (iks-pointer-2 e b f st s d vp))               ; (before the wait's end: never a charge in his face)
+      ((iks-gap e b f st s d vp))                               ; (pointer 3, his Hoho shut: the lunge beyond his back Step)
       ((and (> (ikst-ep-t st) (brain-chance b *iks-wait-max*)) (not patient)) nil)   ; waited long enough: the generic plays on
       ((and kessa (eq mode :kessa) (/= ptr 3) (null *iks-kessa-chain-band*))   ; (no chains: wait for his whiff)
        (if (< d 1.7) nil
-           (destructuring-bind (hlo hhi) (iks-form-get *iks-hover-p1* o) (iks-walk e b vp d hlo hhi))))
+           (destructuring-bind (hlo hhi) (iks-hover-band b o mode *iks-hover-p1*) (iks-walk e b vp d hlo hhi))))
       ((and kessa (= ptr 3) (member mode (brain-chance b *iks-kessa-space-modes*)))   ; KESSA pointer 3: the k-lunge beyond his back Step
        (destructuring-bind (clo chi) *iks-kessa-lunge-band*
          (if (and calm (<= clo (iks-proj b st d) chi) (<= (ikst-dt st) 0))
@@ -527,10 +661,10 @@ decides."
        (iks-sp e b f st :walk-in d))
       ((or patient (member mode '(:space :whiff)))
        (if (< d 1.7) nil
-           (destructuring-bind (hlo hhi) (iks-form-get (if (= ptr 1) *iks-hover-p1* *iks-hover*) o) (iks-walk e b vp d hlo hhi))))
+           (destructuring-bind (hlo hhi) (iks-hover-band b o mode (if (= ptr 1) *iks-hover-p1* *iks-hover*)) (iks-walk e b vp d hlo hhi))))
       (t nil))))
 
-(defun iks-move (e b f kit s)
+(defun iks-move (e b f kit s d)
   "A style mode's step inside her own move (decides once per move, as CAI-MOVE-STEP: BRAIN-DECIDED). T when decided."
   (let* ((st (brain-style b)) (mv (fighter-move f)) (cls (fighter-cls f)) (o (fighter-opp f)) (oc (cai-class-of o s))
          (kessa (eq (fighter-form f) :kessa)))
@@ -566,9 +700,16 @@ decides."
                   (setf (brain-decided b) (fighter-cls-t f))
                   (cai-press b :quick 1 t)
                   t)
-                 ((and (eq (ikst-plan st) :k-lunge) (eq mv (kit-core-move kit :ns 3)) (< (fighter-dist f) *iks-k-sa-reach*))   ; KESSA NS3a > SA
+                 ((and (eq (ikst-plan st) :k-lunge) (eq mv (kit-core-move kit :ns 3)) *iks-k-sa-dodge-stop*
+                       (member (snap-state s) '(:hoho :step)))   ; his dodge seen: no SA into it, NS3a ends here (b2_a0)
+                  (setf (brain-decided b) (fighter-cls-t f) (ikst-plan st) nil)
+                  (clog "~a ki-style kessa k-sa-stop ~(~a~) d ~,1f" (side-name e) (snap-state s) d)
+                  t)
+                 ((and (eq (ikst-plan st) :k-lunge) (eq mv (kit-core-move kit :ns 3))
+                       (< (if *iks-k-sa-perceived* d (fighter-dist f)) *iks-k-sa-reach*)
+                       (>= (if *iks-k-sa-perceived* d (fighter-dist f)) *iks-k-sa-min*))   ; KESSA NS3a > SA
                   (setf (brain-decided b) (fighter-cls-t f) (ikst-skey st) -1)
-                  (clog "~a ki-style kessa k-sa d ~,1f" (side-name e) (fighter-dist f))
+                  (clog "~a ki-style kessa k-sa d ~,1f" (side-name e) d)
                   (cai-press b :quick 1)
                   t)
                  ((and (eq (ikst-plan st) :g-sa) (eq mv (kit-core-move kit :ns 2)))   ; the confirm's NS2a > its gap's SA
@@ -623,6 +764,8 @@ pressed."
                 (ikst-meaty st) (and (<= d *iks-meaty-far*) (member (fighter-form f) *iks-meaty-forms*) (brain-roll b *iks-meaty-p*)))
           (when (ikst-meaty st) (clog "~a ki-style meaty armed d ~,1f" (side-name e) d)))
         (setf (ikst-down st) nil (ikst-meaty st) nil))
+    (when (eq (snap-state s) :hoho)                     ; (his Hoho seen: its start tick, for IKS-HIS-HOHO-SHUT-P)
+      (setf (ikst-his-hoho st) (- *match-tick* (snap-sf s) (brain-delay b))))
     (when (and (member state '(:idle :run)) (plusp (fighter-invuln f)) (getf *iks-burst-no-hoho* (brain-difficulty b)))
       (setf (brain-hoho-roll b) 1f0))                    ; (after her Burst: the stale SNAP's attack is not Hohoed)
     (prog1
@@ -631,7 +774,8 @@ pressed."
            (when (iks-new-episode-p e st)
              (setf (ikst-mode st) (iks-pick (brain-chance b *iks-mix*) (sim-rnd01))
                    (ikst-mode-mv st) (ikst-mode st) (ikst-plan st) nil
-                   (ikst-ep-t st) 0 (ikst-pend st) nil (ikst-retreat st) nil (ikst-awaken st) nil (ikst-dt st) 0))
+                   (ikst-ep-t st) 0 (ikst-pend st) nil (ikst-retreat st) nil (ikst-awaken st) nil (ikst-dt st) 0
+                   (ikst-gap st) nil))
            (incf (ikst-ep-t st))
            (cond ((and (eq (ikst-last-st st) :wakeup) (iks-wake e b f st d)))
                  ((iks-hoho-follow e b st s d (pilot-vpad (pilot e))))
@@ -641,7 +785,7 @@ pressed."
                  (t (or (iks-neutral e b f kit s d) (iks-generic e b f kit s d)))))
           (:move (if (eq (ikst-mode-mv st) :generic)
                      (and (getf *iks-generic-kikon* (brain-difficulty b)) (iks-generic e b f kit s d))
-                     (or (iks-move e b f kit s) (iks-generic e b f kit s d))))
+                     (or (iks-move e b f kit s d) (iks-generic e b f kit s d))))
           ((:stun :air) (iks-break e b f st))
           (:hoho (when (and (getf *iks-follow-any-perfect* (brain-difficulty b)) (fighter-perfect f))   ; (any perfect Hoho: the follow-up's clock)
                    (setf (ikst-hoho-t st) (- *match-tick* (fighter-sf f))))
