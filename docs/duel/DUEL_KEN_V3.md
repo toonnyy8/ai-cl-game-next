@@ -1376,3 +1376,5 @@ User: 「幫我將劍八卍解的刀柄變細成 0.8 倍」.
   5 -> 4 cm, the wrap seams 5.4 -> 4.3 cm, the black butt 5.8 -> 4.6 cm. Its length (*KE-BK-HAFT* 1.69), the grip, the black bar and the
   head are unchanged, as is Nozarashi (the Shikai has its own builder since §22).
 - Presentation only: the drawn reach (the head's far end) does not move.
+- **Again x0.8** (the user, the same day: 「再次變細 0.8 倍」): `*ke-bk-haft-w*` 0.8 -> **0.64**. The haft is now 3.2 cm, the seams
+  3.5 cm, the butt 3.7 cm (DEVLOG §620).

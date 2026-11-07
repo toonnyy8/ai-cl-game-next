@@ -469,8 +469,9 @@
 the same day: 「幫我將刀柄加長 1.3 倍」, longer downward: 0.99 -> 1.28 m).")
 (defparameter *ke-bk-grip* 0.5 "Where the right hand holds its haft: the fraction of the white haft below its top (0.08), as *KE-NOZ-GRIP* (2026-11-04, the
 user: 「角色持握 0.5 的位置」; 0 before: the hand at the haft's top).")
-(defparameter *ke-bk-haft-w* 0.8 "The broken cleaver's haft thickness (its white boxes, the wrap seams, the black butt; not its length) x this:
-1 -> 0.8 (the user, 2026-11-07: 「幫我將劍八卍解的刀柄變細成 0.8 倍」, DEVLOG §619): 5 -> 4 cm.")
+(defparameter *ke-bk-haft-w* 0.64 "The broken cleaver's haft thickness (its white boxes, the wrap seams, the black butt; not its length) x this:
+1 -> 0.8 (the user, 2026-11-07: 「幫我將劍八卍解的刀柄變細成 0.8 倍」, DEVLOG §619): 5 -> 4 cm; -> 0.64 (「再次變細 0.8 倍」, the same day,
+DEVLOG §620): 3.2 cm.")
 (defun ke-bk-grip-y () "How far the broken cleaver slides out of the hand for *KE-BK-GRIP*, m (0.56)." (- (* *ke-bk-grip* 0.76 *ke-bk-haft*) 0.08))
 (defparameter *ke-bk-size* 0.9 "The whole broken cleaver (haft, bar, head) scaled about the hand (2026-11-04, the user: 「整體縮小成 0.8 倍，刀身額外再
 縮小成 0.8 倍」, then 「兩個倍率都從 0.8 改成 0.9」; 1 before).")
