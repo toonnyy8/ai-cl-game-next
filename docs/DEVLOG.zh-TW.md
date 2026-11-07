@@ -7036,3 +7036,23 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
 **試玩版**：v352。Artifact 自己的 index.html 只拿掉 `webgpu` run dependency（不用 dist 的頁面），index.js／index.wasm 的雜湊確認和建置結果一致。
 
 **文件**：docs/engine/ARCHITECTURE.md「Performance conventions」、AGENTS.md 的 Gotchas、engine/lisp/app.lisp 開頭的說明。
+
+## 623. AI 下一步：像人、讀得懂；先做模擬存檔與離線 MCTS（2026-11-07）
+
+使用者：「繼續跟我討論 AI 設計」→ 用 AskUserQuestion 問了兩題：
+
+- CPU 下一步的主要目標：「像人、讀得懂」（另外三個選項是更強、每組對戰有個性、難度曲線平滑）。
+- 先從哪一步開始：「狀態存檔 + 離線 MCTS」（我推薦的是先把通用 CPU 模糊化；另外兩個選項是下一組風格 CPU、先寫設計文件）。
+
+量測：
+
+- 原生模擬：單一程序每秒約 15.4 萬步（IK 20 場，turbo，含雙方 CPU）。之前說的「每秒 7,000 步以上」只是保守下限，加上 §621–§622 的優化後已經快很多。
+- 用 `fork()` 當存檔：在載入完整遊戲、打到一半的原生程序裡，fork、子程序結束、父程序回收一輪要 1.74 ms（heap 只有 4 MB 時是 0.39 ms）；子程序的修改不會影響父程序。
+- 換算下來，一次 60 步的試跑約 2.1 ms，每核心每秒約 470 次，16 個程序約 7,500 次。
+
+設計和待討論的問題記在 docs/duel/DUEL_AI_TEACHER.md：
+
+- 存檔方式：fork 或引擎內建存檔；
+- 試跑時的對手模型；
+- 「像人」怎麼量化；
+- 試點組合。
