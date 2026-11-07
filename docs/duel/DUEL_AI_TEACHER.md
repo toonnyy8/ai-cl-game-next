@@ -61,8 +61,10 @@ the answers in the session of 2026-11-07).
   handles, so a hazard spawned in a rollout leaves no trace), the C sim RNG, and the game's registered globals (the match clock, the
   flow, the cinematic, hitstop and slow motion, ...). The list grows by what the test finds; it is not classified by hand up front.
 - **When**: only in battle and outside a cinematic (`snapshot` returns NIL otherwise).
-- **A rollout**: `sim-step`s with the logs off (`*pacing-log*`, `*combat-log*`, `*gate-log*`, `*step-hook*`), ending at a K.O.,
-  time-up, a cinematic or the flow leaving battle.
+- **A rollout**: `sim-step`s with the logs off (`*pacing-log*`, `*combat-log*`, `*gate-log*`, `*step-hook*`), ending when the flow leaves
+  the battle. Since §6 it skips cinematics (`*skip-cines*`: one ends at once with its AFTER), so a Kikon's Konpaku is settled inside the
+  rollout and it goes on (it used to stop at a cinematic's start, which left the Kikon's result out); the pollution test passed again
+  with it (IK, KK, 4 seeds).
 - **Pass condition (the pollution test, native sim)**: the same seeded matches run straight and with a rollout every ~40 ticks
   (snapshot, 60–120 steps on a reseeded sim RNG so the CPUs play differently, restore); every hash / gate / pacing line and every result
   must match the straight run. Pairings IK and KI (the KI style CPUs on: the rollout opponents chosen in §1), II and KK.
@@ -85,3 +87,49 @@ the answers in the session of 2026-11-07).
   rollouts a second a core, ~48,000 on 16 processes (fork: ~7,500). A teacher snapshots once per decision point and restores per
   rollout, so restore is the cost that counts.
 - **Inert**: host tests, pkgcheck, G2 identical native and browser; nothing in play calls it. wasm 10.99 -> 11.00 MB.
+
+## 6. The teacher, stage 1: action values (2026-11-08)
+
+`tools/simgate/teacher.lisp` (offline only; not in the game). Asked: 「OK」 to the plan (a macro executor, a score, the KI pilot).
+
+- **Decision points**: a side that is free (idle or running), its brain holding no press, the sim snapshottable; at most one per side
+  every 20 ticks, from tick 2.
+- **Macro actions** through the side's brain (the CPU's own press fields, so the input path is the CPU's): J1, SP (the pointer's NS, a
+  tap), Hoho, Step in / out / sideways, guard 20 f, wait 20 f, walk in / out 20 f (the stick alone). A probe from one point (IK, tick 370,
+  5.4 m) showed each doing its own thing: walk in 5.4 -> 3.9 m in 12 steps, wait 4.6 (he came in), Step out 6.9, Hoho to 1.4.
+- **A sample**: restore, the sim RNG reseeded with the sample's seed (the same 16 seeds for every action: common random numbers), the
+  press, then 180 steps (3 s) with the side on the generic CPU and the opponent on its style CPU in even samples, the generic CPU in odd
+  ones (the mixed opponent model, §1), cinematics skipped.
+- **The score**: the opponent's health lost minus the side's, health = Konpaku + 1.5 x the Reishi bar's fraction (~3 Konpaku cash out
+  of a bar by Kikon / Soul Break, halved; a knob). 90 steps left too many ties: 1.5 of a point's 10 actions tied another exactly (the
+  same seeds, no hit changed), 0.74 at 180.
+- **Untouched match**: the match plays on after each point exactly as without the teacher (IK seed 1's gate row equal to the straight
+  run's).
+- **Cost**: IK seeds 1–20 on 16 processes in 3 min 5 s: 10,589 decision points, 1,694,240 rollouts.
+- **The table** (P1 Ichigo, P2 Kenpachi; `tools/teach-summary.py`, situations with 40+ points; the best, the second, the worst by mean):
+
+| Side | Distance | Opponent | n | Best | Second | Worst |
+|---|---|---|---|---|---|---|
+| Ichigo | < 2 m | idle | 1038 | J1 +0.020 | SP −0.022 | Step in −0.135 |
+| Ichigo | < 2 m | in his move's active part | 634 | J1 +0.085 | Hoho +0.007 | wait −0.089 |
+| Ichigo | < 2 m | stunned | 198 | J1 +0.110 | SP −0.008 | wait −0.118 |
+| Ichigo | < 2 m | down | 170 | wait +0.048 | guard +0.047 | J1 −0.044 |
+| Ichigo | < 2 m | waking up | 77 | SP +0.133 | walk in +0.062 | J1 −0.108 |
+| Ichigo | 2–4 m | idle | 1535 | Step out −0.026 | Step side −0.037 | Step in −0.167 |
+| Ichigo | 2–4 m | down | 145 | Hoho +0.092 | walk in +0.084 | Step out −0.036 |
+| Ichigo | 7+ m | idle | 299 | walk out +0.077 | Hoho +0.035 | Step in −0.085 |
+| Kenpachi | < 2 m | idle | 997 | J1 +0.085 | SP +0.068 | Step in −0.024 |
+| Kenpachi | < 2 m | in Ichigo's move's active part | 349 | Hoho +0.079 | J1 +0.046 | wait −0.100 |
+| Kenpachi | < 2 m | stunned | 307 | J1 +0.183 | SP +0.150 | Step side +0.007 |
+| Kenpachi | 2–4 m | idle | 1566 | SP +0.150 | J1 +0.073 | Step in −0.031 |
+| Kenpachi | 2–4 m | down | 493 | Step in +0.117 | wait +0.108 | SP +0.028 |
+| Kenpachi | 2–4 m | waking up | 40 | SP +0.195 | walk in +0.074 | J1 −0.032 |
+| Kenpachi | 4–7 m | idle | 411 | Step out +0.068 | walk out +0.029 | SP −0.012 |
+| Kenpachi | 7+ m | idle | 301 | walk out +0.124 | walk in +0.114 | SP +0.014 |
+
+- **Reads as**: a stun is punished with J1 on both sides; in his move's active part close, Kenpachi Hohos and waiting is the worst;
+  a fallen opponent: Ichigo doesn't press into the wake-up, Kenpachi steps in for the meaty; the wake-up itself is SP's; mid range is
+  Kenpachi's (his SP +0.150; Ichigo's every option there negative, Step in the worst), as the KI search found.
+- **The bias to remember**: far off, backing away is best for both. The rollouts' continuation is the generic CPU, which walks into the
+  other's reach, so whoever comes in loses. The values are "against these CPUs", not against a person; the next stage has to decide
+  what the continuation and the opponent should be.

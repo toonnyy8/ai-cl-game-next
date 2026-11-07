@@ -1,0 +1,105 @@
+;;;; teacher.lisp — the offline MCTS teacher, stage 1: how good each macro action is in the situations a real match reaches
+;;;; (docs/duel/DUEL_AI_TEACHER.md §6). One simgate process plays seeded CvC gate matches like tools/simgate/run.lisp (the matchup
+;;;; style CPUs on where they exist). At a decision point of a side (it is free: idle or running, its brain holds no press, the sim
+;;;; may be snapshotted; at most one per side every *TEACH-GAP* ticks) it snapshots the sim, then for each macro action and each of
+;;;; *TEACH-K* samples: restore, reseed the sim RNG with the sample's seed (the same seeds for every action: common random numbers),
+;;;; press the action through the side's brain (the CPU's own press fields: the input path the CPU uses), let the rest play with the
+;;;; side on the generic CPU and the opponent on its style CPU in even samples, the generic CPU in odd ones (the mixed opponent model,
+;;;; §1), for *TEACH-H* steps (cinematics skipped), and score it. Then it restores and the match goes on untouched (the snapshot's
+;;;; pollution test, §5, is what makes that true).
+;;;; Output: one "teach" line per decision point: seed tick side, the features (a player's view), then per action its mean and sd.
+;;;; Usage: ecl-host --norc --load tools/simgate/teacher.lisp -- <duel.fas> <cmd>...   e.g. 30000 31101 2132 (IK seed 1)
+(defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
+(load (first cl-user::*sg-args*) :verbose nil)
+(in-package :duel)
+
+(defparameter *teach-k* 16 "Samples per action.")
+(defparameter *teach-h* (parse-integer (or (ext:getenv "TEACH_H") "180")) "Rollout steps after the press (3 s; env TEACH_H): at 90 a point had 1.5 of its 10 actions tie another exactly, at 180 0.74 (IK seed 1).")
+(defparameter *teach-gap* 20 "Ticks between two decision points of one side.")
+(defparameter *teach-reishi-w* 1.5 "A full Reishi bar's worth in Konpaku (the score's unit): ~3 Konpaku cash out of a bar by Kikon / Soul Break, halved.")
+
+(defparameter *teach-actions*
+  '(:j1 :sp :hoho :step-in :step-out :step-side :guard :wait :walk-in :walk-out)
+  "The macro actions (DUEL_AI_TEACHER §3).")
+
+(defun teach-press (e action)
+  "Start ACTION as E's brain's press (frames + 1: the press is written from the next brain step on, which decrements first)."
+  (let ((b (brain e)))
+    (flet ((dash (dir to) (setf (brain-dash b) (f32 dir) (brain-dash-to b) (f32 to))))
+      (ecase action
+        (:j1 (ai-press b :quick 2))
+        (:sp (ai-press b :quick 2 :modded t))                              ; the pointer's NS, a tap (no Kikon hold)
+        (:hoho (ai-press b :step 2 :modded t :act :hoho))
+        (:step-in (ai-press b :step 2 :act :dash) (dash 1 0.0))            ; a Step's hop toward him
+        (:step-out (ai-press b :step 2 :act :dash) (dash -1 99.0))
+        (:step-side (ai-press b :step 2 :act :side-step) (setf (brain-strafe b) 1f0))
+        (:guard (ai-press b :guard 21))
+        (:wait (ai-press b :none 21))                                      ; (no such button: he stands)
+        (:walk-in (ai-press b :none 21 :act :dash) (dash 1 0.0))           ; the stick alone: a walk
+        (:walk-out (ai-press b :none 21 :act :dash) (dash -1 99.0))))))
+
+(defun teach-health (e)
+  "E's health in the score's unit: Konpaku + *TEACH-REISHI-W* x the Reishi bar's fraction."
+  (let ((g (gauges e))) (+ (gauges-konpaku g) (* *teach-reishi-w* (/ (gauges-reishi g) (float (gauges-reishi-max g)))))))
+
+(defun teach-styles (opp-char style-p)
+  "The *CAI-STYLES* a sample plays with: the opponent's style functions alone (STYLE-P), or none (both on the generic CPU)."
+  (and style-p (list opp-char (getf *cai-styles* opp-char))))
+
+(defun teach-features (e)
+  "What a player sees of the situation, as a plist printed on the line."
+  (let* ((f (fighter e)) (o (fighter-opp f)) (fo (fighter o)) (g (gauges e)) (go (gauges o)) (mv (fighter-move fo)))
+    (list :d (round (* 10 (fighter-dist f))) :st (fighter-state f) :ptr (fighter-ptr f) :form (fighter-form f)
+          :r (gauges-reishi g) :k (gauges-konpaku g) :fs (round (gauges-fs g)) :hoho (and (hoho-open-p e) t)
+          :ost (fighter-state fo) :osf (fighter-sf fo) :omv (and (eq (fighter-state fo) :move) mv (mv-name mv))
+          :ocls (and (eq (fighter-state fo) :move) (fighter-cls fo)) :ophase (fighter-phase fo)
+          :optr (fighter-ptr fo) :oform (fighter-form fo) :or (gauges-reishi go) :ok (gauges-konpaku go) :ofs (round (gauges-fs go))
+          :ored (and (gauges-red-p go) t) :red (and (gauges-red-p g) t))))
+
+(defvar *teach-next* (vector 0 0) "Per side, the first tick a decision point may come.")
+(defvar *teach-n* 0)
+(defvar *teach-rollouts* 0)
+
+(defun teach-point (e)
+  "Score every action for E here and print the line."
+  (let* ((s (sim-snapshot)) (o (fighter-opp (fighter e))) (oc (kit-character (fighter-kit (fighter o))))
+         (h0 (teach-health e)) (ho0 (teach-health o)) (seed0 (sim-rnd-state)) (feat (teach-features e)) (res nil))
+    (dolist (a *teach-actions*)
+      (let ((sum 0d0) (sq 0d0))
+        (dotimes (k *teach-k*)
+          (sim-restore s)
+          (setf (sim-rnd-state) (logior 1 (logand #xFFFFFFF (+ seed0 (* 7919 (1+ k))))))
+          (teach-press e a)
+          (let ((*cai-styles* (teach-styles oc (evenp k))))
+            (sim-rollout *teach-h*))
+          (let ((v (- (- ho0 (teach-health o)) (- h0 (teach-health e)))))
+            (incf sum v) (incf sq (* v v)) (incf *teach-rollouts*)))
+        (let ((m (/ sum *teach-k*))) (push (list a m (sqrt (max 0d0 (- (/ sq *teach-k*) (* m m))))) res))))
+    (sim-restore s)
+    (incf *teach-n*)
+    (let ((*print-pretty* nil))   ; (one line)
+     (format t "teach ~d ~d ~d ~s |~{ ~(~a~) ~,3f ~,3f~}~%" *match-seed* *match-tick* (fighter-side (fighter e)) feat
+            (loop for (a m sd) in (nreverse res) append (list a m sd))))))
+
+(defun teach-hook ()
+  (when (sim-snapshot-ok-p)
+    (do-sides (e)
+      (let* ((f (fighter e)) (side (fighter-side f)) (b (brain e)))
+        (when (and b (>= *match-tick* (max 2 (svref *teach-next* side))) (member (fighter-state f) '(:idle :run))   ; (tick 0-1: no distance yet)
+                   (zerop (brain-press-left b)) (sim-snapshot-ok-p))
+          (setf (svref *teach-next* side) (+ *match-tick* *teach-gap*))
+          (teach-point e))))))
+
+(loop for r = (engine::%init-step) until (eql r 0) when (eql r 2) do (ext:quit 2))
+(setf *step-hook* #'teach-hook)
+(let ((t0 (get-internal-real-time)))
+  (dolist (c (rest cl-user::*sg-args*)) (engine::simgate-cmd (parse-integer c)))
+  (engine::%frame)
+  (unless (loop repeat 2000000
+                do (unless (engine::%frame) (ext:quit 3))
+                thereis (and (null *gate*) (not *gate-busy*) (null *gate-results*) (not (battle-p))))
+    (ext:quit 4))
+  (format t "teacher ~d decision points, ~d rollouts, ~,1f s~%" *teach-n* *teach-rollouts*
+          (/ (- (get-internal-real-time) t0) internal-time-units-per-second 1.0)))
+(finish-output)
+(ext:quit 0)
