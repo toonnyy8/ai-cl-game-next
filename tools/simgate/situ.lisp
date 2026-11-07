@@ -131,8 +131,8 @@
         (setf (ss-kz-full st) full))
       (when (and (ss-kz st) (eq (fighter-form if*) :kessa))
         (setf (ss-kz-in st) t)
-        (when ken-hurt (incf (ss-kz-dealt st) (- (ss-rk st) rk)))
-        (when ich-hurt (incf (ss-kz-taken st) (- (ss-ri st) ri))))
+        (incf (ss-kz-dealt st) (max 0f0 (- (ss-rk st) rk self-cost)))     ; (Reishi drops only: a breaking step's refill is no negative damage)
+        (incf (ss-kz-taken st) (max 0f0 (- (ss-ri st) ri))))
       (setf (ss-rk st) rk (ss-ri st) ri (ss-kk st) kk (ss-ki st) ki (ss-form st) form (ss-lv st) lv))))
 
 (setf *step-hook* #'situ-step)
