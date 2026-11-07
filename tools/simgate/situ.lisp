@@ -7,7 +7,7 @@
 (in-package :duel)
 
 (defstruct (situ-st (:conc-name ss-))
-  (tick -1) ken ich (rk 0f0) (ri 0f0)                ; the last tick; the two entities; their Reishi a step ago
+  (tick -1) ken ich (rk 0f0) (ri 0f0) (kk 0) (ki 0)  ; the last tick; the two entities; their Reishi and Konpaku a step ago
   (ken-cls -1) (ich-cls -1)                          ; the cls-t of each one's move seen last
   ex ex-t                                            ; brawl: an open exchange and its start tick
   (form :base) stay stay-ok (lv 0)                   ; Kenpachi's form a step ago; a Shikai stay open, it succeeded; his L
@@ -54,7 +54,8 @@
         (cond ((and (eq c1 :kenpachi) (eq c2 :ichigo)) (setf (ss-ken st) *p1* (ss-ich st) *p2*))
               ((and (eq c1 :ichigo) (eq c2 :kenpachi)) (setf (ss-ken st) *p2* (ss-ich st) *p1*))
               (t (return-from situ-step)))
-        (setf (ss-rk st) (gauges-reishi (gauges (ss-ken st))) (ss-ri st) (gauges-reishi (gauges (ss-ich st))))))
+        (setf (ss-rk st) (gauges-reishi (gauges (ss-ken st))) (ss-ri st) (gauges-reishi (gauges (ss-ich st)))
+              (ss-kk st) (gauges-konpaku (gauges (ss-ken st))) (ss-ki st) (gauges-konpaku (gauges (ss-ich st))))))
     (when (= *match-tick* (ss-tick st)) (return-from situ-step))
     (setf (ss-tick st) *match-tick*)
     (let* ((ke (ss-ken st)) (ie (ss-ich st)) (kf (fighter ke)) (if* (fighter ie)) (kg (gauges ke)) (ig (gauges ie))
@@ -65,7 +66,12 @@
            ;; a Reishi drop this step (a refill after a break is a rise); his own Bankai segment cost (*KEN-BK-COST* on a segment's
            ;; start, ken-bk-cost) is not a hit on him (2026-11-07, DUEL_MATCHUP_AI §9)
            (self-cost (if (and k-new (member (fighter-form kf) '(:bankai :bankai-2))) *ken-bk-cost* 0))
-           (ken-hurt (< (+ rk self-cost) (ss-rk st))) (ich-hurt (< ri (ss-ri st)))
+           ;; ... or a Konpaku lost (a Soul Break / Kikon: the bar refills on the breaking step, so its Reishi reads as a rise; 2026-11-07,
+           ;; §10), except his own Konpaku paid as a Bankai ends (ken-bk-tick)
+           (kk (gauges-konpaku kg)) (ki (gauges-konpaku ig))
+           (ken-hurt (or (< (+ rk self-cost) (ss-rk st))
+                         (and (< kk (ss-kk st)) (not (and (eq (fighter-form kf) :nozarashi) (member (ss-form st) '(:bankai :bankai-2)))))))
+           (ich-hurt (or (< ri (ss-ri st)) (< ki (ss-ki st))))
            (i-new (and (fighter-cls if*) (/= (fighter-cls-t if*) (ss-ich-cls st))))
            (form (fighter-form kf)) (lv (if (eq form :nozarashi) (round (gauges-meter kg)) 0)))
       (when k-new (setf (ss-ken-cls st) (fighter-cls-t kf)))
@@ -127,6 +133,6 @@
         (setf (ss-kz-in st) t)
         (when ken-hurt (incf (ss-kz-dealt st) (- (ss-rk st) rk)))
         (when ich-hurt (incf (ss-kz-taken st) (- (ss-ri st) ri))))
-      (setf (ss-rk st) rk (ss-ri st) ri (ss-form st) form (ss-lv st) lv))))
+      (setf (ss-rk st) rk (ss-ri st) ri (ss-kk st) kk (ss-ki st) ki (ss-form st) form (ss-lv st) lv))))
 
 (setf *step-hook* #'situ-step)

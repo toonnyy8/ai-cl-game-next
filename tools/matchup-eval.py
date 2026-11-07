@@ -9,7 +9,7 @@ Pairing KI (Kenpachi = roster 1, Ichigo = 3). Seeds 1..N, both seats, native sim
   strength   HARD, the side's CPU against the other side's CPU as this checkout has it (its style, or the generic CPU): the side's win share
   signature  HARD (the same matches): the mean over the side's four themes of successes / situations (situ.lisp; Ichigo's pointer-3 theme
              from the combat log: a SOUL BREAK of hers, ok at -5 Konpaku; a KIKON FOLLOW-UP of hers, ok when "(red)"); a theme with no
-             situation scores 0
+             situation scores 0, except a theme the opponent opens (OPP_TRIGGERED), which then leaves the mean
   normal     NORMAL, the side's CPU against the OTHER side's GENERIC CPU (its style unregistered), both seats: the side's win share; the
              score x a factor, 1 inside BAND[side], falling to 0 at FALL outside it (the band: the generic-vs-generic share +-0.10)
 score = (0.4 strength + 0.6 signature) x the NORMAL factor (the user's 「勝率 0.4 / 招牌 0.6」).
@@ -21,6 +21,9 @@ from simgate import ROOT, ECL, FAS, MUSLM, build
 
 KEN, ICH = 1, 3
 THEMES = {'ken': ['brawl', 'shikai', 'bankai', 'antiwave'], 'ichigo': ['spacing', 'whiff', 'ptr3', 'kessa']}
+# themes the OPPONENT's play opens (her Getsuga route; his whiff): with no situation in the whole run they leave the mean
+# (the user, 2026-11-07: 「對手觸發的不列入平均」, DUEL_MATCHUP_AI §10); every other theme with no situation scores 0
+OPP_TRIGGERED = {'ken': {'antiwave'}, 'ichigo': {'whiff'}}
 CHAR = {'ken': 'kenpachi', 'ichigo': 'ichigo'}
 OTHER = {'ken': 'ichigo', 'ichigo': 'ken'}
 # the generic-vs-generic NORMAL share, 40 seeds a seat, measured at the freeze (DUEL_MATCHUP_AI §6); the band = that +- 0.10
@@ -95,8 +98,10 @@ def main():
                         th[k][0] += ok; th[k][1] += occ
     strength = won['hard'][0] / won['hard'][1] if won['hard'][1] else 0.0
     per = {k: (v[0] / v[1] if v[1] else 0.0) for k, v in th.items()}
-    signature = sum(per.values()) / len(per)
+    counted = [k for k in per if th[k][1] or k not in OPP_TRIGGERED[a.side]]
+    signature = sum(per[k] for k in counted) / len(counted)
     out = {'side': a.side, 'seeds': n, 'strength': round(strength, 4), 'signature': round(signature, 4),
+           'excluded': [k for k in per if k not in counted],
            'themes': {k: {'rate': round(per[k], 3), 'ok': th[k][0], 'occ': th[k][1]} for k in th},
            'hard': f"{won['hard'][0]}/{won['hard'][1]}"}
     raw = 0.4 * strength + 0.6 * signature
