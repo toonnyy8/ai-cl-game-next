@@ -305,7 +305,8 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
   5.69 -> 1.87 s of simulation (x3.0), every hash / gate / pacing line identical, G2 identical (native and browser). The looks gate
   could not prove the stills: 88 of 113 differed between its two BASE runs; of the 25 that did not, 19 were byte-identical and 6
   differed, and those 6 are run-to-run noise too (two runs of the same new build differ on all four ENDLESS stills).
-* Headless speed, round 2 (2026-11-07, DEVLOG §622): 1.87 -> ~1.45 s, every line identical.
+* Headless speed, round 2 (2026-11-07, DEVLOG §622): the IK 20 process 2.66 -> 2.10 s, its simulation ~1.87 -> ~1.5 s (x1.23; the
+  native heap is smaller now, so Boehm collects more often there), every line identical.
   * `entity-alive-p` has a compiler macro (ecs.lisp) that expands it to one C expression. ECL compiles `(ash e -8)` (any negative
     shift) as `cl_ash`, and range-typed `+` / `*` as generic calls, at the duel files' (safety 2). The inline-declaimed function
     was still called out of line from the other files. A `define-compiler-macro` must sit in an `eval-when` to apply to the rest
@@ -314,7 +315,8 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
     saves. Where the type is guaranteed (the vpad readers), declare `(optimize (safety 0))` **at the function level**: a LET's
     declarations do not cover its own init forms.
   * `kit-of`, `state-of` and `kit-hook` are inline.
-* Startup (2026-11-07, DEVLOG §622): 5.6–6.0 s -> 3.5–3.9 s on the desktop (headless Chrome, RTX 4090); startup heap
+* Startup (2026-11-07, DEVLOG §622): 5.2–6.1 s -> 3.5–4.5 s on the desktop (headless Chrome, RTX 4090; the steps 3.26 -> 1.87 s, the
+  GPU device 1.5–2.4 s); startup heap
   88.9 -> 74.6 MB. The `startup: main() at …` line splits it into the time before main(), module init, and the steps' Lisp, GC
   and wall time. The changes:
   * main.c runs startup steps until 25 ms of the frame are used (it ran one a frame, idle after short ones). It collects every
@@ -322,7 +324,8 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
   * main() no longer waits for the GPU device. shell.html dropped the `webgpu` run dependency, and the first step waits in
     main.c, so ECL's boot and module init (~0.5 s) overlap the browser's device creation (1.5–2 s headless).
   * The loader compiles the wasm while it streams in (`compileStreaming` on a byte-counting copy of the body).
-  * Bodies and weapons that only the retired kits name are built on their first draw (`retired-art`, body.lisp).
+  * Bodies and weapons that only the retired kits name are built on their first draw (`retired-art` in main.lisp, passed to
+    `weapon-load-steps` / `body-load-steps`; the viewers build everything).
   * Sound synthesis (~0.9 s, two music loops 0.4 s of it) and the kept bodies (~0.9 s) are the rest.
 * Frame hitches: with `*stats-log*` on (any debug command) a `slow frame:` line reports a frame whose CPU time passed 12 ms,
   split into sim / queue / render. A `late frame:` line reports one that came > 25 ms after the last. main.c logs `gc: N ms`

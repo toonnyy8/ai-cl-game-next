@@ -179,21 +179,8 @@ of *BODY-INK*'s default (a cloth part drawn as a weapon: Rukia's black hakama go
 
 (defvar *shadow-mesh* nil "The ink shadow: a flat unit disc (24 sides) at the origin, built by BODIES-INIT.")
 
-(defun weapon-built (wp) "WP, its meshes built first if they aren't yet (a retired kit's: RETIRED-ART)." (unless (weapon-meshes wp) (build-weapon wp)) wp)
-(defun body-built (b) "B, its meshes built first if they aren't yet (a retired kit's: RETIRED-ART)." (unless (svref (body-parts b) 0) (build-body b)) b)
-
-(defun retired-art ()
-  "The bodies and weapons (names) that only the *RETIRED* characters' kits name (:body, :weapon, :intro-weapon): startup skips
-them and the first draw builds them (WEAPON-BUILT, BODY-BUILT), since no player meets them (2026-11-07: about half the 21
-bodies, ~0.5 s of the startup). Anything not named by a kit (a cinematic's body, a variant's base) is still built at startup."
-  (let (keep retired)
-    (maphash (lambda (c forms)
-               (dolist (f forms)
-                 (let ((k (cdr f)))
-                   (dolist (x (list (kit-body k) (kit-weapon k) (car (kit-intro-weapon k))))
-                     (when (keywordp x) (if (member c *retired*) (push x retired) (push x keep)))))))
-             *kits*)
-    (set-difference retired keep)))
+(defun weapon-built (wp) "WP, its meshes built first if they aren't yet (one a startup step skipped: WEAPON-LOAD-STEPS)." (unless (weapon-meshes wp) (build-weapon wp)) wp)
+(defun body-built (b) "B, its meshes built first if they aren't yet (one a startup step skipped: BODY-LOAD-STEPS)." (unless (svref (body-parts b) 0) (build-body b)) b)
 
 (defun bodies-init ()
   "Startup (:load) step: the shadow disc (the weapons: WEAPON-LOAD-STEPS, the bodies: BODY-LOAD-STEPS)."
@@ -201,15 +188,17 @@ bodies, ~0.5 s of the startup). Anything not named by a kit (a cinematic's body,
                         (mb-poly-out mb (loop for k below 24 collect (let ((a (* 2 pi (/ k 24)))) (v3 (cos a) 0 (sin a))))
                                      :center '(0 -1 0)))))
 
-(defun weapon-load-steps ()
-  "Startup (:load) steps, one per registered weapon not in RETIRED-ART (one step for all of them was 0.3 s in one frame)."
-  (let ((skip (retired-art)) steps)
+(defun weapon-load-steps (&optional skip)
+  "Startup (:load) steps, one per registered weapon whose name is not in SKIP (the game: RETIRED-ART, main.lisp; one step for
+all of them was 0.3 s in one frame). A skipped one is built on its first draw (WEAPON-BUILT)."
+  (let (steps)
     (maphash (lambda (k w) (unless (member k skip) (push (lambda () (weapon-built w)) steps))) *weapons*)
     (nreverse steps)))
 
-(defun body-load-steps ()
-  "Startup (:load) steps, one per registered body not in RETIRED-ART: build its meshes and ink hulls."
-  (let ((skip (retired-art)) steps)
+(defun body-load-steps (&optional skip)
+  "Startup (:load) steps, one per registered body whose name is not in SKIP: build its meshes and ink hulls (a skipped one: on
+its first draw, BODY-BUILT)."
+  (let (steps)
     (maphash (lambda (k b) (unless (member k skip) (push (lambda () (body-built b)) steps))) *bodies*)
     (nreverse steps)))
 

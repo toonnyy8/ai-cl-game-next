@@ -106,7 +106,11 @@ during it must not fire, a guard still held stays up)."
   (fill (vpad-press vp) +no-press+)
   vp)
 
-(defun vpad-down (vp action) "Is ACTION held now?" (declare (optimize (speed 3) (safety 0))) (= 1 (aref (the (simple-array fixnum (*)) (vpad-downs vp)) (vpad-index vp action))))
+(defun vpad-down (vp action)
+  "Is ACTION held now?"
+  (declare (optimize (speed 3) (safety 0)))
+  (let ((i (vpad-index vp action)))   ; (bound, untyped: a FIXNUM I, or VPAD-INDEX inline as the index, warns at its ERROR branch)
+    (= 1 (aref (the (simple-array fixnum (*)) (vpad-downs vp)) i))))
 
 (defun vpad-held (vp action)
   "Steps ACTION has been held (1 on the step it went down), 0 if up."
@@ -120,13 +124,15 @@ during it must not fire, a guard still held stays up)."
   "Was ACTION pressed within the last WITHIN steps (default the vpad's BUFFER; this step
 included) and not consumed?"
   (declare (optimize (speed 3) (safety 0)))
-  (< (- (the fixnum (vpad-tick vp)) (aref (the (simple-array fixnum (*)) (vpad-press vp)) (vpad-index vp action)))
-     (or within (vpad-buffer vp))))
+  (let ((i (vpad-index vp action)))
+    (< (- (the fixnum (vpad-tick vp)) (aref (the (simple-array fixnum (*)) (vpad-press vp)) i))
+       (or within (vpad-buffer vp)))))
 
 (defun vpad-modded-p (vp action)
   "Was ACTION's buffered press made with the modifier held?"
   (declare (optimize (speed 3) (safety 0)))
-  (= 1 (aref (the (simple-array fixnum (*)) (vpad-modded vp)) (vpad-index vp action))))
+  (let ((i (vpad-index vp action)))
+    (= 1 (aref (the (simple-array fixnum (*)) (vpad-modded vp)) i))))
 
 (defun vpad-stamp! (vp action &optional modded)
   "Press ACTION this step (buffered, MODDED or not), whether or not it is held already: a press made for the player

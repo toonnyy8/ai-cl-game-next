@@ -162,8 +162,21 @@ on FDT: RDT, or 0 while paused (the fx clock, particles, stamps, shake, camera a
   (onehand-init)
   (go-title))
 
+(defun retired-art ()
+  "The bodies and weapons (names) that only the *RETIRED* characters' kits name (:body, :weapon, :intro-weapon): startup skips
+them and the first draw builds them (WEAPON-BUILT, BODY-BUILT), since no player meets them (2026-11-07: about half the 21
+bodies, ~0.5 s of the startup). Anything not named by a kit (a cinematic's body, a variant's base) is still built at startup."
+  (let (keep retired)
+    (maphash (lambda (c forms)
+               (dolist (f forms)
+                 (let ((k (cdr f)))
+                   (dolist (x (list (kit-body k) (kit-weapon k) (car (kit-intro-weapon k))))
+                     (when (keywordp x) (if (member c *retired*) (push x retired) (push x keep)))))))
+             *kits*)
+    (set-difference retired keep)))
+
 (run-game :title "SOUL DUEL NEXT"
-          :load (append (list #'bodies-init) (weapon-load-steps) (body-load-steps) (list #'stage-init #'brush-init))
+          :load (append (list #'bodies-init) (weapon-load-steps (retired-art)) (body-load-steps (retired-art)) (list #'stage-init #'brush-init))
           :start #'start-game
           :frame #'game-frame
           :debug #'debug-command
