@@ -12,7 +12,8 @@
 ;;; ---------------------------------------------------------------- glyphs
 (defstruct (glyph (:constructor make-glyph (adv tris)))
   (adv 1f0 :type single-float)               ; advance, em
-  (tris (make-f32 0) :type f32vec))          ; x y per corner (em, y down from the em box's top), 3 corners a triangle
+  (tris (make-f32 0) :type f32vec))
+(inline-readers glyph)          ; x y per corner (em, y down from the em box's top), 3 corners a triangle
 (defvar *glyphs* (make-hash-table) "Char code -> GLYPH (BRUSH-INIT).")
 
 (defun ear-clip (v)
@@ -198,6 +199,7 @@ BCAP-EXIT)."
   (warned nil)                                ; a glyph was drawn off the screen (logged once)
   (hud-warned nil)                            ; a callout column was drawn over a HUD panel (logged once)
   (f (make-f32 8) :type f32vec))
+(inline-readers bcap)
 
 (defun make-bcap (kanji &key kanji2 reading sub mark (layout :cine) (side 0) ink hanko (secs 0.0))
   "A caption starting now (see BCAP). SIDE 0 / 1: the left / right third (:cine) or that player's side (:callout);

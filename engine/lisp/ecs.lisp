@@ -32,14 +32,14 @@
 
 (declaim (type simple-vector *stores*)
          (type (simple-array fixnum (*)) *generation*)
-         (type simple-bit-vector *used*)
+         (type (simple-array fixnum (*)) *used*)
          (type fixnum *top*))
 (defvar *stores* (make-array +max-component-kinds+ :initial-element nil)
   "Component kind index -> simple-vector of +MAX-ENTITIES+ components (NIL = absent).")
 (defvar *generation* (make-array +max-entities+ :element-type 'fixnum :initial-element 0))
-(defvar *used* (make-array +max-entities+ :element-type 'bit :initial-element 0)
-  "Slot -> 1 while an entity lives there. Read with AREF, not SBIT: ECL compiles SBIT to the varargs cl_sbit, which
-conses 8 B per call (every component getter and DO-ENTITIES pass); AREF on the declared simple-bit-vector is 0 B.")
+(defvar *used* (make-array +max-entities+ :element-type 'fixnum :initial-element 0)
+  "Slot -> 1 while an entity lives there. A fixnum vector since 2026-11-07 (DEVLOG §621): AREF on it compiles in place, where the
+simple-bit-vector's AREF was a call (ecl_aref_bv) on every component getter and DO-ENTITIES pass (and SBIT the consing cl_sbit).")
 (defvar *top* 0 "One past the highest slot in use: DO-ENTITIES scans slots below it.")
 
 ;;; Component kinds get a store index when DEFCOMPONENT is compiled (it is baked into the getter)
@@ -60,13 +60,16 @@ conses 8 B per call (every component getter and DO-ENTITIES pass); AREF on the d
 
 ;;; ---------------------------------------------------------------- handles
 (declaim (inline handle-slot entity-alive-p %component))
-(defun handle-slot (e) (logand e (1- +max-entities+)))
+(defun handle-slot (e) (logand (the fixnum e) (1- +max-entities+)))   ; (THE: in-place LOGAND, not the generic one: DEVLOG §621)
 
 (defun entity-alive-p (e)
   "T while E is the handle of an existing entity (NIL for NIL, destroyed or reused handles)."
-  (and (typep e 'fixnum) (>= e 0)
-       (let ((s (handle-slot e)))
-         (and (= 1 (aref *used* s)) (= (aref *generation* s) (ash e -8))))))
+  (and (typep e 'fixnum)
+       (let ((e e))
+         (declare (fixnum e))                             ; (in-place >= / ASH once it is known a fixnum: DEVLOG §621)
+         (and (>= e 0)
+              (let ((s (handle-slot e)))
+                (and (= 1 (aref *used* s)) (= (aref *generation* s) (ash e -8))))))))
 
 (defun %component (e index)
   (and (entity-alive-p e) (svref (svref *stores* index) (handle-slot e))))
@@ -81,6 +84,7 @@ come first. Slots are DEFSTRUCT slot descriptions: (slot default :type type)."
     `(progn
        (eval-when (:compile-toplevel :load-toplevel :execute) (component-kind-index ',name))
        (defstruct (,name (:copier nil) (:predicate nil)) ,@doc ,@slots)
+       (inline-readers ,name)
        (%register-kind ',name ,index)
        (declaim (inline ,name))
        (defun ,name (e) ,(format nil "The ~(~a~) component of entity E, or NIL." name) (%component e ,index))

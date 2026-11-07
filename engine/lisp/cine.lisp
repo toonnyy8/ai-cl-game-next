@@ -23,6 +23,7 @@
   "A running cinematic: its script NAME, frame CF of LEN, the HOLD frame (debug freeze) or NIL, the
 actors A and V, AFTER (a function run when it ends) and SKIP (end on the next fixed step)."
   (name nil) (cf 0 :type fixnum) (len 60 :type fixnum) (hold nil) (a nil) (v nil) (after nil) (skip nil))
+(inline-readers cine)
 
 (defvar *cine* nil "The running cinematic (a CINE) or NIL.")
 (defvar *skip-cines* nil "Debug: every cinematic ends at once (soak / seeded runs).")

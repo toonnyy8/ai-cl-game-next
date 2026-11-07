@@ -13,7 +13,8 @@
   (cur-color (v3 0.7 0.7 0.7) :type f32vec)
   (jitter 0f0 :type single-float)      ; per-face random brightness ±jitter (low-poly shading variety)
   (seed 12345 :type fixnum)
-  (smooth nil))                        ; NIL = flat normals, else #(kind hs slope) of the surface being emitted (%MB-TRI)
+  (smooth nil))
+(inline-readers mesh-builder)                        ; NIL = flat normals, else #(kind hs slope) of the surface being emitted (%MB-TRI)
 
 (defun mb-color (mb r g b)
   "Set the current color (sRGB 0..1) for following primitives."

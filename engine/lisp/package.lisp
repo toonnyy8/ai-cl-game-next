@@ -7,7 +7,7 @@
   (:use :cl)
   (:export
    ;; package.lisp: types, compiler helpers, float math in C, random numbers, logging
-   #:f32 #:f32vec #:f32vec-p #:clamp #:lerp #:log-msg #:defun-fast #:defun-fast-inline #:with-floats
+   #:f32 #:f32vec #:f32vec-p #:clamp #:lerp #:log-msg #:defun-fast #:defun-fast-inline #:with-floats #:inline-readers #:plist-get
    #:f-min #:f-max #:f-abs #:f-sqrt #:f-hypot #:f-sin #:f-cos #:f-atan2 #:f-mod #:f-exp #:f-clamp
    #:i->f #:f->i #:f-wrap #:rnd01 #:rnd-range #:rnd-seed #:rnd-state
    #:sim-rnd01 #:sim-rnd-range #:sim-rnd-seed #:sim-rnd-state
@@ -199,6 +199,37 @@ same declarations and (safety 0): no entry checks, so pass the declared types. R
            (if (= (length forms) ,(length args))
                (%fast-inline-form forms ',gs ',args ',floats ',decls ',name ',body)
                w))))))
+
+;;; ---------------------------------------------------------------- struct readers in place
+;;; ECL 24.5 never inlines a DEFSTRUCT reader: (VPAD-TICK vp) is a full call through the accessor closure (defstruct.lsp's
+;;; LC296__lambda2 via ecl_function_dispatch), ~15 % of a headless match plus the dispatch (the 2026-11-07 profile, DEVLOG §621;
+;;; its own MAYBE-OPTIMIZE-STRUCTURE-ACCESS is never called, and SI:STRUCTURE-REF's compiler macro passes the type unquoted on
+;;; its checked path). INLINE-READERS NAME gives every reader of struct NAME a compiler macro: a one-argument call becomes
+;;; the slot read in place when OBJ's exact type is NAME, else ecl_structure_ref(obj, 'NAME, index), the very C function the closure
+;;; ends in (a subtype's slot, or the same type error), so the values are identical. Writers (SETF) already compile in place. DEFCOMPONENT calls it; put it after any other hot DEFSTRUCT.
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun %inline-readers (name)
+    (dolist (sd (si::get-sysprop name 'si::structure-slot-descriptions))
+      (let ((acc (sixth sd)) (i (fifth sd)))
+        (when (and acc (typep i 'fixnum))
+          (setf (compiler-macro-function acc)
+                (lambda (form env)
+                  (declare (ignore env))
+                  (if (and (consp form) (eq (car form) acc) (consp (cdr form)) (null (cddr form)))
+                      `(ffi:c-inline (,(second form) ',name ,i) (:object :object :fixnum) :object
+                                     "((ecl_t_of(#0)==t_instance && ECL_CLASS_NAME(ECL_CLASS_OF(#0))==#1) ? ECL_STRUCT_SLOT(#0,#2) : ecl_structure_ref(#0,#1,#2))"
+                                     :one-liner t)
+                      form))))))))
+(defmacro inline-readers (name)
+  "Readers of struct NAME compile in place from here on (see above)."
+  `(eval-when (:compile-toplevel :load-toplevel :execute) (%inline-readers ',name)))
+
+;;; PLIST-GET: GETF for the hot paths. libecl is built ECL_SAFE, so every GETF first walks the whole plist to check it is a proper
+;;; list (cl_list_length), then searches it; this searches once (EQ, the first match, DEFAULT when absent: GETF's result on a
+;;; proper plist). DEVLOG §621.
+(declaim (inline plist-get))
+(defun plist-get (plist key &optional default)
+  (loop for l on plist by #'cddr when (eq (car l) key) return (cadr l) finally (return default)))
 
 ;;; ---------------------------------------------------------------- fast float helpers
 ;;; (ECL: float min/max/abs/sin are generic calls; these compile to plain C.)

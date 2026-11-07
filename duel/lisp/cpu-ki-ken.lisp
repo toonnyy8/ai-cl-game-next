@@ -294,7 +294,8 @@ confirm J1 (the sealed J1: 6 of 10). Rule, HARD only (*KK-PF-P* is 0 below). New
   (fresh -1 :type fixnum)
   (msf 0 :type fixnum) (mend 0 :type fixnum) ; his own move's frame at his last step and its length (a cut move: *KK-REPEL-WAIT*)       ; no decision before this tick: a cinematic just ended (*KK-CINE-WAIT*; b0_a1 r3)
   (hl -999 :type fixnum)        ; the tick her last seen Hoho's lockout ends (its start + *KK-HOHO-LOCKOUT*) (b0_a1 r3, from b3_a0 r3)
-  (tick 0 :type fixnum))        ; *MATCH-TICK* at his last free step (a lower one: a new match, the state starts over)
+  (tick 0 :type fixnum))
+(inline-readers kks)        ; *MATCH-TICK* at his last free step (a lower one: a new match, the state starts over)
 
 (defun kk-route-p (s)
   "Does the perceived SNAP S show her in a segment of the Getsuga route (NS2's two charges, JUJISHO; KESSA's copies)?"

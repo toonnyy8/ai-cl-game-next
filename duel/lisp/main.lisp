@@ -143,7 +143,7 @@ on FDT: RDT, or 0 while paused (the fx clock, particles, stamps, shake, camera a
     (update-camera)
     (perf-mark)                                             ; "queue" = scene + HUD
     (unless *turbo* (draw-scene fdt))
-    (unless (svref *no-draw* 0) (hud-draw))
+    (unless (or (svref *no-draw* 0) *turbo*) (hud-draw))     ; (turbo: no HUD either, it was ~22 % of a headless match, DEVLOG §621)
     (when *frame-probe* (frame-probe-step)))
   (slow-draw-end))
 

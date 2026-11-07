@@ -209,6 +209,7 @@ system on 2026-10-28, the old system's versions at `git show e55304e:skills/<nam
 
 - Boehm can't see wasm locals: never `(ext:gc)` from Lisp; C statics holding Lisp objects need `ecl_register_root`.
 - Redefining a function after load changes nothing (ECL compiles direct calls): edit the source and rebuild.
+- ECL 24.5 never inlines a DEFSTRUCT reader (a full call each): follow a new DEFSTRUCT with `(inline-readers name)`; hot plists use `plist-get`, not GETF (two walks). `docs/engine/ARCHITECTURE.md` "Performance conventions".
 - Many `handler-case` / `unwind-protect` in one function make emcc take minutes.
 - Fixnums are 30-bit on wasm32 (RNG lives in C); `pi` is a double (use single-float constants).
 - Native vs wasm drift comes from libm / x87: the sim gate uses musl and `-msse2 -mfpmath=sse -ffp-contract=off`.

@@ -42,7 +42,8 @@ freeze-touches (13), the last dealt / taken totals (14 15), the last band (16: -
 (defun band-acc-step ()
   "Per battle step outside cinematics: every awakened Rukia side's band bookkeeping (BAND-ACC-LINE logs it)."
   (when (and (eq *flow* :battle) (not *cine*) (entity-alive-p *p1*) (entity-alive-p *p2*))
-    (dolist (e (list *p1* *p2*))
+    (dotimes (side 2) (let ((e (if (zerop side) *p1* *p2*)))   ; (no list a step)
+     (when (eq (fighter-character (fighter e)) :rukia)    ; (her forms only; another side's line never prints: DEVLOG §621)
       (let* ((f (fighter e)) (a (svref *band-acc* (fighter-side f))) (g (gauges e)) (go (gauges (opp-of e)))
              (b (position (fighter-form f) '(:m18 :m50 :zero))) (last (aref a 16))
              (d (- (gauges-dealt g) (aref a 14))) (tk (- (gauges-dealt go) (aref a 15))))
@@ -53,7 +54,7 @@ freeze-touches (13), the last dealt / taken totals (14 15), the last band (16: -
           (when (and (= last 2) (/= b 2)) (incf (aref a (if (and (= b 0) (plusp (gauges-meter-idle g))) 10 11))))
           (when (and (= b 2) (vpad-down (pilot-vpad (pilot e)) :guard)) (incf (aref a 12)))
           (when (and (gauges-froze g) (zerop (aref a 17))) (incf (aref a 13))))
-        (setf (aref a 16) (or b -1) (aref a 17) (if (gauges-froze g) 1 0))))))
+        (setf (aref a 16) (or b -1) (aref a 17) (if (gauges-froze g) 1 0))))))))
 
 (defun band-acc-line ()
   "The gate row's companion: a \"duel band\" line per side that was awakened Rukia."
@@ -77,7 +78,7 @@ KATAUDE (0-4), rung changes 1->2 (5), 2->3 (6), 3->2 (7), 2->1 (8), 3->1 (9: the
 (defun cup-acc-step ()
   "Per battle step outside cinematics: every Kenpachi side's cup bookkeeping (CUP-ACC-LINE logs it)."
   (when (and (eq *flow* :battle) (not *cine*) (entity-alive-p *p1*) (entity-alive-p *p2*))
-    (dolist (e (list *p1* *p2*))
+    (dotimes (side 2) (let ((e (if (zerop side) *p1* *p2*)))   ; (no list a step)
       (let* ((f (fighter e)) (a (svref *cup-acc* (fighter-side f)))
              (c (and (eq (fighter-character f) :kenpachi)
                      (position (fighter-form f) '(:nozarashi :ryote :nomihose :bankai :kataude))))   ; (since 2026-11-03 only :nozarashi / :bankai occur)
@@ -90,7 +91,7 @@ KATAUDE (0-4), rung changes 1->2 (5), 2->3 (6), 3->2 (7), 2->1 (8), 3->1 (9: the
           (when (<= 1 c 2)
             (when (> (fighter-dist f) 4.2) (incf (aref a (+ 9 c))))
             (when (member (fighter-state f) '(:guard :guard-hit)) (incf (aref a (+ 11 c))))))
-        (setf (aref a 14) (or c -1))))))
+        (setf (aref a 14) (or c -1)))))))
 
 (defun cup-acc-line ()
   "The gate row's companion: a \"duel cups\" line per side that was awakened Kenpachi."

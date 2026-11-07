@@ -37,7 +37,8 @@
   (frost 0 :type fixnum)        ; frames of frost a real hit sets (FROST-NEXT; Rukia's ice)
   (seg nil)                     ; :seg-fn: a kit function (e) -> the world capsule this frame, in place of VOLS (WINDOW-TOUCHES-P)
   (min nil)                     ; :min-reach: no hit on a victim nearer than this (m, centre to centre; NIL = none: COLLECT-MELEE)
-  (flags nil))                  ; :breaker :guard-crush :unguardable :ranged :ice
+  (flags nil))
+(inline-readers hitwin)                  ; :breaker :guard-crush :unguardable :ranged :ice
 
 (defstruct (move (:conc-name mv-))
   "A move: frame data, hit windows and hooks. See DEFMOVE for the fields."
@@ -53,7 +54,8 @@
                                 ; startup of a derived form) / this startup, so it hits on frame S
   (blend 0.0)                   ; crossfade frames into the clip (0 = snap, attacks)
   (planted nil)                 ; the weapon is planted in the ground during the strike (Ikkotsu)
-  (spec nil))                   ; the DEFMOVE plist (resolved), re-parsed for derived forms
+  (spec nil))
+(inline-readers move)                   ; the DEFMOVE plist (resolved), re-parsed for derived forms
 
 (defun mv-total (mv) "S + A + R." (+ (mv-s mv) (mv-a mv) (mv-r mv)))
 (defun mv-first-hit (mv) "Frame of the first hit window (or S)."
@@ -327,6 +329,7 @@ new button."
   (strings nil)                 ; ((from-move command to-move) ...)
   (moves (make-hash-table :test 'eq))   ; move name -> this form's MOVE
   (spec nil))
+(inline-readers kit)
 
 (defvar *kits* (make-hash-table :test 'eq) "Character -> alist (form . KIT) (no consing to look one up).")
 (defvar *roster* nil "Every character with a :base kit, in the order the kit files define them (its index: the saved data's,
@@ -416,7 +419,7 @@ it has one, else OPENER's far edge (J1's after J3, K1's after K3: MOVE-EDGE)."
 (defun kit-hook (kit point)
   "The character file's function for hook POINT in KIT (its :hooks plist), or NIL: the generic code calls it where the
 point is (docs/duel/DUEL_DESIGN.md \"Character code layout\")."
-  (getf (kit-hooks kit) point))
+  (plist-get (kit-hooks kit) point))                  ; (GETF's result, one walk: DEVLOG §621)
 (defvar *char-debug* nil "(lo hi fn): debug commands LO..HI a character file handles (debug.lisp calls FN with the command).")
 (defun kit-pip-cmd-p (kit command)
   "Does COMMAND spend a pip of the arm meter in KIT (its :pips :cmds)?"

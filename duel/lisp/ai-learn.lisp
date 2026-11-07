@@ -42,7 +42,8 @@ the CPU's), kept apart from the CPUs' tables of the human.")
   (reads 0 :type fixnum) (paid 0 :type fixnum) (read-t 0 :type fixnum) (r-dealt 0 :type fixnum) (r-taken 0 :type fixnum)
   (read-clock 0 :type fixnum)                                                 ; frames to its next neutral read (AI-REFLEX)
   (kit nil)                                   ; its character's own situations (LEARN-DEF-KIT's spec; NIL: none, nothing runs)
-  (ksit -1 :type fixnum) (kep-t 0 :type fixnum) (kdata nil))   ; ... the kit episode open, its frames, the kit's own state
+  (ksit -1 :type fixnum) (kep-t 0 :type fixnum) (kdata nil))
+(inline-readers lrn)   ; ... the kit episode open, its frames, the kit's own state
 
 (defun learn-table (i &optional (tables *learn-tables*) (pg +pg-learn+))
   "Roster index I's table in TABLES (page base PG; the assist's: *ASSIST-LEARN-TABLES*): in memory, else the page's

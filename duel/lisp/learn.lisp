@@ -82,6 +82,7 @@ string ends after its second hit, then a guard: his BLUE breaks nothing), taking
   (k0 (make-array (* +learn-ks+ +learn-ka+) :element-type 'single-float :initial-element 0f0))
   (k1 (make-array (* +learn-ks+ +learn-ka+ +learn-ka+) :element-type 'single-float :initial-element 0f0))
   (kprev (make-array +learn-ks+ :element-type 'fixnum :initial-element -1)))
+(inline-readers ltab)
 
 (defun learn-sit (key) (position key *learn-situations*))
 (defun learn-act (key) (position key *learn-actions*))

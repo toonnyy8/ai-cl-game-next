@@ -94,7 +94,8 @@
   (times (make-f32 1) :type f32vec)
   (snaps (make-f32 1) :type f32vec)   ; 1.0 = key reached with a linear snap
   (poses (make-f32 1) :type f32vec)   ; n x +pose-n+
-  (marks nil))                        ; plist: mark name -> seconds (DEFCLIP :MARKS)
+  (marks nil))
+(inline-readers clip)                        ; plist: mark name -> seconds (DEFCLIP :MARKS)
 
 (defvar *clips* (make-hash-table :test 'eq))
 (defun find-clip (name &optional (errorp t))
@@ -221,6 +222,7 @@ cubic 1-(1-u)^3 (the pose snaps into the key and settles: pose-to-pose timing, S
   (from (make-f32 +pose-n+) :type f32vec)
   (pose (make-f32 +pose-n+) :type f32vec)
   (tmp (make-f32 +pose-n+) :type f32vec))
+(inline-readers anim)
 
 (defun anim-play (an name &key (blend 4f0) (speed 1f0) (time 0f0) (restart t))
   "Start clip NAME. BLEND is the crossfade in frames (60 Hz); 0 = snap (attacks). With

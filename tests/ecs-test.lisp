@@ -1,6 +1,6 @@
 ;;;; ecs-test.lisp — checks engine/lisp/ecs.lisp on the host (no browser, no build):
 ;;;;   $ECL_HOST --norc --load tests/ecs-test.lisp
-(defpackage :engine (:use :cl))
+(load (merge-pathnames "../engine/lisp/package.lisp" *load-truename*))   ; (DEFCOMPONENT uses its INLINE-READERS)
 (load (merge-pathnames "../engine/lisp/ecs.lisp" *load-truename*))
 (in-package :engine)
 

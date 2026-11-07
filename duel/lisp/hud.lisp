@@ -81,7 +81,8 @@ not terminate). (ECL's ratio arithmetic and conversion to a float cons.)"
 ;;; ---------------------------------------------------------------- big words
 (defstruct (word (:constructor make-word (text sub color secs small side)))
   text sub color secs small side (t0 (fx-clock))
-  (col (list 1.0 1.0 1.0 1.0)))                                   ; its colour (r g b 1)
+  (col (list 1.0 1.0 1.0 1.0)))
+(inline-readers word)                                   ; its colour (r g b 1)
 (defvar *words* nil "Big words on screen, newest first.")
 (defun clear-words () (setf *words* nil))
 
@@ -390,6 +391,7 @@ from the base form when this form has none) and the tag of what U does in the fo
 ;;; combo counter: per victim side, the last combo with dealt damage (knockdown zeroes the running
 ;;; total, so the counter keeps the last non-zero one) and its string, rebuilt when it changes
 (defstruct (combo-show (:conc-name cs-)) (hits 0) (dmg 0) (t0 -10.0) (str ""))
+(inline-readers combo-show)
 (defvar *combo-show* (vector (make-combo-show) (make-combo-show)))
 
 (defun combo-string (c hits dmg)

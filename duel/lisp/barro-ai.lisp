@@ -793,6 +793,7 @@ re-aimed at its end); once a charge."
   "His learner's own state within a match (LRN-KDATA)."
   (own-mv nil) (ox 0f0 :type single-float) (oz 0f0 :type single-float) (ux 0f0 :type single-float) (uz 0f0 :type single-float)
   (len 0 :type fixnum))
+(inline-readers brl)
 (defun br-learn-state (l) (or (lrn-kdata l) (setf (lrn-kdata l) (make-brl))))
 (defun br-learn-l (b) "Brain B's learner when it reads his situations (LRN-KIT), else NIL." (let ((l (and b (brain-learn b)))) (and l (lrn-kit l) l)))
 
@@ -851,6 +852,7 @@ Step; at its end :TAKE, or :GUARD held through)."
 ;;;                 with 2 bars Shift+L (the charge-less SP2, every special) (§22.3: the new rules' 「資源循環」)
 (defstruct (bras (:conc-name bras-))
   (b nil) (mv nil) (sf -1 :type fixnum) (j nil) (done nil))
+(inline-readers bras)
 (defvar *br-as* (vector (make-bras) (make-bras)) "Per side: the ASSIST routes' state (BR-ASSIST-COMBO).")
 
 (defun br-as-track (f b vp)

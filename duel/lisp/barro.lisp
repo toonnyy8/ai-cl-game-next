@@ -908,7 +908,8 @@ awakened form inherits these).")
 ;;; hazard data: his looks' hazards (BR-FX's lines, the misuji) carry one of these, drawn by LB-LOOK (lille-art.lisp)
 (defstruct (lbh (:conc-name lbh-))
   (kind nil)                              ; :beam :lane :judge :shot :sabaki (the look; its length: the hazard's size)
-  (lock nil))                             ; a look's colour / width: T jade (a locked shot), :thick, NIL ink
+  (lock nil))
+(inline-readers lbh)                             ; a look's colour / width: T jade (a locked shot), :thick, NIL ink
 
 (defcomponent brs
   "Lille II's state: on his fighter entity, made on its first use, so a new match's fighter starts fresh."

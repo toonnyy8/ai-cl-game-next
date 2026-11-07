@@ -346,7 +346,8 @@ native gate once found the loom's woven frames, torn clock and handles carried o
   (x0 0f0 :type single-float) (z0 0f0 :type single-float)
   (clock 0 :type fixnum) (n 0 :type fixnum) (phase nil)
   (model nil) (vol nil) (link -1) (look-t 0f0 :type single-float)
-  (combo nil))                            ; a zone of the combo cut: 刃金 closes and 黒砂 gulps at the unfold's end
+  (combo nil))
+(inline-readers sjh)                            ; a zone of the combo cut: 刃金 closes and 黒砂 gulps at the unfold's end
 
 (defun senju-spawn (kind owner data &rest keys)
   "One of her hazards: SPAWN-HAZARD with her hook and DATA."

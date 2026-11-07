@@ -105,4 +105,5 @@ match, so every field resets per match). Frame counters count sim frames (GAUGE-
   (armor-t 0)             ; frames left of a timed armour hit (:armor-on-soul-loss, :armor-on-awaken)
   (red-cd 0)              ; frames until the red armour hit is back (:red-armor; 0 = up while he is red)
   (revived nil)           ; :revive was used this match (once a stage)
-  (frames 0))             ; sim frames he has run under the table (its periodic "duel runmod state" line)
+  (frames 0))
+(inline-readers rmst)             ; sim frames he has run under the table (its periodic "duel runmod state" line)

@@ -35,6 +35,7 @@ the MODIFIER held. READER: NIL or a function of the vpad, called by VPAD-BEGIN-S
   (modded (%fixnums 0 0) :type (simple-array fixnum (*)))
   (sx 0f0 :type single-float) (sy 0f0 :type single-float)
   (reader nil))
+(inline-readers vpad)
 
 (defun make-vpad (&key actions modifier (buffer 10) reader)
   "A vpad with buttons ACTIONS (a list or vector of keywords). MODIFIER: one of them (or NIL) whose
@@ -44,9 +45,14 @@ hold marks other presses as modified. BUFFER: steps a press stays buffered. READ
                 :mod-index (if modifier (or (position modifier acts) (error "modifier ~s is not an action" modifier)) -1)
                 :downs (%fixnums n 0) :since (%fixnums n 0) :press (%fixnums n +no-press+) :modded (%fixnums n 0))))
 
+(declaim (inline vpad-index))
 (defun vpad-index (vp action)
-  "Button index of ACTION in VP (an error for an unknown action)."
-  (or (position action (vpad-actions vp)) (error "unknown vpad action ~s" action)))
+  "Button index of ACTION in VP (an error for an unknown action). An EQ loop, inlined: CL's POSITION (keyword arguments, generic EQL)
+was ~12 % of a headless match (the 2026-11-07 profile, DEVLOG §621)."
+  (let ((a (vpad-actions vp)))
+    (declare (simple-vector a) (optimize (speed 3) (safety 0)))
+    (dotimes (i (length a) (error "unknown vpad action ~s" action))
+      (when (eq (svref a i) action) (return i)))))
 
 (defun vpad-begin-step! (vp)
   "Start a fixed step: advance the tick, then let the device reader (if any) write the state."

@@ -28,7 +28,8 @@
   (recenter 2f0 :type single-float)       ; stick radii: the origin follows the thumb past this
   (chip-slop 8f0 :type single-float)      ; px added to a chip's radius for its hit circle
   (menu-tap-ms 350f0 :type single-float)  ; menus: a lift this soon, inside the slop, is a tap
-  (flick-reads 10 :type fixnum))          ; reads a flick's direction stays the stick after its pulse (no drag): the game's
+  (flick-reads 10 :type fixnum))
+(inline-readers gesture-config)          ; reads a flick's direction stays the stick after its pulse (no drag): the game's
                                           ;  press buffer (SOUL DUEL: *INPUT-BUFFER*), so a buffered Step goes the way it was flicked
 
 (defconstant +tp-tap+ 1) (defconstant +tp-flick+ 2) (defconstant +tp-tap-hi+ 4) (defconstant +tp-hoho+ 8)   ; tap: the low zone
@@ -83,6 +84,7 @@ user's playtest, 2026-09-27). (4, the up-flick waiting for its lift, went with t
   (tapped 0 :type fixnum) (tap-x 0f0 :type single-float) (tap-y 0f0 :type single-float)
   ;; feedback: the last recognised gesture (1 tap 2 flick 3 high tap 4 hoho 5 rest 6 up-flick), when (ms) and where
   (glyph 0 :type fixnum) (glyph-t -1f4 :type single-float) (glyph-x 0f0 :type single-float) (glyph-y 0f0 :type single-float))
+(inline-readers touch)
 
 ;;; ---------------------------------------------------------------- layout
 (defun touch-layout! (tr dpx pad chips &optional holds)

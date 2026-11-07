@@ -444,7 +444,7 @@ facing away) at the opponent, and a slash bursting on the opponent's body."
   (hoho-done nil) (dashed nil) (o-live nil)
   (seen nil) (seen-main nil)                  ; the move the afterimage watch last saw start
   (rseen -1 :type fixnum)                     ; the start tick of the move the clones' replay last saw (CLONE-REPLAY-WATCH)
-  (hist (make-array 48 :initial-element 0f0)) (hist-i 0 :type fixnum)   ; his last 16 (x z yaw): the echoes replay them
+  (hist (make-array 48 :element-type 'single-float :initial-element 0f0)) (hist-i 0 :type fixnum)   ; his last 16 (x z yaw): the echoes replay them
   (rim nil) (rim-saved nil) (parry-sf -1 :type fixnum)
   (bs-key -1 :type fixnum) (bs-at -1 :type fixnum)    ; the CPU's parry from blockstun: which blockstun, pressed on which frame
   (o-at -9999 :type fixnum) (o-n 0 :type fixnum)      ; the last O press and its clones (the HUD's flash)
@@ -464,8 +464,10 @@ facing away) at the opponent, and a slash bursting on the opponent's body."
   (link 0 :type fixnum) (mv nil) (sf 0 :type fixnum) (queued nil)   ; (the presses waiting for its next links)
   (hit nil)                                   ; this link's own contact (:hit / :block)
   (touched nil)                               ; any link of this string touched him: the carried gate; spent at its end
-  (rq nil) (rmult 1f0 :type single-float))    ; the core system's replay: his moves to play back (tick mv mult), the one's x
+  (rq nil) (rmult 1f0 :type single-float))
+(inline-readers icc)    ; the core system's replay: his moves to play back (tick mv mult), the one's x
 (defstruct (ice (:conc-name ice-)) (mv nil) (sf 0 :type fixnum) (end 0 :type fixnum))
+(inline-readers ice)
 
 ;;; ================================================================ helpers
 (defun gg-spend! (e n)
@@ -880,11 +882,11 @@ after a reset's CLEAR-HAZARDS): every attack echoed, SP2 refused (ICHIGO-OK) so 
 
 (defun hist-push (st e)
   (let ((i (mod (1+ (ics-hist-i st)) 16)) (p (pos-of e)) (v (ics-hist st)))
-    (setf (ics-hist-i st) i (svref v (* 3 i)) (aref p 0) (svref v (+ 1 (* 3 i))) (aref p 2) (svref v (+ 2 (* 3 i))) (yaw-of e))))
+    (setf (ics-hist-i st) i (aref v (* 3 i)) (aref p 0) (aref v (+ 1 (* 3 i))) (aref p 2) (aref v (+ 2 (* 3 i))) (yaw-of e))))   ; (a float vector: no boxes, DEVLOG §621)
 (defun hist-at (st lag)
   "Values x z yaw of Ichigo LAG steps ago (at most 15)."
   (let ((i (* 3 (mod (- (ics-hist-i st) (min 15 lag)) 16))) (v (ics-hist st)))
-    (values (svref v i) (svref v (1+ i)) (svref v (+ 2 i)))))
+    (values (aref v i) (aref v (1+ i)) (aref v (+ 2 i)))))
 
 (defun echo-watch (e f st)
   "A new attack of E's (a move with hits, not the Breaker; a Kikon rush at its strike) while ZANZO is on: its echo."

@@ -984,6 +984,7 @@ Hisagi comes -> :GUARD (wait it out, the punish after); he guards -> :BREAKER; e
   "His learner's own state within a match (LRN-KDATA)."
   (own-mv nil) (calm nil) (ox 0f0 :type single-float) (oz 0f0 :type single-float) (ux 0f0 :type single-float)
   (uz 0f0 :type single-float) (len 0 :type fixnum))
+(inline-readers hsl)
 (defun hs-learn-l (b) "Brain B's learner when it reads his situations (LRN-KIT: a CPU Hisagi facing a human), else NIL."
   (let ((l (and b (brain-learn b)))) (and l (lrn-kit l) l)))
 

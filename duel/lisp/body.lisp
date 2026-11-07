@@ -49,7 +49,8 @@
   (ink nil)                             ; its own keyline colours (as *BODY-INK*), NIL = *BODY-INK*
   (parts (make-array +nj+ :initial-element nil) :type simple-vector)  ; untagged solid mesh per joint
   (extras nil)                          ; list of #(joint mesh tint emissive tag): glows + tagged parts
-  (hulls nil))                          ; list of #(joint mesh tag): the ink outlines (BUILD-PARTS)
+  (hulls nil))
+(inline-readers body)                          ; list of #(joint mesh tag): the ink outlines (BUILD-PARTS)
 
 (defparameter *body-ink* '((:skin . #x3A1E1A) (:skin-d . #x3A1E1A) (:black . #x4A5062) (:hair . #x4A5062) (:brow . #x4A5062)
                            (t . #x101018))
@@ -139,7 +140,8 @@ glow / per (joint, tag)."
   (len 1f0 :type single-float)          ; grip → tip (weapon frame, before the body's scale)
   (base 0.25f0 :type single-float)      ; grip → start of the trail / fire (blade base)
   (sections nil)                        ; ((:solid ink fn) (:glow e color fn) ...), fn = (lambda (mb))
-  (meshes nil))                         ; built: list of #(mesh tint emissive hull-or-NIL)
+  (meshes nil))
+(inline-readers weapon)                         ; built: list of #(mesh tint emissive hull-or-NIL)
 
 (defvar *weapons* (make-hash-table :test 'eq))
 (defun find-weapon (name) (or (gethash name *weapons*) (error "unknown weapon ~s" name)))

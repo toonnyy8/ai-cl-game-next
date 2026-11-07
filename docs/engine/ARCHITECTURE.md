@@ -274,8 +274,20 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
   `(simple-array single-float (*))`; hot functions declare types.
 * File header: `(declaim (optimize (speed 3) (safety 1) (debug 0)))` is set in
   `package.lisp`; use `(safety 0)` locally only in proven inner loops.
-* Components are structs (DEFCOMPONENT = DEFSTRUCT): slot access compiles to direct vector access.
-  Numeric fields that change every step should be `:type single-float` (ECL still boxes them on
+* Components are structs (DEFCOMPONENT = DEFSTRUCT). **ECL 24.5 never inlines a DEFSTRUCT reader** (2026-11-07, DEVLOG §621):
+  `(vpad-tick vp)` was a full call through defstruct.lsp's accessor closure via `ecl_function_dispatch` (its own
+  `maybe-optimize-structure-access` is never called; `si:structure-ref`'s compiler macro passes the type unquoted on its checked
+  path, so the C reads the symbol's value). → **`inline-readers NAME`** (package.lisp) after a DEFSTRUCT gives every reader a
+  compiler macro: the slot read in place when the object's exact type is NAME, else `ecl_structure_ref` (a subtype's slot, or the
+  same type error). DEFCOMPONENT calls it; every DEFSTRUCT in engine/ and duel/ is followed by one. Writers (SETF) already compile
+  in place. A new DEFSTRUCT should be followed by `(inline-readers name)`.
+* **GETF walks its plist twice** (libecl is built ECL_SAFE: `assert_type_proper_list` = `cl_list_length`, then the search). On a
+  hot path use **`plist-get`** (package.lisp, inline: one EQ walk, GETF's result on a proper plist): `kit-hook`, `ai-table`,
+  `ai-step`; `pace` (components.lisp) adds with one walk too.
+* Entity handles: `handle-slot` / `entity-alive-p` declare the handle a fixnum once it is checked, so LOGAND / ASH / >= compile in
+  place (they were generic calls on every component getter); `*used*` is a fixnum vector (a bit vector's AREF is the call
+  `ecl_aref_bv`).
+* Numeric fields that change every step should be `:type single-float` (ECL still boxes them on
   write, so hot vectors are f32vec slots, e.g. `transform-pos`, `motion-vel`).
 * Passing arrays to C: `(ffi:c-inline (v) (t) :void "f(#0->vector.self.sf)")`
   for `(simple-array single-float (*))`; `->vector.self.b8` for
@@ -287,6 +299,12 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 * SOUL DUEL: iterate the two fighters with `(do-sides (e) …)` (two `let`s, 0 B) rather than
   `(dolist (e (list *p1* *p2*)) …)` (32 B a call); its pacing counters (the gate's per-match "duel ichigo /
   senju / lille …" lines) live behind `*pacing-log*` (`pace`, components.lisp), so play builds no keys.
+* Headless speed (2026-11-07, DEVLOG §621; profiled by sampling the native sim's stacks with gdb, SIGSTOP every 8 ms, since
+  `perf` is closed to users here): turbo (2102, the gates) skips `hud-draw` too (the old Lisp HUD was 22 % of a headless match);
+  `vpad-index` is an inline EQ loop (CL's POSITION was 12 %); the readers and GETF above. IK 20 seeds in one native process:
+  5.69 -> 1.87 s of simulation (x3.0), every hash / gate / pacing line identical, G2 identical (native and browser). The looks gate
+  could not prove the stills: 88 of 113 differed between its two BASE runs; of the 25 that did not, 19 were byte-identical and 6
+  differed, and those 6 are run-to-run noise too (two runs of the same new build differ on all four ENDLESS stills).
 
 ## Module map (in MANIFEST order)
 

@@ -18,6 +18,7 @@
 
 (defstruct app
   (title "game") (load nil) (start nil) (frame nil) (debug nil) (stats nil))
+(inline-readers app)
 (defvar *app* (make-app) "The registered game (RUN-GAME).")
 
 (defun run-game (&key (title "game") load start frame debug stats)

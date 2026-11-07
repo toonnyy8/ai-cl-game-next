@@ -344,7 +344,8 @@ spacing 0.237, kessa 0.725; in neither 0.170, 0.925).")
   (last-d 0f0)                          ; the perceived distance at the previous call (IKS-PROJ)
   (down nil) (meaty nil)                ; his knockdown seen (its roll made); the meaty roll's result (T: go)
   (gap nil) (gap-t 0 :type fixnum)      ; this episode's shut-gauge lunge roll: NIL unmade, :go, :no; frames spent on it
-  (his-hoho -999 :type fixnum))         ; the start tick of his last Hoho seen (IKS-HIS-HOHO-SHUT-P)
+  (his-hoho -999 :type fixnum))
+(inline-readers ikst)         ; the start tick of his last Hoho seen (IKS-HIS-HOHO-SHUT-P)
 
 (defun iks-pick (plist r)
   "The key of weight plist PLIST that roll R in [0,1) falls on (weights normalised)."

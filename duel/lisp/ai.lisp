@@ -106,7 +106,8 @@ the volatile 2 keeps the C compiler from turning it into X*X, which powf need no
   (tell nil)                            ; a :bind move's tell frames (its :params :tell; NIL = South's 21-30)
   (yaw 0f0 :type single-float)          ; his facing
   (hold 0 :type fixnum)                 ; frames his :hold move has been held (its hold phase: the move frame)
-  (move nil))                           ; his move (NIL: none): an :x-axis line's volumes, lock, params (SNAP-NEAR-P ...)
+  (move nil))
+(inline-readers snap)                           ; his move (NIL: none): an :x-axis line's volumes, lock, params (SNAP-NEAR-P ...)
 
 (defun snap-take! (s o)
   "Fill SNAP S with fighter O as he is now."
@@ -373,7 +374,7 @@ while: a charge move is held to its full charge from beyond 7 m, where it has th
         (:burst (ai-press b :quick 1 :modded t :act :burst))))))   ; the state picks the mode
 
 ;;; ---------------------------------------------------------------- decisions
-(defun ai-table (e key &optional default) (getf (kit-ai (kit-of e)) key default))
+(defun ai-table (e key &optional default) (plist-get (kit-ai (kit-of e)) key default))
 
 (defparameter *ai-steps* '(:block-hold ai-block-hold :held nil :burst ai-burst-roll :wake-guard ai-wake-step
                            :anti-kikon ai-anti-kikon :block-punish ai-block-punish :punish ai-punish :anti-rush ai-anti-rush
@@ -393,7 +394,7 @@ its own (the header's \"steps\"; one moved over at a time, each proved to leave 
 (defun ai-step (e name)
   "The function E's CPU runs for step NAME: its kit's own (the :ai plist's :steps sub-plist, apart from the other keys: a
 kit's :burst / :punish tables are not steps), else *AI-STEPS*'s default (NIL: none)."
-  (or (getf (ai-table e :steps) name) (getf *ai-steps* name)))
+  (or (plist-get (ai-table e :steps) name) (plist-get *ai-steps* name)))
 
 (defun ai-step-cmd (e name b s d)
   "AI-REFLEX's step NAME (e b s d) -> a command or NIL (NIL too when it has no function)."

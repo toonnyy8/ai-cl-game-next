@@ -618,6 +618,7 @@ after all are collected). I: the move's window index; HAZARD: the hazard dealing
 STATE RED: the defender's triangle state and red-ness; MV BONUS CRUSH: the attacker's move, stored
 damage, guard crush."
   att def hw (i 0) (sx 0f0) (sz 0f0) hazard state red mv (bonus 0) crush)
+(inline-readers pending)
 
 (defvar *pending* nil "Hits collected this step, applied together.")
 

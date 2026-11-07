@@ -6954,3 +6954,23 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
   - 黑色柄尾約 3.7 公分。
 - 長度、握的位置、黑色斜槓和刀身都不變；只改畫面。
 - 文件：DUEL_KEN_V3 §45。
+
+## 621. 無圖形模擬加速 3 倍（2026-11-07）
+
+使用者：「無圖形的模擬瓶頸又在哪呢？」→ 列出五項 → 「幫我全數處理」
+
+- 量測方式：這台機器不開放 `perf`，改用 gdb 取樣原生模擬器的呼叫堆疊（每 8 ms 送一次 SIGSTOP）。基準是單一程序跑 IK 20 場，扣掉 0.8 秒載入。
+- 結果：模擬時間 5.69 → **1.87 秒（3.0 倍）**。每一輪都和改之前的輸出逐行比對：hash 行、gate 結果、步調紀錄（duel ichigo／evo／band／cups）全部一致。
+- 逐輪：
+  1. **turbo 不畫 HUD**（原本佔 22%；舊版 Lisp HUD 在無圖形時照算），加上 **`vpad-index` 改成內聯的 EQ 迴圈**（CL 的 `position` 佔 12%）：5.69 → 3.69 秒。
+  2. **結構欄位讀取改成內聯**：ECL 24.5 從不內聯 defstruct 的讀取函式，每次都走 accessor closure（約 15%，外加函式分派）。ECL 自己的最佳化函式從沒被呼叫，`si:structure-ref` 的 compiler macro 還有把型別名稱漏掉 quote 的 bug。新增 `inline-readers`（package.lisp）：型別完全相符時直接讀欄位，否則呼叫 `ecl_structure_ref`（同樣的檢查和錯誤）。`defcomponent` 自動套用，engine 和 duel 的 35 個 defstruct 後面都加上：→ 2.82 秒。
+  3. **`plist-get`**：libecl 是 ECL_SAFE 版，每次 `getf` 都先量整條 plist 的長度再搜尋。`kit-hook`、`ai-table`、`ai-step` 改用一次走完的版本，`pace` 也改成一次走完（新的鍵一樣放最前面，輸出順序不變）；`*used*` 改成 fixnum 陣列：→ 2.40 秒。
+  4. **實體 handle 宣告成 fixnum**（`handle-slot`／`entity-alive-p` 的 logand／ash 原本走泛用算術）、一護的位置歷史改成 float 陣列（每步不再配置 3 個 box）、gate 統計不再每步建 list、已退役露琪亞的統計只對露琪亞算：→ 1.87 秒。
+- 第 3 項（熱點補型別）只做了以上這些。結構欄位讀取全面加型別宣告的做法沒採用：欄位寫入時 ECL 不檢查型別，萬一某處存了 fixnum 到 single-float 欄位，就會從「照常運作」變成執行錯誤，風險太高。
+- 第 5 項（平行化）不用改：`simgate` 本來就開 16 個程序，24 核心可以開滿。
+- 瀏覽器版：同樣的程式碼都會套用，wasm 變大約 430 KB（10.67 → 11.10 MB），啟動 heap 88.9 MB（上限 110）。
+- 驗證：
+  - 主機測試全過（duel-rules 9844、ecs、input、touch、cine、control、learn）；pkgcheck 乾淨。
+  - 原生 `--cvc` 和瀏覽器 G2 的 II／IK／KK 都和參考一致。
+  - looks gate：這次雜訊很高，兩次 BASE 自己就有 88／113 張不同，無法證明逐位元組相同。在兩次 BASE 一致的 25 張中，19 張完全相同，6 張不同；不同的那 6 張經查也是每次執行的雜訊：同一個新版建置跑兩次，ENDLESS 的 4 張就互不相同，BASE 重跑也和先前的 BASE 不同。menus 場景在三個建置都卡在說明書頁面（測試腳本的舊問題，和這次無關）。
+- 文件：docs/engine/ARCHITECTURE.md「Performance conventions」、AGENTS.md 的 Gotchas。

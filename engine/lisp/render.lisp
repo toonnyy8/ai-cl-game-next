@@ -51,7 +51,8 @@ file F (same directory, recursively), every // comment is removed, and so are bl
 
 (defstruct (mesh (:constructor %make-mesh))
   (id 0 :type fixnum)                       ; index into the renderer's C mesh table
-  (count 0 :type fixnum))                   ; vertices (3 per triangle)
+  (count 0 :type fixnum))
+(inline-readers mesh)                   ; vertices (3 per triangle)
 
 (defun make-mesh (data nfloats)
   "Upload NFLOATS of interleaved vertex DATA (9 floats per vertex) as an immutable mesh."
@@ -80,6 +81,7 @@ file F (same directory, recursively), every // comment is removed, and so are bl
   (forward (v3 0 0 -1) :type f32vec)
   (view (m4) :type f32vec) (proj (m4) :type f32vec)
   (view-proj (m4) :type f32vec) (inv-view-proj (m4) :type f32vec))
+(inline-readers camera)
 
 (defvar *camera* (make-camera))
 (defvar *cam-tmp* (make-f32 3))
@@ -174,7 +176,8 @@ Returns T if the point is in front of the camera."
   (shade-hue 8f0 :type single-float)
   (shade-lift 0.25f0 :type single-float)            ; stage shadows lifted this far toward the lit tone
   (cin-rim (v3 0 0 0) :type f32vec)                 ; cinematic hard back-rim on toon characters (sRGB; 0 = off)
-  (cin-width 0.16f0 :type single-float))            ; ... its width (1 - N.V above 1 - this)
+  (cin-width 0.16f0 :type single-float))
+(inline-readers environment)            ; ... its width (1 - N.V above 1 - this)
 
 (defvar *env* (make-environment))
 (defvar *render-scale* 1f0 "Offscreen scene resolution relative to the window.")
@@ -239,7 +242,8 @@ while the game pauses. The toon fx shader steps its noise on it (24 Hz ticks, F.
 (defstruct (stream-buffer (:constructor %make-stream-buffer))
   (stride 0 :type fixnum)                 ; floats per vertex
   (data (make-f32 0) :type f32vec)        ; CPU staging
-  (fill 0 :type fixnum))                  ; floats written this frame
+  (fill 0 :type fixnum))
+(inline-readers stream-buffer)                  ; floats written this frame
 
 (defun make-stream-buffer (stride max-vertices)
   (%make-stream-buffer :stride stride :data (make-f32 (* stride max-vertices))))

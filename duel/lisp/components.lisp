@@ -279,7 +279,13 @@ out twice: keep it to a call or two."
 (defvar *pacing* (vector nil nil) "Per side (0 P1, 1 P2): a plist of pacing keys -> counts this match.")
 (defmacro pace (e key &optional (n 1))
   "Add N to fighter E's pacing count KEY while *PACING-LOG* is on (KEY and N are not evaluated otherwise)."
-  `(when *pacing-log* (incf (getf (svref *pacing* (fighter-side (fighter ,e))) ,key 0) ,n)))
+  `(when *pacing-log* (pace-add (fighter-side (fighter ,e)) ,key ,n)))
+(defun pace-add (side key n)
+  "INCF (GETF (SVREF *PACING* SIDE) KEY 0) N in one walk of the plist (a new KEY goes on its front, as SETF GETF puts it; DEVLOG §621)."
+  (let ((cell (loop for l on (svref *pacing* side) by #'cddr when (eq (car l) key) return l)))
+    (if cell
+        (setf (cadr cell) (+ (cadr cell) n))
+        (setf (svref *pacing* side) (list* key (+ 0 n) (svref *pacing* side))))))
 (defun pacing-reset () "A gate match starts (START-CVC): both sides' counts empty." (fill *pacing* nil))
 
 (defvar *combat-log* nil
