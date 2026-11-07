@@ -300,6 +300,26 @@ the left arm there after the FK, so the keys' in-betweens cannot drift off it.")
        (%rot-to! ,kx ,ky ,kz ,c %x %y %z)
        (setf (aref ,jm %o) %x (aref ,jm (+ %o 1)) %y (aref ,jm (+ %o 2)) %z))))
 
+(defun-fast grip-target-ok-p (jm)
+  "May GRIP-LEFT! pull the left fist onto the handle in this pose? Not when its target (the handle point nearest the posed fist, as
+GRIP-LEFT! picks it) lies more than 0.10 m behind the chest's frontal plane and below 0.2 m over the chest joint: a handle carried
+low behind his back (斬壞's clips settling into the stance) pulled the whole left arm round his back, out of sight (the user,
+2026-11-08: 「劍八卍解感覺有時候會少一隻手」; DUEL_KEN_V3 §47). GRIP-STEP then eases the grip off. Overhead handles stay gripped:
+the Shikai's two-handed clips never go past -0.082 m below the shoulders and keep their look. 0 B."
+  (declare (type f32vec jm))
+  (let* ((ch (* 16 (ji :chest))) (wr (* 16 (ji :weapon-r))) (wl (* 16 (ji :weapon-l)))
+         (ax (aref jm (+ wr 8))) (ay (aref jm (+ wr 9))) (az (aref jm (+ wr 10)))
+         (ox (aref jm (+ wr 12))) (oy (aref jm (+ wr 13))) (oz (aref jm (+ wr 14)))
+         (s (f-clamp (/ (+ (* (- (aref jm (+ wl 12)) ox) ax) (* (- (aref jm (+ wl 13)) oy) ay) (* (- (aref jm (+ wl 14)) oz) az))
+                        (f-max 1f-6 (+ (* ax ax) (* ay ay) (* az az))))
+                     0.14f0 0.62f0))
+         (hx (- (+ ox (* s ax)) (aref jm (+ ch 12)))) (hy (- (+ oy (* s ay)) (aref jm (+ ch 13)))) (hz (- (+ oz (* s az)) (aref jm (+ ch 14))))
+         (fx (- (aref jm (+ ch 8)))) (fy (- (aref jm (+ ch 9)))) (fz (- (aref jm (+ ch 10))))          ; the chest's forward (-Z)
+         (ux (aref jm (+ ch 4))) (uy (aref jm (+ ch 5))) (uz (aref jm (+ ch 6))))                        ; and up (+Y)
+    (declare (fixnum ch wr wl) (single-float ax ay az ox oy oz s hx hy hz fx fy fz ux uy uz))
+    (or (> (/ (+ (* hx fx) (* hy fy) (* hz fz)) (f-max 1f-6 (f-hypot fx fy fz))) -0.10f0)
+        (> (/ (+ (* hx ux) (* hy uy) (* hz uz)) (f-max 1f-6 (f-hypot ux uy uz))) 0.2f0))))
+
 (defun-fast grip-left! (jm wv)
   "Two-bone IK after the FK (a look): move the left fist (the :weapon-l point) W (0..1) of the way onto the right hand's
 handle (the :weapon-r frame's +Z axis, 0.14-0.62 m behind the grip: the long handle; the nearest point to where the

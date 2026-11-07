@@ -217,7 +217,7 @@ ink afterimages during the dash, :charge a stronger aura, :leap lifts the drawin
         (let ((at *pose-at*)) (setf (aref at 0) (f32 x) (aref at 1) (f32 y) (aref at 2) (f32 z) (aref at 3) (f32 yaw)))
         (funcall h e m)))
     (let ((c (anim-clip (model-anim m))))                  ; a two-handed clip: the left fist on the handle
-      (grip-step m (and weapon c (member (clip-name c) *grip-clips*)) (f32 rdt)))
+      (grip-step m (and weapon c (member (clip-name c) *grip-clips*) (grip-target-ok-p (model-joints m))) (f32 rdt)))
     (countdown! (model-hold m) rdt)
     (when (> rdt 0)                                       ; the Phase 5 look timers (effect seconds)
       (progn (countdown! (model-face-t m) rdt)

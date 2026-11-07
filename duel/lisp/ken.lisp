@@ -1201,7 +1201,8 @@ torso max …'. Returns the below-the-shoulders min (m)."
     (anim-play an clip :blend 0)
     (dotimes (i n)
       (pose-fk! jm (anim-eval an) 0.0 0.0 0.0 0.0 (body-scale b) (body-hunch b) (body-props b))
-      (grip-left! jm one)
+      (setf (aref one 0) (f32 (if (grip-target-ok-p jm) (min 1.0 (+ (aref one 0) (/ 10 120.0))) (max 0.0 (- (aref one 0) (/ 10 120.0))))))   ; (GRIP-STEP's
+      (when (> (aref one 0) 0f0) (grip-left! jm one))                                                                                  ;  easing and release, §47)
       (multiple-value-bind (e f l d) (grip-front jm)
         (setf el (min el e) fi (min fi f) lo (min lo l) dp (max dp d))
         (when (< l -0.165) (incf back)))

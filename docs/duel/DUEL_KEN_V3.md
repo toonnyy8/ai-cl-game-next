@@ -1400,3 +1400,22 @@ The user (verbatim): 「劍八始解後的 AS1 跟 AS2 只要沒解放 L3 好像
   +14) / push the victim to ~2.5 m / keep it. **The user: 「維持現狀」**: below L3 the AS is the climbing tool and its risk the price of
   not having unlocked. Only the manual says so now (the Shikai table's AS row: below L3 no knockdown, both recover within 8 frames 0.8 m
   apart, Hoho can answer; a burst ends safe at any level). No sim change.
+
+## 47. 斬壞's left arm wrapped behind his back (the user, 2026-11-08)
+
+The user (verbatim): 「然後劍八卍解感覺有時候會少一隻手。是我的錯覺嗎？」
+
+- **Not imagined.** 斬壞 ZANKAI's four two-handed clips (`*grip-clips*`: J5 `:ke-zh-cut5`, NS c `:ke-zh-ns-c`, the finisher `:ke-zh-fin`,
+  TATE-GOTO `:ke-zh-tategoto`) settle into the stance at their end, the handle carried low behind his back, while GRIP-LEFT! still holds
+  the left fist on it at full weight: the whole left arm was pulled round his back. Debug 2392 (`grip front`): the samples behind the
+  back plane (an arm point below the shoulders more than 0.165 m behind the chest's frontal plane) 10 / 20 / 7 / 9 of 109 / 95 / 77 /
+  75, the fist 0.177 m and an arm point 0.25–0.30 m behind it, in each clip's last ~0.08 s (and the finisher's start and 0.63–0.65 s).
+  The stance has no grip, so the arm came back within 0.1 s: "sometimes one arm is missing".
+- **Fix (presentation only)**: `grip-target-ok-p` (body.lisp) gates GRIP-STEP: no grip while the IK's target (the handle point nearest
+  the posed fist, GRIP-LEFT!'s own pick) lies more than 0.10 m behind the chest's frontal plane and below 0.2 m over the chest joint;
+  GRIP-STEP's 0.1 s easing lets go and takes hold again. The threshold from the targets' range: the Shikai's two-handed clips (P2 c / d /
+  e, the meteor cut) never go past −0.082 m below the shoulders (overhead handles stay gripped); 斬壞's reach −0.205 m. A fixed handle
+  point (0.38 m down) instead of the IK's target released the Shikai's shoulder carry too, so it was dropped.
+- **After** (2392 now runs GRIP-STEP's easing and the release): 斬壞 1 / 4 / 1 / 1 samples behind the back plane (the fade), the deepest
+  arm point −0.166 to −0.213 m; the Shikai's four clips' rows unchanged (0 behind, the same minima). G2 identical, native and browser;
+  host tests, pkgcheck. Stills from the match camera were too cluttered to show it: needs the user's eyes (playtest v354).
