@@ -1810,6 +1810,23 @@ lag: 「只擋攻擊這個選項應該只能開放 step 跟 hoho，不能移動�
   154.9 -> 158.6, HY 115.2 -> 110.3, HK 130.6 -> 110.7, HR 146.2 -> 145.5, HI 140.7 -> 152.6, HS 134.7 -> 160.9, HB 153.7
   -> 157.2, HH 206.8 -> 185.2 s; cvc regenerated (yy P2 0-3 116.3 s, yk P2 0-6 135.6 s, kk P1 6-0 160.2 s).
 
+## The recovery's clip fills the recovery (the user, 2026-11-07)
+
+「我發現劍八有些攻擊後搖的硬直並沒有對應的動畫，只是單純僵硬在原地無法操作。請幫我找出這些動作並為其追加自然的收招動畫」.
+**Cause**: every clip ends at its move's S + A + R (`defstrike`), the recovery after a hit. A block or a whiff recovers longer
+(RECOVERY-FRAMES: J +4 / +16, NS +6 / +20, AS +0 / +6), and an AS that plays a faster copy's clip (`:clip-s`, clip speed > 1)
+ends its clip early even on a hit, so the pose froze on the clip's last key for the rest. Kenpachi, measured from his kits' data
+(a host probe of clip length vs MOVE-END-FRAME): every live move 4-6 f on a block and 6-20 f on a whiff; on a hit the sealed AS2
+3.3 f (KE-Z-P2A ×1.14), KYORAN AS2-4 3.4 f (KE-KR-NS-A ×1.17), ZANKAI AS2-4 7.3 f (KE-ZH-NS-A ×1.33). (The old-system moves still
+in his kit, unreachable in a core match, have their own: KE-CHARGE 40 f, the Breaker 6 f.)
+- **The choice** (asked; the user picked "Follow-through slows, then recovers" over an off-balance layer or one whiff clip per move,
+  and "All three fighters" over Kenpachi alone): RECOVERY-PACE (fighter.lisp), each step of a move's recovery while its clip would end before the move:
+  the first `*recovery-linger*` (0.4) of the clip's recovery (S + A to its end) takes every extra frame, the follow-through
+  lingering with the weight dragging, then the rest plays at the move's clip speed and lands on the stance on the real end frame.
+  Never faster than the clip speed (a clip longer than its move is left alone), never in a cinematic or a looping clip. A whiffed
+  J1 (S 6, A 3, R 12, 37 f): the follow-through's first 4.8 clip frames over 21 steps, the return's 7.2 at speed 1.
+- **A look only**: the sim never reads a clip; G2 cvc II / IK / KK identical to `tests/style-cvc-ref.txt`.
+
 ## Reiatsu by move kind × combo (the user, 2026-10-26)
 
 The user: 「幫我修改 SP 恢復機制，不在按傷害，改成依據每招式各自的基礎值 * combo 數加成」. Asked, the user chose: the attacker
