@@ -85,6 +85,7 @@ lisp/hisagi-cine.lisp
 lisp/hisagi-stills.lisp
 lisp/gate.lisp
 lisp/debug.lisp
+lisp/sim-state.lisp
 lisp/endless.lisp
 lisp/rogue.lisp
 lisp/draw.lisp

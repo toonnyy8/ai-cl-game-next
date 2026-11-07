@@ -358,6 +358,7 @@ run to run). Its cinematics run inside the fixed step through the engine's direc
 | lisp/fx.lisp      | the pools: shake, particles, rings, debris, trail buffers (%TRAIL-PUSH / %TRAIL-DROP) and the drawn smear (FX-SMEAR-CAPTURE!), edge vignette, hit-volume debug outlines |
 | lisp/cine.lisp    | the cinematic director: DEFCINE (AT / DURING), start / step / draw / skip, shots, game hooks |
 | lisp/ecs.lisp     | entities, components, systems, events (DO-EVENTS), the shared TRANSFORM component (POS-OF / YAW-OF) |
+| lisp/snapshot.lisp | the sim's state saved and restored in place (SIM-SNAPSHOT / SIM-RESTORE; roots and shared types registered by the game; DUEL_AI_TEACHER §5) |
 | lisp/app.lisp     | `RUN-GAME`, startup steps, frame driver, debug queue, stats line |
 | c/main.c          | boot ECL, GC policy, browser main loop, page hooks            |
 | web/shell.html    | page shell: WebGPU pre-init, loading bar, error veil          |

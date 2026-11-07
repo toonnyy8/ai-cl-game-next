@@ -7,7 +7,7 @@
   (:use :cl)
   (:export
    ;; package.lisp: types, compiler helpers, float math in C, random numbers, logging
-   #:f32 #:f32vec #:f32vec-p #:clamp #:lerp #:log-msg #:defun-fast #:defun-fast-inline #:with-floats #:inline-readers #:plist-get
+   #:f32 #:f32vec #:f32vec-p #:clamp #:lerp #:log-msg #:*log-mute* #:defun-fast #:defun-fast-inline #:with-floats #:inline-readers #:plist-get
    #:f-min #:f-max #:f-abs #:f-sqrt #:f-hypot #:f-sin #:f-cos #:f-atan2 #:f-mod #:f-exp #:f-clamp
    #:i->f #:f->i #:f-wrap #:rnd01 #:rnd-range #:rnd-seed #:rnd-state
    #:sim-rnd01 #:sim-rnd-range #:sim-rnd-seed #:sim-rnd-state
@@ -114,7 +114,9 @@
    #:remove-component #:clear-entities #:do-entities #:emit #:take-events #:do-events
    #:transform #:make-transform #:transform-pos #:transform-yaw #:pos-of #:yaw-of
    ;; app.lisp: game registration and the frame driver
-   #:run-game #:perf-mark #:*stats-log* #:cons-per-frame #:cons-bytes #:now-ms))
+   #:run-game #:perf-mark #:*stats-log* #:cons-per-frame #:cons-bytes #:now-ms
+   ;; snapshot.lisp: the sim's state saved and put back in place (DUEL_AI_TEACHER §5)
+   #:snapshot-roots #:snapshot-shared #:sim-snapshot #:sim-restore #:simsnap-count))
 (in-package :engine)
 
 (declaim (optimize (speed 3) (safety 1) (debug 0)))
@@ -136,11 +138,13 @@ box again (8 B per call, e.g. every (SETF slot (F32 (generic-fn ...)))); the THE
      (declare (single-float ,@vars))
      ,@body))
 
+(defvar *log-mute* nil "T: LOG-MSG prints nothing (a search's rollouts, DUEL_AI_TEACHER §5).")
 (defun log-msg (fmt &rest args)
-  "Print a line to the browser console."
-  (apply #'format t fmt args)
-  (terpri)
-  (finish-output))
+  "Print a line to the browser console (none while *LOG-MUTE*)."
+  (unless *log-mute*
+    (apply #'format t fmt args)
+    (terpri)
+    (finish-output)))
 
 (declaim (inline f32vec-p))
 (defun f32vec-p (x) (and (vectorp x) (eq (array-element-type x) 'single-float)))

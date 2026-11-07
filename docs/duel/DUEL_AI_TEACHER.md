@@ -47,3 +47,41 @@ the answers in the session of 2026-11-07).
 2. The opponent model in the rollouts: a mix of the generic CPU and the KI style CPUs.
 3. "Human-like": reaction delay per difficulty, a mistake budget, readability, as proposed.
 4. The pilot pairing: Kenpachi vs Ichigo.
+
+## 5. The engine snapshot: scope, rule, pass condition (2026-11-07)
+
+- **What it is**: `snapshot` saves the sim's state, `restore` puts it back, as many times as a search needs. Engine part:
+  `engine/lisp/snapshot.lisp` (the walker, the ECS bookkeeping, the C sim RNG `rng2_state`); the game's part: `duel/lisp/sim-state.lisp`
+  (its roots, its shared definition types, the rollout). Plain Lisp, no POSIX: the browser can use it later.
+- **In place**: restore writes the saved contents back into the **same objects**, never fresh copies, so `eq` tests (a move compared
+  with `eq`) and aliasing (a pilot's vpad is the one the brain writes) survive. The snapshot walks from the roots, memoised by identity:
+  a struct's slots, an array's elements, a cons's car and cdr, a hash table's entries; it stops at shared definitions (kits, moves,
+  hit windows, clips, bodies, weapons, meshes, glyphs; functions, symbols, strings, numbers), which the sim never writes.
+- **Roots**: the ECS stores and bookkeeping (`*stores*`, `*used*`, `*generation*`, `*top*`: slot reuse decides the entity order and the
+  handles, so a hazard spawned in a rollout leaves no trace), the C sim RNG, and the game's registered globals (the match clock, the
+  flow, the cinematic, hitstop and slow motion, ...). The list grows by what the test finds; it is not classified by hand up front.
+- **When**: only in battle and outside a cinematic (`snapshot` returns NIL otherwise).
+- **A rollout**: `sim-step`s with the logs off (`*pacing-log*`, `*combat-log*`, `*gate-log*`, `*step-hook*`), ending at a K.O.,
+  time-up, a cinematic or the flow leaving battle.
+- **Pass condition (the pollution test, native sim)**: the same seeded matches run straight and with a rollout every ~40 ticks
+  (snapshot, 60–120 steps on a reseeded sim RNG so the CPUs play differently, restore); every hash / gate / pacing line and every result
+  must match the straight run. Pairings IK and KI (the KI style CPUs on: the rollout opponents chosen in §1), II and KK.
+- **Speed target**: snapshot + restore well under the rollout itself (~0.4 ms for 60 steps natively); fork costs 1.74 ms (§2).
+- **Inert**: nothing calls it in play; G2 `--cvc` identical, native and browser.
+
+### 5.1 Built and passed (2026-11-08)
+
+- `engine/lisp/snapshot.lisp` (the walker; engine roots: the ECS stores and bookkeeping, `*hitstop*` / `*tick*` / `*slowmo*`, `*cine*`; the
+  C sim RNG), `duel/lisp/sim-state.lisp` (the shared types, the game's roots, `sim-snapshot-ok-p`, `sim-rollout`), `*log-mute*` in the
+  engine's `log-msg` (a rollout prints nothing), `tools/simgate/snaptest.lisp` (the pollution test).
+- The struct slot count is read in C (`instance.length`): compiled, `si:instancep` is only a predicate.
+- **What the test found**: only one missing piece, the cinematic's start-up state. A rollout ends in the step that starts a cinematic,
+  and that step already set `*cine-placed*` / `*cine-placed-e*` (where CINE-END gives the actors back): after the restore, the next
+  real cinematic gave them back to the rollout's places (IK seed 1, tick 5868, the first divergence by the per-tick digest). Every
+  global cinema.lisp sets at a cinematic's start is a root now.
+- **Pass**: IK (the KI style CPUs on), KK, II, HK, HI, 20 seeds each: every line equal to the straight run; ~38,500 rollouts of 60–120
+  steps (82 % of them ended in a different state from the match at the same tick: the rollouts play differently, IK seed 1, 205 of 251).
+- **Speed** (native, IK mid-match, 173 objects): snapshot 217 us, **restore 33 us**, a 60-step rollout + restore 334 us: ~3,000
+  rollouts a second a core, ~48,000 on 16 processes (fork: ~7,500). A teacher snapshots once per decision point and restores per
+  rollout, so restore is the cost that counts.
+- **Inert**: host tests, pkgcheck, G2 identical native and browser; nothing in play calls it. wasm 10.99 -> 11.00 MB.

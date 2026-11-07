@@ -18,6 +18,7 @@ lisp/fx-shapes.lisp
 lisp/fx.lisp
 lisp/cine.lisp
 lisp/ecs.lisp
+lisp/snapshot.lisp
 lisp/app.lisp
 c/main.c
 c/rng.c
