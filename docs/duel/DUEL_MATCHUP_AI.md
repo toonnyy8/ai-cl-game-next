@@ -299,7 +299,7 @@ against the other's previous best, so the final pair is closer than any round's 
 **IK regenerated** (27 lines, P2 0-5, 270.1 s, browser = native; before 42 lines, P2 0-3, 419.4 s). The manual's CPU VS CPU row mentions the
 matchup CPUs.
 
-**The search in numbers**: 3 rounds, 45 cells dispatched (8 + 7 + 7 a side, plus the two v0 agents), 44 delivered; every rescore reproduced its
+**The search in numbers**: 3 rounds, 44 cells dispatched (8 + 7 + 7 a side; the two v0 agents apart), 43 delivered (Ichigo r2 b2_a0 ran out of context); every rescore reproduced its
 cell's own 40-seed line. Dreaming: the topk policy (refine the top ceil(1 + 3 β) branches) replaced the baseline policy after round 1 and kept
 winning the compare (replay reward 0.29 / 0.30 on three worlds, the baseline policy −0.01); it saved one cell a side per round. The gains came
 from the cells' diagnoses (located bugs, stale-SNAP timing, perfect-Hoho windows), as in DREAM_RSI §6, more than from the replay.
