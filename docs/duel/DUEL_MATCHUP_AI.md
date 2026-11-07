@@ -235,3 +235,26 @@ Round 1, 8 cells a side, every cell rescored (the rescores reproduced each cell'
 - Round 2 starts from the champions (each side's `baseline/` = its champion), not from v0: the opponent changed, so v0 is no longer the
   round's reference. The skill's protocol starts every round from the initial program; with co-evolution that would discard the
   round's opponent-specific work.
+
+## 10. Round 2 and the evaluator's third freeze (2026-11-07)
+
+Round 2 from the round-1 champions, each side against the other's champion (baselines Kenpachi 0.8334, Ichigo 0.2877). The topk policy
+refined three branches a side (7 cells). One Ichigo cell (b2_a0) ran out of context reading the history whole and delivered nothing: recorded
+as a resource failure (the briefs since ask for summaries first and proposals under ~150 lines).
+
+| Side | b0 a0 / a1 | b1 a0 / a1 | b2 a0 | b3 a0 / a1 | Champion |
+|---|---|---|---|---|---|
+| Kenpachi | **0.921** / 0.786 | 0.876 / 0.921 | 0.870 | 0.887 / 0.889 | b0_a0: the meaty J1 on every knockdown, NS links only where they reach, the AS run to its end, the dodge on every reachable move, no Hoho-in (walks into reach); HARD 80/80 |
+| Ichigo | 0.415 / 0.793 | 0.584 / **0.833** | fail | 0.715 / 0.787 | b1_a1: the patient sealed game (never first; the whiff confirm and the timed perfect Hoho), the whole Hoho kit (wake-up Hoho, his lunge's slide in its reach, the 64 f follow-up), pointer 2 waits against his Shikai / Bankai, a meaty J1 on his wake-up; HARD 80/80 |
+
+**The evaluator's third freeze** (before round 3):
+- The user, on a theme whose situation never came up (Kenpachi's b0_a1 lost antiwave to 0/0 because Ichigo never started a Getsuga, 0.935 →
+  0.786): **「對手觸發的不列入平均」**. A theme the opponent opens (Kenpachi's antiwave, Ichigo's whiff) leaves the signature's mean when it has no
+  situation in the whole run; the others still score 0 (the user's rule against dodging a theme).
+- A bug fixed (reported by Kenpachi's b1_a0): a Soul Break's hit read as no hit, since the bar refills on the breaking step. A Konpaku lost
+  now counts as a hit (his own Konpaku paid as a Bankai ends excepted). My first version of this made the KESSA ledger subtract the refill
+  (Ichigo's kessa fell to 0.03); fixed the same hour: the ledger adds Reishi drops only, his Bankai segment cost excluded.
+- The candidates re-measured at the third freeze: Kenpachi b0_a0 0.9213, b1_a1 0.9211, b0_a1 0.914 (antiwave excluded), b3_a1 0.889; Ichigo
+  b1_a1 0.8339, b0_a1 0.7929, b3_a1 0.7873. Champions: Kenpachi b0_a0, Ichigo b1_a1.
+- **The champions against each other: Ichigo 77/80 at HARD, 0.810; Kenpachi 0.287.** The lead has swung each round (v0: Ichigo; round 1:
+  Kenpachi; round 2: Ichigo): each side's best is tuned against the other's previous best. Round 3 (the last) starts from these.

@@ -18,6 +18,9 @@
 ;;;; Cell b3_a1 (round 1) = b0_a0's file (the sealed discipline, the AS read) + b3_a0's 破月牙 + b1_a0's awakening once a match, L3 SA and
 ;;;; Kikon pointer gate + b2_a0's straight-back Bankai (no cash-out) + b0_a1's flash-step reserve and back-Step dodge + its own far-wave
 ;;;; answers.
+;;;; Cell b0_a0 (round 2, against Ichigo's champion: the whiff confirm, the 3.4-3.8 m hover) on b3_a1: the sealed brawl's
+;;;; follow-through. The route after a landed NS goes by reach (KK-LINK), and his sealed AS runs all its segments (KK-AS-ON). Every
+;;;; knockdown gets the meaty (never a move into her wake-up), the dodge answers every reachable move she starts, and the Hoho in is off.
 ;;;; Every roll is made once per event (her move start, her knockdown, her Getsuga route, his form stay, L3 reached, a neutral decision
 ;;;; the generic CPU would make), never per step. She is read only through the perceived SNAP S and distance D (the brain's delay).
 ;;;; Trial names: docs/research/ki-ai/kenpachi/{trials.lisp,catalogue.md}.
@@ -44,11 +47,25 @@ the perceived distance is 8 frames old at HARD). 0.15 -> 0.5 (20 seeds a seat, p
   "封印肉搏's discipline in his own NS (KK-NS-WHIFF): per NS segment, its next segment waits for its contact and a whiff stops the route
 (the generic CPU runs a whiffed NS1a on into b and c, which her style punishes at 3.7-3.8 m). The latch takes the press up to the
 segment's end (CORE-LATCH-STEP), so a landed one still goes on. New 2026-11-06, cell b0_a0.")
-(defparameter *kk-dodge-p* '(:easy 0.0 :normal 0.1 :hard 0.8)
+(defparameter *kk-link-p* '(:easy 0.0 :normal 0.3 :hard 1.0)
+  "封印肉搏's route discipline (KK-LINK), per landed segment of his own sealed NS: the next segment where it reaches, else the SA where it
+reaches, else stop. Her champion's whiff confirm (round 2) punished the generic CPU's SA after a landed NS1a (the SA reaches 1.0 m, the
+NS1a's slide leaves her ~2 m off). New 2026-11-07, cell b0_a0 (round 2). (A J-string twin, the next J or the AS by reach, was tried and
+dropped: the J whiffs it would catch sat at a perceived 0.8 m, mostly her Burst, so the distance could not tell them.) Ablation on the final file, 20 seeds a seat paired: HARD 0 -> brawl 0.845 (272/322) against
+0.861 (267/310) with it.")
+(defparameter *kk-as-on-p* '(:easy 0.0 :normal 0.0 :hard 1.0)
+  "封印肉搏's AS carried through (KK-AS-ON): per segment of his sealed AS, the next segment once it lands (else the generic CPU's 0.85 a
+segment at HARD). New 2026-11-07, cell b0_a0 (round 2): AS3a / AS3b left 3 times of ~350 each (51 / 45 before), and brawl went 0.829
+-> 0.879 (20 seeds a seat paired). NORMAL 0: the shipped CPU's own roll.")
+(defparameter *kk-link-margin* 0.0
+  "封印肉搏's string discipline: a link lands within its reach + slide + this (m), against the perceived distance (8 frames old at HARD).")
+(defparameter *kk-dodge-p* '(:easy 0.0 :normal 0.1 :hard 1.0)
   "封印肉搏's read, its other answer: her NA / NS perceived starting where his tame / J1 / NS1a cannot beat it (beyond *KK-READ-RANGE*:
 her NS3a lunge from 4-5 m, S18 + a 2.4 m slide; the Shikai and the Bankai always) but her move can reach him: Hoho through it (one roll
 per her move start). Hoho: invulnerable frames 1-14, behind her on frame 6; a perfect one (her hit within 12 frames) counters 60 and
-locks her 40 frames: 14 of 20 dodges in one HARD match were perfect. New 2026-11-06, cell b0_a0.")
+locks her 40 frames: 14 of 20 dodges in one HARD match were perfect. New 2026-11-06, cell b0_a0. HARD 0.8 -> 1.0, 2026-11-07, cell
+b0_a0 (round 2), against her champion: 20 seeds a seat paired (both arms with *KK-BRAWL-P* HARD 1.0), brawl 0.747 -> 0.829 (failed
+exchanges 114 -> 71; her lunges and NS1a the dodge now always answers).")
 (defparameter *kk-step-p* '(:easy 0.0 :normal 0.05 :hard 0.9)
   "封印肉搏's dodge without a Hoho: where *KK-DODGE-P*'s Hoho would answer her move (her 4-5 m lunge, KESSA's clones, any move of hers
 that reaches him beyond the brawl answers) but no Hoho is open (it needs 100 of his 300 flash-step, which refills at 9 a second, and
@@ -75,10 +92,14 @@ open. 0 (any) -> 200, 2026-11-06, cell b0_a1.")
 Kikons; her style cancelled all 11 (the SP's knockdown lost with it). Red, the Kikon cannot be cancelled and is kept. Her red bar is read
 as CAI-SP itself reads it (GAUGES-RED-P, a visible fact). Ablation, 20 seeds a seat paired: without it 0.419 (HARD 10 of 40), with it
 0.513 (18 of 40). New 2026-11-06, cell b0_a0.")
-(defparameter *kk-hoho-in-p* '(:easy 0.0 :normal 0.05 :hard 0.8)
+(defparameter *kk-hoho-in-p* '(:easy 0.0 :normal 0.0 :hard 0.0)
   "封印肉搏's discipline, sealed or in a Bankai: per approach (KK-PICK's, one roll; one Hoho an approach) out of his reach within
 *KK-HOHO-IN-MAX*: Hoho in (he reappears 1.6 m behind her on frame 6, his J1 / NS1a then reach) instead of walking in. Her hover backs
-off from a walk-in (3.7-4.2 m sealed) and punishes the move he starts at its edge. New 2026-11-06, cell b0_a0.")
+off from a walk-in (3.7-4.2 m sealed) and punishes the move he starts at its edge. New 2026-11-06, cell b0_a0. Off: 0 / 0.05 / 0.8 ->
+0 / 0 / 0, 2026-11-07, cell b0_a0 (round 2): against her champion's hover (3.4-3.8 m) and whiff punish the Hoho in lost. He lands 1.6 m
+behind her, but his perceived distance is from before she backed off; his J1 then started at a real 2.8-3.0 m into her punish-j. The
+exchanges after a Hoho in went 42 ok / 33 failed (0.56, under the theme's mean), and turning it off took brawl 0.672 -> 0.754 (20 seeds
+a seat, paired). With it off, *KK-HIN-FS* and *KK-HOHO-IN-MAX* do nothing (the code stays for the search).")
 (defparameter *kk-hoho-in-max* 4.6 "封印肉搏's Hoho in: the farthest (m) he Hohos in from (her hover band is 3.7-4.2 m sealed).")
 (defparameter *kk-clone-reach* 7.0
   "封印肉搏's dodge: her KESSA NS3 segments (no hit of their own; a clone appears on f8 and strikes on f15, where his J1 / NS1a on her
@@ -87,9 +108,11 @@ cannot stop it: the brawl's answers are skipped for them) are Hohoed through wit
   "In a planned string (KK-MOVE: the climb, L3's J4-J7, the Bankai's), a link that lands or cancels while she is seen in an NS turns to
 the SP at once, as the generic CPU's CAI-MOVE-STEP always does (one roll per link, the move's own BRAIN-R-TURN). v0's plans pressed the
 next J into her NS / SA. A located v0 bug, found independently by round 1's b1_a0 (*KK-TURN-P*) and b2_a0 (*KK-AS-READ-P*).")
-(defparameter *kk-meaty-p* '(:easy 0.0 :normal 0.1 :hard 0.7)
+(defparameter *kk-meaty-p* '(:easy 0.0 :normal 0.1 :hard 1.0)
   "封印肉搏 / 卍解爆發's chase: per knockdown of hers (one roll as she goes down): walk (or Hoho, from beyond *KK-CHASE-HOHO* m) in and
-press J1 to land on her first free frame (K1: 64 a loop; D43 after the Bankai entry).")
+press J1 to land on her first free frame (K1: 64 a loop; D43 after the Bankai entry). HARD 0.7 -> 1.0, 2026-11-07, cell b0_a0
+(round 2): a failed roll left the generic CPU to start NS1a / J1 into her invulnerable wake-up, the move whiffed and her champion's whiff
+confirm J1 landed: 35 of the baseline's 213 failed exchanges (20 seeds a seat), 0 after.")
 (defparameter *kk-meaty-lead* 0
   "The meaty J1 is pressed when her perceived frames to her first free one are J1's startup + this (0: J1's first active frame on it;
 K1 gap 0, K2 12 frames late she acts, D47 too early whiffs on her invulnerable wake-up).")
@@ -532,6 +555,42 @@ it decided (waits or stops)."
           (setf (brain-decided b) (fighter-cls-t f)))
         t))))
 
+(defun kk-link-reach (mv)
+  "MV's reach + slide + *KK-LINK-MARGIN* (m): the farthest the next link of his NS route still lands from; 0 for none."
+  (if (and mv (plusp (mv-reach mv))) (+ (mv-reach mv) (mv-slide mv) *kk-link-margin*) 0.0))
+
+(defun kk-link (e b f kit s d)
+  "封印肉搏's route discipline after his own landed sealed NS segment (the segment out, the gap the generic CPU reads): the generic CPU
+takes the SA there within 2.6 m at 0.8, but the sealed SA reaches 1.0 m, and the NS1a's 1.2 m slide often leaves her 1.9-2.2 m off: the
+SA whiffs and her whiff confirm J1 lands (14 of the baseline's 213 failed exchanges at 20 seeds a seat). Here, one roll per segment
+(*KK-LINK-P*): the next segment where it reaches (NS1 a b c, F3), else the SA where it reaches (the route's SA J2-J5 AS3, L1), else
+stop (+2 or better on a hit, never a whiff). Her NA in his gap (the SA's read) stays the generic CPU's. T when it decided."
+  (let ((mv (fighter-move f)))
+    (when (and mv (eq (fighter-form f) :base) (eq (fighter-cls f) :ns) (eq (fighter-contact f) :hit) (plusp (mv-reach mv))
+               (/= (brain-decided b) (fighter-cls-t f)) (>= (fighter-sf f) (mv-s mv))
+               (not (eq (cai-class-of (fighter-opp f) s) :na)) (brain-roll b *kk-link-p*))
+      (let ((nx (mv-ns-next kit mv)) (sa (or (mv-sa-move kit mv) (kit-sa-move kit))))
+        (setf (brain-decided b) (fighter-cls-t f))
+        (cond ((and nx (<= d (kk-link-reach nx))) (clog "~a kk link NS at ~,1f" (side-name e) d) (cai-press b :quick 1 t))
+              ((and sa (<= d (kk-link-reach sa))) (clog "~a kk link SA at ~,1f" (side-name e) d) (cai-press b :quick 1))
+              (t (clog "~a kk link stop at ~,1f" (side-name e) d)))
+        t))))
+
+(defun kk-as-on (e b f kit)
+  "封印肉搏's AS carried through: in his own sealed AS, each segment out (AS2a > b, AS3a > b > c) presses the next one once it lands,
+instead of the generic CPU's *CAI-CONT-P* roll per segment (0.85 at HARD: 15-26 % of AS2a / AS3a / AS3b were left there in 20 HARD
+matches a seat, him free ~40 frames later at a perceived 1.8 m as her hover backed off, his J1 then whiffing into her punish). A
+segment that whiffs stops there. The roll is the segment's own (BRAIN-R-CONT, *KK-AS-ON-P*). T when it decided (pressed, waits for the
+contact, or stops)."
+  (let ((mv (fighter-move f)))
+    (when (and mv (eq (fighter-form f) :base) (eq (fighter-cls f) :as) (mv-ns-next kit mv) (>= (fighter-sf f) (mv-s mv))
+               (/= (brain-decided b) (fighter-cls-t f)) (not (vpad-down (pilot-vpad (pilot e)) :quick)))
+      (cai-own-rolls b f)
+      (when (< (brain-r-cont b) (brain-chance b *kk-as-on-p*))
+        (cond ((eq (fighter-contact f) :hit) (setf (brain-decided b) (fighter-cls-t f)) (cai-press b :quick 1 t))
+              ((>= (fighter-sf f) (+ (mv-s mv) (mv-a mv))) (setf (brain-decided b) (fighter-cls-t f))))   ; (a whiff: no more)
+        t))))
+
 (defun kk-l3-sa (e b f kit d st)
   "解放攀升 / 卍解爆發 at L3 with a plan, in the Shikai's NS gap (the segment out): the SA, so the plan's J string runs on from it (the SA
 counts as J1: NS .. SA J2-J4 + SP the special AS, .. J7 + SP the Bankai; L3 / L4 in the catalogue) instead of the NS chain the kill
@@ -575,7 +634,9 @@ the SP's knockdown (the meaty loop's start)."
       (unless (member state '(:idle :run)) (setf (kks-appr st) nil))
       (when (and (eq state :step) (kk-step-j e b f kit d st)) (return-from ken-ki-style t))
       (when (member state '(:idle :run :move))
-        (or (if (eq state :move) (or (kk-l3-sa e b f kit d st) (kk-move e b f s st) (kk-ns-whiff e b f kit s)) (kk-neutral e b f kit s d st))
+        (or (if (eq state :move) (or (kk-l3-sa e b f kit d st) (kk-move e b f s st) (kk-link e b f kit s d) (kk-as-on e b f kit)
+                                         (kk-ns-whiff e b f kit s))
+                (kk-neutral e b f kit s d st))
             (if (eq state :move) (cai-move-step e b f kit s) (cai-neutral e b f kit s d)))   ; (the generic CPU's step, as CORE-BRAIN-STEP)
         (kk-kikon-rule b f)
         t))))

@@ -21,6 +21,16 @@
 ;;;; string or move; never per step. The opponent is read through the perceived SNAP S and distance D; his form (a visible fact, as
 ;;;; GAUGES-RED-P is) picks the band table. Every knob below is a plist by difficulty (EASY <= NORMAL <= HARD for the style chances);
 ;;;; the dream-rsi search tunes only these.
+;;;; Round 2 (b1_a0, against Kenpachi's round-1 champion, 揮空反擊 first): at HARD the sealed form is patient (*IKS-PATIENT-FORMS*): every
+;;;; style mode hovers at the whiff distance and attacks only through the whiff punish / confirm (no generic neutral starts, no walk-in,
+;;;; no sealed lunge); her own whiffed NS stops instead of running into his dodge (*IKS-NS-STOP*); his attacks in reach are Hohoed into
+;;;; the perfect window in both forms (*IKS-HOHO-P*, b3_a1's KESSA Hoho extended; the untimed generic Hoho off there) with a J1
+;;;; follow-up; in his combo the breaker spends the full awakening gauge or a Burst (*IKS-BREAK-P*); no Hoho into a stale SNAP after
+;;;; her Burst (*IKS-BURST-NO-HOHO*); KESSA's pointer-1 chains are gone (wait for his whiff there too).
+;;;; Round 2, b1_a1: b1_a0's file + b3_a0's pieces (round 2, the KESSA cell): his slide in the timed Hoho's reach, the follow-up window
+;;;; 64 f and after any perfect Hoho, the wake-up Hoho against his meaty J1 (IKS-WAKE), b3_a1's read floor in KESSA, b0_a0's far
+;;;; k-lunge for :space in KESSA pointer 3; the awakening neutral again, no breaker. New here: pointer 2 against his released forms waits
+;;;; for his whiff instead of shooting the Getsuga into his lunge (*IKS-P2-WAIT*), and the meaty J1 on his wake-up (IKS-MEATY).
 (in-package :duel)
 
 (defparameter *iks-mix* '(:easy (:generic 1.0)
@@ -63,8 +73,30 @@ in first when the frames still fit (pointer 1's NS1a against his NS1a / J1 whiff
 (defparameter *iks-lunge-band* '(:base (4.0 5.0) :nozarashi (4.8 5.0))
   "Pointer 3: NS3a's lunge from this band (m) when he is not attacking (R5 / R25: only her NS3a reaches 4–5 m sealed; his Shikai
 NS1a reaches 4.6, R15).")
-(defparameter *iks-walkin-band* '(2.9 3.4)
-  "Pointer 1, :space: NS1a when he walks into this band (T14 / T15: her NS1a at 3.4 m catches his walk-in).")
+(defparameter *iks-patient-forms* '(:base)
+  "Her forms in which every style mode is patient (揮空反擊: wait for his whiff): it hovers at the whiff distance (*IKS-HOVER*,
+*IKS-HOVER-P1*) and attacks only through the whiff punish / confirm, never hands the episode to the generic CPU (*IKS-WAIT-MAX*), no
+walk-in NS1a. :ptr3 and a :kessa episode before the gauge is full hover too (v0 gave both the generic neutral). Round 2, b1_a0: in the
+sealed form against this Kenpachi her neutral starts lost their first hits (20 seeds a seat: the generic's NS from :whiff episodes 7
+hers / 71 his, from :ptr3 26 / 57, walk-in 6 / 33) while the confirm's J won 51 / 2; in KESSA the generic's starts are about even
+(100 / 85), and hovering in KESSA lost its ledger in round 1 (b3_a0 v1d, b3_a1), so KESSA keeps v0's play.")
+(defparameter *iks-patient-lunge* nil
+  "A patient form's :space episodes still lunge (NS3a from *IKS-LUNGE-BAND* at pointer 3). NIL (round 2, b1_a0): the sealed lunge
+lost its first hits 12 hers / 52 his against this Kenpachi (his Hoho / back Step through it, KK-READ), the 4-5 m band now comes from
+the whiff confirm's NS3a (5.0 m) instead. Round 2, b1_a1: T again on b3_a0's pieces, paired seeds 1-20 a seat: spacing 0.063 -> 0.102,
+whiff 0.903 -> 0.857, HARD 38 -> 37 of 40, raw 0.7596 -> 0.7485; kept NIL.")
+(defparameter *iks-patient-p* '(:easy nil :normal nil :hard t)
+  "*IKS-PATIENT-FORMS* applies at this difficulty (HARD only: at NORMAL it lifted the NORMAL share to 6 of 40, past the band's 5.5).")
+(defparameter *iks-ns-stop* '(:easy nil :normal nil :hard t)
+  "In a style mode's own NS (one with hits of its own; not KESSA's clone segments or the Getsuga's charges): the next segment waits
+for the segment's contact, and a whiff stops the route there. Round 2, b1_a0: the generic CPU pressed the next segment on its first
+active frame, hit or not, so a whiff confirm's NS1a that came up short ran on into NS1b, which his dodge (the Hoho, often perfect: 60
+and a 40 f lock) and back Step answered: the confirm's walk-in lost 12 hers / 51 his first hits. His own style stops his whiffed NS
+(KK-NS-WHIFF) for the same reason.")
+(defparameter *iks-walkin-band* nil
+  "Pointer 1, :space: NS1a when he walks into this band (T14 / T15: her NS1a at 3.4 m catches his walk-in); NIL: none. v0 (2.9 3.4) ->
+NIL (round 2, b1_a0): it lost its first hits 20 hers / 61 his against this Kenpachi (his read and dodge; in KESSA 4 / 13 once the
+sealed form stopped using it).")
 (defparameter *iks-wait-max* '(:easy 0 :normal 90 :hard 150)
   "Frames a style mode may hover / back off in one neutral episode before it hands the episode to the generic CPU (no stalling).")
 (defparameter *iks-ns2-min* 3.6 "Pointer 2: no NS2 charge inside this distance (M13 / M14: his J1 > AS1 or NS1a punishes the charge).")
@@ -77,12 +109,23 @@ move with *IKS-RETREAT-REARM*). HARD 0.8 -> 1.0 (b0_a0).")
   "Pointer 2 in the middle band: each move of his he starts re-arms the back dash's roll (*IKS-RETREAT-P*), not only the episode's
 start. b0_a0 2026-11-06: NIL -> T (v0's one roll an episode left her walking back at 2.3-3.6 m while his Shikai kamae (KE-S-N2A) came
 again and again: 15 whiffs of his in 900 frames with no answer, since pointer 2 has no punisher).")
+(defparameter *iks-p2-wait* '(:easy nil :normal nil :hard t)
+  "By difficulty: pointer 2 against his released forms (any but *IKS-GETSUGA-HIS-FORMS*) shoots no Getsuga and backs off no more: out of
+her J reach it hovers at his form's whiff distance (*IKS-HOVER*) and waits for his whiff (the confirm's J / NS2a + SA) or his attack
+(the timed Hoho). Round 2, b1_a1: the Getsuga route was the opener of his biggest share of combos on her (b1_a0 + b3_a0's pieces, 20
+seeds a seat: 44 combos, 14.2k, from pointer 2's Getsuga in both forms, all but a few KE-S-N1A, his Shikai lunge landing on the charge:
+his 破月牙 answers it from 7-12 m by Hohoing in, KK-WAVE-PLAN).")
+(defparameter *iks-getsuga-his-forms* '(:base) "His forms against which pointer 2 still shoots the Getsuga (*IKS-P2-WAIT*).")
 (defparameter *iks-j-reach* 2.3 "Her J1's reach (m): pointer 2 inside it opens a J string instead of a charge (A13 2.4 hits, R6 2.6 misses).")
 (defparameter *iks-shot-gap* 80 "Steps before the next decision after a Getsuga (as *CAI-RANGED-GAP*: the wave is not spammed).")
 (defparameter *iks-steer-p* '(:easy 0.0 :normal 0.6 :hard 0.95)
   "A string in a style mode runs to the mode's AS (J5 + SP = AS3, KESSA AS2) instead of the generic continue rolls (one roll per string).")
 (defparameter *iks-read-p* '(:easy 1.0 :normal 1.0 :hard 1.0)
   "A steered string still takes the AS read when he is seen in an NS (AS beats NS; it writes AS1 / AS2: pointer 3 lost). One roll per link.")
+(defparameter *iks-kessa-read-min* '(:easy 1 :normal 1 :hard 2)
+  "KESSA: a steered string takes the AS read (*IKS-READ-P*) only when the AS it would start is at least this (1: always, as v0; 2: never
+AS1, so the read never writes pointer 1). Round 1's b3_a1 (1 -> 2, HARD 100 seeds a seat: kessa 131 -> 143 of 200); grafted by round 2's
+b0_a0 / b3_a0 and here (b1_a1).")
 (defparameter *iks-kessa-as* '(5 3)
   "KESSA: the attack presses a steered string runs to before its SP, (not-red red) by his Reishi at the string's first link (3: J1–J3 /
 NS1a SA J2 J3 + SP = AS2, +79 at 4.8 m, K3 / K6, a red pointer-2 Kikon takes 4; 5: AS3, pointer 3 for the NS3a whiff punish and the
@@ -105,8 +148,98 @@ Kikon refills his Reishi with fewer Konpaku taken (b2_a0, 2026-11-06).")
 (defparameter *iks-awaken-modes* '(:space :whiff :ptr3 :kessa)
   "The style modes whose episode takes the awaken roll (*IKS-AWAKEN-P*) once the gauge is full (v0: :kessa only; b2_a0, 2026-11-06:
 every style mode, so the full gauge is not left waiting for a :kessa episode).")
-(defparameter *iks-kessa-chain-band* '(2.8 3.4) "KESSA pointer 1: the chains (NS1) from this band (K5, R8 3.4 hits, R9 3.8 misses).")
-(defparameter *iks-kessa-lunge-band* '(3.6 4.3) "KESSA pointer 3: NS3a then its SA's 3 m lunge from this band (R27: hits from 4.2 m).")
+(defparameter *iks-kessa-chain-band* nil
+  "KESSA pointer 1, a :kessa episode: the chains (NS1) from this band (K5, R8 3.4 hits, R9 3.8 misses); NIL: hover in *IKS-HOVER-P1* and
+wait for his whiff. v0 (2.8 3.4) -> NIL (round 2, b1_a0): the chains lost their first hits 7 hers / 13 his, 10 / 37 before the
+sealed-form changes, against this Kenpachi's read and dodge.")
+(defparameter *iks-kessa-lunge-band* '(5.05 5.5)
+  "KESSA pointer 3, the modes of *IKS-KESSA-SPACE-MODES*: NS3a then its SA's 3 m lunge from this band (m, the projected distance,
+IKS-PROJ). The SA starts on NS3a's f18 where NS3a started, so the hit counts as one from >= 4 m; it lands from 4.2 to 5.6 m (round 2
+b0_a0's trials X1-X5.8), beyond his back Step's *KK-STEP-MAX* 5.0. Round 2's b0_a0 (3.6-4.3 -> 5.05-5.5), :space only as in b3_a0.")
+(defparameter *iks-kessa-space-modes* '(:easy nil :normal nil :hard (:space))
+  "By difficulty, the style modes whose KESSA pointer-3 neutral is the far k-lunge (*IKS-KESSA-LUNGE-BAND*). Round 2's b3_a0: all four
+modes 0.5632 against :space only 0.7271 (20 seeds a seat). HARD only.")
+(defparameter *iks-kessa-near-band* '(3.6 4.3)
+  "KESSA pointer 3, a :kessa episode: NS3a then its SA from this band (v0's k-lunge band, R27: hits from 4.2 m; kept by b3_a0).")
+(defparameter *iks-k-sa-reach* 5.7
+  "KESSA NS3a's SA is pressed in its gap while the distance is under this (m): the SA's 2.6 m arc + 3.0 m slide lands from 5.6 m
+(trial X5.6). Was 4.6 (round 2, b0_a0; kept by b3_a0).")
+(defparameter *iks-lead-vmax* 0.07
+  "IKS-PROJ: the perceived distance's change a step is clamped to this (m; a walk is 0.06-0.07 a step) before it is projected over
+her perception delay.")
+
+(defparameter *iks-burst-no-hoho* '(:easy nil :normal nil :hard t)
+  "While her Burst's invulnerability runs (FIGHTER-INVULN, her own state), the generic Hoho roll is off (BRAIN-HOHO-ROLL 1). A located
+bug (round 2, b1_a0): the Burst ends his move and pushes him 5 m off, but her SNAP is 8 f old and still shows his attack live in
+reach, so the generic CPU's Hoho fired about 10 f after the Burst and put her 1.6 m behind a free Kenpachi, who J1'd her (6 of the
+first 8 Bursts of the baseline's seat-1 log). Off below HARD (NORMAL stays the shipped CPU).")
+
+(defparameter *iks-break-p* '(:easy 0.0 :normal 0.0 :hard 0.0)
+  "In his combo (her :stun / :air past *BURST-MIN-HITS*, no Kikon lock, after her perception delay, as the generic burst roll): break
+out, one roll per combo: the awakening when its gauge is full (AWAKEN-STATE-P: no flash-step needed, it repels him as a Burst does, heals
+20 % and enters KESSA: the KESSA 強攻 entry), else the Burst once the flash-step allows it (*FS-BURST*). The generic CPU rolls its Burst
+once per combo, on the first eligible step, even when the flash-step is short then (the roll is spent); his flash-step gain from damage
+(*FS-TAKEN*) often fills it later in the same combo. Every combo of his ends in a knockdown, and each knockdown starts his meaty J1
+loop (KK-MEATY-STEP: J1 on her first free frame, unescapable on wake-up), 40 % of his damage in the baseline's logs. Round 2, b1_a0:
+the last file without it (the neutral awakening back), 40 seeds a seat, HARD raw 0.5596 / 53 of 80 against 0.5691 / 54 with it.
+Round 2, b1_a1: HARD 1.0 -> 0 (the generic CPU's Burst roll again). On b3_a0's pieces it is neutral: seeds 1-40 a seat, HARD raw
+0.773 (79/80, kessa 43/80) with it in both forms, 0.777 (77/80, kessa 50/78) without; in the sealed form only 0.755; on the final file
+seeds 1-20 0.8366 with it against 0.8387 without.")
+(defparameter *iks-break-awaken* nil
+  "The breaker (*IKS-BREAK-P*) spends a full awakening gauge to break his combo (and the neutral awakening of *IKS-AWAKEN-MODES* waits
+for it). T -> NIL (round 2, b1_a1, on b3_a0's pieces, paired seeds 1-20 a seat: 0.7354 / 38 of 40 -> 0.7637 / 40 of 40): the awakening is
+neutral again, at a free moment in every style mode (b2_a0's rule), so KESSA starts with the wake-up Hoho, the follow-up and the timed
+Hoho in hand rather than in his combo.")
+
+(defparameter *iks-hoho-p* '(:easy 0.0 :normal 0.0 :hard 0.9)
+  "A style mode in neutral, in her forms *IKS-HOHO-FORMS*: Hoho his perceived attack (NA / NS / SA / AS) coming in reach when its first
+active frame, as seen, is *IKS-HOHO-LEAD* away (one roll per his move start), with flash-step to spare (AI-HOHO-SPARE-P): most are
+perfect Hohos (her counter 60 lands in his whiffed move's recovery: a 揮空反擊 success), then the follow-up (*IKS-HOHO-FOLLOW*). b3_a1's
+KESSA Hoho (round 1, KESSA only, NORMAL 0.1), extended to the sealed form (b3_a1's named follow-up); NORMAL 0 here so NORMAL stays the
+shipped CPU. Round 2, b1_a0: 40 seeds a seat, HARD raw 0.4692 (38/80, whiff 0.702) -> 0.5691 (54/80, whiff 0.807).")
+(defparameter *iks-hoho-forms* '(:base :kessa) "Her forms that take the timed Hoho (*IKS-HOHO-P*).")
+(defparameter *iks-untimed-hoho* t
+  "In a style mode in *IKS-HOHO-FORMS* where the timed Hoho runs: the generic CPU's untimed Hoho roll (*CAI-HOHO-P*, pressed as soon
+as his attack is live in reach, mostly not perfect) still runs too. NIL: only the timed one (round 2 b1_a0, 40 seeds a seat, HARD raw
+0.5691 / 54 of 80 with it, 0.584 / 58 without). NIL -> T (round 2, b1_a1): with b3_a0's any-perfect follow-up its perfect Hohos feed
+the follow-up too, and b3_a0 measured it off as a loss twice (v5a, v9); here, paired seeds 1-20 a seat, NIL 0.7273 (37/40), T 0.7354
+(38/40).")
+(defparameter *iks-hoho-lead* '(1 6)
+  "Frames (lo hi) from now to his perceived move's first active frame (SNAP-LEAD-SEEN) in which the timed Hoho is pressed: inside
+*PERFECT-LEAD* 12 and the Hoho's iframes f1-14 (b3_a1's window, chosen at 100 seeds a seat in KESSA: (1 6) over (1 10) (2 8) (3 8)
+(5 11)).")
+(defparameter *iks-hoho-slide* t
+  "The timed Hoho's reach test adds his move's slide to its reach: his Shikai NS1a TOSSHIN (reach 2.6 + slide 3.0) lunges from 3.6-5.6
+m and was never Hoho'd there (round 2, b3_a0: NIL -> T, paired 20 seeds a seat 0.5264 -> 0.5814).")
+(defparameter *iks-hoho-follow* 64
+  "Frames after her Hoho in which the follow-up may start (his recovery or reeling, seen). 40 -> 64 (round 2, b3_a0): a perfect Hoho's
+counter lands at about +32 with 36 f of hitstun and the SNAP shows it 8 f later, so at 40 the window closed as his reeling came into
+view (21 follow-ups after 132 counters in KESSA, 20 seeds a seat).")
+(defparameter *iks-follow-any-perfect* '(:easy nil :normal nil :hard t)
+  "The follow-up (IKS-HOHO-FOLLOW) also runs after a perfect Hoho the style did not press (the generic CPU's untimed one, the wake-up
+Hoho), read from her own fighter's PERFECT flag while she is in the Hoho. Round 2, b3_a0 (20 seeds a seat 0.687 -> 0.7246). HARD only.")
+(defparameter *iks-wake-hoho-p* '(:easy 0.0 :normal 0.0 :hard 0.9)
+  "On her first free frame after a wake-up, him within *IKS-WAKE-HOHO-NEAR*: Hoho at once (one roll per wake-up), against his meaty J1.
+His J1 still lands on that frame mostly, but the Hoho is perfect, so his inputs lock 40 f and his string stops at the J1 (round 2,
+b3_a0: the meaty loop 89k -> 43k; paired 20 seeds a seat 0.4223 -> 0.5264).")
+(defparameter *iks-wake-hoho-near* 2.2 "The wake-up Hoho's distance (m): his sealed J1 reaches 1.8 m, his meaty chase waits at 1.4.")
+(defparameter *iks-wake-hoho-forms* '(:base :kessa) "Her forms in which the wake-up Hoho is rolled.")
+(defparameter *iks-meaty-p* '(:easy 0.0 :normal 0.0 :hard 0.9)
+  "His knockdown, seen (one roll as he goes down): stay in and press J1 so its first active frame lands on his first free frame (his
+wake-up is invulnerable, the frame after it is not, and he cannot act before it: his own meaty J1 on her, K1, is the loop she could not
+escape). Then the string runs to AS3 as the follow-up's (pointer 3 kept; his knockdown again). Round 2, b1_a1: new. After her AS3's
+knockdown (+46 at 1.8 m) the patient form walked back to its hover, into his Shikai lunge's 5.6 m, and his first move on waking opened
+the largest share of his combos left (b1_a0 + b3_a0's pieces + *IKS-P2-WAIT*, 20 seeds a seat: KE-S-N1A after her AS3C, 26 combos).")
+(defparameter *iks-meaty-forms* '(:base :kessa) "Her forms that take the meaty J1 (*IKS-MEATY-P*).")
+(defparameter *iks-meaty-lead* 0
+  "The meaty J1 is pressed when his perceived frames to his first free one are her J1's startup + this (0: its first active frame on
+it), as his KK-MEATY-STEP.")
+(defparameter *iks-meaty-near* 1.4 "The meaty walks in to this distance (m) while he is down (her sealed J1 reaches 2.3 m, KESSA's 1.9).")
+(defparameter *iks-meaty-space-skip* t
+  "T: a KESSA pointer-3 episode of a mode in *IKS-KESSA-SPACE-MODES* skips the meaty and plays its far k-lunge (the spacing theme's one
+working source: KESSA pointer 3 held 31 of the 35 spacing successes before the meaty, 20 seeds a seat).")
+(defparameter *iks-meaty-far* 3.0 "The meaty is rolled only when he goes down within this distance (m); farther, the style plays on.")
+(defparameter *iks-hoho-j-reach* 1.5 "The follow-up: J1 from within this (m), walking in first (b3_a1).")
 
 (defstruct (ikst (:constructor make-ikst ()))
   "Ichigo's KI style state (BRAIN-STYLE)."
@@ -123,7 +256,12 @@ every style mode, so the full gauge is not left waiting for a :kessa episode).")
   (rkey -1 :type fixnum)                ; his move start the retreat roll was re-armed for (*IKS-RETREAT-REARM*)
   (plan nil)                            ; what the move she started is for: :shot :lunge :k-lunge, NIL
   (skey -1 :type fixnum) (steer nil)    ; the string's first link start; the press count it runs to (NIL: generic)
-  (mode-mv :generic))                   ; the mode of the episode her move in progress started from
+  (brk nil)                             ; this combo's breaker roll: NIL unmade, :go, :no
+  (hkey -1 :type fixnum) (hoho nil)     ; his move start the timed Hoho roll is for; its result (T: Hoho it)
+  (hoho-t -1 :type fixnum)              ; the tick of her last timed Hoho (-1: none, or its follow-up done)
+  (mode-mv :generic)                    ; the mode of the episode her move in progress started from
+  (last-d 0f0)                          ; the perceived distance at the previous call (IKS-PROJ)
+  (down nil) (meaty nil))               ; his knockdown seen (its roll made); the meaty roll's result (T: go)
 
 (defun iks-pick (plist r)
   "The key of weight plist PLIST that roll R in [0,1) falls on (weights normalised)."
@@ -252,10 +390,70 @@ his recovery less the perception delay. T when pressed."
           ((> *match-tick* (ikst-pend-until st)) (setf (ikst-pend st) nil))
           (t (funcall (ai-step e :walk) e b (pilot-vpad (pilot e)) d 0.0 (- (third pick) 0.2)) t))))
 
+(defun iks-timed-hoho (e b st s d)
+  "Hoho his perceived attack in reach, timed into the perfect-Hoho window (*IKS-HOHO-LEAD*). One roll per his move start. T when
+pressed (b3_a1's IKS-KESSA-HOHO)."
+  (when (and (member (cai-class-of (fighter-opp (fighter e)) s) '(:na :ns :sa :as)) (eq (snap-phase s) :main) (snap-live-p s)
+             (or (snap-near-p s e d 1.0)
+                 (and *iks-hoho-slide* (snap-move s) (< d (+ (snap-reach s) (mv-slide (snap-move s)) 1.0)))))
+    (unless (= (ikst-hkey st) (snap-start s))
+      (setf (ikst-hkey st) (snap-start s) (ikst-hoho st) (brain-roll b *iks-hoho-p*)))
+    (let ((lead (snap-lead-seen s b)) (g (gauges e)))
+      (when (and (ikst-hoho st) (<= (first *iks-hoho-lead*) lead (second *iks-hoho-lead*)) (hoho-open-p e)
+                 (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g)))
+        (setf (ikst-hoho st) nil (ikst-hoho-t st) *match-tick*)
+        (iks-log e st :hoho d)
+        (ai-press b :step 1 :modded t :act :hoho)
+        t))))
+
+(defun iks-hoho-follow (e b st s d vp)
+  "Just after her timed Hoho: J1 on his seen recovery / reeling from behind him (walk in to *IKS-HOHO-J-REACH* first). T when decided."
+  (when (and (>= (ikst-hoho-t st) 0) (<= (- *match-tick* (ikst-hoho-t st)) *iks-hoho-follow*))
+    (cond ((not (snap-punishable-p s)) nil)
+          ((<= d *iks-hoho-j-reach*) (setf (ikst-hoho-t st) -1 (ikst-mode-mv st) :kessa) (iks-j e b st :hoho-j d))
+          ((< d 3.0) (iks-walk e b vp d 0.0 *iks-hoho-j-reach*)))))
+
+(defun iks-proj (b st d)
+  "The perceived distance D projected over her perception delay by its change since the last call (clamped to *IKS-LEAD-VMAX* a step).
+Only perceived distances are used (b0_a0)."
+  (let ((v (max (- *iks-lead-vmax*) (min *iks-lead-vmax* (- d (ikst-last-d st))))))
+    (+ d (* v (brain-delay b)))))
+
+(defun iks-wake (e b f st d)
+  "Her first free frame after a wake-up with him near (*IKS-WAKE-HOHO-NEAR*): the Hoho (one roll per wake-up, b3_a0). T when pressed."
+  (when (and (<= d *iks-wake-hoho-near*) (member (fighter-form f) *iks-wake-hoho-forms*) (hoho-open-p e)
+             (brain-roll b *iks-wake-hoho-p*))
+    (iks-log e st :wake-hoho d)
+    (ai-press b :step 1 :modded t :act :hoho)
+    t))
+
+(defun iks-meaty (e b f kit st s d)
+  "His knockdown, the roll said yes: in to *IKS-MEATY-NEAR*, and J1 to land on his first free frame (as his KK-MEATY-STEP). T while it
+decides."
+  (when (and (ikst-meaty st) (member (snap-state s) '(:air :down :wakeup))
+             (not (and *iks-meaty-space-skip* (eq (fighter-form f) :kessa) (= (fighter-ptr f) 3)
+                       (member (ikst-mode st) (brain-chance b *iks-kessa-space-modes*)))))
+    (let* ((q (kit-command-move kit :q)) (rf *reaction-frames*) (sf (+ (snap-sf s) (brain-delay b)))
+           (left (case (snap-state s)
+                   (:down (- (+ (getf rf :down 30) (getf rf :wakeup 30)) sf))
+                   (:wakeup (- (getf rf :wakeup 30) sf))
+                   (t 999))))
+      (cond ((> d *iks-meaty-far*) (setf (ikst-meaty st) nil))   ; (he flew off: the style plays on)
+            ((and q (<= left (+ (mv-s q) *iks-meaty-lead*)))
+             (setf (ikst-meaty st) nil)
+             (if (<= d (+ (mv-reach q) (mv-slide q)))
+                 (progn (setf (ikst-mode-mv st) :kessa) (iks-j e b st :meaty-j d))
+                 nil))
+            ((> d *iks-meaty-near*) (vpad-stick! (pilot-vpad (pilot e)) 0f0 1f0) t)
+            (t (vpad-stick! (pilot-vpad (pilot e)) 0f0 0f0) t)))))
+
 (defun iks-pointer-2 (e b f st s d vp)
   "Pointer 2 (either form): the Getsuga from *IKS-GETSUGA-MIN*, a J string inside her J reach, no charge in between: back dash
 (one roll per episode) or hover back. T when decided, NIL to hand over (the generic shoots from 3.6–6.6 m against a walk-in)."
-  (cond ((>= d *iks-getsuga-min*)
+  (cond ((and (getf *iks-p2-wait* (brain-difficulty b)) (> d *iks-j-reach*)
+              (not (member (fighter-form (fighter (fighter-opp f))) *iks-getsuga-his-forms*)))   ; his released form: no Getsuga, wait
+         (destructuring-bind (hlo hhi) (iks-form-get *iks-hover* (fighter-opp f)) (iks-walk e b vp d hlo hhi)))
+        ((>= d *iks-getsuga-min*)
          (when (<= (ikst-dt st) 0)
            (setf (ikst-dt st) *iks-shot-gap*)
            (iks-sp e b f st :getsuga d :shot))
@@ -277,10 +475,14 @@ his recovery less the perception delay. T when pressed."
 (defun iks-neutral (e b f kit s d)
   "A style mode's neutral step. T when decided."
   (let* ((st (brain-style b)) (o (fighter-opp f)) (vp (pilot-vpad (pilot e))) (mode (ikst-mode st))
-         (kessa (eq (fighter-form f) :kessa)) (ptr (fighter-ptr f)) (calm (member (snap-state s) '(:idle :run))))
+         (kessa (eq (fighter-form f) :kessa)) (ptr (fighter-ptr f)) (calm (member (snap-state s) '(:idle :run)))
+         (patient (and (getf *iks-patient-p* (brain-difficulty b)) (member (fighter-form f) *iks-patient-forms*))))
     (declare (ignorable kit))
     (decf (ikst-dt st))
+    (when (and (not *iks-untimed-hoho*) (member (fighter-form f) *iks-hoho-forms*) (plusp (brain-chance b *iks-hoho-p*)))
+      (setf (brain-hoho-roll b) 1f0))                  ; (the generic's untimed Hoho off: only the timed one)
     (cond
+      ((and (member (fighter-form f) *iks-hoho-forms*) (iks-timed-hoho e b st s d)))
       ((and (ikst-pend st) (iks-pend-step e b f st d)))
       ((iks-punish e b f st s d o))
       ;; his attack live and in reach: the generic's Hoho roll (the identical test) takes the step
@@ -288,7 +490,8 @@ his recovery less the perception delay. T when pressed."
             (< (brain-hoho-roll b) (brain-chance b *cai-hoho-p*)))
        nil)
       ;; KESSA: awaken once full at a free moment
-      ((and (member mode *iks-awaken-modes*) (gauges-awakened-ok-p e) (or calm (> d (+ (snap-reach s) 1.5)))
+      ((and (member mode *iks-awaken-modes*) (not (and *iks-break-awaken* (plusp (brain-chance b *iks-break-p*))))
+            (gauges-awakened-ok-p e) (or calm (> d (+ (snap-reach s) 1.5)))
             (progn (unless (ikst-awaken st) (setf (ikst-awaken st) (if (brain-roll b *iks-awaken-p*) :go :no)))
                    (eq (ikst-awaken st) :go)))
        (setf (ikst-awaken st) :no)
@@ -296,25 +499,33 @@ his recovery less the perception delay. T when pressed."
        (ai-press b :awaken 1 :modded t)
        t)
       ((= ptr 2) (iks-pointer-2 e b f st s d vp))               ; (before the wait's end: never a charge in his face)
-      ((> (ikst-ep-t st) (brain-chance b *iks-wait-max*)) nil)   ; waited long enough: the generic plays on
+      ((and (> (ikst-ep-t st) (brain-chance b *iks-wait-max*)) (not patient)) nil)   ; waited long enough: the generic plays on
+      ((and kessa (eq mode :kessa) (/= ptr 3) (null *iks-kessa-chain-band*))   ; (no chains: wait for his whiff)
+       (if (< d 1.7) nil
+           (destructuring-bind (hlo hhi) (iks-form-get *iks-hover-p1* o) (iks-walk e b vp d hlo hhi))))
+      ((and kessa (= ptr 3) (member mode (brain-chance b *iks-kessa-space-modes*)))   ; KESSA pointer 3: the k-lunge beyond his back Step
+       (destructuring-bind (clo chi) *iks-kessa-lunge-band*
+         (if (and calm (<= clo (iks-proj b st d) chi) (<= (ikst-dt st) 0))
+             (iks-sp e b f st :k-lunge d :k-lunge)
+             (iks-walk e b vp d clo chi))))
       ((and kessa (eq mode :kessa))
-       (destructuring-bind (clo chi) (if (= ptr 3) *iks-kessa-lunge-band* *iks-kessa-chain-band*)
+       (destructuring-bind (clo chi) (if (= ptr 3) *iks-kessa-near-band* *iks-kessa-chain-band*)
          (cond ((and calm (<= clo d chi) (<= (ikst-dt st) 0))
                 (iks-sp e b f st (if (= ptr 3) :k-lunge :k-chains) d (and (= ptr 3) :k-lunge)))
                ((> d 7.0) nil)
                (t (iks-walk e b vp d clo chi)))))
-      ((eq mode :ptr3) nil)                                    ; neutral as the generic; the steering is in the move
-      ((and (eq mode :kessa) (not kessa)) nil)                 ; (until full: as the generic)
+      ((and (eq mode :ptr3) (not patient)) nil)                ; neutral as the generic; the steering is in the move
+      ((and (eq mode :kessa) (not kessa) (not patient)) nil)   ; (until full: as the generic)
       ((> d 7.0) nil)                                          ; the generic dashes in to 4.5 m
-      ((and (eq mode :space) (= ptr 3))
+      ((and (eq mode :space) (= ptr 3) (or *iks-patient-lunge* (not patient)))
        (destructuring-bind (llo lhi) (iks-form-get *iks-lunge-band* o)
          (cond ((and calm (<= llo d lhi) (<= (ikst-dt st) 0)) (iks-sp e b f st :lunge d :lunge))
                ((< d 1.7) nil)                                 ; point-blank: the generic's J
                (t (iks-walk e b vp d llo lhi)))))
-      ((and (eq mode :space) (= ptr 1) (member (snap-state s) '(:idle :run))
+      ((and (eq mode :space) (= ptr 1) *iks-walkin-band* (not patient) (member (snap-state s) '(:idle :run))
             (<= (first *iks-walkin-band*) d (second *iks-walkin-band*)) (<= (ikst-dt st) 0))
        (iks-sp e b f st :walk-in d))
-      ((member mode '(:space :whiff))
+      ((or patient (member mode '(:space :whiff)))
        (if (< d 1.7) nil
            (destructuring-bind (hlo hhi) (iks-form-get (if (= ptr 1) *iks-hover-p1* *iks-hover*) o) (iks-walk e b vp d hlo hhi))))
       (t nil))))
@@ -336,7 +547,8 @@ his recovery less the perception delay. T when pressed."
           (when (and to (eq (fighter-contact f) :hit) (not (fighter-as-done f)))
            (setf (brain-decided b) (fighter-cls-t f))
            (cond ((or (>= (fighter-presses f) to) (>= (fighter-presses f) 5)
-                      (and (eq oc :ns) (brain-roll b *iks-read-p*)))
+                      (and (eq oc :ns) (or (not kessa) (>= (core-next-as f) (getf *iks-kessa-read-min* (brain-difficulty b) 1)))
+                           (brain-roll b *iks-read-p*)))
                   (let ((as (core-next-as f)))
                     (when (>= (fighter-presses f) 5) (clog "~a ki-style ~(~a~) as~d" (side-name e) (ikst-mode-mv st) as))
                     (cai-press b :quick (iks-sp-frames b f as) t)))
@@ -344,11 +556,17 @@ his recovery less the perception delay. T when pressed."
            t)))
         (:ns
          (when (>= (fighter-sf f) (mv-s mv))
-           (cond ((and (eq (ikst-plan st) :shot) (mv-ns-next kit mv) (zerop (length (mv-hits mv))))   ; the Getsuga's charges: on
+           (cond ((and (getf *iks-ns-stop* (brain-difficulty b)) (plusp (length (mv-hits mv))) (plusp (mv-reach mv))
+                       (null (fighter-contact f)) (mv-ns-next kit mv))   ; its own NS out, no contact yet: wait; a whiff stops here
+                  (when (>= (fighter-sf f) (+ (mv-s mv) (mv-a mv)))
+                    (setf (brain-decided b) (fighter-cls-t f))
+                    (clog "~a ki-style ~(~a~) ns-stop ~(~a~)" (side-name e) (ikst-mode-mv st) (mv-name mv)))
+                  t)
+                 ((and (eq (ikst-plan st) :shot) (mv-ns-next kit mv) (zerop (length (mv-hits mv))))   ; the Getsuga's charges: on
                   (setf (brain-decided b) (fighter-cls-t f))
                   (cai-press b :quick 1 t)
                   t)
-                 ((and (eq (ikst-plan st) :k-lunge) (eq mv (kit-core-move kit :ns 3)) (< (fighter-dist f) 4.6))   ; KESSA NS3a > SA
+                 ((and (eq (ikst-plan st) :k-lunge) (eq mv (kit-core-move kit :ns 3)) (< (fighter-dist f) *iks-k-sa-reach*))   ; KESSA NS3a > SA
                   (setf (brain-decided b) (fighter-cls-t f) (ikst-skey st) -1)
                   (clog "~a ki-style kessa k-sa d ~,1f" (side-name e) (fighter-dist f))
                   (cai-press b :quick 1)
@@ -380,9 +598,33 @@ Also a :generic episode's steps at *IKS-GENERIC-KIKON*. NS / AS segment presses 
             (iks-sp-frames b f (if neutral (fighter-ptr f) (core-next-as f)))))
     t))
 
+(defun iks-break (e b f st)
+  "In his combo: the awakening (a full gauge, *IKS-BREAK-AWAKEN*) or the Burst breaks out (*IKS-BREAK-P*, one roll per combo). T when
+pressed."
+  (let ((g (gauges e)))
+    (when (and (zerop (fighter-kikon-lock f)) (>= (fighter-combo-hits f) *burst-min-hits*) (>= (brain-burst-t b) (brain-delay b)))
+      (let ((aw (and *iks-break-awaken* (not (getf (kit-core (fighter-kit f)) :no-awaken)) (not (gauges-awakened g))
+                     (>= (gauges-awaken g) *awaken-max*)))
+            (bu (burst-ok-p e)))
+        (when (and (or aw bu) (null (ikst-brk st)))
+          (setf (ikst-brk st) (if (brain-roll b *iks-break-p*) :go :no)))
+        (when (and (eq (ikst-brk st) :go) (or aw bu))
+          (setf (ikst-brk st) :no (brain-burst-rolled b) t)
+          (clog "~a ki-style break ~a hits ~d" (side-name e) (if aw "awaken" "burst") (fighter-combo-hits f))
+          (if aw (ai-press b :awaken 1 :modded t) (cai-press b :awaken 1))
+          t)))))
+
 (defun ichigo-ki-style (e b f kit s d)
   "Ichigo's style against Kenpachi (CAI-DEFSTYLE): the episode's mode, then the neutral or move step. T when it decided."
   (let ((st (or (brain-style b) (setf (brain-style b) (make-ikst)))) (state (fighter-state f)))
+    (if (member (snap-state s) '(:air :down :wakeup))           ; his knockdown: the meaty's roll, once as he goes down
+        (unless (ikst-down st)
+          (setf (ikst-down st) t
+                (ikst-meaty st) (and (<= d *iks-meaty-far*) (member (fighter-form f) *iks-meaty-forms*) (brain-roll b *iks-meaty-p*)))
+          (when (ikst-meaty st) (clog "~a ki-style meaty armed d ~,1f" (side-name e) d)))
+        (setf (ikst-down st) nil (ikst-meaty st) nil))
+    (when (and (member state '(:idle :run)) (plusp (fighter-invuln f)) (getf *iks-burst-no-hoho* (brain-difficulty b)))
+      (setf (brain-hoho-roll b) 1f0))                    ; (after her Burst: the stale SNAP's attack is not Hohoed)
     (prog1
         (case state
           ((:idle :run)
@@ -391,15 +633,23 @@ Also a :generic episode's steps at *IKS-GENERIC-KIKON*. NS / AS segment presses 
                    (ikst-mode-mv st) (ikst-mode st) (ikst-plan st) nil
                    (ikst-ep-t st) 0 (ikst-pend st) nil (ikst-retreat st) nil (ikst-awaken st) nil (ikst-dt st) 0))
            (incf (ikst-ep-t st))
-           (if (eq (ikst-mode st) :generic)
-               (and (getf *iks-generic-kikon* (brain-difficulty b)) (iks-generic e b f kit s d))
-               (or (iks-neutral e b f kit s d) (iks-generic e b f kit s d))))
+           (cond ((and (eq (ikst-last-st st) :wakeup) (iks-wake e b f st d)))
+                 ((iks-hoho-follow e b st s d (pilot-vpad (pilot e))))
+                 ((iks-meaty e b f kit st s d))   ; (after her timed Hoho, whatever the new episode's mode)
+                 ((eq (ikst-mode st) :generic)
+                  (and (getf *iks-generic-kikon* (brain-difficulty b)) (iks-generic e b f kit s d)))
+                 (t (or (iks-neutral e b f kit s d) (iks-generic e b f kit s d)))))
           (:move (if (eq (ikst-mode-mv st) :generic)
                      (and (getf *iks-generic-kikon* (brain-difficulty b)) (iks-generic e b f kit s d))
                      (or (iks-move e b f kit s) (iks-generic e b f kit s d))))
+          ((:stun :air) (iks-break e b f st))
+          (:hoho (when (and (getf *iks-follow-any-perfect* (brain-difficulty b)) (fighter-perfect f))   ; (any perfect Hoho: the follow-up's clock)
+                   (setf (ikst-hoho-t st) (- *match-tick* (fighter-sf f))))
+                 nil)
           (t nil))
+      (unless (member state '(:stun :air)) (setf (ikst-brk st) nil))
       (when (and (member state '(:idle :run)) (> (brain-press-left b) 0) (<= (ikst-dt st) 0))
         (setf (ikst-dt st) (+ (getf *cai-think* (brain-difficulty b) 22) (floor (* 12 (sim-rnd01))))))
-      (setf (ikst-last-st st) state (ikst-last-reishi st) (gauges-reishi (gauges e))))))
+      (setf (ikst-last-st st) state (ikst-last-reishi st) (gauges-reishi (gauges e)) (ikst-last-d st) d))))
 
 (cai-defstyle :ichigo :kenpachi 'ichigo-ki-style)

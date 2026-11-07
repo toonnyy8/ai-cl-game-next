@@ -1,120 +1,152 @@
-# b2_a1 (round 1, Ichigo): pointer 3 as home, b2_a0's finisher with b1_a0's whiff confirm and b0_a0's pointer-2 re-arm
+# b1_a1 (round 2, Ichigo): the patient sealed form + b3_a0's Hoho kit; pointer 2 waits for his whiff against his released forms; the meaty J1 on his wake-up
 
-Direction: 指針三狩魂 (ptr3), keeping the other three usable. Parent: b2_a0 (0.7151 at 40 seeds; 0.7128 at 20, re-measured here).
-Opponent: `ken/champion/cpu-ki-ken.lisp` (Kenpachi v0). Only `duel/lisp/cpu-ki-ichigo.lisp` changed.
+Direction: 揮空反擊 (whiff), keeping the other three usable. Parent: round 2's b1_a0 (0.584, HARD 58/80, whiff 0.807, kessa 0.139).
+Opponent: `ken/champion/cpu-ki-ken.lisp`. Only `duel/lisp/cpu-ki-ichigo.lisp` changed.
 
-## History read (every sibling's proposal, score.json and score.rescored.json; the rescores equal the claims)
-| Cell | Mechanism | 40-seed score | Spacing | Whiff | Ptr3 | Kessa | Lesson |
-|---|---|---|---|---|---|---|---|
-| baseline v0 | four modes, start-time punish guess | 0.578 | 0.196 | 0.307 | 0.556 | 0.463 | |
-| b0_a0 | pointer-2 back-dash re-armed per his move; pointer-1 hover 3.4–3.8 | 0.648 | 0.274 | 0.415 | 0.585 | 0.512 | steering strings to AS2 is a loss |
-| b1_a0 | whiff confirm (a whiff SEEN in the SNAP, the fastest punisher that fits, walk-in); KESSA (5 3) | 0.658 | 0.188 | **0.629** | 0.504 | 0.500 | whiff doubles; ptr3 falls (kills at pointer 1) |
-| b2_a0 (parent) | Konpaku-aware finisher, generic Kikon rule, awaken in every mode | **0.715** | 0.227 | 0.287 | **0.953** | 0.700 | ptr3 near its ceiling; whiff untouched |
-| b3_a0 | KESSA-led: awaken gap, KESSA AS3 / red AS2 | 0.683 | 0.170 | 0.324 | 0.783 | 0.675 | KESSA at pointer 3 > pointer 2 |
+## History read
+Round 1: every cell's score.rescored.json, the history tables of the baseline's and the parent's proposals, and a grep of all eight
+proposal.md files for wake-up / meaty / Getsuga (no cell timed a press onto his wake-up; pointer 2's Getsuga from 7.5 m is round-1
+b0_a0's, measured against Kenpachi v0). Round 2: b0_a0's history and diagnosis sections, b1_a0 and b3_a0 whole, with their rescores. b3_a1 delivered while I worked (rescored 0.7865).
+It builds on b3_a0 alone: the flash-step reserve off in KESSA, and a punish of his lock after her perfect Hoho. None of b1_a0's pieces
+are in it and none of its pieces are in this file. b0_a1 and b2_a0 were still empty.
 
-None of the round-1 ideas failed through a bug; each fixed a different leak. ptr3 is at 0.95, so ptr3 alone can add only about +0.006. The parent's
-open leak is whiff (0.29), and b1_a0's confirm fixes whiff but cost b1 its ptr3. This cell combines the two: the finisher protects ptr3,
-while pointer 3 becomes where the whiff punishes happen.
-
-## Diagnosis (the parent, 20 seeds a seat, HARD, raw logs; pointer tracked from her AS starts)
-| Form / pointer | Whiff ok / occ | Spacing ok / occ |
-|---|---|---|
-| base 1 | 45 / 237 (0.19) | 5 / 162 |
-| base 3 | 113 / 222 (0.51) | 57 / 226 |
-| KESSA 2 | **14 / 289 (0.05)** | 60 / 125 (0.48) |
-| KESSA 3 | 68 / 111 (0.61) | 50 / 203 |
-
-- **KESSA sat at pointer 2.** That cell was 289 of the 913 whiff situations, punished 5 % of the time: no fast punisher, and
-  127 `p2-j` attempts (44 hits hers, 42 his).
-- KESSA ended 76 strings in AS2:
-  - 30 are the finisher's K.O. Kikons;
-  - the rest come from v0's `*iks-kessa-as*` 3 in :kessa episodes when he is not red.
-- ptr3's leaks in the parent are tiny: 3 failures in 72.
-
-## The change (the final file = c6)
-1. **Pointer 3 kept in KESSA**: `*iks-kessa-as*` 3 → (5 3) (b1_a0's form).
-   - Not red: AS3, so pointer 3 stays.
-   - Red: AS2. In practice `iks-finish-target` decides first: AS2 when the red Kikon K.O.s, AS3 when the Soul Break takes 5.
-2. **b1_a0's whiff confirm**, grafted verbatim: `iks-confirm`, `*iks-punishers*`, the walk-in, the `:g-sa` NS2 branch.
-   - At pointer 3 it presses NS3a (S18, 5.0 m), so pointer 3 is where it pays.
-   - NORMAL `*iks-confirm-p*` 0.3 → 0.1. At 0.3, NORMAL read 5 of 40 (0.125), against the band's edge of 0.138. At 0.1 it reads
-     0.075–0.10.
-3. **b0_a0's pointer-2 pieces**: `*iks-retreat-rearm*` T, `*iks-retreat-p*` HARD 0.8 → 1.0, `*iks-hover-p1*` 3.4–3.8 sealed.
-4. Unchanged from the parent: the finisher, the Konpaku read, the generic Kikon rule, the mix, awakening in every mode.
-
-After the change (c6 logs, 20 seeds a seat):
-- KESSA pointer-2 whiff situations fell from 289 to 10.
-- Whiff at base pointer 3 is 148 / 185 (0.80), at KESSA pointer 3 79 / 89 (0.89), at base pointer 1 74 / 156 (0.47).
-- ptr3 failures: 6 in 81, all Soul Breaks off pointer 3:
-  - base pointer 1, −3 (NS1a, SA);
-  - base pointer 2, −3 (NS2c);
-  - KESSA pointer 1, −4 (NS1a ×2);
-  - KESSA pointer 2, −4 (AS2).
-
-## Measurements (20 seeds a seat, paired on seeds 1–20, same opponent)
-| Variant | Score | HARD | Spacing | Whiff | Ptr3 | Kessa | NORMAL |
-|---|---|---|---|---|---|---|---|
-| parent b2_a0 | 0.7128 | 39/40 | 0.229 | 0.289 | 0.958 (69/72) | 0.675 | 0.025 |
-| c2 = parent + confirm + KESSA (5 3) | 0.7519 | 39/40 | 0.190 | 0.646 | 0.901 (73/81) | 0.675 | 0.100 |
-| c1 = c2 + b0's re-arm / retreat 1.0 / hover-p1 | **0.7731** | 39/40 | 0.190 | 0.688 | 0.926 (75/81) | 0.750 | 0.125 |
-| c3 = c1 + :ptr3 episodes lunge at pointer 3 (both forms), NORMAL confirm 0.1 | 0.7238 | 37/40 | **0.254** | 0.672 | 0.882 | 0.550 | 0.075 |
-| c5 = c1 + KESSA lunge band (3.6 4.3) → (4.0 4.3), NORMAL confirm 0.1 | 0.7668 | 39/40 | 0.171 | 0.674 | 0.917 | 0.750 | 0.100 |
-| c7 = c1 + :ptr3 lunge at pointer 3, sealed only, NORMAL confirm 0.1 | 0.7501 | 38/40 | 0.220 | 0.668 | 0.929 | 0.650 | 0.100 |
-
-- c6 = c1 with NORMAL's confirm at 0.1. Its HARD play is identical to c1's (only NORMAL's knob differs).
-- c1 against c2: b0's pieces add whiff +0.04 and ptr3 +0.025. The kessa difference (3 situations) is noise, but no theme fell, so the pieces stay.
-
-**Rejected (worth keeping as history)**: letting :ptr3 episodes play the 4–5 m lunge at pointer 3 instead of the generic neutral
-(c3, c7).
-- Spacing rises (+0.03 to +0.06).
-- Twice, strength and kessa fell with it: 37–38/40, kessa 0.55–0.65.
-- The lunge loses about a third of its exchanges (parent: lunge from base pointer 3, 56 hers / 28 his). In the :space share it pays; at
-  twice the share it costs more than it gains.
-
-Rejected too: moving KESSA's lunge band to ≥ 4 m (c5) lowered spacing, presumably through more walking and fewer lunges.
-
-## Final (c6, 40 seeds a seat, score.json)
-`{"side": "ichigo", "seeds": 40, "strength": 0.975, "signature": 0.6547, "themes": {"spacing": {"rate": 0.209, "ok": 281, "occ": 1346}, "whiff": {"rate": 0.702, "ok": 731, "occ": 1041}, "ptr3": {"rate": 0.933, "ok": 153, "occ": 164}, "kessa": {"rate": 0.775, "ok": 62, "occ": 80}}, "hard": "78/80", "normal": {"share": 0.1, "band": [0.0, 0.138], "factor": 1.0, "matches": 80}, "raw": 0.7828, "score": 0.7828}`
-
-| Part | Baseline v0 | Parent b2_a0 | **b2_a1** |
+| Cell | Mechanism | Rescored | Used here |
 |---|---|---|---|
-| Score | 0.5781 | 0.7151 | **0.7828** |
-| HARD | 70/80 | 78/80 | 78/80 |
-| Spacing | 0.196 | 0.227 | 0.209 |
-| Whiff | 0.307 | 0.287 | **0.702** |
-| Ptr3 | 0.556 | 0.953 | 0.933 |
-| Kessa | 0.463 | 0.700 | 0.775 |
-| NORMAL | 0.1125 | 0.0625 | 0.100 (band 0–0.138, factor 1) |
+| r2 b0_a0 | KESSA far k-lunge 5.05–5.5, all modes; b3_a1's timed Hoho | 0.4151 | far band for `:space` only (via b3_a0) |
+| r2 b1_a0 (parent) | patient sealed form, NS whiff stop, timed Hoho both forms, untimed Hoho off, breaker, no Hoho after her Burst | 0.584 | whole |
+| r2 b3_a0 | wake-up Hoho, his slide in the Hoho's reach, follow-up 64 f and after any perfect Hoho, read floor, far k-lunge `:space` | 0.7151 | all of it |
+| r2 b3_a1 | KESSA Hoho without the Burst reserve, lock punish | 0.7865 | not combined (delivered late); the obvious next graft |
 
-Host tests: 9843 ALL PASS.
+The two parents touch different code. b1_a0 named the combination as its refine. They disagree on one switch: the untimed generic Hoho
+(b1_a0: off is +0.015; b3_a0: off is a loss twice). It is ablated below. No failure in either parent comes from a bug left in.
+
+## Diagnosis (scratch runner over matchup-eval's own run / parse, HARD logs, 20 seeds a seat)
+- After the merge, whiff was already 0.90–0.92, and the failures were spread thin: pointer 2 8 / 24, wake-up Hohos 10, and a few
+  bursts. The whiff theme alone had no big leak left. The leaks were in what opened his combos on her.
+- **Pointer 2's Getsuga against his released forms** (on c4, by the combo's first hit after ≥ 90 quiet ticks):
+  - it opened 44 of his combos, 14.2k, in both forms;
+  - nearly all were KE-S-N1A, his Shikai lunge (reach 2.6 + slide 3.0), landing on her charge;
+  - his 破月牙 Hohos in and hits the charge from 7–12 m, so `*iks-getsuga-min*` 7.5 is no protection.
+- **His wake-up after her AS3** (on c8):
+  - the largest opener left in the sealed form: KE-S-N1A right after her IC-AS3C, 26 combos on seeds 21–40 and 12 on 1–20;
+  - her AS3 knocks him down with her +46 at 1.8 m;
+  - the patient form then walks back to its 3.7–4.2 m hover, inside his lunge's reach, and his first move on waking lands.
+- His own meaty J1 shows what she can do instead: a J1 whose first active frame meets the opponent's first free frame can't be
+  escaped (b0_a0 and b3_a0 confirmed this for her side).
+
+## The change (the final file = c12)
+From b3_a0, merged into the parent's functions (no duplicated knobs):
+- his slide in the timed Hoho's reach (`*iks-hoho-slide*`);
+- the follow-up window 40 → 64 f, after any perfect Hoho of hers (`*iks-follow-any-perfect*`, HARD), and the follow-up tagged `:kessa`
+  so its string is steered;
+- the wake-up Hoho (`iks-wake`, HARD 0.9);
+- the KESSA read floor (`*iks-kessa-read-min*` HARD 2);
+- the far k-lunge for `:space` in KESSA pointer 3 (`iks-proj`, `*iks-kessa-space-modes*`, `*iks-k-sa-reach*` 5.7, the 3.6–4.3 band kept
+  for `:kessa` as `*iks-kessa-near-band*`).
+
+Switches resolved by ablation:
+- `*iks-untimed-hoho*` NIL → T.
+- `*iks-break-awaken*` T → NIL: the awakening is neutral again.
+- `*iks-break-p*` HARD 1.0 → 0: neutral on this file; the generic CPU's Burst roll is back.
+
+New:
+1. **`*iks-p2-wait*`** (HARD), with `*iks-getsuga-his-forms*` (:base). At pointer 2, against any form of his but the sealed one, out
+   of her J reach:
+   - no Getsuga, no back dash;
+   - she hovers at his form's whiff distance (`*iks-hover*`, 4.9–5.3 m against the Shikai);
+   - the whiff confirm (J, or NS2a + its SA) and the timed Hoho do the rest.
+   The 揮空反擊 style taken to pointer 2.
+2. **The meaty J1** (`iks-meaty`, `*iks-meaty-p*` 0 / 0 / 0.9, forms both, `*iks-meaty-near*` 1.4, `*iks-meaty-far*` 3.0, lead 0).
+   - One roll per knockdown of his, made as his perceived state turns `:air` / `:down`, within 3 m.
+   - She stays in (stick toward him to 1.4 m, else still) and presses J1 when his perceived frames to his first free one equal her J1's
+     startup. This mirrors his KK-MEATY-STEP, with `*reaction-frames*` and her perception delay.
+   - The string is steered to AS3 (pointer 3 kept), which knocks him down again.
+   - On c9's seeds 1–20 she pressed 472 meaty J1s and 408 landed; of the 64 that did not, about 14 met his read (a Hoho or a back
+     Step on her J1 start).
+   - `*iks-meaty-space-skip*` T: a KESSA pointer-3 episode of a `*iks-kessa-space-modes*` mode skips it and plays its far k-lunge (before
+     the meaty, KESSA pointer 3 held 31 of the 35 spacing successes; the meaty everywhere took spacing 0.066 -> 0.017).
+
+Rules:
+- Every chance is EASY ≤ NORMAL ≤ HARD and rolled once per event: per his knockdown, per wake-up, per his move start.
+- `*iks-p2-wait*` is not a chance.
+- He is read only through the SNAP (state, frame, move), the perceived distance and his visible form; her own state and gauges as
+  before.
+- Randomness only through `brain-roll` / `sim-rnd01`. Every tunable is a `defparameter` with a docstring.
+- The file registers only Ichigo against Kenpachi.
+- Host tests: 9843 checks, ALL PASS.
+
+## Measurements
+Scratch runner = matchup-eval's `run` / `parse` / formula with the logs kept. Seeds 1–20 a seat: the full formula with NORMAL, except
+where marked HARD-only. Seeds 21–40 a seat: HARD only, run with debug 30000+20 by a copy of `run` that only adds the offset. Each row adds
+to the row named.
+
+| Variant | 1–20: score / HARD | spacing | whiff | ptr3 | kessa | NORMAL | 21–40 HARD raw / HARD / kessa |
+|---|---|---|---|---|---|---|---|
+| parent b1_a0 (re-run) | 0.5737 / 29 | 0.049 | 0.809 | 0.945 | 0.088 | 0.075 | |
+| c1 = parent + b3_a0's pieces | 0.7273 / 37 | 0.041 | 0.916 | 1.0 | 0.425 | 0.075 | |
+| c2 = c1 + untimed Hoho T | 0.7354 / 38 | 0.057 | 0.912 | 1.0 | 0.400 | 0.075 | |
+| c3 = c2 + neutral awakening | 0.7637 / 40 | 0.081 | 0.904 | 0.990 | 0.450 | 0.075 | 0.7825 / 39 / 0.625 |
+| c4 = c3 − breaker | 0.7596 / 38 | 0.063 | 0.903 | 1.0 | 0.564 | 0.075 | 0.7937 / 39 / 0.718 |
+| c5 = c3, breaker sealed form only | 0.7475 / 39 | 0.067 | 0.901 | 0.990 | 0.425 | 0.075 | 0.7635 / 38 / 0.575 |
+| c6 = c4 + sealed `:space` lunge (HARD-only) | 0.7485 / 37 | 0.102 | 0.857 | 0.989 | 0.575 | | rejected |
+| c7 = c4 + KESSA chains 2.8–3.4 (HARD-only) | 0.7556 / 38 | 0.065 | 0.900 | 1.0 | 0.538 | | rejected |
+| **c8 = c4 + `*iks-p2-wait*`** | 0.7891 / 39 | 0.066 | **0.954** | 1.0 | 0.641 | 0.075 | 0.8121 / 39 / 0.821 |
+| **c9 = c8 + meaty J1** | **0.8387 / 40** | 0.017 | 0.958 | 1.0 | **0.950** | 0.075 | **0.8252 / 40 / 0.846** |
+| c10 = c9 + hover 4.0–4.6 (HARD-only) | 0.8335 / 40 | 0.056 | 0.959 | 1.0 | 0.875 | | level, rejected |
+| c11 = c9 + breaker (HARD-only) | 0.8366 / 40 | 0.021 | 0.949 | 0.991 | 0.950 | | level, kept off |
+| **c12 = c9 + meaty skip for KESSA `:space`** (final) | **0.8407 / 40** | 0.052 | 0.961 | 1.0 | 0.925 | 0.075 | 0.8257 / 40 / 0.821 (spacing 0.064) |
+
+Seed-1–40 means of the HARD raw:
+
+| Variant | HARD raw |
+|---|---|
+| c3 | 0.773 |
+| c4 | 0.777 |
+| c5 | 0.755 |
+| c8 | 0.801 |
+| c9 | 0.832 |
+| **c12** | **0.833** (spacing back to 0.058) |
+
+c8 and c9 each gained in both halves; c12 is level with c9 and gives spacing back. The switch rows (c2–c5, c10, c11) are within the ±0.02–0.03 noise.
+
+**Final, 40 seeds a seat (EVAL_COMMAND, score.json):**
+`{"side": "ichigo", "seeds": 40, "strength": 1.0, "signature": 0.7222, "themes": {"spacing": {"rate": 0.058, "ok": 30, "occ": 518}, "whiff": {"rate": 0.957, "ok": 786, "occ": 821}, "ptr3": {"rate": 1.0, "ok": 223, "occ": 223}, "kessa": {"rate": 0.873, "ok": 69, "occ": 79}}, "hard": "80/80", "normal": {"share": 0.075, "band": [0.0, 0.138], "factor": 1.0, "matches": 80}, "raw": 0.8333, "score": 0.8333}`
+(c9's 40-seed line, for comparison: score 0.8321, spacing 0.027, whiff 0.955, kessa 0.899.)
+
+| Part (40 seeds) | Baseline | Parent b1_a0 | r2 b3_a0 | **b1_a1** |
+|---|---|---|---|---|
+| Score | 0.2877 | 0.584 | 0.7151 | **0.8333** |
+| HARD | 6/80 | 58/80 | 65/80 | **80/80** |
+| Spacing | 0.062 | 0.057 | 0.155 | 0.058 |
+| Whiff | 0.556 | 0.807 | 0.711 | **0.957** |
+| Ptr3 | 1.0 (31) | 0.957 (115) | 0.986 (139) | 1.0 (223) |
+| Kessa | 0.100 | 0.139 | 0.750 | **0.873** |
+| NORMAL | 0.100 | 0.075 | 0.100 | 0.075 (band 0–0.138, factor 1) |
 
 ## Not a repeat
-- No sibling combined the finisher with the confirm. The other refine cells' folders (b0_a1, b1_a1, b3_a1) were still empty at delivery.
-  b1_a1 may graft b2's finisher onto b1 from the other side. This cell starts from the finisher:
-  - it removes the KESSA pointer-2 sink located above;
-  - it adds b0's pointer-2 re-arm;
-  - it tests and rejects the pointer-3 lunge in :ptr3 episodes, a new negative result.
-- The ptr3 direction is served by protecting ptr3 (0.93, against b1_a0's 0.50) while pointer 3 becomes the state where the whiff
-  punishes land.
+- The merge is the combination b1_a0 named; no sibling made it. b3_a1 refined b3_a0 alone.
+- `*iks-p2-wait*` takes back, against his released forms only, round-1 b0_a0's pointer-2 Getsuga game, which beat Kenpachi v0 and loses
+  to this one's 破月牙.
+- `*iks-p2-wait*` and the meaty J1 are new. Each rests on a located opener of his combos, not on a sweep. No Ichigo cell timed a press
+  onto his wake-up.
+- Rejected again on this file: the sealed `:space` lunge (b0_a1 / b3_a0; spacing up, whiff and strength down) and the KESSA chains
+  (v0's, removed by b1_a0).
 
-## Risks
-- **NORMAL is 0.100 (8 of 80) against the band's edge of 0.138.**
-  - The evaluator is deterministic: every sibling's rescore matched its claim. The NORMAL runs face Kenpachi's generic CPU, so the
-    re-measure will reproduce 0.100.
-  - The real exposure is a later cell adding another piece that reaches NORMAL. The headroom is about 3 wins in 80.
-  - Pieces here that reach NORMAL:
-    - the confirm (0.1);
-    - b0's retreat (NORMAL 0.5);
-    - the parent's value rule and awaken modes.
-  - The levers: NORMAL `*iks-retreat-p*` lower, or the confirm to 0.
-- **The pointer-1 hover sits near his reach** (b0_a0's risk). At 3.4–3.8 m it is close to his NS3b (3.6 m).
-- **The opponent will change.** Strength and every theme were measured against Kenpachi v0 only. Ken's round-1 cells score up to 0.656
-  against Ichigo's v0, so a stronger champion is likely next round. The hover and the confirm's timings are untested against it.
-- **Spacing is now the weakest theme** (0.21; the parent had 0.23):
-  - KESSA no longer sits at pointer 2, where the Getsuga gave 60 of 178 spacing hits;
-  - base pointer 1 converts almost none (4 of 146).
-
-  A spacing tool that does not cost strength is still open.
-- **Carried from b2_a0:** `iks-kikon-value` reads his Konpaku pips (`gauges-konpaku`), beyond SNAP + distance. It is a HUD fact of the
-  same class as `GAUGES-RED-P`, which v0 already reads. If the read is rejected, the finisher's `:ko` / `:tap` / `:even` split goes with it.
-- **The confirm's assumptions (b1_a0's):** the 8 f perception delay subtracted from the SNAP's frames left; the walk at 0.06 m/f.
+## Expected benefit, risks
+- **Benefit:** 0.584 → 0.833 at 40 seeds, HARD 80/80, whiff 0.957, kessa 0.873.
+- **Spacing is still the weakest theme (0.058, the baseline's level).** The meaty loop and the patient hover keep it there:
+  - the 4–5 m band opens mostly while she hovers at 3.7–4.2 or between her loops;
+  - her Hoho counters from there are no move start, so they don't count;
+  - moving the hover out to 4.0–4.6 (c10) only traded spacing for kessa.
+  A spacing cell could try the far k-lunge in the sealed form's released-Kenpachi matchup, or the NS3a meaty from 4–5 m after a
+  pushing ender.
+- **The meaty relies on an engine fact:** a J1 on the first free frame after the wake-up can't be beaten. Against it his style has his
+  read (`kk-read` DODGE / SDODGE on her J1 start: about 14 of 472 here; 64 did not land). A Kenpachi given a wake-up Hoho (b3_a0's trick, which wins
+  through the perfect Hoho's 40 f lock) would cut the loop. Kenpachi's next round may well find it.
+- **Pointer 2's wait depends on his read of her stillness.** If he learns to Hoho in on a waiting pointer 2, the timed Hoho and the
+  confirm are her only answers there.
+- **Shared tools, as in both parents:** the timed and wake-up Hohos and the meaty J1 are the shipped CPU's presses retimed, not rows of
+  §4's table, and all are HARD-only. NORMAL still reads 0.075. `*iks-k-sa-reach*` 5.7 acts at NORMAL in a `:kessa` k-lunge, as in
+  b3_a0.
+- **Next graft:** b3_a1's KESSA Hoho without the Burst reserve, and its lock punish. They touch `iks-timed-hoho` / the follow-up, and
+  none of this file's new code.
