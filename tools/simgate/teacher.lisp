@@ -22,34 +22,77 @@
   '(:j1 :sp :hoho :step-in :step-out :step-side :guard :wait :walk-in :walk-out)
   "The macro actions (DUEL_AI_TEACHER §3).")
 
-(defun teach-press (e action)
-  "Start ACTION as E's brain's press (frames + 1: the press is written from the next brain step on, which decrements first)."
+(defun teach-press (e action &optional (extra 1))
+  "Start ACTION as E's brain's press. EXTRA 1 from a decision point (the press is written from the next brain step on, which decrements
+first), 0 from inside the brain step (the teacher CPU: written this step)."
   (let ((b (brain e)))
-    (flet ((dash (dir to) (setf (brain-dash b) (f32 dir) (brain-dash-to b) (f32 to))))
+    (flet ((dash (dir to) (setf (brain-dash b) (f32 dir) (brain-dash-to b) (f32 to)))
+           (n (k) (+ k extra)))
       (ecase action
-        (:j1 (ai-press b :quick 2))
-        (:sp (ai-press b :quick 2 :modded t))                              ; the pointer's NS, a tap (no Kikon hold)
-        (:hoho (ai-press b :step 2 :modded t :act :hoho))
-        (:step-in (ai-press b :step 2 :act :dash) (dash 1 0.0))            ; a Step's hop toward him
-        (:step-out (ai-press b :step 2 :act :dash) (dash -1 99.0))
-        (:step-side (ai-press b :step 2 :act :side-step) (setf (brain-strafe b) 1f0))
-        (:guard (ai-press b :guard 21))
-        (:wait (ai-press b :none 21))                                      ; (no such button: he stands)
-        (:walk-in (ai-press b :none 21 :act :dash) (dash 1 0.0))           ; the stick alone: a walk
-        (:walk-out (ai-press b :none 21 :act :dash) (dash -1 99.0))))))
+        (:j1 (ai-press b :quick (n 1)))
+        (:sp (ai-press b :quick (n 1) :modded t))                          ; the pointer's NS, a tap (no Kikon hold)
+        (:hoho (ai-press b :step (n 1) :modded t :act :hoho))
+        (:step-in (ai-press b :step (n 1) :act :dash) (dash 1 0.0))        ; a Step's hop toward him
+        (:step-out (ai-press b :step (n 1) :act :dash) (dash -1 99.0))
+        (:step-side (ai-press b :step (n 1) :act :side-step) (setf (brain-strafe b) 1f0))
+        (:guard (ai-press b :guard (n 20)))
+        (:wait (ai-press b :none (n 20)))                                  ; (no such button: he stands)
+        (:walk-in (ai-press b :none (n 20) :act :dash) (dash 1 0.0))       ; the stick alone: a walk
+        (:walk-out (ai-press b :none (n 20) :act :dash) (dash -1 99.0))))))
+
+;;; The teacher CPU (§7): the last round's table as a policy. Free (idle or running), it looks up its situation (its character, the
+;;; distance band, the opponent's state) and draws an action by a softmax over the table's values (temperature *TEACH-TAU*, value units);
+;;; anything else (inside a move, stunned, an unseen situation) is the generic CPU's. Used in the rollouts only (bound *CAI-STYLES*).
+(defvar *teach-table* nil "(character band ostate) -> #(n mean...) in *TEACH-ACTIONS* order (tools/teach-table.py), from env TEACH_TABLE.")
+(defparameter *teach-tau* (let ((v (ext:getenv "TEACH_TAU"))) (if v (read-from-string v) 0.03)) "The policy's softmax temperature (env TEACH_TAU).")
+(let ((f (ext:getenv "TEACH_TABLE"))) (when f (load f)))
+
+(defun teach-key (e)
+  "E's situation key, as tools/teach-table.py buckets it: (character band ostate)."
+  (let* ((f (fighter e)) (fo (fighter (fighter-opp f))) (d (round (* 10 (fighter-dist f)))) (st (fighter-state fo)))
+    (list (fighter-character f)
+          (cond ((< d 20) :close) ((< d 40) :mid) ((< d 70) :far) (t :out))
+          (if (eq st :move) (intern (format nil "MOVE-~a" (fighter-phase fo)) :keyword) st))))
+
+(defun teach-rnd01 ()
+  "Uniform [0, 1) off the sim stream's state (SIM-RND01 is a C-INLINE macro, which this interpreted file can't run): one xorshift32
+step on SIM-RND-STATE, written back."
+  (let ((x (sim-rnd-state)))
+    (setf x (logand #xFFFFFFFF (logxor x (ash x 13))) x (logxor x (ash x -17)) x (logand #xFFFFFFFF (logxor x (ash x 5))))
+    (setf (sim-rnd-state) (max 1 x))
+    (/ x 4294967296d0)))
+
+(defun teach-policy (e b f kit s d)
+  "The teacher CPU as a core-CPU style function (CAI-STYLE-FN's contract: T when it decided)."
+  (declare (ignore b kit s d))
+  (when (member (fighter-state f) '(:idle :run))
+    (let ((row (gethash (teach-key e) *teach-table*)))
+      (when row
+        (let* ((mx (loop for i from 1 below (length row) maximize (aref row i)))
+               (ws (loop for i from 1 below (length row) collect (exp (/ (- (aref row i) mx) *teach-tau*))))
+               (r (* (reduce #'+ ws) (teach-rnd01))))
+          (loop for w in ws for a in *teach-actions*
+                do (decf r w) (when (<= r 0) (teach-press e a 0) (return t))
+                finally (teach-press e (car (last *teach-actions*)) 0) (return t)))))))
 
 (defun teach-health (e)
   "E's health in the score's unit: Konpaku + *TEACH-REISHI-W* x the Reishi bar's fraction."
   (let ((g (gauges e))) (+ (gauges-konpaku g) (* *teach-reishi-w* (/ (gauges-reishi g) (float (gauges-reishi-max g)))))))
 
-(defun teach-styles (opp-char style-p)
-  "The *CAI-STYLES* a sample plays with: the opponent's style functions alone (STYLE-P), or none (both on the generic CPU)."
-  (and style-p (list opp-char (getf *cai-styles* opp-char))))
+(defun teach-styles (self-char opp-char k)
+  "The *CAI-STYLES* sample K plays with. No table (round 1): the side on the generic CPU, the opponent on his style CPU in even samples,
+the generic CPU in odd ones. With a table (§7): the side on the teacher CPU, the opponent on the teacher CPU / his style CPU / the
+generic CPU in turn (K mod 3)."
+  (if *teach-table*
+      (let ((opp-fn (case (mod k 3) (0 #'teach-policy) (1 (getf (getf *cai-styles* opp-char) self-char)) (t nil))))
+        (list self-char (list opp-char #'teach-policy) opp-char (and opp-fn (list self-char opp-fn))))
+      (and (evenp k) (list opp-char (getf *cai-styles* opp-char)))))
 
 (defun teach-features (e)
   "What a player sees of the situation, as a plist printed on the line."
   (let* ((f (fighter e)) (o (fighter-opp f)) (fo (fighter o)) (g (gauges e)) (go (gauges o)) (mv (fighter-move fo)))
-    (list :d (round (* 10 (fighter-dist f))) :st (fighter-state f) :ptr (fighter-ptr f) :form (fighter-form f)
+    (list :char (fighter-character f) :ochar (fighter-character fo)
+          :d (round (* 10 (fighter-dist f))) :st (fighter-state f) :ptr (fighter-ptr f) :form (fighter-form f)
           :r (gauges-reishi g) :k (gauges-konpaku g) :fs (round (gauges-fs g)) :hoho (and (hoho-open-p e) t)
           :ost (fighter-state fo) :osf (fighter-sf fo) :omv (and (eq (fighter-state fo) :move) mv (mv-name mv))
           :ocls (and (eq (fighter-state fo) :move) (fighter-cls fo)) :ophase (fighter-phase fo)
@@ -70,7 +113,7 @@
           (sim-restore s)
           (setf (sim-rnd-state) (logior 1 (logand #xFFFFFFF (+ seed0 (* 7919 (1+ k))))))
           (teach-press e a)
-          (let ((*cai-styles* (teach-styles oc (evenp k))))
+          (let ((*cai-styles* (teach-styles (kit-character (fighter-kit (fighter e))) oc k)))
             (sim-rollout *teach-h*))
           (let ((v (- (- ho0 (teach-health o)) (- h0 (teach-health e)))))
             (incf sum v) (incf sq (* v v)) (incf *teach-rollouts*)))

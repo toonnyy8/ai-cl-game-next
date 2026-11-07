@@ -133,3 +133,29 @@ the answers in the session of 2026-11-07).
 - **The bias to remember**: far off, backing away is best for both. The rollouts' continuation is the generic CPU, which walks into the
   other's reach, so whoever comes in loses. The values are "against these CPUs", not against a person; the next stage has to decide
   what the continuation and the opponent should be.
+
+## 7. Iterating the continuation: the teacher CPU (2026-11-08)
+
+Asked (§6's bias): iterate (recommended) / the player's own data / use the table as it is. **The user: 「反覆修正」.**
+
+- **The teacher CPU** (`teach-policy`, tools/simgate/teacher.lisp; rollouts only): free (idle or running), it looks up (its character,
+  the distance band < 2 / 4 / 7 m / beyond, the opponent's state, :move with its phase) in the last round's table and draws an action by a
+  softmax over the values (temperature 0.03; env `TEACH_TAU`); anything else is the generic CPU's. It is a core-CPU style function, so the
+  rollouts bind it through `*cai-styles*`. Its draw steps the sim stream's state in Lisp (`teach-rnd01`: SIM-RND01 is a C-INLINE macro the
+  interpreted file can't run).
+- **A round with a table** (env `TEACH_TABLE`): the side continues on the teacher CPU; the opponent is the teacher CPU / his style CPU /
+  the generic CPU in turn (sample mod 3: the mixed model of §1 with the teacher added). Tables: `tools/teach-table.py` (situations with
+  10+ points: 30 of 51), compared by `tools/teach-compare.py` (per situation with 40+ points, the best action and the ten actions' rank
+  correlation). The three rounds' tables: `docs/research/ai-teacher/ki-table-r1.lisp` .. `-r3.lisp`.
+- **Rounds** (IK seeds 1–20 each, 10,589 points, 1.69M rollouts, ~3 min 15 s on 16 processes):
+
+| | Best action unchanged (of 26) | Mean rank correlation |
+|---|---|---|
+| round 1 -> 2 | 16 | 0.67 |
+| round 2 -> 3 | 24 | 0.82 |
+
+- **The bias faded**: far off, Kenpachi's best went from backing away to walking in (4–7 m: Step out +0.068 -> walk in +0.071 -> +0.049;
+  beyond 7 m: walk out +0.124 -> walk in +0.075 -> +0.053); Ichigo's backing away beyond 7 m shrank to nothing (+0.077 -> +0.027 ->
+  +0.004). The close-range reads held from round 1 (rank correlation 0.8–1.0: J1 on a stun, Kenpachi's Hoho against a move, SP on a
+  wake-up; Kenpachi's mid-range SP +0.150 -> +0.128 -> +0.113).
+- Round 3's table is the input to the next stage (the human-like CPU: reaction delay, the mistake budget, readability, §1).
