@@ -89,10 +89,9 @@ route, DUEL_HISAGI §28.20: SA > AS1, J2 > AS2, J3 > AS3), else the attack press
 
 (defun core-as-start! (e f)
   "SP after an attack hit: the AS of the attack press count, writing the pointer. Its Kikon (cinematic, Konpaku profile) is the
-pointer it writes, AS n's own theme (the user, 2026-10-28: 「幫我把毀魂技的聯動改成依據目前指針指向的 NS 來決定，而不是由切換前的 NS 決定」;
-before: the pointer before the write). A kit's :core :as-writes (one entry per AS, NIL: none) may leave the pointer as it is
-(Hisagi's Bankai, DUEL_HISAGI §28.4: AS3 is the mode switch, 「三個 AS 只有兩組指針」); its Kikon / Soul Break profile is then the
-current pointer's. A kit's :as-pick hook (E F N) may name another move and the pointer it writes (NIL: kept), or :TAKEN (it did the press
+pointer before the write (the user, 2026-11-07: 「幫我將觸發的毀魂技改回【AS 改變指針前指向的毀魂技】」, DUEL_CORE §4 / DEVLOG §615;
+2026-10-28 to 2026-11-07: the pointer it writes). A kit's :core :as-writes (one entry per AS, NIL: none) may leave the pointer as it
+is (Hisagi's Bankai, DUEL_HISAGI §28.4: AS3 is the mode switch, 「三個 AS 只有兩組指針」). A kit's :as-pick hook (E F N) may name another move and the pointer it writes (NIL: kept), or :TAKEN (it did the press
 itself), else NIL (Kenpachi's Shikai: the burst, the special AS, the Bankai; DUEL_KEN_V3 §4)."
   (core-snap-lv! e f)
   (let* ((writes (getf (kit-core (fighter-kit f)) :as-writes '(1 2 3)))
@@ -102,7 +101,7 @@ itself), else NIL (Kenpachi's Shikai: the burst, the special AS, the Bankai; DUE
       (let ((mv (or pm (kit-core-move (fighter-kit f) :as n)))
             (w (if pm pw (nth (1- n) writes))))
         (when (and mv (core-pips-ok-p e mv))
-          (setf (fighter-sp-ptr f) (or w (fighter-ptr f)))
+          (setf (fighter-sp-ptr f) (fighter-ptr f))
           (core-start! e mv)
           (setf (fighter-ptr f) (or w (fighter-ptr f)) (fighter-as-done f) t)
           (if w (clog "~a AS~d pointer ~d" (side-name e) n w) (clog "~a AS~d pointer kept ~d" (side-name e) n (fighter-ptr f)))

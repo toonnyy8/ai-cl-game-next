@@ -275,6 +275,10 @@ Nozarashi healed, 150).")
 (defparameter *sub-attack-mult* 1.5
   "SUBLIMATION / SPIRIT DRIVE per point of damage dealt = *AWAKEN-DEALT* x this (x ORANGE's gain): 0.0525, about 1905 damage to fill (the
 user, 2026-11-01: 「幫我將 3 倍改成 1.5 倍」, DUEL_SUBLIMATION §18.1; 3.0 (0.105, about 950) from 「×3（約 950 點滿）」 the same day, §18; before, x1.0 of every awakening source, damage taken and lost Konpaku included).")
+(defparameter *sub-gain* 2.0
+  "Every SUBLIMATION / SPIRIT DRIVE gain x this (AWAKEN-OVERFLOW: damage dealt, Konpaku taken, WHITE's; the awakening gauge itself
+unchanged): 1.0 -> 2.0 (the user, 2026-11-07: 「並幫我將 sublimation 跟 drive 的累積速度改成目前的 2 倍」, DUEL_SUBLIMATION §20 / DEVLOG §616):
+about 952 damage dealt fills one.")
 (defparameter *drive-max* 100.0 "SPIRIT DRIVE gauge maximum (after the awakening).")
 (defparameter *sub-dmg* 0.20 "Damage dealt x (1 + this x the bonus fraction).")
 (defparameter *sub-taken* 0.20 "Damage taken x (1 - this x the bonus fraction).")
@@ -292,6 +296,10 @@ the user, 2026-11-01: 「可以，我挺中意這個設定的」, 「既然要�
     :down 30 :wakeup 30)
   "Stun frames per reaction. :launch / :knockdown are airborne / falling until they land (physics),
 then :down + :wakeup (iframes in both).")
+(defparameter *roll-distance* 4.0
+  "A wake-up roll's slide (m): the stick held as :down ends rolls him this far that way, still invulnerable, still *REACTION-FRAMES*'
+:wakeup long (Step 2.5). New 2026-11-07 (the user: 「如果被打倒後起身時有按下方向鍵，請對該方向增加翻滾拉開距離」; DEVLOG §614).")
+(defparameter *roll-frames* 20 "... over this many frames; the rest of the wake-up turns him to face the opponent.")
 (defparameter *knockback-slide-frames* 18 "A grounded reaction's slide lasts at most this long.")
 (defparameter *air-vy* '(:launch 7.5 :knockdown 3.5 :air 4.0)
   "Upward speed (m/s) given by a launch, a knockdown, and any other hit on an airborne fighter.")

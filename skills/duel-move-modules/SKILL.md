@@ -33,7 +33,7 @@ A cancel is a mutual no-damage bounce with a slow motion. **Pointer n's stance, 
 Then ask what the table can't show:
 - **Scope of a carried effect**: which presses it covers (「應該只包含 NS3 之後接的 J 跟 AS」, not "the next NS"). Restate "replays
   the body's J and SP" as a list of move classes and get a yes.
-- **Which pointer an AS's Kikon uses**: the pointer it writes (since §435), not the one before.
+- **Which pointer an AS's Kikon uses**: the pointer before the AS writes it (§435 tried the written one; reverted 2026-11-07, DEVLOG §615).
 - **Direction of a timing change**: 「按住判定時間拉長」 could be more lenient or stricter (asked: 「打中後要多按住幾幀」). Ask which way.
 - **Hold or tap per press, and the phone**: a tap fires on the lift in neutral and on the press inside a move (still 40 ms, `press-ms`, so a flick is no press; §444); the SP zone
   is the upper half; a hold is judged where?

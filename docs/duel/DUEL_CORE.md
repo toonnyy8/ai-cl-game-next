@@ -92,6 +92,10 @@ damage; **AS2** launches (knock-away), medium damage; **AS3** high damage. A cha
   follows the pointer the AS **writes** (AS n → pointer n's cinematic and Konpaku profile, and the Soul Break profile while it is in
   play), so AS n's Kikon is its own theme (§5b). An NS still uses the pointer it started under (the same value). One line:
   `core-as-start!` sets `fighter-sp-ptr` to n, not to the old pointer. The move of the follow-up is unchanged (the AS's strike again).
+- **Reverted 2026-11-07** (the user: 「幫我將觸發的毀魂技改回【AS 改變指針前指向的毀魂技】」, DEVLOG §615): an AS's Kikon is the pointer
+  **before** the AS wrote it again: its cinematic, its Konpaku profile and, while it is in play, the Soul Break profile. AS n still writes
+  pointer n for the next NS. `core-as-start!` sets `fighter-sp-ptr` to the old `fighter-ptr`. Hisagi's host test pins it (Bankai pointer 1,
+  AS2 writes 2, the Kikon's pointer 1).
 - **A hold, not a mash** (2026-10-27, the user: 「毀魂技的觸發判定有點怪異，我是要求『按住』才發動，但目前連打也會觸發」): the first build
   read only whether the button was down on the hit frame, so a mashed SP that happened to be down counted. Now each NS / AS segment
   starts with `fighter-sp-held` set and `core-hold-step` clears it on any step the button is up; the Kikon needs it still set at the

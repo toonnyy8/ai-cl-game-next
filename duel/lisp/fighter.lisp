@@ -763,27 +763,20 @@ the end (MOVE-END-FRAME)."
              (to-idle e))
             (t (recovery-pace e f mv sf))))))
 
-(defparameter *recovery-linger* 0.4
-  "The share of a clip's recovery (from S + A to its end) that slows down when the move recovers longer than its clip (a
-whiff, a block, an AS playing a faster copy's clip): the follow-through lingers there, the weight dragging, then the rest
-plays at its own speed (the user, 2026-11-07: 「攻擊後搖的硬直並沒有對應的動畫，只是單純僵硬在原地」; DEVLOG §613). A look only.")
-
 (defun recovery-pace (e f mv sf)
-  "In MV's recovery (move frame SF past S + A), slow its clip so it ends on the move's real end frame instead of freezing
-on its last pose: the first *RECOVERY-LINGER* of the clip's recovery takes the extra frames, the rest plays at MV's clip
-speed. Never faster than that speed (a clip longer than the move is left alone); presentation only, the sim never reads it."
+  "In MV's recovery (move frame SF past S + A), slow its clip evenly so it ends on the move's real end frame instead of freezing
+on its last pose: the whole return to the stance (收刀) takes the extra frames, nothing holds (the user, 2026-11-07: 「應該是要將『收刀』
+的動作繪製更多幀作為硬直演出才對，而不是卡在攻擊最後的姿勢」, DEVLOG §617; DEVLOG §613's first version slowed only the first 0.4 of
+it, which read as a hold on the last attack pose). Never faster than MV's clip speed (a clip longer than the move is left alone);
+presentation only, the sim never reads it."
   (let* ((s (mv-s mv)) (sa (+ s (mv-a mv))) (an (model-anim (model e))) (c (anim-clip an)) (spd (f32 (mv-clip-speed mv))))
     (when (and (> sf sa) c (not (clip-loop c)) (null *cine*))
       (let* ((end (move-end-frame s (mv-a mv) (mv-r mv) (mv-whiff mv) (fighter-contact f) (zerop (length (mv-hits mv))) (mv-kind mv)))
              (rf (f32 (- end sf -1)))                                   ; steps left, this one included
-             (tc (* 60f0 (anim-time an))) (cend (* 60f0 (clip-dur c))) (rc (- cend tc))
-             (cs (+ (* sa spd) (* (f32 *recovery-linger*) (- cend (* sa spd))))))   ; where the lingering ends (clip frames)
-        (cond ((or (<= rc 0f0) (<= (* rf spd) (+ rc 0.5f0)))            ; the clip fills the rest at its own speed
-               (when (< (anim-speed an) spd) (setf (anim-speed an) spd)))
-              ((< tc cs)                                                ; lingering: leave the tail its own speed
-               (let ((avail (- rf (/ (- cend cs) spd))))
-                 (setf (anim-speed an) (if (> avail 0f0) (min spd (/ (- cs tc) avail)) (/ rc rf)))))
-              (t (setf (anim-speed an) (min spd (/ rc rf)))))))))
+             (rc (- (* 60f0 (clip-dur c)) (* 60f0 (anim-time an)))))    ; clip frames left
+        (setf (anim-speed an) (if (or (<= rc 0f0) (<= (* rf spd) (+ rc 0.5f0)))   ; the clip fills the rest at its own speed
+                                  (max (anim-speed an) spd)
+                                  (min spd (/ rc rf))))))))
 
 (defun push-apart (a b dist frames)
   "Push fighter B DIST metres away from A over FRAMES; what the arena's edge leaves no room for pushes A back instead (the
@@ -1087,8 +1080,18 @@ invulnerable)."
               (emit :land e)))
       (:down (when (>= sf (getf *reaction-frames* :down))
                (setf (fighter-state f) :wakeup (fighter-sf f) 0)
-               (play-clip e :sh-wakeup :blend 2)))
-      (:wakeup (when (>= sf (getf *reaction-frames* :wakeup)) (to-idle e))))))
+               (multiple-value-bind (to st) (stick-relative e f)
+                 (if (< (hypot to st) 0.3)
+                     (play-clip e :sh-wakeup :blend 2)
+                     (multiple-value-bind (dx dz) (multiple-value-call #'world-dir e f (step-direction to st))
+                       ;; a back roll whichever way: his back leads, then he turns to the opponent (DEVLOG §614)
+                       (setf (fighter-phase f) :roll (transform-yaw (transform e)) (f32 (dir-yaw (- dx) (- dz))))
+                       (set-slide e *roll-distance* *roll-frames* dx dz)
+                       (play-clip e :sh-roll :blend 2)
+                       (clog "~a roll" (side-name e)))))))
+      (:wakeup (unless (and (eq (fighter-phase f) :roll) (< sf *roll-frames*))   ; he gets up facing the opponent
+                 (turn-to-opp e f (%deg *face-rate*)))
+               (when (>= sf (getf *reaction-frames* :wakeup)) (to-idle e))))))
 
 ;;; ---------------------------------------------------------------- reactions (called by combat.lisp)
 (defun set-reaction (e react stun from-x from-z kb)

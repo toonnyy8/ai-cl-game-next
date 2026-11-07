@@ -230,3 +230,15 @@ User: 「進入 SUBLIMATION 跟 DRIVE 後，改成以『進攻』作為提昇量
 ## 19. KESSA's NS2c named GETSUGA TENSHO (the user, 2026-11-02)
 
 User: 「還有一護卍解的 NS2c 是月牙天衝而不是月牙十字衝，能跟我說下 NS2 的當前設定嗎」; shown the table (NS2a charge 1: S 20 / R 14, its SA 55 and the string x1.4; NS2b charge 2: 16 / 14, its SA 80 and x1.7; NS2c the wave: S 20 / R 26, 150, knockdown, 3.6 m wide, 14 m/s over 12 m, guard 22; x0.95 KESSA), then 「好，如你所說處理名字就行」. `:ic-k-n2c` was copied from the Shikai's JUJISHO with its callout; it is drawn as one small 漆黒 crescent already. Its callout is now **GETSUGA TENSHO** (as KESSA's AS2b). Numbers unchanged; the code's `juji` names (`ichigo-juji-look`, `ichigo-juji`) stay, shared with the Shikai. A callout is a displayed string only (G2 `--cvc` identical; host tests 11299 pass with the callout pinned in `sublimation.lisp`).
+
+## 20. SUBLIMATION and DRIVE fill twice as fast (the user, 2026-11-07)
+
+User: 「並幫我將 sublimation 跟 drive 的累積速度改成目前的 2 倍」.
+
+- New knob `*sub-gain*` 1.0 -> **2.0** (tuning.lisp): `awaken-overflow` multiplies XS by it before adding it to SUBLIMATION or DRIVE, so
+  every source doubles together. That means damage dealt (0.0525 -> 0.105 a point, about 1905 -> **about 952** real damage to fill;
+  ORANGE x1.5 on top), Konpaku taken (10.5 -> **21** each) and WHITE's Burst refill. The awakening gauge's own rates (`*awaken-dealt*`,
+  `*awaken-taken*`, `*awaken-per-konpaku*`) are unchanged. §18.1's `*sub-attack-mult*` 1.5 stays; the x2 sits on top of it.
+- Tests: `tests/duel-rules/sublimation.lisp`. The two overflow lines now read 30 + 2 x 6 = 42 (SUB) and 2 x 12 = 24 (DRIVE), and
+  `*sub-gain*` is pinned at 2.0. The manual's SUBLIMATION entry says about 950 damage and 21 a Konpaku.
+- A sim change: G2 `--cvc` regenerated together with DEVLOG §614–§615 (the wake-up roll, the AS Kikon's pointer).

@@ -7,12 +7,14 @@
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 50.0 0.0 0.0 20.0 5.0) (and (~= aw 70.0) (~= sub 0.0) (~= dr 0.0))))
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 90.0 0.0 0.0 25.0 25.0) (and (~= aw 100.0) (~= sub 0.0) (~= dr 0.0))))   ; the overflow is dropped
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 30.0 0.0 10.0 0.0) (and (~= aw 100.0) (~= sub 30.0) (~= dr 0.0))))  ; taken: nothing
-(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 30.0 0.0 10.0 6.0) (and (~= aw 100.0) (~= sub 36.0) (~= dr 0.0))))
+(check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 30.0 0.0 10.0 6.0) (and (~= aw 100.0) (~= sub 42.0) (~= dr 0.0))))
 (check (multiple-value-bind (aw sub dr) (awaken-overflow nil 100.0 95.0 0.0 10.0 10.0) (declare (ignore aw)) (and (~= sub 100.0) (~= dr 0.0))))
 (check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 0.0 12.0 0.0) (and (~= aw 0.0) (~= sub 0.0) (~= dr 0.0))))
-(check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 0.0 12.0 12.0) (and (~= aw 0.0) (~= sub 0.0) (~= dr 12.0))))
+(check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 0.0 12.0 12.0) (and (~= aw 0.0) (~= sub 0.0) (~= dr 24.0))))
 (check (multiple-value-bind (aw sub dr) (awaken-overflow t 0.0 0.0 95.0 12.0 12.0) (declare (ignore aw sub)) (~= dr 100.0)))
-;; attacking: 0.035 x 1.5 per point (about 1905 to fill, §18.1), ORANGE x1.5 on top, 10.5 per Konpaku taken
+;; *SUB-GAIN* x2 on SUB / DRIVE (2026-11-07, §20): the overflow lines above
+(check (~= *sub-gain* 2.0))
+;; attacking: 0.035 x 1.5 per point (about 1905 to fill before x *SUB-GAIN*, §18.1), ORANGE x1.5 on top, 10.5 per Konpaku taken
 (check (and (~= *sub-attack-mult* 1.5) (~= (sub-attack-gain 100 0 1.0) 5.25) (~= (sub-attack-gain 100 0 *orange-gain*) 7.875)
             (~= (sub-attack-gain 0 2 1.0) 21.0) (< 1904 (/ 100.0 (sub-attack-gain 1 0 1.0)) 1906)))
 ;; the bonus fraction: SUB / 100 before, 0.5 x s + 0.5 x DRIVE / 100 after (full B as DRIVE's base)

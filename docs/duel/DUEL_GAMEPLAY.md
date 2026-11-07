@@ -218,6 +218,7 @@ encoded in the integer.
 | 2513 | 3 s of the cancel's slow motion (`*core-clash-slowmo-scale*`): the smooth-draw check (DUEL_CORE §6) |
 | 2514 | toggle `*scene-transparent*` (DUEL_WEBUI §4): no stage, no sky, the canvas keeps the scene's alpha (the page shows around the fighters) |
 | 2515 | consing of the battle screens' per-frame Lisp path in the running battle (webhud.lisp, DUEL_WEBUI §7; claimed 2026-10-28): 100 calls each of `webhud-sync`, `webhud-side`, `webhud-prompt`, `webhud-deck`, `webhud-tag`, `at-stake` and the thumb deck's four `touch-button` reads once the values are sent: a `webhud consing (100 calls, B): sync …, side …, prompt …, deck …, tag …, stake …, touch …` line (0 B wanted) |
+| 2516 | P1 knocked down by P2 now (`set-reaction :knockdown`): the wake-up check (2026-11-07, DEVLOG §614): hold a direction as he gets up and the log says `P1 roll` |
 | 2520+k | `(camera-shift-x *camera*)` = (k − 30) / 100, k 0–79 (2550 = 0, 2590 = +0.4: the image moves right); nothing else resets it but a new value (DUEL_WEBUI §4) |
 | 2600+k | `*red-threshold*` = k % (pace the gate without a rebuild) |
 | 2387 / 2388 | Kenpachi's Bankai tests (`bankai-test` in ken.lisp, `ken-debug`, human P1 Kenpachi vs an idle Yamamoto; `duel-bankai.json`): 2387 in the Bankai at once, 2.2 m; 2388 the Bankai with 1 pip left (the burst). (2386, the cup-3 entry, and 2389, 片腕, retired 2026-11-03 with the cups and KATAUDE.) |

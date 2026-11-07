@@ -571,7 +571,7 @@
       (setf (fighter-state (fighter a)) :idle (fighter-move (fighter a)) nil)
       (setf (fighter-presses (fighter a)) 3 (fighter-as-done (fighter a)) nil)
       (core-as-start! a (fighter a))
-      (check (and (= 2 (fighter-ptr (fighter a))) (= 2 (fighter-sp-ptr (fighter a))) (eq (fighter-move (fighter a)) (m :hs-r-as2))))
+      (check (and (= 2 (fighter-ptr (fighter a))) (= 1 (fighter-sp-ptr (fighter a))) (eq (fighter-move (fighter a)) (m :hs-r-as2))))   ; (its Kikon: the pointer before, DEVLOG §615)
       ;; §28.20 (the user 2026-10-29: 「SA -> AS1 / J2 -> AS2 / J3 -> AS3」): the gathered route's AS by the move he is in, whatever the presses
       (loop for (from n as) in '((:hs-r-sa-g 1 :hs-r-as1) (:hs-r-j2s 2 :hs-r-as2) (:hs-r-j3g 3 :hs-r-as3))
             do (setf (fighter-state (fighter a)) :move (fighter-move (fighter a)) (m from) (fighter-presses (fighter a)) 1

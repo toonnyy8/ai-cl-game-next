@@ -1810,6 +1810,25 @@ lag: 「只擋攻擊這個選項應該只能開放 step 跟 hoho，不能移動�
   154.9 -> 158.6, HY 115.2 -> 110.3, HK 130.6 -> 110.7, HR 146.2 -> 145.5, HI 140.7 -> 152.6, HS 134.7 -> 160.9, HB 153.7
   -> 157.2, HH 206.8 -> 185.2 s; cvc regenerated (yy P2 0-3 116.3 s, yk P2 0-6 135.6 s, kk P1 6-0 160.2 s).
 
+## Getting up: facing the opponent, and the wake-up roll (the user, 2026-11-07)
+
+User: 「1. 被打倒後起身時請重新面向對手 2. 如果被打倒後起身時有按下方向鍵，請對該方向增加翻滾拉開距離，使角色能避免被壓起身」.
+
+- **Facing**: through `:wakeup` (30 f) he turns to the opponent at `*face-rate*` (18 deg a frame, the idle turn), so he stands up
+  facing him wherever the opponent went while he was down (a Hoho, a cross-up). Before, he kept the yaw he was knocked down with.
+- **The roll**: the stick read on the frame `:down` ends (30 f after landing). Held (|stick| >= 0.3, the Step's dead zone; read
+  camera-relative like a Step) means he rolls that way: `*roll-distance*` **4.0 m** over `*roll-frames*` **20 f** (Step 2.5 m / 12 f),
+  then turns to the opponent in the remaining 10 f. Neutral means the plain wake-up in place.
+  - The wake-up stays 30 f and invulnerable in both cases. The roll moves him; it does not change the timing.
+  - Any direction rolls, toward the opponent included. Every roll is the same back roll: his back leads, so a roll away from the
+    opponent ends already facing him, and a side or forward roll turns at the end.
+- Clip `:sh-roll` (body.lisp, 30 f): tuck, over the shoulders (root pitch -88 -> -360, keyed about every 90 deg), a crouched landing at
+  f22, up by f30. The fade to the stance takes the short way (`anim-play` wraps the pitch).
+- Code: `air-step` (fighter.lisp). Log line `P1 roll`. Debug **2516** knocks P1 down now (DUEL_GAMEPLAY "Debug commands").
+- CPU: the generic core CPU zeroes its stick each step, so it gets up in place. A style CPU (DUEL_MATCHUP_AI) that writes a direction
+  while he is down rolls.
+- A sim change: G2 regenerated (DEVLOG §614).
+
 ## The recovery's clip fills the recovery (the user, 2026-11-07)
 
 「我發現劍八有些攻擊後搖的硬直並沒有對應的動畫，只是單純僵硬在原地無法操作。請幫我找出這些動作並為其追加自然的收招動畫」.
@@ -1826,6 +1845,12 @@ in his kit, unreachable in a core match, have their own: KE-CHARGE 40 f, the Bre
   Never faster than the clip speed (a clip longer than its move is left alone), never in a cinematic or a looping clip. A whiffed
   J1 (S 6, A 3, R 12, 37 f): the follow-through's first 4.8 clip frames over 21 steps, the return's 7.2 at speed 1.
 - **A look only**: the sim never reads a clip; G2 cvc II / IK / KK identical to `tests/style-cvc-ref.txt`.
+- **Revised the same day** (the user, after the playtest: 「我看劍八目前很多招都是卡在攻擊最後的姿勢，然後才迅速收刀。應該是要將『收刀』的動作繪製
+  更多幀作為硬直演出才對，而不是卡在攻擊最後的姿勢」, DEVLOG §617). His clips start the return to the stance at the A mark (J1: the
+  follow-through at f9, near the stance by f17), so a 40 % linger read as a hold on the last attack pose, then a quick pull back.
+  RECOVERY-PACE now slows the whole recovery evenly: speed = clip frames left / steps left, so every frame of the return (收刀) is
+  drawn slower and none holds. `*recovery-linger*` is removed. The whiffed J1 above plays its 12 recovery clip frames over 28 steps
+  (x0.43). Same guards (never faster than the clip speed, no cinematic or loop); still presentation only.
 
 ## Reiatsu by move kind × combo (the user, 2026-10-26)
 
