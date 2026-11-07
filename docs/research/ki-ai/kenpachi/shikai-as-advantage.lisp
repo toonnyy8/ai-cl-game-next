@@ -1,0 +1,10 @@
+;;;; The Shikai keep-the-pointer ASs at L0-L3, exact presses (DUEL_KEN_V3 §46): python3 tools/combo-trial.py docs/research/ki-ai/kenpachi/shikai-as-advantage.lisp
+;;;; (or tools/simgate/trial.lisp directly). AS1 = pointer 1, J1 J2 + SP x (L+1); AS2 = pointer 2, J1 J2 J3 + SP x (L+1); the "adv" field of each end line.
+(:name "AS1 L0" :p1 :kenpachi :form :nozarashi :p2 :ichigo :ptr 1 :meter 0 :dist 2.0 :script ((:quick 1) (:quick 1) (:quick 8 :modded t :on :hit)) :frames 300)
+(:name "AS1 L1" :p1 :kenpachi :form :nozarashi :p2 :ichigo :ptr 1 :meter 1 :dist 2.0 :script ((:quick 1) (:quick 1) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit)) :frames 300)
+(:name "AS1 L2" :p1 :kenpachi :form :nozarashi :p2 :ichigo :ptr 1 :meter 2 :dist 2.0 :script ((:quick 1) (:quick 1) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit)) :frames 300)
+(:name "AS1 L3" :p1 :kenpachi :form :nozarashi :p2 :ichigo :ptr 1 :meter 3 :dist 2.0 :script ((:quick 1) (:quick 1) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit)) :frames 300)
+(:name "AS2 L0" :p1 :kenpachi :form :nozarashi :p2 :ichigo :ptr 2 :meter 0 :dist 2.0 :script ((:quick 1) (:quick 1) (:quick 1) (:quick 8 :modded t :on :hit)) :frames 300)
+(:name "AS2 L1" :p1 :kenpachi :form :nozarashi :p2 :ichigo :ptr 2 :meter 1 :dist 2.0 :script ((:quick 1) (:quick 1) (:quick 1) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit)) :frames 300)
+(:name "AS2 L2" :p1 :kenpachi :form :nozarashi :p2 :ichigo :ptr 2 :meter 2 :dist 2.0 :script ((:quick 1) (:quick 1) (:quick 1) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit)) :frames 300)
+(:name "AS2 L3" :p1 :kenpachi :form :nozarashi :p2 :ichigo :ptr 2 :meter 3 :dist 2.0 :script ((:quick 1) (:quick 1) (:quick 1) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit) (:quick 8 :modded t :on :hit)) :frames 300)

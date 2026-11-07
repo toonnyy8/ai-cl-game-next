@@ -1378,3 +1378,25 @@ User: 「幫我將劍八卍解的刀柄變細成 0.8 倍」.
 - Presentation only: the drawn reach (the head's far end) does not move.
 - **Again x0.8** (the user, the same day: 「再次變細 0.8 倍」): `*ke-bk-haft-w*` 0.8 -> **0.64**. The haft is now 3.2 cm, the seams
   3.5 cm, the butt 3.7 cm (DEVLOG §620).
+
+## 46. The Shikai's keep-the-pointer AS below L3 ends even and close (the user, 2026-11-08)
+
+The user (verbatim): 「劍八始解後的 AS1 跟 AS2 只要沒解放 L3 好像出手完都會陷入不利的狀態？」
+
+- **Cause**: §9's table made every keep-the-pointer AS segment below L3 a copy of its NS segment (stagger, 26 f), and only L3's last
+  segment knocks down. An AS ends the combo, so below L3 the route ends on a stagger with Kenpachi's 16–24 f recovery against it.
+- **Measured** (`docs/research/ki-ai/kenpachi/shikai-as-advantage.lisp`: P1 Kenpachi in the Shikai, a standing Ichigo, 2.0 m, the exact
+  presses per level; frames from the trial's "adv", positive = Kenpachi free first):
+
+| | L0 | L1 | L2 | L3 |
+|---|---|---|---|---|
+| AS1 (pointer 1, J1 J2 + SP x (L+1)) | 0 | +2 | +2 | +52 (knockdown, 1.83 m apart) |
+| AS2 (pointer 2, J1–J3 + SP x (L+1)) | +7 | −3 | +2 | +47 (knockdown) |
+
+  Below L3 both recover within 8 frames of each other, 0.83 m apart. Ichigo's J1 (14 f) is slower than his (9 f), but her Hoho is
+  invulnerable from frame 1 (`*hoho-iframes*` 1–14) and a perfect one counters, so a press of his there loses to it; the bursts (the
+  pointer-switching ASs) knock down at any L (斬返 alone: +49).
+- **Asked** (AskUserQuestion): the last segment reached knocks down at every L (recommended) / the last one below L3 a crumple (40 f, about
+  +14) / push the victim to ~2.5 m / keep it. **The user: 「維持現狀」**: below L3 the AS is the climbing tool and its risk the price of
+  not having unlocked. Only the manual says so now (the Shikai table's AS row: below L3 no knockdown, both recover within 8 frames 0.8 m
+  apart, Hoho can answer; a burst ends safe at any level). No sim change.
