@@ -172,6 +172,8 @@ for anyone."
         (setf (brain-press-left b) (max (brain-press-left b) (- (1+ *core-kikon-confirm*) (fighter-hold f)))))   ; through the confirm
       (unless (or (brain-off b) (> (fighter-lock f) 0) (eq (fighter-state f) :cine))
         (cond ((> (brain-press-left b) 0) (decf (brain-press-left b)))
+              ((let ((fn (and *strat-now* (getf (car *strat-now*) :fn))))      ; a strategy's own tactics first (DUEL_AI_STRATEGY §9)
+                 (and fn (funcall fn e b f kit s d))))
               ((mc-neutral e b f kit s d))                                     ; free: the in-game MCTS (cpu-mcts.lisp, DUEL_AI_TEACHER §9)
               ((let ((st (cai-style-fn f))) (and st (funcall st e b f kit s d))))   ; a matchup style decided (DUEL_MATCHUP_AI)
               (t (case (fighter-state f)

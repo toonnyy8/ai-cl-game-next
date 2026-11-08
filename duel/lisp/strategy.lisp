@@ -7,6 +7,9 @@
 ;;;; then: no strategy changes nothing). The cues are relative to the kits (core-ai.lisp STRAT-FEATS), so a strategy runs for any character.
 ;;;; Outputs: :B-<action> a bias (value units) added to that macro action's estimate before the action layer ranks them; :RANGE the walk-to
 ;;;; range's scale; :NS the in-range NS share; :HOHO :TURN :CONT :KIKON :AWAKEN scales of the reactive layer's chances. + - x / only.
+;;;; :FN (the user, 2026-11-08: 「策略可以包含程式」, DUEL_AI_STRATEGY §9): a function (e b f kit s d) -> T when it decided this step, run
+;;;; first on every step the CPU is free to press (CORE-BRAIN-STEP), before the action layer: a strategy's own tactics (a matchup style CPU
+;;;; is one: ken-ki-style, ichigo-ki-style).
 (in-package :duel)
 
 (defparameter *strat-bias-keys* #(:b-j1 :b-sp :b-hoho :b-step-in :b-step-out :b-step-side nil :b-wait :b-walk-in :b-walk-out)

@@ -128,3 +128,16 @@ s3 zoner, s4 reach discipline. All run for Kenpachi, Ichigo and Hisagi (characte
 The format reaches only the generic CPU's level: what makes the style CPUs strong is not expressible — the meaty on a wake-up, a whiff
 punish with the fastest move that lands in his recovery, the perfect Hoho's timing, a form's entry and cash-out, the pointer chosen, a
 Kikon only when it K.O.s, a bait hover band, a reactive back-Step dodge. The format must grow before the strategy layer can reach §6's bar.
+
+## 9. Strategies may carry code (2026-11-08)
+
+Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
+code / the style CPUs as opaque strategies). **The user: 「策略可以包含程式」.**
+- A strategy file may name `:fn`, a function (e b f kit s d) -> T when it decided, run first on every step the CPU is free to press
+  (`core-brain-step`, before the action layer's MCTS, which fills what it leaves: §7 of DUEL_AI_MCTS found that order strongest), beside its
+  data (`:base` / `:rules`). The function lives in the build: a search cell writes Lisp in its own git worktree and builds its own native
+  sim (~2.5 min a cell; the KI search's scripts, docs/research/ki-ai-drsi/, did the same); the library's admitted functions ship in the game.
+- The KI style CPUs are the first two such strategies: `seeds/s5-ki-ken.lisp` (`:fn ken-ki-style`), `seeds/s6-ki-ichigo.lisp`
+  (`:fn ichigo-ki-style`). IK HARD, 20 seeds (Ichigo : Kenpachi): as shipped (the styles after the MCTS, HARD's margin gate) 3 : 17; his as a
+  strategy first 7 : 13; hers 4 : 16; both 7 : 13 (within the noise, ±4).
+- No strategy: G2 identical.
