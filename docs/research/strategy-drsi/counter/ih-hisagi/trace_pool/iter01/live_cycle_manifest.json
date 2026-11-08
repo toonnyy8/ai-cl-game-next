@@ -1,0 +1,51 @@
+{
+  "completed_by_policy": true,
+  "cycle": 0,
+  "explore": {
+    "batch_sizes": [
+      3,
+      3,
+      3
+    ],
+    "best_score": 0.09,
+    "decision_rounds": 3,
+    "effective_sequential_rounds": 3,
+    "max_refine": 2,
+    "max_width": 3,
+    "max_workers": 4,
+    "probe_budget": 9
+  },
+  "grid_plan": {
+    "actual": {
+      "decision_rounds": 3,
+      "effective_sequential_rounds": 3,
+      "max_attempt_selected": 2,
+      "opened_branch_count": 3,
+      "probe_count": 9
+    },
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "policy": {
+    "beta_default": 0.6,
+    "config": {
+      "beta": 0.6
+    },
+    "name": "OptimalPolicy",
+    "sha256": "009ba3e385dbc5b9f415ba0e655b101baa6724f90fc7066fc4a4f15cb9b9f01d",
+    "source": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/counter/ih-hisagi/rounds/round01/policy.py"
+  },
+  "recorded_at": "2026-11-08T20:03:46.813870+00:00",
+  "round_index": 1,
+  "schema_version": 2,
+  "workspace": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/counter/ih-hisagi"
+}

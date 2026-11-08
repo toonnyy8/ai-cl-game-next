@@ -1,0 +1,99 @@
+{
+  "baseline_score": 0.005,
+  "beta": 0.6,
+  "branch_count": 3,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.04 inc 0.0 gain 0.04 z 2.828 own 0.5699 capped False",
+      "score": 0.04
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.045 inc 0.0 gain 0.045 z 3.0 own 0.4722 capped False",
+      "score": 0.045
+    },
+    "b0_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.08 inc 0.0 gain 0.08 z 4.0 own 0.5474 capped False",
+      "score": 0.08
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.01 inc 0.0 gain 0.01 z 1.414 own 0.3986 capped False",
+      "score": 0.01
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.015 inc 0.0 gain 0.015 z 1.732 own 0.3873 capped False",
+      "score": 0.015
+    },
+    "b1_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.085 inc 0.0 gain 0.085 z 4.123 own 0.5656 capped False",
+      "score": 0.085
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.02 inc 0.0 gain 0.02 z 2.0 own 0.0808 capped False",
+      "score": 0.02
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.085 inc 0.0 gain 0.085 z 4.123 own 0.5555 capped False",
+      "score": 0.085
+    },
+    "b2_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.09 inc 0.0 gain 0.09 z 4.243 own 0.5752 capped False",
+      "score": 0.09
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "counter strategy for hisagi vs ichigo HARD, second search against the frozen opponent: composite win share (DUEL_AI_STRATEGY 8.7, 8.15)"
+}
