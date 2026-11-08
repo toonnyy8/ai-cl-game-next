@@ -7727,3 +7727,14 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
   - 每組 Q 表兩個策略：現行和最好的替代，初始等於現行並逐組證明；上限 0.01，回報每張表的策略差分布。
   - 順序：先把工具改成任何組合都能用，再搜尋（Sonnet，3×3，W=4），再擬合 Q 表與證明，最後進查表。
 - 文件：DUEL_AI_STRATEGY §8.15。
+
+## 659. LEARNING CPU 回到 SETTINGS，加「重設學習」（2026-11-09）
+
+使用者（§658）：「Show it and add a reset (Recommended)」
+
+- SETTINGS 重新顯示 LEARNING CPU（說明改成「VS CPU HARD: THE CPU LEARNS YOUR HABITS」），選項變 7 個；選項下面多一列 RESET LEARNING，再下面是 BACK。HTML 選單和畫布備用選單都有。
+- RESET LEARNING 呼叫 `fq-reset-all`：清掉記憶體裡的表，把每個角色組合的 `soulduel.fq.<me>.<vs>` 寫成空表，記錄 `duel fq reset`，播確認音。舊學習 CPU 的 `soulduel.learn.*` 不動（舊學習 CPU 已凍結）。
+- 瀏覽器實測（除錯 2504）：第一場 `duel fq load 3 1 fresh` → `duel fq learn 3 1 matches 1 …`；SETTINGS → RESET LEARNING → `duel fq reset`；第二場又是 `fresh`。
+- 主機測試 9914 項、操作測試 100 項全過；pkgcheck 乾淨；試玩頁 v368。
+- 使用說明「會學習的電腦」寫明開關和重設的位置。文件：DUEL_AI_STRATEGY §8.14（Settings）、DUEL_WEBUI。
+- 實作：Sonnet 5.5 子代理。

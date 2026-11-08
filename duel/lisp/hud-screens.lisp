@@ -49,7 +49,7 @@ while it waits for a key), then RESET DEFAULTS and BACK; the fixed combinations 
 (defun hud-settings (w h s)
   "SETTINGS: the rows (confirm, left / right or a tap changes one), BACK, the selected row's note and the help line."
   (ui-big-text "SETTINGS" (floor w 2) (* 0.2 h) (fit-scale "SETTINGS" (* 6 s) (* 0.8 w)) '(1 0.92 0.8 1) '(0.7 0.18 0.05 1) s)
-  (hud-menu (settings-items) (if (portrait-p) 0.46 0.36) w h s (/ w 2) (/ (- h (* 38 s)) h))   ; above the note (7 rows since PERFECT HINT)
+  (hud-menu (settings-items) (if (portrait-p) 0.46 0.36) w h s (/ w 2) (/ (- h (* 38 s)) h))   ; above the note (9 rows since LEARNING CPU and RESET LEARNING came back)
   (let ((note (settings-note)) (help (if (touch-tap-zones-p) "TAP A ROW TO CHANGE IT" "LEFT / RIGHT CHANGE    ESC BACK")))
     (ui-text note (floor w 2) (- h (* 34 s)) :scale (fit-scale note s (* 0.94 w)) :align :center :color *ember* :shadow t)
     (ui-text help (floor w 2) (- h (* 20 s)) :scale (fit-scale help s (* 0.94 w)) :align :center :color *dim* :shadow t)))

@@ -99,7 +99,7 @@ Engine side, as built (2026-10-28):
   skips a screen the page draws (`webui-on-screen-p`); the frozen ENDLESS / DANGAI screens stay engine-drawn.
 - **Frozen rows hidden** in both renderers: MODE is `*mode-rows*` (keywords: VS CPU / PRACTICE / VS PLAYER / CPU VS CPU / SETTINGS /
   CONTROLS / MANUAL; dispatch by key, `mode-row` for the cursor on return), SETTINGS is `settings-shown` (`*settings-hidden*`;
-  `*settings*` keeps its order for the saved rows) + BACK. ASSIST's three settings are ignored for a core kit (`assist-config`): a
+  `*settings*` keeps its order for the saved rows; LEARNING CPU shown again 2026-11-09) + RESET LEARNING (`fq-reset-all`) + BACK. ASSIST's three settings are ignored for a core kit (`assist-config`): a
   saved AUTO GUARD ALWAYS could no longer be turned off once hidden.
 - **SELECT**: `*scene-transparent*` on while the page draws SELECT; `menu-camera`'s `:select-web` frames the fighter being picked
   (P1 in phase 0, P2 after) from his front, 3.9 m (portrait 7.2), moved to the focused card's spot by `camera-shift-x` / `-y`

@@ -154,7 +154,7 @@ player's (his own pad). Changes PAIR's plists in place; T when something changed
     (:tap-split "TAP SPLIT" ("40%" "45%" "50%" "55%" "60%") 2 (0.4 0.45 0.5 0.55 0.6) "UNUSED: A TAP IS THE ATTACK EVERYWHERE")
     (:flick "SENSITIVITY" ("1" "2" "3" "4" "5") 2 (40 34 28 23 18) "HIGHER: A SHORTER FLICK")
     (:camera "CAMERA" ("BEHIND" "SIDE") 0 nil "VS CPU AND PRACTICE, TWO HANDS")
-    (:learn "LEARNING CPU" ("ON" "OFF") 0 nil "VS CPU AND ENDLESS: THE CPU LEARNS YOUR HABITS")
+    (:learn "LEARNING CPU" ("ON" "OFF") 0 nil "VS CPU HARD: THE CPU LEARNS YOUR HABITS")
     (:hint "PERFECT HINT" ("OFF" "ON") 0 nil "HOHO! OVER YOU WHEN A HOHO NOW IS PERFECT")   ; the user 2026-10-01
     (:auto-guard "AUTO GUARD" ("OFF" "HOLD U" "ALWAYS") 0 nil "A HIT COMING: PARRY OR HOHO FOR YOU (NEVER PERFECT, x0.8)")
     (:auto-combo "AUTO COMBO" ("OFF" "ON") 0 nil "J AFTER A HIT: THE CPU PICKS THE NEXT MOVE (x0.8)")

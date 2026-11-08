@@ -368,18 +368,19 @@ DUEL_WEBUI §1): their debug commands still start them.")
 (defparameter *mode-menu* (mapcar #'second *mode-rows*))
 (defun mode-row (key) "MODE's row of KEY." (position key *mode-rows* :key #'first))
 
-(defparameter *settings-hidden* '(:tap-split :learn :auto-guard :auto-combo :auto-break)
-  "SETTINGS rows not shown since the HTML menus (TAP SPLIT unused, the learner and ASSIST frozen with the core system; the user,
-2026-10-28: 「隱藏」, DUEL_WEBUI §1), RESET LEARNING with them. *SETTINGS* keeps its order (the page saves rows by it).")
+(defparameter *settings-hidden* '(:tap-split :auto-guard :auto-combo :auto-break)
+  "SETTINGS rows not shown since the HTML menus (TAP SPLIT unused, ASSIST frozen with the core system; the user,
+2026-10-28: 「隱藏」, DUEL_WEBUI §1). LEARNING CPU shows again, with RESET LEARNING after the rows (the user, 2026-11-09:
+「Show it and add a reset (Recommended)」, DUEL_AI_STRATEGY §8.14). *SETTINGS* keeps its order (the page saves rows by it).")
 (defun settings-shown () "The SETTINGS rows shown, in order." (remove-if (lambda (r) (member (first r) *settings-hidden*)) *settings*))
 (defun settings-items ()
-  "The SETTINGS rows as shown (label and chosen option), then BACK."
+  "The SETTINGS rows as shown (label and chosen option), then RESET LEARNING and BACK."
   (append (loop for (key label opts) in (settings-shown) collect (format nil "~a  ~a" label (nth (setting key) opts)))
-          '("BACK")))
+          '("RESET LEARNING" "BACK")))
 (defun settings-note ()
   "The selected SETTINGS row's note (ONE-HAND MODE: whether it is in effect here)."
   (let ((row (nth *menu* (settings-shown))))
-    (cond ((null row) "")
+    (cond ((null row) (if (= *menu* (length (settings-shown))) "FORGET WHAT THE CPU LEARNED FROM YOU" ""))
           ((eq (first row) :one-hand) (format nil "~a. HERE: ~:[OFF~;ON~]" (sixth row) (one-hand-effective-p)))
           (t (sixth row)))))
 (defun settings-step (i dir)
@@ -478,8 +479,9 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
                (:controls (set-flow :controls))
                (:manual (open-manual))))
            (when (back-p) (play-sfx :back) (go-title)))
-    (:settings (let* ((n (length (settings-shown))) (i (menu-nav (1+ n))) (d (option-dir)))   ; confirm / a tap: the next option
-                 (cond ((eql i n) (go-mode (mode-row :settings)))                          ; BACK
+    (:settings (let* ((n (length (settings-shown))) (i (menu-nav (+ n 2))) (d (option-dir)))   ; confirm / a tap: the next option
+                 (cond ((eql i (1+ n)) (go-mode (mode-row :settings)))                     ; BACK
+                       ((eql i n) (fq-reset-all) (play-sfx :confirm))                      ; RESET LEARNING
                        (i (settings-step i 1))
                        ((and d (< *menu* n)) (play-sfx :select) (settings-step *menu* d))))
                (when (back-p) (play-sfx :back) (go-mode (mode-row :settings))))

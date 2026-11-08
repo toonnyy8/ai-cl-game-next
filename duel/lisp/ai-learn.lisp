@@ -85,6 +85,14 @@ was saved from this same offline table, else a fresh copy."
               (push (cons key cell) *fq-tables*)
               cell))))))
 
+(defun fq-reset-all ()
+  "RESET LEARNING (SETTINGS): forget every online table, in memory and on the page (length 0 = an empty table, which loads as fresh)."
+  (setf *fq-tables* nil)
+  (dolist (me (playable-roster))
+    (dolist (vs (playable-roster))
+      (page-set (fq-page-base (position me *roster*) (position vs *roster*)) 0)))
+  (log-msg "duel fq reset"))
+
 (defun fq-attach! (e)
   "CPU E learns this match when its strategy is a Q selector and it faces a human (VS CPU, LEARNING CPU on, no debug command; or a tool's
 *FQ-LEARN-FORCE*): its brain plays the player's copy and keeps the match's record (BRAIN-FQL: me vs offline-table records)."

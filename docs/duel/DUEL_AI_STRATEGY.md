@@ -355,8 +355,7 @@ never learns, so G2 is identical (II 32, IK 34, KK 33 lines, native and browser)
 - **Who learns** (ai-learn.lisp `fq-attach!`, from START-MATCH after the lookup):
   - the CPU's lookup strategy is a Q selector (`:fq`; today only `:q1-ichigo-ken`, HARD Ichigo vs Kenpachi);
   - its opponent has no brain (a human), in VS CPU;
-  - LEARNING CPU is on (the old learner's setting, default ON; its row is hidden since the HTML menus, so there is no switch or reset on
-    screen);
+  - LEARNING CPU is on (the old learner's setting, default ON; shown in SETTINGS again, see "Settings (2026-11-09)" below);
   - no debug command has run (except 2504, below).
   The brain then plays the player's copy of the table (`*fq-tables*`, per (me, vs) roster indices). The copy is made with copy-tree, so the
   library entry never changes.
@@ -441,6 +440,13 @@ At the shipped knobs (η 0.05, cap 0.01, ε 0):
   - show LEARNING CPU and a reset in SETTINGS again (this is the first learner live under the core system);
   - whether the bounded cost to other players on the same browser is acceptable;
   - cap 0.01 (safer, gain mostly live) or 0.05 (more persistent, can break).
+
+**Settings (2026-11-09).** The user, asked whether to show LEARNING CPU in SETTINGS again: 「Show it and add a reset (Recommended)」.
+- `*settings-hidden*` (flow.lisp) no longer lists `:learn`: the row is back in both menus (HTML `menu.js`, canvas fallback), note "VS CPU HARD: THE CPU LEARNS YOUR HABITS".
+  SETTINGS now has 7 option rows, then the action row RESET LEARNING, then BACK (the page's `Settings` card says "7 OPTIONS").
+- RESET LEARNING calls `fq-reset-all` (ai-learn.lisp): clears `*fq-tables*` and writes length 0 to the page for every playable (me, vs) pair
+  (`soulduel.fq.<me>.<vs>` becomes an empty table, which `fq-decode` reads as no table, so the next match logs `duel fq load <me> <vs> fresh`);
+  logs `duel fq reset`; plays the confirm sound (CONTROLS' RESET DEFAULTS has no visible acknowledgement either).
 
 ### 8.15 Every pairing: a second search, a Q table and the online learner (2026-11-09)
 
