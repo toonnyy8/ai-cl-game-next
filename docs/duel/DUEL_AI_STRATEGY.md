@@ -177,6 +177,26 @@ Built, off by default (`*strat-layer*` NIL; G2 identical, host tests ALL PASS 98
 - So whether a library search pays can be decided offline with `tools/strategy-matrix.py` alone: only a pairing / difficulty whose equilibrium
   mixes two or more strategies gives the layer something to choose; otherwise a (pairing, difficulty) lookup does its job at no runtime cost.
 
+### 8.5 Does the best strategy depend on the situation? (2026-11-08)
+
+The user, on the prototype's result: 「改成 q learning + 策略 + fuzzy 呢」 (an offline-trained fuzzy Q selector over the library: no in-game
+rollouts, so no frame cost, and it learns from whole matches; Glorennec & Jouffe 1997, `docs/research/ai-mcts-fuzzy-learning/notes-fuzzy.md`
+item 5). A Q table over situation cues can only beat the best fixed strategy where the best strategy changes with the situation, so that was
+measured first (`docs/research/strategy-drsi/sitcheck/`: `drive.py`, `analyze.py`, `analysis.txt`; strat-run.lisp `STRAT_WIN=1` logs the cues
+every 90 ticks in neutral):
+- 28 cells (each fixed strategy against the opponent's shipped CPU: IH HARD, KI NORMAL and HARD, KH NORMAL), seeds 201-240 both seats, 2,240
+  matches, ~130k windows; bins: lead sign x own Reishi (< / > 0.5) x distance band (distance / own J reach: < 0.8, 0.8-1.5, > 1.5), then x form.
+- Wins of 80 per strategy (s0 / s1 / s3 / KI style): Hisagi vs Ichigo HARD 66 / 34 / **86**; Ichigo vs Hisagi HARD **34** / 19 / 17; Hisagi vs
+  Kenpachi NORMAL 8 / **19** / 8; Kenpachi vs Hisagi NORMAL 92 / **98** / 63; Kenpachi vs Ichigo NORMAL 46 / **68** / 28 / 44, HARD 0 / 0 / 0 / **67**;
+  Ichigo vs Kenpachi NORMAL 17 / 27 / 3 / **40**, HARD 0 / 0 / 0 / **35** (%, about ±5).
+- The global best is the argmax in nearly every bin with ≥ 30 windows for two strategies: 0-4 bins a group differ on the win, none at z ≥ 2
+  against the global best; on the swing over the next 3 windows one bin in the whole run reaches z ≥ 2. The oracle gain (each bin's best
+  minus the global best, window-weighted) is 0.000-0.002 of win rate, 0.012-0.015 with form: under the selection noise (~0.03-0.05). The one
+  pattern: Hisagi vs Ichigo HARD, close and low Reishi, s0 beats s1 (z 3.0-3.7), but s3 (the global best) rarely visits those bins.
+- Caveat: each fixed strategy visits its own states, so a bin can lack the strategy that would win it; a signal, not proof.
+- Reading: with this library a situation-conditioned selector, DUCT or Q, learns a (pairing, difficulty) lookup. The library is what lacks
+  situational value, not the selector.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
