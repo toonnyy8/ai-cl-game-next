@@ -1,0 +1,28 @@
+{
+ "pairing": "hisagi-kenpachi",
+ "seeds": "601-700",
+ "members": [
+  {
+   "member": "none",
+   "what": "Kenpachi's shipped CPU (no style CPU against Hisagi): the frozen opponent of 8.15",
+   "inc_share": 0.965
+  },
+  {
+   "member": "../counter/frozen/ki-ken.lisp",
+   "what": "Kenpachi's KI style CPU as his strategy",
+   "inc_share": 0.375
+  },
+  {
+   "member": "online/ken-istyle.lisp",
+   "what": "Ichigo's KI style CPU as his strategy",
+   "inc_share": 0.435
+  },
+  {
+   "member": "online/ken-wide.lisp",
+   "what": "Kenpachi's KI style CPU at 1.4x range",
+   "inc_share": 0.625
+  }
+ ],
+ "pool_seed_mod_n": 0.575,
+ "pool_mean": 0.6
+}

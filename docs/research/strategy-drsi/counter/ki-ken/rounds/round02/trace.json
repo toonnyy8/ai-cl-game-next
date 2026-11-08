@@ -1,0 +1,35 @@
+{
+  "baseline_score": 0.095,
+  "beta": 0.6,
+  "branch_count": 3,
+  "cells": {},
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "insufficient history: hold the fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": null,
+    "out_of_support": false,
+    "requested": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "insufficient history: hold the fallback grid",
+      "refine_count": 2
+    },
+    "source": "policy"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [
+    "b0_a0",
+    "b1_a0",
+    "b2_a0"
+  ],
+  "policy_file": "rounds/round02/policy.py",
+  "refine_count": 2,
+  "round_index": 2,
+  "task": "counter strategy for kenpachi vs ichigo HARD (round 2: against Ichigo's q1, frozen): composite win share (DUEL_AI_STRATEGY 8.7, 8.15)"
+}

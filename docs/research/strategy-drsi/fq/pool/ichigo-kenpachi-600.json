@@ -1,0 +1,28 @@
+{
+ "pairing": "ichigo-kenpachi",
+ "seeds": "601-700",
+ "members": [
+  {
+   "member": "none",
+   "what": "Kenpachi's shipped CPU (his KI style CPU after the MCTS): the frozen opponent of 8.15",
+   "inc_share": 0.905
+  },
+  {
+   "member": "../counter/frozen/ki-ken.lisp",
+   "what": "Kenpachi's KI style CPU as his strategy (before the MCTS)",
+   "inc_share": 0.805
+  },
+  {
+   "member": "online/ken-istyle.lisp",
+   "what": "Ichigo's KI style CPU as his strategy (8.14 proxy 1)",
+   "inc_share": 0.135
+  },
+  {
+   "member": "online/ken-wide.lisp",
+   "what": "Kenpachi's KI style CPU at 1.4x range (8.14 proxy 2)",
+   "inc_share": 0.655
+  }
+ ],
+ "pool_seed_mod_n": 0.615,
+ "pool_mean": 0.625
+}

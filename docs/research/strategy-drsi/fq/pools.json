@@ -1,0 +1,18 @@
+{"_doc": "The proxy pools of the three pairings at the ceiling (DUEL_AI_STRATEGY 8.15: 「混合：弱組對現行、強組對代理」), fixed 2026-11-09 BEFORE any training or measurement. The opponent seat plays member (match seed mod n) (strat-run.lisp: a comma list in STRAT_P<n>). Paths relative to this directory; none = the opponent's shipped CPU with no strategy at all (BRAIN-STRAT NIL). The online/ken-*.lisp proxies (8.14) carry no character: under a :fn only :range acts, so they play the same for any character. No KI style CPU exists for Hisagi (only cpu-ki-ken, cpu-ki-ichigo).",
+ "ichigo-kenpachi": {"char": "ichigo", "vs": "kenpachi", "members": [
+   ["none", "Kenpachi's shipped CPU (his KI style CPU after the MCTS): the frozen opponent of 8.15"],
+   ["../counter/frozen/ki-ken.lisp", "Kenpachi's KI style CPU as his strategy (before the MCTS)"],
+   ["online/ken-istyle.lisp", "Ichigo's KI style CPU as his strategy (8.14 proxy 1)"],
+   ["online/ken-wide.lisp", "Kenpachi's KI style CPU at 1.4x range (8.14 proxy 2)"]]},
+ "hisagi-kenpachi": {"char": "hisagi", "vs": "kenpachi", "members": [
+   ["none", "Kenpachi's shipped CPU (no style CPU against Hisagi): the frozen opponent of 8.15"],
+   ["../counter/frozen/ki-ken.lisp", "Kenpachi's KI style CPU as his strategy"],
+   ["online/ken-istyle.lisp", "Ichigo's KI style CPU as his strategy"],
+   ["online/ken-wide.lisp", "Kenpachi's KI style CPU at 1.4x range"]]},
+ "ichigo-hisagi": {"char": "ichigo", "vs": "hisagi", "members": [
+   ["../counter/frozen/s3-zoner.lisp", "Hisagi's HARD lookup strategy against Ichigo, the zoner: the frozen opponent of 8.15"],
+   ["none", "Hisagi's generic shipped CPU, no strategy"],
+   ["../counter/frozen/ki-ken.lisp", "Kenpachi's KI style CPU as his strategy (his HARD lookup against Kenpachi)"],
+   ["online/ken-istyle.lisp", "Ichigo's KI style CPU as his strategy"],
+   ["online/ken-wide.lisp", "Kenpachi's KI style CPU at 1.4x range"],
+   ["../counter/frozen/s7-kite.lisp", "the wide kite, his round-1 lookup strategy against Kenpachi (8.8)"]]}}

@@ -1,0 +1,30 @@
+{
+  "baseline_score": 0.5,
+  "beta": 0.6,
+  "branch_count": 3,
+  "cells": {},
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [
+    "b0_a0",
+    "b1_a0",
+    "b2_a0"
+  ],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "counter strategy for hisagi vs hisagi HARD, second search against the frozen opponent: composite win share (DUEL_AI_STRATEGY 8.7, 8.15)"
+}

@@ -14,7 +14,12 @@ seed0+1..seed0+n; the INCUMBENT (no strategy on either seat) plays the same seed
 --raw: FILE goes to the character's seat as it is (STRAT_P<seat>, no wrapping, no :own needed): a composite or a Q selector (:fq) whose
 every window is its own, measured against the incumbent (the shipped CPU, its lookup included); own_share then counts every judgement and
 `held` gives the judgements per entry / arm (DUEL_AI_STRATEGY §8.12).
-Raw match output is cached in build/strategy-eval-cache/ by (build hash, composite text, characters, difficulty, seed block). At most 8 sim processes.
+--vs-strat SPEC: the opponent seat plays a FIXED strategy in both arms (DUEL_AI_STRATEGY §8.15), not whatever *strat-lookup* gives him at run
+time: a strategy file, a frozen library id (docs/research/strategy-drsi/counter/frozen/<id>.lisp), `none` (his shipped CPU with no strategy at
+all, BRAIN-STRAT NIL) or a comma list of those (a pool: the match with seed s plays member s mod n). In a mirror the character's seat gets the
+candidate and the other seat SPEC; without --vs-strat a mirror's other seat is the incumbent (the lookup's, if any).
+Raw match output is cached in build/strategy-eval-cache/ by (build hash, composite text, characters, difficulty, seed block, the opponent seat's
+strategy texts). At most 8 sim processes.
 """
 import argparse, concurrent.futures as cf, hashlib, json, math, os, re, subprocess, sys, tempfile, time
 sys.dont_write_bytecode = True
@@ -126,9 +131,30 @@ def build_hash():
     return _bh[0]
 
 
-def run_job(c1, c2, comp, diff, seed0, n):
-    """One sim process: roster c1 (P1) vs c2 (P2), seeds seed0+1..seed0+n; COMP = (seat 'P1'|'P2', composite file path, text) or None. -> kept stdout (cached)."""
-    key = sha(json.dumps([c1, c2, comp[0] if comp else None, comp[2] if comp else None, diff, seed0, n, build_hash()]).encode())
+FROZEN = os.path.join(ROOT, 'docs/research/strategy-drsi/counter/frozen')
+
+
+def vs_spec(spec):
+    """--vs-strat SPEC -> (the STRAT_P<n> value: absolute paths / none, comma-joined; the members' texts for the cache key)."""
+    paths, texts = [], []
+    for x in spec.split(','):
+        if x != 'none' and not os.path.exists(x):
+            f = os.path.join(FROZEN, x.lstrip(':') + '.lisp')
+            if not os.path.exists(f):
+                sys.exit(f'strategy-switch: --vs-strat {x}: no such file or frozen id')
+            x = f
+        paths.append(x if x == 'none' else os.path.abspath(x))
+        texts.append('none' if x == 'none' else strip_lisp(open(x).read()).strip())
+    return ','.join(paths), texts
+
+
+def run_job(c1, c2, comp, diff, seed0, n, opp=None):
+    """One sim process: roster c1 (P1) vs c2 (P2), seeds seed0+1..seed0+n; COMP = (seat 'P1'|'P2', composite file path, text) or None;
+    OPP = (seat, STRAT_ value, texts) or None: the opponent seat's fixed strategy. -> kept stdout (cached)."""
+    key = [c1, c2, comp[0] if comp else None, comp[2] if comp else None, diff, seed0, n, build_hash()]
+    if opp:
+        key += [opp[0], opp[2]]                          # (no opponent: the key as before, so the old cache stays valid)
+    key = sha(json.dumps(key).encode())
     path = os.path.join(CACHE, 'sw-' + key + '.out')
     if os.path.exists(path):
         return open(path).read()
@@ -138,6 +164,8 @@ def run_job(c1, c2, comp, diff, seed0, n):
         env.pop(k, None)
     if comp:
         env['STRAT_' + comp[0]] = comp[1]
+    if opp:
+        env['STRAT_' + opp[0]] = opp[1]
     cmds = [30000 + seed0, 31100 + n, 81000, 81020 + diff, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
     r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/strat-run.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
                        capture_output=True, text=True, env=env, timeout=7200)
@@ -180,6 +208,7 @@ def main():
     ap.add_argument('-j', type=int, default=5)
     ap.add_argument('--max-own', type=float, help='over this own_share the candidate scores as the incumbent (round 2: 0.6)')
     ap.add_argument('--raw', action='store_true', help='pass FILE through unwrapped (a composite or a Q selector)')
+    ap.add_argument('--vs-strat', help='the opponent seat\'s fixed strategy in both arms: FILE, a frozen id, none, or a comma list (a pool)')
     ap.add_argument('--out')
     a = ap.parse_args()
     t0 = time.time()
@@ -197,10 +226,13 @@ def main():
     build()
     chunks = [(a.seed0 + s, min(CHUNK, a.seeds - s)) for s in range(0, a.seeds, CHUNK)]
     jobs = []                                            # (tag, seat, args)
+    vs = vs_spec(a.vs_strat) if a.vs_strat else None
     for seat, (c1, c2) in (('P1', (me, op)), ('P2', (op, me))):
+        oseat = 'P2' if seat == 'P1' else 'P1'
         for tag in ('comp', 'inc'):
             for s0, n in chunks:
-                jobs.append((tag, seat, (c1, c2, (seat, tmp.name, text) if tag == 'comp' else None, diff, s0, n)))
+                jobs.append((tag, seat, (c1, c2, (seat, tmp.name, text) if tag == 'comp' else None, diff, s0, n,
+                                         (oseat, vs[0], vs[1]) if vs else None)))
     try:
         with cf.ThreadPoolExecutor(max(1, min(8, a.j))) as ex:
             outs = list(ex.map(lambda j: run_job(*j[2]), jobs))
@@ -230,7 +262,8 @@ def main():
                comp_wins=cw, comp_matches=m, inc_wins=iw, inc_matches=m, comp_share=round(comp, 4), inc_share=round(inc, 4),
                gain=round(comp - inc, 4), b=int(b), c=int(c), z=round((b - c) / math.sqrt(b + c), 3) if b + c else 0.0,
                own_share=round(own / judged, 4) if judged else 0.0, wall_s=round(time.time() - t0, 1), score=round(max(0.005, inc if capped else comp), 4), capped=capped,
-               judged=judged, held=held_all, raw=a.raw)
+               judged=judged, held=held_all, raw=a.raw,
+               vs_strat=[os.path.relpath(x, ROOT) if x != 'none' else x for x in vs[0].split(',')] if vs else None)
     print(json.dumps(res, indent=1))
     if a.out:
         with open(a.out, 'w') as f:

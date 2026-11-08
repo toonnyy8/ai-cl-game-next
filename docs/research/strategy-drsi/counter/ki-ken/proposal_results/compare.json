@@ -1,0 +1,77 @@
+{
+  "worlds": [
+    "ki-ken/trace_pool/iter01/trace.json"
+  ],
+  "incumbent_sha1": "8a836b9057c4",
+  "ranking": [
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/counter/ki-ken/policy/cand_v1.py",
+      "sha1": "7cc6f827c645",
+      "pareto": {
+        "auc": 0.5469534050179212,
+        "parallel_penalty": 0.4,
+        "parallelism_weight": 0.05,
+        "reward": 0.5269534050179212,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.775,
+            "n_evaluated": 9,
+            "auc": 0.5469534050179212,
+            "parallel_penalty": 0.4,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 4.0,
+                "attain": 0.9806451612903225
+              },
+              {
+                "beta": 0.25,
+                "total_budget": 6.0,
+                "attain": 0.9870967741935484
+              },
+              {
+                "beta": 0.5,
+                "total_budget": 9.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/counter/ki-ken/policy/current.py",
+      "sha1": "8a836b9057c4",
+      "pareto": {
+        "auc": 0.0,
+        "parallel_penalty": 0.3333333333333333,
+        "parallelism_weight": 0.05,
+        "reward": -0.016666666666666666,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.775,
+            "n_evaluated": 9,
+            "auc": 0.0,
+            "parallel_penalty": 0.3333333333333333,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 9.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": false
+          }
+        ]
+      },
+      "non_degenerate": false
+    }
+  ],
+  "disqualified": []
+}

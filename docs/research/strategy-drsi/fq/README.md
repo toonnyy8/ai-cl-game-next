@@ -126,3 +126,90 @@ lives in `online.py` and `online/`.
   proxy 1: 0.3225, 0.39, 0.27, 0.39. Against the shipped Kenpachi, the proxy-1 ε 0.05 tables 0.78, 0.525, 0.5975, 0.7675 and the proxy-2 ones
   0.91, 0.625, 0.8125, 0.71 (0.90). `istyle-e05-c05-old/` is the first run of the shipped knobs, identical to `istyle-e05-c05/` (rerun after
   the ε code went in, the reproduction check).
+
+## Any pairing (DUEL_AI_STRATEGY §8.15)
+
+`fq.py` and `online.py` take `--char C --vs D`; their defaults are still Ichigo vs Kenpachi as above, and they reproduce it (below).
+
+- **Arms**: two strategy specs, each a file, a frozen library id (`../counter/frozen/<id>.lisp`) or `none`. A NIL arm is the incumbent:
+  the character's HARD CPU with its lookup strategy and style CPU (a composite's no-entry fallback). An explicit arm 0 names the incumbent's
+  strategy (e.g. `ki-ichigo`); both prove equal to the incumbent (below).
+  - Limits: arms don't nest (a composite or a Q table as an arm is played as a plain plist, never judged), so IK's incumbent q1 cannot be an
+    arm; and when a table itself becomes the lookup entry, a NIL arm falls back to the lookup = the table (as a plain plist). **A shipped table
+    therefore needs an explicit arm 0.** Where the incumbent is the shipped CPU with no strategy and no matchup style CPU (Kenpachi vs Hisagi,
+    the three mirrors), the empty strategy `(:id :shipped)` is that arm: proved bit-identical below. **Kenpachi vs Ichigo is the exception**:
+    his shipped CPU runs his KI style CPU after the MCTS (`cai-defstyle`), which an empty arm stops and a `:fn ken-ki-style` arm runs before
+    the MCTS; `proof/ki-shipped.lisp` (arm 0 `(:id :shipped)`) gives 0.005 against the incumbent's 0.095 (b / c 1 / 19). Shipping a KI table
+    needs a small runtime change (e.g. an arm meaning "no strategy, no lookup": `cur` NIL so the style CPU runs). This blocks only the lookup
+    step, not the tooling or the search.
+- **Rule base**: the 48 crisp rules (lead x ored x ost free x awk x prev) are `strat-feats` cues, the same for every character, so they carry
+  over unchanged. Whether another pairing needs other cues (e.g. distance, his Reishi) shows only after its search names the alternative arm.
+- **Tables carry `:apply (me vs)`** (the online learner keys IN by it).
+- **Opponent**: `--opp` (fq.py log) / `--proxy` (online.py) take a spec or a comma list = a pool: `strat-run.lisp` plays member (match seed mod
+  n). Only the character's seat logs and explores (`STRAT_FQLOG` "salt eps seat") and only P2 learns (`STRAT_FQLEARN` "in out seat"), so an
+  opponent that is itself a Q selector (Ichigo's q1 against Kenpachi) stays frozen.
+- **Logs** per pairing: `logs/<tag>/` (default `<char>-<vs>`; the §8.12 logs moved to `logs/ichigo-kenpachi/`; `log-args.txt` there records
+  what each `log` call played). Online runs: `online/out/<char>-<vs>/<tag>/` (Ichigo vs Kenpachi keeps `online/out/<tag>/`).
+
+### Steps for a pairing
+1. `python3 fq.py init --char C --vs D --arms A0 A1 --policy arm0 --out T0.lisp` (arm 0 everywhere = the incumbent; prove it with
+   `proof/identity.py C D VS_STRAT T0.lisp`).
+2. `python3 fq.py log --char C --vs D --table T0.lisp --opp SPEC --salt k --eps 0.15 --seeds 1-599 [--tag C-D]` for salts 1-4 (SPEC: the
+   frozen opponent from `../counter/workspaces.json`, or the pairing's pool from `pools.json` as a comma list).
+3. `python3 fq.py train --init T0.lisp --seeds 1-599 --out T.lisp` (pi0 = T0's argmax; validate on a held-back block first, as §8.12 did).
+4. Evaluate: `tools/strategy-switch.py --char C --vs D --vs-strat SPEC --cand T.lisp --raw --seed0 600` / `700`.
+5. Online: `python3 online.py train --char C --vs D --table T.lisp --proxy SPEC --tag X --eta 0.05 --cap 0.01` and `online.py eval ...
+   --learned out/.../runR-K.lisp`. Report each table's arm gaps: where they mostly exceed 0.02 the cap-0.01 learner cannot flip a cell (an
+   init table's 1 / 0 gaps never flip).
+
+### Reproduction of Ichigo vs Kenpachi through the generalised tools
+- `fq.py init` (defaults) rewrites `fq-c1.lisp` identically (but for the added `:apply`).
+- `fq.py train --seeds 1-599` on the moved logs gives `fq-trained.lisp` identically (q values of all 48 rules; only `:apply` added), and its
+  JSON's cells, flips and stats equal `fq-trained.json`'s.
+- `fq.py log --salt 1 --eps 0.15 --seeds 1-25 --opp none` (the seat token, `none` for Kenpachi) gives the same log lines as
+  `logs/ichigo-kenpachi/fq-s1-e0.15-P{1,2}-1-25.out.gz` (4,007 / 4,330 lines, byte-identical).
+- `online.py`'s new path (the table `frozen/q1-ichigo-ken.lisp` on P2, attached by `strat-run.lisp`, the proxy on `STRAT_P1`, the learner's seat
+  given) reproduces `online/out/wide-e05-c01/run0-0.lisp` and `run0-1.lisp` byte for byte (21 and 22 wins of 25, as in its train.json; frozen 18).
+- A KI smoke run (Kenpachi learning on P2 with `proof/ki-arm0.lisp`, the frozen q1 on P1, 3 matches): the out table is keyed (:kenpachi
+  :ichigo), 17 cells moved, none beyond the cap 0.01. Its stdout has `duel fq learn 1 3` after each match and no `duel fq learn 3 1`: q1 on
+  P1 does not learn (its copy is loaded by START-MATCH's attach under the force flag, then dropped by the runner).
+
+### Identity: a table that always plays arm 0 equals the incumbent (`proof/identity.py`, `proof/identity-600.jsonl`)
+Seeds 601-700, both seats, the frozen opponent; `duel hash` / `duel state` / gate-row lines of every match compared (the c1 method, §8.12):
+
+| Pairing | Table | Arm 0 | Shares (table / incumbent) | Lines identical |
+|---|---|---|---|---|
+| Kenpachi vs Ichigo | `proof/ki-arm0.lisp` | NIL | 0.095 / 0.095 | 8 of 8 chunks, 5,783 lines |
+| Ichigo vs Hisagi | `proof/ih-arm0.lisp` | NIL (= her lookup `:ki-ichigo`) | 1.0 / 1.0 | 8 of 8, 3,206 |
+| Ichigo vs Hisagi | `proof/ih-arm0-explicit.lisp` | `:ki-ichigo` explicit | 1.0 / 1.0 | 8 of 8, 3,206 |
+| Kenpachi mirror | `proof/kk-arm0.lisp` | NIL | 0.5 / 0.5 | 8 of 8, 5,474 |
+| Hisagi vs Ichigo | `proof/hi-arm0-explicit.lisp` | `:s3-zoner` explicit | 0.0 / 0.0 | 8 of 8, 3,206 |
+| Ichigo vs Kenpachi | `frozen/q1-ichigo-ken.lisp` raw (IK's incumbent is q1 itself) | - | 0.905 / 0.905 | 8 of 8, 5,783 |
+| Kenpachi vs Hisagi | `proof/kh-shipped.lisp` | `(:id :shipped)` explicit | 0.035 / 0.035 | 8 of 8, 4,567 |
+| Kenpachi mirror | `proof/kk-shipped.lisp` | `(:id :shipped)` explicit | 0.5 / 0.5 | 8 of 8, 5,474 |
+| Ichigo mirror | `proof/ii-shipped.lisp` | `(:id :shipped)` explicit | 0.495 / 0.495 | 8 of 8, 6,304 |
+| Hisagi mirror | `proof/hh-shipped.lisp` | `(:id :shipped)` explicit | 0.5 / 0.5 | 8 of 8, 5,226 |
+| Kenpachi vs Ichigo | `proof/ki-shipped.lisp` | `(:id :shipped)` explicit | **0.005 / 0.095, differs** (his style CPU stops) | 0 of 8 |
+
+IK is proved the other way (a NIL arm there is the lookup's q1 played as a plain plist, §8.11's limit): its table initialised from the
+incumbent equals it (fq-c1 = c1, §8.12; q1 run explicitly = the lookup's q1, the sixth row).
+
+## Proxy pools for the three pairings at the ceiling (`pools.json`, `pool/`)
+Fixed before any training or measurement (2026-11-09). The opponent plays member (seed mod n). `pool/measure.py PAIRING` measures the
+incumbent (the HARD CPU with its lookup) against each member on all 100 seeds a seat, and against the pool as a whole (seed mod n), seeds
+601-700, both seats (`pool/<pairing>-600.json`). There is no KI style CPU for Hisagi.
+
+| Member (opponent's strategy) | IK (q1) | HK (`:ki-ken`) | IH (`:ki-ichigo`) |
+|---|---|---|---|
+| none: his shipped CPU (IK, HK: the frozen opponent) | 0.905 | 0.965 | 1.0 (Hisagi's generic CPU) |
+| `frozen/s3-zoner.lisp` (IH: the frozen opponent) | - | - | 1.0 |
+| `frozen/ki-ken.lisp`: Kenpachi's KI style | 0.805 | 0.375 | 0.61 |
+| `online/ken-istyle.lisp`: Ichigo's KI style (§8.14 proxy 1) | 0.135 | 0.435 | 0.02 |
+| `online/ken-wide.lisp`: Kenpachi's KI style x1.4 range (proxy 2) | 0.655 | 0.625 | 0.485 |
+| `frozen/s7-kite.lisp`: the kite | - | - | 1.0 |
+| pool, seed mod n / mean of members | 0.615 / 0.625 | 0.575 / 0.6 | 0.71 / 0.686 |
+
+- Members the incumbent already beats ~1.0 teach little: IH's s3-zoner, generic and kite (1.0 each), and the frozen opponents of IK / HK
+  (0.905, 0.965). Kept, as fixed.
+- Near 0.0: IH against Ichigo's KI style on Hisagi (0.02), IK against the same on Kenpachi (0.135): they teach only if the other arm wins
+  there. The middle members (0.375-0.805) are where a table has room.

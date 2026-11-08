@@ -1,0 +1,38 @@
+{
+ "pairing": "ichigo-hisagi",
+ "seeds": "601-700",
+ "members": [
+  {
+   "member": "../counter/frozen/s3-zoner.lisp",
+   "what": "Hisagi's HARD lookup strategy against Ichigo, the zoner: the frozen opponent of 8.15",
+   "inc_share": 1.0
+  },
+  {
+   "member": "none",
+   "what": "Hisagi's generic shipped CPU, no strategy",
+   "inc_share": 1.0
+  },
+  {
+   "member": "../counter/frozen/ki-ken.lisp",
+   "what": "Kenpachi's KI style CPU as his strategy (his HARD lookup against Kenpachi)",
+   "inc_share": 0.61
+  },
+  {
+   "member": "online/ken-istyle.lisp",
+   "what": "Ichigo's KI style CPU as his strategy",
+   "inc_share": 0.02
+  },
+  {
+   "member": "online/ken-wide.lisp",
+   "what": "Kenpachi's KI style CPU at 1.4x range",
+   "inc_share": 0.485
+  },
+  {
+   "member": "../counter/frozen/s7-kite.lisp",
+   "what": "the wide kite, his round-1 lookup strategy against Kenpachi (8.8)",
+   "inc_share": 1.0
+  }
+ ],
+ "pool_seed_mod_n": 0.71,
+ "pool_mean": 0.6858
+}

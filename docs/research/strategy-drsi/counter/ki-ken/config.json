@@ -1,5 +1,5 @@
 {
-  "baseline_score": 0.755,
+  "baseline_score": 0.095,
   "beta_grid": [
     0.0,
     0.25,
@@ -8,9 +8,9 @@
     1.0
   ],
   "branches": 3,
-  "eval_command": "python3 tools/strategy-switch.py --char kenpachi --vs ichigo --cand NODE_DIR/cand.lisp --seed0 600 --seeds 100 -j 5",
+  "eval_command": "python3 tools/strategy-switch.py --char kenpachi --vs ichigo --vs-strat docs/research/strategy-drsi/counter/frozen/q1-ichigo-ken.lisp --cand NODE_DIR/cand.lisp --seed0 600 --seeds 100 -j 5 --max-own 0.6",
   "lambda": 0.05,
   "refines": 2,
-  "task": "counter strategy for kenpachi vs ichigo HARD: composite win share (DUEL_AI_STRATEGY 8.7)",
+  "task": "counter strategy for kenpachi vs ichigo HARD (round 2: against Ichigo's q1, frozen): composite win share (DUEL_AI_STRATEGY 8.7, 8.15)",
   "workers": 4
 }

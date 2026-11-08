@@ -1,6 +1,6 @@
 #!/bin/bash
 # step.sh — the coordinator's loop for the counter-strategy search (DUEL_AI_STRATEGY §8.7), one dream-rsi workspace a direction
-# (workspaces.json). Data cells only: no worktrees, the shared native build.
+# (workspaces.json: the pairing, its frozen opponent --vs-strat, the first capped round). Data cells only: no worktrees, the shared native build.
 #   step.sh <ws> next                     the policy's next batch; a brief for each cell not yet briefed
 #   step.sh <ws> done <cell> <round>      rescore NODE_DIR/cand.lisp on the search seeds (600-699 a seat), record, next
 #   step.sh <ws> fail <cell> <round> <class> <error>
@@ -12,6 +12,9 @@ DREAM_RSI=${DREAM_RSI:-$(ls -d "$HOME"/.claude/skills/synced/*/dream-rsi 2>/dev/
 DRSI="python3 $DREAM_RSI/scripts/drsi.py -w $WS"
 CH=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]]['char'])" "$TOP/workspaces.json" "$WSN")
 VS=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]]['vs'])" "$TOP/workspaces.json" "$WSN")
+# the frozen opponent (DUEL_AI_STRATEGY 8.15; none of it for a workspace without vs_strat) and the first capped round (8.9)
+VSA=$(python3 -c "import json,os,sys; w=json.load(open(sys.argv[1]))[sys.argv[2]]; v=w.get('vs_strat'); print('' if v is None else '--vs-strat ' + (v if v == 'none' else os.path.relpath(os.path.join(sys.argv[3], v), sys.argv[4])))" "$TOP/workspaces.json" "$WSN" "$TOP" "$REPO")
+CAP0=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]].get('capped_from', 2))" "$TOP/workspaces.json" "$WSN")
 next() {
   local W ST R
   W=$($DRSI next-batch) || exit 1
@@ -37,7 +40,7 @@ case "${1:-}" in
   fail) record "$2" "$3" "" "$4" "$5" "nothing scorable"; next ;;
   done) C=$2; R=$3; N=$WS/rounds/round$(printf %02d "$R")/nodes/$C
         [ -f "$N/cand.lisp" ] || { record "$C" "$R" "" runtime "no cand.lisp delivered" "-"; next; exit 0; }
-        (cd "$REPO" && timeout 3600 python3 tools/strategy-switch.py --char "$CH" --vs "$VS" --cand "$N/cand.lisp" --seed0 600 --seeds 100 -j 5 $( [ "$R" -ge 2 ] && echo --max-own 0.6 ) --out "$N/score.json" >/dev/null 2>"$N/score.err"); rc=$?
+        (cd "$REPO" && timeout 3600 python3 tools/strategy-switch.py --char "$CH" --vs "$VS" $VSA --cand "$N/cand.lisp" --seed0 600 --seeds 100 -j 5 $( [ "$R" -ge "$CAP0" ] && echo --max-own 0.6 ) --out "$N/score.json" >/dev/null 2>"$N/score.err"); rc=$?
         if [ $rc = 0 ]; then
           S=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['score'])" "$N/score.json")
           P=$(python3 -c "import json,sys; j=json.load(open(sys.argv[1])); print(f\"comp {j['comp_share']} inc {j['inc_share']} gain {j['gain']} z {j['z']} own {j['own_share']} capped {j.get('capped')}\")" "$N/score.json")
