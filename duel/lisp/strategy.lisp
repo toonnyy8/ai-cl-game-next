@@ -122,7 +122,10 @@ only as one of the strategies (:FN ken-ki-style ...).")
              (((:dn :afar) (:wave :yes)) (:b-sp 0.22 :b-walk-in -0.06))
              (((:do :in)) (:b-walk-out 0.2 :b-step-out 0.18 :b-j1 -0.1))
              (((:do :reach)) (:b-walk-out 0.1 :b-step-out 0.08))
-             (((:ored :yes)) (:kikon 1.6)))))
+             (((:ored :yes)) (:kikon 1.6))))
+    (:id :c1-ichigo-ken :apply (:ichigo :kenpachi)    ; (a composite: the counter search's round 2, counter/ki-ichigo b0_a2, §8.10)
+     :switch (((((:ost :free) (:lead :behind)) ((:ost :free) (:ored :yes))) . (:id :c1-own :fn ichigo-ki-style)))
+     :else (:id :c1-ken :fn ken-ki-style)))
   "The strategies the layer chooses from (the seeds s0, s1, s3, s5, s6 of docs/research/strategy-drsi/seeds/, each with prior rules :P; s7
 the counter search's kite).")
 
@@ -144,14 +147,16 @@ seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mix
   (remove-if-not (lambda (st) (let ((ap (getf st :apply))) (or (null ap) (and (eq (first ap) me) (eq (second ap) vs)))))
                  *strat-library*))
 
-(defparameter *strat-lookup* '((:hisagi :ichigo :hard :s3-zoner) (:ichigo :hisagi :hard :ki-ichigo) (:ichigo :kenpachi :hard :ki-ken)
-                                (:hisagi :kenpachi :hard :s7-kite))
+(defparameter *strat-lookup* '((:hisagi :ichigo :hard :s3-zoner) (:ichigo :hisagi :hard :ki-ichigo) (:ichigo :kenpachi :hard :c1-ichigo-ken)
+                                (:hisagi :kenpachi :hard :ki-ken))
   "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH), the best fixed one where it beats the
 shipped CPU by far (DUEL_AI_STRATEGY §8.6, the user, 2026-11-08: 「查表＋搜克制策略，之後再上 Q」). HARD only: EASY / NORMAL keep their designed
 strength. Hisagi vs Ichigo HARD: s3 86 % (§8.5), 88 of 100 on seeds 301-350, against the shipped 50 of 80 (§8.4). The counter search's round 1
 (§8.8, 「三筆都加」 2026-11-08; held-out seeds 700-799, both seats, the shipped CPU's share in brackets): Ichigo vs Hisagi her KI style
 1.0 (0.13); Ichigo vs Kenpachi Kenpachi's KI style 0.415 (0.23); Hisagi vs Kenpachi the kite 0.47 (0.055). A strategy from here stops the
-character's matchup style CPU (CORE-BRAIN-STEP), as in the search.")
+character's matchup style CPU (CORE-BRAIN-STEP), as in the search. Round 2 (§8.10, 「兩個都上」 2026-11-08): Ichigo vs Kenpachi the composite
+:c1-ichigo-ken (Kenpachi's KI style, her own while he is free and she is behind or he is red) 0.825 (Kenpachi's style alone 0.415);
+Hisagi vs Kenpachi Kenpachi's KI style 0.985 (the kite 0.47).")
 
 (defun strat-lookup (me vs dif)
   "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF, or NIL."

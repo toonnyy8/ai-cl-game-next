@@ -297,6 +297,17 @@ Incumbents (the HARD lookup, §8.9): Ichigo vs Kenpachi 0.43 search / 0.415 held
 - The KI style CPUs, written for the KI pairing, are strong general tactics: with any of the three characters, against the generic CPU,
   they win far more than the generic CPU's own play or the data strategies.
 
+### 8.11 Round 2 into the game; next the offline fuzzy Q (2026-11-08)
+
+Asked after round 2. The user: 「兩個都上 (Recommended)」 and 「離線 fuzzy Q (Recommended)」.
+- `*strat-lookup*` (HARD): Ichigo vs Kenpachi plays the composite `:c1-ichigo-ken` (library entry with `:switch` and `:else`: Kenpachi's KI
+  style, her own while he is free and she is behind or he is red); Hisagi vs Kenpachi plays `:ki-ken` (Kenpachi's KI style) in place of
+  the kite. The game reproduces the search: held-out 0.825 and 0.985. G2 identical native and browser, host tests 9877 ALL PASS, Artifact
+  v364.
+- Known limit: `tools/strategy-switch.py` against an incumbent that is itself a composite falls back to the composite plist as a plain
+  strategy (no `:fn`), so a candidate measured on top of `:c1-ichigo-ken` is wrong; the fuzzy Q step brings its own evaluator.
+- Next (§7 step 8'): an offline-trained fuzzy Q selector over the two KI styles in Ichigo vs Kenpachi; the bar is the hand composite (0.825).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

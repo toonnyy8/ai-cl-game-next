@@ -38,7 +38,10 @@
 (check (eq :s3-zoner (getf (strat-lookup :hisagi :ichigo :hard) :id)))
 (check (null (strat-lookup :hisagi :ichigo :normal)))                  ; (EASY / NORMAL keep their designed strength)
 (check (eq :ki-ichigo (getf (strat-lookup :ichigo :hisagi :hard) :id)))   ; (the counter search's round 1, §8.8)
-(check (eq :s7-kite (getf (strat-lookup :hisagi :kenpachi :hard) :id)))
+(check (eq :ki-ken (getf (strat-lookup :hisagi :kenpachi :hard) :id)))       ; (round 2, §8.10)
+(let ((c (strat-lookup :ichigo :kenpachi :hard)))                      ; (a composite: her own style behind / on his red, else Kenpachi's)
+  (check (eq 'ichigo-ki-style (getf (strat-judge c '(:ost 0 :lead -2)) :fn)))
+  (check (eq 'ken-ki-style (getf (strat-judge c '(:ost 0 :lead 2 :ored 0)) :fn))))
 (check (null (strat-lookup :kenpachi :ichigo :hard)))                   ; (his KI style CPU stays the shipped one)
 (check (every (lambda (r) (and (eq (third r) :hard) (strat-lookup (first r) (second r) (third r)))) *strat-lookup*))
 ;; a composite (DUEL_AI_STRATEGY §8.7): the first entry whose OWN fires at >= 0.5, else :ELSE, else NIL; OR across antecedents, AND within
