@@ -171,3 +171,52 @@ model let the opponent guard. Asked: no guard for the CPU either (recommended) /
 - Checks: host tests ALL PASS; G2 regenerated (II 39 lines, P1 3-2, 391.8 s; IK 27, P2 0-3, 265.3 s; KK 35, P2 0-4, 344.6 s; before II 42,
   IK 33, KK 31), browser = native; playtest v360. Strength (IK, 40 seeds, both on the shipped CPUs): NORMAL 21 : 19, HARD 8 : 32 (before
   16 : 24, 9 : 31).
+
+## 11. Cheaper full-sim rollouts (2026-11-08, still an experiment)
+
+Asked 「能否繼續降低純真實試跑需要的成本」, the options were: (1) fewer actions tried (the light model's top N, or halving), (2) stop a
+rollout at its first contact and score it by the outcome table, (3) a cheap brain inside rollouts, (4) skip the presentation in rollouts,
+(5) stop early when one action leads, (6) spread the rollouts over steps. **The user: 「1 + 2 + 4 + 6」.** All four built in
+`tools/simgate/fullmc.lisp` (the game is unchanged); env knobs:
+- FMC_LEAN=1 (4): rollouts step without the slow-motion snapshot, the feedback (the events dropped: `*events*` is no snapshot root, left
+  behind they would show in the real frame) and the hash log. Checked: 1320 rollouts of 120 steps from the same snapshot and seed, lean vs
+  normal, every end state's hash line identical. It saves only ~6 % of a step (the profile's presentation share; the earlier 10-15 % was too
+  high): the brains and the fighters are the cost.
+- FMC_STOP=1 (2): a rollout ends at its first contact (contact.lisp's opening: a fighter enters a stun / air / down / blockstun from outside
+  every reel) and scores the swing so far plus the outcome table's value of that contact (the deciding CPU's difficulty's table, the
+  attacker's (character form) row and class, negated when the opponent attacks; the table leaves the first hit out, the swing has it).
+  Contacts come later than guessed: ~32 steps after the decision on average, half the rollouts reach none in 60 steps. So H 40 with the stop.
+- FMC_TOP / FMC_LITE / FMC_SH (1): the light model's top N, its search with N rollouts (ranking needs few: 16), halving after a pass.
+  The guard left the candidates (no guard for a core kit: it played as :wait).
+- FMC_SLICE=R (6): R rollouts a step from the decision's snapshot (the live state snapshotted and put back around them); the press when
+  they are done, if the CPU is still free (else dropped: 9-14 % were, his style CPU had acted meanwhile).
+
+Clean timing (native, a quiet machine, IK NORMAL, Kenpachi deciding, 5 seeds; ms a decision):
+
+| | rollouts × steps | light | snapshot | rollouts | total |
+|---|---|---|---|---|---|
+| flat, H 60 (§7) | 8.7 × 59 | | 0.10 | 2.43 | 2.63 |
+| flat, lean + stop, H 40 | 8.7 × 34 | | 0.09 | 1.54 | 1.73 |
+| hybrid top 2, H 60, light 96 (§7) | 1.9 × 60 | 0.31 | 0.08 | 0.56 | 0.99 |
+| hybrid top 2, lean + stop, H 40, light 32 | 1.9 × 34 | 0.12 | 0.10 | 0.34 | 0.59 |
+| **hybrid top 2, lean + stop, H 40, light 16** | 2.0 × 34 | 0.06 | 0.09 | 0.35 | **0.53** |
+| the same, sliced 1 rollout a step | 1.9 × 33 | | | | 0.72 (0.37 a slice, 5.6 max) |
+
+So 0.99 -> 0.53 ms a decision (-46 %), sliced 0.37 ms a step (the slice's own snapshot and two restores cost ~0.2 ms more a decision; the
+5.6 ms worst slice is a collection: every snapshot conses its copies). In the browser ×3-6 (estimated, not measured): ~1.6-3.2 ms a decision,
+~1.1-2.2 ms a slice.
+
+Strength, 40 seeds each, Hisagi NORMAL in HK (his wins) / Kenpachi NORMAL in IK (his wins); the binomial noise is about ±3-6:
+
+| | Hisagi | Kenpachi |
+|---|---|---|
+| hybrid top 2, H 60 (as §7, rerun at 6e5186a) | 17 | 33 |
+| + lean + stop | 18 | 29 |
+| top 3 / top 4 / top 4 halved | 24 / 19 / 21 | 29 / 33 / 34 |
+| lean + stop, sliced 1 a step | 13 | 32 |
+| lean + stop, light 32 / H 40 / both / both sliced | 17 / 21 / 17 / 23 | 29 / 35 / 27 / 32 |
+| lean + stop, H 40, light 16 | 21 | 33 |
+
+No setting moves strength beyond the noise. Still not in the game: the rollouts see the true state (a reaction delay), a human side needs a
+stand-in brain in the rollouts (a human has no brain; its vpad would read the live devices), the snapshot conses (a reused buffer for the
+slices' live snapshots), and the browser cost must be measured.
