@@ -61,6 +61,7 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_KEN_RYOTE.md](duel/DUEL_KEN_RYOTE.md) | 劍八第二杯雙手（RYOTE）的核心系統重設計（2026-10-30）：劈道正統的 NS / SA / AS、高倍率但沒有霸體的上段蓄力（英文） |
 | [DUEL_SUBLIMATION.md](duel/DUEL_SUBLIMATION.md) | 共用的新系統：昇華 SUBLIMATION（覺醒條滿後的粉色第二階）與 SPIRIT DRIVE（覺醒後的紅色量表）、全角色性能加成、劍八卍解改成 DRIVE 滿才能按（2026-10-31，英文） |
 | [DUEL_MATCHUP_AI.md](duel/DUEL_MATCHUP_AI.md) | 對戰組合專用的風格 CPU（2026-11-06 起）：先做劍八 vs 一護，§369 四步加 dream-rsi，雙方每輪換上對方最佳版（英文） |
+| [DUEL_AI_MCTS.md](duel/DUEL_AI_MCTS.md) | 核心 AI 全面換成 MCTS + fuzzy + 學習型（2026-11-08 起，進行中）：決定與五階段計畫（英文） |
 | [DUEL_AI_TEACHER.md](duel/DUEL_AI_TEACHER.md) | 離線 MCTS 老師與遊戲中的即時 MCTS（2026-11-07 起）：「像人、讀得懂」的 CPU；模擬存檔、離線搜尋、老師表，§9 起所有組合的中立改用輕量模型上的即時 MCTS（英文） |
 | [DUEL_KEN_NOMIHOSE.md](duel/DUEL_KEN_NOMIHOSE.md) | 劍八第三杯飲み干し（NOMIHOSE）的核心系統重設計（2026-10-30）：瘋狂失控、KUKAN-GIRI 收進 NS2、AS2 結尾的飲酒、快拔刀 BATTOU（英文） |
 | [DUEL_AI_V2.md](duel/DUEL_AI_V2.md) | 每個角色的 AI v2（2026-10-02，已實作）：dream-rsi 搜尋、選用的變體、各角色行動方針、NORMAL 校正、與學習型 AI 和 ASSIST 的整合、gate 結果（英文） |
