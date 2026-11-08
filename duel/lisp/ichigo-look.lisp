@@ -761,12 +761,6 @@ look) in a cinematic. SHIKAI: the Shikai's two blades instead (the rush Kikon's 
                               :tint *ic-mist-tint* :flash 0.12 :shadow nil :rim *ic-mist-rim*)   ; darker on a cinematic's black
     (ic-mist x z (* 0.6 alpha) (+ x z))))
 
-(defun ic-c-point (px pz ux uz d th)
-  "Values x y z of the C at angle TH (radians from its near point, over the top): the vertical ellipse in the plane of
-the line from (PX PZ) along (UX UZ), its near side at P, its far side D metres out, 3.2 m tall about h 2.4; under the
-plaza it runs along the ground (the crack)."
-  (let ((h (* 0.5 d)))
-    (values (+ px (* ux (- h (* h (cos th))))) (max 0.03 (+ 2.4 (* 3.2 (sin th)))) (+ pz (* uz (- h (* h (cos th))))))))
 
 (defun ic-c-point-out (px pz ux uz d th o)
   "IC-C-POINT pushed O metres outward from the C's inner edge (both radii grown by O)."
@@ -1121,23 +1115,6 @@ round him."
 ;;; 效果。請在實作進遊戲前先以純粹的角色模組展現給我確認」): the crescent is a row of smooth flame tongues (the engine's toon ribbons, as the
 ;;; fire of Senjumaru / Lille), black with a violet-blue rim, flowing back off the arc and curling at the tips like the reference's
 ;;; torn ribbons; nothing in the game calls it (only the cinematic below, debug 86130)
-(defun ic-flame-tongues (cx cy cz yaw r span k tm n)
-  "N flame tongues along an arc of radius R, SPAN radians, in the vertical plane of YAW centred on (CX CY CZ) (its convex side
-forward): each flows back (and curls along the arc toward its tip), longest at the middle, a black body, a violet-blue rim tongue
-beside it; K presence, TM the phase."
-  (let ((fx (fwd-x yaw)) (fz (fwd-z yaw)) (pi* 3.14159))
-    (dotimes (i n)
-      (let* ((u (/ (+ i 0.5) n)) (a (* span (- u 0.5))) (ca (cos a)) (sa (sin a)) (sg (if (< a 0.0) -1.0 1.0))
-             (env (sin (* pi* u)))
-             (px (+ cx (* r ca fx))) (py (+ cy (* r sa))) (pz (+ cz (* r ca fz)))
-             (len (* r (+ 0.45 (* 1.15 env)) (+ 0.85 (* 0.15 (sin (+ (* 5.0 tm) (* 1.3 i)))))))
-             (cur (* 0.8 (- 1.0 env)))                       ; the tips curl along the arc
-             (ax (* len (+ (* -0.9 fx) (* cur sg (- sa) fx)))) (ay (* len (* cur sg ca))) (az (* len (+ (* -0.9 fz) (* cur sg (- sa) fz))))
-             (w (* r (+ 0.035 (* 0.1 env)))) (sway (* 0.1 len)) (ph (+ (* 4.0 tm) (* 1.7 i))) (sd (+ (* 1.0 i) (drawing-no))))
-        (%tongue (f32 px) (f32 py) (f32 pz) (f32 ax) (f32 ay) (f32 az) (f32 w) +pal-black-smoke+ (f32 (* 0.95 k)) (f32 sd) (f32 ph) (f32 sway) :segs 10 :wob 0.02)
-        (when (evenp i)
-          (%tongue (f32 (+ px (* 0.03 r fx))) (f32 py) (f32 (+ pz (* 0.03 r fz))) (f32 (* 0.8 ax)) (f32 (* 0.8 ay)) (f32 (* 0.8 az))
-                   (f32 (* 0.45 w)) +pal-blood+ (f32 (* 0.8 k)) (f32 (+ sd 50.0)) (f32 (+ ph 1.1)) (f32 (* 1.3 sway)) :segs 8 :wob 0.02))))))
 
 (defun ic-flame-sheets (cx cy cz yaw r span k tm n)
   "N wide flat flame ribbons (sheets) along the same arc as IC-FLAME-TONGUES, each flowing back and curling at the tips, broad at the

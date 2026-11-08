@@ -28,8 +28,6 @@
   ;; the arm's pure rules (kept until the cleanup, DUEL_KEN_V3 §4): 4 pips; spend 4 -> 3, 0 refused; the crack clock
   (check (and (equal (multiple-value-list (pip-spend 4)) '(3 t)) (equal (multiple-value-list (pip-spend 0)) '(0 nil))
               (= 4 *arm-pips*) (= 300 *arm-crack*)))
-  (check (and (equal (multiple-value-list (pip-step 4 298 nil)) '(4 299 nil)) (equal (multiple-value-list (pip-step 4 299 nil)) '(3 0 t))
-              (equal (multiple-value-list (pip-step 4 299 t)) '(4 299 nil)) (equal (multiple-value-list (pip-step 0 5 nil)) '(0 6 nil))))
   ;; rend: armour -> a hit, a stance -> broken; a guard, the ward and a parry still hold
   (check (and (eq (resolve-contact :armor :rend t) :hit) (eq (resolve-contact :stance :rend t) :stance-break)
               (eq (resolve-contact :stance-in :rend t) :stance-break) (eq (resolve-contact :guard :rend t) :blocked)

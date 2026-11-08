@@ -133,7 +133,8 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
   K / L / U / I / O are unbound. ASSIST, the learner, ENDLESS and ROGUE are frozen.
 - **Roster**: index 0 Yamamoto (`yama*.lisp`), 1 Kenpachi (`ken*`), 2 Rukia (`rukia*`), 3 Ichigo (`ichigo*`),
   4 Senjumaru (`senjumaru*`), 5 **reserved** (the old Lille's slot: retired 2026-10-12, his code removed 2026-10-13; `:lille` stays in `*roster*` for the saved data's and the gates' indices: `*retired*` / `playable-roster` in kit.lisp, simgate's `RETIRED`), 6 Lille (`barro*`, kit `:barro`, called "Lille II" before 2026-10-13; his art and cinematics also in `lille-art.lisp`; version 3: DUEL_LILLE_V3, the V2 record DUEL_LILLE_V2, the old Lille's design DUEL_LILLE), 7 **Hisagi** (`hisagi*`, kit `:hisagi`; the Shikai built in batch B2a, the Bankai in B2b: DUEL_HISAGI; debug 83000–83999). Each character = data + hooks: `defkit` forms with `:ai` plists, `defmove`s, its own CPU
-  functions (`:reflex`, `:opp-reflex`, `:sp-ender`, `:sig-hold`, `:assist-guard`), cinematics; art in `<char>-art.lisp`
+  functions (`:reflex`, `:opp-reflex`, `:sp-ender`, `:sig-hold`, `:assist-guard`: the old AI's, left only on the retired kits since
+  2026-11-08; a `:core` kit's CPU is `core-ai.lisp` + the MCTS, DUEL_AI_MCTS §13), cinematics; art in `<char>-art.lisp`
   (`defstrike` clips, bodies); big characters split by role under the same prefix (`-ai -clips -draw -cine -stills -vfx -look`,
   DUEL_DESIGN "Character code layout: split by role").
 - **Plain CL, host-tested**: `tuning.lisp` (every shared knob, `defparameter` + docstring with old → new, date, who decided; a character's own knobs
@@ -146,7 +147,8 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 - **Determinism**: fixed 60 Hz steps, vpads for every input source (keys, touch, CPU), `sim-rnd01` inside the step only
   (`rnd01` for cosmetics), per-match reset, periodic state-hash lines. The native sim and the browser must agree bit for bit.
 - **Presentation is cosmetic**: the sim never reads art. Drawn reach must equal hit reach (host FK test, ±0.15 m).
-- **CPU**: `ai.lisp` (generic) + each kit's reflexes (AI v2, `docs/duel/DUEL_AI_V2.md`); every chance scales by difficulty
+- **CPU**: a `:core` kit: `core-ai.lisp` (fuzzy rules) + the in-game MCTS (`mcts-lite.lisp`, `cpu-mcts.lisp`: the light model, the full sim,
+  DUEL_AI_MCTS); the retired kits: `ai.lisp` (generic) + each kit's reflexes (AI v2, `docs/duel/DUEL_AI_V2.md`); every chance scales by difficulty
   EASY ≤ NORMAL ≤ HARD; roll once per event, never per step. Learning CPU `learn.lisp` (`DUEL_LEARNING.md`); ASSIST /
   AUTO modes `assist.lisp` (`DUEL_ASSIST.md`).
 - **Performance rules** (engine-wide): GC only between frames; 0 B/frame for new draw paths; split heavy startup work into

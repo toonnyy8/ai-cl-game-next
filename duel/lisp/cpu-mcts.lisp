@@ -41,8 +41,6 @@ at 0.08 / 0.12 / 0.16 / 0.25, his style CPU 50 (§9).")
 (defparameter *mc-full-lite* '(:easy 16 :normal 16 :hard 16)
   "The light search's rollouts per difficulty when it only ranks for the full sim (§11: 16 kept NORMAL's strength of 96).")
 (defparameter *mc-full-h* 40 "A full-sim rollout's steps after the hold (it stops at the first contact before; §11).")
-(defparameter *mc-full-hold* nil "The hold before a planned action (steps): NIL = his perception delay (BRAIN-DELAY), else a number.")
-(defparameter *mc-full-styles* nil "The matchup style CPUs play in the rollouts too (T), or the generic CPU alone (NIL, §11's).")
 (defvar *in-rollout* nil "T inside a search's rollout (SIM-ROLLOUT, MC-FULL-STEP): no search, no job, no match end (GO-RESULTS).")
 (defvar *mc-plan* (mc-fv 10)
   "Per side, 5 slots: the state (0 none, 1 its rollouts running, 2 scored), the light model's best and second action codes (-1 none),
@@ -76,8 +74,7 @@ their full-sim values (x 1000). Sim state (sim-state.lisp): MC-NEUTRAL reads it 
             when mv do (setf (svref *mc-slots* (+ k (* 8 side))) (mc-move-rec kit mv))))
     (loop for v in (mc-outcomes-of (fighter-character f) (fighter-form f) dif) for i from 0 do (setf (aref vals i) (round (* 1000 v))))
     (mc-init-fighter (svref *mc-i* side) +k-free+ 0 0 (round (* 1000 (body-hurt-r (model-body (model e))))) (round (* 1000 (kit-walk kit)) 60)
-                     (if (hoho-open-p e) 1 0) (1- (mc-ptr f)))
-    (setf (aref (svref *mc-i* side) +f-run+) (round (* 1000 (kit-run kit)) 60))))
+                     (if (hoho-open-p e) 1 0) (1- (mc-ptr f)))))
 
 (defun mc-setup (e f kit s d &optional (dif :normal))
   "Fill the light model's start from E's view (his SNAP S of the opponent at distance D). NIL when the opponent's perceived state is not
@@ -104,12 +101,10 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
               (:hoho (state +k-hoho+ (snap-sf s) 24))
               (t nil))
         (setf (aref *mc-g* 0) (round (* 1000 d)) (aref *mc-g* 1) (round (* 1000 (getf *mc-react-p* dif 0.1))) (aref *mc-g* 4) (getf *mc-opp-delay* dif 14)
-              (aref *mc-g* 7) (if *mc-block-cont* 1 0) (aref *mc-g* 8) (if *mc-run* 1 0) (aref *mc-g* 9) *hazard-blockstun*
               (aref *mc-g* 5) (round (* 1000 (getf *cai-cont-p* dif 0.7))) (aref *mc-g* 6) (round (* 1000 (getf *cai-turn-p* dif 0.5)))
               (aref *mc-g* 3) (min *mc-horizon-max* (+ *mc-horizon* (if (and *mc-wait-busy* (member (aref v +f-kind+) (list +k-reel+ +k-lie+)))
                                                                       (- (aref v +f-len+) (aref v +f-t+)) 0))))
         (loop for x in *mc-prior* for i from 0 do (setf (aref *mc-w* i) x))
-        (setf *mc-current-opp* (fighter-character fo)) (mc-reload-dynamic)
         (dotimes (a 10)
           (setf (aref *mc-legal* a) (if (case a (0 (svref *mc-slots* 0)) (1 (svref *mc-slots* 1)) (2 (hoho-open-p e)) (6 nil) (t t)) 1 0)
                 (aref *mc-legal2* a) (if (case a (0 (svref *mc-slots* 8)) (1 (svref *mc-slots* 9)) (2 (hoho-open-p o)) (6 nil) (t t)) 1 0)))
@@ -161,13 +156,11 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
           (t (setf (aref *mc-plan* k) 1 (aref *mc-plan* (+ k 1)) a1 (aref *mc-plan* (+ k 2)) a2
                    (aref *mc-plan* (+ k 3)) 0 (aref *mc-plan* (+ k 4)) 0)
              (if (and (eq (brain-press b) :none) (eq (brain-act b) :dash))  ; the hold: a walk goes on, else he stands
-                 (ai-press b :none (mc-full-hold b) :act :dash)
-                 (ai-press b :none (mc-full-hold b)))
+                 (ai-press b :none (brain-delay b) :act :dash)
+                 (ai-press b :none (brain-delay b)))
              (setf *mc-jobs* (append *mc-jobs* (list (vector e side a1 a2 (brain-difficulty b) nil 0 0 0.0 0.0 0))))
              (incf (svref *mc-full-stats* 0))
              t))))
-
-(defun mc-full-hold (b) (or *mc-full-hold* (brain-delay b)))
 
 (defun mc-plan-apply (b f)
   "His hold is over: the plan's pick (both scored: the better within the difficulty's budget, a softmax between them; still running:
@@ -210,7 +203,7 @@ the light model's best), if he is still free. The plan is cleared either way. T 
 (defun mc-full-rollout (e o steps dif)
   "One rollout from the state now (lean steps): E's score, the health swing to the first contact (or STEPS) plus the table's value of it."
   (let ((*in-rollout* t) (*log-mute* t) (*pacing-log* nil) (*combat-log* nil) (*gate-log* nil) (*step-hook* nil) (*skip-cines* t)
-        (*cai-styles* (and *mc-full-styles* *cai-styles*))
+        (*cai-styles* nil)
         (h0 (mc-full-health e)) (ho0 (mc-full-health o)) (bonus 0.0)
         (pe (fighter-state (fighter e))) (po (fighter-state (fighter o))))
     (loop repeat steps while (and (eq *flow* :battle) (not *cine*))
@@ -232,7 +225,7 @@ the light model's best), if he is still free. The plan is cleared either way. T 
       (unless (brain o)                                                   ; (the human: 「之後學玩家習慣」; a CPU's stick is not the camera's)
         (add-component o (make-brain :difficulty dif :delay (getf *ai-delay* dif 14)))
         (setf (pilot-cam-relative (pilot o)) nil))
-      (setf (svref j (+ 8 n)) (mc-full-rollout e o (+ (mc-full-hold (brain e)) *mc-full-h*) dif)
+      (setf (svref j (+ 8 n)) (mc-full-rollout e o (+ (brain-delay (brain e)) *mc-full-h*) dif)
             (svref j 6) (1+ n)))))
 
 (defun mc-full-step ()

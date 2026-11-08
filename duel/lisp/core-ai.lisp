@@ -15,8 +15,6 @@
 (defparameter *cai-cont-p* '(:easy 0.55 :normal 0.7 :hard 0.85)
   "Go on: the next NA link after a hit, the next NS segment.")
 (defparameter *cai-hoho-p* '(:easy 0.05 :normal 0.12 :hard 0.25) "Hoho out of an attack coming at him (one roll per attack).")
-(defparameter *cai-cancel-p* '(:easy 0.35 :normal 0.7 :hard 0.95) "An attack to cancel the Kikon follow-up (one roll).")
-(defparameter *cai-kikon-p* '(:easy 0.1 :normal 0.2 :hard 0.35) "Hold the SP into a Kikon (one roll per SP).")
 (defparameter *cai-ranged-p* 0.5 "Per decision, while walking in from a ranged NS's band (the kit's :core :ns-range): shoot it (Ichigo's Getsuga; the user, 2026-10-27).")
 (defparameter *cai-ranged-gap* 80 "Steps to wait before the next decision after such a shot (a wave is not spammed).")
 (defparameter *cai-awaken-p* 0.02 "Awaken, per decision, once the gauge is full.")

@@ -8,8 +8,6 @@
 ;;;; CORE-VERDICT is the note's table; the Kikon / Soul Break counts are the pointer's profiles (DUEL_CORE.md §3).
 (in-package :duel)
 
-(defparameter *core-classes* '(:na :ns :as :sa)
-  "The classes of a move the triangle judges (a move of none is judged as before: a clean hit).")
 
 (defun core-verdict (att def &key simul att-t def-t)
   "What the hit of a move of class ATT does to a defender who is inside the startup or active frames of a move of class DEF
@@ -32,28 +30,9 @@ same frame (or an unknown start) cancels."
         ((> att-t def-t) :hit)
         (t :absorb)))
 
-(defun core-bounces-p (att def)
-  "Does a cancel of class ATT against DEF end both moves and push the fighters apart? Only a same-class tie does (the note's
-rule 1: NA against NS cancel and each goes on with its sequence; NA against NA, NS against NS end in neutral)."
-  (eq att def))
 
 ;;; ---------------------------------------------------------------- the sequence (what a press means)
-(defun core-press-class (context button landed)
-  "The class of the move a press starts. CONTEXT: where the fighter is: :NEUTRAL, :NA (inside an NA string link), :NS (inside
-an NS segment), :SA (inside the SA), :AS (the combo is over: nothing starts). BUTTON :ATTACK or :SP. LANDED: the move he is in
-has hit (or been cancelled: treated as a hit). The note's rules: an attack continues only after a hit; an SP after an
-attack hit is AS (rule 4, and inside an NS sequence rule 5); an SP inside an NS segment continues it hit or not (rule 2); an
-attack inside an NS segment is SA. Returns :NA :NS :AS :SA, :NA-CONT / :NS-CONT (a link / a segment of the same class), or NIL."
-  (ecase context
-    (:neutral (ecase button (:attack :na) (:sp :ns)))
-    (:na (and landed (ecase button (:attack :na-cont) (:sp :as))))
-    (:ns (ecase button (:attack :sa) (:sp :ns-cont)))
-    (:sa (and landed (ecase button (:attack nil) (:sp :as))))
-    (:as nil)))
 
-(defun core-class-after (class)
-  "The CONTEXT a move of CLASS leaves (CORE-PRESS-CLASS's first argument)."
-  (ecase class ((:na :na-cont) :na) ((:ns :ns-cont) :ns) (:sa :sa) (:as :as)))
 
 (defparameter *core-pointer-max* 4 "The pointer runs 1 .. this: the NA link an AS followed (a kit with four :core :as entries, KESSA, has a fourth: SPIRIT DRIVE's, DUEL_SUBLIMATION §9).")
 
@@ -84,7 +63,3 @@ Break would (BASE + 1). 3: the finisher style, one less."
   "Konpaku a Soul Break takes: BASE + 1 (the old rule), + 2 more for the finisher style (POINTER 3), at most 5."
   (min *core-soul-break-max* (+ base 1 (if (= (core-clamp-pointer pointer) 3) 2 0))))
 
-(defun core-kikon-cancel-p (victim-red victim-attacks)
-  "Is the Kikon's follow-up strike cancelled? Only by the victim's attack (both bounce to neutral, DUEL_CORE.md §4), never
-when he is RED (the must-hit line)."
-  (and victim-attacks (not victim-red)))

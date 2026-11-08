@@ -377,8 +377,6 @@ a combo (critique-design 1.7: not from hit 1).")
 ;;; ================================================================ §4 damage multipliers
 (defparameter *hellfire-mult* 1.30 "Damage x in Hellfire (Gokuen).")
 (defparameter *nozarashi-mult* 1.0 "Damage x in Nozarashi's first cup, KATATE (v2: x1.15 before the ladder).")
-(defparameter *ryote-mult* 1.15 "Damage x in the second cup, RYOTE.")
-(defparameter *nomihose-mult* 1.20 "Damage x in the third cup, NOMIHOSE.")
 (defparameter *bankai-taken* 1.5
   "Damage x Bankai East takes (the defender's :taken): the extreme stance. The Bankai rework (the user's spec
 2026-09-27, docs/duel/DUEL_YAMA_REWORK.md): 1.2 -> 1.5, East only (West takes x1.0). Not a tuning knob: the spec's value.")
@@ -425,42 +423,22 @@ window: the user 2026-10-01; was f4-15) ...")
 (defparameter *parry-stun* 32 "... the parried attacker staggers this long (his move ends) ...")
 (defparameter *parry-slide* 0.5 "... sliding this far.")
 (defparameter *bind-stun* 60 "South (the bind): frames the victim's feet are held. Pacing knob (design v3 §E): 60 -> 45.")
-(defparameter *nozarashi-reach* 1.3 "Nozarashi KATATE (cup 1): reach x of the inherited moves (1.4 before the ladder).")
-(defparameter *nozarashi-startup* 2 "Nozarashi KATATE (cup 1): extra startup frames of the inherited moves (3 before: F1->F2 was a 0 gap).")
-(defparameter *ryote-reach* 1.4 "RYOTE (cup 2): reach x of the base moves it doesn't list.")
-(defparameter *ryote-startup* 3 "RYOTE (cup 2): extra startup frames of the base moves it doesn't list.")
 ;;; Kenpachi's cadence by form (the user, 2026-11-02, DUEL_KEN_CORE §7.2): the startup of every NS first segment that hits
 ;;; (kit :open-s) = the weapon's weight (the katana lightest, the Bankai's one-hand axe next, the Shikai's cleaver heaviest:
 ;;; base 14 / 18 / 22), faster for two hands (-3) and for a fiercer form (up to -3), never under 14.
-(defparameter *ken-open-base* 14 "Kenpachi base (the katana, one hand): NS opener startup. Was 16 (NS1a) / 22 (NS2a).")
-(defparameter *ken-open-katate* 22 "KATATE (the cleaver, one hand): NS opener startup. Was 18 / 24.")
-(defparameter *ken-open-ryote* 19 "RYOTE (the cleaver, two hands -3): NS opener startup. Was 19 / 21.")
-(defparameter *ken-open-nomihose* 16 "NOMIHOSE (the cleaver, two hands -3, fiercest -3): NS opener startup. Was 19 / 20 / 14 (BATTOU).")
-(defparameter *ken-open-bankai* 16 "The Bankai (the one-hand axe 18, fierce -2): NS opener startup. Was 19 / 25.")
 (defparameter *ken-hs-dmg* '(4 30 10 4 14)
   "Kenpachi's hitstop by damage (kit :hs-dmg, base zero per lo hi): 4 + (damage - 30) / 10 rounded, 4 .. 14 frames (the user,
 2026-11-02: 「依傷害大小縮放」). Was 4 for a J / SA, 8 for every other hit.")
 ;;; Nozarashi v2, NOME (呑め): the three-cup ladder (docs/duel/DUEL_NOZARASHI_V2.md). The meter is the kit meter
 ;;; (GAUGES-METER); a rung is a kit form, changed only while he is free (ken-meter.lisp KEN-NOME-STEP)
 (defparameter *nome-max* 100.0 "The NOME gauge.")
-(defparameter *nome-gulp* 20.0 "NOMIHOSE's AS2 finisher (the drink, ken-gulp): NOME gained on its first frame, capped at the gauge (new 2026-10-30, the user: 「AS2 結尾自動飲，回 NOME」, DUEL_KEN_NOMIHOSE).")
-(defparameter *nome-awaken* 10.0 "NOME at the awakening (cup 1).")
-(defparameter *nome-dealt* 0.08 "NOME per point of damage he deals ...")
-(defparameter *nome-taken* 0.12 "... per point he loses (a drink's taken half too, the stance's absorbed points) ...")
-(defparameter *nome-drunk* 0.30 "... and per point drunk: a DRINK's swallowed half, all the stance absorbs. Knob: 0.30 -> 0.20.")
-(defparameter *nome-delay* 180 "RYOTE drains only after this many frames without a gain (guard v3: 60 -> 180) ...")
-(defparameter *nome-drain-t2* 3.0 "... at this per second (guard v3: 3.0 -> 1.5; the user 2026-09-29: faster, x2 -> 3.0) ...")
-(defparameter *nome-drain-t3* 20.0 "... NOMIHOSE drains this per second, always (no delay; the user 2026-09-29: faster, x2, 10 -> 20).")
 (defparameter *nome-up-t2* 40.0 "Up to RYOTE at this ...")
 (defparameter *nome-down-t2* 25.0 "... back to KATATE below this ...")
-(defparameter *nome-up-t3* 100.0 "... up to NOMIHOSE at this ...")
 (defparameter *nome-down-t3* 50.0 "... back to RYOTE below this.")
-(defparameter *nomihose-chip* 0.2 "NOMIHOSE: blade chip through guard.")
 (defparameter *cut-mult* 1.5
   "The cut (RYOTE and NOMIHOSE, passive :cut): his blocked Flash / Signature / SP hits drain this x their guard value
 (no gauge-paid armour is left for it to cut).")
 (defparameter *drink-adv* 4 "DRINK (NOMIHOSE's U): a drunk melee hit leaves the attacker this many frames worse off than a block.")
-(defparameter *rift-delay* 20 "KUKAN-GIRI: the rift it leaves cuts this many frames after its blade (f20 -> f40). Knob: 20 -> 18.")
 (defparameter *stance-in* 6 "Stance Signature: frames to enter the stance (hit = counter-hit).")
 (defparameter *stance-hold-max* 60 "Longest stance hold before the cut comes out by itself.")
 (defparameter *stance-store-rate* 1.0 "Stance stores this x the damage it absorbs...")
@@ -481,8 +459,6 @@ only the debug scene's cap.")
   "Reishi each spent pip burns (BURN: never below 1). The design's 30 against a red Kenpachi; x2 now that the entry refills
 him to full (the user's decision 2026-09-28): the gate's knob.")
 (defparameter *arm-burst-self* 120 "Reishi the burst burns (the design's 60, x2 with the full refill).")
-(defparameter *arm-burst-stun* 40 "The burst's self-inflicted crumple, frames.")
-(defparameter *kataude-reach* 0.7 "片腕 KATAUDE: reach x of his sword moves (the kick, the Breaker and O as written).")
 ;;; Kuchiki Rukia (docs/duel/DUEL_RUKIA.md): frost, the one new status, and the cold gauge of 絶対零度 (the awakened bands
 ;;; :m18 :m50 :zero; the kit meter holds the cold C, 0 .. *COLD-MAX*, two stacked bars: rukia-meter.lisp RUKIA-COLD-STEP)
 (defparameter *walk-rukia* 3.8 "Rukia's walk (Shikai).")

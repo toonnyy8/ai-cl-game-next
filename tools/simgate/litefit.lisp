@@ -45,8 +45,8 @@
                  (destructuring-bind (dif ochar full load) p
                    (declare (ignorable ochar))
                    (funcall load)
-                   (let ((*mc-select* (getf *mc-select-by* dif :tree)) (*mc-current-opp* ochar))
-                     (mc-seed 12345) (mc-reload-dynamic) (mc-search *lf-n*))
+                   (let ((*mc-select* (getf *mc-select-by* dif :tree)))
+                     (mc-seed 12345) (mc-search *lf-n*))
                    (let* ((legal (loop for a below 10 when (mc-mean a) collect a))
                           (fl (mapcar (lambda (a) (nth a full)) legal)))
                      (when (>= (length legal) 2)

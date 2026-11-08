@@ -413,10 +413,6 @@ bindings, CONTROLS-KEY-PROMPT)."
 (defvar *c-hint* (list 0.6 0.95 1.0 1.0) "PERFECT HINT's HOHO!.")
 
 (defparameter *c-blood* (list 0.82 0.06 0.11 1.0))
-(defun trail-step! (i target rate)
-  "*TRAIL-V*[I], a damage trail, eases down to TARGET at RATE per second (HUD seconds), or snaps up to it."
-  (let ((tr (aref *trail-v* i)))
-    (setf (aref *trail-v* i) (f32 (if (> tr target) (max target (- tr (* rate (hud-dt)))) target)))))
 
 (defun guard-gauge-bits (e f gf)
   "%HUD-GUARD's MODE bits for entity E, whose fighter component is F, at guard fraction GF: 1 guarding below full (or
@@ -432,7 +428,6 @@ an awakening, else the awakening gauge."
     (cond (timed (timer-fill (gauges-form-left g) (gauges-form-total g) 1.0))
           ((kit-awakening kit) 1.0) (t (/ (gauges-awaken g) *awaken-max*)))))
 
-(defun prompt-alpha () "The KIKON / BURST / BANKAI prompts' pulsing alpha." (+ 0.5 (* 0.5 (hud-pulse 4.0))))
 
 ;;; HUD-SIDE runs twice a frame: a DEFUN-FAST since 2026-10-26 (was ~1.2 KB a side boxed). Its layout in single floats
 ;;; with the generic DEFUN's operations in its order (a fixnum x float product is the same float product, a MAX of a

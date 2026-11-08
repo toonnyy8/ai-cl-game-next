@@ -24,22 +24,6 @@
 ;; a gap insert: the attacker's AS against the defender's NA cancels, against his NS wins; SA the other way round
 (check (and (eq (core-verdict :as :na) :cancel) (eq (core-verdict :as :ns) :hit)
             (eq (core-verdict :sa :na) :hit) (eq (core-verdict :sa :ns) :cancel)))
-;; only a same-class tie bounces
-(check (and (core-bounces-p :na :na) (core-bounces-p :ns :ns) (not (core-bounces-p :na :ns))))
-;; presses
-(check (eq (core-press-class :neutral :attack nil) :na))
-(check (eq (core-press-class :neutral :sp nil) :ns))
-(check (null (core-press-class :na :attack nil)))                 ; an attack link needs a hit
-(check (eq (core-press-class :na :attack t) :na-cont))
-(check (null (core-press-class :na :sp nil)))                     ; an AS needs the attack to hit
-(check (eq (core-press-class :na :sp t) :as))
-(check (eq (core-press-class :ns :sp nil) :ns-cont))              ; an NS continues hit or not
-(check (eq (core-press-class :ns :attack nil) :sa))
-(check (eq (core-press-class :sa :sp t) :as))
-(check (null (core-press-class :sa :sp nil)))
-(check (null (core-press-class :as :attack t)))                   ; AS ends the combo
-(check (null (core-press-class :as :sp t)))
-(check (eq (core-class-after :na-cont) :na))
 ;; the pointer
 (check (equal (mapcar #'core-as-pointer '(0 1 2 3 4 5)) '(1 1 2 3 4 4)))   ; (four pointers since 2026-10-31: CORE-NEXT-AS caps it by the kit's AS count)
 ;; the Kikon / Soul Break profiles (base worth 2, 3, 4)
@@ -52,7 +36,6 @@
 (check (equal (mapcar (lambda (b) (core-soul-break-count b 2)) '(2 3 4)) '(3 4 5)))
 (check (equal (mapcar (lambda (b) (core-soul-break-count b 3)) '(2 3 4)) '(5 5 5)))          ; the finisher style, capped at 5
 (check (= (core-kikon-count 2 2 t) (core-soul-break-count 2 2)))                             ; pointer 2: red = zero
-(check (and (core-kikon-cancel-p nil t) (not (core-kikon-cancel-p t t)) (not (core-kikon-cancel-p nil nil))))
 ;; Ichigo's core moves (DUEL_CORE §9, 2026-10-27): every opening strike has a readable coil, NS2 is the ranged one, each pointer its stance
 (let ((k (kit :ichigo :base)))
   (check (every (lambda (n) (>= (mv-s (kit-move k n)) 14)) '(:ic-j1 :ic-n1a :ic-n2a :ic-n3a)))   ; the tells (>= 14 f, 0.23 s)

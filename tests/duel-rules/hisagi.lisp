@@ -1005,26 +1005,10 @@
          (ordered (pl) (<= (getf pl :easy) (getf pl :normal) (getf pl :hard))))
     ;; which of his forms has the CPU's :move-reflex: the Shikai's HS-AI-MOVE, the ranged mode's HS-R-AI-MOVE, the bind's
     ;; HS-B-AI-MOVE (round01 b2a0 / b2a1's TODOME and cinching route, ported by cell b3a2)
-    (check (and (eq 'hs-ai-move (getf (kit-ai k) :move-reflex)) (null (getf (kit-ai kr) :move-reflex))   ; (§28.4: the Bankai's
-                (null (getf (kit-ai (kit :hisagi :bankai-bind)) :move-reflex))))      ;  old CPU tables gone, the core CPU plays it)
+    ;  old CPU tables gone, the core CPU plays it)
     ;; the styles: RENSA / KARIBA by weight (one roll a match); every chance EASY <= NORMAL <= HARD, per style where it has one
     ;; (round01 cell b3a0: the weights by difficulty, HARD RENSA 0.8, EASY / NORMAL 0.55 / 0.45)
-    (check (and (equal '(:easy :normal :hard) (loop for (dl nil) on *hs-ai-styles* by #'cddr collect dl))
-                (every (lambda (dl) (let ((w (getf *hs-ai-styles* dl)))
-                                      (and (equal '(:rensa :kariba) (loop for (st nil) on w by #'cddr collect st))
-                                           (~= 1.0 (loop for (nil x) on w by #'cddr sum x)))))
-                       '(:easy :normal :hard))
-                (equal (getf *hs-ai-styles* :hard) '(:rensa 0.8 :kariba 0.2))
-                (equal (getf *hs-ai-styles* :normal) '(:rensa 0.55 :kariba 0.45))
-                (<= (getf (getf *hs-ai-styles* :normal) :rensa) (getf (getf *hs-ai-styles* :hard) :rensa))
-                (every (lambda (pl) (and (ordered (getf pl :rensa)) (ordered (getf pl :kariba))))
-                       (list *hs-ai-bridge-p* *hs-ai-jk-p* *hs-ai-style-leap-p* *hs-ai-k1-punish-p* *hs-ai-o-ender-p*))
-                (ordered *hs-ai-o-ender-mash-p*)
-                (every #'ordered (list *hs-ai-windmill-p* *hs-ai-kaza-k-p* *hs-ai-sp-ender-p* *hs-ai-throw-p*
-                                       *hs-ai-guard-wait-p* *hs-ai-anti-breaker-p* *hs-ai-release-p* *hs-ai-kojo-p*
-                                       *hs-ai-bind-sp-p* *hs-ai-modoshi-p*))
-                (< (getf (getf *hs-ai-bridge-p* :kariba) :hard) (getf (getf *hs-ai-bridge-p* :rensa) :hard))   ; RENSA bridges
-                (> (getf (getf *hs-ai-k1-punish-p* :kariba) :hard) (getf (getf *hs-ai-k1-punish-p* :rensa) :hard))))   ; KARIBA reaps
+    ; KARIBA reaps
     ;; the Shikai's :ai: the awakening gate (round01 cell b3a0: 4500 -> 3000 taken), no neutral / reeling Kikon rush (the O ender only), the generic string-k 0
     ;; (HS-AI-MOVE picks every link), no neutral SHIBARI or Breaker
     (check (and (equal '(:min-taken 3000) (getf (kit-ai k) :awaken)) (eq (getf (kit-ai k) :awaken) *hs-ai-awaken*)
@@ -1035,27 +1019,9 @@
     ;; (:approach / :pressure): one roll (*HS-AI-STYLE-LEAP-P*) -> J (the leap), else K; at :zone / :defend, inside the dead
     ;; zone: K, no roll; off any other step, a block or another link (K2J: no J after it): nothing (a J1 / J2 hit rolls the
     ;; bridge: not on the host, it has no sim stream)
-    (check (and (hs-ai-leap-wanted-p 5.0 :approach) (hs-ai-leap-wanted-p 9.6 :pressure) (hs-ai-leap-wanted-p 3.1 :approach)
-                (not (hs-ai-leap-wanted-p 3.0 :approach)) (not (hs-ai-leap-wanted-p 5.0 :zone)) (not (hs-ai-leap-wanted-p 5.0 :defend))))
-    (multiple-value-bind (a b) (t-pair k (kit :kenpachi :base))   ; (the steps that roll nothing: the host has no sim stream)
-      (declare (ignore b))
-      (let ((fa (fighter a)) (br (make-brain)))
-        (unless (fboundp 'why) (setf (symbol-function 'why) (lambda (b r c) (declare (ignore b r)) c)))
-        (setf (hss-ai-style (hs a)) :rensa)
-        (flet ((cpu (name intent d &key (sf 22) (land 22) (contact :hit))
-                 (setf (fighter-state fa) :move (fighter-move fa) (m name) (fighter-sf fa) sf (fighter-land-sf fa) land
-                       (fighter-contact fa) contact (fighter-queued fa) nil (fighter-dist fa) d (brain-intent br) intent)
-                 (let ((*hs-ai-plan-p* '(:easy 0.0 :normal 0.0 :hard 0.0)))   ; (cell b0a2: no route plan, so no roll)
-                   (hs-ai-move a br fa (m name)))))
-          (check (and (eq :f (cpu :hs-k1 :zone 5.0)) (eq :f (cpu :hs-k2 :defend 8.0)) (eq :f (cpu :hs-k1 :approach 1.9))
-                      (null (cpu :hs-k1 :approach 5.0 :sf 23)) (null (cpu :hs-k1 :approach 5.0 :contact :block))
-                      (null (cpu :hs-k2j :approach 5.0)) (null (cpu :hs-j1 :approach 1.5 :contact :block))
-                      (null (cpu :hs-k3 :approach 5.0))))
-          (setf (fighter-state fa) :idle (fighter-move fa) nil))))
+        
     ;; the K1 punish (HS-AI-REFLEX): past the dead zone + 0.2, inside its reach + 0.2, its startup + 1 left as perceived
-    (check (and (hs-k1-punish-ok-p 4.0 19) (hs-k1-punish-ok-p 6.1 40) (not (hs-k1-punish-ok-p 3.1 30))
-                (not (hs-k1-punish-ok-p 6.3 40)) (not (hs-k1-punish-ok-p 4.0 18))))
-    ;; ... his CPU's reach read (HS-R-AI-MOVE's picks): past the dead zone, inside the far edge + 0.36 (§25.13: a route link
+        ;; ... his CPU's reach read (HS-R-AI-MOVE's picks): past the dead zone, inside the far edge + 0.36 (§25.13: a route link
     ;; reaches him anywhere out to *HS-R-LINK-REACH* + 0.36)
     (check (and (hs-r-reaches-p (m :hs-r-k2) 5.3) (hs-r-reaches-p (m :hs-r-k2) 1.9) (hs-r-reaches-p (m :hs-r-j2s) 4.8)
                 (not (hs-r-reaches-p (m :hs-r-j2s) 4.9)) (not (hs-r-reaches-p (m :hs-r-k1) 1.9)) (hs-r-reaches-p (m :hs-r-k1) 4.8) (not (hs-r-reaches-p (m :hs-r-k1) 4.9))   ; (§25.35: K1 4.5 + 0.36)
@@ -1079,55 +1045,20 @@
         (setf (fighter-state fa) :idle (fighter-move fa) nil)))
     ;; cell b3a0, the Shikai's reaping fence (HS-AI-FENCE): the reap's chances and the hop's by style, EASY <= NORMAL <= HARD;
     ;; the hop rare below HARD (NORMAL's fair game); KARIBA reaps and hops more than RENSA
-    (check (and (every (lambda (pl) (and (ordered (getf pl :rensa)) (ordered (getf pl :kariba)))) (list *hs-ai-reap-p* *hs-ai-hop-p*))
-                (>= (getf (getf *hs-ai-reap-p* :kariba) :hard) (getf (getf *hs-ai-reap-p* :rensa) :hard))
-                (>= (getf (getf *hs-ai-hop-p* :kariba) :hard) (getf (getf *hs-ai-hop-p* :rensa) :hard))
-                (<= (getf (getf *hs-ai-hop-p* :kariba) :normal) 0.1)
-                (equal *hs-ai-reap-p* '(:rensa (:easy 0.15 :normal 0.25 :hard 0.7) :kariba (:easy 0.2 :normal 0.35 :hard 0.9)))
-                (equal *hs-ai-hop-p* '(:rensa (:easy 0.0 :normal 0.0 :hard 0.7) :kariba (:easy 0.0 :normal 0.05 :hard 0.9)))
-                (~= 4.3 *hs-ai-hop-keep*) (< *hs-ai-fence-in* *hs-k-dead* *hs-ai-fence-out*)
-                (equal '(3.4 5.6) *hs-ai-reap-window*) (~= 1.5 *hs-ai-reap-closing*) (~= 7.5 *hs-ai-reap-from*)
-                (equal *hs-ai-reap-sustain* (quote (:easy 1 :normal 1 :hard 3)))))   ; (round01 cell b3a0: an approach proven over 3 perceived steps at HARD)
+    ; (round01 cell b3a0: an approach proven over 3 perceived steps at HARD)
     ;; ... cell b3a0's Shikai: no neutral windmill in the bands (the bridge, the ward and the ranged threat keep it), no O
     ;; ender but against a masher (RAIDEN ends the string), NORMAL's bridge / SP ender / K1 punish (the band's fair game)
-    (check (and (notany (lambda (bd) (getf (cddr bd) :sig)) (getf (kit-ai k) :moves))
-                (every (lambda (st) (every (lambda (d) (~= 0.0 (getf (getf *hs-ai-o-ender-p* st) d))) '(:easy :normal :hard)))
-                       '(:rensa :kariba))
-                (~= 0.5 (getf (getf *hs-ai-bridge-p* :rensa) :normal)) (~= 0.25 (getf (getf *hs-ai-bridge-p* :kariba) :normal))
-                (~= 0.35 (getf *hs-ai-sp-ender-p* :normal)) (~= 0.2 (getf (getf *hs-ai-k1-punish-p* :rensa) :normal))
-                (~= 0.25 (getf (getf *hs-ai-k1-punish-p* :kariba) :normal))))
-    ;; cell b0a0 (§25.15): the charge read's windmill and its sweep by style, TODOME (a red victim's link 2 into RAIDEN), every
+        ;; cell b0a0 (§25.15): the charge read's windmill and its sweep by style, TODOME (a red victim's link 2 into RAIDEN), every
     ;; chance EASY <= NORMAL <= HARD; KARIBA wards and sweeps more than RENSA; the Shikai's Hoho stays 0.3 (NORMAL's A/B rows)
-    (check (and (every (lambda (pl) (and (ordered (getf pl :rensa)) (ordered (getf pl :kariba))))
-                       (list *hs-ai-charge-ward-p* *hs-ai-sweep-p*))
-                (ordered *hs-ai-todome-p*)
-                (equal *hs-ai-charge-ward-p* '(:rensa (:easy 0.15 :normal 0.3 :hard 0.7) :kariba (:easy 0.2 :normal 0.4 :hard 0.9)))
-                (equal *hs-ai-sweep-p* '(:rensa (:easy 0.2 :normal 0.4 :hard 0.7) :kariba (:easy 0.3 :normal 0.5 :hard 0.9)))
-                (equal *hs-ai-todome-p* '(:easy 0.2 :normal 0.4 :hard 1.0))
-                (= 12 *hs-ai-sweep-wait*) (~= 9.0 *hs-ai-charge-far*) (~= 0.3 (getf (kit-ai k) :hoho))))
-    ;; ... HS-RANGED-MOVE-P: a move with a :ranged window (a snipe, K1 NAGI) or none (his J1); HS-CHARGE-SHOT-P (the read
+        ;; ... HS-RANGED-MOVE-P: a move with a :ranged window (a snipe, K1 NAGI) or none (his J1); HS-CHARGE-SHOT-P (the read
     ;; HS-CHARGING-P makes of the perceived snap): a :hold phase of a ranged move beyond 2.5 m and inside *HS-AI-CHARGE-FAR*,
     ;; never its :main phase, a melee hold or another state
-    (check (and (hs-ranged-move-p (m :br-s-l1)) (hs-ranged-move-p (m :hs-k1)) (not (hs-ranged-move-p (m :hs-j1)))
-                (not (hs-ranged-move-p nil))
-                (hs-charge-shot-p :move :hold (m :br-s-l1) 7.0) (hs-charge-shot-p :move :hold (m :br-s-l1) 2.6)
-                (not (hs-charge-shot-p :move :hold (m :br-s-l1) 2.4)) (not (hs-charge-shot-p :move :hold (m :br-s-l1) 9.1))
-                (not (hs-charge-shot-p :move :main (m :br-s-l1) 7.0)) (not (hs-charge-shot-p :move :hold (m :hs-j1) 7.0))
-                (not (hs-charge-shot-p :idle nil nil 7.0))))
-    ;; ... HS-REAP-AT: where he will stand; HS-REAP-OK-P: K1's annulus with a margin (3.4-5.6 m); HS-FENCE-BAND: in below 2.9,
+        ;; ... HS-REAP-AT: where he will stand; HS-REAP-OK-P: K1's annulus with a margin (3.4-5.6 m); HS-FENCE-BAND: in below 2.9,
     ;; out only past 3.5 (one roll per stay, never per jittering step)
-    (check (and (~= 4.0 (hs-reap-at 6.0 4.0 30)) (~= 6.0 (hs-reap-at 6.0 0.0 30)) (hs-reap-ok-p 3.4) (hs-reap-ok-p 5.6)
-                (not (hs-reap-ok-p 3.3)) (not (hs-reap-ok-p 5.7))
-                (hs-fence-band nil 2.8) (not (hs-fence-band nil 3.0)) (hs-fence-band t 3.4) (not (hs-fence-band t 3.6))))
-    ;; cell b0a1, 見切り MIKIRI (the Hoho read): its chances EASY <= NORMAL <= HARD (none at EASY); the read's rate with its
+        ;; cell b0a1, 見切り MIKIRI (the Hoho read): its chances EASY <= NORMAL <= HARD (none at EASY); the read's rate with its
     ;; prior (no K1 read yet 0.25; Ichigo's 3 perfect of 4 K1s 0.5, over the 0.42 bar; Rukia's 1 of 4 0.25 and 2 of 4 0.375,
     ;; under it)
-    (check (and (ordered *hs-ai-mikiri-p*) (ordered *hs-ai-close-p*)
-                (equal *hs-ai-mikiri-p* '(:easy 0.0 :normal 0.2 :hard 0.75)) (equal *hs-ai-close-p* '(:easy 0.0 :normal 0.3 :hard 0.75))
-                (equal '(1 3) *hs-ai-mikiri-prior*) (~= 0.42 *hs-ai-mikiri-rate*) (= 36 *hs-ai-hoho-quiet*)
-                (~= 0.25 (hs-mikiri-rate 0 0)) (~= 0.5 (hs-mikiri-rate 3 4)) (~= 0.25 (hs-mikiri-rate 1 4))
-                (> (hs-mikiri-rate 3 4) *hs-ai-mikiri-rate*) (< (hs-mikiri-rate 2 4) *hs-ai-mikiri-rate*)))
-    ;; cell b0a2, the combo's route plan (DUEL_HISAGI §25.16's showpiece and its SP versions): the shipped routes, the
+        ;; cell b0a2, the combo's route plan (DUEL_HISAGI §25.16's showpiece and its SP versions): the shipped routes, the
     ;; pick (RINNE / RINNE-OWARI / HANA, each a route), the chance EASY <= NORMAL <= HARD; HS-PLAN-NEXT step by step along the
     ;; user's J1 J2 J3 > L > K1 K2 > J3K > L > K1 K2 K3, its SP middle / end (a bar needed, else the K link), RINNE's J1 > L
     ;; head, the one leap a combo (leapt: K3), no command off K3 (the SP ender's)
@@ -1147,18 +1078,12 @@
                 (eq :sp1 (hs-plan-next '(:j :leap :sp) :hs-k2 2 t 1)) (eq :f (hs-plan-next '(:j :leap :sp) :hs-k2 2 t 0))
                 (eq :sig (hs-plan-next '(:j :leap :k3) :hs-j1 0 nil 0)) (null (hs-plan-next '(:j :leap :k3) :hs-j2 0 nil 0))))
     ;; ... HS-HOHO-READY-P (as he sees him: free, his flash-step at a Hoho's on the HUD, no Hoho of his just seen)
-    (check (and (hs-hoho-ready-p :idle 300.0 999) (hs-hoho-ready-p :run 100.0 37) (hs-hoho-ready-p :guard 150.0 999)
-                (not (hs-hoho-ready-p :idle 99.0 999)) (not (hs-hoho-ready-p :idle 300.0 36))
-                (not (hs-hoho-ready-p :stun 300.0 999)) (not (hs-hoho-ready-p :move 300.0 999))))))
+    ))
 ;; b1a0's ranged fence (merged into cell b3a0's Bankai) and round01 cell b1a0's route styles: their mix and the pure reads
 (flet ((mono (p) (<= (getf p :easy) (getf p :normal) (getf p :hard)))
        (ordered-p (p) (<= (getf p :easy) (getf p :normal) (getf p :hard))))
   ;; every chance of his CPU EASY <= NORMAL <= HARD (the user's rule), the route styles' included
-  (check (every #'mono (list* *hs-ai-punish-p* *hs-ai-anti-p* *hs-ai-escape-p* *hs-ai-dodge-p* *hs-ai-saharai-p* *hs-ai-r-anti-breaker-p*
-                              *hs-ai-throw-p* *hs-ai-release-p* *hs-ai-bind-sp-p*
-                              *hs-ai-wake-p* *hs-ai-plain-release-p*
-                              (loop for (st nil) on *hs-ai-r-styles* by #'cddr collect (hs-r-sv st :route-dmg)))))
-  ;; the three route styles (one roll per entry into the ranged mode): their weights, openers, the tip read, the K link's
+    ;; the three route styles (one roll per entry into the ranged mode): their weights, openers, the tip read, the K link's
   ;; chance per link hit (SENTAN's gathered K route, KAISEN's spread J route), where KUBIKAKE may come (NAWAJI off the
   ;; first link, the others off the ender), the back hop's distance (SENTAN K1's tip 4.25, KAISEN J1's 5.75, NAWAJI 3.5 where both reach, since §25.35; §25.34's
   ;; 5.125 / 6.625 / 4.5; 4.75 /
@@ -1176,15 +1101,7 @@
               (eq :f (hs-r-tip-cmd (hs-r-sv :sentan :keep))) (eq :q (hs-r-tip-cmd (hs-r-sv :kaisen :keep)))))
   ;; the chances' shipped values (round01 b1a0: NORMAL's fair game once the Bankai comes at 2000 taken; HARD's kept, its
   ;; KUBIKAKE 0.7 -> 0.95; round01 cell b3a0: NORMAL's Bankai cut again with the gate at 3000, NORMAL 0.61 -> 0.56)
-  (check (and (equal *hs-ai-punish-p* '(:easy 0.05 :normal 0.1 :hard 0.9)) (equal *hs-ai-escape-p* '(:easy 0.1 :normal 0.2 :hard 0.85))
-              (equal *hs-ai-saharai-p* '(:easy 0.05 :normal 0.1 :hard 0.15)) (equal *hs-ai-dodge-p* '(:easy 0.05 :normal 0.1 :hard 0.7))
-              (equal *hs-ai-r-anti-breaker-p* '(:easy 0.1 :normal 0.2 :hard 0.85)) (equal *hs-ai-anti-p* '(:easy 0.05 :normal 0.1 :hard 0.7))
-              (equal *hs-ai-throw-p* '(:easy 0.02 :normal 0.05 :hard 0.95)) (equal *hs-ai-release-p* '(:easy 0.05 :normal 0.1 :hard 0.9))
-              (equal *hs-ai-bind-sp-p* '(:easy 0.05 :normal 0.1 :hard 0.7))
-              (ordered-p *hs-ai-r-guard-wait-p*) (equal *hs-ai-r-guard-wait-p* '(:easy 0.6 :normal 0.75 :hard 1.0))   ; (b1a1 via cell
-              ;   b3a1: no Breaker into a long guard in the Bankai at HARD)
-              (~= 150 *hs-ai-rel-margin*) (= 50 *hs-ai-rel-step*)))
-  ;; the annuli his fence reads (HS-R-HITS-AT-P): J1 3.05-6.2, K1 2.55-4.7 (§25.35; §25.34's 4.05-7.2 / 2.55-5.7; 3.05-6.2 /
+    ;; the annuli his fence reads (HS-R-HITS-AT-P): J1 3.05-6.2, K1 2.55-4.7 (§25.35; §25.34's 4.05-7.2 / 2.55-5.7; 3.05-6.2 /
   ;; 2.05-5.2 before), SAHARAI to 3.1, KUBIKAKE 2.3-7.0; inside the moves' own reach (HS-R-REACHES-P) at both ends
   (check (and (hs-r-hits-at-p :q 3.05) (hs-r-hits-at-p :q 6.2) (not (hs-r-hits-at-p :q 3.0)) (not (hs-r-hits-at-p :q 6.3))
               (hs-r-hits-at-p :f 2.55) (hs-r-hits-at-p :f 4.7) (not (hs-r-hits-at-p :f 2.5)) (not (hs-r-hits-at-p :f 4.8))
@@ -1221,44 +1138,13 @@
 ;; round01 cell b3a0: the waking noose (one roll per awakening; off since cell b3a2: it netted -92 a throw) and the bind's
 ;; ledger (HS-REL-BAR: the release's margin is *HS-AI-REL-MARGIN* while the pool is high, 0 once it is down to *HS-AI-REL-LOW*;
 ;; KAIBAKU-GEKI only within its reach, else the plain P)
-(check (and (equal *hs-ai-wake-p* '(:easy 0.0 :normal 0.0 :hard 0.0)) (= 300 *hs-ai-wake-window*)
-            (equal *hs-ai-plain-release-p* '(:easy 0.05 :normal 0.1 :hard 0.9))
-            (= 150 *hs-ai-rel-low*) (~= 2.8 *hs-ai-kaibaku-reach*) (< *hs-ai-kaibaku-reach* (mv-reach (find-move :hs-b-sp2)))
-            (= *hs-ai-rel-margin* (hs-rel-bar 600.0)) (= *hs-ai-rel-margin* (hs-rel-bar 151.0))
-            (= 0 (hs-rel-bar 150.0)) (= 0 (hs-rel-bar 0.0))))
 ;; round01 cell b3a2: 空蝉 UTSUSEMI, the HARD Hoho through a committed swing: HARD only (EASY / NORMAL 0: the kit's generic
 ;; :hoho 0.3 stays theirs, so NORMAL and the awaken A/B play b3a1's Shikai), above the kit's 0.3; HS-AI-UTSUSEMI acts only on a
 ;; Hoho roll between the two (below it the generic Hohos; at NORMAL never): no roll of its own, no snap read before that
-(check (flet ((ordered (pl) (<= (getf pl :easy) (getf pl :normal) (getf pl :hard))))
-         (and (equal *hs-ai-utsusemi-p* '(:easy 0.0 :normal 0.0 :hard 0.9)) (ordered *hs-ai-utsusemi-p*)
-              (> (getf *hs-ai-utsusemi-p* :hard) (getf (kit-ai (kit :hisagi :base)) :hoho))
-              (multiple-value-bind (a b) (t-pair (kit :hisagi :base) (kit :kenpachi :base))
-                (declare (ignore b))
-                (let ((br (make-brain)))
-                  (setf (brain-hoho-roll br) 0.5)
-                  (and (null (hs-ai-utsusemi a br nil 2.0))                       ; (NORMAL: never)
-                       (progn (setf (brain-difficulty br) :hard (brain-hoho-roll br) 0.2)
-                              (null (hs-ai-utsusemi a br nil 2.0)))                 ; (HARD, below the kit's 0.3: the generic's)
-                       (progn (setf (brain-hoho-roll br) 0.95)
-                              (null (hs-ai-utsusemi a br nil 2.0)))))))))            ; (HARD, over its 0.9: the guard's)
+; (HARD, over its 0.9: the guard's)
 ;; (§28.4: HS-B-AI-MOVE's cinching-route check went with the bind mode's K string; the old Bankai CPU no longer runs)
 ;; ... its chances (HARD 1.0 / 0.9, EASY <= NORMAL <= HARD), BRAIN-ROLL (no draw at 0 or 1), the bind's bands without a neutral
 ;; K1 or Step (the walk-in)
-(check (flet ((ordered (pl) (<= (getf pl :easy) (getf pl :normal) (getf pl :hard))))
-         (and (equal *hs-ai-b-route-p* '(:easy 0.0 :normal 0.3 :hard 1.0)) (ordered *hs-ai-b-route-p*)
-              (equal *hs-ai-b-close-p* '(:easy 0.0 :normal 0.0 :hard 1.0)) (ordered *hs-ai-b-close-p*)
-              (equal *hs-ai-b-todome-p* '(:easy 0.1 :normal 0.2 :hard 0.9)) (ordered *hs-ai-b-todome-p*)
-              (let ((b (make-brain))) (and (null (brain-roll b '(:normal 0.0))) (brain-roll b '(:normal 1.0))))
-              )))
-;; every Kenpachi CPU table (*KEN-AI-*, 15) carries :easy :normal :hard: BRAIN-CHANCE's NORMAL fallback (which replaced
-;; KEN-P's 0.0 default, refactor round 2 K3, 2026-10-21) is never taken for him
-(let ((ts nil))
-  (do-symbols (s :duel)
-    (let ((n (symbol-name s)))
-      (when (and (eq (symbol-package s) (find-package :duel)) (boundp s) (> (length n) 8) (string= "*KEN-AI-" n :end2 8))
-        (pushnew s ts))))
-  (check (and (= 15 (length ts))
-              (every (lambda (s) (every (lambda (k) (realp (getf (symbol-value s) k))) '(:easy :normal :hard))) ts))))
 ;; the HUD labels made once (refactor round 2 K1, 2026-10-21) are the strings the FORMAT calls made every frame
 (check (and (every (lambda (m) (equal (svref *sj-hari-labels* m) (format nil "HARI ~d" m))) '(0 1 2 3 4 5 6))
             (loop for n below 4 always (and (equal (aref *ic-bunshin-labels* n 0) (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n nil 2))
@@ -1267,21 +1153,12 @@
 ;; round01 cell b2a2's 縛口 SHIBARI-GUCHI the bind's bite (merged by the b3a2+b2a2 combination): its chance (EASY <= NORMAL <=
 ;; HARD, HARD 1.0: no roll), the window; HS-B-BITE-CMD: J1 (S 8) once its startup fits the reel after his guard-cancel lock
 ;; and the victim is within the generic follow-up's reach (1.5 + 0.6), :wait while the yank brings him in, else nothing yet
-(check (flet ((ordered (pl) (<= (getf pl :easy) (getf pl :normal) (getf pl :hard))))
-         (and (equal *hs-ai-bite-p* '(:easy 0.0 :normal 0.5 :hard 1.0)) (ordered *hs-ai-bite-p*)
-              (= 40 *hs-ai-bite-window*) (= 8 (mv-s (find-move :hs-b-j1)))
-              (eq :q (hs-b-bite-cmd 2.0 17 1)) (eq :q (hs-b-bite-cmd 2.0 9 0)) (eq :wait (hs-b-bite-cmd 2.5 22 6))
-              (null (hs-b-bite-cmd 2.0 12 5)) (null (hs-b-bite-cmd 2.0 4 11)) (null (hs-b-bite-cmd 3.0 0 0)))))
 ;;; <<< END HISAGI-CPU-TESTS
 
 ;;; ================================================================ Hisagi's learner and ASSIST (DUEL_HISAGI §25.20)
 ;; his situations (LEARN-DEF-KIT) and the human's answers; every other character's spec as before (Lille II's)
 (let ((sp (learn-kit-spec :hisagi)))
-  (check (and (equalp (getf sp :situations) #(:reap :ward :bind-ahead :bind-behind))
-              (equalp (getf sp :actions) #(:guard :hoho :attack :back :take)) (eq (getf sp :step) 'hs-learn-step)
-              (equalp (getf (learn-kit-spec :barro) :situations) #(:shot :charge))
-              (notany #'learn-kit-spec '(:yamamoto :kenpachi :rukia :ichigo :senjumaru))
-              (equal *hs-learn-diff* '(:easy 0.5 :normal 1.0 :hard 1.5)) (= 30 *hs-learn-episode*))))
+  )
 ;; the generic classes as his: a move of any kind an attack, a Hoho / Step a Hoho, the guard, backing off; a burst none
 (check (equal (loop for i below (length *learn-actions*) collect (hs-learn-class i))
               '(:guard :attack :attack :attack :hoho :back :attack :attack :attack nil)))
@@ -1298,14 +1175,6 @@
             (null (hs-learn-sit nil nil nil :idle t nil nil t))))
 ;; the reads' plans: the reap off a Hoho, on a swing / a hit / a retreat; the ward's sweep on a swing / a retreat, off a Hoho
 ;; / a guard; the bind's neutral: a guard against his swing or Hoho, the Breaker against his guard; else as rolled
-(check (and (null (hs-learn-reap-plan :hoho t)) (eq t (hs-learn-reap-plan :attack nil)) (eq t (hs-learn-reap-plan :take nil))
-            (eq t (hs-learn-reap-plan :back nil)) (eq t (hs-learn-reap-plan :guard t)) (null (hs-learn-reap-plan :guard nil))
-            (null (hs-learn-reap-plan nil nil))
-            (eq :sweep (hs-learn-ward-plan :attack nil)) (eq :sweep (hs-learn-ward-plan :back nil))
-            (null (hs-learn-ward-plan :hoho :sweep)) (null (hs-learn-ward-plan :guard :sweep))
-            (eq :sweep (hs-learn-ward-plan :take :sweep)) (null (hs-learn-ward-plan nil nil))
-            (eq :guard (hs-learn-bind-plan :attack)) (eq :guard (hs-learn-bind-plan :hoho)) (eq :breaker (hs-learn-bind-plan :guard))
-            (null (hs-learn-bind-plan :back)) (null (hs-learn-bind-plan :take)) (null (hs-learn-bind-plan nil))))
 ;; AUTO COMBO's entries and presses: his CPU's pick as the entry; pressed on his J, then done (his J eaten); his own J
 ;; left alone; the end eats his J; undecided / generic: the generic AUTO COMBO
 (check (and (eq :generic (hs-as-entry nil)) (eq :end (hs-as-entry :wait)) (eq :own (hs-as-entry :q))
@@ -1320,14 +1189,6 @@
             (equal '(:sig :done nil) (multiple-value-list (hs-as-press :sig t)))))
 ;; the keys: AUTO GUARD's windmill in the Shikai only, AUTO COMBO's routes in his every form; no other character's kit
 ;; names his; his CPU's own keys as shipped (the :move-reflex per form, HISAGI-CPU-TESTS)
-(check (and (eq 'hs-assist-guard (getf (kit-ai (kit :hisagi :base)) :assist-guard))
-            (null (getf (kit-ai (kit :hisagi :bankai)) :assist-guard)) (null (getf (kit-ai (kit :hisagi :bankai-bind)) :assist-guard))
-            (every (lambda (f) (eq 'hs-assist-combo (getf (kit-ai (kit :hisagi f)) :assist-combo))) *hs-forms*)
-            (notany (lambda (cf) (and (not (eq (first cf) :hisagi))
-                                      (or (member (getf (kit-ai (apply #'kit cf)) :assist-combo) '(hs-assist-combo))
-                                          (eq (getf (kit-ai (apply #'kit cf)) :assist-guard) 'hs-assist-guard))))
-                    *forms*)
-            (eq 'hs-ai-reflex (getf (kit-ai (kit :hisagi :base)) :reflex)) (eq 'hs-ai-sig-hold (getf (kit-ai (kit :hisagi :base)) :sig-hold))))
 
 
 ;;; DANGAI's boss Lille (DUEL_ROGUE §5, batch 3; barro.lisp BR-BOSS; here for sim.lisp's stand-ins, loaded after barro):

@@ -61,13 +61,6 @@ the CPU's), kept apart from the CPUs' tables of the human.")
         (loop for c in codes for j from 1 do (page-set (+ base j) c))
         (page-set base (length codes))))))
 
-(defun learn-reset-all ()
-  "SETTINGS' RESET LEARNING: every table forgotten, in memory and on the page."
-  (dotimes (i (length *learn-tables*))
-    (setf (svref *learn-tables* i) nil (svref *assist-learn-tables* i) nil)
-    (page-set (+ +pg-learn+ (* 1000 i)) 0)
-    (page-set (+ +pg-assist-learn+ (* 1000 i)) 0))
-  (log-msg "duel learning reset"))
 
 (defun learn-attach! (e)
   "Give CPU E a learner over its character's table (its own stream seeded from the sim stream's state: no draw), and its

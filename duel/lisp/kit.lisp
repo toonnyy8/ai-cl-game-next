@@ -357,12 +357,6 @@ without E (the CPU's reach reads, the HUD) see the :commands entry."
   "The string follow-up of MOVE-NAME for COMMAND (J1 -q-> J2, J2 -f-> K3 ...), a MOVE or NIL."
   (loop for (from cmd to) in (kit-strings kit)
         when (and (eq from move-name) (eq cmd command)) return (kit-move kit to)))
-(defun move-follows-p (kit mv next)
-  "Is move NEXT a continuation of move MV in KIT: its string follow-up for any button (a latched J / K link, a :land
-follow-up a hook starts: SP2's punch) or, after a link 3 (:ender), the O ender's rush? (The arm's pending burst waits
-through the whole chain: ken-meter.lisp KEN-ARM-STEP.)"
-  (or (loop for (from nil to) in (kit-strings kit) thereis (and (eq from (mv-name mv)) (eq (kit-move kit to) next)))
-      (and (member :ender (mv-flags mv)) (eq (mv-kind next) :kikon) t)))
 
 (defun string-link-p (kit move-name)
   "Does MOVE-NAME go on as a J / K string (a :q or :f follow-up)? While it runs every J / K press is taken by the

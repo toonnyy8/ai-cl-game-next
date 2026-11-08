@@ -194,8 +194,7 @@
                (4.0 6.0 :sp1 4 :sp2 2 nil 1)
                (6.0 99.0 :step 1 :kikon 1 nil 1))                      ; the charge / leap as a poke
        :guard 0.35 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 0.8 :kikon-range 9.0
-       :react (:projectile :sig :flash-startup :sig) :block-string 0.8
-       :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))   ; a blocked string goes on (guard pressure)
+       :react (:projectile :sig :flash-startup :sig) :block-string 0.8))   ; a blocked string goes on (guard pressure)
 
 (defkit :kenpachi :nozarashi :inherit :base    ; the Shikai (DUEL_KEN_V3 §3-§9): two pointers by grip, the unlock level L (the kit meter)
   :awakening t :mult *nozarashi-mult* :startup-add 0 :reach-mult 1.0 :open-s nil   ; (as written: §9's figures; the base's cadence off)
@@ -224,8 +223,7 @@
                (4.2 6.0 :sp1 4 :sp2 2 nil 1)
                (6.0 99.0 :step 1 :kikon 1 nil 1))
        :guard 0.35 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 0.8 :kikon-range 5.0 :kikon-p 0.25 :o-ender 0.25
-       :react (:projectile :sig :flash-startup :sig) :block-string 0.8
-       :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold))
+       :react (:projectile :sig :flash-startup :sig) :block-string 0.8))
 
 ;;; ---------------------------------------------------------------- the two Bankai (DUEL_KEN_V3 §26, 2026-11-04)
 ;;; SP after the Shikai's J7 (KEN-AS-PICK, combat.lisp BANKAI!): the Bankai of the pointer he was on: 狂嵐 KYORAN from pointer 1 (fast,
@@ -324,8 +322,7 @@
           :ranges (:approach (1.8 3.6) :pressure (1.0 2.4) :zone (4.0 6.0) :defend (3.0 5.0))
           :moves ((0.0 1.6 :q 5 :breaker 1 nil 2) (1.6 3.4 :breaker 1 :step 1 nil 2) (3.4 99.0 :step 1 nil 1))
           :guard 0.2 :hoho 0.2 :awaken-above 0.0 :sp-cancel-bars 1 :dash 1.0 :kikon-range 5.0 :kikon-p 0.4 :o-ender 0.3
-          :block-string 0.85
-          :reflex ken-ai-reflex :assist-guard ken-assist-guard :sp-ender ken-sp-ender :sig-hold ken-sig-hold)))
+          :block-string 0.85)))
 (def-ken-bankai :bankai :name "KYORAN" :ns :ke-kr-na :sa :ke-kr-sa :stance :ke-b-kr-stance :kikon-cine ken-kr-kikon-cine
   :as (:ke-kr-as1 :ke-kr-as2 :ke-kr-as3 :ke-kr-as4 :ke-kr-sp)
   :strings ((:ke-kr-j1 :q :ke-kr-j2) (:ke-kr-j2 :q :ke-kr-j3) (:ke-kr-j3 :q :ke-kr-j4) (:ke-kr-j4 :q :ke-kr-j5)))
@@ -478,115 +475,14 @@ dash starts = guard-crushing (the Breaker property)."
 ;;;                 instead of a J1 string when the bars allow and it lands before he is free (round 2: the line cut first)
 ;;;   SP1 ender     (round 2, b0a0) off a landed J3 / K3 the form's SP1 when it fits in the reel (it chases the pushed
 ;;;                 victim): Buttagiru / Split the Meteor / TATE-GOTO, one bar, before the O ender
-(defparameter *ken-ai-anti-breaker* '(:easy 0.0 :normal 0.2 :hard 0.9) "Ken's CPU: answer a Breaker by the reach model.")
-(defparameter *ken-ai-hoho* '(:easy 0.0 :normal 0.1 :hard 0.75) "... Hoho a K / L / SP into its perfect lead.")
-(defparameter *ken-ai-mash-stance* '(:easy 0.0 :normal 0.005 :hard 0.35) "... the stance vs a J masher (per free step).")
-(defparameter *ken-ai-no-reset* '(:easy 0.0 :normal 0.2 :hard 0.8) "... guard instead of a slow J1 reset.")
-(defparameter *ken-ai-o-ender* '(:easy 0.0 :normal 0.1 :hard 0.85) "... the O ender's extra chance off a landed ender.")
-(defparameter *ken-ai-lunge-punish* '(:easy 0.0 :normal 0.3 :hard 0.9) "... J1 from its lunge's reach on a punish.")
-(defparameter *ken-ai-lunge* '(:easy 0.0 :normal 0.0 :hard 0.06) "... J1 from its lunge's reach in neutral (per step).")
-(defparameter *ken-ai-walk-in* '(:easy 0.0 :normal 0.005 :hard 0.8) "... walk into J1's range (per step).")
-(defparameter *ken-ai-bankai-strict* '(:easy 0.0 :normal 0.0 :hard 0.0) "... the Bankai only as a finisher (HARD: a rule; off since 2026-10-31: the Bankai no longer costs Konpaku, DUEL_SUBLIMATION §3).")
-(defparameter *ken-ai-sp2-ender* '(:easy 0.0 :normal 0.1 :hard 0.6) "... else the SP2 ender (the charge) off it.")
-(defparameter *ken-ai-far-punish* '(:easy 0.0 :normal 0.2 :hard 0.9) "... beyond J1's lunge: the charge / leap / K1 on a punish.")
-(defparameter *ken-ai-first-strike* '(:easy 0.0 :normal 0.002 :hard 0.35) "... J1 / K1 timed to his closing speed vs a masher.")
-(defparameter *ken-ai-first-strike-n* '(:easy 0.0 :normal 0.0 :hard 0.15) "... the same vs anyone else (per step).")
-(defparameter *ken-ai-sig-punish* '(:easy 0.0 :normal 0.1 :hard 0.5) "... the charge (SP2) as a close punish when it lands in time.")
-(defparameter *ken-ai-sp1-ender* '(:easy 0.0 :normal 0.1 :hard 0.9) "... SP1 (the line cut / the leap) off a landed ender when it lands in his reel.")
-(defparameter *ken-charge-mpf* 0.233 "The charge's dash, metres per frame (14 m/s).")
-(defparameter *ken-breaker-speed* 0.16 "A Breaker dash's metres per frame (9-10 m/s), for the anti-Breaker timing.")
 
-(defun ken-ai-reflex (e b s d)
-  "Kenpachi's :reflex (ai.lisp AI-REFLEX, free states, before the generic reflexes): a command or NIL."
-  (ken-bankai-gate e b)
-  (or (ken-anti-breaker e b s d)
-      (ken-anti-mash e b s d)
-      (ken-hoho-commit e b s d)
-      (ken-no-reset e b d)
-      (ken-sig-punish e b s d)
-      (ken-far-punish e b s d)
-      (ken-first-strike e b s d)
-      (ken-lunge e b s d)
-      (ken-walk-in e b s d)))
 
-(defun ken-assist-guard (e b s d)
-  "His forms' :assist-guard (assist.lisp AUTO GUARD): his defensive answers only, the timed anti-Breaker hit and the Hoho
-into a K / L / SP's perfect lead."
-  (or (ken-anti-breaker e b s d) (ken-hoho-commit e b s d)))
 
-(defun ken-bankai-gate (e b)
-  "The Bankai leaves him 1 Konpaku: at HARD (*KEN-AI-BANKAI-STRICT*) only as a finisher or with little to lose: <= 2 of his
-own left, 3 with him at <= 4, 4 with him at <= 2; else this cup-3 stay's roll is spent (ai.lisp AI-BANKAI-P skips it). NIL."
-  (let* ((kit (kit-of e)) (k (gauges-konpaku (gauges e))) (ko (gauges-konpaku (gauges (opp-of e)))))
-    (when (and (kit-bankai-form kit) (not (brain-bankai-rolled b)) (bankai-allowed-p t (drive-full-p e))
-               (not (or (<= k 2) (and (<= k 3) (<= ko 4)) (and (<= k 4) (<= ko 2))))
-               (brain-roll b *ken-ai-bankai-strict*))
-      (setf (brain-bankai-rolled b) t))
-    nil))
 
-(defun ken-walk-in (e b s d)
-  "Neutral, he isn't attacking, between our J1's reach (with its lunge) and 3 m: walk in (strafing a little) toward J1's
-range instead of waiting there for a K1 (*KEN-AI-WALK-IN* a step); not into a J masher (he comes: the stance, the
-lunge); :WAIT (the stick is set here)."
-  (let ((q (kit-command-move (kit-of e) :q)))
-    (when (and q (member (snap-state s) '(:idle :run :guard)) (member (state-of e) '(:idle :run)) (not (ai-mash-p b))
-               (> d (max (+ (ken-lunge-reach e) 0.1) (+ (mv-reach q) 0.3))) (< d 3.0)
-               (brain-roll b *ken-ai-walk-in*))
-      (vpad-stick! (pilot-vpad (pilot e)) (* 0.3 (brain-strafe b)) 1f0)
-      (why b :walk-in :wait))))
 
-(defun ken-lunge-reach (e)
-  "How far his J1 reaches with its own lunge (:slide): reach + slide (ai.lisp counts reach + 0.2 only)."
-  (let ((q (kit-command-move (kit-of e) :q))) (if q (+ (mv-reach q) (mv-slide q)) 0.0)))
 
-(defun ken-lunge (e b s d)
-  "J1 from its lunge's reach (beyond ai.lisp's reach + 0.2): punish his recovery or a reeling opponent when J1 lands before
-he is free (one roll per move: *KEN-AI-LUNGE-PUNISH*), or open on him there in neutral when no move of his is coming
-(*KEN-AI-LUNGE* a step)."
-  (let* ((q (kit-command-move (kit-of e) :q)) (lr (ken-lunge-reach e)) (left (snap-left-seen s b)))
-    (when (and q (> d (+ (mv-reach q) 0.2)) (<= d (+ lr 0.1)) (kit-command-ok-p e :q))
-      (cond ((and (snap-punishable-p s)
-                  (< (snap-left s) 99) (>= left (+ (mv-s q) 2))
-                  (< (brain-react-roll b) (brain-chance b *ken-ai-lunge-punish*)))
-             (why b :lunge-punish :q))
-            ((and (member (snap-state s) '(:idle :run))
-                  (brain-roll b *ken-ai-lunge*))
-             (why b :lunge :q))))))
 
-(defun ken-anti-breaker (e b s d)
-  "His Breaker in its aura / dash within 6 m (one roll per Breaker): where it will be when our K1 / J1 is active (its dash
-at *KEN-BREAKER-SPEED*, from where we saw it a perception delay ago) and when its strike lands (the trigger range, then 8 f):
-K1 if it is within K1's reach before the strike, else J1, else a Hoho close to the strike; meanwhile wait (:WAIT)."
-  (when (and (eq (snap-kind s) :breaker) (member (snap-phase s) '(:aura :dash)) (< d 6.0)
-             (< (brain-react-roll b) (brain-chance b *ken-ai-anti-breaker*)))
-    (let* ((kit (kit-of e)) (v *ken-breaker-speed*) (dl (brain-delay b)) (trig *breaker-trigger*)
-           (dash (if (eq (snap-phase s) :dash) dl (- dl *breaker-aura*)))   ; frames it has dashed by now (< 0: aura left)
-           (wait (max 0 (- dash)))                                          ; aura frames still to come
-           (de (- d (* v (max 0 dash))))                                    ; its distance when the dash goes on from now
-           (strike (+ wait (/ (max 0.0 (- de trig)) v) *breaker-startup*)))  ; frames until its strike is active
-      (flet ((fits (cmd)
-               (let ((mv (kit-command-move kit cmd)))
-                 (and mv (kit-command-ok-p e cmd) (< (+ (mv-s mv) 1) strike)
-                      (<= (max trig (- de (* v (max 0 (- (mv-s mv) wait))))) (+ (mv-reach mv) 0.3))))))
-        (cond ((fits :f) (why b :anti-breaker :f))
-              ((fits :q) (why b :anti-breaker :q))
-              ((and (<= strike 13) (hoho-ready-p e))
-               (why b :anti-breaker :hoho))
-              ((> strike 13) :wait))))))                                     ; (not yet: the generic J1 would come early)
 
-(defun ken-hoho-commit (e b s d)
-  "His K / L / SP coming at us whose hit, as we see it, falls 1-12 f from now (the perfect-Hoho lead): Hoho it (one roll per
-move), with flash-step to spare; a K whose startup the stance can still beat is left to the stance (the kit's :react)."
-  (let* ((g (gauges e)) (left (snap-lead-seen s b)))
-    (when (and (eq (snap-state s) :move) (member (snap-kind s) '(:flash :sig :sp)) (eq (snap-phase s) :main)
-               (snap-live-p s) (<= 1 left *perfect-lead*) (snap-near-p s e d 1.0)   ; (an :x-axis line: on it, ai.lisp)
-               (not (member :grab (snap-flags s))) (not (snap-reflect-p s))   ; (a reflect is :opp-reflect's)
-               (hoho-ready-p e)
-               (ai-hoho-spare-p (gauges-fs g) (gauges-reishi g) (gauges-reishi-max g))
-               (not (and (eq (snap-kind s) :flash) (getf (ai-table e :react) :flash-startup) (< d 4.0)
-                         (>= left (+ *stance-in* 2)) (< (brain-react-roll b) *ai-react-p*)))
-               (< (brain-hoho-roll b) (brain-chance b *ken-ai-hoho*)))
-      (why b :hoho-commit :hoho))))
 
 ;;; (from cell b1a0: an arrival model per command and the opponent's perceived closing speed)
 (defun ken-closing (e b s d)
@@ -598,115 +494,17 @@ move), with flash-step to spare; a K whose startup the stance can still beat is 
                  (* (- (snap-z s1) (snap-z s)) (- (snap-z s) (aref p 2)))))
            d))))
 
-(defun ken-arrive (e cmd d)
-  "Frames until command CMD's hit touches him at D metres (he stands), or NIL: out of its reach / can't start."
-  (let ((mv (kit-command-move (kit-of e) cmd)))
-    (when (and mv (kit-command-ok-p e cmd))
-      (let ((r (mv-reach mv)) (sl (mv-slide mv)) (st (mv-s mv)))
-        (cond ((eq (mv-name mv) :ke-charge)                        ; the dash runs until it touches
-               (let ((run (max 0.0 (- d r 0.4)))) (and (<= run (* *ken-charge-mpf* 24)) (+ st (ceiling run *ken-charge-mpf*)))))
-              ((> sl 2.0) (and (<= (- sl 1.0) d (+ sl r -0.5)) st))  ; the leap (Buttagiru): it lands sl ahead
-              (t (and (<= d (+ r (min sl 0.8) 0.05)) st)))))))
 
-(defun ken-punish (e b s d tag table near)
-  "KEN-SIG-PUNISH (NEAR: within J1's lunge) and KEN-FAR-PUNISH (beyond it, under 9 m): he recovers or reels with more than
-4 frames left as perceived, on the per-move roll below TABLE's chance: the first of KEN-SP-ORDER that gets there before he
-is free, as why TAG."
-  (let ((left (snap-left-seen s b)))
-    (when (and (snap-punishable-p s)
-               (< (snap-left s) 99) (> left 4)
-               (if near (<= d (+ (ken-lunge-reach e) 0.1)) (and (> d (+ (ken-lunge-reach e) 0.1)) (< d 9.0)))
-               (< (brain-react-roll b) (brain-chance b table)))
-      (let ((c (loop for c in (ken-sp-order e)    ; (a loop, not FIND-IF's closure: its captured E D LEFT consed every call)
-                     when (let ((t0 (ken-arrive e c d))) (and t0 (< t0 (1- left)))) return c)))
-        (and c (why b tag c))))))
 
-(defun ken-sp-order (e)
-  "The punish SPs to try, best first: the line cut (SP1, one bar, 240 / 260) when the form's SP1 is one (not the leap, not
-NOMIHOSE's cash-out), then the charge (SP2, two bars, ~185); else the charge, then SP1 (the leap: KEN-ARRIVE's own model)."
-  (let ((sp (kit-command-move (kit-of e) :sp1)))
-    (if (and sp (< (mv-slide sp) 2.0) t)
-        '(:sp1 :sp2)
-        '(:sp2 :sp1))))
 
-(defun ken-sig-punish (e b s d)
-  "He recovers or reels within J1's lunge (KEN-LUNGE's range and closer) and the charge (SP2: 5 cuts + a launcher, ~185,
-all his own) lands before he is free: the charge instead of a J1 string, on the per-move roll below *KEN-AI-SIG-PUNISH*
-(the rest goes on to J1)."
-  (ken-punish e b s d :sig-punish *ken-ai-sig-punish* t))
 
-(defun ken-far-punish (e b s d)
-  "He recovers or reels beyond J1's lunge (KEN-LUNGE's range): the signature command that gets there before he is free
-(SP2's charge, SP1's leap / cut), else K1; one roll per move (*KEN-AI-FAR-PUNISH*)."
-  (ken-punish e b s d :far-punish *ken-ai-far-punish* nil))
 
-(defun ken-first-strike (e b s d)
-  "Neutral first strike timed to his perceived closing speed: J1 when he will be inside its lunge's reach as it lands,
-else K1 when he walks into K1's reach outside his own J's (a masher walks into it); *KEN-AI-FIRST-STRIKE* a step."
-  (when (and (member (snap-state s) '(:idle :run :guard)) (member (state-of e) '(:idle :run)) (< d 4.0)
-             (brain-roll b (if (ai-mash-p b) *ken-ai-first-strike* *ken-ai-first-strike-n*)))
-    (let ((cv (max 0.0 (ken-closing e b s d))) (his (kit-command-move (kit-of (opp-of e)) :q))
-          (q (kit-command-move (kit-of e) :q)) (f (kit-command-move (kit-of e) :f)))
-      (flet ((at (c mv) (and mv (kit-command-ok-p e c) (- d (* cv (+ (mv-s mv) (brain-delay b)))))))
-        (let ((dq (at :q q)) (df (at :f f)))
-          (cond ((and dq (<= dq (+ (mv-reach q) (min 0.8 (mv-slide q))))) (why b :first-strike :q))
-                ((and df (> cv 0.02) (<= (if his (+ (mv-reach his) (mv-slide his) 0.2) 1.6) df (+ (mv-reach f) 0.1)))
-                 (why b :first-strike :f))))))))
 
-(defun ken-stance-p (kit)
-  "Is KIT's L the stance (KITTE MIRO YO; the Bankai's L is the bite)?"
-  (let ((mv (kit-command-move kit :sig))) (and mv (member :stance (mv-flags mv)))))
 
-(defun ken-anti-mash (e b s d)
-  "He mashes J (AI-MASH-P) within 2.4 m and no J of his is about to land (he walks, waits or recovers): the stance soaks
-his string and cuts back (KEN-SIG-HOLD holds it through the string)."
-  (let ((kit (kit-of e)))
-    (when (and (ai-mash-p b) (< d 2.4) (ken-stance-p kit) (kit-command-ok-p e :sig)
-               (or (not (eq (snap-state s) :move))
-                   (and (eq (snap-kind s) :quick) (>= (snap-sf s) (snap-active-end s))))
-               (not (member (snap-state s) '(:stun :air :down :wakeup)))
-               (brain-roll b *ken-ai-mash-stance*))
-      (why b :anti-mash :sig))))
 
-(defun ken-no-reset (e b d)
-  "Our blocked string just ended and he still guards: a J1 of 10 f or more is too slow a reset (his J beats it): guard."
-  (let* ((f (fighter e)) (q (kit-command-move (kit-of e) :q)))
-    (when (and (eq (brain-was b) :move) (eq (fighter-contact f) :block) q (>= (mv-s q) 10)
-               (< d (+ (mv-reach q) 0.2)) (guarding-p (opp-of e))
-               (brain-roll b *ken-ai-no-reset*))
-      (why b :no-reset :guard))))
 
-(defun ken-sp-ender (e kit)
-  "His forms' :sp-ender (ai.lisp STRING-REFLEX: a landed string's last link, the O ender's own roll failed): the O ender
-anyway, *KEN-AI-O-ENDER* by difficulty (not on a red opponent: that already rushes; not to finish a Soul Break), else
-Shift+L (the charge into the flurry; it chases off the ender) *KEN-AI-SP2-ENDER*. (AI-BRAIN: the assist's for a human.)"
-  (let ((b (ai-brain e)))
-    (when b
-      (cond ((ken-line-ender-p e kit b) :sp1)
-            ((and (not (kikon-ready-p e)) (ai-o-ender-ok-p e kit)
-                  (brain-roll b *ken-ai-o-ender*))
-             :kikon)
-            ((and (kit-command-ok-p e :sp2) (brain-roll b *ken-ai-sp2-ender*)) :sp2)))))
 
-(defun ken-line-ender-p (e kit b)
-  "Off a landed ender (J3 staggers 26 f, K3 crumples 40 f; the push leaves him out of reach, but an SP started off a
-pushing ender chases), the form's SP1 when its startup + 2 fits in that reel: Buttagiru (22 f, 180, base / KATAUDE),
-Split the Meteor (26 f, 240, KATATE / RYOTE: off a K3 only), TATE-GOTO (24 f, 260, the Bankai); one bar, all his own
-damage, before the O ender (63) or the charge (two bars, ~185); not NOMIHOSE's cash-out (the kit's own rule spends it);
-*KEN-AI-SP1-ENDER*."
-  (let* ((mv (fighter-move (fighter e))) (hw (and mv (plusp (length (mv-hits mv))) (svref (mv-hits mv) 0)))
-         (sp (kit-command-move kit :sp1)))
-    (and hw sp (< (+ (mv-s sp) 2) (getf *reaction-frames* (hw-react hw) 0)) t
-         (not (ai-sb-finish-p e)) (kit-command-ok-p e :sp1 kit)
-         (brain-roll b *ken-ai-sp1-ender*))))
 
-(defun ken-sig-hold (kit d &optional e)
-  "Frames his CPU holds L: the stance against a J masher through his string (36 f), else as ai.lisp holds a stance."
-  (declare (ignore d))
-  (let ((mv (kit-command-move kit :sig)))
-    (cond ((not (and mv (mv-hold mv))) 1)                                  ; (the Bankai's bite: a tap)
-          ((and e (ai-brain e) (ken-stance-p kit) (ai-mash-p (ai-brain e))) 36)
-          (t (+ 12 (floor (* (sim-rnd01) 40)))))))
 
 ;;; ================================================================ cinematics
 ;;; The grammar of every cinematic is in cinema.lisp (docs/style/STYLE_STORM_DESIGN.md §5); Kenpachi (black robe, black

@@ -888,17 +888,6 @@ boss (*RUN-BOSS*) never spends one (DUEL_ROGUE §5: ken-meter.lisp KEN-BOSS), no
         (emit :arm-spend e n)
         (clog "~a UDE -~a ~d left" (side-name e) (if mv (mv-name mv) "") n)))))
 
-(defun arm-burst! (e)
-  "The arm bursts (the pending burst fired: rules BURST-DUE-P): the kit's :pips :to form (NIL: it stays), *ARM-BURST-SELF* burnt
-and a self-inflicted *ARM-BURST-STUN* crumple in place (hits on him during it are ordinary hits)."
-  (let ((g (gauges e)) (p (pos-of e)))
-    (setf (gauges-arm-pending g) nil (gauges-arm-owed g) nil)
-    (let ((to (getf (kit-pips (kit-of e)) :to))) (when to (set-form e to)))   ; (NIL: the form stays; Kenpachi since 2026-11-02)
-    (setf (gauges-meter g) 0f0 (gauges-meter-idle g) 0 (gauges-reishi g) (burn (gauges-reishi g) *arm-burst-self*))
-    (set-reaction e :crumple *arm-burst-stun* (aref p 0) (aref p 2) 0.0)
-    (callout e "GOMEN NE, KEN-CHAN")
-    (emit :arm-burst e)
-    (clog "~a ARM BURST r~d" (side-name e) (gauges-reishi g))))
 
 ;;; ---------------------------------------------------------------- Kikon, Soul Break, reset
 (defun bankai-ok-p (e)

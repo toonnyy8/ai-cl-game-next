@@ -50,9 +50,9 @@
       (check (and (equalp n *mc-n*) (equalp sum *mc-sum*)))
       (check (= (reduce #'+ n) 60))
       (check (every #'plusp n)))))
-;; the selection modes (decoupled UCT, regret matching): each plays every rollout, the same seed the same values
+;; the selection mode decoupled UCT plays every rollout, the same seed the same values
 (let* ((kk (kit :kenpachi :base)) (ik (kit :ichigo :base)))
-  (dolist (mode '(:duct :rm :deep))
+  (dolist (mode '(:duct))
     (let ((*mc-select* mode) (runs nil))
       (dotimes (k 2)
         (fill *mc-slots* nil)
@@ -67,7 +67,7 @@
         (push (list (copy-seq *mc-n*) (copy-seq *mc-sum*)) runs))
       (check (equalp (first runs) (second runs)))
       (check (= (reduce #'+ (first (first runs))) 60)))))
-;; a J1 into a raised guard ends at the block's value (blocks going on, *MC-BLOCK-CONT*, off: g 7 = 0)
+;; a J1 into a raised guard ends at the block's value
 (let* ((kk (kit :kenpachi :base)) (ik (kit :ichigo :base)))
   (fill *mc-slots* nil)
   (setf (svref *mc-slots* 0) (mc-move-rec kk (kit-command-move kk :q)) (svref *mc-slots* 8) (mc-move-rec ik (kit-command-move ik :q)))

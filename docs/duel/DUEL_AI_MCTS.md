@@ -258,3 +258,25 @@ and 「之後學玩家習慣」** (a stand-in CPU plays the human in the rollout
   Host tests ALL PASS, pkgcheck, build, smoke; playtest v361.
 - `*mc-full*` NIL turns it off (the light model alone, as before). fullmc.lisp's other CPUs now play the in-game full sim, so §11's runs are
   not reproduced by it as they were.
+
+## 13. Cleanup: code no longer used (2026-11-08)
+
+Asked 「請先整理並移除已經用不到的程式」 with three scopes (dead functions and knobs; the AI experiments' leftovers; the four retired
+characters). **The user: 「(1)+(2)，保留退役角色」.** ~1,900 lines out, the sim unchanged.
+- **The experiments' leftovers**: the light model's regret-matching and deep-tree searches (`:rm`, `:deep`: `mc-search-rm`,
+  `mc-search-deep`, the tree's arrays), the opponent model (`*mc-opp-model*`, `*mc-w2*`, `mc-reload-dynamic`), blocks going on and the
+  opponent running (`*mc-block-cont*`, `*mc-run*`, the records' blocked fields, `*mc-g*` 11 -> 7 slots, the fighter's run field), the full
+  sim's diagnostic knobs (`*mc-full-hold*`, `*mc-full-styles*`). Tools out: `tools/simgate/fullmc.lisp` (§7 / §11: replaced by the game's
+  own, which its other CPUs already played), `tools/simgate/oppmodel.lisp`, `tools/mc-oppmodel.py`. §5-§11 keep their records.
+- **The old AI of the three core kits**: every form of Kenpachi, Ichigo and Hisagi is `:core`, so `brain-step` always hands them to
+  `core-brain-step`, which reads only the generic `:walk` / `:strafe` steps; their `:ai` hooks (`:reflex`, `:sp-ender`, `:sig-hold`,
+  `:assist-guard`, `:move-reflex`, `:opp-reflex`) and everything only those reached (`ken-ai-reflex` and the `*ken-ai-*` tables, Ichigo's
+  `ichigo-ai-shikai` / `-kessa` / `-ender`, most of `hisagi-ai.lisp`) never ran. Found by a reachability walk over the build's sources with
+  those hook keys cut from the core kits (the retired kits keep theirs). The `:ai` data tables stay (`ai-walk` reads them).
+- **Dead definitions** (nothing referenced them): Kenpachi's pre-V3 knobs in `tuning.lisp` (NOME, the open forms, RYOTE / NOZARASHI
+  reach and startup), `*cai-cancel-p*` / `*cai-kikon-p*` (the fuzzy rules replaced them), the core system's pure press / bounce / Kikon-cancel
+  rules that the sim never called (`core-press-class` and three more, with their tests), Hisagi's unused knobs, `arm-burst!`,
+  `learn-reset-all`, old HUD / Ichigo look helpers, rules helpers (`pip-step` and four more). Test-only helpers that a test still needs
+  (`kit-clips`, `stamps-clear`, the dummy binder's `bind-drain`) stay.
+- Checks: host tests ALL PASS (9839 checks, the removed code's tests out); pkgcheck; G2 identical (II 32, IK 34, KK 33 lines); HARD and EASY
+  IK, 20 seeds each, every hash and gate row identical to before; build, smoke.

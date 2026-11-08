@@ -575,28 +575,8 @@ at most *BANKAI-KONPAKU* of his own Konpaku, 2026-09-28). Once a match by constr
   "Spend one of PIPS (a pip command's frame 0). Values: pips-after ok (NIL at 0: the command is refused)."
   (if (>= pips 1) (values (1- pips) t) (values pips nil)))
 
-(defun pip-step (pips idle locked)
-  "The crack clock one frame later: IDLE (frames since the last spend or crack) counts unless LOCKED (the reset's
-neutral); at *ARM-CRACK* a pip cracks by itself. Values: pips idle cracked-p."
-  (cond (locked (values pips idle nil))
-        ((and (plusp pips) (>= (1+ idle) *arm-crack*)) (values (1- pips) 0 t))
-        (t (values pips (min 9999 (1+ idle)) nil))))
 
-(defun string-pip-due-p (owed state kind)
-  "Is the pip a J / K string owes charged now (the playtest decision 2026-09-28: one pip per string, charged when it
-ends)? OWED: a K link or the O ender ran in it. It is charged once he is out of the string: anything but a move of KIND
-:quick / :flash (a link) or :kikon (the O ender; a neutral O can't start inside a string)."
-  (and owed (not (and (eq state :move) (member kind '(:quick :flash :kikon)))) t))
 
-(defun burst-due-p (pending current state)
-  "Does the pending arm burst fire now? PENDING: the move running when the last pip went (:NONE = none; NIL = no
-burst pending). It waits while he is still in that move (the 4th strike comes out in full, a Kikon rush started
-earlier finishes) and while he is in a reaction, blockstun, the air, down, waking up, a Hoho or a cinematic (STATE);
-any later move is interrupted by it (a masher can't dodge it)."
-  (and pending
-       (not (member state '(:stun :guard-hit :air :down :wakeup :hoho :cine :intro :win :lose)))
-       (not (and (eq state :move) (eq current pending)))
-       t))
 
 ;;; ---------------------------------------------------------------- Rukia (docs/duel/DUEL_RUKIA.md): frost, the temperature
 (defun frost-next (cur n)
@@ -805,18 +785,7 @@ CAP: the fighter's max (*GG-MAX*; a DANGAI reward's :gg-max, combat.lisp GG-CAP)
   "NOME from DEALT, TAKEN and DRUNK damage points at the kit's GAINS plist (:dealt :taken :drunk)."
   (+ (* dealt (getf gains :dealt 0.0)) (* taken (getf gains :taken 0.0)) (* drunk (getf gains :drunk 0.0))))
 
-(defun meter-drain (nome rate delay idle)
-  "NOME one frame later at a rung draining RATE per second once IDLE (frames since the last gain) reaches
-DELAY (0 = always: NOMIHOSE drains even while he drinks); never below 0."
-  (if (and (plusp rate) (>= idle delay)) (max 0.0 (- nome (/ rate 60.0))) nome))
 
-(defun ladder-rung (nome rung ladder)
-  "The rung (index into LADDER) for NOME from RUNG: up while NOME reaches the next rung's up-at, down while
-it is below this rung's down-below (hysteresis; several steps at once: 0 at the top rung is cup 1)."
-  (let ((i rung) (n (length ladder)))
-    (loop while (and (< (1+ i) n) (>= nome (fourth (nth (1+ i) ladder)))) do (incf i))
-    (loop while (and (> i 0) (< nome (fifth (nth i ladder)))) do (decf i))
-    i))
 
 (defun ranged-hit-p (hazard flags melee-range d2)
   "Is a hit ranged (not the attacker's own blade: a parry can't catch it)? A HAZARD's always; a window with :ranged in FLAGS unless its move's

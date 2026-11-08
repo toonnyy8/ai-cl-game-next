@@ -39,7 +39,6 @@
 (defparameter *hs-seg-r* 0.35 "The pulls' chain capsule radius (m, §8.2 HIKI).")
 (defparameter *hs-hook-r* 0.5 "The sickle is drawn hooked in the victim while he is within this of the anchor (m, §7.1; a look).")
 (defparameter *hs-kaza-min* 20 "The windmill is held at least this many frames from its up frame (f6) ...")
-(defparameter *hs-kaza-max* 60 "... at most this many (its move's active frames), then R 14 (the lead's proposal, §8.3).")
 ;; S1 (DUEL_HISAGI §23, §23.1; the user, 2026-10-18: 「然後始解的 L 我想讓 L 能變成 J 與 K 之間的銜接連段。並增加 L 蓄力越長，接上 K
 ;; 連段時攻擊距離越遠的特性」): L a bridge off a J1 / J2 / J3 hit into the windmill, K from it a full K string whose reach grows
 ;; with the frames L was held (「連續：每幀 +1%，上限 ×1.6」, 「接下來整串 K」; the neutral windmill too: 「中立的風車可以蓄力接 K」)
@@ -107,7 +106,6 @@ m); from 2.6 + the capsule's 0.35 the push reaches ~3.35 m (none -> 2.95, 2026-1
 (defparameter *hs-saharai-hit* 3.5
   "L SAHARAI's hit pushes him to this many metres from Hisagi (18 f, §17.1) (6.5 -> 3.5, 2026-10-18, the user: 「L 將對手推開
 的距離必須讓 J1, K1 能打中」, then 「卍解遠程 L 推到 3.5 公尺」, §23.2: inside J1's 3.0-5.0 and K1's 2.0-4.0) ...")
-(defparameter *hs-saharai-block* 3.5 "... its block to this many (the block slide) (4.5 -> 3.5, the same: 「被擋也推到」).")
 (defparameter *hs-saharai-frames* 18 "SAHARAI's push, frames (the block's: 12).")
 ;; B4d (§22.8; the user, 2026-10-18: 「近身的敵人要靠 L 快速擊退（去掉遠程時 L 的冷卻，一樣調整前後搖來控制出招的主動性）」; the
 ;; numbers the lead's for that direction, 2026-10-18): the ranged L SAHARAI loses its cooldown (120 -> 0)
@@ -121,20 +119,11 @@ m); from 2.6 + the capsule's 0.35 the push reaches ~3.35 m (none -> 2.95, 2026-1
 「把修兵卍解的遠距 L 多加一層的霸體，讓他可以扛下一次攻擊」, DUEL_HISAGI §25.23): damage, no reaction; a Breaker, an
 unguardable or a rend still breaks it (rules ARMOR).")
 (defparameter *hs-ame-aim* 6 "SP2 KUSARI-AME aims this many frames from its first, then its lane is locked (§17.1).")
-(defparameter *hs-kubi-reiatsu* 200.0
-  "KUBIKAKE binds only with this much of his own Reiatsu, checked at the press and at contact (the user, 2026-10-17:
-「至少要有兩格 reiatus 才能開啟捆綁」, §17.2). The throw itself costs nothing.")
 (defparameter *hs-kubi-whiff* 60
   "KUBIKAKE's whiff recovery (frames): its price now that it has no cooldown (cooldown 180 -> none, whiff 42 -> 60, 2026-10-18,
 the user: 「SP2 的捆縛去除冷卻，一樣用打空的後搖來控制出招成本」, the lead's number; §24.5).")
 (defparameter *hs-kubi-yank* 2.0 "KUBIKAKE's hit yanks the victim to this many metres ...")
 (defparameter *hs-kubi-yank-frames* 12 "... over this many frames (§17.2).")
-(defparameter *hs-kubi-cut* 14 "On a hit KUBIKAKE's recovery is cut to this many frames from the hit (+16 on the 30 f reel, §17.2).")
-(defparameter *hs-bind-reel* 30 "The opponent reels this many frames when the bind ends, either way (the user, 2026-10-17: 「捆綁結束時讓對手硬直 30f」).")
-(defparameter *hs-pull-to* 2.0 "Bind L KOJO (HIKIYOSE until B4c) drags the opponent to this many metres ...")
-(defparameter *hs-pull-speed* 60.0
-  "... at this many m/s, motion only (never a hit) (18 -> 60, 2026-10-18, S1 §23.3: the drag starts at f20 now, so from 8 m
-he arrives by f26, 4 f before the strike: the user's 「前 20 幀預備，拉到後 4 幀就打」) ...")
 ;; the bind's L 絞縄 KOJO and SP2 解縛擊 KAIBAKU-GEKI (B4c, §22.6; the user, 2026-10-18: 「絞縄改成給捆綁的 L，捆綁的 SP2 換成解除
 ;; 並附加傷害（有專屬動畫、可被防禦）」, 「絞縄本身帶拉近」, 「不冷卻，降低傷害並增加大前搖，通過降低優勢來控制出招動機」,
 ;; 「先還原再打，傷害 120（推薦）」; the numbers the lead's for that direction, 2026-10-18)
@@ -217,14 +206,6 @@ user: 「拿掉定位，改成後續接上的 J / K 會自動調整判定範圍�
 ;;; 聚合的鎖鏈攻擊更痛」; 「身旁旋轉會打到」, 「拿掉落點」 (B4a's placed marks gone), 「散 −3 幀×0.85／聚 +3 幀×1.3」, 「可以」 to
 ;;; the segment table (§22.4). The opener decides the route of links 2-3: J1-opened = spread (the thin hanging chains),
 ;;; K1-opened = gathered (K1 binds them into one bundle). The moves carry the numbers (host-pinned against these).
-(defparameter *hs-r-spread-s* -3
-  "A spread link's (J1-opened: J2, K2s, J3, K3) startup vs its base move's (B4a's J S 13, the K S 24) (none -> -3, the user,
-2026-10-18: 「散 −3 幀×0.85」, §22.4) ...")
-(defparameter *hs-r-spread-mult* 0.85 "... and its damage x (rounded) (none -> x0.85, the user, 2026-10-18).")
-(defparameter *hs-r-gather-s* 3
-  "A gathered link's (K1-opened: K2, J2s, K3, J3) startup vs its base move's (none -> +3, the user, 2026-10-18:
-「聚 +3 幀×1.3」, §22.4) ...")
-(defparameter *hs-r-gather-mult* 1.3 "... and its damage x (rounded; K2's 57 split 25 + 32) (none -> x1.3, the user, 2026-10-18).")
 (defparameter *hs-r-spread-sp-mult* 1.3
   "The spread route's hits (J1 and its links J2 / K2s / J3 / K3) earn their Reiatsu (SP) gain x this, on top of the tip's
 x1.3 (x1.69 a tip hit of the route) (none -> x1.3, 2026-10-19, the user: 「幫我把遠距 J1 起手的散路線再增加額外的 SP 回收量」,
@@ -476,8 +457,7 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
        ;; key is every difficulty's, and NORMAL's never-awaken HK / HB A/B rows fell to 14-18 / 12-16 of 60; 0.3 kept)
        :guard 0.35 :neutral-guard 0.1 :hoho 0.3 :dash 0.25 :dash-back 0.3 :block-string 0.25 :sp-cancel-bars 1 :string-k *hs-ai-string-k*
        :l-after-j *hs-ai-l-after-j* :awaken *hs-ai-awaken*
-       :kikon-range 0.0 :o-ender 0.0 :reflex hs-ai-reflex :opp-reflex hs-ai-opp :sp-ender hs-ai-ender :sig-hold hs-ai-sig-hold
-       :move-reflex hs-ai-move))                ; (S2: KJJ / KKJ, the leap, §23.5)
+       :kikon-range 0.0 :o-ender 0.0))                ; (S2: KJJ / KKJ, the leap, §23.5)
 
 ;;; ================================================================ the Bankai 風死絞縄 (§17; batch B2b)
 ;;; Two modes, each a kit form: :bankai the ranged mode (the default after the awakening; prefix hs-r-), :bankai-bind the
@@ -535,13 +515,6 @@ KAESHI-SEN-1H / RIN-1H name their own clips; SEN-1H plays J1's).")
 (defmove :hs-r-j3g :kind :quick :clip :hs-k-g-j3 :clip-s 19 :startup 19 :active 3 :recovery 21 :dmg 39 :adv-block -4 :guard 16
   :reach *hs-r-k-reach* :arc 90 :min-reach *hs-r-k-dead* :on-hit :stagger :hits ((19 22)) :flags (:ender :ranged)
   :params (:melee-range 2.0 :as-ptr 3) :on-land hs-r-j3-push)                                                  ; (§28.20: J3 > AS3)                                                            ; 束薙 SOKUTEI
-(defparameter *hs-r-strings*
-  '((:hs-r-j1 :q :hs-r-j2) (:hs-r-j1 :f :hs-r-k2s) (:hs-r-j2 :q :hs-r-j3) (:hs-r-j2 :f :hs-r-k3) (:hs-r-k2s :f :hs-r-k3)
-    (:hs-r-k1 :f :hs-r-k2) (:hs-r-k1 :q :hs-r-j2s) (:hs-r-k2 :f :hs-r-k3g) (:hs-r-k2 :q :hs-r-j3g) (:hs-r-j2s :q :hs-r-j3g))
-  "The ranged mode's J / K strings by route (§22.4; STRING-GRID's shape, JJJ JJK JKK KKK KKJ KJJ, one switch): J1-opened
-spread (J2 / K2s, J3 / K3), K1-opened gathered (K2 / J2s, K3G / J3G).")
-(defparameter *hs-r-spread-links* '(:hs-r-j2 :hs-r-k2s :hs-r-j3 :hs-r-k3 :hs-r-na3 :hs-r-na4)
-  "The spread route's links 2-3 (J1-opened); since §28.4 also the five J's J3 / J4 (they take J1's tip read).")
 (defparameter *hs-r-gather-links* '(:hs-r-k2 :hs-r-j2s :hs-r-k3g :hs-r-j3g)
   "The gathered route's links 2-3 (K1-opened); since §28.4 the gathered J after a 聚 segment's SA (§28.20: J2 / J3; the J3G / J4G
 copies deleted with their clips, §28.21).")
@@ -586,7 +559,6 @@ SP2 KAIBAKU-GEKI's (HIKIYOSE's gesture until then) by batch A3 (§24.3). The hos
   :dmg 40 :adv-block -20 :guard 14 :vol (:cap 0.3 7.0 1.1 0.35) :track 30.0 :on-hit :stagger :hits ((24 28 :stun 30))
   :flags (:ranged :no-close) :params (:melee-range 2.0) :min-reach *hs-r-dead* :cost 0)   ; (§28.4: its bind hooks gone; kept for its clip)
 (defmove-copy :hs-r-kubikake-c :hs-r-kubikake :enter 6)
-(defparameter *hs-kubi-moves* '(:hs-r-kubikake :hs-r-kubikake-c) "KUBIKAKE and its cancel copy (B4c).")
 
 ;;; The bind mode (§17.3, the user: 「攻擊模組切換成近戰，此時的 L 會將對手拉近」): the melee set at the §2.1 budget
 (defmove :hs-b-j1 :kind :quick :clip :hs-kb-gen :startup 8 :active 3 :recovery 12 :dmg 45 :adv-block -2 :guard 8
@@ -1372,8 +1344,6 @@ mid-move), the mode = the bind (a SET-FORM only out of a move and a cinematic), 
 (defparameter *hs-boss-regen* 0.01
   "The boss's Reishi regen, of his max a second, after *RUN-REGEN-DELAY* (3 s, as 回生: the lead's reading) with no hit
 touching him (a hit, a block, an armour hit, a parry: any contact, from any source).")
-(defun hs-kubi-need (e) "E's own Reiatsu KUBIKAKE needs to bind: the boss's 1 bar, else *HS-KUBI-REIATSU*."
-  (if (eq e *run-boss*) *hs-boss-kubi-reiatsu* *hs-kubi-reiatsu*))
 (defun hs-boss (e)
   "His base kit's :boss hook (rogue.lisp ROGUE-STAGE-START, the boss step's spawn, already in his Bankai): the rule's line."
   (setf (hss-boss-unhit (hs e)) 0)
