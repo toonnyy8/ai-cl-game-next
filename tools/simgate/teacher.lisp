@@ -127,10 +127,19 @@ generic CPU in turn (K mod 3)."
     (incf *teach-n*)
     (let ((*print-pretty* nil))   ; (one line)
      (format t "teach ~d ~d ~d ~s |~{ ~(~a~) ~,3f ~,3f~}~%" *match-seed* *match-tick* (fighter-side (fighter e)) feat
-            (loop for (a m sd) in (nreverse res) append (list a m sd))))
+            (loop for (a m sd) in (setf res (nreverse res)) append (list a m sd))))
     (when *teach-lite*   ; (env TEACH_LITE=N: the in-game MCTS's light model from the same situation, seen now, N rollouts: §9's fidelity)
       (let ((sn (make-snap)) (f (fighter e)))
         (snap-take! sn o)
+        (when (and *teach-dump* (mc-setup e f (fighter-kit f) sn (fighter-dist f) (brain-difficulty (brain e))))
+          (let ((*print-pretty* nil))   ; (env TEACH_DUMP: the light model's start, every array as integers, for tools/simgate/litefit.lisp)
+            (format *teach-dump* "~s ~s ~s ~s ~s~{ ~a~} |~{ ~s~} |~{ ~s~} |~{ ~s~} |~{ ~s~} |~{ ~s~} |~{ ~s~} |~{ ~s~} |~{ ~,4f~}~%"
+                    (brain-difficulty (brain e)) (fighter-character f) (fighter-character (fighter o)) seed0 *match-tick*
+                    (loop for r across *mc-slots* collect (if r (format nil "~{~a~^,~}" (coerce r 'list)) "-"))
+                    (coerce (svref *mc-i* 0) 'list) (coerce (svref *mc-i* 1) 'list) (coerce *mc-g* 'list)
+                    (coerce (svref *mc-vals* 0) 'list) (coerce (svref *mc-vals* 1) 'list)
+                    (append (coerce *mc-legal* 'list) (coerce *mc-legal2* 'list)) (coerce *mc-w* 'list)
+                    (loop for (a m) in res collect m))))
         (loop for vars in (or *teach-lite-variants* (list nil)) for k from 0   ; (env TEACH_LITE_VARIANTS: a list of binding plists,
               do (progv (loop for (v nil) on vars by #'cddr collect v) (loop for (nil x) on vars by #'cddr collect x)   ; lines lite, lite1 ...)
                    (format t "lite~[~:;~:*~d~]~{ ~,3f~}~%" k
@@ -139,6 +148,7 @@ generic CPU in turn (K mod 3)."
                                  (mc-seed seed0) (mc-search *teach-lite*) (loop for a below 10 collect (or (mc-mean a) -9.0)))
                                (make-list 10 :initial-element -9.0)))))))))
 (defparameter *teach-lite-variants* (let ((v (ext:getenv "TEACH_LITE_VARIANTS"))) (and v (read-from-string v))))
+(defparameter *teach-dump* (let ((f (ext:getenv "TEACH_DUMP"))) (and f (open f :direction :output :if-exists :supersede))))
 (defparameter *teach-lite* (let ((v (ext:getenv "TEACH_LITE"))) (and v (parse-integer v))))
 
 (defun teach-hook ()
@@ -159,6 +169,7 @@ generic CPU in turn (K mod 3)."
                 do (unless (engine::%frame) (ext:quit 3))
                 thereis (and (null *gate*) (not *gate-busy*) (null *gate-results*) (not (battle-p))))
     (ext:quit 4))
+  (when *teach-dump* (close *teach-dump*))
   (format t "teacher ~d decision points, ~d rollouts, ~,1f s~%" *teach-n* *teach-rollouts*
           (/ (- (get-internal-real-time) t0) internal-time-units-per-second 1.0)))
 (finish-output)

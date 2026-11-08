@@ -23,6 +23,27 @@
 block's value added, rather than ending the rollout there (DUEL_AI_MCTS §8).")
 (defparameter *mc-run* nil "The opponent in a rollout walking in from beyond *MC-RUN-FROM* runs (his kit's run speed), as the CPUs close in.")
 (defparameter *mc-run-from* 3.0 "... from this far (m).")
+(defparameter *mc-opp-model-on* nil
+  "The opponent's picks in a rollout from *MC-OPP-MODEL* (what that character's fighters did in each situation) blended with *MC-PRIOR* by
+*MC-OPP-PRIOR-N* pseudo-counts, rather than *MC-PRIOR* alone (DUEL_AI_MCTS §9).")
+(defparameter *mc-opp-prior-n* 5 "Pseudo-counts of *MC-PRIOR* in each situation's row (data-biased response's ~5).")
+(defparameter *mc-opp-model* nil
+  "(character . counts): per distance band (< 2 / 4 / 7 m / beyond) x my state class (0 free or guarding, 1 a move's startup, 2 its active or
+recovery frames, 3 a Step or Hoho, 4 reeling / down / blockstun) x the ten actions, what that character did (tools/simgate/oppmodel.lisp,
+baked by tools/mc-oppmodel.py).")
+(defvar *mc-w2* (make-array 200 :element-type (quote fixnum) :initial-element 0) "The opponent model's weights for this search: band x class x action (milli-counts).")
+(defvar *mc-current-opp* nil "The opponent's character for MC-RELOAD-DYNAMIC.")
+
+(defun mc-reload-dynamic ()
+  "Load the opponent model of *MC-CURRENT-OPP* into *MC-W2* (and switch it on in *MC-G*) when *MC-OPP-MODEL-ON*, else off."
+  (let ((row (and *mc-opp-model-on* (cdr (assoc *mc-current-opp* *mc-opp-model*)))) (psum (reduce #'+ *mc-prior*)))
+    (setf (aref *mc-g* 10) (if row 1 0))
+    (when row
+      (dotimes (r 20)
+        (dotimes (a 10)
+          (setf (aref *mc-w2* (+ (* r 10) a))
+                (+ (* 1000 (nth (+ (* r 10) a) row)) (floor (* 1000 *mc-opp-prior-n* (nth a *mc-prior*)) (max 1 psum)))))))))
+
 (defparameter *mc-horizon* 60 "Steps a rollout plays at most (1 s): the neutral exchange to its first contact.")
 (defparameter *mc-wait-busy* t "The horizon also covers the frames the opponent is still busy reeling or lying (at most *MC-HORIZON-MAX*).")
 (defparameter *mc-horizon-max* 150 "... the longest horizon.")
@@ -126,7 +147,7 @@ NORMAL, 2026-11-08, baked by tools/mc-outcomes.py; a slot under 30 samples takes
 segments after the move he is in).")
 (defmacro mc-next-slot (k) "The slot of the NS segment after slot K's, or -1." `(case ,k (1 3) (3 4) (2 6) (6 7) (t -1)))
 (defvar *mc-vals* (vector (mc-fv 7) (mc-fv 7)) "Per side, *MC-OUTCOMES*' row in milli-units.")
-(defvar *mc-g* (mc-fv 10) "7 blocks go on (*MC-BLOCK-CONT*), 8 the opponent runs (*MC-RUN*), 9 a hazard's blockstun; 0 the starting distance (mm), 1 the rollout's react chance (per mille), 2 the RNG's state, 3 horizon, 4 the
+(defvar *mc-g* (mc-fv 11) "10 the opponent model on (*MC-W2*); 7 blocks go on (*MC-BLOCK-CONT*), 8 the opponent runs (*MC-RUN*), 9 a hazard's blockstun; 0 the starting distance (mm), 1 the rollout's react chance (per mille), 2 the RNG's state, 3 horizon, 4 the
 opponent's answer delay (frames), 5 / 6 the chances (per mille) an NS goes on to its next segment / turns into the SA against an NA.")
 (defvar *mc-w* (mc-fv 10) "*MC-PRIOR* as fixnums.")
 (defvar *mc-n* (mc-fv 10) "Per root action: rollouts ...")
@@ -188,8 +209,8 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
          (v0 (svref *mc-vals* 0)) (v1 (svref *mc-vals* 1))
          (dist (aref g 0)) (react (aref g 1)) (horizon (aref g 3)) (tick 0) (first2 root2)
          (tn *mc-tn*) (ts *mc-ts*) (tc *mc-tc*) (tv *mc-tv*) (path *mc-path*) (tr *mc-tree*) (sq *mc-sqrt*) (uc (round (* 1000 *mc-ucb-c*)))
-         (acc 0) (runfrom (round (* 1000 *mc-run-from*))))
-    (declare (type mc-fv f0 f1 g w v0 v1 tn ts tc tv path tr sq) (simple-vector fs slots) (fixnum dist react horizon tick first2 uc acc runfrom))
+         (acc 0) (runfrom (round (* 1000 *mc-run-from*))) (w2 *mc-w2*))
+    (declare (type mc-fv f0 f1 g w v0 v1 tn ts tc tv path tr sq w2) (simple-vector fs slots) (fixnum dist react horizon tick first2 uc acc runfrom))
     (replace f0 (the mc-fv (svref *mc-i* 0))) (replace f1 (the mc-fv (svref *mc-i* 1)))
     (when (and (or (>= root2 0) (= root2 -2)) (= (aref f1 +f-kind+) +k-free+))   ; a free opponent answers after his delay (standing till then)
       (setf (aref f1 +f-kind+) +k-wait+ (aref f1 +f-t+) 0 (aref f1 +f-len+) (max 1 (aref g 4))))
@@ -242,15 +263,24 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
                       (6 (setf (aref ,me +f-kind+) +k-guard+ (aref ,me +f-len+) 24))
                       ((8 9) (setf (aref ,me +f-kind+) +k-walk+ (aref ,me +f-len+) 20 (aref ,me +f-dir+) (if (= a 8) 1 -1)))
                       (t (setf (aref ,me +f-kind+) +k-wait+ (aref ,me +f-len+) 20)))))
-               (pick (me side)          ; the rollout policy: *MC-PRIOR* over the legal actions
-                 `(let ((tot 0) (pick 7))
-                    (declare (fixnum tot pick))
-                    (dotimes (a 10) (when (legal ,me ,side a) (incf tot (aref w a))))
+               (pick (me side)          ; the rollout policy: *MC-PRIOR*, or for him the opponent model's row (*MC-W2*), over the legal actions
+                 `(let ((tot 0) (pick 7) (ww w) (base 0))
+                    (declare (fixnum tot pick base) (type mc-fv ww))
+                    ,@(when (eql side 1)
+                        `((when (= (aref g 10) 1)
+                            (setf ww w2
+                                  base (* 10 (+ (* 5 (cond ((< dist 2000) 0) ((< dist 4000) 1) ((< dist 7000) 2) (t 3)))
+                                                (let ((k (aref f0 +f-kind+)))
+                                                  (cond ((<= k +k-guard+) 0)
+                                                        ((= k +k-move+) (if (< (aref f0 +f-t+) (aref (the mc-fv (rec 0 (aref f0 +f-slot+))) +r-s+)) 1 2))
+                                                        ((<= k +k-hoho+) 3)
+                                                        (t 4)))))))))
+                    (dotimes (a 10) (when (legal ,me ,side a) (incf tot (aref ww (+ base a)))))
                     (let ((r (mc-rand g (max 1 tot))))
                       (declare (fixnum r))
                       (dotimes (a 10)
                         (when (legal ,me ,side a)
-                          (decf r (aref w a))
+                          (decf r (aref ww (+ base a)))
                           (when (< r 0) (setf pick a) (return)))))
                     pick))
                (decide (me side op oside)

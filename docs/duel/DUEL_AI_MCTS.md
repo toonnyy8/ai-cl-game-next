@@ -137,3 +137,22 @@ data, missing mechanics, a residual correction): 「先做 3」 (the mechanics).
   light pick; base / blocks / run / both, uniform): NORMAL 0.1093 / 0.1083 / 0.1089 / 0.1077, 0.1886; HARD 0.1866 / 0.1882 / 0.1866 /
   0.1864, 0.2407. Within the noise: these mechanics are not where the light model's error is. Left off; the opponent model (what he does in
   each situation) and the outcome values are the next suspects (the dataset to measure them first).
+
+## 9. The dataset and the opponent model (2026-11-08)
+
+The user (after asking whether decoupled UCT still leaves the opponent model inaccurate: yes, it searches only his first decision; every
+later one is the fixed rollout policy): 「好，繼續 1 + 2」.
+- **The dataset**: teacher.lisp with `TEACH_DUMP=file` writes, per decision point, the light model's whole start (records, both fighters, the
+  globals, outcome values, legal actions, the prior) as integers with the full sim's ten action values. `tools/simgate/litefit.lisp` puts each
+  start back and searches it again under variants (binding plists): seconds a variant, no full sim. IK seeds 21-32, NORMAL 5,499 points, HARD
+  5,603.
+- **The opponent model**: `tools/simgate/oppmodel.lisp` classes every decision of a free fighter in CPU matches as one of the ten macro
+  actions, by distance band x the other's state class (IK KK II HK HI HH, 30 seeds at NORMAL and HARD: 179,317 decisions; baked by
+  `tools/mc-oppmodel.py`); `*mc-opp-model-on*` draws the opponent's rollout picks from his character's row, blended with `*mc-prior*` by
+  `*mc-opp-prior-n*` pseudo-counts (`*mc-w2*`, loaded per search by `mc-reload-dynamic`). Default off, the table not baked.
+- **Fidelity** (litefit, 400 rollouts a point; regret of the light pick, uniform in brackets): fixed prior NORMAL 0.1081 (0.1886), HARD
+  0.1846 (0.2407); the opponent model with 1 / 5 / 20 pseudo-counts NORMAL 0.1070 / 0.1075 / 0.1072, HARD 0.1838 / 0.1855 / 0.1853. The
+  full sim's own sampling noise puts the floor near 0.02 (NORMAL) / 0.03 (HARD), so the light model's error is real, but neither the
+  mechanics (§8) nor the opponent's rollout policy is where it lives. What is left: the scoring (a contact worth one value per class
+  whatever the situation, the rollout ending there; the full sim plays 180 steps, the follow-up and what comes after included) and the
+  opponent's first decision; the dataset can now test both in seconds.
