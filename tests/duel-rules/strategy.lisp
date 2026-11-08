@@ -21,3 +21,16 @@
          (fb (strat-fingerprint '(:base (:range 1.0 :b-j1 0.0) :rules ((((:dj :in)) (:b-j1 0.2 :ns 0.9)))) keys grid)))
     (check (~= 1.0 (strat-similarity fa fa)))
     (check (< 0.5 (strat-similarity fa fb) 1.0))))
+
+;; the strategy layer's pure parts (DUEL_AI_STRATEGY §5, §8.4): arms by :APPLY, seeds from the payoff matrix (B's view 1 - M transposed), PUCT, the pick
+(check (equal '(:s0-generic :s1-brawler :s3-zoner :ki-ken) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :ichigo))))
+(check (equal '(:s0-generic :s1-brawler :s3-zoner) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
+(check (~= 0.7 (strat-seed-value :kenpachi :ichigo :ki-ken)))           ; (against her equilibrium column, :ki-ichigo)
+(check (~= 0.3 (strat-seed-value :ichigo :kenpachi :ki-ichigo)))        ; (the column side: 1 - his equilibrium row's cell)
+(check (~= 0.0 (strat-seed-value :ichigo :kenpachi :s0-generic)))       ; (her s0 against his equilibrium row :ki-ken: 1 - 1.0)
+(check (~= 0.5 (strat-seed-value :ichigo :ichigo :s0-generic)))         ; (no matrix for the mirror)
+(check (= 0 (strat-puct (vector 3.0 2.0) (vector 4.0 4.0) (vector 0.5 0.5) 1.0)))     ; (the better mean, equal visits)
+(check (= 1 (strat-puct (vector 3.0 0.0) (vector 4.0 0.0) (vector 0.5 0.5) 1.0)))     ; (an unvisited arm is tried)
+(check (= 0 (strat-final (vector 3.0 2.0) (vector 4.0 4.0) (vector 0.2 0.8) 0.0)))    ; (HARD-like: the values)
+(check (= 1 (strat-final (vector 3.0 2.0) (vector 4.0 4.0) (vector 0.2 0.8) 1.0)))    ; (all prior)
+(check (~= 1.5 (strat-prior (second *strat-library*) '(:lead -3 :or 0.9))))  ; (the brawler behind on Konpaku)

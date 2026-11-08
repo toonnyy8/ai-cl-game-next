@@ -16,7 +16,10 @@
                 ;; cinema.lisp: what a cinematic's start sets in the very step that starts it (a rollout stops after that step;
                 ;; *CINE-PLACED* is where CINE-END gives the actors back: the first state the pollution test found missing)
                 '*cine-placed* '*cine-placed-e* '*cine-close* '*cine-time-scale* '*cine-subject* '*draw-scale-e* '*aura-off*
-                '*caption* '*caption-out* '*ui-flash* '*screen-fx* '*cine-grade* '*card* '*splash-args* '*silhouette* '*impact-next*)
+                '*caption* '*caption-out* '*ui-flash* '*screen-fx* '*cine-grade* '*card* '*splash-args* '*silhouette* '*impact-next*
+                '*cam-cut* '*lens-fov* '*dutch*)                                    ; (camera.lisp / cinema.lisp: a cinematic's first beat sets
+                                                                                   ;  them; the strategy layer's 150-step rollouts reach Kikons:
+                                                                                   ;  fulltest found the first two)
 ;;; (the engine registers its own: the ECS, hitstop, slow motion, the cinematic; snapshot.lisp)
 
 (defun sim-snapshot-ok-p ()

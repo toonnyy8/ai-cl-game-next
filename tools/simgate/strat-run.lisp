@@ -3,6 +3,8 @@
 ;;;; seat plays him, STRAT_P1 / STRAT_P2 for a seat (they win over the character's; a mirror needs them). The file holds one plist (READ).
 ;;;; A character given a strategy plays without his matchup style CPU (*CAI-STYLES*' entries for him removed), so the strategy alone
 ;;;; drives him. Output: run.lisp's lines, plus "strat P1 <id>" / "strat P2 <id>" once per match.
+;;;; STRAT_LAYER=<character>[,<character>] (or "t"): those CPUs under the strategy layer (*STRAT-LAYER*, DUEL_AI_STRATEGY §5, §8.4); its
+;;;; RESULTS line "duel stratlayer ..." gives the cost and the picks. STRAT_SET=*knob*=value[,...]: set strategy-layer knobs (numbers) first.
 ;;;; Usage: ecl-host --norc --load tools/simgate/strat-run.lisp -- <duel.fas> <cmd>...   e.g. 2102 81022 30000 31120 2132
 (defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
 (load (first cl-user::*sg-args*) :verbose nil)
@@ -23,6 +25,17 @@
           (remf *cai-styles* ch)
           (format t "strat P~d ~a~%" (1+ (fighter-side f)) (getf st :id)))))))
 
+(let ((l (ext:getenv "STRAT_LAYER")))
+  (when (and l (plusp (length l)))
+    (setf *strat-layer* (if (string-equal l "t") t
+                            (loop for start = 0 then (1+ p) for p = (position #\, l :start start)
+                                  collect (intern (string-upcase (subseq l start p)) :keyword) while p)))))
+(let ((l (ext:getenv "STRAT_SET")))
+  (when (and l (plusp (length l)))
+    (loop for start = 0 then (1+ p) for p = (position #\, l :start start)
+          do (let* ((kv (subseq l start p)) (q (position #\= kv)))
+               (setf (symbol-value (intern (string-upcase (subseq kv 0 q)) :duel)) (let ((*read-eval* nil)) (read-from-string (subseq kv (1+ q))))))
+          while p)))
 (loop for r = (engine::%init-step) until (eql r 0) when (eql r 2) do (ext:quit 2))
 (setf *step-hook* #'sr-hook)
 (dolist (c (rest cl-user::*sg-args*)) (engine::simgate-cmd (parse-integer c)))

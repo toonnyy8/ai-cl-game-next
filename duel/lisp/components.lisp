@@ -227,6 +227,7 @@ is holding. Identity comes from the kit's :AI tables."
   (decided -1 :type fixnum)             ; ... the tick of his move a decision was already made for
   (style nil)                           ; a matchup style CPU's own state (core-ai.lisp *CAI-STYLES*, DUEL_MATCHUP_AI); NIL until it runs
   (strat nil)                           ; its strategy (strategy.lisp, DUEL_AI_STRATEGY): NIL plays as before
+  (st-next 0 :type fixnum) (st-free 0 :type fixnum)   ; the strategy layer (cpu-mcts.lisp): the tick of its next selection, its last free tick
   (off nil))                            ; debug: this CPU does nothing
 (defun brain-chance (b plist)
   "PLIST's chance (:easy :normal :hard) at brain B's difficulty (a missing key: NORMAL's, else 0)."

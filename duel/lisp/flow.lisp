@@ -213,7 +213,7 @@ it lives on in memory)."
     (log-msg "duel -> RESULTS winner ~a konpaku ~d-~d ticks ~d secs ~,1f"
              (case *winner* (0 "P1") (1 "P2") (t "DRAW")) (gauges-konpaku g1) (gauges-konpaku g2)
              *match-tick* (/ *match-tick* 60.0))
-    (mc-full-log))
+    (mc-full-log) (strat-log))
   (dolist (e (list *p1* *p2*))
     (let ((f (fighter e)) (won (eql *winner* (fighter-side (fighter e)))))
       (setf (fighter-state f) (if won :win :lose))

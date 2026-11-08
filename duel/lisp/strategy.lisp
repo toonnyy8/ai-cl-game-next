@@ -47,3 +47,94 @@
     (dotimes (i n) (let ((x (svref a i)) (y (svref b i)))
                      (incf tot (if (and (zerop x) (zerop y)) 0.0 (/ (abs (- x y)) (max (abs x) (abs y)))))))
     (if (zerop n) 1.0 (- 1.0 (/ tot n)))))
+
+;;; ---------------------------------------------------------------- the strategy layer's library and its pure parts (DUEL_AI_STRATEGY §5, §8.4)
+;;; The prototype of step 5: a few strategies in the build, an offline payoff matrix per pairing to seed the statistics, Decoupled UCT
+;;; (one PUCT a side) over (my applicable strategies) x (his) refined by full-sim rollouts (cpu-mcts.lisp STRAT-...), a fuzzy prior per
+;;; strategy (its key :P, a zero-order Sugeno over the same cues as its outputs; 1 when it names none). Nothing here runs unless
+;;; *STRAT-LAYER* (cpu-mcts.lisp) is on. :APPLY (me vs): only for that character against that one (NIL = anyone).
+(defparameter *strat-layer* nil
+  "The strategy layer in play (DUEL_AI_STRATEGY §5): NIL (off: the CPUs exactly as before), T, or a list of characters. A core CPU under it
+re-selects its strategy (BRAIN-STRAT) in neutral every *STRAT-PERIOD* steps and on coming back to neutral; its matchup style CPU then runs
+only as one of the strategies (:FN ken-ki-style ...).")
+(defparameter *strat-period* 90 "Steps between selections while he is in neutral (1.5 s).")
+(defparameter *strat-regain* 60 "Out of neutral at least this many steps (a long exchange, a knockdown, a cinematic): a selection on coming back.")
+(defparameter *strat-rolls* 8 "Full-sim rollouts per selection (one a step, at the steps' end, when no action-layer rollout is due).")
+(defparameter *strat-h* 150 "A selection rollout's steps (no stop at a contact: a strategy's worth shows over an exchange or two).")
+(defparameter *strat-n0* 6 "Pseudo-visits of each arm's seed (the payoff matrix: 40 matches a cell against ~1 in-game rollout a joint cell).")
+(defparameter *strat-c* 1.0 "PUCT's exploration constant.")
+(defparameter *strat-swing* 2.0 "Health units (mc-full-health) of half the 0-1 score's range: a rollout scores 0.5 + swing / (2 x this), clipped.")
+(defparameter *strat-lambda* '(:easy 0.7 :normal 0.35 :hard 0.1) "The final pick's weight on the prior (the rest on the values) per difficulty.")
+(defvar *strat-jobs* nil "The selections whose rollouts are running, oldest first (cpu-mcts.lisp STRAT-FULL-STEP; dropped at a match start).")
+(defvar *strat-stats* (make-array 4 :initial-element 0) "This match: selections, rollouts, internal time in them, the worst step's.")
+(defvar *strat-picks* (make-array 16 :initial-element 0) "This match: per side (8 slots each), how often each library entry was picked.")
+
+(defparameter *strat-library*
+  '((:id :s0-generic :base (:p 1.0)
+     :rules ((((:lead :even)) (:p 1.2))))
+    (:id :s1-brawler
+     :base (:range 0.7 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :p 1.0
+            :b-walk-in 0.06 :b-j1 0.05 :b-step-in 0.03 :b-wait -0.05 :b-walk-out -0.08 :b-step-out -0.05)
+     :rules ((((:ost :down)) (:b-walk-in 0.14 :b-j1 0.12 :b-wait -0.12))
+             (((:dj :in)) (:b-j1 0.12 :b-step-out -0.1))
+             (((:dj :afar)) (:b-walk-in 0.12 :b-step-in 0.08))
+             (((:ost :active) (:dj :in)) (:b-hoho -0.05))
+             (((:lead :behind)) (:p 1.5)) (((:lead :ahead)) (:p 0.7)) (((:or :low)) (:p 1.4))))
+    (:id :s3-zoner
+     :base (:range 1.5 :ns 0.9 :hoho 1.1 :kikon 0.4 :cont 0.8 :p 1.0
+            :b-walk-out 0.02 :b-wait 0.02 :b-j1 -0.08 :b-walk-in -0.04)
+     :rules ((((:dn :reach)) (:b-sp 0.15 :b-walk-in -0.05))
+             (((:dn :out)) (:b-sp 0.1 :b-walk-in 0.04))
+             (((:dn :afar) (:wave :yes)) (:b-sp 0.18 :b-walk-in -0.04))
+             (((:do :in)) (:b-walk-out 0.12 :b-step-out 0.1 :b-j1 -0.05))
+             (((:dj :in)) (:b-step-out 0.08 :b-j1 0.05))
+             (((:ored :yes)) (:kikon 1.6))
+             (((:lead :ahead)) (:p 1.4)) (((:lead :behind)) (:p 0.6)) (((:mr :low)) (:p 1.3))))
+    (:id :ki-ken :fn ken-ki-style :apply (:kenpachi :ichigo) :base (:p 1.3))
+    (:id :ki-ichigo :fn ichigo-ki-style :apply (:ichigo :kenpachi) :base (:p 1.3)))
+  "The strategies the layer chooses from (the seeds s0, s1, s3, s5, s6 of docs/research/strategy-drsi/seeds/, each with prior rules :P).")
+
+(defparameter *strat-payoff*
+  '((:kenpachi :ichigo (:s0-generic :s1-brawler :s3-zoner :ki-ken) (:s0-generic :s1-brawler :s3-zoner :ki-ichigo)
+     ((1.0 0.75 1.0 0.0) (1.0 0.95 1.0 0.0) (0.9 0.975 0.925 0.0) (1.0 0.975 1.0 0.7))
+     (0.0 0.0 0.0 1.0) (0.0 0.0 0.0 1.0))
+    (:kenpachi :hisagi (:s0-generic :s1-brawler :s3-zoner) (:s0-generic :s1-brawler :s3-zoner)
+     ((0.975 0.975 0.9) (0.975 1.0 1.0) (0.825 1.0 0.7))
+     (0.0 1.0 0.0) (1.0 0.0 0.0))
+    (:ichigo :hisagi (:s0-generic :s1-brawler :s3-zoner) (:s0-generic :s1-brawler :s3-zoner)
+     ((0.325 0.625 0.125) (0.175 0.525 0.025) (0.25 0.5 0.025))
+     (1.0 0.0 0.0) (0.0 0.0 1.0)))
+  "Per pairing (A B rows cols M x y): A's HARD win share with row strategy against B's column strategy (tools/strategy-matrix.py, 20 seeds a
+seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mixes x (A's) and y (B's). B's view is 1 - M transposed.")
+
+(defun strat-arms (me vs)
+  "The library's strategies ME may play against VS (their :APPLY), in library order."
+  (remove-if-not (lambda (st) (let ((ap (getf st :apply))) (or (null ap) (and (eq (first ap) me) (eq (second ap) vs)))))
+                 *strat-library*))
+
+(defun strat-seed-value (me vs id)
+  "ME's expected win share with strategy ID against VS's equilibrium mix (*STRAT-PAYOFF*), 0.5 when the pairing or ID is not in it."
+  (dolist (row *strat-payoff* 0.5)
+    (destructuring-bind (a b rows cols m x y) row
+      (cond ((and (eq a me) (eq b vs) (member id rows))
+             (return (loop for v in (nth (position id rows) m) for w in y sum (* v w))))
+            ((and (eq a vs) (eq b me) (member id cols))
+             (let ((c (position id cols))) (return (- 1.0 (loop for r in m for w in x sum (* w (nth c r)))))))))))
+
+(defun strat-prior (st feats) "Strategy ST's fuzzy prior weight for the cues FEATS (its :P; 1 when it names none)." (or (strat-value st :p feats) 1.0))
+
+(defun strat-puct (sums ns prior c)
+  "Decoupled UCT's choice for one side: the arm maximising mean + C x prior x sqrt(N) / (1 + n) (SUMS, NS, PRIOR: simple-vectors, the
+prior summing to 1; N = all visits; + - x / sqrt only, the same in the browser and natively). Ties: the first."
+  (let* ((n (length ns)) (tot (loop for k below n sum (svref ns k))) (sq (sqrt (float (max 1 tot)))) (best 0) (bv nil))
+    (dotimes (k n best)
+      (let ((v (+ (/ (svref sums k) (max 1e-6 (svref ns k))) (/ (* c (svref prior k) sq) (+ 1.0 (svref ns k))))))
+        (when (or (null bv) (> v bv)) (setf best k bv v))))))
+
+(defun strat-final (sums ns prior lam)
+  "The selection's pick: the arm maximising (1 - LAM) x mean + LAM x prior / the largest prior (EASY leans on the prior, HARD on the
+values). Ties: the first."
+  (let ((pm (max 1e-6 (reduce #'max prior))) (best 0) (bv nil))
+    (dotimes (k (length ns) best)
+      (let ((v (+ (* (- 1.0 lam) (/ (svref sums k) (max 1e-6 (svref ns k)))) (* lam (/ (svref prior k) pm)))))
+        (when (or (null bv) (> v bv)) (setf best k bv v))))))

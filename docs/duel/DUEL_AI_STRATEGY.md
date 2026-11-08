@@ -77,6 +77,8 @@ and the HARD margin gate (`*mc-sure*`): the stage-5 goal the user chose (「全�
    ki-ai-drsi scripts).
 5. A strategy-layer prototype over the seeds: browser cost per step, and whether it beats the best fixed strategy. If it does not, the
    library has no consumer: stop and report.
+   Done 2026-11-08 (§8.4): it ties the best fixed strategy at HARD in all six cells (every matrix has a pure equilibrium); stopped and
+   reported, the next step is the user's call.
 6. Confirm the evaluator, W and the grid with the user.
 7. A 2-cell pilot, end to end.
 8. Full rounds, pairing by pairing (KI, KH, IH), the sufficiency check before each next pairing and the mirrors.
@@ -128,6 +130,52 @@ s3 zoner, s4 reach discipline. All run for Kenpachi, Ichigo and Hisagi (characte
 The format reaches only the generic CPU's level: what makes the style CPUs strong is not expressible — the meaty on a wake-up, a whiff
 punish with the fastest move that lands in his recovery, the perfect Hoho's timing, a form's entry and cash-out, the pointer chosen, a
 Kikon only when it K.O.s, a bait hover band, a reactive back-Step dodge. The format must grow before the strategy layer can reach §6's bar.
+
+### 8.4 Step 5: the strategy-layer prototype (2026-11-08)
+
+Built, off by default (`*strat-layer*` NIL; G2 identical, host tests ALL PASS 9860, pkgcheck):
+- `strategy.lisp`: the library in the build (`*strat-library*`: s0 generic, s1 brawler, s3 zoner, `:ki-ken` / `:ki-ichigo` with `:apply (me vs)`,
+  each with prior rules on the key `:p`), the payoff matrices (`*strat-payoff*`: KI 4 x 4, KH and IH 3 x 3, HARD, 20 seeds a seat, seeds 1-20, with
+  their equilibrium mixes; B's view 1 - M transposed), the pure parts (`strat-arms`, `strat-seed-value`: an arm's value against the opponent's
+  equilibrium mix, `strat-puct`, `strat-final`), the knobs (`*strat-period*` 90, `*strat-regain*` 60, `*strat-rolls*` 8, `*strat-h*` 150,
+  `*strat-n0*` 6, `*strat-c*` 1, `*strat-swing*` 2, `*strat-lambda*` EASY 0.7 / NORMAL 0.35 / HARD 0.1).
+- `cpu-mcts.lisp` (the end): a selection per side every 1.5 s in neutral and on coming back after 1 s out of it (`strat-layer-step` in
+  `core-brain-step`, brain slots `st-next` / `st-free`); Decoupled UCT, one PUCT a side over the applicable arms, seeded with n0 pseudo-visits at
+  the matrix value; 8 full-sim rollouts a selection, sliced one a step in `mc-full-step` when no action-layer rollout is due (the action layer's
+  jobs are due within a reaction time; a selection is not); in a rollout both CPUs play their sampled arms (`brain-strat`; a brainless human gets the
+  stand-in brain with his), 150 lean steps, no stop at a contact (`mc-full-rollout`'s new STOP argument), scored 0.5 + swing / 4 clipped to 0-1.
+  The pick: (1 - λ) value + λ prior / max prior; before the first selection's rollouts finish, the seeds' and prior's pick. Under the layer a CPU's
+  matchup style runs only as its strategy (`:fn`). The RESULTS line `duel stratlayer` (cost, picks per side).
+- Pollution: `*cam-cut*`, `*lens-fov*`, `*dutch*` became snapshot roots (a 150-step rollout reaches a Kikon's first beat; fulltest found the first
+  two). `fulltest.lisp` checks the layer's rollouts too (FT_LAYER=t) and the camera: CvC 2102 4000 / 4007 (G2's IK) / 4001 674 / 711 / 697 checks (640 / 684 / 658 of them
+  strategy rollouts), VS CPU 2500-2503 385-520, all identical; the same layer-on match twice: every hash and gate line identical.
+- Cost, native, one process alone: 6.9-7.9 ms a selection (8 rollouts, ~0.9-1.0 ms a rollout step with its snapshot and two restores), the worst step
+  6.0-6.7 ms; ~105 selections a match a side (HARD), ~6 % of the steps carry one. Browser (x3.7, estimated): ~3.5 ms a rollout step, the worst
+  ~23-25 ms (over a frame), ~3.5x the action layer's.
+- Strength (80 matches a cell: seeds 101-140, both seats; the character's wins against the opponent's shipped CPU):
+
+| | HARD layer | HARD best fixed | HARD shipped | NORMAL layer | NORMAL best fixed | NORMAL shipped |
+|---|---|---|---|---|---|---|
+| Kenpachi vs Ichigo | 61 (always :ki-ken) | 61 (:ki-ken) | 61 | 32 | 54 (s1) | 53 |
+| Ichigo vs Kenpachi | 20 (:ki-ichigo) | 20 (:ki-ichigo) | 19 | 30 | 28 (:ki-ichigo) | 27 |
+| Kenpachi vs Hisagi | 79 | 78 (s0, s1) | 78 | 68 | 78 (s1) | 69 |
+| Hisagi vs Kenpachi | 5 | 6 (s3) | 2 | 9 | 11 (s0) | 11 |
+| Ichigo vs Hisagi | 27 | 30 (s0) | 30 | 45 | 70 (s1) | 40 |
+| Hisagi vs Ichigo | 72 | 74 (s3) | 50 | 33 | 40 (s0, s1) | 40 |
+
+  The other fixed arms at HARD: s0 / s1 / s3 0 of 80 in KI on both sides. Variants (HARD): n0 1 and 16 rollouts (the rollouts weigh more) 57 / 17 / 79
+  / 6 / 33 / 65; no matrix (flat seeds, n0 1, 16 rollouts: the in-game DUCT alone) 0 / 7 / 78 / 5 / 19 / 58.
+- Reading: every matrix has a pure equilibrium (one row and one column dominate: KI :ki-ken / :ki-ichigo, KH s1 / s0, IH s0 / s3), so a layer
+  seeded from them reduces to "play the dominant entry": at HARD it ties the best fixed strategy in all six cells (within the noise) and Kenpachi's
+  KI style CPU (61 of 80) by playing it every time (the layer and :ki-ken alone give the same 28 / 33 per seat: also a proof that the rollouts leave
+  nothing behind), and gains over shipped only where the dominant entry is not the shipped CPU (Hisagi vs Ichigo 72 against 50, s3 alone 74). By
+  §7 step 5's rule the library has no consumer yet. The in-game rollouts add nothing measurable, and alone they rank wrongly: with no matrix KI
+  Kenpachi mostly picks s1 and wins 0 of 80, though :ki-ken (an `:fn`, which does run in the rollouts) wins 61, so the 150-step health swing does
+  not track the match where the gap is widest (not verified which: the horizon is short for a patient whiff-punish style, the `:b-` biases do
+  not act in rollouts (the action layer is off there), a switch every 1.5 s breaks a style's continuity). At NORMAL the HARD-only matrix picks the
+  wrong entry (Kenpachi KI 32 against s1's 54, Ichigo IH 45 against 70): a confound of the seed table, not evidence against DUCT.
+- So whether a library search pays can be decided offline with `tools/strategy-matrix.py` alone: only a pairing / difficulty whose equilibrium
+  mixes two or more strategies gives the layer something to choose; otherwise a (pairing, difficulty) lookup does its job at no runtime cost.
 
 ## 9. Strategies may carry code (2026-11-08)
 
