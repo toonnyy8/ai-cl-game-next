@@ -40,6 +40,14 @@
   "Hold BUTTON for FRAMES steps (with :MOD when MODDED)."
   (ai-press b button frames :modded modded))
 
+(defun cai-fz (b rules kind &rest feats)
+  "RULES' chance (fuzzy.lisp) at brain B's difficulty for the cue plist FEATS (KIND :SKILL or :CHOICE)."
+  (fz-chance rules feats (brain-difficulty b) kind))
+(defun cai-fz-roll (b rules kind &rest feats)
+  "One roll of RULES' chance (no SIM-RND01 drawn at 0 or 1, as BRAIN-ROLL)."
+  (let ((p (apply #'cai-fz b rules kind feats))) (cond ((<= p 0) nil) ((>= p 1) t) (t (< (sim-rnd01) p)))))
+(defun cai-bit (x) "1 when X, else 0 (a crisp fuzzy cue)." (if x 1 0))
+
 (defun cai-own-rolls (b f)
   "The rolls of his own move: made once when it starts (its CLS-T), kept until the next one starts."
   (unless (= (brain-own-key b) (fighter-cls-t f))
@@ -50,7 +58,8 @@
 (the SP about to start holds into none: Hisagi's Bankai AS3, :params :no-kikon) a tap, so its segments go on (CAI-MOVE-STEP)."
   (let* ((o (fighter-opp f)) (red (gauges-red-p (gauges o)))
          (want (and (not no-kikon)
-                    (< (brain-r-kikon b) (if red (max 0.6 (brain-chance b *cai-kikon-p*)) (brain-chance b *cai-kikon-p*))))))
+                    (< (brain-r-kikon b) (cai-fz b *fz-kikon* :skill :ored (cai-bit red)
+                                                 :lead (- (gauges-konpaku (gauges (fighter-opp (fighter o)))) (gauges-konpaku (gauges o))))))))
     (declare (ignorable s))
     (cai-press b :quick (if want 40 frames) t)))
 
@@ -65,9 +74,12 @@
          (when (eq (fighter-contact f) :hit)                  ; landed (or cancelled: it counts as a hit)
            (setf (brain-decided b) (fighter-cls-t f))
            (if (and (not (fighter-as-done f))
-                    (or (eq oc :ns) (>= (fighter-presses f) (length (getf (kit-core kit) :as-by-press '(1 2 3))))   ; (the string's end)
-                        (eql 3 (getf (mv-params mv) :as-ptr))                                              ; (§28.20's gathered J3)
-                        (>= (brain-r-cont b) (brain-chance b *cai-cont-p*))))
+                    (let ((len (length (getf (kit-core kit) :as-by-press '(1 2 3)))))
+                      (or (>= (fighter-presses f) len)                                                  ; (the string's end)
+                          (eql 3 (getf (mv-params mv) :as-ptr))                                         ; (§28.20's gathered J3)
+                          (< (brain-r-cont b) (cai-fz b *fz-as-now* :choice :ons (cai-bit (eq oc :ns))   ; the fuzzy layer
+                                                      :ored (cai-bit (gauges-red-p (gauges (fighter-opp f))))
+                                                      :press (/ (fighter-presses f) (float len)))))))
                (cai-sp b f s 1 (let ((as (kit-core-move kit :as (core-next-as f))))
                                  (and as (getf (mv-params as) :no-kikon))))
                (cai-press b :quick 1))))
@@ -77,14 +89,18 @@
            (cond ((and (getf (mv-params mv) :charge-sa) (mv-sa-move kit mv) (< (fighter-dist f) 2.6)   ; a charge segment (Kenpachi's kamae): cash it in
                        (or (null (mv-ns-next kit mv)) (< (brain-r-turn b) 0.5)))                       ; at the last one, else half the time
                   (cai-press b :quick 1))
-                 ((and (kit-sa-move kit) (< (brain-r-turn b) (brain-chance b *cai-turn-p*))
-                       (or (eq oc :na) (and (mv-sa-move kit mv) (< (fighter-dist f) 2.6))))   ; the read, or a segment's own SA in reach
+                 ((and (kit-sa-move kit)                                                   ; the read, or a segment's own SA in reach
+                       (< (brain-r-turn b) (cai-fz b *fz-ns-turn* :skill :ona (cai-bit (eq oc :na)) :d (fighter-dist f)
+                                                   :ownsa (cai-bit (mv-sa-move kit mv)))))
                   (cai-press b :quick 1))
-                 ((and (mv-ns-next kit mv) (< (brain-r-cont b) (brain-chance b *cai-cont-p*))) (cai-press b :quick 1 t)))))
+                 ((and (mv-ns-next kit mv)
+                       (< (brain-r-cont b) (cai-fz b *fz-ns-cont* :choice :hit (cai-bit (fighter-contact f)) :d (fighter-dist f))))
+                  (cai-press b :quick 1 t)))))
         (:as                                                   ; the AS's next segment (AS n has n), unless he holds for the Kikon
          (when (and (>= (fighter-sf f) (mv-s mv)) (mv-ns-next kit mv))
            (setf (brain-decided b) (fighter-cls-t f))
-           (when (and (not (vpad-down (pilot-vpad (pilot e)) :quick)) (< (brain-r-cont b) (brain-chance b *cai-cont-p*)))
+           (when (and (not (vpad-down (pilot-vpad (pilot e)) :quick))
+                      (< (brain-r-cont b) (cai-fz b *fz-ns-cont* :choice :hit (cai-bit (fighter-contact f)) :d (fighter-dist f))))
              (cai-press b :quick 1 t))))))))
 
 (defun cai-neutral (e b f kit s d)
@@ -94,7 +110,7 @@
          (rg (getf (kit-core kit) :range *cai-range*)) (lo (first rg)) (hi (second rg)))
     (when (<= (decf (brain-strafe-t b)) 0) (funcall (ai-step e :strafe) e b))
     (cond ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-open-p e)
-                (< (brain-hoho-roll b) (brain-chance b *cai-hoho-p*)))
+                (< (brain-hoho-roll b) (cai-fz b *fz-hoho* :skill :margin (- d (snap-reach s)) :frames (max 0 (- (snap-s s) (snap-sf s))))))
            (setf (brain-hoho-roll b) 1f0)
            (ai-press b :step 1 :modded t :act :hoho))
           (t (when (> d 7.0) (setf (brain-decide-t b) (min (brain-decide-t b) 1)))
@@ -141,15 +157,18 @@
                    ((:idle :run) (cai-neutral e b f kit s d))
                    (:move (cai-move-step e b f kit s))
                    (:stun
-                    (cond ((and (= (fighter-kikon-lock f) 1) (= (fighter-sf f) 1) (< (brain-guard-roll b) (brain-chance b *cai-cancel-p*)))
+                    (cond ((and (= (fighter-kikon-lock f) 1) (= (fighter-sf f) 1)
+                                (< (brain-guard-roll b) (cai-fz b *fz-cancel* :skill :red (cai-bit (gauges-red-p (gauges e))))))
                            (cai-press b :quick 1))
                           ((and (zerop (fighter-kikon-lock f)) (>= (brain-burst-t b) (brain-delay b)) (not (brain-burst-rolled b)))
                            (setf (brain-burst-rolled b) t)
-                           (when (and (brain-roll b *ai-burst-p*) (burst-ok-p e)) (cai-press b :awaken 1)))))
+                           (when (and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
+                             (cai-press b :awaken 1)))))
                    (:air
                     (when (and (zerop (fighter-kikon-lock f)) (>= (brain-burst-t b) (brain-delay b)) (not (brain-burst-rolled b)))
                       (setf (brain-burst-rolled b) t)
-                      (when (and (brain-roll b *ai-burst-p*) (burst-ok-p e)) (cai-press b :awaken 1)))))))))
+                      (when (and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
+                             (cai-press b :awaken 1)))))))))
     (setf (brain-was b) (fighter-state f))
     (loop for a across *vpad-actions*
           do (vpad-set! vp a (or (and (> (brain-press-left b) 0) (eq a (brain-press b)))

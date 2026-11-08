@@ -50,3 +50,19 @@ MCTS + fuzzy + 學習型 AI」.
   model: 50.6 %).
 - **Determinism**: the table loaded from the browser is a match input (copied at match start, read-only in the step, its hash with the
   match); CPU vs CPU, the gates and the native sim use the fixed population prior.
+
+## 4. Stage 1 built: the fuzzy reactive layer (2026-11-08)
+
+- `duel/lisp/fuzzy.lisp` (plain CL, host-tested `tests/duel-rules/fuzzy.lisp`): zero-order Sugeno over trapezoid sets (resolved onto their
+  symbols at load), min for AND, the weighted average; a `:must` rule holding at least half way answers alone (the rank step); difficulty as
+  one knob: a `:skill` chance x `*fz-skill*` 0.3 / 0.62 / 1.0, a `:choice` pulled toward 1/2 by it. Cues are a plist read by `plist-get`.
+- Rule bases (outputs = the HARD player's; first set to mirror the old fixed chances, to be tuned in stage 3): `*fz-as-now*` (end the combo in
+  the AS: the read against an NS a `:must`), `*fz-ns-turn*` (the SA against his NA in my NS gap, a `:must` when near), `*fz-ns-cont*` (the next
+  NS / AS segment), `*fz-kikon*` (hold the SP: red, Konpaku lead), `*fz-hoho*` (Hoho out of his attack: the margin beyond his reach, frames to
+  his window), `*fz-cancel*` (cancel his Kikon follow-up: never while red), `*fz-burst*` (combo hits, red).
+- `core-ai.lisp`: every one of those decisions asks `cai-fz` (the chance) against the brain's roll for that event, as before (one roll per
+  event). The matchup style CPUs still answer first where they decide (until stage 5).
+- Checks: host tests 9,875 ALL PASS; pkgcheck clean; G2 regenerated (II 42 lines, P1 1-1, 414.6 s; IK 33, P2 0-3, 325.7 s; KK 31, P2 0-3,
+  309.2 s; before II 39, IK 27, KK 34), browser = native; playtest v358. Strength (40 seeds, every CPU on it, P1 : P2): IK NORMAL 16 : 24, HARD
+  9 : 31 (v357: 18 : 22, 12 : 28); HK 2 : 38 / 1 : 39; HI 10 : 30 / 28 : 12: both sides changed at once, so this only shows the layer is in
+  the old chances' range; its gains are the tuning's (stage 3).
