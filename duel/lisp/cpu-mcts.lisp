@@ -28,6 +28,28 @@ HARD only the light model's most decided fifth beat a uniform pick (margin >= 0.
 against 0.21-0.26), at NORMAL every fifth did. Kenpachi's HARD MCTS against Ichigo's HARD style CPU, 80 IK seeds: 27 / 42 / 53 / 54 wins
 at 0.08 / 0.12 / 0.16 / 0.25, his style CPU 50 (§9).")
 
+;;; ---------------------------------------------------------------- the full sim's say (DUEL_AI_MCTS §12)
+;;; The user, 2026-11-08: 「放進遊戲，全難度」 (the cheaper full-sim rollouts of §11 in the game) and, for a human opponent, 「之後學玩家習慣」
+;;; (a stand-in CPU plays him in the rollouts until the online player model of stage 4 learns his habits). With *MC-FULL*, a decision is
+;;; made one reaction time ahead: the light model ranks the actions from what he perceives (*MC-FULL-LITE* rollouts), he holds what he
+;;; was doing for his perception delay (BRAIN-DELAY 24 / 14 / 8 f), and meanwhile, one rollout a step at the steps' end
+;;; (MC-FULL-STEP), the full sim plays the best two from the state of the decision: the hold, then the action, the rest by the generic
+;;; CPUs, to the first contact or *MC-FULL-H* steps after the hold, scored as the swing plus the outcome table's value of that contact.
+;;; When the hold is over, he takes the better (the difficulty's mistake budget and softmax between the two). He acts on what was true a
+;;; reaction time ago, as before, and the rollouts cost no extra delay.
+(defparameter *mc-full* t "The full sim scores the light model's best two (T; NIL: the light model alone, as before §12).")
+(defparameter *mc-full-lite* '(:easy 16 :normal 16 :hard 16)
+  "The light search's rollouts per difficulty when it only ranks for the full sim (§11: 16 kept NORMAL's strength of 96).")
+(defparameter *mc-full-h* 40 "A full-sim rollout's steps after the hold (it stops at the first contact before; §11).")
+(defparameter *mc-full-hold* nil "The hold before a planned action (steps): NIL = his perception delay (BRAIN-DELAY), else a number.")
+(defparameter *mc-full-styles* nil "The matchup style CPUs play in the rollouts too (T), or the generic CPU alone (NIL, §11's).")
+(defvar *in-rollout* nil "T inside a search's rollout (SIM-ROLLOUT, MC-FULL-STEP): no search, no job, no match end (GO-RESULTS).")
+(defvar *mc-plan* (mc-fv 10)
+  "Per side, 5 slots: the state (0 none, 1 its rollouts running, 2 scored), the light model's best and second action codes (-1 none),
+their full-sim values (x 1000). Sim state (sim-state.lisp): MC-NEUTRAL reads it when his hold is over.")
+(defvar *mc-jobs* nil "The decisions whose rollouts are running, oldest first (MC-FULL-STEP; dropped at a match start).")
+(defvar *mc-full-stats* (make-array 4 :initial-element 0) "This match: decisions, rollouts, internal time in rollouts, the worst step's.")
+
 (defun mc-press (b action)
   "Start ACTION as the brain's press (written this step)."
   (flet ((dash (dir to) (setf (brain-dash b) (f32 dir) (brain-dash-to b) (f32 to))))
@@ -99,11 +121,15 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
 
 (defun mc-neutral (e b f kit s d)
   "The MCTS neutral: T when it pressed (see the file header)."
+  (when (plusp (aref *mc-plan* (* 5 (fighter-side f))))                 ; a decision made a reaction time ago comes due
+    (return-from mc-neutral (mc-plan-apply b f)))
+  (when *in-rollout* (return-from mc-neutral nil))                       ; (a rollout's later decisions: the generic CPU's)
   (when (and *mc-on* (or (eq *mc-on* t) (member (fighter-character f) *mc-on*)) (member (fighter-state f) '(:idle :run))
              (not (member (list (fighter-character f) (brain-difficulty b)) *mc-off-at* :test #'equal))
              (not (< *match-tick* (aref *mc-next* (fighter-side f)) (+ *match-tick* *mc-defer-gap* 1))) (<= d *mc-far*) (not (gauges-awakened-ok-p e)) (mc-setup e f kit s d (brain-difficulty b)))
     (mc-seed (logxor (sim-rnd-state) (+ (* 7919 *match-tick*) (fighter-side f) 1)))   ; (its own stream: the sim's is only read)
-    (let ((*mc-select* (getf *mc-select-by* (brain-difficulty b) :tree))) (mc-search (getf *mc-iters* (brain-difficulty b) 96)))
+    (let ((*mc-select* (getf *mc-select-by* (brain-difficulty b) :tree)))
+      (mc-search (if *mc-full* (getf *mc-full-lite* (brain-difficulty b) 16) (getf *mc-iters* (brain-difficulty b) 96))))
     (let* ((dif (brain-difficulty b)) (tau (getf *mc-tau* dif 0.03))
            (best (loop for a below 10 for m = (mc-mean a) when m maximize m))
            (second (loop for a below 10 for m = (mc-mean a) when (and m (< m best)) maximize m))
@@ -111,6 +137,7 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
       (when (and second (< (- best second) (getf *mc-sure* dif 0.0)))   ; not decided enough: the CPU under it decides
         (setf (aref *mc-next* (fighter-side f)) (+ *match-tick* *mc-defer-gap*))
         (return-from mc-neutral nil))
+      (when *mc-full* (return-from mc-neutral (mc-full-request e b f)))
       (dotimes (a 10)
         (let ((m (mc-mean a))) (setf (aref ws a) (if (and m (>= m lo)) (exp (/ (- m lo) tau)) 0f0)) (incf tot (aref ws a))))
       (let ((r (* tot (sim-rnd01))))
@@ -119,3 +146,125 @@ one the model starts from (a cinematic, an intro, his knockdown and wake-up ...)
             (decf r (aref ws a))
             (when (<= r 0) (mc-press b (nth a *mc-actions*)) (return)))))
       t)))
+
+;;; ---------------------------------------------------------------- the full sim's decisions (§12)
+(defun mc-full-request (e b f)
+  "After the light search: the best two go to the full sim (a job), he holds for his reaction time. T (he pressed)."
+  (let* ((side (fighter-side f)) (k (* 5 side)) (a1 -1) (a2 -1) (m1 0.0) (m2 0.0))
+    (dotimes (a 10)
+      (let ((m (mc-mean a)))
+        (when m
+          (cond ((or (< a1 0) (> m m1)) (setf a2 a1 m2 m1 a1 a m1 m))
+                ((or (< a2 0) (> m m2)) (setf a2 a m2 m))))))
+    (cond ((< a1 0) nil)
+          ((< a2 0) (mc-press b (nth a1 *mc-actions*)) t)                 ; (one legal action: no question)
+          (t (setf (aref *mc-plan* k) 1 (aref *mc-plan* (+ k 1)) a1 (aref *mc-plan* (+ k 2)) a2
+                   (aref *mc-plan* (+ k 3)) 0 (aref *mc-plan* (+ k 4)) 0)
+             (if (and (eq (brain-press b) :none) (eq (brain-act b) :dash))  ; the hold: a walk goes on, else he stands
+                 (ai-press b :none (mc-full-hold b) :act :dash)
+                 (ai-press b :none (mc-full-hold b)))
+             (setf *mc-jobs* (append *mc-jobs* (list (vector e side a1 a2 (brain-difficulty b) nil 0 0 0.0 0.0 0))))
+             (incf (svref *mc-full-stats* 0))
+             t))))
+
+(defun mc-full-hold (b) (or *mc-full-hold* (brain-delay b)))
+
+(defun mc-plan-apply (b f)
+  "His hold is over: the plan's pick (both scored: the better within the difficulty's budget, a softmax between them; still running:
+the light model's best), if he is still free. The plan is cleared either way. T when he pressed."
+  (let* ((k (* 5 (fighter-side f))) (st (aref *mc-plan* k)) (a1 (aref *mc-plan* (+ k 1))) (a2 (aref *mc-plan* (+ k 2))))
+    (setf (aref *mc-plan* k) 0)
+    (when (and (member (fighter-state f) '(:idle :run)) (>= a1 0))
+      (let ((a (if (and (= st 2) (>= a2 0))
+                   (let* ((dif (brain-difficulty b)) (gap (/ (- (aref *mc-plan* (+ k 3)) (aref *mc-plan* (+ k 4))) 1000.0)))
+                     (cond ((> gap (getf *mc-budget* dif 0.05)) a1)
+                           ((< (* (+ 1.0 (exp (/ (- gap) (getf *mc-tau* dif 0.03)))) (sim-rnd01)) 1.0) a1)
+                           (t a2)))
+                   a1)))
+        (mc-press b (nth a *mc-actions*))
+        t))))
+
+(defun mc-full-reset ()
+  "A match starts: no plan, no job, no stats (START-MATCH)."
+  (fill *mc-plan* 0) (setf *mc-jobs* nil) (fill *mc-full-stats* 0))
+
+(defun mc-full-health (e)
+  "The teacher's unit: Konpaku + 1.5 x the Reishi bar's fraction."
+  (let ((g (gauges e))) (+ (gauges-konpaku g) (* 1.5 (/ (gauges-reishi g) (float (gauges-reishi-max g)))))))
+
+(defun mc-full-reel-p (st) (member st '(:stun :air :down :wakeup :guard-hit :cine)))
+
+(defun mc-full-contact (e a d dif)
+  "The outcome table's value, for E, of the contact attacker A just opened on D (contact.lisp's classes)."
+  (let* ((fa (fighter a)) (mv (and (eq (fighter-state fa) :move) (fighter-move fa)))
+         (cls (cond ((and (eq (fighter-state fa) :hoho) (fighter-perfect fa)) :counter) (mv (kit-class (fighter-kit fa) mv))))
+         (row (mc-outcomes-of (fighter-character fa) (fighter-form fa) dif))
+         (v (cond ((eq (fighter-state (fighter d)) :guard-hit) (nth 6 row))
+                  ((eq cls :counter) (nth 5 row))
+                  ((eq cls :na) (nth 0 row))
+                  ((eq cls :ns) (nth (mc-ptr fa) row))
+                  ((member cls '(:as :sa)) (nth 4 row))
+                  (t 0.0))))
+    (if (eq a e) v (- v))))
+
+(defun mc-full-rollout (e o steps dif)
+  "One rollout from the state now (lean steps): E's score, the health swing to the first contact (or STEPS) plus the table's value of it."
+  (let ((*in-rollout* t) (*log-mute* t) (*pacing-log* nil) (*combat-log* nil) (*gate-log* nil) (*step-hook* nil) (*skip-cines* t)
+        (*cai-styles* (and *mc-full-styles* *cai-styles*))
+        (h0 (mc-full-health e)) (ho0 (mc-full-health o)) (bonus 0.0)
+        (pe (fighter-state (fighter e))) (po (fighter-state (fighter o))))
+    (loop repeat steps while (and (eq *flow* :battle) (not *cine*))
+          do (sim-step-lean)
+             (let ((se (fighter-state (fighter e))) (so (fighter-state (fighter o))))
+               (flet ((opened (st prev) (and (member st '(:stun :air :down :guard-hit)) (not (mc-full-reel-p prev)))))
+                 (cond ((opened so po) (setf bonus (mc-full-contact e e o dif)) (return))
+                       ((opened se pe) (setf bonus (mc-full-contact e o e dif)) (return))))
+               (setf pe se po so)))
+    (+ bonus (- (- ho0 (mc-full-health o)) (- h0 (mc-full-health e))))))
+
+(defun mc-full-roll (j)
+  "Job J's next rollout (its K-th action) from its snapshot: that action planned for him, a stand-in brain for a brainless opponent."
+  (destructuring-bind (e side a1 a2 dif) (coerce (subseq j 0 5) 'list)
+    (let* ((n (svref j 6)) (k (* 5 side)) (o (fighter-opp (fighter e))))
+      (sim-restore (svref j 5))
+      (setf (sim-rnd-state) (logior 1 (logand #xFFFFFFF (+ (svref j 10) 7919))))   ; (common random numbers: one seed for both)
+      (setf (aref *mc-plan* k) 2 (aref *mc-plan* (+ k 1)) (if (zerop n) a1 a2) (aref *mc-plan* (+ k 2)) -1)
+      (unless (brain o)                                                   ; (the human: 「之後學玩家習慣」; a CPU's stick is not the camera's)
+        (add-component o (make-brain :difficulty dif :delay (getf *ai-delay* dif 14)))
+        (setf (pilot-cam-relative (pilot o)) nil))
+      (setf (svref j (+ 8 n)) (mc-full-rollout e o (+ (mc-full-hold (brain e)) *mc-full-h*) dif)
+            (svref j 6) (1+ n)))))
+
+(defun mc-full-step ()
+  "At a step's end (SIM-STEP), outside every rollout: one rollout of the oldest job, the live state saved and put back around it; a job
+both of whose actions are scored writes them into the plan, the better first. Jobs made this step start from this state."
+  (when (and *mc-jobs* (not *in-rollout*))
+    (if (not (sim-snapshot-ok-p))
+        (progn (setf *mc-jobs* nil) (fill *mc-plan* 0))
+        (let ((t0 (get-internal-real-time)) (fresh nil))
+          (dolist (j *mc-jobs*)
+            (unless (svref j 5)
+              (unless fresh (setf fresh (sim-snapshot)))
+              (setf (svref j 5) fresh (svref j 10) (sim-rnd-state))))
+          (let* ((j (first *mc-jobs*)) (k (* 5 (svref j 1))))
+            (if (/= (aref *mc-plan* k) 1)
+                (pop *mc-jobs*)                                            ; (its plan is gone: he was hit, or it came due)
+                (let ((live (if (eq (svref j 5) fresh) (svref j 5) (sim-snapshot))))
+                  (mc-full-roll j)
+                  (sim-restore live)
+                  (incf (svref *mc-full-stats* 1))
+                  (when (= (svref j 6) 2)
+                    (pop *mc-jobs*)
+                    (let* ((v1 (svref j 8)) (v2 (svref j 9)) (swap (< v1 v2)))
+                      (setf (aref *mc-plan* k) 2
+                            (aref *mc-plan* (+ k 1)) (if swap (svref j 3) (svref j 2)) (aref *mc-plan* (+ k 2)) (if swap (svref j 2) (svref j 3))
+                            (aref *mc-plan* (+ k 3)) (round (* 1000 (max v1 v2))) (aref *mc-plan* (+ k 4)) (round (* 1000 (min v1 v2)))))))))
+          (let ((dt (- (get-internal-real-time) t0)))
+            (incf (svref *mc-full-stats* 2) dt) (setf (svref *mc-full-stats* 3) (max (svref *mc-full-stats* 3) dt)))))))
+
+(defun mc-full-log ()
+  "The match's cost line (RESULTS; not one of G2's lines): decisions, rollouts, ms a decision, the worst step's ms."
+  (let ((st *mc-full-stats*) (ms (/ 1000.0 internal-time-units-per-second)))
+    (when (plusp (svref st 0))
+      (log-msg "duel mcfull decisions ~d rollouts ~d ms ~,3f a decision, worst step ~,2f"
+               (svref st 0) (svref st 1) (/ (* ms (svref st 2)) (svref st 0)) (* ms (svref st 3))))))

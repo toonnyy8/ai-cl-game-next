@@ -135,6 +135,7 @@ confirm 32 back; cleared after FLOW-UPDATE. The menus read them as they read the
         *pending* nil *soul-breaks* nil           ; nothing of the last match may leak in
         *timer-cut* 0 *run-mods* nil *run-mods-who* nil *run-foe-mods* nil *run-boss* nil *run-kits* nil)   ; (a DANGAI stage sets them again in ENDLESS-APPLY!)
   (reset-slow-clock)
+  (mc-full-reset)                                         ; (no plan or job of the last match)
   (abort-cine)
   (clear-words)
   (sim-rnd-seed *match-seed*)
@@ -205,12 +206,14 @@ it lives on in memory)."
   (assist-learn-end *winner*))
 
 (defun go-results ()
+  (when *in-rollout* (return-from go-results))            ; (a rollout's K.O.: it stops at :finish; no music, no learner, no results)
   (learn-match-end)
   (let* ((g1 (gauges *p1*)) (g2 (gauges *p2*)))
     (set-flow :results)
     (log-msg "duel -> RESULTS winner ~a konpaku ~d-~d ticks ~d secs ~,1f"
              (case *winner* (0 "P1") (1 "P2") (t "DRAW")) (gauges-konpaku g1) (gauges-konpaku g2)
-             *match-tick* (/ *match-tick* 60.0)))
+             *match-tick* (/ *match-tick* 60.0))
+    (mc-full-log))
   (dolist (e (list *p1* *p2*))
     (let ((f (fighter e)) (won (eql *winner* (fighter-side (fighter e)))))
       (setf (fighter-state f) (if won :win :lose))

@@ -220,3 +220,38 @@ Strength, 40 seeds each, Hisagi NORMAL in HK (his wins) / Kenpachi NORMAL in IK 
 No setting moves strength beyond the noise. Still not in the game: the rollouts see the true state (a reaction delay), a human side needs a
 stand-in brain in the rollouts (a human has no brain; its vpad would read the live devices), the snapshot conses (a reused buffer for the
 slices' live snapshots), and the browser cost must be measured.
+
+## 12. The full sim in the game (2026-11-08)
+
+Asked whether to put §11's cheaper hybrid into the game and how a human opponent is played in the rollouts. **The user: 「放進遊戲，全難度」
+and 「之後學玩家習慣」** (a stand-in CPU plays the human in the rollouts until stage 4's online player model learns his habits).
+- **A decision one reaction time ahead** (`cpu-mcts.lisp` `mc-full-request`, `mc-full-step`, `mc-plan-apply`): when the in-game MCTS
+  decides (the same conditions; the light search ranks with `*mc-full-lite*` 16 rollouts from what he perceives), the best two go to a job
+  and he holds what he was doing (a walk goes on, else he stands) for his perception delay (`brain-delay`: EASY 24, NORMAL 14, HARD 8 f).
+  At each step's end (`sim-step` -> `mc-full-step`, outside every rollout) one rollout of the oldest job runs: the live state snapshotted,
+  the decision's snapshot restored, that action planned for him (`*mc-plan*`, a snapshot root), lean steps (`sim-step-lean`) through the hold
+  and `*mc-full-h*` 40 steps more to the first contact, scored as §11, the live state put back. When the hold is over (`mc-neutral` sees the
+  plan) he takes the better of the two (the difficulty's budget, a softmax between them; the light model's best if the rollouts are not
+  done). Information as before (a reaction time old when he acts), and the rollouts cost no extra delay. Common random numbers: one seed for
+  both. Jobs made in one step share its snapshot; a job whose plan is gone (he was hit) is dropped; a match start clears them.
+- **The human**: a brainless opponent gets a stand-in brain at the deciding CPU's difficulty in each rollout (his pilot not camera-relative
+  there); the restore takes it away. Inside rollouts the CPUs' later decisions are the generic CPU's (`*cai-styles*` off, `*mc-full-styles*`).
+- **Things the rollouts must not touch**: the view (`*view-x*`, `*view-z*`, `*view-side*`, `*behind-yaw*`: written by every sim frame, read
+  by a human's stick and the camera) became snapshot roots; a rollout's K.O. stops at :finish (`go-results` does nothing in a rollout: no
+  music stop, no learner save, no results). Cinematics are skipped as in every rollout (their begin / end hooks reset presentation state
+  that is at its default in battle). `tools/simgate/fulltest.lisp` runs an extra rollout of a copy of each job and compares the state hash
+  line and every DUEL / ENGINE special variable's value before and after: IK 133, II 141, VS CPU (idle human P1, debug 2500 / 2501) 45 / 68
+  checks, all identical.
+- **HARD keeps its margin gate** (`*mc-sure*` 0.16, now before the full sim). Without it the full sim took every neutral decision from
+  Kenpachi's HARD style CPU and he lost every match (IK HARD, 80 seeds, his wins: full sim ungated 0, with the hold 1 f 3, with the style CPUs
+  in the rollouts 3, both 19; the light model alone 60; gated: 56 with 16 ranking rollouts, 60 with 160, 63 with 160 and the styles). §7's
+  fullmc only filled the moments his style CPU left free (it pressed after the brain step) and saw the true state with no hold.
+- **Ichigo's HARD stays on her style CPU** (`*mc-off-at*`): with the full sim she won 3 of 80 against Kenpachi's HARD (her style CPU 20).
+- Strength, 80 seeds each, both CPUs on the shipped config, the full sim off -> on: IK NORMAL Ichigo 33 : Kenpachi 47 -> 24 : 56; HK NORMAL
+  Hisagi 4 : 76 -> 8 : 72; IK HARD 20 : 60 -> 24 : 56. Cost natively: NORMAL ~1.0 ms a decision, HARD ~1.4 (over the match's steps
+  with a rollout; a decision's two rollouts run on two steps).
+- Browser (desktop headless Chrome, G2's three matches): 1.9-2.3 ms a decision, its two rollouts on two steps (~1 ms a step), the worst
+  step 5.2-11.6 ms. G2 regenerated: II 32 lines (P1 5-0, 315.6 s), IK 34 (P2 0-4, 340.1 s), KK 33 (P1 1-0, 327.1 s); browser = native.
+  Host tests ALL PASS, pkgcheck, build, smoke; playtest v361.
+- `*mc-full*` NIL turns it off (the light model alone, as before). fullmc.lisp's other CPUs now play the in-game full sim, so §11's runs are
+  not reproduced by it as they were.

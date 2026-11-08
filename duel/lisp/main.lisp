@@ -39,7 +39,8 @@ rest of the frame then waits for it)."
   (god-update)
   (probe-update)
   (feedback-system)
-  (hash-log))
+  (hash-log)
+  (mc-full-step))                                         ; the CPUs' full-sim rollouts (cpu-mcts.lisp, DUEL_AI_MCTS §12)
 
 (defun pilot-read ()
   "A step without a sim frame (hitstop, slow motion, cinematic): the humans' devices are read into
