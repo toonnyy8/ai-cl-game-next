@@ -258,7 +258,8 @@ correlation, the regret of the light model's pick, the teacher table's at the sa
 
 "Before": both on the CPUs under the MCTS (the KI style CPUs, the generic one elsewhere). Kenpachi is not weaker anywhere; Hisagi against
 Ichigo at NORMAL is (25 -> 19). As shipped before (v355, the KI teacher's tables: §8), KI was NORMAL 27 : 13 and HARD 32 : 8; now 18 : 22
-and 12 : 28: Ichigo's HARD went from the teacher's table to her style CPU (`*mc-off-at*`), which the user has not chosen (asked, 2026-11-08).
+and 12 : 28: Ichigo's HARD went from the teacher's table to her style CPU (`*mc-off-at*`), asked: the teacher's table back for that one cell (recommended) / her style CPU / playtest first. **The user: 「維持風格 CPU」**
+(2026-11-08): the tables stay out of the game.
 Noise: changing only the UCB's arithmetic (floats to fixnums) moved Kenpachi's HARD 21 -> 13 of 40, hence the 80-seed comparison.
 Browser cost (desktop, real time, `run.mjs` without turbo, KK at HARD / NORMAL, 75 s each): the sim 0.06-0.32 ms a frame on average; two
 slow frames at HARD with the sim at 12.1 / 14.6 ms (t 29 and t 1057; warm-up suspected, not confirmed), one at NORMAL with the sim at 5.7;

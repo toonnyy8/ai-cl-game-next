@@ -16,7 +16,8 @@
 (defparameter *mc-far* 7.0 "Beyond this (m) the generic CPU closes in (its run), as before.")
 (defparameter *mc-off-at* '((:ichigo :hard))
   "(character difficulty) pairs left wholly on the CPU under the MCTS: Ichigo's HARD (her MCTS won 5 / 14 / 9 / 11 of 40 against Kenpachi's
-HARD style CPU at the margins 0.08 / 0.15 / 0.25 / 0.4, her style CPU 19: §9), 2026-11-08.")
+HARD style CPU at the margins 0.08 / 0.15 / 0.25 / 0.4, her style CPU 19: §9), 2026-11-08; her style CPU rather than the teacher's table
+(the user: 「維持風格 CPU」).")
 (defparameter *mc-sure* '(:easy 0.0 :normal 0.0 :hard 0.16)
   "The margin (value units) the best action must lead the second by for the MCTS to decide; below it the style / generic CPU decides. At
 HARD only the light model's most decided fifth beat a uniform pick (margin >= 0.08: regret 0.132 against 0.226; the other four 0.21-0.26
