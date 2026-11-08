@@ -156,3 +156,18 @@ later one is the fixed rollout policy): 「好，繼續 1 + 2」.
   mechanics (§8) nor the opponent's rollout policy is where it lives. What is left: the scoring (a contact worth one value per class
   whatever the situation, the rollout ending there; the full sim plays 180 steps, the follow-up and what comes after included) and the
   opponent's first decision; the dataset can now test both in seconds.
+
+## 10. No guard for the CPU either (2026-11-08)
+
+Asked whether each node first drops what the state machine forbids: J1 / SP need the move, a Hoho `hoho-open-p` (flash-step gauge,
+lockout, a rooted form), a Step had no rooted check (no playable form is rooted), and the guard was always legal — but the core system
+unbound U (DUEL_CORE §2) while `guard-held-p` still read the vpad's :guard, so the CPU could guard and a player could not, and the light
+model let the opponent guard. Asked: no guard for the CPU either (recommended) / keep it as the CPU's / give the guard back to players.
+**The user: 「CPU 也不能防禦」.**
+- `fighter.lisp` `guard-held-p`: a `:core` kit never guards (no input source); the light model drops action 6 (`legal`), both sides'
+  root legality too. The rest of the state machine was already in the model's structure: a new action only when free (never inside a move,
+  a reel, a blockstun, a Step, a Hoho, a lie), motion only by the state (a walk walks; a move only its own lunge; a Step only its hop),
+  NS gaps by the triangle's rules. Not modelled: the Step's J cancel from frame 12, the run's 6-frame brake, a Burst out of a reel.
+- Checks: host tests ALL PASS; G2 regenerated (II 39 lines, P1 3-2, 391.8 s; IK 27, P2 0-3, 265.3 s; KK 35, P2 0-4, 344.6 s; before II 42,
+  IK 33, KK 31), browser = native; playtest v360. Strength (IK, 40 seeds, both on the shipped CPUs): NORMAL 21 : 19, HARD 8 : 32 (before
+  16 : 24, 9 : 31).

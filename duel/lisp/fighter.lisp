@@ -583,7 +583,9 @@ and West's ward is always up, so there U does nothing more (GUARD-P)."
   (let ((g (gauges e)))
     (and (vpad-down vp :guard) (can-guard-p (gauges-gg g) (gauges-guardless g))
          (not (and *run-mods* (run-no-guard-p e g vp)))   ; DANGAI's :red-no-guard
-         (not (kit-hook (kit-of e) :u)))))              ; a form whose U is a move never guards (U-PRESS!)
+         (not (kit-hook (kit-of e) :u))                ; a form whose U is a move never guards (U-PRESS!)
+         (not (kit-core (kit-of e))))))                ; the core system has no guard (U unbound, DUEL_CORE §2): no input guards,
+                                                       ; the CPU's neither (the user, 2026-11-08: 「CPU 也不能防禦」, DUEL_AI_MCTS §10)
 
 (defun u-press! (e f vp)
   "A form with a :u hook (its U is a move, not a guard): a buffered U press calls it; T (the press used) when it started

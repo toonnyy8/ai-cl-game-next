@@ -220,7 +220,7 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
                (cur (me side) `(the mc-fv (rec ,side (aref ,me +f-slot+))))
                (val (side o) `(aref (if (= ,side 0) v0 v1) ,o))
                (signed (side v) `(if (= ,side 0) ,v (- ,v)))
-               (legal (me side a) `(cond ((> ,a 2) t) ((= ,a 2) (= (aref ,me +f-hoho+) 1)) (t (rec ,side ,a))))
+               (legal (me side a) `(cond ((= ,a 6) nil) ((> ,a 2) t) ((= ,a 2) (= (aref ,me +f-hoho+) 1)) (t (rec ,side ,a))))   ; (no guard: the core system has none)
                (hit-slot (me r) `(case (aref ,r +r-cls+) (2 (+ +o-ns1+ (aref ,me +f-ptr+))) ((3 4) +o-turn+) (t +o-na+)))
                (invuln (op) `(let ((k (aref ,op +f-kind+)) (tt (aref ,op +f-t+)))
                                (or (= k +k-lie+) (and (= k +k-step+) (<= 3 tt 9)) (and (= k +k-hoho+) (<= 1 tt 14)))))
