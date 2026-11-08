@@ -1,0 +1,30 @@
+{
+ "char": "ichigo",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "ichi-nonahead",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 194,
+ "comp_matches": 200,
+ "inc_wins": 99,
+ "inc_matches": 200,
+ "comp_share": 0.97,
+ "inc_share": 0.495,
+ "gain": 0.475,
+ "b": 100,
+ "c": 5,
+ "z": 9.271,
+ "own_share": 0.2732,
+ "wall_s": 10.6,
+ "score": 0.97,
+ "capped": false,
+ "judged": 17014,
+ "held": [
+  4648
+ ],
+ "raw": false,
+ "vs_strat": [
+  "none"
+ ]
+}

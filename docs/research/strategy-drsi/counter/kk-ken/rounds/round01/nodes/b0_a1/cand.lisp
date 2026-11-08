@@ -1,0 +1,1 @@
+(:id :kk-ki-near-notahead :own (((:lead :behind) (:dj :in)) ((:lead :behind) (:dj :reach)) ((:lead :even) (:dj :in)) ((:lead :even) (:dj :reach)) ((:lead :behind) (:ost :free)) ((:mr :low) (:dj :in))) :fn ken-ki-style)

@@ -2,7 +2,64 @@
   "baseline_score": 0.5,
   "beta": 0.6,
   "branch_count": 3,
-  "cells": {},
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.98 inc 0.5 gain 0.48 z 9.697 own 0.2768 capped False",
+      "score": 0.98
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.975 inc 0.5 gain 0.475 z 9.361 own 0.3601 capped False",
+      "score": 0.975
+    },
+    "b0_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.965 inc 0.5 gain 0.465 z 9.443 own 0.362 capped False",
+      "score": 0.965
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.975 inc 0.5 gain 0.475 z 9.453 own 0.3839 capped False",
+      "score": 0.975
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.9 inc 0.5 gain 0.4 z 8.251 own 0.2552 capped False",
+      "score": 0.9
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.905 inc 0.5 gain 0.405 z 7.981 own 0.4336 capped False",
+      "score": 0.905
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.955 inc 0.5 gain 0.455 z 8.966 own 0.2781 capped False",
+      "score": 0.955
+    }
+  },
   "directions": {},
   "grid_plan": {
     "clamp_reasons": [],
@@ -19,9 +76,8 @@
   },
   "max_parallelism": 4,
   "pending_batch": [
-    "b0_a0",
-    "b1_a0",
-    "b2_a0"
+    "b1_a2",
+    "b2_a2"
   ],
   "policy_file": "rounds/round01/policy.py",
   "refine_count": 2,

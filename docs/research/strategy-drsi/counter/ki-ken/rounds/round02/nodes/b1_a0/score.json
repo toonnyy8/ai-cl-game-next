@@ -1,0 +1,30 @@
+{
+ "char": "kenpachi",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "ichigo-style-opp-reishi-or-far-dry",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 85,
+ "comp_matches": 200,
+ "inc_wins": 19,
+ "inc_matches": 200,
+ "comp_share": 0.425,
+ "inc_share": 0.095,
+ "gain": 0.33,
+ "b": 76,
+ "c": 10,
+ "z": 7.117,
+ "own_share": 0.5383,
+ "wall_s": 13.3,
+ "score": 0.425,
+ "capped": false,
+ "judged": 29428,
+ "held": [
+  15842
+ ],
+ "raw": false,
+ "vs_strat": [
+  "docs/research/strategy-drsi/counter/frozen/q1-ichigo-ken.lisp"
+ ]
+}

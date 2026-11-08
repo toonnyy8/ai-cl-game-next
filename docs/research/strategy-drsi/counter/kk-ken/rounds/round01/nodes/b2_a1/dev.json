@@ -1,0 +1,30 @@
+{
+ "char": "kenpachi",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "kk-behind-near-hi",
+ "seeds": 100,
+ "seed0": 800,
+ "comp_wins": 192,
+ "comp_matches": 200,
+ "inc_wins": 100,
+ "inc_matches": 200,
+ "comp_share": 0.96,
+ "inc_share": 0.5,
+ "gain": 0.46,
+ "b": 99,
+ "c": 7,
+ "z": 8.936,
+ "own_share": 0.2706,
+ "wall_s": 6.2,
+ "score": 0.96,
+ "capped": false,
+ "judged": 15797,
+ "held": [
+  4274
+ ],
+ "raw": false,
+ "vs_strat": [
+  "none"
+ ]
+}

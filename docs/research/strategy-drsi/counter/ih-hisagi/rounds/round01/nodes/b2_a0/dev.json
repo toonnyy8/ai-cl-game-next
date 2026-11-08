@@ -1,0 +1,30 @@
+{
+ "char": "hisagi",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "c",
+ "seeds": 100,
+ "seed0": 800,
+ "comp_wins": 4,
+ "comp_matches": 200,
+ "inc_wins": 0,
+ "inc_matches": 200,
+ "comp_share": 0.02,
+ "inc_share": 0.0,
+ "gain": 0.02,
+ "b": 4,
+ "c": 0,
+ "z": 2.0,
+ "own_share": 0.08,
+ "wall_s": 7.5,
+ "score": 0.02,
+ "capped": false,
+ "judged": 10039,
+ "held": [
+  803
+ ],
+ "raw": false,
+ "vs_strat": [
+  "docs/research/strategy-drsi/counter/frozen/ki-ichigo.lisp"
+ ]
+}
