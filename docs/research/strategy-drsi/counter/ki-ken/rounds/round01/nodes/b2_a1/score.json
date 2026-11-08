@@ -1,0 +1,21 @@
+{
+ "char": "kenpachi",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "ken-style-keep-range-low-reishi",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 155,
+ "comp_matches": 200,
+ "inc_wins": 151,
+ "inc_matches": 200,
+ "comp_share": 0.775,
+ "inc_share": 0.755,
+ "gain": 0.02,
+ "b": 24,
+ "c": 20,
+ "z": 0.603,
+ "own_share": 0.1298,
+ "wall_s": 7.4,
+ "score": 0.775
+}

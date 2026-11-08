@@ -1,0 +1,21 @@
+{
+ "char": "kenpachi",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "ored-cash",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 143,
+ "comp_matches": 200,
+ "inc_wins": 151,
+ "inc_matches": 200,
+ "comp_share": 0.715,
+ "inc_share": 0.755,
+ "gain": -0.04,
+ "b": 14,
+ "c": 22,
+ "z": -1.333,
+ "own_share": 0.3408,
+ "wall_s": 7.6,
+ "score": 0.715
+}

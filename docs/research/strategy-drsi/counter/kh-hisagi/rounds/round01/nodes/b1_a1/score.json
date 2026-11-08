@@ -1,0 +1,21 @@
+{
+ "char": "hisagi",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "kite-awkkik",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 39,
+ "comp_matches": 200,
+ "inc_wins": 7,
+ "inc_matches": 200,
+ "comp_share": 0.195,
+ "inc_share": 0.035,
+ "gain": 0.16,
+ "b": 39,
+ "c": 7,
+ "z": 4.718,
+ "own_share": 1.0,
+ "wall_s": 9.7,
+ "score": 0.195
+}

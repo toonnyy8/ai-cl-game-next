@@ -1,0 +1,21 @@
+{
+ "char": "ichigo",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "ki-nearhis",
+ "seeds": 50,
+ "seed0": 800,
+ "comp_wins": 40,
+ "comp_matches": 100,
+ "inc_wins": 25,
+ "inc_matches": 100,
+ "comp_share": 0.4,
+ "inc_share": 0.25,
+ "gain": 0.15,
+ "b": 26,
+ "c": 11,
+ "z": 2.466,
+ "own_share": 0.8038,
+ "wall_s": 4.4,
+ "score": 0.4
+}

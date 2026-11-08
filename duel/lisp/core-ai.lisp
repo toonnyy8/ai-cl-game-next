@@ -162,6 +162,10 @@ steps in neutral, else held (no random draw). Outside rollouts it counts the jud
             (and (member (fighter-state f) '(:idle :run)) (>= (- *match-tick* (brain-sw-t b)) *strat-switch-period*)))
     (setf (brain-sw-t b) *match-tick*)
     (multiple-value-bind (sub i) (strat-judge sw (strat-feats e f s d))
+      (let* ((x (if sub (getf sub :fn) (cai-style-fn f))) (fn (if (and x (symbolp x)) (symbol-function x) x)))
+        (when (and fn (not (eq fn (brain-sw-fn b))))      ; (another style function takes over: its own state, not the last one's struct)
+          (when (brain-sw-fn b) (setf (brain-style b) nil))
+          (setf (brain-sw-fn b) fn)))
       (setf (brain-sw-sub b) sub)
       (unless *in-rollout*
         (let ((won (or (brain-sw-won b) (setf (brain-sw-won b) (make-array 8 :initial-element 0)))))

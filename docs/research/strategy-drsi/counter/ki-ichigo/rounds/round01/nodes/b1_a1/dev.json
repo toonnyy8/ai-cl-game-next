@@ -1,0 +1,21 @@
+{
+ "char": "ichigo",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "ki-lowfree-trail",
+ "seeds": 50,
+ "seed0": 800,
+ "comp_wins": 37,
+ "comp_matches": 100,
+ "inc_wins": 25,
+ "inc_matches": 100,
+ "comp_share": 0.37,
+ "inc_share": 0.25,
+ "gain": 0.12,
+ "b": 20,
+ "c": 8,
+ "z": 2.268,
+ "own_share": 0.1624,
+ "wall_s": 6.1,
+ "score": 0.37
+}

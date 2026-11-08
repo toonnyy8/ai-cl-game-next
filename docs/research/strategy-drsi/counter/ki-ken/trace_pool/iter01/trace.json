@@ -1,0 +1,99 @@
+{
+  "baseline_score": 0.755,
+  "beta": null,
+  "branch_count": 3,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.76 inc 0.755 gain 0.005 z 0.229 own 0.1142",
+      "score": 0.76
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.76 inc 0.755 gain 0.005 z 0.164 own 0.4146",
+      "score": 0.76
+    },
+    "b0_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.765 inc 0.755 gain 0.01 z 0.277 own 0.1473",
+      "score": 0.765
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.705 inc 0.755 gain -0.05 z -1.291 own 0.578",
+      "score": 0.705
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.715 inc 0.755 gain -0.04 z -1.333 own 0.3408",
+      "score": 0.715
+    },
+    "b1_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.745 inc 0.755 gain -0.01 z -0.267 own 0.3304",
+      "score": 0.745
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.745 inc 0.755 gain -0.01 z -0.283 own 0.6194",
+      "score": 0.745
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.775 inc 0.755 gain 0.02 z 0.603 own 0.1298",
+      "score": 0.775
+    },
+    "b2_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.77 inc 0.755 gain 0.015 z 0.447 own 0.1855",
+      "score": 0.77
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "counter strategy for kenpachi vs ichigo HARD: composite win share (DUEL_AI_STRATEGY 8.7)"
+}

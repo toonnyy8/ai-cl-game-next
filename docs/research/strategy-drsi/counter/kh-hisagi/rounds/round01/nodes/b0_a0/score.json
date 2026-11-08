@@ -1,0 +1,21 @@
+{
+ "char": "hisagi",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "s3-zoner",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 27,
+ "comp_matches": 200,
+ "inc_wins": 7,
+ "inc_matches": 200,
+ "comp_share": 0.135,
+ "inc_share": 0.035,
+ "gain": 0.1,
+ "b": 27,
+ "c": 7,
+ "z": 3.43,
+ "own_share": 1.0,
+ "wall_s": 9.2,
+ "score": 0.135
+}

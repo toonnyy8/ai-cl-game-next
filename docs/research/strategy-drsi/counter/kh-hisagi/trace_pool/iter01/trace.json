@@ -1,0 +1,99 @@
+{
+  "baseline_score": 0.035,
+  "beta": null,
+  "branch_count": 3,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.135 inc 0.035 gain 0.1 z 3.43 own 1.0",
+      "score": 0.135
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.29 inc 0.035 gain 0.255 z 6.425 own 1.0",
+      "score": 0.29
+    },
+    "b0_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.415 inc 0.035 gain 0.38 z 8.195 own 1.0",
+      "score": 0.415
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.17 inc 0.035 gain 0.135 z 4.323 own 1.0",
+      "score": 0.17
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.195 inc 0.035 gain 0.16 z 4.718 own 1.0",
+      "score": 0.195
+    },
+    "b1_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.375 inc 0.035 gain 0.34 z 7.603 own 1.0",
+      "score": 0.375
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.12 inc 0.035 gain 0.085 z 3.053 own 1.0",
+      "score": 0.12
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.205 inc 0.035 gain 0.17 z 5.013 own 1.0",
+      "score": 0.205
+    },
+    "b2_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.33 inc 0.035 gain 0.295 z 7.002 own 1.0",
+      "score": 0.33
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "counter strategy for hisagi vs kenpachi HARD: composite win share (DUEL_AI_STRATEGY 8.7)"
+}

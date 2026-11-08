@@ -1,0 +1,49 @@
+{
+  "completed_by_policy": true,
+  "cycle": 0,
+  "explore": {
+    "batch_sizes": [
+      3,
+      3,
+      3
+    ],
+    "best_score": 0.775,
+    "decision_rounds": 3,
+    "effective_sequential_rounds": 3,
+    "max_refine": 2,
+    "max_width": 3,
+    "max_workers": 4,
+    "probe_budget": 9
+  },
+  "grid_plan": {
+    "actual": {
+      "decision_rounds": 3,
+      "effective_sequential_rounds": 3,
+      "max_attempt_selected": 2,
+      "opened_branch_count": 3,
+      "probe_count": 9
+    },
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "policy": {
+    "beta_default": null,
+    "config": {},
+    "name": "parallel_refine",
+    "sha256": "5ce9ab5d0df83dc558f40acc782d63027760eef1537cf9fb4c4b736b25d8666e",
+    "source": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/counter/ki-ken/rounds/round01/policy.py"
+  },
+  "recorded_at": "2026-11-08T14:22:23.878198+00:00",
+  "round_index": 1,
+  "schema_version": 2,
+  "workspace": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/counter/ki-ken"
+}

@@ -1,0 +1,21 @@
+{
+ "char": "ichigo",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "ki-rush-combo",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 200,
+ "comp_matches": 200,
+ "inc_wins": 21,
+ "inc_matches": 200,
+ "comp_share": 1.0,
+ "inc_share": 0.105,
+ "gain": 0.895,
+ "b": 179,
+ "c": 0,
+ "z": 13.379,
+ "own_share": 0.7957,
+ "wall_s": 5.6,
+ "score": 1.0
+}

@@ -244,6 +244,29 @@ Asked before round 1 (§1 left the score, W and the grid to confirm). The user's
   own comparisons). The incumbents' shares, search / held-out: Ichigo vs Hisagi 0.105 / 0.13, Kenpachi vs Ichigo 0.755 / 0.77, Ichigo vs
   Kenpachi 0.245 / 0.23, Hisagi vs Kenpachi 0.035 / 0.055. Workspaces: `docs/research/strategy-drsi/counter/` (README).
 
+### 8.8 Counter search, round 1 (2026-11-08)
+
+36 cells planned, 30 run (Sonnet 5.5 subagents, W = 4): Ichigo vs Hisagi stopped after its first batch of 3, at the score's ceiling (1.0).
+Every cell rescored on the search seeds (600-699); the best of each workspace then on the held-out seeds (700-799). Shares are the
+character's wins, both seats, 200 matches; "inc" = the incumbent (the shipped CPU) on the same seeds.
+
+| Workspace | Best candidate (`:own` share) | Search (inc) | Held-out (inc) | z held-out |
+|---|---|---|---|---|
+| Ichigo vs Hisagi | her KI style CPU as the strategy (`:fn ichigo-ki-style`), everywhere / off his J1 reach (0.79) | 1.0 (0.105) | 1.0 (0.13) | 13.2 |
+| Ichigo vs Kenpachi | **Kenpachi's** KI style CPU as her strategy (`:fn ken-ki-style`), everywhere | 0.43 (0.245) | 0.415 (0.23) | 4.1 |
+| Hisagi vs Kenpachi | a wide kite (`:range` 3.2, `:ns` 1, no J1, back off in his reach, `:cont` 1.0-1.4, `:awaken` 2.5-4), everywhere | 0.375-0.415 (0.035) | 0.375-0.47 (0.055) | 7.2-8.6 |
+| Kenpachi vs Ichigo | his KI style keeping range (x1.4) while his Reishi is low (0.11-0.15) | 0.77-0.775 (0.755) | 0.77-0.775 (0.77) | 0-0.15 |
+
+- **No situational counter survived.** Partial slices that rescored above the incumbent fell back on the held-out seeds (Ichigo vs
+  Kenpachi: her style + `:range 0.7` on 55-82 % of the judgements, 0.36-0.38 search, 0.255-0.27 held-out against 0.23). The three
+  confirmed gains replace the incumbent everywhere: new (pairing, HARD) lookup entries, not situational value. So §7 step 8' (the Q
+  selector) still has nothing to choose between.
+- Lessons for round 2: a cell's 100 dev matches overfit (picked dev gains of +0.05-0.15 shrank to about 0 on the search seeds); under a
+  `:fn` the `:b-` biases and rules are inert and only `:range` acts; data-only strategies win 0 against a KI style CPU (as §8.3).
+- **A composite bug found and fixed**: a sub whose `:fn` differs from the style CPU it replaces got the other style's state struct
+  (`brain-style`) and crashed the sim (Ichigo with `ken-ki-style` on part of the game). Brain slot `sw-fn`: the style function that owns
+  `brain-style`; another one taking over starts afresh. Scores of same-function candidates unchanged (76 / 49 before and after).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
