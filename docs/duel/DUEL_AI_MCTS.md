@@ -79,3 +79,13 @@ wake-up handover (DUEL_AI_TEACHER §9.3); the literature favours decoupled UCT (
   Ichigo NORMAL 64 / 59 / 51; Hisagi NORMAL (HK) 13 / 5 / 11. DUCT at HARD by the margin gate: 0 -> 4, 0.08 -> 47, 0.16 -> 63. Ichigo HARD on
   DUCT 14 / 2 at 0.16 / 0.08 against 20 on her CPU: still off.
 - `*mc-select-by*` (cpu-mcts.lisp): EASY / NORMAL the tree, HARD DUCT. G2 unchanged (NORMAL); playtest v359.
+
+## 6. A deeper tree (2026-11-08)
+
+The user: 「能把樹的層數增加嗎？」. `*mc-select*` `:deep` (mcts-lite.lisp): an event-driven, open-loop tree (as Puppet-Master MCTS): each
+decision of either side as it comes free in the rollout goes one level down, `*mc-depth*` decisions in the tree, one node expanded per rollout
+(preallocated, `+mc-max-nodes+` 1024), the root's side-0 statistics for the selection layer; host-tested.
+- 80 IK seeds, the MCTS side's wins, depth 2 / 3 / 4 / 6 at 96 rollouts (and depth 4 at 192): Ichigo NORMAL 62 / 56 / 56 / 56 (48);
+  Kenpachi NORMAL 77 / 74 / 74 / 74 (76); Kenpachi HARD (depth 3 / 4 / 6) 54 / 54 / 54 against DUCT's 63. Depth 2 matches the `:tree` (64,
+  76); depths 3-6 agree exactly (a rollout ends at its first contact before a fourth decision); deeper or longer is worse: the search leans
+  harder on the light model's errors. Kept as an option, not used; to be measured again after the offline correction (stage 3).

@@ -132,10 +132,20 @@ pick is the policy's. (A decoupled bandit at the root, the replies blind to the 
 CPUs where this tree ...: §9.)")
 (defparameter *mc-select* :tree   ; (bound per decision from *MC-SELECT-BY*, cpu-mcts.lisp)
   "How a search picks the two sides' first actions: :TREE (my action by UCB, then his reply to it by its own UCB: a 10 x 10 second level),
-:DUCT (decoupled UCT: one UCB per side over its own actions, blind to the other's: 10 + 10 statistics), :RM (simultaneous-move MCTS with
+:DUCT (decoupled UCT: one UCB per side over its own actions, blind to the other's: 10 + 10 statistics), :DEEP (the event-driven tree, *MC-DEPTH*), :RM (simultaneous-move MCTS with
 regret matching, outcome sampling: each side samples from its regret-matched strategy mixed with *MC-RM-GAMMA* exploration). Decoupled UCT was
 the best of nine simultaneous-move games, regret matching the most robust, EXP3 the weakest (docs/research/ai-mcts-fuzzy-learning/notes-mcts.md
 C; EXP3 also needs EXP, which the native sim and wasm may round apart: not offered).")
+(defparameter *mc-depth* 4
+  "The :DEEP search's depth: decisions down the tree (whoever decides next, as each fighter comes free in the rollout: an event-driven,
+open-loop tree as Puppet-Master MCTS); below it the rollout policy. 2 is the :TREE's my action and his reply.")
+(defconstant +mc-max-nodes+ 1024)
+(defvar *mc-tn* (mc-fv (* +mc-max-nodes+ 20)) "The :DEEP tree: per node x side x action (20 a node): visits ...")
+(defvar *mc-ts* (mc-fv (* +mc-max-nodes+ 20)) "... summed side-0 value (milli) ...")
+(defvar *mc-tc* (mc-fv (* +mc-max-nodes+ 20)) "... and the child node it leads to (-1 none).")
+(defvar *mc-tv* (mc-fv (* +mc-max-nodes+ 2)) "Per node x side: visits of that side's decision there.")
+(defvar *mc-path* (mc-fv 96) "This rollout's tree decisions: (node side action) triples.")
+(defvar *mc-tree* (mc-fv 4) "0 the node a rollout is at (-1 out of the tree), 1 the decisions taken, 2 nodes in use, 3 the depth.")
 (defparameter *mc-rm-gamma* 0.1 "Regret matching's exploration: this share of each side's strategy spread evenly over its legal actions.")
 (defvar *mc-r0* (mc-fv 10) "Regret matching: side 0's cumulative regrets (milli) ...")
 (defvar *mc-r1* (mc-fv 10) "... and side 1's.")
@@ -167,10 +177,11 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
   (declare (fixnum root root2) (optimize (speed 3) (safety 0)))
   (let* ((fs *mc-f*) (f0 (svref fs 0)) (f1 (svref fs 1)) (slots *mc-slots*) (g *mc-g*) (w *mc-w*)
          (v0 (svref *mc-vals* 0)) (v1 (svref *mc-vals* 1))
-         (dist (aref g 0)) (react (aref g 1)) (horizon (aref g 3)) (tick 0) (first2 root2))
-    (declare (type mc-fv f0 f1 g w v0 v1) (simple-vector fs slots) (fixnum dist react horizon tick first2))
+         (dist (aref g 0)) (react (aref g 1)) (horizon (aref g 3)) (tick 0) (first2 root2)
+         (tn *mc-tn*) (ts *mc-ts*) (tc *mc-tc*) (tv *mc-tv*) (path *mc-path*) (tr *mc-tree*) (sq *mc-sqrt*) (uc (round (* 1000 *mc-ucb-c*))))
+    (declare (type mc-fv f0 f1 g w v0 v1 tn ts tc tv path tr sq) (simple-vector fs slots) (fixnum dist react horizon tick first2 uc))
     (replace f0 (the mc-fv (svref *mc-i* 0))) (replace f1 (the mc-fv (svref *mc-i* 1)))
-    (when (and (>= root2 0) (= (aref f1 +f-kind+) +k-free+))   ; a free opponent answers after his delay (standing till then)
+    (when (and (or (>= root2 0) (= root2 -2)) (= (aref f1 +f-kind+) +k-free+))   ; a free opponent answers after his delay (standing till then)
       (setf (aref f1 +f-kind+) +k-wait+ (aref f1 +f-t+) 0 (aref f1 +f-len+) (max 1 (aref g 4))))
     (when (= (aref f1 +f-kind+) +k-move+)                       ; the move he is in: its rolls, this rollout's
       (setf (aref f1 +f-cont+) (if (< (mc-rand g 1000) (aref g 5)) 1 0) (aref f1 +f-turn+) (if (< (mc-rand g 1000) (aref g 6)) 1 0)))
@@ -238,7 +249,33 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
                         `((when (and (= (aref ,me +f-react+) 1) (<= k +k-walk+) (threat ,op ,oside ,me))
                             (return-from mc-rollout (signed ,side (val ,side +o-counter+))))))
                     (when (= k +k-move+) (gap ,me ,side ,op ,oside))
-                    (when (= k +k-free+) (start ,me ,side ,op ,oside ,(if (eql side 0) `(if (= tick 0) root (pick ,me ,side)) `(if (>= first2 0) (prog1 first2 (setf first2 -1)) (pick ,me ,side)))))))
+                    (when (= k +k-free+)
+                      (start ,me ,side ,op ,oside
+                             (if (and (= root2 -2) (>= (aref tr 0) 0)) (tree-pick ,me ,side)
+                                 ,(if (eql side 0) `(if (= tick 0) root (pick ,me ,side)) `(if (>= first2 0) (prog1 first2 (setf first2 -1)) (pick ,me ,side))))))))
+               (tree-pick (me side)       ; the :DEEP tree's decision for SIDE at its node: UCB over that side's legal actions, then down
+                 `(let* ((nd (aref tr 0)) (base (+ (* nd 20) (* ,side 10))) (best 7) (bs most-negative-fixnum)
+                         (root (aref sq (min 4095 (1+ (aref tv (+ (* nd 2) ,side)))))))
+                    (declare (fixnum nd base best bs root))
+                    (dotimes (a 10)
+                      (when (legal ,me ,side a)
+                        (let* ((k (aref tn (+ base a)))
+                               (sc (if (zerop k) most-positive-fixnum
+                                       (+ (* ,(if (eql side 0) 1 -1) (the fixnum (floor (aref ts (+ base a)) k))) (the fixnum (floor (* uc root) (1+ k)))))))
+                          (declare (fixnum k sc))
+                          (when (> sc bs) (setf bs sc best a)))))
+                    (let ((d (aref tr 1)))
+                      (setf (aref path (* 3 d)) nd (aref path (+ 1 (* 3 d))) ,side (aref path (+ 2 (* 3 d))) best (aref tr 1) (1+ d))
+                      (let ((c (aref tc (+ base best))))
+                        (cond ((>= c 0) (setf (aref tr 0) (if (>= (1+ d) (aref tr 3)) -1 c)))
+                              ((< (aref tr 2) +mc-max-nodes+)            ; expansion: one new node, then out of the tree
+                               (let ((new (aref tr 2)))
+                                 (setf (aref tc (+ base best)) new (aref tr 2) (1+ new) (aref tr 0) -1)
+                                 (fill tn 0 :start (* new 20) :end (* (1+ new) 20)) (fill ts 0 :start (* new 20) :end (* (1+ new) 20))
+                                 (fill tc -1 :start (* new 20) :end (* (1+ new) 20))
+                                 (setf (aref tv (* new 2)) 0 (aref tv (1+ (* new 2))) 0)))
+                              (t (setf (aref tr 0) -1)))))
+                    best))
                (move (me side)          ; this step's motion of ME (the distance) and of his wave
                  `(let ((k (aref ,me +f-kind+)) (tt (aref ,me +f-t+)) (dir (aref ,me +f-dir+)))
                     (declare (fixnum k tt dir))
@@ -300,6 +337,26 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
 
 ;;; ---------------------------------------------------------------- the search
 (defvar *mc-sqrt* (let ((v (mc-fv 4096))) (dotimes (i 4096 v) (setf (aref v i) (isqrt i)))) "ISQRT 0-4095 (UCB in fixnums: no float boxing).")
+
+(defun mc-search-deep (iters)
+  "ITERS rollouts down the event-driven tree (*MC-DEPTH* decisions): each rollout starts at the root, each decision of either side as it
+comes free takes that side's UCB pick at the node it is at, a new node is made at the first unvisited branch (then the rollout policy), and
+the value is backed up along the path. *MC-N* / *MC-SUM*: the root's side-0 statistics (side 0 decides first: it is free)."
+  (declare (fixnum iters) (optimize (speed 3) (safety 0)))
+  (let ((tn *mc-tn*) (ts *mc-ts*) (tc *mc-tc*) (tv *mc-tv*) (path *mc-path*) (tr *mc-tree*) (n *mc-n*) (sum *mc-sum*))
+    (declare (type mc-fv tn ts tc tv path tr n sum))
+    (fill tn 0 :end 20) (fill ts 0 :end 20) (fill tc -1 :end 20) (setf (aref tv 0) 0 (aref tv 1) 0)
+    (setf (aref tr 2) 1 (aref tr 3) (max 1 (min 32 *mc-depth*)))
+    (dotimes (it iters)
+      (setf (aref tr 0) 0 (aref tr 1) 0)
+      (let ((v (mc-rollout 0 -2)))
+        (declare (fixnum v))
+        (dotimes (i (aref tr 1))
+          (let* ((nd (aref path (* 3 i))) (sd (aref path (+ 1 (* 3 i)))) (a (aref path (+ 2 (* 3 i)))) (j (+ (* nd 20) (* sd 10) a)))
+            (declare (fixnum nd sd a j))
+            (incf (aref tn j)) (incf (aref ts j) v) (incf (aref tv (+ (* nd 2) sd)))))))
+    (dotimes (a 10) (setf (aref n a) (aref tn a) (aref sum a) (aref ts a)))
+    n))
 
 (defun mc-search-rm (iters)
   "ITERS rollouts of simultaneous-move MCTS with regret matching at the root (outcome sampling): each side's strategy is its positive regrets
@@ -381,6 +438,7 @@ UCB in milli-units and fixnums: mean + C x isqrt(N + 1) / (1 + n)."
                (incf (aref sum a) v) (incf (aref n a))
                (when (>= b 0) (incf (aref sum2 b) v) (incf (aref n2 b)))))))
         (:rm (mc-search-rm iters))
+        (:deep (mc-search-deep iters))
         (t
          (dotimes (it iters)
            (let* ((a (ucb n sum legal 1 0 it)) (b (if (and opp (>= a 0)) (ucb n2 sum2 legal2 -1 (* 10 a) (aref n a)) -1)))

@@ -52,7 +52,7 @@
       (check (every #'plusp n)))))
 ;; the selection modes (decoupled UCT, regret matching): each plays every rollout, the same seed the same values
 (let* ((kk (kit :kenpachi :base)) (ik (kit :ichigo :base)))
-  (dolist (mode '(:duct :rm))
+  (dolist (mode '(:duct :rm :deep))
     (let ((*mc-select* mode) (runs nil))
       (dotimes (k 2)
         (fill *mc-slots* nil)
