@@ -338,6 +338,16 @@ the lookup still plays c1.
 - **What moved** (16 of 48 cells): awakened, her own style in place of Kenpachi's in 10 cells. Not awakened, with him free and her behind
   (or even with him red), Kenpachi's style in place of her own, which reverses c1's trigger. `:prev` keeps her own style in one busy cell.
 
+### 8.13 The fuzzy Q table into the game; next its online learning against the player (2026-11-09)
+
+Asked after §8.12. The user: 「取代手寫規則 (Recommended)」 and 「對玩家的線上學習 (Recommended)」 (their earlier question: 「能讓 fuzzy Q learning
+也在對局中學習玩家的習慣嗎？」).
+- `*strat-library*` gains `:q1-ichigo-ken` (the trained table inlined); `*strat-lookup*` Ichigo vs Kenpachi HARD plays it in place of c1
+  (c1 stays in the library). The game reproduces the evaluation: 0.905 / 0.895 on seeds 600-699 / 700-799. G2 identical native and
+  browser, host tests 9890 ALL PASS, Artifact v365.
+- Next: the table as the starting point against a human, bounded TD updates by firing strength between matches, saved per player; CPU vs
+  CPU never updates (G2 unchanged); Ichigo vs Kenpachi first.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
