@@ -30,6 +30,21 @@
             (when (plusp w) (incf num (* w v)) (incf den w))))))
     (if (plusp den) (/ num den) (getf (getf strat :base) key))))
 
+;;; The DRIVE switch for a CPU (DUEL_AI_STRATEGY §8.16; the user, 2026-11-09: 「記得將消耗 drive 量表來臨時切換 NS 的戰術也安排到策略中」): a
+;;; strategy's output :DSWITCH is the chance (its HARD value, core-ai.lisp *CAI-DSWITCH-DIF*) that a CPU switches in an NS segment's gap
+;;; (DUEL_SUBLIMATION §17, the human's rules and press), one roll per segment; :DSWITCH-MAP ((form from to) ...) names the target pointer by
+;;; his form and pointer, else the band rule below picks it. No :DSWITCH: never (the shipped CPU).
+(defun strat-switch-to (ptr n d bands &optional to)
+  "The pointer a switch from pointer PTR (of N) goes to at distance D: TO (an explicit target) when its NS opener reaches D, else the first
+of the next, then the other pointers (cyclic) whose opener does; BANDS = a (lo hi) per pointer (index 0 = pointer 1, NIL: no NS). NIL: none."
+  (flet ((ok (p) (and (<= 1 p n) (/= p ptr) (let ((bd (nth (1- p) bands))) (and bd (<= (first bd) d (second bd)))))))
+    (if to
+        (and (ok to) to)
+        (loop for k from 1 below n for p = (1+ (mod (+ (1- ptr) k) n)) when (ok p) return p))))
+(defun strat-switch-dir (ptr to n)
+  "The stick's strafe sign that switches pointer PTR (of N) to TO: +1 the next (cyclic), -1 the previous (CORE-SWITCH-TARGET)."
+  (if (= to (1+ (mod ptr n))) 1 -1))
+
 (defvar *strat-now* nil "While a core CPU with a strategy steps: (strategy . its cue plist this step) (CORE-BRAIN-STEP), else NIL.")
 
 (defun strat-out (key default)
@@ -190,7 +205,7 @@ only as one of the strategies (:FN ken-ki-style ...).")
 (defparameter *strat-lambda* '(:easy 0.7 :normal 0.35 :hard 0.1) "The final pick's weight on the prior (the rest on the values) per difficulty.")
 (defvar *strat-jobs* nil "The selections whose rollouts are running, oldest first (cpu-mcts.lisp STRAT-FULL-STEP; dropped at a match start).")
 (defvar *strat-stats* (make-array 4 :initial-element 0) "This match: selections, rollouts, internal time in them, the worst step's.")
-(defvar *strat-picks* (make-array 16 :initial-element 0) "This match: per side (8 slots each), how often each library entry was picked.")
+(defvar *strat-picks* (make-array 32 :initial-element 0) "This match: per side (16 slots each), how often each library entry was picked.")
 
 (defparameter *strat-library*
   '((:id :s0-generic :base (:p 1.0)
@@ -276,7 +291,11 @@ only as one of the strategies (:FN ken-ki-style ...).")
               (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :no) (:prev :no)) -0.0010 0.0000)
               (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :no) (:prev :yes)) -0.0010 0.0000)
               (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no)) 0.4457 0.4846)
-              (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes)) 0.4342 0.4199)))))
+              (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes)) 0.4342 0.4199))))
+    ;; Hisagi's distance control in the Bankai's ranged mode, with the DRIVE switch (§8.16; seeds/s8-hisagi-range.lisp): code, Hisagi
+    ;; against anyone; not in the lookup (the shipped CPU unchanged)
+    (:id :h1-range :fn hisagi-range-style :apply (:hisagi) :base (:dswitch 1.0) :dswitch-map ((:base 1 3))
+     :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0)))))   ; (no NS out of its reach: the ranged WA 0-3 m)
   "The strategies the layer chooses from (the seeds s0, s1, s3, s5, s6 of docs/research/strategy-drsi/seeds/, each with prior rules :P; s7
 the counter search's kite).")
 
@@ -294,8 +313,8 @@ the counter search's kite).")
 seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mixes x (A's) and y (B's). B's view is 1 - M transposed.")
 
 (defun strat-arms (me vs)
-  "The library's strategies ME may play against VS (their :APPLY), in library order."
-  (remove-if-not (lambda (st) (let ((ap (getf st :apply))) (or (null ap) (and (eq (first ap) me) (eq (second ap) vs)))))
+  "The library's strategies ME may play against VS (their :APPLY (me vs), or (me): ME against anyone), in library order."
+  (remove-if-not (lambda (st) (let ((ap (getf st :apply))) (or (null ap) (and (eq (first ap) me) (or (null (cdr ap)) (eq (second ap) vs))))))
                  *strat-library*))
 
 (defparameter *strat-lookup* '((:hisagi :ichigo :hard :s3-zoner) (:ichigo :hisagi :hard :ki-ichigo) (:ichigo :kenpachi :hard :q1-ichigo-ken)

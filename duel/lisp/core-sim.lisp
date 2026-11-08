@@ -126,14 +126,20 @@ T when something started."
                   (vpad-consume! vp button))))
          nil)))
 
-(defun core-switch-ready-p (e f)
-  "Can E switch pointer now (DUEL_SUBLIMATION §17): a human, not already switched, a second pointer, and DRIVE (awakened) or SUBLIMATION
-(before) of at least *DRIVE-SWITCH* x its maximum."
+(defun core-switch-open-p (e f)
+  "The switch's own rules (DUEL_SUBLIMATION §17): not already switched, a second pointer, and DRIVE (awakened) or SUBLIMATION (before) of
+at least *DRIVE-SWITCH* x its maximum."
   (let ((g (gauges e)))
-    (and (not (brain e)) (zerop (fighter-tmp f)) (> (length (getf (kit-core (fighter-kit f)) :ns)) 1)
+    (and (zerop (fighter-tmp f)) (> (length (getf (kit-core (fighter-kit f)) :ns)) 1)
          (if (gauges-awakened g)
              (>= (gauges-drive g) (* *drive-max* *drive-switch*))
              (>= (gauges-sub g) (* *sub-max* *drive-switch*))))))   ; (before the awakening only SUBLIMATION is spent, DUEL_SUBLIMATION §17.6)
+
+(defun core-switch-ready-p (e f)
+  "Can E switch pointer now (DUEL_SUBLIMATION §17): a human, or a CPU whose press in progress is a strategy's switch (its act :SWITCH,
+core-ai.lisp CAI-SWITCH-PRESS; DUEL_AI_STRATEGY §8.16: the shipped CPU never presses one), and CORE-SWITCH-OPEN-P."
+  (let ((b (brain e)))
+    (and (or (not b) (eq (brain-act b) :switch)) (core-switch-open-p e f))))
 
 (defun core-switch-target (e f)
   "The pointer a stick left (previous) / right (next, cyclic) + SP in an NS gap switches to, or NIL: the CPU never, once a route, gauge

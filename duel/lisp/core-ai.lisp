@@ -82,6 +82,42 @@ for anyone."
     (declare (ignorable s))
     (cai-press b :quick (if want 40 frames) t)))
 
+(defparameter *cai-dswitch-dif* '(:easy 0.3 :normal 0.6 :hard 1.0)
+  "A strategy's :DSWITCH (the chance of the DRIVE switch per NS gap, its HARD value) times this per difficulty. New 2026-11-09 (the user:
+「記得將消耗 drive 量表來臨時切換 NS 的戰術也安排到策略中」, DUEL_AI_STRATEGY §8.16).")
+(defparameter *cai-dswitch-slack* 0.4
+  "m added to a switch target's opener reach + slide for the band rule (the reaches are centre to centre, before the victim's body).")
+
+(defun mv-min-reach (mv)
+  "MV's first window's dead zone (m, :min-reach), 0 without one."
+  (let ((h (mv-hits mv))) (or (and (plusp (length h)) (hw-min (svref h 0))) 0.0)))
+
+(defun cai-switch-press (e b f to)
+  "Press SP with the stick sideways toward pointer TO: the human's own switch (CORE-MOVE-SP! -> CORE-SWITCH-TARGET, its gauge and its
+rules); the act :SWITCH lets CORE-SWITCH-READY-P take this CPU for this press only (CORE-BRAIN-STEP writes the stick)."
+  (ai-press b :quick 1 :modded t :act :switch)
+  (setf (brain-strafe b) (f32 (strat-switch-dir (fighter-ptr f) to (length (getf (kit-core (fighter-kit f)) :ns)))))
+  (clog "~a cpu switch ~d -> ~d" (side-name e) (fighter-ptr f) to))
+
+(defun cai-switch-target (f kit d)
+  "The pointer the active strategy's switch goes to from F's NS gap at distance D (its :DSWITCH-MAP for his form and pointer, else
+STRAT-SWITCH-TO's band rule), or NIL."
+  (let* ((n (length (getf (kit-core kit) :ns)))
+         (row (find-if (lambda (r) (and (eq (first r) (fighter-form f)) (eql (second r) (fighter-ptr f)))) (getf (car *strat-now*) :dswitch-map))))
+    (strat-switch-to (fighter-ptr f) n d
+                     (loop for p from 1 to n collect (let ((mv (kit-core-move kit :ns p))) (and mv (list (mv-min-reach mv) (+ (strat-reach mv) *cai-dswitch-slack*)))))
+                     (third row))))
+
+(defun cai-dswitch (e b f kit)
+  "In an NS segment's gap (once per segment, CAI-MOVE-STEP): the active strategy's :DSWITCH, one roll when the switch is open and a target
+reaches. T when it pressed. No :DSWITCH (every shipped CPU): no roll, NIL."
+  (let ((p (strat-out :dswitch nil)))
+    (when (and p (plusp p) (core-switch-open-p e f))
+      (let ((to (cai-switch-target f kit (fighter-dist f))))
+        (when (and to (< (sim-rnd01) (* p (brain-chance b *cai-dswitch-dif*))))
+          (cai-switch-press e b f to)
+          t)))))
+
 (defun cai-move-step (e b f kit s)
   "Inside his own move: continue, turn or end it (once per move)."
   (declare (ignorable e))
@@ -105,7 +141,8 @@ for anyone."
         (:ns
          (when (>= (fighter-sf f) (mv-s mv))                   ; the segment is out: now is the gap to read
            (setf (brain-decided b) (fighter-cls-t f))
-           (cond ((and (getf (mv-params mv) :charge-sa) (mv-sa-move kit mv) (< (fighter-dist f) 2.6)   ; a charge segment (Kenpachi's kamae): cash it in
+           (cond ((cai-dswitch e b f kit))                                                     ; a strategy's DRIVE switch (§8.16)
+                 ((and (getf (mv-params mv) :charge-sa) (mv-sa-move kit mv) (< (fighter-dist f) 2.6)   ; a charge segment (Kenpachi's kamae): cash it in
                        (or (null (mv-ns-next kit mv)) (< (brain-r-turn b) 0.5)))                       ; at the last one, else half the time
                   (cai-press b :quick 1))
                  ((and (kit-sa-move kit)                                                   ; the read, or a segment's own SA in reach
@@ -235,5 +272,5 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
                                  (and (eq a :mod) (> (brain-press-left b) 0) (brain-press-mod b)))))
     (when (> (brain-press-left b) 0)
       (case (brain-act b)
-        (:side-step (vpad-stick! vp (brain-strafe b) 0f0))
+        ((:side-step :switch) (vpad-stick! vp (brain-strafe b) 0f0))   ; (:switch: a strategy's DRIVE switch, CAI-SWITCH-PRESS)
         (:dash (vpad-stick! vp 0f0 (brain-dash b)))))))

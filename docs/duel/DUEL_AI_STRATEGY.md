@@ -479,6 +479,73 @@ learning」. Then, on the opponent and the mirrors: 「混合：弱組對現行�
   - Order: generalise the tooling (fq.py, online.py, strat-run, the frozen opponents, the proxy pool); the searches (Sonnet cells, 3 x 3,
     W = 4); the fitted Q tables and their proofs; the lookup.
 
+### 8.16 Hisagi's distance control in the Bankai's ranged mode, and the CPU's DRIVE switch (2026-11-09)
+
+The user: 「檜佐木要注意控制距離，尤其是卍解後遠距模式的近身戰非常不利，需要主動後撤或是利用 NS1a 與 NS2b 來拉開與對手的距離。」, then
+「記得將消耗 drive 量表來臨時切換 NS 的戰術也安排到策略中」. Built as a strategy with code (§9), `:h1-range` in the library
+(`duel/lisp/cpu-hisagi-range.lisp` `hisagi-range-style`; seed `docs/research/strategy-drsi/seeds/s8-hisagi-range.lisp`), **not in the lookup and
+not a registered style CPU: the shipped CPU is unchanged** (G2 `--cvc` identical).
+
+- **The style** (the code acts in the ranged mode `:bankai` only; elsewhere it returns NIL and the MCTS and the generic CPU decide, but the
+  strategy's data applies in every form: `:dswitch` with the band rule and the Shikai map, the `:dn` rules). Every chance by difficulty, one roll
+  per event, `sim-rnd01`, its state in `brain-style`:
+
+| When | What | Knob (EASY / NORMAL / HARD) |
+|---|---|---|
+| free, the opponent perceived inside 2.9 m (J1's and every 散 volume's 3 m dead zone), or inside 3.4 m while he closes in (his view is 8-24 f old) | one roll per close event: his attack starting at him: the back Step (invulnerable 3-9; the ranged Step lands in a tip band, `hs-step-dist`); pointer 1: NS1a 環 WA (0-3 m, a hit pushes him to 4.5 m; closing in, only when his distance predicted at WA's hit is within 2.8 m); else the back Step; cornered at the wall: WA, else a side Step | `*hr-p*` 0.25 / 0.6 / 1.0 |
+| pointer 2 at 2.5-2.9 m | NS2a TABA, then NS2b 叩 TATAKI in its gap | `*hr-taba-p*` 0 / 0 / 0 (0.5 at HARD lost in scene 83802's first version: TABA's S 30, Kenpachi's J1 cancelled it and his AS1 hit 90 one frame before TATAKI) |
+| his WA's gap (after its active frames, the contact known) | a hit: the DRIVE switch to pointer 2's TABA (the user's route, DUEL_SUBLIMATION §17.7) when `:dswitch` rolls and the gauge allows, else NS1b ŌGI (`*cai-cont-p*`); a whiff with him still inside 3 m: stop | `:dswitch` x `*cai-dswitch-dif*` 0.3 / 0.6 / 1.0 |
+| his TABA's gap | inside 2.9 m: NS2b TATAKI (the push to 3.5 m); 2.5-4.5 m: J, the gathered SA (TABA > SA > J2, §17.7's 150) | |
+| a ranged J string's J2 lands | the SP there: AS1 RANSA (3-6 m), writing pointer 1, so WA stays his close tool (pointer 2's damage through the switch); else the string runs on (J3 > AS2, J5 > AS3's bind) | `*hr-home-p*` 0 / 0.4 / 0.7 |
+| data (`:rules`) | no NS out of its reach: `:dn :out` / `:afar` -> `:b-sp -0.3`, `:ns 0` (the shipped CPU opens the ranged WA, 0-3 m, from 3.7-5 m: 1063 times in 200 HK matches) | |
+
+- **The CPU's DRIVE switch, for any strategy** (core-ai.lisp `cai-dswitch`, strategy.lisp `strat-switch-to`): an output key `:dswitch`, the
+  chance per NS segment's gap (its HARD value, x `*cai-dswitch-dif*`), one roll when the switch is open and a target reaches; the target from
+  `:dswitch-map ((form from to) ...)`, else the first other pointer (next, then the rest) whose NS opener reaches the distance (its dead zone to
+  its reach + slide + 0.4 m). The press is the human's: SP with the stick sideways (`cai-switch-press`, act `:switch`), through
+  `core-move-sp!` / `core-switch-target` / `core-latch-step`; `core-switch-ready-p` takes a CPU only for that press, its rules
+  (`core-switch-open-p`: 0.25 of the gauge, SPIRIT DRIVE awakened, SUBLIMATION before, no second switch) shared with the human. No `:dswitch`:
+  no roll (every shipped CPU). `:h1-range` carries `:dswitch 1.0` and `:dswitch-map ((:base 1 3))` (the Shikai's NS1 > NS3a, §17.7).
+- Shared edits: `*strat-picks*` 16 -> 32 slots (a ninth library entry wrote out of bounds in the strategy layer's counter); `strat-arms` takes
+  `:apply (me)` (me against anyone).
+- **Checks by script** (debug 83800-83808, DUEL_GAMEPLAY "Debug commands"; P1 a HARD CPU Hisagi with `:h1-range`, P2 a HARD CPU Kenpachi):
+  - 83800 (pointer 1, DRIVE 60, Kenpachi idle 2.0 m off): f1 `hr WA at 2.0`, f15 WA hits 26 and pushes him (2.00 m at f24, 4.50 m at f42),
+    f27 `cpu switch 1 -> 2`, `NS pointer 1 -> 2 (DRIVE)`, DRIVE 62.1 -> 37.1, f52 TABA 50, f84 the gathered SA 45, f89 AS1 (pointer 1).
+  - 83801 (DRIVE 20): WA 26 > ŌGI 31 > ISSEI 48, no switch at WA's gap (DRIVE 22.0); after ISSEI the hits had filled DRIVE to 28.1 and the generic
+    band rule switched (28.1 -> 3.1). 83805 (no `:dswitch`) and 83804 (no strategy: the shipped CPU, WA > ŌGI > ISSEI) never switch.
+  - 83806 (the Shikai, SUBLIMATION 60, 4.5 m): NS1a 62, `cpu switch 1 -> 3` (SUBLIMATION 60 -> 35), NS3a 40, NS3b 25; 83807 (SUBLIMATION 20):
+    NS1a 62 > NS1b 56 > NS1c 80, no switch.
+  - 83803 (Kenpachi 1.8 m off starting J1): f1 `hr back-step (his attack) at 1.8` (1.80 -> 3.75 m), then J1 > J2 > AS1 from the band.
+  - 83802 (pointer 2, Kenpachi walking in from 2.0 m for 200 f): back Steps every 26 f (each nets ~0.8 m against his walk), side Steps at
+    the wall, no hit taken while he walks; once he stops, TABA > TATAKI and Kenpachi's NS1a 65 + SA 30 + J2 35 land.
+  - 83808 (pointer 1, Kenpachi walking in from 5 m): J1 at 5 m, J2, `hr home: AS1` (pointer 1 kept), AS1's Kikon.
+- **Measured** (tools/strategy-switch.py `--raw`, HARD, seeds 601-700 both seats = 200 matches; STRAT_HRANGE=1: Hisagi's steps in the ranged
+  mode, the mean distance, the share inside 3 m, WA started beyond 3.2 m; "generic" = Hisagi with no strategy (`(:id :s0-empty)`), the shipped
+  CPU without the lookup):
+
+| Pairing (opponent) | `:h1-range` | without the switch | generic | the incumbent (lookup) | ranged mode: mean d / inside 3 m / WA from afar, generic -> `:h1-range` |
+|---|---|---|---|---|---|
+| Hisagi vs Ichigo (frozen `:ki-ichigo`) | 0.0 | — | 0.0 | 0.0 (`:s3-zoner`) | 2.29 -> 2.48 m / 0.71 -> 0.655 / 740 -> 34 |
+| Hisagi vs Kenpachi (shipped) | 0.125 | 0.06 | 0.035 | 0.965 (`:ki-ken`) | 2.41 -> 2.98 m / 0.71 -> 0.53 / 1063 -> 138 |
+| Hisagi mirror (shipped) | 0.645 (b 52, c 23, z 3.3) | 0.59 (z 2.8) | 0.5 | 0.5 | 3.73 -> 3.87 m / 0.305 -> 0.25 / 2848 -> 290 |
+| Hisagi vs Kenpachi proxy 1 (`online/ken-istyle`) | 0.025 | | | 0.435 | (`:ki-ken` -> `:h1-range`) 4.53 -> 3.14 m / 0.04 -> 0.48 |
+| Hisagi vs Kenpachi proxy 2 (`online/ken-wide`) | 0.0 | | | 0.625 | (`:ki-ken` -> `:h1-range`) 2.55 -> 2.27 m / 0.99 -> 0.74 |
+
+  - Fire rates (200 matches, `:h1-range`): HK 2986 close events (all taken at HARD): 1235 WA, 1635 back Steps, 117 side Steps, 367 switches, 156
+    TATAKI; HH 1538 events: 823 WA, 672 back Steps, 458 switches; HI 831 events: 447 WA, 350 back Steps, 52 switches.
+  - The switch's share: HK 0.06 -> 0.125, HH 0.59 -> 0.645 (with and without, the same file but `:dswitch 0`).
+  - Time in the ranged mode (its steps / the match's, the gate rows' secs x 60): HK generic 0.42, without the switch 0.53, `:h1-range` 0.33 (with
+    the proxies' matches); HI generic 0.31, `:h1-range` 0.35; the mirror 0.36 (shipped) -> 0.26. The switch's route (TABA > SA > J2 > J3 > AS3)
+    ends in the bind more often.
+  - NS2b TATAKI: 156 / 69 / 24 times (HK / HH / HI), always in TABA's gap (after the switch, or a TABA the MCTS started); the neutral TABA >
+    TATAKI is off (`*hr-taba-p*` 0, above). NS1a WA is the close push the style uses.
+  - The plain data strategy `(:id :d1-switch :base (:dswitch 1.0))` on the shipped CPU (band rule only), mirrors against the shipped CPU: Kenpachi
+    0.455 (b 37, c 46, z -1.0), Ichigo 0.365 (b 26, c 52, z -2.9): an always-on switch by the band rule hurts Ichigo's generic CPU.
+- **Reading**: the rule does what the user asked (he backs off or pushes out instead of fighting inside 3 m; the time inside 3 m falls 0.71 ->
+  0.53 against Kenpachi, his WA from afar nearly stops) and beats the generic CPU in every pairing it can (HK +0.09, the mirror +0.145), but it
+  is far below Kenpachi's KI style as Hisagi's strategy (0.965 HK, the lookup) and does not move Hisagi vs Ichigo (0 of 200, her KI style keeps
+  him inside 3 m 65 % of the time). It stays out of the lookup; it is one more arm for §8.15's searches and Q tables (Hisagi vs Ichigo, the mirror).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

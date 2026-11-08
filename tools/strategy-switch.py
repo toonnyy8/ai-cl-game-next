@@ -31,7 +31,7 @@ DIFF = {'easy': 0, 'normal': 1, 'hard': 2}
 CACHE = os.path.join(ROOT, 'build/strategy-eval-cache')
 RUNNER = os.path.join(ROOT, 'tools/simgate/strat-run.lisp')
 CHUNK = 25                                               # seeds a sim process (<= 99: debug 31100+n)
-KEEP = ('duel gate row ', 'switch ', 'strat ', 'duel -> RESULTS', 'duel hash', 'duel state')   # the raw lines worth keeping
+KEEP = ('duel gate row ', 'switch ', 'strat ', 'duel -> RESULTS', 'duel hash', 'duel state', 'hrange ')   # (hrange: STRAT_HRANGE=1, §8.16)   # the raw lines worth keeping
 
 
 def sha(b):
@@ -197,6 +197,22 @@ def parse(outs, seat):
     return wins, judged, held or []
 
 
+def hrange(outs, seat):
+    """STRAT_HRANGE=1's lines for SEAT summed (DUEL_AI_STRATEGY §8.16): Hisagi's ranged-mode steps, mean distance, share inside 3 m, the
+    style's counters (close events, taken, WA, TABA, back Steps, side Steps, switches, TATAKI); None without such lines."""
+    st = dsum = close = wafar = 0
+    cnt = [0] * 8
+    for out in outs:
+        for line in out.splitlines():
+            m = re.match(r'hrange \d+ ' + seat + r' steps (\d+) dsum (\S+) close (\d+) wafar (\d+) cnt (.*)', line)
+            if m:
+                st += int(m.group(1)); dsum += float(m.group(2)); close += int(m.group(3)); wafar += int(m.group(4))
+                cnt = [a + int(b) for a, b in zip(cnt, m.group(5).split())]
+    if not st and not any(cnt):
+        return None
+    return dict(steps=st, mean_d=round(dsum / st, 3) if st else None, close_share=round(close / st, 4) if st else None, wa_far=wafar, counts=cnt)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--char', required=True, choices=list(ROSTER))
@@ -241,6 +257,7 @@ def main():
     got = {(t, s): [] for t in ('comp', 'inc') for s in ('P1', 'P2')}
     for (tag, seat, _), o in zip(jobs, outs):
         got[(tag, seat)].append(o)
+    hr = {t: [hrange(got[(t, sd)], sd) for sd in ('P1', 'P2')] for t in ('comp', 'inc')}
     cw = iw = m = b = c = judged = own = 0
     held_all = []
     for seat in ('P1', 'P2'):
@@ -262,7 +279,7 @@ def main():
                comp_wins=cw, comp_matches=m, inc_wins=iw, inc_matches=m, comp_share=round(comp, 4), inc_share=round(inc, 4),
                gain=round(comp - inc, 4), b=int(b), c=int(c), z=round((b - c) / math.sqrt(b + c), 3) if b + c else 0.0,
                own_share=round(own / judged, 4) if judged else 0.0, wall_s=round(time.time() - t0, 1), score=round(max(0.005, inc if capped else comp), 4), capped=capped,
-               judged=judged, held=held_all, raw=a.raw,
+               judged=judged, held=held_all, raw=a.raw, **({'hrange': hr} if any(x for v in hr.values() for x in v) else {}),
                vs_strat=[os.path.relpath(x, ROOT) if x != 'none' else x for x in vs[0].split(',')] if vs else None)
     print(json.dumps(res, indent=1))
     if a.out:
