@@ -66,3 +66,16 @@ MCTS + fuzzy + 學習型 AI」.
   309.2 s; before II 39, IK 27, KK 34), browser = native; playtest v358. Strength (40 seeds, every CPU on it, P1 : P2): IK NORMAL 16 : 24, HARD
   9 : 31 (v357: 18 : 22, 12 : 28); HK 2 : 38 / 1 : 39; HI 10 : 30 / 28 : 12: both sides changed at once, so this only shows the layer is in
   the old chances' range; its gains are the tuning's (stage 3).
+
+## 5. Decoupled UCT and regret matching (2026-11-08)
+
+The user: 「怎麼不使用 Decoupled UCT 或是 SM-MCTS 搭配 EXP3 或 Regret Matching」. The tree had been kept from one comparison confounded by the
+wake-up handover (DUEL_AI_TEACHER §9.3); the literature favours decoupled UCT (best of nine simultaneous-move games) and regret matching
+(robust), EXP3 the weakest; at 48-160 rollouts the tree's 10 x 10 reply level is mostly single visits, decoupled UCT needs 10 + 10.
+- `*mc-select*` (mcts-lite.lisp): `:tree`, `:duct` (one UCB per side over its own first action), `:rm` (SM-MCTS with regret matching,
+  outcome sampling, fixnum regrets, per-mille strategies mixed with `*mc-rm-gamma*` 0.1). EXP3 not offered (it needs EXP, which the native sim
+  and wasm may round apart). Host-tested (every rollout played, the same seed the same values).
+- 80 IK seeds, the MCTS side's wins (tree / DUCT / RM): Kenpachi HARD 51 / 63 / 53 (his CPU under it 60); Kenpachi NORMAL 76 / 71 / 71;
+  Ichigo NORMAL 64 / 59 / 51; Hisagi NORMAL (HK) 13 / 5 / 11. DUCT at HARD by the margin gate: 0 -> 4, 0.08 -> 47, 0.16 -> 63. Ichigo HARD on
+  DUCT 14 / 2 at 0.16 / 0.08 against 20 on her CPU: still off.
+- `*mc-select-by*` (cpu-mcts.lisp): EASY / NORMAL the tree, HARD DUCT. G2 unchanged (NORMAL); playtest v359.

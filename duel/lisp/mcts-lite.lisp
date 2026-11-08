@@ -130,6 +130,15 @@ opponent's answer delay (frames), 5 / 6 the chances (per mille) an NS goes on to
   "The tree's second level: the opponent's reply to each root action by its own UCB (he answers with his best response), else his first
 pick is the policy's. (A decoupled bandit at the root, the replies blind to the root action, won HARD 5-6 of 40 against the matchup style
 CPUs where this tree ...: §9.)")
+(defparameter *mc-select* :tree   ; (bound per decision from *MC-SELECT-BY*, cpu-mcts.lisp)
+  "How a search picks the two sides' first actions: :TREE (my action by UCB, then his reply to it by its own UCB: a 10 x 10 second level),
+:DUCT (decoupled UCT: one UCB per side over its own actions, blind to the other's: 10 + 10 statistics), :RM (simultaneous-move MCTS with
+regret matching, outcome sampling: each side samples from its regret-matched strategy mixed with *MC-RM-GAMMA* exploration). Decoupled UCT was
+the best of nine simultaneous-move games, regret matching the most robust, EXP3 the weakest (docs/research/ai-mcts-fuzzy-learning/notes-mcts.md
+C; EXP3 also needs EXP, which the native sim and wasm may round apart: not offered).")
+(defparameter *mc-rm-gamma* 0.1 "Regret matching's exploration: this share of each side's strategy spread evenly over its legal actions.")
+(defvar *mc-r0* (mc-fv 10) "Regret matching: side 0's cumulative regrets (milli) ...")
+(defvar *mc-r1* (mc-fv 10) "... and side 1's.")
 (defparameter *mc-opp-delay* '(:easy 20 :normal 14 :hard 8)
   "Frames a free opponent takes to answer (his reply starts then), by the searcher's difficulty: what it expects of him (the CPUs' own
 perception delays, *AI-DELAY*).")
@@ -292,6 +301,54 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
 ;;; ---------------------------------------------------------------- the search
 (defvar *mc-sqrt* (let ((v (mc-fv 4096))) (dotimes (i 4096 v) (setf (aref v i) (isqrt i)))) "ISQRT 0-4095 (UCB in fixnums: no float boxing).")
 
+(defun mc-search-rm (iters)
+  "ITERS rollouts of simultaneous-move MCTS with regret matching at the root (outcome sampling): each side's strategy is its positive regrets
+normalised (even when none), mixed with *MC-RM-GAMMA* over its legal actions; both sample, one rollout scores the pair (V for side 0, -V for
+side 1), and every legal action's regret moves by [it was played] x V / its probability - V. Per-mille probabilities and milli values: fixnums
+only (a regret stays under ~5e7 at 160 rollouts). *MC-N* / *MC-SUM* keep side 0's returns per action (the selection layer's values)."
+  (declare (fixnum iters) (optimize (speed 3) (safety 0)))
+  (let ((n *mc-n*) (sum *mc-sum*) (l0 *mc-legal*) (l1 *mc-legal2*) (r0 *mc-r0*) (r1 *mc-r1*) (g *mc-g*)
+        (gam (round (* 1000 *mc-rm-gamma*))) (opp *mc-opp-search*))
+    (declare (type mc-fv n sum l0 l1 r0 r1 g) (fixnum gam))
+    (fill r0 0) (fill r1 0)
+    (macrolet ((strat (r legal k pos)           ; side's probability (per mille) of action K
+                 `(let ((k ,k))
+                    (if (zerop (aref ,legal k)) 0
+                        (+ (if (plusp ,pos) (floor (* (- 1000 gam) (max 0 (aref ,r k))) ,pos) (floor (- 1000 gam) cnt))
+                           (floor gam cnt)))))
+               (side (r legal)                  ; sample an action, return it and its probability; update nothing
+                 `(let ((pos 0) (cnt 0))
+                    (declare (fixnum pos cnt))
+                    (dotimes (k 10) (when (= (aref ,legal k) 1) (incf cnt) (incf pos (max 0 (aref ,r k)))))
+                    (if (zerop cnt) (values -1 1)
+                        (let* ((tot 0) (x 0))
+                          (declare (fixnum tot x))
+                          (dotimes (k 10) (incf tot (strat ,r ,legal k pos)))
+                          (setf x (mc-rand g (max 1 tot)))
+                          (let ((pick -1) (p 1))
+                            (declare (fixnum pick p))
+                            (dotimes (k 10)
+                              (let ((q (strat ,r ,legal k pos)))
+                                (declare (fixnum q))
+                                (when (and (plusp q) (< pick 0)) (decf x q) (when (< x 0) (setf pick k p q)))))
+                            (values pick (max 1 p)))))))
+               (regret (r legal a p u)          ; outcome-sampling regret update of one side
+                 `(dotimes (k 10)
+                    (when (= (aref ,legal k) 1)
+                      (incf (aref ,r k) (- (if (= k ,a) (floor (* ,u 1000) ,p) 0) ,u))))))
+      (dotimes (it iters)
+        (multiple-value-bind (a pa) (side r0 l0)
+          (declare (fixnum a pa))
+          (when (< a 0) (return))
+          (multiple-value-bind (b pb) (if opp (side r1 l1) (values -1 1))
+            (declare (fixnum b pb))
+            (let ((v (mc-rollout a b)))
+              (declare (fixnum v))
+              (incf (aref sum a) v) (incf (aref n a))
+              (regret r0 l0 a pa v)
+              (when (>= b 0) (regret r1 l1 b pb (- v))))))))
+    n))
+
 (defun mc-search (iters)
   "ITERS rollouts down a two-level tree: side 0's action A by UCB over *MC-LEGAL* (its value), then the opponent's reply B to A by UCB over
 *MC-LEGAL2* (minus that value) when *MC-OPP-SEARCH*, else his policy's first pick; a rollout below. *MC-N* / *MC-SUM* per action of side 0.
@@ -313,14 +370,26 @@ UCB in milli-units and fixnums: mean + C x isqrt(N + 1) / (1 + n)."
                           (declare (fixnum k s))
                           (when (> s bs) (setf bs s best a)))))
                     best)))
-      (dotimes (it iters)
-        (let* ((a (ucb n sum legal 1 0 it)) (b (if (and opp (>= a 0)) (ucb n2 sum2 legal2 -1 (* 10 a) (aref n a)) -1)))
-          (declare (fixnum a b))
-          (when (< a 0) (return))
-          (let ((v (mc-rollout a b)))
-            (declare (fixnum v))
-            (incf (aref sum a) v) (incf (aref n a))
-            (when (>= b 0) (incf (aref sum2 (+ (* 10 a) b)) v) (incf (aref n2 (+ (* 10 a) b))))))))
+      (case *mc-select*
+        (:duct                                                  ; one bandit per side, his blind to mine
+         (dotimes (it iters)
+           (let* ((a (ucb n sum legal 1 0 it)) (b (if opp (ucb n2 sum2 legal2 -1 0 it) -1)))
+             (declare (fixnum a b))
+             (when (< a 0) (return))
+             (let ((v (mc-rollout a b)))
+               (declare (fixnum v))
+               (incf (aref sum a) v) (incf (aref n a))
+               (when (>= b 0) (incf (aref sum2 b) v) (incf (aref n2 b)))))))
+        (:rm (mc-search-rm iters))
+        (t
+         (dotimes (it iters)
+           (let* ((a (ucb n sum legal 1 0 it)) (b (if (and opp (>= a 0)) (ucb n2 sum2 legal2 -1 (* 10 a) (aref n a)) -1)))
+             (declare (fixnum a b))
+             (when (< a 0) (return))
+             (let ((v (mc-rollout a b)))
+               (declare (fixnum v))
+               (incf (aref sum a) v) (incf (aref n a))
+               (when (>= b 0) (incf (aref sum2 (+ (* 10 a) b)) v) (incf (aref n2 (+ (* 10 a) b))))))))))
     n))
 
 (defun mc-mean (a)
