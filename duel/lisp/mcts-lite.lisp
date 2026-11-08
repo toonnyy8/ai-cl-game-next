@@ -18,6 +18,11 @@
 
 (defparameter *mc-actions* '(:j1 :sp :hoho :step-in :step-out :step-side :guard :wait :walk-in :walk-out)
   "The macro actions, codes 0-9 (the teacher's: DUEL_AI_TEACHER §3).")
+(defparameter *mc-block-cont* nil
+  "A blocked hit goes on (the defender in his blockstun, the attacker in his blocked recovery: BLOCKSTUN / MOVE-END-FRAME's numbers) with the
+block's value added, rather than ending the rollout there (DUEL_AI_MCTS §8).")
+(defparameter *mc-run* nil "The opponent in a rollout walking in from beyond *MC-RUN-FROM* runs (his kit's run speed), as the CPUs close in.")
+(defparameter *mc-run-from* 3.0 "... from this far (m).")
 (defparameter *mc-horizon* 60 "Steps a rollout plays at most (1 s): the neutral exchange to its first contact.")
 (defparameter *mc-wait-busy* t "The horizon also covers the frames the opponent is still busy reeling or lying (at most *MC-HORIZON-MAX*).")
 (defparameter *mc-horizon-max* 150 "... the longest horizon.")
@@ -74,7 +79,7 @@ NORMAL, 2026-11-08, baked by tools/mc-outcomes.py; a slot under 30 samples takes
 ;; a move record's fields
 (defconstant +r-s+ 0) (defconstant +r-end+ 1) (defconstant +r-from+ 2) (defconstant +r-to+ 3) (defconstant +r-reach+ 4)
 (defconstant +r-slide+ 5) (defconstant +r-cls+ 6) (defconstant +r-wave-v+ 7) (defconstant +r-wave-range+ 8) (defconstant +r-crush+ 9)
-(defconstant +r-n+ 10)
+(defconstant +r-total+ 10) (defconstant +r-adv+ 11) (defconstant +r-end-blk+ 12) (defconstant +r-n+ 13)
 
 (defvar *mc-recs* (make-hash-table :test 'eq) "MOVE -> its record (moves are shared definitions: built once).")
 (defparameter *mc-cls-codes* #(nil :na :ns :as :sa))
@@ -95,7 +100,11 @@ NORMAL, 2026-11-08, baked by tools/mc-outcomes.py; a slot under 30 samples takes
                     (aref r +r-cls+) (or (position (kit-class kit mv) *mc-cls-codes*) 0)
                     (aref r +r-wave-v+) (if wave (max 1 (round (* 1000 (getf p :speed)) 60)) 0)
                     (aref r +r-wave-range+) (if wave (round (* 1000 (getf p :range))) 0)
-                    (aref r +r-crush+) (if (loop for w across hits thereis (intersection '(:guard-crush :unguardable) (hw-flags w))) 1 0))
+                    (aref r +r-crush+) (if (loop for w across hits thereis (intersection '(:guard-crush :unguardable) (hw-flags w))) 1 0)
+                    (aref r +r-total+) (mv-total mv)                                          ; (blocked: the defender's blockstun is
+                    (aref r +r-adv+) (- (if (integerp (mv-adv-block mv)) (mv-adv-block mv) 0)   ;  BLOCKSTUN of these, the attacker's end
+                                        (if (eq (mv-kind mv) :quick) *quick-block-adv* 0))     ;  the blocked recovery: combat.lisp)
+                    (aref r +r-end-blk+) (move-end-frame (mv-s mv) (mv-a mv) (mv-r mv) (mv-whiff mv) :block (zerop (length hits)) (mv-kind mv)))
               r))))
 
 ;;; ---------------------------------------------------------------- the state
@@ -103,10 +112,10 @@ NORMAL, 2026-11-08, baked by tools/mc-outcomes.py; a slot under 30 samples takes
 (defconstant +f-kind+ 0) (defconstant +f-t+ 1) (defconstant +f-len+ 2) (defconstant +f-dir+ 3) (defconstant +f-slot+ 4)
 (defconstant +f-spent+ 5) (defconstant +f-hoho+ 6) (defconstant +f-react+ 7) (defconstant +f-wave-x+ 8) (defconstant +f-wave-left+ 9)
 (defconstant +f-start+ 10) (defconstant +f-hurt+ 11) (defconstant +f-walk+ 12) (defconstant +f-ptr+ 13) (defconstant +f-wave-v+ 14)
-(defconstant +f-wave-o+ 15) (defconstant +f-cont+ 16) (defconstant +f-turn+ 17) (defconstant +f-n+ 18)
+(defconstant +f-wave-o+ 15) (defconstant +f-cont+ 16) (defconstant +f-turn+ 17) (defconstant +f-run+ 18) (defconstant +f-n+ 19)
 ;; kinds
 (defconstant +k-free+ 0) (defconstant +k-wait+ 1) (defconstant +k-walk+ 2) (defconstant +k-guard+ 3) (defconstant +k-move+ 4)
-(defconstant +k-step+ 5) (defconstant +k-hoho+ 6) (defconstant +k-reel+ 7) (defconstant +k-lie+ 8)
+(defconstant +k-step+ 5) (defconstant +k-hoho+ 6) (defconstant +k-reel+ 7) (defconstant +k-lie+ 8) (defconstant +k-bstun+ 9)
 ;; outcome slots (*MC-OUTCOMES*' order)
 (defconstant +o-na+ 0) (defconstant +o-ns1+ 1) (defconstant +o-turn+ 4) (defconstant +o-counter+ 5) (defconstant +o-block+ 6)
 
@@ -117,7 +126,7 @@ NORMAL, 2026-11-08, baked by tools/mc-outcomes.py; a slot under 30 samples takes
 segments after the move he is in).")
 (defmacro mc-next-slot (k) "The slot of the NS segment after slot K's, or -1." `(case ,k (1 3) (3 4) (2 6) (6 7) (t -1)))
 (defvar *mc-vals* (vector (mc-fv 7) (mc-fv 7)) "Per side, *MC-OUTCOMES*' row in milli-units.")
-(defvar *mc-g* (mc-fv 7) "0 the starting distance (mm), 1 the rollout's react chance (per mille), 2 the RNG's state, 3 horizon, 4 the
+(defvar *mc-g* (mc-fv 10) "7 blocks go on (*MC-BLOCK-CONT*), 8 the opponent runs (*MC-RUN*), 9 a hazard's blockstun; 0 the starting distance (mm), 1 the rollout's react chance (per mille), 2 the RNG's state, 3 horizon, 4 the
 opponent's answer delay (frames), 5 / 6 the chances (per mille) an NS goes on to its next segment / turns into the SA against an NA.")
 (defvar *mc-w* (mc-fv 10) "*MC-PRIOR* as fixnums.")
 (defvar *mc-n* (mc-fv 10) "Per root action: rollouts ...")
@@ -178,8 +187,9 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
   (let* ((fs *mc-f*) (f0 (svref fs 0)) (f1 (svref fs 1)) (slots *mc-slots*) (g *mc-g*) (w *mc-w*)
          (v0 (svref *mc-vals* 0)) (v1 (svref *mc-vals* 1))
          (dist (aref g 0)) (react (aref g 1)) (horizon (aref g 3)) (tick 0) (first2 root2)
-         (tn *mc-tn*) (ts *mc-ts*) (tc *mc-tc*) (tv *mc-tv*) (path *mc-path*) (tr *mc-tree*) (sq *mc-sqrt*) (uc (round (* 1000 *mc-ucb-c*))))
-    (declare (type mc-fv f0 f1 g w v0 v1 tn ts tc tv path tr sq) (simple-vector fs slots) (fixnum dist react horizon tick first2 uc))
+         (tn *mc-tn*) (ts *mc-ts*) (tc *mc-tc*) (tv *mc-tv*) (path *mc-path*) (tr *mc-tree*) (sq *mc-sqrt*) (uc (round (* 1000 *mc-ucb-c*)))
+         (acc 0) (runfrom (round (* 1000 *mc-run-from*))))
+    (declare (type mc-fv f0 f1 g w v0 v1 tn ts tc tv path tr sq) (simple-vector fs slots) (fixnum dist react horizon tick first2 uc acc runfrom))
     (replace f0 (the mc-fv (svref *mc-i* 0))) (replace f1 (the mc-fv (svref *mc-i* 1)))
     (when (and (or (>= root2 0) (= root2 -2)) (= (aref f1 +f-kind+) +k-free+))   ; a free opponent answers after his delay (standing till then)
       (setf (aref f1 +f-kind+) +k-wait+ (aref f1 +f-t+) 0 (aref f1 +f-len+) (max 1 (aref g 4))))
@@ -226,7 +236,7 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
                     (setf (aref ,me +f-t+) 0 (aref ,me +f-dir+) 0)
                     (case a
                       ((0 1) (start-slot ,me ,side ,op a))
-                      (2 (when (threat ,op ,oside ,me) (return-from mc-rollout (signed ,side (val ,side +o-counter+))))
+                      (2 (when (threat ,op ,oside ,me) (return-from mc-rollout (+ acc (signed ,side (val ,side +o-counter+)))))
                          (setf (aref ,me +f-kind+) +k-hoho+ (aref ,me +f-len+) 24 (aref ,me +f-hoho+) 0))
                       ((3 4 5) (setf (aref ,me +f-kind+) +k-step+ (aref ,me +f-len+) 24 (aref ,me +f-dir+) (case a (3 1) (4 -1) (t 0))))
                       (6 (setf (aref ,me +f-kind+) +k-guard+ (aref ,me +f-len+) 24))
@@ -247,7 +257,7 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
                  `(let ((k (aref ,me +f-kind+)))
                     ,@(when (eql side 1)   ; his answer to a threat: free, waiting or walking (the CPU's own are its next searches)
                         `((when (and (= (aref ,me +f-react+) 1) (<= k +k-walk+) (threat ,op ,oside ,me))
-                            (return-from mc-rollout (signed ,side (val ,side +o-counter+))))))
+                            (return-from mc-rollout (+ acc (signed ,side (val ,side +o-counter+)))))))
                     (when (= k +k-move+) (gap ,me ,side ,op ,oside))
                     (when (= k +k-free+)
                       (start ,me ,side ,op ,oside
@@ -279,7 +289,11 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
                (move (me side)          ; this step's motion of ME (the distance) and of his wave
                  `(let ((k (aref ,me +f-kind+)) (tt (aref ,me +f-t+)) (dir (aref ,me +f-dir+)))
                     (declare (fixnum k tt dir))
-                    (cond ((= k +k-walk+) (decf dist (* dir (aref ,me +f-walk+))))
+                    (cond ((= k +k-walk+)
+                           (decf dist (* dir ,(if (eql side 1)                       ; (he runs in from afar: *MC-RUN*)
+                                                  `(if (and (= (aref g 8) 1) (= dir 1) (> dist runfrom) (plusp (aref ,me +f-run+)))
+                                                       (aref ,me +f-run+) (aref ,me +f-walk+))
+                                                  `(aref ,me +f-walk+)))))
                           ((= k +k-step+)
                            (cond ((and (/= dir 0) (< tt 12)) (decf dist (* dir (- (floor (* 2500 (1+ tt)) 12) (floor (* 2500 tt) 12)))))
                                  ((and (= dir 0) (= tt 6)) (setf dist (isqrt (+ (* dist dist) 6250000))))))
@@ -303,8 +317,18 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
                  `(let ((crush (if ,m (aref (cur ,me ,side) +r-crush+) 0))
                         (o (if ,m (hit-slot ,me (cur ,me ,side)) (aref ,me +f-wave-o+))))
                     (declare (fixnum crush o))
-                    (cond ((and (= (aref ,op +f-kind+) +k-guard+) (<= 4 (aref ,op +f-t+) 19) (zerop crush))
-                           (signed ,side (val ,side +o-block+)))
+                    (cond ((and (or (and (= (aref ,op +f-kind+) +k-guard+) (<= 4 (aref ,op +f-t+) 19)) (= (aref ,op +f-kind+) +k-bstun+))
+                                (zerop crush))
+                           (if (= (aref g 7) 1)                 ; the block goes on: his blockstun, my blocked recovery (*MC-BLOCK-CONT*)
+                               (let ((stun (if ,m (let ((r (cur ,me ,side))) (max 1 (+ (- (aref r +r-total+) (aref ,me +f-t+)) (aref r +r-adv+))))
+                                               (aref g 9))))
+                                 (declare (fixnum stun))
+                                 (incf acc (signed ,side (val ,side +o-block+)))
+                                 (setf (aref ,op +f-kind+) +k-bstun+ (aref ,op +f-t+) 0 (aref ,op +f-len+) stun)
+                                 (when ,m (setf (aref ,me +f-spent+) 1
+                                                (aref ,me +f-len+) (max (1+ (aref ,me +f-t+)) (aref (cur ,me ,side) +r-end-blk+))))
+                                 nil)
+                               (signed ,side (val ,side +o-block+))))
                           ((and ,m (= (aref ,op +f-kind+) +k-move+) (plusp (aref (cur ,me ,side) +r-cls+))
                                 (plusp (aref (cur ,op ,oside) +r-cls+)) (< (aref ,op +f-t+) (aref (cur ,op ,oside) +r-to+)))
                            (case (core-verdict (svref *mc-cls-codes* (aref (cur ,me ,side) +r-cls+)) (svref *mc-cls-codes* (aref (cur ,op ,oside) +r-cls+))
@@ -330,10 +354,10 @@ SP pointer - 1 (0-2: which NS outcome his SP's hit is worth)."
                    (when w0 (setf (aref f0 +f-wave-x+) -1))
                    (when w1 (setf (aref f1 +f-wave-x+) -1))
                    (let ((o0 (and (or m0 w0) (outcome f0 0 f1 1 m0))) (o1 (and (or m1 w1) (outcome f1 1 f0 0 m1))))
-                     (when (or o0 o1) (return-from mc-rollout (+ (the fixnum (or o0 0)) (the fixnum (or o1 0))))))))
+                     (when (or o0 o1) (return-from mc-rollout (+ acc (the fixnum (or o0 0)) (the fixnum (or o1 0))))))))
                (advance f0 f1) (advance f1 f0)
                (incf tick))
-      0)))
+      acc)))
 
 ;;; ---------------------------------------------------------------- the search
 (defvar *mc-sqrt* (let ((v (mc-fv 4096))) (dotimes (i 4096 v) (setf (aref v i) (isqrt i)))) "ISQRT 0-4095 (UCB in fixnums: no float boxing).")

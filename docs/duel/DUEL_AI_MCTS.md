@@ -124,3 +124,16 @@ a 60-step rollout 0.6 ms (10.2 us a step: the brains 26 %, the fighters 23 %, th
   226 -> 130 us in the pollution test, which passed (IK NORMAL, KK HARD, 4 seeds each: every hash, gate and pacing line identical).
 - What is left: the rollout itself (~0.6 ms of the hybrid's ~1.5 ms); skipping presentation in rollouts would save ~10-20 % at most. The
   bigger cut is stopping a rollout at its first contact and scoring it by the measured outcome values (as the light model does).
+
+## 8. Light-model mechanics: blocks going on, the opponent running (2026-11-08)
+
+The user (asked what would make the light model itself more accurate, offered: a light-start + full-sim dataset, an opponent model from
+data, missing mechanics, a residual correction): 「先做 3」 (the mechanics).
+- `*mc-block-cont*`: a blocked hit goes on (the defender in his blockstun, `+k-bstun+`, guarding; the attacker's blocked recovery: the
+  move's `+r-total+` / `+r-adv+` / `+r-end-blk+` as combat.lisp's BLOCKSTUN and MOVE-END-FRAME give them; a hazard's `*hazard-blockstun*`),
+  the block's value added, instead of ending the rollout. `*mc-run*`: the opponent walking in from beyond 3 m runs (his kit's run speed).
+  Both default off; host-tested (a J1 into a raised guard still ends at the block's value with it off).
+- Fidelity (teacher.lisp `TEACH_LITE_VARIANTS`: several light models from the same points; IK seeds 21-32 against the full sim, regret of the
+  light pick; base / blocks / run / both, uniform): NORMAL 0.1093 / 0.1083 / 0.1089 / 0.1077, 0.1886; HARD 0.1866 / 0.1882 / 0.1866 /
+  0.1864, 0.2407. Within the noise: these mechanics are not where the light model's error is. Left off; the opponent model (what he does in
+  each situation) and the outcome values are the next suspects (the dataset to measure them first).

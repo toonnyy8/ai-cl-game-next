@@ -131,10 +131,14 @@ generic CPU in turn (K mod 3)."
     (when *teach-lite*   ; (env TEACH_LITE=N: the in-game MCTS's light model from the same situation, seen now, N rollouts: §9's fidelity)
       (let ((sn (make-snap)) (f (fighter e)))
         (snap-take! sn o)
-        (format t "lite~{ ~,3f~}~%"
-                (if (mc-setup e f (fighter-kit f) sn (fighter-dist f) (brain-difficulty (brain e)))
-                    (progn (mc-seed seed0) (mc-search *teach-lite*) (loop for a below 10 collect (or (mc-mean a) -9.0)))
-                    (make-list 10 :initial-element -9.0)))))))
+        (loop for vars in (or *teach-lite-variants* (list nil)) for k from 0   ; (env TEACH_LITE_VARIANTS: a list of binding plists,
+              do (progv (loop for (v nil) on vars by #'cddr collect v) (loop for (nil x) on vars by #'cddr collect x)   ; lines lite, lite1 ...)
+                   (format t "lite~[~:;~:*~d~]~{ ~,3f~}~%" k
+                           (if (mc-setup e f (fighter-kit f) sn (fighter-dist f) (brain-difficulty (brain e)))
+                               (let ((*mc-select* (getf *mc-select-by* (brain-difficulty (brain e)) :tree)))
+                                 (mc-seed seed0) (mc-search *teach-lite*) (loop for a below 10 collect (or (mc-mean a) -9.0)))
+                               (make-list 10 :initial-element -9.0)))))))))
+(defparameter *teach-lite-variants* (let ((v (ext:getenv "TEACH_LITE_VARIANTS"))) (and v (read-from-string v))))
 (defparameter *teach-lite* (let ((v (ext:getenv "TEACH_LITE"))) (and v (parse-integer v))))
 
 (defun teach-hook ()
