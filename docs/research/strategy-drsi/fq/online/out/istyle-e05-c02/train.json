@@ -1,0 +1,288 @@
+{
+ "proxy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/ken-istyle.lisp",
+ "init": null,
+ "eta": 0.05,
+ "cap": 0.02,
+ "eps": 0.0,
+ "seeds": "1-599",
+ "spans": [
+  [
+   1,
+   150
+  ],
+  [
+   151,
+   300
+  ],
+  [
+   301,
+   450
+  ],
+  [
+   451,
+   599
+  ]
+ ],
+ "tables": [
+  "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/istyle-e05-c02/run0-5.lisp",
+  "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/istyle-e05-c02/run1-5.lisp",
+  "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/istyle-e05-c02/run2-5.lisp",
+  "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/istyle-e05-c02/run3-5.lisp"
+ ],
+ "learner": 174,
+ "q1": 89,
+ "n": 599,
+ "b": 107,
+ "c": 22,
+ "z": 7.48,
+ "by_block": {
+  "0": {
+   "learner": 41,
+   "q1": 8,
+   "n": 100
+  },
+  "1": {
+   "learner": 39,
+   "q1": 16,
+   "n": 100
+  },
+  "2": {
+   "learner": 24,
+   "q1": 11,
+   "n": 100
+  },
+  "3": {
+   "learner": 33,
+   "q1": 27,
+   "n": 100
+  },
+  "4": {
+   "learner": 14,
+   "q1": 9,
+   "n": 100
+  },
+  "5": {
+   "learner": 23,
+   "q1": 18,
+   "n": 99
+  }
+ },
+ "curve": [
+  {
+   "run": 0,
+   "seeds": "1-25",
+   "learner": 11,
+   "q1": 5,
+   "b": 8,
+   "c": 2,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "26-50",
+   "learner": 10,
+   "q1": 5,
+   "b": 8,
+   "c": 3,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "51-75",
+   "learner": 12,
+   "q1": 4,
+   "b": 10,
+   "c": 2,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "76-100",
+   "learner": 10,
+   "q1": 6,
+   "b": 5,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "101-125",
+   "learner": 1,
+   "q1": 2,
+   "b": 0,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "126-150",
+   "learner": 5,
+   "q1": 4,
+   "b": 2,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "151-175",
+   "learner": 12,
+   "q1": 1,
+   "b": 11,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "176-200",
+   "learner": 6,
+   "q1": 3,
+   "b": 3,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "201-225",
+   "learner": 1,
+   "q1": 0,
+   "b": 1,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "226-250",
+   "learner": 2,
+   "q1": 4,
+   "b": 0,
+   "c": 2,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "251-275",
+   "learner": 4,
+   "q1": 2,
+   "b": 2,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "276-300",
+   "learner": 6,
+   "q1": 6,
+   "b": 0,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "301-325",
+   "learner": 6,
+   "q1": 2,
+   "b": 4,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "326-350",
+   "learner": 8,
+   "q1": 3,
+   "b": 6,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "351-375",
+   "learner": 5,
+   "q1": 2,
+   "b": 3,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "376-400",
+   "learner": 11,
+   "q1": 9,
+   "b": 3,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "401-425",
+   "learner": 7,
+   "q1": 5,
+   "b": 2,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "426-450",
+   "learner": 5,
+   "q1": 3,
+   "b": 4,
+   "c": 2,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "451-475",
+   "learner": 12,
+   "q1": 0,
+   "b": 12,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "476-500",
+   "learner": 15,
+   "q1": 5,
+   "b": 11,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "501-525",
+   "learner": 6,
+   "q1": 5,
+   "b": 4,
+   "c": 3,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "526-550",
+   "learner": 10,
+   "q1": 8,
+   "b": 4,
+   "c": 2,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "551-575",
+   "learner": 2,
+   "q1": 0,
+   "b": 2,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "576-599",
+   "learner": 7,
+   "q1": 5,
+   "b": 2,
+   "c": 0,
+   "n": 24
+  }
+ ]
+}

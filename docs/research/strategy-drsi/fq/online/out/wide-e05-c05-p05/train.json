@@ -1,0 +1,287 @@
+{
+ "proxy": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/ken-wide.lisp",
+ "eta": 0.05,
+ "cap": 0.05,
+ "eps": 0.05,
+ "seeds": "1-599",
+ "spans": [
+  [
+   1,
+   150
+  ],
+  [
+   151,
+   300
+  ],
+  [
+   301,
+   450
+  ],
+  [
+   451,
+   599
+  ]
+ ],
+ "tables": [
+  "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/wide-e05-c05-p05/run0-5.lisp",
+  "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/wide-e05-c05-p05/run1-5.lisp",
+  "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/wide-e05-c05-p05/run2-5.lisp",
+  "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/wide-e05-c05-p05/run3-5.lisp"
+ ],
+ "learner": 354,
+ "q1": 387,
+ "n": 599,
+ "b": 129,
+ "c": 162,
+ "z": -1.93,
+ "by_block": {
+  "0": {
+   "learner": 61,
+   "q1": 65,
+   "n": 100
+  },
+  "1": {
+   "learner": 68,
+   "q1": 65,
+   "n": 100
+  },
+  "2": {
+   "learner": 64,
+   "q1": 64,
+   "n": 100
+  },
+  "3": {
+   "learner": 52,
+   "q1": 63,
+   "n": 100
+  },
+  "4": {
+   "learner": 48,
+   "q1": 63,
+   "n": 100
+  },
+  "5": {
+   "learner": 61,
+   "q1": 67,
+   "n": 99
+  }
+ },
+ "curve": [
+  {
+   "run": 0,
+   "seeds": "1-25",
+   "learner": 17,
+   "q1": 18,
+   "b": 5,
+   "c": 6,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "26-50",
+   "learner": 15,
+   "q1": 16,
+   "b": 7,
+   "c": 8,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "51-75",
+   "learner": 19,
+   "q1": 16,
+   "b": 7,
+   "c": 4,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "76-100",
+   "learner": 11,
+   "q1": 15,
+   "b": 5,
+   "c": 9,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "101-125",
+   "learner": 13,
+   "q1": 14,
+   "b": 8,
+   "c": 9,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "126-150",
+   "learner": 17,
+   "q1": 20,
+   "b": 2,
+   "c": 5,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "151-175",
+   "learner": 15,
+   "q1": 17,
+   "b": 5,
+   "c": 7,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "176-200",
+   "learner": 18,
+   "q1": 21,
+   "b": 4,
+   "c": 7,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "201-225",
+   "learner": 11,
+   "q1": 14,
+   "b": 6,
+   "c": 9,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "226-250",
+   "learner": 14,
+   "q1": 13,
+   "b": 9,
+   "c": 8,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "251-275",
+   "learner": 13,
+   "q1": 13,
+   "b": 5,
+   "c": 5,
+   "n": 25
+  },
+  {
+   "run": 1,
+   "seeds": "276-300",
+   "learner": 15,
+   "q1": 16,
+   "b": 6,
+   "c": 7,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "301-325",
+   "learner": 20,
+   "q1": 14,
+   "b": 9,
+   "c": 3,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "326-350",
+   "learner": 19,
+   "q1": 13,
+   "b": 9,
+   "c": 3,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "351-375",
+   "learner": 16,
+   "q1": 13,
+   "b": 6,
+   "c": 3,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "376-400",
+   "learner": 14,
+   "q1": 14,
+   "b": 6,
+   "c": 6,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "401-425",
+   "learner": 11,
+   "q1": 17,
+   "b": 5,
+   "c": 11,
+   "n": 25
+  },
+  {
+   "run": 2,
+   "seeds": "426-450",
+   "learner": 16,
+   "q1": 17,
+   "b": 4,
+   "c": 5,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "451-475",
+   "learner": 9,
+   "q1": 16,
+   "b": 2,
+   "c": 9,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "476-500",
+   "learner": 16,
+   "q1": 15,
+   "b": 6,
+   "c": 5,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "501-525",
+   "learner": 18,
+   "q1": 21,
+   "b": 3,
+   "c": 6,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "526-550",
+   "learner": 13,
+   "q1": 21,
+   "b": 2,
+   "c": 10,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "551-575",
+   "learner": 11,
+   "q1": 19,
+   "b": 3,
+   "c": 11,
+   "n": 25
+  },
+  {
+   "run": 3,
+   "seeds": "576-599",
+   "learner": 13,
+   "q1": 14,
+   "b": 5,
+   "c": 6,
+   "n": 24
+  }
+ ]
+}

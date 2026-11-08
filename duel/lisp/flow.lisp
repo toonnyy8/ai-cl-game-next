@@ -144,7 +144,8 @@ confirm 32 back; cleared after FLOW-UPDATE. The menus read them as they read the
   (when (member *mode* '(:vs-cpu :cpu-cpu))                ; (a CPU's strategy from the lookup, DUEL_AI_STRATEGY §8.6)
     (do-sides (e) (let ((b (brain e)) (f (fighter e)))
                     (when b (setf (brain-strat b) (strat-lookup (fighter-character f) (fighter-character (fighter (fighter-opp f)))
-                                                                (brain-difficulty b)))))))
+                                                                (brain-difficulty b))))))
+    (do-sides (e) (when (brain e) (fq-attach! e))))       ; (a Q selector facing a human plays the player's copy, DUEL_AI_STRATEGY §8.14)
   (do-sides (e)
     (setf (gauges-konpaku (gauges e)) *konpaku-start*)
     (setf (fighter-state (fighter e)) :intro))
@@ -212,6 +213,7 @@ it lives on in memory)."
 (defun go-results ()
   (when *in-rollout* (return-from go-results))            ; (a rollout's K.O.: it stops at :finish; no music, no learner, no results)
   (learn-match-end)
+  (fq-match-end)
   (let* ((g1 (gauges *p1*)) (g2 (gauges *p2*)))
     (set-flow :results)
     (log-msg "duel -> RESULTS winner ~a konpaku ~d-~d ticks ~d secs ~,1f"

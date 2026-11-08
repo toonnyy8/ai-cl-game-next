@@ -214,6 +214,7 @@ encoded in the integer.
 | 24000+k … 29000+k | the strings' seed-gate knobs without a rebuild (before 2113): `*ai-o-ender*` = k / 100 (24000), NORMAL's `*ai-follow-guard-p*` = k / 100 (25000), every K2 / K3 (and copy) deals k % of its written damage (26000), `*kosei-reiatsu*` = k / 100 and `*kosei-fs*` half that (27000), `*ai-string-flash-p*` = k / 100 (28000), `*ai-sp-cancel-p*` = k / 100 (29000) |
 | 2400 | toggle god mode: each step both fighters' Reishi is raised to at least 400 |
 | 2500+k | human P1 vs an idle CPU, cinematics skipped: 0 Yamamoto vs Kenpachi, 1 Kenpachi vs Yamamoto, 2 YY, 3 KK |
+| 2504 | VS CPU HARD: human Kenpachi (P1) vs a playing Ichigo CPU (P2) that learns online (the fuzzy Q table, DUEL_AI_STRATEGY §8.14), cinematics skipped; clears the debug flag that keeps learners off and drops the in-memory tables, so the attach reads the page (the save / load check) |
 | 2510+p | P1's SP pointer = p + 1 (0 / 1 / 2: the pointer stances, DUEL_CORE §6) |
 | 2513 | 3 s of the cancel's slow motion (`*core-clash-slowmo-scale*`): the smooth-draw check (DUEL_CORE §6) |
 | 2514 | toggle `*scene-transparent*` (DUEL_WEBUI §4): no stage, no sky, the canvas keeps the scene's alpha (the page shows around the fighters) |

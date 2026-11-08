@@ -34,7 +34,7 @@ const srv = http.createServer((q, r) => {
 const port = srv.address().port;
 const udd = fs.mkdtempSync('/tmp/claude-1000/chrome-');
 const chrome = spawn(process.env.CHROME_BIN || 'google-chrome', ['--headless=new', '--no-sandbox', '--remote-debugging-port=0',   // Chrome picks a free port (DevToolsActivePort): parallel runs never share one
-  `--user-data-dir=${udd}`, ...(process.env.CHROME_FLAGS ? process.env.CHROME_FLAGS.split(' ') : '--enable-unsafe-webgpu --enable-features=Vulkan --use-vulkan=swiftshader --use-webgpu-adapter=swiftshader --use-angle=vulkan --enable-unsafe-swiftshader'.split(' ')), '--autoplay-policy=no-user-gesture-required',
+  `--user-data-dir=${udd}`, ...(process.env.CHROME_FLAGS ? process.env.CHROME_FLAGS.split(' ') : '--enable-unsafe-webgpu --enable-features=Vulkan --use-vulkan=swiftshader --use-webgpu-adapter=swiftshader --use-angle=vulkan --enable-unsafe-swiftshader'.split(' ')), '--autoplay-policy=no-user-gesture-required', '--mute-audio',   // headless=new still plays through the speakers; the sim never reads audio
   `--window-size=${W},${H}`, ...(process.env.CHROME_LOG ? ['--enable-logging=stderr', '--v=0'] : []), 'about:blank'], { stdio: ['ignore', 'ignore', process.env.CHROME_LOG ? 'inherit' : 'ignore'] });
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));

@@ -348,6 +348,100 @@ Asked after §8.12. The user: 「取代手寫規則 (Recommended)」 and 「對�
 - Next: the table as the starting point against a human, bounded TD updates by firing strength between matches, saved per player; CPU vs
   CPU never updates (G2 unchanged); Ichigo vs Kenpachi first.
 
+### 8.14 The fuzzy Q table learns against the player (2026-11-09)
+
+§8.13's next step. The user: 「能讓 fuzzy Q learning 也在對局中學習玩家的習慣嗎？」, then 「對玩家的線上學習」. Ichigo vs Kenpachi first. CPU vs CPU
+never learns, so G2 is identical (II 32, IK 34, KK 33 lines, native and browser).
+- **Who learns** (ai-learn.lisp `fq-attach!`, from START-MATCH after the lookup):
+  - the CPU's lookup strategy is a Q selector (`:fq`; today only `:q1-ichigo-ken`, HARD Ichigo vs Kenpachi);
+  - its opponent has no brain (a human), in VS CPU;
+  - LEARNING CPU is on (the old learner's setting, default ON; its row is hidden since the HTML menus, so there is no switch or reset on
+    screen);
+  - no debug command has run (except 2504, below).
+  The brain then plays the player's copy of the table (`*fq-tables*`, per (me, vs) roster indices). The copy is made with copy-tree, so the
+  library entry never changes.
+- **During the match**, each judgement outside rollouts (core-ai.lisp `strat-switch-step` → `fq-note`) records three things: the rules'
+  normalised firing vector (strategy.lisp `strat-fq-fire`, `:prev` included), the arm played, and the balance (my `mc-full-health` - his).
+  No random draw, and the table stays fixed until the end, so a match is a function of its inputs and the table it started with.
+- **At the match's end** (`go-results` → `fq-match-end`) the transitions are built as the offline trainer's (`fq-transitions`):
+  - r = 0.1 x the balance's change to the next judgement;
+  - the last one ends at the final balance, +1 a win, -1 a loss, 0 a draw;
+  - γ = 0.9.
+  Then Glorennec & Jouffe's update runs once, in order (`fq-td-update!`): q_r(a) += η α_r δ, δ = r + γ Σ_r α'_r max_a q_r(a) - Q(s, a).
+  Each q is clamped within its offline value ± cap and kept at 1e-5 (the stored resolution). A match the player quits never reaches
+  `go-results` and teaches nothing.
+- **Saved** through the page (pwa.js) as `soulduel.fq.<me>.<vs>` (get / set 40000 + 1000 (10 me + vs), the learner tables' protocol).
+  - Entries: format 1, a polynomial checksum of the offline table, the matches learned, then the 96 q x 100000 (99 integers).
+  - A different format, checksum or size on load starts the player fresh from the library's table, so a retrained table resets everyone.
+  - A table read back is identical to the one in memory. Natively nothing is stored.
+- **Knobs** (strategy.lisp; chosen on the training seeds and on the shipped-CPU check below, never on held-out):
+  - `*fq-online-eta*` 0.05.
+  - `*fq-online-cap*` **0.01**.
+  - `*fq-online-gamma*` 0.9 and `*fq-online-scale*` 0.1: the offline trainer's.
+  - `*fq-online-eps*` 0.0.
+- **Why cap 0.01.** Most offline arm gaps are 0.001-0.025, so a cap of 0.05 lets nearly every cell flip.
+  - At cap 0.05, 25 matches against proxy 1 took the table to 0.35-0.925 against the shipped Kenpachi (offline 0.905, seeds 851-950). One
+    run broke from its first block: 1-2 wins of 25 throughout, and 0.34 against the shipped CPU.
+  - Training wins of 599, proxy 1 / proxy 2 (offline 89 / 387):
+
+    | cap | 0.01 | 0.02 | 0.05 | 0.1 |
+    |---|---|---|---|---|
+    | wins | 197 / 502 | 174 / 487 | 187 / 512 | 70 / - |
+
+  - The final tables against the shipped Kenpachi (851-950, offline 0.905): cap 0.01 0.83-0.93, cap 0.02 0.79-0.95, cap 0.05 0.35-0.96.
+- **Exploration: none by default.** The arm is always the table's. A state where the player beats the CPU lowers the played arm's q until the
+  other arm leads, so states explore where the CPU is losing.
+  - A hash ε (FQ-U01 of the match seed, tick and side; never `sim-rnd01`) is built and was measured at cap 0.05.
+  - Training seeds: proxy 1 gained (ε 0.05 242 wins, ε 0.1 275; ε 0.1 with no learning 113), proxy 2 lost (ε 0.05 354, below no learning's
+    387).
+  - Held-out, the ε 0.05 tables: proxy 1 0.28-0.41 (offline 0.16), proxy 2 0.27-0.56 (offline 0.685).
+  - So it stays off.
+- **Host tests** (tests/duel-rules/strategy.lisp, 9890 → 9914): the firing vector, the transitions, one TD step by hand, split firing, the clamp
+  both ways, a no-op match (and δ = 0) leaving the table equal, the page round trip and its refusals, and an update of the shipped table's copy
+  leaving the library entry alone.
+- **The proof** (docs/research/strategy-drsi/fq/online.py, README there):
+  - The "player" is a proxy CPU on Kenpachi's seat, treated as the human (`strat-run.lisp STRAT_FQLEARN`). Ichigo plays on P2, as in VS CPU.
+  - Proxy 1: Kenpachi playing Ichigo's KI style CPU. Proxy 2: Kenpachi's KI style at 1.4x range. Both were picked before any learning ran.
+    The data strategies s0 / s1 / s3 already lose to the offline table about 1.0, so they leave no room.
+  - Four runs of about 150 matches on seeds 1-599, each from the shipped table, with frozen q1 played on the same seeds (a paired curve).
+    Then the final tables are frozen and played on 601-800, both seats, 400 matches a table.
+  - Identity, on the final build: learner attached with η 0 gives 313 hash / state / row lines identical to no learner (seeds 601-610, P2,
+    proxy 1). With learning on, match 1 is identical, and the tables move from match 2.
+
+At the shipped knobs (η 0.05, cap 0.01, ε 0):
+
+| | proxy 1 (Ichigo's KI style) | proxy 2 (Kenpachi's, range 1.4) |
+|---|---|---|
+| live, learner / q1, wins of 599 (b / c, z) | 197 / 89 (131 / 23, 8.7) | 502 / 387 (150 / 35, 8.5) |
+| curve, 4 runs pooled, per block of 25 matches a run (learner / q1) | 46/8, 45/16, 23/11, 36/27, 22/9, 25/18 | 83/65, 88/65, 81/64, 80/63, 84/63, 86/67 |
+| final tables frozen, held-out vs the proxy (q1) | 0.163, 0.178, 0.168, 0.178 (0.163) | 0.843, 0.893, 0.698, 0.893 (0.685); z 5.5, 8.0, 0.5, 8.0 |
+| final tables vs the shipped Kenpachi, 851-950 (q1 0.905) | 0.83, 0.915, 0.905, 0.915 | 0.865, 0.925, 0.905, 0.93 |
+| after 25 matches vs the shipped Kenpachi, 851-950 | 0.855, 0.765, 0.67, 0.775 | - |
+
+- **Against proxy 2 it learns a table.** Three of four frozen tables beat the offline one on held-out, and they are no worse against the
+  shipped CPU. The same cells flip in 3-4 runs, all from her own style to Kenpachi's:
+  - behind or even, he is red and free (rules "behind, red, free, not awakened, prev Kenpachi's" and "even, red, free, not awakened, prev own");
+  - ahead, awakened, he is free.
+- **Against proxy 1 the gain lives in the learning itself.** The live CPU wins twice as often as the offline table (most in the first 50
+  matches of a run: 46 and 45 of 100). But its final tables, frozen, play like the offline one: 2-3 flips each, 0.16-0.18. The table keeps
+  shifting cells from match to match. Against this proxy, which beats both arms alone (0-1 of 20), the shifting is what wins.
+- **The cost to other players is bounded, not zero.** Frozen after 25 matches against proxy 1, the table loses 5-24 points against the shipped
+  Kenpachi. It adapts back the same way: at cap 0.05, the broken table learning 150 more matches against the shipped Kenpachi went 13/22 (q1)
+  in its first 25, then level, and reached 0.92 held-out (q1 0.90).
+- Cap 0.05 learned more persistent tables against proxy 1 (held-out 0.458, 0.408, 0.448, and one broken at 0.02; q1 0.163) at the price
+  above. `docs/research/strategy-drsi/fq/README.md` lists every configuration.
+- **Browser** (debug 2504: two matches in a row, an idle human Kenpachi, Konpaku 2, cinematics skipped):
+  - Match 1: `duel fq load 3 1 fresh`, then `duel fq learn 3 1 matches 1 judgements 28`. `localStorage soulduel.fq.3.1` holds 99 integers
+    starting `1,346947,1`.
+  - Match 2: `duel fq load 3 1 page matches 1`; afterwards the store's third integer is 2.
+  - Both matches replay seed 1 and come out the same (75.4 s): the 7 moved rules flipped no arm against an idle player, so the arms were the
+    same.
+  - No page error; heap 74.2 MB.
+- Open for the user:
+  - show LEARNING CPU and a reset in SETTINGS again (this is the first learner live under the core system);
+  - whether the bounded cost to other players on the same browser is acceptable;
+  - cap 0.01 (safer, gain mostly live) or 0.05 (more persistent, can break).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

@@ -7,7 +7,7 @@
 ;;;; stops it while a sub is active) and prints once per match and side "switch P<n> <id> judged <J> held <h1> <h2> ...", h_i = the judgements
 ;;;; entry i won (the rest of J went to :ELSE / none), when the next match starts and at the end.
 ;;;; A Q selector (:FQ, strategy.lisp) is kept like a composite (its "switch" line's h_i = the judgements arm i won); STRAT_FQLOG logs its
-;;;; judgements for training (below).
+;;;; judgements for training (below); STRAT_FQLEARN runs the online fuzzy Q learner against a player proxy (below).
 ;;;; STRAT_LAYER=<character>[,<character>] (or "t"): those CPUs under the strategy layer (*STRAT-LAYER*, DUEL_AI_STRATEGY §5, §8.4); its
 ;;;; RESULTS line "duel stratlayer ..." gives the cost and the picks. STRAT_SET=*knob*=value[,...]: set strategy-layer knobs (numbers) first.
 ;;;; Usage: ecl-host --norc --load tools/simgate/strat-run.lisp -- <duel.fas> <cmd>...   e.g. 2102 81022 30000 31120 2132
@@ -76,6 +76,22 @@
         when r do (format t "fqend ~d P~d h ~,3f oh ~,3f~%" (first r) (1+ side) (second r) (third r)))
   (setf *sr-fq-last* (list nil nil)))
 (when *sr-fq* (setf *strat-judge-hook* #'sr-fq-judge))
+;;; STRAT_FQLEARN="<in> <out>" (DUEL_AI_STRATEGY §8.14): every Q-selector CPU learns online as against a human (*FQ-LEARN-FORCE*), its table
+;;; carried from match to match; IN (or "-": none) is a table written by an earlier run, OUT gets the table at the end: the strategy plist plus
+;;; :matches, keyed by its :apply (me vs). A player proxy is the other seat's CPU (STRAT_<CHARACTER>); don't give the learner's seat a STRAT_.
+(defvar *sr-fql* (let ((l (ext:getenv "STRAT_FQLEARN"))) (and l (plusp (length l)) l)))
+(when *sr-fql*
+  (let* ((l *sr-fql*) (sp (position #\Space l)) (in (subseq l 0 sp)) (out (subseq l (1+ sp))))
+    (setf *sr-fql* out *fq-learn-force* t)
+    (unless (string= in "-")
+      (let* ((st (sr-read in)) (ap (getf st :apply)))
+        (push (cons (cons (position (first ap) *roster*) (position (second ap) *roster*)) (cons st (getf st :matches 0))) *fq-tables*)))))
+(defun sr-fql-dump ()
+  (when *sr-fql*
+    (with-open-file (o *sr-fql* :direction :output :if-exists :supersede)
+      (dolist (en *fq-tables*)                                ; (one form a table; the evaluator reads the first)
+        (let ((st (cadr en)) (*print-pretty* nil) (*read-default-float-format* 'single-float))
+          (format o "~s~%" (list* :matches (cddr en) (loop for (k v) on st by #'cddr unless (eq k :matches) append (list k v)))))))))
 (defun sr-hook ()
   (when (and *sr-win* (battle-p) (plusp *match-tick*) (zerop (mod *match-tick* 90))) (sr-win-lines))
   (when (and (battle-p) (/= *sr-match* *match-seed*))
@@ -112,5 +128,6 @@
   (ext:quit 4))
 (sr-sw-flush)
 (sr-fq-flush)
+(sr-fql-dump)
 (finish-output)
 (ext:quit 0)

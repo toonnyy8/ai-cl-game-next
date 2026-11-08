@@ -7,7 +7,7 @@
 ;;;;   2110-2119, 2125+k, 2136+i, 30000+k   the seed gates (all pairings / one pairing / one character's), their seed offset
 ;;;;   2200+k, 10000+1000k+f   force cinematic k now and hold it / stills of it at frame f
 ;;;;   2300-2399, 2410-2430, 2450+k   scenarios and probes (2300+k specials, 2315+k frame probes, 2370+k / 2380+k stance
-;;;;               tests, 2386+k Bankai tests, 2410+k Rukia, 2450+k Senjumaru); 2400 god; 2500+k human P1 vs an idle CPU
+;;;;               tests, 2386+k Bankai tests, 2410+k Rukia, 2450+k Senjumaru); 2400 god; 2500+k human P1 vs an idle CPU (2504: vs a learning HARD Ichigo)
 ;;;;   20000-29000, 32000-73000   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc)
 ;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 84000-84999 DANGAI (84800+k its run table), 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
@@ -653,7 +653,11 @@ checks every such clause of DEBUG-COMMAND is listed here)."
          (setf *picks* (nth (- c 2500) '((:ichigo :kenpachi) (:kenpachi :ichigo) (:ichigo :ichigo) (:kenpachi :kenpachi)))
                *mode* :vs-cpu *match-seed* 1 *probe* nil *one-hand* (one-hand-effective-p))
          (let ((*skip-cines* t)) (start-match))
-         (setf (brain-off (brain *p2*)) t))))
+         (setf (brain-off (brain *p2*)) t))
+        ((= c 2504)                                          ; human Kenpachi vs a HARD Ichigo CPU that learns (DUEL_AI_STRATEGY §8.14)
+         (setf *picks* '(:kenpachi :ichigo) *mode* :vs-cpu *difficulty* :hard *probe* nil *one-hand* (one-hand-effective-p)
+               *learn-debug-off* nil *fq-tables* nil)          ; (as in play; the next attach reads the page)
+         (let ((*skip-cines* t)) (start-match)))))
 
 ;;; ---------------------------------------------------------------- overlays
 (defun draw-hitboxes ()

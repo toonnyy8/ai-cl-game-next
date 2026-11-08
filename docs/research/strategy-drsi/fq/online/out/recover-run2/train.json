@@ -1,0 +1,111 @@
+{
+ "proxy": null,
+ "init": "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/istyle-e05-c05/run2-5.lisp",
+ "eta": 0.05,
+ "cap": 0.05,
+ "eps": 0.0,
+ "seeds": "1-150",
+ "spans": [
+  [
+   1,
+   150
+  ]
+ ],
+ "tables": [
+  "/media/8tsp/projects/ai-cl-game-next/docs/research/strategy-drsi/fq/online/out/recover-run2/run0-5.lisp"
+ ],
+ "learner": 133,
+ "q1": 137,
+ "n": 150,
+ "b": 10,
+ "c": 14,
+ "z": -0.82,
+ "by_block": {
+  "0": {
+   "learner": 13,
+   "q1": 22,
+   "n": 25
+  },
+  "1": {
+   "learner": 22,
+   "q1": 25,
+   "n": 25
+  },
+  "2": {
+   "learner": 25,
+   "q1": 22,
+   "n": 25
+  },
+  "3": {
+   "learner": 24,
+   "q1": 24,
+   "n": 25
+  },
+  "4": {
+   "learner": 24,
+   "q1": 24,
+   "n": 25
+  },
+  "5": {
+   "learner": 25,
+   "q1": 20,
+   "n": 25
+  }
+ },
+ "curve": [
+  {
+   "run": 0,
+   "seeds": "1-25",
+   "learner": 13,
+   "q1": 22,
+   "b": 1,
+   "c": 10,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "26-50",
+   "learner": 22,
+   "q1": 25,
+   "b": 0,
+   "c": 3,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "51-75",
+   "learner": 25,
+   "q1": 22,
+   "b": 3,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "76-100",
+   "learner": 24,
+   "q1": 24,
+   "b": 1,
+   "c": 1,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "101-125",
+   "learner": 24,
+   "q1": 24,
+   "b": 0,
+   "c": 0,
+   "n": 25
+  },
+  {
+   "run": 0,
+   "seeds": "126-150",
+   "learner": 25,
+   "q1": 20,
+   "b": 5,
+   "c": 0,
+   "n": 25
+  }
+ ]
+}

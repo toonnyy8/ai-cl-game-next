@@ -84,6 +84,82 @@ A Q selector (:FQ): (values its chosen arm, the arm's index)."
     (dotimes (k (length q)) (when (> (svref q k) (svref q best)) (setf best k)))
     (if (and m (< p (length q)) (< (- (svref q best) (svref q p)) m)) p best)))
 
+;;; Online fuzzy Q against a human (DUEL_AI_STRATEGY §8.14; the user, 2026-11-09: 「對玩家的線上學習」). A CPU whose lookup strategy is a Q
+;;; selector plays a per-player copy of it; each judgement of the match is recorded (firing vector, arm, health balance), and only at the match's
+;;; end the copy takes Glorennec & Jouffe's TD updates, q_r(a) += eta x alpha_r x delta, delta = r + gamma x V(s') - Q(s, a), V(s) = sum_r
+;;; alpha_r max_a q_r(a), each q clamped within the offline value +- cap and kept at the storage's resolution. Nothing changes during a match.
+;;; The glue (who learns, the record, the page) is ai-learn.lisp.
+(defparameter *fq-online-eta* 0.05
+  "The online fuzzy Q's learning rate per transition (the user, 2026-11-09: 「對玩家的線上學習」, DUEL_AI_STRATEGY §8.14; new). Training seeds
+against proxy 1 at cap 0.05: eta 0.05 187 wins of 599, 0.02 171, the offline table 89.")
+(defparameter *fq-online-cap* 0.01
+  "The most an online q may drift from its offline value, either way, so a few matches against an odd player cannot wreck the table (§8.14;
+new). Training wins of 599 against proxy 1 / proxy 2 (offline table 89 / 387): cap 0.01 197 / 502, 0.02 174 / 487, 0.05 187 / 512, 0.1 70 / -;
+the learned tables against the shipped Kenpachi (offline 0.905): cap 0.01 0.83-0.93, 0.05 0.35-0.96 (one proxy-1 table broke).")
+(defparameter *fq-online-gamma* 0.9 "The online TD's discount per judgement window: the offline trainer's (fq.py, §8.12).")
+(defparameter *fq-online-scale* 0.1 "The reward per window = this x the change of (my mc-full-health - his), as the offline trainer's; +-1 at the end.")
+(defparameter *fq-unit* 100000 "An online q is kept as round(q x this) / this: the page stores those integers, so a table read back equals the one in memory.")
+(defparameter *fq-online-eps* 0.0
+  "The online fuzzy Q's chance that a judgement plays the other arm (two arms), drawn from FQ-U01 (match seed, tick, side), never SIM-RND01 (§8.14;
+new). Off: the arm a state plays is the table's, and a losing arm's q falls until the other one leads, so a state explores where the player beats
+it. Training seeds at cap 0.05, wins of 599 against the offline table's (proxy 1 89, proxy 2 387): eps 0 187 / 512, eps 0.05 242 / 354 (proxy 2
+worse than no learning), eps 0.1 275 / not run.")
+(defconstant +fq-format+ 1 "The saved online table's format version (its first entry).")
+
+(defun fq-u01 (seed tick side)
+  "A uniform 0-1 number from (SEED TICK SIDE) alone: a Park-Miller generator stirred four times (the offline log's, strat-run.lisp SR-FQ-U)."
+  (let ((x (1+ (mod (+ (* seed 1000003) (* tick 7919) (* side 104729)) 2147483646))))
+    (dotimes (i 4) (setf x (mod (* x 48271) 2147483647)))
+    (/ x 2147483647d0)))
+
+(defun fq-quant (q) "Q at the storage's resolution (*FQ-UNIT*)." (/ (round (* q *fq-unit*)) (float *fq-unit*)))
+
+(defun strat-fq-fire (fq feats)
+  "The Q selector FQ's rules' firing strengths for FEATS, normalised to sum 1 (a simple-vector; all 0 when none fires)."
+  (let* ((w (map 'simple-vector (lambda (r) (strat-ante (first r) feats)) (getf fq :rules))) (den (reduce #'+ w)))
+    (when (plusp den) (dotimes (k (length w)) (setf (svref w k) (/ (svref w k) den))))
+    w))
+
+(defun fq-q-at (fq fire a) "Q(s, A) of FQ at the normalised firing vector FIRE." (loop for r in (getf fq :rules) for x across fire sum (* x (nth (1+ a) r))))
+(defun fq-v-at (fq fire) "V(s) = sum_r alpha_r max_a q_r(a) of FQ at FIRE." (loop for r in (getf fq :rules) for x across fire sum (* x (reduce #'max (rest r)))))
+
+(defun fq-transitions (recs h-end won &optional (scale *fq-online-scale*))
+  "A match's transitions from RECS, its judgements in order ((fire arm h) ...; H = my health balance then): ((fire arm r next-fire) ...),
+r = SCALE x the change of H to the next judgement (to H-END at the last, plus WON: 1 a win, -1 a loss, 0 a draw), next-fire NIL at the last."
+  (loop for (cur nxt) on recs
+        collect (destructuring-bind (fire arm h) cur
+                  (list fire arm (+ (* scale (- (if nxt (third nxt) h-end) h)) (if nxt 0.0 won)) (and nxt (first nxt))))))
+
+(defun fq-td-update! (fq base trans &key (eta *fq-online-eta*) (gamma *fq-online-gamma*) (cap *fq-online-cap*))
+  "Apply TRANS (FQ-TRANSITIONS, in order) to the Q selector FQ in place: per transition q_r(a) += ETA x alpha_r x delta, clamped within BASE's
+(the offline table's) q +- CAP, at the storage's resolution. Returns FQ."
+  (dolist (tr trans fq)
+    (destructuring-bind (fire a r nfire) tr
+      (let ((delta (- (+ r (if nfire (* gamma (fq-v-at fq nfire)) 0.0)) (fq-q-at fq fire a))))
+        (loop for rule in (getf fq :rules) for b0 in (getf base :rules) for x across fire
+              when (plusp x)
+                do (let ((q0 (nth (1+ a) b0)))
+                     (setf (nth (1+ a) rule) (fq-quant (max (- q0 cap) (min (+ q0 cap) (+ (nth (1+ a) rule) (* eta x delta))))))))))))
+
+(defun fq-checksum (fq)
+  "A small checksum of the Q selector FQ's q values (a saved online table is kept only while its offline table is the same)."
+  (let ((s (length (getf fq :rules))))
+    (dolist (r (getf fq :rules) s)
+      (dolist (q (rest r)) (setf s (mod (+ (* 31 s) (round (* q *fq-unit*))) 999983))))))   ; (a polynomial hash: a weighted sum let opposite moves cancel)
+
+(defun fq-encode (fq base n)
+  "The page's integers for the online table FQ grown from BASE over N matches: format, BASE's checksum, N, then every q x *FQ-UNIT*."
+  (list* +fq-format+ (fq-checksum base) n (loop for r in (getf fq :rules) append (mapcar (lambda (q) (round (* q *fq-unit*))) (rest r)))))
+
+(defun fq-decode (codes base)
+  "The online table saved as CODES for the offline Q selector BASE: (values a fresh copy of BASE carrying the saved q, its match count), or NIL
+when CODES is empty, another format, another offline table's or the wrong size (the player then starts from BASE)."
+  (let ((nq (loop for r in (getf base :rules) sum (length (rest r)))))
+    (when (and (= (length codes) (+ 3 nq)) (eql (first codes) +fq-format+) (eql (second codes) (fq-checksum base)))
+      (let ((fq (copy-tree base)) (qs (cdddr codes)))
+        (dolist (r (getf fq :rules)) (loop for c on (rest r) do (setf (car c) (/ (pop qs) (float *fq-unit*)))))
+        (values fq (third codes))))))
+
 (defun strat-fingerprint (strat keys grid)
   "STRAT's outputs KEYS at each cue plist of GRID (NIL read as 0): the vector two strategies are compared by (§3)."
   (coerce (loop for feats in grid append (loop for k in keys collect (or (strat-value strat k feats) 0))) 'simple-vector))

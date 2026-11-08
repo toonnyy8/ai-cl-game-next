@@ -7,8 +7,10 @@
 //       30 + k = ENDLESS best record slot k (roster index i: 30 + 2i stages, 31 + 2i seconds; 0 = none / no storage)
 //       100 + 1000 i = the learning CPU's saved table of roster index i: its entry count; 100 + 1000 i + 1 + j = entry j
 //       (docs/duel/DUEL_LEARNING.md; localStorage soulduel.learn.<i>, the integers comma-separated)
+//       40000 + 1000 (10 me + vs) = the online fuzzy Q table of CPU me against vs (roster indices), as the learning CPU's
+//       (docs/duel/DUEL_AI_STRATEGY.md §8.14; localStorage soulduel.fq.<me>.<vs>)
 //   set 0 = battle on / off (the screen wake lock), 1 = open the manual (manual.html, this window), 10 + i = save SETTINGS row i, 30 + k = save ENDLESS slot k, 10100 + 1000 i (+ 1 + j) = the assist's learned table of CPU i (soulduel.learn.a<i>), 20000 + .. = save a CONTROLS binding (soulduel.bind.<k - 20000>),
-//       100 + 1000 i + 1 + j = table entry j (kept here), then 100 + 1000 i = n commits the first n entries (0: forget it)
+//       100 + 1000 i + 1 + j = table entry j (kept here), then 100 + 1000 i = n commits the first n entries (0: forget it); 40000 + .. likewise
 //   30000 + k = the HTML menus (menu.js, docs/duel/DUEL_WEBUI.md §3): get 30000 = 1 when they are loaded, 30001 = the next queued
 //       press, 30002 / 30003 = SELECT's model spot; set 30000 + k = the state they draw (globalThis.gameUI.set)
 //   30100 + k = the battle screens (hud.js, DUEL_WEBUI §7): get 30100 = 1 when loaded, 30101 = the next queued pause press; set /
@@ -29,10 +31,12 @@
     var oh = stored('soulduel.hand'); if (oh === '1' || oh === '2') store('soulduel.handlr', oh === '1' ? '2' : '1');
   }
   var learn = {};                                        // roster index -> the learning CPU's table (integers)
-  function ltab(i) {
-    if (!learn[i]) { var s = stored('soulduel.learn.' + i); learn[i] = s ? s.split(',').map(Number) : []; }
-    return learn[i];
+  function ltab(i, pre) {
+    var key = (pre || 'soulduel.learn.') + i;
+    if (!learn[key]) { var s = stored(key); learn[key] = s ? s.split(',').map(Number) : []; }
+    return learn[key];
   }
+  function fqkey(k) { var s = ((k - 40000) / 1000) | 0; return ((s / 10) | 0) + '.' + (s % 10); }   // the online fuzzy Q's me.vs
   function wake() {
     if (!wakeOn || lock || document.visibilityState !== 'visible' || !navigator.wakeLock) return;
     lock = true;
@@ -70,6 +74,7 @@
       if (k >= 20000 && k < 20200) return +(stored('soulduel.bind.' + (k - 20000)) || 0) | 0;
       if (k >= 100 && k < 10100) { var t = ltab(((k - 100) / 1000) | 0), j = (k - 100) % 1000; return j ? (t[j - 1] | 0) : t.length; }
       if (k >= 10100 && k < 20000) { var t = ltab('a' + (((k - 10100) / 1000) | 0)), j = (k - 10100) % 1000; return j ? (t[j - 1] | 0) : t.length; }
+      if (k >= 40000 && k < 140000) { var t = ltab(fqkey(k), 'soulduel.fq.'), j = (k - 40000) % 1000; return j ? (t[j - 1] | 0) : t.length; }
       return 0;
     },
     setStr: function (k, s) {                            // strings (engine pf_page_set_str): the battle screens' (hud.js)
@@ -93,6 +98,11 @@
         var ai = 'a' + (((k - 10100) / 1000) | 0), aj = (k - 10100) % 1000, at = ltab(ai);
         if (aj) at[aj - 1] = v | 0;
         else { at.length = Math.max(0, v | 0); store('soulduel.learn.' + ai, at.join(',')); }
+      }
+      if (k >= 40000 && k < 140000) {                    // the online fuzzy Q: soulduel.fq.<me>.<vs>
+        var fk = fqkey(k), fj = (k - 40000) % 1000, ft = ltab(fk, 'soulduel.fq.');
+        if (fj) ft[fj - 1] = v | 0;
+        else { ft.length = Math.max(0, v | 0); store('soulduel.fq.' + fk, ft.join(',')); }
       }
     }
   };
