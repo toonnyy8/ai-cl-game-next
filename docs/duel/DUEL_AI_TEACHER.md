@@ -159,3 +159,31 @@ Asked (§6's bias): iterate (recommended) / the player's own data / use the tabl
   +0.004). The close-range reads held from round 1 (rank correlation 0.8–1.0: J1 on a stun, Kenpachi's Hoho against a move, SP on a
   wake-up; Kenpachi's mid-range SP +0.150 -> +0.128 -> +0.113).
 - Round 3's table is the input to the next stage (the human-like CPU: reaction delay, the mistake budget, readability, §1).
+
+## 8. The teacher CPU in the game: the KI neutral (2026-11-08)
+
+Asked how it goes in: the KI pairing's neutral only, a pilot (recommended) / a tools-only option first. **The user: 「A」.**
+
+- **`duel/lisp/cpu-ki-teacher.lisp`**: wraps the matchup style CPUs (`ken-kt-style`, `ichigo-kt-style`). Free (idle or running) and not
+  able to awaken, a KI fighter's CPU looks up its situation **as perceived** (its character, its form, the perceived distance band, the
+  opponent's SNAP state: the difficulty's perception delay `*ai-delay*` 24 / 14 / 8 f is its reaction time, kept rather than §1's
+  proposed 24 / 16 / 10), keeps the actions within the difficulty's mistake budget of the best (`*kt-budget*` 0.10 / 0.05 / 0.02), and
+  draws one by a softmax (`*kt-tau*` 0.05 / 0.03 / 0.015); a wait / guard / walk holds 20 f. Anything else (moves, combos, stun, the
+  awakening, an unseen situation, e.g. Kenpachi's Bankai, too rare in the tables) stays the style CPU's. The tables are baked in.
+- **Strength, first** (form-less tables, 40 IK seeds, wins Ichigo : Kenpachi; the baseline = both on the style CPUs: NORMAL 5 : 35,
+  HARD 19 : 21): NORMAL Ichigo's teacher 32 : 8, Kenpachi's 2 : 38, both 26 : 14; HARD Ichigo's 6 : 34, Kenpachi's 34 : 6. Asked: EASY /
+  NORMAL on the teacher, HARD on the style CPUs (recommended) / the teacher everywhere / everywhere and strengthen HARD / playtest first.
+  **The user: 「全部用老師，並加強 HARD」.**
+- **HARD's own table**: rounds at HARD with the opponent always on his style CPU (the strongest version; env `TEACH_OPP=style`, the game's
+  teacher neutral off in the base match: `TEACH_KT_OFF`). Form-less: HARD Ichigo's teacher 31 : 9, Kenpachi's 40 : 0. Asked: put the form
+  in the key and redo the tables before shipping (recommended) / ship with Kenpachi's HARD on his style CPU / Kenpachi all on his style
+  CPU. **The user: 「分類加上型態、重算表再上線」.**
+- **With the form** (key (character form band ostate); round 1 rebuilt from round 1's logs, which had the form; NORMAL rounds 2–3:
+  best unchanged 20 / 25 of 36, rank correlation 0.64 / 0.78; HARD h1–h2: 20 of 39, 0.60): NORMAL Ichigo's teacher 35 : 5, Kenpachi's
+  4 : 36 (his style CPU 35), both 27 : 13; HARD Ichigo's 32 : 8, **Kenpachi's 35 : 4** (his style CPU 21), both 16 : 24. Kenpachi's
+  HARD still loses: his searched CPU never starts a move Ichigo's timed perfect Hoho sees while it is ready (DUEL_MATCHUP_AI §11), and the
+  key lacks her Hoho's readiness, so the table averages "she can" with "she can't".
+- **Shipped**: the teacher in every difficulty for Ichigo, EASY / NORMAL for Kenpachi; Kenpachi's HARD stays on his style CPU
+  (`*kt-off-at*`) until the key carries her Hoho's readiness (next). Tables: `docs/research/ai-teacher/ki-table-form-r1..r3.lisp`,
+  `ki-table-form-hard-h1..h2.lisp` (the form-less ones kept beside them). G2 IK regenerated (24 lines, P1 5-0, 239.1 s; before 25, P2
+  0-7, 244.5 s), browser = native; II KK identical. The manual's CPU VS CPU row says so. Playtest v355.

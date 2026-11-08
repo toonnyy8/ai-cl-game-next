@@ -46,11 +46,14 @@ first), 0 from inside the brain step (the teacher CPU: written this step)."
 (defvar *teach-table* nil "(character band ostate) -> #(n mean...) in *TEACH-ACTIONS* order (tools/teach-table.py), from env TEACH_TABLE.")
 (defparameter *teach-tau* (let ((v (ext:getenv "TEACH_TAU"))) (if v (read-from-string v) 0.03)) "The policy's softmax temperature (env TEACH_TAU).")
 (let ((f (ext:getenv "TEACH_TABLE"))) (when f (load f)))
+(defparameter *teach-opp-style* (equal (ext:getenv "TEACH_OPP") "style")
+  "Env TEACH_OPP=style: the opponent always on his matchup style CPU (the HARD table's rounds, DUEL_AI_TEACHER §8).")
+(when (ext:getenv "TEACH_KT_OFF") (setf *kt-on* nil))   ; (the game's own KI teacher neutral off: the matchup style CPUs as searched)
 
 (defun teach-key (e)
   "E's situation key, as tools/teach-table.py buckets it: (character band ostate)."
   (let* ((f (fighter e)) (fo (fighter (fighter-opp f))) (d (round (* 10 (fighter-dist f)))) (st (fighter-state fo)))
-    (list (fighter-character f)
+    (list (fighter-character f) (fighter-form f)                     ; (the form since §8: Kenpachi's three play apart)
           (cond ((< d 20) :close) ((< d 40) :mid) ((< d 70) :far) (t :out))
           (if (eq st :move) (intern (format nil "MOVE-~a" (fighter-phase fo)) :keyword) st))))
 
@@ -84,7 +87,9 @@ step on SIM-RND-STATE, written back."
 the generic CPU in odd ones. With a table (§7): the side on the teacher CPU, the opponent on the teacher CPU / his style CPU / the
 generic CPU in turn (K mod 3)."
   (if *teach-table*
-      (let ((opp-fn (case (mod k 3) (0 #'teach-policy) (1 (getf (getf *cai-styles* opp-char) self-char)) (t nil))))
+      (let ((opp-fn (if *teach-opp-style*                                   ; (env TEACH_OPP=style: the HARD table, §8)
+                        (getf (getf *cai-styles* opp-char) self-char)
+                        (case (mod k 3) (0 #'teach-policy) (1 (getf (getf *cai-styles* opp-char) self-char)) (t nil)))))
         (list self-char (list opp-char #'teach-policy) opp-char (and opp-fn (list self-char opp-fn))))
       (and (evenp k) (list opp-char (getf *cai-styles* opp-char)))))
 
