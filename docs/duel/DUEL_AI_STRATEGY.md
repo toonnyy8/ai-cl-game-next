@@ -442,6 +442,37 @@ At the shipped knobs (η 0.05, cap 0.01, ε 0):
   - whether the bounded cost to other players on the same browser is acceptable;
   - cap 0.01 (safer, gain mostly live) or 0.05 (more persistent, can break).
 
+### 8.15 Every pairing: a second search, a Q table and the online learner (2026-11-09)
+
+Asked after §8.14. The user: 「Show it and add a reset (Recommended)」 (LEARNING CPU and a reset back in SETTINGS), 「Keep 0.01
+(Recommended)」 (the cap stays), and for the next step, in their own words: 「為每個對戰組合搜尋第二輪策略，並建構出各自的 Q table 與 online fuzzy Q
+learning」. Then, on the opponent and the mirrors: 「混合：弱組對現行、強組對代理 (Recommended)」 and 「要，九組全做 (Recommended)」.
+
+- **Where every pairing stands** (HARD, seeds 600-699, both seats, 200 matches; the incumbent with every lookup entry live, d806377). The
+  lookup applies on both seats, so each entry also changes the opposite pairing's opponent:
+
+| Me vs | Share | The opponent it met |
+|---|---|---|
+| Ichigo vs Kenpachi | 0.905 | Kenpachi's shipped CPU |
+| Ichigo vs Hisagi | 1.0 | Hisagi's lookup `:s3-zoner` |
+| Hisagi vs Kenpachi | 0.965 | Kenpachi's shipped CPU |
+| Kenpachi vs Ichigo | 0.095 | Ichigo's `:q1-ichigo-ken` (0.77 against her old CPU, §8.8) |
+| Kenpachi vs Hisagi | 0.035 | Hisagi's `:ki-ken` |
+| Hisagi vs Ichigo | 0.0 | Ichigo's `:ki-ichigo` |
+| the three mirrors | 0.5, 0.495, 0.5 | itself |
+
+- **The plan**:
+  - The three weak pairings and the three mirrors search against the opponent's HARD CPU frozen as it is today (its lookup strategy passed
+    explicitly, not read from the live lookup), so the order in which new entries ship cannot change the numbers.
+  - The three at the ceiling (Ichigo vs Kenpachi, Ichigo vs Hisagi, Hisagi vs Kenpachi) skip the search. Their Q tables train against a
+    proxy pool (the opponent playing other styles: the KI styles and its other strategies), so the online learner has something to move to.
+  - Each pairing's table has two arms, the incumbent and the best alternative, and starts equal to the incumbent (proved per pairing, as
+    with c1), so a first shipped table is never worse. Cap 0.01 stays; each table's arm gaps are reported (where they mostly exceed 0.02,
+    the learner cannot flip a cell).
+  - A mirror's table plays both seats in CPU vs CPU; against a player it learns as any other.
+  - Order: generalise the tooling (fq.py, online.py, strat-run, the frozen opponents, the proxy pool); the searches (Sonnet cells, 3 x 3,
+    W = 4); the fitted Q tables and their proofs; the lookup.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
