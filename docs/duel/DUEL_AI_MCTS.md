@@ -89,3 +89,26 @@ decision of either side as it comes free in the rollout goes one level down, `*m
   Kenpachi NORMAL 77 / 74 / 74 / 74 (76); Kenpachi HARD (depth 3 / 4 / 6) 54 / 54 / 54 against DUCT's 63. Depth 2 matches the `:tree` (64,
   76); depths 3-6 agree exactly (a rollout ends at its first contact before a fourth decision); deeper or longer is worse: the search leans
   harder on the light model's errors. Kept as an option, not used; to be measured again after the offline correction (stage 3).
+
+## 7. The full sim instead of the light model (2026-11-08, an experiment)
+
+The user: 「如果不使用輕量模型，改成真實模擬呢？」. `tools/simgate/fullmc.lisp` (native, not in the game): one character's neutral by flat
+Monte Carlo on the full sim between two steps (snapshot, K rollouts of H steps per macro action with common random numbers, the health swing in
+the teacher's unit, restore, press the best); the in-game conditions (free, no press, within 7 m, not about to awaken, the opponent not down /
+airborne / waking). The rollouts see the true state (no reaction delay): an upper bound. FMC_OPP: the opponent's real CPU in the rollouts (an
+oracle) or the generic CPU (his style CPU off there). FMC_TOP=N: the hybrid, the light model ranks from the CPU's perceived view, the full sim
+re-scores its top N.
+
+40 IK seeds (HK for Hisagi), that character's wins, native ms per decision:
+
+| | light MCTS (shipped) | full, K 2, H 90 | full, K 1, H 60 | hybrid top 2, K 1, H 60 |
+|---|---|---|---|---|
+| Kenpachi HARD | ~31 (63 of 80) | 38 (oracle 40), 10-12 ms | 37, 3.7 ms | 39, 1.2-2.0 ms |
+| Ichigo HARD | ~10 (her CPU) | 39, 9-10 ms | | 40, 1.2 ms |
+| Ichigo NORMAL | ~32 (64 of 80) | 39, 11-12 ms | | 40 (top 3: 36), 1.2-1.4 ms |
+| Hisagi NORMAL (HK) | ~6.5 (13 of 80) | 22, 10-16 ms | | 16, 1.0-1.5 ms |
+| Kenpachi NORMAL | ~38 (76 of 80) | 32, 12-13 ms | | 31, 1.0-1.4 ms |
+
+The full sim's values are far stronger than the light model's everywhere but Kenpachi's NORMAL; the hybrid keeps nearly all of it at ~1.2 ms
+natively (2 full rollouts of 60 steps; in wasm about 5 ms estimated: 0.04 ms a step). Not in the game yet: the search must run between two
+steps, the rollouts see the true state (a reaction delay has to be added), the snapshot conses, and the browser cost must be measured.
