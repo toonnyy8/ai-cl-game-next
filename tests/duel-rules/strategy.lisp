@@ -34,3 +34,8 @@
 (check (= 0 (strat-final (vector 3.0 2.0) (vector 4.0 4.0) (vector 0.2 0.8) 0.0)))    ; (HARD-like: the values)
 (check (= 1 (strat-final (vector 3.0 2.0) (vector 4.0 4.0) (vector 0.2 0.8) 1.0)))    ; (all prior)
 (check (~= 1.5 (strat-prior (second *strat-library*) '(:lead -3 :or 0.9))))  ; (the brawler behind on Konpaku)
+;; the lookup (DUEL_AI_STRATEGY §8.6): HARD only, every entry names a library strategy
+(check (eq :s3-zoner (getf (strat-lookup :hisagi :ichigo :hard) :id)))
+(check (null (strat-lookup :hisagi :ichigo :normal)))                  ; (EASY / NORMAL keep their designed strength)
+(check (null (strat-lookup :ichigo :hisagi :hard)))
+(check (every (lambda (r) (and (eq (third r) :hard) (strat-lookup (first r) (second r) (third r)))) *strat-lookup*))

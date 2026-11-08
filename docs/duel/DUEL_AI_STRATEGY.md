@@ -79,6 +79,12 @@ and the HARD margin gate (`*mc-sure*`): the stage-5 goal the user chose (「全�
    library has no consumer: stop and report.
    Done 2026-11-08 (§8.4): it ties the best fixed strategy at HARD in all six cells (every matrix has a pure equilibrium); stopped and
    reported, the next step is the user's call.
+   Superseded 2026-11-08 by the user's choice (§8.6): 「查表＋搜克制策略，之後再上 Q」. The steps from here:
+   6'. A (pairing, difficulty) lookup of the best fixed strategy, HARD only, where it beats the shipped CPU by far (§8.6).
+   7'. Confirm with the user, then dream-rsi for counter strategies: a candidate scores by the situations where it beats the incumbent
+       best strategy (§8.5's binned check against the library, the margin and the share of windows it wins), not by strength alone.
+   8'. Once the library has situational value (§8.5's oracle gain above the noise), an offline-trained fuzzy Q selector (Glorennec &
+       Jouffe) replaces the lookup; the DUCT layer (§8.4) stays off.
 6. Confirm the evaluator, W and the grid with the user.
 7. A 2-cell pilot, end to end.
 8. Full rounds, pairing by pairing (KI, KH, IH), the sufficiency check before each next pairing and the mirrors.
@@ -196,6 +202,17 @@ every 90 ticks in neutral):
 - Caveat: each fixed strategy visits its own states, so a bin can lack the strategy that would win it; a signal, not proof.
 - Reading: with this library a situation-conditioned selector, DUCT or Q, learns a (pairing, difficulty) lookup. The library is what lacks
   situational value, not the selector.
+
+### 8.6 The lookup (2026-11-08)
+
+The user, on §8.5: 「查表＋搜克制策略，之後再上 Q」. First the lookup (`*strat-lookup*` in strategy.lisp, `strat-lookup`; START-MATCH sets a
+CPU's `brain-strat` from it in VS CPU and CPU VS CPU):
+- HARD only: EASY and NORMAL keep their designed strength (the NORMAL band; the best fixed strategy at NORMAL is much stronger than the
+  shipped CPU in places, e.g. Ichigo vs Hisagi s1 70 of 80 against 40).
+- Only where the gain is far over the noise: Hisagi vs Ichigo HARD plays s3 (86 % in §8.5; 88 of 100 on seeds 301-350, identical to s3 from
+  the seed file; the shipped CPU 50 of 80 in §8.4). The other HARD cells are within the noise of the shipped CPU (Ichigo vs Hisagi s0 30
+  against 30, Hisagi vs Kenpachi s3 6 against 2) or are the shipped CPU already (Kenpachi vs Ichigo: the KI style CPUs).
+- G2 identical native and browser (its pairings have no Hisagi), host tests ALL PASS 9864 (the lookup's four checks), smoke.
 
 ## 9. Strategies may carry code (2026-11-08)
 

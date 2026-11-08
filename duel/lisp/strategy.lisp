@@ -112,6 +112,16 @@ seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mix
   (remove-if-not (lambda (st) (let ((ap (getf st :apply))) (or (null ap) (and (eq (first ap) me) (eq (second ap) vs)))))
                  *strat-library*))
 
+(defparameter *strat-lookup* '((:hisagi :ichigo :hard :s3-zoner))
+  "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH), the best fixed one where it beats the
+shipped CPU by far (DUEL_AI_STRATEGY §8.6, the user, 2026-11-08: 「查表＋搜克制策略，之後再上 Q」). HARD only: EASY / NORMAL keep their designed
+strength. Hisagi vs Ichigo HARD: s3 86 % (§8.5), 88 of 100 on seeds 301-350, against the shipped 50 of 80 (§8.4).")
+
+(defun strat-lookup (me vs dif)
+  "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF, or NIL."
+  (let ((r (find-if (lambda (r) (and (eq (first r) me) (eq (second r) vs) (eq (third r) dif))) *strat-lookup*)))
+    (and r (find (fourth r) *strat-library* :key (lambda (st) (getf st :id))))))
+
 (defun strat-seed-value (me vs id)
   "ME's expected win share with strategy ID against VS's equilibrium mix (*STRAT-PAYOFF*), 0.5 when the pairing or ID is not in it."
   (dolist (row *strat-payoff* 0.5)
