@@ -113,8 +113,18 @@ only as one of the strategies (:FN ken-ki-style ...).")
              (((:ored :yes)) (:kikon 1.6))
              (((:lead :ahead)) (:p 1.4)) (((:lead :behind)) (:p 0.6)) (((:mr :low)) (:p 1.3))))
     (:id :ki-ken :fn ken-ki-style :apply (:kenpachi :ichigo) :base (:p 1.3))
-    (:id :ki-ichigo :fn ichigo-ki-style :apply (:ichigo :kenpachi) :base (:p 1.3)))
-  "The strategies the layer chooses from (the seeds s0, s1, s3, s5, s6 of docs/research/strategy-drsi/seeds/, each with prior rules :P).")
+    (:id :ki-ichigo :fn ichigo-ki-style :apply (:ichigo :kenpachi) :base (:p 1.3))
+    (:id :s7-kite :apply (:hisagi :kenpachi)           ; (the counter search's round 1, counter/kh-hisagi b1_a2, DUEL_AI_STRATEGY §8.8)
+     :base (:range 3.2 :ns 1.0 :hoho 1.0 :kikon 0.4 :cont 1.3 :awaken 4.0 :p 1.0
+            :b-walk-out 0.05 :b-wait 0.04 :b-j1 -0.3 :b-walk-in -0.08 :b-step-in -0.05)
+     :rules ((((:dn :reach)) (:b-sp 0.2 :b-walk-in -0.05))
+             (((:dn :out)) (:b-sp 0.15))
+             (((:dn :afar) (:wave :yes)) (:b-sp 0.22 :b-walk-in -0.06))
+             (((:do :in)) (:b-walk-out 0.2 :b-step-out 0.18 :b-j1 -0.1))
+             (((:do :reach)) (:b-walk-out 0.1 :b-step-out 0.08))
+             (((:ored :yes)) (:kikon 1.6)))))
+  "The strategies the layer chooses from (the seeds s0, s1, s3, s5, s6 of docs/research/strategy-drsi/seeds/, each with prior rules :P; s7
+the counter search's kite).")
 
 (defparameter *strat-payoff*
   '((:kenpachi :ichigo (:s0-generic :s1-brawler :s3-zoner :ki-ken) (:s0-generic :s1-brawler :s3-zoner :ki-ichigo)
@@ -134,10 +144,14 @@ seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mix
   (remove-if-not (lambda (st) (let ((ap (getf st :apply))) (or (null ap) (and (eq (first ap) me) (eq (second ap) vs)))))
                  *strat-library*))
 
-(defparameter *strat-lookup* '((:hisagi :ichigo :hard :s3-zoner))
+(defparameter *strat-lookup* '((:hisagi :ichigo :hard :s3-zoner) (:ichigo :hisagi :hard :ki-ichigo) (:ichigo :kenpachi :hard :ki-ken)
+                                (:hisagi :kenpachi :hard :s7-kite))
   "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH), the best fixed one where it beats the
 shipped CPU by far (DUEL_AI_STRATEGY §8.6, the user, 2026-11-08: 「查表＋搜克制策略，之後再上 Q」). HARD only: EASY / NORMAL keep their designed
-strength. Hisagi vs Ichigo HARD: s3 86 % (§8.5), 88 of 100 on seeds 301-350, against the shipped 50 of 80 (§8.4).")
+strength. Hisagi vs Ichigo HARD: s3 86 % (§8.5), 88 of 100 on seeds 301-350, against the shipped 50 of 80 (§8.4). The counter search's round 1
+(§8.8, 「三筆都加」 2026-11-08; held-out seeds 700-799, both seats, the shipped CPU's share in brackets): Ichigo vs Hisagi her KI style
+1.0 (0.13); Ichigo vs Kenpachi Kenpachi's KI style 0.415 (0.23); Hisagi vs Kenpachi the kite 0.47 (0.055). A strategy from here stops the
+character's matchup style CPU (CORE-BRAIN-STEP), as in the search.")
 
 (defun strat-lookup (me vs dif)
   "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF, or NIL."

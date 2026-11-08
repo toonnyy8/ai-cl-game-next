@@ -37,7 +37,9 @@
 ;; the lookup (DUEL_AI_STRATEGY §8.6): HARD only, every entry names a library strategy
 (check (eq :s3-zoner (getf (strat-lookup :hisagi :ichigo :hard) :id)))
 (check (null (strat-lookup :hisagi :ichigo :normal)))                  ; (EASY / NORMAL keep their designed strength)
-(check (null (strat-lookup :ichigo :hisagi :hard)))
+(check (eq :ki-ichigo (getf (strat-lookup :ichigo :hisagi :hard) :id)))   ; (the counter search's round 1, §8.8)
+(check (eq :s7-kite (getf (strat-lookup :hisagi :kenpachi :hard) :id)))
+(check (null (strat-lookup :kenpachi :ichigo :hard)))                   ; (his KI style CPU stays the shipped one)
 (check (every (lambda (r) (and (eq (third r) :hard) (strat-lookup (first r) (second r) (third r)))) *strat-lookup*))
 ;; a composite (DUEL_AI_STRATEGY §8.7): the first entry whose OWN fires at >= 0.5, else :ELSE, else NIL; OR across antecedents, AND within
 (let* ((a '(:id :a)) (b '(:id :b)) (c '(:id :c))

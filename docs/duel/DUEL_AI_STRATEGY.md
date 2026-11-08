@@ -267,6 +267,18 @@ character's wins, both seats, 200 matches; "inc" = the incumbent (the shipped CP
   (`brain-style`) and crashed the sim (Ichigo with `ken-ki-style` on part of the game). Brain slot `sw-fn`: the style function that owns
   `brain-style`; another one taking over starts afresh. Scores of same-function candidates unchanged (76 / 49 before and after).
 
+### 8.9 Round 1 into the lookup, and round 2's rules (2026-11-08)
+
+Asked after round 1. The user: 「三筆都加 (Recommended)」 and 「換新現行＋限制接手比例 (Recommended)」.
+- `*strat-lookup*` (HARD only) gains Ichigo vs Hisagi `:ki-ichigo`, Ichigo vs Kenpachi `:ki-ken` (Kenpachi's KI style CPU as her strategy),
+  Hisagi vs Kenpachi `:s7-kite` (new library entry, counter/kh-hisagi b1_a2). A strategy from the lookup now stops the character's matchup
+  style CPU, as a composite's sub does (else Ichigo's own style would run on Kenpachi's style state); the composite's style-state owner
+  (`sw-fn`) counts the lookup's `:fn` when no sub is active. The game reproduces the search exactly: the held-out shares 1.0, 0.415,
+  0.47. G2 identical (it does not run HARD), host tests 9875 ALL PASS.
+- Round 2: the incumbent is the CPU with the lookup; a candidate counts only if it owns at most 60 % of the judgements (over the cap it
+  scores as the incumbent), to force situational strategies; the cells' dev seeds double to 100 a seat (800-899). Ichigo vs Hisagi (1.0
+  now) and Kenpachi vs Ichigo (no gain in round 1) are skipped: round 2 searches Ichigo vs Kenpachi and Hisagi vs Kenpachi.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
