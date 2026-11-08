@@ -308,6 +308,36 @@ Asked after round 2. The user: 「兩個都上 (Recommended)」 and 「離線 fu
   strategy (no `:fn`), so a candidate measured on top of `:c1-ichigo-ken` is wrong; the fuzzy Q step brings its own evaluator.
 - Next (§7 step 8'): an offline-trained fuzzy Q selector over the two KI styles in Ichigo vs Kenpachi; the bar is the hand composite (0.825).
 
+### 8.12 The offline fuzzy Q selector, Ichigo vs Kenpachi HARD (2026-11-08)
+
+§8.11's next step. Everything lives in `docs/research/strategy-drsi/fq/` (README, `fq.py`, the tables, the runs). Nothing ships yet:
+the lookup still plays c1.
+- **Runtime** (off by default: no `:fq` anywhere and G2 is identical, II 32, IK 34, KK 33 lines):
+  - The form is `(:id ID :fq (:arms (S0 S1 ...) :rules ((ANTE Q0 Q1 ...) ...) [:margin M]))`. strategy.lisp `strat-fq-q` /
+    `strat-fq-pick`, dispatched from `strat-judge`.
+  - Q(a) = the rules' q(a) averaged by firing strength. The arm is the argmax (ties go to the first; with no rule firing, arm 0). It is kept
+    as `:prev` while it trails by less than M. It is always an arm, never the lookup's fallback.
+  - It is judged on the composite's schedule (`strat-switch-step`: the `sw-fn` reset, the counters). The cue `:prev` is the previous arm.
+    No random draw; the same function in rollouts.
+  - A new fuzzy set `:busy` (his state class not free). A tool hook `*strat-judge-hook*` (core-ai.lisp; NIL in the game).
+  - `tools/strategy-switch.py --raw` passes a composite or a Q selector unwrapped. `strat-run.lisp STRAT_FQLOG` logs the judgements and
+    explores (ε from a hash of seed, tick, side and salt).
+  - Fixed: the composite's `judged` / `held` counts covered only each chunk's last match. So §8.8-§8.10's own shares came from 8
+    matches; c1's real own share is 12.9 % on 601-700.
+- **Training**: behaviour = the table initialised to c1 + ε 0.15. 4 salts x seeds 1-599 x both seats = 4,792 matches, 714,801 judgements.
+  - Reward per window: 0.1 x Δ(`mc-full-health` difference), ±1 at the end; γ 0.9.
+  - 48 crisp rules (lead x ored x his state free x awk x prev; tabular in effect).
+  - Policy evaluation with a gate: a cell leaves c1 only when the other arm is better in >= 95 % of 200 seed-bootstrap replicates.
+- **Proofs**: c1 run raw = the incumbent; the table initialised to c1 = c1 (601-700: 165 = 165, b = c = 0). Hash lines are byte-identical
+  (601-610, also with the logging hook at ε 0).
+- **Result** (both seats, 100 seeds a seat, against c1; 601-700 / 701-800 are §8.7's blocks "600-699 / 700-799", `--seed0 600` / `700`):
+  - 601-700: 0.905 against 0.825 (b / c 32 / 16, z 2.3).
+  - 701-800: 0.895 against 0.825 (29 / 15, z 2.1).
+  - Pooled: z 3.1.
+  - Validation (the 1-500 table on 501-599): 0.929 against 0.859.
+- **What moved** (16 of 48 cells): awakened, her own style in place of Kenpachi's in 10 cells. Not awakened, with him free and her behind
+  (or even with him red), Kenpachi's style in place of her own, which reverses c1's trigger. `:prev` keeps her own style in one busy cell.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

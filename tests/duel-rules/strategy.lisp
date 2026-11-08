@@ -56,3 +56,28 @@
   (check (eq c (strat-judge (append sw (list :else c)) '(:lead -5 :mr 0.9 :dj 9))))   ; (:else)
   (check (eq a (strat-judge (append sw (list :else c)) '(:lead -5 :mr 0.1))))          ; (an entry before :else)
   (check (null (strat-judge '(:switch (((((:lead :ahead) (:lead :behind))) . (:id :n)))) '(:lead 5)))))   ; (an OWN that never fires)
+;; a fuzzy Q selector (DUEL_AI_STRATEGY §8.12): Q = the rules' q averaged by firing strength, the arm = argmax (ties: the first), :MARGIN keeps :PREV
+(let* ((a '(:id :a)) (b '(:id :b))
+       (fq (list :arms (list a b) :rules '((((:mr :low)) 1.0 0.0) (((:mr :high)) 0.0 2.0) (() 0.5 0.5)))))
+  (check (equalp #(0.75 0.25) (strat-fq-q fq '(:mr 0.1))))                          ; (low at 1, the empty antecedent at 1)
+  (check (equalp #(0.25 1.25) (strat-fq-q fq '(:mr 0.9))))
+  (check (~= 0.6666667 (svref (strat-fq-q fq '(:mr 0.375)) 0)))                     ; (low at 0.5: (0.5 + 0.5) / 1.5)
+  (check (= 0 (strat-fq-pick fq '(:mr 0.1))))
+  (check (= 1 (strat-fq-pick fq '(:mr 0.9))))
+  (check (= 0 (strat-fq-pick (list :arms (list a b) :rules '((((:mr :low)) 1.0 1.0))) '(:mr 0.1))))   ; (a tie: the first)
+  (check (= 0 (strat-fq-pick (list :arms (list a b) :rules '((((:mr :low)) 0.0 1.0))) '(:mr 0.9))))   ; (none fires: arm 0)
+  (check (= 0 (strat-fq-pick (append fq '(:margin 1.5)) '(:mr 0.9 :prev 0))))   ; (b leads by 1 < the margin: kept)
+  (check (= 1 (strat-fq-pick (append fq '(:margin 0.5)) '(:mr 0.9 :prev 0))))
+  (check (= 1 (strat-fq-pick (list :arms (list a b) :rules '((((:prev :yes)) 0.0 1.0) (((:prev :no)) 1.0 0.0))) '(:prev 1))))
+  (multiple-value-bind (st k) (strat-judge (list :id :q :fq fq) '(:mr 0.9)) (check (and (eq st b) (= k 1)))))
+;; a crisp partition reproduces the composite c1 on every state of its cues (the Q selector's start, docs/research/strategy-drsi/fq/)
+(let* ((c (strat-lookup :ichigo :kenpachi :hard))
+       (fq (list :arms (list (getf c :else) (cdr (first (getf c :switch))))
+                 :rules '((((:ost :free) (:lead :behind)) 0.0 1.0) (((:ost :free) (:lead :even) (:ored :yes)) 0.0 1.0)
+                          (((:ost :free) (:lead :ahead) (:ored :yes)) 0.0 1.0) (((:ost :free) (:lead :even) (:ored :no)) 1.0 0.0)
+                          (((:ost :free) (:lead :ahead) (:ored :no)) 1.0 0.0) (((:ost :busy)) 1.0 0.0)))))
+  (check (loop for lead from -9 to 9 always
+           (loop for ored in '(0 1) always
+             (loop for ost from 0 to 4 always
+               (let ((ft (list :lead lead :ored ored :ost ost)))
+                 (eq (strat-judge c ft) (strat-judge (list :fq fq) ft))))))))

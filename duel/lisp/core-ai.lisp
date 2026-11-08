@@ -155,13 +155,20 @@ for anyone."
     (and (not (getf (kit-core (fighter-kit f)) :no-awaken)) (not (gauges-awakened g)) (>= (gauges-awaken g) *awaken-max*) (member (fighter-state f) '(:idle :run)))))
 
 (defvar *in-rollout*)                                    ; (cpu-mcts.lisp gives it its value)
+(defvar *strat-judge-hook* nil
+  "NIL in the game; a tool's function (e b sw sub index feats) -> (values sub index) run on each composite judgement outside rollouts (the
+Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and may explore the other arm).")
 (defun strat-switch-step (e b f s d sw)
-  "The active sub-strategy of the composite SW (strategy.lisp) for brain B: judged on the match's first step and every *STRAT-SWITCH-PERIOD*
-steps in neutral, else held (no random draw). Outside rollouts it counts the judgements and each entry's wins (BRAIN-SW-N / -WON)."
+  "The active sub-strategy of the composite or Q selector SW (strategy.lisp) for brain B: judged on the match's first step and every
+*STRAT-SWITCH-PERIOD* steps in neutral, else held (no random draw). Outside rollouts it counts the judgements and each entry's wins (BRAIN-SW-N / -WON)."
   (when (or (< (brain-sw-t b) 0)
             (and (member (fighter-state f) '(:idle :run)) (>= (- *match-tick* (brain-sw-t b)) *strat-switch-period*)))
     (setf (brain-sw-t b) *match-tick*)
-    (multiple-value-bind (sub i) (strat-judge sw (strat-feats e f s d))
+    (multiple-value-bind (sub i)
+        (let* ((fq (getf sw :fq)) (feats (strat-feats e f s d))
+               (feats (if fq (list* :prev (or (position (brain-sw-sub b) (getf fq :arms)) 0) feats) feats)))   ; (the previous arm)
+          (multiple-value-bind (sub i) (strat-judge sw feats)
+            (if (and *strat-judge-hook* (not *in-rollout*)) (funcall *strat-judge-hook* e b sw sub i feats) (values sub i))))
       (let* ((st (or sub (strat-lookup (fighter-character f) (fighter-character (fighter (fighter-opp f))) (brain-difficulty b))))
              (x (if st (getf st :fn) (cai-style-fn f))) (fn (if (and x (symbolp x)) (symbol-function x) x)))
         (when (and fn (not (eq fn (brain-sw-fn b))))      ; (another style function takes over: its own state, not the last one's struct)
@@ -180,7 +187,7 @@ steps in neutral, else held (no random draw). Outside rollouts it counts the jud
     (vpad-begin-step! vp)
     (multiple-value-bind (s d) (brain-perceive e b o)
      (when *strat-layer* (strat-layer-step e b f s d))                    ; (the strategy layer's selection, cpu-mcts.lisp)
-     (let* ((sw (let ((st (brain-strat b))) (and st (getf st :switch) st)))     ; (a composite: its active sub, else the lookup's strategy)
+     (let* ((sw (let ((st (brain-strat b))) (and st (or (getf st :switch) (getf st :fq)) st)))   ; (a composite: its active sub, else the lookup's strategy; a Q selector: its arm)
             (cur (if sw
                      (or (strat-switch-step e b f s d sw)
                          (strat-lookup (fighter-character f) (fighter-character (fighter o)) (brain-difficulty b)))

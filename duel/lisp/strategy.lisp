@@ -53,11 +53,36 @@
   (let ((w 0.0)) (dolist (a own w) (setf w (max w (strat-ante a feats))))))
 
 (defun strat-judge (sw feats)
-  "The composite SW's judgement for FEATS: (values sub index), the first :SWITCH entry with OWN >= 0.5 (index from 0), else (values its :ELSE -1)."
-  (let ((i 0))
-    (dolist (en (getf sw :switch) (values (getf sw :else) -1))
-      (when (>= (strat-own (car en) feats) 0.5) (return (values (cdr en) i)))
-      (incf i))))
+  "The composite SW's judgement for FEATS: (values sub index), the first :SWITCH entry with OWN >= 0.5 (index from 0), else (values its :ELSE -1).
+A Q selector (:FQ): (values its chosen arm, the arm's index)."
+  (let ((fq (getf sw :fq)) (i 0))
+    (if fq
+        (let ((k (strat-fq-pick fq feats))) (values (nth k (getf fq :arms)) k))
+        (dolist (en (getf sw :switch) (values (getf sw :else) -1))
+          (when (>= (strat-own (car en) feats) 0.5) (return (values (cdr en) i)))
+          (incf i)))))
+
+;;; A fuzzy Q selector (DUEL_AI_STRATEGY §7 step 8', §8.12; Glorennec & Jouffe 1997): (:ID id :FQ (:ARMS (S0 S1 ...) :RULES ((ANTE Q0 Q1 ...) ...)
+;;; [:MARGIN M])), judged as a composite (STRAT-SWITCH-STEP). Q(a) = the rules' q(a) averaged by firing strength (STRAT-ANTE; an empty ANTE
+;;; always fires); the arm = argmax Q (ties: the first; no rule firing: arm 0), kept as the previous arm while it trails the best by less
+;;; than M. The cue :PREV (the previous arm's index, 0 before the first) lets the rules price a switch. Always an arm: never the lookup's
+;;; fallback. No random draw; the same function in rollouts. Trained offline (docs/research/strategy-drsi/fq/).
+(defun strat-fq-q (fq feats)
+  "The Q selector FQ's value per arm for FEATS: a simple-vector, every q averaged by the rules' firing strengths (all 0 when none fires)."
+  (let* ((n (length (getf fq :arms))) (num (make-array n :initial-element 0.0)) (den 0.0))
+    (dolist (r (getf fq :rules))
+      (let ((w (strat-ante (first r) feats)))
+        (when (plusp w)
+          (incf den w)
+          (loop for q in (rest r) for k below n do (incf (svref num k) (* w q))))))
+    (when (plusp den) (dotimes (k n) (setf (svref num k) (/ (svref num k) den))))
+    num))
+
+(defun strat-fq-pick (fq feats)
+  "The Q selector FQ's arm index for FEATS: argmax Q (ties: the first), the previous arm (:PREV) while it trails by less than :MARGIN."
+  (let* ((q (strat-fq-q fq feats)) (best 0) (p (getf feats :prev 0)) (m (getf fq :margin)))
+    (dotimes (k (length q)) (when (> (svref q k) (svref q best)) (setf best k)))
+    (if (and m (< p (length q)) (< (- (svref q best) (svref q p)) m)) p best)))
 
 (defun strat-fingerprint (strat keys grid)
   "STRAT's outputs KEYS at each cue plist of GRID (NIL read as 0): the vector two strategies are compared by (§3)."

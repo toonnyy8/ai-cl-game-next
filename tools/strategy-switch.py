@@ -11,6 +11,9 @@ seed0+1..seed0+n; the INCUMBENT (no strategy on either seat) plays the same seed
   b / c                   paired counts on the same seed and seat: composite won and incumbent lost / the reverse;  z = (b - c) / sqrt(b + c)
   own_share               the candidate's judgements / all the composite's judgements (the share of windows it held)
   score                   max(0.005, comp_share), or the incumbent's share when own_share > --max-own (capped)
+--raw: FILE goes to the character's seat as it is (STRAT_P<seat>, no wrapping, no :own needed): a composite or a Q selector (:fq) whose
+every window is its own, measured against the incumbent (the shipped CPU, its lookup included); own_share then counts every judgement and
+`held` gives the judgements per entry / arm (DUEL_AI_STRATEGY §8.12).
 Raw match output is cached in build/strategy-eval-cache/ by (build hash, composite text, characters, difficulty, seed block). At most 8 sim processes.
 """
 import argparse, concurrent.futures as cf, hashlib, json, math, os, re, subprocess, sys, tempfile, time
@@ -176,12 +179,18 @@ def main():
     ap.add_argument('--seed0', type=int, default=500, help='seeds seed0+1..seed0+seeds; the offset command (debug 30000+k) takes k <= 999')
     ap.add_argument('-j', type=int, default=5)
     ap.add_argument('--max-own', type=float, help='over this own_share the candidate scores as the incumbent (round 2: 0.6)')
+    ap.add_argument('--raw', action='store_true', help='pass FILE through unwrapped (a composite or a Q selector)')
     ap.add_argument('--out')
     a = ap.parse_args()
     t0 = time.time()
     if not 0 <= a.seed0 <= 999 or a.seed0 + ((a.seeds - 1) // CHUNK) * CHUNK > 999:
         sys.exit('strategy-switch: each sim chunk starts at an offset k = seed0 + 25 i <= 999 (debug 30000+k)')
-    cid, text = composite_text(a.cand)
+    if a.raw:
+        text = strip_lisp(open(a.cand).read()).strip() + '\n'
+        m = re.search(r':id\s+:?([^\s()]+)', text)
+        cid = m.group(1) if m else 'cand'
+    else:
+        cid, text = composite_text(a.cand)
     me, op, diff = ROSTER[a.char], ROSTER[a.vs], DIFF[a.diff]
     tmp = tempfile.NamedTemporaryFile('w', suffix='.lisp', prefix='switch-', delete=False, dir=os.path.join(ROOT, 'build'))
     tmp.write(text); tmp.close()
@@ -201,11 +210,13 @@ def main():
     for (tag, seat, _), o in zip(jobs, outs):
         got[(tag, seat)].append(o)
     cw = iw = m = b = c = judged = own = 0
+    held_all = []
     for seat in ('P1', 'P2'):
         w_c, j, held = parse(got[('comp', seat)], seat)
         w_i, _, _ = parse(got[('inc', seat)], seat)
         judged += j
         own += sum(held)
+        held_all = held if not held_all else [x + y for x, y in zip(held_all, held)]
         for sd, v in w_c.items():
             cw += v
             iw += w_i[sd]
@@ -218,7 +229,8 @@ def main():
     res = dict(char=a.char, vs=a.vs, diff=a.diff, cand=cid, seeds=a.seeds, seed0=a.seed0,
                comp_wins=cw, comp_matches=m, inc_wins=iw, inc_matches=m, comp_share=round(comp, 4), inc_share=round(inc, 4),
                gain=round(comp - inc, 4), b=int(b), c=int(c), z=round((b - c) / math.sqrt(b + c), 3) if b + c else 0.0,
-               own_share=round(own / judged, 4) if judged else 0.0, wall_s=round(time.time() - t0, 1), score=round(max(0.005, inc if capped else comp), 4), capped=capped)
+               own_share=round(own / judged, 4) if judged else 0.0, wall_s=round(time.time() - t0, 1), score=round(max(0.005, inc if capped else comp), 4), capped=capped,
+               judged=judged, held=held_all, raw=a.raw)
     print(json.dumps(res, indent=1))
     if a.out:
         with open(a.out, 'w') as f:

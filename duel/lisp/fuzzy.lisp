@@ -25,7 +25,8 @@
     ;; strategies' cues (strategy.lisp): a distance over a reach, a fraction, a state class (0-4)
     (:in -99 -99 0.8 1.0) (:reach 0.8 1.0 1.2 1.5) (:out 1.2 1.5 2.0 2.6) (:afar 2.0 2.6 99 99)
     (:low -1 0 0.25 0.5) (:high 0.5 0.75 1 2)
-    (:free -0.5 0 0 0.5) (:startup 0.5 1 1 1.5) (:active 1.5 2 2 2.5) (:evade 2.5 3 3 3.5) (:down 3.5 4 4 4.5))
+    (:free -0.5 0 0 0.5) (:startup 0.5 1 1 1.5) (:active 1.5 2 2 2.5) (:evade 2.5 3 3 3.5) (:down 3.5 4 4 4.5)
+    (:busy 0.5 1 99 99))                                              ; his state class not free (a Q selector's rules, strategy.lisp)
   "The fuzzy sets: name -> trapezoid (A B C D): 0 below A and above D, 1 from B to C.")
 
 (dolist (e *fz-sets*) (setf (get (first e) 'fz-trap) (coerce (rest e) 'simple-vector)))   ; (resolved once: no ASSOC per membership)

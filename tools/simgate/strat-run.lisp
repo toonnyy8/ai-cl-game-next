@@ -6,6 +6,8 @@
 ;;;; A composite (:SWITCH ((OWN . STRATEGY) ...) [:ELSE S], strategy.lisp, DUEL_AI_STRATEGY §8.7) keeps the character's style CPU (the runtime itself
 ;;;; stops it while a sub is active) and prints once per match and side "switch P<n> <id> judged <J> held <h1> <h2> ...", h_i = the judgements
 ;;;; entry i won (the rest of J went to :ELSE / none), when the next match starts and at the end.
+;;;; A Q selector (:FQ, strategy.lisp) is kept like a composite (its "switch" line's h_i = the judgements arm i won); STRAT_FQLOG logs its
+;;;; judgements for training (below).
 ;;;; STRAT_LAYER=<character>[,<character>] (or "t"): those CPUs under the strategy layer (*STRAT-LAYER*, DUEL_AI_STRATEGY §5, §8.4); its
 ;;;; RESULTS line "duel stratlayer ..." gives the cost and the picks. STRAT_SET=*knob*=value[,...]: set strategy-layer knobs (numbers) first.
 ;;;; Usage: ecl-host --norc --load tools/simgate/strat-run.lisp -- <duel.fas> <cmd>...   e.g. 2102 81022 30000 31120 2132
@@ -40,23 +42,54 @@
 (defun sr-sw-note ()
   (do-sides (e)
     (let ((b (brain e)))
-      (when (and b (brain-strat b) (getf (brain-strat b) :switch))
+      (when (and b (brain-strat b) (or (getf (brain-strat b) :switch) (getf (brain-strat b) :fq)))
         (setf (nth (fighter-side (fighter e)) *sr-sw*)
               (list (getf (brain-strat b) :id) (brain-sw-n b)
-                    (loop for i below (length (getf (brain-strat b) :switch)) collect (if (brain-sw-won b) (svref (brain-sw-won b) i) 0))))))))
+                    (loop for i below (length (or (getf (brain-strat b) :switch) (getf (getf (brain-strat b) :fq) :arms)))
+                          collect (if (brain-sw-won b) (svref (brain-sw-won b) i) 0))))))))
+;;; STRAT_FQLOG="<salt> <eps>": the Q selector's training log (DUEL_AI_STRATEGY §8.12, docs/research/strategy-drsi/fq/). On each judgement of a
+;;; :FQ strategy outside rollouts, with chance EPS the other arm (two arms) instead of the table's: drawn from a hash of (match seed, tick,
+;;; side, salt), never SIM-RND01. One line a judgement: "fq <seed> <tick> P<n> lead L ored R ost S mr M or O dj D awk A prev P greedy G arm K
+;;; h H oh OH" (H = mc-full-health, mine and his); "fqend <seed> P<n> h H oh OH" when the match ends (the last step's values).
+(defvar *sr-fq* (let ((l (ext:getenv "STRAT_FQLOG"))) (and l (plusp (length l)) (with-input-from-string (in l) (list (read in) (read in))))))
+(defun sr-fq-u (seed tick side salt)
+  "A uniform 0-1 number from (SEED TICK SIDE SALT) alone: a Park-Miller generator stirred a few times."
+  (let ((x (1+ (mod (+ (* seed 1000003) (* tick 7919) (* side 104729) (* salt 15485863)) 2147483646))))
+    (dotimes (i 4) (setf x (mod (* x 48271) 2147483647)))
+    (/ x 2147483647d0)))
+(defvar *sr-fq-last* (list nil nil) "Per side, the last step's (seed h oh) of a logging CPU.")
+(defun sr-fq-judge (e b sw sub i feats)
+  (declare (ignore b))
+  (let* ((f (fighter e)) (side (fighter-side f)) (arms (getf (getf sw :fq) :arms))
+         (k (if (and arms (= 2 (length arms)) (< (sr-fq-u *match-seed* *match-tick* side (first *sr-fq*)) (second *sr-fq*))) (- 1 i) i)))
+    (format t "fq ~d ~d P~d lead ~d ored ~d ost ~d mr ~,3f or ~,3f dj ~,2f awk ~d prev ~d greedy ~d arm ~d h ~,3f oh ~,3f~%"
+            *match-seed* *match-tick* (1+ side) (getf feats :lead) (getf feats :ored) (getf feats :ost) (getf feats :mr) (getf feats :or)
+            (getf feats :dj) (getf feats :awk) (getf feats :prev) i k (mc-full-health e) (mc-full-health (fighter-opp f)))
+    (if (= k i) (values sub i) (values (nth k arms) k))))
+(defun sr-fq-note ()
+  (do-sides (e)
+    (let ((b (brain e)))
+      (when (and b (brain-strat b) (getf (brain-strat b) :fq))
+        (setf (nth (fighter-side (fighter e)) *sr-fq-last*) (list *match-seed* (mc-full-health e) (mc-full-health (fighter-opp (fighter e)))))))))
+(defun sr-fq-flush ()
+  (loop for side from 0 for r in *sr-fq-last*
+        when r do (format t "fqend ~d P~d h ~,3f oh ~,3f~%" (first r) (1+ side) (second r) (third r)))
+  (setf *sr-fq-last* (list nil nil)))
+(when *sr-fq* (setf *strat-judge-hook* #'sr-fq-judge))
 (defun sr-hook ()
-  (when (battle-p) (sr-sw-note))
   (when (and *sr-win* (battle-p) (plusp *match-tick*) (zerop (mod *match-tick* 90))) (sr-win-lines))
   (when (and (battle-p) (/= *sr-match* *match-seed*))
     (setf *sr-match* *match-seed*)
     (sr-sw-flush)
+    (sr-fq-flush)
     (do-sides (e)
       (let* ((f (fighter e)) (b (brain e)) (ch (fighter-character f))
              (st (or (sr-strat (if (zerop (fighter-side f)) "STRAT_P1" "STRAT_P2")) (sr-strat (format nil "STRAT_~:@(~a~)" ch)))))
         (when (and b st)
           (setf (brain-strat b) st)
-          (unless (getf st :switch) (remf *cai-styles* ch))
-          (format t "strat P~d ~a~%" (1+ (fighter-side f)) (getf st :id)))))))
+          (unless (or (getf st :switch) (getf st :fq)) (remf *cai-styles* ch))
+          (format t "strat P~d ~a~%" (1+ (fighter-side f)) (getf st :id))))))
+  (when (battle-p) (sr-sw-note) (when *sr-fq* (sr-fq-note))))   ; (after a new match's flush: else its first step's counts replace the last match's)
 
 (let ((l (ext:getenv "STRAT_LAYER")))
   (when (and l (plusp (length l)))
@@ -78,5 +111,6 @@
               thereis (and (null *gate*) (not *gate-busy*) (null *gate-results*) (not (battle-p))))
   (ext:quit 4))
 (sr-sw-flush)
+(sr-fq-flush)
 (finish-output)
 (ext:quit 0)
