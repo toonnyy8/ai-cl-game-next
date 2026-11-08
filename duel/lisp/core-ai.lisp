@@ -39,8 +39,29 @@
   (ai-press b button frames :modded modded))
 
 (defun cai-fz (b rules kind &rest feats)
-  "RULES' chance (fuzzy.lisp) at brain B's difficulty for the cue plist FEATS (KIND :SKILL or :CHOICE)."
-  (fz-chance rules feats (brain-difficulty b) kind))
+  "RULES' chance (fuzzy.lisp) at brain B's difficulty for the cue plist FEATS (KIND :SKILL or :CHOICE), times the active strategy's scale
+for it (strategy.lisp: :HOHO :TURN :CONT :KIKON)."
+  (let ((p (fz-chance rules feats (brain-difficulty b) kind)))
+    (if *strat-now*
+        (strat-scale (cond ((eq rules *fz-hoho*) :hoho) ((or (eq rules *fz-as-now*) (eq rules *fz-ns-turn*)) :turn)
+                           ((eq rules *fz-ns-cont*) :cont) ((eq rules *fz-kikon*) :kikon) (t :other))
+                     p)
+        p)))
+
+(defun strat-reach (mv) "MV's reach plus its forward slide (m), 1 when there is no move." (if mv (+ (mv-reach mv) (max 0.0 (mv-slide mv))) 1.0))
+
+(defun strat-feats (e f s d)
+  "The strategies' cues for E (fighter F) seeing SNAP S at distance D (DUEL_AI_STRATEGY §2): relative to the kits, so a strategy runs
+for anyone."
+  (let* ((kit (fighter-kit f)) (o (fighter-opp f)) (okit (fighter-kit (fighter o))) (g (gauges e)) (go (gauges o))
+         (rj (strat-reach (kit-command-move kit :q e))) (rn (strat-reach (kit-core-move kit :ns (mc-ptr f))))
+         (ro (strat-reach (kit-command-move okit :q o))))
+    (list :dj (/ d (max 0.5 rj)) :dn (/ d (max 0.5 rn)) :do (/ d (max 0.5 ro))
+          :lead (- (gauges-konpaku g) (gauges-konpaku go))
+          :mr (/ (gauges-reishi g) (float (gauges-reishi-max g))) :or (/ (gauges-reishi go) (float (gauges-reishi-max go)))
+          :ored (cai-bit (gauges-red-p go)) :hoho (cai-bit (hoho-open-p e))
+          :ost (case (snap-state s) ((:idle :run :guard) 0) (:move (if (and (snap-move s) (< (snap-sf s) (snap-s s))) 1 2)) ((:step :hoho) 3) (t 4))
+          :wave (cai-bit (nth (1- (mc-ptr f)) (getf (kit-core kit) :ns-range))) :awk (cai-bit (gauges-awakened g)))))
 (defun cai-fz-roll (b rules kind &rest feats)
   "One roll of RULES' chance (no SIM-RND01 drawn at 0 or 1, as BRAIN-ROLL)."
   (let ((p (apply #'cai-fz b rules kind feats))) (cond ((<= p 0) nil) ((>= p 1) t) (t (< (sim-rnd01) p)))))
@@ -105,7 +126,8 @@
   "Free: Hoho out of an attack at him, else walk to the range and now and then start a move."
   (let* ((vp (pilot-vpad (pilot e)))
          (nr (nth (1- (max 1 (min *core-pointer-max* (fighter-ptr f)))) (getf (kit-core kit) :ns-range)))   ; (near far) m of a ranged NS under this pointer (Ichigo's Getsuga)
-         (rg (getf (kit-core kit) :range *cai-range*)) (lo (first rg)) (hi (second rg)))
+         (rg (getf (kit-core kit) :range *cai-range*)) (sc (strat-out :range nil))   ; (a strategy's range scale)
+         (lo (if sc (* sc (first rg)) (first rg))) (hi (if sc (* sc (second rg)) (second rg))))
     (when (<= (decf (brain-strafe-t b)) 0) (funcall (ai-step e :strafe) e b))
     (cond ((and (eq (snap-state s) :move) (plusp (snap-left s)) (< d (+ (snap-reach s) 1.0)) (hoho-open-p e)
                 (< (brain-hoho-roll b) (cai-fz b *fz-hoho* :skill :margin (- d (snap-reach s)) :frames (max 0 (- (snap-s s) (snap-sf s))))))
@@ -116,14 +138,14 @@
              (when (<= (decf (brain-decide-t b)) 0)
                (setf (brain-decide-t b) (+ (getf *cai-think* (brain-difficulty b) 22) (floor (* 12 (sim-rnd01)))))
                (cond ((> d 7.0) (ai-dash b 1 4.5))
-                     ((and (gauges-awakened-ok-p e) (< (sim-rnd01) *cai-awaken-p*)) (ai-press b :awaken 1 :modded t))
+                     ((and (gauges-awakened-ok-p e) (< (sim-rnd01) (strat-scale :awaken *cai-awaken-p*))) (ai-press b :awaken 1 :modded t))
                      ((and nr (> d (+ hi 0.6)) (<= (first nr) d (second nr)) (< (sim-rnd01) *cai-ranged-p*))   ; a shot from where he would walk in
                       (setf (brain-own-key b) -1 (brain-r-kikon b) 1f0 (brain-decide-t b) *cai-ranged-gap*)
                       (cai-sp b f s))
                      ((<= d (+ hi 0.6))
                       (setf (brain-own-key b) -1)
                       (let ((roll (sim-rnd01)) (ns (kit-core-move kit :ns (fighter-ptr f))))
-                        (if (and ns (< roll (if (> d 1.7) *cai-ns-far* *cai-ns-near*)))
+                        (if (and ns (< roll (strat-out :ns (if (> d 1.7) *cai-ns-far* *cai-ns-near*))))
                             (progn (setf (brain-r-kikon b) (sim-rnd01)) (cai-sp b f s))
                             (cai-press b :quick 1))))))))))
 
@@ -137,6 +159,7 @@
   (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))) (o (fighter-opp f)) (kit (fighter-kit f)))
     (vpad-begin-step! vp)
     (multiple-value-bind (s d) (brain-perceive e b o)
+     (let ((*strat-now* (and (brain-strat b) (cons (brain-strat b) (strat-feats e f s d)))))   ; (its strategy, DUEL_AI_STRATEGY)
       (vpad-stick! vp 0f0 0f0)
       (ai-event-rolls b s)
       (if (and (member (fighter-state f) '(:stun :air)) (>= (fighter-combo-hits f) *burst-min-hits*))
@@ -166,7 +189,7 @@
                     (when (and (zerop (fighter-kikon-lock f)) (>= (brain-burst-t b) (brain-delay b)) (not (brain-burst-rolled b)))
                       (setf (brain-burst-rolled b) t)
                       (when (and (cai-fz-roll b *fz-burst* :skill :hits (fighter-combo-hits f) :red (cai-bit (gauges-red-p (gauges e)))) (burst-ok-p e))
-                             (cai-press b :awaken 1)))))))))
+                             (cai-press b :awaken 1))))))))))
     (setf (brain-was b) (fighter-state f))
     (loop for a across *vpad-actions*
           do (vpad-set! vp a (or (and (> (brain-press-left b) 0) (eq a (brain-press b)))

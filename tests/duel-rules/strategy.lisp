@@ -1,0 +1,23 @@
+;; ================================================================ strategies as data (duel/lisp/strategy.lisp, DUEL_AI_STRATEGY §2)
+(in-package :duel)
+(let ((st '(:id :t1 :base (:range 1.0 :b-j1 0.0)
+            :rules ((((:dj :in)) (:b-j1 0.2 :ns 0.9))
+                    (((:dj :afar) (:ost :free)) (:range 0.7))))))
+  ;; a rule that holds answers; no rule: the base; neither names the key: NIL (the CPU's own value)
+  (check (~= 0.2 (strat-value st :b-j1 '(:dj 0.5))))
+  (check (~= 0.0 (strat-value st :b-j1 '(:dj 3.0))))
+  (check (~= 0.7 (strat-value st :range '(:dj 3.0 :ost 0))))
+  (check (~= 1.0 (strat-value st :range '(:dj 3.0 :ost 2))))
+  (check (null (strat-value st :hoho '(:dj 0.5))))
+  ;; halfway on a slope: weighted toward the base? no: one rule firing at any strength gives its value alone
+  (check (~= 0.9 (strat-value st :ns '(:dj 0.9))))
+  ;; no active strategy: the CPU's own value, and a chance unchanged
+  (let ((*strat-now* nil)) (check (and (= 0.3 (strat-out :ns 0.3)) (= 0.3 (strat-scale :hoho 0.3)))))
+  (let ((*strat-now* (cons '(:base (:hoho 2.0 :ns 0.1)) nil)))
+    (check (and (~= 0.1 (strat-out :ns 0.3)) (~= 0.6 (strat-scale :hoho 0.3)) (~= 1.0 (strat-scale :hoho 0.7)))))
+  ;; fingerprints: a strategy is the same as itself, and a changed output lowers the similarity
+  (let* ((grid '((:dj 0.5) (:dj 3.0 :ost 0) (:dj 1.1 :ost 2))) (keys '(:b-j1 :range :ns))
+         (fa (strat-fingerprint st keys grid))
+         (fb (strat-fingerprint '(:base (:range 1.0 :b-j1 0.0) :rules ((((:dj :in)) (:b-j1 0.2 :ns 0.9)))) keys grid)))
+    (check (~= 1.0 (strat-similarity fa fa)))
+    (check (< 0.5 (strat-similarity fa fb) 1.0))))

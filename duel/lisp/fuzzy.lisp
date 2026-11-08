@@ -21,7 +21,11 @@
     (:soon -1 0 8 14) (:late 8 14 99 99)                              ; frames until his hit window opens
     (:early -1 0 0.3 0.6) (:deep 0.3 0.6 1 2)                         ; how far into the string (presses / its length)
     (:behind -99 -99 -1 0) (:even -1 0 0 1) (:ahead 0 1 99 99)        ; my Konpaku minus his
-    (:few -1 0 2 4) (:many 2 4 99 99))                                ; combo hits on me
+    (:few -1 0 2 4) (:many 2 4 99 99)                                 ; combo hits on me
+    ;; strategies' cues (strategy.lisp): a distance over a reach, a fraction, a state class (0-4)
+    (:in -99 -99 0.8 1.0) (:reach 0.8 1.0 1.2 1.5) (:out 1.2 1.5 2.0 2.6) (:afar 2.0 2.6 99 99)
+    (:low -1 0 0.25 0.5) (:high 0.5 0.75 1 2)
+    (:free -0.5 0 0 0.5) (:startup 0.5 1 1 1.5) (:active 1.5 2 2 2.5) (:evade 2.5 3 3 3.5) (:down 3.5 4 4 4.5))
   "The fuzzy sets: name -> trapezoid (A B C D): 0 below A and above D, 1 from B to C.")
 
 (dolist (e *fz-sets*) (setf (get (first e) 'fz-trap) (coerce (rest e) 'simple-vector)))   ; (resolved once: no ASSOC per membership)
