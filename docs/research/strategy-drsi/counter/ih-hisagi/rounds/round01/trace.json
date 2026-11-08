@@ -11,6 +11,14 @@
       "note": "comp 0.04 inc 0.0 gain 0.04 z 2.828 own 0.5699 capped False",
       "score": 0.04
     },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.045 inc 0.0 gain 0.045 z 3.0 own 0.4722 capped False",
+      "score": 0.045
+    },
     "b1_a0": {
       "error": null,
       "fail_class": "ok",
@@ -19,6 +27,14 @@
       "note": "comp 0.01 inc 0.0 gain 0.01 z 1.414 own 0.3986 capped False",
       "score": 0.01
     },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.015 inc 0.0 gain 0.015 z 1.732 own 0.3873 capped False",
+      "score": 0.015
+    },
     "b2_a0": {
       "error": null,
       "fail_class": "ok",
@@ -26,6 +42,14 @@
       "n_valid": null,
       "note": "comp 0.02 inc 0.0 gain 0.02 z 2.0 own 0.0808 capped False",
       "score": 0.02
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.085 inc 0.0 gain 0.085 z 4.123 own 0.5555 capped False",
+      "score": 0.085
     }
   },
   "directions": {},
@@ -44,9 +68,9 @@
   },
   "max_parallelism": 4,
   "pending_batch": [
-    "b0_a1",
-    "b1_a1",
-    "b2_a1"
+    "b0_a2",
+    "b1_a2",
+    "b2_a2"
   ],
   "policy_file": "rounds/round01/policy.py",
   "refine_count": 2,

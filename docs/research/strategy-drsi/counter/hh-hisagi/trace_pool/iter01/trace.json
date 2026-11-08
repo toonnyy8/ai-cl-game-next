@@ -1,0 +1,55 @@
+{
+  "baseline_score": 0.5,
+  "beta": 0.6,
+  "branch_count": 3,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.97 inc 0.5 gain 0.47 z 9.307 own 0.4458 capped False",
+      "score": 0.97
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.925 inc 0.5 gain 0.425 z 8.295 own 0.3364 capped False",
+      "score": 0.925
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.875 inc 0.5 gain 0.375 z 7.538 own 0.2728 capped False",
+      "score": 0.875
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [
+    "b0_a1",
+    "b1_a1",
+    "b2_a1"
+  ],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "counter strategy for hisagi vs hisagi HARD, second search against the frozen opponent: composite win share (DUEL_AI_STRATEGY 8.7, 8.15)"
+}

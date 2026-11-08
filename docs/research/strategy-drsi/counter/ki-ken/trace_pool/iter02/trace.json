@@ -1,0 +1,84 @@
+{
+  "baseline_score": 0.095,
+  "beta": 0.6,
+  "branch_count": 3,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.49 inc 0.095 gain 0.395 z 7.861 own 0.4934 capped False",
+      "score": 0.49
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.595 inc 0.095 gain 0.5 z 9.285 own 0.5498 capped False",
+      "score": 0.595
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.425 inc 0.095 gain 0.33 z 7.117 own 0.5383 capped False",
+      "score": 0.425
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.615 inc 0.095 gain 0.52 z 9.574 own 0.5856 capped False",
+      "score": 0.615
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.5 inc 0.095 gain 0.405 z 8.06 own 0.5083 capped False",
+      "score": 0.5
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.49 inc 0.095 gain 0.395 z 7.784 own 0.505 capped False",
+      "score": 0.49
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "insufficient history: hold the fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": null,
+    "out_of_support": false,
+    "requested": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "insufficient history: hold the fallback grid",
+      "refine_count": 2
+    },
+    "source": "policy"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [
+    "b0_a2",
+    "b1_a2",
+    "b2_a2"
+  ],
+  "policy_file": "rounds/round02/policy.py",
+  "refine_count": 2,
+  "round_index": 2,
+  "task": "counter strategy for kenpachi vs ichigo HARD (round 2: against Ichigo's q1, frozen): composite win share (DUEL_AI_STRATEGY 8.7, 8.15)"
+}

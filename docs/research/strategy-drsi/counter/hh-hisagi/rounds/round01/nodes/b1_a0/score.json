@@ -1,0 +1,30 @@
+{
+ "char": "hisagi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "k-behind-ored",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 185,
+ "comp_matches": 200,
+ "inc_wins": 100,
+ "inc_matches": 200,
+ "comp_share": 0.925,
+ "inc_share": 0.5,
+ "gain": 0.425,
+ "b": 95,
+ "c": 10,
+ "z": 8.295,
+ "own_share": 0.3364,
+ "wall_s": 8.5,
+ "score": 0.925,
+ "capped": false,
+ "judged": 22931,
+ "held": [
+  7714
+ ],
+ "raw": false,
+ "vs_strat": [
+  "none"
+ ]
+}

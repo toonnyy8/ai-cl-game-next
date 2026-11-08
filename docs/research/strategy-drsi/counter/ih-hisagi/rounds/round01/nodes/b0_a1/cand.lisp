@@ -1,0 +1,1 @@
+(:id :ken-ahead-hi-busy :own (((:lead :ahead)) ((:lead :even) (:mr :high) (:ost :busy) (:or :high)) ((:lead :even) (:mr :high) (:dj :out)) ((:lead :even) (:mr :high) (:dj :afar)) ((:lead :even) (:mr :high) (:dj :reach))) :fn ken-ki-style)

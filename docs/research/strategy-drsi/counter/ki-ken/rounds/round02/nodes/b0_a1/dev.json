@@ -1,0 +1,30 @@
+{
+ "char": "kenpachi",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "e2",
+ "seeds": 100,
+ "seed0": 800,
+ "comp_wins": 124,
+ "comp_matches": 200,
+ "inc_wins": 15,
+ "inc_matches": 200,
+ "comp_share": 0.62,
+ "inc_share": 0.075,
+ "gain": 0.545,
+ "b": 116,
+ "c": 7,
+ "z": 9.828,
+ "own_share": 0.5487,
+ "wall_s": 0.1,
+ "score": 0.62,
+ "capped": false,
+ "judged": 28103,
+ "held": [
+  15421
+ ],
+ "raw": false,
+ "vs_strat": [
+  "docs/research/strategy-drsi/counter/frozen/q1-ichigo-ken.lisp"
+ ]
+}
