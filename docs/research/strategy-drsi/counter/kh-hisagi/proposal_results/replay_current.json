@@ -1,0 +1,734 @@
+{
+  "policy": "kh-hisagi/policy/current.py",
+  "n_worlds": 1,
+  "max_parallelism": 4,
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "pareto": {
+    "auc": 0.3333333333333333,
+    "parallel_penalty": 0.4,
+    "parallelism_weight": 0.05,
+    "reward": 0.3133333333333333,
+    "n_traces_scored": 1,
+    "per_trace": [
+      {
+        "name": "r01",
+        "run_best": 0.415,
+        "n_evaluated": 9,
+        "auc": 0.3333333333333333,
+        "parallel_penalty": 0.4,
+        "front": [
+          {
+            "beta": 0.0,
+            "total_budget": 6.0,
+            "attain": 1.0
+          }
+        ],
+        "varies": true
+      }
+    ]
+  },
+  "qualified": true,
+  "disqualified_reason": null,
+  "non_degenerate": true,
+  "grid": [
+    {
+      "beta": 0.0,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.415,
+          "n_evaluated": 9,
+          "beta": 0.0,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.415,
+          "total_budget": 6,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            2,
+            2,
+            2
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.135,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.17,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.17
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 2,
+                "budget": 2,
+                "best": 0.17,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.29,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.15499999999999997
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.195,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.024999999999999994
+                }
+              ],
+              "best_after": 0.29
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.29,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.415,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.125
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.375,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.18
+                }
+              ],
+              "best_after": 0.415
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "beta": 0.25,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.415,
+          "n_evaluated": 9,
+          "beta": 0.25,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.415,
+          "total_budget": 6,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            2,
+            2,
+            2
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.135,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.17,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.17
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 2,
+                "budget": 2,
+                "best": 0.17,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.29,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.15499999999999997
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.195,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.024999999999999994
+                }
+              ],
+              "best_after": 0.29
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.29,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.415,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.125
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.375,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.18
+                }
+              ],
+              "best_after": 0.415
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "beta": 0.5,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.415,
+          "n_evaluated": 9,
+          "beta": 0.5,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.415,
+          "total_budget": 9,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            3,
+            3,
+            3
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.135,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.17,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.12,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.17
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 3,
+                "budget": 3,
+                "best": 0.17,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.29,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.15499999999999997
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.195,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.024999999999999994
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.205,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.08499999999999999
+                }
+              ],
+              "best_after": 0.29
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 6,
+                "budget": 6,
+                "best": 0.29,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2",
+                "b2_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.415,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.125
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.375,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.18
+                },
+                {
+                  "cell": "b2_a2",
+                  "score": 0.33,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.12500000000000003
+                }
+              ],
+              "best_after": 0.415
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "beta": 0.75,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.415,
+          "n_evaluated": 9,
+          "beta": 0.75,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.415,
+          "total_budget": 9,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            3,
+            3,
+            3
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.135,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.17,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.12,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.17
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 3,
+                "budget": 3,
+                "best": 0.17,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.29,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.15499999999999997
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.195,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.024999999999999994
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.205,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.08499999999999999
+                }
+              ],
+              "best_after": 0.29
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 6,
+                "budget": 6,
+                "best": 0.29,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2",
+                "b2_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.415,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.125
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.375,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.18
+                },
+                {
+                  "cell": "b2_a2",
+                  "score": 0.33,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.12500000000000003
+                }
+              ],
+              "best_after": 0.415
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "beta": 1.0,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.415,
+          "n_evaluated": 9,
+          "beta": 1.0,
+          "grid_plan": {
+            "source": "policy",
+            "requested": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "effective": {
+              "branch_count": 3,
+              "refine_count": 2,
+              "reason": "insufficient history: hold the fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": null,
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.415,
+          "total_budget": 9,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            3,
+            3,
+            3
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.135,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.17,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.12,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.17
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 3,
+                "budget": 3,
+                "best": 0.17,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.29,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.15499999999999997
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.195,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.024999999999999994
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.205,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.08499999999999999
+                }
+              ],
+              "best_after": 0.29
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 6,
+                "budget": 6,
+                "best": 0.29,
+                "legal": 3
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2",
+                "b2_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.415,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.125
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.375,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.18
+                },
+                {
+                  "cell": "b2_a2",
+                  "score": 0.33,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.12500000000000003
+                }
+              ],
+              "best_after": 0.415
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+ "char": "hisagi",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "kk-eb",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 181,
+ "comp_matches": 200,
+ "inc_wins": 75,
+ "inc_matches": 200,
+ "comp_share": 0.905,
+ "inc_share": 0.375,
+ "gain": 0.53,
+ "b": 113,
+ "c": 7,
+ "z": 9.676,
+ "own_share": 0.406,
+ "wall_s": 8.6,
+ "score": 0.905,
+ "capped": false
+}

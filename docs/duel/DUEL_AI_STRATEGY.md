@@ -279,6 +279,24 @@ Asked after round 1. The user: 「三筆都加 (Recommended)」 and 「換新現
   scores as the incumbent), to force situational strategies; the cells' dev seeds double to 100 a seat (800-899). Ichigo vs Hisagi (1.0
   now) and Kenpachi vs Ichigo (no gain in round 1) are skipped: round 2 searches Ichigo vs Kenpachi and Hisagi vs Kenpachi.
 
+### 8.10 Counter search, round 2 (2026-11-08)
+
+The dream step promoted a rewritten allocation policy in both workspaces (replay reward +0.313 against the baseline policy's -0.017, one
+world: weak evidence). 15 cells (Sonnet 5.5): Ichigo vs Kenpachi the full 3 x 3; Hisagi vs Kenpachi stopped after its first batch of 3.
+Incumbents (the HARD lookup, §8.9): Ichigo vs Kenpachi 0.43 search / 0.415 held-out; Hisagi vs Kenpachi 0.375 / 0.47.
+
+- **The first situational counter: Ichigo vs Kenpachi.** Incumbent: Kenpachi's KI style as her strategy; counter: her own KI style while
+  he is free (`:ost :free`) and she is behind on Konpaku or he is red (`:ored :yes`), about 15 % of the judgements
+  (`counter/ki-ichigo/rounds/round02/nodes/b0_a2/cand.lisp`): **0.825 search, 0.825 held-out (z 8.1)**. Both of its parts alone are far
+  weaker (Kenpachi's style alone 0.415, her own alone 0.23): the two styles win different situations. The branch's steps on held-out:
+  behind only 0.62, behind or red 0.685, with `:range 0.7` 0.73, gated on his free state 0.825. A variant adding "awakened and even"
+  0.775.
+- **Hisagi vs Kenpachi is not situational.** The counters (a KI style CPU while the lead is even or behind, 21-40 % of the judgements)
+  reached 0.87-0.915 held-out, but either KI style everywhere is stronger: Kenpachi's 0.985, Ichigo's 0.965 (against the kite's 0.47).
+  The cap only measures weaker slices of a whole replacement, so the workspace stopped.
+- The KI style CPUs, written for the KI pairing, are strong general tactics: with any of the three characters, against the generic CPU,
+  they win far more than the generic CPU's own play or the data strategies.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

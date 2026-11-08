@@ -37,10 +37,10 @@ case "${1:-}" in
   fail) record "$2" "$3" "" "$4" "$5" "nothing scorable"; next ;;
   done) C=$2; R=$3; N=$WS/rounds/round$(printf %02d "$R")/nodes/$C
         [ -f "$N/cand.lisp" ] || { record "$C" "$R" "" runtime "no cand.lisp delivered" "-"; next; exit 0; }
-        (cd "$REPO" && timeout 3600 python3 tools/strategy-switch.py --char "$CH" --vs "$VS" --cand "$N/cand.lisp" --seed0 600 --seeds 100 -j 5 --out "$N/score.json" >/dev/null 2>"$N/score.err"); rc=$?
+        (cd "$REPO" && timeout 3600 python3 tools/strategy-switch.py --char "$CH" --vs "$VS" --cand "$N/cand.lisp" --seed0 600 --seeds 100 -j 5 $( [ "$R" -ge 2 ] && echo --max-own 0.6 ) --out "$N/score.json" >/dev/null 2>"$N/score.err"); rc=$?
         if [ $rc = 0 ]; then
           S=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['score'])" "$N/score.json")
-          P=$(python3 -c "import json,sys; j=json.load(open(sys.argv[1])); print(f\"comp {j['comp_share']} inc {j['inc_share']} gain {j['gain']} z {j['z']} own {j['own_share']}\")" "$N/score.json")
+          P=$(python3 -c "import json,sys; j=json.load(open(sys.argv[1])); print(f\"comp {j['comp_share']} inc {j['inc_share']} gain {j['gain']} z {j['z']} own {j['own_share']} capped {j.get('capped')}\")" "$N/score.json")
           record "$C" "$R" "$S" ok "" "$P"
         else record "$C" "$R" "" runtime "rescore exited $rc: $(tail -c 300 "$N/score.err" | tr '\n' ' ')" "rescore"; fi; next ;;
   *) sed -n 2,7p "$0"; exit 2 ;;

@@ -11,7 +11,9 @@ w = WS[ws]; me, vs = w['char'], w['vs']
 node = os.path.join(TOP, ws, 'rounds', f'round{rnd:02d}', 'nodes', cell)
 parent = os.path.abspath(work['parent_dir']) if work.get('parent_dir') else '(none: this cell opens a new direction)'
 hist = ' '.join(os.path.abspath(h) for h in work.get('history_dirs', [])) or '(none: round 1)'
-DEV = f"python3 tools/strategy-switch.py --char {me} --vs {vs} --cand <file> --seed0 800 --seeds 50 -j 5"
+R2 = rnd >= 2
+DEV = f"python3 tools/strategy-switch.py --char {me} --vs {vs} --cand <file> --seed0 800 --seeds {100 if R2 else 50} -j 5" + (" --max-own 0.6" if R2 else "")
+BASE = os.path.join(TOP, ws, 'baseline-r02' if R2 else 'baseline')
 print(f"""You are one discovery cell of a Dream-RSI search (arXiv:2609.14858) for COUNTER STRATEGIES in SOUL DUEL: {me.upper()} against
 {vs.upper()}, HARD. Reply to the coordinator in English; the user does not read your output.
 
@@ -23,7 +25,7 @@ You must read every historical proposal before proposing or implementing a new s
 - PARENT_DIR = {parent}
 - Sibling attempts: {TOP}/{ws}/rounds/round{rnd:02d}/nodes/b*_a*/ (exclude your own NODE_DIR)
 - HISTORY_DIR = {hist}
-- BASELINE_DIR = {TOP}/{ws}/baseline (the incumbent: what {me} plays now, its measured share, proposal.md)
+- BASELINE_DIR = {BASE} (the incumbent: what {me} plays now, its measured share, proposal.md)
 - Library (read-only, existing strategies you may borrow from or name): docs/research/strategy-drsi/seeds/*.lisp and README.md
 
 # What you are searching for
@@ -33,7 +35,17 @@ claims. In a match the CPU plays the incumbent everywhere, and switches to your 
 strategy that does, so the composite out-wins the incumbent. Claiming everything just replaces the incumbent (rarely better); claiming
 nothing scores the incumbent exactly. The best counters own a slice where the incumbent is weak.
 
-# Step 1. Read the complete history first
+{('''# Round 2: what changed (DUEL_AI_STRATEGY 8.8, 8.9) — read this first
+- The incumbent is NEW: round 1's best whole-game replacement went into the game's HARD lookup (BASELINE_DIR says which). Round-1 numbers
+  were against the old incumbent: they are evidence about mechanisms, not on this round's scale.
+- THE CAP: a candidate whose :own fires on more than 60 % of the judgements scores as the incumbent (JSON "capped": true). You are looking
+  for a SITUATIONAL counter: a slice where something else beats the incumbent.
+- Round 1's lessons: picked dev gains of +0.05-0.15 shrank to ~0 on fresh seeds (overfitting 100 matches); dev now has 200 matches, still
+  prefer a candidate whose effect holds on a second dev block (seed0 900, 50 seeds) over the best of many; under a `:fn` the `:b-` biases
+  and rules are inert and only `:range` acts; data-only strategies win ~0 against a KI style CPU; a sub may now use a different `:fn` from
+  the incumbent's (the state crash is fixed). Distinct strategies are welcome: another character's KI style, a kite, a rush.
+
+''' if R2 else '')}# Step 1. Read the complete history first
 Read every proposal.md under the sibling attempts, HISTORY_DIR and BASELINE_DIR with its score.json (the coordinator's measure on the search
 seeds: THE number). For each past attempt note the mechanism (which situations, which strategy) and how it did; for a failure work out
 whether the idea was flawed or let down by a parameter. Don't converge on small tweaks of one mechanism with flattening returns: prefer a
@@ -55,7 +67,7 @@ one, OR across the list (the `:rules` antecedent format). Every value a number, 
 
 # Step 4. Evaluate honestly
 - Compare variants on the DEV seeds only: `{DEV}` (JSON: comp vs inc wins on the same seeds, gain, paired b / c and z, own_share).
-  ~100 matches: a gain under ~0.05 is noise there. The search seeds (seed0 600) are the coordinator's; held-out seeds exist that
+  {'~200 matches: a gain under ~0.04 is noise there.' if R2 else '~100 matches: a gain under ~0.05 is noise there.'} The search seeds (seed0 600) are the coordinator's; held-out seeds exist that
   neither of you sees. Don't tune to them.
 - Three other cells run on this machine at once: keep -j 5. The native build is shared: never rebuild it, never edit tools/, duel/,
   tests/ or anything the evaluator reads.

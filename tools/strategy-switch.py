@@ -10,7 +10,7 @@ seed0+1..seed0+n; the INCUMBENT (no strategy on either seat) plays the same seed
   comp_share / inc_share  the character's win shares (a draw / time-out counts 0);  gain = comp - inc
   b / c                   paired counts on the same seed and seat: composite won and incumbent lost / the reverse;  z = (b - c) / sqrt(b + c)
   own_share               the candidate's judgements / all the composite's judgements (the share of windows it held)
-  score                   max(0.005, comp_share)
+  score                   max(0.005, comp_share), or the incumbent's share when own_share > --max-own (capped)
 Raw match output is cached in build/strategy-eval-cache/ by (build hash, composite text, characters, difficulty, seed block). At most 8 sim processes.
 """
 import argparse, concurrent.futures as cf, hashlib, json, math, os, re, subprocess, sys, tempfile, time
@@ -175,6 +175,7 @@ def main():
     ap.add_argument('--seeds', type=int, default=100, help='seeds a seat')
     ap.add_argument('--seed0', type=int, default=500, help='seeds seed0+1..seed0+seeds; the offset command (debug 30000+k) takes k <= 999')
     ap.add_argument('-j', type=int, default=5)
+    ap.add_argument('--max-own', type=float, help='over this own_share the candidate scores as the incumbent (round 2: 0.6)')
     ap.add_argument('--out')
     a = ap.parse_args()
     t0 = time.time()
@@ -212,10 +213,12 @@ def main():
             b += v == 1 and w_i[sd] == 0
             c += v == 0 and w_i[sd] == 1
     comp, inc = cw / m, iw / m
+    osh = own / judged if judged else 0.0
+    capped = a.max_own is not None and osh > a.max_own        # (DUEL_AI_STRATEGY §8.9: a counter owns a slice, not the game)
     res = dict(char=a.char, vs=a.vs, diff=a.diff, cand=cid, seeds=a.seeds, seed0=a.seed0,
                comp_wins=cw, comp_matches=m, inc_wins=iw, inc_matches=m, comp_share=round(comp, 4), inc_share=round(inc, 4),
                gain=round(comp - inc, 4), b=int(b), c=int(c), z=round((b - c) / math.sqrt(b + c), 3) if b + c else 0.0,
-               own_share=round(own / judged, 4) if judged else 0.0, wall_s=round(time.time() - t0, 1), score=round(max(0.005, comp), 4))
+               own_share=round(own / judged, 4) if judged else 0.0, wall_s=round(time.time() - t0, 1), score=round(max(0.005, inc if capped else comp), 4), capped=capped)
     print(json.dumps(res, indent=1))
     if a.out:
         with open(a.out, 'w') as f:

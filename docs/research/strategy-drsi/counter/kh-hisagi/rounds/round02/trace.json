@@ -1,0 +1,60 @@
+{
+  "baseline_score": 0.375,
+  "beta": 0.6,
+  "branch_count": 3,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.41 inc 0.375 gain 0.035 z 1.021 own 0.277 capped False",
+      "score": 0.41
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.875 inc 0.375 gain 0.5 z 9.449 own 0.2288 capped False",
+      "score": 0.875
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.905 inc 0.375 gain 0.53 z 9.676 own 0.406 capped False",
+      "score": 0.905
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "insufficient history: hold the fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": null,
+    "out_of_support": false,
+    "requested": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "insufficient history: hold the fallback grid",
+      "refine_count": 2
+    },
+    "source": "policy"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [
+    "b0_a1",
+    "b1_a1",
+    "b2_a1"
+  ],
+  "policy_file": "rounds/round02/policy.py",
+  "refine_count": 2,
+  "round_index": 2,
+  "task": "counter strategy for hisagi vs kenpachi HARD: composite win share (DUEL_AI_STRATEGY 8.7)"
+}
