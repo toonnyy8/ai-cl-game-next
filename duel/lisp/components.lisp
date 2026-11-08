@@ -227,6 +227,8 @@ is holding. Identity comes from the kit's :AI tables."
   (decided -1 :type fixnum)             ; ... the tick of his move a decision was already made for
   (style nil)                           ; a matchup style CPU's own state (core-ai.lisp *CAI-STYLES*, DUEL_MATCHUP_AI); NIL until it runs
   (strat nil)                           ; its strategy (strategy.lisp, DUEL_AI_STRATEGY): NIL plays as before
+  (sw-sub nil) (sw-t -1 :type fixnum)  ; a composite strategy (strategy.lisp :SWITCH): the active sub (NIL: none), the tick it was judged
+  (sw-n 0 :type fixnum) (sw-won nil)   ; ... judgements made, and per :SWITCH entry the ones it won (a vector, made at the first)
   (st-next 0 :type fixnum) (st-free 0 :type fixnum)   ; the strategy layer (cpu-mcts.lisp): the tick of its next selection, its last free tick
   (off nil))                            ; debug: this CPU does nothing
 (defun brain-chance (b plist)

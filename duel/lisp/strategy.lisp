@@ -15,14 +15,18 @@
 (defparameter *strat-bias-keys* #(:b-j1 :b-sp :b-hoho :b-step-in :b-step-out :b-step-side nil :b-wait :b-walk-in :b-walk-out)
   "Per macro action code (*MC-ACTIONS*' order; 6, the guard, has none): its bias key.")
 
+(defun strat-ante (ante feats)
+  "The strength of one antecedent ANTE ((CUE SET) ...) for the cue plist FEATS: AND = the minimum of the cues' memberships."
+  (let ((w 1.0))
+    (dolist (c ante w) (setf w (min w (fz-mu (getf feats (first c) 0) (second c)))))))
+
 (defun strat-value (strat key feats)
   "STRAT's output KEY for the cue plist FEATS: the rules naming KEY by strength, else its :BASE value, else NIL."
   (let ((num 0.0) (den 0.0))
     (dolist (r (getf strat :rules))
       (let ((v (getf (second r) key)))
         (when v
-          (let ((w 1.0))
-            (dolist (c (first r)) (setf w (min w (fz-mu (getf feats (first c) 0) (second c)))))
+          (let ((w (strat-ante (first r) feats)))
             (when (plusp w) (incf num (* w v)) (incf den w))))))
     (if (plusp den) (/ num den) (getf (getf strat :base) key))))
 
@@ -36,6 +40,24 @@
   "Chance P times the active strategy's scale KEY (none: P), kept within 0-1."
   (let ((k (and *strat-now* (strat-value (car *strat-now*) key (cdr *strat-now*)))))
     (if k (max 0.0 (min 1.0 (* p k))) p)))
+
+;;; A composite (DUEL_AI_STRATEGY §8.7): (:ID id :SWITCH ((OWN . STRATEGY) ...) [:ELSE STRATEGY]). OWN = a list of antecedents (OR = the maximum
+;;; over them, each as a :RULES entry's antecedent). The first entry whose OWN fires at >= 0.5 is the active sub-strategy, else :ELSE, else
+;;; none (the shipped CPU, its lookup strategy and style CPU included). Re-judged every *STRAT-SWITCH-PERIOD* steps in neutral (core-ai.lisp
+;;; STRAT-SWITCH-STEP); the composite replaces BRAIN-STRAT (so it replaces the lookup's, which is the fallback when no sub is active).
+(defparameter *strat-switch-period* 90
+  "Steps between a composite strategy's judgements while its CPU is in neutral (1.5 s, as *STRAT-PERIOD*); the first is on the match's first step.")
+
+(defun strat-own (own feats)
+  "OWN's strength for the cue plist FEATS: the maximum over its antecedents of STRAT-ANTE."
+  (let ((w 0.0)) (dolist (a own w) (setf w (max w (strat-ante a feats))))))
+
+(defun strat-judge (sw feats)
+  "The composite SW's judgement for FEATS: (values sub index), the first :SWITCH entry with OWN >= 0.5 (index from 0), else (values its :ELSE -1)."
+  (let ((i 0))
+    (dolist (en (getf sw :switch) (values (getf sw :else) -1))
+      (when (>= (strat-own (car en) feats) 0.5) (return (values (cdr en) i)))
+      (incf i))))
 
 (defun strat-fingerprint (strat keys grid)
   "STRAT's outputs KEYS at each cue plist of GRID (NIL read as 0): the vector two strategies are compared by (§3)."

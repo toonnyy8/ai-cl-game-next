@@ -1,0 +1,4 @@
+{"ih-ichigo": {"char": "ichigo", "vs": "hisagi"},
+ "ki-ken":    {"char": "kenpachi", "vs": "ichigo"},
+ "ki-ichigo": {"char": "ichigo", "vs": "kenpachi"},
+ "kh-hisagi": {"char": "hisagi", "vs": "kenpachi"}}

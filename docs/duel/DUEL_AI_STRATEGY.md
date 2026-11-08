@@ -81,7 +81,7 @@ and the HARD margin gate (`*mc-sure*`): the stage-5 goal the user chose (「全�
    reported, the next step is the user's call.
    Superseded 2026-11-08 by the user's choice (§8.6): 「查表＋搜克制策略，之後再上 Q」. The steps from here:
    6'. A (pairing, difficulty) lookup of the best fixed strategy, HARD only, where it beats the shipped CPU by far (§8.6).
-   7'. Confirm with the user, then dream-rsi for counter strategies: a candidate scores by the situations where it beats the incumbent
+   7'. Confirmed 2026-11-08 (§8.7). Dream-rsi for counter strategies: a candidate scores by the situations where it beats the incumbent
        best strategy (§8.5's binned check against the library, the margin and the share of windows it wins), not by strength alone.
    8'. Once the library has situational value (§8.5's oracle gain above the noise), an offline-trained fuzzy Q selector (Glorennec &
        Jouffe) replaces the lookup; the DUCT layer (§8.4) stays off.
@@ -213,6 +213,36 @@ CPU's `brain-strat` from it in VS CPU and CPU VS CPU):
   the seed file; the shipped CPU 50 of 80 in §8.4). The other HARD cells are within the noise of the shipped CPU (Ichigo vs Hisagi s0 30
   against 30, Hisagi vs Kenpachi s3 6 against 2) or are the shipped CPU already (Kenpachi vs Ichigo: the KI style CPUs).
 - G2 identical native and browser (its pairings have no Hisagi), host tests ALL PASS 9864 (the lookup's four checks), smoke.
+
+### 8.7 The counter-strategy search: what it scores (2026-11-08)
+
+Asked before round 1 (§1 left the score, W and the grid to confirm). The user's answers:
+- **Score**: 「只看切換增益 (Recommended)」. Replaces §1's 「強度 0.5 + 風格指標 0.5」 for this search. A candidate is a strategy plus `:own`,
+  the situations it claims (fuzzy antecedents over the cues: lead x own Reishi x distance, §8.5's bins). It is played live as a
+  **composite**: the incumbent (the shipped CPU, with the lookup) everywhere, the candidate while its `:own` fires, re-judged every 90
+  ticks in neutral. Score = the composite's win share against the opponent's shipped CPU (HARD, both seats, 100 search seeds a seat);
+  the incumbent's share on the same seeds is the baseline. Distinctness moves to admission: a fuzzy fingerprint unlike every library
+  entry, the candidate holding a real share of the windows, and the gain confirmed on 100 held-out seeds a seat. The composite is the
+  fuzzy Q selector's executor (step 8'), so it carries over.
+- **Scope**: 「四組都搜，先只改資料 (Recommended)」. HARD: Ichigo vs Hisagi (15 % now: re-measured 12 of 80, since Hisagi HARD plays s3
+  by the lookup), Kenpachi vs Ichigo (~70 %), Ichigo vs Kenpachi (~30 %), Hisagi vs Kenpachi (~5 %). Cells write data files only; a
+  candidate may name an existing `:fn` (the KI style CPUs). Code cells only if data stalls.
+- **Budget**: 「W=4，每組 3×3，兩輪 (Recommended)」. Four subagents at a time, a 3 x 3 grid a workspace (36 cells a round), two rounds,
+  after a 2-cell pilot.
+- **Built** (off by default; host tests ALL PASS 9873, G2 identical):
+  - Runtime (strategy.lisp `strat-ante` / `strat-own` / `strat-judge`, `*strat-switch-period*` 90; core-ai.lisp `strat-switch-step`; brain
+    slots `sw-sub sw-t sw-n sw-won`): a composite `(:id ID :switch ((OWN . STRATEGY) ...) [:else STRATEGY])` in `brain-strat`; the first
+    entry whose OWN fires >= 0.5 is the active sub; none and no `:else` = the lookup's strategy or none (the shipped CPU, its style CPU
+    included). The style CPU stops while a sub is active. No random draw; judgements counted outside rollouts.
+  - `tools/strategy-switch.py --char C --vs D --cand FILE [--seed0 0-999] [--seeds 100]`: the composite (the candidate's `:own` as its one
+    entry) against the incumbent on the same seeds, both seats; JSON with both shares, the gain, the paired b / c and z, the candidate's
+    share of the judgements, score = the composite's share. One evaluation (100 seeds a seat, both arms) ~15 s at -j 5.
+    strat-run.lisp prints `switch P<n> <id> judged J held h1 ...` per match.
+  - Proofs (10 seeds a seat): an OWN that never fires is byte-identical to the incumbent (KI with the style CPU; Hisagi vs Ichigo with the
+    lookup); one that always fires equals the candidate alone (Ichigo s0; Kenpachi `:fn ken-ki-style` = seeds/s5 run directly).
+- **Seeds and baselines** (debug 30000+k takes k <= 999): search 600-699 (the score), held-out 700-799 (admission), dev 800-849 (the cells'
+  own comparisons). The incumbents' shares, search / held-out: Ichigo vs Hisagi 0.105 / 0.13, Kenpachi vs Ichigo 0.755 / 0.77, Ichigo vs
+  Kenpachi 0.245 / 0.23, Hisagi vs Kenpachi 0.035 / 0.055. Workspaces: `docs/research/strategy-drsi/counter/` (README).
 
 ## 9. Strategies may carry code (2026-11-08)
 

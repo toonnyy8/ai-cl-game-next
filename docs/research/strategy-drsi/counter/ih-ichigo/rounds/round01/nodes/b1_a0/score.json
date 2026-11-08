@@ -1,0 +1,21 @@
+{
+ "char": "ichigo",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "rush-hard",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 113,
+ "comp_matches": 200,
+ "inc_wins": 21,
+ "inc_matches": 200,
+ "comp_share": 0.565,
+ "inc_share": 0.105,
+ "gain": 0.46,
+ "b": 101,
+ "c": 9,
+ "z": 8.772,
+ "own_share": 0.7597,
+ "wall_s": 9.0,
+ "score": 0.565
+}

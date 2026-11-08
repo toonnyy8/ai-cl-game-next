@@ -154,13 +154,33 @@ for anyone."
   (let ((g (gauges e)) (f (fighter e)))
     (and (not (getf (kit-core (fighter-kit f)) :no-awaken)) (not (gauges-awakened g)) (>= (gauges-awaken g) *awaken-max*) (member (fighter-state f) '(:idle :run)))))
 
+(defvar *in-rollout*)                                    ; (cpu-mcts.lisp gives it its value)
+(defun strat-switch-step (e b f s d sw)
+  "The active sub-strategy of the composite SW (strategy.lisp) for brain B: judged on the match's first step and every *STRAT-SWITCH-PERIOD*
+steps in neutral, else held (no random draw). Outside rollouts it counts the judgements and each entry's wins (BRAIN-SW-N / -WON)."
+  (when (or (< (brain-sw-t b) 0)
+            (and (member (fighter-state f) '(:idle :run)) (>= (- *match-tick* (brain-sw-t b)) *strat-switch-period*)))
+    (setf (brain-sw-t b) *match-tick*)
+    (multiple-value-bind (sub i) (strat-judge sw (strat-feats e f s d))
+      (setf (brain-sw-sub b) sub)
+      (unless *in-rollout*
+        (let ((won (or (brain-sw-won b) (setf (brain-sw-won b) (make-array 8 :initial-element 0)))))
+          (incf (brain-sw-n b))
+          (when (>= i 0) (incf (svref won i)))))))
+  (brain-sw-sub b))
+
 (defun core-brain-step (e b)
   "One step of the core CPU: perceive, then hold the press in progress, or decide for the state he is in."
   (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))) (o (fighter-opp f)) (kit (fighter-kit f)))
     (vpad-begin-step! vp)
     (multiple-value-bind (s d) (brain-perceive e b o)
      (when *strat-layer* (strat-layer-step e b f s d))                    ; (the strategy layer's selection, cpu-mcts.lisp)
-     (let ((*strat-now* (and (brain-strat b) (cons (brain-strat b) (strat-feats e f s d)))))   ; (its strategy, DUEL_AI_STRATEGY)
+     (let* ((sw (let ((st (brain-strat b))) (and st (getf st :switch) st)))     ; (a composite: its active sub, else the lookup's strategy)
+            (cur (if sw
+                     (or (strat-switch-step e b f s d sw)
+                         (strat-lookup (fighter-character f) (fighter-character (fighter o)) (brain-difficulty b)))
+                     (brain-strat b)))
+            (*strat-now* (and cur (cons cur (strat-feats e f s d)))))   ; (its strategy, DUEL_AI_STRATEGY)
       (vpad-stick! vp 0f0 0f0)
       (ai-event-rolls b s)
       (if (and (member (fighter-state f) '(:stun :air)) (>= (fighter-combo-hits f) *burst-min-hits*))
@@ -176,7 +196,7 @@ for anyone."
               ((let ((fn (and *strat-now* (getf (car *strat-now*) :fn))))      ; a strategy's own tactics first (DUEL_AI_STRATEGY §9)
                  (and fn (funcall fn e b f kit s d))))
               ((mc-neutral e b f kit s d))                                     ; free: the in-game MCTS (cpu-mcts.lisp, DUEL_AI_TEACHER §9)
-              ((let ((st (and (not (strat-layer-p f)) (cai-style-fn f)))) (and st (funcall st e b f kit s d))))   ; a matchup style decided (DUEL_MATCHUP_AI; under the strategy layer only as its strategy)
+              ((let ((st (and (not (strat-layer-p f)) (not (brain-sw-sub b)) (cai-style-fn f)))) (and st (funcall st e b f kit s d))))   ; a matchup style decided (DUEL_MATCHUP_AI; under the strategy layer only as its strategy; not while a composite's sub is active)
               (t (case (fighter-state f)
                    ((:idle :run) (cai-neutral e b f kit s d))
                    (:move (cai-move-step e b f kit s))

@@ -1,0 +1,45 @@
+{
+  "baseline_score": 0.105,
+  "beta": null,
+  "branch_count": 3,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 1.0 inc 0.105 gain 0.895 z 13.379 own 1.0",
+      "score": 1.0
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "comp 0.565 inc 0.105 gain 0.46 z 8.772 own 0.7597",
+      "score": 0.565
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 3,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [
+    "b2_a0"
+  ],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "counter strategy for ichigo vs hisagi HARD: composite win share (DUEL_AI_STRATEGY 8.7)"
+}

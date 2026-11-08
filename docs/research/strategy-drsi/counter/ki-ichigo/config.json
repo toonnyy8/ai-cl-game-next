@@ -1,0 +1,16 @@
+{
+  "baseline_score": 0.245,
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "branches": 3,
+  "eval_command": "python3 tools/strategy-switch.py --char ichigo --vs kenpachi --cand NODE_DIR/cand.lisp --seed0 600 --seeds 100 -j 5",
+  "lambda": 0.05,
+  "refines": 2,
+  "task": "counter strategy for ichigo vs kenpachi HARD: composite win share (DUEL_AI_STRATEGY 8.7)",
+  "workers": 4
+}
