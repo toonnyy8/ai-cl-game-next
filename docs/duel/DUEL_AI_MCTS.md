@@ -112,3 +112,15 @@ re-scores its top N.
 The full sim's values are far stronger than the light model's everywhere but Kenpachi's NORMAL; the hybrid keeps nearly all of it at ~1.2 ms
 natively (2 full rollouts of 60 steps; in wasm about 5 ms estimated: 0.04 ms a step). Not in the game yet: the search must run between two
 steps, the rollouts see the true state (a reaction delay has to be added), the snapshot conses, and the browser cost must be measured.
+
+### 7.1 Cheaper snapshot and restore (2026-11-08)
+
+The user: 「有沒有方式能夠再減少存檔與還原的成本」. Measured natively mid-match (IK, 161 objects: 64 of them the brains' SNAP rings, 13 ECS
+tables of 256, the components): snapshot 207 us, restore 32 us (12.8 KB consed each: every float of a float vector boxed by ROW-MAJOR-AREF),
+a 60-step rollout 0.6 ms (10.2 us a step: the brains 26 %, the fighters 23 %, the gauges and hits 6 % each, the presentation-side systems
+(feedback, slow-motion snapshot, hash log) ~1 % each).
+- `engine/lisp/snapshot.lisp`: the visited set is one table cleared and reused (was a 4096-entry table made per snapshot); vectors are copied
+  with REPLACE both ways (fill pointer set to the full size around it). Snapshot 207 -> 107 us, restore 32 -> 7.7 us; snapshot + restore
+  226 -> 130 us in the pollution test, which passed (IK NORMAL, KK HARD, 4 seeds each: every hash, gate and pacing line identical).
+- What is left: the rollout itself (~0.6 ms of the hybrid's ~1.5 ms); skipping presentation in rollouts would save ~10-20 % at most. The
+  bigger cut is stopping a rollout at its first contact and scoring it by the measured outcome values (as the light model does).

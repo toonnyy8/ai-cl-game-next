@@ -41,7 +41,12 @@
   (cond ((consp x) (cons (car x) (cdr x)))
         ((arrayp x)
          (let* ((n (array-total-size x)) (d (make-array n :element-type (array-element-type x))))
-           (dotimes (i n) (setf (aref d i) (row-major-aref x i)))
+           (if (typep x 'vector)
+               (let ((fp (and (array-has-fill-pointer-p x) (fill-pointer x))))   ; (REPLACE: no boxing of each float; to the full size)
+                 (when fp (setf (fill-pointer x) n))
+                 (replace d x)
+                 (when fp (setf (fill-pointer x) fp)))
+               (dotimes (i n) (setf (aref d i) (row-major-aref x i))))
            (cons (and (array-has-fill-pointer-p x) (fill-pointer x)) d)))
         ((hash-table-p x) (let (l) (maphash (lambda (k v) (push (cons k v) l)) x) (nreverse l)))   ; (put back in its own order)
         (t (let* ((n (ffi:c-inline (x) (:object) :fixnum "(#0)->instance.length" :one-liner t))   ; (SI:INSTANCEP gives it only
@@ -49,9 +54,11 @@
              (dotimes (i n) (setf (svref v i) (si:instance-ref x i)))
              v))))
 
+(defvar *snap-memo* (make-hash-table :test 'eq :size 4096) "SIM-SNAPSHOT's visited set, cleared and reused (no table made per snapshot).")
+
 (defun sim-snapshot ()
   "Save the sim's state (the roots, everything mutable they reach, the sim RNG). See the file header."
-  (let ((memo (make-hash-table :test 'eq :size 4096)) (objs nil) (saved nil) (stack nil))
+  (let ((memo (clrhash *snap-memo*)) (objs nil) (saved nil) (stack nil))
     (flet ((visit (x)
              (unless (or (snap-leaf-p x) (gethash x memo))
                (setf (gethash x memo) t)
@@ -75,8 +82,12 @@
       (let ((x (svref objs i)) (c (svref saved i)))
         (cond ((consp x) (setf (car x) (car c) (cdr x) (cdr c)))
               ((arrayp x) (let ((d (cdr c)))
-                            (when (car c) (setf (fill-pointer x) (car c)))
-                            (dotimes (j (length d)) (setf (row-major-aref x j) (aref d j)))))
+                            (if (typep x 'vector)
+                                (progn (when (car c) (setf (fill-pointer x) (length d)))   ; (REPLACE over the full size, then the saved
+                                       (replace x d)                                          ;  fill pointer: no float boxed per element)
+                                       (when (car c) (setf (fill-pointer x) (car c))))
+                                (progn (when (car c) (setf (fill-pointer x) (car c)))
+                                       (dotimes (j (length d)) (setf (row-major-aref x j) (aref d j)))))))
               ((hash-table-p x) (clrhash x) (dolist (p c) (setf (gethash (car p) x) (cdr p))))
               (t (dotimes (j (length c)) (si:instance-set x j (svref c j)))))))
     (loop for sym across (simsnap-roots s) for v across (simsnap-vals s) do (setf (symbol-value sym) v))
