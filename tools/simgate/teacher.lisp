@@ -48,7 +48,7 @@ first), 0 from inside the brain step (the teacher CPU: written this step)."
 (let ((f (ext:getenv "TEACH_TABLE"))) (when f (load f)))
 (defparameter *teach-opp-style* (equal (ext:getenv "TEACH_OPP") "style")
   "Env TEACH_OPP=style: the opponent always on his matchup style CPU (the HARD table's rounds, DUEL_AI_TEACHER §8).")
-(when (ext:getenv "TEACH_KT_OFF") (setf *kt-on* nil))   ; (the game's own KI teacher neutral off: the matchup style CPUs as searched)
+(when (ext:getenv "TEACH_MC_OFF") (setf *mc-on* nil))   ; (the game's MCTS neutral off: the style / generic CPUs under it)
 
 (defun teach-key (e)
   "E's situation key, as tools/teach-table.py buckets it: (character band ostate)."
@@ -127,7 +127,15 @@ generic CPU in turn (K mod 3)."
     (incf *teach-n*)
     (let ((*print-pretty* nil))   ; (one line)
      (format t "teach ~d ~d ~d ~s |~{ ~(~a~) ~,3f ~,3f~}~%" *match-seed* *match-tick* (fighter-side (fighter e)) feat
-            (loop for (a m sd) in (nreverse res) append (list a m sd))))))
+            (loop for (a m sd) in (nreverse res) append (list a m sd))))
+    (when *teach-lite*   ; (env TEACH_LITE=N: the in-game MCTS's light model from the same situation, seen now, N rollouts: §9's fidelity)
+      (let ((sn (make-snap)) (f (fighter e)))
+        (snap-take! sn o)
+        (format t "lite~{ ~,3f~}~%"
+                (if (mc-setup e f (fighter-kit f) sn (fighter-dist f) (brain-difficulty (brain e)))
+                    (progn (mc-seed seed0) (mc-search *teach-lite*) (loop for a below 10 collect (or (mc-mean a) -9.0)))
+                    (make-list 10 :initial-element -9.0)))))))
+(defparameter *teach-lite* (let ((v (ext:getenv "TEACH_LITE"))) (and v (parse-integer v))))
 
 (defun teach-hook ()
   (when (sim-snapshot-ok-p)

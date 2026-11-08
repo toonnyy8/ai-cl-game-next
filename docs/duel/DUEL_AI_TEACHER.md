@@ -187,3 +187,94 @@ Asked how it goes in: the KI pairing's neutral only, a pilot (recommended) / a t
   (`*kt-off-at*`) until the key carries her Hoho's readiness (next). Tables: `docs/research/ai-teacher/ki-table-form-r1..r3.lisp`,
   `ki-table-form-hard-h1..h2.lisp` (the form-less ones kept beside them). G2 IK regenerated (24 lines, P1 5-0, 239.1 s; before 25, P2
   0-7, 244.5 s), browser = native; II KK identical. The manual's CPU VS CPU row says so. Playtest v355.
+
+## 9. The in-game MCTS over a light model (2026-11-08)
+
+The user: 「幫我實作遊戲中即時 MCTS，並用你先前建議的輕量模擬版本來減輕負擔」 (the light model and the evaluation cut-off proposed in the
+session's speed-up list: an abstract model of distance, both states, frames and the moves' reach, read from the kits; a short rollout scored
+by a position value). Asked where it goes: patch the teacher's gaps (recommended) / replace everything / HARD only / a switch first.
+**The user: 「全部取代」**: every pairing, every difficulty; the KI teacher's tables leave the game (kept in `docs/research/ai-teacher/`).
+After the first strength runs (HARD much weaker), asked: HARD as it is (recommended) / MCTS everywhere, HARD weaker for now / keep fixing
+HARD. **The user: 「繼續修 HARD」.**
+
+### 9.1 What it is
+
+- **`duel/lisp/mcts-lite.lisp`** (plain CL, host-tested `tests/duel-rules/mcts.lisp`): the light model and the search.
+  - The neutral game to its first contact, on one axis: the distance (mm) and per fighter a state (free, wait, walk, guard, a move at its
+    frame, a Step, a Hoho, a reel) with its frame.
+  - Moves come from the kit as cached records (`mc-move-rec`): startup, the span of the hit windows, the whiff's end, reach and lunge, the
+    triangle class, a wave's speed and range (a hitless move with `:params :speed :range`).
+  - Each step the free fighters pick, move, and a hit window or a wave that reaches an open hurt circle connects; the first contact ends the
+    rollout with its **outcome value**. A raised guard takes it as a block; two classed moves go through `core-verdict` (a cancel ends at 0, an
+    absorb lets the move go on). An NS segment goes on to its next (`*cai-cont-p*`) and turns into the SA against an NA coming (`*cai-turn-p*`),
+    by the searcher's difficulty. The opponent answers a threat with a perfect Hoho at `*mc-react-p*` (his Hoho ready). No contact within the
+    horizon (60 steps + what the opponent still reels): 0.
+  - **The search**: a two-level tree, side 0's action by UCB, then the opponent's reply to it by its own UCB (he starts it after
+    `*mc-opp-delay*` 20 / 14 / 8 f: the CPUs' perception delays), the rollout policy `*mc-prior*` below. A fixed number of rollouts per
+    difficulty (`*mc-iters*` 48 / 96 / 160; never a time: native = browser), fixnums only (UCB too: a float UCB consed ~1.3 KB a rollout),
+    its own Park-Miller stream seeded per decision from the sim RNG's state (read, never drawn), no consing.
+- **Outcome values** (`*mc-outcomes*`, `*mc-outcomes-hard*`): what a neutral contact is worth to its attacker per character form, measured in
+  real CPU matches: `tools/simgate/contact.lisp` opens an exchange on the first contact after 20 quiet steps and closes it after 20 more, its
+  value the health swing in the teacher's unit (Kikons and the whole route inside); IK KK II HK HI HH, 30 seeds each at NORMAL and HARD,
+  25,786 contacts; baked by `tools/mc-outcomes.py` (NA hit, NS hit per pointer, AS / SA hit, perfect Hoho counter, block). HARD converts
+  more (Kenpachi's NA hit 0.087 -> 0.235, his counter 0.113 -> 0.242), so the two difficulties have their own tables.
+- **`duel/lisp/cpu-mcts.lisp`** (the game's side; was `cpu-ki-teacher.lisp`): `core-brain-step` asks `mc-neutral` first on every free step.
+  Free (idle or running), within 7 m, not about to awaken, the opponent not airborne / down / waking: the start comes from what the CPU
+  perceives (the SNAP: the perception delay is its reaction time; his form, pointer and Hoho's readiness from the HUD). The pick is the
+  teacher's: within the mistake budget of the best (0.10 / 0.05 / 0.02), a softmax at 0.05 / 0.03 / 0.015, a wait / guard / walk held 20 f.
+  At HARD it decides only when its best leads the second by `*mc-sure*` 0.16; else the CPU under it decides (and the search waits
+  `*mc-defer-gap*` 6 steps; `*mc-next*` is sim state, a snapshot root). `*mc-off-at*` leaves Ichigo's HARD wholly on her style CPU. Anything
+  else (moves, combos, stun, the opponent's knockdown and wake-up, the awakening, beyond 7 m) stays the matchup style CPU's or the generic one's.
+- Cost (native): a search of 100 rollouts ~0.3 ms; over 10 IK matches the MCTS adds 1.2 s at NORMAL (~8 µs a frame on average) and 3.7 s
+  at HARD (~29 µs: 160 rollouts, a search every 6 steps while it defers). Consing 48 KB a frame against 44 without it.
+
+### 9.2 Fidelity against the full sim
+
+`tools/simgate/teacher.lisp` with `TEACH_LITE=400` prints, at each decision point, the full sim's mean per action (16 rollouts of 180 steps,
+the CPUs under the MCTS) and the light model's from the same situation; `tools/mc-fidelity.py` compares (best-action agreement, rank
+correlation, the regret of the light model's pick, the teacher table's at the same points).
+- NORMAL (IK seeds 21-32, 6,095 points): regret 0.099 (0.093 with no perfect-Hoho answer) against a uniform pick's 0.156 and the teacher
+  table's 0.091; better than the table against a move in progress (0.069 / 0.083), worse against a lying opponent (worse than uniform: the
+  reason his knockdown and wake-up stay with the CPU under it). The average value of each action matches the full sim's closely (j1 +0.027
+  / +0.026, wait -0.018 / -0.019); per point it agrees weakly (rank r 0.21).
+- HARD (the same seeds, 6,036 points): regret 0.210 against a uniform 0.235 and the table's 0.182; J1 overvalued (relative -0.060 in the
+  full sim, +0.008 in the light model). Only its most decided fifth (margin >= 0.08) beats a uniform pick clearly (0.132 / 0.226): the
+  reason for `*mc-sure*`.
+- Variants tried (NORMAL): the horizon covering his reel (no change), 120 steps (no change), a uniform rollout policy (worse), the
+  perfect-Hoho answer at 0 / 0.35 / 0.6 (0.093 / 0.099 / 0.102). Measured rate (a free, Hoho-ready defender within an NA / NS's reach +
+  1.35 m): 1.6 % at NORMAL, 1.5 % (Ichigo) / 10.5 % (Kenpachi) at HARD; `*mc-react-p*` 0 / 0.02 / 0.05.
+
+### 9.3 Strength (40 seeds, wins P1 : P2)
+
+| Pairing, who is on the MCTS | NORMAL before | NORMAL | HARD before | HARD |
+|---|---|---|---|---|
+| IK, Ichigo | 5 : 35 | 31 : 9 | 19 : 21 | (off: her style CPU) |
+| IK, Kenpachi | 5 : 35 | 0 : 40 | 19 : 21 | 80 seeds: 30 : 50 before, 27 : 53 |
+| IK, both (as shipped) | 5 : 35 | 18 : 22 | 19 : 21 | 12 : 28 |
+| HK, Hisagi | 2 : 38 | 9 : 31 | 4 : 36 | 7 : 33 |
+| HK, Kenpachi | 2 : 38 | 2 : 38 | 4 : 36 | 3 : 37 |
+| HI, Hisagi | 25 : 15 | 19 : 21 | 27 : 13 | 29 : 11 |
+| HI, Ichigo | 25 : 15 | 16 : 24 | 27 : 13 | (off) |
+
+"Before": both on the CPUs under the MCTS (the KI style CPUs, the generic one elsewhere). Kenpachi is not weaker anywhere; Hisagi against
+Ichigo at NORMAL is (25 -> 19).
+
+How HARD was found and fixed, in order (Kenpachi's HARD wins of 40 against Ichigo's HARD style CPU, his style CPU 21):
+1. The first model (a free, random opponent): 1 win. A decoupled bandit for the opponent's first pick: 6. The two-level tree with his
+   reply delay: 0. NS chains and SA turns in the model: 1. The knobs (temperature, budget, rollouts, the perfect-Hoho answer) changed nothing.
+2. Counting the hits: with the MCTS he landed 62 hits on her free frames in 10 HARD matches against 251 with his style CPU: the MCTS had
+   taken his free steps while she was down, so his timed meaty J1 (`kk-meaty-step`) never ran. Her knockdown and wake-up back to the CPU
+   under it: 7.
+3. Per-difficulty outcomes, the measured perfect-Hoho rates and the margin gate: 21 at 0.08 (40 seeds); on 80 seeds 27 / 42 / 53 / 54 at
+   0.08 / 0.12 / 0.16 / 0.25 against his style CPU's 50: **0.16**. Ichigo's HARD MCTS stayed below her style CPU at every margin (5 / 14 /
+   9 / 11 of 40 at 0.08 / 0.15 / 0.25 / 0.4, her style CPU 19): `*mc-off-at*`.
+
+### 9.4 Checks
+
+- Host tests 9,857 ALL PASS (the light model: records, a reeling opponent's J1 worth the NA hit exactly, a lying one nothing, NA into an NS
+  startup the triangle's cancel, a Hoho into a J1's window the counter, a ready defender's answer minus his counter, the same seed the same
+  values); pkgcheck clean.
+- The snapshot's pollution test with the MCTS in the CPUs (IK NORMAL, KK HARD, 4 seeds each, ~1,800 rollouts): every hash, gate and pacing
+  line identical (the `stats:` lines' consing apart: they count the rollouts' own).
+- G2: all three pairs regenerated (II 39 lines, P1 4-2, 390.4 s; IK 27, P1 7-0, 263.8 s; KK 34, P2 0-1, 333.9 s; before II 38, P2 0-5,
+  382.4 s; IK 24, P1 5-0, 239.1 s; KK 39, P2 0-4, 383.5 s), browser = native. The manual's CPU VS CPU row. Playtest v356.

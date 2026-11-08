@@ -11,6 +11,7 @@
 (snapshot-roots '*match-tick* '*flow* '*timer* '*winner* '*paused*                ; flow.lisp, components.lisp
                 '*pending* '*kikons* '*blow-aways*                                 ; combat.lisp
                 '*slow-acc*                                                        ; main.lisp
+                '*mc-next*                                                         ; cpu-mcts.lisp (a deferred search's gap)
                 ;; cinema.lisp: what a cinematic's start sets in the very step that starts it (a rollout stops after that step;
                 ;; *CINE-PLACED* is where CINE-END gives the actors back: the first state the pollution test found missing)
                 '*cine-placed* '*cine-placed-e* '*cine-close* '*cine-time-scale* '*cine-subject* '*draw-scale-e* '*aura-off*

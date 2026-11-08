@@ -54,7 +54,8 @@ lisp/ai.lisp
 lisp/core-ai.lisp
 lisp/cpu-ki-ken.lisp
 lisp/cpu-ki-ichigo.lisp
-lisp/cpu-ki-teacher.lisp
+lisp/mcts-lite.lisp
+lisp/cpu-mcts.lisp
 lisp/ai-learn.lisp
 lisp/assist.lisp
 lisp/camera.lisp
