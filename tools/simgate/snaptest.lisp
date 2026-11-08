@@ -2,6 +2,7 @@
 ;;;; tools/simgate/run.lisp; in POLLUTE mode a rollout runs every ~40 ticks of a battle (snapshot, the sim RNG reseeded so the CPUs
 ;;;; play differently, 60-120 steps, restore). The output must equal the STRAIGHT run's line for line (the rollout count and timing
 ;;;; line apart, printed last as "snaptest ...").
+;;;; The `duel mcfull` line (the in-game full sim's cost, DUEL_AI_MCTS §12) differs in its milliseconds: compare the rest.
 ;;;; Usage: ecl-host --norc --load tools/simgate/snaptest.lisp -- <duel.fas> straight|pollute <cmd>...   e.g. 30000 31104 2132
 (defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
 (load (first cl-user::*sg-args*) :verbose nil)

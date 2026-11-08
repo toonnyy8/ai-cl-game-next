@@ -196,7 +196,7 @@ system on 2026-10-28, the old system's versions at `git show e55304e:skills/<nam
 | `tools/aieval.py` | one character's CPU score (strength / masher / signature) |
 | `tools/assistgate.py` | the ASSIST masher gate |
 | `tools/matchup-eval.py` (+ `tools/simgate/situ.lisp`, `run-situ.lisp`) | a matchup style CPU's score: strength + situation success rates x the NORMAL band (DUEL_MATCHUP_AI; Kenpachi vs Ichigo) |
-| `tools/simgate/snaptest.lisp` | the sim snapshot's pollution test: seeded gate matches straight and with a rollout every 40 ticks (snapshot, reseeded play, restore); the two outputs must be equal (DUEL_AI_TEACHER §5; `digest FILE` for a per-tick hash to find a divergence) |
+| `tools/simgate/snaptest.lisp` | the sim snapshot's pollution test: seeded gate matches straight and with a rollout every 40 ticks (snapshot, reseeded play, restore); the two outputs must be equal, but for the `duel mcfull` cost line's milliseconds (DUEL_AI_TEACHER §5; `digest FILE` for a per-tick hash to find a divergence) |
 | `tools/simgate/fulltest.lisp` | the in-game full-sim rollouts leave nothing behind: an extra rollout of each CPU job, the state hash line and every DUEL / ENGINE special variable compared before and after (DUEL_AI_MCTS §12; `FT_VS=1` with debug 2500-2503 for a human P1) |
 | `tools/simgate/contact.lisp`, `tools/mc-outcomes.py`, `tools/mc-fidelity.py` | the in-game MCTS (DUEL_AI_TEACHER §9): what a neutral contact is worth in real CPU matches (its outcome tables), and the light model against the full sim (`teacher.lisp` with `TEACH_LITE=N`) |
 | `tools/roguegate.py` | the DANGAI autopilot gate: per character clears / median steps, each reward's runs and clears (`--pick first\|random\|greedy`) |

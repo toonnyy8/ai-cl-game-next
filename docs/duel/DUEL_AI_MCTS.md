@@ -248,7 +248,10 @@ and 「之後學玩家習慣」** (a stand-in CPU plays the human in the rollout
   fullmc only filled the moments his style CPU left free (it pressed after the brain step) and saw the true state with no hold.
 - **Ichigo's HARD stays on her style CPU** (`*mc-off-at*`): with the full sim she won 3 of 80 against Kenpachi's HARD (her style CPU 20).
 - Strength, 80 seeds each, both CPUs on the shipped config, the full sim off -> on: IK NORMAL Ichigo 33 : Kenpachi 47 -> 24 : 56; HK NORMAL
-  Hisagi 4 : 76 -> 8 : 72; IK HARD 20 : 60 -> 24 : 56. Cost natively: NORMAL ~1.0 ms a decision, HARD ~1.4 (over the match's steps
+  Hisagi 4 : 76 -> 8 : 72; IK HARD 20 : 60 -> 24 : 56; IK EASY 31 : 49 -> 37 : 43 (0.64 ms a decision natively). Under its margin gate HARD
+  sends ~7 decisions a match to the full sim (NORMAL ~250, EASY ~216): HARD barely changed. A VS CPU learner on P2 (the menu's path; a debug
+  command turns it off) adds 10 snapshot objects (125 -> 135) and no measurable cost. Known, minor: a scored plan survives a cinematic that
+  starts during the hold and is applied after it if he is free (only plans with a running job are cleared outside battle). Cost natively: NORMAL ~1.0 ms a decision, HARD ~1.4 (over the match's steps
   with a rollout; a decision's two rollouts run on two steps).
 - Browser (desktop headless Chrome, G2's three matches): 1.9-2.3 ms a decision, its two rollouts on two steps (~1 ms a step), the worst
   step 5.2-11.6 ms. G2 regenerated: II 32 lines (P1 5-0, 315.6 s), IK 34 (P2 0-4, 340.1 s), KK 33 (P1 1-0, 327.1 s); browser = native.
