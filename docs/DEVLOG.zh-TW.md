@@ -8082,3 +8082,9 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
   - 發現：檜佐木倒地後第一個能動的幀，換成什麼動作都會輸。那一幀誘餌和劍八的壓起身 J1 看起來一樣（劍八都站在約 2.3 m 外不動），而共用 CPU 的無敵起身 Hoho 正好是對付壓起身 J1 的正解。對上線表進步最多的是「打劍八揮空的收招」（對上線表 0.17–0.19，原本 0.04）；只有一護的 KI 程式對上線表能到 0.30，但其他三組全輸。
   - 第二輪沒跑。因為沒有東西上線，`cpu-hk-hisagi.lisp` 和 MANIFEST 那行又拿掉了，起始檔留在 `hkfn/baseline/`。檜佐木 vs 劍八維持 `:qhs-ken`。
 - 檢查：host tests 10137 ALL PASS（新增 `:qks5-hisagi` 的 q 值檢查）、pkgcheck（只有既有的 `DUEL::APP`）、build、smoke、試玩 Artifact v382（雜湊相符）、G2 native 與瀏覽器（II 32、IK 34、KK 33 行，相同）。由 Opus 5.5 子代理協調，12 個 Sonnet 5.5 小組寫程式。文件：DUEL_AI_STRATEGY §8.19「Round 5, step 7」、`fq/switch/khevent/`、`hkfn/`。
+
+## 693. 檜佐木對劍八的 dream-rsi 跑第二輪（2026-11-10）
+
+使用者：「跑第二輪 (Recommended)」
+
+- 檜佐木 vs 劍八（0.085）的 dream-rsi 在 `hkfn/` 跑第二輪，用第一輪升上來的探索策略（`v3_wide`）。小組可以從「打劍八揮空的收招」（b2_a0）或一護的 KI 程式起步，保留條件維持第一輪前寫定的那組。有程式通過就加進檜佐木 vs 劍八當新選項，再讓兩邊同時重擬合（第三步的規則，加上第六步的修正）。共用 CPU 不改。文件：DUEL_AI_STRATEGY §8.19。

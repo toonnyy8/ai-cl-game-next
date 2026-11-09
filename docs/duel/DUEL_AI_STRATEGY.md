@@ -2006,6 +2006,12 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     - **Round 2 was not run:** the coordinator allowed a hand-back after round 1 when the result is clear.
   - So HK stays `:qhs-ken`, and the HK arm and refit step had nothing to add.
 
+- **Decisions on round 5, step 7 (the user, 2026-11-10):**
+  - Hisagi (KH 0.915 / HK 0.085; round 1 kept nothing, the best live-KH group 0.17-0.19 against the 0.2985 floor): 「跑第二輪」. A dream-rsi
+    round 2 runs on `hkfn/` under the promoted policy (`v3_wide`). The cells may start from the whiff punish (b2_a0) or Ichigo's KI code
+    on Hisagi as a base, and the keep rule stays as written before round 1. A kept code becomes an HK arm, and HK and KH refit
+    simultaneously (the step 3 rule, with the step 6 amendment). The shared CPU stays unchanged.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
