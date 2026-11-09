@@ -946,6 +946,13 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - Press as a whole-game style or arm 0 for Hisagi's other two tables (HK pool 0.82 against the shipped table's 0.75).
   - Kept state measured no effect: keep `:keep-state`?
   - s3-zoner is almost never picked (0.3 %). It stays only for the start table's identity with `:qh-ichigo`; drop it in the next table?
+- **The user's three answers (2026-11-09):**
+  - 「press 當 arm 0 重擬合 (Recommended)」: Hisagi vs Ichigo gets press (merged + the brawler's data) as arm 0 and is refit, to keep the
+    switching and reach press's 0.74. `:qhs-ichigo` stays in the lookup until the refit matches or beats it on held-out seeds.
+  - 「照試做方式重做，含 press (Recommended)」: Hisagi vs Kenpachi and the mirror are rebuilt the same way, over Hisagi's general arms with
+    press among them.
+  - 「兩個都拿掉 (Recommended)」: the new tables drop `:keep-state` and the s3-zoner arm. The keys stay in the code, off by default. Without
+    s3-zoner the start table is no longer `:qh-ichigo`, so the identity proof is replaced by "the start table plays arm 0 whole".
 
 ## 9. Strategies may carry code (2026-11-08)
 

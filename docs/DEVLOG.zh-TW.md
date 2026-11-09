@@ -7858,3 +7858,11 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
 - 雙方都查表時，一護 vs 檜佐木從 0.655 降到 0.405。
 - 待使用者決定：press 整場用比試做表更強（合計 0.74 vs 0.658），但遠距型態下 3 m 以內的時間是三倍（0.32–0.35）。
 - 檢查：host tests 9984 ALL PASS、pkgcheck（只有既有的 `DUEL::APP`）、build、smoke、試玩 Artifact v372（雜湊相符）、G2 native 與瀏覽器（II 32、IK 34、KK 33 行，相同）。由 Opus 5.5 子代理完成試做。文件：DUEL_AI_STRATEGY §8.19、`docs/research/strategy-drsi/fq/README.md`、`fq/switch/`。
+
+## 672. 檜佐木三張表：press 當基準選項，拿掉保留狀態與 s3-zoner（2026-11-09）
+
+使用者：「press 當 arm 0 重擬合 (Recommended)」、「照試做方式重做，含 press (Recommended)」、「兩個都拿掉 (Recommended)」
+
+- 檜佐木 vs 一護：把 press（合併風格＋brawler 資料）放進切換表當 arm 0 重新擬合，目標是保留切換又追上 press 整場用的 0.74；重擬合在保留樣本上追平或超過 `:qhs-ichigo` 才換上，否則維持。
+- 檜佐木 vs 劍八、鏡像：照試做的方式重做，選項是檜佐木的通用策略（含 press）加各自的針對性策略。
+- 新表不開 `:keep-state`，也不放 s3-zoner；程式裡的鍵保留，預設本來就是關的。起始表不再等於 `:qh-ichigo`，改證明「起始表等於整場用 arm 0」。文件：DUEL_AI_STRATEGY §8.19。
