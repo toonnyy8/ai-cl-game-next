@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
-"""sw.py — the Hisagi vs Ichigo pilot of a Q table that switches (docs/duel/DUEL_AI_STRATEGY.md §8.19; README.md here).
+"""sw.py — Q tables that switch, for one HARD pairing (docs/duel/DUEL_AI_STRATEGY.md §8.19; fq/README.md "§8.19").
 
-  python3 sw.py start [--period 90] [--out FILE]           # the start table: :qh-ichigo's 48 rules inside the grouped rule base, 4 arms
-  python3 sw.py log --table FILE --tag T --salt 1 [--eps 0.08] [--runs 6 18] [--seeds 1-599] [-j 8]   # behaviour = TABLE + runs
-  python3 sw.py fit --tag T[,T2...] --init FILE --out FILE [--gamma 0.99] [--scale 0.1] [--lam 30] [--conf 0.95] [--seeds 1-599]
-  python3 sw.py measure --table FILE --tag T [--seeds 701-800]  # eps 0: shares, per-seed winners, switch statistics, the ranged mode's distance
-  python3 sw.py pair A.json B.json                          # paired b / c of two evals on the same seeds
+Common options (start / log / fit / measure): --me hisagi --vs ichigo --opp SPEC --arms FILE. SPEC = the opponent seat's strategy: a file,
+`none` (his shipped CPU, no strategy) or a comma list (a pool: member seed mod n), paths relative to this directory. FILE = an arms file
+here: one arm plist a line, in arm order (;-lines are comments). The defaults are the pilot's (Hisagi vs Ichigo's frozen :ki-ichigo,
+arms/hi-pilot.arms).
 
-The opponent is Ichigo's frozen :ki-ichigo (counter/frozen/ki-ichigo.lisp) on the other seat, HARD, both seats. Logs go under
-logs/<tag>/ (gitignored); an eval's summary is written to <tag>.json beside this file.
+  python3 sw.py start --out FILE [--period 30] [--embed TABLE] [--keep-state]   # arm 0 everywhere (or TABLE's 48 rules as arms 0 / 1)
+  python3 sw.py log --table FILE --tag T --salt 1 [--eps 0.03] [--runs 6 18] [--seeds 1-599] [-j 20]   # behaviour = TABLE + runs
+  python3 sw.py fit --tag T[,T2...] --out FILE [--gamma 0.966] [--scale 0.1] [--lam 300] [--conf 0.95] [--boot 20] [--default 0]
+  python3 sw.py measure --table FILE --tag T [--seeds 701-800]   # eps 0: shares, draws, per-seed winners, switch statistics, STRAT_HRANGE
+  python3 sw.py pin --table FILE --out FILE [--form 0] [--arm 0] [--bonus 1.0]   # ARM always wins in FORM (G1 bonus)
+  python3 sw.py pair A.json B.json                               # paired b / c of two measures on the same seeds
+
+Logs go under logs/<tag>/ (gitignored); a measure's summary to <tag>.json here.
 
 The rule base (Lisp groups, strategy.lisp STRAT-FQ-Q :GROUPS; Q = the sum of each group's firing-weighted average):
-  G0  72  lead x ored x ost x awk x prev: the shipped 48 (prev :no / :yes = arm 0 / arm 1) + 24 with prev :p2up (arm 2 or later)
+  G0  72  lead x ored x ost x awk x prev: 48 with prev :no / :yes (arm 0 / arm 1) + 24 with prev :p2up (arm 2 or later)
   G1   9  my form (Shikai / ranged / bind) x distance in metres (:m-close / :m-mid / :m-far): the user's distance rule lives here
   G2   4  the switch's gauge (DRIVE awakened, SUBLIMATION before; :g-low / :g-high about 0.25) x awk
   G3   2  the wall (:w-near within 2-3 m / :w-open)
-  G4   2  his awakening (Ichigo's KESSA)
-Arms: general 0 :hm1-merged (the shipped arm 0), 1 :s3-zoner (the shipped arm 1), 2 the merged style + the DRIVE switch, 3 the merged style
-+ the brawler's data (close pressure), 4 the merged style + s7-kite's data (the kite); targeted 5 Kenpachi's KI style code (written against
-Ichigo). Every arm but s3-zoner is data over the existing style functions (no new Lisp).
+  G4   2  his awakening
 """
 import argparse, concurrent.futures as cf, gzip, json, os, re, subprocess, sys
 import numpy as np
@@ -31,19 +33,21 @@ sys.path.insert(0, FQD)
 from simgate import ECL, FAS, MUSLM          # noqa: E402
 import fq                                    # noqa: E402
 
-ME, VS, HARD = 7, 3, 2
-OPP = os.path.join(FQD, '..', 'counter', 'frozen', 'ki-ichigo.lisp')
+HARD = 2
 LOGS = os.path.join(HERE, 'logs')
-SHIPPED = os.path.join(FQD, 'hisagi', 'hi-fqm.lisp')
-ARMS = [                                                              # (general: :apply (:hisagi), against anyone; targeted: (:hisagi :ichigo))
-    '(:id :hm1-merged :fn hisagi-merged-style :ken-ranged t :apply (:hisagi))',                  # general: all-round, the ranged mode's distance rule
-    None,                                                             # general: the zoner, the shipped arm 1 (s3-zoner, copied from the shipped table)
-    '(:id :hm2-dswitch :fn hisagi-merged-style :ken-ranged t :apply (:hisagi) :base (:dswitch 1.0) :dswitch-map ((:base 1 3)))',   # general: the DRIVE switch route
-    '(:id :hm3-press :fn hisagi-merged-style :ken-ranged t :apply (:hisagi) :base (:range 0.7 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :p 1.0 :b-walk-in 0.06 :b-j1 0.05 :b-step-in 0.03 :b-wait -0.05 :b-walk-out -0.08 :b-step-out -0.05) :rules ((((:ost :down)) (:b-walk-in 0.14 :b-j1 0.12 :b-wait -0.12)) (((:dj :in)) (:b-j1 0.12 :b-step-out -0.1)) (((:dj :afar)) (:b-walk-in 0.12 :b-step-in 0.08)) (((:ost :active) (:dj :in)) (:b-hoho -0.05))))',   # general: close pressure (the merged code + the brawler's data)
-    '(:id :hm4-kite :fn hisagi-merged-style :ken-ranged t :apply (:hisagi) :base (:range 3.2 :ns 1.0 :hoho 1.0 :kikon 0.4 :cont 1.3 :awaken 4.0 :p 1.0 :b-walk-out 0.05 :b-wait 0.04 :b-j1 -0.3 :b-walk-in -0.08 :b-step-in -0.05) :rules ((((:dn :reach)) (:b-sp 0.2 :b-walk-in -0.05)) (((:dn :out)) (:b-sp 0.15)) (((:dn :afar) (:wave :yes)) (:b-sp 0.22 :b-walk-in -0.06)) (((:do :in)) (:b-walk-out 0.2 :b-step-out 0.18 :b-j1 -0.1)) (((:do :reach)) (:b-walk-out 0.1 :b-step-out 0.08))))',   # general: the kite (the merged code + s7-kite's data)
-    '(:id :ht1-ki :fn ken-ki-style :apply (:hisagi :ichigo) :base (:p 1.3))',                     # targeted: Kenpachi's KI style code, written against Ichigo
-]
-NA = len(ARMS)
+ME = VS = MEN = VSN = OPP = NA = None          # (the pairing, the opponent seat's STRAT_ value, the arm count: CONFIGURE)
+ARMS = []
+
+
+def configure(a):
+    """Set the pairing from the common options: --me / --vs (names), --opp (a file, `none` or a comma pool, relative to this directory or
+    absolute), --arms (an arms file here: one arm plist a line, in arm order, ;-lines comments)."""
+    global ME, VS, MEN, VSN, OPP, NA, ARMS
+    MEN, VSN = a.me, a.vs
+    ME, VS = fq.ROSTER[a.me], fq.ROSTER[a.vs]
+    OPP = ','.join(x if x == 'none' else os.path.abspath(os.path.join(HERE, x)) for x in a.opp.split(','))
+    ARMS = [l.strip() for l in open(os.path.join(HERE, a.arms)) if l.strip() and not l.lstrip().startswith(';')]
+    NA = len(ARMS)
 LEAD = (':behind', ':even', ':ahead')
 YN = (':no', ':yes')
 
@@ -74,13 +78,11 @@ RULE_NAMES = [a for a, _ in RULES]
 
 
 def arms_text():
-    _, _, arms, _ = fq.read_table(SHIPPED)
-    s3 = arms[arms.index('(:id :s3-zoner'):-1].strip()               # (the shipped arms text: "(A0 A1)")
-    return '(' + ' '.join(ARMS[i] if ARMS[i] else s3 for i in range(NA)) + ')'
+    return '(' + ' '.join(ARMS) + ')'
 
 
-def write_table(path, sid, q, note, period=None, gamma=None, scale=None):
-    keys = f':groups ({" ".join(map(str, GROUPS))}) :xfeats t :keep-state t'
+def write_table(path, sid, q, note, period=None, gamma=None, scale=None, keep=False):
+    keys = f':groups ({" ".join(map(str, GROUPS))}) :xfeats t' + (' :keep-state t' if keep else '')
     if period:
         keys += f' :period {period}'
     if gamma is not None:
@@ -88,7 +90,7 @@ def write_table(path, sid, q, note, period=None, gamma=None, scale=None):
     body = '\n          '.join(f'({RULES[r][0]} {" ".join(f"{q[r, a]:.4f}" for a in range(NA))})' for r in range(NR))
     with open(path, 'w') as f:
         f.write(f';; {note}\n;; Groups {GROUPS}: G0 lead x ored x ost x awk x prev, G1 form x distance (m), G2 gauge x awk, G3 wall, G4 his awakening.\n'
-                f'(:id {sid} :apply (:hisagi :ichigo) :fq (:arms {arms_text()} {keys}\n     :rules ({body})))\n')
+                f'(:id {sid} :apply (:{MEN} :{VSN}) :fq (:arms {arms_text()} {keys}\n     :rules ({body})))\n')
 
 
 def read_q(path):
@@ -102,15 +104,19 @@ def read_q(path):
 
 
 def cmd_start(a):
-    _, _, _, q0 = fq.read_table(SHIPPED)
     q = np.zeros((NR, NA))
-    for c in range(fq.NC):
-        q[c, :2] = q0[c]
-        q[c, 2:] = q0[c].min() - 1.0                                  # (arms 2- strictly below: the shipped argmax everywhere)
-    for k in range(24):                                               # (prev arm 2 or later: the prev :no cell's values; never reached at the start)
-        q[fq.NC + k] = q[2 * k]
-    write_table(a.out, ':hi-sw0', q, 'The start table: :qh-ichigo (hisagi/hi-fqm.lisp) inside the grouped rule base; arms 2 / 3 below, '
-                'every new group 0, so it plays the shipped table bit for bit at the same period.', period=a.period)
+    if a.embed:                                                       # (the pilot's start: a shipped 2-arm table's 48 rules as arms 0 / 1)
+        _, _, _, q0 = fq.read_table(os.path.join(HERE, a.embed))
+        for c in range(fq.NC):
+            q[c, :2] = q0[c]
+            q[c, 2:] = q0[c].min() - 1.0                              # (arms 2- strictly below: the shipped argmax everywhere)
+        for k in range(24):                                           # (prev arm 2 or later: the prev :no cell's values; never reached)
+            q[fq.NC + k] = q[2 * k]
+        note = f'The start table: {a.embed} inside the grouped rule base; arms 2- below, every new group 0, so it plays that table bit for bit.'
+    else:                                                             # (arm 0 everywhere: it plays arm 0 whole)
+        q[:fq.NC + 24, 1:] = -1e-3
+        note = 'The start table: arm 0 in every state (G0 puts every other arm 0.001 below), so it plays arm 0 whole.'
+    write_table(a.out, ':' + os.path.splitext(os.path.basename(a.out))[0], q, note, period=a.period, keep=a.keep_state)
 
 
 def chunks(lo, hi, size=25):
@@ -130,7 +136,7 @@ def run(args):
     cmds = [30000 + seed0, 31100 + n, 81000, 81020 + HARD, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
     r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/strat-run.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
                        capture_output=True, text=True, env=env, timeout=7200)
-    keep = [l for l in r.stdout.splitlines() if l.startswith(('fq ', 'fqend ', 'duel gate row ', 'hrange ', 'switch '))]
+    keep = [l for l in r.stdout.splitlines() if l.startswith(('fq ', 'fqend ', 'duel gate row ', 'hrange ', 'dswitch ', 'switch '))]
     rows = sum(l.startswith('duel gate row ') for l in keep)
     if r.returncode or rows != n:
         sys.exit(f'sw.py: sim exited {r.returncode}, {rows} of {n} rows ({path})\n' + (r.stdout + r.stderr)[-2000:])
@@ -185,6 +191,10 @@ def parse_file(path, seat):
             d = per.setdefault(int(m.group(1)), dict(js=[]))
             d['win'] = 1.0 if m.group(2) == seat else (-1.0 if m.group(2) in ('P1', 'P2') else 0.0)
             d['secs'] = float(secs.group(1)) if secs else None
+        elif line.startswith('dswitch '):
+            p = line.split()
+            if p[2] == seat:
+                per.setdefault(int(p[1]), dict(js=[]))['ds'] = [int(x) for x in p[3:6]]
         elif line.startswith('hrange '):
             m = re.match(r'hrange (\d+) ' + seat + r' steps (\d+) dsum (\S+) close (\d+) wafar (\d+) cnt (.*)', line)
             if m:
@@ -277,7 +287,8 @@ def cmd_fit(a):
     pick = Q.argmax(1)
     write_table(a.out, ':' + os.path.splitext(os.path.basename(a.out))[0], q,
                 f'sw.py fit --tag {a.tag} --seeds {a.seeds} --gamma {a.gamma} --scale {a.scale} --lam {a.lam} --lam-v {a.lam_v} '
-                f'--conf {a.conf} --boot {a.boot} --default {a.default}: {len(ms)} matches, {len(Y)} judgements.', period=a.period, gamma=a.gamma, scale=a.scale)
+                f'--conf {a.conf} --boot {a.boot} --default {a.default}: {len(ms)} matches, {len(Y)} judgements.', period=a.period, gamma=a.gamma, scale=a.scale,
+                keep=a.keep_state)
     res = dict(tag=a.tag, seeds=a.seeds, gamma=a.gamma, scale=a.scale, lam=a.lam, lam_v=a.lam_v, conf=a.conf, boot=a.boot, matches=len(ms),
                judgements=int(len(Y)), behaviour_arms=np.bincount(A, minlength=NA).tolist(), greedy_on_data=np.bincount(pick, minlength=NA).tolist(),
                kept=[[RULE_NAMES[r], a_] for r in range(NR) for a_ in range(NA) if dg[r, a_] != 0])
@@ -306,13 +317,16 @@ def summarize(ms):
             for key in (('band', band(j[4])), ('form', ('shikai', 'ranged', 'bind')[j[5]]), ('form-band', ('shikai', 'ranged', 'bind')[j[5]] + '-' + band(j[4]))):
                 by.setdefault(key[0], {}).setdefault(key[1], np.zeros(NA))[j[1]] += 1
     hr = np.array([m['hr'] for m in ms if m.get('hr')]) if any(m.get('hr') for m in ms) else None
-    out = dict(matches=n, share=round(sum(1 for m in ms if m['win'] > 0) / max(1, n), 3),
+    out = dict(matches=n, share=round(sum(1 for m in ms if m['win'] > 0) / max(1, n), 3), draws=sum(1 for m in ms if m['win'] == 0),
                judged=int(arms.sum()), judged_per_match=round(arms.sum() / max(1, n), 1),
                arm_share=[round(x / max(1, arms.sum()), 3) for x in arms],
                changes_per_match=dict(mean=round(float(np.mean(changes)), 2), median=float(np.median(changes)),
                                       zero=int(sum(c == 0 for c in changes))),
                by={k: {kk: dict(n=int(vv.sum()), share=[round(x / max(1, vv.sum()), 3) for x in vv]) for kk, vv in v.items()} for k, v in by.items()},
                wins=wins)
+    if any(m.get('ds') for m in ms):
+        ds = np.array([m['ds'] for m in ms if m.get('ds')]).sum(0)
+        out['dswitch'] = dict(shikai=int(ds[0]), ranged=int(ds[1]), bind=int(ds[2]), per_match=round(float(ds.sum()) / max(1, n), 2))
     if hr is not None:
         out['hrange'] = dict(steps=int(hr[:, 0].sum()), mean_d=round(float(hr[:, 1].sum() / max(1, hr[:, 0].sum())), 3),
                              close_share=round(float(hr[:, 2].sum() / max(1, hr[:, 0].sum())), 4), wa_far=int(hr[:, 3].sum()),
@@ -329,6 +343,22 @@ def cmd_eval(a):
     print(json.dumps({k: v for k, v in out.items() if k not in ('wins', 'by')}))
 
 
+def cmd_pin(a):
+    """A fitted table with ARM pinned in FORM: its G1 rows of that form (form x distance) give ARM a bonus, so it wins wherever the form holds
+    (the user's arm 0 kept in the Shikai while the rest of the table is the fit's)."""
+    q = read_q(a.table)
+    fm = (':no', ':yes', ':k2')[a.form]
+    for r, (ante, g) in enumerate(RULES):
+        if g == 1 and ante.startswith(f'((:form {fm})'):
+            q[r, a.arm] += a.bonus
+    text = open(a.table).read()
+    note = text.splitlines()[0].lstrip('; ') + f' Pinned: arm {a.arm} +{a.bonus} in form {a.form} (sw.py pin).'
+    g = float(text.split(':gamma ')[1].split()[0]) if ':gamma ' in text else None
+    sc = float(text.split(':scale ')[1].split()[0]) if ':scale ' in text else None
+    per = int(text.split(':period ')[1].split()[0]) if ':period ' in text else None
+    write_table(a.out, ':' + os.path.splitext(os.path.basename(a.out))[0], q, note, period=per, gamma=g, scale=sc, keep=':keep-state t' in text)
+
+
 def cmd_pair(a):
     x, y = (json.load(open(p))['wins'] for p in (a.a, a.b))
     b = sum(1 for k in x if x[k] > 0 and not y.get(k, 0) > 0)
@@ -337,25 +367,37 @@ def cmd_pair(a):
 
 
 def main():
+    com = argparse.ArgumentParser(add_help=False)                     # (the pairing: the pilot's by default)
+    com.add_argument('--me', default='hisagi', choices=list(fq.ROSTER)); com.add_argument('--vs', default='ichigo', choices=list(fq.ROSTER))
+    com.add_argument('--opp', default='../../counter/frozen/ki-ichigo.lisp', help='the opponent seat: a file, none, or a comma pool')
+    com.add_argument('--arms', default='arms/hi-pilot.arms', help='the arms file (one plist a line, in arm order)')
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest='cmd', required=True)
-    p = sub.add_parser('start'); p.add_argument('--period', type=int); p.add_argument('--out', default=os.path.join(HERE, 'hi-sw0.lisp'))
-    p = sub.add_parser('log')
+    p = sub.add_parser('start', parents=[com]); p.add_argument('--period', type=int); p.add_argument('--out', required=True)
+    p.add_argument('--embed', help='a 2-arm 48-rule table whose rules arms 0 / 1 take (the pilot); else arm 0 everywhere')
+    p.add_argument('--keep-state', action='store_true')
+    p = sub.add_parser('log', parents=[com])
     p.add_argument('--table', required=True); p.add_argument('--tag', required=True); p.add_argument('--salt', type=int, required=True)
-    p.add_argument('--eps', type=float, default=0.08); p.add_argument('--runs', type=int, nargs=2, default=[6, 18])
+    p.add_argument('--eps', type=float, default=0.03); p.add_argument('--runs', type=int, nargs=2, default=[6, 18])
     p.add_argument('--seeds', default='1-599'); p.add_argument('-j', type=int, default=20)
-    p = sub.add_parser('fit')
+    p = sub.add_parser('fit', parents=[com])
     p.add_argument('--tag', required=True); p.add_argument('--out', required=True); p.add_argument('--seeds', default='1-599')
-    p.add_argument('--gamma', type=float, default=0.99); p.add_argument('--scale', type=float, default=0.1)
+    p.add_argument('--gamma', type=float, default=0.966); p.add_argument('--scale', type=float, default=0.1)
     p.add_argument('--lam', type=float, default=300.0); p.add_argument('--lam-v', type=float, default=1.0)
-    p.add_argument('--conf', type=float, default=0.95); p.add_argument('--boot', type=int, default=40); p.add_argument('--period', type=int, default=30)
+    p.add_argument('--conf', type=float, default=0.95); p.add_argument('--boot', type=int, default=20); p.add_argument('--period', type=int, default=30)
     p.add_argument('--default', type=int, default=0, help='the arm where no delta survives (pi0)')
-    p = sub.add_parser('measure')
+    p.add_argument('--keep-state', action='store_true')
+    p = sub.add_parser('measure', parents=[com])
     p.add_argument('--table', required=True); p.add_argument('--tag', required=True); p.add_argument('--seeds', default='701-800')
-    p.add_argument('-j', type=int, default=8)
+    p.add_argument('-j', type=int, default=20)
+    p = sub.add_parser('pin', parents=[com])
+    p.add_argument('--table', required=True); p.add_argument('--out', required=True); p.add_argument('--form', type=int, default=0)
+    p.add_argument('--arm', type=int, default=0); p.add_argument('--bonus', type=float, default=1.0)
     p = sub.add_parser('pair'); p.add_argument('a'); p.add_argument('b')
     a = ap.parse_args()
-    {'start': cmd_start, 'log': cmd_log, 'fit': cmd_fit, 'measure': cmd_eval, 'pair': cmd_pair}[a.cmd](a)
+    if a.cmd != 'pair':
+        configure(a)
+    {'start': cmd_start, 'log': cmd_log, 'fit': cmd_fit, 'measure': cmd_eval, 'pin': cmd_pin, 'pair': cmd_pair}[a.cmd](a)
 
 
 if __name__ == '__main__':

@@ -260,18 +260,27 @@ DUEL_AI_STRATEGY §8.19 has the numbers. Opponent: Ichigo's frozen `:ki-ichigo`,
 - each style's state kept across switches (`:keep-state`);
 - extra cues read at the judgement (`:xfeats`).
 
-The shipped table is `hi-sw-pilot.lisp` (`:qhs-ichigo`).
+The pilot is `hi-sw-pilot.lisp` (`:qhs-ichigo`). Round 2 (§8.19 "Round 2") rebuilt Hisagi's three tables:
+- **HI**: `hi/qhs2-ichigo.lisp` (`:qhs2-ichigo`, in the lookup);
+- **HK**: no swap, `:qh-ken` stays;
+- **HH**: `hh/qhs-mirror.lisp` (`:qhs-mirror`, in the lookup).
 
 | File | What |
 |---|---|
-| `sw.py` | `start`: the start table. `log`: behaviour + run exploration (`STRAT_FQLOG "<salt> <eps> <seat> <rmin> <rmax>"`). `fit`: a ridge V + per-arm deltas on the discounted return, with the bootstrap sign gate. `measure`: at eps 0, shares, per-seed wins, switch counts by form / distance band, STRAT_HRANGE. `pair`: b / c |
+| `sw.py` | Common options `--me --vs --opp --arms` (the pairing, the opponent seat, the arms file; the pilot's by default). `start`: the start table (arm 0 everywhere, or `--embed` a 2-arm table's 48 rules). `log`: behaviour + run exploration (`STRAT_FQLOG "<salt> <eps> <seat> <rmin> <rmax>"`). `fit`: a ridge V + per-arm deltas on the discounted return, with the bootstrap sign gate. `measure`: at eps 0, shares, draws, per-seed wins, switch counts by form / distance band, STRAT_HRANGE, the DRIVE switches by form. `pin`: an arm's bonus in a form's G1 rows. `pair`: b / c |
 | `hi-sw0.lisp`, `hi-sw0-p30.lisp` | the start table: `:qh-ichigo`'s 48 rules inside the grouped base, arms 2-5 below, new groups 0. Period 90 for the proof; period 30 is round 1's behaviour |
 | `identity-start-600.jsonl`, `proofs-final.jsonl` | the start table = `:qh-ichigo` (8 of 8: before the entry, and on the final build with `--ref hisagi/hi-fqm.lisp`); the pilot run raw = the live lookup (8 of 8) |
-| `arms/` | each arm played whole (`screen.py`): HI seeds 1-300; HK against the proxy pool and HH against the shipped CPU, seeds 1-50 (`*-hk-*`, `*-hh-*`) |
+| `arms/` | each arm played whole (`screen.py`): HI seeds 1-300; HK against the proxy pool and HH against the shipped CPU, seeds 1-50 (`*-hk-*`, `*-hh-*`); round 2: HK against `:q1-ken-hisagi` and HH against `:qh-mirror`, seeds 1-100 (`*-hkL-*`, `*-hhL-*`). `ship-qh-ken.lisp` / `ship-qh-mirror.lisp`: the shipped tables, copied. The arms files: `hi-pilot.arms`, `hi.arms` / `hi-d.arms` (arm 0 press / press + `:dswitch`), `hk.arms`, `hh.arms` |
 | `fits/` | every round's tables (`r1`, `r2a`, `r2b`, `r3` x gamma); `press-all.lisp` (arm 3 everywhere: round 2b's behaviour); `r2a-g966-nokeep.lisp` (the kept-state check) |
 | `ev/` | `measure` summaries: `sel-*` seeds 851-950 and `sel2-*` 801-1000 (the selection blocks), `ho601-*` / `ho701-*` held-out, `cost-*` (logged with the log on, so not the cost figure) |
 | `hi-sw-pilot.lisp` | **shipped** (`:qhs-ichigo`): round 2a, gamma 0.966 per 0.5 s window, scale 0.1 |
 | `gaps.py`, `bench.lisp` | the arm gaps at the logged judgements; the host cost of one judgement (34 -> 45 µs) |
 | `live-ih-600.json` | Ichigo vs Hisagi with both seats on the lookup (0.405) |
+| `hi/`, `hk/`, `hh/` | round 2. `<p>2-s0*.lisp`: the start tables. `<p>2-r<k>-g<gamma>[-pin|-pind|-pinr].lisp` + `.json`: the fits and their pins (HI `-pin` arm 0 in the Shikai; `-pind` the same with arm 0 = press + `:dswitch`; HK `-pinr` arm 0 in the ranged mode). `qhs2-ichigo.lisp`, `qhs-mirror.lisp`: **shipped**. `identity-s0-600.jsonl`: each start table = what it starts from, on the build before the entries |
+| `proofs2.sh`, `proofs2-600.jsonl` | round 2 on the final build: the three start tables (HI = press whole, HK = `:qh-ken`, HH = the kite whole) and the two shipped tables run raw = the live lookup, 8 of 8 each |
+| `report.py` | one line per measure (share, draws, changes, arms, the ranged mode's distance, DRIVE switches) and b / c against the first |
+| `ev/hi-*`, `ev/hi2-*`, `ev/hk-*`, `ev/hk2-*`, `ev/hh-*`, `ev/hh2-*` | round 2's measures: `*-sel2-*` / `*-sel2b-*` seeds 801-1000 / 801-850, `*2-ho601-*` / `*2-ho701-*` held-out (`hh2-ho601-pick-vs-pick`: the new mirror table on both seats) |
+| `live-ih2-600.json` | Ichigo vs Hisagi with both seats on the lookup after round 2 (0.13) |
 
-Logs (gitignored, `switch/logs/`): `r1` (the start table, 4 salts), `r2a` / `r2b` (2 salts each), `r3` (4 salts), `ev/*`.
+Logs (gitignored, `switch/logs/`): `r1` (the start table, 4 salts), `r2a` / `r2b` (2 salts each), `r3` (4 salts), round 2's `hi2-r1`,
+`hi2-r2`, `hk2-r1`, `hh2-r1`, `hh2-r2` (4 salts each; each fit's stdout as `fit-*.out`), `ev/*`.

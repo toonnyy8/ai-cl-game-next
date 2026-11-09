@@ -954,6 +954,139 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - 「兩個都拿掉 (Recommended)」: the new tables drop `:keep-state` and the s3-zoner arm. The keys stay in the code, off by default. Without
     s3-zoner the start table is no longer `:qh-ichigo`, so the identity proof is replaced by "the start table plays arm 0 whole".
 
+**Round 2: Hisagi's three tables rebuilt (2026-11-09).** Files are in `docs/research/strategy-drsi/fq/switch/` (`hi/`, `hk/`, `hh/`, `arms/*.arms`; `fq/README.md` "§8.19").
+
+**Shared setup.**
+- The method is the pilot's:
+  - the same 89 rules in 5 groups;
+  - a judgement every 30 steps (0.5 s);
+  - exploration in runs (eps 0.03 per judgement, runs of 6-18 judgements);
+  - the ridge fit with the bootstrap sign gate;
+  - picks made on seeds 801-1000 (400 matches);
+  - a held-out list fixed before 601-800 was run.
+- No table has `:keep-state` or s3-zoner. Each table has 5 arms, so the page holds 3 + 5 x 89 = **448 integers** (the pilot held 537).
+- `sw.py` now takes the pairing, the opponent and an arms file as options. `arms/hi-pilot.arms` reproduces the pilot's start table byte for byte.
+- `sw.py pin` gives one arm a bonus in a form's G1 rows.
+- A new tool counter counts the CPU's DRIVE switches by form:
+  - `*cai-switch-counts*` in core-ai.lisp;
+  - a `dswitch` line in `strat-run.lisp STRAT_HRANGE`.
+- Opponents:
+  - HI: Ichigo's frozen `:ki-ichigo`;
+  - HK: Kenpachi's HARD lookup table `:q1-ken-hisagi` (`pairs/kh/kh-fit.lisp`), passed explicitly;
+  - HH: the shipped `:qh-mirror` on the other seat.
+- Arms, played whole (HK seeds 1-100 against `:q1-ken-hisagi`, HH seeds 1-100 against `:qh-mirror`, 200 matches each; HI as in the pilot):
+
+| Arm | Kind | HK | HH |
+|---|---|---|---|
+| press (merged + the brawler's data) | general | 0.47 | 0.35 |
+| merged | general | 0.34 | 0.29 |
+| merged + the DRIVE switch | general | 0.375 | 0.30 |
+| merged + kite | general | **0.545** | **0.60** |
+| Kenpachi's KI style code | targeted | 0.34 | 0.295 |
+| s7-kite (data only, the HK counter search's) / `:h1-range` | | 0.015 / 0.01 | - / 0.035 |
+| the shipped table (`:qh-ken` / `:qh-mirror`) | | **0.78** | 0.28 (~44 % draws) |
+
+  No style code is aimed at Kenpachi or at Hisagi himself. HK and HH reuse the KI style code as the targeted arm, labelled `(:hisagi :kenpachi)` /
+  `(:hisagi :hisagi)`.
+
+**HI: press as arm 0.**
+- Arms: press (arm 0), merged, merged + the DRIVE switch, merged + kite (general), and the KI style code aimed at Ichigo.
+- The start table (arm 0 everywhere) run raw = press whole: 0.755 = 0.755, 8 of 8 chunks, 6,671 lines.
+- Selection, seeds 801-1000 (press whole 0.672, the pilot 0.685):
+
+| Table | Share | Arm changes a match | Note |
+|---|---|---|---|
+| round 1, gamma 0.966 / 0.98 / 0.995 / 1.0 | 0.547 / 0.677 / 0.698 / 0.645 | 60 / 60 / 71 / 30 | press played 1.6 % (gamma 0.98) |
+| round 1 gamma 0.98, arm 0 pinned in the Shikai | 0.833 | 16 | b / c against press whole 82 / 18 |
+| the same with arm 0 = press + `:dswitch 1.0` (**the pick**) | **0.835** | 16 | |
+| round 1 gamma 0.966 / 0.995 pinned | 0.82 / 0.77 | | |
+| round 2 (behaviour: the pinned table) gamma 0.98 / 0.966, pinned / unpinned | 0.72 / 0.78, 0.425 / 0.417 | | |
+
+- **Why the pin.** Press whole stays in the Shikai: 161,448 of 200,344 judgements on 801-1000, against about 22,000 for every unpinned fit.
+  - The unpinned fits leave press for other arms in 3-9 s runs, and those arms take him into the Bankai.
+  - A 0.5 s window value, even at gamma 0.995, does not see what leaving the Shikai costs later.
+  - The pin is a hand rule, not a fit: G1's three Shikai rows give arm 0 +1.0. The table decides the ranged mode and the bind mode.
+- **The DRIVE switch in the Shikai never fires** under the merged code: 0 Shikai switches in every table, the pilot included.
+  - `ken-ki-style` decides the Shikai's NS gaps itself, so `cai-dswitch` is never reached there.
+  - The switches counted are in the ranged mode (`hr-gap`'s WA hit) and the bind mode.
+- **Held-out** (both seats, 100 seeds a seat; b / c = the pick won and the other lost / the reverse):
+
+| | 601-700 | 701-800 | the pick's b / c |
+|---|---|---|---|
+| `:qhs-ichigo` (the pilot) | 0.595 | 0.72 | 70 / 16, 47 / 16 (z 5.8, 3.9) |
+| press whole | 0.755 | 0.725 | 29 / 7, 36 / 6 (z 3.7, 4.6) |
+| round 1 gamma 0.995 unpinned (the best unpinned) | 0.68 | 0.75 | 52 / 15, 43 / 18 |
+| **the pick, `:qhs2-ichigo`** | **0.865** | **0.875** | |
+
+- How the pick plays (held-out, 400 matches):
+  - **15.1 arm changes a match; 136 matches without one**, all of which never left the Shikai.
+  - Arm shares: press 0.786, KI style 0.175, the DRIVE switch 0.018, merged + kite 0.016, merged 0.005.
+  - By form and band: the Shikai is press (1.00). Ranged mode: close is the DRIVE switch 0.46, kite 0.19, merged 0.16, press 0.13; mid is KI
+    0.96; far is KI 0.83. Bind mode: kite 0.50-0.60, the DRIVE switch 0.22-0.44.
+  - The ranged mode's share inside 3 m: 0.173 / 0.179 (the pilot 0.119 / 0.118, press whole 0.32 / 0.35).
+  - DRIVE switches 0.31 a match (ranged 100, bind 22, Shikai 0; the pilot 0.17).
+- **Arm gaps** (`gaps.py`, held-out judgements): the Shikai's median is 0.981 (the pin), out of the online learner's reach. The ranged mode's
+  median is 0.044 (91 % under 0.05) and the bind mode's 0.024 (71 % under 0.05). Against a player only the Bankai's choices adapt.
+- Online smoke (25 matches, her KI style as the "player", cap 0.01): 103 of 445 q moved (44 at the cap), 12 rules' argmax changed, 21 wins
+  against the frozen table's 21.
+- The pick run raw = the live lookup: 0.865 = 0.865, 8 of 8 chunks, 6,579 lines.
+- With both seats on the lookup (601-700), Ichigo vs Hisagi falls to **0.13** (0.405 against the pilot).
+
+**HK: no swap; `:qh-ken` stays.**
+- Arms: merged, KI style code (`:qh-ken`'s two, whose 48 rules embed as the start table), press, merged + the DRIVE switch, merged + kite.
+- The start table run raw = `:qh-ken`: 0.76 = 0.76, 8 of 8 chunks, 6,344 lines.
+- Every fit lost to the start on 801-1000 (shipped 0.78):
+  - round 1, gamma 0.966 / 0.98: 0.662 / 0.665;
+  - pinned to arm 0 in the Shikai: 0.40;
+  - pinned to arm 0 in the ranged mode: 0.657.
+- On held-out the best fit (gamma 0.98) scored 0.74 / 0.765 against `:qh-ken`'s 0.76 / 0.805 (b / c 30 / 34, 30 / 38).
+- That fit plays the KI style code in the ranged mode (0.96 there), so the ranged mode's share inside 3 m is 0.94-0.96 (`:qh-ken` 0.37-0.38).
+  It stands next to Kenpachi.
+- Press whole: 0.505 / 0.55.
+
+**HH: swapped to `:qhs-mirror`.**
+- Arms: the kite (arm 0, the best whole arm against `:qh-mirror`), merged, press, merged + the DRIVE switch, and the KI style code.
+- The start table run raw = the kite whole: 0.645 = 0.645, 8 of 8 chunks, 6,036 lines.
+- Selection, 801-1000:
+  - round 1, gamma 0.966 / 0.98: **0.578** / 0.338;
+  - round 2: 0.393;
+  - `:qh-mirror`'s self-play: 0.302 (158 draws of 400);
+  - the kite whole: 0.637 (4 draws).
+- The pin was not tried: unlike HI, the fit spends more of its time in the Shikai than its arm 0 whole does (277,101 ranged-mode steps
+  against the kite's 810,773).
+- Held-out:
+
+| | 601-700 | 701-800 | draws | the pick's b / c |
+|---|---|---|---|---|
+| `:qh-mirror` (self-play) | 0.295 | 0.295 | 82, 82 | 76 / 22, 75 / 23 (z 5.5, 5.3) |
+| the kite whole | 0.645 | 0.655 | 8, 3 | 34 / 50, 33 / 53 (z -1.8, -2.2) |
+| **the pick, `:qhs-mirror`** | **0.565** | **0.555** | 51, 45 | |
+
+- How the pick plays:
+  - 57 arm changes a match, none without one;
+  - Shikai close: the DRIVE switch arm 0.69, KI 0.28;
+  - ranged close: KI 0.97;
+  - bind: press, kite, the DRIVE switch.
+- The ranged mode's share inside 3 m: 0.67 / 0.54 (`:qh-mirror` 0.30 / 0.37, the kite whole 0.27 / 0.23). It sits close in the ranged mode,
+  against the user's distance rule.
+- Arm gaps: median 0.0008, 98 % under 0.02, so the online learner can flip almost every choice.
+- New table against new table (CPU vs CPU, 601-700): 0.28, **88 draws of 200** (`:qh-mirror`'s self-play: 82).
+- The pick run raw = the live lookup: 0.565 = 0.565, 8 of 8 chunks, 6,194 lines.
+
+**Checks.**
+- The library holds 21 entries; `:qhs-ichigo`, `:qh-ichigo` and `:qh-mirror` stay in it.
+- Host tests 9995 ALL PASS: the new entries' arms, keys, the Shikai pin and the 448-integer page round trip.
+- pkgcheck, G2 and the build are in the handback.
+
+**Open for the user:**
+- HI's Shikai is a hand pin:
+  - 136 of 400 held-out matches never switch, because they never leave the Shikai;
+  - the online learner cannot change the Shikai.
+- The DRIVE switch never fires in the Shikai under the merged code. Making it fire needs new style code in `ken-ki-style`'s Shikai NS gap.
+- HH beats `:qh-mirror` but loses to the kite whole and breaks the distance rule in the ranged mode. A pin of merged in the ranged mode, or
+  the kite whole, is untried.
+- With HI at 0.865, Ichigo vs Hisagi in CPU vs CPU falls to 0.13.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

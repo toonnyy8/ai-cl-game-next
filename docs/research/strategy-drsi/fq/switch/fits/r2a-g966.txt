@@ -1,3 +1,0 @@
-matches 2396 judgements 805104 arms [65163, 35546, 49904, 124711, 106055, 423725]
-{"tag": "r2a", "seeds": "1-599", "gamma": 0.966, "scale": 0.1, "lam": 300.0, "lam_v": 1.0, "conf": 0.95, "boot": 20, "matches": 2396, "judgements": 805104, "behaviour_arms": [65163, 35546, 49904, 124711, 106055, 423725], "greedy_on_data": [216062, 5738, 118283, 17230, 44713, 403078]}
-kept deltas: 265

@@ -1,0 +1,29 @@
+{
+ "char": "ichigo",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "ih-fit",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 26,
+ "comp_matches": 200,
+ "inc_wins": 26,
+ "inc_matches": 200,
+ "comp_share": 0.13,
+ "inc_share": 0.13,
+ "gain": 0.0,
+ "b": 0,
+ "c": 0,
+ "z": 0.0,
+ "own_share": 1.0,
+ "wall_s": 13.5,
+ "score": 0.13,
+ "capped": false,
+ "judged": 36766,
+ "held": [
+  36766,
+  0
+ ],
+ "raw": true,
+ "vs_strat": null
+}

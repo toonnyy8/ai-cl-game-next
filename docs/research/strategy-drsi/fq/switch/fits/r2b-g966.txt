@@ -1,3 +1,0 @@
-matches 2396 judgements 851884 arms [39413, 32088, 30096, 687201, 33197, 29889]
-{"tag": "r2b", "seeds": "1-599", "gamma": 0.966, "scale": 0.1, "lam": 300.0, "lam_v": 1.0, "conf": 0.95, "boot": 20, "matches": 2396, "judgements": 851884, "behaviour_arms": [39413, 32088, 30096, 687201, 33197, 29889], "greedy_on_data": [42579, 5056, 328887, 107137, 145183, 223042]}
-kept deltas: 193

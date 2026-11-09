@@ -1,0 +1,28 @@
+{
+ "char": "hisagi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "hm3-press",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 70,
+ "comp_matches": 200,
+ "inc_wins": 56,
+ "inc_matches": 200,
+ "comp_share": 0.35,
+ "inc_share": 0.28,
+ "gain": 0.07,
+ "b": 41,
+ "c": 27,
+ "z": 1.698,
+ "own_share": 0.0,
+ "wall_s": 12.8,
+ "score": 0.35,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/switch/arms/ship-qh-mirror.lisp"
+ ]
+}

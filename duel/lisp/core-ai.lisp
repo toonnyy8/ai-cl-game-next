@@ -109,7 +109,8 @@ to the arena's wall."
 rules); the act :SWITCH lets CORE-SWITCH-READY-P take this CPU for this press only (CORE-BRAIN-STEP writes the stick)."
   (ai-press b :quick 1 :modded t :act :switch)
   (setf (brain-strafe b) (f32 (strat-switch-dir (fighter-ptr f) to (length (getf (kit-core (fighter-kit f)) :ns)))))
-  (clog "~a cpu switch ~d -> ~d" (side-name e) (fighter-ptr f) to))
+  (clog "~a cpu switch ~d -> ~d" (side-name e) (fighter-ptr f) to)
+  (cai-switch-count f))
 
 (defun cai-switch-target (f kit d)
   "The pointer the active strategy's switch goes to from F's NS gap at distance D (its :DSWITCH-MAP for his form and pointer, else
@@ -204,6 +205,11 @@ reaches. T when it pressed. No :DSWITCH (every shipped CPU): no roll, NIL."
     (and (not (getf (kit-core (fighter-kit f)) :no-awaken)) (not (gauges-awakened g)) (>= (gauges-awaken g) *awaken-max*) (member (fighter-state f) '(:idle :run)))))
 
 (defvar *in-rollout*)                                    ; (cpu-mcts.lisp gives it its value)
+(defvar *cai-switch-counts* (make-array 6 :element-type 'fixnum :initial-element 0)
+  "A tool's counters (not sim state, never read in play; outside rollouts only): the CPU's DRIVE switches per side (3 each) by its form
+index (STRAT-FORM-INDEX: Shikai, ranged mode, bind mode). Reset and printed by tools/simgate/strat-run.lisp STRAT_HRANGE (DUEL_AI_STRATEGY §8.19).")
+(defun cai-switch-count (f)
+  (unless *in-rollout* (incf (aref *cai-switch-counts* (+ (strat-form-index f) (* 3 (fighter-side f)))))))
 (defvar *strat-judge-hook* nil
   "NIL in the game; a tool's function (e b sw sub index feats) -> (values sub index) run on each composite judgement outside rollouts (the
 Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and may explore the other arm).")

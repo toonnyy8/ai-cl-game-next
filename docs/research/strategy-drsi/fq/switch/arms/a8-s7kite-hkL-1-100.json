@@ -1,0 +1,28 @@
+{
+ "char": "hisagi",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "s7-kite",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 3,
+ "comp_matches": 200,
+ "inc_wins": 156,
+ "inc_matches": 200,
+ "comp_share": 0.015,
+ "inc_share": 0.78,
+ "gain": -0.765,
+ "b": 1,
+ "c": 154,
+ "z": -12.289,
+ "own_share": 0.0,
+ "wall_s": 3.1,
+ "score": 0.015,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/pairs/kh/kh-fit.lisp"
+ ]
+}

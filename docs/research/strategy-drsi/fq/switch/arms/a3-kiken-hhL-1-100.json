@@ -1,0 +1,28 @@
+{
+ "char": "hisagi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "ki-ken",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 59,
+ "comp_matches": 200,
+ "inc_wins": 56,
+ "inc_matches": 200,
+ "comp_share": 0.295,
+ "inc_share": 0.28,
+ "gain": 0.015,
+ "b": 4,
+ "c": 1,
+ "z": 1.342,
+ "own_share": 0.0,
+ "wall_s": 11.0,
+ "score": 0.295,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/switch/arms/ship-qh-mirror.lisp"
+ ]
+}

@@ -134,7 +134,8 @@
           (format o "~s~%" (list* :matches (cddr en) (loop for (k v) on st by #'cddr unless (eq k :matches) append (list k v)))))))))
 ;;; STRAT_HRANGE=1 (DUEL_AI_STRATEGY §8.16): per match and side, Hisagi's steps in the Bankai's ranged mode, their summed distance, those
 ;;; inside 3 m, his NS1a WA started beyond 3.2 m (it reaches 3.0: a whiff), and HISAGI-RANGE-STYLE's counters (cpu-hisagi-range.lisp
-;;; *HR-COUNTS*): "hrange <seed> P<n> steps N dsum D close C wafar W cnt c0..c7".
+;;; *HR-COUNTS*): "hrange <seed> P<n> steps N dsum D close C wafar W cnt c0..c7"; then "dswitch <seed> P<n> S R B": the CPU's DRIVE switches
+;;; in the Shikai, the ranged mode and the bind mode (core-ai.lisp *CAI-SWITCH-COUNTS*, §8.19).
 (defvar *sr-hr* (plusp (length (or (ext:getenv "STRAT_HRANGE") ""))))
 (defvar *sr-hr-acc* (make-array 8 :initial-element 0))   ; per side: steps, dsum (x1000), close, WA started beyond 3.2 m
 (defvar *sr-hr-seed* nil)
@@ -143,8 +144,9 @@
     (dotimes (side 2)
       (format t "hrange ~d P~d steps ~d dsum ~,1f close ~d wafar ~d cnt~{ ~d~}~%" *sr-hr-seed* (1+ side) (aref *sr-hr-acc* (* 3 side))
               (/ (aref *sr-hr-acc* (+ 1 (* 3 side))) 1000.0) (aref *sr-hr-acc* (+ 2 (* 3 side))) (aref *sr-hr-acc* (+ 6 side))
-              (loop for i below 8 collect (aref *hr-counts* (+ i (* 8 side)))))))
-  (fill *sr-hr-acc* 0) (fill *hr-counts* 0) (setf *sr-hr-seed* nil))
+              (loop for i below 8 collect (aref *hr-counts* (+ i (* 8 side)))))
+      (format t "dswitch ~d P~d~{ ~d~}~%" *sr-hr-seed* (1+ side) (loop for i below 3 collect (aref *cai-switch-counts* (+ i (* 3 side)))))))   ; (§8.19: the CPU's DRIVE switches by form)
+  (fill *sr-hr-acc* 0) (fill *hr-counts* 0) (fill *cai-switch-counts* 0) (setf *sr-hr-seed* nil))
 (defun sr-hr-step ()
   (setf *sr-hr-seed* *match-seed*)
   (do-sides (e)
