@@ -265,6 +265,11 @@ The pilot is `hi-sw-pilot.lisp` (`:qhs-ichigo`). Round 2 (§8.19 "Round 2") rebu
 - **HK**: no swap, `:qh-ken` stays;
 - **HH**: `hh/qhs-mirror.lisp` (`:qhs-mirror`, in the lookup).
 
+Round 3 (§8.19 "Round 3"):
+- HI keeps `:qhs2-ichigo`: the learnable Shikai preference lost.
+- The Shikai's DRIVE switch (`:shikai-dswitch`) is written but not shipped: it never opens in a match.
+- HH: `hh/qhs2-mirror.lisp` (`:qhs2-mirror`, in the lookup).
+
 | File | What |
 |---|---|
 | `sw.py` | Common options `--me --vs --opp --arms` (the pairing, the opponent seat, the arms file; the pilot's by default). `start`: the start table (arm 0 everywhere, or `--embed` a 2-arm table's 48 rules). `log`: behaviour + run exploration (`STRAT_FQLOG "<salt> <eps> <seat> <rmin> <rmax>"`). `fit`: a ridge V + per-arm deltas on the discounted return, with the bootstrap sign gate. `measure`: at eps 0, shares, draws, per-seed wins, switch counts by form / distance band, STRAT_HRANGE, the DRIVE switches by form. `pin`: an arm's bonus in a form's G1 rows. `pair`: b / c |
@@ -281,6 +286,12 @@ The pilot is `hi-sw-pilot.lisp` (`:qhs-ichigo`). Round 2 (§8.19 "Round 2") rebu
 | `report.py` | one line per measure (share, draws, changes, arms, the ranged mode's distance, DRIVE switches) and b / c against the first |
 | `ev/hi-*`, `ev/hi2-*`, `ev/hk-*`, `ev/hk2-*`, `ev/hh-*`, `ev/hh2-*` | round 2's measures: `*-sel2-*` / `*-sel2b-*` seeds 801-1000 / 801-850, `*2-ho601-*` / `*2-ho701-*` held-out (`hh2-ho601-pick-vs-pick`: the new mirror table on both seats) |
 | `live-ih2-600.json` | Ichigo vs Hisagi with both seats on the lookup after round 2 (0.13) |
+| `prior.py` | sizing a learnable preference: the other arms' margin over one arm in one form (and band) at the logged judgements, and per bias how many states it wins and how many stay within the online learner's 0.05 reach |
+| `hi/hi3-*` | round 3, HI: `hi3-r1-g98-b0.05` / `-b0.08` (round 1's fit + a learnable press bias in the Shikai; b 0.05 the pick, lost on held-out), `hi3-r2-g98-p05` / `-p08` (+ `.json`: the Shikai rows refit from round 2's data starting at that bias), `hi3-ds` (the live table with `:shikai-dswitch` on arm 0, `arms/hi-ds.arms`) |
+| `hh/hh3-*`, `hh/qhs2-mirror.lisp` | round 3, HH: `hh3-b05` (the live table + 0.05 on merged at ranged close: round 3's behaviour), `hh3-r1-g966-p05` (+ `.json`: the refit with that prior) = **shipped** `qhs2-mirror.lisp`; `hh3-ds` (the live table with `:shikai-dswitch`, `arms/hh-ds.arms`) |
+| `arms/a9-pressds.lisp` | press + the DRIVE switch + `:shikai-dswitch`, played whole |
+| `proofs3.sh`, `proofs3-600.jsonl` | round 3 on the final build: `:qhs2-ichigo` and `:qhs2-mirror` run raw = the live lookup, 8 of 8 each |
+| `ev/hi3-*`, `ev/hh3-*` | round 3's measures (`*-sel2*` selection, `*-ho601-*` / `*-ho701-*` held-out; `hi3-ho*-b08-posthoc`: measured after the decision) |
 
 Logs (gitignored, `switch/logs/`): `r1` (the start table, 4 salts), `r2a` / `r2b` (2 salts each), `r3` (4 salts), round 2's `hi2-r1`,
-`hi2-r2`, `hk2-r1`, `hh2-r1`, `hh2-r2` (4 salts each; each fit's stdout as `fit-*.out`), `ev/*`.
+`hi2-r2`, `hk2-r1`, `hh2-r1`, `hh2-r2`, round 3's `hh3-r1` (4 salts each; each fit's stdout as `fit-*.out`; `hi3/` the HI prior fits'), `ev/*`.

@@ -155,10 +155,23 @@ it owns the segment's decision (the generic CAI-MOVE-STEP is kept off it: BRAIN-
 ;;; and Kenpachi's KI style (cpu-ki-ken.lisp KEN-KI-STYLE) elsewhere (the Shikai, the bind mode). Each keeps its own state (BRAIN-STYLE holds
 ;;; an HMS with both), so a form change resumes the other's where it stopped. The strategy's key :KEN-RANGED (T) also lets Kenpachi's style
 ;;; decide in the ranged mode where the distance rule leaves the step (it runs first there, so the rule still owns every close event).
+;;; The strategy key :SHIKAI-DSWITCH (DUEL_AI_STRATEGY §8.19 round 3; the user, 2026-11-09: 「寫，量過再決定上線」): outside the ranged mode,
+;;; in his own NS segment's gap, the strategy's DRIVE switch (CAI-DSWITCH: its :DSWITCH roll, :DSWITCH-MAP, the gauge's rules) gets the gap
+;;; first, once per segment; KEN-KI-STYLE decides those gaps itself, so without it CAI-DSWITCH is never reached in the Shikai. Off without the key.
 (defstruct (hms (:constructor make-hms ()))
   (range nil)                   ; HISAGI-RANGE-STYLE's state
-  (ken nil))                    ; KEN-KI-STYLE's state
+  (ken nil)                     ; KEN-KI-STYLE's state
+  (dseg -1 :type fixnum))       ; the NS segment (its CLS-T) the Shikai's switch roll was made for
 (inline-readers hms)
+
+(defun hms-shikai-switch (e b f kit st)
+  "In his own NS segment's gap, once per segment: the strategy's DRIVE switch (CAI-DSWITCH). T when it pressed."
+  (let ((mv (fighter-move f)))
+    (when (and mv (eq (fighter-state f) :move) (eq (fighter-cls f) :ns) (>= (fighter-sf f) (mv-s mv)) (/= (hms-dseg st) (fighter-cls-t f)))
+      (setf (hms-dseg st) (fighter-cls-t f))
+      (when (cai-dswitch e b f kit)
+        (setf (brain-decided b) (fighter-cls-t f))
+        t))))
 
 (defun hisagi-merged-style (e b f kit s d)
   "The merged style (the header above): HISAGI-RANGE-STYLE in the ranged mode (:bankai), KEN-KI-STYLE elsewhere. T when it decided."
@@ -168,6 +181,8 @@ it owns the segment's decision (the generic CAI-MOVE-STEP is kept off it: BRAIN-
     (when ranged
       (setf (brain-style b) (hms-range st))
       (setf r (hisagi-range-style e b f kit s d) (hms-range st) (brain-style b)))
+    (when (and (not r) (not ranged) (getf (car *strat-now*) :shikai-dswitch))   ; (the Shikai's DRIVE switch, off without the key)
+      (setf r (hms-shikai-switch e b f kit st)))
     (when (and (not r) (or (not ranged) (getf (car *strat-now*) :ken-ranged)))
       (setf (brain-style b) (hms-ken st))
       (setf r (ken-ki-style e b f kit s d) (hms-ken st) (brain-style b)))
@@ -180,24 +195,28 @@ it owns the segment's decision (the generic CAI-MOVE-STEP is kept off it: BRAIN-
 60, Kenpachi idle 2.0 m off (his CPU off: WA, then the switch); 1 as 0, DRIVE 20 (no switch); 2 pointer 2, Kenpachi walks in from 2.0 m
 (his CPU after 1.2 m); 3 pointer 1, DRIVE 60, Kenpachi 1.8 m off starting J1; 4 as 0 with no strategy (the shipped CPU); 5 as 0, the
 strategy without :DSWITCH; 6 / 7 the Shikai, pointer 1, SUBLIMATION 60 / 20, 4.5 m from an idle Kenpachi (his CPU off), P1's NS1 started
-(the generic :DSWITCH-MAP route NS1 > NS3a); 8 pointer 1, DRIVE 60, Kenpachi walks in from 5 m."
+(the generic :DSWITCH-MAP route NS1 > NS3a); 8 pointer 1, DRIVE 60, Kenpachi walks in from 5 m; 9 / 10 (DUEL_AI_STRATEGY §8.19 round 3) as 6
+with the merged style (:DSWITCH 1.0, the Shikai's map) with / without :SHIKAI-DSWITCH."
   (let* ((lib (find :h1-range *strat-library* :key (lambda (x) (getf x :id))))
-         (strat (case k (4 nil) (5 (list* :base (list :dswitch 0.0) lib)) (t lib)))
-         (shikai (member k '(6 7))))
+         (strat (case k (4 nil) (5 (list* :base (list :dswitch 0.0) lib))
+                      (9 '(:id :scene-sdswitch :fn hisagi-merged-style :ken-ranged t :shikai-dswitch t :base (:dswitch 1.0) :dswitch-map ((:base 1 3))))
+                      (10 '(:id :scene-nosdswitch :fn hisagi-merged-style :ken-ranged t :base (:dswitch 1.0) :dswitch-map ((:base 1 3))))
+                      (t lib)))
+         (shikai (member k '(6 7 9 10))))
     (ensure-battle :hisagi :kenpachi :cpu t)
-    (place *p1* *p2* (case k (3 1.8) ((6 7) 4.5) (8 5.0) (t 2.0)))
+    (place *p1* *p2* (case k (3 1.8) ((6 7 9 10) 4.5) (8 5.0) (t 2.0)))
     (hs-reset *p1*)
     (full-gauges! *p1*) (full-gauges! *p2*)
     (dolist (e (list *p1* *p2*)) (setf (brain-difficulty (brain e)) :hard (brain-delay (brain e)) (getf *ai-delay* :hard) (brain-off (brain e)) nil))
-    (when (member k '(0 1 4 5 6 7)) (setf (brain-off (brain *p2*)) t))
+    (when (member k '(0 1 4 5 6 7 9 10)) (setf (brain-off (brain *p2*)) t))
     (if shikai
         (progn (unless (eq (fighter-form (fighter *p1*)) :base) (set-form *p1* :base) (setf (gauges-awakened (gauges *p1*)) nil))
-               (setf (gauges-sub (gauges *p1*)) (if (= k 6) 60f0 20f0)))
+               (setf (gauges-sub (gauges *p1*)) (if (= k 7) 20f0 60f0)))
         (progn (hs-awaken-now! *p1*) (setf (gauges-drive (gauges *p1*)) (if (= k 1) 20f0 60f0))))
     (setf (fighter-ptr (fighter *p1*)) (if (= k 2) 2 1) (brain-strat (brain *p1*)) strat (brain-strat (brain *p2*)) nil (brain-style (brain *p1*)) nil)
     (case k
       (3 (force-cmd *p2* :q))
-      ((6 7) (core-sp-start! *p1* (fighter *p1*)))
+      ((6 7 9 10) (core-sp-start! *p1* (fighter *p1*)))
       ((2 8) (let ((b2 (brain *p2*)))                       ; (he walks in: the dash act's stick toward P1, let go at 1.2 m)
                (ai-press b2 :none 200 :act :dash)
                (setf (brain-dash b2) 1f0 (brain-dash-to b2) 1.2f0))))

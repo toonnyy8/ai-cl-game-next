@@ -1096,6 +1096,102 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - 「接受，之後重做一護的表時再追 (Recommended)」: Ichigo vs Hisagi CPU vs CPU at 0.13 is accepted; Ichigo's tables answer it when they
     are rebuilt.
 
+**Round 3: a learnable Shikai preference, the Shikai's DRIVE switch, HH's ranged close (2026-11-09).**
+- Results:
+  - HI keeps `:qhs2-ichigo`: the learnable preference picked beforehand lost significantly on held-out.
+  - The Shikai's DRIVE switch is written and proven by a script, but it never opens in a match: not shipped.
+  - HH swaps to `:qhs2-mirror`. It is ahead of `:qhs-mirror` on both held-out blocks but not significantly, and it restores the distance rule.
+- Files: `docs/research/strategy-drsi/fq/switch/` (`prior.py`, `proofs3.sh`, `hi/hi3-*`, `hh/hh3-*`, `hh/qhs2-mirror.lisp`, `arms/hi-ds.arms`,
+  `arms/hh-ds.arms`). `sw.py` gains `fit --prior FORM ARM B [--prior-band]` (the ridge shrinks toward the preference; the gate acts on the
+  move away from it) and `pin --band`.
+
+**A. HI: a learnable Shikai preference.**
+- **What the learner can reach.** The online learner keeps each q within 0.01 of its offline value (`*fq-online-cap*`; the cap is a total,
+  not a step).
+  - In the Shikai only press is played (eps 0), so only press's q move: by at most 0.01 in each of the 5 groups' rules.
+  - So Q(press) can fall by at most 0.05, and a Shikai state can flip only where the preference's lead there is under 0.05.
+  - Speed is not the limit: one match has about 400 Shikai judgements at eta 0.05, so the q reach the cap within a match or two.
+- **The size** (`prior.py`, round 1's unpinned γ 0.98 fit on round 2's training logs, 314,081 Shikai judgements). The other arms' margin
+  over press has median 0.019 and p90 0.071. A bias b on press in G1's Shikai rows then gives:
+
+| b | press greedy | of those, learnable (lead < 0.05) |
+|---|---|---|
+| 0.04 | 0.83 | 0.98 |
+| 0.05 | 0.86 | 0.77 |
+| 0.08 | 1.0 | 0.24 |
+
+- **Selection** (seeds 801-1000; the live `:qhs2-ichigo` 0.835):
+  - round 1's fit + b 0.05: 0.840 (27 arm changes a match, 50 matches without one), b / c against live 34 / 36;
+  - round 1's fit + b 0.08: 0.838 (plays as the pin, b / c 0 / 1);
+  - **refitting the Shikai rows from data, starting at that bias** (round 2's logs, `--prior 0 0 B`): b 0.05 0.412, b 0.08 0.417. The data
+    pulls the Shikai off press: the window fit's bias of §8.19 round 2 again.
+  - The pick, fixed before held-out: b 0.05.
+- **Held-out** (seeds 601-700 / 701-800): the pick 0.815 / 0.81 against `:qhs2-ichigo` 0.865 / 0.875 (b / c 12 / 22, 14 / 27; pooled z -2.7).
+  **A significant loss: `:qhs2-ichigo` stays.**
+  - The pick played 26 changes a match (63 of 400 matches without one, all of them Shikai-only).
+  - The ranged mode's share inside 3 m: 0.16.
+  - Arm gaps: Shikai median 0.031 (73 % under 0.05), ranged 0.044, bind 0.026.
+  - Post hoc, not used for the decision: b 0.08 plays as the pin (0.87 / 0.875, b / c 1 / 0, 0 / 0) with 24 % of its Shikai states in reach.
+- **Online smoke** (25 matches, her KI style as the "player", cap 0.01): the Shikai does change, and fast.
+  - b 0.05: press greedy in 86 % of the training Shikai states before, 31 % after; 19 wins against the frozen table's 19.
+  - b 0.08: 100 % before, 49 % after; **16 wins against 21** (b / c 1 / 6).
+  - The online TD sees the same short window as the offline fit, so a learnable preference is unlearned even against a player the table
+    beats about 85 % of the time.
+
+**B. A DRIVE switch in the Shikai's NS gap** (new style code, off by default).
+- **The code** (cpu-hisagi-range.lisp):
+  - the strategy key `:shikai-dswitch`;
+  - `hms-shikai-switch`: outside the ranged mode, in his own NS segment's gap, once per segment (a new `hms` slot `dseg`), `cai-dswitch`
+    gets the gap before `ken-ki-style`.
+  - Without the key nothing is called, so every shipped table, c1 and G2 stay identical.
+- **Scripted test:** debug 83809 / 83810 (DUEL_GAMEPLAY "Debug commands"), `tests/scripts/duel-shikai-dswitch.json`. P1 is a HARD CPU
+  Hisagi in the Shikai, SUBLIMATION 60, 4.5 m from an idle Kenpachi, NS1 started.
+  - With the key: `[29] P1 cpu switch 1 -> 3`, `[32] P1 NS pointer 1 -> 3 (DRIVE)`.
+  - Without it: no switch, the KI style's NS links.
+- **In matches it never opens:** SUBLIMATION is at or above the switch's 0.25 in 0.0 % of 161,448 Shikai judgements (seeds 801-1000).
+  SUBLIMATION fills only once the awakening gauge is full, and then he awakens.
+  - HI's table with the key on arm 0: identical to live (b / c 0 / 0, 801-1000; 0 Shikai switches).
+  - HH's table with the key on its DRIVE-switch arm: identical outcomes (801-850); the hook also covers the bind mode, where 3 more switches fired.
+  - Press + the DRIVE switch with the key, played whole: 0 Shikai switches.
+  - **Not shipped.** The key and the scenes stay.
+
+**C. HH: merged preferred at ranged close, and a refit.**
+- **The preference.** The same mechanism as A: +0.05 on merged in G1's ranged-close row. `prior.py` on round 2's logs: margin median 0.022;
+  at 0.05 merged is greedy in 100 % of those states and all are within the learner's reach.
+- **The refit:** 4 salts on that table + runs, refit with `--prior 1 1 0.05 --prior-band close`.
+  - Selection: the preference alone 0.573 (ranged inside 3 m 0.27); the refit **0.610** (`:qhs-mirror` 0.578, the kite whole 0.637).
+  - The refit moved merged's +0.05 to press at ranged close (press 0.90 there). Press runs the same merged code, so the distance rule still
+    owns those close events.
+- **Held-out:**
+
+| | 601-700 | 701-800 | draws | ranged inside 3 m | the pick's b / c |
+|---|---|---|---|---|---|
+| `:qhs-mirror` | 0.565 | 0.555 | 51, 45 | 0.67, 0.54 | 21 / 16, 21 / 17 (pooled z 1.0) |
+| the kite whole | 0.645 | 0.655 | 8, 3 | 0.27, 0.23 | 29 / 40, 34 / 50 |
+| **the pick, `:qhs2-mirror`** | **0.59** | **0.575** | 53, 47 | **0.27, 0.26** | |
+
+  - **Into the lookup:** ahead of `:qhs-mirror` on both blocks, though not significantly, and back inside the distance rule.
+  - It still loses to the kite whole. Following the brief, the kite whole was not switched in.
+- **How it plays:** 70 arm changes a match.
+  - Shikai close: the DRIVE switch arm 0.61 (in effect the merged code; its switch never opens), KI 0.29, merged 0.11.
+  - Ranged: close press 0.90; far press 0.67, KI 0.19.
+  - Bind: the kite.
+- Arm gaps: median 0.0001 (Shikai), 0.007 (ranged). Almost everything is within the learner's reach.
+- New table against new table (601-700): 88 draws of 200, as before (b / c 18 / 18 against round 2's).
+- Proofs (`proofs3.sh`, 8 of 8 chunks each): `:qhs2-mirror` run raw = the live lookup (0.59, 6,105 lines). `:qhs2-ichigo` run raw = the live
+  lookup on this build (0.865, 6,579 lines).
+
+**Checks.**
+- Page storage: `:qhs2-mirror` holds 448 integers.
+- The library holds 22 entries; `:qhs-mirror` stays.
+- Host tests 9996 ALL PASS.
+
+**Open for the user:**
+- A learnable Shikai preference loses or gets unlearned. Three options: keep the hard pin (now); ship b 0.08, which plays as the pin with a
+  quarter of its Shikai states in the learner's reach; or freeze the Shikai rows against online learning.
+- The Shikai's DRIVE switch can only matter if SUBLIMATION reaches 0.25 in the Shikai. That would need the CPU to hold back its awakening.
+- HH still loses to the kite whole (pooled b / c 63 / 90).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

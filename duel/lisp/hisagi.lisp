@@ -1475,7 +1475,7 @@ lines."
                (progn (hs-awaken-now! *p1*) (setf (gauges-drive g) 60f0))))
          (setf (fighter-ptr (fighter *p1*)) 1)
          (hisagi-probe-line (format nil "switch ~d" c)))
-        ((< c 83809) (hisagi-range-scene (- c 83800)))   ; (the ranged mode's distance control, cpu-hisagi-range.lisp; DUEL_AI_STRATEGY §8.16)
+        ((< c 83811) (hisagi-range-scene (- c 83800)))   ; (the ranged mode's distance control, cpu-hisagi-range.lisp; DUEL_AI_STRATEGY §8.16, §8.19)
         ((= c 83900) (hisagi-probe-line "probe"))
         (t (log-msg "duel hisagi: no debug command ~d" c))))
 (pushnew '(83000 83999 hisagi-debug) *char-debug* :test #'equal)

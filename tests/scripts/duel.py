@@ -884,6 +884,19 @@ def switch_routes_script():
     return sorted(ev, key=lambda x: x["at"])
 write("switch-routes", switch_routes_script())
 
+def shikai_dswitch_script():
+    """The Shikai's DRIVE switch for a CPU under the merged style (DUEL_AI_STRATEGY §8.19 round 3): debug 83809 (P1 a HARD CPU Hisagi in the
+    Shikai, SUBLIMATION 60, 4.5 m from an idle Kenpachi, NS1 started, the merged style with :DSWITCH 1.0 and :SHIKAI-DSWITCH) must log
+    `P1 cpu switch 1 -> 3`; 83810 (the same without :SHIKAI-DSWITCH) must not. 2107 logs the state."""
+    ev = []
+    t = T0
+    for label, c in (("SD 83809 merged + shikai-dswitch: expect P1 cpu switch 1 -> 3", 83809), ("SD 83810 merged, no shikai-dswitch: no switch", 83810)):
+        ev.append({"at": round(t, 2), "eval": f"console.log('=== {label}')"})
+        ev.extend([cmd(t, c), cmd(t + 3.5, 2107)])
+        t += 4.0
+    return sorted(ev, key=lambda x: x["at"])
+write("shikai-dswitch", shikai_dswitch_script())
+
 def drive_switch_phone_script():
     """The thumb's switch (DUEL_SUBLIMATION §17.3; --mobile --size 390x844): KESSA with DRIVE 60 (debug 86105): an SP tap in the upper pad, then a
     sideways flick (right / left) in the NS gap = the pointer switch; a flick with no DRIVE (86107) stays a Step."""

@@ -10,7 +10,9 @@ arms/hi-pilot.arms).
   python3 sw.py log --table FILE --tag T --salt 1 [--eps 0.03] [--runs 6 18] [--seeds 1-599] [-j 20]   # behaviour = TABLE + runs
   python3 sw.py fit --tag T[,T2...] --out FILE [--gamma 0.966] [--scale 0.1] [--lam 300] [--conf 0.95] [--boot 20] [--default 0]
   python3 sw.py measure --table FILE --tag T [--seeds 701-800]   # eps 0: shares, draws, per-seed winners, switch statistics, STRAT_HRANGE
-  python3 sw.py pin --table FILE --out FILE [--form 0] [--arm 0] [--bonus 1.0]   # ARM always wins in FORM (G1 bonus)
+  python3 sw.py pin --table FILE --out FILE [--form 0] [--arm 0] [--bonus 1.0] [--band close]   # ARM's G1 bonus in FORM (a pin, or a small
+                                                                 # learnable preference)
+  fit --prior FORM ARM B: start ARM at bias B in FORM's G1 rows (the ridge shrinks toward it, the gate acts on the move away from it)
   python3 sw.py pair A.json B.json                               # paired b / c of two measures on the same seeds
 
 Logs go under logs/<tag>/ (gitignored); a measure's summary to <tag>.json here.
@@ -242,9 +244,9 @@ def design(matches, gamma, scale):
     return Xd, np.array(A), np.array(Y, dtype=np.float32), np.array(U)
 
 
-def ridge_fit(X, A, Y, w, lam_v, lam_d):
-    """V: one ridge over every row (the state's value); per arm a delta ridge on the residuals (shrunk toward 0 = no preference).
-    -> theta (NR x NA) = v + delta_a."""
+def ridge_fit(X, A, Y, w, lam_v, lam_d, prior=None):
+    """V: one ridge over every row (the state's value); per arm a delta ridge on the residuals, shrunk toward PRIOR's column (NR x NA, the
+    preference it starts from; default 0 = no preference). -> theta (NR x NA) = v + delta_a."""
     w = w.astype(np.float32)
     Xw = X * w[:, None]
     v = np.linalg.solve((Xw.T @ X).astype(float) + lam_v * np.eye(NR), (Xw.T @ Y).astype(float))
@@ -256,7 +258,8 @@ def ridge_fit(X, A, Y, w, lam_v, lam_d):
             th[:, a] = v
             continue
         Xa, Xwa = X[m], Xw[m]
-        d = np.linalg.solve((Xwa.T @ Xa).astype(float) + lam_d * np.eye(NR), (Xwa.T @ res[m]).astype(float))
+        p0 = np.zeros(NR) if prior is None else prior[:, a]
+        d = np.linalg.solve((Xwa.T @ Xa).astype(float) + lam_d * np.eye(NR), (Xwa.T @ res[m]).astype(float) + lam_d * p0)
         th[:, a] = v + d
     return th, v
 
@@ -266,19 +269,26 @@ def cmd_fit(a):
     ms = load(a.tag, lo, hi)
     X, A, Y, U = design(ms, a.gamma, a.scale)
     print(f'matches {len(ms)} judgements {len(Y)} arms {np.bincount(A, minlength=NA).tolist()}', flush=True)
-    th, v = ridge_fit(X, A, Y, np.ones(len(Y)), a.lam_v, a.lam)
-    d = th - v[:, None]
+    prior = np.zeros((NR, NA))
+    if a.prior:                                                       # (a learnable preference: ARM's bias B in FORM's G1 rows, §8.19 round 3)
+        f, arm, b = int(a.prior[0]), int(a.prior[1]), float(a.prior[2])
+        fm = (':no', ':yes', ':k2')[f]
+        for r, (ante, g) in enumerate(RULES):
+            if g == 1 and ante.startswith(f'((:form {fm})') and (not a.prior_band or ante.endswith(f'(:dm :m-{a.prior_band}))')):
+                prior[r, arm] = b
+    th, v = ridge_fit(X, A, Y, np.ones(len(Y)), a.lam_v, a.lam, prior)
+    d = th - v[:, None] - prior
     # the gate: a delta coefficient survives when the match bootstrap agrees on its sign in >= CONF of the replicates
     rng = np.random.default_rng(1)
     nu = len(ms)
     sign = np.zeros((NR, NA))
     for b in range(a.boot):
         w = rng.poisson(1.0, nu)[U].astype(float)
-        tb, vb = ridge_fit(X, A, Y, w, a.lam_v, a.lam)
-        sign += np.sign(tb - vb[:, None]) == np.sign(d)
+        tb, vb = ridge_fit(X, A, Y, w, a.lam_v, a.lam, prior)
+        sign += np.sign(tb - vb[:, None] - prior) == np.sign(d)
     agree = sign / a.boot
-    dg = np.where(agree >= a.conf, d, 0.0)
-    q = v[:, None] + dg
+    dg = np.where(agree >= a.conf, d, 0.0)                          # (the gate acts on the move away from the prior)
+    q = v[:, None] + prior + dg
     q -= 1e-4
     q[:, a.default] += 1e-4                                           # (no preference: the default arm, pi0)
     q = np.round(q, 4)
@@ -287,7 +297,7 @@ def cmd_fit(a):
     pick = Q.argmax(1)
     write_table(a.out, ':' + os.path.splitext(os.path.basename(a.out))[0], q,
                 f'sw.py fit --tag {a.tag} --seeds {a.seeds} --gamma {a.gamma} --scale {a.scale} --lam {a.lam} --lam-v {a.lam_v} '
-                f'--conf {a.conf} --boot {a.boot} --default {a.default}: {len(ms)} matches, {len(Y)} judgements.', period=a.period, gamma=a.gamma, scale=a.scale,
+                f'--conf {a.conf} --boot {a.boot} --default {a.default}' + (f' --prior {" ".join(a.prior)}' if a.prior else '') + (f' --prior-band {a.prior_band}' if a.prior_band else '') + f': {len(ms)} matches, {len(Y)} judgements.', period=a.period, gamma=a.gamma, scale=a.scale,
                 keep=a.keep_state)
     res = dict(tag=a.tag, seeds=a.seeds, gamma=a.gamma, scale=a.scale, lam=a.lam, lam_v=a.lam_v, conf=a.conf, boot=a.boot, matches=len(ms),
                judgements=int(len(Y)), behaviour_arms=np.bincount(A, minlength=NA).tolist(), greedy_on_data=np.bincount(pick, minlength=NA).tolist(),
@@ -349,10 +359,10 @@ def cmd_pin(a):
     q = read_q(a.table)
     fm = (':no', ':yes', ':k2')[a.form]
     for r, (ante, g) in enumerate(RULES):
-        if g == 1 and ante.startswith(f'((:form {fm})'):
+        if g == 1 and ante.startswith(f'((:form {fm})') and (not a.band or ante.endswith(f'(:dm :m-{a.band}))')):
             q[r, a.arm] += a.bonus
     text = open(a.table).read()
-    note = text.splitlines()[0].lstrip('; ') + f' Pinned: arm {a.arm} +{a.bonus} in form {a.form} (sw.py pin).'
+    note = text.splitlines()[0].lstrip('; ') + f' Pinned: arm {a.arm} +{a.bonus} in form {a.form}' + (f' {a.band}' if a.band else '') + ' (sw.py pin).'
     g = float(text.split(':gamma ')[1].split()[0]) if ':gamma ' in text else None
     sc = float(text.split(':scale ')[1].split()[0]) if ':scale ' in text else None
     per = int(text.split(':period ')[1].split()[0]) if ':period ' in text else None
@@ -387,12 +397,15 @@ def main():
     p.add_argument('--conf', type=float, default=0.95); p.add_argument('--boot', type=int, default=20); p.add_argument('--period', type=int, default=30)
     p.add_argument('--default', type=int, default=0, help='the arm where no delta survives (pi0)')
     p.add_argument('--keep-state', action='store_true')
+    p.add_argument('--prior', nargs=3, metavar=('FORM', 'ARM', 'B'), help='start ARM at bias B in FORM\'s G1 rows; the data moves it')
+    p.add_argument('--prior-band', choices=('close', 'mid', 'far'), help='the prior only in that distance band\'s G1 row')
     p = sub.add_parser('measure', parents=[com])
     p.add_argument('--table', required=True); p.add_argument('--tag', required=True); p.add_argument('--seeds', default='701-800')
     p.add_argument('-j', type=int, default=20)
     p = sub.add_parser('pin', parents=[com])
     p.add_argument('--table', required=True); p.add_argument('--out', required=True); p.add_argument('--form', type=int, default=0)
     p.add_argument('--arm', type=int, default=0); p.add_argument('--bonus', type=float, default=1.0)
+    p.add_argument('--band', choices=('close', 'mid', 'far'), help='only that distance band\'s G1 row of the form')
     p = sub.add_parser('pair'); p.add_argument('a'); p.add_argument('b')
     a = ap.parse_args()
     if a.cmd != 'pair':

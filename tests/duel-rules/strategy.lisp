@@ -56,7 +56,10 @@
 (check (null (strat-lookup :hisagi :ichigo :normal)))                  ; (EASY / NORMAL keep their designed strength)
 (check (eq :q1-ichigo-hisagi (getf (strat-lookup :ichigo :hisagi :hard) :id)))   ; (§8.18: a table whose arm 0 is round 1's :ki-ichigo, §8.8)
 (check (eq :qh-ken (getf (strat-lookup :hisagi :kenpachi :hard) :id)))       ; (round 2's :ki-ken, §8.10, is its arm 1)
-(check (eq :qhs-mirror (getf (strat-lookup :hisagi :hisagi :hard) :id)))   ; (§8.19's rebuilt mirror table; :qh-mirror stays in the library)
+(check (eq :qhs2-mirror (getf (strat-lookup :hisagi :hisagi :hard) :id)))   ; (§8.19 round 3; :qhs-mirror and :qh-mirror stay in the library)
+(let* ((fq (getf (strat-lookup :hisagi :hisagi :hard) :fq))               ; (ranged close: an arm on the merged code, whose distance rule backs off;
+       (fs '(:lead 0 :ored 0 :ost 0 :awk 1 :prev 1 :form 1 :dm 1.5 :gauge 0.0 :wall 9.0 :oawk 0)))   ;  the refit moved merged's +0.05 to press)
+  (check (eq 'hisagi-merged-style (getf (nth (strat-fq-pick fq fs) (getf fq :arms)) :fn))))
 (let ((fq (getf (strat-lookup :hisagi :hisagi :hard) :fq)))              ; (five arms: the kite first, four general, one KI style code; 89 rules)
   (check (= 5 (length (getf fq :arms))))
   (check (eq :hm4-kite (getf (first (getf fq :arms)) :id)))
