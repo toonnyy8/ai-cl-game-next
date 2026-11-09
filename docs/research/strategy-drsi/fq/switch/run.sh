@@ -6,7 +6,7 @@
 #   run.sh P start OUT [PERIOD] [EMBED]         sw.py start (arm 0 everywhere, or EMBED's 48 rules as arms 0 / 1)
 #   run.sh P pin IN OUT FORM ARM BONUS [BAND]   sw.py pin (an arm's G1 bonus in a form)
 #   run.sh P all IN OUT ARM                     IN with ARM in every state (a +5 G1 bonus in forms 0 and 1): that arm played whole, with the log
-#   run.sh P heldout PICK [OTHER...]            seeds 601-700 / 701-800: CUR, each OTHER, PICK; then PICK's b / c against each
+#   run.sh P heldout PICK [OTHER...]            seeds 601-700 / 701-800: CUR, each OTHER, PICK (tag ev/P-r5-hoK-<PICK name>); then PICK's b / c
 set -e
 P=$1; CMD=$2; shift 2
 . ./lineup.sh
@@ -22,10 +22,12 @@ case $CMD in
   heldout) PICK=$1; shift
     for b in 601-700 701-800; do
       k=${b%%-*}
-      python3 sw.py measure $C --table $CUR --tag ev/$P-r5-ho$k-cur --seeds $b -j ${J:-10} > /dev/null
+      CT=ev/$P-r5-ho$k-cur${OPPTAG:+-$OPPTAG}         # (round 2: OPPTAG names the opponent, so a cached measure of another lineup is not reused)
+      python3 sw.py measure $C --table $CUR --tag $CT --seeds $b -j ${J:-10} > /dev/null
       i=0; L=""
       for o in "$@"; do i=$((i+1)); python3 sw.py measure $C --table $o --tag ev/$P-r5-ho$k-o$i --seeds $b -j ${J:-10} > /dev/null; L="$L ev/$P-r5-ho$k-o$i.json"; done
-      python3 sw.py measure $C --table $PICK --tag ev/$P-r5-ho$k-pick --seeds $b -j ${J:-10} > /dev/null
-      python3 report.py ev/$P-r5-ho$k-pick.json ev/$P-r5-ho$k-cur.json $L
+      T=ev/$P-r5-ho$k-$(basename $PICK .lisp)           # (the pick's own tag: a measure's logs are reused by tag)
+      python3 sw.py measure $C --table $PICK --tag $T --seeds $b -j ${J:-10} > /dev/null
+      python3 report.py $T.json $CT.json $L
     done ;;
 esac

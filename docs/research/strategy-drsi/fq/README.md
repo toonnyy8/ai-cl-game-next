@@ -305,10 +305,27 @@ Round 5, step 1 (§8.19 "Round 5, step 1"; every fit and swap test against the o
 | `kenpachi/` | round 4, Kenpachi's three tables. `arms/k*.lisp` (+ `-ki` / `-kh` / `-kk` screens, seeds 1-100) and `screen.sh`. `ki.arms`, `kh.arms`, `kk.arms`. `start.sh` (start tables embedding each shipped `:q1-ken-*`, `identity-s0-600.jsonl`). `round1.sh`, `round2.sh`, `measure.sh`, `heldout.sh`. `<p>-r<k>-g<gamma>.lisp` / `.json` (fits; `-m01` with `:margin 0.01`, measured after the picks). `ki-press-all.lisp` (press in every state, for its form counts). `qks-*.lisp`: **shipped**. `live.sh`, `live-600.jsonl`: the cross effects with both seats on the lookup |
 | `lineup.sh`, `run.sh`, `live9.sh` | round 5: each pairing's options against the other side's live table (`lineup.sh`: the opponent, the arms, the current table, the frozen stand-in); one pairing's steps (`run.sh P measure / log / fit / start / pin / all / heldout`); all nine pairings CPU vs CPU with both seats on the lookup (`live9.sh`) |
 | `ichigo/` | round 5, Ichigo's three tables. `arms/i*.lisp` (+ `-ik` / `-ih` / `-ii` screens against the live opponents, seeds 1-100) and `screen.sh`. `ik.arms`, `ih.arms`, `ii.arms`. `start.sh` (start tables embedding each shipped `:q1-ichigo-*`, `identity-s0-600.jsonl`). `round.sh`, `round2.sh`, `fits.sh`. `<p>-r<k>-g<gamma>[-b05 / -b02].lisp` / `.json` (fits; IH's `-b05` with Kenpachi's code +0.05 in her base form). `ih-kenki-all.lisp` (Kenpachi's code in every state, for its form counts). `qis-hisagi.lisp`: **shipped**. `proof-600.jsonl` (`:qis-hisagi` run raw = the live lookup). `live9-600.jsonl` (all nine pairings, both seats on the lookup) |
+| `corefit/` | round 5 step 2, the co-refit: `round.sh` (round 1, all nine) and `round2.sh` (round 2: KH, IK, HH), `select.sh` (the selection block), `frozen.sh` (each table against the frozen style CPUs, reported only), `proofs.sh` / `proofs-600.jsonl` (the four swapped tables run raw = the live lookup). `<p>-r<k>-fit.lisp` / `.json` (the fits), `<p>-r<k>.lisp` (with the prior put back), `hh-r1m.lisp` / `hk-r1m.lisp` (+0.25 on merged at ranged close), `hh-r1p.lisp` (the +0.05 learnable prior refit), `*.entry` (their unit-format library entries). `live9-r1-600.jsonl`, `live9-r2-600.jsonl` (the 3x3 after each round) |
+| `library/entry.py`, `library/add.py` | a research table (inline arms) as a unit-format library entry; appending it to the library with its lookup row |
+| `ev/cf-sel-*`, `ev/cf2-sel-*`, `ev/cf-frozen-*`, `ev/<p>-r5-ho*` | the co-refit's measures: selection (round 1, round 2), the frozen stand-ins, held-out (the pick's tag carries its file name; round 2's current table `-cur-vs-<opponent>`) |
 | `ev/ik-*`, `ev/ih-*`, `ev/ii-*` | round 5's measures (`*-sel2-*` selection 801-1000, `*-r5-ho601-*` / `*-r5-ho701-*` held-out: `pick`, `cur` = the shipped table, `o1` = the best whole arm) |
 | `ev/ki-*`, `ev/kh-*`, `ev/kk-*`, `ev/hi4-*` | round 4's measures (`*-sel2-*` selection 801-1000, `*-ho601-*` / `*-ho701-*` held-out) |
 | `ev/hi3-*`, `ev/hh3-*` | round 3's measures (`*-sel2*` selection, `*-ho601-*` / `*-ho701-*` held-out; `hi3-ho*-b08-posthoc`: measured after the decision) |
 
 Logs (gitignored, `switch/logs/`): `r1` (the start table, 4 salts), `r2a` / `r2b` (2 salts each), `r3` (4 salts), round 2's `hi2-r1`,
-`hi2-r2`, `hk2-r1`, `hh2-r1`, `hh2-r2`, round 3's `hh3-r1`, round 4's `kki-r1`, `kki-r2`, `kkh-r1`, `kkh-r2`, `kkk-r1`, `kkk-r2`, round 5's `iik-r1`, `iik-r2`, `iih-r1`, `iii-r1` (4 salts each; each fit's stdout as `fit-*.out`;
+`hi2-r2`, `hk2-r1`, `hh2-r1`, `hh2-r2`, round 3's `hh3-r1`, round 4's `kki-r1`, `kki-r2`, `kkh-r1`, `kkh-r2`, `kkk-r1`, `kkk-r2`, round 5's `iik-r1`, `iik-r2`, `iih-r1`, `iii-r1` (4 salts each), the co-refit's `c<p>-r1` and `ckh-r2`, `cik-r2`, `chh-r2` (2 salts each; each fit's stdout as `fit-*.out`;
 `hi3/` the HI prior fits'), `ev/*`.
+
+## §10: the library's format, `switch/library/`
+DUEL_AI_STRATEGY §10 describes the format. `duel/lisp/strategy.lisp` now defines style, data and arm units and rule bases, and
+`*strat-library*` is expanded from them at load.
+
+| File | What |
+|---|---|
+| `units.lisp`, `expand.lisp` | the units and the expansion as first written: the inputs of the one-time rewrite (now in strategy.lisp, edited there) |
+| `refactor.py`, `sexp.py` | the one-time rewrite of the inline library into units: each arm mapped to the unit that plays the same, each Q table to `:arms` ids + `:rule-base` + `:q`, the listed plain strategies composed |
+| `check.lisp` | the structural proof: the inline library (`OLD.lisp`, the commit before's strategy.lisp) and the unit library expanded are the same entry by entry, checksums included |
+| `proofs.sh`, `proofs-600.jsonl` | the play proof: the nine live tables' research files run raw = the live lookup, 8 of 8 chunks each |
+
+The research files written inline (the arms files, `hi/`, `hk/`, `hh/`, `kenpachi/`, `ichigo/`) still play raw; the runtime takes inline arms
+as before.

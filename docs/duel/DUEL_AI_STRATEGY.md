@@ -1392,6 +1392,78 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     Superseded tables stay, in the small form. The refactor must not change play: every live table run raw equals the lookup before and
     after, and G2 stays identical. It comes before step 2.
 
+**Round 5, step 2: the co-refit of all nine (2026-11-09).** The library refactor ran first (§10). Files: `docs/research/strategy-drsi/fq/switch/`
+(`corefit/`, `lineup.sh`, `run.sh`, `live9.sh`, `library/entry.py`, `library/add.py`). The new tables are in the unit format.
+
+- **Method:**
+  - Each pairing is refit against the other side's live table from the round's start lineup (`lineup.sh`). The behaviour is its current
+    table plus runs, or a grouped start embedding it where the current table has 48 rules (HK, IK, II).
+  - 2 salts, one fit at γ 0.98.
+  - HI's and IH's learnable priors are put back (press +0.08 in the Shikai; Kenpachi's code +0.05 in her base form).
+  - Selection is on 801-1000, held-out on 601-800 against the current table.
+  - A swap needs a significant held-out win. All accepted swaps of a round apply together.
+  - Round 2 refits only the pairings whose opponent changed in round 1 (KH, IK, HH). The others' round-1 refits had already met that opponent.
+- **Round 1:**
+
+| Pairing | Selection: candidate / current | Held-out 601-700 / 701-800: candidate vs current (b / c) | Decision |
+|---|---|---|---|
+| HI | 0.56 / 0.56 (identical: both stay in the Shikai against `:qis-hisagi`) | - | keep `:qhs3-ichigo` |
+| HK | 0.902 / 0.492 | 0.86 / 0.92 vs 0.375 / 0.53 (107 / 10, 86 / 8) | **`:qhs-ken`** |
+| HH | 0.580 / 0.307 (the merged pin, below) | 0.595 / 0.55 vs 0.28 / 0.265 (84 / 21, 80 / 23) | **`:qhs3-mirror`** |
+| KI | 0.545 / 0.40 | 0.445 / 0.555 vs 0.40 / 0.355 (51 / 42, 67 / 27; pooled z 3.6) | **`:qks2-ichigo`** |
+| KH | 0.583 / 0.507 | 0.54 / 0.53 vs 0.625 / 0.47 (42 / 59, 61 / 49) | keep `:qks-hisagi` |
+| KK | 0.415 / 0.477 | - | keep `:qks-ken` |
+| IK | 0.635 / 0.60 | 0.56 / 0.615 vs 0.60 / 0.645 (40 / 48, 42 / 48) | keep `:q1-ichigo-ken` |
+| IH | 0.427 / 0.427 (identical, no switching) | - | keep `:qis-hisagi` |
+| II | 0.037 / 0.04 (368 draws of 400 each) | - | keep `:q1-ichigo-ichigo` |
+
+  - **HH and round 3's merged rule.** The plain refit put Kenpachi's KI style code at ranged close: its lead over merged there has median
+    0.127, and the learnable +0.05 prior did not hold it. That would undo round 3's 「遠距固定合併風格」.
+    - The swapped table keeps merged there with a +0.25 bonus in the ranged-close G1 row (`corefit/hh-r1m.lisp`). That is beyond the
+      online learner's reach.
+    - It scores the same as the plain refit (0.580 against 0.578, b / c 15 / 14), and the ranged mode's share inside 3 m falls from 0.44 to
+      0.37-0.41.
+  - **HK sits close.** It plays press 0.75-0.78 with the ranged mode inside 3 m 0.97 of the time (`:qh-ken` 0.47-0.54). The same merged pin
+    (`corefit/hk-r1m.lisp`) cuts that to 0.76 at 0.882 against 0.902 on selection (b / c 2 / 10). The swap follows the brief's rule (the
+    tested `hk-r1`); the pin is an open question.
+- **Round 2** (against the new HK, KI and HH):
+  - KH: 0.045 against its current table's 0.095 (b / c 7 / 27): no table of its arms answers the new HK. **Keep.**
+  - IK: 0.748 against 0.455 on selection; held-out 0.74 / 0.76 against `:q1-ichigo-ken`'s 0.545 / 0.445 (b / c 70 / 31, 83 / 20). **`:qis-ken`.**
+  - HH: 0.247 against 0.40. **Keep.**
+- **Both seats on the lookup** (seeds 601-700; the row character's share; start / after round 1 / after round 2; `ichigo/live9-600.jsonl`,
+  `corefit/live9-r1-600.jsonl`, `corefit/live9-r2-600.jsonl`):
+
+| me \ vs | Hisagi | Kenpachi | Ichigo |
+|---|---|---|---|
+| Hisagi | 0.28 / 0.375 / 0.375 | 0.375 / **0.86** / 0.86 | 0.575 / 0.575 / 0.575 |
+| Kenpachi | 0.625 / **0.14** / 0.14 | 0.485 / 0.485 / 0.485 | 0.40 / 0.445 / **0.26** |
+| Ichigo | 0.405 / 0.405 / 0.405 | 0.60 / 0.545 / **0.74** | 0.025 / 0.025 / 0.025 |
+
+- **Not converged: the round-2 move is best-response chasing.**
+  - Round 1's KI table beat Ichigo's old table (0.40 → 0.445), and round 2's IK answer took it back further (0.445 → 0.26).
+  - Hisagi's HK gain (0.375 → 0.86) has no answer in Kenpachi's arms.
+  - The stop rule is two rounds, and a third round would refit KI against the new IK.
+- **Against the frozen style CPUs** (a stand-in for a human, reported only; seeds 601-700):
+  - **Hisagi:** HI 0.87 against Ichigo's KI style, unchanged; HK 0.89 against Kenpachi's KI style (`:qh-ken` 0.375 against the same member
+    in §8.15's pool).
+  - **Kenpachi vs Ichigo:** KI **0.34** against her KI style (round 4's `:qks-ichigo` 0.885).
+  - **Ichigo vs Kenpachi:** IK **0.47** against his KI style (`:q1-ichigo-ken` 0.805 in §8.15's pool).
+  - Hisagi has no style CPU, so HH, KH, IH and the mirrors have no stand-in.
+  - Fitting against the other CPU table trades robustness against the style CPUs for the CPU vs CPU pairing.
+- **The new tables:**
+
+| Table | Arms | Switches / match | Page integers |
+|---|---|---|---|
+| HK `:qhs-ken` | 5 | 14 | 448 |
+| HH `:qhs3-mirror` | 5 | 55 | 448 |
+| KI `:qks2-ichigo` | 6 | 93 | 537 |
+| IK `:qis-ken` | 5 | 72-75 | 448 |
+
+  - **Saved copies:** each has a new checksum, so the players' saved copies of those four pairings start fresh. That includes Ichigo vs
+    Kenpachi's `:q1-ichigo-ken`, the oldest learner (since §8.14).
+  - **Proofs** (`corefit/proofs.sh`): each run raw = the live lookup, 8 of 8 chunks.
+  - The library holds 31 entries (no cap).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
@@ -1404,3 +1476,55 @@ code / the style CPUs as opaque strategies). **The user: 「策略可以包含�
   (`:fn ichigo-ki-style`). IK HARD, 20 seeds (Ichigo : Kenpachi): as shipped (the styles after the MCTS, HARD's margin gate) 3 : 17; his as a
   strategy first 7 : 13; hers 4 : 16; both 7 : 13 (within the noise, ±4).
 - No strategy: G2 identical.
+
+## 10. The library's format: units defined once (2026-11-09)
+
+The user (on §8.19 round 5, step 1): 「不設上限，但將相似的策略合併，或將策略解耦成更小的單位，確保策略庫的『高內聚、低耦合』」. There is no cap. Instead,
+strategies are composed from small units defined once, and `*strat-library*` is expanded from them at load (strategy.lisp `strat-expand`).
+The runtime sees exactly the plists it saw before, so nothing downstream changed.
+
+- **The units:**
+
+| Unit | Holds | Examples |
+|---|---|---|
+| style (`*strat-styles*`) | a style function and its own keys; `:apply` = whose style it is | `:st-ken-ki`, `:st-ichigo-ki`, `:st-hisagi-merged` (+ `:ken-ranged t`), `:st-hisagi-range`, `:st-generic` (no function) |
+| data (`*strat-data*`) | outputs (`:base`), `:rules`, other keys (`:dswitch-map`); no code | `:d-brawler`, `:d-kite`, `:d-zoner`, `:d-dswitch`, `:d-no-far-ns`, and the extras `:d-brawler-prior`, `:d-zoner-extra`, `:d-red-kikon` |
+| arm (`*strat-units*`) | a named style + data units in order: what a Q table chooses among | `:a-ken-ki`, `:a-hisagi-pressd` = merged + `:d-dswitch` + `:d-brawler`, `:a-ichigo-kite` |
+| rule base (`*strat-rule-bases*`) | a Q table's antecedents in order (+ `:groups`) | `:rb-crisp48` (fq.py's 48 cells), `:rb-switch89` (§8.19's 89 in 5 groups) |
+
+- **A Q table** holds only `:arms` (arm ids; NIL = no strategy, the shipped CPU with its matchup style CPU), `:rule-base`, `:q` (a list of q
+  per arm, one per antecedent) and its keys (`:xfeats :period :gamma :scale :keep-state ...`). A composite's `:switch` subs and `:else`
+  may name arm ids.
+- **A plain strategy** may name `:style` and `:data`. For example s3-zoner is `:d-zoner` + `:d-zoner-extra`: its zoning plus its red Kikon and
+  priors, while the tables' zoner arms take only `:d-zoner`. s7-kite is `:d-kite` + `:d-red-kikon`. h1-range is `:st-hisagi-range` +
+  `:d-dswitch` + `:d-no-far-ns`.
+- **Composition order:** the style's keys, the entry's own keys, the data's keys; `:base` = the data units' lists then its own; `:rules`
+  likewise. That order is a strategy's meaning: `strat-value` averages the rules in order, and `getf` takes a `:base` key's first occurrence.
+- **Inline plists still work** everywhere. The research files that `strat-run.lisp` plays raw are inline. A new table may name arms
+  either way.
+- **Granularity.** An arm is a style function plus data units, because both vary independently:
+  - the same three data units (pressure, kite, zoning) ride on all three characters' style functions;
+  - the DRIVE switch is a data unit added to any Hisagi arm.
+  - Smaller than that (a data unit per output key) would split what tunes one job together, so the units stop at one job each.
+- **Merged duplicates.** The 18 tables carried inline copies of 16 distinct arms, written under 30 different ids. They are 15 arm units now,
+  plus NIL. For example, Kenpachi's KI style code appeared as `:c1-ken`, `:kh-whole`, `:kk-ki-bo`, `:ki-ken`, `:ht1-ki`, `:ht3-ki`, `:kp1-ken`,
+  `:ip5-kenki` and `:it1-kenki`; it is `:a-ken-ki` now.
+  - An arm's `:id`, `:apply` and `:base`'s `:p` are not behaviour inside a table: nothing reads a table arm's `:id` or `:apply`, and
+    `strat-prior` reads `:p` only on library entries, for the strategy layer.
+  - Merged arms lost their per-table `:apply` (the general / targeted label of round 2). That label now lives in each table's comment and in
+    the research arms files.
+- **No cap:** `*strat-picks*` is sized from the library at load (two slots an entry), and cpu-mcts indexes it by the library's length.
+  - The online page (`soulduel.fq.<me>.<vs>`) is keyed by roster indices, not library positions.
+  - Its checksum (`fq-checksum`) reads only a table's q values. The refactor changes neither, so **no player's saved copy resets**: every
+    table's checksum is unchanged, e.g. `:q1-ichigo-ken` 346947, as its page's second integer since §8.14.
+- **Proofs** (`docs/research/strategy-drsi/fq/switch/library/`):
+  - **Structural** (`check.lisp`): the inline library of the commit before (64b4531f) and the unit library, expanded, are the same entry by
+    entry. 27 entries, 18 tables, 0 problems: every table's `:rules` EQUAL (every antecedent and q), its keys and checksum equal, each arm
+    the same keys and EQUAL values but `:id` / `:apply` / `:p`; every plain strategy the same plist with EQUAL values, `:p` included.
+  - **Negative control:** one kite base value changed gives 10 problems, the tables and s7-kite using it.
+  - **Play** (`proofs.sh`): each of the nine live tables' research file run raw = the live lookup, 8 of 8 chunks, at the shares of their last
+    proofs: HI 0.87, HK 0.76, HH 0.59, KI 0.885, KH 0.625, KK 0.52, IK 0.6, IH 0.405, II 0.025 (seeds 601-700, each against the opponent of
+    its last proof). G2 `--cvc` identical.
+- Host tests: the old ≤ 32 check is replaced by checks that unit ids are unique, that no two arm units play the same, that every table's arms
+  resolve once each with a q per arm and rule (and its groups add up), and that `*strat-picks*` is sized from the library.
+- The file shrinks from 180 KB to about 109 KB.

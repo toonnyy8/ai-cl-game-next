@@ -347,7 +347,7 @@ lean steps. Returns his arm, the opponent's and the 0-1 score; records nothing (
                  (a (strat-final (stjob-sums j) (stjob-ns j) (stjob-prior j) (getf *strat-lambda* (stjob-dif j) 0.35))))
             (when b
               (setf (brain-strat b) (nth a (stjob-mine j)))
-              (incf (svref *strat-picks* (+ (* 32 (stjob-side j)) (position (getf (brain-strat b) :id) *strat-library* :key (lambda (st) (getf st :id)))))))))
+              (incf (svref *strat-picks* (+ (* (length *strat-library*) (stjob-side j)) (position (getf (brain-strat b) :id) *strat-library* :key (lambda (st) (getf st :id)))))))))
         (let ((dt (- (get-internal-real-time) t0)))
           (incf (svref *strat-stats* 2) dt) (setf (svref *strat-stats* 3) (max (svref *strat-stats* 3) dt))))))
 
@@ -359,4 +359,4 @@ step's ms, and per side how often each library entry was picked."
       (log-msg "duel stratlayer selections ~d rollouts ~d ms ~,3f a selection, worst step ~,2f picks P1 ~{~a~^ ~} P2 ~{~a~^ ~}"
                (svref st 0) (svref st 1) (/ (* ms (svref st 2)) (svref st 0)) (* ms (svref st 3))
                (loop for k below (length *strat-library*) collect (svref *strat-picks* k))
-               (loop for k below (length *strat-library*) collect (svref *strat-picks* (+ 32 k)))))))
+               (loop with n = (length *strat-library*) for k below n collect (svref *strat-picks* (+ n k)))))))
