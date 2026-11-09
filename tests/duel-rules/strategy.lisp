@@ -24,7 +24,7 @@
 
 ;; the strategy layer's pure parts (DUEL_AI_STRATEGY §5, §8.4): arms by :APPLY, seeds from the payoff matrix (B's view 1 - M transposed), PUCT, the pick
 (check (equal '(:s0-generic :s1-brawler :s3-zoner :ki-ken :q1-ken-ichigo :qks-ichigo :qks2-ichigo :qks3-ichigo) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :ichigo))))   ; (+ §8.18's table, as IK's q1; §8.19 round 4's)
-(check (equal '(:s0-generic :s1-brawler :s3-zoner :q1-ken-hisagi :qks-hisagi :qks2-hisagi :qks3-hisagi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
+(check (equal '(:s0-generic :s1-brawler :s3-zoner :q1-ken-hisagi :qks-hisagi :qks2-hisagi :qks3-hisagi :qks4-hisagi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
 (check (~= 0.7 (strat-seed-value :kenpachi :ichigo :ki-ken)))           ; (against her equilibrium column, :ki-ichigo)
 (check (~= 0.3 (strat-seed-value :ichigo :kenpachi :ki-ichigo)))        ; (the column side: 1 - his equilibrium row's cell)
 (check (~= 0.0 (strat-seed-value :ichigo :kenpachi :s0-generic)))       ; (her s0 against his equilibrium row :ki-ken: 1 - 1.0)
@@ -103,7 +103,7 @@
 ;; the Q tables of §8.18: every pairing with Kenpachi or Ichigo as me plays one at HARD, keyed by :apply (the online learner's key); 48 crisp
 ;; rules over two arms; where the incumbent is the shipped CPU (no strategy) arm 0 is NIL (core-ai.lisp: no strategy, never the lookup)
 ;; §8.19 round 4: Kenpachi vs Ichigo / Hisagi play rebuilt tables (6 / 5 arms, arm 0 still NIL: no strategy; 89 rules in 5 groups; 0.5 s)
-(dolist (r '((:kenpachi :ichigo :qks3-ichigo 6) (:kenpachi :hisagi :qks3-hisagi 7) (:kenpachi :kenpachi :qks-ken 5)))
+(dolist (r '((:kenpachi :ichigo :qks3-ichigo 6) (:kenpachi :hisagi :qks4-hisagi 8) (:kenpachi :kenpachi :qks-ken 5)))
   (destructuring-bind (me vs id na) r
     (let* ((st (strat-lookup me vs :hard)) (fq (getf st :fq)))
       (check (eq id (getf st :id)))
@@ -284,3 +284,24 @@
         (let ((p (second v)))
           (when (every (lambda (k) (let ((x (getf p k))) (and (realp x) (<= 0 x 1)))) '(:easy :normal :hard))
             (check (<= (getf p :easy) (getf p :normal) (getf p :hard)))))))))
+;; §8.19 round 5 step 6: the event layer's window (STRAT-EVENT-ARM; core-ai.lisp STRAT-EVENT-STEP keeps LAST in the brain). It fires when the
+;; opponent is perceived down (launched / down / waking up), holds the brain's perception delay + *STRAT-EVENT-GRACE* frames after, then hands
+;; back; a table without :EVENT-ARMS never fires (and leaves LAST alone).
+(let* ((arm '(:id :ev-test :fn ken-kh-style)) (fq (list :arms '(nil) :event-arms (list (list :knockdown arm)))) (delay 8))
+  (multiple-value-bind (on last) (strat-event-arm fq :idle 100 -1 delay) (check (and (null on) (= last -1))))      ; (never down: off)
+  (multiple-value-bind (on last) (strat-event-arm fq :down 100 -1 delay) (check (and (eq on arm) (= last 100))))  ; (knocked down: fires)
+  (multiple-value-bind (on last) (strat-event-arm fq :wakeup 130 100 delay) (check (and (eq on arm) (= last 130))))   ; (waking up: holds)
+  (multiple-value-bind (on last) (strat-event-arm fq :idle (+ 130 delay *strat-event-grace*) 130 delay) (check (and (eq on arm) (= last 130))))
+  (multiple-value-bind (on last) (strat-event-arm fq :idle (+ 131 delay *strat-event-grace*) 130 delay) (check (and (null on) (= last 130))))   ; (hands back)
+  (multiple-value-bind (on last) (strat-event-arm fq :hoho 50 130 delay) (check (and (null on) (= last -1))))    ; (a tick from an earlier match)
+  (multiple-value-bind (on last) (strat-event-arm '(:arms (nil)) :down 100 -1 delay) (check (and (null on) (= last -1)))))   ; (no key: nothing)
+;; and a library table's :EVENT-ARMS ids expand to their units' plists (STRAT-EXPAND)
+(let ((st (strat-expand '(:id :ev-x :fq (:arms (nil :a-ken-ki) :rules ((((:lead :even)) 0.0 0.0)) :event-arms ((:knockdown :a-ken-kh)))))))
+  (check (eq 'ken-kh-style (getf (second (assoc :knockdown (getf (getf st :fq) :event-arms))) :fn))))
+;; §8.19 round 5 step 6: the stand-off breaker is its own style unit and arm (cpu-kh-ken.lisp KEN-KH-STANDOFF-STYLE)
+(check (eq 'ken-kh-standoff-style (getf (strat-arm :a-ken-kh-standoff) :fn)))
+;; and Kenpachi vs Hisagi's table since step 6: the stand-off breaker as arm 7, the bait as its :KNOCKDOWN event layer (no other table has one)
+(let ((fq (getf (strat-lookup :kenpachi :hisagi :hard) :fq)))
+  (check (eq 'ken-kh-standoff-style (getf (nth 7 (getf fq :arms)) :fn)))
+  (check (eq 'ken-kh-style (getf (second (assoc :knockdown (getf fq :event-arms))) :fn))))
+(check (= 1 (count-if (lambda (st) (getf (getf st :fq) :event-arms)) (mapcar (lambda (r) (strat-lookup (first r) (second r) :hard)) *strat-lookup*))))

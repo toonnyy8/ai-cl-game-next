@@ -13,6 +13,7 @@ scored against Hisagi's pool. The method, the evaluator and the keep rule are in
 | `step.sh` | the loop: `next` (the policy's batch, briefs), `done <cell> <round> <worktree>` (copy, rescore, record), `fail ...` |
 | `rescore.sh` | a delivered cell re-measured in the coordinator's checkout on the search block (host tests, the tripwire) |
 | `heldout.sh` | the keep rule's measure for one cell (seed0 400, scale 2) and the rule against `refs.jsonl` -> `NODE_DIR/heldout.json` |
+| `cand-standoff.lisp`, `standoff.sh`, `standoff.jsonl` | step 6: the rewritten stand-off breaker (`ken-kh-standoff-style`) under the keep rule (search, held-out, distances) |
 | `dream.sh` | the dream step after round 1: three rewrites of the skill's adaptive template (beta 0.6 / 0.3 / 0.9, `policy/v1_adaptive.py`, `v2_narrow.py`, `v3_wide.py`) compared with the incumbent; `v3_wide` promoted (`policy/history/`) |
 | `config.json`, `policy/`, `rounds/`, `trace_pool/`, `proposal_results/` | drsi.py's workspace (round 1 = the configured 4 x 3 grid, W = 4; `rounds/round01/nodes/<cell>/`: the cell's `cpu-kh-ken.lisp`, `proposal.md`, its dev `score.json`, the rescore `score.rescored.json`, `heldout.json` where measured) |
 

@@ -1,0 +1,57 @@
+{
+ "2x2 (Kenpachi's share)": {
+  "o-vs-hko": 0.335,
+  "n-vs-hko": 0.8425,
+  "o-vs-hkn": 0.8825,
+  "n-vs-hkn": 0.945
+ },
+ "2x2 (Hisagi's share)": {
+  "o-vs-kho": 0.6625,
+  "n-vs-kho": 0.1175,
+  "o-vs-khn": 0.1575,
+  "n-vs-khn": 0.055
+ },
+ "stand-in": {
+  "hk-o-vs-fz": 0.9,
+  "hk-n-vs-fz": 0.815
+ },
+ "reference: KH_0 (the layer on, no refit) vs HK_old": {
+  "share": 0.915,
+  "vs_old": {
+   "b": 244,
+   "c": 12,
+   "z": 14.5
+  }
+ },
+ "KH new vs old: vs HK_old, vs HK_new": [
+  {
+   "b": 218,
+   "c": 15,
+   "z": 13.3
+  },
+  {
+   "b": 45,
+   "c": 20,
+   "z": 3.1
+  }
+ ],
+ "HK new vs old: vs KH_old, vs KH_new, vs stand-in": [
+  {
+   "b": 21,
+   "c": 239,
+   "z": -13.52
+  },
+  {
+   "b": 19,
+   "c": 60,
+   "z": -4.61
+  },
+  {
+   "b": 29,
+   "c": 63,
+   "z": -3.54
+  }
+ ],
+ "KH swaps": true,
+ "HK swaps": false
+}

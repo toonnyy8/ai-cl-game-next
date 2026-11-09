@@ -1,0 +1,1 @@
+{"char": "kenpachi", "vs": "hisagi", "vs_strat": ["docs/research/strategy-drsi/fq/switch/corefit/hk-r1.lisp"], "table": "docs/research/strategy-drsi/fq/switch/khevent/kh-t2.lisp", "table_share": 0.815, "inc_share": 0.815, "b": 0, "c": 0, "held": [113, 9961, 2549, 2338, 464, 12708, 77571, 1675], "chunks_identical": 8, "chunks_differing": 0, "lines": 6306}

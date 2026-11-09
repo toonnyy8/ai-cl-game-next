@@ -5,7 +5,8 @@
 ;;;; drives him. Output: run.lisp's lines, plus "strat P1 <id>" / "strat P2 <id>" once per match.
 ;;;; A composite (:SWITCH ((OWN . STRATEGY) ...) [:ELSE S], strategy.lisp, DUEL_AI_STRATEGY §8.7) keeps the character's style CPU (the runtime itself
 ;;;; stops it while a sub is active) and prints once per match and side "switch P<n> <id> judged <J> held <h1> <h2> ...", h_i = the judgements
-;;;; entry i won (the rest of J went to :ELSE / none), when the next match starts and at the end.
+;;;; entry i won (the rest of J went to :ELSE / none), when the next match starts and at the end. A Q selector with :EVENT-ARMS also prints
+;;;; "event P<n> <id> fires <takeovers> steps <steps under the layer> ticks <match ticks>" (§8.19 round 5, step 6).
 ;;;; A Q selector (:FQ, strategy.lisp) is kept like a composite (its "switch" line's h_i = the judgements arm i won); STRAT_FQLOG logs its
 ;;;; judgements for training (below); STRAT_FQLEARN runs the online fuzzy Q learner against a player proxy (below).
 ;;;; STRAT_LAYER=<character>[,<character>] (or "t"): those CPUs under the strategy layer (*STRAT-LAYER*, DUEL_AI_STRATEGY §5, §8.4); its
@@ -46,10 +47,14 @@
                   d (/ d (max 0.5 rj)) (fighter-form f) (fighter-form fo) (mc-full-health e) (mc-full-health o)))))))
 ;;; per side, (id n won-copy) of the last step's composite counters (the brains die with their match)
 (defvar *sr-sw* (list nil nil))
+(defvar *sr-evout* (list nil nil) "Per side, the steps each table arm held outside the event layer this match (a vector, made at the first).")
 (defun sr-sw-flush ()
   (loop for side from 0 for r in *sr-sw*
-        when r do (format t "switch P~d ~a judged ~d held~{ ~d~}~%" (1+ side) (first r) (second r) (third r)))
-  (setf *sr-sw* (list nil nil)))
+        when r do (format t "switch P~d ~a judged ~d held~{ ~d~}~%" (1+ side) (first r) (second r) (third r))
+        when (and r (fourth r)) do (format t "event P~d ~a fires ~d steps ~d ticks ~d out~{ ~d~}~%" (1+ side) (first r) (first (fourth r))
+                                           (second (fourth r)) (third (fourth r)) (coerce (nth side *sr-evout*) 'list)))
+  (setf *sr-sw* (list nil nil) *sr-evout* (list nil nil)))   ; (the event layer, §8.19 round 5 step 6: takeovers, steps under it, match
+                                                            ;  ticks, and the steps each arm of the table held outside the layer)
 (defun sr-sw-note ()
   (do-sides (e)
     (let ((b (brain e)))
@@ -57,7 +62,13 @@
         (setf (nth (fighter-side (fighter e)) *sr-sw*)
               (list (getf (brain-strat b) :id) (brain-sw-n b)
                     (loop for i below (length (or (getf (brain-strat b) :switch) (getf (getf (brain-strat b) :fq) :arms)))
-                          collect (if (brain-sw-won b) (svref (brain-sw-won b) i) 0))))))))
+                          collect (if (brain-sw-won b) (svref (brain-sw-won b) i) 0))
+                    (and (getf (getf (brain-strat b) :fq) :event-arms) (list (brain-ev-n b) (brain-ev-steps b) *match-tick*))))
+        (let ((arms (getf (getf (brain-strat b) :fq) :arms)) (side (fighter-side (fighter e))))
+          (when (and (getf (getf (brain-strat b) :fq) :event-arms) (not (brain-ev-on b)))
+            (let ((v (or (nth side *sr-evout*) (setf (nth side *sr-evout*) (make-array (length arms) :initial-element 0))))
+                  (i (position (brain-sw-sub b) arms)))
+              (when i (incf (aref v i))))))))))
 ;;; STRAT_FQLOG="<salt> <eps> [<seat 1|2>]": the Q selector's training log (with a seat, only that seat's CPU logs and explores; any other
 ;;; Q selector, e.g. a frozen opponent, judges as usual) (DUEL_AI_STRATEGY §8.12, docs/research/strategy-drsi/fq/). On each judgement of a
 ;;; :FQ strategy outside rollouts, with chance EPS the other arm (two arms) instead of the table's: drawn from a hash of (match seed, tick,

@@ -1837,6 +1837,85 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     others, no process-global hash), measure it again under the keep rule, and add it as a second KH arm if it passes. The three-rule
     bundle is not admitted (one job per arm).
 
+**Round 5, step 6: the bait as an event layer; the stand-off breaker; KH / HK refit (2026-11-10).** Files: `fq/switch/khevent/`,
+`khfn/standoff.sh`, `khfn/standoff.jsonl`.
+- **The event layer** (§10 "The event layer"): `:event-arms ((:knockdown :a-ken-kh))` on a Q table.
+  - From Hisagi's perceived knockdown (launched, down, waking up) through the brain's delay + 4 frames after, the bait plays the step whatever
+    arm the table holds. Then the table's pick resumes.
+  - The bait keeps its state in the brain slot `ev-style`. The table's judgement and learner run underneath, crediting the arm they hold.
+  - Code: strategy.lisp `strat-event-arm` (pure) and the `:event-arms` expansion; core-ai.lisp `strat-event-step`, `strat-event-call`;
+    brain slots `ev-t ev-on ev-style ev-n ev-steps`.
+  - strat-run.lisp prints its `event` line, and sw.py keeps it and takes `--event` for the tables it writes. No other table has the key.
+- **The stand-off breaker, rewritten** (`ken-kh-standoff-style`, style unit `:st-ken-kh-standoff`, arm `:a-ken-kh-standoff`): its clock is
+  a `kso` struct in `brain-style`, including his KI code's `kks`, with no global hash. The slots are prefixed `so-` because `kks` has its
+  own `at`.
+  - It plays exactly as the cell did: search 0.6686, held-out 0.638 (live 0.4005), the same numbers to the digit.
+  - The keep rule passes: 0.638 ≥ 0.4586, live 0.40 ≥ 0.1716. Its distance is 0.158 from his KI code, 0.36 from Ichigo's and 0.20 from the
+    bait. **Kept**, as KH's arm 7.
+- **KH and HK optimised together** (`khevent/start.sh`, `run.sh`):
+  - KH starts from `:qks3-hisagi` + the stand-off arm with the layer on. Without the layer the start is proved = the live lookup (0.30 =
+    0.30, 8 of 8 chunks).
+  - HK starts from `:qhs-ken`. Step 3's method and rule, as in steps 4-5.
+  - **Selection** (801-1000):
+    - KH_1 0.697 (0.693 against HK_0, 0.70 against HK_1); **KH_2 0.907** (0.875, 0.938).
+    - **HK_1 0.432** (0.165, 0.29, 0.84 against the stand-in); HK_2 0.425 (0.075, 0.26, 0.94).
+  - **Held-out** (601-800, 400 matches a cell; KH_old = the live `:qks3-hisagi`, no layer):
+
+| 2×2, Kenpachi's share | HK_old (`:qhs-ken`) | HK_new (HK_1) |
+|---|---|---|
+| KH_old | 0.335 | 0.883 |
+| KH_new (KH_2, layer on) | **0.843** | 0.945 |
+
+| 2×2, Hisagi's share | KH_old | KH_new |
+|---|---|---|
+| HK_old | 0.663 | 0.158 |
+| HK_new | 0.118 | 0.055 |
+
+| New vs old (b / c, z) | against the old opponent | against the new opponent | against the stand-in | verdict |
+|---|---|---|---|---|
+| KH | 218 / 15, 13.3 | 45 / 20, 3.1 | (none) | **swap** |
+| HK | 21 / 239, -13.52 | 19 / 60, -4.61 | 29 / 63, -3.54 (0.815 vs 0.90) | keep |
+
+  - **The reference** (the layer on over `:qks3-hisagi` + the stand-off arm, no refit = KH_0) against HK_old: **0.915** (against KH_old
+    244 / 12, z 14.5).
+    - **KH_2 loses to it** against the live HK: 0.843 vs 0.915, b / c 29 / 58, z -3.11.
+    - The refit chased Hisagi's iterates (KH_2 0.938 against HK_1 on selection). The rule's candidates are the iterates 1-2, so KH_0 was
+      not one.
+  - **KH → `:qks4-hisagi`** (`khevent/kh-t2.lisp`). Arms: `:qks3-hisagi`'s + `:a-ken-kh-standoff`, with `:event-arms ((:knockdown
+    :a-ken-kh))`. Its checksum is new, so the saved copies start fresh.
+  - HK stays `:qhs-ken`: its refit loses on all three counts again.
+  - **The layer at work** (against the live HK, 601-800, 400 matches; `khevent/events.json`):
+
+| | takeovers a match | the layer's share of match time | the table's arms outside the layer (NIL, KI, press, kite, zoner, Ichigo's KI, the bait, stand-off) |
+|---|---|---|---|
+| KH_2 `:qks4-hisagi` | 11.1 | 0.057 | 0.021, 0.086, 0.019, 0.033, 0.012, 0.133, **0.679**, 0.017 |
+| KH_0 (the reference) | 6.8 | 0.034 | 0.028, **0.607**, **0.238**, 0.011, 0.002, 0.080, 0.034, 0 |
+
+    - KH_2 also holds the bait as a table arm 0.68 of the time outside the layer, so it plays the bait code almost everywhere. KH_0 keeps
+      his KI code and press between knockdowns.
+    - The stand-off arm is rarely held: 0.017 in KH_2, never in KH_0.
+- **After step 6.**
+  - The lookup changes only KH, to `:qks4-hisagi`. `:qks3-hisagi` stays as superseded, and the library holds 36 entries.
+  - **Proof** (`khevent/proofs-600.jsonl`): `khevent/kh-t2.lisp` run raw = the live lookup against `:qhs-ken`, 0.815 = 0.815, 8 of 8 chunks
+    (6,306 lines).
+  - **Both seats on the lookup** (seeds 601-700, the row's share; `khevent/live9-600.jsonl`). Only KH / HK moved: **Kenpachi vs Hisagi
+    0.815** (0.30 after step 5) and **Hisagi vs Kenpachi 0.185** (0.695). The other seven are unchanged: HH 0.375, HI 0.575, KK 0.485,
+    KI 0.555, IH 0.405, IK 0.445, II 0.025.
+  - **Each live table against its stand-in** (`ev/j6f-frozen-*`): HI 0.87, HK 0.89, KI 0.865, IK 0.805, unchanged.
+  - **Rollout safety:**
+    - `tools/simgate/fulltest.lisp` on a KH HARD match finds no full-sim job (0 checks): every arm's style decides each free step, so the
+      in-game full sim never starts one there.
+    - So `khevent/snap.sh` runs `tools/simgate/snaptest.lisp` instead: a KH match (seeds 601-604) played straight, and with a rollout every
+      ~40 ticks (snapshot, reseeded play, restore).
+    - Result: 1,839 rollouts (163,622 steps). The two outputs are identical but for the timing / consing lines; every hash line and gate
+      row matches.
+  - Host tests 10132 ALL PASS, with new checks:
+    - the window fires on a knockdown, holds through the wake-up + delay + 4, then hands back;
+    - it does nothing without the key, and forgets an earlier match's tick;
+    - `:event-arms` expands;
+    - the stand-off unit and arm exist; KH's table has the layer and the stand-off arm, and it is the only table with a layer.
+  - G2 identical (II 32, IK 34, KK 33).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
@@ -1868,6 +1947,17 @@ The runtime sees exactly the plists it saw before, so nothing downstream changed
 - **A Q table** holds only `:arms` (arm ids; NIL = no strategy, the shipped CPU with its matchup style CPU), `:rule-base`, `:q` (a list of q
   per arm, one per antecedent) and its keys (`:xfeats :period :gamma :scale :keep-state ...`). A composite's `:switch` subs and `:else`
   may name arm ids.
+- **The event layer** (§8.19 round 5, step 6; the user: 「做成倒地時觸發的事件層」): a Q table may name `:event-arms ((:knockdown ARM))`, where ARM
+  is an arm id or plist, expanded like `:arms`. It is off when the key is absent, which holds for every table before step 6.
+  - While the opponent is perceived launched, down or waking up, and for the brain's perception delay + `*strat-event-grace*` (4) frames
+    after, ARM plays the step whatever arm the table holds. Then the table's pick plays again (strategy.lisp `strat-event-arm`, core-ai.lisp
+    `strat-event-step`).
+  - ARM's style state lives in the brain slot `ev-style`, swapped into `style` only while it plays. So the table's style state is untouched,
+    and a sim snapshot saves both.
+  - The table keeps judging underneath, and its online learner keeps running. A judgement made during a takeover credits the arm the table
+    holds. The layer is part of every arm's world: the table learns each arm's value with the layer on, the same world its offline refit
+    sees. This is the simpler choice, and it is correct for a layer that fires for every arm alike.
+  - `tools/simgate/strat-run.lisp` prints `event P<n> <id> fires F steps S ticks T out <steps per arm outside the layer>` once a match.
 - **A plain strategy** may name `:style` and `:data`. For example s3-zoner is `:d-zoner` + `:d-zoner-extra`: its zoning plus its red Kikon and
   priors, while the tables' zoner arms take only `:d-zoner`. s7-kite is `:d-kite` + `:d-red-kikon`. h1-range is `:st-hisagi-range` +
   `:d-dswitch` + `:d-no-far-ns`.

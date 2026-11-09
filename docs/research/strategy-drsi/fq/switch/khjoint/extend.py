@@ -15,6 +15,7 @@ ap = argparse.ArgumentParser()
 for k in ('--me', '--vs', '--arms', '--table', '--new-arms', '--out'):
     ap.add_argument(k, required=True)
 ap.add_argument('--period', type=int, default=30)
+ap.add_argument('--event', help='an arm plist: the written table\'s :KNOCKDOWN event layer (:EVENT-ARMS, §8.19 round 5 step 6)')
 a = ap.parse_args()
 a.opp = 'none'
 sw.configure(a)

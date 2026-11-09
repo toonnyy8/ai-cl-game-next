@@ -38,13 +38,15 @@ import fq                                    # noqa: E402
 HARD = 2
 LOGS = os.path.join(HERE, 'logs')
 ME = VS = MEN = VSN = OPP = NA = None          # (the pairing, the opponent seat's STRAT_ value, the arm count: CONFIGURE)
+EVENT = None                                     # (--event: the :KNOCKDOWN event arm's plist every written table carries, §8.19 step 6)
 ARMS = []
 
 
 def configure(a):
     """Set the pairing from the common options: --me / --vs (names), --opp (a file, `none` or a comma pool, relative to this directory or
     absolute), --arms (an arms file here: one arm plist a line, in arm order, ;-lines comments)."""
-    global ME, VS, MEN, VSN, OPP, NA, ARMS
+    global ME, VS, MEN, VSN, OPP, NA, ARMS, EVENT
+    EVENT = getattr(a, 'event', None)
     MEN, VSN = a.me, a.vs
     ME, VS = fq.ROSTER[a.me], fq.ROSTER[a.vs]
     OPP = ','.join(x if x == 'none' else os.path.abspath(os.path.join(HERE, x)) for x in a.opp.split(','))
@@ -85,6 +87,8 @@ def arms_text():
 
 def write_table(path, sid, q, note, period=None, gamma=None, scale=None, keep=False):
     keys = f':groups ({" ".join(map(str, GROUPS))}) :xfeats t' + (' :keep-state t' if keep else '')
+    if EVENT:
+        keys += f' :event-arms ((:knockdown {EVENT}))'
     if period:
         keys += f' :period {period}'
     if gamma is not None:
@@ -138,7 +142,7 @@ def run(args):
     cmds = [30000 + seed0, 31100 + n, 81000, 81020 + HARD, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
     r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/strat-run.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
                        capture_output=True, text=True, env=env, timeout=7200)
-    keep = [l for l in r.stdout.splitlines() if l.startswith(('fq ', 'fqend ', 'duel gate row ', 'hrange ', 'dswitch ', 'switch '))]
+    keep = [l for l in r.stdout.splitlines() if l.startswith(('fq ', 'fqend ', 'duel gate row ', 'hrange ', 'dswitch ', 'switch ', 'event '))]
     rows = sum(l.startswith('duel gate row ') for l in keep)
     if r.returncode or rows != n:
         sys.exit(f'sw.py: sim exited {r.returncode}, {rows} of {n} rows ({path})\n' + (r.stdout + r.stderr)[-2000:])
@@ -391,6 +395,7 @@ def main():
     com.add_argument('--me', default='hisagi', choices=list(fq.ROSTER)); com.add_argument('--vs', default='ichigo', choices=list(fq.ROSTER))
     com.add_argument('--opp', default='../../counter/frozen/ki-ichigo.lisp', help='the opponent seat: a file, none, or a comma pool')
     com.add_argument('--arms', default='arms/hi-pilot.arms', help='the arms file (one plist a line, in arm order)')
+    com.add_argument('--event', help='an arm plist: every table written carries it as its :KNOCKDOWN event layer (:EVENT-ARMS, §8.19 round 5 step 6)')
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest='cmd', required=True)
     p = sub.add_parser('start', parents=[com]); p.add_argument('--period', type=int); p.add_argument('--out', required=True)

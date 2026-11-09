@@ -254,6 +254,30 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
           (when (>= i 0) (incf (svref won i)))))))
   (brain-sw-sub b))
 
+;;; The event layer (DUEL_AI_STRATEGY §8.19 round 5, step 6; §10's :EVENT-ARMS; the user, 2026-11-10: 「做成倒地時觸發的事件層」). A Q selector
+;;; may name (:EVENT-ARMS ((:KNOCKDOWN ARM) ...)): while the opponent is perceived down (launched, down, waking up) and for the brain's
+;;; perception delay + *STRAT-EVENT-GRACE* frames after (his first free frames are not in the SNAP yet), ARM plays the step whatever arm the
+;;; table holds; then the table's pick plays again. The table keeps judging underneath (STRAT-SWITCH-STEP and its online learner run as
+;;; before, so a judgement during a takeover credits the arm it holds: the layer is part of every arm's world). ARM's style keeps its own
+;;; state in BRAIN-EV-STYLE, swapped into BRAIN-STYLE only while it plays, so the table's style state is untouched. No random draw; off
+;;; when the key is absent (every table before this step). The window itself is strategy.lisp STRAT-EVENT-ARM (pure, host-tested).
+(defun strat-event-step (b s sw)
+  "The event arm that plays this step for brain B under the Q selector SW (its :EVENT-ARMS, STRAT-EVENT-ARM), else NIL; counts the takeovers
+outside rollouts."
+  (multiple-value-bind (on last) (strat-event-arm (getf sw :fq) (snap-state s) *match-tick* (brain-ev-t b) (brain-delay b))
+    (setf (brain-ev-t b) last)
+    (unless *in-rollout*
+      (when (and on (not (brain-ev-on b))) (incf (brain-ev-n b)))
+      (when on (incf (brain-ev-steps b))))
+    (setf (brain-ev-on b) on)))
+(defun strat-event-call (fn e b f kit s d)
+  "Run the event arm's style FN with its own state in BRAIN-STYLE (BRAIN-EV-STYLE), then put the table's back."
+  (let ((mine (brain-style b)))
+    (setf (brain-style b) (brain-ev-style b))
+    (let ((r (funcall fn e b f kit s d)))
+      (setf (brain-ev-style b) (brain-style b) (brain-style b) mine)
+      r)))
+
 (defun core-brain-step (e b)
   "One step of the core CPU: perceive, then hold the press in progress, or decide for the state he is in."
   (let* ((f (fighter e)) (vp (pilot-vpad (pilot e))) (o (fighter-opp f)) (kit (fighter-kit f)))
@@ -266,7 +290,8 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
                          (and (not (getf sw :fq))     ; (a Q selector's NIL arm = no strategy at all, its style CPU included: never the lookup, which may be the table itself, DUEL_AI_STRATEGY §8.18)
                               (strat-lookup (fighter-character f) (fighter-character (fighter o)) (brain-difficulty b))))
                      (brain-strat b)))
-            (*strat-now* (and cur (cons cur (strat-feats e f s d)))))   ; (its strategy, DUEL_AI_STRATEGY)
+            (ev (and sw (getf sw :fq) (strat-event-step b s sw)))       ; (the event layer: its arm over the table's pick)
+            (*strat-now* (let ((st (or ev cur))) (and st (cons st (strat-feats e f s d))))))   ; (its strategy, DUEL_AI_STRATEGY)
       (vpad-stick! vp 0f0 0f0)
       (ai-event-rolls b s)
       (if (and (member (fighter-state f) '(:stun :air)) (>= (fighter-combo-hits f) *burst-min-hits*))
@@ -280,9 +305,9 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
       (unless (or (brain-off b) (> (fighter-lock f) 0) (eq (fighter-state f) :cine))
         (cond ((> (brain-press-left b) 0) (decf (brain-press-left b)))
               ((let ((fn (and *strat-now* (getf (car *strat-now*) :fn))))      ; a strategy's own tactics first (DUEL_AI_STRATEGY §9)
-                 (and fn (funcall fn e b f kit s d))))
+                 (and fn (if ev (strat-event-call fn e b f kit s d) (funcall fn e b f kit s d)))))
               ((mc-neutral e b f kit s d))                                     ; free: the in-game MCTS (cpu-mcts.lisp, DUEL_AI_TEACHER §9)
-              ((let ((st (and (not (strat-layer-p f)) (not cur) (cai-style-fn f)))) (and st (funcall st e b f kit s d))))   ; a matchup style decided (DUEL_MATCHUP_AI; under the strategy layer only as its strategy; not while a strategy is active: a composite's sub, the lookup's)
+              ((let ((st (and (not (strat-layer-p f)) (not cur) (not ev) (cai-style-fn f)))) (and st (funcall st e b f kit s d))))   ; a matchup style decided (DUEL_MATCHUP_AI; under the strategy layer only as its strategy; not while a strategy is active: a composite's sub, the lookup's)
               (t (case (fighter-state f)
                    ((:idle :run) (cai-neutral e b f kit s d))
                    (:move (cai-move-step e b f kit s))
