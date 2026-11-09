@@ -1825,6 +1825,18 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - Host tests 10116 ALL PASS. The new check reads `cpu-kh-ken.lisp`: only definitions, the :fn contract's six arguments, and chances
     rising EASY ≤ NORMAL ≤ HARD. The arm and style units are checked too. G2 identical (II 32, IK 34, KK 33).
 
+- **Decisions on round 5, step 5 (the user, 2026-11-10):**
+  - The wake-up bait: 「做成倒地時觸發的事件層」.
+    - It becomes an event layer above the table. Whenever Hisagi is knocked down, the bait takes over until his wake-up is over, whatever
+      arm the table holds. Then the table's pick resumes.
+    - The table keeps switching its other arms as before and is refit with the layer on (KH and HK simultaneously, step 3's rule).
+    - The layer is off by default; a table turns it on by a key.
+  - Hisagi's wake-up Hoho habit (Hoho on his first free frame within 2.4 m): 「先不動」. Hisagi's CPU is not changed. The bait's exploit is
+    recorded as a known limit: there is no Hisagi stand-in to test it against human-like play.
+  - The stand-off breaker (b2_a1): 「重寫僵局破解，當第二個選項」. Rewrite its state rollout-safe (in the brain, snapshotted like the
+    others, no process-global hash), measure it again under the keep rule, and add it as a second KH arm if it passes. The three-rule
+    bundle is not admitted (one job per arm).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
