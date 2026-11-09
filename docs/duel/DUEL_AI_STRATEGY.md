@@ -1553,6 +1553,18 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - KH 0.14: 「新選項＋兩邊同時優化」. First a dream-rsi search for a Kenpachi arm targeted at Hisagi, then KH and HK optimised simultaneously in
     the same way. HK still must not lose to its stand-in (Kenpachi's KI style CPU); KH has none (Hisagi has no style CPU).
 
+- **How to search for strategies from now on (the user, 2026-11-09):** 「請再找策略的時候用全局性的觀點同時思考兩邊的策略，並將具有「高內聚，低耦合」特性的策略保留下來」.
+  - **Global, both sides at once.** A strategy (arm) search for a pairing runs over both characters' arms together, judged in the joint game.
+    It does not look for a counter to one fixed opponent table. Each candidate is scored against the other side's whole pool of plausible
+    replies: its live table, past iterates, new candidate arms and its frozen stand-in where one exists.
+  - **Keep only high-cohesion, low-coupling strategies.**
+    - A kept arm does one recognisable job: one style unit plus data units that all serve one plan.
+    - It is built from existing §10 units where it can, adding at most a small new unit.
+    - It earns its place across the pool, not against a single opponent table.
+    - Near-duplicates of an existing arm are merged into it.
+    - Candidates that fail these tests are dropped, not stored as superseded.
+  - Applies to step 4's Kenpachi-vs-Hisagi arm, which becomes a joint KH / HK arm search, and to any later search.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
