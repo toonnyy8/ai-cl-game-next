@@ -1,0 +1,28 @@
+{
+ "char": "kenpachi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "shipped",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 0,
+ "comp_matches": 200,
+ "inc_wins": 94,
+ "inc_matches": 200,
+ "comp_share": 0.0,
+ "inc_share": 0.47,
+ "gain": -0.47,
+ "b": 0,
+ "c": 94,
+ "z": -9.695,
+ "own_share": 0.0,
+ "wall_s": 16.1,
+ "score": 0.005,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/switch/arms/ship-qh-ken.lisp"
+ ]
+}

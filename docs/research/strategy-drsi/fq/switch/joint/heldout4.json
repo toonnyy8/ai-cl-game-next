@@ -1,0 +1,56 @@
+{
+ "2x2 (Kenpachi's share)": {
+  "o-vs-iko": 0.5475,
+  "n-vs-iko": 0.5825,
+  "o-vs-ikn": 0.5575,
+  "n-vs-ikn": 0.69
+ },
+ "2x2 (Ichigo's share)": {
+  "o-vs-kio": 0.4525,
+  "n-vs-kio": 0.4425,
+  "o-vs-kin": 0.4175,
+  "n-vs-kin": 0.3075
+ },
+ "stand-in": {
+  "ki-o-vs-fz": 0.875,
+  "ki-n-vs-fz": 0.265,
+  "ik-o-vs-fz": 0.81,
+  "ik-n-vs-fz": 0.7075
+ },
+ "KI new vs old: vs IK_old, vs IK_new, vs stand-in": [
+  {
+   "b": 102,
+   "c": 88,
+   "z": 1.02
+  },
+  {
+   "b": 120,
+   "c": 67,
+   "z": 3.88
+  },
+  {
+   "b": 11,
+   "c": 255,
+   "z": -14.96
+  }
+ ],
+ "IK new vs old: vs KI_old, vs KI_new, vs stand-in": [
+  {
+   "b": 72,
+   "c": 76,
+   "z": -0.33
+  },
+  {
+   "b": 61,
+   "c": 105,
+   "z": -3.42
+  },
+  {
+   "b": 36,
+   "c": 77,
+   "z": -3.86
+  }
+ ],
+ "KI swaps": false,
+ "IK swaps": false
+}

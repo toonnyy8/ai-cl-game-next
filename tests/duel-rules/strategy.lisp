@@ -24,7 +24,7 @@
 
 ;; the strategy layer's pure parts (DUEL_AI_STRATEGY §5, §8.4): arms by :APPLY, seeds from the payoff matrix (B's view 1 - M transposed), PUCT, the pick
 (check (equal '(:s0-generic :s1-brawler :s3-zoner :ki-ken :q1-ken-ichigo :qks-ichigo :qks2-ichigo :qks3-ichigo) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :ichigo))))   ; (+ §8.18's table, as IK's q1; §8.19 round 4's)
-(check (equal '(:s0-generic :s1-brawler :s3-zoner :q1-ken-hisagi :qks-hisagi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
+(check (equal '(:s0-generic :s1-brawler :s3-zoner :q1-ken-hisagi :qks-hisagi :qks2-hisagi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
 (check (~= 0.7 (strat-seed-value :kenpachi :ichigo :ki-ken)))           ; (against her equilibrium column, :ki-ichigo)
 (check (~= 0.3 (strat-seed-value :ichigo :kenpachi :ki-ichigo)))        ; (the column side: 1 - his equilibrium row's cell)
 (check (~= 0.0 (strat-seed-value :ichigo :kenpachi :s0-generic)))       ; (her s0 against his equilibrium row :ki-ken: 1 - 1.0)
@@ -103,7 +103,7 @@
 ;; the Q tables of §8.18: every pairing with Kenpachi or Ichigo as me plays one at HARD, keyed by :apply (the online learner's key); 48 crisp
 ;; rules over two arms; where the incumbent is the shipped CPU (no strategy) arm 0 is NIL (core-ai.lisp: no strategy, never the lookup)
 ;; §8.19 round 4: Kenpachi vs Ichigo / Hisagi play rebuilt tables (6 / 5 arms, arm 0 still NIL: no strategy; 89 rules in 5 groups; 0.5 s)
-(dolist (r '((:kenpachi :ichigo :qks3-ichigo 6) (:kenpachi :hisagi :qks-hisagi 5) (:kenpachi :kenpachi :qks-ken 5)))
+(dolist (r '((:kenpachi :ichigo :qks3-ichigo 6) (:kenpachi :hisagi :qks2-hisagi 6) (:kenpachi :kenpachi :qks-ken 5)))
   (destructuring-bind (me vs id na) r
     (let* ((st (strat-lookup me vs :hard)) (fq (getf st :fq)))
       (check (eq id (getf st :id)))
@@ -112,6 +112,8 @@
       (check (= 89 (length (getf fq :rules)) (reduce #'+ (getf fq :groups))))
       (check (and (eql 30 (getf fq :period)) (getf fq :xfeats) (not (getf fq :keep-state))))
       (check (= (+ 3 (* na 89)) (length (fq-encode fq fq 0)))))))
+;; §8.19 round 5 step 4: Kenpachi vs Hisagi's table gains the joint KH / HK search's arm, Ichigo's KI style code (:a-ichigo-ki), as arm 5
+(check (eq 'ichigo-ki-style (getf (nth 5 (getf (getf (strat-lookup :kenpachi :hisagi :hard) :fq) :arms)) :fn)))
 (dolist (id '(:q1-ken-ichigo :q1-ken-hisagi :q1-ken-ken))              ; (§8.18's three, out of the lookup since §8.19 round 4, kept in the library)
   (let ((fq (getf (find id *strat-library* :key (lambda (st) (getf st :id))) :fq)))
     (check (and (= 2 (length (getf fq :arms))) (= 48 (length (getf fq :rules)))))))

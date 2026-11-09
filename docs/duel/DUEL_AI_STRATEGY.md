@@ -1565,6 +1565,143 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     - Candidates that fail these tests are dropped, not stored as superseded.
   - Applies to step 4's Kenpachi-vs-Hisagi arm, which becomes a joint KH / HK arm search, and to any later search.
 
+**Round 5, step 4: two more KI / IK iterations; the joint KH / HK search (2026-11-09).** Files: `docs/research/strategy-drsi/fq/switch/joint/`
+(`run4.sh`, `step4a.sh`), `docs/research/strategy-drsi/fq/switch/khjoint/`.
+
+*Part A: KI and IK, two more iterations* (「繼續同時優化 2 次」).
+- **The method is step 3's, unchanged:**
+  - The iterations start from the live lookup: KI_2 = `:qks3-ichigo`, and IK = `:q1-ichigo-ken` (logged through its start embedding).
+  - Each pool holds every past iterate of the other side (step 3's included) plus its frozen style CPU. The pool has five members by iteration 4.
+  - The candidate per side is the better of iterates 3 and 4 on seeds 801-1000 against the last pool's members.
+  - The held-out runs use the fixed rule unchanged. "Old" is the live lookup: KI `:qks3-ichigo`, IK `:q1-ichigo-ken`.
+- **Selection** (801-1000, the share against each pool member in order, then the mean):
+  - KI_3: 0.583 against `:q1-ichigo-ken`, 0.713 / 0.65 / 0.647 against IK_1 / IK_2 / IK_3, 0.325 against Ichigo's KI style; mean **0.584**.
+  - KI_4: 0.242, 0.583, 0.583, 0.5, 0.64; mean 0.510.
+  - IK_3: 0.58 against `:qks-ichigo`, 0.56 / 0.438 / 0.35 against KI_1 / KI_2 / KI_3, 0.723 against Kenpachi's KI style; mean **0.530**.
+  - IK_4: 0.242, 0.31, 0.13, 0.578, 0.022; mean 0.256.
+  - So the candidates are KI_3 and IK_3.
+- **Held-out** (601-800 pooled, 400 matches a cell):
+
+| 2×2, Kenpachi's share | IK_old (`:q1-ichigo-ken`) | IK_new (IK_3) |
+|---|---|---|
+| KI_old (`:qks3-ichigo`) | 0.548 | 0.558 |
+| KI_new (KI_3) | 0.583 | 0.69 |
+
+| 2×2, Ichigo's share | KI_old | KI_new |
+|---|---|---|
+| IK_old | 0.453 | 0.418 |
+| IK_new | 0.443 | 0.308 |
+
+| New vs old (b / c, z) | against the old opponent | against the new opponent | against the frozen stand-in | verdict |
+|---|---|---|---|---|
+| KI | 102 / 88, 1.02 | 120 / 67, 3.88 | 11 / 255, -14.96 (0.265 vs 0.875) | keep |
+| IK | 72 / 76, -0.33 | 61 / 105, -3.42 | 36 / 77, -3.86 (0.708 vs 0.81) | keep |
+
+- **Neither side swaps.** KI stays `:qks3-ichigo` and IK stays `:q1-ichigo-ken`, so their checksums and saved copies are unchanged.
+  - The iterates now chase each other. KI_3 beats Ichigo's iterates but collapses against her KI style (0.325 on selection, 0.265 held out).
+  - IK_4 loses almost everywhere (mean 0.256), worst against Kenpachi's KI style (0.022).
+  - The stand-in clause is what stops KI_3. Against `:q1-ichigo-ken` alone it is a tie (z 1.02).
+
+*Part B: Kenpachi vs Hisagi, both sides at once* (「新選項＋兩邊同時優化」, under the search rule above).
+- **1. The joint arm search** (`khjoint/cands.py`, `matrix.py`, `matrix.json`).
+  - **Candidates:** every arm the §10 units build for each side, played whole, no new code. The data-only keys a KI style reads are `:range`
+    and the DRIVE switch (§8.8), so each candidate is one style + data units.
+    - Kenpachi, 11: the shipped CPU; his KI style alone and with the brawler / kite / zoner data; Ichigo's KI style the same four ways; each
+      KI style + `:dswitch 1.0`.
+    - Hisagi, 11: the five HK arms (merged, Kenpachi's KI style, press, the DRIVE switch, kite); merged + switch + press; Ichigo's KI style
+      alone and + switch; the ranged-mode style; Kenpachi's KI style + the kite's data, and + the switch.
+  - **Each scored in the joint game against the other side's whole pool** (seeds 1-100, both seats, 200 matches a cell; 169 cells, plus
+    Hisagi's 11 against the stand-in).
+    - Kenpachi's pool: Hisagi's live `:qhs-ken`, his past `:qh-ken`, and Hisagi's 11 new candidates.
+    - Hisagi's pool: Kenpachi's live `:qks-hisagi`, his past `:q1-ken-hisagi`, the stand-in (Kenpachi's KI style CPU), and Kenpachi's 11
+      new candidates.
+    - "pool" = the mean of the live table, the past table and the candidates' mean (+ the stand-in for Hisagi).
+    - Hisagi's share in a cell is 1 - Kenpachi's. Draws are 0-3 in 200, so this is off by at most about 0.015.
+  - **The method:** a one-round enumeration of these 22 unit combinations, not dream-rsi subagent cells. Under a KI `:fn` only `:range` and
+    `:dswitch` act, so a cell could do little but pick among these combinations.
+
+| Arm (whole) | pool | vs live | vs past | vs the candidates | stand-in |
+|---|---|---|---|---|---|
+| Kenpachi: live `:qks-hisagi` (reference) | 0.417 | 0.095 | 0.47 | 0.685 | - |
+| Kenpachi: his KI style (`:a-ken-ki`, in the table) | 0.341 | 0.105 | 0.245 | 0.673 | - |
+| Kenpachi: Ichigo's KI style (`:a-ichigo-ki`) | 0.304 | **0.205** | 0.31 | 0.396 | - |
+| Kenpachi: Ichigo's KI style + brawler (`:a-ichigo-press`) | 0.300 | 0.24 | 0.28 | 0.381 | - |
+| Kenpachi: Ichigo's KI style + switch | 0.297 | 0.175 | 0.32 | 0.397 | - |
+| Kenpachi: best other (his zoner, in the table) | 0.306 | 0.005 | 0.39 | 0.524 | - |
+| Hisagi: live `:qhs-ken` (reference) | 0.898 | 0.905 | 0.895 | 0.895 | - |
+| Hisagi: Kenpachi's KI style + kite (`:a-ken-kite`) | **0.686** | 0.755 | 0.585 | 0.717 | 0.685 |
+| Hisagi: press (in the table) | 0.593 | 0.55 | 0.47 | 0.767 | 0.585 |
+| Hisagi: Kenpachi's KI style (in the table) | 0.408 | 0.40 | 0.34 | 0.561 | 0.33 |
+| Hisagi: Ichigo's KI style; the ranged style | 0.167; 0.012 | 0.0; 0.0 | 0.13; 0.01 | 0.537; 0.036 | 0.0; 0.0 |
+
+  - **One arm a side went into the fit.** Both are existing units, so no new unit is needed.
+    - Kenpachi: `:a-ichigo-ki` = `:st-ichigo-ki` alone. It is the best whole arm against Hisagi's live table: 0.205 against his best in-table
+      arm's 0.105. Against the past table it also beats his KI style (0.31 vs 0.245).
+      - Its two variants are near-duplicates and merge into it: + brawler (0.24 / 0.28 / 0.381) and + switch (0.175 / 0.32 / 0.397), all
+        within noise of it on every pool member.
+    - Hisagi: `:a-ken-kite` = `:st-ken-ki` + `:d-kite`. It is the best whole arm across Kenpachi's pool (0.686), beating his best in-table
+      arm, press (0.593), on the live table, the past table and the stand-in.
+      - Its nearest existing arms: the same style without the kite's range (0.408), and the kite with the merged style (0.544).
+  - **Dropped:** the rest, including the near-duplicates above.
+    - Each KI style + switch matches the style alone: Kenpachi 0.334 vs 0.341, Hisagi 0.399 vs 0.408.
+    - Ichigo's KI style on Hisagi and the ranged-mode style win nothing against Kenpachi's tables.
+- **2. KH and HK optimised together** (`khjoint/start.sh`, `iterate.sh`, `run.sh`).
+  - Each live table gets its kept arm appended as arm 5 (`extend.py`: the new arm 1 below every row's minimum).
+  - **Proved** = the live lookup (`identity-t0-600.jsonl`, 8 of 8 chunks): KH 0.14, HK 0.86.
+  - Then step 3's method: two iterations, 2 salts x 1-599 x both seats a side. The pools:
+    - KH's: Hisagi's past iterates (no stand-in: Hisagi has no style CPU);
+    - HK's: Kenpachi's past iterates + his KI style CPU.
+  - The same fixed rule; for KH only the two z ≥ 1.96 wins.
+  - **Selection** (801-1000):
+    - KH_1 0.311 (0.10 against HK_0, 0.522 against HK_1); **KH_2 0.508** (0.295, 0.72).
+    - HK_1 0.439 (0.46, 0.468, 0.39 against the stand-in); **HK_2 0.543** (0.60, 0.50, 0.53).
+  - **Held-out** (601-800, 400 matches a cell):
+
+| 2×2, Kenpachi's share | HK_old (`:qhs-ken`) | HK_new (HK_2) |
+|---|---|---|
+| KH_old (`:qks-hisagi`) | 0.108 | 0.473 |
+| KH_new (KH_2) | **0.21** | 0.74 |
+
+| 2×2, Hisagi's share | KH_old | KH_new |
+|---|---|---|
+| HK_old | 0.89 | 0.788 |
+| HK_new | 0.508 | 0.245 |
+
+| New vs old (b / c, z) | against the old opponent | against the new opponent | against the stand-in | verdict |
+|---|---|---|---|---|
+| KH | 75 / 34, 3.93 | 153 / 46, 7.59 | (none) | **swap** |
+| HK | 24 / 177, -10.79 | 24 / 241, -13.33 | 15 / 212, -13.08 (0.408 vs 0.90) | keep |
+
+  - **KH → `:qks2-hisagi`** (`khjoint/kh-t2.lisp`; arms NIL, `:a-ken-ki`, `:a-ken-press`, `:a-ken-kite`, `:a-ken-zoner`, `:a-ichigo-ki`).
+    - Held out against `:qhs-ken`, Ichigo's KI style takes 0.25 of the judgements. It plays on 0.95 of the judgements in his base form and on
+      none in the released form. In the released form the arms are press 0.54, his KI style 0.34 and kite 0.11.
+    - About 263 arm changes a match (the old table: about 132).
+    - Clause 2 was passed against HK_2, which collapses against everything, so it is weak evidence. The support is clause 1 (0.21 vs 0.108
+      against the live `:qhs-ken`) and the 3×3 below.
+    - Its checksum is new, so the saved Kenpachi vs Hisagi copies start fresh.
+    - The new arm is **kept**: one job (Ichigo's KI code while Kenpachi is sealed). It does not top the pool mean (0.304 against
+      `:a-ken-ki`'s 0.341), because Hisagi's whole candidate arms beat it. It earns its place as the best arm against Hisagi's live table
+      (it also beats his KI style against the past one), and through the table test.
+  - **HK stays `:qhs-ken`.** Its refit with `:a-ken-kite` lost on all three counts, so under the rule the arm is **dropped**. Nothing is
+    stored, and the unit stays as Kenpachi's.
+    - The whole-arm matrix favoured the arm. The failure is the refit's: HK_2 collapses against everything.
+
+*After step 4.*
+- **The lookup:** only KH changes, to `:qks2-hisagi`. `:qks-hisagi` stays in the library as superseded, and the library holds 34 entries.
+- **Proof** (`khjoint/proofs-600.jsonl`): `khjoint/kh-t2.lisp` run raw = the live lookup against `:qhs-ken`, 0.25 = 0.25, 8 of 8 chunks
+  (6,449 lines).
+- **Both seats on the lookup** (seeds 601-700, the row's share; `khjoint/live9-600.jsonl`; after step 3 in brackets):
+
+| me \ vs | Hisagi | Kenpachi | Ichigo |
+|---|---|---|---|
+| Hisagi | 0.375 (0.375) | **0.745** (0.86) | 0.575 (0.575) |
+| Kenpachi | **0.25** (0.14) | 0.485 (0.485) | 0.555 (0.555) |
+| Ichigo | 0.405 (0.405) | 0.445 (0.445) | 0.025 (0.025) |
+
+- **Each live table against its frozen stand-in** (seeds 601-700, `ev/j4f-frozen-*`): HI `:qhs3-ichigo` 0.87, HK `:qhs-ken` 0.89, KI
+  `:qks3-ichigo` 0.865, IK `:q1-ichigo-ken` 0.805. None of the four tables changed, so the numbers equal step 3's.
+- Host tests 10107 ALL PASS; G2 identical (II 32, IK 34, KK 33).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

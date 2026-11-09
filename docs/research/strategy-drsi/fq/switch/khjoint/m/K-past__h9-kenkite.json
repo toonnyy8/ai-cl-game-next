@@ -1,0 +1,31 @@
+{
+ "char": "kenpachi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "kh-fit",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 83,
+ "comp_matches": 200,
+ "inc_wins": 49,
+ "inc_matches": 200,
+ "comp_share": 0.415,
+ "inc_share": 0.245,
+ "gain": 0.17,
+ "b": 51,
+ "c": 17,
+ "z": 4.123,
+ "own_share": 1.0,
+ "wall_s": 5.8,
+ "score": 0.415,
+ "capped": false,
+ "judged": 38098,
+ "held": [
+  980,
+  37118
+ ],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/switch/khjoint/h/h9-kenkite.lisp"
+ ]
+}

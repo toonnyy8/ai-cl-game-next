@@ -1,0 +1,34 @@
+{
+ "char": "kenpachi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "qks-hisagi",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 19,
+ "comp_matches": 200,
+ "inc_wins": 19,
+ "inc_matches": 200,
+ "comp_share": 0.095,
+ "inc_share": 0.095,
+ "gain": 0.0,
+ "b": 0,
+ "c": 0,
+ "z": 0.0,
+ "own_share": 1.0,
+ "wall_s": 0.1,
+ "score": 0.095,
+ "capped": false,
+ "judged": 111809,
+ "held": [
+  0,
+  45619,
+  19154,
+  46820,
+  216
+ ],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/switch/corefit/hk-r1.lisp"
+ ]
+}
