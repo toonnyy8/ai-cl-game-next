@@ -1,0 +1,140 @@
+{
+  "worlds": [
+    "docs/research/strategy-drsi/khfn/trace_pool/iter01/trace.json"
+  ],
+  "incumbent_sha1": "8a836b9057c4",
+  "ranking": [
+    {
+      "policy": "docs/research/strategy-drsi/khfn/policy/v3_wide.py",
+      "sha1": "6975e4705aff",
+      "pareto": {
+        "auc": 0.4886519581969809,
+        "parallel_penalty": 0.475,
+        "parallelism_weight": 0.05,
+        "reward": 0.4649019581969809,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9473,
+            "n_evaluated": 12,
+            "auc": 0.4886519581969809,
+            "parallel_penalty": 0.475,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 6.0,
+                "attain": 0.9319117491818854
+              },
+              {
+                "beta": 1.0,
+                "total_budget": 8.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "docs/research/strategy-drsi/khfn/policy/v2_narrow.py",
+      "sha1": "6eca7d0b62d7",
+      "pareto": {
+        "auc": 0.4886519581969809,
+        "parallel_penalty": 0.475,
+        "parallelism_weight": 0.05,
+        "reward": 0.4649019581969809,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9473,
+            "n_evaluated": 12,
+            "auc": 0.4886519581969809,
+            "parallel_penalty": 0.475,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 6.0,
+                "attain": 0.9319117491818854
+              },
+              {
+                "beta": 1.0,
+                "total_budget": 8.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "docs/research/strategy-drsi/khfn/policy/v1_adaptive.py",
+      "sha1": "055417878179",
+      "pareto": {
+        "auc": 0.4886519581969809,
+        "parallel_penalty": 0.475,
+        "parallelism_weight": 0.05,
+        "reward": 0.4649019581969809,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9473,
+            "n_evaluated": 12,
+            "auc": 0.4886519581969809,
+            "parallel_penalty": 0.475,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 6.0,
+                "attain": 0.9319117491818854
+              },
+              {
+                "beta": 1.0,
+                "total_budget": 8.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": true
+          }
+        ]
+      },
+      "non_degenerate": true
+    },
+    {
+      "policy": "docs/research/strategy-drsi/khfn/policy/current.py",
+      "sha1": "8a836b9057c4",
+      "pareto": {
+        "auc": 0.0,
+        "parallel_penalty": 0.25,
+        "parallelism_weight": 0.05,
+        "reward": -0.0125,
+        "n_traces_scored": 1,
+        "per_trace": [
+          {
+            "name": "r01",
+            "run_best": 0.9473,
+            "n_evaluated": 12,
+            "auc": 0.0,
+            "parallel_penalty": 0.25,
+            "front": [
+              {
+                "beta": 0.0,
+                "total_budget": 12.0,
+                "attain": 1.0
+              }
+            ],
+            "varies": false
+          }
+        ]
+      },
+      "non_degenerate": false
+    }
+  ],
+  "disqualified": []
+}

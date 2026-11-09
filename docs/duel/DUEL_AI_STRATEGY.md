@@ -1709,6 +1709,122 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     and a native build per cell. The kept code becomes a §10 style unit, and then KH and HK are optimised simultaneously under step 3's rule.
   - HK's collapsed refit with `:a-ken-kite`: 「維持現狀」. `:qhs-ken` stays.
 
+**Round 5, step 5: a dream-rsi search for Kenpachi's style code against Hisagi (2026-11-09).** Workspace:
+`docs/research/strategy-drsi/khfn/` (README there).
+- **The program:** `duel/lisp/cpu-kh-ken.lisp`, `ken-kh-style (e b f kit s d)`, a strategy's `:fn` (§9). It is off by default: nothing
+  registers it, and only a strategy that names it plays it.
+  - The search starts from his KI code unchanged (`ken-kh-style` calls `ken-ki-style`).
+  - The file holds only definitions. A `cai-defstyle` there would turn the code on for the shipped CPU, so the rescore checks that the live
+    lookup's own share stays put.
+- **The evaluator, fixed before round 1** (`khfn/eval.py`): Kenpachi plays `(:id :khfn :fn ken-kh-style)` whole, HARD, both seats, against
+  Hisagi's pool.
+  - The pool:
+    - his live `:qhs-ken`, 100 seeds a seat;
+    - step 4's HK iterates 1 and 2, 50 each;
+    - his 11 step-4 candidate arms played whole, 25 each.
+  - score = (live + iterates + arms) / 3, each group's share (wins + 1) / (matches + 2). That is 950 matches, positive and higher-is-better.
+  - Blocks: search seed0 200 (the coordinator's rescore, the number recorded), the cells' dev runs seed0 300, held-out seed0 400 at scale 2
+    (1,900 matches; never shown to cells). The table fit's held-out stays 601-800.
+- **Hisagi's side** enters through that pool and through the joint KH / HK fit afterwards. No Hisagi code branch: the pool already holds his
+  live table, his step-4 iterates and every whole arm his units build.
+- **Grid** (the user's budget): 4 branches x 3 attempts, W = 4, at most 2 rounds, with dream / compare / promote between them. Sonnet cells,
+  each in its own git worktree with its own native build. Every cell is recorded, failures included.
+  - Branch hints (structural): closing on his chain range; two codes in one style by form and situation; his Bankai's bind and ranged
+    mode; resources (awakening, L, cash-out, Reishi, the Burst).
+- **References** (the same evaluator; search / dev / held-out x2):
+  - his KI code (the baseline): 0.457 / 0.415 / 0.429;
+  - Ichigo's KI code on Kenpachi: 0.339 / 0.383 / 0.371;
+  - the live KH table `:qks2-hisagi`: 0.593 / 0.590 / 0.555.
+- **The keep rule** (fixed before round 1). A code is kept only if, on the held-out block, all three hold:
+  1. its score ≥ 0.4586: the better KI code's 0.4286 + 0.03. The test is unpaired, since the evaluator has no per-seed pairing across
+     candidates.
+  2. its live group ≥ 0.1716: the better KI code on the live table, Ichigo's.
+  3. it is not a near-duplicate: the mean |difference| of its 14 member shares is ≥ 0.05 against both KI codes.
+  - Of the codes that pass, the best becomes one style unit. A second is kept only if it passes and is not a near-duplicate of the first.
+  - Then it goes in as KH's arm, KH and HK are optimised together under step 3's rule, and the held-out is 601-800.
+- **Round 1** (12 cells, Sonnet 5.5, each in its own worktree; every cell recorded). Search score = the coordinator's rescore on seed0 200;
+  the baseline is 0.457.
+
+| Cell | The code (around his KI code) | Search | Held-out (x2) |
+|---|---|---|---|
+| b0_a0 | **the wake-up bait**: at Hisagi's knockdown no meaty J1; hold 2.3 m (inside his CPU's 2.4 m wake-up Hoho trigger) and punish the Hoho's end | **0.883** | **0.892** (live 0.908) |
+| b1_a0 | Ichigo's KI code while sealed, his own released, a stalemate clock | 0.453 | - |
+| b2_a0 | punish his whiffed / blocked chain moves within 3 m | 0.483 | - |
+| b3_a0 | the combo breaker: awaken or Burst once a combo | 0.450 | - |
+| b0_a1 | b0_a0 + two closing-in knobs (both off: no gain) | 0.883 | - |
+| b1_a1, b3_a1 | the bait + the combo breaker | 0.931, 0.931 | b3_a1 0.925 |
+| b2_a1 | **the stand-off breaker**: when no gauge has moved for 2 s and the bell is not his, lift his KI code's Hoho-safety hold and attack | **0.669** | **0.638** (live 0.40) |
+| b0_a2 | the bait + the stand-off breaker | 0.878 | - |
+| b1_a2, b2_a2, b3_a2 | the bait + the combo breaker + the stand-off breaker | 0.947 each | b1_a2 0.955 |
+
+  - The coordinator's mistakes, both re-recorded with FORCE:
+    - b0_a0 was first recorded as a runtime failure because `rescore.sh` was not executable.
+    - b1_a0 was first recorded as a correctness failure because the new host test wrongly required frame thresholds to rise with
+      difficulty. It now checks chances only.
+  - **The dream step** (one world; weak evidence, as §8.10):
+    - The incumbent policy (the configured grid's parallel refine) replays at reward -0.0125 (auc 0.0, parallel penalty 0.25; beta
+      degenerate).
+    - The three rewrites (the skill's adaptive template at beta 0.6 / 0.3 / 0.9) all replay at 0.4649 (auc 0.4887, penalty 0.475). The
+      first batch already held 0.93 of the world's best.
+    - `v3_wide` was promoted (a tie, so the later one).
+    - **Round 2 was not run:** round 1 gave a clear result, as the coordinator allowed.
+- **The keep decision.**
+  - Five codes pass the three numeric clauses: b0_a0, b2_a1, b3_a1, b1_a2 (and its twins).
+  - The combinations (b1_a1 / b3_a1, b*_a2) bundle two or three state rules. One of them, the combo breaker, failed on its own (0.450).
+    Under the user's rule (「高內聚，低耦合」: one recognisable job), "the best that passes" ranges over one-job codes only.
+  - **Kept: b0_a0, the wake-up bait**, as the style unit `:st-ken-kh` (`ken-kh-style`, `duel/lisp/cpu-kh-ken.lisp`, 45 lines) and the arm
+    `:a-ken-kh`.
+    - Its state sits in `brain-style` (a `khs` struct including his KI code's `kks`). It rolls once per knockdown (HARD 1.0, NORMAL 0.5,
+      EASY 0).
+    - The nearest existing styles: his KI code at mean |Δ| 0.36 over the 14 members, Ichigo's at 0.52.
+  - **b2_a1, the stand-off breaker, passes but is not admitted.** It does one job (0.638 held-out, |Δ| 0.20 from the bait). But it keeps
+    its state in a process-global hash keyed by the brain, which the in-game MCTS rollouts do not snapshot, and its names clash with b0_a0's.
+    Admitting it means rewriting it and measuring again. A second unit is kept only *if* it passes, so it waits for the user.
+  - The three-rule combination (b1_a2) scores 0.955 held out against the bait's 0.892 (|Δ| 0.06).
+- **KH and HK optimised together** (`fq/switch/khstyle/`: `start.sh`, `run.sh`).
+  - The kept arm is appended to `:qks2-hisagi` as arm 6. The start is proved = the live lookup, 0.25 = 0.25, 8 of 8 chunks.
+  - HK starts from `:qhs-ken`. Step 3's method and rule apply as in step 4.
+  - **Selection** (801-1000):
+    - KH_1 0.531 (0.425 against HK_0, 0.637 against HK_1); **KH_2 0.641** (0.372, 0.91).
+    - HK_1 0.384 (0.092, 0.352, 0.708 against the stand-in); **HK_2 0.515** (0.48, 0.347, 0.718).
+  - **Held-out** (601-800, 400 matches a cell):
+
+| 2×2, Kenpachi's share | HK_old (`:qhs-ken`) | HK_new (HK_2) |
+|---|---|---|
+| KH_old (`:qks2-hisagi`) | 0.21 | 0.55 |
+| KH_new (KH_2) | **0.335** | 0.863 |
+
+| 2×2, Hisagi's share | KH_old | KH_new |
+|---|---|---|
+| HK_old | 0.788 | 0.663 |
+| HK_new | 0.435 | 0.138 |
+
+| New vs old (b / c, z) | against the old opponent | against the new opponent | against the stand-in | verdict |
+|---|---|---|---|---|
+| KH | 97 / 47, 4.17 | 152 / 27, 9.34 | (none) | **swap** |
+| HK | 48 / 189, -9.16 | 19 / 229, -13.34 | 27 / 109, -7.03 (0.695 vs 0.90) | keep |
+
+  - **KH → `:qks3-hisagi`** (`khstyle/kh-t2.lisp`; the arms of `:qks2-hisagi` + `:a-ken-kh`). Its checksum is new, so the saved copies
+    start fresh.
+  - **The fit hardly uses the new arm.** Held out against `:qhs-ken` it plays `:a-ken-kh` on 0.012 of the judgements, and his KI code on
+    0.77 (0.905 of the base form). About 61 changes a match.
+    - The bait's value arrives at a knockdown and the wake-up after it. The per-window fit, judged every 0.5 s and switching the style state
+      with the arm, does not credit it.
+    - **The arm played whole beats the table by far:** 0.91 against `:qhs-ken` on the held-out block (seeds 401-600), against the table's
+      0.30-0.37 on 601-800.
+  - HK stays `:qhs-ken`: its refit loses on all three counts again.
+- **After step 5.**
+  - The lookup changes only KH, to `:qks3-hisagi`. `:qks2-hisagi` stays as superseded, and the library holds 35 entries.
+  - New units: the style `:st-ken-kh` and the arm `:a-ken-kh`. Off by default: only `:qks3-hisagi`'s arm 6 plays it.
+  - **Proof** (`khstyle/proofs-600.jsonl`): `khstyle/kh-t2.lisp` run raw = the live lookup against `:qhs-ken`, 0.30 = 0.30, 8 of 8
+    chunks (6,306 lines).
+  - **Both seats on the lookup** (seeds 601-700, the row's share; `khstyle/live9-600.jsonl`). Only KH / HK moved: **Kenpachi vs Hisagi
+    0.30** (0.25 after step 4) and **Hisagi vs Kenpachi 0.695** (0.745). The other seven are as after step 4: HH 0.375, HI 0.575, KK 0.485,
+    KI 0.555, IH 0.405, IK 0.445, II 0.025.
+  - **Each live table against its stand-in** (`ev/j5f-frozen-*`): HI 0.87, HK 0.89, KI 0.865, IK 0.805, unchanged.
+  - Host tests 10116 ALL PASS. The new check reads `cpu-kh-ken.lisp`: only definitions, the :fn contract's six arguments, and chances
+    rising EASY ≤ NORMAL ≤ HARD. The arm and style units are checked too. G2 identical (II 32, IK 34, KK 33).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

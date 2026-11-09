@@ -1,0 +1,123 @@
+{
+  "baseline_score": 0.4574,
+  "beta": null,
+  "branch_count": 4,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.8911 iterates 0.8515 arms 0.9058",
+      "score": 0.8828
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.8911 iterates 0.8515 arms 0.9058",
+      "score": 0.8828
+    },
+    "b0_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.8762 iterates 0.8218 arms 0.9348",
+      "score": 0.8776
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.1683 iterates 0.5149 arms 0.6757",
+      "score": 0.453
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.9554 iterates 0.9158 arms 0.9203",
+      "score": 0.9305
+    },
+    "b1_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.9703 iterates 0.9059 arms 0.9656",
+      "score": 0.9473
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.1584 iterates 0.5891 arms 0.7011",
+      "score": 0.4829
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.3911 iterates 0.7921 arms 0.8225",
+      "score": 0.6686
+    },
+    "b2_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.9703 iterates 0.9059 arms 0.9656",
+      "score": 0.9473
+    },
+    "b3_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.1683 iterates 0.5149 arms 0.6667",
+      "score": 0.45
+    },
+    "b3_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.9554 iterates 0.9158 arms 0.9203",
+      "score": 0.9305
+    },
+    "b3_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.9703 iterates 0.9059 arms 0.9656",
+      "score": 0.9473
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "first-cycle fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": "no_completed_history",
+    "out_of_support": false,
+    "requested": null,
+    "source": "fallback"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [],
+  "policy_file": "rounds/round01/policy.py",
+  "refine_count": 2,
+  "round_index": 1,
+  "task": "Kenpachi style function against Hisagi, HARD: KH share against Hisagi's pool (DUEL_AI_STRATEGY 8.19 round 5 step 5)"
+}

@@ -1,0 +1,49 @@
+{
+ "2x2 (Kenpachi's share)": {
+  "o-vs-hko": 0.21,
+  "n-vs-hko": 0.335,
+  "o-vs-hkn": 0.55,
+  "n-vs-hkn": 0.8625
+ },
+ "2x2 (Hisagi's share)": {
+  "o-vs-kho": 0.7875,
+  "n-vs-kho": 0.435,
+  "o-vs-khn": 0.6625,
+  "n-vs-khn": 0.1375
+ },
+ "stand-in": {
+  "hk-o-vs-fz": 0.9,
+  "hk-n-vs-fz": 0.695
+ },
+ "KH new vs old: vs HK_old, vs HK_new": [
+  {
+   "b": 97,
+   "c": 47,
+   "z": 4.17
+  },
+  {
+   "b": 152,
+   "c": 27,
+   "z": 9.34
+  }
+ ],
+ "HK new vs old: vs KH_old, vs KH_new, vs stand-in": [
+  {
+   "b": 48,
+   "c": 189,
+   "z": -9.16
+  },
+  {
+   "b": 19,
+   "c": 229,
+   "z": -13.34
+  },
+  {
+   "b": 27,
+   "c": 109,
+   "z": -7.03
+  }
+ ],
+ "KH swaps": true,
+ "HK swaps": false
+}
