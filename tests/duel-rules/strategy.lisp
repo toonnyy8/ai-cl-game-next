@@ -23,7 +23,7 @@
     (check (< 0.5 (strat-similarity fa fb) 1.0))))
 
 ;; the strategy layer's pure parts (DUEL_AI_STRATEGY §5, §8.4): arms by :APPLY, seeds from the payoff matrix (B's view 1 - M transposed), PUCT, the pick
-(check (equal '(:s0-generic :s1-brawler :s3-zoner :ki-ken :q1-ken-ichigo :qks-ichigo :qks2-ichigo) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :ichigo))))   ; (+ §8.18's table, as IK's q1; §8.19 round 4's)
+(check (equal '(:s0-generic :s1-brawler :s3-zoner :ki-ken :q1-ken-ichigo :qks-ichigo :qks2-ichigo :qks3-ichigo) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :ichigo))))   ; (+ §8.18's table, as IK's q1; §8.19 round 4's)
 (check (equal '(:s0-generic :s1-brawler :s3-zoner :q1-ken-hisagi :qks-hisagi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
 (check (~= 0.7 (strat-seed-value :kenpachi :ichigo :ki-ken)))           ; (against her equilibrium column, :ki-ichigo)
 (check (~= 0.3 (strat-seed-value :ichigo :kenpachi :ki-ichigo)))        ; (the column side: 1 - his equilibrium row's cell)
@@ -61,10 +61,10 @@
 (check (null (strat-lookup :hisagi :ichigo :normal)))                  ; (EASY / NORMAL keep their designed strength)
 (check (eq :qis-hisagi (getf (strat-lookup :ichigo :hisagi :hard) :id)))   ; (§8.19 round 5; before it §8.18: a table whose arm 0 is round 1's :ki-ichigo, §8.8)
 (check (eq :qhs-ken (getf (strat-lookup :hisagi :kenpachi :hard) :id)))      ; (§8.19 round 5's co-refit; :qh-ken stays in the library)
-(check (eq :qhs3-mirror (getf (strat-lookup :hisagi :hisagi :hard) :id)))   ; (§8.19 round 5's co-refit; the older mirror tables stay in the library)
-(let* ((fq (getf (strat-lookup :hisagi :hisagi :hard) :fq))               ; (ranged close: an arm on the merged code, whose distance rule backs off;
-       (fs '(:lead 0 :ored 0 :ost 0 :awk 1 :prev 1 :form 1 :dm 1.5 :gauge 0.0 :wall 9.0 :oawk 0)))   ;  the refit moved merged's +0.05 to press)
-  (check (eq 'hisagi-merged-style (getf (nth (strat-fq-pick fq fs) (getf fq :arms)) :fn))))
+(check (eq :qhs4-mirror (getf (strat-lookup :hisagi :hisagi :hard) :id)))   ; (§8.19 round 5 step 3; the older mirror tables stay in the library)
+(let* ((fq (getf (strat-lookup :hisagi :hisagi :hard) :fq))               ; (ranged close: Kenpachi's KI style code, as the data put it, no pin:
+       (fs '(:lead 0 :ored 0 :ost 0 :awk 1 :prev 1 :form 1 :dm 1.5 :gauge 0.0 :wall 9.0 :oawk 0)))   ;  「拿掉，照資料用 KI 風格」)
+  (check (eq 'ken-ki-style (getf (nth (strat-fq-pick fq fs) (getf fq :arms)) :fn))))
 (let ((fq (getf (strat-lookup :hisagi :hisagi :hard) :fq)))              ; (five arms: the kite first, four general, one KI style code; 89 rules)
   (check (= 5 (length (getf fq :arms))))
   (check (eq :a-hisagi-kite (getf (first (getf fq :arms)) :id)))
@@ -92,8 +92,8 @@
         (check (every (lambda (r) (= (length r) (1+ (length arms)))) (getf fq :rules)))
         (check (or (null (getf fq :groups)) (= (length (getf fq :rules)) (reduce #'+ (getf fq :groups)))))))))
 (check (= (length *strat-picks*) (* 2 (length *strat-library*))))
-(check (eq :qis-ken (getf (strat-lookup :ichigo :kenpachi :hard) :id)))   ; (§8.19 round 5's co-refit; §8.12's :q1-ichigo-ken stays in the library)
-(let ((fq (getf (strat-lookup :ichigo :kenpachi :hard) :fq)))
+(check (eq :q1-ichigo-ken (getf (strat-lookup :ichigo :kenpachi :hard) :id)))   ; (§8.19 round 5 step 3: back from :qis-ken, kept in the library)
+(let ((fq (getf (find :qis-ken *strat-library* :key (lambda (st) (getf st :id))) :fq)))
   (check (and (= 5 (length (getf fq :arms))) (= 89 (length (getf fq :rules))) (eql 30 (getf fq :period))))
   (check (eq 'ken-ki-style (getf (first (getf fq :arms)) :fn)))
   (check (= 448 (length (fq-encode fq fq 0)))))
@@ -103,7 +103,7 @@
 ;; the Q tables of §8.18: every pairing with Kenpachi or Ichigo as me plays one at HARD, keyed by :apply (the online learner's key); 48 crisp
 ;; rules over two arms; where the incumbent is the shipped CPU (no strategy) arm 0 is NIL (core-ai.lisp: no strategy, never the lookup)
 ;; §8.19 round 4: Kenpachi vs Ichigo / Hisagi play rebuilt tables (6 / 5 arms, arm 0 still NIL: no strategy; 89 rules in 5 groups; 0.5 s)
-(dolist (r '((:kenpachi :ichigo :qks2-ichigo 6) (:kenpachi :hisagi :qks-hisagi 5) (:kenpachi :kenpachi :qks-ken 5)))
+(dolist (r '((:kenpachi :ichigo :qks3-ichigo 6) (:kenpachi :hisagi :qks-hisagi 5) (:kenpachi :kenpachi :qks-ken 5)))
   (destructuring-bind (me vs id na) r
     (let* ((st (strat-lookup me vs :hard)) (fq (getf st :fq)))
       (check (eq id (getf st :id)))

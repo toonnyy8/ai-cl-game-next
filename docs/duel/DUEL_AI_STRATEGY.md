@@ -1472,6 +1472,81 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - HH's +0.25 merged pin: 「拿掉，照資料用 KI 風格」. HH takes the plain round-1 refit (`corefit/hh-r1.lisp`, Kenpachi's KI style code at
     ranged close), after its own held-out test against `:qhs2-mirror`. This replaces round 3's fixed merged style at ranged close for HH.
 
+**Round 5, step 3: KI and IK optimised together (2026-11-09).** Files: `docs/research/strategy-drsi/fq/switch/joint/`.
+- **Lookup changes first:**
+  - KI goes back to `:qks-ichigo` and IK to `:q1-ichigo-ken` (their checksums, so the saved copies, are as before).
+  - HH plays `:qhs4-mirror` = `corefit/hh-r1.lisp`, the plain round-1 refit. Its held-out test against `:qhs2-mirror` is round 1's (the
+    table on one seat, `:qhs2-mirror` on the other): 0.605 / 0.55 against `:qhs2-mirror`'s self-play 0.28 / 0.265 (b / c 83 / 18, 79 / 22).
+    A significant win.
+  - `:qks2-ichigo`, `:qis-ken` and `:qhs3-mirror` stay in the library, superseded.
+- **The method** (fixed before any held-out run): two iterations of simultaneous fictitious play with the stand-in in the pool.
+  - Each iteration logs both sides at once from their current iterates: KI_t + runs, IK_t + runs, 2 salts x seeds 1-599 x both seats. Then it
+    refits both (γ 0.98) into KI_{t+1} and IK_{t+1}.
+  - Each side's opponent is a pool, member = seed mod n:
+    - every past iterate of the other side, the old live table included;
+    - plus the other side's frozen style CPU: Ichigo's KI style for KI, Kenpachi's KI style for IK.
+  - So no side fits a best response to the other's latest table alone.
+  - KI_0 = `:qks-ichigo`. IK_0 = `:q1-ichigo-ken`, its behaviour the grouped start embedding it (`ichigo/ik-s0-p30.lisp`).
+  - **The candidate per side:** of its two iterates, the one with the higher mean share on seeds 801-1000 against the members of its last pool.
+- **The acceptance rule** (fixed before the held-out runs; seeds 601-700 + 701-800, both seats; b / c pooled over the two blocks, paired by
+  seed and seat):
+  - The 2×2 is measured from each side's seat: old / new KI × old / new IK.
+  - KI_new replaces `:qks-ichigo` only if all three hold:
+    1. it beats KI_old significantly against IK_old (z ≥ 1.96);
+    2. it beats KI_old significantly against IK_new (z ≥ 1.96);
+    3. it does not lose significantly to KI_old against Ichigo's frozen KI style (z > -1.96).
+  - IK_new replaces `:q1-ichigo-ken` likewise: against KI_old and KI_new, and against Kenpachi's frozen KI style.
+  - Each side is decided on its own, so one, both or neither may swap; a tie keeps the old table.
+  - Beating the old table against both the old and the new opponent is what a pure best response to the latest opponent cannot pass.
+- **The iterates** (selection, seeds 801-1000, the mean share against the last pool's three members):
+  - KI_1 0.549 (against `:q1-ichigo-ken`, IK_1 and the stand-in: 0.415, 0.517, 0.715); **KI_2 0.672** (0.507, 0.635, 0.873).
+  - IK_1 0.577 (0.52, 0.482, 0.73); **IK_2 0.588** (0.53, 0.525, 0.708).
+  - So the candidates are KI_2 and IK_2.
+- **Held-out** (601-800 pooled, 400 matches a cell):
+
+| 2×2, Kenpachi's share | IK_old (`:q1-ichigo-ken`) | IK_new (IK_2) |
+|---|---|---|
+| KI_old (`:qks-ichigo`) | 0.378 | 0.448 |
+| KI_new (KI_2) | **0.548** | **0.598** |
+
+| 2×2, Ichigo's share | KI_old | KI_new |
+|---|---|---|
+| IK_old | 0.623 | 0.453 |
+| IK_new | 0.553 | 0.403 |
+
+| New vs old (b / c, z) | against the old opponent | against the new opponent | against the frozen stand-in | verdict |
+|---|---|---|---|---|
+| KI | 128 / 60, 4.96 | 127 / 67, 4.31 | 52 / 41, 1.14 (0.875 vs 0.848) | **swap** |
+| IK | 71 / 99, -2.15 | 61 / 81, -1.68 | 35 / 72, -3.58 (0.718 vs 0.81) | keep |
+
+  - **KI → `:qks3-ichigo`** (`joint/ki-t2.lisp`).
+    - About 79 arm changes a match. Arms: Ichigo's code 0.385, Kenpachi's code 0.24, kite 0.15, zoner 0.15, press 0.04, NIL 0.025.
+    - Page 537 integers. Its checksum is new, so the saved Kenpachi vs Ichigo copies start fresh.
+  - **IK stays `:q1-ichigo-ken`.** It loses on all three counts, most of all against Kenpachi's KI style.
+- **Proofs** (`joint/proofs.sh`, 8 of 8 chunks each):
+  - `:qhs4-mirror` run raw = the live lookup (self-play 0.375);
+  - `:qks3-ichigo` (0.555 against `:q1-ichigo-ken`);
+  - `:q1-ichigo-ken` (0.445 against `:qks3-ichigo`).
+- **Both seats on the lookup after step 3** (seeds 601-700, the row's share; `joint/live9-600.jsonl`; after step 2's round 2 in brackets):
+
+| me \ vs | Hisagi | Kenpachi | Ichigo |
+|---|---|---|---|
+| Hisagi | 0.375 (0.375) | 0.86 (0.86) | 0.575 (0.575) |
+| Kenpachi | 0.14 (0.14) | 0.485 (0.485) | **0.555** (0.26) |
+| Ichigo | 0.405 (0.405) | **0.445** (0.74) | 0.025 (0.025) |
+
+- **Each live table against its frozen stand-in** (seeds 601-700):
+
+| Table | Score | Before |
+|---|---|---|
+| HI `:qhs3-ichigo` (vs Ichigo's KI style) | 0.87 | - |
+| HK `:qhs-ken` (vs Kenpachi's KI style) | 0.89 | - |
+| KI `:qks3-ichigo` (vs Ichigo's KI style) | **0.865** | `:qks-ichigo` 0.885, step 2's `:qks2-ichigo` 0.34 |
+| IK `:q1-ichigo-ken` (vs Kenpachi's KI style) | 0.805 | - |
+
+- The library holds 33 entries, two of them new: `:qhs4-mirror` and `:qks3-ichigo` (no cap).
+- `:qks2-ichigo`, `:qis-ken` and `:qhs3-mirror` stay in the library as superseded.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
