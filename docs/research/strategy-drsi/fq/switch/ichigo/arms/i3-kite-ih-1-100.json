@@ -1,0 +1,28 @@
+{
+ "char": "ichigo",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "ip3-kite",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 16,
+ "comp_matches": 200,
+ "inc_wins": 28,
+ "inc_matches": 200,
+ "comp_share": 0.08,
+ "inc_share": 0.14,
+ "gain": -0.06,
+ "b": 14,
+ "c": 26,
+ "z": -1.897,
+ "own_share": 0.0,
+ "wall_s": 6.2,
+ "score": 0.08,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/switch/hi/qhs3-ichigo.lisp"
+ ]
+}

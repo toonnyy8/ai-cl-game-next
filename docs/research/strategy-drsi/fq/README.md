@@ -275,6 +275,10 @@ Round 4 (§8.19 "Round 4"):
 - The delayed awakening (`:hold-awaken`) loses: not shipped.
 - Kenpachi's three tables go into the lookup: `kenpachi/qks-ichigo.lisp`, `qks-hisagi.lisp`, `qks-ken.lisp`.
 
+Round 5, step 1 (§8.19 "Round 5, step 1"; every fit and swap test against the opponent's live lookup table):
+- Ichigo vs Hisagi plays `ichigo/qis-hisagi.lisp` (`:qis-hisagi`).
+- Ichigo vs Kenpachi and the Ichigo mirror keep their shipped tables.
+
 | File | What |
 |---|---|
 | `sw.py` | Common options `--me --vs --opp --arms` (the pairing, the opponent seat, the arms file; the pilot's by default). `start`: the start table (arm 0 everywhere, or `--embed` a 2-arm table's 48 rules). `log`: behaviour + run exploration (`STRAT_FQLOG "<salt> <eps> <seat> <rmin> <rmax>"`). `fit`: a ridge V + per-arm deltas on the discounted return, with the bootstrap sign gate. `measure`: at eps 0, shares, draws, per-seed wins, switch counts by form / distance band, STRAT_HRANGE, the DRIVE switches by form. `pin`: an arm's bonus in a form's G1 rows. `pair`: b / c |
@@ -299,9 +303,12 @@ Round 4 (§8.19 "Round 4"):
 | `hi/qhs3-ichigo.lisp`, `hi/hi4-h*.lisp`, `arms/hi-h*.arms`, `arms/a10-presshold*.lisp`, `hold.sh` | round 4, HI: the shipped +0.08 table; the delayed awakening (`:hold-awaken` 0.3 / 0.6) inside it and whole, on the selection block |
 | `proofs4.sh`, `proofs4-600.jsonl` | round 4 on the final build: `:qhs3-ichigo`, `:qks-ichigo`, `:qks-hisagi`, `:qks-ken` run raw = the live lookup |
 | `kenpachi/` | round 4, Kenpachi's three tables. `arms/k*.lisp` (+ `-ki` / `-kh` / `-kk` screens, seeds 1-100) and `screen.sh`. `ki.arms`, `kh.arms`, `kk.arms`. `start.sh` (start tables embedding each shipped `:q1-ken-*`, `identity-s0-600.jsonl`). `round1.sh`, `round2.sh`, `measure.sh`, `heldout.sh`. `<p>-r<k>-g<gamma>.lisp` / `.json` (fits; `-m01` with `:margin 0.01`, measured after the picks). `ki-press-all.lisp` (press in every state, for its form counts). `qks-*.lisp`: **shipped**. `live.sh`, `live-600.jsonl`: the cross effects with both seats on the lookup |
+| `lineup.sh`, `run.sh`, `live9.sh` | round 5: each pairing's options against the other side's live table (`lineup.sh`: the opponent, the arms, the current table, the frozen stand-in); one pairing's steps (`run.sh P measure / log / fit / start / pin / all / heldout`); all nine pairings CPU vs CPU with both seats on the lookup (`live9.sh`) |
+| `ichigo/` | round 5, Ichigo's three tables. `arms/i*.lisp` (+ `-ik` / `-ih` / `-ii` screens against the live opponents, seeds 1-100) and `screen.sh`. `ik.arms`, `ih.arms`, `ii.arms`. `start.sh` (start tables embedding each shipped `:q1-ichigo-*`, `identity-s0-600.jsonl`). `round.sh`, `round2.sh`, `fits.sh`. `<p>-r<k>-g<gamma>[-b05 / -b02].lisp` / `.json` (fits; IH's `-b05` with Kenpachi's code +0.05 in her base form). `ih-kenki-all.lisp` (Kenpachi's code in every state, for its form counts). `qis-hisagi.lisp`: **shipped**. `proof-600.jsonl` (`:qis-hisagi` run raw = the live lookup). `live9-600.jsonl` (all nine pairings, both seats on the lookup) |
+| `ev/ik-*`, `ev/ih-*`, `ev/ii-*` | round 5's measures (`*-sel2-*` selection 801-1000, `*-r5-ho601-*` / `*-r5-ho701-*` held-out: `pick`, `cur` = the shipped table, `o1` = the best whole arm) |
 | `ev/ki-*`, `ev/kh-*`, `ev/kk-*`, `ev/hi4-*` | round 4's measures (`*-sel2-*` selection 801-1000, `*-ho601-*` / `*-ho701-*` held-out) |
 | `ev/hi3-*`, `ev/hh3-*` | round 3's measures (`*-sel2*` selection, `*-ho601-*` / `*-ho701-*` held-out; `hi3-ho*-b08-posthoc`: measured after the decision) |
 
 Logs (gitignored, `switch/logs/`): `r1` (the start table, 4 salts), `r2a` / `r2b` (2 salts each), `r3` (4 salts), round 2's `hi2-r1`,
-`hi2-r2`, `hk2-r1`, `hh2-r1`, `hh2-r2`, round 3's `hh3-r1`, round 4's `kki-r1`, `kki-r2`, `kkh-r1`, `kkh-r2`, `kkk-r1`, `kkk-r2` (4 salts each; each fit's stdout as `fit-*.out`;
+`hi2-r2`, `hk2-r1`, `hh2-r1`, `hh2-r2`, round 3's `hh3-r1`, round 4's `kki-r1`, `kki-r2`, `kkh-r1`, `kkh-r2`, `kkk-r1`, `kkk-r2`, round 5's `iik-r1`, `iik-r2`, `iih-r1`, `iii-r1` (4 salts each; each fit's stdout as `fit-*.out`;
 `hi3/` the HI prior fits'), `ev/*`.

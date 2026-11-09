@@ -1319,6 +1319,67 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     CPU vs CPU it fell to 0.40.)
   - 「不加」: no `:margin`. The KI / KH flapping between arms that share one style function stays.
 
+**Round 5, step 1: Ichigo's three tables (2026-11-09).**
+- Results:
+  - IH swaps to `:qis-hisagi`.
+  - IK keeps `:q1-ichigo-ken`: the refit only ties.
+  - II keeps `:q1-ichigo-ichigo`: the refit plays identically.
+  - Step 2 (the co-refit of all nine) has not run yet; this hand-back is after step 1.
+- Files: `docs/research/strategy-drsi/fq/switch/` (`ichigo/`, `lineup.sh`, `run.sh`, `live9.sh`).
+- **Opponents (all live lookup tables):**
+  - IK: Kenpachi's `:qks-ichigo`;
+  - IH: Hisagi's `:qhs3-ichigo`;
+  - II: the shipped `:q1-ichigo-ichigo` on the other seat.
+- **G1's forms:** 0 the Shikai, 1 KESSA.
+- **Arms**, played whole against those opponents (seeds 1-100, 200 matches; the live `:q1-ichigo-*` in the last row):
+
+| Arm | IK | IH | II |
+|---|---|---|---|
+| her KI style code (`ichigo-ki-style`) | 0.17 | 0.14 | 0.03 |
+| + the brawler's data | 0.215 | 0.23 | 0.035 |
+| + s7-kite's data | 0.265 | 0.08 | 0.03 |
+| + s3-zoner's data | 0.215 | 0.10 | 0.035 |
+| Kenpachi's KI style code on her | 0.27 | **0.42** | 0.06 |
+| the generic CPU | 0.0 | 0.0 | 0.0 |
+| the live table | **0.61** | 0.14 | 0.03 (mostly draws) |
+
+- **Tables:**
+  - each embeds its shipped table's two arms (IK: Kenpachi's code, her code; IH: her code, Kenpachi's code; II: NIL, her code), then three
+    general arms;
+  - 5 arms each, page 448 integers;
+  - each start table run raw = the shipped table: IK 0.6, IH 0.125, II 0.025, 8 of 8 chunks each.
+  - Round 1: 4 salts against the live opponent, γ 0.966 / 0.98. IK also ran a round 2. Picks were made on 801-1000.
+- **IK:**
+  - selection: round 1 0.568 / 0.56, round 2 0.557 / 0.575, against the shipped `:q1-ichigo-ken` 0.60;
+  - held-out (the pick, round 2 γ 0.98): 0.565 / 0.635 against 0.60 / 0.645 (b / c 42 / 49, 44 / 46; pooled z -0.7).
+  - A tie, slightly below: **`:q1-ichigo-ken` stays**. Swapping in a tie would also reset every player's saved IK copy.
+- **IH:**
+  - the round-1 fits (0.105 / 0.13) lost to the shipped table (0.163) and far more to Kenpachi's code whole (0.427);
+  - Kenpachi's code whole never leaves her Shikai (400 of 400 selection matches), while the fits awaken and fall. This is the short-window
+    misjudgement round 2 found in HI.
+  - So the fit gets a learnable prior: +0.05 on Kenpachi's code in her base form (`prior.py`: greedy in 100 % of the base-form states, 98 %
+    within the learner's 0.05 reach).
+  - With it, the table plays Kenpachi's code all match (0 arm changes; she never awakens): 0.427 on selection, the same as the code whole.
+  - A smaller +0.02 lets about one switch a match through and falls to 0.207 with 168 draws.
+  - Held-out: **0.405 / 0.42** against the shipped table's 0.125 / 0.125 (b / c 70 / 14, 76 / 17; z 6.1, 6.1). **Into the lookup as
+    `:qis-hisagi`.**
+  - Run raw = the live lookup: 8 of 8 chunks.
+- **II:**
+  - the fits play her code about 99 % of the time, as the shipped table does: 0.035-0.037 on selection against 0.04, 368 draws of 400;
+  - held-out: identical (b / c 0 / 0; 190 and 184 draws of 200);
+  - **`:q1-ichigo-ichigo` stays** (an identical swap changes nothing);
+  - Kenpachi's code whole against it: 0.08 / 0.095 with almost no draws. Her own code beats it about 90 % of the time.
+- **Both seats on the lookup after step 1** (seeds 601-700, the row character's share against the column; `ichigo/live9-600.jsonl`):
+
+| me \ vs | Hisagi | Kenpachi | Ichigo |
+|---|---|---|---|
+| Hisagi | 0.28 | 0.375 | 0.575 |
+| Kenpachi | 0.625 | 0.485 | 0.40 |
+| Ichigo | **0.405** | 0.60 | 0.025 |
+
+  Hisagi vs Ichigo was 0.87 against Ichigo's old table (`:qhs3-ichigo`'s held-out). With `:qis-hisagi` it is 0.575 / 0.405.
+- The library holds 27 entries. This is the lineup step 2 starts from (`lineup.sh`'s defaults).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

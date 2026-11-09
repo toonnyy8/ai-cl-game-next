@@ -1,0 +1,28 @@
+{
+ "char": "ichigo",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "ip3-kite",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 53,
+ "comp_matches": 200,
+ "inc_wins": 122,
+ "inc_matches": 200,
+ "comp_share": 0.265,
+ "inc_share": 0.61,
+ "gain": -0.345,
+ "b": 24,
+ "c": 93,
+ "z": -6.379,
+ "own_share": 0.0,
+ "wall_s": 4.8,
+ "score": 0.265,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/switch/kenpachi/qks-ichigo.lisp"
+ ]
+}

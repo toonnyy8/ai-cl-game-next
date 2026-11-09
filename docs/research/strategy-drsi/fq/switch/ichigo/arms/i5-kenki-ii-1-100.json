@@ -1,0 +1,28 @@
+{
+ "char": "ichigo",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "ip5-kenki",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 12,
+ "comp_matches": 200,
+ "inc_wins": 6,
+ "inc_matches": 200,
+ "comp_share": 0.06,
+ "inc_share": 0.03,
+ "gain": 0.03,
+ "b": 12,
+ "c": 6,
+ "z": 1.414,
+ "own_share": 0.0,
+ "wall_s": 5.6,
+ "score": 0.06,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/pairs/ii/ii-fit.lisp"
+ ]
+}

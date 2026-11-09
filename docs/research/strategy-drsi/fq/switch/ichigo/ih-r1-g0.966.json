@@ -1,0 +1,396 @@
+{
+ "tag": "iih-r1",
+ "seeds": "1-599",
+ "gamma": 0.966,
+ "scale": 0.1,
+ "lam": 300.0,
+ "lam_v": 1.0,
+ "conf": 0.95,
+ "boot": 20,
+ "matches": 4792,
+ "judgements": 2354971,
+ "behaviour_arms": [
+  1936369,
+  108790,
+  79962,
+  104825,
+  125025
+ ],
+ "greedy_on_data": [
+  16375,
+  219721,
+  1695306,
+  53013,
+  370556
+ ],
+ "kept": [
+  [
+   "((:lead :behind) (:ored :no) (:ost :busy) (:awk :no) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :busy) (:awk :yes) (:prev :yes))",
+   3
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :free) (:awk :no) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :free) (:awk :no) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :free) (:awk :yes) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :free) (:awk :yes) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :free) (:awk :yes) (:prev :yes))",
+   0
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :free) (:awk :yes) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :busy) (:awk :no) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :yes))",
+   0
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :free) (:awk :no) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :busy) (:awk :no) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :busy) (:awk :no) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :busy) (:awk :no) (:prev :yes))",
+   3
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no))",
+   3
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :free) (:awk :no) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :free) (:awk :no) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :free) (:awk :no) (:prev :yes))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :free) (:awk :no) (:prev :yes))",
+   2
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :free) (:awk :yes) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :free) (:awk :yes) (:prev :no))",
+   3
+  ],
+  [
+   "((:lead :even) (:ored :yes) (:ost :busy) (:awk :no) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :yes) (:ost :free) (:awk :no) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :even) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :busy) (:awk :no) (:prev :yes))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :busy) (:awk :yes) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :free) (:awk :no) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :free) (:awk :no) (:prev :no))",
+   3
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :free) (:awk :no) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :free) (:awk :yes) (:prev :no))",
+   1
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :free) (:awk :yes) (:prev :no))",
+   3
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :free) (:awk :yes) (:prev :yes))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :free) (:awk :yes) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :no))",
+   2
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no))",
+   4
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :busy) (:awk :no) (:prev :p2up))",
+   2
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :busy) (:awk :no) (:prev :p2up))",
+   4
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :free) (:awk :no) (:prev :p2up))",
+   1
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :free) (:awk :no) (:prev :p2up))",
+   2
+  ],
+  [
+   "((:lead :behind) (:ored :no) (:ost :free) (:awk :no) (:prev :p2up))",
+   4
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :busy) (:awk :no) (:prev :p2up))",
+   3
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :busy) (:awk :no) (:prev :p2up))",
+   4
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :free) (:awk :no) (:prev :p2up))",
+   3
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :free) (:awk :no) (:prev :p2up))",
+   4
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :free) (:awk :yes) (:prev :p2up))",
+   2
+  ],
+  [
+   "((:lead :behind) (:ored :yes) (:ost :free) (:awk :yes) (:prev :p2up))",
+   4
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :free) (:awk :no) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :free) (:awk :yes) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :no) (:ost :free) (:awk :yes) (:prev :p2up))",
+   3
+  ],
+  [
+   "((:lead :even) (:ored :yes) (:ost :busy) (:awk :no) (:prev :p2up))",
+   2
+  ],
+  [
+   "((:lead :even) (:ored :yes) (:ost :busy) (:awk :no) (:prev :p2up))",
+   4
+  ],
+  [
+   "((:lead :even) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :even) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :p2up))",
+   4
+  ],
+  [
+   "((:lead :even) (:ored :yes) (:ost :free) (:awk :yes) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :busy) (:awk :yes) (:prev :p2up))",
+   1
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :busy) (:awk :yes) (:prev :p2up))",
+   2
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :free) (:awk :no) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ored :no) (:ost :free) (:awk :no) (:prev :p2up))",
+   3
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :p2up))",
+   2
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :p2up))",
+   3
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :p2up))",
+   0
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :p2up))",
+   2
+  ],
+  [
+   "((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :p2up))",
+   4
+  ],
+  [
+   "((:form :no) (:dm :m-mid))",
+   2
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   0
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   1
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   2
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   3
+  ],
+  [
+   "((:form :yes) (:dm :m-close))",
+   4
+  ],
+  [
+   "((:form :yes) (:dm :m-mid))",
+   1
+  ],
+  [
+   "((:form :yes) (:dm :m-mid))",
+   4
+  ],
+  [
+   "((:form :yes) (:dm :m-far))",
+   1
+  ],
+  [
+   "((:form :yes) (:dm :m-far))",
+   2
+  ],
+  [
+   "((:gauge :g-low) (:awk :no))",
+   2
+  ],
+  [
+   "((:gauge :g-high) (:awk :yes))",
+   3
+  ],
+  [
+   "((:wall :w-open))",
+   4
+  ]
+ ]
+}
