@@ -1702,6 +1702,13 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   `:qks3-ichigo` 0.865, IK `:q1-ichigo-ken` 0.805. None of the four tables changed, so the numbers equal step 3's.
 - Host tests 10107 ALL PASS; G2 identical (II 32, IK 34, KK 33).
 
+- **Decisions on round 5, step 4 (the user, 2026-11-09):**
+  - KI / IK: 「停在這裡」. `:qks3-ichigo` and `:q1-ichigo-ken` stay. No more fictitious-play iterations for this pair.
+  - KH 0.25: 「用 dream-rsi 寫新風格程式」. Step 4's arm was an enumeration of existing units, not a dream-rsi search. Now a real dream-rsi run
+    writes new style-function code for Kenpachi against Hisagi. Both sides are searched together under the search rule above, with a worktree
+    and a native build per cell. The kept code becomes a §10 style unit, and then KH and HK are optimised simultaneously under step 3's rule.
+  - HK's collapsed refit with `:a-ken-kite`: 「維持現狀」. `:qhs-ken` stays.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
