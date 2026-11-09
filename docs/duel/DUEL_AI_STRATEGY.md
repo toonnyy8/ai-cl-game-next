@@ -1924,6 +1924,88 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     search writes one-job style code for Hisagi against Kenpachi, scored against Kenpachi's whole pool, including the bait tables and his
     KI style stand-in. Only HK's strategy changes; the shared CPU (his wake-up habit) stays.
 
+**Round 5, step 7: KH ships the no-refit table; a dream-rsi search for Hisagi's style code (2026-11-10).** Files:
+`fq/switch/khevent/` (`proofs7.sh`, `qks5-hisagi.entry`), `docs/research/strategy-drsi/hkfn/` (README there).
+- **The swap rule, amended** (the user: 「沒重擬合的表 0.915」). Beside the refit iterates, a side's candidates now include its start table:
+  the live table with the new layer or arm added and no refit. The fixed rule (z ≥ 1.96 against the old and the new opponent; for a side
+  with a stand-in, z > -1.96 against it) applies to it unchanged.
+- **KH → `:qks5-hisagi`** = `khevent/kh-t0.lisp`: `:qks3-hisagi`'s q with the stand-off arm's column 1 below every row, and the bait as the
+  `:knockdown` event layer. `:qks4-hisagi` stays as superseded, and the library holds 37 entries.
+  - **Checksum:** its q differ from `:qks4-hisagi`'s and from `:qks3-hisagi`'s (one more column), so the checksum is new and the saved
+    Kenpachi vs Hisagi copies reset again.
+  - **Proof** (`khevent/proofs7-600.jsonl`): `kh-t0.lisp` run raw = the live lookup against `:qhs-ken`, 0.915 = 0.915, 8 of 8 chunks
+    (6,314 lines).
+  - **Both seats on the lookup** (seeds 601-700; `khevent/live9-7-600.jsonl`): Kenpachi vs Hisagi **0.915** (0.815 with `:qks4-hisagi`),
+    Hisagi vs Kenpachi **0.085** (0.185). The other seven are unchanged: HH 0.375, HI 0.575, KK 0.485, KI 0.555, IH 0.405, IK 0.445, II 0.025.
+  - Each live table against its stand-in (`ev/j7f-frozen-*`): HI 0.87, HK 0.89, KI 0.865, IK 0.805, unchanged.
+  - Host tests 10137 ALL PASS (a new check: `:qks5-hisagi` = `:qks3-hisagi`'s q + the stand-off column below every row). pkgcheck shows
+    only `DUEL::APP`, the build and the 8 s smoke pass, and G2 is identical (II 32, IK 34, KK 33).
+  - The layer's firing with this table is step 6's reference row: 6.8 takeovers a match, 3.4 % of match time. Between knockdowns it plays
+    his KI code 0.61 and press 0.24.
+- **The Hisagi search** (khfn's twin; workspace `hkfn/`). Hisagi's shared CPU stays unchanged; the code changes only what Hisagi does in his
+  own strategy.
+  - **The program:** `duel/lisp/cpu-hk-hisagi.lisp`, `hisagi-hk-style`, a strategy's `:fn`. It is off by default and holds only definitions.
+    The search starts from his merged style unchanged, played as `(:id :hkfn :fn hisagi-hk-style :ken-ranged t)`.
+  - **The evaluator, fixed before round 1** (`hkfn/eval.py`): Hisagi plays it whole, HARD, both seats, against Kenpachi's whole pool, in four
+    groups:
+    - the live KH `:qks5-hisagi`, 100 seeds a seat;
+    - his earlier KH tables `:qks4-hisagi`, `:qks3-hisagi`, `:qks2-hisagi`, `:qks-hisagi`, 50 each;
+    - his 13 whole arms: step 4's 11, the bait and the stand-off breaker, 20 each;
+    - his KI style stand-in, 50.
+  - score = the mean of the four groups' shares, each (wins + 1) / (matches + 2): 1,220 matches. The blocks are as khfn's: search 200, dev
+    300, held-out 400 at scale 2. A tripwire checks that the live HK lookup's own share never moves.
+  - **References** (search / dev / held-out ×2):
+    - his merged style (the baseline): 0.216 / 0.195 / 0.230;
+    - Kenpachi's KI code on Hisagi: 0.303 / 0.296 / 0.285;
+    - Ichigo's KI code on Hisagi: 0.125 / 0.117 / 0.136 (but 0.30 against the live KH);
+    - the ranged style: 0.011 / 0.013 / 0.009;
+    - for context, the live HK table 0.586 / 0.623 / 0.596, and his best step-4 arms (Kenpachi's KI code + kite 0.47, press 0.43 held
+      out).
+  - **The keep rule** (fixed before round 1). On the held-out block, all five must hold:
+    1. score ≥ 0.3153: the best existing style, Kenpachi's KI code on Hisagi, 0.2853 + 0.03; unpaired.
+    2. live-KH group ≥ 0.2985: the best style there, Ichigo's KI code.
+    3. stand-in group ≥ 0.3762: the best style there, Kenpachi's KI code.
+    4. mean |difference| of the 19 member shares ≥ 0.05 against each of the four existing styles.
+    5. one job: a bundle of independent rules is not admitted.
+    - Then it becomes an HK arm. The candidates are the start table with the arm and no refit, and the simultaneous KH / HK refit iterates,
+      under step 3's rule as amended above. HK must not lose to its stand-in.
+  - **Grid:** 4 branches x 3 attempts, W = 4, at most 2 rounds, Sonnet 5.5 cells in their own worktrees with native builds.
+    - Branch hints: his own knockdowns against a waiting Kenpachi; range control in the Shikai and the ranged mode; punishing Kenpachi's KI
+      code; resources.
+- **Round 1** (12 cells, every one recorded). Search = the coordinator's rescore on seed0 200; the baseline is 0.216.
+
+| Cell | The code (around his merged style) | Search | Held-out x2: score / live / stand-in |
+|---|---|---|---|
+| b0_a0 | replace the wake-up's first free frame (roll, guard, SP): all lost, shipped with the chances at 0 | 0.216 | - |
+| b1_a0 | the Shikai kite: one back Step as Kenpachi walks into 3.3 m, then the pointer's NS poke from 2.9-6 m | 0.256 | - |
+| b2_a0 | at the first free frame after his knockdown, punish Kenpachi's whiffed recovery with J1 / NS | 0.245 | - |
+| b3_a0 | the DRIVE switch after his own NS hits | 0.221 | - |
+| b0_a1 | walk back for 16 frames when Kenpachi waits at the bait's stand-off | 0.129 | - |
+| b1_a1 | the kite in both forms (the ranged mode from 4.2 m) | 0.277 | 0.252 / 0.077 / 0.322 |
+| b2_a1 | the whiff punish also in neutral | 0.255 | - |
+| b3_a1 | hold the awakening until Kenpachi is far or down (started from the baseline: it missed its parent) | 0.220 | - |
+| b0_a2 | hold the wake-up Hoho for 4 frames at the bait's stand-off | 0.125 | - |
+| b1_a2 | the kite also on an idle Kenpachi inside 2.9 m | 0.258 | - |
+| b2_a2 | the whiff punish with his KI code's move-start race off | 0.282 | 0.257 / 0.169 / 0.243 |
+| b3_a2 | Reishi parity at the bell: the free White Burst when he is far and below 80 % Reishi | **0.315** | **0.320** / 0.117 / 0.332 |
+
+  - **No code is kept.**
+    - b3_a2 clears the score bar (0.320 ≥ 0.3153) but misses the live-KH floor (0.117 vs 0.2985) and the stand-in floor (0.332 vs 0.3762).
+    - Every other cell misses the score bar too.
+  - What the cells found:
+    - **Every change to his first free frame after a knockdown loses.** At that frame the bait and his KI code's meaty J1 look the same
+      (Kenpachi idle about 2.3 m away), and the shared CPU's invulnerable wake-up Hoho is the right answer to the meaty J1 (b0_a0, b0_a1,
+      b0_a2).
+    - Against the live KH the best gain is the whiff punish after his knockdown (live 0.17-0.19 against the baseline's 0.04). Only
+      Ichigo's KI code reaches the 0.30 floor there, and it loses everything else.
+  - `duel/lisp/cpu-hk-hisagi.lisp` and its MANIFEST line are removed again: nothing ships. The search's starting file stays in
+    `hkfn/baseline/` for a round 2.
+  - **The dream step** (one world; weak evidence):
+    - The incumbent policy replays at reward -0.0125 (auc 0, penalty 0.25, beta degenerate).
+    - The three template rewrites (beta 0.6 / 0.3 / 0.9) all replay at 0.4246 (auc 0.4446, penalty 0.40). `v3_wide` was promoted.
+    - **Round 2 was not run:** the coordinator allowed a hand-back after round 1 when the result is clear.
+  - So HK stays `:qhs-ken`, and the HK arm and refit step had nothing to add.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

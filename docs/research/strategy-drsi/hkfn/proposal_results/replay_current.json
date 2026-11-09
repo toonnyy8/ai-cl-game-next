@@ -1,0 +1,856 @@
+{
+  "policy": "docs/research/strategy-drsi/hkfn/policy/current.py",
+  "n_worlds": 1,
+  "max_parallelism": 4,
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "pareto": {
+    "auc": 0.0,
+    "parallel_penalty": 0.25,
+    "parallelism_weight": 0.05,
+    "reward": -0.0125,
+    "n_traces_scored": 1,
+    "per_trace": [
+      {
+        "name": "r01",
+        "run_best": 0.3152,
+        "n_evaluated": 12,
+        "auc": 0.0,
+        "parallel_penalty": 0.25,
+        "front": [
+          {
+            "beta": 0.0,
+            "total_budget": 12.0,
+            "attain": 1.0
+          }
+        ],
+        "varies": false
+      }
+    ]
+  },
+  "qualified": true,
+  "disqualified_reason": null,
+  "non_degenerate": false,
+  "grid": [
+    {
+      "beta": 0.0,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.3152,
+          "n_evaluated": 12,
+          "beta": 0.0,
+          "grid_plan": {
+            "source": "fallback",
+            "requested": null,
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": "planner_returned_none",
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.3152,
+          "total_budget": 12,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            4,
+            4,
+            4
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.2156,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.256,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.2452,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.2207,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.256
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.256,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1",
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.1285,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.08710000000000001
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.2768,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.020799999999999985
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.2551,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.009899999999999992
+                },
+                {
+                  "cell": "b3_a1",
+                  "score": 0.2199,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0007999999999999952
+                }
+              ],
+              "best_after": 0.2768
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 8,
+                "budget": 8,
+                "best": 0.2768,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2",
+                "b2_a2",
+                "b3_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.1254,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0030999999999999917
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.2575,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.019299999999999984
+                },
+                {
+                  "cell": "b2_a2",
+                  "score": 0.282,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.02689999999999998
+                },
+                {
+                  "cell": "b3_a2",
+                  "score": 0.3152,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.09529999999999997
+                }
+              ],
+              "best_after": 0.3152
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "beta": 0.25,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.3152,
+          "n_evaluated": 12,
+          "beta": 0.25,
+          "grid_plan": {
+            "source": "fallback",
+            "requested": null,
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": "planner_returned_none",
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.3152,
+          "total_budget": 12,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            4,
+            4,
+            4
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.2156,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.256,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.2452,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.2207,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.256
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.256,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1",
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.1285,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.08710000000000001
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.2768,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.020799999999999985
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.2551,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.009899999999999992
+                },
+                {
+                  "cell": "b3_a1",
+                  "score": 0.2199,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0007999999999999952
+                }
+              ],
+              "best_after": 0.2768
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 8,
+                "budget": 8,
+                "best": 0.2768,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2",
+                "b2_a2",
+                "b3_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.1254,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0030999999999999917
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.2575,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.019299999999999984
+                },
+                {
+                  "cell": "b2_a2",
+                  "score": 0.282,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.02689999999999998
+                },
+                {
+                  "cell": "b3_a2",
+                  "score": 0.3152,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.09529999999999997
+                }
+              ],
+              "best_after": 0.3152
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "beta": 0.5,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.3152,
+          "n_evaluated": 12,
+          "beta": 0.5,
+          "grid_plan": {
+            "source": "fallback",
+            "requested": null,
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": "planner_returned_none",
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.3152,
+          "total_budget": 12,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            4,
+            4,
+            4
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.2156,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.256,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.2452,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.2207,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.256
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.256,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1",
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.1285,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.08710000000000001
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.2768,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.020799999999999985
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.2551,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.009899999999999992
+                },
+                {
+                  "cell": "b3_a1",
+                  "score": 0.2199,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0007999999999999952
+                }
+              ],
+              "best_after": 0.2768
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 8,
+                "budget": 8,
+                "best": 0.2768,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2",
+                "b2_a2",
+                "b3_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.1254,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0030999999999999917
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.2575,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.019299999999999984
+                },
+                {
+                  "cell": "b2_a2",
+                  "score": 0.282,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.02689999999999998
+                },
+                {
+                  "cell": "b3_a2",
+                  "score": 0.3152,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.09529999999999997
+                }
+              ],
+              "best_after": 0.3152
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "beta": 0.75,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.3152,
+          "n_evaluated": 12,
+          "beta": 0.75,
+          "grid_plan": {
+            "source": "fallback",
+            "requested": null,
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": "planner_returned_none",
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.3152,
+          "total_budget": 12,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            4,
+            4,
+            4
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.2156,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.256,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.2452,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.2207,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.256
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.256,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1",
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.1285,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.08710000000000001
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.2768,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.020799999999999985
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.2551,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.009899999999999992
+                },
+                {
+                  "cell": "b3_a1",
+                  "score": 0.2199,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0007999999999999952
+                }
+              ],
+              "best_after": 0.2768
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 8,
+                "budget": 8,
+                "best": 0.2768,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2",
+                "b2_a2",
+                "b3_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.1254,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0030999999999999917
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.2575,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.019299999999999984
+                },
+                {
+                  "cell": "b2_a2",
+                  "score": 0.282,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.02689999999999998
+                },
+                {
+                  "cell": "b3_a2",
+                  "score": 0.3152,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.09529999999999997
+                }
+              ],
+              "best_after": 0.3152
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "beta": 1.0,
+      "per_trace": [
+        {
+          "name": "r01",
+          "run_best": 0.3152,
+          "n_evaluated": 12,
+          "beta": 1.0,
+          "grid_plan": {
+            "source": "fallback",
+            "requested": null,
+            "effective": {
+              "branch_count": 4,
+              "refine_count": 2,
+              "reason": "fallback grid",
+              "confidence": null
+            },
+            "fallback_reason": "planner_returned_none",
+            "clamp_reasons": [],
+            "out_of_support": false
+          },
+          "status": "ok",
+          "best": 0.3152,
+          "total_budget": 12,
+          "decision_rounds": 3,
+          "effective_sequential_rounds": 3,
+          "batch_sizes": [
+            4,
+            4,
+            4
+          ],
+          "events": [
+            {
+              "round": 1,
+              "before": {
+                "observed": 0,
+                "budget": 0,
+                "best": 0.0,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a0",
+                "b1_a0",
+                "b2_a0",
+                "b3_a0"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a0",
+                  "score": 0.2156,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b1_a0",
+                  "score": 0.256,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b2_a0",
+                  "score": 0.2452,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                },
+                {
+                  "cell": "b3_a0",
+                  "score": 0.2207,
+                  "fail_class": "ok",
+                  "delta_vs_parent": null
+                }
+              ],
+              "best_after": 0.256
+            },
+            {
+              "round": 2,
+              "before": {
+                "observed": 4,
+                "budget": 4,
+                "best": 0.256,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a1",
+                "b1_a1",
+                "b2_a1",
+                "b3_a1"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a1",
+                  "score": 0.1285,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.08710000000000001
+                },
+                {
+                  "cell": "b1_a1",
+                  "score": 0.2768,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.020799999999999985
+                },
+                {
+                  "cell": "b2_a1",
+                  "score": 0.2551,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.009899999999999992
+                },
+                {
+                  "cell": "b3_a1",
+                  "score": 0.2199,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0007999999999999952
+                }
+              ],
+              "best_after": 0.2768
+            },
+            {
+              "round": 3,
+              "before": {
+                "observed": 8,
+                "budget": 8,
+                "best": 0.2768,
+                "legal": 4
+              },
+              "batch": [
+                "b0_a2",
+                "b1_a2",
+                "b2_a2",
+                "b3_a2"
+              ],
+              "outcomes": [
+                {
+                  "cell": "b0_a2",
+                  "score": 0.1254,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.0030999999999999917
+                },
+                {
+                  "cell": "b1_a2",
+                  "score": 0.2575,
+                  "fail_class": "ok",
+                  "delta_vs_parent": -0.019299999999999984
+                },
+                {
+                  "cell": "b2_a2",
+                  "score": 0.282,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.02689999999999998
+                },
+                {
+                  "cell": "b3_a2",
+                  "score": 0.3152,
+                  "fail_class": "ok",
+                  "delta_vs_parent": 0.09529999999999997
+                }
+              ],
+              "best_after": 0.3152
+            }
+          ]
+        }
+      ],
+      "status": "ok"
+    }
+  ]
+}

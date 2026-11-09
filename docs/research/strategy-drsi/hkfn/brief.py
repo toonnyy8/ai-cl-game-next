@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+# brief.py — one cell's brief for the HK style-code search (DUEL_AI_STRATEGY §8.19 round 5, step 7; khfn/brief.py's twin): the dream-rsi exploration prompt
+# (assets/exploration_prompt.md, Listing 1 of arXiv:2609.14858) + this project's rules. Prints it.
+# usage: brief.py <cell> <round> ['<work-order JSON>']     (step.sh calls it)
+import json, os, re, sys
+
+TOP = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(TOP))))
+REL = os.path.relpath(TOP, REPO)
+ECL = os.environ.get('ECL_HOST', '/media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl')
+SCRATCH = os.environ.get('KHFN_SCRATCH', '/tmp/claude-1000/-media-8tsp-projects-ai-cl-game-next/ae4fc6c9-5486-4f14-9b2d-a6ec715b6738/scratchpad')
+cell, rnd = sys.argv[1], int(sys.argv[2])
+work = json.loads(sys.argv[3]) if len(sys.argv) > 3 else {}
+THEMES = ['his own knockdowns: getting up against a Kenpachi who waits for his wake-up Hoho (the bait), inside Hisagi\'s own strategy',
+          'range control: keeping Kenpachi at the chain-sickle\'s mid range in the Shikai and outside 3 m in the Bankai\'s ranged mode',
+          'punishing Kenpachi\'s KI code: his meaty J1, his hoho-end J1, his Step-in, his stand-off attack',
+          'resources against Kenpachi: when to awaken and enter the Bankai, the DRIVE switch, the Burst, Reishi and the bell']
+branch = work['branch'] if 'branch' in work else int(re.match(r'b(\d+)', cell).group(1))
+direction = work.get('direction') or f'lean on: {THEMES[branch % 4]}'
+parent = work.get('parent_dir')
+parent = os.path.abspath(parent) if parent else '(none: this cell opens a new direction from BASELINE_DIR)'
+node = f'{REL}/rounds/round{rnd:02d}/nodes/{cell}'
+hist = ' '.join(os.path.abspath(h) for h in work.get('history_dirs', [])) or '(none: round 1)'
+FILE = 'cpu-hk-hisagi.lisp'
+
+print(f"""You are one discovery cell of a Dream-RSI search (arXiv:2609.14858) writing a new STYLE FUNCTION for SHUHEI HISAGI (roster 7)
+against KENPACHI ZARAKI (roster 1) in SOUL DUEL, HARD. Reply to the coordinator in English; the user does not read your output directly.
+
+You must read every historical proposal before proposing or implementing a new solution.
+
+Direction hint (structural, not a recipe): {direction}
+
+# The cell
+- Cell {cell}, round {rnd}. Target file (EVAL_PROGRAM): duel/lisp/{FILE} (the only source file you may change).
+- PARENT_DIR = {parent}
+- Sibling attempts of this round: {TOP}/rounds/round{rnd:02d}/nodes/b*_a*/ (exclude your own NODE_DIR)
+- HISTORY_DIR = {hist}
+- BASELINE_DIR = {TOP}/baseline  (the starting {FILE}: his merged style unchanged; proposal.md, score.json; proposal.md also gives the
+  references (his four existing styles, the live HK table, his best step-4 arms) and THE KEEP RULE, fixed before round 1: read it)
+- NODE_DIR (yours) = {node}  — RELATIVE TO YOUR OWN WORKTREE ROOT
+- EVAL_COMMAND (in your worktree root): python3 {REL}/eval.py --seed0 300 -j 5
+
+You work in your own git worktree (the main branch: every rule and the evaluator's opponents are fixed there). The search's scaffold is
+not committed, so first, in your worktree root:
+1. mkdir -p {REL} && cp {TOP}/eval.py {TOP}/cand-hkfn.lisp {REL}/   (the evaluator and the strategy that plays the function)
+2. insert the line lisp/{FILE} into duel/MANIFEST right after the line lisp/cpu-kh-ken.lisp (edit that one line; don't copy
+   another checkout's MANIFEST)
+3. if PARENT_DIR is a directory, cp PARENT_DIR/{FILE} duel/lisp/{FILE}; else cp BASELINE_DIR/{FILE} duel/lisp/{FILE}; then touch it.
+
+# Step 1. Read the complete history first
+(Context budget: read each proposal's summary, mechanism and measurement first and its score.rescored.json; read whole files only for the
+cells your direction builds on; grep big files rather than reading them end to end. Keep your proposal.md under about 150 lines.)
+Read every proposal.md under the sibling attempts, HISTORY_DIR and BASELINE_DIR, each with its score.rescored.json (the coordinator's
+re-measure on the search seeds: THE number). Trust the measured result over what a proposal claims. For a failure, work out whether the idea
+was flawed or let down by a bug or a parameter (locate the bug before retrying). Don't converge on small tweaks of one mechanism with
+flattening returns: prefer a structurally different mechanism, a new combination of pieces that worked, or a targeted fix. Never a repeat.
+
+# Step 2. The game (read, don't skim)
+- docs/duel/DUEL_AI_STRATEGY.md §2 (cues), §9 (the :fn contract), §10 (style units, the event layer), §8.19's "Round 5, step 5" to "step 7"
+  (Kenpachi's side: his wake-up bait, an event layer that takes over at Hisagi's knockdown and stands 2.3 m off, inside the 2.4 m where
+  Hisagi's shared CPU presses its wake-up Hoho, then punishes the Hoho's end; his stand-off breaker; his live table :qks5-hisagi wins 0.915).
+- docs/duel/DUEL_CORE.md (the two-button system), docs/duel/DUEL_HISAGI.md (his kit: the Shikai's chain-sickle range, the Bankai's ranged
+  mode and bind, WA / TABA / TATAKI, the DRIVE switch), Kenpachi's docs docs/duel/DUEL_KEN_CORE.md, DUEL_KEN_V3.md, DUEL_KEN_BANKAI.md.
+- duel/lisp/cpu-hisagi-range.lisp (his merged style hisagi-merged-style and the ranged-mode style), duel/lisp/cpu-kh-ken.lisp (Kenpachi's
+  bait and stand-off codes: what you face), duel/lisp/cpu-ki-ken.lisp (his KI code, which the bait wraps), duel/lisp/core-ai.lisp
+  (core-brain-step: the :fn runs first on every free step, before the generic CPU's wake-up Hoho and the MCTS), fuzzy.lisp, strategy.lisp.
+- Hisagi's SHARED CPU (core-ai.lisp, ai.lisp, hisagi-ai.lisp) stays unchanged, the user's call: his habits change only inside your style
+  function, which runs first whenever he is free (so, e.g., what he does on his first free frame after a knockdown is yours to decide).
+
+# The task and the score (frozen: {REL}/eval.py)
+Write hisagi-hk-style (e b f kit s d) -> T when it decided this step, NIL to leave the step to the MCTS / generic CPU. It may call any existing
+function (hisagi-merged-style, hisagi-range-style, ken-ki-style, ichigo-ki-style, their helpers, the core CPU's cai-* / ai-press ...) and
+define its own helpers and knobs in {FILE}. The strategy that plays it, `(:id :hkfn :fn hisagi-hk-style :ken-ranged t)`, keeps the merged
+style's :ken-ranged key. Its per-match state: (brain-style b) belongs to whichever style function owns it (the merged style keeps an HMS struct
+there); keep yours in a struct of your own in brain-style (e.g. one that includes HMS or holds it), never in a global table (the in-game
+MCTS rollouts snapshot the brain, not globals); name struct slots so they don't clash with an included struct's.
+score = mean over four groups of each group's share (wins + 1) / (matches + 2): Hisagi (HARD, playing the strategy above whole) against
+Kenpachi's live KH table :qks5-hisagi (100 seeds a seat), his four earlier KH tables (50 each), his 13 candidate arms played whole (20 each:
+step 4's 11 + the bait + the stand-off breaker), and his KI style CPU, the stand-in for a human (50); 1,220 matches. The baseline (the merged
+style unchanged) scores in BASELINE_DIR/score.json; "members" gives each opponent's share. The keep rule (BASELINE_DIR/proposal.md; the user:
+「高內聚，低耦合」): one recognisable job, useful across the whole pool, not a near-duplicate of an existing style; a combination of rules is
+not admitted even if it scores.
+
+# Step 3. Propose and implement, in duel/lisp/{FILE} ONLY
+Rules:
+- every chance scales by difficulty EASY <= NORMAL <= HARD (the brain's difficulty); roll ONCE PER EVENT (a move start, a situation's start),
+  never per step (a per-step chance is a certainty within a second); a reaction slower than the threat never fires.
+- read Kenpachi only through the perceived SNAP S, the distance D and the brain's perception (no reading his inputs, no debug knobs, no seed /
+  tick special cases, nothing keyed to the evaluator or its pool).
+- determinism: random numbers only via SIM-RND01 or the brain's rolls (brain-roll / brain-chance), never RND01 / RANDOM.
+- every tunable is a `defparameter` with a docstring; nothing outside {FILE} changes (no other pairing may move).
+- {FILE} holds only defparameter / defvar / defconstant / defun / defmacro / defstruct / inline-readers forms: NO other top-level call, and in
+  particular NO cai-defstyle (registering a matchup style would turn the style on for the shipped CPU and the live table's NIL arm; the
+  coordinator's rescore checks that the live HK lookup's own share did not move, and a cell that moves it is recorded as a correctness failure).
+
+# Step 4. Evaluate honestly
+1. {ECL} --norc --load tests/duel-rules-test.lisp must print ALL PASS.
+2. touch duel/lisp/{FILE}, then compare variants with EVAL_COMMAND (dev seeds, seed0 300); `--scale 0.5` for quick looks (610 matches).
+   The first run builds the native sim (~2 min, again after every change). Three other cells run on this machine at once: keep -j 5. A
+   score moves about +-0.02 between blocks with the draw alone; prefer a gain that holds at --scale 1.
+3. Your result is the LAST file you deliver and its LAST full EVAL_COMMAND JSON; the coordinator re-measures it on the search seeds (seed0
+   200); a held-out block exists that neither of you sees. Never edit eval.py, tools/, tests/ or anything the evaluator reads.
+
+# Deliverables (inside YOUR worktree at NODE_DIR; the coordinator copies them)
+- NODE_DIR/{FILE}: your final duel/lisp/{FILE}
+- NODE_DIR/proposal.md: the job of the style in one line, the mechanism, the evidence from history, why it is not a repeat nor a
+  near-duplicate of the KI codes, the measurement (score, groups, members vs the baseline), the expected benefit and the risks.
+- NODE_DIR/score.json: the exact JSON line the final EVAL_COMMAND printed.
+Scratch files go under {SCRATCH}/hkfn-{cell}/ (if that is not writable from your worktree, a git-ignored dir inside it, e.g. build/hkfn-{cell}/),
+never in NODE_DIR or the repo root. If a shell command is refused as too complex, split it into plain commands or put it in a script file. Do not commit, push, merge or open PRs. Never run pkill /
+kill / killall / pkill -f / pgrep -f; bounded waits only (wait on a PID or with a timeout).
+
+# Report back
+A short STYLE paragraph first (how this Hisagi plays against Kenpachi, in a player's words, and what differs from earlier cells), then the
+exact JSON line of the final evaluation (do not round or improve it), the absolute path of your worktree, and on failure the failure class
+(compile_other, correctness, runtime, resource) with the error text.
+""")
