@@ -1191,6 +1191,13 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   quarter of its Shikai states in the learner's reach; or freeze the Shikai rows against online learning.
 - The Shikai's DRIVE switch can only matter if SUBLIMATION reaches 0.25 in the Shikai. That would need the CPU to hold back its awakening.
 - HH still loses to the kite whole (pooled b / c 63 / 90).
+- **The user's three answers on round 3 (2026-11-09):**
+  - 「偏好 0.08，線上可學掉」: HI ships the learnable Shikai prior at 0.08 (held-out 0.87 / 0.875, the same as the pin), and the online
+    learner may unlearn it (in the 25-match smoke the Shikai's press share fell from 100% to 49%, with 16 wins against 21).
+  - 「試「延後覺醒」」: try a delayed awakening, so the CPU stays in the Shikai long enough to bank SUBLIMATION, then measure whether the
+    Shikai DRIVE switch (`:shikai-dswitch`) helps. It moves the awakening's timing, so it ships only if it beats the live table.
+  - 「就這樣，接著做劍八與一護 (Recommended)」: HH stays `:qhs2-mirror`. Kenpachi's and Ichigo's six tables are rebuilt the same way next
+    (general arms per character plus targeted ones, the 0.5 s period, the distance and state rules).
 
 ## 9. Strategies may carry code (2026-11-08)
 
