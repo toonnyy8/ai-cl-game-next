@@ -270,6 +270,11 @@ Round 3 (§8.19 "Round 3"):
 - The Shikai's DRIVE switch (`:shikai-dswitch`) is written but not shipped: it never opens in a match.
 - HH: `hh/qhs2-mirror.lisp` (`:qhs2-mirror`, in the lookup).
 
+Round 4 (§8.19 "Round 4"):
+- HI plays `hi/qhs3-ichigo.lisp` (`:qhs3-ichigo`, the learnable +0.08 Shikai preference).
+- The delayed awakening (`:hold-awaken`) loses: not shipped.
+- Kenpachi's three tables go into the lookup: `kenpachi/qks-ichigo.lisp`, `qks-hisagi.lisp`, `qks-ken.lisp`.
+
 | File | What |
 |---|---|
 | `sw.py` | Common options `--me --vs --opp --arms` (the pairing, the opponent seat, the arms file; the pilot's by default). `start`: the start table (arm 0 everywhere, or `--embed` a 2-arm table's 48 rules). `log`: behaviour + run exploration (`STRAT_FQLOG "<salt> <eps> <seat> <rmin> <rmax>"`). `fit`: a ridge V + per-arm deltas on the discounted return, with the bootstrap sign gate. `measure`: at eps 0, shares, draws, per-seed wins, switch counts by form / distance band, STRAT_HRANGE, the DRIVE switches by form. `pin`: an arm's bonus in a form's G1 rows. `pair`: b / c |
@@ -291,7 +296,12 @@ Round 3 (§8.19 "Round 3"):
 | `hh/hh3-*`, `hh/qhs2-mirror.lisp` | round 3, HH: `hh3-b05` (the live table + 0.05 on merged at ranged close: round 3's behaviour), `hh3-r1-g966-p05` (+ `.json`: the refit with that prior) = **shipped** `qhs2-mirror.lisp`; `hh3-ds` (the live table with `:shikai-dswitch`, `arms/hh-ds.arms`) |
 | `arms/a9-pressds.lisp` | press + the DRIVE switch + `:shikai-dswitch`, played whole |
 | `proofs3.sh`, `proofs3-600.jsonl` | round 3 on the final build: `:qhs2-ichigo` and `:qhs2-mirror` run raw = the live lookup, 8 of 8 each |
+| `hi/qhs3-ichigo.lisp`, `hi/hi4-h*.lisp`, `arms/hi-h*.arms`, `arms/a10-presshold*.lisp`, `hold.sh` | round 4, HI: the shipped +0.08 table; the delayed awakening (`:hold-awaken` 0.3 / 0.6) inside it and whole, on the selection block |
+| `proofs4.sh`, `proofs4-600.jsonl` | round 4 on the final build: `:qhs3-ichigo`, `:qks-ichigo`, `:qks-hisagi`, `:qks-ken` run raw = the live lookup |
+| `kenpachi/` | round 4, Kenpachi's three tables. `arms/k*.lisp` (+ `-ki` / `-kh` / `-kk` screens, seeds 1-100) and `screen.sh`. `ki.arms`, `kh.arms`, `kk.arms`. `start.sh` (start tables embedding each shipped `:q1-ken-*`, `identity-s0-600.jsonl`). `round1.sh`, `round2.sh`, `measure.sh`, `heldout.sh`. `<p>-r<k>-g<gamma>.lisp` / `.json` (fits; `-m01` with `:margin 0.01`, measured after the picks). `ki-press-all.lisp` (press in every state, for its form counts). `qks-*.lisp`: **shipped**. `live.sh`, `live-600.jsonl`: the cross effects with both seats on the lookup |
+| `ev/ki-*`, `ev/kh-*`, `ev/kk-*`, `ev/hi4-*` | round 4's measures (`*-sel2-*` selection 801-1000, `*-ho601-*` / `*-ho701-*` held-out) |
 | `ev/hi3-*`, `ev/hh3-*` | round 3's measures (`*-sel2*` selection, `*-ho601-*` / `*-ho701-*` held-out; `hi3-ho*-b08-posthoc`: measured after the decision) |
 
 Logs (gitignored, `switch/logs/`): `r1` (the start table, 4 salts), `r2a` / `r2b` (2 salts each), `r3` (4 salts), round 2's `hi2-r1`,
-`hi2-r2`, `hk2-r1`, `hh2-r1`, `hh2-r2`, round 3's `hh3-r1` (4 salts each; each fit's stdout as `fit-*.out`; `hi3/` the HI prior fits'), `ev/*`.
+`hi2-r2`, `hk2-r1`, `hh2-r1`, `hh2-r2`, round 3's `hh3-r1`, round 4's `kki-r1`, `kki-r2`, `kkh-r1`, `kkh-r2`, `kkk-r1`, `kkk-r2` (4 salts each; each fit's stdout as `fit-*.out`;
+`hi3/` the HI prior fits'), `ev/*`.

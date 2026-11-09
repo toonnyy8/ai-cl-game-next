@@ -8,7 +8,7 @@ ds = [(p, json.load(open(p))) for p in sys.argv[1:]]
 for p, d in ds:
     hr = d.get('hrange', {})
     print(f"{p:40s} share {d['share']:.3f} draws {d.get('draws', '-'):>3} chg {d['changes_per_match']['mean']:5.1f} zero {d['changes_per_match']['zero']:3d} "
-          f"arms {d['arm_share']} d {hr.get('mean_d', '-')} in3 {hr.get('close_share', '-')} dsw {d.get('dswitch')}")
+          f"arms {d['arm_share']} d {hr.get('mean_d', '-')} in3 {hr.get('close_share', '-')} dsw {d.get('dswitch')} leave {d.get('leave_shikai')}")
 a = ds[0][1]['wins']
 for p, d in ds[1:]:
     w = d['wins']

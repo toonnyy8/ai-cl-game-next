@@ -1,0 +1,28 @@
+{
+ "char": "kenpachi",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "kp3-kite",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 112,
+ "comp_matches": 200,
+ "inc_wins": 83,
+ "inc_matches": 200,
+ "comp_share": 0.56,
+ "inc_share": 0.415,
+ "gain": 0.145,
+ "b": 64,
+ "c": 35,
+ "z": 2.915,
+ "own_share": 0.0,
+ "wall_s": 7.1,
+ "score": 0.56,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/counter/frozen/ki-ichigo.lisp"
+ ]
+}

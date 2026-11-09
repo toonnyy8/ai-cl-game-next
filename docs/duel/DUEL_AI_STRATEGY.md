@@ -1199,6 +1199,119 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - 「就這樣，接著做劍八與一護 (Recommended)」: HH stays `:qhs2-mirror`. Kenpachi's and Ichigo's six tables are rebuilt the same way next
     (general arms per character plus targeted ones, the 0.5 s period, the distance and state rules).
 
+**Round 4: the 0.08 preference shipped, a delayed awakening, Kenpachi's three tables (2026-11-09).**
+- Results:
+  - HI plays `:qhs3-ichigo`, the learnable +0.08 Shikai preference.
+  - The delayed awakening makes the Shikai DRIVE switch fire, but it loses badly: not shipped.
+  - Kenpachi's three tables are rebuilt and all three go into the lookup:
+    - `:qks-ichigo` and `:qks-hisagi` win clearly;
+    - `:qks-ken` only matches the shipped table.
+- Files: `docs/research/strategy-drsi/fq/switch/` (`hi/qhs3-ichigo.lisp`, `hi/hi4-*`, `hold.sh`, `arms/hi-h*.arms`, `arms/a10-*`, `proofs4.sh`, `kenpachi/`).
+
+**A. HI: `:qhs3-ichigo`** (round 3's `hi3-r1-g98-b0.08`: press +0.08 in G1's Shikai rows instead of the +1.0 pin).
+- Run raw = the live lookup: 0.87 = 0.87, 8 of 8 chunks, 6,583 lines.
+- Held-out: **0.87 / 0.875**; against `:qhs2-ichigo` b / c 1 / 0 and 0 / 0. Offline it plays as the pin.
+- Online:
+  - a quarter of its Shikai states are within the learner's 0.05 reach;
+  - round 3's smoke: the press share in the Shikai fell from 100 % to 49 % in 25 matches.
+- Page: 448 integers.
+
+**B. A delayed awakening** (new: core-ai.lisp `strat-hold-awaken-p`).
+- The strategy's `:hold-awaken H` (a `:base` key) keeps `gauges-awakened-ok-p` false while SUBLIMATION is below H of its maximum. That gate is
+  what the KI style CPU's awakening, the generic CPU's and the MCTS's skip all read. No key or no strategy: unchanged.
+- The arm: press + the DRIVE switch + `:shikai-dswitch` + `:hold-awaken` 0.3 / 0.6. Selection, seeds 801-1000 (live `:qhs3-ichigo` 0.838):
+
+| | share | Shikai DRIVE switches | leaves the Shikai (median) / never |
+|---|---|---|---|
+| live | 0.838 | 0 | 216 s / 131 |
+| H 0.3 in the table | 0.720 (b / c 21 / 68) | 176 (0.44 a match) | 235 s / 161 |
+| H 0.6 in the table | 0.733 (25 / 67) | 457 (1.14) | 257 s / 187 |
+| H 0.3 / 0.6 whole | 0.613 / 0.647 | 177 / 458 | - |
+| press + the switch whole, no hold | 0.657 | 0 | - |
+
+- Held-out (H 0.6, picked on selection):
+  - in the table: 0.71 / 0.705 against the live 0.87 / 0.875 (b / c 10 / 42, 7 / 41; z -4.4, -4.9);
+  - whole: 0.685 / 0.605;
+  - Shikai switches 1.3 a match;
+  - leaving the Shikai moves from 223 / 212 s to 268 / 248 s (median), and the matches never leaving it rise from 68 / 69 to 97 / 94.
+- **Not shipped.** Banking SUBLIMATION in the Shikai costs more than the switch gives. The key stays off.
+
+**C. Kenpachi's three tables.**
+- **Opponents:**
+  - KI: Ichigo's frozen `:ki-ichigo`;
+  - KH: Hisagi's live `:qh-ken`;
+  - KK: the shipped `:q1-ken-ken` on the other seat.
+- **G1's forms:** 0 his sealed base, 1 the Shikai or the Bankai.
+- **Arms**, played whole (seeds 1-100, 200 matches; the live `:q1-ken-*` in the last row):
+
+| Arm | Kind | KI | KH | KK |
+|---|---|---|---|---|
+| his KI style code (`ken-ki-style`) | general | 0.71 | 0.245 | 0.43 |
+| + the brawler's data (press) | general | **0.78** | 0.165 | 0.425 |
+| + s7-kite's data | general | 0.56 | 0.305 | 0.425 |
+| + s3-zoner's data | general | 0.645 | **0.39** | 0.385 |
+| Ichigo's KI style code | targeted vs Ichigo | 0.035 | 0.31 | 0.0 |
+| the generic CPU (no style code) | | 0.0 | 0.0 | 0.0 |
+| the live `:q1-ken-*` | | 0.415 | 0.22 | 0.43 |
+
+  No style code aims at Hisagi or at Kenpachi himself.
+- **Tables:**
+  - each embeds its shipped `:q1-ken-*` (arm 0 NIL = his shipped CPU, arm 1 the shipped arm 1), then adds the other general arms;
+  - KI has 6 arms (page 537), KH and KK 5 (page 448);
+  - each start table run raw = the shipped table: KI 0.4, KH 0.24, KK 0.485, 8 of 8 chunks each.
+- **No priors.** A prior goes only where the short window is known to mislead, and the HI awakening pattern did not appear here: KI's fit stays
+  in the base form longer than press whole (52,150 against 31,397 judgements).
+- Rounds: round 1 (4 salts, the start table + runs) and round 2 (4 salts, round 1's pick + runs), γ 0.966 / 0.98. Picks on 801-1000.
+
+| Selection (801-1000) | KI | KH | KK |
+|---|---|---|---|
+| the shipped table | 0.425 | 0.22 | 0.463 (30 draws) |
+| best whole arm | press 0.772 | zone 0.422 | - |
+| round 1, γ 0.966 / 0.98 | 0.705 / 0.68 | 0.318 / 0.33 | **0.463** / 0.427 |
+| round 2, γ 0.966 / 0.98 | 0.682 / **0.797** | 0.417 / **0.507** | 0.453 / 0.453 |
+
+- **Held-out** (601-700 / 701-800; b / c of the pick):
+
+| | the pick | shipped `:q1-ken-*` | best whole | pick vs shipped | pick vs whole |
+|---|---|---|---|---|---|
+| KI (round 2, γ 0.98) | **0.885 / 0.81** | 0.40 / 0.445 | press 0.795 / 0.805 | 105 / 8, 89 / 16 | 38 / 20, 28 / 27 |
+| KH (round 2, γ 0.98) | **0.625 / 0.47** | 0.24 / 0.195 | zone 0.425 / 0.455 | 95 / 18, 78 / 23 | 70 / 30, 50 / 47 |
+| KK (round 1, γ 0.966) | 0.52 / 0.45 (draws 17, 11) | 0.485 / 0.455 (draws 6, 18) | press 0.50 / 0.445 | 44 / 37, 37 / 38 | 8 / 4, 4 / 3 |
+
+  All three match or beat the shipped table, so all three go into the lookup: `:qks-ichigo`, `:qks-hisagi`, `:qks-ken`. The KK table is
+  press about 97 % of the time, so it only ties.
+- **How they switch** (held-out):
+  - **KI**: 186 judgements a match, **94 arm changes**. Arm shares: KI style 0.40, press 0.06, kite 0.11, zone 0.20, NIL 0.14, Ichigo's
+    code 0.10. Base close: KI style 0.69, zone 0.23. Base far: press 0.82. Released close: zone 0.41, kite 0.37. Released far: Ichigo's code
+    0.45, NIL 0.27.
+  - **KH**: 391 judgements, **205 arm changes**. Press 0.56, KI style 0.37. Base close: press 0.71. Released close: KI style 0.56, press
+    0.34. Released mid: press 0.91.
+  - **KK**: 556 judgements, 10.5 arm changes, press 0.97.
+- **The switching in KI and KH is mostly flapping.** They change arm about every other judgement, between arms that run the same style
+  code with different data.
+  - The G0 rules' previous-arm cue can make a 2-cycle.
+  - A `:margin 0.01` (keep the previous arm while it trails by less) cut the changes from 92 to 72 (KI) and from 220 to 160 (KH) on
+    801-1000 at an equal share (b / c 54 / 50, 57 / 69). That was measured after the picks, so it is not shipped.
+- **Arm gaps** (median; under 0.05): KI 0.0095 (95 %), KH 0.022 (69 %), KK 0.0145 (100 %).
+- **Proofs** (`proofs4.sh`, 8 of 8 chunks each): `:qhs3-ichigo`, `:qks-ichigo`, `:qks-hisagi` and `:qks-ken` each run raw = the live lookup.
+- The library holds 26 entries.
+- **Cross effects, both seats on the lookup** (seeds 601-700; `kenpachi/live-600.jsonl`; §8.18's merged numbers in brackets):
+
+| Pairing | Kenpachi's share | the other's share |
+|---|---|---|
+| Kenpachi vs Ichigo | **0.40** (0.765) | Ichigo vs Kenpachi 0.60 (0.235) |
+| Kenpachi vs Hisagi | 0.625 (0.24) | Hisagi vs Kenpachi 0.375 (0.76) |
+| the Kenpachi mirror | 0.485 (0.485) | - |
+
+  `:qks-ichigo` was fitted and held out against Ichigo's frozen `:ki-ichigo`, as this round asked. Against her live table `:q1-ichigo-ken`
+  it does worse than the `:q1-ken-ichigo` it replaced (0.40 against 0.765), so the swap is a regression in CPU vs CPU.
+- **Open for the user:**
+  - Kenpachi vs Ichigo. Which opponent should decide the swap: her frozen KI style (the brief's; `:qks-ichigo` wins, 0.885 / 0.81 against
+    0.40 / 0.445) or her live `:q1-ichigo-ken` (`:qks-ichigo` loses, 0.40 against 0.765)? Options: keep the swap; go back to `:q1-ken-ichigo`;
+    or refit against a pool of both.
+  - KI's and KH's flapping. Should a table carry `:margin` (0.01 measured equal on selection), with its own held-out run?
+  - The delayed awakening loses; the Shikai DRIVE switch stays off.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

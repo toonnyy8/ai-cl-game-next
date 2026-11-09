@@ -308,6 +308,11 @@ def cmd_fit(a):
     print(f'kept deltas: {len(res["kept"])}')
 
 
+def form_names():
+    """The form index's names (core-ai.lisp STRAT-FORM-INDEX): Hisagi's three; anyone else's base form and his released / awakened forms."""
+    return ('shikai', 'ranged', 'bind') if MEN == 'hisagi' else ('base', 'released', 'f2')
+
+
 def band(dm):
     return 'close' if dm < 2.9 else ('mid' if dm < 4.5 else 'far')
 
@@ -324,7 +329,8 @@ def summarize(ms):
             arms[j[1]] += 1
             if j[4] is None:
                 continue
-            for key in (('band', band(j[4])), ('form', ('shikai', 'ranged', 'bind')[j[5]]), ('form-band', ('shikai', 'ranged', 'bind')[j[5]] + '-' + band(j[4]))):
+            fn = form_names()[j[5]]
+            for key in (('band', band(j[4])), ('form', fn), ('form-band', fn + '-' + band(j[4]))):
                 by.setdefault(key[0], {}).setdefault(key[1], np.zeros(NA))[j[1]] += 1
     hr = np.array([m['hr'] for m in ms if m.get('hr')]) if any(m.get('hr') for m in ms) else None
     out = dict(matches=n, share=round(sum(1 for m in ms if m['win'] > 0) / max(1, n), 3), draws=sum(1 for m in ms if m['win'] == 0),
@@ -334,6 +340,10 @@ def summarize(ms):
                                       zero=int(sum(c == 0 for c in changes))),
                by={k: {kk: dict(n=int(vv.sum()), share=[round(x / max(1, vv.sum()), 3) for x in vv]) for kk, vv in v.items()} for k, v in by.items()},
                wins=wins)
+    lv = [next((j[0] for j in m['js'] if j[5] not in (None, 0)), None) for m in ms if m['js'] and m['js'][0][5] is not None]
+    if lv:                                                            # (when he first leaves the Shikai: his awakening's timing)
+        t = [x / 60.0 for x in lv if x is not None]
+        out['leave_shikai'] = dict(median_s=round(float(np.median(t)), 1) if t else None, never=sum(x is None for x in lv))
     if any(m.get('ds') for m in ms):
         ds = np.array([m['ds'] for m in ms if m.get('ds')]).sum(0)
         out['dswitch'] = dict(shikai=int(ds[0]), ranged=int(ds[1]), bind=int(ds[2]), per_match=round(float(ds.sum()) / max(1, n), 2))

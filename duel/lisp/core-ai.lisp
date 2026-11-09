@@ -200,9 +200,16 @@ reaches. T when it pressed. No :DSWITCH (every shipped CPU): no roll, NIL."
                             (cai-press b :quick 1))))))))))
 
 (defun gauges-awakened-ok-p (e)
-  "May E awaken now (the awakening gauge full, not yet awakened, free)?"
+  "May E awaken now (the awakening gauge full, not yet awakened, free; a CPU's strategy may hold it, STRAT-HOLD-AWAKEN-P)?"
   (let ((g (gauges e)) (f (fighter e)))
-    (and (not (getf (kit-core (fighter-kit f)) :no-awaken)) (not (gauges-awakened g)) (>= (gauges-awaken g) *awaken-max*) (member (fighter-state f) '(:idle :run)))))
+    (and (not (getf (kit-core (fighter-kit f)) :no-awaken)) (not (gauges-awakened g)) (>= (gauges-awaken g) *awaken-max*) (member (fighter-state f) '(:idle :run))
+         (not (strat-hold-awaken-p e)))))
+(defun strat-hold-awaken-p (e)
+  "The active strategy's :HOLD-AWAKEN H (DUEL_AI_STRATEGY §8.19 round 4; the user, 2026-11-09: 「試「延後覺醒」」): the CPU keeps from awakening
+while its SUBLIMATION is below H of its maximum (it fills once the awakening gauge is full), so the Shikai's DRIVE switch has a gauge to spend.
+No :HOLD-AWAKEN (every shipped strategy) or no active strategy (a human): NIL."
+  (let ((h (strat-out :hold-awaken nil)))
+    (and h (< (/ (gauges-sub (gauges e)) *sub-max*) h))))
 
 (defvar *in-rollout*)                                    ; (cpu-mcts.lisp gives it its value)
 (defvar *cai-switch-counts* (make-array 6 :element-type 'fixnum :initial-element 0)

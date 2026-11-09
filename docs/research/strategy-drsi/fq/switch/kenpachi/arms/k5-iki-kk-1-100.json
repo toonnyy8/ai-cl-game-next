@@ -1,0 +1,28 @@
+{
+ "char": "kenpachi",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "kp5-iki",
+ "seeds": 100,
+ "seed0": 0,
+ "comp_wins": 0,
+ "comp_matches": 200,
+ "inc_wins": 86,
+ "inc_matches": 200,
+ "comp_share": 0.0,
+ "inc_share": 0.43,
+ "gain": -0.43,
+ "b": 0,
+ "c": 86,
+ "z": -9.274,
+ "own_share": 0.0,
+ "wall_s": 2.9,
+ "score": 0.005,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "docs/research/strategy-drsi/fq/pairs/kk/kk-fit.lisp"
+ ]
+}
