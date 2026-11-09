@@ -768,6 +768,14 @@ results, 「整場替換 (Recommended)」. Everything is in `docs/research/strat
   - the cross effect on Ichigo vs Kenpachi (0.905 → 0.235) and Hisagi vs Kenpachi;
   - the HARD Ichigo mirror's draws in CPU vs CPU;
   - Kenpachi vs Ichigo's table (0.745 held-out) or a table with arm 1 in every cell (0.81).
+- **Merged on main and measured with every lookup entry live (seeds 601-700, HARD, CPU vs CPU, Hisagi's §8.17 tables included):** IK 0.235 /
+  KI 0.765; HK 0.76 / KH 0.24; IH 0.655 / HI 0.335; KK 0.485 (median 300 s); II 0.025 (95 time-outs of 100); HH 0.295 (about 41 %
+  draws). `*strat-picks*` widened to 32 a side (the library holds 18; a host test keeps it within 32). Artifact v371.
+- **The user's decisions (2026-11-09).**
+  - Kenpachi vs Ichigo's entry: 「留著 (Recommended)」. It stays, and IK in CPU vs CPU falls as above.
+  - The three mirror entries: 「全留，不改」. They stay on both seats, and CPU vs CPU mirrors often time out.
+  - Kenpachi vs Ichigo's table: 「維持擬合版」. The fitted table (0.745) ships, not arm 1 in every cell (0.81).
+  - None of the three changes code.
 
 ## 9. Strategies may carry code (2026-11-08)
 
