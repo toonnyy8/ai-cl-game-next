@@ -1,0 +1,30 @@
+{
+ "char": "kenpachi",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "even-or-ahead-reishi-duel",
+ "seeds": 100,
+ "seed0": 700,
+ "comp_wins": 111,
+ "comp_matches": 200,
+ "inc_wins": 21,
+ "inc_matches": 200,
+ "comp_share": 0.555,
+ "inc_share": 0.105,
+ "gain": 0.45,
+ "b": 97,
+ "c": 7,
+ "z": 8.825,
+ "own_share": 0.5626,
+ "wall_s": 12.1,
+ "score": 0.555,
+ "capped": false,
+ "judged": 28329,
+ "held": [
+  15938
+ ],
+ "raw": false,
+ "vs_strat": [
+  "docs/research/strategy-drsi/counter/frozen/q1-ichigo-ken.lisp"
+ ]
+}

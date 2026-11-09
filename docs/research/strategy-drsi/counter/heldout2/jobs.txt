@@ -1,0 +1,9 @@
+kk kenpachi kenpachi none counter/kk-ken/rounds/round01/nodes/b0_a0/cand.lisp 0.6
+ii ichigo ichigo none counter/ii-ichigo/rounds/round01/nodes/b2_a0/cand.lisp 0.6
+hh hisagi hisagi none counter/hh-hisagi/rounds/round01/nodes/b0_a0/cand.lisp 0.6
+ki kenpachi ichigo counter/frozen/q1-ichigo-ken.lisp counter/ki-ken/rounds/round02/nodes/b1_a1/cand.lisp 0.6
+kh kenpachi hisagi counter/frozen/ki-ken.lisp counter/kh-ken/rounds/round01/nodes/b1_a0/cand.lisp 0.6
+hi hisagi ichigo counter/frozen/ki-ichigo.lisp counter/ih-hisagi/rounds/round01/nodes/b2_a2/cand.lisp 0.6
+ki-whole kenpachi ichigo counter/frozen/q1-ichigo-ken.lisp heldout2/ki-whole.lisp 1.01
+kh-whole kenpachi hisagi counter/frozen/ki-ken.lisp heldout2/kh-whole.lisp 1.01
+hi-whole hisagi ichigo counter/frozen/ki-ichigo.lisp heldout2/hi-whole.lisp 1.01

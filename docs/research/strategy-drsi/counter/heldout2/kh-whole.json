@@ -1,0 +1,30 @@
+{
+ "char": "kenpachi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "kh-whole",
+ "seeds": 100,
+ "seed0": 700,
+ "comp_wins": 116,
+ "comp_matches": 200,
+ "inc_wins": 3,
+ "inc_matches": 200,
+ "comp_share": 0.58,
+ "inc_share": 0.015,
+ "gain": 0.565,
+ "b": 114,
+ "c": 1,
+ "z": 10.537,
+ "own_share": 1.0,
+ "wall_s": 5.5,
+ "score": 0.58,
+ "capped": false,
+ "judged": 38835,
+ "held": [
+  38835
+ ],
+ "raw": false,
+ "vs_strat": [
+  "docs/research/strategy-drsi/counter/frozen/ki-ken.lisp"
+ ]
+}

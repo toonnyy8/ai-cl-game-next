@@ -479,6 +479,25 @@ learning」. Then, on the opponent and the mirrors: 「混合：弱組對現行�
   - Order: generalise the tooling (fq.py, online.py, strat-run, the frozen opponents, the proxy pool); the searches (Sonnet cells, 3 x 3,
     W = 4); the fitted Q tables and their proofs; the lookup.
 
+- **The searches' results** (each workspace's best cell, its search score, then held-out seeds 700-799, 100 a seat, HARD, the opponent
+  frozen as in the plan; `docs/research/strategy-drsi/counter/heldout2/`):
+
+| Pairing | Best cell | Search | Held-out | Incumbent | Whole-game replacement (held-out, uncapped) |
+|---|---|---|---|---|---|
+| Kenpachi mirror | kk-ken b0_a0 | 0.98 | 0.98 | 0.5 | |
+| Ichigo mirror | ii-ichigo b2_a0 | 0.995 | 0.99 | 0.5 | |
+| Hisagi mirror | hh-hisagi b0_a0 | 0.97 | 0.96 | 0.5 | |
+| Kenpachi vs Ichigo | ki-ken r2 b1_a1 (`ichigo-ki-style` when level) | 0.615 | 0.555 | 0.105 | `ichigo-ki-style` 0.81 |
+| Kenpachi vs Hisagi | kh-ken b1_a0 (`ken-ki-style` when ahead / level and far) | 0.355 | 0.33 | 0.015 | `ken-ki-style` (:p 1.3) 0.58 |
+| Hisagi vs Ichigo | ih-hisagi b2_a2 (`ken-ki-style` when not behind with Hoho / red) | 0.09 | 0.07 | 0.0 | `ken-ki-style` 0.42 |
+
+  The mirrors saturated at once (a KI style CPU over the generic CPU) and were closed after attempt 0-2; KI and KH converged on the 0.6
+  cap (the gain rises with the own share) and were closed after attempt 1; HI ran its 3 x 3. `:dswitch` gained nothing under a KI style;
+  `hisagi-range-style` won 0 in HI.
+- **The user's decisions on the results** (2026-11-09), in their words: 「整場替換 (Recommended)」 (each weak pairing's second arm is its
+  whole-game replacement, not the capped slice) and, for Hisagi, whose strongest arm (Kenpachi's KI style) ignores the distance rule of §8.16,
+  「合併兩種風格 (Recommended)」: one style that plays `hisagi-range-style` in the Bankai's ranged mode and Kenpachi's KI style elsewhere.
+
 ### 8.16 Hisagi's distance control in the Bankai's ranged mode, and the CPU's DRIVE switch (2026-11-09)
 
 The user: 「檜佐木要注意控制距離，尤其是卍解後遠距模式的近身戰非常不利，需要主動後撤或是利用 NS1a 與 NS2b 來拉開與對手的距離。」, then
