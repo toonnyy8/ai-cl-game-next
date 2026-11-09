@@ -1547,6 +1547,12 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
 - The library holds 33 entries, two of them new: `:qhs4-mirror` and `:qks3-ichigo` (no cap).
 - `:qks2-ichigo`, `:qis-ken` and `:qhs3-mirror` stay in the library as superseded.
 
+- **Decisions on round 5, step 3 (the user, 2026-11-09):**
+  - IK: 「繼續同時優化 2 次」. KI and IK run two more simultaneous fictitious-play iterations from the current lookup (`:qks3-ichigo`,
+    `:q1-ichigo-ken`), under step 3's fixed rule (win against the old and the new opponent at z ≥ 1.96; not lose to the frozen stand-in).
+  - KH 0.14: 「新選項＋兩邊同時優化」. First a dream-rsi search for a Kenpachi arm targeted at Hisagi, then KH and HK optimised simultaneously in
+    the same way. HK still must not lose to its stand-in (Kenpachi's KI style CPU); KH has none (Hisagi has no style CPU).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
