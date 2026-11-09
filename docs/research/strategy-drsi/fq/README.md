@@ -251,3 +251,27 @@ Tools: `run-logs.py` (fq.py log, 4 salts, per pairing; tags `logs/<p>-<suffix>/`
 other and with the incumbent on one block; `HJ` = processes), `cross.py`, `proofs.py`, `live.py`, `gaps.py`, `lib-block.py` (the library
 entries printed from the fits). Logs (gitignored): `ki-t0 kh-t0 kk-t0 ii-t0 ik-t0 ih-t0` (round 1), `ki-t1 kh-t1 kk-t1 ii-t1` (round 2),
 `ik-v1-500` (IK's round 2).
+
+## §8.19: the Hisagi vs Ichigo table that switches, `switch/`
+DUEL_AI_STRATEGY §8.19 has the numbers. Opponent: Ichigo's frozen `:ki-ichigo`, HARD, both seats. The table has:
+- six arms: five general, one aimed at Ichigo;
+- 89 rules in five additive groups (`:groups`);
+- a judgement every 30 steps (`:period 30`);
+- each style's state kept across switches (`:keep-state`);
+- extra cues read at the judgement (`:xfeats`).
+
+The shipped table is `hi-sw-pilot.lisp` (`:qhs-ichigo`).
+
+| File | What |
+|---|---|
+| `sw.py` | `start`: the start table. `log`: behaviour + run exploration (`STRAT_FQLOG "<salt> <eps> <seat> <rmin> <rmax>"`). `fit`: a ridge V + per-arm deltas on the discounted return, with the bootstrap sign gate. `measure`: at eps 0, shares, per-seed wins, switch counts by form / distance band, STRAT_HRANGE. `pair`: b / c |
+| `hi-sw0.lisp`, `hi-sw0-p30.lisp` | the start table: `:qh-ichigo`'s 48 rules inside the grouped base, arms 2-5 below, new groups 0. Period 90 for the proof; period 30 is round 1's behaviour |
+| `identity-start-600.jsonl`, `proofs-final.jsonl` | the start table = `:qh-ichigo` (8 of 8: before the entry, and on the final build with `--ref hisagi/hi-fqm.lisp`); the pilot run raw = the live lookup (8 of 8) |
+| `arms/` | each arm played whole (`screen.py`): HI seeds 1-300; HK against the proxy pool and HH against the shipped CPU, seeds 1-50 (`*-hk-*`, `*-hh-*`) |
+| `fits/` | every round's tables (`r1`, `r2a`, `r2b`, `r3` x gamma); `press-all.lisp` (arm 3 everywhere: round 2b's behaviour); `r2a-g966-nokeep.lisp` (the kept-state check) |
+| `ev/` | `measure` summaries: `sel-*` seeds 851-950 and `sel2-*` 801-1000 (the selection blocks), `ho601-*` / `ho701-*` held-out, `cost-*` (logged with the log on, so not the cost figure) |
+| `hi-sw-pilot.lisp` | **shipped** (`:qhs-ichigo`): round 2a, gamma 0.966 per 0.5 s window, scale 0.1 |
+| `gaps.py`, `bench.lisp` | the arm gaps at the logged judgements; the host cost of one judgement (34 -> 45 µs) |
+| `live-ih-600.json` | Ichigo vs Hisagi with both seats on the lookup (0.405) |
+
+Logs (gitignored, `switch/logs/`): `r1` (the start table, 4 salts), `r2a` / `r2b` (2 salts each), `r3` (4 salts), `ev/*`.

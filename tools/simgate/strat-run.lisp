@@ -63,7 +63,11 @@
 ;;; :FQ strategy outside rollouts, with chance EPS the other arm (two arms) instead of the table's: drawn from a hash of (match seed, tick,
 ;;; side, salt), never SIM-RND01. One line a judgement: "fq <seed> <tick> P<n> lead L ored R ost S mr M or O dj D awk A prev P greedy G arm K
 ;;; h H oh OH" (H = mc-full-health, mine and his); "fqend <seed> P<n> h H oh OH" when the match ends (the last step's values).
-(defvar *sr-fq* (let ((l (ext:getenv "STRAT_FQLOG"))) (and l (plusp (length l)) (with-input-from-string (in l) (list (read in) (read in) (read in nil nil))))))
+;;; STRAT_FQLOG="<salt> <eps> <seat> <rmin> <rmax>" (§8.19, any number of arms): exploration in runs: a judgement outside a run starts one with
+;;; chance EPS, an arm drawn uniformly from the others, held for RMIN..RMAX judgements (the hash again), then the table's. A table with :XFEATS
+;;; also logs its extra cues and the normalised firing vector: "... oh OH dm D form F oawk A gauge G wall W fire i:x,i:x,..." (nonzero only).
+(defvar *sr-fq* (let ((l (ext:getenv "STRAT_FQLOG"))) (and l (plusp (length l)) (with-input-from-string (in l) (list (read in) (read in) (read in nil nil) (read in nil nil) (read in nil nil))))))
+(defvar *sr-fq-run* (list nil nil) "Per side, an exploring run: (seed arm judgements-left), or NIL.")
 (defun sr-fq-seat-p (side) "SIDE (0 / 1) logs: no seat given, or it is the given one." (or (null (third *sr-fq*)) (= (third *sr-fq*) (1+ side))))
 (defun sr-fq-u (seed tick side salt)
   "A uniform 0-1 number from (SEED TICK SIDE SALT) alone: a Park-Miller generator stirred a few times."
@@ -74,11 +78,26 @@
 (defun sr-fq-judge (e b sw sub i feats)
   (declare (ignore b))
   (if (not (sr-fq-seat-p (fighter-side (fighter e)))) (values sub i)
-  (let* ((f (fighter e)) (side (fighter-side f)) (arms (getf (getf sw :fq) :arms))
-         (k (if (and arms (= 2 (length arms)) (< (sr-fq-u *match-seed* *match-tick* side (first *sr-fq*)) (second *sr-fq*))) (- 1 i) i)))
-    (format t "fq ~d ~d P~d lead ~d ored ~d ost ~d mr ~,3f or ~,3f dj ~,2f awk ~d prev ~d greedy ~d arm ~d h ~,3f oh ~,3f~%"
+  (let* ((f (fighter e)) (side (fighter-side f)) (fq (getf sw :fq)) (arms (getf fq :arms)) (n (length arms)) (rmax (fifth *sr-fq*))
+         (u (sr-fq-u *match-seed* *match-tick* side (first *sr-fq*)))
+         (k (cond ((not rmax) (if (and arms (= 2 n) (< u (second *sr-fq*))) (- 1 i) i))
+                  (t (let ((run (nth side *sr-fq-run*)))
+                       (when (and run (/= (first run) *match-seed*)) (setf run nil))
+                       (when (and (null run) (> n 1) (< u (second *sr-fq*)))   ; (a new run: another arm and a length from U / EPS, uniform
+                         (let* ((v (* (/ u (second *sr-fq*)) (1- n))) (a (floor v)) (w (- v a)))   ;  in 0-1: a second hash of the same
+                           (setf run (list *match-seed* (mod (+ i 1 a) n)                           ;  inputs is a linear map of U, so it
+                                           (+ (fourth *sr-fq*) (floor (* w (1+ (- rmax (fourth *sr-fq*))))))))))   ;  would sit in a narrow band)
+                       (if (and run (plusp (third run)))
+                           (progn (decf (third run)) (setf (nth side *sr-fq-run*) (and (plusp (third run)) run)) (second run))
+                           (progn (setf (nth side *sr-fq-run*) nil) i)))))))
+    (format t "fq ~d ~d P~d lead ~d ored ~d ost ~d mr ~,3f or ~,3f dj ~,2f awk ~d prev ~d greedy ~d arm ~d h ~,3f oh ~,3f"
             *match-seed* *match-tick* (1+ side) (getf feats :lead) (getf feats :ored) (getf feats :ost) (getf feats :mr) (getf feats :or)
             (getf feats :dj) (getf feats :awk) (getf feats :prev) i k (mc-full-health e) (mc-full-health (fighter-opp f)))
+    (when (getf fq :xfeats)
+      (format t " dm ~,3f form ~d oawk ~d gauge ~,3f wall ~,2f fire~:{ ~d:~,4f~}" (getf feats :dm) (getf feats :form) (getf feats :oawk)
+              (getf feats :gauge) (getf feats :wall)
+              (loop for x across (strat-fq-fire fq feats) for j from 0 when (plusp x) collect (list j x))))
+    (terpri)
     (if (= k i) (values sub i) (values (nth k arms) k)))))
 (defun sr-fq-note ()
   (do-sides (e)

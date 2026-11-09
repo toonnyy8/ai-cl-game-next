@@ -809,6 +809,144 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - A pairing's table chooses among the character's general strategies plus that pairing's targeted ones.
   - The general ones are shared by the character's three tables. The pilot checks Hisagi's against Kenpachi and the mirror too.
 
+**The pilot: Hisagi vs Ichigo (2026-11-09).** Everything is in `docs/research/strategy-drsi/fq/switch/` (`sw.py`, README: `fq/README.md`
+"§8.19"). The opponent is always Ichigo's frozen `:ki-ichigo`, HARD, both seats.
+
+- **Runtime** (every key off by default; every shipped table, c1 and G2 unchanged: `--cvc` identical, II 32, IK 34, KK 33 lines):
+  - `:period N` in a table's `:fq`: judged every N steps in neutral (`strat-switch-step`; default `*strat-switch-period*` 90).
+  - `:keep-state t`: a switch between two style functions keeps the leaving style's state in a new brain slot `sw-keep` ((fn . state) ...)
+    and the coming style resumes its own. Without the key it is cleared, as before.
+  - `:groups (n0 n1 ...)`: the rules in order form groups. Each group is averaged by its own firing strengths and Q is the sum (an additive
+    fuzzy Q; a group with no rule firing adds 0). `strat-fq-fire` normalises per group, so the online learner's `fq-q-at` is the same sum.
+    No `:groups`: the old code path.
+  - `:xfeats t`: extra cues, read only at a judgement (`strat-xfeats`, core-ai.lisp; `strat-feats` is unchanged, it runs every step):
+    `:dm` the perceived distance (m), `:form` (0 the base form / Shikai, 1 the ranged mode or any awakened form, 2 the bind mode),
+    `:oawk` his awakening, `:gauge` DRIVE (awakened) or SUBLIMATION (before) as a fraction, `:wall` metres to the arena's wall.
+  - `:gamma` / `:scale`: the online learner's per-window discount and reward scale for this table (`fq-match-end`); default the globals.
+  - New fuzzy sets (fuzzy.lisp; no existing set changed): `:k2` `:k3` (index points), `:p2up` (a previous arm of 2 or more); distance
+    `:m-close` (full to 2.9 m, gone by 3.4: J1's / the ranged volumes' 3.0 m dead zone and §8.16's 2.9 / 3.4 m), `:m-mid` (2.9-3.4 up, 4.5-6.0
+    down: where WA's hit puts him, the 3-6 m bands of RANSA / ŌGI), `:m-far` (from 4.5-6.0); `:g-low` / `:g-high` about the switch's 0.25;
+    `:w-near` / `:w-open` at 2-3 m (the ranged rule's cornered 2.0 m).
+  - Tooling: `strat-run.lisp STRAT_FQLOG "<salt> <eps> <seat> <rmin> <rmax>"` explores in runs for any number of arms. A judgement outside
+    a run starts one with chance eps; the arm (uniform among the others) and the length (rmin..rmax judgements) come from u / eps. A second
+    hash of the same inputs is a linear map of the first, and the first version's arms sat in a narrow band. With `:xfeats` the log adds the
+    extra cues and the normalised firing vector.
+- **The rule base** (89 rules, 5 groups; 534 q at 6 arms):
+
+| Group | Rules | Antecedents |
+|---|---|---|
+| G0 | 72 | lead x ored x ost (free / busy) x awk x prev: the shipped 48 (prev arm 0 / 1) + 24 with prev `:p2up` |
+| G1 | 9 | my form (Shikai / ranged / bind) x distance (`:m-close` / `:m-mid` / `:m-far`): the user's distance rule is one interaction group |
+| G2 | 4 | the switch's gauge (low / high) x awk |
+| G3 | 2 | the wall (near / open) |
+| G4 | 2 | his awakening (KESSA) |
+
+  Ichigo's pointer and form beyond her awakening, his red / busy beyond G0 and a full cross product were left out.
+- **Arms** (6). Five are general (`:apply (:hisagi)` or none) and one is aimed at Ichigo (`(:hisagi :ichigo)`). All are data over the existing
+  style functions: no new Lisp. Each arm was played whole first (`switch/arms/screen.py`; HI seeds 1-300, 600 matches; HK against the proxy
+  pool, HH against the shipped CPU, seeds 1-50, 100 matches; HARD):
+
+| # | Arm | Kind | Job | HI | HK (pool) | HH |
+|---|---|---|---|---|---|---|
+| 0 | `:hm1-merged` | general | all-round; the ranged mode's distance rule | 0.407 | 0.56 | 1.0 |
+| 1 | `:s3-zoner` (the shipped arm 1) | general | the zoner | 0.0 | 0.01 | 0.53 |
+| 2 | `:hm2-dswitch`: merged + `:dswitch 1.0` `:dswitch-map ((:base 1 3))` | general | the DRIVE switch route | 0.372 | 0.57 | 1.0 |
+| 3 | `:hm3-press`: merged + the brawler's data | general | close pressure | **0.713** | **0.82** | 1.0 |
+| 4 | `:hm4-kite`: merged + s7-kite's data | general | the kite | 0.272 | 0.70 | 1.0 |
+| 5 | `:ht1-ki`: Kenpachi's KI style code | targeted (written against Ichigo) | | 0.458 | 0.61 | 0.99 |
+| | the shipped table (`:qh-ichigo` / `:qh-ken` / `:qh-mirror`) | | | 0.402 | 0.75 | 0.99 |
+| | dropped: the brawler's data alone; `:h1-range` | | | 0.0; 0.0 | 0.0; 0.04 | 0.31; 0.71 |
+
+  The generic-CPU arms (data with no style function) lose to her KI style; data on top of the merged code changes a lot (press: HI 0.41 ->
+  0.71, HK 0.56 -> 0.82).
+- **Training** (`sw.py log / fit`): each round logs 2-4 salts x seeds 1-599 x both seats (2,396-4,792 matches) with the behaviour table +
+  runs (eps 0.03 a judgement, runs of 6-18 judgements = 3-9 s, ~26 % of the windows). Fit: the return per window, gamma per 0.5 s window, health
+  shaping 0.1 x Δ(balance), ±1 at the end. A ridge V over all rows (the state's value), per arm a ridge delta on the residuals (λ 300: shrunk
+  to no preference). A delta survives only where 20 match-bootstrap replicates agree on its sign >= 95 %; no surviving delta means arm 0.
+  - Rounds: r1 from the start table; r2a from r1 (gamma 0.966); r2b from press everywhere; r3 from r2a. Variants were picked on seeds
+    851-950, then confirmed on 801-1000 (400 matches). 601-800 was not touched until the pick was frozen.
+
+| Table (selection, share) | 851-950 | 801-1000 |
+|---|---|---|
+| shipped `:qh-ichigo` / the start at period 30 / merged whole / press whole / Kenpachi's KI style whole | 0.355 / 0.36 / 0.36 / 0.675 / 0.39 | - / - / - / 0.672 / - |
+| r1, gamma 0.966 / 0.99 / 1.0 | 0.58 / 0.45 / 0.365 | |
+| **r2a, gamma 0.966 (the pilot)** / 0.99 | **0.70** / 0.605 | **0.685** / 0.59 |
+| r2b (from press), gamma 0.966 / 0.99 | 0.35 / 0.63 | - / 0.593 |
+| r3 (from r2a), gamma 0.95 / 0.966 / 0.98 | 0.58 / 0.605 / 0.64 | - / 0.583 / 0.637 |
+
+  - The pilot against press whole on 801-1000: b / c 79 / 74 (they win different seeds). With `:keep-state` removed: 0.69 (b / c 39 / 41):
+    **kept state measured no effect**.
+  - **The horizon.** Per window the old gamma 0.9 per 1.5 s is 0.966 per 0.5 s (0.966³ = 0.901): the same ~15 s. The shaping is a telescoping Δ,
+    so 0.1 per window is unchanged. Longer horizons measured worse (gamma 0.99: 0.45-0.605; 1.0: 0.365), and round 3 did not improve on round 2.
+    The longer view the pilot has comes from judging arms in 3-9 s runs and on-policy rounds, not from gamma.
+- **Proofs** (`identity.py`, seeds 601-700, both seats, 8 of 8 chunks):
+  - The start table (`switch/hi-sw0.lisp`: the shipped 48 rules inside the grouped base, arms 2-5 below, every new group 0, `:xfeats` /
+    `:keep-state` / `:groups` on, period 90) against `:qh-ichigo` run raw: 0.335 = 0.335, 6,940 lines identical. Measured twice: on the build
+    before the entry (against the lookup) and on the final build (`--ref hisagi/hi-fqm.lisp`).
+  - At period 30 the start table is its own row (0.325 / 0.41, the one flipped cell judged three times as often).
+  - On the final build, the pilot run raw = the live lookup: 0.595 = 0.595, 6,647 lines identical.
+- **Held-out** (seeds 601-700 / 701-800, 100 a seat; the list fixed before running; b / c = the pilot won and the other lost / the reverse):
+
+| | 601-700 | 701-800 | the pilot's b / c |
+|---|---|---|---|
+| shipped `:qh-ichigo` (period 90) | 0.335 | 0.415 | 72 / 20, 85 / 24 (z 5.4, 5.8) |
+| the start table, period 30 | 0.325 | 0.41 | 74 / 20, 86 / 24 |
+| merged whole | 0.325 | 0.42 | 74 / 20, 84 / 24 |
+| press whole (`:hm3-press`) | **0.755** | **0.725** | 29 / 61, 38 / 39 (pooled z -2.5) |
+| **the pilot** (`:qhs-ichigo`) | **0.595** | **0.72** | |
+
+- **How it switches** (held-out, both blocks, 400 matches):
+  - 449 judgements a match (shipped 166); **48 arm changes a match** (median 39-44.5, no match without one; shipped 0.2-0.6).
+  - Arm shares: merged 0.155, s3-zoner 0.003, DRIVE switch 0.073, press 0.012, kite 0.04, Kenpachi's KI style 0.718.
+  - By form and distance band (`:dm` < 2.9 / 4.5 m), the shares over 0.05:
+
+| | close | mid | far |
+|---|---|---|---|
+| Shikai | merged 0.55, DRIVE switch 0.40, press 0.05 (16,672) | DRIVE switch 0.49, merged 0.43, KI 0.08 (1,705) | merged 0.54, kite 0.36, DRIVE switch 0.09 (5,811) |
+| ranged mode | **merged 0.78**, press 0.13, KI 0.08 (2,563) | KI 0.96 (83,491) | KI 0.87, merged 0.07, DRIVE switch 0.05 (54,535) |
+| bind mode | kite 0.57, merged 0.38 (5,197) | merged 0.72, kite 0.16, KI 0.06 (7,513) | merged 0.45, kite 0.42, s3 0.06, KI 0.06 (2,307) |
+
+  - The division of labour matches the user's rules. In the ranged mode, close in, it plays the merged style, whose distance rule backs off or
+    pushes out; at range it plays Kenpachi's KI style, which keeps him out. The DRIVE switch route runs in the Shikai up close.
+  - The ranged mode (STRAT_HRANGE): mean distance 4.29-4.30 m, share inside 3 m **0.118** (shipped 0.211-0.220, merged whole 0.213-0.220,
+    press whole 0.32-0.35). Close events: 3,992; 1,724 WA; 2,053 back Steps; 358 side Steps; 45 DRIVE switches.
+- **Cost of 0.5 s judging.** One judgement on the native host (`switch/bench.lisp`): 34 µs (the shipped 48 x 2) -> 45 µs (89 x 6). Native
+  sim, 200 matches: 44.1 -> 46.5 s of CPU from period 90 to 30, about 276 more judgements a match at ~43 µs each. That is about 1.5 µs a
+  frame amortised natively. Both are measured on the host; in wasm, one judgement in a frame is estimated (not measured) far below the 16.7 ms
+  frame.
+- **Arm gaps** (best Q - second at the held-out judgements, `switch/gaps.py`): median 0.030. 31 % under 0.02 (one q at cap 0.01 flips it);
+  83 % under 0.05; 100 % under 0.10 (with 5 groups an arm's Q moves up to 0.05 at cap 0.01). The online learner can move most choices
+  (§8.17's HI table was the stiffest).
+- **The online learner's V for a grouped table** (strategy.lisp `fq-v-at`): Glorennec & Jouffe's Σ_r α_r max_a q_r(a) equals max_a Q for one
+  crisp group, but with `:groups` it sums per-group maxima and sits above max_a Q. At the pilot's held-out judgements it was 0.048 above at
+  the median (mean 0.053, p90 0.077): more than the arm gaps' median 0.030. So it would push the played arm's q toward +cap whatever the
+  player did. A grouped table now takes max_a Q(s′, a); a table without `:groups` keeps the old formula (host check: two groups that disagree).
+- **The online learner** keeps η 0.05, cap 0.01 and ε 0. The pilot carries `:gamma 0.966 :scale 0.1`: the old 0.9 per 1.5 s scaled to the
+  0.5 s window, the scale unchanged. The globals `*fq-online-gamma*` 0.9 / `*fq-online-scale*` 0.1 stay for every other table.
+  - Smoke on the final build (`fq/online.py train`, 25 matches, her KI style as the "player", cap 0.01): 189 of 534 q moved (59 at the cap,
+    max 0.01), 8 rules' argmax changed, 15 wins against the frozen table's 16 (b / c 5 / 6: noise at 25). Before the V fix the same smoke
+    had 148 q moved and 20 / 16 wins.
+  - The page entry `soulduel.fq.7.3` grows from 99 to **537 integers** (3 + 534; FQ-TABLE reads at most 999, the stride per pair is 1000).
+    `pwa.js` maps any entry j < 1000 (no length cap). The checksum changes, so every player's saved Hisagi vs Ichigo copy starts fresh.
+- **Into the lookup:** `*strat-library*` gains `:qhs-ichigo` (the pilot inlined); `*strat-lookup*` Hisagi vs Ichigo HARD plays it in place of
+  `:qh-ichigo`, which stays in the library (19 entries, within the 32 slots).
+  - Both seats live (601-700): Ichigo vs Hisagi falls to 0.405 (0.655 against `:qh-ichigo`, §8.18).
+  - Host tests 9983 ALL PASS: groups, per-group firing, a grouped table with zero extra groups = the shipped picks on every crisp cell; the new
+    entry's 6 arms / 89 rules / keys / page round trip.
+- **What carries over to the other eight pairings:**
+  - Unchanged: the runtime keys and the rule base; G1's forms are Hisagi's (form index 0 / 1 / 2; for Kenpachi and Ichigo 0 / 1).
+  - `sw.py`: its pairing, opponent and arm list become arguments.
+  - The five general arms are Hisagi's for his other two tables (screened above).
+  - The method: arms screened whole, 2 rounds of run exploration, selection on 801-1000, held-out last.
+  - Per pairing about an hour of compute on 20 cores: a round's logs 3-10 min, a fit 3 min, selection 2-3 min a table, held-out and proofs a
+    few minutes. Plus the arms (a general set per character; targeted ones per opponent).
+- **Open for the user:**
+  - Press whole (merged + the brawler's data) beats the pilot here (pooled 0.74 vs 0.658, b / c 67 / 100) but stands inside 3 m in the ranged
+    mode 3x as often (0.32-0.35 vs 0.118). Three options: keep the switching table; play press whole; or put press in as arm 0 and refit.
+  - Press as a whole-game style or arm 0 for Hisagi's other two tables (HK pool 0.82 against the shipped table's 0.75).
+  - Kept state measured no effect: keep `:keep-state`?
+  - s3-zoner is almost never picked (0.3 %). It stays only for the start table's identity with `:qh-ichigo`; drop it in the next table?
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

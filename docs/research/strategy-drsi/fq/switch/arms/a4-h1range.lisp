@@ -1,0 +1,2 @@
+(:id :h1-range :fn hisagi-range-style :base (:dswitch 1.0) :dswitch-map ((:base 1 3))   ; Hisagi's ranged-mode distance control (cpu-hisagi-range.lisp) + the CPU's DRIVE switch (DUEL_AI_STRATEGY §8.16): WA > TABA in the Bankai, NS1 > NS3a in the Shikai
+ :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0))))   ; no NS out of its reach (the shipped CPU opens the ranged WA, 0-3 m, from 3.7-5 m)

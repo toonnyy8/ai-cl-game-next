@@ -1,0 +1,28 @@
+{
+ "char": "hisagi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "s3-zoner",
+ "seeds": 50,
+ "seed0": 0,
+ "comp_wins": 53,
+ "comp_matches": 100,
+ "inc_wins": 99,
+ "inc_matches": 100,
+ "comp_share": 0.53,
+ "inc_share": 0.99,
+ "gain": -0.46,
+ "b": 1,
+ "c": 47,
+ "z": -6.64,
+ "own_share": 0.0,
+ "wall_s": 4.5,
+ "score": 0.53,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "none"
+ ]
+}

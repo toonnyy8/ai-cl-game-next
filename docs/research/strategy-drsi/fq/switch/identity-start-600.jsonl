@@ -1,0 +1,1 @@
+{"char": "hisagi", "vs": "ichigo", "vs_strat": ["docs/research/strategy-drsi/counter/frozen/ki-ichigo.lisp"], "table": "docs/research/strategy-drsi/fq/switch/hi-sw0.lisp", "table_share": 0.335, "inc_share": 0.335, "b": 0, "c": 0, "held": [33279, 58, 0, 0, 0, 0], "chunks_identical": 8, "chunks_differing": 0, "lines": 6940}

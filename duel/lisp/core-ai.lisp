@@ -62,6 +62,18 @@ for anyone."
           :ored (cai-bit (gauges-red-p go)) :hoho (cai-bit (hoho-open-p e))
           :ost (case (snap-state s) ((:idle :run :guard) 0) (:move (if (and (snap-move s) (< (snap-sf s) (snap-s s))) 1 2)) ((:step :hoho) 3) (t 4))
           :wave (cai-bit (nth (1- (mc-ptr f)) (getf (kit-core kit) :ns-range))) :awk (cai-bit (gauges-awakened g)))))
+(defun strat-form-index (f)
+  "F's form as a Q selector's cue: 0 the base form (Hisagi's Shikai), 2 Hisagi's bind mode (:bankai-bind), 1 any other (his ranged mode, an
+awakened form)."
+  (case (fighter-form f) (:base 0) (:bankai-bind 2) (t 1)))
+(defun strat-xfeats (e f d)
+  "A Q selector's extra cues (its :XFEATS, DUEL_AI_STRATEGY §8.19), read only at its judgements: :DM the perceived distance (m), :FORM mine
+(STRAT-FORM-INDEX), :OAWK his awakening, :GAUGE the switch's gauge (DRIVE awakened, SUBLIMATION before, as a fraction), :WALL metres from me
+to the arena's wall."
+  (let* ((g (gauges e)) (o (fighter-opp f)) (p (pos-of e)) (x (aref p 0)) (z (aref p 2)))
+    (list :dm d :form (strat-form-index f) :oawk (cai-bit (gauges-awakened (gauges o)))
+          :gauge (if (gauges-awakened g) (/ (gauges-drive g) *drive-max*) (/ (gauges-sub g) *sub-max*))
+          :wall (- *arena-radius* (sqrt (+ (* x x) (* z z)))))))
 (defun cai-fz-roll (b rules kind &rest feats)
   "One roll of RULES' chance (no SIM-RND01 drawn at 0 or 1, as BRAIN-ROLL)."
   (let ((p (apply #'cai-fz b rules kind feats))) (cond ((<= p 0) nil) ((>= p 1) t) (t (< (sim-rnd01) p)))))
@@ -199,10 +211,12 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
   "The active sub-strategy of the composite or Q selector SW (strategy.lisp) for brain B: judged on the match's first step and every
 *STRAT-SWITCH-PERIOD* steps in neutral, else held (no random draw). Outside rollouts it counts the judgements and each entry's wins (BRAIN-SW-N / -WON)."
   (when (or (< (brain-sw-t b) 0)
-            (and (member (fighter-state f) '(:idle :run)) (>= (- *match-tick* (brain-sw-t b)) *strat-switch-period*)))
+            (and (member (fighter-state f) '(:idle :run))
+                 (>= (- *match-tick* (brain-sw-t b)) (or (getf (getf sw :fq) :period) *strat-switch-period*))))   ; (a Q selector's own :PERIOD, §8.19)
     (setf (brain-sw-t b) *match-tick*)
     (multiple-value-bind (sub i)
         (let* ((fq (getf sw :fq)) (feats (strat-feats e f s d))
+               (feats (if (getf fq :xfeats) (append feats (strat-xfeats e f d)) feats))   ; (its extra cues, §8.19)
                (feats (if fq (list* :prev (or (position (brain-sw-sub b) (getf fq :arms)) 0) feats) feats)))   ; (the previous arm)
           (multiple-value-bind (sub i) (strat-judge sw feats)
             (multiple-value-bind (sub i) (if (and *strat-judge-hook* (not *in-rollout*)) (funcall *strat-judge-hook* e b sw sub i feats) (values sub i))
@@ -213,7 +227,12 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
       (let* ((st (or sub (and (not (getf sw :fq)) (strat-lookup (fighter-character f) (fighter-character (fighter (fighter-opp f))) (brain-difficulty b)))))   ; (a Q selector's NIL arm: no strategy)
              (x (if st (getf st :fn) (cai-style-fn f))) (fn (if (and x (symbolp x)) (symbol-function x) x)))
         (when (and fn (not (eq fn (brain-sw-fn b))))      ; (another style function takes over: its own state, not the last one's struct)
-          (when (brain-sw-fn b) (setf (brain-style b) nil))
+          (if (getf (getf sw :fq) :keep-state)              ; (a Q selector's :KEEP-STATE, §8.19: the leaving style's state is kept, the
+              (let ((old (brain-sw-fn b)) (kept (brain-sw-keep b)))   ;  coming one resumes its own)
+                (when old
+                  (let ((c (assoc old kept))) (if c (setf (cdr c) (brain-style b)) (push (cons old (brain-style b)) (brain-sw-keep b)))))
+                (setf (brain-style b) (cdr (assoc fn (brain-sw-keep b)))))
+              (when (brain-sw-fn b) (setf (brain-style b) nil)))
           (setf (brain-sw-fn b) fn)))
       (setf (brain-sw-sub b) sub)
       (unless *in-rollout*

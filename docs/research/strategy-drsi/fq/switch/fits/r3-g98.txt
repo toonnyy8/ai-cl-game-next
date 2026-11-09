@@ -1,0 +1,3 @@
+matches 4792 judgements 1729876 arms [383957, 73621, 173611, 90843, 96380, 911464]
+{"tag": "r3", "seeds": "1-599", "gamma": 0.98, "scale": 0.1, "lam": 300.0, "lam_v": 1.0, "conf": 0.95, "boot": 20, "matches": 4792, "judgements": 1729876, "behaviour_arms": [383957, 73621, 173611, 90843, 96380, 911464], "greedy_on_data": [151402, 7838, 275468, 43225, 257878, 994065]}
+kept deltas: 305

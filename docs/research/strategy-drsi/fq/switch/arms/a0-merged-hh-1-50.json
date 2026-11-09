@@ -1,0 +1,28 @@
+{
+ "char": "hisagi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "hm1-merged",
+ "seeds": 50,
+ "seed0": 0,
+ "comp_wins": 100,
+ "comp_matches": 100,
+ "inc_wins": 99,
+ "inc_matches": 100,
+ "comp_share": 1.0,
+ "inc_share": 0.99,
+ "gain": 0.01,
+ "b": 1,
+ "c": 0,
+ "z": 1.0,
+ "own_share": 0.0,
+ "wall_s": 3.5,
+ "score": 1.0,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "none"
+ ]
+}

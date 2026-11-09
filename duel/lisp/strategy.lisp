@@ -83,15 +83,28 @@ A Q selector (:FQ): (values its chosen arm, the arm's index)."
 ;;; than M. The cue :PREV (the previous arm's index, 0 before the first) lets the rules price a switch. Always an arm: never the lookup's
 ;;; fallback; a NIL arm is no strategy at all, the shipped CPU with its matchup style CPU (core-ai.lisp CORE-BRAIN-STEP, §8.18). No random draw; the same function in rollouts. Trained offline (docs/research/strategy-drsi/fq/).
 (defun strat-fq-q (fq feats)
-  "The Q selector FQ's value per arm for FEATS: a simple-vector, every q averaged by the rules' firing strengths (all 0 when none fires)."
-  (let* ((n (length (getf fq :arms))) (num (make-array n :initial-element 0.0)) (den 0.0))
-    (dolist (r (getf fq :rules))
-      (let ((w (strat-ante (first r) feats)))
-        (when (plusp w)
-          (incf den w)
-          (loop for q in (rest r) for k below n do (incf (svref num k) (* w q))))))
-    (when (plusp den) (dotimes (k n) (setf (svref num k) (/ (svref num k) den))))
-    num))
+  "The Q selector FQ's value per arm for FEATS: a simple-vector, every q averaged by the rules' firing strengths (all 0 when none fires).
+With :GROUPS (n0 n1 ...), the rules in order form groups of those sizes, each averaged on its own, and Q is their sum (an additive
+fuzzy Q, §8.19: a group with no rule firing adds 0)."
+  (let* ((n (length (getf fq :arms))) (num (make-array n :initial-element 0.0)) (den 0.0) (groups (getf fq :groups)))
+    (if groups
+        (let ((rules (getf fq :rules)) (sum (make-array n :initial-element 0.0)))
+          (dolist (g groups sum)
+            (fill num 0.0) (setf den 0.0)
+            (loop repeat g for r = (pop rules)
+                  do (let ((w (strat-ante (first r) feats)))
+                       (when (plusp w)
+                         (incf den w)
+                         (loop for q in (rest r) for k below n do (incf (svref num k) (* w q))))))
+            (when (plusp den) (dotimes (k n) (incf (svref sum k) (/ (svref num k) den))))))
+        (progn
+          (dolist (r (getf fq :rules))
+            (let ((w (strat-ante (first r) feats)))
+              (when (plusp w)
+                (incf den w)
+                (loop for q in (rest r) for k below n do (incf (svref num k) (* w q))))))
+          (when (plusp den) (dotimes (k n) (setf (svref num k) (/ (svref num k) den))))
+          num))))
 
 (defun strat-fq-pick (fq feats)
   "The Q selector FQ's arm index for FEATS: argmax Q (ties: the first), the previous arm (:PREV) while it trails by less than :MARGIN."
@@ -130,13 +143,21 @@ worse than no learning), eps 0.1 275 / not run.")
 (defun fq-quant (q) "Q at the storage's resolution (*FQ-UNIT*)." (/ (round (* q *fq-unit*)) (float *fq-unit*)))
 
 (defun strat-fq-fire (fq feats)
-  "The Q selector FQ's rules' firing strengths for FEATS, normalised to sum 1 (a simple-vector; all 0 when none fires)."
-  (let* ((w (map 'simple-vector (lambda (r) (strat-ante (first r) feats)) (getf fq :rules))) (den (reduce #'+ w)))
-    (when (plusp den) (dotimes (k (length w)) (setf (svref w k) (/ (svref w k) den))))
-    w))
+  "The Q selector FQ's rules' firing strengths for FEATS, normalised to sum 1 (a simple-vector; all 0 when none fires); with :GROUPS each group
+to sum 1 on its own (so FQ-Q-AT is STRAT-FQ-Q's additive sum)."
+  (let ((w (map 'simple-vector (lambda (r) (strat-ante (first r) feats)) (getf fq :rules))) (i 0))
+    (dolist (g (or (getf fq :groups) (list (length w))) w)
+      (let ((den (loop for k from i below (+ i g) sum (svref w k))))
+        (when (plusp den) (loop for k from i below (+ i g) do (setf (svref w k) (/ (svref w k) den))))
+        (incf i g)))))
 
 (defun fq-q-at (fq fire a) "Q(s, A) of FQ at the normalised firing vector FIRE." (loop for r in (getf fq :rules) for x across fire sum (* x (nth (1+ a) r))))
-(defun fq-v-at (fq fire) "V(s) = sum_r alpha_r max_a q_r(a) of FQ at FIRE." (loop for r in (getf fq :rules) for x across fire sum (* x (reduce #'max (rest r)))))
+(defun fq-v-at (fq fire)
+  "V(s) of FQ at FIRE: sum_r alpha_r max_a q_r(a) (Glorennec & Jouffe; = max_a Q(s, a) for one crisp group); with :GROUPS max_a Q(s, a) itself
+(a sum of per-group maxima would sit above it: 0.048 at the median of the Hisagi vs Ichigo pilot's judgements, its arm gaps' median 0.030, §8.19)."
+  (if (getf fq :groups)
+      (loop for a below (length (getf fq :arms)) maximize (fq-q-at fq fire a))
+      (loop for r in (getf fq :rules) for x across fire sum (* x (reduce #'max (rest r))))))
 
 (defun fq-transitions (recs h-end won &optional (scale *fq-online-scale*))
   "A match's transitions from RECS, its judgements in order ((fire arm h) ...; H = my health balance then): ((fire arm r next-fire) ...),
@@ -701,7 +722,103 @@ only as one of the strategies (:FN ken-ki-style ...).")
           (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :no) (:prev :no)) 0.2718 0.2236)
           (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :no) (:prev :yes)) 0.2900 0.2337)
           (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no)) 0.4063 0.3928)
-          (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes)) 0.4051 0.4038)))))
+          (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes)) 0.4051 0.4038))))
+    ;; Hisagi vs Ichigo, the table that switches (§8.19; the user, 2026-11-09: 「重做：分工選項＋保留狀態＋看更長」, 「將距離與其他狀態細節都以
+    ;; 模糊規則展開成 Q table 的一部分」, 「每 0.5s 就判斷一次」, 「每個角色設計多個通用策略與少量的針對性對敵策略」): six arms, five general
+    ;; (:apply (:hisagi): the merged style, s3-zoner, the merged style + the DRIVE switch, + the brawler's data, + s7-kite's data) and one aimed at
+    ;; Ichigo (Kenpachi's KI style code); 89 rules in five additive groups (lead x ored x ost x awk x prev; form x distance in m; gauge x awk;
+    ;; the wall; his awakening), judged every 30 steps, each style's state kept across switches; fitted by two rounds of run exploration
+    ;; and policy evaluation (docs/research/strategy-drsi/fq/switch/hi-sw-pilot.lisp, round 2a, gamma 0.966 a 0.5 s window)
+    (:id :qhs-ichigo :apply (:hisagi :ichigo) :fq (:arms ((:id :hm1-merged :fn hisagi-merged-style :ken-ranged t :apply (:hisagi)) (:id :s3-zoner :base (:range 1.5 :ns 0.9 :hoho 1.1 :kikon 0.4 :cont 0.8 :p 1.0 :b-walk-out 0.02 :b-wait 0.02 :b-j1 -0.08 :b-walk-in -0.04) :rules ((((:dn :reach)) (:b-sp 0.15 :b-walk-in -0.05)) (((:dn :out)) (:b-sp 0.1 :b-walk-in 0.04)) (((:dn :afar) (:wave :yes)) (:b-sp 0.18 :b-walk-in -0.04)) (((:do :in)) (:b-walk-out 0.12 :b-step-out 0.1 :b-j1 -0.05)) (((:dj :in)) (:b-step-out 0.08 :b-j1 0.05)) (((:ored :yes)) (:kikon 1.6)) (((:lead :ahead)) (:p 1.4)) (((:lead :behind)) (:p 0.6)) (((:mr :low)) (:p 1.3)))) (:id :hm2-dswitch :fn hisagi-merged-style :ken-ranged t :apply (:hisagi) :base (:dswitch 1.0) :dswitch-map ((:base 1 3))) (:id :hm3-press :fn hisagi-merged-style :ken-ranged t :apply (:hisagi) :base (:range 0.7 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :p 1.0 :b-walk-in 0.06 :b-j1 0.05 :b-step-in 0.03 :b-wait -0.05 :b-walk-out -0.08 :b-step-out -0.05) :rules ((((:ost :down)) (:b-walk-in 0.14 :b-j1 0.12 :b-wait -0.12)) (((:dj :in)) (:b-j1 0.12 :b-step-out -0.1)) (((:dj :afar)) (:b-walk-in 0.12 :b-step-in 0.08)) (((:ost :active) (:dj :in)) (:b-hoho -0.05)))) (:id :hm4-kite :fn hisagi-merged-style :ken-ranged t :apply (:hisagi) :base (:range 3.2 :ns 1.0 :hoho 1.0 :kikon 0.4 :cont 1.3 :awaken 4.0 :p 1.0 :b-walk-out 0.05 :b-wait 0.04 :b-j1 -0.3 :b-walk-in -0.08 :b-step-in -0.05) :rules ((((:dn :reach)) (:b-sp 0.2 :b-walk-in -0.05)) (((:dn :out)) (:b-sp 0.15)) (((:dn :afar) (:wave :yes)) (:b-sp 0.22 :b-walk-in -0.06)) (((:do :in)) (:b-walk-out 0.2 :b-step-out 0.18 :b-j1 -0.1)) (((:do :reach)) (:b-walk-out 0.1 :b-step-out 0.08)))) (:id :ht1-ki :fn ken-ki-style :apply (:hisagi :ichigo) :base (:p 1.3))) :groups (72 9 4 2 2) :xfeats t :keep-state t :period 30 :gamma 0.966 :scale 0.1
+     :rules ((((:lead :behind) (:ored :no) (:ost :busy) (:awk :no) (:prev :no)) 0.0247 0.0246 0.0211 0.0246 0.0279 0.0246)
+          (((:lead :behind) (:ored :no) (:ost :busy) (:awk :no) (:prev :yes)) -0.0169 0.0199 -0.0170 -0.0170 -0.0170 -0.0170)
+          (((:lead :behind) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no)) -0.3529 -0.3307 -0.3307 -0.3182 -0.3448 -0.3484)
+          (((:lead :behind) (:ored :no) (:ost :busy) (:awk :yes) (:prev :yes)) -0.3989 -0.3643 -0.4310 -0.4249 -0.4310 -0.4255)
+          (((:lead :behind) (:ored :no) (:ost :free) (:awk :no) (:prev :no)) 0.0286 0.0346 0.0398 0.0355 0.0391 0.0370)
+          (((:lead :behind) (:ored :no) (:ost :free) (:awk :no) (:prev :yes)) 0.0195 0.0361 0.0014 0.0014 0.0014 0.0014)
+          (((:lead :behind) (:ored :no) (:ost :free) (:awk :yes) (:prev :no)) -0.3588 -0.3892 -0.3491 -0.3686 -0.3997 -0.3746)
+          (((:lead :behind) (:ored :no) (:ost :free) (:awk :yes) (:prev :yes)) -0.3713 -0.4293 -0.4776 -0.4753 -0.4780 -0.4813)
+          (((:lead :behind) (:ored :yes) (:ost :busy) (:awk :no) (:prev :no)) 0.0010 0.0009 0.0009 0.0009 0.0009 0.0009)
+          (((:lead :behind) (:ored :yes) (:ost :busy) (:awk :no) (:prev :yes)) -0.0544 -0.0460 -0.0545 -0.0545 -0.0545 -0.0545)
+          (((:lead :behind) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :no)) -0.2521 -0.2387 -0.2387 -0.2387 -0.2323 -0.2422)
+          (((:lead :behind) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :yes)) -0.3478 -0.3100 -0.3479 -0.3479 -0.3479 -0.3479)
+          (((:lead :behind) (:ored :yes) (:ost :free) (:awk :no) (:prev :no)) -0.0519 -0.0499 -0.0499 -0.0499 -0.0482 -0.0499)
+          (((:lead :behind) (:ored :yes) (:ost :free) (:awk :no) (:prev :yes)) -0.0690 -0.0686 -0.0686 -0.0686 -0.0686 -0.0686)
+          (((:lead :behind) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no)) -0.3451 -0.3274 -0.3274 -0.3274 -0.3274 -0.2871)
+          (((:lead :behind) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes)) -0.4014 -0.3836 -0.4015 -0.4000 -0.4015 -0.3984)
+          (((:lead :even) (:ored :no) (:ost :busy) (:awk :no) (:prev :no)) 0.0689 0.0733 0.0794 0.0794 0.0624 0.0570)
+          (((:lead :even) (:ored :no) (:ost :busy) (:awk :no) (:prev :yes)) -0.2094 -0.1762 -0.2269 -0.2269 -0.2269 -0.2269)
+          (((:lead :even) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no)) -0.3784 -0.3501 -0.3272 -0.3501 -0.3678 -0.3501)
+          (((:lead :even) (:ored :no) (:ost :busy) (:awk :yes) (:prev :yes)) -0.4440 -0.4308 -0.4641 -0.4624 -0.4641 -0.4641)
+          (((:lead :even) (:ored :no) (:ost :free) (:awk :no) (:prev :no)) 0.0141 0.0414 0.0599 0.0599 0.0511 0.0599)
+          (((:lead :even) (:ored :no) (:ost :free) (:awk :no) (:prev :yes)) -0.2096 -0.2026 -0.2201 -0.2201 -0.2201 -0.2201)
+          (((:lead :even) (:ored :no) (:ost :free) (:awk :yes) (:prev :no)) -0.2945 -0.3396 -0.3257 -0.3396 -0.3396 -0.3396)
+          (((:lead :even) (:ored :no) (:ost :free) (:awk :yes) (:prev :yes)) -0.4263 -0.4605 -0.4565 -0.4605 -0.4592 -0.4605)
+          (((:lead :even) (:ored :yes) (:ost :busy) (:awk :no) (:prev :no)) 0.1191 0.1271 0.1360 0.1360 0.1360 0.1360)
+          (((:lead :even) (:ored :yes) (:ost :busy) (:awk :no) (:prev :yes)) -0.1888 -0.1595 -0.1959 -0.1959 -0.1959 -0.1959)
+          (((:lead :even) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :no)) 0.0130 0.0557 0.0496 0.0738 0.0557 0.0557)
+          (((:lead :even) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :yes)) 0.2205 0.2204 0.2204 0.2204 0.2204 0.2204)
+          (((:lead :even) (:ored :yes) (:ost :free) (:awk :no) (:prev :no)) 0.0943 0.0942 0.0942 0.0942 0.0942 0.0942)
+          (((:lead :even) (:ored :yes) (:ost :free) (:awk :no) (:prev :yes)) -0.1274 -0.1188 -0.1275 -0.1275 -0.1275 -0.1275)
+          (((:lead :even) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no)) -0.0252 0.0409 -0.0130 -0.0125 -0.0067 -0.0067)
+          (((:lead :even) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes)) 0.0891 0.0890 0.0890 0.0890 0.0890 0.0890)
+          (((:lead :ahead) (:ored :no) (:ost :busy) (:awk :no) (:prev :no)) 0.0950 0.0859 0.0815 0.0832 0.0722 0.0859)
+          (((:lead :ahead) (:ored :no) (:ost :busy) (:awk :no) (:prev :yes)) -0.1111 -0.0880 -0.1448 -0.1448 -0.1448 -0.1448)
+          (((:lead :ahead) (:ored :no) (:ost :busy) (:awk :yes) (:prev :no)) -0.1970 -0.1885 -0.1822 -0.1666 -0.1822 -0.2048)
+          (((:lead :ahead) (:ored :no) (:ost :busy) (:awk :yes) (:prev :yes)) -0.3217 -0.2775 -0.3649 -0.3649 -0.3649 -0.3649)
+          (((:lead :ahead) (:ored :no) (:ost :free) (:awk :no) (:prev :no)) 0.0723 0.0662 0.0662 0.0662 0.0622 0.0662)
+          (((:lead :ahead) (:ored :no) (:ost :free) (:awk :no) (:prev :yes)) -0.1366 -0.1136 -0.1633 -0.1633 -0.1633 -0.1633)
+          (((:lead :ahead) (:ored :no) (:ost :free) (:awk :yes) (:prev :no)) -0.1814 -0.2214 -0.2202 -0.2214 -0.2214 -0.2214)
+          (((:lead :ahead) (:ored :no) (:ost :free) (:awk :yes) (:prev :yes)) -0.3048 -0.2665 -0.3407 -0.3418 -0.3452 -0.3452)
+          (((:lead :ahead) (:ored :yes) (:ost :busy) (:awk :no) (:prev :no)) -0.0072 -0.0068 -0.0068 -0.0068 -0.0068 -0.0068)
+          (((:lead :ahead) (:ored :yes) (:ost :busy) (:awk :no) (:prev :yes)) -0.0696 -0.0697 -0.0697 -0.0697 -0.0697 -0.0697)
+          (((:lead :ahead) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :no)) -0.1013 -0.0783 -0.0793 -0.0635 -0.0783 -0.0783)
+          (((:lead :ahead) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :yes)) -0.1263 -0.0898 -0.1264 -0.1264 -0.1264 -0.1264)
+          (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :no) (:prev :no)) 0.0000 -0.0001 -0.0001 -0.0001 -0.0001 -0.0001)
+          (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :no) (:prev :yes)) -0.1122 -0.1123 -0.1123 -0.1123 -0.1123 -0.1123)
+          (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :no)) -0.0603 -0.0621 -0.0604 -0.0604 -0.0428 -0.0798)
+          (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :yes)) -0.0048 0.0234 -0.0049 -0.0049 -0.0049 -0.0072)
+          (((:lead :behind) (:ored :no) (:ost :busy) (:awk :no) (:prev :p2up)) 0.0254 0.0253 0.0253 0.0267 0.0253 0.0253)
+          (((:lead :behind) (:ored :no) (:ost :busy) (:awk :yes) (:prev :p2up)) -0.3283 -0.3753 -0.3119 -0.2990 -0.3364 -0.3119)
+          (((:lead :behind) (:ored :no) (:ost :free) (:awk :no) (:prev :p2up)) 0.0294 0.0293 0.0265 0.0307 0.0230 0.0398)
+          (((:lead :behind) (:ored :no) (:ost :free) (:awk :yes) (:prev :p2up)) -0.3059 -0.4449 -0.2619 -0.2845 -0.3668 -0.2493)
+          (((:lead :behind) (:ored :yes) (:ost :busy) (:awk :no) (:prev :p2up)) -0.0590 -0.0572 -0.0572 -0.0572 -0.0572 -0.0559)
+          (((:lead :behind) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :p2up)) -0.2261 -0.2262 -0.2617 -0.2262 -0.2262 -0.2262)
+          (((:lead :behind) (:ored :yes) (:ost :free) (:awk :no) (:prev :p2up)) -0.0114 -0.0115 -0.0115 -0.0115 -0.0115 -0.0107)
+          (((:lead :behind) (:ored :yes) (:ost :free) (:awk :yes) (:prev :p2up)) -0.2688 -0.3282 -0.2968 -0.2511 -0.3940 -0.2785)
+          (((:lead :even) (:ored :no) (:ost :busy) (:awk :no) (:prev :p2up)) 0.0800 -0.0286 0.0933 0.0823 0.1002 0.0823)
+          (((:lead :even) (:ored :no) (:ost :busy) (:awk :yes) (:prev :p2up)) -0.3702 -0.4038 -0.3383 -0.3383 -0.3383 -0.3017)
+          (((:lead :even) (:ored :no) (:ost :free) (:awk :no) (:prev :p2up)) 0.0269 0.0277 0.0587 0.0696 0.0697 0.0258)
+          (((:lead :even) (:ored :no) (:ost :free) (:awk :yes) (:prev :p2up)) -0.2656 -0.3273 -0.2497 -0.3311 -0.2497 -0.2017)
+          (((:lead :even) (:ored :yes) (:ost :busy) (:awk :no) (:prev :p2up)) 0.1351 0.0684 0.1495 0.1398 0.1569 0.1398)
+          (((:lead :even) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :p2up)) 0.1201 0.1401 0.0762 0.0959 0.1760 0.1607)
+          (((:lead :even) (:ored :yes) (:ost :free) (:awk :no) (:prev :p2up)) 0.0967 0.1165 0.1072 0.1361 0.1165 0.1165)
+          (((:lead :even) (:ored :yes) (:ost :free) (:awk :yes) (:prev :p2up)) 0.0238 0.0948 0.0237 0.0237 0.0790 0.0030)
+          (((:lead :ahead) (:ored :no) (:ost :busy) (:awk :no) (:prev :p2up)) 0.0897 0.0473 0.0829 0.0444 0.0829 0.0925)
+          (((:lead :ahead) (:ored :no) (:ost :busy) (:awk :yes) (:prev :p2up)) -0.1835 -0.2456 -0.2054 -0.1726 -0.1621 -0.2361)
+          (((:lead :ahead) (:ored :no) (:ost :free) (:awk :no) (:prev :p2up)) 0.0622 0.0283 0.0621 0.0621 0.0773 0.0834)
+          (((:lead :ahead) (:ored :no) (:ost :free) (:awk :yes) (:prev :p2up)) -0.1499 -0.2368 -0.1740 -0.1701 -0.1586 -0.1377)
+          (((:lead :ahead) (:ored :yes) (:ost :busy) (:awk :no) (:prev :p2up)) 0.2043 0.2090 0.2090 0.2090 0.2059 0.2176)
+          (((:lead :ahead) (:ored :yes) (:ost :busy) (:awk :yes) (:prev :p2up)) -0.0241 0.0843 0.0843 0.0143 0.1032 0.0201)
+          (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :no) (:prev :p2up)) 0.1507 0.1506 0.1506 0.1506 0.1506 0.1506)
+          (((:lead :ahead) (:ored :yes) (:ost :free) (:awk :yes) (:prev :p2up)) -0.0794 -0.0621 -0.0276 -0.0795 -0.0274 -0.0961)
+          (((:form :no) (:dm :m-close)) -0.0735 -0.1230 -0.0619 -0.0559 -0.0736 -0.0771)
+          (((:form :no) (:dm :m-mid)) -0.0450 -0.0457 -0.0621 -0.0745 -0.0830 -0.0521)
+          (((:form :no) (:dm :m-far)) -0.0936 -0.0485 -0.0670 -0.0732 -0.0272 -0.0741)
+          (((:form :yes) (:dm :m-close)) 0.0846 -0.0066 0.0551 0.0681 0.0141 0.0810)
+          (((:form :yes) (:dm :m-mid)) 0.0594 0.0601 0.1169 0.0842 0.0587 0.1363)
+          (((:form :yes) (:dm :m-far)) 0.1048 0.1612 0.0915 0.0861 0.0635 0.0744)
+          (((:form :k2) (:dm :m-close)) 0.1629 0.0311 0.1449 0.1611 0.1803 0.1150)
+          (((:form :k2) (:dm :m-mid)) 0.1688 0.2160 0.1574 0.1574 0.1768 0.1508)
+          (((:form :k2) (:dm :m-far)) 0.1655 0.2249 0.1287 0.1654 0.1831 0.1654)
+          (((:gauge :g-low) (:awk :no)) -0.1377 -0.1404 -0.1124 -0.1207 -0.1069 -0.1207)
+          (((:gauge :g-low) (:awk :yes)) -0.0343 -0.0684 -0.0460 -0.0460 -0.0739 -0.0460)
+          (((:gauge :g-high) (:awk :no)) -0.0216 -0.0267 -0.0267 -0.0267 -0.0267 -0.0284)
+          (((:gauge :g-high) (:awk :yes)) -0.0260 -0.0479 -0.0598 -0.0583 -0.0479 -0.0479)
+          (((:wall :w-near)) 0.1672 0.1161 0.1399 0.1501 0.1408 0.1556)
+          (((:wall :w-open)) 0.1712 0.1615 0.1675 0.1563 0.1558 0.1543)
+          (((:oawk :no)) 0.0045 -0.0278 -0.0450 -0.0438 -0.0509 -0.0278)
+          (((:oawk :yes)) -0.1161 -0.1545 -0.0976 -0.0998 -0.1051 -0.1110)))))
   "The strategies the layer chooses from (the seeds s0, s1, s3, s5, s6 of docs/research/strategy-drsi/seeds/, each with prior rules :P; s7
 the counter search's kite).")
 
@@ -723,7 +840,8 @@ seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mix
   (remove-if-not (lambda (st) (let ((ap (getf st :apply))) (or (null ap) (and (eq (first ap) me) (or (null (cdr ap)) (eq (second ap) vs))))))
                  *strat-library*))
 
-(defparameter *strat-lookup* '((:hisagi :ichigo :hard :qh-ichigo) (:ichigo :kenpachi :hard :q1-ichigo-ken)
+(defparameter *strat-lookup* '((:hisagi :ichigo :hard :qhs-ichigo)   ; (§8.19: was :qh-ichigo)
+                                (:ichigo :kenpachi :hard :q1-ichigo-ken)
                                 (:hisagi :kenpachi :hard :qh-ken) (:hisagi :hisagi :hard :qh-mirror)
                                 (:ichigo :hisagi :hard :q1-ichigo-hisagi)            ; (§8.18: was :ki-ichigo, the table's arm 0)
                                 (:kenpachi :ichigo :hard :q1-ken-ichigo)              ; (§8.18)
@@ -742,7 +860,9 @@ Kenpachi: 0.905 / 0.895 against c1's 0.825 on seeds 600-699 / 700-799. Hisagi's 
 「合併兩種風格」): fitted Q tables over his merged style and the old entry, seeds 601-700 / 701-800 both seats: vs Ichigo 0.335 / 0.415
 (s3-zoner 0.0 / 0.0), vs Kenpachi 0.99 / 0.99 (Kenpachi's KI style 0.965 / 0.985), the mirror 0.985 / 1.0 against the shipped CPU. The Q tables with Kenpachi or Ichigo as me (§8.18, held-out seeds
 700-799, both seats, against the opponent frozen as today; the incumbent in brackets): Kenpachi vs Ichigo 0.745 (0.105), Kenpachi vs Hisagi
-0.645 (0.015), the mirrors 1.0 (0.5) each, Ichigo vs Hisagi 1.0 (1.0: arm 0 everywhere, a table so that the online learner attaches).")
+0.645 (0.015), the mirrors 1.0 (0.5) each, Ichigo vs Hisagi 1.0 (1.0: arm 0 everywhere, a table so that the online learner attaches).
+Hisagi vs Ichigo since §8.19 (2026-11-09): the switching table :qhs-ichigo, seeds 601-700 / 701-800 both seats against her frozen :ki-ichigo,
+0.595 / 0.72 (:qh-ichigo 0.335 / 0.415), about 48 arm changes a match.")
 
 (defun strat-lookup (me vs dif)
   "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF, or NIL."

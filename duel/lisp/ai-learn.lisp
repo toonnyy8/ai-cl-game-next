@@ -128,7 +128,8 @@ was saved from this same offline table, else a fresh copy."
                  (won (cond ((eql *winner* side) 1.0) ((eql *winner* :draw) 0.0) (t -1.0))))
             (setf (brain-fql b) nil)
             (when recs
-              (fq-td-update! fq base (fq-transitions (reverse recs) h won))
+              (fq-td-update! fq base (fq-transitions (reverse recs) h won (getf fq :scale *fq-online-scale*))   ; (a table's own window: :GAMMA / :SCALE, §8.19)
+                             :gamma (getf fq :gamma *fq-online-gamma*))
               (incf (cdr cell))
               (let ((codes (fq-encode fq base (cdr cell))) (pg (fq-page-base me vs)))
                 (loop for c in codes for j from 1 do (page-set (+ pg j) c))

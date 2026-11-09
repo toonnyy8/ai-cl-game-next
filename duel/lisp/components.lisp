@@ -230,6 +230,7 @@ is holding. Identity comes from the kit's :AI tables."
   (sw-sub nil) (sw-t -1 :type fixnum)  ; a composite strategy (strategy.lisp :SWITCH): the active sub (NIL: none), the tick it was judged
   (sw-n 0 :type fixnum) (sw-won nil)   ; ... judgements made, and per :SWITCH entry the ones it won (a vector, made at the first)
   (sw-fn nil)                          ; ... the style function that owns STYLE's state (another one taking over starts afresh)
+  (sw-keep nil)                        ; ... a Q selector with :KEEP-STATE: ((style function . its state) ...) of the styles not playing now
   (fql nil)                            ; the online fuzzy Q's record this match (ai-learn.lisp FQ-ATTACH!; NIL = not learning)
   (st-next 0 :type fixnum) (st-free 0 :type fixnum)   ; the strategy layer (cpu-mcts.lisp): the tick of its next selection, its last free tick
   (off nil))                            ; debug: this CPU does nothing

@@ -26,7 +26,14 @@
     (:in -99 -99 0.8 1.0) (:reach 0.8 1.0 1.2 1.5) (:out 1.2 1.5 2.0 2.6) (:afar 2.0 2.6 99 99)
     (:low -1 0 0.25 0.5) (:high 0.5 0.75 1 2)
     (:free -0.5 0 0 0.5) (:startup 0.5 1 1 1.5) (:active 1.5 2 2 2.5) (:evade 2.5 3 3 3.5) (:down 3.5 4 4 4.5)
-    (:busy 0.5 1 99 99))                                              ; his state class not free (a Q selector's rules, strategy.lisp)
+    (:busy 0.5 1 99 99)                                               ; his state class not free (a Q selector's rules, strategy.lisp)
+    ;; a Q selector's extra cues (DUEL_AI_STRATEGY §8.19, core-ai.lisp STRAT-XFEATS): an index (form, previous arm) as points beside :no (0) / :yes (1)
+    (:k2 1.5 2 2 2.5) (:k3 2.5 3 3 3.5) (:p2up 1.5 2 99 99)
+    ;; the distance in metres: close inside 2.9 (J1's / every ranged volume's 3.0 m dead zone, the ranged rule's close), gone by 3.4 (its
+    ;; closing-in edge); far from 4.5 (where NS1a WA's hit puts him) to 6.0 (the 3-6 m bands of RANSA / OGI)
+    (:m-close -99 -99 2.9 3.4) (:m-mid 2.9 3.4 4.5 6.0) (:m-far 4.5 6.0 99 99)
+    (:g-low -99 -99 0.2 0.3) (:g-high 0.2 0.3 99 99)                  ; the DRIVE / SUBLIMATION fraction about the switch's 0.25
+    (:w-near -99 -99 2.0 3.0) (:w-open 2.0 3.0 99 99))                ; metres to the arena's wall (the ranged rule's cornered: 2.0)
   "The fuzzy sets: name -> trapezoid (A B C D): 0 below A and above D, 1 from B to C.")
 
 (dolist (e *fz-sets*) (setf (get (first e) 'fz-trap) (coerce (rest e) 'simple-vector)))   ; (resolved once: no ASSOC per membership)

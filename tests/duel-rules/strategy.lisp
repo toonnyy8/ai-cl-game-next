@@ -35,7 +35,18 @@
 (check (= 1 (strat-final (vector 3.0 2.0) (vector 4.0 4.0) (vector 0.2 0.8) 1.0)))    ; (all prior)
 (check (~= 1.5 (strat-prior (second *strat-library*) '(:lead -3 :or 0.9))))  ; (the brawler behind on Konpaku)
 ;; the lookup (DUEL_AI_STRATEGY §8.6): HARD only, every entry names a library strategy
-(check (eq :qh-ichigo (getf (strat-lookup :hisagi :ichigo :hard) :id)))   ; (Hisagi's Q tables over his merged style, §8.17)
+(check (eq :qhs-ichigo (getf (strat-lookup :hisagi :ichigo :hard) :id)))   ; (§8.19's switching table; §8.17's :qh-ichigo stays in the library)
+(let ((fq (getf (strat-lookup :hisagi :ichigo :hard) :fq)))              ; (six arms, the last one aimed at Ichigo; 89 rules in 5 groups; 0.5 s)
+  (check (= 6 (length (getf fq :arms))))
+  (check (equal '(:hisagi :ichigo) (getf (sixth (getf fq :arms)) :apply)))
+  (check (every (lambda (a) (member (getf a :apply) '(nil (:hisagi)) :test #'equal)) (butlast (getf fq :arms))))
+  (check (= 89 (length (getf fq :rules)) (reduce #'+ (getf fq :groups))))
+  (check (every (lambda (r) (= 7 (length r))) (getf fq :rules)))
+  (check (and (eql 30 (getf fq :period)) (getf fq :keep-state) (getf fq :xfeats) (eql 0.966 (getf fq :gamma))))
+  (check (< (+ 3 (* 6 89)) 999))                                          ; (the page's online copy: 537 integers, under FQ-TABLE's 999)
+  (let ((codes (fq-encode fq fq 3)))
+    (check (= 537 (length codes)))
+    (check (equal (getf fq :rules) (getf (fq-decode codes fq) :rules)))))   ; (read back equal)
 (check (null (strat-lookup :hisagi :ichigo :normal)))                  ; (EASY / NORMAL keep their designed strength)
 (check (eq :q1-ichigo-hisagi (getf (strat-lookup :ichigo :hisagi :hard) :id)))   ; (§8.18: a table whose arm 0 is round 1's :ki-ichigo, §8.8)
 (check (eq :qh-ken (getf (strat-lookup :hisagi :kenpachi :hard) :id)))       ; (round 2's :ki-ken, §8.10, is its arm 1)
@@ -170,3 +181,29 @@
   (check (= 1 (strat-switch-dir 3 1 3)))
   (check (= -1 (strat-switch-dir 1 3 3))))
 (check (member :h1-range (mapcar (lambda (s) (getf s :id)) (strat-arms :hisagi :ichigo))))   ; (:apply (:hisagi): against anyone)
+;; an additive Q selector (:GROUPS, DUEL_AI_STRATEGY §8.19): each group averaged on its own, Q their sum; a group with no rule firing adds 0;
+;; the firing vector normalised per group, so FQ-Q-AT gives the same sum (the online learner sees the runtime's Q)
+(let ((fq (list :arms '(a b) :groups '(2 2)
+                :rules (list (list '((:mr :low)) 1.0 0.0) (list '((:mr :high)) 0.0 1.0)            ; (group 0)
+                             (list '((:dm :m-close)) 0.0 0.5) (list '((:dm :m-far)) 0.25 0.0)))))  ; (group 1)
+  (check (equalp #(1.0 0.5) (strat-fq-q fq '(:mr 0.1 :dm 2.0))))
+  (check (equalp #(1.25 0.0) (strat-fq-q fq '(:mr 0.1 :dm 9.0))))
+  (check (equalp #(1.0 0.0) (strat-fq-q fq '(:mr 0.1 :dm 4.0))))                ; (mid: group 1 silent)
+  (check (= 1 (strat-fq-pick fq '(:mr 0.9 :dm 2.0))))
+  (let ((w (strat-fq-fire fq '(:mr 0.1 :dm 3.15))))                               ; (close and mid half way: close 0.5, far 0)
+    (check (equalp #(1.0 0.0 1.0 0.0) w))
+    (check (~= 0.5 (fq-q-at fq w 1)))
+    (check (~= 1.0 (fq-v-at fq w)))))                                            ; (max_a Q = 1.0, not the per-group maxima's 1.0 + 0.5)                                         ; (= STRAT-FQ-Q: 0.0 + 0.5)
+;; a grouped table whose extra groups are all 0 plays the shipped table: Hisagi vs Ichigo's 48 rules + 3 more groups, on every crisp cell
+(let* ((ship (getf (find :qh-ichigo *strat-library* :key (lambda (st) (getf st :id))) :fq))
+       (rules (append (mapcar (lambda (r) (append r (list (- (reduce #'min (rest r)) 1.0)))) (getf ship :rules))
+                      (list (list '((:form :no) (:dm :m-close)) 0.0 0.0 0.0) (list '((:form :yes) (:dm :m-close)) 0.0 0.0 0.0)
+                            (list '((:gauge :g-high)) 0.0 0.0 0.0) (list '((:wall :w-near)) 0.0 0.0 0.0))))
+       (g (list :arms '(a b c) :groups '(48 2 1 1) :xfeats t :keep-state t :period 30 :rules rules)))
+  (check (loop for lead in '(-1 0 1) always
+           (loop for ored in '(0 1) always
+             (loop for ost in '(0 2) always
+               (loop for awk in '(0 1) always
+                 (loop for prev in '(0 1) always
+                   (let ((fs (list :lead lead :ored ored :ost ost :awk awk :prev prev :form 1 :dm 2.0 :gauge 0.5 :wall 1.0)))
+                     (= (strat-fq-pick ship fs) (strat-fq-pick g fs))))))))))

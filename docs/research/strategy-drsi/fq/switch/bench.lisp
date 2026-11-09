@@ -1,0 +1,16 @@
+;;;; bench.lisp — host cost of one Q selector judgement (strategy.lisp STRAT-FQ-PICK): the shipped :qh-ichigo (48 rules, 2 arms) against a
+;;;; grouped table (DUEL_AI_STRATEGY §8.19). usage (from the repo root): $ECL_HOST --norc --load docs/research/strategy-drsi/fq/switch/bench.lisp -- TABLE.lisp
+(dolist (f '("package" "math" "hitvol" "input")) (load (format nil "engine/lisp/~a.lisp" f)))
+(defpackage :duel (:use :cl :engine))
+(ensure-directories-exist "build/bench/")
+(dolist (f '("tuning" "fuzzy" "strategy"))
+  (load (compile-file (format nil "duel/lisp/~a.lisp" f) :output-file (format nil "build/bench/~a.fas" f))))
+(in-package :duel)
+(let* ((ship (getf (find :qh-ichigo *strat-library* :key (lambda (x) (getf x :id))) :fq))
+       (pil (getf (with-open-file (in (second (member "--" ext:*command-args* :test #'string=))) (let ((*read-eval* nil)) (read in))) :fq))
+       (feats (list :lead 0 :ored 1 :ost 0 :awk 1 :prev 0 :dm 3.1 :form 1 :oawk 0 :gauge 0.27 :wall 2.5 :dj 1.0 :dn 1.0 :mr 0.5 :or 0.5)))
+  (dolist (x (list (cons "shipped 48 x 2" ship) (cons "grouped" pil)))
+    (let ((t0 (get-internal-real-time)) (n 20000))
+      (dotimes (i n) (strat-fq-pick (cdr x) feats))
+      (format t "bench ~a: ~,2f us a judgement~%" (car x) (/ (* 1e6 (/ (- (get-internal-real-time) t0) internal-time-units-per-second)) n)))))
+(ext:quit 0)

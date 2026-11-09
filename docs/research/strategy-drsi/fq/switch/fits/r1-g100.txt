@@ -1,0 +1,3 @@
+matches 4792 judgements 1660975 arms [1364796, 64309, 54678, 68168, 52909, 56115]
+{"tag": "r1", "seeds": "1-599", "gamma": 1.0, "scale": 0.1, "lam": 300.0, "lam_v": 1.0, "conf": 0.95, "boot": 20, "matches": 4792, "judgements": 1660975, "behaviour_arms": [1364796, 64309, 54678, 68168, 52909, 56115], "greedy_on_data": [685488, 47172, 68067, 51207, 257409, 551632]}
+kept deltas: 188

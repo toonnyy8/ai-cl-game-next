@@ -1,0 +1,31 @@
+{
+ "char": "hisagi",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "h1-range",
+ "seeds": 50,
+ "seed0": 0,
+ "comp_wins": 4,
+ "comp_matches": 100,
+ "inc_wins": 75,
+ "inc_matches": 100,
+ "comp_share": 0.04,
+ "inc_share": 0.75,
+ "gain": -0.71,
+ "b": 0,
+ "c": 71,
+ "z": -8.426,
+ "own_share": 0.0,
+ "wall_s": 2.4,
+ "score": 0.04,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "vs_strat": [
+  "none",
+  "docs/research/strategy-drsi/counter/frozen/ki-ken.lisp",
+  "docs/research/strategy-drsi/fq/online/ken-istyle.lisp",
+  "docs/research/strategy-drsi/fq/online/ken-wide.lisp"
+ ]
+}
