@@ -1086,6 +1086,15 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
 - HH beats `:qh-mirror` but loses to the kite whole and breaks the distance rule in the ranged mode. A pin of merged in the ranged mode, or
   the kite whole, is untried.
 - With HI at 0.865, Ichigo vs Hisagi in CPU vs CPU falls to 0.13.
+- **The user's four answers on round 2 (2026-11-09):**
+  - 「改成可學的偏好」: HI's Shikai pin becomes a learnable preference, not a fixed rule: a prior towards press in the Shikai that the
+    online learner can move. It is measured against `:qhs2-ichigo`, which stays live until then.
+  - 「寫，量過再決定上線 (Recommended)」: write the DRIVE switch into the Shikai's NS gap (it never fires there today, because
+    `ken-ki-style` handles that gap itself), measure it, and ship it only if it beats the live table.
+  - 「遠距固定合併風格再重擬合 (Recommended)」: HH pins merged in the ranged mode at close range, the way HI's ranged-close rule backs off,
+    and is refit against kite whole and `:qhs-mirror`.
+  - 「接受，之後重做一護的表時再追 (Recommended)」: Ichigo vs Hisagi CPU vs CPU at 0.13 is accepted; Ichigo's tables answer it when they
+    are rebuilt.
 
 ## 9. Strategies may carry code (2026-11-08)
 
