@@ -798,6 +798,11 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   5. The starting table proved equal to the shipped one.
 - A pilot on one pairing comes first: Hisagi vs Ichigo, the weakest table (0.335 / 0.415) and the one where distance matters most. The other
   eight follow its method.
+- **The judgement period (the user, 2026-11-09: 「每 0.5s 就判斷一次」).** The new tables judge every 30 steps (0.5 s) in neutral, not 90.
+  - It is a per-table key (`:period`), defaulting to `*strat-switch-period*` 90, so the shipped tables, the composite c1 and G2 stay
+    bit-identical.
+  - The start table's identity proof runs at 90; the pilot then plays at 30.
+  - γ, the health shaping and the online learner's per-window values are rescaled to the 0.5 s window.
 
 ## 9. Strategies may carry code (2026-11-08)
 
