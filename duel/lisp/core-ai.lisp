@@ -210,7 +210,7 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
                 (multiple-value-setq (sub i) (fq-explore e sw sub i))
                 (fq-note e b feats i))
               (values sub i))))
-      (let* ((st (or sub (strat-lookup (fighter-character f) (fighter-character (fighter (fighter-opp f))) (brain-difficulty b))))
+      (let* ((st (or sub (and (not (getf sw :fq)) (strat-lookup (fighter-character f) (fighter-character (fighter (fighter-opp f))) (brain-difficulty b)))))   ; (a Q selector's NIL arm: no strategy)
              (x (if st (getf st :fn) (cai-style-fn f))) (fn (if (and x (symbolp x)) (symbol-function x) x)))
         (when (and fn (not (eq fn (brain-sw-fn b))))      ; (another style function takes over: its own state, not the last one's struct)
           (when (brain-sw-fn b) (setf (brain-style b) nil))
@@ -231,7 +231,8 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
      (let* ((sw (let ((st (brain-strat b))) (and st (or (getf st :switch) (getf st :fq)) st)))   ; (a composite: its active sub, else the lookup's strategy; a Q selector: its arm)
             (cur (if sw
                      (or (strat-switch-step e b f s d sw)
-                         (strat-lookup (fighter-character f) (fighter-character (fighter o)) (brain-difficulty b)))
+                         (and (not (getf sw :fq))     ; (a Q selector's NIL arm = no strategy at all, its style CPU included: never the lookup, which may be the table itself, DUEL_AI_STRATEGY §8.18)
+                              (strat-lookup (fighter-character f) (fighter-character (fighter o)) (brain-difficulty b))))
                      (brain-strat b)))
             (*strat-now* (and cur (cons cur (strat-feats e f s d)))))   ; (its strategy, DUEL_AI_STRATEGY)
       (vpad-stick! vp 0f0 0f0)

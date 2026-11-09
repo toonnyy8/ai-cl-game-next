@@ -1,0 +1,20 @@
+round 0: flips []
+{
+ "tag": "ih-t0",
+ "init": "pairs/ih/ih-t0.lisp",
+ "seeds": "1-599",
+ "gamma": 0.9,
+ "scale": 0.1,
+ "conf": 0.95,
+ "nmin": 30,
+ "boot": 200,
+ "stats": {
+  "files": 192,
+  "matches": 4792,
+  "judgements": 464385,
+  "explored": 67327
+ },
+ "transitions": 464385,
+ "flips": []
+}
+{'cell': 41, 'lead': 'ahead', 'ored': 1, 'free': 0, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 0, 'n0': 350, 'n1': 67, 'q0': 0.1907, 'q1': 0.2042, 'p_other_better': 0.9}

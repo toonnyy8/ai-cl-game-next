@@ -1,0 +1,35 @@
+{
+ "char": "ichigo",
+ "vs": "hisagi",
+ "opp": [
+  "../counter/frozen/s3-zoner.lisp"
+ ],
+ "seeds": "701-800",
+ "share": {
+  "incumbent": 1.0,
+  "pairs/ih/ih-fit.lisp": 1.0,
+  "../counter/frozen/ki-ken.lisp": 0.885
+ },
+ "pairs": {
+  "pairs/ih/ih-fit.lisp vs incumbent": {
+   "b": 0,
+   "c": 0,
+   "z": 0.0
+  },
+  "pairs/ih/ih-fit.lisp vs ../counter/frozen/ki-ken.lisp": {
+   "b": 23,
+   "c": 0,
+   "z": 4.8
+  },
+  "../counter/frozen/ki-ken.lisp vs incumbent": {
+   "b": 0,
+   "c": 23,
+   "z": -4.8
+  },
+  "../counter/frozen/ki-ken.lisp vs pairs/ih/ih-fit.lisp": {
+   "b": 0,
+   "c": 23,
+   "z": -4.8
+  }
+ }
+}

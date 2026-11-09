@@ -1,0 +1,19 @@
+{
+ "char": "kenpachi",
+ "vs": "hisagi",
+ "opp": [
+  "../counter/frozen/ki-ken.lisp"
+ ],
+ "seeds": "701-800",
+ "share": {
+  "incumbent": 0.015,
+  "pairs/kh/arm1.lisp": 0.58
+ },
+ "pairs": {
+  "pairs/kh/arm1.lisp vs incumbent": {
+   "b": 114,
+   "c": 1,
+   "z": 10.54
+  }
+ }
+}

@@ -1,0 +1,97 @@
+{
+ "char": "kenpachi",
+ "vs": "ichigo",
+ "opp": [
+  "../counter/frozen/q1-ichigo-ken.lisp"
+ ],
+ "seeds": "501-599",
+ "share": {
+  "incumbent": 0.0859,
+  "pairs/ki/ki-v1-500.lisp": 0.2626,
+  "pairs/ki/arm1.lisp": 0.803,
+  "pairs/ki/ki-v1b-500.lisp": 0.4848,
+  "pairs/ki/ki-v2-500.lisp": 0.8232
+ },
+ "pairs": {
+  "pairs/ki/ki-v1-500.lisp vs incumbent": {
+   "b": 48,
+   "c": 13,
+   "z": 4.48
+  },
+  "pairs/ki/ki-v1-500.lisp vs pairs/ki/arm1.lisp": {
+   "b": 14,
+   "c": 121,
+   "z": -9.21
+  },
+  "pairs/ki/ki-v1-500.lisp vs pairs/ki/ki-v1b-500.lisp": {
+   "b": 23,
+   "c": 67,
+   "z": -4.64
+  },
+  "pairs/ki/ki-v1-500.lisp vs pairs/ki/ki-v2-500.lisp": {
+   "b": 5,
+   "c": 116,
+   "z": -10.09
+  },
+  "pairs/ki/arm1.lisp vs incumbent": {
+   "b": 144,
+   "c": 2,
+   "z": 11.75
+  },
+  "pairs/ki/arm1.lisp vs pairs/ki/ki-v1-500.lisp": {
+   "b": 121,
+   "c": 14,
+   "z": 9.21
+  },
+  "pairs/ki/arm1.lisp vs pairs/ki/ki-v1b-500.lisp": {
+   "b": 80,
+   "c": 17,
+   "z": 6.4
+  },
+  "pairs/ki/arm1.lisp vs pairs/ki/ki-v2-500.lisp": {
+   "b": 26,
+   "c": 30,
+   "z": -0.53
+  },
+  "pairs/ki/ki-v1b-500.lisp vs incumbent": {
+   "b": 89,
+   "c": 10,
+   "z": 7.94
+  },
+  "pairs/ki/ki-v1b-500.lisp vs pairs/ki/ki-v1-500.lisp": {
+   "b": 67,
+   "c": 23,
+   "z": 4.64
+  },
+  "pairs/ki/ki-v1b-500.lisp vs pairs/ki/arm1.lisp": {
+   "b": 17,
+   "c": 80,
+   "z": -6.4
+  },
+  "pairs/ki/ki-v1b-500.lisp vs pairs/ki/ki-v2-500.lisp": {
+   "b": 17,
+   "c": 84,
+   "z": -6.67
+  },
+  "pairs/ki/ki-v2-500.lisp vs incumbent": {
+   "b": 149,
+   "c": 3,
+   "z": 11.84
+  },
+  "pairs/ki/ki-v2-500.lisp vs pairs/ki/ki-v1-500.lisp": {
+   "b": 116,
+   "c": 5,
+   "z": 10.09
+  },
+  "pairs/ki/ki-v2-500.lisp vs pairs/ki/arm1.lisp": {
+   "b": 30,
+   "c": 26,
+   "z": 0.53
+  },
+  "pairs/ki/ki-v2-500.lisp vs pairs/ki/ki-v1b-500.lisp": {
+   "b": 84,
+   "c": 17,
+   "z": 6.67
+  }
+ }
+}

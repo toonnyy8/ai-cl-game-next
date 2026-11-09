@@ -1,0 +1,61 @@
+{
+ "char": "kenpachi",
+ "vs": "hisagi",
+ "opp": [
+  "../counter/frozen/ki-ken.lisp"
+ ],
+ "seeds": "501-599",
+ "share": {
+  "incumbent": 0.0152,
+  "pairs/kh/kh-v1-500.lisp": 0.6263,
+  "pairs/kh/arm1.lisp": 0.5556,
+  "pairs/kh/kh-v2-500.lisp": 0.5303
+ },
+ "pairs": {
+  "pairs/kh/kh-v1-500.lisp vs incumbent": {
+   "b": 123,
+   "c": 2,
+   "z": 10.82
+  },
+  "pairs/kh/kh-v1-500.lisp vs pairs/kh/arm1.lisp": {
+   "b": 46,
+   "c": 32,
+   "z": 1.59
+  },
+  "pairs/kh/kh-v1-500.lisp vs pairs/kh/kh-v2-500.lisp": {
+   "b": 48,
+   "c": 29,
+   "z": 2.17
+  },
+  "pairs/kh/arm1.lisp vs incumbent": {
+   "b": 108,
+   "c": 1,
+   "z": 10.25
+  },
+  "pairs/kh/arm1.lisp vs pairs/kh/kh-v1-500.lisp": {
+   "b": 32,
+   "c": 46,
+   "z": -1.59
+  },
+  "pairs/kh/arm1.lisp vs pairs/kh/kh-v2-500.lisp": {
+   "b": 5,
+   "c": 0,
+   "z": 2.24
+  },
+  "pairs/kh/kh-v2-500.lisp vs incumbent": {
+   "b": 103,
+   "c": 1,
+   "z": 10.0
+  },
+  "pairs/kh/kh-v2-500.lisp vs pairs/kh/kh-v1-500.lisp": {
+   "b": 29,
+   "c": 48,
+   "z": -2.17
+  },
+  "pairs/kh/kh-v2-500.lisp vs pairs/kh/arm1.lisp": {
+   "b": 0,
+   "c": 5,
+   "z": -2.24
+  }
+ }
+}

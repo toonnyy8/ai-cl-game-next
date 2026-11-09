@@ -1,0 +1,19 @@
+{
+ "char": "kenpachi",
+ "vs": "kenpachi",
+ "opp": [
+  "none"
+ ],
+ "seeds": "701-800",
+ "share": {
+  "incumbent": 0.5,
+  "pairs/kk/arm1.lisp": 1.0
+ },
+ "pairs": {
+  "pairs/kk/arm1.lisp vs incumbent": {
+   "b": 100,
+   "c": 0,
+   "z": 10.0
+  }
+ }
+}

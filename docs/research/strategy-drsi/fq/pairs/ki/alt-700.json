@@ -1,0 +1,19 @@
+{
+ "char": "kenpachi",
+ "vs": "ichigo",
+ "opp": [
+  "../counter/frozen/q1-ichigo-ken.lisp"
+ ],
+ "seeds": "701-800",
+ "share": {
+  "incumbent": 0.105,
+  "pairs/ki/arm1.lisp": 0.81
+ },
+ "pairs": {
+  "pairs/ki/arm1.lisp vs incumbent": {
+   "b": 146,
+   "c": 5,
+   "z": 11.47
+  }
+ }
+}

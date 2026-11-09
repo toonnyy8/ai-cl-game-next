@@ -654,6 +654,121 @@ measurements, `shipped/` the lookup's).
   - The tables' starting arm: 「從合併風格出發 (Recommended)」. Arm 0 = the merged style, arm 1 = the old entry, as shipped. Starting from
     the incumbent scored HI 0.0 / 0.0.
 
+### 8.18 The Q tables with Kenpachi or Ichigo as me, into the lookup (2026-11-09)
+
+§8.15's next step for six pairings (Hisagi's three are another batch, §8.17). The user's words: 「為每個對戰組合搜尋第二輪策略，並建構出各自的 Q table 與
+online fuzzy Q learning」, 「混合：弱組對現行、強組對代理 (Recommended)」, 「要，九組全做 (Recommended)」, 「Keep 0.01 (Recommended)」 and, on the search
+results, 「整場替換 (Recommended)」. Everything is in `docs/research/strategy-drsi/fq/pairs/` (README there: `fq/README.md` "§8.18").
+
+- **A runtime fix: a Q selector's NIL arm is no strategy at all** (core-ai.lisp `core-brain-step`, `strat-switch-step`). Before, a NIL arm fell
+  back to the lookup, which is the table itself once the table ships: Kenpachi vs Ichigo's arm 0 then played the generic CPU without his KI style
+  CPU (0.005 instead of 0.095). Now it plays the shipped CPU with its matchup style CPU, which is that pairing's incumbent. A composite's
+  no-entry fallback is still the lookup. No shipped table had a NIL arm, so nothing else moves (G2 identical).
+- **The arms** (two a table: arm 0 the incumbent, arm 1 the alternative):
+
+| Pairing | Opponent while fitting | Arm 0 | Arm 1 |
+|---|---|---|---|
+| Kenpachi vs Ichigo | frozen `q1-ichigo-ken` | NIL (his shipped CPU, KI style after the MCTS) | `ichigo-ki-style`, whole game (`heldout2/ki-whole`) |
+| Kenpachi vs Hisagi | frozen `ki-ken` | NIL | `ken-ki-style :p 1.3`, whole game (`heldout2/kh-whole`) |
+| the Kenpachi mirror | his shipped CPU | NIL | `ken-ki-style` (kk-ken b0_a0's strategy) |
+| the Ichigo mirror | her shipped CPU | NIL | `ichigo-ki-style` (ii-ichigo b2_a0's strategy) |
+| Ichigo vs Kenpachi | the proxy pool (`pools.json`) | q1's own two arms (her incumbent is q1) | |
+| Ichigo vs Hisagi | the proxy pool | `:ki-ichigo` | `ken-ki-style` (`:ki-ken`) |
+
+  - The ceiling pairings' arm 1 is the best other strategy against the pool (seeds 1-100, both seats). Ichigo vs Hisagi: `:ki-ken` 0.65 against
+    the incumbent's 0.67 (b / c 29 / 33); c1 0.66, s1 0.135, the generic CPU 0.07, s3 0.045, s7 0.015. Ichigo vs Kenpachi: every single strategy
+    is far below q1 (0.645): Kenpachi's KI style 0.275, the shipped CPU 0.26, her KI style 0.25, s0 / s1 / s3 0.0, c1 0.575. c1 is a composite
+    of q1's own two arms, so her table is a refit of q1's 48 cells against the pool.
+- **Identity** (each table initialised to arm 0 everywhere, or q1 itself for Ichigo vs Kenpachi; run raw against the incumbent, seeds 601-700, both
+  seats; `duel hash` / `duel state` / gate-row lines): all six identical, 8 of 8 chunks. Shares: 0.095, 0.035, 0.5, 0.495, 0.615 (pool), 0.71 (pool).
+- **Fit** (fq.py: logs of 4 salts x seeds 1-599 x both seats at ε 0.15, 48 crisp rules, γ 0.9, scale 0.1, the 95 % bootstrap gate). Each config
+  was trained on 1-500 and validated on 501-599, then refit on 1-599:
+  - Round 1, behaviour = the incumbent + ε, π0 = the incumbent.
+  - Round 2, where round 1 fell short: behaviour = the alternative everywhere + ε, π0 = the alternative.
+  - Round 2 for Ichigo vs Kenpachi: behaviour = round 1's table + ε.
+
+  Validation (501-599, both seats, 198 matches):
+
+| Pairing | Incumbent | Arm 1 alone | Round 1 | Round 2 | Shipped |
+|---|---|---|---|---|---|
+| Kenpachi vs Ichigo | 0.086 | 0.803 | 0.263 (8 cells arm 1) | **0.823** (vs arm 1 alone b / c 30 / 26) | round 2 |
+| Kenpachi vs Hisagi | 0.015 | 0.556 | **0.626** (vs arm 1 alone 46 / 32) | 0.530 | round 1 |
+| the two mirrors | 0.5 | 1.0 | 0.995 | **1.0** (no flip: arm 1 everywhere) | round 2 |
+| Ichigo vs Kenpachi, pool / his shipped CPU | 0.636 / 0.914 | | 0.328 / 0.631 | 0.621 / 0.859 | **q1 kept** |
+| Ichigo vs Hisagi | | | no flip (arm 0 everywhere) | | round 1 |
+
+  - The window-by-window fit misjudges an arm it only sees in single explored windows. A style CPU's state resets at each switch, so one window
+    of a style is not that style kept up. Kenpachi vs Ichigo's round 1 kept arm 0 where his own style looked better for a window (0.263 against
+    the alternative's 0.803). Ichigo vs Kenpachi's round 1 gave Kenpachi's style to "behind, free, awakened" (29 % of the judgements) and fell to
+    0.33 against the pool. Data logged under the policy being judged (round 2) fixes most of it.
+  - Kenpachi vs Ichigo's 1-599 refit did not settle in 4 improvement rounds (two sets of 9 / 11 cells alternate). The table is round 3's: 9 cells
+    on arm 0, 39 on arm 1.
+- **Held-out** (seeds 701-800, 100 a seat, HARD, the opponent frozen as in the fit; b / c paired):
+
+| Pairing | Table | Incumbent | Arm 1 alone | Table vs incumbent | Table vs arm 1 alone |
+|---|---|---|---|---|---|
+| Kenpachi vs Ichigo | 0.745 | 0.105 | 0.81 | 131 / 3 (z 11.1) | 22 / 35 (z -1.7) |
+| Kenpachi vs Hisagi | 0.645 | 0.015 | 0.58 | 127 / 1 (z 11.1) | 46 / 33 (z 1.5) |
+| the Kenpachi mirror | 1.0 | 0.5 | 1.0 | 100 / 0 | identical |
+| the Ichigo mirror | 1.0 | 0.5 | 1.0 | 100 / 0 | identical |
+| Ichigo vs Hisagi, s3-zoner / pool | 1.0 / 0.69 | 1.0 / 0.69 | 0.885 / 0.635 | identical | 23 / 0, 36 / 25 |
+
+  Kenpachi vs Ichigo's shipped table (the 1-599 refit, unsettled) has one clean measurement: held-out 0.745 against arm 1 alone 0.81 (b / c
+  22 / 35, z -1.7). Validation's 0.823 belongs to the 1-500 round-2 table. The drop-in alternative is a table with arm 1 in every cell: it
+  plays bit for bit as arm 1 alone (the mirrors' tables show it), so it holds 0.81. The choice is the user's; no more held-out was run on it.
+  Ichigo vs Kenpachi keeps `:q1-ichigo-ken`: its refit never beat it on validation, and a new table would reset every player's saved copy
+  (the checksum).
+- **Arm gaps** (`pairs/gaps.jsonl`; a cap-0.01 learner flips a cell only under a 0.02 gap; "clamp" = the trainer set the arm against the data
+  and wrote the other q 0.001 below; "no data" = an arm never sampled):
+
+| Table | Arm 1 cells | Clamp | No data | Data cells: < 0.02 / 0.02-0.05 / > 0.05 (median) | Cells the learner can flip |
+|---|---|---|---|---|---|
+| Kenpachi vs Ichigo | 39 | 10 | 3 | 23 / 11 / 1 (0.011) | 35 of 48 |
+| Kenpachi vs Hisagi | 20 | 11 | 6 | 18 / 11 / 2 (0.016) | 32 |
+| the Kenpachi mirror | 48 | 0 | 1 | 7 / 18 / 22 (0.047) | 7 |
+| the Ichigo mirror | 48 | 2 | 1 | 9 / 18 / 18 (0.041) | 11 |
+| Ichigo vs Hisagi | 0 | 8 | 0 | 23 / 14 / 3 (0.014) | 31 |
+| Ichigo vs Kenpachi (q1, unchanged) | 24 | 10 | 4 | 26 / 6 / 2 (0.014) | 40 |
+
+  The mirrors' gaps mostly exceed 0.02, so the online learner barely moves them. In the other tables most cells can flip.
+- **Into the game**: five library entries, inlined from `pairs/<p>/<p>-fit.lisp`: `:q1-ken-ichigo`, `:q1-ken-hisagi`, `:q1-ken-ken`,
+  `:q1-ichigo-ichigo`, `:q1-ichigo-hisagi`. The HARD lookup now holds Kenpachi vs Ichigo / Hisagi / Kenpachi, the Ichigo mirror, and Ichigo vs
+  Hisagi (replacing `:ki-ichigo`, the table's arm 0). Ichigo vs Kenpachi stays q1. Each carries `:apply (me vs)`, so `fq-attach!` gives a human
+  the online learner with no other change (page keys `soulduel.fq.<me>.<vs>`). G2 plays NORMAL and stays identical.
+- **Proofs on the build with the entries** (601-700, both seats):
+  - Each arm-0 table (KI, KH, both mirrors, IH) gives lines identical to the incumbent of the build before the entries (8 of 8 chunks each): arm 0
+    plays the old incumbent while the table is itself the lookup entry.
+  - Without the runtime fix, Kenpachi vs Ichigo's arm-0 table on the same lookup plays 0.005 with 0 of 8 chunks identical: the negative control.
+  - Each fitted table run raw equals the live lookup (8 of 8): the lookup path plays the table.
+- **Both seats live** (every CPU on the lookup, seeds 601-700, both seats; §8.15's column in brackets; Hisagi as of this build, before §8.17's
+  entries):
+
+| Me vs | Share |
+|---|---|
+| Kenpachi vs Ichigo | 0.765 (0.095) |
+| Ichigo vs Kenpachi | **0.235 (0.905)** |
+| Kenpachi vs Hisagi | 0.68 (0.035) |
+| Hisagi vs Kenpachi | **0.32 (0.965)** |
+| Ichigo vs Hisagi | 1.0 (1.0) |
+| Hisagi vs Ichigo | 0.0 (0.0) |
+| the Kenpachi mirror | 0.485 (0.5); median 300 s, 3 draws of 100 |
+| the Ichigo mirror | **0.025 (0.495): 95 draws of 100**, time-outs (both seats on her KI style) |
+| the Hisagi mirror | 0.5 |
+
+  - Kenpachi playing Ichigo's KI style is §8.14's proxy 1, which q1 already lost to (0.135). With Kenpachi's table live, Ichigo vs Kenpachi falls
+    from 0.905 to 0.235. Her library has no counter: every arm was far below q1 against the pool. The same holds the other way for Hisagi vs
+    Kenpachi.
+  - The HARD Ichigo mirror between two CPUs becomes a stalemate.
+- Kenpachi vs Hisagi's and Ichigo vs Hisagi's numbers are measured against Hisagi's entries before §8.17 (`:ki-ken`, `:s3-zoner`). §8.17
+  replaces them (`:qh-ken`, `:qh-ichigo`, `:qh-mirror`), so these two and the Hisagi rows above are to be measured again after the merge.
+- Checks: host tests 9926 → 9956 ALL PASS (the lookup's new entries: ids, `:apply`, 2 arms x 48 rules, NIL arm 0 where the incumbent has no
+  strategy; `strat-arms` now lists the tables, as it listed q1), pkgcheck (only the existing DUEL::APP, sim-state.lisp), G2 `--cvc` identical
+  (II 32, IK 34, KK 33 lines), `./build.sh duel`.
+- Open for the user:
+  - the cross effect on Ichigo vs Kenpachi (0.905 → 0.235) and Hisagi vs Kenpachi;
+  - the HARD Ichigo mirror's draws in CPU vs CPU;
+  - Kenpachi vs Ichigo's table (0.745 held-out) or a table with arm 1 in every cell (0.81).
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

@@ -131,17 +131,19 @@ lives in `online.py` and `online/`.
 
 `fq.py` and `online.py` take `--char C --vs D`; their defaults are still Ichigo vs Kenpachi as above, and they reproduce it (below).
 
-- **Arms**: two strategy specs, each a file, a frozen library id (`../counter/frozen/<id>.lisp`) or `none`. A NIL arm is the incumbent:
-  the character's HARD CPU with its lookup strategy and style CPU (a composite's no-entry fallback). An explicit arm 0 names the incumbent's
-  strategy (e.g. `ki-ichigo`); both prove equal to the incumbent (below).
+- **Arms**: two strategy specs, each a file, a frozen library id (`../counter/frozen/<id>.lisp`) or `none`. A NIL arm is no strategy at all:
+  the character's shipped CPU with its matchup style CPU, never the lookup (core-ai.lisp since §8.18; before, a NIL arm fell back to the
+  lookup, which broke once the table was itself the entry). An incumbent that is a lookup strategy needs it as an explicit arm 0. An explicit arm 0 names the incumbent's
+  strategy (e.g. `ki-ichigo`); both proved equal to the incumbent (below; `proof/ih-arm0.lisp`'s NIL arm 0 meant the lookup's `:ki-ichigo`
+  before the §8.18 fix and is no longer that incumbent).
   - Limits: arms don't nest (a composite or a Q table as an arm is played as a plain plist, never judged), so IK's incumbent q1 cannot be an
     arm; and when a table itself becomes the lookup entry, a NIL arm falls back to the lookup = the table (as a plain plist). **A shipped table
     therefore needs an explicit arm 0.** Where the incumbent is the shipped CPU with no strategy and no matchup style CPU (Kenpachi vs Hisagi,
     the three mirrors), the empty strategy `(:id :shipped)` is that arm: proved bit-identical below. **Kenpachi vs Ichigo is the exception**:
     his shipped CPU runs his KI style CPU after the MCTS (`cai-defstyle`), which an empty arm stops and a `:fn ken-ki-style` arm runs before
     the MCTS; `proof/ki-shipped.lisp` (arm 0 `(:id :shipped)`) gives 0.005 against the incumbent's 0.095 (b / c 1 / 19). Shipping a KI table
-    needs a small runtime change (e.g. an arm meaning "no strategy, no lookup": `cur` NIL so the style CPU runs). This blocks only the lookup
-    step, not the tooling or the search.
+    needs a small runtime change (e.g. an arm meaning "no strategy, no lookup": `cur` NIL so the style CPU runs). **Done in §8.18**: a NIL
+    arm is now exactly that, so a NIL arm 0 ships (proved on the build with the entries, `pairs/proofs-600.jsonl`).
 - **Rule base**: the 48 crisp rules (lead x ored x ost free x awk x prev) are `strat-feats` cues, the same for every character, so they carry
   over unchanged. Whether another pairing needs other cues (e.g. distance, his Reishi) shows only after its search names the alternative arm.
 - **Tables carry `:apply (me vs)`** (the online learner keys IN by it).
@@ -227,3 +229,25 @@ pool `hisagi-kenpachi` of `pools.json`, the shipped CPU (`none`). `<p>`: hi (His
 | `<p>-fqm.lisp` / `.json`, `<p>-trainm.txt`, `<p>-fqm-eval-{600,700}.json` | **shipped** (`:qh-ichigo` / `:qh-ken` / `:qh-mirror`): fitted from m0 (logs `logs/hisagi-<vs>-m/`) |
 | `merged/` | the merged style's variants against Kenpachi's KI style whole and `:h1-range` whole, seeds 701-800, with STRAT_HRANGE stats |
 | `shipped/` | the lookup live (the incumbent now) against the old incumbent run raw, and the opposite pairings (IH, KH) under it |
+
+## The Q tables of §8.18 (Kenpachi or Ichigo as me), `pairs/`
+DUEL_AI_STRATEGY §8.18 has the numbers. One folder per pairing (`ki kh kk ii ik ih`):
+
+| File | What |
+|---|---|
+| `<p>/arm1.lisp` | arm 1 (the whole-game replacement or the best cell, without `:own`) |
+| `<p>/<p>-t0.lisp` | the table initialised to the incumbent (arm 0 everywhere; IK: q1 renamed): `identity-600.jsonl` |
+| `<p>/<p>-t1.lisp` | arm 1 everywhere: round 2's behaviour policy (KI KH KK II) |
+| `<p>/<p>-v1-500.lisp`, `-v1b-500`, `-v2-500` | trained on 1-500: round 1 (π0 the incumbent), KI's round 1 with π0 arm 1, round 2; `validation-1-500*.json` (501-599) |
+| `<p>/<p>-fit.lisp` / `.json`, `train-1-599.txt` | **the shipped tables**, refit on 1-599 (KI KK II round 2, KH IH round 1; IK keeps q1) |
+| `<p>/heldout-700*.json`, `<p>/alt-700.json` | held-out 701-800: the table, the incumbent and arm 1 alone, paired |
+| `ik/cands-0.jsonl`, `ih/cands-0.jsonl` | arm 1 for the ceiling pairings: every candidate against the pool, seeds 1-100 |
+| `gaps.jsonl` | each table's arm gaps (`gaps.py`) |
+| `proofs-600.jsonl` | on the build with the entries: each t0 = the earlier build's incumbent (`cross.py`), each fit raw = the live lookup |
+| `negative-control-nofix.json` | the same t0 proof for KI on a build without the NIL-arm fix: 0 of 8 identical (0.005) |
+| `live-600.jsonl` | every pairing with both seats on the lookup (`live.py`) |
+
+Tools: `run-logs.py` (fq.py log, 4 salts, per pairing; tags `logs/<p>-<suffix>/`), `cands.py`, `heldout.py` (strategies paired with each
+other and with the incumbent on one block; `HJ` = processes), `cross.py`, `proofs.py`, `live.py`, `gaps.py`, `lib-block.py` (the library
+entries printed from the fits). Logs (gitignored): `ki-t0 kh-t0 kk-t0 ii-t0 ik-t0 ih-t0` (round 1), `ki-t1 kh-t1 kk-t1 ii-t1` (round 2),
+`ik-v1-500` (IK's round 2).

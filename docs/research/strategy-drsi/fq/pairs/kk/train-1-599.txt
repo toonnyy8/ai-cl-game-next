@@ -1,0 +1,19 @@
+round 0: flips []
+{
+ "tag": "kk-t1",
+ "init": "pairs/kk/kk-t1.lisp",
+ "seeds": "1-599",
+ "gamma": 0.9,
+ "scale": 0.1,
+ "conf": 0.95,
+ "nmin": 30,
+ "boot": 200,
+ "stats": {
+  "files": 192,
+  "matches": 4792,
+  "judgements": 268022,
+  "explored": 38612
+ },
+ "transitions": 268022,
+ "flips": []
+}

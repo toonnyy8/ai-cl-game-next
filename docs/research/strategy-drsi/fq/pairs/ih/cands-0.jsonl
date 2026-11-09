@@ -1,0 +1,8 @@
+{"pairing": "ichigo-hisagi", "cand": "pairs/cands/none.lisp", "seeds": "1-100", "share": 0.07, "inc": 0.67, "b": 0, "c": 120, "z": -10.954}
+{"pairing": "ichigo-hisagi", "cand": "../counter/frozen/ki-ken.lisp", "seeds": "1-100", "share": 0.65, "inc": 0.67, "b": 29, "c": 33, "z": -0.508}
+{"pairing": "ichigo-hisagi", "cand": "../counter/frozen/ki-ichigo.lisp", "seeds": "1-100", "share": 0.67, "inc": 0.67, "b": 0, "c": 0, "z": 0.0}
+{"pairing": "ichigo-hisagi", "cand": "../counter/frozen/s0-generic.lisp", "seeds": "1-100", "share": 0.07, "inc": 0.67, "b": 0, "c": 120, "z": -10.954}
+{"pairing": "ichigo-hisagi", "cand": "../counter/frozen/s1-brawler.lisp", "seeds": "1-100", "share": 0.135, "inc": 0.67, "b": 10, "c": 117, "z": -9.495}
+{"pairing": "ichigo-hisagi", "cand": "../counter/frozen/s3-zoner.lisp", "seeds": "1-100", "share": 0.045, "inc": 0.67, "b": 0, "c": 125, "z": -11.18}
+{"pairing": "ichigo-hisagi", "cand": "../counter/frozen/s7-kite.lisp", "seeds": "1-100", "share": 0.015, "inc": 0.67, "b": 0, "c": 131, "z": -11.446}
+{"pairing": "ichigo-hisagi", "cand": "pairs/cands/c1.lisp", "seeds": "1-100", "share": 0.66, "inc": 0.67, "b": 28, "c": 30, "z": -0.263}

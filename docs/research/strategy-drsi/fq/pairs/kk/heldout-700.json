@@ -1,0 +1,35 @@
+{
+ "char": "kenpachi",
+ "vs": "kenpachi",
+ "opp": [
+  "none"
+ ],
+ "seeds": "701-800",
+ "share": {
+  "incumbent": 0.5,
+  "pairs/kk/kk-fit.lisp": 1.0,
+  "pairs/kk/arm1.lisp": 1.0
+ },
+ "pairs": {
+  "pairs/kk/kk-fit.lisp vs incumbent": {
+   "b": 100,
+   "c": 0,
+   "z": 10.0
+  },
+  "pairs/kk/kk-fit.lisp vs pairs/kk/arm1.lisp": {
+   "b": 0,
+   "c": 0,
+   "z": 0.0
+  },
+  "pairs/kk/arm1.lisp vs incumbent": {
+   "b": 100,
+   "c": 0,
+   "z": 10.0
+  },
+  "pairs/kk/arm1.lisp vs pairs/kk/kk-fit.lisp": {
+   "b": 0,
+   "c": 0,
+   "z": 0.0
+  }
+ }
+}

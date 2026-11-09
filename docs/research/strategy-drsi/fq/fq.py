@@ -6,8 +6,8 @@ Ichigo vs Kenpachi as in §8.12 (arms Kenpachi's / her own KI style, init c1, lo
   python3 fq.py log --salt 1 [--eps 0.15] [--seeds 1-500] [--table FILE] [--opp SPEC] [--tag T] [-j 8]   # behaviour = TABLE + eps -> logs/T/*.out.gz
   python3 fq.py train [--tag T] [--init FILE] [--seeds 1-500] [--gamma 0.9] [--scale 0.1] [--conf 0.95] [--out FILE]   # fitted fuzzy Q
 
-An arm (A0 / A1) is a strategy file, a frozen library id (counter/frozen/<id>.lisp) or `none` (NIL: the incumbent, i.e. the character's HARD
-CPU with its lookup strategy and style CPU, as a composite's no-entry fallback). The table carries :apply (me vs), so the online learner
+An arm (A0 / A1) is a strategy file, a frozen library id (counter/frozen/<id>.lisp) or `none` (NIL: no strategy at all, the character's
+shipped CPU with its matchup style CPU, never the lookup; DUEL_AI_STRATEGY §8.18). The table carries :apply (me vs), so the online learner
 (online.py, strat-run.lisp STRAT_FQLEARN) can key it. --opp: the opponent seat's strategy (a file, a frozen id, `none` = his shipped CPU
 without any lookup strategy, or a comma list = a pool: strat-run.lisp plays member (match seed mod n)); omitted = whatever the build's lookup
 gives him (the §8.12 logs: Kenpachi has no lookup entry against Ichigo, so it is his shipped CPU). Only the character's seat logs and explores

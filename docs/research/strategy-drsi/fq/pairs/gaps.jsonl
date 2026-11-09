@@ -1,0 +1,6 @@
+{"table": "pairs/ki/ki-fit.lisp", "arm1_cells": 39, "flips": 9, "clamp": 10, "nodata": 3, "data": 35, "data_under_002": 23, "data_002_005": 11, "data_over_005": 1, "data_median": 0.0112, "flippable_by_cap_001": 35}
+{"table": "pairs/kh/kh-fit.lisp", "arm1_cells": 20, "flips": 20, "clamp": 11, "nodata": 6, "data": 31, "data_under_002": 18, "data_002_005": 11, "data_over_005": 2, "data_median": 0.0159, "flippable_by_cap_001": 32}
+{"table": "pairs/kk/kk-fit.lisp", "arm1_cells": 48, "flips": 0, "clamp": 0, "nodata": 1, "data": 47, "data_under_002": 7, "data_002_005": 18, "data_over_005": 22, "data_median": 0.0466, "flippable_by_cap_001": 7}
+{"table": "pairs/ii/ii-fit.lisp", "arm1_cells": 48, "flips": 0, "clamp": 2, "nodata": 1, "data": 45, "data_under_002": 9, "data_002_005": 18, "data_over_005": 18, "data_median": 0.0412, "flippable_by_cap_001": 11}
+{"table": "pairs/ih/ih-fit.lisp", "arm1_cells": 0, "flips": 0, "clamp": 8, "nodata": 0, "data": 40, "data_under_002": 23, "data_002_005": 14, "data_over_005": 3, "data_median": 0.0141, "flippable_by_cap_001": 31}
+{"table": "fq-trained.lisp", "arm1_cells": 24, "flips": 16, "clamp": 10, "nodata": 4, "data": 34, "data_under_002": 26, "data_002_005": 6, "data_over_005": 2, "data_median": 0.0143, "flippable_by_cap_001": 40}

@@ -1,0 +1,2 @@
+;; s1-brawler as in *strat-library* (frozen 2026-11-09 by frozen/dump.lisp)
+(:id :s1-brawler :base (:range 0.7 :ns 0.35 :hoho 0.5 :cont 1.3 :awaken 3.0 :p 1.0 :b-walk-in 0.06 :b-j1 0.05 :b-step-in 0.03 :b-wait -0.05 :b-walk-out -0.08 :b-step-out -0.05) :rules ((((:ost :down)) (:b-walk-in 0.14 :b-j1 0.12 :b-wait -0.12)) (((:dj :in)) (:b-j1 0.12 :b-step-out -0.1)) (((:dj :afar)) (:b-walk-in 0.12 :b-step-in 0.08)) (((:ost :active) (:dj :in)) (:b-hoho -0.05)) (((:lead :behind)) (:p 1.5)) (((:lead :ahead)) (:p 0.7)) (((:or :low)) (:p 1.4))))

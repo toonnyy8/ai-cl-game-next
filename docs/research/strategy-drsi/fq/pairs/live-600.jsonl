@@ -1,0 +1,9 @@
+{"char": "ichigo", "vs": "kenpachi", "seeds": "601-700", "live_share": 0.235}
+{"char": "ichigo", "vs": "hisagi", "seeds": "601-700", "live_share": 1.0}
+{"char": "hisagi", "vs": "kenpachi", "seeds": "601-700", "live_share": 0.32}
+{"char": "kenpachi", "vs": "ichigo", "seeds": "601-700", "live_share": 0.765}
+{"char": "kenpachi", "vs": "hisagi", "seeds": "601-700", "live_share": 0.68}
+{"char": "hisagi", "vs": "ichigo", "seeds": "601-700", "live_share": 0.0}
+{"char": "kenpachi", "vs": "kenpachi", "seeds": "601-700", "live_share": 0.485}
+{"char": "ichigo", "vs": "ichigo", "seeds": "601-700", "live_share": 0.025}
+{"char": "hisagi", "vs": "hisagi", "seeds": "601-700", "live_share": 0.5}

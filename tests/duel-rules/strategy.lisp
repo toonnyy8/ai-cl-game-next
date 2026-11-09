@@ -23,8 +23,8 @@
     (check (< 0.5 (strat-similarity fa fb) 1.0))))
 
 ;; the strategy layer's pure parts (DUEL_AI_STRATEGY §5, §8.4): arms by :APPLY, seeds from the payoff matrix (B's view 1 - M transposed), PUCT, the pick
-(check (equal '(:s0-generic :s1-brawler :s3-zoner :ki-ken) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :ichigo))))
-(check (equal '(:s0-generic :s1-brawler :s3-zoner) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
+(check (equal '(:s0-generic :s1-brawler :s3-zoner :ki-ken :q1-ken-ichigo) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :ichigo))))   ; (+ §8.18's table, as IK's q1)
+(check (equal '(:s0-generic :s1-brawler :s3-zoner :q1-ken-hisagi) (mapcar (lambda (s) (getf s :id)) (strat-arms :kenpachi :hisagi))))
 (check (~= 0.7 (strat-seed-value :kenpachi :ichigo :ki-ken)))           ; (against her equilibrium column, :ki-ichigo)
 (check (~= 0.3 (strat-seed-value :ichigo :kenpachi :ki-ichigo)))        ; (the column side: 1 - his equilibrium row's cell)
 (check (~= 0.0 (strat-seed-value :ichigo :kenpachi :s0-generic)))       ; (her s0 against his equilibrium row :ki-ken: 1 - 1.0)
@@ -37,7 +37,7 @@
 ;; the lookup (DUEL_AI_STRATEGY §8.6): HARD only, every entry names a library strategy
 (check (eq :qh-ichigo (getf (strat-lookup :hisagi :ichigo :hard) :id)))   ; (Hisagi's Q tables over his merged style, §8.17)
 (check (null (strat-lookup :hisagi :ichigo :normal)))                  ; (EASY / NORMAL keep their designed strength)
-(check (eq :ki-ichigo (getf (strat-lookup :ichigo :hisagi :hard) :id)))   ; (the counter search's round 1, §8.8)
+(check (eq :q1-ichigo-hisagi (getf (strat-lookup :ichigo :hisagi :hard) :id)))   ; (§8.18: a table whose arm 0 is round 1's :ki-ichigo, §8.8)
 (check (eq :qh-ken (getf (strat-lookup :hisagi :kenpachi :hard) :id)))       ; (round 2's :ki-ken, §8.10, is its arm 1)
 (check (eq :qh-mirror (getf (strat-lookup :hisagi :hisagi :hard) :id)))
 (dolist (id '(:qh-ichigo :qh-ken :qh-mirror))                           ; (arm 0 the merged style; ahead, free, no flags: arm 0)
@@ -45,11 +45,23 @@
     (check (eq 'hisagi-merged-style (getf (first (getf fq :arms)) :fn)))
     (check (= 48 (length (getf fq :rules))))
     (check (= 0 (strat-fq-pick fq '(:lead 99))))))
+(check (<= (length *strat-library*) 32))                                 ; (*strat-picks* holds 32 a side)
 (check (eq :q1-ichigo-ken (getf (strat-lookup :ichigo :kenpachi :hard) :id)))   ; (the fuzzy Q table, §8.12)
 (let ((c (find :c1-ichigo-ken *strat-library* :key (lambda (st) (getf st :id)))))   ; (c1: her own style behind / on his red, else Kenpachi's)
   (check (eq 'ichigo-ki-style (getf (strat-judge c '(:ost 0 :lead -2)) :fn)))
   (check (eq 'ken-ki-style (getf (strat-judge c '(:ost 0 :lead 2 :ored 0)) :fn))))
-(check (null (strat-lookup :kenpachi :ichigo :hard)))                   ; (his KI style CPU stays the shipped one)
+;; the Q tables of §8.18: every pairing with Kenpachi or Ichigo as me plays one at HARD, keyed by :apply (the online learner's key); 48 crisp
+;; rules over two arms; where the incumbent is the shipped CPU (no strategy) arm 0 is NIL (core-ai.lisp: no strategy, never the lookup)
+(dolist (r '((:kenpachi :ichigo :q1-ken-ichigo t) (:kenpachi :hisagi :q1-ken-hisagi t) (:kenpachi :kenpachi :q1-ken-ken t)
+             (:ichigo :ichigo :q1-ichigo-ichigo t) (:ichigo :hisagi :q1-ichigo-hisagi nil) (:ichigo :kenpachi :q1-ichigo-ken nil)))
+  (destructuring-bind (me vs id nil0) r
+    (let* ((st (strat-lookup me vs :hard)) (fq (getf st :fq)))
+      (check (eq id (getf st :id)))
+      (check (equal (list me vs) (getf st :apply)))
+      (check (and (= 2 (length (getf fq :arms))) (= 48 (length (getf fq :rules)))))
+      (check (eq nil0 (null (first (getf fq :arms)))))
+      (check (null (strat-lookup me vs :normal))))))
+(check (eq 'ichigo-ki-style (getf (second (getf (getf (strat-lookup :kenpachi :ichigo :hard) :fq) :arms)) :fn)))   ; (KI's arm 1: the whole-game replacement)
 (check (every (lambda (r) (and (eq (third r) :hard) (strat-lookup (first r) (second r) (third r)))) *strat-lookup*))
 ;; a composite (DUEL_AI_STRATEGY §8.7): the first entry whose OWN fires at >= 0.5, else :ELSE, else NIL; OR across antecedents, AND within
 (let* ((a '(:id :a)) (b '(:id :b)) (c '(:id :c))

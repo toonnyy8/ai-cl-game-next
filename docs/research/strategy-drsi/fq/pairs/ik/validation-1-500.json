@@ -1,0 +1,38 @@
+{
+ "char": "ichigo",
+ "vs": "kenpachi",
+ "opp": [
+  "none",
+  "../counter/frozen/ki-ken.lisp",
+  "online/ken-istyle.lisp",
+  "online/ken-wide.lisp"
+ ],
+ "seeds": "501-599",
+ "share": {
+  "incumbent": 0.6364,
+  "pairs/ik/ik-v1-500.lisp": 0.3283,
+  "pairs/ik/ik-v2-500.lisp": 0.6212
+ },
+ "pairs": {
+  "pairs/ik/ik-v1-500.lisp vs incumbent": {
+   "b": 9,
+   "c": 70,
+   "z": -6.86
+  },
+  "pairs/ik/ik-v1-500.lisp vs pairs/ik/ik-v2-500.lisp": {
+   "b": 5,
+   "c": 63,
+   "z": -7.03
+  },
+  "pairs/ik/ik-v2-500.lisp vs incumbent": {
+   "b": 27,
+   "c": 30,
+   "z": -0.4
+  },
+  "pairs/ik/ik-v2-500.lisp vs pairs/ik/ik-v1-500.lisp": {
+   "b": 63,
+   "c": 5,
+   "z": 7.03
+  }
+ }
+}
