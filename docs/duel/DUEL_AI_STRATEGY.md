@@ -648,6 +648,11 @@ measurements, `shipped/` the lookup's).
   note, `DUEL::APP`); G2 `--cvc` identical natively (II 32, IK 34, KK 33 lines); `./build.sh duel` and an 8 s browser smoke without errors.
 - Open: the HI table is 0.335 / 0.415 (the merged style's level, far from the mirrors' and HK's); a longer-horizon value (a whole-match arm
   choice, or γ nearer 1) is what could beat a whole-game style there.
+- **The user's decisions on the two deviations (2026-11-09).**
+  - Who plays the ranged mode's other steps: 「交給劍八 KI 風格 (Recommended)」. `:ken-ranged` stays on in `:hm1-merged`. The literal
+    reading (generic CPU / MCTS there) scored HI 0.055, HK 0.93.
+  - The tables' starting arm: 「從合併風格出發 (Recommended)」. Arm 0 = the merged style, arm 1 = the old entry, as shipped. Starting from
+    the incumbent scored HI 0.0 / 0.0.
 
 ## 9. Strategies may carry code (2026-11-08)
 
