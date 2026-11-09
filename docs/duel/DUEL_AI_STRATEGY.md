@@ -1311,6 +1311,13 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     or refit against a pool of both.
   - KI's and KH's flapping. Should a table carry `:margin` (0.01 measured equal on selection), with its own held-out run?
   - The delayed awakening loses; the Shikai DRIVE switch stays off.
+- **The user's two answers on round 4 (2026-11-09):**
+  - 「每個對戰組合都重新擬合雙方的新表」: every pairing is refit against the other side's new table, not a frozen style CPU. Order: Ichigo's
+    three tables are built first (against the live new Hisagi / Kenpachi tables). Then each of the nine tables is refit with its opponent on
+    its live lookup table (both seats on the lookup), and the round is repeated while it still moves. The frozen style CPUs are reported
+    alongside as a stand-in for a human player, without gating the swap. (`:qks-ichigo` was fit against Ichigo's frozen KI style, so in
+    CPU vs CPU it fell to 0.40.)
+  - 「不加」: no `:margin`. The KI / KH flapping between arms that share one style function stays.
 
 ## 9. Strategies may carry code (2026-11-08)
 
