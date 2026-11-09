@@ -1916,6 +1916,14 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     - the stand-off unit and arm exist; KH's table has the layer and the stand-off arm, and it is the only table with a layer.
   - G2 identical (II 32, IK 34, KK 33).
 
+- **Decisions on round 5, step 6 (the user, 2026-11-10):**
+  - KH: 「沒重擬合的表 0.915」. KH ships the no-refit reference: `:qks3-hisagi` + the stand-off arm with the layer on. It scores 0.915 vs 0.843
+    against the live HK (z 3.11), and between knockdowns it plays mostly his KI code (0.61) and press (0.24). The swap rule now also admits
+    the start table with the new layer or arm and no refit, as a candidate beside the refit iterates.
+  - Hisagi (KH 0.815 / HK 0.185 through his wake-up Hoho habit; HK's refit lost three times): 「用 dream-rsi 幫檜佐木寫新程式」. A dream-rsi
+    search writes one-job style code for Hisagi against Kenpachi, scored against Kenpachi's whole pool, including the bait tables and his
+    KI style stand-in. Only HK's strategy changes; the shared CPU (his wake-up habit) stays.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
