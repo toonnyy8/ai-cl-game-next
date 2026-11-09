@@ -1464,6 +1464,14 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - **Proofs** (`corefit/proofs.sh`): each run raw = the live lookup, 8 of 8 chunks.
   - The library holds 31 entries (no cap).
 
+- **Decisions on round 5, step 2 (the user, 2026-11-09):**
+  - HK's close range: 「以表訓練出來的結果為準，不刻意處理」. `:qhs-ken` stays as fitted (the ranged mode inside 3 m 0.97); no merged pin.
+  - A third round: 「請同時優化，不是一個做完再優化另一個」. KI and IK are optimised together, not one best response after the other.
+  - The frozen stand-in: 「加上，KI/IK 回原表」. A swap must also not lose significantly to the frozen style CPU where one exists. KI goes back
+    to `:qks-ichigo` (0.885 against her KI style), IK to `:q1-ichigo-ken` (0.805), so their saved copies keep their checksums. HK stays (0.89).
+  - HH's +0.25 merged pin: 「拿掉，照資料用 KI 風格」. HH takes the plain round-1 refit (`corefit/hh-r1.lisp`, Kenpachi's KI style code at
+    ranged close), after its own held-out test against `:qhs2-mirror`. This replaces round 3's fixed merged style at ranged close for HH.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
