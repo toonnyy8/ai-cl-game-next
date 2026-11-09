@@ -777,6 +777,28 @@ results, 「整場替換 (Recommended)」. Everything is in `docs/research/strat
   - Kenpachi vs Ichigo's table: 「維持擬合版」. The fitted table (0.745) ships, not arm 1 in every cell (0.81).
   - None of the three changes code.
 
+### 8.19 Q tables that really switch: arms by situation, kept style state, a longer horizon, distance and state in the rules (2026-11-09)
+
+The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策略？理論上在對戰中的每個時間點不是都能切換不同策略才對嗎？」
+
+- **The finding.** The selector does re-judge every 90 steps in neutral (`strat-switch-step`, about 86 judgements a match). But six of the
+  nine shipped tables pick one arm in (nearly) every cell. Out of 48 cells, the count that pick arm 1:
+  - KK 48, II 48, IH 0, HI 1, HH 3, HK 12;
+  - mixed: KI 39, KH 20, IK 24.
+- **Why they learnt not to switch:**
+  - each table has two arms, both whole-game styles, with no division of labour;
+  - a switch to another style function clears its state;
+  - the value looks about 15 s ahead (a reward per window from the health change, γ 0.9 per 1.5 s window);
+  - the data holds one arm played on and the other only in single explored windows.
+- **The user's decision:** 「重做：分工選項＋保留狀態＋看更長 (Recommended)」 + 「將距離與其他狀態細節都以模糊規則展開成 Q table 的一部分」.
+  1. Arms divided by situation, 3–4 a pairing.
+  2. Each style keeps its state across switches.
+  3. Training led by the match's outcome.
+  4. Distance and the other state details expanded as fuzzy rules inside the Q table.
+  5. The starting table proved equal to the shipped one.
+- A pilot on one pairing comes first: Hisagi vs Ichigo, the weakest table (0.335 / 0.415) and the one where distance matters most. The other
+  eight follow its method.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry
