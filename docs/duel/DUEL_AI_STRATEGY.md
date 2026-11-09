@@ -565,6 +565,90 @@ not a registered style CPU: the shipped CPU is unchanged** (G2 `--cvc` identical
   is far below Kenpachi's KI style as Hisagi's strategy (0.965 HK, the lookup) and does not move Hisagi vs Ichigo (0 of 200, her KI style keeps
   him inside 3 m 65 % of the time). It stays out of the lookup; it is one more arm for §8.15's searches and Q tables (Hisagi vs Ichigo, the mirror).
 
+### 8.17 Hisagi's merged style and his three Q tables in the lookup (2026-11-09)
+
+§8.15's decisions for Hisagi. The user, on Hisagi: 「檜佐木要注意控制距離，尤其是卍解後遠距模式的近身戰非常不利，需要主動後撤或是利用 NS1a 與 NS2b
+來拉開與對手的距離。」 and 「記得將消耗 drive 量表來臨時切換 NS 的戰術也安排到策略中」; on the search results: 「整場替換」 (a weak pairing's second
+arm is the whole-game replacement) and, for Hisagi, 「合併兩種風格」 (one style: `hisagi-range-style` in the Bankai's ranged mode, Kenpachi's
+KI style elsewhere). Everything lives in `docs/research/strategy-drsi/fq/hisagi/` (tables, fits, proofs, evaluations; `merged/` the style's
+measurements, `shipped/` the lookup's).
+
+- **The merged style** (cpu-hisagi-range.lisp `hisagi-merged-style`; library `:hm1-merged`, seed `seeds/s9-hisagi-merged.lisp`, Hisagi against
+  anyone). In the ranged mode (`:bankai`) `hisagi-range-style` runs first, so the distance rule (§8.16) owns every close event; with the strategy
+  key `:ken-ranged` (on in `:hm1-merged`) Kenpachi's `ken-ki-style` decides the steps the rule leaves; in the Shikai and the bind mode only
+  `ken-ki-style`. Each keeps its own state (`brain-style` holds an `hms` with both), so a form change resumes the other where it stopped.
+  No `:dswitch` (measured below).
+- **Measured** (`tools/strategy-switch.py`, whole game (`:own` every lead, `--max-own 1.01`, as `heldout2/hi-whole.lisp`), held-out seeds
+  701-800, 100 a seat, HARD; opponents as in §8.15: HI the frozen `:ki-ichigo`, HK Kenpachi's shipped CPU, HH the shipped CPU; the incumbent
+  HI `:s3-zoner`, HK `:ki-ken`, HH the shipped CPU):
+
+| Hisagi's strategy | HI | HK | HH |
+|---|---|---|---|
+| the incumbent | 0.0 | 0.985 | 0.5 |
+| Kenpachi's KI style whole | 0.42 | 0.985 (= the incumbent) | 0.995 |
+| `:h1-range` whole (§8.16) | 0.005 | 0.13 | 0.67 |
+| merged, literal (the ranged mode only the rule, the MCTS / generic CPU the rest of it), `:h1-range`'s data | 0.055 | 0.93 | 1.0 |
+| the same without data | 0.05 | 0.915 | 0.95 |
+| **merged with `:ken-ranged` (`:hm1-merged`)** | **0.42** | **1.0** | **1.0** |
+| + `:dswitch 1.0` (`:dswitch-map ((:base 1 3))`) | 0.355 | 0.985 | 1.0 |
+| + `:dswitch 0.3` | 0.34 | 0.995 | 1.0 |
+| + `:dswitch 1.0` and `:h1-range`'s `:dn` rules | 0.355 | 0.985 | 1.0 |
+
+  The ranged mode (STRAT_HRANGE=1, 200 matches; mean distance / share inside 3 m / WA started beyond 3.2 m; the rule's close events, all taken
+  at HARD: WA, back Steps, side Steps):
+
+| Pairing | the incumbent | Kenpachi's KI style whole | merged, literal | `:hm1-merged` |
+|---|---|---|---|---|
+| HI | 2.57 m / 0.651 / 854 | 4.00 m / 0.220 / 3 | 2.44 m / 0.682 / 138 | 4.00 m / 0.220 / 673; 4,840 events: 2,369 WA, 2,125 back, 478 side |
+| HK | 2.90 m / 0.593 / 38 | (the incumbent) | 3.05 m / 0.517 / 236 | 3.43 m / 0.425 / 40; 5,547 events: 3,541 WA, 1,875 back, 135 side |
+| HH | 3.78 m / 0.280 / 3,849 | 3.71 m / 0.355 / 5 | 3.89 m / 0.247 / 321 | 4.02 m / 0.237 / 140; 2,667 events: 1,357 WA, 1,228 back, 95 side |
+
+  - The literal merge loses HI (0.42 -> 0.05): the gap is not the rule, it is who plays the ranged mode at range. Kenpachi's KI style there
+    already keeps him out (4.0 m, 22 % inside 3 m against the generic CPU's 2.57 m, 65 %); handing those steps to the MCTS / generic CPU
+    brings him back in. With `:ken-ranged` the rule still takes every close event and the merged style matches or beats Kenpachi's KI
+    style everywhere, with the least time inside 3 m of any arm (HK 0.593 -> 0.425).
+  - The DRIVE switch costs here (HI 0.42 -> 0.355 at 1.0, 0.34 at 0.3; HK 1.0 -> 0.985; HH even), as under a KI style in §8.15. It stays a
+    strategy key (`:h1-range` carries it); the merged style plays without it.
+- **Q tables, as §8.15's plan first** (arm 0 the incumbent, arm 1 `:hm1-merged`, every cell arm 0; `fq.py`, 4 salts x seeds 1-599 x both
+  seats = 4,792 matches each, ε 0.15; HK against the proxy pool `pools.json` hisagi-kenpachi, HI the frozen `:ki-ichigo`, HH the shipped CPU):
+  - Identity (seeds 601-700, both seats, `proof/identity.py`; `hisagi/identity-600.jsonl`): HI 0.0 = 0.0 (8 of 8 chunks, 3,206 lines), HK
+    0.965 = 0.965 (8 of 8, 4,567), HH 0.5 = 0.5 (8 of 8, 5,226).
+  - Fitted (cells flipped to the merged style): HI 7, HK 5, HH 24. Held-out 601-700 / 701-800: **HI 0.0 / 0.0** (the merged arm on 43 %
+    of the judgements), HK 0.985 / 0.99 (the merged arm on 7 %: the rule fired 0 times), HH 0.965 / 0.97.
+  - So in HI the table cannot reach the merged style: mixed by the 1.5-3 s windows the merged arm wins nothing; its 0.42 comes from playing
+    it all game. The tables' value is short-horizon (γ 0.9 a window, health-shaped, §8.12's caveat), which no cell-by-cell gate can see.
+- **Q tables initialised to the merged style** (the whole-game replacement as the start, 「整場替換」; arm 0 `:hm1-merged`, arm 1 the old
+  incumbent, every cell arm 0; the same logs' settings under their own tags `<pairing>-m`):
+  - Identity against the merged style played whole (`identity.py --ref seeds/s9-hisagi-merged.lisp`, 601-700; `hisagi/identity-m0-600.jsonl`):
+    HI 0.325 = 0.325 (8 of 8, 6,943 lines), HK 0.975 = 0.975 (8 of 8, 4,481), HH 1.0 = 1.0 (8 of 8, 4,511).
+  - Fitted: HI 1 cell to `:s3-zoner` (even, he is red and free, awakened), HK 12 cells to Kenpachi's KI style (mostly behind and awakened, or
+    even), HH 3 (ahead and awakened, back to the shipped CPU).
+
+| Held-out, both seats, 100 seeds a seat (601-700 / 701-800) | HI | HK | HH |
+|---|---|---|---|
+| the old incumbent | 0.0 / 0.0 | 0.965 / 0.985 | 0.5 / 0.5 |
+| `:hm1-merged` whole | 0.325 / 0.42 | 0.975 / 1.0 | 1.0 / 1.0 |
+| table from the incumbent, fitted | 0.0 / 0.0 | 0.985 / 0.99 | 0.965 / 0.97 |
+| **table from the merged style, fitted (shipped)** | **0.335 / 0.415** (b / c 67 / 0, 83 / 0) | **0.99 / 0.99** (7 / 2, 3 / 2) | **0.985 / 1.0** (100 / 3, 100 / 0) |
+
+  - Arm gaps (|q0 - q1| per cell; the online cap 0.01 can flip a cell whose gap is under 0.02): from the merged style HI median 0.023, 21
+    cells under 0.02 holding 14 % of the judgements; HK 0.003, 41 cells / 96 %; HH 0.014, 31 cells / 80 %. (From the incumbent: HI 0.006,
+    57 %; HK 0.011, 88 %; HH 0.008, 99 %.) HI's table is the stiffest: the learner can move only its rare cells.
+- **Into the lookup** (HARD, `*strat-lookup*`): Hisagi vs Ichigo `:qh-ichigo` (was `:s3-zoner`), Hisagi vs Kenpachi `:qh-ken` (was `:ki-ken`,
+  now its arm 1), Hisagi mirror `:qh-mirror` (new; CPU vs CPU both seats play it). Each is its fitted table inlined (`:apply (me vs)`), so the
+  online learner (§8.14) attaches against a player with its knobs unchanged (η 0.05, cap 0.01, ε 0). The game reproduces the evaluation:
+  HI 0.335 / 0.415, HK 0.99 / 0.99, HH 0.985 / 1.0 against the old incumbent's 0.0 / 0.0, 0.965 / 0.985, 0.5 / 0.5 (`hisagi/shipped/`).
+  - The lookup applies on both seats: Ichigo vs Hisagi (her `:ki-ichigo`) falls from 1.0 to 0.655 / 0.57, Kenpachi vs Hisagi (his shipped
+    CPU) from 0.035 to 0.01 (601-700).
+  - Online smoke: `online.py train` on HK, 25 matches against proxy 1 (`online/ken-istyle.lisp`): the table keyed (:hisagi :kenpachi), 52 q
+    moved, none beyond 0.01, 5 cells changed arm; 19 wins against the frozen table's 22 (noise at 25).
+- Tooling: `fq.py read_table` cut an arm carrying its own `:rules` (`:s3-zoner`) at that word; it now cuts at the table's rules. `identity.py
+  --ref FILE` compares a table with FILE played raw instead of the incumbent.
+- Checks: host tests 9936 ALL PASS (the lookup's three entries, each table's arm 0 the merged style); `tools/pkgcheck.sh duel` clean (one old
+  note, `DUEL::APP`); G2 `--cvc` identical natively (II 32, IK 34, KK 33 lines); `./build.sh duel` and an 8 s browser smoke without errors.
+- Open: the HI table is 0.335 / 0.415 (the merged style's level, far from the mirrors' and HK's); a longer-horizon value (a whole-match arm
+  choice, or γ nearer 1) is what could beat a whole-game style there.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

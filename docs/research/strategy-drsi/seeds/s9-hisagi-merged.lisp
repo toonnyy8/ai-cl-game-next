@@ -1,0 +1,1 @@
+(:id :hm1-merged :fn hisagi-merged-style :ken-ranged t :apply (:hisagi))   ; Hisagi's merged style (DUEL_AI_STRATEGY §8.17; 「合併兩種風格」): hisagi-range-style owns every close event in the Bankai's ranged mode, Kenpachi's KI style decides the rest (:ken-ranged) and every other form; no :dswitch (it cost HI 0.42 -> 0.355)

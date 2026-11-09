@@ -1,0 +1,71 @@
+{
+ "char": "hisagi",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "hk-fq",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 197,
+ "comp_matches": 200,
+ "inc_wins": 193,
+ "inc_matches": 200,
+ "comp_share": 0.985,
+ "inc_share": 0.965,
+ "gain": 0.02,
+ "b": 7,
+ "c": 3,
+ "z": 1.265,
+ "own_share": 1.0,
+ "wall_s": 6.8,
+ "score": 0.985,
+ "capped": false,
+ "judged": 17744,
+ "held": [
+  16516,
+  1228
+ ],
+ "raw": true,
+ "hrange": {
+  "comp": [
+   {
+    "steps": 207250,
+    "mean_d": 2.878,
+    "close_share": 0.6022,
+    "wa_far": 25,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "steps": 267003,
+    "mean_d": 2.768,
+    "close_share": 0.6403,
+    "wa_far": 25,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "inc": [
+   null,
+   null
+  ]
+ },
+ "vs_strat": [
+  "none"
+ ]
+}

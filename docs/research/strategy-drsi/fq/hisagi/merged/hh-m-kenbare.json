@@ -1,0 +1,100 @@
+{
+ "char": "hisagi",
+ "vs": "hisagi",
+ "diff": "hard",
+ "cand": "hm-kenbare",
+ "seeds": 100,
+ "seed0": 700,
+ "comp_wins": 200,
+ "comp_matches": 200,
+ "inc_wins": 100,
+ "inc_matches": 200,
+ "comp_share": 1.0,
+ "inc_share": 0.5,
+ "gain": 0.5,
+ "b": 100,
+ "c": 0,
+ "z": 10.0,
+ "own_share": 1.0,
+ "wall_s": 4.7,
+ "score": 1.0,
+ "capped": false,
+ "judged": 18408,
+ "held": [
+  18408
+ ],
+ "raw": false,
+ "hrange": {
+  "comp": [
+   {
+    "steps": 276649,
+    "mean_d": 4.017,
+    "close_share": 0.2386,
+    "wa_far": 69,
+    "counts": [
+     1365,
+     1365,
+     681,
+     0,
+     649,
+     45,
+     0,
+     0
+    ]
+   },
+   {
+    "steps": 259874,
+    "mean_d": 4.018,
+    "close_share": 0.2355,
+    "wa_far": 71,
+    "counts": [
+     1302,
+     1302,
+     676,
+     0,
+     579,
+     50,
+     0,
+     0
+    ]
+   }
+  ],
+  "inc": [
+   {
+    "steps": 490817,
+    "mean_d": 3.818,
+    "close_share": 0.2664,
+    "wa_far": 1850,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "steps": 564028,
+    "mean_d": 3.746,
+    "close_share": 0.292,
+    "wa_far": 1999,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ "vs_strat": [
+  "none"
+ ]
+}

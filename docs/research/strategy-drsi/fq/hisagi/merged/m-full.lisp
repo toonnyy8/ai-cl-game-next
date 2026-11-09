@@ -1,0 +1,1 @@
+(:id :hm-full :own (((:lead :behind)) ((:lead :even)) ((:lead :ahead))) :fn hisagi-merged-style :base (:dswitch 1.0) :dswitch-map ((:base 1 3)) :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0))))

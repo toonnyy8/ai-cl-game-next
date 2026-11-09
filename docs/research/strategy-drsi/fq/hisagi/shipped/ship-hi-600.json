@@ -1,0 +1,98 @@
+{
+ "char": "hisagi",
+ "vs": "ichigo",
+ "diff": "hard",
+ "cand": "s3-zoner",
+ "seeds": 100,
+ "seed0": 600,
+ "comp_wins": 0,
+ "comp_matches": 200,
+ "inc_wins": 67,
+ "inc_matches": 200,
+ "comp_share": 0.0,
+ "inc_share": 0.335,
+ "gain": -0.335,
+ "b": 0,
+ "c": 67,
+ "z": -8.185,
+ "own_share": 0.0,
+ "wall_s": 182.9,
+ "score": 0.005,
+ "capped": false,
+ "judged": 0,
+ "held": [],
+ "raw": true,
+ "hrange": {
+  "comp": [
+   {
+    "steps": 168946,
+    "mean_d": 2.477,
+    "close_share": 0.6745,
+    "wa_far": 386,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "steps": 197668,
+    "mean_d": 2.527,
+    "close_share": 0.6632,
+    "wa_far": 497,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "inc": [
+   {
+    "steps": 1360937,
+    "mean_d": 4.005,
+    "close_share": 0.2202,
+    "wa_far": 315,
+    "counts": [
+     2337,
+     2337,
+     1186,
+     0,
+     1010,
+     206,
+     0,
+     0
+    ]
+   },
+   {
+    "steps": 1360336,
+    "mean_d": 4.06,
+    "close_share": 0.2017,
+    "wa_far": 373,
+    "counts": [
+     2218,
+     2218,
+     1120,
+     0,
+     967,
+     209,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ "vs_strat": [
+  "docs/research/strategy-drsi/counter/frozen/ki-ichigo.lisp"
+ ]
+}

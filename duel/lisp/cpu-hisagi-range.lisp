@@ -150,6 +150,30 @@ it owns the segment's decision (the generic CAI-MOVE-STEP is kept off it: BRAIN-
           (:move (setf (hrs-on st) nil (hrs-pd st) 99f0) (or (hr-home e b f s st) (hr-gap e b f kit st)))
           (t (setf (hrs-on st) nil (hrs-pd st) 99f0) nil)))))
 
+;;; ---------------------------------------------------------------- the merged style (DUEL_AI_STRATEGY §8.17)
+;;; The user, 2026-11-09, on the second search's results: 「合併兩種風格」: one style that plays HISAGI-RANGE-STYLE in the Bankai's ranged mode
+;;; and Kenpachi's KI style (cpu-ki-ken.lisp KEN-KI-STYLE) elsewhere (the Shikai, the bind mode). Each keeps its own state (BRAIN-STYLE holds
+;;; an HMS with both), so a form change resumes the other's where it stopped. The strategy's key :KEN-RANGED (T) also lets Kenpachi's style
+;;; decide in the ranged mode where the distance rule leaves the step (it runs first there, so the rule still owns every close event).
+(defstruct (hms (:constructor make-hms ()))
+  (range nil)                   ; HISAGI-RANGE-STYLE's state
+  (ken nil))                    ; KEN-KI-STYLE's state
+(inline-readers hms)
+
+(defun hisagi-merged-style (e b f kit s d)
+  "The merged style (the header above): HISAGI-RANGE-STYLE in the ranged mode (:bankai), KEN-KI-STYLE elsewhere. T when it decided."
+  (let* ((st (let ((x (brain-style b))) (if (hms-p x) x (setf (brain-style b) (make-hms)))))
+         (ranged (eq (fighter-form f) :bankai))
+         (r nil))
+    (when ranged
+      (setf (brain-style b) (hms-range st))
+      (setf r (hisagi-range-style e b f kit s d) (hms-range st) (brain-style b)))
+    (when (and (not r) (or (not ranged) (getf (car *strat-now*) :ken-ranged)))
+      (setf (brain-style b) (hms-ken st))
+      (setf r (ken-ki-style e b f kit s d) (hms-ken st) (brain-style b)))
+    (setf (brain-style b) st)
+    r))
+
 ;;; ---------------------------------------------------------------- the check scenes (debug 83800-83808, DUEL_GAMEPLAY "Debug commands")
 (defun hisagi-range-scene (k)
   "83800+k: P1 a HARD CPU Hisagi in the Bankai's ranged mode playing the library's :h1-range, P2 a HARD CPU Kenpachi. 0 pointer 1, DRIVE

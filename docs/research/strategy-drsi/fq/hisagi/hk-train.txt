@@ -1,0 +1,35 @@
+round 0: flips [5, 16, 21, 24, 29]
+round 1: flips [5, 16, 21, 24, 29]
+{
+ "tag": "hisagi-kenpachi",
+ "init": "hisagi/hk-t0.lisp",
+ "seeds": "1-599",
+ "gamma": 0.9,
+ "scale": 0.1,
+ "conf": 0.95,
+ "nmin": 30,
+ "boot": 200,
+ "stats": {
+  "files": 192,
+  "matches": 4792,
+  "judgements": 684698,
+  "explored": 112232
+ },
+ "transitions": 684698,
+ "flips": [
+  5,
+  16,
+  21,
+  24,
+  29
+ ]
+}
+{'cell': 5, 'lead': 'behind', 'ored': 0, 'free': 1, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 1, 'n0': 113, 'n1': 34, 'q0': -0.0415, 'q1': -0.0308, 'p_other_better': 1.0}
+{'cell': 13, 'lead': 'behind', 'ored': 1, 'free': 1, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 0, 'n0': 22, 'n1': 4, 'q0': -0.0363, 'q1': -0.0162, 'p_other_better': 0.905}
+{'cell': 16, 'lead': 'even', 'ored': 0, 'free': 0, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 1, 'n0': 26790, 'n1': 4969, 'q0': 0.0423, 'q1': 0.0515, 'p_other_better': 1.0}
+{'cell': 21, 'lead': 'even', 'ored': 0, 'free': 1, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 1, 'n0': 4812, 'n1': 941, 'q0': 0.0165, 'q1': 0.0568, 'p_other_better': 1.0}
+{'cell': 24, 'lead': 'even', 'ored': 1, 'free': 0, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 1, 'n0': 9486, 'n1': 1828, 'q0': 0.1053, 'q1': 0.1254, 'p_other_better': 1.0}
+{'cell': 29, 'lead': 'even', 'ored': 1, 'free': 1, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 1, 'n0': 638, 'n1': 145, 'q0': 0.0465, 'q1': 0.1081, 'p_other_better': 1.0}
+{'cell': 32, 'lead': 'ahead', 'ored': 0, 'free': 0, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 0, 'n0': 10602, 'n1': 1914, 'q0': 0.0632, 'q1': 0.0644, 'p_other_better': 0.84}
+{'cell': 44, 'lead': 'ahead', 'ored': 1, 'free': 1, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 0, 'n0': 32, 'n1': 8, 'q0': 0.2184, 'q1': 0.2411, 'p_other_better': 0.84}
+{'cell': 47, 'lead': 'ahead', 'ored': 1, 'free': 1, 'awk': 1, 'prev': 1, 'c1': 0, 'pi': 0, 'n0': 1352, 'n1': 47, 'q0': 0.2897, 'q1': 0.3547, 'p_other_better': 0.905}

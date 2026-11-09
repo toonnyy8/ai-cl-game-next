@@ -1,0 +1,56 @@
+round 0: flips [2, 3, 5, 10, 15, 16, 18, 21, 24, 29, 34, 35]
+round 1: flips [2, 3, 5, 8, 10, 14, 15, 16, 18, 21, 24, 29, 32, 34]
+round 2: flips [2, 3, 5, 10, 14, 15, 16, 18, 21, 24, 29, 34]
+round 3: flips [2, 3, 5, 10, 14, 15, 16, 18, 21, 24, 29, 34]
+{
+ "tag": "hisagi-kenpachi-m",
+ "init": "hisagi/hk-m0.lisp",
+ "seeds": "1-599",
+ "gamma": 0.9,
+ "scale": 0.1,
+ "conf": 0.95,
+ "nmin": 30,
+ "boot": 200,
+ "stats": {
+  "files": 192,
+  "matches": 4792,
+  "judgements": 610435,
+  "explored": 89281
+ },
+ "transitions": 610435,
+ "flips": [
+  2,
+  3,
+  5,
+  10,
+  14,
+  15,
+  16,
+  18,
+  21,
+  24,
+  29,
+  34
+ ]
+}
+{'cell': 0, 'lead': 'behind', 'ored': 0, 'free': 0, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 0, 'n0': 1558, 'n1': 300, 'q0': -0.0463, 'q1': -0.0435, 'p_other_better': 0.885}
+{'cell': 2, 'lead': 'behind', 'ored': 0, 'free': 0, 'awk': 1, 'prev': 0, 'c1': 0, 'pi': 1, 'n0': 20135, 'n1': 3373, 'q0': -0.0766, 'q1': -0.0666, 'p_other_better': 1.0}
+{'cell': 3, 'lead': 'behind', 'ored': 0, 'free': 0, 'awk': 1, 'prev': 1, 'c1': 0, 'pi': 1, 'n0': 2260, 'n1': 416, 'q0': -0.0673, 'q1': -0.0588, 'p_other_better': 0.955}
+{'cell': 5, 'lead': 'behind', 'ored': 0, 'free': 1, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 1, 'n0': 113, 'n1': 34, 'q0': -0.0493, 'q1': -0.0319, 'p_other_better': 1.0}
+{'cell': 8, 'lead': 'behind', 'ored': 1, 'free': 0, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 0, 'n0': 584, 'n1': 114, 'q0': 0.0466, 'q1': 0.052, 'p_other_better': 0.81}
+{'cell': 9, 'lead': 'behind', 'ored': 1, 'free': 0, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 0, 'n0': 119, 'n1': 20, 'q0': 0.0488, 'q1': 0.0566, 'p_other_better': 0.925}
+{'cell': 10, 'lead': 'behind', 'ored': 1, 'free': 0, 'awk': 1, 'prev': 0, 'c1': 0, 'pi': 1, 'n0': 6479, 'n1': 1051, 'q0': 0.0233, 'q1': 0.0489, 'p_other_better': 1.0}
+{'cell': 13, 'lead': 'behind', 'ored': 1, 'free': 1, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 0, 'n0': 22, 'n1': 4, 'q0': 0.0286, 'q1': 0.0593, 'p_other_better': 0.985}
+{'cell': 14, 'lead': 'behind', 'ored': 1, 'free': 1, 'awk': 1, 'prev': 0, 'c1': 0, 'pi': 1, 'n0': 25525, 'n1': 5286, 'q0': 0.0403, 'q1': 0.0574, 'p_other_better': 1.0}
+{'cell': 15, 'lead': 'behind', 'ored': 1, 'free': 1, 'awk': 1, 'prev': 1, 'c1': 0, 'pi': 1, 'n0': 5487, 'n1': 65, 'q0': 0.0369, 'q1': 0.0795, 'p_other_better': 1.0}
+{'cell': 16, 'lead': 'even', 'ored': 0, 'free': 0, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 1, 'n0': 26790, 'n1': 4969, 'q0': 0.0415, 'q1': 0.0508, 'p_other_better': 1.0}
+{'cell': 18, 'lead': 'even', 'ored': 0, 'free': 0, 'awk': 1, 'prev': 0, 'c1': 0, 'pi': 1, 'n0': 5508, 'n1': 949, 'q0': -0.0523, 'q1': -0.0439, 'p_other_better': 1.0}
+{'cell': 21, 'lead': 'even', 'ored': 0, 'free': 1, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 1, 'n0': 4812, 'n1': 941, 'q0': 0.0155, 'q1': 0.0562, 'p_other_better': 1.0}
+{'cell': 23, 'lead': 'even', 'ored': 0, 'free': 1, 'awk': 1, 'prev': 1, 'c1': 0, 'pi': 0, 'n0': 3947, 'n1': 27, 'q0': -0.0361, 'q1': -0.0325, 'p_other_better': 0.99}
+{'cell': 24, 'lead': 'even', 'ored': 1, 'free': 0, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 1, 'n0': 9486, 'n1': 1828, 'q0': 0.108, 'q1': 0.1273, 'p_other_better': 1.0}
+{'cell': 29, 'lead': 'even', 'ored': 1, 'free': 1, 'awk': 0, 'prev': 1, 'c1': 0, 'pi': 1, 'n0': 638, 'n1': 145, 'q0': 0.0573, 'q1': 0.1111, 'p_other_better': 1.0}
+{'cell': 32, 'lead': 'ahead', 'ored': 0, 'free': 0, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 0, 'n0': 10602, 'n1': 1914, 'q0': 0.0626, 'q1': 0.0643, 'p_other_better': 0.94}
+{'cell': 34, 'lead': 'ahead', 'ored': 0, 'free': 0, 'awk': 1, 'prev': 0, 'c1': 0, 'pi': 1, 'n0': 37147, 'n1': 6418, 'q0': 0.072, 'q1': 0.0732, 'p_other_better': 0.965}
+{'cell': 35, 'lead': 'ahead', 'ored': 0, 'free': 0, 'awk': 1, 'prev': 1, 'c1': 0, 'pi': 0, 'n0': 5583, 'n1': 1186, 'q0': 0.0761, 'q1': 0.0789, 'p_other_better': 0.905}
+{'cell': 43, 'lead': 'ahead', 'ored': 1, 'free': 0, 'awk': 1, 'prev': 1, 'c1': 0, 'pi': 0, 'n0': 2525, 'n1': 522, 'q0': 0.3047, 'q1': 0.3106, 'p_other_better': 0.815}
+{'cell': 44, 'lead': 'ahead', 'ored': 1, 'free': 1, 'awk': 0, 'prev': 0, 'c1': 0, 'pi': 0, 'n0': 32, 'n1': 8, 'q0': 0.2278, 'q1': 0.2492, 'p_other_better': 0.825}

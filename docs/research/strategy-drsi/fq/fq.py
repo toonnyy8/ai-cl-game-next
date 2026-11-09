@@ -72,7 +72,7 @@ def read_table(path):
     text = strip_lisp(open(path).read()).lower()            # (the learner writes upper case)
     sid = re.search(r'\(:id (\S+)', text).group(1)
     ap = re.search(r':apply (\([^()]*\))', text)
-    arms = text[text.index(':arms ') + 6:text.index(' :rules ')]
+    arms = text[text.index(':arms ') + 6:text.index(' :rules ((((:lead ')]   # (the table's rules: an arm may carry its own :rules, s3-zoner)
     rows = re.findall(r'\(\(\(:lead :(\w+)\) \(:ored :(\w+)\) \(:ost :(\w+)\) \(:awk :(\w+)\) \(:prev :(\w+)\)\) ([-\d.eE]+) ([-\d.eE]+)\)', text)
     if len(rows) != NC:
         sys.exit(f'fq.py: {path}: {len(rows)} rules, expected {NC}')

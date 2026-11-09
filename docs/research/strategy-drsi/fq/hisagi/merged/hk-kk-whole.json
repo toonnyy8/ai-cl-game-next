@@ -1,0 +1,100 @@
+{
+ "char": "hisagi",
+ "vs": "kenpachi",
+ "diff": "hard",
+ "cand": "kk-whole",
+ "seeds": 100,
+ "seed0": 700,
+ "comp_wins": 197,
+ "comp_matches": 200,
+ "inc_wins": 197,
+ "inc_matches": 200,
+ "comp_share": 0.985,
+ "inc_share": 0.985,
+ "gain": 0.0,
+ "b": 0,
+ "c": 0,
+ "z": 0.0,
+ "own_share": 1.0,
+ "wall_s": 3.4,
+ "score": 0.985,
+ "capped": false,
+ "judged": 18006,
+ "held": [
+  18006
+ ],
+ "raw": false,
+ "hrange": {
+  "comp": [
+   {
+    "steps": 244295,
+    "mean_d": 2.918,
+    "close_share": 0.5841,
+    "wa_far": 21,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "steps": 211323,
+    "mean_d": 2.869,
+    "close_share": 0.603,
+    "wa_far": 17,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "inc": [
+   {
+    "steps": 244295,
+    "mean_d": 2.918,
+    "close_share": 0.5841,
+    "wa_far": 21,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "steps": 211323,
+    "mean_d": 2.869,
+    "close_share": 0.603,
+    "wa_far": 17,
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ "vs_strat": [
+  "none"
+ ]
+}

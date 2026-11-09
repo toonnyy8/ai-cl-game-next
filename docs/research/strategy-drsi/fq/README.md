@@ -213,3 +213,17 @@ incumbent (the HARD CPU with its lookup) against each member on all 100 seeds a 
   (0.905, 0.965). Kept, as fixed.
 - Near 0.0: IH against Ichigo's KI style on Hisagi (0.02), IK against the same on Kenpachi (0.135): they teach only if the other arm wins
   there. The middle members (0.375-0.805) are where a table has room.
+
+## Hisagi's three pairings (DUEL_AI_STRATEGY §8.17, `hisagi/`)
+Arms: his merged style `seeds/s9-hisagi-merged.lisp` (`:hm1-merged`) and the old incumbent (`counter/frozen/s3-zoner.lisp` vs Ichigo,
+`counter/frozen/ki-ken.lisp` vs Kenpachi, `hisagi/shipped.lisp` = `(:id :shipped)` in the mirror). Opponents: the frozen `:ki-ichigo`, the
+pool `hisagi-kenpachi` of `pools.json`, the shipped CPU (`none`). `<p>`: hi (Hisagi vs Ichigo), hk (vs Kenpachi), hh (the mirror).
+
+| File | What |
+|---|---|
+| `<p>-t0.lisp`, `identity-600.jsonl` | §8.15's plan: arm 0 the incumbent everywhere, proved equal to it (`proof/identity.py`) |
+| `<p>-fq.lisp` / `.json`, `<p>-train.txt`, `<p>-fq-eval-{600,700}.json` | fitted from t0 (logs `logs/hisagi-<vs>/`); HI 0.0 / 0.0 |
+| `<p>-m0.lisp`, `identity-m0-600.jsonl` | arm 0 the merged style everywhere, proved equal to it played whole (`identity.py --ref`) |
+| `<p>-fqm.lisp` / `.json`, `<p>-trainm.txt`, `<p>-fqm-eval-{600,700}.json` | **shipped** (`:qh-ichigo` / `:qh-ken` / `:qh-mirror`): fitted from m0 (logs `logs/hisagi-<vs>-m/`) |
+| `merged/` | the merged style's variants against Kenpachi's KI style whole and `:h1-range` whole, seeds 701-800, with STRAT_HRANGE stats |
+| `shipped/` | the lookup live (the incumbent now) against the old incumbent run raw, and the opposite pairings (IH, KH) under it |
