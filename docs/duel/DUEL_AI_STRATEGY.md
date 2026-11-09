@@ -803,6 +803,11 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     bit-identical.
   - The start table's identity proof runs at 90; the pilot then plays at 30.
   - γ, the health shaping and the online learner's per-window values are rescaled to the 0.5 s window.
+- **The arm set (the user, 2026-11-09: 「每個角色設計多個通用策略與少量的針對性對敵策略」).**
+  - Each character gets several general strategies (aim 3–5, `:apply (me)`), each with a situational job, and a few strategies aimed at
+    one opponent (1–2 a pairing, `:apply (me vs)`).
+  - A pairing's table chooses among the character's general strategies plus that pairing's targeted ones.
+  - The general ones are shared by the character's three tables. The pilot checks Hisagi's against Kenpachi and the mirror too.
 
 ## 9. Strategies may carry code (2026-11-08)
 
