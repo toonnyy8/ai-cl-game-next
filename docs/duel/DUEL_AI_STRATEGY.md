@@ -1379,6 +1379,18 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
 
   Hisagi vs Ichigo was 0.87 against Ichigo's old table (`:qhs3-ichigo`'s held-out). With `:qis-hisagi` it is 0.575 / 0.405.
 - The library holds 27 entries. This is the lineup step 2 starts from (`lineup.sh`'s defaults).
+- **The user's three answers on round 5 step 1 (2026-11-09):**
+  - 「接受 (Recommended)」: IH's `:qis-hisagi` may play one arm the whole match (it wins 0.41 against 0.125; the online learner can still
+    move it). Step 2 swaps it only for a table that switches and doesn't lose.
+  - 「打平不換 (Recommended)」: step 2 swaps a table only on a significant held-out win against the live opponent; a tie keeps the live table
+    (and the players' saved online copies).
+  - 「不設上限，但將相似的策略合併，或將策略解耦成更小的單位，確保策略庫的『高內聚、低耦合』」: the library has no size cap. Instead it is
+    restructured: similar strategies are merged, and strategies are decoupled into smaller units, so that the library is "highly cohesive,
+    loosely coupled". Today every Q table carries full copies of its arms, so the same arm (merged, press, KI style...) is written out again
+    in table after table. The plan: each arm becomes one named unit (a character's general arms, a pairing's targeted arms), defined once;
+    a Q table holds only its rules and the arm ids it chooses among; the 32-entry cap (`*strat-picks*`, 32 slots a side) becomes dynamic.
+    Superseded tables stay, in the small form. The refactor must not change play: every live table run raw equals the lookup before and
+    after, and G2 stays identical. It comes before step 2.
 
 ## 9. Strategies may carry code (2026-11-08)
 
