@@ -727,7 +727,8 @@ User: 「我發現血量表上的格線不不是固定位置，而是隨血量�
 
 ## 18. A Lisp HUD (requested 2026-11-10)
 
-Status: **the design is not started.** Recorded here so the decisions are not lost; the reasons and the pause are in DEVLOG §704.
+Status: **designed (2026-11-10), not built.** The design is docs/duel/DUEL_LISP_HUD.md (DEVLOG §705); the reasons and the
+pause are in DEVLOG §704.
 
 - A2. On D4 (the canvas HUD fallback) of refactor round 4, after the main session estimated a Lisp port (a full port about 8-12k
   lines; the blocker is arbitrary zh-TW text; it recommended staying HTML and removing the fallback), the user first said 「移除」,
@@ -743,6 +744,10 @@ Status: **the design is not started.** Recorded here so the decisions are not lo
   laid-out strings (0 B / frame).
 - A4. The user chose: 「我選 3，說明手冊保留在 html 頁面」. Text is an offline-baked SDF atlas; manual.html stays an HTML page and
   is not ported, so the character set covers the menus, settings and battle HUD only.
-- Open (to ask after the pause): whether the HTML HUD stays side by side until the Lisp HUD is accepted (the main session leans to
-  yes).
-- Prerequisite: a zero-noise looks gate (REFACTOR_2026-11.md §10), to compare the Lisp HUD against the HTML one.
+- A5. Asked whether the HTML HUD stays side by side until the Lisp HUD is accepted, the user said: 「並存」. The HTML HUD stays the
+  default; the Lisp HUD is switched on by a URL flag (`?hud=lisp`) or a debug command; both read the same model (`webhud.lisp` /
+  `webui.lisp`), and the 30000 / 30100 protocol is unchanged (DUEL_LISP_HUD §4.6).
+- A6. On fidelity and method: 「不用到 100% 完全相同，但要還原大多數的美術風格與動畫。請根據程式的實作判斷該如何移植。」 The bar (what must
+  match, what may differ) and the port's architecture, phases and open questions are in DUEL_LISP_HUD §1-§7.
+- The comparison is by side-by-side stills the user reviews, not by the looks gate (which cannot prove byte-identity today,
+  REFACTOR_2026-11.md §10.2); a zero-noise looks gate is no longer a prerequisite.

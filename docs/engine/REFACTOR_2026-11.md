@@ -324,24 +324,26 @@ merged batches; B2, B3, B4, B6 and waves 2-3 (including the removals D1 / D2) ar
 **⚠ D5 manual.html's old-system, retired-character and frozen-mode sections (~500 of 1,088 lines).**
 Options: 1. **Remove them with D1 / D2 and fix the header and TOC** (recommended); 2. fold them under a closed
 `<details>` 「舊版參考」; 3. keep.
-**Status: proposed, not yet confirmed.** Not asked yet; the main session proposes the recommended option 1 (remove the old
-sections with D1 / D2, fix the header and TOC) and waits for an objection.
+**Decided (the user, 2026-11-10):** 「這三項都按你建議的去做」 (D5, D6 and D7 together, after the main session explained its
+three recommendations): option 1. The manual's old-system, retired-character and frozen-mode sections are removed together
+with D1 / D2 (header and TOC fixed then); done when the refactor resumes, after D1 / D2, not now.
 
 **⚠ D6 Tracked review stills and the old style scripts** (317 tracked stills, 106 MB on disk; ~1,290 lines of
 style-2..6 / batch scripts no tool calls).
 Options: 1. **Untrack batch-* and webgl-* (37 files) and move the style-2..6 / batch scripts to
 `docs/research/style-history/`, keep duel-* / mobile-* that docs cite** (recommended); 2. untrack every still the
 gates do not read; 3. keep.
-**Status: proposed, not yet confirmed.** Not asked yet; the proposal is the recommended option 1 (untrack batch-* and webgl-*
-stills, move the style-2..6 / batch scripts to `docs/research/style-history/`), waiting for an objection.
+**Decided (the user, 2026-11-10):** 「這三項都按你建議的去做」: option 1. Untrack the 37 batch-* and webgl-* stills that no
+gate reads and move the style-2..6 / batch scripts to `docs/research/style-history/`; duel-* / mobile-* that docs cite stay.
+Done when the refactor resumes.
 
 **⚠ D7 Debug commands: a registry, or keep the checker** (round 2's 「檢查程式」, with "a registry only if the table drifts
 again"; it drifted twice: 2513, 84000).
 Options: 1. **A registry (`define-debug-range`, in the engine; overlaps fail at load) replacing the `cond` and
 `*char-debug*`; keep the doc checker** (recommended); 2. keep the checker and run it in every gate pass (add it to
 AGENTS' fast checks); 3. leave as is.
-**Status: proposed, not yet confirmed.** Not asked yet; the proposal is the recommended option 1 (the `define-debug-range`
-registry, keep the doc checker), waiting for an objection.
+**Decided (the user, 2026-11-10):** 「這三項都按你建議的去做」: option 1. A `define-debug-range` registry in the engine
+(an overlap fails at load) replaces the `cond` and `*char-debug*`; the doc checker stays. Done when the refactor resumes.
 
 ## 7. Batch plan
 
@@ -484,9 +486,11 @@ smoke passed for the merged state; the main session reran them after the merge.
 
 ### 10.3 Next (after the pause; nothing is running)
 
-1. Find the rendering nondeterminism and restore a zero noise floor (a prerequisite for every "must not move a pixel" batch and
-   for comparing a Lisp HUD against the HTML one); then re-judge B1.
+1. Find the rendering nondeterminism and restore a zero noise floor (a prerequisite for every "must not move a pixel" batch);
+   then re-judge B1. The Lisp HUD is compared with the HTML one by side-by-side stills the user reviews, so it no longer waits
+   for this (DUEL_LISP_HUD §4.6, §5; confirmed by the main session, 2026-11-10, on the user's 「不用到 100% 完全相同，但要還原大多數的美術風格與動畫」).
 2. The Lisp HUD: a design doc first (scope: menus, settings, battle HUD; text by an offline-baked SDF atlas; the engine pieces:
    textured quads, atlas, layout, focus / scroll, tweens), a spike measuring wasm / heap and 11 px legibility at a phone size,
    then screens one by one against the HTML reference (DUEL_WEBUI "A Lisp HUD").
-3. Refactor waves 1-3 resume afterwards; D5-D7 remain "proposed, not yet confirmed".
+3. Refactor waves 1-3 resume afterwards; D5-D7 are decided (option 1 each, the user 2026-11-10: 「這三項都按你建議的去做」)
+   and are carried out when the refactor resumes (D5 after D1 / D2).
