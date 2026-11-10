@@ -1,6 +1,6 @@
 # DUEL_LISP_HUD — the HTML HUD and menus redrawn by Lisp (design, 2026-11-10)
 
-Status: **phase 0 (the spike) built and measured, 2026-11-10 (§8); phase 1 built in three parallel worktrees and merged, 2026-11-11: 1a the full bake (§9), 1b the paint stream's shapes (§10), 1c text layout, tweens, layout, input and the small-text weight (§11), the merge and its cross-phase fixes (§12)**; phase 2 (the handheld portrait screen) is next, the other phases not started. The source of the look is the HTML UI as it stands at main 5c212105
+Status: **phase 0 (the spike) built and measured, 2026-11-10 (§8); phase 1 built in three parallel worktrees and merged, 2026-11-11: 1a the full bake (§9), 1b the paint stream's shapes (§10), 1c text layout, tweens, layout, input and the small-text weight (§11), the merge and its cross-phase fixes (§12); phase 2, the handheld portrait battle screen, built 2026-11-11 (§13)**; phases 3-7 not started. The source of the look is the HTML UI as it stands at main 5c212105
 (`duel/web/hud.js`, `hud.css`, `menu.js`, `menu.css`; its record is DUEL_WEBUI). Background: DUEL_WEBUI §18,
 docs/engine/REFACTOR_2026-11.md §6 D4 and §10, DEVLOG §448, §458, §704, §705.
 
@@ -434,7 +434,7 @@ stills (HTML vs Lisp) of the same scripted scene the user reviews. The looks gat
 | 1a bake + build (done 2026-11-11, §9) | the full bake (four faces, two tiers, packing), the charset file and test, licence files, the hud-font README (no build.sh step: `#embed`, §8.6) | tools/sdf-bake.py, duel/lisp/lhud-charset.lisp, tests/duel-rules/lhud-charset.lisp, duel/hud-font/, duel/FONT-LICENSE-* | the test fails on a missing glyph and passes on the data; atlas size as estimated | ~450 | Sonnet | with 1b, 1c |
 | 1b paint (done 2026-11-11, §10) | modes 3 and the patterns, polygons with the fringe, strokes, radial fans, the affine / opacity / clip stacks, the back layer and blend 4 | paint.lisp, render.c, render.lisp, the shader | engine host tests where pure; stills of a test card (shapes, rings, a halftone, a reveal) | ~700 | Opus | with 1a, 1c |
 | 1c text, tween, layout, input (done 2026-11-11, §11; built as text.lisp, the run cache left out) | run layout (CJK wrap, kinsoku, vertical), the run cache, styles; tween.lisp; layout helpers; the hot-box registry; `pf_mouse_xy`; pwa.js keys 5-8 | `engine/lisp/sdf-text.lisp`, `tween.lisp`, `layout.lisp`, platform.c / .lisp, pwa.js | host tests: easing against CSS reference values, wrap and kinsoku cases, clamp / anchor math | ~900 | Opus (text), Sonnet (tween, layout) | with 1a, 1b |
-| 2 handheld, portrait (first complete screen) | the portrait battle screen of the phone, right hand (the user's screenshot, §7): the slanted Reishi bars and soul flames, the plate on the line, the stance picker (構 / 肩 / 拖 with its label), the 爆 dial (ink level, ticks, rings, arm / deny / slosh) with 重 / 月 / 亂, the SP 技 / ATK 斬 zones and their dividing line, the pause chip, the clock tab, touch ink, the left hand; the kanji tags (風死, 分身), the paused .3 opacity; the data file's battle tables. This is the old phase 4 plus the portrait part of the old phase 2 | lhud-data.lisp, lhud-battle.lisp, lhud-deck.lisp | `--mobile` stills at 390×844 with touch scripts (tap, flick, hold), both hands, the screenshot's state reproduced side by side with the HTML; the user's first review of a whole screen | ~1,300 | Opus | after 1a-1c, with 5 |
+| 2 handheld, portrait (first complete screen; done 2026-11-11, §13) | the portrait battle screen of the phone, right hand (the user's screenshot, §7): the slanted Reishi bars and soul flames, the plate on the line, the stance picker (構 / 肩 / 拖 with its label), the 爆 dial (ink level, ticks, rings, arm / deny / slosh) with 重 / 月 / 亂, the SP 技 / ATK 斬 zones and their dividing line, the pause chip, the clock tab, touch ink, the left hand; the kanji tags (風死, 分身), the paused .3 opacity; the data file's battle tables. This is the old phase 4 plus the portrait part of the old phase 2 | lhud-data.lisp, lhud-battle.lisp, lhud-deck.lisp | `--mobile` stills at 390×844 with touch scripts (tap, flick, hold), both hands, the screenshot's state reproduced side by side with the HTML; the user's first review of a whole screen | ~1,300 | Opus | after 1a-1c, with 5 |
 | 3 battle, landscape | the desktop HUD: plates (bar, flames, kit strip, meters, seals), clock, combo, callout, prompt: what phase 2 did not already build | lhud-battle.lisp (+ lhud-data.lisp) | side-by-side stills of scripted fights (both sides' callouts and combos, low Reishi, a Kikon at stake, awakening, sublimation, Kenpachi's NOME / UDE / KAIHO, PRACTICE ∞) | ~500 | Opus | after 2 |
 | 4 overlays | pause (desktop and phone), intro card and READY / 斬, finish (K.O., TIME, draw) | lhud-overlay.lisp | stills through each phase of the intro and finish, the pause with PRACTICE's long list | ~500 | Sonnet | after 2 |
 | 5 menus I | the backdrop, rails, cut, TITLE (wordmark, halftone 魂, ash), MODE (rows, brush, seals, torn card), SETTINGS, RESULTS | lhud-menus.lisp | stills of each screen at 1440×900 and 390×844, the cut mid-way, hover and tap through the hot boxes | ~1,000 | Opus | with 2 |
@@ -908,3 +908,139 @@ P2 name now from 1a's display tier, the kanji's weight; the scene's own render n
 (the card: the label text's weight and the time-driven cells (the dial's level, the stroke's fraction, the reveal) a frame apart),
 `cmp-vs1c-2518-{desk,mob}.png` (1c's | the merge's: the seal rows and the clock moved down by them, the bars' AA from 1b; the
 upright and turned vertical column are pixel-identical).
+
+## 13. Phase 2 results (the handheld portrait battle screen, 2026-11-11)
+
+Opus 5.5 built it in a worktree from main da9eec7b (the user, 2026-11-11: 「手持直向畫面優先重現 (Recommended)」, §7 Q5); the main session
+reviews. Under `?hud=lisp` (or debug 2517) the phone's portrait battle screen is drawn whole by Lisp, right and left hand; the default
+renderer (`:html`) is unchanged.
+
+### 13.1 What was built (one job a file; each element a system and a view)
+
+| File (lines) | Job |
+|---|---|
+| duel/lisp/lhud-data.lisp (98) | hud.js's tables as plain CL: FIGHTERS (`*lhud-fighters*`: names, plate kanji, pointer seals by form and form + tag), MOVES (`*lhud-moves*`), tagHTML (`lhud-tag-segments`: form · 風死 · IN HAND / 分身 · ×N, the jade dots), the kit kind; the string tags `kj` / `zh` / `big` moved here. Host-tested |
+| duel/lisp/lhud-geom.lisp (45) | pure geometry from the model's permille numbers: `lhud-deck-line!` (the deck rect, the line's far point, length and your plate's rotation, hud.js renderDeck), `lhud-seal-ring!` (the stance seals at 304 / 270 / 236 / 202° × the hand), `lhud-deck-bottom` (hud.css `--deck`). Plain CL (sin / cos / atan / sqrt are C under COMPILE-FILE, CL on the host), host-tested |
+| duel/lisp/lhud-model.lisp (113) | the model's accessors (`hv`, `hs`, `side-o`, `hv-deck-p` …), the per-side derived strings (`*lhud-side*`, refreshed by `lhud-model-update` only when a model string changes: EQ), the layers' fade slots, the palette, the SVG shapes (soul flame, ∞) flattened at load, small helpers (`row-h`: a baseline-aligned flex row's height and baseline, `text-w`, `col-mix`, `twv`) |
+| duel/lisp/lhud-plate.lisp (376) | the plates: `lhud-plate-update` (system: ghost drain, fill cut, each flame's fade / dot / shatter, hd-stake's start, the meters, the seals' on), row views `lhud-name-row`, `lhud-bar`, `lhud-souls`, `lhud-meters`, `lhud-seal` / `lhud-seal-row`, `lhud-kit` (KAIHO / UDE pips), the grids `lhud-plate` (the phone's P2 with its ink pool; the phone's P1 without the deck; desktop plates) and `lhud-plate-line` (your plate on the deck's line, rotated about its far point) |
+| duel/lisp/lhud-deck.lisp (305) | `lhud-deck-update` (system: V4's edges → hd-arm, hd-deny, hd-dip, hd-awfill, hd-kak, the press words; the level, armed, the arcs, the stance seals' on, pressed, the ∞'s hd-write), views `lhud-deck` (paper, dot screen, SP 技 / ATK 斬), `lhud-clock` (the clock tab = the pause chip: digits / ∞, II 止 PAUSE, the last ten in blood), `lhud-dial` + `lhud-face` (爆: rim, ink level as a gradient circle polygon cut at the level, both faces with their ticks, the awakening / SUBLIMATION / DRIVE / hold rings, the glows, 覺), `lhud-ring` (the stance seals around 爆 and the live one's name) |
+| duel/lisp/lhud-fx.lisp (358) | `lhud-layers-update` (system: .hudl .3 paused / 0 in a cinematic, the deck and 爆 out, the clock tab out paused, the canvas grade), the combo (`lhud-combo-update` / `lhud-combo`, phase 0's moved and split, anchored on the deck from the model), the move name (`lhud-callout-update` / `lhud-callout`, hd-cut through the scissor), the prompt (`lhud-prompt-update` / `lhud-prompt`, the Kikon ring), the touch ink (`lhud-fx-update`: a fixed ring of 12 slots fed by V5's serial; `lhud-fx`: ripples, brush trails with the elliptical end, words, the hold ring) |
+| duel/lisp/lhud-battle.lisp (191) | `lhud-frame`, `lhud-systems` (every system once a frame, before any view), `lhud-draw` (the views back to front as hud.css stacks them: deck z 9, .hudl z 10, 爆 / ring z 14, ink z 15), the atlas's load step, debug 2518's card |
+| duel/lisp/webhud.lisp | §4.6's split: `webhud-page-p` (the page has hud.js), `page-draws-p` (renderer :html and the page: send values, read the pause queue), `canvas-hud-off-p` (:html with the page, or :lisp: the canvas HUD leaves the battle screens out, the model runs); `webhud-p` is gone |
+| duel/lisp/debug.lisp | 2505 / 2506 / 2507 (the scenes, the hand), 2508 (P2 Kenpachi's next form), 2440+k (the states), 2519's phase 2 line (DUEL_GAMEPLAY "Debug commands") |
+| engine/lisp/paint-shapes.lisp | `paint-ellipse!`'s `:ccw` decided when it runs: a form (the left hand) was taken as true at expansion, so every arc drawn with `:ccw <form>` ran counter-clockwise (found by the awakened scene; ENGINE_API) |
+| tools/run.mjs | `--freeze-css` (with `--fixed-dt`): every CSS animation and transition is paused when first seen and its currentTime set from the virtual clock each frame; the page's timers of 100 ms or more fire by the virtual clock too (§8.3's request). Default behaviour unchanged |
+
+**The predicate split, callers** (§4.6, with one deviation). `canvas-hud-off-p`: `webhud-sync` (the model), `hud-battle`'s early return
+and the world callout (hud.lisp), `hud-deck`'s reduced drawing (onehand.lisp). `page-draws-p`: `webhud-commands` (the page's pause
+queue), and, **interim until phase 4**, the screens the Lisp HUD does not draw yet: the canvas pause overlay (hud-screens.lisp), the
+intro / K.O. / TIME letterbox and caption and the slice-out (hud-screens.lisp), the intro's FIGHT! word (cinema.lisp). So under :lisp the
+canvas draws those in their old look and the build is playable end to end; §4.6 puts them under `canvas-hud-off-p`, which phase 4
+does when it draws them. The menus keep `webui-p`: they are the page's under either battle renderer until phase 5. Under :html
+every caller answers as `webhud-p` did; with no page (the native gate) both are NIL (G2 identical).
+
+**The principles (§4.8)**. Views read only the model (`*hud-sent*` / `*hud-strs*`), their own component state and the UI clock; no
+view reads the sim or another element's state, except the shared layer fades (`layer-op`, one slot vector read by every view of a
+layer, as CSS opacity inherits). State: fixed component vectors per element (transition slots of tween.lisp, animation starts,
+serials seen), mutated only in the `…-update` systems (`lhud-systems`). Floats cross calls through one lane (`lane!`, `*lhud-a*`) and
+the pen, as phase 0's paint calls do. Each view does `paint-reset` (or push / pop) before it draws. Exceptions, named: (1)
+`lhud-layers-update` writes `*grade-desat*` (the engine's composite grade, which draw.lisp zeroes every non-cinematic frame and a
+cinematic owns; the HUD writes it only paused and not in a cinematic); (2) `col-mix` / `with-col` return a shared scratch colour
+(read at once; the dial copies the first before the second); (3) the pure geometry is host-tested, the views are checked by stills.
+
+### 13.2 What it draws, and what it reads
+
+| Element | hud.css / hud.js | Model |
+|---|---|---|
+| P2's plate: ink pool, name / kanji / tag, bar with ghost and grid, nine flames (flicker, stake, shatter, spent dot), flash-step cells and awakening bar (SUBLIMATION pink, DRIVE red, hd-aw), 覺醒 READY label, pointer seals 構 肩 拖 + 「拖 · DRAG」, kit strip | .plate, .who, .reishi, .souls, .meters, .awk, .hptr, .kit | V o+0..24, S 4s, 4s+1 |
+| Your plate on the line (both hands) | #hud.hphone:not(.nodeck) .plate.p1, renderDeck | V30-35, V42, V o+… |
+| Deck paper, dots, SP 技 / ATK 斬 | .deck, .zl | V30-35, V43, V42 |
+| Clock tab: ∞ (hd-write) or the seconds (the last ten blood, hd-tick), II 止 PAUSE, out when paused | .clock (phone) | V1, V0 16, V39 / V40 |
+| 爆: rim, ink level, ticks, armed (white ink, blood rim, glow), Burst colours, awakening / SUBLIMATION / DRIVE / hold rings, ready (breath, glow, 覺 hd-kak), pressed .9, hd-arm, hd-deny + NO BURST, hd-dip, BURST / 覺醒 AWAKEN words | .dbtn.rv, renderDeck | V4, V36-38, V56, V57, V72, V73 |
+| Stance seals around 爆, the live one's name (the CSS's displaced-on quirk reproduced: rotate / scale about the 0 × 0 box's corner) | .rvc | V59, V74, S 0 |
+| Combo (stamp, slash) and move name (hd-cut) over the deck; P2's under its plate; the left hand swaps | .combo, .callout | V o+10..14, S 4s+2 |
+| Prompt over the deck (Hold SP + the Kikon ring, SP · AS n, Chain / Burst; Awaken left to 覺) | .prompt | V2, V3, S 9 |
+| Touch ink: ripple, trail, gesture words, the hold ring | .fx, renderTouch | V5-13 |
+| Paused: .hudl .3, deck / 爆 / ring / clock tab out, the canvas greyed | #hud.paused, body.hud-paused | V0 4 |
+
+### 13.3 What differs from the HTML, and why
+
+- **The pause strip, intro card, READY / 斬, finish are not drawn** (phase 4): under :lisp the canvas draws its old pause menu (with its
+  own .55 ink rect over the greyed scene), letterbox, caption and FIGHT!. The Lisp HUD greys the canvas (`*grade-desat*` .9) and fades
+  itself to .3; the canvas's brightness / contrast are the old overlay's rect, without the .5 s transition.
+- **Glows and drop shadows** are feathered shapes (§2.4): 爆's armed / ready glows, hd-awbreath, hd-aw's bar glow, hd-shatter's blood
+  glow, the clock and ∞'s hard shadows as offset copies (the ∞'s shadow darkens where its translucent segments overlap).
+- **Dashed borders** (a sealed pointer) are drawn solid at .35 (§10.6). NOME's cups are not drawn (no current kit publishes NOME).
+- **The dot screen's phase**: the shader's dots sit on the screen grid; the CSS dots on the deck box's grid (a few px apart in y).
+- **Text**: SDF glyphs with the small-text weight; the zone labels, seal names and tags match by eye; the `.awk` label is placed where
+  Chrome puts it (`left: 100%` even for the rtl P2: off the plate to the right, as the HTML does).
+- **Timing**: the HTML reacts in its own next rAF, so starts can be one frame apart (the advisor's note; also seen between two HTML
+  runs with `--freeze-css`: §13.5).
+- **A Burst's first frame**: the HTML's level shows no colour for a frame or two after a Burst starts (`var(--bc)` is set in the same
+  render that adds `.bursting`); the Lisp ink takes the Burst's colour at once (`cmp-burst-10.080`; the sheet's large mean difference
+  is the scene's own impact flash caught a frame apart).
+- **Not reached by the scripts**: Kenpachi's kit strip as P1 on the line (only P2's: `ken-shikai`), a running Burst's coloured ink
+  after its first frames, the phone without the deck (two hands in portrait), the desktop (phase 3).
+
+### 13.4 Measurements
+
+| What | Result |
+|---|---|
+| Consing (debug 2519, `--fixed-dt`, 390 × 844 dpr 3 and 1280 × 720; the busiest frame forced) | every entry 0 B a call: plate, combo, the whole draw, 2509's card, the frame, 2518's rows, the systems, your plate on the line, the deck, 爆, the stance ring, the clock tab, the touch ink, the move name, the prompt. Found on the way (all fixed): a parallel `let` of floats boxed its initial values (`let*` everywhere now), a float argument to a function boxed it (`col-mix` is a macro now), and `(* k (tween-value …))` went through generic math (`twv` declares the type) |
+| Lisp time (2519 in a wall-clock run, `--mobile --size 390x844`, SwiftShader; other sessions' Chromes were running) | the whole draw 1.32 ms a frame (phase 1: 0.15 for two name rows, two bars and a combo); P2's plate 0.50, your plate on the line 0.39 (most of each is its nine flames: fill + stroke), the systems 0.08, 爆 0.10, the clock tab 0.09, the deck 0.03, the ring 0.03, the ink 0.03, the prompt 0.02, the move name 0.015 |
+| Vertices (phone, PRACTICE, both full) | the whole frame 4,548 (of 32,768): P2's plate 1,884, your plate 1,410, the clock tab 501, 爆 237, the ring 168, the combo 150, the prompt 102, the move name 96, the deck 78. A flame is 15 points (fill 45 vertices + a round-capped stroke 90); at 25 points (5 segments a curve) the plates were 2,694 / 2,220 |
+| index.wasm | 12,810,716 → 12,907,695 B (+96,979: ≈ 1,250 lines of game Lisp); gzip -9 4,033,813 → 4,061,215 |
+| Startup heap | 73.3 MB (unchanged; limit 110) |
+| Default renderer | `:html` draws nothing new (`lhud-draw` runs only under `:lisp`); the model and the page protocol are unchanged |
+
+### 13.5 Proof
+
+Scenes (the worktree's `build/lhud/p2/`, git-ignored; `gen.py` writes one `run.mjs` script per scene, run twice, HTML and
+`?hud=lisp`, with `--fixed-dt 16.666667 --freeze-css --mobile`; `runall.sh` runs them; `sheets.py` makes the sheets with
+tests/lhud-compare.py). Every state is reached by debug commands and scripted touches (2505 / 2506 + 2440+k; ATK taps under the line,
+SP taps over it, a held thumb, a flick, taps on 爆 and on the clock tab), never by a CPU. 390 × 844 dpr 3 unless named; 453 × 823 for the
+user's screenshot (`neutral-453`, `left-453`, `combo-453`).
+
+| Sheet ([HTML \| Lisp \| difference × 4]) | What it shows |
+|---|---|
+| `cmp-neutral-453-10.000.png`, `cmp-neutral-390-10.000.png` | the user's screenshot's state (PRACTICE, both full, pointer 1); mean difference 2.1-2.9 of 255, mostly the scene and the dot screen's phase |
+| `cmp-left-10.000.png`, `cmp-left-453-10.000.png`, `cmp-left-ptr2-10.000.png` | the left hand: your plate from the right edge, 爆 and the ring mirrored, the zone labels swapped |
+| `cmp-ptr2-10.000.png`, `cmp-ptr3-10.000.png` (and neutral = 1) | the stance picker's three states, P2's seals and yours around 爆 (the displaced on seal) |
+| `cmp-low-10.000.png`, `-10.550.png` | Reishi 15 %: the red fills (hd-pulse), P1's six flames and three spent dots |
+| `cmp-spent-10.000.png`, `cmp-half-10.000.png` | 爆 empty / half (no arming, the ticks) |
+| `cmp-ready-{9.100,9.200,10.000}.png` | the awakening ready: 覺 (hd-kak), the breathing ring, the reiatsu glow, P2's 覺醒 READY (off the plate, as the HTML) |
+| `cmp-awakened-10.000.png`, `cmp-sublim-10.000.png` | DRIVE 60 (red arc), SUBLIMATION 60 (pink), KESSA's tag 「KESSA · 分身 · ×0」 |
+| `cmp-vscpu-10.000.png`, `cmp-clockend-{10.000,10.600}.png` | the clock tab with digits; the last ten in blood, hd-tick's dim half |
+| `cmp-combo-*.png`, `cmp-combo-453-*.png`, `cmp-as-*.png`, `cmp-sp-*.png` | combos over the deck, the move name 落牙 RAKUGA, the prompt (Chain, SP · AS1), ripples and words |
+| `cmp-hold-*.png` | the Kikon's hold: HOLD SP / KIKON · 毀魂 nF with its ring, the hold ring under the thumb |
+| `cmp-ken-shikai-10.000.png`, `cmp-ken-kyoran-10.000.png`, `cmp-ken-zankai-10.000.png` (and their `z-…-p2`) | P2 Kenpachi's forms by 2508: the Shikai's seals 旋 墜, its KAIHO strip (解, L2), the form tag; the Bankai's one seal 狂 / 壞 and 「狂嵐 · KYORAN」 / 「斬壞 · ZANKAI」 |
+| `cmp-flick-*.png`, `cmp-burst-*.png`, `cmp-paused-*.png` | a Hoho flick (trail, HOHO, 爆's dip and the ink a third lower); 爆 pressed full (BURST); paused (.3, greyed; the canvas pause rows: phase 4) |
+| `z-<scene>-<t>-{p2,line,dial,tab}.png` | the same pairs cropped at the native 3 × (dpr 3): P2's plate, your plate on the line, 爆 and its ring, the clock tab |
+| `strip-stamp.png`, `strip-ink.png`, `strip-deny.png`, `strip-cut.png` | animation strips, HTML over Lisp, 2 or 4 frames apart: the combo's hd-stamp, a tap's ripple and ATK word, hd-deny + NO BURST, the move name's hd-cut |
+
+Read by eye: layout, palette, type and the named animations read as the same design; the animation strips agree within a frame or two
+(the HTML reacts in its next rAF). The HTML frames of `strip-cut` show the move name already revealed (its hd-cut and fade were not
+held by `--freeze-css` there; compare that one to the CSS numbers). Between two HTML runs with `--freeze-css` (the base build), two of
+three stills were byte-identical and the third differed only in the combo's entry transition, a frame apart. **The default renderer is
+unchanged**: the same script on the base build and on this one (`:html`): in the HUD's bands (the top 700 and the deck's 980 device px)
+the stills at 10.72 and 11.50 s are identical; at 10.12 s only 爆's glow differs (its `box-shadow` transition, a frame apart); the rest of
+the differences are the scene (REFACTOR_2026-11.md §10.2).
+
+Checks: host tests duel-rules 10190 (with tests/duel-rules/lhud-geom.lisp: the tables and the geometry against hud.js's numbers),
+hud-engine 121, paint-shapes, touch 100, input 33, control 100, cine 18, learn 131: all pass; pkgcheck only `DUEL::APP`;
+debug-ranges-check 115 ranges, 0 errors; G2 native `simgate.py --cvc` (on the final sources) and browser `style-gates.py cvc`: II 32, IK 34, KK 33, identical;
+smoke 8 s, default and `?hud=lisp`, 1280 × 720 and 390 × 844: exit 0, no "stopped"; under `?hud=lisp` the HTML menus still work
+(Enter from TITLE to a battle).
+
+### 13.6 Left for the next phases
+
+- Phase 3 (landscape): the desktop clock, prompt key caps, callouts and the plates' desktop specifics (the code draws the desktop
+  plates with the same row views; unreviewed).
+- Phase 4: the pause strip (hot boxes, 止's hd-fromtab), intro, READY / 斬, finish; then the interim `page-draws-p` callers move to
+  `canvas-hud-off-p`.
+- `--freeze-css`'s one-frame nondeterminism (which callback order makes it is not found), and its miss on the move name's hd-cut.
+- Performance: the whole HUD is 1.32 ms a frame on SwiftShader (phase 0's target was under 1 ms), most of it the 18 soul flames (a fill
+  and a round-capped stroke each, ~135 vertices). The upgrade if it matters on phones: the flame baked once into the atlas as an SDF
+  shape (fill + outline band from one cell: 6 vertices a flame), or one cached vertex block per flame state.
+- The pause strip's own dimming: under :lisp the canvas fallback draws its .55 ink rect in RP_UI (under the paint stream), so the Lisp
+  HUD draws no dim rect of its own yet (it would cover the fallback's rows).

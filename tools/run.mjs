@@ -8,6 +8,8 @@
 //   clock that advances exactly MS per animation frame; "at" and --secs are then VIRTUAL seconds: before each
 //   step the page is held at that time (no frame runs), the step is applied, then it resumes. The same binary
 //   and script give byte-identical screenshots; --timeout SEC (default 900) bounds the wall time.
+//   --freeze-css (with --fixed-dt): the page's CSS animations and transitions follow the virtual clock too (Chrome's own clock
+//   otherwise: the HTML HUD's flames, ghosts and stamps differ run to run), for HTML vs Lisp HUD stills (DUEL_LISP_HUD §8.3).
 // --mobile [--dpr N]: a phone: device pixel ratio N (default 3), mobile viewport, touch emulation ((pointer: coarse)),
 //   kept through "size" steps. Touch steps: {"at":1,"touch":"start","x":100,"y":700,"id":0} (CSS px; "move", "end",
 //   "cancel" likewise; several ids = several fingers) -> Input.dispatchTouchEvent (the page sees touch pointer events).
@@ -22,6 +24,7 @@ const opt = (k, d) => { const i = a.indexOf(k); return i >= 0 ? a[i + 1] : d; };
 const secs = +opt('--secs', 8), shot = opt('--shot'), script = opt('--script');
 const fixed = opt('--fixed-dt') ? +opt('--fixed-dt') : 0, wallMax = +opt('--timeout', 900), maxHeap = +opt('--max-heap', 110);
 const [W, H] = opt('--size', '1280x720').split('x').map(Number);
+const freezeCss = a.includes('--freeze-css') && !!fixed;   // (with --fixed-dt only: the page's CSS animations on the virtual clock)
 const mobile = a.includes('--mobile'), dpr = +opt('--dpr', mobile ? 3 : 1);
 const metrics = (width, height) => send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile });
 const steps = script ? JSON.parse(fs.readFileSync(script, 'utf8')).sort((x, y) => x.at - y.at) : [];
@@ -71,13 +74,29 @@ if (fixed) await send('Page.addScriptToEvaluateOnNewDocument', { source: `(() =>
     const d = window.Module && Module.preinitializedWebGPUDevice; if (d) await d.queue.onSubmittedWorkDone();
     for (let i = 0; i < 2; i++) await new Promise(r => raf(r));
   };
+  // --freeze-css: CSS animations and transitions run on the virtual clock, not Chrome's: each is paused when first seen and its
+  // currentTime set to (vt - the virtual time of the frame that made it) every virtual frame, so HTML stills are deterministic
+  // (docs/duel/DUEL_LISP_HUD.md §8.3); ponytail: one frame late at most (seen at the next frame), the same in every run
+  const FREEZE = ${freezeCss}, born = new WeakMap(); let cbVt = 0;
+  // and the page's timers of 100 ms or more (hud.js's fades and node removals) fire by the virtual clock too
+  const vto = new Map(); let vtoId = 1e9;
+  if (FREEZE) {
+    const rST = window.setTimeout.bind(window), rCT = window.clearTimeout.bind(window);
+    window.setTimeout = (fn, ms, ...args) => { if (!(ms >= 100)) return rST(fn, ms, ...args); vto.set(++vtoId, { due: vt + ms, fn, args }); return vtoId; };
+    window.clearTimeout = i => { if (vto.has(i)) vto.delete(i); else rCT(i); };
+  }
+  const cssClock = () => {
+    for (const [i, t] of vto) if (t.due <= vt) { vto.delete(i); if (typeof t.fn === 'function') t.fn(...t.args); }
+    for (const an of document.getAnimations()) {
+      if (!born.has(an)) { born.set(an, cbVt); an.pause(); }
+      an.currentTime = vt - born.get(an); } };
   window.__vt = () => vt; window.__hold = t => { if (t * 1000 !== hold) idle = 0; hold = t * 1000; return vt + DT > hold + 1e-6 && idle >= 3; };
   window.requestAnimationFrame = cb => raf(function tick(ts) {   // one step per browser frame, shared by every rAF user
     // a frame waits until the GPU finished the previous one: SDL skips drawing a frame whose swapchain
     // texture is not ready, and the canvas would then show an older frame than the state
-    if (ts !== last) { last = ts; held = busy || vt + DT > hold + 1e-6; if (held) idle += !busy; else vt += DT; }
+    if (ts !== last) { last = ts; held = busy || vt + DT > hold + 1e-6; if (held) idle += !busy; else { vt += DT; if (FREEZE) cssClock(); } }
     if (held) { raf(tick); return; }
-    cb(vt);
+    cb(vt); cbVt = vt;
     const d = window.Module && Module.preinitializedWebGPUDevice;
     if (d && !busy) { busy = true; d.queue.onSubmittedWorkDone().then(() => { busy = false; }); }
   });

@@ -765,7 +765,7 @@ when he is red. (TOP in a single float; the callout's layout stays generic.)"
   (let* ((f (fighter e)) (g (gauges e)) (p (pos-of e)) (v *hud-v*)
          (top (+ (aref p 1) (the single-float (body-hurt-h (model-body (model e)))) 0.5f0)))
     (declare (type f32vec p v) (single-float top))
-    (when (and (not (webhud-p)) (not (side-cap e)) (> (fighter-callout-t f) 0) (fighter-callout f)   ; (the page's: under his plate)
+    (when (and (not (canvas-hud-off-p)) (not (side-cap e)) (> (fighter-callout-t f) 0) (fighter-callout f)   ; (the page's: under his plate)
                (world-to-screen v (aref p 0) (+ top 0.3) (aref p 2)))
       (let* ((str (fighter-callout f)) (pt (portrait-p))   ; portrait: smaller, and kept on the screen
              (em (if pt (min (* 0.03 h) (/ (* 0.94 w) (line-width str))) (* 0.045 h)))
@@ -831,7 +831,7 @@ facing."
 DUEL_WEBUI §7) only what is drawn in the world stays: the speed lines, the red soul flame, HOHO! / AUTO, ENDLESS's tag."
   (setf (svref *callout-box* 0) nil)
   (do-sides (e) (when (entity-alive-p e) (hud-rush-lines e)))
-  (when (webhud-p)
+  (when (canvas-hud-off-p)
     (do-sides (e) (when (entity-alive-p e) (hud-world e w h s) (hud-hint e h)))
     (when (eq *mode* :endless) (hud-endless-tag w h s))
     (return-from hud-battle))

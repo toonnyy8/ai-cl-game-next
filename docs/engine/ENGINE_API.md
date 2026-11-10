@@ -390,7 +390,8 @@ framebuffer pixels before the current transform. Every float argument is a singl
 - Patterns on polygons (and glyphs for dots): `(paint-dots! pitch radius)` screen halftone; `(paint-stripes! ox oy dx dy pitch
   width)` lines across the unit axis, fixed to the shape; `(paint-pattern-off!)`.
 - `(paint-box! cx cy hw hh radius feather border col)` rounded box (FEATHER screen px: 1 AA, more a glow); `(paint-ellipse! cx cy
-  rx ry col &key thick feather frac ccw)` ellipse / ring / arc (6 vertices each); `(paint-stroke! pts n width col &key frac
+  rx ry col &key thick feather frac ccw)` ellipse / ring / arc (6 vertices each; CCW may be a form, decided when it runs: before
+  2026-11-11 any non-NIL form, even one that evaluated to NIL, drew counter-clockwise); `(paint-stroke! pts n width col &key frac
   round)` an open polyline (6 vertices a segment, not scissored); `(paint-radial! cx cy rx ry stops n)` a radial gradient, stops
   `(t r g b a)` in an f32vec (32 segments, not scissored).
 - `(path-points d &key segs)` → f32vec: an SVG path's first subpath flattened (M L H V C S A Z; init time, conses; tested by

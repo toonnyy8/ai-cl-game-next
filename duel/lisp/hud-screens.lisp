@@ -229,11 +229,11 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
         (ui-rect 0 0 w h c))
       (countdown! (aref f 3) (* (aref f 4) (hud-dt))))
     (draw-screen-fx w h)                                 ; focus lines (under the HUD)
-    (when (and *cine* (not (and (webhud-p) (webhud-cine-p *cine*))))   ; letterbox + the cinematic's brush title (the intro's, the
+    (when (and *cine* (not (and (page-draws-p) (webhud-cine-p *cine*))))   ; letterbox + the cinematic's brush title (the intro's, the
       (ui-rect 0 0 w (* 0.09 h) '(0 0 0 1)) (ui-rect 0 (* 0.91 h) w (* 0.09 h) '(0 0 0 1))   ; K.O.'s, TIME's: the page's, webhud.lisp)
       (when *caption* (unless (draw-bcap *caption* w h) (setf *caption* nil))))
     (when *caption-out*                                  ; an ended cinematic's title (not one the page drew)
-      (unless (and (webhud-p) (eq *caption-out* *web-caption*))
+      (unless (and (page-draws-p) (eq *caption-out* *web-caption*))
         (unless (draw-bcap *caption-out* w h) (setf *caption-out* nil))))
     (case (if (webui-on-screen-p) :web *flow*)              ; the page's HTML menus draw it (webui.lisp)
       (:title (hud-title w h s))
@@ -248,7 +248,7 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
       (:clear (hud-endless-clear w h s))
       ((:doors :reward) (hud-rogue-doors w h s)))
     (draw-words w h)
-    (when (and *paused* (eq *flow* :battle) (not (webhud-p)))   ; (the page draws the pause: webhud.lisp)
+    (when (and *paused* (eq *flow* :battle) (not (page-draws-p)))   ; (the page draws the pause: webhud.lisp; under :LISP the canvas until phase 4)
       (ui-rect 0 0 w h '(0 0 0 0.55))
       (if (and *one-hand* (not (portrait-p)))
           (ui-big-text "ROTATE TO PORTRAIT" (floor w 2) (* 0.3 h) (fit-scale "ROTATE TO PORTRAIT" (* 4 s) (* 0.9 w)) *white* '(0.7 0.25 0.05 1) s)

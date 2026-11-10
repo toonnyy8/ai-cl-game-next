@@ -325,7 +325,7 @@ the awakening is: the old AWAKEN chip folded into it 2026-10-28),
 the ink ring under the thumb, and the recognised gesture's glyph at the thumb for 0.3 s (the misread teacher).
 (A DEFUN-FAST since 2026-10-26, ~2 KB a frame before: the floats unboxed, the generic code's operations.)"
   (declare (fixnum s))
-  (let* ((tr *touch*) (d (touch-dpx tr)) (dk *deck*) (web (webhud-p))   ; the page draws the deck: only the stick's ring and a form's
+  (let* ((tr *touch*) (d (touch-dpx tr)) (dk *deck*) (web (canvas-hud-off-p))   ; the page draws the deck: only the stick's ring and a form's
          (u (u-chip-p))                                  ; a :u form: the chip is U                          ; :deck hook stay
          (pk (and *p1* (kit-hook (kit-of *p1*) :p)))      ; a :p form: the chip is its P, labelled by :p-label
          (pl (and pk (let ((h (kit-hook (kit-of *p1*) :p-label))) (and h (funcall h *p1*))))))

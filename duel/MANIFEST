@@ -74,6 +74,12 @@ lisp/hud-screens.lisp
 lisp/onehand.lisp
 lisp/webui.lisp
 lisp/webhud.lisp
+lisp/lhud-data.lisp
+lisp/lhud-geom.lisp
+lisp/lhud-model.lisp
+lisp/lhud-plate.lisp
+lisp/lhud-fx.lisp
+lisp/lhud-deck.lisp
 lisp/lhud-battle.lisp
 lisp/lhud-charset.lisp
 lisp/lhud-shapes.lisp

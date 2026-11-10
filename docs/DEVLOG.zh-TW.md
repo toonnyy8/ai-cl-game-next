@@ -8383,3 +8383,18 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 套用：寫進 AGENTS.md「Design principles」；Lisp HUD 依此檢視（DUEL_LISP_HUD §4.8：哪些已是純函式、狀態在哪、哪些 special 是暗道、之後的畫面寫成「模型＋版面＋UI 時鐘 → 繪圖」的 view 函式；HUD 元素用固定的元件向量，不放進 ECS 世界，因為那個世界是 256 格、跟模擬共用、每場比賽清空）；暫停中的重構第 4 輪恢復時先照此稽核遊戲（REFACTOR_2026-11 §10.3 第 4 項）。
 - 這次沒有為此改寫程式，只記下之後要改的地方（§4.8 末）。
 
+## 710. Lisp HUD 第 2 階段：手持直向戰鬥畫面整面由 Lisp 畫（2026-11-11）
+
+使用者：「手持直向畫面優先重現 (Recommended)」
+
+- 範圍：手機直向（單手、牌桌）的戰鬥畫面，右手與左手（DUEL_LISP_HUD §13）。`?hud=lisp`（或 debug 2517）時整面由 Lisp 畫；預設 `:html` 不變。
+- 畫了什麼：上方對手名牌（墨池、名字＋漢字＋標籤、靈子條與殘血、九個魂火（搖曳、被押的紅框與上下晃、碎裂、熄滅後的灰點）、瞬步三格與覺醒條（昇華粉、DRIVE 紅、覺醒滿的光）、覺醒 READY 字、構 肩 拖 印章與「拖 · DRAG」、更木的解／腕格）；你的名牌躺在牌桌的分隔線上（旋轉到線的角度，魂火與名字在條上方）；牌桌的紙、網點、SP 技／ATK 斬；時鐘札（∞ 的書寫動畫或秒數、最後十秒血紅閃爍、II 止 PAUSE）；爆（墨水位、1/3 與 2/3 刻度、2/3 起變白、覺醒／昇華／DRIVE／長按的環、ready 的呼吸與 覺 標籤、按下縮 .9、hd-arm、hd-deny＋NO BURST、hd-dip、BURST／覺醒 AWAKEN 字）；爆周圍的架勢印章（CSS 讓亮起的那顆往外偏的怪癖也照做）；連擊（蓋章、血色斜條）、招式名（hd-cut 揭開）、提示（Hold SP 的毀魂環、SP · AS n、Chain／Burst）；觸控墨跡（漣漪、筆刷尾、手勢字、長按環）；暫停時 HUD 變 .3、牌桌與爆淡出、畫面變灰。
+- 程式切法（一個檔案一件事，每個元素是「系統（模型 → 元件狀態）＋ view（模型＋狀態＋UI 時鐘 → 繪圖）」）：`lhud-data.lisp`（hud.js 的表：角色、印章、招式漢字、標籤改寫）、`lhud-geom.lisp`（純幾何：牌桌線、名牌旋轉、印章環）、`lhud-model.lisp`（模型存取、衍生字串、色票）、`lhud-plate.lisp`（名牌）、`lhud-deck.lisp`（牌桌、爆、印章環、時鐘札）、`lhud-fx.lisp`（連擊、招式名、提示、墨跡、圖層淡出）、`lhud-battle.lisp`（先跑所有系統，再依 hud.css 的疊放順序畫）。view 只讀模型（`*hud-sent*`／`*hud-strs*`），不碰 sim、不碰別的元素。
+- §4.6 的拆分：`webhud-p` 拆成 `page-draws-p`（送頁面、讀暫停列）與 `canvas-hud-off-p`（canvas HUD 讓位、模型照跑）。暫停選單、開場／K.O.／TIME 的黑邊與標題、FIGHT! 暫時歸 `page-draws-p`：在 `:lisp` 下由 canvas 用舊樣子畫，所以這版可以從頭玩到尾；第 4 階段畫了它們再移過去。選單仍是頁面的（`webui-p` 不動）。
+- 新 debug：2505／2506（一護 vs 不動的劍八，單手，VS CPU／練習）、2507（換手）、2508（P2 劍八換下一個型態：始解 KAIHO L2 → 卍解 狂嵐 → 斬壞）、2440+k（十種狀態：架勢 1/2/3、紅血、爆用完、半格、覺醒 ready、已覺醒、昇華、時鐘 9 秒）；2519 多一行 p2。`tools/run.mjs --freeze-css`：CSS 動畫與轉場跟著虛擬時鐘走、100 ms 以上的計時器也是，HTML 截圖可重現（兩次跑的同一張：3 張中 2 張逐位元相同，連擊轉場那張差一格）。
+- 數字：2519 每一項都 0 B（途中抓到三個裝箱：浮點的平行 `let`、浮點參數傳給函式、`tween-value` 進一般算術，全修了）；整個 HUD 1.32 ms／幀（SwiftShader 掛鐘，兩個名牌各約 0.4–0.5 ms，大多是魂火）、4,548 頂點；index.wasm +96,979 B；啟動 heap 73.3 MB 不變。
+- 引擎修正：`paint-ellipse!` 的 `:ccw` 傳變數時在展開時就被當成真，左右手都逆時針；改成執行時判斷（ENGINE_API）。
+- 跟 HTML 不同的地方：暫停條、開場、READY／斬、結算還沒畫（第 4 階段）；光暈與陰影用羽化形狀代替模糊；鎖住的印章虛線畫成實線；網點相位差幾 px；HTML 比 Lisp 晚一幀反應的動畫起點。
+- 驗證：host tests（duel-rules 10190，含新的 `tests/duel-rules/lhud-geom.lisp`；hud-engine 121、paint-shapes、touch、input、control、cine、learn）全過；pkgcheck 只剩 `DUEL::APP`；debug-ranges-check 0 錯；G2 原生與瀏覽器 II 32、IK 34、KK 33 相同；預設 `:html` 在 HUD 區域與舊版逐位元相同（只有爆的光暈轉場差一幀）；對照圖在 worktree 的 build/lhud/p2/（git 忽略）。
+
+分工：Opus 5.5：實作、截圖、文件草稿；主對話 Fable 5.2：覆核、合併、提交。

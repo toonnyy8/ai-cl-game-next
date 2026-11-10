@@ -27,13 +27,25 @@ value is sent again (WEBHUD-PUT skips a value equal to the last one sent)."
         (page-set +pg-hud+ 0)
         (progn (fill *hud-sent* -1) (fill *hud-strs* nil)))
     (log-msg "hud renderer ~a" r)))
-(defun webhud-p ()
-  "Does the page draw the battle screens (hud.js loaded), or does Lisp (*HUD-RENDERER* :LISP)? Either way the canvas HUD leaves
-them out and the model runs. A cached old page without hud.js: the engine draws them."
+(defun webhud-page-p ()
+  "Has the page hud.js (page get 30100, asked once, with the URL's renderer flag)? A cached old page without it, or no page (the
+native gate): NIL."
   (when (eq *webhud* :unknown)
     (setf *webhud* (= 1 (page-get +pg-hud+)))
     (when (= 1 (page-get +pg-hud-flag+)) (set-hud-renderer :lisp)))
-  (or *webhud* (eq *hud-renderer* :lisp)))
+  *webhud*)
+;;; The two questions WEBHUD-P answered at once until phase 2 (DUEL_LISP_HUD §4.6). Under :HTML both equal the old WEBHUD-P (the
+;;; page's answer); with no page both are NIL (the canvas HUD draws, the model stays off: the native gate). The menus keep WEBUI-P
+;;; (they are the page's under either battle renderer until phase 5).
+(defun page-draws-p ()
+  "Does the page draw the battle screens (renderer :HTML and hud.js there)? Then values go to the page and its pause rows' queue is
+read. Also the interim gate of the screens the Lisp HUD does not draw yet (phase 4: the pause rows, the intro / K.O. / TIME
+letterbox and caption, FIGHT!): under :LISP the canvas still draws those."
+  (and (webhud-page-p) (eq *hud-renderer* :html)))
+(defun canvas-hud-off-p ()
+  "Does someone other than the canvas HUD draw the battle screens (the page under :HTML, Lisp under :LISP)? Then the canvas HUD
+leaves them out and the model (WEBHUD-SYNC) runs."
+  (or (webhud-page-p) (eq *hud-renderer* :lisp)))
 
 (defmacro webhud-put (i v)
   "Set +PG-HUD+ + I to V (fixnum forms) on the page, when it changed (0 B)."
@@ -222,7 +234,7 @@ running burst 16 WHITE, 32 BLUE, 64 ORANGE: the ink in the seal takes its colour
 cinematic (the plates hidden), 4 paused, 8 the phone's deck, 16 PRACTICE (no timer), 32 the cinematic's 2D layer is the page's
 (the intro, the K.O., TIME), 64 ONE-HAND turned to landscape (the pause asks to rotate). The title of such a cinematic: its
 reading and its line (strings 30 / 31; the kanji are the page's)."
-  (when (webhud-p)
+  (when (canvas-hud-off-p)
     (let* ((battle (and (battle-p) *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*) t))
            (paused (and battle *paused* (eq *flow* :battle) t))
            (web-cine (webhud-cine-p *cine*)))
@@ -258,7 +270,7 @@ reading and its line (strings 30 / 31; the kanji are the page's)."
   "This frame's pause presses from the page (get 30101, a queue): 7 x 100000 + CMD x 1000 + ARG, 1 a row under the pointer
 (the cursor), 2 confirm, 4 left, 5 right (as the menus' commands, WEBUI-COMMANDS); dropped unless the pause is up. One press
 (2-5) a frame."
-  (when (webhud-p)
+  (when (page-draws-p)
     (loop repeat 8
           for c = (page-get (+ +pg-hud+ 1))
           while (plusp c)

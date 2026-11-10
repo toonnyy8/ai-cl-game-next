@@ -41,34 +41,50 @@ sent (so nothing changes: the steady state of a frame): a `webhud consing` line,
                (cons-per "touch" (progn (touch-button :mod) (touch-button :awaken) (touch-button :quick) (touch-button :step)) 100)))))
 
 (defun lhud-consing ()
-  "Debug 2519: the Lisp HUD's per-frame path (lhud-battle.lisp) in the running battle, 100 calls each of a plate, a combo and the whole
-draw once the state settled, with P1's combo forced on mid-stamp (the busiest frame; put back after), and of debug 2509's shapes card
-(phase 1b's primitives): an `lhud consing (100 calls, B): …` line (0 B wanted), their wall time a call (ms) and the paint stream's
-vertices a frame (DUEL_LISP_HUD §4.7)."
+  "Debug 2519: the Lisp HUD's per-frame path in the running battle, 100 calls each once the state settled, with the busiest frame
+forced (P1's combo mid-stamp, P1's move name and the Kikon prompt with its ring shown, a ripple, a trail and two words in the touch
+ink; put back after): `lhud consing (100 calls, B): …` (plate, combo, the whole draw, 2509's shapes card) with their ms a call and
+vertices; `lhud consing 1c …` (the frame's layout, 2518's rows); `lhud consing p2 …` (phase 2's elements: the systems, your plate on
+the line, the deck, 爆, the stance ring, the clock tab, the touch ink, the move name, the prompt) (0 B wanted; DUEL_LISP_HUD §4.7, §13)."
   (when (and *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*))
-    (let ((f0 (stream-buffer-fill *hud-batch*)) (b0 (stream-buffer-fill *hud-back*)) (iv (copy-seq *lhud-i*)) (fv (copy-seq *lhud-f*)))
-      (setf (aref *lhud-i* 4) 1 (aref *lhud-i* 5) 1 (aref *lhud-i* 1) 12 (aref *lhud-i* 2) 345 (aref *lhud-i* 3) 85   ; P1's combo shown,
-            (aref *lhud-f* 4) 1.0 (aref *lhud-f* 5) 1.0 (aref *lhud-f* 7) 0.0 (aref *lhud-f* 8) 0.0         ; mid-stamp (the
-            (aref *lhud-f* 10) (- (aref *ui-clock* 0) 0.1) (aref *lhud-f* 11) (aref *ui-clock* 0))              ; worst case)
+    (let* ((f0 (stream-buffer-fill *hud-batch*)) (b0 (stream-buffer-fill *hud-back*)) (now (aref *ui-clock* 0))
+           (kan (lhud-move-kanji "GETSUGA TENSHO"))
+           (saved (mapcar #'copy-seq (list *lhud-cb-i* *lhud-cb-f* *lhud-cl-i* *lhud-cl-f* *lhud-pr-i* *lhud-pr-f* *lhud-pr-t*
+                                           *lhud-fx-i* *lhud-fx-f*))))
+      (lhud-frame) (lhud-systems)
+      (setf (aref *lhud-cb-i* 4) 1 (aref *lhud-cb-i* 5) 1 (aref *lhud-cb-i* 1) 12 (aref *lhud-cb-i* 2) 345 (aref *lhud-cb-i* 3) 85
+            (aref *lhud-cb-f* 0) 1.0 (aref *lhud-cb-f* 1) 1.0 (aref *lhud-cb-f* 3) 0.0 (aref *lhud-cb-f* 4) 0.0
+            (aref *lhud-cb-f* 6) (- now 0.1) (aref *lhud-cb-f* 7) now
+            (aref *lhud-cl-i* 1) 1 (aref *lhud-cl-f* 0) 1.0 (aref *lhud-cl-f* 1) 1.0 (aref *lhud-cl-f* 3) (- now 0.1)
+            (aref *lhud-pr-i* 0) 1 (aref *lhud-pr-i* 1) 30 (aref *lhud-pr-i* 2) 1 (aref *lhud-pr-f* 0) 1.0 (aref *lhud-pr-f* 1) 1.0
+            (aref *lhud-pr-t* 0) (- now 0.2) (aref *lhud-pr-t* 1) 0.5)
+      (let ((x (* 0.5 (window-width))) (y (* 0.8 (window-height))))
+        (lane! (f32 x) (f32 y) 0f0 0f0) (lhud-fx-add 1 0) (lhud-fx-add 4 0)
+        (lane! (f32 x) (f32 (* 0.7 (window-height))) (f32 (* 0.2 (window-width))) 0.3f0) (lhud-fx-add 3 0) (lhud-fx-add 4 4))
       (labels ((one (k) (setf (stream-buffer-fill *hud-batch*) f0 (stream-buffer-fill *hud-back*) b0)
-               (case k (0 (lhud-plate 0)) (1 (lhud-combo 0)) (2 (lhud-draw)) (3 (lhud-shapes-card)) (t (lhud-card-demo))))
-             (ms (k) (let ((t0 (now-ms))) (dotimes (i 100) (one k))
-                       (/ (- (now-ms) t0) 100))))
-        (one 0) (one 1) (one 2) (one 3)
+                 (case k (0 (lhud-plate 1)) (1 (lhud-combo 0)) (2 (lhud-draw)) (3 (lhud-shapes-card)) (4 (lhud-card-demo))
+                   (5 (lhud-systems)) (6 (lhud-plate-line)) (7 (lhud-deck)) (8 (lhud-dial)) (9 (lhud-ring)) (10 (lhud-clock))
+                   (11 (lhud-fx))
+                   (12 (setf (svref (svref *lhud-side* 0) 6) "GETSUGA TENSHO" (svref (svref *lhud-side* 0) 7) kan)   ; (the draw's model
+                       (lhud-callout 0))                                                                            ;  update resets them)
+                   (t (lhud-prompt))))
+               (ms (k) (let ((t0 (now-ms))) (dotimes (i 100) (one k)) (/ (- (now-ms) t0) 100)))
+               (vs (k) (one k) (floor (- (stream-buffer-fill *hud-batch*) f0) 16)))
+        (dotimes (k 14) (one k))
         (log-msg "lhud consing (100 calls, B): ~a, ~a, ~a, ~a; ms a call: plate ~,4f, combo ~,4f, draw ~,4f, shapes ~,4f; verts: plate ~d, combo ~d, frame ~d, shapes ~d"
                  (cons-per "plate" (one 0) 100) (cons-per "combo" (one 1) 100) (cons-per "draw" (one 2) 100)
-                 (cons-per "shapes" (one 3) 100)
-                 (ms 0) (ms 1) (ms 2) (ms 3) (progn (one 0) (floor (- (stream-buffer-fill *hud-batch*) f0) 16))
-                 (progn (one 1) (floor (- (stream-buffer-fill *hud-batch*) f0) 16))
-                 (progn (one 2) (floor (- (stream-buffer-fill *hud-batch*) f0) 16))
-                 (progn (one 3) (floor (- (stream-buffer-fill *hud-batch*) f0) 16)))
-        (lhud-frame) (one 4)                                ; phase 1c: the card's layout / text / tween / hot-box rows
+                 (cons-per "shapes" (one 3) 100) (ms 0) (ms 1) (ms 2) (ms 3) (vs 0) (vs 1) (vs 2) (vs 3))
         (log-msg "lhud consing 1c (100 calls, B): ~a, ~a; ms a call: demo ~,4f; verts: demo ~d"
-                 (cons-per "frame" (lhud-frame) 100) (cons-per "demo" (one 4) 100) (ms 4)
-                 (progn (one 4) (floor (- (stream-buffer-fill *hud-batch*) f0) 16)))
-        (setf (stream-buffer-fill *hud-back*) b0)
-        (setf (stream-buffer-fill *hud-batch*) f0)
-        (replace *lhud-i* iv) (replace *lhud-f* fv)))))
+                 (cons-per "frame" (lhud-frame) 100) (cons-per "demo" (one 4) 100) (ms 4) (vs 4))
+        (log-msg "lhud consing p2 (100 calls, B): ~a, ~a, ~a, ~a, ~a, ~a, ~a, ~a, ~a; ms a call: systems ~,4f, line ~,4f, deck ~,4f, dial ~,4f, ring ~,4f, clock ~,4f, ink ~,4f, name ~,4f, prompt ~,4f; verts: line ~d, deck ~d, dial ~d, ring ~d, clock ~d, ink ~d, name ~d, prompt ~d"
+                 (cons-per "systems" (one 5) 100) (cons-per "line" (one 6) 100) (cons-per "deck" (one 7) 100)
+                 (cons-per "dial" (one 8) 100) (cons-per "ring" (one 9) 100) (cons-per "clock" (one 10) 100)
+                 (cons-per "ink" (one 11) 100) (cons-per "name" (one 12) 100) (cons-per "prompt" (one 13) 100)
+                 (ms 5) (ms 6) (ms 7) (ms 8) (ms 9) (ms 10) (ms 11) (ms 12) (ms 13)
+                 (vs 6) (vs 7) (vs 8) (vs 9) (vs 10) (vs 11) (vs 12) (vs 13)))
+      (setf (stream-buffer-fill *hud-back*) b0 (stream-buffer-fill *hud-batch*) f0)
+      (loop for v in (list *lhud-cb-i* *lhud-cb-f* *lhud-cl-i* *lhud-cl-f* *lhud-pr-i* *lhud-pr-f* *lhud-pr-t* *lhud-fx-i* *lhud-fx-f*)
+            for o in saved do (replace v o)))))
 
 (defun set-probe (kind name &optional a b c)
   "Start a frame probe now: *PROBE* = (KIND NAME this tick A B C)."
@@ -207,6 +223,47 @@ gauge at 40); 7 / 8 make P2 cast South at once; 9: P2 is a cup-3 Kenpachi (NOME 
                      (gauges-fs g) (* 0.6 *fs-max*) (gauges-awaken g) (if (kit-awakening (kit-of e)) 0f0 45f0)
                      (gauges-gg g) (if low 30f0 80f0) (gauges-reishi g) (round (* 0.7 (gauges-reishi-max g))))
                (when (eq low :evo) (setf (gauges-evolution (gauges *p1*)) t (gauges-awaken (gauges *p1*)) 100f0))))))
+
+(defun lhud-scene (practice)
+  "2505 / 2506: the handheld battle screen's scene (DUEL_LISP_HUD §13): human Ichigo (P1) vs Kenpachi with his CPU off, one-handed
+where it is in effect (run with --mobile), cinematics skipped; VS CPU (the clock) or PRACTICE (the ∞ tab)."
+  (setf *picks* '(:ichigo :kenpachi) *mode* (if practice :practice :vs-cpu) *match-seed* 1 *probe* nil
+        *one-hand* (one-hand-effective-p))
+  (let ((*skip-cines* t)) (start-match))
+  (setf (brain-off (brain *p2*)) t)
+  (when (brain *p1*) (setf (brain-off (brain *p1*)) t)))
+
+(defun lhud-p2-form ()
+  "2508: P2 (Kenpachi in 2505 / 2506) to his next form: sealed -> the Shikai with KAIHO L2 -> the Bankai KYORAN -> ZANKAI -> sealed
+(DUEL_LISP_HUD §13: the top plate's form seals 旋 墜 / 狂 / 壞, the form tag, the KAIHO strip)."
+  (let* ((forms '(:base :nozarashi :bankai :bankai-2)) (f (fighter-form (fighter *p2*)))
+         (next (or (second (member f forms)) :base)))
+    (force-form *p2* next)
+    (when (eq next :nozarashi) (setf (gauges-meter (gauges *p2*)) 2f0 (gauges-meter-idle (gauges *p2*)) 0))))
+
+(defun lhud-review (k)
+  "2440+k: the handheld screen's states for the HTML / Lisp HUD comparison (DUEL_LISP_HUD §13), on the running battle (2505 / 2506):
+both fighters 2.2 m apart (a J reaches), idle, full gauges, Konpaku 9 with 2 at stake (the user's screenshot), then by K: 0 that; 1 / 2 both SP
+pointers 2 / 3; 3 Reishi 15 % (red) and P1's Konpaku 6; 4 the flash step empty (the Burst spent); 5 the flash step at half (a Hoho,
+no Burst); 6 the awakening ready; 7 P1 awakened in KESSA with SPIRIT DRIVE 60; 8 SUBLIMATION 60 over a full awakening; 9 the clock
+at 9 s (VS CPU)."
+  (setf *probe* nil)
+  (place *p1* *p2* 2.2)
+  (do-sides (e)
+    (let ((g (gauges e)) (f (fighter e)))
+      (full-gauges! e)
+      (setf (fighter-ptr f) (case k (1 2) (2 3) (t 1)) (gauges-awaken g) 0f0 (gauges-sub g) 0f0 (gauges-awakened g) nil
+            (gauges-drive g) 0f0)
+      (case k
+        (3 (setf (gauges-reishi g) (round (* 0.15 (gauges-reishi-max g)))))
+        (4 (setf (gauges-fs g) 0f0))
+        (5 (setf (gauges-fs g) (* 0.5 *fs-max*)))
+        ((6 8) (setf (gauges-awaken g) *awaken-max*) (when (= k 8) (setf (gauges-sub g) 60f0))))))
+  (case k
+    (3 (setf (gauges-konpaku (gauges *p1*)) 6))
+    (7 (force-form *p1* :kessa)
+       (setf (gauges-awakened (gauges *p1*)) t (gauges-drive (gauges *p1*)) 60f0))
+    (9 (setf *timer* (* 9 60)))))
 
 (defun probe-update ()
   "Per step: finish a running probe (the first tick each side is free again = both idle; the
@@ -683,6 +740,10 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2519) (lhud-consing))                                           ; the Lisp HUD's consing and time (DUEL_LISP_HUD §4.7)
         ((= c 2516) (let ((q (pos-of *p2*))) (set-reaction *p1* :knockdown 0 (aref q 0) (aref q 2) 0.0)))   ; P1 knocked down (the wake-up roll, DEVLOG §614)
         ((<= 2520 c 2599) (setf (camera-shift-x *camera*) (/ (- c 2550) 100f0)))   ; the lens shift across = (k - 30) / 100
+        ((<= 2505 c 2506) (lhud-scene (= c 2506)))       ; the Lisp HUD's phone scenes (DUEL_LISP_HUD §13)
+        ((= c 2507) (setf *hand* (if (eq *hand* :left) :right :left)))   ; the hand, for this run (the setting is not saved)
+        ((= c 2508) (lhud-p2-form))                         ; P2 Kenpachi's next form (the plate's form seals, tag and kit strip)
+        ((<= 2440 c 2449) (lhud-review (- c 2440)))
         ((<= 2500 c 2503)
          (setf *picks* (nth (- c 2500) '((:ichigo :kenpachi) (:kenpachi :ichigo) (:ichigo :ichigo) (:kenpachi :kenpachi)))
                *mode* :vs-cpu *match-seed* 1 *probe* nil *one-hand* (one-hand-effective-p))

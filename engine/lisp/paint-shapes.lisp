@@ -313,7 +313,9 @@ pixels (1 = antialiased, more = soft: a box-shadow's blur is about twice its val
   "An ellipse (mode 3) centred at (CX CY), radii RX RY: filled, or a ring THICK wide inside them (local units); FEATHER in screen
 pixels (1 = antialiased, more = a glow); only FRAC of it clockwise from the top (CCW: counter-clockwise; butt ends; another start
 by PAINT-TRANSFORM!'s rotation). Circles are exact, ellipses close. 6 vertices; cut by the scissor (a disc cut from below = a level)."
-  `(progn (%f32-set *paint-ell* ,cx ,cy ,rx ,ry ,thick ,feather ,frac ,(if ccw -1f0 1f0)) (%paint-ellipse ,col)))
+  `(progn (%f32-set *paint-ell* ,cx ,cy ,rx ,ry ,thick ,feather ,frac
+                    ,(cond ((null ccw) 1f0) ((eq ccw t) -1f0) (t `(if ,ccw -1f0 1f0))))   ; (a form: decided when it runs)
+          (%paint-ellipse ,col)))
 
 (defun-fast %paint-ellipse (col)
   "Body of PAINT-ELLIPSE!."

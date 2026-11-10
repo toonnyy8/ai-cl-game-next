@@ -6,18 +6,8 @@
 (defvar *lhud-shapes* nil "Debug 2509 cycles it: NIL, T the shapes card, :BACK the card on a transparent frame (its back layer shows where
 the sky was: *RENDER-TRANSPARENT* drops the sky, the stage stays).")
 
-(defparameter +soul-path+ "M5 .6C6.4 3 9.2 5.4 9.2 8.6A4.2 4.2 0 0 1 .8 8.6C.8 6.6 2.2 5.2 3 3.6 3.4 5 4 5.6 4.8 5.8 4.4 4 4.6 2.2 5 .6z"
-  "hud.js SOUL: the soul flame, viewBox 0 0 10 14.")
-(defparameter +inf-path+ "M33 16 C26 5 9 3 6 14 C3 25 22 29 33 16 C44 3 63 6 60 17 C57 27 40 27 33 16"
-  "hud.js INF: the practice clock's infinity, viewBox 0 0 66 32 (a stroke).")
-(defun closed-points (v)
-  "The f32vec V of points with its first point appended (a closed outline for PAINT-STROKE!)."
-  (let ((o (make-f32 (+ 2 (length v))))) (replace o v) (setf (aref o (length v)) (aref v 0) (aref o (1+ (length v))) (aref v 1)) o))
-
-(declaim (type f32vec *sh-flame* *sh-flame-o* *sh-inf* *sh-pool* *sh-pts* *sh-line*))
-(defvar *sh-flame* (path-points +soul-path+ :segs 5) "The soul flame's outline (fill).")
-(defvar *sh-flame-o* (closed-points *sh-flame*) "The same, closed (its stroke).")
-(defvar *sh-inf* (path-points +inf-path+ :segs 8) "The infinity's stroke.")
+;; (the soul flame and the infinity, +SOUL-PATH+ / *SH-FLAME* / *SH-INF*: lhud-model.lisp)
+(declaim (type f32vec *sh-pool* *sh-pts* *sh-line*))
 (defvar *sh-pool* (let ((v (make-f32 15)))                ; hud.css's phone ink pool: .62 at 0, .32 at 60 %, 0 at 100 %
                     (replace v '(0f0 0.043f0 0.043f0 0.063f0 0.62f0  0.6f0 0.043f0 0.043f0 0.063f0 0.32f0  1f0 0.043f0 0.043f0 0.063f0 0f0)) v))
 (defvar *sh-pts* (make-f32 16) "Polygon scratch.")
