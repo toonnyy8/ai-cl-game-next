@@ -2044,6 +2044,11 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   - Its three template rewrites (beta 0.45 / 0.15 / 0.6) tie it exactly. `v6_adaptive` was promoted on the tie rule (the later candidate).
 - So HK stays `:qhs-ken`, and no game code changed in this step. Host tests, pkgcheck, the build, the smoke and G2 were re-run on the
   unchanged sources.
+- **Decisions on round 5, step 8 (the user, 2026-11-10):**
+  - b0_a2 (wake-up punish / guard + the Reishi pot; held-out 0.406, live 0.388, stand-in 0.337 vs the 0.376 floor; two rules): 「從 b0_a2
+    跑第三輪」. A dream-rsi round 3 runs on `hkfn/` under the promoted `v6_adaptive`, with cells starting from b0_a2 and aimed at the
+    stand-in group (Kenpachi's KI style). The keep rule is unchanged, one job included: a code that passes is still split into one-job
+    arms (or brought back to the user as an exception) before it joins HK.
 
 ## 9. Strategies may carry code (2026-11-08)
 
