@@ -95,7 +95,7 @@ h, the background's alpha, the line's alpha. LOW-ALPHA unused (kept for the call
     (declare (single-float bx by bw bh bga lna now dpr gv r fx0 fx1) (type f32vec a pts) (fixnum o))
     (macrolet ((pt (i x y) `(setf (aref pts ,(* 2 i)) (+ bx (* bw (if mir (- 1f0 ,x) ,x))) (aref pts ,(1+ (* 2 i))) (+ by (* bh ,y)))))
       (pt 0 0f0 0.18f0) (pt 1 0.03f0 0f0) (pt 2 1f0 0f0) (pt 3 0.986f0 1f0) (pt 4 0.012f0 1f0) (pt 5 0f0 0.78f0))
-    (with-col (c +c-bar-bg+) (alpha! c bga) (paint-clip! bx by (+ bx bw) (+ by bh)) (paint-poly pts 6 c c))
+    (with-col (c +c-bar-bg+) (col-alpha! c bga) (paint-clip! bx by (+ bx bw) (+ by bh)) (paint-poly pts 6 c c))
     (setf fx0 (if mir (+ bx (* bw (- 1f0 gv))) (+ bx (* bw r))) fx1 (if mir (+ bx (* bw (- 1f0 r))) (+ bx (* bw gv))))
     (when (> gv r) (paint-clip! fx0 by fx1 (+ by bh) 0f0 1f0 (if mir 1 4)) (paint-poly pts 6 +c-blood+ +c-blood+))
     (setf fx0 (if mir (+ bx (* bw (- 1f0 r))) bx) fx1 (if mir (+ bx bw) (+ bx (* bw r))))
@@ -116,7 +116,7 @@ h, the background's alpha, the line's alpha. LOW-ALPHA unused (kept for the call
       (paint-stripes! (if mir (- (+ bx bw) (* 9f0 dpr)) (+ bx (* 9f0 dpr))) by (if mir -1f0 1f0) 0f0 (* 23f0 dpr) dpr)
       (paint-poly pts 6 +c-grid+ +c-grid+)
       (paint-pattern-off!))
-    (with-col (c +c-bar-line+) (alpha! c lna)              ; the inset 1 px line, clipped by the polygon (none on the slanted ends)
+    (with-col (c +c-bar-line+) (col-alpha! c lna)              ; the inset 1 px line, clipped by the polygon (none on the slanted ends)
       (paint-clip! bx by (+ bx bw) (+ by dpr)) (paint-poly pts 6 c c)
       (paint-clip! bx (- (+ by bh) dpr) (+ bx bw) (+ by bh)) (paint-poly pts 6 c c)
       (paint-clip! bx (+ by dpr) (+ bx dpr) (- (+ by bh) dpr)) (paint-poly pts 6 c c)
@@ -155,7 +155,7 @@ paper with an ink stroke 1.2, at stake a blood stroke 2.4 (bobbing while low), s
              (cx (+ bx (* 0.5f0 sw))) (cy (+ y0 (* 0.5f0 sh))))
         (declare (single-float bx op dot bob shs sc rot glow cx cy))
         (when (> dot 0.002f0)                             ; .soul::after: .38u, centred, its bottom at 16 %
-          (with-col (c +c-dot+) (alpha! c dot)
+          (with-col (c +c-dot+) (col-alpha! c dot)
             (paint-ellipse! cx (- (+ y0 (* 0.84f0 sh)) (* 0.19f0 u)) (* 0.19f0 u) (* 0.19f0 u) c)))
         (when (> op 0.002f0)
           (let* ((k (twv (svref *lhud-flame* (mod i 3)) 0f0 now 0))
@@ -164,7 +164,7 @@ paper with an ink stroke 1.2, at stake a blood stroke 2.4 (bobbing while low), s
             (paint-push)
             (paint-transform! cx cy :sx sc :sy sc :rot rot :dy bob)   ; the span: shatter about its centre, the stake's bob
             (when (> glow 0.01f0)                         ; (the drop-shadow's blood glow, as a feathered disc)
-              (with-col (c +c-glow+) (alpha! c (* 0.7f0 glow))
+              (with-col (c +c-glow+) (col-alpha! c (* 0.7f0 glow))
                 (paint-ellipse! cx (+ y0 (* 0.6f0 sh)) (* 0.55f0 sw) (* 0.45f0 sh) c :feather (* 6f0 (lay-dpr)))))
             (paint-transform! cx (+ y0 (* 0.92f0 sh)) :sy k :skew (/ (f-sin sk) (f-cos sk)))   ; the svg: hd-flame about 50 % 92 %
             (paint-opacity! op)
@@ -201,7 +201,7 @@ label beside them (.awk). *LHUD-A*: x (the meters' left), y (top), w (their widt
           (pulse (if full (- 0.5f0 (* 0.5f0 (f-cos (* 6.2832f0 now)))) 0f0)) (col (if (>= m 2) +c-drive+ +c-reiatsu+)))
       (declare (single-float k sb pulse))
       (when (and full (> k 0.02f0))                        ; hd-aw: brightness 1.5 at 50 %, the glow (box-shadow .8u, scaled with the bar)
-        (with-col (c col) (alpha! c 0.55f0)
+        (with-col (c col) (col-alpha! c 0.55f0)
           (paint-box! (if mir (+ awx (* aw (- 1f0 (* 0.5f0 k)))) (+ awx (* 0.5f0 aw k))) (+ y (* 0.5f0 h)) (* 0.5f0 aw k) (* 0.5f0 h)
                       0f0 (* 0.8f0 u) 0f0 c)))
       (when (> k 0.001f0)
@@ -214,7 +214,7 @@ label beside them (.awk). *LHUD-A*: x (the meters' left), y (top), w (their widt
                (lx (+ x w gap))   ; (left: 100%, also for rtl P2, as Chrome resolves it: off the plate to the right)
                (by (+ (- (+ y (* 0.5f0 h)) (* 0.5f0 sz)) (line-baseline +f-display+ sz 1f0))))
           (declare (single-float sz lx by))
-          (with-col (c (case m (1 +c-pink+) ((2 3) +c-redlab+) (t +c-reiatsu+))) (alpha! c op)
+          (with-col (c (case m (1 +c-pink+) ((2 3) +c-redlab+) (t +c-reiatsu+))) (col-alpha! c op)
             (paint-pen! (f-floor+ lx) (f-floor+ by) sz :spacing 0.2f0 :edge 0.47f0) (paint-text s +f-display+ c)))))
     nil))
 
@@ -228,7 +228,7 @@ the centre x y, the size, the on-ness (0..1, its .25 s transition). LOCK: a seal
     (paint-push)
     (when lock (paint-opacity! 0.35f0))
     (when bg (paint-box! cx cy hs hs 0f0 1f0 0f0 bg))
-    (when (> on 0.001f0) (with-col (c +c-paper+) (alpha! c on) (paint-box! cx cy hs hs 0f0 1f0 0f0 c)))
+    (when (> on 0.001f0) (with-col (c +c-paper+) (col-alpha! c on) (paint-box! cx cy hs hs 0f0 1f0 0f0 c)))
     (let* ((col (col-mix! *lhud-mix* +c-seal-line+ +c-paper+ on)))   ; the 1 px border (sealed: dashed, 3 px dashes and gaps)
       (if lock
           (let* ((x0 (- cx hs)) (y0 (- cy hs)) (s (* 2f0 hs)) (dl (* 3f0 dpr)))

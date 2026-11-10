@@ -1140,10 +1140,12 @@ and 390 × 844: exit 0. **The default renderer is unchanged**: the HTML combo sc
 
 ### 14.5 Left for the next phases, and doubts
 
-- **Hisagi in the scripted scenes**: `lhud-scene` with Hisagi on either side aborts right after the battle starts ("not a lisp data
-  object") in both renderers, before any HUD state is forced; the base build (d337a824) aborts the same way with Hisagi's own test
-  scene (debug 83000, human Hisagi vs Kenpachi, default renderer), so it predates this work; not investigated (outside the HUD). Hisagi's plate (風死 · IN HAND, his
-  seals) is unreviewed in landscape.
+- **Hisagi in the scripted scenes** (fixed 2026-11-11, DEVLOG §712): `lhud-scene` with Hisagi on either side aborted right after the
+  battle started ("not a lisp data object"), and so did a human-played Hisagi from the menus, since phase 2 (d337a824). Cause: phase 2's
+  macros `hs` (a model string) and `alpha!` in `lhud-model.lisp` had the names of Hisagi's state reader `hs` (`hisagi.lisp`) and the
+  canvas HUD's function `alpha!` (`hud.lisp`); in the one build unit the later definition replaced the function. Renamed `hstr` and
+  `col-alpha!`; the host test `tests/duel-rules/unit-names.lisp` now fails on any top-level name defined twice in the unit. Hisagi's
+  plate (風死 · IN HAND, his seals) is still unreviewed in landscape.
 - Hot-box ids 700-719 are the pause's; the menus (§15) must keep clear of them (one registry a frame: `hot-begin-frame` in `lhud-frame`).
 - `--freeze-css`'s misses (14.2) make the HTML side of an animation strip unreliable for the pause and for a match started from the menus.
 - The pause measures its rows each frame (0.6 ms under load, only while paused): a per-serial cache of the widths if it matters.

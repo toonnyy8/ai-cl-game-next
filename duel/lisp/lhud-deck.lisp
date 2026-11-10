@@ -161,7 +161,7 @@ breathing), the hold ring (hd-awfill .3 s), 覺 over it when ready (hd-kak); pre
         (cond ((and armed can) (paint-ellipse! cx cy r r +c-rv-ring1+ :feather (* 1.4f0 u)))   ; (blur B: the circle feathered over B)
               (armed (paint-ellipse! cx cy (+ r dpr) (+ r dpr) +c-rv-ring1+ :thick dpr))
               (ready (paint-ellipse! cx cy r r +c-readyglow+ :feather (* 1.6f0 u))))
-        (when (> kr 0.01f0) (with-col (c +c-blood+) (alpha! c kr) (paint-ellipse! cx cy (+ r (* 3f0 dpr)) (+ r (* 3f0 dpr)) c :thick (* 3f0 dpr))))
+        (when (> kr 0.01f0) (with-col (c +c-blood+) (col-alpha! c kr) (paint-ellipse! cx cy (+ r (* 3f0 dpr)) (+ r (* 3f0 dpr)) c :thick (* 3f0 dpr))))
         (paint-ellipse! cx cy r r +c-night+)
         (paint-ellipse! cx cy r r (col-mix! *lhud-mix* +c-rv-rim+ +c-blood+ arm) :thick (* 1.5f0 dpr))
         ;; the ink level: the well's disc cut from below at LV of its height, with the inked face inside it
@@ -191,7 +191,7 @@ breathing), the hold ring (hd-awfill .3 s), 覺 over it when ready (hd-kak); pre
           (paint-ellipse! cx cy (+ rr (* 0.75f0 k)) (+ rr (* 0.75f0 k)) +c-trk+ :thick (* 1.5f0 k))
           (when (> aw 0.001f0)
             (when (> breath 0.01f0)                       ; hd-awbreath: a 2.5 px reiatsu drop-shadow at 50 %
-              (with-col (c awc) (alpha! c (* 0.6f0 breath))
+              (with-col (c awc) (col-alpha! c (* 0.6f0 breath))
                 (paint-ellipse! cx cy (+ rr (* 0.5f0 aww) (* 2.5f0 dpr)) (+ rr (* 0.5f0 aww) (* 2.5f0 dpr)) c
                                 :thick (+ aww (* 5f0 dpr)) :feather (* 2.5f0 dpr) :frac aw :ccw left)))
             (paint-ellipse! cx cy (+ rr (* 0.5f0 aww)) (+ rr (* 0.5f0 aww)) awc :thick aww :frac aw :ccw left))

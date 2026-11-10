@@ -233,6 +233,9 @@ system on 2026-10-28, the old system's versions at `git show e55304e:skills/<nam
 ## Gotchas that cost the most
 
 - Boehm can't see wasm locals: never `(ext:gc)` from Lisp; C statics holding Lisp objects need `ecl_register_root`.
+- The engine's and the game's `.lisp` files are ONE build unit and one namespace per package: a second top-level `defun` / `defmacro` /
+  `defun-fast` of a name silently replaces the first (a HUD macro `hs` over Hisagi's function `hs` aborted his battles, 2026-11-11,
+  DEVLOG §712). Grep a new top-level name first; `tests/duel-rules/unit-names.lisp` (in the host tests) fails on a duplicate.
 - Redefining a function after load changes nothing (ECL compiles direct calls): edit the source and rebuild.
 - ECL 24.5 never inlines a DEFSTRUCT reader (a full call each): follow a new DEFSTRUCT with `(inline-readers name)`; hot plists use `plist-get`, not GETF (two walks); `(ash x -n)` is a `cl_ash` call, and a checked `the` / typed binding a full `cl_typep` (safety 0 at the function level where the type is sure). `docs/engine/ARCHITECTURE.md` "Performance conventions".
 - Many `handler-case` / `unwind-protect` in one function make emcc take minutes.

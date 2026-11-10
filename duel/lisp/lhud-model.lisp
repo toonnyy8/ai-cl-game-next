@@ -6,7 +6,7 @@
 (in-package :duel)
 
 (defmacro hv (k) "The model's value V K (webhud.lisp *HUD-SENT*: 30100 + K on the page)." `(aref (the (simple-array fixnum (*)) *hud-sent*) ,k))
-(defmacro hs (i) "The model's string S I (30220 + I on the page; NIL until set)." `(svref *hud-strs* ,i))
+(defmacro hstr (i) "The model's string S I (30220 + I on the page; NIL until set)." `(svref *hud-strs* ,i))
 (defmacro side-o (side) "The side's offset in the model (50 + 30 side)." `(+ 50 (* 30 ,side)))
 (defmacro hv-deck-p () "Is the phone's deck up (V0 bit 8)?" `(logtest (hv 0) 8))
 (defmacro hv-left-p () "The left hand (V42)?" `(= 1 (hv 42)))
@@ -22,8 +22,8 @@ kit strip's kind (LHUD-KIT-KIND), [9] the roster value they were made from.")
   "Refresh each side's derived strings when the model's label, tag, roster or callout changed (EQ: the model's strings are stable
 until they change; allocation only then)."
   (dotimes (side 2)
-    (let* ((c (svref *lhud-side* side)) (o (side-o side)) (label (hs (* 4 side))) (tag (hs (1+ (* 4 side)))) (r (hv o))
-           (rom (hs (+ 2 (* 4 side)))))
+    (let* ((c (svref *lhud-side* side)) (o (side-o side)) (label (hstr (* 4 side))) (tag (hstr (1+ (* 4 side)))) (r (hv o))
+           (rom (hstr (+ 2 (* 4 side)))))
       (unless (and (eq label (svref c 0)) (eq tag (svref c 1)) (eql r (svref c 9)))
         (let ((entry (lhud-fighter r)))
           (setf (svref c 0) label (svref c 1) tag (svref c 9) r (svref c 2) entry
@@ -73,7 +73,7 @@ owns OUT (*LHUD-MIX*, or *LHUD-MIX2* for a second blend alive at the same time).
        (declare (type f32vec ,ga ,gb ,go) (single-float ,gk))
        (dotimes (i 4) (setf (aref ,go i) (+ (aref ,ga i) (* ,gk (- (aref ,gb i) (aref ,ga i))))))
        ,go)))
-(defmacro alpha! (col a) "COL's alpha set to A (on a scratch colour)." `(setf (aref ,col 3) ,a))
+(defmacro col-alpha! (col a) "COL's alpha set to A (on a scratch colour)." `(setf (aref ,col 3) ,a))
 
 ;;; ---------------------------------------------------------------- shapes from hud.js's SVG (flattened once, at load)
 (defparameter +soul-path+ "M5 .6C6.4 3 9.2 5.4 9.2 8.6A4.2 4.2 0 0 1 .8 8.6C.8 6.6 2.2 5.2 3 3.6 3.4 5 4 5.6 4.8 5.8 4.4 4 4.6 2.2 5 .6z"

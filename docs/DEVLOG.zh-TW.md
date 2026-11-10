@@ -8418,3 +8418,17 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 驗證（主目錄重跑）：duel-rules 10200、hud-engine 121 全過；pkgcheck 只剩 `DUEL::APP`；debug-ranges-check 119 個範圍 0 錯；8 秒 smoke（預設、`hud=lisp` 桌面、`hud=lisp` 手機 390×844）皆 0；G2 原生與瀏覽器 II 32、IK 34、KK 33 相同。對照圖在 worktree 的 build/lhud/p34/（git 忽略）。
 
 分工：Opus 5.5：實作、截圖、文件草稿；主對話 Fable 5.2：覆核（圖與 diff）、合併、檢查、提交。
+
+## 712. 修正：人類操作的檜佐木開場當機（HUD 巨集與他的函式同名）（2026-11-11）
+
+起因：第 3–4 階段的子代理回報「有檜佐木的腳本場景在對戰開始時中止（not a lisp data object），基準建置也一樣」。主對話用 debug 83000 重現：d337a824 當掉，fd9e7180 的建置（gh-pages 上那版）正常。
+
+- 第一個壞提交：d337a824（Lisp HUD 第 2 階段）。5c212105（重構第 0 波）與 da9eec7b（第 1 階段）建置後都正常。
+- 根因：`duel/lisp/lhud-model.lisp` 定義了巨集 `hs`（模型字串 `(svref *hud-strs* i)`）與 `alpha!`；`duel/lisp/hisagi.lisp` 早就有函式 `hs`（檜佐木的狀態存取，他的程式到處呼叫），`duel/lisp/hud.lisp` 有函式 `alpha!`（canvas HUD 用）。引擎與遊戲的 `.lisp` 併成一個 ECL 編譯單元，後面的定義無聲地蓋掉前面的：人類的檜佐木一開戰就對一個 entity 做 `svref`。兩種渲染器都會；從選單選檜佐木的一般對戰也會（不只 debug 場景）。CPU 對 CPU 的檜佐木沒走到那個呼叫，所以外觀檢查與 G2 沒抓到。
+- 影響範圍：main 的 d337a824 起，試玩 Artifact v387；gh-pages（fd9e7180）不受影響。
+- 修正：只改名。巨集 `hs` → `hstr`、`alpha!` → `col-alpha!`（`lhud-model`、`-plate`、`-deck`、`-fx`、`-overlay`）。
+- 防再犯：新的 host test `tests/duel-rules/unit-names.lisp` 讀兩份 MANIFEST，掃每個檔案第 0 欄的 `defun`／`defmacro`／`defun-fast` 名稱，同名定義兩次就失敗（修正前正好列出 `hs` 與 `alpha!`，沒有第三個）。AGENTS.md「Gotchas」加一條。pkgcheck 只查「重定義引擎匯出」，查不到遊戲內的同名。
+- 驗證（主目錄）：debug 83000／83001 在 `:html` 與 `?hud=lisp` 都 exit 0 並印出 `duel probe hisagi test`；duel-rules 10202 全過；pkgcheck 只剩 `DUEL::APP`；8 秒 smoke 預設與 `hud=lisp` 手機皆 0；G2 原生與瀏覽器 II 32、IK 34、KK 33 相同。index.wasm 12,959,856 B。
+- 沒驗證的：改名後 canvas HUD 的畫面沒有逐像素比對（`alpha!` 回到原本的函式定義）。
+
+分工：Sonnet 5.5：二分、根因、修正與測試；主對話 Fable 5.2：重現、把改名套到已合併的第 3–4 階段檔案、檢查、提交。
