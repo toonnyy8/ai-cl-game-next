@@ -36,6 +36,11 @@ Read this first. It is the map; the detail lives in the files it points to. The 
   shell and never end). Put this rule in every subagent brief.
 - Big work: fan out independent batches, one git worktree + branch + fresh subagent each, a compact brief; the lead
   re-runs the tests/gates, merges, pushes. Subagents never push or deploy.
+- **Roles by model** (the user, 2026-11-10: 「請作為顧問模型來規劃與管理專案、指派工作與覆核結果，並指派 opus 5.5 與 sonnet 5.5 進行實際的編程與其他細項工作」,
+  DEVLOG §696): the main session (Fable 5.2) is the advisor. It plans and manages the project, writes the briefs, reviews every
+  hand-back against its files and logs, merges, commits / pushes, publishes the Artifact and asks the user. Opus 5.5 and
+  Sonnet 5.5 subagents do the programming and the other detail work (code, searches, gates, doc drafts): Opus for the
+  hardest, Sonnet for the complex, Haiku 5.5 for the simple (2026-11-08).
 - Ask with `AskUserQuestion` (2–4 options, recommended first) only when the answer changes the design; small clear
   requests get no questions.
 - **Playtest first, gates after** (the user, 2026-10-10, DEVLOG §165): once a change passes the fast checks (host tests,
