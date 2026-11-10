@@ -1,5 +1,5 @@
 ;;;; sim-state.lisp — what of SOUL DUEL a snapshot saves, and a rollout (docs/duel/DUEL_AI_TEACHER.md §5; the engine's part:
-;;;; engine/lisp/snapshot.lisp). Nothing in play calls these: the offline teacher and its tests do.
+;;;; engine/lisp/snapshot.lisp). The in-game MCTS and full-sim rollouts (cpu-mcts.lisp, DUEL_AI_MCTS §12) call these in play, as do the offline teacher and its tests.
 ;;;; The roots start with what the step obviously touches; the pollution test (tools/simgate/snaptest.lisp) adds what it finds.
 (in-package :duel)
 

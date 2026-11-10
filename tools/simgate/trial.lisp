@@ -14,10 +14,9 @@
 ;;;; :p2-at ((sim-frame :j|:sp [frames]) ...): P2 presses J / SP (held FRAMES, default 1) on that SIM frame of the trial (from 0; hitstop /
 ;;;; slow-motion frames don't count; Kenpachi's file). Every trial resets the match timer and both sides' SUBLIMATION / DRIVE / awakening
 ;;;; gauges (they carried over). The end line's "more": P1's own Reishi change, both Konpaku changes (P1/P2), P1's form, pointer, kit meter.
-(defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
-(load (first cl-user::*sg-args*) :verbose nil)
+(load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
-(loop for r = (engine::%init-step) until (eql r 0) when (eql r 2) do (ext:quit 2))
+(cl-user::sg-init)
 (engine::%frame)
 (setf *skip-cines* t)   ; (a Kikon's cinematic is skipped: the next trial starts on a plain stage)
 

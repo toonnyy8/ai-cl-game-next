@@ -7,8 +7,7 @@
 ;;;; Env FT_LAYER=t (or a character list): the strategy layer on (*STRAT-LAYER*, DUEL_AI_STRATEGY §5); the oldest selection's rollout is
 ;;;; checked the same way (STRAT-ROLL bare, as STRAT-FULL-STEP runs it) once it has its snapshot: "strategy checks K" counts those.
 ;;;; Usage: ecl-host --norc --load tools/simgate/fulltest.lisp -- <duel.fas> <cmd>...   e.g. 2102 4007 (G2's IK), FT_VS=1 2102 2500
-(defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
-(load (first cl-user::*sg-args*) :verbose nil)
+(load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
 
 (defparameter *ft-skip* '(*mc-full-stats* *strat-stats* *strat-picks* *snap-memo* *ft-n* *ft-bad* *ft-names* *ft-sn*))
@@ -52,8 +51,8 @@
     (setf *strat-layer* (if (string-equal l "t") t
                             (loop for start = 0 then (1+ p) for p = (position #\, l :start start)
                                   collect (intern (string-upcase (subseq l start p)) :keyword) while p)))))
-(loop for r = (engine::%init-step) until (eql r 0) when (eql r 2) do (ext:quit 2))
-(dolist (c (rest cl-user::*sg-args*)) (engine::simgate-cmd (parse-integer c)))
+(cl-user::sg-init)
+(cl-user::sg-queue)
 (setf *step-hook* #'ft-hook)
 (engine::%frame)
 (unless (loop repeat 400000 do (unless (engine::%frame) (ext:quit 3))

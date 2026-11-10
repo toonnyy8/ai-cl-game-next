@@ -3,7 +3,7 @@
 ;;;; one-shot STAMP system (hit sparks, Hoho, shatters, shockwaves) is vfx-stamps.lisp; Yamamoto's fire (blade, wave,
 ;;;; fireball, charge, pillars, dome, Tenchi's slash and ash, Taimatsu, the garb and Bankai stamp looks) is yama-vfx.lisp.
 ;;;; Everything is cosmetic: RND01 only (never SIM-RND01), no gameplay state.
-;;;; Units: x y z metres (y up), YAW radians with forward = (-sin yaw, -cos yaw) (the duel/RAVEN
+;;;; Units: x y z metres (y up), YAW radians with forward = (-sin yaw, -cos yaw) (the duel
 ;;;; convention), AGE seconds since the effect started, LIFE its total seconds, DT real seconds of
 ;;;; this frame (particles are emitted at RATE x DT x *FIRE-DENSITY*).
 ;;;; Kinds of calls:

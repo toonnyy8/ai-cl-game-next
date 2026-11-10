@@ -14,10 +14,10 @@ Pairing KI (Kenpachi = roster 1, Ichigo = 3). Seeds 1..N, both seats, native sim
              score x a factor, 1 inside BAND[side], falling to 0 at FALL outside it (the band: the generic-vs-generic share +-0.10)
 score = (0.4 strength + 0.6 signature) x the NORMAL factor (the user's 「勝率 0.4 / 招牌 0.6」).
 """
-import argparse, concurrent.futures as cf, json, os, re, subprocess, sys
+import argparse, concurrent.futures as cf, json, os, re, sys
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from simgate import ROOT, ECL, FAS, MUSLM, build
+from simlib import build, run_lisp, ROW
 
 KEN, ICH = 1, 3
 THEMES = {'ken': ['brawl', 'shikai', 'bankai', 'antiwave'], 'ichigo': ['spacing', 'whiff', 'ptr3', 'kessa']}
@@ -33,10 +33,8 @@ BAND_HALF, FALL = 0.10, 0.15
 
 def run(job):
     c1, c2, n, d, generic = job
-    env = dict(os.environ, LD_PRELOAD=MUSLM, SITU_GENERIC=generic or '')
     cmds = [30000, 31100 + n, 81000, 81020 + d, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
-    r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/run-situ.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
-                       capture_output=True, text=True, env=env, timeout=3600)
+    r = run_lisp('simgate/run-situ.lisp', cmds, dict(os.environ, SITU_GENERIC=generic or ''), timeout=3600)
     if r.returncode:
         sys.exit(f'matchup-eval: sim exited {r.returncode}\n' + (r.stdout + r.stderr)[-2000:])
     return job, r.stdout
@@ -47,10 +45,10 @@ def parse(out, side_char_seat):
     wins = matches = 0
     th = {}
     for line in out.splitlines():
-        m = re.search(r'duel gate row seed \d+ \S+ \S+ secs [\d.]+ winner (\S+)', line)
+        m = ROW.search(line)
         if m:
             matches += 1
-            wins += m.group(1) == side_char_seat
+            wins += m.group(2) == side_char_seat
             continue
         m = re.search(r'situ (P[12]) (\S+) (occ|ok)', line)
         if m and m.group(1) == side_char_seat:

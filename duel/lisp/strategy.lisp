@@ -2803,23 +2803,8 @@ seat, seeds 1-20, both seats, 2026-11-08), and the matrix game's equilibrium mix
                                 (:kenpachi :hisagi :hard :qks5-hisagi)             ; (§8.19 round 5 step 7: was :qks4-hisagi; step 6: :qks3-hisagi; step 5: :qks2-hisagi)
                                 (:kenpachi :kenpachi :hard :qks-ken)               ; (§8.19 round 4: was :q1-ken-ken, §8.18)
                                 (:ichigo :ichigo :hard :q1-ichigo-ichigo))            ; (§8.18)
-  "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH), the best fixed one where it beats the
-shipped CPU by far (DUEL_AI_STRATEGY §8.6, the user, 2026-11-08: 「查表＋搜克制策略，之後再上 Q」). HARD only: EASY / NORMAL keep their designed
-strength. Hisagi vs Ichigo HARD: s3 86 % (§8.5), 88 of 100 on seeds 301-350, against the shipped 50 of 80 (§8.4). The counter search's round 1
-(§8.8, 「三筆都加」 2026-11-08; held-out seeds 700-799, both seats, the shipped CPU's share in brackets): Ichigo vs Hisagi her KI style
-1.0 (0.13); Ichigo vs Kenpachi Kenpachi's KI style 0.415 (0.23); Hisagi vs Kenpachi the kite 0.47 (0.055). A strategy from here stops the
-character's matchup style CPU (CORE-BRAIN-STEP), as in the search. Round 2 (§8.10, 「兩個都上」 2026-11-08): Ichigo vs Kenpachi the composite
-:c1-ichigo-ken (Kenpachi's KI style, her own while he is free and she is behind or he is red) 0.825 (Kenpachi's style alone 0.415);
-Hisagi vs Kenpachi Kenpachi's KI style 0.985 (the kite 0.47). The fuzzy Q table (§8.12, 「取代手寫規則」 2026-11-08) replaces c1 for Ichigo vs
-Kenpachi: 0.905 / 0.895 against c1's 0.825 on seeds 600-699 / 700-799. Hisagi's three (§8.17, the user 2026-11-09: 「整場替換」,
-「合併兩種風格」): fitted Q tables over his merged style and the old entry, seeds 601-700 / 701-800 both seats: vs Ichigo 0.335 / 0.415
-(s3-zoner 0.0 / 0.0), vs Kenpachi 0.99 / 0.99 (Kenpachi's KI style 0.965 / 0.985), the mirror 0.985 / 1.0 against the shipped CPU. The Q tables with Kenpachi or Ichigo as me (§8.18, held-out seeds
-700-799, both seats, against the opponent frozen as today; the incumbent in brackets): Kenpachi vs Ichigo 0.745 (0.105), Kenpachi vs Hisagi
-0.645 (0.015), the mirrors 1.0 (0.5) each, Ichigo vs Hisagi 1.0 (1.0: arm 0 everywhere, a table so that the online learner attaches).
-Hisagi vs Ichigo since §8.19 (2026-11-09): the switching table :qhs-ichigo, seeds 601-700 / 701-800 both seats against her frozen :ki-ichigo,
-0.595 / 0.72 (:qh-ichigo 0.335 / 0.415), about 48 arm changes a match; since its refit with press as arm 0 (§8.19) :qhs2-ichigo, 0.865 / 0.875
-(press whole 0.755 / 0.725); since round 4 :qhs3-ichigo, the same with a learnable Shikai preference (+0.08), 0.87 / 0.875. The Hisagi mirror since §8.19: :qhs-mirror, 0.565 / 0.555 against :qh-mirror on the other seat (:qh-mirror's
-self-play 0.295 / 0.295); since round 3 :qhs2-mirror (merged preferred at ranged close), 0.59 / 0.575.")
+  "(me vs difficulty strategy-id): the strategy a CPU plays from the match's start (START-MATCH), HARD only (EASY / NORMAL keep their
+designed strength). The user's rule: 「查表＋搜克制策略，之後再上 Q」 (2026-11-08). Each id's history, scores and rounds: DUEL_AI_STRATEGY §8.")
 
 (defun strat-lookup (me vs dif)
   "*STRAT-LOOKUP*'s strategy (a library plist) for ME against VS at difficulty DIF, or NIL."

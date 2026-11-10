@@ -431,10 +431,6 @@ window: the user 2026-10-01; was f4-15) ...")
 2026-11-02: 「依傷害大小縮放」). Was 4 for a J / SA, 8 for every other hit.")
 ;;; Nozarashi v2, NOME (呑め): the three-cup ladder (docs/duel/DUEL_NOZARASHI_V2.md). The meter is the kit meter
 ;;; (GAUGES-METER); a rung is a kit form, changed only while he is free (ken-meter.lisp KEN-NOME-STEP)
-(defparameter *nome-max* 100.0 "The NOME gauge.")
-(defparameter *nome-up-t2* 40.0 "Up to RYOTE at this ...")
-(defparameter *nome-down-t2* 25.0 "... back to KATATE below this ...")
-(defparameter *nome-down-t3* 50.0 "... back to RYOTE below this.")
 (defparameter *cut-mult* 1.5
   "The cut (RYOTE and NOMIHOSE, passive :cut): his blocked Flash / Signature / SP hits drain this x their guard value
 (no gauge-paid armour is left for it to cut).")
@@ -550,9 +546,6 @@ are the heavy ones).")
 (defparameter *ai-o-ender* 0.15
   "The O ender (a completed string: a link-3 hit) on an opponent who isn't red, per string: a kit's :o-ender, else
 this (on a red one always). A pacing knob of the seed gate (docs/duel/DUEL_STRINGS.md §4, §6, §9: the design's 0.35 -> 0.15).")
-(defparameter *ai-ru-l-after-k* 0.05
-  "The CPU's L after a K link that hit, per hit (a kit's :ai :l-after-k; Rukia's Shikai, docs/duel/DUEL_STRINGS.md §12). A
-pacing knob of the seed gate (debug 72000+k sets it to k / 100).")
 (defparameter *ai-ru-l-after-k-awake* 0.1
   "The same in her awakened bands (the awaken A/B's knob: debug 73000+k sets it to k / 100).")
 (defparameter *ai-follow-guard-p* '(:easy 0.6 :normal 0.85 :hard 0.95)

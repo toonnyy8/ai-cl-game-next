@@ -18,10 +18,10 @@ which is never rebuilt here) with the character's CPU on it and observes behavio
 --save-desc writes <FILE>.desc.json (the descriptors, strength, the conditions) next to the strategy. Raw match output is cached in
 build/strategy-eval-cache/ by (files' hashes, seats, difficulty, seeds, build hash), so a repeated call is free. At most 8 sim processes (-j).
 """
-import argparse, concurrent.futures as cf, glob, hashlib, json, os, re, subprocess, sys
+import argparse, glob, json, os, re, sys
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from simgate import ROOT, ECL, FAS, MUSLM, build
+from simlib import ROOT, build, build_hash as _build_hash, run_lisp, sha, pool, ROW
 
 ROSTER = {'kenpachi': 1, 'ichigo': 3, 'hisagi': 7}      # roster indices (kit.lisp *ROSTER*)
 DEFAULT_VS = {'kenpachi': 'ichigo', 'ichigo': 'kenpachi', 'hisagi': 'kenpachi'}
@@ -32,16 +32,8 @@ CACHE = os.path.join(ROOT, 'build/strategy-eval-cache')
 DESC_LISP = os.path.join(ROOT, 'tools/simgate/strat-desc.lisp')
 
 
-def sha(b):
-    return hashlib.sha1(b).hexdigest()[:16]
-
-
-_bh = []
 def build_hash():
-    if not _bh:
-        with open(FAS, 'rb') as f:
-            _bh.append(sha(f.read() + open(DESC_LISP, 'rb').read()))
-    return _bh[0]
+    return _build_hash(DESC_LISP)
 
 
 def spec_id(spec):
@@ -66,7 +58,7 @@ def run_job(c1, c2, spec1, spec2, diff, seed0, n):
         return open(path).read()
     os.makedirs(CACHE, exist_ok=True)
     chars = {c1: [k for k, v in ROSTER.items() if v == c1][0], c2: [k for k, v in ROSTER.items() if v == c2][0]}
-    env = dict(os.environ, LD_PRELOAD=MUSLM)
+    env = dict(os.environ)
     gen = []
     for seat, spec, c in (('P1', spec1, c1), ('P2', spec2, c2)):
         if spec == '@generic':
@@ -75,8 +67,7 @@ def run_job(c1, c2, spec1, spec2, diff, seed0, n):
             env['STRAT_' + seat] = os.path.abspath(spec)
     env['DESC_GENERIC'] = ','.join(gen)
     cmds = [30000 + seed0, 31100 + n, 81000, 81020 + diff, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
-    r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/strat-desc.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
-                       capture_output=True, text=True, env=env, timeout=7200)
+    r = run_lisp('simgate/strat-desc.lisp', cmds, env, timeout=7200)
     if r.returncode:
         sys.exit(f'strategy-eval: sim exited {r.returncode}\n' + (r.stdout + r.stderr)[-2000:])
     out = '\n'.join(l for l in r.stdout.splitlines() if l.startswith(('desc ', 'duel gate row ', 'strat ')))
@@ -91,10 +82,10 @@ def parse(out, seat):
     wins = matches = 0
     desc = []
     for line in out.splitlines():
-        m = re.search(r'duel gate row seed \d+ \S+ \S+ secs [\d.]+ winner (\S+)', line)
+        m = ROW.search(line)
         if m:
             matches += 1
-            wins += m.group(1) == seat
+            wins += m.group(2) == seat
             continue
         m = re.match(r'desc (P[12]) (\S+) (\d+) (.*)', line)
         if m and m.group(1) == seat:
@@ -106,8 +97,7 @@ def run_many(jobs, nproc):
     """jobs: list of run_job argument tuples -> outputs in order (parallel; <= 8 processes)."""
     nproc = max(1, min(8, nproc))
     build()
-    with cf.ThreadPoolExecutor(nproc) as ex:     # (threads wait on subprocesses: no GIL work)
-        return list(ex.map(lambda j: run_job(*j), jobs))
+    return pool(lambda j: run_job(*j), jobs, nproc)
 
 
 def share(me, opp, spec_me, spec_opp, diff, seed0, n, nproc=4):

@@ -8,8 +8,7 @@
 ;;;; hoho: Hoho per minute; perf: share of them perfect; wp: whiff punishes per minute (this side hit the opponent while he was in a move's recovery,
 ;;;; i.e. in :main past startup + active); punished: the same against this side; kik: Kikon holds entered (phase :follow) per minute; wav: damaging
 ;;;; hazards (waves) this side's first-seen per minute. Usage: ecl-host --norc --load tools/simgate/strat-desc.lisp -- <duel.fas> <cmd>...
-(defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
-(load (first cl-user::*sg-args*) :verbose nil)
+(load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
 
 (defun sr-read (path) (and path (plusp (length path)) (with-open-file (in path) (let ((*read-eval* nil)) (read in)))))
@@ -100,9 +99,9 @@
     (loop with start = 0 for comma = (position #\, g :start start)
           do (remf *cai-styles* (intern (string-upcase (subseq g start comma)) :keyword))
              (if comma (setf start (1+ comma)) (return)))))
-(loop for r = (engine::%init-step) until (eql r 0) when (eql r 2) do (ext:quit 2))
+(cl-user::sg-init)
 (setf *step-hook* #'sd-step)
-(dolist (c (rest cl-user::*sg-args*)) (engine::simgate-cmd (parse-integer c)))
+(cl-user::sg-queue)
 (engine::%frame)
 (unless (loop repeat 2000000
               do (unless (engine::%frame) (ext:quit 3))

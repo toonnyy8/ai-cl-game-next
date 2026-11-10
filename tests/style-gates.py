@@ -116,7 +116,8 @@ LOOKS_START = 4.0          # virtual s of the first event: the title stands from
 # match; the "duel match" log line is checked against this table). Re-pinned 2026-10-17 over the seven playable fighters
 # (Hisagi added, DUEL_HISAGI B2a); before: ((1 YS) (72 RI) (33 KS) (44 BK)) over six (2026-10-13; the old Lille removed),
 # and ((1 YS) (56 RI) (32 KL) (39 BK)) over seven (2026-10-10, DUEL_LILLE_V2 §14)
-LOOKS_SEEDS = ((1, "YS"), (3, "HY"), (7, "IR"), (25, "BK"))
+# Re-pinned 2026-11-10 over the three that play since the core system (K I H; the draw is no longer over seven): 1 KH, 3 HK, 7 II, 10 IK.
+LOOKS_SEEDS = ((1, "KH"), (3, "HK"), (7, "II"), (10, "IK"))
 LOOKS_WINDOWS = ((2, (0.1,)), (8, (0.1, 0.4)), (16, (0.1,)), (30, (0.1,)))   # (turbo frames of 120 steps, the live shots after)
 # the cinematics at their key frames (rukia-hakka 132: HAKKA's sheet, a toon-ground-seg site, refactor round 2,
 # 2026-10-21): (still name, debug command base, frames); 10000 + 1000 k + f is debug.lisp's, the
@@ -145,7 +146,7 @@ def looks_scenarios():
     s, t = [], LOOKS_START
     shot(s, t, "title"); key(s, t + 0.3, "Enter"); shot(s, t + 0.9, "mode")
     t += 1.2
-    for i in range(6): key(s, t + 0.13 * i, "ArrowDown")              # SETTINGS (row 6 since DANGAI)
+    for i in range(4): key(s, t + 0.13 * i, "ArrowDown")              # SETTINGS (MODE row 4 since ENDLESS / DANGAI were hidden; 6 = MANUAL, which leaves the page and hangs the run)
     key(s, t + 0.9, "Enter"); shot(s, t + 1.5, "settings"); key(s, t + 1.7, "Escape")
     key(s, t + 2.1, "ArrowDown"); key(s, t + 2.4, "Enter"); shot(s, t + 3.0, "controls"); key(s, t + 3.2, "Escape")
     key(s, t + 3.6, "ArrowUp"); key(s, t + 3.8, "ArrowUp"); key(s, t + 4.0, "Enter")          # CPU VS CPU

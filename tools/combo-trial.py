@@ -12,15 +12,14 @@ A trial file holds plists read by tools/simgate/trial.lisp (its header: the keys
 :script ((button frames &key modded wait) ...) in order (each waits until the last started its move), buttons :quick J, :flash K, :sig L, modded :sig SP2, modded :flash SP1,
 :kikon O, :step, modded :step Hoho, modded :quick a burst, :breaker I, :guard U.
 """
-import os, re, subprocess, sys
+import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import simgate
 
 def main():
     path = sys.argv[1]; show = '--log' in sys.argv
     simgate.build()
-    r = subprocess.run([simgate.ECL, '--norc', '--load', 'tools/simgate/trial.lisp', '--', simgate.FAS, os.path.abspath(path)],
-                       cwd=simgate.ROOT, capture_output=True, text=True, env=dict(os.environ, LD_PRELOAD=simgate.MUSLM))
+    r = simgate.run_lisp('simgate/trial.lisp', [os.path.abspath(path)])
     if r.returncode:
         sys.exit((r.stdout + r.stderr)[-3000:] + f'\n[combo-trial] exited {r.returncode}')
     print('| Trial | dmg | hits | combo | gaps | adv | dist | Reiatsu | FS | layers / chill | Konpaku | log | more |')

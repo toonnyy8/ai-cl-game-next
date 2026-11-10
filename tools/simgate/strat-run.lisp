@@ -16,8 +16,7 @@
 ;;;; the match with seed s plays member (s mod n) (DUEL_AI_STRATEGY §8.15: frozen opponents and the proxy pools). *CAI-STYLES* is restored at
 ;;;; every match's start before the strategies apply, so one match's plain strategy never strips another match's style CPU.
 ;;;; Usage: ecl-host --norc --load tools/simgate/strat-run.lisp -- <duel.fas> <cmd>...   e.g. 2102 81022 30000 31120 2132
-(defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
-(load (first cl-user::*sg-args*) :verbose nil)
+(load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
 
 (defun sr-read (path) (and path (plusp (length path)) (with-open-file (in path) (let ((*read-eval* nil)) (read in)))))
@@ -201,9 +200,9 @@
           do (let* ((kv (subseq l start p)) (q (position #\= kv)))
                (setf (symbol-value (intern (string-upcase (subseq kv 0 q)) :duel)) (let ((*read-eval* nil)) (read-from-string (subseq kv (1+ q))))))
           while p)))
-(loop for r = (engine::%init-step) until (eql r 0) when (eql r 2) do (ext:quit 2))
+(cl-user::sg-init)
 (setf *step-hook* #'sr-hook)
-(dolist (c (rest cl-user::*sg-args*)) (engine::simgate-cmd (parse-integer c)))
+(cl-user::sg-queue)
 (engine::%frame)
 (unless (loop repeat 2000000
               do (unless (engine::%frame) (ext:quit 3))

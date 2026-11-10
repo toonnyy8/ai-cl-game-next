@@ -31,9 +31,9 @@ RETIRED: the old Lille's, removed 2026-10-13) is never played
 Roster index C: 0 Yamamoto 1 Kenpachi 2 Rukia 3 Ichigo 4 Senjumaru 6 Lille (simgate.ROSTER). Rebuilds the native sim first
 when a source changed.
 """
-import argparse, concurrent.futures as cf, json, os, re, statistics, subprocess, sys
+import argparse, concurrent.futures as cf, json, os, re, statistics, sys
 sys.dont_write_bytecode = True
-from simgate import ROOT, ECL, FAS, MUSLM, ROSTER, RETIRED, build
+from simgate import ROSTER, RETIRED, build, run_lisp
 
 NAMES = ROSTER                                    # (simgate.ROSTER: the roster in order)
 BARRO = NAMES.index('BARRO')                      # Lille (kit :barro): SIG_BARRO, the K.O. by the RESULTS line
@@ -78,10 +78,7 @@ NORMAL_FALL = 0.15                                # the baseline's broken weak b
 
 
 def sim(cmds, log=True):
-    script = 'tools/simgate/run-log.lisp' if log else 'tools/simgate/run.lisp'
-    r = subprocess.run([ECL, '--norc', '--load', script, '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
-                       capture_output=True, text=True, env=dict(os.environ, LD_PRELOAD=MUSLM), timeout=3600)
-    return r.stdout
+    return run_lisp('simgate/run-log.lisp' if log else 'simgate/run.lisp', cmds, timeout=3600).stdout
 
 
 def matches(job):

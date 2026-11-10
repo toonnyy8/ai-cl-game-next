@@ -8254,3 +8254,57 @@ NS 每段的空檔按左／右＋SP，臨時打前一個／後一個指針的 NS
   - 不合併劍八和一護的風格 CPU，也不合併六個 reach 函式（那是行為改動）。
   - 不為了行數拆內聚的長檔。
 - 分工：Opus 5.5（稽核者）盤點、抽查、寫計畫；Sonnet 5.5 做五個唯讀審查；主對話（Fable 5.2）覆核與提問。
+
+## 703. 第四輪重構：D1–D4 的決定與 B0 小修（2026-11-10）
+
+使用者：「封存到分支後移出 main (Recommended)」（D1）。
+- 四個退役角色（山本、朽木、千樹丸、Lille）和只有他們用的舊系統，先封存到分支 `retired-kits`，再從 main 移除（B8）。roster 索引、simgate 的 `RETIRED`／`PAIRS` 和存檔鍵都保留。
+
+使用者：「全部封存後移除 (Recommended)」（D2）。
+- ENDLESS／DANGAI、ASSIST 和舊學習器封存後移除（B9），D1 讓出舊 AI v2 之後一併移除。FQ 線上學習器保留。這也一併解掉 84000 的重複佔用。
+
+使用者：「留在遊戲裡」（D3）。
+- 沒有表引用的策略庫條目留在遊戲裡，B10 取消。
+
+使用者：「移除，順便向你參考，如果要將 html 的 HUD 完全移植成 lisp 版本是可行的嗎？成本會有多高？」（D4）
+- 選擇移除畫布 HUD 備援，但先擱置：主對話回答完「HTML HUD 整個移植成 Lisp 版」的可行性與成本、使用者確認之前，不動畫布那條路（它會是移植的底）。
+- D5（手冊舊章節隨 D1／D2 移除）、D6（取消追蹤 batch-*／webgl-* 截圖，style-2..6 腳本移到 `docs/research/style-history/`）、D7（`define-debug-range` 登錄表）還沒問，主對話先提建議選項，等使用者反對；文件 §6 標為「proposed, not yet confirmed」。
+
+B0 小修（docs/engine/REFACTOR_2026-11.md §7，無行為改動）：
+- debug 2510+p 收窄為 2510–2512（沒有任何 kit 有第四個指標，`:stances` 最多三個），2513 的慢動作因此能執行；DUEL_GAMEPLAY 兩處同步，並註明 84000–84099 與 DANGAI 的重疊（`*char-debug*` 先於 DANGAI 子句，山本的 DANGAI 除錯起點 84000+n 到不了），刪掉 84000+100c+n 的重複列。
+- 刪掉無人引用的旋鈕 `*nome-max*`、`*nome-up-t2*`、`*nome-down-t2*`、`*nome-down-t3*`、`*ai-ru-l-after-k*`；`*strat-lookup*` 的 docstring 縮成三行；sim-state.lisp 的檔頭註解改成「遊戲內的 MCTS 也會呼叫」。
+- RAVEN EDGE 殘留：ARCHITECTURE.md 改寫成只有一個遊戲（去掉 `game/` 表、G1、`tests/rules-test.lisp`），ENGINE_API.md、引擎註解、engine-check 字串（「RAVEN defaults」→「default look」）、兩份 skill、docs/README.md 的三條失效連結。
+
+## 704. 重構第四輪暫停：B0、B5 合併，B1 暫緩；looks gate 失準；改以 Lisp 重現 HUD（2026-11-10）
+
+使用者：「移除」（D4，主對話估算 Lisp 移植成本後；估算：完整移植約 8–12k 行，卡在任意 zh-TW 文字，建議留 HTML 並移除備援）。
+
+使用者：「等等完成一個段落後先暫停，我希望使用 lisp 完全重現目前的 html HUD」。
+- D4 的移除再度擱置（畫布路徑 hud.lisp／hud-screens.lisp／onehand.lisp 是 Lisp 側的起點）；第四輪重構在 wave 0 與前幾批合併後暫停，B2、B3、B4、B6 與 wave 2–3（含 D1／D2 的移除）未開始。
+
+使用者：「要如何為引擎添加任意中文字的繪字能力？」
+- 主對話給四種做法：(1) 更多離線烘焙的輪廓多邊形（現行 glyph-bake，每字約 1 KB 原始碼，小字不佳）；(2) 內嵌字型加執行期光柵器（stb_truetype）進圖集；(3) 離線烘焙 SDF 圖集（建置時掃描實際用到的字，烘焙距離場貼圖與字距資料，用 SDF shader 畫；估計約 1,500 字、32 px 單通道、壓縮前約 1.5 MB）；(4) 瀏覽器 Canvas 2D 在執行期光柵化進圖集（wasm 幾乎為零、小字最好，但依賴瀏覽器）。建議 4，其次 3。無論哪種都需要：貼圖四邊形繪製路徑（引擎有沒有尚未確認）、在幀與幀之間更新的圖集快取、文字排版（量測、換行、CJK 斷行規則、拉丁字混排基線）、快取過的排版字串（每幀 0 B）。
+
+使用者：「我選 3，說明手冊保留在 html 頁面」。
+- 文字用離線烘焙的 SDF 圖集；manual.html 維持 HTML，不移植，所以字集只涵蓋選單、設定與戰鬥 HUD。
+- 尚待暫停後詢問：Lisp HUD 驗收前，HTML HUD 是否並存（主對話傾向是）。
+
+批次（REFACTOR_2026-11.md §10.1）：
+- B0（Sonnet 5.5）已合併：debug 範圍 2510–2512，2513 的慢動作因此能執行；刪掉五個無人引用的旋鈕（`*nome-max*`、`*nome-up-t2*`、`*nome-down-t2*`、`*nome-down-t3*`、`*ai-ru-l-after-k*`）；sim-state.lisp 註解、`*strat-lookup*` docstring、ARCHITECTURE.md／註解／skills 的 RAVEN 殘留、docs/README.md 三個死連結。debug-ranges-check：108 個範圍、0 錯誤（之前 1 個）。
+- B5（Sonnet 5.5）已合併：`tools/simlib.py`（76 行）加 `tools/simgate/prelude.lisp`（12 行）；九支 Python 工具和十二個 Lisp 執行器改用；assistgate.py 與 strategy-matrix.py 現在會先建置。工具輸出前後相同（只有牆鐘時間、heap、cons 數字不同）。淨增 +14 行（計畫原估 -150）。未跑：trial／contact／teacher／litefit 執行器。
+- B1（Sonnet 5.5）暫緩、未合併：移除死引擎匯出（`fx-debris` 池與 `fx-debris-update`／`fx-clear-debris`／`*debris-life*`、`fx-clear-orbs`、`edge-vignette`、`mb-capsule`、`mb-flat-quad`、`set-loop-gain`、`audio-locked-p`）並同步 ENGINE_API.md；自身檢查全過，index.wasm -5,924 B。因 looks gate 證明不了像素不變，已在主 checkout 還原（patch 留在 repo 外）；ENGINE_API.md 的 RAVEN 文字因此暫時保留。
+
+looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.py` 的修正已合併，REFACTOR_2026-11.md §10.2）：
+- 完整跑一次約 7,250 s 且失敗兩次。原因與 B0／B1 無關：(1) menus 場景按 6 次 ArrowDown 去 SETTINGS，但 ENDLESS／DANGAI 隱藏後 MODE 有 7 列，第 6 列是 MANUAL，頁面跳到 manual.html，run.mjs 等滿 `--timeout 7200`（§604 就記過「menus scenes stuck on the manual page」），改成按 4 次。(2) LOOKS_SEEDS（2026-10-17 重新釘定）用了退役配對（YS、HY、IR、BK），現在 `2000+seed` 從可玩名單抽；重新釘為 (1 KH)、(3 HK)、(7 II)、(10 IK)，場景名 cvc-kh／hk／ii／ik，仍是 113 張。(3) `--keep-base` 沿用了 2026-11-07 留下的別個 BASE 的圖，所以「113 張有 88 張雜訊」的底噪沒有意義；`--keep-base` 只能搭配同一個工作階段、乾淨的 build／style／looks 所渲染的 BASE。
+- 修正後完整跑一次 453 s、不逾時；fighters 與 sim-line 檢查通過，但仍有 26 張失敗，因為每個 build（含 fd9e7180 的全新 build）的渲染逐次都不確定：選單背景（月環、柱廊、待機角色、地板閃光，從不是 HTML 面板）在兩種狀態間交替（約 80%／20%），menus/mode 差 1,678 px、settings 差 3,743 px；cine-rukia 的圖呈雙峰（rukia-hakka-120 約 18,000 px）；title、ENDLESS 的圖與對戰圖 w*-0 也會變。來源未找到（時序，或某條未播種的裝飾路徑）。
+- 相同原始碼（fd9e7180）重建後與存下的 base 不是位元組相同（index.wasm 11,155,672 對 11,155,696 B）。
+- 對 menus 圖做二分（循序執行）：沒有 B1 的 build（舊 base、重建 base、只有 B0）在 35 次中只出現已知兩種狀態；有 B1 的（只有 B1、B0+B1）在 19 次中有 5 次出現額外狀態，大小與已知差距相同。B0 支持為像素不變；B1 無法證明，所以暫緩。
+- 結論：兩個 BASE 的底噪不可靠（第三次渲染可能與先前一致的兩次不同），「113 張位元組相同、底噪 0」現在做不到。
+- 合併後的狀態：G2（`--cvc`，原生與瀏覽器：II 32、IK 34、KK 33）、host tests（10149 ALL PASS）、pkgcheck、smoke 皆通過，主對話合併後重跑過。
+
+接下來（暫停後；目前沒有任何東西在跑）：
+1. 找出渲染的不確定性，把底噪恢復為 0（所有「不准動一個像素」的批次，以及拿 Lisp HUD 對 HTML HUD，都以此為前提）；再重新判斷 B1。
+2. Lisp HUD：先寫設計文件（範圍：選單、設定、戰鬥 HUD；文字用 SDF 圖集；引擎要補的：貼圖四邊形、圖集、排版、焦點／捲動、補間），再做一個量測 wasm／heap 與手機尺寸 11 px 可讀性的 spike，然後逐個畫面對 HTML 參考重現（DUEL_WEBUI §18）。
+3. 之後再恢復重構 wave 1–3；D5–D7 仍是「已提議、尚未確認」。
+
+分工：Sonnet 5.5：B0、B1、B5、Lisp HUD 估算、looks gate 診斷與本段草稿；Opus 5.5：盤點；主對話 Fable 5.2：覆核、合併、暫緩 B1 的判斷、提交。

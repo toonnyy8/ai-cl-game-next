@@ -173,7 +173,7 @@ static int r_targets(int w, int h) {
 }
 /* Opaque (TRANSPARENT 0) or alpha < 1 (1) records of the queue. Per-draw data is read by the vertex
    shader from the storage buffer at instance_index = record index (first_instance). An opaque record
-   with a toon mode (q[28] 1 stage / 2 character) uses the toon pipelines, 3 (ink hull) the hull ones; 0 (RAVEN,
+   with a toon mode (q[28] 1 stage / 2 character) uses the toon pipelines, 3 (ink hull) the hull ones; 0 (the default look,
    every legacy draw) the lit ones. */
 static int r_draw_queue(SDL_GPURenderPass *rp, const float *q, int n, int transparent) {
   int cur_pipe = -1, cur_buf = -1, drawn = 0;

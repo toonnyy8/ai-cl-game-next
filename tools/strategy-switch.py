@@ -21,10 +21,10 @@ candidate and the other seat SPEC; without --vs-strat a mirror's other seat is t
 Raw match output is cached in build/strategy-eval-cache/ by (build hash, composite text, characters, difficulty, seed block, the opponent seat's
 strategy texts). At most 8 sim processes.
 """
-import argparse, concurrent.futures as cf, hashlib, json, math, os, re, subprocess, sys, tempfile, time
+import argparse, json, math, os, re, sys, tempfile, time
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from simgate import ROOT, ECL, FAS, MUSLM, build
+from simlib import ROOT, build, build_hash as _build_hash, run_lisp, sha, pool, ROW
 
 ROSTER = {'kenpachi': 1, 'ichigo': 3, 'hisagi': 7}      # roster indices (kit.lisp *ROSTER*)
 DIFF = {'easy': 0, 'normal': 1, 'hard': 2}
@@ -32,10 +32,6 @@ CACHE = os.path.join(ROOT, 'build/strategy-eval-cache')
 RUNNER = os.path.join(ROOT, 'tools/simgate/strat-run.lisp')
 CHUNK = 25                                               # seeds a sim process (<= 99: debug 31100+n)
 KEEP = ('duel gate row ', 'switch ', 'strat ', 'duel -> RESULTS', 'duel hash', 'duel state', 'hrange ')   # (hrange: STRAT_HRANGE=1, §8.16)   # the raw lines worth keeping
-
-
-def sha(b):
-    return hashlib.sha1(b).hexdigest()[:16]
 
 
 def strip_lisp(text):
@@ -124,11 +120,8 @@ def composite_text(path):
     return cid, f'(:id :switch-{cid} :switch (({own} . {strat})))\n'
 
 
-_bh = []
-def build_hash():
-    if not _bh:
-        _bh.append(sha(open(FAS, 'rb').read() + open(RUNNER, 'rb').read()))
-    return _bh[0]
+def build_hash():   # (the research scripts call ss.build_hash())
+    return _build_hash(RUNNER)
 
 
 FROZEN = os.path.join(ROOT, 'docs/research/strategy-drsi/counter/frozen')
@@ -159,7 +152,7 @@ def run_job(c1, c2, comp, diff, seed0, n, opp=None):
     if os.path.exists(path):
         return open(path).read()
     os.makedirs(CACHE, exist_ok=True)
-    env = dict(os.environ, LD_PRELOAD=MUSLM)
+    env = dict(os.environ)
     for k in ('STRAT_P1', 'STRAT_P2', 'STRAT_LAYER', 'STRAT_SET', 'STRAT_WIN'):
         env.pop(k, None)
     if comp:
@@ -167,8 +160,7 @@ def run_job(c1, c2, comp, diff, seed0, n, opp=None):
     if opp:
         env['STRAT_' + opp[0]] = opp[1]
     cmds = [30000 + seed0, 31100 + n, 81000, 81020 + diff, 81030, 81040, 200000 + 100 * c1 + 10 * c2]
-    r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/strat-run.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
-                       capture_output=True, text=True, env=env, timeout=7200)
+    r = run_lisp('simgate/strat-run.lisp', cmds, env, timeout=7200)
     if r.returncode:
         sys.exit(f'strategy-switch: sim exited {r.returncode} (chars {c1}/{c2}, seeds {seed0 + 1}-{seed0 + n})\n' + (r.stdout + r.stderr)[-2000:])
     out = '\n'.join(l for l in r.stdout.splitlines() if l.startswith(KEEP))
@@ -185,7 +177,7 @@ def parse(outs, seat):
     wins, judged, held = {}, 0, None
     for out in outs:
         for line in out.splitlines():
-            m = re.search(r'duel gate row seed (\d+) .* winner (\S+)', line)
+            m = ROW.search(line)
             if m:
                 wins[int(m.group(1))] = int(m.group(2) == seat)
                 continue
@@ -250,8 +242,7 @@ def main():
                 jobs.append((tag, seat, (c1, c2, (seat, tmp.name, text) if tag == 'comp' else None, diff, s0, n,
                                          (oseat, vs[0], vs[1]) if vs else None)))
     try:
-        with cf.ThreadPoolExecutor(max(1, min(8, a.j))) as ex:
-            outs = list(ex.map(lambda j: run_job(*j[2]), jobs))
+        outs = pool(lambda j: run_job(*j[2]), jobs, max(1, min(8, a.j)))
     finally:
         os.unlink(tmp.name)
     got = {(t, s): [] for t in ('comp', 'inc') for s in ('P1', 'P2')}

@@ -21,17 +21,12 @@ One process plays a pairing's seeds back to back, as the page does. --chunk N sp
 one long stream); rows are the same either way (Senjumaru's per-side state carried over between matches until
 2026-09-29, DEVLOG §38-§39: SJ now makes a fresh one per fighter).
 """
-import argparse, concurrent.futures as cf, math, os, re, subprocess, sys
+import argparse, math, os, re, sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ECL = os.environ.get('ECL_HOST', '/media/8tsp/projects/ecl-24.5.10/ecl-emscripten-host/bin/ecl')
-FAS = os.path.join(ROOT, 'build/simgate/duel.fas')
-EMSDK = os.environ.get('EMSDK_DIR', '/media/8tsp/projects/emsdk')
-MUSLM = os.path.join(ROOT, 'build/simgate/muslm.so')
-MUSL_MATH = ('sinf cosf tanf __sindf __cosdf __tandf __rem_pio2f __rem_pio2_large atan2f atanf acosf asinf tanhf expm1f '
-             'expf exp2f_data powf powf_data logf logf_data log2f_data sin cos tan __sin __cos __tan __rem_pio2 atan2 atan '
-             'exp exp_data pow pow_data log log_data __math_oflowf __math_uflowf __math_xflowf __math_invalidf '
-             '__math_divzerof __math_oflow __math_uflow __math_xflow __math_invalid __math_divzero')
+sys.dont_write_bytecode = True   # (no tools/__pycache__ from the import below)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from simlib import ROOT, ECL, FAS, EMSDK, MUSLM, build, run_lisp, pool   # noqa: E402,F401  (re-exported: the other tools and the research scripts import them from here)
+
 ROSTER = ['YAMAMOTO', 'KENPACHI', 'RUKIA', 'ICHIGO', 'SENJUMARU', 'LILLE', 'BARRO', 'HISAGI']   # kit.lisp *ROSTER*, in order (the tools' one roster list)
 RETIRED = {'LILLE', 'YAMAMOTO', 'RUKIA', 'SENJUMARU', 'BARRO'}   # kit.lisp *RETIRED*: index 5, the old Lille's slot (out 2026-10-12, his code removed 2026-10-13); BARRO is Lille
 # gate.lisp ROSTER-PAIRS: the first five characters' fifteen in their historical order (YK has P1 Yamamoto; SS before SI),
@@ -49,42 +44,9 @@ def gate_cmd(k):
     return 2125 + k if k < 15 else 2135 + k
 
 
-def sources():
-    out = [os.path.join(ROOT, 'tools/simgate', f) for f in ('build.lisp', 'stubs.c')] + [os.path.join(ROOT, 'engine/c/engine.h')]
-    for d in ('engine', 'duel'):
-        with open(os.path.join(ROOT, d, 'MANIFEST')) as f:
-            out += [os.path.join(ROOT, d, l.strip()) for l in f if l.strip().endswith('.lisp')]
-    return out
-
-
-def build():
-    # the wasm build's libm is emscripten's musl; glibc's sinf / expf ... differ in the last bit now and then, and a
-    # CPU match drifts apart from there (DEVLOG §38). So the very same musl sources, built for the host, go in front of
-    # glibc (LD_PRELOAD): the Lisp's inline calls and libecl's (SIN, EXP, EXPT ...) both land there.
-    os.makedirs(os.path.dirname(MUSLM), exist_ok=True)   # (a fresh checkout has no build/simgate)
-    if not os.path.exists(MUSLM):
-        m = f'{EMSDK}/upstream/emscripten/system/lib/libc/musl'
-        gcc_inc = subprocess.run(['gcc', '-print-file-name=include'], capture_output=True, text=True).stdout.strip()
-        r = subprocess.run(['gcc', '-m32', '-msse2', '-mfpmath=sse', '-ffp-contract=off', '-O2', '-fPIC', '-shared', '-w',
-                            '-nostdinc'] + [f'-I{m}/{d}' for d in ('src/include', 'src/internal', 'arch/emscripten',
-                                                                  'arch/generic', 'include')] +
-                           [f'-I{gcc_inc}', '-o', MUSLM] + [f'{m}/src/math/{f}.c' for f in MUSL_MATH.split()],
-                           capture_output=True, text=True)
-        if r.returncode:
-            sys.exit(r.stderr[-3000:] + '\n[simgate] musl libm BUILD FAILED')
-    if os.path.exists(FAS) and os.path.getmtime(FAS) >= max(os.path.getmtime(s) for s in sources()):
-        return
-    print('[simgate] building build/simgate/duel.fas (~2 min)', file=sys.stderr, flush=True)
-    r = subprocess.run([ECL, '--norc', '--load', 'tools/simgate/build.lisp', '--', 'build/simgate/duel.fas'], cwd=ROOT,
-                       capture_output=True, text=True)
-    if r.returncode or not os.path.exists(FAS):
-        sys.exit(r.stdout[-3000:] + r.stderr[-3000:] + '\n[simgate] BUILD FAILED')
-
-
 def lisp(cmds):
     """One native process: the debug commands CMDS, then frames until the gate (or the match) is over."""
-    return subprocess.run([ECL, '--norc', '--load', 'tools/simgate/run.lisp', '--', FAS] + [str(c) for c in cmds], cwd=ROOT,
-                          capture_output=True, text=True, env=dict(os.environ, LD_PRELOAD=MUSLM))
+    return run_lisp('simgate/run.lisp', cmds)
 
 
 def run(job):
@@ -153,9 +115,8 @@ def main():
     build()
     jobs = [(k, s, min(a.chunk, a.seed0 + a.seeds - s), a.cmd) for k in pairs for s in range(a.seed0, a.seed0 + a.seeds, a.chunk)]
     got = {k: [] for k in pairs}
-    with cf.ThreadPoolExecutor(a.j) as ex:
-        for k, rows in ex.map(run, jobs):
-            got[k] += rows
+    for k, rows in pool(run, jobs, a.j):
+        got[k] += rows
     for k in pairs:
         if not a.summary:
             for r in sorted(got[k]):

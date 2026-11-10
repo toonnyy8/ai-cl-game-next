@@ -16,7 +16,7 @@
 ;;;;       (draw-parts parts extras joints &key hidden hide recolor tint rim emissive flash alpha toon
 ;;;;                   hulls ink-tint ink-px ink-push)   HULLS = ink outlines (toon only, docs/style/STYLE_STORM_DESIGN.md §2.4)
 ;;;;       *part-jitter* (per-face brightness noise, 0.06) and *part-smooth* (NIL: flat; T: round normals
-;;;;       on :sphere / :cyl) are read at build time: a toon game sets 0 and T (RAVEN keeps the defaults).
+;;;;       on :sphere / :cyl) are read at build time: a toon game sets 0 and T (the default look keeps the defaults).
 ;;;;       (pal-rgb c palette)   a palette key / #xRRGGBB / list -> (r g b)
 ;;;; Each game keeps its own body struct (stats, weapons, extras) holding PARTS and EXTRAS and
 ;;;; builds / draws them through here.
@@ -98,7 +98,7 @@ extent (the second largest of its box in the joint frame): 0 under 4 cm (strokes
 joint for its untagged solid shapes, EXTRAS, a list of #(joint mesh tint emissive tag): one per
 (joint, tag) of tagged solid shapes (tint NIL) and one per glow (tint = its colour), and HULLS, a list
 of #(joint mesh tag): the ink hulls (MB-HULL) of the solid shapes, one per joint and tagged part.
-INK (NIL = no hulls, RAVEN) = ((colour key . #xRRGGBB) ... (t . #xRRGGBB)): the ink colour of a shape
+INK (NIL = no hulls) = ((colour key . #xRRGGBB) ... (t . #xRRGGBB)): the ink colour of a shape
 by its :c key (e.g. a grey keyline on black cloth, red-brown on skin), T = every other shape; a shape's
 width multiplier is its :ink option or SHAPE-INK-K's size rule; glows get no hull."
   (let ((parts (make-array +nj+ :initial-element nil)) (extras nil) (hulls nil))

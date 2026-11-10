@@ -163,7 +163,7 @@ Returns T if the point is in front of the camera."
   (vignette 0.35f0 :type single-float)
   ;; toon look (SOUL DUEL, docs/style/STYLE_STORM_DESIGN.md §2): T fills the Frame's toon lanes, draws the toon
   ;; sky (fs_sky_toon) and shades 2 point lights per pixel (the stage's flat pools; DRAW-MESH :TOON draws
-  ;; only). NIL (default, RAVEN) leaves every lane 0 and the frame exactly as before.
+  ;; only). NIL (default) leaves every lane 0 and the frame exactly as before.
   (toon nil)
   (key-light (v3 -0.45 0.62 0.40) :type f32vec)     ; characters' key light in camera axes (right up back)
   (toon-threshold 0.5f0 :type single-float)         ; lit when N.L*0.5+0.5 > this (1.5 = all shadow)
@@ -224,7 +224,7 @@ drawn (SOUL DUEL's SELECT behind the HTML menus, docs/duel/DUEL_WEBUI.md §4; th
 frame): the opaque composite exactly as before. Set it again each frame it is wanted.")
 (defvar *grade-impact* 0
   "Screen punctuation mode of the composite (docs/style/STYLE_STORM_DESIGN.md §3.6): 0 off (the plain composite,
-RAVEN's), 1 negative, 2 two-tone (ink / paper by luma), 3 manga page (two-tone keeping saturated spot
+the default look's), 1 negative, 2 two-tone (ink / paper by luma), 3 manga page (two-tone keeping saturated spot
 colour), 4 spot-keep (greyscale but the saturated pixels near one or two hues). Parameters: *IMPACT-PARAMS*
 (GRADE-IMPACT sets both). The game owns the duration (set it back to 0).")
 (declaim (type f32vec *impact-params* *fx-clock*))

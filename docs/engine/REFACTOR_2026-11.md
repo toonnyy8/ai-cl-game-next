@@ -276,6 +276,9 @@ Options:
 2. Keep the code in main but out of the shipped build (a second MANIFEST target for tests only): smaller wasm, but every
    shared-file change must still compile and test against them.
 3. Keep everything as it is (no cost now; the shared files stay ~30 % larger than the live game needs).
+**Decided (the user, 2026-11-10):** 「封存到分支後移出 main (Recommended)」. Consequence: option 1. Archive the four kits and the
+old system only they use to the branch `retired-kits`, then remove them from main (B8). Roster indices (`*roster*` order, stub
+kits like `:lille`), simgate's `RETIRED` / `PAIRS` and the saved-data keys stay. The old AI v2 goes once D1 frees it.
 
 **⚠ D2 The frozen modes: ENDLESS / DANGAI, ASSIST and the old learner (not the FQ online learner, which stays).**
 Size: 1,322 + 232 + ~545 lines (+ scripted.lisp's ASSIST / gate players if nothing else uses them), ≥ 81 KB (ENDLESS /
@@ -286,6 +289,9 @@ Options:
 1. **Archive to the same branch and remove from main** (recommended; the menus already hide ENDLESS / DANGAI).
 2. Remove only ENDLESS / DANGAI, keep ASSIST and the old learner frozen.
 3. Keep all frozen as now.
+**Decided (the user, 2026-11-10):** 「全部封存後移除 (Recommended)」. Consequence: option 1. ENDLESS / DANGAI, ASSIST and the old learner
+are archived (the same branch) and removed from main (B9), together with the old AI v2 once D1 has freed it. The FQ online
+learner stays. Saved-data keys stay reserved. This also clears the 84000 double claim.
 
 **⚠ D3 The strategy library's entries that no table names** (19 superseded Q tables, 9 seeds, the `a-hk-*` arms,
 `d-hk-*`, `st-hisagi-hk`: ~1,630 lines). Today's decision (DEVLOG §701): "the multi-rule arms stay in the library".
@@ -296,6 +302,8 @@ Options:
    only the live table).
 2. Keep them in the game as now.
 3. Delete them (git history keeps them).
+**Decided (the user, 2026-11-10):** 「留在遊戲裡」. Consequence: the library's unused entries (superseded Q tables, seeds, the
+`a-hk-*` arms, `d-hk-*`, `st-hisagi-hk`) stay in the game as they are; **B10 is dropped** (no strategy archive file).
 
 **⚠ D4 The canvas HUD and menu fallback** (~850 lines, kept on purpose by DUEL_WEBUI §1; no gate draws it).
 Options:
@@ -303,22 +311,37 @@ Options:
    `hud-world`, `hud-rush-lines`, `hud-hint` stay).
 2. Keep it and add a looks scenario with the HTML layer off, so a gate sees it.
 3. Keep it as is.
+**Decided (the user, 2026-11-10), in order:**
+1. 「移除，順便向你參考，如果要將 html 的 HUD 完全移植成 lisp 版本是可行的嗎？成本會有多高？」 Removal chosen, held for the
+   feasibility answer.
+2. After the main session's estimate of a Lisp port (a full port about 8-12k lines; the blocker is arbitrary zh-TW text;
+   recommendation: stay HTML and remove the fallback): 「移除」.
+3. Then: 「等等完成一個段落後先暫停，我希望使用 lisp 完全重現目前的 html HUD」.
+**Status: ON HOLD again.** The canvas path (hud.lisp / hud-screens.lisp / onehand.lisp) is the Lisp-side starting point of the
+Lisp HUD (DUEL_WEBUI "A Lisp HUD", DEVLOG §704), so nothing of it is removed. Refactor round 4 pauses after wave 0 and the first
+merged batches; B2, B3, B4, B6 and waves 2-3 (including the removals D1 / D2) are not started.
 
 **⚠ D5 manual.html's old-system, retired-character and frozen-mode sections (~500 of 1,088 lines).**
 Options: 1. **Remove them with D1 / D2 and fix the header and TOC** (recommended); 2. fold them under a closed
 `<details>` 「舊版參考」; 3. keep.
+**Status: proposed, not yet confirmed.** Not asked yet; the main session proposes the recommended option 1 (remove the old
+sections with D1 / D2, fix the header and TOC) and waits for an objection.
 
 **⚠ D6 Tracked review stills and the old style scripts** (317 tracked stills, 106 MB on disk; ~1,290 lines of
 style-2..6 / batch scripts no tool calls).
 Options: 1. **Untrack batch-* and webgl-* (37 files) and move the style-2..6 / batch scripts to
 `docs/research/style-history/`, keep duel-* / mobile-* that docs cite** (recommended); 2. untrack every still the
 gates do not read; 3. keep.
+**Status: proposed, not yet confirmed.** Not asked yet; the proposal is the recommended option 1 (untrack batch-* and webgl-*
+stills, move the style-2..6 / batch scripts to `docs/research/style-history/`), waiting for an objection.
 
 **⚠ D7 Debug commands: a registry, or keep the checker** (round 2's 「檢查程式」, with "a registry only if the table drifts
 again"; it drifted twice: 2513, 84000).
 Options: 1. **A registry (`define-debug-range`, in the engine; overlaps fail at load) replacing the `cond` and
 `*char-debug*`; keep the doc checker** (recommended); 2. keep the checker and run it in every gate pass (add it to
 AGENTS' fast checks); 3. leave as is.
+**Status: proposed, not yet confirmed.** Not asked yet; the proposal is the recommended option 1 (the `define-debug-range`
+registry, keep the doc checker), waiting for an objection.
 
 ## 7. Batch plan
 
@@ -327,13 +350,13 @@ Merge serialization points: `duel/MANIFEST`, `kit.lisp`, `debug.lisp`, `tuning.l
 merges them one after another. Each batch: its own worktree + branch + fresh subagent, a compact brief with the wait
 rules; the lead re-runs the bar on the merged head, commits and pushes.
 
-### Wave 0 (no decision; start at once)
+### Wave 0 (no decision; start at once) [B0 merged, B5 merged]
 
 | batch | scope | proof | size | risk | model |
 |---|---|---|---|---|---|
 | **B0 fixes and doc drift** | 2513: decide its owner and renumber the other (debug.lisp:646 says "SP pointer 1 / 2 / 3 / 4", 2513 = pointer 4; the core pointer is 1–3 and no script or doc found uses 2511–2513, only 2510, so narrowing to `(<= 2510 c 2512)` looks right, but confirm no fighter has a fourth pointer first); DUEL_GAMEPLAY's 84000 note; sim-state.lisp:2 comment; dead knobs `*nome-max* *nome-up-t2* *nome-down-t2* *nome-down-t3* *ai-ru-l-after-k*`; `*strat-lookup*` docstring cut to 3 lines + § ref; ARCHITECTURE.md rewritten for one game (drop the game/ table, RAVEN G1, `tests/rules-test.lisp`); docs/README.md's three dead raven-edge links; engine comments / engine-check strings "RAVEN defaults" → "the default look"; the two skills' RAVEN lines | debug-ranges-check 0 errors; host tests; pkgcheck; build; G2 identical; looks 113 identical | ~150 code/doc lines + ARCHITECTURE rewrite | low | Sonnet |
 
-### Wave 1 (no decision; parallel, disjoint files; after B0 merges)
+### Wave 1 (no decision; parallel, disjoint files; after B0 merges) [B1 held back, B5 merged, B2 / B3 / B4 / B6 not started]
 
 | batch | scope (files) | proof | size | risk | model |
 |---|---|---|---|---|---|
@@ -410,3 +433,60 @@ and fighter.lisp). B10 ∥ B8 (strategy files only). B11 anytime.
 - Which of the old Lille's 290 definitions `:barro` really reaches (85 named directly; no reachability run).
 - Whether any of the 113 looks stills draws a canvas-HUD pixel (none should: HTML is on in every still).
 - Object bytes are function code only; the clip data and the startup heap saved by D1 / D2 need a build without them.
+
+## 10. Status at the pause (2026-11-10)
+
+Waves 2-3 (B7, B8a-d, B9, B11) and wave 4 are not started; B10 is dropped (D3).
+
+### 10.1 Batches
+
+- **B0 (Sonnet 5.5): merged.** Debug range 2510-2512 so 2513's slow motion is reachable; five dead knobs removed from tuning.lisp
+  (`*nome-max*`, `*nome-up-t2*`, `*nome-down-t2*`, `*nome-down-t3*`, `*ai-ru-l-after-k*`); the sim-state.lisp comment; the
+  `*strat-lookup*` docstring; RAVEN leftovers in ARCHITECTURE.md, comments, skills and docs/README.md's three dead links.
+  `tests/debug-ranges-check.py`: 108 ranges, 0 errors (1 before).
+- **B5 (Sonnet 5.5): merged.** `tools/simlib.py` (76 lines) + `tools/simgate/prelude.lisp` (12 lines); nine Python tools and
+  twelve Lisp runners use them; assistgate.py and strategy-matrix.py now build first. Tool outputs identical before / after
+  (only wall-clock, heap and cons figures differ). Net +14 lines (the plan guessed -150). Not run: the trial / contact /
+  teacher / litefit runners.
+- **B1 (Sonnet 5.5): held back, not merged.** Removed the dead engine exports (`fx-debris` pool with `fx-debris-update` /
+  `fx-clear-debris` / `*debris-life*`, `fx-clear-orbs`, `edge-vignette`, `mb-capsule`, `mb-flat-quad`, `set-loop-gain`,
+  `audio-locked-p`) and synced ENGINE_API.md; all its own checks passed, index.wasm -5,924 B. Reverted in the main checkout (the
+  patch is kept outside the repo) because the looks gate could not prove it pixel-neutral (10.2). ENGINE_API.md's RAVEN text
+  therefore remains for now.
+
+### 10.2 The looks gate was broken before this round
+
+Found by Sonnet 5.5; the fixes in `tests/style-gates.py` are merged. A full run took about 7,250 s and failed twice.
+
+1. The menus scenario pressed ArrowDown 6 times for SETTINGS, but MODE has 7 rows since ENDLESS / DANGAI were hidden, so row 6
+   is MANUAL; the page navigated to manual.html and run.mjs waited out `--timeout 7200` (DEVLOG §604 had noted "menus scenes
+   stuck on the manual page"). Fixed to 4 presses.
+2. LOOKS_SEEDS (re-pinned 2026-10-17) named retired pairings (YS, HY, IR, BK); `2000+seed` now draws from the playable roster.
+   Re-pinned to (1 KH), (3 HK), (7 II), (10 IK), scenario names cvc-kh / hk / ii / ik; still 113 stills.
+3. `--keep-base` reused BASE stills left from 2026-11-07 (another BASE), so the "88 of 113 noisy" floor was meaningless. Use
+   `--keep-base` only with a BASE rendered in the same session, on a clean build / style / looks.
+
+After the fixes a full run takes 453 s with no timeout; the fighters and sim-line checks pass; but 26 stills still fail, because
+**rendering is nondeterministic run to run in every build**, including a fresh build of fd9e7180:
+
+- The menu backdrop (moon rings, colonnade, idle fighters, floor sparkle; never the HTML panels) alternates between two states
+  (about 80 % / 20 %), 1,678 px apart on menus/mode and 3,743 on settings.
+- cine-rukia stills are bimodal (about 18,000 px on rukia-hakka-120); the title, ENDLESS stills and the match stills w*-0 also
+  vary. The source is not found (timing, or an unseeded cosmetic path).
+- A rebuild of identical sources (fd9e7180) is not byte-identical to the saved base (index.wasm 11,155,672 vs 11,155,696 B).
+- Bisect on the menus stills (serial runs): builds without B1 (old base, rebuilt base, B0 only) showed only the two known
+  states in 35 runs; builds with B1 (B1 only, B0+B1) showed extra states in 5 of 19 runs, of the same size as the known gap.
+  B0: supported as pixel-neutral. B1: unproven, hence held.
+
+So the two-BASE noise floor is unreliable (a third render can differ where two agreed), and "113 stills byte-identical, noise
+floor 0" cannot be met today. G2 (`--cvc`, native and browser: II 32, IK 34, KK 33), host tests (10149 ALL PASS), pkgcheck and the
+smoke passed for the merged state; the main session reran them after the merge.
+
+### 10.3 Next (after the pause; nothing is running)
+
+1. Find the rendering nondeterminism and restore a zero noise floor (a prerequisite for every "must not move a pixel" batch and
+   for comparing a Lisp HUD against the HTML one); then re-judge B1.
+2. The Lisp HUD: a design doc first (scope: menus, settings, battle HUD; text by an offline-baked SDF atlas; the engine pieces:
+   textured quads, atlas, layout, focus / scroll, tweens), a spike measuring wasm / heap and 11 px legibility at a phone size,
+   then screens one by one against the HTML reference (DUEL_WEBUI "A Lisp HUD").
+3. Refactor waves 1-3 resume afterwards; D5-D7 remain "proposed, not yet confirmed".

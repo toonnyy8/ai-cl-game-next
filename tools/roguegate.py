@@ -6,16 +6,17 @@ character's runs / clears / median steps and, over all of them, each reward's ru
   python3 tools/roguegate.py [--pick first|random|greedy] [--chars 0,1,2,3,4,6,7] [-j N]
 
 The native build is simgate's (tools/simgate.py builds build/simgate/duel.fas when a source is newer)."""
-import argparse, collections, concurrent.futures as cf, os, re, subprocess, sys
+import argparse, collections, os, re, sys
+sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import simgate
+from simlib import run_lisp, pool
 
 PICKS = {'first': 0, 'random': 1, 'greedy': 2}
 
 
 def run(c, p):
-    r = subprocess.run([simgate.ECL, '--norc', '--load', 'tools/roguegate/run.lisp', '--', simgate.FAS, str(84900 + 10 * c + p)],
-                       cwd=simgate.ROOT, capture_output=True, text=True, env=dict(os.environ, LD_PRELOAD=simgate.MUSLM))
+    r = run_lisp('roguegate/run.lisp', [84900 + 10 * c + p])
     if r.returncode:
         sys.exit(f'[roguegate] roster {c} exited {r.returncode}\n' + (r.stdout + r.stderr)[-2000:])
     return [l for l in r.stdout.splitlines() if l.startswith('duel rogue gate ')]
@@ -29,8 +30,7 @@ def main():
     a = ap.parse_args()
     simgate.build()
     chars = [int(x) for x in a.chars.split(',')]
-    with cf.ThreadPoolExecutor(a.j) as ex:
-        outs = list(ex.map(lambda c: run(c, PICKS[a.pick]), chars))
+    outs = pool(lambda c: run(c, PICKS[a.pick]), chars, a.j)
     rewards = collections.defaultdict(lambda: [0, 0, None])   # id -> [runs, clears, name]
     for lines in outs:
         for l in lines:

@@ -27,12 +27,6 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [REFACTOR_2026-11.md](engine/REFACTOR_2026-11.md) | 第四輪重構的盤點與計畫（2026-11-10）：一致性、高內聚低耦合、開發留下的冗餘、可搬進引擎的模組；各項附檔案行號與證據，分批計畫（證明方式、規模、風險、平行與先後）和待使用者決定的 ⚠ 問題（退役角色、凍結模式、策略庫、畫布 HUD 等） |
 | [REFACTOR_NEXT.md](engine/REFACTOR_NEXT.md) | 下一輪重構的待辦清單（N1–N7）：`defdebug`、HUD 每幀配置、`hud-text` 快取、千手丸 `defun-fast`、`gate.lisp` 拆檔、`toon-ground-seg` 搬進引擎等，各附先量什麼與完成條件 |
 
-| 文件 | 內容 |
-|---|---|
-| [RAVEN_EDGE.zh-TW.md](raven-edge/RAVEN_EDGE.zh-TW.md) | RAVEN EDGE 的玩家向總覽（2026-10-27 從根目錄 README 移出）：遊戲內容、操作（鍵盤＋滑鼠、手把）、建置與測試、截圖（中文） |
-| [GAME_DESIGN.md](raven-edge/GAME_DESIGN.md) | RAVEN EDGE 的設計規格 v1：操作、招式幀數表、戰鬥規則、敵人、波次、HUD、美術、音效對照、動畫 |
-| [GAMEPLAY.md](raven-edge/GAMEPLAY.md) | RAVEN EDGE 玩法系統的實作說明：時間模型、實體與元件、動畫、招式定義、敵人 AI、遊戲流程、除錯指令、砍掉的項目 |
-
 ## SOUL DUEL（`duel/`）
 
 | 文件 | 內容 |

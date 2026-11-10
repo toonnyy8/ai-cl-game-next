@@ -7,8 +7,7 @@
 ;;;; Output: "contact character form class pointer outcome value" per exchange (class :na :ns :as :sa, :counter for a perfect Hoho's,
 ;;;; :none for anything else, e.g. a wave whose move is over).
 ;;;; Usage: ecl-host --norc --load tools/simgate/contact.lisp -- <duel.fas> <cmd>...   e.g. 30000 31110 2132 (IK seeds 1-10)
-(defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
-(load (first cl-user::*sg-args*) :verbose nil)
+(load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
 
 (defparameter *ct-quiet* 20 "Steps both fighters stay out of every reel to open or close an exchange.")
@@ -54,9 +53,9 @@
       (dolist (e es) (setf (svref *ct-prev* (fighter-side (fighter e))) (fighter-state (fighter e))))))
   (unless (battle-p) (setf *ct-open* nil *ct-quiet-n* 0)))
 
-(loop for r = (engine::%init-step) until (eql r 0) when (eql r 2) do (ext:quit 2))
+(cl-user::sg-init)
 (setf *step-hook* #'ct-hook)
-(dolist (c (rest cl-user::*sg-args*)) (engine::simgate-cmd (parse-integer c)))
+(cl-user::sg-queue)
 (engine::%frame)
 (unless (loop repeat 2000000
               do (unless (engine::%frame) (ext:quit 3))

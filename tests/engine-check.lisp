@@ -7,7 +7,7 @@
 ;;;; PRIORITY, DEFCLIP :FPS / :MARKS, LIST-CLIPS / LIST-SOUNDS / FIND-CLIP NIL / ANIM-BLEND,
 ;;;; MB-XFORM, MAKE-RIG-PROPORTIONS with POSE-FK!.
 ;;;; Restyle phase 1a (docs/style/STYLE_STORM_DESIGN.md §2): DRAW-MESH :TOON lanes (and 0 without), zero-cons
-;;;; toon draws and toon frame lanes, the camera-space key light, analytic smooth normals, the RAVEN
+;;;; toon draws and toon frame lanes, the camera-space key light, analytic smooth normals, the default look
 ;;;; defaults of *PART-JITTER* / *PART-SMOOTH*; debug 12 = the toon look (ec-toon.png: fs_toon stage +
 ;;;; character draws, one mirrored = RP_TOON_CW, and fs_sky_toon's moon) for the WGSL smoke test.
 ;;;; Restyle phase 1b (§2.4): MB-HULL extrusions (a box corner moves every face out 1 width, the cone
@@ -332,12 +332,12 @@
     (setf (aref *fx-clock* 0) 1.0)
     (check "sage: age quantised to the fx clock's twos" (< (abs (- (sage 0.5f0 2f0) (- 0.5 (mod 1.0 (/ 2 24.0))))) 1e-5))
     (setf (aref *fx-clock* 0) c0))
-  (check "RAVEN defaults: *key-ease* 0, *shake-hz* 30, *grade-impact* 0" (and (= *key-ease* 0) (= *shake-hz* 30) (= *grade-impact* 0))))
+  (check "default look: *key-ease* 0, *shake-hz* 30, *grade-impact* 0" (and (= *key-ease* 0) (= *shake-hz* 30) (= *grade-impact* 0))))
 
 (defun check-toon ()
   (let* ((n engine::*dq-n*) (q engine::*dq*) (m (m4)) (st engine::+dq-stride+) (e *env*))
     (draw-mesh *box* m) (draw-mesh *box* m :toon *toon-lanes*)
-    (check "draw-mesh: no :toon -> lanes 28..31 are 0 (RAVEN's records unchanged)"
+    (check "draw-mesh: no :toon -> lanes 28..31 are 0 (the default records unchanged)"
            (every #'zerop (subseq q (+ (* n st) 28) (+ (* n st) 32))))
     (check "draw-mesh :toon -> lanes 28..31" (equalp (subseq q (+ (* (1+ n) st) 28) (+ (* (1+ n) st) 32)) *toon-lanes*))
     (setf engine::*dq-n* n)
@@ -353,7 +353,7 @@
         (check "key light: unit, from the camera side (lit share (1+L.V)/2 ~ 73 %)" (and (< (abs (- kl 1)) 1e-4) (< 0.4 kv 0.5))
                "|key| ~,4f L.V ~,3f" kl kv)))
     (setf (env-toon e) nil))
-  (check "RAVEN defaults: *part-jitter* 0.06, *part-smooth* NIL" (and (= *part-jitter* 0.06) (null *part-smooth*)))
+  (check "default look: *part-jitter* 0.06, *part-smooth* NIL" (and (= *part-jitter* 0.06) (null *part-smooth*)))
   (flet ((normals-ok (build radial)       ; every vertex normal = the unit RADIAL of its position
            (let ((mb (make-mesh-builder)) (worst 0.0))
              (funcall build mb)

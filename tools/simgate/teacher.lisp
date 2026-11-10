@@ -9,8 +9,7 @@
 ;;;; pollution test, §5, is what makes that true).
 ;;;; Output: one "teach" line per decision point: seed tick side, the features (a player's view), then per action its mean and sd.
 ;;;; Usage: ecl-host --norc --load tools/simgate/teacher.lisp -- <duel.fas> <cmd>...   e.g. 30000 31101 2132 (IK seed 1)
-(defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
-(load (first cl-user::*sg-args*) :verbose nil)
+(load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
 
 (defparameter *teach-k* 16 "Samples per action.")
@@ -160,10 +159,10 @@ generic CPU in turn (K mod 3)."
           (setf (svref *teach-next* side) (+ *match-tick* *teach-gap*))
           (teach-point e))))))
 
-(loop for r = (engine::%init-step) until (eql r 0) when (eql r 2) do (ext:quit 2))
+(cl-user::sg-init)
 (setf *step-hook* #'teach-hook)
 (let ((t0 (get-internal-real-time)))
-  (dolist (c (rest cl-user::*sg-args*)) (engine::simgate-cmd (parse-integer c)))
+  (cl-user::sg-queue)
   (engine::%frame)
   (unless (loop repeat 2000000
                 do (unless (engine::%frame) (ext:quit 3))

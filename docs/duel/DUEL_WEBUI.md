@@ -724,3 +724,25 @@ User: 「我發現血量表上的格線不不是固定位置，而是隨血量�
   .12 s. The fill keeps its full width, so the lines stay at their columns. The blood ghost still scales (it has no texture).
 - Checked in the browser: the full bar's lines at x 1191 / 1214 / 1237 (1280 x 720), and P2 at 200 Reishi shows its red fill's lines
   at the same three columns.
+
+## 18. A Lisp HUD (requested 2026-11-10)
+
+Status: **the design is not started.** Recorded here so the decisions are not lost; the reasons and the pause are in DEVLOG §704.
+
+- A2. On D4 (the canvas HUD fallback) of refactor round 4, after the main session estimated a Lisp port (a full port about 8-12k
+  lines; the blocker is arbitrary zh-TW text; it recommended staying HTML and removing the fallback), the user first said 「移除」,
+  then: 「等等完成一個段落後先暫停，我希望使用 lisp 完全重現目前的 html HUD」. D4's removal is on hold again; the canvas path
+  (hud.lisp / hud-screens.lisp / onehand.lisp) is the Lisp-side starting point.
+- A3. The user asked: 「要如何為引擎添加任意中文字的繪字能力？」 Four ways were given: (1) more offline-baked outline polygons (the
+  glyph-bake way; about 1 KB of source a glyph, poor at small sizes); (2) an embedded font and a runtime rasteriser (stb_truetype)
+  into an atlas; (3) an offline-baked SDF atlas (the build scans the characters actually used, bakes a distance-field texture and
+  metrics, drawn by an SDF shader; estimate about 1,500 glyphs at 32 px single channel, about 1.5 MB before compression); (4) the
+  browser's Canvas 2D rasterising glyphs into an atlas at runtime (near zero wasm, best small text, browser-dependent). The main
+  session recommended 4, then 3. Needed in any case: a textured-quad draw path (whether the engine has one is not yet verified),
+  an atlas cache updated between frames, text layout (measure, wrap, CJK line-break rules, mixed Latin baseline) and cached
+  laid-out strings (0 B / frame).
+- A4. The user chose: 「我選 3，說明手冊保留在 html 頁面」. Text is an offline-baked SDF atlas; manual.html stays an HTML page and
+  is not ported, so the character set covers the menus, settings and battle HUD only.
+- Open (to ask after the pause): whether the HTML HUD stays side by side until the Lisp HUD is accepted (the main session leans to
+  yes).
+- Prerequisite: a zero-noise looks gate (REFACTOR_2026-11.md §10), to compare the Lisp HUD against the HTML one.

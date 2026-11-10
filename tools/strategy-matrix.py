@@ -61,6 +61,7 @@ def main():
     ap.add_argument('--eps', type=float, default=0.02); ap.add_argument('--tie', type=float, default=0.0)
     ap.add_argument('--iters', type=int, default=20000); ap.add_argument('-j', type=int, default=4)
     a = ap.parse_args()
+    se.build()   # (every sim below runs build/simgate/duel.fas: rebuilt first when a source is newer)
     rows, cols = se.expand(a.rows), se.expand(a.cols)
     nm = lambda s: os.path.basename(s)
     M = cells(a.a, a.b, rows, cols, a.seeds, a.seed0, a.j)

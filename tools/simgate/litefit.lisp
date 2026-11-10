@@ -4,8 +4,7 @@
 ;;;; pick (the full sim's best minus its value of the light model's best) against a uniform pick's, and how often the best agrees. Seconds a
 ;;;; variant, no full sim. Env: LITEFIT_N (rollouts a point, default 400), LITEFIT_VARIANTS (a list of binding plists; default one: as is).
 ;;;; Usage: ecl-host --norc --load tools/simgate/litefit.lisp -- <duel.fas> <dump>...
-(defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
-(load (first cl-user::*sg-args*) :verbose nil)
+(load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
 
 (defun lf-ints (str) (with-input-from-string (in str) (loop for x = (read in nil) while x collect x)))

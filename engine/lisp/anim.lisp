@@ -181,7 +181,7 @@ reads them back in seconds."
   `(defclip ,name (,(+ s a r) :fps 60 :base ,base :marks (:s ,s :a ,(+ s a))) ,@keys))
 
 (defvar *key-ease* 0
-  "How CLIP-SAMPLE! eases between two keys that are not :SNAP: 0 (default, RAVEN) smoothstep, 1 ease-out
+  "How CLIP-SAMPLE! eases between two keys that are not :SNAP: 0 (default) smoothstep, 1 ease-out
 cubic 1-(1-u)^3 (the pose snaps into the key and settles: pose-to-pose timing, SOUL DUEL).")
 (declaim (type fixnum *key-ease*))
 

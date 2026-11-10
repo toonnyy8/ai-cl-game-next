@@ -4,15 +4,14 @@
 ;;;; line apart, printed last as "snaptest ...").
 ;;;; The `duel mcfull` line (the in-game full sim's cost, DUEL_AI_MCTS §12) differs in its milliseconds: compare the rest.
 ;;;; Usage: ecl-host --norc --load tools/simgate/snaptest.lisp -- <duel.fas> straight|pollute <cmd>...   e.g. 30000 31104 2132
-(defparameter cl-user::*sg-args* (cdr (member "--" ext:*command-args* :test #'string=)))
-(load (first cl-user::*sg-args*) :verbose nil)
+(load (merge-pathnames "prelude.lisp" (directory-namestring *load-truename*)) :verbose nil)   ; tools/simgate/prelude.lisp: *SG-ARGS*, the fas, CL-USER::SG-INIT, CL-USER::SG-QUEUE
 (in-package :duel)
 (defvar *st-mode* (second cl-user::*sg-args*))
 (defvar *st-n* 0)
 (defvar *st-steps* 0)
 (defvar *st-objs* 0)
 (defvar *st-us* 0)
-(loop for r = (engine::%init-step) until (eql r 0) when (eql r 2) do (ext:quit 2))
+(cl-user::sg-init)
 (defvar *st-digest* (and (fourth cl-user::*sg-args*) (string= (third cl-user::*sg-args*) "digest")
                           (open (fourth cl-user::*sg-args*) :direction :output :if-exists :supersede)))
 (when *st-digest* (setf cl-user::*sg-args* (append (subseq cl-user::*sg-args* 0 2) (nthcdr 4 cl-user::*sg-args*))))
@@ -35,7 +34,7 @@
                 (sim-restore s)
                 (incf *st-us* (+ (- t1 t0) (- (get-internal-real-time) t2))))
               (incf *st-n*) (incf *st-objs* (simsnap-count s)))))))
-(dolist (c (cddr cl-user::*sg-args*)) (engine::simgate-cmd (parse-integer c)))
+(cl-user::sg-queue (cddr cl-user::*sg-args*))
 (engine::%frame)
 (unless (loop repeat 2000000
               do (unless (engine::%frame) (ext:quit 3))
