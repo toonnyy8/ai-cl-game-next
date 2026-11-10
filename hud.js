@@ -13,7 +13,9 @@
   /* ---------------------------------------------------------------- the game's own data (kanji: the page's, DUEL_WEBUI §7) */
   var FIGHTERS = {   // roster index (kit.lisp *ROSTER*) -> name, kanji, the intro's column, the pointer seals (theme glyph, name)
     0: { en: "Yamamoto", kj: "山本", full: "山本元柳斎重國" },
-    1: { en: "Kenpachi", kj: "更木", full: "更木剣八", ptr: [["一", "PTR 1"], ["二", "PTR 2"], ["三", "PTR 3"]] },
+    1: { en: "Kenpachi", kj: "更木", full: "更木剣八", ptr: [["拖", "拖 · DRAG"], ["肩", "肩 · SHOULDER"], ["構", "構 · CHUDAN"]],   // sealed: by grip
+         forms: { SHIKAI: [["旋", "旋 · KAITEN"], ["墜", "墜 · TSUITEN"]],   // the Shikai: two pointers (DUEL_KEN_V3 §41)
+                  KYORAN: [["狂", "狂嵐 · KYORAN"]], ZANKAI: [["壞", "斬壞 · ZANKAI"]] } },   // each Bankai: one pointer, one seal
     2: { en: "Rukia", kj: "朽木", full: "朽木ルキア" },
     3: { en: "Ichigo", kj: "黒崎", full: "黒崎一護", ptr: [["重", "重 · CLEAVER"], ["月", "月 · GETSUGA"], ["亂", "亂 · RANGETSU"]],
          forms: { KESSA: [["鎖", "鎖 · CHAINS"], ["月", "月 · 漆黒"], ["影", "影 · 千影"]] } },
@@ -131,23 +133,26 @@
     var t = S[4 * s + 1] || "", o = 50 + 30 * s, form = formOf(s), m;
     var out = t === "KAZESHINI IN" ? "風死 <b>·</b> in hand" : t === "KAZESHINI OUT" ? "風死 <b>·</b> thrown" : t === "KAZESHINI ..." ? "風死 <b>·</b> returning" :
       (m = /^BUNSHIN x(\d)/.exec(t)) ? "分身 <b>·</b> ×" + m[1] :
-      t === "NOME" || t === "UDE" ? "" : t.toLowerCase();   // (NOME / UDE: the strip under the bar, DUEL_WEBUI §13)
+      t === "NOME" || t === "UDE" || t === "KAIHO" ? "" : t.toLowerCase();   // (NOME / UDE / KAIHO: the strip under the bar, DUEL_WEBUI §13)
     return (form ? form.toLowerCase() + (out ? " <b>·</b> " : "") : "") + out;
   }
   // Kenpachi's kit meters as a strip under the Reishi bar (DUEL_WEBUI §13): NOME is three sake cups on a bar (cup 2 at 40, cup 3 at the
   // full 100, floors 25 / 50 where it drops a cup back: tuning.lisp *NOME-UP-T2* / *NOME-DOWN-T2* / *NOME-DOWN-T3* of *NOME-MAX*), UDE
-  // four claw pips of the Bankai's arm with the crack clock under the next one
+  // four claw pips of the Bankai's arm with the crack clock under the next one; KAIHO the Shikai's unlock level L as three pips, MAX at
+  // the top (the special J string open: DUEL_KEN_V3 §44)
   var CUP = '<svg viewBox="0 0 14 10"><path d="M1 1h12l-1.4 5.4C11.2 8.2 9.4 9.4 7 9.4S2.8 8.2 2.4 6.4z"/></svg>';
   var NOME_AT = [0, .4, 1], NOME_FLOOR = [0, .25, .5];
   function renderKit(el, s, o, p) {
-    var t = S[4 * s + 1] || "", kind = t === "NOME" ? "nome" : t === "UDE" ? "ude" : "", k = $(".kit", el);
+    var t = S[4 * s + 1] || "", kind = t === "NOME" ? "nome" : t === "UDE" ? "ude" : t === "KAIHO" ? "kaiho" : "", k = $(".kit", el);
     if (p.kit !== kind) {
       p.kit = kind; k.hidden = !kind; k.className = "kit" + (kind ? " " + kind : "");
       k.innerHTML = kind === "nome" ? '<span class="kn">呑</span><div class="nb"><i class="cp" style="--x:0%;--m:0">' + CUP + '</i><i class="cp" style="--x:40%;--m:-.75">' + CUP +
           '</i><i class="cp" style="--x:100%;--m:-1.5">' + CUP + '</i><div class="nbar"><i class="bf"></i><i class="tk" style="--x:25%"></i><i class="tk up" style="--x:40%"></i>' +
           '<i class="tk" style="--x:50%"></i></div></div><b class="kv"></b>' :
         kind === "ude" ? '<span class="kn">腕</span><span class="pips"><span class="pp"><i></i><u></u></span><span class="pp"><i></i><u></u></span>' +
-          '<span class="pp"><i></i><u></u></span><span class="pp"><i></i><u></u></span></span>' : "";
+          '<span class="pp"><i></i><u></u></span><span class="pp"><i></i><u></u></span></span>' :
+        kind === "kaiho" ? '<span class="kn">解</span><span class="pips"><span class="pp"><i></i></span><span class="pp"><i></i></span>' +
+          '<span class="pp"><i></i></span></span><b class="kv"></b>' : "";
     }
     if (!kind) return;
     var v = Math.max(0, V[o + 15]), mx = Math.max(1, V[o + 16]), i;
@@ -156,11 +161,15 @@
       st($(".bf", k), "--k", f.toFixed(3)); tx($(".kv", k), v);
       for (i = 0; i < 3; i++) cps[i].classList.toggle("on", i <= rung);
       $(".bf", k).classList.toggle("near", rung > 0 && f < NOME_FLOOR[rung] + .1);   // within a tenth of the drop: it pulses
+    } else if (kind === "kaiho") {
+      var lv = Math.round(v), lp = k.querySelectorAll(".pp"), top = lv >= mx;
+      for (i = 0; i < lp.length; i++) lp[i].classList.toggle("lit", i < lv);
+      tx($(".kv", k), top ? "MAX" : "L" + lv); k.classList.toggle("max", top);
     } else {
       var n = Math.round(v), pp = k.querySelectorAll(".pp");
       st(k, "--ck", (Math.max(0, V[o + 21]) / 1000).toFixed(3));
       for (i = 0; i < 4; i++) { pp[i].classList.toggle("lit", i < n); pp[i].classList.toggle("nx", i === n - 1); }
-      k.classList.toggle("hurry", n > 0 && V[o + 21] < 200);
+      k.classList.toggle("hurry", n > 0 && V[o + 21] >= 0 && V[o + 21] < 200);   // (-1: no crack clock)
     }
   }
   function renderPlate(s) {
@@ -174,7 +183,8 @@
     renderKit(el, s, o, p);
     var r = Math.max(0, V[o + 1]) / 1000, ghost = $(".ghost", el);
     if (p.r !== r) st(ghost, "transition", p.r !== undefined && r < p.r ? "" : "none");   // a hit: the blood ghost drains after it; a refill snaps
-    st($(".fill", el), "transform", "scaleX(" + r + ")"); st(ghost, "transform", "scaleX(" + r + ")"); p.r = r;
+    st($(".fill", el), "clip-path", "inset(0 " + (100 - 100 * r) + "% 0 0)");   // (cut, not scaled: the grid stays put, DEVLOG §618)
+    st(ghost, "transform", "scaleX(" + r + ")"); p.r = r;
     el.classList.toggle("low", V[o + 2] === 1); el.classList.toggle("dead", r <= 0);
     var kon = Math.max(0, V[o + 3]), stake = Math.max(0, V[o + 4]), souls = $(".souls", el).children;
     for (var i = 0; i < 9; i++) {

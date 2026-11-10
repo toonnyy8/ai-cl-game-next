@@ -39,7 +39,8 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud :is(.p2, .mir) .reishi { transform: scaleX(-1); }
 #hud .reishi i { position: absolute; inset: 0; transform-origin: left center; }
 #hud .reishi .ghost { background: var(--blood); transition: transform .55s .38s var(--ease-cut); }
-#hud .reishi .fill { background: linear-gradient(180deg, #ffffff 0%, var(--paper) 45%, #c9cbcf 100%); transition: transform .12s var(--ease-out); }
+/* the fill is cut by clip-path, not scaled, so its grid lines stay put as the Reishi drops (the user, 2026-11-07, DEVLOG §618) */
+#hud .reishi .fill { background: linear-gradient(180deg, #ffffff 0%, var(--paper) 45%, #c9cbcf 100%); transition: clip-path .12s var(--ease-out); }
 #hud .reishi .fill::after { content: ""; position: absolute; inset: 0; opacity: .35;
   background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(11,11,16,.18) 9px 10px, transparent 10px 23px); }
 #hud .plate.low .reishi .fill { background: linear-gradient(180deg, #ff6b7f, var(--blood)); animation: hd-pulse 1.1s ease-in-out infinite; }
@@ -80,6 +81,9 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud .kit .kn { font: 800 calc(1.15 * var(--u))/1 var(--f-kanji); letter-spacing: 0; text-shadow: 0 1px 0 rgba(0,0,0,.6); }
 #hud .kit.nome .kn { color: var(--reiatsu); }
 #hud .kit.ude .kn { color: var(--blood); }
+#hud .kit.kaiho .kn { color: var(--reiatsu); }
+#hud .kit.kaiho .pp.lit i { background: linear-gradient(180deg, #ffe97a, var(--reiatsu) 60%, #e0a21a); }
+#hud .kit.kaiho.max .pp i, #hud .kit.kaiho.max .kv { animation: hd-pulse .8s ease-in-out infinite; }
 #hud .kit .kv { font: 600 calc(.8 * var(--u))/1 var(--f-mono); color: var(--reiatsu); min-width: 2.4em; direction: ltr; text-align: center; }
 #hud .nb { position: relative; flex: 1; height: calc(2.2 * var(--u)); }
 #hud .nb .cp { position: absolute; top: 0; width: calc(1.5 * var(--u)); height: calc(1.1 * var(--u)); inset-inline-start: var(--x); margin-inline-start: calc(var(--m) * 1.5 * var(--u)); }
@@ -257,14 +261,17 @@ body.hud-paused #canvas { filter: grayscale(.9) brightness(.45) contrast(1.1); }
 #hud.hphone.nodeck .combo.p1 { bottom: calc(var(--deck) + 19 * var(--u)); }
 #hud.hphone .callout.p2 { top: calc(17 * var(--u) + var(--st)); }
 #hud.hphone .combo.p2 { top: calc(20.5 * var(--u) + var(--st)); }
-#hud.hphone .prompt { bottom: calc(var(--deck) * .84); z-index: 13; }
+#hud.hphone .prompt { bottom: calc(var(--deck) + 3 * var(--u)); left: auto; right: calc(2.6 * var(--u)); transform: translateY(calc(1 * var(--u))); z-index: 13; }
+#hud.hphone .prompt.on { transform: none; }   /* (over the deck, off your HP bar on its slant, across from the move name and the hits: the user,
+   2026-11-04: 「目前手持模式點擊時的攻擊提示會卡在血條上看不清內容，應該要將其往上移」) */
 #hud.hphone .seal { width: calc(2.2 * var(--u)); height: calc(2.2 * var(--u)); font-size: calc(1.3 * var(--u)); }
 #hud.hphone .hkey { display: none; }
-#hud.hphone.nodeck .prompt { bottom: calc(8 * var(--u)); }
+#hud.hphone.nodeck .prompt { bottom: calc(4% + 28 * var(--u)); }
 #hud.hphone.nodeck .plate.p1, #hud.hphone.nodeck .callout.p1, #hud.hphone.nodeck .combo.p1 { --deck: 4%; }
 /* left hand: your own plate, move name and combo to the right; the pause seal to the left (Lisp places it) */
 #hud.hphone.left-hand .plate.p1 { left: auto; right: calc(2.2 * var(--u)); }
 #hud.hphone.left-hand .callout.p1 { left: auto; right: calc(2.6 * var(--u)); flex-direction: row-reverse; }
+#hud.hphone.left-hand .prompt { right: auto; left: calc(2.6 * var(--u)); }
 #hud.hphone.left-hand .combo.p1 { left: auto; right: calc(2.6 * var(--u)); justify-items: end; }
 /* ... and the opponent's combo to the other side from yours (the user, 2026-10-29: 「對手的 hit 數提示請放在與我方相反方向」) */
 #hud.hphone.left-hand .combo.p2 { right: auto; left: calc(2.6 * var(--u)); justify-items: start; }
