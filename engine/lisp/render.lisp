@@ -235,7 +235,7 @@ while the game pauses. The toon fx shader steps its noise on it (24 Hz ticks, F.
 (defvar *msaa-samples* 1 "Scene MSAA samples in use (RENDER-INIT).")
 (defvar *draw-count* 0 "Mesh draws issued last frame.")
 (defvar *tri-count* 0 "Mesh triangles drawn last frame.")
-(defvar *fx-alpha*) (defvar *fx-add*) (defvar *fx-toon*) (defvar *ui-batch*)
+(defvar *fx-alpha*) (defvar *fx-add*) (defvar *fx-toon*) (defvar *ui-batch*) (defvar *hud-batch*)   ; (*HUD-BATCH*: paint.lisp)
 (defvar *fx-dropped* 0)
 
 ;;; Dynamic vertex batch: filled on the CPU each frame, uploaded and drawn by END-FRAME.
@@ -302,14 +302,15 @@ INK / PAPER (sRGB lists). Presets: white/ink (the defaults), ink/white (:ink '(1
   "Platform + renderer + UI. MSAA (1 or 4) applies to the offscreen scene target."
   (platform-init :title title)
   (render-init msaa)
-  (ui-init))
+  (ui-init)
+  (paint-init))
 
 ;;; ---------------------------------------------------------------- frame API
 (defun begin-frame ()
   "Reset per-frame queues. Call once per frame after PLATFORM-POLL."
   (setf *dq-n* 0 *light-n* 0
         (stream-buffer-fill *fx-alpha*) 0 (stream-buffer-fill *fx-add*) 0 (stream-buffer-fill *fx-toon*) 0
-        (stream-buffer-fill *ui-batch*) 0)
+        (stream-buffer-fill *ui-batch*) 0 (stream-buffer-fill *hud-batch*) 0)
   (update-camera))
 
 ;; macros, not inline defuns: an inline defun boxes its float argument before the c-inline
@@ -494,12 +495,12 @@ threshold (0 with MSAA's alpha-to-coverage, 0.5 without)."
     (replace p *impact-params* :start1 12)
     (setf (aref p 22) (if *render-transparent* 1f0 0f0) *render-transparent* nil)   ; a one-frame latch
     (fill-frame-uniforms (select-lights))
-    (let* ((fa *fx-alpha*) (fb *fx-add*) (ft *fx-toon*) (ui *ui-batch*)
+    (let* ((fa *fx-alpha*) (fb *fx-add*) (ft *fx-toon*) (ui *ui-batch*) (hb *hud-batch*)
            (n (ffi:c-inline (*fu* p *dq* *dq-n* (stream-buffer-data fa) (stream-buffer-fill fa)
                              (stream-buffer-data fb) (stream-buffer-fill fb) (stream-buffer-data ui) (stream-buffer-fill ui)
-                             (stream-buffer-data ft) (stream-buffer-fill ft))
-                            (t t t :int t :int t :int t :int t :int) :int
-                            "r_frame(#0->vector.self.sf,#1->vector.self.sf,#2->vector.self.sf,#3,#4->vector.self.sf,#5,#6->vector.self.sf,#7,#8->vector.self.sf,#9,#a->vector.self.sf,#b)"
+                             (stream-buffer-data ft) (stream-buffer-fill ft) (stream-buffer-data hb) (stream-buffer-fill hb))
+                            (t t t :int t :int t :int t :int t :int t :int) :int
+                            "r_frame(#0->vector.self.sf,#1->vector.self.sf,#2->vector.self.sf,#3,#4->vector.self.sf,#5,#6->vector.self.sf,#7,#8->vector.self.sf,#9,#a->vector.self.sf,#b,#c->vector.self.sf,#d)"
                             :one-liner t)))
       (declare (fixnum n))
       (when (>= n 0)                  ; -1: no swapchain texture this frame (skipped)

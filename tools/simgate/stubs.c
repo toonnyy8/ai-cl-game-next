@@ -71,9 +71,13 @@ int r_make_pipe(int slot, const char *vs, const char *ve, const char *fs, const 
 }
 int r_mesh_new(const float *v, int n) { (void)v; (void)n; return sg_meshes++; }
 int r_font_new(const unsigned char *px, int w, int h) { (void)px; (void)w; (void)h; return 1; }
+int r_hud_atlas_new(const unsigned char *px, int w, int h) { (void)px; (void)w; (void)h; return 1; }
+/* duel/lisp/lhud-font.c: the Lisp HUD's baked atlas (not linked here: no glyphs, the HUD never draws natively) */
+const unsigned char *lhud_font(int k, int *n) { (void)k; *n = 0; return 0; }
 int r_frame(const float *fu, const float *rp, const float *dq, int n, const float *fxa, int nfa, const float *fxb, int nfb,
-            const float *ui, int nui, const float *fxt, int nft) {
+            const float *ui, int nui, const float *fxt, int nft, const float *hud, int nhud) {
   (void)fu; (void)rp; (void)dq; (void)n; (void)fxa; (void)nfa; (void)fxb; (void)nfb; (void)ui; (void)nui; (void)fxt; (void)nft;
+  (void)hud; (void)nhud;
   return 0;
 }
 int r_sample_count(void) { return 1; }

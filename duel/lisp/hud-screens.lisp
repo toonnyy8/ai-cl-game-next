@@ -253,4 +253,5 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
           (ui-big-text "ROTATE TO PORTRAIT" (floor w 2) (* 0.3 h) (fit-scale "ROTATE TO PORTRAIT" (* 4 s) (* 0.9 w)) *white* '(0.7 0.25 0.05 1) s)
           (ui-big-text "PAUSED" (floor w 2) (* 0.3 h) (* 5 s) *white* '(0.7 0.25 0.05 1) s))
       (hud-menu (pause-items) (if (eq *mode* :practice) 0.4 0.45) w h s (/ w 2) 0.9))   ; PRACTICE's long list: above P1's block
+    (when (eq *hud-renderer* :lisp) (paint-clock-advance) (lhud-draw))   ; the battle HUD drawn by Lisp (lhud-battle.lisp, DUEL_LISP_HUD)
     (debug-hud w h s)))

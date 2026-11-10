@@ -1,5 +1,5 @@
 // Headless test driver (no deps; Node >= 22 for global WebSocket).
-//   node tools/run.mjs dist/NAME [--secs N] [--shot out.png] [--script steps.json] [--size 1280x720]
+//   node tools/run.mjs dist/NAME [--secs N] [--shot out.png] [--script steps.json] [--size 1280x720] [--query hud=lisp]
 // Serves the dist dir, runs it in headless Chrome (SwiftShader WebGPU), streams console
 // output to stdout, optionally replays scripted input and saves a screenshot at the end.
 // steps.json: [{"at":1.0,"key":"KeyJ","down":true}, {"at":1.1,"key":"KeyJ","down":false},
@@ -82,7 +82,7 @@ if (fixed) await send('Page.addScriptToEvaluateOnNewDocument', { source: `(() =>
     if (d && !busy) { busy = true; d.queue.onSubmittedWorkDone().then(() => { busy = false; }); }
   });
 })();` });
-await send('Page.navigate', { url: `http://127.0.0.1:${port}/index.html` });
+await send('Page.navigate', { url: `http://127.0.0.1:${port}/index.html${opt('--query') ? '?' + opt('--query') : ''}` });   // --query Q: index.html?Q (e.g. hud=lisp)
 const t0 = Date.now(), wall = () => (Date.now() - t0) / 1000;
 const vnow = async () => (await send('Runtime.evaluate', { expression: 'window.__vt ? __vt() / 1000 : -1', returnByValue: true })).result?.value ?? -1;
 const held = async t => (await send('Runtime.evaluate', { expression: `!!window.__hold && __hold(${t})`, returnByValue: true })).result?.value;

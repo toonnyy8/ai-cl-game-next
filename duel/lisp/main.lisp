@@ -177,7 +177,7 @@ bodies, ~0.5 s of the startup). Anything not named by a kit (a cinematic's body,
     (set-difference retired keep)))
 
 (run-game :title "SOUL DUEL NEXT"
-          :load (append (list #'bodies-init) (weapon-load-steps (retired-art)) (body-load-steps (retired-art)) (list #'stage-init #'brush-init))
+          :load (append (list #'bodies-init) (weapon-load-steps (retired-art)) (body-load-steps (retired-art)) (list #'stage-init #'brush-init #'lhud-init))
           :start #'start-game
           :frame #'game-frame
           :debug #'debug-command

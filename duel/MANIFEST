@@ -74,6 +74,7 @@ lisp/hud-screens.lisp
 lisp/onehand.lisp
 lisp/webui.lisp
 lisp/webhud.lisp
+lisp/lhud-battle.lisp
 lisp/senjumaru.lisp
 lisp/lille-art.lisp
 lisp/lille-clips.lisp
@@ -97,3 +98,4 @@ lisp/endless.lisp
 lisp/rogue.lisp
 lisp/draw.lisp
 lisp/main.lisp
+hud-font/lhud-font.c

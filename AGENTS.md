@@ -213,6 +213,7 @@ system on 2026-10-28, the old system's versions at `git show e55304e:skills/<nam
 | `tools/roguegate.py` | the DANGAI autopilot gate: per character clears / median steps, each reward's runs and clears (`--pick first\|random\|greedy`) |
 | `tools/toon_check.py` | pixel checks of the ink style rules |
 | `tools/glyph-bake.py`, `tools/pwa-icons.py`, `tools/pose-solve.py` | offline generators (glyph polygons, app icons, arm pose solving) |
+| `tools/sdf-bake.py`, `tests/lhud-compare.py` | the Lisp HUD's SDF text atlas (`--fetch` the faces into build/font-cache/; writes duel/hud-font/) and its HTML-vs-Lisp side-by-side sheets (DUEL_LISP_HUD §8) |
 | `tools/deploy-pages.sh` | publish `dist/duel` to `gh-pages` (only on request) |
 | `tools/vendor-*.sh` | rebuild `vendor/` |
 | `tools/setup-cloud-env.sh` | recreate the whole toolchain in a fresh cloud container (~15 min) at the hard-coded paths |

@@ -1,6 +1,6 @@
 # DUEL_LISP_HUD — the HTML HUD and menus redrawn by Lisp (design, 2026-11-10)
 
-Status: **design only, nothing built.** The source of the look is the HTML UI as it stands at main 5c212105
+Status: **phase 0 (the spike) built and measured, 2026-11-10 (§8)**; phases 1-7 not started. The source of the look is the HTML UI as it stands at main 5c212105
 (`duel/web/hud.js`, `hud.css`, `menu.js`, `menu.css`; its record is DUEL_WEBUI). Background: DUEL_WEBUI §18,
 docs/engine/REFACTOR_2026-11.md §6 D4 and §10, DEVLOG §448, §458, §704, §705.
 
@@ -436,6 +436,18 @@ worktree once phase 1 lands.
 
 ## 7. ⚠ Questions for the user
 
+**Decided by the main session under the user's delegation (2026-11-10)**: the user left the method to us (「請根據程式的實作判斷該如何
+移植」), so the main session took option (1) of each question below; each stays open to the user's veto.
+
+1. After the spike: the battle HUD (landscape), then the overlays, then the phone deck; the menus in parallel.
+2. Switching: the URL flag `?hud=lisp` plus debug commands (2517 the renderer, 2518 the still mode, 2519 the probe); no SETTINGS
+   row yet.
+3. New code in `lhud-*` files (the engine side in its own engine files: `engine/lisp/paint.lisp`, `engine/shaders/hud.*.wgsl`);
+   the canvas HUD stays as the no-page fallback until acceptance.
+4. The full two-tier bake as designed, unless phase 0's measurements say otherwise (they do not: §8).
+
+The questions as they were put:
+
 1. **What to build first after the spike?** (1) **The battle HUD (landscape), then the overlays, then the phone** (recommended:
    the screen seen most, and it exercises text, bars and the most animations); (2) the menus first (static layouts and zh
    paragraphs, easier to compare); (3) the phone deck first (where the HTML has most of its custom work).
@@ -448,3 +460,110 @@ worktree once phase 1 lands.
 4. **The atlas's size against its sharpness**: (1) **the full bake, ≈ +2.1 MB wasm (+≈ 1 MB transferred)** (recommended: the
    big kanji and the wordmark stay sharp at 4K); (2) a smaller display tier (64 px, ≈ +1.6 MB, slightly round corners on the
    biggest glyphs); (3) the hero glyphs as outline polygons from the same fonts (≈ +1.3 MB, but their edges are not antialiased).
+
+## 8. Phase 0 results (the spike, 2026-11-10)
+
+The spike answers §5's phase 0 questions with the smallest build: the engine's paint stream, a mini bake of all four faces in
+both tiers, both plates' name row and Reishi bar (desktop; the phone's P2), both combos with `hd-stamp`, and a legibility card.
+Opus 5.5 built and measured it in a worktree; the main session reviews.
+
+### 8.1 What was built
+
+| Where | What |
+|---|---|
+| engine/c/render.c | `RP_HUD` = slot 19 (render.c:10); `r_hud_atlas_new` (render.c:164, R8, linear sampler); a 32,768 × 64 B region of the transfer buffer and its vertex buffer; drawn after the UI in the swapchain pass (render.c:311) only when the stream has vertices and an atlas exists, so the default path issues nothing new. `r_frame` takes the stream (two arguments; engine.h, render.lisp's call, tools/simgate/stubs.c) |
+| engine/shaders/hud.vert.wgsl, hud.frag.wgsl | 16-float vertex (0x4444); modes 0 flat, 1 SDF glyph (edge, softness, outline band), 2 rounded box (half size, radius, feather, border); the atlas is sampled and `fwidth`ed before any branch (WGSL uniformity) |
+| engine/lisp/paint.lisp (266 lines, after ui.lisp) | `paint-init` (:28, from `engine-init`); `with-hud-verts`; `paint-poly` (:100: a convex polygon clipped to a rectangle, Sutherland-Hodgman, vertical gradient, fan); `paint-box!`; `paint-font-init` (:149, metrics.bin into a sorted key vector + 9 floats a glyph); `glyph-find` (:167: the display tier above 40 px, else the body tier; fallback face → sans → Mincho → □); `%paint-run` (:193: runs with letter spacing, a synthetic-oblique skew, a pen that advances); `paint-int` (digits, no string); `ease-curve` (:250, the five CSS curves by Newton); `*ui-clock*` and `paint-clock-advance`. Float inputs travel in f32vecs (the transform, clip, pen, box), so no float crosses a call boxed |
+| tools/sdf-bake.py (193 lines) | `--fetch` (Google Fonts repository → build/font-cache/, git-ignored); variable faces instanced at the page's weights (Big Shoulders Display 900, Martian Mono 600 / wdth 100, Noto Sans TC 500; Shippori Mincho B1 ExtraBold is static), subset first, pathops overlaps, exact segment distance (numpy), shelf packing; writes duel/hud-font/atlas.r8 + metrics.bin and copies each OFL.txt to duel/FONT-LICENSE-<face>.txt. The charset: ASCII for the display, mono and sans faces, plus the strings in `(kj "…")` / `(zh "…")` / `(big "…")` forms of duel/lisp/lhud-*.lisp; a character the sans lacks goes to the Mincho (the HTML's 「決闘」 has 闘, not in Noto Sans TC) |
+| duel/hud-font/lhud-font.c | `#embed`s the two files (C23; emcc 4.0.12's clang accepts it, its warning silenced by a pragma) and serves them through `lhud_font(k, &n)`; listed in duel/MANIFEST. **build.sh needs no change**: this replaces §4.2's "build.sh turns a listed .bin into a C array" |
+| duel/lisp/lhud-battle.lisp (281 lines, after webhud.lisp) | `lhud-plate` (:77: hud.css .plate / .who / .reishi: the baseline-aligned name, kanji and tag with letter spacing and the name's hard shadow; the bar's clip-path polygon, the ghost's drop transition (.38 s delay, .55 s ease-cut, snapping on a refill), the white → paper → #c9cbcf fill, the fixed grid, the inset line; P2 mirrored; the phone's P2 at 3.8u / 2.2u / 30u, or 27u with the deck); `lhud-combo` (:155: the slash under a P1 row stretched to the DMG line as the grid does, the blood shadow, a 0.25 skew for Chrome's synthetic italic, HITS at edge 0.53 for weight 800, the DMG / SCALE line; on for 1.2 s after a new serial, opacity .25 s ease and x 2u .35 s ease-out from wherever they are, `hd-stamp` .24 s ease-snap from scale 1.5 rotate −6° about the count's box; the first serial seen is not shown, as in hud.js); `lhud-card` (:245, debug 2518); `lhud-draw` (:260); `lhud-init` (:272, a `:load` step: one FFI copy of the metrics, the atlas uploaded from static data) |
+| duel/lisp/webhud.lisp | `*hud-renderer*` (:html / :lisp), `set-hud-renderer` (to :lisp the page's layer is hidden once with 30100 = 0; to :html every value is re-sent); `webhud-p` reads page get 8 with its first answer and stays true under :lisp (the canvas HUD keeps out); `webhud-put` / `webhud-put-str` always update the vectors and send only under :html |
+| hud-screens.lisp, debug.lisp, main.lisp | `hud-draw` advances the UI clock and calls `lhud-draw` under :lisp; debug 2517 / 2518 / 2519 (DUEL_GAMEPLAY "Debug commands"; debug-ranges-check 0 errors); `lhud-init` in the load steps |
+| duel/web/pwa.js, tools/run.mjs, tests/lhud-compare.py | page get 8 = `?hud=lisp`; `run.mjs --query hud=lisp`; the side-by-side sheet tool (HTML, Lisp, difference ×4, crop, zoom) |
+
+Not in the spike (as planned for later phases): the back layer and blend 4, the transform stack, the polygon fringe (polygon
+edges are aliased), pattern flags, wrap / kinsoku / vertical runs, keyframe tables, the phone's P1 plate on the deck's line and the
+ink pool behind phone plates, the plate's kanji tags (風死, 分身), the paused .3 opacity, the pause rows (under :lisp the pause
+draws nothing yet), the menus (they stay HTML under :lisp).
+
+**`?hud=lisp` in phase 0 is a comparison mode for stills, not a playable build**: everything else of the battle screens is blank
+under it — the clock, the soul flames, the flash-step and awakening meters, the kit strip, the pointer seals, the callout, the
+prompt, the phone's deck visuals (爆, the stance seals, the touch ink), the intro card, READY / 斬 and the K.O. / TIME finish (the
+canvas letterbox and caption stay off too, since `webhud-p` is true), and the pause, which opens and takes keys but shows nothing.
+Do not publish it as a playtest. §4.6's split of `webhud-p` into `page-draws-p` and `canvas-hud-off-p` is deferred: the spike
+reuses `webhud-p` (true under :lisp) and guards the two put macros; phase 2 makes the split.
+
+### 8.2 Measurements
+
+| What | Command | Before | After |
+|---|---|---|---|
+| index.wasm | `./build.sh duel`; `wc -c`, `gzip -9 \| wc -c`, `llvm-objdump -h` | 11,155,455 B (gzip 3,116,682); code 7,958,293, data 3,161,700 | 11,570,734 B (+415,279; gzip 3,339,769, +223,087); code +44,175 (paint.lisp, lhud-battle.lisp, the shaders' text), data +370,982 |
+| The mini bake | `build/sdf-venv/bin/python -I tools/sdf-bake.py` | | 382 glyphs: display body 97 (666 texels a glyph), mono 97 (835), Mincho 30 (≈ 1,360), sans 147 (942), display tier 11 digits (3,865); atlas 1024 × 512 = 524,288 B raw (82 % packed), metrics 6,958 B; the atlas gzips to 188,714 B. The wasm data grew by 71 % of the raw bytes (the linker drops the atlas's zero runs) |
+| Full bake, extrapolated | per-glyph texels above × §4.2's charset (≈ 290 ASCII cells, ≈ 630 CJK body cells at ≈ 1,360, ≈ 40 Latin + 40 kanji display cells at ≈ 3,900 / ≈ 10,800) | | ≈ 1.8 MB raw (§4.2 estimated 2.1), ≈ 1.3 MB of wasm data, ≈ 0.65 MB gzip |
+| Startup heap | `run.mjs` (`startup: heap`) | 73.4 MB | 74.3 MB (+0.9: the stream's 2 MB f32vec within the heap's growth step); limit 110 |
+| Consing a frame | debug 2519 (100 calls each; P1's combo forced on mid-stamp) | | plate 0 B, combo 0 B, whole draw 0 B, at 1280 × 720 and 390 × 844 |
+| Consing, the whole frame | the `stats:` lines' `cons/frame` of the `--fixed-dt` scene runs (deterministic: the old build's two runs agree), :html vs :lisp at the same tick | t 121: 1666 B (phone 1801); t 242: 1397 (1525) | t 121: 1653 B (1788: 13 B less, no page sends); t 242: 1397 (1525). The :lisp path, clock included, adds 0 B a frame |
+| Lisp time | debug 2519 in a wall-clock run (`run.mjs --secs 14 --query hud=lisp`, SwiftShader, desktop) | | plate 0.136 ms, combo 0.034 ms, the whole draw (two plates and a combo) 0.31 ms a frame; most of a plate is its 20 clipped grid strips |
+| Vertices | debug 2519 | | plate 252, combo 144, the busiest frame 666 (of 32,768) |
+| Frame | the stats lines of the same wall-clock runs, :html vs :lisp (the 12-15 s window, idle) | queue 0.55 / 0.47 ms, 40-53 fps | queue 0.92 / 0.87 ms, 92-120 fps. The +0.35 ms is the Lisp HUD; the higher fps is SwiftShader no longer compositing the HTML layer, not a claim about phones |
+
+### 8.3 Legibility (the stills; paths in the worktree's build/lhud/, git-ignored)
+
+The scene: debug 74000 (human Ichigo vs Kenpachi), 2393 (2.2 m), four J taps, `--fixed-dt 16.666667`, stills at 10.95-13.60 s, run
+once plain and once with `--query hud=lisp`, at 1280 × 720 and `--mobile --size 390x844` (dpr 3). The card: debug 2518 under :lisp
+beside an HTML twin with the same rows, faces, sizes and places (build/lhud/ref/index.html): mono at .62u (7.9 CSS px at 1280),
+.72u and 10 px; Noto Sans TC at 11 and 12 px with 鏡 鍵 鐮 觸 覺 鬥; the pause rows' zh and the Mincho at .95u and 1.25u.
+
+- The plates and the combo land on the HTML's positions within 1-2 device px (the bar's first row 64 vs 65, its ends 46 / 1233
+  vs 44 / 1235 at 1280; 177 vs 178 and 324 vs 325 on the phone); the type, spacing, colours, shadow and the slash read the same.
+- At dpr 3 (the phone) the smallest text is indistinguishable from the HTML's at a glance.
+- At dpr 1, 8-12 px, the Lisp text is legible but a little lighter and softer than Chrome's hinted text; the densest kanji at
+  12 px stay readable; the 7.9 px mono reads, its 「決闘」 is a blot in both. The knob if the user wants it heavier: an edge bias
+  under ≈ 14 device px (0.5 → ≈ 0.47), not applied.
+- Sheets: cmp-desk-{11.05,11.50,13.60}.png, cmp-desk-p1-z3.png, cmp-desk-p2-z3.png, cmp-desk-combo-z3.png, cmp-mob-*.png,
+  cmp-mob-p2.png, cmp-card.png, cmp-card-small-z3.png, cmp-card-m.png, cmp-card-m-small.png; the raw stills in build/lhud/s/.
+
+**A finding about the comparison method**: hud.css's transitions and animations run on Chrome's own clock, not on run.mjs's
+virtual clock, so the HTML's animation phases in `--fixed-dt` stills are not deterministic (the ghost has already drained, the
+stamp is at another phase, the soul flames flicker differently run to run). The Lisp side is deterministic. Phase 2's animation
+review needs either the HTML's CSS animations paused and seeked through the DevTools Animation domain (a run.mjs option) or a
+wall-clock video; until then, compare animation timing against the CSS numbers, not against HTML stills.
+
+**The default renderer is unchanged as far as the noise allows**: the same scene on the old build twice and on the new build
+once. Every differing pixel lies in the HTML HUD's band (the top 110 px and the combo box: the flames, the ghost, the stamp, all
+CSS animations on Chrome's clock): base vs base 0-1,549 px, base vs new 1,316-3,455 px, and outside the band ≤ 7 px in all
+three pairs; the sim's log lines are equal and G2 is identical. The higher base vs new count is the flames' phase
+(cmp-default-12.00-z3.png, at a time the old build's two runs happened to match), not a change of look; a pixel proof waits on
+REFACTOR_2026-11.md §10.2's nondeterminism and on the CSS clock above.
+
+### 8.4 Licences (each OFL.txt read)
+
+| Face | Licence | Reserved Font Name | Embedding |
+|---|---|---|---|
+| Big Shoulders Display | SIL OFL 1.1, © 2019 The Big Shoulders Project Authors | none declared | allowed; the baked subset is a Modified Version, the licence travels in duel/FONT-LICENSE-BigShouldersDisplay.txt |
+| Martian Mono | SIL OFL 1.1, © 2021 The Martian Mono Project Authors | none declared | as above, FONT-LICENSE-MartianMono.txt |
+| Shippori Mincho B1 | SIL OFL 1.1, © 2021 The Shippori Mincho Project Authors | none declared | as above, FONT-LICENSE-ShipporiMinchoB1.txt |
+| Noto Sans TC | SIL OFL 1.1, © 2014-2021 Adobe | 'Source' | allowed; the subset must not be named "Source…" (it carries no name: a table of SDF cells); FONT-LICENSE-NotoSansTC.txt |
+
+No face blocks embedding.
+
+### 8.5 Exit criteria (§5)
+
+| Criterion | Result |
+|---|---|
+| The user finds the smallest text legible next to the HTML | **for the user**: the sheets above; our read: yes at dpr 3, yes but lighter at dpr 1 |
+| 0 B | met: plate 0, combo 0, whole draw 0 (debug 2519) |
+| wasm within the estimates ±50 % | met: the full bake extrapolates to ≈ 1.8 MB raw / ≈ 1.3 MB of wasm data against §4.2's 2.1 MB; code +44 KB for ≈ 580 lines, on course for §4.7's ≈ 0.6 MB |
+| heap within the estimates ±50 % | met: +0.9 MB against the +5 MB budget |
+| frame time (target under 1 ms of Lisp a frame) | met: 0.31 ms for two plates and a combo (SwiftShader) |
+
+### 8.6 What the measurements change
+
+- Keep §7 Q4's option (1), the full two-tier bake: it costs less than estimated in the shipped wasm.
+- Phase 1a: no build.sh step; a `.c` file that `#embed`s the bake, as here. Its charset test reads the same tagged forms.
+- Phase 1b: the grid strips show that many small clipped polygons cost (0.1 ms a plate): add the pattern flag for repeated
+  stripes and dots early, and the polygon fringe (the bar's slanted ends and the slash are aliased now).
+- Phase 1c: the clock is advanced by the caller, not by the draw (a probe that calls the draw 100 times must not move it).
+- Phase 2: add the CSS-animation freeze to run.mjs before the animation review (§8.3); the phone's ink pool, the paused opacity
+  and the kanji tags join the battle work.
+- The phases' order and sizes stand: phase 0 took ≈ 580 lines of Lisp, C and WGSL and ≈ 220 of tools, inside §5's ≈ 900.

@@ -8329,3 +8329,17 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 三項都等重構恢復時才做（D5 在 D1／D2 之後），不是現在；REFACTOR_2026-11.md §6 與 §10.3 已改成定案。
 
 分工：Opus 5.5：Lisp HUD 的盤點與設計文件、本段草稿；主對話 Fable 5.2：覆核、提交。
+
+## 706. Lisp HUD 第 0 階段 spike：繪製流、SDF 迷你烘焙、名牌與連段數；§7 四題由主對話代決（2026-11-10）
+
+使用者：「請根據程式的實作判斷該如何移植」（§705；做法交給我們決定）。
+- 主對話依授權代決 DUEL_LISP_HUD §7 的四題，各取選項 (1)，使用者隨時可否決：spike 之後先做戰鬥 HUD（橫式）→ 疊層 → 手機，選單並行；切換用網址旗標 `?hud=lisp` 加除錯指令（2517 切換、2518 靜止模式、2519 探針，已登記於 DUEL_GAMEPLAY），暫不加 SETTINGS 列；新程式放 `lhud-*` 檔（引擎端 `engine/lisp/paint.lisp`、`engine/shaders/hud.*.wgsl`），畫布 HUD 留作無頁面時的後備直到驗收；圖集照設計做完整兩層烘焙。
+- 做了什麼（DUEL_LISP_HUD §8.1）：引擎加第二條 2D 繪製流 RP_HUD（槽 19，16 浮點頂點，模式 0 平塗、1 SDF 字、2 圓角框），畫在 UI 之後；預設路徑不送任何頂點，所以原本的 RP_UI 一行沒動。`tools/sdf-bake.py` 從 Google Fonts 官方倉庫抓四種字體到不進 git 的快取，依頁面的字重實體化可變字型，烘焙兩層 SDF；輸出 `duel/hud-font/atlas.r8` 與 `metrics.bin`，用 C23 的 `#embed` 寫進 wasm 靜態資料（emcc 4.0.12 接受），所以 build.sh 不必改。`duel/lisp/lhud-battle.lisp` 畫雙方名牌的名字列與靈子條（含殘影的延遲回落、固定格線、P2 鏡像、手機的 P2）和連段數（血色斜切、陰影、合成斜體、`hd-stamp` 的 ease-snap 彈跳、1.2 秒後淡出），讀的是 HTML 同一份資料（`*hud-sent*`／`*hud-strs*`）。`:lisp` 時不再送值給頁面，`:html`（預設）完全照舊。第 0 階段的 `?hud=lisp` 只是比對截圖用的模式，不能拿來試玩：時鐘、魂魄火、量表、招式名、提示、手機面板、開場、結算都還是空的，暫停能開也能按鍵但看不到。
+- 量測（§8.2）：index.wasm 11,155,455 → 11,570,734 B（+415 KB，gzip +223 KB；程式碼 +44 KB，資料 +371 KB，迷你圖集原始 524 KB，連結器去掉零段）；照每字的紋素外推完整烘焙約 1.8 MB 原始、約 1.3 MB wasm 資料、約 0.65 MB gzip，比設計估的 2.1 MB 低。啟動 heap 73.4 → 74.3 MB（上限 110）。每幀配置：名牌 0 B、連段 0 B、整個繪製 0 B（2519，連段強制在彈跳中）；整幀的 cons/frame 在 `--fixed-dt` 下 :html 與 :lisp 同一 tick 相同（連段期間 :lisp 還少 13 B），含時鐘在內不多配置。Lisp 時間：名牌 0.136 ms、連段 0.034 ms、整幀 0.31 ms（SwiftShader，目標 1 ms 內）。
+- 可讀性（§8.3）：同一個腳本場景（74000 一護對劍八、四下 J）HTML 與 Lisp 並排，1280×720 與 390×844（dpr 3），另做一張最小字的對照卡（.62u 等寬約 7.9 px、10 px、繁中 11／12 px 含「鏡鍵鐮觸覺鬥」）。位置差 1–2 個裝置像素；dpr 3 下最小字和 HTML 幾乎看不出差別；dpr 1 的 8–12 px 讀得出來，但比 Chrome 的 hinting 字稍細稍軟，要更粗可在約 14 px 以下把 SDF 邊界調低（0.5 → 約 0.47），未套用，等使用者看圖決定。
+- 發現：hud.css 的轉場和動畫跑在 Chrome 自己的時鐘，不是 run.mjs 的虛擬時鐘，所以 `--fixed-dt` 截圖裡 HTML 的動畫相位不固定（舊版自己跑兩次就有差，全在火焰、殘影、彈跳這些動畫元素裡）；Lisp 端是確定的。第 2 階段審動畫前要在 run.mjs 加暫停／定位 CSS 動畫的選項。預設畫法不變的證據：舊版兩次 vs 新版一次，差異都在 HTML HUD 的動畫帶內，帶外 ≤ 7 px，模擬 log 相同，G2 相同。
+- 授權（§8.4）：四種字體都是 SIL OFL 1.1，可嵌入；Noto Sans TC 有保留字型名稱 'Source'（子集不用此名）；每個 OFL.txt 複製為 `duel/FONT-LICENSE-<face>.txt`。
+- 驗證：host tests 10149 ALL PASS（control、input、touch、cine、learn 亦過），pkgcheck 只剩 `DUEL::APP`，`./build.sh duel`，8 秒 smoke 預設與 `?hud=lisp` 都 exit 0，G2 原生與瀏覽器 II 32、IK 34、KK 33 相同，debug-ranges-check 0 errors。
+- 建議：第 0 階段的出口條件除了「使用者覺得最小字可讀」之外都達到；可以照計畫開始 1a／1b／1c（1a 改用 `#embed`，1b 提早做重複條紋的圖樣旗標與多邊形邊緣反鋸齒，1c 由呼叫端推進時鐘）。
+
+分工：Opus 5.5：spike 的實作、量測、並排截圖、本段與 §8 草稿；主對話 Fable 5.2：覆核、提交。

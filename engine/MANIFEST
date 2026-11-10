@@ -10,6 +10,7 @@ lisp/platform.lisp
 lisp/render.lisp
 lisp/meshgen.lisp
 lisp/ui.lisp
+lisp/paint.lisp
 lisp/audio.lisp
 lisp/anim.lisp
 lisp/body.lisp

@@ -40,6 +40,29 @@ sent (so nothing changes: the steady state of a frame): a `webhud consing` line,
                (cons-per "stake" (at-stake *p1*) 100)
                (cons-per "touch" (progn (touch-button :mod) (touch-button :awaken) (touch-button :quick) (touch-button :step)) 100)))))
 
+(defun lhud-consing ()
+  "Debug 2519: the Lisp HUD's per-frame path (lhud-battle.lisp) in the running battle, 100 calls each of a plate, a combo and the whole
+draw once the state settled, with P1's combo forced on mid-stamp (the busiest frame; put back after): an `lhud consing (100 calls,
+B): …` line (0 B wanted), their wall time a call (ms) and the paint stream's vertices a frame (DUEL_LISP_HUD §4.7)."
+  (when (and *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*))
+    (let ((f0 (stream-buffer-fill *hud-batch*)) (iv (copy-seq *lhud-i*)) (fv (copy-seq *lhud-f*)))
+      (setf (aref *lhud-i* 4) 1 (aref *lhud-i* 5) 1 (aref *lhud-i* 1) 12 (aref *lhud-i* 2) 345 (aref *lhud-i* 3) 85   ; P1's combo shown,
+            (aref *lhud-f* 4) 1.0 (aref *lhud-f* 5) 1.0 (aref *lhud-f* 7) 0.0 (aref *lhud-f* 8) 0.0         ; mid-stamp (the
+            (aref *lhud-f* 10) (- (aref *ui-clock* 0) 0.1) (aref *lhud-f* 11) (aref *ui-clock* 0))              ; worst case)
+      (flet ((one (k) (setf (stream-buffer-fill *hud-batch*) f0)
+               (case k (0 (lhud-plate 0)) (1 (lhud-combo 0)) (t (lhud-draw))))
+             (ms (k) (let ((t0 (now-ms))) (dotimes (i 100) (setf (stream-buffer-fill *hud-batch*) f0)
+                                            (case k (0 (lhud-plate 0)) (1 (lhud-combo 0)) (t (lhud-draw))))
+                       (/ (- (now-ms) t0) 100))))
+        (one 0) (one 1) (one 2)
+        (log-msg "lhud consing (100 calls, B): ~a, ~a, ~a; ms a call: plate ~,4f, combo ~,4f, draw ~,4f; verts: plate ~d, combo ~d, frame ~d"
+                 (cons-per "plate" (one 0) 100) (cons-per "combo" (one 1) 100) (cons-per "draw" (one 2) 100)
+                 (ms 0) (ms 1) (ms 2) (progn (one 0) (floor (- (stream-buffer-fill *hud-batch*) f0) 16))
+                 (progn (one 1) (floor (- (stream-buffer-fill *hud-batch*) f0) 16))
+                 (progn (one 2) (floor (- (stream-buffer-fill *hud-batch*) f0) 16)))
+        (setf (stream-buffer-fill *hud-batch*) f0)
+        (replace *lhud-i* iv) (replace *lhud-f* fv)))))
+
 (defun set-probe (kind name &optional a b c)
   "Start a frame probe now: *PROBE* = (KIND NAME this tick A B C)."
   (setf *probe* (list kind name *match-tick* a b c)))
@@ -647,6 +670,9 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2513) (slowmo *core-clash-slowmo-scale* 3.0))                 ; 3 s of the cancel's slow motion (the smooth-draw check)
         ((= c 2514) (setf *scene-transparent* (not *scene-transparent*)))    ; the transparent scene (DUEL_WEBUI §4)
         ((= c 2515) (webhud-consing))                                         ; the battle screens' sync (DUEL_WEBUI §7)
+        ((= c 2517) (set-hud-renderer (if (eq *hud-renderer* :lisp) :html :lisp)))   ; the battle HUD: the page's / Lisp's (DUEL_LISP_HUD §4.6)
+        ((= c 2518) (setf *lhud-still* (not *lhud-still*)))                  ; the Lisp HUD's still mode (phase 0: the legibility card)
+        ((= c 2519) (lhud-consing))                                           ; the Lisp HUD's consing and time (DUEL_LISP_HUD §4.7)
         ((= c 2516) (let ((q (pos-of *p2*))) (set-reaction *p1* :knockdown 0 (aref q 0) (aref q 2) 0.0)))   ; P1 knocked down (the wake-up roll, DEVLOG §614)
         ((<= 2520 c 2599) (setf (camera-shift-x *camera*) (/ (- c 2550) 100f0)))   ; the lens shift across = (k - 30) / 100
         ((<= 2500 c 2503)

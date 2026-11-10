@@ -10,23 +10,40 @@
 
 (defconstant +pg-hud+ 30100 "Page get / set 30100 + k: the battle screens' block (DUEL_WEBUI §7).")
 (defvar *webhud* :unknown "Does the page draw the battle screens (page get 30100)? Asked once.")
-(defun webhud-p ()
-  "Does the page draw the battle screens (hud.js loaded)? A cached old page without it: the engine draws them."
-  (when (eq *webhud* :unknown) (setf *webhud* (= 1 (page-get +pg-hud+))))
-  *webhud*)
-
 (declaim (type (simple-array fixnum (*)) *hud-sent*))
 (defvar *hud-sent* (make-array 200 :element-type 'fixnum :initial-element -1) "The value last set at +PG-HUD+ + i.")
 (defvar *hud-strs* (make-array 64 :initial-element nil) "The string last set at +PG-HUD+ + 120 + i.")
+(defvar *hud-renderer* :html
+  "Who draws the battle screens (docs/duel/DUEL_LISP_HUD.md §4.6): :HTML the page (hud.js, the default), :LISP lhud-battle.lisp
+(phase 0: the plates' name row and bar, the combo; the menus stay the page's). The model below runs for both; :LISP stops
+sending it to the page. Set by the URL flag ?hud=lisp (page get 8, asked with the page's first answer) or debug 2517.")
+(defconstant +pg-hud-flag+ 8 "Page get 8: 1 when the URL asks for the Lisp HUD (?hud=lisp, pwa.js).")
+(defun set-hud-renderer (r)
+  "Switch the battle screens' renderer to R (:HTML or :LISP). To :LISP the page's layer is hidden once (30100 = 0); to :HTML every
+value is sent again (WEBHUD-PUT skips a value equal to the last one sent)."
+  (unless (eq r *hud-renderer*)
+    (setf *hud-renderer* r)
+    (if (eq r :lisp)
+        (page-set +pg-hud+ 0)
+        (progn (fill *hud-sent* -1) (fill *hud-strs* nil)))
+    (log-msg "hud renderer ~a" r)))
+(defun webhud-p ()
+  "Does the page draw the battle screens (hud.js loaded), or does Lisp (*HUD-RENDERER* :LISP)? Either way the canvas HUD leaves
+them out and the model runs. A cached old page without hud.js: the engine draws them."
+  (when (eq *webhud* :unknown)
+    (setf *webhud* (= 1 (page-get +pg-hud+)))
+    (when (= 1 (page-get +pg-hud-flag+)) (set-hud-renderer :lisp)))
+  (or *webhud* (eq *hud-renderer* :lisp)))
+
 (defmacro webhud-put (i v)
   "Set +PG-HUD+ + I to V (fixnum forms) on the page, when it changed (0 B)."
   `(let ((i ,i) (v ,v))
      (declare (fixnum i v))
-     (unless (= v (aref *hud-sent* i)) (setf (aref *hud-sent* i) v) (page-set (+ +pg-hud+ i) v))))
+     (unless (= v (aref *hud-sent* i)) (setf (aref *hud-sent* i) v) (when (eq *hud-renderer* :html) (page-set (+ +pg-hud+ i) v)))))
 (defun webhud-put-str (i s)
   "Set the string +PG-HUD+ + 120 + I to S (NIL: \"\") when it changed: EQ, then STRING= (0 B unless sent)."
   (let ((old (svref *hud-strs* i)) (s (or s "")))
-    (unless (or (eq s old) (and old (string= s old)))
+    (unless (or (eq s old) (and old (string= s old)) (not (eq *hud-renderer* :html)))
       (page-set-str (+ +pg-hud+ 120 i) s))
     (setf (svref *hud-strs* i) s)))
 

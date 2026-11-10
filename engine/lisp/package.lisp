@@ -68,6 +68,10 @@
    #:+font-5x7+ #:*ui-min-css* #:*ui-text-min* #:ui-scale #:fit-scale #:ui-rect #:ui-gradient #:ui-rect-outline #:ui-bar #:%ui-poly4
    #:with-ui-verts #:uvtx #:%hq #:%hrect #:%hbar #:%houtline #:%pulse #:%ring #:%arc #:%disc
    #:ui-block-text #:ui-big-text #:ui-bitmap #:text-width #:ui-text
+   ;; paint.lisp: the paint stream (RP_HUD) and SDF text (docs/duel/DUEL_LISP_HUD.md)
+   #:rgba #:paint-reset #:paint-xform! #:paint-clip! #:paint-pen! #:paint-box! #:paint-rect #:paint-poly #:paint-text #:paint-measure
+   #:paint-int #:paint-measure-int #:paint-font-init #:face-ascent #:face-descent #:ease-curve #:*paint-pen* #:*paint-xf* #:*hud-batch*
+   #:*ui-clock* #:paint-clock-advance
    ;; audio.lisp: synthesis toolkit, DEFSOUND, playback
    #:+au-rate+ #:+au-dt+ #:tt #:au-rnd #:au-frac #:au-expf #:au-powf #:au-sin #:au-saw #:au-sqr #:au-ph+
    #:au-env-exp #:au-ar #:au-adsr #:au-sweep #:au-rrange #:au-midi #:au-buf #:au-render #:au-peak #:au-scale!

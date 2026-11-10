@@ -2,6 +2,7 @@
 // The engine asks through globalThis.gamePage (engine/c/platform.c pf_page_get / pf_page_set):
 //   get 0 = touch-first device ((pointer: coarse)), 1 = back gestures since the last ask,
 //       3 / 4 = the safe-area inset at the top / bottom, CSS px (env(safe-area-inset-*); tests set gamePage.testInsets = [top, bottom])
+//       8 = 1 when the URL has ?hud=lisp (the battle HUD drawn by Lisp, docs/duel/DUEL_LISP_HUD.md)
 //       10 + i = SETTINGS row i as saved (option index + 1; 0 = never saved, or no storage: the game's default)
 //       20000 + 100 side + i (+ 50: the pad) = CONTROLS binding of row i (duel/lisp/control.lisp BIND-CODE; 0 = default)
 //       30 + k = ENDLESS best record slot k (roster index i: 30 + 2i stages, 31 + 2i seconds; 0 = none / no storage)
@@ -69,6 +70,7 @@
       if (k === 1) { var b = back; back = 0; return b; }
       if (k >= 10 && k < 10 + settings.length) return +(stored('soulduel.' + settings[k - 10]) || 0) | 0;
       if (k === 3 || k === 4) return inset(k - 3);
+      if (k === 8) return /[?&]hud=lisp(&|$)/.test(location.search) ? 1 : 0;   // the Lisp HUD (docs/duel/DUEL_LISP_HUD.md §4.6)
       if (k >= 30 && k < 50) return +(stored('soulduel.endless.' + (k - 30)) || 0) | 0;
       if (k >= 50 && k < 70) return +(stored('soulduel.rogue.' + (k - 50)) || 0) | 0;
       if (k >= 20000 && k < 20200) return +(stored('soulduel.bind.' + (k - 20000)) || 0) | 0;
