@@ -25,3 +25,9 @@ pruned branches 1 and 3 after their first cells (8 cells). A new direction start
 code on Hisagi (`baseline/cpu-hk-hisagi-iki.lisp`, branches 1, 3; `brief.py` says which). It kept nothing: b0_a2 (the wake-up punish / guard
 + the Reishi pot) is the first code over the live-KH floor (held-out 0.388) but misses the stand-in floor (0.337) and bundles two rules.
 `dream2.sh`: the dream step after it (`policy/r2/`; `v6_adaptive` promoted on a tie). The scaffold was removed from the game again.
+
+Round 3 (the user: 「從 b0_a2 跑第三輪」; DUEL_AI_STRATEGY §8.19 "Round 5, step 9") ran the full 4 x 3 under `v6_adaptive` (every cell from
+round 2's b0_a2, aimed at the stand-in group; `brief.py`'s round-3 section). Three bundles (the wake-up punish / guard + the Reishi pot + the
+kite) clear every number of the keep rule, best b3_a1 (held-out 0.489 / live 0.478 / stand-in 0.406), but each is three rules. The split
+test (`../fq/switch/hksplit/`) found that the three rules as one-job arms of HK's table don't keep the gain, so nothing ships; the scaffold
+was removed again. `dream3.sh`: the dream step after it (`policy/r3/`; `v9_mid` promoted on a tie).

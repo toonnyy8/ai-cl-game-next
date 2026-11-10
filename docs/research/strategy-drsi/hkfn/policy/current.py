@@ -45,7 +45,7 @@ class OptimalPolicy(LLMDesignedMethod):
 
     def __init__(self, config=None):
         super().__init__(config)
-        self.beta = float(self.config.get("beta", 0.6))
+        self.beta = float(self.config.get("beta", 0.75))
 
     def _schedule(self, beta: float) -> Dict[str, float]:
         """High beta -> more width, deeper patience, weaker pruning."""

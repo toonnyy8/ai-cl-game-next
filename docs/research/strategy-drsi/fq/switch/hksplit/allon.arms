@@ -1,0 +1,1 @@
+(:id :hk-allon :fn hisagi-hk-style :ken-ranged t :apply (:hisagi) :base (:hk-wake 1.0 :hk-pot 1.0 :hk-kite 1.0))

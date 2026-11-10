@@ -2050,6 +2050,76 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     stand-in group (Kenpachi's KI style). The keep rule is unchanged, one job included: a code that passes is still split into one-job
     arms (or brought back to the user as an exception) before it joins HK.
 
+**Round 5, step 9: the Hisagi search, round 3, and the split test (2026-11-10).** Workspace `hkfn/` (`rounds/round03/`, `dream3.sh`),
+`fq/switch/hksplit/`.
+- **Setup.** The scaffold went back in for the step.
+  - The promoted `v6_adaptive` planned 4 x 3 and ran all 12 cells, all recorded.
+  - Every cell started from round 2's b0_a2 and aimed at the stand-in group. The brief asked each cell to keep its rules as separable pieces.
+
+| Cell | The code (on b0_a2: the wake-up punish / guard + the Reishi pot) | Search | Held-out x2: score / live / stand-in |
+|---|---|---|---|
+| b0_a0 | + the kite (round 1's: a back Step off a closing Kenpachi, then the NS poke), Shikai only | 0.433 | - |
+| b1_a0 | + the kite in both forms | 0.462 | 0.457 / 0.428 / 0.406 |
+| b2_a0 | + a Hoho timed through his Step-in J1 | 0.422 | - |
+| b3_a0 | b1_a0's code (only a comment differs) | 0.462 | - |
+| b0_a1 | b0_a0 unchanged (a guard at the bait was tried and reverted) | 0.433 | - |
+| b1_a1 | b1_a0 with a wider kite (from 3.7 m, poke 2.6-6.5 m, 70 frames) | 0.496 | 0.484 / 0.428 / 0.386 |
+| b2_a1 | b2_a0 + a perfect Hoho read on his slow move starts | 0.428 | - |
+| b3_a1 | b3_a0 with the pot opened (below 95 % Reishi, from 3 m) | 0.498 | **0.489 / 0.478 / 0.406** |
+| b0_a2 | b0_a1 unchanged (the NS at the bait was tried and reverted) | 0.433 | - |
+| b1_a2 | b1_a1 + b3_a1's pot | **0.528** | 0.484 / 0.488 / 0.347 |
+| b2_a2 | b2_a1 + a stand-off poke (a fifth rule) | 0.413 | - |
+| b3_a2 | b3_a1 with the pot at 99 % / 2.4 m | 0.495 | - |
+
+  - **Three bundles clear every number:** b3_a1, b1_a0 and b1_a1. Each is the wake-up punish / guard + the Reishi pot + the kite, three
+    rules. The best is b3_a1 (held-out 0.489, live 0.478, stand-in 0.406).
+  - What failed again: every change to his first free frame at the bait (b0_a1, b0_a2), a stand-off poke, and a fourth rule of any kind.
+  - The kite is what lifted the stand-in: about +0.14 on dev against b0_a2.
+  - **The dream step** (three worlds): the incumbent replays at 0.3440 (auc 0.3625, penalty 0.3702). The three template rewrites (beta
+    0.3 / 0.9 / 0.75) tie it. `v9_mid` was promoted on the tie rule.
+- **The split test** (`hksplit/`, the user's rule: one job per arm; the bundle is never shipped as one arm).
+  - `split.py` turns b3_a1 into one `hisagi-hk-style` whose three rules each act only under their own strategy key (`:hk-wake`,
+    `:hk-pot`, `:hk-kite`). Every rule's tracking runs on every call, so the state carries across switches between the split arms.
+  - Three one-job arms are style + key: wake, pot, kite.
+  - **Fidelity:** the style with all three keys on plays the bundle seed for seed: 400 of 400 identical against the live KH (601-800),
+    0.4575 = 0.4575. This configuration is research-only and never in a table.
+  - **The bundle's reference** (played whole, 601-800): 0.4575 against the live KH, 0.405 against the stand-in.
+  - **Diagnostic, not a candidate:** HK's table + the three arms, pinned by distance band (close → wake, mid → kite, far → pot, G1 bonus
+    10 in every form).
+    - Against the live KH 0.48 (b / c 104 / 95 against the bundle, z 0.64): the split keeps the gain there.
+    - Against the stand-in 0.2975 (70 / 113, z -3.18): **it loses there**. The pinned table holds the wake arm 0.66-0.89 of the time and the
+      kite only 0.06-0.30, while the bundle runs all three rules together.
+  - **The rule's candidates:** HK (`hk8-t0` = `:qhs-ken` + the three arms, proved = the live lookup, 0.085 = 0.085, 8 of 8 chunks) and KH
+    (the live `:qks5-hisagi`) refit together.
+    - Two iterations, step 3's rule with the step 6 amendment. The no-refit starts equal the old tables, so the iterates are the
+      candidates.
+    - Selection (801-1000): KH_1 0.743, KH_2 0.657; HK_1 0.108, HK_2 0.258 (0.312, 0.255, 0.207 against the stand-in).
+    - Held-out (601-800, 400 matches a cell):
+
+| 2×2, Hisagi's share | KH_old (`:qks5-hisagi`) | KH_new (KH_1) |
+|---|---|---|
+| HK_old (`:qhs-ken`) | 0.085 | 0.298 |
+| HK_new (HK_2, with the split arms) | **0.318** | 0.24 |
+
+| New vs old (b / c, z) | against the old opponent | against the new opponent | against the stand-in | verdict |
+|---|---|---|---|---|
+| HK | 117 / 24, 7.83 | 64 / 87, -1.87 | 7 / 296, -16.6 (0.178 vs 0.90) | keep |
+| KH | 25 / 117, -7.72 | 85 / 55, 2.54 | (none) | keep |
+
+    - HK_2 holds Kenpachi's KI code 0.45 and press 0.27 of the time against the live KH, and the split arms only 0.19 (wake 0.13, pot
+      0.06, kite 0.01). Against the stand-in it holds Kenpachi's KI code 0.92 and collapses (0.16 on 601-700).
+- **The split does not keep the gain.**
+  - Switched by distance, the arms keep the live-KH gain (0.48) but lose the stand-in (0.30 against the bundle's 0.405).
+  - Refit, they win against the live KH (0.318 against 0.085) but collapse against the stand-in.
+  - The bundle's gain needs all three rules running at once, which a table that holds one arm at a time cannot give.
+- **Nothing ships.** The scaffold and its host check came out again, and HK stays `:qhs-ken`. No game code changed in this step. Host tests,
+  pkgcheck, the build, the smoke and G2 were re-run on the unchanged sources.
+- **For the user:**
+  - b3_a1 as one arm (wake-up punish / guard + Reishi pot + kite, held-out 0.489 / live 0.478 / stand-in 0.406) is an exception to the
+    one-job rule, and only the user can grant it.
+  - Or a split that runs the rules together: a table key that turns several one-job rules on at once, so each stays its own unit. That
+    would be a new runtime feature.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

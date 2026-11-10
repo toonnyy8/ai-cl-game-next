@@ -25,8 +25,21 @@ BASES = {'b2a0': (os.path.join(TOP, 'rounds/round01/nodes/b2_a0/cpu-hk-hisagi.li
                   "round 1's b2_a0, the whiff punish after his knockdown (live-KH 0.19 on dev, the round's best there)"),
          'iki': (os.path.join(TOP, 'baseline/cpu-hk-hisagi-iki.lisp'),
                  "Ichigo's KI code on Hisagi (hisagi-hk-style calls ichigo-ki-style: 0.30 against the live KH, 0.005 against the stand-in)")}
-START, START_WHAT = (BASES['b2a0' if branch % 2 == 0 else 'iki'] if rnd >= 2
+BASES['b0a2'] = (os.path.join(TOP, 'rounds/round02/nodes/b0_a2/cpu-hk-hisagi.lisp'),
+                 "round 2's b0_a2: the wake-up punish / guard + the Reishi pot (held-out 0.406, live 0.388, stand-in 0.337 vs the 0.3762 floor)")
+START, START_WHAT = (BASES['b0a2'] if rnd >= 3 else BASES['b2a0' if branch % 2 == 0 else 'iki'] if rnd >= 2
                      else (os.path.join(TOP, 'baseline/cpu-hk-hisagi.lisp'), 'the baseline (his merged style)'))
+ROUND3 = f"""# Round 3 (the user: 「從 b0_a2 跑第三輪」) — read this first
+- Round 2's b0_a2 is the first code over the score bar and the live-KH floor (held-out 0.406 / live 0.388), but its stand-in group (Kenpachi's
+  KI style CPU, counter/frozen/ki-ken.lisp) is 0.337, under the 0.3762 floor. THIS ROUND'S AIM: raise the stand-in group (members "ki-ken" and
+  the KI-code arms k1-ken, k2-press, k10-kends ...) WITHOUT losing the live-KH group (member "kh-t0").
+- Every cell starts from b0_a2 (when PARENT_DIR is none: {START_WHAT}). b0_a2 is two rules (the wake-up punish / guard after his knockdown,
+  the Reishi pot when far); keep each rule a separable piece of the file (its own knobs, its own step function), because a passing code is
+  split into one-job arms afterwards (the user's keep rule: one job per arm), and say which rule your change belongs to (or that it is a third).
+- Round 1 and 2 lessons (HISTORY_DIR): every blind change to his first free frame after a knockdown lost; Ichigo's KI code wins only the live
+  KH; the whiff punish alone reached live 0.19-0.23; the Reishi pot alone 0.12; together 0.39.
+
+"""
 ROUND2 = f"""# Round 2 (the user: 「跑第二輪」) — read this first
 - Round 1 (HISTORY_DIR) kept nothing. Every code missed the live-KH floor (0.2985): the best there was the whiff punish after his knockdown
   (b2_a0, live 0.17-0.19), the best score b3_a2's Reishi parity (0.32 held-out, live 0.12). Every change to his FIRST free frame after a
@@ -35,7 +48,7 @@ ROUND2 = f"""# Round 2 (the user: 「跑第二輪」) — read this first
   needs both the live floor and the stand-in floor (0.3762) in ONE job.
 - THIS CELL'S STARTING FILE (when PARENT_DIR is none): {START_WHAT}. Say in proposal.md what you started from.
 
-""" if rnd >= 2 else ''
+""" if rnd == 2 else ROUND3 if rnd >= 3 else ''
 
 node = f'{REL}/rounds/round{rnd:02d}/nodes/{cell}'
 hist = ' '.join(os.path.abspath(h) for h in work.get('history_dirs', [])) or '(none: round 1)'

@@ -1,0 +1,128 @@
+{
+  "baseline_score": 0.2156,
+  "beta": 0.6,
+  "branch_count": 4,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.4109 past 0.3333 arms 0.5651 standin 0.4216",
+      "score": 0.4327
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.4109 past 0.3333 arms 0.5651 standin 0.4216",
+      "score": 0.4327
+    },
+    "b0_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.4109 past 0.3333 arms 0.5651 standin 0.4216",
+      "score": 0.4327
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.4356 past 0.403 arms 0.6264 standin 0.3824",
+      "score": 0.4618
+    },
+    "b1_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.4505 past 0.4453 arms 0.6475 standin 0.4412",
+      "score": 0.4961
+    },
+    "b1_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.4851 past 0.49 arms 0.6648 standin 0.4706",
+      "score": 0.5276
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.3861 past 0.3234 arms 0.5977 standin 0.3824",
+      "score": 0.4224
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.3861 past 0.3358 arms 0.5881 standin 0.402",
+      "score": 0.428
+    },
+    "b2_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.3317 past 0.3159 arms 0.6034 standin 0.402",
+      "score": 0.4133
+    },
+    "b3_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.4356 past 0.403 arms 0.6264 standin 0.3824",
+      "score": 0.4618
+    },
+    "b3_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.4703 past 0.4502 arms 0.6379 standin 0.4314",
+      "score": 0.4975
+    },
+    "b3_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.495 past 0.4453 arms 0.6379 standin 0.402",
+      "score": 0.495
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "live best still improving: hold the last grid",
+      "refine_count": 2
+    },
+    "fallback_reason": null,
+    "out_of_support": false,
+    "requested": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "live best still improving: hold the last grid",
+      "refine_count": 2
+    },
+    "source": "policy"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [],
+  "policy_file": "rounds/round03/policy.py",
+  "refine_count": 2,
+  "round_index": 3,
+  "task": "Hisagi style function against Kenpachi, HARD: HK share against Kenpachi's pool (DUEL_AI_STRATEGY 8.19 round 5 step 7)"
+}
