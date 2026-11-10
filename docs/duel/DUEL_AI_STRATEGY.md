@@ -2119,6 +2119,70 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     one-job rule, and only the user can grant it.
   - Or a split that runs the rules together: a table key that turns several one-job rules on at once, so each stays its own unit. That
     would be a new runtime feature.
+- **Decisions on round 5, step 9 (the user, 2026-11-10):**
+  - Asked 「檜佐木對劍八（HK 0.085）接下來怎麼做？」 with three options: (1) a runtime feature, a table key that turns several one-job rules
+    on together, each rule still its own unit; (2) ship b3_a1 whole as an exception; (3) stop. The user: 「新增一鍵開多條規則 (Recommended)」.
+  - So an arm may name several one-job rule units that are on together. The rules stay separate units in the library (§10, 「高內聚、低耦合」),
+    and the arm is only a list of units. HK and KH refit simultaneously with the new arms under the swap rule (step 3, step 6 amendment).
+
+**Round 5, step 10: several rules on in one arm, and the refit (2026-11-10).** Workspace `fq/switch/hkmulti/` (`start.sh`, `run.sh`).
+- **The design** (§10 "Several rules on at once"):
+  - `duel/lisp/cpu-hk-hisagi.lisp` is back in the game for good: `hksplit/split.py` applied to round 3's b3_a1. `hisagi-hk-style` holds the
+    three rules, and each acts only under its own key (`:hk-wake`, `:hk-pot`, `:hk-kite`).
+  - strategy.lisp gains the style unit `:st-hisagi-hk`, one data unit per rule (`:d-hk-wake`, `:d-hk-pot`, `:d-hk-kite`, each
+    `:base (key 1.0)`) and four arm units: `:a-hk-wake`, `:a-hk-pot`, `:a-hk-kite`, and `:a-hk-all` = the style + all three rule units.
+  - The arm composition already appends the data units' `:base` lists, so **no new arm form was needed**: an arm naming several rule units
+    turns them on together. No table names the new units, so every shipped pairing plays as before.
+  - One runtime fix: the Q selector's judgement counter (`brain-sw-won`) had 8 slots, and the first 9-arm table indexed past it (a sim
+    fatal). It is sized from the table now (at least 8).
+  - Host test: `:a-hk-all` expands to exactly `hksplit/allon.arms`' plist; each one-job arm carries only its key; `strat-out` reads exactly
+    the named rules under each arm, and none without a strategy.
+- **Fidelity on this build** (live KH, seeds 601-700): the `:a-hk-all` arm played whole and b3_a1 played whole (its file swapped in,
+  rebuilt) give the same winner on 200 of 200 seeds, with equal judgement counts (82647; `ev/s10a-kh-601`, `ev/s10b-kh-601`). Their logs
+  (every judgement's cues, arm and health, every match's end and result: 84447 lines in 8 chunks) are identical but for the table's name.
+  - **Uncertain:** neither reproduces step 9's records of the same runs (`ev/hsa-*`, `ev/hsb-*`: 85030 judgements; the same winner on 287
+    of 400 seeds against the live KH, 228 of 400 against the stand-in).
+  - The committed b3_a1 on the HEAD sources without this step's changes gives this build's 82647 too (`ev/s10c-kh-601`), and so does neither
+    b3_a0. The old tables reproduce step 9 exactly (`s10h-*-o-vs-*o` = `s9h-*`, 400 of 400 each for HK vs KH, KH vs HK, HK vs the stand-in).
+  - So step 9's bundle and split runs are not reproduced from the committed b3_a1; the cause is unknown. Step 9's fidelity (400 of 400),
+    its pinned diagnostic (0.2975 against the stand-in) and its HK_2 (0.318) therefore ran on code this step could not verify; step 10's
+    refit is the first on the verified split.
+  - On this build the all-on arm scores 0.445 against the live KH (step 9: 0.4575) and 0.4225 against the stand-in (0.405), 601-800
+    (`ev/s10a-*`).
+- **The arms** (`hk9.arms`): HK's five + the three one-job arms + the all-on arm (9).
+  - The pairs were left out: the log's run exploration spreads over every arm, and step 9 found the gain needs all three rules at once.
+  - `hk9-t0` (`:qhs-ken` + the four, each 1 below every row) = the live HK lookup: 8 of 8 chunks, 0.085 = 0.085 (`identity-t0-600.jsonl`).
+    It is the no-refit start with the new arms, so it equals the old table and the candidates are the iterates.
+- **The refit** (`run.sh` = hksplit's procedure: two iterations, gamma 0.98, logs 2 salts x seeds 1-599 x both seats).
+  - Selection (801-1000, `select.json`):
+    - KH_1 0.734 (0.693 / 0.775 against HK_old / HK_1); KH_2 0.87 (0.787 / 0.953). The pick is KH_2.
+    - HK_1 0.219 (0.128 / 0.223 / 0.307 against KH_old / KH_1 / the stand-in); HK_2 0.486 (0.46 / 0.522 / 0.477). The pick is HK_2.
+  - HK_1's fit put the all-on arm first on 0.44 of its own data's judgements, HK_2's on 0.105 (`hk-t1.json`, `hk-t2.json`).
+  - Held-out (601-800, 400 matches a cell, `heldout.json`):
+
+| 2×2, Hisagi's share | KH_old (`:qks5-hisagi`) | KH_new (KH_2) |
+|---|---|---|
+| HK_old (`:qhs-ken`) | 0.085 | 0.1625 |
+| HK_new (HK_2, with the rule arms) | **0.5175** | 0.4825 |
+
+| New vs old (b / c, z) | against the old opponent | against the new opponent | against the stand-in | verdict |
+|---|---|---|---|---|
+| HK | 190 / 17, 12.02 | 166 / 38, 8.96 | 18 / 193, -12.05 (0.4625 vs 0.90) | keep |
+| KH | 26 / 57, -3.4 | 108 / 95, 0.91 | (none) | keep |
+
+  - HK_2 against the live KH holds Kenpachi's KI code 0.46-0.48, the kite data arm 0.21, the Reishi pot 0.10-0.12, the wake-up rule
+    0.08-0.09, the kite rule 0.02-0.03 and the all-on arm 0.02-0.03.
+  - Against the stand-in it holds Kenpachi's KI code 0.81-0.82 and the all-on arm 0.006. HK_old there holds the press arm 0.81-0.85 and wins
+    0.90 (`ev/s10h-*`).
+- **Nothing swaps.**
+  - HK_2 beats both KH tables by far (0.5175 against the live KH where HK had 0.085), but loses the stand-in (0.4625 against the old
+    table's 0.90). The stand-in clause decides, as in step 9.
+  - KH_2 loses to the old HK (z -3.4).
+  - Ties keep the old tables: HK stays `:qhs-ken` and KH `:qks5-hisagi`, and the 3x3 is unchanged.
+- **What ships:** the feature, off by default. That is `cpu-hk-hisagi.lisp`, the three rule units and four arms, and the counter sized from
+  the table. No table names them.
+  - Host tests 10149 ALL PASS, pkgcheck (only `DUEL::APP`), the build, the smoke, and G2 `--cvc` native and browser identical (II 32, IK 34,
+    KK 33).
 
 ## 9. Strategies may carry code (2026-11-08)
 
@@ -2143,9 +2207,9 @@ The runtime sees exactly the plists it saw before, so nothing downstream changed
 
 | Unit | Holds | Examples |
 |---|---|---|
-| style (`*strat-styles*`) | a style function and its own keys; `:apply` = whose style it is | `:st-ken-ki`, `:st-ichigo-ki`, `:st-hisagi-merged` (+ `:ken-ranged t`), `:st-hisagi-range`, `:st-generic` (no function) |
-| data (`*strat-data*`) | outputs (`:base`), `:rules`, other keys (`:dswitch-map`); no code | `:d-brawler`, `:d-kite`, `:d-zoner`, `:d-dswitch`, `:d-no-far-ns`, and the extras `:d-brawler-prior`, `:d-zoner-extra`, `:d-red-kikon` |
-| arm (`*strat-units*`) | a named style + data units in order: what a Q table chooses among | `:a-ken-ki`, `:a-hisagi-pressd` = merged + `:d-dswitch` + `:d-brawler`, `:a-ichigo-kite` |
+| style (`*strat-styles*`) | a style function and its own keys; `:apply` = whose style it is | `:st-ken-ki`, `:st-ichigo-ki`, `:st-hisagi-merged` (+ `:ken-ranged t`), `:st-hisagi-range`, `:st-hisagi-hk` (three rules under keys), `:st-generic` (no function) |
+| data (`*strat-data*`) | outputs (`:base`), `:rules`, other keys (`:dswitch-map`); no code | `:d-brawler`, `:d-kite`, `:d-zoner`, `:d-dswitch`, `:d-no-far-ns`, and the extras `:d-brawler-prior`, `:d-zoner-extra`, `:d-red-kikon`; one rule each: `:d-hk-wake`, `:d-hk-pot`, `:d-hk-kite` |
+| arm (`*strat-units*`) | a named style + data units in order: what a Q table chooses among | `:a-ken-ki`, `:a-hisagi-pressd` = merged + `:d-dswitch` + `:d-brawler`, `:a-ichigo-kite`, `:a-hk-all` = `:st-hisagi-hk` + its three rule units |
 | rule base (`*strat-rule-bases*`) | a Q table's antecedents in order (+ `:groups`) | `:rb-crisp48` (fq.py's 48 cells), `:rb-switch89` (§8.19's 89 in 5 groups) |
 
 - **A Q table** holds only `:arms` (arm ids; NIL = no strategy, the shipped CPU with its matchup style CPU), `:rule-base`, `:q` (a list of q
@@ -2173,6 +2237,17 @@ The runtime sees exactly the plists it saw before, so nothing downstream changed
   - the same three data units (pressure, kite, zoning) ride on all three characters' style functions;
   - the DRIVE switch is a data unit added to any Hisagi arm.
   - Smaller than that (a data unit per output key) would split what tunes one job together, so the units stop at one job each.
+- **Several rules on at once** (§8.19 round 5, step 10; the user, 2026-11-10: 「新增一鍵開多條規則」). A style function may hold several one-job
+  rules, each acting only under its own strategy key (the rule's tracking runs on every call, so turning a rule on mid-match finds its state
+  current). Each rule is then a data unit of one key, and an arm turns on every rule whose unit it names:
+  - `:st-hisagi-hk` (`hisagi-hk-style`, cpu-hk-hisagi.lisp) with `:d-hk-wake` (`:base (:hk-wake 1.0)`), `:d-hk-pot`, `:d-hk-kite`;
+  - the one-job arms `:a-hk-wake`, `:a-hk-pot`, `:a-hk-kite`, and `:a-hk-all` = the style + all three units (round 3's b3_a1).
+  - The arm composition above already does this (the data units' `:base` lists are appended in order), so there is no new arm form and
+    `strat-expand` is unchanged. A rule with no unit named reads NIL (`strat-out`), so no strategy, or any other arm, plays none of them.
+  - The one runtime change: a Q selector's judgement counter (`brain-sw-won`, core-ai.lisp `strat-switch-step`) had 8 slots, and a table
+    with 9 arms indexed past it. It now has one slot per arm, at least 8, so every table of 8 arms or fewer is untouched.
+  - Host test: `:a-hk-all` expands to the plist step 9's fidelity run played, each one-job arm carries only its own key, and with each arm
+    active `strat-out` reads exactly the rules it names.
 - **Merged duplicates.** The 18 tables carried inline copies of 16 distinct arms, written under 30 different ids. They are 15 arm units now,
   plus NIL. For example, Kenpachi's KI style code appeared as `:c1-ken`, `:kh-whole`, `:kk-ki-bo`, `:ki-ken`, `:ht1-ki`, `:ht3-ki`, `:kp1-ken`,
   `:ip5-kenki` and `:it1-kenki`; it is `:a-ken-ki` now.

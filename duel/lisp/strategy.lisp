@@ -241,6 +241,9 @@ only as one of the strategies (:FN ken-ki-style ...).")
 ;;; order, GETF takes a :BASE key's first occurrence). A Q table's :ARMS may name arm ids (NIL stays NIL: no strategy, the shipped CPU with
 ;;; its matchup style CPU) and its :RULE-BASE + :Q build :RULES; a composite's :SWITCH subs and :ELSE may name arm ids. An inline plist is
 ;;; kept as it is everywhere (the research files that strat-run.lisp plays raw are written inline).
+;;; Several rules on at once (§8.19 round 5 step 10; the user, 2026-11-10: 「新增一鍵開多條規則」): a style whose rules each act only under
+;;; their own key gets one data unit per rule (:BASE (key 1.0)); an arm naming several of them turns those rules on together, each rule still
+;;; its own unit (:A-HK-ALL = :ST-HISAGI-HK + :D-HK-WAKE :D-HK-POT :D-HK-KITE). The composition above already does it: no new form.
 (defparameter *strat-styles*
   '((:id :st-ken-ki :fn ken-ki-style :apply (:kenpachi))                       ; Kenpachi's KI style CPU (DUEL_MATCHUP_AI; against Ichigo)
     (:id :st-ichigo-ki :fn ichigo-ki-style :apply (:ichigo))                   ; Ichigo's KI style CPU (against Kenpachi)
@@ -248,6 +251,7 @@ only as one of the strategies (:FN ken-ki-style ...).")
     (:id :st-hisagi-range :fn hisagi-range-style :apply (:hisagi))             ; Hisagi's ranged-mode distance control (§8.16)
     (:id :st-ken-kh :fn ken-kh-style :apply (:kenpachi))                       ; Kenpachi against Hisagi: the wake-up bait (§8.19 round 5 step 5)
     (:id :st-ken-kh-standoff :fn ken-kh-standoff-style :apply (:kenpachi))     ; ... the stand-off breaker (§8.19 round 5 step 6)
+    (:id :st-hisagi-hk :fn hisagi-hk-style :ken-ranged t :apply (:hisagi))     ; Hisagi against Kenpachi: three one-job rules, each on under its own key (§8.19 round 5 step 10)
     (:id :st-generic))                                                          ; no style function: the generic CPU + the MCTS
   "The style units: a style function and its own keys (DUEL_AI_STRATEGY §10).")
 
@@ -285,7 +289,12 @@ only as one of the strategies (:FN ken-ki-style ...).")
     (:id :d-dswitch                                    ; the DRIVE switch (§8.16): its chance and the Shikai's NS1 > NS3a map
      :base (:dswitch 1.0) :dswitch-map ((:base 1 3)))
     (:id :d-no-far-ns                                  ; no NS out of its reach (§8.16's ranged WA 0-3 m)
-     :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0)))))
+     :rules ((((:dn :out)) (:b-sp -0.3 :ns 0.0)) (((:dn :afar)) (:b-sp -0.3 :ns 0.0))))
+    ;; the rules of :st-hisagi-hk (cpu-hk-hisagi.lisp), one unit each: an arm turns on every rule whose unit it names (§8.19 round 5 step 10;
+    ;; the user, 2026-11-10: 「新增一鍵開多條規則」)
+    (:id :d-hk-wake :base (:hk-wake 1.0))              ; the wake-up punish / guard (his first free frame after a knockdown)
+    (:id :d-hk-pot :base (:hk-pot 1.0))                ; the Reishi pot (a free White Burst, Kenpachi far)
+    (:id :d-hk-kite :base (:hk-kite 1.0)))
   "The data units: outputs, rules and keys without code (DUEL_AI_STRATEGY §10).")
 
 (defparameter *strat-units*
@@ -305,7 +314,11 @@ only as one of the strategies (:FN ken-ki-style ...).")
     (:id :a-ichigo-kite :style :st-ichigo-ki :data (:d-kite))
     (:id :a-ichigo-zoner :style :st-ichigo-ki :data (:d-zoner))
     (:id :a-ken-kh :style :st-ken-kh)                                          ; Kenpachi's code against Hisagi (targeted): the wake-up bait
-    (:id :a-ken-kh-standoff :style :st-ken-kh-standoff))                       ; ... the stand-off breaker (targeted)
+    (:id :a-ken-kh-standoff :style :st-ken-kh-standoff)                        ; ... the stand-off breaker (targeted)
+    (:id :a-hk-wake :style :st-hisagi-hk :data (:d-hk-wake))                   ; Hisagi against Kenpachi: one rule (targeted)
+    (:id :a-hk-pot :style :st-hisagi-hk :data (:d-hk-pot))
+    (:id :a-hk-kite :style :st-hisagi-hk :data (:d-hk-kite))
+    (:id :a-hk-all :style :st-hisagi-hk :data (:d-hk-wake :d-hk-pot :d-hk-kite)))   ; ... all three rules on together (round 3's b3_a1)
   "The arm units: a style + data units, each defined once; the Q tables name them (DUEL_AI_STRATEGY §10). General for their style's owner
 (:APPLY from the style), and a table's comment says when it plays one against a single opponent (targeted).")
 

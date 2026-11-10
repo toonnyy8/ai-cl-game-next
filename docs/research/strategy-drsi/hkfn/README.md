@@ -31,3 +31,8 @@ round 2's b0_a2, aimed at the stand-in group; `brief.py`'s round-3 section). Thr
 kite) clear every number of the keep rule, best b3_a1 (held-out 0.489 / live 0.478 / stand-in 0.406), but each is three rules. The split
 test (`../fq/switch/hksplit/`) found that the three rules as one-job arms of HK's table don't keep the gain, so nothing ships; the scaffold
 was removed again. `dream3.sh`: the dream step after it (`policy/r3/`; `v9_mid` promoted on a tie).
+
+Step 10 (the user: 「新增一鍵開多條規則」; DUEL_AI_STRATEGY §8.19 "Round 5, step 10") put the split b3_a1 (`hksplit/split.py`) in the game as
+`duel/lisp/cpu-hk-hisagi.lisp` for good, with its three rules as library units and an arm that turns all three on (`../fq/switch/hkmulti/`).
+No table names them yet: the HK refit with them beat both KH tables but lost to the stand-in, so HK stays `:qhs-ken`. A new round would now
+start from that file, not from `baseline/` (rescore.sh and heldout.sh restore `baseline/` into the checkout).

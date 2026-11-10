@@ -274,7 +274,7 @@
 ;; §8.19 round 5 step 5: Kenpachi's style code against Hisagi (duel/lisp/cpu-kh-ken.lisp, KEN-KH-STYLE). Off by default: the file holds only
 ;; definitions (no CAI-DEFSTYLE or any other top-level call that would register it), KEN-KH-STYLE takes the :fn contract's six arguments,
 ;; and every difficulty plist of chances it defines (values within 0-1; a threshold in frames may fall) rises EASY <= NORMAL <= HARD.
-(dolist (ff '(("cpu-kh-ken" ken-kh-style)))   ; (a style file the hkfn search keeps joins this list, DUEL_AI_STRATEGY §8.19 step 7)
+(dolist (ff '(("cpu-kh-ken" ken-kh-style) ("cpu-hk-hisagi" hisagi-hk-style)))   ; (a style file the hkfn search keeps joins this list, DUEL_AI_STRATEGY §8.19 step 7)
  (let ((forms (with-open-file (in (merge-pathnames (format nil "../../duel/lisp/~a.lisp" (first ff)) *load-truename*))
                (let ((*package* (find-package :duel))) (loop for x = (read in nil in) until (eq x in) collect x)))))
   (check (every (lambda (x) (member (car x) '(in-package defparameter defvar defconstant defun defmacro defstruct inline-readers))) forms))
@@ -311,3 +311,14 @@
       (q3 (getf (find :qks3-hisagi *strat-library* :key (lambda (st) (getf st :id))) :fq)))
   (check (every (lambda (r5 r3) (and (equal (butlast (cdr r5)) (cdr r3)) (< (car (last r5)) (reduce #'min (cdr r3)))))
                 (getf q5 :rules) (getf q3 :rules))))
+;; §8.19 round 5 step 10 (the user, 2026-11-10: 「新增一鍵開多條規則」): an arm turns several one-job rules on together by naming several data
+;; units. :A-HK-ALL expands to the plist step 9's fidelity run played (hksplit/allon.arms; 400 of 400 seeds = round 3's b3_a1), each one-job
+;; arm carries only its own key, and with an arm active STRAT-OUT reads exactly the rules it names
+(flet ((plays (u) (loop for (k v) on u by #'cddr unless (eq k :id) append (list k v))))
+  (check (equal (plays (strat-arm :a-hk-all))
+                '(:fn hisagi-hk-style :ken-ranged t :apply (:hisagi) :base (:hk-wake 1.0 :hk-pot 1.0 :hk-kite 1.0))))
+  (check (equal (plays (strat-arm :a-hk-wake)) '(:fn hisagi-hk-style :ken-ranged t :apply (:hisagi) :base (:hk-wake 1.0)))))
+(dolist (r '((:a-hk-wake t nil nil) (:a-hk-pot nil t nil) (:a-hk-kite nil nil t) (:a-hk-all t t t)))
+  (let ((*strat-now* (cons (strat-arm (first r)) '(:lead 0))))
+    (check (equal (rest r) (mapcar (lambda (k) (and (strat-out k nil) t)) '(:hk-wake :hk-pot :hk-kite))))))
+(let ((*strat-now* nil)) (check (null (strat-out :hk-wake nil))))   ; (no strategy: every rule off, the style = his merged style)

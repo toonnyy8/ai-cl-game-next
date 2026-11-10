@@ -249,7 +249,8 @@ Q selector's training log, tools/simgate/strat-run.lisp STRAT_FQLOG: logs, and m
           (setf (brain-sw-fn b) fn)))
       (setf (brain-sw-sub b) sub)
       (unless *in-rollout*
-        (let ((won (or (brain-sw-won b) (setf (brain-sw-won b) (make-array 8 :initial-element 0)))))
+        (let ((won (or (brain-sw-won b)   ; (one slot per entry, at least 8: §8.19 round 5 step 10's HK table has 9 arms)
+                       (setf (brain-sw-won b) (make-array (max 8 (length (or (getf (getf sw :fq) :arms) (getf sw :switch)))) :initial-element 0)))))
           (incf (brain-sw-n b))
           (when (>= i 0) (incf (svref won i)))))))
   (brain-sw-sub b))
