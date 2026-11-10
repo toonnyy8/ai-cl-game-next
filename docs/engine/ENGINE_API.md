@@ -433,8 +433,13 @@ pure parts (layout, line breaking, tweens, hot boxes) are host-tested: `$ECL_HOS
   `(paint-measure-int-tab n face &optional digits)` (tabular figures, zero-padded), `(paint-paragraph s face col &key width lh
   align)` (wrapped at WIDTH px; pen x / y = the box's top-left; pen [7] := the height; line breaks cached per EQ string, face, width,
   spacing in `text-layout`, `*text-cache-max*` strings), `(paint-vertical s face col)` / `(paint-measure-vertical s face)`
-  (writing-mode: vertical-rl: pen x = the column's centre; CJK upright, other characters turned 90° clockwise). The small-text
-  weight (`paint.lisp`): `*text-small-css*`, `*text-small-bold*`, `*text-small-soft*` (DUEL_LISP_HUD §11).
+  (writing-mode: vertical-rl: pen x = the column's centre; CJK upright, other characters turned 90° clockwise; an upright glyph
+  sits in the ideographic em box, 0.88 em over its baseline: the CJK faces' typo ascender, where their vmtx puts the vertical origin,
+  as Chrome does; since DUEL_LISP_HUD §14, 0.08 em lower than the line box's ascent / descent split before). The small-text
+  weight (`paint.lisp`): `*text-small-css*`, `*text-small-bold*`, `*text-small-soft*` (DUEL_LISP_HUD §11). `*glyph-dscale*` (SDF
+  units per em, by tier) and `+big-px+` (the size above which the display tier is used) are exported for a caller that sets an
+  edge or an outline band in em (the soul flame's stroke, DUEL_LISP_HUD §14). A shape baked as a glyph (tools/sdf-bake.py
+  `SHAPES`: an SVG path at a private-use code, body tier only) draws through `paint-text` like any character.
 - **Hot boxes** (`hot.lisp`): `(hot-begin-frame)` once a frame; `(hot-add id x0 y0 x1 y1)` registers a rectangle through the
   current paint transform (a rotated box is stored as its quad); `(hot-hit x y)` → the topmost of LAST frame's boxes under the
   point, or -1; `(hot-focus-step id dir)` → the next / previous id in drawing order (keys, pads). `+hot-max+` boxes a frame.

@@ -1,7 +1,7 @@
 ;;;; lhud-deck.lisp — the phone's deck and what sits on it (docs/duel/DUEL_LISP_HUD.md §13; hud.css "the deck" / .dbtn.rv / .rvc /
-;;;; the clock tab, hud.js renderDeck): the thumb's paper (gradient and dot screen up to the pad's top), the SP 技 / ATK 斬 labels, the
+;;;; hud.js renderDeck): the thumb's paper (gradient and dot screen up to the pad's top), the SP 技 / ATK 斬 labels, the
 ;;;; 爆 dial (the flash step as the ink standing in it with its 1/3 and 2/3 ticks, armed at 2/3, the awakening ring, the hold ring,
-;;;; 覺; arm / deny / slosh / press), your stance seals around it, and the clock tab that is the pause chip (digits or ∞, II 止 PAUSE).
+;;;; 覺; arm / deny / slosh / press), your stance seals around it (the clock tab on the deck: lhud-clock.lisp).
 ;;;; LHUD-DECK-UPDATE is the system (V4's bits and the flash step's edges -> the dial's animations and words); the views only read the
 ;;;; model, that state and the UI clock. Places come from the model's permille numbers (V30-V43) as hud.js reads them (lhud-geom.lisp).
 (in-package :duel)
@@ -12,10 +12,10 @@
   "The dial's transitions: [0] the level (.45 s ease-out), [1] armed (0 / 1: 爆's colour .25 s, the rim .2 s), [2] the awakening arc
 (.4 s ease-out), [3] SUBLIMATION's arc, [4..7] the stance seals' on (.25 s ease-out), [8] pressed (scale .9, .15 s ease-snap).")
 (defvar *lhud-dk-t* (make-array 8 :element-type 'single-float :initial-element -1f30)
-  "Animation starts: [0] hd-arm, [1] hd-deny, [2] hd-dip (slosh), [3] hd-awfill (holding), [4] hd-kak (ready), [5] the ∞'s hd-write,
+  "Animation starts: [0] hd-arm, [1] hd-deny, [2] hd-dip (slosh), [3] hd-awfill (holding), [4] hd-kak (ready), [5] unused,
 [6] the previous flash step (a fraction; -1 none yet).")
 (defvar *lhud-dk-i* (make-array 4 :element-type 'fixnum :initial-element -1)
-  "[0] V4 last frame, [1] armed last frame (1 / 0), [2] ready last frame, [3] PRACTICE's ∞ shown (1 / 0).")
+  "[0] V4 last frame, [1] armed last frame (1 / 0), [2] ready last frame, [3] unused.")
 (defparameter *lhud-arm* (make-tween '((0 nil 1 0) (0.4 nil 1.1 1) (1 nil 1 0)) :dur 0.42 :curve +ease-snap+ :base '(1 0))
   "hd-arm: scale 1 -> 1.1 at 40 % -> 1 and a 3 px blood ring at 40 %, .42 s ease-snap.")
 (defparameter *lhud-deny* (make-tween '((0 nil 0) (0.25 nil -0.4) (0.6 nil 0.3) (1 nil 0)) :dur 0.3 :curve +ease-out+ :base '(0))
@@ -24,9 +24,7 @@
   "hd-dip: translate y 0 -> .35u (40 %) -> 0, .32 s ease-out.")
 (defparameter *lhud-kak* (make-tween '((0 nil 0 1.9 -10) (1 nil 1 1 -3)) :dur 0.34 :curve +ease-snap+ :fill 3 :base '(1 1 -3))
   "hd-kak: opacity 0, scale 1.9, rotate -10deg -> opacity 1, rotate -3deg, .34 s ease-snap, both.")
-(defparameter *lhud-write* (make-tween '((0 nil 0) (1 nil 1)) :dur 0.9 :curve +ease-cut+ :fill 3 :base '(1))
-  "hd-write: the ∞'s stroke drawn 0 -> 1 (stroke-dashoffset 100 -> 0), .9 s ease-cut, both.")
-(declaim (type f32vec *lhud-arm* *lhud-deny* *lhud-dip* *lhud-kak* *lhud-write*))
+(declaim (type f32vec *lhud-arm* *lhud-deny* *lhud-dip* *lhud-kak*))
 
 ;;; ---------------------------------------------------------------- the system
 (defun-fast lhud-deck-update ()
@@ -58,9 +56,6 @@ words (BURST at 2/3, else NO BURST and hd-deny; 覺醒 AWAKEN on a held release)
           (when (and (logtest pb 2) (not (logtest b 2)) (logtest b 4)) (lhud-dial-word 8))
           (when (and (logtest pb 2) (not (logtest b 2)) (not (logtest b 4))) (press)))))
     (when (and ready (/= (aref iv 2) 1)) (setf (aref ts 4) now))
-    (let* ((inf (and (hv-practice-p) (logtest (hv 0) 1))))
-      (when (and inf (/= (aref iv 3) 1)) (setf (aref ts 5) now))
-      (setf (aref iv 3) (if inf 1 0)))
     (setf (aref iv 0) b (aref iv 1) (if armed 1 0) (aref iv 2) (if ready 1 0) (aref ts 6) fs)
     nil))
 
@@ -108,60 +103,6 @@ a 7 px dot screen at .5 over it; SP 技 at 5 % from the thumb's edge, 1.8 cm ove
         (paint-reset)))
     nil))
 
-;;; ---------------------------------------------------------------- the clock tab (the pause chip)
-(defparameter +c-tab+ (rgba #x0b0b10 0.5)) (defparameter +c-tab-line+ (rgba #xeeeeea 0.28)) (defparameter +c-tab-dot+ (rgba #xeeeeea 0.35))
-(defparameter +c-clock-shade+ (rgba #x000000 0.55))
-(defun-fast lhud-clock ()
-  "The clock as the pause chip (hud.css #hud.hphone:not(.nodeck) .clock, hud.js: on Lisp's chip 6, 10.4 x 8.4u from its middle -
-5.2u / 4.2u): a cut-corner tab (rgba(11,11,16,.5), an inset .28 line, a small ring top-right), the seconds (800 3.4u display,
-tabular, a 3 px shadow; the last ten in blood, hd-tick) or PRACTICE's ∞ (drawn by hd-write), and II 止 PAUSE. Without the deck (two
-hands in portrait): the digits alone at 2.4u / 3.4u + st."
-  (let* ((u (lay-u 1f0)) (dpr (lay-dpr)) (w (lay-w)) (h (lay-h)) (deck (hv-deck-p)) (t0 (hv 1)) (prac (hv-practice-p))
-         (op (* (layer-op 0) (if deck (layer-op 2) 1f0))) (now (aref *ui-clock* 0)) (pts *lhud-pts*))
-    (declare (single-float u dpr w h op now) (fixnum t0) (type f32vec pts))
-    (when (and (> op 0.002f0) (or prac (>= t0 0)))
-      (let* ((bx (if deck (- (/ (* w (i->f (hv 39))) 1000f0) (* 5.2f0 u)) (* 2.4f0 u)))
-             (by (if deck (- (/ (* h (i->f (hv 40))) 1000f0) (* 4.2f0 u)) (+ (* 3.4f0 u) (lay-inset 0))))
-             (bw (* 10.4f0 u)) (bh (* 8.4f0 u)) (cx (+ bx (if deck (* 1.3f0 u) 0f0))) (cy (+ by (if deck (* 1.1f0 u) 0f0))))
-        (declare (single-float bx by bw bh cx cy))
-        (paint-reset)
-        (paint-opacity! op)
-        (when deck                                         ; polygon(0 0, 100% 0, 100% 78%, 86% 100%, 0 100%) + its inset line
-          (setf (aref pts 0) bx (aref pts 1) by (aref pts 2) (+ bx bw) (aref pts 3) by (aref pts 4) (+ bx bw) (aref pts 5) (+ by (* 0.78f0 bh))
-                (aref pts 6) (+ bx (* 0.86f0 bw)) (aref pts 7) (+ by bh) (aref pts 8) bx (aref pts 9) (+ by bh))
-          (paint-clip! -1f6 -1f6 1f6 1f6) (paint-poly pts 5 +c-tab+ +c-tab+)
-          (paint-rect bx by bw dpr +c-tab-line+) (paint-rect bx (+ by dpr) dpr (- bh (* 2f0 dpr)) +c-tab-line+)
-          (paint-rect bx (- (+ by bh) dpr) (* 0.86f0 bw) dpr +c-tab-line+)
-          (paint-rect (- (+ bx bw) dpr) (+ by dpr) dpr (- (* 0.78f0 bh) dpr) +c-tab-line+)
-          (paint-ellipse! (- (+ bx bw) (* 0.95f0 u) (* 0.35f0 u)) (+ by (* 0.75f0 u) (* 0.35f0 u)) (* 0.35f0 u) (* 0.35f0 u) +c-tab-dot+ :thick dpr))
-        (if prac
-            (let* ((k (* 0.1f0 u)) (f (twv *lhud-write* (aref *lhud-dk-t* 5) now 0)) (np (floor (length *sh-inf*) 2)))
-              (declare (single-float k f) (fixnum np))
-              (when (> f 0.001f0)                          ; the svg 6.6 x 3.2u (viewBox 66 x 32: .1u a unit), stroke 2.6, round, a 2 px shadow
-                (paint-push) (paint-transform! 0f0 0f0 :sx k :sy k :dx cx :dy (+ cy (* 2f0 dpr)))
-                (paint-stroke! *sh-inf* np 2.6f0 +c-clock-shade+ :frac f :round t) (paint-pop)
-                (paint-push) (paint-transform! 0f0 0f0 :sx k :sy k :dx cx :dy cy)
-                (paint-stroke! *sh-inf* np 2.6f0 +c-paper+ :frac f :round t) (paint-pop)))
-            (let* ((tz (* 3.4f0 u)) (base (f-floor+ (+ cy (line-baseline +f-display+ tz 0.85f0))))
-                   (end (<= t0 10)) (blink (and end (>= (f-mod now 1f0) 0.5f0))))
-              (declare (single-float tz base))
-              (paint-push) (when blink (paint-opacity! 0.55f0))
-              (paint-pen! (f-floor+ cx) (+ base (* 3f0 dpr)) tz :spacing 0.01f0) (paint-int-tab t0 +f-display+ +c-clock-shade+ 2)
-              (paint-pen! (f-floor+ cx) base tz :spacing 0.01f0) (paint-int-tab t0 +f-display+ (if end +c-blood+ +c-paper+) 2)
-              (paint-pop)))
-        (when deck                                         ; II 止 PAUSE at the bottom (align-content: space-between)
-          (let* ((rh (* 1.45f0 u)) (ry (- (+ by bh) u rh)) (rc (+ ry (* 0.5f0 rh))) (x cx) (kz (* 1.45f0 u)) (pz u))
-            (declare (single-float rh ry rc x kz pz))
-            (paint-rect x (- rc (* 0.575f0 u)) (* 0.32f0 u) (* 1.15f0 u) +c-paper+)
-            (paint-rect (+ x (* 0.56f0 u)) (- rc (* 0.575f0 u)) (* 0.32f0 u) (* 1.15f0 u) +c-paper+)
-            (setf x (+ x (* 0.88f0 u) (* 0.55f0 u)))
-            (paint-pen! (f-floor+ x) (f-floor+ (+ (- rc (* 0.5f0 kz)) (line-baseline +f-kanji+ kz 1f0))) kz) (paint-text (kj "止") +f-kanji+ +c-paper+)
-            (setf x (+ x (text-w (kj "止") +f-kanji+ kz) (* 0.55f0 u)))
-            (paint-pen! (f-floor+ x) (f-floor+ (+ (- rc (* 0.5f0 pz)) (line-baseline +f-mono+ pz 1f0))) pz :spacing 0.16f0)
-            (paint-text "PAUSE" +f-mono+ +c-steel+)))
-        (paint-reset)))
-    nil))
-
 ;;; ---------------------------------------------------------------- 爆 and the stance ring
 (declaim (type f32vec *lhud-circ* *lhud-circ-p*))
 (defvar *lhud-circ* (let* ((v (make-f32 96))) (dotimes (i 48 v) (let* ((a (/ (* 2 pi i) 48))) (setf (aref v (* 2 i)) (f32 (sin a)) (aref v (1+ (* 2 i))) (f32 (- (cos a)))))))
@@ -184,13 +125,13 @@ and steel, ticks .45 paper / paper (armed). *LHUD-A*: the centre x y, the face's
     (dotimes (i 2)                                         ; the ticks: chords of the face, cut at the circle
       (let* ((yb (- (+ cy r) (* th (if (= i 0) 0.33333f0 0.66667f0)))) (yc (- yb (* 0.75f0 dpr))) (g (* u (if (= i 0) 1.05f0 1.35f0)))
              (dy (- yc cy)) (half (f-sqrt (f-max 0f0 (- (* r r) (* dy dy)))))
-             (col (if ink +c-tick-in+ (col-mix +c-tick+ +c-paper+ arm))))
+             (col (if ink +c-tick-in+ (col-mix! *lhud-mix* +c-tick+ +c-paper+ arm))))
         (declare (single-float yb yc g dy half))
         (when (> half g)
           (paint-rect (- cx half) (- yb (* 1.5f0 dpr)) (- half g) (* 1.5f0 dpr) col)
           (paint-rect (+ cx g) (- yb (* 1.5f0 dpr)) (- half g) (* 1.5f0 dpr) col))))
     (paint-pen! (f-floor+ (- cx (* 0.5f0 bw))) (f-floor+ (+ top (line-baseline +f-kanji+ bz 1f0))) bz)
-    (paint-text (kj "爆") +f-kanji+ (if ink +c-ink+ (col-mix +c-stone+ +c-paper+ arm)))
+    (paint-text (kj "爆") +f-kanji+ (if ink +c-ink+ (col-mix! *lhud-mix* +c-stone+ +c-paper+ arm)))
     (paint-pen! (f-floor+ (- cx (* 0.5f0 rw))) (f-floor+ (+ top bz (* 2f0 dpr) (line-baseline +f-mono+ rz 1f0))) rz :spacing 0.12f0)
     (paint-text "RV" +f-mono+ (if ink +c-ink+ +c-steel+))
     nil))
@@ -222,7 +163,7 @@ breathing), the hold ring (hd-awfill .3 s), 覺 over it when ready (hd-kak); pre
               (ready (paint-ellipse! cx cy r r +c-readyglow+ :feather (* 1.6f0 u))))
         (when (> kr 0.01f0) (with-col (c +c-blood+) (alpha! c kr) (paint-ellipse! cx cy (+ r (* 3f0 dpr)) (+ r (* 3f0 dpr)) c :thick (* 3f0 dpr))))
         (paint-ellipse! cx cy r r +c-night+)
-        (paint-ellipse! cx cy r r (col-mix +c-rv-rim+ +c-blood+ arm) :thick (* 1.5f0 dpr))
+        (paint-ellipse! cx cy r r (col-mix! *lhud-mix* +c-rv-rim+ +c-blood+ arm) :thick (* 1.5f0 dpr))
         ;; the ink level: the well's disc cut from below at LV of its height, with the inked face inside it
         (let* ((top (- (+ cy ri) (* 2f0 ri lv))))
           (declare (single-float top))
@@ -234,8 +175,7 @@ breathing), the hold ring (hd-awfill .3 s), 覺 over it when ready (hd-kak); pre
                 (paint-clip! (- cx ri 2f0) top (+ cx ri 2f0) (+ cy ri 2f0) top (+ cy ri) 2)
                 (if (/= mode 0)
                     (paint-poly cp 48 bc bc)
-                    (let* ((c1 (with-col (c (col-mix +c-lvl1+ +c-lvlw1+ arm)) c)))   ; (C1 copied first: COL-MIX reuses one scratch)
-                      (paint-poly cp 48 (col-mix +c-lvl0+ +c-white+ arm) c1)))))
+                    (paint-poly cp 48 (col-mix! *lhud-mix* +c-lvl0+ +c-white+ arm) (col-mix! *lhud-mix2* +c-lvl1+ +c-lvlw1+ arm)))))
             (paint-push) (paint-scissor! (- cx ri) top (+ cx ri) (+ cy ri))
             (lane! cx cy ri arm u) (lhud-face t)
             (paint-pop))

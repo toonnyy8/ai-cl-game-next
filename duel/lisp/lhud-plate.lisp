@@ -106,7 +106,7 @@ h, the background's alpha, the line's alpha. LOW-ALPHA unused (kept for the call
             (let* ((k (* 0.35f0 (- 0.5f0 (* 0.5f0 (f-cos (* 5.712f0 now)))))))   ; hd-pulse 1.1s: brightness 1.35 at 50 %
               (declare (single-float k))
               (paint-clip! fx0 by fx1 (+ by bh) by (+ by bh) end)
-              (paint-poly pts 6 (col-mix +c-low-hi+ +c-white+ (* 0.5f0 k)) (with-col (c +c-blood+) (dotimes (i 3) (setf (aref c i) (f-min 1f0 (* (aref c i) (+ 1f0 k))))) c)))
+              (paint-poly pts 6 (col-mix! *lhud-mix* +c-low-hi+ +c-white+ (* 0.5f0 k)) (with-col (c +c-blood+) (dotimes (i 3) (setf (aref c i) (f-min 1f0 (* (aref c i) (+ 1f0 k))))) c)))
             (let* ((ym (+ by (* 0.45f0 bh))))
               (declare (single-float ym))
               (paint-clip! fx0 by fx1 ym by ym end) (paint-poly pts 6 +c-white+ +c-paper+)
@@ -142,9 +142,9 @@ paper with an ink stroke 1.2, at stake a blood stroke 2.4 (bobbing while low), s
   (declare (fixnum side))
   (let* ((a *lhud-a*) (x0 (aref a 0)) (y0 (aref a 1)) (u (aref a 2)) (now (aref *ui-clock* 0)) (o (side-o side))
          (kon (max 0 (hv (+ o 3)))) (stake (max 0 (hv (+ o 4)))) (low (= 1 (hv (+ o 2)))) (trs *lhud-tr*) (pl *lhud-pl*)
-         (sw (* 1.05f0 u)) (sh (* 1.45f0 u)) (s (f-min (/ sw 10f0) (/ sh 14f0))) (np (floor (length *sh-flame*) 2))
-         (no (floor (length *sh-flame-o*) 2)))
-    (declare (single-float x0 y0 u now sw sh s) (fixnum o kon stake np no) (type f32vec a trs pl))
+         (sw (* 1.05f0 u)) (sh (* 1.45f0 u)) (s (f-min (/ sw 10f0) (/ sh 14f0))) (gz (* 14f0 s))
+         (du (/ (aref *glyph-dscale* 0) 14f0)))           ; (SDF units per viewBox unit: the flame's em is its 14-unit height)
+    (declare (single-float x0 y0 u now sw sh s gz du) (fixnum o kon stake) (type f32vec a trs pl))
     (dotimes (i 9)
       (let* ((bx (if mir (- x0 (* (i->f (1+ i)) sw) (* (i->f i) 0.38f0 u)) (+ x0 (* (i->f i) (+ sw (* 0.38f0 u))))))
              (at (and (< i kon) (>= i (- kon stake)))) (op (trans-value trs (tr side (+ 2 i)) now))
@@ -167,10 +167,14 @@ paper with an ink stroke 1.2, at stake a blood stroke 2.4 (bobbing while low), s
               (with-col (c +c-glow+) (alpha! c (* 0.7f0 glow))
                 (paint-ellipse! cx (+ y0 (* 0.6f0 sh)) (* 0.55f0 sw) (* 0.45f0 sh) c :feather (* 6f0 (lay-dpr)))))
             (paint-transform! cx (+ y0 (* 0.92f0 sh)) :sy k :skew (/ (f-sin sk) (f-cos sk)))   ; the svg: hd-flame about 50 % 92 %
-            (paint-transform! 0f0 0f0 :sx s :sy s :dx (+ bx (* 0.5f0 (- sw (* 10f0 s)))) :dy y0)
             (paint-opacity! op)
-            (paint-clip! -1f5 -1f5 1f5 1f5) (paint-centre! 6f0 12.6f0) (paint-poly *sh-flame* np +c-paper+ +c-paper+)
-            (paint-stroke! *sh-flame-o* no (if at 2.4f0 1.2f0) (if at +c-blood+ +c-ink+) :round t)
+            ;; the flame is a baked SDF glyph (tools/sdf-bake.py SHAPES, U+E000; its em the viewBox's 14 units, the baseline at the
+            ;; bottom): the paper fill at the path, then the stroke as an outline band centred on it (1.2 units; at stake 2.4, blood).
+            ;; Two quads a flame where the polygon fill and its round-capped stroke took 135 vertices (DUEL_LISP_HUD §14)
+            (let* ((gx (+ bx (* 0.5f0 (- sw (* 10f0 s))))) (gy (+ y0 gz)) (hw (* du (if at 1.2f0 0.6f0))))
+              (declare (single-float gx gy hw))
+              (paint-pen! gx gy gz) (paint-text +soul-glyph+ +f-sans+ +c-paper+)
+              (paint-pen! gx gy gz :edge (- 0.5f0 hw) :outline (* 2f0 hw)) (paint-text +soul-glyph+ +f-sans+ (if at +c-blood+ +c-ink+)))
             (paint-pop)))))
     nil))
 
@@ -201,7 +205,7 @@ label beside them (.awk). *LHUD-A*: x (the meters' left), y (top), w (their widt
           (paint-box! (if mir (+ awx (* aw (- 1f0 (* 0.5f0 k)))) (+ awx (* 0.5f0 aw k))) (+ y (* 0.5f0 h)) (* 0.5f0 aw k) (* 0.5f0 h)
                       0f0 (* 0.8f0 u) 0f0 c)))
       (when (> k 0.001f0)
-        (paint-rect (if mir (+ awx (* aw (- 1f0 k))) awx) y (* aw k) h (if full (col-mix col +c-white+ (* 0.35f0 pulse)) col)))
+        (paint-rect (if mir (+ awx (* aw (- 1f0 k))) awx) y (* aw k) h (if full (col-mix! *lhud-mix* col +c-white+ (* 0.35f0 pulse)) col)))
       (when (and (= m 1) (> sb 0.001f0)) (paint-rect (if mir (+ awx (* aw (- 1f0 sb))) awx) y (* aw sb) h +c-pink+)))
     (let* ((op (trans-value trs (tr side 25) now)))        ; the label: absolute after the meters (inset-inline-start: 100% + .7u)
       (declare (single-float op))
@@ -218,20 +222,26 @@ label beside them (.awk). *LHUD-A*: x (the meters' left), y (top), w (their widt
 
 (defun-fast lhud-seal (glyph lock bg)
   "One pointer seal (.seal: a 1 px #4a4f5e border, the glyph .59 of the box in the Mincho, stone; on: paper, the glyph ink). *LHUD-A*:
-the centre x y, the size, the on-ness (0..1, its .25 s transition). LOCK: a sealed pointer (opacity .35; its dashed border drawn
-solid). BG: a background colour (the stance ring's rgba(11,11,16,.42)) or NIL. The caller sets the transform (rotate / scale on)."
+the centre x y, the size, the on-ness (0..1, its .25 s transition). LOCK: a sealed pointer (opacity .35, a dashed border). BG: a background colour (the stance ring's rgba(11,11,16,.42)) or NIL. The caller sets the transform (rotate / scale on)."
   (let* ((a *lhud-a*) (cx (aref a 0)) (cy (aref a 1)) (sz (aref a 2)) (on (aref a 3)) (dpr (lay-dpr)) (hs (* 0.5f0 sz)) (fz (* 0.5909f0 sz)))
     (declare (single-float cx cy sz on dpr hs fz) (type f32vec a))
     (paint-push)
     (when lock (paint-opacity! 0.35f0))
     (when bg (paint-box! cx cy hs hs 0f0 1f0 0f0 bg))
     (when (> on 0.001f0) (with-col (c +c-paper+) (alpha! c on) (paint-box! cx cy hs hs 0f0 1f0 0f0 c)))
-    (paint-box! cx cy (- hs (* 0.5f0 dpr)) (- hs (* 0.5f0 dpr)) 0f0 1f0 dpr (col-mix +c-seal-line+ +c-paper+ on))   ; the 1 px border
+    (let* ((col (col-mix! *lhud-mix* +c-seal-line+ +c-paper+ on)))   ; the 1 px border (sealed: dashed, 3 px dashes and gaps)
+      (if lock
+          (let* ((x0 (- cx hs)) (y0 (- cy hs)) (s (* 2f0 hs)) (dl (* 3f0 dpr)))
+            (declare (single-float x0 y0 s dl))
+            (paint-stripes! x0 y0 1f0 0f0 (* 2f0 dl) dl) (paint-rect x0 y0 s dpr col) (paint-rect x0 (- (+ y0 s) dpr) s dpr col)
+            (paint-stripes! x0 y0 0f0 1f0 (* 2f0 dl) dl) (paint-rect x0 y0 dpr s col) (paint-rect (- (+ x0 s) dpr) y0 dpr s col)
+            (paint-pattern-off!))
+          (paint-box! cx cy (- hs (* 0.5f0 dpr)) (- hs (* 0.5f0 dpr)) 0f0 1f0 dpr col)))
     (paint-pen! 0f0 0f0 fz) (paint-measure glyph +f-kanji+)
     (let* ((gw (aref *paint-pen* 7)))
       (declare (single-float gw))
       (paint-pen! (- cx (* 0.5f0 gw)) (+ (- cy (* 0.5f0 fz)) (line-baseline +f-kanji+ fz 1f0)) fz)
-      (paint-text glyph +f-kanji+ (col-mix +c-stone+ +c-ink+ on)))
+      (paint-text glyph +f-kanji+ (col-mix! *lhud-mix* +c-stone+ +c-ink+ on)))
     (paint-pop)
     nil))
 
@@ -286,7 +296,7 @@ the right). *LHUD-A*: x (the start edge), the strip's centre y, u. (NOME's cups 
                 (let* ((c0 (if (= kind 3) +c-kai0+ +c-ude0+)) (c1 (if (= kind 3) +c-reiatsu+ +c-blood+)) (c2 (if (= kind 3) +c-kai2+ +c-ude2+))
                       (ym (+ py (* 0.6f0 ph))))
                   (declare (single-float ym))
-                  (paint-clip! px py (+ px pw) ym py ym) (paint-poly pts 4 (col-mix c0 +c-white+ (* 0.3f0 pulse)) c1)
+                  (paint-clip! px py (+ px pw) ym py ym) (paint-poly pts 4 (col-mix! *lhud-mix* c0 +c-white+ (* 0.3f0 pulse)) c1)
                   (paint-clip! px ym (+ px pw) (+ py ph) ym (+ py ph)) (paint-poly pts 4 c1 c2))
                 (progn (paint-clip! px py (+ px pw) (+ py ph)) (paint-poly pts 4 +c-pip+ +c-pip+)
                        (let* ((lx (+ px (* 0.52f0 pw))) (ly0 (+ py (* 0.12f0 ph))) (ly1 (+ py (* 0.9f0 ph))) (k 0.4452f0))   ; the claw line, skewX(-24deg)
@@ -299,7 +309,7 @@ the right). *LHUD-A*: x (the start edge), the strip's centre y, u. (NOME's cups 
                  (bx (+ (if mir (- x (* 0.7f0 u) bw) (+ x (* -0.45f0 u) (* 0.7f0 u))) (* 0.5f0 (- bw vw)))))
             (declare (single-float vz vw bw bx))
             (paint-pen! (f-floor+ bx) (f-floor+ (+ (- cy (* 0.5f0 vz)) (line-baseline +f-mono+ vz 1f0))) vz)
-            (paint-text s +f-mono+ (col-mix +c-reiatsu+ +c-white+ (* 0.3f0 pulse)))))))
+            (paint-text s +f-mono+ (col-mix! *lhud-mix* +c-reiatsu+ +c-white+ (* 0.3f0 pulse)))))))
     nil))
 
 ;;; ---------------------------------------------------------------- the plate: the opponent's at the top (phone), both on a desktop

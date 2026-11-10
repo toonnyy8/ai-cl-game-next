@@ -7,19 +7,27 @@
 (in-package :duel)
 
 ;;; ---------------------------------------------------------------- the layers' fades and the paused grade
-(defun-fast lhud-layers-update ()
-  "The layer fades from V0 (2 cinematic, 4 paused): opacity .3 s (CSS ease), the canvas grade .5 s ease-out; the grade itself is
-written into *GRADE-DESAT* here (the one HUD write outside the paint stream: the engine's composite grade, which draw.lisp zeroes
-each frame and a cinematic owns)."
-  (let* ((now (aref *ui-clock* 0)) (v0 (hv 0)) (cine (logtest v0 2)) (paused (logtest v0 4)) (tr *lhud-lay-tr*))
-    (declare (single-float now) (fixnum v0) (type f32vec tr))
-    (trans-to tr 0 (cond (cine 0f0) (paused 0.3f0) (t 1f0)) now 0.3f0 +ease+)
-    (trans-to tr 1 (if (or cine paused) 0f0 1f0) now 0.3f0 +ease+)
-    (trans-to tr 2 (if paused 0f0 1f0) now 0.3f0 +ease+)
-    (let* ((g (trans-to tr 3 (if paused 1f0 0f0) now 0.5f0 +ease-out+)))   ; filter: grayscale(.9) brightness(.45) contrast(1.1)
-      (declare (single-float g))
-      (when (and (> g 0f0) (not *cine*)) (setf *grade-desat* (* 0.9f0 g))))
+(defun-fast lhud-layers-update (fresh)
+  "The layer fades from V0 (2 cinematic, 4 paused): opacity .3 s (CSS ease), the canvas grade .5 s ease-out (slot 3: read by LHUD-DIM
+and, for the engine's composite grade, by LHUD-CANVAS-DESAT)."
+  (let* ((now (aref *ui-clock* 0)) (v0 (hv 0)) (cine (logtest v0 2)) (paused (logtest v0 4)) (tr *lhud-lay-tr*) (k (if fresh 0f0 1f0)))
+    (declare (single-float now k) (fixnum v0) (type f32vec tr))
+    ;; FRESH: the HUD's first frame after being off: #hud display none -> block runs no transition (the values show at their target)
+    (trans-to tr 0 (cond (cine 0f0) (paused 0.3f0) (t 1f0)) now (* k 0.3f0) +ease+)
+    (trans-to tr 1 (if (or cine paused) 0f0 1f0) now (* k 0.3f0) +ease+)
+    (trans-to tr 2 (if paused 0f0 1f0) now (* k 0.3f0) +ease+)
+    (trans-to tr 3 (if paused 1f0 0f0) now (* k 0.5f0) +ease-out+)   ; filter: grayscale(.9) brightness(.45) contrast(1.1)
     nil))
+
+(defun-fast lhud-canvas-grade! ()
+  "The Lisp HUD's one output outside the paint stream, called once a frame by HUD-DRAW after LHUD-DRAW (nothing else of the HUD
+writes the engine): *GRADE-DESAT* set to the paused scene's desaturation (body.hud-paused #canvas: grayscale(.9) on the .5 s
+ease-out of slot 3; brightness(.45) is LHUD-DIM's ink rect), in a battle and outside a cinematic (which owns the grade; draw.lisp
+zeroes it each frame). In DEFUN-FAST: no float crosses a call (0 B)."
+  (let ((g (* 0.9f0 (layer-op 3))))
+    (declare (single-float g))
+    (when (and (> g 0f0) (logtest (hv 0) 1) (not *cine*)) (setf *grade-desat* g)))   ; (draw.lisp zeroed it this frame: not a cinematic)
+  nil)
 ;;; ---------------------------------------------------------------- the combo (hud.css .combo, hud.js renderPlate)
 (declaim (type f32vec *lhud-cb-f*) (type (simple-array fixnum (*)) *lhud-cb-i*))
 (defvar *lhud-cb-f* (make-f32 16) "Per side at 8 s: [0..2] the opacity's from / to / start, [3..5] the x shift's (u), [6] the stamp's start, [7] shown at.")
@@ -163,7 +171,7 @@ paper) on one baseline, .7u apart, P2 (and P1 with the left hand) row-reverse fr
 (defvar *lhud-pr-f* (make-transitions 2 0f0) "[0] the prompt's opacity (.2 s), [1] its drop (u, .3 s ease-out).")
 (defvar *lhud-pr-t* (make-f32 2) "[0] the hold ring's start, [1] its duration (s).")
 (defvar *lhud-pr-i* (make-array 3 :element-type 'fixnum :initial-element 0) "[0] the kind shown (kept through the fade), [1] its arg, [2] the kind last frame.")
-(defvar *lhud-pr-s* (vector nil) "[0] the AS romaji shown (S9).")
+(defvar *lhud-pr-s* (vector nil nil) "[0] the AS romaji shown (S9), [1] the key cap's keys (S8).")
 (defvar *lhud-pr-kc* (cons :none nil) "The prompt's romaji and its kanji (LHUD-MOVE-KANJI-CACHED).")
 (declaim (type f32vec *lhud-pr-t*))
 (defun-fast lhud-prompt-update ()
@@ -171,18 +179,20 @@ paper) on one baseline, .7u apart, P2 (and P1 with the left hand) row-reverse fr
 the text kept through the fade; the Kikon hold ring restarted when kind 1 begins (hd-ring over arg / 60 s)."
   (let* ((now (aref *ui-clock* 0)) (k (hv 2)) (iv *lhud-pr-i*) (k (if (and (= k 4) (lay-portrait-p) (hv-deck-p)) 0 k)))
     (declare (single-float now) (fixnum k) (type (simple-array fixnum (*)) iv))
-    (when (> k 0) (setf (aref iv 0) k (aref iv 1) (hv 3) (svref *lhud-pr-s* 0) (hs 9)))
+    (when (> k 0) (setf (aref iv 0) k (aref iv 1) (hv 3) (svref *lhud-pr-s* 0) (hs 9) (svref *lhud-pr-s* 1) (if (= k 4) nil (hs 8))))
     (when (and (= k 1) (/= (aref iv 2) 1)) (setf (aref *lhud-pr-t* 0) now (aref *lhud-pr-t* 1) (/ (i->f (max 1 (hv 3))) 60f0)))
     (setf (aref iv 2) k)
     (trans-to *lhud-pr-f* 0 (if (> k 0) 1f0 0f0) now 0.2f0 +ease+)
     (trans-to *lhud-pr-f* 1 (if (> k 0) 0f0 1f0) now 0.3f0 +ease-out+)
     nil))
 
-(defparameter +c-ringbg+ (rgba #xeeeeea 0.18))
+(defparameter +c-ringbg+ (rgba #xeeeeea 0.18)) (defparameter +c-hkey+ (rgba #x0b0b10 0.65))
 (defun-fast lhud-prompt ()
   "What a press can do now: the words (800 1.3u display, .24em; Awaken reiatsu, Burst blood) over the line (600 .65u mono, .16em,
 steel), the Kikon's hold ring (3.2u, blood over .18 paper, 毀) before them; the phone: over the deck, 3u above it, 2.6u from the
-right (the left hand: the left); a desktop: centred 5.5u over the bottom (no key cap yet: phase 3)."
+right (the left hand: the left); a desktop: centred 5.5u over the bottom, the key cap (.hkey: S8, 600 .95u mono .08em, padding
+.55u .8u, a 1 px steel border with a 3 px bottom, radius 3, ink .65; none for Awaken, none on a phone) between the ring and the words,
+1u apart (flex gap)."
   (let* ((now (aref *ui-clock* 0)) (op (* (trans-value *lhud-pr-f* 0 now) (layer-op 0))))
     (declare (single-float now op))
     (when (> op 0.002f0)
@@ -192,14 +202,18 @@ right (the left hand: the left); a desktop: centred 5.5u over the bottom (no key
              (what (case k (1 "HOLD SP") (2 "SP · AS") (3 (if (= a 2) "CHAIN" "BURST")) (t "AWAKEN")))
              (ww (+ (text-w what +f-display+ wz 0.24f0) (if (= k 2) (progn (paint-pen! 0f0 0f0 wz :spacing 0.24f0) (paint-measure-int a +f-display+) (aref pen 7)) 0f0)))
              (sw (progn (lane! sz 0f0 0f0) (lhud-prompt-sub k a rom kan nil) (aref pen 7)))
-             (bw (f-max ww sw)) (ringw (if hold (+ (* 3.2f0 u) u) 0f0)) (boxw (+ ringw bw)) (boxh (if hold (* 3.2f0 u) (* 2.3f0 u)))
+             (key (and (not phone) (let ((s (svref *lhud-pr-s* 1))) (and s (plusp (length s)) s))))
+             (kz (* 0.95f0 u)) (dpr (lay-dpr))
+             (capw (if key (+ (text-w key +f-mono+ kz 0.08f0) (* 1.6f0 u) (* 2f0 dpr)) 0f0)) (caph (+ kz (* 1.1f0 u) (* 4f0 dpr)))
+             (bw (f-max ww sw)) (ringw (if hold (+ (* 3.2f0 u) u) 0f0)) (capg (if key (+ capw u) 0f0)) (boxw (+ ringw capg bw))
+             (boxh (f-max (if key caph 0f0) (if hold (* 3.2f0 u) (* 2.3f0 u))))
              (left (and phone (hv-deck-p) (hv-left-p)))
              (x0 (cond ((not phone) (* 0.5f0 (- w boxw))) (left (* 2.6f0 u)) (t (- w (* 2.6f0 u) boxw))))
              (bottom (cond ((not phone) (- h (* 5.5f0 u))) ((hv-deck-p) (- (lhud-deck-bottom h (hv 31) t) (* 3f0 u)))
                            (t (- (* 0.96f0 h) (* 28f0 u)))))
              (y0 (+ (- bottom boxh) (* u (trans-value *lhud-pr-f* 1 now)))) (cy (+ y0 (* 0.5f0 boxh)))
-             (tx (+ x0 ringw)) (ty (- cy (* 1.15f0 u))))
-        (declare (single-float u w h wz sz ww sw bw ringw boxw boxh x0 bottom y0 cy tx ty) (fixnum k a) (type f32vec pen))
+             (tx (+ x0 ringw capg)) (ty (- cy (* 1.15f0 u))))
+        (declare (single-float u w h wz sz kz dpr capw caph ww sw bw ringw capg boxw boxh x0 bottom y0 cy tx ty) (fixnum k a) (type f32vec pen))
         (paint-reset)
         (paint-opacity! op)
         (when hold                                         ; the ring: r 15.9 of 36, stroke 3, from the top clockwise
@@ -211,6 +225,14 @@ right (the left hand: the left); a desktop: centred 5.5u over the bottom (no key
             (paint-pen! 0f0 0f0 gz) (paint-measure (kj "毀") +f-kanji+)
             (paint-pen! (- rcx (* 0.5f0 (aref pen 7))) (+ (- cy (* 0.5f0 gz)) (line-baseline +f-kanji+ gz 1f0)) gz)
             (paint-text (kj "毀") +f-kanji+ +c-paper+)))
+        (when key                                          ; the key cap: ink .65, a steel border, its bottom 3 px
+          (let* ((kx (+ x0 ringw)) (ky (- cy (* 0.5f0 caph))) (r (* 3f0 dpr)))
+            (declare (single-float kx ky r))
+            (paint-box! (+ kx (* 0.5f0 capw)) cy (* 0.5f0 capw) (* 0.5f0 caph) r 1f0 0f0 +c-hkey+)
+            (paint-box! (+ kx (* 0.5f0 capw)) cy (- (* 0.5f0 capw) (* 0.5f0 dpr)) (- (* 0.5f0 caph) (* 0.5f0 dpr)) r 1f0 dpr +c-steel+)
+            (paint-rect (+ kx r) (- (+ ky caph) (* 3f0 dpr)) (- capw (* 2f0 r)) (* 3f0 dpr) +c-steel+)
+            (paint-pen! (f-floor+ (+ kx (* 0.8f0 u) dpr)) (f-floor+ (+ ky dpr (* 0.55f0 u) (line-baseline +f-mono+ kz 1f0))) kz :spacing 0.08f0)
+            (paint-text key +f-mono+ +c-paper+)))
         (let* ((col (case k (4 +c-reiatsu+) (3 +c-blood+) (t +c-paper+))))
           (paint-pen! (f-floor+ tx) (f-floor+ (+ ty (line-baseline +f-display+ wz 1f0))) wz :spacing 0.24f0 :edge 0.47f0)
           (paint-text what +f-display+ col)

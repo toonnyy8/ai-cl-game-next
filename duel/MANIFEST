@@ -80,6 +80,8 @@ lisp/lhud-model.lisp
 lisp/lhud-plate.lisp
 lisp/lhud-fx.lisp
 lisp/lhud-deck.lisp
+lisp/lhud-clock.lisp
+lisp/lhud-overlay.lisp
 lisp/lhud-battle.lisp
 lisp/lhud-charset.lisp
 lisp/lhud-shapes.lisp

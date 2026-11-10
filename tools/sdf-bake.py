@@ -42,6 +42,11 @@ FACES = [("display", "bigshouldersdisplay", "BigShouldersDisplay[wght].ttf", {"w
          ("sans", "notosanstc", "NotoSansTC[wght].ttf", {"wght": 500})]
 BODY_EM, DISPLAY_EM, SPREAD, FLAT, ATLAS_W = 32, 96, 4, 0.1, 1024
 ASCII = "".join(chr(c) for c in range(32, 127)) + "·×"   # (the tags' middle dot and the clone count's ×: the page's)
+# shapes baked as glyphs at private-use codes (DUEL_LISP_HUD §14): code, face, SVG path, its viewBox height (= 1 em, the baseline at
+# the bottom), advance (viewBox units). Body tier only: the 4 px spread at a 32 px em is 1.75 units of a 14-unit flame, room for the
+# stake's 2.4-unit blood stroke drawn as an outline band (1.2 each side of the path); the display tier's spread would clip it.
+SHAPES = [(0xE000, 3, "M5 .6C6.4 3 9.2 5.4 9.2 8.6A4.2 4.2 0 0 1 .8 8.6C.8 6.6 2.2 5.2 3 3.6 3.4 5 4 5.6 4.8 5.8 4.4 4 4.6 2.2 5 .6z",
+           14, 10)]   # hud.js SOUL, the soul flame (viewBox 0 0 10 14)
 
 
 def fetch():
@@ -172,6 +177,12 @@ def bake():
             fl = Flatten(gs, FLAT / s); p.draw(fl)
             cell, left, top = sdf(fl.contours, s, SPREAD)
             glyphs.append(dict(code=ord(c), ft=tier * 4 + fi, cell=cell, left=left, top=top, adv=round(hm[name][0] * s * 64)))
+    from fontTools.svgLib.path import parse_path
+    for code, fi, d, vh, adv in SHAPES:                    # (y flipped: font units up, the baseline at the viewBox's bottom)
+        fl = Flatten(None, FLAT * vh / BODY_EM); parse_path(d, fl)
+        fl.contours = [[(x, vh - y) for x, y in c] for c in fl.contours]
+        cell, left, top = sdf(fl.contours, BODY_EM / vh, SPREAD)
+        glyphs.append(dict(code=code, ft=fi, cell=cell, left=left, top=top, adv=round(adv * BODY_EM / vh * 64)))
     have = {g["code"] for g in glyphs if g["ft"] in (2, 3)}
     lost = sorted(c for c in page_chars() - shapes if ord(c) not in have)
     if lost: sys.exit(f"no face has {''.join(lost)!r}: list it in an (lhud-shape \"...\") form of duel/lisp/lhud-charset.lisp (drawn as a shape) or fix the string")

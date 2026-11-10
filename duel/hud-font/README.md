@@ -27,6 +27,8 @@ Body tier (32 px em, 4 px spread) and display tier (96 px em), by `(face, tier)`
 - every non-ASCII character in a string literal of `duel/web/hud.js` and `menu.js` (comments skipped): the sans (a character it lacks,
   e.g. the 闘 of 決闘, goes to the Mincho), and the Latin faces for the symbols they carry;
 - `(lhud-shape ...)` characters are baked nowhere: the HUD draws them as polygons.
+- `SHAPES` in `tools/sdf-bake.py`: SVG paths baked as glyphs at private-use codes, body tier only (the soul flame, U+E000 in the
+  sans: DUEL_LISP_HUD §14).
 
 `tests/duel-rules/lhud-charset.lisp` (part of the duel-rules host test) fails, naming the character, when the bake lacks one.
 

@@ -8398,3 +8398,23 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 驗證：host tests（duel-rules 10190，含新的 `tests/duel-rules/lhud-geom.lisp`；hud-engine 121、paint-shapes、touch、input、control、cine、learn）全過；pkgcheck 只剩 `DUEL::APP`；debug-ranges-check 0 錯；G2 原生與瀏覽器 II 32、IK 34、KK 33 相同；預設 `:html` 在 HUD 區域與舊版逐位元相同（只有爆的光暈轉場差一幀）；對照圖在 worktree 的 build/lhud/p2/（git 忽略）。
 
 分工：Opus 5.5：實作、截圖、文件草稿；主對話 Fable 5.2：覆核、合併、提交。
+
+## 711. Lisp HUD 第 3–4 階段：橫向戰鬥畫面與疊層（暫停、開場、READY／斬、結算）（2026-11-11）
+
+使用者：「我希望使用 lisp 完全重現目前的 html HUD」、「不用到 100% 完全相同，但要還原大多數的美術風格與動畫。請根據程式的實作判斷該如何移植。」
+
+- 範圍（DUEL_LISP_HUD §14）：`?hud=lisp`（或 debug 2517）時，任何尺寸的一整場對戰都由 Lisp 畫，舊的 canvas HUD 在對戰中不再出現；預設 `:html` 不變。
+- 橫向：時鐘搬到 `lhud-clock.lisp`（桌面上方中央的數字、∞ 的書寫動畫、ROUND · 決闘／PRACTICE · 練習；手機直向無牌桌；牌桌的時鐘札）；提示的鍵帽（SHIFT + J）；桌面名牌與劍八的解放條兩側都有對照圖。
+- 疊層（`lhud-overlay.lisp`，每個都是「系統 `…-update` ＋ view」）：暫停（止 與墨漬、撕開的紙條 hd-strip、手機的 hd-fromtab、每列自己的高度、手機上英文換行）、暫停時場景變暗；開場卡（黑邊、直書姓名 hd-brush、旁邊的讀音照 Chrome 的 flex 收縮換行、VS 條）；READY／斬（模糊用 SDF 的柔邊代替，加一道斬線）；結算（決着／時間切れ、墨濺、K.O.／TIME／DRAW、勝者區塊）。
+- 路由：`hud-screens.lisp` 與 `cinema.lisp` 四個暫時掛在 `page-draws-p` 的地方改成 `canvas-hud-off-p`（第 2 階段留下的）。
+- `:lisp` 下的暫停輸入：一個分派函式 `webhud-pause-cmd`，頁面的佇列與 Lisp 的指標（hot box 700–719）都走它。腳本驗證：滑過一列游標跟著動、點 CAMERA 換值、點或觸 RESUME 關閉；觸控不會漏進對戰（resume 後的姿勢與 HTML 版相同）。
+- 魂火：改成一個烘進圖集的 SDF 字形（`tools/sdf-bake.py` 的 `SHAPES`，U+E000），每個兩個四邊形。同一次執行 18 個魂火：多邊形中位數 0.80 ms → 0.10 ms（約 8 倍），頂點 2,430 → 216。
+- 第 2 階段的收尾：`*grade-desat*` 只由 `lhud-canvas-grade!` 寫（`hud-draw` 呼叫）；`col-mix!` 由呼叫者給目的色；HUD 關掉後的第一幀圖層淡出直接到位（HTML 的 `display: none`）；鎖住的印章邊框是虛線。
+- 引擎：`engine/lisp/text.lisp` 的直書直立字基線改在 0.88 em（字型的直排度量、Chrome 畫的位置；原本每一直行高了 0.08 em，桌面的 止 高 13 px）；`package.lisp` 匯出 `*glyph-dscale*`、`+big-px+`（後者原本被讀成未綁定的 `DUEL::+BIG-PX+`）。
+- 數字：最忙的一幀手機 2,334 頂點（第 2 階段 4,548）、0.68 ms；桌面 1,662 頂點、0.49 ms；開場 0.04、READY 0.05、結算 0.07、時鐘 0.07–0.16 ms；暫停 14 列 0.62 ms（只在暫停時）。量測時機器負載 36–46，毫秒只能看比例。每個元素 0 B／幀（三個新系統原本是一般 DEFUN，每次 160 B，改 DEFUN-FAST）。index.wasm 12,907,656 → 12,959,346 B；啟動 heap 73.6 MB。
+- 跟 HTML 不同的地方：`--freeze-css` 抓不到部分 HTML 動畫起點（hd-strip、hd-ready、從選單開始的 VS 條），對照條上 HTML 那排跑在前面；HTML 在對戰結束與時鐘換秒時晚一幀；模糊受 SDF 範圍限制；墨漬與墨濺的星形有鋸齒。沒有腳本走到的：K.O. 平手、ROTATE 提示、檜佐木的名牌。
+- 沒做進純函式的：開場讀音的收縮與暫停列的量測算在 view 裡；浮點仍經 `*lhud-a*` 與畫筆傳遞。留給收尾。
+- 發現的回歸（不在這批裡，另修）：人類操作的檜佐木在對戰開始時當掉（「not a lisp data object」），debug 83000 在 d337a824 重現、fd9e7180 的建置正常；所以 debug 2496 先用劍八始解對一護。
+- 驗證（主目錄重跑）：duel-rules 10200、hud-engine 121 全過；pkgcheck 只剩 `DUEL::APP`；debug-ranges-check 119 個範圍 0 錯；8 秒 smoke（預設、`hud=lisp` 桌面、`hud=lisp` 手機 390×844）皆 0；G2 原生與瀏覽器 II 32、IK 34、KK 33 相同。對照圖在 worktree 的 build/lhud/p34/（git 忽略）。
+
+分工：Opus 5.5：實作、截圖、文件草稿；主對話 Fable 5.2：覆核（圖與 diff）、合併、檢查、提交。

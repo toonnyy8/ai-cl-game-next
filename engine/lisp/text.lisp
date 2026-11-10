@@ -136,8 +136,9 @@ line-height LH, text-align ALIGN (:start :center :end) inside WIDTH. Pen [7] := 
               (declare (fixnum o) (single-float edge adv gl gt gw gh u0 v0 u1 v1))
               (when (> gw 0f0)
                 (if up
-                    ;; upright: the em box (ascent over descent) is the column's next em, centred on XC
-                    (let* ((gx0 (+ (- xc (* 0.5f0 adv)) gl)) (base (+ y (* size (/ asc (+ asc dsc))))) (gy0 (- base gt)))
+                    ;; upright: the ideographic em box (0.88 em over the baseline: the CJK faces' typo ascender, where their
+                    ;; vmtx puts the vertical origin, as Chrome does) is the column's next em, centred on XC
+                    (let* ((gx0 (+ (- xc (* 0.5f0 adv)) gl)) (base (+ y (* size 0.88f0))) (gy0 (- base gt)))
                       (declare (single-float gx0 base gy0))
                       (%glyph-quad gx0 gy0 (+ gx0 gw) (+ gy0 gh) u0 v0 u1 v1 0f0 0f0 nil))
                     ;; sideways: turned 90 degrees clockwise (local (lx along the advance, ly down) -> (bx - ly, y + lx)), the em

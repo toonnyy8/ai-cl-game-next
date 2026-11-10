@@ -61,14 +61,15 @@ tab's (0 paused), [3] the canvas's paused grade (0..1, .5 s ease-out).")
 (defmacro with-col ((var src) &body body)
   "VAR: the scratch colour *LHUD-COL* set to the colour SRC (an f32vec), for BODY to change (an alpha, a blend) without consing."
   `(let ((,var *lhud-col*)) (declare (type f32vec ,var)) (replace ,var ,src) ,@body))
-(declaim (type f32vec *lhud-col* *lhud-col2*))
-(defvar *lhud-col* (make-f32 4) "A scratch colour (WITH-COL).")
-(defvar *lhud-col2* (make-f32 4) "A second scratch colour (COL-MIX).")
-(defmacro col-mix (a b k)
-  "*LHUD-COL2* := the colour A blended toward B by K (0..1, every channel and the alpha): a CSS colour transition. Inline (a float
-argument to a function is boxed)."
+(declaim (type f32vec *lhud-col* *lhud-mix* *lhud-mix2*))
+(defvar *lhud-col* (make-f32 4) "WITH-COL's scratch colour (owned by the WITH-COL form that binds it, read at once).")
+(defvar *lhud-mix* (make-f32 4) "A blend's out colour (COL-MIX!; the caller names it: read at once, before the next blend into it).")
+(defvar *lhud-mix2* (make-f32 4) "A second out colour, for a call that takes two blends at once (爆's ink: its two gradient stops).")
+(defmacro col-mix! (out a b k)
+  "OUT := the colour A blended toward B by K (0..1, every channel and the alpha): a CSS colour transition; returns OUT. The caller
+owns OUT (*LHUD-MIX*, or *LHUD-MIX2* for a second blend alive at the same time). Inline (a float argument to a function is boxed)."
   (let ((ga (gensym "A")) (gb (gensym "B")) (gk (gensym "K")) (go (gensym "O")))
-    `(let* ((,ga ,a) (,gb ,b) (,gk ,k) (,go *lhud-col2*))
+    `(let* ((,go ,out) (,ga ,a) (,gb ,b) (,gk ,k))
        (declare (type f32vec ,ga ,gb ,go) (single-float ,gk))
        (dotimes (i 4) (setf (aref ,go i) (+ (aref ,ga i) (* ,gk (- (aref ,gb i) (aref ,ga i))))))
        ,go)))
@@ -83,8 +84,10 @@ argument to a function is boxed)."
   "The f32vec V of points with its first point appended (a closed outline for PAINT-STROKE!)."
   (let ((o (make-f32 (+ 2 (length v))))) (replace o v) (setf (aref o (length v)) (aref v 0) (aref o (1+ (length v))) (aref v 1)) o))
 (declaim (type f32vec *sh-flame* *sh-flame-o* *sh-inf*))
-(defvar *sh-flame* (path-points +soul-path+ :segs 3) "The soul flame's outline (fill): 15 points (a flame is 1.05u, ~29 device px on a phone; 5 segs a curve cost 25 points, 230 vertices a flame).")
+(defvar *sh-flame* (path-points +soul-path+ :segs 3) "The soul flame's outline as points: 2509's shapes card (the plates draw the baked glyph +SOUL-GLYPH+).")
 (defvar *sh-flame-o* (closed-points *sh-flame*) "The same, closed (its stroke).")
+(defparameter +soul-glyph+ (string (code-char #xE000))
+  "The soul flame as one baked SDF glyph in the sans (tools/sdf-bake.py SHAPES: +SOUL-PATH+, its em = the viewBox's 14 units).")
 (defvar *sh-inf* (path-points +inf-path+ :segs 8) "The infinity's stroke.")
 
 ;;; ---------------------------------------------------------------- small helpers of every view

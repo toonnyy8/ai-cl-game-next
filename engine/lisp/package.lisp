@@ -85,6 +85,7 @@
    #:*text-small-css* #:*text-small-bold* #:*text-small-soft* #:line-baseline #:paint-text-aligned #:paint-int-tab
    #:paint-measure-int-tab #:paint-paragraph #:text-layout #:*text-cache-max* #:paint-vertical #:paint-measure-vertical
    #:hot-begin-frame #:hot-add #:hot-hit #:hot-focus-step #:+hot-max+ #:mouse-x #:mouse-y
+   #:*glyph-dscale* #:+big-px+   ; (a glyph's SDF units per em by tier, the display tier's threshold: DUEL_LISP_HUD §14)
    ;; audio.lisp: synthesis toolkit, DEFSOUND, playback
    #:+au-rate+ #:+au-dt+ #:tt #:au-rnd #:au-frac #:au-expf #:au-powf #:au-sin #:au-saw #:au-sqr #:au-ph+
    #:au-env-exp #:au-ar #:au-adsr #:au-sweep #:au-rrange #:au-midi #:au-buf #:au-render #:au-peak #:au-scale!

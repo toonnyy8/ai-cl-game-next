@@ -27,6 +27,18 @@
 (check (~= (lhud-kit-kind "UDE") 2 1e-3))
 (check (~= (lhud-kit-kind "BUNSHIN x1") 0 1e-3))
 
+;; the overlays' tables (DUEL_LISP_HUD §14): the intro's column and line, the pause rows as hud.js splits them
+(check (equal (lhud-full-name (lhud-fighter 2) "KENPACHI") "更木剣八"))
+(check (equal (lhud-full-name nil "ABC  FORM") "ABC"))
+(check (equal (lhud-cry-line "ZANGETSU") "斬月 · ZANGETSU"))
+(check (equal (lhud-cry-line "OTHER") "OTHER"))
+(check (equal (lhud-cry-line nil) ""))
+(check (equal (multiple-value-list (lhud-pause-row "RESUME")) '("RESUME" nil "繼續")))
+(check (equal (multiple-value-list (lhud-pause-row "DUMMY  STAND")) '("DUMMY" "STAND" nil)))
+(check (equal (multiple-value-list (lhud-pause-row "P1 HP  100%")) '("P1 HP" "100%" nil)))
+(check (equal (multiple-value-list (lhud-pause-row "CAMERA  SIDE  X")) '("CAMERA" "SIDE X" nil)))
+(check (equal (multiple-value-list (lhud-pause-row "CHARACTER SELECT")) '("CHARACTER SELECT" nil "換角色")))
+
 ;; geometry: 453 x 823 CSS at dpr 3, the model of the user's screenshot (V30-V35 = 0 630 1000 1000 -124 448, V36-38 = 842 847 87)
 (let ((g (make-f32 8)) (w (* 3f0 453)) (h (* 3f0 823)))
   ;; hud.js: w = 453, h = 823 * .37 = 304.51, rise = (44.8 - -12.4) / 100 * h = 174.18, len = hypot = 485.33, ang = atan2 = .36712

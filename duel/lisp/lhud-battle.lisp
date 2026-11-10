@@ -5,7 +5,8 @@
 ;;;; touch ink, the layers' fades); the model's access and the palette in lhud-model.lisp, the tables in lhud-data.lisp, the pure
 ;;;; geometry in lhud-geom.lisp. *HUD-RENDERER* :LISP (the URL flag ?hud=lisp, page get 8, or debug 2517) draws it and stops sending
 ;;;; to the page; :HTML (the default) leaves everything as it was. Phase 2 draws the handheld portrait battle screen whole (and the
-;;;; desktop plates and combos); the pause rows, the intro / finish and the menus are not drawn yet (DUEL_LISP_HUD §5, §13).
+;;;; desktop plates and combos); phases 3-4 the landscape screen and the overlays (lhud-clock.lisp, lhud-overlay.lisp: the pause, the
+;;;; intro card, READY / 斬, the finish); the menus are the page's (DUEL_LISP_HUD §5, §13, §14).
 ;;;; Cosmetic, outside the sim step; 0 B a frame in steady state (debug 2519).
 (in-package :duel)
 
@@ -145,37 +146,48 @@ the hot boxes start over. Under :LISP only (LHUD-DRAW)."
   nil)
 
 ;;; ---------------------------------------------------------------- every frame
-(defun-fast lhud-systems ()
+(defun-fast lhud-systems (fresh)
   "Every element's system, once a frame before any view: the model's derived strings, then each element's state from the model at
 the UI clock (the only mutation of the Lisp HUD outside the paint stream's buffers, and *GRADE-DESAT*: LHUD-LAYERS-UPDATE)."
   (lhud-model-update)
-  (lhud-layers-update)
+  (lhud-layers-update fresh)
   (lhud-plate-update 0) (lhud-plate-update 1)
   (lhud-combo-update 0) (lhud-combo-update 1)
   (lhud-callout-update 0) (lhud-callout-update 1)
   (lhud-prompt-update)
   (lhud-deck-update)
+  (lhud-clock-update)
   (lhud-fx-update)
+  (lhud-intro-update fresh)
+  (lhud-finish-update)
+  (lhud-pause-update)
   nil)
 
+(defvar *lhud-v0* (make-array 1 :element-type 'fixnum :initial-element 0) "V0 at the last LHUD-DRAW (its battle bit off: the next frame is fresh).")
+(declaim (type (simple-array fixnum (*)) *lhud-v0*))
 (defun lhud-draw ()
   "The Lisp HUD of this frame (HUD-DRAW, *HUD-RENDERER* :LISP, after it advanced the UI clock) while a battle is up (V0 bit 1): the
-systems, then the views back to front as hud.css stacks them: the deck (z 9), .hudl (z 10: the plates, the clock, the move names,
-the combos, the prompt; .3 paused, out in a cinematic), 爆 and the stance ring (z 14), the touch ink (z 15)."
-  (let* ((v0 (aref *hud-sent* 0)) (phone (> (window-height) (window-width))) (deck (and phone (logtest v0 8))))
+systems, then the views back to front as hud.css stacks them: the paused scene's dimming (the canvas filter), the deck (z 9), .hudl
+(z 10: the plates, the clock, the move names, the combos, the prompt; .3 paused, out in a cinematic), 爆 and the stance ring (z 14),
+the touch ink (z 15), the intro card and the finish (z 18), READY / 斬 (z 19), the pause (z 20)."
+  (let* ((v0 (aref *hud-sent* 0)) (phone (> (window-height) (window-width))) (deck (and phone (logtest v0 8)))
+         (fresh (not (logtest (aref *lhud-v0* 0) 1))))
     (declare (fixnum v0))
+    (setf (aref *lhud-v0* 0) v0)
     (lhud-frame)
     (when (logtest v0 1)
-      (lhud-systems)
+      (lhud-systems fresh)
+      (lhud-dim)
       (when deck (lhud-deck))
       (when (> (layer-op 0) 0.002f0)
         (if deck (lhud-plate-line) (lhud-plate 0))
         (lhud-plate 1))
-      (when phone (lhud-clock))
+      (lhud-clock)
       (lhud-callout 0) (lhud-callout 1)
       (lhud-combo 0) (lhud-combo 1)
       (lhud-prompt)
-      (when deck (lhud-dial) (lhud-ring) (lhud-fx)))
+      (when deck (lhud-dial) (lhud-ring) (lhud-fx))
+      (lhud-intro) (lhud-finish) (lhud-ready) (lhud-pause))
     (when *lhud-still* (lhud-card) (lhud-card-demo))
     nil))
 

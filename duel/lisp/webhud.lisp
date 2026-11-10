@@ -39,8 +39,7 @@ native gate): NIL."
 ;;; (they are the page's under either battle renderer until phase 5).
 (defun page-draws-p ()
   "Does the page draw the battle screens (renderer :HTML and hud.js there)? Then values go to the page and its pause rows' queue is
-read. Also the interim gate of the screens the Lisp HUD does not draw yet (phase 4: the pause rows, the intro / K.O. / TIME
-letterbox and caption, FIGHT!): under :LISP the canvas still draws those."
+read (under :LISP the Lisp HUD's hot boxes stand in: LHUD-PAUSE-POINTER)."
   (and (webhud-page-p) (eq *hud-renderer* :html)))
 (defun canvas-hud-off-p ()
   "Does someone other than the canvas HUD draw the battle screens (the page under :HTML, Lisp under :LISP)? Then the canvas HUD
@@ -266,20 +265,27 @@ reading and its line (strings 30 / 31; the kanji are the page's)."
         (when paused (webhud-pause)))
       (setf *web-paused* paused))))
 
+(defun webhud-pause-cmd (cmd arg)
+  "One pause command, from the page's queue or the Lisp HUD's pointer (the same dispatcher for both renderers): 1 the cursor to row
+ARG, 2 confirm, 4 left, 5 right (as the menus' commands, WEBUI-COMMANDS); dropped unless the pause is up."
+  (declare (fixnum cmd arg))
+  (when (and *paused* (eq *flow* :battle))
+    (case cmd
+      (1 (setf *menu* arg))
+      (2 (setf *ui-press* (logior *ui-press* 16)))
+      (4 (setf *ui-press* (logior *ui-press* 4)))
+      (5 (setf *ui-press* (logior *ui-press* 8)))))
+  nil)
+
 (defun webhud-commands ()
-  "This frame's pause presses from the page (get 30101, a queue): 7 x 100000 + CMD x 1000 + ARG, 1 a row under the pointer
-(the cursor), 2 confirm, 4 left, 5 right (as the menus' commands, WEBUI-COMMANDS); dropped unless the pause is up. One press
-(2-5) a frame."
-  (when (page-draws-p)
-    (loop repeat 8
-          for c = (page-get (+ +pg-hud+ 1))
-          while (plusp c)
-          do (multiple-value-bind (from rest) (floor c 100000)
-               (multiple-value-bind (cmd arg) (floor rest 1000)
-                 (when (and (= from 7) *paused* (eq *flow* :battle))
-                   (case cmd
-                     (1 (setf *menu* arg))
-                     (2 (setf *ui-press* (logior *ui-press* 16)))
-                     (4 (setf *ui-press* (logior *ui-press* 4)))
-                     (5 (setf *ui-press* (logior *ui-press* 8)))))
-                 (when (<= 2 cmd 5) (return)))))))
+  "This frame's pause presses: under :HTML from the page (get 30101, a queue: 7 x 100000 + CMD x 1000 + ARG; one press (2-5) a
+frame), under :LISP from the pointer on the Lisp HUD's pause rows (LHUD-PAUSE-POINTER); both through WEBHUD-PAUSE-CMD."
+  (cond ((page-draws-p)
+         (loop repeat 8
+               for c = (page-get (+ +pg-hud+ 1))
+               while (plusp c)
+               do (multiple-value-bind (from rest) (floor c 100000)
+                    (multiple-value-bind (cmd arg) (floor rest 1000)
+                      (when (= from 7) (webhud-pause-cmd cmd arg))
+                      (when (<= 2 cmd 5) (return))))))
+        ((and (eq *hud-renderer* :lisp) *paused* (eq *flow* :battle)) (lhud-pause-pointer))))

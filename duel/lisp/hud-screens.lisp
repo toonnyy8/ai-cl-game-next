@@ -229,11 +229,11 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
         (ui-rect 0 0 w h c))
       (countdown! (aref f 3) (* (aref f 4) (hud-dt))))
     (draw-screen-fx w h)                                 ; focus lines (under the HUD)
-    (when (and *cine* (not (and (page-draws-p) (webhud-cine-p *cine*))))   ; letterbox + the cinematic's brush title (the intro's, the
-      (ui-rect 0 0 w (* 0.09 h) '(0 0 0 1)) (ui-rect 0 (* 0.91 h) w (* 0.09 h) '(0 0 0 1))   ; K.O.'s, TIME's: the page's, webhud.lisp)
+    (when (and *cine* (not (and (canvas-hud-off-p) (webhud-cine-p *cine*))))   ; letterbox + the cinematic's brush title (the intro's, the
+      (ui-rect 0 0 w (* 0.09 h) '(0 0 0 1)) (ui-rect 0 (* 0.91 h) w (* 0.09 h) '(0 0 0 1))   ; K.O.'s, TIME's: the page's or Lisp's)
       (when *caption* (unless (draw-bcap *caption* w h) (setf *caption* nil))))
     (when *caption-out*                                  ; an ended cinematic's title (not one the page drew)
-      (unless (and (page-draws-p) (eq *caption-out* *web-caption*))
+      (unless (and (canvas-hud-off-p) (eq *caption-out* *web-caption*))
         (unless (draw-bcap *caption-out* w h) (setf *caption-out* nil))))
     (case (if (webui-on-screen-p) :web *flow*)              ; the page's HTML menus draw it (webui.lisp)
       (:title (hud-title w h s))
@@ -248,12 +248,13 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
       (:clear (hud-endless-clear w h s))
       ((:doors :reward) (hud-rogue-doors w h s)))
     (draw-words w h)
-    (when (and *paused* (eq *flow* :battle) (not (page-draws-p)))   ; (the page draws the pause: webhud.lisp; under :LISP the canvas until phase 4)
+    (when (and *paused* (eq *flow* :battle) (not (canvas-hud-off-p)))   ; (the page draws the pause, or Lisp: lhud-overlay.lisp)
       (ui-rect 0 0 w h '(0 0 0 0.55))
       (if (and *one-hand* (not (portrait-p)))
           (ui-big-text "ROTATE TO PORTRAIT" (floor w 2) (* 0.3 h) (fit-scale "ROTATE TO PORTRAIT" (* 4 s) (* 0.9 w)) *white* '(0.7 0.25 0.05 1) s)
           (ui-big-text "PAUSED" (floor w 2) (* 0.3 h) (* 5 s) *white* '(0.7 0.25 0.05 1) s))
       (hud-menu (pause-items) (if (eq *mode* :practice) 0.4 0.45) w h s (/ w 2) 0.9))   ; PRACTICE's long list: above P1's block
-    (when (eq *hud-renderer* :lisp) (paint-clock-advance) (lhud-draw))   ; the battle HUD drawn by Lisp (lhud-battle.lisp, DUEL_LISP_HUD)
+    (when (eq *hud-renderer* :lisp)                     ; the battle HUD drawn by Lisp (lhud-battle.lisp, DUEL_LISP_HUD), then the
+      (paint-clock-advance) (lhud-draw) (lhud-canvas-grade!))   ; composite grade it asks for (its one output outside the paint stream)
     (when *lhud-shapes* (lhud-shapes-card))                              ; debug 2509: the paint shapes' test card (lhud-shapes.lisp)
     (debug-hud w h s)))
