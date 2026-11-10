@@ -1,0 +1,96 @@
+{
+  "baseline_score": 0.2156,
+  "beta": 0.9,
+  "branch_count": 4,
+  "cells": {
+    "b0_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.198 past 0.1468 arms 0.4521 standin 0.2353",
+      "score": 0.2581
+    },
+    "b0_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.1485 past 0.1567 arms 0.4464 standin 0.2353",
+      "score": 0.2467
+    },
+    "b0_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.3614 past 0.3085 arms 0.5766 standin 0.3235",
+      "score": 0.3925
+    },
+    "b1_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.0446 past 0.1368 arms 0.4387 standin 0.2157",
+      "score": 0.2089
+    },
+    "b2_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.1584 past 0.1592 arms 0.454 standin 0.2059",
+      "score": 0.2444
+    },
+    "b2_a1": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.1634 past 0.1642 arms 0.4579 standin 0.1961",
+      "score": 0.2454
+    },
+    "b2_a2": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.0495 past 0.1567 arms 0.4655 standin 0.1961",
+      "score": 0.217
+    },
+    "b3_a0": {
+      "error": null,
+      "fail_class": "ok",
+      "n_total": null,
+      "n_valid": null,
+      "note": "live 0.2723 past 0.1368 arms 0.1073 standin 0.0098",
+      "score": 0.1316
+    }
+  },
+  "directions": {},
+  "grid_plan": {
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "insufficient history: conservative bootstrap from the fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": null,
+    "out_of_support": false,
+    "requested": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "insufficient history: conservative bootstrap from the fallback grid",
+      "refine_count": 2
+    },
+    "source": "policy"
+  },
+  "max_parallelism": 4,
+  "pending_batch": [],
+  "policy_file": "rounds/round02/policy.py",
+  "refine_count": 2,
+  "round_index": 2,
+  "task": "Hisagi style function against Kenpachi, HARD: HK share against Kenpachi's pool (DUEL_AI_STRATEGY 8.19 round 5 step 7)"
+}

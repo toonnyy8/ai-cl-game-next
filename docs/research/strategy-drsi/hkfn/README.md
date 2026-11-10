@@ -19,3 +19,9 @@ Round 1 kept nothing: b3_a2 (Reishi parity at the bell) cleared the score bar on
 floors; every other cell missed the score bar (DUEL_AI_STRATEGY §8.19 "Round 5, step 7"). The scaffold (`duel/lisp/cpu-hk-hisagi.lisp`, its
 MANIFEST line after `lisp/cpu-kh-ken.lisp`) was removed from the game again; a round 2 puts `baseline/cpu-hk-hisagi.lisp` back first, since
 `rescore.sh` and `heldout.sh` swap the cell's file into the coordinator's checkout.
+
+Round 2 (the user: 「跑第二輪」; DUEL_AI_STRATEGY §8.19 "Round 5, step 8") ran under the promoted `v3_wide` policy, which planned 4 x 3 and
+pruned branches 1 and 3 after their first cells (8 cells). A new direction started from round 1's b2_a0 (branches 0, 2) or from Ichigo's KI
+code on Hisagi (`baseline/cpu-hk-hisagi-iki.lisp`, branches 1, 3; `brief.py` says which). It kept nothing: b0_a2 (the wake-up punish / guard
++ the Reishi pot) is the first code over the live-KH floor (held-out 0.388) but misses the stand-in floor (0.337) and bundles two rules.
+`dream2.sh`: the dream step after it (`policy/r2/`; `v6_adaptive` promoted on a tie). The scaffold was removed from the game again.

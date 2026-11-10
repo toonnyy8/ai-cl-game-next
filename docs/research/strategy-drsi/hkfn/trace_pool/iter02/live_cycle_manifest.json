@@ -1,0 +1,56 @@
+{
+  "completed_by_policy": true,
+  "cycle": 1,
+  "explore": {
+    "batch_sizes": [
+      4,
+      2,
+      2
+    ],
+    "best_score": 0.3925,
+    "decision_rounds": 3,
+    "effective_sequential_rounds": 3,
+    "max_refine": 2,
+    "max_width": 4,
+    "max_workers": 4,
+    "probe_budget": 8
+  },
+  "grid_plan": {
+    "actual": {
+      "decision_rounds": 3,
+      "effective_sequential_rounds": 3,
+      "max_attempt_selected": 2,
+      "opened_branch_count": 4,
+      "probe_count": 8
+    },
+    "clamp_reasons": [],
+    "effective": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "insufficient history: conservative bootstrap from the fallback grid",
+      "refine_count": 2
+    },
+    "fallback_reason": null,
+    "out_of_support": false,
+    "requested": {
+      "branch_count": 4,
+      "confidence": null,
+      "reason": "insufficient history: conservative bootstrap from the fallback grid",
+      "refine_count": 2
+    },
+    "source": "policy"
+  },
+  "policy": {
+    "beta_default": 0.9,
+    "config": {
+      "beta": 0.9
+    },
+    "name": "OptimalPolicy",
+    "sha256": "478b7420e4284d9bb78d72639f9c60b530a0eb87675d021a394665b6e9a95040",
+    "source": "docs/research/strategy-drsi/hkfn/rounds/round02/policy.py"
+  },
+  "recorded_at": "2026-11-10T01:28:20.295852+00:00",
+  "round_index": 2,
+  "schema_version": 2,
+  "workspace": "docs/research/strategy-drsi/hkfn"
+}

@@ -2012,6 +2012,39 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     on Hisagi as a base, and the keep rule stays as written before round 1. A kept code becomes an HK arm, and HK and KH refit
     simultaneously (the step 3 rule, with the step 6 amendment). The shared CPU stays unchanged.
 
+**Round 5, step 8: the Hisagi search, round 2 (2026-11-10).** Workspace `hkfn/` (`rounds/round02/`, `dream2.sh`).
+- **Setup.** The scaffold (`cpu-hk-hisagi.lisp`, the MANIFEST line, the host check of the file) went back in for the round and came out again
+  after it.
+  - The promoted `v3_wide` policy planned 4 x 3. It ran each branch's first cell, then continued only branches 0 and 2: 8 cells, all
+    recorded.
+  - A new direction started from round 1's b2_a0 (the whiff punish; branches 0, 2) or from Ichigo's KI code on Hisagi (branches 1, 3).
+  - The evaluator, the blocks and the keep rule are unchanged.
+
+| Cell | Start | The code | Search | Held-out x2: score / live / stand-in |
+|---|---|---|---|---|
+| b0_a0 | b2_a0 | the whiff punish after his knockdown + a 20-frame guard instead of the wake-up Hoho when nothing fits and Kenpachi is within 1.6 m | 0.258 | 0.280 / 0.231 / 0.272 |
+| b1_a0 | Ichigo's | his merged style + Ichigo's timed counter-Hoho on Kenpachi's attack in reach, J1 on the whiff | 0.209 | - |
+| b2_a0 | b2_a0 | the whiff punish also after his own Hoho / Step | 0.244 | - |
+| b3_a0 | Ichigo's | Ichigo's code + the Reishi pot (live 0.28, stand-in 0.02 on dev) | 0.132 | - |
+| b0_a1 | b0_a0 | + a guard as his wake-up Hoho ends | 0.247 | - |
+| b2_a1 | b2_a0 | the whiff punish after any busy state | 0.245 | - |
+| b0_a2 | b0_a0 | **b0_a0's wake-up punish / guard + round 1 b3_a2's Reishi pot** (two rules) | **0.393** | **0.406 / 0.388** / 0.337 |
+| b2_a2 | b2_a1 | a forward Step through Kenpachi's first hit, then J1 (its firing unconfirmed) | 0.217 | - |
+
+- **No code is kept.**
+  - b0_a2 is the first code over the live-KH floor (0.388 ≥ 0.2985) and the score bar (0.406 ≥ 0.3153). It misses the stand-in floor
+    (0.337 vs 0.3762), and it bundles two rules, which clause 5 does not admit.
+  - Its parts alone miss: the wake-up punish / guard (b0_a0) scores 0.280, live 0.231; the Reishi pot (round 1 b3_a2) scores 0.320, live
+    0.117.
+  - Together they gain against the live KH: Hisagi no longer feeds the bait at his wake-up, and the bell's Reishi tie-break turns toward
+    him.
+  - Every other cell misses the score bar. Ichigo's KI code stays strong against the live KH only (b1_a0, b3_a0).
+- **The dream step** (two worlds now):
+  - The incumbent `v3_wide` replays at reward 0.3267 (auc 0.3473, penalty 0.4125; beta non-degenerate).
+  - Its three template rewrites (beta 0.45 / 0.15 / 0.6) tie it exactly. `v6_adaptive` was promoted on the tie rule (the later candidate).
+- So HK stays `:qhs-ken`, and no game code changed in this step. Host tests, pkgcheck, the build, the smoke and G2 were re-run on the
+  unchanged sources.
+
 ## 9. Strategies may carry code (2026-11-08)
 
 Asked how the format grows to reach the style CPUs' HARD play (tactic modules in the core CPU switched by data / strategies that carry

@@ -19,6 +19,24 @@ branch = work['branch'] if 'branch' in work else int(re.match(r'b(\d+)', cell).g
 direction = work.get('direction') or f'lean on: {THEMES[branch % 4]}'
 parent = work.get('parent_dir')
 parent = os.path.abspath(parent) if parent else '(none: this cell opens a new direction from BASELINE_DIR)'
+# round 2 (DUEL_AI_STRATEGY §8.19 step 8, the user: 「跑第二輪」): a new direction starts from round 1's whiff punish (b2_a0) on branches 0 and 2,
+# from Ichigo's KI code on Hisagi (baseline/cpu-hk-hisagi-iki.lisp) on branches 1 and 3
+BASES = {'b2a0': (os.path.join(TOP, 'rounds/round01/nodes/b2_a0/cpu-hk-hisagi.lisp'),
+                  "round 1's b2_a0, the whiff punish after his knockdown (live-KH 0.19 on dev, the round's best there)"),
+         'iki': (os.path.join(TOP, 'baseline/cpu-hk-hisagi-iki.lisp'),
+                 "Ichigo's KI code on Hisagi (hisagi-hk-style calls ichigo-ki-style: 0.30 against the live KH, 0.005 against the stand-in)")}
+START, START_WHAT = (BASES['b2a0' if branch % 2 == 0 else 'iki'] if rnd >= 2
+                     else (os.path.join(TOP, 'baseline/cpu-hk-hisagi.lisp'), 'the baseline (his merged style)'))
+ROUND2 = f"""# Round 2 (the user: 「跑第二輪」) — read this first
+- Round 1 (HISTORY_DIR) kept nothing. Every code missed the live-KH floor (0.2985): the best there was the whiff punish after his knockdown
+  (b2_a0, live 0.17-0.19), the best score b3_a2's Reishi parity (0.32 held-out, live 0.12). Every change to his FIRST free frame after a
+  knockdown lost (b0_a*): that frame can't tell the bait from Kenpachi's meaty J1, and the shared CPU's wake-up Hoho answers the meaty J1.
+- Only Ichigo's KI code on Hisagi reaches the live floor (0.30), and it loses almost everything else (the stand-in 0.005): the keep rule
+  needs both the live floor and the stand-in floor (0.3762) in ONE job.
+- THIS CELL'S STARTING FILE (when PARENT_DIR is none): {START_WHAT}. Say in proposal.md what you started from.
+
+""" if rnd >= 2 else ''
+
 node = f'{REL}/rounds/round{rnd:02d}/nodes/{cell}'
 hist = ' '.join(os.path.abspath(h) for h in work.get('history_dirs', [])) or '(none: round 1)'
 FILE = 'cpu-hk-hisagi.lisp'
@@ -45,9 +63,9 @@ not committed, so first, in your worktree root:
 1. mkdir -p {REL} && cp {TOP}/eval.py {TOP}/cand-hkfn.lisp {REL}/   (the evaluator and the strategy that plays the function)
 2. insert the line lisp/{FILE} into duel/MANIFEST right after the line lisp/cpu-kh-ken.lisp (edit that one line; don't copy
    another checkout's MANIFEST)
-3. if PARENT_DIR is a directory, cp PARENT_DIR/{FILE} duel/lisp/{FILE}; else cp BASELINE_DIR/{FILE} duel/lisp/{FILE}; then touch it.
+3. if PARENT_DIR is a directory, cp PARENT_DIR/{FILE} duel/lisp/{FILE}; else cp {START} duel/lisp/{FILE}; then touch it.
 
-# Step 1. Read the complete history first
+{ROUND2}# Step 1. Read the complete history first
 (Context budget: read each proposal's summary, mechanism and measurement first and its score.rescored.json; read whole files only for the
 cells your direction builds on; grep big files rather than reading them end to end. Keep your proposal.md under about 150 lines.)
 Read every proposal.md under the sibling attempts, HISTORY_DIR and BASELINE_DIR, each with its score.rescored.json (the coordinator's
