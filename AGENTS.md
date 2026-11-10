@@ -43,6 +43,14 @@ Read this first. It is the map; the detail lives in the files it points to. The 
   hardest, Sonnet for the complex, Haiku 5.5 for the simple (2026-11-08).
   A dream-rsi round keeps an Opus 5.5 coordinator, which hands back after the held-out rescoring; the main session reviews it before the
   split test and the refit run (the user, 2026-11-10: 「好」, DEVLOG §698).
+- **Design principles** (the user, 2026-11-11: 「這份程式碼庫屬於你：它的用途和建構方式由你決定，你也將在此基礎上持續開發。請保持『低耦合、高內聚』的設計要點，與 Entity-Component-System + 務實化的 functional programming 作為核心理念。」,
+  DEVLOG §709): the main session owns the codebase's purpose and construction and decides design questions itself (asking only
+  what the user alone can judge: looks, feel, direction). Every module has one job and reaches others through a small interface
+  (low coupling, high cohesion). State lives in data (ECS: entities as ids, components as plain data, systems as functions over
+  them; `engine/lisp/ecs.lisp`); logic is pragmatic functional programming: pure functions of their inputs wherever the hot path
+  allows (host-testable, like `core.lisp`, `layout.lisp`, `tween.lisp`), mutation kept to named places (the sim step,
+  preallocated buffers for the 0 B / frame rule), no hidden channels through specials. New code and every refactor batch is
+  judged against this.
 - Ask with `AskUserQuestion` (2–4 options, recommended first) only when the answer changes the design; small clear
   requests get no questions.
 - **Playtest first, gates after** (the user, 2026-10-10, DEVLOG §165): once a change passes the fast checks (host tests,
@@ -109,7 +117,9 @@ tools/pkgcheck.sh duel                   # ECL never warns about undefined / une
 | Shipping build | `./build.sh duel` last | |
 
 - Engine tests (run what a change touches): `tests/ecs-test.lisp`, `tests/test-math.lisp` (header has its load line), `tests/input-test.lisp`,
-  `tests/cine-test.lisp`, `tests/engine-check.sh` (browser).
+  `tests/cine-test.lisp`, `tests/hud-engine-test.lisp` (the paint stream's layout, line breaking, tweens, hot boxes: `$E --norc --load
+  tests/hud-engine-test.lisp`), `tests/paint-shapes-test.lisp` (SVG path flattening, the display tier's upper case: `$E --norc --load
+  engine/lisp/package.lisp --load engine/lisp/math.lisp --load tests/paint-shapes-test.lisp`), `tests/engine-check.sh` (browser).
 - Scope: a change inside one character's files → its pairings and its A/B (Lille II: not against the old Lille, no BL
   pairing, the user 2026-10-10); shared files (combat, fighter, rules, ai,
   tuning, kit) → all fifteen. Attribute a shift with a baseline on the parent commit (`git worktree add`). A character's rework
@@ -213,7 +223,7 @@ system on 2026-10-28, the old system's versions at `git show e55304e:skills/<nam
 | `tools/roguegate.py` | the DANGAI autopilot gate: per character clears / median steps, each reward's runs and clears (`--pick first\|random\|greedy`) |
 | `tools/toon_check.py` | pixel checks of the ink style rules |
 | `tools/glyph-bake.py`, `tools/pwa-icons.py`, `tools/pose-solve.py` | offline generators (glyph polygons, app icons, arm pose solving) |
-| `tools/sdf-bake.py`, `tests/lhud-compare.py` | the Lisp HUD's SDF text atlas (`--fetch` the faces into build/font-cache/; writes duel/hud-font/) and its HTML-vs-Lisp side-by-side sheets (DUEL_LISP_HUD §8) |
+| `tools/sdf-bake.py`, `tests/lhud-compare.py` | the Lisp HUD's SDF text atlas (`--fetch` the faces into build/font-cache/; writes duel/hud-font/) and its HTML-vs-Lisp side-by-side sheets (DUEL_LISP_HUD §8-§9; the charset test is `tests/duel-rules/lhud-charset.lisp`) |
 | `tools/deploy-pages.sh` | publish `dist/duel` to `gh-pages` (only on request) |
 | `tools/vendor-*.sh` | rebuild `vendor/` |
 | `tools/setup-cloud-env.sh` | recreate the whole toolchain in a fresh cloud container (~15 min) at the hard-coded paths |

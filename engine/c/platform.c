@@ -12,6 +12,7 @@ static unsigned char pf_mb[8], pf_mdown[8];
 static unsigned char pf_pb[PF_NPAD][PF_NBTN], pf_pprev[PF_NPAD][PF_NBTN];
 static float pf_axes[PF_NPAD][6];   /* lx ly rx ry lt rt; pad 0's are also copied into f[3..8] */
 static int pf_w = 1, pf_h = 1, pf_flost = 0;
+static float pf_mx, pf_my;   /* the mouse's last absolute position, window coordinates (CSS px on the web) */
 static Uint64 pf_tprev, pf_t0;
 /* Touch (docs/duel/DUEL_MOBILE_DESIGN.md G1): this frame's finger events, in order, for the Lisp recogniser
    (engine/lisp/touch.lisp). SDL finger ids map to small slots 0..PF_NFING-1 while the finger is down;
@@ -87,7 +88,8 @@ static void pf_pad_update(int k) {   /* read pad K into its button / axis slots 
   for (int i = 0; i < 15; i++) pf_pb[k][i] = SDL_GetGamepadButton(pad, (SDL_GamepadButton)i);
   pf_pb[k][16] = a[4] > 0.5f; pf_pb[k][17] = a[5] > 0.5f;
 }
-/* f: [0 dx 1 dy 2 wheel 3 lx 4 ly 5 rx 6 ry 7 lt 8 rt (pad 0) 9 dt 10 time 11 raw-dt 12 fps]
+/* f: [0 dx 1 dy 2 wheel 3 lx 4 ly 5 rx 6 ry 7 lt 8 rt (pad 0) 9 dt 10 time 11 raw-dt 12 fps 13 mouse x 14 mouse y (window px,
+   i.e. times the pixel density, as pf_width; docs/duel/DUEL_LISP_HUD.md §4.5)]
    LOCK: 1 = a click without the pointer lock requests it (and is not a press), 0 = never lock. */
 int pf_pump(float *f, float maxdt, int lock) {
   SDL_Event e; int run = 1;
@@ -100,9 +102,10 @@ int pf_pump(float *f, float maxdt, int lock) {
     case SDL_EVENT_FINGER_DOWN: case SDL_EVENT_FINGER_MOTION: case SDL_EVENT_FINGER_UP: case SDL_EVENT_FINGER_CANCELED:
       pf_touch_event(&e); break;
     case SDL_EVENT_MOUSE_MOTION: if (e.motion.which == SDL_TOUCH_MOUSEID) break;   /* SDL's mouse copy of a finger */
-      f[0] += e.motion.xrel; f[1] += e.motion.yrel; break;
+      f[0] += e.motion.xrel; f[1] += e.motion.yrel; pf_mx = e.motion.x; pf_my = e.motion.y; break;
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
       if (e.button.which == SDL_TOUCH_MOUSEID) break;
+      pf_mx = e.button.x; pf_my = e.button.y;
       if (lock && !pf_locked()) {   /* this click (re)acquires the pointer lock: not an attack */
         SDL_SetWindowRelativeMouseMode(pf_win, false); SDL_SetWindowRelativeMouseMode(pf_win, true);
         break;
@@ -122,6 +125,7 @@ int pf_pump(float *f, float maxdt, int lock) {
   for (int k = 0; k < PF_NPAD; k++) pf_pad_update(k);
   memcpy(f + 3, pf_axes[0], sizeof pf_axes[0]);
   SDL_GetWindowSizeInPixels(pf_win, &pf_w, &pf_h);
+  { float d = SDL_GetWindowPixelDensity(pf_win); f[13] = pf_mx * d; f[14] = pf_my * d; }
   Uint64 now = SDL_GetTicksNS(); float raw = (now - pf_tprev) * 1e-9f; pf_tprev = now;
   f[11] = raw; f[9] = raw > maxdt ? maxdt : raw; f[10] = (now - pf_t0) * 1e-9f;
   if (raw > 0) f[12] = f[12] <= 0 ? 1.0f / raw : f[12] * 0.95f + 0.05f / raw;

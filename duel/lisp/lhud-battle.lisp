@@ -59,7 +59,7 @@ DPR the pixel density, PHONE portrait (hud.js's hphone)."
 (defmacro tw (k from to t0 dur now)
   "A CSS transition's value: FROM -> TO along curve K over DUR s from T0 (before T0: FROM)."
   `(let ((%tu (/ (- ,now ,t0) ,dur))) (declare (single-float %tu))
-     (if (<= %tu 0f0) ,from (if (>= %tu 1f0) ,to (+ ,from (* (- ,to ,from) (ease-curve ,k %tu)))))))
+     (if (<= %tu 0f0) ,from (if (>= %tu 1f0) ,to (+ ,from (* (- ,to ,from) (ease ,k %tu)))))))
 
 ;;; ---------------------------------------------------------------- the plate's tag
 (defun lhud-tag-parts (side)
@@ -128,25 +128,24 @@ label or the tag string changed (EQ)."
                 ((> r (aref fv (+ fo 3))) (setf (aref fv fo) r (aref fv (+ fo 1)) r gv r)))
           (setf (aref fv (+ fo 3)) r))
         (paint-clip! bx by (+ bx bw) (+ by bh)) (paint-poly pts 6 +c-bar-bg+ +c-bar-bg+)
-        (setf fx0 (if mir (+ bx (* bw (- 1f0 gv))) bx) fx1 (if mir (+ bx bw) (+ bx (* bw gv))))
-        (when (> gv 0f0) (paint-clip! fx0 by fx1 (+ by bh)) (paint-poly pts 6 +c-blood+ +c-blood+))
+        ;; the ghost only beyond the fill (antialiased edges stacked under the fill would show a blood fringe)
+        (setf fx0 (if mir (+ bx (* bw (- 1f0 gv))) (+ bx (* bw r))) fx1 (if mir (+ bx (* bw (- 1f0 r))) (+ bx (* bw gv))))
+        (when (> gv r) (paint-clip! fx0 by fx1 (+ by bh) 0f0 1f0 (if mir 1 4)) (paint-poly pts 6 +c-blood+ +c-blood+))
         (setf fx0 (if mir (+ bx (* bw (- 1f0 r))) bx) fx1 (if mir (+ bx bw) (+ bx (* bw r))))
         (when (> r 0f0)
-          (if low
-              (progn (paint-clip! fx0 by fx1 (+ by bh) by (+ by bh)) (paint-poly pts 6 +c-low-hi+ +c-blood+))
-              (let ((ym (+ by (* 0.45f0 bh))))           ; #fff 0 -> paper 45 % -> #c9cbcf 100 %
-                (declare (single-float ym))
-                (paint-clip! fx0 by fx1 ym by ym) (paint-poly pts 6 +c-white+ +c-paper+)
-                (paint-clip! fx0 ym fx1 (+ by bh) ym (+ by bh)) (paint-poly pts 6 +c-paper+ +c-fill-lo+)))
-          ;; the grid: 1 px every 23 CSS px from 9 px, fixed to the bar (DEVLOG §618), only where the fill is
-          (let ((step (* 23f0 dpr)) (lx (* 9f0 dpr)))
-            (declare (single-float step lx))
-            (loop while (< lx bw)
-                  do (let* ((x0 (if mir (- (+ bx bw) lx dpr) (+ bx lx))) (x1 (+ x0 dpr)))
-                       (declare (single-float x0 x1))
-                       (paint-clip! (f-max x0 fx0) by (f-min x1 fx1) (+ by bh))
-                       (when (< (f-max x0 fx0) (f-min x1 fx1)) (paint-poly pts 6 +c-grid+ +c-grid+))
-                       (setf lx (+ lx step))))))
+          (let ((end (if mir 1 4)))                       ; the fill's moving end is antialiased, the band split is not (no seam)
+            (declare (fixnum end))
+            (if low
+                (progn (paint-clip! fx0 by fx1 (+ by bh) by (+ by bh) end) (paint-poly pts 6 +c-low-hi+ +c-blood+))
+                (let ((ym (+ by (* 0.45f0 bh))))         ; #fff 0 -> paper 45 % -> #c9cbcf 100 %
+                  (declare (single-float ym))
+                  (paint-clip! fx0 by fx1 ym by ym end) (paint-poly pts 6 +c-white+ +c-paper+)
+                  (paint-clip! fx0 ym fx1 (+ by bh) ym (+ by bh) end) (paint-poly pts 6 +c-paper+ +c-fill-lo+))))
+          ;; the grid: 1 px every 23 CSS px from 9 px, fixed to the bar (DEVLOG §618), only where the fill is: one striped polygon
+          (paint-clip! fx0 by fx1 (+ by bh))
+          (paint-stripes! (if mir (- (+ bx bw) (* 9f0 dpr)) (+ bx (* 9f0 dpr))) by (if mir -1f0 1f0) 0f0 (* 23f0 dpr) dpr)
+          (paint-poly pts 6 +c-grid+ +c-grid+)
+          (paint-pattern-off!))
         (paint-box! (+ bx (* 0.5f0 bw)) (+ by (* 0.5f0 bh)) (* 0.5f0 bw) (* 0.5f0 bh) 0f0 1f0 dpr +c-bar-line+)))
     nil))
 
@@ -210,7 +209,7 @@ new serial (opacity .25 s ease, x 2u .35 s ease-out), each hit restarting hd-sta
                 (pt 0 0f0 0.3f0) (pt 1 1f0 0f0) (pt 2 0.96f0 1f0) (pt 3 0.02f0 0.8f0))
               (paint-clip! -1f5 -1f5 1f5 1f5) (paint-poly pts 4 +c-slash+ +c-slash+)
               ;; the count: hd-stamp about its box's centre, then the container's shift
-              (let* ((e (ease-curve 4 (/ (- now (aref fv (+ fo 10))) 0.24f0))) (s (+ 1.5f0 (* -0.5f0 e)))
+              (let* ((e (ease +ease-snap+ (/ (- now (aref fv (+ fo 10))) 0.24f0))) (s (+ 1.5f0 (* -0.5f0 e)))
                      (rot (* -0.10472f0 (- 1f0 e))) (bx (+ cx (* 0.5f0 wn))) (byc (+ (- base an) (* 0.4f0 ns))))
                 (declare (single-float e s rot bx byc))
                 (paint-xform! bx byc s s rot tx 0f0 op)
@@ -244,7 +243,7 @@ new serial (opacity .25 s ease, x 2u .35 s ease-out), each hit restarting hd-sta
 
 (defun lhud-card ()
   "Debug 2518's card: each row of *LHUD-CARD* on an ink panel at 24 CSS px from the left, from 30 % of the height, a row every
-1.9 em (line-height 1). tests: the same rows in HTML (build/lhud/ref, DUEL_LISP_HUD Phase 0 results)."
+1.9 em (line-height 1). tests: the same rows in HTML (build/lhud/ref, DUEL_LISP_HUD §8)."
   (lhud-units (w h u st dpr phone)
     (let* ((x (* 24f0 dpr)) (y (* 0.3f0 h)) (y0 y))
       (paint-reset)
@@ -256,17 +255,105 @@ new serial (opacity .25 s ease, x 2u .35 s ease-out), each hit restarting hd-sta
             (paint-text s face +c-paper+)
             (setf y (+ y (* 1.9 size)))))))))
 
+;;; ---------------------------------------------------------------- the card's phase 1c rows (debug 2518): layout, text, tween, hot boxes
+;;; Beside the card's rows on a desktop, under them in portrait: a wrapped zh paragraph (kinsoku), the handheld screen's pointer seals
+;;; (hud.js FIGHTERS: Kenpachi's 「拖 · DRAG」 「肩 · SHOULDER」 「構 · CHUDAN」, a Mincho kanji and a letter-spaced mono word on one
+;;; baseline, end-aligned), a vertical column (CJK upright, Latin turned), a tabular clock that pops (hd-stamp restarted by its value)
+;;; and hover boxes (the mouse). 0 B a frame (debug 2519's "demo").
+(defparameter *lhud-demo-para* (zh "在出招中，手指停 40 ms 就算按下；在中立時，放開才出招。"))
+(defparameter *lhud-demo-v* (kj "月牙天衝"))
+(defparameter *lhud-demo-seals* (list (cons (kj "拖") " · DRAG") (cons (kj "肩") " · SHOULDER") (cons (kj "構") " · CHUDAN"))
+  "The handheld screen's pointer seals of Kenpachi's sealed form (hud.js FIGHTERS ptr): (kanji . the rest).")
+(defparameter *lhud-stamp* (make-tween '((0 nil 1.5 -6) (1 nil 1 0)) :dur 0.24 :curve +ease-snap+ :base '(1 0))
+  "hd-stamp (hud.css): .24 s ease-snap from scale 1.5, rotate -6deg.")
+(defvar *lhud-demo-st* (make-tween-slots 1)) (defvar *lhud-demo-se* (nth-value 1 (make-tween-slots 1)))
+(declaim (type f32vec *lhud-demo-st*) (type (simple-array fixnum (*)) *lhud-demo-se*))
+
+(defun-fast lhud-card-demo ()
+  "The card's phase 1c rows (see above), placed with layout.lisp from the frame LHUD-FRAME set."
+  (let* ((now (aref *ui-clock* 0)) (pen *paint-pen*) (dpr (lay-dpr)) (u (lay-u 1f0))
+         (x (if (lay-portrait-p) (lay-css 24f0) (* 0.52f0 (lay-w))))
+         (y (if (lay-portrait-p) (+ (* 0.3f0 (lay-h)) (* 16.5f0 u)) (* 0.3f0 (lay-h))))   ; (portrait: under the card's rows)
+         (pw (if (lay-portrait-p) (lay-css 150f0) (lay-css 168f0)))   ; the paragraph's width
+         (hov (hot-hit (mouse-x) (mouse-y))) (sec (fl-floor now)))
+    (declare (single-float now dpr u x y pw) (fixnum hov sec))
+    (paint-reset)
+    (macrolet ((hot (id x0 y0 x1 y1)                      ; register a hot box; the hovered one gets a stone frame
+                 `(let* ((%x0 ,x0) (%y0 ,y0) (%x1 ,x1) (%y1 ,y1)
+                         (%cx (* 0.5f0 (+ %x0 %x1))) (%cy (* 0.5f0 (+ %y0 %y1))) (%hw (* 0.5f0 (- %x1 %x0))) (%hh (* 0.5f0 (- %y1 %y0))))
+                    (declare (single-float %x0 %y0 %x1 %y1 %cx %cy %hw %hh))
+                    (hot-add ,id %x0 %y0 %x1 %y1)
+                    (when (= hov ,id) (paint-box! %cx %cy %hw %hh dpr 1f0 dpr +c-stone+)))))
+      ;; 1. a wrapped paragraph, 11 CSS px, line-height 1.6
+      (paint-pen! (f-floor+ x) (f-floor+ y) (lay-css 11f0))
+      (paint-paragraph *lhud-demo-para* +f-sans+ +c-paper+ :width pw :lh 1.6f0)
+      (hot 1 x y (+ x pw) (+ y (aref pen 7)))
+      (setf y (+ y (aref pen 7) (lay-css 10f0)))
+      ;; 2. the handheld seals: kanji .78u + " · " + the mono word .78u, .16em spaced, end-aligned at the paragraph's right edge,
+      ;;    a row every 1.3 em; ATK (display, 1.6u, .3em spaced) on the first row's baseline at the left
+      (let* ((kz (* 0.78f0 u)) (mz (* 0.78f0 u)) (right (+ x pw)) (y1 y))
+        (declare (single-float kz mz right y1))
+        (dolist (lab *lhud-demo-seals*)
+          (let ((base (f-floor+ (+ y1 (line-baseline +f-kanji+ kz 1f0)))) (w 0f0))
+            (declare (single-float base w))
+            (paint-pen! 0f0 0f0 mz :spacing 0.16f0) (paint-measure (cdr lab) +f-mono+) (setf w (aref pen 7))
+            (paint-pen! (f-floor+ (- right w)) base kz) (paint-text-aligned (car lab) +f-kanji+ +c-paper+ :end)
+            (paint-pen! (f-floor+ (- right w)) base mz :spacing 0.16f0) (paint-text (cdr lab) +f-mono+ +c-stone+)
+            (setf y1 (+ y1 (* 1.3f0 kz)))))
+        (paint-pen! (f-floor+ x) (f-floor+ (+ y (line-baseline +f-kanji+ kz 1f0))) (* 1.6f0 u) :spacing 0.3f0)
+        (paint-text "ATK" +f-display+ +c-steel+)
+        (hot 2 x y right (f-max y1 (+ y (* 1.6f0 u))))
+        (setf y (+ (f-max y1 (+ y (* 1.6f0 u))) (* 0.6f0 u))))
+      ;; 3. the clock: tabular digits, 4.3u display, popping (hd-stamp) at each new second; PAUSE spaced .3em beside
+      (let* ((cz (* 4.3f0 u)) (base (f-floor+ (+ y (line-baseline +f-display+ cz 1f0)))))
+        (declare (single-float cz base))
+        (tween-watch *lhud-demo-st* *lhud-demo-se* 0 sec now)
+        (paint-pen! 0f0 0f0 cz) (paint-measure-int-tab 99 +f-display+ 2)
+        (let* ((cw (aref pen 7)) (st (aref *lhud-demo-st* 0)) (sc (tween-value *lhud-stamp* st now 0))
+               (rot (* 0.017453f0 (tween-value *lhud-stamp* st now 1))))
+          (declare (single-float cw st sc rot))
+          (paint-xform! (+ x (* 0.5f0 cw)) (- base (* 0.35f0 cz)) sc sc rot 0f0 0f0)
+          (paint-pen! x base cz) (paint-int-tab (mod sec 100) +f-display+ +c-paper+ 2)
+          (paint-reset)
+          (paint-pen! (f-floor+ (+ x cw (* 0.8f0 u))) base (* 0.95f0 u) :spacing 0.3f0) (paint-text "PAUSE" +f-mono+ +c-steel+)
+          (hot 3 x y (+ x cw) (+ y cz)))
+        (setf y (+ y (* 5f0 u))))
+      ;; 4. a vertical column at the right: 月牙天衝 upright, then K.O. turned (writing-mode: vertical-rl), 2.4u
+      (let* ((vz (* 2.4f0 u)) (vx (+ x pw (if (lay-portrait-p) (lay-css 40f0) (lay-css 60f0)))) (vy (if (lay-portrait-p) (- y (* 9.2f0 u)) (* 0.3f0 (lay-h)))))
+        (declare (single-float vz vx vy))
+        (paint-pen! vx vy vz :spacing 0.08f0) (paint-vertical *lhud-demo-v* +f-kanji+ +c-paper+)
+        (paint-pen! vx (+ (aref pen 1) (* 0.4f0 vz)) (* 0.6f0 vz) :spacing 0.3f0) (paint-vertical "K.O." +f-mono+ +c-blood+)
+        (hot 4 (- vx (* 0.5f0 vz)) vy (+ vx (* 0.5f0 vz)) (aref pen 1))))
+    nil))
+
+(defvar *lhud-win* (make-array 4 :element-type 'fixnum :initial-element -1)
+  "The window LHUD-FRAME last asked the page about (width, height) and its answers: the left / right safe-area insets (CSS px).")
+(declaim (type (simple-array fixnum (*)) *lhud-win*))
+(defun-fast lhud-frame ()
+  "This frame's layout (layout.lisp): the window, the density, the four safe-area insets (top / bottom as DECK-UPDATE keeps them, left /
+right page get 5 / 6) and reduced motion (page get 7, DUEL_LISP_HUD §4.4), the page asked again only when the window's size changed;
+the hot boxes start over. Under :LISP only (LHUD-DRAW)."
+  (let ((k *lhud-win*) (w (window-width)) (h (window-height)))
+    (declare (fixnum w h))
+    (unless (and (= w (aref k 0)) (= h (aref k 1)))
+      (setf (aref k 0) w (aref k 1) h (aref k 2) (page-get 5) (aref k 3) (page-get 6) *reduced-motion* (= 1 (page-get 7))))
+    (layout-frame! (i->f w) (i->f h) (ffi:c-inline () () :float "pf_density()" :one-liner t)
+                   (i->f *safe-top*) (i->f *safe-bot*) (i->f (aref k 2)) (i->f (aref k 3))))
+  (hot-begin-frame)
+  nil)
+
 ;;; ---------------------------------------------------------------- every frame
 (defun lhud-draw ()
   "The Lisp HUD of this frame (HUD-DRAW, *HUD-RENDERER* :LISP, after it advanced the UI clock): the plates and combos while a battle
 is up and no cinematic covers it (hud.css .hudl)."
   (let ((v0 (aref *hud-sent* 0)) (phone (> (window-height) (window-width))))
     (declare (fixnum v0))
+    (lhud-frame)
     (when (and (logtest v0 1) (not (logtest v0 2)))
       (unless phone (lhud-plate 0))                      ; (the phone's P1 plate lies on the deck's line: phase 4)
       (lhud-plate 1)
       (lhud-combo 0) (lhud-combo 1))
-    (when *lhud-still* (lhud-card))
+    (when *lhud-still* (lhud-card) (lhud-card-demo))
     nil))
 
 (defun lhud-init ()

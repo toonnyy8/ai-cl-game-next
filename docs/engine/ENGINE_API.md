@@ -371,6 +371,75 @@ right; `(%houtline x y w h r g b a)` a 1 px outline; `(%pulse tm hz)` → 0..1, 
 literal). DEFUN-FAST-INLINEs on `%hq` (24 segments; a direct call expands in place, 0 B): `(%ring cx cy r wd cr cg cb ca)`, `(%arc cx cy r wd frac cr cg cb ca)`
 (FRAC of the ring, clockwise from the top), `(%disc cx cy r cr cg cb ca)`.
 
+## Paint stream shapes (`paint-shapes.lisp`, after `paint.lisp`; docs/duel/DUEL_LISP_HUD.md §10)
+
+The second 2D stream (RP_HUD, `*hud-batch*`, 16-float vertices, drawn after the UI batch) used by the Lisp HUD. Coordinates are
+framebuffer pixels before the current transform. Every float argument is a single-float form (the macros store them in f32vecs;
+0 B a frame); colours are `(rgba #xRRGGBB [alpha])` f32vecs made once.
+
+- State: `(paint-reset)` identity transform, opacity 1, scissor open, no pattern, empty stack (once an element);
+  `(paint-push)` / `(paint-pop)` save / restore the transform, opacity, scissor and pattern (8 levels);
+  `(paint-transform! ox oy &key sx sy rot skew dx dy)` composes CSS-order translate / rotate (radians, clockwise on screen) / scale
+  / skewX (the tangent) about (OX OY); `(paint-xform! ox oy sx sy rot dx dy [opacity])` sets it absolutely;
+  `(paint-opacity! a)` multiplies the opacity (per primitive, not a group render); `(paint-scissor! x0 y0 x1 y1)` replaces the
+  scissor (local coordinates; cuts polygons, boxes, ellipses).
+- Polygons: `(paint-clip! x0 y0 x1 y1 [gy0 gy1 aa])` the cut rectangle, its vertical gradient and the AA mask of the cut's sides
+  (bits 1 x0, 2 y0, 4 x1, 8 y1); `(paint-grad! x0 y0 x1 y1)` a gradient axis instead; `(paint-centre! x y)` the fan centre of a
+  star-shaped polygon (drawn aliased: stroke its outline); `(paint-poly pts n c0 c1)` a convex polygon (f32vec of N x y), analytic
+  AA (3 vertices a point left after the cut); `(paint-rect x y w h c0 [c1])`.
+- Patterns on polygons (and glyphs for dots): `(paint-dots! pitch radius)` screen halftone; `(paint-stripes! ox oy dx dy pitch
+  width)` lines across the unit axis, fixed to the shape; `(paint-pattern-off!)`.
+- `(paint-box! cx cy hw hh radius feather border col)` rounded box (FEATHER screen px: 1 AA, more a glow); `(paint-ellipse! cx cy
+  rx ry col &key thick feather frac ccw)` ellipse / ring / arc (6 vertices each); `(paint-stroke! pts n width col &key frac
+  round)` an open polyline (6 vertices a segment, not scissored); `(paint-radial! cx cy rx ry stops n)` a radial gradient, stops
+  `(t r g b a)` in an f32vec (32 segments, not scissored).
+- `(path-points d &key segs)` → f32vec: an SVG path's first subpath flattened (M L H V C S A Z; init time, conses; tested by
+  tests/paint-shapes-test.lisp). `(with-paint-back body…)`: BODY draws into `*hud-back*`, under the scene of a transparent
+  frame (`*render-transparent*`), the composite blended premultiplied over it (RP_COMP_AO, blend mode 4 of `r_make_pipe`).
+- Text runs (`paint.lisp`, phase 0, completed at the phase 1 merge, DUEL_LISP_HUD §12): `(paint-pen! x y size &key spacing edge
+  soft skew outline)` (Y the baseline; OUTLINE = pen [8], an SDF band: only a ring that wide inside the edge, lower the edge to grow
+  it outward); `(paint-text s face col)`, `(paint-measure s face)` (→ pen [7]), `(paint-int n face col)`, `(paint-measure-int n
+  face)`; faces 0 display, 1 mono, 2 Mincho, 3 sans. Every glyph quad (runs, paragraphs, columns) goes through the current transform
+  and opacity, is cut to the scissor, and takes the halftone dots of `paint-dots!` (not stripes). Above `+big-px+` (40 px) the
+  display tier is used; the display face's is upper case only, so a-z draw there as A-Z (no string made). Easing: tween.lisp's
+  `ease` (phase 0's `ease-curve` folded into it; the same curve numbers 0-4).
+
+## Paint stream: layout, animation, text layout, pointer targets (`layout.lisp`, `tween.lisp`, `text.lisp`, `hot.lisp`)
+
+The Lisp HUD's phase 1c (docs/duel/DUEL_LISP_HUD.md §4.2-§4.5 and §11). Device pixels, origin top-left. Every per-frame call is 0 B:
+float arguments go through macros into f32vec lanes (`*tw-io*`, `*text-io*`, `*hot-io*`, the pen), as in `paint.lisp`. The
+pure parts (layout, line breaking, tweens, hot boxes) are host-tested: `$ECL_HOST --norc --load tests/hud-engine-test.lisp`.
+
+- **Layout** (`layout.lisp`, plain CL): `(layout-frame! w h dpr st sb sl sr)` once a frame (window px, density, the four safe-area
+  insets in CSS px) sets `*lay*`; then `(lay-u k)` (hud.css `--u`: min(1vw, 1.7778vh), 2.36vw in portrait), `(lay-css k)`,
+  `(lay-vw k)`, `(lay-vh k)`, `(lay-w)`, `(lay-h)`, `(lay-dpr)`, `(lay-portrait-p)`, `(lay-inset side)` (0 top 1 bottom 2 left 3
+  right), `(lay-menu-form)` → `+form-desk+` / `+form-narrow+` (≤ 760 CSS px wide) / `+form-short+` (≤ 560 tall). DEFUN-FAST-INLINEs:
+  `(css-clamp lo pref hi)`, `(lay-safe side a b)` = max(a, inset + b), `(lay-anchor edge off size extent)`, `(lay-mirror x w bx bw)`,
+  `(lay-split! out x w gap weights n)` (fr tracks), `(lay-stack! out sizes n start gap align extent)` → length. `(fl-floor x)` /
+  `(fl-round x)` / `(fl-abs x)` / `(i->f* n)`: float ↔ fixnum without consing (C under COMPILE-FILE, plain CL on the host).
+  `(wrap-lines codes adv n width)` → start / end pairs: greedy breaks, CJK between any two characters, Latin at spaces, kinsoku
+  (`*kinsoku-no-start*`, `*kinsoku-no-end*`), hanging spaces, newlines, an overflow cut when there is no break.
+- **Tweens** (`tween.lisp`, plain CL): `(ease k u)` with `+ease-linear+ +ease+ +ease-out+` (the page's .16,1,.3,1) `+ease-cut+
+  +ease-snap+ +ease-in+ +ease-in-out+ +ease-out-css+`, and `(+ +ease-steps+ n)` = steps(n). `(make-tween keys &key dur delay iter dir
+  fill curve base)` (load time; KEYS = `(offset curve v1 .. vp)`, ITER < 0 infinite, DIR 0-3 normal / reverse / alternate /
+  alternate-reverse, FILL 0-3 none / forwards / backwards / both); `(tween-value a start now prop)`, `(tween-progress a start now)`.
+  `(make-tween-slots n)` → starts, serials; `(tween-restart starts i now)`; `(tween-watch starts serials i serial now)` restarts on a
+  changed serial (the first one seen only records). `(make-transitions n &optional v)`, `(trans-to tr i target now dur curve
+  &optional delay)` → value (retargets from where it is; DUR 0 snaps), `(trans-value tr i now)`. `*reduced-motion*`: animations at
+  their end state (or base), transitions at their target. NOW is the caller's clock (`*ui-clock*`).
+- **Text** (`text.lisp`; the run itself is `paint.lisp`'s): `(line-baseline face size lh)` (the CSS line box's baseline),
+  `(paint-text-aligned s face col :start|:center|:end)`, `(paint-int-tab n face col &optional digits)` /
+  `(paint-measure-int-tab n face &optional digits)` (tabular figures, zero-padded), `(paint-paragraph s face col &key width lh
+  align)` (wrapped at WIDTH px; pen x / y = the box's top-left; pen [7] := the height; line breaks cached per EQ string, face, width,
+  spacing in `text-layout`, `*text-cache-max*` strings), `(paint-vertical s face col)` / `(paint-measure-vertical s face)`
+  (writing-mode: vertical-rl: pen x = the column's centre; CJK upright, other characters turned 90° clockwise). The small-text
+  weight (`paint.lisp`): `*text-small-css*`, `*text-small-bold*`, `*text-small-soft*` (DUEL_LISP_HUD §11).
+- **Hot boxes** (`hot.lisp`): `(hot-begin-frame)` once a frame; `(hot-add id x0 y0 x1 y1)` registers a rectangle through the
+  current paint transform (a rotated box is stored as its quad); `(hot-hit x y)` → the topmost of LAST frame's boxes under the
+  point, or -1; `(hot-focus-step id dir)` → the next / previous id in drawing order (keys, pads). `+hot-max+` boxes a frame.
+- **Pointer** (`platform.lisp`): `(mouse-x)`, `(mouse-y)`: the mouse's last absolute position in device px (`*input*` lanes 13 /
+  14 from SDL's motion and button events times the pixel density).
+
 ## Low-level (render.lisp internals, rarely needed by gameplay)
 
 A `stream-buffer` is a CPU vertex batch (`stream-buffer-data` f32vec, `stream-buffer-fill` in

@@ -8343,3 +8343,43 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 建議：第 0 階段的出口條件除了「使用者覺得最小字可讀」之外都達到；可以照計畫開始 1a／1b／1c（1a 改用 `#embed`，1b 提早做重複條紋的圖樣旗標與多邊形邊緣反鋸齒，1c 由呼叫端推進時鐘）。
 
 分工：Opus 5.5：spike 的實作、量測、並排截圖、本段與 §8 草稿；主對話 Fable 5.2：覆核、提交。
+
+## 707. Lisp HUD 第 1a 階段：完整烘焙；手持直向畫面優先、小字先加粗（2026-11-11）
+
+使用者：「手持直向畫面優先重現 (Recommended)」（看了他傳來的手持模式（右手）直向戰鬥畫面截圖：斜切靈壓條、魂火、構／肩／拖指針選擇與標籤、爆盤與重／月／亂、SP 技／ATK 斬分區與分隔線、暫停鈕）
+
+使用者：「先加粗小字再看一次 (Recommended)」（關於 12 px 繁中清楚但比 Chrome 輕、8 px 漢字偏軟）
+
+- 決定一：手持直向畫面是第一個完整的 Lisp HUD 畫面，在第 1 階段之後馬上做，先於橫向桌面 HUD。DUEL_LISP_HUD §5 的階段表重排：第 2 階段 = 手持直向（原第 4 階段加原第 2 階段的直向部分），第 3 = 橫向戰鬥，第 4 = 疊層，選單照舊；§7 記了兩段原話。
+- 決定二：約 14 px 以下的字做邊界偏移（SDF 0.5 → 約 0.47），讓筆畫粗細接近瀏覽器；新的對照截圖交給使用者看，第 1 階段同時進行（偏移本身在 1c 的文字程式）。
+- 1a 做了什麼：`tools/sdf-bake.py` 烘完整字集。字集來源兩處：`duel/lisp/lhud-*.lisp` 的 `(kj)`、`(bigkj)`、`(big)`、`(zh)`、`(lhud-shape)` 標記（宣告集中在新檔 `lhud-charset.lisp`，MANIFEST 排在 lhud-battle 之後），加上 `hud.js` 與 `menu.js` 字串字面量裡的所有非 ASCII 字（略過註解，400 字）；後者一律進黑體，黑體沒有的（決闘的闘）落到明朝。每個字依 CSS 的字型和大小決定面與層級，超過 40 px 的用 96 px 顯示層。頁面字沒有任何字型也不是 `lhud-shape` 時，烘焙直接報錯。
+- 結果：938 個字（顯示體 100＋55 大、等寬 100、明朝 152＋58 大、黑體 473），圖集 1024 × 2048 = 2,097,152 B（gzip 804,069），metrics 16,948 B；兩次烘焙 sha256 相同。index.wasm 11,570,734 → 12,694,617 B（+1,123,883；gzip 3,339,769 → 4,001,406），啟動 heap 73.3 MB，與 §8.2 外推（約 +1.3 MB）相符。
+- 測試：新增 `tests/duel-rules/lhud-charset.lisp`（接進 duel-rules 的執行檔）：獨立用 Lisp 掃同樣的字串，缺字就報字與面層級；故意加一個沒烘的字確認會失敗。
+- 授權：四個 `duel/FONT-LICENSE-*.txt` 不變；新增 `duel/hud-font/README.md`（字體、來源、OFL 說明、重烘指令）。
+- 驗證：host tests（含新測試）ALL PASS，pkgcheck 只剩 `DUEL::APP`，`./build.sh duel`，8 秒 smoke 預設與 `?hud=lisp` 皆 exit 0，G2 原生 II 32、IK 34、KK 33 相同。
+
+分工：Sonnet 5.5：烘焙、字集檔、測試、文件；主對話：覆核、提交。
+
+## 708. Lisp HUD 第 1 階段完成：1a 烘焙、1b 圖形、1c 文字排版與動畫，三支合併（2026-11-11）
+
+使用者：「先加粗小字再看一次 (Recommended)」
+
+- 第 1 階段在三個平行 worktree（都從 9b3ee63a 出發）做完，再合成一棵樹（DUEL_LISP_HUD §9–§12）。
+- 1a 完整烘焙（§9）：938 個字（顯示體 100＋55 大、等寬 100、明朝 152＋58 大、黑體 473），圖集 1024 × 2048 = 2,097,152 B，metrics 16,948 B；index.wasm +1,123,883 B（gzip +661,637）；字集測試 `tests/duel-rules/lhud-charset.lisp`。
+- 1b 繪圖能力（§10）：新檔 `engine/lisp/paint-shapes.lisp`：多邊形解析式反鋸齒、線性／放射漸層、網點與條紋、圓角盒與光暈、橢圓／環／弧、筆劃、SVG 路徑、變換／透明度／剪裁堆疊、背景層（blend 4，RP_COMP_AO）；血條格線 20 條改一個條紋多邊形：一個名牌 0.141 → 0.050 ms，整個 HUD 0.32 → 0.15 ms；測試卡 debug 2509；`tests/paint-shapes-test.lisp`。
+- 1c 文字排版、動畫、版面、輸入（§11）：`layout.lisp`、`tween.lisp`、`text.lisp`、`hot.lisp`；換行與禁則、直排、等寬數字、CSS 緩動與關鍵影格、轉場、滑鼠熱區；小字加粗（使用者的決定）：14 CSS px 以下每邊加 0.06 裝置像素，dpr 1 的 8–12 px 墨量從 Chrome 的 0.84–0.93 變 0.95–1.03；`tests/hud-engine-test.lisp` 121 項。
+- 合併（§12）：兩份 MANIFEST、package、debug 2519、三份文件的衝突逐一合；作者互相留的事都做了：字形四邊形（一般、段落、直排共用 `%glyph-quad`）跟著剪裁裁切、外框走筆的第 9 格（`paint-pen! :outline`）、網點進字形；所有 paint 巨集改用 gensym（`%f32-set`），不再捕捉呼叫端的變數；`ease-curve` 併入 `tween.lisp` 的 `ease`；顯示層級只有大寫，`glyph-find` 查找時把 a–z 當 A–Z（不配置記憶體，有測試）；2518 卡片換成手持畫面真正的標籤「拖 · DRAG」「肩 · SHOULDER」「構 · CHUDAN」；2519 探針是合併改寫時引入的錯（`flet` 裡 `ms` 呼叫 `one`，第一次跑探針遊戲就停、沒印任何行），跑探針時抓到，改 `labels`。
+- 數字（合併後）：index.wasm 12,810,716 B（gzip 4,033,812）；2519 探針在 1280 × 720 與 390 × 844 都是 0 B（名牌、連擊、整個 HUD、2509 圖形卡、版面、2518 新列）；時間：名牌 0.05 ms、連擊 0.04、整個 HUD 0.15、圖形卡 0.33、2518 新列 0.055；啟動 heap 依建置不同讀到 73.3 或 87.4 MB（三次建置 87.4／73.3／87.4，程式只差一行；兩種建置每幀配置完全相同，是 Boehm heap 成長級距，跟程式改動無關；仍在 110 MB 上限內）。
+- 驗證：host tests duel-rules 10153、hud-engine 121、paint-shapes、input、touch、cine、control、learn 全過；pkgcheck 只剩 `DUEL::APP`；debug-ranges-check 0 錯；8 秒 smoke 預設與 `?hud=lisp` exit 0；G2 原生與瀏覽器 II 32、IK 34、KK 33 相同。
+
+分工：Sonnet 5.5：1a；Opus 5.5：1b、1c 與這次合併；主對話 Fable 5.2：覆核、合併、提交。
+
+## 709. 設計原則：低耦合、高內聚，ECS ＋ 務實的函數式（2026-11-11）
+
+使用者：「這份程式碼庫屬於你：它的用途和建構方式由你決定，你也將在此基礎上持續開發。請保持『低耦合、高內聚』的設計要點，與 Entity-Component-System + 務實化的 functional programming 作為核心理念。」
+
+- 改變什麼：主對話自己決定程式碼庫的用途與建構方式，設計問題自己定；只問使用者才能判斷的事（外觀、手感、方向）。
+- 三個原則：(1) 低耦合、高內聚：每個模組一件事，透過小介面互相使用；(2) 狀態放在資料裡（ECS：實體是 id、元件是純資料、系統是作用在它們上的函式，`engine/lisp/ecs.lisp`）；(3) 務實的函數式：熱路徑允許的地方都寫成輸入的純函式（可在 host 測，像 `core.lisp`、`layout.lisp`、`tween.lisp`），變動集中在有名字的地方（模擬步、為 0 B／幀而預先配置的緩衝），不透過 special 變數走暗道。
+- 套用：寫進 AGENTS.md「Design principles」；Lisp HUD 依此檢視（DUEL_LISP_HUD §4.8：哪些已是純函式、狀態在哪、哪些 special 是暗道、之後的畫面寫成「模型＋版面＋UI 時鐘 → 繪圖」的 view 函式；HUD 元素用固定的元件向量，不放進 ECS 世界，因為那個世界是 256 格、跟模擬共用、每場比賽清空）；暫停中的重構第 4 輪恢復時先照此稽核遊戲（REFACTOR_2026-11 §10.3 第 4 項）。
+- 這次沒有為此改寫程式，只記下之後要改的地方（§4.8 末）。
+

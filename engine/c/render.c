@@ -5,13 +5,13 @@
 #include "engine/c/engine.h"
 #include <stdio.h>
 static SDL_GPUDevice *r_dev;
-/* Slots are fixed: ui.lisp creates RP_UI = 10, paint.lisp RP_HUD = 19; the toon pipelines (SOUL DUEL's restyle) are appended. */
+/* Slots are fixed: ui.lisp creates RP_UI = 10, paint.lisp RP_HUD = 19 and RP_COMP_AO = 20; the toon pipelines (SOUL DUEL's restyle) are appended. */
 enum { RP_LIT, RP_LIT_CW, RP_LIT_T, RP_LIT_T_CW, RP_SKY, RP_FXA, RP_FXB, RP_BRIGHT, RP_BLUR, RP_COMP, RP_UI,
-       RP_TOON, RP_TOON_CW, RP_SKY_TOON, RP_HULL, RP_HULL_CW, RP_FXT, RP_COMP_FX, RP_COMP_A, RP_HUD, RP_N };
+       RP_TOON, RP_TOON_CW, RP_SKY_TOON, RP_HULL, RP_HULL_CW, RP_FXT, RP_COMP_FX, RP_COMP_A, RP_HUD, RP_COMP_AO, RP_N };
 static SDL_GPUGraphicsPipeline *r_pipe[RP_N];
 static SDL_GPUSampler *r_linear, *r_nearest;
 static SDL_GPUTexture *r_msaa_tex, *r_depth, *r_scene, *r_half[2], *r_q[2], *r_font, *r_hudfont;
-static SDL_GPUBuffer *r_draws, *r_fx[3], *r_uib, *r_hudb;
+static SDL_GPUBuffer *r_draws, *r_fx[3], *r_uib, *r_hudb, *r_hudbb;
 static SDL_GPUTransferBuffer *r_dyn;
 static int r_fw, r_fh, r_samples = 1, r_tris;
 #define R_DQ 32            /* draw record floats = WGSL struct Draw (128 bytes), see DRAW-MESH */
@@ -25,7 +25,9 @@ static int r_fw, r_fh, r_samples = 1, r_tris;
 #define R_OFF_UI (R_OFF_FX2 + R_FX_VERTS * 36)
 #define R_HUD_VERTS 32768  /* the paint stream (paint.lisp, DUEL_LISP_HUD §4.1): 16 floats each */
 #define R_OFF_HUD (R_OFF_UI + R_UI_VERTS * 32)
-#define R_DYN_SIZE (R_OFF_HUD + R_HUD_VERTS * 64)
+#define R_HUDB_VERTS 8192  /* the paint stream's back layer (drawn under the scene of a transparent frame): 16 floats each */
+#define R_OFF_HUDB (R_OFF_HUD + R_HUD_VERTS * 64)
+#define R_DYN_SIZE (R_OFF_HUDB + R_HUDB_VERTS * 64)
 
 /* Meshes live in 4 MB vertex buffer chunks (fewer vertex-buffer binds); a mesh = chunk, first vertex, count. */
 typedef struct { int buf, first, count; } RMesh;
@@ -46,7 +48,8 @@ static SDL_GPUShader *r_shader(const char *src, const char *entry, SDL_GPUShader
 /* LAYOUT: vertex attribute sizes (floats) as hex digits, 0x333 = 3 x float3; 0 = no vertex buffer.
    TARGET 0 scene (MSAA + depth), 1 offscreen RGBA8, 2 swapchain. DEPTH 0 off, 1 test+write, 2 test.
    BLEND 0 off, 1 alpha, 2 additive, 3 off + alpha-to-coverage (with MSAA; the toon fx shader discards
-   below its own threshold without it). CULL 0 none, 1 back, 2 back with clockwise front faces,
+   below its own threshold without it), 4 premultiplied over (one, one minus source alpha: the composite over the paint
+   stream's back layer). CULL 0 none, 1 back, 2 back with clockwise front faces,
    3 front (the ink hull), 4 front with clockwise front faces. */
 int r_make_pipe(int slot, const char *vsrc, const char *ventry, const char *fsrc, const char *fentry,
                 int layout, int target, int depth, int blend, int cull) {
@@ -63,8 +66,9 @@ int r_make_pipe(int slot, const char *vsrc, const char *ventry, const char *fsrc
   SDL_GPUColorTargetBlendState *bs = &ct.blend_state;
   ct.format = target == 2 ? SDL_GetGPUSwapchainTextureFormat(r_dev, pf_window()) : SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
   int a2c = blend == 3; if (a2c) blend = 0;   /* alpha-to-coverage: no blending */
+  int pmo = blend == 4; if (pmo) blend = 1;   /* premultiplied over: as alpha, but the source colour is not multiplied */
   bs->enable_blend = blend != 0; bs->color_blend_op = bs->alpha_blend_op = SDL_GPU_BLENDOP_ADD;
-  bs->src_color_blendfactor = blend ? SDL_GPU_BLENDFACTOR_SRC_ALPHA : SDL_GPU_BLENDFACTOR_ONE;
+  bs->src_color_blendfactor = blend && !pmo ? SDL_GPU_BLENDFACTOR_SRC_ALPHA : SDL_GPU_BLENDFACTOR_ONE;
   bs->dst_color_blendfactor = blend == 1 ? SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA : blend ? SDL_GPU_BLENDFACTOR_ONE : SDL_GPU_BLENDFACTOR_ZERO;
   bs->src_alpha_blendfactor = blend == 2 ? SDL_GPU_BLENDFACTOR_SRC_ALPHA : SDL_GPU_BLENDFACTOR_ONE;
   bs->dst_alpha_blendfactor = blend == 1 ? SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA : blend ? SDL_GPU_BLENDFACTOR_ONE : SDL_GPU_BLENDFACTOR_ZERO;
@@ -134,10 +138,11 @@ int r_init(int msaa) {
   r_fx[2] = r_buf(SDL_GPU_BUFFERUSAGE_VERTEX, R_FX_VERTS * 36);
   r_uib = r_buf(SDL_GPU_BUFFERUSAGE_VERTEX, R_UI_VERTS * 32);
   r_hudb = r_buf(SDL_GPU_BUFFERUSAGE_VERTEX, R_HUD_VERTS * 64);
+  r_hudbb = r_buf(SDL_GPU_BUFFERUSAGE_VERTEX, R_HUDB_VERTS * 64);
   SDL_GPUTransferBufferCreateInfo ti = {0}; ti.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD; ti.size = R_DYN_SIZE;
   r_dyn = SDL_CreateGPUTransferBuffer(r_dev, &ti);
   printf("render: SDL_GPU %s, scene MSAA %dx\n", SDL_GetGPUDeviceDriver(r_dev), r_samples);
-  return r_linear && r_nearest && r_draws && r_fx[0] && r_fx[1] && r_fx[2] && r_uib && r_hudb && r_dyn;
+  return r_linear && r_nearest && r_draws && r_fx[0] && r_fx[1] && r_fx[2] && r_uib && r_hudb && r_hudbb && r_dyn;
 }
 int r_sample_count(void) { return r_samples; }   /* scene MSAA samples actually used (1 or 4) */
 int r_mesh_new(const float *v, int n) {
@@ -230,12 +235,14 @@ static SDL_GPURenderPass *r_fs_pass(SDL_GPUCommandBuffer *cb, SDL_GPUTexture *ds
    4 scene w 5 scene h 6 window w 7 window h 8 desaturate 9 split (window px) 10 toon sky
    11 impact mode (0 = RP_COMP; 1..4 = RP_COMP_FX, see composite-fx.frag.wgsl) 12 threshold 13 keep-saturation
    14 keep-hue 15..17 ink rgb 18..20 paper rgb 21 keep-hue-2 22 transparent (no sky, RP_COMP_A: the scene's alpha out,
-   *RENDER-TRANSPARENT*; it wins over the impact mode)]; DQ = N draw records; FXA/FXB/FXT/UI/HUD = vertex floats (HUD: the
-   paint stream, drawn after the UI; nothing when NHUD is 0 or no atlas was made).
+   *RENDER-TRANSPARENT*; it wins over the impact mode)]; DQ = N draw records; FXA/FXB/FXT/UI/HUD/HUDB = vertex floats (HUD: the
+   paint stream, drawn after the UI; HUDB: its back layer, drawn into the cleared swapchain under the composite, which then
+   blends premultiplied over it (RP_COMP_AO), only on a transparent frame; nothing when the count is 0 or no atlas was made,
+   so a frame without them takes the old path unchanged).
    Returns the mesh draws issued, or -1 when no swapchain texture was available (frame skipped). */
 int r_frame(const float *fu, const float *rp, const float *dq, int n,
             const float *fxa, int nfa, const float *fxb, int nfb, const float *ui, int nui, const float *fxt, int nft,
-            const float *hud, int nhud) {
+            const float *hud, int nhud, const float *hudb, int nhudb) {
   SDL_GPUCommandBuffer *cb = SDL_AcquireGPUCommandBuffer(r_dev);
   SDL_GPUTexture *swt = NULL; Uint32 sw, sh;
   if (!cb) return -1;
@@ -248,13 +255,15 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
      (cycle=true would memset all 2.6 MB every frame). */
   Uint8 *m = SDL_MapGPUTransferBuffer(r_dev, r_dyn, false);
   if (!r_hudfont) nhud = 0;
-  Uint32 sz[6] = { (Uint32)n * R_DQ * 4, (Uint32)nfa * 4, (Uint32)nfb * 4, (Uint32)nui * 4, (Uint32)nft * 4, (Uint32)nhud * 4 };
-  Uint32 offs[6] = { 0, R_OFF_FX0, R_OFF_FX1, R_OFF_UI, R_OFF_FX2, R_OFF_HUD };
-  const void *srcs[6] = { dq, fxa, fxb, ui, fxt, hud }; SDL_GPUBuffer *dsts[6] = { r_draws, r_fx[0], r_fx[1], r_uib, r_fx[2], r_hudb };
-  for (int i = 0; i < 6; i++) if (sz[i]) SDL_memcpy(m + offs[i], srcs[i], sz[i]);
+  if (!r_hudfont || rp[22] == 0) nhudb = 0;   /* the back layer shows only through a transparent scene */
+  Uint32 sz[7] = { (Uint32)n * R_DQ * 4, (Uint32)nfa * 4, (Uint32)nfb * 4, (Uint32)nui * 4, (Uint32)nft * 4, (Uint32)nhud * 4, (Uint32)nhudb * 4 };
+  Uint32 offs[7] = { 0, R_OFF_FX0, R_OFF_FX1, R_OFF_UI, R_OFF_FX2, R_OFF_HUD, R_OFF_HUDB };
+  const void *srcs[7] = { dq, fxa, fxb, ui, fxt, hud, hudb };
+  SDL_GPUBuffer *dsts[7] = { r_draws, r_fx[0], r_fx[1], r_uib, r_fx[2], r_hudb, r_hudbb };
+  for (int i = 0; i < 7; i++) if (sz[i]) SDL_memcpy(m + offs[i], srcs[i], sz[i]);
   SDL_UnmapGPUTransferBuffer(r_dev, r_dyn);
   SDL_GPUCopyPass *cp = SDL_BeginGPUCopyPass(cb);
-  for (int i = 0; i < 6; i++) if (sz[i]) {
+  for (int i = 0; i < 7; i++) if (sz[i]) {
     SDL_GPUTransferBufferLocation l = { r_dyn, offs[i] }; SDL_GPUBufferRegion r = { dsts[i], 0, sz[i] };
     SDL_UploadToGPUBuffer(cp, &l, &r, false);
   }
@@ -295,6 +304,22 @@ int r_frame(const float *fu, const float *rp, const float *dq, int n,
       rp[11], rp[12], rp[13], rp[14], rp[15], rp[16], rp[17], rp[21], rp[18], rp[19], rp[20], 0 };
     for (int i = 0; i < 3; i++) { b[i].texture = src[i]; b[i].sampler = r_linear; }
     SDL_BindGPUGraphicsPipeline(pass, r_pipe[RP_COMP_FX]);
+    SDL_BindGPUFragmentSamplers(pass, 0, b, 3);
+    SDL_PushGPUFragmentUniformData(cb, 0, u, sizeof u);
+    SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
+  } else if (nhudb > 0) {   /* the back layer: clear, draw it, then the scene premultiplied over it (one pass) */
+    SDL_GPUColorTargetInfo sct = {0};
+    sct.texture = swt; sct.load_op = SDL_GPU_LOADOP_CLEAR; sct.store_op = SDL_GPU_STOREOP_STORE;
+    pass = SDL_BeginGPURenderPass(cb, &sct, 1, NULL);
+    float s[4] = { rp[6], rp[7], 0, 0 }; SDL_GPUTextureSamplerBinding fb = { r_hudfont, r_linear }; SDL_GPUBufferBinding bb = { r_hudbb, 0 };
+    SDL_BindGPUGraphicsPipeline(pass, r_pipe[RP_HUD]);
+    SDL_BindGPUVertexBuffers(pass, 0, &bb, 1);
+    SDL_BindGPUFragmentSamplers(pass, 0, &fb, 1);
+    SDL_PushGPUVertexUniformData(cb, 0, s, sizeof s);
+    SDL_DrawGPUPrimitives(pass, nhudb / 16, 1, 0, 0);
+    SDL_GPUTextureSamplerBinding b[3]; float u[4] = { bloom ? rp[2] : 0.0f, rp[3], rp[8], rp[7] > 0 ? rp[9] / rp[7] : 0.0f };
+    for (int i = 0; i < 3; i++) { b[i].texture = src[i]; b[i].sampler = r_linear; }
+    SDL_BindGPUGraphicsPipeline(pass, r_pipe[RP_COMP_AO]);
     SDL_BindGPUFragmentSamplers(pass, 0, b, 3);
     SDL_PushGPUFragmentUniformData(cb, 0, u, sizeof u);
     SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);

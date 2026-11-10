@@ -1,6 +1,6 @@
 # DUEL_LISP_HUD — the HTML HUD and menus redrawn by Lisp (design, 2026-11-10)
 
-Status: **phase 0 (the spike) built and measured, 2026-11-10 (§8)**; phases 1-7 not started. The source of the look is the HTML UI as it stands at main 5c212105
+Status: **phase 0 (the spike) built and measured, 2026-11-10 (§8); phase 1 built in three parallel worktrees and merged, 2026-11-11: 1a the full bake (§9), 1b the paint stream's shapes (§10), 1c text layout, tweens, layout, input and the small-text weight (§11), the merge and its cross-phase fixes (§12)**; phase 2 (the handheld portrait screen) is next, the other phases not started. The source of the look is the HTML UI as it stands at main 5c212105
 (`duel/web/hud.js`, `hud.css`, `menu.js`, `menu.css`; its record is DUEL_WEBUI). Background: DUEL_WEBUI §18,
 docs/engine/REFACTOR_2026-11.md §6 D4 and §10, DEVLOG §448, §458, §704, §705.
 
@@ -281,7 +281,7 @@ webui.lisp   -> *ui-sent*               \-> :lisp   lhud-*.lisp reads the same v
   `tools/sdf-bake.py FONTDIR` (the glyph-bake venv: fontTools, skia-pathops, plus numpy) reads each glyph's outline, removes
   overlaps (pathops), flattens it (glyph-bake's `Flatten`), and computes the exact signed distance to the segments on the cell
   grid (numpy; inside by winding), packs the cells (rows by height), and writes the committed output. The build does only the
-  cheap part: a host test (`tests/lhud-charset-test.lisp`) fails with "re-run tools/sdf-bake.py" when a string in the data or
+  cheap part: a host test (`tests/duel-rules/lhud-charset.lisp`, phase 1a: §9) fails with "re-run tools/sdf-bake.py" when a string in the data or
   renderer files has a (face, char) the bake lacks. The atlas is therefore static: uploaded once in a `:load` step, never
   updated between frames.
 - **Output form: a committed binary atlas, turned into a C array by the build.** `duel/hud-font/atlas.r8` (R8 texels) and
@@ -392,6 +392,35 @@ The HTML screens are fixed compositions: every element is placed from a viewport
 - Wasm: +2.1 MB atlas + ~0.6 MB code (estimate); removing the canvas HUD later (~850 lines) and the HTML files (~140 KB of
   page) gives some back.
 
+### 4.8 Principles: ECS + pragmatic FP (the user, 2026-11-11, DEVLOG §709)
+
+The standing rule (AGENTS.md "Design principles"): low coupling, high cohesion, state in data (ECS), logic as pragmatic
+functional programming. How the Lisp HUD as built (phases 0-1, §8-§12) maps onto it, and where it does not yet:
+
+- **Pure functions** (plain CL, host-tested in tests/hud-engine-test.lisp and tests/paint-shapes-test.lisp): layout.lisp's units,
+  clamps, anchors, splits and stacks; `wrap-lines` (kinsoku); tween.lisp's `ease`, `tween-value`, `trans-value`; `path-points`.
+  They write their float results into lanes (`*tw-io*`, `*text-io*`) only to keep 0 B a frame: a calling convention, not state.
+- **Where state lives**: the model the HTML and Lisp renderers both read (`*hud-sent*` / `*hud-strs*`, webhud.lisp: plain
+  vectors, written by the game once a frame); per-element animation state in fixed slots (`*lhud-f*` / `*lhud-i*`, tween slots,
+  transitions); the paint stream's preallocated buffers, its transform / opacity / scissor / pattern stack and the text pen. The
+  last are mutation for the 0 B rule, kept inside paint.lisp / paint-shapes.lisp.
+- **Hidden channels today**: the setters that must be called in order before an emitter (`paint-clip!` resets the gradient and
+  centre, so `paint-grad!` / `paint-centre!` come after it; `paint-dots!` / `paint-stripes!` and `paint-scissor!` stay in force
+  until `paint-reset` or `paint-pop`); `*paint-pat*` and `*paint-sc*` read by every emitter; the pen read by every text call;
+  `*lay*` read by the `lay-*` helpers. Each is one named place, but a caller can leak it to the next element: the rule is one
+  `paint-reset` (or a push / pop pair) per element.
+- **The rule for the screen phases (2-6)**: each screen is a view function from the model (plain data) + the layout frame + the
+  UI clock to paint calls; element state (a ghost's drain, a stamp's start, a hover) is a component in a plain vector updated by a
+  small system before the view runs; no screen reads sim internals (only the model, as the HTML does); no element reaches into
+  another's state.
+- **Not ECS entities**: engine/lisp/ecs.lisp's world is one global of 256 slots shared with the game (fighters, hazards), its
+  `spawn-entity` conses, and flow.lisp's per-match reset `clear-entities` empties it; HUD elements there would take sim slots,
+  be wiped at each match and couple the HUD to the sim's determinism. The HUD's elements are a fixed set known at load, so plain
+  component vectors indexed by element (as `*lhud-f*` already is) give the same data-oriented layout with none of that.
+- **To change later** (not now): name the per-element slots (`*lhud-f*`'s offsets) as small component structs or accessors; make
+  the setters' order explicit by an element macro that resets and pushes (a `with-element`); split lhud-battle.lisp's view
+  functions from their slot updates when phase 2 rewrites the plate.
+
 ## 5. Phases
 
 Every phase: host tests (duel-rules, control, input, touch, cine and the new lhud / tween tests), pkgcheck, `./build.sh duel`, a
@@ -402,20 +431,20 @@ stills (HTML vs Lisp) of the same scripted scene the user reviews. The looks gat
 | Phase | Scope | Files | Proof / exit | Lines (est.) | Model | Parallel |
 |---|---|---|---|---|---|---|
 | 0 spike | RP_HUD with modes 0-2, a minimal bake (sans + display tier, the plate's and combo's strings only), one plate's name / kanji / tag, the combo count with `hd-stamp`, `*hud-renderer*` + 2517 | render.c, a new hud shader, `engine/lisp/paint.lisp`, `tools/sdf-bake.py`, `duel/lisp/lhud-battle.lisp` (stub) | measured: wasm bytes, startup heap, frame ms (before / after), consing; stills at 390×844 dpr 3 and 1280×720 / 1920×1080 dpr 1 of the smallest sizes (.62u mono ≈ 8 CSS px at 1280, ≈ 6 at 390; menu 10 px mono, 11-12 px zh) with the densest kanji (鏡 鍵 鐮 觸 覺 鬥). Exit: the user finds the smallest text legible next to the HTML; 0 B; wasm and heap within the estimates ±50 % | ~900 | Opus | |
-| 1a bake + build | the full bake (four faces, two tiers, packing), the MANIFEST binary step, the charset test, licence files | tools/sdf-bake.py, build.sh, tests/lhud-charset-test.lisp, duel/hud-font/, duel/FONT-LICENSE-* | the test fails on a missing glyph and passes on the data; atlas size as estimated | ~450 | Sonnet | with 1b, 1c |
-| 1b paint | modes 3 and the patterns, polygons with the fringe, strokes, radial fans, the affine / opacity / clip stacks, the back layer and blend 4 | paint.lisp, render.c, render.lisp, the shader | engine host tests where pure; stills of a test card (shapes, rings, a halftone, a reveal) | ~700 | Opus | with 1a, 1c |
-| 1c text, tween, layout, input | run layout (CJK wrap, kinsoku, vertical), the run cache, styles; tween.lisp; layout helpers; the hot-box registry; `pf_mouse_xy`; pwa.js keys 5-8 | `engine/lisp/sdf-text.lisp`, `tween.lisp`, `layout.lisp`, platform.c / .lisp, pwa.js | host tests: easing against CSS reference values, wrap and kinsoku cases, clamp / anchor math | ~900 | Opus (text), Sonnet (tween, layout) | with 1a, 1b |
-| 2 battle, landscape | plates (bar, flames, kit strip, meters, seals), clock, combo, callout, prompt; the data file's battle tables | lhud-data.lisp, lhud-battle.lisp | side-by-side stills of scripted fights (both sides' callouts and combos, low Reishi, a Kikon at stake, awakening, sublimation, Kenpachi's NOME / UDE / KAIHO, PRACTICE ∞); the user's first review | ~900 | Opus | with 5 |
-| 3 overlays | pause (desktop and phone), intro card and READY / 斬, finish (K.O., TIME, draw) | lhud-overlay.lisp | stills through each phase of the intro and finish, the pause with PRACTICE's long list | ~500 | Sonnet | after 2 |
-| 4 phone | portrait plates, the deck, the plate on the line, 爆 (ink level, ticks, rings, arm / deny / slosh), the stance seals, the clock tab, touch ink, left hand | lhud-deck.lisp | `--mobile` stills at 390×844 with touch scripts (tap, flick, hold), both hands | ~800 | Opus | after 2 |
+| 1a bake + build (done 2026-11-11, §9) | the full bake (four faces, two tiers, packing), the charset file and test, licence files, the hud-font README (no build.sh step: `#embed`, §8.6) | tools/sdf-bake.py, duel/lisp/lhud-charset.lisp, tests/duel-rules/lhud-charset.lisp, duel/hud-font/, duel/FONT-LICENSE-* | the test fails on a missing glyph and passes on the data; atlas size as estimated | ~450 | Sonnet | with 1b, 1c |
+| 1b paint (done 2026-11-11, §10) | modes 3 and the patterns, polygons with the fringe, strokes, radial fans, the affine / opacity / clip stacks, the back layer and blend 4 | paint.lisp, render.c, render.lisp, the shader | engine host tests where pure; stills of a test card (shapes, rings, a halftone, a reveal) | ~700 | Opus | with 1a, 1c |
+| 1c text, tween, layout, input (done 2026-11-11, §11; built as text.lisp, the run cache left out) | run layout (CJK wrap, kinsoku, vertical), the run cache, styles; tween.lisp; layout helpers; the hot-box registry; `pf_mouse_xy`; pwa.js keys 5-8 | `engine/lisp/sdf-text.lisp`, `tween.lisp`, `layout.lisp`, platform.c / .lisp, pwa.js | host tests: easing against CSS reference values, wrap and kinsoku cases, clamp / anchor math | ~900 | Opus (text), Sonnet (tween, layout) | with 1a, 1b |
+| 2 handheld, portrait (first complete screen) | the portrait battle screen of the phone, right hand (the user's screenshot, §7): the slanted Reishi bars and soul flames, the plate on the line, the stance picker (構 / 肩 / 拖 with its label), the 爆 dial (ink level, ticks, rings, arm / deny / slosh) with 重 / 月 / 亂, the SP 技 / ATK 斬 zones and their dividing line, the pause chip, the clock tab, touch ink, the left hand; the kanji tags (風死, 分身), the paused .3 opacity; the data file's battle tables. This is the old phase 4 plus the portrait part of the old phase 2 | lhud-data.lisp, lhud-battle.lisp, lhud-deck.lisp | `--mobile` stills at 390×844 with touch scripts (tap, flick, hold), both hands, the screenshot's state reproduced side by side with the HTML; the user's first review of a whole screen | ~1,300 | Opus | after 1a-1c, with 5 |
+| 3 battle, landscape | the desktop HUD: plates (bar, flames, kit strip, meters, seals), clock, combo, callout, prompt: what phase 2 did not already build | lhud-battle.lisp (+ lhud-data.lisp) | side-by-side stills of scripted fights (both sides' callouts and combos, low Reishi, a Kikon at stake, awakening, sublimation, Kenpachi's NOME / UDE / KAIHO, PRACTICE ∞) | ~500 | Opus | after 2 |
+| 4 overlays | pause (desktop and phone), intro card and READY / 斬, finish (K.O., TIME, draw) | lhud-overlay.lisp | stills through each phase of the intro and finish, the pause with PRACTICE's long list | ~500 | Sonnet | after 2 |
 | 5 menus I | the backdrop, rails, cut, TITLE (wordmark, halftone 魂, ash), MODE (rows, brush, seals, torn card), SETTINGS, RESULTS | lhud-menus.lisp | stills of each screen at 1440×900 and 390×844, the cut mid-way, hover and tap through the hot boxes | ~1,000 | Opus | with 2 |
 | 6 menus II | CONTROLS (tabs, key map, binds, capture), the phone gestures page, SELECT (cards, weights, emblems on the back layer, the model spot computed in Lisp) | lhud-menus.lisp (+ lhud-select.lisp) | stills of SELECT's three phases with the fighter between the layers, at both sizes | ~800 | Opus | after 5 and 1b |
 | 7 acceptance | the user plays both; the default flips to `:lisp` on his word; then the removals (hud.js / menu.js / css, the canvas HUD) are his decision | flags, docs | the user's playtest | small | main session | |
 
 Total ≈ 7,000 lines including tests and the bake tool (estimate), of which ≈ 2,500 engine, ≈ 4,000 game, ≈ 500 tools / tests.
 Below §704's 8-12k because the model layer exists and the atlas is static (no runtime rasteriser or cache). Order of review:
-phase 0's stills, then phase 2's battle (the screen seen most), then phase 5's menus, which can be built in parallel in a second
-worktree once phase 1 lands.
+phase 0's stills, then phase 2's handheld portrait screen (the user's first choice, §7), then phase 3's landscape battle, then phase 5's menus,
+which can be built in parallel in a second worktree once phase 1 lands.
 
 ## 6. Risks and what is not done
 
@@ -445,6 +474,16 @@ worktree once phase 1 lands.
 3. New code in `lhud-*` files (the engine side in its own engine files: `engine/lisp/paint.lisp`, `engine/shaders/hud.*.wgsl`);
    the canvas HUD stays as the no-page fallback until acceptance.
 4. The full two-tier bake as designed, unless phase 0's measurements say otherwise (they do not: §8).
+
+**Decided by the user (2026-11-11)**, asked how to use the screenshot he sent of the handheld (portrait, right-hand) battle screen
+(「手持模式的操作介面（右手）」: the slanted Reishi bars, soul flames, the stance picker 構 / 肩 / 拖 with its label, the 爆 dial with
+重 / 月 / 亂, the SP 技 / ATK 斬 zones and their dividing line, the pause chip):
+
+5. 「手持直向畫面優先重現 (Recommended)」: that screen is the first complete Lisp HUD screen, built right after phase 1, before the
+   landscape desktop HUD (§5: the old phase 4 plus the portrait part of the old phase 2 is now phase 2; landscape, overlays, menus follow).
+6. Asked about small-text legibility (12 px zh-TW legible but lighter than Chrome's, 8 px kanji soft): 「先加粗小字再看一次 (Recommended)」:
+   text under about 14 px gets an edge bias (§8.3's knob, 0.5 to about 0.47) so its stroke weight is near the browser's; new comparison
+   stills go to the user; phase 1 proceeds meanwhile (the bias is phase 1c's, in the text code).
 
 The questions as they were put:
 
@@ -567,3 +606,305 @@ No face blocks embedding.
 - Phase 2: add the CSS-animation freeze to run.mjs before the animation review (§8.3); the phone's ink pool, the paused opacity
   and the kanji tags join the battle work.
 - The phases' order and sizes stand: phase 0 took ≈ 580 lines of Lisp, C and WGSL and ≈ 220 of tools, inside §5's ≈ 900.
+
+## 9. Phase 1a results (the full bake, 2026-11-11)
+
+Sonnet 5.5 in a worktree; the main session reviews. `tools/sdf-bake.py` now bakes the closed set of the HUD; no code of the renderer changed.
+
+**The scan** (all in the bake, reproducible): (1) the tagged forms of `duel/lisp/lhud-*.lisp` with `;` comments dropped: `(kj)` Mincho body,
+`(bigkj)` Mincho display tier, `(big)` display face display tier, `(zh)` sans, `(lhud-shape)` nowhere; the declarations live in the new
+`duel/lisp/lhud-charset.lisp` (in the MANIFEST after lhud-battle.lisp; pure data, the macros return the string); (2) every non-ASCII
+character in a string literal of `duel/web/hud.js` and `menu.js` (comments skipped), 400 characters: all go to the sans, the
+non-CJK ones also to the mono and display faces when those carry them, and a character the sans lacks (the 闘 of 決闘) goes to the
+Mincho; the bake exits with an error when a page character has no face and is not an `(lhud-shape)`. The per-face choice comes from the
+CSS (`--f-*` of hud.css / menu.css): names, seals, the callout, crumbs and emblems are Mincho, labels and digits Latin, paragraphs sans;
+sizes over 40 px (`+big-px+`) take the display tier, so only the big seals, emblems, finish words, the intro's name column, the menu's
+mode kanji and the Latin display words are baked at 96 px. Display Latin is upper case only (the CSS upper-cases those; the Lisp side
+upper-cases at draw).
+
+| Face, tier | Glyphs | Texels (a glyph) |
+|---|---|---|
+| Big Shoulders Display, body | 100 | 66,037 (660) |
+| Martian Mono, body | 100 | 82,645 (826) |
+| Shippori Mincho B1, body | 152 | 209,339 (1,377) |
+| Noto Sans TC, body | 473 | 602,045 (1,273) |
+| Big Shoulders Display, display | 55 | 197,494 (3,591) |
+| Shippori Mincho B1, display | 58 | 501,782 (8,651) |
+| total | 938 | 1,659,342 |
+
+Atlas 1024 × 2048 = 2,097,152 B (1,796 rows used, 88 %; gzip 804,069), metrics.bin 16,948 B. Two runs give byte-identical
+`atlas.r8` and `metrics.bin` (sha256 compared). The bake takes 15 s. Licence files: the four `duel/FONT-LICENSE-*.txt` are the OFL.txt
+of §8.4, unchanged; `duel/hud-font/README.md` lists the faces, sources, the OFL note and the rebake commands.
+
+| What | Phase 0 (mini bake) | Phase 1a (full bake) |
+|---|---|---|
+| index.wasm | 11,570,734 B (gzip 3,339,769) | 12,694,617 B (gzip 4,001,406): +1,123,883 B, +661,637 gzip |
+| startup heap | 74.3 MB | 73.3 MB (run to run noise; limit 110) |
+| Extrapolation of §8.2 | | wasm data ≈ +1.3 MB, ≈ +0.65 MB gzip; measured +1.12 MB and +0.66 MB |
+
+**The host test** `tests/duel-rules/lhud-charset.lisp` (a file of the duel-rules runner): reads metrics.bin and the sources as text
+(an independent Lisp scan of the same strings) and fails, naming the face and character, when (a) ASCII 32-126 is missing from the
+display, mono or sans body tiers, (b) a `kj` / `bigkj` / `big` character is missing from its own (face, tier), a `zh` one from the
+sans and the Mincho, (c) a non-ASCII character of a script string is in neither the sans nor the Mincho and not an `lhud-shape`.
+Proved to fail: a `(kj "鬱")` added without a rebake is reported and the run exits 1.
+
+## 10. Phase 1b results (the paint stream's drawing power, 2026-11-11)
+
+Opus 5.5 built it in a worktree from 9b3ee63a, in parallel with 1a (the bake) and 1c (text, tween, layout, input); the main session
+reviews. The handheld portrait battle screen came first (the user's first complete screen, 2026-11-11).
+
+### 10.1 What was built
+
+| Where | What |
+|---|---|
+| engine/lisp/paint-shapes.lisp (new, after paint.lisp in engine/MANIFEST) | the shapes and drawing state of 10.2; phase 0's `paint-reset`, `paint-xform!`, `paint-clip!`, `paint-rect`, `paint-box!`, `paint-poly` moved here from paint.lisp (paint.lisp keeps the vertex macro, the pen and the text runs) |
+| engine/shaders/hud.frag.wgsl | mode 0's analytic AA (three edge distances), mode 2's feather in screen pixels (the same at scale 1), mode 3 ellipse / ring / arc, the pattern lane (dots, stripes) |
+| engine/c/render.c, engine.h, render.lisp, tools/simgate/stubs.c | blend mode 4 (premultiplied over) in `r_make_pipe`; `RP_COMP_AO` = slot 20 (fs_comp_a with blend 4); `r_frame` takes the back stream (two more arguments; an 8,192-vertex region, 512 KB). The back pass runs only on a transparent frame with back vertices; every other frame takes the old path unchanged |
+| duel/lisp/lhud-battle.lisp | the plate only: the 20 clipped grid strips became one striped polygon; the fill's moving end is antialiased and its 45 % band split is not (no seam); the ghost is drawn only beyond the fill (two antialiased edges stacked showed a blood fringe). The bar ends and the combo slash get the AA with no change of their own |
+| duel/lisp/lhud-shapes.lisp (new), debug 2509 | the test card (DUEL_GAMEPLAY "Debug commands"): twelve cells, one primitive or one handheld part each; 2509's third state draws a back-layer slab on a transparent frame |
+| debug 2519 | now also measures the card: `shapes …` consing, ms and vertices |
+| tests/paint-shapes-test.lisp | host checks of `path-points` (relative commands, numbers run together, arc sweeps, the soul flame) |
+
+### 10.2 The primitives (API in docs/engine/ENGINE_API.md "Paint stream shapes")
+
+| Primitive | API | Vertices |
+|---|---|---|
+| polygon, AA | `paint-clip!` (cut rect, vertical gradient, the cut's AA mask), `paint-grad!`, `paint-centre!`, `paint-poly pts n c0 c1`, `paint-rect` | 3 per point after the cut |
+| linear gradient | `paint-clip!`'s GY0 GY1 or `paint-grad! x0 y0 x1 y1` (any axis, two stops; more stops = bands cut with no AA on the split) | (in the polygon) |
+| radial gradient | `paint-radial! cx cy rx ry stops n` (stops `t r g b a`; the phone's ink pool) | 96 + 192 (n − 2) |
+| patterns | `paint-dots! pitch radius` (screen halftone, glyphs too once 1c routes it), `paint-stripes! ox oy dx dy pitch width` (fixed to the shape: turns with it), `paint-pattern-off!` | 0 |
+| rounded box, glow | `paint-box! cx cy hw hh radius feather border col` (feather in screen px: 1 = AA, more = a soft shadow) | 6 |
+| ellipse / ring / arc | `paint-ellipse! cx cy rx ry col &key thick feather frac ccw` (arc from the top, butt ends; another start by the transform) | 6 |
+| stroke | `paint-stroke! pts n width col &key frac round` (a rotated mode-2 box a segment: round or butt ends, square joints, a drawn fraction) | 6 a segment |
+| SVG path | `path-points d &key segs` → f32vec (init time) | |
+| transform / opacity / scissor stack | `paint-push`, `paint-pop`, `paint-transform! ox oy &key sx sy rot skew dx dy`, `paint-opacity! a`, `paint-scissor! x0 y0 x1 y1` | 0 |
+| back layer | `with-paint-back` (into `*hud-back*`) | |
+| text outline | in the shader since phase 0 (mode 1, p.w); the run must route a pen slot to p.w (1c's `%paint-run`) | |
+
+### 10.3 The AA method and why
+
+- **Polygons: analytic coverage, not a fringe strip.** The polygon is a fan from its centre; each triangle carries, per vertex, the
+  signed distance to its own outer edge's line and to its two neighbours' lines (at convex corners), in local units. Distance to a
+  line is affine, so the interpolation is exact, and the shader divides each by its screen gradient: the true distance in pixels
+  under any transform (the phone's rotated plate, the stamp's scale). Coverage = clamp(nearest + 0.5). The outline is pushed out
+  one screen pixel along the miters so the ramp's outer half has fragments. Why: 3 vertices a point against a fringe's
+  3 (n − 2) + 6 n, exact under rotation and scale, and gradients and patterns stay per-vertex affine. The neighbour distances are
+  needed: with the own edge only, a flat fan triangle's ray to a pushed-out corner ran up to a pixel above the next edge for about
+  40 px (a one-row stub on the bar's top near the fill end), seen in the first stills and fixed.
+- **Cut edges are antialiased per side** (the cut's mask): the fill's moving end yes, a gradient band split no, the scissor never.
+- **Star-shaped polygons (`paint-centre!`) are drawn aliased**: near a reflex vertex the per-edge distances left pinholes inside
+  the soul flame. The flame's outline is a stroke drawn over the fill, as hud.css does, so its edge is antialiased anyway.
+- **Boxes, ellipses, strokes**: their distance fields in local units divided by the local units per pixel (the uv's screen
+  Jacobian), so a feather is in screen pixels at any scale (exact for similarity transforms).
+- **Patterns**: halftone dots on the screen grid with the CSS dots' soft pixel; stripes box-filtered over one pixel, their
+  coordinate an affine function of the local position set per vertex (fixed to the shape, mirrored for P2, rotating with it).
+
+### 10.4 Measurements
+
+| What | Before (9b3ee63a, built in the same session) | After |
+|---|---|---|
+| Plate, ms a call (2519, wall clock, SwiftShader, desktop) | 0.141-0.148 | 0.050-0.054 |
+| Whole draw (two plates and a combo) | 0.321-0.350 ms | 0.142-0.162 ms |
+| Vertices: plate / combo / busiest frame | 252 / 144 / 666 | 156 / 150 / 486 |
+| Consing (100 calls): plate, combo, draw, shapes card | 0, 0, 0 | 0, 0, 0, 0 (1280 × 720 and 390 × 844) |
+| Shapes card (all twelve cells) | | 0.33-0.50 ms, about 2,400-2,550 vertices |
+| index.wasm | 11,570,756 B | 11,625,416 B (+54,660) |
+| Startup heap (`startup: heap`) | 74.3 MB (one run) | 73.3 MB (every run) |
+| Startup, any renderer (nothing a frame) | | one more pipeline (RP_COMP_AO), a 512 KB f32vec, a 512 KB GPU vertex buffer, 512 KB more transfer buffer |
+
+A find on the way: Lisp float arithmetic in a macro's inner `let` inside an initialiser consed 64 B a call (the box's pixel
+size); it is a C one-liner now (`%paint-px`).
+
+### 10.5 Proof
+
+Stills (the worktree's `build/lhud/`, git-ignored): `s/desk-card-9.00.png`, `s/desk-card-back.png` (1280 × 720),
+`s/mob-card-9.00.png`, `s/mob-card-back.png` (390 × 844, dpr 3); before / after zooms `cmp-desk-bar-z6.png` (both bars' ends, P2's
+fill end and grid), `cmp-desk-slash-z4.png` (the combo slash), `cmp-mob-bar-z4.png` (the phone's P2 bar); the raw stills
+`s/{base,desk,basemob,mob}-*.png`. Host tests ALL PASS (duel-rules 10149, control, learn, input, touch, cine, test-math,
+paint-shapes-test); pkgcheck only `DUEL::APP`; debug-ranges-check 0 errors; smoke 8 s default and `hud=lisp` exit 0; G2
+`simgate.py --cvc` and `style-gates.py cvc` identical (II 32, IK 34, KK 33). `tests/engine-check.sh`: 71 pass, 2 fail, the same two
+(`%ui-poly4` 14,400 B / 100, `ui-rect` 4,800 B / 100: the RP_UI path) as 9b3ee63a's own run; not this change's. Not looked at in a
+still: the low-Reishi red fill (the same code path as the paper fill).
+
+### 10.6 Left out, and why
+
+- CSS group opacity (render the group, then fade): opacity multiplies each primitive, so overlaps differ (a hard shadow shows
+  through at .3); an offscreen pass if a screen shows it matters.
+- Convex clip regions: the scissor is a rectangle (the reveals, the 爆 level); strokes and radial fans are not scissored.
+- Dashed borders (the locked stance seal), paper grain, translucent stroke joints (the overlap darkens), multi-stop gradients in
+  one call.
+- Text halftone (TITLE 魂) and text outline: the shader side is done; the run must pass them into the glyph vertices (10.7; done at
+  the merge, §12).
+
+### 10.7 For 1c and the screen phases (the 1c items done at the merge, §12)
+
+- 1c: in `%paint-run`, route a pen slot to the glyph vertices' p.w (the outline band) and copy `*paint-pat*` [0] [1] into q.x / q.w
+  (dots); clip glyph quads to `*paint-sc*` (the callout's `hd-cut` reveal, the 爆 seal's second face inside its level).
+- `paint-clip!` resets `paint-grad!` and `paint-centre!`: set those after it. `paint-reset` clears the stack, scissor and pattern:
+  once an element, as phase 0 does.
+- The back layer shows only on a transparent frame (`*render-transparent*`). `webui-sync` resets `*scene-transparent*` each frame
+  while the page is there, so debug 2514 does not hold in a battle; the card sets `*render-transparent*` itself.
+- Merge notes: paint.lisp lost its shape sections (moved, same meaning); its `*paint-pa*` / `*paint-pb*` scratch and
+  `*paint-clip*` [4] [5] are unused now (left so the declaim line stays as it was); the package exports are a new block after
+  phase 0's paint lines.
+
+## 11. Phase 1c results (text layout, tweens, layout, input, the small-text weight; 2026-11-11)
+
+Opus 5.5 built phase 1c in a worktree from main 9b3ee63a, beside 1a (the bake) and 1b (shapes); the main session reviews.
+
+### 11.1 The small-text weight (the user, 2026-11-11: 「先加粗小字再看一次 (Recommended)」)
+
+- The knob (engine/lisp/paint.lisp, the text section): text below `*text-small-css*` = 14 CSS px per em grows by `*text-small-bold*`
+  = **0.06 device px** on each side of every stroke (an SDF edge shift: edge − 0.06 / size × the tier's SDF units per em, 4 for the
+  body tier, 12 for the display tier), at full strength up to 14 px and fading out by 18 px; its ramp is `*text-small-soft*` = 1
+  (unchanged). The shift is in device px, so at dpr 3 it is a third as much in CSS px.
+- How it was chosen: the legibility card's rows against their HTML twin, the sum of each row's brightness above the panel (its ink),
+  Lisp / Chrome, swept in steps of 0.025 px:
+
+  | Row | dpr 1 before | dpr 1 after (0.06) | dpr 3 before | dpr 3 after (0.06) |
+  |---|---|---|---|---|
+  | mono .62u (7.9 / 5.7 CSS px) | 0.84 | 0.95 | 0.89 | 0.93 |
+  | mono .72u | 0.88 | 0.95 | 0.91 | 0.95 |
+  | mono 10 px | 0.93 | 1.00 | 0.97 | 0.99 |
+  | sans 11 px | 0.90 | 1.01 | 0.96 | 1.00 |
+  | sans 12 px | 0.91 | 1.03 | 0.96 | 1.00 |
+  | sans .95u | 0.89 | 1.02 | 0.96 | 1.01 |
+  | Mincho .95u | 0.92 | 1.04 | 0.92 | 0.98 |
+  | Mincho 1.25u (16 px at 1280 × 720: half strength; 11.5 px on the phone) | 0.91 | 0.96 | 0.93 | 0.99 |
+
+  0.05 brings the sans to 1.00 and leaves the mono at 0.93; 0.075 brings the mono to 0.97 and the sans to 1.05: Martian Mono is a
+  little lighter than Chrome's at every size and dpr (a face difference, not a pixel one), so one knob splits the difference. The
+  count of fully lit pixels already matches Chrome's for the mono and is 10-25 % higher for the sans and the Mincho at softness 1
+  (Chrome's hinting blurs more), so the softness stays 1.
+- Sheets for the user (build/lhud/, git-ignored): `1c-card-desk-small-z3.png` and `1c-card-mob-small.png` (the 8-12 px rows: HTML, phase 0, phase 1c
+  stacked, ×3 at dpr 1); `1c-card-desk-small-options-z3.png` (the same rows at 0, 0.05, 0.10 and 0.15 px, to pick by eye);
+  `1c-card-{desk,mob}-{before,after}.png` and `1c-card-{desk,mob}-small-{before,after}…png` ([HTML | Lisp | difference ×4],
+  tests/lhud-compare.py); `1c-demo-{desk,mob}.png` (the phase 1c rows against their HTML twin); `1c-hover-dpr2-{para,clock}.png`
+  (the hover frame at dpr 2: the mouse's density scaling); the raw stills in build/lhud/s/. The HTML twin (build/lhud/ref/index.html)
+  gained the phase 1c rows with the same strings, faces, sizes and places.
+- What still differs: the ink now matches within -7 % / +4 %, but Chrome's 8-10 px mono still looks darker and crisper: it hints stems onto
+  whole pixels at full brightness, where the SDF spreads the same ink over two columns at partial brightness (no edge shift reproduces
+  hinting). 0.10 px looks closer to Chrome's mono by eye but makes the sans and the dense Mincho heavier than Chrome's (ink 1.10); 0.15
+  smears 鏡鍵鐮. The value is one number in paint.lisp for the user's call. At dpr 3 the two are hard to tell apart either way. The
+  wrapped paragraph breaks exactly where Chrome breaks it at both sizes (「…就算按 / 下；…」 at 168 px, 「…就算 / 按下；…出 / 招。」 at 150 px:
+  招 goes down with its 。), the vertical column and the turned K.O. land on Chrome's; the label row (月 · CLEAVER, ATK) sits 2-3 CSS px
+  higher than Chrome's, which puts mixed faces on the strut's baseline, not the Mincho's line box (phase 2 places each element from
+  its own CSS line box).
+
+### 11.2 What was built
+
+| Where | What |
+|---|---|
+| engine/lisp/layout.lisp (149 lines, plain CL) | `layout-frame!` (once a frame: window, density, the four safe-area insets) → `*lay*`; `lay-u` (hud.css `--u`, 2.36vw in portrait), `lay-css`, `lay-vw`, `lay-vh`, `lay-inset`, `lay-menu-form` (desk / narrow ≤ 760 / short ≤ 560); `css-clamp`, `lay-safe` (max(a, inset + b)), `lay-anchor`, `lay-mirror`, `lay-split!` (fr tracks with a gap), `lay-stack!` (one flex line with an alignment); `fl-floor` / `fl-round` / `fl-abs` (float → fixnum with no consing: ECL's FLOOR / ROUND / ABS of a float box; C under COMPILE-FILE, plain CL on the host); `wrap-lines` (greedy breaks: CJK between any two characters, Latin at spaces, kinsoku `*kinsoku-no-start*` 。，、；：？！）」』… and `*kinsoku-no-end*` （「『…, hanging spaces, newlines, an overflow cut) |
+| engine/lisp/tween.lisp (184 lines, plain CL) | `ease` (the page's three cubic-béziers, CSS ease / ease-in / ease-in-out / ease-out, linear, steps(n); Newton, then bisection); `make-tween` (keyframes with per-keyframe curves, several properties, delay, iterations incl. infinite, direction, fill, base values); `tween-value`, `tween-progress`; `make-tween-slots`, `tween-restart`, `tween-watch` (restart on a changed serial; the first serial seen only records it, as hud.js); `make-transitions`, `trans-to` (retarget from where it is, delay, DUR 0 snaps), `trans-value`; `*reduced-motion*` (animations at their end state or base, transitions at their target). NOW is the caller's: the UI clock is advanced by `hud-draw` once a frame (phase 0), so debug 2519's 100 calls do not move it. (Named `tween-*` because anim.lisp owns `make-anim` / `anim-*`.) |
+| engine/lisp/text.lisp (171 lines) | `line-baseline` (the CSS line box's baseline), `paint-text-aligned` (:start / :center / :end), `paint-int-tab` / `paint-measure-int-tab` (tabular figures, zero padding, no string), `paint-paragraph` (wrapped at a width in px, line-height, alignment; its breaks cached in `text-layout` per EQ string, face, width and spacing), `paint-vertical` / `paint-measure-vertical` (vertical-rl: CJK upright an em apart, other characters turned 90° clockwise, the em box centred on the column). Mixed faces on one baseline = the pen through `paint-text` once per face (a face's missing glyph falls back on the same baseline, as before) |
+| engine/lisp/hot.lisp (66 lines) | `hot-begin-frame`, `hot-add` (a rectangle through the current paint transform, stored as its quad), `hot-hit` (the topmost of last frame's boxes; -1), `hot-focus-step` (drawing order, wrapping) |
+| engine/lisp/paint.lisp (text section only) | `%paint-run` takes a character range (the paragraph's lines); `with-small-text` / `glyph-edge` (the small-text weight above, used by runs and columns); `*glyph-dscale*` (SDF units per em by tier, from metrics.bin) |
+| engine/c/platform.c, engine/lisp/platform.lisp | `mouse-x` / `mouse-y`: the last absolute mouse position from SDL's motion and button events times the pixel density, in `*input*` lanes 13 / 14 (15 floats now). §4.5's `pf_mouse_xy` became these two lanes: no new C entry point, engine.h untouched |
+| duel/web/pwa.js | page get 5 / 6 the left / right safe-area insets (CSS px; `testInsets` takes four values now), get 7 `prefers-reduced-motion` (one MediaQueryList); get 8 stays the renderer flag of phase 0, so §4.5's numbering holds |
+| duel/lisp/lhud-battle.lisp | `lhud-frame` (under :lisp, once a frame: `layout-frame!` with the four insets, the page asked again only when the window's size changed, `*reduced-motion*`, `hot-begin-frame`); `lhud-card-demo`: the card's phase 1c rows (debug 2518), beside the card on a desktop, under it in portrait: a wrapped paragraph (11 px sans), a kanji + spaced mono label end-aligned with ATK spaced .3em (the handheld screen's 「拖 · DRAG」 / SP 技 pattern), a 4.3u tabular clock that pops with hd-stamp at each new second (`tween-watch`), PAUSE spaced .3em, a vertical column 月牙天衝 + K.O. turned, and a stone frame on whichever of them the mouse is over. Only characters the phase 0 bake has (1a owns the bake) |
+| duel/lisp/debug.lisp | debug 2519 prints a second line: the frame's and the demo's consing, the demo's time and vertices |
+| tests/hud-engine-test.lisp | 121 host checks: units at 1280 × 720, 1920 × 1080, 2560 × 1080 and 390 × 844 dpr 3 with a notch; clamp (incl. MIN > MAX); safe-area anchors; splits; stacks; the mirror; the menus' form; eleven wrap / kinsoku cases; the easings against CSS's values (ease .5 → .8024 …, the page's three, steps); keyframes (hd-stamp, a delay with fill both, an infinite alternate flame with a negative delay, per-keyframe steps(1), an even alternate count ending at 0, reduced motion); restart on a serial; transitions (the Reishi ghost's delay and drain, a snap, a retarget mid-way, reduced motion); hot boxes (overlap order, last frame only, a rotated box, the focus order). `$ECL_HOST --norc --load tests/hud-engine-test.lisp` |
+
+### 11.3 Measurements
+
+| What | Result |
+|---|---|
+| Consing (debug 2519, `--fixed-dt`, 1280 × 720 and 390 × 844 dpr 3) | plate 0, combo 0, the whole draw 0 B (still mode off); `lhud-frame` 0 B, the card's phase 1c rows 0 B (330 vertices). With still mode on the draw shows 1,304 B a call: phase 0's legibility card (a debug still: a list walk with double floats), unchanged |
+| Lisp time (wall clock, SwiftShader, desktop) | plate 0.136 ms (phase 0: 0.136, so the small-text weight costs nothing measurable), combo 0.038, the phase 1c rows 0.039 ms (a 2-line paragraph, the labels, the clock, a 5-glyph column, 4 hot boxes) |
+| index.wasm | 11,570,734 → 11,629,153 B (+58,419: the four engine files, the card's rows, the probe) |
+| Startup heap | 73.4 MB, unchanged |
+| G2 | native and browser identical: II 32, IK 34, KK 33 lines |
+| Host tests | duel-rules 10149 ALL PASS, control, learn, input, touch, cine, ecs, math pass; hud-engine-test 121 ALL PASS |
+| pkgcheck | only `DUEL::APP` |
+| Smoke | 8 s default and `--query hud=lisp`: exit 0 |
+
+### 11.4 Left out, and why
+
+- **A per-glyph run cache.** Single-line runs still look each glyph up (a binary search over the glyph keys) every frame; only the
+  paragraphs' line breaks are cached. The cost is in the measurements above (the demo's ms); a cached glyph-index vector per string is
+  the upgrade if phase 2's full battle HUD shows it.
+- **The paragraph cache is keyed by the string alone** (one entry per EQ string, remade when the face, width or spacing changes): one
+  string object drawn at two widths in the same frame would lay out twice a frame. No screen does that; key on the parameters too if
+  one does.
+- **Hot boxes are quads** (rectangles through the transform). The 爆 dial's circle and the deck's slanted zones would hit by their
+  bounding quads; a circle / polygon hit is phase 4's (the deck taps go through the touch recogniser anyway).
+- **Not wired to the menus or the battle commands**: the registry and the pointer exist; feeding hits into `webui-commands` /
+  `webhud-commands` is §4.5's dispatcher split, phase 2 / 5 work. Keys / pads already move the model's cursors.
+- **No new glyphs**: the bake is 1a's; the demo uses the phase 0 card's characters (so 「拖 · DRAG」 is shown as 「月 · CLEAVER」).
+  Since the merge the card shows the real seals (§12).
+- **Ellipsis** (`text-overflow`), `text-wrap: balance` (MODE's heading) and hyphenation: not built (no battle element needs them; §1
+  allows a hard cut).
+- **Reduced motion is read when the window's size changes**, not live; a change of the OS setting mid-game shows after a resize or a
+  reload.
+- **What 1b's paint.lisp must keep** (done at the merge, §12): `text.lisp`'s vertical columns emit their quads through `with-hud-verts` / `hvtx` with phase 0's
+  16-value vertex (mode 1, edge, softness); if 1b changes that macro (a clip stack, a new lane), the vertical path follows it. The
+  small-text weight lives in the text section (`with-small-text`, `glyph-edge`) and needs no shader change. `paint-box!` binds a
+  plain `b` around its argument forms, so a caller's variable named `b` is captured (it boxed floats in the card until renamed): a
+  gensym there is 1b's to make.
+
+## 12. The phase 1 merge (2026-11-11)
+
+Opus 5.5 merged the three worktrees (1a, 1b, 1c, each from 9b3ee63a) into one tree and made the follow-ups their authors left for
+each other; the main session reviews. No behaviour of the default (`:html`) renderer changed.
+
+### 12.1 Conflicts and how each was resolved
+
+| File | Resolution |
+|---|---|
+| duel/MANIFEST | both new files after lhud-battle.lisp: lhud-charset.lisp (1a), then lhud-shapes.lisp (1b) |
+| engine/MANIFEST | paint.lisp, paint-shapes.lisp (1b), then layout, tween, text, hot (1c) |
+| engine/lisp/package.lisp | both export blocks kept (1b's shapes, 1c's layout / tween / text / hot); `ease-curve` removed |
+| engine/lisp/paint.lisp | merged cleanly (1b took the shape sections out, 1c changed the text section); then the follow-ups below |
+| duel/lisp/debug.lisp (2519) | one probe: k 0-3 plate, combo, draw, 2509's shapes card (1b's line, the back stream reset too), k 4 2518's phase 1c rows (1c's second line) |
+| DUEL_LISP_HUD.md | 1a's results §9, 1b's §10 (its 9.x renumbered), 1c's §11 (was unnumbered); every "Phase N results" reference in docs and code now names the § |
+| ENGINE_API.md | both new sections, 1b's then 1c's, plus a text-runs bullet (the merge's facts) |
+| DUEL_GAMEPLAY.md | 2518 and 2519 rows merged (2519 lists the shapes card and the 1c line) |
+
+### 12.2 The follow-ups
+
+- **Glyph quads** (1b → 1c): one emitter `%glyph-quad` (paint.lisp) for runs, paragraphs and vertical columns (upright and turned):
+  the quad is cut to the scissor `*paint-sc*` with its uv following the cut, the pen's new slot [8] (`paint-pen! … :outline`) goes
+  to p.w (the shader's outline band), `*paint-pat*` [0] / [1] to q.x / q.w when it is a dot pattern (stripes stay the polygons'). The
+  transform and opacity stack applied already (`with-hud-verts` reads `*paint-xf*`). `*paint-sc*` and `*paint-pat*` moved from
+  paint-shapes.lisp to paint.lisp, which loads first. ponytail: with a skew the cut is made on the upright cell.
+- **Variable capture** (1c → 1b): `%f32-set` (paint.lisp) stores a macro's floats through a gensym; `paint-pen!`, `paint-box!`,
+  `paint-ellipse!`, `paint-stroke!`, `paint-radial!`, `paint-clip!`, `paint-grad!`, `paint-centre!`, `paint-scissor!`, `paint-dots!`,
+  `paint-stripes!`, `paint-transform!`, `paint-paragraph` use it; `paint-xform!`, `paint-opacity!` and `paint-rect` bind gensyms.
+- **One easing** (1c): phase 0's `ease-curve` and `*ease-pts*` removed; lhud-battle.lisp calls tween.lisp's `ease` (the same five
+  curves at the same numbers; Newton 8 steps with a bisection fallback instead of 6 steps).
+- **The display tier's upper case** (1a): `glyph-find` looks a-z up as A-Z in the display face's display tier (no string made; the
+  body tier keeps lower case), checked in tests/paint-shapes-test.lisp.
+- **The real handheld labels** on 2518's phase 1c rows: Kenpachi's three pointer seals 「拖 · DRAG」 「肩 · SHOULDER」 「構 · CHUDAN」
+  (hud.js FIGHTERS), Mincho kanji + spaced mono, end-aligned.
+- hud-screens.lisp declares `*hud-renderer*` special (phase 0's build warning).
+- debug 2519's merged probe: the merge's rewrite had `ms` call `one` inside a `flet` (1b's `ms` repeated the body instead), which
+  stopped the game with "ONE is undefined" at the first probe; caught by the probe run (it printed no lines), fixed with `labels`
+  (pkgcheck does not see local functions).
+
+### 12.3 Measurements and proof
+
+| What | Result |
+|---|---|
+| index.wasm | 12,810,716 B (gzip -9 4,033,812): 9b3ee63a 11,570,734 + 1a 1,123,883 + 1b 54,660 + 1c 58,419 = 12,807,696, the merge +3,020 (the glyph quad's cut, the seal rows) |
+| Startup heap | 73.3 MB or 87.4 MB depending on the build, not on the code: three builds of nearly the same tree read 87.4, 73.3 (after a one-line declaim change), 87.4 (after `flet` → `labels` in a debug probe), each the same in every run; 1a+1b alone (45270c67) 73.4, each phase alone 73.3-73.4. The frames' consing is identical in the 73.3 and 87.4 builds (cons/frame 1422, 1232, 1230, 1240 B at the same ticks), so the flip is not the code's: the startup line is Boehm's heap size, which moves in growth steps of about 14 MB with where the startup collections fall. Under the 110 MB limit either way; a used-bytes line would make this readable |
+| Consing (debug 2519, `--fixed-dt`, P1's combo forced mid-stamp; 1280 × 720 and 390 × 844 dpr 3) | plate 0, combo 0, whole draw 0, 2509's shapes card 0, `lhud-frame` 0, 2518's phase 1c rows 0 B a call |
+| Lisp time (wall clock, SwiftShader, desktop) | plate 0.050-0.052 ms, combo 0.039-0.043, whole draw 0.146-0.154, the shapes card 0.329-0.337, the phase 1c rows 0.053-0.057 (1c alone 0.039 with one label row; now three seal rows) |
+| Vertices | plate 156, combo 150, the busiest frame 486 (phone 330), the shapes card 2,379-2,553, the phase 1c rows 420 |
+| Host tests | duel-rules 10153 (10149 + 1a's charset file), hud-engine-test 121, paint-shapes-test (with the upper-case check), input 33, touch 100, cine 18, control 100, learn 131: all pass |
+| pkgcheck / debug-ranges-check | only `DUEL::APP` / 112 ranges, 0 errors |
+| Smoke | 8 s default and `--query hud=lisp`: exit 0 |
+| G2 | native `simgate.py --cvc` and browser `style-gates.py cvc`: II 32, IK 34, KK 33, identical |
+
+Stills (the worktree's `build/lhud/`, git-ignored; scenes with 1b's and 1c's own timings, `build/lhud/gen.py`, `runall.sh`):
+`s/{desk,mob}-2509.png`, `s/{desk,mob}-2509-back.png` (2509's card and its back layer), `s/{desk,mob}-2518.png`,
+`s/{desk,mob}-2518-pop.png` (2518: the legibility card and the phase 1c rows with the real seals), `desk-2518-seals-z3.png`;
+plates and combo `s/{desk,mob,deskhtml,mobhtml}-{10.95,11.50,13.60}.png`. Comparisons (tests/lhud-compare.py, [before | after |
+difference ×4]): `cmp-vs0-{desk,mob}-{10.95,11.50,13.60}.png` (phase 0's own Lisp stills, 9b3ee63a, from 1b's worktree | the
+merge's: desktop mean 0.23-0.25, max 111, only the bars' edges and grid (1b's AA and striped polygon) and the small kanji's weight
+(1c); phone mean 0.11, the same plus P2's name from 1a's display tier); `cmp-html-lisp-desk-11.50.png` (HTML | Lisp, the plates and combo); `cmp-vs1b-desk-{10.95,11.50,13.60}.png`
+(1b's Lisp | the merge's: mean 0.00, max 24, only the small kanji's weight from 1c), `cmp-vs1b-mob-11.50-full.png` (the phone's
+P2 name now from 1a's display tier, the kanji's weight; the scene's own render noise on the fighter), `cmp-vs1b-2509-desk.png`
+(the card: the label text's weight and the time-driven cells (the dial's level, the stroke's fraction, the reveal) a frame apart),
+`cmp-vs1c-2518-{desk,mob}.png` (1c's | the merge's: the seal rows and the clock moved down by them, the bars' AA from 1b; the
+upright and turned vertical column are pixel-identical).

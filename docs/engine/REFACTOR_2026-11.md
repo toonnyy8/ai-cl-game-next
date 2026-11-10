@@ -494,3 +494,7 @@ smoke passed for the merged state; the main session reran them after the merge.
    then screens one by one against the HTML reference (DUEL_WEBUI "A Lisp HUD").
 3. Refactor waves 1-3 resume afterwards; D5-D7 are decided (option 1 each, the user 2026-11-10: 「這三項都按你建議的去做」)
    and are carried out when the refactor resumes (D5 after D1 / D2).
+4. When the refactor resumes, audit the game against ECS + pragmatic FP (the user, 2026-11-11, AGENTS.md "Design principles",
+   DEVLOG §709): how much of `duel/` uses the engine's ECS today (components.lisp and the kits' DEFCOMPONENTs against the state
+   kept in specials and per-fighter structs), where state hides in specials, which logic could be pure and host-tested; fold the
+   result into the batches.

@@ -216,7 +216,8 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
               (f-max 0.5f0 (f-min 1f0 (+ 0.5f0 (* 0.5f0 (- d 2.5f0))))))
             1.0)))
 
-(declaim (special *web-caption*))                      ; (webhud.lisp's)
+(declaim (special *web-caption* *hud-renderer*))       ; (webhud.lisp's)
+(declaim (special *lhud-shapes*))                      ; (lhud-shapes.lisp's)
 (defun hud-draw ()
   "The UI of this frame, by screen."
   (let* ((w (window-width)) (h (window-height)) (s (ui-scale)) (f *ui-flash*))
@@ -254,4 +255,5 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
           (ui-big-text "PAUSED" (floor w 2) (* 0.3 h) (* 5 s) *white* '(0.7 0.25 0.05 1) s))
       (hud-menu (pause-items) (if (eq *mode* :practice) 0.4 0.45) w h s (/ w 2) 0.9))   ; PRACTICE's long list: above P1's block
     (when (eq *hud-renderer* :lisp) (paint-clock-advance) (lhud-draw))   ; the battle HUD drawn by Lisp (lhud-battle.lisp, DUEL_LISP_HUD)
+    (when *lhud-shapes* (lhud-shapes-card))                              ; debug 2509: the paint shapes' test card (lhud-shapes.lisp)
     (debug-hud w h s)))

@@ -70,8 +70,21 @@
    #:ui-block-text #:ui-big-text #:ui-bitmap #:text-width #:ui-text
    ;; paint.lisp: the paint stream (RP_HUD) and SDF text (docs/duel/DUEL_LISP_HUD.md)
    #:rgba #:paint-reset #:paint-xform! #:paint-clip! #:paint-pen! #:paint-box! #:paint-rect #:paint-poly #:paint-text #:paint-measure
-   #:paint-int #:paint-measure-int #:paint-font-init #:face-ascent #:face-descent #:ease-curve #:*paint-pen* #:*paint-xf* #:*hud-batch*
+   #:paint-int #:paint-measure-int #:paint-font-init #:face-ascent #:face-descent #:*paint-pen* #:*paint-xf* #:*hud-batch*
    #:*ui-clock* #:paint-clock-advance
+   ;; paint-shapes.lisp: shapes, gradients, patterns, the transform / scissor / opacity stack, SVG paths, the back layer (phase 1b)
+   #:paint-push #:paint-pop #:paint-transform! #:paint-opacity! #:paint-scissor! #:paint-dots! #:paint-stripes! #:paint-pattern-off!
+   #:paint-grad! #:paint-centre! #:paint-ellipse! #:paint-stroke! #:paint-radial! #:path-points #:with-paint-back #:*hud-back*
+   ;; layout.lisp, tween.lisp, text.lisp, hot.lisp: the paint stream's layout, animation, text layout, pointer targets (DUEL_LISP_HUD phase 1c)
+   #:*lay* #:layout-frame! #:lay-w #:lay-h #:lay-dpr #:lay-portrait-p #:lay-u #:lay-css #:lay-vw #:lay-vh #:lay-inset #:lay-menu-form
+   #:+form-desk+ #:+form-narrow+ #:+form-short+ #:css-clamp #:lay-safe #:lay-anchor #:lay-mirror #:lay-split! #:lay-stack!
+   #:i->f* #:fl-floor #:fl-round #:fl-abs #:wide-char-p #:break-ok-p #:wrap-lines #:*kinsoku-no-start* #:*kinsoku-no-end*
+   #:*reduced-motion* #:ease #:+ease-linear+ #:+ease+ #:+ease-out+ #:+ease-cut+ #:+ease-snap+ #:+ease-in+ #:+ease-in-out+
+   #:+ease-out-css+ #:+ease-steps+ #:make-tween #:tween-progress #:tween-value #:make-tween-slots #:tween-restart #:tween-watch
+   #:make-transitions #:trans-value #:trans-to
+   #:*text-small-css* #:*text-small-bold* #:*text-small-soft* #:line-baseline #:paint-text-aligned #:paint-int-tab
+   #:paint-measure-int-tab #:paint-paragraph #:text-layout #:*text-cache-max* #:paint-vertical #:paint-measure-vertical
+   #:hot-begin-frame #:hot-add #:hot-hit #:hot-focus-step #:+hot-max+ #:mouse-x #:mouse-y
    ;; audio.lisp: synthesis toolkit, DEFSOUND, playback
    #:+au-rate+ #:+au-dt+ #:tt #:au-rnd #:au-frac #:au-expf #:au-powf #:au-sin #:au-saw #:au-sqr #:au-ph+
    #:au-env-exp #:au-ar #:au-adsr #:au-sweep #:au-rrange #:au-midi #:au-buf #:au-render #:au-peak #:au-scale!

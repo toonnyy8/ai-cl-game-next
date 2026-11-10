@@ -54,16 +54,36 @@ def fetch():
                 print("fetch", url); urllib.request.urlretrieve(url, dst)
 
 
+STRING = re.compile(r'("(?:[^"\\\n]|\\.)*"|\'(?:[^\'\\\n]|\\.)*\'|`(?:[^`\\]|\\.)*`)|//[^\n]*|/\*.*?\*/', re.S)
+PAGE_JS = ["duel/web/hud.js", "duel/web/menu.js"]
+
+
+def page_chars():
+    """The non-ASCII characters of the string literals of the page scripts (comments stripped): everything the HTML UI can show."""
+    out = set()
+    for f in PAGE_JS:
+        out |= {c for c in "".join(m.group(1) or "" for m in STRING.finditer(open(os.path.join(ROOT, f), encoding="utf-8").read())) if ord(c) > 127}
+    return out
+
+
 def charset():
-    """(face, tier) -> the chars to bake: ASCII for the Latin faces and the sans, the tagged strings of the lhud files."""
-    want = {(0, 0): set(ASCII), (1, 0): set(ASCII), (2, 0): set(), (3, 0): set(ASCII) | {"□"}, (0, 1): set()}
-    tag = {"kj": (2, 0), "zh": (3, 0), "big": (0, 1)}
+    """(face, tier) -> the chars to bake, and the chars drawn as shapes. ASCII for the Latin faces and the sans; the tagged strings
+    of duel/lisp/lhud-*.lisp ((kj) Mincho body, (bigkj) Mincho display, (big) display face display tier, (zh) sans, (lhud-shape) none);
+    and every non-ASCII character of the page scripts' strings: the sans (and the Latin faces, for the non-CJK ones they carry)."""
+    want = {(0, 0): set(ASCII), (1, 0): set(ASCII), (2, 0): set(), (3, 0): set(ASCII) | {"\u25a1"}, (0, 1): set(), (2, 1): set()}
+    tag = {"kj": (2, 0), "bigkj": (2, 1), "zh": (3, 0), "big": (0, 1)}
+    shapes = set()
     d = os.path.join(ROOT, "duel/lisp")
     for fn in sorted(os.listdir(d)):
         if fn.startswith("lhud-") and fn.endswith(".lisp"):
-            for t, s in re.findall(r'\((kj|zh|big)\s+"((?:[^"\\]|\\.)*)"', open(os.path.join(d, fn), encoding="utf-8").read()):
-                want[tag[t]] |= set(s) - {" "} if t != "big" else set(s)
-    return want
+            src = re.sub(r'("(?:[^"\\]|\\.)*")|;[^\n]*', lambda m: m.group(1) or "", open(os.path.join(d, fn), encoding="utf-8").read())   # (no ; comments)
+            for t, s in re.findall(r'\((kj|bigkj|zh|big|lhud-shape)\s+"((?:[^"\\]|\\.)*)"', src):
+                if t == "lhud-shape": shapes |= set(s)
+                else: want[tag[t]] |= set(s) - {" "} if t != "big" else set(s)
+    page = page_chars() - shapes
+    want[(3, 0)] |= page
+    for f in (0, 1): want[(f, 0)] |= {c for c in page if ord(c) < 0x2E80}   # (a Latin face keeps the symbols it has; the rest falls to the sans)
+    return want, shapes
 
 
 class Flatten(BasePen):
@@ -133,7 +153,7 @@ def sdf(contours, s, pad):
 
 
 def bake():
-    want = charset(); faces = {}; glyphs = []
+    want, shapes = charset(); faces = {}; glyphs = []
     sans = set(TTFont(os.path.join(CACHE, FACES[3][1], FACES[3][2])).getBestCmap())
     gone = {c for c in want[(3, 0)] if ord(c) not in sans}  # (e.g. the Japanese 闘: the Mincho stands in, as a browser's next CJK face)
     want[(3, 0)] -= gone; want[(2, 0)] |= gone
@@ -144,7 +164,7 @@ def bake():
         cmap = font.getBestCmap(); gs = font.getGlyphSet(); hm = font["hmtx"]; upm = font["head"].unitsPerEm
         em = DISPLAY_EM if tier else BODY_EM; s = em / upm
         missing = [c for c in chars if ord(c) not in cmap]
-        if missing: print(f"face {FACES[fi][0]} tier {tier}: not in the font: {''.join(sorted(missing))!r} (the sans, then the Mincho stand in)")
+        if missing and (fi, tier) not in ((0, 0), (1, 0)): print(f"face {FACES[fi][0]} tier {tier}: not in the font: {''.join(sorted(missing))!r} (the sans, then the Mincho stand in)")
         for c in sorted(chars):
             if ord(c) not in cmap: continue
             name = cmap[ord(c)]
@@ -152,6 +172,9 @@ def bake():
             fl = Flatten(gs, FLAT / s); p.draw(fl)
             cell, left, top = sdf(fl.contours, s, SPREAD)
             glyphs.append(dict(code=ord(c), ft=tier * 4 + fi, cell=cell, left=left, top=top, adv=round(hm[name][0] * s * 64)))
+    have = {g["code"] for g in glyphs if g["ft"] in (2, 3)}
+    lost = sorted(c for c in page_chars() - shapes if ord(c) not in have)
+    if lost: sys.exit(f"no face has {''.join(lost)!r}: list it in an (lhud-shape \"...\") form of duel/lisp/lhud-charset.lisp (drawn as a shape) or fix the string")
     # shelf packing, tallest first
     order = sorted(range(len(glyphs)), key=lambda i: -(glyphs[i]["cell"].shape[0] if glyphs[i]["cell"] is not None else 0))
     x = y = rowh = 0

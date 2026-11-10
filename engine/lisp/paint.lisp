@@ -5,22 +5,29 @@
 ;;;; Coordinates are framebuffer pixels, origin top-left, y down. 0 B per frame: the emitters are DEFUN-FASTs whose float inputs
 ;;;; are read from f32vecs (the transform, the clip, the pen, the box) set by macros, so no float crosses a call boxed; strings
 ;;;; and colours (f32vec r g b a) go as objects.
-;;;; ponytail: no transform / clip stack, no polygon fringe (aliased polygon edges), no wrap or vertical runs, no pattern flags:
-;;;; phase 1b / 1c add them (DUEL_LISP_HUD §5).
+;;;; Phase 1b moved the shapes (polygons with analytic AA, boxes, ellipses / rings / arcs, strokes, radial fans, gradients,
+;;;; patterns), the transform / clip / opacity stack and the back layer to paint-shapes.lisp; wrapped and vertical text is
+;;;; text.lisp (phase 1c), easing tween.lisp's EASE. Glyph quads (%GLYPH-QUAD, shared with text.lisp) follow 1b's transform and
+;;;; opacity stack, are cut to its scissor, and take the pen's outline band and the pattern's halftone dots.
 (in-package :engine)
 
-(declaim (type f32vec *paint-xf* *paint-clip* *paint-pen* *paint-box* *paint-q4* *paint-pa* *paint-pb* *glyph-f* *face-m*
-               *ease-pts*)
+(declaim (type f32vec *paint-xf* *paint-clip* *paint-pen* *paint-box* *paint-q4* *paint-pa* *paint-pb* *glyph-f* *face-m*)
          (type (simple-array fixnum (*)) *glyph-keys*))
 (defvar *paint-xf* (make-f32 7) "The current transform: [0..5] a b c d e f (X = a x + c y + e, Y = b x + d y + f), [6] the opacity.")
 (defvar *paint-clip* (make-f32 6) "PAINT-POLY's clip rectangle x0 y0 x1 y1 and its gradient's top and bottom y (PAINT-CLIP!).")
-(defvar *paint-pen* (make-f32 8)
+(defvar *paint-pen* (make-f32 9)
   "The text pen (PAINT-PEN!): [0] x, [1] the baseline y, [2] size (px per em), [3] letter spacing (em), [4] the SDF edge (0.5 =
 the baked weight, lower = bolder), [5] the softness (1 = a one-pixel edge), [6] the skew (x per px of height: a synthetic oblique),
-[7] the width PAINT-MEASURE / PAINT-MEASURE-INT found. PAINT-TEXT and PAINT-INT advance [0].")
+[7] the width PAINT-MEASURE / PAINT-MEASURE-INT found, [8] the outline band (SDF units; 0 = filled, > 0 = only a ring that wide
+inside the edge: lower the edge to grow it outward). PAINT-TEXT and PAINT-INT advance [0].")
 (defvar *paint-box* (make-f32 7) "PAINT-BOX's centre x y, half size w h, radius, feather, border (PAINT-BOX!).")
 (defvar *paint-q4* (make-f32 8) "PAINT-RECT's corners.")
 (defvar *paint-pa* (make-f32 64)) (defvar *paint-pb* (make-f32 64))   ; (clipping scratch: 32 points)
+(declaim (type f32vec *paint-sc* *paint-pat*))
+(defvar *paint-sc* (make-f32 4) "The scissor x0 y0 x1 y1 in the emitters' local coordinates (PAINT-SCISSOR!; PAINT-RESET opens it).")
+(defvar *paint-pat* (make-f32 6)
+  "The polygons' pattern (PAINT-DOTS!, PAINT-STRIPES!; glyphs take the dots only; off after PAINT-RESET): [0] the dot radius / line width, [1] 0 none, > 0 the
+dot pitch (screen px), < 0 minus the stripe pitch (local units), [2] [3] the stripes' origin, [4] [5] their axis (a unit vector).")
 (defvar *glyph-keys* (make-array 0 :element-type 'fixnum) "Sorted (tier * 4 + face) * 65536 + code of every baked glyph.")
 (defvar *glyph-f* (make-f32 0) "Per glyph 9 floats: atlas u0 v0 u1 v1, cell left, cell top (above the baseline), w, h, advance (em).")
 (defvar *face-m* (make-f32 8) "Per face: ascent, descent (em; the line box's, as Chrome's).")
@@ -28,7 +35,8 @@ the baked weight, lower = bolder), [5] the softness (1 = a one-pixel edge), [6] 
 (defun paint-init ()
   "The RP_HUD pipeline and the stream (ENGINE-INIT). The atlas comes later from the game (PAINT-FONT-INIT + r_hud_atlas_new)."
   (make-pipeline 19 (wgsl "hud.vert.wgsl") "vs_hud" (wgsl "hud.frag.wgsl") "fs_hud" #x4444 2 0 1 0)   ; RP_HUD
-  (setf *hud-batch* (make-stream-buffer 16 32768)))
+  (setf *hud-batch* (make-stream-buffer 16 32768))
+  (paint-shapes-init))
 
 (defun rgba (rgb &optional (a 1.0))
   "A colour for the emitters: #xRRGGBB and alpha -> f32vec (r g b a), sRGB 0..1."
@@ -37,43 +45,16 @@ the baked weight, lower = bolder), [5] the softness (1 = a one-pixel edge), [6] 
           (aref v 3) (f32 a))
     v))
 
-;;; ---------------------------------------------------------------- state setters (macros: float forms stay unboxed)
-(defun paint-reset ()
-  "Identity transform, opacity 1 (once a frame, before drawing)."
-  (let ((m *paint-xf*)) (setf (aref m 0) 1f0 (aref m 1) 0f0 (aref m 2) 0f0 (aref m 3) 1f0 (aref m 4) 0f0 (aref m 5) 0f0 (aref m 6) 1f0)))
+;;; ---------------------------------------------------------------- the text pen (a macro: float forms stay unboxed)
+(defmacro %f32-set (vec &rest vals)
+  "Store VALS into the f32vec VEC from index 0 (a NIL skips that index), in order. VEC is bound to a fresh name, so a caller's
+variable is never captured (the paint macros' float lane: no float crosses a call)."
+  (let ((v (gensym "V")))
+    `(let ((,v ,vec)) (setf ,@(loop for x in vals for i from 0 when x append `((aref ,v ,i) ,x))))))
 
-(defmacro paint-xform! (ox oy sx sy rot dx dy &optional (opacity 1f0))
-  "The current transform: scale SX SY and rotate ROT (radians, clockwise on screen) about (OX OY), then translate by (DX DY);
-the current opacity OPACITY. Single-float forms."
-  `(let* ((ox ,ox) (oy ,oy) (sx ,sx) (sy ,sy) (rot ,rot) (cs (f-cos rot)) (sn (f-sin rot)) (m *paint-xf*))
-     (declare (single-float ox oy sx sy rot cs sn))
-     (setf (aref m 0) (* cs sx) (aref m 1) (* sn sx) (aref m 2) (- (* sn sy)) (aref m 3) (* cs sy)
-           (aref m 4) (+ ox ,dx (- (+ (* (aref m 0) ox) (* (aref m 2) oy))))
-           (aref m 5) (+ oy ,dy (- (+ (* (aref m 1) ox) (* (aref m 3) oy))))
-           (aref m 6) ,opacity)))
-
-(defmacro paint-clip! (x0 y0 x1 y1 &optional (gy0 0f0) (gy1 1f0))
-  "PAINT-POLY's clip rectangle (local coordinates) and its gradient's top / bottom y."
-  `(let ((c *paint-clip*)) (setf (aref c 0) ,x0 (aref c 1) ,y0 (aref c 2) ,x1 (aref c 3) ,y1 (aref c 4) ,gy0 (aref c 5) ,gy1)))
-
-(defmacro paint-pen! (x y size &key (spacing 0f0) (edge 0.5f0) (soft 1f0) (skew 0f0))
-  "The text pen at (X Y) (Y the baseline), SIZE px per em, letter SPACING (em), the SDF EDGE / SOFTness, the SKEW."
-  `(let ((p *paint-pen*))
-     (setf (aref p 0) ,x (aref p 1) ,y (aref p 2) ,size (aref p 3) ,spacing (aref p 4) ,edge (aref p 5) ,soft (aref p 6) ,skew)))
-
-(defmacro paint-box! (cx cy hw hh radius feather border col)
-  "A rounded box (mode 2) centred at (CX CY), half size HW HH, RADIUS, FEATHER (1 = antialiased), BORDER (0 = filled)."
-  `(let ((b *paint-box*))
-     (setf (aref b 0) ,cx (aref b 1) ,cy (aref b 2) ,hw (aref b 3) ,hh (aref b 4) ,radius (aref b 5) ,feather (aref b 6) ,border)
-     (%paint-box ,col)))
-
-(defmacro paint-rect (x y w h c0 &optional c1)
-  "An axis-aligned rect, colour C0 at the top and C1 (default C0) at the bottom (flat, through PAINT-POLY; it sets the clip)."
-  `(let* ((x0 ,x) (y0 ,y) (x1 (+ x0 ,w)) (y1 (+ y0 ,h)) (q *paint-q4*) (c0 ,c0))
-     (declare (single-float x0 y0 x1 y1))
-     (setf (aref q 0) x0 (aref q 1) y0 (aref q 2) x1 (aref q 3) y0 (aref q 4) x1 (aref q 5) y1 (aref q 6) x0 (aref q 7) y1)
-     (paint-clip! x0 y0 x1 y1 y0 y1)
-     (paint-poly q 4 c0 ,(or c1 'c0))))
+(defmacro paint-pen! (x y size &key (spacing 0f0) (edge 0.5f0) (soft 1f0) (skew 0f0) (outline 0f0))
+  "The text pen at (X Y) (Y the baseline), SIZE px per em, letter SPACING (em), the SDF EDGE / SOFTness, the SKEW, the OUTLINE band."
+  `(%f32-set *paint-pen* ,x ,y ,size ,spacing ,edge ,soft ,skew nil ,outline))
 
 ;;; ---------------------------------------------------------------- vertices
 (defmacro with-hud-verts ((nverts) &body body)
@@ -97,55 +78,11 @@ one vertex, X Y through the current transform, A times the current opacity. DEFU
          (setf (stream-buffer-fill sb) o)
          t))))
 
-(defun-fast paint-poly (pts n c0 c1)
-  "A convex polygon (N points x y in the f32vec PTS, local coordinates) clipped to *PAINT-CLIP*'s rectangle, flat, coloured C0 at
-the clip's gradient top and C1 at its bottom (linear in y). Sutherland-Hodgman, then a fan."
-  (declare (type f32vec pts c0 c1) (fixnum n))
-  (let* ((cl *paint-clip*) (a *paint-pa*) (b *paint-pb*) (k n))
-    (declare (type f32vec cl a b) (fixnum k))
-    (replace a pts :end2 (* 2 n))
-    (dotimes (side 4)                                     ; x >= x0, y >= y0, x <= x1, y <= y1
-      (let ((lim (aref cl side)) (axis (logand side 1)) (hi (>= side 2)) (m 0))
-        (declare (single-float lim) (fixnum axis m))
-        (macrolet ((in (i) `(let ((v (aref a (+ (* 2 ,i) axis)))) (declare (single-float v)) (if hi (<= v lim) (>= v lim)))))
-          (dotimes (i k)
-            (let* ((j (if (= (1+ i) k) 0 (1+ i))) (ii (in i)) (ij (in j)))
-              (declare (fixnum j))
-              (when ii (when (< m 31) (setf (aref b (* 2 m)) (aref a (* 2 i)) (aref b (1+ (* 2 m))) (aref a (1+ (* 2 i)))) (incf m)))
-              (unless (eq ii ij)                          ; the edge crosses the line: its crossing point
-                (let* ((pi0 (aref a (+ (* 2 i) axis))) (pj0 (aref a (+ (* 2 j) axis)))
-                       (u (/ (- lim pi0) (let ((dd (- pj0 pi0))) (declare (single-float dd)) (if (= dd 0f0) 1f0 dd)))))
-                  (declare (single-float pi0 pj0 u))
-                  (when (< m 31)
-                    (setf (aref b (* 2 m)) (+ (aref a (* 2 i)) (* u (- (aref a (* 2 j)) (aref a (* 2 i)))))
-                          (aref b (1+ (* 2 m))) (+ (aref a (1+ (* 2 i))) (* u (- (aref a (1+ (* 2 j))) (aref a (1+ (* 2 i)))))))
-                    (incf m))))))
-          (rotatef a b) (setf k m))))
-    (when (>= k 3)
-      (let* ((gy0 (aref cl 4)) (gh (let ((h (- (aref cl 5) gy0))) (declare (single-float h)) (if (= h 0f0) 1f0 h))))
-        (declare (single-float gy0 gh))
-        (macrolet ((v (i) `(let* ((x (aref a (* 2 ,i))) (y (aref a (1+ (* 2 ,i))))
-                                  (u (f-clamp (/ (- y gy0) gh) 0f0 1f0)) (w (- 1f0 u)))
-                             (declare (single-float x y u w))
-                             (hvtx x y 0f0 0f0 (+ (* w (aref c0 0)) (* u (aref c1 0))) (+ (* w (aref c0 1)) (* u (aref c1 1)))
-                                   (+ (* w (aref c0 2)) (* u (aref c1 2))) (+ (* w (aref c0 3)) (* u (aref c1 3)))
-                                   0f0 0f0 0f0 0f0 0f0 0f0 0f0 0f0))))
-          (with-hud-verts ((* 3 (- k 2)))
-            (loop for i of-type fixnum from 1 below (1- k) do (v 0) (v i) (v (1+ i)))))))
-    nil))
-
-(defun-fast %paint-box (col)
-  "Body of PAINT-BOX!: one quad grown by the feather, mode 2."
-  (declare (type f32vec col))
-  (let* ((b *paint-box*) (cx (aref b 0)) (cy (aref b 1)) (hw (aref b 2)) (hh (aref b 3)) (f (aref b 5))
-         (ex (+ hw f)) (ey (+ hh f)) (r (aref col 0)) (g (aref col 1)) (bl (aref col 2)) (a (aref col 3))
-         (rad (aref b 4)) (bord (aref b 6)))
-    (declare (type f32vec b) (single-float cx cy hw hh f ex ey r g bl a rad bord))
-    (macrolet ((v (sx sy) `(hvtx (+ cx (* ,sx ex)) (+ cy (* ,sy ey)) (* ,sx ex) (* ,sy ey) r g bl a 2f0 hw hh rad f bord 0f0 0f0)))
-      (with-hud-verts (6) (v -1f0 -1f0) (v 1f0 -1f0) (v 1f0 1f0) (v -1f0 -1f0) (v 1f0 1f0) (v -1f0 1f0)))
-    nil))
+;;; (the shapes, the transform / clip / opacity stack, gradients, patterns and the back layer: paint-shapes.lisp)
 
 ;;; ---------------------------------------------------------------- text: the baked atlas (tools/sdf-bake.py)
+(declaim (type f32vec *glyph-dscale*))
+(defvar *glyph-dscale* (make-f32 2) "Per tier (body, display): SDF units per em (em px / (2 spread)), from metrics.bin.")
 (defun paint-font-init (bytes)
   "Read metrics.bin (an (unsigned-byte 8) vector, tools/sdf-bake.py's format) into the glyph table; the atlas's width and height."
   (flet ((u16 (i) (logior (aref bytes (* 2 i)) (ash (aref bytes (1+ (* 2 i))) 8)))
@@ -161,11 +98,13 @@ the clip's gradient top and C1 at its bottom (linear in y). Sutherland-Hodgman, 
                 (aref gf o) (/ x (f32 aw)) (aref gf (+ o 1)) (/ y (f32 ah)) (aref gf (+ o 2)) (/ (+ x gw) (f32 aw)) (aref gf (+ o 3)) (/ (+ y gh) (f32 ah))
                 (aref gf (+ o 4)) (/ (s16 (u16 (+ w 6))) em) (aref gf (+ o 5)) (/ (s16 (u16 (+ w 7))) em)
                 (aref gf (+ o 6)) (/ gw em) (aref gf (+ o 7)) (/ gh em) (aref gf (+ o 8)) (/ (s16 (u16 (+ w 8))) (* 64 em)))))
-      (setf *glyph-keys* keys *glyph-f* gf)
+      (setf *glyph-keys* keys *glyph-f* gf
+            (aref *glyph-dscale* 0) (/ (f32 (svref ems 0)) (* 2 (max 1 (u16 7)))) (aref *glyph-dscale* 1) (/ (f32 (svref ems 1)) (* 2 (max 1 (u16 7)))))
       (values aw ah))))
 
 (defun-fast glyph-find (face code big)
-  "The glyph index of CODE in FACE (0 display, 1 mono, 2 kanji, 3 sans): the display tier first when BIG, else the body tier; a
+  "The glyph index of CODE in FACE (0 display, 1 mono, 2 kanji, 3 sans): the display tier first when BIG (the display face's
+upper case there: a-z draw as A-Z, no string made), else the body tier; a
 glyph missing from the face comes from the sans (as the browser's fallback), then the Mincho, then the sans's □; -1 when none."
   (declare (fixnum face code))
   (let ((keys *glyph-keys*))
@@ -181,7 +120,9 @@ glyph missing from the face comes from the sans (as the browser's fallback), the
                -1)))
       (let ((g -1))
         (declare (fixnum g))
-        (when big (setf g (look (+ (* (+ 4 face) 65536) code))))
+        (when big                                         ; (the display face's display tier is upper case only, as the CSS
+          (setf g (look (+ (* (+ 4 face) 65536)           ;  shows those words: a-z draw as A-Z there; tools/sdf-bake.py)
+                           (if (and (= face 0) (<= 97 code 122)) (- code 32) code)))))
         (when (< g 0) (setf g (look (+ (* face 65536) code))))
         (when (< g 0) (setf g (look (+ (* 3 65536) code))))
         (when (< g 0) (setf g (look (+ (* 2 65536) code))))
@@ -189,36 +130,95 @@ glyph missing from the face comes from the sans (as the browser's fallback), the
         g))))
 
 (defconstant +big-px+ 40f0 "Glyphs drawn larger than this (px per em) use the display tier when it has them.")
+;;; The small-text weight (the user, 2026-11-11: 「先加粗小字再看一次 (Recommended)」; DUEL_LISP_HUD §11): Chrome's
+;;; hinted, gamma-boosted text is heavier than a plain SDF edge at a few device px per stem, so text below *TEXT-SMALL-CSS* CSS px
+;;; grows by *TEXT-SMALL-BOLD* device px on each side of every stroke (an SDF edge shift; full strength at or below the size, fading
+;;; out by 4 CSS px above it), with its antialiasing ramp scaled by *TEXT-SMALL-SOFT*. The shift is in device px, so a dense screen
+;;; (dpr 3, where phase 0 found no difference) moves a third as much in CSS px.
+(declaim (type single-float *text-small-css* *text-small-bold* *text-small-soft*))
+(defparameter *text-small-css* 14f0
+  "Below this many CSS px (per em) text gets the small-text weight; it fades out over the next 4 px. 14 (new, 2026-11-11, the user's
+「先加粗小字再看一次」 for text under about 14 px).")
+(defparameter *text-small-bold* 0.06f0
+  "The small-text weight: device px added on each side of a stroke at full strength. 0 -> 0.06 (2026-11-11, the user: 「先加粗小字再看一次
+(Recommended)」; tuned by matching the legibility card's ink to Chrome's: 8-12 px rows 0.84-0.93 -> 0.95-1.03 of Chrome's at dpr 1,
+0.89-0.97 -> 0.94-1.01 at dpr 3; DUEL_LISP_HUD §11).")
+(defparameter *text-small-soft* 1f0
+  "The small-text antialiasing ramp, times the pen's softness, at full strength (1 = a one-pixel edge). 1 -> 1 (2026-11-11, with
+*TEXT-SMALL-BOLD*: at 1 the 8-12 px rows already have as many fully lit pixels as Chrome's, more for the sans and the Mincho, so a
+sharper ramp would only add contrast Chrome does not have).")
 
-(defun-fast %paint-run (s face col draw)
-  "PAINT-TEXT / PAINT-MEASURE: the run S (a string) in FACE at the pen; DRAW nil only measures (into pen [7])."
-  (declare (simple-string s) (fixnum face) (type f32vec col))
+(defmacro with-small-text ((grow soft) size soft0 &body body)
+  "Bind GROW (em added per side of a stroke, times a tier's SDF units per em = the edge shift) and SOFT (SOFT0 times the small-text
+ramp) for text of SIZE device px per em (the knobs above), around BODY."
+  `(let* ((%small (f-clamp (/ (- (+ *text-small-css* 4f0) (/ ,size (ffi:c-inline () () :float "pf_density()" :one-liner t))) 4f0) 0f0 1f0))
+          (,grow (if (> ,size 0f0) (/ (* %small *text-small-bold*) ,size) 0f0))
+          (,soft (* ,soft0 (+ 1f0 (* %small (- *text-small-soft* 1f0))))))
+     (declare (single-float %small ,grow ,soft))
+     ,@body))
+(defmacro glyph-edge (edge grow gi)
+  "The SDF edge of glyph GI: EDGE moved out by GROW em in its tier's units."
+  `(- ,edge (* ,grow (aref *glyph-dscale* (if (>= (aref *glyph-keys* ,gi) #x40000) 1 0)))))
+
+(defmacro %glyph-quad (x0 y0 x1 y1 u0 v0 u1 v1 k0 k1 side)
+  "One glyph cell in mode 1 (inside the text runs, which bind R G B A EDGE SOFT): the local rectangle X0 Y0 X1 Y1 cut to the
+scissor *PAINT-SC*, its atlas uv following the cut. SIDE nil: u along x, v along y, the top edge shifted right by K0 and the bottom
+by K1 (the synthetic oblique); SIDE t: turned 90 degrees clockwise (u along y, v from V1 at X0 to V0 at X1). The pen's outline band
+[8] goes to p.w, the pattern's halftone dots (*PAINT-PAT*, PAINT-DOTS!) to q.x / q.w (stripes are the polygons' only); the
+transform and opacity come from WITH-HUD-VERTS. ponytail: with a skew the cut is made on the upright cell (off by up to the
+skew's shift where a cut crosses an oblique glyph); cut on the parallelogram if a screen shows it."
+  `(let* ((%s *paint-sc*) (%x0 ,x0) (%y0 ,y0) (%x1 ,x1) (%y1 ,y1)
+          (%cx0 (f-max %x0 (aref %s 0))) (%cy0 (f-max %y0 (aref %s 1))) (%cx1 (f-min %x1 (aref %s 2))) (%cy1 (f-min %y1 (aref %s 3))))
+     (declare (type f32vec %s) (single-float %x0 %y0 %x1 %y1 %cx0 %cy0 %cx1 %cy1))
+     (when (and (< %cx0 %cx1) (< %cy0 %cy1))
+       (let* ((%ix (/ 1f0 (f-max (- %x1 %x0) 1f-6))) (%iy (/ 1f0 (f-max (- %y1 %y0) 1f-6)))
+              (%fx0 (* (- %cx0 %x0) %ix)) (%fx1 (* (- %cx1 %x0) %ix)) (%fy0 (* (- %cy0 %y0) %iy)) (%fy1 (* (- %cy1 %y0) %iy))
+              (%u0 ,u0) (%v0 ,v0) (%u1 ,u1) (%v1 ,v1) (%k0 ,k0) (%k1 ,k1)
+              (%ka (+ %k0 (* %fy0 (- %k1 %k0)))) (%kb (+ %k0 (* %fy1 (- %k1 %k0))))
+              (%pt *paint-pat*) (%ow (aref *paint-pen* 8)) (%pq (aref %pt 0)) (%pw (f-max (aref %pt 1) 0f0)))
+         (declare (type f32vec %pt) (single-float %ix %iy %fx0 %fx1 %fy0 %fy1 %u0 %v0 %u1 %v1 %k0 %k1 %ka %kb %ow %pq %pw))
+         (macrolet ((gv (xx yy uu vv) `(hvtx ,xx ,yy ,uu ,vv r g b a 1f0 edge soft %ow %pq 0f0 0f0 %pw)))
+           ,(if side
+                `(let ((%ua (+ %u0 (* %fy0 (- %u1 %u0)))) (%ub (+ %u0 (* %fy1 (- %u1 %u0))))
+                       (%va (+ %v1 (* %fx0 (- %v0 %v1)))) (%vb (+ %v1 (* %fx1 (- %v0 %v1)))))
+                   (declare (single-float %ua %ub %va %vb))
+                   (with-hud-verts (6)
+                     (gv %cx0 %cy0 %ua %va) (gv %cx1 %cy0 %ua %vb) (gv %cx1 %cy1 %ub %vb)
+                     (gv %cx0 %cy0 %ua %va) (gv %cx1 %cy1 %ub %vb) (gv %cx0 %cy1 %ub %va)))
+                `(let ((%ua (+ %u0 (* %fx0 (- %u1 %u0)))) (%ub (+ %u0 (* %fx1 (- %u1 %u0))))
+                       (%va (+ %v0 (* %fy0 (- %v1 %v0)))) (%vb (+ %v0 (* %fy1 (- %v1 %v0)))))
+                   (declare (single-float %ua %ub %va %vb))
+                   (with-hud-verts (6)
+                     (gv (+ %cx0 %ka) %cy0 %ua %va) (gv (+ %cx1 %ka) %cy0 %ub %va) (gv (+ %cx1 %kb) %cy1 %ub %vb)
+                     (gv (+ %cx0 %ka) %cy0 %ua %va) (gv (+ %cx1 %kb) %cy1 %ub %vb) (gv (+ %cx0 %kb) %cy1 %ua %vb)))))))))
+
+(defun-fast %paint-run (s face col draw start end)
+  "PAINT-TEXT / PAINT-MEASURE: characters START .. END (END < 0: the whole string) of the run S (a string) in FACE at the pen; DRAW
+nil only measures (into pen [7])."
+  (declare (simple-string s) (fixnum face start end) (type f32vec col))
   (let* ((p *paint-pen*) (gf *glyph-f*) (x (aref p 0)) (y (aref p 1)) (size (aref p 2)) (ls (* size (aref p 3)))
-         (edge (aref p 4)) (soft (aref p 5)) (skew (aref p 6)) (big (> size +big-px+)) (x0 x)
+         (edge (aref p 4)) (soft0 (aref p 5)) (skew (aref p 6)) (big (> size +big-px+)) (x0 x)
          (r (aref col 0)) (g (aref col 1)) (b (aref col 2)) (a (aref col 3)))
-    (declare (type f32vec p gf) (single-float x y size ls edge soft skew x0 r g b a))
-    (dotimes (i (length s))
-      (let ((gi (glyph-find face (char-code (char s i)) big)))
+    (declare (type f32vec p gf) (single-float x y size ls edge soft0 skew x0 r g b a))
+    (with-small-text (grow soft) size soft0
+    (loop for i of-type fixnum from start below (if (< end 0) (length s) (min end (length s)))
+      do (let ((gi (glyph-find face (char-code (char s i)) big)))
         (declare (fixnum gi))
         (when (>= gi 0)
-          (let ((o (* 9 gi)))
-            (declare (fixnum o))
+          (let ((o (* 9 gi)) (edge (glyph-edge edge grow gi)))
+            (declare (fixnum o) (single-float edge))
             (when (and draw (> (aref gf (+ o 6)) 0f0))
               (let* ((gx0 (+ x (* size (aref gf (+ o 4))))) (gy0 (- y (* size (aref gf (+ o 5)))))
                      (gx1 (+ gx0 (* size (aref gf (+ o 6))))) (gy1 (+ gy0 (* size (aref gf (+ o 7)))))
-                     (k0 (* skew (- y gy0))) (k1 (* skew (- y gy1)))
-                     (u0 (aref gf o)) (v0 (aref gf (+ o 1))) (u1 (aref gf (+ o 2))) (v1 (aref gf (+ o 3))))
-                (declare (single-float gx0 gy0 gx1 gy1 k0 k1 u0 v0 u1 v1))
-                (macrolet ((v (xx yy uu vv) `(hvtx ,xx ,yy ,uu ,vv r g b a 1f0 edge soft 0f0 0f0 0f0 0f0 0f0)))
-                  (with-hud-verts (6)
-                    (v (+ gx0 k0) gy0 u0 v0) (v (+ gx1 k0) gy0 u1 v0) (v (+ gx1 k1) gy1 u1 v1)
-                    (v (+ gx0 k0) gy0 u0 v0) (v (+ gx1 k1) gy1 u1 v1) (v (+ gx0 k1) gy1 u0 v1)))))
-            (setf x (+ x (* size (aref gf (+ o 8))) ls))))))
+                     (k0 (* skew (- y gy0))) (k1 (* skew (- y gy1))))
+                (declare (single-float gx0 gy0 gx1 gy1 k0 k1))
+                (%glyph-quad gx0 gy0 gx1 gy1 (aref gf o) (aref gf (+ o 1)) (aref gf (+ o 2)) (aref gf (+ o 3)) k0 k1 nil)))
+            (setf x (+ x (* size (aref gf (+ o 8))) ls)))))))
     (if draw (setf (aref p 0) x) (setf (aref p 7) (- x x0)))
     nil))
 
-(defun paint-text (s face col) "Draw the string S in FACE at the pen (it advances)." (%paint-run s face col t))
-(defun paint-measure (s face) "The advance of S in FACE at the pen's size and spacing, into pen [7]." (%paint-run s face *paint-q4* nil))
+(defun paint-text (s face col) "Draw the string S in FACE at the pen (it advances)." (%paint-run s face col t 0 -1))
+(defun paint-measure (s face) "The advance of S in FACE at the pen's size and spacing, into pen [7]." (%paint-run s face *paint-q4* nil 0 -1))
 
 (defvar *digit-strs* (coerce (loop for d below 10 collect (string (code-char (+ 48 d)))) 'simple-vector))
 (defun-fast %paint-int (n face col draw)
@@ -229,8 +229,8 @@ glyph missing from the face comes from the sans (as the browser's fallback), the
     (loop while (>= m (* div 10)) do (setf div (* div 10)))
     (loop while (>= div 1)
           do (let ((s (svref *digit-strs* (mod (floor m div) 10))))
-               (if draw (%paint-run s face col t)
-                   (progn (%paint-run s face col nil) (setf w (+ w (aref p 7)))))
+               (if draw (%paint-run s face col t 0 -1)
+                   (progn (%paint-run s face col nil 0 -1) (setf w (+ w (aref p 7)))))
                (setf div (floor div 10))))
     (unless draw (setf (aref p 7) w (aref p 0) x0))
     nil))
@@ -240,25 +240,7 @@ glyph missing from the face comes from the sans (as the browser's fallback), the
 (defmacro face-ascent (face) `(aref *face-m* (* 2 ,face)))
 (defmacro face-descent (face) `(aref *face-m* (1+ (* 2 ,face))))
 
-;;; ---------------------------------------------------------------- easing (CSS cubic-bézier curves)
-;;; ponytail: Newton on x(t) at each call (6 steps) and a fixed list of curves; phase 1c's tween.lisp makes tables and keyframes.
-(defvar *ease-pts* (let ((v (make-f32 20)))
-                     (replace v '(0f0 0f0 1f0 1f0  0.25f0 0.1f0 0.25f0 1f0  0.16f0 1f0 0.3f0 1f0  0.7f0 0f0 0.2f0 1f0  0.2f0 1.6f0 0.4f0 1f0))
-                     v)
-  "Curve k's x1 y1 x2 y2: 0 linear, 1 ease, 2 ease-out (.16,1,.3,1), 3 ease-cut (.7,0,.2,1), 4 ease-snap (.2,1.6,.4,1).")
-
-(defun-fast-inline ease-curve (k u)
-  "CSS cubic-bezier K (see *EASE-PTS*) at progress U (clamped 0..1)."
-  (declare (fixnum k) (single-float u))
-  (let* ((e *ease-pts*) (o (* 4 k)) (x1 (aref e o)) (y1 (aref e (+ o 1))) (x2 (aref e (+ o 2))) (y2 (aref e (+ o 3)))
-         (u (f-clamp u 0f0 1f0)) (tt u))
-    (declare (type f32vec e) (fixnum o) (single-float x1 y1 x2 y2 u tt))
-    (dotimes (i 6)
-      (let* ((mt (- 1f0 tt)) (x (+ (* 3f0 mt mt tt x1) (* 3f0 mt tt tt x2) (* tt tt tt)))
-             (dx (+ (* 3f0 mt mt x1) (* 6f0 mt tt (- x2 x1)) (* 3f0 tt tt (- 1f0 x2)))))
-        (declare (single-float mt x dx))
-        (when (> (f-abs dx) 1f-5) (setf tt (f-clamp (- tt (/ (- x u) dx)) 0f0 1f0)))))
-    (let ((mt (- 1f0 tt))) (declare (single-float mt)) (+ (* 3f0 mt mt tt y1) (* 3f0 mt tt tt y2) (* tt tt tt)))))
+;;; (easing: tween.lisp's EASE, the one implementation of the CSS curves)
 
 ;;; ---------------------------------------------------------------- the UI clock (real time: hitstop, slow motion, pause do not stop it)
 (declaim (type f32vec *ui-clock*))

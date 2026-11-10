@@ -5,7 +5,7 @@
 (ffi:clines "#include \"engine/c/engine.h\"")   ; every engine C declaration, for the whole unit
 
 (declaim (type f32vec *input*))
-(defvar *input* (make-f32 13) "Per-frame float input/timing block written by PLATFORM-POLL.")
+(defvar *input* (make-f32 15) "Per-frame float input/timing block written by PLATFORM-POLL (engine/c/platform.c pf_pump lists the lanes).")
 (defvar *max-dt* (/ 1f0 15) "FRAME-DT is clamped to this (seconds).")
 (defvar *pointer-lock* t
   "T: a mouse click without the pointer lock requests it and is not reported as a press (mouse-look
@@ -25,7 +25,7 @@ page (CSS 100vw x 100vh) and device pixel ratio."
 
 ;;; ---------------------------------------------------------------- window / time
 (declaim (inline window-width window-height frame-dt elapsed-time fps raw-dt
-                 mouse-dx mouse-dy mouse-wheel))
+                 mouse-dx mouse-dy mouse-wheel mouse-x mouse-y))
 (defun window-width () (ffi:c-inline () () :int "pf_width()" :one-liner t))
 (defun window-height () (ffi:c-inline () () :int "pf_height()" :one-liner t))
 (defun window-aspect () (/ (float (window-width) 1f0) (float (max 1 (window-height)) 1f0)))
@@ -71,6 +71,8 @@ page (CSS 100vw x 100vh) and device pixel ratio."
 (defun mouse-dx () (aref *input* 0))   ; relative motion this frame (CSS pixels); works locked or not
 (defun mouse-dy () (aref *input* 1))
 (defun mouse-wheel () (aref *input* 2))
+(defun mouse-x () "The mouse's last position, device px (as WINDOW-WIDTH; DUEL_LISP_HUD §4.5: hover and click on hot boxes)." (aref *input* 13))
+(defun mouse-y () (aref *input* 14))
 (defun pointer-locked-p () (ffi:c-inline () () :bool "pf_locked()" :one-liner t))
 (defun focus-lost-p () "T for the frame in which the window lost focus / was hidden." (ffi:c-inline () () :bool "pf_focus_lost()" :one-liner t))
 (defun pixel-density () "Window pixels per CSS pixel (the device pixel ratio)." (ffi:c-inline () () :float "pf_density()" :one-liner t))

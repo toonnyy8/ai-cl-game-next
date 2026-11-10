@@ -11,6 +11,11 @@ lisp/render.lisp
 lisp/meshgen.lisp
 lisp/ui.lisp
 lisp/paint.lisp
+lisp/paint-shapes.lisp
+lisp/layout.lisp
+lisp/tween.lisp
+lisp/text.lisp
+lisp/hot.lisp
 lisp/audio.lisp
 lisp/anim.lisp
 lisp/body.lisp
