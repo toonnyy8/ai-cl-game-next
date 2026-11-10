@@ -2241,6 +2241,11 @@ checks).
 - **For the user:** the step-10 question stands unchanged, on verified numbers. HK_2 beats both KH tables (0.5175 against the live KH) but
   loses the stand-in (0.4625 against the old table's 0.90). The choice is still option 1 (list the stand-in clause as an exception and swap
   in HK_2) or option 2 (keep the rule and close).
+- **Decisions on round 5, step 11 (the user, 2026-11-10):** asked how to handle HK now that step 9's gap is explained (HK_2 0.085 → 0.5175
+  against the live KH, 0.90 → 0.4625 against the stand-in; options: keep the rule and do not swap; list the stand-in clause as an exception
+  for HK and swap in HK_2; one more refit with the stand-in's matches in the fit data), the user chose 「維持規則，不換表 (Recommended)」.
+  HK keeps `:qhs-ken` (0.085), KH keeps `:qks5-hisagi` (0.915); the swap rule stands with no exception. The multi-rule arms
+  (`:a-hk-all` and the three one-job arms) stay in the library, named by no table. The Hisagi vs Kenpachi line of round 5 is closed.
 
 ## 9. Strategies may carry code (2026-11-08)
 
