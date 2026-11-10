@@ -36,3 +36,7 @@ Step 10 (the user: 「新增一鍵開多條規則」; DUEL_AI_STRATEGY §8.19 "R
 `duel/lisp/cpu-hk-hisagi.lisp` for good, with its three rules as library units and an arm that turns all three on (`../fq/switch/hkmulti/`).
 No table names them yet: the HK refit with them beat both KH tables but lost to the stand-in, so HK stays `:qhs-ken`. A new round would now
 start from that file, not from `baseline/` (rescore.sh and heldout.sh restore `baseline/` into the checkout).
+
+Step 11 (DUEL_AI_STRATEGY §8.19 "Round 5, step 11"): round 3's held-out numbers (`eval.py` rebuilds) reproduce exactly on main for b3_a1,
+b1_a0 and b1_a1. Step 9's `hsa-*` / `hsb-*` did not: `fq/switch/sw.py` never rebuilt, so they played the last held-out build (b1_a2). sw.py,
+fq.py and online.py rebuild a stale `build/simgate/duel.fas` first now.

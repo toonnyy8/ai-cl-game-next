@@ -2,7 +2,8 @@
 # hksplit/start.sh — step 9's split (DUEL_AI_STRATEGY §8.19 round 5, step 9), from the switch directory, on the build with the split
 # cpu-hk-hisagi.lisp (split.py: one HISAGI-HK-STYLE, each rule's action gated by a strategy key, :hk-wake / :hk-pot / :hk-kite):
 #   1. fidelity: the style with all three keys on, played whole (one-arm table), against the live KH on 601-800 -> ev/hsa-kh-*.json, to pair
-#      seed by seed with the bundle's ev/hsb-kh-* (identical = the split code is the bundle's code);
+#      seed by seed with the bundle's ev/hsb-kh-* (identical = the split code is the bundle's code); step 11: ev/hsa-* ran the same stale
+#      build as ev/hsb-* (round 3's b1_a2), so that check was empty; the valid one is step 10's ev/s10a-* = step 11's ev/s11b-* (400 / 400);
 #   2. hk8.arms = HK's five arms + the three one-job arms (wake, pot, kite); hk8-t0.lisp = :qhs-ken extended with them (never chosen),
 #      proved = the live HK lookup (identity-t0-600.jsonl);
 #   3. the diagnostic pinned table hk8-pin.lisp: hk8-t0 with a G1 bonus of 10 per form in each distance band (1.0 is not enough: a new

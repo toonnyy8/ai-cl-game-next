@@ -21,7 +21,7 @@ sys.dont_write_bytecode = True
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '../../../..'))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
-from simgate import ECL, FAS, MUSLM          # noqa: E402
+from simgate import ECL, FAS, MUSLM, build   # noqa: E402
 
 ROSTER = {'kenpachi': 1, 'ichigo': 3, 'hisagi': 7}
 OUT = os.path.join(HERE, 'online', 'out')
@@ -174,6 +174,9 @@ def main():
     for k in ('init', 'learned'):
         if getattr(a, k, None):
             setattr(a, k, os.path.abspath(getattr(a, k)))
+    # every sim runs build/simgate/duel.fas as it is: rebuild it first when a source is newer, or a swapped-in file plays the last build's
+    # code (step 9's bundle and fidelity runs played round 3's b1_a2, §8.19 round 5, step 11). ponytail: mtime only, blind to `cp -p`.
+    build()
     {'train': cmd_train, 'eval': cmd_eval}[a.cmd](a)
 
 

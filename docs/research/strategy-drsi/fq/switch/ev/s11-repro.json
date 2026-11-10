@@ -1,0 +1,605 @@
+{
+ "note": "Round 5 step 11 (DUEL_AI_STRATEGY \u00a78.19): step 9 records re-run under s11r- / s11x-b1a2- tags; judged / share = [rerun, step 9]; raw logs compared line for line with the step 9 logs (table name stripped). The s11r rows are the post-11:56 runs (hsq, the refit selection s9s, held-out s9h): identical. The hsa / hsb rows are the pre-build runs: identical to b1_a2.",
+ "rows": [
+  {
+   "step9_record": "hsq-fz-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    59973,
+    59973
+   ],
+   "share": [
+    0.305,
+    0.305
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "hsq-fz-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    60353,
+    60353
+   ],
+   "share": [
+    0.29,
+    0.29
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "hsq-kh-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    87747,
+    87747
+   ],
+   "share": [
+    0.48,
+    0.48
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "hsq-kh-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    95765,
+    95765
+   ],
+   "share": [
+    0.48,
+    0.48
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-n-vs-fz-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    106782,
+    106782
+   ],
+   "share": [
+    0.16,
+    0.16
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-n-vs-fz-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    106590,
+    106590
+   ],
+   "share": [
+    0.195,
+    0.195
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-n-vs-khn-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    104096,
+    104096
+   ],
+   "share": [
+    0.25,
+    0.25
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-n-vs-khn-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    104604,
+    104604
+   ],
+   "share": [
+    0.23,
+    0.23
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-n-vs-kho-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    104652,
+    104652
+   ],
+   "share": [
+    0.315,
+    0.315
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-n-vs-kho-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    105710,
+    105710
+   ],
+   "share": [
+    0.32,
+    0.32
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-o-vs-fz-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    112185,
+    112185
+   ],
+   "share": [
+    0.89,
+    0.89
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-o-vs-fz-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    112563,
+    112563
+   ],
+   "share": [
+    0.91,
+    0.91
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-o-vs-khn-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    103975,
+    103975
+   ],
+   "share": [
+    0.255,
+    0.255
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-o-vs-khn-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    104442,
+    104442
+   ],
+   "share": [
+    0.34,
+    0.34
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-o-vs-kho-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    111969,
+    111969
+   ],
+   "share": [
+    0.085,
+    0.085
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-hk-o-vs-kho-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    111613,
+    111613
+   ],
+   "share": [
+    0.085,
+    0.085
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-kh-n-vs-hkn-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    105911,
+    105911
+   ],
+   "share": [
+    0.75,
+    0.75
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-kh-n-vs-hkn-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    106222,
+    106222
+   ],
+   "share": [
+    0.765,
+    0.765
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-kh-n-vs-hko-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    106463,
+    106463
+   ],
+   "share": [
+    0.715,
+    0.715
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-kh-n-vs-hko-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    106178,
+    106178
+   ],
+   "share": [
+    0.655,
+    0.655
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-kh-o-vs-hkn-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    105481,
+    105481
+   ],
+   "share": [
+    0.685,
+    0.685
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-kh-o-vs-hkn-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    106234,
+    106234
+   ],
+   "share": [
+    0.68,
+    0.68
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-kh-o-vs-hko-601",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    112489,
+    112489
+   ],
+   "share": [
+    0.915,
+    0.915
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9h-kh-o-vs-hko-701",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    112018,
+    112018
+   ],
+   "share": [
+    0.915,
+    0.915
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-hk-t1-o1",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    207450,
+    207450
+   ],
+   "share": [
+    0.113,
+    0.113
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-hk-t1-o2",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    208732,
+    208732
+   ],
+   "share": [
+    0.205,
+    0.205
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-hk-t1-o3",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    209985,
+    209985
+   ],
+   "share": [
+    0.007,
+    0.007
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-hk-t2-o1",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    208972,
+    208972
+   ],
+   "share": [
+    0.312,
+    0.312
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-hk-t2-o2",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    209211,
+    209211
+   ],
+   "share": [
+    0.255,
+    0.255
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-hk-t2-o3",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    213433,
+    213433
+   ],
+   "share": [
+    0.207,
+    0.207
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-kh-t1-o1",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    211715,
+    211715
+   ],
+   "share": [
+    0.693,
+    0.693
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-kh-t1-o2",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    212404,
+    212404
+   ],
+   "share": [
+    0.792,
+    0.792
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-kh-t2-o1",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    171000,
+    171000
+   ],
+   "share": [
+    0.517,
+    0.517
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "s9s-kh-t2-o2",
+   "build": "main a8df70cf + its cpu-hk-hisagi.lisp (the split), fresh build",
+   "judged": [
+    165703,
+    165703
+   ],
+   "share": [
+    0.797,
+    0.797
+   ],
+   "same_winner": "400/400",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "hsb-kh-601",
+   "build": "main a8df70cf + round 3 b1_a2 swapped in, fresh build",
+   "judged": [
+    85030,
+    85030
+   ],
+   "share": [
+    0.435,
+    0.435
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "hsa-kh-601",
+   "build": "main a8df70cf + round 3 b1_a2 swapped in, fresh build",
+   "judged": [
+    85030,
+    85030
+   ],
+   "share": [
+    0.435,
+    0.435
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "hsb-kh-701",
+   "build": "main a8df70cf + round 3 b1_a2 swapped in, fresh build",
+   "judged": [
+    83600,
+    83600
+   ],
+   "share": [
+    0.48,
+    0.48
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "hsa-kh-701",
+   "build": "main a8df70cf + round 3 b1_a2 swapped in, fresh build",
+   "judged": [
+    83600,
+    83600
+   ],
+   "share": [
+    0.48,
+    0.48
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "hsb-fz-601",
+   "build": "main a8df70cf + round 3 b1_a2 swapped in, fresh build",
+   "judged": [
+    64069,
+    64069
+   ],
+   "share": [
+    0.39,
+    0.39
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  },
+  {
+   "step9_record": "hsb-fz-701",
+   "build": "main a8df70cf + round 3 b1_a2 swapped in, fresh build",
+   "judged": [
+    62355,
+    62355
+   ],
+   "share": [
+    0.42,
+    0.42
+   ],
+   "same_winner": "200/200",
+   "raw_logs_identical": true
+  }
+ ],
+ "hkfn_heldout": [
+  {
+   "node": "b3_a1",
+   "build": "main a8df70cf + the node file swapped in (hkfn/heldout.sh), fresh build",
+   "identical_to_committed": true,
+   "score": 0.4889,
+   "live": 0.4776,
+   "standin": 0.4059,
+   "keep": true
+  },
+  {
+   "node": "b1_a0",
+   "build": "main a8df70cf + the node file swapped in (hkfn/heldout.sh), fresh build",
+   "identical_to_committed": true,
+   "score": 0.4573,
+   "live": 0.4279,
+   "standin": 0.4059,
+   "keep": true
+  },
+  {
+   "node": "b1_a1",
+   "build": "main a8df70cf + the node file swapped in (hkfn/heldout.sh), fresh build",
+   "identical_to_committed": true,
+   "score": 0.4839,
+   "live": 0.4279,
+   "standin": 0.3861,
+   "keep": true
+  }
+ ],
+ "timeline": {
+  "where": "the step-9 coordinator's checkout (its uncommitted build/ and logs/, 2026-11-10, local time)",
+  "events": [
+   "11:50:11 hkfn round03 b1_a2/heldout.json written (heldout.sh: b1_a2 built by eval.py, then baseline/ restored, no rebuild)",
+   "11:51:26-11:51:51 logs ev/hsb-{kh,fz}-{601,701} written (bundle.sh, sw.py, no build)",
+   "11:52:41-11:52:52 logs ev/hsa-kh-{601,701} written (start.sh first run, sw.py, no build)",
+   "11:53:33 build/simgate/simgate-all.lisp written (build start; its cpu-hk-hisagi.lisp section = main's split file but for the header comment)",
+   "11:56:08 build/simgate/duel.fas written (build end; the last build in that checkout)",
+   "11:57:13 start.sh second run (hsa args.txt second line: cached logs reused); 11:57:23 onward hsq, s9kh/s9hk refit logs, s9s, s9h"
+  ]
+ }
+}

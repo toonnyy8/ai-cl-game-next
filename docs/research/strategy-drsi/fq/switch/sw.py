@@ -32,7 +32,7 @@ FQD = os.path.dirname(HERE)
 ROOT = os.path.abspath(os.path.join(HERE, '../../../../..'))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 sys.path.insert(0, FQD)
-from simgate import ECL, FAS, MUSLM          # noqa: E402
+from simgate import ECL, FAS, MUSLM, build   # noqa: E402
 import fq                                    # noqa: E402
 
 HARD = 2
@@ -154,6 +154,9 @@ def run(args):
 
 
 def play(table, tag, seeds, salt=0, eps=0.0, runs=(None, None), j=8):
+    # every sim runs build/simgate/duel.fas as it is: rebuild it first when a source is newer, or a swapped-in file plays the last build's
+    # code (step 9's bundle and fidelity runs played round 3's b1_a2, §8.19 round 5, step 11). ponytail: mtime only, blind to `cp -p`.
+    build()
     table = os.path.abspath(table)
     os.makedirs(os.path.join(LOGS, tag), exist_ok=True)
     with open(os.path.join(LOGS, tag, 'args.txt'), 'a') as f:

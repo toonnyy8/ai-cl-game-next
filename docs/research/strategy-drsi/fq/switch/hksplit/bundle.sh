@@ -3,6 +3,8 @@
 # (the three-rule bundle) as duel/lisp/cpu-hk-hisagi.lisp: the bundle played whole as a one-arm table (sw.py start: arm 0 everywhere), measured
 # against the live KH :qks5-hisagi and the stand-in (Kenpachi's KI style CPU) on 601-700 / 701-800 -> ev/hsb-*.json (per-seed wins, so the
 # split tables pair against it). Never a candidate: the bundle is two rules too many (the user's keep rule).
+# Step 11: run on 2026-11-10 without a build in between, this played the last held-out build (round 3's b1_a2), so ev/hsb-* are b1_a2's
+# numbers; b3_a1's are ev/s11b-*. sw.py rebuilds a stale build/simgate/duel.fas first now.
 set -e
 echo '(:id :hk-bundle :fn hisagi-hk-style :ken-ranged t :apply (:hisagi))' > hksplit/bundle.arms
 python3 sw.py start --me hisagi --vs kenpachi --arms hksplit/bundle.arms --period 30 --out hksplit/bundle-t.lisp

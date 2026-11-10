@@ -2082,12 +2082,15 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     `:hk-pot`, `:hk-kite`). Every rule's tracking runs on every call, so the state carries across switches between the split arms.
   - Three one-job arms are style + key: wake, pot, kite.
   - **Fidelity:** the style with all three keys on plays the bundle seed for seed: 400 of 400 identical against the live KH (601-800),
-    0.4575 = 0.4575. This configuration is research-only and never in a table.
-  - **The bundle's reference** (played whole, 601-800): 0.4575 against the live KH, 0.405 against the stand-in.
+    0.4575 = 0.4575. This configuration is research-only and never in a table. **Invalid (step 11):** both runs played round 3's b1_a2
+    from a stale build, so they matched themselves; step 11's check is the valid one.
+  - **The bundle's reference** (played whole, 601-800): 0.4575 against the live KH, 0.405 against the stand-in. **Invalid (step 11):**
+    these are b1_a2's numbers; b3_a1 played whole gives 0.445 and 0.4225 (`ev/s11b-*`).
   - **Diagnostic, not a candidate:** HK's table + the three arms, pinned by distance band (close → wake, mid → kite, far → pot, G1 bonus
     10 in every form).
-    - Against the live KH 0.48 (b / c 104 / 95 against the bundle, z 0.64): the split keeps the gain there.
-    - Against the stand-in 0.2975 (70 / 113, z -3.18): **it loses there**. The pinned table holds the wake arm 0.66-0.89 of the time and the
+    - Against the live KH 0.48 (b / c 104 / 95 against the bundle, z 0.64; against the true bundle, step 11: 104 / 90, z 1.01): the split
+      keeps the gain there.
+    - Against the stand-in 0.2975 (70 / 113, z -3.18; against the true bundle, step 11: 65 / 115, z -3.73): **it loses there**. The pinned table holds the wake arm 0.66-0.89 of the time and the
       kite only 0.06-0.30, while the bundle runs all three rules together.
   - **The rule's candidates:** HK (`hk8-t0` = `:qhs-ken` + the three arms, proved = the live lookup, 0.085 = 0.085, 8 of 8 chunks) and KH
     (the live `:qks5-hisagi`) refit together.
@@ -2109,7 +2112,8 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     - HK_2 holds Kenpachi's KI code 0.45 and press 0.27 of the time against the live KH, and the split arms only 0.19 (wake 0.13, pot
       0.06, kite 0.01). Against the stand-in it holds Kenpachi's KI code 0.92 and collapses (0.16 on 601-700).
 - **The split does not keep the gain.**
-  - Switched by distance, the arms keep the live-KH gain (0.48) but lose the stand-in (0.30 against the bundle's 0.405).
+  - Switched by distance, the arms keep the live-KH gain (0.48) but lose the stand-in (0.30 against the bundle's 0.405; the true bundle's
+    0.4225, step 11).
   - Refit, they win against the live KH (0.318 against 0.085) but collapse against the stand-in.
   - The bundle's gain needs all three rules running at once, which a table that holds one arm at a time cannot give.
 - **Nothing ships.** The scaffold and its host check came out again, and HK stays `:qhs-ken`. No game code changed in this step. Host tests,
@@ -2146,7 +2150,8 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
     b3_a0. The old tables reproduce step 9 exactly (`s10h-*-o-vs-*o` = `s9h-*`, 400 of 400 each for HK vs KH, KH vs HK, HK vs the stand-in).
   - So step 9's bundle and split runs are not reproduced from the committed b3_a1; the cause is unknown. Step 9's fidelity (400 of 400),
     its pinned diagnostic (0.2975 against the stand-in) and its HK_2 (0.318) therefore ran on code this step could not verify; step 10's
-    refit is the first on the verified split.
+    refit is the first on the verified split. **Resolved in step 11:** only `hsa-*` / `hsb-*` ran stale code (round 3's b1_a2); step 9's
+    pinned diagnostic and its refit ran the split and reproduce exactly.
   - On this build the all-on arm scores 0.445 against the live KH (step 9: 0.4575) and 0.4225 against the stand-in (0.405), 601-800
     (`ev/s10a-*`).
 - **The arms** (`hk9.arms`): HK's five + the three one-job arms + the all-on arm (9).
@@ -2183,6 +2188,59 @@ The user asked: 「你的 Q 表怎麼怪怪的？為什麼會整場用同樣策�
   the table. No table names them.
   - Host tests 10149 ALL PASS, pkgcheck (only `DUEL::APP`), the build, the smoke, and G2 `--cvc` native and browser identical (II 32, IK 34,
     KK 33).
+- **Decisions on round 5, step 10 (the user, 2026-11-10):**
+  - The main session offered three options: (1) list the stand-in clause as an exception for HK and swap in HK_2; (2) keep the rule and
+    close; (3) first find out why step 9 does not reproduce. It recommended 3, then 1 or 2. The user: 「按你說的繼續」.
+
+**Round 5, step 11: why step 9 did not reproduce (2026-11-10).** Measures `fq/switch/ev/s11*` (`s11-repro.json` holds the line-by-line
+checks).
+- **The cause: a stale native build.**
+  - `fq/switch/sw.py` ran `build/simgate/duel.fas` as it was and never rebuilt it. `fq.py` and `online.py` did the same. `tools/strategy-switch.py`
+    (`eval.py`, `identity.py`) does rebuild.
+  - In the coordinator's checkout, the last build before the split test came from round 3's last held-out run: b1_a2 (`heldout.sh` ended
+    11:50:11). `bundle.sh` (11:51) copied b3_a1 in and measured without a build, and so did `start.sh`'s fidelity runs (11:52).
+  - So `hsb-*` (the bundle) and `hsa-*` (the split, all keys on) both played **b1_a2**. The fidelity check compared one stale build with
+    itself.
+  - The next build started at 11:53:33 and finished at 11:56:08. Its source (`build/simgate/simgate-all.lisp`, still in that checkout) holds
+    the split file, the same as main's but for the header comment. Every later step-9 run used it: the pinned table from 11:57, the refit
+    logs from 11:58, the selection, the held-out.
+- **The evidence.** Every run below is a fresh build of main (a8df70cf) with the named file in place.
+  - b1_a2 played whole gives every `hsb-*` record (kh / fz, 601 / 701) and every `hsa-kh-*` record exactly: the same judgement counts
+    (85030 on kh-601) and the same winners, 200 of 200 a block. The raw logs (every judgement, every match end) are identical line for line
+    but for the table's name (`ev/s11x-b1a2-*`).
+  - Rerun on main's split file, all 34 of step 9's post-build runs are identical line for line in their raw logs: `hsq-*` (4), the
+    selection `s9s-*` (10) and the held-out `s9h-*` (20).
+  - Hypotheses 2 (other source differences) and 3 (a determinism leak from load order) are ruled out by these exact reproductions; no
+    MANIFEST move was needed.
+- **Round 3's keep-rule numbers stand.** `heldout.sh` on main reproduces b3_a1's, b1_a0's and b1_a1's `heldout.json` exactly, every member
+  (b3_a1: 0.4889 / live 0.4776 / stand-in 0.4059; keep true). Rounds 1-3 scored through `eval.py`, which rebuilds and caches by the build's
+  hash, so they were never exposed to this bug.
+
+| Step 9 number | Status | Value |
+|---|---|---|
+| The bundle's reference, 601-800 (`hsb-*`): 0.4575 against the live KH, 0.405 against the stand-in | **invalid** (b1_a2) | b3_a1: **0.445** / **0.4225** (`ev/s11b-*`) |
+| Fidelity, the split with all keys on = the bundle, 400 of 400 (`hsa-*`) | **invalid** (both b1_a2) | valid now: step 10's all-on arm (`s10a-*`) = b3_a1 whole (`s11b-*`), 400 of 400 against the live KH and 400 of 400 against the stand-in, equal judgement counts in every block |
+| Pinned diagnostic: 0.48 against the live KH, 0.2975 against the stand-in (`hsq-*`) | valid (reproduced) | |
+| Pinned vs the bundle: b / c 104 / 95, z 0.64; 70 / 113, z -3.18 | **invalid** (paired with b1_a2) | against b3_a1: **104 / 90, z 1.01**; **65 / 115, z -3.73** |
+| The refit: selection, the 2×2 (HK_2 0.318 against the live KH, 0.24 against KH_1), the verdicts, HK_2 0.178 against the stand-in | valid (reproduced) | |
+| hkfn round 3: b3_a1 0.489 / 0.478 / 0.406, b1_a0, b1_a1 | valid (reproduced) | |
+
+  - Step 9's conclusions hold on the corrected numbers. Switched by distance, the split keeps the live-KH gain (0.48 against 0.445) and loses
+    the stand-in (0.2975 against 0.4225, z -3.73). Refit, HK_2 wins against the live KH and collapses against the stand-in.
+  - Step 10's "Uncertain" bullet is resolved, and its numbers stand: its all-on runs match a fresh build of b3_a1.
+- **The fix (research scripts only).** `sw.py` (`play`), `fq.py` (`log`) and `online.py` call `simgate.build()` before any sim now. It is a
+  no-op unless a source is newer than the build. It checks mtimes only, so a file copied in with `cp -p` still slips past.
+  - Two caches stay as they were. sw.py reuses a tag's logs whatever build made them, so use a new tag per build. strategy-switch.py keys
+    its cache on the build's hash, so it was safe.
+- **Blast radius.** Among the committed scripts, only `hksplit/bundle.sh` and `hksplit/start.sh` measure with sw.py after a file change
+  and before any build. In `start.sh`, every sw.py measure (`hsa`, then `hsq`) precedes its only build (`identity.py`, last). `hsq` ran
+  clean only because an unscripted build ran between the script's two runs (11:53:33, cause not shown).
+  - khstyle, khevent and hkmulti's `start.sh` run no sw.py measure; `khjoint/extend.py` only writes tables. Manual runs are not
+    auditable.
+- No game code changed. `duel/lisp/cpu-hk-hisagi.lisp` was swapped only during the runs and restored, so no G2 was needed.
+- **For the user:** the step-10 question stands unchanged, on verified numbers. HK_2 beats both KH tables (0.5175 against the live KH) but
+  loses the stand-in (0.4625 against the old table's 0.90). The choice is still option 1 (list the stand-in clause as an exception and swap
+  in HK_2) or option 2 (keep the rule and close).
 
 ## 9. Strategies may carry code (2026-11-08)
 
