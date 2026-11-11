@@ -251,7 +251,7 @@ ev += [shot(t + 21, "flow-vs-cpu-hard")]
 write("flow", ev)
 
 # SETTINGS and PRACTICE by keyboard (the MODE menu since the HTML menus, 2026-10-28: VS CPU / PRACTICE / VS PLAYER / CPU VS CPU /
-# SETTINGS / CONTROLS / MANUAL; SETTINGS: ONE-HAND / HAND / SENSITIVITY / CAMERA / LEARNING CPU / PERFECT HINT / VOLUME / RESET LEARNING / BACK). Expected, in order: duel -> SETTINGS, duel setting HAND LEFT, ... HAND RIGHT, duel setting CAMERA SIDE,
+# SETTINGS / CONTROLS / MANUAL; SETTINGS: ONE-HAND / HAND / SENSITIVITY / CAMERA / LEARNING CPU / PERFECT HINT / VOLUME / HUD / RESET LEARNING / BACK). Expected, in order: duel -> SETTINGS, duel setting HAND LEFT, ... HAND RIGHT, duel setting CAMERA SIDE,
 # duel camera CAMERA  SIDE (the pause menu flips it back: BEHIND), duel -> MODE, duel -> SELECT, the match seed line with
 # PRACTICE, duel -> BATTLE; J J J on the standing dummy: YA-J1 / J2 / J3 -> P2 HIT (the dump after it: P2 r1300, the
 # HP refilled); duel practice DUMMY  GUARD ALL, then J1 / J2 -> P2 BLOCKED; DUMMY  GUARD AFTER HIT: J1 -> HIT, then a J1

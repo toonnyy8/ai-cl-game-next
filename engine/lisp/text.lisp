@@ -111,6 +111,13 @@ remade when the face, width or spacing changed)."
       (%paint-run s face col t (aref br (* 2 l)) (aref br (1+ (* 2 l)))))
     (setf (aref p 0) x0 (aref p 1) top (aref p 7) (* lh size (i->f* (length ws))))
     nil))
+(defmacro paint-measure-paragraph (s face &key (width 0f0))
+  "The number of lines S in FACE takes when PAINT-PARAGRAPH wraps it at WIDTH px with the pen's size and letter spacing (the same
+cached breaks; 0 B once laid out): a box's height before its text is drawn (a card behind its paragraph)."
+  `(let* ((%w ,width) (%e (if (> %w 0f0) (/ %w (aref *paint-pen* 2)) 0f0)))   ; (LET*: a parallel LET boxes its float initial values)
+     (declare (single-float %w %e))
+     (setf (aref *text-io* 3) %e)
+     (length (the f32vec (svref (text-layout ,s ,face) 4)))))
 (defmacro paint-paragraph (s face col &key (width 0f0) (lh 1.5f0) (align :start))
   "Draw S in FACE as a block: the pen's x / y = the box's left / top, WIDTH px to wrap at (0: no wrap; newlines always break),
 line-height LH, text-align ALIGN (:start :center :end) inside WIDTH. Pen [7] := the block's height. 0 B once laid out."

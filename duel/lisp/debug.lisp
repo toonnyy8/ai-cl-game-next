@@ -7,7 +7,7 @@
 ;;;;   2110-2119, 2125+k, 2136+i, 30000+k   the seed gates (all pairings / one pairing / one character's), their seed offset
 ;;;;   2200+k, 10000+1000k+f   force cinematic k now and hold it / stills of it at frame f
 ;;;;   2300-2399, 2410-2430, 2450+k   scenarios and probes (2300+k specials, 2315+k frame probes, 2370+k / 2380+k stance
-;;;;               tests, 2386+k Bankai tests, 2410+k Rukia, 2450+k Senjumaru); 2400 god; 2500+k human P1 vs an idle CPU (2504: vs a learning HARD Ichigo)
+;;;;               tests, 2386+k Bankai tests, 2410+k Rukia, 2450+k Senjumaru, 2401+k the Lisp menus' RESULTS); 2400 god; 2500+k human P1 vs an idle CPU (2504: vs a learning HARD Ichigo)
 ;;;;   20000-29000, 32000-73000   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc)
 ;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 84000-84999 DANGAI (84800+k its run table), 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
 ;;;; Log lines: "duel -> STATE" (flow.lisp), "duel hash t=N ..." every 600 battle ticks (h = CPU heat),
@@ -127,6 +127,42 @@ the line, the deck, 爆, the stance ring, the clock tab, the touch ink, the move
       (setf (stream-buffer-fill *hud-back*) b0 (stream-buffer-fill *hud-batch*) f0)
       (loop for v in (list *lhud-cb-i* *lhud-cb-f* *lhud-cl-i* *lhud-cl-f* *lhud-pr-i* *lhud-pr-f* *lhud-pr-t* *lhud-fx-i* *lhud-fx-f*)
             for o in saved do (replace v o)))))
+
+(defun lm-consing ()
+  "Debug 2519's menus line (DUEL_LISP_HUD §15): 100 calls each of the Lisp menus' systems, every screen's view (whatever the model
+holds now), SELECT's back layer, the rails, the wash, the cut half-way and the pointer, each warmed first (the screens share the layout lanes and the line-break cache, so the first call after another
+screen re-lays its paragraphs out): `lmenu consing (100 calls,
+B): …; ms a call: …; verts: …` (0 B wanted)."
+  (let ((f0 (stream-buffer-fill *hud-batch*)) (b0 (stream-buffer-fill *hud-back*)) (cut (aref *lm-t* 0)) (tr *render-transparent*))
+    (lhud-frame)
+    (setf (aref *lm-t* 0) (- (aref *ui-clock* 0) 0.15))
+    (labels ((one (k) (setf (stream-buffer-fill *hud-batch*) f0 (stream-buffer-fill *hud-back*) b0)
+               (case k (0 (lm-systems (uv 0))) (1 (lm-title)) (2 (lm-mode)) (3 (lm-settings)) (4 (lm-controls)) (5 (lm-select))
+                 (6 (lm-select-back)) (7 (lm-results)) (8 (lm-rails (max 1 (uv 0)))) (9 (lm-wash)) (10 (lm-cut)) (t (lm-pointer))))
+             (ms (k) (let ((t0 (now-ms))) (dotimes (i 100) (one k)) (/ (- (now-ms) t0) 100)))
+             (vs (k) (one k) (floor (- (if (= k 6) (stream-buffer-fill *hud-back*) (stream-buffer-fill *hud-batch*)) (if (= k 6) b0 f0)) 16))
+             (cp (nm k) (one k) (cons-per nm (one k) 100)))   ; (each view warmed first: the screens share the layout lanes and the line-break cache)
+      (dotimes (k 12) (one k))
+      (log-msg "lmenu consing (100 calls, B): ~a, ~a, ~a, ~a, ~a, ~a, ~a, ~a, ~a, ~a, ~a, ~a; ms a call: systems ~,4f, title ~,4f, mode ~,4f, settings ~,4f, controls ~,4f, select ~,4f, back ~,4f, results ~,4f, rails ~,4f, wash ~,4f, cut ~,4f; verts: title ~d, mode ~d, settings ~d, controls ~d, select ~d, back ~d, results ~d, rails ~d, wash ~d, cut ~d"
+               (cp "systems" 0) (cp "title" 1) (cp "mode" 2) (cp "settings" 3)
+               (cp "controls" 4) (cp "select" 5) (cp "back" 6) (cp "results" 7)
+               (cp "rails" 8) (cp "wash" 9) (cp "cut" 10) (cp "pointer" 11)
+               (ms 0) (ms 1) (ms 2) (ms 3) (ms 4) (ms 5) (ms 6) (ms 7) (ms 8) (ms 9) (ms 10)
+               (vs 1) (vs 2) (vs 3) (vs 4) (vs 5) (vs 6) (vs 7) (vs 8) (vs 9) (vs 10)))
+    (setf (stream-buffer-fill *hud-batch*) f0 (stream-buffer-fill *hud-back*) b0 (aref *lm-t* 0) cut *render-transparent* tr)))
+
+(defun lm-results-scene (w)
+  "2401+k: a K.O. now into RESULTS for the Lisp menus' review (DUEL_LISP_HUD §15): human Ichigo (P1) vs Kenpachi (P2), VS CPU, some
+numbers on the results (P1: Konpaku 6, best combo 12, 2 Kikons, 3 perfect Hohos; P2: 4, 7, 1, 0), then k: 0 P1 wins, 1 P2 wins, 2 a
+draw; the K.O. cinematic plays (skip it with a key) and RESULTS follows. k 3: SELECT with P1 Hisagi and P2 Ichigo (VS CPU), each
+card focused without cycling the picks."
+  (when (= w 3) (setf *picks* (list :hisagi :ichigo) *mode* :vs-cpu *rogue* nil) (go-select) (return-from lm-results-scene))
+  (setf *cine-hold* nil)
+  (ensure-battle :ichigo :kenpachi)
+  (place *p1* *p2* 3.0)
+  (loop for e in (list *p1* *p2*) for (kon best kik per) in '((6 12 2 3) (4 7 1 0))
+        do (let ((g (gauges e))) (setf (gauges-konpaku g) kon (gauges-best-combo g) best (gauges-kikons g) kik (gauges-perfects g) per)))
+  (match-over (case w (0 *p1*) (1 *p2*) (t nil))))
 
 (defun set-probe (kind name &optional a b c)
   "Start a frame probe now: *PROBE* = (KIND NAME this tick A B C)."
@@ -780,7 +816,8 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2509) (setf *lhud-shapes* (case *lhud-shapes* ((nil) t) ((t) :back) (t nil))))   ; the paint shapes' test card (DUEL_LISP_HUD §10)
         ((= c 2517) (set-hud-renderer (if (eq *hud-renderer* :lisp) :html :lisp)))   ; the battle HUD: the page's / Lisp's (DUEL_LISP_HUD §4.6)
         ((= c 2518) (setf *lhud-still* (not *lhud-still*)))                  ; the Lisp HUD's still mode (phase 0: the legibility card)
-        ((= c 2519) (lhud-consing))                                           ; the Lisp HUD's consing and time (DUEL_LISP_HUD §4.7)
+        ((= c 2519) (lhud-consing) (lm-consing))                              ; the Lisp HUD's consing and time (DUEL_LISP_HUD §4.7; the menus' line §15)
+        ((<= 2401 c 2404) (lm-results-scene (- c 2401)))                      ; a K.O. into RESULTS (the Lisp menus' review, DUEL_LISP_HUD §15)
         ((= c 2516) (let ((q (pos-of *p2*))) (set-reaction *p1* :knockdown 0 (aref q 0) (aref q 2) 0.0)))   ; P1 knocked down (the wake-up roll, DEVLOG §614)
         ((<= 2520 c 2599) (setf (camera-shift-x *camera*) (/ (- c 2550) 100f0)))   ; the lens shift across = (k - 30) / 100
         ((<= 2505 c 2506) (lhud-scene (= c 2506)))       ; the Lisp HUD's phone scenes (DUEL_LISP_HUD §13)

@@ -432,7 +432,9 @@ pure parts (layout, line breaking, tweens, hot boxes) are host-tested: `$ECL_HOS
   `(paint-text-aligned s face col :start|:center|:end)`, `(paint-int-tab n face col &optional digits)` /
   `(paint-measure-int-tab n face &optional digits)` (tabular figures, zero-padded), `(paint-paragraph s face col &key width lh
   align)` (wrapped at WIDTH px; pen x / y = the box's top-left; pen [7] := the height; line breaks cached per EQ string, face, width,
-  spacing in `text-layout`, `*text-cache-max*` strings), `(paint-vertical s face col)` / `(paint-measure-vertical s face)`
+  spacing in `text-layout`, `*text-cache-max*` strings), `(paint-measure-paragraph s face &key width)` → the number of lines
+  PAINT-PARAGRAPH will draw at the pen's size and spacing (the same cached breaks: a box's height before its text, DUEL_LISP_HUD §15),
+  `(paint-vertical s face col)` / `(paint-measure-vertical s face)`
   (writing-mode: vertical-rl: pen x = the column's centre; CJK upright, other characters turned 90° clockwise; an upright glyph
   sits in the ideographic em box, 0.88 em over its baseline: the CJK faces' typo ascender, where their vmtx puts the vertical origin,
   as Chrome does; since DUEL_LISP_HUD §14, 0.08 em lower than the line box's ascent / descent split before). The small-text

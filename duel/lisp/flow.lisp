@@ -88,7 +88,7 @@ confirm 32 back; cleared after FLOW-UPDATE. The menus read them as they read the
   "Up / down move the cursor over N items; returns the index on confirm, or on a tap on a row (HUD-MENU notes them)."
   (when (menu-up-p) (setf *menu* (mod (1- *menu*) n)) (play-sfx :select))
   (when (menu-down-p) (setf *menu* (mod (1+ *menu*) n)) (play-sfx :select))
-  (let ((r (tapped-row n)))
+  (let ((r (unless (webui-on-screen-p) (tapped-row n))))   ; (the page's / the Lisp menus' rows take their own taps: webui.lisp)
     (cond (r (setf *menu* r) (play-sfx :confirm) r)
           ((confirm-p) (play-sfx :confirm) *menu*))))
 
@@ -326,10 +326,16 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
   "SELECT: the plaza again with the picks (a pick changed)."
   (spawn-pair) (do-sides (e) (setf (fighter-state (fighter e)) :intro)))
 
+(defun menu-tap-p ()
+  "A raw tap on the canvas menus (TAP-P), NIL while the page or the Lisp menus draw the screen: their hot rows send commands
+instead (webui.lisp; under :HTML the page swallows the touch anyway)."
+  (and (not (webui-on-screen-p)) (tap-p)))
+(defun menu-tap-third () "TAP-THIRD for the canvas menus only (MENU-TAP-P's rule)." (unless (webui-on-screen-p) (tap-third)))
+
 (defun select-update ()
   "SELECT: P1 picks, then P2 / the CPU, then the CPU difficulty (either player's keys, like every menu)."
   (let ((side (min 1 *select-phase*)))
-    (flet ((respawn () (select-respawn)))
+    (flet ((respawn () (select-respawn)) (tap-third () (menu-tap-third)))
       (case *select-phase*
         ((0 1)
          (when (or (menu-left-p) (menu-right-p) (member (tap-third) '(-1 1)))   ; a tap: left / right third
@@ -467,7 +473,7 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
 (defun flow-screens ()
   "FLOW-UPDATE's screen by screen part."
   (case *flow*
-    (:title (when (and (> *ft* 0.3) (or (confirm-p) (key-pressed :space) (any-pad-pressed :start) (tap-p)))
+    (:title (when (and (> *ft* 0.3) (or (confirm-p) (key-pressed :space) (any-pad-pressed :start) (menu-tap-p)))
               (play-sfx :confirm) (go-mode)))
     (:mode (let* ((i (menu-nav (length *mode-rows*))) (k (and i (first (nth i *mode-rows*)))))
              (case k
@@ -486,7 +492,7 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
                        ((and d (< *menu* n)) (play-sfx :select) (settings-step *menu* d))))
                (when (back-p) (play-sfx :back) (go-mode (mode-row :settings))))
     (:controls (if (one-hand-offered-p)                  ; a phone: the gestures page
-                   (when (or (back-p) (confirm-p) (tap-p)) (play-sfx :back) (go-mode (mode-row :controls)))
+                   (when (or (back-p) (confirm-p) (menu-tap-p)) (play-sfx :back) (go-mode (mode-row :controls)))
                    (controls-update)))
     (:select (select-update))
     ((:intro :finish) (when (and *cine* (or (pause-p) (confirm-p) (tap-p))) (skip-cine)))

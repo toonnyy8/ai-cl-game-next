@@ -15,7 +15,7 @@
     { en: "Practice", zh: "練習", k: "稽古", seal: "稽", text: "和假人練習：暫停選單裡可以讓假人反擊、無限量表。練 NS 的節奏和毀魂技的按住時機。", meta: ["1 PLAYER", "DUMMY"] },
     { en: "VS Player", zh: "雙人對戰", k: "決闘", seal: "闘", text: "兩個人在同一台電腦上對戰：一人用鍵盤，一人用手把，或兩支手把。", meta: ["2 PLAYERS", "KEYBOARD / PAD"] },
     { en: "CPU vs CPU", zh: "觀戰", k: "観戦", seal: "観", text: "看兩個電腦對打，觀察三角相剋：哪一招會被抵銷，哪一招能吃掉對方。", meta: ["SPECTATE"] },
-    { en: "Settings", zh: "設定", k: "設定", seal: "設", text: "單手模式、慣用手、滑動靈敏度、鏡頭、學習型電腦（可重置）、Hoho 提示與音量。", meta: ["7 OPTIONS"] },
+    { en: "Settings", zh: "設定", k: "設定", seal: "設", text: "單手模式、慣用手、滑動靈敏度、鏡頭、學習型電腦（可重置）、Hoho 提示、音量與 HUD 的繪製方式。", meta: ["8 OPTIONS"] },
     { en: "Controls", zh: "操作", k: "操作", seal: "操", text: "鍵盤與手把的按鍵，可以重新綁定；手機上是單手手勢的說明。", meta: ["KEYBOARD", "PAD", "TOUCH"] },
     { en: "Manual", zh: "說明書", k: "指南", seal: "書", text: "完整的遊戲說明（在這個視窗打開，說明書的返回連結會回到這裡）。", meta: ["MANUAL"] }
   ];
@@ -35,7 +35,8 @@
     { en: "Camera", opts: ["Behind", "Side"], help: "VS CPU 與練習、雙手操作時的鏡頭。" },
     { en: "Learning CPU", opts: ["On", "Off"], help: "對戰電腦（困難）：電腦會學你的習慣，每場結束後記下來，存在這台裝置上。" },
     { en: "Perfect hint", opts: ["Off", "On"], help: "現在 Hoho 會是完美閃避時，頭上出現 HOHO!。" },
-    { en: "Volume", opts: ["0", "1", "2", "3", "4", "5"], drops: true, help: "音樂和音效的總音量。0 是靜音，預設 5（最大聲）。" }
+    { en: "Volume", opts: ["0", "1", "2", "3", "4", "5"], drops: true, help: "音樂和音效的總音量。0 是靜音，預設 5（最大聲）。" },
+    { en: "HUD", opts: ["HTML", "Lisp"], help: "選單與戰鬥畫面由誰來畫：HTML 頁面或 Lisp 引擎。立刻生效。" }   // DUEL_LISP_HUD §7 (2026-11-11)
   ];
   var BINDS = [["Move up", "移動"], ["Move down", "移動"], ["Move left", "移動"], ["Move right", "移動"],
                ["Attack", "加 Shift 是 SP"], ["Step", "加 Shift 是 Hoho"], ["Function", "功能鍵"], ["Burst", "加 Shift 是覺醒"]];

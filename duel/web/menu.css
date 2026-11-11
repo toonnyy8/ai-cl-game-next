@@ -339,7 +339,9 @@
   .side-title h1 { font-size: 64px; }
   .side-title p { display: none; }
   .set .arrow { display: none; }
-  .set { padding: 12px 10px 12px 16px; }
+  .set { padding: 9px 10px 9px 16px; }   /* 12 -> 9 and the list's gap 4 -> 2: room for the HUD row (2026-11-11, DUEL_LISP_HUD §15) */
+  .set::before { top: 9px; bottom: 9px; }
+  .setlist { gap: 2px; }
   .set .lab { font-size: 19px; }
   .binds { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 10px; }
   .bind { padding: 8px 8px; }
@@ -354,6 +356,11 @@
   #ui:not(.left) .row { text-align: right; grid-template-columns: auto 1fr; }
   #ui:not(.left) .row .seal { order: -1; }
   #ui:not(.left) .row .brush { transform-origin: 100% 50%; inset: -4px -14px -2px -10px; }
+}
+@media (max-height: 820px) and (min-width: 761px) {   /* the HUD row's room on a short desktop (2026-11-11, DUEL_LISP_HUD §15) */
+  .set { padding-block: 10px; }
+  .set::before { top: 10px; bottom: 10px; }
+  .setlist { gap: 2px; }
 }
 @media (max-height: 560px) and (min-width: 761px) {
   .row .en { font-size: 30px; }

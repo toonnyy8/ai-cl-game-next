@@ -179,7 +179,7 @@ paper) on one baseline, .7u apart, P2 (and P1 with the left hand) row-reverse fr
 the text kept through the fade; the Kikon hold ring restarted when kind 1 begins (hd-ring over arg / 60 s)."
   (let* ((now (aref *ui-clock* 0)) (k (hv 2)) (iv *lhud-pr-i*) (k (if (and (= k 4) (lay-portrait-p) (hv-deck-p)) 0 k)))
     (declare (single-float now) (fixnum k) (type (simple-array fixnum (*)) iv))
-    (when (> k 0) (setf (aref iv 0) k (aref iv 1) (hv 3) (svref *lhud-pr-s* 0) (hstr 9) (svref *lhud-pr-s* 1) (if (= k 4) nil (hs 8))))
+    (when (> k 0) (setf (aref iv 0) k (aref iv 1) (hv 3) (svref *lhud-pr-s* 0) (hstr 9) (svref *lhud-pr-s* 1) (if (= k 4) nil (hstr 8))))
     (when (and (= k 1) (/= (aref iv 2) 1)) (setf (aref *lhud-pr-t* 0) now (aref *lhud-pr-t* 1) (/ (i->f (max 1 (hv 3))) 60f0)))
     (setf (aref iv 2) k)
     (trans-to *lhud-pr-f* 0 (if (> k 0) 1f0 0f0) now 0.2f0 +ease+)

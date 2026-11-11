@@ -751,3 +751,29 @@ pause are in DEVLOG §704.
   match, what may differ) and the port's architecture, phases and open questions are in DUEL_LISP_HUD §1-§7.
 - The comparison is by side-by-side stills the user reviews, not by the looks gate (which cannot prove byte-identity today,
   REFACTOR_2026-11.md §10.2); a zero-noise looks gate is no longer a prerequisite.
+
+## 19. HUD in SETTINGS: the renderer row (the main session, 2026-11-11)
+
+Decided by the main session (DUEL_LISP_HUD §7 item 7): the user playtests through an Artifact page, where the URL flag `?hud=lisp`
+cannot be passed, so the renderer gets a SETTINGS row in both menus.
+
+- **The row**: `HUD` HTML / LISP, after VOLUME (the eighth row), default HTML; the help line 「選單與戰鬥畫面由誰來畫：HTML 頁面或 Lisp
+  引擎。立刻生效。」. MODE's Settings card says 8 OPTIONS and names it.
+- **Saved** like the other rows: `*settings*` row 11 `:hud` (appended, so the saved rows keep their indices), page slot 21,
+  localStorage `soulduel.hud` (pwa.js's list).
+- **Applied at once** by webui.lisp `webui-renderer-sync` (in `webui-sync`, every frame the page or the Lisp menus are up): the row
+  changed (either menu) → `set-hud-renderer`; the renderer changed elsewhere (the URL flag at startup, debug 2517) → the row shows it,
+  not saved (the URL flag wins for its run). A switch to LISP hides the page's menus once (30000 = 0); back to HTML every value is sent
+  again (`*ui-sent*` reset), so the page shows the same screen with no cut.
+- **Room for the row** (menu.css): on a desktop at most 820 px tall `.set` padding-block 14 → 10 and the list's gap 4 → 2 (at
+  1280 x 720 the ten rows would have run 89 px past the content box, BACK under the hints); narrow `.set` padding 12 → 9 and the gap 4 → 2
+  (at 390 x 844 the list and its title fit without scrolling). 1440 x 900 keeps the old sizes.
+- **The model is now kept for both renderers**: `ui-put` always updates `*ui-sent*` and sends it only when the page draws the menus
+  (`menu-page-draws-p`); `webui-commands` drains the page's queue or the Lisp menus' (`ui-send`, `*ui-queue*`) through one dispatcher
+  (`webui-command`); SELECT's model spot comes from `select-spot` (the page's get 30002 / 30003, or the Lisp layout); FLOW's raw tap
+  readers (`tapped-row` in `menu-nav`, `tap-p` on TITLE and the phone's CONTROLS page, `tap-third` on SELECT) stay off while the page or
+  the Lisp menus draw the screen (`menu-tap-p`, `menu-tap-third`): under :HTML the page swallowed those touches anyway, natively nothing
+  changes. DUEL_LISP_HUD §15.
+- A latent quirk left as it is (a look for the user): menu.js toggles the narrow menus' `left` class on V41 = 1, which since HAND's
+  options became LEFT RIGHT (2026-11-02) means the RIGHT hand, and V41 is published only on SETTINGS, so the phone's MODE rows change
+  their alignment after SETTINGS is first visited. The Lisp menus read V41 the same way.

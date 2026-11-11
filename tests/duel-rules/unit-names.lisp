@@ -32,3 +32,31 @@
   (check (> (hash-table-count seen) 2000))      ; the scan reads the whole unit
   (check (null dups))
   (when dups (format t "defined twice: ~s~%" dups)))
+
+;; Variables too, anywhere in a line (several definitions can share one): the +c-dim+ case (2026-11-11), where the pause's
+;; dim rect drew the menus' slate colour. A name must be followed by a space, so a forward declaration (defvar *x*) is no definition.
+(defun un-var-names (l kw &optional (from 0))
+  "The names that the prefix KW (e.g. \"(defvar \") introduces in line L from FROM on (lower case)."
+  (let ((p (search kw l :start2 from)))
+    (when p
+      (let* ((start (+ p (length kw)))
+             (end (position-if (lambda (c) (member c '(#\Space #\( #\)))) l :start start)))
+        (append (when (and end (char= (char l end) #\Space)) (list (string-downcase (subseq l start end))))
+                (un-var-names l kw start))))))
+
+(defun un-vars (path)
+  "The names of PATH's defparameter / defvar / defconstant forms (comment lines skipped)."
+  (loop for l in (un-lines path)
+        for tl = (string-left-trim " " l)
+        unless (or (= (length tl) 0) (char= (char tl 0) #\;))
+          nconc (loop for kw in '("(defparameter " "(defvar " "(defconstant ")
+                      nconc (un-var-names l kw))))
+
+(let ((seen (make-hash-table :test 'equal)) (dups nil))
+  (dolist (f (append (un-sources "engine/MANIFEST" "engine/") (un-sources "duel/MANIFEST" "duel/")))
+    (dolist (n (un-vars f))
+      (unless (member n '("*fire-density*" "*weave-pass*") :test #'string=)   ; known harmless same-value pairs
+        (when (gethash n seen) (push (list n (gethash n seen) f) dups))
+        (setf (gethash n seen) f))))
+  (check (null dups))
+  (when dups (format t "defined twice: ~s~%" dups)))

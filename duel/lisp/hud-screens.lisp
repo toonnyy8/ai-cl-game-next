@@ -256,5 +256,6 @@ WINNER + name, the stats table (P1 / P2 columns), the match time, the menu."
       (hud-menu (pause-items) (if (eq *mode* :practice) 0.4 0.45) w h s (/ w 2) 0.9))   ; PRACTICE's long list: above P1's block
     (when (eq *hud-renderer* :lisp)                     ; the battle HUD drawn by Lisp (lhud-battle.lisp, DUEL_LISP_HUD), then the
       (paint-clock-advance) (lhud-draw) (lhud-canvas-grade!))   ; composite grade it asks for (its one output outside the paint stream)
+    (when (eq *hud-renderer* :lisp) (lhud-menu-draw))   ; the menus drawn by Lisp (lhud-menu.lisp; after LHUD-DRAW's frame)
     (when *lhud-shapes* (lhud-shapes-card))                              ; debug 2509: the paint shapes' test card (lhud-shapes.lisp)
     (debug-hud w h s)))

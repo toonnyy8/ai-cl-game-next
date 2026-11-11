@@ -85,6 +85,12 @@ lisp/lhud-overlay.lisp
 lisp/lhud-battle.lisp
 lisp/lhud-charset.lisp
 lisp/lhud-shapes.lisp
+lisp/lhud-menu-data.lisp
+lisp/lhud-menu-geom.lisp
+lisp/lhud-menu.lisp
+lisp/lhud-menu-front.lisp
+lisp/lhud-menu-set.lisp
+lisp/lhud-menu-select.lisp
 lisp/senjumaru.lisp
 lisp/lille-art.lisp
 lisp/lille-clips.lisp

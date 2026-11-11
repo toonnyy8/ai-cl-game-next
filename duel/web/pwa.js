@@ -27,7 +27,7 @@
   var coarse = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
   var reduced = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;   // (get 7)
   var back = 0, wakeOn = false, lock = null;
-  var settings = ['onehand', 'handlr', 'split', 'flick', 'camera', 'learn', 'hint', 'autoguard', 'autocombo', 'autobreak', 'volume'];   // soulduel.handlr: HAND as LEFT RIGHT (2026-11-02)
+  var settings = ['onehand', 'handlr', 'split', 'flick', 'camera', 'learn', 'hint', 'autoguard', 'autocombo', 'autobreak', 'volume', 'hud'];   // soulduel.hud: SETTINGS' HUD row, HTML / LISP (DUEL_LISP_HUD §7, 2026-11-11)   // soulduel.handlr: HAND as LEFT RIGHT (2026-11-02)
   function stored(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: not saved */ } }
   if (stored('soulduel.handlr') === null) {              // soulduel.hand saved RIGHT 1, LEFT 2: carried over swapped, once

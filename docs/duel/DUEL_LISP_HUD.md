@@ -1,6 +1,6 @@
 # DUEL_LISP_HUD — the HTML HUD and menus redrawn by Lisp (design, 2026-11-10)
 
-Status: **phase 0 (the spike) built and measured, 2026-11-10 (§8); phase 1 built in three parallel worktrees and merged, 2026-11-11: 1a the full bake (§9), 1b the paint stream's shapes (§10), 1c text layout, tweens, layout, input and the small-text weight (§11), the merge and its cross-phase fixes (§12); phase 2, the handheld portrait battle screen, built 2026-11-11 (§13); phases 3-4, the landscape battle screen and the overlays (pause, intro, READY / 斬, finish), built 2026-11-11 (§14): under `:lisp` nothing of the canvas HUD draws in a battle**; phases 5-7 (the menus, acceptance) not started. The source of the look is the HTML UI as it stands at main 5c212105
+Status: **phase 0 (the spike) built and measured, 2026-11-10 (§8); phase 1 built in three parallel worktrees and merged, 2026-11-11: 1a the full bake (§9), 1b the paint stream's shapes (§10), 1c text layout, tweens, layout, input and the small-text weight (§11), the merge and its cross-phase fixes (§12); phase 2, the handheld portrait battle screen, built 2026-11-11 (§13); phases 3-4, the landscape battle screen and the overlays (pause, intro, READY / 斬, finish), built 2026-11-11 (§14): under `:lisp` nothing of the canvas HUD draws in a battle**; phases 5-6, the menus, built 2026-11-11 (§15); phase 7 (acceptance) is the user's review. The source of the look is the HTML UI as it stands at main 5c212105
 (`duel/web/hud.js`, `hud.css`, `menu.js`, `menu.css`; its record is DUEL_WEBUI). Background: DUEL_WEBUI §18,
 docs/engine/REFACTOR_2026-11.md §6 D4 and §10, DEVLOG §448, §458, §704, §705.
 
@@ -484,6 +484,14 @@ which can be built in parallel in a second worktree once phase 1 lands.
 6. Asked about small-text legibility (12 px zh-TW legible but lighter than Chrome's, 8 px kanji soft): 「先加粗小字再看一次 (Recommended)」:
    text under about 14 px gets an edge bias (§8.3's knob, 0.5 to about 0.47) so its stroke weight is near the browser's; new comparison
    stills go to the user; phase 1 proceeds meanwhile (the bias is phase 1c's, in the text code).
+
+**Decided by the main session (2026-11-11)**, revising answer 2 above:
+
+7. **A SETTINGS row for the renderer**, 「HUD：HTML／LISP」, in both menus (menu.js and the Lisp menus), saved with the other settings
+   (control.lisp `*settings*` row `:hud`, appended last so the saved rows keep their places; pwa.js `soulduel.hud`) and applied at once
+   (webui.lisp `webui-renderer-sync` → `set-hud-renderer`). Reason: the user playtests through an Artifact page, where a URL flag cannot
+   be passed. The URL flag `?hud=lisp` and debug 2517 stay; the row and the renderer are kept equal edge-triggered both ways, and the URL
+   flag wins for its run (the row shows LISP, not saved). The default stays HTML. Built in §15.
 
 The questions as they were put:
 
@@ -1149,3 +1157,130 @@ and 390 × 844: exit 0. **The default renderer is unchanged**: the HTML combo sc
 - Hot-box ids 700-719 are the pause's; the menus (§15) must keep clear of them (one registry a frame: `hot-begin-frame` in `lhud-frame`).
 - `--freeze-css`'s misses (14.2) make the HTML side of an animation strip unreliable for the pause and for a match started from the menus.
 - The pause measures its rows each frame (0.6 ms under load, only while paused): a per-serial cache of the widths if it matters.
+## 15. Phases 5-6 results (the menus in Lisp, 2026-11-11)
+
+Merge note (the main session): the worktree's debug 2495+k collided with §14's 2495-2497, so the menus' review scenes are 2401+k on
+main (the stills below were shot with the old numbers); `col-mix` calls became `col-mix! *lhud-mix*` (§14's helper).
+
+Opus 5.5 built them in a worktree from main d337a824, beside the battle side's phases 3-4 (§14); the main session reviews. Under `:lisp`
+(the URL flag, debug 2517, or the new SETTINGS row) TITLE, MODE, SETTINGS, CONTROLS (keys and the phone's gestures card), SELECT and
+RESULTS are drawn by Lisp and take keys, pads, the mouse and touch; MANUAL still opens manual.html (the user: 「說明手冊保留在 html 頁面」).
+The default renderer (`:html`) is unchanged but for the HUD row (DUEL_WEBUI §19) and its CSS room.
+
+### 15.1 What was built (one job a file)
+
+| File (lines) | Job |
+|---|---|
+| duel/lisp/lhud-menu-data.lisp (106) | menu.js's tables as plain CL: MODES, the cards, SETTINGS (8 rows with HUD) and the two action rows, BINDS, KEYS / PADS (`lm-bind-name`), COLS, the key map's rows, RMENU, SCREENS, the title's lines, the side texts, the phone card's texts, SELECT's headings and slot captions. Upper case where the CSS upper-cases; faces tagged for the bake |
+| duel/lisp/lhud-menu-geom.lisp (172) | the pure layout: menu.css's grids worked out per screen and form (desktop, narrow ≤ 760, short) in CSS px from the window, the insets and the few measured inputs (a paragraph's lines, the tags' rows, the help tweens, the cards' weights): `lm-content!`, `lm-title-geom!`, `lm-mode-geom!`, `lm-set-row-h` / `lm-set-geom!`, `lm-ctl-geom!`, `lm-select-geom!`. Host-tested against Chrome's boxes |
+| duel/lisp/lhud-menu.lisp (471) | the frame (`lhud-menu-draw`: the systems, the pointer, the screen, the rails, the cut), the input kind (keys / pad / touch), the pointer (hot boxes → the page's commands), the backdrop (`#ui .wash`; SELECT's world), the rails (mark, crumb, hints), the cut, and the shared devices: the key cap, the shape glyphs (⇧ ␣ ▶ ◀ ✚ ↺), the brush, the seal, the torn paper, the option slab; the title's ash |
+| duel/lisp/lhud-menu-front.lisp (335) | TITLE (wordmark rise, outlined DUEL, NEXT, the slash, the halftone 魂, the vertical line, PRESS gated by V11), MODE (inkin kanji, the torn card, the seven rows), RESULTS (who, name, DEFEATED, the hanko, the soul eggs, the stats, the gated rows); the shared row `lm-row` |
+| duel/lisp/lhud-menu-set.lisp (362) | the side title; SETTINGS (focus wash and bar, labels, arrows, option slabs, drops, the help line wrapped and clipped by its max-height tween, the rule); CONTROLS (column tabs, the key map with the bound caps, the ⇧ combos, the ten binding rows, the capture's pulsing PRESS; the phone's gestures card with its dashed zones and the rising thumb) |
+| duel/lisp/lhud-menu-select.lisp (257) | SELECT: the cards' weights, fills, emblems, details and pick stamps (system); the back layer (`with-paint-back`: the world, the cards' fills, screentone and emblems, on a phone the other cards' text) under the transparent scene; the front (heading, slots, the cards' text, DIFFICULTY / CAMERA / START); `lm-select-spot`, the camera's spot from the same layout |
+| duel/lisp/webui.lisp | the model kept for both renderers (`ui-put` sends only under `:html`), `lhud-menus-p`, `menu-page-draws-p`, `webui-on-screen-p` true under `:lisp`, the renderer switch and the HUD row (`webui-renderer-sync`), the Lisp command queue (`ui-send`), one dispatcher (`webui-command`), `select-spot` |
+| duel/lisp/flow.lisp | `menu-nav`'s `tapped-row`, TITLE's and the phone CONTROLS page's `tap-p` (`menu-tap-p`), SELECT's `tap-third` (`menu-tap-third`) off while the page or the Lisp menus draw the screen |
+| duel/lisp/control.lisp, duel/web/pwa.js, menu.js, menu.css, manual.html | the HUD row (DUEL_WEBUI §19) |
+| duel/lisp/hud-screens.lisp (one line, the battle side's file) | `(lhud-menu-draw)` after `lhud-draw` under `:lisp` (it relies on `lhud-draw` having run `lhud-frame`: the layout and `hot-begin-frame`) |
+| duel/lisp/camera.lisp (one line) | `:select-web` reads `select-spot` instead of page get 30002 / 30003 |
+| duel/lisp/debug.lisp | 2401+k (`lm-results-scene`: a K.O. into RESULTS, k 3 SELECT with Hisagi / Ichigo picked), 2519's menus line (`lm-consing`) |
+| engine/lisp/text.lisp, package.lisp | `paint-measure-paragraph` (a paragraph's line count before its box is drawn); `*glyph-dscale*` exported (DUEL's outline in px). ENGINE_API |
+| tests/duel-rules/lhud-menu.lisp | the tables against the model's rows; every geometry function against Chrome's `getBoundingClientRect` at 1280 × 720 and 390 × 844 (`build/lhud/p56/dom.py`) |
+
+**The principles (§4.8)**. The views read only the model (`*ui-sent*`, the 30000 block both renderers read), their screen's
+component state and the UI clock; the systems (`lm-mode-update`, `lm-settings-update`, `lm-controls-update`, `lm-select-update`,
+`lm-results-update`, the frame's cut / input / ash) are the only places that change state, once a frame before the views; the layout
+is pure and host-tested; floats cross calls through `*lm-a*` and the geometry lanes (`*lm-g*`, `*lm-g2*`). Where not: (1) the input
+kind (keys / pad / touch) is read from the devices by the frame's system, as menu.js reads the DOM events (it is the page's state,
+not the game's); (2) `lm-select-back` sets `*render-transparent*` (the engine's one-frame latch; `*scene-transparent*` already set it
+for the frame); (3) the pointer is handled in the draw (`lm-pointer`, against last frame's boxes) and turned into queued commands, so
+the flow still decides everything in its own update the next frame; (4) V41 (HAND) is read as menu.js reads it (DUEL_WEBUI §19's
+latent quirk).
+
+### 15.2 What it draws, against the HTML
+
+| Screen / device | menu.css / menu.js | How |
+|---|---|---|
+| Backdrop | `#ui .wash` (radial + linear ink, the 7 px screentone masked at 170°); SELECT's `#ui-back .world` (radial night, screentone, grain) | a radial fan (3 stops), a gradient rect, a dotted rect with an alpha gradient along 170°; the world in the back layer, its grain as a flat white at .037 |
+| Rails | `.rail`, `.mark`, `.crumb`, `.hints`, `.key` | the tick turned −24°, the word, the crumb (narrow: the kanji only), the hints by input kind (MOVE / BACK hidden narrow) |
+| Cut | menu.js `cut()` WAAPI | the ink polygon through its three keyframes on cubic-bezier(.16,1,.3,1) 380 ms, the blood line drawn by its middle then faded, 300 ms ease-cut; skipped under reduced motion and on a renderer switch |
+| TITLE | `.wordmark`, `rise`, `slash`, `.big-kanji`, `.t-vert`, `.press`, `pulse`, ash | each line's clip rising (a scissor) with translateY .2em, .9 s ease-out, delays 0 / .12 / .24; DUEL as the SDF outline band (2 px); the slash's 5-point polygon, rotate(−5°) scaleX .46 s .5 s ease-cut; 魂 slate under a 6 px steel halftone (glyph × dot pattern); the dot's pulse; PRESS J / A / TAP TO BEGIN by input kind, gated by V11 (.35 s); 60 ash flakes (30 narrow) on a cosmetic LCG |
+| MODE | `.m-kanji` + `inkin`, `.paper`, `.row`, `.brush`, `.seal` | the vertical kanji with inkin (opacity, an SDF softness standing in for blur(8px), −14 px); the card as a hash-jittered polygon with the 5 px dots; rows with the brush (scaleX .34 s ease-out, the tail's 86 % fade cut apart because gradients are per vertex), the seal (scale + rotate .3 s, .08 s after focusing), the colour .18 s |
+| SETTINGS | `.side-title`, `.set`, `.opt`, `.drops`, `.help`, `.arrow` | the focus wash and bar (scaleY .3 s), slabs (scaleX .3 s, skew −14°), colours .2 s, drops (on / current .25 s, scale 1.15), the help wrapped in its row and clipped by the max-height tween (.4 s); narrow rows fit-content as Chrome sizes them (the help's max-content included) |
+| CONTROLS | `.tabs`, `.kbd`, `.combos`, `.binds`, the capture, `PHONE_SVG`, `thumb` | the tabs' slabs, the key map (the bound caps paper, SHIFT's blood stroke), the labels in two runs (no string made), ⇧ + caps, the rows with focus bar and wash, PRESS pulsing in blood; the phone card at its CSS scale, dashed zones as dash strokes, the thumb's keyframes (4.8 s ease-cut) |
+| SELECT | `#ui-back` / `#ui` copies, `.fighter`, `.emb`, `.more`, `.pick` + `stamp`, `.slot`, `.diff`, `#sel-go` | the back layer under the scene (world, fills .4 s, dots masked to 70 %, emblems with colour .5 s and translateX −6 % .7 s), the weights' flex-grow .6 s ease-out, the details' max-height .6 s + opacity .4 s .1 s, the pick stamp .45 s, the slots' borders .3 s, the foot's live rows .3 s; the camera's spot from the same layout |
+| RESULTS | `.r-win`, `.hanko` + `hanko`, `.souls`, `.stats`, `.r-menu` | who / name / DEFEATED, the hanko (scale 2.4 rot −26° → .92 / −10° → 1 / −12°, .6 s .3 s), the eggs as ellipses (lost: a 1.5 px ring), the stat grid with tabular numbers, the rows gated 2.5 s by V11 (.35 s) |
+
+### 15.3 What differs from the HTML, and the replacement for each CSS effect
+
+- **Torn paper** (`filter: url(#torn)`, feTurbulence + displacement 7 px: MODE's card): a 32-point polygon whose edges are jittered ±3 CSS
+  px by a fixed hash (`lm-torn`), star-shaped about its centre, so its edge is aliased (§10.3); the 5 px dot texture is the halftone
+  pattern. The hanko's torn 6 px border (RESULTS) is a clean rounded ring (`paint-box!` border): no jitter.
+- **Dry brush** (`#dry` displacement on the row brush): left out; the brush is menu.js's own path (convex body, two dry streaks at .55 /
+  .45), stretched over the row as `preserveAspectRatio="none"`; its 86 % tail fade is a second polygon cut at 86 % (gradients are per
+  vertex: a fan from the centre would start the fade at the middle).
+- **Paper grain** (SELECT's `#ui-back .world::after`, white feTurbulence at .07): its mean, a flat white at .037 over the world (without it
+  the backdrop read 8-10 levels darker than Chrome's, uniformly); the noise's texture is left out.
+- **Blur** (`inkin`'s blur(8px) on MODE's kanji): the SDF softness widened over the animation (1 → 17 px).
+- **Text stroke** (DUEL, 2 px): the SDF outline band, 1 px each side of the edge. **background-clip: text** (魂): the glyph twice, slate,
+  then steel through a 6 px dot pattern.
+- **Masks** (the screentones' 170° fades, the cards' dots to 70 %): the alpha as a vertex gradient along the mask's axis.
+- **Dashed strokes** (the phone card's zones, 4 5): dash strokes along the rect.
+- **Weights**: Big Shoulders Display is baked at 900; the 800 / 700 text (rows, labels, options, slots, stats, key labels) is drawn
+  condensed by 0.94 / 0.90 about its start (`+wd8+` / `+wd7+`: Chrome's 800 runs about 6 % narrower, measured on MODE's rows: VS CPU 132 vs
+  141 px at 54 px before the condensing) and at a raised SDF edge; the other faces' lighter weights by the edge alone (§11).
+- **Line breaks**: zh paragraphs break within ±1 character of Chrome's (SELECT's taglines break one character earlier at the 42ch width).
+- **Animation timing**: the cut, the rise, the focus move and the swaps follow the CSS numbers on the UI clock; `--freeze-css` does not
+  hold the HTML's transitions in every still (its focus-move frames show the brush already full), so those strips compare against the CSS
+  numbers rather than frame for frame (§8.3, §13.5).
+- **Layout**: within 1-2 CSS px of Chrome's boxes on every screen checked (the geometry host test, the sheets' difference maps); the narrow
+  SETTINGS rows take their fit-content width as Chrome does, the help line's max-content included.
+- **The ash** uses a cosmetic LCG instead of Math.random: the same counts, sizes, speeds and colours, other places.
+- **Not built**: the narrow menus' scrolling (§4.5: nothing overflows at 390 × 844 once the HUD row's CSS room is in; a phone shorter than
+  about 780 CSS px would clip the bottom of SETTINGS / RESULTS: the HTML scrolls there), `prefers-reduced-motion` read live (as §11.4), hover
+  cursors, focus rings, text selection, accessibility roles. The toast (unused in the HTML too).
+
+### 15.4 Measurements
+
+| What | Result |
+|---|---|
+| Consing (debug 2519's `lmenu consing` line, `--fixed-dt`, 1280 × 720 and 390 × 844 dpr 3, each view warmed first) | every entry 0 B a call: the systems, TITLE, MODE, SETTINGS, CONTROLS, SELECT, SELECT's back layer, RESULTS, the rails, the wash, the cut, the pointer. Found on the way (all fixed): float arguments to compiled functions boxed (`lm-brush`, `lm-seal`, `lm-slab`, `lm-row-box`, `lm-dashed-rect`, the SETTINGS / SELECT geometry are `defun-fast-inline` now); CL `max` / `min` of floats are generic calls (C `f-max` / `f-min` in the views, if-based `fmx` / `fmn` in the host-tested geometry); `paint-measure-paragraph`'s parallel `let` boxed its width (engine, `let*` now); the torn edge's hash overflowed into bignums (30-bit fixnums); a swallowed `let*` binding made SELECT's card text read two unbound globals (an abort, caught by the probe) |
+| Consing, the whole frame (the keys walk's `stats:` lines, `--fixed-dt`, HTML vs Lisp at the same windows) | RESULTS 1,233 / 1,233 and 1,232 / 1,232 B a frame, TITLE 1,104 / 1,114 and 1,290 / 1,293; the SELECT window that holds the screen's entry 1,374 / 1,899 (the entry lays its paragraphs out once). The Lisp menus add nothing a frame in steady state |
+| Lisp time a call (2519 in a wall-clock run, SwiftShader, desktop) | TITLE 0.065 ms, MODE 0.32, SETTINGS 0.36-0.45, CONTROLS 0.55-0.58, SELECT 0.26 (its front; 0.08 off the screen) + its back layer 0.07-0.09, RESULTS 0.13, the rails 0.03-0.07, the wash 0.03, the cut 0.012, the systems 0.002-0.09: under 0.7 ms for any screen's frame |
+| Vertices (desktop / phone) | TITLE 327 / 273, MODE 1,242 / 1,212, SETTINGS 1,488 / 1,212, CONTROLS 3,099 / 2,271 (the phone's card), SELECT front up to 1,362 / 1,104 and back 402 / 552, RESULTS 1,104 / 1,104, the rails ≤ 348, the wash 312, the cut 15 (of 32,768; the back layer of 8,192) |
+| index.wasm | 12,907,695 → 13,099,362 B (+191,667: ≈ 1,700 lines of game Lisp, the engine macro, and the worktree's rebake with the HUD row's glyphs); gzip -9 4,061,214 → 4,113,304 |
+| Startup heap | 73.3 MB (unchanged; limit 110) |
+| Default renderer | `:html` draws nothing new (`lhud-menu-draw` runs only under `:lisp`); the page gets the same values but for the HUD row (V47) |
+
+### 15.5 Proof
+
+Walks (the worktree's `build/lhud/p56/`, git-ignored: `gen.py` writes one `run.mjs` script per walk, run for both renderers with
+`--fixed-dt 16.666667 --freeze-css`; `runall.sh`; `sheets.py` → `cmp/`): **keys**, 1280 × 720 and `--mobile` 390 × 844: TITLE → MODE (each
+row focused) → SETTINGS (HAND changed, the HUD row toggled both ways) → CONTROLS (MOVE UP rebound to I, the pad column; the phone: its
+gestures card) → SELECT (Ichigo, the CPU's Kenpachi, the last page, HARD, the camera row) → a match's intro → debug 2401 → RESULTS (a row
+focused) → TITLE; **touch**, 390 × 844: a tap on TITLE, the SETTINGS row, the HUD row, LISP, HTML, LISP, BACK, CONTROLS (the card, a tap
+back), VS CPU, the focused card twice (P1, the CPU), HARD, START, then 2401 → RESULTS: both renderers log the same `duel ->`, `duel setting
+HUD …` and `hud renderer …` lines and start the same seeded match (`duel match seed 21683 VS-CPU ICHIGO vs KENPACHI HARD`); **strips**
+(`sdesk`, `smob`): the cut, a focus move, the title's rise; **SELECT again** (`sel`, `smob2`) after its last fixes.
+
+| Sheet ([HTML \| Lisp \| difference × 4]) | What it shows |
+|---|---|
+| `cmp/desk-title.png`, `cmp/zoom-desk-title.png`, `cmp/mob-title.png`, `cmp/zoom-mob-title.png` | TITLE: the wordmark, DUEL's outline, NEXT, the slash, 魂's halftone, the vertical line |
+| `cmp/desk-mode{0,2..6}.png`, `cmp/zoom-desk-mode2.png`, `cmp/mob-mode*.png` | MODE, each row focused: the brush, the seal, the card |
+| `cmp/desk-settings*.png`, `cmp/zoom-*-settings-hud.png`, `cmp/mob-settings*.png`, `cmp/tmob-t-hud-*.png` | SETTINGS: the focused row, HAND changed, the HUD row (in the HTML run a toggle to LISP hands the screen to the Lisp menus and back) |
+| `cmp/desk-controls*.png`, `cmp/mob-controls.png`, `cmp/tmob-t-controls.png` | CONTROLS: the capture, the rebound key, the pad column; the phone's gestures card |
+| `cmp/sel-select{0,1,2-hard}.png`, `cmp/smob2-select*.png`, `cmp/tmob-t-select*.png` | SELECT's three phases with the fighter between the layers, at both sizes |
+| `cmp/desk-results.png`, `cmp/smob2-results.png`, `cmp/tmob-t-results.png` | RESULTS after 2401 |
+| `cmp/strip-sdesk-{cut,focus,rise}.png`, `cmp/strip-smob-*.png` | frames, HTML above and Lisp below: the cut (50-450 ms), a focus move (33-450 ms), the title's rise (50 ms-1.4 s) |
+
+Read by eye: layout, palette, type and the named animations read as the same design; the rise and the cut agree frame for frame; the
+HTML's focus-move frames are not held by `--freeze-css` (its brush is full in the first frame), the Lisp one follows the CSS numbers.
+
+Checks: host tests duel-rules 10236 (with tests/duel-rules/lhud-menu.lisp), duel-control 100, hud-engine 121, paint-shapes, touch 100,
+input 33, learn 131, cine 18: all pass; pkgcheck only `DUEL::APP`; debug-ranges-check 117 ranges, 0 errors; G2 native `simgate.py --cvc`
+and browser `style-gates.py cvc`: II 32, IK 34, KK 33, identical; smoke 20 s, default and `?hud=lisp`, 1280 × 720 and 390 × 844: exit 0,
+the startup heap 73.3 MB.
+
+**Found, not this branch's**: on d337a824 any Hisagi spawned by a human aborted ("not a lisp data object", or "STRUCTURE-REF … HSS"),
+SELECT's A / D included (cycling to Hisagi): lhud-model.lisp's macro `hs` shadowed hisagi.lisp's function in the one build unit; fixed on
+main (`hstr`, `col-alpha!`), renamed the same here. The long walks (run before the rename) avoid A / D on SELECT; after it, debug 2404
+(SELECT with Hisagi picked) runs in both renderers (`cmp/sel-select-hisagi.png`).

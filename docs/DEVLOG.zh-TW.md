@@ -8432,3 +8432,25 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 沒驗證的：改名後 canvas HUD 的畫面沒有逐像素比對（`alpha!` 回到原本的函式定義）。
 
 分工：Sonnet 5.5：二分、根因、修正與測試；主對話 Fable 5.2：重現、把改名套到已合併的第 3–4 階段檔案、檢查、提交。
+
+## 713. Lisp HUD 第 5–6 階段：選單由 Lisp 畫，設定多一列「HUD：HTML／LISP」（2026-11-11）
+
+使用者：「我希望使用 lisp 完全重現目前的 html HUD」、「並存」、「我選 3，說明手冊保留在 html 頁面」
+
+- 範圍（DUEL_LISP_HUD §15）：`:lisp` 下 TITLE、MODE、SETTINGS、CONTROLS（按鍵頁與手機手勢卡）、SELECT、RESULTS 都由 Lisp 畫並操作：直向與橫向，鍵盤、手把、滑鼠滑過／點擊、觸控。MANUAL 照決定仍開 manual.html。
+- 主對話的決定（§7 第 7 項）：設定頁加一列「HUD：HTML／LISP」，兩種選單都有，存成設定第 11 列（`soulduel.hud`），立刻生效，預設仍是 HTML。理由：試玩 Artifact 的頁面帶不了 `?hud=lisp`，使用者在手機上沒有別的方法切到 Lisp 版；「並存」到驗收為止，所以要能來回切。網址參數仍優先於存檔（那一次執行顯示 LISP 但不存）。
+- 程式切法：`lhud-menu-data.lisp`（表）、`lhud-menu-geom.lisp`（純版面，host test 對 Chrome 的 DOM 盒）、`lhud-menu.lisp`（每幀的框架、指標、上下欄、切換的刀痕、背景、共用的畫法）、`lhud-menu-front.lisp`（TITLE／MODE／RESULTS）、`lhud-menu-set.lisp`（SETTINGS／CONTROLS）、`lhud-menu-select.lisp`。view 只讀模型（`*ui-sent*`）、自己的元件狀態與 UI 時鐘；指標輸入轉成頁面的指令編碼，經同一個分派 `webui-command`，兩種渲染器用同一條路推動流程。例外（§15.1）：輸入裝置種類直接讀裝置；SELECT 設 `*render-transparent*`；V41 照 menu.js 的怪癖讀。
+- 引擎：`text.lisp` 多 `paint-measure-paragraph`（段落會畫幾行，先量盒高）。
+- 數字：每個畫面的 view、背景層、上下欄、刀痕、系統、指標都是 0 B／呼叫（2519 新的 `lmenu consing` 行）；每個畫面一幀 0.7 ms 以內（CONTROLS 最高 0.58 ms，SwiftShader 掛鐘）；最多 3,099 頂點；index.wasm 12,959,856 → 13,151,324 B；啟動 heap 73.3 MB。圖集重烘（兩批的字都進來）：1024×2048 用了 1808 列，metrics 17,200 B。
+- 跟 HTML 不同的地方（§15.3）：撕紙邊（feTurbulence）改用雜湊抖動的多邊形邊，有鋸齒；乾筆刷省略，直接用 SVG 路徑；紙紋用平均值（.037 的白）；模糊是 SDF 柔邊、描邊是 SDF 外框帶、網點字是字形乘網點；800／700 字重橫向壓到 0.94／0.90；中文換行可能差一個字。沒做：手機捲動（390×844 沒有東西溢出）、執行中切換 reduced-motion。
+- HTML 這邊的小改動：設定頁多了第 10 列，820 px 以下高度的桌面 `.set` 上下留白 14→10、列距 4→2（窄螢幕 12→9、列距 2），不然 1280×720 的 BACK 會壓到提示列。
+- 合併（主對話）：
+  - debug 編號撞號：選單批的 2495+k 與 §14 的 2495–2497 重疊（git 沒報衝突，`debug-ranges-check` 抓到 3 個錯），選單的改成 2401+k（k 0–3）。
+  - 兩批的 `col-mix` 介面不同：選單批的呼叫改成 `col-mix! *lhud-mix*`。
+  - 我在 §712 漏改一處：`lhud-fx.lisp` 的提示還有 `(hs 8)`（那行太長，檢查時被截掉）。`:lisp` 下出現提示就會呼叫到檜佐木的函式；已改成 `hstr`，並用腳本驗證提示（debug 2505＋2440＋J）在桌面與手機都正常。預設 `:html` 不受影響。
+  - 合併後才出現的錯：暫停時場景整片變成不透明的灰藍。兩批各自 `defparameter` 了 `+c-dim+`（疊層的半透明黑、選單的灰藍字色），後者蓋掉前者。選單的改名 `+c-lm-dim+`；`tests/duel-rules/unit-names.lisp` 擴到變數（`defparameter`／`defvar`／`defconstant`，一行多個也算，沒給值的前置宣告不算，`*fire-density*`、`*weave-pass*` 兩個同值的舊重複列為允許），並用故意加回去的重複確認它會失敗。
+  - 直書基線（§14 的 0.88 em）讓 TITLE 的直行與 MODE 的漢字比選單批的對照圖低 0.08 em，不補償。
+- 已知差異（走查時看到）：過場演出中按暫停，Lisp 版場景只變暗、不變灰（演出自己管調色），名牌不顯示；HTML 版會變灰並顯示 .3 的名牌。
+- 驗證（主目錄）：duel-rules 10249、control 100、hud-engine 121、touch 100、input 33 全過；pkgcheck 只剩 `DUEL::APP`；debug-ranges-check 120 個範圍 0 錯；8 秒 smoke 四種（預設／`hud=lisp` × 1280×720／390×844）皆 0；debug 83000 兩種渲染器皆 0；走查腳本（預設 HTML → 設定切 LISP → MODE → SELECT → 對戰 → 暫停）記錄到 `duel setting HUD LISP`、`hud renderer LISP` 並打完開場；G2 原生與瀏覽器 II 32、IK 34、KK 33 相同。對照圖在 worktree 的 build/lhud/p56/cmp/（git 忽略）。
+
+分工：Opus 5.5：選單的實作、截圖、文件草稿；Haiku 5.5：重名檢查擴到變數；主對話 Fable 5.2：覆核（圖與 diff）、合併與衝突、重烘圖集、找出 `+c-dim+` 與 `(hs 8)`、檢查、提交。
