@@ -1961,7 +1961,7 @@ components.lisp), a plain component slot: the ECS snapshot / restore takes it, n
 **Callers checked.** `hoho-allowed-p` (unchanged: in a burst any fs > 0); `burst-drain` (kept, `awake-regen-frames` still means a burst from a full gauge
 and is not BLUE's concern); `ai-hoho-spare-p`, core-ai.lisp, mcts-lite.lisp (its model has no flash-step), cpu-*.lisp, ai-learn.lisp, scripted.lisp and the
 run mods read the gauge only to ask "can I afford a Hoho / a Burst", none assumes a drain to 0: unchanged. No CPU chance, threshold or table was retuned.
-HUD: the three cells already drain top-down from the live gauge, so a BLUE burst shows one cell's worth going and then stopping; no change.
+HUD: the three cells already drain top-down from the live gauge, so a BLUE burst shows one cell's worth going and then stopping (see "The burning span in blue" below for the tint).
 
 **Tests.** Host: 10260 -> 10267 checks, ALL PASS (core.lisp: the knobs, the budget drains to exactly 0 after 100 points, 300 -> 200 and 230 -> 130, WHITE /
 ORANGE still to 0, the gauge ending it first, `hoho-cost` at several budgets, KŌSEI's flash-step halved at the same contact: 3.6 / 10.8). Scripted browser
@@ -1973,3 +1973,17 @@ at tick 120 (1.85 s + the 8-tick hitstop); (b) BLUE from 300, a Hoho 34 ticks in
 **G2.** With `*kosei-fs*` back at 0.30 and the BLUE path off (budget = the gauge, no BLUE Hoho cost, no end after a Hoho) `--cvc` was identical to the old
 reference; with the changes on the reference was regenerated (browser = native): II 32 lines (P1 5-0, 315.6 s) -> **40 (P2 0-4, 392.6 s)**, IK 34 (P2 0-4,
 340.1 s) -> **38 (P1 5-0, 381.7 s)**, KK 33 (P1 1-0, 327.1 s) -> **24 (P2 0-2, 240.9 s)**. No balance gate was run (the user, 2026-10-29).
+
+#### The burning span in blue (the user, 2026-11-12)
+
+「幫我只把燃燒中的格子設為藍色的」
+
+While a fighter's BLUE burst runs, the part of the flash-step gauge still to burn, from (gauge - burn left) up to the gauge, is drawn in the
+BLUE burst's colour on the plate's three cells (desktop / landscape plates, the phone's top plate, your plate on the deck's line); the rest keeps the
+steel look. The span, not whole cells: from 300 it is exactly the third cell, from 230 it is 130..230 (the second cell from its .3 mark and the third cell's fill). It
+vanishes the frame the burst ends (budget spent, or a Hoho used it up); WHITE and ORANGE (they drain the whole gauge) are not tinted. Colour: `+c-burst-b+`
+#66a8ff, the one 爆's ink already uses for a BLUE burst (moved from lhud-deck.lisp to lhud-model.lisp; nothing new). The phone's 爆 dial is unchanged: its
+ink already turns the burst's colour for the whole level, and the plate's cells show the span. Code: model slot `o + 25` (webhud.lisp: the burn left
+‰ of the gauge, 0 unless BLUE), pure `lhud-cell-burn` (lhud-geom.lisp, host-tested), the cells' view in `lhud-meters` (lhud-plate.lisp). Presentation only: G2
+identical. Stills (scripted, debug 2610+k, tests/scripts/duel-blue-burn.json at 1 s into a, c, d and after b's Hoho; 1280x720 and 390x844): `build/blue-cell/`
+(git-ignored).

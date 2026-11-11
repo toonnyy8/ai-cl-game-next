@@ -62,3 +62,11 @@
   (check (~= (aref g 2) (+ 381.43 66.285) 0.01))                                 ; mirrored: 270 -> 90, to the right
   (check (~= (lhud-deck-bottom 823f0 630 t) 518.49 0.01))
   (check (~= (lhud-deck-bottom 823f0 630 nil) (* 0.96 823) 0.01)))
+
+;; the BLUE burst's burning span inside the flash step's cells (DUEL_DESIGN "BLUE burns one cell"): LO = gauge - burn left, in cells
+(check (~= (lhud-cell-burn 2f0 2 1f0) 0f0 1e-5))      ; 300 burning 100: the third cell, all of it
+(check (~= (lhud-cell-burn 2f0 1 1f0) 1f0 1e-5))      ; the second cell is not (span empty: start = fill)
+(check (~= (lhud-cell-burn 1.3f0 1 1f0) 0.3f0 1e-5))  ; 230 burning 100: 130..230 = the second cell from .3 ...
+(check (~= (lhud-cell-burn 1.3f0 2 0.766667f0) 0f0 1e-5)) ; ... and the third (fill .77) from 0
+(check (~= (lhud-cell-burn 1.3f0 0 1f0) 1f0 1e-5))
+(check (~= (lhud-cell-burn 2.5f0 2 0.4f0) 0.4f0 1e-5)) ; burn 0 (lo = gauge): nothing

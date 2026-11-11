@@ -10,7 +10,7 @@
 
 (defconstant +tr-side+ 40 "Transition slots per side in *LHUD-TR*.")
 ;; slots (+ (* side +tr-side+) k): 0 the ghost, 1 the fill's cut, 2-10 the flames' fade, 11-19 the spent flames' dots, 20-22 the flash
-;; step's cells, 23 the awakening bar, 24 SUBLIMATION, 25 the awakening label's opacity, 26-29 the seals' on (0 / 1)
+;; step's cells, 23 the awakening bar, 24 SUBLIMATION, 25 the awakening label's opacity, 26-29 the seals' on (0 / 1); the burning span (V25, a BLUE burst) is read from the model, not tweened
 (declaim (type f32vec *lhud-tr* *lhud-pl* *lhud-a* *lhud-pts*) (type (simple-array fixnum (*)) *lhud-pli*))
 (defvar *lhud-tr* (make-transitions (* 2 +tr-side+)) "The plates' transitions (tween.lisp): see +TR-SIDE+.")
 (defvar *lhud-pl* (make-array 24 :element-type 'single-float :initial-element -1f30)
@@ -188,14 +188,18 @@ label beside them (.awk). *LHUD-A*: x (the meters' left), y (top), w (their widt
   (let* ((a *lhud-a*) (x (aref a 0)) (y (aref a 1)) (w (aref a 2)) (u (aref a 3)) (now (aref *ui-clock* 0)) (o (side-o side))
          (trs *lhud-tr*) (h (* 0.42f0 u)) (gap (* 0.7f0 u)) (free (- w (* 2f0 gap))) (fw (* 0.6f0 free)) (aw (* 0.4f0 free))
          (fsx (if mir (- (+ x w) fw) x)) (awx (if mir (- fsx gap aw) (+ x fw gap))) (cw (/ (- fw (* 0.44f0 u)) 3f0))
-         (m (hv (+ o 23))) (full (or (>= (hv (+ o 8)) 1) (= m 3))))
-    (declare (single-float x y w u now h gap free fw aw fsx awx cw) (fixnum o m) (type f32vec a trs))
+         (m (hv (+ o 23))) (full (or (>= (hv (+ o 8)) 1) (= m 3)))
+         (lo (if (> (hv (+ o 25)) 0) (* 0.003f0 (i->f (- (max 0 (hv (+ o 6))) (hv (+ o 25))))) 3f0)))   ; (the burning span's lower end, in cells; no burn: above every fill, so nothing tints)
+    (declare (single-float x y w u now h gap free fw aw fsx awx cw lo) (fixnum o m) (type f32vec a trs))
     (dotimes (i 3)                                         ; (the first cell at the start: rtl puts it at the right)
       (let* ((k (trans-value trs (tr side (+ 20 i)) now))
              (cx (if mir (- (+ fsx fw) (* (i->f (1+ i)) cw) (* (i->f i) 0.22f0 u)) (+ fsx (* (i->f i) (+ cw (* 0.22f0 u)))))))
         (declare (single-float k cx))
         (paint-rect cx y cw h +c-cell+)
-        (when (> k 0.001f0) (paint-rect (if mir (+ cx (* cw (- 1f0 k))) cx) y (* cw k) h +c-steel+))))
+        (when (> k 0.001f0) (paint-rect (if mir (+ cx (* cw (- 1f0 k))) cx) y (* cw k) h +c-steel+))
+        (let* ((a (lhud-cell-burn lo i k)))                ; a BLUE burst: the span still to burn, in the burst's blue
+          (declare (single-float a))
+          (when (> (- k a) 0.001f0) (paint-rect (if mir (+ cx (* cw (- 1f0 k))) (+ cx (* cw a))) y (* cw (- k a)) h +c-burst-b+)))))
     (paint-rect awx y aw h +c-cell+)
     (let* ((k (trans-value trs (tr side 23) now)) (sb (trans-value trs (tr side 24) now))
           (pulse (if full (- 0.5f0 (* 0.5f0 (f-cos (* 6.2832f0 now)))) 0f0)) (col (if (>= m 2) +c-drive+ +c-reiatsu+)))

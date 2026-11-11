@@ -971,7 +971,7 @@ cinematic owns; the HUD writes it only paused and not in a cinematic); (2) `col-
 
 | Element | hud.css / hud.js | Model |
 |---|---|---|
-| P2's plate: ink pool, name / kanji / tag, bar with ghost and grid, nine flames (flicker, stake, shatter, spent dot), flash-step cells and awakening bar (SUBLIMATION pink, DRIVE red, hd-aw), 覺醒 READY label, pointer seals 構 肩 拖 + 「拖 · DRAG」, kit strip | .plate, .who, .reishi, .souls, .meters, .awk, .hptr, .kit | V o+0..24, S 4s, 4s+1 |
+| P2's plate: ink pool, name / kanji / tag, bar with ghost and grid, nine flames (flicker, stake, shatter, spent dot), flash-step cells and awakening bar (SUBLIMATION pink, DRIVE red, hd-aw), 覺醒 READY label, pointer seals 構 肩 拖 + 「拖 · DRAG」, kit strip | .plate, .who, .reishi, .souls, .meters, .awk, .hptr, .kit | V o+0..25 (25: a BLUE burst's burn left ‰ of the flash step, 0 otherwise: the cells tint that span in `+c-burst-b+`, `lhud-cell-burn`), S 4s, 4s+1 |
 | Your plate on the line (both hands) | #hud.hphone:not(.nodeck) .plate.p1, renderDeck | V30-35, V42, V o+… |
 | Deck paper, dots, SP 技 / ATK 斬 | .deck, .zl | V30-35, V43, V42 |
 | Clock tab: ∞ (hd-write) or the seconds (the last ten blood, hd-tick), II 止 PAUSE, out when paused | .clock (phone) | V1, V0 16, V39 / V40 |

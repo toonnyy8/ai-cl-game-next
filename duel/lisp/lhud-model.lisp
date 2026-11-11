@@ -50,6 +50,7 @@ tab's (0 paused), [3] the canvas's paused grade (0..1, .5 s ease-out).")
 (defparameter +c-blood+ (rgba #xe81e3a)) (defparameter +c-jade+ (rgba #x7fe3c2)) (defparameter +c-white+ (rgba #xffffff))
 (defparameter +c-ink+ (rgba #x0b0b10)) (defparameter +c-night+ (rgba #x161922)) (defparameter +c-reiatsu+ (rgba #xffd83a))
 (defparameter +c-slate+ (rgba #x2c303d))
+(defparameter +c-burst-w+ (rgba #xf2f5ff)) (defparameter +c-burst-b+ (rgba #x66a8ff)) (defparameter +c-burst-o+ (rgba #xff942e))   ; the burst modes' colours (爆's ink, the burning cell)
 (defparameter +c-shade+ (rgba #x000000 0.6))              ; the names' hard shadow
 (defparameter +c-bar-bg+ (rgba #x0b0b10 0.48)) (defparameter +c-bar-line+ (rgba #xeeeeea 0.12))
 (defparameter +c-fill-lo+ (rgba #xc9cbcf)) (defparameter +c-low-hi+ (rgba #xff6b7f))

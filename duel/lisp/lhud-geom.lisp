@@ -7,7 +7,7 @@
 ;; sin / cos / atan / sqrt of a single-float: C under COMPILE-FILE (no generic call, no box), plain CL when LOADed (the host tests),
 ;; as layout.lisp's FL-FLOOR
 (macrolet ((def (name c cl) `(defmacro ,name (&rest a) (if *compile-file-pathname* `(,',c ,@a) `(,',cl ,@a)))))
-  (def lg-sin f-sin sin) (def lg-cos f-cos cos) (def lg-atan2 f-atan2 atan) (def lg-sqrt f-sqrt sqrt))
+  (def lg-sin f-sin sin) (def lg-cos f-cos cos) (def lg-atan2 f-atan2 atan) (def lg-sqrt f-sqrt sqrt) (def lg-min f-min min) (def lg-max f-max max))
 
 (defun-fast-inline lhud-deck-line! (out w h x0 y0 x1 y1 far near left)
   "hud.js renderDeck, draft C 界: the deck rect X0 Y0 X1 Y1 (permille of W x H), the line's heights FAR / NEAR (permille of the deck's
@@ -24,6 +24,13 @@ height, V34 / V35) at the far edge and the thumb's, LEFT the left hand. OUT: [0]
           (aref out 2) len (aref out 3) (if left (- ang) ang)
           (aref out 4) (/ (* w (i->f* x0)) 1000f0) (aref out 5) (/ (* h (i->f* y0)) 1000f0) (aref out 6) dw (aref out 7) dh)
     out))
+
+(defun-fast-inline lhud-cell-burn (lo i k)
+  "A flash-step cell I (0-2) filled to K (0..1): where the burning span starts inside it, as a fraction of the cell. LO is the span's
+lower end in cells (the gauge in cells minus the burn left, 0..3); the span runs LO up to the fill, so the result is K when nothing burns
+here (an empty span) and 0 when the whole fill burns. DUEL_DESIGN \"BLUE burns one cell\"."
+  (declare (single-float lo k) (fixnum i))
+  (lg-min k (lg-max 0f0 (lg-min 1f0 (- lo (i->f* i))))))
 
 (defparameter *lhud-seal-angles* (let ((v (make-f32 4))) (replace v '(304f0 270f0 236f0 202f0)) v)
   "hud.js: the stance seals' angles around 爆 (degrees, clockwise from the top: the far side, up-left to down for the right hand).")

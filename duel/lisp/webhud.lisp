@@ -64,7 +64,7 @@ kit meter's label (NOME / UDE), else NIL."
 (defun-fast webhud-side (e o)
   "Side E's plate values at offset O (DUEL_WEBUI §7: 50 + 30 side): roster index + 1, Reishi ‰, red, Konpaku, the souls at
 stake, flash step ‰, awakening ‰ and its state, the pointer, the combo E deals (the victim's), the callout serial, the kit meter,
-the finish's best combo / Kikons, human 1."
+the finish's best combo / Kikons, human 1, the BLUE burst's burn left ‰ (+ 25)."
   (declare (fixnum o))
   (let* ((f (fighter e)) (g (gauges e)) (kit (fighter-kit f)) (side (fighter-side f)) (seen *web-seen*)
          (op (fighter-opp f)) (of (and op (fighter op)))
@@ -89,6 +89,9 @@ the finish's best combo / Kikons, human 1."
                            (declare (fixnum m))
                            (when core (loop for n from 2 to 4 when (core-pointer-locked-p f n) do (setf m (logior m (ash 1 (1- n))))))
                            m))
+    (webhud-put (+ o 25) (if (eq (gauges-burst g) :blue)   ; the flash step a BLUE burst has left to burn, ‰ of the gauge (0 otherwise: the plate tints that span)
+                             (%hround (/ (* 1000f0 (the single-float (gauges-burn g))) (the single-float *fs-max*)))
+                             0))
     (let ((sub (the single-float (gauges-sub g))) (dr (the single-float (gauges-drive g))))   ; the bar's second stage: 1 SUBLIMATION (pink), 2 / 3 DRIVE (red, full)
       (declare (single-float sub dr))
       (webhud-put (+ o 22) (if (gauges-awakened g) 0 (%hround (/ (* 1000f0 sub) (the single-float *sub-max*)))))

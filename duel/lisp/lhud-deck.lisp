@@ -112,7 +112,6 @@ a 7 px dot screen at .5 over it; SP 技 at 5 % from the thumb's edge, 1.8 cm ove
 (defparameter +c-lvl0+ (rgba #x8f96a6)) (defparameter +c-lvl1+ (rgba #x5d6474)) (defparameter +c-lvlw1+ (rgba #xc9cbcf))
 (defparameter +c-tick+ (rgba #xeeeeea 0.45)) (defparameter +c-tick-in+ (rgba #x0b0b10 0.7))
 (defparameter +c-trk+ (rgba #x2c303d 0.95)) (defparameter +c-readyglow+ (rgba #xffd83a 0.2)) (defparameter +c-awglow+ (rgba #xffd83a 0.6))
-(defparameter +c-burst-w+ (rgba #xf2f5ff)) (defparameter +c-burst-b+ (rgba #x66a8ff)) (defparameter +c-burst-o+ (rgba #xff942e))
 
 (defun-fast lhud-face (ink)
   "One face of 爆 (.face: 爆 800 2.2u Mincho over RV 600 .85u mono .12em, 2 px apart, centred; the ticks at 1/3 and 2/3, 1.5 px, with a
