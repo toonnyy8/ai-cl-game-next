@@ -61,9 +61,10 @@ opponent within this many metres (NIL: no guard). The Hoho is invulnerable but e
   (k-pd 99.0 :type single-float)) ; the perceived distance at the last free step
 (inline-readers hks)
 
-(defun hkw-fits-p (mv s b d)
-  "Does MV, started now, reach the opponent at D (not inside its dead zone) and land before his perceived recovery ends?"
-  (and mv (plusp (mv-reach mv)) (<= (+ (mv-min-reach mv) 0.1) d (- (strat-reach mv) *hkw-margin*))
+(defun hkw-fits-p (e mv s b d)
+  "Does MV, started now by E, reach the opponent at D (not inside its dead zone as it is now, MV-MIN-REACH) and land before his perceived
+recovery ends?"
+  (and mv (plusp (mv-reach mv)) (<= (+ (mv-min-reach mv e) 0.1) d (- (strat-reach mv) *hkw-margin*))
        (>= (snap-left-seen s b) (+ (mv-s mv) *hkw-lead*))))
 
 (defun hkw-step (e b f kit s d st)
@@ -72,7 +73,7 @@ opponent within this many metres (NIL: no guard). The Hoho is invulnerable but e
     (when (and (member was '(:air :down :wakeup)) (member fs '(:idle :run))
                (snap-recovering-p s))
       (let ((q (kit-command-move kit :q e)) (ns (kit-core-move kit :ns (mc-ptr f))))
-        (let ((how (cond ((hkw-fits-p q s b d) :j1) ((hkw-fits-p ns s b d) :ns))))
+        (let ((how (cond ((hkw-fits-p e q s b d) :j1) ((hkw-fits-p e ns s b d) :ns))))
           (when (and (not how) *hkw-guard-d* (< d *hkw-guard-d*) (brain-roll b *hkw-p*))
             (clog "~a hk guard at ~,1f left ~a" (side-name e) d (snap-left-seen s b))
             (mc-press b :guard)

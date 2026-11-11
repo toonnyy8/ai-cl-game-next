@@ -730,6 +730,28 @@ joints twelve times a second, some drawings dropped (the crackle), fading out ov
             (fx-shard (aref p 0) (aref p 1) (aref p 2) ux uy uz 0.22f0 0.014f0 0.06f0 (+ 1120f0 fi dr) +pal-hit+ k :push 0.26f0))))))
   nil)
 
+(defun-fast %hs-kin (jm age)
+  "§29's cue while a cancel's unlock is on (HSS-KIN; AGE frames since it turned on): on each of his weapon hands (the joints JM) a
+gold burst of eight shards flung out over its first 14 frames, then three short gold glints flickering there (twelve drawings a
+second, some dropped) until the route ends. A look. 0 B."
+  (declare (type f32vec jm) (fixnum age))
+  (let* ((p *hs-wd0*) (dr (drawing-no 12f0)) (burst (< age 14)) (u (if burst (/ (i->f age) 14f0) 0f0)))
+    (declare (type f32vec p) (single-float dr u))
+    (dotimes (hand 2)
+      (joint-point! p jm (if (= hand 0) (ji :weapon-r) (ji :weapon-l)) 0f0 0f0 0f0)
+      (dotimes (i (if burst 8 3))
+        (let* ((fi (+ (i->f i) (* 8f0 (i->f hand)))) (h0 (hash01 fi (if burst 0f0 dr))) (h1 (hash01 (+ fi 3f0) (if burst 0f0 dr)))
+               (a (* 6.2831855f0 (if burst (+ (* 0.125f0 (i->f i)) (* 0.06f0 h0)) h0)))
+               (vy (if burst (- (* 0.8f0 h1) 0.3f0) (- (* 1.2f0 h1) 0.4f0)))
+               (vx (f-cos a)) (vz (f-sin a)) (ul (f-max 0.01f0 (f-hypot vx vy vz))) (ux (/ vx ul)) (uy (/ vy ul)) (uz (/ vz ul))
+               (off (if burst (+ 0.08f0 (* 0.45f0 u)) 0.1f0)))
+          (declare (single-float fi h0 h1 a vy vx vz ul ux uy uz off))
+          (when (or burst (> (hash01 (+ fi 7f0) dr) 0.35f0))
+            (fx-shard (+ (aref p 0) (* off ux)) (+ (aref p 1) (* off uy)) (+ (aref p 2) (* off uz)) ux uy uz
+                      (if burst (+ 0.18f0 (* 0.3f0 (- 1f0 u))) 0.16f0) (if burst 0.05f0 0.03f0) 0.1f0 (+ 1200f0 fi dr) +pal-gold+
+                      (if burst (* 0.95f0 (- 1f0 (* u u))) 0.75f0) :push 0.24f0))))))
+  nil)
+
 ;;; §27.6 (presentation only; the user, 2026-10-28: 「NS3 的蓄電怎麼了會是投擲鐮刀出去，應該是要沿著綑綁的鎖鏈延伸電擊才對，放電也一樣是
 ;;; 沿著最初綑綁的鎖鏈炸開電擊」): the lightning along the binding chain
 (declaim (type f32vec *hs-vt0* *hs-vt1* *hs-vt2* *hs-vt3*))
@@ -1785,7 +1807,8 @@ KOSHU's noose and sinking orb, the Shikai Kikon's sickle flight HS-KARE-CODES)."
         (when (and shikai mv (eq (mv-name mv) :hs-sa-hoden) (eq (fighter-contact f) :hit)   ; (§27.5: 放電's burst on him)
                    (<= (mv-s mv) sf) (< sf (+ (mv-s mv) 18)))
           (%hs-hoden-burst (model-joints (model o)) (- sf (mv-s mv))))
-        (when (plusp (hss-zan st)) (%hs-zan (model-joints (model o)) (hss-zan st))))   ; (§27.5: 餘電 on him)
+        (when (plusp (hss-zan st)) (%hs-zan (model-joints (model o)) (hss-zan st)))   ; (§27.5: 餘電 on him)
+        (when (and (hss-kin st) (= ck 0)) (%hs-kin (model-joints m) (- *match-tick* (hss-kin-t st)))))   ; (§29: the cancel's unlock)
       (unless (or shikai (logtest cfl 2))                              ; the Bankai: the orb, its chains, the noose (§21.6)
         (setf (aref *hs-tipv* 0) 0f0 (aref *hs-tipv* 1) 0f0)            ; (and the chain strikes, §21.8)
         (setf (aref *hs-tg* 0)                                          ; §25.26: the chain-tip glint, free in the ranged mode
@@ -1825,8 +1848,16 @@ the :hs-tip ring. A look."
 (defun hs-hud-label (g kit) "The portrait label." (declare (ignore g kit)) "KAZESHINI")
 (defun hs-hud-tag (e)
   "His :hud-tag hook: the plate's status tag (webhud.lisp, DUEL_WEBUI §7), the sickle as his meter row reads it: in hand, out,
-returning."
-  (case (hss-state (hs e)) (:in "KAZESHINI IN") (:ret "KAZESHINI ...") (t "KAZESHINI OUT")))
+returning; \" KIN\" after it while a cancel's unlock is on (DUEL_HISAGI §29: LHUD-TAG-SEGMENTS draws 近). Constants: 0 B."
+  (let ((st (hs e)))
+    (if (hss-kin st)
+        (case (hss-state st) (:in "KAZESHINI IN KIN") (:ret "KAZESHINI ... KIN") (t "KAZESHINI OUT KIN"))
+        (case (hss-state st) (:in "KAZESHINI IN") (:ret "KAZESHINI ...") (t "KAZESHINI OUT")))))
+(defun hs-bk-hud-tag (e)
+  "The Bankai's :hud-tag hook (both modes): the mode's meter name as before (RANGED / BIND: the Lisp HUD's seals read it), \" KIN\"
+after it while a cancel's unlock is on (§29). Constants: 0 B."
+  (let ((bind (eq (fighter-form (fighter e)) :bankai-bind)) (kin (hss-kin (hs e))))
+    (if bind (if kin "BIND KIN" "BIND") (if kin "RANGED KIN" "RANGED"))))
 (setf (kit-meter (find-kit :hisagi :base)) (list :name "KAZESHINI" :max 1 :label 'hs-hud-label))   ; (its canvas row HS-HUD-METER left 2026-11-11)
 ;; (B2b: the Bankai's two modes show no sickle row: a meter of their own with no :draw, so the HUD neither inherits the
 ;; Shikai's, which overlapped the awakened forms' L COOLDOWN row, nor draws one; no sim reads it: no :start / :full-form)

@@ -633,7 +633,9 @@ Hoho's counter strike on its frame (it always connects)."
                (fx (f32 (fwd-x yaw))) (fz (f32 (fwd-z yaw))) (ob (model-body (model o))))
           (loop for w across (mv-hits mv) for i from 0
                 when (and (<= (hw-from w) sf) (< sf (hw-to w)) (not (logbitp i (fighter-hits f)))
-                          (let ((mn (hw-min w)))         ; a :min-reach dead zone (not a Kikon's follow-up strike)
+                          (let ((mn (hw-min w)))         ; a :min-reach dead zone (not a Kikon's follow-up strike; his kit's
+                            (when mn                     ;  :min-reach hook may lift it: Hisagi's cancel unlock, DUEL_HISAGI §29)
+                              (let ((h (kit-hook (fighter-kit f) :min-reach))) (when h (setf mn (funcall h e mn)))))
                             (or (null mn) (fighter-follow f) (>= (hypot (- (aref q 0) (aref p 0)) (- (aref q 2) (aref p 2))) mn)))
                           (window-touches-p w e (aref p 0) (aref p 1) (aref p 2) fx fz (aref q 0) (aref q 1) (aref q 2)
                                             (body-hurt-r ob) (body-hurt-h ob)))   ; (its volumes, or its :seg-fn capsule)

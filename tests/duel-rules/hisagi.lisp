@@ -387,17 +387,18 @@
                 (~= (kit-walk kr) 2.8) (~= (kit-run kr) 8.5) (~= (kit-walk kb) 3.8) (~= (kit-run kb) 9.0)
                 (eq :bankai (kit-endless-form kb)) (eq :bankai (kit-awaken-form (kit :hisagi :base)))
                 (not (getf (kit-core (kit :hisagi :base)) :no-awaken))))
-    ;; §17's bookkeeping is gone: no bind / P / KUBIKAKE hooks on any form (BIND-OF is NIL for him), the clash hook on the bind
-    ;; mode only, the gathered J's link hook on the ranged mode only; no other kit has either
+    ;; §17's bookkeeping is gone: no bind / P / KUBIKAKE hooks on any form (BIND-OF is NIL for him), the clash's balance on the bind
+    ;; mode only (§29: every form's :clash hook unlocks the close range; the bind's also balances), the gathered J's link hook on the
+    ;; ranged mode only; no other kit has a :clash, :link-move or :min-reach hook
     (check (every (lambda (k) (notany (lambda (h) (kit-hook k h))
                                       '(:bind :bind-damage :bind-pool :bind-heal :bind-step :bind-resolve :bind-snapshot :p :p-label
                                         :ok :command)))
                   (list kr kb)))
-    (check (and (eq 'hs-bind-clash (kit-hook kb :clash)) (null (kit-hook kr :clash))
+    (check (and (eq 'hs-bk-clash (kit-hook kb :clash)) (eq 'hs-clash (kit-hook kr :clash)) (eq 'hs-clash (kit-hook (kit :hisagi :base) :clash))
                 (eq 'hs-r-link-move (kit-hook kr :link-move)) (null (kit-hook kb :link-move))
                 (loop for c being the hash-keys of *kits* using (hash-value alist)
                       always (or (eq c :hisagi)   ; (Kenpachi's NS2 cancel hook went 2026-11-05, DUEL_KEN_V3 §43)
-                          (loop for (nil . k) in alist never (or (kit-hook k :clash) (kit-hook k :link-move)))))))
+                          (loop for (nil . k) in alist never (or (kit-hook k :clash) (kit-hook k :link-move) (kit-hook k :min-reach)))))))
     (check (notany #'fboundp '(hs-bind-drained! hs-bind-released! hs-bind-reel! hs-bind-step hs-bind-resolve hs-bind-pool
                                hs-bind-damage hs-bind-heal hs-bind-snapshot hs-binding hs-p-press hs-kubi-land hs-kaibaku-go
                                hs-try-bind! hs-bk-ok hs-bk-command hs-pull-step)))
@@ -549,7 +550,7 @@
         (check (and (hss-bound st) (hss-unbind st) (eq (fighter-form fh) :bankai-bind)))
         (setf (fighter-state fh) :idle (fighter-move fh) nil) (hs-bk-tick h fh gh)
         (check (and (not (hss-bound st)) (not (hss-unbind st)) (eq (fighter-form fh) :bankai)))
-        ;; outside the bind a clash balances nothing (the ranged mode has no :clash hook; and the hook itself checks the bind)
+        ;; outside the bind a clash balances nothing (the ranged mode's :clash hook only unlocks, §29; the balance checks the bind)
         (let ((*match-tick* 103)) (setf (fighter-cls-t fh) 103) (core-clash! h o))
         (setf (fighter-cls-t fh) 104) (hs-bind-clash h o)
         (check (and (= (gauges-reishi gh) 596) (= (gauges-reishi go) 1104)))))
@@ -1235,3 +1236,75 @@
                                                    (let ((d (land d0 c l)))
                                                      (or (<= (+ k0 0.04) d (- *hs-r-k-reach* 0.04))
                                                          (<= (+ j0 0.04) d (- *hs-r-j-reach* 0.04))))))))))))
+
+;; §29 (the user, 2026-11-12: 「檜佐木新增特性，當觸發相消時接下來的連擊解鎖遠距攻擊的近身判斷範圍（包含始解 NS1、卍解遠距狀態的攻擊）」,
+;; 「沒有持續時間，只要彈回中立就解除」): a cancel he takes part in lifts every dead zone of his for the route out of it; neutral ends it
+(let ((kb0 (kit :hisagi :base)) (kr (kit :hisagi :bankai)) (kb (kit :hisagi :bankai-bind)))
+  ;; the pure rules: the dead zone with the unlock (none) and without (as built); kept in a move, off in neutral
+  (check (and (eql 3.0 (hs-dead-zone nil 3.0)) (null (hs-dead-zone t 3.0)) (null (hs-dead-zone nil nil)) (null (hs-dead-zone t nil))
+              (hs-kin-after t (find-move :hs-n1a)) (null (hs-kin-after t nil)) (null (hs-kin-after nil (find-move :hs-n1a)))))
+  ;; every form's hooks: the unlock on a clash, the dead zone asked of the kit, the tag; the bind's clash still balances
+  (check (and (every (lambda (k) (eq 'hs-min-reach (kit-hook k :min-reach))) (list kb0 kr kb))
+              (eq 'hs-hud-tag (kit-hook kb0 :hud-tag)) (eq 'hs-bk-hud-tag (kit-hook kr :hud-tag)) (eq 'hs-bk-hud-tag (kit-hook kb :hud-tag))))
+  ;; the moves he can play that gain a close hit (centre to centre, m; DUEL_HISAGI §29's table): every one with a dead zone, none in
+  ;; the bind; WA, TATAKI, the AS3 switch, the bind's moves and every J / SA / NS / AS of the Shikai but NS1 have none to lift
+  (flet ((dz (n) (let ((h (mv-hits (find-move n)))) (and (plusp (length h)) (hw-min (svref h 0))))))
+    (check (equal (mapcar #'dz '(:hs-n1a :hs-n1b :hs-n1c)) '(3.0 3.0 3.0)))
+    (check (equal (mapcar #'dz '(:hs-r-j1 :hs-r-j2 :hs-r-na3 :hs-r-na4 :hs-r-j3 :hs-r-sa :hs-r-n1b :hs-r-n1c :hs-r-as1))
+                  '(3.0 3.0 3.0 3.0 3.0 3.0 3.0 3.0 3.0)))
+    (check (equal (mapcar #'dz '(:hs-r-j2s :hs-r-j3g :hs-r-sa-g :hs-r-n2a :hs-r-n2c :hs-r-as2 :hs-r-as2b)) '(2.5 2.5 2.5 2.5 2.5 2.5 2.5)))
+    (check (every (lambda (n) (null (dz n)))
+                  '(:hs-j1 :hs-j2 :hs-na3 :hs-na4 :hs-j3 :hs-sa-kiri :hs-sa :hs-sa-hoden :hs-n2a :hs-n2b :hs-n2c :hs-n3a :hs-n3b
+                    :hs-as1 :hs-as2 :hs-as2b :hs-as3 :hs-as3b :hs-as3c
+                    :hs-r-n1a :hs-r-n2b :hs-r-as3 :hs-r-as3b :hs-r-as3c
+                    :hs-b-na1 :hs-b-na2 :hs-b-na3 :hs-b-na4 :hs-b-na5 :hs-b-sa :hs-b-n1a :hs-b-n1b :hs-b-n1c :hs-b-n2a :hs-b-n2b :hs-b-n2c
+                    :hs-b-as1 :hs-b-as2 :hs-b-as2b :hs-b-as3 :hs-b-as3b :hs-b-as3c))))
+  ;; on stand-ins: the Shikai H against Kenpachi O; a cancel in his move turns it on (attacker or defender: CORE-CLASH! calls both sides'
+  ;; hooks), a link of the route keeps it, neutral ends it; a bounce (a same-class tie) leaves him in neutral: off the same step
+  (multiple-value-bind (h o) (t-pair kb0 (kit :kenpachi :base))
+    (let ((fh (fighter h)) (st (hs h)) (*match-tick* 300))
+      (setf (fighter-character fh) :hisagi (fighter-state fh) :move (fighter-move fh) (find-move :hs-n1a))
+      (check (and (null (hss-kin st)) (eql 3.0 (hs-min-reach h 3.0)) (eql 2.5 (hs-min-reach h 2.5))))
+      (core-clash! o h)                                                             ; (he defends: his NS1a cancelled by a J1)
+      (check (and (hss-kin st) (= 300 (hss-kin-t st)) (null (hs-min-reach h 3.0)) (null (hs-min-reach h 2.5))))
+      (hs-kin-step! h st (find-move :hs-n1b))                                       ; (NS1b, NS1c: the route goes on)
+      (hs-kin-step! h st (find-move :hs-n1c))
+      (check (hss-kin st))
+      (let ((*match-tick* 320)) (core-clash! h o))                                  ; (a new cancel inside it: still on, its start kept)
+      (check (and (hss-kin st) (= 300 (hss-kin-t st))))
+      (hs-kin-step! h st nil)                                                       ; (back in neutral: off)
+      (check (and (null (hss-kin st)) (eql 3.0 (hs-min-reach h 3.0))))
+      (hs-kin-step! h st (find-move :hs-n1a))                                       ; (a new route without a cancel: still off)
+      (check (null (hss-kin st)))
+      (let ((*match-tick* 340)) (core-clash! h o))                                  ; (a reset, a Kikon's: off)
+      (hs-reset h)
+      (check (null (hss-kin st)))))
+  ;; the Bankai: the ranged mode's tick ends it in neutral (the same neutral that clears the tip read and the 聚 flag); in the bind
+  ;; (set up directly here: in play the bind starts / ends in neutral, so the unlock never crosses that switch) the clash unlocks and
+  ;; balances (the balance as §28.6's: 400 / 1300 -> 512 / 1188), and a move keeps it
+  (multiple-value-bind (h o) (t-pair kr (kit :kenpachi :base))
+    (let ((fh (fighter h)) (gh (gauges h)) (go (gauges o)) (st (hs h)) (*match-tick* 400))
+      (setf (fighter-form fh) :bankai (gauges-awakened gh) t (fighter-character fh) :hisagi)
+      (setf (fighter-state fh) :move (fighter-move fh) (find-move :hs-r-n2a))
+      (let ((*match-tick* 401)) (core-clash! h o))
+      (hs-bk-tick h fh gh)
+      (check (and (hss-kin st) (null (hs-min-reach h 2.5))))
+      (setf (fighter-state fh) :idle (fighter-move fh) nil) (hs-bk-tick h fh gh)
+      (check (null (hss-kin st)))
+      (setf (hss-bound st) t (fighter-form fh) :bankai-bind (fighter-kit fh) kb (fighter-state fh) :move (fighter-move fh) (find-move :hs-b-n1a)
+            (gauges-reishi gh) 400 (gauges-reishi go) 1300 (fighter-cls-t fh) 410)
+      (let ((*match-tick* 410)) (core-clash! o h))
+      (check (and (hss-kin st) (= (gauges-reishi gh) 512) (= (gauges-reishi go) 1188)))
+      (hs-bk-tick h fh gh)
+      (check (hss-kin st))))
+  ;; the tag (HS-HUD-TAG / HS-BK-HUD-TAG in hisagi-draw.lisp, not loaded here): RANGED / BIND / KAZESHINI IN with " KIN" while it is
+  ;; on; the Lisp HUD strips it for the seals and draws 近 after the tag
+  (check (and (equal (multiple-value-list (lhud-tag-kin "RANGED KIN")) '("RANGED" t))
+              (equal (multiple-value-list (lhud-tag-kin "RANGED")) '("RANGED" nil)) (equal (multiple-value-list (lhud-tag-kin nil)) '("" nil))
+              (equal (mapcar #'first (lhud-seals (lhud-fighter 8) "FUSHI NO KOJO" "RANGED KIN")) '("散" "聚"))
+              (equal (mapcar #'first (lhud-seals (lhud-fighter 8) "FUSHI NO KOJO" "BIND KIN")) '("鎌" "絞"))
+              (equal (lhud-tag-segments "HISAGI  FUSHI NO KOJO" "RANGED KIN")
+                     '(("FUSHI NO KOJO" . nil) (" · " . t) ("RANGED" . nil) (" · " . t) ("近" . nil)))
+              (equal (lhud-tag-segments "HISAGI" "KAZESHINI IN KIN")
+                     '(("風死" . nil) (" · " . t) ("IN HAND" . nil) (" · " . t) ("近" . nil)))
+              (equal (lhud-tag-segments "HISAGI" "KAZESHINI IN") '(("風死" . nil) (" · " . t) ("IN HAND" . nil))))))

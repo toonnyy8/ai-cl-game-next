@@ -68,11 +68,17 @@
   (let* ((l (or label "")) (cut (search "  " l)))
     (if cut (string-trim " " (subseq l cut)) "")))
 
+(defun lhud-tag-kin (tag)
+  "TAG without a trailing \" KIN\" (Hisagi's cancel unlock, DUEL_HISAGI §29), and T when it had one. Values tag kin-p."
+  (let* ((tg (or tag "")) (n (length tg)))
+    (if (and (> n 4) (string= " KIN" tg :start2 (- n 4))) (values (subseq tg 0 (- n 4)) t) (values tg nil))))
+
 (defun lhud-seals (entry form tag)
-  "hud.js seals(s): the seals of the fighter ENTRY in FORM (its own by the form + \" \" + TAG, then the form), its sealed ones, or PTR0."
+  "hud.js seals(s): the seals of the fighter ENTRY in FORM (its own by the form + \" \" + TAG, then the form), its sealed ones, or PTR0.
+(A trailing \" KIN\" of TAG is not part of it: LHUD-TAG-KIN.)"
   (if (or (null entry) (null (third entry)))
       *lhud-ptr0*
-      (let ((forms (fourth entry)))
+      (let ((forms (fourth entry)) (tag (values (lhud-tag-kin tag))))
         (or (cdr (assoc (concatenate 'string form " " (or tag "")) forms :test #'string=))
             (cdr (assoc form forms :test #'string=))
             (third entry)))))
@@ -84,18 +90,21 @@
 (defun lhud-tag-segments (label tag)
   "hud.js tagHTML, as segments (STRING . JADE-P) in the order drawn, upper case (the CSS's text-transform; kanji untouched): the
 form (lower-cased by the page, upper-cased by the CSS), a jade \" · \", then the tag: 風死 · IN HAND / THROWN / RETURNING (Hisagi's
-sickle), 分身 · ×N (KESSA's clones), nothing for a kit strip's kind (NOME / UDE / KAIHO), else the tag itself."
-  (let* ((form (string-upcase (lhud-label-form label))) (tg (or tag ""))
-         (n (and (> (length tg) 9) (string= "BUNSHIN x" tg :end2 9) (digit-char-p (char tg 9))))
-         (out (cond ((string= tg "KAZESHINI IN") (list (cons (zh "風死") nil) (cons " · " t) (cons "IN HAND" nil)))
-                    ((string= tg "KAZESHINI OUT") (list (cons (zh "風死") nil) (cons " · " t) (cons "THROWN" nil)))
-                    ((string= tg "KAZESHINI ...") (list (cons (zh "風死") nil) (cons " · " t) (cons "RETURNING" nil)))
-                    (n (list (cons (zh "分身") nil) (cons " · " t) (cons (format nil (zh "×~d") n) nil)))
-                    ((member tg '("NOME" "UDE" "KAIHO" "") :test #'string=) nil)
-                    (t (list (cons (string-upcase tg) nil))))))
-    (append (when (plusp (length form)) (list (cons form nil)))
-            (when (and (plusp (length form)) out) (list (cons " · " t)))
-            out)))
+sickle), 分身 · ×N (KESSA's clones), nothing for a kit strip's kind (NOME / UDE / KAIHO), else the tag itself; a trailing \" KIN\"
+(Hisagi's cancel unlock, DUEL_HISAGI §29) adds a jade \" · \" and 近 after it."
+  (multiple-value-bind (tg kin) (lhud-tag-kin tag)
+    (let* ((form (string-upcase (lhud-label-form label)))
+           (n (and (> (length tg) 9) (string= "BUNSHIN x" tg :end2 9) (digit-char-p (char tg 9))))
+           (out (cond ((string= tg "KAZESHINI IN") (list (cons (zh "風死") nil) (cons " · " t) (cons "IN HAND" nil)))
+                      ((string= tg "KAZESHINI OUT") (list (cons (zh "風死") nil) (cons " · " t) (cons "THROWN" nil)))
+                      ((string= tg "KAZESHINI ...") (list (cons (zh "風死") nil) (cons " · " t) (cons "RETURNING" nil)))
+                      (n (list (cons (zh "分身") nil) (cons " · " t) (cons (format nil (zh "×~d") n) nil)))
+                      ((member tg '("NOME" "UDE" "KAIHO" "") :test #'string=) nil)
+                      (t (list (cons (string-upcase tg) nil)))))
+           (out (if kin (append out (when out (list (cons " · " t))) (list (cons (zh "近") nil))) out)))   ; (one glyph: the phone's plate, §29)
+      (append (when (plusp (length form)) (list (cons form nil)))
+              (when (and (plusp (length form)) out) (list (cons " · " t)))
+              out))))
 
 (defun lhud-kit-kind (tag)
   "The kit strip under the bar by the tag (DUEL_WEBUI §13): 1 NOME, 2 UDE, 3 KAIHO, 0 none."

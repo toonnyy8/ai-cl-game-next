@@ -5038,3 +5038,158 @@ lines identical to 68aa3bc's; `--cvc` 3 PASS. No balance gates (the user's rule)
 JIBASHIRI overhead then driven in), the release smears on S. Checked by numbers and strips, needs the user's eyes: the default strip
 frames skip the middle of the holds (S-2 is the first release frame), and TABA's coil sits high behind him, partly hidden by the
 hanging chains from the behind camera.
+
+## 29. A cancel unlocks his close range (the user, 2026-11-12)
+
+The user: 「檜佐木新增特性，當觸發相消時接下來的連擊解鎖遠距攻擊的近身判斷範圍（包含始解 NS1、卍解遠距狀態的攻擊）」; then, on the lead's
+duration default (2 below): 「沒有持續時間，只要彈回中立就解除」.
+
+### 29.1 The lead's defaults (2026-11-12; each one a line or a hook, for the user to overturn at the playtest)
+
+1. **Trigger**: any triangle cancel he takes part in (相消 = `core-verdict` → `:cancel`, `core-nohit!`, and a cancelled Kikon follow-up,
+   `core-kikon-cancel!`; both reach his kit's `:clash` hook through `core-clash!`), as the attacker or the defender, in every form and
+   mode. The bind's Reishi balance (§28.4, §28.6) is kept exactly as it was.
+2. ~~**How long**: the route out of the cancel, or the next route started within `*hs-clash-open*` 90 frames when the cancel put him
+   back in neutral.~~ **Overturned by the user** (「沒有持續時間，只要彈回中立就解除」): no duration and no knob. It is on from the cancel
+   while he stays in the route that goes on out of it (its links, segments, SA, AS; a form / mode switch inside it, AS3 into the bind
+   and back, does not end it) and off the step he is back in neutral, for any reason: the route ended (hit or whiff), he was hit out
+   of it, a Kikon / Soul Break / round reset, and a same-class tie's bounce (`core-bounce!` puts both in neutral: that cancel gives him
+   nothing, no carry-over into a next route). A new cancel inside the route keeps it on.
+3. **What it changes**: only the dead zone (a window's `:min-reach`, the near limit). Outer reach, arcs, frames, damage, the chain-tip
+   rule (the outer 0.5 m band, ×1.71) and every reaction stay; a close hit is a non-tip hit. Moves with no dead zone are untouched;
+   pushes are not changed.
+4. **Readable**: a tag on his plate while it is on, and a cue on his body (a gold burst at both weapon hands as it turns on, then
+   gold glints there until it ends).
+5. **The CPU**: where it decides by a move's dead zone as a statement of the rule, it sees the effective one (none while unlocked);
+   no chance, threshold, table or strategy retuned.
+
+### 29.2 As built
+
+- **State**: `hss-kin` (on / off; hashed: the state-hash line's `n0` / `n1`) and `hss-kin-t` (the tick it last turned on: a look, no
+  sim reads it) on his `hss` component, so the in-game MCTS's snapshot carries them like its neighbours.
+- **Pure, host-tested**: `hs-dead-zone (kin mn)` the dead zone with the unlock (none) or without (MN); `hs-kin-after (kin mv)` kept in a
+  move, off in neutral.
+- **Mutation in two named places**: his `:clash` hook turns it on (`hs-clash` on the Shikai and the ranged mode; `hs-bk-clash` on the
+  bind, which then runs `hs-bind-clash`'s balance unchanged); his ticks turn it off (`hs-kin-step!` in `hs-tick` and `hs-bk-tick`,
+  the same neutral test, `current-move` / `(eq state :move)`, that clears the tip read and the 聚 flag); `hs-reset` (the Kikon /
+  Soul Break / round reset) too.
+- **The shared hook**: `combat.lisp` `collect-melee` asks the attacker's kit `:min-reach` hook (e m → the dead zone now, m or NIL)
+  only for a window that has a `:min-reach`; no other kit has the hook (host-tested), and only his moves have dead zones, so every
+  other kit's path is the old one. `core-ai.lisp` `mv-min-reach` takes the fighter (optional) and asks the same hook.
+- **Hisagi's hooks**: every form `:clash` and `:min-reach hs-min-reach`; the Bankai's two forms a `:hud-tag` (`hs-bk-hud-tag`: RANGED /
+  BIND as the meter's name gave before, the Lisp HUD's seals key on it).
+- **The tag** (the lead's proposal: 近 KIN, "close"; the user's to rename): his `:hud-tag` adds " KIN" to the tag while it is on
+  (`KAZESHINI IN KIN`, `RANGED KIN`, `BIND KIN`: constants, 0 B); `lhud-data.lisp` strips it (`lhud-tag-kin`) for the seals and draws a
+  jade " · " and 近 after the tag: 風死 · IN HAND · 近, FUSHI NO KOJO · RANGED · 近. One glyph, not 近 · KIN: on the phone (390 × 844)
+  the longer tag ran into his kanji name on the plate. 近 was already baked (the sans): no rebake.
+- **The cue** (`%hs-kin`, hisagi-draw.lisp, a look, 0 B): a gold burst of eight shards flung out from each weapon hand over the first 14
+  frames, then three short gold glints flickering at each hand until it ends; cosmetic clock only (`drawing-no`, `hash01`).
+- **The look of NS1b / NS1c** (`hs-n1-anchor!`, §27.9): the sickle's anchor goes on the victim inside the sweep with the unlock too
+  (else it was drawn at NAGI's far end while the hit landed up close).
+- **Mode switches, as built**: the bind starts and ends only out of a move (`hs-bk-tick`: AS3c's end, then neutral), and the unlock
+  is cleared in that same neutral before the switch, so in play AS3 into the bind and the bind AS3 back out never carry it; the bind
+  has no dead-zone move anyway (a cancel inside the bind turns it on to no effect, its Reishi balance as before). The switch that does
+  happen inside a route is the DRIVE pointer switch (the `:sw` latch inside a segment, the new NS started without a neutral step): it
+  keeps the unlock. Default 2's "a form / mode switch inside the route does not end it" therefore only ever applies to that one.
+- **Log**: `P1 KIN on (the cancel unlocks his close range) d …`, `P1 KIN: HIT inside its 3.0 m dead zone at d …` (a contact the unlock
+  let in), `P1 KIN off (neutral) d …`; the `hisagi-bind` probe line's `kin`; pacing keys `kin`, `kin-hit`.
+- **Debug** 83040-83047 (DUEL_GAMEPLAY "Debug commands"), the scenes `tests/scripts/duel-hisagi-kin.json` (`tests/scripts/duel.py`).
+
+### 29.3 The moves that gain a close hit (centre to centre, m; the volume's outer edge unchanged)
+
+| Move | Form / mode | Dead zone before | With the unlock |
+|---|---|---|---|
+| NS1a 薙 NAGI, NS1b 引 HIKI, NS1c 後薙 USHIRO-NAGI | Shikai, pointer 1 | 3.0 | none (0-6) |
+| J1 旋鞭, J2, J3, J4, J5 (spread) | ranged | 3.0 | none |
+| SA 打 UCHI (spread) | ranged | 3.0 | none |
+| NS1b 扇 ŌGI, NS1c 一斉 ISSEI | ranged, pointer 1 散 | 3.0 | none |
+| AS1 乱鎖 RANSA | ranged | 3.0 | none |
+| gathered J2 / J3 (after a 聚 segment) | ranged | 2.5 | none |
+| gathered SA 打 (pointer 2's gaps) | ranged | 2.5 | none |
+| NS2a 束 TABA, NS2c 大旋 ŌMEGURI | ranged, pointer 2 聚 | 2.5 | none |
+| AS2a 叩 TATAKI, AS2b 地走 JIBASHIRI | ranged | 2.5 | none |
+
+No dead zone to lift (unchanged): every other Shikai move (the J string, NS2 刈, NS3 縛雷, the SA, AS1-AS3), the ranged NS1a 環 WA and
+NS2b 叩 TATAKI (0-3 m, their hits push him to 4.5 / 3.5 m), the ranged AS3 投 / 巻 / 掛, every bind move, the Breaker. With a dead zone
+but out of the core system's reach (K is unbound): the Shikai's K1 NAGI `:hs-k1` (3.0) and the ranged O `:hs-r-kikon` (2.0, the Soul
+Break's fallback cinematic); the hook lifts them too.
+
+What the push and the rule itself leave:
+- A dead-zone move of his can never make a close cancel itself: inside its dead zone `collect-melee` drops the window before the
+  triangle sees it. A close unlock comes from the opponent's hit on his move's startup (he defends), or from a move that reaches
+  close (a J, WA, TATAKI, 刈) being cancelled.
+- After a WA or TATAKI hit the route goes on at 4.5 / 3.5 m (their pushes): ŌGI / ISSEI and ŌMEGURI are then in their band anyway, so
+  pointer 1 and 2 gain from the unlock when the cancel lands on WA / TATAKI themselves (no hit, no push) or on a later segment.
+
+### 29.4 Tests
+
+- **Host** (tests/duel-rules/hisagi.lisp): duel-rules 10285 ALL PASS (10267 before): the two pure rules, the hooks on every form (and
+  none on any other kit: no `:clash`, `:link-move` or `:min-reach`), the table above pinned (each move's dead zone, and the moves with
+  none), on stand-ins: a cancel as the defender turns it on (the dead zone NIL for 3.0 and 2.5), NS1b / NS1c keep it, a second cancel
+  keeps it and its start tick, neutral ends it, a new route without a cancel stays off, a reset ends it; the ranged tick ends it in
+  neutral; in the bind a clash unlocks and balances 400 / 1300 → 512 / 1188 as before; `lhud-tag-kin`, the seals with " KIN" (散 / 聚,
+  鎌 / 絞), the tag segments. unit-names (no top-level name twice) and the charset (近 already baked in the sans: no rebake) pass.
+- **Scripted scenes** (`tests/scripts/duel-hisagi-kin.json`, `--fixed-dt 16.666667 --secs 35`, no CPU; ticks from each scene's start,
+  distances centre to centre from the combat log; Kenpachi's J1 slides him from 2.0 to 1.5 m):
+  - A, the Shikai (83040): `P2 KE-Z-J1 x P1: CANCEL` at 6, `KIN on` d 1.50; NS1a 62 at 52, NS1b 56 at 78, NS1c 80 at 106, each
+    `inside its 3.0 m dead zone at d 1.50`; `KIN off` at 153 (the route over); then 2.0 m again (83046) and a fresh NS1a: no hit.
+  - B, the same without his J1 (83041): NS1a / NS1b / NS1c at 2.00 m, no hit.
+  - C1, the ranged mode at pointer 1 (83042): the cancel at 6 (d 1.50), ŌGI 31 at 48 and ISSEI 48 at 74 inside 3.0 at d 1.50,
+    `KIN off` at 121 (d 2.50, ISSEI's knockdown); C4 without the J1 (83047): ŌGI at 2.00, no hit.
+  - C2, pointer 2 (83043): the cancel at 6 (d 1.50); TABA 50 at 57, the gathered SA 45 at 88, the gathered J2 29 at 114, J3 39 at
+    140, each inside 2.5 at d 1.50; `KIN off` at 168 (J3's ender push: 6.60 m); C3 without the J1 (83044): TABA at 2.00, no hit.
+  - D, a same-class tie (83045, both J1 on one step at 1.26 m): `P1 HS-J1 x P2: CANCEL` at 6, d 0.89, `KIN on` and `KIN off` on that
+    tick (the bounce: 4.89 m 54 frames later); 2.0 m again and NS1a: no hit.
+  - Run twice: the 196 `[tick]` / `duel` lines identical.
+- **G2** (`python3 tools/simgate.py --cvc`, no Hisagi plays in it): `PASS native cvc ii: 40 lines vs 40`, `ik: 38 vs 38`, `kk: 24 vs 24`
+  (P2 0-4 392.6 s, P1 5-0 381.7 s, P2 0-2 240.9 s, as `tests/style-cvc-ref.txt`).
+- **Snapshot**: snaptest HK seed 1 (`30000 31101 2164`) straight vs pollute: 38 lines identical, 293 rollouts; fulltest on the same
+  match: 83 checks, 0 differ (the hash line carries `n1` while the unlock is on).
+- **Crash check only** (no balance gates): HK and HH seed 1 to the end, both K.O. (the pacing lines: HK `kin 16`, `kin-hit 2`; HH
+  `kin 24` / `24`, `kin-hit 4` / `7`).
+- pkgcheck: only `DUEL::APP`; debug ranges: 120 ranges, 0 errors; `./build.sh duel` (index.wasm 12,753,582 B); 8 s smokes at 1280 × 720 and
+  `--mobile --size 390x844` exit 0; debug 83000 runs; debug 2519 every line 0 B, also with the unlock on (scene C1); 83901's new
+  `look consing kin` line: burst 0, glints 0, Bankai glints 0 B.
+- The startup heap reads 87.4 MB (73.3 at 35b444d7, under run.mjs's 110). Bisected on a copy of 35b444d7: the whole patch 87.4; without
+  hisagi-draw / hisagi-stills / lhud-data 73.3; lhud-data's change alone 87.3. That change (`lhud-tag-kin`, two tag functions) runs only
+  when the HUD model's tag changes, never at startup; and 35b444d7 plus one throwaway function in lhud-data.lisp that nothing calls reads
+  87.3 too (a 16 KB string in hisagi.lisp left it at 73.3). So the jump is the code's layout (the startup collections' timing, every
+  8 MB consed, or the conservative GC), not memory the feature holds. Flagged for the lead.
+- The opponent's view on the phone (83024, the Bankai mirror, + 83030 his WA + a P1 J1: a cross-class cancel, both `KIN on` at
+  d 4.25): the top plate reads FUSHI NO KOJO · RANGED · 近 between the clock and 檜佐木, no overlap; the bottom plate the same
+  (`build/hs-clash/phone-top-a.png`). The tag is dim in the plate's existing style and the glints are a few pixels at 390 px: for the
+  user's eyes at the playtest.
+- Stills (desktop and phone): the burst at the cancel and the tag with the glints, the Shikai and the ranged mode
+  (`build/hs-clash/{desk,phone}-{shikai,ranged}-{burst,on}.png`, not committed). The big yellow smear in them is Kenpachi's J1 (his
+  REIATSU sword smear), not the cue.
+
+### 29.5 What did not change
+
+- The bind's Reishi balance, once an exchange (§28.6): the bind's hook runs it after the unlock, as before (host test: 400 / 1300 →
+  512 / 1188).
+- Outer reach, arcs, frames, damage, the tip (×1.71, no combo scaling) and the reactions; pushes; every other kit (no hook).
+- The CPU's chances, thresholds, tables, strategies (29.6).
+
+### 29.6 What the CPU sees
+
+- `mv-min-reach` (core-ai.lisp) asks his kit's hook when it is given the fighter: the DRIVE switch's band rule (`cai-switch-target`,
+  run in an NS gap, inside a route) now sees a lifted dead zone as 0, so a switch to the ranged NS2 / Shikai NS1 is no longer refused
+  as "too close" right after a cancel.
+- `hkw-fits-p` (cpu-hk-hisagi.lisp) passes the fighter too, but it runs on his first free frame after a knockdown, in neutral, where the
+  unlock is always off: no change in play.
+- Left as they are: `cpu-hisagi-range.lisp`'s close rule (`*hr-close*` 2.9, `*hr-near*` 3.4) runs only while he is free, where the
+  unlock is off; its TABA-gap rule picks TATAKI inside 2.9 m before the gathered SA's band (`*hr-sa-band*` 2.5-4.5) is read, so the
+  band's lower edge never decides (feeding it the lifted dead zone would change nothing; choosing the SA up close instead would be a
+  strategy change). `fuzzy.lisp`'s distance sets (the 2.9 m close) are tuned tables. `mcts-lite.lisp`'s light model has no dead zone
+  at all (its record: frames, windows, reach, lunge), so nothing to change; the in-game full-sim rollouts play the real rule. The
+  old Bankai CPU (`hisagi-ai.lisp` `hs-r-reaches-p`) no longer runs (§28.4).
+
+### 29.7 Open for the user
+
+1. The tag 近 and the gold cue are the lead's; rename or restyle at the playtest.
+2. An ORANGE burst in the middle of the route puts him in neutral for a step (`burst!` → `to-idle`): that ends the unlock, as it already
+   clears the tip read and the 聚 flag. Keep, or let a burst carry it?
+3. Where the unlock comes from in practice: his own dead-zone moves never touch a close victim, so a close cancel is the opponent's hit
+   on his move's startup (he defends: scenes A, C1, C2) or a cancel of a move that reaches close (the J string, WA, TATAKI, 刈). After
+   WA's / TATAKI's hit the route is at 4.5 / 3.5 m anyway (their pushes).
+4. Every CPU (his and the opponent's) does not seek cancels on purpose: it plays the rule only where it already reads dead zones (29.6).

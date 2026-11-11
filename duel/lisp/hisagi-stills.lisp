@@ -17,7 +17,8 @@ stance with the noose held taut, and batch A3's (§24.3): SAHARAI's ring lash in
 trembling) and its reap, KAIBAKU-GEKI's haul and its throw-off (the noose reeled up), and §27.5's: 刈's stance (the wound
 chain), its five strikes' hit frames, CHIKUDEN's charge down the chain, 放電's burst, 餘電 at 400 and fading at 30, and §27.6's (their own clips, the bind kept
 wound on him): CHIKUDEN's front down the chain, 放電's charge, NS3a's wrap, and §27.10's AS1 TSUMUJI (its own clip): the
-flat-spinning sickle's flight, its spin in him with the cuts, its return: each must be 0."
+flat-spinning sickle's flight, its spin in him with the cuts, its return; §29's cancel unlock: its burst, its glints, in the Bankai
+too (a \"look consing kin\" line): each must be 0."
   (let* ((e *p1*) (f (fighter e)) (st (hs e)) (m (model e)) (an (model-anim m)) (c0 (anim-clip an)) (t0 (anim-time an))
          (state (fighter-state f)) (mv (fighter-move f)) (ph (fighter-phase f)) (sf (fighter-sf f)) (s0 (hss-state st))
          (ct (fighter-contact f)) (p (pos-of e)) (z0 (hss-zan st)))
@@ -109,10 +110,15 @@ flat-spinning sickle's flight, its spin in him with the cuts, its return: each m
                        (progn (at :hs-n3a 30 :hs-s-shibari) (bytes))                        ;  NS3a's wrap)
                        (progn (at :hs-as1 8 :hs-tsumuji) (bytes))                           ; (§27.10: TSUMUJI's flight,
                        (progn (at :hs-as1 19 :hs-tsumuji) (bytes))                          ;  the spin and two cuts,
-                       (progn (at :hs-as1 34 :hs-tsumuji) (bytes)))))                       ;  the return)
+                       (progn (at :hs-as1 34 :hs-tsumuji) (bytes))))                        ;  the return)
+             (kn (progn (setf (fighter-state f) :idle (fighter-move f) nil (anim-clip an) (find-clip :hs-s-stance)   ; (§29: the cancel's
+                              (hss-kin st) t (hss-kin-t st) (- *match-tick* 5))                                  ;  burst, its glints,
+                        (list (bytes) (progn (setf (hss-kin-t st) (- *match-tick* 40)) (bytes))                 ;  and in the Bankai)
+                              (progn (setf (fighter-form f) :bankai (anim-clip an) (find-clip :hs-k-stance)) (bytes))))))
         (setf (fighter-state f) state (fighter-move f) mv (fighter-phase f) ph (fighter-sf f) sf (hss-state st) s0
               (fighter-contact f) ct (anim-clip an) c0 (anim-time an) t0 (fighter-form f) fm
-              (hss-bound st) b0 (hss-zan st) z0)
+              (hss-bound st) b0 (hss-zan st) z0 (hss-kin st) nil)
+        (log-msg "duel hisagi look consing kin (10 calls, B): burst ~d, glints ~d, Bankai glints ~d" (nth 0 kn) (nth 1 kn) (nth 2 kn))
         (log-msg "duel hisagi look consing 2b (10 calls, B): KAGIYOSE ~d, KAGIYOSE-GIRI ~d, its cut ~d, JUJI ~d, MATOI's wrap ~d, ~
 SHIME ~d, TSURI ~d, SAN ~d, the 絞 stance ~d" (nth 0 b2) (nth 1 b2) (nth 2 b2) (nth 3 b2) (nth 4 b2) (nth 5 b2) (nth 6 b2) (nth 7 b2)
                  (nth 8 b2))

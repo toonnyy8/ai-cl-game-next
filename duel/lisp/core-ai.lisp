@@ -100,9 +100,12 @@ to the arena's wall."
 (defparameter *cai-dswitch-slack* 0.4
   "m added to a switch target's opener reach + slide for the band rule (the reaches are centre to centre, before the victim's body).")
 
-(defun mv-min-reach (mv)
-  "MV's first window's dead zone (m, :min-reach), 0 without one."
-  (let ((h (mv-hits mv))) (or (and (plusp (length h)) (hw-min (svref h 0))) 0.0)))
+(defun mv-min-reach (mv &optional e)
+  "MV's first window's dead zone (m, :min-reach), 0 without one; with E (the fighter who would play it) the one his kit's :min-reach hook
+gives now (Hisagi's cancel unlock: 0 inside the route out of a cancel, DUEL_HISAGI §29)."
+  (let* ((h (mv-hits mv)) (mn (and (plusp (length h)) (hw-min (svref h 0))))
+         (hk (and mn e (kit-hook (kit-of e) :min-reach))))
+    (or (if hk (funcall hk e mn) mn) 0.0)))
 
 (defun cai-switch-press (e b f to)
   "Press SP with the stick sideways toward pointer TO: the human's own switch (CORE-MOVE-SP! -> CORE-SWITCH-TARGET, its gauge and its
@@ -112,13 +115,13 @@ rules); the act :SWITCH lets CORE-SWITCH-READY-P take this CPU for this press on
   (clog "~a cpu switch ~d -> ~d" (side-name e) (fighter-ptr f) to)
   (cai-switch-count f))
 
-(defun cai-switch-target (f kit d)
-  "The pointer the active strategy's switch goes to from F's NS gap at distance D (its :DSWITCH-MAP for his form and pointer, else
+(defun cai-switch-target (e f kit d)
+  "The pointer the active strategy's switch goes to from F's (E's) NS gap at distance D (its :DSWITCH-MAP for his form and pointer, else
 STRAT-SWITCH-TO's band rule), or NIL."
   (let* ((n (length (getf (kit-core kit) :ns)))
          (row (find-if (lambda (r) (and (eq (first r) (fighter-form f)) (eql (second r) (fighter-ptr f)))) (getf (car *strat-now*) :dswitch-map))))
     (strat-switch-to (fighter-ptr f) n d
-                     (loop for p from 1 to n collect (let ((mv (kit-core-move kit :ns p))) (and mv (list (mv-min-reach mv) (+ (strat-reach mv) *cai-dswitch-slack*)))))
+                     (loop for p from 1 to n collect (let ((mv (kit-core-move kit :ns p))) (and mv (list (mv-min-reach mv e) (+ (strat-reach mv) *cai-dswitch-slack*)))))
                      (third row))))
 
 (defun cai-dswitch (e b f kit)
@@ -126,7 +129,7 @@ STRAT-SWITCH-TO's band rule), or NIL."
 reaches. T when it pressed. No :DSWITCH (every shipped CPU): no roll, NIL."
   (let ((p (strat-out :dswitch nil)))
     (when (and p (plusp p) (core-switch-open-p e f))
-      (let ((to (cai-switch-target f kit (fighter-dist f))))
+      (let ((to (cai-switch-target e f kit (fighter-dist f))))
         (when (and to (< (sim-rnd01) (* p (brain-chance b *cai-dswitch-dif*))))
           (cai-switch-press e b f to)
           t)))))

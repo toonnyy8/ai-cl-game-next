@@ -400,7 +400,7 @@ not (the art's %HS-FA-KS! / %HS-LETOUT!, host-tested against the copies)."
   (+ drawn (* line (- (hs-charge-scale n) 1.0))))
 (defparameter *hs-hooks* '(:tick hs-tick :ok hs-ok :command hs-command :hit hs-hit :struck hs-struck :reset hs-reset
                            :hash hs-hash :draw hisagi-draw :pose hs-pose :deck hs-deck :link-ok hs-link-ok :boss hs-boss
-                           :dmg-mult hs-core-dmg-mult :hud-tag hs-hud-tag))
+                           :dmg-mult hs-core-dmg-mult :hud-tag hs-hud-tag :clash hs-clash :min-reach hs-min-reach))
 (defparameter *hs-shikai-clips* '(:hs-q1 :hs-s-sen :hs-q2 :hs-s-kaeshi :hs-spin :hs-s-rin :hs-nage :hs-s-nage
                                    :hs-hiki :hs-s-hiki :hs-maki :hs-s-maki :hs-kari :hs-s-kari :hs-hodoki :hs-s-hodoki
                                    :hs-modoshi :hs-s-modoshi :hs-kaza :hs-s-kaza :hs-raiden :hs-s-raiden
@@ -712,12 +712,13 @@ the user: 「捆綁模式下發生攻擊抵銷時，就會使雙方的血量差�
 
 (defparameter *hs-r-hooks* '(:tick hs-bk-tick :hit hs-bk-hit :reset hs-reset :hash hs-hash :draw hisagi-draw :pose hs-pose
                              :deck hs-deck :dmg-mult hs-dmg-mult :struck hs-bk-struck :hit-fx hs-tip-fx :step-dist hs-step-dist
-                             :unscaled hs-tip-now-p :link-move hs-r-link-move)
+                             :unscaled hs-tip-now-p :link-move hs-r-link-move :clash hs-clash :min-reach hs-min-reach :hud-tag hs-bk-hud-tag)
   "The ranged mode's hooks (§28.4): no :bind / :bind-* (§17's bookkeeping gone, BIND-OF NIL), no :ok / :command (KUBIKAKE's SP2,
-SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move).")
+SENGEN), no :p (P is the system's Burst / awakening); the gathered J (:link-move); §29's cancel unlock (:clash, :min-reach) and its tag.")
 (defparameter *hs-bk-hooks* '(:tick hs-bk-tick :hit hs-bk-hit :reset hs-reset :hash hs-hash :draw hisagi-draw :pose hs-pose
-                              :deck hs-deck :dmg-mult hs-dmg-mult :struck hs-bk-struck :hit-fx hs-tip-fx :clash hs-bind-clash)
-  "The bind mode's hooks (§28.4): the ranged mode's without the gathered J and the Step's chain tip, with the clash's balance.")
+                              :deck hs-deck :dmg-mult hs-dmg-mult :struck hs-bk-struck :hit-fx hs-tip-fx :clash hs-bk-clash
+                              :min-reach hs-min-reach :hud-tag hs-bk-hud-tag)
+  "The bind mode's hooks (§28.4): the ranged mode's without the gathered J and the Step's chain tip, with the clash's balance (and §29's unlock).")
 (defparameter *hs-bk-clips* (append '(:hs-breaker :hs-k-breaker :hs-kubikake :hs-k-hammer) *hs-r-clip-stand-ins*)
   "The Bankai's :clip-map (both modes; a look, DUEL_HISAGI §21.8): the shared Breaker's dash and strike on its own clips
 (every Bankai move names its own clip), and the stand-ins still waiting for the art pass (*HS-R-CLIP-STAND-INS*).")
@@ -836,6 +837,9 @@ starts fresh; a Kikon / Soul Break reset puts the sickle IN (HS-RESET)."
   (unbind nil)                                ; the bind AS3's HANATSU ran: the bind ends when that move ends
   (gather nil)                                ; a 聚 (pointer 2) segment came out in this combo: the gathered J2-J5 (HS-R-LINK-MOVE)
   (even-a -1 :type fixnum) (even-b -1 :type fixnum)   ; the moves (their FIGHTER-CLS-T) of his and the foe's last balance (§28.6)
+  (kin nil)                                   ; §29: a cancel he took part in: his ranged moves' dead zones off for the route out of it
+                                              ;  (HS-CLASH sets it, his tick clears it in neutral, HS-RESET too; hashed)
+  (kin-t -1 :type fixnum)                     ; §29: the tick it last turned on (a look: HISAGI-DRAW's flash; no sim reads it)
   (pool 0f0 :type single-float)               ; (§17's, read only by his old Bankai CPU in hisagi-ai.lisp, which no longer runs)
   (r0 0 :type fixnum) (k0 0 :type fixnum)     ; (the same)
   (or0 0 :type fixnum) (ok0 0 :type fixnum)   ; (the same)
@@ -948,11 +952,12 @@ play, 餘電 (「留下餘電」)."
             ((not (eq name :hs-n3b)) (setf (hss-zan-pend st) nil (hss-zan st) *hs-zan-frames*)
              (clog "~a ZANDEN (no HODEN)" (side-name e)))))))
 (defun hs-n1-anchor! (e mv)
-  "NS1b / NS1c's anchor (a look, §27.9): on the victim while he is inside the sweep (MV's reach, NAGI's arc, outside the dead zone),
+  "NS1b / NS1c's anchor (a look, §27.9): on the victim while he is inside the sweep (MV's reach, NAGI's arc, outside the dead zone
+unless a cancel unlocked it, §29),
 else NAGI's far end along E's facing (the user: 「沒打中時直接揮到最遠的攻擊處」)."
   (let* ((p (pos-of e)) (q (pos-of (opp-of e))) (yaw (yaw-of e)) (dx (- (aref q 0) (aref p 0))) (dz (- (aref q 2) (aref p 2)))
          (d (hypot dx dz)))
-    (if (and (<= *hs-k-dead* d (mv-reach mv))
+    (if (and (<= (or (hs-min-reach e *hs-k-dead*) 0.0) d (mv-reach mv))   ; (§29: a cancel's unlock draws it on him up close too)
              (>= (+ (* dx (fwd-x yaw)) (* dz (fwd-z yaw))) (* d (cos (* *hs-k1-arc* 0.5 0.017453292)))))
         (hs-anchor! e (aref q 0) (aref q 2))
         (multiple-value-bind (x z) (hs-anchor-point (aref p 0) (aref p 2) yaw (mv-reach mv)) (hs-anchor! e x z)))))
@@ -987,10 +992,10 @@ else NAGI's far end along E's facing (the user: 「沒打中時直接揮到最�
       (clog "~a SICKLE IN ~a" (side-name e) name))
     (setf (hss-state st) :in (hss-out-t st) 0 (hss-ret-t st) 0)))
 (defun hs-reset (e)
-  "His :reset hook (combat.lisp RESET-ROUND: a Kikon / Soul Break reset): the sickle IN."
+  "His :reset hook (combat.lisp RESET-ROUND: a Kikon / Soul Break reset): the sickle IN, §29's unlock off."
   (let ((st (hs e))) (setf (hss-state st) :in (hss-out-t st) 0 (hss-ret-t st) 0 (hss-anchored st) nil
                            (hss-charge st) 0 (hss-kstr st) nil (hss-leapt st) nil
-                           (hss-zan st) 0 (hss-zan-pend st) nil (hss-gather st) nil)))   ; (the bind goes on, §28.1)
+                           (hss-zan st) 0 (hss-zan-pend st) nil (hss-gather st) nil (hss-kin st) nil)))   ; (the bind goes on, §28.1)
 (defun hs-pull-to (e to frames)
   "E's chain drags his victim to TO m over FRAMES (his slide replaced; ICHIGO-PULL-TO's rule); T when it moved him."
   (let* ((v (opp-of e)) (p (pos-of e)) (q (pos-of v)) (dx (- (aref p 0) (aref q 0))) (dz (- (aref p 2) (aref q 2)))
@@ -1086,8 +1091,9 @@ the user: 「一套連段只能跳近一次」); the string ends there."
   (not (hs-refused-p (hss-state (hs e)) cmd)))
 (defun hs-hit (att def res hw mv hazard ranged)
   "His :hit hook: a throw's first contact of any kind (hit, block, armour, absorb, a parry, a catch) writes the anchor at
-the victim's centre (§7.1); the counters."
-  (declare (ignore hw hazard ranged))
+the victim's centre (§7.1); the counters; §29's note of a hit the unlock let in."
+  (declare (ignore hazard ranged))
+  (hs-kin-note att res hw)
   (when (and mv res)
     (let ((st (hs att)) (name (mv-name mv)))
       (when (and (hs-throw-name-p name) (eq (fighter-move (fighter att)) mv) (not (hss-anchored st)))
@@ -1106,6 +1112,7 @@ the victim's centre (§7.1); the counters."
 timer (only out of his moves) and the auto-retrieve, the return's arrival; the counters."
   (declare (ignore g))
   (let* ((st (hs e)) (mv (current-move f)) (sf (fighter-sf f)) (o (opp-of e)))
+    (hs-kin-step! e st mv)                               ; §29: the cancel's unlock off in neutral
     (when (and (hss-leapt st) (or (null o) (zerop (fighter-combo-hits (fighter o)))))   ; §24.4: his leap's combo is over
       (setf (hss-leapt st) nil))
     (cond ((not (hs-kstr-keep-p (and mv (mv-name mv)) (hss-kstr st)))   ; S1 (§23.1): the charge ends with its K string
@@ -1140,13 +1147,13 @@ timer (only out of his moves) and the auto-retrieve, the return's arrival; the c
       (pace e (hs-band (fighter-dist f))))))
 (defun hs-hash (e)
   "His :hash hook (debug.lisp STATE-HASH-LINE): the sickle's state, the anchor (cm), the timers; the bind (§28.4): bound, armed,
-ending, the 聚 combo flag; S1: the charge, the K string's flag, L let go, the throw's charge; §27's 餘電."
+ending, the 聚 combo flag; S1: the charge, the K string's flag, L let go, the throw's charge; §27's 餘電; §29's unlock (n)."
   (let ((st (hs e)))
-    (format nil "s~a ~d ~d o~d r~d b~a~a~a~a k~d~a~a~d z~d~a" (case (hss-state st) (:in "I") (:out "O") (t "R"))
+    (format nil "s~a ~d ~d o~d r~d b~a~a~a~a k~d~a~a~d z~d~a n~a" (case (hss-state st) (:in "I") (:out "O") (t "R"))
             (round (* 100 (aref (hss-anchor st) 0))) (round (* 100 (aref (hss-anchor st) 1))) (hss-out-t st) (hss-ret-t st)
             (if (hss-bound st) 1 0) (if (hss-bind-arm st) "A" "-") (if (hss-unbind st) "U" "-") (if (hss-gather st) "G" "-")
             (hss-charge st) (if (hss-kstr st) "K" "-") (if (hss-kz-let st) "L" "-") (hss-throw-n st)
-            (hss-zan st) (if (hss-zan-pend st) "P" "-"))))
+            (hss-zan st) (if (hss-zan-pend st) "P" "-") (if (hss-kin st) 1 0))))
 
 ;;; ================================================================ the Bankai: pure rules (host-tested)
 (defun hs-dist-mult (form cap edge d along)
@@ -1197,7 +1204,7 @@ kept exactly), the lower one at most up to his own max (MAX-A / MAX-B). Values A
         (let ((m (max 0 (min m (- max-b b))))) (values (- a m) (+ b m)))
         (let ((m (max 0 (min m (- max-a a))))) (values (+ a m) (- b m))))))
 (defun hs-bind-clash (e o)
-  "The bind mode's :clash hook (CORE-CLASH!: once a step for the pair): while E binds, his and O's Reishi even out by
+  "The bind mode's balance at a clash (HS-BK-CLASH, its :clash hook; CORE-CLASH!: once a step for the pair): while E binds, his and O's Reishi even out by
 *HS-BIND-EVEN* of their gap (HS-BIND-EVEN); Konpaku untouched (§28: Reishi only, Konpaku untouched). Once an exchange: the
 same two moves clashing again balance nothing (§28.6, the user 2026-10-29: 「只算一次」). In the mirror with both bound, side 0
 balances for the pair."
@@ -1210,6 +1217,48 @@ balances for the pair."
           (setf (gauges-reishi g) a2 (gauges-reishi go) b2)
           (pace e :bind-even)
           (clog "~a BIND EVEN ~d -> ~d, ~a ~d -> ~d" (side-name e) a a2 (side-name o) b b2))))))
+;;; ================================================================ §29: a cancel unlocks the close range (the user, 2026-11-12:
+;;; 「檜佐木新增特性，當觸發相消時接下來的連擊解鎖遠距攻擊的近身判斷範圍（包含始解 NS1、卍解遠距狀態的攻擊）」, 「沒有持續時間，只要彈回中立就解除」):
+;;; a triangle cancel he takes part in (CORE-CLASH!, attacker or defender, any form) turns HSS-KIN on; while it is on every
+;;; :min-reach dead zone of his is off (COLLECT-MELEE asks his :min-reach hook); it goes off the step he is out of a move (his tick:
+;;; the route ended, hit or whiffed, he was hit out of it, a same-class tie's bounce) and at a Kikon / Soul Break / round reset.
+(defun hs-dead-zone (kin mn)
+  "A window's dead zone MN (m, NIL = none) with the cancel's unlock KIN: none while it is on, else MN (§29)."
+  (if kin nil mn))
+(defun hs-kin-after (kin mv)
+  "The unlock one tick on: kept while he is in a move MV (the route out of the cancel: its links, segments, SA, AS, a DRIVE pointer
+switch inside it; the bind starts / ends only in neutral, so it never carries over that switch), off in neutral (MV NIL), whatever ended the route (§29: 「只要彈回中立就解除」)."
+  (and kin mv t))
+(defun hs-min-reach (e mn)
+  "His :min-reach hook (combat.lisp COLLECT-MELEE, core-ai.lisp MV-MIN-REACH; every form): the dead zone MN of his window now."
+  (hs-dead-zone (hss-kin (hs e)) mn))
+(defun hs-kin-on! (e)
+  "A cancel E took part in (§29): his close range unlocked for the route out of it; the first step it turns on is logged."
+  (let ((st (hs e)))
+    (unless (hss-kin st)
+      (setf (hss-kin st) t (hss-kin-t st) *match-tick*)
+      (pace e :kin)
+      (clog "~a KIN on (the cancel unlocks his close range) d ~,2f" (side-name e) (fighter-dist (fighter e))))))
+(defun hs-kin-step! (e st mv)
+  "His ticks (HS-TICK, HS-BK-TICK): the unlock off once he is out of a move (HS-KIN-AFTER)."
+  (when (and (hss-kin st) (not (hs-kin-after t mv)))
+    (setf (hss-kin st) nil)
+    (clog "~a KIN off (neutral) d ~,2f" (side-name e) (fighter-dist (fighter e)))))
+(defun hs-kin-note (att res hw)
+  "His :hit hooks: a contact RES of window HW nearer than its dead zone while the unlock is on (one the unlock let in) is counted and
+logged with the distance (§29)."
+  (let ((mn (and hw res (hw-min hw))))
+    (when (and mn (hss-kin (hs att)) (< (fighter-dist (fighter att)) mn))
+      (pace att :kin-hit)
+      (clog "~a KIN: ~a inside its ~,1f m dead zone at d ~,2f" (side-name att) res mn (fighter-dist (fighter att))))))
+(defun hs-clash (e o)
+  "The Shikai's and the ranged mode's :clash hook (CORE-CLASH!, once a step for the pair): the unlock (§29)."
+  (declare (ignore o))
+  (hs-kin-on! e))
+(defun hs-bk-clash (e o)
+  "The bind mode's :clash hook: the unlock (§29), then the Reishi's balance as before (HS-BIND-CLASH, §28.6)."
+  (hs-kin-on! e)
+  (hs-bind-clash e o))
 (defun hs-bind-start! (e)
   "The bind starts (§28.4: the ranged AS3's last segment hit, at that move's end; HS-BK-TICK): bound, the bind mode next."
   (let ((st (hs e)))
@@ -1297,8 +1346,9 @@ read)? Then it ignores the combo scaling (the user 2026-10-25: 「修兵卍解�
   "The Bankai's :hit hook: a chain-tip hit (HS-DMG-MULT marked it) earns its Reiatsu gain x *HS-R-TIP-SP-MULT*, a spread-route hit
 x *HS-R-SPREAD-SP-MULT*, both multiplied (§25.5, §25.11: the gain since the mark, x the extra); the ranged AS3's last segment
 KAKE really hitting (a hit, not a block, an absorb or a cancel: those never reach here) arms the bind and yanks him to
-*HS-KUBI-YANK* m (§28.4; the bind starts when the move ends, HS-BK-TICK)."
-  (declare (ignore def hw hazard ranged))
+*HS-KUBI-YANK* m (§28.4; the bind starts when the move ends, HS-BK-TICK); §29's note of a hit the unlock let in."
+  (declare (ignore def hazard ranged))
+  (hs-kin-note att res hw)
   (let* ((st (hs att)) (r0 (hss-tip-r st)))
     (when r0
       (setf (hss-tip-r st) nil)
@@ -1322,6 +1372,7 @@ mid-move), the mode = the bind (a SET-FORM only out of a move and a cinematic), 
   (let* ((st (hs e)) (s (fighter-state f)) (mv (and (eq s :move) (fighter-move f))))
     (when (eq e *run-boss*) (hs-boss-step e g st))
     (setf (hss-state st) :in)                           ; (no out-of-hand state in the Bankai: the scythes come back)
+    (hs-kin-step! e st mv)                              ; §29: the cancel's unlock off in neutral (the same neutral)
     (cond ((null mv) (setf (hss-gather st) nil (hss-route-tip st) nil))
           ((getf (mv-params mv) :gather) (setf (hss-gather st) t)))
     (when (and mv (getf (mv-params mv) :bind-end) (hss-bound st)) (setf (hss-unbind st) t))
@@ -1382,9 +1433,9 @@ windmill's holds / blocks / crushes, out frames, the time-at-range bands)."
              (state-of *p2*) (gauges-reishi g2)
              (round (gauges-gg g2)) (fighter-dist (fighter *p1*))))
   (let ((st (hs *p1*)) (g1 (gauges *p1*)) (g2 (gauges *p2*)))
-    (log-msg "duel probe hisagi-bind ~a t ~d form ~a bound ~a arm ~a unbind ~a gather ~a ptr ~d | p1 rei ~d k ~d | p2 rei ~d k ~d ~a"
+    (log-msg "duel probe hisagi-bind ~a t ~d form ~a bound ~a arm ~a unbind ~a gather ~a ptr ~d kin ~a | p1 rei ~d k ~d | p2 rei ~d k ~d ~a"
              tag *match-tick* (fighter-form (fighter *p1*)) (hss-bound st) (hss-bind-arm st) (hss-unbind st) (hss-gather st)
-             (fighter-ptr (fighter *p1*)) (gauges-reishi g1) (gauges-konpaku g1) (gauges-reishi g2) (gauges-konpaku g2) (state-of *p2*))))
+             (fighter-ptr (fighter *p1*)) (hss-kin st) (gauges-reishi g1) (gauges-konpaku g1) (gauges-reishi g2) (gauges-konpaku g2) (state-of *p2*))))
 
 (defun hisagi-test (k)
   "83000+k (human P1 Hisagi, P2's CPU off unless noted, P1's Reiatsu full; a \"duel probe hisagi\" line): 0 2 m from an idle
@@ -1403,8 +1454,8 @@ back to the ranged mode); 30 / 31 P2 starts his NS1 / his J1 now (a scripted cla
 3.5 m from him (the spread route off J1: J J J / J J K / J K K); 18 the ranged mode 4 m from a CPU Rukia, P1's CPU on (a
 fresh CPU battle); §25.20: 20 / 21 P1 the button-masher with ASSIST ALWAYS + COMBO + BREAK vs a CPU, 6 m: the Shikai vs
 Lille, the Bankai's ranged mode vs Kenpachi; §25.26: 22 / 23 the ranged mode 4.25 / 5.75 m (§25.35's tips) from an idle Kenpachi (on K1's /
-J1's tip: the cues); §25.27: 24 the Bankai mirror 4.25 m apart, both CPUs off (P1's white flow, P2's black); any other k
-the probe line only."
+J1's tip: the cues); §25.27: 24 the Bankai mirror 4.25 m apart, both CPUs off (P1's white flow, P2's black); §29: 40-46 the
+cancel's unlock (the comment above); any other k the probe line only."
   (flet ((setup (c2 dist &key cpu)
            (ensure-battle :hisagi c2 :cpu cpu)
            (when (brain *p1*) (setf (brain-off (brain *p1*)) (not cpu)))
@@ -1443,6 +1494,22 @@ the probe line only."
       (18 (setup :rukia 4.0 :cpu t) (hs-awaken-now! *p1*))   ; (Rukia: no other scene starts that battle, so a fresh CPU one)
       ((22 23) (setup :kenpachi (if (= k 22) 4.25 5.75)) (hs-awaken-now! *p1*))    ; §25.26: on K1's / J1's tip (the cues; §25.35's)
       (24 (setup :hisagi 4.25) (hs-awaken-now! *p1*) (hs-awaken-now! *p2*))         ; §25.27: the mirror on K1's tip (both flows)
+      ;; §29 (the cancel's unlock): 40 / 41 the Shikai 2.0 m from Kenpachi at pointer 1, P1's NS1a NAGI started with / without P2's J1
+      ;; (its hit in NAGI's startup: NA x NS, a cancel); 42 / 47 the ranged mode, pointer 1, NS1b OGI (散, no push) started with /
+      ;; without his J1; 43 / 44 the ranged mode, pointer 2, NS2a TABA (聚) with / without his J1; 45 the Shikai 1.5 m, both J1 timed
+      ;; to hit on one step (a same-class tie: the bounce); 46 no setup: the two put 2.0 m apart again, his state kept
+      ((40 41 42 43 44 47)
+       (setup :kenpachi 2.0)
+       (when (member k '(42 43 44 47)) (hs-awaken-now! *p1*))
+       (setf (fighter-ptr (fighter *p1*)) (if (member k '(43 44)) 2 1))
+       (if (member k '(42 47))
+           (core-start! *p1* (find-move :hs-r-n1b))
+           (core-sp-start! *p1* (fighter *p1*)))
+       (when (member k '(40 42 43)) (force-cmd *p2* :q)))
+      (45 (setup :kenpachi 1.5) (setf (fighter-ptr (fighter *p1*)) 1) (force-cmd *p1* :q) (force-cmd *p2* :q)
+       (let ((f1 (fighter *p1*)) (f2 (fighter *p2*)))
+         (setf (fighter-sf f1) (- (mv-s (fighter-move f1)) (mv-s (fighter-move f2))))))
+      (46 (place *p1* *p2* 2.0))
       ;; §25.20: P1 the ASSIST gate's button-masher (habit :dumb, an EASY CPU's eyes) with ASSIST ALWAYS + COMBO + BREAK
       ;; against a CPU: 20 the Shikai vs Lille 6 m (her shots: AUTO GUARD's windmill; J mashed: the route plans), 21 the
       ;; Bankai's ranged mode vs Kenpachi 6 m (the tip opener, the routes, the noose and the bind's cinching route)

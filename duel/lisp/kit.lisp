@@ -264,7 +264,8 @@ new button."
   :blend    crossfade frames into the clip (default 0, attacks snap); :planted  weapon planted
             in the ground during the strike (drawn with DRAW-PLANTED-WEAPON)
   :min-reach  m: the move's windows (a window's own :min-reach in its place) miss a victim nearer than this, centre to
-            centre (COLLECT-MELEE; a Kikon's follow-up strike excepted): a dead zone (Hisagi's ranged mode, DUEL_HISAGI §22.2)
+            centre (COLLECT-MELEE; a Kikon's follow-up strike excepted): a dead zone (Hisagi's ranged mode, DUEL_HISAGI §22.2;
+            the kit's :min-reach hook may lift it, §29)
   hits: :stun  hitstun override (frames); :seg-fn SYMBOL  a kit function (e) -> (values ax ay az bx by bz r), this frame's
             world capsule, tested in place of the window's volumes (WINDOW-TOUCHES-P; the CPU: SEG-GAP); the window is
             the move's own, so its contact counts as the move's (strings, O ender, SP cancels, :on-land, ender push)
@@ -672,7 +673,9 @@ child's keys win, :commands merge per command, :strings add. Keys:
                                      him back, RESET-ROUND), :hash (e: a string added to his part of the state-hash
                                      line, or NIL), :link-move (e next: the MOVE a latched J / K link starts instead
                                      of NEXT, NIL = NEXT; fighter.lisp), :clash (e other: a clash, once a step for the
-                                     pair, CORE-CLASH!), the bind's :bind :bind-damage :bind-pool
+                                     pair, CORE-CLASH!), :min-reach (e m: the dead zone, m or NIL, of his window whose
+                                     :min-reach is M, now: COLLECT-MELEE, MV-MIN-REACH; Hisagi's cancel unlock,
+                                     DUEL_HISAGI §29; no hook: M), the bind's :bind :bind-damage :bind-pool
                                      :bind-heal :bind-step :bind-resolve :bind-snapshot (combat.lisp BIND-OF; Hisagi,
                                      DUEL_HISAGI §17.4)
   :clip-map (clip clip ...)          a look: the form plays a move's clip (or clip 2) as the mapped one (KIT-MOVE-CLIP:

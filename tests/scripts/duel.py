@@ -653,6 +653,36 @@ def hisagi_bankai_script():
     return sorted(ev, key=lambda x: x["at"])
 write("hisagi-bankai", hisagi_bankai_script())
 
+# Hisagi's cancel unlock (DUEL_HISAGI §29; --fixed-dt 16.666667 --secs 35): every scene a debug setup (83040-83047), both sides'
+# moves started by it or pressed here, no CPU. A the Shikai 2.0 m: his NS1a and Kenpachi's J1 (a cancel) -> "KIN on", NS1a / NS1b /
+# NS1c hit inside 3 m ("KIN: ... inside its 3.0 m dead zone at d ..."), "KIN off" at the route's end; then 2.0 m again: a fresh NS1a
+# whiffs. B the same with no J1: NS1 whiffs. C1 the ranged mode, pointer 1: OGI (NS1b, no push) and his J1 -> OGI / ISSEI inside
+# 3 m; C4 OGI alone whiffs; C2 pointer 2: TABA and his J1 -> TABA, the gathered SA, J2, J3 inside 2.5 m; C3 TABA alone whiffs. D a same-class tie
+# (both J1 on one step) bounces both to neutral: "KIN on" and "KIN off" on that tick; 2.0 m again, NS1a whiffs.
+def hisagi_kin_script():
+    ev = []
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    def jtap(t): ev.extend(tap(t, "KeyJ", 0.05))
+    def sp(t, hold=0.05): ev.append(key(t, "ShiftLeft")); ev.extend(tap(t + 0.01, "KeyJ", hold)); ev.append(key(t + hold + 0.03, "ShiftLeft", False))
+    def again(s): ev.extend([cmd(s, 83046), cmd(s + 0.02, 83900), cmd(s + 0.6, 83900)]); sp(s + 0.2)
+    def probes(s, *ts): ev.extend(cmd(s + x, 83900) for x in ts)
+    t = T0
+    for label, c, dur, body in (
+            ("A Shikai NS1 after a cancel", 83040, 4.5, lambda s: [sp(s + 0.1), sp(s + 1.05), sp(s + 1.25), probes(s, 0.5, 1.2), again(s + 2.6)]),
+            ("B Shikai NS1 no cancel", 83041, 3.0, lambda s: [sp(s + 0.1), sp(s + 0.55), sp(s + 0.7), probes(s, 0.3, 0.9)]),
+            ("C1 ranged NS1b after a cancel", 83042, 3.0, lambda s: [sp(s + 0.1), probes(s, 0.5, 1.2)]),
+            ("C4 ranged NS1b no cancel", 83047, 3.0, lambda s: [sp(s + 0.1), probes(s, 0.3, 0.8)]),
+            ("C2 ranged NS2 after a cancel", 83043, 3.5, lambda s: [jtap(s + 0.6), jtap(s + 0.95), jtap(s + 1.3), jtap(s + 1.8), jtap(s + 2.05),
+                                                                    probes(s, 0.5, 1.2)]),
+            ("C3 ranged NS2 no cancel", 83044, 3.0, lambda s: [jtap(s + 0.6), probes(s, 0.45)]),
+            ("D tie bounce", 83045, 3.0, lambda s: [probes(s, 0.2), again(s + 1.0)])):
+        say(t, label); ev.extend([cmd(t, c), cmd(t + 0.02, 83900)])
+        body(t)
+        t += dur
+        ev.append(cmd(t - 0.05, 83900))
+    return sorted(ev, key=lambda x: x["at"])
+write("hisagi-kin", hisagi_kin_script())
+
 
 def ken_core_script():
     """Kenpachi's base kit on the core system (DUEL_KEN_CORE): control scripts, both sides' inputs, read from the combat log."""

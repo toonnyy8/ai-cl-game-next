@@ -1,0 +1,446 @@
+[
+{
+"at": 9.0,
+"eval": "console.log('=== A Shikai NS1 after a cancel')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(83040)"
+},
+{
+"at": 9.02,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 9.1,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 9.11,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 9.16,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 9.18,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 9.5,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 10.05,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.06,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.11,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.13,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 10.2,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 10.25,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 10.26,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 10.31,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 10.33,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 11.6,
+"eval": "Module._debug_cmd(83046)"
+},
+{
+"at": 11.62,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 11.8,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 11.81,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 11.86,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 11.88,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 12.2,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 13.45,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 13.5,
+"eval": "console.log('=== B Shikai NS1 no cancel')"
+},
+{
+"at": 13.5,
+"eval": "Module._debug_cmd(83041)"
+},
+{
+"at": 13.52,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 13.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 13.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 13.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 13.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 13.8,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 14.05,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.06,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.11,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.13,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.2,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 14.21,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 14.26,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 14.28,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 14.4,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 16.45,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 16.5,
+"eval": "console.log('=== C1 ranged NS1b after a cancel')"
+},
+{
+"at": 16.5,
+"eval": "Module._debug_cmd(83042)"
+},
+{
+"at": 16.52,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 16.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 16.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 16.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 16.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 17.0,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 17.7,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 19.45,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 19.5,
+"eval": "console.log('=== C4 ranged NS1b no cancel')"
+},
+{
+"at": 19.5,
+"eval": "Module._debug_cmd(83047)"
+},
+{
+"at": 19.52,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 19.6,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 19.61,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 19.66,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 19.68,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 19.8,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 20.3,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 22.45,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 22.5,
+"eval": "console.log('=== C2 ranged NS2 after a cancel')"
+},
+{
+"at": 22.5,
+"eval": "Module._debug_cmd(83043)"
+},
+{
+"at": 22.52,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 23.0,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 23.1,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.15,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.45,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.5,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 23.7,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 23.8,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 23.85,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.3,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.35,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 24.55,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 24.6,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 25.95,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 26.0,
+"eval": "console.log('=== C3 ranged NS2 no cancel')"
+},
+{
+"at": 26.0,
+"eval": "Module._debug_cmd(83044)"
+},
+{
+"at": 26.02,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 26.45,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 26.6,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 26.65,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 28.95,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 29.0,
+"eval": "console.log('=== D tie bounce')"
+},
+{
+"at": 29.0,
+"eval": "Module._debug_cmd(83045)"
+},
+{
+"at": 29.02,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 29.2,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 30.0,
+"eval": "Module._debug_cmd(83046)"
+},
+{
+"at": 30.02,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 30.2,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 30.21,
+"key": "KeyJ",
+"down": true
+},
+{
+"at": 30.26,
+"key": "KeyJ",
+"down": false
+},
+{
+"at": 30.28,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 30.6,
+"eval": "Module._debug_cmd(83900)"
+},
+{
+"at": 31.95,
+"eval": "Module._debug_cmd(83900)"
+}
+]
