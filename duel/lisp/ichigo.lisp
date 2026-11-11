@@ -376,7 +376,7 @@ HARD 0.8).")
          :kikon-cines (ic-chain-kikon-cine ic-kessa-getsuga-cine ic-kessa-kikon-cine)   ; the chains' / 漆黒の月牙天衝 / 千影 (CORE-KIKON-CINE)
          :as-by-press (1 1 2 2 3))   ; (the 超速連斬 pointer, pointer 4, J6 and the seals of 2026-10-31 were taken out again: DUEL_SUBLIMATION §16)
   :hooks *kessa-hooks*
-  :meter (:name "BUNSHIN" :max 3 :draw ichigo-hud-meter :label ichigo-hud-label)   ; the clones' row (the gauge unused)
+  :meter (:name "BUNSHIN" :max 3 :label ichigo-hud-label)   ; the clones' tag (the gauge unused; the canvas row left 2026-11-11)
   :commands (:q :ic-k-j1 :f :ic-k-k1 :sig :ic-k-parry :sp1 :ic-k-hiki :sp2 :ic-k-zanzo :kikon :ic-k-kikon)
   :grid (:ic-k-j1 :ic-k-j2 :ic-k-j3 :ic-k-k1 :ic-k-k2 :ic-k-k3 :ic-k-j2s :ic-k-k2s)
   :strings ((:ic-k-j2 :q :ic-k-na3) (:ic-k-na3 :q :ic-k-na4) (:ic-k-na4 :q :ic-k-j3) (:ic-k-parry :land :ic-k-gaeshi))   ; (five J)
@@ -1108,61 +1108,17 @@ edges they answer, the Hoho clone, the O charge), the parry from blockstun and i
 ;;; (b0a1: b0a0's reactive layer stacked with b1a0's Konpaku economy)
 
 
-;;; ================================================================ the HUD: the clones' row (the kit meter's :draw / :label, :deck)
+;;; ================================================================ the HUD: the clones' tag (the kit meter's :label, :hud-tag, :deck)
 (defun ichigo-hud-label (g kit) "The portrait label." (declare (ignore g kit)) "BUNSHIN")
-(defparameter *ic-bunshin-labels*
-  (let ((v (make-array '(4 5))))
-    (dotimes (n 4 v)
-      (setf (aref v n 0) (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n nil 0))
-      (dotimes (j 4) (setf (aref v n (1+ j)) (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n t (clone-konpaku j))))))
-  "ICHIGO-HUD-METER's labels, made once: [n 0] BUNSHIN xN, [n 1+j] BUNSHIN xN K KONPAKU (K = CLONE-KONPAKU j, the O
-press's flash), n 0-3.")
+(defparameter *ic-bunshin-labels* (coerce (loop for n below 4 collect (format nil "BUNSHIN x~d" n)) 'simple-vector)
+  "ICHIGO-HUD-TAG's labels, made once: BUNSHIN xN, n 0-3.")
 (defun ichigo-hud-tag (e)
-  "KESSA's :hud-tag hook: the page's status tag (webhud.lisp, DUEL_WEBUI §7), BUNSHIN xN by his live clones (0 B: counted, the
+  "KESSA's :hud-tag hook: the plate's status tag (webhud.lisp, DUEL_WEBUI §7), BUNSHIN xN by his live clones (0 B: counted, the
 labels made once)."
   (let ((n 0))                                          ; (CLONE-COUNT's count without its list: 0 B)
     (declare (fixnum n))
     (do-entities (h (hz hazard)) (when (and (eql (hazard-owner hz) e) (clone-p hz) (clone-live-p (hazard-data hz))) (incf n)))
-    (aref *ic-bunshin-labels* (min 3 n) 0)))
-
-(defun-fast ichigo-hud-meter (e kit x y w h right tm lx ly ls)
-  "KESSA's kit-meter row: three clone pips (lit BLOOD-rimmed white per live clone, a thin arc of its life; pulsing at 3:
-the 4-Konpaku Kikon), under them ZANZO's white bar draining, the label BUNSHIN xN (and on an O press the pips flash with
-the Kikon's worth). Single-float math, %HRECT quads (REFACTOR_NEXT N2: the same floats as the old generic UI-RECT path)."
-  (declare (ignore kit))
-  (with-floats (x y w h tm)
-    (let* ((st (ic e)) (live (ichigo-live-clones e))
-           (n (length live)) (pw (/ w 3.6f0)) (hh (* 3.6f0 h)) (y0 (- (+ y (* 0.5f0 h)) (* 0.5f0 hh)))
-           (flash (f-max 0f0 (- 1f0 (/ (i->f (- *match-tick* (ics-o-at st))) 40f0))))
-           (pulse (if (= n 3) (+ 0.6f0 (* 0.4f0 (f-abs (f-sin (* 6f0 tm))))) 1f0)))
-      (declare (fixnum n) (single-float pw hh y0 flash pulse))
-      (dotimes (i 3)
-        (let* ((px (if right (- (+ x w) (* (i->f (1+ i)) (+ pw (* 0.2f0 pw)))) (+ x (* (i->f i) (+ pw (* 0.2f0 pw))))))
-               (c (and (< i n) (hazard-data (hazard (nth i live))))) (cx (+ px (* 0.5f0 pw))))
-          (declare (single-float px cx))
-          (macrolet ((figure (r g b a)                 ; a small standing silhouette: head, shoulders, the robe
-                       `(progn (%hrect (- cx (* 0.12f0 hh)) y0 (* 0.24f0 hh) (* 0.26f0 hh) ,r ,g ,b ,a)
-                               (%hrect (- cx (* 0.22f0 hh)) (+ y0 (* 0.3f0 hh)) (* 0.44f0 hh) (* 0.7f0 hh) ,r ,g ,b ,a))))
-            (if c
-                (progn
-                  (%hrect (- cx (* 0.27f0 hh)) (+ y0 (* 0.27f0 hh)) (* 0.54f0 hh) (* 0.75f0 hh) 0.82f0 0.06f0 0.11f0 pulse)
-                  (figure 0.95f0 0.95f0 0.93f0 pulse)
-                  (%arc cx (+ y0 (* 0.5f0 hh)) (* 0.62f0 hh) (f-max 1f0 (* 0.08f0 hh))   ; its life
-                        (f-max 0f0 (f-min 1f0 (/ (i->f (icc-life c)) (i->f *clone-life*)))) 0.95f0 0.9f0 0.85f0 0.8f0))
-                (figure 0.3f0 0.3f0 0.34f0 0.6f0)))
-          (when (> flash 0f0) (%hrect (- cx (* 0.4f0 pw)) (- y0 2f0) (* 0.8f0 pw) (+ hh 4f0) 1f0 1f0 1f0 (* 0.5f0 flash)))))
-      (let ((z (block zz (do-entities (h (hz hazard)) (when (and (eql (hazard-owner hz) e) (eq (hazard-look hz) 'ichigo-zanzo-look))
-                                                         (return-from zz hz))))))
-        (when z                                       ; 残像: a white bar draining under the pips
-          (let ((fr (f-max 0f0 (- 1f0 (/ (i->f (hazard-age z)) (i->f (max 1 (hazard-life z))))))))
-            (declare (single-float fr))
-            (%hrect (if right (+ x (- w (* w fr))) x) (+ y0 hh 2f0) (* w fr) (f-max 2f0 (* 0.35f0 h)) 0.96f0 0.96f0 0.94f0 0.9f0))))
-      (when lx
-        (let ((col '(0.82 0.06 0.11 1.0)))
-          (hud-text (let ((on (> flash 0f0)) (j (max 0 (min 3 (ics-o-n st)))))   ; (CLONE-KONPAKU's clamp)
-                      (if (<= 0 n 3) (aref *ic-bunshin-labels* n (if on (1+ j) 0))
-                          (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n on (clone-konpaku (ics-o-n st)))))
-                    lx ly ls col :align (if right :right :left)))))))
+    (svref *ic-bunshin-labels* (min 3 n))))
 
 (defun-fast ichigo-deck (e cx cy d)
   "KESSA's :deck hook (one hand): three BLOOD dots round the thumb, lit per live clone (single-float angles: +PI+, F-COS /
@@ -1201,24 +1157,14 @@ Shikai vs Yamamoto's wave at 8 m (Shift+K: JUJISHO cuts it), 6 the Shikai 8 m fr
         (ichigo-clone-spawn e (+ (aref p 0) (* 1.2 (fwd-x a))) (+ (aref p 2) (* 1.2 (fwd-z a))) :debug)))))
 
 (defun ichigo-hud-cons-check ()
-  "Debug 74907 (REFACTOR_NEXT N2's probe): bytes consed by 10 calls each of KESSA's HUD meter (ICHIGO-HUD-METER) with three
-clones (ICHIGO-TEST 7): the portrait slot (no label) facing left and right, the landscape row with its label, the same
-while an O press's flash runs, the label's FORMAT alone, and the one-hand deck (ICHIGO-DECK). After N2's float path
-(round 3, 2026-10-21) a meter call is 240 B (was 1200): ICHIGO-CLONES' list and sort 96, REMOVE-IF-NOT's three conses 24,
-%ARC's five boxed floats per live clone 120; the label adds HUD-TEXT's 208; the deck is ICHIGO-CLONES' 96 (was 864)."
+  "Debug 74907 (REFACTOR_NEXT N2's probe): bytes consed by 10 calls each of KESSA's plate tag (ICHIGO-HUD-TAG) and his one-hand
+deck ring (ICHIGO-DECK) with three clones (ICHIGO-TEST 7). (The canvas meter row it also measured left with the canvas HUD,
+2026-11-11, DUEL_LISP_HUD §16.)"
   (ichigo-test 7)
-  (let* ((e *p1*) (kit (kit-of e)) (st (ic e)) (at (ics-o-at st)) (on (ics-o-n st)))
+  (let ((e *p1*))
     (flet ((bytes (thunk) (let ((c0 (cons-bytes))) (dotimes (i 10) (funcall thunk)) (- (cons-bytes) c0))))
-      (let* ((pl (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 nil nil nil))))
-             (pr (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 t 1f0 nil nil nil))))
-             (ll (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 300f0 40f0 2))))
-             (lf (progn (setf (ics-o-at st) *match-tick* (ics-o-n st) 3)
-                        (bytes (lambda () (ichigo-hud-meter e kit 10f0 30f0 120f0 8f0 nil 1f0 300f0 40f0 2)))))
-             (fm (bytes (lambda () (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" 3 t 4))))
-             (dk (bytes (lambda () (ichigo-deck e 200f0 200f0 1f0)))))
-        (setf (ics-o-at st) at (ics-o-n st) on)
-        (log-msg "duel ichigo hud consing (10 calls, B): meter ~d, meter right ~d, meter + label ~d, meter + label flashing ~d, label format ~d, deck ~d"
-                 pl pr ll lf fm dk)))))
+      (log-msg "duel ichigo hud consing (10 calls, B): tag ~d, deck ~d"
+               (bytes (lambda () (ichigo-hud-tag e))) (bytes (lambda () (ichigo-deck e 200f0 200f0 1f0)))))))
 
 (defun ichigo-test (k)
   (destructuring-bind (f1 c2 f2 d act n) (nth k *ichigo-tests*)

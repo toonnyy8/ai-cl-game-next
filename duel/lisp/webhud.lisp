@@ -1,68 +1,49 @@
-;;;; webhud.lisp — the page's battle screens (docs/duel/DUEL_WEBUI.md §6-§7, the user 2026-10-28: 「善哉！！幫我把整套接進遊戲中」):
-;;;; the battle HUD (the two plates, the timer, the combo, the callout, the prompt), the phone's deck (the tap zones' line, 爆 and 止
-;;;; where Lisp's touch hit areas are, the touch feedback as events), the pause menu, the intro and the finish. Lisp decides and
-;;;; publishes (the block 30100+, set on a change: WEBHUD-SYNC); the page (duel/web/hud.js) only draws, and queues its pause rows'
-;;;; presses (get 30101: WEBHUD-COMMANDS). Without the page (the native gate, an old page: get 30100 = 0) nothing here runs and the
-;;;; engine draws all of it (hud.lisp, hud-screens.lisp, onehand.lisp HUD-DECK). Cosmetic and outside the sim step.
-;;;; Consing: WEBHUD-SYNC runs every frame of a battle: integers only (WEBHUD-PUT compares a fixnum array), strings by EQ then
-;;;; STRING= (sent only on a change: PAGE-SET-STR), the floats in DEFUN-FAST sides (%HROUND).
+;;;; webhud.lisp — the battle screens' model (docs/duel/DUEL_LISP_HUD.md §4.6, §16; the layout of DUEL_WEBUI §7, whose HTML
+;;;; renderer was removed 2026-11-11): the two plates, the timer, the combo, the callout, the prompt, the phone's deck (its spots and
+;;;; the touch feedback as events), the pause rows, the intro and the finish, as fixnums in *HUD-SENT* and strings in *HUD-STRS*.
+;;;; WEBHUD-SYNC is the one place that writes them, once a frame; the Lisp HUD (lhud-*.lisp) only reads them. The pause rows' presses
+;;;; from the Lisp HUD's pointer go through WEBHUD-PAUSE-CMD. Cosmetic and outside the sim step.
+;;;; Consing: WEBHUD-SYNC runs every frame of a battle: integers only (WEBHUD-PUT compares a fixnum array), strings stored as they
+;;;; come (no copy), the floats in DEFUN-FAST sides (%HROUND).
 (in-package :duel)
 
-(defconstant +pg-hud+ 30100 "Page get / set 30100 + k: the battle screens' block (DUEL_WEBUI §7).")
-(defvar *webhud* :unknown "Does the page draw the battle screens (page get 30100)? Asked once.")
 (declaim (type (simple-array fixnum (*)) *hud-sent*))
-(defvar *hud-sent* (make-array 200 :element-type 'fixnum :initial-element -1) "The value last set at +PG-HUD+ + i.")
-(defvar *hud-strs* (make-array 64 :initial-element nil) "The string last set at +PG-HUD+ + 120 + i.")
-(defvar *hud-renderer* :html
-  "Who draws the battle screens (docs/duel/DUEL_LISP_HUD.md §4.6): :HTML the page (hud.js, the default), :LISP lhud-battle.lisp
-(phase 0: the plates' name row and bar, the combo; the menus stay the page's). The model below runs for both; :LISP stops
-sending it to the page. Set by the URL flag ?hud=lisp (page get 8, asked with the page's first answer) or debug 2517.")
-(defconstant +pg-hud-flag+ 8 "Page get 8: 1 when the URL asks for the Lisp HUD (?hud=lisp, pwa.js).")
-(defun set-hud-renderer (r)
-  "Switch the battle screens' renderer to R (:HTML or :LISP). To :LISP the page's layer is hidden once (30100 = 0); to :HTML every
-value is sent again (WEBHUD-PUT skips a value equal to the last one sent)."
-  (unless (eq r *hud-renderer*)
-    (setf *hud-renderer* r)
-    (if (eq r :lisp)
-        (page-set +pg-hud+ 0)
-        (progn (fill *hud-sent* -1) (fill *hud-strs* nil)))
-    (log-msg "hud renderer ~a" r)))
-(defun webhud-page-p ()
-  "Has the page hud.js (page get 30100, asked once, with the URL's renderer flag)? A cached old page without it, or no page (the
-native gate): NIL."
-  (when (eq *webhud* :unknown)
-    (setf *webhud* (= 1 (page-get +pg-hud+)))
-    (when (= 1 (page-get +pg-hud-flag+)) (set-hud-renderer :lisp)))
-  *webhud*)
-;;; The two questions WEBHUD-P answered at once until phase 2 (DUEL_LISP_HUD §4.6). Under :HTML both equal the old WEBHUD-P (the
-;;; page's answer); with no page both are NIL (the canvas HUD draws, the model stays off: the native gate). The menus keep WEBUI-P
-;;; (they are the page's under either battle renderer until phase 5).
-(defun page-draws-p ()
-  "Does the page draw the battle screens (renderer :HTML and hud.js there)? Then values go to the page and its pause rows' queue is
-read (under :LISP the Lisp HUD's hot boxes stand in: LHUD-PAUSE-POINTER)."
-  (and (webhud-page-p) (eq *hud-renderer* :html)))
-(defun canvas-hud-off-p ()
-  "Does someone other than the canvas HUD draw the battle screens (the page under :HTML, Lisp under :LISP)? Then the canvas HUD
-leaves them out and the model (WEBHUD-SYNC) runs."
-  (or (webhud-page-p) (eq *hud-renderer* :lisp)))
+(defvar *hud-sent* (make-array 200 :element-type 'fixnum :initial-element -1) "The model's value i (DUEL_WEBUI §7's 30100 + i).")
+(defvar *hud-strs* (make-array 64 :initial-element nil) "The model's string i (DUEL_WEBUI §7's 30220 + i).")
 
 (defmacro webhud-put (i v)
-  "Set +PG-HUD+ + I to V (fixnum forms) on the page, when it changed (0 B)."
+  "Set the model's value I to V (fixnum forms; 0 B)."
   `(let ((i ,i) (v ,v))
      (declare (fixnum i v))
-     (unless (= v (aref *hud-sent* i)) (setf (aref *hud-sent* i) v) (when (eq *hud-renderer* :html) (page-set (+ +pg-hud+ i) v)))))
+     (setf (aref *hud-sent* i) v)))
 (defun webhud-put-str (i s)
-  "Set the string +PG-HUD+ + 120 + I to S (NIL: \"\") when it changed: EQ, then STRING= (0 B unless sent)."
-  (let ((old (svref *hud-strs* i)) (s (or s "")))
-    (unless (or (eq s old) (and old (string= s old)) (not (eq *hud-renderer* :html)))
-      (page-set-str (+ +pg-hud+ 120 i) s))
-    (setf (svref *hud-strs* i) s)))
+  "Set the model's string I to S (NIL: \"\")."
+  (setf (svref *hud-strs* i) (or s "")))
 
-;;; ---------------------------------------------------------------- what the engine leaves to the page
+;;; ---------------------------------------------------------------- per kit: the plate's label, the kit meter, U's tag; the souls at stake
+(defvar *kit-hud* (make-hash-table :test 'eq) "KIT -> #(label meter u-tag): the plate's name label, the kit meter, U's tag (made once a kit).")
+
+(defun kit-hud (kit)
+  "The cached HUD data of KIT: the name label (\"YAMAMOTO  BANKAI\"), the kit meter (inherited
+from the base form when this form has none) and the tag of what U does in the form (\"U: WEST\", \"WARD\", \"U: DRINK\")."
+  (or (gethash kit *kit-hud*)
+      (setf (gethash kit *kit-hud*)
+            (vector (format nil "~a~@[  ~a~]" (kit-name kit) (and (not (eq (kit-form kit) :base)) (kit-form-name kit)))
+                    (or (kit-meter kit) (kit-meter (find-kit (kit-character kit) :base)))
+                    (cond ((kit-u-tag kit)) ((kit-guard-to kit) "U: WEST") ((member :ward (kit-passives kit)) "WARD")
+                          ((member :drink (kit-passives kit)) "U: DRINK"))))))
+
+(defun at-stake (e)
+  "E's Konpaku flames the opponent's Kikon would take if it landed now: its current worth (combat.lisp KIKON-WORTH:
+the running rush's, a kit's :kikon-worth hook, else its :kikon-konpaku), capped (control.lisp KONPAKU-AT-STAKE)."
+  (let ((o (fighter-opp (fighter e))))
+    (if (and o (entity-alive-p o)) (konpaku-at-stake (gauges-konpaku (gauges e)) (kikon-worth o)) 0)))
+
+;;; ---------------------------------------------------------------- the cinematics whose 2D layer is the Lisp HUD's
 (defun webhud-cine-p (c)
-  "Is cinematic C one whose 2D layer (letterbox, title) the page draws: the intro, the K.O., TIME?"
+  "Is cinematic C one whose 2D layer (letterbox, title) the Lisp HUD draws: the intro, the K.O., TIME?"
   (and c (member (cine-name c) '(intro-cine ko-cine time-cine)) t))
-(defvar *web-caption* nil "The last title of a cinematic the page drew (WEBHUD-CINE-P): its slice-out is the page's too.")
+(defvar *web-caption* nil "The last title of a cinematic the Lisp HUD drew (WEBHUD-CINE-P): its slice-out is the Lisp HUD's too.")
 
 ;;; ---------------------------------------------------------------- per side
 (declaim (type (simple-array fixnum (*)) *web-seen*) (type f32vec *web-seen-f*))
@@ -73,7 +54,7 @@ leaves them out and the model (WEBHUD-SYNC) runs."
 (defvar *web-seen-f* (make-f32 2) "[0] TOUCH-GLYPH-T last published, [1] its serial (as a float count).")
 
 (defun webhud-tag (e kit)
-  "Side E's status tag (ASCII; the page puts it in kanji): his kit's :hud-tag hook (Hisagi's sickle, KESSA's clones), else the
+  "Side E's status tag (ASCII; the Lisp HUD puts it in kanji: LHUD-TAG-SEGMENTS): his kit's :hud-tag hook (Hisagi's sickle, KESSA's clones), else the
 kit meter's label (NOME / UDE), else NIL."
   (let ((h (kit-hook kit :hud-tag)) (meter (svref (kit-hud kit) 1)))
     (cond (h (funcall h e))
@@ -188,7 +169,7 @@ running burst 16 WHITE, 32 BLUE, 64 ORANGE: the ink in the seal takes its colour
       (webhud-put 36 (px (aref dk (+ 4 21)))) (webhud-put 37 (py (aref dk (+ 5 21)))) (webhud-put 38 (px (aref dk (+ 6 21))))   ; chip 7
       (webhud-put 39 (px (aref dk (+ 4 18)))) (webhud-put 40 (py (aref dk (+ 5 18)))) (webhud-put 41 (px (aref dk (+ 6 18))))   ; chip 6
       (webhud-put 42 (if left 1 0))
-      (webhud-put 43 (py (aref dk 1)))                   ; the pad's top: the page draws the deck's paper up to it
+      (webhud-put 43 (py (aref dk 1)))                   ; the pad's top: the deck's paper is drawn up to it
       (let ((gt (touch-glyph-t tr)) (k (touch-glyph tr)))
         (declare (single-float gt) (fixnum k))
         (when (and (/= gt (aref sf 0)) (/= k 5))          ; (5, the rest: no event)
@@ -229,45 +210,44 @@ running burst 16 WHITE, 32 BLUE, 64 ORANGE: the ink in the seal takes its colour
 
 ;;; ---------------------------------------------------------------- every frame
 (defun webhud-sync ()
-  "Show the page this frame's battle (FLOW-UPDATE, after WEBUI-SYNC). Layer bits (30100): 1 a battle (intro / fight / finish), 2 a
-cinematic (the plates hidden), 4 paused, 8 the phone's deck, 16 PRACTICE (no timer), 32 the cinematic's 2D layer is the page's
+  "Write this frame's battle into the model (FLOW-UPDATE, after WEBUI-SYNC). Layer bits (30100): 1 a battle (intro / fight / finish), 2 a
+cinematic (the plates hidden), 4 paused, 8 the phone's deck, 16 PRACTICE (no timer), 32 the cinematic's 2D layer is the Lisp HUD's
 (the intro, the K.O., TIME), 64 ONE-HAND turned to landscape (the pause asks to rotate). The title of such a cinematic: its
-reading and its line (strings 30 / 31; the kanji are the page's)."
-  (when (canvas-hud-off-p)
-    (let* ((battle (and (battle-p) *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*) t))
-           (paused (and battle *paused* (eq *flow* :battle) t))
-           (web-cine (webhud-cine-p *cine*)))
-      (webhud-put 0 (if battle
-                        (logior 1 (if *cine* 2 0) (if paused 4 0)
-                                (if (and *one-hand* (portrait-p) (eq *flow* :battle)) 8 0)
-                                (if (eq *mode* :practice) 16 0) (if web-cine 32 0) (if (and *one-hand* (not (portrait-p))) 64 0))
-                        0))
-      (when battle
-        (when (and web-cine *caption*)
-          (unless (eq *caption* *web-caption*)
-            (webhud-put-str 30 (bcap-reading *caption*)) (webhud-put-str 31 (bcap-sub *caption*)))
-          (setf *web-caption* *caption*))
-        (webhud-put 1 (if (eq *mode* :practice) -1 (min 999 (ceiling (max 0 *timer*) 60))))
-        (webhud-side *p1* 50)
-        (webhud-side *p2* 80)
-        (let ((h (cond ((not (cpu-p *p1*)) *p1*) ((not (cpu-p *p2*)) *p2*))))
-          (if (and h (eq *flow* :battle) (not *cine*) (not paused))
-              (multiple-value-bind (kind arg keys as) (webhud-prompt h)
-                (webhud-put 2 kind) (webhud-put 3 arg) (webhud-put-str 8 keys) (webhud-put-str 9 as))
-              (webhud-put 2 0)))
-        (when *one-hand* (webhud-deck))
-        (webhud-put 14 (webhud-intro-phase))
-        (let* ((c *cine*) (ko (and c (eq (cine-name c) 'ko-cine))) (tm (and c (eq (cine-name c) 'time-cine))))
-          (webhud-put 15 (cond (ko 1) ((and tm (member *winner* '(0 1))) 2) (tm 3) (t 0)))   ; 決着 K.O. / 時間切れ / a draw
-          (webhud-put 16 (cond ((member *winner* '(0 1)) *winner*)                         ; the winner: the K.O.'s first actor
-                               ((and ko (fighter (cine-a c))) (fighter-side (fighter (cine-a c))))   ; (debug 2208's has no *WINNER*)
-                               (t 2))))
-        (when paused (webhud-pause)))
-      (setf *web-paused* paused))))
+reading and its line (strings 30 / 31; the kanji are the Lisp HUD's)."
+  (let* ((battle (and (battle-p) *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*) t))
+         (paused (and battle *paused* (eq *flow* :battle) t))
+         (web-cine (webhud-cine-p *cine*)))
+    (webhud-put 0 (if battle
+                      (logior 1 (if *cine* 2 0) (if paused 4 0)
+                              (if (and *one-hand* (portrait-p) (eq *flow* :battle)) 8 0)
+                              (if (eq *mode* :practice) 16 0) (if web-cine 32 0) (if (and *one-hand* (not (portrait-p))) 64 0))
+                      0))
+    (when battle
+      (when (and web-cine *caption*)
+        (unless (eq *caption* *web-caption*)
+          (webhud-put-str 30 (bcap-reading *caption*)) (webhud-put-str 31 (bcap-sub *caption*)))
+        (setf *web-caption* *caption*))
+      (webhud-put 1 (if (eq *mode* :practice) -1 (min 999 (ceiling (max 0 *timer*) 60))))
+      (webhud-side *p1* 50)
+      (webhud-side *p2* 80)
+      (let ((h (cond ((not (cpu-p *p1*)) *p1*) ((not (cpu-p *p2*)) *p2*))))
+        (if (and h (eq *flow* :battle) (not *cine*) (not paused))
+            (multiple-value-bind (kind arg keys as) (webhud-prompt h)
+              (webhud-put 2 kind) (webhud-put 3 arg) (webhud-put-str 8 keys) (webhud-put-str 9 as))
+            (webhud-put 2 0)))
+      (when *one-hand* (webhud-deck))
+      (webhud-put 14 (webhud-intro-phase))
+      (let* ((c *cine*) (ko (and c (eq (cine-name c) 'ko-cine))) (tm (and c (eq (cine-name c) 'time-cine))))
+        (webhud-put 15 (cond (ko 1) ((and tm (member *winner* '(0 1))) 2) (tm 3) (t 0)))   ; 決着 K.O. / 時間切れ / a draw
+        (webhud-put 16 (cond ((member *winner* '(0 1)) *winner*)                         ; the winner: the K.O.'s first actor
+                             ((and ko (fighter (cine-a c))) (fighter-side (fighter (cine-a c))))   ; (debug 2208's has no *WINNER*)
+                             (t 2))))
+      (when paused (webhud-pause)))
+    (setf *web-paused* paused)))
 
 (defun webhud-pause-cmd (cmd arg)
-  "One pause command, from the page's queue or the Lisp HUD's pointer (the same dispatcher for both renderers): 1 the cursor to row
-ARG, 2 confirm, 4 left, 5 right (as the menus' commands, WEBUI-COMMANDS); dropped unless the pause is up."
+  "One pause command from the Lisp HUD's pointer (LHUD-PAUSE-POINTER): 1 the cursor to row ARG, 2 confirm, 4 left, 5 right (as the
+menus' commands, WEBUI-COMMAND); dropped unless the pause is up."
   (declare (fixnum cmd arg))
   (when (and *paused* (eq *flow* :battle))
     (case cmd
@@ -278,14 +258,5 @@ ARG, 2 confirm, 4 left, 5 right (as the menus' commands, WEBUI-COMMANDS); droppe
   nil)
 
 (defun webhud-commands ()
-  "This frame's pause presses: under :HTML from the page (get 30101, a queue: 7 x 100000 + CMD x 1000 + ARG; one press (2-5) a
-frame), under :LISP from the pointer on the Lisp HUD's pause rows (LHUD-PAUSE-POINTER); both through WEBHUD-PAUSE-CMD."
-  (cond ((page-draws-p)
-         (loop repeat 8
-               for c = (page-get (+ +pg-hud+ 1))
-               while (plusp c)
-               do (multiple-value-bind (from rest) (floor c 100000)
-                    (multiple-value-bind (cmd arg) (floor rest 1000)
-                      (when (= from 7) (webhud-pause-cmd cmd arg))
-                      (when (<= 2 cmd 5) (return))))))
-        ((and (eq *hud-renderer* :lisp) *paused* (eq *flow* :battle)) (lhud-pause-pointer))))
+  "This frame's pause presses: the pointer on the Lisp HUD's pause rows (LHUD-PAUSE-POINTER, through WEBHUD-PAUSE-CMD)."
+  (when (and *paused* (eq *flow* :battle)) (lhud-pause-pointer)))

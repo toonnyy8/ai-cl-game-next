@@ -1147,9 +1147,7 @@
 ;; K1 or Step (the walk-in)
 ;; the HUD labels made once (refactor round 2 K1, 2026-10-21) are the strings the FORMAT calls made every frame
 (check (and (every (lambda (m) (equal (svref *sj-hari-labels* m) (format nil "HARI ~d" m))) '(0 1 2 3 4 5 6))
-            (loop for n below 4 always (and (equal (aref *ic-bunshin-labels* n 0) (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n nil 2))
-                                            (loop for o from -1 to 4 always (equal (aref *ic-bunshin-labels* n (1+ (max 0 (min 3 o))))
-                                                                                   (format nil "BUNSHIN x~d~:[~; ~d KONPAKU~]" n t (clone-konpaku o))))))))
+            (loop for n below 4 always (equal (svref *ic-bunshin-labels* n) (format nil "BUNSHIN x~d" n)))))   ; (the tag's; the KONPAKU flash labels left with the canvas row, 2026-11-11)
 ;; round01 cell b2a2's 縛口 SHIBARI-GUCHI the bind's bite (merged by the b3a2+b2a2 combination): its chance (EASY <= NORMAL <=
 ;; HARD, HARD 1.0: no roll), the window; HS-B-BITE-CMD: J1 (S 8) once its startup fits the reel after his guard-cancel lock
 ;; and the victim is within the generic follow-up's reach (1.5 + 0.6), :wait while the yank brings him in, else nothing yet

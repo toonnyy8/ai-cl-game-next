@@ -1821,29 +1821,16 @@ the :hs-tip ring. A look."
       (multiple-value-bind (dx dz) (hit-dir att def) (stamp :tip x y z :dx dx :dz dz))
       (sfx-at :hs-tip x y z :gain 0.8))))
 
-;;; ---------------------------------------------------------------- the HUD: the sickle icon (the kit meter's :draw / :label, :deck)
+;;; ---------------------------------------------------------------- the HUD: the sickle (the plate's tag :hud-tag, the meter's :label, :deck)
 (defun hs-hud-label (g kit) "The portrait label." (declare (ignore g kit)) "KAZESHINI")
 (defun hs-hud-tag (e)
-  "His :hud-tag hook: the page's status tag (webhud.lisp, DUEL_WEBUI §7), the sickle as his meter row reads it: in hand, out,
+  "His :hud-tag hook: the plate's status tag (webhud.lisp, DUEL_WEBUI §7), the sickle as his meter row reads it: in hand, out,
 returning."
   (case (hss-state (hs e)) (:in "KAZESHINI IN") (:ret "KAZESHINI ...") (t "KAZESHINI OUT")))
-(defun hs-hud-meter (e kit x y w h right tm lx ly ls)
-  "His kit-meter row: the sickle icon by his Reiatsu (§8.3): lit white in hand, a dark outline OUT, half lit RETURNING; the
-label KAZESHINI IN / OUT."
-  (declare (ignore kit tm))
-  (let* ((s (hss-state (hs e))) (hh (* 2.4 h)) (iw (* 0.9 hh)) (ix (if right (- (+ x w) iw) x)) (iy (- (+ y (* 0.5 h)) (* 0.5 hh))))
-    (ui-rect ix iy iw hh '(0.1 0.1 0.12 0.8))
-    (case s
-      (:in (ui-rect (+ ix 2) (+ iy 2) (- iw 4) (- hh 4) '(0.93 0.93 0.9 1.0)))
-      (:ret (ui-rect (+ ix 2) (+ iy (* 0.5 hh)) (- iw 4) (- (* 0.5 hh) 2) '(0.93 0.93 0.9 0.8)))
-      (t (ui-rect (+ ix 2) (+ iy 2) (- iw 4) (- hh 4) '(0.3 0.3 0.34 0.7))))
-    (when lx
-      (hud-text (case s (:in "KAZESHINI IN") (:ret "KAZESHINI ...") (t "KAZESHINI OUT")) lx ly ls '(0.93 0.93 0.9 1.0)
-                :align (if right :right :left)))))
-(setf (kit-meter (find-kit :hisagi :base)) (list :name "KAZESHINI" :max 1 :draw 'hs-hud-meter :label 'hs-hud-label))
+(setf (kit-meter (find-kit :hisagi :base)) (list :name "KAZESHINI" :max 1 :label 'hs-hud-label))   ; (its canvas row HS-HUD-METER left 2026-11-11)
 ;; (B2b: the Bankai's two modes show no sickle row: a meter of their own with no :draw, so the HUD neither inherits the
 ;; Shikai's, which overlapped the awakened forms' L COOLDOWN row, nor draws one; no sim reads it: no :start / :full-form)
-;; (§28.15: the name tells the two modes apart on the plate's tag, and the page's pointer seals by it: 散 / 聚, 鎌 / 絞)
+;; (§28.15: the name tells the two modes apart on the plate's tag, and the Lisp HUD's pointer seals by it: 散 / 聚, 鎌 / 絞)
 (setf (kit-meter (find-kit :hisagi :bankai)) (list :name "RANGED" :max 1)
       (kit-meter (find-kit :hisagi :bankai-bind)) (list :name "BIND" :max 1))
 (defun hs-deck (e cx cy d)

@@ -73,7 +73,7 @@ always behind when one-handed (the portrait camera; the setting is kept); VS PLA
 
 ;;; ---------------------------------------------------------------- menu input (devices, per frame)
 (defun any-pad-pressed (b) (loop for i below 4 thereis (pad-pressed b i)))
-(defvar *ui-press* 0 "This frame's presses from the page's HTML menus (webui.lisp WEBUI-COMMANDS), bits: 1 up 2 down 4 left 8 right 16
+(defvar *ui-press* 0 "This frame's presses from the Lisp menus' and pause's pointer (webui.lisp WEBUI-COMMANDS, webhud.lisp WEBHUD-COMMANDS), bits: 1 up 2 down 4 left 8 right 16
 confirm 32 back; cleared after FLOW-UPDATE. The menus read them as they read the keys.")
 (defun ui-press-p (bit) (logtest *ui-press* bit))
 (defun menu-up-p () (or (key-pressed :w) (key-pressed :up) (any-pad-pressed :dpad-up) (ui-press-p 1)))
@@ -88,7 +88,7 @@ confirm 32 back; cleared after FLOW-UPDATE. The menus read them as they read the
   "Up / down move the cursor over N items; returns the index on confirm, or on a tap on a row (HUD-MENU notes them)."
   (when (menu-up-p) (setf *menu* (mod (1- *menu*) n)) (play-sfx :select))
   (when (menu-down-p) (setf *menu* (mod (1+ *menu*) n)) (play-sfx :select))
-  (let ((r (unless (webui-on-screen-p) (tapped-row n))))   ; (the page's / the Lisp menus' rows take their own taps: webui.lisp)
+  (let ((r (unless (webui-on-screen-p) (tapped-row n))))   ; (the Lisp menus' rows take their own taps: webui.lisp)
     (cond (r (setf *menu* r) (play-sfx :confirm) r)
           ((confirm-p) (play-sfx :confirm) *menu*))))
 
@@ -327,8 +327,8 @@ end) and, HP REFILL AUTO, its Reishi once it is out of its hit / block reactions
   (spawn-pair) (do-sides (e) (setf (fighter-state (fighter e)) :intro)))
 
 (defun menu-tap-p ()
-  "A raw tap on the canvas menus (TAP-P), NIL while the page or the Lisp menus draw the screen: their hot rows send commands
-instead (webui.lisp; under :HTML the page swallows the touch anyway)."
+  "A raw tap on the canvas menus (TAP-P), NIL while the Lisp menus draw the screen: their hot rows send commands instead
+(webui.lisp)."
   (and (not (webui-on-screen-p)) (tap-p)))
 (defun menu-tap-third () "TAP-THIRD for the canvas menus only (MENU-TAP-P's rule)." (unless (webui-on-screen-p) (tap-third)))
 
@@ -440,7 +440,7 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
        (format nil "~a ~a  ~d~:[~;%~]" (if (< i 2) "P1" "DUMMY") (if (evenp i) "HP" "KONPAKU") (svref *practice-rows* i) (evenp i))))))
 (defparameter *practice-option-keys* '(:dummy :counter :refill :gauges :p1-aw :p1-hp :p1-kon :dm-hp :dm-kon) "PRACTICE's option rows.")
 (defun pause-items () (mapcar #'pause-label (pause-keys)))
-(defvar *pause-dirty* t "A pause row's label may have changed (PAUSE-DO): the page's pause rows are sent again (webhud.lisp).")
+(defvar *pause-dirty* t "A pause row's label may have changed (PAUSE-DO): the model's pause rows are written again (webhud.lisp).")
 (defun pause-do (k dir)
   "Pause row K chosen (DIR 1), or an option row moved by left / right (DIR -1 / 1)."
   (case k
@@ -460,11 +460,11 @@ away from the rest); VS CPU / ENDLESS / PRACTICE with two hands add the CAMERA t
 (defparameter *results-menu* '("REMATCH" "CHARACTER SELECT" "TITLE"))
 
 (defun flow-update (rdt)
-  "Menus, pause and screen timers (once per frame, real time). The page's HTML menus: their pointer presses first
-(WEBUI-COMMANDS), what they show last (WEBUI-SYNC)."
+  "Menus, pause and screen timers (once per frame, real time). The Lisp menus and pause: their pointer presses first
+(WEBUI-COMMANDS, WEBHUD-COMMANDS), their models last (WEBUI-SYNC, WEBHUD-SYNC)."
   (unless *paused* (incf *ft* rdt))
   (webui-commands)
-  (webhud-commands)                                      ; (the page's battle screens: the pause rows, webhud.lisp)
+  (webhud-commands)                                      ; (the Lisp HUD's pause rows, webhud.lisp)
   (flow-screens)
   (webui-sync)
   (webhud-sync)

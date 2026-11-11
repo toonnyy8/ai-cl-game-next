@@ -1,7 +1,7 @@
 ;;;; lhud-data.lisp — the Lisp HUD's battle tables (docs/duel/DUEL_LISP_HUD.md §4.2, §13): what hud.js keeps in its own tables
-;;;; (FIGHTERS, MOVES, the tag rewrites), moved here so the Lisp HUD reads the same model the page reads and turns its ASCII into
-;;;; the same kanji. Plain CL (host-tested in tests/duel-rules/lhud-geom.lisp); the JS copies are frozen as the reference while both
-;;;; renderers coexist (DUEL_LISP_HUD §6), this file is the one edited.
+;;;; (FIGHTERS, MOVES, the tag rewrites), moved here so the Lisp HUD reads the model the page read and turns its ASCII into
+;;;; the same kanji. Plain CL (host-tested in tests/duel-rules/lhud-geom.lisp); this file is the one edited (hud.js, the reference, was
+;;;; removed 2026-11-11: `git show 562acb37:duel/web/hud.js`).
 ;;;; Strings carry their face for tools/sdf-bake.py: (kj "…") the Mincho (.seal, .kj, .ck), (zh "…") the sans (CJK inside a Latin
 ;;;; face falls back to it, as the browser does: the seal names 「拖 · DRAG」, the tags 風死 / 分身); untagged = ASCII.
 (in-package :duel)

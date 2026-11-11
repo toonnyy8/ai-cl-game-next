@@ -131,7 +131,7 @@ player's (his own pad). Changes PAIR's plists in place; T when something changed
   (and (plusp code) (nth (1- code) (if (eq device :key) *bind-keys* *bind-pads*))))
 
 (defun key-prompt (pair side device kind)
-  "The HUD's prompt KIND (:chain :burst :kikon; the page's keys :sp-keys :p-key :awaken-keys) for SIDE pressing on DEVICE (:key / :pad), from his bindings (cached)."
+  "The HUD's prompt KIND (:chain :burst :kikon; the Lisp HUD's prompt keys :sp-keys :p-key :awaken-keys) for SIDE pressing on DEVICE (:key / :pad), from his bindings (cached)."
   (let ((i (+ (* 2 side) (if (eq device :pad) 1 0))))
     (getf (or (svref *prompt-cache* i)
               (setf (svref *prompt-cache* i)
@@ -139,7 +139,7 @@ player's (his own pad). Changes PAIR's plists in place; T when something changed
                       (list :chain (format nil "~a+~a  SP" (n :mod) (n :quick))
                             :burst (format nil "~a  BURST" (n :awaken))
                             :kikon (format nil "HOLD ~a  KIKON" (n :quick))
-                            :sp-keys (format nil "~a + ~a" (n :mod) (n :quick))   ; the page's prompt keys (webhud.lisp)
+                            :sp-keys (format nil "~a + ~a" (n :mod) (n :quick))   ; the Lisp HUD's prompt keys (webhud.lisp)
                             :p-key (n :awaken)
                             :awaken-keys (format nil "~a + ~a" (n :mod) (n :awaken))))))
           kind)))
@@ -159,12 +159,11 @@ player's (his own pad). Changes PAIR's plists in place; T when something changed
     (:auto-guard "AUTO GUARD" ("OFF" "HOLD U" "ALWAYS") 0 nil "A HIT COMING: PARRY OR HOHO FOR YOU (NEVER PERFECT, x0.8)")
     (:auto-combo "AUTO COMBO" ("OFF" "ON") 0 nil "J AFTER A HIT: THE CPU PICKS THE NEXT MOVE (x0.8)")
     (:auto-break "AUTO BREAK" ("OFF" "ON") 0 nil "J INTO A LONG GUARD: A BREAKER (x0.8)")   ; ASSIST, the user 2026-10-01
-    (:volume "VOLUME" ("0" "1" "2" "3" "4" "5") 5 (0.0 0.1 0.25 0.45 0.7 1.0) "MUSIC AND SOUND, 0 = MUTE")   ; the user, 2026-10-30
-    (:hud "HUD" ("HTML" "LISP") 0 nil "WHO DRAWS THE MENUS AND THE BATTLE SCREENS"))   ; the main session, 2026-11-11 (DUEL_LISP_HUD §7)
+    (:volume "VOLUME" ("0" "1" "2" "3" "4" "5") 5 (0.0 0.1 0.25 0.45 0.7 1.0) "MUSIC AND SOUND, 0 = MUTE"))   ; the user, 2026-10-30
   "SETTINGS rows: (key label option-labels default-index values note). VALUES (else the labels) are what the options
 mean: TAP SPLIT the recogniser's tap-split, SENSITIVITY its flick-min in CSS px (28 = the design's §3.8 default), VOLUME the
-master gain (steps by ear, louder at the top; 5 = 1.0, the level before the row). HUD the renderer of the menus and the battle
-screens (webui.lisp WEBUI-RENDERER-SYNC: HTML the page's, LISP lhud-*.lisp; appended last: the page saves rows by their place).")
+master gain (steps by ear, louder at the top; 5 = 1.0, the level before the row). The page saves rows by their place: a row is only
+ever appended (or dropped from the end: HUD, 2026-11-11, DUEL_LISP_HUD §16).")
 
 (defvar *setting-ix* (coerce (mapcar #'fourth *settings*) 'simple-vector) "Each row's chosen option index.")
 

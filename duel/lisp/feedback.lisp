@@ -65,7 +65,6 @@ and smears the victim along the hit; a counter turns the frame to a manga page f
     (:swing (e k)
       (unless (eq k :quick) (smear e (fwd-x (yaw-of e)) (fwd-z (yaw-of e))))   ; a heavy swing starts
       (sfx-on (if (eq k :quick) :whoosh-light (or (kit-swing-sfx (kit-of e)) :whoosh-heavy)) e :gain 0.7))
-    (:kosei args (apply #'kosei-mote args))                  ; KOSEI paid: the HUD's ember mote
     (:super args (let ((e (first args)))
                    (setf (model-super (model e)) (/ *super-flash* 60.0)) (sfx-on :whoosh-heavy e :pitch 0.7)))
     (:breaker args (let ((e (first args)))

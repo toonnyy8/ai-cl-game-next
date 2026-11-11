@@ -1,7 +1,7 @@
 # DUEL_LISP_HUD — the HTML HUD and menus redrawn by Lisp (design, 2026-11-10)
 
-Status: **phase 0 (the spike) built and measured, 2026-11-10 (§8); phase 1 built in three parallel worktrees and merged, 2026-11-11: 1a the full bake (§9), 1b the paint stream's shapes (§10), 1c text layout, tweens, layout, input and the small-text weight (§11), the merge and its cross-phase fixes (§12); phase 2, the handheld portrait battle screen, built 2026-11-11 (§13); phases 3-4, the landscape battle screen and the overlays (pause, intro, READY / 斬, finish), built 2026-11-11 (§14): under `:lisp` nothing of the canvas HUD draws in a battle**; phases 5-6, the menus, built 2026-11-11 (§15); phase 7 (acceptance) is the user's review. The source of the look is the HTML UI as it stands at main 5c212105
-(`duel/web/hud.js`, `hud.css`, `menu.js`, `menu.css`; its record is DUEL_WEBUI). Background: DUEL_WEBUI §18,
+Status: **phase 0 (the spike) built and measured, 2026-11-10 (§8); phase 1 built in three parallel worktrees and merged, 2026-11-11: 1a the full bake (§9), 1b the paint stream's shapes (§10), 1c text layout, tweens, layout, input and the small-text weight (§11), the merge and its cross-phase fixes (§12); phase 2, the handheld portrait battle screen, built 2026-11-11 (§13); phases 3-4, the landscape battle screen and the overlays (pause, intro, READY / 斬, finish), built 2026-11-11 (§14): under `:lisp` nothing of the canvas HUD draws in a battle**; phases 5-6, the menus, built 2026-11-11 (§15); accepted 2026-11-11: **the Lisp renderer is the only one, the HTML UI is removed (§16; the user: 「將 lisp 版設為預設並移除 html」), and the old canvas HUD with it (「舊的 Canvas HUD 也移除」, §16.6)**. The source of the look is the HTML UI as it stands at main 5c212105
+(`duel/web/hud.js`, `hud.css`, `menu.js`, `menu.css`, removed 2026-11-11 (§16): `git show 562acb37:duel/web/…`; its record is DUEL_WEBUI). Background: DUEL_WEBUI §18,
 docs/engine/REFACTOR_2026-11.md §6 D4 and §10, DEVLOG §448, §458, §704, §705.
 
 ## 1. The requests and the fidelity bar
@@ -353,6 +353,8 @@ The HTML screens are fixed compositions: every element is placed from a viewport
 
 ### 4.6 Coexistence and comparison
 
+(History: the HTML renderer, the URL flag, the page transport and the canvas renderer below were removed on 2026-11-11, §16.)
+
 - `*hud-renderer*`: `:html` (the default while the HTML HUD is the shipped one), `:lisp`, `:canvas` (no page: the native gate,
   an old cached page). Today's `webhud-p` / `webui-p` answer two questions at once; they split into two predicates:
   - **`page-draws-p`** (renderer `:html`): send to the page and read its command queue. Callers: `webhud-put` / `webhud-put-str`
@@ -492,6 +494,15 @@ which can be built in parallel in a second worktree once phase 1 lands.
    (webui.lisp `webui-renderer-sync` → `set-hud-renderer`). Reason: the user playtests through an Artifact page, where a URL flag cannot
    be passed. The URL flag `?hud=lisp` and debug 2517 stay; the row and the renderer are kept equal edge-triggered both ways, and the URL
    flag wins for its run (the row shows LISP, not saved). The default stays HTML. Built in §15.
+
+**Decided by the user (2026-11-11)**, asked whether, after acceptance, to make Lisp the default and remove the HTML HUD and the old
+canvas HUD:
+
+8. 「將 lisp 版設為預設並移除 html」: the Lisp renderer is the only shipped HUD and menu renderer; the HTML HUD and menus are removed with
+   everything that only fed them, and with them answer 7's SETTINGS row, the URL flag and the page transport (§16). The manual stays an
+   HTML page (answer 「我選 3，說明手冊保留在 html 頁面」, §1).
+9. 「舊的 Canvas HUD 也移除」 (the same day, relayed by the main session as a scope change): the canvas battle HUD, its menus, its pause
+   and the one-hand deck's drawing go in the same batch, with the renderer switch; refactor decision D4 is done by it (§16.6).
 
 The questions as they were put:
 
@@ -1284,3 +1295,162 @@ the startup heap 73.3 MB.
 SELECT's A / D included (cycling to Hisagi): lhud-model.lisp's macro `hs` shadowed hisagi.lisp's function in the one build unit; fixed on
 main (`hstr`, `col-alpha!`), renamed the same here. The long walks (run before the rename) avoid A / D on SELECT; after it, debug 2404
 (SELECT with Hisagi picked) runs in both renderers (`cmp/sel-select-hisagi.png`).
+
+## 16. The Lisp renderer becomes the only one; the HTML UI removed (2026-11-11)
+
+The user, 2026-11-11, asked whether, after acceptance, to make Lisp the default and remove the HTML HUD and the old canvas HUD:
+「將 lisp 版設為預設並移除 html」 (§7 answer 8), then 「舊的 Canvas HUD 也移除」 (§7 answer 9). The manual stays an HTML page (「我選 3，
+說明手冊保留在 html 頁面」). Opus 5.5 built it in a worktree from main 562acb37, as two commits (the HTML, §16.1-§16.5; the canvas,
+§16.6); the main session reviews.
+
+### 16.1 What was removed, and what replaced it
+
+| Removed | Lines | Replaced by / why it could go |
+|---|---|---|
+| `duel/web/hud.js`, `hud.css` | 399 + 480 | the Lisp battle HUD (lhud-battle / -plate / -deck / -fx / -clock / -overlay.lisp, §13-§14) |
+| `duel/web/menu.js`, `menu.css` | 379 + 396 | the Lisp menus (lhud-menu*.lisp, §15) |
+| `duel/web/alpha.js` | 11 | made the canvas premultiplied so `#ui-back` showed through SELECT's transparent scene; the Lisp SELECT draws its cards in the paint stream's back layer, which is opaque (stills with and without it differ only where the fighter animates, as two runs with it do) |
+| `head.html`: the Google Fonts links, `menu.css` / `menu.js` / `hud.css` / `hud.js` / `alpha.js` | 19 -> 12 | the HUD's glyphs are baked into index.wasm (§4.2); the loading veil and its system fonts are in `engine/web/shell.html`, unchanged; manual.html has its own head and never used the web fonts |
+| `pwa.js`: page get 8 (`?hud=lisp`), the 30000 / 30100 routes to `gameUI` / `gameHUD`, `setStr`, the `hud` settings key | 139 -> 126 | nothing reads them |
+| `sw.js`: the five files, the `soulduel-fonts` cache and its fetch branch | 38 -> 27 | the activate step now deletes every cache but the build's, the old fonts cache included |
+| webhud.lisp: `+pg-hud+`, `*webhud*`, `+pg-hud-flag+`, `webhud-page-p`, `page-draws-p`, the page sends in `webhud-put` / `webhud-put-str`, the page queue in `webhud-commands` | 291 -> 255 | `webhud-sync` still writes the model (`*hud-sent*`, `*hud-strs*`), the one place that does; `webhud-pause-cmd` the one pause dispatcher |
+| webui.lisp: `+pg-ui+`, `*webui*`, `webui-p`, `menu-page-draws-p`, `webui-renderer-sync`, `*ui-rend*`, `*hud-row-seen*`, the page queue, `select-spot` (camera.lisp calls `lm-select-spot`) | 162 -> 118 | `webui-sync` writes `*ui-sent*`; `webui-command` the one menu dispatcher; the Lisp queue (`ui-send`) |
+| SETTINGS' HUD row (§7 answer 7): control.lisp `:hud`, lhud-menu-data's row, pwa.js `hud`, manual.html's row | - | one renderer, nothing to choose. It was the last row, so dropping it moves no saved row (pwa.js saves by place); a saved `soulduel.hud` is ignored. SETTINGS has 7 rows + RESET LEARNING + BACK again (`+lm-set-rows+` 9) |
+| `tests/lhud-compare.py`, `tools/run.mjs --freeze-css` and `--query` | 27 + 18 net | the HTML-vs-Lisp sheets have no HTML left to compare; no test passes a URL flag |
+
+The file names webhud.lisp / webui.lisp are kept (the functions' `webhud-` / `webui-` names run through lhud-*.lisp, debug.lisp, flow.lisp
+and the DUEL_WEBUI protocol tables); their headers now say what they are: the battle screens' and the menus' models. `:html` and the URL
+flag are gone (no test needs `?hud=canvas`); in the first commit debug 2517 still toggled `:lisp` / `:canvas`, and §16.6 removed it with
+the canvas HUD.
+`engine:page-set-str` (and `pf_page_set_str`) has no caller left; it stays, an unused engine export for refactor batch B1.
+
+Also in this pass: `build.sh` deletes the dist's page files before copying `duel/web/*` (a removed page file lingered in `dist/` and
+would have been deployed); `tools/run.mjs` fails a run on any 404 (a page still naming a removed file); manual.html names its icon
+(`icon-192.png`: its `/favicon.ico` request was a 404 the new rule caught).
+
+### 16.2 The gap audit: what the HTML page did that a player could notice
+
+| What the page did | Now |
+|---|---|
+| A screen taller than the window scrolled (SETTINGS below about 750 CSS px, RESULTS / MODE on small phones, every stacked screen on a landscape phone) | **added**: the screen shrinks to fit. `lm-fit-k` (lhud-menu-geom.lisp, pure, host-tested) gives the zoom from the height the screen's stack took last frame (each geometry's `[31]`); `lm-zoom!` / `lm-unzoom!` (lhud-menu.lisp) scale the frame's density for MODE, SETTINGS, CONTROLS and RESULTS only, the rails and the cut keep the real one. A phone has no keys to scroll focus into view and a drag scroll is more code; a shrunken screen keeps every row tappable. Checked at 360 x 640, 320 x 568 and 844 x 390 (zoomed), 390 x 844 and 1280 x 720 (zoom 1) |
+| ROTATE TO PORTRAIT in the pause on a turned phone | Lisp: lhud-overlay.lisp `*lhud-ey-rotate*` (§14) |
+| Focus / hover / active states | Lisp: the focus transitions (brush, bar, wash, seal); the mouse over a row moves the cursor (`lm-pointer`, as menu.js). **Dropped**: the CSS `:active` press tint (cosmetic) and the `cursor: pointer` hand (a canvas keeps the arrow) |
+| Pad glyphs vs key caps in the hints | Lisp: the input kind (keys / pad / touch) picks the hints (`lm-rails`, §15) |
+| VS PLAYER bindings and the rebind capture in CONTROLS | Lisp: the capture's pulsing PRESS; the capture itself is control.lisp's, unchanged (§15.5 rebinds MOVE UP) |
+| Long names | the roster's names and Hisagi's form tags fit (the 83000 / 83010 / 83012 stills, both orientations) |
+| Safe-area insets (a notch) | pwa.js get 3-6, unchanged; `lhud-frame` / `lm-content!` read them |
+| Reduced motion | pwa.js get 7, unchanged; read when the window's size changes (§11.4: not live) |
+| Text selection, the context menu, the tap highlight | `engine/web/shell.html` (user-select none, contextmenu prevented), unchanged |
+| The first touch unlocking audio | engine/c/audio.c (resumes the AudioContext on the first gesture), unchanged |
+| What shows while the wasm loads | the veil in `engine/web/shell.html`, unchanged |
+| Accessibility hooks (`aria-label` on the keyboard map and the pad, `role="menu"` on the pause) | **dropped**: a canvas has none; the action game is not screen-reader playable either way, and the manual stays an accessible HTML page |
+| RESULTS of a draw / a time-out | Lisp: DRAW · TIME UP and the finish's 時間切れ / TIME / DRAW (§14, §15) |
+| CPU VS CPU (no human) | Lisp: SELECT's CPU slots, the battle, the pause, RESULTS (the `cvc` walk) |
+| Hisagi's plate in landscape (never reviewed) | **reviewed** (83000 the Shikai, 83010 the ranged mode, 83012 a bind, 1280 x 720 and 390 x 844): name, kanji, the tag (風死 · IN HAND / FUSHI NO KOJO · RANGED / · BIND), the seals 投 刈 雷 / 散 聚 / 鎌 絞 with their names, SPIRIT DRIVE: all as designed, nothing to fix |
+| A pause during a cinematic | **decided**: the plates stay hidden (the cinematic hides them, V0 bit 2), the scene is dimmed by the pause's ink rect (`lhud-dim`), and the cinematic keeps its own grade (no added grey: `lhud-canvas-grade!` leaves a cinematic's grade alone); the strip and 止 draw over its brush title. Legible, and the HTML's .3 plates over a cinematic were not worth bringing back |
+| MANUAL (MODE row 7) | pwa.js page set 1 -> manual.html, unchanged; its back link returns |
+| The web fonts cached for offline play | not needed: the glyphs are in index.wasm |
+
+### 16.3 The charset now comes from the Lisp sources alone
+
+tools/sdf-bake.py bakes ASCII for the Latin faces and the sans, and the tag forms of `duel/lisp/lhud-*.lisp` (`kj`, `bigkj`, `zh`,
+`big`; `lhud-shape` names the characters drawn as polygons); a zh string's non-CJK symbols also go to the Latin faces. The scan of
+`hud.js` / `menu.js` is gone. tests/duel-rules/lhud-charset.lisp proves coverage of what the game can put on screen, as far as a static
+scan can: every tag form at its face and tier; every non-ASCII character of every string literal of `lhud-*.lisp`, `webhud.lisp` and
+`webui.lisp` (read by the Lisp reader, docstrings and tag forms left out) in the sans or the Mincho; every kit's form name, form label,
+U tag, intro line and move callout (walked from `*kits*` on the host) ASCII or baked. It cannot see strings built at run time elsewhere
+(numbers are ASCII), a kit hook's `:hud-tag` result (ASCII literals in the kit files, turned into kanji by `lhud-tag-segments`) or the
+intro's reading (brush.lisp `*brush-names*`, not loaded on the host; ASCII romaji). The page scan had added only the HUD row's help
+(畫 繪 製 誰 面 頁 由 擎) beyond the tags; the sans drops from 482 to 404 glyphs (the menus' zh texts were tagged already; the 78 that
+left were the page's own strings that no Lisp screen draws): **1712 of 2048 atlas rows** (1808 before), metrics.bin 17,200 -> 15,814 B.
+
+### 16.4 Measurements
+
+| What | Before (562acb37, built here) | After |
+|---|---|---|
+| index.wasm | 13,151,359 B (gzip -9 4,129,052) | 13,047,301 B (gzip -9 4,069,777) |
+| dist/duel total | 13,836,990 B, 17 files | 13,587,942 B, 11 files |
+| Startup heap | 73.3 MB | 73.6 MB (the model and the Lisp HUD now start with the page; limit 110) |
+| Debug 2519 (`--fixed-dt`, 1280 x 720 after 2500, 390 x 844 after 2505) | | every entry 0 B on both: `lhud consing` plate 0, combo 0, draw 0, shapes 0 (frame 1,998 / 1,308 vertices); `1c`, `p2`, `p34`, `flames` all 0; `lmenu consing` every screen 0 (CONTROLS 2,271 / 2,967 vertices); debug 2515 `webhud consing` sync 0, side 0, prompt 0, deck 0, tag 0, stake 0, touch 0 |
+| Host tests | 10249 | duel-rules 10260, duel-control 100, hud-engine 121, touch 100, input 33, cine 18, learn 131: all pass |
+
+### 16.5 What still differs or is open
+
+- The fit shrinks the whole screen: at 320 x 568 RESULTS' nine soul eggs still run past the right edge (the row is wider than the
+  narrowest phone; the HTML wrapped them). Not fixed: 320-px-wide phones are rare.
+- Brush captions and the big words no longer dodge the plates: `*panel-box*` (brush.lisp), which the canvas plates filled, stays 0
+  (it was 0 under the HTML HUD since 2026-10-28 too). A later batch could have the Lisp HUD publish its plates' boxes there.
+- `engine:page-set-str` is unused (B1).
+
+### 16.6 The canvas HUD removed (the user, 2026-11-11: 「舊的 Canvas HUD 也移除」)
+
+Refactor decision D4 is done by this commit (docs/engine/REFACTOR_2026-11.md §6). With one renderer left, the switch went with it:
+`*hud-renderer*`, `set-hud-renderer`, `canvas-hud-off-p`, `lhud-menus-p` and debug 2517 are gone; `webhud-sync`, `webui-sync` and their
+command readers run unconditionally; `lhud-draw` / `lhud-menu-draw` are simply the HUD (`hud-draw` calls them every frame).
+
+| File | Lines (before -> after) | What went | What stayed (and why) |
+|---|---|---|---|
+| hud.lisp | 852 -> 179 | the panels `hud-side` / `hud-side-portrait` and every meter they drew (Reishi, guard, flash step, Reiatsu, soul flames `%hud-pips` / `%soul-flame` and their shatter clock, cooldowns, the KOSEI 攻 tag and its ember mote, the combo counter, labels, the timer), the world move-name callout and the brush callout columns (`side-cap`, `callout-y`), the pointer row at the feet, `awaken-fill`, `guard-gauge-bits`, `burst-prompt`, `pool-tally`, `%q->f`, `%hud-pulse`, `%hud-text` | the big words (`announce`, `draw-words`), `hud-world` (the red soul flame), `hud-rush-lines`, `hud-hint` (HOHO! / AUTO), `pips-shatter` (now only the glass burst and its sound), `hud-text` and the colour lists (the frozen modes' screens), the portrait block geometry (`portrait-hud-bottom`, `portrait-p1-top`, `*safe-top*` / `*safe-bot*`: the one-hand deck's layout and the frozen screens), `*refused-t*` / `refused-flash` / `hud-refused` (only the retired kits' meters read them), `hud-battle` (four lines: the world overlays and ENDLESS's tag) |
+| hud-screens.lisp | 261 -> 128 | the canvas TITLE, MODE, SETTINGS, CONTROLS, the non-ENDLESS RESULTS (`results-strings`, the 勝 card), the canvas pause, the `*panel-box*` fill | `hud-draw` (the flash, focus lines, a cinematic's letterbox and brush title but the intro's / K.O.'s / TIME's, the frozen screens, the battle's world overlays, the words, then the Lisp HUD, the Lisp menus, debug 2509's card, the debug overlay); the frozen modes' `hud-menu`, `hud-select` (+ portrait), `results-card` |
+| onehand.lisp | 393 -> 333 | `hud-deck`'s outline, split line, SP / ATK labels, chips and the gesture glyph; `hud-gestures` and its card | `hud-stick` (the floating stick's ring and a form's `:deck` ring: no Lisp twin, players see it), every input, gesture and deck-geometry function |
+| ken-meter.lisp | 97 -> 38 | `%hud-lv`, `%hud-arm`, `hud-arm-label`, `ken-hud-meter` (the Lisp plate draws KAIHO / UDE) | `ken-boss`, `ken-card-bankai`, `ken-hud-label` (the plate's tag) |
+| ichigo.lisp | -54 | `ichigo-hud-meter` (the plate's tag shows BUNSHIN xN); the KONPAKU-flash labels; 74907 measures the tag and the deck ring now | `ichigo-hud-tag`, `ichigo-hud-label`, `ichigo-deck` |
+| hisagi-draw.lisp | -13 | `hs-hud-meter` | `hs-hud-tag`, `hs-hud-label`, `hs-deck` |
+| webhud.lisp / webui.lisp | 255 -> 262 / 118 -> 114 | the renderer switch | `kit-hud` and `at-stake` moved in from hud.lisp (the model's inputs) |
+| combat.lisp, feedback.lisp | -2, -1 | the `:kosei` event and its handler (the canvas mote was its only reader); `kosei!` takes (att g) | |
+| cinema.lisp | 0 | the canvas FIGHT! word at the intro's frame 250 (READY / 斬 is the Lisp HUD's since §14) | its `:fight` sound |
+| debug.lisp | -20 | 2517; 2328's canvas bar probes; 2704's portrait-column figure | 2328's hud-text and vfx lines, 2440+k, 2430+k scenes |
+
+Net over the commit: about +200 / -1,210 lines in duel/lisp and tests (the webui.lisp churn is re-indentation).
+
+**The gap audit, the canvas half.** Since 2026-10-28 the canvas HUD drew only its "live arm" in a battle (the page drew the rest), and
+since phase 4 the same under `:lisp`; what a player could see of it with the three live kits in VS CPU / PRACTICE / VS PLAYER / CPU VS
+CPU, and where it is now:
+
+| Canvas, seen by players | Now |
+|---|---|
+| Kikon rush / SP2 dash speed lines | kept (`hud-rush-lines`) |
+| The red soul flame over a Kikon-able fighter | kept (`hud-world`) |
+| PERFECT HINT's HOHO!, ASSIST's AUTO | kept (`hud-hint`) |
+| The floating stick's ring and the forms' `:deck` rings (Hisagi's sickle dot, KESSA's clone dots) | kept (`hud-stick`) |
+| A cinematic's letterbox and brush title (Kikon, awakening, Bankai), the big words (COUNTER, GUARD BREAK …) | kept (`hud-draw`, `draw-words`) |
+| The intro's FIGHT! word (canvas, never under the HTML / Lisp HUD) | gone; READY / 斬 (§14) |
+| The plates, gauges, timer, combo, callouts, pointer row, KOSEI tag, brush callout columns, the pause, the menus | not drawn by the canvas since 2026-10-28 (the HTML, then Lisp drew the plates, timer, combo, callouts under the plate, pointer seals, pause and menus). The KOSEI 攻 tag and the brush callout columns had no HTML or Lisp twin, so players have not seen them since 2026-10-28; their data (`*brush-callouts*` entries in brush.lisp, barro, rukia, senjumaru, ichigo-look) is now never drawn: dead data for D1 / B8c |
+
+**What stayed only for the frozen modes and the retired kits (one cut for D1 / D2).**
+
+- D2 (ENDLESS / DANGAI): endless.lisp's and rogue.lisp's screens (`hud-endless-results`, `hud-endless-clear`, `hud-endless-tag`,
+  `hud-rogue-doors`); hud-screens.lisp's `hud-menu`, `hud-select`, `hud-select-portrait`, `results-card` and `hud-draw`'s `:select` /
+  `:results` / `:clear` / `:doors` clauses (WEBUI-SCREEN gives 0 for ENDLESS's SELECT and RESULTS); hud.lisp's `hud-text`, `*white*`,
+  `*dim*`, `*dim-ink*`, `*ember*`, `*shade*`, `hud-dt`, `alpha!` (also vfx.lisp's), and `hud-battle`'s ENDLESS tag; onehand.lisp's
+  `note-menu-row`, `tapped-row`, `tap-third`, `*menu-rows*`, `touch-tap-zones-p`, flow.lisp's `menu-tap-p` / `menu-tap-third` and
+  `menu-nav`'s `tapped-row`, webhud.lisp's `*menu-rows*` reset in the pause. (The portrait block geometry stays after D2: the deck uses it.)
+- D1 (retired kits): their kit meters' `:draw` hooks, now called by nothing (only the canvas panels called them): rukia-meter.lisp's
+  `rukia-hud-meter`, `hud-temp`, `%hud-temp`, `hud-temp-label`; senjumaru.lisp's `senju-hud-meter` (and its consing probe); barro-draw.lisp's
+  `br-hud-meter`; hud.lisp's `*refused-t*`, `refused-flash`, `hud-refused` (feedback.lisp's `:refused` handler) serve only them;
+  `hud-stick`'s frost arc (a `:temp` meter: Rukia's).
+- engine/lisp/ui.lisp is untouched (engine API; its now-unused exports are refactor batch B1's), as `page-set-str` (§16.1).
+
+**Proof.** Host tests: duel-rules 10260 (tests/duel-rules/hisagi.lisp's label check follows `*ic-bunshin-labels*`; sim.lisp's `kosei!`
+call), duel-control 100, hud-engine 121, touch 100, input 33, cine 18, learn 131: all pass. pkgcheck: only `DUEL::APP`, 0 undefined
+functions; the build's undefined-variable warnings the same five as before. Measurements and the walks: §16.7.
+
+### 16.7 Measurements and walks after both commits
+
+| What | 562acb37 | after the HTML (§16.1-§16.5) | after the canvas (§16.6) |
+|---|---|---|---|
+| index.wasm | 13,151,359 B | 13,047,301 B | 12,740,973 B (gzip -9 4,014,784) |
+| dist/duel | 13,836,990 B, 17 files | 13,587,942 B, 11 files | 13,281,652 B, 11 files |
+| Startup heap | 73.3 MB | 73.6 MB | 73.3 MB |
+
+Debug 2519 (`--fixed-dt`; 1280 x 720 after 2500, 390 x 844 after 2505) and 2515: every entry 0 B in both runs (`lhud consing`, `1c`,
+`p2`, `p34`, `flames`, `lmenu consing`, `webhud consing`). G2: native `simgate.py --cvc` and browser `style-gates.py cvc` identical to
+tests/style-cvc-ref.txt (II 32, IK 34, KK 33 lines); a native match without turbo (4007, the HUD drawn every frame against the
+stubbed empty atlas) also prints exactly the IK reference lines, in 21 s. Scripted walks (worktree `build/lhud/p7/w-*-c/`, keys on
+desktop, touches on 390 x 844): TITLE -> MODE -> SETTINGS (HAND changed and back / CAMERA tapped) -> CONTROLS -> SELECT -> the
+intro (both name cards, READY, 斬) -> the battle -> the pause (CAMERA changed) -> resume -> 2497 (K.O.) -> the finish -> RESULTS ->
+REMATCH -> RESULTS -> CHARACTER SELECT -> TITLE; PRACTICE's pause list; CPU VS CPU through RESULTS; MODE > MANUAL opens manual.html;
+83000 / 83010 / 83012 at both sizes; 360 x 640; ENDLESS's run (80103) and STAGE CLEAR (80980) on the canvas; the stick ring (2505, a
+held touch): exit 0, no console error, no 404, the same `duel ->` lines as the first commit's walks. The looks gate's scripts walk as
+before (their menu keys are the desk walk's); its baseline changes wholesale with this batch (every menu and battle still), so it
+needs a fresh BASE.

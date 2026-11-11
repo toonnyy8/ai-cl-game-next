@@ -331,10 +331,10 @@ of the screen (the stats take the left third); select: both fighters from the fr
                                     (+ (aref p 0) (* 0.9 rx)) 1.15 (+ (aref p 2) (* 0.9 rz))))))
     (:select-web (let* ((e (if (plusp *select-phase*) *p2* *p1*)) (p (pos-of e)) (yaw (yaw-of e))
                         (fx (fwd-x yaw)) (fz (fwd-z yaw))
-                        (sx (/ (max 1 (select-spot 0)) 1000.0)) (sy (/ (max 1 (select-spot 1)) 1000.0))   ; (the page's or the Lisp menus', webui.lisp)
+                        (sx (/ (max 1 (lm-select-spot 0)) 1000.0)) (sy (/ (max 1 (lm-select-spot 1)) 1000.0))   ; (the Lisp menus' layout)
                         (d (if (portrait-p) 4.2 3.9)))   ; (portrait 7.2 -> 4.2: larger than his card, over the others' text, 2026-10-28)
                    ;; the fighter being picked from his front, put at the focused card's model spot by the lens shift (the
-                   ;; HTML menus, DUEL_WEBUI §4: the card is drawn under and over the transparent canvas)
+                   ;; Lisp menus draw the card in the back layer and its text over the transparent scene, DUEL_LISP_HUD §15)
                    (camera-look-at (+ (aref p 0) (* d fx)) 1.25 (+ (aref p 2) (* d fz)) (aref p 0) 0.95 (aref p 2))
                    (setf (camera-fov *camera*) (f32 (deg 60)) (camera-shift-x *camera*) (f32 (- (* 2 sx) 1))
                          (camera-shift-y *camera*) (f32 (- 1 (* 2 sy))) *pt-lens* t)))

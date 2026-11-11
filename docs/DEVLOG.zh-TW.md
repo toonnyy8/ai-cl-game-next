@@ -8454,3 +8454,20 @@ looks gate 在這一輪之前就壞了（Sonnet 5.5 找出；`tests/style-gates.
 - 驗證（主目錄）：duel-rules 10249、control 100、hud-engine 121、touch 100、input 33 全過；pkgcheck 只剩 `DUEL::APP`；debug-ranges-check 120 個範圍 0 錯；8 秒 smoke 四種（預設／`hud=lisp` × 1280×720／390×844）皆 0；debug 83000 兩種渲染器皆 0；走查腳本（預設 HTML → 設定切 LISP → MODE → SELECT → 對戰 → 暫停）記錄到 `duel setting HUD LISP`、`hud renderer LISP` 並打完開場；G2 原生與瀏覽器 II 32、IK 34、KK 33 相同。對照圖在 worktree 的 build/lhud/p56/cmp/（git 忽略）。
 
 分工：Opus 5.5：選單的實作、截圖、文件草稿；Haiku 5.5：重名檢查擴到變數；主對話 Fable 5.2：覆核（圖與 diff）、合併與衝突、重烘圖集、找出 `+c-dim+` 與 `(hs 8)`、檢查、提交。
+
+## 714. Lisp HUD 成為唯一的渲染器：移除 HTML 的 HUD 與選單，也移除舊的 Canvas HUD（2026-11-11）
+
+使用者：「將 lisp 版設為預設並移除 html」；接著：「舊的 Canvas HUD 也移除」
+
+- 範圍的界定（主對話）：移除 HTML 的戰鬥 HUD 與選單、只為了餵它們的頁面傳輸、網頁字型連結、兩版對照的工具、設定頁的「HUD：HTML／LISP」列（§713 才加的，只剩一種渲染器就沒有用途；它是最後一列，存檔的列號不動）。說明手冊照先前的決定仍是 HTML 頁面（「我選 3，說明手冊保留在 html 頁面」），MODE > MANUAL 照樣打開。Canvas HUD 指「Lisp 已經有對應的全部舊畫法」；沒有 Lisp 對應的（演出的毛筆字幕與黑邊、集中線、大字、紅魂火、衝刺線、HOHO!／AUTO、搖桿環與型態的 `:deck` 環、除錯疊層）留下。重構的 D4 由這批完成（REFACTOR_2026-11.md §6）。
+- HTML 這一半（DUEL_LISP_HUD §16.1–§16.5）：刪掉 `duel/web/` 的 `hud.js`、`hud.css`、`menu.js`、`menu.css`、`alpha.js` 與 head.html 的字型連結（`alpha.js` 把畫布設成預乘 alpha，只為了 HTML 選單的圖層；SELECT 的卡片現在畫在繪圖流的背景層，畫布保持不透明）。pwa.js 少了 get 8、30000／30100 的路由與 `setStr`；sw.js 的快取清單少了那些檔與字型快取，啟用時清掉舊快取。`webhud.lisp`／`webui.lisp` 只剩模型（`*hud-sent*`、`*hud-strs*`、`*ui-sent*`）與分派（`webhud-pause-cmd`、`webui-command`），檔名不改、檔頭重寫。移除 `tests/lhud-compare.py`、run.mjs 的 `--freeze-css` 與 `--query`。run.mjs 現在遇到任何 404 就算失敗；build.sh 複製前先刪掉 dist 裡過期的頁面檔。
+- Canvas 這一半（§16.6）：渲染器開關整個拿掉（`*hud-renderer*`、`set-hud-renderer`、`canvas-hud-off-p`、`lhud-menus-p`、debug 2517），`lhud-draw`／`lhud-menu-draw` 就是 HUD。hud.lisp 852 → 179 行、hud-screens.lisp 261 → 128、onehand.lisp 393 → 333（`hud-deck` 變成 `hud-stick`，輸入與手勢不動）、ken-meter.lisp 97 → 38，一護與檜佐木的 canvas 量表列也拿掉。`:kosei` 事件與它唯一的讀者（canvas 的火星）一起拿掉，`kosei!` 改收 (att g)；開場的 canvas FIGHT! 字拿掉（READY／斬 是 Lisp 的）。
+- 字集：烘字只讀 Lisp 的標記；host test 用 Lisp reader 讀 `lhud-*.lisp`、`webhud.lisp`、`webui.lisp` 的每個字串常值，再加每個角色的名字、型態名、U 標籤、開場台詞與招式名。它看不到執行時才組出的字串與 `:hud-tag` 鉤子的輸出。圖集 1808 → 1712 列（共 2048），sans 482 → 404 個字形。
+- 缺口清單（§16.2、§16.6）：ROTATE TO PORTRAIT、依輸入種類的提示鍵帽、重新綁鍵、安全區、reduced motion、平手／超時的結果、CPU VS CPU、MANUAL：Lisp 已有。選取與右鍵選單的抑制、音訊解鎖、載入畫面：在頁面殼或引擎，沒變。捨棄：CSS `:active` 的按下色、指標游標樣式、aria。檜佐木橫向的名牌用 83000／83010／83012 看過，不用改。演出中暫停維持現狀（名牌不顯示、場景變暗、演出自己的調色）。
+- 新增：矮視窗的選單改成縮到放得下，而不是捲動。約 750 CSS px 以下 SETTINGS 會被切掉（HTML 版會捲動）；MODE、SETTINGS、CONTROLS、RESULTS 現在整面縮小（`lm-fit-k` 在 `lhud-menu-geom.lisp`，純函式、有 host test；`lm-zoom!`／`lm-unzoom!` 只在那個 view 期間改 `*lay*` 的密度再放回去）。看過 360×640、320×568、844×390、390×844、1280×720。
+- 留給 D1／D2 一次清掉的（§16.6 有完整清單）：凍結模式（ENDLESS、DANGAI）的 canvas 畫面與它們用的 `hud-menu`、`hud-select`、`results-card`、`hud-text`、色表、選單點擊的輔助函式，仍會畫（80103、80980 看過）。退役角色的量表（露琪亞、千手丸、李爾）還能編譯但已沒人呼叫：要讓它們繼續畫得留約 300 行面板程式，所以不留。
+- 數字：duel/lisp、duel/web、tests、tools 合計 +661／−3,230 行（58 個檔）。index.wasm 13,151,324 → 12,740,937 B；dist/duel 13,836,990 B（17 個檔）→ 13,281,652 B（11 個檔）；啟動 heap 73.3 MB；2519 與 2515 每一項 0 B。
+- 已知小問題：320 px 寬時 RESULTS 的九個魂魄超出右緣；2519 的名牌與整幀頂點數在兩個提交之間桌面與手機互換（777／1998 與 489／1308），原因不明，畫面正常、都是 0 B；looks gate 的基準整批要重拍（每張選單、有名牌的戰鬥、暫停、直向觸控），這次沒跑。
+- 驗證（主目錄，合併後）：duel-rules 10260、control 100、hud-engine 121、touch 100、input 33、cine 18、learn 131 全過；pkgcheck 只剩 `DUEL::APP`；debug-ranges-check 119 個範圍 0 錯；瀏覽器檢查見提交訊息。
+
+分工：Opus 5.5：缺口清單、兩半的移除、縮放、字集測試、文件；主對話 Fable 5.2：界定範圍、覆核（圖與 diff）、合併、檢查、提交、發布。

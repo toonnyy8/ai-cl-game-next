@@ -3,10 +3,10 @@
 ;;;; load step, and debug 2518's legibility card and phase 1c rows. The elements live in their own files: lhud-plate.lisp (the plates),
 ;;;; lhud-deck.lisp (the phone's deck, 爆, the stance ring, the clock tab), lhud-fx.lisp (the combo, the move name, the prompt, the
 ;;;; touch ink, the layers' fades); the model's access and the palette in lhud-model.lisp, the tables in lhud-data.lisp, the pure
-;;;; geometry in lhud-geom.lisp. *HUD-RENDERER* :LISP (the URL flag ?hud=lisp, page get 8, or debug 2517) draws it and stops sending
-;;;; to the page; :HTML (the default) leaves everything as it was. Phase 2 draws the handheld portrait battle screen whole (and the
-;;;; desktop plates and combos); phases 3-4 the landscape screen and the overlays (lhud-clock.lisp, lhud-overlay.lisp: the pause, the
-;;;; intro card, READY / 斬, the finish); the menus are the page's (DUEL_LISP_HUD §5, §13, §14).
+;;;; geometry in lhud-geom.lisp. Phase 2 built the handheld portrait battle screen (and the desktop plates and combos); phases 3-4 the
+;;;; landscape screen and the overlays (lhud-clock.lisp, lhud-overlay.lisp: the pause, the intro card, READY / 斬, the finish); the
+;;;; menus are lhud-menu*.lisp (DUEL_LISP_HUD §5, §13-§16). The look reproduces the HTML HUD as it was at main 562acb37 (hud.js,
+;;;; hud.css: `git show 562acb37:duel/web/hud.css`), removed 2026-11-11; the hud.js / hud.css names below point into that version.
 ;;;; Cosmetic, outside the sim step; 0 B a frame in steady state (debug 2519).
 (in-package :duel)
 
@@ -135,7 +135,7 @@ DPR the pixel density, PHONE portrait (hud.js's hphone)."
 (defun-fast lhud-frame ()
   "This frame's layout (layout.lisp): the window, the density, the four safe-area insets (top / bottom as DECK-UPDATE keeps them, left /
 right page get 5 / 6) and reduced motion (page get 7, DUEL_LISP_HUD §4.4), the page asked again only when the window's size changed;
-the hot boxes start over. Under :LISP only (LHUD-DRAW)."
+the hot boxes start over (LHUD-DRAW)."
   (let ((k *lhud-win*) (w (window-width)) (h (window-height)))
     (declare (fixnum w h))
     (unless (and (= w (aref k 0)) (= h (aref k 1)))
@@ -166,7 +166,7 @@ the UI clock (the only mutation of the Lisp HUD outside the paint stream's buffe
 (defvar *lhud-v0* (make-array 1 :element-type 'fixnum :initial-element 0) "V0 at the last LHUD-DRAW (its battle bit off: the next frame is fresh).")
 (declaim (type (simple-array fixnum (*)) *lhud-v0*))
 (defun lhud-draw ()
-  "The Lisp HUD of this frame (HUD-DRAW, *HUD-RENDERER* :LISP, after it advanced the UI clock) while a battle is up (V0 bit 1): the
+  "The Lisp HUD of this frame (HUD-DRAW, after it advanced the UI clock) while a battle is up (V0 bit 1): the
 systems, then the views back to front as hud.css stacks them: the paused scene's dimming (the canvas filter), the deck (z 9), .hudl
 (z 10: the plates, the clock, the move names, the combos, the prompt; .3 paused, out in a cinematic), 爆 and the stance ring (z 14),
 the touch ink (z 15), the intro card and the finish (z 18), READY / 斬 (z 19), the pause (z 20)."

@@ -28,17 +28,16 @@ FORM sees the iteration index as I."
 (defvar *probe* nil "A running frame probe: (kind name t0 attacker-free defender-free blocked).")
 
 (defun webhud-consing ()
-  "Debug 2515: the battle screens' per-frame Lisp path (webhud.lisp) in the running battle, 100 calls each once the values are
-sent (so nothing changes: the steady state of a frame): a `webhud consing` line, B (DUEL_WEBUI §7; 0 B wanted)."
+  "Debug 2515: the battle screens' model (webhud.lisp) in the running battle, 100 calls each once the values are written (so
+nothing changes: the steady state of a frame): a `webhud consing` line, B (DUEL_WEBUI §7; 0 B wanted)."
   (when (and *p1* *p2* (entity-alive-p *p1*) (entity-alive-p *p2*))
-    (let ((*webhud* t))                                    ; (the native gate, a page without hud.js: measured all the same)
-      (webhud-sync)
-      (log-msg "webhud consing (100 calls, B): ~a, ~a, ~a, ~a, ~a, ~a, ~a"
-               (cons-per "sync" (webhud-sync) 100) (cons-per "side" (webhud-side *p1* 50) 100)
-               (cons-per "prompt" (webhud-prompt *p1*) 100) (cons-per "deck" (webhud-deck) 100)
-               (cons-per "tag" (webhud-tag *p1* (fighter-kit (fighter *p1*))) 100)
-               (cons-per "stake" (at-stake *p1*) 100)
-               (cons-per "touch" (progn (touch-button :mod) (touch-button :awaken) (touch-button :quick) (touch-button :step)) 100)))))
+    (webhud-sync)
+    (log-msg "webhud consing (100 calls, B): ~a, ~a, ~a, ~a, ~a, ~a, ~a"
+             (cons-per "sync" (webhud-sync) 100) (cons-per "side" (webhud-side *p1* 50) 100)
+             (cons-per "prompt" (webhud-prompt *p1*) 100) (cons-per "deck" (webhud-deck) 100)
+             (cons-per "tag" (webhud-tag *p1* (fighter-kit (fighter *p1*))) 100)
+             (cons-per "stake" (at-stake *p1*) 100)
+             (cons-per "touch" (progn (touch-button :mod) (touch-button :awaken) (touch-button :quick) (touch-button :step)) 100))))
 
 (defun-fast lhud-flames-ab (glyph)
   "2519's flame A/B (DUEL_LISP_HUD §14): 18 soul flames at a phone plate's size, as phase 2 drew them (GLYPH nil: the polygon fill
@@ -321,7 +320,7 @@ plays the intro (the card, READY / 斬); PICKS other fighters."
     (when (eq next :nozarashi) (setf (gauges-meter (gauges *p2*)) 2f0 (gauges-meter-idle (gauges *p2*)) 0))))
 
 (defun lhud-review (k)
-  "2440+k: the handheld screen's states for the HTML / Lisp HUD comparison (DUEL_LISP_HUD §13), on the running battle (2505 / 2506):
+  "2440+k: the handheld screen's states for the Lisp HUD's review stills (DUEL_LISP_HUD §13), on the running battle (2505 / 2506):
 both fighters 2.2 m apart (a J reaches), idle, full gauges, Konpaku 9 with 2 at stake (the user's screenshot), then by K: 0 that; 1 / 2 both SP
 pointers 2 / 3; 3 Reishi 15 % (red) and P1's Konpaku 6; 4 the flash step empty (the Burst spent); 5 the flash step at half (a Hoho,
 no Burst); 6 the awakening ready; 7 P1 awakened in KESSA with SPIRIT DRIVE 60; 8 SUBLIMATION 60 over a full awakening; 9 the clock
@@ -460,23 +459,10 @@ screen punctuation with an impact splash and of a brush Latin line (callouts, bi
     (setf (aref *screen-fx* 7) 0f0)))
 
 (defun hud-cons-check ()
-  "2328: bytes consed by 100 draws of each HUD gauge bar added with the gauges (guard, flash-step, cooldowns) and
-by 10 draws of each Bankai stance look (0 B each; the crossfade only while it runs); and 10 HUD-TEXT draws of a literal
-and of a run-time string."
-  (let ((c0 (cons-bytes)))
-    (dotimes (i 100) (%hud-guard 10f0 10f0 300f0 6f0 0.4f0 0.6f0 nil nil 1 1f0)
-                     (%hud-guard 10f0 10f0 300f0 6f0 0.4f0 0.6f0 t nil 3 1f0))
-    (let ((c1 (cons-bytes)))
-      (dotimes (i 100) (%hud-flash 10f0 30f0 300f0 6f0 0.8f0 nil :blue nil 1f0) (%hud-flash 10f0 30f0 300f0 6f0 0.8f0 t nil :orange 1f0))
-      (let ((c2 (cons-bytes)))
-        (dotimes (i 100) (%hud-cd 10f0 50f0 150f0 6f0 0.4f0 0f0 nil 1f0 0.5f0 0.2f0) (%hud-cd 10f0 50f0 150f0 6f0 1f0 0.7f0 t 1f0 0.5f0 0.2f0))
-        (let ((c3 (cons-bytes)))
-          (dotimes (i 100) (%hud-lv 10f0 70f0 300f0 6f0 1 3 nil) (%hud-lv 10f0 70f0 300f0 6f0 3 3 t))   ; (NOME's bar went with the cups: the Shikai's L)
-          (let ((c4 (cons-bytes)))
-            (dotimes (i 100) (%hud-arm 10f0 90f0 300f0 6f0 3 100 nil 1f0) (%hud-arm 10f0 90f0 300f0 6f0 1 260 t 1f0))
-            (log-msg "hud consing: 100 x 2 guard bars ~d B, 100 x 2 flash-step bars ~d B, 100 x 2 cooldown bars ~d B, 100 x 2 NOME bars ~d B, 100 x 2 UDE bars ~d B"
-                     (- c1 c0) (- c2 c1) (- c3 c2) (- c4 c3) (- (cons-bytes) c4)))))))
-  ;; HUD-TEXT (the battle HUD's labels, ~a dozen a frame; REFACTOR_NEXT N3): a literal and a string made at run time
+  "2328: bytes consed by 10 HUD-TEXT draws of a literal and of a run-time string (the frozen modes' canvas screens) and by
+10 draws of each Bankai stance look (0 B each; the crossfade only while it runs). (The canvas battle HUD's gauge bars it
+measured left with that HUD, 2026-11-11, DUEL_LISP_HUD §16.)"
+  ;; HUD-TEXT: a literal and a string made at run time
   (let ((fresh (format nil "~d" 12345)))
     (log-msg "hud-text consing (10 draws, B): ~a, ~a" (cons-per "const" (hud-text "REIATSU" 10 10 2 *white*))
              (cons-per "fresh" (hud-text fresh 10 10 2 *white*))))
@@ -499,9 +485,6 @@ and of a run-time string."
                  (cons-per "kyokko" (vfx-line-cut 0f0 0f0 0f0 -4.6f0 0.1f0 0.23f0 :kyokko :dt 0.016f0))
                  (cons-per "south" (vfx-line-cut 0f0 0f0 0f0 -1.2f0 0.1f0 0.93f0 :south :dt 0.016f0))
                  (cons-per "enjo(old)" (vfx-line-cut 0f0 0f0 0f0 -9f0 0.2f0 0.67f0 :enjo :dt 0.016f0))
-                 (progn (kosei-mote *p1* 2.0 0.0 1.0 0.0)                     ; KOSEI's mote, 0.1 s into its flight
-                        (setf (aref *kosei-v* 0) (f32 (- (fx-clock) 0.1)))
-                        (cons-per "kosei mote" (%kosei-mote 0 300f0 90f0 2f0)))
                  (let ((f (fighter *p1*)))
                    (format nil "~a, ~a" (cons-per "aura crossfading" (draw-aura f (if (evenp i) :garb :heat) 0f0 0f0 0f0 1.8f0 1f0 0.016f0 1.0))
                            (progn (setf (aref *aura-t* (fighter-side f)) (f32 (- (fx-clock) 5.0)))   ; settled
@@ -814,7 +797,6 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2514) (setf *scene-transparent* (not *scene-transparent*)))    ; the transparent scene (DUEL_WEBUI §4)
         ((= c 2515) (webhud-consing))                                         ; the battle screens' sync (DUEL_WEBUI §7)
         ((= c 2509) (setf *lhud-shapes* (case *lhud-shapes* ((nil) t) ((t) :back) (t nil))))   ; the paint shapes' test card (DUEL_LISP_HUD §10)
-        ((= c 2517) (set-hud-renderer (if (eq *hud-renderer* :lisp) :html :lisp)))   ; the battle HUD: the page's / Lisp's (DUEL_LISP_HUD §4.6)
         ((= c 2518) (setf *lhud-still* (not *lhud-still*)))                  ; the Lisp HUD's still mode (phase 0: the legibility card)
         ((= c 2519) (lhud-consing) (lm-consing))                              ; the Lisp HUD's consing and time (DUEL_LISP_HUD §4.7; the menus' line §15)
         ((<= 2401 c 2404) (lm-results-scene (- c 2401)))                      ; a K.O. into RESULTS (the Lisp menus' review, DUEL_LISP_HUD §15)
@@ -915,9 +897,7 @@ every 30th battle frame (no cinematic, not paused) whether each fighter's box si
          (let ((c1 (cons-bytes)))
            (dotimes (i 100) (%portrait-dolly asp))
            (let ((c2 (cons-bytes)))
-             (log-msg "portrait consing: 100 x camera ~d B, 100 x dolly ~d B, 1 x the whole portrait HUD column ~d B"
-                      (- c1 c0) (- c2 c1)
-                      (let ((c3 (cons-bytes))) (hud-side-portrait *p1* (window-width) (window-height) (ui-scale)) (- (cons-bytes) c3)))))))))
+             (log-msg "portrait consing: 100 x camera ~d B, 100 x dolly ~d B" (- c1 c0) (- c2 c1))))))))
 
 (defun debug-hud (w h s)
   (declare (ignore h))

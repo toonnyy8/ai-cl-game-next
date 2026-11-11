@@ -52,8 +52,8 @@ never offers it: the deck needs portrait)."
 ;;; *DECK-FRAC*; the line runs from *DECK-SPLIT*'s first height (of the deck's, at its far edge) to its second (at the thumb's edge);
 ;;; 爆 sits in the SP side 3 U in from the thumb's edge, 22 % down the deck; 止 (pause) above the player's own plate, on the thumb's
 ;;; side (37 % + 17 U up). The flow pad (where a gesture may start) keeps the playtest's size (2026-09-27: the whole thumb area, 460
-;;; CSS px): above the deck it is all SP (the line's far end extended). The page (duel/web/hud.js) draws all of it where Lisp
-;;; publishes it (DUEL_WEBUI §7), so what is drawn is what is hit.
+;;; CSS px): above the deck it is all SP (the line's far end extended). The Lisp HUD (lhud-deck.lisp) draws all of it where the
+;;; model puts it (webhud.lisp WEBHUD-DECK, DUEL_WEBUI §7), so what is drawn is what is hit.
 (defparameter *chip-spots*
   '((-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (-9999 9999 0 "") (7.4 :clock 4.6 "II")
     (6.7 :rv 3.7 "RV"))
@@ -311,52 +311,14 @@ read on a lift before the hold (TOUCH-CHIP-TAP-P: the Burst), Mod + P once held 
   (when (tap-p)
     (let ((u (/ (touch-tap-x *touch*) (max 1 (window-width))))) (cond ((< u 0.33) -1) ((> u 0.67) 1) (t 0)))))
 
-;;; ---------------------------------------------------------------- drawing
-;; (%RING %ARC %DISC: engine/lisp/ui.lisp)
-
-(defparameter *c-chip* '(1 1 1 0.9))
-
-(defparameter *chip-labels* (coerce (mapcar #'fourth *chip-spots*) 'simple-vector))
-
-(defun-fast hud-deck (s)
-  "The thumb deck (the engine's, when the page draws no battle screens: WEBHUD-P): the flow pad's outline and its slanted tap
-split (SP above, ATK below), the chips (lit while held; RV while a burst or the awakening is possible, its REIATSU ring while
-the awakening is: the old AWAKEN chip folded into it 2026-10-28),
-the ink ring under the thumb, and the recognised gesture's glyph at the thumb for 0.3 s (the misread teacher).
-(A DEFUN-FAST since 2026-10-26, ~2 KB a frame before: the floats unboxed, the generic code's operations.)"
-  (declare (fixnum s))
-  (let* ((tr *touch*) (d (touch-dpx tr)) (dk *deck*) (web (canvas-hud-off-p))   ; the page draws the deck: only the stick's ring and a form's
-         (u (u-chip-p))                                  ; a :u form: the chip is U                          ; :deck hook stay
-         (pk (and *p1* (kit-hook (kit-of *p1*) :p)))      ; a :p form: the chip is its P, labelled by :p-label
-         (pl (and pk (let ((h (kit-hook (kit-of *p1*) :p-label))) (and h (funcall h *p1*))))))
-    (declare (single-float d) (type f32vec dk))
-    (unless web
-    (%houtline (aref dk 0) (aref dk 1) (- (aref dk 2) (aref dk 0)) (- (aref dk 3) (aref dk 1)) 1f0 1f0 1f0 0.12f0)
-    (let* ((dr *deck-rect*) (left (eq *hand* :left))     ; the tap zones' slanted line (*DECK-SPLIT*), named at the far edge
-           (x0 (aref dr 0)) (x1 (aref dr 2)) (y0 (aref dr 1)) (dh (- (aref dr 3) y0))
-           (fl (if left (aref *deck-split-at* 1) (aref *deck-split-at* 0)))
-           (fr (if left (aref *deck-split-at* 0) (aref *deck-split-at* 1)))
-           (yl (+ y0 (* fl dh))) (yr (+ y0 (* fr dh))) (y (if left yr yl)) (t2 (f-max 1f0 d))
-           (x (if left (- x1 (* 6f0 d)) (+ x0 (* 6f0 d)))) (al (if left :right :left))
-           (fs (%hround (* 1.5f0 (i->f s)))))           ; (HUD-TEXT rounds its (* 1.5 S))
-      (declare (type f32vec dr) (single-float x0 x1 y0 dh fl fr yl yr y t2 x) (fixnum fs))
-      (%hq x0 yl x1 yr x1 (+ yr t2) x0 (+ yl t2) 1f0 1f0 1f0 0.18f0)
-      (%hud-text "SP" x (- y (i->f (* 13 s))) fs '(1 1 1 0.4) :align al :shadow nil)       ; the tap zones (the core system, 2026-10-27)
-      (%hud-text "ATK" x (+ y (i->f (* 3 s))) fs '(1 1 1 0.4) :align al :shadow nil))
-    (dotimes (i 8)
-      (unless (or (member i '(0 1 2 4 5)) (and (= i 7) (not (and *p1* (or (burst-ok-p *p1*) (rv-ready-p))))))   ; RV: while a burst or the awakening is possible
-        (let ((on (touch-chip-down-p tr i)) (cx (aref dk (+ 4 (* 3 i)))) (cy (aref dk (+ 5 (* 3 i)))) (r (aref dk (+ 6 (* 3 i)))))
-          (declare (single-float cx cy r))
-          (%disc cx cy r 0.05 0.04 0.07 (if on 0.85 0.45))
-          (%ring cx cy r (* 2f0 d) 1.0 (if on 0.85 0.55) (if on 0.4 0.3) (if on 1.0 0.7))
-          (when (and (= i 7) (rv-ready-p)) (%ring cx cy (* 1.25f0 r) (* 2f0 d) 1.0 0.85 0.23 (if (rv-holding-p) 1.0 0.5)))   ; 爆's REIATSU ring
-          (when (= i 1)                                  ; a refused L (cooling, cold, its kit's refusal): the chip flashes
-            (let ((fl (- 1f0 (* 4f0 (- (fx-clock) (aref *refused-t* 0))))))
-              (declare (single-float fl))
-              (when (> fl 0f0) (%disc cx cy r 1.0 1.0 1.0 (* 0.7f0 fl)) (%ring cx cy (* 1.15f0 r) (* 3f0 d) 1.0 1.0 1.0 fl))))
-          (%hud-text (cond ((and u (= i 5)) "U") ((and pl (= i 5)) pl) (t (svref *chip-labels* i))) cx (- cy (* 3.5f0 (i->f s))) s
-                     *c-chip* :align :center :shadow nil)))))
-    (when (touch-active-p tr)                              ; the floating stick: an ink ring at its origin
+;;; ---------------------------------------------------------------- drawing (%RING %ARC: engine/lisp/ui.lisp)
+(defun-fast hud-stick ()
+  "The floating stick of the one-hand deck (the deck itself, its chips, 爆 and the touch ink are the Lisp HUD's, lhud-deck.lisp /
+lhud-fx.lisp): an ink ring at the thumb's origin while it is down, a form's own ring (its kit's :deck hook: Hisagi's sickle dot,
+KESSA's clone dots) and, for the retired Rukia, the frost arc of her cold gauge round it."
+  (let* ((tr *touch*) (d (touch-dpx tr)))
+    (declare (single-float d))
+    (when (touch-active-p tr)
       (%ring (touch-ox tr) (touch-oy tr) (* d 48f0) (* 2f0 d) 1.0 1.0 1.0 (if (touch-resting-p tr) 0.35 0.6))
       (let ((h (and *p1* (kit-hook (kit-of *p1*) :deck)))) (when h (funcall h *p1* (touch-ox tr) (touch-oy tr) d)))   ; a form's own ring
       (let ((m (and *p1* (kit-meter (kit-of *p1*)))))      ; Rukia: resting cools her: the frost arc = C / 200 (the two
@@ -368,26 +330,4 @@ the ink ring under the thumb, and the recognised gesture's glyph at the thumb fo
             (if lock
                 (%arc (touch-ox tr) (touch-oy tr) r (* 3f0 d) k 0.55 0.56 0.6 0.8)
                 (%arc (touch-ox tr) (touch-oy tr) r (* 3f0 d) k 0.92 0.96 1.0 (if zero (+ 0.6 (* 0.4 (hud-pulse 3.0))) 0.9)))
-            (%hrect (- (touch-ox tr) d) (+ (touch-oy tr) r) (* 2f0 d) (* 3f0 d) 1f0 1f0 1f0 0.8f0))))) ; the half: bar 1 full
-    (let ((age (- (* 1000f0 (elapsed-time)) (touch-glyph-t tr))))
-      (when (and (not web) (< age 300) (plusp (length (the simple-string (svref *glyph-names* (touch-glyph tr))))))   ; (the rest: no glyph)
-        (hud-text (svref *glyph-names* (touch-glyph tr)) (touch-glyph-x tr) (- (touch-glyph-y tr) (* 60 d)) (* 2 s)
-                  '(1 0.85 0.4 1) :align :center)))))
-
-(defparameter *gesture-card*
-  '(("TAP LOW HALF" "ATTACK  (J)  TAPS = STRING") ("TAP HIGH HALF" "SP  (SHIFT+J)")
-    ("SP, THEN HOLD STILL" "HOLD THE PAD WHILE THE SP HITS = KIKON")
-    ("DRAG" "MOVE  (FAR = RUN)") ("FLICK UP" "DASH  (KEEP GOING = RUN)") ("FLICK DOWN / SIDE" "STEP BACK / SIDESTEP")
-    ("HOLD, THEN FLICK UP" "HOHO")
-    ("FLICK DOWN WHEN HIT" "BURST  (OR THE RV CHIP)") ("RV HELD 0.3 S, WHEN READY" "AWAKEN") ("II / BACK" "PAUSE"))
-  "The static gesture card (ONE-HAND's CONTROLS).")
-
-(defun hud-gestures (w h s)
-  (ui-rect 0 0 w h '(0 0 0 0.75))
-  (ui-big-text "ONE HAND" (floor w 2) (* 0.08 h) (* 3 s) *white* '(0.7 0.25 0.05 1) s)
-  (let ((sc (fit-scale "FLICK DOWN WHEN HIT" s (* 0.9 w))))
-    (loop for (a b) in *gesture-card* for i from 0
-          for y = (+ (* 0.18 h) (* i (max (* 22 sc) (* 0.058 h)))) do   ; a tall screen: the rows spread down
-            (ui-text a (floor w 2) y :scale sc :align :center :color *ember*)
-            (ui-text b (floor w 2) (+ y (* 9 sc)) :scale (max 1 (fit-scale b sc (* 0.95 w))) :align :center :color *white*)))
-  (ui-text "TAP TO GO BACK" (floor w 2) (* 0.94 h) :scale s :align :center :color *dim* :shadow t))
+            (%hrect (- (touch-ox tr) d) (+ (touch-oy tr) r) (* 2f0 d) (* 3f0 d) 1f0 1f0 1f0 0.8f0)))))))   ; the half: bar 1 full

@@ -202,7 +202,7 @@
   :endless-form :nozarashi                      ; ENDLESS (frozen): the Shikai
   :weapon :nozarashi :stance :ke-s-st-1 :aura :reiatsu :swing-sfx :whoosh-cleaver
   :enter-clips (:ke-release :ke-nome) :cine ken-nozarashi-cine :respect-callout "OMOSHIREE!"
-  :meter (:name "KAIHO" :max 3 :start 0 :lv t :draw ken-hud-meter :label ken-hud-label) :meter-gain nil   ; L 0-3 (KEN-HIT raises it)
+  :meter (:name "KAIHO" :max 3 :start 0 :lv t :label ken-hud-label) :meter-gain nil   ; L 0-3 (KEN-HIT raises it)
   :hooks (:p ken-card-bankai :armor ken-armor :dmg-mult ken-dmg-mult
           :lv ken-lv :as-pick ken-as-pick :hit ken-hit :link-ok ken-link-ok :draw ken-draw)   ; (P: DANGAI's 隨時卍解 card, frozen;
                                                                                               ;  :draw the sword wind by L, ken-look.lisp)

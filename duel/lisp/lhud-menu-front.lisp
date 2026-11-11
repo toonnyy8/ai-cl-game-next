@@ -255,7 +255,7 @@ eggs (KONPAKU 魂魄, the lost ones as rings), the four stats (TIME, BEST COMBO,
          (top (if narrow (f-max y0 (- y1 hgt 18f0)) (+ y0 (f-max 0f0 (* 0.5f0 (- (- y1 y0) hgt))))))
          (x (* d x0)) (y (* d top)))
     (declare (single-float now d x0 y0 x1 y1 colw nz en rowh hgt top x y) (fixnum w win lose o))
-    (setf (aref *lm-g* 13) colw (aref *lm-g* 15) en)
+    (setf (aref *lm-g* 13) colw (aref *lm-g* 15) en (aref *lm-g* 31) (if narrow (+ (* 1.14f0 hgt) 18f0) hgt))   ; ([31] the stack: LM-FIT-K; narrow, the hanko 14 % above it)
     (paint-reset)
     ;; who, the name, DEFEATED …
     (let* ((wz (css 11f0)))

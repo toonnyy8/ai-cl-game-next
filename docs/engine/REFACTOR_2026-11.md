@@ -317,8 +317,11 @@ Options:
 2. After the main session's estimate of a Lisp port (a full port about 8-12k lines; the blocker is arbitrary zh-TW text;
    recommendation: stay HTML and remove the fallback): 「移除」.
 3. Then: 「等等完成一個段落後先暫停，我希望使用 lisp 完全重現目前的 html HUD」.
-**Status: ON HOLD again.** The canvas path (hud.lisp / hud-screens.lisp / onehand.lisp) is the Lisp-side starting point of the
-Lisp HUD (DUEL_WEBUI "A Lisp HUD", DEVLOG §704), so nothing of it is removed. Refactor round 4 pauses after wave 0 and the first
+**Status: DONE (2026-11-11).** The user: 「將 lisp 版設為預設並移除 html」, then 「舊的 Canvas HUD 也移除」: the Lisp HUD
+became the only renderer and the canvas battle HUD, its menus, its pause and the one-hand deck's drawing were removed in the same
+batch (docs/duel/DUEL_LISP_HUD.md §16.6). What stayed: `hud-world` (the red soul flame), `hud-rush-lines`, `hud-hint`, the big
+words, the cinematics' letterbox and captions, the stick ring, and the frozen modes' and retired kits' canvas pieces listed in
+§16.6 for D1 / D2. (Before: ON HOLD; the canvas path was the Lisp-side starting point of the Lisp HUD, DEVLOG §704.) Refactor round 4 pauses after wave 0 and the first
 merged batches; B2, B3, B4, B6 and waves 2-3 (including the removals D1 / D2) are not started.
 
 **⚠ D5 manual.html's old-system, retired-character and frozen-mode sections (~500 of 1,088 lines).**

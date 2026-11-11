@@ -112,7 +112,8 @@ panel's outside."
     (hud-text name (if right (- x em (* 2 s)) (+ x em (* 2 s))) y s *c-ice* :align (if right :right :left))))
 
 (defun rukia-hud-meter (e kit x y w h right tm lx ly ls)
-  "Her meter row (the kit meter's :draw: hud.lisp HUD-SIDE / HUD-SIDE-PORTRAIT): the cold gauge in the W x H slot at (X Y),
+  "Her meter row (the kit meter's :draw, which only the canvas battle HUD called: uncalled since it left, 2026-11-11, kept with her
+retired kit for refactor decision D1, DUEL_LISP_HUD §16): the cold gauge in the W x H slot at (X Y),
 its label at (LX LY), scale LS (LX NIL: the portrait row, no label)."
   (hud-temp e kit x y w h right tm)
   (when lx (hud-temp-label lx ly ls right (temp-label (gauges e) kit))))

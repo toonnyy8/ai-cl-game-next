@@ -1,10 +1,11 @@
 ;;;; lhud-menu.lisp — the menus drawn by Lisp (docs/duel/DUEL_LISP_HUD.md §15, phases 5-6): the frame (LHUD-MENU-DRAW: the systems,
 ;;;; then the screen's view, the rails and the cut), the backdrop (menu.css #ui .wash over the scene; SELECT's #ui-back world in the
-;;;; back layer), the rails (the mark, the crumb, the hints), the cut between screens, the pointer (hot boxes -> the page's commands
-;;;; through webui.lisp's queue, so both renderers drive the flow the same way), the input kind (keys / pad / touch, menu.js's own
+;;;; back layer), the rails (the mark, the crumb, the hints), the cut between screens, the pointer (hot boxes -> menu.js's commands
+;;;; through webui.lisp's queue), the input kind (keys / pad / touch, menu.js's own
 ;;;; state), and the devices every screen shares: the brush behind a focused row, the red seal, the torn paper, the skewed option
 ;;;; slab, the key cap. The screens: lhud-menu-front.lisp (TITLE, MODE, RESULTS), lhud-menu-set.lisp (SETTINGS, CONTROLS),
-;;;; lhud-menu-select.lisp (SELECT); the tables lhud-menu-data.lisp; the pure layout lhud-menu-geom.lisp.
+;;;; lhud-menu-select.lisp (SELECT); the tables lhud-menu-data.lisp; the pure layout lhud-menu-geom.lisp. The look reproduces the HTML
+;;;; menus as they were at main 562acb37 (menu.js, menu.css: `git show 562acb37:duel/web/menu.css`), removed 2026-11-11.
 ;;;; The model is webui.lisp's *UI-SENT* (V k, the 30000 block, DUEL_WEBUI §3), the one thing the views read of the game; each screen
 ;;;; keeps its component state (focus transitions, animation starts) in its own vectors, changed only by its system. Sizes are menu.css's
 ;;;; CSS px times the density (LAY-CSS). Cosmetic, outside the sim step; 0 B a frame in steady state (debug 2519's menus line).
@@ -459,9 +460,30 @@ middle, then faded."
   nil)
 
 ;;; ---------------------------------------------------------------- the frame
+(declaim (type f32vec *lm-fit*))
+(defvar *lm-fit* (make-f32 8)
+  "[scr] the stack's height (CSS px, the geometry's [31]) screen SCR (V0: 2 MODE, 3 SETTINGS, 4 CONTROLS, 6 RESULTS) took last frame,
+the next frame's fit (LM-FIT-K); [7] the density LM-ZOOM! put aside.")
+(defun-fast lm-zoom! (scr)
+  "The frame's density (*LAY* [2], [9] the CSS width) for screen SCR's view: shrunk by LM-FIT-K when its stack did not fit last frame
+(a short phone, a landscape phone: DUEL_LISP_HUD §16). LM-UNZOOM! puts it back; the rails and the cut keep the real one."
+  (declare (fixnum scr))
+  (let* ((l *lay*) (d (aref l 2)) (k (lm-fit-k (aref *lm-fit* scr) (/ (aref l 1) d) (/ (aref l 4) d) (/ (aref l 5) d))))
+    (declare (type f32vec l) (single-float d k))
+    (setf (aref *lm-fit* 7) d (aref l 2) (* d k) (aref l 9) (/ (aref l 0) (* d k))))
+  nil)
+(defun-fast lm-unzoom! (scr)
+  "Undo LM-ZOOM! and keep the stack's height screen SCR's geometry left in *LM-G* [31] for the next frame's fit."
+  (declare (fixnum scr))
+  (let* ((l *lay*) (d (aref *lm-fit* 7)))
+    (declare (type f32vec l) (single-float d))
+    (setf (aref *lm-fit* scr) (aref *lm-g* 31) (aref l 2) d (aref l 9) (/ (aref l 0) d)))
+  nil)
+
 (defun lhud-menu-draw ()
-  "The Lisp menus of this frame (HUD-DRAW under :LISP, after LHUD-DRAW set the frame's layout and started the hot boxes): the systems,
-the pointer against last frame's boxes, then the screen (SELECT's back layer and world under the scene), the rails and the cut."
+  "The Lisp menus of this frame (HUD-DRAW, after LHUD-DRAW set the frame's layout and started the hot boxes): the systems, the pointer
+against last frame's boxes, then the screen (SELECT's back layer and world under the scene; MODE, SETTINGS, CONTROLS and RESULTS
+shrunk to fit a short window: LM-ZOOM!), the rails and the cut."
   (let* ((scr (uv 0)))
     (declare (fixnum scr))
     (lm-systems scr)
@@ -469,7 +491,10 @@ the pointer against last frame's boxes, then the screen (SELECT's back layer and
       (lm-pointer)
       (if (= scr 5) (lm-select-back) (lm-wash))
       (case scr
-        (1 (lm-title)) (2 (lm-mode)) (3 (lm-settings)) (4 (lm-controls)) (5 (lm-select)) (6 (lm-results)))
+        (1 (lm-title)) (5 (lm-select))
+        ((2 3 4 6) (lm-zoom! scr)
+         (case scr (2 (lm-mode)) (3 (lm-settings)) (4 (lm-controls)) (t (lm-results)))
+         (lm-unzoom! scr)))
       (lm-rails scr)
       (lm-cut))
     nil))

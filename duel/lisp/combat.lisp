@@ -221,15 +221,14 @@ drain delay."
     (when (and m (plusp amount) (zerop (gauges-form-left g)) (not (siphon-of e)))
       (setf (gauges-meter g) (f32 (gauge-add (gauges-meter g) amount (getf m :max)))))))
 
-(defun kosei! (att g x y z)
+(defun kosei! (att g)
   "KOSEI (docs/duel/DUEL_STRINGS.md §5): a contact of ATT's own melee hit window worth G points (KOSEI-BASE x the combo
 bonus, since 2026-10-26; before: its guard value) pays him Reiatsu and
-flash-step, x KOSEI-MULT of his guard gauge (x1 full .. x3 empty); the :kosei event (the HUD's mote from X Y Z). Siphoned
-(SIPHON-OF), it pays the siphoning side."
+flash-step, x KOSEI-MULT of his guard gauge (x1 full .. x3 empty). Siphoned (SIPHON-OF), it pays the siphoning side. (Its
+:kosei event, the canvas HUD's ember mote, left with that HUD, 2026-11-11.)"
   (let ((to (or (siphon-of att) att)))
-    (multiple-value-bind (r fs m) (kosei-gain g (gauges-gg (gauges att)))
-      (pay-gauges to (* r (burst-gain-mult (gauges-burst (gauges att)))) fs)   ; ORANGE: x1.5 Reiatsu
-      (emit :kosei to m x y z))))
+    (multiple-value-bind (r fs) (kosei-gain g (gauges-gg (gauges att)))
+      (pay-gauges to (* r (burst-gain-mult (gauges-burst (gauges att)))) fs))))   ; ORANGE: x1.5 Reiatsu
 
 ;;; ---------------------------------------------------------------- DANGAI's run modifiers on a hit (run-mods.lisp, DUEL_ROGUE §4.4)
 (defun run-atk-mods (att atk mv hazard)
@@ -435,8 +434,7 @@ result (NIL = no effect)."
           (kosei! att (* (kosei-base (mv-kind mv) (getf (mv-params mv) :kosei))   ; its kind's points x the combo bonus
                          (combo-gain-mult (if (eq (contact-of res) :hit)            ;  (this hit's index; a block 1)
                                               (- (1+ (fighter-combo-hits fd)) (fighter-combo-from fd))
-                                              1)))
-                  x y z))
+                                              1)))))
         (when (eq res :counter) (respect def) (incf (gauges-counters (gauges att))))
         (when *run-mods* (run-hit-landed! att res mv own))
         (ecase res

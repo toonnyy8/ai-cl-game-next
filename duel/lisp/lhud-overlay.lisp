@@ -5,7 +5,7 @@
 ;;;; the winner with his Konpaku, best combo and Kikons). Above .hudl (z 18-20), so neither .3 paused nor out in a cinematic.
 ;;;; Each overlay: a system (…-UPDATE: the model's phase / kind / serial edges -> its animation starts and the strings it shows, made
 ;;;; only when they change) and a view (the model, that state, the UI clock -> paint calls). The pause rows are hot boxes (ids 700 +
-;;;; row): LHUD-PAUSE-POINTER turns last frame's hits into the page's pause commands (WEBHUD-PAUSE-CMD). 0 B a frame in steady state.
+;;;; row): LHUD-PAUSE-POINTER turns last frame's hits into pause commands (WEBHUD-PAUSE-CMD). 0 B a frame in steady state.
 (in-package :duel)
 
 ;;; ---------------------------------------------------------------- state (component data; mutated only by the systems below)
@@ -83,7 +83,7 @@ middle (the 0 % keyframe's `left` interpolated to the element's centre).")
 
 ;;; ---------------------------------------------------------------- the intro card and READY / 斬: the system
 (defun-fast lhud-intro-update (fresh)
-  "hud.js renderCard: the card is on while the intro shows its phases 1-3 (V14) on the page's layer (V0 32); a new phase 1 / 2 restarts
+  "hud.js renderCard: the card is on while the intro shows its phases 1-3 (V14) on the Lisp HUD's layer (V0 32); a new phase 1 / 2 restarts
 the name column (P1's at the right, P2's at the left) with the fighter's full name, reading (S30) and line (S31); phase 3 restarts the
 slash and READY; phase 4 (the FIGHT beat) or a skipped intro's start hides READY and restarts 斬 (and the slash unless READY ran).
 FRESH (the HUD's first frame after being off): the letterbox shows at once (no transition out of display: none)."
@@ -450,7 +450,7 @@ no 1u, value 1.1u. Desktop: 止 and the strip side by side (gap 3u, 8u in), both
 
 ;;; ---------------------------------------------------------------- the pause rows' pointer (hud.js's strip listeners)
 (defun-fast lhud-pause-pointer ()
-  "Under :LISP, the pause rows' pointer presses as the page's queue would send them (WEBHUD-PAUSE-CMD): the mouse moved onto a row
+  "The pause rows' pointer presses as hud.js's listeners sent them (WEBHUD-PAUSE-CMD): the mouse moved onto a row
 (pointerover) puts the cursor there; a click or a tap on a row puts the cursor there and confirms. Hits are on last frame's hot boxes
 (700 + row: what the player saw). Called by WEBHUD-COMMANDS before the flow reads the frame's presses."
   (let* ((iv *lhud-ov-i*) (ts *lhud-ov-t*) (n (aref iv 7)) (mx (mouse-x)) (my (mouse-y)) (hov (- (hot-hit mx my) 700))

@@ -159,7 +159,7 @@ arrow."
   nil)
 
 (defun-fast lm-settings ()
-  "SETTINGS: the side title (設定, SETTINGS, the paragraph) and the ten rows (the eight settings, RESET LEARNING, BACK)."
+  "SETTINGS: the side title (設定, SETTINGS, the paragraph) and the nine rows (the seven settings, RESET LEARNING, BACK)."
   (lm-begin-geom)
   (let* ((hv *lm-g2*) (now (aref *ui-clock* 0)))
     (declare (single-float now) (type f32vec hv))

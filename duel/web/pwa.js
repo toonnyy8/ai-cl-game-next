@@ -3,7 +3,6 @@
 //   get 0 = touch-first device ((pointer: coarse)), 1 = back gestures since the last ask,
 //       3 / 4 = the safe-area inset at the top / bottom, 5 / 6 = at the left / right, CSS px (env(safe-area-inset-*); tests set
 //       gamePage.testInsets = [top, bottom, left, right]), 7 = 1 when the OS asks for reduced motion ((prefers-reduced-motion: reduce))
-//       8 = 1 when the URL has ?hud=lisp (the battle HUD drawn by Lisp, docs/duel/DUEL_LISP_HUD.md)
 //       10 + i = SETTINGS row i as saved (option index + 1; 0 = never saved, or no storage: the game's default)
 //       20000 + 100 side + i (+ 50: the pad) = CONTROLS binding of row i (duel/lisp/control.lisp BIND-CODE; 0 = default)
 //       30 + k = ENDLESS best record slot k (roster index i: 30 + 2i stages, 31 + 2i seconds; 0 = none / no storage)
@@ -13,10 +12,6 @@
 //       (docs/duel/DUEL_AI_STRATEGY.md §8.14; localStorage soulduel.fq.<me>.<vs>)
 //   set 0 = battle on / off (the screen wake lock), 1 = open the manual (manual.html, this window), 10 + i = save SETTINGS row i, 30 + k = save ENDLESS slot k, 10100 + 1000 i (+ 1 + j) = the assist's learned table of CPU i (soulduel.learn.a<i>), 20000 + .. = save a CONTROLS binding (soulduel.bind.<k - 20000>),
 //       100 + 1000 i + 1 + j = table entry j (kept here), then 100 + 1000 i = n commits the first n entries (0: forget it); 40000 + .. likewise
-//   30000 + k = the HTML menus (menu.js, docs/duel/DUEL_WEBUI.md §3): get 30000 = 1 when they are loaded, 30001 = the next queued
-//       press, 30002 / 30003 = SELECT's model spot; set 30000 + k = the state they draw (globalThis.gameUI.set)
-//   30100 + k = the battle screens (hud.js, DUEL_WEBUI §7): get 30100 = 1 when loaded, 30101 = the next queued pause press; set /
-//       setStr 30100 + k = what they draw (globalThis.gameHUD.set / setStr)
 // SETTINGS rows (duel/lisp/control.lisp *SETTINGS*, same order) live in localStorage as soulduel.<name>; every access is
 // wrapped in try/catch (private mode / blocked storage: nothing saved, the defaults).
 // On a touch-first device only: the back gesture as BACK / pause instead of leaving (a CloseWatcher where there is one, the history
@@ -27,7 +22,7 @@
   var coarse = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
   var reduced = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;   // (get 7)
   var back = 0, wakeOn = false, lock = null;
-  var settings = ['onehand', 'handlr', 'split', 'flick', 'camera', 'learn', 'hint', 'autoguard', 'autocombo', 'autobreak', 'volume', 'hud'];   // soulduel.hud: SETTINGS' HUD row, HTML / LISP (DUEL_LISP_HUD §7, 2026-11-11)   // soulduel.handlr: HAND as LEFT RIGHT (2026-11-02)
+  var settings = ['onehand', 'handlr', 'split', 'flick', 'camera', 'learn', 'hint', 'autoguard', 'autocombo', 'autobreak', 'volume'];   // soulduel.handlr: HAND as LEFT RIGHT (2026-11-02)
   function stored(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: not saved */ } }
   if (stored('soulduel.handlr') === null) {              // soulduel.hand saved RIGHT 1, LEFT 2: carried over swapped, once
@@ -66,14 +61,11 @@
   }
   globalThis.gamePage = {
     get: function (k) {
-      if (k >= 30000 && k < 30100) { var u = globalThis.gameUI; return u ? u.get(k - 30000) : 0; }
-      if (k >= 30100 && k < 30300) { var hd = globalThis.gameHUD; return hd ? hd.get(k - 30100) : 0; }
       if (k === 0) return coarse ? 1 : 0;
       if (k === 1) { var b = back; back = 0; return b; }
       if (k >= 10 && k < 10 + settings.length) return +(stored('soulduel.' + settings[k - 10]) || 0) | 0;
       if (k >= 3 && k <= 6) return inset(k - 3);
       if (k === 7) return reduced && reduced.matches ? 1 : 0;   // (DUEL_LISP_HUD §4.4)
-      if (k === 8) return /[?&]hud=lisp(&|$)/.test(location.search) ? 1 : 0;   // the Lisp HUD (docs/duel/DUEL_LISP_HUD.md §4.6)
       if (k >= 30 && k < 50) return +(stored('soulduel.endless.' + (k - 30)) || 0) | 0;
       if (k >= 50 && k < 70) return +(stored('soulduel.rogue.' + (k - 50)) || 0) | 0;
       if (k >= 20000 && k < 20200) return +(stored('soulduel.bind.' + (k - 20000)) || 0) | 0;
@@ -82,12 +74,7 @@
       if (k >= 40000 && k < 140000) { var t = ltab(fqkey(k), 'soulduel.fq.'), j = (k - 40000) % 1000; return j ? (t[j - 1] | 0) : t.length; }
       return 0;
     },
-    setStr: function (k, s) {                            // strings (engine pf_page_set_str): the battle screens' (hud.js)
-      if (k >= 30100 && k < 30300 && globalThis.gameHUD) globalThis.gameHUD.setStr(k - 30100, s);
-    },
     set: function (k, v) {
-      if (k >= 30000 && k < 30100) { if (globalThis.gameUI) globalThis.gameUI.set(k - 30000, v); return; }
-      if (k >= 30100 && k < 30300) { if (globalThis.gameHUD) globalThis.gameHUD.set(k - 30100, v); return; }
       if (k === 1) location.href = 'manual.html';        // MODE's MANUAL row; the manual links back to ./
       if (k === 0 && coarse) { wakeOn = !!v; if (wakeOn) wake(); else if (lock && lock.release) { lock.release(); lock = null; } }
       if (k >= 10 && k < 10 + settings.length) store('soulduel.' + settings[k - 10], String(v));

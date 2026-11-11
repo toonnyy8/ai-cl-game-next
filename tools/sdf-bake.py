@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """sdf-bake.py — bake the Lisp HUD's text atlas (docs/duel/DUEL_LISP_HUD.md §4.2): single-channel signed distance fields of
-the glyphs the HUD shows, from the faces the HTML page uses, into duel/hud-font/atlas.r8 + metrics.bin (committed; the build
+the glyphs the HUD shows, from the faces the HTML UI used (removed 2026-11-11, DUEL_LISP_HUD §16), into duel/hud-font/atlas.r8 + metrics.bin (committed; the build
 embeds them as static data through duel/hud-font/lhud-font.c; each face's OFL.txt is copied to duel/FONT-LICENSE-<face>.txt). Build-time only: no font file is tracked.
 
   build/sdf-venv/bin/python -I tools/sdf-bake.py [--fetch]
@@ -9,8 +9,10 @@ embeds them as static data through duel/hud-font/lhud-font.c; each face's OFL.tx
 build/font-cache/<face>/ (git-ignored), once. Needs fonttools, skia-pathops, numpy (`uv venv build/sdf-venv && uv pip install
 --python build/sdf-venv/bin/python fonttools skia-pathops numpy`).
 
-The charset: every face gets printable ASCII (Mincho: none); the CJK comes from the HUD's Lisp files (duel/lisp/lhud-*.lisp): a
-string in (kj "...") goes to the Mincho, (zh "...") to the sans, (big "...") to the display tier of the display face.
+The charset: every face gets printable ASCII (Mincho: none); the rest comes from the HUD's Lisp files (duel/lisp/lhud-*.lisp) alone:
+a string in (kj "...") goes to the Mincho, (zh "...") to the sans (and the Latin faces, for the non-CJK symbols they carry), (big "...")
+to the display tier of the display face. tests/duel-rules/lhud-charset.lisp fails when a string the HUD can show has a character no
+tag form names (every literal of those files but the docstrings, the model's writers, the kits' texts).
 Per glyph: the outline with its overlaps removed (pathops), flattened (chord error <= FLAT px at the bake size), the exact
 distance from each texel centre to the nearest segment (numpy), inside by even-odd crossings; stored as
 clamp(0.5 + d / (2 SPREAD), 0, 1) * 255 (the edge at 128, inside > 128). Tiers: body = a 32 px em, display = a 96 px em, both
@@ -35,13 +37,13 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 CACHE = os.path.join(ROOT, "build/font-cache")
 OUT = os.path.join(ROOT, "duel/hud-font")
 REPO = "https://raw.githubusercontent.com/google/fonts/main/ofl/"
-# face index -> (name, repo dir, file, axes to pin): the faces of duel/web/head.html, one weight each (DUEL_LISP_HUD §4.2)
+# face index -> (name, repo dir, file, axes to pin): the HTML UI's faces, one weight each (DUEL_LISP_HUD §4.2)
 FACES = [("display", "bigshouldersdisplay", "BigShouldersDisplay[wght].ttf", {"wght": 900}),
          ("mono", "martianmono", "MartianMono[wdth,wght].ttf", {"wght": 600, "wdth": 100}),
          ("kanji", "shipporiminchob1", "ShipporiMinchoB1-ExtraBold.ttf", {}),
          ("sans", "notosanstc", "NotoSansTC[wght].ttf", {"wght": 500})]
 BODY_EM, DISPLAY_EM, SPREAD, FLAT, ATLAS_W = 32, 96, 4, 0.1, 1024
-ASCII = "".join(chr(c) for c in range(32, 127)) + "·×"   # (the tags' middle dot and the clone count's ×: the page's)
+ASCII = "".join(chr(c) for c in range(32, 127)) + "·×"   # (the tags' middle dot and the clone count's ×)
 # shapes baked as glyphs at private-use codes (DUEL_LISP_HUD §14): code, face, SVG path, its viewBox height (= 1 em, the baseline at
 # the bottom), advance (viewBox units). Body tier only: the 4 px spread at a 32 px em is 1.75 units of a 14-unit flame, room for the
 # stake's 2.4-unit blood stroke drawn as an outline band (1.2 each side of the path); the display tier's spread would clip it.
@@ -59,35 +61,27 @@ def fetch():
                 print("fetch", url); urllib.request.urlretrieve(url, dst)
 
 
-STRING = re.compile(r'("(?:[^"\\\n]|\\.)*"|\'(?:[^\'\\\n]|\\.)*\'|`(?:[^`\\]|\\.)*`)|//[^\n]*|/\*.*?\*/', re.S)
-PAGE_JS = ["duel/web/hud.js", "duel/web/menu.js"]
-
-
-def page_chars():
-    """The non-ASCII characters of the string literals of the page scripts (comments stripped): everything the HTML UI can show."""
-    out = set()
-    for f in PAGE_JS:
-        out |= {c for c in "".join(m.group(1) or "" for m in STRING.finditer(open(os.path.join(ROOT, f), encoding="utf-8").read())) if ord(c) > 127}
-    return out
+def lhud_sources():
+    """The Lisp HUD's files (duel/lisp/lhud-*.lisp) with their ; comments blanked: (name, text)."""
+    d = os.path.join(ROOT, "duel/lisp")
+    for fn in sorted(os.listdir(d)):
+        if fn.startswith("lhud-") and fn.endswith(".lisp"):
+            yield fn, re.sub(r'("(?:[^"\\]|\\.)*")|;[^\n]*', lambda m: m.group(1) or "", open(os.path.join(d, fn), encoding="utf-8").read())
 
 
 def charset():
     """(face, tier) -> the chars to bake, and the chars drawn as shapes. ASCII for the Latin faces and the sans; the tagged strings
     of duel/lisp/lhud-*.lisp ((kj) Mincho body, (bigkj) Mincho display, (big) display face display tier, (zh) sans, (lhud-shape) none);
-    and every non-ASCII character of the page scripts' strings: the sans (and the Latin faces, for the non-CJK ones they carry)."""
+    the zh strings' non-CJK symbols also in the Latin faces (a Latin face keeps the symbols it has; the rest falls to the sans)."""
     want = {(0, 0): set(ASCII), (1, 0): set(ASCII), (2, 0): set(), (3, 0): set(ASCII) | {"\u25a1"}, (0, 1): set(), (2, 1): set()}
     tag = {"kj": (2, 0), "bigkj": (2, 1), "zh": (3, 0), "big": (0, 1)}
     shapes = set()
-    d = os.path.join(ROOT, "duel/lisp")
-    for fn in sorted(os.listdir(d)):
-        if fn.startswith("lhud-") and fn.endswith(".lisp"):
-            src = re.sub(r'("(?:[^"\\]|\\.)*")|;[^\n]*', lambda m: m.group(1) or "", open(os.path.join(d, fn), encoding="utf-8").read())   # (no ; comments)
-            for t, s in re.findall(r'\((kj|bigkj|zh|big|lhud-shape)\s+"((?:[^"\\]|\\.)*)"', src):
-                if t == "lhud-shape": shapes |= set(s)
-                else: want[tag[t]] |= set(s) - {" "} if t != "big" else set(s)
-    page = page_chars() - shapes
-    want[(3, 0)] |= page
-    for f in (0, 1): want[(f, 0)] |= {c for c in page if ord(c) < 0x2E80}   # (a Latin face keeps the symbols it has; the rest falls to the sans)
+    for _, src in lhud_sources():
+        for t, s in re.findall(r'\((kj|bigkj|zh|big|lhud-shape)\s+"((?:[^"\\]|\\.)*)"', src):
+            if t == "lhud-shape": shapes |= set(s)
+            else: want[tag[t]] |= set(s) - {" "} if t != "big" else set(s)
+    sym = {c for c in want[(3, 0)] if 127 < ord(c) < 0x2E80}
+    for f in (0, 1): want[(f, 0)] |= sym
     return want, shapes
 
 
@@ -184,7 +178,7 @@ def bake():
         cell, left, top = sdf(fl.contours, BODY_EM / vh, SPREAD)
         glyphs.append(dict(code=code, ft=fi, cell=cell, left=left, top=top, adv=round(adv * BODY_EM / vh * 64)))
     have = {g["code"] for g in glyphs if g["ft"] in (2, 3)}
-    lost = sorted(c for c in page_chars() - shapes if ord(c) not in have)
+    lost = sorted(c for (fi, t), cs in want.items() if fi in (2, 3) and t == 0 for c in cs if ord(c) not in have)
     if lost: sys.exit(f"no face has {''.join(lost)!r}: list it in an (lhud-shape \"...\") form of duel/lisp/lhud-charset.lisp (drawn as a shape) or fix the string")
     # shelf packing, tallest first
     order = sorted(range(len(glyphs)), key=lambda i: -(glyphs[i]["cell"].shape[0] if glyphs[i]["cell"] is not None else 0))

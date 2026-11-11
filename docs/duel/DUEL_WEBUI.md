@@ -1,5 +1,13 @@
 # DUEL_WEBUI — the HTML / CSS / SVG menus
 
+> **Removed 2026-11-11** (the user: 「將 lisp 版設為預設並移除 html」, docs/duel/DUEL_LISP_HUD.md §16). The HTML menus and battle screens
+> (`duel/web/menu.js`, `menu.css`, `hud.js`, `hud.css`, `alpha.js`, the web-font links in `head.html`) are gone; the Lisp HUD
+> (`duel/lisp/lhud-*.lisp`) draws every screen this document describes, from the same model (`*ui-sent*` §3, `*hud-sent*` /
+> `*hud-strs*` §7, now written only for Lisp). This document stays as the record of the design the Lisp HUD reproduces. The last
+> HTML version: `git show 562acb37:duel/web/menu.js` (and `menu.css`, `hud.js`, `hud.css`, `alpha.js`, `head.html`, `pwa.js`). Where it
+> says "the page draws" or "page get / set 30000 / 30100", read the Lisp HUD and its model vectors; the manual (`manual.html`) is still
+> an HTML page. The engine-drawn (canvas) fallback this document kept was removed the same day (「舊的 Canvas HUD 也移除」).
+
 The user, 2026-10-28: 「你能否使用 js, css 與 html 跟 SVG 構築全新的 UI/UX 選單介面呢？」, then a design draft (Artifact
 「SOUL DUEL Menus」, the ink-and-paper manga spread), then 「不用，幫我接入遊戲中吧」.
 

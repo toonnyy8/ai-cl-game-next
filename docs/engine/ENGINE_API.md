@@ -241,7 +241,7 @@ not split.
 `*render-transparent*` (NIL): a one-frame latch (`end-frame` clears it; set it again every frame it is wanted). T: no
 sky is drawn (the scene clears to 0,0,0,0) and the composite (`fs_comp_a`, pipeline slot 18) writes the scene's alpha,
 raised to the brightest channel where bloom or additive fx glow; it wins over `*grade-impact*`. A page whose
-WebGPU canvas is configured `alphaMode: 'premultiplied'` (SOUL DUEL's `duel/web/alpha.js`) then shows through
+WebGPU canvas is configured `alphaMode: 'premultiplied'` (as SOUL DUEL's `duel/web/alpha.js` did for its HTML menus until 2026-11-11, DUEL_LISP_HUD §16) then shows through
 around what was drawn; the game skips its own stage. NIL = the opaque composite exactly as before (alpha 1).
 
 **Screen punctuation** (docs/style/STYLE_STORM_DESIGN.md §3.6): `(grade-impact mode &key (threshold 0.4)

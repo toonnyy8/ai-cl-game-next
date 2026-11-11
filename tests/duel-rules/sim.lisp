@@ -111,7 +111,7 @@
     (check (and (= (gauges-reiatsu ga) 150f0) (= (gauges-fs ga) 60f0)))
     (gain-gauges a 100 0)
     (check (= (gauges-reiatsu ga) 150f0))
-    (kosei! a 14 0f0 0f0 0f0)
+    (kosei! a 14)
     (check (= (gauges-reiatsu ga) 150f0))
     (white-regen! a ga 1)
     (check (= (gauges-reiatsu ga) 150f0))

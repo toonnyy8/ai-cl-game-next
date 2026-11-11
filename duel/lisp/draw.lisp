@@ -350,8 +350,8 @@ spot-keep mode 4, docs/style/STYLE_STORM_DESIGN.md §3.6) while the form is on. 
 
 (defvar *scene-transparent* nil
   "T: the scene is drawn without the stage (sky, plaza, ruins, its ash and marks) and the canvas keeps its alpha
-(the engine's *RENDER-TRANSPARENT*, set again each frame), so the page's layers show around the fighters: SELECT
-behind the HTML menus (docs/duel/DUEL_WEBUI.md §4; the user, 2026-10-28: 「選角畫面現在會在廣場上畫出雙方的 3D 模型時，
+(the engine's *RENDER-TRANSPARENT*, set again each frame), so the paint stream's back layer shows around the fighters: SELECT
+over the Lisp menus' cards (docs/duel/DUEL_LISP_HUD.md §15, DUEL_WEBUI §4; the user, 2026-10-28: 「選角畫面現在會在廣場上畫出雙方的 3D 模型時，
 將人物以外的背景設為透明」). NIL: every frame as before. The flow sets it; debug 2514 toggles it.")
 
 (defun draw-scene (rdt)

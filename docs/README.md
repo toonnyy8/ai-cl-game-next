@@ -66,8 +66,8 @@ Claude skill 在 repo 根目錄的 `skills/`（連結到 `~/.claude/skills/`）�
 | [DUEL_ENDLESS.md](duel/DUEL_ENDLESS.md) | ENDLESS 無限連戰：CPU 關卡、規則與 gate（英文） |
 | [DUEL_ROGUE.md](duel/DUEL_ROGUE.md) | 疊在 ENDLESS 上的 roguelite 新模式（暫名斷界行）：10 步一輪、兩扇門、分類格數的獎勵、精英與頭目、靈壓階（設計中，英文，2026-10-22） |
 | [DUEL_ROGUE_B1_PLAN.md](duel/DUEL_ROGUE_B1_PLAN.md) | 斷界行第 1 批（骨架）的實作計畫：純規則、疊在 ENDLESS 上的一輪、門的畫面、MODE 列、測試與文件（英文，2026-10-22） |
-| [DUEL_WEBUI.md](duel/DUEL_WEBUI.md) | HTML／CSS／SVG 的選單（§1–§5）與對戰畫面（HUD、手機操作區、暫停、開場與結算，§6–§7）：Lisp 發布數值、網頁只負責畫的協定（30000+、30100+），引擎畫的版本留作備援（英文，2026-10-28） |
-| [DUEL_LISP_HUD.md](duel/DUEL_LISP_HUD.md) | 用 Lisp 重現 HTML 的 HUD 與選單（設計，未實作）：還原標準、HTML 介面盤點、引擎有什麼缺什麼、離線烘焙的 SDF 圖集、繪製流、版面、補間、與 HTML 並存比對、分階段計畫、待問問題（英文，2026-11-10） |
+| [DUEL_WEBUI.md](duel/DUEL_WEBUI.md) | HTML／CSS／SVG 的選單（§1–§5）與對戰畫面（HUD、手機操作區、暫停、開場與結算，§6–§7）的設計紀錄：2026-11-11 HTML 版已移除，Lisp HUD 照這份設計重現（英文，2026-10-28） |
+| [DUEL_LISP_HUD.md](duel/DUEL_LISP_HUD.md) | 用 Lisp 畫的 HUD 與選單：還原標準、HTML 介面盤點、引擎有什麼缺什麼、離線烘焙的 SDF 圖集、繪製流、版面、補間、分階段計畫與各階段結果；2026-11-11 起是唯一的繪製方式，HTML 版移除（§16，英文，2026-11-10） |
 | [DUEL_MOBILE_DESIGN.md](duel/DUEL_MOBILE_DESIGN.md) | 單手（片手）直式手機模式的設計 v2：預設右手、FULL 輔助不打折、不做本機直式雙人、日後藍牙／Wi-Fi 對戰；§12 是 2026-09-26 已做好的簡單版（P0 + PWA）與偏離之處 |
 
 ## 畫風（`style/`）

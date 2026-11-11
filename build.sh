@@ -48,6 +48,7 @@ emcc -O2 -DECL_C_COMPATIBLE_VARIADIC_DISPATCH -I. -Ivendor/ecl/include -Ivendor/
   -sEXPORTED_RUNTIME_METHODS=addRunDependency,removeRunDependency \
   --shell-file "$OUT/shell.html" ${EMCC_EXTRA:-} -o "$DIST/index.html"
 if [ -n "$WEB" ] && [ -d "$WEB" ]; then
+  find "$DIST" -maxdepth 1 -type f ! -name 'index.*' -delete   # a page file removed from $WEB must not linger in dist (or be deployed)
   for f in "$WEB"/*; do [ "$(basename "$f")" = head.html ] || cp "$f" "$DIST/"; done
   # a service worker's cache name carries the hash of the build and the page files (e.g. a manual edit alone):
   # every change installs a fresh cache

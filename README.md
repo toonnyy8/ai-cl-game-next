@@ -85,7 +85,7 @@
 python3 -m http.server -d dist/duel 8000     # 用 Chrome 開 http://localhost:8000/
 ```
 
-`dist/duel/` 是可以直接放到任何靜態伺服器的完整網站：`index.html`、`index.js`、`index.wasm`（約 9.8 MB）、說明書、PWA 的 manifest、service worker 和圖示。直接用 `file://` 開不行，瀏覽器不讓頁面這樣載入 wasm。第一次點擊或按鍵之後才會有聲音（瀏覽器的自動播放限制）。`tools/deploy-pages.sh` 把它發佈到 `gh-pages` 分支，也就是上面的線上版。
+`dist/duel/` 是可以直接放到任何靜態伺服器的完整網站：`index.html`、`index.js`、`index.wasm`（約 13 MB，含 HUD 的文字圖集）、說明書、PWA 的 manifest、service worker 和圖示。直接用 `file://` 開不行，瀏覽器不讓頁面這樣載入 wasm。第一次點擊或按鍵之後才會有聲音（瀏覽器的自動播放限制）。`tools/deploy-pages.sh` 把它發佈到 `gh-pages` 分支，也就是上面的線上版。
 
 Lisp 編譯錯誤會印在終端機，完整記錄在 `build/duel/lisp.log`；錯誤行號指向串接後的 `build/duel/game-all.lisp`，每個原始檔開頭都有 `;;;; ---- duel/lisp/xxx.lisp` 這類標記方便對照。
 

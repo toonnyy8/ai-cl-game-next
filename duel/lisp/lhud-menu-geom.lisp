@@ -20,6 +20,15 @@
         (aref out 2) (- cw (if (> sr 16f0) sr 16f0)) (aref out 3) (- ch sb 60f0))
   out)
 
+;;; ---------------------------------------------------------------- the fit
+(defun-fast-inline lm-fit-k (need ch st sb)
+  "The zoom (at most 1) that fits a screen whose stack is NEED CSS px tall (its geometry's [31]; 0 = not measured: 1) into a window CH
+CSS px tall with the safe-area insets ST SB: the content box's paddings (64 + 60) shrink with it. The HTML scrolled a screen taller
+than the window (SETTINGS below about 750 px, a landscape phone); a phone has no keys to scroll by focus, so the Lisp menus shrink the
+whole screen instead (DUEL_LISP_HUD §16)."
+  (declare (single-float need ch st sb))
+  (if (> need 0f0) (fmn 1f0 (/ (- ch st sb) (+ need 124f0))) 1f0))
+
 ;;; ---------------------------------------------------------------- TITLE
 (defun-fast-inline lm-title-geom! (out cw ch)
   "TITLE (menu.css #s-title, .wordmark, .t-kanji) in CSS px from the content box OUT [0..3]: [4] the wordmark's font size, [5] its top,
@@ -47,7 +56,7 @@ absolute at the right gutter and 8vh, the line hidden."
   "MODE (menu.css #s-mode, .m-hero, .m-desc, .list .row) in CSS px from the content box OUT [0..3]; LINES the description's line
 count, TAGROWS the tags' rows: [4] the kanji's size, [5] its left, [6] its top, [7] the card's left, [8] its top, [9] its width,
 [10] its height, [11] the list's left, [12] its top, [13] its width, [14] a row's height, [15] the row font (.en), [16] the
-paragraph's size, [17] its line height (px), [18] the heading shown (1 / 0). Desktop: two columns 1.05fr 1fr, gap 4vw, centred;
+paragraph's size, [17] its line height (px), [18] the heading shown (1 / 0), [31] the stack's height (LM-FIT-K). Desktop: two columns 1.05fr 1fr, gap 4vw, centred;
 narrow: one column, the hero over the list, bottom-aligned, gap 18."
   (declare (type f32vec out) (single-float cw ch) (fixnum lines tagrows))
   (let* ((narrow (lm-narrow-p cw)) (x0 (aref out 0)) (y0 (aref out 1)) (x1 (aref out 2)) (y1 (aref out 3))
@@ -58,7 +67,7 @@ narrow: one column, the hero over the list, bottom-aligned, gap 18."
          (heroh (fmx kh cardh)))
     (declare (single-float x0 y0 x1 y1 en rowh listh kz kh pz plh cardh heroh))
     (setf (aref out 4) kz (aref out 14) rowh (aref out 15) en (aref out 16) pz (aref out 17) plh (aref out 18) (if narrow 0f0 1f0)
-          (aref out 10) cardh)
+          (aref out 10) cardh (aref out 31) (if narrow (+ listh 18f0 heroh) (fmx listh heroh)))
     (if narrow
         (let* ((htop (fmx y0 (- y1 listh 18f0 heroh))) (ltop (+ htop heroh 18f0)))   ; (align-content: safe end)
           (declare (single-float ltop htop))
@@ -73,21 +82,21 @@ narrow: one column, the hero over the list, bottom-aligned, gap 18."
     out))
 
 ;;; ---------------------------------------------------------------- SETTINGS
-(defconstant +lm-set-rows+ 10 "SETTINGS' rows: the eight settings, RESET LEARNING, BACK.")
+(defconstant +lm-set-rows+ 9 "SETTINGS' rows: the seven settings, RESET LEARNING, BACK.")
 (defun-fast-inline lm-set-row-h (i narrow helpk)
-  "Row I's height (CSS px) of menu.css .set: padding-block 2 x 14 (narrow 2 x 9; the main session's 2026-11-11 compaction for the HUD
-row, desktop at most 820 tall: 2 x 10), the label 22 (narrow 19) or the choices (31; drops 28), the help line's row (gap 6 + 12px x
+  "Row I's height (CSS px) of menu.css .set: padding-block 2 x 14 (narrow 2 x 9; desktop at most 820 tall: 2 x 10: the compaction made
+for the HUD row, 2026-11-11, kept after the row left as room on short windows), the label 22 (narrow 19) or the choices (31; drops 28), the help line's row (gap 6 + 12px x
 1.6 x HELPK, its max-height tween) where there is one, the 1 px rule."
   (declare (fixnum i) (single-float narrow helpk))
-  (let* ((pad (if (>= narrow 1f0) 18f0 (if (> narrow 0f0) 20f0 28f0))) (drops (or (= i 2) (= i 6))) (setting (< i 8))
+  (let* ((pad (if (>= narrow 1f0) 18f0 (if (> narrow 0f0) 20f0 28f0))) (drops (or (= i 2) (= i 6))) (setting (< i 7))
          (main (if setting (if drops 28f0 31f0) (if (>= narrow 1f0) 19f0 22f0))))
     (declare (single-float pad main))
-    (+ pad main 1f0 (if (< i 9) (+ 6f0 (* 19.2f0 helpk)) 0f0))))
+    (+ pad main 1f0 (if (< i 8) (+ 6f0 (* 19.2f0 helpk)) 0f0))))
 (defun-fast-inline lm-set-geom! (out cw ch helps)
   "SETTINGS (menu.css #s-settings, .side-title, .setlist .set) in CSS px from the content box OUT [0..3]; HELPS an f32vec of each
 row's help tween (0..1): [4] the list's left, [5] its width, [6] the first row's top, [7] the side title's left, [8] its top (the
 kanji's line box), [9] the h1's font size, [10] the paragraph's width (narrow: 0, hidden), [11] the compaction (0 none, .5
-desktop, 1 narrow), then [16 + i] each row's top. Desktop: 1fr 1.25fr, gap 5vw, both centred (a list taller than the content starts
+desktop, 1 narrow), then [16 + i] each row's top, [31] the stack's height (LM-FIT-K). Desktop: 1fr 1.25fr, gap 5vw, both centred (a list taller than the content starts
 at its top); narrow: one column, the title over the list, bottom-aligned, gap 18."
   (declare (type f32vec out helps) (single-float cw ch))
   (let* ((narrow (lm-narrow-p cw)) (x0 (aref out 0)) (y0 (aref out 1)) (x1 (aref out 2)) (y1 (aref out 3))
@@ -96,7 +105,7 @@ at its top); narrow: one column, the title over the list, bottom-aligned, gap 18
          (titleh (+ kz 18f0 (* 0.8f0 h1) (if narrow 0f0 (+ 18f0 73.5f0)))))
     (declare (single-float x0 y0 x1 y1 cmp gap listh h1 kz titleh))
     (dotimes (i +lm-set-rows+) (incf listh (+ (lm-set-row-h i cmp (aref helps i)) (if (< i (1- +lm-set-rows+)) gap 0f0))))
-    (setf (aref out 9) h1 (aref out 11) cmp)
+    (setf (aref out 9) h1 (aref out 11) cmp (aref out 31) (if narrow (+ listh 18f0 titleh) (fmx listh titleh)))
     (let* ((top 0f0))
       (declare (single-float top))
       (if narrow
@@ -117,7 +126,7 @@ at its top); narrow: one column, the title over the list, bottom-aligned, gap 18
 (defun-fast-inline lm-ctl-geom! (out cw ch phone)
   "CONTROLS (menu.css #s-controls: the side title as SETTINGS', .ctl-body) in CSS px from the content box OUT [0..3]: [4] the body's
 left, [5] its width, [6] its top, [7] the title's left, [8] its top, [9] the h1's size, [10] the paragraph's width (narrow 0), [11]
-the keyboard map's scale (its 640 x 196 viewBox at the body's width, at most 1). Desktop body: tabs 38 + 14, the map 196 x scale,
+the keyboard map's scale (its 640 x 196 viewBox at the body's width, at most 1), [31] the stack's height (LM-FIT-K). Desktop body: tabs 38 + 14, the map 196 x scale,
 14, the combos 22, 14, the bindings 5 x 52.4 + 4 x 2; PHONE: the 560 x 330 card at the body's width (at most 560)."
   (declare (type f32vec out) (single-float cw ch) (fixnum phone))
   (let* ((narrow (lm-narrow-p cw)) (x0 (aref out 0)) (y0 (aref out 1)) (x1 (aref out 2)) (y1 (aref out 3))
@@ -133,6 +142,7 @@ the keyboard map's scale (its 640 x 196 viewBox at the body's width, at most 1).
     (setf (aref out 4) bx (aref out 5) bw (aref out 9) h1 (aref out 11) sc)
     (let* ((titleh (+ kz 18f0 (* 0.8f0 h1) (if narrow 0f0 (+ 18f0 98f0)))))
       (declare (single-float titleh))
+      (setf (aref out 31) (if narrow (+ bh 18f0 titleh) (fmx bh titleh)))
       (if narrow
           (let* ((ttop (fmx y0 (- y1 bh 18f0 titleh)))) (declare (single-float ttop))
             (setf (aref out 6) (+ ttop titleh 18f0) (aref out 7) x0 (aref out 8) ttop (aref out 10) 0f0))

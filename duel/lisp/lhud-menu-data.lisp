@@ -1,8 +1,8 @@
 ;;;; lhud-menu-data.lisp — the Lisp menus' tables (docs/duel/DUEL_LISP_HUD.md §15): what menu.js keeps in its own tables (MODES,
 ;;;; FIGHTERS cards, SETTINGS, BINDS, KEYS / PADS, COLS, RMENU, SCREENS, the phone's gesture card, the side titles), moved here so the
-;;;; Lisp menus read the same model the page reads (webui.lisp *UI-SENT*) and show the same words. Plain CL, constant after load
-;;;; (host-tested: tests/duel-rules/lhud-menu.lisp checks the counts against the model's rows); the JS copies stay the reference
-;;;; while both renderers coexist (DUEL_LISP_HUD §6). Upper case where the CSS upper-cases (the display face's display tier is upper
+;;;; Lisp menus read the model the page read (webui.lisp *UI-SENT*) and show the same words. Plain CL, constant after load
+;;;; (host-tested: tests/duel-rules/lhud-menu.lisp checks the counts against the model's rows); menu.js, the reference, was removed
+;;;; 2026-11-11 (`git show 562acb37:duel/web/menu.js`): this file is the one edited. Upper case where the CSS upper-cases (the display face's display tier is upper
 ;;;; case only). Faces for tools/sdf-bake.py: (kj "…") Mincho, (bigkj "…") Mincho display tier, (zh "…") the sans; untagged = ASCII.
 (in-package :duel)
 
@@ -17,7 +17,7 @@
           (list "CPU VS CPU" (zh "觀戰") (bigkj "観戦") (kj "観") (zh "看兩個電腦對打，觀察三角相剋：哪一招會被抵銷，哪一招能吃掉對方。")
                 (list "SPECTATE"))
           (list "SETTINGS" (zh "設定") (bigkj "設定") (kj "設")
-                (zh "單手模式、慣用手、滑動靈敏度、鏡頭、學習型電腦（可重置）、Hoho 提示、音量與 HUD 的繪製方式。") (list "8 OPTIONS"))
+                (zh "單手模式、慣用手、滑動靈敏度、鏡頭、學習型電腦（可重置）、Hoho 提示與音量。") (list "7 OPTIONS"))
           (list "CONTROLS" (zh "操作") (bigkj "操作") (kj "操") (zh "鍵盤與手把的按鍵，可以重新綁定；手機上是單手手勢的說明。")
                 (list "KEYBOARD" "PAD" "TOUCH"))
           (list "MANUAL" (zh "說明書") (bigkj "指南") (kj "書") (zh "完整的遊戲說明（在這個視窗打開，說明書的返回連結會回到這裡）。")
@@ -44,8 +44,7 @@
           (list "CAMERA" #("BEHIND" "SIDE") nil (zh "VS CPU 與練習、雙手操作時的鏡頭。"))
           (list "LEARNING CPU" #("ON" "OFF") nil (zh "對戰電腦（困難）：電腦會學你的習慣，每場結束後記下來，存在這台裝置上。"))
           (list "PERFECT HINT" #("OFF" "ON") nil (zh "現在 Hoho 會是完美閃避時，頭上出現 HOHO!。"))
-          (list "VOLUME" #("0" "1" "2" "3" "4" "5") t (zh "音樂和音效的總音量。0 是靜音，預設 5（最大聲）。"))
-          (list "HUD" #("HTML" "LISP") nil (zh "選單與戰鬥畫面由誰來畫：HTML 頁面或 Lisp 引擎。立刻生效。"))))
+          (list "VOLUME" #("0" "1" "2" "3" "4" "5") t (zh "音樂和音效的總音量。0 是靜音，預設 5（最大聲）。"))))
 (defparameter *lm-set-extra*
   (vector (list "RESET LEARNING" (zh "清除電腦學到的習慣，從頭開始。")) (list "BACK" nil))
   "The two action rows after the settings (menu.js .set.back).")

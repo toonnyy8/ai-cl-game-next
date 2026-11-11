@@ -1,5 +1,5 @@
 ;;;; lhud-model.lisp — the Lisp HUD's view of the model and its shared look (docs/duel/DUEL_LISP_HUD.md §4.8, §13). The model is what
-;;;; webhud.lisp publishes for both renderers: *HUD-SENT* (V k, fixnums) and *HUD-STRS* (S i, strings, EQ-stable until they change);
+;;;; webhud.lisp writes: *HUD-SENT* (V k, fixnums) and *HUD-STRS* (S i, strings, EQ-stable until they change);
 ;;;; the Lisp HUD reads nothing else of the game. Here: the accessors, the per-side derived strings (name, kanji, tag segments, seals,
 ;;;; the callout's kanji: remade by LHUD-MODEL-UPDATE only when a source string changed, the one place this file mutates), the palette
 ;;;; (hud.css / menu.css :root and the literal colours) and the SVG shapes flattened once. Cosmetic; 0 B a frame in steady state.

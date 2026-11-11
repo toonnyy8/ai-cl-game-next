@@ -142,7 +142,8 @@ and slid by *BCLIP* while a caption slices out."
 
 (declaim (type f32vec *panel-box*))
 (defvar *panel-box* (make-f32 8)
-  "The HUD's two side panels this frame, per side x0 y0 x1 y1 in px (hud.lisp HUD-SIDE fills them; 0 when not drawn):
+  "The HUD's two side panels this frame, per side x0 y0 x1 y1 in px (the canvas battle HUD's HUD-SIDE filled them; nothing has since
+it left, 2026-11-11, and the HTML HUD before it never did: all 0, a dormant dodge, DUEL_LISP_HUD §16.5):
 the gameplay callouts, the side words and the brush callout columns keep clear of them (Phase 5).")
 (declaim (type f32vec *band*))
 (defvar *band* (fv 0.1 0.82 0.08 0.9)

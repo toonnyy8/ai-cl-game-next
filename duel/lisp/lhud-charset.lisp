@@ -1,8 +1,8 @@
 ;;;; lhud-charset.lisp — the Lisp HUD's closed character set (docs/duel/DUEL_LISP_HUD.md §4.2, §9): which characters tools/sdf-bake.py
 ;;;; bakes in which face and tier. Pure data: the forms evaluate to nothing, tools/sdf-bake.py and tests/duel-rules/lhud-charset.lisp
-;;;; read this file as text. Every other CJK / symbol character of duel/web/hud.js and menu.js is baked in the sans by the bake's own
-;;;; scan of those two files (the sans is the page's body face and the fallback of every face), so a string that is missing here still
-;;;; shows, only in the wrong face; the host test fails when the scan finds a character no face has.
+;;;; read this file as text. Every other non-ASCII character of a string literal in duel/lisp/lhud-*.lisp is baked in the sans by the
+;;;; bake's own scan (the sans is the fallback of every face), so a string that is missing here still shows, only in the wrong face; the
+;;;; host test fails when a character the HUD can show (those literals, the model's writers, the kits' texts) is in no face.
 ;;;;   (kj "…")    Mincho, body tier (<= 40 px): names, seals, the callout's kanji, the menu's seals and crumbs
 ;;;;   (bigkj "…") Mincho, display tier (> 40 px): the big seals, emblems, finish words, the intro's name column, the menu's kanji
 ;;;;   (big "…")   the display face, display tier: the wordmark, names, READY / K.O. / TIME, digits (the combo and clock digits too)
@@ -19,7 +19,7 @@
 (kj "呑腕解風死分身毀止爆技斬覺")
 ;; the pointer seals and the forms' seals
 (kj "拖肩構旋墜狂壞重月亂鎖影投刈雷散聚鎌絞縛")
-;; the callout's kanji (hud.js MOVES, CRY)
+;; the callout's kanji (lhud-data.lisp *LHUD-MOVES*, *LHUD-CRY*)
 (kj "綴雷電縛後薙旋風旋刈連刈短刈刈上交刈蓄電放電蓄纏斬首掛刈れ鎖雨絞縄解縛絞首")
 (kj "月牙天衝月牙十字衝双牙乱月月落峰打ち落牙鎖盾鎖引残像影討分身ぶった斬る")
 (kj "俺に斬れねえもんはねえ飲み干せ噛み千切り盾ごと殴り飛ばし真っ二つ斬月")
