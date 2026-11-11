@@ -917,3 +917,19 @@ def drive_switch_phone_script():
     return sorted(ev, key=lambda x: x["at"])
 write("drive-switch-phone", drive_switch_phone_script())
 
+
+def blue_burn_script():
+    """BLUE burns one cell (DUEL_DESIGN "BLUE burns one cell", 2026-11-12; debug 2610+k): (a) BLUE from 300 runs out, (b) BLUE from 300 and a Hoho 0.5 s in
+    (P1 Mod+Space), (c) BLUE from 230 runs out, (d) WHITE from 300 for contrast; each scene's `BURST` / `BURST END` lines carry fs."""
+    ev = [cmd(T0 - 1, 2105)]
+    def say(t, s): ev.append({"at": round(t, 2), "eval": f"console.log('=== {s}')"})
+    t = T0
+    for label, c, hoho in (("a BLUE 300 runs out", 2610, None), ("b BLUE 300, Hoho at 0.5 s", 2610, 0.5), ("c BLUE 230 runs out", 2611, None), ("d WHITE 300", 2612, None)):
+        say(t, label)
+        ev += [cmd(t, c), cmd(t + 0.05, 2107)]
+        if hoho is not None:
+            ev += [key(t + hoho, "ShiftLeft"), key(t + hoho + 0.03, "Space"), key(t + hoho + 0.13, "Space", False), key(t + hoho + 0.16, "ShiftLeft", False)]
+        ev += [shot(t + 1.0, f"blue-burn-{label[0]}-1s"), cmd(t + 7.0, 2107)]
+        t += 8.0
+    return sorted(ev, key=lambda x: x["at"])
+write("blue-burn", blue_burn_script())

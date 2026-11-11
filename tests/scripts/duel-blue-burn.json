@@ -1,0 +1,106 @@
+[
+{
+"at": 8.0,
+"eval": "Module._debug_cmd(2105)"
+},
+{
+"at": 9.0,
+"eval": "console.log('=== a BLUE 300 runs out')"
+},
+{
+"at": 9.0,
+"eval": "Module._debug_cmd(2610)"
+},
+{
+"at": 9.05,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 10.0,
+"shot": "tests/shots/duel-blue-burn-a-1s.png"
+},
+{
+"at": 16.0,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 17.0,
+"eval": "console.log('=== b BLUE 300, Hoho at 0.5 s')"
+},
+{
+"at": 17.0,
+"eval": "Module._debug_cmd(2610)"
+},
+{
+"at": 17.05,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 17.5,
+"key": "ShiftLeft",
+"down": true
+},
+{
+"at": 17.53,
+"key": "Space",
+"down": true
+},
+{
+"at": 17.63,
+"key": "Space",
+"down": false
+},
+{
+"at": 17.66,
+"key": "ShiftLeft",
+"down": false
+},
+{
+"at": 18.0,
+"shot": "tests/shots/duel-blue-burn-b-1s.png"
+},
+{
+"at": 24.0,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 25.0,
+"eval": "console.log('=== c BLUE 230 runs out')"
+},
+{
+"at": 25.0,
+"eval": "Module._debug_cmd(2611)"
+},
+{
+"at": 25.05,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 26.0,
+"shot": "tests/shots/duel-blue-burn-c-1s.png"
+},
+{
+"at": 32.0,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 33.0,
+"eval": "console.log('=== d WHITE 300')"
+},
+{
+"at": 33.0,
+"eval": "Module._debug_cmd(2612)"
+},
+{
+"at": 33.05,
+"eval": "Module._debug_cmd(2107)"
+},
+{
+"at": 34.0,
+"shot": "tests/shots/duel-blue-burn-d-1s.png"
+},
+{
+"at": 40.0,
+"eval": "Module._debug_cmd(2107)"
+}
+]

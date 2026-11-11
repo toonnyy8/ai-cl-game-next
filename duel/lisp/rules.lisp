@@ -672,9 +672,12 @@ S, a diagonal one part of it, a side Step (TOWARD 0) or one toward her untouched
 the burst modes), no block/hitstun (STUNNED) and the *HOHO-LOCKOUT* over."
   (and (not stunned) (if bursting (> fs 0.0) (>= fs need)) (<= lockout-left 0)))
 
-(defun hoho-cost (fs bursting)
-  "Flash-step a Hoho spends: *FS-HOHO*, or during a burst what is left of it when less (the gauge to 0 ends the burst)."
-  (if bursting (min fs *fs-hoho*) *fs-hoho*))
+(defun hoho-cost (fs bursting &optional (burn *fs-max*))
+  "Flash-step a Hoho spends: *FS-HOHO*, or during a burst (BURSTING = its mode) what is left of it when less (the gauge to 0 ends
+the burst); in BLUE exactly what is left of the burning cell, BURN (BURST-BURN), however full the gauge is."
+  (cond ((eq bursting :blue) (min fs burn))
+        (bursting (min fs *fs-hoho*))
+        (t *fs-hoho*)))
 
 (defun awaken-allowed-p (free gauge used)
   "Awaken: FREE (idle / walk / guard only), the gauge full, not USED yet this match."
@@ -700,6 +703,16 @@ Kikon connecting on the same step wins (the shell applies a burst only when no c
 (defun burst-drain (fs)
   "Flash-step one frame into a running burst: -*BURST-DRAIN*/s, never below 0 (at 0 the burst ends)."
   (max 0.0 (- fs (/ *burst-drain* 60.0))))
+
+(defun burst-budget (mode)
+  "The flash-step a burst of MODE may burn: BLUE one cell (*BLUE-BURN*), every other mode the whole gauge (*FS-MAX*: it drains to 0)."
+  (if (eq mode :blue) *blue-burn* *fs-max*))
+
+(defun burst-burn (fs burn)
+  "One frame into a running burst with BURN flash-step left to burn: (values FS' BURN'), both drained by *BURST-DRAIN* / 60, FS never
+below 0 and never by more than BURN is left (the burst ends when either is 0)."
+  (let ((d (min (/ *burst-drain* 60.0) burn fs)))
+    (values (max 0.0 (- fs d)) (max 0.0 (- burn d)))))
 
 (defun burst-fs-gain (gain mode)
   "The flash-step a GAIN pays while burst MODE runs: nothing (no gain of any kind during a burst)."

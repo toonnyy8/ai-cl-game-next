@@ -318,8 +318,8 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (~= (mv-clip-speed (mv :kenpachi :base :ke-j1)) 1.0))
 ;; KOSEI (§5): x1 at a full guard gauge, x3 empty, x2 half; a JJJ (g 24) pays 4.8 R / 7.2 FS full, 14.4 / 21.6 empty (FS x3, 2026-10-29)
 (check (and (~= (kosei-mult 100.0) 1.0) (~= (kosei-mult 0.0) 3.0) (~= (kosei-mult 50.0) 2.0) (~= *kosei-bonus* 2.0)))
-(multiple-value-bind (r fs m) (kosei-gain 24 100.0) (check (and (~= r 4.8) (~= fs 7.2) (~= m 1.0))))
-(multiple-value-bind (r fs m) (kosei-gain 24 0.0) (check (and (~= r 14.4) (~= fs 21.6) (~= m 3.0))))
+(multiple-value-bind (r fs m) (kosei-gain 24 100.0) (check (and (~= r 4.8) (~= fs 3.6) (~= m 1.0))))
+(multiple-value-bind (r fs m) (kosei-gain 24 0.0) (check (and (~= r 14.4) (~= fs 10.8) (~= m 3.0))))
 (check (= 24 (loop for n in '(:ke-j1 :ke-j2 :ke-j3) sum (hw-guard (svref (mv-hits (mv :kenpachi :base n)) 0)))))
 (check (= (move-end-frame 9 3 12 18 nil nil) 30))                      ; whiff: R + 6
 (check (and (= (move-end-frame 9 3 12 18 :block nil) 24) (= (move-end-frame 2 1 20 26 nil t) 23)))
@@ -457,7 +457,7 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (equal '(9.0 16.0 36.0 27.0 20.0 0.0) (mapcar #'kosei-base '(:quick :flash :sig :sp :kikon :breaker)))
             (~= *kosei-kind-other* (kosei-base :stance)) (~= 5.0 (kosei-base :quick 5.0))
             (multiple-value-bind (r fs m) (kosei-gain (* (kosei-base :flash) (combo-gain-mult 3)) 0.0)   ; K, 3rd hit, empty gauge
-              (and (~= r (* 0.2 16 1.2 3)) (~= fs (* 0.3 16 1.2 3)) (~= m 3.0)))))
+              (and (~= r (* 0.2 16 1.2 3)) (~= fs (* 0.15 16 1.2 3)) (~= m 3.0)))))
 (check (~= (awakening-gain 100 100 1) 18.9))                                ; x0.7 since 2026-09-30 (was 27)
 (check (and (~= *awaken-dealt* 0.035) (~= *awaken-taken* 0.049) (~= *awaken-per-konpaku* 10.5)))
 (check (and (~= (gauge-add 290.0 20.0 300.0) 300.0) (~= (gauge-add 5.0 -10.0 300.0) 0.0)))
@@ -486,6 +486,17 @@ presses made during it (STRING-LATCH: the last allowed press wins, a press after
 (check (and (hoho-allowed-p nil 12.0 0 :white) (hoho-allowed-p nil 0.1 0 :blue) (not (hoho-allowed-p nil 0.0 0 :blue))
             (not (hoho-allowed-p nil 12.0 0)) (not (hoho-allowed-p nil 12.0 5 :white)) (not (hoho-allowed-p t 50.0 0 :white))))
 (check (and (~= (hoho-cost 12.0 :white) 12.0) (~= (hoho-cost 180.0 :white) 100.0) (~= (hoho-cost 180.0 nil) 100.0)))
+;; BLUE burns ONE cell (2026-11-12: 「將藍色爆氣改成只燃燒一格的量，期間發動閃步就將那燃燒中的格子用完…」); the others still drain to 0
+(check (and (= *blue-burn* 100) (= *kosei-fs* 0.15) (~= (burst-budget :blue) 100.0) (~= (burst-budget :white) 300.0) (~= (burst-budget :orange) 300.0)))
+(flet ((run (fs burn) (loop for n from 1 do (multiple-value-setq (fs burn) (burst-burn fs burn))
+                            when (or (<= fs 0.0) (<= burn 0.0)) return (list n fs burn))))
+  (check (let ((r (run 300.0 100.0))) (and (<= 111 (first r) 113) (~= (second r) 200.0) (= (third r) 0.0))))   ; 300 -> 200 in 1.85 s
+  (check (let ((r (run 230.0 100.0))) (and (<= 111 (first r) 113) (~= (second r) 130.0) (= (third r) 0.0))))   ; 230 -> 130
+  (check (let ((r (run 300.0 300.0))) (and (<= 332 (first r) 334) (= (second r) 0.0))))                        ; WHITE / ORANGE: to 0
+  (check (let ((r (run 40.0 100.0))) (and (<= 44 (first r) 46) (= (second r) 0.0) (~= (third r) 60.0))))   ; the gauge ends it first
+  (check (let ((r (run 0.5 100.0))) (and (= (second r) 0.0) (~= (third r) 99.5)))))
+(check (and (~= (hoho-cost 300.0 :blue 60.0) 60.0) (~= (hoho-cost 300.0 :blue 100.0) 100.0) (~= (hoho-cost 300.0 :blue 0.5) 0.5)
+            (~= (hoho-cost 30.0 :blue 60.0) 30.0) (~= (hoho-cost 300.0 :orange 60.0) 100.0) (~= (hoho-cost 300.0 :white) 100.0)))
 ;; WHITE: Reishi +12 / s in whole points (60 f pay exactly 12), no guard-gauge boost (gg-regen has no WHITE input)
 (check (and (= 70 (loop for n from 1 to 60 sum (burst-heal n *white-reishi*))) (= 66 (loop for n from 1 to 333 sum (burst-heal n 12.0)))
             (= 1 (burst-heal 5 12.0)) (= 0 (burst-heal 4 12.0))))

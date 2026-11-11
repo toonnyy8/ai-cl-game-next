@@ -429,7 +429,8 @@ back-skate, or a side slide (the kit's :run-clips)."
   "Hoho: spend *FS-HOHO* flash-step (during a burst what is left, if less: HOHO-COST), vanish, reappear behind the
 opponent (HOHO-STEP). Checks PERFECT now (one the assist pressed is never perfect; no flash-step refund since 2026-10-18)."
   (let ((g (gauges e)))
-    (spend-fs g (rmod-x e :hoho-cost (hoho-cost (gauges-fs g) (gauges-burst g))))
+    (spend-fs g (rmod-x e :hoho-cost (hoho-cost (gauges-fs g) (gauges-burst g) (gauges-burn g))))
+    (when (eq (gauges-burst g) :blue) (burst-end! e))   ; BLUE's Hoho used up the burning cell: the burst is over
     (when *run-mods* (run-post-burst! e))
     (let ((mv (and (eq (fighter-state f) :move) (eq (fighter-contact f) :hit) (member (fighter-cls f) '(:na :sa :ns))
                    (fighter-move f))))

@@ -191,8 +191,9 @@ J 2.7 K 5.7 L 4.7 SP 5.6 O 6.9 Breaker 14.3). A hit that deals no damage pays no
 ;;; m = 1 + *KOSEI-BONUS* x (1 - his own guard gauge / max): x1 at a full gauge ... x3 at an empty one.
 (defparameter *kosei-bonus* 2.0 "KOSEI: the multiplier's range above 1 (x1 full gauge .. x(1 + this) empty).")
 (defparameter *kosei-reiatsu* 0.20 "KOSEI: Reiatsu per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m).")
-(defparameter *kosei-fs* 0.30 "KOSEI: flash-step per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m); 0.10 -> 0.30 with the
-0-300 gauge (*FS-MAX*).")
+(defparameter *kosei-fs* 0.15 "KOSEI: flash-step per point of a paying contact (*KOSEI-KIND*, x the combo bonus, x m); 0.10 -> 0.30 with the
+0-300 gauge (*FS-MAX*); 0.30 -> 0.15 on 2026-11-12 (the user: 「幫我將閃步量表的攻擊恢復量減半」: the attack's recovery halved; the
+damage-taken gain *FS-TAKEN* is not part of it).")
 (defparameter *kosei-kind* '(:quick 9.0 :flash 16.0 :sig 36.0 :sp 27.0 :kikon 20.0 :breaker 0.0)
   "KOSEI: a paying contact's points by its move's kind (J K L SP O Breaker), x the combo bonus (COMBO-GAIN-MULT: the combo's
 nth hit, a block 1) and x m; a move's :kosei param overrides its kind's (the user 2026-10-26: 「閃步量表也做一樣的修改」,
@@ -361,6 +362,9 @@ a combo (critique-design 1.7: not from hit 1).")
 ;; the three burst modes (docs/duel/DUEL_DESIGN.md "Burst modes", the user 2026-09-30): the state at the press picks WHITE /
 ;; BLUE / ORANGE; every one needs *FS-BURST*, spends nothing up front and drains the flash-step gauge to 0
 (defparameter *burst-drain* 54.0 "Flash-step per second a running burst drains (18 -> 54 with the 0-300 gauge: 300 -> 0 in 5.6 s, 200 in 3.7 s).")
+(defparameter *blue-burn* 100.0 "BLUE burns only this much flash-step (one HUD cell, = *FS-HOHO*) at *BURST-DRAIN*, then the burst ends and the rest of the
+gauge is kept; a Hoho in it spends what is left of it (BURST-BURN, HOHO-COST). New 2026-11-12 (the user: 「將藍色爆氣改成只燃燒一格的量，期間發動閃步就將那燃燒中的格子用完，不會消耗到其他的閃步量表」); WHITE / ORANGE still drain to 0.
+Before: BLUE drained the whole gauge like them (300 -> 0 in 5.6 s).")
 (defparameter *white-reishi* 70.0 "WHITE (and the awakening's regen): Reishi regenerated per second (integer points; 12 -> 24 -> 70, the user
 2026-09-30: a full-length run, 5.55 s, restores ~30 % of 1300).")
 (defparameter *white-reiatsu* 15.0 "WHITE: Reiatsu per second on top of *REIATSU-REGEN*.")

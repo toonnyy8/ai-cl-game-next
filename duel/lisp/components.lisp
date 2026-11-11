@@ -158,6 +158,7 @@ States (fighter.lisp): :idle (stand / walk / strafe) :guard :guard-hit (blockstu
   (fs-idle 0 :type fixnum)              ; frames since the last flash-step spend
   (burst nil)                           ; the running burst: :white :blue :orange, NIL = none (it drains FS to 0)
   (burst-t 0 :type fixnum)              ; frames it has run (WHITE's integer Reishi regen)
+  (burn 0f0 :type single-float)         ; flash-step the running burst may still burn (BURST-BUDGET: BLUE one cell; a Hoho in it spends this)
   (awake-regen 0 :type fixnum)          ; frames left of the awakening's WHITE-like regen (overlaps a burst)
   (awake-t 0 :type fixnum)              ; frames it has run (its integer Reishi regen)
   (gg *gg-max* :type single-float)      ; guard gauge 0..100 (full again at every reset)

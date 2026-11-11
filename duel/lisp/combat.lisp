@@ -764,7 +764,7 @@ combo over; the opponent's move / Hoho / step / run ends and he slides *BURST-PU
 modes\"): nothing spent, the flash-step drains from now (GAUGE-SYSTEM). BLUE breaks free (REPEL!); ORANGE cancels his
 move's recovery, the next move started within *CHAIN-WINDOW* f has its startup cut (START-MOVE). A short global hitstop."
   (let ((o (opp-of e)) (g (gauges e)) (f (fighter e)))
-    (setf (gauges-burst g) mode (gauges-burst-t g) 0 (gauges-fs-idle g) 0)
+    (setf (gauges-burst g) mode (gauges-burst-t g) 0 (gauges-fs-idle g) 0 (gauges-burn g) (f32 (burst-budget mode)))
     (when *run-mods* (run-post-burst! e))
     (case mode
       (:blue (repel! e)                                   ; + one Reiatsu bar, as RoS does (the user 2026-09-30)
@@ -779,8 +779,8 @@ move's recovery, the next move started within *CHAIN-WINDOW* f has its startup c
   "E's burst ends (its flash-step ran out, or a Kikon / Soul Break reset): the regen delay restarts."
   (let ((g (gauges e)))
     (when (gauges-burst g)
-      (clog "~a BURST END ~a" (side-name e) (gauges-burst g))
-      (setf (gauges-burst g) nil (gauges-burst-t g) 0 (gauges-fs-idle g) 0 (fighter-chain (fighter e)) 0)
+      (clog "~a BURST END ~a fs ~,1f" (side-name e) (gauges-burst g) (gauges-fs g))
+      (setf (gauges-burst g) nil (gauges-burst-t g) 0 (gauges-burn g) 0f0 (gauges-fs-idle g) 0 (fighter-chain (fighter e)) 0)
       (emit :burst-end e))))
 
 (defun white-regen! (e g n)
@@ -791,11 +791,13 @@ gauge G."
   (awaken-fill! g (/ *white-awaken* 60.0) (/ *white-awaken* 60.0)))   ; a Burst counts as attacking (DUEL_SUBLIMATION §18)
 
 (defun burst-step (e g)
-  "A running burst, one frame: the flash-step drains (BURST-DRAIN), WHITE's regen (WHITE-REGEN!); at 0 it ends."
+  "A running burst, one frame: the flash-step drains (BURST-BURN), WHITE's regen (WHITE-REGEN!); when the gauge or the burst's budget
+(BLUE: one cell) is spent it ends."
   (let ((n (incf (gauges-burst-t g))))
-    (setf (gauges-fs g) (f32 (burst-drain (gauges-fs g))))
+    (multiple-value-bind (fs burn) (burst-burn (gauges-fs g) (gauges-burn g))
+      (setf (gauges-fs g) (f32 fs) (gauges-burn g) (f32 burn)))
     (when (eq (gauges-burst g) :white) (white-regen! e g n))
-    (when (<= (gauges-fs g) 0.0) (burst-end! e))))
+    (when (or (<= (gauges-fs g) 0.0) (<= (gauges-burn g) 0.0)) (burst-end! e))))
 
 (defun awake-regen-frames ()
   "How long the awakening's regen runs: as long as a burst from a full flash-step gauge (*FS-MAX* / *BURST-DRAIN*)."

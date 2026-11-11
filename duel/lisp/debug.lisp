@@ -6,7 +6,7 @@
 ;;;;   2100-2109     toggles: skip cinematics, turbo, hitbox / intent overlays, CPUs off, perf log, dump, fill Reiatsu, camera
 ;;;;   2110-2119, 2125+k, 2136+i, 30000+k   the seed gates (all pairings / one pairing / one character's), their seed offset
 ;;;;   2200+k, 10000+1000k+f   force cinematic k now and hold it / stills of it at frame f
-;;;;   2300-2399, 2410-2430, 2450+k   scenarios and probes (2300+k specials, 2315+k frame probes, 2370+k / 2380+k stance
+;;;;   2300-2399, 2410-2430, 2450+k, 2610+k   scenarios and probes (2300+k specials, 2315+k frame probes, 2370+k / 2380+k stance
 ;;;;               tests, 2386+k Bankai tests, 2410+k Rukia, 2450+k Senjumaru, 2401+k the Lisp menus' RESULTS); 2400 god; 2500+k human P1 vs an idle CPU (2504: vs a learning HARD Ichigo)
 ;;;;   20000-29000, 32000-73000   knobs without a rebuild (value = k, k / 10 or k / 100 per range: see the doc)
 ;;;;   74000-75599 Ichigo, 82000-82999 Lille, 83000-83999 Hisagi, 80000-80999 ENDLESS, 84000-84999 DANGAI (84800+k its run table), 81000+ the ASSIST gate, 76000-78999 and 90000+ Senjumaru, 200000+ the learning gate
@@ -213,6 +213,14 @@ Reishi at its cap; with METER also the kit meter set to it and its idle timer cl
   (set-reaction *p1* :flinch 18 (aref (pos-of *p2*) 0) (aref (pos-of *p2*) 2) 0.0)
   (setf (fighter-combo-hits (fighter *p1*)) 2)
   (burst! *p1* :blue))
+
+(defun burst-burn-test (k)
+  "2610+k: the burst's burning budget (docs/duel/DUEL_DESIGN.md \"BLUE burns one cell\"): human P1 3.5 m from an idle Kenpachi bursts at once,
+k 0 BLUE with the flash-step full (300), 1 BLUE from 230, 2 WHITE from 300 (drains to 0). The `BURST` / `BURST END` log lines carry the gauge."
+  (ensure-battle :yamamoto :kenpachi)
+  (place *p1* *p2* 3.5)
+  (setf (gauges-fs (gauges *p1*)) (if (= k 1) 230f0 *fs-max*) (gauges-burst (gauges *p1*)) nil)
+  (burst! *p1* (if (= k 2) :white :blue)))
 
 (defparameter *module-tests* '((:yamamoto :base) (:yamamoto :bankai-east) (:kenpachi :base) (:kenpachi :nozarashi))
   "The O (Kikon rush) modules by form: ENJO, TENCHI, CHARGE, LEAP CLEAVE.")
@@ -743,6 +751,7 @@ checks every such clause of DEBUG-COMMAND is listed here)."
         ((= c 2319) (probe-trade))
         ((= c 2320) (probe-mash))
         ((= c 2321) (force-burst))
+        ((<= 2610 c 2612) (burst-burn-test (- c 2610)))
         ((= c 2327) (probe-pressure))
         ((= c 2328) (hud-cons-check))
         ((= c 2329) (brush-cons-check))

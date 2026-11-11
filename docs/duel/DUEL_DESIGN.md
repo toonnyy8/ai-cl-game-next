@@ -276,7 +276,7 @@ West's ward too, ×1.1: the 2nd K K K crushes it).
 
 **Flash-step gauge** (0–300 since 2026-10-29, "Flash-step gauge 0-300" at the end; 0–100 before; full at the start, kept
 through Kikon resets): Hoho costs 100; a burst (any of the three modes, "Burst modes" at the end) needs 200 and then drains it
-to 0, gaining nothing meanwhile; +9/s once 60 f pass after the last spend, +0.135 per damage taken × the combo bonus; a perfect
+(WHITE / ORANGE to 0; BLUE only one cell, 100, since 2026-11-12), gaining nothing meanwhile; +9/s once 60 f pass after the last spend, +0.135 per damage taken × the combo bonus; a perfect
 Hoho refunds nothing (15 of 100 until 2026-10-18). Full: Hoho ×3, or Burst + Hoho. HUD: three cells (one a Hoho); on the phone
 the ink standing in the 爆 seal, white marks at 100 and 200, the seal armed (lit) from 200 (DUEL_WEBUI §11).
 
@@ -288,12 +288,12 @@ and SP2 cost 1 bar (SP2 in an awakened form 2; a move may name its own cost).
 **KŌSEI 攻勢, the aggression reward** (the user's decisions 2026-09-27, [DUEL_STRINGS.md](DUEL_STRINGS.md) §5): every
 contact of the attacker's **own melee hit window** (hit, counter, blocked by a guard / ward / DRINK, armoured,
 absorbed, a Guard Break; J / K links, the O strike, the Breaker, SP blades, West's counter) pays him **Reiatsu
-0.20 × g × m** and **flash-step 0.30 × g × m** (0.10 on the 0–100 gauge), g = the move kind's points × the combo bonus (since 2026-10-26, § "Reiatsu by
+0.20 × g × m** and **flash-step 0.15 × g × m** (0.30 until 2026-11-12, 0.10 on the 0–100 gauge), g = the move kind's points × the combo bonus (since 2026-10-26, § "Reiatsu by
 move kind × combo"; before: the hit's guard value), **m = 1 + 2 × (1 − his own guard gauge /
 100)**: ×1 full … ×3 empty (`kosei-mult`, `kosei-gain`, combat.lisp `kosei!`; `*kosei-bonus*` 2.0, `*kosei-reiatsu*`,
 `*kosei-fs*`). Whiffs, parried hits, hazards and `:ranged` windows (fire, lines, the cone, the rift), Kikons and
-scorch pay nothing; neither the guard gauge nor the awakening is paid. A J J J (g 24) pays 4.8 R / 7.2 FS at a full
-gauge, 14.4 / 21.6 at an empty one. HUD: at m ≥ 1.5 an ember `攻 x2.4` tag at the guard bar's inner end (on the Konpaku row); each paying
+scorch pay nothing; neither the guard gauge nor the awakening is paid. A J J J (g 24) pays 4.8 R / 3.6 FS at a full
+gauge, 14.4 / 10.8 at an empty one (7.2 / 21.6 FS until 2026-11-12). HUD: at m ≥ 1.5 an ember `攻 x2.4` tag at the guard bar's inner end (on the Konpaku row); each paying
 contact sends one ember mote from the hit to the Reiatsu bars (sized by m).
 
 **Hoho** (100 flash-step of 300; 30 of 100 before 2026-10-29): vanish and reappear 1.6 m behind the opponent facing him on f6; invulnerable
@@ -1088,7 +1088,7 @@ batch: §4, §6.1, §6.2, §12):
 | CPU Breaker reflex vs Bankai West | a held guard only (`:guard` state) | Bankai West's ward counts as a held guard (its time in West as the hold), and as a guard for block-string pressure | The rework's anti-turtle key (DUEL_YAMA_REWORK §5), with **the user's decision 2026-09-27** that a Breaker flips West to East |
 | Strings | Q1 → Q2 → Q3, F1 → F2, the Q2 → F branch; a whiff chained like a block (in the last 3 f); whiff R + 6 | **up to three links, each J or K, switching at most once** (JJJ JJK JKK KKK KKJ KJJ; one move per link and button, the switched link 2 a copy); **the latch** (a press any time during the link, the last allowed wins; a press of the old button after a switch is eaten); **the string gate** (a link-1 whiff never chains; after any contact every later link comes out and chases him, 2026-09-28); whiff R + 8 (J) / R + 12 (K); the §4 budget (J beats K, K3 −20); 5 new clips (SODEBI, RAKUJITSU, KENKA-GERI, KOTE, MOROTE-ZUKI) | **The user's decision 2026-09-27** (the strings design r3 §0.1, all nine answers the defaults: strings aren't just two hits, J / K mix, 「K J 不要來回交錯」). DUEL_STRINGS.md |
 | O cancel | the Kikon rush as a cancel of any landed move (Q, F, SP, Breaker) | **only off a link-3 hit** (the O ender, its aura skipped, always a combo); neutral O kept | **The user's decision 2026-09-27** (decisions 1–3, 6: keep neutral O, hit only, remove the other cancels, red = 30 %) |
-| KŌSEI | — | every contact of his own melee hit window pays Reiatsu 0.20 × g × m and flash-step 0.10 × g × m (0.30 on the 0–300 gauge, 2026-10-29), m = 1 + 2 × (1 − guard gauge / 100) | **The user's request and decisions 2026-09-27** (reward aggression, more at a low guard gauge; Reiatsu and flash-step only, blocked hits count, projectiles and hazards don't) |
+| KŌSEI | — | every contact of his own melee hit window pays Reiatsu 0.20 × g × m and flash-step 0.10 × g × m (0.30 on the 0–300 gauge, 2026-10-29; 0.15 since 2026-11-12), m = 1 + 2 × (1 − guard gauge / 100) | **The user's request and decisions 2026-09-27** (reward aggression, more at a low guard gauge; Reiatsu and flash-step only, blocked hits count, projectiles and hazards don't) |
 | Strings' pacing | — | K2 / K3 at 80 % of the design's damage, the CPU's string K 0.3, O ender 0.15, SP cancel 0.3 (one roll), J beats K felt at once | The seed gate (DUEL_STRINGS §9, §10): as designed the medians fell to 107 / 119 / 122 s, under the 125 s floor |
 | Soul Break | the form's count + 1 (per-event cap 4), the generic `soul-break-cine` | the **attacker's current form's** count + 1, **cap 5 for Soul Breaks only** (a Kikon stays at 4), and the **attacker's Kikon cinematic** (`kit-kikon-cine`) | **The user's decisions 2026-09-27** (with the research report's answers) |
 | Kenpachi's second awakening | none: one awakening per match | **the Bankai** from cup 3 (P with ≤ 4 of his own Konpaku; it was red + P): Konpaku → 1, Reishi → full, the arm UDE (4 pips, 60 each, a crack per 300 f), then **片腕** for the rest of the match (§6.2, DUEL_KEN_BANKAI.md); since 2026-11-02 the burst keeps the Bankai (「取消掉片腕的狀態」, DUEL_KEN_CORE §7.3) | **The user's decisions 2026-09-27** (the one exception to the one-awakening rule, the entry, 4 pips, the red reiatsu, 片腕 at reach ×0.7) **and 2026-09-28** (Konpaku → 1, Reishi → full, the bite now, Yachiru a silhouette, 片腕 stays the oni, the CPU enters only as a finisher weighing its own Konpaku; the entry at ≤ 4 Konpaku instead of red) |
@@ -1339,7 +1339,7 @@ beginner tips. Player-facing wording, no internal names; when the rules change, 
 「幫我從 shift + j 的爆氣中斷衍生出三種爆氣模式，這部分信息可以參考 bleach ROS 的設計」, then 「一樣維持要兩格才能爆氣」
 (every burst still needs two bars, the old Burst threshold) and 「白色爆氣取消防禦量表恢復量增加的功能」 (WHITE gives no
 guard-gauge regen). One button (Shift+J, mod + Quick) now starts one of three bursts; the fighter's state at the press
-picks the colour. While any burst runs, the flash-step gauge drains to 0 and the burst ends there.
+picks the colour. While a WHITE or ORANGE burst runs, the flash-step gauge drains to 0 and the burst ends there; BLUE burns one cell only ("BLUE burns one cell" below, 2026-11-12).
 
 **From RoS** (its "Reverse Actions", L2 + □, the game picks the type by the situation): the three types and their
 names, SOUL REVERSE (white, neutral: HP and Spiritual Power recover), CHAIN REVERSE (an anywhere-cancel on your own
@@ -1935,3 +1935,41 @@ No balance gates (the user, 2026-10-29, DEVLOG §468). G2 (`tests/style-cvc-ref.
 secs 292.4` (29 lines), IK `winner P1 konpaku 2-0 ticks 20137 secs 335.6` (34, was 23), KK `winner P2 konpaku 0-2 ticks 16119 secs 268.6`
 (27, was 23). DEVLOG §504.
 
+### BLUE burns one cell; the attack's flash-step gain halved (the user, 2026-11-12)
+
+「幫我將閃步量表的攻擊恢復量減半，並將藍色爆氣改成只燃燒一格的量，期間發動閃步就將那燃燒中的格子用完，不會消耗到其他的閃步量表。」
+
+**Rules.**
+- KŌSEI's flash-step `*kosei-fs*` **0.30 -> 0.15** (the attacker's recovery from a paying contact halved; the damage-taken gain `*fs-taken*`
+  0.135 is not part of the request and stays). Nothing else pays the attacker flash-step for hitting (grep: `kosei!` is the only caller of
+  `kosei-gain`; `hit-gains`' `sfs` is the sublimation-scaled *taken* side; Kenpachi's steal, DANGAI's run mods and the Kikon refund are other sources and
+  unchanged).
+- A **BLUE** burst burns one cell: a budget `*blue-burn*` **100** (= `*fs-hoho*`, its own knob), taken from the gauge at `*burst-drain*` 54 / s (100 / 54 =
+  1.85 s). When it is spent the burst ends and **the rest of the gauge is untouched**: 300 -> 200, 230 -> 130. WHITE and ORANGE are unchanged (budget =
+  the whole gauge, they drain to 0). The start still needs `*fs-burst*` 200 for every mode (a knob the user did not ask to change).
+- A **Hoho during BLUE** costs exactly what is left of the burning budget (`hoho-cost fs :blue burn`), sets the budget to 0 and ends the burst (the
+  Hoho spends nothing from the other cells). Example: fs 300, BLUE, 60 left in the budget (40 burnt, so fs 260): the Hoho takes 60, fs **200**, burst over; the same 200 whenever in the burst the Hoho comes. A Hoho is allowed while the
+  burst runs (any fs > 0, as before).
+- BLUE's other effects (the break-free `repel!`, the Reiatsu bar, the guard-gauge refill boost, no flash-step gain while it runs) are unchanged and
+  last as long as the shorter burst. If the gauge hits 0 before the budget is spent (a debug / run-mod value), the burst ends as before.
+
+**Code.** rules.lisp: `burst-budget` (mode -> budget), `burst-burn` (fs, burn -> fs', burn': pure; the gauge never loses more than is left to burn, so the
+cell is exact), `hoho-cost` takes the burn left (optional); combat.lisp `burst!` sets `gauges-burn`, `burst-step` calls `burst-burn` and ends the burst when
+the gauge or the budget is 0, `burst-end!` logs `fs`; fighter.lisp `start-hoho` ends a BLUE burst after the spend. State: `gauges-burn` (single-float,
+components.lisp), a plain component slot: the ECS snapshot / restore takes it, nothing to add to the roots.
+
+**Callers checked.** `hoho-allowed-p` (unchanged: in a burst any fs > 0); `burst-drain` (kept, `awake-regen-frames` still means a burst from a full gauge
+and is not BLUE's concern); `ai-hoho-spare-p`, core-ai.lisp, mcts-lite.lisp (its model has no flash-step), cpu-*.lisp, ai-learn.lisp, scripted.lisp and the
+run mods read the gauge only to ask "can I afford a Hoho / a Burst", none assumes a drain to 0: unchanged. No CPU chance, threshold or table was retuned.
+HUD: the three cells already drain top-down from the live gauge, so a BLUE burst shows one cell's worth going and then stopping; no change.
+
+**Tests.** Host: 10260 -> 10267 checks, ALL PASS (core.lisp: the knobs, the budget drains to exactly 0 after 100 points, 300 -> 200 and 230 -> 130, WHITE /
+ORANGE still to 0, the gauge ending it first, `hoho-cost` at several budgets, KŌSEI's flash-step halved at the same contact: 3.6 / 10.8). Scripted browser
+scene `duel-blue-burn.json` (debug 2610+k, `--fixed-dt 16.666667`; combat log): (a) BLUE from 300: `BURST BLUE fs 300.0` at tick 0, `BURST END BLUE fs 200.0`
+at tick 120 (1.85 s + the 8-tick hitstop); (b) BLUE from 300, a Hoho 34 ticks in (budget left 69.4, fs 269.4): `BURST END BLUE fs 200.0` at the Hoho's tick
+(cost 69.4); (c) BLUE from 230: `fs 230.0` -> `BURST END BLUE fs 130.0` at tick 120; (d) WHITE from 300: -> `fs 0.0` at tick 342. pkgcheck clean (`DUEL::APP`),
+8 s smokes at 1280x720 and 390x844 exit 0, snaptest (straight = pollute but its timing lines) and fulltest (116 checks, 0 differ) clean.
+
+**G2.** With `*kosei-fs*` back at 0.30 and the BLUE path off (budget = the gauge, no BLUE Hoho cost, no end after a Hoho) `--cvc` was identical to the old
+reference; with the changes on the reference was regenerated (browser = native): II 32 lines (P1 5-0, 315.6 s) -> **40 (P2 0-4, 392.6 s)**, IK 34 (P2 0-4,
+340.1 s) -> **38 (P1 5-0, 381.7 s)**, KK 33 (P1 1-0, 327.1 s) -> **24 (P2 0-2, 240.9 s)**. No balance gate was run (the user, 2026-10-29).
