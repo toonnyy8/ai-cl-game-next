@@ -32,6 +32,13 @@ here (an empty span) and 0 when the whole fill burns. DUEL_DESIGN \"BLUE burns o
   (declare (single-float lo k) (fixnum i))
   (lg-min k (lg-max 0f0 (lg-min 1f0 (- lo (i->f* i))))))
 
+(defun-fast-inline lhud-dial-band (fs burn)
+  "爆's ink level where a BLUE burst's burning span starts, as a fraction of the dial's height from the bottom: FS the flash step and BURN
+what is left to burn (both 0..1 of the gauge). The span runs from here up to the level (DUEL_DESIGN \"The burning span in blue\"); 1 when nothing burns
+(above every level: no band), 0 when the whole level burns."
+  (declare (single-float fs burn))
+  (if (> burn 0f0) (lg-min 1f0 (lg-max 0f0 (- fs burn))) 1f0))
+
 (defparameter *lhud-seal-angles* (let ((v (make-f32 4))) (replace v '(304f0 270f0 236f0 202f0)) v)
   "hud.js: the stance seals' angles around 爆 (degrees, clockwise from the top: the far side, up-left to down for the right hand).")
 (declaim (type f32vec *lhud-seal-angles*))

@@ -1982,8 +1982,13 @@ While a fighter's BLUE burst runs, the part of the flash-step gauge still to bur
 BLUE burst's colour on the plate's three cells (desktop / landscape plates, the phone's top plate, your plate on the deck's line); the rest keeps the
 steel look. The span, not whole cells: from 300 it is exactly the third cell, from 230 it is 130..230 (the second cell from its .3 mark and the third cell's fill). It
 vanishes the frame the burst ends (budget spent, or a Hoho used it up); WHITE and ORANGE (they drain the whole gauge) are not tinted. Colour: `+c-burst-b+`
-#66a8ff, the one 爆's ink already uses for a BLUE burst (moved from lhud-deck.lisp to lhud-model.lisp; nothing new). The phone's 爆 dial is unchanged: its
-ink already turns the burst's colour for the whole level, and the plate's cells show the span. Code: model slot `o + 25` (webhud.lisp: the burn left
+#66a8ff, the one 爆's ink already uses for a BLUE burst (moved from lhud-deck.lisp to lhud-model.lisp; nothing new). The phone's 爆 dial first stayed as it was (its ink turned the whole level blue); see the dial below. Code: model slot `o + 25` (webhud.lisp: the burn left
 ‰ of the gauge, 0 unless BLUE), pure `lhud-cell-burn` (lhud-geom.lisp, host-tested), the cells' view in `lhud-meters` (lhud-plate.lisp). Presentation only: G2
 identical. Stills (scripted, debug 2610+k, tests/scripts/duel-blue-burn.json at 1 s into a, c, d and after b's Hoho; 1280x720 and 390x844): `build/blue-cell/`
 (git-ignored).
+
+**The dial too** (the user, 2026-11-12: 「手機的「爆」圓盤也要改」). In a BLUE burst the ink level keeps the look it has when no burst runs (grey gradient) and only the
+span still to burn is blue (`+c-burst-b+`): a second cut of the level polygon from the level's top down to `lhud-dial-band` (pure, lhud-geom.lisp, host-tested;
+the span's lower end as a fraction of the dial's height: gauge - burn left, clamped; 1 = no band). From 300 it is the top third (above the 2/3 tick), from 230
+the band 130..230, it shrinks from the top as the gauge drains and is gone the frame the burn slot (`V75`, P1) is 0. WHITE and ORANGE keep the whole level in
+their colour. Kept in a BLUE burst: the rim, ticks, ring, labels and the inked face (none of them were tied to a blue level); armed is off in any burst as before.

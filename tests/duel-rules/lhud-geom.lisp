@@ -70,3 +70,9 @@
 (check (~= (lhud-cell-burn 1.3f0 2 0.766667f0) 0f0 1e-5)) ; ... and the third (fill .77) from 0
 (check (~= (lhud-cell-burn 1.3f0 0 1f0) 1f0 1e-5))
 (check (~= (lhud-cell-burn 2.5f0 2 0.4f0) 0.4f0 1e-5)) ; burn 0 (lo = gauge): nothing
+
+;; 爆's blue band (DUEL_DESIGN "The burning span in blue"): where the span starts in the level, 0..1 of the dial
+(check (~= (lhud-dial-band 1f0 0.333333f0) 0.666667f0 1e-5))   ; 300 burning 100: the top third
+(check (~= (lhud-dial-band 0.766667f0 0.333333f0) 0.433333f0 1e-5)) ; 230: the band 130..230
+(check (~= (lhud-dial-band 0.2f0 0.333333f0) 0f0 1e-5))        ; less gauge than burn: the whole level
+(check (~= (lhud-dial-band 0.9f0 0f0) 1f0 1e-5))               ; nothing burns: no band

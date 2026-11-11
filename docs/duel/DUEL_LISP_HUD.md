@@ -975,7 +975,7 @@ cinematic owns; the HUD writes it only paused and not in a cinematic); (2) `col-
 | Your plate on the line (both hands) | #hud.hphone:not(.nodeck) .plate.p1, renderDeck | V30-35, V42, V o+… |
 | Deck paper, dots, SP 技 / ATK 斬 | .deck, .zl | V30-35, V43, V42 |
 | Clock tab: ∞ (hd-write) or the seconds (the last ten blood, hd-tick), II 止 PAUSE, out when paused | .clock (phone) | V1, V0 16, V39 / V40 |
-| 爆: rim, ink level, ticks, armed (white ink, blood rim, glow), Burst colours, awakening / SUBLIMATION / DRIVE / hold rings, ready (breath, glow, 覺 hd-kak), pressed .9, hd-arm, hd-deny + NO BURST, hd-dip, BURST / 覺醒 AWAKEN words | .dbtn.rv, renderDeck | V4, V36-38, V56, V57, V72, V73 |
+| 爆: rim, ink level, ticks, armed (white ink, blood rim, glow), Burst colours (a BLUE burst: only the burning span of the level is blue, `lhud-dial-band`, V75), awakening / SUBLIMATION / DRIVE / hold rings, ready (breath, glow, 覺 hd-kak), pressed .9, hd-arm, hd-deny + NO BURST, hd-dip, BURST / 覺醒 AWAKEN words | .dbtn.rv, renderDeck | V4, V36-38, V56, V57, V72, V73 |
 | Stance seals around 爆, the live one's name (the CSS's displaced-on quirk reproduced: rotate / scale about the 0 × 0 box's corner) | .rvc | V59, V74, S 0 |
 | Combo (stamp, slash) and move name (hd-cut) over the deck; P2's under its plate; the left hand swaps | .combo, .callout | V o+10..14, S 4s+2 |
 | Prompt over the deck (Hold SP + the Kikon ring, SP · AS n, Chain / Burst; Awaken left to 覺) | .prompt | V2, V3, S 9 |
