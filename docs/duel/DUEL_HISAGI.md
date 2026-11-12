@@ -5271,3 +5271,9 @@ does not want TABA to move the victim, 4 is the clean alternative and 2 the chea
 
 1. Space candidates 1–5 above (nothing built; the time part alone leaves a hit at 3.5–4.95 m as `a`, whiff, `c`).
 2. The slack: 7 f on each link; the 22 f press window follows from it (a bigger stun widens it, up to the loop at 54+ f).
+
+### 30.5 The user's answer on the space part (2026-11-12)
+
+Asked with candidates 1–4 above (the drag to 3.0 m recommended), the user answered 「不變」: the ranges stay as they are. NS2 b 叩 TATAKI
+keeps its 3.0 m close-in push (§28.8); a 束 TABA landing at 3.5–4.95 m goes on as `a`, a whiffed `b`, `c`. Closed; reopen only on the
+user's word. The 7 f slack of §30.2 stays.
